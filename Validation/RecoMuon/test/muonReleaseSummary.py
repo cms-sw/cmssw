@@ -5,10 +5,10 @@ import sys
 import fileinput
 import string
 
-NewRelease='CMSSW_2_2_3'
-RefRelease='CMSSW_2_2_2'
+NewRelease='CMSSW_3_1_0_pre3'
+RefRelease='CMSSW_3_1_0_pre2'
 
-samples= ['RelValTTbar']
+samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
 
 Submit=True
 Publish=False
@@ -16,8 +16,8 @@ Publish=False
 NewTag='IDEAL'
 RefTag='IDEAL'
 
-NewLabel='IDEAL_V11'
-RefLabel='IDEAL_V11'
+NewLabel='IDEAL_30X'
+RefLabel='IDEAL_30X'
 
 #ReferenceSelection='IDEAL_V5_noPU'
 #StartupReferenceSelection='STARTUP_V4_noPU'
@@ -25,7 +25,9 @@ RefLabel='IDEAL_V11'
 RefRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
 NewRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
 
+
 macro='macro/TrackValHistoPublisher.C'
+hltmacro='macro/HLTTrackValHistoPublisher.C'
 
 def replace(map, filein, fileout):
     replace_items = map.items()
@@ -42,6 +44,7 @@ def replace(map, filein, fileout):
 
 for sample in samples :
      templatemacroFile = open(macro, 'r')
+     templatehltmacroFile = open(hltmacro, 'r')
 
      newdir=NewRepository+'/'+NewRelease+'/'+NewTag+'/'+sample 
 
@@ -63,6 +66,7 @@ for sample in samples :
              os.system('cp '+refSample+' '+RefRelease+'/'+RefTag+'/'+sample)
 
          cfgFileName=sample+'_'+NewRelease+'_'+RefRelease
+         hltcfgFileName='HLT'+sample+'_'+NewRelease+'_'+RefRelease
 
          if os.path.isfile(refSample ):
              replace_map = { 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
@@ -73,8 +77,12 @@ for sample in samples :
          macroFile = open(cfgFileName+'.C' , 'w' )
          replace(replace_map, templatemacroFile, macroFile)
 
+         hltmacroFile = open(hltcfgFileName+'.C' , 'w' )
+         replace(replace_map, templatehltmacroFile, hltmacroFile)
+
          if(Submit):
              os.system('root -b -q -l '+ cfgFileName+'.C'+ '>  macro.'+cfgFileName+'.log')
+             os.system('root -b -q -l '+ hltcfgFileName+'.C'+ '>  macro.'+hltcfgFileName+'.log')
 
          if(Publish):
              if(os.path.exists(newdir)==False):

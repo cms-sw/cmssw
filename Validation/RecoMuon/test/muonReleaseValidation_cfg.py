@@ -38,6 +38,7 @@ process.endjob_step = cms.Path(process.endOfProcess)
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
 process.load("Validation.Configuration.postValidation_cff")
+process.load("HLTriggerOffline.Muon.HLTMuonPostVal_cff")
 
 ### configuration MultiTrackValidator ###
 #process.multiTrackValidator.outputFile = 'mtv.SAMPLE.root'
@@ -205,6 +206,7 @@ if ValidationSequence=="harvesting":
 process.harvesting= cms.Sequence(
     process.EDMtoMEConverter
     *process.postValidation
+    +process.HLTMuonPostVal
     *process.dqmSaver)
 
 

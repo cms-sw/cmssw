@@ -10,14 +10,15 @@ import string
 ######### User variables
 
 #Reference release
-NewRelease='CMSSW_3_0_0_pre7'
+NewRelease='CMSSW_3_1_0_pre3'
 
 # startup and ideal sample list
 #startupsamples= ['RelValTTbar', 'RelValZMM']
-startupsamples= ['']
+startupsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
+#startupsamples= ['']
 
-#idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar']
-idealsamples= ['RelValTTbar']
+idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
+#idealsamples= ['RelValTTbar']
 
 
 
@@ -70,7 +71,7 @@ NewRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Valida
 defaultNevents ='-1'
 
 #Put here the number of event to be processed for specific samples (numbers must be strings) if not specified is -1:
-Events={ 'RelValZMM':'5000', 'RelValTTbar':'5'}
+Events={} #{ 'RelValZMM':'5000', 'RelValTTbar':'5000'}
 
 # template file names. Usually should not be changed.
 cfg='muonReleaseValidation_cfg.py'
@@ -214,6 +215,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     lancialines+='eval `scramv1 run -sh` \n\n'
                     lancialines+='cd '+WorkDir+'\n'
                     lancialines+='cmsRun '+cfgFileName+'.py  >&  ' + cfgFileName + '.log < /dev/zero \n'
+                    lancialines+='mv  DQM_V0001_R000000001__' + GlobalTagUse+ '__' + sample + '__Validation.root' + ' ' + 'val.' +sample+'.root'
                     
                     lanciaName=('lancia_%s_%s_%d') % (GlobalTag,sample,thisFile)
                     lanciaFile = open(lanciaName,'w')
