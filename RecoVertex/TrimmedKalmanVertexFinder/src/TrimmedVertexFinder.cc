@@ -162,21 +162,11 @@ TrimmedVertexFinder::theWorst(const CachingVertex<5> & vtx,
   for (vector<RefCountedVertexTrack>::iterator itr = vtxTracks.begin();
        itr != vtxTracks.end(); itr++) {
 
-    float chi2 = 0;
-    try {
-      // remove track from vertex
-      CachingVertex<5> newV = theUpdator->remove(vtx, *itr);
-      // compute compatibility
-      chi2 = theEstimator->estimate(newV, *itr);
-    }
-    catch ( cms::Exception & e) {
-      // problematic track, remove it from vertex
-      edm::LogWarning ( "TrimmedVertexFinder" )
-        << "exception caught for this track, causing its rejection:" 
-	      << e.what();
-      iWorst = itr;
-      break;
-    }
+    CachingVertex<5> newV = theUpdator->remove(vtx, *itr);
+    if (!newV.isValid()) return itr;
+    pair<bool, double> result = theEstimator->estimate(newV, *itr);
+    if (!result.first) return itr;
+    float chi2 = result.second;
 
     // compute number of degrees of freedom
     if ( chi2 > 0. ) {
