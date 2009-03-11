@@ -7,7 +7,7 @@ ALCARECOMuAlBeamHaloHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clo
     HLTPaths = ['HLT_CSCBeamHalo', 'HLT_CSCBeamHaloRing2or3'],
     throw = False
     )
-from RecoMuon.Configuration.RecoMuonCosmics_cff import *  # required as of 2_1_X
+#from RecoMuon.Configuration.RecoMuonCosmics_cff import *  # required as of 2_1_X
 
 # import RecoLocalMuon.CSCSegment.cscSegments_cfi
 # cscSegmentsALCARECOBH = RecoLocalMuon.CSCSegment.cscSegments_cfi.cscSegments.clone()
