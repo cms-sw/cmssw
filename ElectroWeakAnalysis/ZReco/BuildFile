@@ -1,5 +1,5 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
 <use name=DataFormats/EgammaCandidates>
@@ -7,7 +7,7 @@
 <use name=root>
 <export>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
 <use name=DataFormats/EgammaCandidates>
