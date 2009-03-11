@@ -6,4 +6,4 @@
 KalmanVertexSmoother::KalmanVertexSmoother() : SequentialVertexSmoother<5> (
     KalmanVertexTrackUpdator<5>(), KalmanSmoothedVertexChi2Estimator<5>(),
     KalmanTrackToTrackCovCalculator<5> () )
-{ cout << "In KalmanVertexSmoother::KalmanVertexSmoother()";}
+{}
