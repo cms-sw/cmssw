@@ -113,13 +113,6 @@ public:
 private:
   
   AdaptiveVertexFitter  * theFitter;
-//   LinearizationPointFinder*  theLinP;
-//   GsfVertexUpdator  theUpdator;
-//   VertexSmoother * theSmoother;
-// 
-//   MultiPerigeeLTSFactory lTrackFactory;
-//   VertexTrackFactory vTrackFactory;
-//   DeepCopyPointerByClone<GsfVertexMerger> theMerger;
 };
 
 #endif

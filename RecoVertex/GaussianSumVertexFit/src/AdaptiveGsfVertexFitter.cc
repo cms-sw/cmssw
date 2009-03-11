@@ -12,27 +12,22 @@ AdaptiveGsfVertexFitter::AdaptiveGsfVertexFitter(const edm::ParameterSet& pSet,
 {
 
   bool limitComponents_ = pSet.getParameter<bool>("limitComponents");
-  bool useSmoothing = pSet.getParameter<bool>("smoothTracks");
 
   DeepCopyPointerByClone<GsfVertexMerger> theMerger;
 
   if (limitComponents_) {
-    edm::ParameterSet mergerPSet = pSet.getParameter<edm::ParameterSet>("GsfMergerParameters");
-    theMerger = new GsfVertexMerger(mergerPSet);
+    theMerger = new GsfVertexMerger(pSet.getParameter<edm::ParameterSet>("GsfMergerParameters"));
   }
-  VertexSmoother<5> * sm;
-
-  if (useSmoothing) sm  = new GsfVertexSmoother(limitComponents_, &*theMerger) ;
-   else sm = new DummyVertexSmoother<5>();
 
   theFitter = new AdaptiveVertexFitter(
       GeometricAnnealing(),
       linP,
       GsfVertexUpdator(limitComponents_, &*theMerger),
       GsfVertexTrackCompatibilityEstimator(),
-      *sm,
+      GsfVertexSmoother(limitComponents_, &*theMerger),
       MultiPerigeeLTSFactory() );
- 
+  theFitter->gsfIntermediarySmoothing(true);
+
   /**
    *   Reads the configurable parameters.
    *   \param maxshift if the vertex moves further than this (in cm),
