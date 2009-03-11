@@ -38,11 +38,10 @@ public:
   AlgebraicVector3 weightTimesPosition() const;
   double weightInMixture() const;
 
-  bool isValid() const {return valid;}
-
-  /** conversion to VertexSeed
+  /**
+   * The validity of the vertex
    */
-//   RefCountedVertexSeed seedWithoutTracks() const;
+  bool isValid() const {return valid;}
 
 private:
 
