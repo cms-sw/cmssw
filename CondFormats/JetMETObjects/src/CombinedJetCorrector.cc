@@ -249,11 +249,13 @@ double CombinedJetCorrector::getCorrection(double pt, double eta, double emf)
   return factor; 
 }
 ////////////////////////////////////////////////////////////////////////////////
+//returns a vector with the correction factors UP to the given level/////
 vector<double> CombinedJetCorrector::getSubCorrections(double pt, double eta)
 {
-  double corPt,scale;
+  double corPt,scale,factor;
   vector<double> factors;
   corPt = pt;
+  factor = 1;
   for(unsigned int i=0;i<mLevels.size();i++)
     { 
       if (mLevels[i]== "L2")
@@ -270,17 +272,20 @@ vector<double> CombinedJetCorrector::getSubCorrections(double pt, double eta)
         scale = mL7Corrector->correctionPtEta(corPt,eta);
       else
 	scale = 1.; 
-      factors.push_back(scale); 	
+      factor*=scale;	
+      factors.push_back(factor); 	
       corPt*=scale;
     }
   return factors; 
 }
 ////////////////////////////////////////////////////////////////////////////////
+//returns a vector with the correction factors UP to the given level/////
 vector<double> CombinedJetCorrector::getSubCorrections(double pt, double eta, double emf)
 {
-  double corPt,scale;
+  double corPt,scale,factor;
   vector<double> factors;
   corPt = pt;
+  factor = 1;
   for(unsigned int i=0;i<mLevels.size();i++)
     { 
       if (mLevels[i]== "L2")
@@ -297,7 +302,8 @@ vector<double> CombinedJetCorrector::getSubCorrections(double pt, double eta, do
         scale = mL7Corrector->correctionPtEta(corPt,eta);
       else
 	scale = 1.;
-      factors.push_back(scale); 	
+      factor*=scale;	
+      factors.push_back(factor); 	
       corPt*=scale;
     }
   return factors; 
