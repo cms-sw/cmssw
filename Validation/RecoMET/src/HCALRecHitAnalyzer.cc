@@ -61,7 +61,7 @@ HCALRecHitAnalyzer::HCALRecHitAnalyzer(const edm::ParameterSet& iConfig)
 
 }
 
-void HCALRecHitAnalyzer::beginRun(const edm::EventSetup& iSetup)
+void HCALRecHitAnalyzer::beginRun(const edm::Run& iRun,  const edm::EventSetup& iSetup)
 {
   Nevents = 0;
   BookHistos();
