@@ -944,7 +944,7 @@ void TrackerMap::fill_current_val_fed_channel(int fedId, int fedCh, float curren
   int key = fedId*1000+fedCh;
   TmApvPair* apvpair = apvMap[key];
   
-  if(apvpair!=0)  apvpair->value=current_val;
+  if(apvpair!=0)  {apvpair->value=current_val; apvpair->count=1; apvpair->red=-1;}
   else 
     cout << "*** error in FedTrackerMap fill_current_val method ***";
 }
@@ -994,7 +994,7 @@ void TrackerMap::fillc(int layer, int ring, int nmod, int red, int green, int bl
 void TrackerMap::fill_current_val(int idmod, float current_val ){
 
   TmModule * mod = imoduleMap[idmod];
-  if(mod!=0)  mod->value=current_val;
+  if(mod!=0)  {mod->value=current_val; mod->count=1;  mod->red=-1;}
   else cout << "**error in fill_current_val method ***module "<<idmod<<endl;
 }
 
