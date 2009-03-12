@@ -4,17 +4,14 @@
 // system include files
 #include <memory>
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 //
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-// EgammaCoreTools
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-
-
+//root include files
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -29,7 +26,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -60,11 +56,14 @@ class PhotonDataCertification : public edm::EDAnalyzer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
+      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
+      virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
+
+
 
    private:
 
       DQMStore *dbe_;
-     
       edm::ParameterSet parameters_;
 
 
