@@ -36,17 +36,12 @@ namespace edm {
     productProvenancePtr_(ppr)
   { }
 
-  void
-  Provenance::setProductProvenance(boost::shared_ptr<ProductProvenance> ppr) const {
-    assert(productProvenancePtr_.get() == 0);
-    productProvenancePtr_ = ppr;
-  }
-
   boost::shared_ptr<ProductProvenance>
   Provenance::resolve () const {
-    boost::shared_ptr<ProductProvenance> prov = store_->branchIDToProvenance(branchDescription_.branchID());
-    setProductProvenance(prov);
-    return prov;
+    if (productProvenancePtr_.get() == 0) {
+      productProvenancePtr_ = store_->branchIDToProvenance(branchDescription_.branchID());
+    }
+    return productProvenancePtr_;
   }
 
   ProcessConfigurationID 

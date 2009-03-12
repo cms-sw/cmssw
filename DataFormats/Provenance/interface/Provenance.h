@@ -87,8 +87,6 @@ namespace edm {
 
     std::vector<BranchID> const& parents() const {return parentage().parents();}
 
-    void setProductProvenance(boost::shared_ptr<ProductProvenance> ppr) const;
-
     void write(std::ostream& os) const;
 
     void setStore(boost::shared_ptr<BranchMapper> store) const {store_ = store;}
