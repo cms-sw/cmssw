@@ -54,6 +54,7 @@
  <class name="CSCChamberMap"/>
 
  <class name="CSCChamberIndex"/>
+ <class name="std::vector< CSCMapItem::MapItem >"/>
 
  <class name="CSCCrateMap"/>
 

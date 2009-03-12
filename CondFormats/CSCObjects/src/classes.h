@@ -45,6 +45,7 @@ namespace {
     std::map< int, CSCMapItem::MapItem > chmap;
     std::pair< const int, CSCMapItem::MapItem > chmapvalue;
 
+    std::vector< CSCMapItem::MapItem > chvector;
   };
 }
 
