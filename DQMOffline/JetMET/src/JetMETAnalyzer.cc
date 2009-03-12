@@ -1,9 +1,10 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/25 21:28:01 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/12/08 12:06:28 $
+ *  $Revision: 1.18 $
  *  \author F. Chlebana - Fermilab
+ *          K. Hatakeyama - Rockefeller University
  */
 
 #include "DQMOffline/JetMET/src/JetMETAnalyzer.h"
@@ -27,26 +28,27 @@ using namespace edm;
 
 #define DEBUG 0
 
+// ***********************************************************
 JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
 
   parameters = pSet;
   
   // Calo Jet Collection Label
-  theSCJetCollectionLabel   = parameters.getParameter<edm::InputTag>("SCJetsCollectionLabel");
-  theICJetCollectionLabel   = parameters.getParameter<edm::InputTag>("ICJetsCollectionLabel");
-  theJPTJetCollectionLabel   = parameters.getParameter<edm::InputTag>("JPTJetsCollectionLabel");
+  theSCJetCollectionLabel       = parameters.getParameter<edm::InputTag>("SCJetsCollectionLabel");
+  theICJetCollectionLabel       = parameters.getParameter<edm::InputTag>("ICJetsCollectionLabel");
+  theJPTJetCollectionLabel      = parameters.getParameter<edm::InputTag>("JPTJetsCollectionLabel");
 
-  thePFJetCollectionLabel   = parameters.getParameter<edm::InputTag>("PFJetsCollectionLabel");
+  thePFJetCollectionLabel       = parameters.getParameter<edm::InputTag>("PFJetsCollectionLabel");
 
   theCaloMETCollectionLabel     = parameters.getParameter<edm::InputTag>("CaloMETCollectionLabel");
   theCaloMETNoHFCollectionLabel = parameters.getParameter<edm::InputTag>("CaloMETNoHFCollectionLabel");
 
-  theTriggerResultsLabel    = parameters.getParameter<edm::InputTag>("TriggerResultsLabel");
+  theTriggerResultsLabel        = parameters.getParameter<edm::InputTag>("TriggerResultsLabel");
   
-  theJetAnalyzerFlag        = parameters.getUntrackedParameter<bool>("DoJetAnalysis",    true);
-  theJPTJetAnalyzerFlag        = parameters.getUntrackedParameter<bool>("DoJPTJetAnalysis",true);
-  thePFJetAnalyzerFlag      = parameters.getUntrackedParameter<bool>("DoPFJetAnalysis",  true);
-  theCaloMETAnalyzerFlag    = parameters.getUntrackedParameter<bool>("DoCaloMETAnalysis",true);
+  theJetAnalyzerFlag            = parameters.getUntrackedParameter<bool>("DoJetAnalysis",    true);
+  theJPTJetAnalyzerFlag         = parameters.getUntrackedParameter<bool>("DoJPTJetAnalysis", true);
+  thePFJetAnalyzerFlag          = parameters.getUntrackedParameter<bool>("DoPFJetAnalysis",  true);
+  theCaloMETAnalyzerFlag        = parameters.getUntrackedParameter<bool>("DoCaloMETAnalysis",true);
 
   // --- do the analysis on the Jets
   if(theJetAnalyzerFlag) {
@@ -86,7 +88,6 @@ JetMETAnalyzer::~JetMETAnalyzer() {
   if(theCaloMETAnalyzerFlag) delete theCaloMETAnalyzer;
 }
 
-
 // ***********************************************************
 void JetMETAnalyzer::beginJob(edm::EventSetup const& iSetup) {
 
@@ -99,9 +100,9 @@ void JetMETAnalyzer::beginJob(edm::EventSetup const& iSetup) {
     theSCJetAnalyzer->beginJob(iSetup, dbe);
     theICJetAnalyzer->beginJob(iSetup, dbe);
   }
-  if(theJPTJetAnalyzerFlag)   theJPTJetAnalyzer->beginJob(iSetup, dbe);
-  if(thePFJetAnalyzerFlag)    thePFJetAnalyzer->beginJob(iSetup, dbe);
-  if(theCaloMETAnalyzerFlag)  theCaloMETAnalyzer->beginJob(iSetup, dbe);
+  if(theJPTJetAnalyzerFlag)  theJPTJetAnalyzer->beginJob(iSetup, dbe);
+  if(thePFJetAnalyzerFlag)   thePFJetAnalyzer->beginJob(iSetup, dbe);
+  if(theCaloMETAnalyzerFlag) theCaloMETAnalyzer->beginJob(iSetup, dbe);
 
 }
 
@@ -121,6 +122,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   Int_t JetHiPass = 0;
 
   if (triggerResults.isValid()) {
+
     if (DEBUG) std::cout << "trigger valid " << std::endl;
     edm::TriggerNames triggerNames;    // TriggerNames class
     triggerNames.init(*triggerResults);
@@ -138,8 +140,10 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   } else {
 
-    edm::Handle<TriggerResults> *tr = new edm::Handle<TriggerResults>;
-    triggerResults = (*tr);
+    //
+    //edm::Handle<TriggerResults> *tr = new edm::Handle<TriggerResults>;
+    //triggerResults = (*tr);
+    triggerResults = edm::Handle<TriggerResults>(); 
 
     if (DEBUG) std::cout << "trigger not valid " << std::endl;
     edm::LogInfo("JetMETAnalyzer") << "TriggerResults::HLT not found, "
@@ -152,6 +156,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	      <<             " Hi = " <<  JetHiPass
 	      << std::endl;
   }
+
 
   // **** Get the Calo Jet container
   edm::Handle<reco::CaloJetCollection> caloJets;
@@ -196,6 +201,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
     }
   }
+
   // **** Get the JPT Jet container
   iEvent.getByLabel(theJPTJetCollectionLabel, caloJets);
   //jpt
@@ -215,6 +221,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
     }
   }
+
   // **** Get the PFlow Jet container
   edm::Handle<reco::PFJetCollection> pfJets;
   iEvent.getByLabel(thePFJetCollectionLabel, pfJets);
@@ -243,7 +250,6 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     if (DEBUG) LogTrace(metname)<<"[JetMETAnalyzer] pfjets NOT VALID!!";
   }
 
-
   // **** Get the MET container  
   edm::Handle<reco::CaloMETCollection> calometcoll;
   iEvent.getByLabel(theCaloMETCollectionLabel, calometcoll);
@@ -268,7 +274,6 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
 }
-
 
 // ***********************************************************
 void JetMETAnalyzer::endJob(void) {
