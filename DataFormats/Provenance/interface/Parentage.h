@@ -28,6 +28,8 @@ namespace edm {
   public:
     Parentage();
 
+    explicit Parentage(std::vector<BranchID> const& parents);
+
     ~Parentage() {}
 
     // Only the 'salient attributes' are encoded into the ID.
