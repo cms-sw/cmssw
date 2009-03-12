@@ -44,6 +44,7 @@ private:
   double ptThreshold, etEcalThreshold, etHcalThreshold;
   double alpha, beta;
   double pt, eta;
+  double iso_cut;
 
   TH1F * h_IsoZ_tk,* h_IsoW_tk,* h_IsoOther_tk ;
   TH1F * h_IsoZ_ecal,* h_IsoW_ecal,* h_IsoOther_ecal ;
@@ -51,6 +52,12 @@ private:
   TH1F * IsoZ,* IsoW,* IsoOther ;
   TH1F * TkrPt,* EcalEt,* HcalEt ;
   TH1F * EcalEtZ, * HcalEtZ;
+
+  TH1F * Z_eta,* W_eta,* Other_eta;
+  TH1F * Z_eta_postSelection,* W_eta_postSelection,* Other_eta_postSelection;
+  TH1F * Z_pt,* W_pt,* Other_pt;
+  TH1F * Z_pt_postSelection,* W_pt_postSelection,* Other_pt_postSelection;
+
   enum MuTag { muFromZ, muFromW, muFromOther };
   template<typename T>
   MuTag muTag(const T & mu) const;
@@ -61,19 +68,40 @@ private:
 template<typename T>
 ZMuMuIsolationAnalyzer::MuTag ZMuMuIsolationAnalyzer::muTag(const T& mu) const {
   GenParticleRef p = mu.genParticleRef();
-  if(p.isNull()) return muFromOther;
+  if(p.isNull()){
+    //   cout<<"genParticleRef is null "<<endl;
+    return muFromOther;
+}
   int sizem = p->numberOfMothers();
-  if(sizem != 1) return muFromOther;
+  if(sizem != 1) {
+    //cout<<"number of mothers !=1 "<<endl;
+ return muFromOther;
+  }
   const Candidate * moth1 = p->mother();
-  if(moth1 == 0) return muFromOther;
+  if(moth1 == 0) {
+    return muFromOther;
+    //cout<<"no mother "<<endl;
+  }
   int pdgId1 = moth1->pdgId();
-  if(abs(pdgId1)!=13) return muFromOther;
+  if(abs(pdgId1)!=13){ 
+    return muFromOther;
+    //cout<<"mother is not a muon"<<endl;
+  }
   const Candidate * moth2 = moth1->mother();
-  if(moth2 == 0) return muFromOther;
+  if(moth2 == 0) {
+    return muFromOther;
+    //cout<<"no mother "<<endl;
+}
   int pdgId2 = moth2->pdgId();
-  if(pdgId2 == 23) return muFromZ;
+  if(pdgId2 == 23) {
+    //cout<<" muon from Z"<<endl;
+    return muFromZ;
+  }
   if(abs(pdgId2)==24) return muFromW;
-  return muFromOther;
+  else {
+    //cout<<" muon from other"<<endl;
+    return muFromOther;
+  }
 }
 
 void ZMuMuIsolationAnalyzer::Deposits(const pat::IsoDeposit* isodep,double dR_max,TH1F* hist){
@@ -109,7 +137,8 @@ ZMuMuIsolationAnalyzer::ZMuMuIsolationAnalyzer(const ParameterSet& pset):
   alpha(pset.getUntrackedParameter<double>("alpha")),
   beta(pset.getUntrackedParameter<double>("beta")),
   pt(pset.getUntrackedParameter<double>("pt")),
-  eta(pset.getUntrackedParameter<double>("eta")) {
+  eta(pset.getUntrackedParameter<double>("eta")),
+  iso_cut(pset.getUntrackedParameter<double>("isoCut")) {
   edm::Service<TFileService> fs;
   std::ostringstream str1,str2,str3,str4,str5,str6,str7,str8,str9,str10,n_tracks;
   str1 << "muons from Z with p_{t} > " << ptThreshold << " GeV/c"<<" and #Delta R < "<<dRTrk;
@@ -135,6 +164,22 @@ ZMuMuIsolationAnalyzer::ZMuMuIsolationAnalyzer(const ParameterSet& pset):
   IsoZ = fs->make<TH1F>("ZIso",str4.str().c_str(),100,0.,20.);
   IsoW = fs->make<TH1F>("WIso",str5.str().c_str(),100,0.,20.);
   IsoOther = fs->make<TH1F>("otherIso",str6.str().c_str(),100,0.,20.);
+
+ 
+  Z_eta = fs->make<TH1F>("Z_eta","#eta distribution for muons coming from Z",40,-eta,eta);
+  W_eta = fs->make<TH1F>("W_eta","#eta distribution for muons coming from W",40,-eta,eta);
+  Other_eta = fs->make<TH1F>("Other_eta","#eta distribution for muons coming from other",40,-eta,eta);
+  Z_eta_postSelection = fs->make<TH1F>("Z_eta_postSelection","#eta distribution for muons coming from Z after iso selection",40,-eta,eta);
+  W_eta_postSelection = fs->make<TH1F>("W_eta_postSelection","#eta distribution for muons coming from W after iso selection",40,-eta,eta);
+  Other_eta_postSelection = fs->make<TH1F>("Other_eta_postSelection","#eta distribution for muons coming from other after iso selection",40,-eta,eta);
+  
+  Z_pt = fs->make<TH1F>("Z_pt","p_{T} distribution for muons coming from Z",40,pt,150.);
+  W_pt = fs->make<TH1F>("W_pt","p_{T} distribution for muons coming from W",40,pt,150.);
+  Other_pt = fs->make<TH1F>("Other_pt","p_{T} distribution for muons coming from other",40,pt,150.);
+  Z_pt_postSelection = fs->make<TH1F>("Z_pt_postSelection","p_{T} distribution for muons coming from Z after iso selection",40,pt,150.);
+  W_pt_postSelection = fs->make<TH1F>("W_pt_postSelection","p_{t} distribution for muons coming from W after iso selection",40,pt,150.);
+  Other_pt_postSelection = fs->make<TH1F>("Other_pt_postSelection","p_{t} distribution for muons coming from other after iso selection",40,pt,150.);
+
 
   TkrPt = fs->make<TH1F>("TkrPt","IsoDeposit p distribution in the Tracker",100,0.,10.);
   EcalEt = fs->make<TH1F>("EcalEt","IsoDeposit E distribution in the Ecal",100,0.,5.);
@@ -201,13 +246,32 @@ void ZMuMuIsolationAnalyzer::analyze(const edm::Event& event, const edm::EventSe
       EcalEtZ->Fill(tkEcalIso->candEnergy());
       HcalEtZ->Fill(muHcalIso->candEnergy());
       HcalEtZ->Fill(tkHcalIso->candEnergy());
-      double iso_value = alpha*((0.5*(1+beta)* Ecal_isovalue) + (0.5*(1-beta)*Hcal_isovalue)) +(1-alpha)*Tk_isovalue;
-      
+
+      double iso_value0 = alpha*((0.5*(1+beta)* muEcalIso->sumWithin(dREcal,vetos_mu_ecal) ) + (0.5*(1-beta)*muHcalIso->sumWithin(dRHcal,vetos_mu_hcal) ) ) +(1-alpha)*muTrackIso->sumWithin(dRTrk,vetos_mu);
+      double iso_value1 = alpha*((0.5*(1+beta)* tkEcalIso->sumWithin(dREcal,vetos_tk_ecal) ) + (0.5*(1-beta)*tkHcalIso->sumWithin(dRHcal,vetos_tk_hcal) ) ) +(1-alpha)*tkTrackIso->sumWithin(dRTrk,vetos_tk);
+
+      double iso_value=TMath::Max(iso_value0,iso_value1);
+
       if(tag_mu==muFromZ && tag_track==muFromZ){
 	h_IsoZ_tk->Fill(Tk_isovalue);
 	h_IsoZ_ecal->Fill(Ecal_isovalue);
 	h_IsoZ_hcal->Fill(Hcal_isovalue);
 	IsoZ->Fill(iso_value);
+
+	Z_eta->Fill(mu0.eta());
+	Z_eta->Fill(mu1.eta());
+	Z_pt->Fill(mu0.pt());
+	Z_pt->Fill(mu1.pt());
+
+	if(iso_value0<iso_cut)  {
+	  Z_pt_postSelection->Fill(mu0.pt());
+	  Z_eta_postSelection->Fill(mu0.eta());
+	}
+	if(iso_value1<iso_cut){
+	  Z_pt_postSelection->Fill(mu1.pt());
+	  Z_eta_postSelection->Fill(mu1.eta());
+	}
+
 	Deposits(muTrackIso,dRTrk,TkrPt);
 	Deposits(muEcalIso,dREcal,EcalEt);
 	Deposits(muHcalIso,dRHcal,HcalEt);
@@ -220,6 +284,21 @@ void ZMuMuIsolationAnalyzer::analyze(const edm::Event& event, const edm::EventSe
 	h_IsoW_ecal->Fill(Ecal_isovalue);
 	h_IsoW_hcal->Fill(Hcal_isovalue);
 	IsoW->Fill(iso_value);
+
+	W_eta->Fill(mu0.eta());
+	W_eta->Fill(mu1.eta());
+	W_pt->Fill(mu0.pt());
+	W_pt->Fill(mu1.pt());
+
+        if(iso_value0<iso_cut) {
+          W_pt_postSelection->Fill(mu0.pt());
+          W_eta_postSelection->Fill(mu0.eta());
+        }
+        if(iso_value1<iso_cut) {
+          W_pt_postSelection->Fill(mu1.pt());
+          W_eta_postSelection->Fill(mu1.eta());
+        }
+
 	Deposits(muTrackIso,dRTrk,TkrPt);
 	Deposits(muEcalIso,dREcal,EcalEt);
 	Deposits(muHcalIso,dRHcal,HcalEt);
@@ -232,6 +311,21 @@ void ZMuMuIsolationAnalyzer::analyze(const edm::Event& event, const edm::EventSe
 	h_IsoOther_ecal->Fill(Ecal_isovalue);
 	h_IsoOther_hcal->Fill(Hcal_isovalue);
 	IsoOther->Fill(iso_value);
+
+	Other_eta->Fill(mu0.eta());
+	Other_eta->Fill(mu1.eta());
+	Other_pt->Fill(mu0.pt());
+	Other_pt->Fill(mu1.pt());
+
+        if(iso_value0<iso_cut) {
+          Other_pt_postSelection->Fill(mu0.pt());
+          Other_eta_postSelection->Fill(mu0.eta());
+        }
+	if(iso_value1<iso_cut) {
+          Other_pt_postSelection->Fill(mu1.pt());
+          Other_eta_postSelection->Fill(mu1.eta());
+        }
+
 	Deposits(muTrackIso,dRTrk,TkrPt);
 	Deposits(muEcalIso,dREcal,EcalEt);
 	Deposits(muHcalIso,dRHcal,HcalEt);
