@@ -5,7 +5,6 @@
 <use name=CondFormats/SiStripObjects>
 <use name=CalibFormats/SiStripObjects>
 <use name=FWCore/Framework>
-<use name=CommonTools/SiStripZeroSuppression>
 <use name=RecoLocalTracker/SiStripClusterizer>
 <use name=boost>
 <use name=rootrflx>
@@ -15,7 +14,6 @@
   <use name=CondFormats/SiStripObjects>
   <use name=CalibFormats/SiStripObjects>
   <use name=CondFormats/DataRecord>
-  <use name=CommonTools/SiStripZeroSuppression>
   <use name=RecoLocalTracker/SiStripClusterizer>
   <use name=boost>
   <use name=FWCore/Framework>
