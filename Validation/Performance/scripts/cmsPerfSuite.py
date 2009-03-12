@@ -7,6 +7,13 @@ import cmsRelValCmd,cmsCpuInfo
 import threading #Needed in threading use for Valgrind
 import subprocess #Nicer subprocess management than os.popen
 
+#Redefine _cleanup() function not to poll active processes
+def _cleanup():
+   for inst in subprocess._active[:]:
+       print "Process %s is active"%inst.pid
+#Override the function in subprocess
+subprocess._cleanup=_cleanup
+
 class PerfThread(threading.Thread):
     def __init__(self,**args):
         self.args=args
@@ -460,11 +467,20 @@ class PerfSuite:
     #
     def runcmd(self,command):
         #Substitute popen with subprocess.Popen!
-        process  = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        #Using try/except until Popen becomes thread safe (it seems that everytime it is called
+        #all processes are checked to reap the ones that are done, this creates a race condition with the wait()... that
+        #results into an error with "No child process".
         #os.popen(command)
-        exitstat= process.wait()
-        cmdout   = process.stdout.read()
-        #exitstat = process.returncode
+        try:
+            process  = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+            pid=process.pid
+            exitstat= process.wait()
+            cmdout   = process.stdout.read()
+            exitstat = process.returncode
+        except OSError, detail:
+            print "Race condition in subprocess.Popen has robbed us of the exit code of the %s process (PID %s).Assume it failed!\n %s"%(command,pid,detail)
+            exitstat=999
+            cmdout="Race condition in subprocess.Popen has robbed us of the exit code of the %s process (PID %s).Assume it failed!\n %s"%(command,pid,detail)
         if self._verbose:
             self.logh.write(cmdout)# + "\n") No need of extra \n!
             self.logh.flush()
