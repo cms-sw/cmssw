@@ -3,7 +3,7 @@
 current_area=`pwd`
 echo $current_area
 
-dirlist="QCDD_80-120 QCD_3500-4000 Wjets_80-120 Wjets_3000-3500 LM1_sfts ttbar"
+dirlist="QCD_80-120 QCD_3000-3500 Wjets_80-120 Wjets_3000-3500 LM1_sfts ttbar"
 
 cd $current_area
 
