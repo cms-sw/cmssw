@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('GctVmeToDigi')
 
-#import FWCore.MessageLogger.data.MessageLogger.cfi
-#process.MessageLogger = cms.Service ( 
+#process.load("FWCore.MessageLogger.MessageLogger_cfi")
+#process.MessageLogger = cms.Service ( "MessageLogger",
 #  destinations = cms.untracked.vstring ( "debug.log" ),
-#  debuglog = cms.untracked.PSet ( threshold = cms.untracked.string ( "DEBUG" ) ),
+#  debug = cms.untracked.PSet ( threshold = cms.untracked.string ( "DEBUG" ) ),
 #  debugModules = cms.untracked.vstring ( "TextToRaw", "GctRawToDigi" )
 #)
 
