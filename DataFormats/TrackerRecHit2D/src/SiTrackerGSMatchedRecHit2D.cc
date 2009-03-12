@@ -45,3 +45,14 @@ SiTrackerGSMatchedRecHit2D::SiTrackerGSMatchedRecHit2D( const LocalPoint& pos, c
 
 
 
+bool SiTrackerGSMatchedRecHit2D::sharesInput( const TrackingRecHit* other, 
+					    SharedInputType what) const
+ {
+   if (geographicalId() != other->geographicalId()) return false;
+   if(! other->isValid()) return false;
+
+   const SiTrackerGSMatchedRecHit2D* otherCast = static_cast<const SiTrackerGSMatchedRecHit2D*>(other);
+
+   return cluster_ == otherCast->cluster();
+ }
+ 

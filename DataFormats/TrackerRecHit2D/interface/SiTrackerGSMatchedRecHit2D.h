@@ -64,7 +64,7 @@ public:
   void setClusterRef(const ClusterRef &ref) { cluster_  = ref; }
  
 
-  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const {return false;}
+  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
  
 private:
   int const simhitId_;
