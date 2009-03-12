@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2008/09/12 18:49:46 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/09/19 15:07:48 $
+ *  $Revision: 1.4 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -66,6 +66,9 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   std::vector<std::string > HLTPathsJetMBByName_;
   // list of Jet or MB HLT trigger index
   std::vector<unsigned int> HLTPathsJetMBByIndex_;
+
+  // Et threshold for MET plots
+  double _etThreshold;
 
   //histo binning parameters
   int    etaBin;

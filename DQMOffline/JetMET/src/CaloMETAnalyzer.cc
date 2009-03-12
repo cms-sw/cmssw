@@ -1,9 +1,10 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 20:25:26 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/11/25 21:27:24 $
+ *  $Revision: 1.8 $
  *  \author F. Chlebana - Fermilab
+ *          K. Hatakeyama - Rockefeller University
  */
 
 #include "DQMOffline/JetMET/src/CaloMETAnalyzer.h"
@@ -25,15 +26,15 @@
 using namespace std;
 using namespace edm;
 
+// ***********************************************************
 CaloMETAnalyzer::CaloMETAnalyzer(const edm::ParameterSet& pSet) {
 
   parameters = pSet;
 
 }
 
-
+// ***********************************************************
 CaloMETAnalyzer::~CaloMETAnalyzer() { }
-
 
 void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 
@@ -46,6 +47,8 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
   nHLTPathsJetMB_=HLTPathsJetMBByName_.size();
   HLTPathsJetMBByIndex_.resize(nHLTPathsJetMB_);
+
+  _etThreshold = parameters.getParameter<double>("etThreshold");
 
   jetME = dbe->book1D("caloMETReco", "caloMETReco", 3, 1, 4);
   jetME->setBinLabel(1,"CaloMET",1);
@@ -88,6 +91,7 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 
 }
 
+// ***********************************************************
 void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
 			      const edm::TriggerResults& triggerResults,
 			      const reco::CaloMET& calomet, const reco::CaloMET& calometNoHF) {
@@ -106,7 +110,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     //
     //
     // Check how many HLT triggers are in triggerResults 
-    int ntrigs = triggerResults.size();
+    //int ntrigs = triggerResults.size();
     //std::cout << "ntrigs=" << ntrigs << std::endl;
 
     //
@@ -192,6 +196,9 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   myLuminosityBlock = iEvent.luminosityBlock();
   //
 
+  //std::cout << "_etThreshold = " << _etThreshold << std::endl;
+  if (caloMET>_etThreshold){
+
   hCaloMEx->Fill(caloMEx);
   hCaloMEy->Fill(caloMEy);
   hCaloMET->Fill(caloMET);
@@ -215,6 +222,10 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   hCaloEmEtInEE->Fill(caloEmEtInEE);
   hCaloEmEtInHF->Fill(caloEmEtInHF);
 
+  }
+
+  if (caloMETNoHF>_etThreshold){
+
   hCaloMExNoHF->Fill(caloMExNoHF);
   hCaloMEyNoHF->Fill(caloMEyNoHF);
   hCaloMETNoHF->Fill(caloMETNoHF);
@@ -224,5 +235,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   hCaloEzNoHF->Fill(caloEzNoHF);
   hCaloMExNoHFLS->Fill(caloMExNoHF,myLuminosityBlock);
   hCaloMEyNoHFLS->Fill(caloMEyNoHF,myLuminosityBlock);
+
+  }
 
 }

@@ -26,6 +26,8 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     JetLo                      = cms.string("HLT_Jet30"),
     JetHi                      = cms.string("HLT_Jet110"),
 
+                                
+
     #
     # For caloMETAnalysis
     #
@@ -45,6 +47,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
 #                            "HLT_DiJetAve130",
 #                            "HLT_DiJetAve220",
 #                            "HLT_MinBias"),
+    etThreshold = cms.double(1.)
     ),
 
     #
