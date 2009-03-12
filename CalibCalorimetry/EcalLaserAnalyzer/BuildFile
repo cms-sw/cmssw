@@ -2,6 +2,7 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=root>
+<use name=rootgraphics>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalRecHit>
 <flags SEAL_PLUGIN_NAME="CalibCalorimetryEcalLaserAnalyzer">
@@ -11,6 +12,7 @@
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=root>
+   <use name=rootgraphics>
    <use name=DataFormats/EcalDigi>
    <use name=DataFormats/EcalRecHit>
 </export>
