@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/02/19 16:33:22 $ 
+ **  $Date: 2009/02/26 15:30:58 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -70,7 +70,7 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
   currentFolder_.str("");
   currentFolder_ << "Et above 0 GeV/";
   
-  dividePlots(dbe_->get(EffPath+"Filters"),dbe_->get(EffPath+"Filters"),dbe_->get(AllPath+"Et above 0 GeV/nPhoAllEcal")->getTH1F()->GetEntries());
+  dividePlots(dbe_->get(EffPath+"Filters"),dbe_->get(EffPath+"Filters"),dbe_->get(EffPath+ "phoEtHLT")->getTH1F()->GetEntries());
 
   //making efficiency plots
   
