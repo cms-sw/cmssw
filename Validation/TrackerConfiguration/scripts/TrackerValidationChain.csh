@@ -1,6 +1,6 @@
 #! /bin/csh
 
-set RefRelease="CMSSW_3_1_0_pre1"
+set RefRelease="CMSSW_3_1_0_pre2"
 
 # Possible values are:
 # Reconstruction  : preforms reconstruction+validation + histograms comparison
@@ -81,6 +81,8 @@ cmsRun HarvestingGlobalValidation_Tracking.py
 set histogramfile="DQM_V0001_R000000001__"$CMSSW_VERSION"__RelVal__Validation.root"
 endif 
 
+root -q -b -l CopySubdir.C\(\"$histogramfile\",\"newfile.root\"\)
+mv newfile.root $histogramfile
 if ( ($Mode == "Comparison") || ($Mode == "Harvesting") ) then
 ln -fs $histogramfile TrackerHitHisto.root
 ln -fs $histogramfile stripdigihisto.root
@@ -91,7 +93,7 @@ ln -fs $histogramfile sistriprechitshisto.root
 ln -fs $histogramfile pixelrechitshisto.root
 ln -fs $histogramfile pixeltrackingrechitshist.root
 ln -fs $histogramfile striptrackingrechitshisto.root
-ln -fs $histogramfile $NEWREFDIR
+cp $histogramfile $NEWREFDIR
 endif
 
 #if ( -e Muon.root ) /bin/rm Muon.root
@@ -118,11 +120,11 @@ gzip -f *.eps
 mv pos*.eps.gz plots/muon
 mv pos*.gif plots/muon
 
-#root -b -p -q SiTrackerHitsComparePosition.C
-#if ( ! -e plots/muon ) mkdir plots/muon
-#gzip -f *.eps
-#mv pos*.eps.gz plots/muon
-#mv pos*.gif plots/muon
+root -b -p -q SiTrackerHitsCompareToF.C
+if ( ! -e plots/muon ) mkdir plots/muon
+gzip -f *.eps
+mv Tof.eps.gz plots/muon
+mv Tof.gif plots/muon
 
 if ($copyWWW == "true") source copyWWWall.csh
 
@@ -185,9 +187,9 @@ ln -fs ${REFDIR}/DQM_V0001_R000000001__${RefRelease}__RelVal__Validation.root ..
 #cp pixeltrackingrechitshist.root $NEWREFDIR/TrackingRecHits/
 #cp striptrackingrechitshisto.root $NEWREFDIR/TrackingRecHits/
 
-root -b -p -q TracksCompareChain.C
-gzip -f *.eps
-if ($copyWWW == "true") source copyWWWTracks.csh
+#root -b -p -q TracksCompareChain.C
+#gzip -f *.eps
+#if ($copyWWW == "true") source copyWWWTracks.csh
 
 root -b -p -q SiPixelRecoCompare.C 
 gzip -f *.eps

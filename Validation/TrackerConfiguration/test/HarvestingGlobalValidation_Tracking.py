@@ -18,14 +18,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-       '/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_v3/0005/1EF32A82-57E2-DD11-A475-000423D6B444.root',
-       '/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_v3/0005/28804479-4BE2-DD11-A32D-000423D98EA8.root',
-       '/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_v3/0005/44067402-4BE2-DD11-BD29-0030487C6090.root',
-       '/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_v3/0005/6CCDD56F-4BE2-DD11-9078-001D09F27067.root',
-       '/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_v3/0005/888637D0-4AE2-DD11-B5AD-000423D6CA6E.root',
-       '/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_v3/0005/B6E15573-4BE2-DD11-B754-001D09F24E39.root',
-       '/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_v3/0005/B8148F8C-4BE2-DD11-B0C8-001D09F28D54.root',
-       '/store/relval/CMSSW_3_0_0_pre6/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_v3/0005/D4855570-4BE2-DD11-8793-000423D98930.root'
+[
+       '/store/relval/CMSSW_3_1_0_pre3/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_30X_v1/0001/36A8CC6B-180A-DE11-AD9E-001617DBD316.root',
+       '/store/relval/CMSSW_3_1_0_pre3/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_30X_v1/0001/58CBCA36-7D0A-DE11-B46A-000423D99AAE.root' ] 
     ),
     secondaryFileNames = cms.untracked.vstring()
 )
