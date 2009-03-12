@@ -294,6 +294,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 
 {
 
+  reco::Conversion::ConversionAlgorithm algo = reco::Conversion::algoByName(algoName_);
   std::vector<reco::TransientTrack> t_generalTrk = ( *theTransientTrackBuilder_ ).build(generalTrkHandle );
 
   //  Loop over SC in the barrel and reconstruct converted photons
@@ -406,7 +407,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer trackPairRef  " << trackPairRef.size() <<  "\n";
 
 
-	reco::Conversion::ConversionAlgorithm algo = reco::Conversion::algoByName(algoName_);
+
 	//	std::cout << "  ConvertedPhotonProducer  algo name " << algoName_ << std::endl;
 
         
@@ -506,8 +507,9 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 	      } 
 	      
 	    }	    
-	    
-	    reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackPin, trackPout );
+
+
+	    reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackPin, trackPout, algo );
 	    outputConvPhotonCollection.push_back(newCandidate);
 	    
 	    
