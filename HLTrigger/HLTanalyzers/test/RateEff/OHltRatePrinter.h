@@ -23,6 +23,7 @@ class OHltRatePrinter {
   void SetupAll(vector<float> Rate,vector<float> RateErr,vector<float> spureRate,
 		vector<float> spureRateErr,vector<float> pureRate,
 		vector<float> pureRateErr,vector< vector<float> >coMa);
+
   void printRatesASCII(OHltConfig *cfg,OHltMenu *menu);
   void printCorrelationASCII();
   

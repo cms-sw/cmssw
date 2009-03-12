@@ -267,12 +267,19 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }  
   }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu11") == 0) {   
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {  
+    if (map_L1BitOfStandardHLTPath.find("L1_SingleMu10")->second>0) {  
       if(OpenHlt1MuonPassed(7.,9.,11.,2.,0)>=1) {   
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
       }   
     }   
   }   
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu15") == 0) {    
+    if (map_L1BitOfStandardHLTPath.find("L1_SingleMu10")->second>0) {   
+      if(OpenHlt1MuonPassed(10.,12.,15.,2.,0)>=1) {    
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }    
+      }    
+    }    
+  }    
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu") == 0) {        
     if( (map_BitOfStandardHLTPath.find("L1_SingleMu7")->second +
 	 map_BitOfStandardHLTPath.find("(L1_DoubleMu3")->second) > 0) {              
@@ -333,14 +340,14 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }     
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu3") == 0) {   
-    if( L1_SingleMu3==1) {      // L1 Seed   
+    if( map_BitOfStandardHLTPath.find("L1_SingleMu3")->second == 1) {      // L1 Seed   
       if(OpenHlt1MuonPassed(3.,3.,3.,2.,1)>=1) {   
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
       }   
     }   
   }     
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu9") == 0) {   
-    if( L1_SingleMu7==1) {      // L1 Seed   
+    if( map_BitOfStandardHLTPath.find("L1_SingleMu7")->second == 1) {      // L1 Seed   
       if(OpenHlt1MuonPassed(7.,7.,9.,2.,1)>=1) {   
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }    
       }   
@@ -351,7 +358,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   // (i.e. the definition is different than that used in the HLT_Mu5 trigger  
   // bit). 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5") == 0) {   
-    if( L1_SingleMu3==1) {      // Old L1 Seed   
+    if( map_BitOfStandardHLTPath.find("L1_SingleMu3")->second == 1) {      // Old L1 Seed   
       if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1) {   
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
       }   
@@ -1043,7 +1050,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }         
   }         
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MinBiasEcal") == 0) {          
-    if(map_BitOfStandardHLTPath.find("L1_SingleEG1")->second == 1 ||   
+    if(map_BitOfStandardHLTPath.find("L1_SingleEG1")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_SingleEG2")->second == 1 ||
        map_BitOfStandardHLTPath.find("L1_DoubleEG1")->second == 1) {
       if(true) { // passthrough        
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
@@ -1054,8 +1062,20 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     if(map_BitOfStandardHLTPath.find("OpenL1_ZeroBias")->second == 1)
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }         
   }
-    
-    /* Cross Triggers (approved in Jan 2009) */
+  
+  /* AlCa */
+  else if (menu->GetTriggerName(it).CompareTo("OpenAlCa_HcalPhiSym") == 0) {
+    if(map_BitOfStandardHLTPath.find("L1_SingleEG1")->second == 1 ||   
+       map_BitOfStandardHLTPath.find("L1_SingleEG2")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_DoubleEG1")->second == 1) { 
+      if(ohHighestEnergyHFRecHit > 0 || ohHighestEnergyHBHERecHit > 0) {
+	// Require one RecHit with E > 0 MeV in any HCAL subdetector
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }         
+      }
+    }
+  }
+
+  /* Cross Triggers (approved in Jan 2009) */
 
   // SGL - lepton+jet cross-triggers. These are for 1E31, so the *corrected* 
   // jets are used at HLT. For now, they run on the translated *uncorrected* 
@@ -1090,33 +1110,33 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }
   // John Paul Chou - e(gamma) + mu cross-trigger. 
   // One non-isolated photon plus one non-isolated L2 muons.
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu5_Photon9_L1R")){
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu5_Photon9_L1R") == 0){
     if(map_BitOfStandardHLTPath.find("L1_Mu3_IsoEG5")->second == 1){      // L1 Seed  
       if(OpenHlt1L2MuonPassed(5.,5.,2.)>=1 && OpenHlt1PhotonPassed(9.,0,9999.,9999.,9999.,9999.)>=1)
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
     } 
   }
   // Exotica mu + e/gamma, mu + jet, and mu + MET L1-passthrough cross-triggers
-  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1SingleEG10")){
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1SingleEG10") == 0){
     if(map_BitOfStandardHLTPath.find("L1_SingleMu14")->second == 1){      // L1 Seed
       if(map_BitOfStandardHLTPath.find("L1_SingleEG10")->second == 1)
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
     }
   }
-  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1SingleJet15")){ 
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1SingleJet15") == 0){ 
     if(map_BitOfStandardHLTPath.find("L1_SingleMu14")->second == 1){      // L1 Seed 
       if(map_BitOfStandardHLTPath.find("L1_SingleJet6")->second == 1) 
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
     } 
   } 
-  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1ETM30")){ 
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1ETM30") == 0){ 
     if(map_BitOfStandardHLTPath.find("L1_SingleMu14")->second == 1){      // L1 Seed 
       if(map_BitOfStandardHLTPath.find("L1_ETM30")->second == 1) 
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
     } 
   }
   // triple jet b-tag trigger for top
-  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_BTagIP_TripleJet20U")){
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_BTagIP_TripleJet20U") == 0){
     if(map_BitOfStandardHLTPath.find("L1_TripleJet30")->second == 1){      // L1 Seed  
       int njets = 0;
       int ntaggedjets = 0;
@@ -1137,7 +1157,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     } 
   }
   // Lepton+jet triggers for... top? exotica?
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9_DiJet30")) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9_DiJet30") == 0) {
     int njetswithmu = 0;
     if(map_BitOfStandardHLTPath.find("L1_Mu5_SingleJet15")->second == 1){      // L1 Seed   
       if(OpenHlt1L2MuonPassed(9.,9.,2.)>=1) {
@@ -1151,7 +1171,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
     }
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_SW_L1R_TripleJet30")) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_SW_L1R_TripleJet30") == 0) {
     int njetswithmu = 0; 
     if(map_BitOfStandardHLTPath.find("L1_EG5_TripleJet15")->second == 1){      // L1 Seed    
       if(OpenHlt1ElectronPassed(10.,0,9999.,9999.)>=1) {

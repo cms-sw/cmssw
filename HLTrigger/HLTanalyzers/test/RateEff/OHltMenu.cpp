@@ -317,8 +317,8 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   vtmp.push_back("L1_SingleEG1"); vtmp.push_back("L1_DoubleEG1");
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_MinBiasEcal", vtmp));
 
-  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_MinBiasPixel", myvec(1,"L1_MinBiasHTT10")));
-  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_MinBiasPixel_Trk5", myvec(1,"L1_MinBiasHTT10")));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_MinBiasPixel", myvec(1,"OpenL1_ZeroBias")));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_MinBiasPixel_Trk5", myvec(1,"OpenL1_ZeroBias")));
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_CSCBeamHalo", myvec(1,"L1_SingleMuBeamHalo")));
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_CSCBeamHaloOverlapRing1", myvec(1,"L1_SingleMuBeamHalo")));
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_CSCBeamHaloOverlapRing2", myvec(1,"L1_SingleMuBeamHalo")));
@@ -458,7 +458,7 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   map_L1SeedsOfStandardHLTPath.insert(mypair("L1_TauJet10_ETM40", myvec(1,"L1_TauJet10_ETM40")));  
   map_L1SeedsOfStandardHLTPath.insert(mypair("L1_TripleJet30", myvec(1,"L1_TripleJet30")));  
   map_L1SeedsOfStandardHLTPath.insert(mypair("L1_TripleMu3", myvec(1,"L1_TripleMu3")));  
-
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenL1_ZeroBias", myvec(1,"OpenL1_ZeroBias")));
 
   /* New Taus */
   // This is openhlt and not standard hlt,

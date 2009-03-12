@@ -188,6 +188,16 @@ public :
   Float_t         ohMuL3Dr[1000];   //[NohMuL3]
   Float_t         ohMuL3Dz[1000];   //[NohMuL3]
   Int_t           ohMuL3L2idx[1000];   //[NohMuL3]
+  Float_t         ohHighestEnergyEERecHit; 
+  Float_t         ohHighestEnergyEBRecHit; 
+  Float_t         ohHighestEnergyHBHERecHit; 
+  Float_t         ohHighestEnergyHORecHit; 
+  Float_t         ohHighestEnergyHFRecHit; 
+  Int_t           Nalcapi0clusters; 
+  Float_t         ohAlcapi0ptClusAll[51];   //[Nalcapi0clusters] 
+  Float_t         ohAlcapi0etaClusAll[51];   //[Nalcapi0clusters] 
+  Float_t         ohAlcapi0phiClusAll[51];   //[Nalcapi0clusters] 
+  Float_t         ohAlcapi0s4s9ClusAll[51];   //[Nalcapi0clusters] 
   Int_t           NMCpart;
   Int_t           MCpid[1203000];   //[NMCpart]
   Int_t           MCstatus[1203000];   //[NMCpart]
@@ -1002,6 +1012,16 @@ public :
   TBranch        *b_ohMuL3Dr;   //!
   TBranch        *b_ohMuL3Dz;   //!
   TBranch        *b_ohMuL3L2idx;   //!
+  TBranch        *b_ohHighestEnergyEERecHit;   //! 
+  TBranch        *b_ohHighestEnergyEBRecHit;   //! 
+  TBranch        *b_ohHighestEnergyHBHERecHit;   //! 
+  TBranch        *b_ohHighestEnergyHORecHit;   //! 
+  TBranch        *b_ohHighestEnergyHFRecHit;   //! 
+  TBranch        *b_Nalcapi0clusters;   //! 
+  TBranch        *b_ohAlcapi0ptClusAll;   //! 
+  TBranch        *b_ohAlcapi0etaClusAll;   //! 
+  TBranch        *b_ohAlcapi0phiClusAll;   //! 
+  TBranch        *b_ohAlcapi0s4s9ClusAll;   //! 
   TBranch        *b_NMCpart;   //!
   TBranch        *b_MCpid;   //!
   TBranch        *b_MCstatus;   //!
@@ -1984,6 +2004,16 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("ohMuL3Dr", ohMuL3Dr, &b_ohMuL3Dr);
   fChain->SetBranchAddress("ohMuL3Dz", ohMuL3Dz, &b_ohMuL3Dz);
   fChain->SetBranchAddress("ohMuL3L2idx", ohMuL3L2idx, &b_ohMuL3L2idx);
+  fChain->SetBranchAddress("ohHighestEnergyEERecHit", &ohHighestEnergyEERecHit, &b_ohHighestEnergyEERecHit); 
+  fChain->SetBranchAddress("ohHighestEnergyEBRecHit", &ohHighestEnergyEBRecHit, &b_ohHighestEnergyEBRecHit); 
+  fChain->SetBranchAddress("ohHighestEnergyHBHERecHit", &ohHighestEnergyHBHERecHit, &b_ohHighestEnergyHBHERecHit); 
+  fChain->SetBranchAddress("ohHighestEnergyHORecHit", &ohHighestEnergyHORecHit, &b_ohHighestEnergyHORecHit); 
+  fChain->SetBranchAddress("ohHighestEnergyHFRecHit", &ohHighestEnergyHFRecHit, &b_ohHighestEnergyHFRecHit); 
+  fChain->SetBranchAddress("Nalcapi0clusters", &Nalcapi0clusters, &b_Nalcapi0clusters); 
+  fChain->SetBranchAddress("ohAlcapi0ptClusAll", ohAlcapi0ptClusAll, &b_ohAlcapi0ptClusAll); 
+  fChain->SetBranchAddress("ohAlcapi0etaClusAll", ohAlcapi0etaClusAll, &b_ohAlcapi0etaClusAll); 
+  fChain->SetBranchAddress("ohAlcapi0phiClusAll", ohAlcapi0phiClusAll, &b_ohAlcapi0phiClusAll); 
+  fChain->SetBranchAddress("ohAlcapi0s4s9ClusAll", ohAlcapi0s4s9ClusAll, &b_ohAlcapi0s4s9ClusAll); 
   fChain->SetBranchAddress("NMCpart", &NMCpart, &b_NMCpart);
   fChain->SetBranchAddress("MCpid", MCpid, &b_MCpid);
   fChain->SetBranchAddress("MCstatus", MCstatus, &b_MCstatus);
