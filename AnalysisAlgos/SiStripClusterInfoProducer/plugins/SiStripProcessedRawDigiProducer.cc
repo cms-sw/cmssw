@@ -86,8 +86,8 @@ vr_process(const edm::DetSetVector<SiStripRawDigi> & input, edm::DetSetVector<Si
   for(edm::DetSetVector<SiStripRawDigi>::const_iterator DSV_it=input.begin(); DSV_it!=input.end(); DSV_it++) {
     std::vector<int16_t> int_digis(DSV_it->size());
     subtractorPed->subtract(*DSV_it,int_digis);
-    subtractorCMN->subtract(DSV_it->id,int_digis);
     std::vector<float> digis(int_digis.begin(), int_digis.end());
+    subtractorCMN->subtract(DSV_it->id, digis);
     common_process( DSV_it->id, digis, output);
   }
 }
