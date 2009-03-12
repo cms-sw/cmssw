@@ -1,26 +1,19 @@
 ##<use name=FWCore/Framework>
-#<use name=FWCore/ParameterSet>
-#<use name=pythia6>
+##<use name=FWCore/ParameterSet>
+##<use name=pythia6>
 <use name=GeneratorInterface/Core>
 <use name=GeneratorInterface/Pythia6Interface>
-#<use name=f77compiler>
+##<use name=f77compiler>
 
-
-#<library file="Pythia6Service.cc,PYR.cc,txgive.F,PythiaFortranGlue.F" name=GeneratorInterfacePythia6Service>
-#   <flags FFLAGS=-w>
-#   <flags EDM_PLUGIN=0>
-#</library>
 
 <library file="PythiaSource.cc,PythiaProducer.cc,SealModule.cc,*.f" name=GeneratorInterfacePythiaSource>
   <use name=GeneratorInterface/CommonInterface>
   <flags EDM_PLUGIN=1>
 </library>
 
-###<library file="*Filter.cc,Pythia6Hadronizer.cc,*.f" name=GeneratorInterfacePythia6Filters>
 <library file="*Filter.cc,Pythia6Hadronizer.cc" name=GeneratorInterfacePythia6Filters>
   <use name=GeneratorInterface/PartonShowerVeto>
   <use name=GeneratorInterface/ExternalDecays>
-  #<lib name=GeneratorInterfacePythia6Service>
   <flags FFLAGS=-w>
   <flags EDM_PLUGIN=1>
 </library>
@@ -28,7 +21,6 @@
 <library file="Pythia6*Gun.cc" name=GeneratorInterfacePythia6Guns>
 #  #<use name=SimGeneral/HepPDTRecord>
 #  # <use name=heppdt>
-  #<lib name=GeneratorInterfacePythia6Service>
   <flags FFLAGS=-w>
   <flags EDM_PLUGIN=1>
 </library>
