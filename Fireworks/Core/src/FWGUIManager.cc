@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.94 2009/03/04 17:09:44 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.95 2009/03/11 21:16:19 amraktad Exp $
 //
 
 // system include files
@@ -137,7 +137,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    TApplication::NeedGraphicsLibs();
    gApplication->InitializeGraphics();
 
-   TEveManager::Create(kFALSE);
+   TEveManager::Create(kFALSE, "FI");
 
    // gEve->SetUseOrphanage(kTRUE);
    // TGFrame* f = (TGFrame*) gClient->GetDefaultRoot();
