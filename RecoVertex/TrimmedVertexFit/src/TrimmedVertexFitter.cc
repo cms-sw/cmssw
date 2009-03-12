@@ -15,6 +15,8 @@ TrimmedVertexFitter::TrimmedVertexFitter(const edm::ParameterSet & pSet)
 {
   theRector.setMaxNbOfVertices(1);
   setPtCut(pSet.getParameter<double>("minPt"));
+  setTrackCompatibilityCut ( pSet.getParameter<double>("trackCompatibilityCut") );
+  setVertexFitProbabilityCut ( pSet.getParameter<double>("vtxFitProbCut") );
 }
 
 CachingVertex<5> 
