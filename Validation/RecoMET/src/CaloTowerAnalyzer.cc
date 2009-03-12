@@ -68,7 +68,8 @@ CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
 }
 
 //void CaloTowerAnalyzer::beginJob(const edm::EventSetup& iSetup)
-void CaloTowerAnalyzer::beginJob()
+//void CaloTowerAnalyzer::beginJob()
+void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   Nevents = 0;
   // get ahold of back-end interface
