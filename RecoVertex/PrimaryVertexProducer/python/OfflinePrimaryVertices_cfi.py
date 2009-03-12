@@ -25,11 +25,11 @@ offlinePrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
     TrackLabel = cms.InputTag("generalTracks"),
     useBeamConstraint = cms.bool(False),
     VtxFinderParameters = cms.PSet(
-        minTrackCompatibilityToOtherVertex = cms.double(0.01), ## 1%
-
-        minTrackCompatibilityToMainVertex = cms.double(0.05), ## 5%
-
-        maxNbVertices = cms.int32(0) ## search all vertices in each cluster
+        ptCut = cms.double(0.0),
+        vtxFitProbCut = cms.double(0.01), ## 1% vertex fit probability
+	trackCompatibilityToSVcut = cms.double(0.01), ## 1%
+        trackCompatibilityToPVcut = cms.double(0.05), ## 5%
+        maxNbOfVertices = cms.int32(0) ## search all vertices in each cluster
 
     ),
     TkClusParameters = cms.PSet(

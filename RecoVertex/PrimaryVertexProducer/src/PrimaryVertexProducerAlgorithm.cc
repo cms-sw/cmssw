@@ -12,14 +12,6 @@
 using namespace reco;
 
 //
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
 PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::ParameterSet& conf)
@@ -39,9 +31,11 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
   fUseBeamConstraint = conf.getParameter<bool>("useBeamConstraint");
   fVerbose           = conf.getUntrackedParameter<bool>("verbose", false);
   std::string algorithm = conf.getParameter<std::string>("algorithm");
+
   fapply_finder = false;
   if (algorithm == "TrimmedKalmanFinder") {
     fapply_finder = true;
+    theFinder.setParameters(conf.getParameter<edm::ParameterSet>("VtxFinderParameters"));
   } else if (algorithm=="KalmanVertexFitter") {
     theFitter=new KalmanVertexFitter();
   } else if( algorithm=="AdaptiveVertexFitter") {
@@ -54,39 +48,6 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
     << "Using " << algorithm << "\n";
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
     << "beam-constraint  " << fUseBeamConstraint << "\n"; 
-
-  // FIXME move vertex chi2 cut in theVertexSelector
-  // theFinder should not perform the final vertex cleanup
-  float minVertexFitProb 
-    = conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("minVertexFitProb");
-  edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
-    << "PVSelParameters::minVertexFitProb = " 
-    << conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("minVertexFitProb") << endl;
-
-  theFinder.setVertexFitProbabilityCut(minVertexFitProb);
-
-  // initialization of vertex finder algorithm
-  // theFinder should not perform any track selection
-  // theTrackFilter does it
-  theFinder.setPtCut(conf.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("minPt"));
-  float minTrackCompatibilityToMainVertex 
-    = conf.getParameter<edm::ParameterSet>("VtxFinderParameters").getParameter<double>("minTrackCompatibilityToMainVertex");
-  edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
-    << "VtxFinderParameters::minTrackCompatibilityToMainVertex = " 
-    << conf.getParameter<edm::ParameterSet>("VtxFinderParameters").getParameter<double>("minTrackCompatibilityToMainVertex") << endl;
-  theFinder.setTrackCompatibilityCut(minTrackCompatibilityToMainVertex);
-  float minTrackCompatibilityToOtherVertex 
-    = conf.getParameter<edm::ParameterSet>("VtxFinderParameters").getParameter<double>("minTrackCompatibilityToOtherVertex");
-  edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
-    << "VtxFinderParameters::minTrackCompatibilityToOtherVertex = " 
-    << conf.getParameter<edm::ParameterSet>("VtxFinderParameters").getParameter<double>("minTrackCompatibilityToOtherVertex") << endl;
-  theFinder.setTrackCompatibilityToSV(minTrackCompatibilityToOtherVertex);
-  int maxNbVertices 
-    = conf.getParameter<edm::ParameterSet>("VtxFinderParameters").getParameter<int>("maxNbVertices");
-  edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
-    << "VtxFinderParameters::maxNbVertices = " 
-    << conf.getParameter<edm::ParameterSet>("VtxFinderParameters").getParameter<int>("maxNbVertices") << endl;
-  theFinder.setMaxNbOfVertices(maxNbVertices);
 
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
     << "PV producer algorithm initialization: done" << "\n";
