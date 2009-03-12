@@ -193,9 +193,16 @@ void CSCCLCTData::add(const CSCComparatorDigi & digi, int layer)
       tbinItr != timeBinsOn.end(); ++tbinItr)
   {
     int tbin = *tbinItr;
-    if(tbin >= 0 && tbin < ntbins_)
-    {
-       dataWord(cfeb, tbin, layer).set(distrip, true);
+    if(tbin >= 0 && tbin < ntbins_-2) {
+      // First triad bit indicates the presence of the hit
+      dataWord(cfeb, tbin, layer).set(distrip, true);
+      // Second bit indicates which of the two strips contains the hit
+      if (strip%2 == 0)
+	dataWord(cfeb, tbin+1, layer).set(distrip, true);
+      // Third bit indicates whether the hit is located on the left or on the
+      // right side of the strip.
+      if (digi.getComparator())
+	dataWord(cfeb, tbin+2, layer).set(distrip, true);
     }
   }
 }
