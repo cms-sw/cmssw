@@ -138,6 +138,9 @@ public:
    */
   void setParameters ( const edm::ParameterSet & );
 
+  void gsfIntermediarySmoothing(bool sm) { gsfIntermediarySmoothing_ = sm; }
+
+  bool gsfIntermediarySmoothing() const { return gsfIntermediarySmoothing_;}
 
 private:
   /**
@@ -209,6 +212,7 @@ private:
   AnnealingSchedule * theAssProbComputer;
   VertexTrackCompatibilityEstimator<5> * theComp;
   const AbstractLTSFactory<5> * theLinTrkFactory;
+  bool gsfIntermediarySmoothing_;
 };
 
 #endif

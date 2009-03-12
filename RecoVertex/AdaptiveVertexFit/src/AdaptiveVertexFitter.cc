@@ -99,7 +99,8 @@ AdaptiveVertexFitter::AdaptiveVertexFitter(
     theNr(0),
     theLinP(linP.clone()), theUpdator( updator.clone()),
     theSmoother ( smoother.clone() ), theAssProbComputer( ann.clone() ),
-    theComp ( crit.clone() ), theLinTrkFactory ( ltsf.clone() )
+    theComp ( crit.clone() ), theLinTrkFactory ( ltsf.clone() ),
+    gsfIntermediarySmoothing_(false)
 {
   setParameters();
 }
@@ -118,7 +119,8 @@ AdaptiveVertexFitter::AdaptiveVertexFitter
     theSmoother ( o.theSmoother->clone() ),
     theAssProbComputer ( o.theAssProbComputer->clone() ),
     theComp ( o.theComp->clone() ),
-    theLinTrkFactory ( o.theLinTrkFactory->clone() )
+    theLinTrkFactory ( o.theLinTrkFactory->clone() ),
+    gsfIntermediarySmoothing_(o.gsfIntermediarySmoothing_)
 {}
 
 AdaptiveVertexFitter::~AdaptiveVertexFitter()
@@ -397,15 +399,13 @@ AdaptiveVertexFitter::reWeightTracks(
         = lTracks.begin(); i != lTracks.end(); i++)
   {
     double weight=0.;
-    try {
-      float chi2 = theComp->estimate ( vertex, *i );
-      weight=getWeight ( chi2 );
-    } catch ( cms::Exception & c ) {
-      cout << "[AdaptiveVertexFitter] Aiee! " << c.what() << endl;
-      cout << "[AdaptiveVertexFitter] vertex candidate is at  " << vertex.position() << endl;
-      LogWarning("AdaptiveVertexFitter" ) << "When reweighting, a track threw \"" 
-                                          << c.what() << "\". Will add this track with w=0.";
+    pair<bool, double> chi2Res =  theComp->estimate ( vertex, *i );
+    if (!chi2Res.first) {
+      cout << "[AdaptiveVertexFitter] aie... vertex candidate is at  " << vertex.position() << endl;
+      LogWarning("AdaptiveVertexFitter" ) << "When reweighting, chi2<0. Will add this track with w=0.";
       // edm::LogWarning("AdaptiveVertexFitter" ) << "pt=" << (**i).track().pt();
+    }else {
+      weight = getWeight ( chi2Res.second );
     }
     
     RefCountedVertexTrack vTrData
@@ -446,16 +446,16 @@ AdaptiveVertexFitter::weightTracks(
   for(vector<RefCountedLinearizedTrackState>::const_iterator i
         = lTracks.begin(); i != lTracks.end(); i++)
   {
-    double weight = 0.;
-    try {
-      float chi2 = theComp->estimate ( seedvtx, *i );
-      weight = getWeight ( chi2 );
-    } catch ( cms::Exception & c ) {
-      cout << "[AdaptiveVertexFitter] Aiee! " << c.what() << endl;
-      LogWarning ("AdaptiveVertexFitter" ) << "When weighting a track, track threw \"" << c.what()
-                                           << " will add with w=0.";
-    }
 
+    double weight = 0.;
+    pair<bool, double> chi2Res = theComp->estimate ( seedvtx, *i );
+    if (!chi2Res.first) {
+      cout << "[AdaptiveVertexFitter] Aiee! " << endl;
+      LogWarning ("AdaptiveVertexFitter" ) << "When weighting a track, chi2 calculation failed;"
+                                           << " will add with w=0.";
+    } else {
+      weight = getWeight ( chi2Res.second );
+    }
     RefCountedVertexTrack vTrData
        = vTrackFactory.vertexTrack(*i, seed, weight );
     #ifdef STORE_WEIGHTS
@@ -542,29 +542,21 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
     {
       // relinearize and reweight.
       // (reLinearizeTracks also reweights tracks)
-      globalVTracks = reLinearizeTracks( globalVTracks,
-                             returnVertex );
+      if (gsfIntermediarySmoothing_) returnVertex = theSmoother->smooth(returnVertex);
+      globalVTracks = reLinearizeTracks( globalVTracks, returnVertex );
       lpStep++;
     } else if (step) {
       // reweight, if it is not the first step
-      globalVTracks = reWeightTracks( globalVTracks,
-                                      returnVertex );
+      if (gsfIntermediarySmoothing_) returnVertex = theSmoother->smooth(returnVertex);
+      globalVTracks = reWeightTracks( globalVTracks, returnVertex );
     }
     // update sequentially the vertex estimate
     CachingVertex<5> nVertex;
     for(vector<RefCountedVertexTrack>::const_iterator i
           = globalVTracks.begin(); i != globalVTracks.end(); i++)
     {
-      try {
-        nVertex = theUpdator->add( fVertex, *i );
-      } catch ( cms::Exception & c ) {
-        edm::LogWarning("AdaptiveVertexFitter" ) << "when updating, received " << c.what()
-                                                 << " final result might miss the info of a track.";
-        edm::LogWarning("AdaptiveVertexFitter" ) << "w=" << (**i).weight();
-        edm::LogWarning("AdaptiveVertexFitter" ) << "schi2=" << (**i).smoothedChi2();
-        edm::LogWarning("AdaptiveVertexFitter" ) << "has refitted state=" << (**i).refittedStateAvailable();
-        //edm::LogWarning("AdaptiveVertexFitter" ) << "pt=" << (**i).linearizedTrack()->track().pt();
-      }
+      if ((**i).weight() > 0.) nVertex = theUpdator->add( fVertex, *i );
+	else  nVertex = fVertex;
       if (nVertex.isValid()) {
         if ( (**i).weight() >= theWeightThreshold )
         {
@@ -589,8 +581,8 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
       } else {
         LogWarning("RecoVertex/AdaptiveVertexFitter") 
           << "The updator returned an invalid vertex when adding track "
-          << i-globalVTracks.begin() <<endl
-	        << "Your vertex might just have lost one good track.";
+          << i-globalVTracks.begin() 
+	        << ".\n Your vertex might just have lost one good track.";
       };
     }
     previousPosition = newPosition;
