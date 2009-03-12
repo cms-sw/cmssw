@@ -52,7 +52,7 @@ METTester::METTester(const edm::ParameterSet& iConfig)
 {
   inputMETLabel_           = iConfig.getParameter<edm::InputTag>("InputMETLabel");
   METType_                 = iConfig.getUntrackedParameter<std::string>("METType");
-  finebinning_                 = iConfig.getParameter<bool>("FineBinning");
+  finebinning_                 = iConfig.getUntrackedParameter<bool>("FineBinning");
 }
 
 //void METTester::beginJob(const edm::EventSetup& iSetup)

@@ -56,7 +56,7 @@ HCALRecHitAnalyzer::HCALRecHitAnalyzer(const edm::ParameterSet& iConfig)
   hFRecHitsLabel_    = iConfig.getParameter<edm::InputTag>("HFRecHitsLabel");
 
   debug_             = iConfig.getParameter<bool>("Debug");
-  finebinning_ = iConfig.getParameter<bool>("FineBinning");
+  finebinning_ = iConfig.getUntrackedParameter<bool>("FineBinning");
   
 
 }
