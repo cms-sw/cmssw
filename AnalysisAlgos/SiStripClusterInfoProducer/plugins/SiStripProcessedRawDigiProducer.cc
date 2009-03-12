@@ -56,8 +56,8 @@ findInput(edm::Handle<T>& handle, const edm::Event& e ) {
       edm::LogInfo("Input") << *inputTag;
       return inputTag->instance();
     }
-    return "Input Not Found";
   }
+  return "Input Not Found";
 }
 
 
