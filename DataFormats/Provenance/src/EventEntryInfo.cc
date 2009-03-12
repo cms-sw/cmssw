@@ -95,8 +95,8 @@ namespace edm {
     }
 
   ProductProvenance
-  EventEntryInfo::makeProductProvenance() const {
-    return ProductProvenance(branchID_, productStatus_);
+  EventEntryInfo::makeProductProvenance(ParentageID const& pid) const {
+    return ProductProvenance(branchID_, productStatus_, pid);
   }
 
   EventEntryDescription const &

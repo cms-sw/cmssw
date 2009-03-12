@@ -15,6 +15,7 @@ and how it came into existence, plus the product identifier and the status.
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionID.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
+#include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
@@ -56,9 +57,10 @@ namespace edm {
 
     ~EventEntryInfo() {}
 
-    ProductProvenance makeProductProvenance() const;
+    ProductProvenance makeProductProvenance(ParentageID const& pid) const;
 
     void write(std::ostream& os) const;
+
 
     BranchID const& branchID() const {return branchID_;}
     ProductID const& productID() const {return productID_;}

@@ -5,6 +5,9 @@ BranchMapperWithReader:
 ----------------------------------------------------------------------*/
 #include "BranchMapperWithReader.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
+#include "DataFormats/Provenance/interface/EventEntryDescription.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/Parentage.h"
 
 namespace edm {
   void
@@ -16,7 +19,10 @@ namespace edm {
     BranchMapperWithReader<EventEntryInfo> * me = const_cast<BranchMapperWithReader<EventEntryInfo> *>(this);
     for (std::vector<EventEntryInfo>::const_iterator it = infoVector_.begin(), itEnd = infoVector_.end();
       it != itEnd; ++it) {
-      me->insert(it->makeProductProvenance());
+      EventEntryDescription eed;
+      EntryDescriptionRegistry::instance()->getMapped(it->entryDescriptionID(), eed);
+      Parentage parentage(eed.parents());
+      me->insert(it->makeProductProvenance(parentage.id()));
       me->insertIntoMap(it->productID(), it->branchID());
     }
   }
