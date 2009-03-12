@@ -33,7 +33,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   data_    = *data;
   dwToEnd_ = dwToEnd;
   
-   uint activeDCC = mapper_->getActiveSM();
+  uint activeDCC = mapper_->getActiveSM();
  
   if( (*dwToEnd_)<1){
     if( ! DCCDataUnpacker::silentMode_ ){
@@ -87,7 +87,6 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
 
   //////////////////////////////////////////////////////////
   // check that expected fe_id==fe_expected is off
-  // still, check the range (to avoid non-valid detId's)
   else if( (!checkFeId_) && 
 	   towerId_ > mapper_->getNumChannelsInDcc(activeDCC) ){ // fe_id must still be within range foreseen in the FED 
     if( ! DCCDataUnpacker::silentMode_ ){
@@ -187,6 +186,17 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
     return STOP_EVENT_UNPACKING;
   }
   
+
+
+  // If the HLT says to skip this tower we skip it...
+  if( ! event_->getHLTChannel(towerId_) ){
+    updateEventPointers();
+    return SKIP_BLOCK_UNPACKING;
+  }
+  /////////////////////////////////////////////////
+
+
+
 
 
   uint numbOfXtalBlocks = (blockLength_-1)/numbDWInXtalBlock_; 

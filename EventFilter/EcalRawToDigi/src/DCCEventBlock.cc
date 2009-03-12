@@ -19,7 +19,7 @@ DCCEventBlock::DCCEventBlock( DCCDataUnpacker * u , EcalElectronicsMapper * m , 
   memBlock_   = new DCCMemBlock(u,m,this);
  
   // setup and initialize ch status vectors
-  for( int feChannel=1;  feChannel <= 70;  feChannel++) { feChStatus_.push_back(0);}
+  for( int feChannel=1;  feChannel <= 70;  feChannel++) { feChStatus_.push_back(0); hlt_.push_back(1);}
   for( int tccChannel=1; tccChannel <= 4 ; tccChannel++){ tccChStatus_.push_back(0);}
   
   // setup and initialize sync vectors

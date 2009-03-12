@@ -10,8 +10,8 @@
  *
  * \file DCCEventBlock.h
  *
- * $Date: 2008/11/04 18:09:46 $
- * $Revision: 1.15 $
+ * $Date: 2008/12/11 18:05:56 $
+ * $Revision: 1.1 $
  *
  * \author N. Almeida
  * \author G. Franzoni
@@ -60,7 +60,8 @@ class DCCEventBlock {
    void setSRPSyncNumbers(short l1, short bx){ srpLv1_=l1; srpBx_=bx; }
    void setFESyncNumbers(short l1, short bx, short id){ feLv1_[id]= l1; feBx_[id]=bx;}
    void setTCCSyncNumbers(short l1, short bx, short id){ tccLv1_[id]= l1; tccBx_[id]=bx;}
-   
+   void setHLTChannel( int channel, short value ){ hlt_[channel-1] = value; }   
+   short getHLTChannel(int channel){ return hlt_[channel-1];}
 
     	
   protected :
@@ -76,10 +77,11 @@ class DCCEventBlock {
    
     std::vector<short> feChStatus_;
     std::vector<short> tccChStatus_;
+    std::vector<short> hlt_;
 
     std::vector<short> feLv1_; std::vector<short> feBx_;  
     std::vector<short> tccLv1_; std::vector<short> tccBx_;    
-	short srpLv1_; short srpBx_; 
+    short srpLv1_; short srpBx_; 
 
     
     uint srChStatus_;
