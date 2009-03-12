@@ -632,7 +632,7 @@ void sistrip::RawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling, 
       
       // Check FED channel
       if (!buffer_->channelGood(iconn->fedCh())) {
-	detids.push_back(iconn->detId());
+	detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
 	continue;
       }
       
