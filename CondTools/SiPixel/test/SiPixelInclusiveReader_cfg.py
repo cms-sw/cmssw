@@ -7,6 +7,13 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
+process.MessageLogger = cms.Service("MessageLogger",
+    cout = cms.untracked.PSet(
+        threshold = cms.untracked.string('INFO')
+    ),
+    destinations = cms.untracked.vstring('cout')
+)
+
 
 
 ###### OUTPUT HISTOGRAM FILE NAME #######
