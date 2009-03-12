@@ -10,10 +10,6 @@ Style *spred;
 Style *spblue;
 
 void InitNicePlot() {
-  gROOT->SetStyle("Plain");
-  gStyle->SetPalette(1);
-  gStyle->SetHistMinimumZero(kTRUE);
-
   s1 = new Style(); 
 
   s1->SetLineWidth(2);   
@@ -36,22 +32,23 @@ void InitNicePlot() {
   sback->SetFillColor(5);  
  
   spred = new Style();
-  spred->SetLineColor(1); 
+  spred->SetLineColor(2); 
   spred->SetLineWidth(2);  
-  spred->SetFillStyle(3002); 
-  spred->SetFillColor(2); 
+  spred->SetFillStyle(1001); 
+  spred->SetFillColor(kRed-8); 
 
   spblue = new Style();
-  spblue->SetLineColor(1); 
-  spblue->SetLineWidth(1); 
-  spblue->SetFillStyle(1001); 
-  spblue->SetFillColor(20);   
+  spblue->SetLineColor(4); 
+  spblue->SetLineWidth(2); 
+  //spblue->SetFillStyle(3005); 
+  // spblue->SetFillColor(4);   
 }
 
 
 void FormatHisto( TH1* h, const Style* s ) {
-  h->SetTitle("CMS Preliminary");
   //  h->SetStats(0);
+  h->SetTitle("CMS Preliminary");
+
   h->GetYaxis()->SetTitleSize(0.06);
   h->GetYaxis()->SetTitleOffset(1.2);
   h->GetXaxis()->SetTitleSize(0.06);

@@ -10,11 +10,11 @@
 //   string dirpf = "DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen";
 //   string dir2 = "DQMData/PFTask/Benchmarks/iterativeCone5CaloJets/Gen";
   string dir1 = "DQMData/PFTask/Benchmarks/PFlowTaus/Gen";
-  string dir2 = "DQMData/PFTask/Benchmarks/PFlowTaus/Gen";
-  //  string dir2 = "DQMData/PFTask/Benchmarks/CaloTaus/Gen";
+  //  string dir2 = "DQMData/PFTask/Benchmarks/PFlowTaus/Gen";
+  string dir2 = "DQMData/PFTask/Benchmarks/CaloTaus/Gen";
   //  const char* file1 = "benchmark_oldmethod.root";
-  const char* file1 = "single_newmethod_bigcone.root";
-  const char* file2 = "single_newmethod_bigcone_noint.root";
+  const char* file1 = "benchmark.root";
+  const char* file2 = "benchmark.root";
   // const char* file2 = "benchmark_newmethod.root";
   // const char* file1 = "ztautau.root";
   // const char* file1 = "singleTaus.root";
@@ -28,10 +28,11 @@
   bool highpt = false;
   float ptMin = 0;
   float ptMax = 9999;
-  Style* style1 = sback;
-  Style* style2 = s1;
-  // Style* style1 = spred;
-  // Style* style1 = spblue;
+  //Style* style1 = sback;
+ 
+  // Style* style2 = s1;
+  Style* style1 = spred;
+  Style* style2 = spblue;
   Comparator::Mode mode = Comparator::SCALE;
 
   int etamode = ALL;
