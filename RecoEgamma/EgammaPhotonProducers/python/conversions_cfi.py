@@ -18,7 +18,11 @@ conversions = cms.EDProducer("ConvertedPhotonProducer",
     outInTrackSCAssociation = cms.string('outInTrackSCAssociationCollection'),
   #  scIslandEndcapCollection = cms.string(''),
     conversionOITrackProducer = cms.string('ckfOutInTracksFromConversions'),
-    AlgorithmName = cms.string('ecalSeeded')                         
+    AlgorithmName = cms.string('ecalSeeded'),
+    recoverOneTrackCase = cms.bool(False),
+    dRForConversionRecovery = cms.double(0.3),                      
+    deltaCotCut = cms.double(0.05),
+    minApproachDisCut  = cms.double(0.)                         
 )
 
 
