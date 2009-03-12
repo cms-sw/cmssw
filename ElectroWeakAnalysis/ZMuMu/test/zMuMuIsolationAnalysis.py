@@ -5,7 +5,7 @@ process = cms.Process("ZMuMuIsolationAnalysis")
 
 process.TFileService=cms.Service(
     "TFileService",
-    fileName=cms.string("NewIsolation_QCD_2.root")
+    fileName=cms.string("Prova_W_Isolamento.root")
     )
 
 process.maxEvents = cms.untracked.PSet(
@@ -19,9 +19,17 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    "rfio:/dpm/na.infn.it/home/cms/store/user/noli/reskim/qcd/noli/InclusiveMuPt15/InclusiveMuPt15SubSkim/d85f8e8eea12813d6b1603f1ce4b0f84/qcd_reskim_4.root",
-    "rfio:/dpm/na.infn.it/home/cms/store/user/noli/reskim/qcd/noli/InclusiveMuPt15/InclusiveMuPt15SubSkim/d85f8e8eea12813d6b1603f1ce4b0f84/qcd_reskim_5.root",
-    "rfio:/dpm/na.infn.it/home/cms/store/user/noli/reskim/qcd/noli/InclusiveMuPt15/InclusiveMuPt15SubSkim/d85f8e8eea12813d6b1603f1ce4b0f84/qcd_reskim_6.root"
+    
+ #   "rfio:/dpm/na.infn.it/home/cms/store/user/noli/reskim/zmm/zmumu_reskim_1.root",
+ #   "rfio:/dpm/na.infn.it/home/cms/store/user/noli/reskim/zmm/zmumu_reskim_2.root",
+ #   "rfio:/dpm/na.infn.it/home/cms/store/user/noli/reskim/zmm/zmumu_reskim_2.root",
+
+#    "file:/scratch1/cms/data/summer08/skim/dimuons_skim_zmumu.root",
+    "file:/scratch1/cms/data/summer08/skim/dimuons_skim_wmunu.root"
+    
+  # "rfio:/dpm/na.infn.it/home/cms/store/user/noli/reskim/qcd/noli/InclusiveMuPt15/InclusiveMuPt15SubSkim/d85f8e8eea12813d6b1603f1ce4b0f84/qcd_reskim_4.root",
+   # "rfio:/dpm/na.infn.it/home/cms/store/user/noli/reskim/qcd/noli/InclusiveMuPt15/InclusiveMuPt15SubSkim/d85f8e8eea12813d6b1603f1ce4b0f84/qcd_reskim_5.root",
+   # "rfio:/dpm/na.infn.it/home/cms/store/user/noli/reskim/qcd/noli/InclusiveMuPt15/InclusiveMuPt15SubSkim/d85f8e8eea12813d6b1603f1ce4b0f84/qcd_reskim_6.root"
     )
     )
 
@@ -38,7 +46,8 @@ process.zmumuNewIsolation = cms.EDAnalyzer(
     alpha = cms.untracked.double(0.75),
     beta = cms.untracked.double(-0.75),
     pt = cms.untracked.double(20),
-    eta = cms.untracked.double(2)
+    eta = cms.untracked.double(2),
+    isoCut = cms.untracked.double(1.7)
     )
 
 cut = [0.4,0.6,0.8,1.0,1.2]
