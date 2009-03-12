@@ -28,67 +28,69 @@ produce(edm::Event& e, const edm::EventSetup& es) {
   edm::Handle< edm::DetSetVector<SiStripDigi> > inputDigis; 
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > inputRawdigis; 
 
+  es.get<SiStripGainRcd>().get(gainHandle);
   subtractorPed->init(es);
   subtractorCMN->init(es);
-  es.get<SiStripGainRcd>().get(gainHandle);
   
-  for( std::vector<edm::InputTag>::const_iterator 
-	 inputTag = inputTags.begin(); inputTag < inputTags.end(); ++inputTag ) {
-
-    if( "ZeroSuppressed" == inputTag->instance() ) {
-      e.getByLabel(*inputTag, inputDigis);
-      if(inputDigis->size()) zs_process(*inputDigis, *output);
-    }
-
-    else if( "ProcessedRaw" == inputTag->instance() ) {
-      e.getByLabel(*inputTag, inputRawdigis); 
-      if(inputRawdigis->size()) pr_process(*inputRawdigis, *output);
-    }
-
-    else if( "VirginRaw" == inputTag->instance() || "ScopeMode" == inputTag->instance() ) {
-      e.getByLabel(*inputTag, inputRawdigis); 
-      if(inputRawdigis->size()) {
-	vr_process(*inputRawdigis, *output); 
-      }
-    }
-
-    else 
-      edm::LogError("Unknown DigiProducer") << *inputTag;
-  }
+  std::string label = findInput(inputRawdigis, e);
+  if(      "VirginRaw"  == label )  vr_process(*inputRawdigis, *output); 
+  else if( "ScopeMode"   == label )  vr_process(*inputRawdigis, *output); 
+  else if( "ProcessedRaw" == label )  pr_process(*inputRawdigis, *output); 
+  else if( "ZeroSuppressed" == findInput(inputDigis,e) ) zs_process(*inputDigis, *output);
+  else 
+    edm::LogError("Input Not Found");
 
   e.put(output);
+}
+
+template<class T>
+inline
+std::string SiStripProcessedRawDigiProducer::
+findInput(edm::Handle<T>& handle, const edm::Event& e ) {
+
+  for( std::vector<edm::InputTag>::const_iterator 
+	 inputTag = inputTags.begin(); inputTag != inputTags.end(); ++inputTag ) {
+    
+    e.getByLabel(*inputTag, handle);
+    if( handle.isValid() && !handle->empty() ) {
+      edm::LogInfo("Input") << *inputTag;
+      return inputTag->instance();
+    }
+    return "Input Not Found";
+  }
 }
 
 
 void SiStripProcessedRawDigiProducer::
 zs_process(const edm::DetSetVector<SiStripDigi> & input, edm::DetSetVector<SiStripProcessedRawDigi>& output) {
-  for(edm::DetSetVector<SiStripDigi>::const_iterator DSV_it=input.begin(); DSV_it!=input.end(); DSV_it++)  {
-    std::vector<float> digis;
-    for(edm::DetSet<SiStripDigi>::const_iterator it=DSV_it->begin(); it!=DSV_it->end(); it++) {
-      if(it->strip() + unsigned(1) > digis.size() ) { digis.resize(it->strip()+1, float(0.0)); }
-      digis.at(it->strip())= static_cast<float>(it->adc());
+  std::vector<float> digis;
+  for(edm::DetSetVector<SiStripDigi>::const_iterator detset = input.begin(); detset != input.end(); detset++ )  {
+    digis.clear();
+    for(edm::DetSet<SiStripDigi>::const_iterator digi = detset->begin();  digi != detset->end();  digi++) {
+      digis.resize( digi->strip(), 0);
+      digis.push_back( digi->adc() );
     }
-    common_process( DSV_it->id, digis, output);
+    common_process( detset->id, digis, output);
   }
 }
 
 void SiStripProcessedRawDigiProducer::
 pr_process(const edm::DetSetVector<SiStripRawDigi> & input, edm::DetSetVector<SiStripProcessedRawDigi>& output) {
-  for(edm::DetSetVector<SiStripRawDigi>::const_iterator DSV_it=input.begin(); DSV_it!=input.end(); DSV_it++) {
+  for(edm::DetSetVector<SiStripRawDigi>::const_iterator detset=input.begin(); detset!=input.end(); detset++) {
     std::vector<float> digis;
-    transform(DSV_it->begin(), DSV_it->end(), back_inserter(digis), boost::bind(&SiStripRawDigi::adc , _1));
-    common_process( DSV_it->id, digis, output);
+    transform(detset->begin(), detset->end(), back_inserter(digis), boost::bind(&SiStripRawDigi::adc , _1));
+    common_process( detset->id, digis, output);
   }
 }
 
 void SiStripProcessedRawDigiProducer::
 vr_process(const edm::DetSetVector<SiStripRawDigi> & input, edm::DetSetVector<SiStripProcessedRawDigi>& output) {
-  for(edm::DetSetVector<SiStripRawDigi>::const_iterator DSV_it=input.begin(); DSV_it!=input.end(); DSV_it++) {
-    std::vector<int16_t> int_digis(DSV_it->size());
-    subtractorPed->subtract(*DSV_it,int_digis);
+  for(edm::DetSetVector<SiStripRawDigi>::const_iterator detset=input.begin(); detset!=input.end(); detset++) {
+    std::vector<int16_t> int_digis(detset->size());
+    subtractorPed->subtract(*detset,int_digis);
     std::vector<float> digis(int_digis.begin(), int_digis.end());
-    subtractorCMN->subtract(DSV_it->id, digis);
-    common_process( DSV_it->id, digis, output);
+    subtractorCMN->subtract(detset->id, digis);
+    common_process( detset->id, digis, output);
   }
 }
 
