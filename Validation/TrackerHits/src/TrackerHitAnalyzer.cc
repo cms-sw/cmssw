@@ -308,9 +308,7 @@ TrackerHitAnalyzer::~TrackerHitAnalyzer()
    // don't try to delete any pointers - they're handled by DQM machinery
 }
 
-void TrackerHitAnalyzer::beginJob(const edm::EventSetup& c){
 
-}
 
 void TrackerHitAnalyzer::endJob() 
 {

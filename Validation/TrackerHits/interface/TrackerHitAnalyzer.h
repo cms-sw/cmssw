@@ -4,8 +4,8 @@
 /*
  * \file TrackerHitAnalyzer.h
  *
- * $Date: 2008/02/29 20:49:22 $
- * $Revision: 1.3 $
+ * $Date: 2009/02/10 17:09:40 $
+ * $Revision: 1.4 $
  * \author F. Cossutti
  *
 */
@@ -55,8 +55,7 @@ protected:
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-// BeginJob
-void beginJob(const edm::EventSetup& c);
+
 
 // EndJob
 void endJob(void);

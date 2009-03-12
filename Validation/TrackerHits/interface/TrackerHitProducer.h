@@ -58,7 +58,7 @@ class TrackerHitProducer : public edm::EDProducer
 
   explicit TrackerHitProducer(const edm::ParameterSet&);
   virtual ~TrackerHitProducer();
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void endJob();  
   virtual void produce(edm::Event&, const edm::EventSetup&);
   

@@ -79,7 +79,7 @@ TrackerHitProducer::~TrackerHitProducer()
 {
 }
 
-void TrackerHitProducer::beginJob(const edm::EventSetup& iSetup)
+void TrackerHitProducer::beginJob()
 {
   if (verbosity > 0)
     edm::LogInfo ("TrackerHitProducer::beginJob") 
