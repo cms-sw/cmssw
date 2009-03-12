@@ -14,8 +14,8 @@ class HistoCompare {
   
   Double_t ks;
 
-  TH1F * myoldHisto1;
-  TH1F * mynewHisto1;
+  TH1 * myoldHisto1;
+  TH1 * mynewHisto1;
 
 
   TText * myte;
@@ -80,7 +80,6 @@ void HistoCompare::KSdraw(TH1 * oldHisto , TH1 * newHisto)
   mynewHisto1 = newHisto;
   myoldHisto1->Rebin(100);
   mynewHisto1->Rebin(100);
-  
   float max_r = myoldHisto1->GetMaximum();
   float max_t = mynewHisto1->GetMaximum();
   if (max_r>max_t) max = 1.1*max_r;

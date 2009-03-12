@@ -86,6 +86,8 @@ void SiTrackerHitsCompareToF()
  HistoCompare * PV = new HistoCompare();
  
  Char_t histo[200];
+ Char_t profileo[200];
+ Char_t profilen[200];
  std::strstream buf;
  std::string value;
  
@@ -94,19 +96,28 @@ void SiTrackerHitsCompareToF()
 
    TProfile * ch1e[4];
    TProfile * rh1e[4];
-   
-     sprintf(histo,"tof_eta_profile");
-     rh1e[0] = (TProfile*)rdir->Get(histo)->Clone();
-     ch1e[0] = (TProfile*)cdir->Get(histo)->Clone();
-     sprintf(histo,"tof_phi_profile");
-     rh1e[1] = (TProfile*)rdir->Get(histo)->Clone();
-     ch1e[1] = (TProfile*)cdir->Get(histo)->Clone();
-     sprintf(histo,"tof_r_profile");
-     rh1e[2] = (TProfile*)rdir->Get(histo)->Clone();
-     ch1e[2] = (TProfile*)cdir->Get(histo)->Clone();
-     sprintf(histo,"tof_z_profile");
-     rh1e[3] = (TProfile*)rdir->Get(histo)->Clone();
-     ch1e[3] = (TProfile*)cdir->Get(histo)->Clone();
+   cout<<cdir->GetPath()<<endl;
+   cout<<rdir->GetPath()<<endl;
+     sprintf(histo,"tof_eta");
+     sprintf(profileo,"tof_eta_old");
+     sprintf(profilen,"tof_eta_new");
+     rh1e[0] = ((TH2F*)rdir->Get(histo))->ProfileX(profileo);
+     ch1e[0] = ((TH2F*)cdir->Get(histo))->ProfileX(profilen);
+     sprintf(histo,"tof_phi");
+     sprintf(profileo,"tof_phi_old");
+     sprintf(profilen,"tof_phi_new");
+     rh1e[1] = ((TH2F*)rdir->Get(histo))->ProfileX(profileo);
+     ch1e[1] = ((TH2F*)cdir->Get(histo))->ProfileX(profilen);
+     sprintf(histo,"tof_r");
+     sprintf(profileo,"tof_r_old");
+     sprintf(profilen,"tof_r_new");
+     rh1e[2] = ((TH2F*)rdir->Get(histo))->ProfileX(profileo);
+     ch1e[2] = ((TH2F*)cdir->Get(histo))->ProfileX(profilen);
+     sprintf(histo,"tof_z");
+     sprintf(profileo,"tof_z_old");
+     sprintf(profilen,"tof_z_new");
+     rh1e[3] = ((TH2F*)rdir->Get(histo))->ProfileX(profileo);
+     ch1e[3] = ((TH2F*)cdir->Get(histo))->ProfileX(profilen);
      
      for (Int_t i=0; i<4; i++) {      
        ToF->cd(i+1);
