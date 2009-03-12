@@ -1044,32 +1044,57 @@ void CSCValidation::doStandalone(Handle<reco::TrackCollection> saMuons){
     float preco  = muon->p();
     float ptreco = muon->pt();
     int   n = muon->recHitsSize();
+    float chi2 = muon->chi2();
+    float normchi2 = muon->normalizedChi2();
 
     // loop over hits
     int nDTHits = 0;
     int nCSCHits = 0;
+    int nCSCHitsp = 0;
+    int nCSCHitsm = 0;
+    int nRPCHits = 0;
+    int nRPCHitsp = 0;
+    int nRPCHitsm = 0;
+    int np = 0;
+    int nm = 0;
+    vector<CSCDetId> staChambers;
     for (trackingRecHit_iterator hit = muon->recHitsBegin(); hit != muon->recHitsEnd(); ++hit ) {
       const DetId detId( (*hit)->geographicalId() );
       if (detId.det() == DetId::Muon) {
+        if (detId.subdetId() == MuonSubdetId::RPC) {
+          RPCDetId rpcId(detId.rawId());
+          nRPCHits++;
+          if (rpcId.region() == 1){ nRPCHitsp++; np++;}
+          if (rpcId.region() == -1){ nRPCHitsm++; nm++;}
+        }
         if (detId.subdetId() == MuonSubdetId::DT) {
-          //DTChamberId dtId(detId.rawId());
-          //int chamberId = dtId.sector();
           nDTHits++;
         }
         else if (detId.subdetId() == MuonSubdetId::CSC) {
-          //CSCDetId cscId(detId.rawId());
-          //int chamberId = cscId.chamber();
+          CSCDetId cscId(detId.rawId());
+          staChambers.push_back(detId.rawId());
           nCSCHits++;
+          if (cscId.endcap() == 1){ nCSCHitsp++; np++;}
+          if (cscId.endcap() == 2){ nCSCHitsm++; nm++;}
         }
       }
     }
 
     // fill histograms
     histos->fill1DHist(n,"trN","N hits on a STA Muon Track",51,-0.5,50.5,"STAMuons");
+    if (np != 0) histos->fill1DHist(np,"trNp","N hits on a STA Muon Track (plus endcap)",51,-0.5,50.5,"STAMuons");
+    if (nm != 0) histos->fill1DHist(nm,"trNm","N hits on a STA Muon Track (minus endcap)",51,-0.5,50.5,"STAMuons");
     histos->fill1DHist(nDTHits,"trNDT","N DT hits on a STA Muon Track",51,-0.5,50.5,"STAMuons");
     histos->fill1DHist(nCSCHits,"trNCSC","N CSC hits on a STA Muon Track",51,-0.5,50.5,"STAMuons");
-    histos->fill1DHist(preco,"trP","STA Muon Momentum",100,0,1000,"STAMuons");
-    histos->fill1DHist(ptreco,"trPT","STA Muon pT",100,0,20,"STAMuons");
+    if (nCSCHitsp != 0) histos->fill1DHist(nCSCHitsp,"trNCSCp","N CSC hits on a STA Muon Track (+ endcap)",51,-0.5,50.5,"STAMuons");
+    if (nCSCHitsm != 0) histos->fill1DHist(nCSCHitsm,"trNCSCm","N CSC hits on a STA Muon Track (- endcap)",51,-0.5,50.5,"STAMuons");
+    histos->fill1DHist(nRPCHits,"trNRPC","N RPC hits on a STA Muon Track",51,-0.5,50.5,"STAMuons");
+    if (nRPCHitsp != 0) histos->fill1DHist(nRPCHitsp,"trNRPCp","N RPC hits on a STA Muon Track (+ endcap)",51,-0.5,50.5,"STAMuons");
+    if (nRPCHitsm != 0) histos->fill1DHist(nRPCHitsm,"trNRPCm","N RPC hits on a STA Muon Track (- endcap)",51,-0.5,50.5,"STAMuons");
+    histos->fill1DHist(preco,"trP","STA Muon Momentum",100,0,300,"STAMuons");
+    histos->fill1DHist(ptreco,"trPT","STA Muon pT",100,0,40,"STAMuons");
+    histos->fill1DHist(chi2,"trChi2","STA Muon Chi2",100,0,200,"STAMuons");
+    histos->fill1DHist(normchi2,"trNormChi2","STA Muon Normalized Chi2",100,0,10,"STAMuons");
 
   }
 

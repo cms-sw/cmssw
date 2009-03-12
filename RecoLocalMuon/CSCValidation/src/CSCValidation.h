@@ -38,6 +38,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutRecord.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
