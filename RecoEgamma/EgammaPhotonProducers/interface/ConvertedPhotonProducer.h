@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.23 2009/03/04 21:20:03 nancy Exp $ 
- **  $Date: 2009/03/04 21:20:03 $ 
- **  $Revision: 1.23 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.24 2009/03/11 13:06:19 nancy Exp $ 
+ **  $Date: 2009/03/11 13:06:19 $ 
+ **  $Revision: 1.24 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -48,8 +48,12 @@ class ConvertedPhotonProducer : public edm::EDProducer {
 
   void buildCollections ( const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
 			  const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
+			  const edm::Handle<reco::TrackCollection>  & trkHandle,
 			  std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>& allPairs,
 			  reco::ConversionCollection & outputConvPhotonCollection);
+
+  float calculateMinApproachDistance ( const reco::TrackRef& track1, const reco::TrackRef& track2);
+  void getCircleCenter(const reco::TrackRef& tk, double r, double& x0, double& y0);
     
   
   std::string conversionOITrackProducer_;
@@ -80,7 +84,9 @@ class ConvertedPhotonProducer : public edm::EDProducer {
 
   int nEvt_;
   std::string algoName_;
-
-
+  bool  recoverOneTrackCase_;
+  double dRForConversionRecovery_;
+  double deltaCotCut_;
+  double minApproachDisCut_;
 };
 #endif
