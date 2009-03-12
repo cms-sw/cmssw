@@ -12,7 +12,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/02/23 14:00:48 $ 
+ **  $Date: 2009/02/27 09:03:32 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -119,6 +119,14 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
   double xyMin = parameters_.getParameter<double>("xyMin"); 
   double xyMax = parameters_.getParameter<double>("xyMax"); 
   int xyBin = parameters_.getParameter<int>("xyBin");
+
+  double xMin = parameters_.getParameter<double>("xMin"); 
+  double xMax = parameters_.getParameter<double>("xMax"); 
+  int xBin = parameters_.getParameter<int>("xBin");
+
+  double yMin = parameters_.getParameter<double>("yMin"); 
+  double yMax = parameters_.getParameter<double>("yMax"); 
+  int yBin = parameters_.getParameter<int>("yBin");
 
   double numberMin = parameters_.getParameter<double>("numberMin"); 
   double numberMax = parameters_.getParameter<double>("numberMax"); 
@@ -424,9 +432,15 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 
 	h_phoConvEta_isol_.push_back(dbe_->book1D("phoConvEta",types[type]+" Converted Photon Eta;#eta ",etaBin,etaMin, etaMax)) ;
 	h_phoConvPhi_isol_.push_back(dbe_->book1D("phoConvPhi",types[type]+" Converted Photon Phi;#phi ",phiBin,phiMin,phiMax)) ;
+
 	h_convVtxRvsZ_isol_.push_back(dbe_->book2D("convVtxRvsZ",types[type]+" Photon Reco conversion vtx position;Z (cm);R (cm)",zBin,zMin,zMax,rBin,rMin,rMax));
-	h_convVtxRvsZLowEta_isol_.push_back(dbe_->book2D("convVtxRvsZLowEta",types[type]+" Photon Reco conversion vtx position:  #eta < 1;Z (cm);R (cm)",zBin,zMin,zMax,rBin,rMin,rMax));
-	h_convVtxRvsZHighEta_isol_.push_back(dbe_->book2D("convVtxRvsZHighEta",types[type]+" Photon Reco conversion vtx position:  #eta > 1;Z (cm);R (cm)",zBin,zMin,zMax,rBin,rMin,rMax));
+	h_convVtxZ_isol_.push_back(dbe_->book1D("convVtxZ",types[type]+" Photon Reco conversion vtx position: #eta > 1.5;Z (cm)",zBin,zMin,zMax));
+	h_convVtxR_isol_.push_back(dbe_->book1D("convVtxR",types[type]+" Photon Reco conversion vtx position: #eta < 1;R (cm)",rBin,rMin,rMax));
+	h_convVtxYvsX_isol_.push_back(dbe_->book2D("convVtxYvsX",types[type]+" Photon Reco conversion vtx position: #eta < 1;X (cm);Y (cm)",xBin,xMin,xMax,yBin,yMin,yMax));
+
+
+
+
 	h_nHitsVsEta_isol_.push_back(dbe_->book2D("nHitsVsEta2D",types[type]+" Photons: Tracks from conversions: Mean Number of  Hits vs Eta;#eta;# hits",etaBin,etaMin, etaMax,etaBin,0, 16));
 	p_nHitsVsEta_isol_.push_back(dbe_->book1D("nHitsVsEta",types[type]+" Photons: Tracks from conversions: Mean Number of  Hits vs Eta;#eta;# hits",etaBin,etaMin, etaMax));	
 	h_tkChi2_isol_.push_back(dbe_->book1D("tkChi2",types[type]+" Photons: Tracks from conversions: #chi^{2} of all tracks;#chi^{2}", 100, 0., 20.0));
@@ -461,10 +475,12 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
       h_phoConvPhi_isol_.clear();
       h_convVtxRvsZ_.push_back(h_convVtxRvsZ_isol_);
       h_convVtxRvsZ_isol_.clear();
-      h_convVtxRvsZLowEta_.push_back(h_convVtxRvsZLowEta_isol_);
-      h_convVtxRvsZLowEta_isol_.clear();
-      h_convVtxRvsZHighEta_.push_back(h_convVtxRvsZHighEta_isol_);
-      h_convVtxRvsZHighEta_isol_.clear();
+      h_convVtxR_.push_back(h_convVtxR_isol_);
+      h_convVtxR_isol_.clear();
+      h_convVtxZ_.push_back(h_convVtxZ_isol_);
+      h_convVtxZ_isol_.clear();
+      h_convVtxYvsX_.push_back(h_convVtxYvsX_isol_);
+      h_convVtxYvsX_isol_.clear();
       h_tkChi2_.push_back(h_tkChi2_isol_);
       h_tkChi2_isol_.clear();
       h_nHitsVsEta_.push_back(h_nHitsVsEta_isol_);
@@ -772,14 +788,14 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	    fill2DHistoVector(h_convVtxRvsZ_,fabs( conversions[iConv]->conversionVertex().position().z() ),  
 			      sqrt( conversions[iConv]->conversionVertex().position().perp2() ),cut,type);
 
-	    if(fabs(conversions[iConv]->caloCluster()[0]->eta()) < 1){
-	      fill2DHistoVector(h_convVtxRvsZLowEta_,fabs( conversions[iConv]->conversionVertex().position().z() ),  
-				sqrt( conversions[iConv]->conversionVertex().position().perp2() ),cut,type);
+	    if(fabs(conversions[iConv]->caloCluster()[0]->eta()) > 1.5){
+	      fill2DHistoVector(h_convVtxZ_,fabs(conversions[iConv]->conversionVertex().position().z()), cut,type);
 	    }
-	    
-	    else{
-	      fill2DHistoVector(h_convVtxRvsZHighEta_,fabs( conversions[iConv]->conversionVertex().position().z() ),  
-				sqrt( conversions[iConv]->conversionVertex().position().perp2() ),cut,type);
+	    else if(fabs(conversions[iConv]->caloCluster()[0]->eta()) < 1){
+	      fill2DHistoVector(h_convVtxR_,sqrt( conversions[iConv]->conversionVertex().position().perp2() ),cut,type);
+
+	      fill2DHistoVector(h_convVtxYvsX_,fabs( conversions[iConv]->conversionVertex().position().x() ),  
+				fabs( conversions[iConv]->conversionVertex().position().y() ),cut,type);
 	    }
 
 	  }
@@ -869,7 +885,7 @@ void PhotonAnalyzer::endJob()
     currentFolder_.str("");
     currentFolder_ << "Et above 0 GeV/";
     
-    dividePlots(dbe_->get(EffPath+"Filters"),dbe_->get(EffPath+"Filters"),dbe_->get(AllPath+currentFolder_.str() + "DistributionAllEcal")->getTH2F()->GetEntries());   
+    dividePlots(dbe_->get(EffPath+"Filters"),dbe_->get(EffPath+"Filters"),dbe_->get(EffPath+ "phoEtHLT")->getTH1F()->GetEntries());   
     //making efficiency plots
     
     dividePlots(dbe_->get(EffPath+"EfficiencyVsEtaLoose"),dbe_->get(EffPath+ "phoEtaLoose"),dbe_->get(AllPath+currentFolder_.str() + "phoEta"));

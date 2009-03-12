@@ -74,7 +74,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/02/19 16:28:31 $ 
+ **  $Date: 2009/02/23 14:01:09 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -246,10 +246,12 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
   std::vector<MonitorElement*> h_convVtxRvsZ_isol_;
   std::vector<std::vector<MonitorElement*> > h_convVtxRvsZ_;
-  std::vector<MonitorElement*> h_convVtxRvsZLowEta_isol_;
-  std::vector<std::vector<MonitorElement*> > h_convVtxRvsZLowEta_;
-  std::vector<MonitorElement*> h_convVtxRvsZHighEta_isol_;
-  std::vector<std::vector<MonitorElement*> > h_convVtxRvsZHighEta_;
+  std::vector<MonitorElement*> h_convVtxZ_isol_;
+  std::vector<std::vector<MonitorElement*> > h_convVtxZ_;
+  std::vector<MonitorElement*> h_convVtxYvsX_isol_;
+  std::vector<std::vector<MonitorElement*> > h_convVtxYvsX_;
+  std::vector<MonitorElement*> h_convVtxR_isol_;
+  std::vector<std::vector<MonitorElement*> > h_convVtxR_;
 
   std::vector<MonitorElement*> h_r9VsEt_isol_;
   std::vector<std::vector<MonitorElement*> > h_r9VsEt_;
