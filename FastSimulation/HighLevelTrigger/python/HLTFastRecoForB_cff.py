@@ -27,6 +27,28 @@ hltBLifetimeRegionalCtfWithMaterialTracksRelaxed = cms.EDFilter("FastTrackMerger
 hltBLifetimeRegionalCkfTrackCandidates = cms.Sequence(globalPixelTracking)
 hltBLifetimeRegionalCkfTrackCandidatesRelaxed = cms.Sequence(globalPixelTracking)
 
+# Take all pixel tracks for b tagging track reco (pTMin>1GeV, nHits>=8) 
+hltBLifetimeRegionalCtfWithMaterialTracksStartupU = cms.EDFilter("FastTrackMerger",
+    SaveTracksOnly = cms.untracked.bool(True),
+    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
+                                   cms.InputTag("globalPixelTrackCandidates")),
+    ptMin = cms.untracked.double(1.0),
+    minHits = cms.untracked.uint32(8)
+)
+
+hltBLifetimeRegionalCtfWithMaterialTracksStartup = cms.EDFilter("FastTrackMerger",
+    SaveTracksOnly = cms.untracked.bool(True),
+    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
+                                   cms.InputTag("globalPixelTrackCandidates")),
+    ptMin = cms.untracked.double(1.0),
+    minHits = cms.untracked.uint32(8)
+)
+
+
+hltBLifetimeRegionalCkfTrackCandidates = cms.Sequence(globalPixelTracking)
+hltBLifetimeRegionalCkfTrackCandidatesRelaxed = cms.Sequence(globalPixelTracking)
+hltBLifetimeRegionalCkfTrackCandidatesStartupU = cms.Sequence(globalPixelTracking)
+hltBLifetimeRegionalCkfTrackCandidatesStartup = cms.Sequence(globalPixelTracking)
 
 #############################################
 # Reconstruct muons for MumuK

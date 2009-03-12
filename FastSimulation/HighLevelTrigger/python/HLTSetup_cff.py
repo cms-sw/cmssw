@@ -67,6 +67,10 @@ hltL3SingleTauMETPixelSeeds = FastSimulation.HighLevelTrigger.DummyModule_cfi.du
 import FastSimulation.HighLevelTrigger.DummyModule_cfi
 hltL3SingleTauMETPixelSeedsRelaxed = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 import FastSimulation.HighLevelTrigger.DummyModule_cfi
+hltBLifetimeRegionalPixelSeedGeneratorStartupU = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+import FastSimulation.HighLevelTrigger.DummyModule_cfi
+hltBLifetimeRegionalPixelSeedGeneratorStartup = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+import FastSimulation.HighLevelTrigger.DummyModule_cfi
 hltBLifetimeRegionalPixelSeedGenerator = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 import FastSimulation.HighLevelTrigger.DummyModule_cfi
 hltBLifetimeRegionalPixelSeedGeneratorRelaxed = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
