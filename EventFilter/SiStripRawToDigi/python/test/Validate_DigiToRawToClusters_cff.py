@@ -3,6 +3,11 @@ import FWCore.ParameterSet.Config as cms
 # Services
 from DQM.SiStripCommon.MessageLogger_cfi import *
 MessageLogger.debugModules = cms.untracked.vstring()
+Timing = cms.Service("Timing")
+Tracer = cms.Service(
+    "Tracer", 
+    sourceSeed = cms.untracked.string("$$")
+    )
 
 # Conditions
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
