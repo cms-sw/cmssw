@@ -63,7 +63,7 @@ CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
 
   caloTowersLabel_     = iConfig.getParameter<edm::InputTag>("CaloTowersLabel");
   debug_               = iConfig.getParameter<bool>("Debug");
-  finebinning_         = iConfig.getUntrackedParameter<bool>("FineBinning"); 
+  finebinning_         = iConfig.getParameter<bool>("FineBinning"); 
  
 }
 
