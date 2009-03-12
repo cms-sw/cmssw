@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:36:41 EST 2005
-// $Id: SimTrackManager.h,v 1.9 2008/06/17 07:00:19 fabiocos Exp $
+// $Id: SimTrackManager.h,v 1.10 2009/03/11 15:16:59 fabiocos Exp $
 //
 
 // system include files
@@ -63,7 +63,8 @@ public:
   void cleanTkCaloStateInfoMap();
   
   void addTrack(TrackWithHistory* iTrack, bool inHistory, bool withAncestor) {
-    idsave[iTrack->trackID()] = iTrack->parentID();
+    std::pair<int, int> thePair(iTrack->trackID(),iTrack->parentID());
+    idsave.push_back(thePair);
     if (inHistory) m_trksForThisEvent->push_back(iTrack);
     if (withAncestor) { std::pair<int,int> thisPair(iTrack->trackID(),0); ancestorList.push_back(thisPair); }
   }
@@ -80,9 +81,8 @@ public:
     m_collapsePrimaryVertices=iSet;
   }
   int giveMotherNeeded(int i) const { 
-    std::map<int, int>::const_iterator itr = idsave.find(i);
     int theResult = 0;
-    if ( itr != idsave.end() ) theResult = (*itr).second;
+    for (unsigned int itr=0; itr<idsave.size(); itr++) { if ((idsave[itr]).first == i) { theResult = (idsave[itr]).second; break; } }
     return theResult ; }
   void cleanTracksWithHistory();
 
@@ -105,7 +105,7 @@ private:
   int m_nVertices;
   bool m_collapsePrimaryVertices;
   std::map<uint32_t,std::pair<math::XYZVectorD,math::XYZTLorentzVectorD > > mapTkCaloStateInfo;
-  std::map<int, int> idsave;
+  std::vector< std::pair<int, int> > idsave;
 
   std::vector<std::pair<int, int> > ancestorList; 
 

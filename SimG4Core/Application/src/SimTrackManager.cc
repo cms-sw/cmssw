@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:44:19 EST 2005
-// $Id: SimTrackManager.cc,v 1.16 2008/01/09 10:42:05 fambrogl Exp $
+// $Id: SimTrackManager.cc,v 1.17 2009/03/11 15:16:59 fabiocos Exp $
 //
 
 // system include files
@@ -72,7 +72,7 @@ void SimTrackManager::reset()
     }
   cleanVertexMap();
   cleanTkCaloStateInfoMap();
-  std::map<int, int>().swap(idsave);
+  std::vector<std::pair <int, int> >().swap(idsave);
   ancestorList.clear();
   lastTrack=0;
   lastHist=0;
@@ -117,10 +117,9 @@ void SimTrackManager::storeTracks(G4SimEvent* simEvent)
   cleanTracksWithHistory();
 
   // fill the map with the final mother-daughter relationship
-  idsave.clear();
-  for (unsigned int i = 0; i < ancestorList.size(); i++){
-    idsave[(ancestorList[i]).first] = (ancestorList[i]).second;
-  }
+  idsave.swap(ancestorList);
+  stable_sort(idsave.begin(),idsave.end());
+
   std::vector<std::pair<int,int> >().swap(ancestorList);
 
   // to get a backward compatible order
@@ -213,11 +212,9 @@ int SimTrackManager::idSavedTrack (int i) const
 
   int id = 0;  
   if (i > 0) {
-    std::map<int,int>::const_iterator it = idsave.find(i);
-    if (it != idsave.end()) {
-      if ((*it).second != i) return idSavedTrack((*it).second);
+    for (unsigned int itr=0; itr<idsave.size(); itr++) { if ((idsave[itr]).first == i) { id = (idsave[itr]).second; break; } }
+      if (id != i) return idSavedTrack(id);
       id = i;
-    }
   }
   return id;
 }
@@ -263,6 +260,8 @@ void SimTrackManager::cleanTracksWithHistory(){
   
   stable_sort(m_trksForThisEvent->begin()+lastTrack,m_trksForThisEvent->end(),trkIDLess());
   
+  stable_sort(idsave.begin(),idsave.end());
+  
 #ifdef DebugLog
   LogDebug("SimTrackManager")  << " SimTrackManager::cleanTracksWithHistory knows " << m_trksForThisEvent->size()
                                << " tracks with history before branching";
@@ -283,7 +282,7 @@ void SimTrackManager::cleanTracksWithHistory(){
         {
           if (it>num) (*m_trksForThisEvent)[num] = t;
           num++;
-          idsave[g4ID] = g4ID;
+          for (unsigned int itr=0; itr<idsave.size(); itr++) { if ((idsave[itr]).first == g4ID) { (idsave[itr]).second = g4ID; break; } }
         }
       else 
         {	
