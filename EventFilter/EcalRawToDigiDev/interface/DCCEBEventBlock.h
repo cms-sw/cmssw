@@ -10,8 +10,8 @@
  *
  * \file DCCEBEventBlock.h
  *
- * $Date: 2007/07/24 11:39:35 $
- * $Revision: 1.5 $
+ * $Date: 2008/09/29 17:35:58 $
+ * $Revision: 1.6 $
  *
  * \author N. Almeida
  * 
@@ -29,7 +29,9 @@ class DCCEBEventBlock : public DCCEventBlock{
   public :
 
    DCCEBEventBlock( DCCDataUnpacker * u, EcalElectronicsMapper *m ,  bool hU, bool srpU, bool tccU, bool feU, bool memU);
-  	
+   
+   void unpack( uint64_t * buffer, uint bufferSize, uint expFedId);
+   
   protected :
   
     int unpackTCCBlocks();

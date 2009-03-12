@@ -63,12 +63,15 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
   //Point to begin of block
   data_++;
   
-  towerId_               = ( *data_ ) & TOWER_ID_MASK;
+  towerId_           = ( *data_ ) & TOWER_ID_MASK;
   nTSamples_         = ( *data_>>TOWER_NSAMP_B  ) & TOWER_NSAMP_MASK; 
-  bx_                       = ( *data_>>TOWER_BX_B     ) & TOWER_BX_MASK;
-  l1_                        = ( *data_>>TOWER_L1_B     ) & TOWER_L1_MASK;
+  bx_                = ( *data_>>TOWER_BX_B     ) & TOWER_BX_MASK;
+  l1_                = ( *data_>>TOWER_L1_B     ) & TOWER_L1_MASK;
   blockLength_       = ( *data_>>TOWER_LENGTH_B ) & TOWER_LENGTH_MASK;
-  
+ 
+  event_->setFESyncNumbers(l1_,bx_,short(expectedTowerID-1));
+
+ 
   //debugging
   //display(cout);
 

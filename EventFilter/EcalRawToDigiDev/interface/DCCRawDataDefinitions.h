@@ -90,12 +90,18 @@ enum headerFields{
   H_DET_TTYPE_B        = 32,
   H_DET_TTYPE_MASK     = 0xFFFF,     // for bits 32.. 47 of the 3rd DCC header word
 
-  H_ORBITCOUNTER_B               = 0,
+   	
+  H_FOV_B              = 48,
+  H_FOV_MASK           = 0xF,
+
+
+  H_ORBITCOUNTER_B            = 0,
   H_ORBITCOUNTER_MASK         = 0xFFFFFFFF, // bits 0.. 31 of the 4th DCC header word
 
   H_SR_B               = 32,
   H_ZS_B               = 33,
   H_TZS_B              = 34,
+  H_MEM_B              = 35,
         
   H_SRCHSTATUS_B       = 36,
   H_CHSTATUS_MASK      = 0xF,
