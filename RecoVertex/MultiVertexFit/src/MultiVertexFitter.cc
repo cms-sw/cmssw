@@ -367,8 +367,9 @@ void MultiVertexFitter::updateWeights()
   {
     int seednr = theVertexStates[0].first;
     CachingVertex<5> seed = theVertexStates[0].second;
-    double chi2 = theComp.estimate ( seed, theCache.linTrack ( seed.position(), *trk ) );     
-    double weight = theAssComp->phi ( chi2 );
+    pair<bool, double> result = theComp.estimate ( seed, theCache.linTrack ( seed.position(), *trk ) ); 
+    double weight = 0.;
+    if (result.first) weight = theAssComp->phi ( result.second );
     theWeights[*trk][seednr]= weight; // FIXME maybe "hard" 1.0 or "soft" weight?
   }
 
@@ -384,9 +385,10 @@ void MultiVertexFitter::updateWeights()
           seed=theVertexStates.begin(); seed!=theVertexStates.end(); ++seed )
     {
       
-      double chi2 = theComp.estimate ( seed->second, theCache.linTrack ( seed->second.position(),
-           *trk ) );
-      double weight = theAssComp->phi ( chi2 );
+      pair<bool, double> result = theComp.estimate ( seed->second, theCache.linTrack ( seed->second.position(),
+             *trk ) );
+      double weight = 0.;
+      if (result.first) weight = theAssComp->phi ( result.second );
       tot_weight+=weight;
       theWeights[*trk][seed->first]=weight;
       /* cout << "[MultiVertexFitter] w[" << TransientTrackNamer().name(*trk)
