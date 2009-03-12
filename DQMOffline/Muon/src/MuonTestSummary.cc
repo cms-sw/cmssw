@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/01/28 14:33:50 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/01/28 14:49:46 $
+ *  $Revision: 1.13 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -648,26 +648,35 @@ void MuonTestSummary::doMolteplicityTests(){
 
   MonitorElement* molteplicityHisto = dbe->get("Muons/MuonRecoAnalyzer/muReco");
   
-  double molteplicity_GLB = double(molteplicityHisto->getBinContent(1)+molteplicityHisto->getBinContent(2))/double(molteplicityHisto->getEntries());
-  LogTrace(metname)<<"molteplicity_GLB: "<<molteplicity_GLB<<endl;
-  double molteplicity_TK = double(molteplicityHisto->getBinContent(3)+molteplicityHisto->getBinContent(4))/double(molteplicityHisto->getEntries());
-  LogTrace(metname)<<"molteplicity_TK: "<<molteplicity_TK<<endl;
-  double molteplicity_STA = double(molteplicityHisto->getBinContent(3)+molteplicityHisto->getBinContent(5))/double(molteplicityHisto->getEntries());
-  LogTrace(metname)<<"molteplicity_STA: "<<molteplicity_STA<<endl;
+  if(molteplicityHisto){
+    if(molteplicityHisto->getEntries()!=0){
+      double molteplicity_GLB = double(molteplicityHisto->getBinContent(1)+molteplicityHisto->getBinContent(2))/double(molteplicityHisto->getEntries());
+      LogTrace(metname)<<"molteplicity_GLB: "<<molteplicity_GLB<<endl;
+      double molteplicity_TK = double(molteplicityHisto->getBinContent(3)+molteplicityHisto->getBinContent(4))/double(molteplicityHisto->getEntries());
+      LogTrace(metname)<<"molteplicity_TK: "<<molteplicity_TK<<endl;
+      double molteplicity_STA = double(molteplicityHisto->getBinContent(3)+molteplicityHisto->getBinContent(5))/double(molteplicityHisto->getEntries());
+      LogTrace(metname)<<"molteplicity_STA: "<<molteplicity_STA<<endl;
 
-  if(molteplicity_GLB<expMolteplicityGlb+0.06 && molteplicity_GLB>expMolteplicityGlb-0.06)
-    molteplicitySummaryMap->setBinContent(1,1);
-  else 
-    molteplicitySummaryMap->setBinContent(1,0);
-
-  if(molteplicity_TK<expMolteplicityTk+0.02 && molteplicity_TK>expMolteplicityTk-0.02)
-    molteplicitySummaryMap->setBinContent(2,1);
-  else 
-    molteplicitySummaryMap->setBinContent(2,0);
-
-  if(molteplicity_STA<expMolteplicitySta+0.1 && molteplicity_STA>expMolteplicitySta-0.1)
-    molteplicitySummaryMap->setBinContent(3,1);
-  else 
-    molteplicitySummaryMap->setBinContent(3,0);
+      if(molteplicity_GLB<expMolteplicityGlb+0.06 && molteplicity_GLB>expMolteplicityGlb-0.06)
+	molteplicitySummaryMap->setBinContent(1,1);
+      else 
+	molteplicitySummaryMap->setBinContent(1,0);
+      
+      if(molteplicity_TK<expMolteplicityTk+0.02 && molteplicity_TK>expMolteplicityTk-0.02)
+	molteplicitySummaryMap->setBinContent(2,1);
+      else 
+	molteplicitySummaryMap->setBinContent(2,0);
+      
+      if(molteplicity_STA<expMolteplicitySta+0.1 && molteplicity_STA>expMolteplicitySta-0.1)
+	molteplicitySummaryMap->setBinContent(3,1);
+      else 
+	molteplicitySummaryMap->setBinContent(3,0);
+    }
+    else{
+      molteplicitySummaryMap->setBinContent(1,0);
+      molteplicitySummaryMap->setBinContent(2,0);
+      molteplicitySummaryMap->setBinContent(3,0);
+    }
+  }
 
 }
