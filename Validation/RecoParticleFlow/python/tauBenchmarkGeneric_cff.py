@@ -16,7 +16,7 @@ def changeSource( benchmark, rec, gen ):
     benchmark.InputTruthLabel = gen
     
 
-fromTaus = False
+fromTaus = True
 
 # taking the jets, reconstructed from the large jet cone
 # and as a reference the closest genjet (reconstructed with the same cone)
