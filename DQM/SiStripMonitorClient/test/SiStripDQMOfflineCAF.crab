@@ -6,7 +6,7 @@ server_name = None
 
 [CMSSW]
 
-datasetpath  = /Cosmics/Commissioning08_CRAFT_ALL_V4_ReReco-v1/RECO
+datasetpath  = /Cosmics/Commissioning08_CRAFT_ALL_V9_225-v2/RECO
 runselection = 70036
 
 pset = SiStripDQMOfflineGlobalRunCAF_cfg.py
