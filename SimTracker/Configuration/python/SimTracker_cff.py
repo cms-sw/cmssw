@@ -1,15 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 # Tracker Digitization 
-# (modelng of the electronics response in pixels and sistrips)
-#
+# (modeling of the electronics response in pixels and sistrips)
+
 # Pixel's digitization
-#
 from SimTracker.SiPixelDigitizer.PixelDigi_cfi import *
-# SiStrip's digitization default in APV Mode Peak
-#
-#include "SimTracker/SiStripDigitizer/data/SiStripDigi_APVModeDec.cff"
+# SiStrip's digitization in APV Mode Peak
 from SimTracker.SiStripDigitizer.SiStripDigi_APVModePeak_cff import *
+
+# Combined sequence
 trDigi = cms.Sequence(simSiPixelDigis+simSiStripDigis)
-
-
