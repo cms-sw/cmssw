@@ -8,6 +8,8 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h" 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h" 
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -52,6 +54,10 @@ class StdHitNtuplizer : public edm::EDAnalyzer
  protected:
 
   void fillEvt(const edm::Event& );
+  void fillSRecHit(const int subid, SiStripRecHit2DCollection::const_iterator pixeliter,
+                   const GeomDet* theGeom);
+  void fillSRecHit(const int subid, SiStripMatchedRecHit2DCollection::const_iterator pixeliter,
+                   const GeomDet* theGeom);
   void fillSRecHit(const int subid, SiTrackerGSRecHit2DCollection::const_iterator pixeliter,
                    const GeomDet* theGeom);
   //void fillPRecHit(const int subid, SiPixelRecHitCollection::const_iterator pixeliter,
@@ -68,6 +74,9 @@ class StdHitNtuplizer : public edm::EDAnalyzer
   edm::ParameterSet conf_;
   const TrackerGeometry*  theGeometry;
   edm::InputTag src_;
+  edm::InputTag rphiRecHits_;
+  edm::InputTag stereoRecHits_;
+  edm::InputTag matchedRecHits_;
 
   void init();
   
