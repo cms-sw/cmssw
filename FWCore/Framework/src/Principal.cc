@@ -410,7 +410,7 @@ namespace edm {
   void
   Principal::resolveProvenance(Group const& g) const {
     g.provenance()->setStore(branchMapperPtr_);
-    g.provenance()->productProvenance();
+    g.provenance()->resolve();
   }
 
   OutputHandle
