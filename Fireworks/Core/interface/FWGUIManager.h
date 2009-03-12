@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.50 2009/03/04 17:09:43 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.51 2009/03/11 21:24:36 amraktad Exp $
 //
 
 // system include files
@@ -199,6 +199,7 @@ private:
    void newItem(const FWEventItem*);
 
    void subviewIsBeingDestroyed(unsigned int);
+   void subviewDestroy( unsigned int iIndex);
    void subviewSelected(unsigned int);
    void subviewUnselected(unsigned int);
    void subviewSwapWithCurrent(unsigned int);

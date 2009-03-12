@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.95 2009/03/11 21:16:19 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.96 2009/03/12 16:11:03 amraktad Exp $
 //
 
 // system include files
@@ -438,6 +438,16 @@ FWGUIManager::subviewIsBeingDestroyed(unsigned int iIndex)
       if(0!= m_viewPopup) {refillViewPopup(0);}
    }
 
+   CmsShowTaskExecutor::TaskFunctor f;
+   f = boost::bind(&FWGUIManager::subviewDestroy, this, iIndex);
+   m_tasks->addTask(f);
+   m_tasks->startDoingTasks();
+}
+
+void
+FWGUIManager::subviewDestroy(unsigned int iIndex)
+{
+   (*(m_viewBases.begin()+iIndex))->destroy();
    m_viewFrames.erase(m_viewFrames.begin()+iIndex);
    m_viewBases.erase(m_viewBases.begin()+iIndex);
 }

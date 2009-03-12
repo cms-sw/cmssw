@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.15 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWGUISubviewArea.cc,v 1.16 2009/03/11 21:16:17 amraktad Exp $
 //
 
 // system include files
@@ -117,7 +117,6 @@ void
 FWGUISubviewArea::destroy()
 {
    goingToBeDestroyed_(index());
-   TTimer::SingleShot(50, m_frame->GetEveWindow()->ClassName(), m_frame->GetEveWindow(), "DestroyWindowAndSlot()");
 }
 
 void
