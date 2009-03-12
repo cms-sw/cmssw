@@ -1176,7 +1176,7 @@ namespace edm {
             input::getEntry(br, rootTree.entryNumber());
 	    std::vector<ProductStatus>::size_type index = it->second.oldProductID().productIndex() - 1;
 	    EventEntryInfo entry(it->second.branchID(), rootTree.productStatuses()[index], it->second.oldProductID(), *pb);
-	    mapper->insert(entry.makeProductProvenance());
+	    mapper->insert(entry.makeProductProvenance(ParentageID()));
           } else {
 	    TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
 	    std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
@@ -1185,7 +1185,7 @@ namespace edm {
 	    input::getEntry(br, rootTree.entryNumber());
 	    ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
 	    EventEntryInfo entry(it->second.branchID(), status, it->second.oldProductID());
-	    mapper->insert(entry.makeProductProvenance());
+	    mapper->insert(entry.makeProductProvenance(ParentageID()));
 	  }
 	  mapper->insertIntoMap(it->second.oldProductID(), it->second.branchID());
         }
