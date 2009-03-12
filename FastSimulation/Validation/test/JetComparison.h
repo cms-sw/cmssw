@@ -43,7 +43,7 @@ class JetComparison : public edm::EDAnalyzer {
    JetComparison(edm::ParameterSet const& conf);
   ~JetComparison();
   virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-  virtual void beginJob() ;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) ;
   virtual void endJob() ;
   double deltaR2(double eta0, double phi0, double eta, double phi);
  private:

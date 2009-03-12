@@ -25,7 +25,7 @@ class FastTSGFromL2Muon : public edm::EDProducer {
 
   FastTSGFromL2Muon(const edm::ParameterSet& cfg);
   virtual ~FastTSGFromL2Muon();
-  virtual void beginRun(const edm::EventSetup& es);
+  virtual void beginRun(edm::Run& run, edm::EventSetup const& es);
   virtual void produce(edm::Event& ev, const edm::EventSetup& es);
   
  private:

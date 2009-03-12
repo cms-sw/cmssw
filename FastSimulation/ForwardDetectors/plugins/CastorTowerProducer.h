@@ -20,9 +20,9 @@ class CastorTowerProducer : public edm::EDProducer {
       ~CastorTowerProducer();
 
    private:
-      virtual void beginJob() ;
+      virtual void beginRun(edm::Run&, edm::EventSetup const&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void endRun() ;
       
       // ----------member data ---------------------------
       typedef math::XYZPointD Point;

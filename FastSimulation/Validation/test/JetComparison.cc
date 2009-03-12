@@ -129,7 +129,7 @@ void JetComparison::endJob() {
 
   fFile->Close();
 }
-void JetComparison::beginJob(){}
+void JetComparison::beginRun(edm::Run const& run,  edm::EventSetup const& iSetup){}
 void JetComparison::analyze(edm::Event const& event, edm::EventSetup const& c) {
 
   nEvent++;

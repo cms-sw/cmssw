@@ -76,7 +76,7 @@ PileUpProducer::~PileUpProducer() {
 
 }
 
-void PileUpProducer::beginJob()
+void PileUpProducer::beginRun(edm::Run & run, edm::EventSetup const& es)
 {
   
   gROOT->cd();
@@ -143,7 +143,7 @@ void PileUpProducer::beginJob()
   
 }
  
-void PileUpProducer::endJob()
+void PileUpProducer::endRun()
 { 
   // Close all local files
   // Among other things, this allows the TROOT destructor to end up 

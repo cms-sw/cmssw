@@ -22,9 +22,9 @@ public:
   ~DigiCheck();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob();
+  virtual void beginRun(edm::Run const&, edm::EventSetup const& );
   void beginJobAnalyze(const edm::EventSetup & c);
-  virtual void endJob();
+  virtual void endRun();
 private:
   DQMStore * dbe;
   MonitorElement* h0b;

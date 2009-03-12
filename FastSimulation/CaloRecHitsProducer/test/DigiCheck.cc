@@ -18,7 +18,7 @@ DigiCheck::DigiCheck(const edm::ParameterSet&){;}
 DigiCheck::~DigiCheck(){;}
 typedef math::XYZVector XYZPoint;
 
-void  DigiCheck::beginJob(){
+void  DigiCheck::beginRun(edm::Run const& run, edm::EventSetup const& es){
 
   m_firstTimeAnalyze = true ;
 
@@ -320,7 +320,7 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
 }
 
-void DigiCheck::endJob()
+void DigiCheck::endRun()
 {
   dbe->save("Digicheck.root");
 }

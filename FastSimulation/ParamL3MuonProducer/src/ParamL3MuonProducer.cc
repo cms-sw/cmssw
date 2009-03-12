@@ -19,7 +19,7 @@
 //
 // Original Author:  Andrea Perrotta
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: ParamL3MuonProducer.cc,v 1.16 2008/05/25 16:39:40 pjanot Exp $
+// $Id: ParamL3MuonProducer.cc,v 1.17 2009/03/03 14:06:08 abdullin Exp $
 //
 //
 
@@ -545,7 +545,7 @@ void ParamL3MuonProducer::loadGLMuons(reco::MuonCollection & c) const
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void ParamL3MuonProducer::beginJob()
+void ParamL3MuonProducer::beginRun(edm::Run& run, edm::EventSetup const& es)
 {
 
   // Initialize
@@ -574,7 +574,7 @@ void ParamL3MuonProducer::beginJob()
 
 
 // ------------ method called once each job just after ending the event loop  ------------
-void ParamL3MuonProducer::endJob() {
+void ParamL3MuonProducer::endRun() {
 
   std::cout << " ===> ParamL3MuonProducer , final report." << std::endl;
   std::cout << " ===> Number of total -> L1 / L3 / GL muons in the whole run : "
