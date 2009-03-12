@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/08/25 15:26:22 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/11/24 18:51:05 $
+ *  $Revision: 1.10 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -14,7 +14,9 @@
  */
 
 
-#include "GeneratorInterface/Pythia6Interface/interface/PythiaProducer.h"
+//#include "GeneratorInterface/Pythia6Interface/interface/PythiaProducer.h"
+#include "PythiaProducer.h"
+
 #include "GeneratorInterface/Pythia6Interface/interface/PYR.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"

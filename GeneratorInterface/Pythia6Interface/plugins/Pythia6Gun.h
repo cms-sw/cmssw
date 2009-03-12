@@ -19,8 +19,8 @@
 // #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
-#include "Pythia6Service.h"
-#include "Pythia6Declarations.h"
+#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
+#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
 
 namespace gen
 {

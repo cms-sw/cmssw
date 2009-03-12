@@ -33,8 +33,8 @@ HepMC::IO_HEPEVT conv;
 // NOTE: here a number of Pythia6 routines are declared,
 // plus some functionalities to pass around Pythia6 params
 //
-#include "Pythia6Service.h"
-#include "Pythia6Declarations.h"
+#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
+#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
 
 namespace gen
 {

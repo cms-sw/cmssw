@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/11/24 18:51:05 $
- *  $Revision: 1.36 $
+ *  $Date: 2008/12/29 21:35:27 $
+ *  $Revision: 1.37 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -14,7 +14,9 @@
  */
 
 
-#include "GeneratorInterface/Pythia6Interface/interface/PythiaSource.h"
+//#include "GeneratorInterface/Pythia6Interface/interface/PythiaSource.h"
+#include "PythiaSource.h"
+
 #include "GeneratorInterface/Pythia6Interface/interface/PYR.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
@@ -24,6 +26,11 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandFlat.h"
 
+/*
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/InputSourceMacros.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+*/
 
 #include <iostream>
 #include "time.h"
@@ -753,3 +760,8 @@ PythiaSource::call_slha_init() {
    SLHA_INIT();
    return 1;  
 }
+
+/*
+using edm::PythiaSource;
+DEFINE_FWK_INPUT_SOURCE(PythiaSource);
+*/
