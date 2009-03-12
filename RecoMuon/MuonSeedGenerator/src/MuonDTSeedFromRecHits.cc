@@ -2,26 +2,24 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2008/09/12 23:08:34 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/10/17 23:26:24 $
+ *  $Revision: 1.13 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
  */
 #include "RecoMuon/MuonSeedGenerator/src/MuonDTSeedFromRecHits.h"
-
+#include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-
-#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+//#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+//#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+//#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+//#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -39,7 +37,7 @@ MuonDTSeedFromRecHits::MuonDTSeedFromRecHits()
 
 
 TrajectorySeed MuonDTSeedFromRecHits::seed() const {
-  double pt[8] = { 0.0, 0.0 ,0.0 ,0.0 ,0.0 ,0.0 ,0.0 ,0.0 };
+  double pt[16] = { 0.0 };
   // these weights are supposed to be 1/sigma^2(pt), but they're so small.
   // Instead of the 0.2-0.5 GeV here, we'll add something extra in quadrature later
   double spt[8] = { 1/0.048 , 1/0.075 , 1/0.226 , 1/0.132 , 1/0.106 , 1/0.175 , 1/0.125 , 1/0.185 }; 
@@ -63,10 +61,12 @@ TrajectorySeed MuonDTSeedFromRecHits::seed() const {
 		    << " Pt MB4-MB2 " << pt[6] << " w: " << spt[6]<< "\n" 
 		    << " Pt MB4-MB3 " << pt[7] << " w: " << spt[7]<< endl  ;
   
+
   /// now combine all pt estimate
   float ptmean=0.;
   float sptmean=0.;
-  computeBestPt(pt, spt, ptmean, sptmean);
+  //@@ Use Shih-Chuan's
+  computeBestPt(pt+8, spt, ptmean, sptmean);
   
   // add an extra term to the error in quadrature, 30% of pT per point
   int npoints = 0;
@@ -211,6 +211,8 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
 
         pt[0] = fabs(-3.3104+(1.2373/dphi)) * ch;
       }
+      pt[8] = thePtExtractor->pT_extract(*iter, *iter)[0];
+
     }
     // assign Pt from MB2 & vtx
     if( stat==2 ) {
@@ -222,6 +224,8 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
 
         pt[1] = fabs(10.236+(0.5766/dphi)) * ch;
       }
+      pt[9] = thePtExtractor->pT_extract(*iter, *iter)[0];
+
     }
     float ptmax = 2000.;
     if(pt[0] > ptmax) pt[0] = ptmax;
@@ -246,7 +250,6 @@ void MuonDTSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
 
     for (MuonRecHitContainer::const_iterator iter2=theRhits.begin(); 
           iter2!=iter; iter2++ ) {
-
       //+vvp !:
       float eta2= (*iter2)->globalPosition().eta(); 
       if ( fabs (eta2-eta0) > .2 ) continue;  //   !!! +vvp
@@ -281,11 +284,12 @@ void MuonDTSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
         stat2 = tmp;
       }
       unsigned int st = stat1*10+stat2;
-
       if ( dphi ) {
         dphi = fabs(dphi);
         switch (st) {
 	case  12 : {//MB1-MB2
+          pt[10] = thePtExtractor->pT_extract(*iter, *iter2)[0];
+
 	  pt[2]=(12.802+0.38647/dphi)*ch ; 
 	  GlobalPoint pos_iter = (*iter)->globalPosition();
 	  if (  (*iter)->det()->position().perp() <450 ) {
@@ -300,18 +304,28 @@ void MuonDTSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
 	  ;break;
 	}
 	case  13 : {//MB1-MB3
-	  pt[3]=(.0307+0.99111/dphi)*ch ; ;break;
+          pt[11] = thePtExtractor->pT_extract(*iter, *iter2)[0];
+
+           pt[3]=(0.0307+0.99111/dphi)*ch ; ;break;
 	}
 	case  14 : {//MB1-MB4
+          pt[13] = thePtExtractor->pT_extract(*iter, *iter2)[0];
+
 	  pt[5]=(2.7947+1.1991/dphi)*ch ; ;break;
 	}
 	case  23 : {//MB2-MB3
+          pt[12] = thePtExtractor->pT_extract(*iter, *iter2)[0];
+
 	  pt[4]=(2.4583+0.69044/dphi)*ch ;;break; 
 	}
 	case  24 : {//MB2-MB4
+          pt[14] = thePtExtractor->pT_extract(*iter, *iter2)[0];
+
 	  pt[6]=(2.5267+1.1375/dphi)*ch ; ;break; 
 	}
 	case  34 : {//MB3-MB4
+          pt[15] = thePtExtractor->pT_extract(*iter, *iter2)[0];
+
 	  pt[7]=(4.06444+0.59189/dphi)*ch ; ;break;
 	}
 	default: break;
