@@ -4,7 +4,7 @@
 #include "Reflex/Base.h"
 #include "Reflex/TypeTemplate.h"
 
-using namespace Reflex;
+using namespace ROOT::Reflex;
 using namespace std;
 using reco::parser::AnyMethodArgument;
 
@@ -20,8 +20,8 @@ static bool fatalErrorCondition(int iError)
    
 }
 namespace reco {
-  int checkMethod(const Reflex::Member & mem, 
-                  const Reflex::Type   & type,
+  int checkMethod(const ROOT::Reflex::Member & mem, 
+                  const ROOT::Reflex::Type   & type,
                   const std::vector<AnyMethodArgument> &args, std::vector<AnyMethodArgument> &fixuppedArgs) {
     int casts = 0;
     if (mem.IsConstructor()) return -1*parser::kIsConstructor;
@@ -32,7 +32,9 @@ namespace reco {
     if ( ! mem.TypeOf().IsConst() ) return -1*parser::kIsNotConst;
     if (mem.Name().substr(0, 2) == "__") return -1*parser::kIsFunctionAddedByROOT;
     if (mem.DeclaringType().Id() != type.Id()) {
-        //std::cerr << "\nMETHOD OVERLOAD " << mem.Name() << " from " << type.Name() << " of " << mem.DeclaringType().Name() << std::endl;
+        /*std::cerr << "\nMETHOD OVERLOAD " << mem.Name() <<
+                       " by "   << type.Name(QUALITIED|SCOPED) <<
+                       " from " << mem.DeclaringType().Name(QUALIFIED|SCOPED) << std::endl; */
         return -1*parser::kOverloaded;
     }
     size_t minArgs = mem.FunctionParameterSize(true), maxArgs = mem.FunctionParameterSize(false);
@@ -72,7 +74,8 @@ namespace reco {
     if (! type)  
       throw parser::Exception(iIterator)
 	<< "No dictionary for class \"" << type.Name() << "\".";
-    if(type.IsPointer()) type = type.ToType();
+    while(type.IsPointer() || type.IsTypedef()) type = type.ToType();
+    type = Type(type,0); // strip const, volatile, c++ ref, ..
 
     pair<Member, bool> mem; mem.second = false;
 

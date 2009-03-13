@@ -28,7 +28,7 @@ public:
   void checkMuon(const std::string &, double);
   reco::Track trk;
   reco::CompositeCandidate cand;
-  Reflex::Object o;
+  ROOT::Reflex::Object o;
   reco::parser::ExpressionPtr expr;
   pat::Jet jet;
   pat::Muon muon;
@@ -87,7 +87,7 @@ void testExpressionParser::checkMuon(const std::string & expression, double x) {
 
 void testExpressionParser::checkAll() {
   using namespace reco;
-  using namespace Reflex;
+  using namespace ROOT::Reflex;
   const double chi2 = 20.0;
   const int ndof = 10;
   reco::Track::Point v(1, 2, 3);
@@ -117,8 +117,8 @@ void testExpressionParser::checkAll() {
   reco::TrackExtraRef trkExtraRef(h, 0);
   trk.setExtra(trkExtraRef);
   {
-    Reflex::Type t = Reflex::Type::ByTypeInfo(typeid(reco::Track));
-    o = Reflex::Object(t, & trk);
+    ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(typeid(reco::Track));
+    o = ROOT::Reflex::Object(t, & trk);
     
     checkTrack("pt", trk.pt());
     checkTrack("charge", trk.charge());
@@ -130,7 +130,6 @@ void testExpressionParser::checkAll() {
     checkTrack("hitPattern.numberOfValidHits", trk.hitPattern().numberOfValidHits());
     checkTrack("extra.outerPhi", trk.extra()->outerPhi());
     checkTrack("referencePoint.R", trk.referencePoint().R());
-    checkTrack("parameters.At(0)", trk.parameters().At(0));
   }
   reco::Candidate::LorentzVector p1(1, 2, 3, 4);
   reco::Candidate::LorentzVector p2(1.1, 2.2, 3.3, 4.4);
@@ -142,8 +141,8 @@ void testExpressionParser::checkAll() {
   CPPUNIT_ASSERT(cand.daughter(0)!=0);
   CPPUNIT_ASSERT(cand.daughter(1)!=0);
   {
-    Reflex::Type t = Reflex::Type::ByTypeInfo(typeid(reco::Candidate));
-    o = Reflex::Object(t, & cand);  
+    ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(typeid(reco::Candidate));
+    o = ROOT::Reflex::Object(t, & cand);  
     checkCandidate("numberOfDaughters", cand.numberOfDaughters());
     checkCandidate("daughter(0).isStandAloneMuon", cand.daughter(0)->isStandAloneMuon());  
     checkCandidate("daughter(1).isStandAloneMuon", cand.daughter(1)->isStandAloneMuon());  
@@ -165,8 +164,8 @@ void testExpressionParser::checkAll() {
   CPPUNIT_ASSERT(jet.nCarrying(1.0)  == 2);
   CPPUNIT_ASSERT(jet.nCarrying(0.1)  == 1);
   {
-    Reflex::Type t = Reflex::Type::ByTypeInfo(typeid(pat::Jet));
-    o = Reflex::Object(t, & jet);
+    ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(typeid(pat::Jet));
+    o = ROOT::Reflex::Object(t, & jet);
     checkJet("nCarrying(1.0)", jet.nCarrying(1.0));
     checkJet("nCarrying(0.1)", jet.nCarrying(0.1));
   }
@@ -185,8 +184,8 @@ void testExpressionParser::checkAll() {
   CPPUNIT_ASSERT(jet.bDiscriminator("d ")  == 3.0);
   CPPUNIT_ASSERT(jet.getPairDiscri().size() == 3 );
   {
-    Reflex::Type t = Reflex::Type::ByTypeInfo(typeid(pat::Jet));
-    o = Reflex::Object(t, & jet);
+    ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(typeid(pat::Jet));
+    o = ROOT::Reflex::Object(t, & jet);
     checkJet("bDiscriminator(\"aaa\")", jet.bDiscriminator("aaa"));
     checkJet("bDiscriminator('aaa')"  , jet.bDiscriminator("aaa"));
     checkJet("bDiscriminator(\"b c\")", jet.bDiscriminator("b c"));
@@ -194,7 +193,7 @@ void testExpressionParser::checkAll() {
   }
 
   {
-     Reflex::Type t = Reflex::Type::ByTypeInfo(typeid(pat::Jet));
+     ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(typeid(pat::Jet));
      std::vector<reco::SecondaryVertexTagInfo::IndexedTrackData> trackData;
      std::vector<reco::SecondaryVertexTagInfo::VertexData> vertexData(1);
      
@@ -204,7 +203,7 @@ void testExpressionParser::checkAll() {
      dummyInfo.insert(edm::RefToBase<reco::Track>(), props);
      edm::Ptr<reco::BaseTagInfo> ptrDummyInfo(edm::ProductID(1),&dummyInfo,0);
      jet.addTagInfo("dummy", ptrDummyInfo);
-     o = Reflex::Object(t, & jet);
+     o = ROOT::Reflex::Object(t, & jet);
      checkJet("tagInfoSoftLepton.properties(0).quality",jet.tagInfoSoftLepton()->properties(0).quality);
   }
   muon = pat::Muon(reco::Muon(+1, p1+p2));
@@ -213,12 +212,18 @@ void testExpressionParser::checkAll() {
   CPPUNIT_ASSERT( muon.userIso()  == 2.0 );
   CPPUNIT_ASSERT( muon.userIso(0) == 2.0 );
   CPPUNIT_ASSERT( muon.userIso(1) == 42.0 );
+  reco::IsoDeposit dep; dep.addCandEnergy(2.0);
+  CPPUNIT_ASSERT(dep.candEnergy() == 2.0);
+  muon.setIsoDeposit(pat::TrackerIso, dep);
+  CPPUNIT_ASSERT(muon.trackerIsoDeposit() != 0);
+  CPPUNIT_ASSERT(muon.trackerIsoDeposit()->candEnergy() == 2.0);
   {
-    Reflex::Type t = Reflex::Type::ByTypeInfo(typeid(pat::Muon));
-    o = Reflex::Object(t, & muon);
+    ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(typeid(pat::Muon));
+    o = ROOT::Reflex::Object(t, & muon);
     checkMuon("userIso"    , muon.userIso() );
     checkMuon("userIso()"  , muon.userIso() );
     checkMuon("userIso(0)" , muon.userIso(0));
     checkMuon("userIso(1)" , muon.userIso(1));
+    checkMuon("trackerIsoDeposit.candEnergy", muon.trackerIsoDeposit()->candEnergy());
   }
 }
