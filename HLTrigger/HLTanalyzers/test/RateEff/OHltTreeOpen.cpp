@@ -12,8 +12,17 @@ using namespace std;
 void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it) 
 {
   //////////////////////////////////////////////////////////////////
+  // Check OpenHLT L1 bits for L1 rates
+
+  if (menu->GetTriggerName(it).CompareTo("OpenL1_ZeroBias") == 0) {     
+    if(map_BitOfStandardHLTPath.find("OpenL1_ZeroBias")->second == 1) { 
+      if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
+    } 
+  } 
+
+  //////////////////////////////////////////////////////////////////
   // Check OpenHLT trigger
-  
+
   /* DiJetAve */
   if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve15U") == 0) {   
     if(map_BitOfStandardHLTPath.find("L1_SingleJet15")->second == 1) {    
@@ -311,31 +320,19 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }   
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1DoubleMuOpen") == 0) {    
-    int rc = 0;
-    for(int i = 0; i < NL1OpenMu; i++) {   
-      if(L1MuPt[i] > -1.) { // L1 seed
-	rc++;
-      }
-    }
-    if(rc > 1) {
-      if(1) {    
-        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
+    if( map_BitOfStandardHLTPath.find("L1_DoubleMuOpen")->second == 1) {      // L1 Seed
+      if(1) {    // Pass through
+	  if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
       }    
-    }    
-  } 
-  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu0") == 0) {     
-    int rc = 0;
-    for(int i = 0; i < NL1OpenMu; i++) {    
-      if(L1MuPt[i] > -1.) { // L1 seed
-        rc++;
-      }
-    }
-    if(rc > 1) {
-      if(OpenHlt2MuonPassed(0.,0.,0.,2.,0)>=2) {     
-        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
-      }     
-    }     
+    } 
   }
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu0") == 0) {     
+    if( map_BitOfStandardHLTPath.find("L1_DoubleMuOpen")->second == 1) {      // L1 Seed 
+	if(OpenHlt2MuonPassed(0.,0.,0.,2.,0)>=2) {     
+	  if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
+	}
+    }     
+  }     
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu3") == 0) {   
     if( map_BitOfStandardHLTPath.find("L1_SingleMu3")->second == 1) {      // L1 Seed   
       if(OpenHlt1MuonPassed(3.,3.,3.,2.,1)>=1) {   
@@ -409,13 +406,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       }     
     }     
   }  
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon25_L1R") == 0) {     
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {               
-      if(OpenHlt1PhotonPassed(25.,0,999.,999.,999.,999.)>=1) {      
-	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
-      }      
-    }      
-  } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon10_L1R") == 0) {    
     if ( map_BitOfStandardHLTPath.find("L1_SingleEG5")->second == 1 ) {                   
       if(OpenHlt1PhotonPassed(10.,0,999.,999.,999.,999.)>=1) {     
@@ -430,9 +420,16 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       }     
     }     
   }      
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon25_L1R") == 0) {      
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {                
+      if(OpenHlt1PhotonPassed(25.,0,999.,999.,999.,999.)>=1) {       
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }       
+      }       
+    }       
+  }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon30_L1R") == 0) {     
     if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {                                   
-      if(OpenHlt1PhotonPassed(20.,0,999.,999.,999.,999.)>=1) {      
+      if(OpenHlt1PhotonPassed(30.,0,999.,999.,999.,999.)>=1) {      
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
     }      
@@ -514,7 +511,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       } 
     }
   } 
-  else if (menu->GetTriggerName(it).CompareTo("HLT_DoublePhoton15_VeryLooseEcalIso_L1R") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoublePhoton15_VeryLooseEcalIso_L1R") == 0) {
     if ( map_BitOfStandardHLTPath.find("L1_DoubleEG5")->second == 1 ) {   
       if(OpenHlt1PhotonLooseEcalIsoPassed(15.,0,2,999.,999.,5.)>=1) {     
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }         
@@ -666,18 +663,19 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }       
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SC15_SW_LooseTrackIso_L1R") == 0) {        
-    int rc = 0;
+    int elepassed = 0;
+    int scpassed = 0;
     if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {         
       if(OpenHlt1ElectronPassed(15.,0,0.12,9999.)>=1) {         
-	rc++;
+	elepassed = 1;
       }
       for(int i = 0;i < NohPhot; i++) {
 	if(ohPhotEt[i] > 15.) {
-	  rc++;
+	  scpassed++; 
 	}
       }
     }
-    if(rc >= 2) {
+    if(elepassed > 0 && scpassed > 0) {
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
     }        
   }        
@@ -685,15 +683,14 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     int rc = 0; 
     if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {          
       if(OpenHlt1ElectronPassed(20.,0,9999.,9999.)>=1) {          
-        rc++; 
+	for(int i = 0;i < NohPhot; i++) { 
+	  if(ohPhotEt[i] > 15.) { 
+	    rc++; 
+	  } 
+	} 
       } 
-      for(int i = 0;i < NohPhot; i++) { 
-        if(ohPhotEt[i] > 15.) { 
-          rc++; 
-        } 
-      } 
-    } 
-    if(rc >= 2) { 
+    }
+    if(rc >= 1) { 
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }         
     }         
   }         
@@ -1125,9 +1122,9 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
     } 
   } 
-  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1ETM30") == 0){ 
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1ETM40") == 0){ 
     if(map_BitOfStandardHLTPath.find("L1_SingleMu14")->second == 1){      // L1 Seed 
-      if(map_BitOfStandardHLTPath.find("L1_ETM30")->second == 1) 
+      if(map_BitOfStandardHLTPath.find("L1_ETM40")->second == 1) 
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
     } 
   }
@@ -1155,7 +1152,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   // Lepton+jet triggers for... top? exotica? b-tagging?
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9_DiJet30") == 0) {
     int njetswithmu = 0;
-    if(map_BitOfStandardHLTPath.find("L1_Mu5_SingleJet15")->second == 1){      // L1 Seed   
+    if(map_BitOfStandardHLTPath.find("L1_Mu5_Jet15")->second == 1){      // L1 Seed   
       if(OpenHlt1L2MuonPassed(9.,9.,2.)>=1) {
 	for(int i = 0; i < NrecoJetCal; i++) {
 	  if(recoJetCorCalPt[i] > 30.) { // Cut on corrected jet energy
@@ -1168,16 +1165,16 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_SW_L1R_TripleJet30") == 0) {
-    int njetswithmu = 0; 
+    int njetswithe = 0; 
     if(map_BitOfStandardHLTPath.find("L1_EG5_TripleJet15")->second == 1){      // L1 Seed    
       if(OpenHlt1ElectronPassed(10.,0,9999.,9999.)>=1) {
         for(int i = 0; i < NrecoJetCal; i++) { 
           if(recoJetCorCalPt[i] > 30.) { // Cut on corrected jet energy 
-            njetswithmu++; 
+            njetswithe++; 
           } 
         } 
       } 
-      if(njetswithmu >= 3) // Require >= 3 jets above threshold 
+      if(njetswithe >= 3) // Require >= 3 jets above threshold 
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
     } 
   }
@@ -1796,12 +1793,10 @@ int OHltTree::OpenHltQuadJetPassed(double pt)
   int njet = 0;
   int rc = 0;
   
-  // Loop over all oh jets, select events where the *average* pT of a pair is above threshold
+  // Loop over all oh jets
   for (int i=0;i<NrecoJetCorCal;i++) {
-    for (int j=0;j<NrecoJetCorCal && j!=i;j++) {
       if(recoJetCorCalPt[i] > pt) {  // Jet pT cut
 	njet++;
-      }
     }
   }
 
