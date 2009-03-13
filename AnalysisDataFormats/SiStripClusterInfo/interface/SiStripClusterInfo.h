@@ -1,28 +1,25 @@
 #ifndef ANALYSISDATAFORMATS_SISTRIPCLUSTERINFO_H
 #define ANALYSISDATAFORMATS_SISTRIPCLUSTERINFO_H
 
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-
-#include <vector>
-#include <algorithm>
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include <numeric>
-#include "boost/cstdint.hpp"
+
+class SiStripNoises;
+class SiStripGain;
+class SiStripQuality;
+
 
 class SiStripClusterInfo {
+
  public:
 
   SiStripClusterInfo(const SiStripCluster& cluster, 
 		     const edm::EventSetup& es, 
 		     std::string qualityLabel="");
-  ~SiStripClusterInfo() {}
 
-  const SiStripCluster * cluster() const {return cluster_;}
+  const SiStripCluster * cluster() const {return cluster_ptr;}
 
   uint32_t detId() const      {return cluster()->geographicalId();}
   uint16_t width() const      {return cluster()->amplitudes().size();}
@@ -52,22 +49,19 @@ class SiStripClusterInfo {
   bool IsModuleBad() const;
   bool IsModuleUsable() const;
 
-  std::vector<SiStripCluster> reclusterize(float channelThreshold, 
-					   float seedThreshold, 
-					   float clusterThreshold, 
-					   uint8_t maxSequentialHoles,
-					   uint8_t maxSequentialBad,
-					   uint8_t maxAdjacentBad) const;
+  std::vector<SiStripCluster> reclusterize(const edm::ParameterSet&) const;
 
  private:
+
   float calculate_noise(const std::vector<float>&) const; 
 
-  const SiStripCluster* cluster_;
-  const edm::EventSetup& es_; 
-  edm::ESHandle<SiStripNoises> noiseHandle_;
-  edm::ESHandle<SiStripGain> gainHandle_;
-  edm::ESHandle<SiStripQuality> qualityHandle_;
-  std::string qualityLabel_;
+  const SiStripCluster* cluster_ptr;
+  const edm::EventSetup& es; 
+  edm::ESHandle<SiStripNoises> noiseHandle;
+  edm::ESHandle<SiStripGain> gainHandle;
+  edm::ESHandle<SiStripQuality> qualityHandle;
+  std::string qualityLabel;
+
 };
 
 #endif
