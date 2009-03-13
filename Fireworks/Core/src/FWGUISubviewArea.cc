@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.16 2009/03/11 21:16:17 amraktad Exp $
+// $Id: FWGUISubviewArea.cc,v 1.17 2009/03/12 18:25:45 amraktad Exp $
 //
 
 // system include files
@@ -24,13 +24,13 @@
 #include "TEveWindow.h"
 
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
+#include "Fireworks/Core/interface/FWViewBase.h"
 
 //
 // constructors and destructor
 //
-FWGUISubviewArea::FWGUISubviewArea(unsigned int idx, TEveCompositeFrame* eveFrame)
+FWGUISubviewArea::FWGUISubviewArea(TEveCompositeFrame* eveFrame)
    : TGHorizontalFrame(0),
-     m_index(idx),
      m_frame(eveFrame)
 {
    const unsigned int kIconHeight = 20;
@@ -92,13 +92,13 @@ FWGUISubviewArea::~FWGUISubviewArea()
 void
 FWGUISubviewArea::selectButtonDown()
 {
-   selected_(index());
+   selected_(this);
 }
 
 void
 FWGUISubviewArea::selectButtonUp()
 {
-   unselected_(index());
+   unselected_(this);
 }
 
 void
@@ -110,13 +110,13 @@ FWGUISubviewArea::unselect()
 void
 FWGUISubviewArea::swapWithCurrentView()
 {
-   swapWithCurrentView_(index());
+   swapWithCurrentView_(this);
 }
 
 void
 FWGUISubviewArea::destroy()
 {
-   goingToBeDestroyed_(index());
+   goingToBeDestroyed_(this);
 }
 
 void
@@ -143,6 +143,27 @@ bool
 FWGUISubviewArea::isSelected() const
 {
    return m_infoButton->IsDown();
+}
+
+
+//______________________________________________________________________________
+
+TEveWindow*
+FWGUISubviewArea::getEveWindow()
+{
+   return m_frame->GetEveWindow();
+}
+
+
+FWViewBase*
+FWGUISubviewArea::getFWView()
+{
+   FWViewBase* v = (FWViewBase*)(getEveWindow()->GetUserData());
+   if (v)
+   {
+      //  printf("get view %s \n", v->typeName().c_str());
+   }
+   return v;
 }
 
 //______________________________________________________________________________
@@ -267,13 +288,4 @@ FWGUISubviewArea::infoDisabledIcon()
       s_icon = gClient->GetPicture(coreIcondir+"info-disabled.png");
    }
    return s_icon;
-}
-
-
-//______________________________________________________________________________
-
-TEveWindow*
-FWGUISubviewArea::getEveWindow()
-{
-   return m_frame->GetEveWindow();
 }

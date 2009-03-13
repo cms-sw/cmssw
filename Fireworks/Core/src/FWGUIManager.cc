@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.96 2009/03/12 16:11:03 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.97 2009/03/12 18:25:45 amraktad Exp $
 //
 
 // system include files
@@ -139,12 +139,6 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
 
    TEveManager::Create(kFALSE, "FI");
 
-   // gEve->SetUseOrphanage(kTRUE);
-   // TGFrame* f = (TGFrame*) gClient->GetDefaultRoot();
-   // browser->MoveResize(f->GetX(), f->GetY(), f->GetWidth(), f->GetHeight());
-   // browser->Resize( gClient->GetDisplayWidth(), gClient->GetDisplayHeight() );
-
-
    {
       //NOTE: by making sure we defaultly open to a fraction of the full screen size we avoid
       // causing the program to go into full screen mode under default SL4 window manager
@@ -183,16 +177,8 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       TQObject::Connect(m_cmsShowMainFrame->m_eventEntry, "ReturnPressed()", "FWGUIManager", this, "eventIdChanged()");
       TQObject::Connect(m_cmsShowMainFrame->m_filterEntry, "ReturnPressed()", "FWGUIManager", this, "eventFilterChanged()");
    }
-   {
-      // createEDIFrame();
-      // createModelPopup();
-   }
 }
 
-// FWGUIManager::FWGUIManager(const FWGUIManager& rhs)
-// {
-//    // do actual copying here;
-// }
 
 FWGUIManager::~FWGUIManager()
 {
@@ -209,21 +195,18 @@ FWGUIManager::~FWGUIManager()
    delete m_ediFrame;
 }
 
+//______________________________________________________________________________
+// subviews construction
 //
-// assignment operators
-//
-// const FWGUIManager& FWGUIManager::operator=(const FWGUIManager& rhs)
-// {
-//   //An exception safe implementation is
-//   FWGUIManager temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
-//
-// member functions
-//
+void
+FWGUIManager::registerViewBuilder(const std::string& iName,
+                                  ViewBuildFunctor& iBuilder)
+{
+   m_nameToViewBuilder[iName]=iBuilder;
+   CSGAction* action=m_cmsShowMainFrame->createNewViewerAction(iName);
+   action->activated.connect(boost::bind(&FWGUIManager::createView,this,iName));
+}
 
 TEveWindowSlot*
 FWGUIManager::parentForNextView()
@@ -238,8 +221,7 @@ FWGUIManager::parentForNextView()
       slot = m_viewSecPack->NewSlot();
    }
 
-   FWGUISubviewArea* hf = new FWGUISubviewArea(m_viewFrames.size(), slot->GetEveFrame());
-   m_viewFrames.push_back(hf);
+   FWGUISubviewArea* hf = new FWGUISubviewArea(slot->GetEveFrame());
    hf->MapSubwindows();
    slot->GetEveFrame()->ReplaceIconBox(hf);
    hf->goingToBeDestroyed_.connect(boost::bind(&FWGUIManager::subviewIsBeingDestroyed,this,_1));
@@ -251,16 +233,6 @@ FWGUIManager::parentForNextView()
 }
 
 void
-FWGUIManager::registerViewBuilder(const std::string& iName,
-                                  ViewBuildFunctor& iBuilder)
-{
-   m_nameToViewBuilder[iName]=iBuilder;
-   CSGAction* action=m_cmsShowMainFrame->createNewViewerAction(iName);
-   action->activated.connect(boost::bind(&FWGUIManager::createView,this,iName));
-}
-
-
-void
 FWGUIManager::createView(const std::string& iName)
 {
    NameToViewBuilder::iterator itFind = m_nameToViewBuilder.find(iName);
@@ -270,10 +242,21 @@ FWGUIManager::createView(const std::string& iName)
    }
 
    TEveWindowSlot* slot = parentForNextView();
-   slot->SetElementName(iName.c_str());
+   TEveCompositeFrame *ef = slot->GetEveFrame();
+
    FWViewBase* view = itFind->second(slot);
+
+   TEveWindow *ew = ef->GetEveWindow();
+   ew->SetElementName(iName.c_str());
+   ew->SetUserData(view);
+
    m_viewBases.push_back(view);
 }
+
+
+//
+// actions
+//
 
 void
 FWGUIManager::enableActions(bool enable)
@@ -308,12 +291,12 @@ FWGUIManager::playEventsAction()
 {
    return m_cmsShowMainFrame->playEventsAction();
 }
+
 CSGContinuousAction*
 FWGUIManager::playEventsBackwardsAction()
 {
    return m_cmsShowMainFrame->playEventsBackwardsAction();
 }
-
 
 void
 FWGUIManager::disablePrevious()
@@ -365,32 +348,6 @@ FWGUIManager::selectionChanged(const FWSelectionManager& iSM)
 {
    //open the modify window the first time someone selects something
    if (m_modelPopup == 0) createModelPopup();
-
-
-#if defined(THIS_WILL_NEVER_BE_DEFINED)
-   if(1 ==iSM.selected().size() ) {
-      delete m_editableSelected;
-      FWListModel* model = new FWListModel(*(iSM.selected().begin()), m_detailViewManager);
-      const FWEventItem::ModelInfo& info =iSM.selected().begin()->item()->modelInfo(iSM.selected().begin()->index());
-      model->SetMainColor(info.displayProperties().color());
-      model->SetRnrState(info.displayProperties().isVisible());
-      m_editableSelected = model;
-      //m_editor->DisplayElement(m_editableSelected);
-   } else if(1<iSM.selected().size()) {
-      delete m_editableSelected;
-      m_editableSelected = new FWListMultipleModels(iSM.selected());
-      //m_editor->DisplayElement(m_editableSelected);
-   } else {
-      /*
-         if(m_editor->GetEveElement() == m_editableSelected) {
-         //m_editor->DisplayElement(0);
-         }
-       */
-      delete m_editableSelected;
-      m_editableSelected=0;
-   }
-   m_unselectAllButton->SetEnabled( 0 !=iSM.selected().size() );
-#endif
 }
 
 void
@@ -425,77 +382,53 @@ FWGUIManager::addData()
 }
 
 
-//______________________________________________________________________________
-//  subview area
+//  subview actions
 //
 
 void
-FWGUIManager::subviewIsBeingDestroyed(unsigned int iIndex)
+FWGUIManager::subviewIsBeingDestroyed(FWGUISubviewArea* sva)
 {
-   assert(iIndex < m_viewFrames.size());
-
-   if(m_viewFrames[iIndex]->isSelected()) {
+   if(sva->isSelected()) {
       if(0!= m_viewPopup) {refillViewPopup(0);}
    }
 
    CmsShowTaskExecutor::TaskFunctor f;
-   f = boost::bind(&FWGUIManager::subviewDestroy, this, iIndex);
+   f = boost::bind(&FWGUIManager::subviewDestroy, this, sva);
    m_tasks->addTask(f);
    m_tasks->startDoingTasks();
 }
 
 void
-FWGUIManager::subviewDestroy(unsigned int iIndex)
+FWGUIManager::subviewDestroy(FWGUISubviewArea* sva)
 {
-   (*(m_viewBases.begin()+iIndex))->destroy();
-   m_viewFrames.erase(m_viewFrames.begin()+iIndex);
-   m_viewBases.erase(m_viewBases.begin()+iIndex);
-}
-
-void
-FWGUIManager::subviewSelected(unsigned int iSelIndex)
-{
-   unsigned int index=0;
-   for(std::vector<FWGUISubviewArea*>::iterator it = m_viewFrames.begin(), itEnd=m_viewFrames.end();
-       it != itEnd; ++it,++index) {
-      if(index != iSelIndex) {
-         (*it)->unselect();
-      }
+   FWViewBase* v = sva->getFWView();
+   if (v)
+   {
+      std::vector<FWViewBase*>::iterator itFind = std::find(m_viewBases.begin(), m_viewBases.end(), v);
+      m_viewBases.erase(itFind);
+      v->destroy();
    }
-   showViewPopup();
-   refillViewPopup(m_viewBases[iSelIndex]);
 }
 
 void
-FWGUIManager::subviewUnselected(unsigned int iSelIndex)
+FWGUIManager::subviewSelected(FWGUISubviewArea* sva)
+{
+   showViewPopup();
+   refillViewPopup(sva->getFWView());
+}
+
+void
+FWGUIManager::subviewUnselected(FWGUISubviewArea* /*sva*/)
 {
    if(m_viewPopup) {refillViewPopup(0);}
 }
 
 void
-FWGUIManager::subviewSwapWithCurrent(unsigned int index)
+FWGUIManager::subviewSwapWithCurrent(FWGUISubviewArea* sva)
 {
-   TEveWindow* cv = 0;
-   int ci = 0;
-   for(std::vector<FWGUISubviewArea*>::iterator it = m_viewFrames.begin(); it !=m_viewFrames.end(); ++it) {
-      TEveWindow*  ev = (*it)->getEveWindow();
-      if (ev->IsCurrent())
-      {
-         cv = ev;
-         break;
-      }
-      ci++;
-   }
-
-   if (cv)
-   {
-      TEveWindow::SwapWindows(cv, m_viewFrames[index]->getEveWindow());
-      std::swap(m_viewBases[ci], m_viewBases[index]);
-
-   }
+   sva->getEveWindow()->SwapWindowWithCurrent();
 }
 
-//______________________________________________________________________________
 
 TGVerticalFrame*
 FWGUIManager::createList(TGSplitFrame *p)

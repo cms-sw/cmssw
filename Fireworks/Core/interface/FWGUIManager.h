@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.51 2009/03/11 21:24:36 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.52 2009/03/12 18:25:45 amraktad Exp $
 //
 
 // system include files
@@ -198,11 +198,11 @@ private:
 
    void newItem(const FWEventItem*);
 
-   void subviewIsBeingDestroyed(unsigned int);
-   void subviewDestroy( unsigned int iIndex);
-   void subviewSelected(unsigned int);
-   void subviewUnselected(unsigned int);
-   void subviewSwapWithCurrent(unsigned int);
+   void subviewIsBeingDestroyed(FWGUISubviewArea*);
+   void subviewDestroy(FWGUISubviewArea*); // timeout funct
+   void subviewSelected(FWGUISubviewArea*);
+   void subviewUnselected(FWGUISubviewArea*);
+   void subviewSwapWithCurrent(FWGUISubviewArea*);
 
    void exportImageOfMainView();
    void promptForConfigurationFile();
@@ -251,7 +251,7 @@ private:
    FWSummaryManager* m_summaryManager;
 
    //views are owned by their individual view managers
-   std::vector<FWViewBase* > m_viewBases;
+   std::vector<FWViewBase*> m_viewBases;
 
    FWDetailViewManager* m_detailViewManager;
    const FWViewManagerManager* m_viewManagerManager;
