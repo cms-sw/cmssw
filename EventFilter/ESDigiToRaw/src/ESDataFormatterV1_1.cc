@@ -125,7 +125,7 @@ ESDataFormatterV1_1::~ESDataFormatterV1_1() {
 //   return rawData;
 // }
 
-FEDRawData * ESDataFormatterV1_1::DigiToRaw(int fedId, Digis& digis) {
+void ESDataFormatterV1_1::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawData) {
 
   map<int, vector<Word64> > map_data;
   map_data.clear();  
@@ -239,9 +239,9 @@ FEDRawData * ESDataFormatterV1_1::DigiToRaw(int fedId, Digis& digis) {
   DCCwords.push_back(word);
   
   // Output (data size in Bytes)
-  FEDRawData * rawData = new FEDRawData(dataSize);
+  fedRawData.resize(dataSize);
 
-  Word64 * w = reinterpret_cast<Word64* >(rawData->data());
+  Word64 * w = reinterpret_cast<Word64* >(fedRawData.data());
   
   // header
   FEDHeader::set( reinterpret_cast<unsigned char*>(w), trgtype_, lv1_, bx_, fedId); 
@@ -262,13 +262,10 @@ FEDRawData * ESDataFormatterV1_1::DigiToRaw(int fedId, Digis& digis) {
 
   // trailer
   FEDTrailer::set( reinterpret_cast<unsigned char*>(w), dataSize/sizeof(Word64), 
-		   evf::compute_crc(rawData->data(), dataSize),
+		   evf::compute_crc(fedRawData.data(), dataSize),
 		   0, 0);
   w++;
-  
-
-
-  return rawData;
+ 
 
 }
 

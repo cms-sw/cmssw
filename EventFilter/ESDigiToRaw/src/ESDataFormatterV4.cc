@@ -197,7 +197,7 @@ struct ltstrip : public binary_function<ESDataFormatterV4::Word64&, ESDataFormat
 
 
 
-FEDRawData * ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis) {
+void ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawData) {
   
   int ts[3] = {0, 0, 0};
   Word32 word1, word2;
@@ -360,9 +360,10 @@ FEDRawData * ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis) {
   } 
   
   // Output (data size in Bytes)
-  FEDRawData * rawData = new FEDRawData(dataSize);
+  // FEDRawData * rawData = new FEDRawData(dataSize);
+  fedRawData.resize(dataSize);
   
-  Word64 * w = reinterpret_cast<Word64* >(rawData->data());
+  Word64 * w = reinterpret_cast<Word64* >(fedRawData.data());
   
   // header
   FEDHeader::set( reinterpret_cast<unsigned char*>(w), trgtype_, lv1_, bx_, fedId); 
@@ -383,10 +384,8 @@ FEDRawData * ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis) {
   
   // trailer
   FEDTrailer::set( reinterpret_cast<unsigned char*>(w), dataSize/sizeof(Word64), 
-		   evf::compute_crc(rawData->data(), dataSize),
+		   evf::compute_crc(fedRawData.data(), dataSize),
 		   0, 0);
-  w++;
-  
-  return rawData;
+
 }
 

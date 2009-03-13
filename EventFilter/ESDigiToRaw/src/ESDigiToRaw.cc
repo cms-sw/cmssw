@@ -108,10 +108,10 @@ void ESDigiToRaw::produce(edm::Event& ev, const edm::EventSetup& es) {
   ESDataFormatter::Digis::const_iterator itfed; 
   for (itfed = Digis.begin(); itfed != Digis.end(); ++itfed) {   
     int fId = (*itfed).first ; 
-    FEDRawData *rawData = ESDataFormatter_->DigiToRaw(fId, Digis);
-    if (rawData==0) continue; 
+
     FEDRawData& fedRawData = productRawData->FEDData(fId); 
-    fedRawData = *rawData;
+    ESDataFormatter_->DigiToRaw(fId, Digis, fedRawData); 
+
     if (debug_) cout<<"FED : "<<fId<<" Data size : "<<fedRawData.size()<<" (Bytes)"<<endl;
   } 
 

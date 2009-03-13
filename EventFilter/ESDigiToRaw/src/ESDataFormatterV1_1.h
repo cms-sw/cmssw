@@ -32,7 +32,7 @@ class ESDataFormatterV1_1 : public ESDataFormatter {
   ESDataFormatterV1_1(const edm::ParameterSet& ps);
   ~ESDataFormatterV1_1();
 
-  FEDRawData * DigiToRaw(int fedId, Digis & digis);
+  void DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawData);
 
 
   private :    
