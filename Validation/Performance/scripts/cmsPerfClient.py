@@ -255,7 +255,9 @@ class Worker(threading.Thread):
     def run(self):
         try:
             data = request_benchmark(self.__perfcmds, self.__host, self.__port)
+            #Debugging
             print "data is %s"%data
+            print "Puttin it in the queue as (%s,%s)"%(self.__host,data)
             self.__queue.put((self.__host, data))
         except (exceptions.Exception, xmlrpclib.Fault), detail:
             print "Exception was thrown when receiving/submitting job information to host", self.__host, ". Exception information:"
@@ -291,6 +293,7 @@ def runclient(perfcmds, hosts, port, outfile, cmdindex):
             presentBenchmarkData(queue,outfile)
             raise
     print "All job results received"
+    print "The size with the queue containing all data is: %s "%queue.qsize()
     presentBenchmarkData(queue,outfile)    
 
 ########################################
@@ -313,12 +316,14 @@ def runclient(perfcmds, hosts, port, outfile, cmdindex):
 # We now massage the data
 #
 def presentBenchmarkData(q,outfile):
-    print "Pickling data to file..."
+    print "Pickling data to file %s"%outfile
     out = []            # match up the commands with each
                         # command that was passed in the config file
     while not q.empty():
+        print "Queue size is still %s"%q.qsize()
         (host, data) = q.get()
         out.append((host,data))
+    print "Dumping at screen the output!\n%s"%out
     oh = open(outfile,"wb")
     pickle.dump(out,oh)
     oh.close() 

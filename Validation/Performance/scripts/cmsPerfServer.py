@@ -244,7 +244,7 @@ def request_benchmark(cmds):
                       "--cmsScimark",cmdwdefs["cmsScimark"      ],
                       "--cmsScimarkLarge",cmdwdefs["cmsScimarkLarge" ],
                       "--cmsdriver",cmdwdefs["cmsdriverOptions"],
-                      #"--step",cmdwdefs["stepOptions"     ],
+                      "--step",cmdwdefs["stepOptions"     ],
                       #"--quicktest",cmdwdefs["quicktest"       ],
                       #"--profile",cmdwdefs["profilers"       ],
                       "--cpu",cmdwdefs["cpus"            ],
