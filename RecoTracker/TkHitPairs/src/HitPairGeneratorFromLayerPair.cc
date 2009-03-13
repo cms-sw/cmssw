@@ -119,19 +119,11 @@ void HitPairGeneratorFromLayerPair::
 		       const edm::Event & iEvent,
 		       const edm::EventSetup& iSetup)
 {
-  const TransientTrackingRecHitBuilder * TTRHbuilder = 0;
   const TrackerGeometry * trackerGeometry = 0;
-  //if(TTRHbuilder == 0){
-    edm::ESHandle<TransientTrackingRecHitBuilder> theBuilderHandle;
-    iSetup.get<TransientRecHitRecord>().get("WithoutRefit",theBuilderHandle);
-    TTRHbuilder = theBuilderHandle.product();
-  //}
-  //if (!trackerGeometry) {
-    edm::ESHandle<TrackerGeometry> tracker;
-    iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-    trackerGeometry = tracker.product();
-  //}
-
+  
+  edm::ESHandle<TrackerGeometry> tracker;
+  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+  trackerGeometry = tracker.product();
 
   typedef OrderedHitPair::InnerHit InnerHit;
   typedef OrderedHitPair::OuterHit OuterHit;
@@ -153,7 +145,7 @@ void HitPairGeneratorFromLayerPair::
   float nSigmaRZ = sqrt(12.);
   float nSigmaPhi = 3.;
   for (HI oh=outerHits.begin(); oh!= outerHits.end(); oh++) {
-    TransientTrackingRecHit::RecHitPointer recHit = TTRHbuilder->build(*oh);
+    TransientTrackingRecHit::RecHitPointer recHit = theOuterLayer.hitBuilder()->build(*oh);
     GlobalPoint hitPos = recHit->globalPosition();
     float phiErr = nSigmaPhi * sqrt(recHit->globalPositionError().phierr(hitPos)); 
     float dphi = deltaPhi( hitPos.perp(), hitPos.z(), hitPos.perp()*phiErr);   
@@ -164,7 +156,7 @@ void HitPairGeneratorFromLayerPair::
     if(!checkRZ) continue;
 
     for (HI ih = innerCandid.begin(); ih != innerCandid.end(); ih++) {
-      TransientTrackingRecHit::RecHitPointer recHit = TTRHbuilder->build(&(**ih));
+      TransientTrackingRecHit::RecHitPointer recHit = theInnerLayer.hitBuilder()->build(&(**ih));
       GlobalPoint innPos = recHit->globalPosition();
       Range allowed;
       Range hitRZ;
