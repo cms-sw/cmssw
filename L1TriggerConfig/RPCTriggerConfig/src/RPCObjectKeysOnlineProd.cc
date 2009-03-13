@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu Oct  2 19:35:26 CEST 2008
-// $Id$
+// $Id: RPCObjectKeysOnlineProd.cc,v 1.1 2008/10/13 02:41:02 wsun Exp $
 //
 //
 
@@ -74,9 +74,12 @@ RPCObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 {
   std::string rpcKey = pL1TriggerKey->subsystemKey( L1TriggerKey::kRPC ) ;
 
-  pL1TriggerKey->add( "L1RPCConfigRcd",
-		      "L1RPCConfig",
-		      rpcKey ) ;
+  if( !rpcKey.empty() )
+    {
+      pL1TriggerKey->add( "L1RPCConfigRcd",
+			  "L1RPCConfig",
+			  rpcKey ) ;
+    }
 }
 
 //define this as a plug-in

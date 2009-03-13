@@ -7,8 +7,8 @@
 //
 //   https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideL1ConfigOnlineProd r11
 //
-//   $Date$
-//   $Revision$
+//   $Date: 2008/11/24 19:00:38 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   Thomas Themel
@@ -39,6 +39,9 @@ L1MuGMTParametersKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 {
     
       std::string subsystemKey = pL1TriggerKey->subsystemKey( L1TriggerKey::kGMT ) ;
+
+      if( !subsystemKey.empty() )
+	{
 
       l1t::OMDSReader::QueryResults lutKeyResults =
       m_omdsReader.basicQuery(
@@ -82,6 +85,7 @@ L1MuGMTParametersKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
       softwareConfigKeyResults.fillVariable(objectKey) ;
 
       pL1TriggerKey->add( "L1MuGMTParametersRcd", "L1MuGMTParameters", objectKey ) ;
+	}
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(L1MuGMTParametersKeysOnlineProd);

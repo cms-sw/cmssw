@@ -7,8 +7,8 @@
 //
 //   https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideL1ConfigOnlineProd r11
 //
-//   $Date$
-//   $Revision$
+//   $Date: 2008/11/24 18:59:59 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   Thomas Themel
@@ -46,6 +46,8 @@ L1MuTriggerScaleKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
     
       std::string subsystemKey = pL1TriggerKey->subsystemKey( L1TriggerKey::kGMT ) ;
 
+      if( !subsystemKey.empty() )
+	{
       // Lookup GT scales key from GMT main config key
       l1t::OMDSReader::QueryResults scalesKeyResults =
       m_omdsReader.basicQuery(
@@ -75,6 +77,7 @@ L1MuTriggerScaleKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 	edm::LogError( "L1-O2O" ) << "Registering scales key " << objectKey << " for " << m_recordTypes[i];
           pL1TriggerKey->add(m_recordTypes[i], m_objectTypes[i], objectKey ) ;
       }
+	}
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(L1MuTriggerScaleKeysOnlineProd);
