@@ -606,7 +606,7 @@ DTBtiChip::init_clock() {
     int WEN = config()->WENflag(cell+1);
     if( WEN==1 ){
       _thisStepUsedHit[cell]=0;
-    for(int i=0; i<_digis_clock[cell].size(); i++){
+    for(unsigned int i=0; i<_digis_clock[cell].size(); i++){
       const int clockTime = (_digis_clock[cell])[i];
       DTBtiHit* hit = new DTBtiHit(clockTime,config());
       _hits[cell].push_back(hit);

@@ -559,7 +559,7 @@ DTBtiCard::localPosition(const DTTrigData* tr) const {
   float z = geom()->localPosition(trig->parentId()).z();
   
   //FE position
-  int FE = geom()->posFE(trig->parentId().superlayer());
+  //int FE = geom()->posFE(trig->parentId().superlayer());
 
   //trigger position in the BTI frame
   float xt = 0;
