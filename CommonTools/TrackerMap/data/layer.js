@@ -9,6 +9,7 @@ TrackerLayer.showData = function (evt) {
     var myPoly = evt.currentTarget;
        if (evt.type == "mouseover") {
        var myTracker = myPoly.getAttribute("POS");
+       var myMessage = myPoly.getAttribute("MESSAGE");
        var separator = myTracker.indexOf("connected");
        var myTracker2 = myTracker.substring(separator);
        myTracker = myTracker.substring(0,separator);
@@ -20,6 +21,9 @@ TrackerLayer.showData = function (evt) {
        textfield.firstChild.nodeValue=myTracker1;
        textfield=document.getElementById('line2');
        textfield.firstChild.nodeValue=myTracker2;
+       textfield=document.getElementById('line4');
+       textfield.firstChild.nodeValue=myMessage;
+
         opacity=0.2;
         myPoly.setAttribute("style","cursor:crosshair; fill-opacity: "+opacity) ;
       //top.document.getElementById('currentElementText').setAttribute("value",myTracker);

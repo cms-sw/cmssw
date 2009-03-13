@@ -1410,6 +1410,7 @@ for (int layer=1; layer < 44; layer++){
     *xmlfile << "<tspan id=\"line1\" x=\"40\" y=\"30\"> </tspan> " << endl;
     *xmlfile << "<tspan id=\"line2\" x=\"40\" y=\"60\"> </tspan> " << endl;
     *xmlfile << "<tspan id=\"line3\" x=\"40\" y=\"90\"> </tspan> " << endl;
+    *xmlfile << "<tspan id=\"line4\" x=\"40\" y=\"120\"> </tspan> " << endl;
     *xmlfile << " </text> </svg>" << endl;
     xmlfile->close();
   }
