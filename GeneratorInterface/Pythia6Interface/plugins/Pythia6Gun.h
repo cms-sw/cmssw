@@ -51,8 +51,6 @@ namespace gen
     // gun particle(s) characteristics
     //
     std::vector<int> fPartIDs ;
-    double           fMinEta ;
-    double           fMaxEta ;
     double           fMinPhi ;
     double           fMaxPhi ;
         

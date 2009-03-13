@@ -19,7 +19,9 @@ namespace gen {
       
       private:
       
-         double  fMinE ;
+         double  fMinEta;
+	 double  fMaxEta;
+	 double  fMinE ;
          double  fMaxE ;
 	 bool    fAddAntiParticle;
    

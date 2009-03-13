@@ -24,6 +24,8 @@ Pythia6PtGun::Pythia6PtGun( const ParameterSet& pset ) :
    // ParameterSet defpset ;
    ParameterSet pgun_params = 
       pset.getParameter<ParameterSet>("PGunParameters"); //, defpset ) ;
+   fMinEta     = pgun_params.getParameter<double>("MinEta"); // ,-2.2);
+   fMaxEta     = pgun_params.getParameter<double>("MaxEta"); // , 2.2);
    fMinPt       = pgun_params.getParameter<double>("MinPt"); // ,  20.);
    fMaxPt       = pgun_params.getParameter<double>("MaxPt"); // , 420.);
    fAddAntiParticle = pgun_params.getParameter<bool>("AddAntiParticle"); //, false) ;  

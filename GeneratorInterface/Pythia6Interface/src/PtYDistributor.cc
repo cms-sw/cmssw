@@ -1,16 +1,20 @@
 
 #include "GeneratorInterface/Pythia6Interface/interface/PtYDistributor.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+//#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "TFile.h"
 #include "TGraph.h"
 
-using namespace edm;
+using namespace gen;
 
-PtYDistributor::PtYDistributor(std::string input, CLHEP::HepRandomEngine& fRandomEngine, double ptmax = 100, double ptmin = 0, double ymax = 10, double ymin = -10, int ptbins = 1000, int ybins = 50) : ptmax_(ptmax),ptmin_(ptmin),ymax_(ymax),ymin_(ymin), ptbins_(ptbins), ybins_(ybins)
+PtYDistributor::PtYDistributor(edm::FileInPath fip, CLHEP::HepRandomEngine& fRandomEngine, 
+                               double ptmax = 100, double ptmin = 0, 
+			       double ymax = 10, double ymin = -10, 
+			       int ptbins = 1000, int ybins = 50) 
+   : ptmax_(ptmax),ptmin_(ptmin),ymax_(ymax),ymin_(ymin), ptbins_(ptbins), ybins_(ybins)
 {  
-   edm::FileInPath f1(input);
-   std::string fDataFile = f1.fullPath();
+   // edm::FileInPath f1(input);
+   std::string fDataFile = fip.fullPath();
 
    std::cout<<" File from "<<fDataFile <<std::endl;
    TFile f(fDataFile.c_str(),"READ");

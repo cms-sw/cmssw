@@ -19,16 +19,15 @@ using namespace gen;
 
 Pythia6JetGun::Pythia6JetGun( const ParameterSet& pset ) :
    Pythia6Gun(pset),
-   fMinE(0.),
-   fMaxE(0.),
-   fMinP(0.),
-   fMaxP(0.)
+   fMinEta(0.), fMaxEta(0.),
+   fMinE(0.), fMaxE(0.),
+   fMinP(0.), fMaxP(0.)
 {
    
-   // ParameterSet defpset ;
    ParameterSet pgun_params = 
       pset.getParameter<ParameterSet>("PGunParameters"); 
-   
+   fMinEta     = pgun_params.getParameter<double>("MinEta"); 
+   fMaxEta     = pgun_params.getParameter<double>("MaxEta");  
    fMinE = pgun_params.getParameter<double>("MinE");     
    fMaxE = pgun_params.getParameter<double>("MaxE");     
    fMinP = pgun_params.getParameter<double>("MinP"); 

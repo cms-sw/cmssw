@@ -19,6 +19,8 @@ namespace gen {
       
       private:
       
+	 double  fMinEta;
+	 double  fMaxEta;
 	 double  fMinE ;
 	 double  fMaxE ;
          double  fMinP ;

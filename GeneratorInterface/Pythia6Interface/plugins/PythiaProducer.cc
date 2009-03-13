@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/11/24 18:51:05 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/03/12 20:48:02 $
+ *  $Revision: 1.1 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -33,6 +33,7 @@
 
 using namespace edm;
 using namespace std;
+using namespace gen;
 
 
 #include "HepMC/PythiaWrapper6_2.h"
@@ -200,8 +201,10 @@ PythiaProducer::PythiaProducer( const ParameterSet & pset) :
     {
        int ptbins = pset.getUntrackedParameter<int>("ptBinning",1000);
        int ybins = pset.getUntrackedParameter<int>("yBinning",50);
-       fPtYGenerator = new PtYDistributor(kinedata, fRandomEngine,
-                                          ptmax, ptmin, ymax, ymin, ptbins, ybins);
+       FileInPath fip(kinedata);
+       fPtYGenerator = new PtYDistributor(fip, fRandomEngine,
+                                          ptmax, ptmin, ymax, ymin, 
+					  ptbins, ybins);
     }
   }
 

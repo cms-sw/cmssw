@@ -98,7 +98,7 @@ namespace edm
     
     CLHEP::HepRandomEngine& fRandomEngine;
     CLHEP::RandFlat*        fRandomGenerator; 
-    PtYDistributor*         fPtYGenerator;
+    gen::PtYDistributor*    fPtYGenerator;
     int 		    eventNumber_;
   };
 }

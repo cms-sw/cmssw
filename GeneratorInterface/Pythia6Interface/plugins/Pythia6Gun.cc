@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/02/26 11:05:03 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/03/03 17:54:53 $
+ *  $Revision: 1.4 $
  *  \author Julia Yarba
  */
 
@@ -30,10 +30,7 @@ Pythia6Gun::Pythia6Gun( const ParameterSet& pset ) :
    // fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
 {
 
-   // ParameterSet defpset ;
-   //ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters") ;
    ParameterSet pgun_params = 
-      //pset.getUntrackedParameter<ParameterSet>("PGunParameters", defpset ) ;
       pset.getParameter<ParameterSet>("PGunParameters");
       
    // although there's the method ParameterSet::empty(),  
@@ -41,19 +38,13 @@ Pythia6Gun::Pythia6Gun( const ParameterSet& pset ) :
    // before trying to extract parameters - if it is empty,
    // the default values seem to be taken
    //
-   //std::vector<int> defids ;
-   //defids.push_back(13) ;
-   fPartIDs    = pgun_params.getParameter< std::vector<int> >("ParticleID"); //,defids);  
-   fMinEta     = pgun_params.getParameter<double>("MinEta"); // ,-2.2);
-   fMaxEta     = pgun_params.getParameter<double>("MaxEta"); // , 2.2);
+   fPartIDs    = pgun_params.getParameter< std::vector<int> >("ParticleID");   
    fMinPhi     = pgun_params.getParameter<double>("MinPhi"); // ,-3.14159265358979323846);
    fMaxPhi     = pgun_params.getParameter<double>("MaxPhi"); // , 3.14159265358979323846);
    
    fHepMCVerbosity   = pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity", false ) ;
    fPylistVerbosity  = pset.getUntrackedParameter<int>( "pythiaPylistVerbosity", 0 ) ;
    fMaxEventsToPrint = pset.getUntrackedParameter<int>( "maxEventsToPrint", 0 );
-
-   //fAddAntiParticle = pset.getUntrackedParameter("AddAntiParticle", false) ;  
 
 // setup random engine
    randomEngine = &getEngineReference();
