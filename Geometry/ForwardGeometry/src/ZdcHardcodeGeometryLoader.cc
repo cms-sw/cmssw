@@ -63,10 +63,10 @@ void ZdcHardcodeGeometryLoader::fill( HcalZDCDetId::Section section,
   HcalZDCDetId id;
   int firstCell = extTopology->firstCell(section);
   int lastCell = extTopology->lastCell(section);
-  for(int idepth = firstCell; idepth <= lastCell; ++idepth) {
-    id = HcalZDCDetId(section, true, idepth);
+  for(int ichannel = firstCell; ichannel <= lastCell; ++idepth) {
+    id = HcalZDCDetId(section, true, ichannel);
     if(extTopology->valid(id)) zdcIds.push_back(id);
-    id = HcalZDCDetId(section, false, idepth);
+    id = HcalZDCDetId(section, false, ichannel);
     if(extTopology->valid(id)) zdcIds.push_back(id);
    }
   if( geom->cornersMgr() == 0 ) geom->allocateCorners( HcalZDCDetId::kSizeForDenseIndexing ) ;
@@ -91,7 +91,7 @@ ZdcHardcodeGeometryLoader::makeCell(const HcalZDCDetId& detId,
 {
   float zside = detId.zside();
   HcalZDCDetId::Section section = detId.section();
-  int channel = detId.depth();
+  int channel = detId.channel();
   
   float xMother = X0;
   float yMother = Y0;

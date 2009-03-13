@@ -118,15 +118,15 @@ int ZdcTopology::exclude(int zside, HcalZDCDetId::Section section, int ich1, int
 bool ZdcTopology::validRaw(const HcalZDCDetId& id) const{
   bool ok = true;
   if(abs(id.zside())!=1)return false;
-  if(id.depth() <= 0)return false;
+  if(id.channel() <= 0)return false;
   if(!(id.section()== HcalZDCDetId::EM || 
        id.section()== HcalZDCDetId::HAD ||
        id.section()== HcalZDCDetId::LUM)) return false;
-  if(id.section()== HcalZDCDetId::EM && id.depth() > ICH_EM_MAX)
+  if(id.section()== HcalZDCDetId::EM && id.channel() > ICH_EM_MAX)
     return false;
-  if(id.section()== HcalZDCDetId::HAD && id.depth() > ICH_HAD_MAX)
+  if(id.section()== HcalZDCDetId::HAD && id.channel() > ICH_HAD_MAX)
     return false;
-  if(id.section()== HcalZDCDetId::LUM && id.depth() > ICH_LUM_MAX)
+  if(id.section()== HcalZDCDetId::LUM && id.channel() > ICH_LUM_MAX)
     return false;
   return ok;
 }
@@ -138,19 +138,19 @@ std::vector<DetId> ZdcTopology::transverse(const DetId& id) const{
   if(validRaw(zdcId) && zdcId.section()== HcalZDCDetId::EM){
     bool isPositive = false;
     if(zdcId.zside()==1)isPositive = true;
-    if(zdcId.depth()==1){
-      zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.depth()+1);
+    if(zdcId.channel()==1){
+      zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()+1);
       vNeighborsDetId.push_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
-    if(zdcId.depth()== ICH_EM_MAX){
-      zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.depth()-1);
+    if(zdcId.channel()== ICH_EM_MAX){
+      zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()-1);
       vNeighborsDetId.push_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
-    zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.depth()-1);
+    zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()-1);
     vNeighborsDetId.push_back(zdcDetId.rawId());
-    zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.depth()+1);
+    zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()+1);
     vNeighborsDetId.push_back(zdcDetId.rawId());
   }
   return vNeighborsDetId;
@@ -163,31 +163,31 @@ std::vector<DetId> ZdcTopology::longitudinal(const DetId& id) const{
   if(validRaw(zdcId) && zdcId.section()== HcalZDCDetId::HAD){
     bool isPositive = false;
     if(zdcId.zside()==1)isPositive = true;
-    if(zdcId.depth()==1){
-      zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.depth()+1);
+    if(zdcId.channel()==1){
+      zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()+1);
       vNeighborsDetId.push_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
-    if(zdcId.depth()== ICH_HAD_MAX){
-      zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.depth()-1);
+    if(zdcId.channel()== ICH_HAD_MAX){
+      zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()-1);
       vNeighborsDetId.push_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
-    zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.depth()-1);
+    zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()-1);
     vNeighborsDetId.push_back(zdcDetId.rawId());
-    zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.depth()+1);
+    zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()+1);
     vNeighborsDetId.push_back(zdcDetId.rawId());
   }
   if(validRaw(zdcId) && zdcId.section()== HcalZDCDetId::LUM){
     bool isPositive = false;
     if(zdcId.zside()==1)isPositive = true;
-    if(zdcId.depth()==1){
-      zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.depth()+1);
+    if(zdcId.channel()==1){
+      zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()+1);
       vNeighborsDetId.push_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
-    if(zdcId.depth()== ICH_LUM_MAX){
-      zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.depth()-1);
+    if(zdcId.channel()== ICH_LUM_MAX){
+      zdcDetId = HcalZDCDetId(zdcId.section(), isPositive, zdcId.channel()-1);
       vNeighborsDetId.push_back(zdcDetId.rawId());
       return vNeighborsDetId;
     }
