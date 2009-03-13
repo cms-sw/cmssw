@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 import socket, xml, xmlrpclib, os, sys, threading, Queue, time, random, pickle, exceptions
 import optparse as opt
-
+#Documentation needs to follow... but for now just know that
+#a template file for cmsPerfClient.py -f option is BencmarkCfg.py in Validation/Performance/python dir.
 PROG_NAME = os.path.basename(sys.argv[0])
 # list of valid options for the configuration file
-validPerfSuitKeys= ["castordir", "perfsuitedir" ,"TimeSizeEvents", "IgProfEvents", "ValgrindEvents", "cmsScimark", "cmsScimarkLarge",
+validPerfSuitKeys= ["castordir", "perfsuitedir" ,"TimeSizeEvents", "TimeSizeCandles","IgProfEvents", "IgProfCandles", "CallgrindEvents", "CallgrindCandles", "MemcheckEvents","MemcheckCandles","cmsScimark", "cmsScimarkLarge",
                     "cmsdriverOptions", "stepOptions", "quicktest", "profilers", "cpus", "cores", "prevrel", "isAllCandles", "candles",
                     "bypasshlt", "runonspare", "logfile"]
 #################
@@ -30,17 +31,27 @@ def optionparse():
                     if   key == "cpus":
                         out = out and type(item[key]) == type("") #has to be a string not a list!
                     elif key == "cores":
-                        out = out and type(item[key]) == type(123)
+                        out = out and type(item[key]) == type("")
                     elif key == "castordir":
                         out = out and type(item[key]) == type("")
                     elif key == "perfsuitedir":
                         out = out and type(item[key]) == type("")
                     elif key == "TimeSizeEvents":
                         out = out and type(item[key]) == type(123)
-                    elif key == "ValgrindEvents":
+                    elif key == "TimeSizeCandles":
+                        out = out and type(item[key]) == type("")
+                    elif key == "CallgrindEvents":
                         out = out and type(item[key]) == type(123)
+                    elif key == "CallgrindCandles":
+                        out = out and type(item[key]) == type("")
                     elif key == "IgProfEvents":
                         out = out and type(item[key]) == type(123)
+                    elif key == "IgProfCandles":
+                        out = out and type(item[key]) == type("")
+                    elif key == "MemcheckEvents":
+                        out = out and type(item[key]) == type(123)
+                    elif key == "MemcheckCandles":
+                        out = out and type(item[key]) == type("")
                     elif key == "cmsScimark":
                         out = out and type(item[key]) == type(123)
                     elif key == "cmsScimarkLarge":
@@ -244,6 +255,7 @@ class Worker(threading.Thread):
     def run(self):
         try:
             data = request_benchmark(self.__perfcmds, self.__host, self.__port)
+            print "data is %s"%data
             self.__queue.put((self.__host, data))
         except (exceptions.Exception, xmlrpclib.Fault), detail:
             print "Exception was thrown when receiving/submitting job information to host", self.__host, ". Exception information:"
