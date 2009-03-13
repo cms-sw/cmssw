@@ -27,6 +27,7 @@
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "SimCalorimetry/HcalSimProducers/interface/HcalDigitizer.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSignalGenerator.h"
 #include "SimGeneral/DataMixingModule/plugins/HcalNoiseStorage.h"
 
 #include <map>
@@ -40,15 +41,13 @@ namespace edm
     {
     public:
 
-      DataMixingHcalDigiWorkerProd();
-
      /** standard constructor*/
       explicit DataMixingHcalDigiWorkerProd(const edm::ParameterSet& ps);
 
       /**Default destructor*/
       virtual ~DataMixingHcalDigiWorkerProd();
 
-      void putHcal(edm::Event &e,const edm::EventSetup& ES) ;
+      void putHcal(edm::Event &e,const edm::EventSetup& ES);
       void addHcalSignals(const edm::Event &e,const edm::EventSetup& ES); 
       void addHcalPileups(const int bcr, edm::Event*,unsigned int EventId,const edm::EventSetup& ES);
 
@@ -71,24 +70,11 @@ namespace edm
       std::string ZDCDigiCollectionDM_ ; // secondary name to be given to collection of digis
 
       HcalDigitizer* myHcalDigitizer_;
-      HcalNoiseStorage myHBHENoise_;
-      HcalNoiseStorage myHONoise_;
-      HcalNoiseStorage myHFNoise_;
-      HcalNoiseStorage myZDCNoise_;
+      HBHESignalGenerator theHBHESignalGenerator;
+      HOSignalGenerator theHOSignalGenerator;
+      HFSignalGenerator theHFSignalGenerator;
+      ZDCSignalGenerator theZDCSignalGenerator;
 
-      std::vector<CaloSamples> HBHEDigiStore_;
-      std::vector<CaloSamples> HODigiStore_;
-      std::vector<CaloSamples> HFDigiStore_;
-      std::vector<CaloSamples> ZDCDigiStore_;
-
-
-      //      typedef std::multimap<DetId, HBHEDataFrame> HBHEDigiMap;
-      //      typedef std::multimap<DetId, HFDataFrame>   HFDigiMap;
-      //      typedef std::multimap<DetId, HODataFrame>   HODigiMap;
-      //      typedef std::multimap<DetId, ZDCDataFrame>  ZDCDigiMap;
-
-
-      //      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
 
       Selector * sel_;
       std::string label_;
