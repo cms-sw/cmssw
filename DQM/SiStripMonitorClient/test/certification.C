@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 #include <vector>
 #include <map>
 #include <string>
@@ -370,6 +371,7 @@ void certification()
     string lineTxt( "" );
     string lineTwiki( " " );
     string sFlag( " run is" );
+    string flagList( "" );
     nEvt = 0;
     offTrkCl = 0.;
     nTrk.clear();
@@ -389,10 +391,13 @@ void certification()
     ostringstream sRun;
     sRun << iRun;
     xml->NewAttr( nodeRun, 0, "number", sRun.str().c_str() );
-    
+
     Bool_t goodRun( kTRUE );
+    UInt_t bitFlags( 0 );
+    UInt_t bitNumber( 1 );
     XMLNodePointer_t nodeFlag( xml->NewChild( nodeRun, 0, "FLAG" ) );
     xml->NewAttr( nodeFlag, 0, "name", "minNEvt" );
+    if ( nRuns == 0 ) flagList = "minNEvt, " + flagList;
     if ( nEvt < minNEvt ) {
       const string lineFlag( "no events" );
       lineTxt += " " + lineFlag;
@@ -402,13 +407,16 @@ void certification()
       xml->NewAttr( nodeFlag, 0, "value", "0" );
     } else {
       xml->NewAttr( nodeFlag, 0, "value", "1" );
+      bitFlags |= ( 1 << bitNumber );
     }
     bool failedTracks( false );
     for ( size_t iAlgo = 0; iAlgo < namesAlgo.size(); ++iAlgo ) {
+      ++bitNumber;
       if ( iAlgo == 0 ) nodeFlag = xml->NewChild( nodeRun, 0, "FLAG" );
       else              nodeFlag = xml->NewChild( nodeRun, 0, "FLAG", "Not included in global flag" );
       xml->NewAttr( nodeFlag, 0, "name", "minNTrk" );
       xml->NewAttr( nodeFlag, 0, "algo", namesAlgo.at( iAlgo ).c_str() );
+      if ( nRuns == 0 ) flagList = "minNTrk (" + namesAlgo.at( iAlgo ) + "), " + flagList;
       if ( nTrk[ namesAlgo.at( iAlgo ) ] < minNTrk ) {
         const string lineFlag( "no " + namesAlgo.at( iAlgo ) + " tracks" );
         lineTxt += " " + lineFlag;
@@ -424,13 +432,16 @@ void certification()
         }
       } else {
         xml->NewAttr( nodeFlag, 0, "value", "1" );
+        bitFlags |= ( 1 << bitNumber );
       }
     }
     for ( size_t iAlgo = 0; iAlgo < namesAlgo.size(); ++iAlgo ) {
+      ++bitNumber;
       if ( iAlgo == 0 ) nodeFlag = xml->NewChild( nodeRun, 0, "FLAG" );
       else              nodeFlag = xml->NewChild( nodeRun, 0, "FLAG", "Not included in global flag" );
       xml->NewAttr( nodeFlag, 0, "name", "minRate" );
       xml->NewAttr( nodeFlag, 0, "algo", namesAlgo.at( iAlgo ).c_str() );
+      if ( nRuns == 0 ) flagList = "minRate (" + namesAlgo.at( iAlgo ) + "), " + flagList;
       if ( rate[ namesAlgo.at( iAlgo ) ] < minRate ) {
         const string lineFlag( "too few " + namesAlgo.at( iAlgo ) + " tracks" );
         lineTxt += " " + lineFlag;
@@ -445,10 +456,13 @@ void certification()
         }
       } else {
         xml->NewAttr( nodeFlag, 0, "value", "1" );
+        bitFlags |= ( 1 << bitNumber );
       }
     }
     nodeFlag = xml->NewChild( nodeRun, 0, "FLAG" );
     xml->NewAttr( nodeFlag, 0, "name", "maxOffTrkCl" );
+    if ( nRuns == 0 ) flagList = "maxOffTrkCl, " + flagList;
+    ++bitNumber;
     if ( offTrkCl > maxOffTrkCl ) {
       const string lineFlag( "too many offTrk clusters" );
       lineTxt += " " + lineFlag;
@@ -457,11 +471,14 @@ void certification()
       xml->NewAttr( nodeFlag, 0, "value", "0" );
     } else {
       xml->NewAttr( nodeFlag, 0, "value", "1" );
+      bitFlags |= ( 1 << bitNumber );
     }
     for ( size_t iDet = 0; iDet < namesDet.size(); ++iDet ) {
+      ++bitNumber;
       nodeFlag = xml->NewChild( nodeRun, 0, "FLAG" );
       xml->NewAttr( nodeFlag, 0, "name", "minSToN" );
       xml->NewAttr( nodeFlag, 0, "subdet", namesDet.at( iDet ).c_str() );
+      if ( nRuns == 0 ) flagList = "minSToN (" + namesDet.at( iDet ) + "), " + flagList;
       if ( sToN[ namesDet.at( iDet ) ] < minSToN[ iDet ] ) {
         const string lineFlag( "too low S/N in " + namesDet.at( iDet ) );
         lineTxt += " " + lineFlag;
@@ -470,11 +487,14 @@ void certification()
         xml->NewAttr( nodeFlag, 0, "value", "0" );
       } else {
         xml->NewAttr( nodeFlag, 0, "value", "1" );
+        bitFlags |= ( 1 << bitNumber );
       }
     }
     nodeFlag = xml->NewChild( nodeRun, 0, "FLAG" );
     xml->NewAttr( nodeFlag, 0, "name", "minFractSubDet" );
     xml->NewAttr( nodeFlag, 0, "subdet", "TIB" );
+    if ( nRuns == 0 ) flagList = "minFractSubDet (TIB), " + flagList;
+    ++bitNumber;
     if ( fractSubDet[ "SiStrip_TIB" ] < minFractSubDet && fractSubDet[ "SiStrip_TIB" ] != -1. ) {
       const string lineFlag( "too few modules good in TIB" );
       lineTxt += " " + lineFlag;
@@ -483,10 +503,13 @@ void certification()
       xml->NewAttr( nodeFlag, 0, "value", "0" );
     } else {
       xml->NewAttr( nodeFlag, 0, "value", "1" );
+      bitFlags |= ( 1 << bitNumber );
     }
     nodeFlag = xml->NewChild( nodeRun, 0, "FLAG" );
     xml->NewAttr( nodeFlag, 0, "name", "minFractSubDet" );
     xml->NewAttr( nodeFlag, 0, "subdet", "TOB" );
+    if ( nRuns == 0 ) flagList = "minFractSubDet (TOB), " + flagList;
+    ++bitNumber;
     if ( fractSubDet[ "SiStrip_TOB" ] < minFractSubDet && fractSubDet[ "SiStrip_TOB" ] != -1. ) {
       const string lineFlag( "too few modules good in TOB" );
       lineTxt += " " + lineFlag;
@@ -495,12 +518,15 @@ void certification()
       xml->NewAttr( nodeFlag, 0, "value", "0" );
     } else {
       xml->NewAttr( nodeFlag, 0, "value", "1" );
+      bitFlags |= ( 1 << bitNumber );
     }
     if ( avForwBackw ) { // FIXME Remove all this hardcoding
+      ++bitNumber;
       if ( useTEC ) {
         nodeFlag = xml->NewChild( nodeRun, 0, "FLAG" );
         xml->NewAttr( nodeFlag, 0, "name", "minFractSubDet" );
         xml->NewAttr( nodeFlag, 0, "subdet", "TEC" );
+        if ( nRuns == 0 ) flagList = "minFractSubDet (TEC), " + flagList;
         if ( fractSubDet[ "SiStrip_TECF" ] == -1. && fractSubDet[ "SiStrip_TECB" ] >= 0. ) {
           if ( fractSubDet[ "SiStrip_TECB" ] < minFractSubDet ) {
             const string lineFlag( "too few modules good in TECB (TECF off)" );
@@ -510,6 +536,7 @@ void certification()
             xml->NewAttr( nodeFlag, 0, "value", "0" );
           } else {
             xml->NewAttr( nodeFlag, 0, "value", "1" );
+            bitFlags |= ( 1 << bitNumber );
           }
         } else if ( fractSubDet[ "SiStrip_TECF" ] >= 0. && fractSubDet[ "SiStrip_TECB" ] == -1. ) {
           if ( fractSubDet[ "SiStrip_TECF" ] < minFractSubDet ) {
@@ -520,6 +547,7 @@ void certification()
             xml->NewAttr( nodeFlag, 0, "value", "0" );
           } else {
             xml->NewAttr( nodeFlag, 0, "value", "1" );
+            bitFlags |= ( 1 << bitNumber );
           }
         } else {
           if ( ( fractSubDet[ "SiStrip_TECF" ] + fractSubDet[ "SiStrip_TECB" ] ) / 2. < minFractSubDet && ( fractSubDet[ "SiStrip_TECF" ] + fractSubDet[ "SiStrip_TECB" ] ) / 2. != -1. ) {
@@ -530,13 +558,23 @@ void certification()
             xml->NewAttr( nodeFlag, 0, "value", "0" );
           } else {
             xml->NewAttr( nodeFlag, 0, "value", "1" );
+            bitFlags |= ( 1 << bitNumber );
           }
         }
+      } else {
+        nodeFlag = xml->NewChild( nodeRun, 0, "FLAG", "Not evaluated, bit set to \"true\"" );
+        xml->NewAttr( nodeFlag, 0, "name", "minFractSubDet" );
+        xml->NewAttr( nodeFlag, 0, "subdet", "TEC" );
+        xml->NewAttr( nodeFlag, 0, "value", "-1" );
+        if ( nRuns == 0 ) flagList = "minFractSubDet (TEC), " + flagList;
+        bitFlags |= ( 1 << bitNumber );
       }
+      ++bitNumber;
       if ( useTID ) {
         nodeFlag = xml->NewChild( nodeRun, 0, "FLAG" );
         xml->NewAttr( nodeFlag, 0, "name", "minFractSubDet" );
         xml->NewAttr( nodeFlag, 0, "subdet", "TID" );
+        if ( nRuns == 0 ) flagList = "minFractSubDet (TID), " + flagList;
         if ( fractSubDet[ "SiStrip_TIDF" ] == -1. && fractSubDet[ "SiStrip_TIDB" ] >= 0. ) {
           if ( fractSubDet[ "SiStrip_TIDB" ] < minFractSubDet ) {
             const string lineFlag( "too few modules good in TIDB (TIDF off)" );
@@ -546,6 +584,7 @@ void certification()
             xml->NewAttr( nodeFlag, 0, "value", "0" );
           } else {
             xml->NewAttr( nodeFlag, 0, "value", "1" );
+            bitFlags |= ( 1 << bitNumber );
           }
         } else if ( fractSubDet[ "SiStrip_TIDF" ] >= 0. && fractSubDet[ "SiStrip_TIDB" ] == -1. ) {
           if ( fractSubDet[ "SiStrip_TIDF" ] < minFractSubDet ) {
@@ -556,6 +595,7 @@ void certification()
             xml->NewAttr( nodeFlag, 0, "value", "0" );
           } else {
             xml->NewAttr( nodeFlag, 0, "value", "1" );
+            bitFlags |= ( 1 << bitNumber );
           }
         } else {
           if ( ( fractSubDet[ "SiStrip_TIDF" ] + fractSubDet[ "SiStrip_TIDB" ] ) / 2. < minFractSubDet && ( fractSubDet[ "TIDF" ] + fractSubDet[ "TIDB" ] ) / 2. != -1. ) {
@@ -566,8 +606,16 @@ void certification()
             xml->NewAttr( nodeFlag, 0, "value", "0" );
           } else {
             xml->NewAttr( nodeFlag, 0, "value", "1" );
+            bitFlags |= ( 1 << bitNumber );
           }
         }
+      } else {
+        nodeFlag = xml->NewChild( nodeRun, 0, "FLAG", "Not evaluated, bit set to \"true\"" );
+        xml->NewAttr( nodeFlag, 0, "name", "minFractSubDet" );
+        xml->NewAttr( nodeFlag, 0, "subdet", "TID" );
+        xml->NewAttr( nodeFlag, 0, "value", "-1" );
+        if ( nRuns == 0 ) flagList = "minFractSubDet (TID), " + flagList;
+        bitFlags |= ( 1 << bitNumber );
       }
 //     } else {
 //       for ( size_t iSubDet = 0; iSubDet < namesSubDet.size(); ++iSubDet ) { // FIXME add 'useTEC' and 'useTID' here
@@ -582,8 +630,20 @@ void certification()
     }
 
     nodeFlag = xml->NewChild( nodeRun, 0, "GLOBAL_FLAG" );
-    if ( goodRun ) xml->NewAttr( nodeFlag, 0, "value", "1" );
-    else           xml->NewAttr( nodeFlag, 0, "value", "0" );
+    if ( goodRun ) {
+      xml->NewAttr( nodeFlag, 0, "value", "1" );
+      bitFlags |= ( 1 << 0 );
+    } else {
+      xml->NewAttr( nodeFlag, 0, "value", "0" );
+    }
+    if ( nRuns == 0 ) {
+      flagList += "global";
+      XMLNodePointer_t nodeFlagList( xml->NewChild( nodeCriteria, 0, "FLAG_LIST", flagList.c_str() ) );
+    }
+    ostringstream sBitFlags;
+    sBitFlags << "0X" << hex << uppercase << setfill( '0' ) << setw(8) << bitFlags<< dec << nouppercase << setfill( ' ' );
+    nodeFlag = xml->NewChild( nodeRun, 0, "FLAG_BITS" );
+    xml->NewAttr( nodeFlag, 0, "value", sBitFlags.str().c_str() );
     
     string flag( " " );
     if ( goodRun ) {
