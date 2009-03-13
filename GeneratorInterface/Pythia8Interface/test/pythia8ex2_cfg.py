@@ -11,6 +11,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(1),
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
+    comEnergy = cms.double(10000.),
     PythiaParameters = cms.PSet(
         pythia8_example01 = cms.vstring('HardQCD:all = on',
                                         'PhaseSpace:pTHatMin = 20.'),
@@ -40,12 +41,11 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
-    dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('GEN')
-    ),
     fileName = cms.untracked.string('pythia8ex2.root')
 )
 
+process.p = cms.Path(process.generator)
 process.outpath = cms.EndPath(process.GEN)
-process.schedule = cms.Schedule(process.outpath)
+
+process.schedule = cms.Schedule(process.p, process.outpath)
 
