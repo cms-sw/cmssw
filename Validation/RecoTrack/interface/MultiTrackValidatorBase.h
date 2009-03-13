@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2009/02/03 14:18:10 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/03/08 02:01:14 $
+ *  $Revision: 1.18 $
  *  \author cerati
  */
 
@@ -26,6 +26,7 @@
 
 #include "CommonTools/RecoAlgos/interface/RecoTrackSelector.h"
 #include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
+
 
 #include <iostream>
 #include <sstream>
@@ -57,6 +58,12 @@ class MultiTrackValidatorBase {
     minPhi(pset.getParameter<double>("minPhi")),
     maxPhi(pset.getParameter<double>("maxPhi")),
     nintPhi(pset.getParameter<int>("nintPhi")),
+    minDxy(pset.getParameter<double>("minDxy")),
+    maxDxy(pset.getParameter<double>("maxDxy")),
+    nintDxy(pset.getParameter<int>("nintDxy")),
+    minDz(pset.getParameter<double>("minDz")),
+    maxDz(pset.getParameter<double>("maxDz")),
+    nintDz(pset.getParameter<int>("nintDz")),
     useInvPt(pset.getParameter<bool>("useInvPt")),
     //
     ptRes_rangeMin(pset.getParameter<double>("ptRes_rangeMin")),
@@ -136,10 +143,14 @@ class MultiTrackValidatorBase {
     std::vector<double> etaintervalsv;
     std::vector<double> phiintervalsv;
     std::vector<double> pTintervalsv;
+    std::vector<double> dxyintervalsv;
+    std::vector<double> dzintervalsv;
     std::vector<int>    totSIMveta,totASSveta,totASS2veta,totRECveta;
     std::vector<int>    totSIMvpT,totASSvpT,totASS2vpT,totRECvpT;
     std::vector<int>    totSIMv_hit,totASSv_hit,totASS2v_hit,totRECv_hit;
     std::vector<int>    totSIMv_phi,totASSv_phi,totASS2v_phi,totRECv_phi;
+    std::vector<int>    totSIMv_dxy,totASSv_dxy,totASS2v_dxy,totRECv_dxy;
+    std::vector<int>    totSIMv_dz,totASSv_dz,totASS2v_dz,totRECv_dz;
 
 
     double step=(max-min)/nint;
@@ -202,6 +213,39 @@ class MultiTrackValidatorBase {
     totASS2_phi.push_back(totASS2v_phi);
     totREC_phi.push_back(totRECv_phi);
 
+    double stepDxy = (maxDxy-minDxy)/nintDxy;
+    dxyintervalsv.push_back(minDxy);
+    for (int k=1;k<nintDxy+1;k++) {
+      double d=minDxy+k*stepDxy;
+      dxyintervalsv.push_back(d);
+      totSIMv_dxy.push_back(0);
+      totASSv_dxy.push_back(0);
+      totASS2v_dxy.push_back(0);
+      totRECv_dxy.push_back(0);
+    }
+    dxyintervals.push_back(dxyintervalsv);
+    totSIM_dxy.push_back(totSIMv_dxy);
+    totASS_dxy.push_back(totASSv_dxy);
+    totASS2_dxy.push_back(totASS2v_dxy);
+    totREC_dxy.push_back(totRECv_dxy);
+
+
+    double stepDz = (maxDz-minDz)/nintDz;
+    dzintervalsv.push_back(minDz);
+    for (int k=1;k<nintDz+1;k++) {
+      double d=minDz+k*stepDz;
+      dzintervalsv.push_back(d);
+      totSIMv_dz.push_back(0);
+      totASSv_dz.push_back(0);
+      totASS2v_dz.push_back(0);
+      totRECv_dz.push_back(0);
+    }
+    dzintervals.push_back(dzintervalsv);
+    totSIM_dz.push_back(totSIMv_dz);
+    totASS_dz.push_back(totASSv_dz);
+    totASS2_dz.push_back(totASS2v_dz);
+    totREC_dz.push_back(totRECv_dz);
+
   }
 
  protected:
@@ -225,6 +269,10 @@ class MultiTrackValidatorBase {
   int nintHit;
   double minPhi, maxPhi;
   int nintPhi;
+  double minDxy, maxDxy;
+  int nintDxy;
+  double minDz, maxDz;
+  int nintDz;
   bool useInvPt;
   //
   double ptRes_rangeMin,ptRes_rangeMax,
@@ -245,6 +293,8 @@ class MultiTrackValidatorBase {
   std::vector<MonitorElement*> h_efficPt, h_fakeratePt, h_recopT, h_assocpT, h_assoc2pT, h_simulpT;
   std::vector<MonitorElement*> h_effic_vs_hit, h_fake_vs_hit, h_recohit, h_assochit, h_assoc2hit, h_simulhit;
   std::vector<MonitorElement*> h_effic_vs_phi, h_fake_vs_phi, h_recophi, h_assocphi, h_assoc2phi, h_simulphi;
+  std::vector<MonitorElement*> h_effic_vs_dxy, h_fake_vs_dxy, h_recodxy, h_assocdxy, h_assoc2dxy, h_simuldxy;
+  std::vector<MonitorElement*> h_effic_vs_dz, h_fake_vs_dz, h_recodz, h_assocdz, h_assoc2dz, h_simuldz;
   std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDz,h_pullQoverp;
 
   //2D  
@@ -271,12 +321,16 @@ class MultiTrackValidatorBase {
     
 
   std::vector< std::vector<double> > etaintervals;
-  std::vector< std::vector<double> > phiintervals;
   std::vector< std::vector<double> > pTintervals;
+  std::vector< std::vector<double> > phiintervals;
+  std::vector< std::vector<double> > dxyintervals;
+  std::vector< std::vector<double> > dzintervals;
   std::vector< std::vector<int> > totSIMeta,totRECeta,totASSeta,totASS2eta;
   std::vector< std::vector<int> > totSIMpT,totRECpT,totASSpT,totASS2pT;
   std::vector< std::vector<int> > totSIM_hit,totREC_hit,totASS_hit,totASS2_hit;
   std::vector< std::vector<int> > totSIM_phi,totREC_phi,totASS_phi,totASS2_phi;
+  std::vector< std::vector<int> > totSIM_dxy,totREC_dxy,totASS_dxy,totASS2_dxy;
+  std::vector< std::vector<int> > totSIM_dz,totREC_dz,totASS_dz,totASS2_dz;
 };
 
 

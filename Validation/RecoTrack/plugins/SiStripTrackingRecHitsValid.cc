@@ -56,9 +56,9 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
 
   //  myFile = new TFile("slice.root","RECREATE");
 
-  Diff = new TH1F("Diff","Diff",20,0.,1.);
-  PositionSHx = new TH1F("PositionSHx","PositionSHx",3200,0.,800.);
-  SecondStrip = new TH1F("SecondStrip","SecondStrip",2,0.,2.);
+  //  Diff = new TH1F("Diff","Diff",20,0.,1.);
+  //PositionSHx = new TH1F("PositionSHx","PositionSHx",3200,0.,800.);
+  //SecondStrip = new TH1F("SecondStrip","SecondStrip",2,0.,2.);
 
   ErrxMF = new TH1F("ErrxMF","ErrxMF",80,0.,1.);
   ErrxMFvsTrackwidth = new TH2F("ErrxMFvsTrackwidth","ErrxMFvsTrackwidth",12,0.,4.,40,0.,0.5);
@@ -1269,16 +1269,16 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
   
   // EventID e.id() ;
 
-  float diff=0;
-  float positionshx = 0;
-  int secondstrip = 0;
+  //  float diff=0;
+  //float positionshx = 0;
+  //int secondstrip = 0;
 
   int isrechitrphi     = 0;
   int isrechitsas      = 0;
   int isrechitmatched  = 0;
 
-  float anglealpha;
-  float anglebeta;
+  float anglealpha=0;
+  float anglebeta=0;
   float Wtrack;
   int Wexp;
   int clusterWidth;
