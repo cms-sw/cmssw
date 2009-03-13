@@ -6,7 +6,6 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelTemplate.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
