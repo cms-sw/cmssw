@@ -7,7 +7,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
