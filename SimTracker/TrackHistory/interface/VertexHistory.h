@@ -22,7 +22,7 @@ public:
     //! Constructor by pset.
     /* Creates a VertexHistory with association given by pset.
 
-       /param[in] pset with the configuration values
+       /param[in] config with the configuration values
     */
     VertexHistory(const edm::ParameterSet &);
 
