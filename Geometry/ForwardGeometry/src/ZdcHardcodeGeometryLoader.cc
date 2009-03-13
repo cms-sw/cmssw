@@ -63,7 +63,7 @@ void ZdcHardcodeGeometryLoader::fill( HcalZDCDetId::Section section,
   HcalZDCDetId id;
   int firstCell = extTopology->firstCell(section);
   int lastCell = extTopology->lastCell(section);
-  for(int ichannel = firstCell; ichannel <= lastCell; ++idepth) {
+  for(int ichannel = firstCell; ichannel <= lastCell; ++ichannel) {
     id = HcalZDCDetId(section, true, ichannel);
     if(extTopology->valid(id)) zdcIds.push_back(id);
     id = HcalZDCDetId(section, false, ichannel);
