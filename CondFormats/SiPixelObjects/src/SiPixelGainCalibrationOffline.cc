@@ -101,7 +101,7 @@ void SiPixelGainCalibrationOffline::getDetIds(std::vector<uint32_t>& DetIds_) co
 
 void SiPixelGainCalibrationOffline::setDataGain(float gain, const int& nRows, std::vector<char>& vped, bool thisColumnIsDead, bool thisColumnIsNoisy){
   
-  float theEncodedGain;
+  float theEncodedGain=0;
   if(!thisColumnIsDead && !thisColumnIsNoisy)
     theEncodedGain = encodeGain(gain);
 
