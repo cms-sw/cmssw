@@ -80,7 +80,8 @@
    <Parameter name="CopyNoOffset" value="1*[super]"/>
  </SpecPar>  
  <SpecPar name="MuonEndcap">
-   <PartSelector path="//ME"/>
+   <PartSelector path="//MEP"/>
+   <PartSelector path="//MEN"/>
    <Parameter name="CopyNoTag" value="[me_region]"/>
    <Parameter name="CopyNoOffset" value="2*[super]"/>
  </SpecPar>  
@@ -244,6 +245,7 @@
 
  <SpecPar name="MuonRpcEndcap1">
    <PartSelector path="//RR12"/>
+   <PartSelector path="//RR12N"/>
    <PartSelector path="//RR13"/>
    <Parameter name="CopyNoTag" value="[mr_eplane]"/>
    <Parameter name="CopyNoOffset" value="1*[super]"/>
@@ -261,8 +263,10 @@
 
  <SpecPar name="MuonRpcEndcapSector">
    <PartSelector path="//RT1B"/>
+   <PartSelector path="//RT1BN"/>
    <PartSelector path="//RT1C"/>
    <PartSelector path="//RTXU"/>
+   <PartSelector path="//RTXUR"/>
    <Parameter name="CopyNoTag" value="[mr_esector]"/>
  </SpecPar>  
 
@@ -335,24 +339,30 @@
 
 <SpecParSection label="muonendcapnumbering" eval="true">
  <SpecPar name="MuonEndcapStation1">
-   <PartSelector path="//ME1Ring"/>
-   <PartSelector path="//ME12Ring"/>
-   <PartSelector path="//ME13Ring"/>
+   <PartSelector path="//ME1RingP"/>
+   <PartSelector path="//ME1RingN"/>
+   <PartSelector path="//ME12RingP"/>
+   <PartSelector path="//ME12RingN"/>
+   <PartSelector path="//ME13RingP"/>
+   <PartSelector path="//ME13RingN"/>
    <Parameter name="CopyNoTag" value="[me_station]"/>
    <Parameter name="CopyNoOffset" value="1*[super]"/>
  </SpecPar>  
  <SpecPar name="MuonEndcapStation2">
-   <PartSelector path="//ME2Ring"/>
+   <PartSelector path="//ME2RingP"/>
+   <PartSelector path="//ME2RingN"/>
    <Parameter name="CopyNoTag" value="[me_station]"/>
    <Parameter name="CopyNoOffset" value="2*[super]"/>
  </SpecPar>  
  <SpecPar name="MuonEndcapStation3">
-   <PartSelector path="//ME3Ring"/>
+   <PartSelector path="//ME3RingP"/>
+   <PartSelector path="//ME3RingN"/>
    <Parameter name="CopyNoTag" value="[me_station]"/>
    <Parameter name="CopyNoOffset" value="3*[super]"/>
  </SpecPar>  
  <SpecPar name="MuonEndcapStation4">
-   <PartSelector path="//ME4Ring"/>
+   <PartSelector path="//ME4RingP"/>
+   <PartSelector path="//ME4RingN"/>
    <Parameter name="CopyNoTag" value="[me_station]"/>
    <Parameter name="CopyNoOffset" value="4*[super]"/>
  </SpecPar>  

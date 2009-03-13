@@ -1231,7 +1231,7 @@ remove this end comment line to restore YE4 -->
 
 <PosPartSection label="muonYoke.xml"> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="mf:ME"/> 
+  <rParent name="mf:MEP"/> 
   <rChild name="YN12p_a"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -1245,7 +1245,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="center" value="6.5900*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="mf:ME"/> 
+  <rParent name="mf:MEP"/> 
   <rChild name="YN12p_b"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -1259,7 +1259,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="center" value="6.885*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="mf:ME"/> 
+  <rParent name="mf:MEP"/> 
   <rChild name="YN12p_c"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -1273,7 +1273,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="center" value="7.099*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="mf:ME"/> 
+  <rParent name="mf:MEP"/> 
   <rChild name="YE1p_a"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -1287,7 +1287,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="center" value="7.62*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="mf:ME"/> 
+  <rParent name="mf:MEP"/> 
   <rChild name="YE1p_b"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -1304,7 +1304,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="center" value="7.565*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="mf:ME"/> 
+  <rParent name="mf:MEP"/> 
   <rChild name="YE12"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -1318,7 +1318,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="center" value="8.2425*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="mf:ME"/> 
+  <rParent name="mf:MEP"/> 
   <rChild name="YE2p_a"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -1332,7 +1332,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="center" value="8.870*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="mf:ME"/> 
+  <rParent name="mf:MEP"/> 
   <rChild name="YE2p_b"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -1349,7 +1349,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="center" value="8.815*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="mf:ME"/> 
+  <rParent name="mf:MEP"/> 
   <rChild name="YE23"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -1363,7 +1363,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="center" value="9.4975*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="mf:ME"/> 
+  <rParent name="mf:MEP"/> 
   <rChild name="YE3p_a"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -1377,7 +1377,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="center" value="9.950*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="mf:ME"/> 
+  <rParent name="mf:MEP"/> 
   <rChild name="YE3p_b"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -1394,7 +1394,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="center" value="9.895*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="mf:ME"/> 
+  <rParent name="mf:MEP"/> 
   <rChild name="YE34"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -1408,7 +1408,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="center" value="10.4075*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="mf:ME"/> 
+  <rParent name="mf:MEP"/> 
   <rChild name="ShieldingME4"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -1423,7 +1423,7 @@ remove this end comment line to restore YE4 -->
  </AlgoPosPart> 
 <!-- remove this start comment line to restore YE4
  <AlgoPosPart algo="global:angular"> 
-  <rParent name="mf:ME"/> 
+  <rParent name="mf:MEP"/> 
   <rChild name="YE4"/> 
   <ParE name="n" value="12"/> 
   <ParE name="startAngle" value="0*deg"/> 
@@ -1440,6 +1440,218 @@ remove this end comment line to restore YE4 -->
   <ParE name="center" value="10.73*m"/> 
  </AlgoPosPart> 
 remove this end comment line to restore YE4 -->
+
+ <AlgoPosPart algo="global:angular"> 
+  <rParent name="mf:MEN"/> 
+  <rChild name="YN12p_a"/> 
+  <ParE name="n" value="12"/> 
+  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="rangeAngle" value="360*deg"/> 
+  <ParE name="radius" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="-90*deg"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="6.5900*m"/> 
+ </AlgoPosPart> 
+ <AlgoPosPart algo="global:angular"> 
+  <rParent name="mf:MEN"/> 
+  <rChild name="YN12p_b"/> 
+  <ParE name="n" value="12"/> 
+  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="rangeAngle" value="360*deg"/> 
+  <ParE name="radius" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="-90*deg"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="6.885*m"/> 
+ </AlgoPosPart> 
+ <AlgoPosPart algo="global:angular"> 
+  <rParent name="mf:MEN"/> 
+  <rChild name="YN12p_c"/> 
+  <ParE name="n" value="12"/> 
+  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="rangeAngle" value="360*deg"/> 
+  <ParE name="radius" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="-90*deg"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="7.099*m"/> 
+ </AlgoPosPart> 
+ <AlgoPosPart algo="global:angular"> 
+  <rParent name="mf:MEN"/> 
+  <rChild name="YE1p_a"/> 
+  <ParE name="n" value="12"/> 
+  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="rangeAngle" value="360*deg"/> 
+  <ParE name="radius" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="-90*deg"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="7.62*m"/> 
+ </AlgoPosPart> 
+ <AlgoPosPart algo="global:angular"> 
+  <rParent name="mf:MEN"/> 
+  <rChild name="YE1p_b"/> 
+  <ParE name="n" value="12"/> 
+  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="rangeAngle" value="360*deg"/> 
+  <ParE name="radius" value="4.02556*m"/> 
+  <ParE name="rotateSolid" value="90*deg"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="90*deg"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="90*deg"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="7.565*m"/> 
+ </AlgoPosPart> 
+ <AlgoPosPart algo="global:angular"> 
+  <rParent name="mf:MEN"/> 
+  <rChild name="YE12"/> 
+  <ParE name="n" value="12"/> 
+  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="rangeAngle" value="360*deg"/> 
+  <ParE name="radius" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="-90*deg"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="8.2425*m"/> 
+ </AlgoPosPart> 
+ <AlgoPosPart algo="global:angular"> 
+  <rParent name="mf:MEN"/> 
+  <rChild name="YE2p_a"/> 
+  <ParE name="n" value="12"/> 
+  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="rangeAngle" value="360*deg"/> 
+  <ParE name="radius" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="-90*deg"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="8.870*m"/> 
+ </AlgoPosPart> 
+ <AlgoPosPart algo="global:angular"> 
+  <rParent name="mf:MEN"/> 
+  <rChild name="YE2p_b"/> 
+  <ParE name="n" value="12"/> 
+  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="rangeAngle" value="360*deg"/> 
+  <ParE name="radius" value="4.13423*m"/> 
+  <ParE name="rotateSolid" value="90*deg"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="90*deg"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="90*deg"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="8.815*m"/> 
+ </AlgoPosPart> 
+ <AlgoPosPart algo="global:angular"> 
+  <rParent name="mf:MEN"/> 
+  <rChild name="YE23"/> 
+  <ParE name="n" value="12"/> 
+  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="rangeAngle" value="360*deg"/> 
+  <ParE name="radius" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="-90*deg"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="9.4975*m"/> 
+ </AlgoPosPart> 
+ <AlgoPosPart algo="global:angular"> 
+  <rParent name="mf:MEN"/> 
+  <rChild name="YE3p_a"/> 
+  <ParE name="n" value="12"/> 
+  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="rangeAngle" value="360*deg"/> 
+  <ParE name="radius" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="-90*deg"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="9.950*m"/> 
+ </AlgoPosPart> 
+ <AlgoPosPart algo="global:angular"> 
+  <rParent name="mf:MEN"/> 
+  <rChild name="YE3p_b"/> 
+  <ParE name="n" value="12"/> 
+  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="rangeAngle" value="360*deg"/> 
+  <ParE name="radius" value="4.21633*m"/> 
+  <ParE name="rotateSolid" value="90*deg"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="90*deg"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="90*deg"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="9.895*m"/> 
+ </AlgoPosPart> 
+ <AlgoPosPart algo="global:angular"> 
+  <rParent name="mf:MEN"/> 
+  <rChild name="YE34"/> 
+  <ParE name="n" value="12"/> 
+  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="rangeAngle" value="360*deg"/> 
+  <ParE name="radius" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="-90*deg"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="10.4075*m"/> 
+ </AlgoPosPart> 
+ <AlgoPosPart algo="global:angular"> 
+  <rParent name="mf:MEN"/> 
+  <rChild name="ShieldingME4"/> 
+  <ParE name="n" value="12"/> 
+  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="rangeAngle" value="360*deg"/> 
+  <ParE name="radius" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="-90*deg"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="10.7175*m"/> 
+ </AlgoPosPart> 
+<!-- remove this start comment line to restore YE4
+ <AlgoPosPart algo="global:angular"> 
+  <rParent name="mf:MEN"/> 
+  <rChild name="YE4"/> 
+  <ParE name="n" value="12"/> 
+  <ParE name="startAngle" value="0*deg"/> 
+  <ParE name="rangeAngle" value="360*deg"/> 
+  <ParE name="radius" value="4.68491*m"/> 
+  <ParE name="rotateSolid" value="90*deg"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="90*deg"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="0"/> 
+  <ParE name="rotateSolid" value="90*deg"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="0"/> 
+  <ParE name="center" value="10.73*m"/> 
+ </AlgoPosPart> 
+remove this end comment line to restore YE4 -->
+
  <AlgoPosPart algo="global:angular"> 
   <rParent name="muonBase:MBWheel_0"/> 
   <rChild name="YB1_w0_b1"/> 
