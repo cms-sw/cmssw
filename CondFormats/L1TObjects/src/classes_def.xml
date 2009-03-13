@@ -13,6 +13,7 @@
   <class name="L1GctHfLutSetup"/>
   <class name="std::pair<L1GctHfLutSetup::hfLutType,std::vector<uint16_t> >"/>
   <class name="std::map<L1GctHfLutSetup::hfLutType,std::vector<uint16_t> >"/>
+  <class name="std::map<L1GctHfLutSetup::hfLutType,std::vector<uint16_t> >::value_type"/>
   <class name="L1GctJetCounterSetup"/>
   <class name="L1GctJetCounterSetup::cutDescription"/>
   <class name="std::vector<L1GctJetCounterSetup::cutDescription>"/>

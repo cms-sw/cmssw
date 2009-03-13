@@ -59,6 +59,7 @@ namespace {
     std::map< std::string, L1GtAlgorithm > dummy9 ;
     std::pair< std::string, L1GtAlgorithm > dummy9a ;
     std::pair<L1GctHfLutSetup::hfLutType,std::vector<uint16_t> > dummy10 ;
+    std::map<L1GctHfLutSetup::hfLutType,std::vector<uint16_t> > dummy10a ;
     std::pair<short,L1MuDTEtaPattern> dummy11 ;
     std::pair<std::pair<short,short>,std::pair<short,std::vector<short> > > dummy12 ;
     std::pair<int, std::vector<L1GtObject> > dummy13 ;
