@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithmFactory.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
+#include <cmath>
 
 SiStripClusterInfo::SiStripClusterInfo(const SiStripCluster& cluster, 
                                        const edm::EventSetup& setup,
