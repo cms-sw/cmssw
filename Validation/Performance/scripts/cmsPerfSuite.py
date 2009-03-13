@@ -8,9 +8,9 @@ import threading #Needed in threading use for Valgrind
 import subprocess #Nicer subprocess management than os.popen
 
 #Redefine _cleanup() function not to poll active processes
+#So let's have it do nothing:
 def _cleanup():
-   for inst in subprocess._active[:]:
-       print "Process %s is active"%inst.pid
+   pass
 #Override the function in subprocess
 subprocess._cleanup=_cleanup
 
@@ -1187,6 +1187,16 @@ def main(argv=[__name__]): #argv is a list of arguments.
             #print "With arguments:"
             #print PerfSuiteArgs
             suitethread[cpu].start()
+            
+        while reduce(lambda x,y: x or y, map(lambda x: x.isAlive(),suitethread.values())):
+           try:            
+              time.sleep(5.0)
+              sys.stdout.flush()
+           except (KeyboardInterrupt, SystemExit):
+              raise
+        print "All PerfSuite threads have completed!"
+        
+           
         #print suitethread
         #FIXME Do somthing to kill the cmsScimarks after all threads are done...
         #Fix the cmsScimarkLAunch and Stop into being python and threaded themselves?

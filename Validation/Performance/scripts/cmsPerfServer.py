@@ -9,6 +9,10 @@ from cmsPerfCommons import Candles
 import optparse as opt
 import socket, os, sys, SimpleXMLRPCServer, threading, exceptions
 
+CandlesString=""
+for candle in Candles:
+    CandlesString=CandlesString+","+candle
+print CandlesString[1:]
 _outputdir  = os.getcwd()
 _reqnumber  = 0
 _logreturn  = False
@@ -17,19 +21,28 @@ _CASTOR_DIR = "/castor/cern.ch/cms/store/relval/performance/"
 _DEFAULTS   = {"castordir"        : _CASTOR_DIR,
                "perfsuitedir"     : os.getcwd(),
                "TimeSizeEvents"   : 100        ,
+               "TimeSizeCandles"      : "",
+               "TimeSizePUCandles"      : "",
                "IgProfEvents"     : 0          ,
-               "ValgrindEvents"   : 0          ,
+               "IgProfCandles"        : ""       ,
+               "IgProfPUCandles"        : ""       ,
+               "CallgrindEvents"  : 0          ,
+               "CallgrindCandles"     : ""       ,
+               "CallgrindPUCandles"     : ""       ,
+               "MemcheckEvents"   : 0          ,
+               "MemcheckCandles"      : ""          ,
+               "MemcheckPUCandles"      : ""          ,
                "cmsScimark"       : 10         ,
                "cmsScimarkLarge"  : 10         ,
                "cmsdriverOptions" : cmsRelValCmd.get_cmsDriverOptions(), #Get these options automatically now!
                "stepOptions"      : ""         ,
                "quicktest"        : False      ,
                "profilers"        : ""         ,
-               "cpus"             : 1        ,
+               "cpus"             : "1"        ,
                "cores"            : cmsCpuInfo.get_NumOfCores(), #Get this option automatically
                "prevrel"          : ""         ,
                "isAllCandles"     : True       ,
-               "candles"          : Candles    ,
+               #"candles"          : CandlesString[1:]    ,
                "bypasshlt"        : False      ,
                "runonspare"       : True       ,
                "logfile"          : os.path.join(os.getcwd(),"cmsPerfSuite.log")}
@@ -171,13 +184,13 @@ def request_benchmark(cmds):
             if os.path.exists(logfile):
                 logfile = logfile + str(cmd_num)
             print cmd
-            if cmd.has_key('cpus']:
+            if cmd.has_key('cpus'):
                 if cmd['cpus'] == "All":
                     print "Running performance suite on all CPUS!\n"
                     cmd['cpus']=""
                     for cpu in range(cmsCpuInfo.get_NumOfCores()):
                         cmd["cpus"]=cmd["cpus"]+str(cpu)+","
-                        cmd["cpus"]=cmd["cpus"][:-1] #eliminate the last comma for cleanliness 
+                    cmd["cpus"]=cmd["cpus"][:-1] #eliminate the last comma for cleanliness 
                     print "I.e. on cpus %s\n"%cmd["cpus"]
                 
             #Not sure this is the most elegant solution... we keep cloning dictionaries...
@@ -185,8 +198,17 @@ def request_benchmark(cmds):
             cmdwdefs["castordir"       ] = getCPSkeyword("castordir"       , cmd)
             cmdwdefs["perfsuitedir"    ] = curperfdir                      
             cmdwdefs["TimeSizeEvents"  ] = getCPSkeyword("TimeSizeEvents"  , cmd)
+            cmdwdefs["TimeSizeCandles" ] = getCPSkeyword("TimeSizeCandles"  , cmd)
+            cmdwdefs["TimeSizePUCandles" ] = getCPSkeyword("TimeSizePUCandles"  , cmd)
             cmdwdefs["IgProfEvents"    ] = getCPSkeyword("IgProfEvents"    , cmd)
-            cmdwdefs["ValgrindEvents"  ] = getCPSkeyword("ValgrindEvents"  , cmd)
+            cmdwdefs["IgProfCandles"   ] = getCPSkeyword("IgProfCandles"    , cmd)
+            cmdwdefs["IgProfPUCandles"   ] = getCPSkeyword("IgProfPUCandles"    , cmd)
+            cmdwdefs["CallgrindEvents" ] = getCPSkeyword("CallgrindEvents"  , cmd)
+            cmdwdefs["CallgrindCandles"] = getCPSkeyword("CallgrindCandles"  , cmd)
+            cmdwdefs["CallgrindPUCandles"] = getCPSkeyword("CallgrindPUCandles"  , cmd)
+            cmdwdefs["MemcheckEvents"  ] = getCPSkeyword("MemcheckEvents"  , cmd)
+            cmdwdefs["MemcheckCandles" ] = getCPSkeyword("MemcheckCandles"  , cmd)
+            cmdwdefs["MemcheckPUCandles" ] = getCPSkeyword("MemcheckPUCandles"  , cmd)
             cmdwdefs["cmsScimark"      ] = getCPSkeyword("cmsScimark"      , cmd)
             cmdwdefs["cmsScimarkLarge" ] = getCPSkeyword("cmsScimarkLarge" , cmd)
             cmdwdefs["cmsdriverOptions"] = getCPSkeyword("cmsdriverOptions", cmd)
@@ -196,8 +218,8 @@ def request_benchmark(cmds):
             cmdwdefs["cpus"            ] = getCPSkeyword("cpus"            , cmd)
             cmdwdefs["cores"           ] = getCPSkeyword("cores"           , cmd)
             cmdwdefs["prevrel"         ] = getCPSkeyword("prevrel"         , cmd)
-            cmdwdefs["candles"         ] = getCPSkeyword("candles"         , cmd)                                    
-            cmdwdefs["isAllCandles"    ] = len(Candles) == len(cmdwdefs["candles"]) #Dangerous: in the _DEFAULTS version this is a boolean!
+#            cmdwdefs["candles"         ] = getCPSkeyword("candles"         , cmd)                                    
+#            cmdwdefs["isAllCandles"    ] = len(Candles) == len(cmdwdefs["candles"]) #Dangerous: in the _DEFAULTS version this is a boolean!
             cmdwdefs["bypasshlt"       ] = getCPSkeyword("bypasshlt"       , cmd)
             cmdwdefs["runonspare"      ] = getCPSkeyword("runonspare"      , cmd)
             cmdwdefs["logfile"         ] = logfile
@@ -211,66 +233,31 @@ def request_benchmark(cmds):
             cpsInputArgs=[
                       #"-a",cmdwdefs["castordir"],
                       "-t",cmdwdefs["TimeSizeEvents"  ],
+                      "--RunTimeSize",cmdwdefs["TimeSizeCandles"],
                       "-o",cmdwdefs["perfsuitedir"    ],
-                      "-i",cmdwdefs["IgProfEvents"    ],
-                      "-v",cmdwdefs["ValgrindEvents"  ], 
+                      #"-i",cmdwdefs["IgProfEvents"    ],
+                      #"--RunIgProf",cmdwdefs["RunIgProf"    ],
+                      #"-c",cmdwdefs["CallgrindEvents"  ],
+                      #"--RunCallgrind",cmdwdefs["RunCallgrind"  ],
+                      #"-m",cmdwdefs["MemcheckEvents"],
+                      #"--RunMemcheck",cmdwdefs["RunMemcheck"],
                       "--cmsScimark",cmdwdefs["cmsScimark"      ],
                       "--cmsScimarkLarge",cmdwdefs["cmsScimarkLarge" ],
-                      #"--cmsdriver",cmdwdefs["cmsdriverOptions"],
+                      "--cmsdriver",cmdwdefs["cmsdriverOptions"],
                       #"--step",cmdwdefs["stepOptions"     ],
                       #"--quicktest",cmdwdefs["quicktest"       ],
                       #"--profile",cmdwdefs["profilers"       ],
                       "--cpu",cmdwdefs["cpus"            ],
                       "--cores",cmdwdefs["cores"           ],
                       #"--prevrel",cmdwdefs["prevrel"         ],
-                      "--candle",cmdwdefs["candles"         ]#,
+ #                     "--candle",cmdwdefs["candles"         ],
                       #"--bypass-hlt",cmdwdefs["bypasshlt"       ],
-                      #"--notrunspare",cmdwdefs["runonspare"      ],
+                      "--notrunspare"#,cmdwdefs["runonspare"      ]#,
                       #"--logfile",cmdwdefs["logfile"         ]
                       ]
             print cpsInputArgs
             cps.main(cpsInputArgs)
-#                [
-#                      "--archive",cmdwdefs["castordir"],
-#                      "--TimeSizeEvents",cmdwdefs["TimeSizeEvents"  ],
-#                      "--outoutdir",cmdwdefs["perfsuitedir"    ],
-#                      "--IgProfEvents",cmdwdefs["IgProfEvents"    ],
-#                      "--ValgrindEvents",cmdwdefs["ValgrindEvents"  ], 
-#                      "--cmsScimark",cmdwdefs["cmsScimark"      ],
-#                      "--cmsScimarkLarge",cmdwdefs["cmsScimarkLarge" ],
-#                      "--cmsdriverOptions",cmdwdefs["cmsdriverOptions"],
-#                      "--stepOptions",cmdwdefs["stepOptions"     ],
-#                      "--quicktest",cmdwdefs["quicktest"       ],
-#                      "--profilers",cmdwdefs["profilers"       ],
-#                      "--cpus",cmdwdefs["cpus"            ],
-#                      "--cores",cmdwdefs["cores"           ],
-#                      "--prevrel",cmdwdefs["prevrel"         ],
-#                      "--isAllCandles",cmdwdefs["isAllCandles"    ],
-#                      "--candles",cmdwdefs["candles"         ],
-#                      "--bypasshlt",cmdwdefs["bypasshlt"       ],
-#                      "--runonspare",cmdwdefs["runonspare"      ],
-#                      "--logfile",cmdwdefs["logfile"         ]
-#                      ])
-#                      
-                      #      perfsuitedir     = cmdwdefs["perfsuitedir"    ],
-                      #      TimeSizeEvents   = cmdwdefs["TimeSizeEvents"  ],
-                      #      IgProfEvents     = cmdwdefs["IgProfEvents"    ],
-                      #      ValgrindEvents   = cmdwdefs["ValgrindEvents"  ], 
-                      #      cmsScimark       = cmdwdefs["cmsScimark"      ],
-                      #      cmsScimarkLarge  = cmdwdefs["cmsScimarkLarge" ],
-                      #      cmsdriverOptions = cmdwdefs["cmsdriverOptions"],
-                      #      stepOptions      = cmdwdefs["stepOptions"     ],
-                      #      quicktest        = cmdwdefs["quicktest"       ],
-                      #      profilers        = cmdwdefs["profilers"       ],
-                      #      cpus             = cmdwdefs["cpus"            ],
-                      #      cores            = cmdwdefs["cores"           ],
-                      #      prevrel          = cmdwdefs["prevrel"         ],
-                      #      isAllCandles     = cmdwdefs["isAllCandles"    ],
-                      #      candles          = cmdwdefs["candles"         ],
-                      #      bypasshlt        = cmdwdefs["bypasshlt"       ],
-                      #      runonspare       = cmdwdefs["runonspare"      ],
-                      #      logfile          = cmdwdefs["logfile"         ])
-                      
+            print "Running of the Performance Suite is done!"          
             #logreturn is false... so this does not get executed
             #Maybe we can replace this so that we can have more verbose logging of the server activity
             if _logreturn:
@@ -279,6 +266,7 @@ def request_benchmark(cmds):
                 outs.append((cmdwdefs,cph.harvest(curperfdir)))
             #incrementing the variable for the command number:
             cmd_num += 1
+
             
         return outs #Not sure what James intended to return here... the contents of all logfiles in a list of logfiles?
     except exceptions.Exception, detail:
