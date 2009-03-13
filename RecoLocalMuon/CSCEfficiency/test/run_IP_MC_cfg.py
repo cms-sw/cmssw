@@ -35,8 +35,9 @@ process.maxEvents = cms.untracked.PSet(
 
 process.ana = cms.EDFilter("CSCEfficiency",
     MuonServiceProxy,
-    printout_NEvents = cms.untracked.uint32(1000),
+#    printout_NEvents = cms.untracked.uint32(1000),
 #    rootFileName = cms.untracked.string('cscHists.root'),
+#    getAbsoluteEfficiency = cms.untracked.bool(True), 
     useDigis = cms.untracked.bool(False),
     runOnData = cms.untracked.bool(False),
     IPdata = cms.untracked.bool(True),

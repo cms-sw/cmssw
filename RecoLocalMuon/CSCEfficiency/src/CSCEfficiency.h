@@ -146,6 +146,7 @@ public:
   bool isData;
   bool isIPdata;
   bool isBeamdata;
+  bool getAbsoluteEfficiency;
   bool useDigis;
   double distanceFromDeadZone;
   double minP;
@@ -199,6 +200,9 @@ public:
 
   // segments
   std::vector <std::pair <LocalPoint, LocalVector> > allSegments[2][4][4][NumCh];//endcap/station/ring/chamber
+
+  // empty chambers
+  bool emptyChambers[2][4][4][NumCh];//endcap/station/ring/chamber
 
   //---- Functions
   void fillDigiInfo(edm::Handle<CSCALCTDigiCollection> &alcts, 

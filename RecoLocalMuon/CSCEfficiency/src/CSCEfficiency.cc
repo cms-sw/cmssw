@@ -273,6 +273,13 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 	    for(uint iCh =0;iCh<coupleOfChambers.size();++iCh){
 	      DataFlow->Fill(11.);  
 	      if (printalot) std::cout<<" Check chamber N = "<<coupleOfChambers.at(iCh)<<std::endl;;
+	      if((!getAbsoluteEfficiency) && (true == emptyChambers
+					      [refME[iSt].endcap()-1]
+					      [refME[iSt].station()-1]
+					      [refME[iSt].ring()-1]
+					      [coupleOfChambers.at(iCh)-FirstCh])){
+		continue;
+	      }
 	      CSCDetId theCSCId(refME[iSt].endcap(), refME[iSt].station(), refME[iSt].ring(), coupleOfChambers.at(iCh));
 	      const CSCChamber* cscChamber = cscGeom->chamber(theCSCId.chamberId());
 	      const BoundPlane bpCh = cscGeom->idToDet(cscChamber->geographicalId())->surface();
@@ -741,7 +748,29 @@ void CSCEfficiency::fillRechitsSegments_info(edm::Handle<CSCRecHit2DCollection> 
     std::pair <LocalPoint, bool> recHitPos((*recIt).localPosition(), false);  
     allRechits[id.endcap()-1][id.station()-1][id.ring()-1][id.chamber()-FirstCh][id.layer()-1].push_back(recHitPos);
   }
-  
+  //---- "Empty" chambers
+  for(int iE=0;iE<2;iE++){
+    for(int iS=0;iS<4;iS++){
+      for(int iR=0;iR<4;iR++){
+	for(int iC=0;iC<NumCh;iC++){
+	  int numLayers = 0;
+	  for(int iL=0;iL<6;iL++){
+	    if(allRechits[iE][iS][iR][iC][iL].size()){
+	      ++numLayers; 
+	    }
+	  }
+	  if(numLayers>1){
+	    emptyChambers[iE][iS][iR][iC] = false;
+	  }
+	  else{
+	    emptyChambers[iE][iS][iR][iC] = true;
+	  }
+	}
+      }
+    }
+  }
+
+  //
   if (printalot){
     printf("  The size of the segment collection is %i\n", segments->size());
     //printf("\t...start loop over segments...\n");
@@ -1454,7 +1483,8 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
 
   isData  = pset.getUntrackedParameter<bool>("runOnData",true);// 
   isIPdata  = pset.getUntrackedParameter<bool>("IPdata",false);// 
-  isBeamdata  = pset.getUntrackedParameter<bool>("Beamdata",false);// 
+  isBeamdata  = pset.getUntrackedParameter<bool>("Beamdata",false);//
+  getAbsoluteEfficiency  = pset.getUntrackedParameter<bool>("getAbsoluteEfficiency",true);//
   useDigis = pset.getUntrackedParameter<bool>("useDigis", true);// 
   distanceFromDeadZone = pset.getUntrackedParameter<double>("distanceFromDeadZone", 10.);// 
   minP = pset.getUntrackedParameter<double>("minP",20.);//
