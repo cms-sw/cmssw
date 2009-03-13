@@ -27,7 +27,7 @@
 
 typedef ROOT::Math::Plane3D::Vector Vector;
 typedef ROOT::Math::Plane3D::Point Point;
-typedef ROOT::Math::Transform3DPJ Transform3D;
+typedef ROOT::Math::Transform3DPJ Transform3DR;
 
 EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
 			   const XYZPoint& ecalentrance, 
@@ -973,7 +973,7 @@ EcalHitMaker::getPads(double depth)
 
   unsigned nquads=0;
   double sign=(central_) ? -1.: 1.;
-  Transform3D trans((Point)origin,(Point)(origin+normal_),(Point)(origin+newaxis),
+  Transform3DR trans((Point)origin,(Point)(origin+normal_),(Point)(origin+newaxis),
 		     Point(0,0,0), Point(0.,0.,sign),      Point(0.,1.,0.));
   for(unsigned ic=0;ic<ncrystals_;++ic)
     {
