@@ -100,14 +100,14 @@ inline CSCDBNoiseMatrix *  CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
     db_index_id.push_back(db_index);
     db_elem33.push_back(db_elm33);
     db_elem34.push_back(db_elm34);
-    db_elem44.push_back(db_elm44);
     db_elem35.push_back(db_elm35);
+    db_elem44.push_back(db_elm44);
     db_elem45.push_back(db_elm45);
-    db_elem55.push_back(db_elm55);
     db_elem46.push_back(db_elm46);
+    db_elem55.push_back(db_elm55);
     db_elem56.push_back(db_elm56);
-    db_elem66.push_back(db_elm66);
     db_elem57.push_back(db_elm57);
+    db_elem66.push_back(db_elm66);
     db_elem67.push_back(db_elm67);
     db_elem77.push_back(db_elm77);
     db_nrlines++;
@@ -127,14 +127,14 @@ inline CSCDBNoiseMatrix *  CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
     new_index_id.push_back(new_index);
     new_elem33.push_back(new_elm33);
     new_elem34.push_back(new_elm34);
-    new_elem44.push_back(new_elm44);
     new_elem35.push_back(new_elm35);
+    new_elem44.push_back(new_elm44);
     new_elem45.push_back(new_elm45);
-    new_elem55.push_back(new_elm55);
     new_elem46.push_back(new_elm46);
+    new_elem55.push_back(new_elm55);
     new_elem56.push_back(new_elm56);
-    new_elem66.push_back(new_elm66);
     new_elem57.push_back(new_elm57);
+    new_elem66.push_back(new_elm66);
     new_elem67.push_back(new_elm67);
     new_elem77.push_back(new_elm77); 
     new_nrlines++;
@@ -148,14 +148,14 @@ inline CSCDBNoiseMatrix *  CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
   for(int i=0; i<MAX_SIZE;++i){
     itemvector[i].elem33 = (short int) (db_elem33[i]*FACTOR+0.5);
     itemvector[i].elem34 = (short int) (db_elem34[i]*FACTOR+0.5); 
-    itemvector[i].elem44 = (short int) (db_elem44[i]*FACTOR+0.5);
     itemvector[i].elem35 = (short int) (db_elem35[i]*FACTOR+0.5);
+    itemvector[i].elem44 = (short int) (db_elem44[i]*FACTOR+0.5);
     itemvector[i].elem45 = (short int) (db_elem45[i]*FACTOR+0.5);
-    itemvector[i].elem55 = (short int) (db_elem55[i]*FACTOR+0.5);
     itemvector[i].elem46 = (short int) (db_elem46[i]*FACTOR+0.5);
+    itemvector[i].elem55 = (short int) (db_elem55[i]*FACTOR+0.5);
     itemvector[i].elem56 = (short int) (db_elem56[i]*FACTOR+0.5);
-    itemvector[i].elem66 = (short int) (db_elem66[i]*FACTOR+0.5);
     itemvector[i].elem57 = (short int) (db_elem57[i]*FACTOR+0.5);
+    itemvector[i].elem66 = (short int) (db_elem66[i]*FACTOR+0.5);
     itemvector[i].elem67 = (short int) (db_elem67[i]*FACTOR+0.5);
     itemvector[i].elem77 = (short int) (db_elem77[i]*FACTOR+0.5);
   }
@@ -166,14 +166,14 @@ inline CSCDBNoiseMatrix *  CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
     itemvector[i] = itemvector[counter];
     itemvector[i].elem33 = int (db_elem33[i]);
     itemvector[i].elem34 = int (db_elem34[i]);
-    itemvector[i].elem44 = int (db_elem44[i]);
     itemvector[i].elem35 = int (db_elem35[i]);
+    itemvector[i].elem44 = int (db_elem44[i]);
     itemvector[i].elem45 = int (db_elem45[i]);
-    itemvector[i].elem55 = int (db_elem55[i]);
     itemvector[i].elem46 = int (db_elem46[i]);
+    itemvector[i].elem55 = int (db_elem55[i]);
     itemvector[i].elem56 = int (db_elem56[i]);
-    itemvector[i].elem66 = int (db_elem66[i]);
     itemvector[i].elem57 = int (db_elem57[i]);
+    itemvector[i].elem66 = int (db_elem66[i]);
     itemvector[i].elem67 = int (db_elem67[i]);
     itemvector[i].elem77 = int (db_elem77[i]);
     
@@ -181,14 +181,14 @@ inline CSCDBNoiseMatrix *  CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
       if(counter==new_index_id[k]){
 	if((short int) (fabs(new_elem33[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem33 = int (new_elem33[k]*FACTOR+0.5);
 	if((short int) (fabs(new_elem34[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem34 = int (new_elem34[k]*FACTOR+0.5); 
-	if((short int) (fabs(new_elem44[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem44 = int (new_elem44[k]*FACTOR+0.5);
 	if((short int) (fabs(new_elem35[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem35 = int (new_elem35[k]*FACTOR+0.5);
+	if((short int) (fabs(new_elem44[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem44 = int (new_elem44[k]*FACTOR+0.5);
 	if((short int) (fabs(new_elem45[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem45 = int (new_elem45[k]*FACTOR+0.5);
-	if((short int) (fabs(new_elem55[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem55 = int (new_elem55[k]*FACTOR+0.5);
 	if((short int) (fabs(new_elem46[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem46 = int (new_elem46[k]*FACTOR+0.5);
+	if((short int) (fabs(new_elem55[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem55 = int (new_elem55[k]*FACTOR+0.5);
 	if((short int) (fabs(new_elem56[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem56 = int (new_elem56[k]*FACTOR+0.5);
-	if((short int) (fabs(new_elem66[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem66 = int (new_elem66[k]*FACTOR+0.5);
 	if((short int) (fabs(new_elem57[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem57 = int (new_elem57[k]*FACTOR+0.5);
+	if((short int) (fabs(new_elem66[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem66 = int (new_elem66[k]*FACTOR+0.5);
 	if((short int) (fabs(new_elem67[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem67 = int (new_elem67[k]*FACTOR+0.5);
 	if((short int) (fabs(new_elem77[k]*FACTOR+0.5))<MAX_SHORT) itemvector[counter].elem77 = int (new_elem77[k]*FACTOR+0.5);
 	itemvector[i] = itemvector[counter];
@@ -198,14 +198,14 @@ inline CSCDBNoiseMatrix *  CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
     if (counter>217728){
       itemvector[counter].elem33 = int (db_elem33[i]);
       itemvector[counter].elem34 = int (db_elem34[i]);
-      itemvector[counter].elem44 = int (db_elem44[i]);
       itemvector[counter].elem35 = int (db_elem35[i]);
+      itemvector[counter].elem44 = int (db_elem44[i]);
       itemvector[counter].elem45 = int (db_elem45[i]);
-      itemvector[counter].elem55 = int (db_elem55[i]);
       itemvector[counter].elem46 = int (db_elem46[i]);
+      itemvector[counter].elem55 = int (db_elem55[i]);
       itemvector[counter].elem56 = int (db_elem56[i]);
-      itemvector[counter].elem66 = int (db_elem66[i]);
       itemvector[counter].elem57 = int (db_elem57[i]);
+      itemvector[counter].elem66 = int (db_elem66[i]);
       itemvector[counter].elem67 = int (db_elem67[i]);
       itemvector[counter].elem77 = int (db_elem77[i]);
       itemvector[i] = itemvector[counter];

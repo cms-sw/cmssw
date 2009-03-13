@@ -46,7 +46,7 @@ inline CSCDBNoiseMatrix *  CSCFakeDBNoiseMatrix::prefillDBNoiseMatrix()
   int seed;
   long int M;
   float mean,min, minchi;
-  const int MAX_SIZE = 217728; //or 252288 for ME4/2 chambers
+  const int MAX_SIZE = 252288; //or 252288 for ME4/2 chambers
   const int FACTOR=1000;
   
   CSCDBNoiseMatrix * cndbmatrix = new CSCDBNoiseMatrix();
@@ -60,14 +60,14 @@ inline CSCDBNoiseMatrix *  CSCFakeDBNoiseMatrix::prefillDBNoiseMatrix()
   for(int i=0; i<MAX_SIZE;i++){
     cndbmatrix->matrix[i].elem33 = (short int) (10.0*FACTOR+0.5);
     cndbmatrix->matrix[i].elem34 = (short int) (4.0*FACTOR+0.5);
-    cndbmatrix->matrix[i].elem44 = (short int) (10.0*FACTOR+0.5);
     cndbmatrix->matrix[i].elem35 = (short int) (3.0*FACTOR+0.5);
+    cndbmatrix->matrix[i].elem44 = (short int) (10.0*FACTOR+0.5);
     cndbmatrix->matrix[i].elem45 = (short int) (8.0*FACTOR+0.5);
-    cndbmatrix->matrix[i].elem55 = (short int) (10.0*FACTOR+0.5);
     cndbmatrix->matrix[i].elem46 = (short int) (2.0*FACTOR+0.5);
+    cndbmatrix->matrix[i].elem55 = (short int) (10.0*FACTOR+0.5);
     cndbmatrix->matrix[i].elem56 = (short int) (5.0*FACTOR+0.5);
-    cndbmatrix->matrix[i].elem66 = (short int) (10.0*FACTOR+0.5);
     cndbmatrix->matrix[i].elem57 = (short int) (3.0*FACTOR+0.5);
+    cndbmatrix->matrix[i].elem66 = (short int) (10.0*FACTOR+0.5);
     cndbmatrix->matrix[i].elem67 = (short int) (4.0*FACTOR+0.5);
     cndbmatrix->matrix[i].elem77 = (short int) (10.0*FACTOR+0.5);
   }
