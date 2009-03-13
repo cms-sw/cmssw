@@ -20,8 +20,6 @@ pfRecoTauProducerHighEfficiency                              = copy.deepcopy(pfR
 pfRecoTauProducerHighEfficiency.TrackerSignalConeSizeFormula = '5.0/ET'
 pfRecoTauProducerHighEfficiency.TrackerSignalConeSize_min    = 0.07
 pfRecoTauProducerHighEfficiency.TrackerSignalConeSize_max    = 0.15
-pfRecoTauProducerHighEfficiency.GammaCand_minPt              = cms.double(0.5)
-pfRecoTauProducerHighEfficiency.ChargedHadrCand_minPt        = cms.double(0.5);
 
 #copying Discriminator ByLeadingTrack(finding and pt_cut)
 pfRecoTauDiscriminationByLeadingTrackFindingHighEfficiency                          = copy.deepcopy(pfRecoTauDiscriminationByLeadingTrackFinding)

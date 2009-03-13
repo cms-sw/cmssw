@@ -1,20 +1,25 @@
 #include "RecoTauTag/RecoTau/interface/PFRecoTauAlgorithm.h"
 
+// Turn off filtering by pt.  Min pt is set to zero,
+//  as this functionality is implemented in the underlying
+//  PFTauTagInfo production.
+
+#define PFTauAlgo_NeutrHadrCand_minPt_  (0.0)
+#define PFTauAlgo_GammaCand_minPt_      (0.0)
+#define PFTauAlgo_PFCand_minPt_         (0.0)
+#define PFTauAlgo_Track_minPt_          (0.0)
+
 PFRecoTauAlgorithm::PFRecoTauAlgorithm() : TransientTrackBuilder_(0){}  
 PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) : TransientTrackBuilder_(0){
   LeadPFCand_minPt_                   = iConfig.getParameter<double>("LeadPFCand_minPt"); 
-  ChargedHadrCand_minPt_              = iConfig.getParameter<double>("ChargedHadrCand_minPt");
+
   UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ 
                                       = iConfig.getParameter<bool>("UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint");
+
   ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_ 
                                       = iConfig.getParameter<double>("ChargedHadrCandLeadChargedHadrCand_tksmaxDZ");
-  NeutrHadrCand_minPt_                = iConfig.getParameter<double>("NeutrHadrCand_minPt");
-  GammaCand_minPt_                    = iConfig.getParameter<double>("GammaCand_minPt");       
-  LeadTrack_minPt_                    = iConfig.getParameter<double>("LeadTrack_minPt");
 
-  Track_minPt_                        = iConfig.getParameter<double>("Track_minPt");
-  PFCand_minPt_                       = iConfig.getParameter<double>("PFCand_minPt");
-    
+  LeadTrack_minPt_                    = iConfig.getParameter<double>("LeadTrack_minPt");
   UseTrackLeadTrackDZconstraint_      = iConfig.getParameter<bool>("UseTrackLeadTrackDZconstraint");
   TrackLeadTrack_maxDZ_               = iConfig.getParameter<double>("TrackLeadTrack_maxDZ");
   
@@ -89,8 +94,8 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   PFTauElementsOperators myPFTauElementsOperators(myPFTau);
   double myMatchingConeSize=myPFTauElementsOperators.computeConeSize(myMatchingConeSizeTFormula,MatchingConeSize_min_,MatchingConeSize_max_);
 
-  PFCandidateRef myleadPFChargedCand=myPFTauElementsOperators.leadPFChargedHadrCand(MatchingConeMetric_,myMatchingConeSize,PFCand_minPt_);
-  PFCandidateRef myleadPFNeutralCand=myPFTauElementsOperators.leadPFGammaCand(MatchingConeMetric_,myMatchingConeSize,PFCand_minPt_);
+  PFCandidateRef myleadPFChargedCand=myPFTauElementsOperators.leadPFChargedHadrCand(MatchingConeMetric_,myMatchingConeSize,PFTauAlgo_PFCand_minPt_);
+  PFCandidateRef myleadPFNeutralCand=myPFTauElementsOperators.leadPFGammaCand(MatchingConeMetric_,myMatchingConeSize,PFTauAlgo_PFCand_minPt_);
   PFCandidateRef myleadPFCand;
 
   bool myleadPFCand_rectkavailable = false;
@@ -182,10 +187,10 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 
     myPFTau.setsignalPFChargedHadrCands(mySignalPFChargedHadrCands);
 
-    mySignalPFNeutrHadrCands=myPFTauElementsOperators.PFNeutrHadrCandsInCone(myPFTau.momentum(),HCALSignalConeMetric_,myHCALSignalConeSize,NeutrHadrCand_minPt_);
+    mySignalPFNeutrHadrCands=myPFTauElementsOperators.PFNeutrHadrCandsInCone(myPFTau.momentum(),HCALSignalConeMetric_,myHCALSignalConeSize,PFTauAlgo_NeutrHadrCand_minPt_);
     myPFTau.setsignalPFNeutrHadrCands(mySignalPFNeutrHadrCands);
 
-    mySignalPFGammaCands=myPFTauElementsOperators.PFGammaCandsInCone(myPFTau.momentum(),ECALSignalConeMetric_,myECALSignalConeSize,GammaCand_minPt_);
+    mySignalPFGammaCands=myPFTauElementsOperators.PFGammaCandsInCone(myPFTau.momentum(),ECALSignalConeMetric_,myECALSignalConeSize,PFTauAlgo_GammaCand_minPt_);
     myPFTau.setsignalPFGammaCands(mySignalPFGammaCands);
     
     //Add charged objects to signal cone, and calculate charge
@@ -216,9 +221,9 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     myIsolPFChargedHadrCands = TauTagTools::filteredPFChargedHadrCandsByNumTrkHits(myUnfilteredIsolPFChargedHadrCands, ChargedHadrCand_IsolAnnulus_minNhits_); 
     myPFTau.setisolationPFChargedHadrCands(myIsolPFChargedHadrCands);
 
-    myIsolPFNeutrHadrCands=myPFTauElementsOperators.PFNeutrHadrCandsInAnnulus(myPFTau.momentum(),HCALSignalConeMetric_,myHCALSignalConeSize,HCALIsolConeMetric_,myHCALIsolConeSize,NeutrHadrCand_minPt_);
+    myIsolPFNeutrHadrCands=myPFTauElementsOperators.PFNeutrHadrCandsInAnnulus(myPFTau.momentum(),HCALSignalConeMetric_,myHCALSignalConeSize,HCALIsolConeMetric_,myHCALIsolConeSize,PFTauAlgo_NeutrHadrCand_minPt_);
     myPFTau.setisolationPFNeutrHadrCands(myIsolPFNeutrHadrCands);
-    myIsolPFGammaCands=myPFTauElementsOperators.PFGammaCandsInAnnulus(myPFTau.momentum(),ECALSignalConeMetric_,myECALSignalConeSize,ECALIsolConeMetric_,myECALIsolConeSize,GammaCand_minPt_);  
+    myIsolPFGammaCands=myPFTauElementsOperators.PFGammaCandsInAnnulus(myPFTau.momentum(),ECALSignalConeMetric_,myECALSignalConeSize,ECALIsolConeMetric_,myECALIsolConeSize,PFTauAlgo_GammaCand_minPt_);  
     myPFTau.setisolationPFGammaCands(myIsolPFGammaCands);
 
     //Fill isolation collections, and calculate pt sum in isolation cone
@@ -253,16 +258,16 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     double myTrackerSignalConeSize=myPFTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula,TrackerSignalConeSize_min_,TrackerSignalConeSize_max_);
     double myTrackerIsolConeSize=myPFTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula,TrackerIsolConeSize_min_,TrackerIsolConeSize_max_);     
     if (UseTrackLeadTrackDZconstraint_){
-      myPFTau.setsignalTracks(myPFTauElementsOperators.tracksInCone((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,Track_minPt_,TrackLeadTrack_maxDZ_,myleadTkDZ));
+      myPFTau.setsignalTracks(myPFTauElementsOperators.tracksInCone((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,PFTauAlgo_Track_minPt_,TrackLeadTrack_maxDZ_,myleadTkDZ));
 
-      TrackRefVector myUnfilteredTracks = myPFTauElementsOperators.tracksInAnnulus((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,Track_minPt_,TrackLeadTrack_maxDZ_,myleadTkDZ);
+      TrackRefVector myUnfilteredTracks = myPFTauElementsOperators.tracksInAnnulus((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,PFTauAlgo_Track_minPt_,TrackLeadTrack_maxDZ_,myleadTkDZ);
       TrackRefVector myFilteredTracks = TauTagTools::filteredTracksByNumTrkHits(myUnfilteredTracks, Track_IsolAnnulus_minNhits_);
       myPFTau.setisolationTracks(myFilteredTracks);
 
     }else{
-      myPFTau.setsignalTracks(myPFTauElementsOperators.tracksInCone((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,Track_minPt_));
+      myPFTau.setsignalTracks(myPFTauElementsOperators.tracksInCone((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,PFTauAlgo_Track_minPt_));
       
-      TrackRefVector myUnfilteredTracks = myPFTauElementsOperators.tracksInAnnulus((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,Track_minPt_);
+      TrackRefVector myUnfilteredTracks = myPFTauElementsOperators.tracksInAnnulus((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,PFTauAlgo_Track_minPt_);
       TrackRefVector myFilteredTracks = TauTagTools::filteredTracksByNumTrkHits(myUnfilteredTracks, Track_IsolAnnulus_minNhits_);
       myPFTau.setisolationTracks(myFilteredTracks);
     }

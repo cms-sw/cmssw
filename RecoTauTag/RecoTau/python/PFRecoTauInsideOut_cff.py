@@ -30,9 +30,6 @@ pfRecoTauProducerInsideOut.HCALSignalConeSizeFormula    = pfRecoTauProducerInsid
 pfRecoTauProducerInsideOut.HCALSignalConeSize_min       = pfRecoTauProducerInsideOut.TrackerSignalConeSize_min
 pfRecoTauProducerInsideOut.HCALSignalConeSize_max       = pfRecoTauProducerInsideOut.TrackerSignalConeSize_max
 
-pfRecoTauProducerInsideOut.GammaCand_minPt       = 0.5
-pfRecoTauProducerInsideOut.ChargedHadrCand_minPt = 0.5
-
 #copying Discriminator ByLeadingTrack(finding and pt_cut)
 pfRecoTauDiscriminationByLeadingTrackFindingInsideOut                          = copy.deepcopy(pfRecoTauDiscriminationByLeadingTrackFinding)
 pfRecoTauDiscriminationByLeadingTrackFindingInsideOut.PFTauProducer            = 'pfRecoTauProducerInsideOut'
