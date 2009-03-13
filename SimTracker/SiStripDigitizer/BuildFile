@@ -14,7 +14,7 @@
 <use name=boost>
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
-<use name=CommonTools/SiStripZeroSuppression>
+<use name=RecoLocalTracker/SiStripZeroSuppression>
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
 <use name=Utilities/Timing>
@@ -36,7 +36,7 @@
    <use name=boost>
    <use name=MagneticField/Records>
    <use name=MagneticField/Engine>
-   <use name=CommonTools/SiStripZeroSuppression>
+   <use name=RecoLocalTracker/SiStripZeroSuppression>
    <use name=CalibFormats/SiStripObjects>
    <use name=CalibTracker/Records>
    <use name=Utilities/Timing>

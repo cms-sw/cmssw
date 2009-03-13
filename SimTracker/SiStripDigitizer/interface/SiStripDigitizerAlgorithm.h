@@ -29,7 +29,7 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
+#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
 
 namespace CLHEP {
   class HepRandomEngine;
