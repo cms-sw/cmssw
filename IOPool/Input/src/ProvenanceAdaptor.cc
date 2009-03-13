@@ -259,13 +259,14 @@ namespace edm {
       std::string processName;
       BranchListIndex blix = 0;
       for (OrderedProducts::const_iterator it = orderedProducts.begin(), itEnd = orderedProducts.end(); it != itEnd; ++it) {
-        bool newvector = it->first != processName && !processName.empty();
-        if (newvector) {
-	  pv->push_back(*p);
-	  branchListIndexes.push_back(blix);
-	  ++blix;
+        if (it->first != processName) {
+	  if (!processName.empty()) {
+	    pv->push_back(*p);
+	    branchListIndexes.push_back(blix);
+	    ++blix;
+	    p.reset(new BranchIDList);
+          }
 	  processName = it->first;
-	  p.reset(new BranchIDList);
         }
         p->push_back(it->second.id());
       }
