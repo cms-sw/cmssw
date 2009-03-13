@@ -2245,9 +2245,9 @@
  <Rotation name="DIV219" thetaX="90*deg" phiX="-5*deg" thetaY="90*deg" phiY="85*deg" thetaZ="0*deg" phiZ="0*deg" />
  <ReflectionRotation name="180R" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="180*deg" phiZ="0*deg" />
  <ReflectionRotation name="180RYZ" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="90*deg" thetaZ="0*deg" phiZ="0*deg" />
- <ReflectionRotation name="R005R" thetaX="90*deg" phiX="185*deg" thetaY="90*deg" phiY="95*deg" thetaZ="0*deg" phiZ="0*deg" />
- <ReflectionRotation name="R010R" thetaX="90*deg" phiX="190*deg" thetaY="90*deg" phiY="100*deg" thetaZ="0*deg" phiZ="0*deg" />
- <ReflectionRotation name="R025R" thetaX="90*deg" phiX="205*deg" thetaY="90*deg" phiY="115*deg" thetaZ="0*deg" phiZ="0*deg" />
+ <ReflectionRotation name="R005R" thetaX="90*deg" phiX="175*deg" thetaY="90*deg" phiY="85*deg" thetaZ="0*deg" phiZ="0*deg" />
+ <ReflectionRotation name="R010R" thetaX="90*deg" phiX="170*deg" thetaY="90*deg" phiY="80*deg" thetaZ="0*deg" phiZ="0*deg" />
+ <ReflectionRotation name="R025R" thetaX="90*deg" phiX="155*deg" thetaY="90*deg" phiY="65*deg" thetaZ="0*deg" phiZ="0*deg" />
  <Rotation name="DIV220" thetaX="90*deg" phiX="30*deg" thetaY="90*deg" phiY="120*deg" thetaZ="0*deg" phiZ="0*deg" />
  <Rotation name="DIV221" thetaX="90*deg" phiX="90*deg" thetaY="90*deg" phiY="180*deg" thetaZ="0*deg" phiZ="0*deg" />
  <Rotation name="DIV222" thetaX="90*deg" phiX="150*deg" thetaY="90*deg" phiY="-120*deg" thetaZ="0*deg" phiZ="0*deg" />
