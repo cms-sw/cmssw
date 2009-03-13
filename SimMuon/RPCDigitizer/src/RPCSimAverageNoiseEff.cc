@@ -85,12 +85,16 @@ RPCSimAverageNoiseEff::RPCSimAverageNoiseEff(const edm::ParameterSet& config) :
       "which is not present in the configuration file.  You must add the service\n"
       "in the configuration file or remove the modules that require it.";
   }
-  
-  rndEngine = &(rng->getEngine());
+
+  CLHEP::HepRandomEngine& rndEngine = rng->getEngine();
   flatDistribution = new CLHEP::RandFlat(rndEngine);
 }
 
-RPCSimAverageNoiseEff::~RPCSimAverageNoiseEff(){}
+RPCSimAverageNoiseEff::~RPCSimAverageNoiseEff()
+{
+  //Deleting the distribution defined in the constructor
+  delete flatDistribution;
+}
 
 int RPCSimAverageNoiseEff::getClSize(float posX)
 {
@@ -185,16 +189,16 @@ RPCSimAverageNoiseEff::simulate(const RPCRoll* roll,
       std::vector<int> cls;
       cls.push_back(centralStrip);
       if (clsize > 1){
-	for (int cl = 0; cl < (clsize-1)/2; cl++)
+	for (int cl = 0; cl < (clsize-1)/2; cl++){
 	  if (centralStrip - cl -1 >= 1  ){
 	    fstrip = centralStrip-cl-1;
 	    cls.push_back(fstrip);
 	  }
-	for (int cl = 0; cl < (clsize-1)/2; cl++)
 	  if (centralStrip + cl + 1 <= roll->nstrips() ){
 	    lstrip = centralStrip+cl+1;
 	    cls.push_back(lstrip);
 	  }
+	}
 	if (clsize%2 == 0 ){
 	  // insert the last strip according to the 
 	  // simhit position in the central strip 
@@ -265,22 +269,41 @@ void RPCSimAverageNoiseEff::simulateNoise(const RPCRoll* roll)
       float striplength = (top_->stripLength());
       area = striplength*(xmax-xmin);
     }
+  //Defining a new engine local to this method for the two distributions defined below
+  edm::Service<edm::RandomNumberGenerator> rnd;
+  if ( ! rnd.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "RPCDigitizer requires the RandomNumberGeneratorService\n"
+      "which is not present in the configuration file.  You must add the service\n"
+      "in the configuration file or remove the modules that require it.";
+  }
 
+  CLHEP::HepRandomEngine& engine = rnd->getEngine();
+  //Taking the flatDistribution out of the for loop since it does not depend on
+  //loop variables and deleting it outside or the larger for loop
+  //Renaming it since it has same name as the one defined in the constructor and
+  //used in getClSize and simulate methods.
+  flatDistribution2 = new CLHEP::RandFlat(engine, (nbxing*gate)/gate);
   for(unsigned int j = 0; j < vnoise.size(); ++j){
     
     if(j >= nstrips) break; 
     if(veff[j] == 0) continue;
 
     double ave = vnoise[j]*nbxing*gate*area*1.0e-9*frate;
-    poissonDistribution_ = new CLHEP::RandPoissonQ(rndEngine, ave);
+    poissonDistribution_ = new CLHEP::RandPoissonQ(engine, ave);
     N_hits = poissonDistribution_->fire();
 
     for (int i = 0; i < N_hits; i++ ){
-      flatDistribution = new CLHEP::RandFlat(rndEngine, (nbxing*gate)/gate);
-      int time_hit = (static_cast<int>(flatDistribution->fire())) - nbxing/2;
+      
+      int time_hit = (static_cast<int>(flatDistribution2->fire())) - nbxing/2;
       std::pair<int, int> digi(j+1,time_hit);
       strips.insert(digi);
     }
+    //Deleting poissonDistribution_ that is reallocated at each loop iteration with different intervals
+    //causing a memory leak
+    delete poissonDistribution_;
   }
+  //Deleting also flatDistribution2
+  delete flatDistribution2;
 }
 

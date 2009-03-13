@@ -65,9 +65,13 @@ class RPCSimAverageNoise : public RPCSim
   std::ifstream *infile;
  
   RPCSynchronizer* _rpcSync;
-
-  CLHEP::HepRandomEngine* rndEngine;
+  
+  //Defining the engines in the constructor and the method
+  //CLHEP::HepRandomEngine* rndEngine;
   CLHEP::RandFlat* flatDistribution;
+  //Adding a second flatDistribution, since it was redefined 
+  //in a method with different interval
+  CLHEP::RandFlat* flatDistribution2;
   CLHEP::RandPoissonQ *poissonDistribution_;
 };
 #endif
