@@ -7,7 +7,7 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: BeamSpot.h,v 1.4 2007/08/21 20:45:27 ratnik Exp $
+ * \version $Id: BeamSpot.h,v 1.5 2008/04/04 16:16:58 yumiceva Exp $
  *
  */
 
@@ -43,14 +43,15 @@ namespace reco {
 	      double sigmaZ,
 	      double dxdz,
 	      double dydz,
-	      double BeamWidth,
+	      double BeamWidthX,
 		  const CovarianceMatrix &error,
 		  BeamType type = Unknown) { 
       position_ = point;
       sigmaZ_ = sigmaZ;
       dxdz_ = dxdz;
       dydz_ = dydz;
-      BeamWidth_ = BeamWidth;
+      BeamWidthX_ = BeamWidthX;
+	  BeamWidthY_ = BeamWidthX;
       error_ = error;
 	  type_ = type;
     };
@@ -70,8 +71,10 @@ namespace reco {
     double dxdz() const { return dxdz_; }
     /// dydz slope 
     double dydz() const { return dydz_; }
-    /// beam width
-    double BeamWidth() const { return BeamWidth_; }
+    /// beam width X
+    double BeamWidthX() const { return BeamWidthX_; }
+	/// beam width Y
+    double BeamWidthY() const { return BeamWidthY_; }
     /// error on x
     double x0Error() const { return sqrt( error_(0,0) ); }
     /// error on y
@@ -85,8 +88,15 @@ namespace reco {
     /// error on dydz
     double dydzError() const { return sqrt ( error_(5,5) ); }
 
-    /// error on beam width
-    double BeamWidthError() const { return sqrt ( error_(6,6) );}
+    /// error on beam width X, assume error in X = Y
+    double BeamWidthXError() const { return sqrt ( error_(6,6) );}
+	/// error on beam width Y, assume error in X = Y
+    double BeamWidthYError() const { return sqrt ( error_(6,6) );}
+
+	///
+	void setBeamWidthX( double v ) { BeamWidthX_ = v; }
+	void setBeamWdithY( double v ) { BeamWidthY_ = v; }
+	
     /// (i,j)-th element of error matrix
     double covariance( int i, int j) const {
       return error_(i,j);
@@ -109,6 +119,13 @@ namespace reco {
 	///
     Covariance3DMatrix rotatedCovariance3D() const;
 
+	/// additional information
+	double emittance() const { return emittance_; }
+	double betaStar() const { return betaStar_; }
+	///
+	void setEmittance( double v ) { emittance_ = v; }
+	void setbetaStar( double v ) { betaStar_ = v; }
+	
     /// print information
     void print( std::stringstream& ss ) const;
 
@@ -119,9 +136,12 @@ namespace reco {
 	CovarianceMatrix error_;
 
 	Double32_t sigmaZ_;
-	Double32_t BeamWidth_;
+	Double32_t BeamWidthX_;
+	Double32_t BeamWidthY_;
 	Double32_t dxdz_;
 	Double32_t dydz_;
+	Double32_t emittance_;
+	Double32_t betaStar_;
 	
 	BeamType type_;
 	

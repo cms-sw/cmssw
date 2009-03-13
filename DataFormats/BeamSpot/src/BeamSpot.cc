@@ -7,7 +7,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpot.cc,v 1.5 2007/11/22 14:41:47 speer Exp $
+ version $Id: BeamSpot.cc,v 1.6 2008/04/04 16:16:59 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -28,27 +28,30 @@ namespace reco {
 	  sigmaZ_ = 0.;
 	  dxdz_ = 0.;
 	  dydz_ = 0.;
-	  BeamWidth_ = 0.;
+	  BeamWidthX_ = 0.; BeamWidthY_ = 0;
 	  for (int j=0; j<7; j++) {
 			for (int k=j; k<7; k++) {
 				error_(j,k) = 0.;
 			}
 	  }
 	  type_ = Unknown;
+	  emittance_ = 0;
+	  betaStar_ = 0;
   }
    	
   void BeamSpot::print(std::stringstream& ss) const {
 
     ss << "-----------------------------------------------------\n"
        << "              Beam Spot Data\n\n"
-	   << " Beam type  = " << type() << "\n"
-       << "       X0   = " << x0() << " +/- " << x0Error() << " [cm]\n"
-       << "       Y0   = " << y0() << " +/- " << y0Error() << " [cm]\n"
-       << "       Z0   = " << z0() << " +/- " << z0Error() << " [cm]\n"
-       << " Sigma Z0   = " << sigmaZ() << " +/- " << sigmaZ0Error() << " [cm]\n"
-       << " dxdz       = " << dxdz() << " +/- " << dxdzError() << " [radians]\n"
-       << " dydz       = " << dydz() << " +/- " << dydzError() << " [radians]\n"
-       << " Beam width = " << BeamWidth() << " +/- " << BeamWidthError() << " [cm]\n"
+	   << " Beam type    = " << type() << "\n"
+       << "       X0     = " << x0() << " +/- " << x0Error() << " [cm]\n"
+       << "       Y0     = " << y0() << " +/- " << y0Error() << " [cm]\n"
+       << "       Z0     = " << z0() << " +/- " << z0Error() << " [cm]\n"
+       << " Sigma Z0     = " << sigmaZ() << " +/- " << sigmaZ0Error() << " [cm]\n"
+       << " dxdz         = " << dxdz() << " +/- " << dxdzError() << " [radians]\n"
+       << " dydz         = " << dydz() << " +/- " << dydzError() << " [radians]\n"
+       << " Beam width X = " << BeamWidthX() << " +/- " << BeamWidthXError() << " [cm]\n"
+	   << " Beam width Y = " << BeamWidthY() << " +/- " << BeamWidthYError() << " [cm]\n"	
        << "-----------------------------------------------------\n\n";
 
   }
@@ -82,8 +85,8 @@ namespace reco {
       rotationMatrix(2,2) = rotation.zz();
 
       AlgebraicSymMatrix33 diagError ;
-      diagError(0,0) = pow(BeamWidth(),2);
-      diagError(1,1) = pow(BeamWidth(),2);
+      diagError(0,0) = pow(BeamWidthX(),2);
+      diagError(1,1) = pow(BeamWidthX(),2);
       diagError(2,2) = pow(sigmaZ(),2);
 
       Covariance3DMatrix matrix;
