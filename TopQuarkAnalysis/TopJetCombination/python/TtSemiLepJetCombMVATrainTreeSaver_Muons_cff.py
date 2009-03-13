@@ -12,7 +12,7 @@ from TopQuarkAnalysis.TopJetCombination.TtSemiLepJetCombMVATrainer_Muons_cfi imp
 ## looper known to the process. The way to do that is to add the following
 ## lines to your cfg.py
 ##
-## from TopQuarkAnalysis.TopJetCombination.TtSemiLepJetCombMVATrainer_Muons_cff import looper
+## from TopQuarkAnalysis.TopJetCombination.TtSemiLepJetCombMVATrainTreeSaver_Muons_cff import looper
 ## process.looper = looper
 ## ------------------------------------------------------------------------------------------ 
 looper = cms.Looper("TtSemiLepJetCombMVATrainerLooper",
