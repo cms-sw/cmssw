@@ -97,7 +97,7 @@ int Lut::get_k( int addr ) {
   x = 2.0 * i / ( m_shift * m_distp2 );
   x = atanf(x);
   x = x * ANGRESOL;
-  return x;
+  return (int)x;
 }
 
 int Lut::get_x( int addr ) {
@@ -122,7 +122,7 @@ int Lut::get_x( int addr ) {
   x = ( m_Xn - Xl ) / d;
   x = atanf(x);
   x = x * POSRESOL;
-  return x;
+  return (int)x;
 }
 
 char exaDigit( int i ) {
