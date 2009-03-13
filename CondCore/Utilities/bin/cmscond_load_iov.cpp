@@ -1,3 +1,6 @@
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/Connection.h"
@@ -62,6 +65,8 @@ namespace{
 }
     
 int main( int argc, char** argv ){
+ edmplugin::PluginManager::configure(edmplugin::standard::config());
+ 
   //boost::program_options::options_description desc("options");
   //boost::program_options::options_description visible("Load a new IOV collection using already existing payloads as described in a text file.\n Usage: cmscond_load_iov [options] inputFile \n options");
   cond::CommonOptions myopt("cmscond_load_iov","inputFile");
