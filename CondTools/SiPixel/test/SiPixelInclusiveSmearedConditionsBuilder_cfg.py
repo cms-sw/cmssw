@@ -37,7 +37,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         enableReadOnlySessionOnUpdateConnection = cms.untracked.bool(False)
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('oracle://cms_orcoff_int2r/CMS_COND_PIXEL'),
+#    connect = cms.string('oracle://cms_orcoff_int2r/CMS_COND_PIXEL'),
+                                          connect = cms.string('sqlite_file:prova.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelFedCablingMapRcd'),
         tag = cms.string('SiPixelFedCablingMap_v14')
@@ -52,6 +53,18 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         ), 
         cms.PSet(
             record = cms.string('SiPixelGainCalibrationForHLTRcd'),
+            tag = cms.string('SiPixelGainCalibration_TBuffer_hlt_const')
+        ),
+        cms.PSet(
+            record = cms.string('SiPixelLorentzAngleSimRcd'),
+            tag = cms.string('SiPixelLorentzAngle_v01')
+        ), 
+        cms.PSet(
+            record = cms.string('SiPixelGainCalibrationOfflineSimRcd'),
+            tag = cms.string('SiPixelGainCalibration_TBuffer_const')
+        ), 
+        cms.PSet(
+            record = cms.string('SiPixelGainCalibrationForHLTSimRcd'),
             tag = cms.string('SiPixelGainCalibration_TBuffer_hlt_const')
         ))
 )
@@ -68,6 +81,10 @@ process.MapWriter = cms.EDFilter("SiPixelFedCablingMapWriter",
 process.SiPixelLorentzAngle = cms.EDFilter("SiPixelLorentzAngleDB",
     magneticField = cms.double(3.8)
 )
+process.SiPixelLorentzAngleSim = cms.EDFilter("SiPixelLorentzAngleDB",
+                                              magneticField = cms.double(3.8),
+                                              record=cms.untracked.string("SiPixelLorentzAngleSimRcd")
+)
 
 process.SiPixelCondObjOfflineBuilder = cms.EDFilter("SiPixelCondObjOfflineBuilder",
     process.SiPixelGainCalibrationServiceParameters,
@@ -82,7 +99,25 @@ process.SiPixelCondObjOfflineBuilder = cms.EDFilter("SiPixelCondObjOfflineBuilde
     secondRocRowGainOffset = cms.double(0.0),
     rmsPed = cms.double(2.75),
     fromFile = cms.bool(False),
-    secondRocRowPedOffset = cms.double(0.0)
+    secondRocRowPedOffset = cms.double(0.0),
+    noisyFraction = cms.double(0.0)
+)
+
+process.SiPixelCondObjOfflineSimBuilder = cms.EDFilter("SiPixelCondObjOfflineBuilder",
+    process.SiPixelGainCalibrationServiceParameters,
+    numberOfModules = cms.int32(2000),
+    deadFraction = cms.double(0.0),
+    appendMode = cms.untracked.bool(False),
+    rmsGain = cms.double(0),
+    meanGain = cms.double(2.8),
+    meanPed = cms.double(28.2),
+    fileName = cms.string('../macros/phCalibrationFit_C0.dat'),
+    record = cms.string('SiPixelGainCalibrationOfflineSimRcd'),
+    secondRocRowGainOffset = cms.double(0.0),
+    rmsPed = cms.double(0),
+    fromFile = cms.bool(False),
+    secondRocRowPedOffset = cms.double(0.0),
+    noisyFraction = cms.double(0.0)                                                       
 )
 
 process.SiPixelCondObjForHLTBuilder = cms.EDFilter("SiPixelCondObjForHLTBuilder",
@@ -97,7 +132,25 @@ process.SiPixelCondObjForHLTBuilder = cms.EDFilter("SiPixelCondObjForHLTBuilder"
     secondRocRowGainOffset = cms.double(0.0),
     rmsPed = cms.double(2.75),
     fromFile = cms.bool(False),
-    secondRocRowPedOffset = cms.double(0.0)
+    secondRocRowPedOffset = cms.double(0.0),
+    deadFraction = cms.double(0.0),
+    noisyFraction = cms.double(0.0)
+)
+process.SiPixelCondObjForHLTSimBuilder = cms.EDFilter("SiPixelCondObjForHLTBuilder",
+    process.SiPixelGainCalibrationServiceParameters,
+    numberOfModules = cms.int32(2000),
+    appendMode = cms.untracked.bool(False),
+    rmsGain = cms.double(0.14),
+    meanGain = cms.double(0.4),
+    meanPed = cms.double(50.0),
+    fileName = cms.string('../macros/phCalibrationFit_C0.dat'),
+    record = cms.string('SiPixelGainCalibrationForHLTSimRcd'),
+    secondRocRowGainOffset = cms.double(0.0),
+    rmsPed = cms.double(2.75),
+    fromFile = cms.bool(False),
+    secondRocRowPedOffset = cms.double(0.0),
+    deadFraction = cms.double(0.0),
+    noisyFraction = cms.double(0.0)                                                      
 )
 
 #process.print = cms.OutputModule("AsciiOutputModule")

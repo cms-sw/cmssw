@@ -48,18 +48,22 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     timetype = cms.untracked.string('runnumber'),
     connect = cms.string('sqlite_file:test.db'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('SiPixelFedCablingMapRcd'),
-        tag = cms.string('SiPixelFedCablingMap_v14')
-    ), 
+            record = cms.string('SiPixelFedCablingMapRcd'),
+            tag = cms.string('SiPixelFedCablingMap_v14')
+        ), 
         cms.PSet(
             record = cms.string('SiPixelLorentzAngleRcd'),
             tag = cms.string('SiPixelLorentzAngle_v01')
         ),
-       cms.PSet(
+        cms.PSet(
+            record = cms.string('SiPixelLorentzAngleSimRcd'),
+            tag = cms.string('SiPixelLorentzAngleSim_v01')
+        ),
+        cms.PSet(
             record = cms.string('SiPixelTemplateDBObjectRcd'),
             tag = cms.string('SiPixelTemplateDBObject')
         ),
-       cms.PSet(
+        cms.PSet(
            record = cms.string('SiPixelQualityRcd'),
            tag = cms.string('SiPixelQuality_test')
         ),
@@ -70,6 +74,14 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         cms.PSet(
             record = cms.string('SiPixelGainCalibrationForHLTRcd'),
             tag = cms.string('SiPixelGainCalibration_TBuffer_hlt_const')
+        ),
+        cms.PSet(
+            record = cms.string('SiPixelGainCalibrationOfflineSimRcd'),
+            tag = cms.string('SiPixelGainCalibrationSim_TBuffer_const')
+        ), 
+        cms.PSet(
+            record = cms.string('SiPixelGainCalibrationForHLTSimRcd'),
+            tag = cms.string('SiPixelGainCalibrationSim_TBuffer_hlt_const')
         ))
 )
 
@@ -136,9 +148,19 @@ process.SiPixelLorentzAngle = cms.EDFilter("SiPixelLorentzAngleDB",
     fPixLorentzAnglePerTesla = cms.double(0.091),
     #in case lorentz angle values for bpix should be read from file -> not implemented yet
     useFile = cms.bool(False),
+    record = cms.untracked.string('SiPixelLorentzAngleRcd'),  
     fileName = cms.string('lorentzFit.txt')	
 )
 
+process.SiPixelLorentzAngleSim = cms.EDFilter("SiPixelLorentzAngleDB",
+    magneticField = cms.double(3.8),
+    bPixLorentzAnglePerTesla = cms.double(0.106),
+    fPixLorentzAnglePerTesla = cms.double(0.091),
+    #in case lorentz angle values for bpix should be read from file -> not implemented yet
+    useFile = cms.bool(False),
+    record = cms.untracked.string('SiPixelLorentzAngleSimRcd'),
+    fileName = cms.string('lorentzFit.txt')	
+)
 
 ###### OFFLINE GAIN OBJECT ######
 process.SiPixelCondObjOfflineBuilder = cms.EDFilter("SiPixelCondObjOfflineBuilder",
@@ -163,11 +185,35 @@ process.SiPixelCondObjOfflineBuilder = cms.EDFilter("SiPixelCondObjOfflineBuilde
     secondRocRowPedOffset = cms.double(0.0)
 )
 
+process.SiPixelCondObjOfflineBuilderSim = cms.EDFilter("SiPixelCondObjOfflineBuilder",
+    process.SiPixelGainCalibrationServiceParameters,
+    numberOfModules = cms.int32(2000),
+    deadFraction = cms.double(0.00),
+    noisyFraction = cms.double(0.00),
+    appendMode = cms.untracked.bool(False),
+    rmsGain = cms.double(0.),
+    meanGain = cms.double(2.8),
+    meanPed = cms.double(28.2),
+    rmsPed = cms.double(0.),
+# separate input for the FPIX. If not entered the default values are used.
+    rmsGainFPix = cms.untracked.double(0.),
+    meanGainFPix = cms.untracked.double(2.8),
+    meanPedFPix = cms.untracked.double(28.2),
+    rmsPedFPix = cms.untracked.double(0.),
+    fileName = cms.string('../macros/phCalibrationFit_C0.dat'),
+    record = cms.string('SiPixelGainCalibrationOfflineSimRcd'),
+    secondRocRowGainOffset = cms.double(0.0),
+    fromFile = cms.bool(False),
+    secondRocRowPedOffset = cms.double(0.0)
+)
+
 
 ##### HLT GAIN OBJECT #####
 process.SiPixelCondObjForHLTBuilder = cms.EDFilter("SiPixelCondObjForHLTBuilder",
     process.SiPixelGainCalibrationServiceParameters,
     numberOfModules = cms.int32(2000),
+    deadFraction = cms.double(0.00),
+    noisyFraction = cms.double(0.00),
     appendMode = cms.untracked.bool(False),
     rmsGain = cms.double(0.0),
     meanGain = cms.double(2.8),
@@ -180,6 +226,24 @@ process.SiPixelCondObjForHLTBuilder = cms.EDFilter("SiPixelCondObjForHLTBuilder"
     secondRocRowPedOffset = cms.double(0.0)
 )
 
+process.SiPixelCondObjForHLTBuilderSim = cms.EDFilter("SiPixelCondObjForHLTBuilder",
+    process.SiPixelGainCalibrationServiceParameters,
+    numberOfModules = cms.int32(2000),
+    deadFraction = cms.double(0.00),
+    noisyFraction = cms.double(0.00),
+    appendMode = cms.untracked.bool(False),
+    rmsGain = cms.double(0.0),
+    rmsPed = cms.double(0.0),
+    meanGain = cms.double(2.8),
+    meanPed = cms.double(28.0),
+    fileName = cms.string('../macros/phCalibrationFit_C0.dat'),
+    record = cms.string('SiPixelGainCalibrationForHLTSimRcd'),
+    secondRocRowGainOffset = cms.double(0.0),
+    fromFile = cms.bool(False),
+    secondRocRowPedOffset = cms.double(0.0)
+)
 
-process.p = cms.Path(process.SiPixelLorentzAngle*process.MapWriter*process.SiPixelCondObjOfflineBuilder*process.SiPixelCondObjForHLTBuilder*process.TemplateUploader*process.QualityObjectMaker)
+
+process.p = cms.Path(process.SiPixelLorentzAngle*process.MapWriter*process.SiPixelCondObjOfflineBuilder*process.SiPixelCondObjForHLTBuilder*process.TemplateUploader*process.QualityObjectMaker*
+                     process.SiPixelLorentzAngleSim*process.SiPixelCondObjForHLTBuilderSim*process.SiPixelCondObjOfflineBuilderSim  )
 
