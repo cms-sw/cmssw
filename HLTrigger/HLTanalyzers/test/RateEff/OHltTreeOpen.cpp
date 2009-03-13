@@ -243,14 +243,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       }  
     }  
   }  
-  //  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5") == 0) {  
-  //    if(map_BitOfStandardHLTPath.find("L1_SingleMu5")->second == 1) {        
-  //      if(OpenHlt1MuonPassed(5.,3.,5.,2.,0)>=1) {  
-  //	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
-  //      }  
-  //    }  
-  //  }  
-  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu7") == 0) {  
     if(map_BitOfStandardHLTPath.find("L1_SingleMu5")->second == 1) {        
       if(OpenHlt1MuonPassed(7.,5.,7.,2.,0)>=1) {  
@@ -285,6 +277,11 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
 	 map_BitOfStandardHLTPath.find("(L1_DoubleMu3")->second) > 0) {              
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }       
     }        
+  }        
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu20") == 0) {         
+    if(map_BitOfStandardHLTPath.find("L1_SingleMu20")->second == 1) {
+      if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
+    }         
   }        
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1MuOpen") == 0) {         
     if( (map_BitOfStandardHLTPath.find("L1_SingleMuOpen")->second +
@@ -358,7 +355,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   // (i.e. the definition is different than that used in the HLT_Mu5 trigger  
   // bit). 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5") == 0) {   
-    if( map_BitOfStandardHLTPath.find("L1_SingleMu3")->second == 1) {      // Old L1 Seed   
+    if( map_BitOfStandardHLTPath.find("L1_SingleMu3")->second == 1) {      // L1 Seed   
       if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1) {   
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
       }   
@@ -413,7 +410,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }     
   }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon25_L1R") == 0) {     
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG15")->second == 1 ) {               
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {               
       if(OpenHlt1PhotonPassed(25.,0,999.,999.,999.,999.)>=1) {      
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
@@ -702,7 +699,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }         
 
   /* BTag */
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet20_Calib") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet20") == 0) {
     if ( map_BitOfStandardHLTPath.find("L1_Mu5_Jet6")->second == 1 ) {
       int rc = 0; 
       int max =  (NohBJetL2Corrected > 2) ? 2 : NohBJetL2Corrected;
@@ -720,7 +717,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       } 
     }
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagIP_Jet80_ST") == 0) {  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagIP_Jet80") == 0) {  
     if ( map_BitOfStandardHLTPath.find("L1_SingleJet70")->second == 1 ) {   
       int rc = 0;  
       int max =  (NohBJetL2Corrected > 2) ? 2 : NohBJetL2Corrected; 
@@ -738,7 +735,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       }
     }  
   } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagIP_Jet120_ST") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagIP_Jet120") == 0) {
     if ( map_BitOfStandardHLTPath.find("L1_SingleJet70")->second == 1 ) { 
       int rc = 0;   
       int max =  (NohBJetL2Corrected > 2) ? 2 : NohBJetL2Corrected;  
@@ -1095,7 +1092,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       }           
     } 
   }
-
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_SW_L1R_3Jet30_3JetL1") == 0){
     if((map_BitOfStandardHLTPath.find("L1_EG5_TripleJet6")->second == 1)) {      // L1 Seed 
       int rc = 0;
@@ -1156,7 +1152,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       }  
     } 
   }
-  // Lepton+jet triggers for... top? exotica?
+  // Lepton+jet triggers for... top? exotica? b-tagging?
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9_DiJet30") == 0) {
     int njetswithmu = 0;
     if(map_BitOfStandardHLTPath.find("L1_Mu5_SingleJet15")->second == 1){      // L1 Seed   
