@@ -24,7 +24,7 @@ namespace cond {
       throw cond::Exception("cond::IOVEditorImpl::create time not in global range");
     
     
-    m_iov=cond::TypedRef<cond::IOVSequence>(*m_pooldb,new cond::IOVSequence((int)timetype,lastTill,""));
+    m_iov=cond::TypedRef<cond::IOVSequence>(*m_pooldb,new cond::IOVSequence((int)timetype,lastTill," "));
 					    
     m_iov.markWrite(cond::IOVNames::container());
     m_token=m_iov.token();
