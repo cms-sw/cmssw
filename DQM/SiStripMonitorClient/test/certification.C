@@ -2,6 +2,7 @@
 #include <ctime>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <vector>
 #include <map>
 #include <string>
@@ -19,8 +20,8 @@ using namespace std;
 
 
 // macro parameters
-const Bool_t createNewData( kTRUE );               // extract information from harvest files (again)?
-const Bool_t closeCanvas( kFALSE );                  // close created canvases again at end of processing?
+const Bool_t createNewData( kFALSE );               // extract information from harvest files (again)?
+const Bool_t closeCanvas( kTRUE );                  // close created canvases again at end of processing?
 const string drawFormat( "gif" );
 const string nameFileIn( "certDqmHarvestFiles.txt" ); // name of file containing harvesting file list
 const string pathHarvestFiles( "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/Cosmics__Commissioning08_CRAFT_ALL_V9_225-v2__RECO" );
@@ -42,9 +43,9 @@ const Bool_t   useTID( kFALSE );                              // consider TID qu
 
 // derived parameters
 const string nameFileOutTxt( nameFileOut + ".txt" );          // name of file containing final flags in ASCII
-const string nameFileInTWiki( nameFileOut + "Old.txt" );        // name of file containing old flags in ASCII
-const string nameFileCacheTwiki( nameFileOut + "Cache.txt" ); // name of temporary file containing final flags for TWiki in ASCII format
-const string nameFileOutTwiki( nameFileOut + ".twiki" );      // name of final file containing old and final flags in TWiki format
+const string nameFileInTwiki( nameFileOut + "Old.txt" );        // name of file containing old flags in ASCII
+const string nameFileCacheTwiki( nameFileOut + "Cache.txt" ); // name of temporary file containing final flags for Twiki in ASCII format
+const string nameFileOutTwiki( nameFileOut + ".twiki" );      // name of final file containing old and final flags in Twiki format
 const string nameFileOutXml( nameFileOut + ".xml" );          // name of file containing final flags in XML
 const string nameFileRRTmp( nameFileRR + ".tmp" );
 
@@ -318,7 +319,44 @@ void certification()
   fileOut.open( nameFileOutTxt.c_str() );
   fileCacheOutTwiki.open( nameFileCacheTwiki.c_str() );
   TXMLEngine * xml = new TXMLEngine;
-  XMLNodePointer_t nodeMain( xml->NewChild( 0, 0, "main" ) );
+  XMLNodePointer_t nodeMain( xml->NewChild( 0, 0, "CERTIFICATION" ) );
+  XMLNodePointer_t nodeCriteria( xml->NewChild( nodeMain, 0, "CRITERIA" ) );
+  XMLNodePointer_t nodeCriterion( xml->NewChild( nodeCriteria, 0, "CRITERION", "Minimum number of events" ) );
+  xml->NewAttr( nodeCriterion, 0, "name", "minNEvt" );
+  ostringstream sMinNEvt;
+  sMinNEvt << minNEvt;
+  xml->NewAttr( nodeCriterion, 0, "value", sMinNEvt.str().c_str() );
+  nodeCriterion = xml->NewChild( nodeCriteria, 0, "CRITERION", "Minimum number of reconstructed tracks" );
+  xml->NewAttr( nodeCriterion, 0, "name", "minNTrk" );
+  ostringstream sMinNTrk;
+  sMinNTrk << minNTrk;
+  xml->NewAttr( nodeCriterion, 0, "value", sMinNTrk.str().c_str() );
+  nodeCriterion = xml->NewChild( nodeCriteria, 0, "CRITERION", "Minimum average number of reconstructed tracks per event" );
+  xml->NewAttr( nodeCriterion, 0, "name", "minRate" );
+  ostringstream sMinRate;
+  sMinRate << minRate;
+  xml->NewAttr( nodeCriterion, 0, "value", sMinRate.str().c_str() );
+  nodeCriterion = xml->NewChild( nodeCriteria, 0, "CRITERION", "Maximum average number of off-track clusters" );
+  xml->NewAttr( nodeCriterion, 0, "name", "maxOffTrkCl" );
+  ostringstream sMaxOffTrkCl;
+  sMaxOffTrkCl << maxOffTrkCl;
+  xml->NewAttr( nodeCriterion, 0, "value", sMaxOffTrkCl.str().c_str() );
+  nodeCriterion = xml->NewChild( nodeCriteria, 0, "CRITERION", "Minimum corr. S/N of clusters per sub-detector" );
+  xml->NewAttr( nodeCriterion, 0, "name", "minSToN" );
+  XMLNodePointer_t nodeSubCriterion;
+  for ( size_t iDet = 0; iDet < namesDet.size(); ++iDet ) {
+    nodeSubCriterion = xml->NewChild( nodeCriterion, 0, "SUBCRITERION" );
+    xml->NewAttr( nodeSubCriterion, 0, "subdet", namesDet.at( iDet ).c_str() );
+    ostringstream sMinSToN;
+    sMinSToN << minSToN[ iDet ];
+    xml->NewAttr( nodeSubCriterion, 0, "value", sMinSToN.str().c_str() );
+  }
+  nodeCriterion = xml->NewChild( nodeCriteria, 0, "CRITERION", "Minimum fraction of good modules in sub-detectors" );
+  xml->NewAttr( nodeCriterion, 0, "name", "minFractSubDet" );
+  ostringstream sMinFractSubDet;
+  sMinFractSubDet << minFractSubDet;
+  xml->NewAttr( nodeCriterion, 0, "value", sMinFractSubDet.str().c_str() );
+  XMLNodePointer_t nodeRuns( xml->NewChild( nodeMain, 0, "RUNS" ) );
   
   Int_t nRuns( 0 );
   Int_t nRunsGood( 0 );
@@ -347,21 +385,34 @@ void certification()
     for ( size_t iDet    = 0; iDet    < namesDet.size()   ; ++iDet    ) fileCacheIn >> sToN[ namesDet.at( iDet ) ];
     for ( size_t iSubDet = 0; iSubDet < namesSubDet.size(); ++iSubDet ) fileCacheIn >> fractSubDet[ namesSubDet.at( iSubDet ) ];
     
-    XMLNodePointer_t nodeChild( xml->NewChild( nodeMain, 0, sRun.c_str() ) );
+    XMLNodePointer_t nodeRun( xml->NewChild( nodeRuns, 0, "RUN" ) );
+    ostringstream sRun;
+    sRun << iRun;
+    xml->NewAttr( nodeRun, 0, "number", sRun.str().c_str() );
     
     Bool_t goodRun( kTRUE );
-    if ( nEvt <= minNEvt ) {
+    XMLNodePointer_t nodeFlag( xml->NewChild( nodeRun, 0, "FLAG" ) );
+    xml->NewAttr( nodeFlag, 0, "name", "minNEvt" );
+    if ( nEvt < minNEvt ) {
       const string lineFlag( "no events" );
       lineTxt += " " + lineFlag;
       if ( goodRun ) lineTwiki += lineFlag;
       goodRun = kFALSE;
       ++nRunsNoEvents;
+      xml->NewAttr( nodeFlag, 0, "value", "0" );
+    } else {
+      xml->NewAttr( nodeFlag, 0, "value", "1" );
     }
     bool failedTracks( false );
     for ( size_t iAlgo = 0; iAlgo < namesAlgo.size(); ++iAlgo ) {
-      if ( nTrk[ namesAlgo.at( iAlgo ) ] <= minNTrk ) {
+      if ( iAlgo == 0 ) nodeFlag = xml->NewChild( nodeRun, 0, "FLAG" );
+      else              nodeFlag = xml->NewChild( nodeRun, 0, "FLAG", "Not included in global flag" );
+      xml->NewAttr( nodeFlag, 0, "name", "minNTrk" );
+      xml->NewAttr( nodeFlag, 0, "algo", namesAlgo.at( iAlgo ).c_str() );
+      if ( nTrk[ namesAlgo.at( iAlgo ) ] < minNTrk ) {
         const string lineFlag( "no " + namesAlgo.at( iAlgo ) + " tracks" );
         lineTxt += " " + lineFlag;
+        xml->NewAttr( nodeFlag, 0, "value", "0" );
         if ( goodRun ) {
           if ( failedTracks ) lineTwiki += ", ";
           lineTwiki += lineFlag;
@@ -371,12 +422,19 @@ void certification()
           goodRun = kFALSE;
           ++nRunsNoTracks;
         }
+      } else {
+        xml->NewAttr( nodeFlag, 0, "value", "1" );
       }
     }
     for ( size_t iAlgo = 0; iAlgo < namesAlgo.size(); ++iAlgo ) {
-      if ( rate[ namesAlgo.at( iAlgo ) ] <= minRate ) {
+      if ( iAlgo == 0 ) nodeFlag = xml->NewChild( nodeRun, 0, "FLAG" );
+      else              nodeFlag = xml->NewChild( nodeRun, 0, "FLAG", "Not included in global flag" );
+      xml->NewAttr( nodeFlag, 0, "name", "minRate" );
+      xml->NewAttr( nodeFlag, 0, "algo", namesAlgo.at( iAlgo ).c_str() );
+      if ( rate[ namesAlgo.at( iAlgo ) ] < minRate ) {
         const string lineFlag( "too few " + namesAlgo.at( iAlgo ) + " tracks" );
         lineTxt += " " + lineFlag;
+        xml->NewAttr( nodeFlag, 0, "value", "0" );
         if ( goodRun ) {
           if ( failedTracks ) lineTwiki += ", ";
           lineTwiki +=  lineFlag;
@@ -385,42 +443,73 @@ void certification()
         if ( iAlgo == 0 ) {
           goodRun = kFALSE;
         }
+      } else {
+        xml->NewAttr( nodeFlag, 0, "value", "1" );
       }
     }
+    nodeFlag = xml->NewChild( nodeRun, 0, "FLAG" );
+    xml->NewAttr( nodeFlag, 0, "name", "maxOffTrkCl" );
     if ( offTrkCl > maxOffTrkCl ) {
       const string lineFlag( "too many offTrk clusters" );
       lineTxt += " " + lineFlag;
       if ( goodRun ) lineTwiki += lineFlag;
       goodRun = kFALSE;
+      xml->NewAttr( nodeFlag, 0, "value", "0" );
+    } else {
+      xml->NewAttr( nodeFlag, 0, "value", "1" );
     }
     for ( size_t iDet = 0; iDet < namesDet.size(); ++iDet ) {
+      nodeFlag = xml->NewChild( nodeRun, 0, "FLAG" );
+      xml->NewAttr( nodeFlag, 0, "name", "minSToN" );
+      xml->NewAttr( nodeFlag, 0, "subdet", namesDet.at( iDet ).c_str() );
       if ( sToN[ namesDet.at( iDet ) ] < minSToN[ iDet ] ) {
         const string lineFlag( "too low S/N in " + namesDet.at( iDet ) );
         lineTxt += " " + lineFlag;
         if ( goodRun ) lineTwiki += lineFlag;
         goodRun = kFALSE;
+        xml->NewAttr( nodeFlag, 0, "value", "0" );
+      } else {
+        xml->NewAttr( nodeFlag, 0, "value", "1" );
       }
+    }
+    nodeFlag = xml->NewChild( nodeRun, 0, "FLAG" );
+    xml->NewAttr( nodeFlag, 0, "name", "minFractSubDet" );
+    xml->NewAttr( nodeFlag, 0, "subdet", "TIB" );
+    if ( fractSubDet[ "SiStrip_TIB" ] < minFractSubDet && fractSubDet[ "SiStrip_TIB" ] != -1. ) {
+      const string lineFlag( "too few modules good in TIB" );
+      lineTxt += " " + lineFlag;
+      if ( goodRun ) lineTwiki += lineFlag;
+      goodRun = kFALSE;
+      xml->NewAttr( nodeFlag, 0, "value", "0" );
+    } else {
+      xml->NewAttr( nodeFlag, 0, "value", "1" );
+    }
+    nodeFlag = xml->NewChild( nodeRun, 0, "FLAG" );
+    xml->NewAttr( nodeFlag, 0, "name", "minFractSubDet" );
+    xml->NewAttr( nodeFlag, 0, "subdet", "TOB" );
+    if ( fractSubDet[ "SiStrip_TOB" ] < minFractSubDet && fractSubDet[ "SiStrip_TOB" ] != -1. ) {
+      const string lineFlag( "too few modules good in TOB" );
+      lineTxt += " " + lineFlag;
+      if ( goodRun ) lineTwiki += lineFlag;
+      goodRun = kFALSE;
+      xml->NewAttr( nodeFlag, 0, "value", "0" );
+    } else {
+      xml->NewAttr( nodeFlag, 0, "value", "1" );
     }
     if ( avForwBackw ) { // FIXME Remove all this hardcoding
       if ( useTEC ) {
-        if ( fractSubDet[ "SiStrip_TIB" ] < minFractSubDet && fractSubDet[ "SiStrip_TIB" ] != -1. ) {
-          const string lineFlag( "too few modules good in TIB" );
-          lineTxt += " " + lineFlag;
-          if ( goodRun ) lineTwiki += lineFlag;
-          goodRun = kFALSE;
-        }
-        if ( fractSubDet[ "SiStrip_TOB" ] < minFractSubDet && fractSubDet[ "SiStrip_TOB" ] != -1. ) {
-          const string lineFlag( "too few modules good in TOB" );
-          lineTxt += " " + lineFlag;
-          if ( goodRun ) lineTwiki += lineFlag;
-          goodRun = kFALSE;
-        }
+        nodeFlag = xml->NewChild( nodeRun, 0, "FLAG" );
+        xml->NewAttr( nodeFlag, 0, "name", "minFractSubDet" );
+        xml->NewAttr( nodeFlag, 0, "subdet", "TEC" );
         if ( fractSubDet[ "SiStrip_TECF" ] == -1. && fractSubDet[ "SiStrip_TECB" ] >= 0. ) {
           if ( fractSubDet[ "SiStrip_TECB" ] < minFractSubDet ) {
             const string lineFlag( "too few modules good in TECB (TECF off)" );
             lineTxt += " " + lineFlag;
             if ( goodRun ) lineTwiki += lineFlag;
             goodRun = kFALSE;
+            xml->NewAttr( nodeFlag, 0, "value", "0" );
+          } else {
+            xml->NewAttr( nodeFlag, 0, "value", "1" );
           }
         } else if ( fractSubDet[ "SiStrip_TECF" ] >= 0. && fractSubDet[ "SiStrip_TECB" ] == -1. ) {
           if ( fractSubDet[ "SiStrip_TECF" ] < minFractSubDet ) {
@@ -428,6 +517,9 @@ void certification()
             lineTxt += " " + lineFlag;
             if ( goodRun ) lineTwiki += lineFlag;
             goodRun = kFALSE;
+            xml->NewAttr( nodeFlag, 0, "value", "0" );
+          } else {
+            xml->NewAttr( nodeFlag, 0, "value", "1" );
           }
         } else {
           if ( ( fractSubDet[ "SiStrip_TECF" ] + fractSubDet[ "SiStrip_TECB" ] ) / 2. < minFractSubDet && ( fractSubDet[ "SiStrip_TECF" ] + fractSubDet[ "SiStrip_TECB" ] ) / 2. != -1. ) {
@@ -435,16 +527,25 @@ void certification()
             lineTxt += " " + lineFlag;
             if ( goodRun ) lineTwiki += lineFlag;
             goodRun = kFALSE;
+            xml->NewAttr( nodeFlag, 0, "value", "0" );
+          } else {
+            xml->NewAttr( nodeFlag, 0, "value", "1" );
           }
         }
       }
       if ( useTID ) {
+        nodeFlag = xml->NewChild( nodeRun, 0, "FLAG" );
+        xml->NewAttr( nodeFlag, 0, "name", "minFractSubDet" );
+        xml->NewAttr( nodeFlag, 0, "subdet", "TID" );
         if ( fractSubDet[ "SiStrip_TIDF" ] == -1. && fractSubDet[ "SiStrip_TIDB" ] >= 0. ) {
           if ( fractSubDet[ "SiStrip_TIDB" ] < minFractSubDet ) {
             const string lineFlag( "too few modules good in TIDB (TIDF off)" );
             lineTxt += " " + lineFlag;
             if ( goodRun ) lineTwiki += lineFlag;
             goodRun = kFALSE;
+            xml->NewAttr( nodeFlag, 0, "value", "0" );
+          } else {
+            xml->NewAttr( nodeFlag, 0, "value", "1" );
           }
         } else if ( fractSubDet[ "SiStrip_TIDF" ] >= 0. && fractSubDet[ "SiStrip_TIDB" ] == -1. ) {
           if ( fractSubDet[ "SiStrip_TIDF" ] < minFractSubDet ) {
@@ -452,6 +553,9 @@ void certification()
             lineTxt += " " + lineFlag;
             if ( goodRun ) lineTwiki += lineFlag;
             goodRun = kFALSE;
+            xml->NewAttr( nodeFlag, 0, "value", "0" );
+          } else {
+            xml->NewAttr( nodeFlag, 0, "value", "1" );
           }
         } else {
           if ( ( fractSubDet[ "SiStrip_TIDF" ] + fractSubDet[ "SiStrip_TIDB" ] ) / 2. < minFractSubDet && ( fractSubDet[ "TIDF" ] + fractSubDet[ "TIDB" ] ) / 2. != -1. ) {
@@ -459,20 +563,27 @@ void certification()
             lineTxt += " " + lineFlag;
             if ( goodRun ) lineTwiki += lineFlag;
             goodRun = kFALSE;
+            xml->NewAttr( nodeFlag, 0, "value", "0" );
+          } else {
+            xml->NewAttr( nodeFlag, 0, "value", "1" );
           }
         }
       }
-    } else {
-      for ( size_t iSubDet = 0; iSubDet < namesSubDet.size(); ++iSubDet ) { // FIXME add 'useTEC' and 'useTID' here
-        if ( fractSubDet[ namesSubDet.at( iSubDet ) ] < minFractSubDet && fractSubDet[ namesSubDet.at( iSubDet ) ] != -1. ) {
-          if ( namesSubDet.at( iSubDet ) != "SiStrip_TECF" && namesSubDet.at( iSubDet ) != "SiStrip_TECB" && namesSubDet.at( iSubDet ) != "SiStrip_TIDF" && namesSubDet.at( iSubDet ) != "SiStrip_TIDB" ) { // don't care for TEC and TID
-            lineTxt += " too few modules good in " + namesSubDet.at( iSubDet );
-            goodRun = kFALSE;
-            break;
-          }
-        }
-      }
+//     } else {
+//       for ( size_t iSubDet = 0; iSubDet < namesSubDet.size(); ++iSubDet ) { // FIXME add 'useTEC' and 'useTID' here
+//         if ( fractSubDet[ namesSubDet.at( iSubDet ) ] < minFractSubDet && fractSubDet[ namesSubDet.at( iSubDet ) ] != -1. ) {
+//           if ( namesSubDet.at( iSubDet ) != "SiStrip_TECF" && namesSubDet.at( iSubDet ) != "SiStrip_TECB" && namesSubDet.at( iSubDet ) != "SiStrip_TIDF" && namesSubDet.at( iSubDet ) != "SiStrip_TIDB" ) { // don't care for TEC and TID
+//             lineTxt += " too few modules good in " + namesSubDet.at( iSubDet );
+//             goodRun = kFALSE;
+//             break;
+//           }
+//         }
+//       }
     }
+
+    nodeFlag = xml->NewChild( nodeRun, 0, "GLOBAL_FLAG" );
+    if ( goodRun ) xml->NewAttr( nodeFlag, 0, "value", "1" );
+    else           xml->NewAttr( nodeFlag, 0, "value", "0" );
     
     string flag( " " );
     if ( goodRun ) {
@@ -507,8 +618,6 @@ void certification()
     aSnTEC->Fill( iRun, sToN[ namesDet.at( 3 ) ] );
     aClstOff->Fill( iRun, offTrkCl );   
     
-    xml->NewAttr( nodeChild, 0, "Flag"   , sFlag.c_str() );
-    xml->NewAttr( nodeChild, 0, "Comment", lineTxt.c_str() );
     fileOut           << iRun << sFlag << lineTxt   << endl;
     if ( nRuns > 0 ) fileCacheOutTwiki << endl;
     fileCacheOutTwiki << iRun << flag  << lineTwiki;
@@ -559,8 +668,8 @@ void certification()
   ifstream fileCacheInTwikiOld;
   ifstream fileCacheInTwiki;
   ofstream fileOutTwiki;
-  fileCacheInTwikiOld.open( nameFileInTWiki.c_str() );
-  fileCacheInTwiki.open( string( string( gSystem->Getenv( "CMSSW_BASE" ) ) + "/src/DQM/SiStripMonitorClient/data/" + nameFileCacheTwiki ).c_str() );
+  fileCacheInTwikiOld.open( string( string( gSystem->Getenv( "CMSSW_BASE" ) ) + "/src/DQM/SiStripMonitorClient/data/" + nameFileInTwiki ).c_str() );
+  fileCacheInTwiki.open( nameFileCacheTwiki.c_str() );
   fileOutTwiki.open( nameFileOutTwiki.c_str() );
   fileOutTwiki << "%TABLE{ sort=\"on\" initsort=\"1\" initdirection=\"down\" tableborder=\"0\" cellpadding=\"4\" cellspacing=\"3\" cellborder=\"0\" headerbg=\"#D5CCB1\"  headercolor=\"#666666\" databg=\"#FAF0D4, #F3DFA8\" headerrows=\"1\"}%" << endl;
   fileOutTwiki << "%EDITTABLE{ format=\"| text, -1| date, -1, %SERVERTIME{\"$day-$mon-$year\"}%, %e-%b-%Y| select, -1, ,*%GREEN%Good%ENDCOLOR%*, *%RED%Bad%ENDCOLOR%*, Waiting | text, -1| select, -1, ,%GREEN%*Good*%ENDCOLOR%, %RED%*Bad*%ENDCOLOR%, %ORANGE%*Excl*%ENDCOLOR% | select, -1, ,%GREEN%*Good*%ENDCOLOR%, %RED%*Bad*%ENDCOLOR% | select, -1, ,No, %RED%*Yes*%ENDCOLOR% | text, -1|\"changerows=\"on\" }%"                                                                                                                                              << endl;
@@ -640,6 +749,8 @@ void certification()
   xmlRR->FreeDoc( xmlRRDoc );
   fileCacheInTwiki.close();
   fileOutTwiki.close();
+  gSystem->Exec( string( "rm " + nameFileRR ).c_str() );
+  gSystem->Exec( string( "rm " + nameFileCacheTwiki ).c_str() );
   
   gStyle->SetOptStat( 0 );
   TCanvas * gCanvas = new TCanvas( "gCanvas", "SiStrip Offline Run Certification - CRAFT (good runs)", 1392, 1000 );
