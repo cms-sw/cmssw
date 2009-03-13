@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 22 10:13:39 CST 2009
-// $Id$
+// $Id: FWCollectionSummaryTableManager.cc,v 1.1 2009/03/04 16:40:50 chrjones Exp $
 //
 
 // system include files
@@ -187,7 +187,10 @@ FWCollectionSummaryTableManager::cellRenderer(int iSortedRowNumber, int iCol) co
    if(iCol >= static_cast<int>(m_valueGetters.size())) {
       return 0;
    }
-   
+   if(iSortedRowNumber >= static_cast<int>(m_collection->size())) {
+      m_bodyRenderer.setData("",false);
+      return &m_bodyRenderer;
+   }
    int index = m_sortedToUnsortedIndicies[iSortedRowNumber];
    std::stringstream s;
    s.setf(std::ios_base::fixed,std::ios_base::floatfield);
@@ -208,6 +211,9 @@ FWCollectionSummaryTableManager::hasRowHeaders() const
 FWTableCellRendererBase* 
 FWCollectionSummaryTableManager::rowHeader(int iSortedRowNumber) const
 {
+   if(iSortedRowNumber >= static_cast<int>(m_collection->size())) {
+      return 0;
+   }
    int index = m_sortedToUnsortedIndicies[iSortedRowNumber];
    m_renderer.setData(m_collection,
                       index);
