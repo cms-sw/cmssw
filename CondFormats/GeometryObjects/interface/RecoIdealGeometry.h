@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <cassert>
 
 #include <DataFormats/DetId/interface/DetId.h>
 
