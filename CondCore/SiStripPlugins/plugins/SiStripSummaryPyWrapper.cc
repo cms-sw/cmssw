@@ -70,7 +70,7 @@ namespace cond {
   std::string
   PayLoadInspector<SiStripSummary>::dump() const {
     std::stringstream ss;
-    std::vector<std::string>  listWhat= object->getUserDBContent();
+    std::vector<std::string>  listWhat= object().getUserDBContent();
     for(size_t i=0;i<listWhat.size();++i)
       ss << listWhat[i] << "###";
     return ss.str();
@@ -80,13 +80,13 @@ namespace cond {
   template<>
   std::string PayLoadInspector<SiStripSummary>::summary() const {
     std::stringstream ss;
-    ss << "Nr.Det " << object->getRegistryVectorEnd()-object->getRegistryVectorBegin()
-       << "\nNr.Quantities " << object->getUserDBContent().size()
-       << "\nNr.values " << object->getDataVectorEnd()-object->getDataVectorBegin()
-       << "\nRunNr= " << object->getRunNr()
-       << "\ntimeValue= " << object->getTimeValue();
+    ss << "Nr.Det " << object().getRegistryVectorEnd()-object().getRegistryVectorBegin()
+       << "\nNr.Quantities " << object().getUserDBContent().size()
+       << "\nNr.values " << object().getDataVectorEnd()-object().getDataVectorBegin()
+       << "\nRunNr= " << object().getRunNr()
+       << "\ntimeValue= " << object().getTimeValue();
     //ss << "names of DBquantities ";
-    //std::vector<std::string>  listWhat= object->getUserDBContent();
+    //std::vector<std::string>  listWhat= object().getUserDBContent();
     //for(size_t i=0;i<listWhat.size();++i)
     // ss << listWhat[i] << "\n";
     return ss.str(); 

@@ -2,6 +2,7 @@
 #define Cond_PayloadWrapper_h
 
 
+#include <typeinfo>
 #include "POOLCore/Ptr.h"
 #include "CondFormats/Common/interface/Summary.h"
 

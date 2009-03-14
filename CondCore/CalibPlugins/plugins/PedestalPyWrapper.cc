@@ -100,7 +100,7 @@ namespace cond {
     template<>
     std::string PayLoadInspector<Pedestals>::summary() const {
     std::stringstream ss;
-    ss << "size="<<object->m_pedestals.size() <<";";
+    ss << "size="<<object().m_pedestals.size() <<";";
     ss << std::endl;
     return ss.str();
    }

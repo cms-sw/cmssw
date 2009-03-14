@@ -52,5 +52,7 @@ namespace {
     cond::DataWrapper<mySiStripNoises> d0;
     pool::Ptr<Pedestals> p1;
     cond::DataWrapper<Pedestals> d1;
+    pool::Ptr<BlobComplex> p2;
+    cond::DataWrapper<BlobComplex> d2;
   };
 }

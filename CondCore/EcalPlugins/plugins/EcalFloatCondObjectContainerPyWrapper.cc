@@ -137,10 +137,10 @@ namespace cond {
   std::string
   PayLoadInspector<EcalFloatCondObjectContainer>::dump() const {
     Printer p;
-    std::for_each(object->barrelItems().begin(),object->barrelItems().end(),boost::bind(&Printer::doB,boost::ref(p),_1));
+    std::for_each(object().barrelItems().begin(),object().barrelItems().end(),boost::bind(&Printer::doB,boost::ref(p),_1));
     p.ss <<"\n";
     p.reset();
-    std::for_each(object->endcapItems().begin(),object->endcapItems().end(),boost::bind(&Printer::doE,boost::ref(p),_1));
+    std::for_each(object().endcapItems().begin(),object().endcapItems().end(),boost::bind(&Printer::doE,boost::ref(p),_1));
     p.ss << std::endl;
     return p.ss.str();
   }
@@ -149,8 +149,8 @@ namespace cond {
   std::string PayLoadInspector<EcalFloatCondObjectContainer>::summary() const {
     std::stringstream ss;
     ss << "sizes="
-       << object->barrelItems().size() <<","
-       << object->endcapItems().size() <<";";
+       << object().barrelItems().size() <<","
+       << object().endcapItems().size() <<";";
     ss << std::endl;
     return ss.str();
   }

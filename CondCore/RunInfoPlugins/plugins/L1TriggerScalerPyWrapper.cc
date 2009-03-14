@@ -40,81 +40,81 @@ namespace cond {
   template<>
   std::string PayLoadInspector<L1TriggerScaler>::summary() const {
     std::stringstream ss;
-    ss << object->m_run.size() <<", ";
-    if (!object->m_run.empty()) {
-      ss << object->m_run.front().m_rn;
+    ss << object().m_run.size() <<", ";
+    if (!object().m_run.empty()) {
+      ss << object().m_run.front().m_rn;
       ss << ", ";
-      ss << object->m_run.front().m_lumisegment;
-      ss << ", " << object->m_run.front().m_date;
- ss << ", " << object->m_run.front().m_date;
+      ss << object().m_run.front().m_lumisegment;
+      ss << ", " << object().m_run.front().m_date;
+ ss << ", " << object().m_run.front().m_date;
 
-      for(size_t i=0; i<object->m_run.front().m_GTAlgoCounts.size(); i++ ){ 
-      ss << "m_GTAlgoCounts["<<i<<"] = "<< object->m_run.front().m_GTAlgoCounts[i]<<std::endl;  
+      for(size_t i=0; i<object().m_run.front().m_GTAlgoCounts.size(); i++ ){ 
+      ss << "m_GTAlgoCounts["<<i<<"] = "<< object().m_run.front().m_GTAlgoCounts[i]<<std::endl;  
     }
-      for(size_t i=0; i<object->m_run.front().m_GTAlgoRates.size(); i++ ){ 
-      ss << "m_GTAlgoRates["<<i<<"] = "<< object->m_run.front().m_GTAlgoRates[i]<<std::endl;  
+      for(size_t i=0; i<object().m_run.front().m_GTAlgoRates.size(); i++ ){ 
+      ss << "m_GTAlgoRates["<<i<<"] = "<< object().m_run.front().m_GTAlgoRates[i]<<std::endl;  
     }
-    for(size_t i=0; i<object->m_run.front().m_GTAlgoPrescaling.size(); i++ ){ 
-      ss << "m_GTAlgoPrescaling["<<i<<"] = "<< object->m_run.front().m_GTAlgoPrescaling[i]<<std::endl;  
+    for(size_t i=0; i<object().m_run.front().m_GTAlgoPrescaling.size(); i++ ){ 
+      ss << "m_GTAlgoPrescaling["<<i<<"] = "<< object().m_run.front().m_GTAlgoPrescaling[i]<<std::endl;  
     } 
-    for(size_t i=0; i<object->m_run.front().m_GTTechCounts.size(); i++ ){ 
-      ss << " m_GTTechCounts["<<i<<"] = "<< object->m_run.front().m_GTTechCounts[i]<<std::endl;  
+    for(size_t i=0; i<object().m_run.front().m_GTTechCounts.size(); i++ ){ 
+      ss << " m_GTTechCounts["<<i<<"] = "<< object().m_run.front().m_GTTechCounts[i]<<std::endl;  
     } 
-    for(size_t i=0; i<object->m_run.front().m_GTTechRates.size(); i++ ){ 
-      ss << " m_GTTechRates["<<i<<"] = "<< object->m_run.front().m_GTTechRates[i]<<std::endl;  
+    for(size_t i=0; i<object().m_run.front().m_GTTechRates.size(); i++ ){ 
+      ss << " m_GTTechRates["<<i<<"] = "<< object().m_run.front().m_GTTechRates[i]<<std::endl;  
     } 
-    for(size_t i=0; i<object->m_run.front().m_GTTechPrescaling.size(); i++ ){ 
-      ss << " m_GTTechPrescaling["<<i<<"] = "<< object->m_run.front().m_GTTechPrescaling[i]<<std::endl;  
+    for(size_t i=0; i<object().m_run.front().m_GTTechPrescaling.size(); i++ ){ 
+      ss << " m_GTTechPrescaling["<<i<<"] = "<< object().m_run.front().m_GTTechPrescaling[i]<<std::endl;  
     } 
-    for(size_t i=0; i<object->m_run.front().m_GTPartition0TriggerCounts.size(); i++ ){ 
-      ss << " m_GTPartition0TriggerCounts["<<i<<"] = "<< object->m_run.front().m_GTPartition0TriggerCounts[i]<<std::endl;  
+    for(size_t i=0; i<object().m_run.front().m_GTPartition0TriggerCounts.size(); i++ ){ 
+      ss << " m_GTPartition0TriggerCounts["<<i<<"] = "<< object().m_run.front().m_GTPartition0TriggerCounts[i]<<std::endl;  
     } 
-    for(size_t i=0; i<object->m_run.front().m_GTPartition0TriggerRates.size(); i++ ){ 
-      ss << " m_GTPartition0TriggerRates["<<i<<"] = "<< object->m_run.front().m_GTPartition0TriggerRates[i]<<std::endl;  
+    for(size_t i=0; i<object().m_run.front().m_GTPartition0TriggerRates.size(); i++ ){ 
+      ss << " m_GTPartition0TriggerRates["<<i<<"] = "<< object().m_run.front().m_GTPartition0TriggerRates[i]<<std::endl;  
     } 
-    for(size_t i=0; i<object->m_run.front().m_GTPartition0DeadTime.size(); i++ ){ 
-      ss << " m_GTPartition0DeadTime["<<i<<"] = "<< object->m_run.front().m_GTPartition0DeadTime[i]<<std::endl;  
+    for(size_t i=0; i<object().m_run.front().m_GTPartition0DeadTime.size(); i++ ){ 
+      ss << " m_GTPartition0DeadTime["<<i<<"] = "<< object().m_run.front().m_GTPartition0DeadTime[i]<<std::endl;  
     }
-    for(size_t i=0; i<object->m_run.front().m_GTPartition0DeadTimeRatio.size(); i++ ){ 
-      ss << " m_GTPartition0DeadTimeRatio["<<i<<"] = "<< object->m_run.front().m_GTPartition0DeadTimeRatio[i]<<std::endl;  
+    for(size_t i=0; i<object().m_run.front().m_GTPartition0DeadTimeRatio.size(); i++ ){ 
+      ss << " m_GTPartition0DeadTimeRatio["<<i<<"] = "<< object().m_run.front().m_GTPartition0DeadTimeRatio[i]<<std::endl;  
     } 
   
  
       ss << "; ";
-      ss << object->m_run.back().m_rn;
+      ss << object().m_run.back().m_rn;
       ss << ", ";
-      ss << object->m_run.back().m_lumisegment;
-      ss << ", " << object->m_run.back().m_date;
+      ss << object().m_run.back().m_lumisegment;
+      ss << ", " << object().m_run.back().m_date;
 
-     for(size_t i=0; i<object->m_run.back().m_GTAlgoCounts.size(); i++ ){ 
-      ss << "m_GTAlgoCounts["<<i<<"] = "<< object->m_run.back().m_GTAlgoCounts[i]<<std::endl;  
+     for(size_t i=0; i<object().m_run.back().m_GTAlgoCounts.size(); i++ ){ 
+      ss << "m_GTAlgoCounts["<<i<<"] = "<< object().m_run.back().m_GTAlgoCounts[i]<<std::endl;  
     }
-      for(size_t i=0; i<object->m_run.back().m_GTAlgoRates.size(); i++ ){ 
-      ss << "m_GTAlgoRates["<<i<<"] = "<< object->m_run.back().m_GTAlgoRates[i]<<std::endl;  
+      for(size_t i=0; i<object().m_run.back().m_GTAlgoRates.size(); i++ ){ 
+      ss << "m_GTAlgoRates["<<i<<"] = "<< object().m_run.back().m_GTAlgoRates[i]<<std::endl;  
     }
-    for(size_t i=0; i<object->m_run.back().m_GTAlgoPrescaling.size(); i++ ){ 
-      ss << "m_GTAlgoPrescaling["<<i<<"] = "<< object->m_run.back().m_GTAlgoPrescaling[i]<<std::endl;  
+    for(size_t i=0; i<object().m_run.back().m_GTAlgoPrescaling.size(); i++ ){ 
+      ss << "m_GTAlgoPrescaling["<<i<<"] = "<< object().m_run.back().m_GTAlgoPrescaling[i]<<std::endl;  
     } 
-    for(size_t i=0; i<object->m_run.back().m_GTTechCounts.size(); i++ ){ 
-      ss << " m_GTTechCounts["<<i<<"] = "<< object->m_run.back().m_GTTechCounts[i]<<std::endl;  
+    for(size_t i=0; i<object().m_run.back().m_GTTechCounts.size(); i++ ){ 
+      ss << " m_GTTechCounts["<<i<<"] = "<< object().m_run.back().m_GTTechCounts[i]<<std::endl;  
     } 
-    for(size_t i=0; i<object->m_run.back().m_GTTechRates.size(); i++ ){ 
-      ss << " m_GTTechRates["<<i<<"] = "<< object->m_run.back().m_GTTechRates[i]<<std::endl;  
+    for(size_t i=0; i<object().m_run.back().m_GTTechRates.size(); i++ ){ 
+      ss << " m_GTTechRates["<<i<<"] = "<< object().m_run.back().m_GTTechRates[i]<<std::endl;  
     } 
-    for(size_t i=0; i<object->m_run.back().m_GTTechPrescaling.size(); i++ ){ 
-      ss << " m_GTTechPrescaling["<<i<<"] = "<< object->m_run.back().m_GTTechPrescaling[i]<<std::endl;  
+    for(size_t i=0; i<object().m_run.back().m_GTTechPrescaling.size(); i++ ){ 
+      ss << " m_GTTechPrescaling["<<i<<"] = "<< object().m_run.back().m_GTTechPrescaling[i]<<std::endl;  
     } 
-    for(size_t i=0; i<object->m_run.back().m_GTPartition0TriggerCounts.size(); i++ ){ 
-      ss << " m_GTPartition0TriggerCounts["<<i<<"] = "<< object->m_run.back().m_GTPartition0TriggerCounts[i]<<std::endl;  
+    for(size_t i=0; i<object().m_run.back().m_GTPartition0TriggerCounts.size(); i++ ){ 
+      ss << " m_GTPartition0TriggerCounts["<<i<<"] = "<< object().m_run.back().m_GTPartition0TriggerCounts[i]<<std::endl;  
     } 
-    for(size_t i=0; i<object->m_run.back().m_GTPartition0TriggerRates.size(); i++ ){ 
-      ss << " m_GTPartition0TriggerRates["<<i<<"] = "<< object->m_run.back().m_GTPartition0TriggerRates[i]<<std::endl;  
+    for(size_t i=0; i<object().m_run.back().m_GTPartition0TriggerRates.size(); i++ ){ 
+      ss << " m_GTPartition0TriggerRates["<<i<<"] = "<< object().m_run.back().m_GTPartition0TriggerRates[i]<<std::endl;  
     } 
-    for(size_t i=0; i<object->m_run.back().m_GTPartition0DeadTime.size(); i++ ){ 
-      ss << " m_GTPartition0DeadTime["<<i<<"] = "<< object->m_run.back().m_GTPartition0DeadTime[i]<<std::endl;  
+    for(size_t i=0; i<object().m_run.back().m_GTPartition0DeadTime.size(); i++ ){ 
+      ss << " m_GTPartition0DeadTime["<<i<<"] = "<< object().m_run.back().m_GTPartition0DeadTime[i]<<std::endl;  
     }
-    for(size_t i=0; i<object->m_run.back().m_GTPartition0DeadTimeRatio.size(); i++ ){ 
-      ss << " m_GTPartition0DeadTimeRatio["<<i<<"] = "<< object->m_run.back().m_GTPartition0DeadTimeRatio[i]<<std::endl;  
+    for(size_t i=0; i<object().m_run.back().m_GTPartition0DeadTimeRatio.size(); i++ ){ 
+      ss << " m_GTPartition0DeadTimeRatio["<<i<<"] = "<< object().m_run.back().m_GTPartition0DeadTimeRatio[i]<<std::endl;  
     } 
     }
     return ss.str();

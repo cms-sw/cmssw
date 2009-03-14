@@ -40,23 +40,23 @@ namespace cond {
   template<>
   std::string PayLoadInspector<RunInfo>::summary() const {
     std::stringstream ss;
-    ss << "RUN: "<<object->m_run;
-    ss << ", START TIME: " << object->m_start_time_str;
-    ss << ", STOP TIME:" << object->m_stop_time_str;
-    ss << ", START CURRENT:  " << object->m_start_current;
-    ss << ", STOP CURRENT:  " << object->m_stop_current;
-    ss << ", AVG CURRENT:  " << object->m_avg_current;
-    ss << ", MIN CURRENT:  " << object->m_min_current;
-    ss << ", MAX CURRENT:  " << object->m_max_current;
-    ss << ", RUN INTERVALL IN MICROSECONDS: "<< object->m_run_intervall_micros;  /*
+    ss << "RUN: "<<object().m_run;
+    ss << ", START TIME: " << object().m_start_time_str;
+    ss << ", STOP TIME:" << object().m_stop_time_str;
+    ss << ", START CURRENT:  " << object().m_start_current;
+    ss << ", STOP CURRENT:  " << object().m_stop_current;
+    ss << ", AVG CURRENT:  " << object().m_avg_current;
+    ss << ", MIN CURRENT:  " << object().m_min_current;
+    ss << ", MAX CURRENT:  " << object().m_max_current;
+    ss << ", RUN INTERVALL IN MICROSECONDS: "<< object().m_run_intervall_micros;  /*
      ss << ", ALL CURRENT VALUE FROM STOP TO START (BACKWARD) :" ;
-    for (size_t i=0; i< object->m_current.size() ; i++){
-      ss<< object->m_current[i] << ", ";
+    for (size_t i=0; i< object().m_current.size() ; i++){
+      ss<< object().m_current[i] << ", ";
     } 
 										 */    
     ss << ", FED IN :" ;
-    for (size_t i=0; i<object->m_fed_in.size(); i++){
-      ss<< object->m_fed_in[i] << ", "; 
+    for (size_t i=0; i<object().m_fed_in.size(); i++){
+      ss<< object().m_fed_in[i] << ", "; 
     }  
       
   return ss.str();

@@ -40,35 +40,35 @@ namespace cond {
   template<>
   std::string PayLoadInspector<RunSummary>::summary() const {
     std::stringstream ss;
-      ss << "RUN: "<<object->m_run;
-      ss << ", NAME: " <<object->m_name;
-      ss << ", START TIME: " << object->m_start_time_str;
-      ss << ", STOP TIME:" << object->m_stop_time_str;
-      ss << ", LUMISECTIONS: " << object->m_lumisections;
-      ss << ", HLT_KEY:  " << object->m_hltkey;
-      ss << ", TRG_NEVENTS:  " << object->m_nevents;
-      ss << ", TRG_RATE:  " << object->m_rate;
+      ss << "RUN: "<<object().m_run;
+      ss << ", NAME: " <<object().m_name;
+      ss << ", START TIME: " << object().m_start_time_str;
+      ss << ", STOP TIME:" << object().m_stop_time_str;
+      ss << ", LUMISECTIONS: " << object().m_lumisections;
+      ss << ", HLT_KEY:  " << object().m_hltkey;
+      ss << ", TRG_NEVENTS:  " << object().m_nevents;
+      ss << ", TRG_RATE:  " << object().m_rate;
       ss << ", SUBDETS IB RUN: ";  
-      for (size_t i=0; i<object->m_subdt_in.size() ; i++){
-	if (object->m_subdt_in[i]==0) {
+      for (size_t i=0; i<object().m_subdt_in.size() ; i++){
+	if (object().m_subdt_in[i]==0) {
 	  ss<< "PIXEL, ";
 	}
-	if (object->m_subdt_in[i]==1) {
+	if (object().m_subdt_in[i]==1) {
 	  ss<<"TRACKER, ";
 	}
-	if (object->m_subdt_in[i]==2) {
+	if (object().m_subdt_in[i]==2) {
 	  ss<< "ECAL, " ;
 	}
-	if (object->m_subdt_in[i]==3) {
+	if (object().m_subdt_in[i]==3) {
 	  ss<< "HCAL, ";
 	}
-	if (object->m_subdt_in[i]==4) {
+	if (object().m_subdt_in[i]==4) {
 	  ss<<"DT," ;
 	}  
-	if (object->m_subdt_in[i]==5) {
+	if (object().m_subdt_in[i]==5) {
 	  ss<<"CSC,";
 	}   
-	if (object->m_subdt_in[i]==6) {
+	if (object().m_subdt_in[i]==6) {
 	  ss<<"RPC, ";
 	}  
       }

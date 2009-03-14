@@ -128,7 +128,7 @@ namespace cond {
   template<>
   std::string PayLoadInspector<EcalChannelStatus>::summary() const {
     std::stringstream ss;
-    ss << ecalcond::bad(object->barrelItems()) << ", " << ecalcond::bad(object->endcapItems());
+    ss << ecalcond::bad(object().barrelItems()) << ", " << ecalcond::bad(object().endcapItems());
     return ss.str();
   }
   
