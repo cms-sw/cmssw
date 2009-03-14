@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.cc  Version 5.25 
+//  SiPixelTemplate.cc  Version 5.26 
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -34,6 +34,7 @@
 //  Add second qmin to allow a qbin=5 state
 //  Use interpolated chi^2 info for one-pixel clusters
 //  Separate BPix and FPix charge scales and thresholds
+//  Fix DB pushfile version number checking bug.
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -80,7 +81,7 @@ bool SiPixelTemplate::pushfile(int filenum)
     // Local variables 
     int i, j, k, l;
 	const char *tempfile;
-	char title[80];
+//	char title[80]; remove this
     char c;
 	const int code_version={13};
 	
@@ -736,9 +737,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
     
 	// Local variables 
 	int i, j, k, l;
-	const char *tempfile;
-	char title[80];
-	char c;
+	//const char *tempfile;
 	const int code_version={13};
 
 	// We must create a new object because dbobject must be a const and our stream must not be
@@ -754,7 +753,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 // Read-in a header string first and print it    
     
 		SiPixelTemplateDBObject::char2float temp;
-		for (int i=0; i<20; ++i) {
+		for (i=0; i<20; ++i) {
 			temp.f = db.sVector()[db.index()];
 			theCurrentTemp.head.title[4*i] = temp.c[0];
 			theCurrentTemp.head.title[4*i+1] = temp.c[1];
@@ -1377,7 +1376,7 @@ bool SiPixelTemplate::interpolate(int id, bool fpix, float cotalpha, float cotbe
     // Interpolate for a new set of track angles 
     
     // Local variables 
-    int i, j, ind;
+    int i, j;
 	int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, imidy, imaxx;
 	float yratio, yxratio, xxratio, sxmax, qcorrect, symax, chi2xavgone, chi2xminone;
 //	std::vector <float> xrms(4), xgsig(4), xrmsc2m(4), xgsigc2m(4);
@@ -2204,7 +2203,6 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
     // Interpolate using quantities already stored in the private variables
     
     // Local variables 
-    int i;
 	float qfl, qfl2, qfl3, qfl4, qfl5, dy;
 	
     // Make sure that input is OK
@@ -2245,7 +2243,6 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
     // Interpolate using quantities already stored in the private variables
     
     // Local variables 
-    int i;
 	float qfl, qfl2, qfl3, qfl4, qfl5, dx;
 	
     // Make sure that input is OK
@@ -2608,7 +2605,7 @@ int SiPixelTemplate::qbin(int id, bool fpix, float cotalpha, float cotbeta, floa
     // Interpolate for a new set of track angles 
     
     // Local variables 
-    int i, j, binq;
+    int i, binq;
 	int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, imidy, imaxx;
 	float yratio, yxratio, xxratio;
 	float acotb, qscale, qavg, qmin, qmin2, fq, qtotal, qcorrect;

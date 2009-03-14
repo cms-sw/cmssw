@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.h (v5.25)
+//  SiPixelTemplate.h (v5.26)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -32,6 +32,7 @@
 //  Add second qmin to allow a qbin=5 state
 //  Use interpolated chi^2 info for one-pixel clusters
 //  Separate BPix and FPix charge scales and thresholds
+//  Fix DB pushfile version number checking bug.
 //
 // Created by Morris Swartz on 10/27/06.
 // Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
