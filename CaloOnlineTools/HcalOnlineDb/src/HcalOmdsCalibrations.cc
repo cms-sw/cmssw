@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalOmdsCalibrations
-// $Id: HcalOmdsCalibrations.cc,v 1.0 2009/03/11 18:04:35 kukartse Exp $
+// $Id: HcalOmdsCalibrations.cc,v 1.1 2009/03/13 11:27:37 kukartse Exp $
 //
 //
 
@@ -15,7 +15,7 @@
 
 #include "FWCore/Framework/interface/ValidityInterval.h"
 
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/HcalDbOmds.h"
 
 #include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalPedestalWidthsRcd.h"
@@ -28,6 +28,7 @@
 #include "CondFormats/DataRecord/interface/HcalZSThresholdsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalL1TriggerObjectsRcd.h"
 
+#include "CaloOnlineTools/HcalOnlineDb/interface/HCALConfigDB.h"
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalOmdsCalibrations.h"
 //
@@ -44,8 +45,9 @@ HcalOmdsCalibrations::HcalOmdsCalibrations ( const edm::ParameterSet& iConfig )
   std::vector<edm::ParameterSet>::iterator request = data.begin ();
   for (; request != data.end (); request++) {
     std::string objectName = request->getParameter<std::string> ("object");
-    edm::FileInPath fp = request->getParameter<edm::FileInPath>("file");
-    mInputs [objectName] = fp.fullPath();
+    //edm::FileInPath fp = request->getParameter<edm::FileInPath>("file");
+    //mInputs [objectName] = fp.fullPath();
+    mInputs [objectName] = request->getParameter<std::string>("tag");
     if (objectName == "Pedestals") {
       setWhatProduced (this, &HcalOmdsCalibrations::producePedestals);
       findingRecord <HcalPedestalsRcd> ();
@@ -112,18 +114,30 @@ HcalOmdsCalibrations::setIntervalFor( const edm::eventsetup::EventSetupRecordKey
   oInterval = edm::ValidityInterval (edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime()); //infinite
 }
 
+// FIXME: put this into the HcalDbOmds namespace
+const static std::string omds_occi_default_accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22";
+//const static std::string omds_occi_default_accessor = "occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44,LHWM_VERSION=22";
+
 template <class T>
-std::auto_ptr<T> produce_impl (const std::string& fFile) {
+std::auto_ptr<T> produce_impl (const std::string & fTag, const std::string& fAccessor = omds_occi_default_accessor) {
   std::auto_ptr<T> result (new T ());
-  //  std::auto_ptr<T> result;
-  std::ifstream inStream (fFile.c_str ());
-  if (!inStream.good ()) {
-    std::cerr << "HcalOmdsCalibrations-> Unable to open file '" << fFile << "'" << std::endl;
-    throw cms::Exception("FileNotFound") << "Unable to open '" << fFile << "'" << std::endl;
+
+  HCALConfigDB * db = new HCALConfigDB();
+  try {
+    // FIXME: check that all disconnects, releases and cleanup is done in the end
+    db -> connect( fAccessor );
+  } catch (hcal::exception::ConfigurationDatabaseException & e) {
+    std::cerr << "Cannot connect to the database" << endl;
   }
-  if (!HcalDbASCIIIO::getObject (inStream, &*result)) {
-    std::cerr << "HcalOmdsCalibrations-> Can not read object from file '" << fFile << "'" << std::endl;
-    throw cms::Exception("ReadError") << "Can not read object from file '" << fFile << "'" << std::endl;
+  oracle::occi::Connection * _connection = db -> getConnection();
+  if (_connection){
+    if (!HcalDbOmds::getObject (_connection, fTag, &*result)) {
+      std::cerr << "HcalOmdsCalibrations-> Can not read tag name '" << fTag << "' from database '" << fAccessor << "'" << std::endl;
+      throw cms::Exception("ReadError") << "Can not read tag name '" << fTag << "' from database '" << fAccessor << "'" << std::endl;
+    }
+  }
+  else{
+    std::cerr << "Database connection is null. This should NEVER happen here. Something fishy is going on..." << std::endl;
   }
   return result;
 }

@@ -22,9 +22,11 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.es_ascii = cms.ESSource("HcalOmdsCalibrations",
     input = cms.VPSet(cms.PSet(
-        object = cms.string('ChannelQuality'),
+        #object = cms.string('ChannelQuality'),
+        object = cms.string('ZSThresholds'),
         #file = cms.FileInPath('occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22')
-        file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_channelStatus_default.txt')
+        #file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_channelStatus_default.txt')
+        tag = cms.string('GREN_ZS_9adc_v2')
     ))
 )
 
@@ -33,13 +35,17 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     timetype = cms.untracked.string('runnumber'),
     logconnect= cms.untracked.string('sqlite_file:log.db'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('HcalChannelQualityRcd'),
-        tag = cms.string('hcal_channelStatus_trivial_mc')
+        #record = cms.string('HcalChannelQualityRcd'),
+        #tag = cms.string('hcal_channelStatus_trivial_mc')
+        record = cms.string('HcalZSThresholdsRcd'),
+        tag = cms.string('hcal_zs_thresholds_trivial_mc')
          ))
 )
 
-process.mytest = cms.EDAnalyzer("HcalChannelQualityPopConAnalyzer",
-    record = cms.string('HcalChannelQualityRcd'),
+#process.mytest = cms.EDAnalyzer("HcalChannelQualityPopConAnalyzer",
+process.mytest = cms.EDAnalyzer("HcalZSThresholdsPopConAnalyzer",
+    #record = cms.string('HcalChannelQualityRcd'),
+    record = cms.string('HcalZSThresholdsRcd'),
     loggingOn= cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(

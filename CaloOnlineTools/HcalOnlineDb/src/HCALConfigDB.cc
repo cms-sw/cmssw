@@ -26,22 +26,22 @@ using namespace hcal;
 
 HCALConfigDB::HCALConfigDB( void )
 {    
-  database = NULL;
-  database2 = NULL;
+  database = 0;
+  database2 = 0;
 }
 
 HCALConfigDB::HCALConfigDB( string _accessor )
 {    
-  database = NULL;
-  database2 = NULL;
+  database = 0;
+  database2 = 0;
   accessor = _accessor;
 }
 
 
 HCALConfigDB::~HCALConfigDB( void )
 {    
-  if ( database != NULL ) delete database;
-  if ( database2 != NULL ) delete database2;
+  delete database;
+  delete database2;
 }
 
 
