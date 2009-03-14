@@ -77,7 +77,7 @@ void HCALRecHitAnalyzer::BookHistos(){
   if (dbe_) {
 
     //    dbe_->setCurrentFolder("RecoMETV/METTask/RecHits/HCAL/geometry");
-    dbe_->setCurrentFolder("JetMET/EventInfo/CertificationSummary/HCAL/geometry");
+    dbe_->setCurrentFolder("JetMET/EventInfo/CertificationSummary/MET_HCAL/geometry");
     me["hHCAL_ieta_iphi_HBMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_HBMap","",83,-41,42,72,1,73); 
     me["hHCAL_ieta_iphi_HEMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_HEMap","",83,-41,42,72,1,73); 
     me["hHCAL_ieta_iphi_HFMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_HFMap","",83,-41,42,72,1,73); 
@@ -107,7 +107,7 @@ void HCALRecHitAnalyzer::BookHistos(){
     }
   
     //dbe_->setCurrentFolder("RecoMETV/METTask/RecHits/HCAL/data");
-    dbe_->setCurrentFolder("JetMET/EventInfo/CertificationSummary/HCAL/data");
+    dbe_->setCurrentFolder("JetMET/EventInfo/CertificationSummary/MET_HCAL/data");
     //--Store number of events used
     me["hHCAL_Nevents"]          = dbe_->book1D("METTask_HCAL_Nevents","",1,0,1);  
     //--Data integrated over all events and stored by HCAL(ieta,iphi) 
