@@ -119,7 +119,13 @@ namespace cond{
       bool isNewTagRequest( const std::string& EventSetupRecordName );
       const cond::Logger& queryLog() const;
 
-
+      // BW-compatible signature
+      template<typename T>
+      void writeOne(T * payload,
+		    Time_t time, const std::string& recordName, 
+		    bool withlogging=false, bool since=true) {
+	this->writeOne<T>(payload, 0, time, recordName, withlogging,since);
+      }
       /* write one (either create or append)
        * The ONE and ONLY interface supportd in future!
        */
@@ -144,9 +150,17 @@ namespace cond{
       }
 
 
+      // BW-compatible signature
+      template<typename T>
+      void createNewIOV( T* firstPayloadObj,
+			   cond::Time_t firstSinceTime,
+			   cond::Time_t firstTillTime,
+			   const std::string& recordName,
+			   bool withlogging=false){
+	this->createNewIOV(firstPayloadObj, 0, firstSinceTime, firstTillTime, recordName,withlogging);
+      }
 
-
-      //
+     //
       // insert the payload and its valid since/till time into the database
       // Note: user looses the ownership of the pointer to the payloadObj
       // The payload object will be stored as well
@@ -179,6 +193,18 @@ namespace cond{
 		      withlogging);
       }
 
+
+
+      // BW-compatible signature
+      template<typename T>
+      void appendTillTime( T* payloadObj,
+			    cond::Time_t tillTime,
+			    const std::string& recordName,
+			    bool withlogging=false){
+
+	this->appendTillTime<T>(payloadObj, 0, tillTime, recordName, withlogging);
+      }
+
       template<typename T>
       void appendTillTime( T* payloadObj,  Summary * summary,
 			   cond::Time_t tillTime,
@@ -205,6 +231,16 @@ namespace cond{
       }
 
       
+      // BW-compatible signature
+      template<typename T>
+      void appendSinceTime( T* payloadObj,
+			    cond::Time_t sinceTime,
+			    const std::string& recordName,
+			    bool withlogging=false){
+
+	this->appendSinceTime<T>(payloadObj, 0, sinceTime, recordName, withlogging);
+      }
+
       template<typename T>
       void appendSinceTime( T* payloadObj, Summary * summary,
 			      cond::Time_t sinceTime,
