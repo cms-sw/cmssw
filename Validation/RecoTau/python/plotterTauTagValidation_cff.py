@@ -881,7 +881,7 @@ plotCaloTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
           dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/caloRecoTauProducer_Matched/CaloJetMatchingEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay01'),
-          legendEntry = cms.string('PFJet Matching')
+          legendEntry = cms.string('CaloJet Matching')
         ),    
         cms.PSet(
           dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
@@ -893,7 +893,7 @@ plotCaloTauEfficiencies = cms.EDAnalyzer("DQMHistPlotter",
           dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationByIsolation/IsolationEff#PAR#'),
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay03'),
-          legendEntry = cms.string('Track')
+          legendEntry = cms.string('Track Isolation')
         ),
         cms.PSet(
           dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/caloRecoTauProducer_caloRecoTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
@@ -1112,21 +1112,21 @@ plotPFTauHighEfficiencyEfficienciesLeadingPion = cms.EDAnalyzer("DQMHistPlotter"
   ),
 
   drawJobs = cms.PSet(                                     
-#    PFJetMatchingEff = cms.PSet(
-#      plots = cms.PSet(
-#        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiency_Matched/PFJetMatchingEff#PAR#'),
-#        processes = cms.vstring('test', 'reference')
-#      ),
-#      parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
-#      xAxis = cms.string('#PAR#'),
-#      yAxis = cms.string('efficiency'),
-#      legend = cms.string('efficiency'),
-#      labels = cms.vstring('pt', 'eta'),
-#      drawOptionSet = cms.string('efficiency')
-#    ),
+    PFJetMatchingEff = cms.PSet(
+      plots = cms.PSet(
+        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_Matched/PFJetMatchingEff#PAR#'),
+        processes = cms.vstring('test', 'reference')
+      ),
+      parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
+      xAxis = cms.string('#PAR#'),
+      yAxis = cms.string('efficiency'),
+      legend = cms.string('efficiency'),
+      labels = cms.vstring('pt', 'eta'),
+      drawOptionSet = cms.string('efficiency')
+    ),
 #    LeadingTrackPtCutEff = cms.PSet(
 #      plots = cms.PSet(
-#        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency/LeadingTrackPtCutEff#PAR#'),
+#        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency/LeadingTrackPtCutEff#PAR#'),
 #        processes = cms.vstring('test', 'reference')
 #      ),  
 #      parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
@@ -1136,54 +1136,54 @@ plotPFTauHighEfficiencyEfficienciesLeadingPion = cms.EDAnalyzer("DQMHistPlotter"
 #      labels = cms.vstring('pt', 'eta'),
 #      drawOptionSet = cms.string('efficiency')
 #    ),
-#    TrackIsolationEff = cms.PSet(
-#      plots = cms.PSet(
-#        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByTrackIsolationHighEfficiency/TrackIsolationEff#PAR#'),
-#        processes = cms.vstring('test', 'reference')
-#      ),
-#      parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
-#      xAxis = cms.string('#PAR#'),
-#      yAxis = cms.string('efficiency'),
-#      legend = cms.string('efficiency'),
-#      labels = cms.vstring('pt', 'eta'),
-#      drawOptionSet = cms.string('efficiency')
-#    ),
-#    ECALIsolationEff = cms.PSet(
-#      plots = cms.PSet(
-#        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByECALIsolationHighEfficiency/ECALIsolationEff#PAR#'),
-#        processes = cms.vstring('test', 'reference')
-#      ),
-#      parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
-#      xAxis = cms.string('#PAR#'),
-#      yAxis = cms.string('efficiency'),
-#      legend = cms.string('efficiency'),
-#      labels = cms.vstring('pt', 'eta'),
-#      drawOptionSet = cms.string('efficiency')
-#    ),    
-#    AgainstElectronEff = cms.PSet(
-#      plots = cms.PSet(
-#        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationAgainstElectronHighEfficiency/AgainstElectronEff#PAR#'), 
-#        processes = cms.vstring('test', 'reference')
-#      ),
-#      parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
-#      xAxis = cms.string('#PAR#'),
-#      yAxis = cms.string('efficiency'),
-#      legend = cms.string('efficiency'),
-#      labels = cms.vstring('pt', 'eta'),
-#      drawOptionSet = cms.string('efficiency')
-#    ),
-#    AgainstMuonEff = cms.PSet(
-#      plots = cms.PSet(
-#        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationAgainstMuonHighEfficiency/AgainstMuonEff#PAR#'), 
-#        processes = cms.vstring('test', 'reference')
-#      ),
-#      parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
-#      xAxis = cms.string('#PAR#'),
-#      yAxis = cms.string('efficiency'),
-#      legend = cms.string('efficiency'),
-#      labels = cms.vstring('pt', 'eta'),
-#      drawOptionSet = cms.string('efficiency')
-#    ),
+    TrackIsolationEff = cms.PSet(
+      plots = cms.PSet(
+        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationByTrackIsolationUsingLeadingPionHighEfficiency/TrackIsolationEff#PAR#'),
+        processes = cms.vstring('test', 'reference')
+      ),
+      parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
+      xAxis = cms.string('#PAR#'),
+      yAxis = cms.string('efficiency'),
+      legend = cms.string('efficiency'),
+      labels = cms.vstring('pt', 'eta'),
+      drawOptionSet = cms.string('efficiency')
+    ),
+    ECALIsolationEff = cms.PSet(
+      plots = cms.PSet(
+        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationByECALIsolationUsingLeadingPionHighEfficiency/ECALIsolationEff#PAR#'),
+        processes = cms.vstring('test', 'reference')
+      ),
+      parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
+      xAxis = cms.string('#PAR#'),
+      yAxis = cms.string('efficiency'),
+      legend = cms.string('efficiency'),
+      labels = cms.vstring('pt', 'eta'),
+      drawOptionSet = cms.string('efficiency')
+    ),
+    AgainstElectronEff = cms.PSet(
+      plots = cms.PSet(
+        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationAgainstElectronHighEfficiency/AgainstElectronEff#PAR#'), 
+        processes = cms.vstring('test', 'reference')
+      ),
+      parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
+      xAxis = cms.string('#PAR#'),
+      yAxis = cms.string('efficiency'),
+      legend = cms.string('efficiency'),
+      labels = cms.vstring('pt', 'eta'),
+      drawOptionSet = cms.string('efficiency')
+    ),
+    AgainstMuonEff = cms.PSet(
+      plots = cms.PSet(
+        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationAgainstMuonHighEfficiency/AgainstMuonEff#PAR#'), 
+        processes = cms.vstring('test', 'reference')
+      ),
+      parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
+      xAxis = cms.string('#PAR#'),
+      yAxis = cms.string('efficiency'),
+      legend = cms.string('efficiency'),
+      labels = cms.vstring('pt', 'eta'),
+      drawOptionSet = cms.string('efficiency')
+    ),
     TauIdEffStepByStep = cms.PSet(
       plots = cms.VPSet(
         cms.PSet(
@@ -1209,19 +1209,19 @@ plotPFTauHighEfficiencyEfficienciesLeadingPion = cms.EDAnalyzer("DQMHistPlotter"
           process = cms.string('test'),
           drawOptionEntry = cms.string('eff_overlay04'),
           legendEntry = cms.string('Track + Gamma Iso. Using Lead. Pioon')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationAgainstElectronHighEfficiency/AgainstElectronEff#PAR#'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay05'),
+          legendEntry = cms.string('Electron Rejection')
+        ),
+        cms.PSet(
+          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationAgainstMuonHighEfficiency/AgainstMuonEff#PAR#'),
+          process = cms.string('test'),
+          drawOptionEntry = cms.string('eff_overlay06'),
+          legendEntry = cms.string('Muon Rejection')
         )
-#,        cms.PSet(
-#          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationAgainstElectronHighEfficiency/AgainstElectronEff#PAR#'),
-#          process = cms.string('test'),
-#          drawOptionEntry = cms.string('eff_overlay05'),
-#          legendEntry = cms.string('Electron Rejection')
-#        ),
-#        cms.PSet(
-#          dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationAgainstMuonHighEfficiency/AgainstMuonEff#PAR#'),
-#          process = cms.string('test'),
-#          drawOptionEntry = cms.string('eff_overlay06'),
-#          legendEntry = cms.string('Muon Rejection')
-#        )
       ),
       parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
       title = cms.string('TauId step by step efficiencies'),
