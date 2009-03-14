@@ -74,29 +74,37 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // constructors
-HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) {
+HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) :
+    // seeding done via technical trigger bits, if value is "true"
+    m_l1TechTriggerSeeding( parSet.getParameter<bool>("L1TechTriggerSeeding") ),
 
-    // seeding done via technical trigger bits, if value is "true";
-    m_l1TechTriggerSeeding = parSet.getParameter<bool>("L1TechTriggerSeeding");
-
-    // logical expression for the required L1 algorithms;
-    m_l1SeedsLogicalExpression = parSet.getParameter<std::string>("L1SeedsLogicalExpression");
+    // logical expression for the required L1 algorithms
+    m_l1SeedsLogicalExpression( parSet.getParameter<std::string>("L1SeedsLogicalExpression") ),
 
     // InputTag for the L1 Global Trigger DAQ readout record
-    m_l1GtReadoutRecordTag = parSet.getParameter<edm::InputTag>("L1GtReadoutRecordTag");
+    m_l1GtReadoutRecordTag( parSet.getParameter<edm::InputTag>("L1GtReadoutRecordTag") ),
 
     // InputTag for L1 Global Trigger object maps
-    m_l1GtObjectMapTag = parSet.getParameter<edm::InputTag>("L1GtObjectMapTag");
+    m_l1GtObjectMapTag( parSet.getParameter<edm::InputTag>("L1GtObjectMapTag") ),
 
     // InputTag for L1 particle collections (except muon)
-    m_l1CollectionsTag = parSet.getParameter<edm::InputTag>("L1CollectionsTag");
+    m_l1CollectionsTag( parSet.getParameter<edm::InputTag>("L1CollectionsTag") ),
 
     // InputTag for L1 muon collection
-    m_l1MuonCollectionTag = parSet.getParameter<edm::InputTag>("L1MuonCollectionTag");
+    m_l1MuonCollectionTag( parSet.getParameter<edm::InputTag>("L1MuonCollectionTag") ),
 
-    //
-    saveTags_ = parSet.getUntrackedParameter<bool>("saveTags",true);
+    /// InputTag's
+    m_l1MuonTag   ( edm::InputTag(m_l1MuonCollectionTag.label()) ),
+    m_l1ExtraTag  ( edm::InputTag(m_l1CollectionsTag.label()) ),
+    m_l1IsoEGTag  ( edm::InputTag(m_l1CollectionsTag.label(), "Isolated") ),
+    m_l1NoIsoEGTag( edm::InputTag(m_l1CollectionsTag.label(), "NonIsolated") ),
+    m_l1CenJetTag ( edm::InputTag(m_l1CollectionsTag.label(), "Central") ),
+    m_l1ForJetTag ( edm::InputTag(m_l1CollectionsTag.label(), "Forward") ),
+    m_l1TauJetTag ( edm::InputTag(m_l1CollectionsTag.label(), "Tau") ),
 
+    // save tags to TriggerFilterObjectWithRefs
+    saveTags_( parSet.getUntrackedParameter<bool>("saveTags", true) )
+{
     if (m_l1SeedsLogicalExpression != "L1GlobalDecision") {
 
         // check also the logical expression - add/remove spaces if needed
@@ -163,14 +171,13 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterObject (
         new trigger::TriggerFilterObjectWithRefs( path(), module() ) );
     if (saveTags_) {
-      filterObject->addCollectionTag(edm::InputTag(m_l1MuonCollectionTag.label()) );
-      filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label()) );
-      filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "Isolated") );
-      filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "NonIsolated") );
-      filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "Central") );
-      filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "Forward") );
-      filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "Tau") );
-      filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label()) );
+      filterObject->addCollectionTag( m_l1MuonTag );
+      filterObject->addCollectionTag( m_l1ExtraTag );
+      filterObject->addCollectionTag( m_l1IsoEGTag );
+      filterObject->addCollectionTag( m_l1NoIsoEGTag );
+      filterObject->addCollectionTag( m_l1CenJetTag );
+      filterObject->addCollectionTag( m_l1ForJetTag );
+      filterObject->addCollectionTag( m_l1TauJetTag );
     }
 
     // get L1GlobalTriggerReadoutRecord and GT decision
@@ -541,8 +548,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     if (listMuon.size()) {
 
         edm::Handle<l1extra::L1MuonParticleCollection> l1Muon;
-        edm::InputTag l1MuonTag(edm::InputTag(m_l1MuonCollectionTag.label()) );
-        iEvent.getByLabel(l1MuonTag, l1Muon);
+        iEvent.getByLabel(m_l1MuonTag, l1Muon);
 
         for (std::list<int>::const_iterator itObj = listMuon.begin(); itObj != listMuon.end(); ++itObj) {
 
@@ -555,8 +561,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     // EG (isolated)
     if (listIsoEG.size()) {
         edm::Handle<l1extra::L1EmParticleCollection> l1IsoEG;
-        edm::InputTag l1IsoEGTag( edm::InputTag(m_l1CollectionsTag.label(), "Isolated") );
-        iEvent.getByLabel(l1IsoEGTag, l1IsoEG);
+        iEvent.getByLabel(m_l1IsoEGTag, l1IsoEG);
 
         for (std::list<int>::const_iterator
             itObj = listIsoEG.begin(); itObj != listIsoEG.end(); ++itObj) {
@@ -569,8 +574,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     // EG (no isolation)
     if (listNoIsoEG.size()) {
         edm::Handle<l1extra::L1EmParticleCollection> l1NoIsoEG;
-        edm::InputTag l1NoIsoEGTag( edm::InputTag(m_l1CollectionsTag.label(), "NonIsolated") );
-        iEvent.getByLabel(l1NoIsoEGTag, l1NoIsoEG);
+        iEvent.getByLabel(m_l1NoIsoEGTag, l1NoIsoEG);
 
         for (std::list<int>::const_iterator
             itObj = listNoIsoEG.begin(); itObj != listNoIsoEG.end(); ++itObj) {
@@ -583,8 +587,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     // central jets
     if (listCenJet.size()) {
         edm::Handle<l1extra::L1JetParticleCollection> l1CenJet;
-        edm::InputTag l1CenJetTag( edm::InputTag(m_l1CollectionsTag.label(), "Central") );
-        iEvent.getByLabel(l1CenJetTag, l1CenJet);
+        iEvent.getByLabel(m_l1CenJetTag, l1CenJet);
 
         for (std::list<int>::const_iterator
             itObj = listCenJet.begin(); itObj != listCenJet.end(); ++itObj) {
@@ -597,8 +600,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     // forward jets
     if (listForJet.size()) {
         edm::Handle<l1extra::L1JetParticleCollection> l1ForJet;
-        edm::InputTag l1ForJetTag( edm::InputTag(m_l1CollectionsTag.label(), "Forward") );
-        iEvent.getByLabel(l1ForJetTag, l1ForJet);
+        iEvent.getByLabel(m_l1ForJetTag, l1ForJet);
 
         for (std::list<int>::const_iterator
             itObj = listForJet.begin(); itObj != listForJet.end(); ++itObj) {
@@ -611,8 +613,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     // tau jets
     if (listTauJet.size()) {
         edm::Handle<l1extra::L1JetParticleCollection> l1TauJet;
-        edm::InputTag l1TauJetTag( edm::InputTag(m_l1CollectionsTag.label(), "Tau") );
-        iEvent.getByLabel(l1TauJetTag, l1TauJet);
+        iEvent.getByLabel(m_l1TauJetTag, l1TauJet);
 
         for (std::list<int>::const_iterator itObj = listTauJet.begin();
             itObj != listTauJet.end(); ++itObj) {
@@ -625,7 +626,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     // energy sums
     if (listETM.size() || listETT.size() || listHTT.size()) {
         edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
-        iEvent.getByLabel(m_l1CollectionsTag.label(), l1EnergySums);
+        iEvent.getByLabel(m_l1ExtraTag, l1EnergySums);
 
         for (std::list<int>::const_iterator
             itObj = listETM.begin(); itObj != listETM.end(); ++itObj) {
