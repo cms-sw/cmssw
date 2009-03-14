@@ -24,11 +24,12 @@ class SiStripTrackerMapCreator {
 
   void create(const edm::ParameterSet & tkmapPset, 
 	      const edm::ESHandle<SiStripFedCabling>& fedcabling, 
-              DQMStore* dwm_store);
+              DQMStore* dqm_store, std::string& htype);
 
  private:
 
-  void paintTkMap(int det_id, std::map<MonitorElement*, int>& me_map);
+  void paintTkMapFromAlarm(int det_id, DQMStore* dqm_store);
+  void paintTkMapFromHistogram(int det_id, DQMStore* dqm_store, std::string& map_type);
 
   TrackerMap* trackerMap_;
   std::string tkMapName_;

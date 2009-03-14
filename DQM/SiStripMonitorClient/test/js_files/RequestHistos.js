@@ -541,3 +541,28 @@ RequestHistos.CheckShiftReport = function() {
  			        onSuccess: RequestHistos.FillTextStatus
  			       });
 }
+//
+// Update TrackerMap Option
+//
+RequestHistos.UpdateTrackerMapOption = function() {
+
+  var queryString;
+  var url      = WebLib.getApplicationURLWithLID();
+  queryString  = "RequestID=UpdateTrackerMapOption";
+  var obj = $('tkmap_option'	);
+  var sname    = obj.options[obj.selectedIndex].value;
+  queryString += '&Option=' + sname;
+  url += queryString;
+  var retVal = new Ajax.Request(url,
+                               {           
+                  		method: 'get',	  
+ 			        parameters: '', 
+ 			        onSuccess: RequestHistos.Dummy
+ 			       });
+}
+//
+// Dummy Function
+//
+
+RequestHistos.Dummy = function() {
+}

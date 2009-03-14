@@ -42,6 +42,8 @@ SiStripHistoPlotter::~SiStripHistoPlotter() {
 // -- Set New Plot
 //
 void SiStripHistoPlotter::setNewPlot(std::string& path, std::string& option, int width, int height) {
+  string name = "Dummy";
+  if (!hasNamedImage(name)) createDummyImage(name);
   PlotParameter local_par;
   local_par.Path    = path;
   local_par.Option  = option;

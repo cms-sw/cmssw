@@ -1,4 +1,3 @@
-
 #include "DQM/SiStripMonitorClient/interface/SiStripInformationExtractor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/QTest.h"
@@ -329,6 +328,7 @@ void SiStripInformationExtractor::getTrackerMapHistos(DQMStore* dqm_store, const
  
   int width  = atoi(getItemValue(req_map, "width").c_str());
   int height = atoi(getItemValue(req_map, "height").c_str());
+  string map_type = getItemValue(req_map, "TkMapType");
 
   string opt =" ";
   
@@ -339,15 +339,28 @@ void SiStripInformationExtractor::getTrackerMapHistos(DQMStore* dqm_store, const
   vector<MonitorElement*> all_mes = dqm_store->getContents(path);
   setHTMLHeader(out);
   *out << path << " ";
+
   for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
        it!= all_mes.end(); it++) {
     MonitorElement * me = (*it);
     if (!me) continue;
-    if (me->getQReports().size() == 0) continue;
     string hname = me->getName(); 
-    string full_path = path + "/" + hname;
-    histoPlotter_->setNewPlot(full_path, opt, width, height);
-    *out << hname << " " ;
+    string full_path;
+    if (map_type == "QTestAlarm") {
+      if (me->getQReports().size() != 0) {
+	string hname = me->getName(); 
+	full_path = path + "/" + hname;
+	histoPlotter_->setNewPlot(full_path, opt, width, height);
+	*out << hname << " " ;
+      }
+    } else {
+      if (hname.find(map_type) != string::npos) {
+	full_path = path + "/" + hname;
+	*out << hname << " " ;
+	histoPlotter_->setNewPlot(full_path, opt, width, height);
+        break;           
+      }
+    }
   }   
 }
 //
@@ -367,7 +380,6 @@ void SiStripInformationExtractor::getCondDBHistos(DQMStore * dqm_store, bool& pl
     if (detId != 0) {
       SiStripFolderOrganizer folder_organizer;
       folder_organizer.getFolderName(detId,path);
-      cout << " Path " << path << endl;
     }
   } else {
     if (sname.size() > 0) path = "SiStrip/" + sname;
@@ -870,7 +882,6 @@ void SiStripInformationExtractor::readNonGeomHistoTree(DQMStore* dqm_store, stri
     sumtree <<       dname              << endl;
     sumtree <<  " does not exist !!!! " << endl;
   }
-  cout << sumtree.str() << endl;
   setPlainHeader(out);
   *out << sumtree.str();
    dqm_store->cd();

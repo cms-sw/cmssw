@@ -21,6 +21,7 @@ SiStripWebInterface::SiStripWebInterface(DQMStore* dqm_store) : dqmStore_(dqm_st
   theActionFlag = NoAction;
   infoExtractor_  = 0;
   if (infoExtractor_ == 0) infoExtractor_ = new SiStripInformationExtractor();
+  TkMapType = "QTestAlarm";
 }
 //
 // --  Destructor
@@ -92,6 +93,7 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
   } 
   else if (requestID == "PlotTkMapHistogram") {
     theActionFlag = NoAction;
+    requestMap_.insert(std::pair<std::string,std::string>("TkMapType", TkMapType));
     infoExtractor_->getTrackerMapHistos(dqmStore_, requestMap_, out);
   }
   else if (requestID == "PlotHistogramFromLayout") {
@@ -149,7 +151,13 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
     bool create_plot;
     infoExtractor_->getCondDBHistos(dqmStore_, create_plot, requestMap_, out);      
     if (create_plot)  condDBRequestList_.push_back(local_par);
+
+  }  else if (requestID == "UpdateTrackerMapOption") { 
+    theActionFlag = NoAction;
+    TkMapType = get_from_multimap(requestMap_,"Option");
+    returnReplyXml(out, "TkMapOption", TkMapType);
   }
+
   performAction();
 }
 //

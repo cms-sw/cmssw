@@ -80,10 +80,26 @@
           onmouseover="ddrivetip('Different actions for the Client ', '#EAFFF9', 200);"
 	  onmouseout="hideddrivetip();">
 	  <fieldset>
+               <label id="tkmap_option_name"
+                 style="margin-left:2%">
+                 TkMap Option :
+               </label>
+	       <select name="TrackerMapOption" 
+                   id="tkmap_option"
+                   style="width:30%;height:5%;text-align;margin-right:2%">
+                   <option value="QTestAlarm"> QTestAlarm </option>
+               </select>
                <input name="UpdateTrackerMap" 
+                 id="update_tkmap"
+                 value="Update"
+		 style="width:20%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+                 onClick="RequestHistos.UpdateTrackerMapOption()"
+		 type="submit">                   
+               </input>
+               <input name="OpenTrackerMap" 
                  id="create_tkmap"
                  value="Open Tk Map"
-		 style="width:40%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+		 style="width:30%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
                  onClick="CommonActions.OpenTrackerMapFrame()"
                  type="submit">                   
              </input>

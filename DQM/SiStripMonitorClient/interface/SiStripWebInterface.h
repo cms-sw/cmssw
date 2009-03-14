@@ -39,6 +39,7 @@ class SiStripWebInterface
                               uint32_t&   subdet_side, uint32_t& layer_number);    
   void clearConDBPlotRequests() { condDBRequestList_.clear(); }
 
+  std::string getTkMapType() { return TkMapType;}
       
   private:
 
@@ -66,6 +67,7 @@ class SiStripWebInterface
   };
 
   std::vector<CondDBPlotParameter> condDBRequestList_;
+  std::string TkMapType;
  
   protected:
 

@@ -35,7 +35,8 @@ class SiStripActionExecutor {
  void createSummary(DQMStore* dqm_store);
  void createSummaryOffline(DQMStore* dqm_store);
  void createTkMap(const edm::ParameterSet & tkmapPset, 
-		  const edm::ESHandle<SiStripFedCabling>& fedcabling, DQMStore* dqm_store);
+		  const edm::ESHandle<SiStripFedCabling>& fedcabling, 
+                  DQMStore* dqm_store, std::string& map_type);
 
  void bookGlobalStatus(DQMStore* dqm_store);     
  void fillGlobalStatusFromModule(DQMStore* dqm_store);

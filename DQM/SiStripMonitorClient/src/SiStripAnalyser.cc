@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2009/02/19 22:36:22 $
- * $Revision: 1.43 $
+ * $Date: 2009/02/25 19:25:10 $
+ * $Revision: 1.45 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -222,7 +222,8 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
   // -- Create TrackerMap  according to the frequency
   if (tkMapFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%tkMapFrequency_ == 0) {
     cout << " Creating Tracker Map " << endl;
-    actionExecutor_->createTkMap(tkMapPSet_, fedCabling_, dqmStore_);
+    string tkmap_type =  sistripWebInterface_->getTkMapType();
+    actionExecutor_->createTkMap(tkMapPSet_, fedCabling_, dqmStore_, tkmap_type);
   }
   // Create predefined plots
   if (staticUpdateFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%staticUpdateFrequency_  == 0) {

@@ -31,8 +31,7 @@ myPoly.setAttribute("style","fill-opacity: "+opacity+"; stroke: black; stroke-wi
 	    //alert(top.document.getElementById('print1'));
             var cmod_name = myPoly.getAttribute("POS");
             var end = cmod_name.indexOf('Id');
-            var cmod_detid = parseInt(cmod_name.substring(end-13,end-1));
-            alert(cmod_detid);
+            var cmod_detid = parseInt(cmod_name.substring(end-12,end-3));
             parent.parent.TkMapFrame.requestMPlot(cmod_detid);
      }
        if (evt.type == "mouseout") {

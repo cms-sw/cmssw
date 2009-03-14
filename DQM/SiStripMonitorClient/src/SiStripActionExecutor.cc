@@ -94,8 +94,8 @@ void SiStripActionExecutor::createSummaryOffline(DQMStore* dqm_store) {
 // -- create tracker map
 //
 void SiStripActionExecutor::createTkMap(const edm::ParameterSet & tkmapPset, 
-           const edm::ESHandle<SiStripFedCabling>& fedcabling, DQMStore* dqm_store) {
-  if (tkMapCreator_) tkMapCreator_->create(tkmapPset, fedcabling, dqm_store);
+       const edm::ESHandle<SiStripFedCabling>& fedcabling, DQMStore* dqm_store, string& map_type) {
+  if (tkMapCreator_) tkMapCreator_->create(tkmapPset, fedcabling, dqm_store, map_type);
 }
 //
 // -- create reportSummary MEs
