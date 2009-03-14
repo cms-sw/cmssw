@@ -10,6 +10,8 @@
 #include <Pythia.h>
 #include <HepMCInterface.h>
 
+#include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -22,6 +24,8 @@
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/Core/interface/HadronizerFilter.h"
+#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
+
 
 using namespace gen;
 using namespace Pythia8;
@@ -69,6 +73,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
 	pythiaHepMCVerbosity(params.getUntrackedParameter<bool>("pythiaHepMCVerbosity", false)),
 	maxEventsToPrint(params.getUntrackedParameter<int>("maxEventsToPrint", 0))
 {
+    randomEngine = &getEngineReference();
+
 	runInfo().setExternalXSecLO(
 		params.getUntrackedParameter<double>("crossSection", -1.0));
 	runInfo().setFilterEfficiency(
@@ -81,12 +87,15 @@ Pythia8Hadronizer::~Pythia8Hadronizer()
 
 bool Pythia8Hadronizer::initializeForInternalPartons()
 {
-	//FIXME -> should glue Pythia8 to use our random engine
-	edm::Service<edm::RandomNumberGenerator> rng;
-	uint32_t seed = rng->mySeed();
-	Pythia8::Rndm::init(seed);
+	//Old code that used Pythia8 own random engine
+	//edm::Service<edm::RandomNumberGenerator> rng;
+	//uint32_t seed = rng->mySeed();
+	//Pythia8::Rndm::init(seed);
+
+    RandomP8* RP8 = new RandomP8();
 
 	pythia.reset(new Pythia);
+    pythia->setRndmEnginePtr(RP8);
 	pythiaEvent = &pythia->event;
 
 	for(ParameterCollector::const_iterator line = parameters.begin();

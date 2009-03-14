@@ -30,10 +30,10 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(123456),
         g4SimHits = cms.untracked.uint32(123456788),
         VtxSmeared = cms.untracked.uint32(123456789)
     ),
-    sourceSeed = cms.untracked.uint32(98765)
 )
 
 process.maxEvents = cms.untracked.PSet(
