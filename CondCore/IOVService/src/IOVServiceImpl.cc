@@ -194,7 +194,7 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
       n=0;
       destDB.commit();
       destDB.start(false);
-      newiovref = cond::TypedRef<cond::IOV>(destDB,dToken);
+      newiovref = cond::TypedRef<cond::IOVSequence>(destDB,dToken);
       newiovref.markUpdate();
    }
   }
