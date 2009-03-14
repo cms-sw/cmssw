@@ -620,7 +620,7 @@ PixelCPEBase::rawQualityWord() const
   SiPixelRecHitQuality::thePacking.setProbabilityY( probabilityY_ , 
 						    qualWord );
 
-  SiPixelRecHitQuality::thePacking.setQBin         ( qBin_, 
+  SiPixelRecHitQuality::thePacking.setQBin         ( (int)qBin_, 
 					             qualWord );
 
   //--- &&& We're not computing these three yet...
