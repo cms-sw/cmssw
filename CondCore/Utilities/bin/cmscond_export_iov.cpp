@@ -295,7 +295,6 @@ int main( int argc, char** argv ){
       a.usertext +=ss.str();
     }
 
-    cond::IOVEditor* editor=iovmanager.newIOVEditor();
     sourcedb.start(true);
     destdb.start(false);
     destiovtoken=iovmanager.exportIOVRangeWithPayload( destdb,
@@ -315,7 +314,6 @@ int main( int argc, char** argv ){
       }
       destCoralDB.commit();
     }
-    delete editor;
 
     ::sleep(1);
 

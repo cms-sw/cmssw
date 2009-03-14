@@ -161,22 +161,24 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
   since = ifirstTill->sinceTime();
   
   cond::TypedRef<cond::IOVSequence> newiovref;
-  if (destToken.empty()) {
+  //FIXME more option and eventually ability to resume (roll back is difficult)
+  std::string dToken = destToken;
+  if (dToken.empty()) {
     // create a new one 
     newiovref = 
       cond::TypedRef<cond::IOVSequence>(destDB,
 					new cond::IOVSequence(iov.timeType(), iov.lastTill(),iov.metadataToken()));
     newiovref.markWrite(cond::IOVNames::container());
+    dToken = newiovref.token();
   } else {
     newiovref = cond::TypedRef<cond::IOVSequence>(destDB,destToken);
-    newiovref.markUpdate();
     if (!newiovref->iovs().empty() && since <= newiovref->iovs().back().sinceTime())
       throw cond::Exception("IOVServiceImpl::exportIOVRangeWithPayload Error: since time out of range, below last since");
-    
+    newiovref.markUpdate();    
   }
 
 
-  cond::IOVSequence & newiov = *newiovref;
+  int n=0;
   for( IOVSequence::const_iterator it=ifirstTill;
        it!=isecondTill; ++it){
     // FIXME need option to load Ptr unconditionally....
@@ -184,7 +186,17 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
     if(payloadTRef.ptr()) payloadTRef->loadAll();
     cond::GenericRef payloadRef(*m_pooldb,it->wrapperToken());
     std::string newPtoken=payloadRef.exportTo(destDB);
-    newiov.add(it->sinceTime(), newPtoken);
+    newiovref->add(it->sinceTime(), newPtoken);
+    /// commit to avoid HUGE memory footprint
+    n++;
+    if (n==100) {
+      std::cout << "committing " << std::endl;
+      n=0;
+      destDB.commit();
+      destDB.start(false);
+      newiovref = cond::TypedRef<cond::IOV>(destDB,dToken);
+      newiovref.markUpdate();
+   }
   }
   return newiovref.token();
 }
