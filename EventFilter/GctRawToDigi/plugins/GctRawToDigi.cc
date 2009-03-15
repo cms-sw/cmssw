@@ -30,7 +30,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
 // GCT block unpackers
-#include "EventFilter/GctRawToDigi/src/GctBlockUnpacker.h"
+#include "EventFilter/GctRawToDigi/src/GctBlockUnpackerV1.h"
 #include "EventFilter/GctRawToDigi/src/GctBlockUnpackerV2.h"
 
 // Namespace resolution
@@ -53,7 +53,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   if(grenCompatibilityMode_)
   { 
     edm::LogInfo("GCT") << "GREN 2007 compatibility mode has been selected.";
-    blockUnpacker_ = new GctBlockUnpacker(hltMode_);
+    blockUnpacker_ = new GctBlockUnpackerV1(hltMode_);
   }
   else { blockUnpacker_ = new GctBlockUnpackerV2(hltMode_); }
 
