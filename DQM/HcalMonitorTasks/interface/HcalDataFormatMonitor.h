@@ -1,5 +1,6 @@
 #ifndef DQM_HCALMONITORTASKS_HCALDATAFORMATMONITOR_H
 #define DQM_HCALMONITORTASKS_HCALDATAFORMATMONITOR_H
+#define DEPTHBINS      4
 
 #define  IETAMIN     -43
 #define  IETAMAX      43
@@ -29,11 +30,12 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <math.h>
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2008/12/05 16:25:15 $
- * $Revision: 1.38 $
+ * $Date: 2008/12/08 15:19:55 $
+ * $Revision: 1.39 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -55,7 +57,7 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
 
  public: //Electronics map -> geographic channel map
   void smuggleMaps(std::map<uint32_t, std::vector<HcalDetId> >& givenDCCtoCell,
-		   std::map<pair <int,int> , std::vector<HcalDetId> >& givenHTRtoCell);
+  		   std::map<pair <int,int> , std::vector<HcalDetId> >& givenHTRtoCell);
   std::map<uint32_t, std::vector<HcalDetId> > DCCtoCell;
   std::map<uint32_t, std::vector<HcalDetId> > ::iterator thisDCC;
   std::map<pair <int,int> , std::vector<HcalDetId> > HTRtoCell;
@@ -63,22 +65,12 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
 
  private: 
   //backstage accounting mechanisms for the ProblemMap
-  static size_t iphirange; // = IPHIMAX - IPHIMIN;
-  static size_t ietarange; // = IETAMAX - IETAMIN;
-  std::vector<std::vector<bool> > problemhere;  // Whole HCAL
-  std::vector<std::vector<bool> > problemHB;    //  
-  std::vector<std::vector<bool> > problemHE;    //  
-  std::vector<std::vector<bool> > problemHF;    // Includes ZDC?
-  std::vector<std::vector<bool> > problemHO;    //  
-  void mapHTRproblem (int dcc, int spigot) ;
-  void mapDCCproblem(int dcc) ;
+  bool problemfound[ETABINS][PHIBINS][DEPTHBINS];     // HFd1,2 at 'depths' 3,4 to avoid collision with HE
+  uint64_t problemcount[ETABINS][PHIBINS][DEPTHBINS]; // HFd1,2 at 'depths' 3,4 to avoid collision with HE
+  void mapHTRproblem (int dcc, int spigot) ;    // Increment problem counters for affected cells
+  void mapDCCproblem(int dcc) ;                 // Increment problem counters for affected cells
+
   void fillzoos(int bin, int dccid);
-  std::vector<std::vector<uint64_t> > phatmap;  // iphi/ieta projection of all hcal cells
-  std::vector<std::vector<uint64_t> > HBmap;    // iphi/ieta projection of hb
-  std::vector<std::vector<uint64_t> > HEmap;    // iphi/ieta projection of he
-  std::vector<std::vector<uint64_t> > HFmap;    // iphi/ieta projection of hf
-  std::vector<std::vector<uint64_t> > HOmap;    // iphi/ieta projection of ho
-  void UpdateMap();
 
   // Data accessors
   vector<int> fedUnpackList_;
@@ -97,6 +89,9 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
  private:  //Monitoring elements
    
   MonitorElement* meEVT_;
+  MonitorElement* HWProblems_;
+  std::vector<MonitorElement*> HWProblemsByDepth_;
+
   MonitorElement* DATAFORMAT_PROBLEM_MAP;
   MonitorElement* DATAFORMAT_PROBLEM_ZOO;
   MonitorElement* HB_DATAFORMAT_PROBLEM_MAP;
