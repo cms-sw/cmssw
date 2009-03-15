@@ -9,8 +9,8 @@
 * 
 * 
 * \author Robert Frazier
-* $Revision: 1.23 $
-* $Date: 2009/03/15 16:05:50 $
+* $Revision: 1.1 $
+* $Date: 2009/03/15 16:24:12 $
 */ 
 
 
@@ -50,7 +50,7 @@ private:
   // PRIVATE TYPEDEFS
  
   /// Function pointer typdef to a block unpack function.
-  typedef void (GctBlockUnpacker::*PtrToUnpackFn)(const unsigned char *, const GctBlockHeaderBase&);
+  typedef void (GctBlockUnpackerV1::*PtrToUnpackFn)(const unsigned char *, const GctBlockHeaderBase&);
   /// Typedef for a block ID to unpack function map.
   typedef std::map<unsigned int, PtrToUnpackFn> BlockIdToUnpackFnMap;
 
