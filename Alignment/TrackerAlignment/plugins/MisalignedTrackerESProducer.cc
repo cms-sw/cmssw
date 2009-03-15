@@ -115,23 +115,8 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
       if( !poolDbService.isAvailable() ) // Die if not available
         throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 	  
-  // Store
-//       if ( poolDbService->isNewTagRequest(theAlignRecordName) )
-//         poolDbService->createNewIOV<Alignments>( alignments, poolDbService->endOfTime(), 
-//                                                  theAlignRecordName );
-//       else
-//         poolDbService->appendSinceTime<Alignments>( alignments, poolDbService->currentTime(), 
-//                                                   theAlignRecordName );
       poolDbService->writeOne<Alignments>(alignments, poolDbService->currentTime(),
                                           theAlignRecordName);
-//       if ( poolDbService->isNewTagRequest(theErrorRecordName) )
-//         poolDbService->createNewIOV<AlignmentErrors>( alignmentErrors,
-//                                                       poolDbService->endOfTime(), 
-//                                                       theErrorRecordName );
-//       else
-//         poolDbService->appendSinceTime<AlignmentErrors>( alignmentErrors,
-//                                                          poolDbService->currentTime(), 
-//                                                          theErrorRecordName );
       poolDbService->writeOne<AlignmentErrors>(alignmentErrors, poolDbService->currentTime(),
                                                theErrorRecordName);
     }
