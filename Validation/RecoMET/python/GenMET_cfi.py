@@ -24,14 +24,14 @@ genMetNoNuBSMAnalyzer = cms.EDFilter(
 genMetTrueAnalyzer = cms.EDAnalyzer(
     "METTester",
     InputMETLabel = cms.InputTag("genMetTrue"),
-    METType = cms.untracked.string("GenMet"),
+    METType = cms.untracked.string("GenMET"),
     FineBinning = cms.untracked.bool(True)                             
     )
 
 genMetCaloAnalyzer = cms.EDAnalyzer(
     "METTester",
     InputMETLabel = cms.InputTag("genMetCalo"),
-    METType = cms.untracked.string("GenMet"),
+    METType = cms.untracked.string("GenMET"),
     FineBinning = cms.untracked.bool(True)                             
     )
 
@@ -39,7 +39,7 @@ genMetCaloAnalyzer = cms.EDAnalyzer(
 genMetCaloAndNonPromptAnalyzer = cms.EDAnalyzer(
     "METTester",
     InputMETLabel = cms.InputTag("genMetCaloAndNonPrompt"),
-    METType = cms.untracked.string("GenMet"),
+    METType = cms.untracked.string("GenMET"),
     FineBinning = cms.untracked.bool(True)                             
     )
 
