@@ -324,6 +324,7 @@ def setHcalTaskValues(process):
     # set checkNevents
     checkNevents = deepcopy(process.checkNevents)
     process.BeamMonitor_checkNevents                      = checkNevents
+    process.DataFormatMonitor_checkNevents                = checkNevents
     process.DeadCellMonitor_checkNevents                  = checkNevents
     process.DeadCellMonitor_checkNevents_occupancy        = checkNevents
     process.DeadCellMonitor_checkNevents_rechit_occupancy = checkNevents
