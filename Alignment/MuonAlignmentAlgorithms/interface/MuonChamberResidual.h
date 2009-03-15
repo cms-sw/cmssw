@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonChamberResidual_H
 
 /** \class MuonChamberResidual
- *  $Date: 2009/02/27 18:58:29 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/03/09 22:57:32 $
+ *  $Revision: 1.3 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -109,7 +109,7 @@ public:
     assert(0 <= i  &&  i < int(m_localIDs.size()));
     if (m_chamberId.subdetId() == MuonSubdetId::DT) {
       DTLayerId layerId(m_localIDs[i].rawId());
-      return layerId.layer();
+      return 4*(layerId.superlayer() - 1) + layerId.layer();
     }
     else if (m_chamberId.subdetId() == MuonSubdetId::CSC) {
       CSCDetId layerId(m_localIDs[i].rawId());
