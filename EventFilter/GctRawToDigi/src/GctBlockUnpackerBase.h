@@ -26,8 +26,8 @@
 * with older data.
 *
 * \author Robert Frazier
-* $Revision: 1.13 $
-* $Date: 2008/09/01 18:34:10 $
+* $Revision: 1.14 $
+* $Date: 2008/11/05 20:46:52 $
 */ 
 
 
@@ -64,7 +64,6 @@ public:
   void setForwardJetCollection(L1GctJetCandCollection* coll) { gctJets_.at(FORWARD_JETS) = coll; }
   void setCentralJetCollection(L1GctJetCandCollection* coll) { gctJets_.at(CENTRAL_JETS) = coll; }
 
-  void setJetCountsCollection(L1GctJetCountsCollection* jetCounts) { gctJetCounts_ = jetCounts; }
   void setHFBitCountsCollection(L1GctHFBitCountsCollection* hfBitCounts) { gctHFBitCounts_ = hfBitCounts; }
   void setHFRingEtSumsCollection(L1GctHFRingEtSumsCollection* hfRingEtSums) { gctHFRingEtSums_ = hfRingEtSums; }
   void setEtTotalCollection(L1GctEtTotalCollection* etTotal) { gctEtTotal_ = etTotal; }
@@ -110,7 +109,6 @@ protected:
   L1GctInternEmCandCollection* gctInternEm_;  ///< GCT internal EM Cands.  
   L1GctFibreCollection* gctFibres_;  ///< Fibre data.
   GctJetCandCollections gctJets_;  ///< Vector of pointers to the various jet candidate collections.
-  L1GctJetCountsCollection* gctJetCounts_;  ///< Jet counts
   L1GctHFBitCountsCollection* gctHFBitCounts_;  ///< HF bit counts
   L1GctHFRingEtSumsCollection* gctHFRingEtSums_;  ///< HF ring Et sums
   L1GctEtTotalCollection* gctEtTotal_;  ///< Total Et

@@ -22,7 +22,6 @@ GctBlockUnpackerBase::GctBlockUnpackerBase(bool hltMode):
   gctInternEm_(0),
   gctFibres_(0),
   gctJets_(NUM_JET_CATEGORIES),
-  gctJetCounts_(0),
   gctHFBitCounts_(0),
   gctHFRingEtSums_(0),
   gctEtTotal_(0),

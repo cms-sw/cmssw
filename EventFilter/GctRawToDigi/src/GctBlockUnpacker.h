@@ -9,8 +9,8 @@
 * 
 * 
 * \author Robert Frazier
-* $Revision: 1.21 $
-* $Date: 2008/03/19 18:12:14 $
+* $Revision: 1.22 $
+* $Date: 2008/06/14 13:33:10 $
 */ 
 
 
@@ -80,9 +80,6 @@ private:
   
   /// Unpack GCT Jet Candidates.
   void blockToGctJetCand(const unsigned char * d, const GctBlockHeaderBase& hdr);
-  
-  /// Unpack GCT Jet Counts
-  void blockToGctJetCounts(const unsigned char * d, const GctBlockHeaderBase& hdr);
   
 };
 

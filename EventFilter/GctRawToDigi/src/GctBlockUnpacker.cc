@@ -48,7 +48,7 @@ GctBlockUnpacker::GctBlockUnpacker(bool hltMode):
 
     // Setup block unpack function map
     blockUnpackFn_[0x00] = &GctBlockUnpacker::blockDoNothing;
-    blockUnpackFn_[0x58] = &GctBlockUnpacker::blockToGctJetCand;
+    blockUnpackFn_[0x58] = &GctBlockUnpacker::blockDoNothing;
     blockUnpackFn_[0x59] = &GctBlockUnpacker::blockDoNothing;
     blockUnpackFn_[0x5a] = &GctBlockUnpacker::blockToGctJetCounts;
     blockUnpackFn_[0x5f] = &GctBlockUnpacker::blockDoNothing;
@@ -133,21 +133,6 @@ void GctBlockUnpacker::blockToGctJetCand(const unsigned char * d, const GctBlock
       gctJets_.at(iCat)->push_back(L1GctJetCand(p[cand0Offset + timeSampleOffset + 1], tauflag, forwardFlag, id, 3, bx));      
     }
   }
-}
-
-void GctBlockUnpacker::blockToGctJetCounts(const unsigned char * d, const GctBlockHeaderBase& hdr)
-{
-  /*
-   * Currently only unpacking one timesample of these!
-   */
-  
-  // Re-interpret block payload pointer to 32 bits so it sees six jet counts at a time.
-  // p points to the start of the block payload, at the first six jet counts in timesample 0.
-  const uint32_t * p = reinterpret_cast<const uint32_t *>(d);
-
-  // The call to hdr.nSamples() in the below line gives the offset from the start of the block
-  // payload for a 32-bit pointer to get to the second set of six jet counts in timesample 0.
-  gctJetCounts_->push_back(L1GctJetCounts(p[0], p[hdr.nSamples()]));
 }
 
 // Output EM Candidates unpacking
