@@ -37,25 +37,29 @@
 using std::cout;
 using std::endl;
 using std::vector;
+using std::string;
 
 
 GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   inputLabel_(iConfig.getParameter<edm::InputTag>("inputLabel")),
   fedId_(iConfig.getParameter<int>("gctFedId")),
-  verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
   hltMode_(iConfig.getParameter<bool>("hltMode")),
-  grenCompatibilityMode_(iConfig.getParameter<bool>("grenCompatibilityMode")),
+  unpackerVersion_(iConfig.getParameter<unsigned>("unpackerVersion")),
   blockUnpacker_(0),
   unpackFailures_(0)
+  verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
 {
   LogDebug("GCT") << "GctRawToDigi will unpack FED Id " << fedId_;
 
-  if(grenCompatibilityMode_)
-  { 
-    edm::LogInfo("GCT") << "GREN 2007 compatibility mode has been selected.";
-    blockUnpacker_ = new GctBlockUnpackerV1(hltMode_);
+  // If unpacker version has been forced from config file, instantiate it appropriately.
+  if(unpackerVersion_ != 0) { edm::LogInfo("GCT") << "You have selected to use GctBlockUnpackerV" << unpackerVersion_; }
+  switch(unpackerVersion_)
+  {
+    case 1:  blockUnpacker_ = new GctBlockUnpackerV1(hltMode_); break;
+    case 2:  blockUnpacker_ = new GctBlockUnpackerV2(hltMode_); break;
+    case 3:  blockUnpacker_ = new GctBlockUnpackerV3(hltMode_); break;
+    default: edm::LogInfo("GCT") << "The required GctBlockUnpacker will be automatically determined from the first S-Link packet header.";
   }
-  else { blockUnpacker_ = new GctBlockUnpackerV2(hltMode_); }
 
   if(hltMode_) { edm::LogInfo("GCT") << "HLT unpack mode selected: HLT unpack optimisations will be used."; }
 
@@ -91,6 +95,12 @@ GctRawToDigi::~GctRawToDigi()
 //
 // member functions
 //
+
+// ------------ method called once each job just before starting event loop  ------------
+void GctRawToDigi::beginJob(const edm::EventSetup&)
+{
+}
+
 
 // ------------ method called to produce the data  ------------
 void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -149,7 +159,6 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
 
   if(invalidDataFlag == false) // Only attempt unpack with valid data
   {
-
     blockUnpacker_->setIsoEmCollection( gctIsoEm.get() );
     blockUnpacker_->setNonIsoEmCollection( gctNonIsoEm.get() );
     blockUnpacker_->setCentralJetCollection( gctCenJets.get() );
@@ -170,12 +179,15 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
   
     const unsigned char * data = d.data();  // The 8-bit wide raw-data array.  
 
+    // If no block unpacker yet set, need to auto-detect from header.  If can't, then bail from event!
+    if(!blockUnpacker_) { if(!autoDetectBlockUnpacker(data)) { break; } }
+
     // Data offset - starts at 16 as there is a 64-bit S-Link header followed
     // by a 64-bit software-controlled header (for pipeline format version
     // info that is not yet used).
     unsigned dPtr = 16;
     
-    if(grenCompatibilityMode_) { dPtr = 8; }  // No software-controlled secondary header in old scheme. 
+    if(unpackerVersion_ == 1) { dPtr = 8; }  // No software-controlled secondary header in old UnpackerV1 scheme. 
     
     const unsigned dEnd = d.size() - 8; // End of payload is at (packet size - final slink header)
 
@@ -188,7 +200,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
       
       // read block header
       std::auto_ptr<GctBlockHeaderBase> blockHeader;
-      if(grenCompatibilityMode_) { blockHeader = std::auto_ptr<GctBlockHeaderBase>(new GctBlockHeaderV1(&data[dPtr])); }
+      if(unpackerVersion_ == 1) { blockHeader = std::auto_ptr<GctBlockHeaderBase>(new GctBlockHeaderV1(&data[dPtr])); }
       else { blockHeader = std::auto_ptr<GctBlockHeaderBase>(new GctBlockHeaderV2(&data[dPtr])); }
       
       // unpack the block; dPtr+4 is to get to the block data.
@@ -255,15 +267,39 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-GctRawToDigi::beginJob(const edm::EventSetup&)
+bool GctRawToDigi::autoDetectBlockUnpacker(const unsigned char * d)
 {
+  LogDebug("GCT") << "About to auto-detect the required block unpacker from the firmware version header.";
+    
+  const uint32_t * p32 = reinterpret_cast<const uint32_t *>(d);
+  unsigned firmwareHeader = p32[2];
+    
+  if( firmwareHeader == 37 )
+  {
+    edm::LogInfo("GCT") << "Firmware Version V " << firmwareHeader << " detected: GctBlockUnpackerV3 will be used.";
+    blockUnpacker_ = new GctBlockUnpackerV3(hltMode_);
+    return true;
+  }
+  else if( firmwareHeader >= 25 && firmwareHeader <= 35 )
+  {
+    edm::LogInfo("GCT") << "Firmware Version V " << firmwareHeader << " detected: GctBlockUnpackerV2 will be used.";
+    blockUnpacker_ = new GctBlockUnpackerV2(hltMode_);
+    return true;
+  }
+  else if(firmwareHeader == 0xdeadffff) { /* Driver detected unknown firmware version. L1TriggerError code? */ }
+  else if( firmwareHeader == 0xaaaaaaaa) { /* Before driver firmware version checks implemented. L1TriggerError code?  */ }
+  else { /* Totally unknown firmware header. L1TriggerError code?  */ }
+  
+  LogDebug("GCT") << "Failed to determine unpacker to use from the firmware version header! "
+                     "(firmware header = 0x" << hex << firmwareHeader << dec << ")";
+
+  ++unpackFailures_;
+  return false;
 }
 
+
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-GctRawToDigi::endJob()
+void GctRawToDigi::endJob()
 {
   if(unpackFailures_ > 0)
   {
@@ -272,8 +308,5 @@ GctRawToDigi::endJob()
   }  
 }
 
-
-
 /// make this a plugin
 DEFINE_FWK_MODULE(GctRawToDigi);
-

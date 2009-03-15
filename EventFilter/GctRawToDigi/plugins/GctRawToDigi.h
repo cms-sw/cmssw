@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.22 2008/11/05 20:46:52 tapper Exp $
+// $Id: GctRawToDigi.h,v 1.23 2009/03/06 14:46:56 jbrooke Exp $
 //
 //
 
@@ -51,30 +51,33 @@ private: // methods
 
   virtual void beginJob(const edm::EventSetup&) ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
   
   /// Unpacks the raw data
   /*! \param invalidDataFlag - if true, then won't attempt unpack but just output empty collecions. */
   void unpack(const FEDRawData& d, edm::Event& e, const bool invalidDataFlag=false);
 
+  /// Looks at the firmware version header in the S-Link packet and instantiates relevant unpacker. Returns false on failure.
+  bool autoDetectBlockUnpacker(const unsigned char * data);
+
+  virtual void endJob();
 
 private: // members
 
   /// The maximum number of blocks we will try to unpack before thinking something is wrong
   static const unsigned MAX_BLOCKS = 256;
 
-  edm::InputTag inputLabel_;  // FED collection label.
-  int fedId_;                 // GCT FED ID.
-  const bool verbose_;        // If true, then debug print out for each event.
+  edm::InputTag inputLabel_;  ///< FED collection label.
+  int fedId_;                 ///< GCT FED ID.
 
   // unpacking options
-  const bool hltMode_;  // If true, only outputs the GT output data, and only BX = 0.
-  const bool grenCompatibilityMode_;  // If true, use old-style (GREN07 era) block headers & pipe format.
+  const bool hltMode_;  ///< If true, only outputs the GT output data, and only BX = 0.
+  const unsigned unpackerVersion_;  ///< Defines unpacker verison to be used (0=auto-detect, or 1-3 for V1-V3 unpackers).
+  const bool verbose_;  ///< If true, then debug print out for each event.
 
   // Block to Digi converter
   GctBlockUnpackerBase * blockUnpacker_;
 
-  unsigned unpackFailures_;
+  unsigned unpackFailures_;  ///< To count the total number of GCT unpack failures.
 };
 
 #endif
