@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.34 2009/03/04 16:59:57 chrjones Exp $
+// $Id: FWEveLegoView.cc,v 1.35 2009/03/11 21:16:20 amraktad Exp $
 //
 
 // system include files
@@ -99,8 +99,8 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_autoRebin.changed_.connect(boost::bind(&FWEveLegoView::setAutoRebin,this));
    // take care of cameras
    //
-   // ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   ev->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+   ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+   //  ev->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
    ev->SetEventHandler(new TEveLegoEventHandler("Lego", ev->GetGLWidget(), ev));
    if ( TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>( &(ev->RefCamera(TGLViewer::kCameraPerspXOY) ))) {
       m_cameraMatrixRef = const_cast<TGLMatrix*>(&(camera->GetCamTrans()));
@@ -167,7 +167,6 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
          gEve->AddElement(overlay, ns);
       }
    }
-   setCameras();
 }
 
 FWEveLegoView::~FWEveLegoView()
