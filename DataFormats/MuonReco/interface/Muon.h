@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.46 2008/10/30 19:49:22 jribnik Exp $
+ * \version $Id: Muon.h,v 1.47 2008/12/01 06:51:14 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -33,23 +33,23 @@ namespace reco {
     /// ====================== TRACK BLOCK ===========================
     ///
     /// reference to Track reconstructed in the tracker only
-    virtual TrackRef innerTrack() const { return track_; }
-    virtual TrackRef track() const __attribute__((deprecated));
+    virtual TrackRef innerTrack() const { return innerTrack_; }
+    virtual TrackRef track() const { return innerTrack(); }
     /// reference to Track reconstructed in the muon detector only
-    virtual TrackRef outerTrack() const { return standAloneMuon_; }
-    virtual TrackRef standAloneMuon() const __attribute__((deprecated));
+    virtual TrackRef outerTrack() const { return outerTrack_; }
+    virtual TrackRef standAloneMuon() const { return outerTrack(); }
     /// reference to Track reconstructed in both tracked and muon detector
-    virtual TrackRef globalTrack() const { return combinedMuon_; }
-    virtual TrackRef combinedMuon() const __attribute__((deprecated));
+    virtual TrackRef globalTrack() const { return globalTrack_; }
+    virtual TrackRef combinedMuon() const { return globalTrack(); }
     /// set reference to Track
-    virtual void setInnerTrack( const TrackRef & t ) { track_ = t; }
-    virtual void setTrack( const TrackRef & t ) __attribute__((deprecated));
+    virtual void setInnerTrack( const TrackRef & t ) { innerTrack_ = t; }
+    virtual void setTrack( const TrackRef & t ) { setInnerTrack(t); }
     /// set reference to Track
-    virtual void setOuterTrack( const TrackRef & t ) { standAloneMuon_ = t; }
-    virtual void setStandAlone( const TrackRef & t ) __attribute__((deprecated));
+    virtual void setOuterTrack( const TrackRef & t ) { outerTrack_ = t; }
+    virtual void setStandAlone( const TrackRef & t ) { setOuterTrack(t); }
     /// set reference to Track
-    virtual void setGlobalTrack( const TrackRef & t ) { combinedMuon_ = t; }
-    virtual void setCombined( const TrackRef & t ) __attribute__((deprecated));
+    virtual void setGlobalTrack( const TrackRef & t ) { globalTrack_ = t; }
+    virtual void setCombined( const TrackRef & t ) { setGlobalTrack(t); }
     
     ///
     /// ====================== ENERGY BLOCK ===========================
@@ -165,11 +165,11 @@ namespace reco {
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
     /// reference to Track reconstructed in the tracker only
-    TrackRef track_;
+    TrackRef innerTrack_;
     /// reference to Track reconstructed in the muon detector only
-    TrackRef standAloneMuon_;
+    TrackRef outerTrack_;
     /// reference to Track reconstructed in both tracked and muon detector
-    TrackRef combinedMuon_;
+    TrackRef globalTrack_;
     /// energy deposition 
     MuonEnergy calEnergy_;
     /// Information on matching between tracks and segments
