@@ -10,7 +10,7 @@
  *
  * \author Dmytro Kovalskyi, UCSB
  *
- * \version $Id: CaloMuon.h,v 1.2 2008/04/30 18:17:44 dmytro Exp $
+ * \version $Id: CaloMuon.h,v 1.3 2008/04/30 22:58:14 dmytro Exp $
  *
  */
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
@@ -22,16 +22,18 @@ namespace reco {
   class CaloMuon {
   public:
     CaloMuon();
+    virtual ~CaloMuon(){}     
     
     /// reference to Track reconstructed in the tracker only
-    TrackRef track() const { return track_; }
+    virtual TrackRef innerTrack() const { return innerTrack_; }
+    virtual TrackRef track() const { return innerTrack(); }
     /// set reference to Track
-    void setTrack( const TrackRef & t ) { track_ = t; }
+    virtual void setInnerTrack( const TrackRef & t ) { innerTrack_ = t; }
+    virtual void setTrack( const TrackRef & t ) { setInnerTrack(t); }
     /// energy deposition
     bool isEnergyValid() const { return energyValid_; }
     /// get energy deposition information
     MuonEnergy calEnergy() const { return calEnergy_; }
-    MuonEnergy getCalEnergy() const __attribute__((deprecated));
     /// set energy deposition information
     void setCalEnergy( const MuonEnergy& calEnergy ) { calEnergy_ = calEnergy; energyValid_ = true; }
      
@@ -39,32 +41,31 @@ namespace reco {
     /// Relative likelihood based on ECAL, HCAL, HO energy defined as
     /// L_muon/(L_muon+L_not_muon)
     float caloCompatibility() const { return caloCompatibility_; }
-    float getCaloCompatibility() const __attribute__((deprecated));
     void  setCaloCompatibility(float input){ caloCompatibility_ = input; }
     bool  isCaloCompatibilityValid() const { return caloCompatibility_>=0; } 
      
     /// a bunch of useful accessors
-    int charge() const { return track_.get()->charge(); }
+    int charge() const { return innerTrack_.get()->charge(); }
     /// polar angle  
-    double theta() const { return track_.get()->theta(); }
+    double theta() const { return innerTrack_.get()->theta(); }
     /// momentum vector magnitude
-    double p() const { return track_.get()->p(); }
+    double p() const { return innerTrack_.get()->p(); }
     /// track transverse momentum
-    double pt() const { return track_.get()->pt(); }
+    double pt() const { return innerTrack_.get()->pt(); }
     /// x coordinate of momentum vector
-    double px() const { return track_.get()->px(); }
+    double px() const { return innerTrack_.get()->px(); }
     /// y coordinate of momentum vector
-    double py() const { return track_.get()->py(); }
+    double py() const { return innerTrack_.get()->py(); }
     /// z coordinate of momentum vector
-    double pz() const { return track_.get()->pz(); }
+    double pz() const { return innerTrack_.get()->pz(); }
     /// azimuthal angle of momentum vector
-    double phi() const { return track_.get()->phi(); }
+    double phi() const { return innerTrack_.get()->phi(); }
     /// pseudorapidity of momentum vector
-    double eta() const { return track_.get()->eta(); }
+    double eta() const { return innerTrack_.get()->eta(); }
      
   private:
     /// reference to Track reconstructed in the tracker only
-    TrackRef track_;
+    TrackRef innerTrack_;
     /// energy deposition 
     MuonEnergy calEnergy_;
     bool energyValid_;

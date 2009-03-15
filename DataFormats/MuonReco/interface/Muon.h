@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.47 2008/12/01 06:51:14 dmytro Exp $
+ * \version $Id: Muon.h,v 1.48 2009/03/15 00:55:32 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -33,6 +33,7 @@ namespace reco {
     /// ====================== TRACK BLOCK ===========================
     ///
     /// reference to Track reconstructed in the tracker only
+    using reco::RecoCandidate::track;
     virtual TrackRef innerTrack() const { return innerTrack_; }
     virtual TrackRef track() const { return innerTrack(); }
     /// reference to Track reconstructed in the muon detector only
