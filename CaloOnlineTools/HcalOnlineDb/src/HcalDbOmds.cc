@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbASCIIIO.cc,v 1.41
-// $Id: HcalDbOmds.cc,v 1.1 2009/03/13 11:27:36 kukartse Exp $
+// $Id: HcalDbOmds.cc,v 1.2 2009/03/14 15:52:06 kukartse Exp $
 //
 //
 #include <vector>
@@ -74,21 +74,15 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection, const std::st
 // Oracle database connection ownership is transferred here, DO terminate after use
 bool HcalDbOmds::getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalZSThresholds* fObject) {
   bool result=true;
-  cerr << "DEBUG1-----------------" << endl;
   if (!fObject) fObject = new HcalZSThresholds;
-  cerr << "DEBUG2-----------------" << endl;
   try {
-  cerr << "DEBUG3-----------------" << endl;
     Statement * stmt = connection->createStatement();
-  cerr << "DEBUG4-----------------" << endl;
 
     std::string query = " SELECT zero_suppression,z*eta as ieta,phi,depth,detector_name as subdetector ";
     query            += " FROM CMS_HCL_HCAL_CONDITION_OWNER.V_HCAL_ZERO_SUPPRESSION ";
     query            += " WHERE TAG_NAME='GREN_ZS_9adc_v2'";
 
-  cerr << "DEBUG5-----------------" << endl;
     ResultSet *rs = stmt->executeQuery(query.c_str());
-  cerr << "DEBUG6-----------------" << endl;
 
     RooGKCounter _row(1,100);
     _row.setMessage("HCAL channels processed: ");
@@ -96,6 +90,11 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection, const std::st
     _row.setNewLine(true);
     while (rs->next()) {
       _row.count();
+      int zs = rs->getInt(1);
+      int ieta = rs->getInt(2);
+      int iphi = rs->getInt(3);
+      int depth = rs->getInt(4);
+      std::string subdet = rs->getString(5);
       HcalDetId id(HcalBarrel,15,49,1);
       int zs=9;
       HcalZSThreshold * fCondObject = new HcalZSThreshold(id, zs);
