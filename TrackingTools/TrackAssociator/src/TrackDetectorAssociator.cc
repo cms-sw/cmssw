@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.34 2008/10/07 01:49:48 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.35 2009/02/26 19:32:31 vlimant Exp $
 //
 //
 
@@ -131,7 +131,7 @@ void TrackDetectorAssociator::init( const edm::EventSetup& iSetup )
    if (!theTrackingGeometry_.isValid()) 
      throw cms::Exception("FatalError") << "Unable to find GlobalTrackingGeometryRecord in event!\n";
    
-   if (useDefaultPropagator_ && ! defProp_ ) {
+   if (useDefaultPropagator_ && (! defProp_ || theMagneticFeildWatcher_.check(iSetup) ) ) {
       // setup propagator
       edm::ESHandle<MagneticField> bField;
       iSetup.get<IdealMagneticFieldRecord>().get(bField);

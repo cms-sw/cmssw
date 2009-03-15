@@ -14,7 +14,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.h,v 1.13.2.1 2008/08/07 00:45:13 dmytro Exp $
+// $Id: TrackDetectorAssociator.h,v 1.14 2008/08/07 02:06:23 dmytro Exp $
 //
 //
 
@@ -22,12 +22,14 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TrackingTools/TrackAssociator/interface/CaloDetIdAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/EcalDetIdAssociator.h"
@@ -189,5 +191,7 @@ class TrackDetectorAssociator {
    
    edm::ESHandle<CaloGeometry> theCaloGeometry_;
    edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry_;
+   
+   edm::ESWatcher<IdealMagneticFieldRecord>     theMagneticFeildWatcher_;
 };
 #endif
