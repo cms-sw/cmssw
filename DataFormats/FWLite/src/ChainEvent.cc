@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 16 06:48:39 EDT 2007
-// $Id: ChainEvent.cc,v 1.4 2007/12/15 00:20:43 wmtan Exp $
+// $Id: ChainEvent.cc,v 1.5 2008/07/24 20:38:44 dsr Exp $
 //
 
 // system include files
@@ -83,7 +83,7 @@ ChainEvent::~ChainEvent()
 const ChainEvent& 
 ChainEvent::operator++()
 {
-  if(eventIndex_ !=fileNames_.size()-1) {
+  if(eventIndex_ != static_cast<Long64_t>(fileNames_.size())-1) {
     ++(*event_);
     if(event_->atEnd()) {
       switchToFile(++eventIndex_);
@@ -105,7 +105,7 @@ ChainEvent::to(Long64_t iIndex) {
   }
   Long64_t offsetIndex = eventIndex_;
   bool incremented = false;
-  while(iIndex > accumulatedSize_[offsetIndex] && offsetIndex != accumulatedSize_.size()) {
+  while(iIndex > accumulatedSize_[offsetIndex] && offsetIndex != static_cast<Long64_t>(accumulatedSize_.size())) {
     ++offsetIndex;
     incremented = true;
   }
@@ -200,7 +200,7 @@ ChainEvent::operator bool () const
 bool 
 ChainEvent::atEnd() const 
 {
-  if (eventIndex_ == fileNames_.size()-1) {
+  if (eventIndex_ == static_cast<Long64_t>(fileNames_.size())-1) {
     return event_->atEnd();
   }
   return false;
