@@ -9,4 +9,9 @@ def customise(process):
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
 
+# re-running HLT requires new process name!
+
+    process.setName_("HLT2")
+    process.hltTrigReport.HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT2' )
+
     return(process)

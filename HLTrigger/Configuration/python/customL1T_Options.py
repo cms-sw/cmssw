@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+
 def customise(process):
     
     process.l1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
