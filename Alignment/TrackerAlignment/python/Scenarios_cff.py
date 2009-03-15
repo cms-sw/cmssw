@@ -43,22 +43,22 @@ NoMovementsScenario = cms.PSet(
 # -----------------------------------------------------------------------
 # Example scenario (dummy movements)
 TrackerExampleScenario = cms.PSet(
-    MisalignmentScenarioSettings,
-    TOB1 = cms.PSet(
+      MisalignmentScenarioSettings,
+      TOBHalfBarrel1 = cms.PSet(
         TOBLayers = cms.PSet(
             dX = cms.double(0.1)
-        ),
+            ),
         TOBLayer1 = cms.PSet(
             dX = cms.double(0.2)
-        )
-    ),
-    TOBs = cms.PSet(
+            )
+        ),
+      TOBHalfBarrels = cms.PSet(
         TOBLayer1 = cms.PSet(
             phiX = cms.double(0.03)
-        ),
+            ),
         dX = cms.double(0.2)
+        )
     )
-)
 # -----------------------------------------------------------------------
 # 10 pb-1 misalignment scenario
 # See CMS IN 2007/036
@@ -87,7 +87,7 @@ TECRings10pb_2D = cms.PSet(
 # now real scenario:
 Tracker10pbScenario = cms.PSet(
     MisalignmentScenarioSettings,
-    TIBs = cms.PSet(
+    TIBHalfBarrels = cms.PSet(
         TIBLayers = cms.PSet(
             dZlocal = cms.double(0.01),
             phiXlocal = cms.double(6.5e-05),
@@ -128,7 +128,7 @@ Tracker10pbScenario = cms.PSet(
             phiYlocal = cms.double(6.5e-05)
         )
     ),
-    TPBs = cms.PSet(
+    TPBHalfBarrels = cms.PSet(
         scale = cms.double(1.0),
         DetUnits = cms.PSet(
             dZlocal = cms.double(0.006),
@@ -159,7 +159,7 @@ Tracker10pbScenario = cms.PSet(
             phiYlocal = cms.double(7e-06)
         )
     ),
-    TOBs = cms.PSet(
+    TOBHalfBarrels = cms.PSet(
         scale = cms.double(1.0),
         TOBLayer3_4_5_6 = cms.PSet(
             DetUnits = cms.PSet(
@@ -205,7 +205,7 @@ Tracker10pbScenario = cms.PSet(
         ),
         distribution = cms.string('gaussian')
     ),
-    TECs = cms.PSet(
+    TECEndcaps = cms.PSet(
         scale = cms.double(1.0),
         TECDisk9 = cms.PSet(
             TECRing2 = cms.PSet(
@@ -258,7 +258,7 @@ Tracker10pbScenario = cms.PSet(
             )
         )
     ),
-    TPEs = cms.PSet(
+    TPEEndcaps = cms.PSet(
         TPEPanels = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(0.0002),
@@ -295,7 +295,7 @@ Tracker10pbScenario = cms.PSet(
         ),
         distribution = cms.string('gaussian')
     ),
-    TIDs = cms.PSet(
+    TIDEndcaps = cms.PSet(
         scale = cms.double(1.0),
         scaleError = cms.double(1.0),
         TIDRings = cms.PSet(
@@ -363,7 +363,7 @@ TECRings100pb_2D = cms.PSet(
 # now real scenario:
 Tracker100pbScenario = cms.PSet(
     MisalignmentScenarioSettings,
-    TIBs = cms.PSet(
+    TIBHalfBarrels = cms.PSet(
         TIBLayers = cms.PSet(
             dZlocal = cms.double(0.0015),
             phiXlocal = cms.double(1e-05),
@@ -404,7 +404,7 @@ Tracker100pbScenario = cms.PSet(
             phiYlocal = cms.double(2e-05)
         )
     ),
-    TPBs = cms.PSet(
+    TPBHalfBarrels = cms.PSet(
         scale = cms.double(1.0),
         DetUnits = cms.PSet(
             dZlocal = cms.double(0.001),
@@ -435,7 +435,7 @@ Tracker100pbScenario = cms.PSet(
             phiYlocal = cms.double(7e-06)
         )
     ),
-    TOBs = cms.PSet(
+    TOBHalfBarrels = cms.PSet(
         scale = cms.double(1.0),
         TOBLayer3_4_5_6 = cms.PSet(
             DetUnits = cms.PSet(
@@ -482,7 +482,7 @@ Tracker100pbScenario = cms.PSet(
         ),
         distribution = cms.string('gaussian')
     ),
-    TECs = cms.PSet(
+    TECEndcaps = cms.PSet(
         scale = cms.double(1.0),
         TECDisk9 = cms.PSet(
             TECRing2 = cms.PSet(
@@ -535,7 +535,7 @@ Tracker100pbScenario = cms.PSet(
             )
         )
     ),
-    TPEs = cms.PSet(
+    TPEEndcaps = cms.PSet(
         TPEPanels = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(2.2e-05),
@@ -572,7 +572,7 @@ Tracker100pbScenario = cms.PSet(
         ),
         distribution = cms.string('gaussian')
     ),
-    TIDs = cms.PSet(
+    TIDEndcaps = cms.PSet(
         scale = cms.double(1.0),
         scaleError = cms.double(1.0),
         TIDRing3 = cms.PSet(
@@ -641,7 +641,7 @@ TECRings1000pb_2D = cms.PSet(
 # now real scenario:
 Tracker1000pbScenario = cms.PSet(
     MisalignmentScenarioSettings,
-    TIBs = cms.PSet(
+    TIBHalfBarrels = cms.PSet(
         TIBLayers = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(5e-06),
@@ -682,7 +682,7 @@ Tracker1000pbScenario = cms.PSet(
             phiYlocal = cms.double(5e-06)
         )
     ),
-    TPBs = cms.PSet(
+    TPBHalfBarrels = cms.PSet(
         scale = cms.double(1.0),
         DetUnits = cms.PSet(
             dZlocal = cms.double(0.0005),
@@ -713,7 +713,7 @@ Tracker1000pbScenario = cms.PSet(
             phiYlocal = cms.double(3e-06)
         )
     ),
-    TOBs = cms.PSet(
+    TOBHalfBarrels = cms.PSet(
         scale = cms.double(1.0),
         TOBLayer3_4_5_6 = cms.PSet(
             DetUnits = cms.PSet(
@@ -759,7 +759,7 @@ Tracker1000pbScenario = cms.PSet(
         ),
         distribution = cms.string('gaussian')
     ),
-    TECs = cms.PSet(
+    TECEndcaps = cms.PSet(
         scale = cms.double(1.0),
         TECDisk9 = cms.PSet(
             TECRing2 = cms.PSet(
@@ -812,7 +812,7 @@ Tracker1000pbScenario = cms.PSet(
             )
         )
     ),
-    TPEs = cms.PSet(
+    TPEEndcaps = cms.PSet(
         TPEPanels = cms.PSet(
             dZlocal = cms.double(0.0005),
             phiXlocal = cms.double(1.1e-05),
@@ -849,7 +849,7 @@ Tracker1000pbScenario = cms.PSet(
         ),
         distribution = cms.string('gaussian')
     ),
-    TIDs = cms.PSet(
+    TIDEndcaps = cms.PSet(
         scale = cms.double(1.0),
         scaleError = cms.double(1.0),
         TIDRing3 = cms.PSet(
@@ -918,7 +918,7 @@ TECRingsSurveyLASOnly_2D = cms.PSet(
 # now real scenario:
 TrackerSurveyLASOnlyScenario = cms.PSet(
     MisalignmentScenarioSettings,
-    TIBs = cms.PSet(
+    TIBHalfBarrels = cms.PSet(
         TIBLayers = cms.PSet(
             dZlocal = cms.double(0.075),
             phiXlocal = cms.double(0.000488),
@@ -959,7 +959,7 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
             phiYlocal = cms.double(0.000293)
         )
     ),
-    TPBs = cms.PSet(
+    TPBHalfBarrels = cms.PSet(
         scale = cms.double(1.0),
         DetUnits = cms.PSet(
             dZlocal = cms.double(0.006),
@@ -990,7 +990,7 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
             phiYlocal = cms.double(2e-05)
         )
     ),
-    TOBs = cms.PSet(
+    TOBHalfBarrels = cms.PSet(
         scale = cms.double(1.0),
         TOBLayer3_4_5_6 = cms.PSet(
             DetUnits = cms.PSet(
@@ -1036,7 +1036,7 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
         ),
         distribution = cms.string('gaussian')
     ),
-    TECs = cms.PSet(
+    TECEndcaps = cms.PSet(
         scale = cms.double(1.0),
         TECDisk9 = cms.PSet(
             TECRing2 = cms.PSet(
@@ -1089,7 +1089,7 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
             )
         )
     ),
-    TPEs = cms.PSet(
+    TPEEndcaps = cms.PSet(
         TPEPanels = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(0.0002),
@@ -1134,7 +1134,7 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
         ),
         distribution = cms.string('gaussian')
     ),
-    TIDs = cms.PSet(
+    TIDEndcaps = cms.PSet(
         scale = cms.double(1.0),
         scaleError = cms.double(1.0),
         TIDEndcaps = cms.PSet(
@@ -1233,7 +1233,7 @@ TECRingsSurveyLASCosmics_2D = cms.PSet(
 # now real scenario:
 TrackerSurveyLASCosmicsScenario = cms.PSet(
     MisalignmentScenarioSettings,
-    TIBs = cms.PSet(
+    TIBHalfBarrels = cms.PSet(
         TIBLayers = cms.PSet(
             dZlocal = cms.double(0.0425),
             phiXlocal = cms.double(0.000277),
@@ -1274,7 +1274,7 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
             phiYlocal = cms.double(0.000179)
         )
     ),
-    TPBs = cms.PSet(
+    TPBHalfBarrels = cms.PSet(
         scale = cms.double(1.0),
         DetUnits = cms.PSet(
             dZlocal = cms.double(0.006),
@@ -1305,7 +1305,7 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
             phiYlocal = cms.double(9e-06)
         )
     ),
-    TOBs = cms.PSet(
+    TOBHalfBarrels = cms.PSet(
         scale = cms.double(1.0),
         TOBLayer3_4_5_6 = cms.PSet(
             DetUnits = cms.PSet(
@@ -1351,7 +1351,7 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
         ),
         distribution = cms.string('gaussian')
     ),
-    TECs = cms.PSet(
+    TECEndcaps = cms.PSet(
         scale = cms.double(1.0),
         TECDisk9 = cms.PSet(
             TECRing2 = cms.PSet(
@@ -1404,7 +1404,7 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
             )
         )
     ),
-    TPEs = cms.PSet(
+    TPEEndcaps = cms.PSet(
         TPEPanels = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(0.0002),
@@ -1449,7 +1449,7 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
         ),
         distribution = cms.string('gaussian')
     ),
-    TIDs = cms.PSet(
+    TIDEndcaps = cms.PSet(
         scale = cms.double(1.0),
         scaleError = cms.double(1.0),
         TIDEndcaps = cms.PSet(
@@ -1537,7 +1537,7 @@ TECRingsTrackerNoKnowledge_2D = cms.PSet(
 # now actual scenario
 TrackerNoKnowledgeScenario = cms.PSet(
     MisalignmentScenarioSettings,
-    TIBs = cms.PSet(
+    TIBHalfBarrels = cms.PSet(
         TIBLayers = cms.PSet(
             dZlocal = cms.double(0.02),
             phiXlocal = cms.double(0.0006),
@@ -1566,7 +1566,7 @@ TrackerNoKnowledgeScenario = cms.PSet(
             dXlocal = cms.double(0.03),
             phiYlocal = cms.double(0.0004)
         ),
-        TIBBarrels = cms.PSet(
+        TIBBarrels = cms.PSet( # FIXME??
             dZlocal = cms.double(0.2),
             phiXlocal = cms.double(0.0017),
             dYlocal = cms.double(0.2),
@@ -1574,7 +1574,7 @@ TrackerNoKnowledgeScenario = cms.PSet(
             dXlocal = cms.double(0.2),
             phiYlocal = cms.double(0.0017)
         ),
-        TIBHalfBarrels = cms.PSet(
+        TIBHalfBarrels = cms.PSet( # FIXME??
             dZlocal = cms.double(0.1),
             phiXlocal = cms.double(0.0008),
             dYlocal = cms.double(0.1),
@@ -1610,8 +1610,8 @@ TrackerNoKnowledgeScenario = cms.PSet(
             phiYlocal = cms.double(0.0002)
         )
     ),
-    TPBs = cms.PSet(
-        TPBHalfBarrels = cms.PSet(
+    TPBHalfBarrels = cms.PSet(
+        TPBHalfBarrels = cms.PSet( # FIXME??
             phiXlocal = cms.double(0.0008),
             phiZlocal = cms.double(0.0008),
             dZ = cms.double(0.05),
@@ -1649,7 +1649,7 @@ TrackerNoKnowledgeScenario = cms.PSet(
             distribution = cms.string('gaussian'),
             phiYlocal = cms.double(0.0004)
         ),
-        TPBBarrels = cms.PSet(
+        TPBBarrels = cms.PSet( # FIXME??
             phiXlocal = cms.double(0.003),
             phiZlocal = cms.double(0.003),
             dZ = cms.double(0.1),
@@ -1659,9 +1659,9 @@ TrackerNoKnowledgeScenario = cms.PSet(
             phiYlocal = cms.double(0.003)
         )
     ),
-    TOBs = cms.PSet(
+    TOBHalfBarrels = cms.PSet(
         scale = cms.double(1.0),
-        TOBBarrels = cms.PSet(
+        TOBBarrels = cms.PSet( # FIXME??
             dZlocal = cms.double(0.1),
             phiXlocal = cms.double(0.0005),
             dYlocal = cms.double(0.1),
@@ -1696,7 +1696,7 @@ TrackerNoKnowledgeScenario = cms.PSet(
             dXlocal = cms.double(0.01),
             phiYlocal = cms.double(0.0002)
         ),
-        TOBHalfBarrels = cms.PSet(
+        TOBHalfBarrels = cms.PSet( # FIXME??
             dZlocal = cms.double(0.02),
             phiXlocal = cms.double(0.0001),
             dYlocal = cms.double(0.01),
@@ -1716,7 +1716,7 @@ TrackerNoKnowledgeScenario = cms.PSet(
             )
         )
     ),
-    TECs = cms.PSet(
+    TECEndcaps = cms.PSet(
         scale = cms.double(1.0),
         TECDisk9 = cms.PSet(
             TECRing2 = cms.PSet(
@@ -1735,7 +1735,7 @@ TrackerNoKnowledgeScenario = cms.PSet(
             )
         ),
         scaleError = cms.double(1.0),
-        TECEndcaps = cms.PSet(
+        TECEndcaps = cms.PSet( # FIXME??
             dZlocal = cms.double(0.0316),
             phiXlocal = cms.double(0.001),
             dYlocal = cms.double(0.05),
@@ -1777,7 +1777,7 @@ TrackerNoKnowledgeScenario = cms.PSet(
         ),
         distribution = cms.string('gaussian')
     ),
-    TPEs = cms.PSet(
+    TPEEndcaps = cms.PSet(
         TPEPanels = cms.PSet(
             dZlocal = cms.double(0.005),
             phiXlocal = cms.double(0.002),
@@ -1796,7 +1796,7 @@ TrackerNoKnowledgeScenario = cms.PSet(
             dXlocal = cms.double(0.02),
             phiYlocal = cms.double(0.001)
         ),
-        TPEEndcaps = cms.PSet(
+        TPEEndcaps = cms.PSet( # FIXME??
             dZlocal = cms.double(0.1),
             phiXlocal = cms.double(0.0017),
             dYlocal = cms.double(0.1),
@@ -1830,7 +1830,7 @@ TrackerNoKnowledgeScenario = cms.PSet(
         ),
         distribution = cms.string('gaussian')
     ),
-    TIDs = cms.PSet(
+    TIDEndcaps = cms.PSet(
         TIDSides = cms.PSet(
             dZlocal = cms.double(0.005),
             phiXlocal = cms.double(0.0001),
@@ -1841,7 +1841,7 @@ TrackerNoKnowledgeScenario = cms.PSet(
         ),
         scale = cms.double(1.0),
         scaleError = cms.double(1.0),
-        TIDEndcaps = cms.PSet(
+        TIDEndcaps = cms.PSet( # FIXME??
             dZlocal = cms.double(0.1),
             phiXlocal = cms.double(0.0013),
             dYlocal = cms.double(0.1),
@@ -1903,6 +1903,6 @@ TrackerNoKnowledgeScenario = cms.PSet(
 # ------------- NOTE ends ----------------
 # ----------------------------------------
 TrackerCRAFTScenario = copy.deepcopy(Tracker10pbScenario)
-TrackerCRAFTScenario.TIBs = copy.deepcopy(Tracker100pbScenario.TIBs)
-TrackerCRAFTScenario.TOBs = copy.deepcopy(Tracker100pbScenario.TOBs)
-TrackerCRAFTScenario.TPEs = copy.deepcopy(TrackerSurveyLASOnlyScenario.TPEs)
+TrackerCRAFTScenario.TIBHalfBarrels = copy.deepcopy(Tracker100pbScenario.TIBHalfBarrels)
+TrackerCRAFTScenario.TOBHalfBarrels = copy.deepcopy(Tracker100pbScenario.TOBHalfBarrels)
+TrackerCRAFTScenario.TPEEndcaps = copy.deepcopy(TrackerSurveyLASOnlyScenario.TPEEndcaps)

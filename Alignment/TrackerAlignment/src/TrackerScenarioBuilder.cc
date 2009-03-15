@@ -1,9 +1,9 @@
 /// \file
 ///
-/// $Date: 2007/01/12 09:47:43 $
-/// $Revision: 1.1 $
+/// $Date: 2007/12/06 01:55:18 $
+/// $Revision: 1.2 $
 ///
-/// $Author: fronga $
+/// $Author: ratnik $
 /// \author Frederic Ronga - CERN-PH-CMG
 
 #include <string>
@@ -17,18 +17,26 @@
 // Alignment
 
 #include "Alignment/TrackerAlignment/interface/TrackerScenarioBuilder.h"
-#include "Alignment/CommonAlignment/interface/Alignable.h" 
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
 
 //__________________________________________________________________________________________________
-TrackerScenarioBuilder::TrackerScenarioBuilder( Alignable* alignable )
+TrackerScenarioBuilder::TrackerScenarioBuilder(AlignableTracker* alignable) 
+  : theAlignableTracker(alignable)
 {
 
-  theAlignableTracker = dynamic_cast<AlignableTracker*>( alignable );
- 
-  if ( !theAlignableTracker )
-    throw cms::Exception("TypeMismatch") << "Argument is not an AlignableTracker";
+  if (!theAlignableTracker) {
+    throw cms::Exception("TypeMismatch") << "Pointer to AlignableTracker is empty.\n";
+  }
 
+  // Fill what is needed for possiblyPartOf(..):
+  theSubdets.push_back("TPB"); // Take care, order matters: 1st pixel, 2nd strip.
+  theSubdets.push_back("TPE");
+  theFirstStripIndex = theSubdets.size();
+  theSubdets.push_back("TIB");
+  theSubdets.push_back("TID");
+  theSubdets.push_back("TOB");
+  theSubdets.push_back("TEC");
 }
 
 
@@ -37,66 +45,67 @@ void TrackerScenarioBuilder::applyScenario( const edm::ParameterSet& scenario )
 {
 
   // Apply the scenario to all main components of tracker.
-  theScenario = scenario;
   theModifierCounter = 0;
 
   // Seed is set at top-level, and is mandatory
-  if ( this->hasParameter_( "seed", theScenario ) )
-	theModifier.setSeed( static_cast<long>(theScenario.getParameter<int>("seed")) );
+  if ( this->hasParameter_( "seed", scenario) )
+	theModifier.setSeed( static_cast<long>(scenario.getParameter<int>("seed")) );
   else
 	throw cms::Exception("BadConfig") << "No generator seed defined!";  
-  
-  // TPB
-  if ( theScenario.getUntrackedParameter<bool>( "misalignTPB",true) && 
-	   !theScenario.getUntrackedParameter<bool>("fixTPB",     false) )
-	{
-	  std::vector<Alignable*> pixelBarrels = theAlignableTracker->pixelHalfBarrels();
-	  this->decodeMovements_( theScenario, pixelBarrels, "TPB" );
-	}
 
-  // TPE
-  if ( theScenario.getUntrackedParameter<bool>( "misalignTPE",true) && 
-	   !theScenario.getUntrackedParameter<bool>("fixTPE",     false) )
-	{
-	  std::vector<Alignable*> pixelEndcaps = theAlignableTracker->pixelEndCaps();
-	  this->decodeMovements_( theScenario, pixelEndcaps, "TPE" );
-	}
-
-  // TIB
-  if ( theScenario.getUntrackedParameter<bool>( "misalignTIB",true) && 
-	   !theScenario.getUntrackedParameter<bool>("fixTIB",     false) )
-	{
-	  std::vector<Alignable*> innerBarrels = theAlignableTracker->innerHalfBarrels();
-	  this->decodeMovements_( theScenario, innerBarrels, "TIB" );
-	}
-
-  // TID
-  if ( theScenario.getUntrackedParameter<bool>( "misalignTID",true) && 
-	   !theScenario.getUntrackedParameter<bool>("fixTID",     false) )
-	{
-	  std::vector<Alignable*> innerDisks   = theAlignableTracker->TIDs();
-	  this->decodeMovements_( theScenario, innerDisks, "TID" );
-	}
-
-  // TOB
-  if ( theScenario.getUntrackedParameter<bool>( "misalignTOB",true) && 
-	   !theScenario.getUntrackedParameter<bool>("fixTOB",     false) )
-	{
-	  std::vector<Alignable*> outerBarrels = theAlignableTracker->outerHalfBarrels();
-	  this->decodeMovements_( theScenario, outerBarrels, "TOB" );
-	}
-
-  // TEC
-  if ( theScenario.getUntrackedParameter<bool>( "misalignTEC",true) && 
-	   !theScenario.getUntrackedParameter<bool>("fixTEC",     false) )
-	{
-	  std::vector<Alignable*> endcaps = theAlignableTracker->endCaps();
-	  this->decodeMovements_( theScenario, endcaps, "TEC" );
-	}
+  // misalignment applied recursively ('subStructures("Tracker")' contains only tracker itself)
+  this->decodeMovements_(scenario, theAlignableTracker->subStructures("Tracker"));
 
   edm::LogInfo("TrackerScenarioBuilder") 
 	<< "Applied modifications to " << theModifierCounter << " alignables";
 
 }
 
+
+//__________________________________________________________________________________________________
+bool TrackerScenarioBuilder::isTopLevel_(const std::string &parameterSetName) const
+{
+  // Get root name (strip last character [s])
+  std::string root = this->rootName_(parameterSetName);
+
+  if (root == "Tracker") return true;
+
+  return false;
+}
+
+//__________________________________________________________________________________________________
+bool TrackerScenarioBuilder::possiblyPartOf(const std::string &subStruct, const std::string &largeStr) const
+{
+  // string::find(s) != nPos => 's' is contained in string!
+  const std::string::size_type nPos = std::string::npos; 
+
+  // First check whether anything from pixel in strip.
+  if (largeStr.find("Strip") != nPos) {
+    if (subStruct.find("Pixel") != nPos) return false;
+    for (unsigned int iPix = 0; iPix < theFirstStripIndex; ++iPix) {
+      if (subStruct.find(theSubdets[iPix]) != nPos) return false;
+    }
+  }
+
+  // Now check whether anything from strip in pixel.
+  if (largeStr.find("Pixel") != nPos) {
+    if (subStruct.find("Strip") != nPos) return false;
+    for (unsigned int iStrip = theFirstStripIndex; iStrip < theSubdets.size(); ++iStrip) {
+      if (subStruct.find(theSubdets[iStrip]) != nPos) return false;
+    }
+  }
+
+  // Finally check for any different detector parts, e.g. TIDEndcap/TIBString gives false.
+  for (unsigned int iSub = 0; iSub < theSubdets.size(); ++iSub) {
+    for (unsigned int iLarge = 0; iLarge < theSubdets.size(); ++iLarge) {
+      if (iLarge == iSub) continue;
+      if (largeStr.find(theSubdets[iLarge]) != nPos && subStruct.find(theSubdets[iSub]) != nPos) {
+	return false;
+      }
+    }
+  }
+
+  // It seems like a possible combination:
+  return true; 
+}
 
