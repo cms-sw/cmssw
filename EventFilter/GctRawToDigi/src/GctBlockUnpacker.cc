@@ -48,9 +48,9 @@ GctBlockUnpacker::GctBlockUnpacker(bool hltMode):
 
     // Setup block unpack function map
     blockUnpackFn_[0x00] = &GctBlockUnpacker::blockDoNothing;
-    blockUnpackFn_[0x58] = &GctBlockUnpacker::blockDoNothing;
+    blockUnpackFn_[0x58] = &GctBlockUnpacker::blockToGctJetCand;
     blockUnpackFn_[0x59] = &GctBlockUnpacker::blockDoNothing;
-    blockUnpackFn_[0x5a] = &GctBlockUnpacker::blockToGctJetCounts;
+    blockUnpackFn_[0x5a] = &GctBlockUnpacker::blockDoNothing;
     blockUnpackFn_[0x5f] = &GctBlockUnpacker::blockDoNothing;
     blockUnpackFn_[0x68] = &GctBlockUnpacker::blockToGctEmCand;
     blockUnpackFn_[0x69] = &GctBlockUnpacker::blockToGctInternEmCand;
