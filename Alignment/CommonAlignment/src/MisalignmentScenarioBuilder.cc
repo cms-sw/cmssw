@@ -1,7 +1,7 @@
 /// \file
 ///
-/// $Date: 2008/04/22 22:56:22 $
-/// $Revision: 1.7 $
+/// $Date: 2008/04/25 06:29:53 $
+/// $Revision: 1.8 $
 ///
 /// $Author: flucke $
 /// \author Frederic Ronga - CERN-PH-CMG
@@ -19,25 +19,41 @@
 #include "Alignment/CommonAlignment/interface/MisalignmentScenarioBuilder.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h" 
 
-
 //__________________________________________________________________________________________________
-// Gets the level name from the first alignable and hands over to the more general version
-void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSet, 
-                                                    std::vector<Alignable*> alignables )
+// Call for each alignable the more general version with its appropriate level name. 
+void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet &pSet, 
+                                                   const std::vector<Alignable*> &alignables)
 {
 
-  // Get name from first element
-  std::string levelName = theAlignableObjectId.typeToName( alignables.front()->alignableObjectId() );
-  this->decodeMovements_( pSet, alignables, levelName );
+  // first create a map with one std::vector<Alignable*> per type (=levelName)
+  typedef std::map<std::string, std::vector<Alignable*> > AlignablesMap;
+  AlignablesMap alisMap;
+  for (std::vector<Alignable*>::const_iterator iA = alignables.begin(); iA != alignables.end(); ++iA) {
+    const std::string &levelName = theAlignableObjectId.typeToName((*iA)->alignableObjectId());
+    alisMap[levelName].push_back(*iA); // either first entry of new level or add to an old one
+  }
 
+  // Now call the more general version for each entry in the map.
+  //
+  // There is a hack to ensure that strip components are called in the same order
+  // as in old version of TrackerScenarioBuilder (TIB,TID,TOB,TEC) while 
+  // std::map seems to order alphabetically (TECEndcap,TIBHalfBarrel,TIDEndcap,TOBHalfBarrel).
+  // Order matters due to random sequence. If scenarios are allowed to change
+  // 'numerically', remove this comment and the lines marked with 'HACK'.
+  const AlignablesMap::iterator itTec = alisMap.find("TECEndcap"); // HACK
+  for (AlignablesMap::iterator it = alisMap.begin(); it != alisMap.end(); ++it) {
+    if (it == itTec) continue; // HACK
+    this->decodeMovements_(pSet, it->second, it->first);
+  }
+  if (itTec != alisMap.end()) this->decodeMovements_(pSet, itTec->second, itTec->first); // HACK
 }
 
 
 //__________________________________________________________________________________________________
 // Decode nested parameter sets: this is the tricky part... Recursively called on components
-void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSet, 
-                                                    std::vector<Alignable*> alignables,
-                                                    std::string levelName )
+void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet &pSet, 
+                                                   const std::vector<Alignable*> &alignables,
+						   const std::string &levelName)
 {
 
   indent_ += " "; // For indented output!
@@ -59,13 +75,14 @@ void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSe
 
   // Loop on alignables
   int iComponent = 0; // physical numbering starts at 1...
-  for ( std::vector<Alignable*>::iterator iter = alignables.begin();
-        iter != alignables.end(); ++iter ) {
+  for (std::vector<Alignable*>::const_iterator iter = alignables.begin();
+       iter != alignables.end(); ++iter) {
     iComponent++;
 
     // Check for special parameters -> merge with global
     name.str("");
     name << levelName << iComponent;
+
     edm::ParameterSet localParameters = this->getParameterSet_( levelName, iComponent, pSet );
     LogDebug("PrintParameters") << indent_ << " ** " << name.str() << ": found "
                                 << localParameters.getParameterNames().size() 
@@ -101,10 +118,13 @@ void MisalignmentScenarioBuilder::mergeParameters_( edm::ParameterSet& localSet,
                                                     const edm::ParameterSet& globalSet ) const
 {
 
+  indent_ += " ";
+
   // Loop on globalSet. Add to localSet all non-existing parameters
   std::vector<std::string> globalParameterNames = globalSet.getParameterNames();
   for ( std::vector<std::string>::iterator iter = globalParameterNames.begin();
         iter != globalParameterNames.end(); iter ++ ) {
+
     if ( globalSet.retrieve( *iter ).typeCode() == 'P' ) {
       // This is a parameter set: check it
       edm::ParameterSet subLocalSet = this->getParameterSet_( (*iter), localSet );
@@ -117,9 +137,12 @@ void MisalignmentScenarioBuilder::mergeParameters_( edm::ParameterSet& localSet,
         localSet.addParameter<edm::ParameterSet>( (*iter), subLocalSet );
       }
     } else {
+      // If (*iter) exists, not replaced (due to 'false'):
       localSet.insert( false, (*iter), globalSet.retrieve(*iter) );
     }
   }
+
+  indent_ = indent_.substr( 0, indent_.length()-1 );
 
 }
 
@@ -131,12 +154,13 @@ void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet&
                                                         const std::string& globalName,
                                                         edm::ParameterSet& subSet ) const
 {
+  indent_ += " "; // For indented output!
 
   // Propagate some given parameters
   std::vector<std::string> parameterNames = pSet.getParameterNames();
   for ( std::vector<std::string>::iterator iter = parameterNames.begin();
         iter != parameterNames.end(); iter++ ) {
-    if ( theModifier.isPropagated( *iter ) ) {
+    if ( theModifier.isPropagated( *iter ) ) { // like 'distribution', 'scale', etc.
       LogDebug("PropagateParameters") << indent_ << " - adding parameter " << (*iter) << std::endl;
       subSet.insert( false, (*iter), pSet.retrieve(*iter) );
     }
@@ -147,22 +171,32 @@ void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet&
   if ( pSet.getParameterSetNames( pSetNames, true ) > 0 ) {
     for ( std::vector<std::string>::const_iterator it = pSetNames.begin();
           it != pSetNames.end(); it++ ) {
-      std::string rootName = this->rootName_( *it );
-      if ( (*it).compare( 0, (*it).length()-1, 
-                          this->rootName_(globalName) ) == 0 ) {
+      const std::string rootName = this->rootName_(*it);
+      const std::string globalRoot(this->rootName_(globalName));
+      if (rootName.compare(0, rootName.length(), globalRoot) == 0) {
         // Parameter for this level: skip
-        LogDebug("PropagateParameters") << indent_ << " - skipping PSet " << (*it) << std::endl;
+        LogDebug("PropagateParameters") << indent_ << " - skipping PSet " << (*it) << " from global "
+					<< globalName << std::endl;
       } else if ( this->isTopLevel_(*it) ) {
         // Top-level parameters should not be propagated
-        LogDebug("PropagateParameters") << indent_ 
-                                        << " - skipping top-level PSet " << (*it) << std::endl;
+	LogDebug("PropagateParameters") << indent_  
+                                        << " - skipping top-level PSet " << (*it) 
+                                        << " global " << globalName << std::endl;
+
+      } else if (!this->possiblyPartOf(*it, globalRoot)) {
+	// (*it) is a part of the detector that does not fit to globalName
+	LogDebug("PropagateParameters") << indent_ 
+                                        << " - skipping PSet " << (*it) 
+					<< " not fitting into global " << globalName << std::endl;
+
       } else if ( theAlignableObjectId.nameToType( rootName ) == align::invalid ) {
         // Parameter is not known!
         throw cms::Exception("BadConfig") << "Unknown parameter set name " << rootName;
       } else {
         // Pass down any other: in order to merge PSets, create dummy PSet
         // only containing this PSet and merge it recursively.
-        LogDebug("PropagateParameters") << indent_ << " - adding PSet " << (*it) << std::endl;
+	LogDebug("PropagateParameters") << indent_ << " - adding PSet " << (*it) 
+					<< " global " << globalName << std::endl;
         edm::ParameterSet m_subSet;
         m_subSet.addParameter<edm::ParameterSet>( (*it), 
                                                   pSet.getParameter<edm::ParameterSet>(*it) );
@@ -171,6 +205,7 @@ void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet&
     }
   }
 
+  indent_ = indent_.substr( 0, indent_.length()-1 );
 }
 
 
@@ -258,6 +293,7 @@ bool MisalignmentScenarioBuilder::hasParameter_( const std::string& name,
 
   // Get list of parameter set names and look for requested one
   std::vector<std::string> names = pSet.getParameterNames();
+
   return ( std::find( names.begin(), names.end(), name ) != names.end() );
 
 }
@@ -274,31 +310,33 @@ void MisalignmentScenarioBuilder::printParameters_( const edm::ParameterSet& pSe
         iter != parameterNames.end(); iter++ ) {
     if ( pSet.retrieve( *iter ).typeCode() != 'P' || showPsets ) {
       LogTrace("PrintParameters") << indent_ << "   " << (*iter) << " = " 
-                                  << pSet.retrieve( *iter ).toString() << std::endl;
+				  << pSet.retrieve( *iter ).toString() << std::endl;
     }
   }
 }
 
 
 //__________________________________________________________________________________________________
-const bool MisalignmentScenarioBuilder::isTopLevel_( const std::string& parameterSetName ) const
+bool MisalignmentScenarioBuilder::isTopLevel_( const std::string& parameterSetName ) const
 {
-
-  // Get root name (strip last character)
+  // Get root name (strip last character[s])
   std::string root = this->rootName_( parameterSetName );
-  if      ( root == "TOB" ) return true;
-  else if ( root == "TIB" ) return true;
-  else if ( root == "TPB" ) return true;
-  else if ( root == "TEC" ) return true;
-  else if ( root == "TID" ) return true;
-  else if ( root == "TPE" ) return true;
-  else if ( root == "DTSector" ) return true;
+
+  // tracker stuff treated in overwriting TrackerScenarioBuilder::isTopLevel_(..) 
+  if ( root == "DTSector" ) return true;
   else if ( root == "CSCSector" ) return true;
   else if ( root == "Muon" ) return true;
 
   return false;
 
 }
+
+//__________________________________________________________________________________________________
+bool MisalignmentScenarioBuilder::possiblyPartOf(const std::string & /*sub*/, const std::string &/*large*/) const
+{
+  return true; // possibly overwrite in specific class
+}
+
 
 //__________________________________________________________________________________________________
 // Get root name of parameter set (e.g. return 'Rod' from 'Rods' or 'Rod1')

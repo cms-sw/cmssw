@@ -3,8 +3,8 @@
 
 /// \class MisalignmentScenarioBuilder
 ///
-/// $Date: 2008/04/22 22:56:22 $
-/// $Revision: 1.6 $
+/// $Date: 2008/04/25 06:29:53 $
+/// $Revision: 1.7 $
 ///
 /// $Author: flucke $
 /// \author Frederic Ronga - CERN-PH-CMG
@@ -35,11 +35,11 @@ public:
 protected: // Methods
 
   /// Decode movements defined in given parameter set for given set of alignables
-  void decodeMovements_( const edm::ParameterSet& pSet, std::vector<Alignable*> alignables );
+  void decodeMovements_(const edm::ParameterSet &pSet, const std::vector<Alignable*> &alignables);
   
   /// Decode movements defined in given parameter set for given set of alignables tagged by given name
-  void decodeMovements_( const edm::ParameterSet& pSet, std::vector<Alignable*> alignables,
-			 std::string levelName );
+  void decodeMovements_(const edm::ParameterSet& pSet, const std::vector<Alignable*> &alignables,
+			const std::string &levelName);
 
   /// Apply movements given by parameter set to given alignable
   void applyMovements_( Alignable* alignable, const edm::ParameterSet& pSet );
@@ -69,7 +69,11 @@ protected: // Methods
   void printParameters_( const edm::ParameterSet& pSet, const bool showPsets = false ) const;
 
   /// Check if given parameter is for a top-level structure
-  const bool isTopLevel_( const std::string& parameterSetName ) const; 
+  virtual bool isTopLevel_(const std::string& parameterSetName) const;
+
+  /// Check whether structure 'subStruct' could be part of 'largeStruct',
+  //  defaults to true, but can be overwritten in derived classes to speed up recursive merging.
+  virtual bool possiblyPartOf(const std::string &subStruct, const std::string &largeStruct) const;
 
   /// Get root name of a parameter set (e.g. 'Rod' in 'Rods' or 'Rod1')
   const std::string rootName_( const std::string& parameterSetName ) const;
@@ -84,9 +88,7 @@ protected: // Members
   
   int theModifierCounter;                  ///< Counter for applied modification
 
-  std::string indent_;                     ///< Depth in hierarchy
-  
-
+  mutable std::string indent_;             ///< Depth in hierarchy
 };
 
 
