@@ -3,11 +3,10 @@ import FWCore.ParameterSet.Config as cms
 # -----------------------------------------------------------------------
 # This contains TIB-TID-TEC-(TOB) global-level movements 
 SurveyInfoScenario = cms.PSet(
-    dumpBefore = cms.untracked.bool(False),
     # TIB+ 
     # FIXME Assuming very small rotation angles we rotate of -asin(n_y) ~ -n_y
     #       around x axis and of asin(n_x) ~ n_x around y axis  
-    TIB1 = cms.PSet(
+    TIBHalfBarrel1 = cms.PSet(
         TIBLayer1 = cms.PSet(
             phiYlocal = cms.double(0.001004),
             phiZlocal = cms.double(0.001188),
@@ -39,10 +38,10 @@ SurveyInfoScenario = cms.PSet(
         )
     ),
     saveToDbase = cms.untracked.bool(False),
-    TOBs = cms.PSet(
+    TOBHalfBarrels = cms.PSet(
         dZ = cms.double(-0.14)
     ),
-    TID2 = cms.PSet(
+    TIDEndcap2 = cms.PSet(
         TIDDisk1 = cms.PSet(
             dZ = cms.double(-0.57),
             dX = cms.double(-0.1),
@@ -60,7 +59,7 @@ SurveyInfoScenario = cms.PSet(
         ),
         phiZlocal = cms.double(0.000548)
     ),
-    TEC1 = cms.PSet(
+    TECEndcap1 = cms.PSet(
         TECDisk9 = cms.PSet(
             phiXlocal = cms.double(9.8e-05),
             dY = cms.double(0.0168),
@@ -140,7 +139,7 @@ SurveyInfoScenario = cms.PSet(
             phiYlocal = cms.double(0.000189)
         )
     ),
-    TEC2 = cms.PSet(
+    TECEndcap2 = cms.PSet(
         TECDisk9 = cms.PSet(
             phiXlocal = cms.double(-0.000204),
             dY = cms.double(0.0488),
@@ -222,7 +221,7 @@ SurveyInfoScenario = cms.PSet(
     ),
     seed = cms.int32(1234567),
     # TIB-
-    TIB2 = cms.PSet(
+    TIBHalfBarrel2 = cms.PSet(
         TIBLayer1 = cms.PSet(
             phiYlocal = cms.double(0.000325),
             phiZlocal = cms.double(-9.1e-05),
@@ -253,7 +252,7 @@ SurveyInfoScenario = cms.PSet(
             dY = cms.double(-0.19)
         )
     ),
-    TID1 = cms.PSet(
+    TIDEndcap1 = cms.PSet(
         TIDDisk1 = cms.PSet(
             dZ = cms.double(0.03),
             dX = cms.double(-0.1),
@@ -273,15 +272,14 @@ SurveyInfoScenario = cms.PSet(
     ),
     distribution = cms.string('fixed'),
     setError = cms.bool(False),
-    dumpAfter = cms.untracked.bool(False)
 )
+####################################
 SurveyInfoScenario_noTIBlay = cms.PSet(
-    dumpBefore = cms.untracked.bool(False),
     saveToDbase = cms.untracked.bool(False),
-    TOBs = cms.PSet(
+    TOBHalfBarrels = cms.PSet(
         dZ = cms.double(-0.14)
     ),
-    TID2 = cms.PSet(
+    TIDEndcap2 = cms.PSet(
         TIDDisk1 = cms.PSet(
             dZ = cms.double(-0.57),
             dX = cms.double(-0.1),
@@ -299,7 +297,7 @@ SurveyInfoScenario_noTIBlay = cms.PSet(
         ),
         phiZlocal = cms.double(0.000548)
     ),
-    TEC1 = cms.PSet(
+    TECEndcap1 = cms.PSet(
         TECDisk9 = cms.PSet(
             phiXlocal = cms.double(9.8e-05),
             dY = cms.double(0.0168),
@@ -379,7 +377,7 @@ SurveyInfoScenario_noTIBlay = cms.PSet(
             phiYlocal = cms.double(0.000189)
         )
     ),
-    TEC2 = cms.PSet(
+    TECEndcap2 = cms.PSet(
         TECDisk9 = cms.PSet(
             phiXlocal = cms.double(-0.000204),
             dY = cms.double(0.0488),
@@ -460,7 +458,7 @@ SurveyInfoScenario_noTIBlay = cms.PSet(
         )
     ),
     seed = cms.int32(1234567),
-    TID1 = cms.PSet(
+    TIDEndcap1 = cms.PSet(
         TIDDisk1 = cms.PSet(
             dZ = cms.double(0.03),
             dX = cms.double(-0.1),
@@ -480,6 +478,5 @@ SurveyInfoScenario_noTIBlay = cms.PSet(
     ),
     distribution = cms.string('fixed'),
     setError = cms.bool(False),
-    dumpAfter = cms.untracked.bool(False)
 )
 
