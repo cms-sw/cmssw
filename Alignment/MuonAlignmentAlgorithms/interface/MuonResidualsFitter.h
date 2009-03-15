@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFitter_H
 
 /** \class MuonResidualsFitter
- *  $Date: 2009/02/27 18:58:29 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/03/09 22:57:32 $
+ *  $Revision: 1.2 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -100,7 +100,7 @@ protected:
   std::vector<bool> m_fixed;
 
   std::vector<double*> m_residuals;
-  double m_minResidual, m_maxResidual;
+  double m_minResidual, m_maxResidual, m_mean, m_stdev;
 
   bool m_goodfit;
   std::vector<double> m_value;

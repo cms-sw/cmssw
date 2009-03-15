@@ -49,7 +49,6 @@ private:
   int m_minDT13Hits;
   int m_minDT2Hits;
   int m_minCSCHits;
-  double m_maxResidual;
   std::string m_writeTemporaryFile;
   std::vector<std::string> m_readTemporaryFiles;
   bool m_doFits;
@@ -167,7 +166,6 @@ AlignmentMonitorMuonSystemMap::AlignmentMonitorMuonSystemMap(const edm::Paramete
    , m_minDT13Hits(cfg.getParameter<int>("minDT13Hits"))
    , m_minDT2Hits(cfg.getParameter<int>("minDT2Hits"))
    , m_minCSCHits(cfg.getParameter<int>("minCSCHits"))
-   , m_maxResidual(cfg.getParameter<double>("maxResidual"))
    , m_writeTemporaryFile(cfg.getParameter<std::string>("writeTemporaryFile"))
    , m_readTemporaryFiles(cfg.getParameter<std::vector<std::string> >("readTemporaryFiles"))
    , m_doFits(cfg.getParameter<bool>("doFits"))
@@ -586,7 +584,7 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 
     if (m_minTrackPt < track->pt()  &&  track->pt() < m_maxTrackPt) {
       double qoverpt = track->charge() / track->pt();
-      MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, pNavigator(), m_maxResidual);
+      MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, pNavigator(), 1000.);
 
       if (muonResidualsFromTrack.trackerNumHits() >= m_minTrackerHits  &&  muonResidualsFromTrack.trackerRedChi2() < m_maxTrackerRedChi2  &&  (m_allowTIDTEC  ||  !muonResidualsFromTrack.contains_TIDTEC())) {
 	std::vector<unsigned int> indexes = muonResidualsFromTrack.indexes();

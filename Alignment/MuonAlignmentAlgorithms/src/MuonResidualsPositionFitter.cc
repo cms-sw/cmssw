@@ -13,23 +13,25 @@ void MuonResidualsPositionFitter_FCN(int &npar, double *gin, double &fval, doubl
   fval = 0.;
   for (std::vector<double*>::const_iterator resiter = fitter->residuals_begin();  resiter != fitter->residuals_end();  ++resiter) {
     const double residual = (*resiter)[MuonResidualsPositionFitter::kResidual];
-    const double qoverpt = (*resiter)[MuonResidualsPositionFitter::kQoverPt];
-    const double trackangle = (*resiter)[MuonResidualsPositionFitter::kTrackAngle];
-    const double trackposition = (*resiter)[MuonResidualsPositionFitter::kTrackPosition];
+    if (fitter->inRange(residual)) {
+      const double qoverpt = (*resiter)[MuonResidualsPositionFitter::kQoverPt];
+      const double trackangle = (*resiter)[MuonResidualsPositionFitter::kTrackAngle];
+      const double trackposition = (*resiter)[MuonResidualsPositionFitter::kTrackPosition];
 
-    double center = 0.;
-    center += par[MuonResidualsPositionFitter::kPosition];
-    center += par[MuonResidualsPositionFitter::kZpos] * trackangle;
-    center += par[MuonResidualsPositionFitter::kPhiz] * trackposition;
-    center += par[MuonResidualsPositionFitter::kBfield] * qoverpt;
+      double center = 0.;
+      center += par[MuonResidualsPositionFitter::kPosition];
+      center += par[MuonResidualsPositionFitter::kZpos] * trackangle;
+      center += par[MuonResidualsPositionFitter::kPhiz] * trackposition;
+      center += par[MuonResidualsPositionFitter::kBfield] * qoverpt;
 
-    if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian) {
-      fval += -log(MuonResidualsFitter_pureGaussian(residual, center, par[MuonResidualsPositionFitter::kSigma]));
+      if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian) {
+	fval += -log(MuonResidualsFitter_pureGaussian(residual, center, par[MuonResidualsPositionFitter::kSigma]));
+      }
+      else if (fitter->residualsModel() == MuonResidualsFitter::kPowerLawTails) {
+	fval += -log(MuonResidualsFitter_powerLawTails(residual, center, par[MuonResidualsPositionFitter::kSigma], par[MuonResidualsPositionFitter::kGamma]));
+      }
+      else { assert(false); }
     }
-    else if (fitter->residualsModel() == MuonResidualsFitter::kPowerLawTails) {
-      fval += -log(MuonResidualsFitter_powerLawTails(residual, center, par[MuonResidualsPositionFitter::kSigma], par[MuonResidualsPositionFitter::kGamma]));
-    }
-    else { assert(false); }
   }
 }
 
@@ -70,10 +72,40 @@ bool MuonResidualsPositionFitter::fit() {
   if ((m_minHitsPerRegion > 0  &&  !enough_in_every_bin)  ||  (m_minHitsPerRegion <= 0  &&  N <= 10)) return false;
 
   // truncated mean and stdev to seed the fit
-  double mean = sum_x/double(N);
-  double stdev = sqrt(sum_xx/double(N) - pow(sum_x/double(N), 2));
-  m_minResidual = mean - 10.*stdev;
-  m_maxResidual = mean + 10.*stdev;
+  m_mean = sum_x/double(N);
+  m_stdev = sqrt(sum_xx/double(N) - pow(sum_x/double(N), 2));
+
+  // refine the standard deviation calculation
+  sum_x = 0.;
+  sum_xx = 0.;
+  N = 0;
+  for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
+    const double residual = (*resiter)[kResidual];
+    if (m_mean - 1.5*m_stdev < residual  &&  residual < m_mean + 1.5*m_stdev) {
+      sum_x += residual;
+      sum_xx += residual*residual;
+      N++;
+    }
+  }
+  m_mean = sum_x/double(N);
+  m_stdev = sqrt(sum_xx/double(N) - pow(sum_x/double(N), 2));
+
+  sum_x = 0.;
+  sum_xx = 0.;
+  N = 0;
+  for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
+    const double residual = (*resiter)[kResidual];
+    if (m_mean - 1.5*m_stdev < residual  &&  residual < m_mean + 1.5*m_stdev) {
+      sum_x += residual;
+      sum_xx += residual*residual;
+      N++;
+    }
+  }
+  m_mean = sum_x/double(N);
+  m_stdev = sqrt(sum_xx/double(N) - pow(sum_x/double(N), 2));
+
+  m_minResidual = m_mean - 10.0*m_stdev;
+  m_maxResidual = m_mean + 10.0*m_stdev;
 
   std::vector<int> parNum;
   std::vector<std::string> parName;
@@ -82,13 +114,13 @@ bool MuonResidualsPositionFitter::fit() {
   std::vector<double> low;
   std::vector<double> high;
 
-  parNum.push_back(kPosition);  parName.push_back(std::string("position"));  start.push_back(mean);   step.push_back(0.1);             low.push_back(mean-stdev);      high.push_back(mean+stdev);
-  parNum.push_back(kZpos);      parName.push_back(std::string("zpos"));      start.push_back(0.);     step.push_back(0.1);             low.push_back(-2.*stdev);       high.push_back(2.*stdev);
-  parNum.push_back(kPhiz);      parName.push_back(std::string("phiz"));      start.push_back(0.);     step.push_back(0.1);             low.push_back(-2.*stdev);       high.push_back(2.*stdev);
-  parNum.push_back(kBfield);    parName.push_back(std::string("bfield"));    start.push_back(0.);     step.push_back(0.1*stdev/0.05);  low.push_back(-2.*stdev/0.05);  high.push_back(2.*stdev/0.05);
-  parNum.push_back(kSigma);     parName.push_back(std::string("sigma"));     start.push_back(stdev);  step.push_back(0.1*stdev);       low.push_back(0.001);           high.push_back(3.*stdev);
+  parNum.push_back(kPosition);  parName.push_back(std::string("position"));  start.push_back(m_mean);   step.push_back(0.1);             low.push_back(m_mean-m_stdev);      high.push_back(m_mean+m_stdev);
+  parNum.push_back(kZpos);      parName.push_back(std::string("zpos"));      start.push_back(0.);     step.push_back(0.1);             low.push_back(-2.*m_stdev);       high.push_back(2.*m_stdev);
+  parNum.push_back(kPhiz);      parName.push_back(std::string("phiz"));      start.push_back(0.);     step.push_back(0.1);             low.push_back(-2.*m_stdev);       high.push_back(2.*m_stdev);
+  parNum.push_back(kBfield);    parName.push_back(std::string("bfield"));    start.push_back(0.);     step.push_back(0.1*m_stdev/0.05);  low.push_back(-2.*m_stdev/0.05);  high.push_back(2.*m_stdev/0.05);
+  parNum.push_back(kSigma);     parName.push_back(std::string("sigma"));     start.push_back(m_stdev);  step.push_back(0.1*m_stdev);       low.push_back(0.001);           high.push_back(3.*m_stdev);
   if (residualsModel() != kPureGaussian) {
-  parNum.push_back(kGamma);     parName.push_back(std::string("gamma"));     start.push_back(stdev);  step.push_back(0.1*stdev);       low.push_back(0.001);           high.push_back(3.*stdev);
+  parNum.push_back(kGamma);     parName.push_back(std::string("gamma"));     start.push_back(m_stdev);  step.push_back(0.1*m_stdev);       low.push_back(0.001);           high.push_back(3.*m_stdev);
   }
 
   return dofit(&MuonResidualsPositionFitter_FCN, parNum, parName, start, step, low, high);
@@ -105,8 +137,8 @@ void MuonResidualsPositionFitter::plot(std::string name, TFileDirectory *dir) {
   TH1F *raw_hist = dir->make<TH1F>(raw_name.str().c_str(), (raw_name.str() + std::string(" (mm)")).c_str(), 100, -100., 100.);
   TH1F *narrowed_hist = dir->make<TH1F>(narrowed_name.str().c_str(), (narrowed_name.str() + std::string(" (mm)")).c_str(), 100, -100., 100.);
   TProfile *qoverpt_hist = dir->make<TProfile>(qoverpt_name.str().c_str(), (qoverpt_name.str() + std::string(" (mm)")).c_str(), 100, -0.05, 0.05);
-  TProfile *trackangle_hist = dir->make<TProfile>(trackangle_name.str().c_str(), (trackangle_name.str() + std::string(" (mm)")).c_str(), 100, -1., 1.);
-  TProfile *trackposition_hist = dir->make<TProfile>(trackposition_name.str().c_str(), (trackposition_name.str() + std::string(" (mm)")).c_str(), 100, -100., 100.);
+  TProfile *trackangle_hist = dir->make<TProfile>(trackangle_name.str().c_str(), (trackangle_name.str() + std::string(" (mm)")).c_str(), 100, -0.5, 0.5);
+  TProfile *trackposition_hist = dir->make<TProfile>(trackposition_name.str().c_str(), (trackposition_name.str() + std::string(" (mm)")).c_str(), 100, -300., 300.);
 
   narrowed_name << "fit";
   qoverpt_name << "fit";
@@ -131,11 +163,11 @@ void MuonResidualsPositionFitter::plot(std::string name, TFileDirectory *dir) {
   qoverpt_fit->SetParameters(value(kPosition) * 10., value(kBfield) * 10.);
   qoverpt_fit->Write();
 
-  TF1 *trackangle_fit = new TF1(trackangle_name.str().c_str(), "[0]+x*[1]", -1., 1.);
+  TF1 *trackangle_fit = new TF1(trackangle_name.str().c_str(), "[0]+x*[1]", -0.5, 0.5);
   trackangle_fit->SetParameters(value(kPosition) * 10., value(kZpos) * 10.);
   trackangle_fit->Write();
 
-  TF1 *trackposition_fit = new TF1(trackposition_name.str().c_str(), "[0]+x*[1]", -100., 100.);
+  TF1 *trackposition_fit = new TF1(trackposition_name.str().c_str(), "[0]+x*[1]", -300., 300.);
   trackposition_fit->SetParameters(value(kPosition) * 10., value(kPhiz) * 10.);
   trackposition_fit->Write();
 
@@ -153,6 +185,7 @@ void MuonResidualsPositionFitter::plot(std::string name, TFileDirectory *dir) {
 
     raw_hist->Fill(raw_residual * 10.);
     narrowed_hist->Fill(corrected_residual * 10.);
+
     if (inRange(corrected_residual)) {
       qoverpt_hist->Fill(qoverpt, (raw_residual - trackangle_correction - trackposition_correction) * 10.);
       trackangle_hist->Fill(trackangle, (raw_residual - qoverpt_correction - trackposition_correction) * 10.);

@@ -1,4 +1,5 @@
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsFitter.h"
+#include <fstream>
 
 // all global variables begin with "MuonResidualsFitter_" to avoid
 // namespace clashes (that is, they do what would ordinarily be done
@@ -75,7 +76,7 @@ double MuonResidualsFitter_powerLawTails(double residual, double center, double 
 
   double val = val0 + ((gammaoversigma / MuonResidualsFitter_gsbinsize) - gsbin0) * (val1 - val0);
 
-  return val / sigma;
+  return (val / sigma);
 }
 
 // TF1 interface version
@@ -87,27 +88,72 @@ void MuonResidualsFitter::initialize_table() {
   if (MuonResidualsFitter_table_initialized  ||  residualsModel() == kPureGaussian) return;
   MuonResidualsFitter_table_initialized = true;
 
-  edm::LogWarning("MuonResidualsFitter") << "Initializing convolution look-up table (takes a few minutes)..." << std::endl;
-  std::cout << "Initializing convolution look-up table (takes a few minutes)..." << std::endl;
+  std::ifstream convolution_table("convolution_table.txt");
+  if (convolution_table.is_open()) {
+    int numgsbins = 0;
+    int numtsbins = 0;
+    double tsbinsize = 0.;
+    double gsbinsize = 0.;
 
-  for (int gsbin = 0;  gsbin < MuonResidualsFitter_numgsbins;  gsbin++) {
-    double gammaoversigma = double(gsbin) * MuonResidualsFitter_gsbinsize;
-
-    std::cout << "    gsbin " << gsbin << "/" << MuonResidualsFitter_numgsbins << std::endl;
-
-    for (int tsbin = 0;  tsbin < MuonResidualsFitter_numtsbins;  tsbin++) {
-      double toversigma = double(tsbin) * MuonResidualsFitter_tsbinsize;
-
-      // 1e-6 errors (out of a value of ~0.01) with max=100, step=0.001, power=4 (max=1000 does a little better with the tails)
-      MuonResidualsFitter_lookup_table[gsbin][tsbin] = compute_convolution(toversigma, gammaoversigma);
-
-      // <10% errors with max=20, step=0.005, power=4 (faster computation for testing)
-      // MuonResidualsFitter_lookup_table[gsbin][tsbin] = compute_convolution(toversigma, gammaoversigma, 100., 0.005, 4.);
+    convolution_table >> numgsbins >> numtsbins >> tsbinsize >> gsbinsize;
+    if (numgsbins != MuonResidualsFitter_numgsbins  ||  numtsbins != MuonResidualsFitter_numtsbins  ||  
+	tsbinsize != MuonResidualsFitter_tsbinsize  ||  gsbinsize != MuonResidualsFitter_gsbinsize) {
+      throw cms::Exception("MuonResidualsFitter") << "convolution_table.txt has the wrong bin width/bin size.  Throw it away and let the fitter re-create the file." << std::endl;
     }
+
+    for (int gsbin = 0;  gsbin < MuonResidualsFitter_numgsbins;  gsbin++) {
+      for (int tsbin = 0;  tsbin < MuonResidualsFitter_numtsbins;  tsbin++) {
+	int read_gsbin = 0;
+	int read_tsbin = 0;
+	double value = 0.;
+
+	convolution_table >> read_gsbin >> read_tsbin >> value;
+	if (read_gsbin != gsbin  ||  read_tsbin != tsbin) {
+	  throw cms::Exception("MuonResidualsFitter") << "convolution_table.txt is out of order.  Throw it away and let the fitter re-create the file." << std::endl;
+	}
+
+	MuonResidualsFitter_lookup_table[gsbin][tsbin] = value;
+      }
+    }
+
+    convolution_table.close();
   }
 
-  edm::LogWarning("MuonResidualsFitter") << "Initialization done!" << std::endl;
-  std::cout << "Initialization done!" << std::endl;
+  else {
+    std::ofstream convolution_table2("convolution_table.txt");
+
+    if (!convolution_table2.is_open()) {
+      throw cms::Exception("MuonResidualsFitter") << "Couldn't write to file convolution_table.txt" << std::endl;
+    }
+
+    convolution_table2 << MuonResidualsFitter_numgsbins << " " << MuonResidualsFitter_numtsbins << " " << MuonResidualsFitter_tsbinsize << " " << MuonResidualsFitter_gsbinsize << std::endl;
+
+    edm::LogWarning("MuonResidualsFitter") << "Initializing convolution look-up table (takes a few minutes)..." << std::endl;
+    std::cout << "Initializing convolution look-up table (takes a few minutes)..." << std::endl;
+
+    for (int gsbin = 0;  gsbin < MuonResidualsFitter_numgsbins;  gsbin++) {
+      double gammaoversigma = double(gsbin) * MuonResidualsFitter_gsbinsize;
+
+      std::cout << "    gsbin " << gsbin << "/" << MuonResidualsFitter_numgsbins << std::endl;
+
+      for (int tsbin = 0;  tsbin < MuonResidualsFitter_numtsbins;  tsbin++) {
+	double toversigma = double(tsbin) * MuonResidualsFitter_tsbinsize;
+
+	// 1e-6 errors (out of a value of ~0.01) with max=100, step=0.001, power=4 (max=1000 does a little better with the tails)
+	MuonResidualsFitter_lookup_table[gsbin][tsbin] = compute_convolution(toversigma, gammaoversigma);
+
+	convolution_table2 << gsbin << " " << tsbin << " " << MuonResidualsFitter_lookup_table[gsbin][tsbin] << std::endl;
+
+	// <10% errors with max=20, step=0.005, power=4 (faster computation for testing)
+	// MuonResidualsFitter_lookup_table[gsbin][tsbin] = compute_convolution(toversigma, gammaoversigma, 100., 0.005, 4.);
+      }
+    }
+
+    convolution_table2.close();
+
+    edm::LogWarning("MuonResidualsFitter") << "Initialization done!" << std::endl;
+    std::cout << "Initialization done!" << std::endl;
+  }
 }
 
 double MuonResidualsFitter::compute_convolution(double toversigma, double gammaoversigma, double max, double step, double power) {
@@ -261,8 +307,6 @@ void MuonResidualsFitter::read(FILE *file, int which) {
     for (int i = 0;  i < cols;  i++) {
       if (fabs(residual[i]) > likeAChecksum[i]) likeAChecksum[i] = fabs(residual[i]);
     }
-    
-    // delete [] residual;
   } // end loop over records in file
 
   double *readChecksum = new double[cols];

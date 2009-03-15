@@ -2,7 +2,7 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsAngleFitter_H
 
 /** \class MuonResidualsAngleFitter
- *  $Date: Wed Feb 18 15:24:23 CST 2009 $
+ *  $Date: 2009/02/27 18:58:29 $
  *  $Revision: 1.1 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
@@ -28,7 +28,7 @@ public:
   MuonResidualsAngleFitter(int residualsModel, int minHitsPerRegion): MuonResidualsFitter(residualsModel, minHitsPerRegion) {};
 
   int npar() {
-    if (residualsModel() == kPureGaussian) return kNPar - 1;
+    if (residualsModel() == kPureGaussian) return kNPar - 2;
     else if (residualsModel() == kPowerLawTails) return kNPar;
     else assert(false);
   };

@@ -70,7 +70,6 @@ private:
   int m_minDT13Hits;
   int m_minDT2Hits;
   int m_minCSCHits;
-  double m_maxResidual;
   std::string m_writeTemporaryFile;
   std::vector<std::string> m_readTemporaryFiles;
   bool m_doAlignment;
@@ -114,7 +113,6 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
   , m_minDT13Hits(iConfig.getParameter<int>("minDT13Hits"))
   , m_minDT2Hits(iConfig.getParameter<int>("minDT2Hits"))
   , m_minCSCHits(iConfig.getParameter<int>("minCSCHits"))
-  , m_maxResidual(iConfig.getParameter<double>("maxResidual"))
   , m_writeTemporaryFile(iConfig.getParameter<std::string>("writeTemporaryFile"))
   , m_readTemporaryFiles(iConfig.getParameter<std::vector<std::string> >("readTemporaryFiles"))
   , m_doAlignment(iConfig.getParameter<bool>("doAlignment"))
@@ -317,7 +315,7 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const ConstT
 
     if (m_minTrackPt < track->pt()  &&  track->pt() < m_maxTrackPt) {
       double qoverpt = track->charge() / track->pt();
-      MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, m_alignableNavigator, m_maxResidual);
+      MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, m_alignableNavigator, 1000.);
 
       if (muonResidualsFromTrack.trackerNumHits() >= m_minTrackerHits  &&  muonResidualsFromTrack.trackerRedChi2() < m_maxTrackerRedChi2  &&  (m_allowTIDTEC  ||  !muonResidualsFromTrack.contains_TIDTEC())) {
 	std::vector<unsigned int> indexes = muonResidualsFromTrack.indexes();
@@ -545,7 +543,9 @@ void MuonAlignmentFromReference::terminate() {
 	else if (chamberId.wheel() ==  0) name << "C";
 	else if (chamberId.wheel() == +1) name << "D";
 	else if (chamberId.wheel() == +2) name << "E";
-	name << "st" << chamberId.station() << "sec" << chamberId.sector();
+	std::string sectoro("0");
+	if (chamberId.sector() > 9) sectoro = std::string("");
+	name << "st" << chamberId.station() << "sec" << sectoro << chamberId.sector();
 
 	if (writeReport) {
 	  report << "reports.append(Report(" << id.rawId() << ", (\"DT\", " << chamberId.wheel() << ", " << chamberId.station() << ", " << chamberId.sector() << "), \"" << name.str() << "\"))" << std::endl;
@@ -553,7 +553,9 @@ void MuonAlignmentFromReference::terminate() {
       }
       else if (id.subdetId() == MuonSubdetId::CSC) {
 	CSCDetId chamberId(id.rawId());
-	name << "ME" << (chamberId.endcap() == 1 ? "p" : "m") << abs(chamberId.station()) << chamberId.ring() << "_" << chamberId.chamber();
+	std::string chambero("0");
+	if (chamberId.chamber() > 9) chambero = std::string("");
+	name << "ME" << (chamberId.endcap() == 1 ? "p" : "m") << abs(chamberId.station()) << chamberId.ring() << "_" << chambero << chamberId.chamber();
 
 	if (writeReport) {
 	  report << "reports.append(Report(" << id.rawId() << ", (\"CSC\", " << (chamberId.endcap() == 1 ? 1 : -1)*abs(chamberId.station()) << ", " << chamberId.ring() << ", " << chamberId.chamber() << "), \"" << name.str() << "\"))" << std::endl;
@@ -803,7 +805,7 @@ void MuonAlignmentFromReference::terminate() {
 	  } // end if writeReport
 	}
 	else if (writeReport) {
-	  report << "reports[-1].phizFit_status = \"FAIL\"" << std::endl;
+	  report << "reports[-1].phixFit_status = \"FAIL\"" << std::endl;
 	}
       }
 
@@ -868,7 +870,7 @@ void MuonAlignmentFromReference::terminate() {
 	  } // end if writeReport
 	}
 	else if (writeReport) {
-	  report << "reports[-1].phizFit_status = \"FAIL\"" << std::endl;
+	  report << "reports[-1].phiyFit_status = \"FAIL\"" << std::endl;
 	}
       }
 
