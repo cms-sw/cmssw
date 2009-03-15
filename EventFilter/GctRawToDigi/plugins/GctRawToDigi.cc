@@ -27,7 +27,6 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
 // GCT block unpackers
@@ -72,7 +71,6 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   produces<L1GctEtTotalCollection>();
   produces<L1GctEtHadCollection>();
   produces<L1GctEtMissCollection>();
-  produces<L1GctJetCountsCollection>();
   produces<L1GctHFBitCountsCollection>();
   produces<L1GctHFRingEtSumsCollection>();
   produces<L1GctFibreCollection>();
@@ -136,7 +134,6 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
   std::auto_ptr<L1GctJetCandCollection> gctTauJets ( new L1GctJetCandCollection() ); gctTauJets->reserve(4);
   std::auto_ptr<L1GctHFBitCountsCollection> hfBitCounts( new L1GctHFBitCountsCollection() );
   std::auto_ptr<L1GctHFRingEtSumsCollection> hfRingEtSums( new L1GctHFRingEtSumsCollection() );
-  std::auto_ptr<L1GctJetCountsCollection> jetCounts( new L1GctJetCountsCollection() );
   std::auto_ptr<L1GctEtTotalCollection> etTotResult( new L1GctEtTotalCollection() );
   std::auto_ptr<L1GctEtHadCollection> etHadResult( new L1GctEtHadCollection() );
   std::auto_ptr<L1GctEtMissCollection> etMissResult( new L1GctEtMissCollection() );
@@ -230,7 +227,6 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
       os << "Read " << hfRingEtSums->size() << " GCT HF ring et sums" << endl;
       os << "Read " << hfBitCounts->size() << " GCT HF ring bit counts" << endl;
       os << "Read " << gctInternHFData->size() << " GCT intermediate HF data" << endl;
-      os << "Read " << jetCounts->size() << " GCT jet counts" << endl;
       os << "Read " << gctFibres->size() << " GCT raw fibre data" << endl;
       edm::LogVerbatim("GCT") << os.str();
     }
