@@ -16,7 +16,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 // GCT raw data format headers
-#include "EventFilter/GctRawToDigi/src/GctBlockHeader.h"
+#include "EventFilter/GctRawToDigi/src/GctBlockHeaderV1.h"
 #include "EventFilter/GctRawToDigi/src/GctBlockHeaderV2.h"
 
 // GCT input data format headers
@@ -188,7 +188,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
       
       // read block header
       std::auto_ptr<GctBlockHeaderBase> blockHeader;
-      if(grenCompatibilityMode_) { blockHeader = std::auto_ptr<GctBlockHeaderBase>(new GctBlockHeader(&data[dPtr])); }
+      if(grenCompatibilityMode_) { blockHeader = std::auto_ptr<GctBlockHeaderBase>(new GctBlockHeaderV1(&data[dPtr])); }
       else { blockHeader = std::auto_ptr<GctBlockHeaderBase>(new GctBlockHeaderV2(&data[dPtr])); }
       
       // unpack the block; dPtr+4 is to get to the block data.
