@@ -606,7 +606,7 @@ PixelCPEBase::computeLorentzShifts() const
 SiPixelRecHitQuality::QualWordType 
 PixelCPEBase::rawQualityWord() const
 {
-  SiPixelRecHitQuality::QualWordType qualWord;
+  SiPixelRecHitQuality::QualWordType qualWord(0);
 
   SiPixelRecHitQuality::thePacking.setCotAlphaFromCluster( cotAlphaFromCluster_ , 
 							   qualWord );
