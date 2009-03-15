@@ -6,7 +6,7 @@ def customise(process):
         L1GtRecordInputTag = cms.InputTag( "simGtDigis" ),
         PrintOutput = cms.untracked.int32( 0 )
     )
-    process.L1AnalyzerEndpath = cmsEndPath (process.l1GtTrigReport)
+    process.L1AnalyzerEndpath = cms.EndPath (process.l1GtTrigReport)
     process.schedule.append(process.L1AnalyzerEndpath)
     
     process.options.wantSummary = cms.untracked.bool(True)
