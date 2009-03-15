@@ -2,6 +2,7 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "TopQuarkAnalysis/TopSkimming/interface/TtDecayChannelSelector.h"
 
 TtDecayChannelSelector::TtDecayChannelSelector(const edm::ParameterSet& cfg):
@@ -38,15 +39,13 @@ TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std
   int iLep=0;
   int iTop=0,iBeauty=0,iElec=0,iMuon=0,iTau=0;
   for(reco::GenParticleCollection::const_iterator top=parts.begin(); top!=parts.end(); ++top){
-    if( isParticle(top, 6, inputType) ){
+    if( isParticle(top, TopDecayID::tID, inputType) ){
       ++iTop;
-      reco::GenParticle::const_iterator td=(*top).begin();
-      for(; td!=(*top).end(); ++td){
-	if( isParticle(td, 5, inputType) )
+      for(reco::GenParticle::const_iterator td=(*top).begin(); td!=(*top).end(); ++td){
+	if( isParticle(td, TopDecayID::bID, inputType) )
 	  {++iBeauty;}
-	if( isParticle(td, 24, inputType) ){
-	  reco::GenParticle::const_iterator wd=(*td).begin();
-	  for(; wd!=(*td).end(); ++wd){
+	if( isParticle(td, TopDecayID::WID, inputType) ){
+	  for(reco::GenParticle::const_iterator wd=(*td).begin(); wd!=(*td).end(); ++wd){
 	    if( abs((*wd).pdgId())==11 ){++iElec;}
 	    if( abs((*wd).pdgId())==13 ){++iMuon;}
 	    if( abs((*wd).pdgId())==15 ){ if(checkTauDecay(*wd)) ++iTau; else ++iLep; }

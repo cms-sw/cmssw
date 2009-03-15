@@ -3,9 +3,11 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+//#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 
 class TtDecayChannelSelector {
  public:
+ // obsolete now - replace by WDecay::LeptonType
   enum Leaf
     {
       Elec=0,
