@@ -131,7 +131,7 @@ private:
     /// InputTag for L1 muon collection
     edm::InputTag m_l1MuonCollectionTag;
 
-    /// InputTags
+    /// cached InputTags
     edm::InputTag m_l1MuonTag;
     edm::InputTag m_l1ExtraTag;
     edm::InputTag m_l1IsoEGTag;

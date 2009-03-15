@@ -93,7 +93,7 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) :
     // InputTag for L1 muon collection
     m_l1MuonCollectionTag( parSet.getParameter<edm::InputTag>("L1MuonCollectionTag") ),
 
-    /// InputTag's
+    /// cached InputTags
     m_l1MuonTag   ( edm::InputTag(m_l1MuonCollectionTag.label()) ),
     m_l1ExtraTag  ( edm::InputTag(m_l1CollectionsTag.label()) ),
     m_l1IsoEGTag  ( edm::InputTag(m_l1CollectionsTag.label(), "Isolated") ),
