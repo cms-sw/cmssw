@@ -20,10 +20,6 @@
 // Header needed to computer CRCs
 #include "EventFilter/Utilities/interface/Crc.h"
 
-// GCT raw data formats
-#include "EventFilter/GctRawToDigi/src/GctBlockHeader.h"
-//#include "EventFilter/GctRawToDigi/interface/L1GctInternalObject.h"
-
 // GCT input data formats
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
