@@ -20,7 +20,7 @@ GctBlockUnpackerV1::BlockIdToUnpackFnMap GctBlockUnpackerV1::blockUnpackFn_ = Gc
 
 // PUBLIC METHODS
 
-GctBlockUnpackerV1::GctBlockUnpackeV1(bool hltMode):
+GctBlockUnpackerV1::GctBlockUnpackerV1(bool hltMode):
   GctBlockUnpackerBase(hltMode)
 {
   static bool initClass = true;
