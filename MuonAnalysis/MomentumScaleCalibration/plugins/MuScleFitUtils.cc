@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/03/05 15:14:07 $
- *  $Revision: 1.23 $
+ *  $Date: 2009/03/10 16:08:43 $
+ *  $Revision: 1.24 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -940,7 +940,13 @@ double MuScleFitUtils::massProb (double mass, double rapidity, double massResol,
 				      << iSigmaLeft << " " << iSigmaRight << " GLV,GLN=" 
 				      << GLZValue[iY][iMassLeft][iSigmaLeft] 
 				      << " " << GLZNorm[iY][iSigmaLeft] << endl;
-  } 
+    // We are inside the current resonance mass window, check if we are also inside any other resonance mass window.
+    for( int otherRes = 0; otherRes < 6; ++otherRes ) {
+      if( otherRes != 0 ) {
+        if( checkMassWindow( mass, otherRes ) ) ++superpositionFactor;
+      }
+    }
+  }
   // Next check the other resonances
   // -------------------------------
   for (int ires=1; ires<6; ires++) {
