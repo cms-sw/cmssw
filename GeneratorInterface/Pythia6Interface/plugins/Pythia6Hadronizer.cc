@@ -69,6 +69,23 @@ extern "C" {
 
       return; 
    }
+   
+   //
+   // these two are NOT part of Pythi6 core code but are "custom" add-ons
+   // we keep them interfaced here, rather than in GenExtensions, because
+   // they tweak not at the ME level, but a step further, at the framgmentation
+   //
+   // stop-hadrons
+   //
+   void pystrhad_(); // init stop-hadrons (id's, names, charges...)
+   void pystfr_();   // tweaks fragmentation, fragments the string near to a stop, 
+                     // to form stop-hadron by producing a new q-qbar pair
+   // gluino/r-hadrons
+   void pyglrhad_();
+   void pyglfr_();   // tweaks fragmentation, fragment the string near to a gluino,
+                     // to form gluino-hadron, either by producing a new g-g pair,
+		     // or two new q-qbar ones
+
 
 } // extern "C"
 
@@ -80,7 +97,9 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
      fCOMEnergy(ps.getParameter<double>("comEnergy")),
      fHepMCVerbosity(ps.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
      fMaxEventsToPrint(ps.getUntrackedParameter<int>("maxEventsToPrint", 0)),
-     fPythiaListVerbosity(ps.getUntrackedParameter<int>("pythiaPylistVerbosity", 0))
+     fPythiaListVerbosity(ps.getUntrackedParameter<int>("pythiaPylistVerbosity", 0)),
+     fStopHadronsEnabled(ps.getParameter<bool>("stopHadrons")),
+     fGluinoHadronsEnabled(ps.getParameter<bool>("gluinoHadrons"))
 { 
 
    if ( ps.exists("jetMatching") )
@@ -193,7 +212,22 @@ bool Pythia6Hadronizer::generatePartonsAndHadronize()
    
    // generate event with Pythia6
    //
+   
+   if ( fStopHadronsEnabled || fGluinoHadronsEnabled )
+   {
+      // call_pygive("MSTJ(1)=-1");
+      call_pygive("MSTJ(14)=-1");
+   }
+   
    call_pyevnt();
+   
+   if ( fStopHadronsEnabled || fGluinoHadronsEnabled )
+   {
+      // call_pygive("MSTJ(1)=-1");
+      call_pygive("MSTJ(14)=1");
+      if ( fStopHadronsEnabled ) pystfr_();
+      if ( fGluinoHadronsEnabled ) pyglfr_();
+   }
    
    //formEvent();
    call_pyhepc(1);
@@ -214,6 +248,13 @@ bool Pythia6Hadronizer::hadronize()
 
    // generate event with Pythia6
    //
+
+   if ( fStopHadronsEnabled || fGluinoHadronsEnabled )
+   {
+      // call_pygive("MSTJ(1)=-1");
+      call_pygive("MSTJ(14)=-1");
+   }
+
    call_pyevnt();
 
    if ( FortranCallback::getInstance()->getIterationsPerEvent() > 1 || 
@@ -233,6 +274,14 @@ bool Pythia6Hadronizer::hadronize()
 
    // update LHE matching statistics
    lheEvent()->count( lhef::LHERunInfo::kAccepted );
+
+   if ( fStopHadronsEnabled || fGluinoHadronsEnabled )
+   {
+      // call_pygive("MSTJ(1)=-1");
+      call_pygive("MSTJ(14)=1");
+      if ( fStopHadronsEnabled ) pystfr_();
+      if ( fGluinoHadronsEnabled ) pyglfr_();
+   }
 
    //formEvent();
    call_pyhepc(1);
@@ -409,6 +458,25 @@ bool Pythia6Hadronizer::initializeForExternalPartons()
 
    FortranCallback::getInstance()->setLHERunInfo( lheRunInfo() );
 
+   if ( fStopHadronsEnabled )
+   {
+      // overwrite mstp(111), no matter what
+      call_pygive("MSTP(111)=0");
+      pystrhad_();
+      //call_pygive("MWID(302)=0");   // I don't know if this is specific to processing ME/LHE only,
+      //call_pygive("MDCY(302,1)=0"); // or this should also be the case for full event...
+                                    // anyway, this comes from experience of processing MG events
+   }
+   
+   if ( fGluinoHadronsEnabled )
+   {
+      // overwrite mstp(111), no matter what
+      call_pygive("MSTP(111)=0");
+      pyglrhad_();
+      //call_pygive("MWID(309)=0");   
+      //call_pygive("MDCY(309,1)=0"); 
+   }
+   
    call_pyinit("USER", "", "", 0.0);
 
    std::vector<std::string> slha = lheRunInfo()->findHeader("slha");
@@ -436,6 +504,20 @@ bool Pythia6Hadronizer::initializeForInternalPartons()
    fPy6Service->setGeneralParams();   
    fPy6Service->setCSAParams();
    fPy6Service->setSLHAParams();
+   
+   if ( fStopHadronsEnabled )
+   {
+      // overwrite mstp(111), no matter what
+      call_pygive("MSTP(111)=0");
+      pystrhad_();
+   }
+   
+   if ( fGluinoHadronsEnabled )
+   {
+      // overwrite mstp(111), no matter what
+      call_pygive("MSTP(111)=0");
+      pyglrhad_();
+   }
    
    call_pyinit("CMS", "p", "p", fCOMEnergy);
    

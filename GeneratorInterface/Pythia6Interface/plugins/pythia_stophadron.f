@@ -109,7 +109,7 @@ C...Convenient shorthand.
       KFST=KSUSY1+6
       KCST=PYCOMP(KFST)
       KFGL=KSUSY1+21
-
+      
 C...Loopback point for serious problems, with new try.
       LOOP=0
       CALL PYEDIT(21)

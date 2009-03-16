@@ -82,6 +82,13 @@ class JetMatching;
      // this is the only one specific to Pythia6
      //
      unsigned int    fPythiaListVerbosity ;
+     
+     // these two params control stop- and r-handron features,
+     // that are "custom" add-ons to Py6; 
+     // I doubt they should drag along Py6Int main library...
+     //
+     bool fStopHadronsEnabled;
+     bool fGluinoHadronsEnabled;
                
   };
 }
