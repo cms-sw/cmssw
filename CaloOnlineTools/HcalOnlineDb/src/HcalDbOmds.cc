@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbASCIIIO.cc,v 1.41
-// $Id: HcalDbOmds.cc,v 1.2 2009/03/14 15:52:06 kukartse Exp $
+// $Id: HcalDbOmds.cc,v 1.3 2009/03/15 14:36:14 kukartse Exp $
 //
 //
 #include <vector>
@@ -80,6 +80,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection, const std::st
 
     std::string query = " SELECT zero_suppression,z*eta as ieta,phi,depth,detector_name as subdetector ";
     query            += " FROM CMS_HCL_HCAL_CONDITION_OWNER.V_HCAL_ZERO_SUPPRESSION ";
+    //query            += " FROM CMS_HCL_HCAL_COND.V_HCAL_ZERO_SUPPRESSION ";
     query            += " WHERE TAG_NAME='GREN_ZS_9adc_v2'";
 
     ResultSet *rs = stmt->executeQuery(query.c_str());
@@ -94,9 +95,9 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection, const std::st
       int ieta = rs->getInt(2);
       int iphi = rs->getInt(3);
       int depth = rs->getInt(4);
-      std::string subdet = rs->getString(5);
-      HcalDetId id(HcalBarrel,15,49,1);
-      int zs=9;
+      HcalSubdetector subdetector = get_subdetector(rs->getString(5));
+      HcalDetId id(subdetector,ieta,iphi,depth);
+      //cout << "DEBUG: " << id << " " << zs << endl;
       HcalZSThreshold * fCondObject = new HcalZSThreshold(id, zs);
       fObject->addValues(*fCondObject);
       delete fCondObject;
@@ -132,3 +133,15 @@ bool HcalDbOmds::dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObj
   return true;
 }
 
+
+HcalSubdetector HcalDbOmds::get_subdetector( string _det )
+{
+  HcalSubdetector result;
+  if      ( _det.find("HB") != string::npos ) result = HcalBarrel;
+  else if ( _det.find("HE") != string::npos ) result = HcalEndcap;
+  else if ( _det.find("HF") != string::npos ) result = HcalForward;
+  else if ( _det.find("HO") != string::npos ) result = HcalOuter;
+  else                                        result = HcalOther;  
+
+  return result;
+}

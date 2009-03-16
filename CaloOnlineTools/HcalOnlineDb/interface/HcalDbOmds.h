@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbOmds.h
-// $Id: HcalDbOmds.h,v 1.1 2009/03/13 11:27:36 kukartse Exp $
+// $Id: HcalDbOmds.h,v 1.2 2009/03/14 15:52:06 kukartse Exp $
 //
 //
 #ifndef HcalDbOmds_h
@@ -24,7 +24,7 @@ using namespace oracle::occi;
    \class HcalDbOmds
    \brief IO for OMDS instances of Hcal Calibrations
    \author Gena Kukartsev March 11, 2009
-   $Id: HcalDbOmds.h,v 1.1 2009/03/13 11:27:36 kukartse Exp $
+   $Id: HcalDbOmds.h,v 1.2 2009/03/14 15:52:06 kukartse Exp $
    
 Text file formats for different data types is as following:
 - # in first column comments the line
@@ -72,5 +72,6 @@ namespace HcalDbOmds {
   bool getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalL1TriggerObjects* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalL1TriggerObjects& fObject);
 
+  HcalSubdetector get_subdetector( std::string _det );
 } 
 #endif
