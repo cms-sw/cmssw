@@ -15,11 +15,11 @@ LHCTransport = cms.EDProducer("HectorProducer",
         BeamLineLengthFP420 = cms.double(430.0),  ## length of beam line for FP420: important for aperture checks
         RP420f = cms.double(419.0),               ## distance of transport in clockwise dir. for FP420
         RP420b = cms.double(419.0),               ## distance of transport in anti-clockwise dir. for FP420
-        smearEnergy = cms.bool(True),
-        sigmaEnergy = cms.double(0.0),            ## beam energy dispersion (GeV)
-        smearAng = cms.bool(True),
-        sigmaSTX = cms.double(0.0),               ## x angle dispersion at IP (m)
-        sigmaSTY = cms.double(0.0)                ## y angle dispersion at IP (m)
+        smearEnergy = cms.bool(True),       ## if False: no Energy smearing(i.e. sigmaEnergy =0.0)
+        sigmaEnergy = cms.double(0.0),     ## beam energy dispersion (GeV); if =0.0 the default(=0.79) is used
+        smearAng = cms.bool(True),       ## if False: no Angle smearing(i.e. sigmaSTX(Y) =0.0)
+        sigmaSTX = cms.double(0.0),     ## x angle dispersion at IP (urad); if =0.0 the default(=30.23) is used
+        sigmaSTY = cms.double(0.0)      ## y angle dispersion at IP (urad); if =0.0 the default(=30.23) is used
     )
 )
 
