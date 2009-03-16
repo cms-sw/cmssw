@@ -68,9 +68,12 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
     (const TrackingRecHit & recHit, PSimHit & simHit,
      pair<unsigned int, float> & key);
 
-   void processPixelRecHits(const SiPixelRecHitCollection * recHits);
-   void processStripRecHits(const SiStripRecHit2DCollection * recHits);
-   void processMatchedRecHits(const SiStripMatchedRecHit2DCollection * recHits);
+   void processPixelRecHits
+     (const SiPixelRecHitCollection::DataContainer * recHits);
+   void processStripRecHits
+     (const SiStripRecHit2DCollection::DataContainer * recHits);
+   void processMatchedRecHits
+     (const SiStripMatchedRecHit2DCollection::DataContainer * recHits);
 
    void analyzeSimHits  (const edm::Event& ev, const edm::EventSetup& es);
    void analyzeRecTracks(const edm::Event& ev, const edm::EventSetup& es);
@@ -267,7 +270,7 @@ bool ClusterShapeExtractor::checkSimHits
 
 /*****************************************************************************/
 void ClusterShapeExtractor::processPixelRecHits
-  (const SiPixelRecHitCollection * recHits)
+  (const SiPixelRecHitCollection::DataContainer * recHits)
 {
   map<pair<unsigned int, float>, const SiPixelRecHit *> simHitMap;
 
@@ -299,7 +302,7 @@ void ClusterShapeExtractor::processPixelRecHits
 
 /*****************************************************************************/
 void ClusterShapeExtractor::processStripRecHits
-  (const SiStripRecHit2DCollection * recHits)
+  (const SiStripRecHit2DCollection::DataContainer * recHits)
 {
   map<pair<unsigned int, float>, const SiStripRecHit2D *> simHitMap;
 
@@ -331,7 +334,7 @@ void ClusterShapeExtractor::processStripRecHits
 
 /*****************************************************************************/
 void ClusterShapeExtractor::processMatchedRecHits
-  (const SiStripMatchedRecHit2DCollection * recHits)
+  (const SiStripMatchedRecHit2DCollection::DataContainer * recHits)
 {
   map<pair<unsigned int, float>, const SiStripRecHit2D *> simHitMap;
 
