@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/12/04 15:19:28 $
- * $Revision: 1.24 $
+ * $Date: 2008/12/08 08:09:21 $
+ * $Revision: 1.25 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -243,7 +243,12 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     for ( EBSrFlagCollection::const_iterator it = ebSrFlags->begin(); it != ebSrFlags->end(); ++it ) {
 
       int iet = it->id().ieta();
-      int ipt = it->id().iphi();
+      // phi_tower: change the range from global to SM-local
+      // phi==0 is in the middle of a SM
+      int ipt = it->id().iphi() + 2;
+
+      // phi_tower: SM-local phi runs opposite to global in EB+
+      if ( it->id().zside() > 0 ) ipt = 5 - ipt;
 
       float xiet = (iet>0) ? iet-0.5 : iet+0.5 ;
       float xipt = ipt-0.5;
@@ -290,7 +295,12 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       if ( Numbers::subDet( TPdigi->id() ) != EcalBarrel ) continue;
 
       int iet = TPdigi->id().ieta();
-      int ipt = TPdigi->id().iphi();
+      // phi_tower: change the range from global to SM-local
+      // phi==0 is in the middle of a SM
+      int ipt = TPdigi->id().iphi() + 2;
+      
+      // phi_tower: SM-local phi runs opposite to global in EB+
+      if ( TPdigi->id().zside() > 0 ) ipt = 5 - ipt;
 
       float xiet = (iet>0) ? iet-0.5 : iet+0.5 ;
       float xipt = ipt-0.5;
