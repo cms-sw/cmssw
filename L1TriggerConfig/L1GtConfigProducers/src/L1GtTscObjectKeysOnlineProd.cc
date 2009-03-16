@@ -112,6 +112,15 @@ std::string L1GtTscObjectKeysOnlineProd::keyL1GtPsbSetup(
         const std::string& subsystemKey, const std::string& gtSchema) {
 
     std::string objectKey;
+
+    if (!subsystemKey.empty()) {
+
+        // no need to query OMDS, one uses the GT_SETUP key to get the individual PSB keys.
+        //     the L1GtPsbSetup key is GT_SETUP key
+        objectKey = subsystemKey;
+
+    }
+
     return objectKey;
 
 }
@@ -138,6 +147,14 @@ void L1GtTscObjectKeysOnlineProd::fillObjectKeys(ReturnType pL1TriggerKey) {
         const std::string& objectKey = keyL1GtTriggerMenu(subsystemKey, gtSchema);
         if (!objectKey.empty()) {
             pL1TriggerKey->add("L1GtTriggerMenuRcd", "L1GtTriggerMenu", objectKey);
+        }
+    }
+
+    //
+    if (m_enableL1GtPsbSetup) {
+        const std::string& objectKey = keyL1GtPsbSetup(subsystemKey, gtSchema);
+        if (!objectKey.empty()) {
+            pL1TriggerKey->add("L1GtPsbSetupRcd", "L1GtPsbSetup", objectKey);
         }
     }
 
