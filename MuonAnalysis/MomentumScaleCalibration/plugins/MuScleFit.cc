@@ -2,11 +2,11 @@
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
 // <<<<<<< MuScleFit.cc
-//  $Date: 2009/02/05 16:35:01 $
-//  $Revision: 1.27 $
+//  $Date: 2009/03/05 15:14:07 $
+//  $Revision: 1.29 $
 // =======
-//  $Date: 2009/02/05 16:35:01 $
-//  $Revision: 1.27 $
+//  $Date: 2009/03/05 15:14:07 $
+//  $Revision: 1.29 $
 // >>>>>>> 1.25
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
@@ -131,6 +131,10 @@
 #include "TTree.h"
 #include "TMinuit.h"
 #include <vector>
+
+// To use callgrind for code profiling uncomment also the following define.
+#define USE_CALLGRIND
+#include "valgrind/callgrind.h"
 
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 
@@ -433,6 +437,10 @@ edm::EDLooper::Status MuScleFit::endOfLoop (const edm::EventSetup& eventSetup, u
 // -----------------------
 edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSetup& eventSetup) {
 
+#ifdef USE_CALLGRIND
+  CALLGRIND_START_INSTRUMENTATION;
+#endif
+
   // Update the services
   // -------------------
   theService->update (eventSetup);
@@ -443,41 +451,40 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 
   // Find and store in histograms the generated and simulated resonance and muons
   // ----------------------------------------------------------------------------
+  Handle<HepMCProduct> evtMC;
+  Handle<SimTrackContainer> simTracks;
   if (!MuScleFitUtils::speedup) { // NB we skip the simulation part if we are in a hurry
-    if(loopCounter==0){                           //Only at the first loop
+    bool ifGen=false;
+    try {
+      event.getByLabel ("source", evtMC);
+      // Fill gen information only in the first loop
+      if( loopCounter == 0 ) plotter->fillGen2(evtMC);
+      ifGen=true;
+    } catch (...) { 
+      cout << "HepMCProduct non existent" << endl;
+    }
 
-      bool ifGen=false;
-      Handle<HepMCProduct> evtMC;
+    if(!ifGen){
+      Handle<GenParticleCollection> genParticles; 
       try {
-	event.getByLabel ("source", evtMC);
-	plotter->fillGen2(evtMC);
-	ifGen=true;
-      } catch (...) { 
-	cout << "HepMCProduct non existent" << endl;
+        event.getByLabel ("genParticles", genParticles);
+        // Fill gen information only in the first loop
+        if( loopCounter == 0 ) plotter->fillGen1(genParticles);
+        if (debug>0) cout << "Found genParticles" << endl;
+      } catch (...) {
+        cout << "GenParticles non existent" << endl;
       }
+    }
 
-      if(!ifGen){
-	Handle<GenParticleCollection> genParticles; 
-	try {
-	  event.getByLabel ("genParticles", genParticles);
-	  plotter->fillGen1(genParticles);
-	  if (debug>0) cout << "Found genParticles" << endl;
-	} catch (...) {
-	  cout << "GenParticles non existent" << endl;
-	}
+    try {
+      event.getByLabel ("g4SimHits",simTracks);
+      plotter->fillSim(simTracks);
+      if(ifGen && loopCounter == 0){
+        plotter->fillGenSim(evtMC,simTracks);
       }
-
-     Handle<SimTrackContainer> simTracks;
-      try {
-	event.getByLabel ("g4SimHits",simTracks);
-	plotter->fillSim(simTracks);
-	if(ifGen){
-	  plotter->fillGenSim(evtMC,simTracks);
-	}
-      }
-      catch (...) { 
-	cout << "SimTracks not existent" << endl;
-      }
+    }
+    catch (...) { 
+      cout << "SimTracks not existent" << endl;
     }
   }
 
@@ -510,9 +517,9 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     }
     plotter->fillRec(muons);
 
-  // Find the two muons from the resonance, and set ResFound bool
-  // ------------------------------------------------------------
-   pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> recMuFromBestRes = 
+    // Find the two muons from the resonance, and set ResFound bool
+    // ------------------------------------------------------------
+    pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> recMuFromBestRes = 
       MuScleFitUtils::findBestRecoRes (muons);
     if (MuScleFitUtils::ResFound) {
       if (debug>0) {
@@ -616,24 +623,6 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
       mapHisto["hRecBestResVSMu"]->Fill (recMu2, bestRecRes, +1);
     }
 
-    //Compute pt resolution w.r.t generated and simulated muons
-    //--------------------------------------------------------
-    Handle<HepMCProduct> evtMC;
-    try {
-      event.getByLabel ("source", evtMC);
-    } catch (...) { 
-      cout << "HepMCProduct non existent" << endl;
-    }
-
-    Handle<SimTrackContainer> simTracks;
-    try {
-      event.getByLabel ("g4SimHits",simTracks);
-      plotter->fillSim(simTracks);
-    }
-    catch (...) { 
-      cout << "SimTracks not existent" << endl;
-    } 
-
     vector<double> * parval;
     vector<double> initpar;
     // Store a pointer to the vector of parameters of the last iteration, or the initial
@@ -647,80 +636,84 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
       parval = &(MuScleFitUtils::parvalue[loopCounter-1]);
     }
 
-    pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> genMu = 
-      MuScleFitUtils::findGenMuFromRes(evtMC);
-    //first is always mu-, second is always mu+
+    //Compute pt resolution w.r.t generated and simulated muons
+    //--------------------------------------------------------
+    pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> genMu;
+    if( !MuScleFitUtils::speedup ) {
+      genMu = MuScleFitUtils::findGenMuFromRes(evtMC);
+      //first is always mu-, second is always mu+
 
-    double genmass = (genMu.first+genMu.second).mass();
-    GM->Fill(genmass);
-    if(checkDeltaR(genMu.first,recMu1)){
-//       mapHisto["hResolPtGenVSMu"]->Fill(genMu.first,(-genMu.first.Pt()+recMu1.Pt())/genMu.first.Pt(),-1);
-//       mapHisto["hResolThetaGenVSMu"]->Fill(genMu.first,(-genMu.first.Theta()+recMu1.Theta()),-1);
-//       mapHisto["hResolCotgThetaGenVSMu"]->Fill(genMu.first,(-cos(genMu.first.Theta())/sin(genMu.first.Theta())
-//                                                             +cos(recMu1.Theta())/sin(recMu1.Theta())),-1);
-//       mapHisto["hResolEtaGenVSMu"]->Fill(genMu.first,(-genMu.first.Eta()+recMu1.Eta()),-1);
-//       mapHisto["hResolPhiGenVSMu"]->Fill(genMu.first,(-genMu.first.Phi()+recMu1.Phi()),-1);
+      double genmass = (genMu.first+genMu.second).mass();
+      GM->Fill(genmass);
+      if(checkDeltaR(genMu.first,recMu1)){
+        //       mapHisto["hResolPtGenVSMu"]->Fill(genMu.first,(-genMu.first.Pt()+recMu1.Pt())/genMu.first.Pt(),-1);
+        //       mapHisto["hResolThetaGenVSMu"]->Fill(genMu.first,(-genMu.first.Theta()+recMu1.Theta()),-1);
+        //       mapHisto["hResolCotgThetaGenVSMu"]->Fill(genMu.first,(-cos(genMu.first.Theta())/sin(genMu.first.Theta())
+        //                                                             +cos(recMu1.Theta())/sin(recMu1.Theta())),-1);
+        //       mapHisto["hResolEtaGenVSMu"]->Fill(genMu.first,(-genMu.first.Eta()+recMu1.Eta()),-1);
+        //       mapHisto["hResolPhiGenVSMu"]->Fill(genMu.first,(-genMu.first.Phi()+recMu1.Phi()),-1);
 
-      // Draw with respect to recMu quantities, not genMu ones
-      mapHisto["hResolPtGenVSMu"]->Fill(recMu1,(-genMu.first.Pt()+recMu1.Pt())/genMu.first.Pt(),-1);
-      mapHisto["hResolThetaGenVSMu"]->Fill(recMu1,(-genMu.first.Theta()+recMu1.Theta()),-1);
-      mapHisto["hResolCotgThetaGenVSMu"]->Fill(recMu1,(-cos(genMu.first.Theta())/sin(genMu.first.Theta())
-                                                       +cos(recMu1.Theta())/sin(recMu1.Theta())),-1);
-      mapHisto["hResolEtaGenVSMu"]->Fill(recMu1,(-genMu.first.Eta()+recMu1.Eta()),-1);
-      // mapHisto["hResolPhiGenVSMu"]->Fill(recMu1,(-genMu.first.Phi()+recMu1.Phi()),-1);
-      mapHisto["hResolPhiGenVSMu"]->Fill(recMu1,MuScleFitUtils::deltaPhiNoFabs(recMu1.Phi(), genMu.first.Phi()),-1);
-      // Fill also the resolution histogramsm using the resolution functions:
-      // the parameters are those from the last iteration, as the muons up to this point have also the
-      // corrections from the same iteration.
-      // Need to use a different array (ForVec), containing functors able to operate on vector<double>
-      mapHisto["hFunctionResolPt"]->Fill( recMu1, MuScleFitUtils::resolutionFunctionForVec->sigmaPt(recMu1.Pt(), recMu1.Eta(), *parval ), -1 );
-      mapHisto["hFunctionResolCotgTheta"]->Fill( recMu1, MuScleFitUtils::resolutionFunctionForVec->sigmaCotgTh(recMu1.Pt(), recMu1.Eta(), *parval ), -1 );
-      mapHisto["hFunctionResolPhi"]->Fill( recMu1, MuScleFitUtils::resolutionFunctionForVec->sigmaPhi(recMu1.Pt(), recMu1.Eta(), *parval ), -1 );
-    }
-    if(checkDeltaR(genMu.second,recMu2)){
-//       mapHisto["hResolPtGenVSMu"]->Fill(genMu.second,(-genMu.second.Pt()+recMu2.Pt())/genMu.second.Pt(),+1);
-//       mapHisto["hResolThetaGenVSMu"]->Fill(genMu.second,(-genMu.second.Theta()+recMu2.Theta()),+1);
-//       mapHisto["hResolCotgThetaGenVSMu"]->Fill(genMu.second,(-cos(genMu.second.Theta())/sin(genMu.second.Theta())
-// 							     +cos(recMu2.Theta())/sin(recMu2.Theta())),+1);
-//       mapHisto["hResolEtaGenVSMu"]->Fill(genMu.second,(-genMu.second.Eta()+recMu2.Eta()),+1);
-//       mapHisto["hResolPhiGenVSMu"]->Fill(genMu.second,(-genMu.second.Phi()+recMu2.Phi()),+1);
+        // Draw with respect to recMu quantities, not genMu ones
+        mapHisto["hResolPtGenVSMu"]->Fill(recMu1,(-genMu.first.Pt()+recMu1.Pt())/genMu.first.Pt(),-1);
+        mapHisto["hResolThetaGenVSMu"]->Fill(recMu1,(-genMu.first.Theta()+recMu1.Theta()),-1);
+        mapHisto["hResolCotgThetaGenVSMu"]->Fill(recMu1,(-cos(genMu.first.Theta())/sin(genMu.first.Theta())
+                                                         +cos(recMu1.Theta())/sin(recMu1.Theta())),-1);
+        mapHisto["hResolEtaGenVSMu"]->Fill(recMu1,(-genMu.first.Eta()+recMu1.Eta()),-1);
+        // mapHisto["hResolPhiGenVSMu"]->Fill(recMu1,(-genMu.first.Phi()+recMu1.Phi()),-1);
+        mapHisto["hResolPhiGenVSMu"]->Fill(recMu1,MuScleFitUtils::deltaPhiNoFabs(recMu1.Phi(), genMu.first.Phi()),-1);
+        // Fill also the resolution histogramsm using the resolution functions:
+        // the parameters are those from the last iteration, as the muons up to this point have also the
+        // corrections from the same iteration.
+        // Need to use a different array (ForVec), containing functors able to operate on vector<double>
+        mapHisto["hFunctionResolPt"]->Fill( recMu1, MuScleFitUtils::resolutionFunctionForVec->sigmaPt(recMu1.Pt(), recMu1.Eta(), *parval ), -1 );
+        mapHisto["hFunctionResolCotgTheta"]->Fill( recMu1, MuScleFitUtils::resolutionFunctionForVec->sigmaCotgTh(recMu1.Pt(), recMu1.Eta(), *parval ), -1 );
+        mapHisto["hFunctionResolPhi"]->Fill( recMu1, MuScleFitUtils::resolutionFunctionForVec->sigmaPhi(recMu1.Pt(), recMu1.Eta(), *parval ), -1 );
+      }
+      if(checkDeltaR(genMu.second,recMu2)){
+        //       mapHisto["hResolPtGenVSMu"]->Fill(genMu.second,(-genMu.second.Pt()+recMu2.Pt())/genMu.second.Pt(),+1);
+        //       mapHisto["hResolThetaGenVSMu"]->Fill(genMu.second,(-genMu.second.Theta()+recMu2.Theta()),+1);
+        //       mapHisto["hResolCotgThetaGenVSMu"]->Fill(genMu.second,(-cos(genMu.second.Theta())/sin(genMu.second.Theta())
+        // 							     +cos(recMu2.Theta())/sin(recMu2.Theta())),+1);
+        //       mapHisto["hResolEtaGenVSMu"]->Fill(genMu.second,(-genMu.second.Eta()+recMu2.Eta()),+1);
+        //       mapHisto["hResolPhiGenVSMu"]->Fill(genMu.second,(-genMu.second.Phi()+recMu2.Phi()),+1);
 
-      mapHisto["hResolPtGenVSMu"]->Fill(recMu2,(-genMu.second.Pt()+recMu2.Pt())/genMu.second.Pt(),+1);
-      mapHisto["hResolThetaGenVSMu"]->Fill(recMu2,(-genMu.second.Theta()+recMu2.Theta()),+1);
-      mapHisto["hResolCotgThetaGenVSMu"]->Fill(recMu2,(-cos(genMu.second.Theta())/sin(genMu.second.Theta())
-							     +cos(recMu2.Theta())/sin(recMu2.Theta())),+1);
-      mapHisto["hResolEtaGenVSMu"]->Fill(recMu2,(-genMu.second.Eta()+recMu2.Eta()),+1);
-      // mapHisto["hResolPhiGenVSMu"]->Fill(recMu2,(-genMu.second.Phi()+recMu2.Phi()),+1);
-      mapHisto["hResolPhiGenVSMu"]->Fill(recMu2,MuScleFitUtils::deltaPhiNoFabs(recMu2.Phi(), genMu.second.Phi()),+1);
-      // Fill also the resolution histogramsm using the resolution functions
-      mapHisto["hFunctionResolPt"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaPt(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
-      mapHisto["hFunctionResolCotgTheta"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaCotgTh(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
-      mapHisto["hFunctionResolPhi"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaPhi(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
-    }
-    pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> simMu = 
-      MuScleFitUtils::findSimMuFromRes(evtMC,simTracks);
-    //first is always mu-, second is always mu+
-    double simmass = (simMu.first+simMu.second).mass();
-    SM->Fill(simmass);
-    GSM->Fill(genmass-simmass);
+        mapHisto["hResolPtGenVSMu"]->Fill(recMu2,(-genMu.second.Pt()+recMu2.Pt())/genMu.second.Pt(),+1);
+        mapHisto["hResolThetaGenVSMu"]->Fill(recMu2,(-genMu.second.Theta()+recMu2.Theta()),+1);
+        mapHisto["hResolCotgThetaGenVSMu"]->Fill(recMu2,(-cos(genMu.second.Theta())/sin(genMu.second.Theta())
+                                                         +cos(recMu2.Theta())/sin(recMu2.Theta())),+1);
+        mapHisto["hResolEtaGenVSMu"]->Fill(recMu2,(-genMu.second.Eta()+recMu2.Eta()),+1);
+        // mapHisto["hResolPhiGenVSMu"]->Fill(recMu2,(-genMu.second.Phi()+recMu2.Phi()),+1);
+        mapHisto["hResolPhiGenVSMu"]->Fill(recMu2,MuScleFitUtils::deltaPhiNoFabs(recMu2.Phi(), genMu.second.Phi()),+1);
+        // Fill also the resolution histogramsm using the resolution functions
+        mapHisto["hFunctionResolPt"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaPt(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
+        mapHisto["hFunctionResolCotgTheta"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaCotgTh(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
+        mapHisto["hFunctionResolPhi"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaPhi(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
+      }
+      pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> simMu = 
+        MuScleFitUtils::findSimMuFromRes(evtMC,simTracks);
+      //first is always mu-, second is always mu+
+      double simmass = (simMu.first+simMu.second).mass();
+      SM->Fill(simmass);
+      GSM->Fill(genmass-simmass);
 
-    if(checkDeltaR(simMu.first,recMu1)){
-      mapHisto["hResolPtSimVSMu"]->Fill(simMu.first,(-simMu.first.Pt()+recMu1.Pt())/simMu.first.Pt(),-1);
-      mapHisto["hResolThetaSimVSMu"]->Fill(simMu.first,(-simMu.first.Theta()+recMu1.Theta()),-1);
-      mapHisto["hResolCotgThetaSimVSMu"]->Fill(simMu.first,(-cos(simMu.first.Theta())/sin(simMu.first.Theta())
-                                                            +cos(recMu1.Theta())/sin(recMu1.Theta())),-1);
-      mapHisto["hResolEtaSimVSMu"]->Fill(simMu.first,(-simMu.first.Eta()+recMu1.Eta()),-1);
-      // mapHisto["hResolPhiSimVSMu"]->Fill(simMu.first,(-simMu.first.Phi()+recMu1.Phi()),-1);
-      mapHisto["hResolPhiSimVSMu"]->Fill(simMu.first,MuScleFitUtils::deltaPhiNoFabs(recMu1.Phi(), simMu.first.Phi()),-1);
-    }
-    if(checkDeltaR(simMu.second,recMu2)){
-      mapHisto["hResolPtSimVSMu"]->Fill(simMu.second,(-simMu.second.Pt()+recMu2.Pt())/simMu.second.Pt(),+1);
-      mapHisto["hResolThetaSimVSMu"]->Fill(simMu.second,(-simMu.second.Theta()+recMu2.Theta()),+1);
-      mapHisto["hResolCotgThetaSimVSMu"]->Fill(simMu.second,(-cos(simMu.second.Theta())/sin(simMu.second.Theta())
-							     +cos(recMu2.Theta())/sin(recMu2.Theta())),+1);
-      mapHisto["hResolEtaSimVSMu"]->Fill(simMu.second,(-simMu.second.Eta()+recMu2.Eta()),+1);
-      // mapHisto["hResolPhiSimVSMu"]->Fill(simMu.second,(-simMu.second.Phi()+recMu2.Phi()),+1);
-      mapHisto["hResolPhiSimVSMu"]->Fill(simMu.second,MuScleFitUtils::deltaPhiNoFabs(recMu2.Phi(), simMu.second.Phi()),+1);
+      if(checkDeltaR(simMu.first,recMu1)){
+        mapHisto["hResolPtSimVSMu"]->Fill(simMu.first,(-simMu.first.Pt()+recMu1.Pt())/simMu.first.Pt(),-1);
+        mapHisto["hResolThetaSimVSMu"]->Fill(simMu.first,(-simMu.first.Theta()+recMu1.Theta()),-1);
+        mapHisto["hResolCotgThetaSimVSMu"]->Fill(simMu.first,(-cos(simMu.first.Theta())/sin(simMu.first.Theta())
+                                                              +cos(recMu1.Theta())/sin(recMu1.Theta())),-1);
+        mapHisto["hResolEtaSimVSMu"]->Fill(simMu.first,(-simMu.first.Eta()+recMu1.Eta()),-1);
+        // mapHisto["hResolPhiSimVSMu"]->Fill(simMu.first,(-simMu.first.Phi()+recMu1.Phi()),-1);
+        mapHisto["hResolPhiSimVSMu"]->Fill(simMu.first,MuScleFitUtils::deltaPhiNoFabs(recMu1.Phi(), simMu.first.Phi()),-1);
+      }
+      if(checkDeltaR(simMu.second,recMu2)){
+        mapHisto["hResolPtSimVSMu"]->Fill(simMu.second,(-simMu.second.Pt()+recMu2.Pt())/simMu.second.Pt(),+1);
+        mapHisto["hResolThetaSimVSMu"]->Fill(simMu.second,(-simMu.second.Theta()+recMu2.Theta()),+1);
+        mapHisto["hResolCotgThetaSimVSMu"]->Fill(simMu.second,(-cos(simMu.second.Theta())/sin(simMu.second.Theta())
+                                                               +cos(recMu2.Theta())/sin(recMu2.Theta())),+1);
+        mapHisto["hResolEtaSimVSMu"]->Fill(simMu.second,(-simMu.second.Eta()+recMu2.Eta()),+1);
+        // mapHisto["hResolPhiSimVSMu"]->Fill(simMu.second,(-simMu.second.Phi()+recMu2.Phi()),+1);
+        mapHisto["hResolPhiSimVSMu"]->Fill(simMu.second,MuScleFitUtils::deltaPhiNoFabs(recMu2.Phi(), simMu.second.Phi()),+1);
+      }
     }
 
     // Compute likelihood histograms
@@ -761,23 +754,25 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 	PTL->Fill(bestRecRes.Pt(),deltalike);
 
         double recoMass = (recMu1+recMu2).mass();
-        double genMass = (genMu.first + genMu.second).mass();
-        // Fill the mass resolution (computed from MC), we use the covariance class to compute the variance
-        if( genMass != 0 ) {
-          // double diffMass = (recoMass - genMass)/genMass;
-          double diffMass = recoMass - genMass;
-          // Fill if for both muons
-          double pt1 = recMu1.pt();
-          double eta1 = recMu1.eta();
-          double pt2 = recMu2.pt();
-          double eta2 = recMu2.eta();
-          // This is to avoid nan
-          if( diffMass == diffMass ) {
-            massResolutionVsPtEta_->Fill(pt1, eta1, diffMass, diffMass);
-            massResolutionVsPtEta_->Fill(pt2, eta2, diffMass, diffMass);
-          }
-          else {
-            cout << "Error, there is a nan: recoMass = " << recoMass << ", genMass = " << genMass << endl;
+        if( !MuScleFitUtils::speedup ) {
+          double genMass = (genMu.first + genMu.second).mass();
+          // Fill the mass resolution (computed from MC), we use the covariance class to compute the variance
+          if( genMass != 0 ) {
+            // double diffMass = (recoMass - genMass)/genMass;
+            double diffMass = recoMass - genMass;
+            // Fill if for both muons
+            double pt1 = recMu1.pt();
+            double eta1 = recMu1.eta();
+            double pt2 = recMu2.pt();
+            double eta2 = recMu2.eta();
+            // This is to avoid nan
+            if( diffMass == diffMass ) {
+              massResolutionVsPtEta_->Fill(pt1, eta1, diffMass, diffMass);
+              massResolutionVsPtEta_->Fill(pt2, eta2, diffMass, diffMass);
+            }
+            else {
+              cout << "Error, there is a nan: recoMass = " << recoMass << ", genMass = " << genMass << endl;
+            }
           }
           // Fill with mass resolution from resolution function
           double massRes = MuScleFitUtils::massResolution(recMu1, recMu2, MuScleFitUtils::parResol);
@@ -811,6 +806,12 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
   }
 
   iev++;
+
+#ifdef USE_CALLGRIND
+  CALLGRIND_STOP_INSTRUMENTATION;
+  CALLGRIND_DUMP_STATS;
+#endif
+
   return kContinue;
 }
 
@@ -998,7 +999,7 @@ void MuScleFit::checkParameters() {
       (MuScleFitUtils::ScaleFitType==11 && MuScleFitUtils::parScale.size()!=4) || // linear in pt and sin in phi w/ chg
       (MuScleFitUtils::ScaleFitType==12 && MuScleFitUtils::parScale.size()!=6) || // linear in pt and para in eta plus sin in phi with chg
       (MuScleFitUtils::ScaleFitType==13 && MuScleFitUtils::parScale.size()!=8) || // linear in pt and para in eta plus sin in phi with chg
-      (MuScleFitUtils::ScaleFitType==14 && MuScleFitUtils::parScale.size()!=5) || // parabolic in pt and para in |eta|
+      (MuScleFitUtils::ScaleFitType==14 && MuScleFitUtils::parScale.size()!=8) || // parabolic in pt and 6th grade polynomial in |eta|
       MuScleFitUtils::ScaleFitType<1 || MuScleFitUtils::ScaleFitType>15) {
     cout << "[MuScleFit-Constructor]: Wrong fit type or number of parameters: aborting!" << endl;
     abort();
