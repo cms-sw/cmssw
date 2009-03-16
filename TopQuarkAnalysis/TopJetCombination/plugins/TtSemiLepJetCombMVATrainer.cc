@@ -12,6 +12,7 @@
 #include "PhysicsTools/MVATrainer/interface/HelperMacros.h"
 
 
+
 TtSemiLepJetCombMVATrainer::TtSemiLepJetCombMVATrainer(const edm::ParameterSet& cfg):
   leptons_   (cfg.getParameter<edm::InputTag>("leptons")),
   jets_      (cfg.getParameter<edm::InputTag>("jets")),
@@ -74,6 +75,14 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
 	return;
   }
 
+  // take into account indistinguishability of the two jets from the hadr. W decay,
+  // reduces combinatorics by a factor of 2
+  if(matching[TtSemiLepEvtPartons::LightQ] > matching[TtSemiLepEvtPartons::LightQBar]) {
+    int iTemp = matching[TtSemiLepEvtPartons::LightQ];
+    matching[TtSemiLepEvtPartons::LightQ] = matching[TtSemiLepEvtPartons::LightQBar];
+    matching[TtSemiLepEvtPartons::LightQBar] = iTemp;
+  }
+
   // analyze true and false jet combinations
   std::vector<int> jetIndices;
   for(unsigned int i=0; i<jets->size(); ++i) {
@@ -85,7 +94,7 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
   for(unsigned int i = 0; i < nPartons; ++i) 
     combi.push_back(i);
 
-  do{
+  do {
     // number of possible combinations from number of partons: e.g. 4! = 24
     for(unsigned int cnt = 0; cnt < TMath::Factorial( combi.size() ); ++cnt) {
       
@@ -94,20 +103,12 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
       if(combi[TtSemiLepEvtPartons::LightQ] < combi[TtSemiLepEvtPartons::LightQBar]) {  
 	
 	TtSemiLepJetComb jetComb(*jets, combi, lepton, *met);
-
 	
-	bool trueCombi = true;
-	if(genEvt->semiLeptonicChannel() == lepChannel_) {
-	  for(unsigned int i = 0; i < matching.size(); ++i){
-	    if(combi[i] != matching[i]) {
-	      // not a true combination if different from matching
-	      trueCombi = false;
-	      break;
-	    }
-	  }
-	}
-	// no true combinations if not signal channel
-	else trueCombi = false;
+	bool trueCombi = false;
+	// true combination only if signal channel
+	// and in agreement with matching
+	if(genEvt->semiLeptonicChannel()==lepChannel_ && combi==matching)
+	  trueCombi = true;
 	
 	evaluateTtSemiLepJetComb(mvaComputer, jetComb, true, trueCombi);
 
