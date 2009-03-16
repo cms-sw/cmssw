@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.97 2009/03/12 18:25:45 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.98 2009/03/13 22:41:38 amraktad Exp $
 //
 
 // system include files
@@ -137,6 +137,9 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    TApplication::NeedGraphicsLibs();
    gApplication->InitializeGraphics();
 
+   TEveCompositeFrame::IconBarCreator_foo foo =  &FWGUIManager::makeGUIsubview;
+   TEveCompositeFrame::SetupFrameMarkup(foo, 20, 4, false);
+
    TEveManager::Create(kFALSE, "FI");
 
    {
@@ -199,6 +202,13 @@ FWGUIManager::~FWGUIManager()
 // subviews construction
 //
 
+TGFrame*
+FWGUIManager::makeGUIsubview(TEveCompositeFrame* cp, TGCompositeFrame* parent, Int_t height)
+{
+   TGFrame* frame = new FWGUISubviewArea(cp, parent, height);
+   return frame;
+}
+
 void
 FWGUIManager::registerViewBuilder(const std::string& iName,
                                   ViewBuildFunctor& iBuilder)
@@ -220,15 +230,6 @@ FWGUIManager::parentForNextView()
    } else {
       slot = m_viewSecPack->NewSlot();
    }
-
-   FWGUISubviewArea* hf = new FWGUISubviewArea(slot->GetEveFrame());
-   hf->MapSubwindows();
-   slot->GetEveFrame()->ReplaceIconBox(hf);
-   hf->goingToBeDestroyed_.connect(boost::bind(&FWGUIManager::subviewIsBeingDestroyed,this,_1));
-   hf->selected_.connect(boost::bind(&FWGUIManager::subviewSelected,this,_1));
-   hf->unselected_.connect(boost::bind(&FWGUIManager::subviewUnselected,this,_1));
-   hf->swapWithCurrentView_.connect(boost::bind(&FWGUIManager::subviewSwapWithCurrent,this,_1));
-
    return slot;
 }
 

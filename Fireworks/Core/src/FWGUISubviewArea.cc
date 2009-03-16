@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.17 2009/03/12 18:25:45 amraktad Exp $
+// $Id: FWGUISubviewArea.cc,v 1.18 2009/03/13 22:41:38 amraktad Exp $
 //
 
 // system include files
 #include <assert.h>
 #include <stdexcept>
 #include <iostream>
+#include <boost/bind.hpp>
 
 #include "TSystem.h"
 #include "TGButton.h"
@@ -25,15 +26,15 @@
 
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
+#include  "Fireworks/Core/interface/FWGUIManager.h"
 
 //
 // constructors and destructor
 //
-FWGUISubviewArea::FWGUISubviewArea(TEveCompositeFrame* eveFrame)
-   : TGHorizontalFrame(0),
-     m_frame(eveFrame)
+FWGUISubviewArea::FWGUISubviewArea(TEveCompositeFrame* ef, TGCompositeFrame* parent, Int_t height) :
+   TGHorizontalFrame(parent, 20, height),
+   m_frame (ef)
 {
-   const unsigned int kIconHeight = 20;
    UInt_t lh = kLHintsNormal | kLHintsExpandX | kLHintsExpandY;
 
    // info
@@ -51,7 +52,7 @@ FWGUISubviewArea::FWGUISubviewArea(TEveCompositeFrame* eveFrame)
    m_swapButton->SetDisabledPicture(swapDisabledIcon());
    m_swapButton->SetToolTipText("Swap with current. Current is selected with left mouse click on frame tollbar.");
    m_swapButton->ChangeOptions(kRaisedFrame);
-   m_swapButton->SetHeight(kIconHeight);
+   m_swapButton->SetHeight(height);
    AddFrame(m_swapButton, new TGLayoutHints(lh));
    m_swapButton->Connect("Clicked()","FWGUISubviewArea",this,"swapWithCurrentView()");
 
@@ -60,7 +61,7 @@ FWGUISubviewArea::FWGUISubviewArea(TEveCompositeFrame* eveFrame)
    m_undockButton->ChangeOptions(kRaisedFrame);
    m_undockButton->SetDisabledPicture(undockDisabledIcon());
    m_undockButton->SetToolTipText("Undock view to own window");
-   m_undockButton->SetHeight(kIconHeight);
+   m_undockButton->SetHeight(height);
    AddFrame(m_undockButton, new TGLayoutHints(lh));
    m_undockButton->Connect("Clicked()", "FWGUISubviewArea",this,"undock()");
 
@@ -68,12 +69,17 @@ FWGUISubviewArea::FWGUISubviewArea(TEveCompositeFrame* eveFrame)
    m_closeButton = new TGPictureButton(this,closeIcon());
    m_closeButton->ChangeOptions(kRaisedFrame);
    m_closeButton->SetToolTipText("Close view");
-   m_closeButton->SetHeight(kIconHeight);
+   m_closeButton->SetHeight(height);
    AddFrame(m_closeButton, new TGLayoutHints(lh));
    m_closeButton->Connect("Clicked()", "FWGUISubviewArea",this,"destroy()");
 
-   SetBackgroundColor(TGFrame::GetBlackPixel());
-   SetCleanup(kDeepCleanup);
+   
+   // gui manager callbacks
+   FWGUIManager* mng = FWGUIManager::getGUIManager();
+   goingToBeDestroyed_.connect(boost::bind(&FWGUIManager::subviewIsBeingDestroyed,mng,_1));
+   selected_.connect(boost::bind(&FWGUIManager::subviewSelected,mng,_1));
+   unselected_.connect(boost::bind(&FWGUIManager::subviewUnselected,mng,_1));
+   swapWithCurrentView_.connect(boost::bind(&FWGUIManager::subviewSwapWithCurrent,mng,_1));
 }
 
 FWGUISubviewArea::~FWGUISubviewArea()
@@ -122,8 +128,7 @@ FWGUISubviewArea::destroy()
 void
 FWGUISubviewArea::undock()
 {
-   // At the moment  simple undock implemented alternative is UndockWindowDestroySlot()
-   TTimer::SingleShot(50, m_frame->GetEveWindow()->ClassName(), m_frame->GetEveWindow(), "UndockWindow()");
+   TTimer::SingleShot(50, m_frame->GetEveWindow()->ClassName(), m_frame->GetEveWindow(), "UndockWindowDestroySlot()");
 }
 
 void

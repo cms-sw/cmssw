@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.12 2009/03/11 21:16:18 amraktad Exp $
+// $Id: FWGUISubviewArea.h,v 1.13 2009/03/13 22:41:38 amraktad Exp $
 //
 
 #include "TGFrame.h"
@@ -33,7 +33,7 @@ class FWViewBase;
 class FWGUISubviewArea : public TGHorizontalFrame
 {
 public:
-   FWGUISubviewArea(TEveCompositeFrame* eveWindow);
+   FWGUISubviewArea(TEveCompositeFrame* ef, TGCompositeFrame* parent, Int_t height);
    virtual ~FWGUISubviewArea();
 
    // ---------- const member functions ---------------------

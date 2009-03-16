@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.52 2009/03/12 18:25:45 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.53 2009/03/13 22:41:38 amraktad Exp $
 //
 
 // system include files
@@ -62,6 +62,7 @@ class TEveElementList;
 class TEveElement;
 class TEveWindowPack;
 class TEveWindowSlot;
+class TEveCompositeFrame;
 
 class FWSummaryManager;
 class FWDetailViewManager;
@@ -189,6 +190,15 @@ public:
    void runIdChanged();
    void eventIdChanged();
 
+
+   void subviewIsBeingDestroyed(FWGUISubviewArea*);
+   void subviewDestroy(FWGUISubviewArea*); // timeout funct
+   void subviewSelected(FWGUISubviewArea*);
+   void subviewUnselected(FWGUISubviewArea*);
+   void subviewSwapWithCurrent(FWGUISubviewArea*);
+
+   static  TGFrame* makeGUIsubview(TEveCompositeFrame* cp, TGCompositeFrame* parent, Int_t height);
+
 private:
    FWGUIManager(const FWGUIManager&);    // stop default
 
@@ -197,12 +207,6 @@ private:
    void selectionChanged(const FWSelectionManager&);
 
    void newItem(const FWEventItem*);
-
-   void subviewIsBeingDestroyed(FWGUISubviewArea*);
-   void subviewDestroy(FWGUISubviewArea*); // timeout funct
-   void subviewSelected(FWGUISubviewArea*);
-   void subviewUnselected(FWGUISubviewArea*);
-   void subviewSwapWithCurrent(FWGUISubviewArea*);
 
    void exportImageOfMainView();
    void promptForConfigurationFile();
