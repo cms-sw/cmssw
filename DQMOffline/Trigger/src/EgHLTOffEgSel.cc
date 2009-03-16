@@ -17,7 +17,7 @@ void OffEgSel::setup(const edm::ParameterSet& iConfig)
 
 int OffEgSel::getCutCode(const OffEle& ele,int cutMask)const
 {
-  if(ele.detEta()<1.5) return getCutCode(ele,ebCutValues_,cutMask);
+  if(fabs(ele.detEta())<1.5) return getCutCode(ele,ebCutValues_,cutMask);
   else return getCutCode(ele,eeCutValues_,cutMask);
 }
 
@@ -54,7 +54,7 @@ int OffEgSel::getCutCode(const OffEle& ele,const EgCutValues& cuts,int cutMask)
 
 int OffEgSel::getCutCode(const OffPho& pho,int cutMask)const
 {
-  if(pho.detEta()<1.5) return getCutCode(pho,ebCutValues_,cutMask);
+  if(fabs(pho.detEta())<1.5) return getCutCode(pho,ebCutValues_,cutMask);
   else return getCutCode(pho,eeCutValues_,cutMask);
 }
 

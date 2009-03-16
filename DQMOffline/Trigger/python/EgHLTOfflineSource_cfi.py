@@ -5,11 +5,13 @@ from DQMOffline.Trigger.EgHLTOffEleSelection_cfi import *
 from DQMOffline.Trigger.EgHLTOffPhoSelection_cfi import *
 from DQMOffline.Trigger.EgHLTOffTrigSelection_cfi import *
 from DQMOffline.Trigger.EgHLTOffHistBins_cfi import *
+from DQMOffline.Trigger.EgHLTOffFiltersToMon_cfi import *
 
 egHLTOffDQMSource = cms.EDFilter("EgHLTOfflineSource",
-                                
-                                 filters = cms.VPSet(),
+                                 egHLTOffFiltersToMon,
                                  binData = cms.PSet(egHLTOffDQMBinData,),
+
+                                 #products we need
                                  triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
                                  EndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
                                  BarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
@@ -28,19 +30,7 @@ egHLTOffDQMSource = cms.EDFilter("EgHLTOfflineSource",
                                  eleHcalDepth2IsolTag=cms.InputTag("electronHcalDepth2TowerIsolationLcone"),
                                  phoIDTag = cms.InputTag("PhotonIDProd","PhotonAssociatedID"),
                               
-                                 eleHLTFilterNames=cms.vstring("hltL1NonIsoHLTNonIsoSingleElectronEt15TrackIsolFilter",
-                                                               "hltL1NonIsoHLTNonIsoSingleElectronLWEt15TrackIsolFilter",
-                                                               "hltL1NonIsoHLTNonIsoSinglePhotonEt15TrackIsolFilter",
-                                                               "hltL1NonIsoHLTNonIsoDoubleElectronEt5TrackIsolFilter"),
-                                 
-                                 phoHLTFilterNames=cms.vstring("hltL1NonIsoHLTNonIsoSinglePhotonEt15TrackIsolFilter",
-                                                               "hlt1jet30"),
-                                 eleTightLooseTrigNames=cms.vstring('hltL1NonIsoHLTNonIsoSingleElectronEt15TrackIsolFilter:hltL1NonIsoHLTNonIsoSingleElectronLWEt15TrackIsolFilter',
-                                                                    'hltL1NonIsoHLTNonIsoSingleElectronEt15TrackIsolFilter:hltL1NonIsoHLTNonIsoSinglePhotonEt15TrackIsolFilter',
-                                                                    'hltL1NonIsoHLTNonIsoSingleElectronEt15TrackIsolFilter:hlt1jet30'),
-                                 phoTightLooseTrigNames=cms.vstring('hltL1NonIsoHLTNonIsoSinglePhotonEt15TrackIsolFilter:hlt1jet30'),
-                                 diEleTightLooseTrigNames=cms.vstring('hltL1NonIsoHLTNonIsoDoubleElectronEt5TrackIsolFilter:hltPreMinBiasEcal'),
-                                 diPhoTightLooseTrigNames=cms.vstring(),
+                               
 
                                  
                                  #setting up selection

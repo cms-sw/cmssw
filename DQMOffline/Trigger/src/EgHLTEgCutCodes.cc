@@ -19,6 +19,7 @@ ComCodes EgCutCodes::setCodes_()
   
   codes.setCode("hadem",HADEM);
   codes.setCode("sigmaIEtaIEta",SIGMAIETAIETA);
+  codes.setCode("e2x5Over5x5",E2X5OVER5X5);
   codes.setCode("r9",R9);
 
   codes.setCode("isolEm",ISOLEM);

@@ -20,6 +20,6 @@ egHLTOffDQMBinData = cms.PSet (
     isolNrTrks=cms.PSet(nr=cms.int32(22),min=cms.double(-1),max=cms.double(10)),
     mass = cms.PSet(nr=cms.int32(420),min=cms.double(-10.),max=cms.double(2000)),
     massHigh = cms.PSet(nr=cms.int32(20),min=cms.double(0.),max=cms.double(5000)),
-    etaVsPhi = cms.PSet(nrX=cms.int32(54),xMin=cms.double(-2.7),xMax=cms.double(2.7),
-                        nrY=cms.int32(50),yMin=cms.double(-3.14),yMax=cms.double(3.14)),
+    etaVsPhi = cms.PSet(nrX=cms.int32(15),xMin=cms.double(-3.),xMax=cms.double(3.),
+                        nrY=cms.int32(8),yMin=cms.double(-3.14),yMax=cms.double(3.14)),
 )

@@ -46,8 +46,14 @@ class EgHLTOfflineClient : public edm::EDAnalyzer {
   std::vector<std::string> phoTightLooseTrigNames_;
   
 
-  std::vector<std::string> eleEffVars_;
-  std::vector<std::string> phoEffVars_;
+  std::vector<std::string> eleN1EffVars_;
+  std::vector<std::string> eleSingleEffVars_;
+  std::vector<std::string> eleEffTags_;
+
+  std::vector<std::string> phoN1EffVars_;
+  std::vector<std::string> phoSingleEffVars_;
+  std::vector<std::string> phoEffTags_;
+
   std::vector<std::string> eleTrigTPEffVsVars_;
   std::vector<std::string> phoTrigTPEffVsVars_;
   std::vector<std::string> eleLooseTightTrigEffVsVars_;
@@ -77,6 +83,7 @@ class EgHLTOfflineClient : public edm::EDAnalyzer {
 
   //at somepoint these all may migrate to a helper class
   void createN1EffHists(const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames);
+  void createSingleEffHists(const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames);
   void createLooseTightTrigEff(const std::vector<std::string>&  tightLooseTrigNames,const std::string& region,const std::vector<std::string>& vsVarNames,const std::string& objName);
   void createTrigTagProbeEffHists(const std::string& filterName,const std::string& region,const std::vector<std::string>& vsVarNames,const std::string& objName);
   

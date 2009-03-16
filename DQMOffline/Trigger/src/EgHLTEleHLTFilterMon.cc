@@ -15,8 +15,8 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   filterName_(filterName),
   filterBit_(filterBit)
 {
-  bool doChargeSep = false;
-  bool monHLTFailedEle = false;
+  bool doChargeSep = true;
+  bool monHLTFailedEle = true;
 
   eleMonElems_.push_back(new MonElemContainer<OffEle>());
   if(doChargeSep){

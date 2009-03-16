@@ -29,13 +29,18 @@ EgHLTOfflineClient::EgHLTOfflineClient(const edm::ParameterSet& iConfig)
   phoHLTFilterNames_ = iConfig.getParameter<std::vector<std::string> >("phoHLTFilterNames");
   phoTightLooseTrigNames_ = iConfig.getParameter<std::vector<std::string> >("phoTightLooseTrigNames");
 
-  eleEffVars_=iConfig.getParameter<std::vector<std::string> >("eleEffVars");
-  phoEffVars_=iConfig.getParameter<std::vector<std::string> >("phoEffVars");
-  eleTrigTPEffVsVars_=iConfig.getParameter<std::vector<std::string> >("eleTrigTPEffVsVars");
-  phoTrigTPEffVsVars_=iConfig.getParameter<std::vector<std::string> >("phoTrigTPEffVsVars");
-  eleLooseTightTrigEffVsVars_=iConfig.getParameter<std::vector<std::string> >("eleLooseTightTrigEffVsVars");
-  phoLooseTightTrigEffVsVars_=iConfig.getParameter<std::vector<std::string> >("phoLooseTightTrigEffVsVars");
- 
+  eleN1EffVars_=iConfig.getParameter<std::vector<std::string> >("eleN1EffVars");
+  eleSingleEffVars_ = iConfig.getParameter<std::vector<std::string> >("eleSingleEffVars");
+  eleEffTags_ = iConfig.getParameter<std::vector<std::string> >("eleEffTags");
+  eleTrigTPEffVsVars_ = iConfig.getParameter<std::vector<std::string> >("eleTrigTPEffVsVars");
+  eleLooseTightTrigEffVsVars_ =  iConfig.getParameter<std::vector<std::string> >("eleLooseTightTrigEffVsVars");
+
+  phoN1EffVars_=iConfig.getParameter<std::vector<std::string> >("phoN1EffVars");
+  phoSingleEffVars_ = iConfig.getParameter<std::vector<std::string> >("phoSingleEffVars");
+  phoEffTags_ = iConfig.getParameter<std::vector<std::string> >("phoEffTags");
+  phoTrigTPEffVsVars_ = iConfig.getParameter<std::vector<std::string> >("phoTrigTPEffVsVars");
+  phoLooseTightTrigEffVsVars_ =  iConfig.getParameter<std::vector<std::string> >("phoLooseTightTrigEffVsVars");
+  
   dirName_=iConfig.getParameter<std::string>("DQMDirName");
   if(dbe_) dbe_->setCurrentFolder(dirName_);
  
@@ -55,18 +60,17 @@ void EgHLTOfflineClient::beginJob(const edm::EventSetup& iSetup)
 
 void EgHLTOfflineClient::endJob() 
 {
-  LogDebug("EgHLTOfflineClient") << "ending job";
+
 }
 
 void EgHLTOfflineClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
-  LogDebug("EgHLTOfflineClient") << "beginRun, run " << run.id();
+ 
 }
 
 
 void EgHLTOfflineClient::endRun(const edm::Run& run, const edm::EventSetup& c)
 {
-  LogDebug("EgHLTOfflineClient") << "endRun, run " << run.id();
   runClient_();
 }
 
@@ -88,27 +92,34 @@ void EgHLTOfflineClient::runClient_()
   std::vector<std::string> regions;
   regions.push_back("eb");
   regions.push_back("ee");
+
+  
   for(size_t filterNr=0;filterNr<eleHLTFilterNames_.size();filterNr++){
     for(size_t regionNr=0;regionNr<regions.size();regionNr++){
-      createTrigTagProbeEffHists(eleHLTFilterNames_[filterNr],regions[regionNr],eleTrigTPEffVsVars_,"gsfEle");
-      createN1EffHists(eleHLTFilterNames_[filterNr]+"_gsfEle_effVsEt_tagProbe",regions[regionNr],eleEffVars_);
-      createN1EffHists(eleHLTFilterNames_[filterNr]+"_gsfEle_effVsEt",regions[regionNr],eleEffVars_);
-      createN1EffHists(eleHLTFilterNames_[filterNr]+"_gsfEle_effVsEt_fakeRate",regions[regionNr],eleEffVars_);
+      for(size_t effNr=0;effNr<eleEffTags_.size();effNr++){
+	createN1EffHists(eleHLTFilterNames_[filterNr]+"_gsfEle_"+eleEffTags_[effNr],regions[regionNr],eleN1EffVars_);
+	createSingleEffHists(eleHLTFilterNames_[filterNr]+"_gsfEle_"+eleEffTags_[effNr],regions[regionNr],eleSingleEffVars_);
+	createTrigTagProbeEffHists(eleHLTFilterNames_[filterNr],regions[regionNr],eleTrigTPEffVsVars_,"gsfEle");
+      }
     }
   }
+  
+  
   for(size_t filterNr=0;filterNr<phoHLTFilterNames_.size();filterNr++){
     for(size_t regionNr=0;regionNr<regions.size();regionNr++){
-      createN1EffHists(phoHLTFilterNames_[filterNr]+"_pho_effVsEt",regions[regionNr],phoEffVars_);
+      for(size_t effNr=0;effNr<phoEffTags_.size();effNr++){
+	createN1EffHists(eleHLTFilterNames_[filterNr]+"_pho_"+phoEffTags_[effNr],regions[regionNr],phoN1EffVars_);
+	createSingleEffHists(eleHLTFilterNames_[filterNr]+"_gsfEle_"+phoEffTags_[effNr],regions[regionNr],phoSingleEffVars_);
+      }
     }
   }
 
-
   for(size_t regionNr=0;regionNr<regions.size();regionNr++){
-    createLooseTightTrigEff(eleTightLooseTrigNames_,regions[regionNr],eleLooseTightTrigEffVsVars_,"gsfEle");
-    createLooseTightTrigEff(phoTightLooseTrigNames_,regions[regionNr],phoLooseTightTrigEffVsVars_,"pho");
+    createLooseTightTrigEff(eleTightLooseTrigNames_,regions[regionNr],eleLooseTightTrigEffVsVars_,"gsfEle");   
+    createLooseTightTrigEff(eleTightLooseTrigNames_,regions[regionNr],eleLooseTightTrigEffVsVars_,"gsfEle_trigCuts");
+    createLooseTightTrigEff(phoTightLooseTrigNames_,regions[regionNr],phoLooseTightTrigEffVsVars_,"pho"); 
+    createLooseTightTrigEff(phoTightLooseTrigNames_,regions[regionNr],phoLooseTightTrigEffVsVars_,"pho_trigCuts");
   }
-   
-  
 }
 
 void EgHLTOfflineClient::createN1EffHists(const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames)
@@ -119,6 +130,19 @@ void EgHLTOfflineClient::createN1EffHists(const std::string& baseName,const std:
     MonitorElement* denom = dbe_->get(dirName_+"/"+baseName+"_n1_"+varNames[varNr]+"_"+region);
     if(numer!=NULL && denom!=NULL){
       std::string effHistName(baseName+"_n1Eff_"+varNames[varNr]+"_"+region);
+      makeEffMonElemFromPassAndAll(effHistName,numer,denom);   
+    }
+  }//end loop over varNames 
+}
+
+void EgHLTOfflineClient::createSingleEffHists(const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames)
+{ 
+  MonitorElement* denom = dbe_->get(dirName_+"/"+baseName+"_noCuts_"+region);
+  
+  for(size_t varNr=0;varNr<varNames.size();varNr++){
+    MonitorElement* numer = dbe_->get(dirName_+"/"+baseName+"_single_"+varNames[varNr]+"_"+region);
+    if(numer!=NULL && denom!=NULL){
+      std::string effHistName(baseName+"_singleEff_"+varNames[varNr]+"_"+region);
       makeEffMonElemFromPassAndAll(effHistName,numer,denom);   
     }
   }//end loop over varNames 

@@ -1,27 +1,31 @@
 import FWCore.ParameterSet.Config as cms
 
+from DQMOffline.Trigger.EgHLTOffFiltersToMon_cfi import *
+
 egHLTOffDQMClient = cms.EDFilter("EgHLTOfflineClient",
+                                 egHLTOffFiltersToMon,
                                  sourceModuleName = cms.string('egammaHLTDQM'),
                                  DQMDirName=cms.string("HLT/EgammaHLTOffline_egammaHLTDQM"),
-                                 eleHLTFilterNames=cms.vstring("hltL1NonIsoHLTNonIsoSingleElectronEt15TrackIsolFilter",
-                                                              "hltL1NonIsoHLTNonIsoSingleElectronLWEt15TrackIsolFilter",
-                                                               "hltL1NonIsoHLTNonIsoSinglePhotonEt15TrackIsolFilter",
-                                                               "hlt1jet30"),
-                                 phoHLTFilterNames=cms.vstring("hltL1NonIsoHLTNonIsoSinglePhotonEt15TrackIsolFilter",
-                                                               "hlt1jet30"),
-                                 eleTightLooseTrigNames=cms.vstring('hltL1NonIsoHLTNonIsoSingleElectronEt15TrackIsolFilter:hltL1NonIsoHLTNonIsoSingleElectronLWEt15TrackIsolFilter',
-                                                                    'hltL1NonIsoHLTNonIsoSingleElectronEt15TrackIsolFilter:hltL1NonIsoHLTNonIsoSinglePhotonEt15TrackIsolFilter',
-                                                                    'hltL1NonIsoHLTNonIsoSingleElectronEt15TrackIsolFilter:hlt1jet30',
-                                                                    'hltL1NonIsoHLTNonIsoSingleElectronEt15TrackIsolFilter:hlt1jet50'),
-                                 phoTightLooseTrigNames=cms.vstring('hltL1NonIsoHLTNonIsoSinglePhotonEt15TrackIsolFilter:hlt1jet30'),
-                                 eleEffVars=cms.vstring('dEtaIn','dPhiIn','hOverE','sigmaEtaEta'),
-                                 phoEffVars=cms.vstring('hOverE','sigmaEtaEta'),
+
+                                 #efficiences variables and vs variables
+                                 eleN1EffVars=cms.vstring('dEtaIn','dPhiIn','hOverE','sigmaIEtaIEta',
+                                                          'isolEm','isolHad','isolPtTrks','hltIsolHad',
+                                                          'hltIsoltrksEle'),
+                                 eleSingleEffVars=cms.vstring('dEtaIn','dPhiIn','hOverE','sigmaIEtaIEta',
+                                                              'isolEm','isolHad','isolPtTrks',
+                                                              'hltIsolHad','hltIsoltrksEle','hltIsolTrksPho'),
+                                 eleEffTags=cms.vstring('effVsEt','effVsEta','effVsPhi'), #used for vs vars and T&P, Fake rate tags
                                  eleTrigTPEffVsVars=cms.vstring('et','eta','phi','charge'),
-                                 phoTrigTPEffVsVars=cms.vstring('et','eta','phi','charge'),
                                  eleLooseTightTrigEffVsVars=cms.vstring('et','eta','phi','charge',
-                                                                        'hOverE','sigmaEtaEta','dPhiIn','dEtaIn'),
-                                 phoLooseTightTrigEffVsVars=cms.vstring('et','eta','phi','charge',
-                                                                        'hOverE','sigmaEtaEta')
+                                                                        'hOverE','sigmaIEtaIEta','dPhiIn','dEtaIn'),
+                                 
+                                 phoN1EffVars=cms.vstring('hOverE','sigmaIEtaIEta','r9',
+                                                          'isolEm','isolHad','isolPtTrks','isolNrTrks'),
+                                 phoSingleEffVars=cms.vstring('sigmaIEtaIEta','hltIsolHad','hltIsolTrksPho'),
+                                 phoEffTags=cms.vstring('effVsEt','effVsEta','effVsPhi'),
+                                 phoTrigTPEffVsVars=cms.vstring('et','eta','phi','charge'),
+                                 phoLooseTightTrigEffVsVars=cms.vstring('et','eta','phi',
+                                                                        'hOverE','sigmaIEtaIEta')
                                  )
 
 

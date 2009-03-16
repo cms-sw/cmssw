@@ -2,7 +2,7 @@
 import FWCore.ParameterSet.Config as cms
 
 egHLTOffEleBarrelCuts = cms.PSet (
-    cuts=cms.string("et:detEta:dEtaIn:dPhiIn:hadem:sigmaIEtaIEta:isolEm:isolHad:isolPtTrks:hltIsolHad:hltIsolTrksPho"),
+    cuts=cms.string("et:detEta:dEtaIn:dPhiIn:hadem:sigmaIEtaIEta:e2x5Over5x5:isolEm:isolHad:isolPtTrks:hltIsolHad:hltIsolTrksEle"),
     minEt=cms.double(15),
     minEta=cms.double(0.),
     maxEta=cms.double(1.442),
@@ -38,7 +38,7 @@ egHLTOffEleEndcapCuts = cms.PSet (
     maxDPhiIn=cms.double(0.1),
     maxInvEInvP=cms.double(0.1),
     maxHadem=cms.double(0.05),    
-    maxSigmaIEtaIEta=cms.double(0.015),
+    maxSigmaIEtaIEta=cms.double(0.0275),
     minR9=cms.double(0.9),
     isolEmConstTerm=cms.double(3),
     isolEmGradTerm=cms.double(0.02),
