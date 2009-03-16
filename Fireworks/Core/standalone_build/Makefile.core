@@ -21,8 +21,8 @@ include core.mk
 
 # 
 # common compiler flags
-#COMPILERFLAGS := -Wall -O3 -m32 -fPIC
- COMPILERFLAGS := -Wall -O0 -g -fPIC
+COMPILERFLAGS := -Wall -O3 -m32 -fPIC
+# COMPILERFLAGS := -Wall -O0 -g -fPIC
 # common includes
 INCLUDE := -I./ -I$(FWROOTSYS)/include -Icms $(addprefix -I,$(CoreIncludes))
 # compiler
