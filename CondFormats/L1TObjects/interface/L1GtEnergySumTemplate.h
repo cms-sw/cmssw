@@ -63,8 +63,8 @@ public:
         bool energyOverflow;
 
         // used only for ETM
-        boost::uint64_t phiRange0Word; // ETM phi has 72 bins - two 64-bits words
-        boost::uint64_t phiRange1Word;
+        unsigned long long phiRange0Word; // ETM phi has 72 bins - two 64-bits words
+        unsigned long long phiRange1Word;
     };
 
 public:

@@ -65,7 +65,7 @@ public:
         bool enableIso;
         bool requestIso;
         unsigned int qualityRange;
-        boost::uint64_t etaRange;
+        unsigned long long etaRange;
         unsigned int phiHigh;
         unsigned int phiLow;
     };
@@ -76,10 +76,10 @@ public:
     struct CorrelationParameter
     {
         unsigned int chargeCorrelation;
-        boost::uint64_t deltaEtaRange;
+        unsigned long long deltaEtaRange;
 
-        boost::uint64_t deltaPhiRange0Word;
-        boost::uint64_t deltaPhiRange1Word;
+        unsigned long long deltaPhiRange0Word;
+        unsigned long long deltaPhiRange1Word;
         unsigned int deltaPhiMaxbits;
     };
 
