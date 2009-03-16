@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2009/03/08 02:01:14 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/03/13 11:48:30 $
+ *  $Revision: 1.19 $
  *  \author cerati
  */
 
@@ -313,9 +313,8 @@ class MultiTrackValidatorBase {
 
 
   std::vector<MonitorElement*> h_hits_eta,
-    h_PXBhits_eta, h_PXFhits_eta, 
-    h_TIBhits_eta,h_TIDhits_eta,
-    h_TOBhits_eta,h_TEChits_eta,
+    h_PXBhits_eta, h_PXFhits_eta, h_TIBhits_eta,h_TIDhits_eta,
+    h_TOBhits_eta,h_TEChits_eta,h_DThits_eta,h_CSChits_eta,h_RPChits_eta,
     h_LayersWithMeas_eta, h_PXLlayersWithMeas_eta, 
     h_STRIPlayersWithMeas_eta, h_STRIPlayersWith1dMeas_eta, h_STRIPlayersWith2dMeas_eta;
     
