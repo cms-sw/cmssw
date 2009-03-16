@@ -20,7 +20,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
 
                                           timetype = cms.untracked.string('runnumber'),
-                                          connect = cms.string('sqlite_file:rpcgeo.db'),
+                                          connect = cms.string('sqlite_file:myfile.db'),
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('RPCRecoGeometryRcd'),tag = cms.string('RPCRECO_Geometry_Test01'))
                                                             )
                                           )

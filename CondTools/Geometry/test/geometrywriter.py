@@ -13,11 +13,6 @@ process.source = cms.Source("EmptyIOVSource",
                             interval = cms.uint64(1)
                             )
 
-process.BigXMLWriter = cms.EDAnalyzer("OutputDDToDDL",
-                              rotNumSeed = cms.int32(0),
-                              fileName = cms.untracked.string("fred.xml")
-                              )
-
 process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
                                            XMLFileName = cms.untracked.string("./fred.xml"),
                                            ZIP = cms.untracked.bool(True)
@@ -58,5 +53,5 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.p1 = cms.Path(process.BigXMLWriter+process.XMLGeometryWriter+process.TrackerGeometryWriter+process.CaloGeometryWriter+process.CSCGeometryWriter+process.DTGeometryWriter+process.RPCGeometryWriter)
+process.p1 = cms.Path(process.XMLGeometryWriter+process.TrackerGeometryWriter+process.CaloGeometryWriter+process.CSCGeometryWriter+process.DTGeometryWriter+process.RPCGeometryWriter)
 
