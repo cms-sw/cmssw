@@ -71,6 +71,14 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type, bool 
     hid = theHistogramId->setHistoId("ClustY",id_);
     meClustY_ = theDMBE->book1D(hid, "Cluster Y size", 25, 0., 25.);
     meClustY_->setAxisTitle("Cluster size Y dimension", 1); 
+
+    hid = theHistogramId->setHistoId("ErrorX",id_);
+    meErrorX_ = theDMBE->book1D(hid, "RecHit error X", 100,0,0.02);
+    meErrorX_->setAxisTitle("RecHit error X", 1);
+    hid = theHistogramId->setHistoId("ErrorY",id_);
+    meErrorY_ = theDMBE->book1D(hid, "RecHit error Y", 100,0,0.02);
+    meErrorY_->setAxisTitle("Error Y", 1);
+
     hid = theHistogramId->setHistoId("nRecHits",id_);
     menRecHits_ = theDMBE->book1D(hid, "# of rechits in this module", 50, 0, 50);
     menRecHits_->setAxisTitle("number of rechits",1);  
@@ -99,6 +107,10 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type, bool 
     meClustXLad_->setAxisTitle("Cluster size X dimension", 1);
     meClustYLad_ = theDMBE->book1D("ClustY_" +hid,"Cluster Y size", 25, 0.,25.);
     meClustYLad_->setAxisTitle("Cluster size Y dimension", 1);
+    meErrorXLad_ = theDMBE->book1D("ErrorX_"+hid, "RecHit error X", 100,0,0.02);
+    meErrorXLad_->setAxisTitle("RecHit error X", 1);
+    meErrorYLad_ = theDMBE->book1D("ErrorY_"+hid, "RecHit error Y", 100,0,0.02);
+    meErrorYLad_->setAxisTitle("Error Y", 1);
     menRecHitsLad_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 50, 0, 50);
     menRecHitsLad_->setAxisTitle("number of rechits",1);
 
@@ -127,6 +139,10 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type, bool 
     meClustXLay_->setAxisTitle("Cluster size X dimension", 1);
     meClustYLay_ = theDMBE->book1D("ClustY_" +hid,"Cluster Y size", 25, 0.,25.);
     meClustYLay_->setAxisTitle("Cluster size Y dimension", 1);
+    meErrorXLay_ = theDMBE->book1D("ErrorX_"+hid, "RecHit error X", 100,0,0.02);
+    meErrorXLay_->setAxisTitle("RecHit error X", 1);
+    meErrorYLay_ = theDMBE->book1D("ErrorY_"+hid, "RecHit error Y", 100,0,0.02);
+    meErrorYLay_->setAxisTitle("Error Y", 1);
     menRecHitsLay_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 50, 0, 50);
     menRecHitsLay_->setAxisTitle("number of rechits",1);
 
@@ -153,6 +169,10 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type, bool 
     meClustXPhi_->setAxisTitle("Cluster size X dimension", 1);
     meClustYPhi_ = theDMBE->book1D("ClustY_" +hid,"Cluster Y size", 25, 0.,25.);
     meClustYPhi_->setAxisTitle("Cluster size Y dimension", 1);
+    meErrorXPhi_ = theDMBE->book1D("ErrorX_"+hid, "RecHit error X", 100,0,0.02);
+    meErrorXPhi_->setAxisTitle("RecHit error X", 1);
+    meErrorYPhi_ = theDMBE->book1D("ErrorY_"+hid, "RecHit error Y", 100,0,0.02);
+    meErrorYPhi_->setAxisTitle("Error Y", 1);
     menRecHitsPhi_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 50, 0, 50);
     menRecHitsPhi_->setAxisTitle("number of rechits",1);
 
@@ -171,6 +191,10 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type, bool 
     meClustXBlade_->setAxisTitle("Cluster size X dimension", 1);
     meClustYBlade_ = theDMBE->book1D("ClustY_" +hid,"Cluster Y size", 25, 0.,25.);
     meClustYBlade_->setAxisTitle("Cluster size Y dimension", 1);
+    meErrorXBlade_ = theDMBE->book1D("ErrorX_"+hid, "RecHit error X", 100,0,0.02);
+    meErrorXBlade_->setAxisTitle("RecHit error X", 1);
+    meErrorYBlade_ = theDMBE->book1D("ErrorY_"+hid, "RecHit error Y", 100,0,0.02);
+    meErrorYBlade_->setAxisTitle("Error Y", 1);
     menRecHitsBlade_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 50, 0, 50);
     menRecHitsBlade_->setAxisTitle("number of rechits",1);
 
@@ -188,6 +212,10 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type, bool 
     meClustXDisk_->setAxisTitle("Cluster size X dimension", 1);
     meClustYDisk_ = theDMBE->book1D("ClustY_" +hid,"Cluster Y size", 25, 0.,25.);
     meClustYDisk_->setAxisTitle("Cluster size Y dimension", 1);
+    meErrorXDisk_ = theDMBE->book1D("ErrorX_"+hid, "RecHit error X", 100,0,0.02);
+    meErrorXDisk_->setAxisTitle("RecHit error X", 1);
+    meErrorYDisk_ = theDMBE->book1D("ErrorY_"+hid, "RecHit error Y", 100,0,0.02);
+    meErrorYDisk_->setAxisTitle("Error Y", 1);
     menRecHitsDisk_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 50, 0, 50);
     menRecHitsDisk_->setAxisTitle("number of rechits",1);
 
@@ -215,6 +243,10 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type, bool 
     meClustXRing_->setAxisTitle("Cluster size X dimension", 1);
     meClustYRing_ = theDMBE->book1D("ClustY_" +hid,"Cluster Y size", 25, 0.,25.);
     meClustYRing_->setAxisTitle("Cluster size Y dimension", 1);
+    meErrorXRing_ = theDMBE->book1D("ErrorX_"+hid, "RecHit error X", 100,0,0.02);
+    meErrorXRing_->setAxisTitle("RecHit error X", 1);
+    meErrorYRing_ = theDMBE->book1D("ErrorY_"+hid, "RecHit error Y", 100,0,0.02);
+    meErrorYRing_->setAxisTitle("Error Y", 1);
     menRecHitsRing_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 50, 0, 50);
     menRecHitsRing_->setAxisTitle("number of rechits",1);
 
@@ -224,7 +256,7 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type, bool 
 //
 // Fill histograms
 //
-void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y, const int& sizeX, const int& sizeY, bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD) {
+void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y, const int& sizeX, const int& sizeY, const float& lerr_x, const float& lerr_y, bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD) {
 
    bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -267,6 +299,8 @@ void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y, con
     }
     meClustX_->Fill(sizeX);
     meClustY_->Fill(sizeY);
+    meErrorX_->Fill(lerr_x);
+    meErrorY_->Fill(lerr_y);  
   }
   //std::cout<<"number of detector units="<<numberOfDetUnits<<std::endl;
 
@@ -278,6 +312,8 @@ void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y, con
     }
     meClustXLad_->Fill(sizeX);
     meClustYLad_->Fill(sizeY);
+    meErrorXLad_->Fill(lerr_x);
+    meErrorYLad_->Fill(lerr_y);  
   }
 
   if(layon && barrel){
@@ -288,6 +324,8 @@ void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y, con
     }
     meClustXLay_->Fill(sizeX);
     meClustYLay_->Fill(sizeY);
+    meErrorXLay_->Fill(lerr_x);
+    meErrorYLay_->Fill(lerr_y); 
   }
 
   if(phion && barrel){
@@ -298,18 +336,24 @@ void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y, con
     }
     meClustXPhi_->Fill(sizeX);
     meClustYPhi_->Fill(sizeY);
+    meErrorXPhi_->Fill(lerr_x);
+    meErrorYPhi_->Fill(lerr_y); 
   }
 
   if(bladeon && endcap){
     //meXYPosBlade_->Fill(rechit_x, rechit_y);
     meClustXBlade_->Fill(sizeX);
     meClustYBlade_->Fill(sizeY);
+    meErrorXBlade_->Fill(lerr_x);
+    meErrorYBlade_->Fill(lerr_y); 
   }
 
   if(diskon && endcap){
     //meXYPosDisk_->Fill(rechit_x, rechit_y);
     meClustXDisk_->Fill(sizeX);
     meClustYDisk_->Fill(sizeY);
+    meErrorXDisk_->Fill(lerr_x);
+    meErrorYDisk_->Fill(lerr_y); 
   }
 
   if(ringon && endcap){
@@ -320,6 +364,8 @@ void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y, con
     }
     meClustXRing_->Fill(sizeX);
     meClustYRing_->Fill(sizeY);
+    meErrorXRing_->Fill(lerr_x);
+    meErrorYRing_->Fill(lerr_y); 
   }
 }
 

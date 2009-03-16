@@ -18,7 +18,7 @@ detector segment (detID)
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitModule.h,v 1.4 2008/06/23 15:51:59 merkelp Exp $
+// $Id: SiPixelRecHitModule.h,v 1.5 2008/08/08 14:26:15 merkelp Exp $
 //
 //  Adapted by: Keith Rose
 //  for use in SiPixelMonitorRecHit package
@@ -47,7 +47,7 @@ class SiPixelRecHitModule {
   /// Book histograms
   void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true);
   /// Fill histograms
-  void fill(const float& rechit_x, const float& rechit_y, const int& sizeX, const int& sizeY, bool modon=true, bool ladon=false, bool layon=false, bool phion=false, bool bladeon=false, bool diskon=false, bool ringon=false, bool twoD=true);
+  void fill(const float& rechit_x, const float& rechit_y, const int& sizeX, const int& sizeY, const float& lerr_x, const float& lerr_y, bool modon=true, bool ladon=false, bool layon=false, bool phion=false, bool bladeon=false, bool diskon=false, bool ringon=false, bool twoD=true);
   void nfill(const int& nrec, bool modon=true, bool ladon=false, bool layon=false, bool phion=false, bool bladeon=false, bool diskon=false, bool ringon=false);  
 
  private:
@@ -58,6 +58,8 @@ class SiPixelRecHitModule {
   MonitorElement* meXYPos_py_;
   MonitorElement* meClustX_;
   MonitorElement* meClustY_;  
+  MonitorElement* meErrorX_;
+  MonitorElement* meErrorY_;  
   MonitorElement* menRecHits_;
   //barrel
   MonitorElement* meXYPosLad_;
@@ -65,6 +67,8 @@ class SiPixelRecHitModule {
   MonitorElement* meXYPosLad_py_;
   MonitorElement* meClustXLad_;
   MonitorElement* meClustYLad_;
+  MonitorElement* meErrorXLad_;
+  MonitorElement* meErrorYLad_; 
   MonitorElement* menRecHitsLad_;
 
   MonitorElement* meXYPosLay_;
@@ -72,6 +76,8 @@ class SiPixelRecHitModule {
   MonitorElement* meXYPosLay_py_;
   MonitorElement* meClustXLay_;
   MonitorElement* meClustYLay_;
+  MonitorElement* meErrorXLay_;
+  MonitorElement* meErrorYLay_; 
   MonitorElement* menRecHitsLay_;
 
   MonitorElement* meXYPosPhi_;
@@ -79,15 +85,21 @@ class SiPixelRecHitModule {
   MonitorElement* meXYPosPhi_py_;
   MonitorElement* meClustXPhi_;
   MonitorElement* meClustYPhi_;
+  MonitorElement* meErrorXPhi_;
+  MonitorElement* meErrorYPhi_; 
   MonitorElement* menRecHitsPhi_;
 
   //forward
   MonitorElement* meClustXBlade_;
   MonitorElement* meClustYBlade_;  
+  MonitorElement* meErrorXBlade_;
+  MonitorElement* meErrorYBlade_; 
   MonitorElement* menRecHitsBlade_;
 
   MonitorElement* meClustXDisk_;
   MonitorElement* meClustYDisk_;  
+  MonitorElement* meErrorXDisk_;
+  MonitorElement* meErrorYDisk_; 
   MonitorElement* menRecHitsDisk_;
 
   MonitorElement* meXYPosRing_;
@@ -95,6 +107,8 @@ class SiPixelRecHitModule {
   MonitorElement* meXYPosRing_py_;
   MonitorElement* meClustXRing_;
   MonitorElement* meClustYRing_;
+  MonitorElement* meErrorXRing_;
+  MonitorElement* meErrorYRing_; 
   MonitorElement* menRecHitsRing_;
 };
 #endif
