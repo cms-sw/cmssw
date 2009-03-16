@@ -4,15 +4,15 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2009/01/09 15:36:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/01/14 15:34:14 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
 #include <CLHEP/Vector/LorentzVector.h>
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "MuonAnalysis/MomentumScaleCalibration/plugins/MuScleFitUtils.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitUtils.h"
 
 #include "TH1D.h"
 #include "TH1F.h"
