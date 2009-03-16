@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2008/09/18 11:12:27 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/10/07 11:15:30 $
+ *  $Revision: 1.7 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
@@ -1960,7 +1960,7 @@ RecHitVector MuonAlignmentAnalyzer::doMatching(const reco::Track &staTrack, edm:
     RecHitVector my4DTrack;
   
     //Loop over the hits of the track
-    for(unsigned int counter = 0; counter != staTrack.numberOfValidHits()-1; counter++) {
+    for( int counter = 0; counter != staTrack.numberOfValidHits()-1; counter++) {
     
         TrackingRecHitRef myRef = staTrack.recHit(counter);
         const TrackingRecHit *rechit = myRef.get();
