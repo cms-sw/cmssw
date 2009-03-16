@@ -15,7 +15,7 @@
 // Original Authors: Andrey Pozdnyakov, Sergey Petrushanko,
 //                   Grigory Safronov, Olga Kodolova
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.10 2008/10/20 08:09:24 kodolova Exp $
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.11 2008/11/13 14:03:53 kodolova Exp $
 //
 //
 
@@ -559,7 +559,7 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		  DIETA = DIETA>0 ? DIETA-1 : DIETA+1; 
 		}
 	      
-	      int DIPHI = MaxHit.iphihitm - (hhit->id()).iphi();
+	      int DIPHI = abs(MaxHit.iphihitm - (hhit->id()).iphi());
 	      DIPHI = DIPHI>36 ? 72-DIPHI : DIPHI;
 	      DIPHI = DIPHI<-36 ? 72+DIPHI : DIPHI;
 	      

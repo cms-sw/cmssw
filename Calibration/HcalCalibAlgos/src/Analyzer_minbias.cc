@@ -12,10 +12,6 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
