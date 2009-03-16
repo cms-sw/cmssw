@@ -1174,7 +1174,7 @@ namespace edm {
             EntryDescriptionID* ppb = pb.get();
             br->SetAddress(&ppb);
             input::getEntry(br, rootTree.entryNumber());
-	    std::vector<ProductStatus>::size_type index = it->second.oldProductID().productIndex() - 1;
+	    std::vector<ProductStatus>::size_type index = it->second.oldProductID().oldID() - 1;
 	    EventEntryInfo entry(it->second.branchID(), rootTree.productStatuses()[index], it->second.oldProductID(), *pb);
 	    mapper->insert(entry.makeProductProvenance(ParentageID()));
           } else {
@@ -1202,7 +1202,7 @@ namespace edm {
 	    input::BranchInfo const& ib = ix->second;
 	    TBranch *br = ib.provenanceBranch_;
             input::getEntry(br, rootTree.entryNumber());
-	    std::vector<ProductStatus>::size_type index = it->second.oldProductID().productIndex() - 1;
+	    std::vector<ProductStatus>::size_type index = it->second.oldProductID().oldID() - 1;
 	    ProductProvenance entry(it->second.branchID(), rootTree.productStatuses()[index]);
 	    mapper->insert(entry);
 	  } else {
