@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pixellayertriplets = cms.ESProducer("PixelLayerTripletsESProducer",
+pixellayertriplets = cms.ESProducer("SeedingLayersESProducer",
     ComponentName = cms.string('PixelLayerTriplets'),
     layerList = cms.vstring('BPix1+BPix2+BPix3', 
         'BPix1+BPix2+FPix1_pos', 

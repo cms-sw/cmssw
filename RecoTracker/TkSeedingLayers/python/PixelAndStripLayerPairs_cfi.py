@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # Seeding with one hit in outer pixel and one in inner strip.
 # Useful for exotic physics, V0 finding etc.
 
-pixelandstriplayerpairs = cms.ESProducer("MixedLayerPairsESProducer",
+pixelandstriplayerpairs = cms.ESProducer("SeedingLayersESProducer",
     ComponentName = cms.string('PixelAndStripLayerPairs'),
     layerList = cms.vstring(
         'BPix3+TIB1_pos',
