@@ -96,11 +96,16 @@
 //    system. All functions in file MuScleFitUtils.cc have been suitably changed.
 //
 // ----------------------------------------------------------------------------------
+//    Modifications by M.De Mattia 13/3/2009
+//    --------------------------------------
+//  - The histograms map was moved to a base class (MuScleFitBase) from which this one inherits.
+//
+// ---------------------------------------------------------------------------------------------
 
 #include "MuScleFit.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
-#include "MuScleFitUtils.h"
-#include "MuScleFitPlotter.h"
+// #include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
+// #include "MuScleFitUtils.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitPlotter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -125,7 +130,6 @@
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include <CLHEP/Vector/LorentzVector.h>
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -133,7 +137,7 @@
 #include <vector>
 
 // To use callgrind for code profiling uncomment also the following define.
-#define USE_CALLGRIND
+// #define USE_CALLGRIND
 #include "valgrind/callgrind.h"
 
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
@@ -148,21 +152,17 @@ using namespace reco; // For AODSIM MC objects
 
 // Constructor
 // -----------
-MuScleFit::MuScleFit (const ParameterSet& pset) {
-
-  debug = pset.getUntrackedParameter<int>("debug",0);
-  MuScleFitUtils::debug = debug;
-  if (debug>0) cout << "[MuScleFit]: Constructor" << endl;
+MuScleFit::MuScleFit (const ParameterSet& pset) : MuScleFitBase( pset )
+{
+  MuScleFitUtils::debug = debug_;
+  if (debug_>0) cout << "[MuScleFit]: Constructor" << endl;
 
   // Service parameters
   // ------------------
   ParameterSet serviceParameters = pset.getParameter<ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
-  theMuonLabel    = pset.getParameter<InputTag>("MuonLabel");
-  theMuonType     = pset.getParameter<int>("muonType");
-  theRootFileName = pset.getUntrackedParameter<string>("RootFileName", "GLBMuonHistos.root");
 
-  if (theMuonType<1 || theMuonType>3) {
+  if (theMuonType_<1 || theMuonType_>3) {
     cout << "[MuScleFit]: Unknown muon type! Aborting." << endl;
     abort();
   }
@@ -239,6 +239,9 @@ MuScleFit::MuScleFit (const ParameterSet& pset) {
   // --------------------------------
   MuScleFitUtils::speedup = pset.getParameter<bool>("speedup");
 
+  // Option to skip simTracks comparison
+  compareToSimTracks_ = pset.getParameter<bool>("compareToSimTracks");
+
   // Read the Probs file from database. If false it searches the root file in
   // MuonAnalysis/MomentumScaleCalibration/test of the active release.
   // readPdfFromDB = pset.getParameter<bool>("readPdfFromDB");
@@ -301,14 +304,14 @@ MuScleFit::MuScleFit (const ParameterSet& pset) {
   MuScleFitUtils::ResHalfWidth[4][2] = 0.2;
   MuScleFitUtils::ResHalfWidth[5][2] = 0.2;
 
-  MuScleFitUtils::MuonType = theMuonType-1;
+  MuScleFitUtils::MuonType = theMuonType_-1;
 
 }
 
 // Destructor
 // ----------
 MuScleFit::~MuScleFit () {
-  if (debug>0) cout << "[MuScleFit]: Destructor" << endl;
+  if (debug_>0) cout << "[MuScleFit]: Destructor" << endl;
 }
 
 // Begin job
@@ -324,26 +327,26 @@ void MuScleFit::beginOfJob (const EventSetup& eventSetup) {
   // else
   readProbabilityDistributionsFromFile();
 
-  if (debug>0) cout << "[MuScleFit]: beginOfJob" << endl;
+  if (debug_>0) cout << "[MuScleFit]: beginOfJob" << endl;
   
   // Create the root file
   // --------------------
   for (unsigned int i=0; i<(maxLoopNumber); i++) {
     char buffer [2]; // FIXME: the max number of loop has to be < 10, (otherwise not enough char)
     sprintf (buffer, "%d_", i);
-    string rootFileName = buffer + theRootFileName ;
+    string rootFileName = buffer + theRootFileName_;
     theFiles.push_back (new TFile(rootFileName.c_str(), "RECREATE"));
   }
-  if (debug>0) cout << "[MuScleFit]: Root file created" << endl;
+  if (debug_>0) cout << "[MuScleFit]: Root file created" << endl;
 
   plotter = new MuScleFitPlotter();
-  plotter->debug = debug; 
+  plotter->debug = debug_; 
 }
 
 // End of job method
 // -----------------
 void MuScleFit::endOfJob () {
-  if (debug>0) cout << "[MuScleFit]: endOfJob" << endl;
+  if (debug_>0) cout << "[MuScleFit]: endOfJob" << endl;
   delete plotter;
 }
 
@@ -351,7 +354,7 @@ void MuScleFit::endOfJob () {
 // --------
 void MuScleFit::startingNewLoop (unsigned int iLoop) {
 
-  if (debug>0) cout << "[MuScleFit]: Starting loop # " << iLoop << endl;
+  if (debug_>0) cout << "[MuScleFit]: Starting loop # " << iLoop << endl;
 
   // Number of muons used 
   // --------------------
@@ -381,7 +384,7 @@ edm::EDLooper::Status MuScleFit::endOfLoop (const edm::EventSetup& eventSetup, u
 
   cout << "Ending loop # " << iLoop << endl;
   cout << "Number of events with Z after ewk cuts" << numberOfEwkZ << endl;
-  if (debug>0) {
+  if (debug_>0) {
     cout << "Number of Sim tracks:   " << numberOfSimTracks << endl;
     cout << "Number of Sim muons:    " << numberOfSimMuons << endl;
     cout << "Number of Sim vertices: " << numberOfSimVertices << endl;
@@ -443,8 +446,8 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 
   // Update the services
   // -------------------
-  theService->update (eventSetup);
-  if (debug>0) {
+  // theService->update (eventSetup);
+  if (debug_>0) {
     cout << "[MuScleFit-duringLoop]: loopCounter = " << loopCounter
 	 << " Run: " << event.id().run() << " Event: " << event.id().event() << endl;
   }
@@ -470,21 +473,23 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
         event.getByLabel ("genParticles", genParticles);
         // Fill gen information only in the first loop
         if( loopCounter == 0 ) plotter->fillGen1(genParticles);
-        if (debug>0) cout << "Found genParticles" << endl;
+        if (debug_>0) cout << "Found genParticles" << endl;
       } catch (...) {
         cout << "GenParticles non existent" << endl;
       }
     }
 
-    try {
-      event.getByLabel ("g4SimHits",simTracks);
-      plotter->fillSim(simTracks);
-      if(ifGen && loopCounter == 0){
-        plotter->fillGenSim(evtMC,simTracks);
+    if( compareToSimTracks_ ) {
+      try {
+        event.getByLabel ("g4SimHits",simTracks);
+        plotter->fillSim(simTracks);
+        if(ifGen && loopCounter == 0){
+          plotter->fillGenSim(evtMC,simTracks);
+        }
       }
-    }
-    catch (...) { 
-      cout << "SimTracks not existent" << endl;
+      catch (...) { 
+        cout << "SimTracks not existent" << endl;
+      }
     }
   }
 
@@ -498,21 +503,21 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     recMu1 = reco::Particle::LorentzVector(0,0,0,0);
     recMu2 = reco::Particle::LorentzVector(0,0,0,0);
     vector<reco::LeafCandidate> muons;
-    if (theMuonType==1) { // GlobalMuons
+    if (theMuonType_==1) { // GlobalMuons
       Handle<reco::MuonCollection> glbMuons;
-      event.getByLabel (theMuonLabel, glbMuons);
+      event.getByLabel (theMuonLabel_, glbMuons);
       muons = fillMuonCollection(*glbMuons);
     }
 
-    else if (theMuonType==2) { // StandaloneMuons
+    else if (theMuonType_==2) { // StandaloneMuons
       Handle<reco::TrackCollection> saMuons;
-      event.getByLabel (theMuonLabel, saMuons);
+      event.getByLabel (theMuonLabel_, saMuons);
       muons = fillMuonCollection(*saMuons);
     }
     
-    else if (theMuonType==3) { // Tracker tracks
+    else if (theMuonType_==3) { // Tracker tracks
       Handle<reco::TrackCollection> tracks;
-      event.getByLabel (theMuonLabel, tracks);
+      event.getByLabel (theMuonLabel_, tracks);
       muons = fillMuonCollection(*tracks);
     }
     plotter->fillRec(muons);
@@ -522,7 +527,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> recMuFromBestRes = 
       MuScleFitUtils::findBestRecoRes (muons);
     if (MuScleFitUtils::ResFound) {
-      if (debug>0) {
+      if (debug_>0) {
 	cout <<setprecision(9)<< "Pt after findbestrecores: " << (recMuFromBestRes.first).Pt() << " " 
 	     << (recMuFromBestRes.second).Pt() << endl;
 	cout << "recMu1 = " << recMu1 << endl;
@@ -530,7 +535,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
       }
       recMu1 = recMuFromBestRes.first;
       recMu2 = recMuFromBestRes.second;
-      if (debug>0) {
+      if (debug_>0) {
 	cout << "after recMu1 = " << recMu1 << endl;
 	cout << "after recMu2 = " << recMu2 << endl;
 	cout << "mu1.pt = " << recMu1.Pt() << endl;
@@ -550,12 +555,12 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     recMu2 = (MuScleFitUtils::SavedPair[iev].second);
     if (recMu1.Pt()>0 && recMu2.Pt()>0) {
       MuScleFitUtils::ResFound = true;
-      if (debug>0) cout << "Ev = " << iev << ": found muons in tree with Pt = " 
+      if (debug_>0) cout << "Ev = " << iev << ": found muons in tree with Pt = " 
 			<< recMu1.Pt() << " " << recMu2.Pt() << endl;
     }
   }
 
-  if (debug>0) cout << "About to start lik par correction and histo filling; ResFound is " 
+  if (debug_>0) cout << "About to start lik par correction and histo filling; ResFound is " 
 		    << MuScleFitUtils::ResFound << endl;
   // If resonance found, do the hard work
   // ------------------------------------
@@ -568,9 +573,9 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     // Apply the correction (or bias) to the best 2 reconstructed muons
     // NNBB work in progress - try to establish how to deal with multiple correction
     // of the same scale if loop is made multiple times to fit resolution at step>3:
-    // uncomment debug>0, take off loopCounter<3 condition below to restore.
+    // uncomment debug_>0, take off loopCounter<3 condition below to restore.
     // -----------------------------------------------------------------------------  
-    if (debug>0) {
+    if (debug_>0) {
       cout << "Loop #" << loopCounter << "Event #" << iev << ": before correction     Pt1 = " 
 	   << recMu1.Pt() << " Pt2 = " << recMu2.Pt() << endl;
     }
@@ -582,7 +587,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
         recMu2 = (MuScleFitUtils::applyScale (recMu2, MuScleFitUtils::parvalue[loopCounter-1],  1));
       }
     }
-    if (debug>0) {
+    if (debug_>0) {
       cout << "Loop #" << loopCounter << "Event #" << iev << ": after correction      Pt1 = " 
 	   << recMu1.Pt() << " Pt2 = " << recMu2.Pt() << endl;
     }
@@ -689,30 +694,32 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
         mapHisto["hFunctionResolCotgTheta"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaCotgTh(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
         mapHisto["hFunctionResolPhi"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaPhi(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
       }
-      pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> simMu = 
-        MuScleFitUtils::findSimMuFromRes(evtMC,simTracks);
-      //first is always mu-, second is always mu+
-      double simmass = (simMu.first+simMu.second).mass();
-      SM->Fill(simmass);
-      GSM->Fill(genmass-simmass);
+      if( compareToSimTracks_ ) {
+        pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> simMu = 
+          MuScleFitUtils::findSimMuFromRes(evtMC,simTracks);
+        //first is always mu-, second is always mu+
+        double simmass = (simMu.first+simMu.second).mass();
+        SM->Fill(simmass);
+        GSM->Fill(genmass-simmass);
 
-      if(checkDeltaR(simMu.first,recMu1)){
-        mapHisto["hResolPtSimVSMu"]->Fill(simMu.first,(-simMu.first.Pt()+recMu1.Pt())/simMu.first.Pt(),-1);
-        mapHisto["hResolThetaSimVSMu"]->Fill(simMu.first,(-simMu.first.Theta()+recMu1.Theta()),-1);
-        mapHisto["hResolCotgThetaSimVSMu"]->Fill(simMu.first,(-cos(simMu.first.Theta())/sin(simMu.first.Theta())
-                                                              +cos(recMu1.Theta())/sin(recMu1.Theta())),-1);
-        mapHisto["hResolEtaSimVSMu"]->Fill(simMu.first,(-simMu.first.Eta()+recMu1.Eta()),-1);
-        // mapHisto["hResolPhiSimVSMu"]->Fill(simMu.first,(-simMu.first.Phi()+recMu1.Phi()),-1);
-        mapHisto["hResolPhiSimVSMu"]->Fill(simMu.first,MuScleFitUtils::deltaPhiNoFabs(recMu1.Phi(), simMu.first.Phi()),-1);
-      }
-      if(checkDeltaR(simMu.second,recMu2)){
-        mapHisto["hResolPtSimVSMu"]->Fill(simMu.second,(-simMu.second.Pt()+recMu2.Pt())/simMu.second.Pt(),+1);
-        mapHisto["hResolThetaSimVSMu"]->Fill(simMu.second,(-simMu.second.Theta()+recMu2.Theta()),+1);
-        mapHisto["hResolCotgThetaSimVSMu"]->Fill(simMu.second,(-cos(simMu.second.Theta())/sin(simMu.second.Theta())
-                                                               +cos(recMu2.Theta())/sin(recMu2.Theta())),+1);
-        mapHisto["hResolEtaSimVSMu"]->Fill(simMu.second,(-simMu.second.Eta()+recMu2.Eta()),+1);
-        // mapHisto["hResolPhiSimVSMu"]->Fill(simMu.second,(-simMu.second.Phi()+recMu2.Phi()),+1);
-        mapHisto["hResolPhiSimVSMu"]->Fill(simMu.second,MuScleFitUtils::deltaPhiNoFabs(recMu2.Phi(), simMu.second.Phi()),+1);
+        if(checkDeltaR(simMu.first,recMu1)){
+          mapHisto["hResolPtSimVSMu"]->Fill(simMu.first,(-simMu.first.Pt()+recMu1.Pt())/simMu.first.Pt(),-1);
+          mapHisto["hResolThetaSimVSMu"]->Fill(simMu.first,(-simMu.first.Theta()+recMu1.Theta()),-1);
+          mapHisto["hResolCotgThetaSimVSMu"]->Fill(simMu.first,(-cos(simMu.first.Theta())/sin(simMu.first.Theta())
+                                                                +cos(recMu1.Theta())/sin(recMu1.Theta())),-1);
+          mapHisto["hResolEtaSimVSMu"]->Fill(simMu.first,(-simMu.first.Eta()+recMu1.Eta()),-1);
+          // mapHisto["hResolPhiSimVSMu"]->Fill(simMu.first,(-simMu.first.Phi()+recMu1.Phi()),-1);
+          mapHisto["hResolPhiSimVSMu"]->Fill(simMu.first,MuScleFitUtils::deltaPhiNoFabs(recMu1.Phi(), simMu.first.Phi()),-1);
+        }
+        if(checkDeltaR(simMu.second,recMu2)){
+          mapHisto["hResolPtSimVSMu"]->Fill(simMu.second,(-simMu.second.Pt()+recMu2.Pt())/simMu.second.Pt(),+1);
+          mapHisto["hResolThetaSimVSMu"]->Fill(simMu.second,(-simMu.second.Theta()+recMu2.Theta()),+1);
+          mapHisto["hResolCotgThetaSimVSMu"]->Fill(simMu.second,(-cos(simMu.second.Theta())/sin(simMu.second.Theta())
+                                                                 +cos(recMu2.Theta())/sin(recMu2.Theta())),+1);
+          mapHisto["hResolEtaSimVSMu"]->Fill(simMu.second,(-simMu.second.Eta()+recMu2.Eta()),+1);
+          // mapHisto["hResolPhiSimVSMu"]->Fill(simMu.second,(-simMu.second.Phi()+recMu2.Phi()),+1);
+          mapHisto["hResolPhiSimVSMu"]->Fill(simMu.second,MuScleFitUtils::deltaPhiNoFabs(recMu2.Phi(), simMu.second.Phi()),+1);
+        }
       }
     }
 
@@ -801,7 +808,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
   // Fill the pair
   // -------------
   if (loopCounter>0) {
-    if (debug>0) cout << "[MuScleFit]: filling the pair" << endl;
+    if (debug_>0) cout << "[MuScleFit]: filling the pair" << endl;
     MuScleFitUtils::SavedPair[iev] = make_pair (recMu1, recMu2);
   }
 
@@ -815,78 +822,6 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
   return kContinue;
 }
 
-// Histogram filling
-// -----------------
-void MuScleFit::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
-  //Reconstructed muon kinematics
-  //-----------------------------
-  outputFile->cd();
-  // If no Z is required, use a smaller mass range.
-  double minMass = 0.;
-  double maxMass = 200.;
-  if( MuScleFitUtils::resfind[0] != 1 ) {
-    maxMass = 30.;
-  }
-  mapHisto["hRecBestMu"]      = new HParticle ("hRecBestMu", minMass, maxMass);
-  mapHisto["hRecBestMu_Acc"]  = new HParticle ("hRecBestMu_Acc", minMass, maxMass); 
-  mapHisto["hDeltaRecBestMu"] = new HDelta ("hDeltaRecBestMu");
-
-  mapHisto["hRecBestRes"]     = new HParticle   ("hRecBestRes", minMass, maxMass);
-  mapHisto["hRecBestRes_Acc"] = new HParticle   ("hRecBestRes_Acc", minMass, maxMass); 
-  // If not finding Z, use a smaller mass window
-  vector<int>::const_iterator resFindIt = MuScleFitUtils::resfind.begin();
-  mapHisto["hRecBestResVSMu"] = new HMassVSPart ("hRecBestResVSMu", minMass, maxMass);
-  
-  // Likelihood values VS muon variables
-  // -------------------------------------
-  mapHisto["hLikeVSMu"]       = new HLikelihoodVSPart ("hLikeVSMu");
-  mapHisto["hLikeVSMuMinus"]  = new HLikelihoodVSPart ("hLikeVSMuMinus");
-  mapHisto["hLikeVSMuPlus"]   = new HLikelihoodVSPart ("hLikeVSMuPlus");
-
-  //Resolution VS muon kinematic
-  //----------------------------
-  mapHisto["hResolMassVSMu"]         = new HResolutionVSPart (outputFile, "hResolMassVSMu");
-  mapHisto["hResolPtGenVSMu"]        = new HResolutionVSPart (outputFile, "hResolPtGenVSMu");
-  mapHisto["hResolPtSimVSMu"]        = new HResolutionVSPart (outputFile, "hResolPtSimVSMu");
-  mapHisto["hResolEtaGenVSMu"]       = new HResolutionVSPart (outputFile, "hResolEtaGenVSMu");
-  mapHisto["hResolEtaSimVSMu"]       = new HResolutionVSPart (outputFile, "hResolEtaSimVSMu");
-  mapHisto["hResolThetaGenVSMu"]     = new HResolutionVSPart (outputFile, "hResolThetaGenVSMu");
-  mapHisto["hResolThetaSimVSMu"]     = new HResolutionVSPart (outputFile, "hResolThetaSimVSMu");
-  mapHisto["hResolCotgThetaGenVSMu"] = new HResolutionVSPart (outputFile, "hResolCotgThetaGenVSMu");
-  mapHisto["hResolCotgThetaSimVSMu"] = new HResolutionVSPart (outputFile, "hResolCotgThetaSimVSMu");
-  mapHisto["hResolPhiGenVSMu"]       = new HResolutionVSPart (outputFile, "hResolPhiGenVSMu");
-  mapHisto["hResolPhiSimVSMu"]       = new HResolutionVSPart (outputFile, "hResolPhiSimVSMu");
-
-  // Resolutions from resolution functions
-  // -------------------------------------
-  mapHisto["hFunctionResolPt"]        = new HFunctionResolution (outputFile, "hFunctionResolPt");
-  mapHisto["hFunctionResolCotgTheta"] = new HFunctionResolution (outputFile, "hFunctionResolCotgTheta");
-  mapHisto["hFunctionResolPhi"]       = new HFunctionResolution (outputFile, "hFunctionResolPhi");
-
-  // Mass probability histograms
-  // ---------------------------
-  Mass_P = new TProfile ("Mass_P", "Mass probability", 4000, 0., 200., 0., 1.);
-  Mass_fine_P = new TProfile ("Mass_fine_P", "Mass probability", 4000, 0., 20., 0., 1.);
-  PtminvsY = new TH2D ("PtminvsY","PtminvsY",120, 0., 120., 120, 0., 6.);
-  PtmaxvsY = new TH2D ("PtmaxvsY","PtmaxvsY",120, 0., 120., 120, 0., 6.);
-  EtamuvsY = new TH2D ("EtamuvsY","EtamuvsY",120, 0., 3., 120, 0., 6.);
-  Y = new TH1D ("Y","Y", 100, 0., 5. );
-  MY = new TH2D ("MY","MY",100, 0., 5., 100, 0., 200.);
-  MYP = new TProfile ("MYP","MYP",100, 0., 5., 0.,200.);
-  YL = new TProfile("YL","YL", 40, -4., 4., -10000000.,10000000.);
-  PL = new TProfile("PL","PL", 40, 0., 200., -10000000.,10000000.);
-  PTL = new TProfile("PTL","PTL", 40, 0., 100., -10000000., 10000000.);
-  GM = new TH1D ("GM","GM", 120, 61., 121.);
-  SM = new TH1D ("SM","SM", 120, 61., 121.);
-  GSM = new TH1D("GSM","GSM", 100, -2.5, 2.5);
-
-  double ptMax = 40.;
-  // Mass resolution vs (pt, eta) of the muons from MC
-  massResolutionVsPtEta_ = new HCovarianceVSxy ( "Mass", "Mass", 100, 0., ptMax, 60, -3, 3, outputFile->mkdir("MassCovariance") );
-  // Mass resolution vs (pt, eta) from resolution function
-  mapHisto["hFunctionResolMass"] = new HFunctionResolution (outputFile, "hFunctionResolMass", ptMax);
-}
-
 bool MuScleFit::checkDeltaR(reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu){
   //first is always mu-, second is always mu+
   double deltaR = sqrt(MuScleFitUtils::deltaPhi(recMu.Phi(),genMu.Phi()) * MuScleFitUtils::deltaPhi(recMu.Phi(),genMu.Phi()) +
@@ -898,24 +833,6 @@ bool MuScleFit::checkDeltaR(reco::Particle::LorentzVector& genMu, reco::Particle
 	<<" DOES NOT MATCH with generated muon from resonance: "<<endl
 	<<genMu<<" with eta "<<genMu.Eta()<<" and phi "<<genMu.Phi()<<endl;
   return false;
-}
-
-void MuScleFit::clearHistoMap() {
-  for (map<string, Histograms*>::const_iterator histo=mapHisto.begin(); 
-       histo!=mapHisto.end(); histo++) {
-    delete (*histo).second;
-  }
-  massResolutionVsPtEta_->Clear();
-  delete massResolutionVsPtEta_;
-}
-
-void MuScleFit::writeHistoMap() {
-  for (map<string, Histograms*>::const_iterator histo=mapHisto.begin(); 
-       histo!=mapHisto.end(); histo++) {
-    (*histo).second->Write();
-  }
-  // theFiles[iLoop]->cd();
-  massResolutionVsPtEta_->Write();
 }
 
 // Simple method to check parameters consistency. It aborts the job if the parameters
@@ -1039,162 +956,3 @@ void MuScleFit::checkParameters() {
     abort();
   }
 }
-
-void MuScleFit::readProbabilityDistributionsFromFile()
-{
-  TH2D * GLZ[24];
-  TH2D * GL[6];
-  TFile * ProbsFile;
-  if ( theMuonType!=2 ) {
-    //edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_new_1000_CTEQ.root");
-    edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_new_Horace_CTEQ_1000.root");
-    ProbsFile = new TFile (file.fullPath().c_str()); // NNBB need to reset this if MuScleFitUtils::nbins changes
-    // ProbsFile = new TFile ("Probs_new_1000_CTEQ.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
-    //cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_1000_CTEQ.root file" << endl;
-    cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_Horace_CTEQ_1000.root file" << endl;
-  } else {
-    edm::FileInPath fileSM("MuonAnalysis/MomentumScaleCalibration/test/Probs_SM_1000.root");
-    ProbsFile = new TFile (fileSM.fullPath().c_str()); // NNBB need to reset this if MuScleFitUtils::nbins changes
-    // ProbsFile = new TFile ("Probs_SM_1000.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
-    cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_SM_1000.root file" << endl;
-  }
-  ProbsFile->cd();
-  for ( int i=0; i<24; i++ ) {
-    char nameh[6];
-    sprintf (nameh,"GLZ%d",i);
-    GLZ[i] = dynamic_cast<TH2D*>(ProbsFile->Get(nameh)); 
-  }
-  GL[0] = dynamic_cast<TH2D*> (ProbsFile->Get("GL0"));
-  GL[1] = dynamic_cast<TH2D*> (ProbsFile->Get("GL1"));
-  GL[2] = dynamic_cast<TH2D*> (ProbsFile->Get("GL2"));
-  GL[3] = dynamic_cast<TH2D*> (ProbsFile->Get("GL3"));
-  GL[4] = dynamic_cast<TH2D*> (ProbsFile->Get("GL4"));
-  GL[5] = dynamic_cast<TH2D*> (ProbsFile->Get("GL5"));
-
-  // Extract normalization for mass slice in Y bins of Z
-  // ---------------------------------------------------
-  for (int iY=0; iY<24; iY++) {
-    int nBinsX = GLZ[iY]->GetNbinsX();
-    int nBinsY = GLZ[iY]->GetNbinsY();
-    if( nBinsX != MuScleFitUtils::nbins+1 || nBinsY != MuScleFitUtils::nbins+1 ) {
-      cout << "Error: for histogram \"" << GLZ[iY]->GetName() << "\" bins are not " << MuScleFitUtils::nbins << endl; 
-      cout<< "nBinsX = " << nBinsX << ", nBinsY = " << nBinsY << endl;
-      exit(1);
-    }
-    for (int iy=0; iy<=MuScleFitUtils::nbins; iy++) {
-      MuScleFitUtils::GLZNorm[iY][iy] = 0.;
-      for (int ix=0; ix<=MuScleFitUtils::nbins; ix++) {
-        MuScleFitUtils::GLZValue[iY][ix][iy] = GLZ[iY]->GetBinContent (ix+1, iy+1);
-        MuScleFitUtils::GLZNorm[iY][iy] += MuScleFitUtils::GLZValue[iY][ix][iy];
-      }
-      if (debug>2) cout << "GLZValue[" << iY << "][500][" << iy << "] = " 
-                        << MuScleFitUtils::GLZValue[iY][500][iy] 
-                        << " GLZNorm[" << iY << "][" << iy << "] = " 
-                        << MuScleFitUtils::GLZNorm[iY][iy] << endl;
-    }
-  }
-  // Extract normalization for each mass slice
-  // -----------------------------------------
-  for (int ires=0; ires<6; ires++) {
-    int nBinsX = GL[ires]->GetNbinsX();
-    int nBinsY = GL[ires]->GetNbinsY();
-    if( nBinsX != MuScleFitUtils::nbins+1 || nBinsY != MuScleFitUtils::nbins+1 ) {
-      cout << "Error: for histogram \"" << GLZ[ires]->GetName() << "\" bins are not " << MuScleFitUtils::nbins << endl; 
-      cout<< "nBinsX = " << nBinsX << ", nBinsY = " << nBinsY << endl;
-      exit(1);
-    }
-    for (int iy=0; iy<=MuScleFitUtils::nbins; iy++) {
-      MuScleFitUtils::GLNorm[ires][iy] = 0.;
-      for (int ix=0; ix<=MuScleFitUtils::nbins; ix++) {
-        MuScleFitUtils::GLValue[ires][ix][iy] = GL[ires]->GetBinContent (ix+1, iy+1);
-        MuScleFitUtils::GLNorm[ires][iy] += MuScleFitUtils::GLValue[ires][ix][iy];
-      }
-      if (debug>2) cout << "GLValue[" << ires << "][500][" << iy << "] = " 
-                        << MuScleFitUtils::GLValue[ires][500][iy] 
-                        << " GLNorm[" << ires << "][" << iy << "] = " 
-                        << MuScleFitUtils::GLNorm[ires][iy] << endl;
-    }
-  }
-}
-
-// void MuScleFit::readProbabilityDistributions( const edm::EventSetup & eventSetup )
-// {
-
-//   edm::ESHandle<MuScleFitLikelihoodPdf> likelihoodPdf;
-//   eventSetup.get<MuScleFitLikelihoodPdfRcd>().get(likelihoodPdf);
-//   string smSuffix = "";
-
-//   // Should read different histograms in the two cases
-//   if ( theMuonType == 2 ) {
-//     smSuffix = "SM";
-//     cout << "Error: Not yet implemented..." << endl;
-//     exit(1);
-//   }
-
-//   edm::LogInfo("MuScleFit") << "[MuScleFit::readProbabilityDistributions] End Reading MuScleFitLikelihoodPdfRcd" << endl;
-//   vector<PhysicsTools::Calibration::HistogramD2D>::const_iterator histo = likelihoodPdf->histograms.begin();
-//   vector<string>::const_iterator name = likelihoodPdf->names.begin();
-//   vector<int>::const_iterator xBins = likelihoodPdf->xBins.begin();
-//   vector<int>::const_iterator yBins = likelihoodPdf->yBins.begin();
-//   int ires = 0;
-//   int iY = 0;
-//   for( ; histo != likelihoodPdf->histograms.end(); ++histo, ++name, ++xBins, ++yBins ) {
-//     int nBinsX = *xBins;
-//     int nBinsY = *yBins;
-//     if( nBinsX != MuScleFitUtils::nbins+1 || nBinsY != MuScleFitUtils::nbins+1 ) {
-//       cout << "Error: for histogram \"" << *name << "\" bins are not " << MuScleFitUtils::nbins << endl; 
-//       cout<< "nBinsX = " << nBinsX << ", nBinsY = " << nBinsY << endl;
-//       exit(1);
-//     }
-
-//     // cout << "name = " << *name << endl;
-
-//     // To separate the Z histograms from the other resonances we use tha names.
-//     if( name->find("GLZ") != string::npos ) {
-//       // ATTENTION: they are expected to be ordered
-
-//       // cout << "For iY = " << iY << " the histogram is \"" << *name << "\"" << endl;
-
-//       // Extract normalization for mass slice in Y bins of Z
-//       // ---------------------------------------------------
-//       for(int iy=1; iy<=nBinsY; iy++){
-//         MuScleFitUtils::GLZNorm[iY][iy] = 0.;
-//         for(int ix=1; ix<=nBinsX; ix++){
-//           MuScleFitUtils::GLZValue[iY][ix][iy] = histo->binContent (ix+1, iy+1);
-//           MuScleFitUtils::GLZNorm[iY][iy] += MuScleFitUtils::GLZValue[iY][ix][iy];
-//         }
-//         if (debug>2) cout << "GLZValue[" << iY << "][500][" << iy << "] = " 
-//                           << MuScleFitUtils::GLZValue[iY][500][iy] 
-//                           << " GLZNorm[" << iY << "][" << iy << "] = " 
-//                           << MuScleFitUtils::GLZNorm[iY][iy] << endl;
-//       }
-//       // increase the histogram counter
-//       ++iY;
-//     }
-//     else {
-//       // ATTENTION: they are expected to be ordered
-
-//       // Extract normalization for each mass slice
-//       // -----------------------------------------
-
-//       // cout << "For ires = " << ires << " the histogram is \"" << *name << "\"" << endl;
-
-//       // The histograms are filled like the root TH2D from which they are taken,
-//       // meaning that bin = 0 is the underflow and nBins+1 is the overflow.
-//       // We start from 1 and loop up to the last bin, excluding under/overflow.
-//       for(int iy=1; iy<=nBinsY; iy++){
-//         MuScleFitUtils::GLNorm[ires][iy] = 0.;
-//         for(int ix=1; ix<=nBinsX; ix++){
-//           MuScleFitUtils::GLValue[ires][ix][iy] = histo->binContent (ix+1, iy+1);
-//           MuScleFitUtils::GLNorm[ires][iy] += MuScleFitUtils::GLValue[ires][ix][iy];
-//         }
-//         if (debug>2) cout << "GLValue[" << ires << "][500][" << iy << "] = " 
-//                           << MuScleFitUtils::GLValue[ires][500][iy] 
-//                           << " GLNorm[" << ires << "][" << iy << "] = " 
-//                           << MuScleFitUtils::GLNorm[ires][iy] << endl;
-//       }
-//       // increase the histogram counter
-//       ++ires;
-//     }
-//   }
-// }

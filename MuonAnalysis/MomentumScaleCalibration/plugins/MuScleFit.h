@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2009/01/14 15:36:50 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/01/29 13:20:26 $
+ *  $Revision: 1.11 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -16,10 +16,11 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include <CLHEP/Vector/LorentzVector.h>
 #include <vector>
-#include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
+// #include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitBase.h"
 
 namespace edm {
   class ParameterSet;
@@ -27,7 +28,6 @@ namespace edm {
   class EventSetup;
 }
 
-class TFile;
 class TH1F;
 class TH2F;
 class TProfile;
@@ -35,7 +35,7 @@ class MuonServiceProxy;
 class TTree;
 class MuScleFitPlotter;
 
-class MuScleFit: public edm::EDLooper {
+class MuScleFit: public edm::EDLooper, MuScleFitBase {
 
  public:
   // Constructor
@@ -65,16 +65,16 @@ class MuScleFit: public edm::EDLooper {
 	// Apply smearing if needed, and then bias
 	// ---------------------------------------
 	MuScleFitUtils::goodmuon++;
-	if (debug>0) cout <<setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon 
+	if (debug_>0) cout <<setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon 
 			  << ": initial value   Pt = " << mu.Pt() << endl;
 	if (MuScleFitUtils::SmearType>0) {
 	  mu = MuScleFitUtils::applySmearing (mu);
-	  if (debug>0) cout << "Muon #" << MuScleFitUtils::goodmuon 
+	  if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon 
 			    << ": after smearing  Pt = " << mu.Pt() << endl;
 	} 
 	if (MuScleFitUtils::BiasType>0) {
 	  mu = MuScleFitUtils::applyBias (mu, track->charge());
-	  if (debug>0) cout << "Muon #" << MuScleFitUtils::goodmuon 
+	  if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon 
 			    << ": after bias      Pt = " << mu.Pt() << endl;
 	}
 	reco::LeafCandidate muon(track->charge(),mu);
@@ -84,20 +84,9 @@ class MuScleFit: public edm::EDLooper {
     }
     return muons;
   } 
- protected:
-
  private:
 
-  /**
-   * Read probability distributions from the database.
-   * These are 2-D PDFs containing a grid of 1000x1000 values of the
-   * integral of Lorentz * Gaussian as a function
-   * of mass and resolution of a given measurement,
-   * for each of the six considered diLmuon resonances.
-   */
-  // void readProbabilityDistributions( const edm::EventSetup & eventSetup );
-  /// Raed probability distributions from a local root file.
-  void readProbabilityDistributionsFromFile();
+ protected:
 
   /// Check if two lorentzVector are near in deltaR
   bool checkDeltaR(reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu);
@@ -108,23 +97,17 @@ class MuScleFit: public edm::EDLooper {
    */
   void checkParameters();
 
-  // Fill, clean and write to file the Map of Histograms
-  // ---------------------------------------------------
-  void fillHistoMap(TFile* outputFile, unsigned int iLoop);
-  void clearHistoMap();
-  void writeHistoMap();
+//   // Fill, clean and write to file the Map of Histograms
+//   // ---------------------------------------------------
+//   void fillHistoMap(TFile* outputFile, unsigned int iLoop);
+//   void clearHistoMap();
+//   void writeHistoMap();
 
   MuonServiceProxy *theService;
 
-  std::string theRootFileName;
   std::vector<TFile*> theFiles;
 
-  int debug;
-
   // bool readPdfFromDB;
-
-  edm::InputTag theMuonLabel;
-  int theMuonType;
   
   // Counters
   // --------
@@ -146,9 +129,6 @@ class MuScleFit: public edm::EDLooper {
   // Tree with muon info for Likelihood evaluation
   // TTree* muonTree;
 
-  // The map of histograms
-  // ---------------------
-  std::map<std::string, Histograms*> mapHisto;
   MuScleFitPlotter *plotter;
 
   // The reconstructed muon 4-momenta to be put in the tree
@@ -156,21 +136,7 @@ class MuScleFit: public edm::EDLooper {
   reco::Particle::LorentzVector recMu1, recMu2;
   int iev;
 
-  TProfile * Mass_P;
-  TProfile * Mass_fine_P;
-  TH2D * PtminvsY;
-  TH2D * PtmaxvsY;
-  TH2D * EtamuvsY;
-  TH1D * Y;
-  TH2D * MY;
-  TProfile * MYP;
-  TProfile * YL;
-  TProfile * PL;
-  TProfile * PTL;
-  TH1D * GM;
-  TH1D * SM;
-  TH1D *GSM;
-  HCovarianceVSxy * massResolutionVsPtEta_;
+  bool compareToSimTracks_;
 };
 #endif
 
