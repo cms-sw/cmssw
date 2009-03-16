@@ -87,7 +87,12 @@ public:
     }
     return resolutionFunction_[i]->sigmaPhi(track.pt(), track.eta(), parArray_);
   }
-
+  /// Get the ith resolution function
+  resolutionFunctionBase<double * > * getFunction( const unsigned int i )
+  {
+    if( resolutionFunctionVec_.size() > i ) return resolutionFunction_[i];
+    else return 0;
+  }
 protected:
   /// Parser of the parameters file
   void readParameters( TString fileName );

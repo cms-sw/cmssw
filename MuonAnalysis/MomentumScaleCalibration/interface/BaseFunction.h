@@ -70,7 +70,7 @@ void BaseFunction::convertToArrays(T **& function_, const vector<T*> & functionV
     exit(1);
   }
   else if( totParNums != parVecVecSize ) {
-    cout << "Error: inconsistente total number of requested parameters("<<totParNums<<") and parameters read("<<parVecVecSize<<")" << endl;
+    cout << "Error: inconsistent total number of requested parameters("<<totParNums<<") and parameters read("<<parVecVecSize<<")" << endl;
     exit(1);
   }
 //   else if( parVecVecSize != functionVecSize ) {

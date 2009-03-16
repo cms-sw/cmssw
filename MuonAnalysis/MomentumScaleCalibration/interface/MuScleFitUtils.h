@@ -5,8 +5,8 @@
  *  
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2008/12/23 14:20:30 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/03/05 15:14:07 $
+ *  $Revision: 1.9 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 

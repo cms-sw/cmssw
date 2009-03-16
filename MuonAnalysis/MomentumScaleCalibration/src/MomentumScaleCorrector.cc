@@ -10,6 +10,11 @@ void MomentumScaleCorrector::readParameters( TString fileName )
 
   // Read the parameters file
   ifstream parametersFile(fileName.Data());
+
+  if( !parametersFile.is_open() ) {
+    cout << "Error: file " << fileName << " not found. Aborting." << endl;
+    abort();
+  }
   string line;
 
   string iteration("Iteration ");
