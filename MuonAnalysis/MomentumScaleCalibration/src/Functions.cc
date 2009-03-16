@@ -17,6 +17,7 @@ scaleFunctionBase<double * > * scaleFunctionService( const int identifier )
   case ( 11 ): return ( new scaleFunctionType11<double * > ); break;
   case ( 12 ): return ( new scaleFunctionType12<double * > ); break;
   case ( 13 ): return ( new scaleFunctionType13<double * > ); break;
+  case ( 14 ): return ( new scaleFunctionType14<double * > ); break;
   default: cout << "Error: wrong identifier = " << identifier << endl; exit(1);
   }
 }
@@ -38,6 +39,7 @@ scaleFunctionBase<vector<double> > * scaleFunctionVecService( const int identifi
   case ( 11 ): return ( new scaleFunctionType11<vector<double> > ); break;
   case ( 12 ): return ( new scaleFunctionType12<vector<double> > ); break;
   case ( 13 ): return ( new scaleFunctionType13<vector<double> > ); break;
+  case ( 14 ): return ( new scaleFunctionType14<vector<double> > ); break;
   default: cout << "Error: wrong identifier = " << identifier << endl; exit(1);
   }
 }
