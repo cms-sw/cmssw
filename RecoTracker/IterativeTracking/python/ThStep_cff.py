@@ -66,7 +66,7 @@ OppositeMaterialPropagatorPtMin01 = TrackingTools.MaterialEffects.OppositeMateri
     )
 
 # SEEDING LAYERS
-thlayerpairs = cms.ESProducer("MixedLayerPairsESProducer",
+thlayerpairs = cms.ESProducer("SeedingLayersESProducer",
     ComponentName = cms.string('ThLayerPairs'),
     layerList = cms.vstring('BPix1+BPix2', 
         'BPix2+BPix3',

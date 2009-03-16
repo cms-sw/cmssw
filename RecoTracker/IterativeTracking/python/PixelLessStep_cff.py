@@ -41,7 +41,7 @@ fourthStripRecHits.ClusterProducer = 'fourthClusters'
 
 
 # SEEDING LAYERS
-fourthlayerpairs = cms.ESProducer("PixelLessLayerPairsESProducer",
+fourthlayerpairs = cms.ESProducer("SeedingLayersESProducer",
     ComponentName = cms.string('FourthLayerPairs'),
     layerList = cms.vstring('TIB1+TIB2',
         'TIB1+TID1_pos','TIB1+TID1_neg',

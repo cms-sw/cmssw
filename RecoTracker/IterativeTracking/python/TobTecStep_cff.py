@@ -41,7 +41,7 @@ fifthStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConvert
     )
 
 # SEEDING LAYERS
-fifthlayerpairs = cms.ESProducer("TobTecLayerPairsESProducer",
+fifthlayerpairs = cms.ESProducer("SeedingLayersESProducer",
     ComponentName = cms.string('TobTecLayerPairs'),
 
     layerList = cms.vstring('TOB1+TOB2', 
