@@ -5,14 +5,16 @@
  *   information,<BR>
  *   starting from a L2 reonstructed muon and a tracker track.
  *
- *   $Date: 2008/03/14 19:12:07 $
- *   $Revision: 1.3 $
+ *   $Date: 2008/05/14 17:43:23 $
+ *   $Revision: 1.4 $
  *   \author  Patrick Janot - CERN
  */
 
 // TrackFinder and specific GLB Trajectory Builder
 #include "FastSimulation/Muons/plugins/FastL3MuonProducer.h"
-#include "FastSimulation/Muons/interface/FastL3MuonTrajectoryBuilder.h"
+// #include "FastSimulation/Muons/interface/FastL3MuonTrajectoryBuilder.h"
+#include "RecoMuon/L3TrackFinder/interface/L3MuonTrajectoryBuilder.h"
+
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
@@ -52,7 +54,9 @@ FastL3MuonProducer::FastL3MuonProducer(const edm::ParameterSet& parameterSet) {
   
   // instantiate the concrete trajectory builder in the Track Finder
   MuonTrackLoader* mtl = new MuonTrackLoader(trackLoaderParameters,theService);
-  l3mtb = new FastL3MuonTrajectoryBuilder(trajectoryBuilderParameters, theService);
+//  l3mtb = new FastL3MuonTrajectoryBuilder(trajectoryBuilderParameters, theService);
+  l3mtb = new L3MuonTrajectoryBuilder(trajectoryBuilderParameters, theService);
+
   theTrackFinder = new MuonTrackFinder(l3mtb, mtl);
 
   theL2SeededTkLabel = trackLoaderParameters.getUntrackedParameter<std::string>("MuonSeededTracksInstance",std::string());
@@ -132,7 +136,7 @@ void FastL3MuonProducer::produce(edm::Event& event, const edm::EventSetup& event
   }
 
   theTrackFinder->reconstruct(L2TrackCands, event);      
-  l3mtb->clear();
+  // l3mtb->clear();
   
   /*
   LogTrace(metname)<<"Event loaded"

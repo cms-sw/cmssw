@@ -9,8 +9,8 @@
  *   starting from a L2 reonstructed muon and from pixel seeded
  *   tracks (by default - the latter is configuratble)
  *
- *   $Date: 2007/12/28 21:00:27 $
- *   $Revision: 1.1 $
+ *   $Date: 2008/03/14 19:12:07 $
+ *   $Revision: 1.2 $
  *   \author  P. Janot - CERN
  */
 
@@ -20,7 +20,8 @@ namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class MuonServiceProxy;
 class MuonTrackFinder;
-class FastL3MuonTrajectoryBuilder;
+// class FastL3MuonTrajectoryBuilder;
+class L3MuonTrajectoryBuilder;
 
 class FastL3MuonProducer : public edm::EDProducer {
 
@@ -49,7 +50,8 @@ class FastL3MuonProducer : public edm::EDProducer {
 
   // The muon track finder (from STA and tracks)
   MuonTrackFinder* theTrackFinder;
-  FastL3MuonTrajectoryBuilder* l3mtb;
+  // FastL3MuonTrajectoryBuilder* l3mtb;
+  L3MuonTrajectoryBuilder* l3mtb;
 
   bool theL2TrajectoryFlag;
   bool updatedAtVtx;
