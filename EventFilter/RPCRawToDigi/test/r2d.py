@@ -5,8 +5,6 @@ process.load("EventFilter.RPCRawToDigi.RPCSQLiteCabling_cfi")
 
 process.load("EventFilter.RPCRawToDigi.rpcUnpacker_cfi")
 
-process.load("DQM.RPCMonitorModule.rpcMonitorRaw_cfi")
-
 process.load("DQMServices.Core.DQM_cfg")
 
 # set maxevents; -1 -> take all
@@ -20,15 +18,13 @@ process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('rpcunpacker'),
     destinations = cms.untracked.vstring('cout'),
-    cout = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG'))
+    cout = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
 )
-
-process.rpcMonitorRaw.writeHistograms = True
 
 process.out = cms.OutputModule("PoolOutputModule",
     fileName =  cms.untracked.string('file:rawdata.root'),
     outputCommands = cms.untracked.vstring("keep *")
 )
 
-process.p = cms.Path(process.rpcunpacker*process.rpcMonitorRaw)
+process.p = cms.Path(process.rpcunpacker)
 #process.ep = cms.EndPath(process.out)

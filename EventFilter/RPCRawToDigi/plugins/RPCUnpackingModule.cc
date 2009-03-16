@@ -193,7 +193,7 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
       }
     }
   }
-  if (status) LogWarning(" RPCUnpackingModule - There was unpacking PROBLEM in this event");
+  if (status && debug) LogTrace("")<<" RPCUnpackingModule - There was unpacking PROBLEM in this event"<<endl;
   if (debug) LogTrace("") << DebugDigisPrintout()(producedRPCDigis.get()) << endl;
   ev.put(producedRPCDigis);  
   ev.put(producedRawDataCounts);
