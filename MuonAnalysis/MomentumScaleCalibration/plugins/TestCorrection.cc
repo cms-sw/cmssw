@@ -18,13 +18,13 @@
 // constructors and destructor
 //
 TestCorrection::TestCorrection(const edm::ParameterSet& iConfig) :
-  theMuonLabel_( iConfig.getParameter<edm::InputTag>( "MuonLabel" ) ),
-  theMuonType_( iConfig.getParameter<int>( "MuonType" ) ),
-  theRootFileName_( iConfig.getUntrackedParameter<string>("OutputFileName") )
+  MuScleFitBase( iConfig )
 {
   //now do what ever initialization is needed
   outputFile_ = new TFile(theRootFileName_.c_str(), "RECREATE");
   outputFile_->cd();
+  MuScleFitUtils::resfind = iConfig.getParameter<vector<int> >("resfind");
+  fillHistoMap(outputFile_, 0);
   uncorrectedPt_ = new TH1F("uncorrectedPt", "uncorrected pt", 1000, 0, 100);
   uncorrectedPtVsEta_ = new TProfile("uncorrectedPtVsEta", "uncorrected pt vs eta", 1000, 0, 100, -3., 3.);
   correctedPt_ = new TH1F("correctedPt", "corrected pt", 1000, 0, 100);
@@ -33,8 +33,17 @@ TestCorrection::TestCorrection(const edm::ParameterSet& iConfig) :
   // Create the corrector and set the parameters
   corrector_.reset(new MomentumScaleCorrector( iConfig.getUntrackedParameter<string>("CorrectionsIdentifier") ) );
   cout << "corrector_ = " << &*corrector_ << endl;
-}
+  resolution_.reset(new ResolutionFunction(iConfig.getUntrackedParameter<string>("ResolutionsIdentifier") ) );
+  cout << "resolution_ = " << &*resolution_ << endl;
+  background_.reset(new BackgroundFunction(iConfig.getUntrackedParameter<string>("BackgroundIdentifier") ) );
 
+  // Initialize the parameters of MuScleFitUtils from those saved in the functions.
+  // MuScleFitUtils::parScale = corrector_.getFunction(0)->parameters();
+  MuScleFitUtils::resolutionFunction = resolution_->getFunction(0);
+  MuScleFitUtils::resolutionFunctionForVec = resolutionFunctionVecService( resolution_->identifiers()[0] );
+
+  MuScleFitUtils::parResol = resolution_->parameters();
+}
 
 TestCorrection::~TestCorrection()
 {
@@ -57,11 +66,12 @@ TestCorrection::~TestCorrection()
   uncorrectedPtVsEta_->Write();
   correctedPt_->Write();
   correctedPtVsEta_->Write();
+
+  writeHistoMap();
   outputFile_->Close();
 
   cout << "Total analyzed events = " << eventCounter_ << endl;
 }
-
 
 //
 // member functions
@@ -97,6 +107,66 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     muons = fillMuonCollection(*tracks);
   }
 
+  // Find the two muons from the resonance, and set ResFound bool
+  // ------------------------------------------------------------
+  pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> recMuFromBestRes = 
+    MuScleFitUtils::findBestRecoRes (muons);
+  if (MuScleFitUtils::ResFound) {
+    MuScleFitUtils::SavedPair.push_back (make_pair (recMuFromBestRes.first, recMuFromBestRes.second));
+  } else {
+    MuScleFitUtils::SavedPair.push_back (make_pair (lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.)));
+  }
+
+  // If resonance found, do the hard work
+  // ------------------------------------
+  if (MuScleFitUtils::ResFound) {
+
+    // Find weight and reference mass for this muon pair
+    // -------------------------------------------------
+    // double weight = MuScleFitUtils::computeWeight ((recMu1+recMu2).mass());
+
+    // Use the correction function to correct the pt scale of the muons. Note that this takes into
+    // account the corrections from all iterations.
+    lorentzVector recMu1 = correctMuon(recMu1);
+    lorentzVector recMu2 = correctMuon(recMu2);
+
+    reco::Particle::LorentzVector bestRecRes (recMu1+recMu2);
+
+    //Fill histograms
+    //------------------
+    if (recMu1.Pt()>recMu2.Pt()) {
+      PtminvsY->Fill(recMu2.Pt(),bestRecRes.Rapidity());
+      PtmaxvsY->Fill(recMu1.Pt(),bestRecRes.Rapidity());
+      EtamuvsY->Fill(recMu1.Eta(),bestRecRes.Rapidity());
+      EtamuvsY->Fill(recMu2.Eta(),bestRecRes.Rapidity());
+    } else {
+      PtmaxvsY->Fill(recMu2.Pt(),bestRecRes.Rapidity());
+      PtminvsY->Fill(recMu1.Pt(),bestRecRes.Rapidity());
+      EtamuvsY->Fill(recMu1.Eta(),bestRecRes.Rapidity());
+      EtamuvsY->Fill(recMu2.Eta(),bestRecRes.Rapidity());
+    }
+    Y->Fill(fabs(bestRecRes.Rapidity()));
+    MY->Fill(fabs(bestRecRes.Rapidity()),bestRecRes.mass());
+    MYP->Fill(fabs(bestRecRes.Rapidity()),bestRecRes.mass());
+    mapHisto["hRecBestMu"]->Fill(recMu1);
+    if ((abs(recMu1.eta())<2.5) && (recMu1.pt()>2.5)) {
+      mapHisto["hRecBestMu_Acc"]->Fill(recMu1);
+    }
+    mapHisto["hRecBestMu"]->Fill(recMu2);
+    if ((abs(recMu2.eta())<2.5) && (recMu2.pt()>2.5)) {
+      mapHisto["hRecBestMu_Acc"]->Fill(recMu2);
+    }
+    mapHisto["hDeltaRecBestMu"]->Fill(recMu1, recMu2);
+    
+    mapHisto["hRecBestRes"]->Fill(bestRecRes);
+    if ((abs(recMu1.eta())<2.5) && (recMu1.pt()>2.5) && (abs(recMu2.eta())<2.5) &&  (recMu2.pt()>2.5)){
+      mapHisto["hRecBestRes_Acc"]->Fill(bestRecRes);
+      // Fill histogram of Res mass vs muon variable
+      mapHisto["hRecBestResVSMu"]->Fill (recMu1, bestRecRes, -1);
+      mapHisto["hRecBestResVSMu"]->Fill (recMu2, bestRecRes, +1);
+    }
+  }
+
   // Loop on the recMuons
   vector<reco::LeafCandidate>::const_iterator recMuon = muons.begin();
   int muonCount = 0;
@@ -116,15 +186,26 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 }
 
+lorentzVector TestCorrection::correctMuon( const lorentzVector & muon ) {
+  double corrPt = corrector_->correct(muon);
+  double ptEtaPhiE[4] = {corrPt, muon.Eta(), muon.Phi(), muon.E()};
+  return MuScleFitUtils::fromPtEtaPhiToPxPyPz(ptEtaPhiE);
+}
+
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TestCorrection::beginJob(const edm::EventSetup&) {}
+TestCorrection::beginJob(const edm::EventSetup&)
+{
+  // Read the pdf from root file. They are used by massProb when finding the muon pair, needed
+  // for the mass histograms.
+  readProbabilityDistributionsFromFile();
+}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 TestCorrection::endJob() {}
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TestCorrection);
+// DEFINE_FWK_MODULE(TestCorrection);
 
 #endif // TESTCORRECTION_CC

@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: TestCorrection.h,v 1.1 2008/11/19 18:11:20 demattia Exp $
+// $Id: TestCorrection.h,v 1.2 2008/11/21 16:50:12 demattia Exp $
 //
 //
 
@@ -43,10 +43,14 @@
 
 // For the momentum scale correction
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MomentumScaleCorrector.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/ResolutionFunction.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/BackgroundFunction.h"
 
 #include "TFile.h"
 #include "TProfile.h"
 #include "TH1F.h"
+
+#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitBase.h"
 
 //
 // class decleration
@@ -56,7 +60,7 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-class TestCorrection : public edm::EDAnalyzer {
+class TestCorrection : public edm::EDAnalyzer, MuScleFitBase {
 public:
   explicit TestCorrection(const edm::ParameterSet&);
   ~TestCorrection();
@@ -79,16 +83,13 @@ private:
       muons.push_back (muon);
     }
     return muons;
-  } 
+  }
+  lorentzVector correctMuon( const lorentzVector& muon );
 
   // ----------member data ---------------------------
 
   // Collections labels
   // ------------------
-  edm::InputTag theMuonLabel_;
-
-  int theMuonType_;
-  string theRootFileName_;
   TFile * outputFile_;
 
   TH1F * uncorrectedPt_;
@@ -99,6 +100,8 @@ private:
   int eventCounter_;
 
   auto_ptr<MomentumScaleCorrector> corrector_;
+  auto_ptr<ResolutionFunction> resolution_;
+  auto_ptr<BackgroundFunction> background_;
 };
 
 #endif // TESTCORRECTION_HH
