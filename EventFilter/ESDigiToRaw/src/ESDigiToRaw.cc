@@ -95,12 +95,10 @@ void ESDigiToRaw::produce(edm::Event& ev, const edm::EventSetup& es) {
     const ESDataFrame& df = *it;
     const ESDetId& detId = it->id();
 
-    ifed = fedId_[(3-detId.zside())/2-1][detId.plane()-1][detId.six()-1][detId.siy()-1] - 1;
+    ifed = fedId_[(3-detId.zside())/2-1][detId.plane()-1][detId.six()-1][detId.siy()-1];
     if (ifed < 0) continue;
 
-    int fedId = FEDNumbering::MINPreShowerFEDID + ifed;
-
-    Digis[fedId].push_back(df);
+    Digis[ifed].push_back(df);
   }
 
   auto_ptr<FEDRawDataCollection> productRawData( new FEDRawDataCollection );

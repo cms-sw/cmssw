@@ -137,7 +137,7 @@ ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps)
       int fedId = -1; 
       file >> iz >> ip >> ix >> iy >> fed >> kchip >> pace >> bundle >> fiber >> optorx;
       
-      fedId = fedId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fed - 1 + FEDNumbering::MINPreShowerFEDID;
+      fedId = fedId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fed;
       kchipId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = kchip;
       paceId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = pace - 1;
       bundleId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = bundle;
@@ -150,10 +150,11 @@ ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps)
       } else if (optorx < 1 || optorx > 3) { 
 	if (debug_) cout << "ESDataFormatterV4::ESDataFormatterV4 : optorx value : " << optorx 
 			 << " out of ES range, at lookup table line : " << i << endl;	
-      } else { // all good .. 
-	fedIdOptoRx_[fed-1][optorx-1] = true;
+      } else { // all good ..
+	int fedidx = fed - FEDNumbering::MINPreShowerFEDID; 
+	fedIdOptoRx_[fedidx][optorx-1] = true;
 	if (fiber>0 && fiber<13) { 
-	  fedIdOptoRxFiber_[fed-1][optorx-1][fiber-1] = true;
+	  fedIdOptoRxFiber_[fedidx][optorx-1][fiber-1] = true;
 	} else { 
 	  if (debug_) cout << "ESDataFormatterV4::ESDataFormatterV4 : fiber value : " << fiber
 			   << " out of ES range, at lookup table line : " << i << endl;	  
