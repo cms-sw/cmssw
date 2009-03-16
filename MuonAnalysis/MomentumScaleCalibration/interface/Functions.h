@@ -354,28 +354,30 @@ public:
   }
 };
 
-// Parabolic in pt and parabolic in |eta|
+// linear in pt and cubic in |eta|
 // --------------------------------------
 template <class T>
 class scaleFunctionType14 : public scaleFunctionBase<T> {
 public:
-  scaleFunctionType14() { this->parNum_ = 5; }
+  scaleFunctionType14() { this->parNum_ = 8; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
     return( (parScale[0] + parScale[1]*pt +
-             parScale[2]*pt*pt +
-             parScale[3]*fabs(eta) +
-             parScale[4]*eta*eta)*pt );
+             parScale[2]*fabs(eta) +
+             parScale[3]*eta*eta +
+             parScale[4]*fabs(eta*eta*eta) +
+             parScale[5]*eta*eta*eta*eta +
+             parScale[6]*fabs(eta*eta*eta*eta*eta))*pt );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
-    double thisStep[] = {0.001, 0.0001, 0.01, 0.01, 0.01};
-    TString thisParName[] = {"Pt offset", "Pt slope", "Pt quadr", "Eta slope", "Eta quadr"};
+    double thisStep[] = {0.001, 0.01, 0.01, 0.01, 0.00001, 0.0000001, 0.000000001};
+    TString thisParName[] = {"Pt offset", "Pt slope", "Eta slope", "Eta quadr", "Eta cubic", "Eta quartic", "Eta fifth grade", "Eta sixth grade"};
     if( muonType == 1 ) {
-      double thisMini[] = {0.9, -0.1, -0.3, -0.3, -0.3};
-      double thisMaxi[] = {1.1, 0.1, 0.3, 0.3, 0.3};
+      double thisMini[] = {0.9, -0.3, -0.3, -0.3, -0.01, -0.001, -0.0001, -0.00001};
+      double thisMaxi[] = {1.1, 0.3, 0.3, 0.3, 0.01, 0.001, 0.0001, 0.00001};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
-      double thisMini[] = {0.97, -0,1, -0.1, -0.1, -0.1};
-      double thisMaxi[] = {1.03, 0.1, 0.1, 0.1, 0.1};
+      double thisMini[] = {0.97, -0.1, -0.1, -0.1, -0.01, -0.001, -0.0001, -0.00001};
+      double thisMaxi[] = {1.03, 0.1, 0.1, 0.1, 0.01, 0.001, 0.0001, 0.00001};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
