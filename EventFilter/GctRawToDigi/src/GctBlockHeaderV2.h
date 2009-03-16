@@ -11,8 +11,8 @@
 *  Block Header Version 2... For use with Pipeline Formats v20 and above.
 * 
 * \author Robert Frazier
-* $Revision: 1.7 $
-* $Date: 2008/03/19 13:35:34 $
+* $Revision: 1.8 $
+* $Date: 2008/06/24 15:58:26 $
 */ 
 
 
@@ -32,6 +32,9 @@ class GctBlockHeaderV2 : public GctBlockHeaderBase
 {
 public:
 
+  /// Enum for use with initBlockLengthMap static method.
+  enum BlockLengthMapVersion( BLOCK_LENGTHS_FOR_UNPACKER_V2, BLOCK_LENGTHS_FOR_UNPACKER_V3 ); 
+
   GctBlockHeaderV2(const uint32_t data=0):GctBlockHeaderBase(data) {}
   GctBlockHeaderV2(const unsigned char * data):GctBlockHeaderBase(data) {}
   GctBlockHeaderV2(uint16_t id, uint16_t nsamples, uint16_t bcid, uint16_t evid);
@@ -49,6 +52,8 @@ public:
   /// event ID
   unsigned int eventId() const { return (d>>12) & 0xf; }
 
+  /// Hacktastic static method to init the blockLengthMap with the correct lengths for the raw format in use.
+  static void initBlockLengthMap(const BlockLengthMapVersion lengthMapVersion); 
 
 protected:
 
