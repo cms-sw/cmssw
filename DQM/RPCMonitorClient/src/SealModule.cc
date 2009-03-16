@@ -28,3 +28,5 @@ DEFINE_ANOTHER_FWK_MODULE(RPCChamberQuality);
 DEFINE_ANOTHER_FWK_MODULE(RPCMultiplicityTest);
 #include <DQM/RPCMonitorClient/interface/RPCOccupancyChipTest.h>
 DEFINE_ANOTHER_FWK_MODULE(RPCOccupancyChipTest);
+#include <DQM/RPCMonitorClient/interface/RPCNoisyStripTest.h>
+DEFINE_ANOTHER_FWK_MODULE(RPCNoisyStripTest);

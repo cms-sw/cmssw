@@ -51,7 +51,7 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup){
  stringstream histoName;
 
  for (int i = -4; i<=4;i++ ){//loop on wheels and disks
-   if (i>-3 && i<3){//wheels
+   if (i>-3 && i<3) {//wheels
      histoName.str("");
      histoName<<"DeadChannelFraction_Roll_vs_Sector_Wheel"<<i;
      if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
@@ -65,6 +65,15 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup){
        histoName<<"Sec"<<bin;
        me->setBinLabel(bin,histoName.str().c_str(),1);
      }
+
+
+     histoName.str("");
+     histoName<<"DeadChannelFraction_Distribution_Wheel"<<i;
+     if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
+       dbe_->removeElement(me->getName());
+     }
+     me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(), 51, -0.5, 100.5);
+
 
     //  histoName.str("");
 //      histoName<<"ClusterSize_AliveStrips_Roll_vs_Sector_Wheel"<<i;
@@ -288,7 +297,15 @@ void  RPCDeadChannelTest::CalculateDeadChannelPercentage(RPCDetId & detId, Monit
   RPCGeomServ RPCname(detId);	  
   string YLabel = RPCname.shortname();
   myGlobalMe->setBinLabel(nr, YLabel, 2);
+
   
+  meName.str("");
+  meName<<prefixDir_+"/"+ globalFolder_+"/DeadChannelFraction_Distribution_Wheel"<<detId.ring();
+  myGlobalMe = dbe_->get(meName.str());
+  if(myGlobalMe) myGlobalMe ->Fill(badchanfrac);
+
+
+
   // meName.str("");
 //   meName<<prefixDir_+"/"+ globalFolder_+"/ClusterSize_AliveStrips_Roll_vs_Sector_Wheel"<<detId.ring();
 //   myGlobalMe = dbe_->get(meName.str());

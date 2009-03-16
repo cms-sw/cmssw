@@ -1,16 +1,11 @@
-#ifndef RPCOccupancyChipTest_H
-#define RPCOccupancyChipTest_H
+/**************************************
+ *         Autor: David Lomidze       *
+ *           INFN di Napoli           *
+ *           06 March 2009            *
+ *************************************/
 
-
-/** \class RPCOccupancyTest
- * *
- *  DQM Event Summary module for RPCs
- *
- *  $Date: 2008/12/04 20:17:20 $
- *  $Revision: 1.1 $
- *  \author Anna Cimmino
- *   
- */
+#ifndef RPCNoisyStipTest_H
+#define RPCNoisyStipTest_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -29,14 +24,14 @@ class DQMStore;
 class RPCDetId;
 
 
-class RPCOccupancyChipTest:public edm::EDAnalyzer {
+class RPCNoisyStripTest:public edm::EDAnalyzer {
 public:
 
   /// Constructor
-  RPCOccupancyChipTest(const edm::ParameterSet& ps);
+  RPCNoisyStripTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~RPCOccupancyChipTest();
+  virtual ~RPCNoisyStripTest();
 
   /// BeginJob
   void beginJob(const edm::EventSetup& iSetup);
@@ -53,6 +48,7 @@ public:
 
   /// End Lumi Block
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+ 
 
  private:
   

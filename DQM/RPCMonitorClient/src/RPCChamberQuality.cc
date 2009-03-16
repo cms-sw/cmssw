@@ -84,7 +84,7 @@ void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
     me->setBinLabel(1, "RB1in_B", 2);
     me->setBinLabel(2, "RB1in_F", 2);
     me->setBinLabel(3, "RB1out_B", 2);
-    me->setBinLabel(4, "RB1out_b", 2);
+    me->setBinLabel(4, "RB1out_F", 2);
     me->setBinLabel(5, "RB2in_B", 2);
     me->setBinLabel(6, "RB2in_F", 2);
     me->setBinLabel(7, "RB2in_M", 2);
@@ -104,13 +104,18 @@ void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
     me->setBinLabel(21, "RB1++_F", 2);
     
     histoName.str("");
-    histoName<<"RPCChamberQuality_Distribution"<<w;       //  ClusterSize in first bin, distribution
+    histoName<<"RPCChamberQuality_Distribution_Wheel"<<w;       //  ClusterSize in first bin, distribution
     if ( me = dbe_->get(prefixDir_+ histoName.str()) ) {
       dbe_->removeElement(me->getName());
     }
-    me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  6, 0.5, 6.5);
-    
-       
+    me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  7, 0.5, 7.5);
+    me->setBinLabel(1, "Good", 1);
+    me->setBinLabel(2, "OFF", 1);
+    me->setBinLabel(3, "Nois.St", 1);
+    me->setBinLabel(4, "Nois.Ch", 1);
+    me->setBinLabel(5, "Part.Dead", 1);
+    me->setBinLabel(6, "Dead", 1);
+    me->setBinLabel(7, "Bad.Shape", 1);
     
   }//end loop on wheels
   
@@ -168,6 +173,8 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
     MonitorElement * myMe;
     MonitorElement * CLS;
     MonitorElement * MULT;
+    MonitorElement * NoisySt;
+    MonitorElement * Chip;
     
     for (int i=-2; i<3; i++) {    
       
@@ -175,12 +182,17 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
       meName<<"RPC/RecHits/SummaryHistograms/RPCChamberQuality_Roll_vs_Sector_Wheel"<<i; 
       RCQ = dbe_ -> get(meName.str());
       
+      meName.str("");
+      meName<<"RPC/RecHits/SummaryHistograms/RPCChamberQuality_Distribution_Wheel"<<i; 
+      RCQD = dbe_ -> get(meName.str());
+      
+      
       
       mme.str("");
       mme << "RPC/RecHits/SummaryHistograms/DeadChannelFraction_Roll_vs_Sector_Wheel"<<i;
-      cout<<mme.str()<<endl;
+      
       myMe = dbe_->get(mme.str());
-      if (RCQ) cout<<"found me"<<endl;
+      //if (RCQ) cout<<"found me"<<endl;
       
       //if (!myMe)continue;
       
@@ -196,12 +208,14 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 	    if(dead>=80) {
 	      // declare as DEAD chamber. fill map by a number
 	      RCQ -> setBinContent(x,y, 6);
+	      RCQD -> Fill(6, 1);
 	    }
 	    
 	    else if (33<=dead && dead<80){
 	      //Partially DEAD!!! Fill map by a number 
 	      //do dead FEB/CHIP s calculation
 	      RCQ -> setBinContent(x,y, 5);
+	      RCQD -> Fill(5, 1);
 	      
 	    }
 	    
@@ -211,13 +225,24 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 	      meName<<"RPC/RecHits/SummaryHistograms/ClusterSizeIn1Bin_Roll_vs_Sector_Wheel" << i;
 	      CLS = dbe_ -> get(meName.str());
 	      
+	      meName.str("");
+	      meName<<"RPC/RecHits/SummaryHistograms/RPCNoisyStrips_Roll_vs_Sector_Wheel" << i;
+	      NoisySt = dbe_ -> get(meName.str());
+
+
 	      float firstbin = CLS -> getBinContent(x,y);
+	      int noisystrips = NoisySt -> getBinContent(x,y);
 	      
 	      if(firstbin >= 0.88) {
 		// noisely strip !!! fill map by a number !
-			RCQ -> setBinContent(x,y, 3);
-			
+		RCQ -> setBinContent(x,y, 3);
+		RCQD -> Fill(3, 1);
 	      } 
+	      
+	      else if(noisystrips>0) { 
+	      	RCQ -> setBinContent(x,y, 3);
+		RCQD -> Fill(3, 1);
+	      }
 	      
 	      else {
 		//check Multiplicity to spot noisely Chamber
@@ -230,14 +255,25 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 		
 		float mult = MULT -> getBinContent(x,y);
 		
-		if(mult>=10) {
+		if(mult>=6) {
 		  // Declare chamber as noisely! Fill map by a number !
 		  RCQ -> setBinContent(x,y, 4);
+		  RCQD -> Fill(4, 1);
 		}
 		else {
 		  //Declare Chember as GOOD !!!! Fill map by a number !
+		  meName.str("");
+		  meName<<"RPC/RecHits/SummaryHistograms/AsymmetryLeftRight_Roll_vs_Sector_Wheel" << i;
+		  Chip = dbe_ -> get(meName.str());
 		  
-		  RCQ -> setBinContent(x,y, 1);
+		  if(Chip->getBinContent(x,y)>0.35) {
+		    RCQ -> setBinContent(x,y, 7);
+		    RCQD -> Fill(7, 1);
+		  }
+		  else {
+		    RCQ -> setBinContent(x,y, 1);
+		    RCQD -> Fill(1, 1);
+		  }
 		  
 		} 
 	      }
