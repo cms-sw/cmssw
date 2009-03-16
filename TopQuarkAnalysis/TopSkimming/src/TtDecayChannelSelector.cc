@@ -1,90 +1,132 @@
-#include <iostream>
-
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "TopQuarkAnalysis/TopSkimming/interface/TtDecayChannelSelector.h"
 
+// static const string for status check in  
+// TtDecayChannelSelector::search functions
+static const std::string kGenParticles = "genParticles";
+
+// number of top branches for decay selection
+static const unsigned int kTopBranches   = 2;
+
+// maximal number of possible leptonic decay 
+// channels
+static const unsigned int kDecayChannels = 3;
+
+
 TtDecayChannelSelector::TtDecayChannelSelector(const edm::ParameterSet& cfg):
   invert_ ( cfg.getParameter<bool>("invert" ) )
 {
-  chn1_ = cfg.getParameter<Decay>("channel_1"); 
-  chn2_ = cfg.getParameter<Decay>("channel_2"); 
-  tauDecay_  = cfg.getParameter<Decay>("tauDecays");
+  // determine allowed tauy decays
+  edm::ParameterSet allowedTauDecays = cfg.getParameter<edm::ParameterSet>("allowedTauDecays");
+  allowLepton_ = allowedTauDecays.getParameter<bool>("leptonic"); 
+  allow1Prong_ = allowedTauDecays.getParameter<bool>("oneProng"); 
+  allow3Prong_ = allowedTauDecays.getParameter<bool>("threeProng");
 
-  channel_=0;
-  //determine decay channel
-  if( count(chn1_.begin(), chn1_.end(), 1) > 0 ){ ++channel_; }
-  if( count(chn2_.begin(), chn2_.end(), 1) > 0 ){ ++channel_; }
+  // allowed top decays PSet
+  edm::ParameterSet allowedTopDecays = cfg.getParameter<edm::ParameterSet>("allowedTopDecays");
 
-  summed_=0;
-  //fill vector of allowed leptons
-  Decay::const_iterator idx1=chn1_.begin(),idx2=chn2_.begin(); 
-  for( ; idx1!=chn1_.end(), idx2!=chn2_.end(); ++idx1, ++idx2){
-    summed_+=(*idx1)+(*idx2);
-    decay_.push_back( (*idx1)+(*idx2) );
+  // fill decayBranchA_
+  edm::ParameterSet decayBranchA = allowedTopDecays.getParameter<edm::ParameterSet>("decayBranchA");
+  decayBranchA_.push_back(decayBranchA.getParameter<bool>("electron"));
+  decayBranchA_.push_back(decayBranchA.getParameter<bool>("muon"    ));
+  decayBranchA_.push_back(decayBranchA.getParameter<bool>("tau"     ));
+
+  // fill decay branchB_
+  edm::ParameterSet decayBranchB = allowedTopDecays.getParameter<edm::ParameterSet>("decayBranchB");
+  decayBranchB_.push_back(decayBranchB.getParameter<bool>("electron"));
+  decayBranchB_.push_back(decayBranchB.getParameter<bool>("muon"    ));
+  decayBranchB_.push_back(decayBranchB.getParameter<bool>("tau"     ));
+
+  // fill allowedDecays_
+  for(unsigned int d=0; d<kDecayChannels; ++d){
+    allowedDecays_.push_back(decayBranchA_[d]+decayBranchB_[d]);
   }
-
-  parseDecayInput(chn1_, chn2_);
-  parseTauDecayInput(tauDecay_);
-
 }
 
 TtDecayChannelSelector::~TtDecayChannelSelector()
-{ } 
+{ 
+} 
 
 bool
 TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std::string inputType) const
 {
-  int iLep=0;
-  int iTop=0,iBeauty=0,iElec=0,iMuon=0,iTau=0;
+  unsigned int iLep=0;
+  unsigned int iTop=0,iBeauty=0,iElec=0,iMuon=0,iTau=0;
   for(reco::GenParticleCollection::const_iterator top=parts.begin(); top!=parts.end(); ++top){
-    if( isParticle(top, TopDecayID::tID, inputType) ){
+    if( search(top, TopDecayID::tID, inputType) ){
       ++iTop;
-      for(reco::GenParticle::const_iterator td=(*top).begin(); td!=(*top).end(); ++td){
-	if( isParticle(td, TopDecayID::bID, inputType) )
-	  {++iBeauty;}
-	if( isParticle(td, TopDecayID::WID, inputType) ){
-	  for(reco::GenParticle::const_iterator wd=(*td).begin(); wd!=(*td).end(); ++wd){
-	    if( abs((*wd).pdgId())==11 ){++iElec;}
-	    if( abs((*wd).pdgId())==13 ){++iMuon;}
-	    if( abs((*wd).pdgId())==15 ){ if(checkTauDecay(*wd)) ++iTau; else ++iLep; }
+      for(reco::GenParticle::const_iterator td=top->begin(); td!=top->end(); ++td){
+	if( search(td, TopDecayID::bID, inputType) ){
+	  ++iBeauty;
+	}
+	if( search(td, TopDecayID::WID, inputType) ){
+	  for(reco::GenParticle::const_iterator wd=td->begin(); wd!=td->end(); ++wd){
+	    if( abs(wd->pdgId())==TopDecayID::elecID ){
+	      ++iElec;
+	    }
+	    if( abs(wd->pdgId())==TopDecayID::muonID ){
+	      ++iMuon;
+	    }
+	    if( abs(wd->pdgId())==TopDecayID::tauID  ){ 
+	      // count as iTau if it is leptonic, one-prong
+	      // or three-prong and ignore increasing iLep
+	      // though else
+	      if(tauDecay(*wd)){
+		++iTau; 
+	      } else{
+		++iLep; 
+	      }
+	    }
 	  }
 	}
       }
     }
   }
+  edm::LogVerbatim log("TtDecayChannelSelector::selection");
+  log << "----------------------" << "\n"
+      << " iTop    : " << iTop    << "\n"
+      << " iBeauty : " << iBeauty << "\n"
+      << " iElec   : " << iElec   << "\n"
+      << " iMuon   : " << iMuon   << "\n"
+      << " iTau    : " << iTau    << "\n"
+      << "- - - - - - - - - - - " << "\n";
   iLep+=iElec+iMuon+iTau;
+
   bool accept=false;
+  unsigned int channel = decayChannel();
   if( (iTop==2) && (iBeauty==2) ){
-    if( channel_==iLep ){
-      if( channel_==0 ){
-        // no lepton: accept without restriction 
-	// (we already know the number of leptons is right)
+    if( channel==iLep ){
+      if( channel==0 ){
+        // no lepton: accept without restriction we already 
+	// know that the number of leptons is correct
 	accept=true;
       }
-      if( channel_==1 ){
-        // one lepton: check that that one is allowed
-        accept = (iElec&&decay_[Elec]) || (iMuon&&decay_[Muon]) || (iTau&&decay_[Tau]);
+      if( channel==1 ){
+        // one lepton: check that this one is allowed
+        accept=(iElec&&allowedDecays_[Elec]) || (iMuon&&allowedDecays_[Muon]) || (iTau&&allowedDecays_[Tau]);
       }
-      if( channel_==2 ){
-	if( summed_==channel_ ){
+      if( channel==2 ){
+	if( checkSum(allowedDecays_)==channel ){
 	  // no redundancy
-	  accept = (decay_[Elec]==iElec) && (decay_[Muon]==iMuon) && (decay_[Tau]==iTau);
+	  accept = (allowedDecays_[Elec]==(int)iElec) && (allowedDecays_[Muon]==(int)iMuon) && (allowedDecays_[Tau]==(int)iTau);
 	}
 	else{
-	  // that first test is to quickly reject event with wrong tau decay
-	  if(iElec+iMuon+iTau!=2) 
+	  // reject events with wrong tau decays
+	  if(iElec+iMuon+iTau!=channel){
 	    accept = false;
+	  }
 	  else {
 	    if((iElec==2)||(iMuon==2)||(iTau==2)) {
 	      // same lepton twice: check that this is allowed.
-	      accept = (decay_[Elec]==iElec)||(decay_[Muon]==iMuon)||(decay_[Tau]==iTau);
-	    } else {
+	      accept = (allowedDecays_[Elec]==(int)iElec)||(allowedDecays_[Muon]==(int)iMuon)||(allowedDecays_[Tau]==(int)iTau);
+	    } 
+	    else {
 	      // two different leptons: look if there is a possible combination
-	      accept = ( ((iElec&&chn1_[Elec])&&((iMuon&&chn2_[Muon])||(iTau &&chn2_[Tau ]))) ||
-	                 ((iMuon&&chn1_[Muon])&&((iElec&&chn2_[Elec])||(iTau &&chn2_[Tau ]))) ||
-			 ((iTau &&chn1_[Tau ])&&((iElec&&chn2_[Elec])||(iMuon&&chn2_[Muon])))   );
+	      accept = ( ((iElec&&decayBranchA_[Elec])&&((iMuon&&decayBranchB_[Muon])||(iTau &&decayBranchB_[Tau ]))) ||
+	                 ((iMuon&&decayBranchA_[Muon])&&((iElec&&decayBranchB_[Elec])||(iTau &&decayBranchB_[Tau ]))) ||
+			 ((iTau &&decayBranchA_[Tau ])&&((iElec&&decayBranchB_[Elec])||(iMuon&&decayBranchB_[Muon])))   );
 	    }
 	  }
 	}
@@ -95,14 +137,15 @@ TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std
   else{
     edm::LogWarning ( "NoVtbDecay" ) << "Decay is not via Vtb";
   }
+  log << " accept  : " << accept;
   return accept;
 }
 
 bool
-TtDecayChannelSelector::isParticle(reco::GenParticleCollection::const_iterator& part, int pdgId, std::string& inputType) const
+TtDecayChannelSelector::search(reco::GenParticleCollection::const_iterator& part, int pdgId, std::string& inputType) const
 {
-  if(inputType=="genParticles"){
-    return (abs(part->pdgId())==pdgId && part->status()==3) ? true : false;
+  if(inputType==kGenParticles){
+    return (abs(part->pdgId())==pdgId && part->status()==TopDecayID::unfrag) ? true : false;
   }
   else{
     return (abs(part->pdgId())==pdgId) ? true : false;
@@ -110,10 +153,10 @@ TtDecayChannelSelector::isParticle(reco::GenParticleCollection::const_iterator& 
 }
 
 bool
-TtDecayChannelSelector::isParticle(reco::GenParticle::const_iterator& part, int pdgId, std::string& inputType) const
+TtDecayChannelSelector::search(reco::GenParticle::const_iterator& part, int pdgId, std::string& inputType) const
 {
-  if(inputType=="genParticles"){
-    return (abs(part->pdgId())==pdgId && part->status()==3) ? true : false;
+  if(inputType==kGenParticles){
+    return (abs(part->pdgId())==pdgId && part->status()==TopDecayID::unfrag) ? true : false;
   }
   else{
     return (abs(part->pdgId())==pdgId) ? true : false;
@@ -121,102 +164,40 @@ TtDecayChannelSelector::isParticle(reco::GenParticle::const_iterator& part, int 
 }
 
 unsigned int 
-TtDecayChannelSelector::countChargedParticles(const reco::Candidate& part) const
+TtDecayChannelSelector::countProngs(const reco::Candidate& part) const
 {
   // if stable, return 1 or 0
-  if(part.status()==1) return (part.charge()!=0);
-  // if unstable, call recursively on daughters
-  int nch =0;
-  for(reco::Candidate::const_iterator daughter=part.begin();daughter!=part.end(); ++daughter){
-    nch += countChargedParticles(*daughter);
+  if(part.status()==TopDecayID::stable){
+    return (part.charge()!=0);
   }
-  return nch;
+  // if unstable, call recursively on daughters
+  int prong =0;
+  for(reco::Candidate::const_iterator daughter=part.begin();daughter!=part.end(); ++daughter){
+    prong += countProngs(*daughter);
+  }
+  return prong;
 }
 
-
 bool
-TtDecayChannelSelector::checkTauDecay(const reco::Candidate& tau) const
+TtDecayChannelSelector::tauDecay(const reco::Candidate& tau) const
 {
   bool leptonic = false;
   unsigned int nch = 0;
-  // if no daughter, accept the tau (it means we are running on stripped MC content as in GenEvt)
-  if(!tau.numberOfDaughters()) return true;
-  // loop on tau decays, check for an electron or muon and count charged particles
+  // loop on tau decays, check for an elec
+  // or muon and count charged particles
   for(reco::Candidate::const_iterator daughter=tau.begin();daughter!=tau.end(); ++daughter){
-    // if the tau daughter is a tau, it means the particle has still to be propagated.
-    // In that case, return the result of the same method on that daughter.
-    if(daughter->pdgId()==tau.pdgId()) return checkTauDecay(*daughter);
+    // if the tau daughter is again a tau, this means that the particle has 
+    // still to be propagated; in that case, return the result of the same 
+    // method applied on the on that daughter
+    if(daughter->pdgId()==tau.pdgId()){
+      return tauDecay(*daughter);
+    }
     // check for leptons
-    leptonic |= (abs(daughter->pdgId())==11 || abs(daughter->pdgId())==13);
+    leptonic |= (abs(daughter->pdgId())==TopDecayID::elecID || abs(daughter->pdgId())==TopDecayID::muonID);
     // count charged particles
-    nch += countChargedParticles(*daughter);
+    nch += countProngs(*daughter);
   }
-  return ( (tauDecay_[Leptonic] && leptonic)            ||
-           (tauDecay_[OneProng] && !leptonic && nch==1) ||
-           (tauDecay_[ThreeProng] && !leptonic && nch>1)    );
+  return ((allowLepton_ &&  leptonic)          ||
+	  (allow1Prong_ && !leptonic && nch==1)||
+	  (allow3Prong_ && !leptonic && nch >1));
 }
-
-void
-TtDecayChannelSelector::parseDecayInput(Decay& chn1, Decay& chn2) const
-{
-  //---------------------------------------------
-  //check for correct size of the input vectors
-  //---------------------------------------------
-  if( chn1.size()!=3 ){
-    throw edm::Exception( edm::errors::Configuration, 
-			  "'channel_1' must contain 3 values" );
-  }
-  if( chn2.size()!=3 ){
-    throw edm::Exception( edm::errors::Configuration, 
-			  "'channel_2' must contain 3 values" );
-  }
-
-  //---------------------------------------------
-  //check for correct entries in input vectors
-  //---------------------------------------------
-  Decay::const_iterator idx1=chn1.begin(),idx2=chn2.begin(); 
-  for( ; idx1!=chn1.end(), idx2!=chn2.end(); ++idx1, ++idx2){
-    if( !(0<=(*idx1) && (*idx1)<=1) ){
-      throw edm::Exception( edm::errors::Configuration, 
-			    "'channel_1' may only contain values 0 or 1" );
-    }
-    if( !(0<=(*idx2) && (*idx2)<=1) ){
-      throw edm::Exception( edm::errors::Configuration, 
-			    "'channel_2' may only contain values 0 or 1" );
-    }
-  }
-
-  return;
-}
-
-void
-TtDecayChannelSelector::parseTauDecayInput(Decay& chn) const
-{
-  //---------------------------------------------
-  //check for correct size of the input vector
-  //---------------------------------------------
-  if( chn.size()!=3 ){
-    throw edm::Exception( edm::errors::Configuration, 
-			  "'tauDecays' must contain 3 values" );
-  }
-
-  //---------------------------------------------
-  //check for correct entries in input vectors
-  //---------------------------------------------
-  for(Decay::const_iterator idx=chn.begin() ; idx!=chn.end(); ++idx){
-    if( !(0<=(*idx) && (*idx)<=1) ){
-      throw edm::Exception( edm::errors::Configuration, 
-			    "'tauDecays' may only contain values 0 or 1" );
-    }
-  }
-
-  //---------------------------------------------
-  //check for unambigous decay channel selection
-  //---------------------------------------------
-  if((count(chn.begin(), chn.end(), 1) == 0) && decay_[2]) {
-    throw edm::Exception( edm::errors::Configuration, 
-			  "No tau decay allowed while tau channels are allowed." );
-  }
-  return;
-}
-
