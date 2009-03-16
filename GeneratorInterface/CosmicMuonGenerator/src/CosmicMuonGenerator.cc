@@ -21,7 +21,8 @@ CosmicMuonGenerator::CosmicMuonGenerator() : delRanGen(false)
   MinP_CMS =     MinP;
   MaxP =   3000.;
   MinTheta =  0.*Deg2Rad;
-  MaxTheta = 84.26*Deg2Rad;
+  //MaxTheta = 84.26*Deg2Rad;
+  MaxTheta = 89.0*Deg2Rad;
   MinPhi =    0.*Deg2Rad;
   MaxPhi =  360.*Deg2Rad;
   MinT0  = -12.5;
@@ -257,7 +258,10 @@ void CosmicMuonGenerator::terminate(){
       std::cout << "       area of initial cosmics on Surface + PlugWidth:   " << area << " m^2" << std::endl;
     std::cout << "       depth of CMS detector (from Surface):   " << SurfaceOfEarth/1000 << " m" << std::endl;
        
-    if(n100cos>0){
+    //at least 100 evts., and
+    //downgoing inside theta parametersisation range
+    //or upgoing neutrino muons 
+    if(n100cos>0 && (MaxTheta<84.26*Deg2Rad || MinTheta>90.*Deg2Rad)){
       // rate: corrected for area and selection-Eff. and normalized to known flux, integration over solid angle (dOmega) is implicit
       // flux is normalised with respect to known flux of vertical 100GeV muons in area at suface level 
       // rate seen by detector is lower than rate at surface area, so has to be corrected for selection-Eff.
@@ -268,7 +272,7 @@ void CosmicMuonGenerator::terminate(){
       if (MinTheta > 90.*Deg2Rad) {//upgoing muons from neutrinos) 
 	double Omega = (cos(MinTheta)-cos(MaxTheta)) * (MaxPhi-MinPhi);
 	EventRate = (Ndiced * 3.e-13) * Omega * area*1.e4 * selEff;//area in cm, flux=3.e-13cm^-2s^-1sr^-1
-	rateErr_stat = EventRate/sqrt( (double) n100cos);  // stat. rate error 
+	rateErr_stat = EventRate/sqrt( (double) Ndiced);  // stat. rate error 
 	rateErr_syst = EventRate/3.e-13 * 1.0e-13;  // syst. rate error, from error of known flux 
       }
       else {
@@ -292,6 +296,9 @@ void CosmicMuonGenerator::terminate(){
       std::cout << std::endl;
       if (MinP > 100.)
 	std::cout << " !!! MinP > 100 GeV. Cannot apply normalisation!" << std::endl;
+      else if (MaxTheta > 84.26*Deg2Rad)
+	std::cout << " !!! Note: generated cosmics exceed parameterisation. No flux calculated!" << std::endl;
+
       else
 	std::cout << " !!! Not enough statistics to apply normalisation (rate=1 +- 1) !!!" << std::endl;
     } 

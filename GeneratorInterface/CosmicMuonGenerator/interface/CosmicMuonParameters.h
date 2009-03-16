@@ -60,7 +60,7 @@ const double Z_DistTracker = 2800.; // [mm]
 enum {Unknown=0, Plug, Wall, Air, Clay, Rock};
 
 
-//Parameters for upward muons from neurinos
+//Parameters for upward muons from neutrinos
 const double N_A = 6.022e23; //mol^-1
 const double alpha = 2.; //MeV/(g/cm^2)
 const double beta = 3.9e-6; //(g/cm^2)^-1

@@ -21,10 +21,10 @@ process.CMSCGEN_out = cms.OutputModule("PoolOutputModule",
 
 process.p = cms.Path(process.generator)
 process.outpath = cms.EndPath(process.CMSCGEN_out)
-process.generator.MinP = 10.
-process.generator.MaxTheta = 80.
+process.generator.MinP = 3.
+process.generator.MaxTheta = 89.
 
-# Plug z-position [mm] (default=-14000.)
+# Plug z-position [mm] (default=-14000. = on Shaft)
 #process.generator.PlugVz = -33000.;
 
 # z-position of centre of target cylinder [mm] (default=0.)

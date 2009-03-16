@@ -95,7 +95,7 @@ public:
   //destructor
   ~CMSCGEN();
 
-        // to set the energy and cos theta range 
+        // to set the energy and cos theta range
   int initialize(double,double,double,double,CLHEP::HepRandomEngine*,bool,bool);
   int initialize(double,double,double,double,int,bool,bool);
 
