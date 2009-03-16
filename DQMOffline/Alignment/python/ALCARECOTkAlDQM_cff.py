@@ -4,156 +4,189 @@ import DQMOffline.Alignment.TkAlCaRecoMonitor_cfi
 
 #Below all DQM modules for TrackerAlignment AlCaRecos are instanciated.
 #############---  TkAlZMuMu ---#######################
-ALCARECOTkAlZMuMuTrackingDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
-ALCARECOTkAlZMuMuTkAlDQM =  DQMOffline.Alignment.TkAlCaRecoMonitor_cfi.TkAlCaRecoMonitor.clone()
+__selectionName = 'TkAlZMuMu'
+ALCARECOTkAlZMuMuTrackingDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = __selectionName,
+# margins and settings
+    TkSizeBin = cms.int32(6),
+    TkSizeMin = cms.double(-0.5),
+    TkSizeMax = cms.double(5.5),
+    TrackPtBin = cms.int32(150),
+    TrackPtMin = cms.double(0),
+    TrackPtMax = cms.double(150)
+)
+
+ALCARECOTkAlZMuMuTkAlDQM =  DQMOffline.Alignment.TkAlCaRecoMonitor_cfi.TkAlCaRecoMonitor.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = __selectionName,
+# margins and settings
+    runsOnReco = cms.bool(True),
+    fillInvariantMass = cms.bool(True),
+    MassBin = cms.uint32(300),
+    MassMin = cms.double(50.0),
+    MassMax = cms.double(150.0)
+)
 ALCARECOTkAlZMuMuDQM = cms.Sequence( ALCARECOTkAlZMuMuTrackingDQM + ALCARECOTkAlZMuMuTkAlDQM )
 
-#names & designations  
-selectionName = 'TkAlZMuMu'
-ALCARECOTkAlZMuMuTrackingDQM.TrackProducer = 'ALCARECO'+selectionName
-ALCARECOTkAlZMuMuTrackingDQM.AlgoName = 'ALCARECO'+selectionName
-ALCARECOTkAlZMuMuTrackingDQM.FolderName = selectionName
-ALCARECOTkAlZMuMuTkAlDQM.TrackProducer = 'ALCARECO'+selectionName
-ALCARECOTkAlZMuMuTkAlDQM.AlgoName = 'ALCARECO'+selectionName
-ALCARECOTkAlZMuMuTkAlDQM.FolderName = selectionName
-#TkAlDQM settings
-ALCARECOTkAlZMuMuTkAlDQM.fillInvariantMass = cms.bool(True)
-ALCARECOTkAlZMuMuTkAlDQM.MassBin = 300
-ALCARECOTkAlZMuMuTkAlDQM.MassMin = 50.0
-ALCARECOTkAlZMuMuTkAlDQM.MassMax = 150.0
-
-#sizes
-ALCARECOTkAlZMuMuTrackingDQM.TkSizeBin = 6
-ALCARECOTkAlZMuMuTrackingDQM.TkSizeMin = -0.5
-ALCARECOTkAlZMuMuTrackingDQM.TkSizeMax = 5.5
-ALCARECOTkAlZMuMuTrackingDQM.TrackPtBin = 100
-ALCARECOTkAlZMuMuTrackingDQM.TrackPtMin = 0
-ALCARECOTkAlZMuMuTrackingDQM.TrackPtMax = 100
-
 #############---  TkAlJpsiMuMu ---#######################
-ALCARECOTkAlJpsiMuMuTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone()
-ALCARECOTkAlJpsiMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone()
+__selectionName = 'TkAlJpsiMuMu'
+ALCARECOTkAlJpsiMuMuTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = __selectionName,
+# margins and settings
+    MassMin = cms.double(2.5),
+    MassMax = cms.double(4.0)
+)
+ALCARECOTkAlJpsiMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = __selectionName,
+# margins and settings
+    TrackPtMax = cms.double(30)
+)
 ALCARECOTkAlJpsiMuMuDQM = cms.Sequence( ALCARECOTkAlJpsiMuMuTrackingDQM + ALCARECOTkAlJpsiMuMuTkAlDQM )
 
-#names & designations    
-selectionName = 'TkAlJpsiMuMu'
-ALCARECOTkAlJpsiMuMuTrackingDQM.TrackProducer = 'ALCARECO'+selectionName
-ALCARECOTkAlJpsiMuMuTrackingDQM.AlgoName = 'ALCARECO'+selectionName
-ALCARECOTkAlJpsiMuMuTrackingDQM.FolderName = selectionName
-ALCARECOTkAlJpsiMuMuTkAlDQM.TrackProducer = 'ALCARECO'+selectionName
-ALCARECOTkAlJpsiMuMuTkAlDQM.AlgoName = 'ALCARECO'+selectionName
-ALCARECOTkAlJpsiMuMuTkAlDQM.FolderName = selectionName
-
-#TkAlDQM settings
-ALCARECOTkAlJpsiMuMuTkAlDQM.MassMin = 2.5
-ALCARECOTkAlJpsiMuMuTkAlDQM.MassMax = 4.0
-
-#sizes  
-ALCARECOTkAlJpsiMuMuTrackingDQM.TrackPtMax = 30
-
 #############---  TkAlUpsilonMuMu ---#######################
-ALCARECOTkAlUpsilonMuMuTrackingDQM = ALCARECOTkAlJpsiMuMuTrackingDQM.clone()
-ALCARECOTkAlUpsilonMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone()
+__selectionName = 'TkAlUpsilonMuMu'
+ALCARECOTkAlUpsilonMuMuTrackingDQM = ALCARECOTkAlJpsiMuMuTrackingDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = __selectionName
+)
+
+ALCARECOTkAlUpsilonMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = __selectionName,
+# margins and settings
+    MassMin = cms.double(9.5),
+    MassMax = cms.double(10)
+)
 ALCARECOTkAlUpsilonMuMuDQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuTrackingDQM + ALCARECOTkAlUpsilonMuMuTkAlDQM)
 
-selectionName = 'TkAlUpsilonMuMu'
-ALCARECOTkAlUpsilonMuMuTrackingDQM.TrackProducer = 'ALCARECO'+selectionName
-ALCARECOTkAlUpsilonMuMuTrackingDQM.AlgoName = 'ALCARECO'+selectionName
-ALCARECOTkAlUpsilonMuMuTrackingDQM.FolderName = selectionName
-ALCARECOTkAlUpsilonMuMuTkAlDQM.TrackProducer = 'ALCARECO'+selectionName
-ALCARECOTkAlUpsilonMuMuTkAlDQM.AlgoName = 'ALCARECO'+selectionName
-ALCARECOTkAlUpsilonMuMuTkAlDQM.FolderName = selectionName
-
-#TkAlDQM settings
-ALCARECOTkAlUpsilonMuMuTkAlDQM.MassMin = 9.5
-ALCARECOTkAlUpsilonMuMuTkAlDQM.MassMax = 10
 
 #############---  TkAlBeamHalo ---#######################
-ALCARECOTkAlBeamHaloTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone()
+__selectionName = 'TkAlBeamHalo'
+ALCARECOTkAlBeamHaloTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = __selectionName
+)
 ALCARECOTkAlBeamHaloDQM = cms.Sequence( ALCARECOTkAlBeamHaloTrackingDQM )
 
-#names & designations  
-ALCARECOTkAlBeamHaloTrackingDQM.TrackProducer = 'ALCARECOTkAlBeamHalo'
-ALCARECOTkAlBeamHaloTrackingDQM.AlgoName = 'ALCARECOTkAlBeamHalo'
-ALCARECOTkAlBeamHaloTrackingDQM.FolderName = 'TkAlBeamHalo'
-
 #############---  TkAlMinBias ---#######################
-ALCARECOTkAlMinBiasTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone()
-ALCARECOTkAlMinBiasTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone()
+__selectionName = 'TkAlMinBias'
+ALCARECOTkAlMinBiasTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = __selectionName,
+# margins and settings
+    TkSizeBin = cms.int32(71),
+    TkSizeMin = cms.double(-0.5),
+    TkSizeMax = cms.double(70.5),
+    TrackPtMax = cms.double(30)
+)
+
+ALCARECOTkAlMinBiasTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = __selectionName,
+# margins and settings
+    fillInvariantMass = cms.bool(False)
+)
 ALCARECOTkAlMinBiasDQM = cms.Sequence( ALCARECOTkAlMinBiasTrackingDQM + ALCARECOTkAlMinBiasTkAlDQM)
 
-#names & designations  
-selectionName = 'TkAlMinBias'
-ALCARECOTkAlMinBiasTrackingDQM.TrackProducer = 'ALCARECO'+selectionName
-ALCARECOTkAlMinBiasTrackingDQM.AlgoName = 'ALCARECO'+selectionName
-ALCARECOTkAlMinBiasTrackingDQM.FolderName = selectionName
-ALCARECOTkAlMinBiasTkAlDQM.TrackProducer = 'ALCARECO'+selectionName
-ALCARECOTkAlMinBiasTkAlDQM.AlgoName = 'ALCARECO'+selectionName
-ALCARECOTkAlMinBiasTkAlDQM.FolderName = selectionName
-
-#TkAlDQM settings
-ALCARECOTkAlMinBiasTkAlDQM.fillInvariantMass = cms.bool(False)
-
-#sizes
-ALCARECOTkAlMinBiasTrackingDQM.TkSizeBin = 71
-ALCARECOTkAlMinBiasTrackingDQM.TkSizeMin = -0.5
-ALCARECOTkAlMinBiasTrackingDQM.TkSizeMax = 70.5
-ALCARECOTkAlMinBiasTrackingDQM.TrackPtMax = 30
-
 #############---  TkAlMuonIsolated ---#######################
-ALCARECOTkAlMuonIsolatedTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone()
-ALCARECOTkAlMuonIsolatedTkAlDQM = ALCARECOTkAlMinBiasTkAlDQM.clone()
+__selectionName = 'TkAlMuonIsolated'
+ALCARECOTkAlMuonIsolatedTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = __selectionName,
+# margins and settings
+    TkSizeBin = cms.int32(16),
+    TkSizeMin = cms.double(-0.5),
+    TkSizeMax = cms.double(15.5),
+)
+ALCARECOTkAlMuonIsolatedTkAlDQM = ALCARECOTkAlMinBiasTkAlDQM.clone(
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = __selectionName
+)
 ALCARECOTkAlMuonIsolatedDQM = cms.Sequence( ALCARECOTkAlMuonIsolatedTrackingDQM + ALCARECOTkAlMuonIsolatedTkAlDQM)
-
-#names & designations  
-selectionName = 'TkAlMuonIsolated'
-ALCARECOTkAlMuonIsolatedTrackingDQM.TrackProducer = 'ALCARECO'+selectionName
-ALCARECOTkAlMuonIsolatedTrackingDQM.AlgoName = 'ALCARECO'+selectionName
-ALCARECOTkAlMuonIsolatedTrackingDQM.FolderName = selectionName
-ALCARECOTkAlMuonIsolatedTkAlDQM.TrackProducer = 'ALCARECO'+selectionName
-ALCARECOTkAlMuonIsolatedTkAlDQM.AlgoName = 'ALCARECO'+selectionName
-ALCARECOTkAlMuonIsolatedTkAlDQM.FolderName = selectionName
-
 
 ###### DQM modules for cosmic data taking ######
 ### TkAlCosmicsCTF0T ###
-ALCARECOTkAlCosmicsCTF0TTrackingDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
+__selectionName = 'TkAlCosmicsCTF0T'
+ALCARECOTkAlCosmicsCTF0TTrackingDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = 'TkAlCosmics',
+# margins and settings
+    TkSizeBin = cms.int32(100),
+    TkSizeMin = cms.double(0),
+    TkSizeMax = cms.double(100),
+    TrackPtBin = cms.int32(500),
+    TrackPtMin = cms.double(0),
+    TrackPtMax = cms.double(500)
+)
 ALCARECOTkAlCosmicsCTF0TDQM = cms.Sequence( ALCARECOTkAlCosmicsCTF0TTrackingDQM )
 
-# names & designations  
-ALCARECOTkAlCosmicsCTF0TTrackingDQM.TrackProducer = 'ALCARECOTkAlCosmicsCTF0T'
-ALCARECOTkAlCosmicsCTF0TTrackingDQM.AlgoName = 'ALCARECOTkAlCosmicsCTF0T'
-ALCARECOTkAlCosmicsCTF0TTrackingDQM.FolderName = 'TkAlCosmics'
-# sizes			    
-ALCARECOTkAlCosmicsCTF0TTrackingDQM.TkSizeBin = 100
-ALCARECOTkAlCosmicsCTF0TTrackingDQM.TkSizeMin = 0
-ALCARECOTkAlCosmicsCTF0TTrackingDQM.TkSizeMax = 100
-ALCARECOTkAlCosmicsCTF0TTrackingDQM.TrackPtBin = 500
-ALCARECOTkAlCosmicsCTF0TTrackingDQM.TrackPtMin = 0
-ALCARECOTkAlCosmicsCTF0TTrackingDQM.TrackPtMax = 500
-
 ### TkAlCosmicsCosmicTF0T ###
-ALCARECOTkAlCosmicsCosmicTF0TTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone()
+__selectionName = 'TkAlCosmicsCosmicTF0T'
+ALCARECOTkAlCosmicsCosmicTF0TTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName
+)
 ALCARECOTkAlCosmicsCosmicTF0TDQM = cms.Sequence( ALCARECOTkAlCosmicsCosmicTF0TTrackingDQM )
-ALCARECOTkAlCosmicsCosmicTF0TTrackingDQM.TrackProducer = 'ALCARECOTkAlCosmicsCosmicTF0T'
-ALCARECOTkAlCosmicsCosmicTF0TTrackingDQM.AlgoName = 'ALCARECOTkAlCosmicsCosmicTF0T'
-#TkAlCosmicsRS0T
-ALCARECOTkAlCosmicsRS0TTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone()
+
+### TkAlCosmicsRS0T ###
+__selectionName = 'TkAlCosmicsRS0T'
+ALCARECOTkAlCosmicsRS0TTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName
+)
 ALCARECOTkAlCosmicsRS0TDQM = cms.Sequence( ALCARECOTkAlCosmicsRS0TTrackingDQM )
-ALCARECOTkAlCosmicsRS0TTrackingDQM.TrackProducer = 'ALCARECOTkAlCosmicsRS0T'
-ALCARECOTkAlCosmicsRS0TTrackingDQM.AlgoName = 'ALCARECOTkAlCosmicsRS0T'
+
 ### TkAlCosmicsCTF ###
-ALCARECOTkAlCosmicsCTFTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone()
+__selectionName = 'TkAlCosmicsCTF'
+ALCARECOTkAlCosmicsCTFTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName
+)
 ALCARECOTkAlCosmicsCTFDQM = cms.Sequence( ALCARECOTkAlCosmicsCTFTrackingDQM )
-ALCARECOTkAlCosmicsCTFTrackingDQM.TrackProducer = 'ALCARECOTkAlCosmicsCTF'
-ALCARECOTkAlCosmicsCTFTrackingDQM.AlgoName = 'ALCARECOTkAlCosmicsCTF'
+
 ### TkAlCosmicsCosmicTF ###
-ALCARECOTkAlCosmicsCosmicTFTrackingDQM = ALCARECOTkAlCosmicsCTFTrackingDQM.clone()
+__selectionName = 'TkAlCosmicsCosmicTF'
+ALCARECOTkAlCosmicsCosmicTFTrackingDQM = ALCARECOTkAlCosmicsCTFTrackingDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName
+)
 ALCARECOTkAlCosmicsCosmicTFDQM = cms.Sequence( ALCARECOTkAlCosmicsCosmicTFTrackingDQM )
-ALCARECOTkAlCosmicsCosmicTFTrackingDQM.TrackProducer = 'ALCARECOTkAlCosmicsCosmicTF'
-ALCARECOTkAlCosmicsCosmicTFTrackingDQM.AlgoName = 'ALCARECOTkAlCosmicsCosmicTF'
-#TkAlCosmicsRS
-ALCARECOTkAlCosmicsRSTrackingDQM = ALCARECOTkAlCosmicsCTFTrackingDQM.clone()
+
+### TkAlCosmicsRS ###
+__selectionName = 'TkAlCosmicsRS'
+ALCARECOTkAlCosmicsRSTrackingDQM = ALCARECOTkAlCosmicsCTFTrackingDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName
+)
 ALCARECOTkAlCosmicsRSDQM = cms.Sequence( ALCARECOTkAlCosmicsRSTrackingDQM )
-ALCARECOTkAlCosmicsRSTrackingDQM.TrackProducer = 'ALCARECOTkAlCosmicsRS'
-ALCARECOTkAlCosmicsRSTrackingDQM.AlgoName = 'ALCARECOTkAlCosmicsRS'

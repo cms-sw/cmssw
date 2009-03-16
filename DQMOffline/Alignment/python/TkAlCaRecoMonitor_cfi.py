@@ -5,7 +5,7 @@ TkAlCaRecoMonitor = cms.EDAnalyzer("TkAlCaRecoMonitor",
                                    CaloJetCollection= cms.InputTag( "kt6CaloJets" ),
                                    AlgoName = cms.string("testTkAlCaReco"),
                                    MeasurementState = cms.string("default"),#All/OuterSurface/InnerSurface/ImpactPoint/default(track)                         
-                                   runsOnReco = cms.bool(True),
+                                   runsOnReco = cms.bool(False),
                                    fillInvariantMass = cms.bool(False),
                                    #
                                    maxJetPt = cms.double(10), #GeV
