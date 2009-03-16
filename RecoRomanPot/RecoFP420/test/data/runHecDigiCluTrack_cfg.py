@@ -36,7 +36,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:Exhume_Hbb.root')
+    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/z/zhokin/fff/FP420development/data/Exhume_Hbb.root')
+#   fileNames = cms.untracked.vstring('file:Exhume_Hbb.root')
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
@@ -59,10 +60,13 @@ process.Tracer = cms.Service("Tracer")
 process.p1 = cms.Path(process.VtxSmeared*process.LHCTransport*process.g4SimHits*process.mix*process.FP420Digi*process.FP420Cluster*process.FP420Track*process.FP420Reco)
 process.outpath = cms.EndPath(process.o1)
 process.schedule = cms.Schedule(process.p1,process.outpath)
-
-process.g4SimHits.UseMagneticField = False
-process.g4SimHits.Generator.ApplyPhiCuts = True
-process.g4SimHits.Generator.ApplyEtaCuts = False
-process.g4SimHits.Generator.HepMCProductLabel = 'LHCTransport'
+process.g4SimHits.Physics.DefaultCutValue =  cms.double(1000.)
+process.g4SimHits.UseMagneticField = cms.bool(False)
+process.g4SimHits.Generator.ApplyPhiCuts = cms.bool(False)
+process.g4SimHits.Generator.ApplyEtaCuts = cms.bool(False)
+process.g4SimHits.Generator.HepMCProductLabel = cms.string('LHCTransport')
+process.g4SimHits.SteppingAction.MaxTrackTime = cms.double(2000.0)
+process.g4SimHits.StackingAction.MaxTrackTime = cms.double(2000.0)
+process.FP420Digi.ApplyTofCut = cms.bool(False)
 
 
