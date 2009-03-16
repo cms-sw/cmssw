@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.35 2009/03/11 21:16:20 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.36 2009/03/15 19:52:55 amraktad Exp $
 //
 
 // system include files
@@ -167,6 +167,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
          gEve->AddElement(overlay, ns);
       }
    }
+   setCameras();
 }
 
 FWEveLegoView::~FWEveLegoView()
