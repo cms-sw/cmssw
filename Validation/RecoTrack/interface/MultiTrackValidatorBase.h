@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2009/03/13 11:48:30 $
- *  $Revision: 1.19 $
+ *  $Date: 2009/03/16 17:40:45 $
+ *  $Revision: 1.20 $
  *  \author cerati
  */
 
@@ -308,6 +308,7 @@ class MultiTrackValidatorBase {
     nPXBhits_vs_eta, nPXFhits_vs_eta, 
     nTIBhits_vs_eta,nTIDhits_vs_eta,
     nTOBhits_vs_eta,nTEChits_vs_eta,
+    nDThits_vs_eta,nCSChits_vs_eta,nRPChits_vs_eta,
     nLayersWithMeas_vs_eta, nPXLlayersWithMeas_vs_eta, 
     nSTRIPlayersWithMeas_vs_eta, nSTRIPlayersWith1dMeas_vs_eta, nSTRIPlayersWith2dMeas_vs_eta;
 
