@@ -122,19 +122,19 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    if(nameProd_ != "IsoProd" && nameProd_ != "ALCARECOMuAlZMuMu" && nameProd_ != "hoCalibProducer")
    {
    edm::Handle<HBHERecHitCollection> hbhe;
-   iEvent.getByLabel(nameProd_,hbheInput_, hbhe);
+   iEvent.getByLabel(hbheInput_, hbhe);
    const HBHERecHitCollection Hithbhe = *(hbhe.product());
    std::cout<<" Size of HBHE "<<(Hithbhe).size()<<std::endl;
 
 
    edm::Handle<HORecHitCollection> ho;
-   iEvent.getByLabel(nameProd_,hoInput_, ho);
+   iEvent.getByLabel(hoInput_, ho);
    const HORecHitCollection Hitho = *(ho.product());
    std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
 
 
    edm::Handle<HFRecHitCollection> hf;
-   iEvent.getByLabel(nameProd_,hfInput_, hf);
+   iEvent.getByLabel(hfInput_, hf);
    const HFRecHitCollection Hithf = *(hf.product());
    std::cout<<" Size of HF "<<(Hithf).size()<<std::endl;
    }
