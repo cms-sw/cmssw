@@ -1,24 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DIJETS")
-process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
 
-process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-process.load("Configuration.StandardSequences.FakeConditions_cff")
-
-process.load("Configuration.StandardSequences.Simulation_cff")
-
-process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
-
-process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
 process.source = cms.Source("PoolSource",
     fileNames = 
-cms.untracked.vstring('/store/relval/CMSSW_2_1_0/RelValQCD_Pt_50_80/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V5_v1/0000/001EA63A-DF60-DD11-9D5A-001A92810AA6.root')
+cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/IDEAL_30X_v1/0001/087DC4B2-640A-DE11-86E5-000423D98DD4.root')
 )
 
 process.DiJProd = cms.EDProducer("AlCaDiJetsProducer",
