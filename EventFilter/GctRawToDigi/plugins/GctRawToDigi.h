@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.23 2009/03/06 14:46:56 jbrooke Exp $
+// $Id: GctRawToDigi.h,v 1.24 2009/03/15 23:20:20 frazier Exp $
 //
 //
 
@@ -56,8 +56,9 @@ private: // methods
   /*! \param invalidDataFlag - if true, then won't attempt unpack but just output empty collecions. */
   void unpack(const FEDRawData& d, edm::Event& e, const bool invalidDataFlag=false);
 
-  /// Looks at the firmware version header in the S-Link packet and instantiates relevant unpacker. Returns false on failure.
-  bool autoDetectBlockUnpacker(const unsigned char * data);
+  /// Looks at the firmware version header in the S-Link packet and instantiates relevant unpacker + block lengths.
+  /*! Returns false on failure. */
+  bool setupBlockUnpackerAndBlockLengths(const unsigned char * data);
 
   virtual void endJob();
 

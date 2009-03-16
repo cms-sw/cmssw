@@ -51,13 +51,20 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
 {
   LogDebug("GCT") << "GctRawToDigi will unpack FED Id " << fedId_;
 
-  // If unpacker version has been forced from config file, instantiate it appropriately.
+  // If unpacker version has been forced from config file, instantiate the relevant unpacker and
+  // also set up the block header length maps appropriately if necessary.
   if(unpackerVersion_ != 0) { edm::LogInfo("GCT") << "You have selected to use GctBlockUnpackerV" << unpackerVersion_; }
   switch(unpackerVersion_)
   {
     case 1:  blockUnpacker_ = new GctBlockUnpackerV1(hltMode_); break;
-    case 2:  blockUnpacker_ = new GctBlockUnpackerV2(hltMode_); break;
-    case 3:  blockUnpacker_ = new GctBlockUnpackerV3(hltMode_); break;
+    case 2:
+      blockUnpacker_ = new GctBlockUnpackerV2(hltMode_);
+      GctBlockHeaderV2::initBlockLengthMap(BLOCK_LENGTHS_FOR_UNPACKER_V2);
+      break;
+    case 3:
+      blockUnpacker_ = new GctBlockUnpackerV3(hltMode_); break;
+      GctBlockHeaderV2::initBlockLengthMap(BLOCK_LENGTHS_FOR_UNPACKER_V3);
+      break;
     default: edm::LogInfo("GCT") << "The required GctBlockUnpacker will be automatically determined from the first S-Link packet header.";
   }
 
@@ -180,7 +187,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     const unsigned char * data = d.data();  // The 8-bit wide raw-data array.  
 
     // If no block unpacker yet set, need to auto-detect from header.  If can't, then bail from event!
-    if(!blockUnpacker_) { if(!autoDetectBlockUnpacker(data)) { break; } }
+    if(!blockUnpacker_) { if(!setupBlockUnpackerAndBlockLengths(data)) { break; } }
 
     // Data offset - starts at 16 as there is a 64-bit S-Link header followed
     // by a 64-bit software-controlled header (for pipeline format version
@@ -267,7 +274,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
 }
 
 
-bool GctRawToDigi::autoDetectBlockUnpacker(const unsigned char * d)
+bool GctRawToDigi::setupBlockUnpackerAndBlockLengths(const unsigned char * d)
 {
   LogDebug("GCT") << "About to auto-detect the required block unpacker from the firmware version header.";
     
@@ -278,12 +285,14 @@ bool GctRawToDigi::autoDetectBlockUnpacker(const unsigned char * d)
   {
     edm::LogInfo("GCT") << "Firmware Version V " << firmwareHeader << " detected: GctBlockUnpackerV3 will be used.";
     blockUnpacker_ = new GctBlockUnpackerV3(hltMode_);
+    GctBlockHeaderV2::initBlockLengthMap(BLOCK_LENGTHS_FOR_UNPACKER_V3);
     return true;
   }
   else if( firmwareHeader >= 25 && firmwareHeader <= 35 )
   {
     edm::LogInfo("GCT") << "Firmware Version V " << firmwareHeader << " detected: GctBlockUnpackerV2 will be used.";
     blockUnpacker_ = new GctBlockUnpackerV2(hltMode_);
+    GctBlockHeaderV2::initBlockLengthMap(BLOCK_LENGTHS_FOR_UNPACKER_V2);
     return true;
   }
   else if(firmwareHeader == 0xdeadffff) { /* Driver detected unknown firmware version. L1TriggerError code? */ }
