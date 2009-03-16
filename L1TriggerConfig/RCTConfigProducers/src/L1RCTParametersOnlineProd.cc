@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1RCTParametersOnlineProd.cc,v 1.1 2008/10/13 02:30:12 wsun Exp $
+// $Id: L1RCTParametersOnlineProd.cc,v 1.2 2008/11/07 21:07:44 wsun Exp $
 //
 //
 
@@ -44,8 +44,13 @@ class L1RCTParametersOnlineProd :
 
   void fillScaleFactors(
     const l1t::OMDSReader::QueryResults& results,
-    std::vector< double >& output ) ;
+    std::vector< double >& output, int nfactor = 1 ) ;
+  /*
 
+  void fillScaleFactors(
+    const l1t::OMDSReader::QueryResults& results,
+    std::vector< std::vector< double  > >& output ) ;
+  */
    private:
       // ----------member data ---------------------------
 };
@@ -117,7 +122,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
      queryStrings.push_back( "NOISEVETOHB" ) ;
      queryStrings.push_back( "NOISEVETOHEPLUS" ) ;
      queryStrings.push_back( "NOISEVETOHEMINUS" ) ;
-
+     queryStrings.push_back( "USECORR" );
      l1t::OMDSReader::QueryResults paremResults =
        m_omdsReader.basicQuery( queryStrings,
                                 rctSchema,
@@ -136,7 +141,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
      double eMinForHoECut, eMaxForHoECut, hMinForHoECut ;
      double eActivityCut, hActivityCut ;
      double jscQuietThreshBarrel, jscQuietThreshEndcap, eicIsolationThreshold ;
-     bool noiseVetoHB, noiseVetoHEplus, noiseVetoHEminus ;
+     bool noiseVetoHB, noiseVetoHEplus, noiseVetoHEminus, useCorr ;
 
      paremResults.fillVariable( "EGAMMA_LSB", eGammaLSB ) ;
      paremResults.fillVariable( "JETMET_LSB", jetMETLSB ) ;
@@ -157,7 +162,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
      paremResults.fillVariable( "NOISEVETOHB", noiseVetoHB ) ;
      paremResults.fillVariable( "NOISEVETOHEPLUS", noiseVetoHEplus ) ;
      paremResults.fillVariable( "NOISEVETOHEMINUS", noiseVetoHEminus ) ;
-
+     paremResults.fillVariable( "USECORR", useCorr ) ;
 //      std::cout << "eGammaLSB = " << eGammaLSB << std::endl ;
 //      std::cout << "jetMETLSB = " << jetMETLSB << std::endl ;
 //      std::cout << "eMinForFGCut = " << eMinForFGCut << std::endl ;
@@ -299,6 +304,167 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
      std::vector< double > jetmetHcalScaleFactors ;
      fillScaleFactors( jetmetHcalResults, jetmetHcalScaleFactors ) ;
 
+
+
+     //Lindsay variables
+    
+        /*
+    std::vector< std::vector< double > > hcalCalibScaleFactors ;
+       std::vector< std::vector< double > > hcalCalibHighScaleFactors ;
+       std::vector< std::vector< double > > ecalCalibScaleFactors ;
+       std::vector< std::vector< double > > crossTermsScaleFactors ;
+     */
+  std::vector< double > lowHoverE_smear, highHoverE_smear ;
+     std::vector< double > hcalCalibScaleFactors,ecalCalibScaleFactors;
+     std::vector< double > hcalCalibHighScaleFactors,crossTermsScaleFactors;
+
+     if(useCorr) {  //lindsay corrections
+ 
+       std::vector< std::string > scaleFactorQuery3Strings ;
+       scaleFactorQuery3Strings.push_back( "SCALEFACTOR" ) ;
+       scaleFactorQuery3Strings.push_back( "SF2" ) ;
+       scaleFactorQuery3Strings.push_back( "SF3" ) ;
+       scaleFactorQuery3Strings.push_back( "FK_RCT_ETA" ) ;
+
+       l1t::OMDSReader::QueryResults hcalCalibResults =
+	 m_omdsReader.basicQuery(
+				 scaleFactorQuery3Strings,
+				 rctSchema,
+				 "HCAL_CALIB_FACTOR",
+				 "HCAL_CALIB_FACTOR.VERSION",
+				 m_omdsReader.basicQuery( "HCAL_CALIB_VERSION",
+							  rctSchema,
+							  "PAREM_CONF",
+							  "PAREM_CONF.PAREM_KEY",
+							  paremKeyResults ) ) ;
+
+       if( hcalCalibResults.queryFailed() ) {// check query successful
+	 
+	 edm::LogError( "L1-O2O" ) << "Problem with JetmetHcal key." ;
+	 return boost::shared_ptr< L1RCTParameters >() ;
+       }
+       
+//      std::cout << "jetmetHcal " ;
+       
+       fillScaleFactors( hcalCalibResults, hcalCalibScaleFactors, 3 ) ;
+     
+       l1t::OMDSReader::QueryResults hcalCalibHighResults =
+	 m_omdsReader.basicQuery(
+				 scaleFactorQuery3Strings,
+				 rctSchema,
+				 "HCAL_CALIB_HIGH_FACTOR",
+				 "HCAL_CALIB_HIGH_FACTOR.VERSION",
+				 m_omdsReader.basicQuery( "HCAL_CALIB_HIGH_VERSION",
+							  rctSchema,
+							  "PAREM_CONF",
+							  "PAREM_CONF.PAREM_KEY",
+							  paremKeyResults ) ) ;
+
+     if( hcalCalibHighResults.queryFailed() ) // check query successful
+       {
+	 edm::LogError( "L1-O2O" ) << "Problem with hcalHigh key." ;
+	 return boost::shared_ptr< L1RCTParameters >() ;
+       }
+
+
+
+     fillScaleFactors( hcalCalibHighResults, hcalCalibHighScaleFactors,3 ) ;
+
+     l1t::OMDSReader::QueryResults ecalCalibResults =
+       m_omdsReader.basicQuery(
+			       scaleFactorQuery3Strings,
+			       rctSchema,
+				 "ECAL_CALIB_FACTOR",
+			       "ECAL_CALIB_FACTOR.VERSION",
+			       m_omdsReader.basicQuery( "ECAL_CALIB_VERSION",
+							  rctSchema,
+							"PAREM_CONF",
+							"PAREM_CONF.PAREM_KEY",
+							paremKeyResults ) ) ;
+
+     if( ecalCalibResults.queryFailed() ) // check query successful
+       {
+	 edm::LogError( "L1-O2O" ) << "Problem with ecal calib key." ;
+	 return boost::shared_ptr< L1RCTParameters >() ;
+       }
+
+     
+     fillScaleFactors( ecalCalibResults, ecalCalibScaleFactors,3 ) ;
+     
+     
+     std::vector< std::string > scaleFactorQuery6Strings ;
+     scaleFactorQuery6Strings.push_back( "SCALEFACTOR" ) ;
+     scaleFactorQuery6Strings.push_back( "SF2" ) ;
+     scaleFactorQuery6Strings.push_back( "SF3" ) ;
+     scaleFactorQuery6Strings.push_back( "SF4" ) ;
+     scaleFactorQuery6Strings.push_back( "SF5" ) ;
+     scaleFactorQuery6Strings.push_back( "SF6" ) ;
+     scaleFactorQuery6Strings.push_back( "FK_RCT_ETA" ) ;
+     l1t::OMDSReader::QueryResults crossTermResults =
+       m_omdsReader.basicQuery(
+			       scaleFactorQuery6Strings,
+			       rctSchema,
+			       "CROSS_TERMS_FACTOR",
+			       "CROSS_TERMS_FACTOR.VERSION",
+			       m_omdsReader.basicQuery( "CROSS_TERMS_VERSION",
+							rctSchema,
+							"PAREM_CONF",
+							"PAREM_CONF.PAREM_KEY",
+							paremKeyResults ) ) ;
+     
+     if( crossTermResults.queryFailed() ) // check query successful
+       {
+	 edm::LogError( "L1-O2O" ) << "Problem with crossTerms key." ;
+	 return boost::shared_ptr< L1RCTParameters >() ;
+       }
+
+     fillScaleFactors( crossTermResults, crossTermsScaleFactors,6 ) ;
+
+     l1t::OMDSReader::QueryResults hoveresmearhighResults =
+       m_omdsReader.basicQuery(
+         scaleFactorQueryStrings,
+         rctSchema,
+         "H_OVER_E_SMEAR_HIGH_FACTOR",
+         "H_OVER_E_SMEAR_HIGH_FACTOR.FK_VERSION",
+         m_omdsReader.basicQuery( "H_OVER_E_SMEAR_HIGH_VERSION",
+                                  rctSchema,
+                                  "PAREM_CONF",
+                                  "PAREM_CONF.PAREM_KEY",
+                                  paremKeyResults ) ) ;
+
+     if( hoveresmearhighResults.queryFailed() ) // check query successful
+       {
+	 edm::LogError( "L1-O2O" ) << "Problem with low h over e smear key." ;
+	 return boost::shared_ptr< L1RCTParameters >() ;
+       }
+
+//      std::cout << "egammaEcal " ;
+      fillScaleFactors( hoveresmearhighResults, highHoverE_smear ) ;
+
+
+     l1t::OMDSReader::QueryResults hoveresmearlowResults =
+       m_omdsReader.basicQuery(
+         scaleFactorQueryStrings,
+         rctSchema,
+         "H_OVER_E_SMEAR_LOW_FACTOR",
+         "H_OVER_E_SMEAR_LOW_FACTOR.FK_VERSION",
+         m_omdsReader.basicQuery( "H_OVER_E_SMEAR_LOW_VERSION",
+                                  rctSchema,
+                                  "PAREM_CONF",
+                                  "PAREM_CONF.PAREM_KEY",
+                                  paremKeyResults ) ) ;
+
+     if( hoveresmearlowResults.queryFailed() ) // check query successful
+       {
+	 edm::LogError( "L1-O2O" ) << "Problem with low h over e smear key." ;
+	 return boost::shared_ptr< L1RCTParameters >() ;
+       }
+
+//      std::cout << "egammaEcal " ;
+      fillScaleFactors( hoveresmearlowResults, lowHoverE_smear ) ;
+     }
+
+
      //~~~~~~~~~ Instantiate new L1RCTParameters object. ~~~~~~~~~
 
      // Default objects for Lindsey 
@@ -320,17 +486,17 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
                              noiseVetoHB,
                              noiseVetoHEplus,
                              noiseVetoHEminus,
-			     false, // useLindsey
+			     useCorr, // useLindsey
                              egammaEcalScaleFactors,
                              egammaHcalScaleFactors,
                              jetmetEcalScaleFactors,
                              jetmetHcalScaleFactors,
-			     std::vector<double>(),
-			     std::vector<double>(),
-			     std::vector<double>(),
-			     std::vector<double>(),
-			     std::vector<double>(),
-			     std::vector<double>()
+			    ecalCalibScaleFactors,
+			    hcalCalibScaleFactors,
+			    hcalCalibHighScaleFactors,
+			    crossTermsScaleFactors,
+			     lowHoverE_smear,
+			     highHoverE_smear
 			     ) ) ;
 }
 
@@ -341,40 +507,57 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
 void
 L1RCTParametersOnlineProd::fillScaleFactors(
   const l1t::OMDSReader::QueryResults& results,
-  std::vector< double >& output )
+  std::vector< double >& output, int nfactors )
 {
-  // Store scale factors in temporary array to get ordering right.
+  if( (nfactors < 1) || (nfactors > 6)){
+    edm::LogError( "L1-O2O" ) <<"invalid number of factors in scale factors fill";
+    return;
+  }
+
+    std::vector< std::string > scaleFactorQuery6Strings ;
+    scaleFactorQuery6Strings.push_back( "SCALEFACTOR" ) ;
+    scaleFactorQuery6Strings.push_back( "SF2" ) ;
+    scaleFactorQuery6Strings.push_back( "SF3" ) ;
+    scaleFactorQuery6Strings.push_back( "SF4" ) ;
+    scaleFactorQuery6Strings.push_back( "SF5" ) ;
+    scaleFactorQuery6Strings.push_back( "SF6" ) ;
+       // Store scale factors in temporary array to get ordering right.
   // Reserve space for 100 bins.
 
-  static const int reserve = 100 ;
-  double sfTmp[ reserve ] ;
+    //  static const int reserve = 100 ;
+  std::vector <double> sfTmp[100] ;
+  /*  
   for( int i = 0 ; i < reserve ; ++i )
     {
       sfTmp[ i ] = 0. ;
     }
-
+  */
   short maxBin = 0 ;
   for( int i = 0 ; i < results.numberRows() ; ++i )
     {
-      double sf ;
-      results.fillVariableFromRow( "SCALEFACTOR", i, sf ) ;
-
+      double sf[6] ;
+      for(int nf = 0; nf < nfactors; nf++){
+	results.fillVariableFromRow( scaleFactorQuery6Strings.at(nf), i, sf[nf] ) ;
+      }
       short ieta ;
       results.fillVariableFromRow( "FK_RCT_ETA", i, ieta ) ;
-
-      sfTmp[ ieta-1 ] = sf ; // eta bins start at 1.
+      
+      for(int nf = 0; nf< nfactors; nf++)
+	//      sfTmp[ ieta-1 ] = sf ; // eta bins start at 1.
+	sfTmp[ieta-1].push_back(sf[nf]);
 
       if( ieta > maxBin )
 	{
 	  maxBin = ieta ;
 	}
     }
+  
 
-//   std::cout << "maxBin = " << maxBin << std::endl ;
   for( short i = 0 ; i < maxBin ; ++i )
     {
-      output.push_back( sfTmp[ i ] ) ;
-//       std::cout << i+1 << " " << sfTmp[ i ] << std::endl ;
+      for( short nf = 0; nf < nfactors; nf++)
+	output.push_back( sfTmp[ i ].at(nf) ) ;
+      
     }
 }
 
