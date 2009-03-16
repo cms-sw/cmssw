@@ -34,7 +34,7 @@ RPCGeometryBuilderFromCondDB::~RPCGeometryBuilderFromCondDB()
 RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
 {
   const std::vector<DetId>& detids(rgeo.detIds());
-  std::cout << "size " << detids.size() << std::endl;
+  //  std::cout << "size " << detids.size() << std::endl;
   RPCGeometry* geometry = new RPCGeometry();
   
 
@@ -46,7 +46,7 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
     RPCDetId rpcid(detids[id]);
     RPCDetId chid(rpcid.region(),rpcid.ring(),rpcid.station(),rpcid.sector(),rpcid.layer(),rpcid.subsector(),0);
 
-    std::cout <<"The RPCDetid is "<<rpcid<<std::endl;
+    //    std::cout <<"The RPCDetid is "<<rpcid<<std::endl;
 
     /*
       DDValue numbOfStrips("nStrips");
@@ -105,10 +105,11 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
       
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCBarrel,name,pars);
 
+      /*
       std::cout <<"Barrel "<<name
 		<<" par "<<width
 		<<" "<<length<<" "<<thickness;
-
+      */
     }else{
       float be = dpar[4]/cm;
       float te = dpar[8]/cm;
@@ -122,10 +123,12 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
       pars.push_back(dpar[0]/cm); //h/2;
       //      pars.push_back(numbOfStrips.doubles()[0]); //h/2;
       
+      /*
       std::cout <<"Forward "<<name
 		<<" par "<<dpar[4]/cm
 		<<" "<<dpar[8]/cm<<" "<<dpar[3]/cm<<" "
 		<<dpar[0];
+      */
 
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCEndcap,name,pars);
 

@@ -26,7 +26,8 @@ public:
   boost::shared_ptr<RPCGeometry>  produce(const MuonGeometryRecord & record);
 
 private:  
-  bool comp11;
+
+  bool comp11,useDDD;
 
 };
 #endif
