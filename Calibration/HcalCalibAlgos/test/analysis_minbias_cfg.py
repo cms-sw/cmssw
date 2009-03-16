@@ -23,7 +23,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 GlobalTag.DBParameters.connectionTimeOut=60
 GlobalTag.DBParameters.authenticationPath="/afs/cern.ch/cms/DB/conddb"
-GlobalTag.globaltag = "STARTUP_V4::All"
+GlobalTag.globaltag = "CRUZET4_V5P::All"
 
 es_ascii2 = cms.ESSource("HcalTextCalibrations",
                          appendToDataLabel = cms.string('recalibrate'),
@@ -38,23 +38,21 @@ es_ascii2 = cms.ESSource("HcalTextCalibrations",
 es_prefer_es_ascii2 = cms.ESPrefer("HcalTextCalibrations","es_ascii2")
 			 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(-1)
 )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/tmp/kodolova/FC999068-DB60-DD11-9694-001A92971B16.root')
+    fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/k/kodolova/CAF/CRUZET4/CRUZET4_V5P/ALCARECOHcalCalMinBiasCRUZET4_V5P_58553.root')
 )
 
 
 process.minbiasana = cms.EDFilter("Analyzer_minbias",
-    HistOutFile = cms.untracked.string('analysis_minbias.root'),
-    nameProd = cms.untracked.string('MinProd'),
-    hbheInput = cms.InputTag("hbhereco"),
-    hoInput = cms.InputTag("horeco"),
-    hfInput = cms.InputTag("hfreco"),
-    hbheCut = cms.double(-20000.),
-    hoCut = cms.double(-20000.),
-    hfCut = cms.double(-20000.),
-    useMC = cms.bool(False),
+    HistOutFile = cms.untracked.string('analysis_minbias_Full.root'),
+    hbheInputMB = cms.InputTag("hbherecoMB"),
+    hoInputMB = cms.InputTag("horecoMB"),
+    hfInputMB = cms.InputTag("hfrecoMB"),
+    hbheInputNoise = cms.InputTag("hbherecoNoise"),
+    hoInputNoise = cms.InputTag("horecoNoise"),
+    hfInputNoise = cms.InputTag("hfrecoNoise"),
     Recalib = cms.bool(False)
 )
 
