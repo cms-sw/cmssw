@@ -1,12 +1,3 @@
-<<<<<<< SiStripGainESSource.cc
-// Last commit: $Id: SiStripGainESSource.cc,v 1.1 2008/09/22 17:55:03 bainbrid Exp $
-// Latest tag:  $Name: V03-00-04 $
-=======
-// Last commit: $Id: SiStripGainESSource.cc,v 1.2 2009/02/17 16:14:34 muzaffar Exp $
-// Latest tag:  $Name:  $
->>>>>>> 1.2
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/CalibTracker/SiStripESProducers/src/SiStripGainESSource.cc,v $
-
 #include "CalibTracker/SiStripESProducers/interface/SiStripGainESSource.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"

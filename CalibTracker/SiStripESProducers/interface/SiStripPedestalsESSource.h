@@ -1,12 +1,3 @@
-<<<<<<< SiStripPedestalsESSource.h
-// Last commit: $Id: SiStripPedestalsESSource.h,v 1.2 2008/12/17 23:11:13 giordano Exp $
-// Latest tag:  $Name: V03-00-04 $
-=======
-// Last commit: $Id: SiStripPedestalsESSource.h,v 1.3 2009/02/17 16:14:33 muzaffar Exp $
-// Latest tag:  $Name:  $
->>>>>>> 1.3
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/CalibTracker/SiStripESProducers/interface/SiStripPedestalsESSource.h,v $
-
 #ifndef CalibTracker_SiStripESProducers_SiStripPedestalsESSource_H
 #define CalibTracker_SiStripESProducers_SiStripPedestalsESSource_H
 

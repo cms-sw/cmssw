@@ -1,12 +1,3 @@
-<<<<<<< SiStripConnectivity.h
-// Last commit: $Id: SiStripConnectivity.h,v 1.1 2008/12/17 23:09:18 giordano Exp $
-// Latest tag:  $Name: V03-00-04 $
-=======
-// Last commit: $Id: SiStripConnectivity.h,v 1.2 2009/02/17 16:14:34 muzaffar Exp $
-// Latest tag:  $Name:  $
->>>>>>> 1.2
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/CalibTracker/SiStripESProducers/plugins/geom/SiStripConnectivity.h,v $
-
 #ifndef CALIBTRACKER_SISTRIPCONNECTIVITY_SISTRIPCONNECTIVITY_H
 #define CALIBTRACKER_SISTRIPCONNECTIVITY_SISTRIPCONNECTIVITY_H
 
