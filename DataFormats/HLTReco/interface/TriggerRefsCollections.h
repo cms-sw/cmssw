@@ -12,8 +12,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2008/09/18 15:13:23 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/03/17 16:21:34 $
+ *  $Revision: 1.11.2.1 $
  *
  *  \author Martin Grunewald
  *
@@ -108,6 +108,35 @@ namespace trigger
       l1jetIds_(), l1jetRefs_(),
       l1etmissIds_(), l1etmissRefs_()
       { }
+
+    /// utility
+    void swap(TriggerRefsCollections & other) {
+      std::swap(photonIds_,     other.photonIds_);
+      std::swap(photonRefs_,    other.photonRefs_);
+      std::swap(electronIds_,   other.electronIds_);
+      std::swap(electronRefs_,  other.electronRefs_);
+      std::swap(muonIds_,       other.muonIds_);
+      std::swap(muonRefs_,      other.muonRefs_);
+      std::swap(jetIds_,        other.jetIds_);
+      std::swap(jetRefs_,       other.jetRefs_);
+      std::swap(compositeIds_,  other.compositeIds_);
+      std::swap(compositeRefs_, other.compositeRefs_);
+      std::swap(basemetIds_,    other.basemetIds_);
+      std::swap(basemetRefs_,   other.basemetRefs_);
+      std::swap(calometIds_,    other.calometIds_);
+      std::swap(calometRefs_,   other.calometRefs_);
+      std::swap(pixtrackIds_,   other.pixtrackIds_);
+      std::swap(pixtrackRefs_,  other.pixtrackRefs_);
+
+      std::swap(l1emIds_,       other.l1emIds_);
+      std::swap(l1emRefs_,      other.l1emRefs_);
+      std::swap(l1muonIds_,     other.l1muonIds_);
+      std::swap(l1muonRefs_,    other.l1muonRefs_);
+      std::swap(l1jetIds_,      other.l1jetIds_);
+      std::swap(l1jetRefs_,     other.l1jetRefs_);
+      std::swap(l1etmissIds_,   other.l1etmissIds_);
+      std::swap(l1etmissRefs_,  other.l1etmissRefs_);
+    }
 
     /// setters for L3 collections: (id=physics type, and Ref<C>)
     void addObject(int id, const reco::RecoEcalCandidateRef& ref) {
@@ -672,6 +701,11 @@ namespace trigger
     const VRl1etmiss&  l1etmissRefs()  const {return l1etmissRefs_;}
 
   };
+
+  // picked up via argument dependent lookup, e-g- by boost::swap()
+  inline void swap(TriggerRefsCollections & first, TriggerRefsCollections & second) {
+    first.swap(second);
+  }
 
 }
 

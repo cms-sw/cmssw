@@ -13,8 +13,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2008/04/24 10:40:54 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/03/17 16:21:34 $
+ *  $Revision: 1.13.2.1 $
  *
  *  \author Martin Grunewald
  *
@@ -25,6 +25,7 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
 
 namespace trigger
 {
@@ -50,28 +51,44 @@ namespace trigger
       path_(-9),
       module_(-9),
       collectionTags_() { }
+    
     TriggerFilterObjectWithRefs(int path, int module):
       TriggerRefsCollections(),
       path_(path),
       module_(module),
       collectionTags_() { }
+    
     /// accessors
     int path() const {return path_;}
     int module() const {return module_;}
+    
     /// collectionTags
     void addCollectionTag(const edm::InputTag& collectionTag){
       collectionTags_.push_back(collectionTag.encode());
-      return;
     }
+    
     void getCollectionTags(std::vector<edm::InputTag>& collectionTags) const {
       const trigger::size_type n(collectionTags_.size());
       collectionTags.resize(n);
       for (trigger::size_type i=0; i!=n; ++i) {
 	collectionTags[i]=edm::InputTag(collectionTags_[i]);
       }
-      return;
     }
+
+    /// utility
+    void swap(TriggerFilterObjectWithRefs & other) {
+      TriggerRefsCollections::swap(other);                  // swap base instance
+      std::swap(path_,           other.path_);
+      std::swap(module_,         other.module_);
+      std::swap(collectionTags_, other.collectionTags_);    // use specialized version for STL containers
+    }
+
   };
+
+  // picked up via argument dependent lookup, e-g- by boost::swap()
+  inline void swap(TriggerFilterObjectWithRefs & first, TriggerFilterObjectWithRefs & second) {
+    first.swap(second);
+  }
 
 }
 
