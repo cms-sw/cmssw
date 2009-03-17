@@ -3,16 +3,16 @@
 
 /**
  * \class L1GlobalTriggerGTL
- * 
- * 
- * Description: Global Trigger Logic board.  
+ *
+ *
+ * Description: Global Trigger Logic board.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: M. Fierro            - HEPHY Vienna - ORCA version 
- * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
- * 
+ *
+ * \author: M. Fierro            - HEPHY Vienna - ORCA version
+ * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version
+ *
  * $Date$
  * $Revision$
  *
@@ -61,7 +61,7 @@ public:
         const edm::InputTag&, const int iBxInEvent,
         const bool receiveMu, const int nrL1Mu);
 
-    
+
     /// initialize the class (mainly reserve)
     void init(const int nrL1Mu, const int numberPhysTriggers);
 
@@ -106,21 +106,27 @@ public:
         return m_candL1Mu;
     }
 
+public:
+
+    inline void setVerbosity(const int verbosity) {
+        m_verbosity = verbosity;
+    }
+
 private:
-    
+
     // cached stuff
 
     // trigger menu
     const L1GtTriggerMenu* m_l1GtMenu;
     unsigned long long m_l1GtMenuCacheID;
-    
+
     // L1 scales (phi, eta) for Mu, Calo and EnergySum objects
     const L1CaloGeometry* m_l1CaloGeometry;
     unsigned long long m_l1CaloGeometryCacheID;
-    
+
     const L1MuTriggerScales* m_l1MuTriggerScales;
     unsigned long long m_l1MuTriggerScalesCacheID;
-    
+
     // conversions for eta and phi
     L1GtEtaPhiConversions* m_gtEtaPhiConversions;
 
@@ -130,6 +136,12 @@ private:
 
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlAlgorithmOR;
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlDecisionWord;
+
+private:
+
+    /// verbosity level
+    int m_verbosity;
+    bool m_isDebugEnabled;
 
 
 };

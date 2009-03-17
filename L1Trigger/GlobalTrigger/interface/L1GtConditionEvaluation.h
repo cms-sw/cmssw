@@ -3,15 +3,15 @@
 
 /**
  * \class L1GtConditionEvaluation
- * 
- * 
+ *
+ *
  * Description: Base class for evaluation of the L1 Global Trigger object templates.
- * 
+ *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete   - HEPHY Vienna 
- * 
+ *
+ * \author: Vasile Mihai Ghete   - HEPHY Vienna
+ *
  * $Date$
  * $Revision$
  *
@@ -93,6 +93,10 @@ public:
     /// print condition
     virtual void print(std::ostream& myCout) const;
 
+    inline void setVerbosity(const int verbosity) {
+        m_verbosity = verbosity;
+    }
+
 protected:
 
     /// check if a value is greater than a threshold or
@@ -114,6 +118,9 @@ protected:
 
     /// store all the object combinations evaluated to true in the condition
     CombinationsInCond* m_combinationsInCond;
+
+    /// verbosity level
+    int m_verbosity;
 
 };
 
@@ -165,8 +172,13 @@ template<class Type1> const bool L1GtConditionEvaluation::checkBit(const Type1& 
 
     if (bitNumber >= (sizeof(oneBit)*8)) {
 
-        LogTrace("L1GtConditionEvaluation") << "    checkBit " << "\n     Bit number = "
-            << bitNumber << " larger than maximum allowed " << sizeof(oneBit)*8 << std::endl;
+        if (m_verbosity) {
+
+            LogTrace("L1GtConditionEvaluation")
+                << "    checkBit " << "\n     Bit number = "
+                << bitNumber << " larger than maximum allowed " << sizeof ( oneBit ) * 8
+                << std::endl;
+        }
 
         return false;
     }

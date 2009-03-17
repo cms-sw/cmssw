@@ -209,6 +209,12 @@ private:
     /// length of BST record (in bytes) from parameter set
     int m_psBstLengthBytes;
 
+private:
+
+    /// verbosity level
+    int m_verbosity;
+    bool m_isDebugEnabled;
+
 };
 
 #endif /*GlobalTrigger_L1GlobalTrigger_h*/

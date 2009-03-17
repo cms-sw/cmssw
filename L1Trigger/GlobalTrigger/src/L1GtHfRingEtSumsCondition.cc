@@ -67,6 +67,8 @@ void L1GtHfRingEtSumsCondition::copy(const L1GtHfRingEtSumsCondition &cp) {
     m_condLastResult = cp.condLastResult();
     m_combinationsInCond = cp.getCombinationsInCond();
 
+    m_verbosity = cp.m_verbosity;
+
 }
 
 L1GtHfRingEtSumsCondition::L1GtHfRingEtSumsCondition(const L1GtHfRingEtSumsCondition& cp) :

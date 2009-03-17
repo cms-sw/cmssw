@@ -1,14 +1,14 @@
 /**
  * \class L1GtConditionEvaluation
- * 
- * 
+ *
+ *
  * Description: Base class for evaluation of the L1 Global Trigger object templates.
- * 
+ *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete   - HEPHY Vienna 
- * 
+ *
+ * \author: Vasile Mihai Ghete   - HEPHY Vienna
+ *
  * $Date$
  * $Revision$
  *
@@ -30,10 +30,15 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // constructor
-L1GtConditionEvaluation::L1GtConditionEvaluation() {
-    m_condMaxNumberObjects = 0;
-    m_condLastResult = false;
-    m_combinationsInCond = new CombinationsInCond;
+L1GtConditionEvaluation::L1GtConditionEvaluation() :
+    m_condMaxNumberObjects(0),
+    m_condLastResult(false),
+    m_combinationsInCond(new CombinationsInCond),
+    m_verbosity(0)
+
+{
+
+    // empty
 
 }
 
@@ -43,6 +48,8 @@ L1GtConditionEvaluation::L1GtConditionEvaluation(L1GtConditionEvaluation& cp) {
     m_condMaxNumberObjects = cp.condMaxNumberObjects();
     m_condLastResult = cp.condLastResult();
     m_combinationsInCond = cp.getCombinationsInCond();
+
+    m_verbosity = cp.m_verbosity;
 
 }
 

@@ -60,7 +60,9 @@ L1GlobalTriggerPSB::L1GlobalTriggerPSB()
         m_candHTT(0),
         m_candJetCounts(0),
         m_candHfBitCounts(0),
-        m_candHfRingEtSums(0)
+        m_candHfRingEtSums(0),
+        m_isDebugEnabled(edm::isDebugEnabled())
+
 {
 
     // empty
@@ -466,14 +468,13 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
 
     }
 
-    if (warningEnabled) {
+    if (m_verbosity && warningEnabled) {
         if (warningsStream.tellp() > 0) {
-            edm::LogWarning("L1GlobalTriggerPSB")
-                << warningsStream.str();
+            edm::LogWarning("L1GlobalTriggerPSB") << warningsStream.str();
         }
     }
 
-    if ( edm::isDebugEnabled() ) {
+    if (m_verbosity && m_isDebugEnabled) {
 
         LogDebug("L1GlobalTriggerPSB")
                 << "\n**** L1GlobalTriggerPSB receiving calorimeter data for BxInEvent = "
@@ -535,10 +536,12 @@ void L1GlobalTriggerPSB::receiveTechnicalTriggers(
 
                         m_gtTechnicalTriggers.at(ttBitNumber) = ttResult;
 
-                        LogTrace("L1GlobalTriggerPSB") << "Add for BxInEvent " << iBxInEvent
-                                << " the technical trigger produced by " << (*it) << " : name "
-                                << ( ttBxRecord.gtTechnicalTriggerName() ) << " , bit number "
-                                << ttBitNumber << " and result " << ttResult << std::endl;
+                        if (m_verbosity) {
+                            LogTrace("L1GlobalTriggerPSB") << "Add for BxInEvent " << iBxInEvent
+                                    << " the technical trigger produced by " << (*it) << " : name "
+                                    << ( ttBxRecord.gtTechnicalTriggerName() ) << " , bit number "
+                                    << ttBitNumber << " and result " << ttResult << std::endl;
+                        }
 
                     }
 
@@ -550,17 +553,15 @@ void L1GlobalTriggerPSB::receiveTechnicalTriggers(
 
     }
 
-    if (warningEnabled) {
+    if (m_verbosity && warningEnabled) {
         if (warningsStream.tellp() > 0) {
-            edm::LogWarning("L1GlobalTriggerPSB")
-                << warningsStream.str();
+            edm::LogWarning("L1GlobalTriggerPSB") << warningsStream.str();
         }
     }
 
-    if (edm::isDebugEnabled()) {
+    if (m_verbosity && m_isDebugEnabled) {
         LogDebug("L1GlobalTriggerPSB")
-                << "\n**** L1GlobalTriggerPSB receiving technical triggers: "
-                << std::endl;
+                << "\n**** L1GlobalTriggerPSB receiving technical triggers: " << std::endl;
 
         int sizeW64 = 64; // 64 bits words
         int iBit = 0;

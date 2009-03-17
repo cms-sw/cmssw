@@ -2,16 +2,16 @@
 #define GlobalTrigger_L1GlobalTriggerFDL_h
 /**
  * \class L1GlobalTriggerFDL
- * 
- * 
+ *
+ *
  * Description: Final Decision Logic board.
- *  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: M. Fierro            - HEPHY Vienna - ORCA version 
- * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
- * 
+ *
+ * \author: M. Fierro            - HEPHY Vienna - ORCA version
+ * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version
+ *
  * $Date$
  * $Revision$
  *
@@ -56,17 +56,17 @@ public:
         edm::Event& iEvent,
         const std::vector<int>& prescaleFactorsAlgoTrig,
         const std::vector<int>& prescaleFactorsTechTrig,
-        const std::vector<unsigned int>& triggerMaskAlgoTrig,   
-        const std::vector<unsigned int>& triggerMaskTechTrig,   
-        const std::vector<unsigned int>& triggerMaskVetoAlgoTrig,   
-        const std::vector<unsigned int>& triggerMaskVetoTechTrig,   
+        const std::vector<unsigned int>& triggerMaskAlgoTrig,
+        const std::vector<unsigned int>& triggerMaskTechTrig,
+        const std::vector<unsigned int>& triggerMaskVetoAlgoTrig,
+        const std::vector<unsigned int>& triggerMaskVetoTechTrig,
         const std::vector<L1GtBoard>& boardMaps,
         const int totalBxInEvent,
         const int iBxInEvent,
         const unsigned int numberPhysTriggers, const unsigned int numberTechnicalTriggers,
         const unsigned int numberDaqPartitions,
         const L1GlobalTriggerGTL* ptrGTL,
-        const L1GlobalTriggerPSB* ptrPSB, 
+        const L1GlobalTriggerPSB* ptrPSB,
         const int pfAlgoSetIndex,
         const int pfTechSetIndex);
 
@@ -91,7 +91,11 @@ public:
         return m_gtFdlWord;
     }
 
+public:
 
+    inline void setVerbosity(const int verbosity) {
+        m_verbosity = verbosity;
+    }
 
 private:
 
@@ -110,6 +114,12 @@ private:
     bool m_firstEv;
     bool m_firstEvLumiSegment;
     bool m_firstEvRun;
+
+private:
+
+    /// verbosity level
+    int m_verbosity;
+    bool m_isDebugEnabled;
 
 };
 

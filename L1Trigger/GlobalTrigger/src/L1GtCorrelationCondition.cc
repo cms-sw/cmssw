@@ -1,14 +1,14 @@
 /**
  * \class L1GtCorrelationCondition
- * 
- * 
+ *
+ *
  * Description: evaluation of a CondCorrelation condition.
- * 
+ *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete   - HEPHY Vienna 
- * 
+ *
+ * \author: Vasile Mihai Ghete   - HEPHY Vienna
+ *
  * $Date$
  * $Revision$
  *
@@ -58,7 +58,9 @@
 // constructors
 //     default
 L1GtCorrelationCondition::L1GtCorrelationCondition() :
-    L1GtConditionEvaluation() {
+    L1GtConditionEvaluation(),
+    m_isDebugEnabled(edm::isDebugEnabled())
+{
 
     // empty
 
@@ -78,7 +80,9 @@ L1GtCorrelationCondition::L1GtCorrelationCondition(
             m_cond0NrL1Objects(cond0NrL1Objects),
             m_cond1NrL1Objects(cond1NrL1Objects), m_cond0EtaBits(cond0EtaBits),
             m_cond1EtaBits(cond1EtaBits), m_gtGTL(ptrGTL), m_gtPSB(ptrPSB),
-            m_gtEtaPhiConversions(etaPhiConversions) {
+            m_gtEtaPhiConversions(etaPhiConversions),
+            m_isDebugEnabled(edm::isDebugEnabled())
+            {
 
     m_condMaxNumberObjects = 2; // irrelevant for correlation conditions
 
@@ -96,16 +100,20 @@ void L1GtCorrelationCondition::copy(const L1GtCorrelationCondition &cp) {
     m_cond1NrL1Objects = cp.m_cond1NrL1Objects;
     m_cond0EtaBits = cp.m_cond0EtaBits;
     m_cond1EtaBits = cp.m_cond1EtaBits;
-    
+
     m_gtCorrelationTemplate = cp.m_gtCorrelationTemplate;
     m_gtGTL = cp.m_gtGTL;
     m_gtPSB = cp.m_gtPSB;
-    
+
     m_gtEtaPhiConversions = cp.m_gtEtaPhiConversions;
 
     m_condMaxNumberObjects = cp.m_condMaxNumberObjects;
     m_condLastResult = cp.m_condLastResult;
     m_combinationsInCond = cp.m_combinationsInCond;
+
+    m_verbosity = cp.m_verbosity;
+    m_isDebugEnabled = cp.m_isDebugEnabled;
+
 
 }
 
@@ -156,37 +164,37 @@ void L1GtCorrelationCondition::setGtPSB(const L1GlobalTriggerPSB* ptrPSB) {
 const bool L1GtCorrelationCondition::evaluateCondition() const {
 
     bool condResult = false;
-    
-    // number of objects in condition (it is 2, no need to retrieve from 
-    // condition template) and their type 
-    int nObjInCond = 2;    
+
+    // number of objects in condition (it is 2, no need to retrieve from
+    // condition template) and their type
+    int nObjInCond = 2;
     std::vector<L1GtObject> cndObjTypeVec(nObjInCond);
 
     // evaluate first the two sub-conditions (Type1s)
-    
+
     const L1GtConditionCategory cond0Categ = m_gtCorrelationTemplate->cond0Category();
     const L1GtConditionCategory cond1Categ = m_gtCorrelationTemplate->cond1Category();
 
     const L1GtMuonTemplate* corrMuon = 0;
     const L1GtCaloTemplate* corrCalo = 0;
     const L1GtEnergySumTemplate* corrEnergySum = 0;
-    
+
     CombinationsInCond cond0Comb;
     CombinationsInCond cond1Comb;
-        
+
     switch (cond0Categ) {
         case CondMuon: {
             corrMuon = static_cast<const L1GtMuonTemplate*>(m_gtCond0);
             L1GtMuonCondition muCondition(corrMuon, m_gtGTL,
                     m_cond0NrL1Objects, m_cond0EtaBits);
-            
+
             muCondition.evaluateConditionStoreResult();
             condResult = muCondition.condLastResult();
-            
+
             cond0Comb = *(muCondition.getCombinationsInCond());
             cndObjTypeVec[0] = (corrMuon->objectType())[0];
-            
-            if (edm::isDebugEnabled() ) {
+
+            if (m_verbosity && m_isDebugEnabled ) {
                 std::ostringstream myCout;
                 muCondition.print(myCout);
 
@@ -202,11 +210,11 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
 
             caloCondition.evaluateConditionStoreResult();
             condResult = caloCondition.condLastResult();
-            
+
             cond0Comb = *(caloCondition.getCombinationsInCond());
             cndObjTypeVec[0] = (corrCalo->objectType())[0];
 
-            if (edm::isDebugEnabled() ) {
+            if (m_verbosity && m_isDebugEnabled ) {
                 std::ostringstream myCout;
                 caloCondition.print(myCout);
 
@@ -220,11 +228,11 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
 
             eSumCondition.evaluateConditionStoreResult();
             condResult = eSumCondition.condLastResult();
-            
+
             cond0Comb = *(eSumCondition.getCombinationsInCond());
             cndObjTypeVec[0] = (corrEnergySum->objectType())[0];
 
-            if (edm::isDebugEnabled() ) {
+            if (m_verbosity && m_isDebugEnabled ) {
                 std::ostringstream myCout;
                 eSumCondition.print(myCout);
 
@@ -235,7 +243,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
         default: {
             // should not arrive here
             condResult = false;
-        }                            
+        }
             break;
     }
 
@@ -243,21 +251,21 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
     if (!condResult) {
         return false;
     }
-    
-    
+
+
     switch (cond1Categ) {
         case CondMuon: {
             corrMuon = static_cast<const L1GtMuonTemplate*>(m_gtCond1);
             L1GtMuonCondition muCondition(corrMuon, m_gtGTL,
                     m_cond1NrL1Objects, m_cond1EtaBits);
-            
+
             muCondition.evaluateConditionStoreResult();
             condResult = muCondition.condLastResult();
 
             cond1Comb = *(muCondition.getCombinationsInCond());
             cndObjTypeVec[1] = (corrMuon->objectType())[0];
 
-            if (edm::isDebugEnabled() ) {
+            if (m_verbosity && m_isDebugEnabled ) {
                 std::ostringstream myCout;
                 muCondition.print(myCout);
 
@@ -273,11 +281,11 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
 
             caloCondition.evaluateConditionStoreResult();
             condResult = caloCondition.condLastResult();
- 
+
             cond1Comb = *(caloCondition.getCombinationsInCond());
             cndObjTypeVec[1] = (corrCalo->objectType())[0];
 
-            if (edm::isDebugEnabled() ) {
+            if (m_verbosity && m_isDebugEnabled ) {
                 std::ostringstream myCout;
                 caloCondition.print(myCout);
 
@@ -294,7 +302,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             cond1Comb = *(eSumCondition.getCombinationsInCond());
             cndObjTypeVec[1] = (corrEnergySum->objectType())[0];
 
-            if (edm::isDebugEnabled() ) {
+            if (m_verbosity && m_isDebugEnabled ) {
                 std::ostringstream myCout;
                 eSumCondition.print(myCout);
 
@@ -305,20 +313,20 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
         default: {
             // should not arrive here
             condResult = false;
-        }                            
+        }
             break;
     }
-    
-    // return if second subcondition is false 
+
+    // return if second subcondition is false
     // if here, the first subcondition was true
     if (!condResult) {
         return false;
     }
-    
+
     //
     // evaluate the delta_eta and delta_phi correlations
     //
-    
+
     // store the indices of the calorimeter objects
     // from the combination evaluated in the condition
     SingleCombInCond objectsInComb;
@@ -326,7 +334,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
 
     // clear the m_combinationsInCond vector
     (*m_combinationsInCond).clear();
-    
+
     // pointers to objects
     const std::vector<const L1MuGMTCand*>* candMuVec = 0;
     const std::vector<const L1GctCand*>* candCaloVec = 0;
@@ -337,8 +345,8 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
     unsigned int etaIndex0;
     unsigned int etaIndex1;
 
-    // loop over all combinations which produced individually "true" as Type1s        
-    for (std::vector<SingleCombInCond>::const_iterator 
+    // loop over all combinations which produced individually "true" as Type1s
+    for (std::vector<SingleCombInCond>::const_iterator
         it0Comb = cond0Comb.begin(); it0Comb != cond0Comb.end(); it0Comb++) {
 
         // Type1s: there is 1 object only, no need for a loop (*it0Comb)[0]
@@ -348,7 +356,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                 candMuVec = m_gtGTL->getCandL1Mu();
                 phiIndex0 = (*candMuVec)[obj0Index]->phiIndex();
                 etaIndex0 = (*candMuVec)[obj0Index]->etaIndex();
-                
+
             }
                 break;
             case CondCalo: {
@@ -385,11 +393,11 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             default: {
                 // should not arrive here
                 condResult = false;
-            }                            
+            }
                 break;
         }
 
-        for (std::vector<SingleCombInCond>::const_iterator 
+        for (std::vector<SingleCombInCond>::const_iterator
             it1Comb = cond1Comb.begin(); it1Comb != cond1Comb.end(); it1Comb++) {
 
             // Type1s: there is 1 object only, no need for a loop (*it1Comb)[0]
@@ -399,7 +407,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                     candMuVec = m_gtGTL->getCandL1Mu();
                     phiIndex1 = (*candMuVec)[obj1Index]->phiIndex();
                     etaIndex1 = (*candMuVec)[obj1Index]->etaIndex();
-                    
+
                 }
                     break;
                 case CondCalo: {
@@ -436,42 +444,42 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                 default: {
                     // should not arrive here
                     condResult = false;
-                }                            
+                }
                     break;
             }
 
-            if (edm::isDebugEnabled() ) {
-                LogTrace("L1GtCorrelationCondition") 
-                    << "\n First correlation object of type   " << cndObjTypeVec[0] 
-                    << " with collection index " << obj0Index 
+            if (m_verbosity && m_isDebugEnabled ) {
+                LogTrace("L1GtCorrelationCondition")
+                    << "\n First correlation object of type   " << cndObjTypeVec[0]
+                    << " with collection index " << obj0Index
                     << ": phiIndex = " << phiIndex0 << " etaIndex = " << etaIndex0
-                    << "\n Second correlation object  of type " << cndObjTypeVec[1] 
-                    << " with collection index " << obj1Index 
+                    << "\n Second correlation object  of type " << cndObjTypeVec[1]
+                    << " with collection index " << obj1Index
                     << " phiIndex = " << phiIndex1 << " etaIndex = " << etaIndex1
                     << std::endl;
             }
-            
+
             // clear the indices in the combination
             objectsInComb.clear();
             //...
-            
+
             objectsInComb.push_back(obj0Index);
             objectsInComb.push_back(obj1Index); //...
-            
+
             // evaluate delta_eta
-            
+
             // evaluate delta_phi
 
             // if we get here all checks were successfull for this combination
             // set the general result for evaluateCondition to "true"
 
             condResult = true;
-            (*m_combinationsInCond).push_back(objectsInComb);            
-        
+            (*m_combinationsInCond).push_back(objectsInComb);
+
         }
-    
+
     }
-    
+
     return condResult;
 
 }

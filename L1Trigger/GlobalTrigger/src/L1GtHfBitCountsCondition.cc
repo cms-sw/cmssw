@@ -67,6 +67,8 @@ void L1GtHfBitCountsCondition::copy(const L1GtHfBitCountsCondition &cp) {
     m_condLastResult = cp.condLastResult();
     m_combinationsInCond = cp.getCombinationsInCond();
 
+    m_verbosity = cp.m_verbosity;
+
 }
 
 L1GtHfBitCountsCondition::L1GtHfBitCountsCondition(const L1GtHfBitCountsCondition& cp) :

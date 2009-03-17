@@ -68,6 +68,8 @@ void L1GtJetCountsCondition::copy(const L1GtJetCountsCondition &cp) {
     m_condLastResult = cp.condLastResult();
     m_combinationsInCond = cp.getCombinationsInCond();
 
+    m_verbosity = cp.m_verbosity;
+
 }
 
 L1GtJetCountsCondition::L1GtJetCountsCondition(const L1GtJetCountsCondition& cp) :

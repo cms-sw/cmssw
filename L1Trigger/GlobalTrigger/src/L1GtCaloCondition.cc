@@ -1,14 +1,14 @@
 /**
  * \class L1GtCaloCondition
- * 
- * 
+ *
+ *
  * Description: evaluation of a CondCalo condition.
- * 
+ *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete   - HEPHY Vienna 
- * 
+ *
+ * \author: Vasile Mihai Ghete   - HEPHY Vienna
+ *
  * $Date$
  * $Revision$
  *
@@ -108,6 +108,8 @@ void L1GtCaloCondition::copy(const L1GtCaloCondition &cp) {
     m_condLastResult = cp.condLastResult();
     m_combinationsInCond = cp.getCombinationsInCond();
 
+    m_verbosity = cp.m_verbosity;
+
 }
 
 L1GtCaloCondition::L1GtCaloCondition(const L1GtCaloCondition& cp) :
@@ -165,7 +167,7 @@ const bool L1GtCaloCondition::evaluateCondition() const {
     // objectType() gives the type for nrObjects() only,
     // but in a CondCalo all objects have the same type
     // take type from the type of the first object
-    
+
     const std::vector<const L1GctCand*>* candVec;
 
     switch ((m_gtCaloTemplate->objectType())[0]) {
@@ -188,7 +190,7 @@ const bool L1GtCaloCondition::evaluateCondition() const {
             return false;
             break;
     }
-    
+
     int numberObjects = candVec->size();
     //LogTrace("L1GtCaloCondition") << "  numberObjects: " << numberObjects
     //    << std::endl;
@@ -257,11 +259,15 @@ const bool L1GtCaloCondition::evaluateCondition() const {
             // eta and phi differences
             const int ObjInWscComb = 2;
             if (nObjInCond != ObjInWscComb) {
-                edm::LogError("L1GtCaloCondition") << "\n  Error: "
-                    << "number of particles in condition with spatial correlation = " << nObjInCond
-                    << "\n  it must be = " << ObjInWscComb << std::endl;
-                // TODO Perhaps I should throw here an exception,
-                // since something is really wrong if nObjInCond != ObjInWscComb (=2)
+
+                if (m_verbosity) {
+                    edm::LogError("L1GtCaloCondition")
+                        << "\n  Error: "
+                        << "number of particles in condition with spatial correlation = "
+                        << nObjInCond << "\n  it must be = " << ObjInWscComb
+                        << std::endl;
+                }
+
                 continue;
             }
 
@@ -315,8 +321,11 @@ const bool L1GtCaloCondition::evaluateCondition() const {
 
                 // candDeltaPhi > 180 ==> take 360 - candDeltaPhi
                 candDeltaPhi = (corrPar.deltaPhiMaxbits - 1)*2 - candDeltaPhi;
-                LogTrace("L1GtCaloCondition") << "  candDeltaPhi rescaled to: " << candDeltaPhi
-                    << std::endl;
+                if (m_verbosity) {
+                    LogTrace("L1GtCaloCondition")
+                        << "  candDeltaPhi rescaled to: " << candDeltaPhi
+                        << std::endl;
+                }
             }
 
             if (!checkBit(corrPar.deltaPhiRange, candDeltaPhi)) {
@@ -417,7 +426,7 @@ const bool L1GtCaloCondition::checkObjectParameter(const int iCondition, const L
 
     // particle matches if we get here
     //LogTrace("L1GtCaloCondition")
-    //    << "  checkObjectParameter: calorimeter object OK, passes all requirements\n" 
+    //    << "  checkObjectParameter: calorimeter object OK, passes all requirements\n"
     //    << std::endl;
 
     return true;

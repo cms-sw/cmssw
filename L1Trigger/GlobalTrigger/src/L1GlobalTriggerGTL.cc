@@ -73,7 +73,9 @@
 
 // constructor
 L1GlobalTriggerGTL::L1GlobalTriggerGTL() :
-    m_candL1Mu( new std::vector<const L1MuGMTCand*>) {
+    m_candL1Mu( new std::vector<const L1MuGMTCand*>),
+    m_isDebugEnabled(edm::isDebugEnabled())
+{
 
     m_gtlAlgorithmOR.reset();
     m_gtlDecisionWord.reset();
@@ -118,10 +120,13 @@ void L1GlobalTriggerGTL::receiveGmtObjectData(edm::Event& iEvent,
     const edm::InputTag& muGmtInputTag, const int iBxInEvent, const bool receiveMu,
     const int nrL1Mu) {
 
-    LogDebug("L1GlobalTriggerGTL")
-            << "\n**** L1GlobalTriggerGTL receiving muon data for BxInEvent = "
-            << iBxInEvent << "\n     from input tag " << muGmtInputTag << "\n"
-            << std::endl;
+    if (m_verbosity) {
+        LogDebug("L1GlobalTriggerGTL")
+                << "\n**** L1GlobalTriggerGTL receiving muon data for BxInEvent = "
+                << iBxInEvent << "\n     from input tag " << muGmtInputTag << "\n"
+                << std::endl;
+
+    }
 
     reset();
 
@@ -131,7 +136,7 @@ void L1GlobalTriggerGTL::receiveGmtObjectData(edm::Event& iEvent,
         edm::Handle<std::vector<L1MuGMTCand> > muonData;
         iEvent.getByLabel(muGmtInputTag, muonData);
 
-        if (!muonData.isValid()) {
+        if (m_verbosity && !muonData.isValid()) {
             edm::LogWarning("L1GlobalTriggerGTL")
             << "\nWarning: std::vector<L1MuGMTCand> with input tag " << muGmtInputTag
             << "\nrequested in configuration, but not found in the event.\n"
@@ -154,7 +159,7 @@ void L1GlobalTriggerGTL::receiveGmtObjectData(edm::Event& iEvent,
         }
     }
 
-    if (edm::isDebugEnabled() ) {
+    if (m_verbosity && m_isDebugEnabled) {
         printGmtData(iBxInEvent);
     }
 
@@ -177,9 +182,6 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
     const bool receiveCastor,
     const edm::InputTag castorInputTag) {
 
-
-    // call only once the isDebugEnabled()
-    bool debugEnabled = edm::isDebugEnabled();
 
 	// get / update the trigger menu from the EventSetup
     // local cache & check on cacheIdentifier
@@ -313,11 +315,13 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 
                     L1GtMuonCondition* muCondition = new L1GtMuonCondition(itCond->second, this,
                             nrL1Mu, ifMuEtaNumberBits);
+
+                    muCondition->setVerbosity(m_verbosity);
                     muCondition->evaluateConditionStoreResult();
 
                     cMapResults[itCond->first] = muCondition;
 
-                    if (debugEnabled ) {
+                    if (m_verbosity && m_isDebugEnabled) {
                         std::ostringstream myCout;
                         muCondition->print(myCout);
 
@@ -339,11 +343,12 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                             nrL1TauJet,
                             ifCaloEtaNumberBits);
 
+                    caloCondition->setVerbosity(m_verbosity);
                     caloCondition->evaluateConditionStoreResult();
 
                     cMapResults[itCond->first] = caloCondition;
 
-                    if (debugEnabled ) {
+                    if (m_verbosity && m_isDebugEnabled) {
                         std::ostringstream myCout;
                         caloCondition->print(myCout);
 
@@ -356,11 +361,13 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                 case CondEnergySum: {
                     L1GtEnergySumCondition* eSumCondition = new L1GtEnergySumCondition(
                             itCond->second, ptrGtPSB);
+
+                    eSumCondition->setVerbosity(m_verbosity);
                     eSumCondition->evaluateConditionStoreResult();
 
                     cMapResults[itCond->first] = eSumCondition;
 
-                    if (debugEnabled ) {
+                    if (m_verbosity && m_isDebugEnabled) {
                         std::ostringstream myCout;
                         eSumCondition->print(myCout);
 
@@ -373,11 +380,13 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                 case CondJetCounts: {
                     L1GtJetCountsCondition* jcCondition = new L1GtJetCountsCondition(
                             itCond->second, ptrGtPSB, nrL1JetCounts);
+
+                    jcCondition->setVerbosity(m_verbosity);
                     jcCondition->evaluateConditionStoreResult();
 
                     cMapResults[itCond->first] = jcCondition;
 
-                    if (debugEnabled ) {
+                    if (m_verbosity && m_isDebugEnabled) {
                         std::ostringstream myCout;
                         jcCondition->print(myCout);
 
@@ -391,11 +400,13 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                 case CondHfBitCounts: {
                     L1GtHfBitCountsCondition* bcCondition = new L1GtHfBitCountsCondition(
                             itCond->second, ptrGtPSB);
+
+                    bcCondition->setVerbosity(m_verbosity);
                     bcCondition->evaluateConditionStoreResult();
 
                     cMapResults[itCond->first] = bcCondition;
 
-                    if (debugEnabled ) {
+                    if (m_isDebugEnabled ) {
                         std::ostringstream myCout;
                         bcCondition->print(myCout);
 
@@ -409,11 +420,13 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                 case CondHfRingEtSums: {
                     L1GtHfRingEtSumsCondition* etCondition = new L1GtHfRingEtSumsCondition(
                             itCond->second, ptrGtPSB);
+
+                    etCondition->setVerbosity(m_verbosity);
                     etCondition->evaluateConditionStoreResult();
 
                     cMapResults[itCond->first] = etCondition;
 
-                    if (debugEnabled ) {
+                    if (m_verbosity && m_isDebugEnabled) {
                         std::ostringstream myCout;
                         etCondition->print(myCout);
 
@@ -434,11 +447,13 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 
                     L1GtCastorCondition* castorCondition = new L1GtCastorCondition(
                             itCond->second, castorCondResult);
+
+                    castorCondition->setVerbosity(m_verbosity);
                     castorCondition->evaluateConditionStoreResult();
 
                     cMapResults[itCond->first] = castorCondition;
 
-                    if (debugEnabled ) {
+                    if (m_verbosity && m_isDebugEnabled) {
                         std::ostringstream myCout;
                         castorCondition->print(myCout);
 
@@ -565,16 +580,17 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                             cond0NrL1Objects, cond1NrL1Objects,
                             cond0EtaBits, cond1EtaBits,
                             this, ptrGtPSB, m_gtEtaPhiConversions);
+
                     correlationCond->evaluateConditionStoreResult();
+                    correlationCond->setVerbosity(m_verbosity);
 
                     cMapResults[itCond->first] = correlationCond;
 
-                    if (debugEnabled ) {
+                    if (m_verbosity && m_isDebugEnabled) {
                         std::ostringstream myCout;
                         correlationCond->print(myCout);
 
-                        LogTrace("L1GlobalTriggerGTL") << myCout.str()
-                                << std::endl;
+                        LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
                     }
 
                     //                  delete correlationCond;
@@ -631,7 +647,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
             objMap.setOperandTokenVector(gtAlg.operandTokenVector());
             objMap.setCombinationVector(*(gtAlg.gtAlgoCombinationVector()));
 
-            if (debugEnabled ) {
+            if (m_verbosity && m_isDebugEnabled) {
                 std::ostringstream myCout1;
                 objMap.print(myCout1);
 
@@ -642,9 +658,9 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 
         }
 
-        if (debugEnabled ) {
+        if (m_verbosity && m_isDebugEnabled) {
             std::ostringstream myCout;
-            (itAlgo->second).print(myCout);
+            ( itAlgo->second ).print(myCout);
             gtAlg.print(myCout);
 
             LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;

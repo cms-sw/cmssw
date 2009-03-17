@@ -1,14 +1,14 @@
 /**
  * \class L1GtMuonCondition
- * 
- * 
+ *
+ *
  * Description: evaluation of a CondMuon condition.
- * 
+ *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete   - HEPHY Vienna 
- * 
+ *
+ * \author: Vasile Mihai Ghete   - HEPHY Vienna
+ *
  * $Date$
  * $Revision$
  *
@@ -74,6 +74,8 @@ void L1GtMuonCondition::copy(const L1GtMuonCondition &cp) {
     m_condLastResult = cp.condLastResult();
     m_combinationsInCond = cp.getCombinationsInCond();
 
+    m_verbosity = cp.m_verbosity;
+
 }
 
 L1GtMuonCondition::L1GtMuonCondition(const L1GtMuonCondition& cp) :
@@ -124,7 +126,7 @@ const bool L1GtMuonCondition::evaluateCondition() const {
 
     // the candidates
     const std::vector<const L1MuGMTCand*>* candVec = m_gtGTL->getCandL1Mu();
-    
+
     int numberObjects = candVec->size();
     //LogTrace("L1GtCaloCondition") << "  numberObjects: " << numberObjects
     //    << std::endl;
@@ -390,7 +392,7 @@ const bool L1GtMuonCondition::checkObjectParameter(const int iCondition, const L
         return false;
     }
 
-    const L1GtMuonTemplate::ObjectParameter objPar = 
+    const L1GtMuonTemplate::ObjectParameter objPar =
         ( *(m_gtMuonTemplate->objectParameter()) )[iCondition];
 
     // using the logic table from GTL-9U-module.pdf

@@ -180,6 +180,12 @@ public:
         return &m_gtTechnicalTriggers;
     }
 
+public:
+
+    inline void setVerbosity(const int verbosity) {
+        m_verbosity = verbosity;
+    }
+
 private:
 
     std::vector<const L1GctCand*>* m_candL1NoIsoEG;
@@ -199,6 +205,13 @@ private:
 
     /// technical trigger bits
     std::vector<bool> m_gtTechnicalTriggers;
+
+private:
+
+    /// verbosity level
+    int m_verbosity;
+    bool m_isDebugEnabled;
+
 
 };
 

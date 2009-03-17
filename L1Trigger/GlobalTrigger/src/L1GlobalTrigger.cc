@@ -99,12 +99,15 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet) :
             m_produceL1GtObjectMapRecord(parSet.getParameter<bool> ("ProduceL1GtObjectMapRecord")),
             m_writePsbL1GtDaqRecord(parSet.getParameter<bool> ("WritePsbL1GtDaqRecord")),
             m_readTechnicalTriggerRecords(parSet.getParameter<bool> ("ReadTechnicalTriggerRecords")),
-            m_emulateBxInEvent(parSet.getParameter<int> ("EmulateBxInEvent")), m_psBstLengthBytes(
-                    parSet.getParameter<int> ("BstLengthBytes"))
+            m_emulateBxInEvent(parSet.getParameter<int> ("EmulateBxInEvent")),
+            m_psBstLengthBytes(parSet.getParameter<int> ("BstLengthBytes")),
+            m_verbosity(parSet.getUntrackedParameter<int>("Verbosity", 0)),
+            m_isDebugEnabled(edm::isDebugEnabled())
+
 
 {
 
-    if (edm::isDebugEnabled()) {
+    if (m_verbosity && m_isDebugEnabled) {
 
         LogTrace("L1GlobalTrigger") << "\nInput tag for muon collection from GMT:         "
                 << m_muGmtInputTag << "\nInput tag for calorimeter collections from GCT: "
@@ -134,10 +137,12 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet) :
     if ( ( m_emulateBxInEvent > 0 ) && ( ( m_emulateBxInEvent % 2 ) == 0 )) {
         m_emulateBxInEvent = m_emulateBxInEvent - 1;
 
-        edm::LogInfo("L1GlobalTrigger")
-                << "\nWARNING: Number of bunch crossing to be emulated rounded to: "
-                << m_emulateBxInEvent << "\n         The number must be an odd number!\n"
-                << std::endl;
+        if (m_verbosity) {
+            edm::LogInfo("L1GlobalTrigger")
+                    << "\nWARNING: Number of bunch crossing to be emulated rounded to: "
+                    << m_emulateBxInEvent << "\n         The number must be an odd number!\n"
+                    << std::endl;
+        }
     }
 
     // register products
@@ -155,12 +160,15 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet) :
 
     // create new PSBs
     m_gtPSB = new L1GlobalTriggerPSB();
+    m_gtPSB->setVerbosity(m_verbosity);
 
     // create new GTL
     m_gtGTL = new L1GlobalTriggerGTL();
+    m_gtGTL->setVerbosity(m_verbosity);
 
     // create new FDL
     m_gtFDL = new L1GlobalTriggerFDL();
+    m_gtFDL->setVerbosity(m_verbosity);
 
     // initialize cached IDs
 
@@ -312,15 +320,17 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     int minBxInEvent = (m_emulateBxInEvent + 1)/2 - m_emulateBxInEvent;
     int maxBxInEvent = (m_emulateBxInEvent + 1)/2 - 1;
 
-    LogDebug("L1GlobalTrigger")
-    << "\nTotal number of bunch crosses to put in the GT readout record: "
-    << m_emulateBxInEvent << " = " << "["
-    << minBxInEvent << ", " << maxBxInEvent << "] BX\n"
-    << "\n  Active boards in L1 GT DAQ record (hex format) = "
-    << std::hex << std::setw(sizeof(m_activeBoardsGtDaq)*2) << std::setfill('0')
-    << m_activeBoardsGtDaq
-    << std::dec << std::setfill(' ')
-    << std::endl;
+    if (m_verbosity) {
+
+        LogDebug("L1GlobalTrigger")
+                << "\nTotal number of bunch crosses to put in the GT readout record: "
+                << m_emulateBxInEvent << " = " << "[" << minBxInEvent << ", " << maxBxInEvent
+                << "] BX\n"
+                << "\n  Active boards in L1 GT DAQ record (hex format) = " << std::hex
+                << std::setw(sizeof(m_activeBoardsGtDaq) * 2) << std::setfill('0')
+                << m_activeBoardsGtDaq << std::dec << std::setfill(' ')
+                << std::endl;
+    }
 
     // get / update the board maps from the EventSetup
     // local cache & check on cacheIdentifier
@@ -638,11 +648,13 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     }
     else {
         bxCrossHw = 0; // Bx number too large, set to 0!
-        LogDebug("L1GlobalTrigger")
-            << "\nBunch cross number [hex] = "
-            << std::hex << bxCross
-            << "\n  larger than 12 bits. Set to 0! \n"
-            << std::dec << std::endl;
+        if (m_verbosity) {
+
+            LogDebug("L1GlobalTrigger")
+                << "\nBunch cross number [hex] = " << std::hex << bxCross
+                << "\n  larger than 12 bits. Set to 0! \n" << std::dec
+                << std::endl;
+        }
     }
 
 
@@ -738,9 +750,13 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
             bstLengthBytes = m_psBstLengthBytes;
         }
 
-        LogTrace("L1GlobalTrigger")
-        << "\n Length of BST message (in bytes): " << bstLengthBytes << "\n"
-        << std::endl;
+        if (m_verbosity) {
+
+            LogTrace("L1GlobalTrigger")
+                << "\n Length of BST message (in bytes): "
+                << bstLengthBytes << "\n"
+                << std::endl;
+        }
 
         for (CItBoardMaps
                 itBoard = boardMaps.begin();
@@ -990,22 +1006,24 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         edm::Handle<L1MuGMTReadoutCollection> gmtRcHandle;
         iEvent.getByLabel(m_muGmtInputTag, gmtRcHandle);
 
+
+
         if (!gmtRcHandle.isValid()) {
-            edm::LogWarning("L1GlobalTrigger")
-            << "\nWarning: L1MuGMTReadoutCollection with input tag " << m_muGmtInputTag
-            << "\nrequested in configuration, but not found in the event.\n"
-            << std::endl;
-        }
-        else {
+            if (m_verbosity) {
+                edm::LogWarning("L1GlobalTrigger")
+                        << "\nWarning: L1MuGMTReadoutCollection with input tag " << m_muGmtInputTag
+                        << "\nrequested in configuration, but not found in the event.\n"
+                        << std::endl;
+            }
+        } else {
 
             gtDaqReadoutRecord->setMuCollectionRefProd(gmtRcHandle);
-
 
         }
 
     }
 
-    if ( edm::isDebugEnabled() ) {
+    if ( m_verbosity && m_isDebugEnabled ) {
 
     	std::ostringstream myCoutStream;
         gtDaqReadoutRecord->print(myCoutStream);

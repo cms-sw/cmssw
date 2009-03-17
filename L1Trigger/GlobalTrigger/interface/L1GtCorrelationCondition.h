@@ -3,15 +3,15 @@
 
 /**
  * \class L1GtCorrelationCondition
- * 
- * 
+ *
+ *
  * Description: evaluation of a CondCorrelation condition.
- * 
+ *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete   - HEPHY Vienna 
- * 
+ *
+ * \author: Vasile Mihai Ghete   - HEPHY Vienna
+ *
  * $Date$
  * $Revision$
  *
@@ -80,14 +80,14 @@ public:
     }
 
     void setGtGTL(const L1GlobalTriggerGTL*);
- 
+
     ///   get / set the pointer to PSB
     inline const L1GlobalTriggerPSB* gtPSB() const {
         return m_gtPSB;
     }
 
     void setGtPSB(const L1GlobalTriggerPSB*);
-   
+
 private:
 
     /// copy function for copy constructor and operator=
@@ -109,15 +109,20 @@ private:
     int m_cond1NrL1Objects;
     int m_cond0EtaBits;
     int m_cond1EtaBits;
-    
+
     /// pointer to GTL, to be able to get the trigger objects
     const L1GlobalTriggerGTL* m_gtGTL;
 
     /// pointer to PSB, to be able to get the trigger objects
     const L1GlobalTriggerPSB* m_gtPSB;
-    
+
     /// pointer to eta and phi conversion class
     const L1GtEtaPhiConversions* m_gtEtaPhiConversions;
+
+private:
+
+    bool m_isDebugEnabled;
+
 
 };
 

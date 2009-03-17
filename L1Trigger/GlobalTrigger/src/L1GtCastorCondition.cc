@@ -1,15 +1,15 @@
 /**
  * \class L1GtCastorCondition
- * 
- * 
+ *
+ *
  * Description: evaluation of a CondCastor condition.
- * 
+ *
  * Implementation:
  *    Simply put the result read from CASTOR L1 record in the L1GtConditionEvaluation
  *    base class, to be similar with other conditions.
- *   
- * \author: Vasile Mihai Ghete   - HEPHY Vienna 
- * 
+ *
+ * \author: Vasile Mihai Ghete   - HEPHY Vienna
+ *
  * $Date$
  * $Revision$
  *
@@ -43,7 +43,7 @@ L1GtCastorCondition::L1GtCastorCondition(const L1GtCondition* castorTemplate,
             m_conditionResult(result) {
 
     // maximum number of objects received for the evaluation of the condition
-    // no object 
+    // no object
     m_condMaxNumberObjects = 0;
 
 }
@@ -57,6 +57,8 @@ void L1GtCastorCondition::copy(const L1GtCastorCondition &cp) {
     m_condMaxNumberObjects = cp.condMaxNumberObjects();
     m_condLastResult = cp.condLastResult();
     m_combinationsInCond = cp.getCombinationsInCond();
+
+    m_verbosity = cp.m_verbosity;
 
 }
 
@@ -94,7 +96,7 @@ const bool L1GtCastorCondition::evaluateCondition() const {
     // clear the m_combinationsInCond vector
     (*m_combinationsInCond).clear();
 
-    // 
+    //
     return m_conditionResult;
 
 }

@@ -1,14 +1,14 @@
 /**
  * \class L1GtEnergySumCondition
- * 
- * 
+ *
+ *
  * Description: evaluation of a CondEnergySum condition.
- * 
+ *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete   - HEPHY Vienna 
- * 
+ *
+ * \author: Vasile Mihai Ghete   - HEPHY Vienna
+ *
  * $Date$
  * $Revision$
  *
@@ -56,7 +56,7 @@ L1GtEnergySumCondition::L1GtEnergySumCondition(const L1GtCondition* eSumTemplate
 {
 
     // maximum number of objects received for the evaluation of the condition
-    // energy sums are global quantities - one object per event 
+    // energy sums are global quantities - one object per event
 
     m_condMaxNumberObjects = 1;
 
@@ -71,6 +71,8 @@ void L1GtEnergySumCondition::copy(const L1GtEnergySumCondition &cp) {
     m_condMaxNumberObjects = cp.condMaxNumberObjects();
     m_condLastResult = cp.condLastResult();
     m_combinationsInCond = cp.getCombinationsInCond();
+
+    m_verbosity = cp.m_verbosity;
 
 }
 
@@ -179,7 +181,7 @@ const bool L1GtEnergySumCondition::evaluateCondition() const {
         }
     }
 
-    const L1GtEnergySumTemplate::ObjectParameter objPar = 
+    const L1GtEnergySumTemplate::ObjectParameter objPar =
         ( *(m_gtEnergySumTemplate->objectParameter()) )[iCondition];
 
     // check energy threshold
