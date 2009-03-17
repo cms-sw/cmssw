@@ -7,11 +7,11 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.20 $
+ * \version $Revision: 1.1 $
  *
  */
-#include "boost/spirit/core.hpp"
-#include "boost/spirit/utility/grammar_def.hpp"
+#include "boost/spirit/include/classic_core.hpp"
+#include "boost/spirit/include/classic_grammar_def.hpp"
 #include <functional>
 #include "CommonTools/Utils/src/ExpressionNumberSetter.h"
 #include "CommonTools/Utils/src/ExpressionVarSetter.h"
@@ -39,7 +39,7 @@
 
 namespace reco {
   namespace parser {    
-    struct Grammar : public boost::spirit::grammar<Grammar> {
+    struct Grammar : public boost::spirit::classic::grammar<Grammar> {
        
       SelectorPtr dummySel_;
       ExpressionPtr dummyExpr_;
@@ -74,16 +74,16 @@ namespace reco {
          }
       template <typename ScannerT>
       struct definition : 
-	public boost::spirit::grammar_def<boost::spirit::rule<ScannerT>, 
-					  boost::spirit::same, 
-					  boost::spirit::same>{  
-	typedef boost::spirit::rule<ScannerT> rule;
+	public boost::spirit::classic::grammar_def<boost::spirit::classic::rule<ScannerT>, 
+						   boost::spirit::classic::same, 
+						   boost::spirit::classic::same>{  
+	typedef boost::spirit::classic::rule<ScannerT> rule;
 	rule number, var, metharg, method, term, power, factor, function1, function2, expression, 
 	  comparison_op, binary_comp, trinary_comp,
 	  logical_combiner, logical_expression, logical_factor, logical_term,
 	  or_op, and_op, cut, fun;
 	definition(const Grammar & self) {
-	  using namespace boost::spirit;
+	  using namespace boost::spirit::classic;
 	  using namespace std;
 
 	  ExpressionNumberSetter number_s(self.exprStack);
@@ -144,8 +144,8 @@ namespace reco {
 	  BOOST_SPIRIT_DEBUG_RULE(cut);
 	  BOOST_SPIRIT_DEBUG_RULE(fun);
   
-	  boost::spirit::assertion<SyntaxErrors> expectParenthesis(kMissingClosingParenthesis);
-	  boost::spirit::assertion<SyntaxErrors> expect(kSyntaxError);
+	  boost::spirit::classic::assertion<SyntaxErrors> expectParenthesis(kMissingClosingParenthesis);
+	  boost::spirit::classic::assertion<SyntaxErrors> expect(kSyntaxError);
   
 	  number = 
 	    real_p [ number_s ];

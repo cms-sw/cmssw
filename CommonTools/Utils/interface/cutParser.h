@@ -18,7 +18,7 @@ namespace reco {
          sel = SelectorPtr(new AnyObjSelector);
          return true;
       } else {
-         using namespace boost::spirit;
+         using namespace boost::spirit::classic;
          Grammar grammar(sel, (const T *)(0));
          bool returnValue = false;
          const char* startingFrom =cut.c_str();
