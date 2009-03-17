@@ -136,6 +136,7 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, 
     histoY->SetName(title);
 
     if (histoY->GetEntries() > minEntries) {
+
       //Make the dirty work!
       TF1 *fit;
       if(fitType == 1){
@@ -154,6 +155,11 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, 
       double *par = fit->GetParameters();
       double *err = fit->GetParErrors();
 
+      // Check the histogram alone
+      TCanvas *canvas = new TCanvas(nameY+"alone", nameY+" alone");
+      histoY->Draw();
+      canvas->Write();
+
       // Only for check
       TCanvas *c = new TCanvas(nameY, nameY);
 
@@ -162,20 +168,37 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, 
       fileOut->cd();
       c->Write();
 
-      //Store the fit results
-      Ftop.push_back(par[0]);
-      Fwidth.push_back(fabs(par[1]));//sometimes the gaussian has negative width (checked with Rene Brun)
-      Fmass.push_back(par[2]);
-      Etop.push_back(err[0]);
-      Ewidth.push_back(err[1]);
-      Emass.push_back(err[2]);
+      // Skip nan
+      if( par[0] == par[0] ) {
+        //Store the fit results
+        Ftop.push_back(par[0]);
+        Fwidth.push_back(fabs(par[1]));//sometimes the gaussian has negative width (checked with Rene Brun)
+        Fmass.push_back(par[2]);
+        Etop.push_back(err[0]);
+        Ewidth.push_back(err[1]);
+        Emass.push_back(err[2]);
 
-      Fchi2.push_back(fit->GetChisquare()/fit->GetNDF());
+        Fchi2.push_back(fit->GetChisquare()/fit->GetNDF());
 
-      double xx= histo->GetXaxis()->GetBinCenter(i);
-      Xcenter.push_back(xx);
-      double ex = 0;
-      Ex.push_back(ex); 
+        double xx= histo->GetXaxis()->GetBinCenter(i);
+        Xcenter.push_back(xx);
+        double ex = 0;
+        Ex.push_back(ex); 
+      }
+      else {
+        //Store the fit results
+        Ftop.push_back(0);
+        Fwidth.push_back(0);//sometimes the gaussian has negative width (checked with Rene Brun)
+        Fmass.push_back(0);
+        Etop.push_back(1);
+        Ewidth.push_back(1);
+        Emass.push_back(1);
+
+        Fchi2.push_back(100000);
+
+        Xcenter.push_back(0);
+        Ex.push_back(1); 
+      }
     }
   }
 
@@ -323,12 +346,13 @@ TF1* linLorentzianFit(TH1* histoY){
 
 /****************************************************************************************/
 void macroPlot( TString name, const TString & nameFile1, const TString & nameFile2, const TString & title,
-                const TString & resonanceType, const int rebinX, const int rebinY, const int fitType ) {
+                const TString & resonanceType, const int rebinX, const int rebinY, const int fitType,
+                const TString & outputFileName) {
 
   gROOT->SetBatch(true);
 
   //Save the graphs in a file
-  TFile *outputFile = new TFile("filegraph.root","RECREATE");
+  TFile *outputFile = new TFile(outputFileName,"RECREATE");
 
   setTDRStyle();
 
@@ -351,6 +375,10 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
   if( name.Contains("Eta") ) {
     x[0]=-3; x[1]=3;       //<------useful for reso VS eta
     xAxisTitle = "#eta";
+  }
+  else if ( name.Contains("PhiPlus") ){
+    x[0] = -3.2; x[1] = 3.2;
+    xAxisTitle = "phi(rad)";
   }
   else {
     x[0] = 0.; x[1] = 200;
