@@ -14,9 +14,11 @@ mix = cms.EDFilter("DataMixingModule",
     maxBunch = cms.int32(0),
     bunchspace = cms.int32(25),
     minBunch = cms.int32(0),
+    checktof = cms.bool(False), 
     # Use digis?               
     EcalMergeType = cms.string('Digis'),  # set to "Digis" to merge digis
     HcalMergeType = cms.string('Digis'),
+    HcalDigiMerge = cms.string('FullProd'), #use sim hits for signal
     #
     # Input Specifications:
     #
