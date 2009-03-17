@@ -10,37 +10,6 @@ using namespace edm;
 using namespace std;
 
 
-// Don't know why the !@%!@% I can't put this in a separate file
-//without getting a bunch of compiler link errors
-/*
-SubTaskSummaryStatus::SubTaskSummaryStatus(bool onoffval)
-{
-  onoff=onoffval;
-  for (unsigned int i=0;i<4;++i)
-    {
-      status[i]=-1;  //initial status is unknown
-      problemName="";
-      problemDir="";
-    }	   
-} // constructor
-
-SubTaskSummaryStatus::~SubTaskSummaryStatus(){}
-
-
-void SubTaskSummaryStatus::SetOnOff(bool onoffval)
-{
-  onoff=onoffval;
-  return;
-} // SetOnOff(bool onoffval)
-
-
-bool SubTaskSummaryStatus::IsOn()
-{
-  return onoff;
-} // IsOn()
-
-*/
-
 
 HcalSummaryClient::HcalSummaryClient() {} //constructor
 
@@ -76,8 +45,8 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
 
   // Set histogram problem names & directories  for each subtask
   dataFormatMon_.problemName  = "";
-  digiMon_.problemName        = "Problem Digi Rate";
-  recHitMon_.problemName      = "Problem RecHit Rate";
+  digiMon_.problemName        = " Problem Digi Rate";
+  recHitMon_.problemName      = " Problem RecHit Rate";
   pedestalMon_.problemName    = " Problem Pedestal Rate";
   ledMon_.problemName         = "";
   hotCellMon_.problemName     = " Problem Hot Cell Rate";
@@ -87,7 +56,7 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
 
   dataFormatMon_.problemDir   = "";
   digiMon_.problemDir         = "DigiMonitor_Hcal/problem_digis";
-  recHitMon_.problemDir       = "";
+  recHitMon_.problemDir       = "RecHitMonitor_Hcal/problem_rechits";
   pedestalMon_.problemDir     = "PedestalMonitor_Hcal/problem_pedestals";
   ledMon_.problemDir          = "";
   hotCellMon_.problemDir      = "HotCellMonitor_Hcal/problem_hotcells";
@@ -536,7 +505,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       name.str("");
       name <<prefixME_<<"/"<<s.problemDir<<"/"<<"HB HF Depth 1 "<<s.problemName;
       me=dqmStore_->get(name.str().c_str());
-      
+      if (!me && debug_>0)  cout <<"<HcalSummaryClient::analyze_subtask> CAN'T FIND HISTOGRAM WITH NAME:  "<<name.str().c_str()<<endl;
       if (me)
 	{
 	  hist=me->getTH2F();
