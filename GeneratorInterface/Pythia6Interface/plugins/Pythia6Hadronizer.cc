@@ -381,11 +381,12 @@ bool Pythia6Hadronizer::residualDecay()
       int mother_id = mother->barcode();
       pyjets.k[2][ipart-1] = mother_id;
       //
-      // here also reset dauthters for this mother, if needs be
+      // here also reset status & dauthters for this mother, if needs be
       //
       if ( mother->end_vertex() )
       {
-         pyjets.k[3][mother_id-1] = ipart;
+         if ( pyjets.k[0][mother_id-1] == 1 )  pyjets.k[0][mother_id-1] = 11;
+	 pyjets.k[3][mother_id-1] = ipart;
          pyjets.k[4][mother_id-1] = ipart + mother->end_vertex()->particles_out_size();
       }
       //
