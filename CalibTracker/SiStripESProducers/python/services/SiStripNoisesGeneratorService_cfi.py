@@ -13,7 +13,7 @@ SiStripNoisesGenerator = cms.Service("SiStripNoisesGenerator",
                                      
                                      NoiseStripLengthSlope = cms.double(51.0),
                                      NoiseStripLengthQuote = cms.double(630.0),
-                                     electronPerAdc = cms.double(250.0),
+                                     electronPerAdc = cms.double(1.0),
 
                                      #relevant if random mode is chosen
                                      MeanNoise = cms.double(4.0),
@@ -21,6 +21,7 @@ SiStripNoisesGenerator = cms.Service("SiStripNoisesGenerator",
                                      MinPositiveNoise = cms.double(0.1)
                                      )
 
-
+from SimTracker.SiStripDigitizer.SiStripDigi_cfi import *
+SiStripNoisesGenerator.electronPerAdc=simSiStripDigis.electronPerAdc
 
 
