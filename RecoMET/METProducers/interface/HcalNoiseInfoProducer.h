@@ -27,6 +27,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/METReco/interface/HcalNoiseRBXArray.h"
+#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
 namespace reco {
 
@@ -60,27 +61,33 @@ namespace reco {
     // filldigis() depends on fillrechits() being called first
     //
     
-    void fillrechits(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&) const;
+    void fillrechits(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&, HcalNoiseSummary&) const;
     void filldigis(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&) const;
-    void fillcalotwrs(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&) const;
+    void fillcalotwrs(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&, HcalNoiseSummary&) const;
+    void filljets(edm::Event&, const edm::EventSetup&, HcalNoiseSummary&) const;
     
     //
     // parameters
     //      
     
     bool fillDigis_;        // fill digi information into HcalNoiseRBXs
-    bool fillRecHits_;      // fill rechit information into HcalNoiseRBXs
-    bool fillCaloTowers_;   // fill calotower information into HcalNoiseRBXs
-    
+    bool fillRecHits_;      // fill rechit information into HcalNoiseRBXs and HcalNoiseSummary
+    bool fillCaloTowers_;   // fill calotower information into HcalNoiseRBXs and HcalNoiseSummary
+    bool fillJets_;         // fill jet information into HcalNoiseSummary
+    bool dropRefVectors_;   // clear the HcalNoiseHPD RefVectors before storing
+
+    bool refillRefVectors_; // find HcalNoiseRBXs already present in the event, and fill the RefVectors
+
     double HPDEnergyThreshold_; // HPD Energy threshold
     double RBXEnergyThreshold_; // RBX Energy threshold
+    int maxProblemRBXs_;        // maximum number of problematic RBXs to be written to the event record
+    double maxJetEmFraction_;   // maximum em fraction of jets in the summary object
     
-    double recHitEnergyThreshold_;     // rechit energy threshold for hit counting purposes
-    double recHitTimeEnergyThreshold_; // rechit energy threshold for timing purposes
-    
-    std::string digiCollName_;      // name of the digi collection
-    std::string recHitCollName_;    // name of the rechit collection
-    std::string caloTowerCollName_; // name of the caloTower collection
+    std::string digiCollName_;         // name of the digi collection
+    std::string recHitCollName_;       // name of the rechit collection
+    std::string caloTowerCollName_;    // name of the caloTower collection
+    std::string caloJetCollName_;      // name of the jet collection
+    std::string hcalNoiseRBXCollName_; // name of the HcalNoiseRBX collection that we're adding RefVector information to
     
     bool requirePedestals_;  // require that pedestals are found, or throw an exception
     double nominalPedestal_; // nominal pedestal used if pedestals aren't found
@@ -92,6 +99,7 @@ namespace reco {
     
     typedef std::map<HcalDetId, double> pedestalmap_t;
     pedestalmap_t pedestalmap_;
+    
   };
   
 } // end of namespace

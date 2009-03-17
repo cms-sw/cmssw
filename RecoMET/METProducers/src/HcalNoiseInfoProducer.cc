@@ -7,7 +7,6 @@
 //
 //
 
-
 #include "RecoMET/METProducers/interface/HcalNoiseInfoProducer.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -29,16 +28,20 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig)
   fillDigis_      = iConfig.getParameter<bool>("fillDigis");
   fillRecHits_    = iConfig.getParameter<bool>("fillRecHits");
   fillCaloTowers_ = iConfig.getParameter<bool>("fillCaloTowers");
+  fillJets_       = iConfig.getParameter<bool>("fillJets");
+  dropRefVectors_ = iConfig.getParameter<bool>("dropRefVectors");
+  refillRefVectors_ = iConfig.getParameter<bool>("refillRefVectors");
 
   HPDEnergyThreshold_ = iConfig.getParameter<double>("HPDEnergyThreshold");
   RBXEnergyThreshold_ = iConfig.getParameter<double>("RBXEnergyThreshold");
-
-  recHitEnergyThreshold_     = iConfig.getParameter<double>("recHitEnergyThreshold");
-  recHitTimeEnergyThreshold_ = iConfig.getParameter<double>("recHitTimeEnergyThreshold");
+  maxProblemRBXs_     = iConfig.getParameter<int>("maxProblemRBXs");
+  maxJetEmFraction_   = iConfig.getParameter<double>("maxJetEmFraction");
 
   digiCollName_      = iConfig.getParameter<std::string>("digiCollName");
   recHitCollName_    = iConfig.getParameter<std::string>("recHitCollName");
   caloTowerCollName_ = iConfig.getParameter<std::string>("caloTowerCollName");
+  caloJetCollName_   = iConfig.getParameter<std::string>("caloJetCollName");
+  hcalNoiseRBXCollName_ = iConfig.getParameter<std::string>("hcalNoiseRBXCollName");
 
   requirePedestals_ = iConfig.getParameter<bool>("requirePedestals");
   nominalPedestal_  = iConfig.getParameter<double>("nominalPedestal");
@@ -51,6 +54,8 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig)
 
   // we produce a vector of HcalNoiseRBXs
   produces<HcalNoiseRBXCollection>();
+  // we also produce a noise summary
+  produces<HcalNoiseSummary>();
 }
 
 
@@ -67,44 +72,100 @@ HcalNoiseInfoProducer::~HcalNoiseInfoProducer()
 void
 HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  // define an empty HcalNoiseRBXArray that we're going to fill
-  HcalNoiseRBXArray rbxarray;
+  if(!refillRefVectors_) {
+    // we're creating HcalNoiseRBXs for the first time
 
-  // fill them with the various components
-  // digi assumes that rechit information is available
-  if(fillRecHits_)    fillrechits(iEvent, iSetup, rbxarray);
-  if(fillDigis_)      filldigis(iEvent, iSetup, rbxarray);
-  if(fillCaloTowers_) fillcalotwrs(iEvent, iSetup, rbxarray);
+    // this is what we're going to actually write to the EDM
+    std::auto_ptr<HcalNoiseRBXCollection> result1(new HcalNoiseRBXCollection);
+    std::auto_ptr<HcalNoiseSummary> result2(new HcalNoiseSummary);
 
-  // this is what we're going to actually write to the EDM
-  std::auto_ptr<HcalNoiseRBXCollection> result(new HcalNoiseRBXCollection);
-  
-  // select those RBXs which are interesting
-  for(HcalNoiseRBXArray::const_iterator it = rbxarray.begin(); it!=rbxarray.end(); ++it) {
-    const HcalNoiseRBX &rbx=(*it);
+    // define an empty HcalNoiseRBXArray that we're going to fill
+    HcalNoiseRBXArray rbxarray;
+    HcalNoiseSummary &summary=*result2;
     
-    // select certain RBXs to be written
+    // fill them with the various components
+    // digi assumes that rechit information is available
+    if(fillRecHits_)    fillrechits(iEvent, iSetup, rbxarray, summary);
+    if(fillDigis_)      filldigis(iEvent, iSetup, rbxarray);
+    if(fillCaloTowers_) fillcalotwrs(iEvent, iSetup, rbxarray, summary);
+    if(fillJets_)       filljets(iEvent, iSetup, summary);    
+    
+    // select those RBXs which are interesting
+    for(HcalNoiseRBXArray::iterator rit = rbxarray.begin(); rit!=rbxarray.end(); ++rit) {
+      HcalNoiseRBX &rbx=(*rit);
+      
+      // select certain RBXs to be written
+      
+      // the total energy in an RBX or HPD has to be above some energy threshold
+      if(rbx.recHitEnergy()>RBXEnergyThreshold_ || rbx.maxHPD()->recHitEnergy()>HPDEnergyThreshold_) {
 
-    // the total energy in an RBX has to be above some energy threshold
-    // and there has to be at least one rechit
-    if(rbx.rechitEnergy()>RBXEnergyThreshold_
-       && rbx.numHitsAboveThreshold()>=1) {
-      result->push_back(rbx);
-      continue;
+	// drop the ref vectors if we need to
+	if(dropRefVectors_) {
+	  for(std::vector<HcalNoiseHPD>::iterator hit = rbx.hpds_.begin(); hit != rbx.hpds_.end(); ++hit) {
+	    hit->rechits_.clear();
+	    hit->calotowers_.clear();
+	  }
+	}
+	summary.nproblemRBXs_++;
+	if(summary.nproblemRBXs_<=maxProblemRBXs_)
+	  result1->push_back(rbx);
+      }
+    }
+
+    // determine if the event is noisy
+    summary.filterstatus_=0;
+    
+    // put the rbxcollection and summary into the EDM
+    iEvent.put(result1);
+    iEvent.put(result2);
+
+
+  } else {
+
+    // we're taking HcalNoiseRBXs that are already present, and creating a new set with RefVector information stored
+
+    // define an empty HcalNoiseRBXArray that we're going to fill
+    // the summary object is a dummy placeholder
+    HcalNoiseRBXArray rbxarray;
+    HcalNoiseSummary summary;
+    
+    // fill them with the various components
+    if(fillRecHits_)    fillrechits(iEvent, iSetup, rbxarray, summary);
+    if(fillCaloTowers_) fillcalotwrs(iEvent, iSetup, rbxarray, summary);
+
+    // this is what we're going to actually write to the EDM
+    std::auto_ptr<HcalNoiseRBXCollection> result(new HcalNoiseRBXCollection);
+
+    // get the old HcalNoiseRBX's
+    edm::Handle<HcalNoiseRBXCollection> handle;
+    iEvent.getByLabel(hcalNoiseRBXCollName_, handle);
+    if(!handle.isValid()) {
+      throw edm::Exception(edm::errors::ProductNotFound) << " could not find HcalNoiseRBXCollection named " << hcalNoiseRBXCollName_ << "\n.";
+      return;
     }
     
-    // alternatively, the highest energy HPD can also be over some energy threshold
-    // where it has at least one rechit
-    if(rbx.maxHPD()->rechitEnergy()>HPDEnergyThreshold_
-       && rbx.maxHPD()->numHitsAboveThreshold()>=1) {
-      result->push_back(rbx);
-      continue;
+    // loop over the old HcalNoiseRBX's and match them to the recently filled RBXs
+    for(HcalNoiseRBXCollection::const_iterator rit=handle->begin(); rit!=handle->end(); ++rit) {
+      const HcalNoiseRBX &oldrbx=(*rit);
+      HcalNoiseRBX &newrbx=rbxarray[oldrbx.idnumber()];
+
+      // copy over the Digi Information
+      std::vector<HcalNoiseHPD>::iterator hit1 = newrbx.hpds_.begin();
+      std::vector<HcalNoiseHPD>::const_iterator hit2 = oldrbx.hpds_.begin(); 
+      for( ; hit1 != newrbx.hpds_.end() && hit2 != oldrbx.hpds_.end(); ++hit1, ++hit2) {
+	hit1->totalZeros_ = hit2->totalZeros_;
+	hit1->maxZeros_ = hit2->maxZeros_;
+	hit1->bigDigi_ = hit2->bigDigi_;
+	hit1->big5Digi_ = hit2->big5Digi_;
+	hit1->allDigi_ = hit2->allDigi_;
+      }
+
+      result->push_back(newrbx);
     }
+
+    // put the rbxcollection into the EDM
+    iEvent.put(result);
   }
-
-  // put the rbxarray into the EDM
-  iEvent.put(result);
-  
   return;
 }
 
@@ -189,8 +250,8 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
   // loop over all of the digi information
   for(HBHEDigiCollection::const_iterator it=handle->begin(); it!=handle->end(); ++it) {
     const HBHEDataFrame &digi=(*it);
-    HcalNoiseHPDArray::iterator hpditer=array.findHPD(digi);
-    HcalNoiseHPD &hpd=(*hpditer);
+    HcalNoiseHPD &hpd=(*array.findHPD(digi));
+    edm::RefVector<HBHERecHitCollection> &rechits=hpd.rechits_;
 
     // get the pedestal
     pedestalmap_t::const_iterator pedestalit = pedestalmap_.find(digi.id());
@@ -199,19 +260,23 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
     // determine if the digi is one the highest energy hits in the HPD
     bool isBig=false, isBig5=false;
 
-    // if the first (highest energy) rechit has the same id as the digi
-    if(hpd.recHits_.size()>0 && hpd.recHits_.begin()->id() == digi.id())
+    // see if the digi has the same id as the highest energy rechit
+    // this assumes that the rechits are properly sorted
+    if(rechits.begin()!=rechits.end() && (*rechits.begin())->id() == digi.id())
       isBig=isBig5=true;
 
-    // loop over the top five highest energy rechits
-    for(EnergySortedHBHERecHits::iterator it=hpd.recHits_.begin();
-	it!=hpd.recHits_.end(); ++it) {
-      if(it->id() == digi.id()) isBig5=true;
+    // loop over the five highest E rechits and see if the digi is there
+    for(edm::RefVector<HBHERecHitCollection>::const_iterator rit=rechits.begin();
+	rit!=rechits.end() && rit!=rechits.begin()+5; ++rit) {
+      if((*rit)->id() == digi.id()) {
+	isBig5=true;
+	break;
+      }
     }
 
     // loop over each of the digi's time slices
     int totalzeros=0;
-    for(int ts=0; ts<HBHEDataFrame::MAXSAMPLES; ts++) {
+    for(int ts=0; ts<digi.size(); ++ts) {
 
       // require a good digi
       if(!digi[ts].dv() || digi[ts].er()) continue;      
@@ -241,7 +306,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
 
 // ------------ fill the array with rec hit information
 void
-HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iSetup, HcalNoiseRBXArray& array) const
+HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iSetup, HcalNoiseRBXArray& array, HcalNoiseSummary& summary) const
 {
   // get the rechits
   edm::Handle<HBHERecHitCollection> handle;
@@ -252,43 +317,65 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
     return;
   }
 
-  // loop over all of the digi information
+  summary.min10_=summary.min25_=-99999.;
+  summary.max10_=summary.max25_=-99999.;
+  summary.rms10_=summary.rms25_=0.0;
+  int cnt10=0, cnt25=0;
+
+  // loop over all of the rechit information
   for(HBHERecHitCollection::const_iterator it=handle->begin(); it!=handle->end(); ++it) {
     const HBHERecHit &rechit=(*it);
+
+    // find the hpd that the rechit is in
     HcalNoiseHPD& hpd=(*array.findHPD(rechit));
+
+    // create a persistent reference to the rechit
+    edm::Ref<HBHERecHitCollection> myRef(handle, it-handle->begin());
     
-    // fill the info
-    hpd.rechitEnergy_+=rechit.energy();
-    ++hpd.numHits_;
+    // store it in a place so that it remains sorted by energy
+    hpd.refrechitset_.insert(myRef);
 
-    // only consider rechits with enough energy
-    // to contribute to the min/max time
-    if(rechit.energy()>recHitTimeEnergyThreshold_) {
-      double time=rechit.time();
-      if(time>hpd.maxTime_) hpd.maxTime_=time;
-      if(time<hpd.minTime_) hpd.minTime_=time;
+    // calculate summary objects
+    float energy=rechit.energy();
+    float time=rechit.time();
+    if(energy>=10. && summary.min10_>time) summary.min10_=time;
+    if(energy>=25. && summary.min25_>time) summary.min25_=time;
+    if(energy>=10. && summary.max10_<time) summary.max10_=time;
+    if(energy>=25. && summary.max25_<time) summary.max25_=time;
+    if(energy>=10.) {
+      summary.rms10_ += time*time;
+      ++cnt10;
     }
-
-    // consider here only rechits above a certain threshold
-    if(rechit.energy()>=recHitEnergyThreshold_) {
-      ++hpd.numHitsAboveThreshold_;
-
-      // store and sort the rechits here
-      hpd.recHits_.insert(rechit);
-      // if we have too many rec hits, delete the lowest energy one
-      // we keep only the top HcalNoiseHPD::MAXRECHITS
-      if(hpd.recHits_.size()>static_cast<unsigned int>(HcalNoiseHPD::MAXRECHITS))
-	hpd.recHits_.erase(--hpd.recHits_.end());
+    if(energy>=25.) {
+      summary.rms25_ += time*time;
+      ++cnt25;
     }
 
   } // end loop over rechits
+
+  // finish calculation of rms
+  summary.rms10_= cnt10>0 ? sqrt(summary.rms10_/cnt10) : -999.;
+  summary.rms25_= cnt25>0 ? sqrt(summary.rms25_/cnt25) : -999.;
+
+  // now loop over all HPDs and transfer the information from refrechitset_ to rechits_;
+  for(HcalNoiseRBXArray::iterator rbxit=array.begin(); rbxit!=array.end(); ++rbxit) {
+    for(std::vector<HcalNoiseHPD>::iterator hpdit=rbxit->hpds_.begin(); hpdit!=rbxit->hpds_.end(); ++hpdit) {
+      
+      // now loop over all of the entries in the set
+      // and add them to rechits_
+      for(std::set<edm::Ref<HBHERecHitCollection>, RefHBHERecHitEnergyComparison>::const_iterator
+	    it=hpdit->refrechitset_.begin(); it!=hpdit->refrechitset_.end(); ++it) {
+	hpdit->rechits_.push_back(*it);
+      }
+    }
+  }
 
   return;
 }
 
 // ------------ fill the array with calo tower information
 void
-HcalNoiseInfoProducer::fillcalotwrs(edm::Event& iEvent, const edm::EventSetup& iSetup, HcalNoiseRBXArray& array) const
+HcalNoiseInfoProducer::fillcalotwrs(edm::Event& iEvent, const edm::EventSetup& iSetup, HcalNoiseRBXArray& array, HcalNoiseSummary& summary) const
 {
   // get the calotowers
   edm::Handle<CaloTowerCollection> handle;
@@ -299,42 +386,64 @@ HcalNoiseInfoProducer::fillcalotwrs(edm::Event& iEvent, const edm::EventSetup& i
     return;
   }
 
+  summary.emenergy_ = summary.hadenergy_ = 0.0;
+
   // loop over all of the calotower information
   for(CaloTowerCollection::const_iterator it = handle->begin(); it!=handle->end(); ++it) {
     const CaloTower& twr=(*it);
 
-    // get all of the hpd's and rbx's that are pointed to by the calotower
-    std::vector<HcalNoiseHPDArray::iterator> hpditervec;
-    std::vector<HcalNoiseRBXArray::iterator> rbxitervec;
+    // create a persistent reference to the tower
+    edm::Ref<CaloTowerCollection> myRef(handle, it-handle->begin());
+
+    // get all of the hpd's that are pointed to by the calotower
+    std::vector<std::vector<HcalNoiseHPD>::iterator> hpditervec;
     array.findHPD(twr, hpditervec);
-    array.findRBX(twr, rbxitervec);
 
-    // loop over the hpd's
-    for(std::vector<HcalNoiseHPDArray::iterator>::iterator it=hpditervec.begin();
-	it!=hpditervec.end(); ++it) {
+    // loop over the hpd's and add the reference to the RefVectors
+    for(std::vector<std::vector<HcalNoiseHPD>::iterator>::iterator it=hpditervec.begin();
+	it!=hpditervec.end(); ++it)
+      (*it)->calotowers_.push_back(myRef);
 
-      // de-reference twice
-      HcalNoiseHPD &hpd = **it;
-      hpd.twrHadE_ += twr.hadEnergy();
-      hpd.twrEmE_ += twr.emEnergy();
-    }
-
-    // loop over the rbx's
-    for(std::vector<HcalNoiseRBXArray::iterator>::iterator it=rbxitervec.begin();
-	it!=rbxitervec.end(); ++it) {
-
-      // de-reference twice
-      HcalNoiseRBX &rbx = **it;
-      rbx.twrHadE_ += twr.hadEnergy();
-      rbx.twrEmE_ += twr.emEnergy();
-    }
+    // include the emenergy and hadenergy
+    summary.emenergy_ += twr.emEnergy();
+    summary.hadenergy_ += twr.hadEnergy();
   }
 
   return;
 }
 
+// ------------ fill the array with calo tower information
+void
+HcalNoiseInfoProducer::filljets(edm::Event& iEvent, const edm::EventSetup& iSetup, HcalNoiseSummary& summary) const
+{
+  edm::Handle<reco::CaloJetCollection> handle;
+  iEvent.getByLabel(caloJetCollName_, handle);
+  if(!handle.isValid()) {
+    throw edm::Exception(edm::errors::ProductNotFound)
+      << " could not find jetCollection named " << caloJetCollName_ << "\n.";
+    return;
+  }
+  
+  for(reco::CaloJetCollection::const_iterator iJet = handle->begin(); iJet!=handle->end(); ++iJet) {
+    reco::CaloJet jet=*iJet;
+    if(jet.eta()>3.5) continue;
+    
+    // create a persistent reference to the jet
+    edm::Ref<CaloJetCollection> myRef(handle, iJet-handle->begin());
+
+    // calculate em fraction ignoring HF and HO component
+    double hadE = jet.hadEnergyInHB() + jet.hadEnergyInHE();
+    double emeE = jet.emEnergyInEB() + jet.emEnergyInEE();
+
+    // if the emEnergy fraction is very small, keep this jet
+    if(emeE+hadE>0 && emeE/(emeE+hadE)<maxJetEmFraction_)
+      summary.problemjets_.push_back(myRef);
+    
+  }
 
 
+  return;
+}
 
 
 //define this as a plug-in
