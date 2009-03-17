@@ -269,6 +269,7 @@ void RPCSimAverageNoiseEff::simulateNoise(const RPCRoll* roll)
       float striplength = (top_->stripLength());
       area = striplength*(xmax-xmin);
     }
+
   //Defining a new engine local to this method for the two distributions defined below
   edm::Service<edm::RandomNumberGenerator> rnd;
   if ( ! rnd.isAvailable()) {
