@@ -29,9 +29,10 @@ private:
   std::list<int>
   stripsToRead(const std::list<int> & cfebs) const;
 
-  edm::InputTag theLCTTag;
-  edm::InputTag theStripDigiTag;
+  void suppressWires(edm::Event & e);
 
+  std::string theLCTLabel;
+  std::string theDigiLabel;
 
   CSCStripElectronicsSim theStripElectronicsSim;
   CSCStripConditions * theStripConditions;

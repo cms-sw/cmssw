@@ -1,13 +1,16 @@
 #include "SimMuon/CSCDigitizer/src/CSCDigiSuppressor.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include <algorithm>
 
 CSCDigiSuppressor::CSCDigiSuppressor(const edm::ParameterSet& ps)
-: theLCTTag(ps.getParameter<edm::InputTag>("lctTag")),
-  theStripDigiTag(ps.getParameter<edm::InputTag>("stripDigiTag")),
+: theLCTLabel(ps.getParameter<std::string>("lctLabel")),
+  theDigiLabel(ps.getParameter<std::string>("digiLabel")),
   theStripElectronicsSim(ps),
   theStripConditions(new CSCDbStripConditions(ps))
 {
@@ -32,14 +35,15 @@ CSCDigiSuppressor::CSCDigiSuppressor(const edm::ParameterSet& ps)
 void CSCDigiSuppressor::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 {
   edm::Handle<CSCStripDigiCollection> oldStripDigis;
-  e.getByLabel(theStripDigiTag, oldStripDigis);
+  e.getByLabel(theDigiLabel, "MuonCSCStripDigi", oldStripDigis);
   if (!oldStripDigis.isValid()) {
     edm::LogError("CSCDigiValidation") << "Cannot get strips by label "
-                                       << theStripDigiTag.encode();
+                                       << theDigiLabel;
   }
 
   edm::Handle<CSCCorrelatedLCTDigiCollection> lcts;
-  e.getByLabel(theLCTTag, lcts);
+  e.getByLabel(theLCTLabel, lcts);
+
   std::auto_ptr<CSCStripDigiCollection> newStripDigis(new CSCStripDigiCollection());
 
   theStripConditions->initializeEvent(eventSetup);
@@ -68,6 +72,41 @@ void CSCDigiSuppressor::produce(edm::Event& e, const edm::EventSetup& eventSetup
   }
 
   e.put(newStripDigis, "MuonCSCStripDigi");
+  suppressWires(e);
+}
+
+
+void CSCDigiSuppressor::suppressWires(edm::Event & e)
+{
+  edm::Handle<CSCWireDigiCollection> oldWireDigis;
+  e.getByLabel(theDigiLabel, "MuonCSCWireDigi", oldWireDigis);
+  std::auto_ptr<CSCWireDigiCollection> newWireDigis(new CSCWireDigiCollection(*oldWireDigis));
+
+  edm::Handle<CSCALCTDigiCollection> alctDigis;
+  e.getByLabel(theLCTLabel, alctDigis);
+  typedef CSCALCTDigiCollection::DigiRangeIterator ALCTItr;
+  typedef CSCWireDigiCollection::DigiRangeIterator WireItr;
+
+  for(WireItr wireItr = oldWireDigis->begin();
+      wireItr != oldWireDigis->end(); ++wireItr)
+  {
+    const CSCDetId& id = (*wireItr).first;
+    bool found = false;
+    for(ALCTItr alctItr = alctDigis->begin(); 
+        !found && alctItr != alctDigis->end(); ++alctItr)
+    {
+      if((*alctItr).first == id) 
+      {
+        found = true;
+      }
+    }
+    if(found)
+    {
+      newWireDigis->put((*wireItr).second, (*wireItr).first);
+    }
+  }
+
+  e.put(newWireDigis, "MuonCSCWireDigi");
 }
 
 
@@ -187,5 +226,3 @@ CSCDigiSuppressor::stripsToRead(const std::list<int> & cfebs) const
   }
   return strips;
 }
-
-
