@@ -16,13 +16,14 @@
 //
 // Author:      
 // Created:     Fri Apr 27 14:25:40 CEST 2007
-// $Id$
+// $Id: SiStripGainRcd.h,v 1.1 2007/05/02 12:39:13 gbruno Exp $
 //
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "CondFormats/DataRecord/interface/SiStripApvGainRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "boost/mpl/vector.hpp"
 
 class SiStripGainRcd : public edm::eventsetup::DependentRecordImplementation<SiStripGainRcd, boost::mpl::vector<SiStripApvGainRcd> > {};
+class SiStripGainSimRcd : public edm::eventsetup::DependentRecordImplementation<SiStripGainSimRcd, boost::mpl::vector<SiStripApvGainSimRcd> > {};
 
 #endif
