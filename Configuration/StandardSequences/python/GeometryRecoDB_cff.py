@@ -21,6 +21,6 @@ from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 
 #  Alignment
-from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
-from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *
-from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
+from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometryDB_cff import *
+from Geometry.CSCGeometryBuilder.idealForDigiCscGeometryDB_cff import *
+from Geometry.DTGeometryBuilder.idealForDigiDtGeometryDB_cff import *
