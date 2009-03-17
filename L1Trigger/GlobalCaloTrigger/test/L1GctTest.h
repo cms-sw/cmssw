@@ -72,9 +72,6 @@ private:
   int m_firstBx;
   int m_lastBx;
 
-  /// HACK - Ht threshold value for CMSSW22X
-  double m_JetThresholdForHtSumGeV;
-
   unsigned m_eventNo;
   bool m_allGood;
 };

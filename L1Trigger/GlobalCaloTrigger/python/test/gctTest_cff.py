@@ -10,7 +10,6 @@ gctemu = cms.EDFilter("L1GctTest",
     inputFile = cms.untracked.string(''),
     energySumsFile = cms.untracked.string(''),
     referenceFile = cms.untracked.string(''),
-    jetThresholdForHtSumGeV = cms.double(5.0),
     preSamples = cms.uint32(2),
     postSamples = cms.uint32(2)
 )

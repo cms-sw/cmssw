@@ -2,6 +2,7 @@
 
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternJetData.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetSorter.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
@@ -28,10 +29,10 @@ L1GctJetFinderBase::L1GctJetFinderBase(int id):
   m_gotJetEtCalLuts(false),
   m_CenJetSeed(0), m_FwdJetSeed(0), m_TauJetSeed(0), m_EtaBoundry(0),
   m_jetEtCalLuts(),
-  m_JetThresholdForHtSum(0),
   m_inputRegions(MAX_REGIONS_IN),
   m_sentProtoJets(MAX_JETS_OUT), m_rcvdProtoJets(MAX_JETS_OUT), m_keptProtoJets(MAX_JETS_OUT),
   m_outputJets(MAX_JETS_OUT), m_sortedJets(MAX_JETS_OUT),
+  m_HttSumJetThreshold(0), m_HtmSumJetThreshold(0),
   m_outputEtStrip0(0), m_outputEtStrip1(0),
   m_outputHtStrip0(0), m_outputHtStrip1(0),
   m_outputHfSums(),
@@ -93,10 +94,13 @@ void L1GctJetFinderBase::setNeighbourJetFinders(std::vector<L1GctJetFinderBase*>
 /// Set pointer to parameters - needed to complete the setup
 void L1GctJetFinderBase::setJetFinderParams(const L1GctJetFinderParams* jfpars)
 {
-  m_CenJetSeed = jfpars->CENTRAL_JET_SEED;
-  m_FwdJetSeed = jfpars->FORWARD_JET_SEED;
-  m_TauJetSeed = jfpars->TAU_JET_SEED;
-  m_EtaBoundry = jfpars->CENTRAL_FORWARD_ETA_BOUNDARY;
+  m_CenJetSeed = jfpars->getCenJetEtSeedGct();
+  m_FwdJetSeed = jfpars->getForJetEtSeedGct();
+  m_TauJetSeed = jfpars->getTauJetEtSeedGct();
+  m_EtaBoundry = jfpars->getCenForJetEtaBoundary();
+  m_tauIsolationThreshold = jfpars->getTauIsoEtThresholdGct();
+  m_HttSumJetThreshold    = jfpars->getHtJetEtThresholdGct();
+  m_HtmSumJetThreshold    = jfpars->getMHtJetEtThresholdGct();
   m_gotJetFinderParams = true;
 }
 
@@ -105,11 +109,6 @@ void L1GctJetFinderBase::setJetEtCalibrationLuts(const L1GctJetFinderBase::lutPt
 {
   m_jetEtCalLuts = jfluts;
   m_gotJetEtCalLuts = (jfluts.size() >= COL_OFFSET);
-}
-
-/// HACK - Ht threshold value for CMSSW22X
-void L1GctJetFinderBase::setJetThresholdForHtSum(const unsigned thresh) {
-  m_JetThresholdForHtSum = thresh;
 }
 
 std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo)
@@ -220,6 +219,24 @@ void L1GctJetFinderBase::setInputRegion(const L1CaloRegion& region)
   }
 }
 
+/// get output jets in raw format - to be stored in the event
+std::vector< L1GctInternJetData > L1GctJetFinderBase::getInternalJets() const {
+
+  std::vector< L1GctInternJetData > result;
+  for (RawJetVector::const_iterator jet=m_outputJetsPipe.contents.begin();
+       jet!=m_outputJetsPipe.contents.end(); jet++) {
+    result.push_back( L1GctInternJetData::fromEmulator(jet->id(),
+						       jet->bx(),
+						       jet->calibratedEt(m_jetEtCalLuts.at(jet->rctEta())), 
+						       jet->overFlow(), 
+						       jet->tauVeto(),
+						       jet->hwEta(),
+						       jet->hwPhi(),
+						       jet->rank(m_jetEtCalLuts.at(jet->rctEta())) ) );
+  }
+  return result;
+
+}
 
 // PROTECTED METHODS BELOW
 /// fetch the protoJets from neighbour jetFinder
@@ -319,9 +336,9 @@ L1GctJetFinderBase::etTotalType L1GctJetFinderBase::calcHtStrip(const UShort str
     // Only sum Ht for valid jets
     if (!m_outputJets.at(i).isNullJet()) {
       if (m_outputJets.at(i).rctPhi() == strip) {
-	unsigned ieta = m_outputJets.at(i).rctEta();
+	unsigned ieta  = m_outputJets.at(i).rctEta();
 	unsigned htJet = m_outputJets.at(i).calibratedEt(m_jetEtCalLuts.at(ieta));
-	if (htJet >= m_JetThresholdForHtSum) {
+	if (htJet >= m_HttSumJetThreshold) {
 	  ht += htJet;
 	} 
 	of |= m_outputJets.at(i).overFlow();

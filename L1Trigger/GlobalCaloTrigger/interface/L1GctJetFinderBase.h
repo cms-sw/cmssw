@@ -18,6 +18,7 @@
 #include <boost/cstdint.hpp> //for uint16_t
 #include <vector>
 
+class L1GctInternJetData;
 class L1GctJetFinderParams;
 class L1GctJetEtCalibrationLut;
 class L1CaloRegion;
@@ -123,8 +124,11 @@ public:
   /// Set pointer to calibration Lut - needed to complete the setup
   void setJetEtCalibrationLuts(const lutPtrVector& jfluts);
 
-  /// HACK - Ht threshold value for CMSSW22X
-  void setJetThresholdForHtSum(const unsigned thresh);
+  /// Setup the tau algorithm parameters
+  void setupTauAlgo(const bool useImprovedAlgo, const bool ignoreVetoBitsForIsolation) {
+    m_useImprovedTauAlgo            = useImprovedAlgo;
+    m_ignoreTauVetoBitsForIsolation = ignoreVetoBitsForIsolation;
+  }
 
   /// Check setup is Ok
   bool setupOk() const { return m_idInRange
@@ -159,11 +163,11 @@ public:
   /// get output jets in raw format
   RawJetVector getRawJets() const { return m_outputJetsPipe.contents; } 
 
+  /// get output jets in raw format - to be stored in the event
+  std::vector< L1GctInternJetData > getInternalJets() const;
+
   /// Return pointers to calibration LUTs
   const lutPtrVector getJetEtCalLuts() const { return m_jetEtCalLuts; }
-
-  /// HACK - Ht threshold value for CMSSW22X
-  const unsigned getJetThresholdForHtSum() const { return m_JetThresholdForHtSum; }
 
   // The hardware output quantities
   JetVector getJets() const { return m_sortedJets; } ///< Get the located jets. 
@@ -214,9 +218,22 @@ public:
 
   /// Jet Et Conversion LUT pointer
   lutPtrVector m_jetEtCalLuts;
+
+  /// Setup parameters for the tau jet algorithm
+  // If the following parameter is set to false, the tau identification
+  // is just based on the RCT tau veto bits from the nine regions
+  bool m_useImprovedTauAlgo;
+
+  // If useImprovedTauAlgo is true, these two parameters affect
+  // the operation of the algorithm.
+
+  // We can require the tau veto bits to be off in all nine regions,
+  // or just in the central region.
+  bool m_ignoreTauVetoBitsForIsolation;
     
-  // HACK - Ht threshold value for CMSSW22X
-  unsigned m_JetThresholdForHtSum;
+  // In the improved tau algorithm, we require no more than one tower energy to be 
+  // above the isolation threshold, in the eight regions surrounding the central one. 
+  unsigned m_tauIsolationThreshold;
 
   /// input data required for jet finding
   RegionsVector m_inputRegions;
@@ -231,6 +248,9 @@ public:
   /// output jets
   RawJetVector m_outputJets;
   JetVector m_sortedJets;
+
+  unsigned m_HttSumJetThreshold;
+  unsigned m_HtmSumJetThreshold;
 
   /// output Et strip sums and Ht
   etTotalType m_outputEtStrip0;

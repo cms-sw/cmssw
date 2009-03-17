@@ -18,15 +18,10 @@
 // Trigger configuration includes
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
-#include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
-#include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
 #include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
 #include "CondFormats/L1TObjects/interface/L1GctHfLutSetup.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCounterPositiveEtaRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCounterNegativeEtaRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctHfLutSetupRcd.h"
 
@@ -43,7 +38,6 @@ using std::vector;
 
 L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   m_jetEtCalibLuts(),
-  m_JetThresholdForHtSumGeV(ps.getParameter<double>("jetThresholdForHtSumGeV")),
   m_verbose(ps.getUntrackedParameter<bool>("verbose", false))
  {
 
@@ -53,11 +47,11 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   produces<L1GctJetCandCollection>("cenJets");
   produces<L1GctJetCandCollection>("forJets");
   produces<L1GctJetCandCollection>("tauJets");
+  produces<L1GctInternJetDataCollection>();
   produces<L1GctEtTotalCollection>();
   produces<L1GctEtHadCollection>();
   produces<L1GctEtMissCollection>();
-  produces<L1GctEtMissCollection>("missingHt");
-  produces<L1GctJetCountsCollection>();
+  produces<L1GctHtMissCollection>();
   produces<L1GctHFBitCountsCollection>();
   produces<L1GctHFRingEtSumsCollection>();
 
@@ -88,6 +82,11 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
     m_jetEtCalibLuts.push_back(nextLut);
     nextLut.reset ( new L1GctJetEtCalibrationLut() );
   }
+
+  // Setup the tau algorithm parameters
+  bool useImprovedTauAlgo            = ps.getParameter<bool>("useImprovedTauAlgorithm");
+  bool ignoreTauVetoBitsForIsolation = ps.getParameter<bool>("ignoreRCTTauVetoBitsForIsolation");
+  m_gct->setupTauAlgo(useImprovedTauAlgo, ignoreTauVetoBitsForIsolation);
 
   // set verbosity (not implemented yet!)
   //  m_gct->setVerbose(m_verbose);
@@ -126,12 +125,6 @@ int L1GctEmulator::configureGct(const edm::EventSetup& c)
     // get data from EventSetup
     edm::ESHandle< L1GctJetFinderParams > jfPars ;
     c.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
-    edm::ESHandle< L1GctJetCounterSetup > jcPosPars ;
-    c.get< L1GctJetCounterPositiveEtaRcd >().get( jcPosPars ) ; // which record?
-    edm::ESHandle< L1GctJetCounterSetup > jcNegPars ;
-    c.get< L1GctJetCounterNegativeEtaRcd >().get( jcNegPars ) ; // which record?
-    edm::ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
-    c.get< L1GctJetCalibFunRcd >().get( calibFun ) ; // which record?
     edm::ESHandle< L1GctHfLutSetup > hfLSetup ;
     c.get< L1GctHfLutSetupRcd >().get( hfLSetup ) ; // which record?
     edm::ESHandle< L1GctChannelMask > chanMask ;
@@ -144,14 +137,6 @@ int L1GctEmulator::configureGct(const edm::EventSetup& c)
       if (m_verbose) {
 	edm::LogWarning("L1GctConfigFailure")
 	  << "Failed to find a L1GctJetFinderParamsRcd:L1GctJetFinderParams in EventSetup!" << std::endl;
-      }
-    }
-
-    if (calibFun.product() == 0) {
-      success = -1;
-      if (m_verbose) {
-	edm::LogWarning("L1GctConfigFailure")
-	  << "Failed to find a L1GctJetCalibFunRcd:L1GctJetEtCalibrationFunction in EventSetup!" << std::endl;
       }
     }
 
@@ -174,26 +159,15 @@ int L1GctEmulator::configureGct(const edm::EventSetup& c)
     if (success==0) {
       // tell the jet Et Luts about the scales
       for (unsigned ieta=0; ieta<m_jetEtCalibLuts.size(); ieta++) {
-	m_jetEtCalibLuts.at(ieta)->setFunction(calibFun.product());
+	m_jetEtCalibLuts.at(ieta)->setFunction(jfPars.product());
 	m_jetEtCalibLuts.at(ieta)->setOutputEtScale(etScale.product());
       }
-
 
       // pass all the setup info to the gct
       m_gct->setJetEtCalibrationLuts(m_jetEtCalibLuts);
       m_gct->setJetFinderParams(jfPars.product());
-      m_gct->setupJetCounterLuts(jcPosPars.product(), jcNegPars.product());
       m_gct->setupHfSumLuts(hfLSetup.product());
       m_gct->setChannelMask(chanMask.product());
-
-      // HACK - Ht threshold value for CMSSW22X
-
-      unsigned jetThresholdForHtSumGct = ( m_JetThresholdForHtSumGeV > 0.0 ?
-					   static_cast<unsigned> ( m_JetThresholdForHtSumGeV/calibFun->getHtScaleLSB() ) :
-					   0 );
-      m_gct->setJetThresholdForHtSum(jetThresholdForHtSumGct);
-
-      // HACK END
     }
   }
 
@@ -233,14 +207,13 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
     std::auto_ptr<L1GctJetCandCollection> forJetResult(new L1GctJetCandCollection(m_gct->getForwardJets() ) );
     std::auto_ptr<L1GctJetCandCollection> tauJetResult(new L1GctJetCandCollection(m_gct->getTauJets() ) );
 
+    std::auto_ptr<L1GctInternJetDataCollection> internalJetResult(new L1GctInternJetDataCollection(m_gct->getInternalJets() ) );
+
     // create the energy sum digis
     std::auto_ptr<L1GctEtTotalCollection> etTotResult (new L1GctEtTotalCollection(m_gct->getEtSumCollection() ) );
     std::auto_ptr<L1GctEtHadCollection>   etHadResult (new L1GctEtHadCollection  (m_gct->getEtHadCollection() ) );
     std::auto_ptr<L1GctEtMissCollection>  etMissResult(new L1GctEtMissCollection (m_gct->getEtMissCollection() ) );
-    std::auto_ptr<L1GctEtMissCollection>  htMissResult(new L1GctEtMissCollection (m_gct->getHtMissCollection() ) );
-
-    // create the jet counts digis
-    std::auto_ptr<L1GctJetCountsCollection> jetCountResult(new L1GctJetCountsCollection(m_gct->getJetCountsCollection() ) );
+    std::auto_ptr<L1GctHtMissCollection>  htMissResult(new L1GctHtMissCollection (m_gct->getHtMissCollection() ) );
 
     // create the Hf sums digis
     std::auto_ptr<L1GctHFBitCountsCollection>  hfBitCountResult (new L1GctHFBitCountsCollection (m_gct->getHFBitCountsCollection () ) );
@@ -252,11 +225,11 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
     e.put(cenJetResult,"cenJets");
     e.put(forJetResult,"forJets");
     e.put(tauJetResult,"tauJets");
+    e.put(internalJetResult);
     e.put(etTotResult);
     e.put(etHadResult);
     e.put(etMissResult);
-    e.put(htMissResult,"missingHt");
-    e.put(jetCountResult);
+    e.put(htMissResult);
     e.put(hfBitCountResult);
     e.put(hfRingEtSumResult);
   }

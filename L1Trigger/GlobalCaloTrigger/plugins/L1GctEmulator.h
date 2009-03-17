@@ -56,9 +56,6 @@ class L1GctEmulator : public edm::EDProducer {
   // pointers to the jet Et LUTs
   lutPtrVector m_jetEtCalibLuts;
 
-  // HACK - Ht threshold value for CMSSW22X
-  double m_JetThresholdForHtSumGeV;
-
   // untracked parameters
   bool m_verbose;
 

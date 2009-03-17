@@ -6,16 +6,11 @@
 
 // Trigger configuration includes
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
-#include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-#include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
 #include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
 #include "CondFormats/L1TObjects/interface/L1GctHfLutSetup.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCounterPositiveEtaRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCounterNegativeEtaRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctHfLutSetupRcd.h"
 
@@ -43,7 +38,6 @@ L1GctTest::L1GctTest(const edm::ParameterSet& iConfig) :
   theEnergySumsDataFileName  (iConfig.getUntrackedParameter<std::string>("energySumsFile", "")),
   m_firstBx (-iConfig.getParameter<unsigned>("preSamples")),
   m_lastBx  ( iConfig.getParameter<unsigned>("postSamples")),
-  m_JetThresholdForHtSumGeV(iConfig.getParameter<double>("jetThresholdForHtSumGeV")),
   m_eventNo(0), m_allGood(true)
 {
   //now do what ever initialization is needed
@@ -141,7 +135,6 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      m_tester->fillRawJetData(m_gct);
      passAllTests &= m_tester->checkEnergySums(m_gct);
      passAllTests &= m_tester->checkHtSums(m_gct);
-     passAllTests &= m_tester->checkJetCounts(m_gct);
      passAllTests &= m_tester->checkHfEtSums(m_gct);
    }
 
@@ -188,12 +181,6 @@ L1GctTest::configureGct(const edm::EventSetup& c)
   // get data from EventSetup
   edm::ESHandle< L1GctJetFinderParams > jfPars ;
   c.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
-  edm::ESHandle< L1GctJetCounterSetup > jcPosPars ;
-  c.get< L1GctJetCounterPositiveEtaRcd >().get( jcPosPars ) ; // which record?
-  edm::ESHandle< L1GctJetCounterSetup > jcNegPars ;
-  c.get< L1GctJetCounterNegativeEtaRcd >().get( jcNegPars ) ; // which record?
-  edm::ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
-  c.get< L1GctJetCalibFunRcd >().get( calibFun ) ; // which record?
   edm::ESHandle< L1GctHfLutSetup > hfLSetup ;
   c.get< L1GctHfLutSetupRcd >().get( hfLSetup ) ; // which record?
   edm::ESHandle< L1GctChannelMask > chanMask ;
@@ -201,34 +188,18 @@ L1GctTest::configureGct(const edm::EventSetup& c)
   edm::ESHandle< L1CaloEtScale > etScale ;
   c.get< L1JetEtScaleRcd >().get( etScale ) ; // which record?
 
-  if (calibFun.product() == 0) {
-    throw cms::Exception("L1GctConfigError")
-      << "Failed to find a L1GctJetCalibFunRcd:L1GctJetEtCalibrationFunction in EventSetup!" << std::endl
-      << "Cannot continue without this function" << std::endl;
-  }
-
   m_gct->setJetFinderParams(jfPars.product());
 
   // tell the jet Et Luts about the scales
   for (unsigned ieta=0; ieta<m_jetEtCalibLuts.size(); ieta++) {
-    m_jetEtCalibLuts.at(ieta)->setFunction(calibFun.product());
+    m_jetEtCalibLuts.at(ieta)->setFunction(jfPars.product());
     m_jetEtCalibLuts.at(ieta)->setOutputEtScale(etScale.product());
   }
 
   // pass all the setup info to the gct
   m_gct->setJetEtCalibrationLuts(m_jetEtCalibLuts);
   m_gct->setJetFinderParams(jfPars.product());
-  m_gct->setupJetCounterLuts(jcPosPars.product(), jcNegPars.product());
   m_gct->setupHfSumLuts(hfLSetup.product());
   m_gct->setChannelMask(chanMask.product());
-
-      // HACK - Ht threshold value for CMSSW22X
-
-      unsigned jetThresholdForHtSumGct = ( m_JetThresholdForHtSumGeV > 0.0 ?
-					   static_cast<unsigned> ( m_JetThresholdForHtSumGeV/calibFun->getHtScaleLSB() ) :
-					   0 );
-      m_gct->setJetThresholdForHtSum(jetThresholdForHtSumGct);
-
-      // HACK END
 }
 
