@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  Class ti interface the muon system rechits with the standard KF tools.
  *
- *  $Date: 2008/07/17 13:32:51 $
- *  $Revision: 1.47 $
+ *  $Date: 2009/02/10 14:52:39 $
+ *  $Revision: 1.48 $
  *  \authors R. Bellan - INFN Torino <riccardo.bellan@cern.ch>,
  *           D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
  */
@@ -17,7 +17,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 
 using namespace edm;
 using namespace std;
@@ -48,7 +47,7 @@ StandAloneMuonRefitter::RefitResult StandAloneMuonRefitter::singleRefit(const Tr
 
   TrajectoryMeasurement lastTM = trajectory.lastMeasurement();                                      
 
-  TrajectoryStateOnSurface firstTsos = TrajectoryStateWithArbitraryError()(lastTM.updatedState());
+  TrajectoryStateOnSurface firstTsos(lastTM.updatedState());
 
   // Rescale errors before refit, not to bias the result
   firstTsos.rescaleError(errorRescale);
