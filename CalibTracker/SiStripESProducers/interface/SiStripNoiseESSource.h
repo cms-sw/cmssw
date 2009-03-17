@@ -1,5 +1,10 @@
+<<<<<<< SiStripNoiseESSource.h
 // Last commit: $Id: SiStripNoiseESSource.h,v 1.2 2008/12/17 23:11:13 giordano Exp $
-// Latest tag:  $Name: V03-00-00-00 $
+// Latest tag:  $Name: V03-00-04 $
+=======
+// Last commit: $Id: SiStripNoiseESSource.h,v 1.3 2009/02/17 16:14:33 muzaffar Exp $
+// Latest tag:  $Name:  $
+>>>>>>> 1.3
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/CalibTracker/SiStripESProducers/interface/SiStripNoiseESSource.h,v $
 
 #ifndef CalibTracker_SiStripESProducers_SiStripNoiseESSource_H
