@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/08/30 00:33:02 $
- *  $Revision: 1.32 $
+ *  $Date: 2009/02/17 16:27:29 $
+ *  $Revision: 1.33 $
  *  \author A. Tumanov - Rice
  */
 
@@ -112,20 +112,9 @@ void CSCDigiToRaw::add(const CSCComparatorDigiCollection & comparatorDigis)
       CSCDetId cscDetId=(*j).first;
       CSCEventData & cscData = findEventData(cscDetId);
 
-      bool me1a = (cscDetId.station()==1) && (cscDetId.ring()==4);
       BOOST_FOREACH(CSCComparatorDigi digi, (*j).second)
         {
-	  // Move ME1/A comparators from CFEB=0 to CFEB=4 if this has not
-	  // been done already.
-	  if (me1a && digi.getStrip() <= 16) {
-	    CSCComparatorDigi digi_corr(64+digi.getStrip(),
-					digi.getComparator(),
-					digi.getTimeBinWord());
-	    cscData.add(digi_corr, cscDetId.layer());
-	  }
-	  else {
-	    cscData.add(digi, cscDetId.layer());
-	  }
+          cscData.add(digi, cscDetId.layer() );
         }
     }
 }
@@ -190,11 +179,11 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
   
   int l1a=e.id().event(); //need to add increments or get it from lct digis 
   int bx = 0;//same as above
-  //int startingFED = FEDNumbering::getCSCFEDIds().first;
+  //int startingFED = FEDNumbering::MINCSCFEDID;
 
   std::map<int, CSCDCCEventData> dccMap;
-  for (int idcc=FEDNumbering::getCSCFEDIds().first;
-       idcc<=FEDNumbering::getCSCFEDIds().second;++idcc) 
+  for (int idcc=FEDNumbering::MINCSCFEDID;
+       idcc<=FEDNumbering::MAXCSCFEDID;++idcc) 
   {
     //idcc goes from startingFed to startingFED+7
     // @@ if ReadoutMapping changes, this'll have to change
