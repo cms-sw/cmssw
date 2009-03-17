@@ -11,54 +11,46 @@
 DEFINE_SEAL_MODULE();
 
 
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
+
+
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
-#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 REGISTER_PLUGIN(SiStripPedestalsRcd,SiStripPedestals);
 
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 REGISTER_PLUGIN(SiStripNoisesRcd,SiStripNoises);
 
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 REGISTER_PLUGIN(SiStripFedCablingRcd,SiStripFedCabling);
 
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
-#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
 REGISTER_PLUGIN(SiStripLorentzAngleRcd,SiStripLorentzAngle);
+REGISTER_PLUGIN(SiStripLorentzAngleSimRcd,SiStripLorentzAngle);
 
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
-#include "CondFormats/DataRecord/interface/SiStripApvGainRcd.h"
 REGISTER_PLUGIN(SiStripApvGainRcd,SiStripApvGain);
+REGISTER_PLUGIN(SiStripApvGainSimRcd,SiStripApvGain);
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
-#include "CondFormats/DataRecord/interface/SiStripBadStripRcd.h"
 REGISTER_PLUGIN(SiStripBadStripRcd,SiStripBadStrip);
-#include "CondFormats/DataRecord/interface/SiStripBadModuleRcd.h"
 REGISTER_PLUGIN(SiStripBadModuleRcd,SiStripBadStrip);
-#include "CondFormats/DataRecord/interface/SiStripBadFiberRcd.h"
 REGISTER_PLUGIN(SiStripBadFiberRcd,SiStripBadStrip);
-#include "CondFormats/DataRecord/interface/SiStripBadChannelRcd.h"
 REGISTER_PLUGIN(SiStripBadChannelRcd,SiStripBadStrip);
+REGISTER_PLUGIN(SiStripDCSStatusRcd,SiStripBadStrip);
 
 #include "CondFormats/SiStripObjects/interface/SiStripModuleHV.h"
-#include "CondFormats/DataRecord/interface/SiStripModuleHVRcd.h"
 REGISTER_PLUGIN(SiStripModuleHVRcd,SiStripModuleHV);
 
 #include "CondFormats/SiStripObjects/interface/SiStripRunSummary.h"
-#include "CondFormats/DataRecord/interface/SiStripRunSummaryRcd.h"
 REGISTER_PLUGIN(SiStripRunSummaryRcd,SiStripRunSummary);
 
 #include "CondFormats/SiStripObjects/interface/SiStripPerformanceSummary.h"
-#include "CondFormats/DataRecord/interface/SiStripPerformanceSummaryRcd.h"
 REGISTER_PLUGIN(SiStripPerformanceSummaryRcd,SiStripPerformanceSummary);
 
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
-#include "CondFormats/DataRecord/interface/SiStripThresholdRcd.h"
 REGISTER_PLUGIN(SiStripThresholdRcd,SiStripThreshold);
 
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
-#include "CondFormats/DataRecord/interface/SiStripSummaryRcd.h"
 REGISTER_PLUGIN(SiStripSummaryRcd,SiStripSummary);
 
 
