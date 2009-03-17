@@ -33,8 +33,8 @@ namespace reco {
       // one past the "last" HPD
       // provides the same functionality as HcalNoiseRBXArray::iterator end()
       // defined already by the base class, to denote that the HPD was not found
-      HcalNoiseHPDArray::iterator endHPD(void);
-      HcalNoiseHPDArray::const_iterator endHPD(void) const;
+      std::vector<HcalNoiseHPD>::iterator endHPD(void);
+      std::vector<HcalNoiseHPD>::const_iterator endHPD(void) const;
       
       // endRBX() and end() are identical
       // added for symmetry with endHPD()
@@ -43,26 +43,26 @@ namespace reco {
       
       // search tools to get the appropriate HPD/RBX in the array
       // if input is invalid, returns endHPD() or endRBX() when appropriate
-      HcalNoiseHPDArray::iterator       findHPD(int hpdindex);
-      HcalNoiseHPDArray::const_iterator findHPD(int hpdindex) const;
+      std::vector<HcalNoiseHPD>::iterator       findHPD(int hpdindex);
+      std::vector<HcalNoiseHPD>::const_iterator findHPD(int hpdindex) const;
       HcalNoiseRBXArray::iterator       findRBX(int rbxindex);
       HcalNoiseRBXArray::const_iterator findRBX(int rbxindex) const;
-      HcalNoiseHPDArray::iterator       findHPD(const HcalDetId&);
-      HcalNoiseHPDArray::const_iterator findHPD(const HcalDetId&) const;
+      std::vector<HcalNoiseHPD>::iterator       findHPD(const HcalDetId&);
+      std::vector<HcalNoiseHPD>::const_iterator findHPD(const HcalDetId&) const;
       HcalNoiseRBXArray::iterator       findRBX(const HcalDetId&);
       HcalNoiseRBXArray::const_iterator findRBX(const HcalDetId&) const;
-      HcalNoiseHPDArray::iterator       findHPD(const HBHEDataFrame&);
-      HcalNoiseHPDArray::const_iterator findHPD(const HBHEDataFrame&) const;
+      std::vector<HcalNoiseHPD>::iterator       findHPD(const HBHEDataFrame&);
+      std::vector<HcalNoiseHPD>::const_iterator findHPD(const HBHEDataFrame&) const;
       HcalNoiseRBXArray::iterator       findRBX(const HBHEDataFrame&);
       HcalNoiseRBXArray::const_iterator findRBX(const HBHEDataFrame&) const;
-      HcalNoiseHPDArray::iterator       findHPD(const HBHERecHit&);
-      HcalNoiseHPDArray::const_iterator findHPD(const HBHERecHit&) const;
+      std::vector<HcalNoiseHPD>::iterator       findHPD(const HBHERecHit&);
+      std::vector<HcalNoiseHPD>::const_iterator findHPD(const HBHERecHit&) const;
       HcalNoiseRBXArray::iterator       findRBX(const HBHERecHit&);
       HcalNoiseRBXArray::const_iterator findRBX(const HBHERecHit&) const;
       
       // same as above but, multiple HPDs/RBXs are possible within one calotower
-      void findHPD(const CaloTower&, std::vector<HcalNoiseHPDArray::iterator>&);
-      void findHPD(const CaloTower&, std::vector<HcalNoiseHPDArray::const_iterator>&) const;
+      void findHPD(const CaloTower&, std::vector<std::vector<HcalNoiseHPD>::iterator>&);
+      void findHPD(const CaloTower&, std::vector<std::vector<HcalNoiseHPD>::const_iterator>&) const;
       void findRBX(const CaloTower&, std::vector<HcalNoiseRBXArray::iterator>&);
       void findRBX(const CaloTower&, std::vector<HcalNoiseRBXArray::const_iterator>&) const;
   

@@ -4,9 +4,10 @@
 //
 // HcalNoiseRBX.h
 //
-//   description: container class of RBX information for the HCAL
-//                Noise Filter.  HcalNoiseRBX's are filled by
-//                HcalNoiseAlgs defined in RecoMET/METProducers.
+//   description: Container class of RBX information to study anomalous noise in the HCAL.
+//                The information for HcalNoiseHPD's are filled in RecoMET/METProducers/HcalNoiseInfoProducer,
+//                but the idnumber is managed by DataFormats/METReco/HcalNoiseRBXArray.
+//                Essentially contains 4 HcalNoiseHPDs.
 //
 //   author: J.P. Chou, Brown
 //
@@ -29,7 +30,6 @@ namespace reco {
   // typedefs
   //
   
-  typedef boost::array<HcalNoiseHPD, HcalHPDRBXMap::NUM_HPDS_PER_RBX> HcalNoiseHPDArray;
   typedef std::vector<HcalNoiseRBX> HcalNoiseRBXCollection;
   
   
@@ -44,6 +44,10 @@ namespace reco {
     
     // destructor
     virtual ~HcalNoiseRBX();
+
+    //
+    // Detector ID accessors
+    //
     
     // accessors
     int idnumber(void) const;
@@ -58,49 +62,46 @@ namespace reco {
     int iphilo(void) const;
     int iphihi(void) const;
     
-    // total number of rechits in the RBX
-    int numHits(void) const;
-    
-    // total number of rechits above threshold in the RBX
-    int numHitsAboveThreshold(void) const;
-    
+    //
+    // other accessors
+    //
+
+    // returns a reference to a vector of HcalNoiseHPDs
+    const std::vector<HcalNoiseHPD>& HPDs(void) const;
+
+    // return HPD with the highest rechit energy in the RBX
+    // individual rechits only contribute if they have E>threshold
+    std::vector<HcalNoiseHPD>::const_iterator maxHPD(double threshold=1.5) const;
+
     // total number of adc zeros in the RBX
     int totalZeros(void) const;
     
     // largest number of zeros from an adc in the RBX
     int maxZeros(void) const;
     
-    // return HPD with the largest rechit energy in the RBX
-    HcalNoiseHPDArray::const_iterator maxHPD(void) const;
+    // sum of the energy of rechits in the RBX with E>threshold
+    double recHitEnergy(double theshold=1.5) const;
+
+    // minimum and maximum time for rechits in the RBX with E>threshold
+    double minRecHitTime(double threshold=10.0) const;
+    double maxRecHitTime(double threshold=10.0) const;
+
+    // total number of rechits above some threshold in the RBX
+    int numRecHits(double threshold) const;
     
-    // return first and last+1 iterators to HPDs
-    HcalNoiseHPDArray::const_iterator beginHPD(void) const;
-    HcalNoiseHPDArray::const_iterator endHPD(void) const;
-    
-    // return a *copy* of the HPD array
-    // note that it's probably faster to use iterator access above
-    HcalNoiseHPDArray HPDs(void) const;
-    
-    // sum of the rechit energy in the HPDs
-    double rechitEnergy(void) const;
-    
-    // caloTower energy in the RBX
-    // these are not identical to the sum of HPD caloTower energies
-    double caloTowerHadE(void) const;
-    double caloTowerEmE(void) const;
-    double caloTowerTotalE(void) const;
-    double caloTowerEmFraction(void) const;
+    // calotower properties integrated over the entire RBX
+    //    double caloTowerHadE(void) const;
+    //    double caloTowerEmE(void) const;
+    //    double caloTowerTotalE(void) const;
+    //    double caloTowerEmFraction(void) const;
     
   private:
     
     // members
     int idnumber_;
     
-    // calotower energy
-    double twrHadE_, twrEmE_;
-    
-    // boost::array of hpds
-    HcalNoiseHPDArray hpds_;
+    // the hpds
+    std::vector<HcalNoiseHPD> hpds_;
   };
   
 } // end of namespace

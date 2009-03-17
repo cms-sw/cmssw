@@ -5,7 +5,8 @@
 #include "Math/CylindricalEta3D.h" 
 #include "Math/PxPyPzE4D.h" 
 #include <boost/cstdint.hpp> 
-#include <Rtypes.h> 
+#include <Rtypes.h>
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/METReco/interface/METFwd.h" 
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -23,6 +24,7 @@
 #include "DataFormats/METReco/interface/HcalNoiseRBX.h"
 #include "DataFormats/METReco/interface/HcalNoiseRBXArray.h"
 #include "DataFormats/METReco/interface/HcalHPDRBXMap.h"
+#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include <vector>
@@ -71,19 +73,20 @@ namespace {
     edm::reftobase::Holder<reco::Candidate,reco::PFMETRef> rtb4;
 
     reco::HcalNoiseHPD dummy22;
-    reco::DigiArray dummy23;
-    reco::EnergySortedHBHERecHits dummy24;
-    reco::HBHERecHitEnergyComparison dummy25;
-    reco::HcalNoiseHPDCollection dummy26;
-    edm::Wrapper<reco::HcalNoiseHPDCollection> dummy27;
+    reco::HcalNoiseHPDCollection dummy23;
+    edm::Wrapper<reco::HcalNoiseHPDCollection> dummy24;
     
-    reco::HcalNoiseRBX dummy28;
-    reco::HcalNoiseHPDArray dummy29;
-    reco::HcalNoiseRBXCollection dummy30;
-    edm::Wrapper<reco::HcalNoiseRBXCollection> dummy31;
+    reco::HcalNoiseRBX dummy25;
+    std::vector<reco::HcalNoiseHPD> dummy26;
+    std::vector<reco::HcalNoiseHPD>::const_iterator dummy27;
+    reco::HcalNoiseRBXCollection dummy28;
+    edm::Wrapper<reco::HcalNoiseRBXCollection> dummy29;
 
-    reco::HcalNoiseRBXArray dummy32;
-    edm::Wrapper<reco::HcalNoiseRBXArray> dummy33;
+    reco::HcalNoiseRBXArray dummy30;
+    edm::Wrapper<reco::HcalNoiseRBXArray> dummy31;
+
+    HcalNoiseSummary dummy32;
+    edm::Wrapper<HcalNoiseSummary> dummy33;
 
     HcalHPDRBXMap dummy34;
 

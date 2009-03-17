@@ -34,7 +34,7 @@ HcalNoiseRBXArray::~HcalNoiseRBXArray()
 {
 }
 
-HcalNoiseHPDArray::const_iterator HcalNoiseRBXArray::endHPD(void) const
+std::vector<HcalNoiseHPD>::const_iterator HcalNoiseRBXArray::endHPD(void) const
 {
   // the choice of which rbx to use is arbitrary,
   // as long as we're consistent
@@ -42,14 +42,14 @@ HcalNoiseHPDArray::const_iterator HcalNoiseRBXArray::endHPD(void) const
 }
 
 // code here should be same as above (modulo 'const'ness)
-HcalNoiseHPDArray::iterator HcalNoiseRBXArray::endHPD(void)
+std::vector<HcalNoiseHPD>::iterator HcalNoiseRBXArray::endHPD(void)
 {
   // the choice of which rbx to use is arbitrary,
   // as long as we're consistent
   return at(0).hpds_.end();
 }
 
-HcalNoiseHPDArray::iterator HcalNoiseRBXArray::findHPD(int hpdindex)
+std::vector<HcalNoiseHPD>::iterator HcalNoiseRBXArray::findHPD(int hpdindex)
 {
   // if the hpdindex is invalid
   if(!HcalHPDRBXMap::isValidHPD(hpdindex)) return endHPD();
@@ -58,7 +58,7 @@ HcalNoiseHPDArray::iterator HcalNoiseRBXArray::findHPD(int hpdindex)
   
   // find the HPD in the RBX
   HcalNoiseRBX& rbx=at(rbxindex);
-  for(HcalNoiseHPDArray::iterator it=rbx.hpds_.begin(); it!=rbx.hpds_.end(); ++it) {
+  for(std::vector<HcalNoiseHPD>::iterator it=rbx.hpds_.begin(); it!=rbx.hpds_.end(); ++it) {
     if(it->idnumber_==hpdindex) return it;
   }
   
@@ -69,7 +69,7 @@ HcalNoiseHPDArray::iterator HcalNoiseRBXArray::findHPD(int hpdindex)
 }
 
 // code here should be same as above (modulo 'const'ness)
-HcalNoiseHPDArray::const_iterator HcalNoiseRBXArray::findHPD(int hpdindex) const
+std::vector<HcalNoiseHPD>::const_iterator HcalNoiseRBXArray::findHPD(int hpdindex) const
 {
   // if the hpdindex is invalid
   if(!HcalHPDRBXMap::isValidHPD(hpdindex)) return endHPD();
@@ -78,7 +78,7 @@ HcalNoiseHPDArray::const_iterator HcalNoiseRBXArray::findHPD(int hpdindex) const
   
   // find the HPD in the RBX
   const HcalNoiseRBX& rbx=at(rbxindex);
-  for(HcalNoiseHPDArray::const_iterator it=rbx.hpds_.begin(); it!=rbx.hpds_.end(); ++it) {
+  for(std::vector<HcalNoiseHPD>::const_iterator it=rbx.hpds_.begin(); it!=rbx.hpds_.end(); ++it) {
     if(it->idnumber_==hpdindex) return it;
   }
   
@@ -102,14 +102,14 @@ HcalNoiseRBXArray::findRBX(int rbxindex) const
   return begin()+rbxindex;
 }
 
-HcalNoiseHPDArray::iterator
+std::vector<HcalNoiseHPD>::iterator
 HcalNoiseRBXArray::findHPD(const HcalDetId& id)
 {
   if(!HcalHPDRBXMap::isValid(id)) return endHPD();
   return findHPD(HcalHPDRBXMap::indexHPD(id));
 }
 
-HcalNoiseHPDArray::const_iterator
+std::vector<HcalNoiseHPD>::const_iterator
 HcalNoiseRBXArray::findHPD(const HcalDetId& id) const
 {
   if(!HcalHPDRBXMap::isValid(id)) return endHPD();
@@ -130,11 +130,11 @@ HcalNoiseRBXArray::findRBX(const HcalDetId& id) const
   return findRBX(HcalHPDRBXMap::indexRBX(id));
 }
 
-HcalNoiseHPDArray::iterator
+std::vector<HcalNoiseHPD>::iterator
 HcalNoiseRBXArray::findHPD(const HBHEDataFrame& f)
 { return findHPD(f.id()); }
 
-HcalNoiseHPDArray::const_iterator
+std::vector<HcalNoiseHPD>::const_iterator
 HcalNoiseRBXArray::findHPD(const HBHEDataFrame& f) const
 { return findHPD(f.id()); }
 
@@ -146,11 +146,11 @@ HcalNoiseRBXArray::const_iterator
 HcalNoiseRBXArray::findRBX(const HBHEDataFrame& f) const
 { return findRBX(f.id()); }
 
-HcalNoiseHPDArray::iterator
+std::vector<HcalNoiseHPD>::iterator
 HcalNoiseRBXArray::findHPD(const HBHERecHit& h)
 { return findHPD(h.id()); }
 
-HcalNoiseHPDArray::const_iterator
+std::vector<HcalNoiseHPD>::const_iterator
 HcalNoiseRBXArray::findHPD(const HBHERecHit& h) const
 { return findHPD(h.id()); }
 
@@ -163,7 +163,7 @@ HcalNoiseRBXArray::findRBX(const HBHERecHit& h) const
 { return findRBX(h.id()); }
 
 
-void HcalNoiseRBXArray::findHPD(const CaloTower& tower, std::vector<HcalNoiseHPDArray::const_iterator>& vec) const
+void HcalNoiseRBXArray::findHPD(const CaloTower& tower, std::vector<std::vector<HcalNoiseHPD>::const_iterator>& vec) const
 {
   // clear the vector
   vec.clear();
@@ -180,7 +180,7 @@ void HcalNoiseRBXArray::findHPD(const CaloTower& tower, std::vector<HcalNoiseHPD
   return;
 }
 
-void HcalNoiseRBXArray::findHPD(const CaloTower& tower, std::vector<HcalNoiseHPDArray::iterator>& vec)
+void HcalNoiseRBXArray::findHPD(const CaloTower& tower, std::vector<std::vector<HcalNoiseHPD>::iterator>& vec)
 {
   // clear the vector
   vec.clear();

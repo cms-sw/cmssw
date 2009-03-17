@@ -42,20 +42,23 @@
   <class name="edm::RefVector<std::vector<reco::PFMET>,reco::PFMET,edm::refhelper::FindUsingAdvance<std::vector<reco::PFMET>,reco::PFMET> >"/>
   <class name="edm::Ref<std::vector<reco::PFMET>,reco::PFMET,edm::refhelper::FindUsingAdvance<std::vector<reco::PFMET>,reco::PFMET> >"/>
 
-  <class name="reco::HcalNoiseHPD"/>
-  <class name="reco::DigiArray"/>
-  <class name="reco::EnergySortedHBHERecHits"/>
-  <class name="reco::HBHERecHitEnergyComparison"/>
+  <class name="reco::HcalNoiseHPD">
+    <field name="refrechitset_" transient="true"/>
+  </class>
   <class name="reco::HcalNoiseHPDCollection"/>
   <class name="edm::Wrapper<reco::HcalNoiseHPDCollection>"/>
 
   <class name="reco::HcalNoiseRBX"/>
-  <class name="reco::HcalNoiseHPDArray"/>
+  <class name="std::vector<reco::HcalNoiseHPD>"/>
+  <class name="std::vector<reco::HcalNoiseHPD>::const_iterator"/>
   <class name="reco::HcalNoiseRBXCollection"/>
   <class name="edm::Wrapper<reco::HcalNoiseRBXCollection>"/>
 
   <class name="reco::HcalNoiseRBXArray"/>
   <class name="edm::Wrapper<reco::HcalNoiseRBXArray>"/>
+
+  <class name="HcalNoiseSummary"/>
+  <class name="edm::Wrapper<HcalNoiseSummary>"/>
 
   <class name="HcalHPDRBXMap"/>
 

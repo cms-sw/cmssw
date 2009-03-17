@@ -14,7 +14,7 @@ using namespace reco;
 
 // default constructor
 HcalNoiseRBX::HcalNoiseRBX() :
-  idnumber_(0), twrHadE_(0.0), twrEmE_(0.0)
+  idnumber_(0), hpds_(HcalHPDRBXMap::NUM_HPDS_PER_RBX)
 {
 }
 
@@ -49,21 +49,25 @@ int HcalNoiseRBX::iphihi(void) const
   return HcalHPDRBXMap::iphihiRBX(idnumber_);
 }
 
-int HcalNoiseRBX::numHits(void) const
+const std::vector<HcalNoiseHPD>& HcalNoiseRBX::HPDs(void) const
 {
-  int tot=0;
-  for(unsigned int i=0; i<hpds_.size(); i++)
-    tot += hpds_[i].numHits();
-  return tot;
+  return hpds_;
 }
 
-int HcalNoiseRBX::numHitsAboveThreshold(void) const
+std::vector<HcalNoiseHPD>::const_iterator HcalNoiseRBX::maxHPD(double threshold) const
 {
-  int tot=0;
-  for(unsigned int i=0; i<hpds_.size(); i++)
-    tot += hpds_[i].numHitsAboveThreshold();
-  return tot;
+  std::vector<HcalNoiseHPD>::const_iterator maxit=hpds_.end();
+  double maxenergy=-99999999.;
+  for(std::vector<HcalNoiseHPD>::const_iterator it=hpds_.begin(); it!=hpds_.end(); ++it) {
+    double tempenergy=it->recHitEnergy();
+    if(tempenergy>maxenergy) {
+      maxenergy=tempenergy;
+      maxit=it;
+    }
+  }
+  return maxit;
 }
+
 
 int HcalNoiseRBX::totalZeros(void) const
 {
@@ -82,39 +86,43 @@ int HcalNoiseRBX::maxZeros(void) const
   return max;
 }
 
-HcalNoiseHPDArray::const_iterator HcalNoiseRBX::maxHPD(void) const
-{
-  HcalNoiseHPDArray::const_iterator maxit=hpds_.begin();
-  for(HcalNoiseHPDArray::const_iterator it=hpds_.begin(); it!=hpds_.end(); ++it)
-    if(it->rechitEnergy()>maxit->rechitEnergy())
-      maxit=it;
-  return maxit;
-}
-
-HcalNoiseHPDArray::const_iterator HcalNoiseRBX::beginHPD(void) const
-{
-  return hpds_.begin();
-}
-
-HcalNoiseHPDArray::const_iterator HcalNoiseRBX::endHPD(void) const
-{
-  return hpds_.end();
-}
-
-HcalNoiseHPDArray HcalNoiseRBX::HPDs(void) const
-{
-  return hpds_;
-}
-
-double HcalNoiseRBX::rechitEnergy(void) const
+double HcalNoiseRBX::recHitEnergy(double threshold) const
 {
   double total=0;
   for(unsigned int i=0; i<hpds_.size(); i++)
-    total += hpds_[i].rechitEnergy();
+    total += hpds_[i].recHitEnergy(threshold);
   return total;
 }
 
-double HcalNoiseRBX::caloTowerHadE(void) const
+double HcalNoiseRBX::minRecHitTime(double threshold) const
+{
+  double mintime=9999999.;
+  for(unsigned int i=0; i<hpds_.size(); i++) {
+    double temptime=hpds_[i].minRecHitTime(threshold);
+    if(temptime<mintime) mintime=temptime;
+  }
+  return mintime;
+}
+
+double HcalNoiseRBX::maxRecHitTime(double threshold) const
+{
+  double maxtime=-9999999.;
+  for(unsigned int i=0; i<hpds_.size(); i++) {
+    double temptime=hpds_[i].maxRecHitTime(threshold);
+    if(temptime>maxtime) maxtime=temptime;
+  }
+  return maxtime;
+}
+
+int HcalNoiseRBX::numRecHits(double threshold) const
+{
+  int total=0;
+  for(unsigned int i=0; i<hpds_.size(); i++)
+    total += hpds_[i].numRecHits(threshold);
+  return total;
+}
+
+/*double HcalNoiseRBX::caloTowerHadE(void) const
 {
   return twrHadE_;
 }
@@ -133,3 +141,4 @@ double HcalNoiseRBX::caloTowerEmFraction(void) const
 {
   return caloTowerTotalE()!=0.0 ? twrEmE_/caloTowerTotalE() : -999.;
 }
+*/

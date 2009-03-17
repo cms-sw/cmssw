@@ -17,12 +17,13 @@ using namespace reco;
 // default constructor
 HcalNoiseHPD::HcalNoiseHPD()
   : idnumber_(0), totalZeros_(0), maxZeros_(0),
-    minTime_(999999.), maxTime_(-999999.), rechitEnergy_(0.0),
-    numHits_(0), numHitsAboveThreshold_(0),
-    twrHadE_(0.0), twrEmE_(0.0)
+    bigDigi_(HBHEDataFrame::MAXSAMPLES, 0.0),
+    big5Digi_(HBHEDataFrame::MAXSAMPLES, 0.0),
+    allDigi_(HBHEDataFrame::MAXSAMPLES, 0.0)
 {
-  for(int i=0; i<HBHEDataFrame::MAXSAMPLES; i++)
-    bigDigi_[i]=big5Digi_[i]=allDigi_[i]=0.0;
+  // reserve some space, so that there's no reallocation issues
+  rechits_.reserve(19);
+  calotowers_.reserve(19);
 }
   
 // destructor
@@ -56,25 +57,14 @@ int HcalNoiseHPD::iphihi(void) const
   return HcalHPDRBXMap::iphihiHPD(idnumber_);
 }
   
-  
-DigiArray HcalNoiseHPD::bigDigi(void) const
+const std::vector<float>& HcalNoiseHPD::bigDigi(void) const
 {
   return bigDigi_;
 }
   
-DigiArray::const_iterator HcalNoiseHPD::beginBigDigi(void) const
+float HcalNoiseHPD::bigDigiTime(void) const
 {
-  return bigDigi_.begin();
-}
-  
-DigiArray::const_iterator HcalNoiseHPD::endBigDigi(void) const
-{
-  return bigDigi_.end();
-}
-  
-double HcalNoiseHPD::bigDigiTime(void) const
-{
-  double total=0, time=0;
+  float total=0, time=0;
   for(unsigned int i=0; i<bigDigi_.size(); i++) {
     time  += i*bigDigi_[i];
     total += bigDigi_[i];
@@ -82,53 +72,43 @@ double HcalNoiseHPD::bigDigiTime(void) const
   return total!=0.0 ? time/total : -999.;
 }
   
-double HcalNoiseHPD::bigDigiTotal(void) const
+float HcalNoiseHPD::bigDigiTotal(void) const
 {
-  double total=0;
+  float total=0;
   for(unsigned int i=0; i<bigDigi_.size(); i++) {
     total += bigDigi_[i];
   }
   return total;
 }
   
-double HcalNoiseHPD::bigDigiHighest2TS(void) const
+float HcalNoiseHPD::bigDigiHighest2TS(void) const
 {
-  double total=0;
+  float total=0;
   for(unsigned int i=0; i<bigDigi_.size()-1; i++) {
-    double temp = bigDigi_[i]+bigDigi_[i+1];
+    float temp = bigDigi_[i]+bigDigi_[i+1];
     if(temp>total) total=temp;
   }
   return total;
 }
   
-double HcalNoiseHPD::bigDigiHighest3TS(void) const
+float HcalNoiseHPD::bigDigiHighest3TS(void) const
 {
-  double total=0;
+  float total=0;
   for(unsigned int i=0; i<bigDigi_.size()-2; i++) {
-    double temp = bigDigi_[i]+bigDigi_[i+1]+bigDigi_[i+2];
+    float temp = bigDigi_[i]+bigDigi_[i+1]+bigDigi_[i+2];
     if(temp>total) total=temp;
   }
   return total;
 }
   
-DigiArray HcalNoiseHPD::big5Digi(void) const
+const std::vector<float>& HcalNoiseHPD::big5Digi(void) const
 {
   return big5Digi_;
 }
   
-DigiArray::const_iterator HcalNoiseHPD::beginBig5Digi(void) const
+float HcalNoiseHPD::big5DigiTime(void) const
 {
-  return big5Digi_.begin();
-}
-  
-DigiArray::const_iterator HcalNoiseHPD::endBig5Digi(void) const
-{
-  return big5Digi_.end();
-}
-  
-double HcalNoiseHPD::big5DigiTime(void) const
-{
-  double total=0, time=0;
+  float total=0, time=0;
   for(unsigned int i=0; i<big5Digi_.size(); i++) {
     time  += i*big5Digi_[i];
     total += big5Digi_[i];
@@ -136,53 +116,43 @@ double HcalNoiseHPD::big5DigiTime(void) const
   return total!=0.0 ? time/total : -999.;
 }
   
-double HcalNoiseHPD::big5DigiTotal(void) const
+float HcalNoiseHPD::big5DigiTotal(void) const
 {
-  double total=0;
+  float total=0;
   for(unsigned int i=0; i<big5Digi_.size(); i++) {
     total += big5Digi_[i];
   }
   return total;
 }
   
-double HcalNoiseHPD::big5DigiHighest2TS(void) const
+float HcalNoiseHPD::big5DigiHighest2TS(void) const
 {
-  double total=0;
+  float total=0;
   for(unsigned int i=0; i<big5Digi_.size()-1; i++) {
-    double temp = big5Digi_[i]+big5Digi_[i+1];
+    float temp = big5Digi_[i]+big5Digi_[i+1];
     if(temp>total) total=temp;
   }
   return total;
 }
   
-double HcalNoiseHPD::big5DigiHighest3TS(void) const
+float HcalNoiseHPD::big5DigiHighest3TS(void) const
 {
-  double total=0;
+  float total=0;
   for(unsigned int i=0; i<big5Digi_.size()-2; i++) {
-    double temp = big5Digi_[i]+big5Digi_[i+1]+big5Digi_[i+2];
+    float temp = big5Digi_[i]+big5Digi_[i+1]+big5Digi_[i+2];
     if(temp>total) total=temp;
   }
   return total;
 }
   
-DigiArray HcalNoiseHPD::allDigi(void) const
+const std::vector<float>& HcalNoiseHPD::allDigi(void) const
 {
   return allDigi_;
 }
   
-DigiArray::const_iterator HcalNoiseHPD::beginAllDigi(void) const
+float HcalNoiseHPD::allDigiTime(void) const
 {
-  return allDigi_.begin();
-}
-  
-DigiArray::const_iterator HcalNoiseHPD::endAllDigi(void) const
-{
-  return allDigi_.end();
-}
-  
-double HcalNoiseHPD::allDigiTime(void) const
-{
-  double total=0, time=0;
+  float total=0, time=0;
   for(unsigned int i=0; i<allDigi_.size(); i++) {
     time  += i*allDigi_[i];
     total += allDigi_[i];
@@ -190,30 +160,30 @@ double HcalNoiseHPD::allDigiTime(void) const
   return total!=0.0 ? time/total : -999.;
 }
   
-double HcalNoiseHPD::allDigiTotal(void) const
+float HcalNoiseHPD::allDigiTotal(void) const
 {
-  double total=0;
+  float total=0;
   for(unsigned int i=0; i<allDigi_.size(); i++) {
     total += allDigi_[i];
   }
   return total;
 }
   
-double HcalNoiseHPD::allDigiHighest2TS(void) const
+float HcalNoiseHPD::allDigiHighest2TS(void) const
 {
-  double total=0;
+  float total=0;
   for(unsigned int i=0; i<allDigi_.size()-1; i++) {
-    double temp = allDigi_[i]+allDigi_[i+1];
+    float temp = allDigi_[i]+allDigi_[i+1];
     if(temp>total) total=temp;
   }
   return total;
 }
   
-double HcalNoiseHPD::allDigiHighest3TS(void) const
+float HcalNoiseHPD::allDigiHighest3TS(void) const
 {
-  double total=0;
+  float total=0;
   for(unsigned int i=0; i<allDigi_.size()-2; i++) {
-    double temp = allDigi_[i]+allDigi_[i+1]+allDigi_[i+2];
+    float temp = allDigi_[i]+allDigi_[i+1]+allDigi_[i+2];
     if(temp>total) total=temp;
   }
   return total;
@@ -228,48 +198,87 @@ int HcalNoiseHPD::maxZeros(void) const
 {
   return maxZeros_;
 }
-  
-double HcalNoiseHPD::minTime(void) const
+
+const edm::RefVector<HBHERecHitCollection>& HcalNoiseHPD::recHits(void) const
 {
-  return minTime_;
+  return rechits_;
 }
   
-double HcalNoiseHPD::maxTime(void) const
+float HcalNoiseHPD::recHitEnergy(float threshold) const
 {
-  return maxTime_;
+  float total=0.0;
+  for(edm::RefVector<HBHERecHitCollection>::const_iterator it=rechits_.begin(); it!=rechits_.end(); ++it) {
+    float energy=(*it)->energy();
+    if(energy>=threshold) total+=energy;
+  }
+  return total;
 }
   
-double HcalNoiseHPD::rechitEnergy(void) const
+float HcalNoiseHPD::minRecHitTime(float threshold) const
 {
-  return rechitEnergy_;
+  float mintime=9999999;
+  for(edm::RefVector<HBHERecHitCollection>::const_iterator it=rechits_.begin(); it!=rechits_.end(); ++it) {
+    if((*it)->energy()<threshold) continue;
+    float time=(*it)->time();
+    if(mintime>time) mintime=time;
+  }
+  return mintime;
 }
   
-int HcalNoiseHPD::numHits(void) const
+float HcalNoiseHPD::maxRecHitTime(float threshold) const
 {
-  return numHits_;
+  float maxtime=-9999999;
+  for(edm::RefVector<HBHERecHitCollection>::const_iterator it=rechits_.begin(); it!=rechits_.end(); ++it) {
+    if((*it)->energy()<threshold) continue;
+    float time=(*it)->time();
+    if(maxtime<time) maxtime=time;
+  }
+  return maxtime;
 }
-  
-int HcalNoiseHPD::numHitsAboveThreshold(void) const
+
+int HcalNoiseHPD::numRecHits(float threshold) const
 {
-  return numHitsAboveThreshold_;
+  int count=0;
+  for(edm::RefVector<HBHERecHitCollection>::const_iterator it=rechits_.begin(); it!=rechits_.end(); ++it)
+    if((*it)->energy()>=threshold) ++count;
+  return count;
+}
+
+const edm::RefVector<CaloTowerCollection>& HcalNoiseHPD::caloTowers(void) const
+{
+  return calotowers_;
 }
   
 double HcalNoiseHPD::caloTowerHadE(void) const
 {
-  return twrHadE_;
+  double total=0;
+  for(edm::RefVector<CaloTowerCollection>::const_iterator it=calotowers_.begin(); it!=calotowers_.end(); ++it)
+    total += (*it)->hadEnergy();
+  return total;
 }
   
 double HcalNoiseHPD::caloTowerEmE(void) const
 {
-  return twrEmE_;
+  double total=0;
+  for(edm::RefVector<CaloTowerCollection>::const_iterator it=calotowers_.begin(); it!=calotowers_.end(); ++it)
+    total += (*it)->emEnergy();
+  return total;
 }
 
 double HcalNoiseHPD::caloTowerTotalE(void) const
 {
-  return twrEmE_+twrHadE_;
+  double total=0;
+  for(edm::RefVector<CaloTowerCollection>::const_iterator it=calotowers_.begin(); it!=calotowers_.end(); ++it)
+    total += (*it)->emEnergy()+(*it)->hadEnergy();
+  return total;
 }
   
 double HcalNoiseHPD::caloTowerEmFraction(void) const
 {
-  return caloTowerTotalE()!=0.0 ? twrEmE_/caloTowerTotalE() : -999.;
+  double h=0, e=0;
+  for(edm::RefVector<CaloTowerCollection>::const_iterator it=calotowers_.begin(); it!=calotowers_.end(); ++it) {
+    e += (*it)->emEnergy();
+    h += (*it)->hadEnergy();
+  }
+  return (e+h)!=0 ? e/(e+h) : -999.;
 }
