@@ -208,7 +208,15 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	// Fill Format status digis per FED
 	// Remove examiner->errors() != 0 check if we need to put status digis for every event
 	if (unpackStatusDigis && (examiner->errors() !=0))
-	  formatStatusProduct->insertDigi(CSCDetId(1,1,1,1,1), CSCDCCFormatStatusDigi(id,examiner,dccBinCheckMask));
+	  // formatStatusProduct->insertDigi(CSCDetId(1,1,1,1,1), CSCDCCFormatStatusDigi(id,examiner,dccBinCheckMask));
+	  formatStatusProduct->insertDigi(CSCDetId(1,1,1,1,1), 
+		CSCDCCFormatStatusDigi(id,dccBinCheckMask,
+			examiner->getMask(), 
+			examiner->errors(),
+			examiner->errorsDetailedDDU(),
+			examiner->errorsDetailed(),
+			examiner->payloadDetailed(),
+			examiner->statusDetailed()));
       }
 	  
       

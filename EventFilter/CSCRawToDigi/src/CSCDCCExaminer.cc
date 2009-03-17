@@ -221,7 +221,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
     buf2  = buffer;
 
     // check for too long event
-    if(!fERROR[19] && DDU_WordsSinceLastHeader>50000 ){
+    if(!fERROR[19] && DDU_WordsSinceLastHeader>100000 ){
       fERROR[19] = true;
       bERROR    |= 0x80000;
     }
