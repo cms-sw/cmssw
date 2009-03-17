@@ -370,13 +370,15 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
         //      reco::TrackExtra & tx = outputExTColl->back();
 
         //Create IsolatedPixelTrackCandidate (will change naming in future release)
-        reco::IsolatedPixelTrackCandidate newHITCandidate(reco::TrackRef(trackCollection,track-trackCollection->begin()), l1extra::L1JetParticleRef(edm::ProductID(0)), maxPNearby, sumPNearby);
+        reco::IsolatedPixelTrackCandidate newHITCandidate(reco::Candidate::LorentzVector(track->px(),track->py(),track->pz(),track->p()));
+	newHITCandidate.SetSumPtPxl(sumPNearby);
+	newHITCandidate.SetMaxPtPxl(maxPNearby);
 
 	//set cluster energy deposition and ring energy deposition and push_back
 	newHITCandidate.SetEnergyIn(ecClustR);
 	newHITCandidate.SetEnergyOut(ecOutRingR);
 	outputHcalIsoTrackColl->push_back(newHITCandidate);
-	
+
 	//save hcal recHits
 	for (std::vector<HBHERecHit>::const_iterator hhit=hbheRHcol->begin(); hhit!=hbheRHcol->end(); hhit++) 
 	  {
