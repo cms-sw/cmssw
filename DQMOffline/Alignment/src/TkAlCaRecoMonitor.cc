@@ -35,6 +35,9 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
 
   std::string histname;  //for naming the histograms according to algorithm used
 
+  trackProducer_ = conf_.getParameter<edm::InputTag>("TrackProducer");
+  referenceTrackProducer_ = conf_.getParameter<edm::InputTag>("ReferenceTrackProducer");
+
   std::string AlgoName     = conf_.getParameter<std::string>("AlgoName");
   std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
 
@@ -43,6 +46,7 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
   dqmStore_->setCurrentFolder(MEFolderName);
   fillInvariantMass_ = conf_.getParameter<bool>("fillInvariantMass");
   runsOnReco_ = conf_.getParameter<bool>("runsOnReco");
+  useSignedR_ = conf_.getParameter<bool>("useSignedR");
   //    
   unsigned int MassBin = conf_.getParameter<unsigned int>("MassBin");
   double MassMin = conf_.getParameter<double>("MassMin");
@@ -77,15 +81,27 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
   histname = "MinTrackDeltaR_";
   minTrackDeltaR_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, MinTrackDeltaRBin, MinTrackDeltaRMin, MinTrackDeltaRMax);
   minTrackDeltaR_->setAxisTitle("minimal Track #DeltaR / rad");
+
+  unsigned int TrackEfficiencyBin = conf_.getParameter<unsigned int>("TrackEfficiencyBin");
+  double TrackEfficiencyMin = conf_.getParameter<double>("TrackEfficiencyMin");
+  double TrackEfficiencyMax = conf_.getParameter<double>("TrackEfficiencyMax");
+
+  histname = "AlCaRecoTrackEfficiency_";
+  AlCaRecoTrackEfficiency_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackEfficiencyBin, TrackEfficiencyMin, TrackEfficiencyMax);
+  AlCaRecoTrackEfficiency_->setAxisTitle("n("+trackProducer_.label()+") / n("+referenceTrackProducer_.label()+")");
+
+  int zBin =  conf_.getParameter<unsigned int>("HitMapsZBin"); //300
+  double zMax = conf_.getParameter<double>("HitMapZMax"); //300.0; //cm
   
-  int zBin = 300;
-  double zMax = 300.0; //cm
-  
-  int rBin = 120;
-  double rMax = 120.0; //cm
+  int rBin = conf_.getParameter<unsigned int>("HitMapsRBin");//120;
+  double rMax = conf_.getParameter<double>("HitMapRMax"); //120.0; //cm
 
   histname = "Hits_ZvsR_";
-  Hits_ZvsR_ = dqmStore_->book2D(histname+AlgoName, histname+AlgoName, zBin, -zMax, zMax, rBin, 0.0, rMax);
+  double rMin = 0.0;
+  if( useSignedR_ )
+    rMin = -rMax;
+
+  Hits_ZvsR_ = dqmStore_->book2D(histname+AlgoName, histname+AlgoName, zBin, -zMax, zMax, rBin, rMin, rMax);
 
   histname = "Hits_XvsY_";
   Hits_XvsY_ = dqmStore_->book2D(histname+AlgoName, histname+AlgoName, rBin, -rMax, rMax, rBin, -rMax, rMax);
@@ -97,19 +113,19 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
 void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   
-  InputTag trackProducer = conf_.getParameter<edm::InputTag>("TrackProducer");
-  
   Handle<reco::TrackCollection> trackCollection;
-  iEvent.getByLabel(trackProducer, trackCollection);
+  iEvent.getByLabel(trackProducer_, trackCollection);
   if (!trackCollection.isValid()){
     LogError("Alignment")<<"invalid trackcollection encountered!";
     return;
   }
-  
-//  std::string recHitBuilderName = "WithTrackAngle";
-//  edm::ESHandle<TransientTrackingRecHitBuilder> recHitBuilderHandle;
-//  
-//  iSetup.get<TransientRecHitRecord>().get(recHitBuilderName,recHitBuilderHandle);
+
+  Handle<reco::TrackCollection> referenceTrackCollection;
+  iEvent.getByLabel(referenceTrackProducer_, referenceTrackCollection);
+  if (!trackCollection.isValid()){
+    LogError("Alignment")<<"invalid reference track-collection encountered!";
+    return;
+  }
 
   edm::ESHandle<TrackerGeometry> geometry;
   iSetup.get<TrackerDigiGeometryRecord>().get(geometry);
@@ -125,6 +141,8 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
       LogError("Alignment")<<"no jets found in event!";
     }
   }
+
+  AlCaRecoTrackEfficiency_->Fill( static_cast<double>((*trackCollection).size()) / (*referenceTrackCollection).size() );
     
   for( reco::TrackCollection::const_iterator track = (*trackCollection).begin(); track < (*trackCollection).end(); ++track ){
     double dR = 0;  
@@ -151,6 +169,7 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
     fillHitmaps( *track, *geometry );
     //, recHitBuilderHandle
   }
+
   if(fillInvariantMass_){
     if((*trackCollection).size() == 2){
       double theDaughterMass = 0.10565836;
@@ -181,8 +200,10 @@ void TkAlCaRecoMonitor::fillHitmaps(const reco::Track &track, const TrackerGeome
       // The alternative would be the coarse estimation or a refit.
       //const GlobalPoint globP( gd->toGlobal( hit->localPosition() ) );
       const GlobalPoint globP( gd->toGlobal( Local3DPoint(0.,0.,0.) ) );
-   
-      Hits_ZvsR_->Fill( globP.z(), sqrt( globP.x()*globP.x() + globP.y()*globP.y() ) );
+      double r = sqrt( globP.x()*globP.x() + globP.y()*globP.y() );
+      if( useSignedR_ )
+	r*= globP.y() / fabs( globP.y() );
+      Hits_ZvsR_->Fill( globP.z(), r );
       Hits_XvsY_->Fill( globP.x(), globP.y() );
 
     }

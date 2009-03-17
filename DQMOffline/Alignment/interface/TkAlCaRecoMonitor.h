@@ -49,12 +49,17 @@ class TkAlCaRecoMonitor : public edm::EDAnalyzer {
   MonitorElement* jetPt_;
   MonitorElement* minJetDeltaR_;
   MonitorElement* minTrackDeltaR_;
+  MonitorElement* AlCaRecoTrackEfficiency_;
   //2D
   MonitorElement* Hits_ZvsR_;
   MonitorElement* Hits_XvsY_;
 
   bool fillInvariantMass_;
   bool runsOnReco_;
+  bool useSignedR_;
+
+  edm::InputTag trackProducer_;
+  edm::InputTag referenceTrackProducer_;
 
 };
 #endif
