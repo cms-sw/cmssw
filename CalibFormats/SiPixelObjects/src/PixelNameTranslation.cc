@@ -172,6 +172,9 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
   PixelConfigBase(" "," "," "){
 
   std::string mthn = "[PixelNameTranslation::PixelNameTranslation()]\t\t    " ;
+  
+  std::cout << __LINE__ << "]\t" << mthn << "Reading from: "   << filename << std::endl;
+
   std::ifstream in(filename.c_str());
   
   if (!in.good()){

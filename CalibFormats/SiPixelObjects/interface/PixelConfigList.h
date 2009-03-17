@@ -61,7 +61,7 @@ namespace pos{
 	unsigned int tmp_version;
 	in >> tmp_version;
 	if (version!=tmp_version){
-	  std::cout << "PixelConfigDB: read version:"<<tmp_version<<" while expected "
+	  std::cout << "PixelConfigDB: read version: "<<tmp_version<<" while expected "
 		    << version << std::endl;
 	  assert(0);
 	}

@@ -174,15 +174,16 @@ namespace pos{
 
       static int counter=0;
 
-      if (counter!=0){
-			 while(counter!=0){
-			   std::cout <<"[PixelConfigFile::getConfig()] waiting for other thread to complete reading"<<std::endl;
-			   ::sleep(1);
-			 }
-			 return configs;
-      }
+      if(counter!=0)
+      	{
+          while(counter!=0)
+	    {
+              std::cout << __LINE__ << "]\t[PixelConfigFile::getConfig()]\t\t\t\t    Waiting for other thread to complete reading"<<std::endl;
+              ::sleep(1);
+            }
+          return configs;
+      	}
       
-
       counter++;
 
       static std::string directory;
@@ -190,18 +191,16 @@ namespace pos{
     
       directory=getenv("PIXELCONFIGURATIONBASE");
       std::string filename=directory+"/configurations.txt";
+/* Don't know who put this snippet of code here: this case is already contemplated in the 'else' of the 'if' statement below
       if(!first)
 	{
-	  //	  std::cout << "[pos::PixelConfigFile::getConfig()] Reloading configurations.txt"<< std::endl ;
- 	  configs.reload(filename) ; 
-//	  std::cout << "[pos::PixelConfigFile::getConfig()] Size reloaded: " << configs.size() << std::endl ;
+ 	  configs.reload(filename) 
 	}
+*/
       if (first) 
 	{
 	  first=0;
-	  //	  std::cout << "[pos::PixelConfigFile::getConfig()] Reading configurations.txt"<< std::endl ;
 	  configs.readfile(filename);
-//	  std::cout << "[pos::PixelConfigFile::getConfig()] Size read: " << configs.size() << std::endl ;
 	  forceConfigReload(false) ;
 	}
       else
@@ -396,7 +395,7 @@ namespace pos{
 	//std::cout << "Will return the PixelMaxVsf" << std::endl;
 	return;
       }else if (typeid(data)==typeid(PixelNameTranslation*)){
-	//std::cout << "[pos::PixelConfigFile::get()]\t\t\tWill return PixelDACSettings" << std::endl;
+	//std::cout << __LINE__ << "]\t[pos::PixelConfigFile::get()]\t\t\t    Will return PixelNameTranslation*" << std::endl;
 	assert(dir=="nametranslation");
 	data = (T*) new PixelNameTranslation(fullpath+"translation.dat");
 	return;
