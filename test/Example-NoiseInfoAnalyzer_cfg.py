@@ -9,7 +9,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery=cms.untracked.int32(10)
 
 # run over files
 readfiles = cms.untracked.vstring()
-readfiles.extend( ['file:test.root'] )
+readfiles.extend( ['file:noise_skim.root'] )
 process.source = cms.Source ("PoolSource",
                              fileNames = readfiles)
 
@@ -17,7 +17,8 @@ process.source = cms.Source ("PoolSource",
 process.hcalnoiseinfoanalyzer = cms.EDAnalyzer(
     'HcalNoiseInfoAnalyzer',
     rbxCollName = cms.string('hcalnoiseinfoproducer'),
-    rootHistFilename = cms.string('plots.root')
+    rootHistFilename = cms.string('plots.root'),
+    noisetype = cms.int32(3)
     )
 
 process.p = cms.Path(process.hcalnoiseinfoanalyzer)
