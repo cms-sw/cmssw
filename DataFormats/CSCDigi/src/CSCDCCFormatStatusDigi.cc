@@ -22,38 +22,32 @@
 #include <iostream>
 #include <iomanip>
 
-
-/**
-     * @brief  Constructor
-     * @param  Examiner_  CSCDCCExaminer object
-     * @param  fDCC_MASK_ DCC Examiner mask used (for information purposes).
-     */
-
-void CSCDCCFormatStatusDigi::setDCCExaminerInfo(
-	const CSCDCCExaminer* Examiner, 
-	const ExaminerMaskType fDCC_MASK_
-) {
-
-   fDCC_MASK = fDCC_MASK_;
-   fDDU_SUMMARY_ERRORS = 0;
-   mDDU_ERRORS.clear();
-   mCSC_ERRORS.clear();
-   mCSC_PAYLOADS.clear();
-   mCSC_STATUS.clear();
-
-   if (Examiner != NULL) {
-
-     fCSC_MASK = Examiner->getMask(); // Get CSC Unpacking Mask
-     fDDU_SUMMARY_ERRORS = Examiner->errors(); // Summary Errors per DCC/DDU
-     mDDU_ERRORS = Examiner->errorsDetailedDDU();
-     mCSC_ERRORS = Examiner->errorsDetailed();
-     mCSC_PAYLOADS = Examiner->payloadDetailed();
-     mCSC_STATUS = Examiner->statusDetailed();
-
-   }
-
+ /**
+   * @brief  setExaminerInfo 
+   * @param  fDCC_MASK_ DCC Examiner mask used (for information purposes).
+   * @param  fCSC_MASK_ Examiner mask per chamber
+   * @param  fDDU_SUMMARY_ERRORS_ Cumulative DDUs errors status
+   * @param  mDDU_ERRORS_ List of errors per DDU
+   * @param  mCSC_ERRORS_ List of errors per CSC
+   * @param  mCSC_PAYLOADS_ List of payloads per CSC
+   * @param  mCSC_STATUS_ List of statuses per CSC
+   */
+void CSCDCCFormatStatusDigi::setDCCExaminerInfo(const ExaminerMaskType fDCC_MASK_,
+                         const ExaminerMaskType fCSC_MASK_,
+                         const ExaminerStatusType fDDU_SUMMARY_ERRORS_,
+                         const std::map<DDUIdType, ExaminerStatusType> mDDU_ERRORS_,
+                         const std::map<CSCIdType, ExaminerStatusType> mCSC_ERRORS_,
+                         const std::map<CSCIdType, ExaminerStatusType> mCSC_PAYLOADS_,
+                         const std::map<CSCIdType, ExaminerStatusType> mCSC_STATUS_)
+{
+  fDCC_MASK = fDCC_MASK_;
+  fCSC_MASK = fCSC_MASK_;
+  fDDU_SUMMARY_ERRORS = fDDU_SUMMARY_ERRORS_;
+  mDDU_ERRORS = mDDU_ERRORS_;
+  mCSC_ERRORS = mCSC_ERRORS_;
+  mCSC_PAYLOADS = mCSC_PAYLOADS_;
+  mCSC_STATUS = mCSC_STATUS_;
 }
-
 
 
             /// Debug

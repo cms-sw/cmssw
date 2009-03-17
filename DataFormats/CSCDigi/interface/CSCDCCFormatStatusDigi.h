@@ -23,12 +23,100 @@
 
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include <set>
 #include <map>
 #include <algorithm>
 #include <iosfwd>
 
+
+/** DCC identifier type */
+typedef int32_t DCCIdType;
+
+/** DDU identifier type */
+typedef int16_t DDUIdType;
+
+/** CSC identifier type */
+typedef int32_t CSCIdType;
+
+/** Examiner status and mask type */
+typedef uint32_t ExaminerMaskType;
+typedef uint32_t ExaminerStatusType;
+
+/** Format Error individual named flags */
+typedef enum FormatErrorFlag {
+  ANY_ERRORS                                          = 0,
+  DDU_TRAILER_MISSING                                 = 1,
+  DDU_HEADER_MISSING                                  = 2,
+  DDU_CRC_ERROR                                       = 3,
+  DDU_WORD_COUNT_ERROR                                = 4,
+  DMB_TRAILER_MISSING                                 = 5,
+  DMB_HEADER_MISSING                                  = 6,
+  ALCT_TRAILER_MISSING                                = 7,
+  ALCT_HEADER_MISSING                                 = 8,
+  ALCT_WORD_COUNT_ERROR                               = 9,
+  ALCT_CRC_ERROR                                      = 10,
+  ALCT_TRAILER_BIT_ERROR                              = 11,
+  TMB_TRAILER_MISSING                                 = 12,
+  TMB_HEADER_MISSING                                  = 13,
+  TMB_WORD_COUNT_ERROR                                = 14,
+  TMB_CRC_ERROR                                       = 15,
+  CFEB_WORD_COUNT_PER_SAMPLE_ERROR                    = 16,
+  CFEB_SAMPLE_COUNT_ERROR                             = 17,
+  CFEB_CRC_ERROR                                      = 18,
+  DDU_EVENT_SIZE_LIMIT_ERROR                          = 19,
+  C_WORDS                                             = 20,
+  ALCT_DAV_ERROR                                      = 21,
+  TMB_DAV_ERROR                                       = 22,
+  CFEB_DAV_ERROR                                      = 23,
+  DMB_ACTIVE_ERROR                                    = 24,
+  DCC_TRAILER_MISSING                                 = 25,
+  DCC_HEADER_MISSING                                  = 26,
+  DMB_DAV_VS_DMB_ACTIVE_MISMATCH_ERROR                = 27,
+  EXTRA_WORDS_BETWEEN_DDU_HEADER_AND_FIRST_DMB_HEADER = 28
+};
+
+/** CSC Payload individual named flags */
+typedef enum CSCPayloadFlag {
+  CFEB1_ACTIVE = 0,
+  CFEB2_ACTIVE = 1,
+  CFEB3_ACTIVE = 2,
+  CFEB4_ACTIVE = 3,
+  CFEB5_ACTIVE = 4,
+  ALCT_DAV     = 5,
+  TMB_DAV      = 6,
+  CFEB1_DAV    = 7,
+  CFEB2_DAV    = 8,
+  CFEB3_DAV    = 9,
+  CFEB4_DAV    = 10,
+  CFEB5_DAV    = 11
+};
+
+/** CSC Status individual named flags */
+typedef enum CSCStatusFlag {
+  ALCT_FIFO_FULL           = 0,
+  TMB_FIFO_FULL            = 1,
+  CFEB1_FIFO_FULL          = 2,
+  CFEB2_FIFO_FULL          = 3,
+  CFEB3_FIFO_FULL          = 4,
+  CFEB4_FIFO_FULL          = 5,
+  CFEB5_FIFO_FULL          = 6,
+  ALCT_START_TIMEOUT       = 7,
+  TMB_START_TIMEOUT        = 8,
+  CFEB1_START_TIMEOUT      = 9,
+  CFEB2_START_TIMEOUT      = 10,
+  CFEB3_START_TIMEOUT      = 11,
+  CFEB4_START_TIMEOUT      = 12,
+  CFEB5_START_TIMEOUT      = 13,
+  ALCT_END_TIMEOUT         = 14,
+  TMB_END_TIMEOUT          = 15,
+  CFEB1_END_TIMEOUT        = 16,
+  CFEB2_END_TIMEOUT        = 17,
+  CFEB3_END_TIMEOUT        = 18,
+  CFEB4_END_TIMEOUT        = 19,
+  CFEB5_END_TIMEOUT        = 20,
+  CFEB_ACTIVE_DAV_MISMATCH = 21,
+  B_WORDS_FOUND            = 22
+};
     
 /**
  * @brief  Map iterator template.
@@ -120,15 +208,25 @@ class CSCDCCFormatStatusDigi {
 
   /**
    * @brief  Constructor
-   * @param  Examiner  CSCDCCExaminer object
    * @param  fDCC_MASK_ DCC Examiner mask used (for information purposes).
+   * @param  fCSC_MASK_ Examiner mask per chamber
+   * @param  fDDU_SUMMARY_ERRORS_ Cumulative DDUs errors status
+   * @param  mDDU_ERRORS_ List of errors per DDU
+   * @param  mCSC_ERRORS_ List of errors per CSC
+   * @param  mCSC_PAYLOADS_ List of payloads per CSC
+   * @param  mCSC_STATUS_ List of statuses per CSC
    */
   CSCDCCFormatStatusDigi(const DCCIdType DCCId_, 
-			 const CSCDCCExaminer* Examiner, 
-			 const ExaminerMaskType fDCC_MASK_): DCCId(DCCId_) 
+			 const ExaminerMaskType fDCC_MASK_,
+			 const ExaminerMaskType fCSC_MASK_,
+			 const ExaminerStatusType fDDU_SUMMARY_ERRORS_,
+			 const std::map<DDUIdType, ExaminerStatusType> mDDU_ERRORS_,
+			 const std::map<CSCIdType, ExaminerStatusType> mCSC_ERRORS_,
+			 const std::map<CSCIdType, ExaminerStatusType> mCSC_PAYLOADS_,
+			 const std::map<CSCIdType, ExaminerStatusType> mCSC_STATUS_): DCCId(DCCId_) 
     {
       init();
-      setDCCExaminerInfo(Examiner, fDCC_MASK_);
+      setDCCExaminerInfo(fDCC_MASK_, fCSC_MASK_, fDDU_SUMMARY_ERRORS_, mDDU_ERRORS_, mCSC_ERRORS_, mCSC_PAYLOADS_, mCSC_STATUS_);
     }
 
 
@@ -140,7 +238,13 @@ class CSCDCCFormatStatusDigi {
 
 
   /// Fill internal data structures using Examiner object 
-  void setDCCExaminerInfo(const CSCDCCExaminer* Examiner, const ExaminerMaskType fDCC_MASK_);
+  void setDCCExaminerInfo(const ExaminerMaskType fDCC_MASK_,
+                         const ExaminerMaskType fCSC_MASK_,
+                         const ExaminerStatusType fDDU_SUMMARY_ERRORS_,
+                         const std::map<DDUIdType, ExaminerStatusType> mDDU_ERRORS_,
+                         const std::map<CSCIdType, ExaminerStatusType> mCSC_ERRORS_,
+                         const std::map<CSCIdType, ExaminerStatusType> mCSC_PAYLOADS_, 
+                         const std::map<CSCIdType, ExaminerStatusType> mCSC_STATUS_);
 
 #ifdef DEBUG
   /**
