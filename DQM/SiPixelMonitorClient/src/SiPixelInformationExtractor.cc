@@ -1607,7 +1607,7 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
     //cout<<"Number of FEDs in the readout: "<<nFEDs<<endl;
     if(nFEDs==0){
       SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
-      if(SummaryReportMap) for(int i=1; i!=41; i++) for(int j=1; j!=37; j++) SummaryReportMap->setBinContent(i,j,0.);
+      if(SummaryReportMap) for(int i=1; i!=41; i++) for(int j=1; j!=37; j++) SummaryReportMap->setBinContent(i,j,-1.);
     }
     init=false;
   }
@@ -1788,7 +1788,7 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
           if(allmodsMap->GetBinContent(i,j)>0){
 	    contents = (goodmodsMap->GetBinContent(i,j))/(allmodsMap->GetBinContent(i,j));
           }else{
-            contents = 0.;
+            contents = -1.;
           }
           //cout<<"\t\t MAP: "<<i<<","<<j<<","<<contents<<endl;
           SummaryReportMap->setBinContent(i,j,contents);
@@ -1802,7 +1802,7 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
           if(allmodsMap->GetBinContent(i,j)>0){
 	    contents = (goodmodsMap->GetBinContent(i,j))/(allmodsMap->GetBinContent(i,j));
           }else{
-            contents = 0.;
+            contents = -1.;
           }
           //cout<<"\t\t MAP: "<<i<<","<<j<<","<<contents<<endl;
           SummaryReportMap->setBinContent(i,j,contents);
