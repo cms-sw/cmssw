@@ -17,6 +17,7 @@
  <use name="FastSimulation/Utilities">
  <use name="RecoMuon/GlobalTrackingTools">
  <use name="RecoMuon/TrackingTools">
+ <use name="RecoMuon/L3TrackFinder">
  <use name="RecoTracker/TkTrackingRegions">
  <use name="SimDataFormats/Track">
  <use name="TrackingTools/PatternTools">
