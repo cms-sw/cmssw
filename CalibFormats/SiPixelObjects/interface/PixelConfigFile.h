@@ -131,7 +131,7 @@ namespace pos{
 
     static std::vector< std::pair< std::string, unsigned int> > getVersions(pos::PixelConfigKey key){
 
-      PixelConfigList& configs=getConfig();
+      static PixelConfigList& configs=getConfig();
       PixelConfig& theConfig=configs[key.key()];
       return theConfig.versions();
       
