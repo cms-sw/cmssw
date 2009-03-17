@@ -16,17 +16,21 @@
 class L1GctHtMiss {
  public:
 
-  /*! To match the RAW format, HtMiss is on bits 11:0, Overflow flag on bit 12,
-   *  and Phi is on bits 22:16.  All other bits will be be zero. */
+  /*! To match the RAW format:
+   *  HtMissPhi is on bits 4:0,
+   *  HtMissMagnitude is on bits 11:5,
+   *  Overflow flag on bit 12,
+   *  All other bits will be be zero. */
   enum numberOfBits {
-    kHtMissNBits    = 12,
-    kHtMissOFlowBit = 1 << kHtMissNBits,
-    kHtMissMaxValue = kHtMissOFlowBit - 1,
-    kHtMissPhiShift = 16,
-    kHtMissPhiNBits = 7,
-    kETMissPhiMask  = (1 << kHtMissPhiNBits) - 1,
-    kHtMissPhiNBins = 72,
-    kRawCtorMask    = (kETMissPhiMask << kHtMissPhiShift) | kHtMissOFlowBit | kHtMissMaxValue
+    kHtMissPhiNBits  = 5,
+    kHtMissMagNBits  = 7,
+    kHtMissPhiMask   = (1 << kHtMissPhiNBits) - 1,
+    kHtMissMagMask   = (1 << kHtMissMagNBits) - 1,
+    kHtMissPhiShift  = 0,
+    kHtMissMagShift  = kHtMissPhiNBits,
+    kHtMissOFlowBit  = (1 << (kHtMissPhiNBits + kHtMissMagNBits)),
+    kHtMissPhiNBins  = 18,
+    kRawCtorMask     = kHtMissOFlowBit | (kHtMissMagMask << kHtMissMagShift) | (kHtMissPhiMask << kHtMissPhiShift)
   };
 
   L1GctHtMiss();
@@ -53,13 +57,13 @@ class L1GctHtMiss {
   uint32_t raw() const { return m_data; }
 
   /// get the magnitude
-  unsigned et() const { return m_data & kHtMissMaxValue; }
+  unsigned et() const { return (m_data >> kHtMissMagShift) & kHtMissMagMask; }
 
   /// get the overflow
   bool overFlow() const { return (m_data & kHtMissOFlowBit)!=0; }
 
   /// get the Et
-  unsigned phi() const { return (m_data>>kHtMissPhiShift) & kETMissPhiMask; }
+  unsigned phi() const { return (m_data >> kHtMissPhiShift) & kHtMissPhiMask; }
 
   /// get bunch-crossing index
   int16_t bx() const { return m_bx; }
@@ -68,7 +72,7 @@ class L1GctHtMiss {
   int operator==(const L1GctHtMiss& e) const { return m_data==e.raw(); }
 
   /// inequality operator
-  int operator!=(const L1GctHtMiss& e) const { return m_data!=e.raw(); }
+  int operator!=(const L1GctHtMiss& e) const { return !(*this == e); }
 
  private:
 
