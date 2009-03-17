@@ -8,6 +8,9 @@
 using namespace std;
 
 namespace rpcdqm{
+
+  enum RPCMeFLag{OCCUPANCY = 1, CLUSTERSIZE = 2, MULTIPLICITY =3};
+
   class utils{
   public:
     int detId2RollNr(const RPCDetId & _id){
@@ -27,30 +30,30 @@ namespace rpcdqm{
 	}else if (_id.station()==2) {//Station 2	
 	  if(_id.layer()==1) {
 	    if(_id.roll()==1)
-	      _cnr = 5;//RB2inF
+	      _cnr = 5;//RB2inB
 	    else if(_id.roll()==3)
-	      _cnr=6;//RB2inM
+	      _cnr=6;//RB2inF
 	    else if(_id.roll()==2)
-	      _cnr=7;//RB2inB
+	      _cnr=7;//RB2inM
 	  }else{
 	    if(_id.roll()==2)
-	      _cnr=7;
+	      _cnr=7;//RB2outM
 	    else if(_id.roll()==1)
-	      _cnr=8;
+	      _cnr=8;//RB2outB
 	    else if(_id.roll()==3)
-	      _cnr=9;	  
+	      _cnr=9;//RB2outF 
 	  }
 	}else  if(_id.station()==3){//Station 3
 	  if(_id.subsector()==1){
 	    if(_id.roll()==1)
-	      _cnr=10;
+	      _cnr=10;//RB3-B
 	    else 
-	      _cnr=11;
+	      _cnr=11;//RB3-F
 	  } else {
 	    if(_id.roll()==1)
-	      _cnr=12;
+	      _cnr=12;//RB3+B
 	    else
-	      _cnr=13;
+	      _cnr=13;//RB3+F
 	  }
 	} else if(_id.station()==4) {//Station 4
 	  if (_id.sector()== 4) {	  
@@ -151,7 +154,7 @@ namespace rpcdqm{
       ylabel[6] = "RB2in_F";
       
       ylabel[7] = "RB2in_M";
-      ylabel[0] = "RB1out_M";
+      ylabel[0] = "RB2out_M";
       
       ylabel[8] = "RB2out_B";
       ylabel[9] = "RB2out_F";
@@ -182,7 +185,7 @@ namespace rpcdqm{
       if(_id.region()==0){//Barrel
 	if( _id.station() ==1) {// Station1
 	  if(_id.layer() ==1) {
-	   
+	    
 	    ch=1; //RB1in
 	    
 	  } else {
@@ -280,8 +283,6 @@ std::string detId2ChamberLabel(const RPCDetId & _id){
     }
 
  
-
-
     
   private:
       int _cnr;
@@ -291,9 +292,6 @@ std::string detId2ChamberLabel(const RPCDetId & _id){
       std::vector<int> Wvector2;
       std::vector<int> Wvector1;
       string ylabel[22];
-     
-      
-
   };
 }
 
