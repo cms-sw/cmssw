@@ -1,57 +1,25 @@
-#ifndef RecoLocalTracker_SiStripClusterizer_SiStripClusterizer_h
-#define RecoLocalTracker_SiStripClusterizer_SiStripClusterizer_h
+#ifndef RecoLocalTracker_SiStripClusterizer_h
+#define RecoLocalTracker_SiStripClusterizer_h
 
-/** \class SiStripClusterizer
- *
- * SiStripClusterizer is the EDProducer subclass which clusters
- * SiStripDigi/interface/StripDigi.h to SiStripCluster/interface/SiStripCluster.h
- *
- * \author Oliver Gutsche, Fermilab
- *
- * \version   1st Version Aug. 01, 2005  
-
- *
- ************************************************************/
-
-//edm
+class InputTag;
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-//Data Formats
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/Common/interface/DetSet.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-//Clusterizer
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerAlgorithm.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
 
-#include <iostream> 
-#include <memory>
-#include <string>
+class SiStripClusterizer : public edm::EDProducer  {
 
-class SiStripQuality;
+public:
 
-namespace cms
-{
-  class SiStripClusterizer : public edm::EDProducer
-  {
-  public:
+  explicit SiStripClusterizer(const edm::ParameterSet& conf);
+  virtual ~SiStripClusterizer() {}    
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
-    explicit SiStripClusterizer(const edm::ParameterSet& conf);
+private:
 
-    virtual ~SiStripClusterizer();
+  template<class T> bool findInput(edm::Handle<T>&, const edm::Event&);
+  std::vector<edm::InputTag> inputTags;
+  std::auto_ptr<StripClusterizerAlgorithm> algorithm;
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+};
 
-  private:
-    edm::ParameterSet conf_;
-    SiStripClusterizerAlgorithm SiStripClusterizerAlgorithm_;
-
-    SiStripQuality emptyQuality;
-  };
-}
 #endif

@@ -2,9 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoLocalTracker.SiStripClusterizer.test.ClusterizerUnitTestFunctions_cff import *
 
-ClusterizerDefaultGroup = ClusterizerTest( "Default Clusterizer Settings",
-                                           dict( channel=2, seed=3, cluster=5, hole=0, nBad=0, nAdj=1),
-                                           [
+Pre31Tests =                                            [
     DetUnit( "[] = []",
              [  ],
              [ #none
@@ -201,35 +199,71 @@ ClusterizerDefaultGroup = ClusterizerTest( "Default Clusterizer Settings",
                digi(  19,  20,  noise1, gain1, good),
                digi(  20, 100,  noise1, gain1, good) ],
              [ cluster(  10, [110,110,110,110,110,110,110,110,110,20,100])
+               ] ),
+    DetUnit( "Faulty OldAlgorithm at threshold",
+             [ digi(  10, 17, 3.4*noise1, gain1, good),
+               digi(  20, 24, 4.8*noise1, gain1, good) ],
+             [ cluster( 10, [17] ),
+               cluster( 20, [24] )
                ] )
     ]
-                                           )
 
 
+OldAlgorithmPre31 = ClusterizerTest( "Default Clusterizer Settings",
+                                     cms.PSet( Algorithm = cms.string("OldThreeThresholdAlgorithm"),
+                                               ChannelThreshold = cms.double(2),
+                                               SeedThreshold    = cms.double(3),
+                                               ClusterThreshold = cms.double(5),
+                                               MaxSequentialHoles = cms.uint32(0),
+                                               QualityLabel = cms.string("")
+                                               ),
+                                     Pre31Tests
+                                     )
 
-ClusterizerProposedGroup = ClusterizerTest( "New Clusterizer Settings",
-                                            dict( channel=2, seed=3, cluster=5, hole=0, nBad=1, nAdj=1),
-                                            [
+EmmulatePre31 = ClusterizerTest( "Default Clusterizer Settings",
+                                 cms.PSet( Algorithm = cms.string("ThreeThresholdAlgorithm"),
+                                           ChannelThreshold = cms.double(2),
+                                           SeedThreshold    = cms.double(3),
+                                           ClusterThreshold = cms.double(5),
+                                           MaxSequentialHoles = cms.uint32(0),
+                                           MaxSequentialBad   = cms.uint32(0),
+                                           MaxAdjacentBad     = cms.uint32(1),
+                                           QualityLabel = cms.string("")
+                                           ),
+                                 Pre31Tests
+                                 )
+
+Post31 = ClusterizerTest( "Proposed Clusterizer Settings",
+                          cms.PSet( Algorithm = cms.string("ThreeThresholdAlgorithm"),
+                                    ChannelThreshold = cms.double(2),
+                                    SeedThreshold    = cms.double(3),
+                                    ClusterThreshold = cms.double(5),
+                                    MaxSequentialHoles = cms.uint32(0),
+                                    MaxSequentialBad   = cms.uint32(1),
+                                    MaxAdjacentBad     = cms.uint32(0),
+                                    QualityLabel = cms.string("")
+                                    ),
+                          [
     DetUnit( "(110/1)(100/1) = [110,100]",
              [ digi(  10, 110,  noise1, gain1, good),
                digi(  11, 100,  noise1, gain1, good) ],
              [ cluster(  10, [110, 100])
                ] ),
-    DetUnit( "(110/1)X = [110,0]",
+    DetUnit( "(110/1)X = [110]",
              [ digi(  10, 110,  noise1, gain1, good),
                digi(  11, 110,  noise1, gain1,  bad) ],
-             [ cluster(  10, [110, 0])
+             [ cluster(  10, [110])
                ] ),
-    DetUnit( "X(110/1) = [0,110]",
+    DetUnit( "X(110/1) = [110]",
              [ digi(  10, 110,  noise1, gain1, bad),
                digi(  11, 110,  noise1, gain1,  good) ],
-             [ cluster(  10, [0, 110])
+             [ cluster(  11, [110])
                ] ),
-    DetUnit( "XX(110/1) = [0,110]",
+    DetUnit( "XX(110/1) = [110]",
              [ digi(  9, 110,  noise1, gain1, bad),
                digi(  10, 110,  noise1, gain1, bad),
                digi(  11, 110,  noise1, gain1,  good) ],
-             [ cluster(  10, [0, 110])
+             [ cluster(  11, [110])
                ] ),
     DetUnit( "(110/1)X(100/1) = [110,0,100]",
              [ digi(  10, 110,  noise1, gain1, good),
@@ -243,13 +277,13 @@ ClusterizerProposedGroup = ClusterizerTest( "New Clusterizer Settings",
                digi(  12, 100,  noise1, gain1, good) ],
              [ cluster(  10, [110, 0,100])
                ] ),
-    DetUnit( "X(110/1)x(100/1)X = [0,110,0,100,0]",
+    DetUnit( "X(110/1)x(100/1)X = [110,0,100]",
              [ digi(  9, 110,  noise1, gain1, bad),
                digi(  10, 110,  noise1, gain1, good),
                digi(  11,   0,  noise1, gain1,  bad),
                digi(  12, 100,  noise1, gain1,  good),
                digi(  13, 100,  noise1, gain1, bad) ],
-             [ cluster(  9, [0,110,0,100,0])
+             [ cluster(  10, [110,0,100])
                ] ),
     DetUnit( "(110/1)_(100/1) = [110],[100]",
              [ digi(  10, 110,  noise1, gain1, good),
@@ -260,5 +294,3 @@ ClusterizerProposedGroup = ClusterizerTest( "New Clusterizer Settings",
                ] )
     ]
                                            )
-
-

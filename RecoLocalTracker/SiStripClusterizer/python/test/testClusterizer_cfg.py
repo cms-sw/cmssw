@@ -1,11 +1,9 @@
 import FWCore.ParameterSet.Config as cms    
 
-process = cms.Process("USER")
+process = cms.Process("TEST")
 process.add_(cms.Service( "MessageLogger"))
 process.source = cms.Source( "EmptySource" )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2) )
-
-process.load("PerfTools.Callgrind.callgrindSwitch_cfi")
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.SiStripNoisesRcdSource = cms.ESSource( "EmptyESSource",
                                                recordName = cms.string( "SiStripNoisesRcd" ),
@@ -25,11 +23,11 @@ process.SiStripQualityRcdSource = cms.ESSource( "EmptyESSource",
 
 process.load("RecoLocalTracker.SiStripClusterizer.test.ClusterizerUnitTestFunctions_cff")
 process.load("RecoLocalTracker.SiStripClusterizer.test.ClusterizerUnitTests_cff")
-testDefinition = cms.VPSet() + [process.ClusterizerDefaultGroup,process.ClusterizerProposedGroup]
+testDefinition = cms.VPSet() + [ process.OldAlgorithmPre31,
+                                 process.EmmulatePre31,
+                                 process.Post31 ]
 
-process.es           = cms.ESProducer("ClusterizerUnitTesterESProducer",
-                                      ClusterizerTestGroups = testDefinition   )
-process.runUnitTests = cms.EDAnalyzer("ClusterizerUnitTester",
-                                      ClusterizerTestGroups = testDefinition  )
+process.es           = cms.ESProducer("ClusterizerUnitTesterESProducer", ClusterizerTestGroups = testDefinition  )
+process.runUnitTests = cms.EDAnalyzer("ClusterizerUnitTester",           ClusterizerTestGroups = testDefinition  )
 
-process.path = cms.Path( process.profilerStart * process.runUnitTests * process.profilerStop)
+process.path = cms.Path( process.runUnitTests )

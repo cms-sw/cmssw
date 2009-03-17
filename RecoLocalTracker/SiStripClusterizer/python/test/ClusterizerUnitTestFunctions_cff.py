@@ -3,14 +3,7 @@ import FWCore.ParameterSet.Config as cms
 def ClusterizerTest(label, params, detunitlist) :
     return  cms.PSet(
         Label = cms.string(label),
-        ClusterizerParameters = cms.PSet(
-           Channel = cms.double(params["channel"]),
-           Seed    = cms.double(params["seed"]),
-           Cluster = cms.double(params["cluster"]),
-           MaxSequentialHoles = cms.uint32(params["hole"]),
-           MaxSequentialBad   = cms.uint32(params["nBad"]),
-           MaxAdjacentBad     = cms.uint32(params["nAdj"])
-           ),
+        ClusterizerParameters = params,
         Tests = cms.VPSet() + detunitlist
         )
 

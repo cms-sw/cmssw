@@ -15,8 +15,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <iostream>
-
 class ClusterizerUnitTesterESProducer: public edm::ESProducer {
   typedef edm::ParameterSet PSet;
   typedef std::vector<PSet> VPSet;

@@ -1,51 +1,59 @@
-// File: SiStripClusterizer.cc
-// Description:  see SiStripClusterizer.h
-// Author:  O. Gutsche
-// Creation Date:  OGU Aug. 1 2005 Initial version.
-//
-//--------------------------------------------
-
 #include "RecoLocalTracker/SiStripClusterizer/plugins/SiStripClusterizer.h"
 
-namespace cms
-{
-  SiStripClusterizer::SiStripClusterizer(edm::ParameterSet const& conf) : 
-    conf_(conf),
-    SiStripClusterizerAlgorithm_(conf) {
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
-    edm::LogInfo("SiStripClusterizer") << "[SiStripClusterizer::SiStripClusterizer] Constructing object...";
-    
-    produces< edmNew::DetSetVector<SiStripCluster> > ();
-  }
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
-  // Virtual destructor needed.
-  SiStripClusterizer::~SiStripClusterizer() { 
-    edm::LogInfo("SiStripClusterizer") << "[SiStripClusterizer::~SiStripClusterizer] Destructing object...";
-  }  
+#include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithmFactory.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
 
-  // Functions that gets called by framework every event
-  void SiStripClusterizer::produce(edm::Event& e, const edm::EventSetup& es)
-  {
+SiStripClusterizer::
+SiStripClusterizer(const edm::ParameterSet& conf) 
+  : inputTags( conf.getParameter<std::vector<edm::InputTag> >("DigiProducersList") ),
+    algorithm( StripClusterizerAlgorithmFactory::create(conf) ) {
+  produces< edmNew::DetSetVector<SiStripCluster> > ();
+}
 
-    // Step B: Get Inputs 
-    edm::Handle< edm::DetSetVector<SiStripDigi> >  input;
+void SiStripClusterizer::
+produce(edm::Event& event, const edm::EventSetup& es)  {
 
-    // Step C: produce output product
-    std::auto_ptr< edmNew::DetSetVector<SiStripCluster> > output(new edmNew::DetSetVector<SiStripCluster>());
-    output->reserve(10000,4*10000); //FIXME
+  std::auto_ptr< edmNew::DetSetVector<SiStripCluster> > output(new edmNew::DetSetVector<SiStripCluster>());
+  output->reserve(10000,4*10000);
 
-    typedef std::vector<edm::ParameterSet> Parameters;
-    Parameters DigiProducersList = conf_.getParameter<Parameters>("DigiProducersList");
-    Parameters::iterator itDigiProducersList = DigiProducersList.begin();
-    for(; itDigiProducersList != DigiProducersList.end(); ++itDigiProducersList ) {
-      std::string digiProducer = itDigiProducersList->getParameter<std::string>("DigiProducer");
-      std::string digiLabel = itDigiProducersList->getParameter<std::string>("DigiLabel");
-      e.getByLabel(digiProducer,digiLabel,input);  //FIXME: fix this label	
-      if (input->size())
-	SiStripClusterizerAlgorithm_.run(*input,*output, es);
+  edm::Handle< edm::DetSetVector<SiStripDigi> >     inputOld;  
+  edm::Handle< edmNew::DetSetVector<SiStripDigi> >  inputNew;  
+
+  algorithm->initialize(es);  
+  if( findInput(inputOld, event) ) algorithm->clusterize(*inputOld, *output); else 
+    if( findInput(inputNew, event) ) algorithm->clusterize(*inputNew, *output); else
+      edm::LogError("Input Not Found");
+
+  edm::LogInfo("Output") << output->dataSize() << " clusters from " 
+			 << output->size()     << " modules";
+  event.put(output);
+}
+
+template<class T>
+inline
+bool SiStripClusterizer::
+findInput(edm::Handle<T>& handle, const edm::Event& e) {
+
+  for(std::vector<edm::InputTag>::const_iterator 
+	inputTag = inputTags.begin();  inputTag != inputTags.end();  inputTag++) {
+
+    e.getByLabel(*inputTag, handle);
+    if( handle.isValid() && !handle->empty() ) {
+      edm::LogInfo("Input") << *inputTag;
+      return true;
     }
-    
-    // Step D: write output to file
-    e.put(output);
   }
+  return false;
 }
