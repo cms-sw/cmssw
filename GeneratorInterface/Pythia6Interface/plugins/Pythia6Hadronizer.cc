@@ -30,6 +30,8 @@
  
 HepMC::IO_HEPEVT conv;
 
+#include "HepPID/ParticleIDTranslations.hh"
+
 // NOTE: here a number of Pythia6 routines are declared,
 // plus some functionalities to pass around Pythia6 params
 //
@@ -97,11 +99,28 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
      fCOMEnergy(ps.getParameter<double>("comEnergy")),
      fHepMCVerbosity(ps.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
      fMaxEventsToPrint(ps.getUntrackedParameter<int>("maxEventsToPrint", 0)),
-     fPythiaListVerbosity(ps.getUntrackedParameter<int>("pythiaPylistVerbosity", 0)),
-     fStopHadronsEnabled(ps.getParameter<bool>("stopHadrons")),
-     fGluinoHadronsEnabled(ps.getParameter<bool>("gluinoHadrons"))
+     fPythiaListVerbosity(ps.getUntrackedParameter<int>("pythiaPylistVerbosity", 0))
 { 
 
+   // the following 3 params are "hacked", in the sense that 
+   // they're tracked but get in optionally;
+   // this will be fixed once we update all applications
+   //
+
+   fStopHadronsEnabled = false;
+   if ( ps.exists( "stopHadrons" ) )
+      fStopHadronsEnabled = ps.getParameter<bool>("stopHadrons") ;
+
+   fGluinoHadronsEnabled = false;
+   if ( ps.exists( "gluinoHadrons" ) )
+      fGluinoHadronsEnabled = ps.getParameter<bool>("gluinoHadrons");
+   
+   fConvertToPDG = false;
+   if ( ps.exists( "doPDGConvert" ) )
+   {
+      fConvertToPDG = ps.getParameter<bool>("doPDGConvert");
+   }
+   
    if ( ps.exists("jetMatching") )
    {
       edm::ParameterSet jmParams =
@@ -188,6 +207,25 @@ void Pythia6Hadronizer::finalizeEvent()
 
    event()->weights().push_back( pyint1.vint[96] );
 
+   // final touch - convert Py6->PDG, if requested
+   //
+   if ( fConvertToPDG )
+   {
+      // do conversion here
+/* this comes from example by Todd Adams, see talk at the Gen meeting on 03/16/09
+
+      for ( HepMC::GenEvent::particle_iterator part = event()->particles_begin();
+         part != event()->particles_end(); ++part) {
+         if ((*part)->pdg_id() != HepPID::translatePythiatoPDT((*part)->pdg_id())) {
+           std::cout << " found a change orig=" << (*part)->pdg_id() << " new="
+                     << HepPID::translatePythiatoPDT((*part)->pdg_id()) << std::endl;
+         }
+         (*part)->set_pdg_id(HepPID::translatePythiatoPDT((*part)->pdg_id()));
+      }
+
+*/
+   }
+   
    // service printouts, if requested
    //
    if (fMaxEventsToPrint > 0) 
@@ -463,8 +501,8 @@ bool Pythia6Hadronizer::initializeForExternalPartons()
       // overwrite mstp(111), no matter what
       call_pygive("MSTP(111)=0");
       pystrhad_();
-      //call_pygive("MWID(302)=0");   // I don't know if this is specific to processing ME/LHE only,
-      //call_pygive("MDCY(302,1)=0"); // or this should also be the case for full event...
+      call_pygive("MWID(302)=0");   // I don't know if this is specific to processing ME/LHE only,
+      call_pygive("MDCY(302,1)=0"); // or this should also be the case for full event...
                                     // anyway, this comes from experience of processing MG events
    }
    

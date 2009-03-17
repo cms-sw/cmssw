@@ -22,6 +22,8 @@
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
 
+#include "HepPID/ParticleIDTranslations.hh"
+
 namespace gen
 {
   

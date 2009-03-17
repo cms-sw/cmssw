@@ -54,6 +54,7 @@ void Pythia6PtGun::generateEvent()
    for ( size_t i=0; i<fPartIDs.size(); i++ )
    {
 	 int particleID = fPartIDs[i]; // this is PDG - need to convert to Py6 !!!
+	 int py6PID = HepPID::translatePDTtoPythia( particleID );
          int dum = 0;
 	 double pt=0, mom=0, ee=0, the=0, eta=0;
 	 double mass = pymass_(particleID);
@@ -68,7 +69,7 @@ void Pythia6PtGun::generateEvent()
 	 mom = pt/sin(the);
 	 ee = sqrt(mom*mom+mass*mass);
 
-	 py1ent_(ip, particleID, ee, the, phi);
+	 py1ent_(ip, py6PID, ee, the, phi);
 	 
          double px     = pt*cos(phi) ;
          double py     = pt*sin(phi) ;
@@ -84,14 +85,15 @@ void Pythia6PtGun::generateEvent()
 	 {
 	    ip = ip + 1;
 // Check if particle is its own anti-particle.
-            int pythiaCode = pycomp_(particleID); // this is py6 internal validity check, it takes Pythia6 pid
+            int pythiaCode = pycomp_(py6PID); // this is py6 internal validity check, it takes Pythia6 pid
 	                                          // so actually I'll need to convert
             int has_antipart = pydat2.kchg[3-1][pythiaCode-1];
-            int particleID2 = has_antipart ? -1 * particleID : particleID;	    
+            int particleID2 = has_antipart ? -1 * particleID : particleID;
+	    int py6PID2 = has_antipart ? -1 * py6PID : py6PID;	 // this py6 id, for py1ent    
 	    the = 2.*atan(exp(eta));
 	    phi  = phi + M_PI;
 	    if (phi > 2.* M_PI) {phi = phi - 2.* M_PI;}         
-	    py1ent_(ip, particleID2, ee, the, phi);
+	    py1ent_(ip, py6PID2, ee, the, phi);
             HepMC::FourVector ap(-px,-py,-pz,ee) ;
 	    HepMC::GenParticle* APart =
 	       new HepMC::GenParticle(ap,particleID2,1);

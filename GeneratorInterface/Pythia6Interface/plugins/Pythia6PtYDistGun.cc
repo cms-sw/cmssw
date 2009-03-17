@@ -62,7 +62,9 @@ void Pythia6PtYDistGun::generateEvent()
    {
 
 	 int particleID = fPartIDs[i]; // this is PDG - need to convert to Py6 !!!
-         int dum = 0;
+         int py6PID = HepPID::translatePDTtoPythia( particleID );
+	 
+	 int dum = 0;
 	 double pt=0, y=0, u=0, ee=0, the=0;
 	 
 	 pt = fPtYGenerator->firePt();
@@ -81,7 +83,7 @@ void Pythia6PtYDistGun::generateEvent()
 	 the  = atan(pt/pz);
 	 if ( pz < 0. ) the += M_PI ;                                                                      
 	 
-	 py1ent_(ip, particleID, ee, the, phi);
+	 py1ent_(ip, py6PID, ee, the, phi);
 	 
          double px     = pt*cos(phi) ;
          double py     = pt*sin(phi) ;

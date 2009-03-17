@@ -89,6 +89,9 @@ class JetMatching;
      //
      bool fStopHadronsEnabled;
      bool fGluinoHadronsEnabled;
+     
+     // and final touch - conversion of Py6 PID's into PDG convension 
+     bool fConvertToPDG;
                
   };
 }

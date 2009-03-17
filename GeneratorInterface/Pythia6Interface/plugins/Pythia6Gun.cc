@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/03/03 17:54:53 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/03/13 19:21:45 $
+ *  $Revision: 1.5 $
  *  \author Julia Yarba
  */
 
@@ -133,7 +133,10 @@ void Pythia6Gun::attachPy6DecaysToGenEvent()
 	 HepMC::FourVector  pmom(pyjets.p[0][iprt],pyjets.p[1][iprt],
 	                         pyjets.p[2][iprt],pyjets.p[3][iprt] );
 	 
-	 HepMC::GenParticle* daughter = new HepMC::GenParticle(pmom,pyjets.k[1][iprt],1);
+	 HepMC::GenParticle* daughter = 
+	    new HepMC::GenParticle(pmom,
+	                           HepPID::translatePythiatoPDT( pyjets.k[1][iprt] ),
+				   1);
 	 daughter->suggest_barcode( iprt+1 );
 	 DecVtx->add_particle_out( daughter );
 	 // give particle barcode as well !
@@ -147,7 +150,10 @@ void Pythia6Gun::attachPy6DecaysToGenEvent()
 	    //
 	    // same here with PID - need py6->pdg !!!
 	    //
-	    HepMC::GenParticle* daughterN = new HepMC::GenParticle(pmomN,pyjets.k[1][iprt1],1);
+	    HepMC::GenParticle* daughterN = 
+	       new HepMC::GenParticle(pmomN,
+	                              HepPID::translatePythiatoPDT( pyjets.k[1][iprt1] ),
+				      1);
 	    daughterN->suggest_barcode( iprt1+1 );
 	    DecVtx->add_particle_out( daughterN );	     
 	 }

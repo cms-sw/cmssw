@@ -64,6 +64,7 @@ void Pythia6JetGun::generateEvent()
    for ( size_t i=0; i<fPartIDs.size(); i++ )
    {
 	 int particleID = fPartIDs[i]; // this is PDG - need to convert to Py6 !!!
+	 int py6PID = HepPID::translatePDTtoPythia( particleID );
 	 	 
 	 // internal numbers
 	 //
@@ -76,7 +77,7 @@ void Pythia6JetGun::generateEvent()
 	 
 	 // add entry to py6
 	 //
-	 py1ent_(ip, particleID, ee, the, phi);
+	 py1ent_(ip, py6PID, ee, the, phi);
 
          // values for computing total mass
 	 //
@@ -128,7 +129,9 @@ void Pythia6JetGun::generateEvent()
       // here we pass pythia6 particle ID, not PDG - FIXME !!!
       //
       HepMC::GenParticle* Part = 
-             new HepMC::GenParticle(p,pyjets.k[1][i],1); 
+             new HepMC::GenParticle(p,
+	                            HepPID::translatePythiatoPDT( pyjets.k[1][i] ),
+				    1); 
       Part->suggest_barcode( i+1 ) ;
       Vtx->add_particle_out(Part);
    }
@@ -136,16 +139,7 @@ void Pythia6JetGun::generateEvent()
      
    // run pythia
    pyexec_();
-   
-   double totalE = 0.;
-   for ( int i=0; i<pyjets.n; i++ )
-   {
-      if ( pyjets.k[0][i] == 1 )
-      {
-         totalE += pyjets.p[3][i];
-      }
-   }
-   
+      
    return;
 }
 
