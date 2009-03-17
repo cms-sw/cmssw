@@ -47,7 +47,7 @@ void setTPaveText(const TF1 * fit, TPaveText * paveText) {
 TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, int rebinY, int fitType,
                         TFile * outputFile, const TString & resonanceType = "Y", const double & xDisplace = 0., const TString & append = "");
 void macroPlot( TString name, const TString & nameFile1 = "0_MuScleFit.root", const TString & nameFile2 = "4_MuScleFit.root",
-                const TString & title = "", const TString & resonanceType = "Y", const int rebinX = 0, const int rebinY = 0, const int fitType = 1 );
+                const TString & title = "", const TString & resonanceType = "Y", const int rebinX = 0, const int rebinY = 0, const int fitType = 1, const TString & outputFileName = "filegraph.root" );
 
 Double_t gaussian(Double_t *x, Double_t *par);
 Double_t lorentzian(Double_t *x, Double_t *par);
