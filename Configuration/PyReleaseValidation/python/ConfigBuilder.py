@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.111 $"
+__version__ = "$Revision: 1.112 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -531,7 +531,12 @@ class ConfigBuilder(object):
 
 
     def prepare_VALIDATION(self, sequence = 'validation'):
-        if ( len(sequence.split(','))==1 ):
+        if "FASTSIM" in self._options.step:
+            self.loadAndRemember("FastSimulation.Configuration.Validation_cff")
+            self.process.validation_step = cms.EndPath( getattr(self.process, sequence.split(',')[-1]) )
+            self.schedule.append(self.process.validation_step)
+            return
+        elif ( len(sequence.split(','))==1 ):
             self.loadAndRemember(self.VALIDATIONDefaultCFF)
         else:    
             self.loadAndRemember(sequence.split(',')[0])
@@ -651,7 +656,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.111 $"),
+              (version=cms.untracked.string("$Revision: 1.112 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )

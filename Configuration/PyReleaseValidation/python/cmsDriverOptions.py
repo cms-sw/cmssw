@@ -294,7 +294,7 @@ options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 # if not fastsim or harvesting...
 
 addEndJob = True
-if "FASTSIM" in options.step or "HARVESTING" in options.step: 
+if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTING" in options.step: 
     addEndJob = False
 if addEndJob:    
     options.step=options.step+',ENDJOB'
