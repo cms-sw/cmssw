@@ -391,5 +391,29 @@ void HcalExpertMonitor::unpack(const FEDRawData& raw,
     cout <<"No second CDF header found!"<<endl;
     }
 
+  // walk through the HTR data...
+  HcalHTRData htr;  
+  bool isCM=false;
+  unsigned char Chan24Thresh, Chan01Thresh;
+  const short unsigned int* daq_first, *daq_last, *tp_first, *tp_last;
+  for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {    
+    if (!dccHeader->getSpigotPresent(spigot)) continue;
+
+    // Load the given decoder with the pointer and length from this spigot.
+    dccHeader->getSpigotData(spigot,htr, rawsize); 
+    // Compact Mode? 
+    isCM = ( ((htr.getExtHdr7()>>0x14) & 0x0001) == 1);
+    if ( (htr.isUnsuppressed()) && !(isCM) ) {
+      // get pointers
+      htr.dataPointers(&daq_first,&daq_last,&tp_first,&tp_last);
+
+      const unsigned short* HTRraw = htr.getRawData();
+      unsigned short twoThresh = HTRraw[htr.getRawLength() -9];
+      Chan24Thresh = (twoThresh>>4)&0x00FF;  //The high byte
+      Chan01Thresh = (twoThresh   )&0x00FF;  //The low byte
+      cout << "Spigot: " << dec << spigot << ": "<<hex << (int) Chan01Thresh << "to" << (int) Chan24Thresh << endl;
+    }
+  }
+
   return;
 } // void HcalExpertMonitor::unpack(...)
