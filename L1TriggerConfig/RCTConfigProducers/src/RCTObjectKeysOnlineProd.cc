@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Fri Aug 22 19:51:36 CEST 2008
-// $Id: RCTObjectKeysOnlineProd.cc,v 1.2 2008/09/30 20:35:18 wsun Exp $
+// $Id: RCTObjectKeysOnlineProd.cc,v 1.3 2009/01/17 19:14:15 wsun Exp $
 //
 //
 
@@ -88,16 +88,28 @@ RCTObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
       if( paremKeyResults.queryFailed() ||
 	  paremKeyResults.numberRows() != 1 ) // check query successful
 	{
-	  edm::LogError( "L1-O2O" ) << "Problem with RCT key." ;
+	  edm::LogError( "L1-O2O" ) << "Problem with RCT Parameter key." ;
 	  return ;
 	}
 
-      std::string paremKey ;
+      l1t::OMDSReader::QueryResults scaleKeyResults =
+	m_omdsReader.basicQuery( "L1T_SCALE_CALO_ET_THRESHOLD_ID",
+				 "CMS_RCT",
+				 "PAREM_CONF",
+				 "PAREM_CONF.PAREM_KEY",
+				 paremKeyResults );  // not null no need to check
+
+
+      std::string paremKey, scaleKey ;
       paremKeyResults.fillVariable( paremKey ) ;
+      scaleKeyResults.fillVariable( scaleKey ) ;
 
       pL1TriggerKey->add( "L1RCTParametersRcd",
 			  "L1RCTParameters",
 			  paremKey ) ;
+      pL1TriggerKey->add( "L1EmEtScaleRcd",
+			  "L1CaloEtScal",
+			  scaleKey ) ;
     }
 }
 
