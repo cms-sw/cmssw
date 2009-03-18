@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.20 2008/04/21 14:18:13 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.21 2008/04/21 17:36:12 wsun Exp $
 //
 //
 
@@ -32,8 +32,8 @@
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
-#include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
+#include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
@@ -459,11 +459,11 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 
       // ~~~~~~~~~~~~~~~~~~~~ Energy Sums ~~~~~~~~~~~~~~~~~~~~
 
-      ESHandle< L1GctJetEtCalibrationFunction > jetCalibFn ;
-      iSetup.get< L1GctJetCalibFunRcd >().get( jetCalibFn ) ;
+      ESHandle< L1GctJetFinderParams > jetFinderParams ;
+      iSetup.get< L1GctJetFinderParamsRcd >().get( jetFinderParams ) ;
 
       double etSumLSB = jetScale->linearLsb() ;
-      double htSumLSB = jetCalibFn->getHtScaleLSB();
+      double htSumLSB = jetFinderParams->getHtLsbGeV();
 
       Handle< L1GctEtTotalCollection > hwEtTotColl ;
       iEvent.getByLabel( etTotSource_, hwEtTotColl ) ;
