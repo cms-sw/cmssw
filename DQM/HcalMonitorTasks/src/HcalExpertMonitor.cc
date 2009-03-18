@@ -409,7 +409,7 @@ void HcalExpertMonitor::unpack(const FEDRawData& raw,
 
       const unsigned short* HTRraw = htr.getRawData();
       unsigned short twoThresh = HTRraw[htr.getRawLength() -9];
-      Chan24Thresh = (twoThresh>>4)&0x00FF;  //The high byte
+      Chan24Thresh = (twoThresh>>8)&0x00FF;  //The high byte
       Chan01Thresh = (twoThresh   )&0x00FF;  //The low byte
       cout << "Spigot: " << dec << spigot << ": "<<hex << (int) Chan01Thresh << "to" << (int) Chan24Thresh << endl;
     }
