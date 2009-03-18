@@ -11,5 +11,9 @@ ALCARECOMuAlZMuMuHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 
 import Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi
 ALCARECOMuAlZMuMu = Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi.AlignmentMuonSelector.clone()
+ALCARECOMuAlZMuMu.applyMassPairFilter = cms.bool(True)
+ALCARECOMuAlZMuMu.minMassPair = cms.double(91. - 10.)
+ALCARECOMuAlZMuMu.maxMassPair = cms.double(91. + 10.)
+
 seqALCARECOMuAlZMuMu = cms.Sequence(ALCARECOMuAlZMuMuHLT+ALCARECOMuAlZMuMu)
 

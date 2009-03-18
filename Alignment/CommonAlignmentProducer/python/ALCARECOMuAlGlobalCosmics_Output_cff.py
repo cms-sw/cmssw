@@ -9,9 +9,6 @@ OutALCARECOMuAlGlobalCosmics = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring('drop *', 
 	'keep *_ALCARECOMuAlGlobalCosmics_*_*',
-	'keep *_cosmicMuons_*_*',
-	'keep *_cosmictrackfinderP5_*_*',
-        'keep Si*Cluster*_*_*_*', # for cosmics keep also clusters
         'keep *_muonCSCDigis_*_*',
 	'keep *_muonDTDigis_*_*',
 	'keep *_muonRPCDigis_*_*',
