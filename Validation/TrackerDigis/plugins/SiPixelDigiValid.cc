@@ -263,7 +263,7 @@ SiPixelDigiValid::~SiPixelDigiValid(){
 }
 
 
-void SiPixelDigiValid::beginJob(const EventSetup& c){
+void SiPixelDigiValid::beginJob(){
 
 }
 

@@ -328,7 +328,7 @@ SiStripDigiValid::~SiStripDigiValid(){
 }
 
 
-void SiStripDigiValid::beginJob(const EventSetup& c){
+void SiStripDigiValid::beginJob(){
 
 }
 
