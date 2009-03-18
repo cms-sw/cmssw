@@ -19,9 +19,7 @@ process.orcon.connect = cms.string('sqlite_file:l1config.db')
 process.orcon.DBParameters.authenticationPath = '.'
 
 # writer modules
-process.load("CondTools.L1Trigger.L1CondDBIOVWriter_cfi")
-process.L1CondDBIOVWriter.offlineDB = cms.string('sqlite_file:l1config.db')
-process.L1CondDBIOVWriter.offlineAuthentication = cms.string('.')
+process.load("CondTools.L1Trigger.L1CondDBIOVWriter_cff")
 process.L1CondDBIOVWriter.tscKey = cms.string('dummy')
 process.L1CondDBIOVWriter.ignoreTriggerKey = cms.bool(True)
 process.L1CondDBIOVWriter.toPut = cms.VPSet(cms.PSet(

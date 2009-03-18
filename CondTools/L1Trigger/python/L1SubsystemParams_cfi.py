@@ -1,12 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 L1SubsystemParams = cms.PSet(
-    recordInfo = cms.VPSet(cms.PSet(
-        record = cms.string('L1JetEtScaleRcd'),
-        tag = cms.string('L1JetEtScale_IDEAL'),
-        type = cms.string('L1CaloEtScale'),
-        key = cms.string('dummy')
-    ), 
+    recordInfo = cms.VPSet(
+        cms.PSet(
+            record = cms.string('L1JetEtScaleRcd'),
+            tag = cms.string('L1JetEtScale_IDEAL'),
+            type = cms.string('L1CaloEtScale'),
+            key = cms.string('dummy')
+        ), 
         cms.PSet(
             record = cms.string('L1EmEtScaleRcd'),
             tag = cms.string('L1EmEtScale_IDEAL'),

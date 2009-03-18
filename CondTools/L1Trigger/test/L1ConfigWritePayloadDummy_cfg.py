@@ -8,14 +8,13 @@ process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
 # Generate dummy L1TriggerKey and L1TriggerKeyList
 process.load("CondTools.L1Trigger.L1TriggerKeyDummy_cff")
-
 process.load("CondTools.L1Trigger.L1TriggerKeyListDummy_cff")
 
 # Generate dummy configuration data
 process.load("L1Trigger.Configuration.L1DummyConfig_cff")
 
 # writer modules
-process.load("CondTools.L1Trigger.L1CondDBPayloadWriter_cfi")
+process.load("CondTools.L1Trigger.L1CondDBPayloadWriter_cff")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

@@ -16,20 +16,20 @@ options.register('tscKey',
                  VarParsing.VarParsing.varType.string,
                  "TSC key")
 options.register('tagBase',
-                 'CRAFT', #default value
+                 'CRAFT_hlt', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "IOV tags = object_{tagBase}_hlt")
-options.register('orconConnect',
+                 "IOV tags = object_{tagBase}")
+options.register('outputDBConnect',
                  'sqlite_file:l1config.db', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "Connection string for ORCON")
-options.register('orconAuth',
+                 "Connection string for output DB")
+options.register('outputDBAuth',
                  '.', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "Authentication path for ORCON")
+                 "Authentication path for outputDB")
 options.parseArguments()
 
 # Generate L1TriggerKey and configuration data from OMDS
@@ -64,10 +64,7 @@ process.load("L1TriggerConfig.RCTConfigProducers.L1RCTParametersOnline_cfi")
 process.load("L1TriggerConfig.L1GtConfigProducers.l1GtParametersOnline_cfi")
 
 # writer modules
-process.load("CondTools.L1Trigger.L1CondDBPayloadWriter_cfi")
-process.L1CondDBPayloadWriter.offlineDB = cms.string(options.orconConnect)
-process.L1CondDBPayloadWriter.offlineAuthentication = options.orconAuth
-process.L1CondDBPayloadWriter.L1TriggerKeyListTag = cms.string( 'L1TriggerKeyList_' + options.tagBase + '_hlt')
+process.load("CondTools.L1Trigger.L1CondDBPayloadWriter_cff")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -79,15 +76,15 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
-process.orcon = cms.ESSource("PoolDBESSource",
+process.outputDB = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('L1TriggerKeyListRcd'),
-        tag = cms.string( "L1TriggerKeyList_" + options.tagBase + "_hlt" )
+        tag = cms.string( "L1TriggerKeyList_" + options.tagBase )
     ))
 )
-process.orcon.connect = cms.string(options.orconConnect)
-process.orcon.DBParameters.authenticationPath = options.orconAuth
+process.outputDB.connect = cms.string(options.outputDBConnect)
+process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
 
 process.p = cms.Path(process.L1CondDBPayloadWriter)
 

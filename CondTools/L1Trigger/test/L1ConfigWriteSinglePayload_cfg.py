@@ -32,11 +32,8 @@ process.load("L1Trigger.Configuration.L1DummyConfig_cff")
 process.l1CSCTFConfig.ptLUT_path = '/afs/cern.ch/cms/MUON/csc/fast1/track_finder/luts/PtLUT.dat'
 
 # writer modules
-process.load("CondTools.L1Trigger.L1CondDBPayloadWriter_cfi")
+process.load("CondTools.L1Trigger.L1CondDBPayloadWriter_cff")
 process.L1CondDBPayloadWriter.writeL1TriggerKey = cms.bool(False)
-process.L1CondDBPayloadWriter.L1TriggerKeyListTag = cms.string('L1TriggerKeyList_IDEAL')
-process.L1CondDBPayloadWriter.offlineDB = cms.string('sqlite_file:l1config.db')
-process.L1CondDBPayloadWriter.offlineAuthentication = cms.string('.')
 
 # Use highest possible run number so we always get the latest version
 # of L1TriggerKeyList.

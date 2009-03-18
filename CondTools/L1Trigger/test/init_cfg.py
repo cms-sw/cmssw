@@ -9,20 +9,10 @@ process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
 options = VarParsing.VarParsing()
 options.register('tagBase',
-                 'CRAFT', #default value
+                 'CRAFT_hlt', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "IOV tags = object_{tagBase}_hlt")
-options.register('orconConnect',
-                 'sqlite_file:l1config.db', #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 "Connection string for ORCON")
-options.register('orconAuth',
-                 '.', #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 "Authentication path for ORCON")
+                 "IOV tags = object_{tagBase}")
 options.parseArguments()
 
 process.maxEvents = cms.untracked.PSet(
@@ -44,9 +34,6 @@ process.L1TriggerKeyDummy.tscKey = cms.string('')
 process.load("CondTools.L1Trigger.L1TriggerKeyListDummy_cff")
 
 # writer modules
-process.load("CondTools.L1Trigger.L1CondDBPayloadWriter_cfi")
-process.L1CondDBPayloadWriter.L1TriggerKeyListTag = cms.string('L1TriggerKeyList_' + options.tagBase + '_hlt')
-process.L1CondDBPayloadWriter.offlineDB = cms.string(options.orconConnect)
-process.L1CondDBPayloadWriter.offlineAuthentication = cms.string(options.orconAuth)
+process.load("CondTools.L1Trigger.L1CondDBPayloadWriter_cff")
 
 process.p = cms.Path(process.L1CondDBPayloadWriter)

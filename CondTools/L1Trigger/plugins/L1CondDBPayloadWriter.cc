@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 07:05:15 CET 2008
-// $Id: L1CondDBPayloadWriter.cc,v 1.9 2008/11/13 02:13:11 wsun Exp $
+// $Id: L1CondDBPayloadWriter.cc,v 1.10 2008/12/15 21:07:42 wsun Exp $
 //
 //
 
@@ -46,10 +46,7 @@
 // constructors and destructor
 //
 L1CondDBPayloadWriter::L1CondDBPayloadWriter(const edm::ParameterSet& iConfig)
-   : m_writer( iConfig.getParameter< std::string >( "offlineDB" ),
-	       iConfig.getParameter< std::string >( "offlineAuthentication" )),
-     m_tag( iConfig.getParameter< std::string >( "L1TriggerKeyListTag" ) ),
-     m_writeL1TriggerKey( iConfig.getParameter< bool >( "writeL1TriggerKey" )),
+   : m_writeL1TriggerKey( iConfig.getParameter< bool >( "writeL1TriggerKey" )),
      m_writeConfigData( iConfig.getParameter< bool >( "writeConfigData" ) ),
      m_overwriteKeys( iConfig.getParameter< bool >( "overwriteKeys" ) )
 {
@@ -193,7 +190,7 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
    if( keyList )
    {
       // Write L1TriggerKeyList to ORCON
-      m_writer.writeKeyList( keyList, m_tag ) ;
+      m_writer.writeKeyList( keyList ) ;
    }
 }
 

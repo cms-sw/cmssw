@@ -24,11 +24,11 @@ if [ ${xflag} -eq 0 ]
     then
     echo "Setting up sqlite_file:l1config.db"
     cmscond_bootstrap_detector -D L1T -f $CMSSW_BASE/o2o/dbconfigSqlite.xml -b $CMSSW_BASE
-    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/init_cfg.py tagBase=${tagbase} orconConnect=sqlite_file:l1config.db orconAuth=.
+    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/init_cfg.py tagBase=${tagbase}_hlt outputDBConnect=sqlite_file:l1config.db outputDBAuth=. print
 else
     echo "Setting up ORCON CMS_COND_21X_L1T account"
     cmscond_bootstrap_detector -D L1T -f $CMSSW_BASE/o2o/dbconfigORCON.xml -b $CMSSW_BASE
-    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/init_cfg.py tagBase=${tagbase} orconConnect=oracle://cms_orcon_prod/CMS_COND_21X_L1T orconAuth=/nfshome0/xiezhen/conddb
+    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/init_cfg.py tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcon_prod/CMS_COND_21X_L1T outputDBAuth=/nfshome0/xiezhen/conddb print
 fi
 
 exit
