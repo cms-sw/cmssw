@@ -42,7 +42,7 @@ HepMC::GenEvent* ExternalDecayDriver::decay( HepMC::GenEvent* evt )
 {
    if ( fEvtGenInterface )
    {  
-      evt = fEvtGenInterface->decay( evt ); 
+      //evt = fEvtGenInterface->decay( evt ); 
       if ( !evt ) return 0;
    }
 
@@ -55,12 +55,12 @@ HepMC::GenEvent* ExternalDecayDriver::decay( HepMC::GenEvent* evt )
    return evt;
 }
 
-void ExternalDecayDriver::init()
+void ExternalDecayDriver::init( const edm::EventSetup& es )
 {
 
    if ( fTauolaInterface ) 
    {
-      fTauolaInterface->init();
+      fTauolaInterface->init( es );
       for ( std::vector<int>::const_iterator i=fTauolaInterface->operatesOnParticles().begin();
             i != fTauolaInterface->operatesOnParticles().end(); i++ ) 
                fPDGs.push_back( *i );
