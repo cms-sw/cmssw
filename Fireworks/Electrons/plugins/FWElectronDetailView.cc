@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.6 2009/03/18 12:32:10 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.7 2009/03/18 12:45:36 amraktad Exp $
 //
 
 // system include files
@@ -21,7 +21,9 @@
 #include "TEveManager.h"
 #include "TEveCalo.h"
 #include "TEveCaloData.h"
+#define protected public
 #include "TEveLegoEventHandler.h"
+#undef protected
 #include "TEveCaloLegoOverlay.h"
 #include "TEveText.h"
 #include "TEveGeoNode.h"
@@ -81,14 +83,16 @@ TEveElement* FWElectronDetailView::build (const FWModelId &id, const reco::GsfEl
 TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
                                                     const reco::GsfElectron* iElectron)
 {
+   // printf("calling FWElectronDetailView::buildRhoZ\n");
    if(0==iElectron) { return 0;}
    m_item = id.item();
-   // printf("calling FWElectronDetailView::buildRhoZ\n");
+
+   viewer()->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+
    TEveElementList* tList =  new TEveElementList(m_item->name().c_str(),"Supercluster RhoZ",true);
    tList->SetMainColor(m_item->defaultDisplayProperties().color());
    gEve->AddElement(tList);
-   // get electrons
-   resetCenter();
+
    // get rechits
    const fwlite::Event *ev = m_item->getEvent();
    fwlite::Handle<EcalRecHitCollection> handle_barrel_hits;
@@ -271,47 +275,49 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
       fillData(detids, data, i->superCluster()->seed()->position().phi());
       data->DataChanged();
       // printf("max val %f  %f \n", data->GetMaxVal(0), data->GetMaxVal(1));
-      // data->fMaxValEt *= 4;
-      // data->fMaxValE *= 4;
          
       // lego
-         
       TEveCaloLego* lego = new TEveCaloLego(data);
       // scale and translate to real world coordinates
       Double_t em, eM, pm, pM;
       data->GetEtaLimits(em, eM);
       data->GetPhiLimits(pm, pM);
+      // printf("eta limits %f %f  phi linits %f %f \n", em, eM, pm, pM);
       lego->SetEta(em, eM);
-      lego->SetPhiWithRng((pm+pM)*0.5, pM-pm);
+      lego->SetPhiWithRng((pm+pM)*0.5, (pM-pm)*0.5); // phi range = 2* phiOffset
       Double_t legoScale = ((eM - em) < (pM - pm)) ? (eM - em) : (pM - pm);
       lego->InitMainTrans();
       lego->RefMainTrans().SetScale(legoScale, legoScale, legoScale);
       lego->RefMainTrans().SetPos((eM+em)*0.5, (pM+pm)*0.5, 0);
 
       lego->SetAutoRebin(kFALSE);
-      lego->SetPlaneColor(kBlue-5);
       lego->Set2DMode(TEveCaloLego::kValSize);
+      lego->SetProjection(TEveCaloLego::kAuto);
       lego->SetName("ElectronDetail Lego");
       gEve->AddElement(lego, tList);
 
-      // overlay lego         
+   
+      // overlay lego  (only a debug info == axis at the corner)       
       TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
       overlay->SetShowPlane(kFALSE);
       overlay->SetShowPerspective(kFALSE);
       overlay->SetCaloLego(lego);
-      TGLViewer* v = viewer();
-      v->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
-      v->AddOverlayElement(overlay);
-      v->SetEventHandler(new TEveLegoEventHandler("Lego",(TGWindow*)v->GetGLWidget(), (TObject*)v));
+      viewer()->AddOverlayElement(overlay);  
       tList->AddElement(overlay);
-      gEve->Redraw3D(kTRUE);
 
-      double m_ymax = lego->GetPhiMax();
-      double m_ymin = lego->GetPhiMin();
-      double m_xmax = lego->GetEtaMax();
-      double m_xmin = lego->GetEtaMin();
-      printf("crystal range: xmin = %f xmax = %f, ymin = %f ymax = %f\n", 
-	     m_xmin, m_xmax, m_ymin, m_ymax);
+      // set event handler, flip to top view at beginning
+      {
+         TGLViewer* v =  viewer();
+         TEveLegoEventHandler* eh = new TEveLegoEventHandler("Lego",(TGWindow*)v->GetGLWidget(), (TObject*)v);
+         v->SetEventHandler(eh);
+         eh->Rotate(0,10000,kFALSE, kFALSE);
+      }
+
+      // debug (see also overlay)
+      m_ymax = lego->GetPhiMax();
+      m_ymin = lego->GetPhiMin();
+      m_xmax = lego->GetEtaMax();
+      m_xmin = lego->GetEtaMin();
       printf("lego range: xmin = %f xmax = %f, ymin = %f ymax = %f\n"
 	     , m_xmin, m_xmax, m_ymin, m_ymax);
 
