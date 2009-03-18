@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.8 2009/03/18 15:08:18 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.9 2009/03/18 17:18:45 amraktad Exp $
 //
 
 // system include files
@@ -98,7 +98,7 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
    fwlite::Handle<EcalRecHitCollection> handle_barrel_hits;
    m_barrel_hits = 0;
    try {
-      handle_barrel_hits.getByLabel(*ev, "ecalRecHit", "EcalRecHitsEB");
+      handle_barrel_hits.getByLabel(*ev, "caloRecHits", "EcalRecHitsEB");
       m_barrel_hits = handle_barrel_hits.ptr();
    }
    catch (...) 
@@ -109,7 +109,7 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
    fwlite::Handle<EcalRecHitCollection> handle_endcap_hits;
    m_endcap_hits = 0;
    try {
-      handle_endcap_hits.getByLabel(*ev, "ecalRecHit", "EcalRecHitsEE");
+      handle_endcap_hits.getByLabel(*ev, "caloRecHits", "EcalRecHitsEE");
       m_endcap_hits = handle_endcap_hits.ptr();
    }
    catch ( ...)
