@@ -26,10 +26,13 @@
 //-------------------------------------------------------------------------------
 //
 
-// main function of TAUOLA tau decay library
+// main function(s) of TAUOLA/pretauola tau decay library
 
 extern "C" {
   void tauola_(int*, int*);
+  void tauola_srs_(int*,int*);
+  void taurep_(int*);
+  void ranmar_(float*,int*);
 }
 #define tauola tauola_ 
 
