@@ -490,7 +490,7 @@ namespace pos{
     template <class T>
       static bool configurationDataExists(T* &data, std::string path, PixelConfigKey key){
 
-      std::string mthn = "[pos::PixelConfigFile::configurationDataExists()]\t    " ;
+      std::string mthn = "]\t[pos::PixelConfigFile::configurationDataExists()]\t    " ;
 /*       pos::PixelTimeFormatter * timer = new pos::PixelTimeFormatter("PixelConfigFile::ConfigurationDataExists") ; */
       unsigned int theKey=key.key();
     
@@ -507,17 +507,17 @@ namespace pos{
     
       unsigned int slashpos=base.find_last_of("/");
       if (slashpos==std::string::npos) {
-	std::cout << mthn << "Asking for data of type:"          << typeid(data).name() <<std::endl;
-	std::cout << mthn << "On path:" 	                 << path		<<std::endl;
-	std::cout << mthn << "Recall that you need a trailing /"	                <<std::endl;
+	std::cout << __LINE__ << mthn << "Asking for data of type:"          << typeid(data).name() <<std::endl;
+	std::cout << __LINE__ << mthn << "On path:" 	                 << path		<<std::endl;
+	std::cout << __LINE__ << mthn << "Recall that you need a trailing /"	                <<std::endl;
 	::abort();
       }
     
       std::string dir=base.substr(slashpos+1);
 /*       timer->stopTimer() ; */
-//      std::cout << mthn << "Extracted dir:"  << dir  <<std::endl;
-//      std::cout << mthn << "Extracted base:" << base <<std::endl;
-//      std::cout << mthn << "Extracted ext :" << ext  <<std::endl;
+//      std::cout << __LINE__ << mthn << "Extracted dir:"  << dir  <<std::endl;
+//      std::cout << __LINE__ << mthn << "Extracted base:" << base <<std::endl;
+//      std::cout << __LINE__ << mthn << "Extracted ext :" << ext  <<std::endl;
     
       unsigned int version;
       int err=configList[theKey].find(dir,version);   
@@ -539,7 +539,7 @@ namespace pos{
     
       std::string fullpath=directory+"/"+dir+"/"+strversion+"/";
     
-      //std::cout << "[pos::PixelConfigFile::configurationDataExists()]\t\t\tDirectory for configuration data:"<<fullpath<<std::endl;
+      //std::cout << __LINE__ << mthn << "Directory for configuration data:"<<fullpath<<std::endl;
     
       std::string fileName ;
       if (typeid(data)==typeid(PixelTrimBase*)){
@@ -584,21 +584,21 @@ namespace pos{
 	std::ifstream calibin(calibfile.c_str());
 	if(calibin.good())
 	{
-         std::cout << mthn << "Found " << calibfile << std::endl ; 
+         std::cout << __LINE__ << mthn << "Found " << calibfile << std::endl ; 
 	 return true ;
 	}else{
 	 calibfile=fullpath+"delay25.dat";
 	 std::ifstream delayin(calibfile.c_str());
 	 if(delayin.good())
 	 {
-          std::cout << mthn << "Found " << calibfile << std::endl ; 
+          std::cout << __LINE__ << mthn << "Found " << calibfile << std::endl ; 
 	  return true ;
 	 }else{
 	  calibfile=fullpath+"fedtestdac.dat";
 	  std::ifstream delayin(calibfile.c_str());
 	  if(delayin.good())
 	  {
-           std::cout << mthn << "Found " << calibfile << std::endl ; 
+           std::cout << __LINE__ << mthn << "Found " << calibfile << std::endl ; 
 	   return true ;
 	  }else{
 	   std::cout << mthn << "Can't find calibration file calib.dat or delay25.dat or fedtestdac.dat" << std::endl;
@@ -607,7 +607,7 @@ namespace pos{
 	 }
 	}
       }else{
-	std::cout << mthn << "No match of class type" << std::endl;
+	std::cout << __LINE__ << mthn << "No match of class type" << std::endl;
 	return false ;
       }
       /*
@@ -626,11 +626,11 @@ namespace pos{
       std::ifstream in(fileName.c_str());
       if (!in.good())
       {
-       std::cout << mthn << "Not found " << fileName << std::endl ; 
+       std::cout << __LINE__ << mthn << "Not found " << fileName << std::endl ; 
        return false ;
       }
       in.close() ;
-      if( DEBUG_CF_ ) std::cout << mthn << "Found " << fileName << std::endl ; 
+      if( DEBUG_CF_ ) std::cout << __LINE__ << mthn << "Found " << fileName << std::endl ; 
       return true ;
       
     }
@@ -641,7 +641,7 @@ namespace pos{
     template <class T>
       static void get(T* &data, std::string path, unsigned int version){
 
-      std::string mthn = "[pos::PixelConfigFile::get()]\t\t\t\t    " ;
+      std::string mthn = "]\t[pos::PixelConfigFile::get()]\t\t\t\t    " ;
 
       unsigned int last=path.find_last_of("/");
       assert(last!=std::string::npos);
@@ -651,17 +651,17 @@ namespace pos{
     
       unsigned int slashpos=base.find_last_of("/");
       //if (slashpos==std::string::npos) {
-      //std::cout << mthn << "Asking for data of type:"          << typeid(data).name() << std::endl;
-      //std::cout << mthn << "On path:"                          << path                << std::endl;
-      //std::cout << mthn << "Recall that you need a trailing /"                        << std::endl;
+      //std::cout << __LINE__ << mthn << "Asking for data of type:"          << typeid(data).name() << std::endl;
+      //std::cout << __LINE__ << mthn << "On path:"                          << path                << std::endl;
+      //std::cout << __LINE__ << mthn << "Recall that you need a trailing /"                        << std::endl;
       //::abort();
       //}
     
       std::string dir=base.substr(slashpos+1);
     
-      //std::cout << mthn << "Extracted dir :" << dir  <<std::endl;
-      //std::cout << mthn << "Extracted base:" << base <<std::endl;
-      //std::cout << mthn << "Extracted ext :" << ext  <<std::endl;
+      //std::cout << __LINE__ << mthn << "Extracted dir :" << dir  <<std::endl;
+      //std::cout << __LINE__ << mthn << "Extracted base:" << base <<std::endl;
+      //std::cout << __LINE__ << mthn << "Extracted ext :" << ext  <<std::endl;
     
       std::ostringstream s1;
       s1 << version;
@@ -672,58 +672,58 @@ namespace pos{
     
       std::string fullpath=directory+"/"+dir+"/"+strversion+"/";
     
-      //std::cout << mthn << "Directory for configuration data:"<<fullpath<<std::endl;
+      //std::cout << __LINE__ << mthn << "Directory for configuration data:"<<fullpath<<std::endl;
     
       if (typeid(data)==typeid(PixelTrimBase*)){
-	//std::cout << mthn << "Will return PixelTrimBase" << std::endl;
+	//std::cout << __LINE__ << mthn << "Will return PixelTrimBase" << std::endl;
 	assert(dir=="trim");
 	data = (T*) new PixelTrimAllPixels(fullpath+"ROC_Trims_module_"+ext+".dat");
 	return;
       }else if (typeid(data)==typeid(PixelMaskBase*)){
-	//std::cout << mthn << "Will return PixelMaskBase" << std::endl;
+	//std::cout << __LINE__ << mthn << "Will return PixelMaskBase" << std::endl;
 	assert(dir=="mask");
 	data = (T*) new PixelMaskAllPixels(fullpath+"ROC_Masks_module_"+ext+".dat");
 	return;
       }else if (typeid(data)==typeid(PixelDACSettings*)){
-	//std::cout << mthn << "Will return PixelDACSettings" << std::endl;
+	//std::cout << __LINE__ << mthn << "Will return PixelDACSettings" << std::endl;
 	assert(dir=="dac");
 	data = (T*) new PixelDACSettings(fullpath+"ROC_DAC_module_"+ext+".dat");
 	return;
       }else if (typeid(data)==typeid(PixelTBMSettings*)){
-	//std::cout << mthn << "Will return PixelTBMSettings" << std::endl;
+	//std::cout << __LINE__ << mthn << "Will return PixelTBMSettings" << std::endl;
 	assert(dir=="tbm");
 	data = (T*) new PixelTBMSettings(fullpath+"TBM_module_"+ext+".dat");
 	return;
       }else if (typeid(data)==typeid(PixelDetectorConfig*)){
-	//std::cout << mthn << "Will return PixelDACSettings" << std::endl;
+	//std::cout << __LINE__ << mthn << "Will return PixelDACSettings" << std::endl;
 	assert(dir=="detconfig");
 	data = (T*) new PixelDetectorConfig(fullpath+"detectconfig.dat");
 	return;
       }else if (typeid(data)==typeid(PixelLowVoltageMap*)){
-	//std::cout << mthn << "Will fetch1 PixelLowVoltageMap" << std::endl;
+	//std::cout << __LINE__ << mthn << "Will fetch1 PixelLowVoltageMap" << std::endl;
 	assert(dir=="lowvoltagemap");
 	data = (T*) new PixelLowVoltageMap(fullpath+"detectconfig.dat");
-	//std::cout << mthn << "Will return1 the PixelLowVoltageMap" << std::endl;
+	//std::cout << __LINE__ << mthn << "Will return1 the PixelLowVoltageMap" << std::endl;
 	return;
       }else if (typeid(data)==typeid(PixelMaxVsf*)){
-	//std::cout << mthn << "Will fetch1 PixelMaxVsf" << std::endl;
+	//std::cout << __LINE__ << mthn << "Will fetch1 PixelMaxVsf" << std::endl;
 	assert(dir=="maxvsf");
 	data = (T*) new PixelMaxVsf(fullpath+"maxvsf.dat");
-	//std::cout << mthn << "Will return1 the PixelMaxVsf" << std::endl;
+	//std::cout << __LINE__ << mthn << "Will return1 the PixelMaxVsf" << std::endl;
 	return;
       }else if (typeid(data)==typeid(PixelNameTranslation*)){
-	//std::cout << "[pos::PixelConfigFile::get()]\t\t\tWill return PixelDACSettings" << std::endl;
+	//std::cout << __LINE__ << mthn << "Will return PixelNameTranslation" << std::endl;
 	assert(dir=="nametranslation");
 	data = (T*) new PixelNameTranslation(fullpath+"translation.dat");
 	return;
       }else if (typeid(data)==typeid(PixelFEDCard*)){
-	//std::cout << mthn << "Will return PixelFEDCard" << std::endl;
+	//std::cout << __LINE__ << mthn << "Will return PixelFEDCard" << std::endl;
 	assert(dir=="fedcard");
-	//std::cout << mthn << "Will open:"<<fullpath+"params_fed_"+ext+".dat"<< std::endl;
+	//std::cout << __LINE__ << mthn << "Will open:"<<fullpath+"params_fed_"+ext+".dat"<< std::endl;
 	data = (T*) new PixelFEDCard(fullpath+"params_fed_"+ext+".dat");
 	return;
       }else if (typeid(data)==typeid(PixelCalibBase*)){
-	//std::cout << mthn << "Will return PixelCalibBase" << std::endl;
+	//std::cout << __LINE__ << mthn << "Will return PixelCalibBase" << std::endl;
 	assert(base=="calib");
 	std::string calibfile=fullpath+"calib.dat";
 	//std::cout << mthn << "Looking for file " << calibfile << std::endl;
@@ -732,70 +732,70 @@ namespace pos{
 	  data = (T*) new PixelCalibConfiguration(calibfile);
 	}else{
 	  calibfile=fullpath+"delay25.dat";
-	  //std::cout << mthn << "Now looking for file " << calibfile << std::endl;
+	  //std::cout << __LINE__ << mthn << "Now looking for file " << calibfile << std::endl;
 	  std::ifstream delayin(calibfile.c_str());
 	  if(delayin.good()){
 	    data = (T*) new PixelDelay25Calib(calibfile);
 	  }else{
 	    calibfile=fullpath+"fedtestdac.dat";
-	    //std::cout << mthn << "Now looking for file " << calibfile << std::endl;
+	    //std::cout << __LINE__ << mthn << "Now looking for file " << calibfile << std::endl;
 	    std::ifstream delayin(calibfile.c_str());
 	    if(delayin.good()){
 	      data = (T*) new PixelFEDTestDAC(calibfile);
 	    }else{
-	      std::cout << mthn << "Can't find calibration file calib.dat or delay25.dat or fedtestdac.dat" << std::endl;
+	      std::cout << __LINE__ << mthn << "Can't find calibration file calib.dat or delay25.dat or fedtestdac.dat" << std::endl;
 	      data=0;
 	    }
 	  }
 	}
 	return;
       }else if (typeid(data)==typeid(PixelTKFECConfig*)){
-	//std::cout << mthn << "Will return PixelTKFECConfig" << std::endl;
+	//std::cout << __LINE__ << mthn << "Will return PixelTKFECConfig" << std::endl;
 	assert(dir=="tkfecconfig");
 	data = (T*) new PixelTKFECConfig(fullpath+"tkfecconfig.dat");
 	return;
       }else if (typeid(data)==typeid(PixelFECConfig*)){
-	//std::cout << mthn << "Will return PixelFECConfig" << std::endl;
+	//std::cout << __LINE__ << mthn << "Will return PixelFECConfig" << std::endl;
 	assert(dir=="fecconfig");
 	data = (T*) new PixelFECConfig(fullpath+"fecconfig.dat");
 	return;
       }else if (typeid(data)==typeid(PixelFEDConfig*)){
-	//std::cout << mthn << "Will return PixelFEDConfig" << std::endl;
+	//std::cout << __LINE__ << mthn << "Will return PixelFEDConfig" << std::endl;
 	assert(dir=="fedconfig");
 	data = (T*) new PixelFEDConfig(fullpath+"fedconfig.dat");
 	return;
       }else if (typeid(data)==typeid(PixelPortCardConfig*)){
-	//std::cout << mthn << "Will return PixelPortCardConfig" << std::endl;
+	//std::cout << __LINE__ << mthn << "Will return PixelPortCardConfig" << std::endl;
 	assert(dir=="portcard");
 	data = (T*) new PixelPortCardConfig(fullpath+"portcard_"+ext+".dat");
 	return;
       }else if (typeid(data)==typeid(PixelPortcardMap*)){
-	//std::cout << mthn << "Will return PixelPortcardMap" << std::endl;
+	//std::cout << __LINE__ << mthn << "Will return PixelPortcardMap" << std::endl;
 	assert(dir=="portcardmap");
 	data = (T*) new PixelPortcardMap(fullpath+"portcardmap.dat");
 	return;
       }else if (typeid(data)==typeid(PixelDelay25Calib*)){
-	//cout << mthn << "Will return PixelDelay25Calib" << std::endl;
+	//cout << __LINE__ << mthn << "Will return PixelDelay25Calib" << std::endl;
 	assert(dir=="portcard");
 	data = (T*) new PixelDelay25Calib(fullpath+"delay25.dat");
 	return;
       }else if (typeid(data)==typeid(PixelTTCciConfig*)){
-	//cout << mthn << "Will return PixelTTCciConfig" << std::endl;
+	//cout << __LINE__ << mthn << "Will return PixelTTCciConfig" << std::endl;
 	assert(dir=="ttcciconfig");
 	data = (T*) new PixelTTCciConfig(fullpath+"TTCciConfiguration.txt");
 	return;
       }else if (typeid(data)==typeid(PixelLTCConfig*)){
-	//cout << mthn << "Will return PixelLTCConfig" << std::endl;
+	//cout << __LINE__ << mthn << "Will return PixelLTCConfig" << std::endl;
 	assert(dir=="ltcconfig");
 	data = (T*) new PixelLTCConfig(fullpath+"LTCConfiguration.txt");
 	return;
       }else if (typeid(data)==typeid(PixelGlobalDelay25*)){
-	//std::cout << mthn << "Will return PixelGlobalDelay25" << std::endl;
+	//std::cout << __LINE__ << mthn << "Will return PixelGlobalDelay25" << std::endl;
 	assert(dir=="globaldelay25");
 	data = (T*) new PixelGlobalDelay25(fullpath+"globaldelay25.dat");
 	return;
       }else{
-	std::cout << mthn << "No class match" << std::endl;
+	std::cout << __LINE__ << mthn << "No class match" << std::endl;
 	assert(0);
 	data=0;
 	return;
