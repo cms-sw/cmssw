@@ -4,6 +4,8 @@ from Configuration.GenProduction.PythiaUESettings_cfi import *
 
 process = cms.Process("TEST")
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+#process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.load("Configuration.StandardSequences.Services_cff")
 
