@@ -116,7 +116,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
 
 
-   canvas = new TCanvas("Tracks1","Tracks: efficiency & fakerate",1000,1400);
+   canvas = new TCanvas("Tracks","Tracks: efficiency & fakerate",1000,1400);
 
 
    //NormalizeHistograms(rh2,sh2);
@@ -164,7 +164,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rdir->GetObject(collname1+"/num_reco_pT",rh4);
    sdir->GetObject(collname2+"/num_reco_pT",sh4);
    
-   canvas = new TCanvas("Tracks1","Tracks: efficiency & fakerate",1000,1050);
+   canvas = new TCanvas("Tracks1","Tracks: hits and Pt",1000,1050);
    
    rh1->GetYaxis()->SetRangeUser(8,24);
    sh1->GetYaxis()->SetRangeUser(8,24);
@@ -575,9 +575,93 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    delete l;
 
 
- }
+    //===== building
+   rdir->GetObject(collname1+"/effic_vs_phi",rh1);
+   sdir->GetObject(collname2+"/effic_vs_phi",sh1);
+   rh1->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
+   sh1->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
+//   rh1->GetYaxis()->SetRangeUser(0.5,1.025);
+//   sh1->GetYaxis()->SetRangeUser(0.5,1.025);
+   rdir->GetObject(collname1+"/fakerate_vs_phi",rh2);
+   sdir->GetObject(collname2+"/fakerate_vs_phi",sh2);
+   rh2->GetYaxis()->SetRangeUser(0.,MAXFAKE);
+   sh2->GetYaxis()->SetRangeUser(0.,MAXFAKE);
+//   rh2->GetYaxis()->SetRangeUser(0.,.70);
+//   sh2->GetYaxis()->SetRangeUser(0.,.70);
+
+
+
+   rdir->GetObject(collname1+"/effic_vs_dxy",rh3);
+   sdir->GetObject(collname2+"/effic_vs_dxy",sh3);
+   rh3->GetYaxis()->SetTitle("efficiency vs dxy");
+   rh3->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
+   sh3->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
+   rh3->GetYaxis()->SetTitleSize(0.05);
+   rh3->GetYaxis()->SetTitleOffset(1.2);
+   rh3->SetTitle("");
+   rdir->GetObject(collname1+"/fakerate_vs_dxy",rh4);
+   sdir->GetObject(collname2+"/fakerate_vs_dxy",sh4);
+   rh4->SetTitle("");
+   rh4->GetYaxis()->SetTitle("fakrate vs dxy");
+   rh4->GetYaxis()->SetTitleSize(0.05);
+   rh4->GetYaxis()->SetTitleOffset(1.2);
+   rh4->GetYaxis()->SetRangeUser(0.,MAXFAKE);
+   sh4->GetYaxis()->SetRangeUser(0.,MAXFAKE);
+
+
+   rdir->GetObject(collname1+"/effic_vs_dz",rh5);
+   sdir->GetObject(collname2+"/effic_vs_dz",sh5);
+   rh5->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
+   sh5->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
+   rdir->GetObject(collname1+"/fakerate_vs_dz",rh6);
+   sdir->GetObject(collname2+"/fakerate_vs_dz",sh6);
+   rh6->GetYaxis()->SetRangeUser(0.,1.0);
+   rh6->GetYaxis()->SetRangeUser(0.,1.0);
+
+   //rdir->GetObject(collname1+"/num_reco_pT",rh6);
+   //sdir->GetObject(collname2+"/num_reco_pT",sh6);
+
  
+
+
+   canvas = new TCanvas("Tracks8","Tracks: efficiency & fakerate",1000,1400);
+
+
+   //NormalizeHistograms(rh2,sh2);
+   //NormalizeHistograms(rh6,sh6);
+   //rh1->GetYaxis()->SetRangeUser(8,24);
+   //sh1->GetYaxis()->SetRangeUser(8,24);
+
+   //rh6->GetXaxis()->SetRangeUser(0,10);
+   //sh6->GetXaxis()->SetRangeUser(0,10);
+
+
+   plotBuilding(canvas,
+		sh1,rh1,sh2,rh2,
+		sh3,rh3,sh4,rh4,
+		sh5,rh5,sh6,rh6,
+		te,"UU",-1);
+
+   canvas->cd();
+   //TPaveText* text = new TPaveText(0.25,0.72,0.75,0.77,"prova");
+   //text->SetFillColor(0);
+   //text->SetTextColor(1);
+   //text->Draw();
+   l = new TLegend(0.10,0.64,0.90,0.69);
+   l->SetTextSize(0.016);
+   l->SetLineColor(1);
+   l->SetLineWidth(1);
+   l->SetLineStyle(1);
+   l->SetFillColor(0);
+   l->SetBorderSize(3);
+   l->AddEntry(rh1,refLabel,"LPF");
+   l->AddEntry(sh1,newLabel,"LPF");
+   l->Draw();
+   canvas->Print("building2.pdf");   
+   delete l;
+ }
 }
+
 
 void NormalizeHistograms(TH1F* h1, TH1F* h2)
 {

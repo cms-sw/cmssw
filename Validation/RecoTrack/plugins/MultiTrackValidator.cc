@@ -172,6 +172,9 @@ void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       h_TIDhits_eta.push_back( dbe_->bookProfile("TIDhits_eta","mean # TID hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_TOBhits_eta.push_back( dbe_->bookProfile("TOBhits_eta","mean # TOB hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_TEChits_eta.push_back( dbe_->bookProfile("TEChits_eta","mean # TEC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
+      h_DThits_eta.push_back( dbe_->bookProfile("DThits_eta","mean # DT hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
+      h_CSChits_eta.push_back( dbe_->bookProfile("CSChits_eta","mean # CSC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
+      h_RPChits_eta.push_back( dbe_->bookProfile("RPChits_eta","mean # RPC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_LayersWithMeas_eta.push_back( 
        dbe_->bookProfile("LayersWithMeas_eta","mean # LayersWithMeas vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_PXLlayersWithMeas_eta.push_back( 
@@ -440,8 +443,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  }
 	}
 	for (unsigned int f=0; f<dzintervals[w].size()-1; f++){
-	  if (sqrt(tp->vertex().z())>dzintervals[w][f]&&
-	      sqrt(tp->vertex().z())<dzintervals[w][f+1]) {
+	  if (tp->vertex().z()>dzintervals[w][f]&&
+	      tp->vertex().z()<dzintervals[w][f+1]) {
 	    totSIM_dz[w][f]++;
  	    if (rt.size()!=0) {
  	      totASS_dz[w][f]++;
@@ -517,8 +520,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	}
 
 	for (unsigned int f=0; f<dxyintervals[w].size()-1; f++){
-	  if (track->dxy(bs.position())>dxyintervals[w][f]&&
-	      track->dxy(bs.position())<dxyintervals[w][f+1]) {
+	  if (fabs(track->dxy(bs.position()))>dxyintervals[w][f]&&
+	      fabs(track->dxy(bs.position()))<dxyintervals[w][f+1]) {
 	    totREC_dxy[w][f]++; 
 	    if (tp.size()!=0) {
 	      totASS2_dxy[w][f]++;
