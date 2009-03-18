@@ -153,14 +153,9 @@ void OptAlignDataConverter::endJob()
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( mydbservice.isAvailable() ){
     try{
-      if ( mydbservice->isNewTagRequest( "OpticalAlignmentsRcd" ) )
-	mydbservice->createNewIOV<OpticalAlignments>(myobj,
-						     mydbservice->endOfTime(),
-						     "OpticalAlignmentsRcd");
-      else
-        mydbservice->appendSinceTime<OpticalAlignments>( myobj,
-							 mydbservice->currentTime(),
-							 "OpticalAlignmentsRcd");
+      mydbservice->writeOne<OpticalAlignments>(myobj,
+     					     mydbservice->currentTime(),
+					     "OpticalAlignmentsRcd");
     }catch(const cond::Exception& er){
       std::cout<<er.what()<<std::endl;
     }catch(const std::exception& er){
