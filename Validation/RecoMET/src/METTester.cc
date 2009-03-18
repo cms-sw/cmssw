@@ -343,12 +343,13 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double MEx = pfmet->px();
       double MEy = pfmet->py();
       double METPhi = pfmet->phi();
-
+      double METSig = pfmet->mEtSig();
       me["hMEx"]->Fill(MEx);
       me["hMEy"]->Fill(MEy);
       me["hMET"]->Fill(MET);
       me["hMETPhi"]->Fill(METPhi);
       me["hSumET"]->Fill(SumET);
+      me["hMETSig"]->Fill(METSig);
     }
   else if (METType_ == "MET")
     {
