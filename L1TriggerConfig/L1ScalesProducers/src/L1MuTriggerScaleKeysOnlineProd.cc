@@ -7,8 +7,8 @@
 //
 //   https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideL1ConfigOnlineProd r11
 //
-//   $Date: 2008/11/24 18:59:59 $
-//   $Revision: 1.1 $
+//   $Date: 2009/03/13 17:59:48 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   Thomas Themel
@@ -17,6 +17,8 @@
 
 #include "CondTools/L1Trigger/interface/L1ObjectKeysOnlineProdBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CondCore/DBCommon/interface/Exception.h"
+
 
 class L1MuTriggerScaleKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
    public:
