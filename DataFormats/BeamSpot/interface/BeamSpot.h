@@ -7,7 +7,7 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: BeamSpot.h,v 1.5 2008/04/04 16:16:58 yumiceva Exp $
+ * \version $Id: BeamSpot.h,v 1.6 2009/03/13 21:21:58 yumiceva Exp $
  *
  */
 
@@ -51,7 +51,7 @@ namespace reco {
       dxdz_ = dxdz;
       dydz_ = dydz;
       BeamWidthX_ = BeamWidthX;
-	  BeamWidthY_ = BeamWidthX;
+      BeamWidthY_ = BeamWidthX;
       error_ = error;
 	  type_ = type;
     };
@@ -95,7 +95,7 @@ namespace reco {
 
 	///
 	void setBeamWidthX( double v ) { BeamWidthX_ = v; }
-	void setBeamWdithY( double v ) { BeamWidthY_ = v; }
+	void setBeamWidthY( double v ) { BeamWidthY_ = v; }
 	
     /// (i,j)-th element of error matrix
     double covariance( int i, int j) const {
