@@ -4,7 +4,7 @@
  <class name="Pedestals" class_version="0"/>
  <class name="BlobPedestals"/>
 
- <class name="pool::Ptr<Pedestals>"/>
+ <class name="pool::PolyPtr<Pedestals>"/>
  <class name="cond::DataWrapper<Pedestals>"/>
 
 
@@ -12,7 +12,7 @@
  <class name="BlobNoises::DetRegistry"/>  
  <class name="std::vector<BlobNoises::DetRegistry>"/>
 
- <class name="pool::Ptr<mySiStripNoises>"/>
+ <class name="pool::PolyPtr<mySiStripNoises>"/>
  <class name="cond::DataWrapper<mySiStripNoises>"/>
  
 <class name="mySiStripNoises" class_version="0"/>
@@ -31,7 +31,7 @@
  <class name="std::vector<BlobComplexObjects>"/>
  <class name="BlobComplex"/>
 
- <class name="pool::Ptr<BlobComplex>"/>
+ <class name="pool::PolyPtr<BlobComplex>"/>
  <class name="cond::DataWrapper<BlobComplex>"/>
 
 

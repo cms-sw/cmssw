@@ -7,7 +7,7 @@
 namespace {
   namespace {
     struct dictionaries {
-	pool::Ptr<std::string> d0;
+	pool::PolyPtr<std::string> d0;
     };
 
     struct Dummy {

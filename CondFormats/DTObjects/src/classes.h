@@ -75,25 +75,25 @@ namespace {
 // wrapper declarations
 namespace {
    struct wrappers {
-      pool::Ptr<DTReadOutMapping > p0;
+      pool::PolyPtr<DTReadOutMapping > p0;
       cond::DataWrapper<DTReadOutMapping > dw0;
-      pool::Ptr<DTT0 > p1;
+      pool::PolyPtr<DTT0 > p1;
       cond::DataWrapper<DTT0 > dw1;
-      pool::Ptr<DTRangeT0 > p2;
+      pool::PolyPtr<DTRangeT0 > p2;
       cond::DataWrapper<DTRangeT0 > dw2;
-      pool::Ptr<DTTtrig > p3;
+      pool::PolyPtr<DTTtrig > p3;
       cond::DataWrapper<DTTtrig > dw3;
-      pool::Ptr<DTMtime > p4;
+      pool::PolyPtr<DTMtime > p4;
       cond::DataWrapper<DTMtime > dw4;
-      pool::Ptr<DTStatusFlag > p5;
+      pool::PolyPtr<DTStatusFlag > p5;
       cond::DataWrapper<DTStatusFlag > dw5;
-      pool::Ptr<DTDeadFlag > p6;
+      pool::PolyPtr<DTDeadFlag > p6;
       cond::DataWrapper<DTDeadFlag > dw6;
-      pool::Ptr<DTPerformance > p7;
+      pool::PolyPtr<DTPerformance > p7;
       cond::DataWrapper<DTPerformance > dw7;
-      pool::Ptr<DTCCBConfig > p8;
+      pool::PolyPtr<DTCCBConfig > p8;
       cond::DataWrapper<DTCCBConfig > dw8;
-      pool::Ptr<DTTPGParameters > p9;
+      pool::PolyPtr<DTTPGParameters > p9;
       cond::DataWrapper<DTTPGParameters > dw9;
 
    };

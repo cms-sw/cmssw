@@ -9,17 +9,17 @@
 
  <class name="cond::PayloadWrapper"/>
  <class name="cond::Summary"/>
- <class name="pool::Ptr<cond::Summary>"/>
+ <class name="pool::PolyPtr<cond::Summary>"/>
 
 
-<class name="pool::Ptr<std::basic_string<char> >"/>
+<class name="pool::PolyPtr<std::basic_string<char> >"/>
  
 <class name="std::vector<int>"/>
  <class name="std::vector<double>"/>
- <class name="pool::Ptr<std::vector<int> >"/>
+ <class name="pool::PolyPtr<std::vector<int> >"/>
  <class name="cond::DataWrapper<std::vector<int> >"/>
  >
- <class name="pool::Ptr<std::vector<double> >"/>
+ <class name="pool::PolyPtr<std::vector<double> >"/>
  <class name="cond::DataWrapper<std::vector<double> >"/>
 
 </lcgdict>   

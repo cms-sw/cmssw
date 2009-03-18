@@ -46,7 +46,7 @@ namespace cond {
     
   private:
     
-    pool::Ptr<Summary> m_summary;
+    pool::PolyPtr<Summary> m_summary;
     
   };
   
@@ -79,7 +79,7 @@ namespace cond {
     
   private:
     
-    pool::Ptr<Object> m_data;
+    pool::PolyPtr<Object> m_data;
   };
   
 } // ns

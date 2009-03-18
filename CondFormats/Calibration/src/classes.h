@@ -48,11 +48,11 @@ namespace {
     std::map<std::string, Algo>::const_iterator tmp23;
   };
   struct wrappers {
-    pool::Ptr<mySiStripNoises> p0;
+    pool::PolyPtr<mySiStripNoises> p0;
     cond::DataWrapper<mySiStripNoises> d0;
-    pool::Ptr<Pedestals> p1;
+    pool::PolyPtr<Pedestals> p1;
     cond::DataWrapper<Pedestals> d1;
-    pool::Ptr<BlobComplex> p2;
+    pool::PolyPtr<BlobComplex> p2;
     cond::DataWrapper<BlobComplex> d2;
   };
 }
