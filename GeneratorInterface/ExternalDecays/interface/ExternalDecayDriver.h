@@ -2,6 +2,7 @@
 #define gen_ExternalDecayDriver_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 namespace HepMC
 {
@@ -21,7 +22,7 @@ class EvtGenInterface;
 	 ExternalDecayDriver( const edm::ParameterSet& );
 	 ~ExternalDecayDriver();
 	 
-	 void init();
+	 void init( const edm::EventSetup& );
 
 	 const std::vector<int>& operatesOnParticles() { return fPDGs; }
 	 
