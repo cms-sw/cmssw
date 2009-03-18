@@ -6,7 +6,7 @@ cmsRun $LOCALRT/src/CondCore/PopCon/test/PopConEffExample.py
 
 sqlite3 pop_test.db .tables
 
-cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag1
+cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag1 -s
 
 cmsRun $LOCALRT/src/CondCore/PopCon/test/print_eff_example.py
 
