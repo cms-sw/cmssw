@@ -1,19 +1,6 @@
 #include "RecoLocalTracker/SiStripClusterizer/plugins/SiStripClusterizer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithmFactory.h"
-#include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
 
 SiStripClusterizer::
 SiStripClusterizer(const edm::ParameterSet& conf) 
@@ -34,7 +21,7 @@ produce(edm::Event& event, const edm::EventSetup& es)  {
   algorithm->initialize(es);  
   if( findInput(inputOld, event) ) algorithm->clusterize(*inputOld, *output); else 
     if( findInput(inputNew, event) ) algorithm->clusterize(*inputNew, *output); else
-      edm::LogError("Input Not Found");
+      edm::LogWarning("Input Not Found");
 
   edm::LogInfo("Output") << output->dataSize() << " clusters from " 
 			 << output->size()     << " modules";

@@ -1,7 +1,6 @@
 #ifndef RecoLocalTracker_SiStripClusterizer_h
 #define RecoLocalTracker_SiStripClusterizer_h
 
-class InputTag;
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
