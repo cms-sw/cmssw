@@ -1297,12 +1297,24 @@ C-----------------------------------------------------------------------
    9  K(I)=J
       B(I)=A(J)
       I=I+1
-      IF(IR(J)) 12,30,13
-  13  J=IR(J)
-      GOTO 8
-  12  J=-IR(J)
-      GOTO 9
-  30  IF(IOPT.EQ.2) RETURN
+
+C Compatibility with gfortran (CMSSW 3_X)
+C      IF(IR(J)) 12,30,13
+C  13  J=IR(J)
+C      GOTO 8
+C  12  J=-IR(J)
+C      GOTO 9
+C  30  IF(IOPT.EQ.2) RETURN
+
+      IF (IR(J).GT.0) THEN
+         J=IR(J)
+         GOTO 8
+      ELSEIF (IR(J).LT.0) then
+         J=-IR(J)
+         GOTO 9
+      ENDIF
+      IF (IOPT.EQ.2) RETURN 
+
       DO 31 I=1,N
   31  A(I)=B(I)
  999  END
