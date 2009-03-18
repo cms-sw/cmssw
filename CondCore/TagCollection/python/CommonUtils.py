@@ -74,10 +74,10 @@ def tagInTrees(dbsession,tagname,pfn=''):
 	      myresult=coral.AttributeList() 
 	      myresult.extend('count','unsigned long')
 	      q.defineOutput(myresult)
+	      q.setCondition(condition,conditionBind)
 	      cr=q.execute()
 	      while (cr.next()):
-	        if cr.currentRow()['count']!=0:
-		  #print cr.currentRow()['count']
+	        if cr.currentRow()['count'].data()!=0:
 		  result[pfn].append(t[len('TAGTREE_TABLE_'):])
 	      cr.close()
 	      del q
