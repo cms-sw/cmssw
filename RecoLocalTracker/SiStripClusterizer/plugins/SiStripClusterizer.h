@@ -10,7 +10,6 @@ class SiStripClusterizer : public edm::EDProducer  {
 public:
 
   explicit SiStripClusterizer(const edm::ParameterSet& conf);
-  virtual ~SiStripClusterizer() {}    
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
 private:
