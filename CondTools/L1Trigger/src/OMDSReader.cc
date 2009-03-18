@@ -2,16 +2,18 @@
 //
 // Package:     L1Trigger
 // Class  :     OMDSReader
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Mar  2 01:46:46 CET 2008
-// $Id: OMDSReader.cc,v 1.8 2008/12/04 20:43:49 wsun Exp $
+// $Id: OMDSReader.cc,v 1.9 2008/12/09 17:07:43 wsun Exp $
 //
 
 // system include files
+#include <set>
+#include <iostream>
 
 // user include files
 #include "CondTools/L1Trigger/interface/OMDSReader.h"
@@ -171,7 +173,127 @@ OMDSReader::~OMDSReader()
     return names ;
   }
 
-//
+  // VIEW
+
+  const OMDSReader::QueryResults
+  OMDSReader::basicQueryView(
+    const std::vector< std::string >& columnNames,
+    const std::string& schemaName,
+    const std::string& viewName,
+    const std::string& conditionLHS,
+    const QueryResults conditionRHS,
+    const std::string& conditionRHSName ) const
+  {
+    coral::ISchema& schema = schemaName.empty() ?
+      m_coralTransaction->nominalSchema() :
+      m_coralTransaction->coralSessionProxy().schema( schemaName ) ;
+
+    coral::IView& view = schema.viewHandle( viewName ) ;
+
+    // Pointer is deleted automatically at end of function.
+    coral::IQuery* query = schema.newQuery(); ;
+
+    // Construct query
+    for (std::vector<std::string>::const_iterator constIt = columnNames.begin(); constIt
+            != columnNames.end(); ++constIt) {
+        query->addToOutputList(*constIt);
+    }
+
+    query->addToTableList(viewName);
+
+    // Only apply condition if RHS has one row.
+    if (!conditionLHS.empty() && conditionRHS.numberRows() == 1) {
+
+        if (!conditionRHSName.empty()) {
+            // Assume all RHS types are strings.
+            coral::AttributeList attList;
+            attList.extend(conditionRHSName, typeid(std::string));
+            std::string tmp;
+            conditionRHS.fillVariable(conditionRHSName, tmp);
+            attList[conditionRHSName].data<std::string> () = tmp;
+
+            query->setCondition(conditionLHS + " = :" + conditionRHSName, attList);
+        } else if (conditionRHS.columnNames().size() == 1)
+        // check for only one column
+        {
+            query->setCondition(
+                    conditionLHS + " = :" + conditionRHS.columnNames().front(),
+                    conditionRHS.attributeLists().front());
+        }
+    }
+
+    coral::ICursor& cursor = query->execute();
+
+    // Copy AttributeLists for external use because the cursor is deleted
+    // when the query goes out of scope.
+    std::vector<coral::AttributeList> atts;
+    while (cursor.next()) {
+        atts.push_back(cursor.currentRow());
+    };
+
+    delete query;
+
+//    // Run a wildcard query on the view
+//    coral::IQuery* query2 = workingSchema.newQuery();
+//    query2->addToTableList(V0);
+//    coral::ICursor& cursor2 = query2->execute();
+//    while ( cursor2.next() ) {
+//      cursor2.currentRow().toOutputStream( std::cout ) << std::endl;
+//    }
+//    delete query2;
+
+
+
+    return QueryResults(columnNames, atts);
+  }
+
+  const OMDSReader::QueryResults
+  OMDSReader::basicQueryView(
+    const std::string& columnName,
+    const std::string& schemaName,
+    const std::string& viewName,
+    const std::string& conditionLHS,
+    const QueryResults conditionRHS,
+    const std::string& conditionRHSName ) const
+  {
+    std::vector< std::string > columnNames ;
+    columnNames.push_back( columnName ) ;
+    return basicQuery( columnNames, schemaName, viewName,
+            conditionLHS, conditionRHS, conditionRHSName ) ;
+  }
+
+  std::vector< std::string >
+  OMDSReader::columnNamesView(
+    const std::string& schemaName,
+    const std::string& viewName ) const
+  {
+    coral::ISchema& schema = schemaName.empty() ?
+      m_coralTransaction->nominalSchema() :
+      m_coralTransaction->coralSessionProxy().schema( schemaName ) ;
+
+    std::set< std::string > views = schema.listViews ();
+    std::vector< std::string > names ;
+
+    if (schema.existsView (viewName)) {
+
+        coral::IView& view = schema.viewHandle( viewName ) ;
+
+        int nCols = view.numberOfColumns() ;
+
+        for (int i = 0; i < nCols; ++i) {
+            const coral::IColumn& column = view.column(i);
+            names.push_back(column.name());
+        }
+
+        return names ;
+
+    }
+
+    return names ;
+
+  }
+
+  //
 // static member functions
 //
 }

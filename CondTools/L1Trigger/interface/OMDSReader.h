@@ -4,7 +4,7 @@
 //
 // Package:     L1Trigger
 // Class  :     OMDSReader
-// 
+//
 /**\class OMDSReader OMDSReader.h CondTools/L1Trigger/interface/OMDSReader.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sun Mar  2 01:36:06 CET 2008
-// $Id: OMDSReader.h,v 1.10 2008/12/09 17:07:42 wsun Exp $
+// $Id: OMDSReader.h,v 1.11 2008/12/15 21:07:16 wsun Exp $
 //
 
 // system include files
@@ -32,6 +32,7 @@
 #include "CoralBase/Attribute.h"
 
 #include "RelationalAccess/ITable.h"
+#include "RelationalAccess/IView.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ICursor.h"
@@ -130,6 +131,31 @@ namespace l1t
 	                 // if empty, conditionRHS must have only one column
 	) const ;
 
+
+      // Assume data type of condition RHS is std::string
+      const QueryResults basicQueryView(
+    const std::vector< std::string >& columnNames,
+    const std::string& schemaName, // for nominal schema, use ""
+    const std::string& viewName,
+    const std::string& conditionLHS = "",
+    const QueryResults conditionRHS = QueryResults(),
+                                               // must have only one row
+    const std::string& conditionRHSName = ""
+                     // if empty, conditionRHS must have only one column
+    ) const ;
+
+      // Assume data type of condition RHS is std::string
+      const QueryResults basicQueryView(
+    const std::string& columnName,
+    const std::string& schemaName, // for nominal schema, use ""
+    const std::string& viewName,
+    const std::string& conditionLHS = "",
+    const QueryResults conditionRHS = QueryResults(),
+                                               // must have only one row
+    const std::string& conditionRHSName = ""
+                     // if empty, conditionRHS must have only one column
+    ) const ;
+
       // For any data type of condition RHS.
       // Example usage, for an int key:
       //   results = omdsReader.basicQueryGenericKey<int>(...) ;
@@ -166,6 +192,10 @@ namespace l1t
       std::vector< std::string > columnNames(
 	const std::string& schemaName, // for nominal schema, use ""
 	const std::string& tableName ) const ;
+
+      std::vector< std::string > columnNamesView(
+    const std::string& schemaName, // for nominal schema, use ""
+    const std::string& viewName ) const ;
 
       // ---------- static member functions --------------------
 
