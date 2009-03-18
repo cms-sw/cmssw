@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.3 2009/03/17 17:25:51 jmuelmen Exp $
+// $Id: FWElectronDetailView.cc,v 1.4 2009/03/18 08:43:04 jmuelmen Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "TROOT.h"
 #include "TEveBoxSet.h"
 #include "TEveSceneInfo.h"
+#include "TEveStraightLineSet.h"
 #define private public
 #define protected public
 #include "TEveCalo.h"
@@ -215,21 +216,26 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
 //        rotationCenter()[0] = i->TrackPositionAtCalo().x();
 //        rotationCenter()[1] = i->TrackPositionAtCalo().y();
 //        rotationCenter()[2] = i->TrackPositionAtCalo().z();
-      TEvePointSet *scposition =
-         new TEvePointSet("sc position", 1);
+      TEveStraightLineSet *scposition =
+	   new TEveStraightLineSet("sc position");
       if (subdetId == EcalBarrel) {
-         scposition->SetNextPoint(i->caloPosition().eta() * scale,
-                                  i->caloPosition().phi() * scale,
-                                  1);
+	   scposition->AddLine(i->caloPosition().eta(),
+			       i->caloPosition().phi(),
+			       1,
+			       i->caloPosition().eta(),
+			       i->caloPosition().phi(),
+			       1);
+	   scposition->AddMarker(0, 0.5);
       } else if (subdetId == EcalEndcap) {
-         scposition->SetNextPoint(i->caloPosition().x() * scale,
-                                  i->caloPosition().y() * scale,
-                                  1);
+// 	   scposition->SetNextPoint(i->caloPosition().x() * scale,
+// 				    i->caloPosition().y() * scale,
+// 				    1);
       }
-      scposition->SetMarkerStyle(28);
-      scposition->SetMarkerSize(0.25);
+//       scposition->SetMarkerStyle(28);
+      scposition->SetMarkerSize(2);
       scposition->SetMarkerColor(kBlue);
       tList->AddElement(scposition);
+/*
       TEvePointSet *seedposition =
          new TEvePointSet("seed position", 1);
       if (subdetId == EcalBarrel) {
@@ -248,25 +254,33 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
       seedposition->SetMarkerSize(0.25);
       seedposition->SetMarkerColor(kRed);
       tList->AddElement(seedposition);
-      TEveLine *trackpositionAtCalo =
-         new TEveLine("sc trackpositionAtCalo");
+*/
+      TEveStraightLineSet *trackpositionAtCalo =
+	   new TEveStraightLineSet("sc trackpositionAtCalo");
       if (subdetId == EcalBarrel) {
-         trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().eta() * scale,
-                                           rotationCenter()[1] - 0.5,
-                                           0);
-         trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().eta() * scale,
-                                           rotationCenter()[1] + 0.5,
-                                           0);
+	   trackpositionAtCalo->AddLine(i->TrackPositionAtCalo().eta() * scale,
+					rotationCenter()[1] - 0.5,
+					0,
+					i->TrackPositionAtCalo().eta() * scale,
+					rotationCenter()[1] + 0.5,
+					0);
+	   trackpositionAtCalo->AddLine(rotationCenter()[0] - 0.5,
+					i->TrackPositionAtCalo().phi() * scale,
+					0,
+					rotationCenter()[0] + 0.5,
+					i->TrackPositionAtCalo().phi() * scale,
+					0);
       } else if (subdetId == EcalEndcap) {
-         trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().x() * scale,
-                                           rotationCenter()[1] - 0.5,
-                                           0);
-         trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().x() * scale,
-                                           rotationCenter()[1] + 0.5,
-                                           0);
+//          trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().x() * scale,
+//                                            rotationCenter()[1] - 0.5,
+//                                            0);
+//          trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().x() * scale,
+//                                            rotationCenter()[1] + 0.5,
+//                                            0);
       }
       trackpositionAtCalo->SetLineColor(kBlue);
       tList->AddElement(trackpositionAtCalo);
+/*
       trackpositionAtCalo = new TEveLine("sc trackpositionAtCalo");
       if (subdetId == EcalBarrel) {
          trackpositionAtCalo->SetNextPoint(rotationCenter()[0] - 0.5,
@@ -324,6 +338,8 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
       pinposition->SetMarkerStyle(28);
       pinposition->SetLineColor(kRed);
       tList->AddElement(pinposition);
+*/
+
       // vector for the ECAL crystals
       TEveCaloDataVec* data = new TEveCaloDataVec(2);
       // one slice for the seed cluster (red) and one for the
@@ -382,12 +398,12 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
 
       // scale all our lines and points to match the lego
       rescale(&scposition->RefMainTrans(), x_min, x_max, y_min, y_max);
-      rescale(&seedposition->RefMainTrans(), x_min, x_max, y_min, y_max);
-      rescale(&pinposition->RefMainTrans(), x_min, x_max, y_min, y_max);
+
+//      rescale(&seedposition->RefMainTrans(), x_min, x_max, y_min, y_max);
+//      rescale(&pinposition->RefMainTrans(), x_min, x_max, y_min, y_max);
 //          rescale(&pinposition2->RefMainTrans(), x_min, x_max, y_min, y_max);
       rescale(&trackpositionAtCalo->RefMainTrans(), x_min, x_max, y_min, y_max);
 //          rescale(&trackpositionAtCalo2->RefMainTrans(), x_min, x_max, y_min, y_max);
-         
 //          tList->AddElement(pinposition);
 //          tList->AddElement(pinposition2);
 
