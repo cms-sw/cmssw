@@ -18,7 +18,6 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
-#include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/RunID.h"
@@ -274,10 +273,8 @@ namespace edm {
       metaDataTree->SetBranchAddress(poolNames::eventHistoryBranchName().c_str(), &eventHistoryIDsPtr);
     }
 
-    ModuleDescriptionRegistry::collection_type mdMap;
-    ModuleDescriptionRegistry::collection_type *mdMapPtr = &mdMap;
     if (metaDataTree->FindBranch(poolNames::moduleDescriptionMapBranchName().c_str()) != 0) {
-      metaDataTree->SetBranchAddress(poolNames::moduleDescriptionMapBranchName().c_str(), &mdMapPtr);
+      metaDataTree->SetBranchStatus(poolNames::moduleDescriptionMapBranchName().c_str(), 0);
     }
 
     // Here we read the metadata tree
@@ -308,7 +305,6 @@ namespace edm {
 	    inputProdHistReg, pHistMap, pHistVector, procConfigVector, psetIdConverter, true));
       // Fill in the branchIDLists branch from the provenance adaptor
       branchIDLists_ = provenanceAdaptor_->branchIDLists();
-      ModuleDescriptionRegistry::instance()->insertCollection(mdMap);
     } else {
       if (fileFormatVersion_.value_ == 11) {
         // Now provenance format, but old ParameterSet Format. Create a provenance adaptor.
