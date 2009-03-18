@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.7 2009/01/23 21:35:44 amraktad Exp $
+// $Id: FWSummaryManager.cc,v 1.8 2009/03/04 17:07:26 chrjones Exp $
 //
 
 // system include files
@@ -27,6 +27,7 @@
 #include "Fireworks/Core/src/FWCollectionSummaryWidget.h"
 #include "Fireworks/Core/interface/FWDataCategories.h"
 
+#include "Fireworks/Core/src/FWCompactVerticalLayout.h"
 
 //
 // constants, enums and typedefs
@@ -44,7 +45,8 @@ FWSummaryManager::FWSummaryManager(TGFrame* iParent,
                                    FWEventItemsManager* eim,
                                    FWGUIManager* gm,
                                    FWModelChangeManager* cm) :
-   m_guiManager(gm)
+   m_guiManager(gm),
+m_itemChanged(false)
 {
    sm->selectionChanged_.connect(boost::bind(&FWSummaryManager::selectionChanged,this,_1));
    eim->newItem_.connect(boost::bind(&FWSummaryManager::newItem,
@@ -53,6 +55,7 @@ FWSummaryManager::FWSummaryManager(TGFrame* iParent,
 
 
    m_pack = new TGVerticalFrame(iParent);
+   m_pack->SetLayoutManager( new FWCompactVerticalLayout(m_pack));
    const unsigned int backgroundColor=0x2f2f2f;
    m_pack->SetBackgroundColor(backgroundColor);
    /*m_eventObjects =  new TEveElementList("Physics Objects");
@@ -96,6 +99,7 @@ FWSummaryManager::newItem(FWEventItem* iItem)
    m_pack->AddFrame(lst, hints);
    m_collectionWidgets.push_back(lst);
    iItem->goingToBeDestroyed_.connect(boost::bind(&FWSummaryManager::itemDestroyed,this,_1));
+   iItem->itemChanged_.connect(boost::bind(&FWSummaryManager::itemChanged,this,_1));
    lst->Connect("requestForInfo(FWEventItem*)","FWSummaryManager",this,"requestForInfo(FWEventItem*)");
    lst->Connect("requestForFilter(FWEventItem*)","FWSummaryManager",this,"requestForFilter(FWEventItem*)");
    lst->Connect("requestForErrorInfo(FWEventItem*)","FWSummaryManager",this,"requestForError(FWEventItem*)");
@@ -111,6 +115,12 @@ FWSummaryManager::itemDestroyed(const FWEventItem* iItem)
    m_pack->RemoveFrame(m_collectionWidgets[iItem->id()]);
    delete m_collectionWidgets[iItem->id()];
    m_collectionWidgets[iItem->id()]=0;
+}
+
+void
+FWSummaryManager::itemChanged(const FWEventItem*)
+{
+   m_itemChanged = true;
 }
 
 void
@@ -137,6 +147,10 @@ FWSummaryManager::selectionChanged(const FWSelectionManager& iSM)
 void
 FWSummaryManager::changesDone()
 {
+   if(m_itemChanged) {
+      m_pack->Layout();
+      m_itemChanged=false;
+   }
 }
 
 void 

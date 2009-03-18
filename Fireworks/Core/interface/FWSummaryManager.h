@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:58 EST 2008
-// $Id: FWSummaryManager.h,v 1.5 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWSummaryManager.h,v 1.6 2009/03/04 17:07:27 chrjones Exp $
 //
 
 // system include files
@@ -66,6 +66,7 @@ private:
 
    void selectionChanged(const FWSelectionManager&);
    void newItem(FWEventItem* iItem);
+   void itemChanged(const FWEventItem*);
    void removeAllItems();
    void changesDone();
 
@@ -76,6 +77,7 @@ private:
    TGCompositeFrame* m_pack;
    std::vector<FWCollectionSummaryWidget*> m_collectionWidgets;
    FWGUIManager* m_guiManager;
+   bool m_itemChanged;
 };
 
 
