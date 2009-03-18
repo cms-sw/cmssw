@@ -56,6 +56,7 @@ int main( int argc, char** argv ){
     ("destTag,t",boost::program_options::value<std::string>(),"destination tag (required)")
     ("beginTime,b",boost::program_options::value<cond::Time_t>(),"begin time (first since) (optional)")
     ("endTime,e",boost::program_options::value<cond::Time_t>(),"end time (last till) (optional)")
+    ("usertext,x",boost::program_options::value<std::string>(),"user text, to be included in usertext column (optional, must be enclosed in double quotes)")
     ("sql","dump the sql output (optional)")
     ;
   myopt.description().add( myopt.visibles() );
@@ -63,6 +64,7 @@ int main( int argc, char** argv ){
   std::string dictionary;
   std::string destTag;
   std::string inputTag;
+  std::string usertext("no user comments");
   std::string logConnect;
 
   cond::Time_t since = std::numeric_limits<cond::Time_t>::min();
@@ -137,6 +139,8 @@ int main( int argc, char** argv ){
     if(vm.count("BlobStreamerName")){
       blobStreamerName=vm["blobStreamerName"].as<std::string>();
     }
+    if(vm.count("usertext"))
+      usertext = vm["usertext"].as<std::string>();
     if(vm.count("sql")){
       sqlOutput=true;
     }
@@ -155,6 +159,7 @@ int main( int argc, char** argv ){
     std::cout<<"destTag:\t"<<destTag<<'\n';
     std::cout<<"beginTime:\t"<<since<<'\n';
     std::cout<<"endTime:\t"<<till<<'\n';
+    std::cout<<"usertext:\t"<<usertext<<'\n';
     std::cout<<"authPath:\t"<<authPath<<'\n';
     std::cout<<"use Blob streamer"<<blobStreamerName<<'\n';
     std::cout<<"configFile:\t"<<configuration_filename<<std::endl;
@@ -291,7 +296,7 @@ int main( int argc, char** argv ){
     a.usertext="exportIOV V1.0;";
     {
       std::ostringstream ss; 
-      ss << "since="<< since <<", till="<< till <<";";
+      ss << "since="<< since <<", till="<< till << ", " << usertext << ";";
       a.usertext +=ss.str();
     }
 
