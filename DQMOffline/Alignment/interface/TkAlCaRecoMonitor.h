@@ -11,6 +11,9 @@ Monitoring special quantities related to Tracker Alignment AlCaReco Production.
 
 #include <memory>
 #include <fstream>
+#include <map>
+#include <algorithm>
+#include <vector>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -51,6 +54,7 @@ class TkAlCaRecoMonitor : public edm::EDAnalyzer {
   MonitorElement* minJetDeltaR_;
   MonitorElement* minTrackDeltaR_;
   MonitorElement* AlCaRecoTrackEfficiency_;
+  MonitorElement* Hits_perDetId_;
   //2D
   MonitorElement* Hits_ZvsR_;
   MonitorElement* Hits_XvsY_;
@@ -62,5 +66,6 @@ class TkAlCaRecoMonitor : public edm::EDAnalyzer {
   edm::InputTag trackProducer_;
   edm::InputTag referenceTrackProducer_;
   double daughterMass_;
+  std::map<int,int> binByRawId_;
 };
 #endif
