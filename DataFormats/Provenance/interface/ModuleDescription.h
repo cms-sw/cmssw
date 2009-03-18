@@ -5,7 +5,7 @@
   
 ModuleDescription: The description of a producer module.
 
-$Id: ModuleDescription.h,v 1.3 2008/12/20 18:40:28 wmtan Exp $
+$Id: ModuleDescription.h,v 1.4 2009/02/13 02:43:47 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include <iosfwd>
@@ -14,7 +14,6 @@ $Id: ModuleDescription.h,v 1.3 2008/12/20 18:40:28 wmtan Exp $
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
-#include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
 
 namespace edm {
 
@@ -62,8 +61,6 @@ namespace edm {
 
     bool operator!=(ModuleDescription const& rh) const;
     
-    ModuleDescriptionID id() const; // For backward compatibility
-
   // private: public for now.  Will be made private ASAP.
     // ID of parameter set of the creator
     ParameterSetID parameterSetID_;

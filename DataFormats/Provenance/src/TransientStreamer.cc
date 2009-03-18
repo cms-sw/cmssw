@@ -16,7 +16,6 @@ namespace edm {
     SetTransientStreamer<Transient<FileIndex::Transients> >();
     SetTransientStreamer<Transient<ProcessHistory::Transients> >();
     SetTransientStreamer<Transient<ProductRegistry::Transients> >();
-    SetTransientStreamer<Transient<EventEntryDescription::Transients> >(); // backward compatibility
     SetTransientStreamer<Transient<EventEntryInfo::Transients> >(); // backward compatibility
   }
 }

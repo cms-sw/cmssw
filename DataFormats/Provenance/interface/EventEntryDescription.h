@@ -12,8 +12,6 @@ and how it came into existence.
 #include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/BranchID.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionID.h"
 #include "DataFormats/Provenance/interface/Transient.h"
 
@@ -40,42 +38,14 @@ namespace edm {
 
     void write(std::ostream& os) const;
 
-    std::string const& moduleName() const {return getModuleDescriptionPtr()->moduleName();}
-    PassID passID() const {return getModuleDescriptionPtr()->passID();}
-    ParameterSetID const& psetID() const {return getModuleDescriptionPtr()->parameterSetID();}
-    ReleaseVersion releaseVersion() const {return getModuleDescriptionPtr()->releaseVersion();}
     std::vector<BranchID> const& parents() const {return parents_;}
     std::vector<BranchID> & parents() {return parents_;}
 
-    ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
-    ModuleDescriptionID & moduleDescriptionID() {return moduleDescriptionID_;}
-    ModuleDescription const& moduleDescription() const {return *getModuleDescriptionPtr();}
-
-    struct Transients {
-      Transients() : moduleDescriptionPtr_() {}
-      boost::shared_ptr<ModuleDescription> moduleDescriptionPtr_;
-    };
-
   private:
-    void init() const;
-
-    boost::shared_ptr<ModuleDescription> & getModuleDescriptionPtr() const {
-      init();
-      return transients_.get().moduleDescriptionPtr_;
-    }
-
-    boost::shared_ptr<ModuleDescription> & moduleDescriptionPtr() const {
-      return transients_.get().moduleDescriptionPtr_;
-    }
 
     // The Branch IDs of the parents
     std::vector<BranchID> parents_;
 
-    // the last of these is not in the roadmap, but is on the board
-
-    ModuleDescriptionID moduleDescriptionID_;
-
-    mutable Transient<Transients> transients_;
   };
   
   inline

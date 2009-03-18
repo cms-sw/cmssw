@@ -14,7 +14,6 @@ and how it came into existence, plus the product identifier and the status.
 
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionID.h"
-#include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
@@ -33,8 +32,7 @@ namespace edm {
 		    ProductStatus status);
     RunLumiEntryInfo(BranchID const& bid,
 		    ProductStatus status,
-		    ModuleDescriptionID const& mid,
-		    std::vector<BranchID> const& parents = std::vector<BranchID>());
+		    std::vector<BranchID> const& parents);
 
     RunLumiEntryInfo(BranchID const& bid,
 		    ProductStatus status,
@@ -48,17 +46,13 @@ namespace edm {
 
     BranchID const& branchID() const {return branchID_;}
     ProductStatus const& productStatus() const {return productStatus_;}
-    ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
     void setStatus(ProductStatus status) {productStatus_ = status;}
-    void setModuleDescriptionID(ModuleDescriptionID const& mdid) {moduleDescriptionID_ = mdid;}
     void setPresent();
     void setNotPresent();
-    ModuleDescriptionID const& entryDescriptionID() const {return moduleDescriptionID_;}
 
   private:
     BranchID branchID_;
     ProductStatus productStatus_;
-    ModuleDescriptionID moduleDescriptionID_;
   };
 
   inline

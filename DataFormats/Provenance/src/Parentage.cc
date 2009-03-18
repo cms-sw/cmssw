@@ -1,5 +1,4 @@
 #include "DataFormats/Provenance/interface/Parentage.h"
-#include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include <ostream>
 #include <sstream>

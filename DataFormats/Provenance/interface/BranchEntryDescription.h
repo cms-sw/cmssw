@@ -6,16 +6,12 @@
 BranchEntryDescription: The event dependent portion of the description of a product
 and how it came into existence.
 
+Obsolete
+
 ----------------------------------------------------------------------*/
-#include <iosfwd>
 #include <vector>
-#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Provenance/interface/EventEntryInfo.h"
-#include "DataFormats/Provenance/interface/EntryDescription.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
 
 /*
   BranchEntryDescription
@@ -36,19 +32,14 @@ namespace edm {
 			 CreatorNotRun };
 
     BranchEntryDescription();
-    BranchEntryDescription(ProductID const& pid, CreatorStatus const& status);
 
-    ~BranchEntryDescription() {}
-
-    void write(std::ostream& os) const;
+    ~BranchEntryDescription();
 
     ProductID const& productID() const {return productID_;}
     bool const& isPresent() const {return isPresent_;}
     CreatorStatus const& creatorStatus() const {return status_;}
     std::vector<ProductID> const& parents() const {return parents_;}
 
-    ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
-    std::auto_ptr<EntryDescription> convertToEntryDescription() const;
   private:
     ProductID productID_;
 
@@ -75,17 +66,6 @@ namespace edm {
     // the product was dropped.
     bool isPresent_;
 
-    ModuleDescriptionID moduleDescriptionID_;
-
   };
-  
-  inline
-  std::ostream&
-  operator<<(std::ostream& os, BranchEntryDescription const& p) {
-    p.write(os);
-    return os;
-  }
-
-  bool operator==(BranchEntryDescription const& a, BranchEntryDescription const& b);
 }
 #endif

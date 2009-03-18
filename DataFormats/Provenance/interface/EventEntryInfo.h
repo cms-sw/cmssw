@@ -14,7 +14,6 @@ and how it came into existence, plus the product identifier and the status.
 
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionID.h"
-#include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
@@ -47,13 +46,11 @@ namespace edm {
 
     EventEntryInfo(BranchID const& bid,
 		   ProductStatus status,
-		   ModuleDescriptionID const& mdid,
 		   ProductID const& pid,
-		   std::vector<BranchID> const& parents = std::vector<BranchID>());
+		   std::vector<BranchID> const& parents);
 
     EventEntryInfo(BranchID const& bid,
-		   ProductStatus status,
-		   ModuleDescriptionID const& mdid);
+		   ProductStatus status);
 
     ~EventEntryInfo() {}
 
@@ -70,15 +67,11 @@ namespace edm {
     void setStatus(ProductStatus status) {productStatus_ = status;}
     void setPresent();
     void setNotPresent();
-    void setModuleDescriptionID(ModuleDescriptionID const& mdid) {moduleDescriptionID() = mdid;}
-
-    ModuleDescriptionID & moduleDescriptionID() const {return transients_.get().moduleDescriptionID_;}
 
     bool & noEntryDescription() const {return transients_.get().noEntryDescription_;}
 
     struct Transients {
       Transients();
-      ModuleDescriptionID moduleDescriptionID_;
       boost::shared_ptr<EventEntryDescription> entryDescriptionPtr_;
       bool noEntryDescription_;
     };

@@ -7,7 +7,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: ModuleDescription.cc,v 1.3 2008/12/20 18:40:28 wmtan Exp $
+$Id: ModuleDescription.cc,v 1.4 2009/02/13 02:43:47 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -122,23 +122,4 @@ namespace edm {
 	//<< "Pass ID=" << passID() << ", "
 	//<< "Main Parameter Set ID=" << mainParameterSetID();
   }
-
-  ModuleDescriptionID
-  ModuleDescription::id() const
-  {
-    // This implementation is ripe for optimization.
-    // We do not use operator<< because it does not write out everything.
-    std::ostringstream oss;
-    oss << parameterSetID() << ' ' 
-	<< moduleName() << ' '
-	<< moduleLabel() << ' '
-	<< mainParameterSetID() << ' '
-	<< releaseVersion() << ' '
-	<< processName() << ' '
-	<< passID();
-    std::string stringrep = oss.str();
-    cms::Digest md5alg(stringrep);
-    return ModuleDescriptionID(md5alg.digest().toString());
-  }
-
 }

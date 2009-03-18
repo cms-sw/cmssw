@@ -8,7 +8,6 @@
 
 namespace edm {
   EventEntryInfo::Transients::Transients() :
-    moduleDescriptionID_(),
     entryDescriptionPtr_(),
     noEntryDescription_(false)
   {}
@@ -59,14 +58,12 @@ namespace edm {
     productStatus_(status),
     entryDescriptionID_(edPtr->id()),
     transients_() {
-       moduleDescriptionID() = edPtr->moduleDescriptionID();
        entryDescriptionPtr() = edPtr;
        EntryDescriptionRegistry::instance()->insertMapped(*edPtr);
   }
 
   EventEntryInfo::EventEntryInfo(BranchID const& bid,
 		   ProductStatus status,
-		   ModuleDescriptionID const& mdid,
 		   ProductID const& pid,
 		   std::vector<BranchID> const& parents) :
     branchID_(bid),
@@ -74,23 +71,19 @@ namespace edm {
     productStatus_(status),
     entryDescriptionID_(),
     transients_() {
-      moduleDescriptionID() = mdid;
       entryDescriptionPtr() = boost::shared_ptr<EventEntryDescription>(new EventEntryDescription);
       entryDescriptionPtr()->parents() = parents;
-      entryDescriptionPtr()->moduleDescriptionID() = mdid;
       entryDescriptionID_ = entryDescriptionPtr()->id();
       EntryDescriptionRegistry::instance()->insertMapped(*entryDescriptionPtr());
   }
 
   EventEntryInfo::EventEntryInfo(BranchID const& bid,
-		   ProductStatus status,
-		   ModuleDescriptionID const& mdid) :
+		   ProductStatus status) :
     branchID_(bid),
     productID_(),
     productStatus_(status),
     entryDescriptionID_(),
     transients_() {
-      moduleDescriptionID() = mdid;
       noEntryDescription() = true;
     }
 
@@ -104,7 +97,6 @@ namespace edm {
     if (!entryDescriptionPtr()) {
       entryDescriptionPtr().reset(new EventEntryDescription);
       EntryDescriptionRegistry::instance()->getMapped(entryDescriptionID_, *entryDescriptionPtr());
-      moduleDescriptionID() = entryDescriptionPtr()->moduleDescriptionID();
     }
     return *entryDescriptionPtr();
   }
@@ -129,9 +121,7 @@ namespace edm {
     os << "branch ID = " << branchID() << '\n';
     os << "product ID = " << productID() << '\n';
     os << "product status = " << static_cast<int>(productStatus()) << '\n';
-    if (noEntryDescription()) {
-      os << "module description ID = " << moduleDescriptionID() << '\n';
-    } else {
+    if (!noEntryDescription()) {
       os << "entry description ID = " << entryDescriptionID() << '\n';
     }
   }
@@ -143,8 +133,7 @@ namespace edm {
       return
         a.branchID() == b.branchID()
         && a.productID() == b.productID()
-        && a.productStatus() == b.productStatus()
-        && a.moduleDescriptionID() == b.moduleDescriptionID();
+        && a.productStatus() == b.productStatus();
     }
     return
       a.branchID() == b.branchID()

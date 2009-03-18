@@ -81,4 +81,5 @@
  <class name="edm::ModuleDescriptionID"/>
  <class name="std::map<edm::ModuleDescriptionID,edm::ModuleDescription>"/>
  <class name="std::pair<edm::ModuleDescriptionID,edm::ModuleDescription>"/>
+
 </lcgdict>

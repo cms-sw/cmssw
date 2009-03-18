@@ -8,6 +8,7 @@
 #include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/FileIndex.h"
 #include "DataFormats/Provenance/interface/Hash.h"
+#include "DataFormats/Provenance/interface/HashedTypes.h"
 #include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
@@ -43,10 +44,12 @@
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAux.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
 #include "DataFormats/Provenance/interface/RunAux.h"
 #include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
 
+namespace edm {
+  typedef Hash<ModuleDescriptionType> ModuleDescriptionID;
+}
 
 namespace {
   struct dictionary {

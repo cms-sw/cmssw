@@ -12,50 +12,43 @@
 namespace edm {
   RunLumiEntryInfo::RunLumiEntryInfo() :
     branchID_(),
-    productStatus_(productstatus::uninitialized()),
-    moduleDescriptionID_()
+    productStatus_(productstatus::uninitialized())
   {}
 
   RunLumiEntryInfo::RunLumiEntryInfo(ProductProvenance const& ei) :
     branchID_(ei.branchID()),
-    productStatus_(ei.productStatus()),
-    moduleDescriptionID_()
+    productStatus_(ei.productStatus())
   {}
 
   RunLumiEntryInfo::RunLumiEntryInfo(BranchID const& bid) :
     branchID_(bid),
-    productStatus_(productstatus::uninitialized()),
-    moduleDescriptionID_()
+    productStatus_(productstatus::uninitialized())
   {}
 
    RunLumiEntryInfo::RunLumiEntryInfo(BranchID const& bid,
 				    ProductStatus status) :
     branchID_(bid),
-    productStatus_(status),
-    moduleDescriptionID_()
+    productStatus_(status)
   {}
-
-   // The last two arguments are ignored.
-   // They are used for backward compatibility.
-   RunLumiEntryInfo::RunLumiEntryInfo(BranchID const& bid,
-				    ProductStatus status,
-				    ModuleDescriptionID const& mid,
-				    std::vector<BranchID> const&) :
-    branchID_(bid),
-    productStatus_(status),
-    moduleDescriptionID_(mid)
-  {} 
 
    RunLumiEntryInfo::RunLumiEntryInfo(BranchID const& bid,
 				    ProductStatus status,
 				    EntryDescriptionID const& edid) :
     branchID_(bid),
-    productStatus_(status),
-    moduleDescriptionID_() {
+    productStatus_(status) {
      EventEntryDescription ed;
      EntryDescriptionRegistry::instance()->getMapped(edid, ed);
-     moduleDescriptionID_ = ed.moduleDescriptionID();
   } 
+
+   // The last argument is ignored.
+   // It is used for backward compatibility.
+   RunLumiEntryInfo::RunLumiEntryInfo(BranchID const& bid,
+                                  ProductStatus status,
+                                  std::vector<BranchID> const&) :
+    branchID_(bid),
+    productStatus_(status)
+  {}
+
 
   ProductProvenance
   RunLumiEntryInfo::makeProductProvenance() const {
@@ -80,14 +73,12 @@ namespace edm {
   RunLumiEntryInfo::write(std::ostream& os) const {
     os << "branch ID = " << branchID() << '\n';
     os << "product status = " << productStatus() << '\n';
-    os << "module description ID = " << moduleDescriptionID() << '\n';
   }
     
   bool
   operator==(RunLumiEntryInfo const& a, RunLumiEntryInfo const& b) {
     return
       a.branchID() == b.branchID()
-      && a.productStatus() == b.productStatus()
-      && a.moduleDescriptionID() == b.moduleDescriptionID();
+      && a.productStatus() == b.productStatus();
   }
 }
