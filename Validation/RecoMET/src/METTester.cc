@@ -64,7 +64,8 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   
   if (dbe_) {
     //    TString dirName = "RecoMETV/METTask/MET/";
-    TString dirName = "JetMET/EventInfo/CertificationSummary/MET_Global/";
+    //TString dirName = "JetMET/EventInfo/CertificationSummary/MET_Global/";
+    TString dirName = "RecoMETV/MET_Global/";
     TString label(inputMETLabel_.label());
     dirName += label;
     dbe_->setCurrentFolder((string)dirName);
