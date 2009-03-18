@@ -18,6 +18,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLRBXPedestalsLoader.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HCALConfigDB.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/DBlmapReader.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/DBlmapWriter.h"
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabase.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseImplOracle.hh"
@@ -120,13 +121,6 @@ int main( int argc, char **argv )
       cout << "Testing reading LUTs from local XML file..." << "\n";
       std::string in_ = vm["input-file"].as<string>();
       cout << "LUT XML file: " << in_ << "\n";
-      //LutXml _xml(in_);
-      //_xml . test_xpath(in_);
-      //
-      //LutXml _xml;
-      //_xml.read_xml_file_xalan(in_);
-      //_xml.test_access("noname");
-      //
       //evaluate timing
       struct timeval _t;
       gettimeofday( &_t, NULL );
@@ -1157,159 +1151,8 @@ int createHTRPatternLoader( void )
 
 
 int createLMap( void ){
-
-  cout << "XML Test..." << endl;
-  
-  //XMLProcessor * theProcessor = XMLProcessor::getInstance();
-
-  //XMLDOMBlock * doc = theProcessor -> createLMapHBEFXMLBase( "FullLmapBase.xml" );
-  LMapLoader doc;
-
-  LMapLoader::LMapRowHBEF aRow;
-  LMapLoader::LMapRowHO bRow;
-
-
-  ifstream fcha("/afs/fnal.gov/files/home/room3/avetisya/public_html/HCAL/Maps/HCALmapHBEF_Feb.21.2008.txt");
-  ifstream fcho("/afs/fnal.gov/files/home/room3/avetisya/public_html/HCAL/Maps/HCALmapHO_Feb.21.2008.txt");
-
-  //List in order HB HE HF
-  //side     eta     phi     dphi       depth      det
-  //rbx      wedge   rm      pixel      qie   
-  //adc      rm_fi   fi_ch   crate      htr          
-  //fpga     htr_fi  dcc_sl  spigo      dcc 
-  //slb      slbin   slbin2  slnam      rctcra     rctcar
-  //rctcon   rctnam  fedid
-
-  const int NCHA = 6912;
-  const int NCHO = 2160;
-  int ncho = 0;
-  int i, j;
-  string ndump;
-
-  int sideC[NCHA], etaC[NCHA], phiC[NCHA], dphiC[NCHA], depthC[NCHA], wedgeC[NCHA], crateC[NCHA], rmC[NCHA], rm_fiC[NCHA], htrC[NCHA];
-  int htr_fiC[NCHA], fi_chC[NCHA], spigoC[NCHA], dccC[NCHA], dcc_slC[NCHA], fedidC[NCHA], pixelC[NCHA], qieC[NCHA], adcC[NCHA];
-  int slbC[NCHA], rctcraC[NCHA], rctcarC[NCHA], rctconC[NCHA];
-  string detC[NCHA], rbxC[NCHA], fpgaC[NCHA], slbinC[NCHA], slbin2C[NCHA], slnamC[NCHA], rctnamC[NCHA];
-
-  int sideO[NCHO], etaO[NCHO], phiO[NCHO], dphiO[NCHO], depthO[NCHO], sectorO[NCHO], crateO[NCHO], rmO[NCHO], rm_fiO[NCHO], htrO[NCHO];
-  int htr_fiO[NCHO], fi_chO[NCHO], spigoO[NCHO], dccO[NCHO], dcc_slO[NCHO], fedidO[NCHO], pixelO[NCHO], qieO[NCHO], adcO[NCHO];
-  int geoO[NCHO], blockO[NCHO], lcO[NCHO];
-  string detO[NCHO], rbxO[NCHO], fpgaO[NCHO], let_codeO[NCHO];
-
-  int counter = 0;
-  for (i = 0; i < NCHA; i++){
-    if(i == counter){
-      for (j = 0; j < 31; j++){
-	fcha>>ndump;
-	ndump = "";
-      }
-      counter += 21;
-    }
-    fcha>>sideC[i];
-    fcha>>etaC[i]>>phiC[i]>>dphiC[i]>>depthC[i]>>detC[i];
-    fcha>>rbxC[i]>>wedgeC[i]>>rmC[i]>>pixelC[i]>>qieC[i];
-    fcha>>adcC[i]>>rm_fiC[i]>>fi_chC[i]>>crateC[i]>>htrC[i];
-    fcha>>fpgaC[i]>>htr_fiC[i]>>dcc_slC[i]>>spigoC[i]>>dccC[i];
-    fcha>>slbC[i]>>slbinC[i]>>slbin2C[i]>>slnamC[i]>>rctcraC[i]>>rctcarC[i];
-    fcha>>rctconC[i]>>rctnamC[i]>>fedidC[i];
-  }
-    
-  for(i = 0; i < NCHA; i++){
-    aRow . side   = sideC[i];
-    aRow . eta    = etaC[i];
-    aRow . phi    = phiC[i];
-    aRow . dphi   = dphiC[i];
-    aRow . depth  = depthC[i];
-    aRow . det    = detC[i];
-    aRow . rbx    = rbxC[i];
-    aRow . wedge  = wedgeC[i];
-    aRow . rm     = rmC[i];
-    aRow . pixel  = pixelC[i];
-    aRow . qie    = qieC[i];
-    aRow . adc    = adcC[i];
-    aRow . rm_fi  = rm_fiC[i];
-    aRow . fi_ch  = fi_chC[i];
-    aRow . crate  = crateC[i];
-    aRow . htr    = htrC[i];
-    aRow . fpga   = fpgaC[i];
-    aRow . htr_fi = htr_fiC[i];
-    aRow . dcc_sl = dcc_slC[i];
-    aRow . spigo  = spigoC[i];
-    aRow . dcc    = dccC[i];
-    aRow . slb    = slbC[i];
-    aRow . slbin  = slbinC[i];
-    aRow . slbin2 = slbin2C[i];
-    aRow . slnam  = slnamC[i];
-    aRow . rctcra = rctcraC[i];
-    aRow . rctcar = rctcarC[i];
-    aRow . rctcon = rctconC[i];
-    aRow . rctnam = rctnamC[i];
-    aRow . fedid  = fedidC[i];
-    
-    doc . addLMapHBEFDataset( &aRow, "FullHCALDataset.xml" );
-  }
-
-  counter = 0;
-  for (i = 0; i < NCHO; i++){
-    if(i == counter){
-      for (j = 0; j < 27; j++){
-	fcho>>ndump;
-	ndump = "";
-      }
-      counter += 21;
-    }
-    fcho>>sideO[i];
-    if (sideO[i] != 1 && sideO[i] != -1){
-      cerr<<ncho<<'\t'<<sideO[i]<<endl;
-      break;
-    }
-    fcho>>etaO[i]>>phiO[i]>>dphiO[i]>>depthO[i]>>detO[i];
-    fcho>>rbxO[i]>>sectorO[i]>>rmO[i]>>pixelO[i]>>qieO[i];
-    fcho>>adcO[i]>>rm_fiO[i]>>fi_chO[i]>>let_codeO[i]>>crateO[i]>>htrO[i];
-    fcho>>fpgaO[i]>>htr_fiO[i]>>dcc_slO[i]>>spigoO[i]>>dccO[i];
-    fcho>>fedidO[i]>>geoO[i]>>blockO[i]>>lcO[i];
-
-    ncho++;
-  }
-    
-  for(i = 0; i < NCHO; i++){
-    bRow . sideO     = sideO[i];
-    bRow . etaO      = etaO[i];
-    bRow . phiO      = phiO[i];
-    bRow . dphiO     = dphiO[i];
-    bRow . depthO    = depthO[i];
-
-    bRow . detO      = detO[i];
-    bRow . rbxO      = rbxO[i];
-    bRow . sectorO   = sectorO[i];
-    bRow . rmO       = rmO[i];
-    bRow . pixelO    = pixelO[i];
-  
-    bRow . qieO      = qieO[i];
-    bRow . adcO      = adcO[i];
-    bRow . rm_fiO    = rm_fiO[i];
-    bRow . fi_chO    = fi_chO[i];
-    bRow . let_codeO = let_codeO[i];
-
-    bRow . crateO    = crateO[i];
-    bRow . htrO      = htrO[i];
-    bRow . fpgaO     = fpgaO[i];
-    bRow . htr_fiO   = htr_fiO[i];
-    bRow . dcc_slO   = dcc_slO[i];
-
-    bRow . spigoO    = spigoO[i]; 
-    bRow . dccO      = dccO[i];
-    bRow . fedidO    = fedidO[i];
-    
-    doc . addLMapHODataset( &bRow, "FullHCALDataset.xml" );
-
-  }
-  
-  doc . write( "FullHCALmap.xml" );
-
-
-  cout << "XML Test...done" << endl;
-
+  DBlmapWriter lw;
+  lw.createLMap();
   return 0;
 }
 
