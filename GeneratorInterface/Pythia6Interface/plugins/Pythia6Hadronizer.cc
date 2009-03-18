@@ -79,9 +79,9 @@ extern "C" {
    //
    // stop-hadrons
    //
-   void pystrhad_(); // init stop-hadrons (id's, names, charges...)
-   void pystfr_();   // tweaks fragmentation, fragments the string near to a stop, 
-                     // to form stop-hadron by producing a new q-qbar pair
+   void pystrhad_();   // init stop-hadrons (id's, names, charges...)
+   void pystfr_(int&); // tweaks fragmentation, fragments the string near to a stop, 
+                       // to form stop-hadron by producing a new q-qbar pair
    // gluino/r-hadrons
    void pyglrhad_();
    void pyglfr_();   // tweaks fragmentation, fragment the string near to a gluino,
@@ -261,9 +261,10 @@ bool Pythia6Hadronizer::generatePartonsAndHadronize()
    
    if ( fStopHadronsEnabled || fGluinoHadronsEnabled )
    {
-      // call_pygive("MSTJ(1)=-1");
+      // call_pygive("MSTJ(1)=1");
       call_pygive("MSTJ(14)=1");
-      if ( fStopHadronsEnabled ) pystfr_();
+      int ierr=0;
+      if ( fStopHadronsEnabled ) pystfr_(ierr);
       if ( fGluinoHadronsEnabled ) pyglfr_();
    }
    
@@ -289,7 +290,7 @@ bool Pythia6Hadronizer::hadronize()
 
    if ( fStopHadronsEnabled || fGluinoHadronsEnabled )
    {
-      // call_pygive("MSTJ(1)=-1");
+      call_pygive("MSTJ(1)=-1");
       call_pygive("MSTJ(14)=-1");
    }
 
@@ -315,9 +316,10 @@ bool Pythia6Hadronizer::hadronize()
 
    if ( fStopHadronsEnabled || fGluinoHadronsEnabled )
    {
-      // call_pygive("MSTJ(1)=-1");
+      call_pygive("MSTJ(1)=1");
       call_pygive("MSTJ(14)=1");
-      if ( fStopHadronsEnabled ) pystfr_();
+      int ierr = 0;
+      if ( fStopHadronsEnabled ) pystfr_(ierr);
       if ( fGluinoHadronsEnabled ) pyglfr_();
    }
 
