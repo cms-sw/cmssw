@@ -73,7 +73,8 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 			adummy->SetSigmaZ(5.3);
 			adummy->Setdxdz(0.);
 			adummy->Setdydz(0.);
-			adummy->SetBeamWidth(15.e-4);
+			adummy->SetBeamWidthX(15.e-4);
+			adummy->SetBeamWidthY(15.e-4);
 		}
 
 		else if ( BeamType == "Early10TeVCollision" ) {
@@ -81,7 +82,8 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 			adummy->SetSigmaZ(3.79659);
 			adummy->Setdxdz(4.58986e-05);
 			adummy->Setdydz(-0.000112271);
-			adummy->SetBeamWidth(46.0e-4);
+			adummy->SetBeamWidthX(46.0e-4);
+			adummy->SetBeamWidthY(46.0e-4);
 			adummy->SetCovariance(0,0,pow(5.17247e-05,2));
 			adummy->SetCovariance(1,1,pow(5.01696e-05,2));
 			adummy->SetCovariance(2,2,pow(0.467712,2));
@@ -96,7 +98,8 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 			adummy->SetSigmaZ(5.3); // temporal
 			adummy->Setdxdz(1.76367e-06);
 			adummy->Setdydz(-2.58129e-05);
-			adummy->SetBeamWidth(31.7e-4);
+			adummy->SetBeamWidthX(31.7e-4);
+			adummy->SetBeamWidthY(31.7e-4);
 			adummy->SetCovariance(0,0,pow(6.96e-05,2));
 			adummy->SetCovariance(1,1,pow(6.74e-5,2));
 			adummy->SetCovariance(2,2,pow(0.70,2));
@@ -111,7 +114,8 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 			adummy->SetSigmaZ(5.3);
 			adummy->Setdxdz(140.e-6);
 			adummy->Setdydz(0.);
-			adummy->SetBeamWidth(16.6e-4);
+			adummy->SetBeamWidthX(16.6e-4);
+			adummy->SetBeamWidthY(16.6e-4);
 		}
 		// extreme cases
 		else if ( BeamType == "NominalCollision1" ) {
@@ -119,7 +123,8 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 			adummy->SetSigmaZ(5.3);
 			adummy->Setdxdz(0.);
 			adummy->Setdydz(0.);
-			adummy->SetBeamWidth(16.6e-4);
+			adummy->SetBeamWidthX(16.6e-4);
+			adummy->SetBeamWidthY(16.6e-4);
 		}
 		
 		else if ( BeamType == "NominalCollision2" ) {
@@ -127,7 +132,8 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 			adummy->SetSigmaZ(5.3);
 			adummy->Setdxdz(140.e-6);
 			adummy->Setdydz(0.);
-			adummy->SetBeamWidth(16.6e-4);
+			adummy->SetBeamWidthX(16.6e-4);
+			adummy->SetBeamWidthY(16.6e-4);
 		}
 
 		else if ( BeamType == "NominalCollision3" ) {
@@ -135,7 +141,8 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 			adummy->SetSigmaZ(5.3);
 			adummy->Setdxdz(0.);
 			adummy->Setdydz(0.);
-			adummy->SetBeamWidth(16.6e-4);
+			adummy->SetBeamWidthX(16.6e-4);
+			adummy->SetBeamWidthY(16.6e-4);
 		}
 
 		else if ( BeamType == "NominalCollision4" ) {
@@ -143,7 +150,8 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 			adummy->SetSigmaZ(5.3);
 			adummy->Setdxdz(0.);
 			adummy->Setdydz(0.);
-			adummy->SetBeamWidth(16.6e-4);
+			adummy->SetBeamWidthX(16.6e-4);
+			adummy->SetBeamWidthY(16.6e-4);
 		}
 
 		

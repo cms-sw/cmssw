@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotWrite2DB.cc,v 1.3 2008/03/14 22:13:32 yumiceva Exp $
+ version $Id: BeamSpotWrite2DB.cc,v 1.1 2008/05/14 15:39:18 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -59,7 +59,7 @@ BeamSpotWrite2DB::endJob() {
 	
 	
 	// extract from file
-	double x,y,z,sigmaZ,dxdz,dydz,beamWidth;
+	double x,y,z,sigmaZ,dxdz,dydz,beamWidthX,beamWidthY;
 	std::string tag;
 	double cov[7][7];
 
@@ -69,7 +69,8 @@ BeamSpotWrite2DB::endJob() {
 	fasciiFile >> tag >> sigmaZ;
 	fasciiFile >> tag >> dxdz;
 	fasciiFile >> tag >> dydz;
-	fasciiFile >> tag >> beamWidth;
+	fasciiFile >> tag >> beamWidthX;
+	fasciiFile >> tag >> beamWidthY;
 	fasciiFile >> tag >> cov[0][0] >> cov[0][1] >> cov[0][2]>> cov[0][3] >> cov[0][4]>> cov[0][5] >> cov[0][6];
 	fasciiFile >> tag >> cov[1][0] >> cov[1][1] >> cov[1][2] >> cov[1][3]>> cov[1][4] >> cov[1][5]>> cov[1][6];
 	fasciiFile >> tag >> cov[2][0]  >> cov[2][1] >> cov[2][2] >> cov[2][3]>> cov[2][4] >> cov[2][5]>> cov[2][6];
@@ -85,7 +86,8 @@ BeamSpotWrite2DB::endJob() {
 	abeam->SetSigmaZ(sigmaZ);
 	abeam->Setdxdz(dxdz);
 	abeam->Setdydz(dydz);
-	abeam->SetBeamWidth(beamWidth);
+	abeam->SetBeamWidthX(beamWidthX);
+	abeam->SetBeamWidthY(beamWidthY);
 
 	for (int i=0; i<7; ++i) {
 	  for (int j=0; j<7; ++j) {

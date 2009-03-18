@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.3 2008/03/14 22:13:32 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.4 2008/05/14 15:31:57 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -269,9 +269,11 @@ BeamSpotAnalyzer::endJob() {
 	fasciiFile << "dxdz " << beam_default.dxdz() << std::endl;
 	fasciiFile << "dydz " << beam_default.dydz() << std::endl;
 	if (inputBeamWidth_ > 0 ) {
-		fasciiFile << "BeamWidth " << inputBeamWidth_ << std::endl;
+		fasciiFile << "BeamWidthX " << inputBeamWidth_ << std::endl;
+		fasciiFile << "BeamWidthY " << inputBeamWidth_ << std::endl;
 	} else {
-		fasciiFile << "BeamWidth " << beam_default.BeamWidth() << std::endl;
+		fasciiFile << "BeamWidthX " << beam_default.BeamWidthX() << std::endl;
+		fasciiFile << "BeamWidthY " << beam_default.BeamWidthY() << std::endl;
 	}
 	
 	for (int i = 0; i<6; ++i) {
@@ -303,10 +305,14 @@ BeamSpotAnalyzer::endJob() {
 		pBSObjects->Setdydz(beam_default.dydz());
 		if (inputBeamWidth_ > 0 ) {
 			std::cout << " beam width value forced to be " << inputBeamWidth_ << std::endl;
-			pBSObjects->SetBeamWidth(inputBeamWidth_);
+			pBSObjects->SetBeamWidthX(inputBeamWidth_);
+			pBSObjects->SetBeamWidthY(inputBeamWidth_);
 		} else {
-			std::cout << " using default value, 15e-4, for beam width!"<<std::endl;
-			pBSObjects->SetBeamWidth(15.0e-4);
+		  // need to fix this
+			std::cout << " using default value, 15e-4, for beam width!!!"<<std::endl;
+			pBSObjects->SetBeamWidthX(15.0e-4);
+			pBSObjects->SetBeamWidthY(15.0e-4);
+
 		}
 		
 		for (int i = 0; i<7; ++i) {

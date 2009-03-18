@@ -68,12 +68,14 @@ BeamSpotProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 			}
 		}
 
+		// this assume beam width same in x and y
 		aSpot = reco::BeamSpot( apoint,
 								spotDB->GetSigmaZ(),
 								spotDB->Getdxdz(),
 								spotDB->Getdydz(),
-								spotDB->GetBeamWidth(),
+								spotDB->GetBeamWidthX(),
 								matrix );
+		aSpot.setBeamWidthY( spotDB->GetBeamWidthY() );
 				
 	}
 	

@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.cc,v 1.3 2007/02/10 23:13:31 yumiceva Exp $
+ version $Id: BSFitter.cc,v 1.4 2007/03/29 16:56:05 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -224,7 +224,7 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 
 			double tmp_par2[7] = {tmp_beam.x0(), tmp_beam.y0(), tmp_beam.z0(),
 								 tmp_beam.sigmaZ(), tmp_beam.dxdz(), tmp_beam.dydz(),
-								 tmp_beam.BeamWidth()};
+								 tmp_beam.BeamWidthX()};
 			
 			reco::BeamSpot tmp_lh = Fit_dres_z_likelihood(tmp_par2);
 
@@ -584,7 +584,7 @@ reco::BeamSpot BSFitter::Fit_d_z_likelihood(double *inipar) {
 	upar.Add("sigmaZ",inipar[3],0.001);
 	upar.Add("dxdz",inipar[4],0.001);
 	upar.Add("dydz",inipar[5],0.001);
-	upar.Add("BeamWidth",0.0020,0.0001);
+	upar.Add("BeamWidthX",0.0020,0.0001);
 	
 	MnMigrad migrad(*thePDF, upar);
 	
@@ -629,12 +629,12 @@ reco::BeamSpot BSFitter::Fit_dres_z_likelihood(double *inipar) {
 	upar.Add("sigmaZ",inipar[3],0.001);
 	upar.Add("dxdz",inipar[4],0.001);
 	upar.Add("dydz",inipar[5],0.001);
-	upar.Add("BeamWidth",inipar[6],0.0001);
+	upar.Add("BeamWidthX",inipar[6],0.0001);
 	upar.Add("c0",0.0010,0.0001);
 	upar.Add("c1",0.0090,0.0001);
 
 	// fix beam width
-	upar.Fix("BeamWidth");
+	upar.Fix("BeamWidthX");
 	// number of parameters in fit are 9-1 = 8
 	
 	MnMigrad migrad(*thePDF, upar);
