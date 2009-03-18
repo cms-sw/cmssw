@@ -425,7 +425,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 	  
 	  
 	  //	  std::cout << "   ConvertedPhotonProducer case with only one track found " <<  "\n";
-          if (  recoverOneTrackCase_ ) {
+ 
 	    //std::cout << "   ConvertedPhotonProducer recovering one track " <<  "\n";
 	    trackPairRef.clear();
 	    trackPin.clear();
@@ -440,81 +440,80 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 	    }
 	    trackPairRef.push_back(myTk);
 	    //std::cout << " Provenance " << myTk->algoName() << std::endl;
-	    
-	    float theta1 = myTk->innerMomentum().Theta();
-	    
-	    
-	    float dCot=999.;
-	    float dCotTheta=-999.;
-	    reco::TrackRef goodRef;
-	    std::vector<reco::TransientTrack>::const_iterator iGoodGenTran;
-	    //	  for (unsigned int i=0; i< generalTrkHandle->size(); i++) {
-	    // reco::TrackRef trRef(generalTrkHandle, i);
-	    // if ( trRef->charge()*myTk->charge() > 0 ) continue;
-	    // 
-	    //  float theta2 = trRef->innerMomentum().Theta();
-	    //  dCotTheta =  1./tan(theta1) - 1./tan(theta2) ;
-	    //  if ( fabs(dCotTheta) < dCot ) {
-	    //    dCot = fabs(dCotTheta);
-	    //    goodRef = trRef;
-	    //  }
-	    //}
-	    
-	    for ( std::vector<reco::TransientTrack>::const_iterator iTran= t_generalTrk.begin(); iTran != t_generalTrk.end(); ++iTran) {
-	      const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTran->basicTransientTrack());
-	      reco::TrackRef trRef= ttt->persistentTrackRef(); 
-	      if ( trRef->charge()*myTk->charge() > 0 ) continue;
-	      float dEta =  trRef->eta() - myTk->eta();
-	      float dPhi =  trRef->phi() - myTk->phi();
-	      if ( sqrt (dEta*dEta + dPhi*dPhi) > dRForConversionRecovery_ ) continue; 
-	      float theta2 = trRef->innerMomentum().Theta();
-	      dCotTheta =  1./tan(theta1) - 1./tan(theta2) ;
-	      //    std::cout << "  ConvertedPhotonProducer general transient track charge " << trRef->charge() << " momentum " << trRef->innerMomentum() << " dcotTheta " << fabs(dCotTheta) << std::endl;
-	      if ( fabs(dCotTheta) < dCot ) {
-		dCot = fabs(dCotTheta);
-		goodRef = trRef;
-		iGoodGenTran=iTran;
+	
+	    if (  recoverOneTrackCase_ ) {    
+	      float theta1 = myTk->innerMomentum().Theta();
+	      float dCot=999.;
+	      float dCotTheta=-999.;
+	      reco::TrackRef goodRef;
+	      std::vector<reco::TransientTrack>::const_iterator iGoodGenTran;
+	      //	  for (unsigned int i=0; i< generalTrkHandle->size(); i++) {
+	      // reco::TrackRef trRef(generalTrkHandle, i);
+	      // if ( trRef->charge()*myTk->charge() > 0 ) continue;
+	      // 
+	      //  float theta2 = trRef->innerMomentum().Theta();
+	      //  dCotTheta =  1./tan(theta1) - 1./tan(theta2) ;
+	      //  if ( fabs(dCotTheta) < dCot ) {
+	      //    dCot = fabs(dCotTheta);
+	      //    goodRef = trRef;
+	      //  }
+	      //}
+	      
+	      for ( std::vector<reco::TransientTrack>::const_iterator iTran= t_generalTrk.begin(); iTran != t_generalTrk.end(); ++iTran) {
+		const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTran->basicTransientTrack());
+		reco::TrackRef trRef= ttt->persistentTrackRef(); 
+		if ( trRef->charge()*myTk->charge() > 0 ) continue;
+		float dEta =  trRef->eta() - myTk->eta();
+		float dPhi =  trRef->phi() - myTk->phi();
+		if ( sqrt (dEta*dEta + dPhi*dPhi) > dRForConversionRecovery_ ) continue; 
+		float theta2 = trRef->innerMomentum().Theta();
+		dCotTheta =  1./tan(theta1) - 1./tan(theta2) ;
+		//    std::cout << "  ConvertedPhotonProducer general transient track charge " << trRef->charge() << " momentum " << trRef->innerMomentum() << " dcotTheta " << fabs(dCotTheta) << std::endl;
+		if ( fabs(dCotTheta) < dCot ) {
+		  dCot = fabs(dCotTheta);
+		  goodRef = trRef;
+		  iGoodGenTran=iTran;
+		}
 	      }
-	    }
-	    
-	    if ( goodRef.isNonnull() ) {
-	  
-	      minAppDist=calculateMinApproachDistance( myTk, goodRef);
 	      
-	      // std::cout << "  ConvertedPhotonProducer chosen dCotTheta " <<  fabs(dCotTheta) << std::endl;
-	      if ( fabs(dCotTheta) < deltaCotCut_ && minAppDist > minApproachDisCut_ ) {
-		trackPin.push_back(  goodRef->innerMomentum());
-		trackPout.push_back(  goodRef->outerMomentum());
-		trackPairRef.push_back( goodRef );
-		//	    std::cout << " ConvertedPhotonProducer adding opposite charge track from generalTrackCollection charge " <<  goodRef ->charge() << " pt " << sqrt(goodRef->innerMomentum().perp2())  << " trackPairRef size " << trackPairRef.size() << std::endl;            
-		//std::cout << " Track Provenenance " << goodRef->algoName() << std::endl; 
-		std::vector<reco::TransientTrack> mypair;
-		mypair.push_back(*iTk); 
-		mypair.push_back(*iGoodGenTran); 
+	      if ( goodRef.isNonnull() ) {
 		
-		try{
+		minAppDist=calculateMinApproachDistance( myTk, goodRef);
+		
+		// std::cout << "  ConvertedPhotonProducer chosen dCotTheta " <<  fabs(dCotTheta) << std::endl;
+		if ( fabs(dCotTheta) < deltaCotCut_ && minAppDist > minApproachDisCut_ ) {
+		  trackPin.push_back(  goodRef->innerMomentum());
+		  trackPout.push_back(  goodRef->outerMomentum());
+		  trackPairRef.push_back( goodRef );
+		  //	    std::cout << " ConvertedPhotonProducer adding opposite charge track from generalTrackCollection charge " <<  goodRef ->charge() << " pt " << sqrt(goodRef->innerMomentum().perp2())  << " trackPairRef size " << trackPairRef.size() << std::endl;            
+		  //std::cout << " Track Provenenance " << goodRef->algoName() << std::endl; 
+		  std::vector<reco::TransientTrack> mypair;
+		  mypair.push_back(*iTk); 
+		  mypair.push_back(*iGoodGenTran); 
 		  
-		  TransientVertex trVtx=theVertexFinder_->run(mypair); 
-		  theConversionVertex= trVtx;
-		  
-		}
-		catch ( cms::Exception& e ) {
-		  std::cout << " cms::Exception caught in ConvertedPhotonProducer::produce" << "\n" ;
-		  edm::LogWarning(metname) << "cms::Exception caught in ConvertedPhotonProducer::produce\n"
-					   << e.explainSelf();
-		  
-		}
-	      } 
+		  try{
+		    
+		    TransientVertex trVtx=theVertexFinder_->run(mypair); 
+		    theConversionVertex= trVtx;
+		    
+		  }
+		  catch ( cms::Exception& e ) {
+		    std::cout << " cms::Exception caught in ConvertedPhotonProducer::produce" << "\n" ;
+		    edm::LogWarning(metname) << "cms::Exception caught in ConvertedPhotonProducer::produce\n"
+					     << e.explainSelf();
+		    
+		  }
+		} 
+		
+	      }	    
 	      
-	    }	    
-
-
+	    } // bool On/Off one track case recovery using generalTracks  
 	    reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackPin, trackPout, algo );
 	    outputConvPhotonCollection.push_back(newCandidate);
+	      
+	      
+	      
 	    
-	    
-	    
-	  } // bool On/Off one track case recovery using generalTracks
 	} // case with only on track: looking in general tracks
 	
 	
