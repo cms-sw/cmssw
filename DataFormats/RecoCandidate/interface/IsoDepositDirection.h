@@ -10,8 +10,8 @@
 #include <sstream>
 #include <iostream>
 
-#include "CommonTools/Utils/interface/deltaR.h"
-#include "CommonTools/Utils/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 namespace reco {
   namespace isodeposit {
