@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.32 2008/08/24 18:25:22 dlevans Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.34 2009/02/10 00:18:41 dlange Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -214,18 +214,25 @@ double EgammaSCEnergyCorrectionAlgo::fEtEta(double et, double eta)
   // eta -- eta of the SuperCluster
 
   double fCorr = 0.;
-  
-  double p0 = fEtEta_[0] + fEtEta_[1]/(et + fEtEta_[ 2]) + fEtEta_[ 3]/(et*et);
-  double p1 = fEtEta_[4] + fEtEta_[5]/(et + fEtEta_[ 6]) + fEtEta_[ 7]/(et*et);
-  double p2 = fEtEta_[8] + fEtEta_[9]/(et + fEtEta_[10]) + fEtEta_[11]/(et*et);
 
-  fCorr = 
-    p0 + 
-    p1 * atan(fEtEta_[12]*(fEtEta_[13]-fabs(eta))) + fEtEta_[14] * fabs(eta) + 
-    p1 * fEtEta_[15] * fabs(eta) +
-    p2 * fEtEta_[16] * eta * eta; 
+  // Barrel
+  if (fEtEta_[0] == 0 ) {
+    double p0 = fEtEta_[1]  + fEtEta_[2]/ (et + fEtEta_[3]) + fEtEta_[4]/(et*et); 
+    double p1 = fEtEta_[5]  + fEtEta_[6]/ (et + fEtEta_[7]) + fEtEta_[8]/(et*et); 
+
+    fCorr = p0 +  p1 * atan(fEtEta_[9]*(fEtEta_[10]-fabs(eta))) + fEtEta_[11] * fabs(eta);
+
+  } else { // Endcap
+    double p0 = fEtEta_[1] + fEtEta_[2]/sqrt(et);
+    double p1 = fEtEta_[3] + fEtEta_[4]/sqrt(et);
+    double p2 = fEtEta_[5] + fEtEta_[6]/sqrt(et);
+    double p3 = fEtEta_[7] + fEtEta_[8]/sqrt(et);
  
-  if ( fCorr < 0.5 ) fCorr = 0.5;
+    fCorr = p0 + p1*fabs(eta) + p2*eta*eta + p3/fabs(eta);
+  }
+
+  if ( fCorr < 0.5 ) fCorr = 0.5; 
+  if ( fCorr > 1.5 ) fCorr = 1.5;  
 
   return et/fCorr;
 }
