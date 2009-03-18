@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
- <PoolDatabase >
-  <PoolContainer name="L1GctJetCounterPositiveEtaRcd" >
-   <Class table="L1GCTJETCOUNTERPOSITIVEETA" id_columns="ID" name="L1GctJetCounterSetup" mapping_version="L1GctJetCounterPositiveEta_basic" >
-     <Blob column="L1GCTJETCOUNTERSET_1_BLOB" name="m_jetCounterCuts" />
-   </Class >
-  </PoolContainer >
- </PoolDatabase >
