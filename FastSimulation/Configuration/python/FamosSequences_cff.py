@@ -427,6 +427,15 @@ simulationWithFamos = cms.Sequence(
     caloRecHits
 )
 
+# The simulation and digitization sequence
+digitizationWithFamos = cms.Sequence(
+    famosSimulationSequence+
+    muonDigi+
+    siTrackerGaussianSmearingRecHits+
+    caloRecHits
+)
+
+
 # The reconstruction sequence
 reconstructionWithFamos = cms.Sequence(
     iterativeTracking+
