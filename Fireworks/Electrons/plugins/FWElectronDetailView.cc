@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.7 2009/03/18 12:45:36 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.8 2009/03/18 15:08:18 amraktad Exp $
 //
 
 // system include files
@@ -143,13 +143,14 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
       //        rotationCenter()[2] = i->TrackPositionAtCalo().z();
       TEveStraightLineSet *scposition =
          new TEveStraightLineSet("sc position");
+      scposition->SetDepthTest(kFALSE);
       if (subdetId == EcalBarrel) {
          scposition->AddLine(i->caloPosition().eta(),
                              i->caloPosition().phi(),
-                             1,
+                             0,
                              i->caloPosition().eta(),
                              i->caloPosition().phi(),
-                             1);
+                             0);
          scposition->AddMarker(0, 0.5);
       } else if (subdetId == EcalEndcap) {
          // 	   scposition->SetNextPoint(i->caloPosition().x() * scale,
@@ -182,6 +183,7 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
       */
       TEveStraightLineSet *trackpositionAtCalo =
          new TEveStraightLineSet("sc trackpositionAtCalo");
+      trackpositionAtCalo->SetDepthTest(kFALSE);
       if (subdetId == EcalBarrel) {
          trackpositionAtCalo->AddLine(i->TrackPositionAtCalo().eta() * scale,
                                       rotationCenter()[1] - 0.5,
