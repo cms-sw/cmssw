@@ -5,8 +5,8 @@
 //   Description: Look-up tables for extrapolation
 //
 //
-//   $Date: 2008/02/25 15:26:57 $
-//   $Revision: 1.2 $
+//   $Date: 2008/07/01 04:02:16 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -210,10 +210,10 @@ void L1MuDTExtLut::print() const {
     LUT::LUTmap::const_iterator iter = ext_lut[ext].low.begin();
     LUT::LUTmap::const_iterator iter1;
     while ( iter != ext_lut[ext].low.end() ) {
-      int address = (*iter).first;
-      int low     = (*iter).second;
-      iter1 = ext_lut[ext].high.find(address);
-      int high    = (*iter1).second;
+      // int address = (*iter).first;
+      // int low     = (*iter).second;
+      // iter1 = ext_lut[ext].high.find(address);
+      // int high    = (*iter1).second;
 
 //       BitArray<10> b_address(static_cast<unsigned>(abs(address)));
 //       BitArray<12> b_low(static_cast<unsigned>(abs(low)));

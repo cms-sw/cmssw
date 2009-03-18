@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Mar  2 01:46:46 CET 2008
-// $Id: OMDSReader.cc,v 1.9 2008/12/09 17:07:43 wsun Exp $
+// $Id: OMDSReader.cc,v 1.10 2009/03/18 22:12:20 wsun Exp $
 //
 
 // system include files
@@ -188,7 +188,7 @@ OMDSReader::~OMDSReader()
       m_coralTransaction->nominalSchema() :
       m_coralTransaction->coralSessionProxy().schema( schemaName ) ;
 
-    coral::IView& view = schema.viewHandle( viewName ) ;
+    //    coral::IView& view = schema.viewHandle( viewName ) ;
 
     // Pointer is deleted automatically at end of function.
     coral::IQuery* query = schema.newQuery(); ;

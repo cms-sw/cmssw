@@ -147,24 +147,6 @@ L1SubsystemParams = cms.PSet(
             key = cms.string('dummy')
         ), 
         cms.PSet(
-            record = cms.string('L1GctJetCalibFunRcd'),
-            tag = cms.string('L1GctJetEtCalibrationFunction_IDEAL'),
-            type = cms.string('L1GctJetEtCalibrationFunction'),
-            key = cms.string('dummy')
-        ), 
-        cms.PSet(
-            record = cms.string('L1GctJetCounterNegativeEtaRcd'),
-            tag = cms.string('L1GctJetCounterNegativeEta_IDEAL'),
-            type = cms.string('L1GctJetCounterSetup'),
-            key = cms.string('dummy')
-        ), 
-        cms.PSet(
-            record = cms.string('L1GctJetCounterPositiveEtaRcd'),
-            tag = cms.string('L1GctJetCounterPositiveEta_IDEAL'),
-            type = cms.string('L1GctJetCounterSetup'),
-            key = cms.string('dummy')
-        ), 
-        cms.PSet(
             record = cms.string('L1GtBoardMapsRcd'),
             tag = cms.string('L1GtBoardMaps_IDEAL'),
             type = cms.string('L1GtBoardMaps'),

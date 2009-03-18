@@ -190,24 +190,6 @@ REGISTER_L1_WRITER(L1GctHfLutSetupRcd, L1GctHfLutSetup);
 REGISTER_PLUGIN(L1GctJetFinderParamsRcd, L1GctJetFinderParams);
 REGISTER_L1_WRITER(L1GctJetFinderParamsRcd, L1GctJetFinderParams);
 
-#include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
-
-REGISTER_PLUGIN(L1GctJetCalibFunRcd, L1GctJetEtCalibrationFunction);
-REGISTER_L1_WRITER(L1GctJetCalibFunRcd, L1GctJetEtCalibrationFunction);
-
-#include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCounterNegativeEtaRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctJetCounterPositiveEtaRcd.h"
-
-REGISTER_PLUGIN(L1GctJetCounterNegativeEtaRcd, L1GctJetCounterSetup);
-REGISTER_L1_WRITER(L1GctJetCounterNegativeEtaRcd, L1GctJetCounterSetup);
-
-REGISTER_PLUGIN(L1GctJetCounterPositiveEtaRcd, L1GctJetCounterSetup);
-REGISTER_L1_WRITER(L1GctJetCounterPositiveEtaRcd, L1GctJetCounterSetup);
-
-
-
 // GT records
 #include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
 #include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"

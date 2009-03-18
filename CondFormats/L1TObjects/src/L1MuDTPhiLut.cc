@@ -5,8 +5,8 @@
 //   Description: Look-up tables for phi assignment 
 //
 //
-//   $Date: 2008/02/25 15:26:57 $
-//   $Revision: 1.2 $
+//   $Date: 2008/07/01 04:02:16 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -189,8 +189,8 @@ void L1MuDTPhiLut::print() const {
 
     LUT::const_iterator iter = phi_lut[idx].begin();
     while ( iter != phi_lut[idx].end() ) {
-      int address = (*iter).first;
-      int value   = (*iter).second;
+      // int address = (*iter).first;
+      // int value   = (*iter).second;
 
 //       BitArray<10> b_address(static_cast<unsigned>(abs(address)));
 //       BitArray<12> b_value(static_cast<unsigned>(abs(value)));
