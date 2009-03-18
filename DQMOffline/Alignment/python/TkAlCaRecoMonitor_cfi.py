@@ -10,11 +10,15 @@ TkAlCaRecoMonitor = cms.EDAnalyzer("TkAlCaRecoMonitor",
                                    fillInvariantMass = cms.bool(False),
                                    useSignedR = cms.bool(False),
                                    #
-                                   TrackEfficiencyBin =cms.uint32(101),
-                                   TrackEfficiencyMin = cms.double(0.),
+                                   TrackEfficiencyBin =cms.uint32(102),
+                                   TrackEfficiencyMin = cms.double(-0.01),
                                    TrackEfficiencyMax = cms.double(1.01),
                                    #
                                    maxJetPt = cms.double(10), #GeV
+                                   #
+                                   SumChargeBin = cms.uint32(11),
+                                   SumChargeMin = cms.double(-5.5),
+                                   SumChargeMax = cms.double(5.5),
                                    #
                                    MassBin = cms.uint32(100),
                                    MassMin = cms.double(0.0),
@@ -37,8 +41,9 @@ TkAlCaRecoMonitor = cms.EDAnalyzer("TkAlCaRecoMonitor",
                                    HitMapsRBin = cms.uint32(120),
                                    HitMapRMax = cms.double(120.), #cm
                                    #
+                                   daughterMass = cms.double(0.10565836),#Gev
                                    FolderName = cms.string("TkAlCaRecoMonitor"),
-                                   OutputMEsInRootFile = cms.bool(True),
+                                   OutputMEsInRootFile = cms.bool(False),
                                    OutputFileName = cms.string("MonitorTrack.root")
                                    )
                                    

@@ -46,6 +46,7 @@ class TkAlCaRecoMonitor : public edm::EDAnalyzer {
   
   //1D
   MonitorElement* invariantMass_;
+  MonitorElement* sumCharge_;
   MonitorElement* jetPt_;
   MonitorElement* minJetDeltaR_;
   MonitorElement* minTrackDeltaR_;
@@ -60,6 +61,6 @@ class TkAlCaRecoMonitor : public edm::EDAnalyzer {
 
   edm::InputTag trackProducer_;
   edm::InputTag referenceTrackProducer_;
-
+  double daughterMass_;
 };
 #endif

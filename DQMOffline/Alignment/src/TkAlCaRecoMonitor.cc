@@ -41,6 +41,8 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
   std::string AlgoName     = conf_.getParameter<std::string>("AlgoName");
   std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
 
+  daughterMass_ = conf_.getParameter<double>("daughterMass");
+
   maxJetPt_ = conf_.getParameter<double>("maxJetPt");
 
   dqmStore_->setCurrentFolder(MEFolderName);
@@ -57,6 +59,14 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
     invariantMass_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, MassBin, MassMin, MassMax);
     invariantMass_->setAxisTitle("invariant Mass / GeV");
   }
+
+  unsigned int SumChargeBin = conf_.getParameter<unsigned int>("SumChargeBin");
+  double SumChargeMin = conf_.getParameter<double>("SumChargeMin");
+  double SumChargeMax = conf_.getParameter<double>("SumChargeMax");
+
+  histname = "SumCharge_";
+  sumCharge_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, SumChargeBin, SumChargeMin, SumChargeMax);
+  sumCharge_->setAxisTitle("#SigmaCharge");
 
   unsigned int    JetPtBin = conf_.getParameter<unsigned int>("JetPtBin");
   double JetPtMin = conf_.getParameter<double>("JetPtMin");
@@ -136,14 +146,15 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
   InputTag jetCollection = conf_.getParameter<edm::InputTag>("CaloJetCollection");
   Handle<reco::CaloJetCollection> jets;
   if(runsOnReco_){
-    iEvent.getByLabel(jetCollection  ,jets);
+    iEvent.getByLabel(jetCollection, jets);
     if(! jets.isValid()){
       LogError("Alignment")<<"no jets found in event!";
     }
   }
 
   AlCaRecoTrackEfficiency_->Fill( static_cast<double>((*trackCollection).size()) / (*referenceTrackCollection).size() );
-    
+  
+  double sumOfCharges = 0;
   for( reco::TrackCollection::const_iterator track = (*trackCollection).begin(); track < (*trackCollection).end(); ++track ){
     double dR = 0;  
     if(runsOnReco_){
@@ -167,16 +178,17 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
     minTrackDeltaR_->Fill( minTrackDeltaR );
     fillHitmaps( *track, *geometry );
-    //, recHitBuilderHandle
+    sumOfCharges += (*track).charge();
   }
+
+  sumCharge_->Fill( sumOfCharges );
 
   if(fillInvariantMass_){
     if((*trackCollection).size() == 2){
-      double theDaughterMass = 0.10565836;
       TLorentzVector track0((*trackCollection).at(0).px(),(*trackCollection).at(0).py(),(*trackCollection).at(0).pz(),
-			    sqrt(((*trackCollection).at(0).p()*(*trackCollection).at(0).p())+theDaughterMass*theDaughterMass));
+			    sqrt(((*trackCollection).at(0).p()*(*trackCollection).at(0).p())+daughterMass_*daughterMass_));
       TLorentzVector track1((*trackCollection).at(1).px(),(*trackCollection).at(1).py(),(*trackCollection).at(1).pz(),
-			    sqrt(((*trackCollection).at(1).p()*(*trackCollection).at(1).p())+theDaughterMass*theDaughterMass));
+			    sqrt(((*trackCollection).at(1).p()*(*trackCollection).at(1).p())+daughterMass_*daughterMass_));
       TLorentzVector mother = track0+track1;
       
       invariantMass_->Fill( mother.M() );

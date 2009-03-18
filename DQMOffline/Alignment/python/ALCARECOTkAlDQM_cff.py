@@ -29,7 +29,11 @@ ALCARECOTkAlZMuMuTkAlDQM =  DQMOffline.Alignment.TkAlCaRecoMonitor_cfi.TkAlCaRec
     fillInvariantMass = cms.bool(True),
     MassBin = cms.uint32(300),
     MassMin = cms.double(50.0),
-    MassMax = cms.double(150.0)
+    MassMax = cms.double(150.0),
+    SumChargeBin = cms.uint32(11),
+    SumChargeMin = cms.double(-5.5),
+    SumChargeMax = cms.double(5.5),
+
 )
 ALCARECOTkAlZMuMuDQM = cms.Sequence( ALCARECOTkAlZMuMuTrackingDQM + ALCARECOTkAlZMuMuTkAlDQM )
 
@@ -105,7 +109,11 @@ ALCARECOTkAlMinBiasTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = __selectionName,
 # margins and settings
-    fillInvariantMass = cms.bool(False)
+    fillInvariantMass = cms.bool(False),
+    SumChargeBin = cms.uint32(101),
+    SumChargeMin = cms.double(-50.5),
+    SumChargeMax = cms.double(50.5)
+
 )
 ALCARECOTkAlMinBiasDQM = cms.Sequence( ALCARECOTkAlMinBiasTrackingDQM + ALCARECOTkAlMinBiasTkAlDQM)
 
