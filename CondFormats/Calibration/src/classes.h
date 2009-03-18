@@ -54,5 +54,9 @@ namespace {
     cond::DataWrapper<Pedestals> d1;
     pool::PolyPtr<BlobComplex> p2;
     cond::DataWrapper<BlobComplex> d2;
+
+    pool::PolyPtr<condex::Efficiency> p3;
+    cond::DataWrapper<condex::Efficiency> d3;
+ 
   };
 }

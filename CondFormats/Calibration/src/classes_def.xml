@@ -64,6 +64,11 @@
  <class name="condex::ParametricEfficiencyInPt" class_version="0"/>
  <class name="condex::ParametricEfficiencyInEta" class_version="0"/>
 
+ <class name="pool::PolyPtr<condex::Efficiency>"/>
+ <class name="cond::DataWrapper<condex::Efficiency>"/>
+
+
+
  <class name="big"/>
  <class name="big::bigEntry"/>
  <class name="big::bigHeader"/>
