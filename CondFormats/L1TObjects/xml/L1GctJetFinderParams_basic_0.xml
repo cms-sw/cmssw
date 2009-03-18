@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="L1GctJetFinderParamsRcd" >
+   <Class table="L1GCTJETFINDERPARAMS" id_columns="ID" name="L1GctJetFinderParams" mapping_version="L1GctJetFinderParams_basic" >
+     <Primitive column="CENFORJETETABOUNDARY" name="cenForJetEtaBoundary_" />
+     <Primitive column="CENJETETSEED" name="cenJetEtSeed_" />
+     <Primitive column="CONVERTTOENERGY" name="convertToEnergy_" />
+     <Primitive column="CORRTYPE" name="corrType_" />
+     <Blob column="L1GCTJETFINDERPARA_1_BLOB" name="energyConversionCoeffs_" />
+     <Primitive column="FORJETETSEED" name="forJetEtSeed_" />
+     <Primitive column="HTJETETTHRESHOLD" name="htJetEtThreshold_" />
+     <Primitive column="HTLSB" name="htLsb_" />
+     <Blob column="L1GCTJETFINDERPARA_2_BLOB" name="jetCorrCoeffs_" />
+     <Primitive column="MHTJETETTHRESHOLD" name="mhtJetEtThreshold_" />
+     <Primitive column="RGNETLSB" name="rgnEtLsb_" />
+     <Blob column="L1GCTJETFINDERPARA_4_BLOB" name="tauCorrCoeffs_" />
+     <Primitive column="TAUISOETTHRESHOLD" name="tauIsoEtThreshold_" />
+     <Primitive column="TAUJETETSEED" name="tauJetEtSeed_" />
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
