@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2009/03/16 09:30:57 $
- * $Revision: 1.26 $
+ * $Date: 2009/03/18 08:23:48 $
+ * $Revision: 1.27 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -246,6 +246,7 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       // phi_tower: change the range from global to SM-local
       // phi==0 is in the middle of a SM
       int ipt = it->id().iphi() + 2;
+      if ( ipt > 72 ) ipt = ipt - 72;
 
       float xiet = (iet>0) ? iet-0.5 : iet+0.5 ;
       float xipt = ipt-0.5;
@@ -295,6 +296,7 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       // phi_tower: change the range from global to SM-local
       // phi==0 is in the middle of a SM
       int ipt = TPdigi->id().iphi() + 2;
+      if ( ipt > 72 ) ipt = ipt - 72;
       
       float xiet = (iet>0) ? iet-0.5 : iet+0.5 ;
       float xipt = ipt-0.5;
