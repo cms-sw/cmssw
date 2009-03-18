@@ -159,13 +159,13 @@ namespace edm
 
   template <class HAD>
   void
-  HadronizerFilter<HAD>::beginJob(EventSetup const&)
+  HadronizerFilter<HAD>::beginJob(EventSetup const& es)
   { 
     
     // do things that's common through the job, such as
     // attach external decay packages, etc.
     //
-    if ( decayer_ ) decayer_->init() ;
+    if ( decayer_ ) decayer_->init(es) ;
     return;
     
 /*

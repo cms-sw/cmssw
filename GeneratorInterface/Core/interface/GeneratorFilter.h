@@ -150,10 +150,10 @@ namespace edm
 
   template <class HAD>
   void
-  GeneratorFilter<HAD>::beginJob(EventSetup const&)
+  GeneratorFilter<HAD>::beginJob(EventSetup const& es)
   { 
   
-    if ( decayer_ ) decayer_->init() ;
+    if ( decayer_ ) decayer_->init(es) ;
     return;
   
   }
