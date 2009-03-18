@@ -243,8 +243,8 @@ MERun::getVal( int table, int var, int i1, int i2 )
       TTree* tree_ = MTQTable();
       int jj=_header.side;
       assert( jj==0 || jj==1 );
-      tree_->LoadTree( jj );
-      tree_->GetEntry( jj );
+      tree_->LoadTree( 0 );
+      tree_->GetEntry( 0 );
       assert( var>=0 && var<ME::iSizeMTQ );
       TString varName = ME::MTQPrimVar[var];
       float val = (float) mtq_d[varName];
