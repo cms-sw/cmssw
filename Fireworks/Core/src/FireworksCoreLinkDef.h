@@ -17,6 +17,7 @@
 #include "Fireworks/Core/src/LightTableWidget.h"
 #include "Fireworks/Core/src/FWListWidget.h"
 #include "Fireworks/Core/src/FWCollectionSummaryWidget.h"
+#include "Fireworks/Core/src/FWCompactVerticalLayout.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -49,6 +50,8 @@
 
 #pragma link C++ class FWCollectionSummaryWidget;
 #pragma link C++ class FWSummaryManager;
+
+#pragma link C++ class FWCompactVerticalLayout;
 
 
 
