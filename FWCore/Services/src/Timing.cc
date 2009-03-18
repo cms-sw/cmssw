@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.cc,v 1.14 2008/12/20 17:39:56 wmtan Exp $
+// $Id: Timing.cc,v 1.15 2009/02/12 11:53:17 ngarcian Exp $
 //
 // Change Log
 //
@@ -20,7 +20,16 @@
 //                - Fastest time per event (cpu and wallclock)
 //                - Slowest time per event (cpu and wallclock)
 //
-
+// 3 - mf 3/18/09  Change use of LogAbsolute to LogImportant
+//		   so that users can throttle the messages 
+//                 for selected destinations.  LogImportant
+//                 is treated at the same level as LogError, so
+//                 by default the behavior will not change, but
+//                 there will now be a way to control the verbosity.
+// 
+// 4 - mf 3/18/09  The per-event output TimeModule is changed to LogPrint.
+//		   The per-module output TimeModule is changed to LogVerbatim.
+//
 
 #include "FWCore/Services/interface/Timing.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -98,7 +107,7 @@ namespace edm {
 
       //edm::LogInfo("TimeReport")
       if (not summary_only_) {
-        edm::LogAbsolute("TimeReport")
+        edm::LogImportant("TimeReport")				// ChangeLog 3
 	<< "TimeReport> Report activated" << "\n"
 	<< "TimeReport> Report columns headings for events: "
 	<< "eventnum runnum timetaken\n"
@@ -116,9 +125,9 @@ namespace edm {
       double total_job_cpu = getCPU() - curr_job_cpu_;
       double average_event_cpu = total_event_cpu_ / total_event_count_;
 
-      //edm::LogInfo("TimeReport")
-      edm::LogAbsolute("TimeReport")				// Changelog 1
       //edm::LogAbsolute("FwkJob")
+      //edm::LogAbsolute("TimeReport")				// Changelog 1
+      edm::LogImportant("TimeReport")				// Changelog 3
 	<< "TimeReport> Time report complete in "
 	<< total_job_time << " seconds"
 	<< "\n"
@@ -172,7 +181,7 @@ namespace edm {
       curr_event_time_ = getTime() - curr_event_time_;
       
       if (not summary_only_) {
-        edm::LogAbsolute("TimeEvent")
+        edm::LogPrint("TimeEvent")				// ChangeLog 3
 	<< "TimeEvent> "
 	<< curr_event_.event() << " "
 	<< curr_event_.run() << " "
@@ -204,7 +213,7 @@ namespace edm {
       double t = getTime() - curr_module_time_;
       //edm::LogInfo("TimeModule")
       if (not summary_only_) {
-        edm::LogAbsolute("TimeModule") << "TimeModule> "
+        edm::LogVerbatim("TimeModule") << "TimeModule> "	// ChangeLog 4
 	   << curr_event_.event() << " "
 	   << curr_event_.run() << " "
 	   << desc.moduleLabel() << " "
