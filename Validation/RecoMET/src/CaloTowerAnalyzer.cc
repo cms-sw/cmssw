@@ -77,7 +77,8 @@ void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
 
   if (dbe_) {
  
-    TString dirName = "JetMET/EventInfo/CertificationSummary/MET_CaloTowers/";
+    //TString dirName = "JetMET/EventInfo/CertificationSummary/MET_CaloTowers/";
+    TString dirName = "RecoMETV/MET_CaloTowers/";
     TString label(caloTowersLabel_.label()); 
     if(label=="towerMaker") dirName += "SchemeB";
     else if(label=="calotoweroptmaker") dirName += "Optimized";

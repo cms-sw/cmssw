@@ -42,7 +42,8 @@ void ECALRecHitAnalyzer::BookHistos()
 
   // Book Geometry Histograms
     //dbe_->setCurrentFolder("RecoMETV/METTask/RecHits/ECAL/geometry");
-    dbe_->setCurrentFolder("JetMET/EventInfo/CertificationSummary/MET_ECAL/geometry");
+    //    dbe_->setCurrentFolder("JetMET/EventInfo/CertificationSummary/MET_ECAL/geometry");
+    dbe_->setCurrentFolder("RecoMETV/MET_ECAL/geometry");
   // ECAL barrel
   me["hEB_ieta_iphi_etaMap"] = dbe_->book2D("hEB_ieta_iphi_etaMap","", 171, -85, 86, 360, 1, 361);
   me["hEB_ieta_iphi_phiMap"] = dbe_->book2D("hEB_ieta_iphi_phiMap","", 171, -85, 86, 360, 1, 361);
@@ -95,7 +96,8 @@ void ECALRecHitAnalyzer::BookHistos()
 
   // Book Data Histograms
   //  dbe_->setCurrentFolder("RecoMETV/METTask/RecHits/ECAL/data");
-  dbe_->setCurrentFolder("JetMET/EventInfo/CertificationSummary/MET_ECAL/data/");
+  //  dbe_->setCurrentFolder("JetMET/EventInfo/CertificationSummary/MET_ECAL/data/");
+  dbe_->setCurrentFolder("RecoMETV/MET_ECAL/data/");
   // Energy Histograms by logical index
   me["hEEpZ_energy_ix_iy"] = dbe_->book2D("hEEpZ_energy_ix_iy","", 100,1,101, 100,1,101);
   me["hEEmZ_energy_ix_iy"] = dbe_->book2D("hEEmZ_energy_ix_iy","", 100,1,101, 100,1,101);
