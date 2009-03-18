@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:47 EST 2009
-// $Id: FWTableWidget.h,v 1.2 2009/02/04 14:49:31 chrjones Exp $
+// $Id: FWTableWidget.h,v 1.3 2009/03/04 15:40:36 chrjones Exp $
 //
 
 // system include files
@@ -40,6 +40,8 @@ class FWTableWidget : public TGCompositeFrame
       virtual ~FWTableWidget();
 
       // ---------- const member functions ---------------------
+      //the standard method gives the wrong values when using a TGTabularLayout
+      TGDimension GetDefaultSize() const;
 
       // ---------- static member functions --------------------
 

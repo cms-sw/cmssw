@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.4 2009/03/04 15:42:33 chrjones Exp $
+// $Id: FWTableWidget.cc,v 1.5 2009/03/13 14:58:01 chrjones Exp $
 //
 
 // system include files
@@ -358,6 +358,22 @@ FWTableWidget::buttonReleasedInRowHeader(Int_t row, Int_t column, Event_t* event
 //
 // const member functions
 //
+TGDimension 
+FWTableWidget::GetDefaultSize() const
+{
+   TGDimension returnValue;
+   if(m_header){
+      returnValue.fHeight += m_header->GetDefaultHeight();
+   }
+   if(m_rowHeader) {
+      returnValue.fWidth += m_rowHeader->GetDefaultWidth();
+   }
+   returnValue = returnValue + m_body->GetDefaultSize();
+   returnValue.fHeight += m_hSlider->GetDefaultHeight();
+   returnValue.fWidth += m_vSlider->GetDefaultWidth();
+   
+   return returnValue;
+}
 
 //
 // static member functions
