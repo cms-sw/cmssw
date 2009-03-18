@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.5 2009/03/18 09:46:54 jmuelmen Exp $
+// $Id: FWElectronDetailView.cc,v 1.6 2009/03/18 12:32:10 amraktad Exp $
 //
 
 // system include files
@@ -277,27 +277,24 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
       // lego
          
       TEveCaloLego* lego = new TEveCaloLego(data);
+      // scale and translate to real world coordinates
+      Double_t em, eM, pm, pM;
+      data->GetEtaLimits(em, eM);
+      data->GetPhiLimits(pm, pM);
+      lego->SetEta(em, eM);
+      lego->SetPhiWithRng((pm+pM)*0.5, pM-pm);
+      Double_t legoScale = ((eM - em) < (pM - pm)) ? (eM - em) : (pM - pm);
+      lego->InitMainTrans();
+      lego->RefMainTrans().SetScale(legoScale, legoScale, legoScale);
+      lego->RefMainTrans().SetPos((eM+em)*0.5, (pM+pm)*0.5, 0);
+
       lego->SetAutoRebin(kFALSE);
       lego->SetPlaneColor(kBlue-5);
-
-      // tempoary solution until we get pointer to gl viewer
-      //       lego->SetProjection(TEveCaloLego::k3D);
       lego->Set2DMode(TEveCaloLego::kValSize);
       lego->SetName("ElectronDetail Lego");
-      //       lego->SetMainTransparency(5);
       gEve->AddElement(lego, tList);
 
-      // scale and translate  
-      lego->InitMainTrans();
-      //       lego->RefMainTrans().SetPos(0.5 * (m_xmin + m_xmax),
-      //                                   0.5 * (m_ymin + m_ymax),
-      //                                   0);
-      //       lego->RefMainTrans().SetScale(m_xmax - m_xmin, 
-      //                                     m_xmax - m_xmin,
-      //                                     1);
-
-      // overlay lego
-         
+      // overlay lego         
       TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
       overlay->SetShowPlane(kFALSE);
       overlay->SetShowPerspective(kFALSE);
@@ -318,32 +315,10 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
       printf("lego range: xmin = %f xmax = %f, ymin = %f ymax = %f\n"
 	     , m_xmin, m_xmax, m_ymin, m_ymax);
 
-      // scale all our lines and points to match the lego
-      rescale(&scposition->RefMainTrans(), m_xmin, m_xmax, m_ymin, m_ymax);
-
-      //      rescale(&seedposition->RefMainTrans(), m_xmin, m_xmax, m_ymin, m_ymax);
-      //      rescale(&pinposition->RefMainTrans(), m_xmin, m_xmax, m_ymin, m_ymax);
-      //          rescale(&pinposition2->RefMainTrans(), m_xmin, m_xmax, m_ymin, m_ymax);
-      rescale(&trackpositionAtCalo->RefMainTrans(), m_xmin, m_xmax, m_ymin, m_ymax);
-      //          rescale(&trackpositionAtCalo2->RefMainTrans(), m_xmin, m_xmax, m_ymin, m_ymax);
-      //          tList->AddElement(pinposition);
-      //          tList->AddElement(pinposition2);
-
       gEve->Redraw3D(kTRUE);
       return tList;
    }
    return tList;
-}
-
-void FWElectronDetailView::rescale (TEveTrans *trans, double m_xmin, double m_xmax, 
-				  double m_ymin, double m_ymax)
-{
-     trans->SetScale(1 / (m_xmax - m_xmin), 
-		     1 / (m_xmax - m_xmin),
-		     1);
-     trans->SetPos(-0.5 * (m_xmin + m_xmax) / (m_xmax - m_xmin),
-		   -0.5 * (m_ymin + m_ymax) / (m_xmax - m_xmin),
-		   0);
 }
 
 void FWElectronDetailView::fillData (const std::vector<DetId> &detids,

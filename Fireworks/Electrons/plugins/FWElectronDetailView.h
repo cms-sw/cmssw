@@ -10,7 +10,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.5 2009/03/18 09:46:54 jmuelmen Exp $
+// $Id: FWElectronDetailView.h,v 1.1 2009/03/18 12:32:10 amraktad Exp $
 //
 
 
@@ -53,8 +53,6 @@ protected:
    void fillData (const std::vector<DetId> &detids,
                   TEveCaloDataVec *data, 
                   double phi_seed);
-   void rescale (TEveTrans *trans, double x_min, double x_max, 
-                 double y_min, double y_max);
 
 private:
    FWElectronDetailView(const FWElectronDetailView&); // stop default
