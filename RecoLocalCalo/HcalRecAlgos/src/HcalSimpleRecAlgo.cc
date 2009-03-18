@@ -218,11 +218,11 @@ float timeshift_ns_hbheho(float wpksamp) {
   return actual_ns_hbheho[index];
 }
 
-static const float wpksamp0 = 0.500053;
-static const float scale    = 0.999683;
-static const int   num_bins = 100;
+static const float wpksamp0_hf = 0.500053;
+static const float scale_hf    = 0.999683;
+static const int   num_bins_hf = 100;
 
-static const float actual_ns_hf_new[num_bins] = {
+static const float actual_ns_hf[num_bins_hf] = {
  0.00250, // 0.000-0.010
  0.08000, // 0.010-0.020
  0.16000, // 0.020-0.030
