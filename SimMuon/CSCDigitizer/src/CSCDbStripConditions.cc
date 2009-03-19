@@ -94,27 +94,34 @@ void CSCDbStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
 
   CSCCorrelatedNoiseMatrix matrix;
   //TODO get the pedestals right
-  matrix(3,3) = me[0]; // item.elem33;
-  matrix(4,4) = me[3]; // item.elem44;
-  matrix(5,5) = me[6]; // item.elem55;
-  matrix(6,6) = me[9]; // item.elem66;
-  matrix(7,7) = me[11]; // item.elem77;
+  matrix(2,2) = me[0]; // item.elem33;
+  matrix(3,3) = me[3]; // item.elem44;
+  matrix(4,4) = me[6]; // item.elem55;
+  matrix(5,5) = me[9]; // item.elem66;
+  matrix(6,6) = me[11]; // item.elem77;
   
   if(doCorrelatedNoise_)
   {
-    matrix(3,4) = me[1]; // item.elem34;
-    matrix(3,5) = me[2]; // item.elem35;
-    matrix(4,5) = me[4]; // item.elem45;
-    matrix(4,6) = me[5]; // item.elem46;
-    matrix(5,6) = me[7]; // item.elem56;
-    matrix(5,7) = me[8]; // item.elem57;
-    matrix(6,7) = me[10]; // item.elem67;
+    matrix(2,3) = me[1]; // item.elem34;
+    matrix(2,4) = me[2]; // item.elem35;
+    matrix(3,4) = me[4]; // item.elem45;
+    matrix(3,5) = me[5]; // item.elem46;
+    matrix(4,5) = me[7]; // item.elem56;
+    matrix(4,6) = me[8]; // item.elem57;
+    matrix(5,6) = me[10]; // item.elem67;
   }
 
-  // the other diagonal elements can just come from the pedestal sigma, I guess
+  // the other diagonal elements can just come from the pedestal sigma
   float sigma = pedestalSigma(detId, istrip);
   float scaVariance = 2 * sigma * sigma;
-  matrix(0,0) = matrix(1,1) = matrix(2,2) = scaVariance;
+  matrix(0,0) = matrix(1,1) = matrix(7,7) = scaVariance;
+
+  // unknown neighbors can be the average of the known neighbors
+  //float avgNeighbor = (matrix(2,3)+matrix(3,4)+matrix(4,5)+matrix(5,6))/4.;
+  //float avg2away = (matrix(2,4)+matrix(3,5)+matrix(4,6))/3.;
+  //matrix(0,1) = matrix(1,2) = matrix(6,7) = avgNeighbor;
+  //matrix(0,2) = matrix(1,3) = matrix(5,7) = avg2away;
+
   if(theNoisifier != 0) delete theNoisifier;
   theNoisifier = new CSCCorrelatedNoisifier(matrix);
 }
