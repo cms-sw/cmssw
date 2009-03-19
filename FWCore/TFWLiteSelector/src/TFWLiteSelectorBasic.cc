@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.43 2008/12/18 06:19:37 wmtan Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.44 2009/02/19 00:18:38 wmtan Exp $
 //
 
 // system include files
@@ -275,7 +275,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
       //     }
 
       edm::History history;
-      if (m_->fileFormatVersion_.value_ >= 7) {
+      if (m_->fileFormatVersion_.eventHistoryTree()) {
          edm::History* pHistory = &history;
          TBranch* eventHistoryBranch = m_->eventHistoryTree_->GetBranch(edm::poolNames::eventHistoryBranchName().c_str());
          if (!eventHistoryBranch)
@@ -408,7 +408,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   }  
   //std::cout <<"Notify end"<<std::endl;
    
-   if (m_->fileFormatVersion_.value_ >= 7) {
+   if (m_->fileFormatVersion_.eventHistoryTree()) {
       m_->eventHistoryTree_ = dynamic_cast<TTree*>(iFile.Get(edm::poolNames::eventHistoryTreeName().c_str()));
       if(0==m_->eventHistoryTree_) {
          std::cout <<"could not find TTree "<<edm::poolNames::eventHistoryTreeName() <<std::endl;
