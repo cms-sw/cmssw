@@ -198,7 +198,7 @@ cat > ${MACRO}<<EOF
   make1DPlot("recHits/hRHSumQ-41",f1,"Sum 3x3 RecHit Charge ME-4/1", 1110,"recHits_hRHSumQ-41.png");
 
   make1DPlot("recHits/hRHRatioQ+11",f1,"Charge Ratio (Ql_Qr)/Qt ME+1/1b", 1110,"recHits_hRHRatioQ+11.png");
-  make1DPlot("recHits/hRHRatioQ+14",f1,"Charge Ratio (Ql_Qr)/Qt ME+1/1a", 1110,"recHits_hRHRatioQ+11b.png");
+  make1DPlot("recHits/hRHRatioQ+14",f1,"Charge Ratio (Ql_Qr)/Qt ME+1/1a", 1110,"recHits_hRHRatioQ+11a.png");
   make1DPlot("recHits/hRHRatioQ+12",f1,"Charge Ratio (Ql_Qr)/Qt ME+1/2", 1110,"recHits_hRHRatioQ+12.png");
   make1DPlot("recHits/hRHRatioQ+13",f1,"Charge Ratio (Ql_Qr)/Qt ME+1/3", 1110,"recHits_hRHRatioQ+13.png");
   make1DPlot("recHits/hRHRatioQ+21",f1,"Charge Ratio (Ql_Qr)/Qt ME+2/1", 1110,"recHits_hRHRatioQ+21.png");
