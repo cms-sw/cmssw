@@ -641,7 +641,7 @@ void certification()
       XMLNodePointer_t nodeFlagList( xml->NewChild( nodeCriteria, 0, "FLAG_LIST", flagList.c_str() ) );
     }
     ostringstream sBitFlags;
-    sBitFlags << "0X" << hex << uppercase << setfill( '0' ) << setw(8) << bitFlags<< dec << nouppercase << setfill( ' ' );
+    sBitFlags << "0x" << hex << setfill( '0' ) << setw(8) << bitFlags<< dec << setfill( ' ' );
     nodeFlag = xml->NewChild( nodeRun, 0, "FLAG_BITS" );
     xml->NewAttr( nodeFlag, 0, "value", sBitFlags.str().c_str() );
     
@@ -713,11 +713,7 @@ void certification()
   fileRRCorrect.open( nameFileRR.c_str(), ios_base::app );
   const UInt_t maxLength( 131071 );
   char xmlLine[ maxLength ];
-  UInt_t iLine( 0 );
-  while ( fileRRIn.getline( xmlLine, maxLength ) ) {
-    if ( iLine )fileRRCorrect << xmlLine << endl;
-    ++iLine;
-  }
+  while ( fileRRIn.getline( xmlLine, maxLength ) ) fileRRCorrect << xmlLine << endl;
   fileRRCorrect.close();
   fileRRIn.close();
   gSystem->Exec( string( "rm " + nameFileRRTmp ).c_str() );
