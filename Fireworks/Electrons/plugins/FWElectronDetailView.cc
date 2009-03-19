@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.9 2009/03/18 17:18:45 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.10 2009/03/18 20:12:51 jmuelmen Exp $
 //
 
 // system include files
@@ -129,6 +129,8 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
       //  const int subdetId = 
       //   seed_detids.size() != 0 ? seed_detids.begin()->subdetId() : -1;
       const double scale = 1;
+//       if (subdetId == EcalEndcap)
+// 	   scale = 0.01;  // use meters in the endcap 
       if (subdetId == EcalBarrel) {
          rotationCenter()[0] = i->superCluster()->position().eta() * scale;
          rotationCenter()[1] = i->superCluster()->position().phi() * scale;
@@ -141,8 +143,7 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
       //        rotationCenter()[0] = i->TrackPositionAtCalo().x();
       //        rotationCenter()[1] = i->TrackPositionAtCalo().y();
       //        rotationCenter()[2] = i->TrackPositionAtCalo().z();
-      TEveStraightLineSet *scposition =
-         new TEveStraightLineSet("sc position");
+      TEveStraightLineSet *scposition = new TEveStraightLineSet("sc position");
       scposition->SetDepthTest(kFALSE);
       if (subdetId == EcalBarrel) {
          scposition->AddLine(i->caloPosition().eta(),
@@ -151,121 +152,101 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
                              i->caloPosition().eta(),
                              i->caloPosition().phi(),
                              0);
-         scposition->AddMarker(0, 0.5);
       } else if (subdetId == EcalEndcap) {
-         // 	   scposition->SetNextPoint(i->caloPosition().x() * scale,
-         // 				    i->caloPosition().y() * scale,
-         // 				    1);
+         scposition->AddLine(i->caloPosition().x(),
+                             i->caloPosition().y(),
+                             0,
+                             i->caloPosition().x(),
+                             i->caloPosition().y(),
+                             0);
       }
-      //       scposition->SetMarkerStyle(28);
+      scposition->AddMarker(0, 0.5);
       scposition->SetMarkerSize(2);
       scposition->SetMarkerColor(kBlue);
       tList->AddElement(scposition);
-      /*
-        TEvePointSet *seedposition =
-        new TEvePointSet("seed position", 1);
-        if (subdetId == EcalBarrel) {
-        seedposition->SetNextPoint(i->superCluster()->seed()->position().eta() * scale,
-        i->superCluster()->seed()->position().phi() * scale,
-        1);
-        } else if (subdetId == EcalEndcap) {
-        seedposition->SetNextPoint(i->superCluster()->seed()->position().x() * scale,
-        i->superCluster()->seed()->position().y() * scale,
-        1);
-        printf("seed cluster position: %f %f\n",
-        i->superCluster()->seed()->position().eta(),
-        i->superCluster()->seed()->position().phi());
-        }
-        seedposition->SetMarkerStyle(28);
-        seedposition->SetMarkerSize(0.25);
-        seedposition->SetMarkerColor(kRed);
-        tList->AddElement(seedposition);
-      */
+      TEveStraightLineSet *seedposition = new TEveStraightLineSet("seed position");
+      seedposition->SetDepthTest(kFALSE);
+      if (subdetId == EcalBarrel) {
+	   seedposition->AddLine(i->superCluster()->seed()->position().eta(),
+				 i->superCluster()->seed()->position().phi(),
+				 0,
+				 i->superCluster()->seed()->position().eta(),
+				 i->superCluster()->seed()->position().phi(),
+				 0);
+      } else if (subdetId == EcalEndcap) {
+	   seedposition->AddLine(i->superCluster()->seed()->position().x() * scale,
+				 i->superCluster()->seed()->position().y() * scale,
+				 0,
+				 i->superCluster()->seed()->position().x() * scale,
+				 i->superCluster()->seed()->position().y() * scale,
+				 0);
+      }
+      seedposition->AddMarker(0, 0.5);
+      seedposition->SetMarkerSize(2);
+      seedposition->SetMarkerColor(kRed);
+      tList->AddElement(seedposition);
       TEveStraightLineSet *trackpositionAtCalo =
          new TEveStraightLineSet("sc trackpositionAtCalo");
       trackpositionAtCalo->SetDepthTest(kFALSE);
       if (subdetId == EcalBarrel) {
-         trackpositionAtCalo->AddLine(i->TrackPositionAtCalo().eta() * scale,
-                                      rotationCenter()[1] - 0.5,
-                                      0,
-                                      i->TrackPositionAtCalo().eta() * scale,
-                                      rotationCenter()[1] + 0.5,
-                                      0);
-         trackpositionAtCalo->AddLine(rotationCenter()[0] - 0.5,
-                                      i->TrackPositionAtCalo().phi() * scale,
-                                      0,
-                                      rotationCenter()[0] + 0.5,
-                                      i->TrackPositionAtCalo().phi() * scale,
-                                      0);
+	   trackpositionAtCalo->AddLine(i->TrackPositionAtCalo().eta(),
+					rotationCenter()[1] - 0.5,
+					0,
+					i->TrackPositionAtCalo().eta(),
+					rotationCenter()[1] + 0.5,
+					0);
+	   trackpositionAtCalo->AddLine(rotationCenter()[0] - 0.5,
+					i->TrackPositionAtCalo().phi(),
+					0,
+					rotationCenter()[0] + 0.5,
+					i->TrackPositionAtCalo().phi(),
+					0);
       } else if (subdetId == EcalEndcap) {
-         //          trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().x() * scale,
-         //                                            rotationCenter()[1] - 0.5,
-         //                                            0);
-         //          trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().x() * scale,
-         //                                            rotationCenter()[1] + 0.5,
-         //                                            0);
+	   trackpositionAtCalo->AddLine(i->TrackPositionAtCalo().x() * scale,
+					rotationCenter()[1] - 0.5,
+					0,
+					i->TrackPositionAtCalo().x() * scale,
+					rotationCenter()[1] + 0.5,
+					0);
+	   trackpositionAtCalo->AddLine(rotationCenter()[0] - 0.5,
+					i->TrackPositionAtCalo().y() * scale,
+					0,
+					rotationCenter()[0] + 0.5,
+					i->TrackPositionAtCalo().y() * scale,
+					0);
       }
       trackpositionAtCalo->SetLineColor(kBlue);
       tList->AddElement(trackpositionAtCalo);
-      /*
-        trackpositionAtCalo = new TEveLine("sc trackpositionAtCalo");
-        if (subdetId == EcalBarrel) {
-        trackpositionAtCalo->SetNextPoint(rotationCenter()[0] - 0.5,
-        i->TrackPositionAtCalo().phi() * scale,
-        0);
-        trackpositionAtCalo->SetNextPoint(rotationCenter()[0] + 0.5,
-        i->TrackPositionAtCalo().phi() * scale,
-        0);
-        } else if (subdetId == EcalEndcap) {
-        trackpositionAtCalo->SetNextPoint(rotationCenter()[0] - 0.5,
-        i->TrackPositionAtCalo().y() * scale,
-        0);
-        trackpositionAtCalo->SetNextPoint(rotationCenter()[0] + 0.5,
-        i->TrackPositionAtCalo().y() * scale,
-        0);
-        }
-        trackpositionAtCalo->SetLineColor(kBlue);
-        tList->AddElement(trackpositionAtCalo);
-        TEveLine *pinposition =
-        new TEveLine("pin position", 1);
-        if (subdetId == EcalBarrel) {
-        pinposition->SetNextPoint((i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
-        rotationCenter()[1] - 0.5,
-        0);
-        pinposition->SetNextPoint((i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
-        rotationCenter()[1] + 0.5,
-        0);
-        } else if (subdetId == EcalEndcap) {
-        pinposition->SetNextPoint((i->caloPosition().x() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
-        rotationCenter()[1] - 0.5,
-        0);
-        pinposition->SetNextPoint((i->caloPosition().x() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
-        rotationCenter()[1] + 0.5,
-        0);
-        }
-        pinposition->SetMarkerStyle(28);
-        pinposition->SetLineColor(kRed);
-        tList->AddElement(pinposition);
-        pinposition = new TEveLine("pin position", 1);
-        if (subdetId == EcalBarrel) {
-        pinposition->SetNextPoint(rotationCenter()[0] - 0.5,
-        (i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
-        0);
-        pinposition->SetNextPoint(rotationCenter()[0] + 0.5,
-        (i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
-        0);
-        } else if (subdetId == EcalEndcap) {
-        pinposition->SetNextPoint(rotationCenter()[0] - 0.5,
-        (i->caloPosition().y() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
-        0);
-        pinposition->SetNextPoint(rotationCenter()[0] + 0.5,
-        (i->caloPosition().y() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
-        0);
-        }
-        pinposition->SetMarkerStyle(28);
-        pinposition->SetLineColor(kRed);
-        tList->AddElement(pinposition);
-      */
+      TEveStraightLineSet *pinposition = new TEveStraightLineSet("pin position");
+      if (subdetId == EcalBarrel) {
+	   pinposition->AddLine((i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()),
+				rotationCenter()[1] - 0.5, 
+				0,
+				(i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()),
+				rotationCenter()[1] + 0.5,
+				0);
+	   pinposition->AddLine(rotationCenter()[0] - 0.5,
+				(i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()),
+				0,
+				rotationCenter()[0] + 0.5,
+				(i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()),
+				0);
+      } else if (subdetId == EcalEndcap) {
+// 	   pinposition->AddLine((i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
+// 				rotationCenter()[1] - 0.5, 
+// 				0,
+// 				(i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
+// 				rotationCenter()[1] + 0.5,
+// 				0);
+// 	   pinposition->AddLine(rotationCenter()[0] - 0.5,
+// 				(i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
+// 				0,
+// 				rotationCenter()[0] + 0.5,
+// 				(i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
+// 				0);
+      }
+      pinposition->SetLineColor(kRed);
+      tList->AddElement(pinposition);
 
       // vector for the ECAL crystals
       TEveCaloDataVec* data = new TEveCaloDataVec(2);
