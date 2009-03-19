@@ -205,50 +205,50 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
     res::HelperJet jetRes;
     switch(jetParam_){
     case kEMom :
-      m1b(0,0) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1b(1,1) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1b(2,2) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1b(3,3) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
-      m2b(0,0) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2); 
-      m2b(1,1) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2); 
-      m2b(2,2) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2);
-      m2b(3,3) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2);
-      m3b(0,0) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2); 
-      m3b(1,1) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2); 
-      m3b(2,2) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2);
-      m3b(3,3) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2);
-      m4b(0,0) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2); 
-      m4b(1,1) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2); 
-      m4b(2,2) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2);
-      m4b(3,3) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2);
+      m1b(0,0) = pow(jetRes.a (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1b(1,1) = pow(jetRes.b (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1b(2,2) = pow(jetRes.c (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1b(3,3) = pow(jetRes.d (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m2b(0,0) = pow(jetRes.a (q2pt, q2eta, res::HelperJet::kUds), 2); 
+      m2b(1,1) = pow(jetRes.b (q2pt, q2eta, res::HelperJet::kUds), 2); 
+      m2b(2,2) = pow(jetRes.c (q2pt, q2eta, res::HelperJet::kUds), 2);
+      m2b(3,3) = pow(jetRes.d (q2pt, q2eta, res::HelperJet::kUds), 2);
+      m3b(0,0) = pow(jetRes.a (b1pt, b1eta, res::HelperJet::kB  ), 2); 
+      m3b(1,1) = pow(jetRes.b (b1pt, b1eta, res::HelperJet::kB  ), 2); 
+      m3b(2,2) = pow(jetRes.c (b1pt, b1eta, res::HelperJet::kB  ), 2);
+      m3b(3,3) = pow(jetRes.d (b1pt, b1eta, res::HelperJet::kB  ), 2);
+      m4b(0,0) = pow(jetRes.a (b2pt, b2eta, res::HelperJet::kB  ), 2); 
+      m4b(1,1) = pow(jetRes.b (b2pt, b2eta, res::HelperJet::kB  ), 2); 
+      m4b(2,2) = pow(jetRes.c (b2pt, b2eta, res::HelperJet::kB  ), 2);
+      m4b(3,3) = pow(jetRes.d (b2pt, b2eta, res::HelperJet::kB  ), 2);
       break;
     case kEtEtaPhi : 
-      m1 (0,0) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1 (0,0) = pow(jetRes.et (q1pt, q1eta, res::HelperJet::kUds), 2);
       m1 (1,1) = pow(jetRes.eta(q1pt, q1eta, res::HelperJet::kUds), 2);
       m1 (2,2) = pow(jetRes.phi(q1pt, q1eta, res::HelperJet::kUds), 2);
-      m2 (0,0) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2); 
+      m2 (0,0) = pow(jetRes.et (q2pt, q2eta, res::HelperJet::kUds), 2); 
       m2 (1,1) = pow(jetRes.eta(q2pt, q2eta, res::HelperJet::kUds), 2); 
       m2 (2,2) = pow(jetRes.phi(q2pt, q2eta, res::HelperJet::kUds), 2);
-      m3 (0,0) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2); 
+      m3 (0,0) = pow(jetRes.et (b1pt, b1eta, res::HelperJet::kB  ), 2); 
       m3 (1,1) = pow(jetRes.eta(b1pt, b1eta, res::HelperJet::kB  ), 2); 
       m3 (2,2) = pow(jetRes.phi(b1pt, b1eta, res::HelperJet::kB  ), 2);
-      m4 (0,0) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2); 
+      m4 (0,0) = pow(jetRes.et (b2pt, b2eta, res::HelperJet::kB  ), 2); 
       m4 (1,1) = pow(jetRes.eta(b2pt, b2eta, res::HelperJet::kB  ), 2); 
       m4 (2,2) = pow(jetRes.phi(b2pt, b2eta, res::HelperJet::kB  ), 2);
       break;
     case kEtThetaPhi :
-      m1 (0,0) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1 (1,1) = pow(jetRes.eta(q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1 (2,2) = pow(jetRes.phi(q1pt, q1eta, res::HelperJet::kUds), 2);
-      m2 (0,0) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2); 
-      m2 (1,1) = pow(jetRes.eta(q2pt, q2eta, res::HelperJet::kUds), 2); 
-      m2 (2,2) = pow(jetRes.phi(q2pt, q2eta, res::HelperJet::kUds), 2);
-      m3 (0,0) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2); 
-      m3 (1,1) = pow(jetRes.eta(b1pt, b1eta, res::HelperJet::kB  ), 2); 
-      m3 (2,2) = pow(jetRes.phi(b1pt, b1eta, res::HelperJet::kB  ), 2);
-      m4 (0,0) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2); 
-      m4 (1,1) = pow(jetRes.eta(b2pt, b2eta, res::HelperJet::kB  ), 2); 
-      m4 (2,2) = pow(jetRes.phi(b2pt, b2eta, res::HelperJet::kB  ), 2);
+      m1 (0,0) = pow(jetRes.et   (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1 (1,1) = pow(jetRes.theta(q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1 (2,2) = pow(jetRes.phi  (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m2 (0,0) = pow(jetRes.et   (q2pt, q2eta, res::HelperJet::kUds), 2); 
+      m2 (1,1) = pow(jetRes.theta(q2pt, q2eta, res::HelperJet::kUds), 2); 
+      m2 (2,2) = pow(jetRes.phi  (q2pt, q2eta, res::HelperJet::kUds), 2);
+      m3 (0,0) = pow(jetRes.et   (b1pt, b1eta, res::HelperJet::kB  ), 2); 
+      m3 (1,1) = pow(jetRes.theta(b1pt, b1eta, res::HelperJet::kB  ), 2); 
+      m3 (2,2) = pow(jetRes.phi  (b1pt, b1eta, res::HelperJet::kB  ), 2);
+      m4 (0,0) = pow(jetRes.et   (b2pt, b2eta, res::HelperJet::kB  ), 2); 
+      m4 (1,1) = pow(jetRes.theta(b2pt, b2eta, res::HelperJet::kB  ), 2); 
+      m4 (2,2) = pow(jetRes.phi  (b2pt, b2eta, res::HelperJet::kB  ), 2);
       break;
     }
   }
@@ -263,18 +263,18 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
     res::HelperElectron elecRes;
     switch(lepParam_){
     case kEMom :
-      m5(0,0) = pow(elecRes.pt (pt, eta), 2);
-      m5(1,1) = pow(elecRes.pt (pt, eta), 2); 
-      m5(2,2) = pow(elecRes.pt (pt, eta), 2);
+      m5(0,0) = pow(elecRes.a (pt, eta), 2);
+      m5(1,1) = pow(elecRes.b (pt, eta), 2); 
+      m5(2,2) = pow(elecRes.c (pt, eta), 2);
       break;
     case kEtEtaPhi :
-      m5(0,0) = pow(elecRes.pt (pt, eta), 2);
+      m5(0,0) = pow(elecRes.et (pt, eta), 2);
       m5(1,1) = pow(elecRes.eta(pt, eta), 2); 
       m5(2,2) = pow(elecRes.phi(pt, eta), 2);
       break;
     case kEtThetaPhi :
-      m5(0,0) = pow(elecRes.pt (pt, eta), 2);
-      m5(1,1) = pow(elecRes.eta(pt, eta), 2); 
+      m5(0,0) = pow(elecRes.et (pt, eta), 2);
+      m5(1,1) = pow(elecRes.theta(pt, eta), 2); 
       m5(2,2) = pow(elecRes.phi(pt, eta), 2);
       break;
     }
@@ -282,24 +282,24 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
   // add neutrino resolutions
   {
     //FIXME this dirty hack needs a clean solution soon!
-    double met = neutrino.pt();
+    double pt = neutrino.pt();
 
     res::HelperMET metRes;
     switch(metParam_){
     case kEMom :
-      m6(0,0) = pow(metRes.met(met), 2);
-      m6(1,1) = pow(          9999., 2);
-      m6(2,2) = pow(metRes.phi(met), 2);
+      m6(0,0) = pow(metRes.a(pt), 2);
+      m6(1,1) = pow(metRes.b(pt), 2);
+      m6(2,2) = pow(metRes.c(pt), 2);
       break;
     case kEtEtaPhi :
-      m6(0,0) = pow(metRes.met(met), 2);
+      m6(0,0) = pow(metRes.et(pt), 2);
       m6(1,1) = pow(          9999., 2);
-      m6(2,2) = pow(metRes.phi(met), 2);
+      m6(2,2) = pow(metRes.phi(pt), 2);
       break;
     case kEtThetaPhi :
-      m6(0,0) = pow(metRes.met(met), 2);
+      m6(0,0) = pow(metRes.et(pt), 2);
       m6(1,1) = pow(          9999., 2);
-      m6(2,2) = pow(metRes.phi(met), 2);
+      m6(2,2) = pow(metRes.phi(pt), 2);
       break;
     }
   }
