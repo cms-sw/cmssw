@@ -27,8 +27,9 @@ process.load("SimG4Core.Configuration.SimG4Core_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 ## For 31X use:
-# process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
-process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
+process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
+## for older releases
+#process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
 
 process.load("Validation.TrackerRecHits.trackerRecHitsValidation_cff")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
