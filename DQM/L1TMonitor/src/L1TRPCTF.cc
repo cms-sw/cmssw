@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2009/01/29 17:34:28 $
- * $Revision: 1.23 $
+ * $Date: 2009/01/30 13:09:44 $
+ * $Revision: 1.24 $
  * \author J. Berryhill
  *
  */
@@ -155,8 +155,10 @@ void L1TRPCTF::beginJob(const EventSetup& c)
 
     m_rateAvg = m_dbe->book1D("RPCTF_rate_avg",
                               "RPCTrigger - average rate", m_rateNoOfBins, 0, m_rateNoOfBins); 
-
-        
+                              
+    m_bxDiff = m_dbe->book1D("RPCTF_bx_diff",
+			      "RPCTrigger - bx difference", 12000, -.5, 11999.5); 
+    
   }  
 }
 
@@ -264,6 +266,20 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
   
   if (nrpctftrack>0) {
     m_rateHelper.addOrbit(e.orbitNumber());
+        
+    unsigned int globBx = e.orbitNumber()*3564+e.bunchCrossing();
+    if (m_globBX.find(globBx)==m_globBX.end()) m_globBX.insert(globBx);
+    if (m_globBX.size()>1020){
+      static int lastUsedBx = 0;
+      int diff = *m_globBX.begin()-lastUsedBx; // first entry will go to overflow bin, ignore
+      m_bxDiff->Fill(diff);
+      lastUsedBx = *m_globBX.begin();
+      m_globBX.erase(m_globBX.begin());
+    
+    }
+    
+    
+    
   }
   fillRateHistos(e.orbitNumber());
   

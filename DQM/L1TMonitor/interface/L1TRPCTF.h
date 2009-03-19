@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTF.h
  *
- * $Date: 2009/01/29 17:05:29 $
- * $Revision: 1.14 $
+ * $Date: 2009/01/30 13:09:44 $
+ * $Revision: 1.15 $
  * \author J. Berryhill
  *
 */
@@ -91,6 +91,9 @@ private:
   MonitorElement * m_rateAvg;
   MonitorElement * m_rateMin;
   MonitorElement * m_rateMax;
+  MonitorElement* m_bxDiff;
+  std::set<unsigned int>  m_globBX;
+  
   
   L1TRateHelper::L1TRateHelper m_rateHelper;
 
