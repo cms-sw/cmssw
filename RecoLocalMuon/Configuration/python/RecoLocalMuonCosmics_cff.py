@@ -23,9 +23,7 @@ import RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_NoDrift_CosmicData
 dt4DSegmentsNoDrift = RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_NoDrift_CosmicData_cfi.dt4DSegments.clone()
 
 # T0 seg correction
-import RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_T0Seg_LinearDriftFromDB_CosmicData_cfi
-dt4DSegmentsT0Seg = RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_T0Seg_LinearDriftFromDB_CosmicData_cfi.dt4DSegments.clone()
-
+from RecoLocalMuon.DTSegment.dt4DSegments_ApplyT0Correction_cfi import *
 
 #------------------------------------ CSC -----------------------------------------------
 # 2D RecHit	
@@ -43,7 +41,7 @@ dtlocalreco = cms.Sequence(dt1DRecHits*dt4DSegments)
 # DT sequence with the 2D segment reconstruction
 dtlocalreco_with_2DSegments = cms.Sequence(dt1DRecHits*dt2DSegments*dt4DSegments)
 # DT sequence with T0seg correction
-dtlocalrecoT0Seg = cms.Sequence(dt1DRecHits*dt4DSegmentsT0Seg)
+dtlocalrecoT0Seg = cms.Sequence(dt1DRecHits*dt4DSegments*dt4DSegmentsT0Corr)
 # DT sequence with no-drift  algo
 dtlocalrecoNoDrift = cms.Sequence(dt1DRecHitsNoDrift*dt4DSegmentsNoDrift)
 # CSC sequence
