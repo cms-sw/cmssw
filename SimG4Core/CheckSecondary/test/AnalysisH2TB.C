@@ -25,7 +25,7 @@ static unsigned int antiproton=12, proton=13, neutron=14, heavy=15, ions=16;
 
 void AnalyseH2TB(char element[6], char list[20], char ene[6], char part[4], int sav=0, int nMax=-1, bool debug=false) {
 
-  char *g4ver = "9.2.ref01P";
+  char *g4ver = "9.2";
   bool detail = true;
 
   int  energy = atoi(ene);
