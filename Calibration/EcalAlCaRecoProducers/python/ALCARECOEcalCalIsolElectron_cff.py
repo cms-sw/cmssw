@@ -2,24 +2,20 @@ import FWCore.ParameterSet.Config as cms
 
 from Calibration.EcalAlCaRecoProducers.alCaIsolatedElectrons_cfi import *
 from Calibration.EcalAlCaRecoProducers.electronIsolationSequence_cff import *
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+import HLTrigger.HLTfilters.hltHighLevel_cfi 
 from Calibration.EcalAlCaRecoProducers.electronFilter_cfi import *
 
 #
-# The current (as of $date$) ALCA stream for single and double electron
+# The current (as of $Date$) ALCA stream for single and double electron
 # calibration
 #
 
-isolElectronewkHLTFilter = hltHighLevel.clone()
-isolElectronewkHLTFilter.throw = False
-
-#
-# Here we specify trigger names for both 1E31 and 8E29
-# Since have throw = false, this setting will work for both menus
-#
-#
-isolElectronewkHLTFilter.HLTPaths = ['HLT_Ele15_SW_L1R', 'HLT_DoubleEle10_SW_L1R', # 1E31
-                                     'HLT_Ele10_LW_L1R', 'HLT_DoubleEle5_SW_L1R']  # 8E29
+isolElectronewkHLTFilter=HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+#   HLTPaths = ['HLT_Ele15_SW_L1R', 'HLT_DoubleEle10_SW_L1R', # 1E31
+#               'HLT_Ele10_LW_L1R', 'HLT_DoubleEle5_SW_L1R']  # 8E29
+    eventSetupPathsKey='ALCARECOEcalCalElectron',
+    throw = False
+)
 
 goodElectrons = cms.EDFilter("CandViewRefSelector",
     filter = cms.bool(True),
