@@ -51,7 +51,7 @@ class L1GctInternHtMiss
                                            const int16_t bx,
                                            const uint32_t data);
 
-  /// Named ctor for making missing Ht x & y components object from unpacker raw data.  
+  /// Named ctor for making missing Ht x & y components object from unpacker raw data (wheel input).  
   static L1GctInternHtMiss unpackerMissHtxHty(const uint16_t capBlock,
                                               const uint16_t capIndex,
                                               const int16_t bx,
@@ -84,11 +84,11 @@ class L1GctInternHtMiss
   /// Get the raw data
   uint32_t raw() const { return data_; }
 
-  /// Get Ht x-component
-  uint16_t htx() const;
+  /// Get Ht x-component value
+  int16_t htx() const;
 
   /// Get Ht y-component
-  uint16_t hty() const;
+  int16_t hty() const;
 
   /// Get overflow
   bool overflow() const;
@@ -115,12 +115,19 @@ class L1GctInternHtMiss
                         kDoubleComponentRawMask   = (kDoubleComponentHtMask << kDoubleComponentHtyShift) |
                                                      kDoubleComponentOflowMask | kDoubleComponentHtMask };  
 
+  /* Private ctors and methods */
+
   /// Private constructor that the named ctors use.
   L1GctInternHtMiss(const L1GctInternHtMissType type,
                     const uint16_t capBlock,
                     const uint16_t capIndex,
                     const int16_t bx,
                     const uint32_t data);
+
+  /// Converts 14-bit two's complement numbers to 16-bit two's complement (i.e. an int16_t)
+  /*! The input is the raw bits of the 14-bit two's complement in a 16-bit unsigned number. */
+  int16_t convert14BitTwosCompTo16Bit(const uint16_t data) const;
+
 
   /* Private data */
 

@@ -44,18 +44,30 @@ L1GctInternHtMiss L1GctInternHtMiss::unpackerMissHtxHty(const uint16_t capBlock,
 }
 
 // Get Ht x-component
-uint16_t L1GctInternHtMiss::htx() const
+int16_t L1GctInternHtMiss::htx() const
 {
-  if(type() == miss_htx) { return raw() & kSingleComponentHtMask; }
-  if(type() == miss_htx_and_hty) { return raw() & kDoubleComponentHtMask; }
+  if(type() == miss_htx)
+  { 
+    return static_cast<int16_t>(raw() & kSingleComponentHtMask);
+  }
+  if(type() == miss_htx_and_hty)
+  {
+    return convert14BitTwosCompTo16Bit(raw() & kDoubleComponentHtMask);
+  }
   return 0;
 }
 
 // Get Ht y-component
-uint16_t L1GctInternHtMiss::hty() const
+int16_t L1GctInternHtMiss::hty() const
 {
-  if(type() == miss_hty) { return raw() & kSingleComponentHtMask; }
-  if(type() == miss_htx_and_hty) { return (raw() >> kDoubleComponentHtyShift) & kDoubleComponentHtMask; }
+  if(type() == miss_hty)
+  {
+    return static_cast<int16_t>(raw() & kSingleComponentHtMask);
+  }
+  if(type() == miss_htx_and_hty)
+  {
+    return convert14BitTwosCompTo16Bit((raw() >> kDoubleComponentHtyShift) & kDoubleComponentHtMask);
+  }
   return 0;
 }
 
@@ -83,6 +95,15 @@ L1GctInternHtMiss::L1GctInternHtMiss(const L1GctInternHtMissType type,
 {
 }
 
+int16_t L1GctInternHtMiss::convert14BitTwosCompTo16Bit(const uint16_t data) const
+{
+  // If bit 13 is high, set bits 13, 14, 15 high.
+  if((data & 0x2000) != 0) { return static_cast<int16_t>(data | 0xe000); }
+  
+  // Else, bit 13 must be low, so set bits 13, 14, 15 low.
+  return static_cast<int16_t>(data & 0x1fff);
+}
+
 
 // PRETTY PRINTOUT OPERATOR
 
@@ -91,12 +112,12 @@ std::ostream& operator<<(std::ostream& os, const L1GctInternHtMiss& rhs)
   os << " L1GctInternHtMiss:  htx=";
   if(rhs.type() == L1GctInternHtMiss::miss_htx ||
      rhs.type() == L1GctInternHtMiss::miss_htx_and_hty)
-  { os << "0x" << std::hex << rhs.htx() << std::dec; }
+  { os << rhs.htx(); }
   else { os << "n/a"; }
   os << ", hty=";
   if(rhs.type() == L1GctInternHtMiss::miss_hty ||
      rhs.type() == L1GctInternHtMiss::miss_htx_and_hty)
-  { os << "0x" << std::hex << rhs.hty() << std::dec; }
+  { os << rhs.hty(); }
   else { os << "n/a"; }
   if (rhs.overflow()) { os << "; overflow set"; }
   return os;
