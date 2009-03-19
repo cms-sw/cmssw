@@ -1,5 +1,7 @@
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestHt.h"
 
+#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
@@ -279,7 +281,7 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
     unsigned htFromInternalJets = 0;
     for (L1GctInternJetDataCollection::const_iterator jet=internalJets.begin();
 	 jet != internalJets.end(); jet++) {
-      if (jet->bx() == bx+m_bxStart) {
+      if ((jet->bx() == bx+m_bxStart) && (jet->et() >= gct->getJetFinderParams()->getHtJetEtThresholdGct())) {
 	htFromInternalJets += jet->et();
       }
     }
@@ -308,20 +310,23 @@ gctTestHt::rawJetData gctTestHt::rawJetFinderOutput(const L1GctJetFinderBase* jf
   bool     sumHtOvrFlo = false;
   for (RawJetsVector::const_iterator jet=jetsFromJf.begin(); jet!=jetsFromJf.end(); jet++) {
     if (jet->bx()==bx && !jet->isNullJet()) {
-//       cout << "found a jet " << jet->rawsum()
-//  	   << " eta " << jet->globalEta()
-//  	   << " phi " << jet->globalPhi()
-// 	   << (jet->overFlow() ? " overflow set " : " ") 
-//  	   << " bx " << jet->bx() << endl;
-      jetList.push_back(*jet);
-      unsigned etaBin = jet->rctEta();
-      if (jet->rctPhi() == 0) {
-	sumHtStrip0 += jet->calibratedEt(lutsFromJf.at(etaBin));
-      }
-      if (jet->rctPhi() == 1) {
-	sumHtStrip1 += jet->calibratedEt(lutsFromJf.at(etaBin));
-      }
-      sumHtOvrFlo |= (jet->overFlow());
+//        cout << "found a jet " << jet->rawsum()
+//   	   << " eta " << jet->globalEta()
+//   	   << " phi " << jet->globalPhi()
+// 	    << (jet->overFlow() ? " overflow set " : " ") 
+// 	    << " bx " << jet->bx() << endl;
+       jetList.push_back(*jet);
+       unsigned etaBin = jet->rctEta();
+       unsigned htJet   = jet->calibratedEt(lutsFromJf.at(etaBin));
+       if (htJet >= jf->getHttSumJetThreshold()) {
+	 if (jet->rctPhi() == 0) {
+	   sumHtStrip0 += htJet;
+	 }
+	 if (jet->rctPhi() == 1) {
+	   sumHtStrip1 += htJet;
+	 }
+	 sumHtOvrFlo |= (jet->overFlow());
+       }
     }
   }
   rawJetData result(jetList, sumHtStrip0, sumHtStrip1, sumHtOvrFlo);
