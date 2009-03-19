@@ -23,12 +23,19 @@
 #include "CondFormats/SiPixelObjects/interface/PixelDCSObject.h"
 #include "CondFormats/DataRecord/interface/PixelDCSRcds.h"
 
+#include "CondFormats/DataRecord/interface/SiPixelGainCalibrationOfflineSimRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelGainCalibrationForHLTSimRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
+
 
 REGISTER_PLUGIN(SiPixelFedCablingMapRcd,SiPixelFedCablingMap);
 REGISTER_PLUGIN(SiPixelGainCalibrationRcd,SiPixelGainCalibration);
 REGISTER_PLUGIN(SiPixelGainCalibrationForHLTRcd,SiPixelGainCalibrationForHLT);
 REGISTER_PLUGIN(SiPixelGainCalibrationOfflineRcd,SiPixelGainCalibrationOffline);
+REGISTER_PLUGIN(SiPixelGainCalibrationForHLTSimRcd,SiPixelGainCalibrationForHLT);
+REGISTER_PLUGIN(SiPixelGainCalibrationOfflineSimRcd,SiPixelGainCalibrationOffline);
 REGISTER_PLUGIN(SiPixelLorentzAngleRcd,SiPixelLorentzAngle);
+REGISTER_PLUGIN(SiPixelLorentzAngleSimRcd,SiPixelLorentzAngle);
 REGISTER_PLUGIN(SiPixelCalibConfigurationRcd,SiPixelCalibConfiguration);
 REGISTER_PLUGIN(SiPixelPerformanceSummaryRcd,SiPixelPerformanceSummary);
 REGISTER_PLUGIN(SiPixelQualityRcd,SiPixelQuality);
