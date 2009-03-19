@@ -227,33 +227,20 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
 //      }
 //    }
    // Write into DB
-   edm::LogInfo(" --- writeing to DB!");
+   edm::LogInfo("SiPixelCondOfflineBuilder") <<  "writing to DB, record = \"" << recordName_ << "\"";
    edm::Service<cond::service::PoolDBOutputService> mydbservice;
    if(!mydbservice.isAvailable() ){
-     edm::LogError("db service unavailable");
+     edm::LogError("SiPixelCondOfflineBuilder") << " db service unavailable";
      return;
-   } else { edm::LogInfo("DB service OK"); }
+   } else { edm::LogInfo("SiPixelCondOfflineBuilder") << " DB service OK"; }
 
    try{
-//     size_t callbackToken = mydbservice->callbackToken("SiPixelGainCalibration");
-//     edm::LogInfo("SiPixelCondObjOfflineBuilder")<<"CallbackToken SiPixelGainCalibration "
-//         <<callbackToken<<std::endl;
-//       unsigned long long tillTime;
-//     if ( appendMode_)
-//	 tillTime = mydbservice->currentTime();
-//       else
-//	 tillTime = mydbservice->endOfTime();
-//     edm::LogInfo("SiPixelCondObjOfflineBuilder")<<"[SiPixelCondObjOfflineBuilder::analyze] tillTime = "
-//         <<tillTime<<std::endl;
-//     mydbservice->newValidityForNewPayload<SiPixelGainCalibration>(
-//           SiPixelGainCalibration_, tillTime , callbackToken);
-
-     if( mydbservice->isNewTagRequest(recordName_) ){
+     if( mydbservice->isNewTagRequest(recordName_.c_str()) ){
          mydbservice->createNewIOV<SiPixelGainCalibrationOffline>(
-             SiPixelGainCalibration_, mydbservice->beginOfTime(), mydbservice->endOfTime(),recordName_);
+             SiPixelGainCalibration_, mydbservice->beginOfTime(), mydbservice->endOfTime(),recordName_.c_str());
      } else {
          mydbservice->appendSinceTime<SiPixelGainCalibrationOffline>(
-            SiPixelGainCalibration_, mydbservice->currentTime(),recordName_);
+            SiPixelGainCalibration_, mydbservice->currentTime(),recordName_.c_str());
      }
      edm::LogInfo(" --- all OK");
    } 

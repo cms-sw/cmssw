@@ -59,6 +59,10 @@ process.PoolDBESSourceForReader = cms.ESSource("PoolDBESSource",
             tag = cms.string('SiPixelLorentzAngle_v02')
         ),
         cms.PSet(
+            record = cms.string('SiPixelLorentzAngleSimRcd'),
+            tag = cms.string('SiPixelLorentzAngleSim_v02')
+        ),
+        cms.PSet(
             record = cms.string('SiPixelTemplateDBObjectRcd'),
             tag = cms.string('SiPixelTemplateDBObject')
         ),
@@ -72,6 +76,14 @@ process.PoolDBESSourceForReader = cms.ESSource("PoolDBESSource",
         ),
         cms.PSet(
             record = cms.string('SiPixelGainCalibrationForHLTRcd'),
+            tag = cms.string('V2_trivial_31X_TBuffer_startup_hlt_mc')
+        ), 
+        cms.PSet(
+            record = cms.string('SiPixelGainCalibrationOfflineSimRcd'),
+            tag = cms.string('V2_trivial_31X_TBuffer_startup_mc')
+        ),
+        cms.PSet(
+            record = cms.string('SiPixelGainCalibrationForHLTSimRcd'),
             tag = cms.string('V2_trivial_31X_TBuffer_startup_hlt_mc')
         ))
 )

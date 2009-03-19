@@ -6,6 +6,7 @@
 // *******     SiPixelOfflineCalibrationServiceBase                 *******
 // *******     Author: Vincenzo Chiochia (chiochia@cern.ch)         *******
 // *******     Modified: Evan Friis (evan.friis@cern.ch)            *******
+// *******     Additions: Freya Blekman (freya.blekman@cern.ch)     *******
 // *******                                                          *******
 // *******     Provides common interface to SiPixel gain calib      *******
 // *******     payloads in offline database                         *******

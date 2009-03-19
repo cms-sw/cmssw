@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjOfflineReader.h,v 1.7 2009/02/10 17:49:49 rougny Exp $
+// $Id: SiPixelCondObjOfflineReader.h,v 1.8 2009/02/18 10:39:17 rougny Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -51,6 +51,7 @@ private:
 
   edm::ParameterSet conf_;
   edm::ESHandle<TrackerGeometry> tkgeom;
+  std::string recordName_;
   //edm::ESHandle<SiPixelGainCalibration> SiPixelGainCalibration_;
   SiPixelGainCalibrationOfflineService SiPixelGainCalibrationService_;
 

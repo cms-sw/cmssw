@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SiPixelInclusiveBuilder")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cout = cms.untracked.PSet(threshold = cms.untracked.string("INFO"))
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -38,7 +40,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         authenticationPath = cms.untracked.string('.'),
         connectionRetrialPeriod = cms.untracked.int32(10),
         idleConnectionCleanupPeriod = cms.untracked.int32(10),
-        messageLevel = cms.untracked.int32(3),
+        messageLevel = cms.untracked.int32(1),
         enablePoolAutomaticCleanUp = cms.untracked.bool(False),
         enableConnectionSharing = cms.untracked.bool(True),
         connectionRetrialTimeOut = cms.untracked.int32(60),
@@ -46,7 +48,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         enableReadOnlySessionOnUpdateConnection = cms.untracked.bool(False)
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:test.db'),
+    connect = cms.string('sqlite_file:/tmp/fblekman/freyatest.db'),
     toPut = cms.VPSet(cms.PSet(
             record = cms.string('SiPixelFedCablingMapRcd'),
             tag = cms.string('SiPixelFedCablingMap_v14')
@@ -77,7 +79,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         ),
         cms.PSet(
             record = cms.string('SiPixelGainCalibrationOfflineSimRcd'),
-            tag = cms.string('SiPixelGainCalibrationSim_TBuffer_const')
+            tag = cms.string('SiPixelGainCalibrationSim_TBuffer_const_new')
         ), 
         cms.PSet(
             record = cms.string('SiPixelGainCalibrationForHLTSimRcd'),
@@ -244,6 +246,15 @@ process.SiPixelCondObjForHLTBuilderSim = cms.EDFilter("SiPixelCondObjForHLTBuild
 )
 
 
-process.p = cms.Path(process.SiPixelLorentzAngle*process.MapWriter*process.SiPixelCondObjOfflineBuilder*process.SiPixelCondObjForHLTBuilder*process.TemplateUploader*process.QualityObjectMaker*
-                     process.SiPixelLorentzAngleSim*process.SiPixelCondObjForHLTBuilderSim*process.SiPixelCondObjOfflineBuilderSim  )
+process.p = cms.Path(
+    process.SiPixelLorentzAngle*
+    process.MapWriter*
+    process.SiPixelCondObjOfflineBuilder*
+    process.SiPixelCondObjForHLTBuilder*
+    process.TemplateUploader*
+    process.QualityObjectMaker*
+    process.SiPixelLorentzAngleSim*
+    process.SiPixelCondObjForHLTBuilderSim*
+    process.SiPixelCondObjOfflineBuilderSim
+    )
 
