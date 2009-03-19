@@ -1,5 +1,4 @@
 <flags GENREFLEX_ARGS="--">
-<use name=CondFormats/Common>
 <use name=DataFormats/DetId>
 <use name=DataFormats/SiPixelDetId>
 <use name=CalibFormats/SiPixelObjects>

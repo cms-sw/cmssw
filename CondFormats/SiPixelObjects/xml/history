@@ -9,14 +9,14 @@ generate template xml
   2507  11:07   cmscond_generate_mappingxml -c SiPixelLorentzAngle -P ../src -d CondFormatsSiPixelObjects
 edit xml 
 build schema
-pool_build_object_relational_mapping -h
-2609  12:11   pool_build_object_relational_mapping -f SiPixelCalibConfiguration_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
-  2610  12:11   pool_build_object_relational_mapping -f SiPixelCPEParmErrors_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
-  2611  12:12   pool_build_object_relational_mapping -f SiPixelFedCablingMap_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
-  2612  12:12   pool_build_object_relational_mapping -f SiPixelGainCalibration_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
-  2613  12:12   pool_build_object_relational_mapping -f SiPixelGainCalibration_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
-  2614  12:13   ls
-  2615  12:13   pool_build_object_relational_mapping -f SiPixelGainCalibrationForHLT_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
-  2617  12:13   pool_build_object_relational_mapping -f SiPixelGainCalibrationOffline_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
-  2618  12:13   pool_build_object_relational_mapping -f SiPixelLorentzAngle_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
-  2619  12:14   pool_build_object_relational_mapping -f SiPixelPerformanceSummary_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+pool_build_object_relational_mapping -f SiPixelCalibConfiguration_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+pool_build_object_relational_mapping -f SiPixelCPEParmErrors_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+pool_build_object_relational_mapping -f SiPixelFedCablingMap_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+pool_build_object_relational_mapping -f SiPixelGainCalibration_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+pool_build_object_relational_mapping -f SiPixelGainCalibrationForHLT_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+pool_build_object_relational_mapping -f SiPixelGainCalibrationForHLTSim_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+pool_build_object_relational_mapping -f SiPixelGainCalibrationOffline_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+pool_build_object_relational_mapping -f SiPixelGainCalibrationOfflineSim_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+pool_build_object_relational_mapping -f SiPixelLorentzAngle_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+pool_build_object_relational_mapping -f SiPixelLorentzAngleSim_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+pool_build_object_relational_mapping -f SiPixelPerformanceSummary_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
