@@ -39,6 +39,7 @@ namespace IPTools{
     ~ImpactParameterComputer();
     
     Measurement1D computeIP(const edm::EventSetup& es, const reco::Track tr, bool return3D=false);
+    Measurement1D computeIPdz(const edm::EventSetup& es, const reco::Track tr);
     
   private:
     

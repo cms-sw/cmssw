@@ -59,7 +59,7 @@ void testTrackIPComputer::analyze(const edm::Event &evt, const edm::EventSetup &
 	  double IP             =  mess1D.value();
 	  double IPError        =  mess1D.error();
 	  double IPSignificance =  mess1D.significance();
-	  std::cout << "PrimaryVertex IP2D : IP2DErr :  " << IP << ": \t" << IPError << ": \t" << IPSignificance << "\t" << std::flush;
+	  std::cout << "PrimaryVertex IP2D : IP2DErr :  " << IP << ": \t" << IPError << ": \t" << IPSignificance << "\t" << std::endl;
 
 	  Measurement1D mess1D_3D = IPComp.computeIP(es, *trRef, true);
 	  
@@ -81,7 +81,7 @@ void testTrackIPComputer::analyze(const edm::Event &evt, const edm::EventSetup &
 	double IP             =  mess1D.value();
 	double IPError        =  mess1D.error();
 	double IPSignificance =  mess1D.significance();
-	std::cout << "BeamSpot IP2D : IP2DErr :  " << IP << ": \t" << IPError << ": \t" << IPSignificance << "\t" << std::flush;
+	std::cout << "BeamSpot IP2D : IP2DErr :  " << IP << ": \t" << IPError << ": \t" << IPSignificance << std::endl;
 	
 	Measurement1D mess1D_3D = IPComp.computeIP(es, *trRef, true);
 	
@@ -90,6 +90,14 @@ void testTrackIPComputer::analyze(const edm::Event &evt, const edm::EventSetup &
 	IPError        =  mess1D_3D.error();
 	IPSignificance =  mess1D_3D.significance();
 	std::cout << "IP3D : IP3DErr : " << IP << ": \t" << IPError << ": \t" << IPSignificance << std::endl;
+
+	
+	mess1D = IPComp.computeIPdz(es, *trRef);
+	  
+	// to calculate the ImpactParameter, its Error and the Significance use
+	double dZ             =  mess1D.value();
+	double dZErr          =  mess1D.error();
+	std::cout << "BeamSpot dZ : dZError :  " << dZ << ": \t" << dZErr << std::endl;
       }
 
 

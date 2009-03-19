@@ -38,3 +38,29 @@ Measurement1D IPTools::ImpactParameterComputer::computeIP(const edm::EventSetup&
   return mess1D;
 }
 
+Measurement1D IPTools::ImpactParameterComputer::computeIPdz(const edm::EventSetup& es, const reco::Track tr){
+
+  //get the transient track (e.g. for the muon track)
+  edm::ESHandle<TransientTrackBuilder> builder;
+  es.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
+  reco::TransientTrack transTrack = builder->build(tr);
+
+  ///define the position of the refPoint on the muon track and its error
+  TrajectoryStateOnSurface tsos = IPTools::transverseExtrapolate(transTrack.impactPointState(), _VtxPos, transTrack.field());
+  GlobalPoint refPoint          = tsos.globalPosition();
+  GlobalError refPointErr       = tsos.cartesianError().position();
+
+  ///calculate the distance of the PV to the refPoint on the track
+  double VtxPosZ, VtxPosZErr, RefPointZ, RefPointZErr;
+  VtxPosZ      = _VtxPos.z();
+  VtxPosZErr   = _VtxPosErr.czz();
+  RefPointZ    = refPoint.z();
+  RefPointZErr = refPointErr.czz();
+
+  double dz    = ( VtxPosZ - RefPointZ );
+  double dzErr = sqrt( VtxPosZErr*VtxPosZErr  + RefPointZErr*RefPointZErr);
+
+  Measurement1D mess1D(dz, dzErr);
+  return mess1D;
+}
+
