@@ -40,10 +40,11 @@ class SiPixelLorentzAngleDB : public edm::EDAnalyzer
   std::vector< std::pair<uint32_t, float> > detid_la;
   edm::ParameterSet conf_;
   double magneticField_;
-	float bPixLorentzAnglePerTesla_;
-	float fPixLorentzAnglePerTesla_;
-	std::string fileName_;
-	bool useFile_;
+  std::string recordName_;
+  float bPixLorentzAnglePerTesla_;
+  float fPixLorentzAnglePerTesla_;
+  std::string fileName_;
+  bool useFile_;
 };
 
 

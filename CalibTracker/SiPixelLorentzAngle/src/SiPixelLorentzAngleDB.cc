@@ -24,10 +24,11 @@ using namespace edm;
 SiPixelLorentzAngleDB::SiPixelLorentzAngleDB(edm::ParameterSet const& conf) : 
   conf_(conf){
   	magneticField_ = conf_.getParameter<double>("magneticField");
-		bPixLorentzAnglePerTesla_ = (float)conf_.getParameter<double>("bPixLorentzAnglePerTesla");
-		fPixLorentzAnglePerTesla_ = (float)conf_.getParameter<double>("fPixLorentzAnglePerTesla");
-		useFile_ = conf_.getParameter<bool>("useFile");		
-		fileName_ = conf_.getParameter<string>("fileName");
+	recordName_ = conf_.getUntrackedParameter<std::string>("record","SiPixelLorentzAngleRcd");
+	bPixLorentzAnglePerTesla_ = (float)conf_.getParameter<double>("bPixLorentzAnglePerTesla");
+	fPixLorentzAnglePerTesla_ = (float)conf_.getParameter<double>("fPixLorentzAnglePerTesla");
+	useFile_ = conf_.getParameter<bool>("useFile");		
+	fileName_ = conf_.getParameter<string>("fileName");
 }
 
   //BeginJob
@@ -80,15 +81,15 @@ void SiPixelLorentzAngleDB::beginJob(const edm::EventSetup& c){
 	edm::Service<cond::service::PoolDBOutputService> mydbservice;
 	if( mydbservice.isAvailable() ){
 		try{
-			if( mydbservice->isNewTagRequest("SiPixelLorentzAngleRcd") ){
+			if( mydbservice->isNewTagRequest(recordName_) ){
 				mydbservice->createNewIOV<SiPixelLorentzAngle>(LorentzAngle,
 									       mydbservice->beginOfTime(),
 									       mydbservice->endOfTime(),
-									       "SiPixelLorentzAngleRcd");
+									       recordName_);
 			} else {
 				mydbservice->appendSinceTime<SiPixelLorentzAngle>(LorentzAngle,
 										  mydbservice->currentTime(),
-										  "SiPixelLorentzAngleRcd");
+										  recordName_);
 			}
 		}catch(const cond::Exception& er){
 			edm::LogError("SiPixelLorentzAngleDB")<<er.what()<<std::endl;
