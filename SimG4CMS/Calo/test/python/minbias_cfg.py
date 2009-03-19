@@ -71,6 +71,9 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('minbias_QGSP_EMV.root')
 )
 
+# Event output
+process.load("Configuration.EventContent.EventContent_cff")
+
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
     fileName = cms.untracked.string('simevent_minbias_QGSP_EMV.root')

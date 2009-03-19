@@ -44,7 +44,9 @@ process.source = cms.Source("FlatRandomEGunSource",
         MinPhi = cms.untracked.double(-0.1309),
         MaxE = cms.untracked.double(10.01)
     ),
-    Verbosity = cms.untracked.int32(0)
+    Verbosity = cms.untracked.int32(0),
+    AddAntiParticle = cms.untracked.bool(False),
+    firstRun = cms.untracked.uint32(1)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -56,7 +58,7 @@ process.g4SimHits.Physics.DefaultCutValue = 1.
 process.g4SimHits.Generator.HepMCProductLabel = 'source'
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     Resolution = cms.untracked.int32(1000),
-    type = cms.string('CheckOverlap'),
-    NodeName = cms.untracked.string('CMSE')
+    type       = cms.string('CheckOverlap'),
+    NodeNames  = cms.untracked.vstring('CMSE')
 ))
 

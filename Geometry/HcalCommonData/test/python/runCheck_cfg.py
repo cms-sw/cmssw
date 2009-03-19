@@ -44,7 +44,9 @@ process.source = cms.Source("FlatRandomEGunSource",
         MinPhi = cms.untracked.double(-0.1309),
         MaxE = cms.untracked.double(10.01)
     ),
-    Verbosity = cms.untracked.int32(0)
+    Verbosity = cms.untracked.int32(0),
+    AddAntiParticle = cms.untracked.bool(False),
+    firstRun = cms.untracked.uint32(1)
 )
 
 process.maxEvents = cms.untracked.PSet(

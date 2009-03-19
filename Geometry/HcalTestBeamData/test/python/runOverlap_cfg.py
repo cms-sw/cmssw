@@ -54,7 +54,9 @@ process.source = cms.Source("FlatRandomEGunSource",
         MinE = cms.untracked.double(9.99),
         PartID = cms.untracked.vint32(211)
     ),
-    Verbosity = cms.untracked.int32(0)
+    Verbosity = cms.untracked.int32(0),
+    AddAntiParticle = cms.untracked.bool(False),
+    firstRun = cms.untracked.uint32(1)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -116,7 +118,7 @@ process.g4SimHits.HCalSD.ForTBH2 = True
 process.g4SimHits.CaloTrkProcessing.TestBeam = True
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     Resolution = cms.untracked.int32(1000),
-    type = cms.string('CheckOverlap'),
-    NodeName = cms.untracked.string('')
+    type       = cms.string('CheckOverlap'),
+    NodeNames  = cms.untracked.vstring('TBHCal')
 ))
 
