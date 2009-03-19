@@ -8,8 +8,8 @@
  * impact angle and position (also along the wire) and perform linear fit on
  * improved hits.
  *
- * $Date: 2009/03/10 16:09:14 $
- * $Revision: 1.14 $
+ * $Date: 2009/03/19 16:02:20 $
+ * $Revision: 1.15 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -17,10 +17,14 @@
 
 /* C++ Headers */
 #include <vector>
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+
 /* ====================================================================== */
 
 /* Collaborating Class Declarations */
@@ -92,9 +96,6 @@ class DTSegmentUpdator{
              LocalVector& dir,
              AlgebraicSymMatrix& covMat,
              double& chi2) const;
-
-    // interface to updates hits with t0 corretion
-    void updateHitsN(DTRecSegment2D* seg, GlobalPoint &gpos, GlobalVector &gdir) const;
 
     void Fit4Var(const std::vector<float>& xfit,
                  const std::vector<float>& yfit,

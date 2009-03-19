@@ -70,51 +70,21 @@ void DTSegmentUpdator::setES(const EventSetup& setup){
 
 void DTSegmentUpdator::update(DTRecSegment4D* seg, const bool calcT0) const {
 
-  if(debug)
-    cout << "[DTSegmentUpdator] Starting to update the segment" << endl;
+  if(debug) cout << "[DTSegmentUpdator] Starting to update the segment" << endl;
 
   const bool hasPhi = seg->hasPhi();
   const bool hasZed = seg->hasZed();
 
   int step = (hasPhi && hasZed) ? 3 : 2;
+  if(calcT0) step = 4;
 
-  GlobalPoint pos =  (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localPosition());
-  GlobalVector dir = (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localDirection());
+  GlobalPoint  pos = theGeom->idToDet(seg->geographicalId())->toGlobal(seg->localPosition());
+  GlobalVector dir = theGeom->idToDet(seg->geographicalId())->toGlobal(seg->localDirection());
 
   if(calcT0) calculateT0corr(seg);
 
-  if (hasPhi) {
-    DTChamberRecSegment2D *segPhi=seg->phiSegment();
-
-    if (calcT0) {
-      //update the hits with the t0 correction
-      //FIXME: merge updateHitsN into updateHits and set step = 4
-      updateHitsN(segPhi,pos,dir);
-
-      if(debug)  
-        cout << "After fitT0_seg(seg) in Update 4D : Phi seg !!t0corphi = " << segPhi->t0() << endl;
-    } 			
-
-    else updateHits(segPhi,pos,dir,step);
-
-  }//end of hasPhi
-
-  if (hasZed) {
-
-    DTSLRecSegment2D *segZed=seg->zSegment();
-
-    if (calcT0) {
-       //update the hits with the t0 correction
-      //FIXME: merge updateHitsN into updateHits and set step = 4
-      updateHitsN(segZed,pos,dir);
-
-      if(debug)
-	cout << " After  fitT0_seg(seg) in Update 4D : Zed seg !! t0corzed = " << segZed->t0() << endl;
-    }
-
-    else  updateHits(segZed,pos,dir,step);
-
-  }//end of hasZed
+  if(hasPhi) updateHits(seg->phiSegment(),pos,dir,step);
+  if(hasZed) updateHits(seg->zSegment()  ,pos,dir,step);
 
   fit(seg);
 }
@@ -375,6 +345,31 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg, GlobalPoint &gpos,
 
       ok = theAlgo->compute(layer,*hit,angle,glbpos,newHit1D);
 
+    } else if (step == 4) {
+
+  static const double vminf = seg->vDrift();   //  vdrift correction are recorded in the segment    
+  static const double cminf = - seg->t0()*0.00543;
+
+    const float xwire = layer->specificTopology().wirePosition(hit->wireId().wire());
+    const float distance = fabs(hit->localPosition().x() - xwire);
+
+    const int ilc = ( hit->lrSide() == DTEnums::Left ) ? 1 : -1;
+
+    const double dy_corr = (vminf*ilc*distance-cminf*ilc ); 
+
+    LocalPoint point(hit->localPosition().x() + dy_corr, +segPosAtLayer.y(), 0.);
+
+    LocalError error(T0_hit_resolution*T0_hit_resolution,0.,0.);
+
+        newHit1D.setPositionAndError(point, error);
+
+      updatedRecHits.push_back(newHit1D);
+
+      //FIXME: check that the hit is still inside the cell
+      ok = true;
+
+
+
     } else throw cms::Exception("DTSegmentUpdator")<<" updateHits called with wrong step " << endl;
 
     if (ok) updatedRecHits.push_back(newHit1D);
@@ -451,69 +446,6 @@ void DTSegmentUpdator::calculateT0corr(DTRecSegment2D* seg) const {
   }
 }
 
-// The GlobalPoint and the GlobalVector can be either the glb position and the direction
-// of the 2D-segment itself or the glb position and direction of the 4D segment
-void DTSegmentUpdator::updateHitsN(DTRecSegment2D* seg, GlobalPoint &gpos, GlobalVector &gdir) const {
-
-  double vminf = seg->vDrift();   //  vdrift correction are recorded in the segment    
-  double cminf = - seg->t0()*0.00543;
-
-  // it is not necessary to have DTRecHit1D* to modify the obj in the container
-  // but I have to be carefully, since I cannot make a copy before the iteration!
-
-  vector<DTRecHit1D> toBeUpdatedRecHits = seg->specificRecHits();
-  vector<DTRecHit1D> updatedRecHits;
-
-  for (vector<DTRecHit1D>::iterator hit= toBeUpdatedRecHits.begin(); 
-       hit!=toBeUpdatedRecHits.end(); ++hit) {
-
-    GlobalPoint glbPos = ( theGeom->layer( hit->wireId().layerId() ) )->toGlobal(hit->localPosition());
-    LocalPoint pos = ( theGeom->idToDet(seg->geographicalId()) )->toLocal(glbPos);
-
-    const DTLayer* layer = theGeom->layer( hit->wireId().layerId() );
-    float xwire = layer->specificTopology().wirePosition(hit->wireId().wire());
-    float distance = fabs(hit->localPosition().x() - xwire);
-
-    //    float y=hit->localPosition().x();
-    //  distance from the wire: hit in local coordinate - wire posizion 
-    //  cout << " Drift space  d_drift "<<distance  <<endl;
-
-    int ilc = ( hit->lrSide() == DTEnums::Left ) ? 1 : -1;
-
-    double dy_corr = (vminf*ilc*distance-cminf*ilc ); 
-
-    LocalPoint segPos=layer->toLocal(gpos);
-    LocalVector segDir=layer->toLocal(gdir);
-
-    // define the local position (extr.) of the segment. Needed by the third step 
-    LocalPoint segPosAtLayer=segPos+segDir*(-segPos.z())/cos(segDir.theta());
-
-    DTRecHit1D newHit1D = (*hit);
-    LocalPoint leftPoint(hit->localPosition().x() + dy_corr, +segPosAtLayer.y(), 0.);;
-    LocalPoint rightPoint(hit->localPosition().x()+ dy_corr, +segPosAtLayer.y(), 0.);;
-
-    float hitresol = T0_hit_resolution;   //local resolution in use 	
-    LocalError error(hitresol*hitresol,0.,0.);
-    switch(newHit1D.lrSide()) {
-
-      case DTEnums::Left:
-        newHit1D.setPositionAndError(leftPoint, error);
-        break;
-
-      case DTEnums::Right:
-        newHit1D.setPositionAndError(rightPoint, error);
-        break;
-
-      default:
-        throw cms::Exception("InvalidDTCellSide") << "[DTLinearDriftAlgo] Compute at Step 3 "
-          << ", Hit side " << newHit1D.lrSide() << " is invalid!" << endl;
-        break;
-    }
-
-      updatedRecHits.push_back(newHit1D);
-  }
-  seg->update(updatedRecHits);
-} 
 
 void DTSegmentUpdator::Fit4Var(
                                const vector<float>& xfit,

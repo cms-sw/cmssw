@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2009/03/10 16:09:13 $
- * $Revision: 1.17 $
+ * $Date: 2009/03/19 16:02:20 $
+ * $Revision: 1.18 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -38,7 +38,7 @@ DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& p
     debug = pset.getUntrackedParameter<bool>("debug");
 
     //do you want the T0 correction?
-    applyT0corr = pset.getUntrackedParameter<bool>("performT0SegCorrection",false);
+    applyT0corr = pset.getParameter<bool>("performT0SegCorrection");
     computeT0corr = pset.getUntrackedParameter<bool>("computeT0Seg",true);
 
     // the updator

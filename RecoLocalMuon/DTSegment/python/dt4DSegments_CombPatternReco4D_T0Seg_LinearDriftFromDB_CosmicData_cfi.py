@@ -14,8 +14,8 @@ dt4DSegments = cms.EDProducer("DTRecSegment4DProducer",
     recHits2DLabel = cms.InputTag("dt2DSegments")
 )
 
-dt4DSegments.Reco4DAlgoConfig.performT0SegCorrection = True
-dt4DSegments.Reco4DAlgoConfig.performT0_vdriftSegCorrection = True
+dt4DSegments.Reco4DAlgoConfig.performT0SegCorrection = False
+dt4DSegments.Reco4DAlgoConfig.performT0_vdriftSegCorrection = False
 
-dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.performT0SegCorrection = True
-dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.performT0_vdriftSegCorrection = True
+dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.performT0SegCorrection = False
+dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.performT0_vdriftSegCorrection = False
