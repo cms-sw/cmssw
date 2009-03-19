@@ -19,5 +19,8 @@ VolumeBasedMagneticFieldESProducer = cms.ESProducer("AutoMagneticFieldESProducer
    label = cms.untracked.string(''),
    scalingVolumes = cms.vint32(),
    scalingFactors = cms.vdouble()
+   # Other VBF card are taken with their default value...
+   # cacheLastVolume = cms.untracked.bool(True),
+   # debugBuilder = cms.untracked.bool(False)
  )
 
