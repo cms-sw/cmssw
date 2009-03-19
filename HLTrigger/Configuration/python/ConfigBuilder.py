@@ -24,7 +24,7 @@ def getConfigsForScenario(sequence = None):
     If no trigger or an invalid trigger is given, use the default one. 
     """
     # default trigger, used if none is given
-    default = '2E30'
+    default = '8E29'
 
     if not sequence:
         # no trigger was specified, use the default one
