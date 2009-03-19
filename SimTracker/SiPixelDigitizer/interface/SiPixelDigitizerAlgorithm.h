@@ -29,12 +29,12 @@
 
 #include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
 
-// pixel gain payload access (offline version)
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
+// pixel gain payload access (offline version for Simulation)
+#include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineSimService.h"
 
 // Accessing Pixel Lorentz Angle from the DB:
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
-#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
 
 // Accessing Pixel dead modules from the DB:
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
@@ -350,7 +350,7 @@ class SiPixelDigitizerAlgorithm  {
 
     void pixel_inefficiency_db(); 
        // access to the gain calibration payloads in the db. Only gets initialized if check_dead_pixels_ is set to true.
-    SiPixelGainCalibrationOfflineService * theSiPixelGainCalibrationService_;    
+    SiPixelGainCalibrationOfflineSimService * theSiPixelGainCalibrationService_;    
     float missCalibrate(int col, int row, float amp) const;  
     LocalVector DriftDirection();
 

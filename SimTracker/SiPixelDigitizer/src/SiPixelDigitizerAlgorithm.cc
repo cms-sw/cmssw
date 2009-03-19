@@ -33,7 +33,8 @@
 // Threshold gaussian smearing: (fev. 2009)
 // Fpix: Mean=2870 and RMS=200 
 // Bpix: Mean=3700 and RMS=410
- 
+//
+// March 13, 2009: changed DB access to *SimRcd objects (to de-couple the DB objects from reco chain) (F. Blekman) 
 
 #include <vector>
 #include <iostream>
@@ -55,7 +56,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
+#include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineSimService.h"
  
 // Accessing dead pixel modules from the DB:
 #include "DataFormats/DetId/interface/DetId.h"
@@ -67,7 +68,7 @@ using namespace edm;
 
 void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es){
   if(use_ineff_from_db_){// load gain calibration service fromdb...
-    theSiPixelGainCalibrationService_= new SiPixelGainCalibrationOfflineService(conf_);
+    theSiPixelGainCalibrationService_= new SiPixelGainCalibrationOfflineSimService(conf_);
     theSiPixelGainCalibrationService_->setESObjects( es );
   }
 
@@ -96,7 +97,7 @@ void SiPixelDigitizerAlgorithm::fillLorentzAngle(const edm::EventSetup& es){
   else {
     // Get Lorentz angle from DB record 
     // ESHandle was defined in the header file edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_;
-    es.get<SiPixelLorentzAngleRcd>().get(SiPixelLorentzAngle_);
+    es.get<SiPixelLorentzAngleSimRcd>().get(SiPixelLorentzAngle_);
   }
 }
 //=========================================================================
