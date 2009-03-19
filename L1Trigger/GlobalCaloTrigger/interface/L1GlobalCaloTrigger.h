@@ -196,6 +196,9 @@ public:
   L1GctElectronFinalSort* getIsoEmFinalStage() const { return theIsoEmFinalStage; }
   L1GctElectronFinalSort* getNonIsoEmFinalStage() const { return theNonIsoEmFinalStage; }
 
+  /// get the jetFinder parameters
+  const L1GctJetFinderParams* getJetFinderParams() const { return m_jetFinderParams; }
+
   /// get the Jet Et calibration LUT
   const lutPtrVector getJetEtCalibLuts() const { return m_jetEtCalLuts; }
 

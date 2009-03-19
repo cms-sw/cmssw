@@ -178,6 +178,15 @@ public:
 
   hfTowerSumsType getHfSums() const { return m_outputHfSums; }  ///< Get the Hf tower Et sums and tower-over-threshold counts
 
+  // Access to threshold and cut values
+  unsigned getCenJetSeed() const { return m_CenJetSeed; }
+  unsigned getFwdJetSeed() const { return m_FwdJetSeed; }
+  unsigned getTauJetSeed() const { return m_TauJetSeed; }
+  unsigned getEtaBoundry() const { return m_EtaBoundry; }
+  unsigned getTauIsolationThreshold() const { return m_tauIsolationThreshold; }
+  unsigned getHttSumJetThreshold() const { return m_HttSumJetThreshold; }
+  unsigned getHtmSumJetThreshold() const { return m_HtmSumJetThreshold; }
+
  protected:
 
   /// Separate reset methods for the processor itself and any data stored in pipelines
