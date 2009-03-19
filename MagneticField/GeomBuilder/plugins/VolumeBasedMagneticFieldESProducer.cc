@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/11/14 10:42:41 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/01/16 16:43:46 $
+ *  $Revision: 1.2 $
  */
 
 #include "MagneticField/GeomBuilder/plugins/VolumeBasedMagneticFieldESProducer.h"
@@ -55,9 +55,7 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const I
   if (pset.getParameter<bool>("useParametrizedTrackerField")) {;
     iRecord.get("parametrizedField",paramField);
   }
-  
-
-  std::auto_ptr<MagneticField> s(new VolumeBasedMagneticField(pset,builder.barrelLayers(), builder.endcapSectors(), builder.barrelVolumes(), builder.endcapVolumes(), builder.maxR(), builder.maxZ(), paramField.product()));
+  std::auto_ptr<MagneticField> s(new VolumeBasedMagneticField(pset,builder.barrelLayers(), builder.endcapSectors(), builder.barrelVolumes(), builder.endcapVolumes(), builder.maxR(), builder.maxZ(), paramField.product(), false));
   return s;
 }
 

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/01/16 16:43:46 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/03/03 12:58:02 $
+ *  $Revision: 1.4 $
  *  \author Nicola Amapane 11/08
  */
 
@@ -65,31 +65,25 @@ AutoMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord)
   } else {
     edm::LogInfo("MagneticField|AutoMagneticField") << "Ignoring DB current readings; using map for " << value/10. << " T";
   }
+
+  MagneticField * paramField=0;
+
+  string version;
   
-  
-  string sValue;
-  if (value == 0) {  // B=0, uniform field map
-    //    result = new UniformMagneticField(0.);
+  if (value == 0) {
+    // Use UniformMagneticField instead of the inner region parametrization.
+    // This trick allows to keep a VBF field to be used by propagators to check the geometry.
+    paramField = new UniformMagneticField(0.);
 
-    ParameterSet VBFPset;
-    VBFPset.addUntrackedParameter<bool>("debugBuilder",false);
-    VBFPset.addUntrackedParameter<bool>("cacheLastVolume",true);
-    VBFPset.addParameter<string>("version","fake");
+    // Temporary hack: set 3.8T underlying VBF map so that SHP can decide if volume is iron
+    //    version = "fake";
+    stringstream str;
+    string model = pset.getParameter<string>("model");
+    str << model << "_" << "3_8t";
+    version = str.str();
 
-    MagGeoBuilderFromDDD builder(VBFPset.getParameter<std::string>("version"),
-				 VBFPset.getUntrackedParameter<bool>("debugBuilder", false));
-    result = new VolumeBasedMagneticField(VBFPset,
-					  builder.barrelLayers(), 
-					  builder.endcapSectors(), 
-					  builder.barrelVolumes(), 
-					  builder.endcapVolumes(),
-					  builder.maxR(), 
-					  builder.maxZ(), 
-					  new UniformMagneticField(0.));
-
-  } else {  // Use VolumeBasedMagneticField
-
-    // different conventions...
+  } else {
+    // Handle different labelling conventions
     string VBFValue;
     string OAEValue;
     
@@ -112,9 +106,12 @@ AutoMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord)
       throw cms::Exception("InvalidParameter")<<"Invalid field value: requested : " << value << " kGauss";
     }
 
-    // Build slave field
-    MagneticField * paramField=0;
+    stringstream str;
+    string model = pset.getParameter<string>("model");
+    str << model << "_" << VBFValue;
+    version = str.str();
 
+    // Build slave field
     if (pset.getParameter<bool>("useParametrizedTrackerField")) {
 
       string parVersion = pset.getParameter<string>("subModel");
@@ -124,52 +121,48 @@ AutoMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord)
 	ParameterSet ppar;
 	ppar.addParameter<string>("BValue", OAEValue);
 	paramField =  new OAEParametrizedMagneticField(ppar);
-//       } else if (parVersion=="PolyFit2D") {
-// 	// V. Maroussov polynomial fit to mapping data
-// 	ParameterSet ppar;
-// 	ppar.addParameter<double>("BValue", 4.01242188708911); //FIXME
-// 	paramField = new PolyFit2DParametrizedMagneticField(ppar);
-//       }
+	//      } else if (parVersion=="PolyFit2D") {
+ 	// V. Maroussov polynomial fit to mapping data
+	// 	ParameterSet ppar;
+	// 	ppar.addParameter<double>("BValue", 4.01242188708911); //FIXME
+	// 	paramField = new PolyFit2DParametrizedMagneticField(ppar);
+	//       }
       } else {
 	throw cms::Exception("InvalidParameter")<<"Invalid parametrization version " << parVersion;
       }
     }
-
-    string model = pset.getParameter<string>("model");
-
-    stringstream str;
-    str << model << "_" << VBFValue;
-
-    ParameterSet VBFPset;
-    VBFPset.addUntrackedParameter<bool>("debugBuilder",false);
-    VBFPset.addUntrackedParameter<bool>("cacheLastVolume",true);
-    VBFPset.addParameter<string>("version",str.str());
-    
-    edm::ESHandle<DDCompactView> cpv;
-    iRecord.get("magfield",cpv );
-    MagGeoBuilderFromDDD builder(VBFPset.getParameter<std::string>("version"),
-				 VBFPset.getUntrackedParameter<bool>("debugBuilder", false));
-
-    
-    // Get scaling factors
-    vector<int> keys = pset.getParameter<vector<int> >("scalingVolumes");
-    vector<double> values = pset.getParameter<vector<double> >("scalingFactors");
-
-    if (keys.size() != 0) {
-      builder.setScaling(keys, values);
-    }
-
-    builder.build(*cpv);
-
-    result = new VolumeBasedMagneticField(VBFPset,
-					  builder.barrelLayers(), 
-					  builder.endcapSectors(), 
-					  builder.barrelVolumes(), 
-					  builder.endcapVolumes(),
-					  builder.maxR(), 
-					  builder.maxZ(), 
-					  paramField);
   }
+  
+  ParameterSet VBFPset;
+  VBFPset.addUntrackedParameter<bool>("debugBuilder",false);
+  VBFPset.addUntrackedParameter<bool>("cacheLastVolume",true);
+  VBFPset.addParameter<string>("version",version);
+    
+  edm::ESHandle<DDCompactView> cpv;
+  iRecord.get("magfield",cpv );
+  MagGeoBuilderFromDDD builder(VBFPset.getParameter<std::string>("version"),
+			       VBFPset.getUntrackedParameter<bool>("debugBuilder", false));
+
+    
+  // Get scaling factors
+  vector<int> keys = pset.getParameter<vector<int> >("scalingVolumes");
+  vector<double> values = pset.getParameter<vector<double> >("scalingFactors");
+
+  if (keys.size() != 0) {
+    builder.setScaling(keys, values);
+  }
+
+  builder.build(*cpv);
+  
+  result = new VolumeBasedMagneticField(VBFPset,
+					builder.barrelLayers(), 
+					builder.endcapSectors(), 
+					builder.barrelVolumes(), 
+					builder.endcapVolumes(),
+					builder.maxR(), 
+					builder.maxZ(), 
+					paramField, true);
+
   
   std::auto_ptr<MagneticField> s(result);
   return s;
