@@ -4,6 +4,7 @@
 
 #include "CondFormats/RPCObjects/interface/FebConnectorSpec.h"
 #include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
+#include "CondFormats/RPCObjects/interface/L1RPCConeDefinition.h"
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
 
 #include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
