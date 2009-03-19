@@ -973,7 +973,7 @@ void GlobalPosfromTreeCompare(std::string graphname, TFile* f1, TFile* f2, int e
   graph2->Draw("AP");
 
   //c->Update();
-  c->Print(savename.c_str()"png");
+  c->Print(savename.c_str(),"png");
 
 }
 
