@@ -8,7 +8,7 @@
 //
 // Original Author:  Dan Riley
 //         Created:  Tue May 20 10:31:32 EDT 2008
-// $Id: BranchMapReader.cc,v 1.6 2008/12/22 18:06:07 dsr Exp $
+// $Id: BranchMapReader.cc,v 1.7 2008/12/23 20:37:28 dsr Exp $
 //
 
 // system include files
@@ -417,7 +417,7 @@ int BranchMapReader::getFileVersion(TFile* file) const
   TBranch* bVer = metaDataTree->GetBranch(edm::poolNames::fileFormatVersionBranchName().c_str());
   bVer->SetAddress(&pV);
   bVer->GetEntry(0);
-  return v.value_;
+  return v.value();
 }
 
 bool BranchMapReader::updateEvent(Long_t newevent)
