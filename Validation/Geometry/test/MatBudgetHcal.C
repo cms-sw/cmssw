@@ -697,6 +697,7 @@ void printTable (TString fileName="matbdg_HCAL.root",
 void plotDiff (TString fileName="matbdg_HCAL.root", TString plot="IntLen") {
 
   setStyle();
+  gStyle->SetTitleOffset(1.0,"Y");
   getDiff (fileName, plot);
   TString xtit = TString("Layer Number");
   TString ytit = TString("HCal Material Budget (#lambda)");
