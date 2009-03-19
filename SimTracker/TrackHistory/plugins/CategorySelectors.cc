@@ -7,7 +7,9 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+// Uncomment for running CMSSW 31X
+// #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"

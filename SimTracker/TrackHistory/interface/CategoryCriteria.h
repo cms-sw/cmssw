@@ -5,7 +5,10 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefTraits.h"
 
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+// Uncomment for 31X
+// #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
+
 
 //! Implement a selector given a track or vertex collection and track or vertex classifier.
 template <typename Collection, typename Classifier>
