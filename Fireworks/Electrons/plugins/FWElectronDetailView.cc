@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.10 2009/03/18 20:12:51 jmuelmen Exp $
+// $Id: FWElectronDetailView.cc,v 1.11 2009/03/19 14:06:21 jmuelmen Exp $
 //
 
 // system include files
@@ -126,134 +126,25 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
          getHitsByDetId();
       const unsigned int subdetId = 
          seed_detids.size() != 0 ? seed_detids.begin()->subdetId() : 0;
-      //  const int subdetId = 
-      //   seed_detids.size() != 0 ? seed_detids.begin()->subdetId() : -1;
-      const double scale = 1;
-//       if (subdetId == EcalEndcap)
-// 	   scale = 0.01;  // use meters in the endcap 
       if (subdetId == EcalBarrel) {
-         rotationCenter()[0] = i->superCluster()->position().eta() * scale;
-         rotationCenter()[1] = i->superCluster()->position().phi() * scale;
+         rotationCenter()[0] = i->superCluster()->position().eta();
+         rotationCenter()[1] = i->superCluster()->position().phi();
          rotationCenter()[2] = 0;
       } else if (subdetId == EcalEndcap) {
-         rotationCenter()[0] = i->superCluster()->position().x() * scale;
-         rotationCenter()[1] = i->superCluster()->position().y() * scale;
+         rotationCenter()[0] = i->superCluster()->position().x();
+         rotationCenter()[1] = i->superCluster()->position().y();
          rotationCenter()[2] = 0;
       }
       //        rotationCenter()[0] = i->TrackPositionAtCalo().x();
       //        rotationCenter()[1] = i->TrackPositionAtCalo().y();
       //        rotationCenter()[2] = i->TrackPositionAtCalo().z();
-      TEveStraightLineSet *scposition = new TEveStraightLineSet("sc position");
-      scposition->SetDepthTest(kFALSE);
-      if (subdetId == EcalBarrel) {
-         scposition->AddLine(i->caloPosition().eta(),
-                             i->caloPosition().phi(),
-                             0,
-                             i->caloPosition().eta(),
-                             i->caloPosition().phi(),
-                             0);
-      } else if (subdetId == EcalEndcap) {
-         scposition->AddLine(i->caloPosition().x(),
-                             i->caloPosition().y(),
-                             0,
-                             i->caloPosition().x(),
-                             i->caloPosition().y(),
-                             0);
-      }
-      scposition->AddMarker(0, 0.5);
-      scposition->SetMarkerSize(2);
-      scposition->SetMarkerColor(kBlue);
-      tList->AddElement(scposition);
-      TEveStraightLineSet *seedposition = new TEveStraightLineSet("seed position");
-      seedposition->SetDepthTest(kFALSE);
-      if (subdetId == EcalBarrel) {
-	   seedposition->AddLine(i->superCluster()->seed()->position().eta(),
-				 i->superCluster()->seed()->position().phi(),
-				 0,
-				 i->superCluster()->seed()->position().eta(),
-				 i->superCluster()->seed()->position().phi(),
-				 0);
-      } else if (subdetId == EcalEndcap) {
-	   seedposition->AddLine(i->superCluster()->seed()->position().x() * scale,
-				 i->superCluster()->seed()->position().y() * scale,
-				 0,
-				 i->superCluster()->seed()->position().x() * scale,
-				 i->superCluster()->seed()->position().y() * scale,
-				 0);
-      }
-      seedposition->AddMarker(0, 0.5);
-      seedposition->SetMarkerSize(2);
-      seedposition->SetMarkerColor(kRed);
-      tList->AddElement(seedposition);
-      TEveStraightLineSet *trackpositionAtCalo =
-         new TEveStraightLineSet("sc trackpositionAtCalo");
-      trackpositionAtCalo->SetDepthTest(kFALSE);
-      if (subdetId == EcalBarrel) {
-	   trackpositionAtCalo->AddLine(i->TrackPositionAtCalo().eta(),
-					rotationCenter()[1] - 0.5,
-					0,
-					i->TrackPositionAtCalo().eta(),
-					rotationCenter()[1] + 0.5,
-					0);
-	   trackpositionAtCalo->AddLine(rotationCenter()[0] - 0.5,
-					i->TrackPositionAtCalo().phi(),
-					0,
-					rotationCenter()[0] + 0.5,
-					i->TrackPositionAtCalo().phi(),
-					0);
-      } else if (subdetId == EcalEndcap) {
-	   trackpositionAtCalo->AddLine(i->TrackPositionAtCalo().x() * scale,
-					rotationCenter()[1] - 0.5,
-					0,
-					i->TrackPositionAtCalo().x() * scale,
-					rotationCenter()[1] + 0.5,
-					0);
-	   trackpositionAtCalo->AddLine(rotationCenter()[0] - 0.5,
-					i->TrackPositionAtCalo().y() * scale,
-					0,
-					rotationCenter()[0] + 0.5,
-					i->TrackPositionAtCalo().y() * scale,
-					0);
-      }
-      trackpositionAtCalo->SetLineColor(kBlue);
-      tList->AddElement(trackpositionAtCalo);
-      TEveStraightLineSet *pinposition = new TEveStraightLineSet("pin position");
-      if (subdetId == EcalBarrel) {
-	   pinposition->AddLine((i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()),
-				rotationCenter()[1] - 0.5, 
-				0,
-				(i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()),
-				rotationCenter()[1] + 0.5,
-				0);
-	   pinposition->AddLine(rotationCenter()[0] - 0.5,
-				(i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()),
-				0,
-				rotationCenter()[0] + 0.5,
-				(i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()),
-				0);
-      } else if (subdetId == EcalEndcap) {
-// 	   pinposition->AddLine((i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
-// 				rotationCenter()[1] - 0.5, 
-// 				0,
-// 				(i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
-// 				rotationCenter()[1] + 0.5,
-// 				0);
-// 	   pinposition->AddLine(rotationCenter()[0] - 0.5,
-// 				(i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
-// 				0,
-// 				rotationCenter()[0] + 0.5,
-// 				(i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
-// 				0);
-      }
-      pinposition->SetLineColor(kRed);
-      tList->AddElement(pinposition);
-
       // vector for the ECAL crystals
       TEveCaloDataVec* data = new TEveCaloDataVec(2);
       // one slice for the seed cluster (red) and one for the
       // other clusters
-      data->RefSliceInfo(0).Setup("seed cluster", 0.3, kRed);
-      data->RefSliceInfo(1).Setup("other clusters", 0.1, kYellow);
+      data->RefSliceInfo(0).Setup("seed cluster", 0.0, kRed);
+      data->RefSliceInfo(1).Setup("other clusters", 0.0, kYellow);
+//       data->RefSliceInfo(2).Setup("unclustered crystals", 0.0, kYellow);
       // now fill
       fillData(detids, data, i->superCluster()->seed()->position().phi());
       data->DataChanged();
@@ -303,6 +194,114 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
       m_xmin = lego->GetEtaMin();
       printf("lego range: xmin = %f xmax = %f, ymin = %f ymax = %f\n"
 	     , m_xmin, m_xmax, m_ymin, m_ymax);
+
+      // draw points for centroids
+      TEveStraightLineSet *scposition = new TEveStraightLineSet("sc position");
+      scposition->SetDepthTest(kFALSE);
+      if (subdetId == EcalBarrel) {
+         scposition->AddLine(i->caloPosition().eta(),
+                             i->caloPosition().phi(),
+                             0,
+                             i->caloPosition().eta(),
+                             i->caloPosition().phi(),
+                             0);
+      } else if (subdetId == EcalEndcap) {
+         scposition->AddLine(i->caloPosition().x(),
+                             i->caloPosition().y(),
+                             0,
+                             i->caloPosition().x(),
+                             i->caloPosition().y(),
+                             0);
+      }
+      scposition->AddMarker(0, 0.5);
+      scposition->SetMarkerSize(2);
+      scposition->SetMarkerColor(kBlue);
+      tList->AddElement(scposition);
+      TEveStraightLineSet *seedposition = new TEveStraightLineSet("seed position");
+      seedposition->SetDepthTest(kFALSE);
+      if (subdetId == EcalBarrel) {
+	   seedposition->AddLine(i->superCluster()->seed()->position().eta(),
+				 i->superCluster()->seed()->position().phi(),
+				 0,
+				 i->superCluster()->seed()->position().eta(),
+				 i->superCluster()->seed()->position().phi(),
+				 0);
+      } else if (subdetId == EcalEndcap) {
+	   seedposition->AddLine(i->superCluster()->seed()->position().x(),
+				 i->superCluster()->seed()->position().y(),
+				 0,
+				 i->superCluster()->seed()->position().x(),
+				 i->superCluster()->seed()->position().y(),
+				 0);
+      }
+      seedposition->AddMarker(0, 0.5);
+      seedposition->SetMarkerSize(2);
+      seedposition->SetMarkerColor(kYellow);
+      tList->AddElement(seedposition);
+
+      // draw crosshairs for track intersections
+      TEveStraightLineSet *trackpositionAtCalo =
+         new TEveStraightLineSet("sc trackpositionAtCalo");
+      trackpositionAtCalo->SetDepthTest(kFALSE);
+      if (subdetId == EcalBarrel) {
+	   trackpositionAtCalo->AddLine(i->TrackPositionAtCalo().eta(),
+					m_ymin,
+					0,
+					i->TrackPositionAtCalo().eta(),
+					m_ymax,
+					0);
+	   trackpositionAtCalo->AddLine(m_xmin,
+					i->TrackPositionAtCalo().phi(),
+					0,
+					m_xmax,
+					i->TrackPositionAtCalo().phi(),
+					0);
+      } else if (subdetId == EcalEndcap) {
+	   trackpositionAtCalo->AddLine(i->TrackPositionAtCalo().x(),
+					m_ymin,
+					0,
+					i->TrackPositionAtCalo().x(),
+					m_ymax,
+					0);
+	   trackpositionAtCalo->AddLine(m_xmin,
+					i->TrackPositionAtCalo().y(),
+					0,
+					m_xmax,
+					i->TrackPositionAtCalo().y(),
+					0);
+      }
+      trackpositionAtCalo->SetLineColor(kBlue);
+      tList->AddElement(trackpositionAtCalo);
+      TEveStraightLineSet *pinposition = new TEveStraightLineSet("pin position");
+      if (subdetId == EcalBarrel) {
+	   pinposition->AddLine((i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()),
+				m_ymin, 
+				0,
+				(i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()),
+				m_ymax,
+				0);
+	   pinposition->AddLine(m_xmin,
+				(i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()),
+				0,
+				m_xmax,
+				(i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()),
+				0);
+      } else if (subdetId == EcalEndcap) {
+// 	   pinposition->AddLine((i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
+// 				m_ymin, 
+// 				0,
+// 				(i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
+// 				m_ymax,
+// 				0);
+// 	   pinposition->AddLine(m_xmin,
+// 				(i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
+// 				0,
+// 				m_xmax,
+// 				(i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
+// 				0);
+      }
+      pinposition->SetLineColor(kYellow);
+      tList->AddElement(pinposition);
 
       gEve->Redraw3D(kTRUE);
       return tList;
@@ -367,8 +366,8 @@ void FWElectronDetailView::fillData (const std::vector<DetId> &detids,
 		    phi -= 2 * M_PI;
 	       if (v.Phi() < phi_seed - M_PI)
 		    phi += 2 * M_PI;
-	       data->AddTower(v.Eta() - 0.0174 / 2, v.Eta() + 0.0174 / 2, 
-			      phi - 0.0174 / 2, phi + 0.0174 / 2);
+	       data->AddTower(v.Eta() - 0.0172 / 2, v.Eta() + 0.0172 / 2, 
+			      phi - 0.0172 / 2, phi + 0.0172 / 2);
 	       data->FillSlice(slice, size);
 	  } else if (k->subdetId() == EcalEndcap) {
 	       if (v.X() < m_xmin)
