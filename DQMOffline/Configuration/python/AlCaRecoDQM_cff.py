@@ -8,6 +8,8 @@ from DQMServices.Components.MEtoEDMConverter_cfi import *
 from DQMOffline.Alignment.ALCARECOTkAlDQM_cff import *
 # Muon  Alignment
 from DQMOffline.Alignment.ALCARECOMuAlDQM_cff import *
+#Tracker Calibration
+from DQMOffline.Configuration.ALCARECOTkCalDQM_cff import *
 # Ecal Calibration
 from DQMOffline.Configuration.ALCARECOEcalCalDQM_cff import *
 # unfortunally the ALCARECOTkAl-Producers can not go here because they are filters.
