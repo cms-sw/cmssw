@@ -19,8 +19,9 @@
 // forward declaration
 //
 
-//namespace reco {}
-class reco::HcalNoiseInfoProducer;
+namespace reco {
+  class HcalNoiseInfoProducer;
+}
 
 //
 // class definition
