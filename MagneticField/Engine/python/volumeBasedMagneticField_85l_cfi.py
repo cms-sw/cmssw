@@ -21,7 +21,6 @@ ParametrizedMagneticFieldProducer = cms.ESProducer("ParametrizedMagneticFieldPro
 
 
 VolumeBasedMagneticFieldESProducer = cms.ESProducer("VolumeBasedMagneticFieldESProducer",
-    timerOn = cms.untracked.bool(False),
     useParametrizedTrackerField = cms.bool(False),
     label = cms.untracked.string(''),
     version = cms.string('grid_85l_030919'),
