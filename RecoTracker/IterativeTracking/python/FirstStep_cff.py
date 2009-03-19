@@ -16,10 +16,10 @@ from RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff import *
 from RecoTracker.TkSeedGenerator.GlobalPixelSeeds_cff import *
 
 # seeding
-from RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff import *
-newSeedFromTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff.globalSeedsFromTripletsWithVertices.clone(
-    RegionFactoryPSet = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff.globalSeedsFromTripletsWithVertices.RegionFactoryPSet.clone(
-    RegionPSet = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff.globalSeedsFromTripletsWithVertices.RegionFactoryPSet.RegionPSet.clone(
+from RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff import *
+newSeedFromTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
+    RegionFactoryPSet = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.RegionFactoryPSet.clone(
+    RegionPSet = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.RegionFactoryPSet.RegionPSet.clone(
     ptMin = 0.5
     )
     )

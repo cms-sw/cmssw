@@ -51,9 +51,9 @@ largeD0step1layertriplets.BPix.HitProducer = 'largeD0step1PixelRecHits'
 largeD0step1layertriplets.FPix.HitProducer = 'largeD0step1PixelRecHits'
 
 #SEEDS
-import RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff
+import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 from RecoPixelVertexing.PixelTriplets.PixelTripletLargeTipGenerator_cfi import *
-largeD0step1Seeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff.globalSeedsFromTripletsWithVertices.clone()
+largeD0step1Seeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
 largeD0step1Seeds.OrderedHitsFactoryPSet.SeedingLayers = 'largeD0step1LayerTriplets'
 # Use modified pixel-triplet code that works best for large impact parameters
 largeD0step1Seeds.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)

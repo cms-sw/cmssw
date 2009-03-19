@@ -51,8 +51,8 @@ seclayertriplets.FPix.HitProducer = 'secPixelRecHits'
 
 
 # SEEDS
-import RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff
-secTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff.globalSeedsFromTripletsWithVertices.clone()
+import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
+secTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
 secTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 17.5
 secTriplets.OrderedHitsFactoryPSet.SeedingLayers = 'SecLayerTriplets'
 secTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.2
