@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2008/11/05 13:17:09 $ by $Author: argiro $
+# last update: $Date: 2009/03/04 18:49:18 $ by $Author: futyand $
 # Tracker Alignment
 # AlCaReco for track based alignment using ZMuMu events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_Output_cff import *
@@ -19,12 +19,16 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlJpsiMuMu_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlUpsilonMuMu_Output_cff import *
 # AlCaReco for track based alignment using MinBias events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_Output_cff import *
+
 # AlCaReco for pixel calibration using muons
 from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelLorentzAngle_Output_cff import *
 # AlCaReco for tracker calibration using MinBias events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBias_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_Output_cff import *
+
 # AlCaReco for tracker based alignment using beam halo 
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlBeamHalo_Output_cff import *
+
 # ECAL Calibration
 # ECAL calibration with phi symmetry 
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPhiSym_Output_cff import *

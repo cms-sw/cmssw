@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2008/11/05 13:16:07 $ by $Author: argiro $
+# last update: $Date: 2009/03/04 17:44:17 $ by $Author: futyand $
 
 # AlCaReco sequence definitions:
 
@@ -24,6 +24,8 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelLorentzAngle_cff import *
 # AlCaReco for tracker calibration using MinBias events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBias_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_cff import *
+
 # ECAL Calibration
 # ECAL calibration with isol. electrons
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_cff import *
@@ -62,8 +64,10 @@ pathALCARECOTkAlMuonIsolated = cms.Path(seqALCARECOTkAlMuonIsolated*ALCARECOTkAl
 pathALCARECOTkAlJpsiMuMu = cms.Path(seqALCARECOTkAlJpsiMuMu*ALCARECOTkAlJpsiMuMuDQM)
 pathALCARECOTkAlUpsilonMuMu = cms.Path(seqALCARECOTkAlUpsilonMuMu*ALCARECOTkAlUpsilonMuMuDQM)
 pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM)
+pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM)
 pathALCARECOSiPixelLorentzAngle = cms.Path(seqALCARECOSiPixelLorentzAngle)
 pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias)
+pathALCARECOSiStripCalZeroBias = cms.Path(seqALCARECOSiStripCalZeroBias*ALCARECOSiStripCalZeroBiasDQM)
 pathALCARECOEcalCalElectron = cms.Path(seqALCARECOEcalCalElectron*ALCARECOEcalCalElectronCalibDQM)
 pathALCARECOHcalCalDijets = cms.Path(seqALCARECOHcalCalDijets)
 pathALCARECOHcalCalGammaJet = cms.Path(seqALCARECOHcalCalGammaJet)
@@ -157,6 +161,15 @@ ALCARECOStreamSiStripCalMinBias = cms.FilteredStream(
 	paths  = (pathALCARECOSiStripCalMinBias),
 	content = OutALCARECOSiStripCalMinBias.outputCommands,
 	selectEvents = OutALCARECOSiStripCalMinBias.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamSiStripCalZeroBias = cms.FilteredStream(
+	responsible = 'Gordon Kaussen',
+	name = 'ALCARECOSiStripCalZeroBias',
+	paths  = (pathALCARECOSiStripCalZeroBias),
+	content = OutALCARECOSiStripCalZeroBias.outputCommands,
+	selectEvents = OutALCARECOSiStripCalZeroBias.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
