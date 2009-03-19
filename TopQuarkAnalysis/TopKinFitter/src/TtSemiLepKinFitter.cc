@@ -259,25 +259,52 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
     double pt  = lepton.pt ();
     double eta = lepton.eta();
 
-    res::HelperMuon     muonRes;
-    res::HelperElectron elecRes;
-    switch(lepParam_){
-    case kEMom :
-      m5(0,0) = pow(elecRes.a (pt, eta), 2);
-      m5(1,1) = pow(elecRes.b (pt, eta), 2); 
-      m5(2,2) = pow(elecRes.c (pt, eta), 2);
-      break;
-    case kEtEtaPhi :
-      m5(0,0) = pow(elecRes.et (pt, eta), 2);
-      m5(1,1) = pow(elecRes.eta(pt, eta), 2); 
-      m5(2,2) = pow(elecRes.phi(pt, eta), 2);
-      break;
-    case kEtThetaPhi :
-      m5(0,0) = pow(elecRes.et (pt, eta), 2);
-      m5(1,1) = pow(elecRes.theta(pt, eta), 2); 
-      m5(2,2) = pow(elecRes.phi(pt, eta), 2);
-      break;
+    // if lepton is an electron
+    if( dynamic_cast<const reco::GsfElectron*>(&lepton) ) {
+      res::HelperElectron elecRes;
+      switch(lepParam_){
+      case kEMom :
+	m5(0,0) = pow(elecRes.a (pt, eta), 2);
+	m5(1,1) = pow(elecRes.b (pt, eta), 2); 
+	m5(2,2) = pow(elecRes.c (pt, eta), 2);
+	break;
+      case kEtEtaPhi :
+	m5(0,0) = pow(elecRes.et (pt, eta), 2);
+	m5(1,1) = pow(elecRes.eta(pt, eta), 2); 
+	m5(2,2) = pow(elecRes.phi(pt, eta), 2);
+	break;
+      case kEtThetaPhi :
+	m5(0,0) = pow(elecRes.et   (pt, eta), 2);
+	m5(1,1) = pow(elecRes.theta(pt, eta), 2); 
+	m5(2,2) = pow(elecRes.phi  (pt, eta), 2);
+	break;
+      }
     }
+    // if lepton is a muon
+    else if( dynamic_cast<const reco::Muon*>(&lepton) ) {
+      res::HelperMuon muonRes;
+      switch(lepParam_){
+      case kEMom :
+	m5(0,0) = pow(muonRes.a (pt, eta), 2);
+	m5(1,1) = pow(muonRes.b (pt, eta), 2); 
+	m5(2,2) = pow(muonRes.c (pt, eta), 2);
+	break;
+      case kEtEtaPhi :
+	m5(0,0) = pow(muonRes.et (pt, eta), 2);
+	m5(1,1) = pow(muonRes.eta(pt, eta), 2); 
+	m5(2,2) = pow(muonRes.phi(pt, eta), 2);
+	break;
+      case kEtThetaPhi :
+	m5(0,0) = pow(muonRes.et   (pt, eta), 2);
+	m5(1,1) = pow(muonRes.theta(pt, eta), 2); 
+	m5(2,2) = pow(muonRes.phi  (pt, eta), 2);
+	break;
+      }
+    }
+    // if lepton is neither electron nor muon
+    else
+      throw edm::Exception(edm::errors::Configuration,
+			   "The lepton passed to the TtSemiLepKinFitter is neither a reco::GsfElectron nor a reco::Muon" );
   }
   // add neutrino resolutions
   {
