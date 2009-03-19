@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.18 2009/03/13 22:41:38 amraktad Exp $
+// $Id: FWGUISubviewArea.cc,v 1.19 2009/03/16 20:19:34 amraktad Exp $
 //
 
 // system include files
@@ -64,6 +64,11 @@ FWGUISubviewArea::FWGUISubviewArea(TEveCompositeFrame* ef, TGCompositeFrame* par
    m_undockButton->SetHeight(height);
    AddFrame(m_undockButton, new TGLayoutHints(lh));
    m_undockButton->Connect("Clicked()", "FWGUISubviewArea",this,"undock()");
+   // disable undock on undocked window 
+   if (dynamic_cast<const TGMainFrame*>(ef->GetParent()))
+   {
+     m_undockButton->SetState(kButtonDisabled, kFALSE);
+   }
 
    // destroy
    m_closeButton = new TGPictureButton(this,closeIcon());
