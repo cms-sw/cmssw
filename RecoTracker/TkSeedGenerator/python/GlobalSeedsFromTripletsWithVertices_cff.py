@@ -14,7 +14,6 @@ from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
 #from RecoPixelVertexing.PixelTriplets.PixelTripletLargeTipGenerator_cfi import *
 
-from RecoTracker.TkTrackingRegions.GlobalTrackingRegionWithVertices_cfi import *
 import RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi
 globalSeedsFromTripletsWithVertices = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi.seedGeneratorFromRegionHitsEDProducer.clone(
     OrderedHitsFactoryPSet = cms.PSet(
@@ -24,9 +23,5 @@ globalSeedsFromTripletsWithVertices = RecoTracker.TkSeedGenerator.SeedGeneratorF
 # this one uses an exact helix extrapolation and can deal correctly with
 # arbitrarily large D0 and generally exhibits a smaller fake rate:
 #     GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
-    ),
-    RegionFactoryPSet = cms.PSet(
-      RegionPSetWithVerticesBlock,
-      ComponentName = cms.string('GlobalTrackingRegionWithVerticesProducer')
-    )            
+    )
 )
