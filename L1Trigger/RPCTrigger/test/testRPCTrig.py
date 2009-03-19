@@ -15,12 +15,14 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
 process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
 
+process.load("L1TriggerConfig.RPCTriggerConfig.RPCConeDefinition_cff")
 # emulation
-process.load("L1TriggerConfig.RPCTriggerConfig.RPCPatSource_cfi")
-process.load("L1TriggerConfig.RPCTriggerConfig.RPCConeSource_cfi")
-process.load("L1TriggerConfig.RPCTriggerConfig.RPCHwConfigSource_cfi")
+process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCConfig_cff")
+
+process.load("L1TriggerConfig.RPCTriggerConfig.RPCConeConfig_cff")
+process.load("L1TriggerConfig.RPCTriggerConfig.RPCHwConfig_cff")
 process.load("L1Trigger.RPCTrigger.l1RpcEmulDigis_cfi")
-process.l1RpcEmulDigis.label = cms.string('rpcunpacker')
+process.l1RpcEmulDigis.label = cms.string('simMuonRPCDigis')
 
 # rpc r2d
 process.load("EventFilter.RPCRawToDigi.RPCSQLiteCabling_cfi")
@@ -30,13 +32,14 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100000)
 )
 
-process.source = cms.Source("NewEventStreamFileReader",
-#process.source = cms.Source("PoolSource",
+#process.source = cms.Source("NewEventStreamFileReader",
+process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
-            '/store/data/GlobalCruzet4/A/000/057/620/GlobalCruzet4.00057620.0001.A.storageManager.1.0000.dat'
+            'file:digi0T.root'
 
     )
 )
 
-process.a = cms.Path(process.rpcunpacker*process.l1RpcEmulDigis)
+#process.a = cms.Path(process.rpcunpacker*process.l1RpcEmulDigis)
+process.a = cms.Path(process.l1RpcEmulDigis)

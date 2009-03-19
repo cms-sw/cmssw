@@ -16,8 +16,7 @@
 
 
 RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig):
-   m_pacTrigger(0),
-   m_trigConfig(0)
+   m_trigConfig(0),m_pacTrigger(0)
 {
   produces<std::vector<L1MuRegionalCand> >("RPCb");
   produces<std::vector<L1MuRegionalCand> >("RPCf");
@@ -121,11 +120,14 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     } else { //use es
       edm::ESHandle<L1RPCConeBuilder> coneBuilder;
       iSetup.get<L1RPCConeBuilderRcd>().get(coneBuilder);
+      
+      edm::ESHandle<L1RPCConeDefinition> l1RPCConeDefinition;
+      iSetup.get<L1RPCConeDefinitionRcd>().get(l1RPCConeDefinition);
 
       edm::ESHandle<L1RPCHwConfig> hwConfig;
       iSetup.get<L1RPCHwConfigRcd>().get(hwConfig);
 
-      ActiveCones = m_theLinksystemFromES.getConesFromES(rpcDigis, coneBuilder, hwConfig, iBx);
+      ActiveCones = m_theLinksystemFromES.getConesFromES(rpcDigis, coneBuilder, l1RPCConeDefinition, hwConfig, iBx);
       
     }
     

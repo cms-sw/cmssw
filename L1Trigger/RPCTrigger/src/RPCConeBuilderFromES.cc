@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Mar  3 13:34:20 CET 2008
-// $Id: RPCConeBuilderFromES.cc,v 1.4 2008/08/29 08:28:12 fruboes Exp $
+// $Id: RPCConeBuilderFromES.cc,v 1.5 2008/12/12 14:11:49 fruboes Exp $
 //
 
 // system include files
@@ -43,6 +43,7 @@ RPCConeBuilderFromES::~RPCConeBuilderFromES()
 
 L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollection> rpcDigis, 
                                                       edm::ESHandle<L1RPCConeBuilder> coneBuilder,
+                                                      edm::ESHandle<L1RPCConeDefinition> coneDef,
                                                       edm::ESHandle<L1RPCHwConfig> hwConfig, int bx)
 {
   std::vector<RPCLogHit> logHits;
@@ -98,7 +99,7 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
       L1RPCConeBuilder::TCompressedConVec::const_iterator itComp = compressedConnPair.first;
       for (; itComp!=compressedConnPair.second; ++itComp){
          if ( hwConfig->isActive(itComp->m_tower, itComp->m_PAC)){
-           int logstrip = itComp->getLogStrip(digiIt->strip(),coneBuilder->getLPSizes());
+           int logstrip = itComp->getLogStrip(digiIt->strip(),coneDef->getLPSizes());
            if (logstrip!=-1){
                logHits.push_back( RPCLogHit(itComp->m_tower, itComp->m_PAC, itComp->m_logplane, logstrip ) );
            }

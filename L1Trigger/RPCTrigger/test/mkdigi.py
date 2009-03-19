@@ -54,7 +54,9 @@ process.source = cms.Source("FlatRandomPtGunSource",
         MinPhi = cms.untracked.double(-3.14159265359)
     ),
     Verbosity = cms.untracked.int32(0),
-    firstRun = cms.untracked.uint32(2)
+    firstRun = cms.untracked.uint32(2),
+    AddAntiParticle = cms.untracked.bool(False) 
+
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
