@@ -40,38 +40,19 @@ template < class C > class EcalUncalibRecHitLeadingEdgeAlgo : public EcalUncalib
         {
 		double amplitude_(-1.), pedestal_(-1.), jitter_(-1.), chi2_(-1.);
 
-		// Get time samples
-		ROOT::Math::SVector < double, C::MAXSAMPLES > frame;
-		int gainId0 = 1;
-		int iGainSwitch = 0;
-		for (int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
-			int gainId = dataFrame.sample(iSample).gainId();
-
-                        // useless?? FIXME!
-			//if (gainId != gainId0) iGainSwitch = 1;
-			//if (!iGainSwitch) {
-			//	frame(iSample) = double (dataFrame.sample(iSample).adc());
-                        //} else {
-                        //        frame(iSample) = double (((double) (dataFrame.sample(iSample).adc()) - pedestals[gainId - 1]) * gainRatios[gainId - 1]);
-                        //}
-
-			if ( iSample == leadingSample_ ) {
-				frame(iSample) =
-				    double (((double)
-					     (dataFrame.sample( leadingSample_ ).adc() -
+		// compute amplitude
+		amplitude_ = double (((double) (dataFrame.sample( leadingSample_ ).adc() -
 					      pedestals[dataFrame.sample( leadingSample_ ).gainId()]) * 
-                                              saturationCorrection( iSample, leadingSample_ ) *
-					      gainRatios[ dataFrame.sample( leadingSample_ ).gainId() - 1] ));
-                                amplitude_ = frame(iSample);
-                                pedestal_ = 0;
-			}
-		}
+					      saturationCorrection( leadingSample_ ) *
+					      gainRatios[ dataFrame.sample( leadingSample_ ).gainId() - 1] )); 
+
+
 
 		return EcalUncalibratedRecHit(dataFrame.id(), amplitude_, pedestal_, jitter_, chi2_);
 	}
 
 	// saturation correction  
-	double saturationCorrection(int thisSample, int unsaturatedSample)
+	double saturationCorrection(int unsaturatedSample)
         {
 		// get the EcalShape
 		EcalSimParameterMap parameterMap;
@@ -79,7 +60,10 @@ template < class C > class EcalUncalibRecHitLeadingEdgeAlgo : public EcalUncalib
 		double thisPhase = parameterMap.simParameters(barrel).timePhase();	// (theShape)(thisPhase) = 1
 		EcalShape theShape(thisPhase);
 		double tzero = thisPhase - (parameterMap.simParameters(barrel).binOfMaximum() - 1.) * 25.;
-		double correction = (theShape) (tzero + thisSample * 25.0) / (theShape) (tzero + unsaturatedSample * 25.0);
+		double correction = 1./ (theShape) (tzero + unsaturatedSample * 25.0);
+
+		//std::cout<< "saturation correction = " << correction << std::endl; 
+
 		return correction;
 	}
 
