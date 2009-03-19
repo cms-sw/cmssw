@@ -302,8 +302,13 @@ bool CSCValidation::filterEvents(edm::Handle<CSCRecHit2DCollection> recHits){
     }
   }
 
-  if (nRecHits < 0) return false;
-  if (nHitChambers > 10 && nHitChambers > 0) return false;
+  // fill some histograms
+  histos->fill1DHist(nHitChambers,"hNHitChambers","Number of Hit Chambers per Event",21,-0.5,20.5,"MessyEvents");
+  histos->fill1DHist(nMessyChambers,"hNMessyChambers","Number of Messy Chambers (nhits > 24) per Event",11,-0.5,10.5,"MessyEvents");
+
+
+  if (nRecHits < 0) return false;  // dummy for now
+  if (nHitChambers > 12) return false;
   if (nMessyChambers > 0) return false;
   return true;
 
