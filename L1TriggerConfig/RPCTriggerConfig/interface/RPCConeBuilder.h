@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 25 12:06:44 CET 2008
-// $Id: RPCConeBuilder.h,v 1.1 2008/03/03 14:30:09 fruboes Exp $
+// $Id: RPCConeBuilder.h,v 1.2 2008/12/12 14:13:58 fruboes Exp $
 //
 #include <memory>
 #include "boost/shared_ptr.hpp"
@@ -27,12 +27,13 @@
 #include "CondFormats/DataRecord/interface/L1RPCConeBuilderRcd.h"
 
 
+#include "CondFormats/RPCObjects/interface/L1RPCConeDefinition.h"
 
 #include <map>
 //#include "L1TriggerConfig/RPCConeBuilder/interface/RPCStripsRing.h"
 #include "L1TriggerConfig/RPCTriggerConfig/interface/RPCStripsRing.h"
 
-
+#include "CondFormats/DataRecord/interface/L1RPCConeDefinitionRcd.h"
 class RPCConeBuilder : public edm::ESProducer {
    public:
       
@@ -45,6 +46,7 @@ class RPCConeBuilder : public edm::ESProducer {
       ReturnType produce(const L1RPCConeBuilderRcd&);
       //ReturnType produce(const L1RPCConfigRcd&);
       void geometryCallback( const MuonGeometryRecord &);
+      void coneDefCallback( const L1RPCConeDefinitionRcd &);
       
    private:
      
@@ -63,10 +65,9 @@ class RPCConeBuilder : public edm::ESProducer {
       int m_hwPlaneBeg;
       int m_hwPlaneEnd;
       
-      L1RPCConeBuilder::TLPSizesInTowers m_LPSizesInTowers;
-      L1RPCConeBuilder::TRingsToTowers m_RingsToTowers;
-      L1RPCConeBuilder::TRingsToLP m_RingsToLP;
-      
+      edm::ESHandle<L1RPCConeDefinition> m_L1RPCConeDefinition;
+      edm::ESHandle<RPCGeometry> m_rpcGeometry;          
+          
       RPCStripsRing::TIdToRindMap m_ringsMap;
       
 };

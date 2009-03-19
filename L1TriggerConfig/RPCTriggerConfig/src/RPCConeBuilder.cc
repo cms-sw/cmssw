@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Fri Feb 22 13:57:06 CET 2008
-// $Id: RPCConeBuilder.cc,v 1.2 2008/03/14 13:44:12 fruboes Exp $
+// $Id: RPCConeBuilder.cc,v 1.3 2008/12/12 14:13:59 fruboes Exp $
 //
 //
 
@@ -34,22 +34,28 @@
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
+#include "CondFormats/DataRecord/interface/L1RPCConeDefinitionRcd.h"
+
 #include <sstream>
 #include <vector>
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
+
 RPCConeBuilder::RPCConeBuilder(const edm::ParameterSet& iConfig) :
       m_towerBeg(iConfig.getParameter<int>("towerBeg")),
-      m_towerEnd(iConfig.getParameter<int>("towerEnd")),
-      m_rollBeg(iConfig.getParameter<int>("rollBeg")),
-      m_rollEnd(iConfig.getParameter<int>("rollEnd")),
-      m_hwPlaneBeg(iConfig.getParameter<int>("hwPlaneBeg")),
-      m_hwPlaneEnd(iConfig.getParameter<int>("hwPlaneEnd"))
+      m_towerEnd(iConfig.getParameter<int>("towerEnd"))
+      //m_rollBeg(iConfig.getParameter<int>("rollBeg")),
+      //m_rollEnd(iConfig.getParameter<int>("rollEnd")),
+      //m_hwPlaneBeg(iConfig.getParameter<int>("hwPlaneBeg")),
+      //m_hwPlaneEnd(iConfig.getParameter<int>("hwPlaneEnd"))
 {
    
-   setWhatProduced(this, dependsOn( &RPCConeBuilder::geometryCallback ));
+  setWhatProduced(this, (dependsOn (&RPCConeBuilder::geometryCallback) &  
+                                   (&RPCConeBuilder::coneDefCallback)     )
+                        );
 
+  /* TT
    for (int i = m_towerBeg; i <= m_towerEnd; ++i){
       
       std::stringstream name;
@@ -61,6 +67,8 @@ RPCConeBuilder::RPCConeBuilder(const edm::ParameterSet& iConfig) :
       m_LPSizesInTowers.push_back(newSizes);
       
    }
+  
+  */
    
    //  hw planes numbered from 0 to 5
    // rolls from 0 to 17 (etaPartition)
@@ -72,14 +80,16 @@ RPCConeBuilder::RPCConeBuilder(const edm::ParameterSet& iConfig) :
    //  rollConnT_[roll]_[hwPlane-1]
    //  rollConnT_5_3 = cms.vint32(4, -1, -1),
    //     ----- roll 5, hwPlane 4 (3+1) contirubtes to tower 4 (OK)
+  
+  /*
    for (int roll = m_rollBeg; roll <= m_rollEnd; ++roll){
-      L1RPCConeBuilder::THWplaneToTower newHwPlToTower;
-      L1RPCConeBuilder::THWplaneToLP newHWplaneToLP;
+      L1RPCConeDefinition::THWplaneToTower newHwPlToTower;
+      L1RPCConeDefinition::THWplaneToLP newHWplaneToLP;
       for (int hwpl = m_hwPlaneBeg; hwpl <= m_hwPlaneEnd; ++hwpl){
          std::stringstream name;
          name << "rollConnLP_" << roll << "_" << hwpl;
          
-         L1RPCConeBuilder::TTowerList newListLP = 
+         L1RPCConeDefinition::TTowerList newListLP = 
                iConfig.getParameter<std::vector<int> >(name.str().c_str());
          newHWplaneToLP.push_back(newListLP);
          
@@ -87,20 +97,20 @@ RPCConeBuilder::RPCConeBuilder(const edm::ParameterSet& iConfig) :
          std::stringstream name1;
          name1 << "rollConnT_" << roll << "_" << hwpl;
          
-         L1RPCConeBuilder::TLPList newListT = 
+         L1RPCConeDefinition::TLPList newListT = 
                iConfig.getParameter<std::vector<int> >(name1.str().c_str());
          newHwPlToTower.push_back(newListT);
       }
       m_RingsToTowers.push_back(newHwPlToTower);
       m_RingsToLP.push_back(newHWplaneToLP);
    }
-   
+  */
 }
 
 
 
 
-//
+// 
 // member functions
 //
 
@@ -118,14 +128,14 @@ RPCConeBuilder::produce(const L1RPCConeBuilderRcd& iRecord)
    pL1RPCConeBuilder->setFirstTower(m_towerBeg);
    pL1RPCConeBuilder->setLastTower(m_towerEnd);
    
+   /*
    pL1RPCConeBuilder->setLPSizeForTowers(m_LPSizesInTowers);
    pL1RPCConeBuilder->setRingsToLP(m_RingsToLP);
-
+   */
    
-   edm::ESHandle<RPCGeometry> rpcGeom;
-   iRecord.getRecord<MuonGeometryRecord>().get(rpcGeom);   
-   
-   buildCones(rpcGeom);
+   //iRecord.get(m_rpcGeometry);
+   //iRecord.get(m_L1RPCConeDefinition);
+   buildCones(m_rpcGeometry);
 
    // Compress all connections
    m_ringsMap.begin()->second.compressConnections();
@@ -145,12 +155,24 @@ void RPCConeBuilder::geometryCallback( const MuonGeometryRecord& record ){
 
   //std::cout << " Geometry callback called " << std::endl; 
   
-  //edm::ESHandle<RPCGeometry> rpcGeom;
-  //record.get(rpcGeom);
+  record.get(m_rpcGeometry);
   
+  
+}
+
+void RPCConeBuilder::coneDefCallback( const L1RPCConeDefinitionRcd& record ){
+
+  //std::cout << " ConeDef callback called " << std::endl; 
+  
+  //edm::ESHandle<RPCGeometry> rpcGeom;
+  record.get(m_L1RPCConeDefinition);
+  
+  //std::cout << " ConeDef callback exit " << std::endl; 
+  //std::cout.flush();
   //buildCones(rpcGeom);
   
 }
+
 
 
 void RPCConeBuilder::buildCones(const edm::ESHandle<RPCGeometry> & rpcGeom ){
@@ -318,19 +340,23 @@ std::pair<int, int> RPCConeBuilder::areConnected(RPCStripsRing::TIdToRindMap::it
     return std::make_pair(-1,0);  
   
   
+  /*std::cout << "Ref " << ref->second.getEtaPartition() << " " <<ref->second.getHwPlane() << std::endl;
+  std::cout << "Other " << other->second.getEtaPartition() << " " <<other->second.getHwPlane() << std::endl;
+  std::cout.flush();*/
+  
   // refRing and otherRing areConnected, if they contribute to the same tower
-  L1RPCConeBuilder::TTowerList refTowList 
-        = m_RingsToTowers.at(std::abs(ref->second.getEtaPartition()))
+  L1RPCConeDefinition::TTowerList refTowList 
+      = m_L1RPCConeDefinition->getRingsToTowers().at(std::abs(ref->second.getEtaPartition()))
                          .at(ref->second.getHwPlane()-1);
       
 
-  L1RPCConeBuilder::TTowerList otherTowList 
-        = m_RingsToTowers.at(std::abs(other->second.getEtaPartition()))
+  L1RPCConeDefinition::TTowerList otherTowList 
+      = m_L1RPCConeDefinition->getRingsToTowers().at(std::abs(other->second.getEtaPartition()))
                          .at(other->second.getHwPlane()-1);
   
   int refTower = -1;
   
-  L1RPCConeBuilder::TTowerList::iterator rtlIt = refTowList.begin();
+  L1RPCConeDefinition::TTowerList::iterator rtlIt = refTowList.begin();
   for (; rtlIt != refTowList.end(); ++rtlIt){
   
      if ( *rtlIt >= 0 && refTower < 0){
@@ -353,7 +379,7 @@ std::pair<int, int> RPCConeBuilder::areConnected(RPCStripsRing::TIdToRindMap::it
            << " is not connected anywhere \n";
   }
   
-  L1RPCConeBuilder::TTowerList::iterator otlIt = otherTowList.begin();
+  L1RPCConeDefinition::TTowerList::iterator otlIt = otherTowList.begin();
   
   int index = -1, i = 0;
   for (; otlIt != otherTowList.end(); ++otlIt){
@@ -365,10 +391,10 @@ std::pair<int, int> RPCConeBuilder::areConnected(RPCStripsRing::TIdToRindMap::it
   
   int lpSize = 0;
   if (index != -1){
-     logplane = m_RingsToLP.at(std::abs(other->second.getEtaPartition()))
+    logplane = m_L1RPCConeDefinition->getRingsToLP().at(std::abs(other->second.getEtaPartition()))
            .at(other->second.getHwPlane()-1)
            .at(index);
-     lpSize = m_LPSizesInTowers.at(refTower).at(logplane-1);
+    lpSize = m_L1RPCConeDefinition->getLPSizeForTowers().at(refTower).at(logplane-1);
      
   }
   

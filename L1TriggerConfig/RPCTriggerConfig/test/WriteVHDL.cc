@@ -277,13 +277,16 @@ std::string WriteVHDL::writeCNT(std::string pacT){
 
 std::string WriteVHDL::writePACandLPDef(const edm::EventSetup& iSetup, int tower, int logsector,  std::string pacT){
 
-  std::stringstream ret;
+  std::stringstream ret; 
 
   tower = std::abs(tower);
 
   // get logplane size
   edm::ESHandle<L1RPCConeBuilder> coneBuilder;
   iSetup.get<L1RPCConeBuilderRcd>().get(coneBuilder);
+  
+  edm::ESHandle<L1RPCConeDefinition> l1RPCConeDefinition;
+  iSetup.get<L1RPCConeDefinitionRcd>().get(l1RPCConeDefinition);
 
   std::string coma = "";
   for (int seg = 0; seg < 12; ++seg  ){
@@ -293,7 +296,7 @@ std::string WriteVHDL::writePACandLPDef(const edm::EventSetup& iSetup, int tower
 
     std::string coma1 = ""; 
     for (int lp = 0; lp < 6; ++lp){
-      int size = coneBuilder->getLPSizes().at(tower).at(lp);
+      int size = l1RPCConeDefinition->getLPSizes().at(tower).at(lp);
       if (size == 0) size = 1;
       ret << coma1 << size;
       coma1 = ", ";
@@ -504,30 +507,19 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
                     itPair = coneBuilder->getConVec(detId, strip);
 
 
-          if (itPair.first!=itPair.second){
-              throw cms::Exception("") << " FIXME found uncompressed connection. " << tower << "\n";
-          }
+          L1RPCConeBuilder::TStripConVec::const_iterator it = itPair.first;
 
-          std::pair<L1RPCConeBuilder::TCompressedConVec::const_iterator, L1RPCConeBuilder::TCompressedConVec::const_iterator>
- 	  	           compressedConnPair = coneBuilder->getCompConVec(detId);
-
-          L1RPCConeBuilder::TCompressedConVec::const_iterator itComp = compressedConnPair.first;
-
-          for (; itComp!=compressedConnPair.second; ++itComp){
-
-
-              int logstrip = itComp->getLogStrip(strip,coneBuilder->getLPSizes());
-              if (logstrip==-1) continue;
+          for (; it!=itPair.second;++it){
 
               // iterate over all PACs 
-              if (itComp->m_tower != tower) continue;
+              if (it->m_tower != tower) continue;
 
               int dccInputChannel = getDCCNumber(tower, sector);
               int PACstart = sector*12;
               int PACend = PACstart+11;
 
               for(int PAC = PACstart; PAC <= PACend; ++PAC){
-                   if (itComp->m_PAC != PAC ) continue;
+                   if (it->m_PAC != PAC ) continue;
   
                    LinkBoardElectronicIndex a;
                    std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> linkStrip =
@@ -550,10 +542,10 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
 
                      if(!beg) ret<<","; else beg = false;
 
-	             ret << "(" << PAC - PACstart  << ",\t "<< PACt<<", \t"<<  (int)itComp->m_logplane - 1<<",\t"
+	             ret << "(" << PAC - PACstart  << ",\t "<< PACt<<", \t"<<  (int)it->m_logplane - 1<<",\t"
                          <<linkStrip.first.tbLinkInputNum<<",\t"
                          <<linkStrip.first.lbNumInLink<<",\t"
-                         << logstrip<<",\t "
+                         << (int)it->m_logstrip<<",\t "
                          <<linkStrip.second.packedStrip()<<", \t";
                       ret << 1 << ") --" << roll->id() << std::endl;	
 
