@@ -36,5 +36,8 @@ ALIFileOut& ALIFileOut::getInstance( const ALIstring& filename )
     theInstances.push_back( instance );
     return *instance;
   }
+
+  ALIFileOut* instance = new ALIFileOut( filename ); // it will not reach here, only to avoid warning
+  return *instance;
 }
 

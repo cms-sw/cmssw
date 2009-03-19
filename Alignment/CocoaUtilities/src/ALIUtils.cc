@@ -574,7 +574,7 @@ std::string ALIUtils::changeName( const std::string& oldName, const std::string&
 {
 
   std::string newName = oldName;
-  int il = oldName.find( subsstr1, il );
+  int il = oldName.find( subsstr1 );
   //  std::cout << " il " << il << " oldname " << oldName << " " << subsstr1 << std::endl;
   while( il >= 0 ) {
     newName = newName.substr( 0, il ) + subsstr2 +  newName.substr( il+subsstr1.length(), newName.length() );
@@ -757,7 +757,7 @@ double ALIUtils::diff2pi( double ang1, double ang2 )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 bool ALIUtils::eq2ang( double ang1, double ang2 ) 
 {
-  bool beq;
+  bool beq = true;
 
   double pii = acos(0.)*2;
   double diff = diff2pi( ang1, ang2 );
