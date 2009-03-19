@@ -46,6 +46,7 @@ namespace edm {
     // The Branch IDs of the parents
     std::vector<BranchID> parents_;
 
+    Hash<ModuleDescriptionType> moduleDescriptionID_;
   };
   
   inline

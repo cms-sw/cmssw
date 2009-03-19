@@ -5,38 +5,29 @@
 
 namespace edm 
 {
-  struct FileFormatVersion 
-  {
+  class FileFormatVersion {
+  public:
     FileFormatVersion() : value_(-1) { }
     explicit FileFormatVersion(int vers) : value_(vers)  { }
-    bool isValid() const { return value_ >= 0; }
-
-    bool fastCopyPossible() const { return value_ >= 11; }
+    ~FileFormatVersion() {}
+    bool isValid() const;
+    bool productIDIsInt() const;
+    bool lumiNumbers() const;
+    bool newAuxiliary() const;
+    bool runsAndLumis() const;
+    bool eventHistoryTree() const;
+    bool perEventProductIDs() const;
+    bool splitProductIDs() const;
+    bool fastCopyPossible() const;
+    bool parameterSetsByReference() const;
+    int value() const {return value_;}
     
+   private:
     int value_;
   };
-
-  inline
-  bool operator== (FileFormatVersion const& a, FileFormatVersion const& b)
-  {
-    return a.value_ == b.value_;
-  }
-
-  inline
-  bool operator!= (FileFormatVersion const& a, FileFormatVersion const& b)
-  {
-    return !(a==b);
-  }
 
   std::ostream&
   operator<< (std::ostream& os, FileFormatVersion const& ff);
 
-/*
-  inline
-  FileFormatVersion getFileFormatVersion() {
-    static FileFormatVersion const fileFormatVersion;
-    return fileFormatVersion; 
-  }
-*/
 }
 #endif

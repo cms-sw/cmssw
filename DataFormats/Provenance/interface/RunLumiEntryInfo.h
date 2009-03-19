@@ -26,29 +26,12 @@ namespace edm {
   public:
     typedef std::vector<RunLumiEntryInfo> EntryInfoVector;
     RunLumiEntryInfo();
-    explicit RunLumiEntryInfo(BranchID const& bid);
-    explicit RunLumiEntryInfo(ProductProvenance const& ei);
-    RunLumiEntryInfo(BranchID const& bid,
-		    ProductStatus status);
-    RunLumiEntryInfo(BranchID const& bid,
-		    ProductStatus status,
-		    std::vector<BranchID> const& parents);
-
-    RunLumiEntryInfo(BranchID const& bid,
-		    ProductStatus status,
-		    EntryDescriptionID const& edid);
-
-    ~RunLumiEntryInfo() {}
-
-    ProductProvenance makeProductProvenance() const;
+    ~RunLumiEntryInfo();
 
     void write(std::ostream& os) const;
 
     BranchID const& branchID() const {return branchID_;}
     ProductStatus const& productStatus() const {return productStatus_;}
-    void setStatus(ProductStatus status) {productStatus_ = status;}
-    void setPresent();
-    void setNotPresent();
 
   private:
     BranchID branchID_;
