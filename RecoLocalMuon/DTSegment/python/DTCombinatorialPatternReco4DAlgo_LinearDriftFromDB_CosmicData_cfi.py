@@ -30,7 +30,7 @@ DTCombinatorialPatternReco4DAlgo_LinearDriftFromDB_CosmicData = cms.PSet(
         # event must contain the 2D segments!
         AllDTRecHits = cms.bool(True),
         # Parameters for  T0 fit segment in the Updator and
-        performT0SegCorrection = cms.bool(False),
+        performT0SegCorrection = cms.untracked.bool(False),
         performT0_vdriftSegCorrection = cms.bool(False),
         hit_afterT0_resolution = cms.double(0.03)
     )

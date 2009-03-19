@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2009/03/09 15:32:04 $
- * $Revision: 1.32 $
+ * $Date: 2009/03/10 16:09:13 $
+ * $Revision: 1.33 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -73,39 +73,26 @@ void DTSegmentUpdator::update(DTRecSegment4D* seg, const bool calcT0) const {
   if(debug)
     cout << "[DTSegmentUpdator] Starting to update the segment" << endl;
 
-  bool hasPhi = seg->hasPhi();
-  bool hasZed = seg->hasZed();
+  const bool hasPhi = seg->hasPhi();
+  const bool hasZed = seg->hasZed();
 
   int step = (hasPhi && hasZed) ? 3 : 2;
 
   GlobalPoint pos =  (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localPosition());
   GlobalVector dir = (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localDirection());
 
+  if(calcT0) calculateT0corr(seg);
+
   if (hasPhi) {
     DTChamberRecSegment2D *segPhi=seg->phiSegment();
 
     if (calcT0) {
-      const float t0cor_seg = segPhi->theT0;  // get the current value of the t0seg
-
-      if (debug)
-        cout << "before fitT0_seg(seg) in Update 4D, t0cor_seg in phi = " << t0cor_seg << endl;
-
-      float  t0cor = 0.; //value wich will be computed in the fit 
-      double vminf = 0.; // % of vdrift change  
-      float  cminf = 0.; // shift on space 
-
-      // find t0 and vdrift corrections to the segment hits
-      calculateT0corr(segPhi,t0cor,vminf,cminf);
-
-      if(segPhi->theT0 != t0cor)	
-	cout << "Attention: in Update 4D the phi time segment has not been updated properly! segPhi " 
-	     << segPhi->theT0 << " t0cor " << t0cor <<endl;
-
       //update the hits with the t0 correction
-      updateHitsN(segPhi,vminf,cminf,pos,dir);
+      //FIXME: merge updateHitsN into updateHits and set step = 4
+      updateHitsN(segPhi,pos,dir);
 
       if(debug)  
-        cout << "After fitT0_seg(seg) in Update 4D : Phi seg !!t0corphi = " << segPhi->theT0 << endl;
+        cout << "After fitT0_seg(seg) in Update 4D : Phi seg !!t0corphi = " << segPhi->t0() << endl;
     } 			
 
     else updateHits(segPhi,pos,dir,step);
@@ -117,27 +104,12 @@ void DTSegmentUpdator::update(DTRecSegment4D* seg, const bool calcT0) const {
     DTSLRecSegment2D *segZed=seg->zSegment();
 
     if (calcT0) {
-      const float t0cor_seg = segZed->theT0;  // get the current value of the t0seg
-
-      if (debug)
-        cout << "  before  fitT0_seg(seg) in Update 4D, t0cor_seg in Zed = " << t0cor_seg << endl;
-
-      float  t0cor = 0.;  //value wich will be computed in the fit 
-      double vminf = 0.;  // % of vdrift change
-      float  cminf = 0.; // shift on space
-
-      // find t0 and vdrift corrections to the segment hits
-      calculateT0corr(segZed,t0cor, vminf, cminf);
-
-      if(segZed->theT0 != t0cor)
-	cout << " Attention: in Update 4D the theta time segment has not been updated properly! segZed " 
-	     <<segZed->theT0 <<" t0cor" << t0cor  << endl;
-
-      //update the hits with the t0 correction
-      updateHitsN(segZed, vminf ,cminf ,pos,dir);
+       //update the hits with the t0 correction
+      //FIXME: merge updateHitsN into updateHits and set step = 4
+      updateHitsN(segZed,pos,dir);
 
       if(debug)
-	cout << " After  fitT0_seg(seg) in Update 4D : Zed seg !! t0corzed = " << segZed->theT0 << endl;
+	cout << " After  fitT0_seg(seg) in Update 4D : Zed seg !! t0corzed = " << segZed->t0() << endl;
     }
 
     else  updateHits(segZed,pos,dir,step);
@@ -145,13 +117,6 @@ void DTSegmentUpdator::update(DTRecSegment4D* seg, const bool calcT0) const {
   }//end of hasZed
 
   fit(seg);
-}
-
-//Calculates the t0 correction. Need the first parameter only.
-//If the other parameters are passed, the method passes-by-value
-//the parameters back
-void DTSegmentUpdator::calculateT0corr(DTRecSegment2D* seg, float& t0cor, double& vminf, float& cminf) const{
-  fitT0_seg(seg,t0cor,vminf,cminf);
 }
 
 void DTSegmentUpdator::update(DTRecSegment2D* seg) const {
@@ -422,8 +387,12 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg, GlobalPoint &gpos,
   seg->update(updatedRecHits);
 }
 
+void DTSegmentUpdator::calculateT0corr(DTRecSegment4D* seg) const {
+  if(seg->hasPhi()) calculateT0corr(seg->phiSegment());
+  if(seg->hasZed()) calculateT0corr(seg->zSegment());
+}
 
-void DTSegmentUpdator::fitT0_seg(DTRecSegment2D* seg, float& t0cor, double& vminf, float& cminf) const {
+void DTSegmentUpdator::calculateT0corr(DTRecSegment2D* seg) const {
   // WARNING: since this method is called both with a 2D and a 2DPhi as argument
   // seg->geographicalId() can be a superLayerId or a chamberId 
 
@@ -466,8 +435,8 @@ void DTSegmentUpdator::fitT0_seg(DTRecSegment2D* seg, float& t0cor, double& vmin
   float aminf    = 0.;
   float bminf    = 0.;
 
-  cminf = 0.; 
-  vminf = 0.;
+  float cminf = 0.; 
+  double vminf = 0.;
 
   chi20 =seg->chi2(); //previous chi2
 
@@ -475,7 +444,7 @@ void DTSegmentUpdator::fitT0_seg(DTRecSegment2D* seg, float& t0cor, double& vmin
     //NB chi2fit is normalized
     Fit4Var(x,y,sigy,lc,d_drift,nptfit,nppar,aminf,bminf,cminf,vminf,chi2fit);
 
-    t0cor = - cminf/0.00543 ; // in ns ;
+    const double t0cor = - cminf/0.00543 ; // in ns
 
     seg->setT0(t0cor);          // time  and
     seg->setVdrift(vminf);   //  vdrift correction are recorded in the segment    
@@ -484,8 +453,10 @@ void DTSegmentUpdator::fitT0_seg(DTRecSegment2D* seg, float& t0cor, double& vmin
 
 // The GlobalPoint and the GlobalVector can be either the glb position and the direction
 // of the 2D-segment itself or the glb position and direction of the 4D segment
-void DTSegmentUpdator::updateHitsN(DTRecSegment2D* seg, const double &vminf, const float &cminf,
-                                   GlobalPoint &gpos, GlobalVector &gdir) const {
+void DTSegmentUpdator::updateHitsN(DTRecSegment2D* seg, GlobalPoint &gpos, GlobalVector &gdir) const {
+
+  double vminf = seg->vDrift();   //  vdrift correction are recorded in the segment    
+  double cminf = - seg->t0()*0.00543;
 
   // it is not necessary to have DTRecHit1D* to modify the obj in the container
   // but I have to be carefully, since I cannot make a copy before the iteration!

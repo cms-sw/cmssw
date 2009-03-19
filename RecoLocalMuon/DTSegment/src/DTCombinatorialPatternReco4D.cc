@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2009/03/09 15:32:04 $
- * $Revision: 1.16 $
+ * $Date: 2009/03/10 16:09:13 $
+ * $Revision: 1.17 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -38,8 +38,8 @@ DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& p
     debug = pset.getUntrackedParameter<bool>("debug");
 
     //do you want the T0 correction?
-    applyT0corr = pset.getParameter<bool>("performT0SegCorrection","false");
-    computeT0corr = pset.getParameter<bool>("computeT0Seg","true");
+    applyT0corr = pset.getUntrackedParameter<bool>("performT0SegCorrection",false);
+    computeT0corr = pset.getUntrackedParameter<bool>("computeT0Seg",true);
 
     // the updator
     theUpdator = new DTSegmentUpdator(pset);
@@ -155,7 +155,7 @@ DTCombinatorialPatternReco4D::reconstruct() {
 
   // has this chamber the Z-superlayer?
   if (theSegments2DTheta.size()){
-    hasZed = theSegments2DTheta.size()>0;
+    hasZed = theSegments2DTheta.size() > 0;
     if (debug) cout << "There are " << theSegments2DTheta.size() << " Theta cand" << endl;
   } else {
     if (debug) cout << "No Theta SL" << endl;
@@ -187,27 +187,27 @@ DTCombinatorialPatternReco4D::reconstruct() {
           const LocalVector dirZInCh = theChamber->toLocal( theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localDirection() )) ;
 
           DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi,*zed,posZInCh,dirZInCh);
-          //<<
-
-          /// 4d segment: I have the pos along the wire => further update!
-          theUpdator->update(newSeg);
 
           if (debug) cout << "Created a 4D seg " << *newSeg << endl;
 
-	  //update the segment with the t0 and possibly vdrift correction
+          /// 4d segment: I have the pos along the wire => further update!
+	  theUpdator->update(newSeg);
+
+	  if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
           if(applyT0corr) theUpdator->update(newSeg,true);
 
           result.push_back(newSeg);
         }
       } else {
         // Only phi
+
         DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi);
 
         if (debug) cout << "Created a 4D segment using only the 2D Phi segment " << *newSeg << endl;
 
-        //update the segment with the t0 and possibly vdrift correction
-        if(computeT0corr && !applyT0corr) theUpdator->calculateT0corr(newSeg);
-	if(applyT0corr) theUpdator->update(newSeg,true);
+       //update the segment with the t0 and possibly vdrift correction
+        if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
+ 	if(applyT0corr) theUpdator->update(newSeg,true);
 
         result.push_back(newSeg);
       }
@@ -226,14 +226,12 @@ DTCombinatorialPatternReco4D::reconstruct() {
         const LocalVector dirZInCh = theChamber->toLocal( theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localDirection() )) ;
 
         DTRecSegment4D* newSeg = new DTRecSegment4D( *zed,posZInCh,dirZInCh);
-        // <<
 
         if (debug) cout << "Created a 4D segment using only the 2D Theta segment " << 
 		     *newSeg << endl;
 
-	//update the segment with the t0 and possibly vdrift correction
-        if(computeT0corr && !applyT0corr) theUpdator->calculateT0corr(newSeg);
-	if(applyT0corr) theUpdator->update(newSeg,true);
+        if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
+ 	if(applyT0corr) theUpdator->update(newSeg,true);
 
         result.push_back(newSeg);
       }

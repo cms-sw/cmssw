@@ -8,8 +8,8 @@
  * impact angle and position (also along the wire) and perform linear fit on
  * improved hits.
  *
- * $Date: 2009/03/09 15:32:04 $
- * $Revision: 1.13 $
+ * $Date: 2009/03/10 16:09:14 $
+ * $Revision: 1.14 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -66,8 +66,8 @@ class DTSegmentUpdator{
     /// recompute hits position and refit the segment2D
     void update(DTRecSegment2D* seg) const;
 
-    void calculateT0corr(DTRecSegment2D* seg, float& t0cor = 0., 
-			 double& vminf = 0., float& cminf = 0.) const;
+    void calculateT0corr(DTRecSegment2D* seg) const;
+    void calculateT0corr(DTRecSegment4D* seg) const;
 
     /// set the setup
     void setES(const edm::EventSetup& setup);
@@ -94,10 +94,7 @@ class DTSegmentUpdator{
              double& chi2) const;
 
     // interface to updates hits with t0 corretion
-    void updateHitsN(DTRecSegment2D* seg, const double &vminf, const float &cminf,
-                     GlobalPoint &gpos, GlobalVector &gdir) const;
-
-    void fitT0_seg(DTRecSegment2D* seg,float& t0_cor , double& vminf ,float& cminf) const;
+    void updateHitsN(DTRecSegment2D* seg, GlobalPoint &gpos, GlobalVector &gdir) const;
 
     void Fit4Var(const std::vector<float>& xfit,
                  const std::vector<float>& yfit,
