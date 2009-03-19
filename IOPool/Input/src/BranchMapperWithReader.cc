@@ -5,35 +5,48 @@ BranchMapperWithReader:
 ----------------------------------------------------------------------*/
 #include "BranchMapperWithReader.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
-#include "DataFormats/Provenance/interface/EventEntryDescription.h"
-#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
-#include "DataFormats/Provenance/interface/Parentage.h"
 
 namespace edm {
+  BranchMapperWithReader::BranchMapperWithReader() :
+	 BranchMapper(true),
+	 branchPtr_(0),
+	 entryNumber_(0),
+	 infoVector_(),
+	 pInfoVector_(&infoVector_),
+	 oldProductIDToBranchIDMap_()
+  { }
+
+  BranchMapperWithReader::BranchMapperWithReader(
+    TBranch * branch,
+    input::EntryNumber entryNumber) :
+	 BranchMapper(true),
+	 branchPtr_(branch),
+	 entryNumber_(entryNumber),
+	 infoVector_(),
+	 pInfoVector_(&infoVector_),
+	 oldProductIDToBranchIDMap_()
+  { }
+
   void
-  BranchMapperWithReader<EventEntryInfo>::readProvenance_() const {
-    setRefCoreStreamer(0, fileFormatVersion_.value_ < 11, fileFormatVersion_.value_ < 2);
+  BranchMapperWithReader::readProvenance_() const {
+    setRefCoreStreamer(0, false, false);
     branchPtr_->SetAddress(&pInfoVector_);
     input::getEntry(branchPtr_, entryNumber_);
     setRefCoreStreamer(true);
-    BranchMapperWithReader<EventEntryInfo> * me = const_cast<BranchMapperWithReader<EventEntryInfo> *>(this);
-    for (std::vector<EventEntryInfo>::const_iterator it = infoVector_.begin(), itEnd = infoVector_.end();
+    BranchMapperWithReader * me = const_cast<BranchMapperWithReader*>(this);
+    for (std::vector<ProductProvenance>::const_iterator it = infoVector_.begin(), itEnd = infoVector_.end();
       it != itEnd; ++it) {
-      EventEntryDescription eed;
-      EntryDescriptionRegistry::instance()->getMapped(it->entryDescriptionID(), eed);
-      Parentage parentage(eed.parents());
-      me->insert(it->makeProductProvenance(parentage.id()));
-      me->insertIntoMap(it->productID(), it->branchID());
+      me->insert(*it);
     }
   }
 
   void
-  BranchMapperWithReader<EventEntryInfo>::insertIntoMap(ProductID const& oldProductID, BranchID const& branchID) {
+  BranchMapperWithReader::insertIntoMap(ProductID const& oldProductID, BranchID const& branchID) {
     oldProductIDToBranchIDMap_.insert(std::make_pair(oldProductID.oldID(), branchID));
   }
 
   BranchID
-  BranchMapperWithReader<EventEntryInfo>::oldProductIDToBranchID_(ProductID const& oldProductID) const {
+  BranchMapperWithReader::oldProductIDToBranchID_(ProductID const& oldProductID) const {
     std::map<unsigned int, BranchID>::const_iterator it = oldProductIDToBranchIDMap_.find(oldProductID.oldID());    
     if (it == oldProductIDToBranchIDMap_.end()) {
       return BranchID();

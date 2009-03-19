@@ -151,10 +151,7 @@ namespace edm {
     void initializeDuplicateChecker(std::vector<boost::shared_ptr<FileIndex> > const& fileIndexes,
                                     std::vector<boost::shared_ptr<FileIndex> >::size_type currentFileIndex);
 
-    template <typename T>
     boost::shared_ptr<BranchMapper> makeBranchMapper(RootTree & rootTree, BranchType const& type) const;
-
-    boost::shared_ptr<BranchMapper> makeBranchMapperInOldRelease(RootTree & rootTree, BranchType const& type) const;
 
     std::string const file_;
     std::string const logicalFile_;
@@ -192,17 +189,6 @@ namespace edm {
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     boost::shared_ptr<ProvenanceAdaptor> provenanceAdaptor_;
   }; // class RootFile
-
-  template <typename T>
-  inline
-  boost::shared_ptr<BranchMapper>
-  RootFile::makeBranchMapper(RootTree & rootTree, BranchType const& type) const {
-    if (fileFormatVersion_.value_ < 8) {
-      return makeBranchMapperInOldRelease(rootTree, type);
-    } 
-    boost::shared_ptr<BranchMapper> bm = rootTree.makeBranchMapper<T>(fileFormatVersion_);
-    return bm;
-  }
 
 }
 #endif

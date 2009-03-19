@@ -4,8 +4,8 @@ ProvenanceAdaptor.cc
 
 ----------------------------------------------------------------------*/
   //------------------------------------------------------------
-  // Class ProvenanceAdaptor: adapts old provenance (fileFormatVersion_.value_ < 11) to new provenance.
-  // Also adapts old parameter sets (fileFormatVersion_.value_ < 12) to new provenance.
+  // Class ProvenanceAdaptor: adapts old provenance (fileFormatVersion_.value() < 11) to new provenance.
+  // Also adapts old parameter sets (fileFormatVersion_.value() < 12) to new provenance.
 #include <algorithm>
 #include <cassert>
 #include "IOPool/Input/src/ProvenanceAdaptor.h"

@@ -35,13 +35,13 @@ namespace edm {
       assert(nextReader_);
       return nextReader_->getProduct(k, ep);
     }
-    setRefCoreStreamer(ep, fileFormatVersion_.value_ < 11, fileFormatVersion_.value_ < 2);
+    setRefCoreStreamer(ep, !fileFormatVersion_.splitProductIDs(), !fileFormatVersion_.productIDIsInt());
     TClass *cp = gROOT->GetClass(branchInfo.branchDescription_.wrappedName().c_str());
     std::auto_ptr<EDProduct> p(static_cast<EDProduct *>(cp->New()));
     EDProduct *pp = p.get();
     br->SetAddress(&pp);
     input::getEntry(br, entryNumber_);
-    setRefCoreStreamer(fileFormatVersion_.value_ < 11);
+    setRefCoreStreamer(!fileFormatVersion_.splitProductIDs());
     return p;
   }
 }

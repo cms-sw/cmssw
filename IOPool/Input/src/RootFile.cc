@@ -212,9 +212,7 @@ namespace edm {
       metaDataTree->SetBranchAddress(poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
     }
 
-    bool oldFormat = fileFormatVersion_.value_ < 11;
-    bool productIDwasLong = fileFormatVersion_.value_ < 2;
-    setRefCoreStreamer(0, oldFormat, productIDwasLong); // backward compatibility
+    setRefCoreStreamer(0, !fileFormatVersion().splitProductIDs(), !fileFormatVersion().productIDIsInt()); // backward compatibility
 
     FileID *fidPtr = &fid_;
     if (metaDataTree->FindBranch(poolNames::fileIdentifierBranchName().c_str()) != 0) {
@@ -281,7 +279,7 @@ namespace edm {
     input::getEntry(metaDataTree, 0);
 
     ProvenanceAdaptor::ParameterSetIdConverter psetIdConverter;
-    if (fileFormatVersion_.value_ < 12) {
+    if (!fileFormatVersion().parameterSetsByReference()) {
       ProvenanceAdaptor::StringWithIDList params;
       ProvenanceAdaptor::StringMap replace;
       replace.insert(std::make_pair(std::string("=+p({})"), std::string("=+q({})")));
@@ -299,15 +297,15 @@ namespace edm {
         psetRegistry.insertMapped(pset);
       } 
     }
-    if (fileFormatVersion_.value_ < 11) {
+    if (!fileFormatVersion().splitProductIDs()) {
       // Old provenance format input file.  Create a provenance adaptor.
       provenanceAdaptor_.reset(new ProvenanceAdaptor(
 	    inputProdHistReg, pHistMap, pHistVector, procConfigVector, psetIdConverter, true));
       // Fill in the branchIDLists branch from the provenance adaptor
       branchIDLists_ = provenanceAdaptor_->branchIDLists();
     } else {
-      if (fileFormatVersion_.value_ == 11) {
-        // Now provenance format, but old ParameterSet Format. Create a provenance adaptor.
+      if (!fileFormatVersion().parameterSetsByReference()) {
+        // New provenance format, but old ParameterSet Format. Create a provenance adaptor.
         provenanceAdaptor_.reset(new ProvenanceAdaptor(
 	    inputProdHistReg, pHistMap, pHistVector, procConfigVector, psetIdConverter, false));
       }
@@ -379,7 +377,7 @@ namespace edm {
 	if (newFriendlyName == prod.friendlyClassName()) {
           newReg->copyProduct(prod);
 	} else {
-          if (fileFormatVersion_.value_ >= 11) {
+          if (fileFormatVersion().splitProductIDs()) {
 	    throw edm::Exception(errors::UnimplementedFeature)
 	      << "Cannot change friendly class name algorithm without more development work\n"
 	      << "to update BranchIDLists.  Contact the framework group.\n";
@@ -421,7 +419,7 @@ namespace edm {
   void
   RootFile::readEntryDescriptionTree() {
     // Called only for old format files.
-    if (fileFormatVersion_.value_ < 8) return; 
+    if (!fileFormatVersion().perEventProductIDs()) return; 
     TTree* entryDescriptionTree = dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str()));
     if (!entryDescriptionTree) 
       throw edm::Exception(errors::FileReadError) << "Could not find tree " << poolNames::entryDescriptionTreeName()
@@ -457,7 +455,7 @@ namespace edm {
   void
   RootFile::readParentageTree()
   { 
-    if (fileFormatVersion_.value_ < 11) {
+    if (!fileFormatVersion().splitProductIDs()) {
       // Old format file.
       readEntryDescriptionTree();
       return;
@@ -483,7 +481,7 @@ namespace edm {
 
   bool
   RootFile::setIfFastClonable(int remainingEvents, int remainingLumis) const {
-    if (!fileFormatVersion_.fastCopyPossible()) return false; 
+    if (!fileFormatVersion().splitProductIDs()) return false; 
     if (!fileIndex_.allEventsInEntryOrder()) return false; 
     if (eventsToSkip_ != 0) return false; 
     if (remainingEvents >= 0 && eventTree_.entries() > remainingEvents) return false;
@@ -516,7 +514,7 @@ namespace edm {
 
   boost::shared_ptr<FileBlock>
   RootFile::createFileBlock() const {
-    return boost::shared_ptr<FileBlock>(new FileBlock(fileFormatVersion_,
+    return boost::shared_ptr<FileBlock>(new FileBlock(fileFormatVersion(),
 						     eventTree_.tree(),
 						     eventTree_.metaTree(),
 						     lumiTree_.tree(),
@@ -668,9 +666,6 @@ namespace edm {
 
   void
   RootFile::validateFile() {
-    if (!fileFormatVersion_.isValid()) {
-      fileFormatVersion_.value_ = 0;
-    }
     if (!fid_.isValid()) {
       fid_ = FileID(createGlobalIdentifier());
     }
@@ -709,7 +704,7 @@ namespace edm {
 
   void
   RootFile::fillEventAuxiliary() {
-    if (fileFormatVersion_.value_ >= 3) {
+    if (fileFormatVersion().newAuxiliary()) {
       EventAuxiliary *pEvAux = &eventAux_;
       eventTree_.fillAux<EventAuxiliary>(pEvAux);
     } else {
@@ -719,9 +714,9 @@ namespace edm {
       eventTree_.fillAux<EventAux>(pEvAux);
       conversion(eventAux, eventAux_);
     }
-    if (eventAux_.luminosityBlock_ == 0 && fileFormatVersion_.value_ <= 3) {
+    if (eventAux_.luminosityBlock_ == 0 && !fileFormatVersion().runsAndLumis()) {
       eventAux_.luminosityBlock_ = LuminosityBlockNumber_t(1);
-    } else if (fileFormatVersion_.value_ <= 1) {
+    } else if (!fileFormatVersion().lumiNumbers()) {
       eventAux_.luminosityBlock_ = LuminosityBlockNumber_t(1);
     }
   }
@@ -732,7 +727,7 @@ namespace edm {
     // store this History object in a different tree than the event
     // data tree, this is too hard to do in this first version.
 
-    if (fileFormatVersion_.value_ >= 7) {
+    if (fileFormatVersion().eventHistoryTree()) {
       History* pHistory = history_.get();
       TBranch* eventHistoryBranch = eventHistoryTree_->GetBranch(poolNames::eventHistoryBranchName().c_str());
       if (!eventHistoryBranch)
@@ -761,7 +756,7 @@ namespace edm {
 	(*i) = provenanceAdaptor_->convertID(*i);
       }
     }
-    if (fileFormatVersion_.value_ < 11) {
+    if (!fileFormatVersion().splitProductIDs()) {
       // old format.  branchListIndexes_ must be filled in from the ProvenanceAdaptor.
       provenanceAdaptor_->branchListIndexes(history_->branchListIndexes());
     }
@@ -769,7 +764,7 @@ namespace edm {
 
   void
   RootFile::fillLumiAuxiliary() {
-    if (fileFormatVersion_.value_ >= 3) {
+    if (fileFormatVersion().newAuxiliary()) {
       LuminosityBlockAuxiliary *pLumiAux = &lumiAux_;
       lumiTree_.fillAux<LuminosityBlockAuxiliary>(pLumiAux);
     } else {
@@ -781,14 +776,14 @@ namespace edm {
     if (provenanceAdaptor_) {
       lumiAux_.processHistoryID_ = provenanceAdaptor_->convertID(lumiAux_.processHistoryID_);
     }
-    if (lumiAux_.luminosityBlock() == 0 && fileFormatVersion_.value_ <= 3) {
+    if (lumiAux_.luminosityBlock() == 0 && !fileFormatVersion().runsAndLumis()) {
       lumiAux_.id_ = LuminosityBlockID(lumiAux_.run(), LuminosityBlockNumber_t(1));
     }
   }
 
   void
   RootFile::fillRunAuxiliary() {
-    if (fileFormatVersion_.value_ >= 3) {
+    if (fileFormatVersion().newAuxiliary()) {
       RunAuxiliary *pRunAux = &runAux_;
       runTree_.fillAux<RunAuxiliary>(pRunAux);
     } else {
@@ -865,9 +860,6 @@ namespace edm {
     fillHistory();
     overrideRunNumber(eventAux_.id_, eventAux_.isRealData());
 
-    boost::shared_ptr<BranchMapper> mapper = (fileFormatVersion().value_ >= 11 ?
-        makeBranchMapper<ProductProvenance>(eventTree_, InEvent) :
-        makeBranchMapper<EventEntryInfo>(eventTree_, InEvent));
 
     // We're not done ... so prepare the EventPrincipal
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
@@ -875,14 +867,11 @@ namespace edm {
 		pReg,
 		processConfiguration_,
 		history_,
-		mapper,
-		eventTree_.makeDelayedReader(fileFormatVersion_)));
+		makeBranchMapper(eventTree_, InEvent),
+		eventTree_.makeDelayedReader(fileFormatVersion())));
 
     // Create a group in the event for each product
     eventTree_.fillGroups(*thisEvent);
-    if (fileFormatVersion().value_ < 11 && fileFormatVersion().value_ >= 8) {
-      thisEvent->readProvenanceImmediate();
-    }
     return thisEvent;
   }
 
@@ -934,10 +923,8 @@ namespace edm {
 	new RunPrincipal(runAux_,
 			 pReg,
 			 processConfiguration_,
-		         fileFormatVersion().value_ <= 10 && fileFormatVersion().value_ >= 8 ?
-		         makeBranchMapper<RunLumiEntryInfo>(runTree_, InRun) :
-		         makeBranchMapper<ProductProvenance>(runTree_, InRun),
-			 runTree_.makeDelayedReader(fileFormatVersion_)));
+		         makeBranchMapper(runTree_, InRun),
+			 runTree_.makeDelayedReader(fileFormatVersion())));
     // Create a group in the run for each product
     runTree_.fillGroups(*thisRun);
     // Read in all the products now.
@@ -990,10 +977,8 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockPrincipal> thisLumi(
 	new LuminosityBlockPrincipal(lumiAux_,
 				     pReg, processConfiguration_,
-				     fileFormatVersion().value_ <= 10 && fileFormatVersion().value_ >= 8 ?
-				     makeBranchMapper<RunLumiEntryInfo>(lumiTree_, InLumi) :
-				     makeBranchMapper<ProductProvenance>(lumiTree_, InLumi),
-				     lumiTree_.makeDelayedReader(fileFormatVersion_)));
+				     makeBranchMapper(lumiTree_, InLumi),
+				     lumiTree_.makeDelayedReader(fileFormatVersion())));
     // Create a group in the lumi for each product
     lumiTree_.fillGroups(*thisLumi);
     // Read in all the products now.
@@ -1058,12 +1043,13 @@ namespace edm {
   void
   RootFile::readEventHistoryTree() {
     // Read in the event history tree, if we have one...
-    if (fileFormatVersion_.value_ < 7) return; 
-    eventHistoryTree_ = dynamic_cast<TTree*>(filePtr_->Get(poolNames::eventHistoryTreeName().c_str()));
-
-    if (!eventHistoryTree_)
-      throw edm::Exception(errors::EventCorruption)
-	<< "Failed to find the event history tree.\n";
+    if (fileFormatVersion().eventHistoryTree()) {
+      eventHistoryTree_ = dynamic_cast<TTree*>(filePtr_->Get(poolNames::eventHistoryTreeName().c_str()));
+      if (!eventHistoryTree_) {
+        throw edm::Exception(errors::EventCorruption)
+	  << "Failed to find the event history tree.\n";
+      }
+    }
   }
 
   void
@@ -1147,75 +1133,108 @@ namespace edm {
   }
 
   // backward compatibility
-  boost::shared_ptr<BranchMapper>
-  RootFile:: makeBranchMapperInOldRelease(RootTree & rootTree, BranchType const& type) const {
-    if (fileFormatVersion_.value_ >= 7) {
-      rootTree.fillStatus();
-    } else { 
+
+  namespace {
+    boost::shared_ptr<BranchMapper>
+    makeBranchMapperInRelease180(RootTree & rootTree, BranchType const& type, ProductRegistry const& preg) {
        LogWarning("RootFile")
          << "Backward compatibility not fully supported for reading files"
 	 << " written in CMSSW_1_8_4 or prior releases in releaseCMSSW_3_0_0.\n";
-    }
-    if (type == InEvent) {
-      boost::shared_ptr<BranchMapperWithReader<EventEntryInfo> > mapper(new BranchMapperWithReader<EventEntryInfo>(0, 0, fileFormatVersion_));
+      boost::shared_ptr<BranchMapperWithReader> mapper(new BranchMapperWithReader());
       mapper->setDelayedRead(false);
-      for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
-          itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {
+
+      for(ProductRegistry::ProductList::const_iterator it = preg.productList().begin(),
+          itEnd = preg.productList().end(); it != itEnd; ++it) {
         if (type == it->second.branchType() && !it->second.transient()) {
-	  if (fileFormatVersion_.value_ >= 7) {
-	    input::BranchMap::const_iterator ix = rootTree.branches().find(it->first);
-	    input::BranchInfo const& ib = ix->second;
-	    TBranch *br = ib.provenanceBranch_;
-            std::auto_ptr<EntryDescriptionID> pb(new EntryDescriptionID);
-            EntryDescriptionID* ppb = pb.get();
-            br->SetAddress(&ppb);
-            input::getEntry(br, rootTree.entryNumber());
-	    std::vector<ProductStatus>::size_type index = it->second.oldProductID().oldID() - 1;
-	    EventEntryInfo entry(it->second.branchID(), rootTree.productStatuses()[index], it->second.oldProductID(), *pb);
-	    mapper->insert(entry.makeProductProvenance(ParentageID()));
-          } else {
-	    TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
-	    std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
-	    BranchEntryDescription* ppb = pb.get();
-	    br->SetAddress(&ppb);
-	    input::getEntry(br, rootTree.entryNumber());
-	    ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
-	    EventEntryInfo entry(it->second.branchID(), status, it->second.oldProductID());
-	    mapper->insert(entry.makeProductProvenance(ParentageID()));
-	  }
+	  TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
+	  std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
+	  BranchEntryDescription* ppb = pb.get();
+	  br->SetAddress(&ppb);
+	  input::getEntry(br, rootTree.entryNumber());
+	  ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
+	  // Not providing parentage!!!
+	  ProductProvenance entry(it->second.branchID(), status, ParentageID());
+	  mapper->insert(entry);
 	  mapper->insertIntoMap(it->second.oldProductID(), it->second.branchID());
         }
       }
       return mapper;
-    } else {
-      boost::shared_ptr<BranchMapperWithReader<ProductProvenance> > mapper(new BranchMapperWithReader<ProductProvenance>(0, 0, fileFormatVersion_));
+    }
+
+    boost::shared_ptr<BranchMapper>
+    makeBranchMapperInRelease200(RootTree & rootTree, BranchType const& type, ProductRegistry const& preg) {
+      rootTree.fillStatus();
+      boost::shared_ptr<BranchMapperWithReader> mapper(new BranchMapperWithReader());
       mapper->setDelayedRead(false);
-      for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
-          itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {
-	if (type == it->second.branchType() && !it->second.transient()) {
-	  if (fileFormatVersion_.value_ >= 7) {
-	    input::BranchMap::const_iterator ix = rootTree.branches().find(it->first);
-	    input::BranchInfo const& ib = ix->second;
-	    TBranch *br = ib.provenanceBranch_;
-            input::getEntry(br, rootTree.entryNumber());
-	    std::vector<ProductStatus>::size_type index = it->second.oldProductID().oldID() - 1;
-	    ProductProvenance entry(it->second.branchID(), rootTree.productStatuses()[index]);
-	    mapper->insert(entry);
-	  } else {
-	    TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
-	    std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
-	    BranchEntryDescription* ppb = pb.get();
-	    br->SetAddress(&ppb);
-	    input::getEntry(br, rootTree.entryNumber());
-	    ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
-	    ProductProvenance entry(it->second.branchID(), status);
-	    mapper->insert(entry);
-	  }
-	}
+      for(ProductRegistry::ProductList::const_iterator it = preg.productList().begin(),
+          itEnd = preg.productList().end(); it != itEnd; ++it) {
+        if (type == it->second.branchType() && !it->second.transient()) {
+	  std::vector<ProductStatus>::size_type index = it->second.oldProductID().oldID() - 1;
+	  // Not providing parentage!!!
+	  ProductProvenance entry(it->second.branchID(), rootTree.productStatuses()[index], ParentageID());
+	  mapper->insert(entry);
+	  mapper->insertIntoMap(it->second.oldProductID(), it->second.branchID());
+        }
       }
       return mapper;
     }
-    return boost::shared_ptr<BranchMapper>();
+
+    boost::shared_ptr<BranchMapper>
+    makeBranchMapperInRelease210(RootTree & rootTree, BranchType const& type) {
+      boost::shared_ptr<BranchMapperWithReader> mapper(new BranchMapperWithReader());
+      mapper->setDelayedRead(false);
+      if (type == InEvent) {
+	std::auto_ptr<std::vector<EventEntryInfo> > infoVector(new std::vector<EventEntryInfo>);
+	std::vector<EventEntryInfo> *pInfoVector = infoVector.get();
+        rootTree.branchEntryInfoBranch()->SetAddress(&pInfoVector);
+        setRefCoreStreamer(0, true, false);
+        input::getEntry(rootTree.branchEntryInfoBranch(), rootTree.entryNumber());
+        setRefCoreStreamer(true);
+	for (std::vector<EventEntryInfo>::const_iterator it = infoVector->begin(), itEnd = infoVector->end();
+	    it != itEnd; ++it) {
+	  EventEntryDescription eed;
+	  EntryDescriptionRegistry::instance()->getMapped(it->entryDescriptionID(), eed);
+	  Parentage parentage(eed.parents());
+	  ProductProvenance entry(it->branchID(), it->productStatus(), parentage.id());
+	  mapper->insert(entry);
+	  mapper->insertIntoMap(it->productID(), it->branchID());
+	}
+      } else {
+	std::auto_ptr<std::vector<RunLumiEntryInfo> > infoVector(new std::vector<RunLumiEntryInfo>);
+	std::vector<RunLumiEntryInfo> *pInfoVector = infoVector.get();
+        rootTree.branchEntryInfoBranch()->SetAddress(&pInfoVector);
+        setRefCoreStreamer(0, true, false);
+        input::getEntry(rootTree.branchEntryInfoBranch(), rootTree.entryNumber());
+        setRefCoreStreamer(true);
+        for (std::vector<RunLumiEntryInfo>::const_iterator it = infoVector->begin(), itEnd = infoVector->end();
+            it != itEnd; ++it) {
+	  ProductProvenance entry(it->branchID(), it->productStatus(), ParentageID());
+          mapper->insert(entry);
+        }
+      }
+      return mapper;
+    }
+
+    boost::shared_ptr<BranchMapper>
+    makeBranchMapperInRelease300(RootTree & rootTree) {
+      boost::shared_ptr<BranchMapperWithReader> mapper(
+	new BranchMapperWithReader(rootTree.branchEntryInfoBranch(), rootTree.entryNumber()));
+      mapper->setDelayedRead(true);
+      return mapper;
+    }
+  }
+
+  boost::shared_ptr<BranchMapper>
+  RootFile::makeBranchMapper(RootTree & rootTree, BranchType const& type) const {
+    if (fileFormatVersion().splitProductIDs()) {
+      return makeBranchMapperInRelease300(rootTree);
+    } else if (fileFormatVersion().perEventProductIDs()) {
+      return makeBranchMapperInRelease210(rootTree, type);
+    } else if (fileFormatVersion().eventHistoryTree()) {
+      return makeBranchMapperInRelease200(rootTree, type, *productRegistry_);
+    } else {
+      return makeBranchMapperInRelease180(rootTree, type, *productRegistry_);
+    }
   }
   // end backward compatibility
 }
