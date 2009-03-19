@@ -22,8 +22,6 @@ process.gctRaw = cms.OutputModule( "TextToRaw",
 process.load('EventFilter/GctRawToDigi/l1GctHwDigis_cfi')
 process.l1GctHwDigis.inputLabel = cms.InputTag( "gctRaw" )
 process.l1GctHwDigis.verbose = cms.untracked.bool ( True )
-process.l1GctHwDigis.unpackFibres = cms.untracked.bool ( True )
-process.l1GctHwDigis.unpackInternEm = cms.untracked.bool ( True )
 
 process.dumpRaw = cms.OutputModule ( "DumpFEDRawDataProduct",
   feds = cms.untracked.vint32 ( 745 ),
