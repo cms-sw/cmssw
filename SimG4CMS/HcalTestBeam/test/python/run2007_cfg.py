@@ -90,7 +90,9 @@ process.source = cms.Source("FlatRandomEGunSource",
         MaxE = cms.untracked.double(10.01),
         PartID = cms.untracked.vint32(11)
     ),
-    Verbosity = cms.untracked.int32(0)
+    Verbosity = cms.untracked.int32(0),
+    AddAntiParticle = cms.untracked.bool(False),
+    firstRun = cms.untracked.uint32(1)
 )
 
 from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
