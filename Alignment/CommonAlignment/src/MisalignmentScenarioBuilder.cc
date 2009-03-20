@@ -1,7 +1,7 @@
 /// \file
 ///
-/// $Date: 2008/04/25 06:29:53 $
-/// $Revision: 1.8 $
+/// $Date: 2009/03/15 17:10:46 $
+/// $Revision: 1.9 $
 ///
 /// $Author: flucke $
 /// \author Frederic Ronga - CERN-PH-CMG
@@ -125,20 +125,20 @@ void MisalignmentScenarioBuilder::mergeParameters_( edm::ParameterSet& localSet,
   for ( std::vector<std::string>::iterator iter = globalParameterNames.begin();
         iter != globalParameterNames.end(); iter ++ ) {
 
-    if ( globalSet.retrieve( *iter ).typeCode() == 'P' ) {
+    if (globalSet.existsAs<edm::ParameterSet>(*iter)) {
       // This is a parameter set: check it
       edm::ParameterSet subLocalSet = this->getParameterSet_( (*iter), localSet );
       if ( subLocalSet.empty() ) {
         // No local subset exists: just insert it
-        localSet.insert( false, (*iter), globalSet.retrieve(*iter) );
+        localSet.copyFrom(globalSet, (*iter));
       } else {
         // Merge with local subset and replace
         this->mergeParameters_( subLocalSet, globalSet.getParameter<edm::ParameterSet>(*iter) );
         localSet.addParameter<edm::ParameterSet>( (*iter), subLocalSet );
       }
     } else {
-      // If (*iter) exists, not replaced (due to 'false'):
-      localSet.insert( false, (*iter), globalSet.retrieve(*iter) );
+      // If (*iter) exists, (silently...) not replaced:
+      localSet.copyFrom(globalSet, (*iter));
     }
   }
 
@@ -162,7 +162,7 @@ void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet&
         iter != parameterNames.end(); iter++ ) {
     if ( theModifier.isPropagated( *iter ) ) { // like 'distribution', 'scale', etc.
       LogDebug("PropagateParameters") << indent_ << " - adding parameter " << (*iter) << std::endl;
-      subSet.insert( false, (*iter), pSet.retrieve(*iter) );
+      subSet.copyFrom(pSet, (*iter)); // If existing, is not replaced.
     }
   }
 
@@ -308,9 +308,32 @@ void MisalignmentScenarioBuilder::printParameters_( const edm::ParameterSet& pSe
   std::vector<std::string> parameterNames = pSet.getParameterNames();
   for ( std::vector<std::string>::iterator iter = parameterNames.begin();
         iter != parameterNames.end(); iter++ ) {
-    if ( pSet.retrieve( *iter ).typeCode() != 'P' || showPsets ) {
-      LogTrace("PrintParameters") << indent_ << "   " << (*iter) << " = " 
-				  << pSet.retrieve( *iter ).toString() << std::endl;
+    if (showPsets || !pSet.existsAs<edm::ParameterSet>(*iter)) {
+//       LogTrace("PrintParameters") << indent_ << "   " << (*iter) << " = " 
+// 				  << pSet.retrieve( *iter ).toString() << std::endl;
+// From Bill Tannenbaum:
+// You can use
+//   pset.getParameterAsString(aString).
+// This function was added with the new tag.
+//   However, there is a possible complication if the parameter in question is
+//   itself a ParameterSet or a vector of ParameterSets.  In the new format, a
+//   ParameterSet cannot be converted to a string until its ID is calculated,
+//   which happens when it is registered.  So, if you get error messages about
+//   not being able to convert an unregistered ParameterSet to a string, you can
+//   do one of two things:
+// A) You can use ParameterSet::dump() to print the parameter set, instead of
+//    getParameterAsString().  This does not require registering.  I'm not sure of
+//    the exact format of the dump output (Rick wrote this, I think).
+// OR
+// B) You can use ParameterSet::registerIt() to register the parameter set
+//    before calling getParameterAsString().
+//
+// In either case, you can use existsAs to determine which parameters are
+// themselves parameter sets or vectors of parameter sets.
+//
+// Note that in the new parameter set format, ParameterSet::toString() does not
+// write out nested parameter sets by value.  It writes them out by
+// "reference", i.e it writes the ID.
     }
   }
 }
