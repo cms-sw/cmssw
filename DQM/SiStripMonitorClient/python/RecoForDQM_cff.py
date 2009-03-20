@@ -12,7 +12,7 @@ siPixelDigis.InputLabel = 'source'
 
 # Local Reco ####    
 from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
-siStripClusters.SiStripQualityLabel = ''
+siStripClusters.QualityLabel = ''
 
 
 # Track Reconstruction ########
