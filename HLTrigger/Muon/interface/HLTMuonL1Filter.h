@@ -27,7 +27,8 @@ class HLTMuonL1Filter : public HLTFilter {
       edm::InputTag previousCandTag_;  // input tag identifying product contains muons passing the previous level
       double max_Eta_;      // Max eta cut
       double min_Pt_;      // Pt threshold
-      int min_Quality_;      // Cut on quality (probably not what we want)
+      //int min_Quality_;      // Cut on quality (probably not what we want)
+      std::vector<int> selectQualities_;
       /// Quality codes:
       ///
       /// 0 .. no muon

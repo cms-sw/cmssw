@@ -27,17 +27,22 @@ HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) :
    previousCandTag_   (iConfig.getParameter< edm::InputTag > ("PreviousCandTag")),
    max_Eta_   (iConfig.getParameter<double> ("MaxEta")),
    min_Pt_ (iConfig.getParameter<double> ("MinPt")),
-   min_Quality_    (iConfig.getParameter<int> ("MinQuality")),
+   //   min_Quality_    (iConfig.getParameter<int> ("MinQuality")),
+   selectQualities_ (iConfig.getParameter<std::vector<int> >("SelectQualities")),
    min_N_ (iConfig.getParameter<int> ("MinN")),
    saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag",false)) 
 {
 
+  std::stringstream ss;
+  for (uint i=0;i!=selectQualities_.size();++i)
+    ss<<" "<<selectQualities_[i];
    LogDebug("HLTMuonL1Filter")
-      << " CandTag/MaxEta/MinPt/MinQuality/MinN : " 
+      << " CandTag/MaxEta/MinPt/Qualities/MinN : " 
       << candTag_.encode()
       << " " << max_Eta_
       << " " << min_Pt_
-      << " " << min_Quality_
+     //<< " " << min_Quality_
+      <<ss.str()
       << " " << min_N_;
 
    //register your products
@@ -99,7 +104,18 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       LogDebug("HLTMuonL1Filter") 
             << " Muon in loop, quality= " << quality;
-      if (quality<min_Quality_) continue;
+      //if (quality<min_Quality_) continue;
+      if (selectQualities_.size()!=0){
+	bool rejectDueToQuality=true;
+	for (uint iQ=0;iQ!=selectQualities_.size();++iQ){
+	  if (quality == selectQualities_[iQ]){
+	    rejectDueToQuality=false;
+	    break;
+	  }
+	}
+	if (rejectDueToQuality) continue; //skip this L1
+      }
+	    
 
       n++;
       filterproduct->addObject(TriggerL1Mu,muon);
