@@ -1,10 +1,5 @@
 <export>
  <lib name=GeometryRPCGeometryBuilder>
- <use name=Geometry/MuonNumbering>
- <use name=Geometry/Records>
- <use name=Geometry/RPCGeometry>
- <use name=CondFormats/GeometryObjects>
- <use name=DetectorDescription/Core>
 </export>
 
 <use name=Geometry/MuonNumbering>
@@ -12,5 +7,3 @@
 <use name=Geometry/RPCGeometry>
 <use name=CondFormats/GeometryObjects>
 <use name=DetectorDescription/Core>
-
-<flags EDM_PLUGIN=1>
