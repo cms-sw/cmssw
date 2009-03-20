@@ -302,8 +302,6 @@ print options.step
     
 # the process name is just the last step in the list of steps
 options.name = trimmedStep.split(',')[-1]
-if options.name in ('POSTRECO,ALCA,DQM') and 'RECO' in trimmedStep:
-    options.name = 'RECO'
     
 # check to be sure that people run the harvesting as a separte step
 isHarvesting = False
@@ -315,8 +313,11 @@ if "HARVESTING" in options.step and len(s_list) > 1:
     sys.exit(1)
 
 # if we're dealing with HLT, the process name has to be 'HLT' only
+# and if there is RECO in there we better call it RECO 
 if 'HLT' in trimmedStep:
     options.name = 'HLT'
+elif 'RECO' in trimmedStep:
+    options.name = 'RECO'
 
 # sanity check options specifying data or mc
 if options.isData and options.isMC:
