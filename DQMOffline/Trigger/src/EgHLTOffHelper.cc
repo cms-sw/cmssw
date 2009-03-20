@@ -234,7 +234,7 @@ int OffHelper::fillOffPhoVec(std::vector<OffPho>& egHLTOffPhos)
     isolData.nrTrks = phoIter->nTrkHollowConeDR03();
     isolData.ptTrks = phoIter->isolationTrkHollowConeDR03();
     isolData.em = phoIter->ecalRecHitSumConeDR03();
-    isolData.had = phoIter->hcalRecHitSumConeDR03(); //will move to hcalTowerSumConeDR03 when the next photon tag is in (theres a typo in the function name)
+    isolData.had = phoIter->hcalTowerSumConeDR03(); //will move to hcalTowerSumConeDR03 when the next photon tag is in (theres a typo in the function name)
     isolData.hltHad=hltHcalIsolAlgo_->isolPtSum(&*phoIter,hbheHits_.product(),hfHits_.product(),caloGeom_.product());
     isolData.hltTrks=hltPhoTrkIsolAlgo_->photonTrackCount(&*phoIter,isolTrks_.product(),false);
 

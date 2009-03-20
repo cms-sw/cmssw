@@ -7,7 +7,7 @@
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 
-#include "PhysicsTools/Utilities/interface/deltaR.h"
+#include "CommonTools/Utils/interface/deltaR.h"
 
 using namespace egHLT ;
 
