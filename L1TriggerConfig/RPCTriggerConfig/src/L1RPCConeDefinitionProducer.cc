@@ -56,7 +56,8 @@ class L1RPCConeDefinitionProducer : public edm::ESProducer {
      L1RPCConeDefinition::TLPSizesInTowers m_LPSizesInTowers;
      //L1RPCConeDefinition::TRingsToTowers m_RingsToTowers;
      L1RPCConeDefinition::TRingToTowerVec m_ringToTowerVec;
-     L1RPCConeDefinition::TRingsToLP m_RingsToLP;
+     //L1RPCConeDefinition::TRingsToLP m_RingsToLP;
+     L1RPCConeDefinition::TRingToLPVec m_ringToLPVec;
 };
 
 //
@@ -111,15 +112,22 @@ L1RPCConeDefinitionProducer::L1RPCConeDefinitionProducer(const edm::ParameterSet
   
    for (int roll = m_rollBeg; roll <= m_rollEnd; ++roll){
     //L1RPCConeDefinition::THWplaneToTower newHwPlToTower;
-    L1RPCConeDefinition::THWplaneToLP newHWplaneToLP;
+    //L1RPCConeDefinition::THWplaneToLP newHWplaneToLP;
     for (int hwpl = m_hwPlaneBeg; hwpl <= m_hwPlaneEnd; ++hwpl){
       std::stringstream name;
       name << "rollConnLP_" << roll << "_" << hwpl;
             
-      L1RPCConeDefinition::TLPList newListLP = 
-      iConfig.getParameter<std::vector<int> >(name.str().c_str());
-      newHWplaneToLP.push_back(newListLP);
-            
+      std::vector<int> hwPl2LPVec =  iConfig.getParameter<std::vector<int> >(name.str().c_str());
+      //newHWplaneToLP.push_back(newListLP);
+      for (unsigned int i = 0;i < hwPl2LPVec.size();++i){
+        
+        if (hwPl2LPVec[i]>=0)
+        {
+          L1RPCConeDefinition::TRingToLP lp(roll, hwpl, hwPl2LPVec[i],i);
+          m_ringToLPVec.push_back(lp);
+        }
+      }
+      
             
       std::stringstream name1;
       name1 << "rollConnT_" << roll << "_" << hwpl;
@@ -142,7 +150,7 @@ L1RPCConeDefinitionProducer::L1RPCConeDefinitionProducer(const edm::ParameterSet
     }
     //m_RingsToTowers.push_back(newHwPlToTower);
     
-    m_RingsToLP.push_back(newHWplaneToLP);
+    //m_RingsToLP.push_back(newHWplaneToLP);
   }
 }
 
@@ -166,7 +174,7 @@ L1RPCConeDefinitionProducer::produce(const L1RPCConeDefinitionRcd& iRecord)
    pL1RPCConeDefinition->setLastTower(m_towerEnd);
    
    pL1RPCConeDefinition->setLPSizeForTowers(m_LPSizesInTowers);
-   pL1RPCConeDefinition->setRingsToLP(m_RingsToLP);
+   pL1RPCConeDefinition->setRingToLPVec(m_ringToLPVec);
    pL1RPCConeDefinition->setRingToTowerVec(m_ringToTowerVec);
    
    

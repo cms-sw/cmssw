@@ -446,9 +446,22 @@ std::pair<int, int> RPCConeBuilder::areConnected(RPCStripsRing::TIdToRindMap::it
   
   int lpSize = 0;
   if (index != -1){
+    /*
     logplane = m_L1RPCConeDefinition->getRingsToLP().at(std::abs(other->second.getEtaPartition()))
            .at(other->second.getHwPlane()-1)
-           .at(index);
+    .at(index);*/
+    L1RPCConeDefinition::TRingToLPVec::const_iterator it = m_L1RPCConeDefinition->getRingToLPVec().begin();
+    L1RPCConeDefinition::TRingToLPVec::const_iterator itEnd = m_L1RPCConeDefinition->getRingToLPVec().end();
+    for (;it!=itEnd;++it){
+      
+      if (it->m_etaPart != std::abs(other->second.getEtaPartition())
+          || it->m_hwPlane != std::abs(other->second.getHwPlane()-1) 
+          || it->m_index != index) continue;
+      
+      logplane = it->m_LP;  
+      
+    }
+        
     lpSize = m_L1RPCConeDefinition->getLPSizeForTowers().at(refTower).at(logplane-1);
      
   }

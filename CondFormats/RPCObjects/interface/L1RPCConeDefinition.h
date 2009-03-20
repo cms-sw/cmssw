@@ -30,22 +30,22 @@ class L1RPCConeDefinition {
     
     // For (roll,hwplane)->logplane mapping
     
-    
+    /*
     typedef std::vector<int> TLPList;
     typedef std::vector<TLPList > THWplaneToLP;
     typedef std::vector<THWplaneToLP > TRingsToLP;
-    
-    /*
-    struct TRingToTower {
-      TRingToTower(signed char ep, signed char hp, signed char t, unsigned char i) : 
-          m_etaPart(ep), m_hwPlane(hp), m_tower(t), m_index(i) {};
+    */
+
+    struct TRingToLP {
+      TRingToLP(signed char ep, signed char hp, signed char lp, unsigned char i) : 
+          m_etaPart(ep), m_hwPlane(hp), m_LP(lp), m_index(i) {};
       signed char m_etaPart;
       signed char m_hwPlane;
-      signed char m_tower;
+      signed char m_LP;
       unsigned char m_index;
     };
-    typedef std::vector<TRingToTower> TRingToTowerVec;
-    */
+    typedef std::vector<TRingToLP> TRingToLPVec;
+
     
     
 
@@ -67,8 +67,12 @@ class L1RPCConeDefinition {
   const TRingToTowerVec & getRingToTowerVec() const { return m_ringToTowerVec;};
 
     
+  /*
     void setRingsToLP(const TRingsToLP & RingsToLP) {m_RingsToLP = RingsToLP;};
     const TRingsToLP & getRingsToLP() const {return m_RingsToLP;};
+  */
+  void setRingToLPVec(const TRingToLPVec & ringToLPVec) {m_ringToLPVec = ringToLPVec;};
+  const TRingToLPVec & getRingToLPVec() const {return m_ringToLPVec;};
 
             
   private:
@@ -78,7 +82,10 @@ class L1RPCConeDefinition {
     TLPSizesInTowers m_LPSizesInTowers;
     //TRingsToTowers m_RingsToTowers;
     TRingToTowerVec m_ringToTowerVec;
-    TRingsToLP m_RingsToLP;
+    
+    
+    //TRingsToLP m_RingsToLP;
+    TRingToLPVec m_ringToLPVec;
 
 
 
