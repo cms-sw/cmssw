@@ -5,10 +5,6 @@
 /*! 
  * \class L1GctInternHtMiss
  * \brief L1 GCT internal Ht Miss component(s) Ht_x and/or Ht_y 
- *
- *  NOTE: For miss_htx/miss_hty only: htx/hty raw value is a 16-bit signed two's complement.
- *        For miss_htx_and_hty: htx and hty raw values are both 14-bit signed two's complement.
- *        Not sure what to do about this right now...  so just going to return unsigned values.
  * 
  * \author Robert Frazier
  * \date March 2009
@@ -35,9 +31,8 @@ class L1GctInternHtMiss
   /// destructor
   ~L1GctInternHtMiss();
 
-
-  /* Named ctors - rather unnecessary for just the unpacker, but
-   * expecting more for emulator later maybe?? */
+ 
+  /* Named Constructors */
 
   /// Named ctor for making missing Ht x-component object from unpacker raw data.
   static L1GctInternHtMiss unpackerMissHtx(const uint16_t capBlock,

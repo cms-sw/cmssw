@@ -110,15 +110,14 @@ int16_t L1GctInternHtMiss::convert14BitTwosCompTo16Bit(const uint16_t data) cons
 std::ostream& operator<<(std::ostream& os, const L1GctInternHtMiss& rhs)
 {
   os << " L1GctInternHtMiss:  htx=";
-  if(rhs.type() == L1GctInternHtMiss::miss_htx ||
-     rhs.type() == L1GctInternHtMiss::miss_htx_and_hty)
-  { os << rhs.htx(); }
+  if(rhs.isThereHtx()) { os << rhs.htx(); }
   else { os << "n/a"; }
   os << ", hty=";
-  if(rhs.type() == L1GctInternHtMiss::miss_hty ||
-     rhs.type() == L1GctInternHtMiss::miss_htx_and_hty)
-  { os << rhs.hty(); }
+  if(rhs.isThereHty()) { os << rhs.hty(); }
   else { os << "n/a"; }
   if (rhs.overflow()) { os << "; overflow set"; }
+  os << "; cap block=0x" << std::hex << rhs.capBlock() << std::dec
+     << ", index=" << rhs.capIndex()
+     << ", BX=" << rhs.bx();
   return os;
 }
