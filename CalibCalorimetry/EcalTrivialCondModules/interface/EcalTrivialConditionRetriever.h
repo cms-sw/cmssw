@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.18 2008/12/10 16:33:21 ferriff Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.19 2009/02/18 18:55:25 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -58,8 +58,12 @@
 
 #include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
 #include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
+#include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionParametersRcd.h"
+#include "CondFormats/DataRecord/interface/EcalClusterEnergyUncertaintyParametersRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalMappingElectronics.h"
 #include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
@@ -101,6 +105,8 @@ public:
 
   virtual std::auto_ptr<EcalClusterLocalContCorrParameters> produceEcalClusterLocalContCorrParameters( const EcalClusterLocalContCorrParametersRcd& );
   virtual std::auto_ptr<EcalClusterCrackCorrParameters> produceEcalClusterCrackCorrParameters( const EcalClusterCrackCorrParametersRcd& );
+  virtual std::auto_ptr<EcalClusterEnergyCorrectionParameters> produceEcalClusterEnergyCorrectionParameters( const EcalClusterEnergyCorrectionParametersRcd& );
+  virtual std::auto_ptr<EcalClusterEnergyUncertaintyParameters> produceEcalClusterEnergyUncertaintyParameters( const EcalClusterEnergyUncertaintyParametersRcd& );
 
   virtual std::auto_ptr<EcalChannelStatus> produceEcalChannelStatus( const EcalChannelStatusRcd& );
   virtual std::auto_ptr<EcalChannelStatus> getChannelStatusFromConfiguration( const EcalChannelStatusRcd& );
@@ -136,6 +142,8 @@ private:
   // cluster corrections
   std::vector<double> localContCorrParameters_;
   std::vector<double> crackCorrParameters_;
+  std::vector<double> energyCorrectionParameters_;
+  std::vector<double> energyUncertaintyParameters_;
 
   // laser
   double laserAlphaMean_;  
@@ -205,6 +213,8 @@ private:
   bool producedEcalChannelStatus_;
   bool producedEcalClusterLocalContCorrParameters_;
   bool producedEcalClusterCrackCorrParameters_;
+  bool producedEcalClusterEnergyCorrectionParameters_;
+  bool producedEcalClusterEnergyUncertaintyParameters_;
   bool producedEcalMappingElectronics_;
 
   int    verbose_; // verbosity

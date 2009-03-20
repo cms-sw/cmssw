@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.34 2009/02/18 18:55:26 ferriff Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.35 2009/02/19 08:27:02 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -202,6 +202,8 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   // cluster corrections
   producedEcalClusterLocalContCorrParameters_ = ps.getUntrackedParameter<bool>("producedEcalClusterLocalContCorrParameters", true);
   producedEcalClusterCrackCorrParameters_ = ps.getUntrackedParameter<bool>("producedEcalClusterCrackCorrParameters", true);
+  producedEcalClusterEnergyCorrectionParameters_ = ps.getUntrackedParameter<bool>("producedEcalClusterEnergyCorrectionParameters", true);
+  producedEcalClusterEnergyUncertaintyParameters_ = ps.getUntrackedParameter<bool>("producedEcalClusterEnergyUncertaintyParameters", true);
   if ( producedEcalClusterLocalContCorrParameters_ ) {
           setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalClusterLocalContCorrParameters );
           findingRecord<EcalClusterLocalContCorrParametersRcd>();
@@ -209,6 +211,14 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   if ( producedEcalClusterCrackCorrParameters_ ) {
           setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalClusterCrackCorrParameters );
           findingRecord<EcalClusterCrackCorrParametersRcd>();
+  }
+  if ( producedEcalClusterEnergyCorrectionParameters_ ) {
+          setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalClusterEnergyCorrectionParameters );
+          findingRecord<EcalClusterEnergyCorrectionParametersRcd>();
+  }
+  if ( producedEcalClusterEnergyCorrectionParameters_ ) {
+          setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalClusterEnergyCorrectionParameters );
+          findingRecord<EcalClusterEnergyCorrectionParametersRcd>();
   }
 
   // laser correction
@@ -654,6 +664,24 @@ EcalTrivialConditionRetriever::produceEcalClusterCrackCorrParameters( const Ecal
         std::auto_ptr<EcalClusterCrackCorrParameters> ipar = std::auto_ptr<EcalClusterCrackCorrParameters>( new EcalClusterCrackCorrParameters() );
         for (size_t i = 0; i < crackCorrParameters_.size(); ++i ) {
                 ipar->push_back( crackCorrParameters_[i] );
+        }
+        return ipar;
+}
+std::auto_ptr<EcalClusterEnergyCorrectionParameters>
+EcalTrivialConditionRetriever::produceEcalClusterEnergyCorrectionParameters( const EcalClusterEnergyCorrectionParametersRcd &)
+{
+        std::auto_ptr<EcalClusterEnergyCorrectionParameters> ipar = std::auto_ptr<EcalClusterEnergyCorrectionParameters>( new EcalClusterEnergyCorrectionParameters() );
+        for (size_t i = 0; i < energyCorrectionParameters_.size(); ++i ) {
+                ipar->push_back( energyCorrectionParameters_[i] );
+        }
+        return ipar;
+}
+std::auto_ptr<EcalClusterEnergyUncertaintyParameters>
+EcalTrivialConditionRetriever::produceEcalClusterEnergyUncertaintyParameters( const EcalClusterEnergyUncertaintyParametersRcd &)
+{
+        std::auto_ptr<EcalClusterEnergyUncertaintyParameters> ipar = std::auto_ptr<EcalClusterEnergyUncertaintyParameters>( new EcalClusterEnergyUncertaintyParameters() );
+        for (size_t i = 0; i < energyUncertaintyParameters_.size(); ++i ) {
+                ipar->push_back( energyUncertaintyParameters_[i] );
         }
         return ipar;
 }

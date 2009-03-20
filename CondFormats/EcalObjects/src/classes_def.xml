@@ -24,6 +24,8 @@
 
 <class name="EcalClusterLocalContCorrParameters"/>
 <class name="EcalClusterCrackCorrParameters"/>
+<class name="EcalClusterEnergyCorrectionParameters"/>
+<class name="EcalClusterEnergyUncertaintyParameters"/>
 
 <class name="EcalDCUTemperatures"/>
 <class name="EcalPTMTemperatures"/>
