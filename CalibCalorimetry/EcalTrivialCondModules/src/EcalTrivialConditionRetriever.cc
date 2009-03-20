@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.35 2009/02/19 08:27:02 ferriff Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.36 2009/03/20 15:57:59 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -48,6 +48,8 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
 
   localContCorrParameters_ = ps.getUntrackedParameter< std::vector<double> >("localContCorrParameters", std::vector<double>(0) );
   crackCorrParameters_ = ps.getUntrackedParameter< std::vector<double> >("crackCorrParameters", std::vector<double>(0) );
+  energyCorrectionParameters_ = ps.getUntrackedParameter< std::vector<double> >("energyCorrectionParameters", std::vector<double>(0) );
+  energyUncertaintyParameters_ = ps.getUntrackedParameter< std::vector<double> >("energyUncertaintyParameters", std::vector<double>(0) );
 
   EBpedMeanX12_ = ps.getUntrackedParameter<double>("EBpedMeanX12", 200.);
   EBpedRMSX12_  = ps.getUntrackedParameter<double>("EBpedRMSX12",  1.10);
@@ -216,9 +218,9 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
           setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalClusterEnergyCorrectionParameters );
           findingRecord<EcalClusterEnergyCorrectionParametersRcd>();
   }
-  if ( producedEcalClusterEnergyCorrectionParameters_ ) {
-          setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalClusterEnergyCorrectionParameters );
-          findingRecord<EcalClusterEnergyCorrectionParametersRcd>();
+  if ( producedEcalClusterEnergyUncertaintyParameters_ ) {
+          setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalClusterEnergyUncertaintyParameters );
+          findingRecord<EcalClusterEnergyUncertaintyParametersRcd>();
   }
 
   // laser correction
