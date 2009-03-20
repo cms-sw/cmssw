@@ -55,28 +55,8 @@ extern struct {
 
 /////////////////////////////////////////////////////////////////////////////
 
-Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset):
-	B(pset.getUntrackedParameter<double>("B",4.0)),
-	LambdaQCD(pset.getUntrackedParameter<double>("LambdaQCD",80.0)),
-	Rg(pset.getUntrackedParameter<double>("Rg",1.2)),
-	Survive(pset.getUntrackedParameter<double>("Survive",0.03)),
-	PDF(pset.getUntrackedParameter<double>("PDF",20250)),
-	MinQt2(pset.getUntrackedParameter<double>("MinQt2",0.64)),
-	AlphaEw(pset.getUntrackedParameter<double>("AlphaEw",0.0072974)),
-	HiggsVev(pset.getUntrackedParameter<double>("HiggsVev",246.0)),
-	BottomMass(pset.getUntrackedParameter<double>("BottomMass",4.6)),
-        CharmMass(pset.getUntrackedParameter<double>("CharmMass",1.42)),
-        StrangeMass(pset.getUntrackedParameter<double>("StrangeMass",0.19)),
-	TopMass(pset.getUntrackedParameter<double>("TopMass",175.0)),
-	MuonMass(pset.getUntrackedParameter<double>("MuonMass",0.1057)),
-	TauMass(pset.getUntrackedParameter<double>("TauMass",1.77)),
-	HiggsMass(pset.getUntrackedParameter<double>("HiggsMass",120.0)),
-	WMass(pset.getUntrackedParameter<double>("WMass",80.33)),
-	ZMass(pset.getUntrackedParameter<double>("ZMass",91.187)),
-	FNAL_or_LHC(pset.getUntrackedParameter<int>("FNAL_or_LHC",1)),
-	root_s(pset.getUntrackedParameter<double>("root_s",14000.0))
+Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset)
 {
-  
   
   std::cout<<std::endl<<
    " ........................................................................."
@@ -92,7 +72,27 @@ Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset):
 	    <<std::endl;
   std::cout<<std::endl<<"  = Initialising CrossSection ="<<std::endl;
 
+  edm::ParameterSet paramsPSet = pset.getParameter<edm::ParameterSet>("ExhumeParameters");
+  B = paramsPSet.getParameter<double>("B");
+  LambdaQCD = paramsPSet.getParameter<double>("LambdaQCD");
+  Rg = paramsPSet.getParameter<double>("Rg");
+  Survive = paramsPSet.getParameter<double>("Survive");
+  PDF = paramsPSet.getParameter<double>("PDF");
+  MinQt2 = paramsPSet.getParameter<double>("MinQt2");
+  AlphaEw = paramsPSet.getParameter<double>("AlphaEw");
+  HiggsVev = paramsPSet.getParameter<double>("HiggsVev");
+  BottomMass = paramsPSet.getParameter<double>("BottomMass");
+  CharmMass = paramsPSet.getParameter<double>("CharmMass");
+  StrangeMass = paramsPSet.getParameter<double>("StrangeMass");
+  TopMass = paramsPSet.getParameter<double>("TopMass");
+  MuonMass = paramsPSet.getParameter<double>("MuonMass");
+  TauMass = paramsPSet.getParameter<double>("TauMass");
+  HiggsMass = paramsPSet.getParameter<double>("HiggsMass");
+  WMass = paramsPSet.getParameter<double>("WMass");
+  ZMass = paramsPSet.getParameter<double>("ZMass");
 
+  FNAL_or_LHC = -1;
+  root_s = pset.getParameter<double>("comEnergy");
 
   //Put data types into a map and pair with a string
   //for formating in/output.
@@ -130,7 +130,7 @@ Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset):
   //(Re-)Compute rest of parameters
   Freeze = sqrt(MinQt2);
   
-  if(FNAL_or_LHC == 0){
+  /*if(FNAL_or_LHC == 0){
     Survive = 0.045;
     Rg = 1.4;
     root_s = 1960;
@@ -138,7 +138,7 @@ Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset):
     Survive = 0.03;
     Rg = 1.2;
     root_s = 14000;
-  }
+  }*/
 
   s = root_s * root_s;
   Invs = 1.0/s;
@@ -209,7 +209,8 @@ Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset):
   //initpydata();
   pyinre();
   Proton1Id = 2212;
-  Proton2Id = (FNAL_or_LHC==0)?-2212:2212;
+  //Proton2Id = (FNAL_or_LHC==0)?-2212:2212;
+  Proton2Id = 2212;
 
   pydat2.pmas[0][24] = HiggsMass;
   pydat2.pmas[0][22] = ZMass;

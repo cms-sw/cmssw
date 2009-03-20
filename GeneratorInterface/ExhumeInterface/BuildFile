@@ -6,7 +6,8 @@
 <use name=pythia6>
 <use name=f77compiler>
 <use name=lhapdf>
-<flags EDM_PLUGIN=1>
+<use name=heppdt>
+<use name=GeneratorInterface/Core>
 <export>
  <lib name=GeneratorInterfaceExhumeInterface>
 </export>

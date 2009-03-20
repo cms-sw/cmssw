@@ -1,0 +1,8 @@
+<use name=GeneratorInterface/Core>
+<use name=GeneratorInterface/ExhumeInterface>
+
+<library file="ExhumeGeneratorFilter.cc" name=GeneratorInterfaceExhumeFilter>
+  <use name=heppdt>
+  <flags FFLAGS=-w>
+  <flags EDM_PLUGIN=1>
+</library>
