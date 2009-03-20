@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.98 2009/03/13 22:41:38 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.99 2009/03/16 20:19:34 amraktad Exp $
 //
 
 // system include files
@@ -35,6 +35,7 @@
 #include "TEveManager.h"
 //#include "TEveGedEditor.h"
 #include "TEveWindow.h"
+#include "TEveWindowManager.h"
 #include "TEveSelection.h"
 #include "TGFileDialog.h"
 #include "TColor.h"
@@ -179,6 +180,8 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       TQObject::Connect(m_cmsShowMainFrame->m_runEntry,"ReturnPressed()", "FWGUIManager", this, "runIdChanged()");
       TQObject::Connect(m_cmsShowMainFrame->m_eventEntry, "ReturnPressed()", "FWGUIManager", this, "eventIdChanged()");
       TQObject::Connect(m_cmsShowMainFrame->m_filterEntry, "ReturnPressed()", "FWGUIManager", this, "eventFilterChanged()");
+
+      TQObject::Connect(gEve->GetWindowManager(), "WindowSelected(TEveWindow*)", "FWGUIManager", this, "subviewCurrentChanged(TEveWindow*)");
    }
 }
 
@@ -251,6 +254,7 @@ FWGUIManager::createView(const std::string& iName)
    ew->SetElementName(iName.c_str());
    ew->SetUserData(view);
 
+   m_viewWindows.push_back(ew);
    m_viewBases.push_back(view);
 }
 
@@ -385,6 +389,15 @@ FWGUIManager::addData()
 
 //  subview actions
 //
+void
+FWGUIManager::subviewCurrentChanged(TEveWindow*)
+{
+   for (std::vector<TEveWindow*>::iterator it = m_viewWindows.begin(); it != m_viewWindows.end(); it++)
+   {
+      FWGUISubviewArea* ar = getGUISubviewArea(*it);
+      if (ar) ar->currentWindowChanged();
+   }
+}
 
 void
 FWGUIManager::subviewIsBeingDestroyed(FWGUISubviewArea* sva)
@@ -402,13 +415,21 @@ FWGUIManager::subviewIsBeingDestroyed(FWGUISubviewArea* sva)
 void
 FWGUIManager::subviewDestroy(FWGUISubviewArea* sva)
 {
-   FWViewBase* v = sva->getFWView();
-   if (v)
+   std::vector<TEveWindow*>::iterator itw = 
+      std::find(m_viewWindows.begin(), m_viewWindows.end(), sva->getEveWindow());
+   if (itw == m_viewWindows.end()) 
    {
-      std::vector<FWViewBase*>::iterator itFind = std::find(m_viewBases.begin(), m_viewBases.end(), v);
-      m_viewBases.erase(itFind);
-      v->destroy();
+      return;
    }
+   m_viewWindows.erase(itw);
+   
+
+
+   FWViewBase* v = sva->getFWView(); // get view base from user data
+   std::vector<FWViewBase*>::iterator itFind = std::find(m_viewBases.begin(), m_viewBases.end(), v);
+   m_viewBases.erase(itFind);
+   v->destroy();
+
 }
 
 void
@@ -681,6 +702,18 @@ FWGUIManager*
 FWGUIManager::getGUIManager()
 {
    return m_guiManager;
+}
+
+FWGUISubviewArea*
+FWGUIManager::getGUISubviewArea(TEveWindow* w)
+{
+   // horizontal frame
+   TGFrameElement *el = (TGFrameElement*) w->GetEveFrame()->GetList()->First();
+   TGCompositeFrame* hf = (TGCompositeFrame*)el->fFrame;
+   // subview last in the horizontal frame
+   el = (TGFrameElement*)hf->GetList()->Last();
+   FWGUISubviewArea* ar = dynamic_cast<FWGUISubviewArea*>(el->fFrame);
+   return ar;
 }
 
 void

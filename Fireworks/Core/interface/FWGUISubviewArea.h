@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.13 2009/03/13 22:41:38 amraktad Exp $
+// $Id: FWGUISubviewArea.h,v 1.14 2009/03/16 20:19:34 amraktad Exp $
 //
 
 #include "TGFrame.h"
@@ -52,6 +52,7 @@ public:
 
    // ---------- member functions ---------------------------
    void unselect();
+   void currentWindowChanged();
    void swapWithCurrentView();
    void destroy();
    void undock();

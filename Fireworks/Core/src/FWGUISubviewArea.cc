@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.19 2009/03/16 20:19:34 amraktad Exp $
+// $Id: FWGUISubviewArea.cc,v 1.20 2009/03/19 18:04:21 amraktad Exp $
 //
 
 // system include files
@@ -116,6 +116,12 @@ void
 FWGUISubviewArea::unselect()
 {
    m_infoButton->SetDown(kFALSE);
+}
+
+void
+FWGUISubviewArea::currentWindowChanged()
+{
+  m_swapButton->SetEnabled(!m_frame->GetEveWindow()->IsCurrent());
 }
 
 void

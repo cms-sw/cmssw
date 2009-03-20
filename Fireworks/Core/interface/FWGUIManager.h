@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.53 2009/03/13 22:41:38 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.54 2009/03/16 20:19:34 amraktad Exp $
 //
 
 // system include files
@@ -63,6 +63,7 @@ class TEveElement;
 class TEveWindowPack;
 class TEveWindowSlot;
 class TEveCompositeFrame;
+class TEveWindow;
 
 class FWSummaryManager;
 class FWDetailViewManager;
@@ -137,6 +138,8 @@ public:
    // ---------- static member functions --------------------
    static FWGUIManager* getGUIManager();
 
+   static FWGUISubviewArea* getGUISubviewArea(TEveWindow*);
+
    // ---------- member functions ---------------------------
    TEveWindowSlot* parentForNextView();
 
@@ -189,8 +192,7 @@ public:
    void eventFilterChanged();
    void runIdChanged();
    void eventIdChanged();
-
-
+   void subviewCurrentChanged(TEveWindow*);
    void subviewIsBeingDestroyed(FWGUISubviewArea*);
    void subviewDestroy(FWGUISubviewArea*); // timeout funct
    void subviewSelected(FWGUISubviewArea*);
@@ -245,7 +247,7 @@ private:
    CmsShowMainFrame* m_cmsShowMainFrame;
    TGMainFrame* m_mainFrame;
    TGSplitFrame* m_splitFrame;
-   std::vector<FWGUISubviewArea*> m_viewFrames;
+   std::vector<TEveWindow*> m_viewWindows;
 
    typedef std::map<std::string, ViewBuildFunctor > NameToViewBuilder;
    NameToViewBuilder m_nameToViewBuilder;
