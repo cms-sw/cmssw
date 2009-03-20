@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTF.h
  *
- * $Date: 2009/01/30 13:09:44 $
- * $Revision: 1.15 $
+ * $Date: 2009/03/19 12:52:48 $
+ * $Revision: 1.16 $
  * \author J. Berryhill
  *
 */
@@ -112,6 +112,7 @@ private:
   int m_rateUpdateTime;
   int m_rateBinSize;
   int m_rateNoOfBins;
+  int m_lastUsedBxInBxdiff;
   std::string output_dir_;
   
 

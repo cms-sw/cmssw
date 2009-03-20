@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2009/01/30 13:09:44 $
- * $Revision: 1.24 $
+ * $Date: 2009/03/19 12:52:48 $
+ * $Revision: 1.25 $
  * \author J. Berryhill
  *
  */
@@ -27,6 +27,7 @@ L1TRPCTF::L1TRPCTF(const ParameterSet& ps)
    m_rateUpdateTime( ps.getParameter< int >("rateUpdateTime") ),
    m_rateBinSize( ps.getParameter< int >("rateBinSize") ),
    m_rateNoOfBins( ps.getParameter< int >("rateNoOfBins") ),
+   m_lastUsedBxInBxdiff(0),
    output_dir_ (ps.getUntrackedParameter<string>("output_dir") )
 //    m_rpcDigiWithBX0(0),
 //    m_rpcDigiWithBXnon0(0)
@@ -165,7 +166,18 @@ void L1TRPCTF::beginJob(const EventSetup& c)
 void L1TRPCTF::endRun(const edm::Run & r, const edm::EventSetup & c){
   
       fillRateHistos(0,true);
-      
+
+
+     // fixme, norm iteration would be better
+     while (m_globBX.begin() !=  m_globBX.end() ) {
+        int diff = *m_globBX.begin()-m_lastUsedBxInBxdiff; // first entry will go to overflow bin, ignore
+        m_bxDiff->Fill(diff);
+        m_lastUsedBxInBxdiff = *m_globBX.begin();
+        m_globBX.erase(m_globBX.begin());
+
+     }
+
+     
 }
 
 
@@ -270,10 +282,9 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
     unsigned int globBx = e.orbitNumber()*3564+e.bunchCrossing();
     if (m_globBX.find(globBx)==m_globBX.end()) m_globBX.insert(globBx);
     if (m_globBX.size()>1020){
-      static int lastUsedBx = 0;
-      int diff = *m_globBX.begin()-lastUsedBx; // first entry will go to overflow bin, ignore
+      int diff = *m_globBX.begin()-m_lastUsedBxInBxdiff; // first entry will go to overflow bin, ignore
       m_bxDiff->Fill(diff);
-      lastUsedBx = *m_globBX.begin();
+      m_lastUsedBxInBxdiff = *m_globBX.begin();
       m_globBX.erase(m_globBX.begin());
     
     }
