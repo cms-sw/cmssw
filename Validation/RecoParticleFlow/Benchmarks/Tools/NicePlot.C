@@ -10,6 +10,10 @@ Style *spred;
 Style *spblue;
 
 void InitNicePlot() {
+gROOT->SetStyle("Plain");
+ gStyle->SetPalette(1);
+ gStyle->SetHistMinimumZero(kTRUE);
+
   s1 = new Style(); 
 
   s1->SetLineWidth(2);   
