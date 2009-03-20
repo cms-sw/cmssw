@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.18 2008/12/10 16:33:31 ferriff Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.19 2009/02/18 18:55:26 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -58,6 +58,10 @@
 #include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterEnergyUncertaintyParametersRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
@@ -280,6 +284,22 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
    const EcalClusterCrackCorrParameters* paramCrack = pCrack.product();
    std::cout << "CrackCorrParameters:";
    for ( EcalClusterCrackCorrParameters::const_iterator it = paramCrack->begin(); it != paramCrack->end(); ++it ) {
+           std::cout << " " << *it;
+   }
+   std::cout << "\n";
+   edm::ESHandle<EcalClusterEnergyCorrectionParameters> pEnergyCorrection;
+   context.get<EcalClusterEnergyCorrectionParametersRcd>().get(pEnergyCorrection);
+   const EcalClusterEnergyCorrectionParameters* paramEnergyCorrection = pEnergyCorrection.product();
+   std::cout << "EnergyCorrectionParameters:";
+   for ( EcalClusterEnergyCorrectionParameters::const_iterator it = paramEnergyCorrection->begin(); it != paramEnergyCorrection->end(); ++it ) {
+           std::cout << " " << *it;
+   }
+   std::cout << "\n";
+   edm::ESHandle<EcalClusterEnergyUncertaintyParameters> pEnergyUncertainty;
+   context.get<EcalClusterEnergyUncertaintyParametersRcd>().get(pEnergyUncertainty);
+   const EcalClusterEnergyUncertaintyParameters* paramEnergyUncertainty = pEnergyUncertainty.product();
+   std::cout << "EnergyCorrectionParameters:";
+   for ( EcalClusterEnergyUncertaintyParameters::const_iterator it = paramEnergyUncertainty->begin(); it != paramEnergyUncertainty->end(); ++it ) {
            std::cout << " " << *it;
    }
    std::cout << "\n";
