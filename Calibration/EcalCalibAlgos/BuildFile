@@ -6,7 +6,6 @@
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/EgammaCandidates>
-<use name=Geometry/CaloEventSetup>
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
 <use name=RecoLocalCalo/EcalRecAlgos>
