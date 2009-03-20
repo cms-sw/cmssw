@@ -62,7 +62,7 @@ private:
 
     /// update the tokenNumber (holding the bit numbers) from m_l1AlgoLogicParser
     /// for a new L1 Trigger menu
-    void updateAlgoLogicParser(const L1GtTriggerMenu*);
+    void updateAlgoLogicParser(const L1GtTriggerMenu*, const AlgorithmMap&);
 
     /// update the tokenResult members from m_l1AlgoLogicParser
     /// for a new event
@@ -112,10 +112,13 @@ private:
 
 private:
 
-    /// seeding done via technical trigger bits, if value is "true";
+    /// seeding done via technical trigger bits, if value is "true"
     bool m_l1TechTriggerSeeding;
 
-    /// logical expression for the required L1 algorithms;
+    /// seeding uses algorithm aliases instead of algorithm names, if value is "true"
+    bool m_l1UseAliasesForSeeding;
+
+    /// logical expression for the required L1 algorithms
     /// the algorithms are specified by name
     std::string m_l1SeedsLogicalExpression;
 
@@ -142,6 +145,10 @@ private:
 
     /// Whether to save these tags
     bool saveTags_;
+
+    /// cache edm::isDebugEnabled()
+    bool m_isDebugEnabled;
+
 };
 
 #endif // HLTfilters_HLTLevel1GTSeed_h

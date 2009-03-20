@@ -73,10 +73,14 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+
 // constructors
 HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) :
     // seeding done via technical trigger bits, if value is "true"
     m_l1TechTriggerSeeding( parSet.getParameter<bool>("L1TechTriggerSeeding") ),
+
+    // seeding uses algorithm aliases instead of algorithm names, if value is "true";
+    m_l1UseAliasesForSeeding(parSet.getParameter<bool> ("L1UseAliasesForSeeding")),
 
     // logical expression for the required L1 algorithms
     m_l1SeedsLogicalExpression( parSet.getParameter<std::string>("L1SeedsLogicalExpression") ),
@@ -103,7 +107,8 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) :
     m_l1TauJetTag ( edm::InputTag(m_l1CollectionsTag.label(), "Tau") ),
 
     // save tags to TriggerFilterObjectWithRefs
-    saveTags_( parSet.getUntrackedParameter<bool>("saveTags", true) )
+    saveTags_( parSet.getUntrackedParameter<bool>("saveTags", true) ),
+    m_isDebugEnabled(edm::isDebugEnabled())
 {
     if (m_l1SeedsLogicalExpression != "L1GlobalDecision") {
 
@@ -112,7 +117,7 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) :
 
         // list of required algorithms for seeding
         // dummy values for tokenNumber and tokenResult
-        m_l1AlgoSeeds.reserve((m_l1AlgoLogicParser.operandTokenVector()).size());
+        m_l1AlgoSeeds.reserve( ( m_l1AlgoLogicParser.operandTokenVector() ).size());
         m_l1AlgoSeeds = m_l1AlgoLogicParser.expressionSeedsOperandList();
         size_t l1AlgoSeedsSize = m_l1AlgoSeeds.size();
 
@@ -129,6 +134,8 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) :
 
     LogDebug("HLTLevel1GTSeed") << "\n"
         << "L1 Seeding via Technical Triggers      " << m_l1TechTriggerSeeding
+        << "\n"
+        << "L1 Seeding uses algorithm aliases      " << m_l1UseAliasesForSeeding
         << "\n"
         << "L1 Seeds Logical Expression:           " << m_l1SeedsLogicalExpression
         << "\n"
@@ -183,6 +190,17 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     // get L1GlobalTriggerReadoutRecord and GT decision
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
     iEvent.getByLabel(m_l1GtReadoutRecordTag, gtReadoutRecord);
+
+    if (!gtReadoutRecord.isValid()) {
+        edm::LogWarning("HLTLevel1GTSeed")
+                << "\nWarning: L1GlobalTriggerReadoutRecord with input tag "
+                << m_l1GtReadoutRecordTag
+                << "\nrequested in configuration, but not found in the event." << std::endl;
+
+        iEvent.put(filterObject);
+        return false;
+    }
+
 
     //
     boost::uint16_t gtFinalOR = gtReadoutRecord->finalOR();
@@ -259,15 +277,27 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
     if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
 
-        edm::ESHandle< L1GtTriggerMenu> l1GtMenu;
-        evSetup.get< L1GtTriggerMenuRcd>().get(l1GtMenu) ;
-        m_l1GtMenu =  l1GtMenu.product();
-        (const_cast<L1GtTriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
+        edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
+        evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);
+        m_l1GtMenu = l1GtMenu.product();
+        ( const_cast<L1GtTriggerMenu*> (m_l1GtMenu) )->buildGtConditionMap(); //...ugly
 
         m_l1GtMenuCacheID = l1GtMenuCacheID;
 
+        const AlgorithmMap& algorithmMap = l1GtMenu->gtAlgorithmMap();
+        const AlgorithmMap& algorithmAliasMap = l1GtMenu->gtAlgorithmAliasMap();
+
+        LogTrace("HLTLevel1GTSeed") << "\n L1 trigger menu " << l1GtMenu->gtTriggerMenuInterface()
+                << "\n    Number of algorithm names:   " << ( algorithmMap.size() )
+                << "\n    Number of algorithm aliases: " << ( algorithmAliasMap.size() ) << "\n"
+                << std::endl;
+
         // update also the tokenNumber members (holding the bit numbers) from m_l1AlgoLogicParser
-        updateAlgoLogicParser(m_l1GtMenu);
+        if (m_l1UseAliasesForSeeding) {
+            updateAlgoLogicParser(m_l1GtMenu, algorithmAliasMap);
+        } else {
+            updateAlgoLogicParser(m_l1GtMenu, algorithmMap);
+        }
     }
 
     // get / update the trigger mask from the EventSetup
@@ -296,7 +326,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
     bool seedsResult = m_l1AlgoLogicParser.expressionResult();
 
-    if (edm::isDebugEnabled() ) {
+    if (m_isDebugEnabled ) {
         // define an output stream to print into
         // it can then be directed to whatever log level is desired
         std::ostringstream myCoutStream;
@@ -339,6 +369,21 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
     iEvent.getByLabel(m_l1GtObjectMapTag, gtObjectMapRecord);
 
+    if (!gtObjectMapRecord.isValid()) {
+        edm::LogWarning("HLTLevel1GTSeed")
+                << "\nWarning: L1GlobalTriggerObjectMapRecord with input tag "
+                << m_l1GtReadoutRecordTag
+                << "\nrequested in configuration, but not found in the event." << std::endl;
+
+        iEvent.put(filterObject);
+        return false;
+    }
+
+    // TODO check that the L1GlobalTriggerObjectMapRecord corresponds to the same menu as
+    // the menu run by HLTLevel1GTSeed
+    //     true normally online (they are run in the same job)
+    //     can be false offline, when re-running HLT without re-running the object map producer
+
     // loop over the list of required algorithms for seeding
     int iAlgo = -1;
 
@@ -352,12 +397,12 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         std::string algName = (*itSeed).tokenName;
         bool algResult = (*itSeed).tokenResult;
 
-        //LogTrace("HLTLevel1GTSeed")
-        //    << "\nHLTLevel1GTSeed::filter "
-        //    << "\n  Algoritm " << algName << " with bit number " << algBit
-        //    << " in the object map seed list"
-        //    << "\n  Algorithm result = " << algResult << "\n"
-        //    << std::endl;
+        LogTrace("HLTLevel1GTSeed")
+            << "\nHLTLevel1GTSeed::filter "
+            << "\n  Algorithm " << algName << " with bit number " << algBit
+            << " in the object map seed list"
+            << "\n  Algorithm result = " << algResult << "\n"
+            << std::endl;
 
 
         // algorithm result is false - no seeds
@@ -368,12 +413,24 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         // algorithm result is true - get object map, loop over conditions in the algorithm
         const L1GlobalTriggerObjectMap* objMap = gtObjectMapRecord->getObjectMap(algBit);
 
+        if (objMap == 0) {
+            edm::LogWarning("HLTLevel1GTSeed")
+                    << "\nWarning: L1GlobalTriggerObjectMap for algorithm  " << algName
+                    << " (bit number " << algBit << ") does not exist.\nReturn false.\n"
+                    << std::endl;
+
+            iEvent.put(filterObject);
+            return false;
+        }
+
         const std::vector<L1GtLogicParser::OperandToken>& opTokenVecObjMap =
-            objMap->operandTokenVector();
+                objMap->operandTokenVector();
 
-        const std::vector<L1GtLogicParser::TokenRPN>& algoSeedsRpn = *(m_l1AlgoSeedsRpn.at(iAlgo));
+        const std::vector<L1GtLogicParser::TokenRPN>& algoSeedsRpn =
+                * ( m_l1AlgoSeedsRpn.at(iAlgo) );
 
-        const std::vector< const std::vector<L1GtObject>* >&  algoSeedsObjTypeVec = m_l1AlgoSeedsObjType[iAlgo];
+        const std::vector<const std::vector<L1GtObject>*>& algoSeedsObjTypeVec =
+                m_l1AlgoSeedsObjType[iAlgo];
 
         //
         L1GtLogicParser logicParserConditions(algoSeedsRpn, opTokenVecObjMap);
@@ -382,7 +439,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         std::vector<L1GtLogicParser::OperandToken> condSeeds =
             logicParserConditions.expressionSeedsOperandList();
 
-        if (edm::isDebugEnabled() ) {
+        if (m_isDebugEnabled ) {
 
             LogTrace("HLTLevel1GTSeed")
                 << "\n  HLTLevel1GTSeed::filter "
@@ -670,7 +727,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     //    }
 
 
-    if ( edm::isDebugEnabled() ) {
+    if ( m_isDebugEnabled ) {
         LogDebug("HLTLevel1GTSeed")
             << "\nHLTLevel1GTSeed::filter "
             << "\n  Dump TriggerFilterObjectWithRefs\n"
@@ -865,12 +922,11 @@ const std::vector<L1GtObject>* HLTLevel1GTSeed::objectTypeVec(
 
 // for a new L1 Trigger menu, update the tokenNumber (holding the bit numbers)
 // from m_l1AlgoLogicParser and from m_l1AlgoSeeds, and fill the m_l1AlgoSeedsRpn vector
-void HLTLevel1GTSeed::updateAlgoLogicParser(const L1GtTriggerMenu* l1GtMenu) {
-
-    const AlgorithmMap& algorithmMap = l1GtMenu->gtAlgorithmMap();
+void HLTLevel1GTSeed::updateAlgoLogicParser(
+        const L1GtTriggerMenu* l1GtMenu, const AlgorithmMap& algorithmMap) {
 
     std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
-        m_l1AlgoLogicParser.operandTokenVector();
+            m_l1AlgoLogicParser.operandTokenVector();
 
     size_t jSeed = 0;
     size_t l1AlgoSeedsSize = m_l1AlgoSeeds.size();
@@ -929,17 +985,16 @@ void HLTLevel1GTSeed::updateAlgoLogicParser(const L1GtTriggerMenu* l1GtMenu) {
         }
         else {
 
-            throw cms::Exception("FailModule")
-                << "\nAlgorithm  " << (algOpTokenVector[i]).tokenName
-                << " not found in the trigger menu " << l1GtMenu->gtTriggerMenuName()
-                << std::endl;
+            throw cms::Exception("FailModule") << "\nAlgorithm  "
+                    << ( algOpTokenVector[i] ).tokenName << " not found in the trigger menu "
+                    << l1GtMenu->gtTriggerMenuName() << "\n" << std::endl;
 
         }
 
     }
 
     //
-    if (edm::isDebugEnabled() ) {
+    if (m_isDebugEnabled ) {
         bool newMenu = true;
         debugPrint(newMenu);
     }
@@ -1001,7 +1056,7 @@ void HLTLevel1GTSeed::updateAlgoLogicParser(const std::vector<bool>& gtWord,
 
     }
 
-    if (edm::isDebugEnabled() ) {
+    if (m_isDebugEnabled ) {
         bool newMenu = false;
         debugPrint(newMenu);
     }
