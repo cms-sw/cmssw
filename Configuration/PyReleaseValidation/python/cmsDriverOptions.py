@@ -11,11 +11,9 @@ import traceback
 # Prepare a parser to read the options
 usage=\
 """%prog <TYPE> [options].
-Examples:
+Example:
 
-%prog SingleMuPt10_cfi -n 100 --no_output
-%prog QCD_Pt_15_20_cfi -s GEN,SIM,DIGI,L1,DQM,DIGI2RAW,HLT -n 10
-%prog reco -s RAW2DIGI,RECO --conditions FrontierConditions_GlobalTag,STARTUP_V4::All
+%prog reco -s RAW2DIGI,RECO --conditions FrontierConditions_GlobalTag,STARTUP_V4::All --eventcontent RECOSIM
 """
 parser = optparse.OptionParser(usage)
 
@@ -36,7 +34,7 @@ parser.add_option("--conditions",
 
 parser.add_option("--eventcontent",
                   help="What event content to write out. Default=FEVTDEBUG, or FEVT (for cosmics)",
-                  default=None,
+                  default='RECOSIM',
                   dest="eventcontent")
 
 parser.add_option("--filein",
