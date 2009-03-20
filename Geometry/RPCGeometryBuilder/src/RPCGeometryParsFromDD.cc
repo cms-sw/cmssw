@@ -5,9 +5,6 @@
  */
 #include "Geometry/RPCGeometryBuilder/src/RPCGeometryParsFromDD.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-//#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-//#include "Geometry/RPCGeometry/interface/RPCRollSpecs.h"
-
 
 #include <CondFormats/GeometryObjects/interface/RecoIdealGeometry.h>
 #include <DetectorDescription/Core/interface/DDFilter.h>
@@ -17,9 +14,6 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
-
-//#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-//#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
@@ -60,40 +54,20 @@ void
 RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants, RecoIdealGeometry& rgeo)
 {
 
-  std::cout <<"Building the geometry service"<<std::endl;
-
-
-  std::cout << "About to run through the RPC structure" << std::endl;
-  std::cout <<" First logical part "
-  	    <<fview.logicalPart().name().name()<<std::endl;
-
   bool doSubDets = fview.firstChild();
-
-
-  std::cout << "doSubDets = " << doSubDets << std::endl;
 
   while (doSubDets){
 
-
-    std::cout <<"start the loop"<<std::endl; 
-
-
     // Get the Base Muon Number
     MuonDDDNumbering mdddnum(muonConstants);
-    std::cout <<"Getting the Muon base Number"<<std::endl;
     MuonBaseNumber   mbn=mdddnum.geoHistoryToBaseNumber(fview.geoHistory());
 
-    std::cout <<"Start the Rpc Numbering Schema"<<std::endl;
     // Get the The Rpc det Id 
     RPCNumberingScheme rpcnum(muonConstants);
     int detid = 0;
 
-    std::cout <<"Getting the Unit Number"<<std::endl;
     detid = rpcnum.baseNumberToUnitNumber(mbn);
     RPCDetId rpcid(detid);
-    std::cout <<"Getting the RPC det Id "<<detid <<std::endl;
-
-
 
     DDValue numbOfStrips("nStrips");
 
@@ -115,7 +89,6 @@ RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstan
     strpars.push_back(name);
     DDTranslation tran    = fview.translation();
 
-
     DDRotationMatrix rota = fview.rotation();//.Inverse();
     DD3Vector x, y, z;
     rota.GetComponents(x,y,z);
@@ -123,17 +96,19 @@ RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstan
     if (dpar.size()==3){
       double width     = dpar[0]/cm;
       double length    = dpar[1]/cm;
+      double thickness = dpar[2]/cm;
       pars.push_back(width);
       pars.push_back(length);
-      pars.push_back(numbOfStrips.doubles()[0]); //h/2;
+      pars.push_back(thickness);
+      pars.push_back(numbOfStrips.doubles()[0]); 
     }else{
       pars.push_back(dpar[4]/cm); //b/2;
       pars.push_back(dpar[8]/cm); //B/2;
       pars.push_back(dpar[0]/cm); //h/2;
+      pars.push_back(0.4/cm);
       pars.push_back(numbOfStrips.doubles()[0]); //h/2;
     }
 
-    std::cout <<"   Number of strips "<<nStrips<<std::endl;
     
     std::vector<double> vtra(3);
     std::vector<double> vrot(9);

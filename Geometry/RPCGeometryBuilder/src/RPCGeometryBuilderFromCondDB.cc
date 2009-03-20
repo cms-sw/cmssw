@@ -34,132 +34,85 @@ RPCGeometryBuilderFromCondDB::~RPCGeometryBuilderFromCondDB()
 RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
 {
   const std::vector<DetId>& detids(rgeo.detIds());
-  //  std::cout << "size " << detids.size() << std::endl;
+  std::cout << "size " << detids.size() << std::endl;
   RPCGeometry* geometry = new RPCGeometry();
+  std::cout <<" RPC Geometry Built "<<std::endl;
   
-
   for (unsigned int id=0; id<detids.size(); id++){
     
-    
-
-
     RPCDetId rpcid(detids[id]);
-    RPCDetId chid(rpcid.region(),rpcid.ring(),rpcid.station(),rpcid.sector(),rpcid.layer(),rpcid.subsector(),0);
-
-    //    std::cout <<"The RPCDetid is "<<rpcid<<std::endl;
-
-    /*
-      DDValue numbOfStrips("nStrips");
-
-      std::vector<const DDsvalues_type* > specs(fview.specifics());
-      std::vector<const DDsvalues_type* >::iterator is=specs.begin();
-      int nStrips=0;
-      for (;is!=specs.end(); is++){
-      if (DDfetch( *is, numbOfStrips)){
-      nStrips=int(numbOfStrips.doubles()[0]);	
-      }
-    }
-    #ifdef LOCAL_DEBUG  
-    if (nStrips == 0 )
-    std::cout <<"No strip found!!"<<std::endl;
-    #endif
-    */
-
+    RPCDetId chid(rpcid.region(),rpcid.ring(),rpcid.station(),
+		  rpcid.sector(),rpcid.layer(),rpcid.subsector(),0);
+    
     std::vector<double> dpar=rgeo.shapePars(id);
     std::vector<double> tran=rgeo.translation(id);
     std::vector<double> rota=rgeo.rotation(id);
+
+    std::vector<std::string> names=rgeo.strParams(id);    
+    std::string name=names[0];
     
-    std::string name="ciccio";
-    //fview.logicalPart().name().name();
     Surface::PositionType pos(tran[0]/cm,tran[1]/cm, tran[2]/cm);
     // CLHEP way
     Surface::RotationType rot(rota[0],rota[1],rota[2],
- 			      rota[3],rota[4],rota[5],
- 			      rota[6],rota[7],rota[8]);
-
+			      rota[3],rota[4],rota[5],
+			      rota[6],rota[7],rota[8]);
+      
     std::vector<float> pars;
     RPCRollSpecs* rollspecs= 0;
     Bounds* bounds = 0;
-
-
-
-    if (dpar.size()==3){
+    
+    if (dpar.size()==4){
       float width     = dpar[0]/cm;
       float length    = dpar[1]/cm;
       float thickness = dpar[2]/cm;
+      float nstrip    = dpar[3];
       //RectangularPlaneBounds* 
       bounds = 
 	new RectangularPlaneBounds(width,length,thickness);
       pars.push_back(width);
       pars.push_back(length);
-      //      pars.push_back(numbOfStrips.doubles()[0]); //h/2;
+      pars.push_back(nstrip); 
 
-
-      //      if (traz[2] >-1500. ){
-      //	Basic3DVector<float> newX(-1.,0.,0.);
-      //	Basic3DVector<float> newY(0.,-1.,0.);
-      //	Basic3DVector<float> newZ(0.,0.,1.);
-      //	rot.rotateAxes (newX, newY,newZ);
-      //}
-      
       
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCBarrel,name,pars);
-
-      /*
-      std::cout <<"Barrel "<<name
-		<<" par "<<width
-		<<" "<<length<<" "<<thickness;
-      */
+      
+      
     }else{
-      float be = dpar[4]/cm;
-      float te = dpar[8]/cm;
-      float ap = dpar[0]/cm;
-      float ti = 0.4/cm;
+      float be = dpar[0];
+      float te = dpar[1];
+      float ap = dpar[2];
+      float ti = dpar[3];
+      float nstrip = dpar[4];
       //  TrapezoidalPlaneBounds* 
       bounds = 
 	new TrapezoidalPlaneBounds(be,te,ap,ti);
-      pars.push_back(dpar[4]/cm); //b/2;
-      pars.push_back(dpar[8]/cm); //B/2;
-      pars.push_back(dpar[0]/cm); //h/2;
-      //      pars.push_back(numbOfStrips.doubles()[0]); //h/2;
+      pars.push_back(be); //b/2;
+      pars.push_back(te); //B/2;
+      pars.push_back(ap); //h/2;
+      pars.push_back(nstrip); 
       
-      /*
-      std::cout <<"Forward "<<name
-		<<" par "<<dpar[4]/cm
-		<<" "<<dpar[8]/cm<<" "<<dpar[3]/cm<<" "
-		<<dpar[0];
-      */
-
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCEndcap,name,pars);
-
+      
       //Change of axes for the forward
       Basic3DVector<float> newX(1.,0.,0.);
       Basic3DVector<float> newY(0.,0.,1.);
       if (tran[2] > 0. )
 	newY *= -1;
       Basic3DVector<float> newZ(0.,1.,0.);
-      rot.rotateAxes (newX, newY,newZ);
-      
+      rot.rotateAxes (newX, newY,newZ);	
     }
-#ifdef LOCAL_DEBUG  
-    //    std::cout <<"   Number of strips "<<nStrips<<std::endl;
-#endif  
-
-
     
     BoundPlane* bp = new BoundPlane(pos,rot,bounds);
     ReferenceCountingPointer<BoundPlane> surf(bp);
     RPCRoll* r=new RPCRoll(rpcid,surf,rollspecs);
     geometry->add(r);
     
-
     std::list<RPCRoll *> rls;
     if (chids.find(chid)!=chids.end()){
       rls = chids[chid];
     }
     rls.push_back(r);
     chids[chid]=rls;
-
   }
   // Create the RPCChambers and store them on the Geometry 
   for( std::map<RPCDetId, std::list<RPCRoll *> >::iterator ich=chids.begin();
@@ -186,7 +139,8 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
     }
     // Add the chamber to the geometry
     geometry->add(ch);
-  } 
+
+  }
   return geometry;
 }
 
