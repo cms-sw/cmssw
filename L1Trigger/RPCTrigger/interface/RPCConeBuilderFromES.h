@@ -16,12 +16,12 @@
 //
 // Original Author:  
 //         Created:  Mon Mar  3 13:34:15 CET 2008
-// $Id: RPCConeBuilderFromES.h,v 1.3 2008/08/29 08:28:12 fruboes Exp $
+// $Id: RPCConeBuilderFromES.h,v 1.4 2009/03/19 12:39:43 fruboes Exp $
 //
 
 #include "CondFormats/DataRecord/interface/L1RPCConeBuilderRcd.h"
 #include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
-#include "CondFormats/RPCObjects/interface/L1RPCConeDefinition.h"
+#include "CondFormats/L1TObjects/interface/L1RPCConeDefinition.h"
 
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Mon Feb 23 12:09:06 CET 2009
-// $Id: L1RPCConeDefinitionProducer.cc,v 1.1 2009/03/19 14:38:13 fruboes Exp $
+// $Id: L1RPCConeDefinitionProducer.cc,v 1.4 2009/03/20 10:28:30 fruboes Exp $
 //
 //
 
@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 
-#include "CondFormats/RPCObjects/interface/L1RPCConeDefinition.h"
+#include "CondFormats/L1TObjects/interface/L1RPCConeDefinition.h"
 #include "CondFormats/DataRecord/interface/L1RPCConeDefinitionRcd.h"
 
 //
@@ -96,7 +96,11 @@ L1RPCConeDefinitionProducer::L1RPCConeDefinitionProducer(const edm::ParameterSet
         iConfig.getParameter<std::vector<int> >(name.str().c_str());
     
     for (unsigned int lp = 0; lp < newSizes.size();++lp){
-      L1RPCConeDefinition::TLPSize lps(t, lp,  newSizes[lp]);
+//      L1RPCConeDefinition::TLPSize lps(t, lp,  newSizes[lp]);
+      L1RPCConeDefinition::TLPSize lps;
+      lps.m_tower=t;
+      lps.m_LP=lp;
+      lps.m_size=newSizes[lp];
       m_LPSizeVec.push_back(lps);
     }
       
@@ -132,7 +136,12 @@ L1RPCConeDefinitionProducer::L1RPCConeDefinitionProducer(const edm::ParameterSet
         
         if (hwPl2LPVec[i]>=0)
         {
-          L1RPCConeDefinition::TRingToLP lp(roll, hwpl, hwPl2LPVec[i],i);
+//          L1RPCConeDefinition::TRingToLP lp(roll, hwpl, hwPl2LPVec[i],i);
+          L1RPCConeDefinition::TRingToLP lp;
+          lp.m_etaPart=roll;
+          lp.m_hwPlane=hwpl;
+          lp.m_LP=hwPl2LPVec[i];
+          lp.m_index=i;
           m_ringToLPVec.push_back(lp);
         }
       }
@@ -150,7 +159,12 @@ L1RPCConeDefinitionProducer::L1RPCConeDefinitionProducer(const edm::ParameterSet
         
         if (hwPl2TowerVec[i]>=0)
         {
-          L1RPCConeDefinition::TRingToTower rt(roll, hwpl, hwPl2TowerVec[i],i);
+//          L1RPCConeDefinition::TRingToTower rt(roll, hwpl, hwPl2TowerVec[i],i);
+          L1RPCConeDefinition::TRingToTower rt;
+          rt.m_etaPart=roll;
+          rt.m_hwPlane=hwpl;
+          rt.m_tower=hwPl2TowerVec[i];
+          rt.m_index=i;
           m_ringToTowerVec.push_back(rt);
         }
       }

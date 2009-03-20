@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 25 12:06:44 CET 2008
-// $Id: RPCConeBuilder.h,v 1.2 2008/12/12 14:13:58 fruboes Exp $
+// $Id: RPCConeBuilder.h,v 1.3 2009/03/19 12:41:27 fruboes Exp $
 //
 #include <memory>
 #include "boost/shared_ptr.hpp"
@@ -27,7 +27,7 @@
 #include "CondFormats/DataRecord/interface/L1RPCConeBuilderRcd.h"
 
 
-#include "CondFormats/RPCObjects/interface/L1RPCConeDefinition.h"
+#include "CondFormats/L1TObjects/interface/L1RPCConeDefinition.h"
 
 #include <map>
 //#include "L1TriggerConfig/RPCConeBuilder/interface/RPCStripsRing.h"
