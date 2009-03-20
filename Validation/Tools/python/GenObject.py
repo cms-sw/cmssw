@@ -99,8 +99,8 @@ class GenObject (object):
 
     @staticmethod
     def checksum (str):
-        """Calculates a checksum of a string.  Returns it as a hex
-        string"""
+        """Returns a string of hex value of a checksum of input
+        string."""
         return hex( reduce( lambda x, y : x + y, map(ord, str) ) )[2:]
 
 
@@ -380,7 +380,7 @@ class GenObject (object):
 
 
     @staticmethod
-    def _genObjectClone (objName, tupleName, obj):
+    def _genObjectClone (objName, tupleName, obj, index = -1):
         """Creates a GenObject copy of Root object"""
         tofillObjDict = GenObject._tofillDict.get(tupleName, {})\
                         .get(objName, {})
@@ -396,6 +396,9 @@ class GenObject (object):
                 obj = obj()
             setattr (genObj, genVar, obj)
             obj = origObj
+        # Do I need to store the index of this object?
+        if index >= 0:
+            setattr (genObj, 'index', index)
         return genObj
 
 
@@ -525,11 +528,12 @@ class GenObject (object):
                 continue
             # if we're here then we have a vector of items
             event[objName] = []
-            for obj in objects:
+            for index, obj in enumerate (objects):
                 event[objName].append( GenObject.\
                                        _genObjectClone (objName,
                                                         tupleName,
-                                                        obj) )
+                                                        obj,
+                                                        index) )
             # end for obj
         # end for objName
         return event
