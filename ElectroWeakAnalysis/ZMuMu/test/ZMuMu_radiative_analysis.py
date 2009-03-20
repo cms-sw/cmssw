@@ -12,12 +12,13 @@ process.options = cms.untracked.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(-1)
     )
 
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
+    
     "file:/data1/home/noli/roofile_SUMMER08/zMuMu_dimuons_1.root",
     "file:/data1/home/noli/roofile_SUMMER08/zMuMu_dimuons_2.root",
     "file:/data1/home/noli/roofile_SUMMER08/zMuMu_dimuons_3.root",
@@ -27,37 +28,45 @@ process.source = cms.Source(
     "file:/data1/home/noli/roofile_SUMMER08/zMuMu_dimuons_8.root",
     "file:/data1/home/noli/roofile_SUMMER08/zMuMu_dimuons_9.root",
     "file:/data1/home/noli/roofile_SUMMER08/zMuMu_dimuons_10.root"
+
     )
 )
 
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("analisi_radiativi_overlap.root")
+    fileName = cms.string("analisi_radiativi_155k.root")
 )
 
 
-zSelection = cms.PSet(
-cut = cms.string("charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & abs(daughter(0).eta)<2 & abs(daughter(1).eta)<2 & mass > 20 & mass < 200"),
-  isoCut = cms.double(3.0),
-  isolationType = cms.string("track")
-)
-
-
-process.goodZToMuMu = cms.EDFilter(
-    "ZToMuMuIsolatedSelector",
-    zSelection,
-    src = cms.InputTag("dimuonsGlobal"),
-    filter = cms.bool(True) 
-)
 
 #ZMuMu: richiedo almeno 1 HLT trigger match
 process.goodZToMuMuHLT = cms.EDFilter(
     "ZHLTMatchFilter",
-    src = cms.InputTag("goodZToMuMu"),
+    src = cms.InputTag("dimuonsGlobal"),
     condition =cms.string("atLeastOneMatched"),
     hltPath = cms.string("hltSingleMuNoIsoL3PreFiltered"),
     filter = cms.bool(True) 
 )
+
+
+
+
+process.goodZToMuMuOneStandAloneMuon = cms.EDFilter(
+    "ZMuMuOverlapExclusionSelector",
+    src = cms.InputTag("dimuonsOneStandAloneMuon"),
+    overlap = cms.InputTag("goodZToMuMuHLT"),
+    filter = cms.bool(True)
+)
+
+#ZMuSta:richiedo che il muGlobal 'First' ha HLT match
+process.goodZToMuMuOneStandAloneMuonFirstHLT = cms.EDFilter(
+    "ZHLTMatchFilter",
+    src = cms.InputTag("goodZToMuMuOneStandAloneMuon"),
+    condition =cms.string("firstMatched"),
+    hltPath = cms.string("hltSingleMuNoIsoL3PreFiltered"),
+    filter = cms.bool(True) 
+)
+
 
 
 process.zToMuGlobalMuOneTrack = cms.EDFilter(
@@ -67,19 +76,18 @@ process.zToMuGlobalMuOneTrack = cms.EDFilter(
     filter = cms.bool(True)
 )
 
-#process.goodZToMuMuOneTrack = cms.EDFilter(
-#   "ZMuMuOverlapExclusionSelector",
-#    src = cms.InputTag("zToMuGlobalMuOneTrack"),
-#    overlap = cms.InputTag("goodZToMuMu"),
-#    filter = cms.bool(True)
-#)
+process.goodZToMuMuOneTrack = cms.EDFilter(
+   "ZMuMuOverlapExclusionSelector",
+    src = cms.InputTag("zToMuGlobalMuOneTrack"),
+    overlap = cms.InputTag("goodZToMuMuHLT"),
+    filter = cms.bool(True)
+)
 
 
 #ZMuTk:richiedo che il muGlobal 'First' ha HLT match
 process.goodZToMuMuOneTrackFirstHLT = cms.EDFilter(
     "ZHLTMatchFilter",
-    # src = cms.InputTag("goodZToMuMuOneTrack"),
-    src = cms.InputTag("zToMuGlobalMuOneTrack"),
+    src = cms.InputTag("goodZToMuMuOneTrack"),
     condition =cms.string("firstMatched"),
     hltPath = cms.string("hltSingleMuNoIsoL3PreFiltered"),
     filter = cms.bool(True) 
@@ -92,6 +100,8 @@ process.Analyzer = cms.EDAnalyzer(
     zMuMuMatchMap= cms.InputTag("allDimuonsMCMatch"),
     zMuTk = cms.InputTag("goodZToMuMuOneTrackFirstHLT"),
     zMuTkMatchMap= cms.InputTag("allDimuonsMCMatch"),
+    zMuSa = cms.InputTag("goodZToMuMuOneStandAloneMuonFirstHLT"),
+    zMuSaMatchMap= cms.InputTag("allDimuonsMCMatch"),
     veto = cms.untracked.double(0.015),
     deltaRTrk = cms.untracked.double("0.3"),
     ptThreshold = cms.untracked.double("1.5")
@@ -103,10 +113,11 @@ process.eventInfo = cms.OutputModule (
 )
 
 process.path = cms.Path (
-    process.goodZToMuMu +
     process.goodZToMuMuHLT +
+    process.goodZToMuMuOneStandAloneMuon +
+    process.goodZToMuMuOneStandAloneMuonFirstHLT +
+    process.goodZToMuMuOneTrack +
     process.zToMuGlobalMuOneTrack +
-   # process.goodZToMuMuOneTrack +
     process.goodZToMuMuOneTrackFirstHLT +
     process.Analyzer
 )
