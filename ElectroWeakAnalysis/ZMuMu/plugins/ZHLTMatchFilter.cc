@@ -68,7 +68,7 @@ namespace modules {
       if(!singleTrigFlag0 && !singleTrigFlag1)return false;
       if((singleTrigFlag0 && singleTrigFlag1) && secondismuon ) bothTriggerFlag = true;
       if(((singleTrigFlag0 && !singleTrigFlag1) && secondismuon) || ((!singleTrigFlag0 && singleTrigFlag1) && secondismuon)) exactlyOneTriggerFlag = true;
-      if(((singleTrigFlag0  && firstdismuon) && secondisStandAlone) || ((singleTrigFlag1 && secondismuon) && firstdisStandAlone))globalisTriggerFlag = true;
+      if((((singleTrigFlag0  && firstdismuon) && secondisStandAlone) && !secondismuon ) || (((singleTrigFlag1 && secondismuon) && firstdisStandAlone) && !firstdismuon))globalisTriggerFlag = true;
       if((singleTrigFlag0 && !singleTrigFlag1) && !secondismuon) FirstTriggerFlag = true;
       if((singleTrigFlag0 || singleTrigFlag1) && secondismuon) atLeastOneTriggerFlag=true;
       if(cond_=="exactlyOneMatched") return exactlyOneTriggerFlag;
