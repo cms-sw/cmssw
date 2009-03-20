@@ -23,8 +23,11 @@ from Alignment.CommonAlignmentAlgorithm.ApeSettingAlgorithm_cfi import *
 process.AlignmentProducer.algoConfig = ApeSettingAlgorithm
 process.AlignmentProducer.saveApeToDB = True
 process.AlignmentProducer.algoConfig.readApeFromASCII = True
+process.AlignmentProducer.algoConfig.setComposites = False
+process.AlignmentProducer.algoConfig.readLocalNotGlobal = False
 process.AlignmentProducer.algoConfig.apeASCIIReadFile = 'Alignment/CommonAlignmentAlgorithm/test/ApeDump.txt'
 process.AlignmentProducer.algoConfig.saveApeToASCII = True
+process.AlignmentProducer.algoConfig.saveComposites = False
 process.AlignmentProducer.algoConfig.apeASCIISaveFile = 'myDump.txt'
         
 # replace AlignmentProducer.doMisalignmentScenario = true

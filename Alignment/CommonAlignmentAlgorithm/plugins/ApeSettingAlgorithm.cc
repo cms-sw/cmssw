@@ -2,8 +2,8 @@
  * \file MillePedeAlignmentAlgorithm.cc
  *
  *  \author    : Gero Flucke/Ivan Reid
- *  date       : February 2009 *  $Revision: 1.2 $
- *  $Date: 2009/03/07 18:49:13 $
+ *  date       : February 2009 *  $Revision: 1.3 $
+ *  $Date: 2009/03/09 19:29:18 $
  *  (last update by $Author: ireid $)
  */
 
@@ -59,6 +59,7 @@ class ApeSettingAlgorithm : public AlignmentAlgorithmBase
   AlignableTracker         *theTracker;
   bool                     saveApeToAscii_,readApeFromAscii_;
   bool                     readLocalNotGlobal_;
+  bool                     setComposites_,saveComposites_;
 };
 
 //____________________________________________________
@@ -75,9 +76,11 @@ ApeSettingAlgorithm::ApeSettingAlgorithm(const edm::ParameterSet &cfg) :
 {
   edm::LogInfo("Alignment") << "@SUB=ApeSettingAlgorithm" << "Start.";
   saveApeToAscii_ = theConfig.getUntrackedParameter<bool>("saveApeToASCII");
+  saveComposites_ = theConfig.getUntrackedParameter<bool>("saveComposites");
   readApeFromAscii_ = theConfig.getParameter<bool>("readApeFromASCII");
   readLocalNotGlobal_ = theConfig.getParameter<bool>("readLocalNotGlobal");
-
+  setComposites_ = theConfig.getParameter<bool>("setComposites");
+  
 }
 
 // Destructor ----------------------------------------------------------------
@@ -112,22 +115,27 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
        if (apeList.find(apeId) == apeList.end()) //Not previously done
 	 {  DetId id(apeId);
 	 AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(id)); //NULL if none
-	 if (alidet) 
-	   { if (readLocalNotGlobal_)
-	     { AlgebraicSymMatrix as(3,0); 
-	     as[0][0]=x11*x11; as[1][1]=x21*x21; as[2][2]=x22*x22; //local cov.
-	     align::RotationType rt=alidet->globalRotation();
-	     AlgebraicMatrix am(3,3);
-	     am[0][0]=rt.xx(); am[0][1]=rt.xy(); am[0][2]=rt.xz();
-	     am[1][0]=rt.yx(); am[1][1]=rt.yy(); am[1][2]=rt.yz();
-	     am[2][0]=rt.zx(); am[2][1]=rt.zy(); am[2][2]=rt.zz();
-	     am=am.T()*as*am; //symmetric matrix
-	     alidet->setAlignmentPositionError(GlobalError(am[0][0],am[1][0],am[1][1],am[2][0],am[2][1],am[2][2]));
+	 if (alidet)
+	   { if ((alidet->components().size()<1) || setComposites_) //the problem with glued dets...
+	     { if (readLocalNotGlobal_)
+	       { AlgebraicSymMatrix as(3,0); 
+	       as[0][0]=x11*x11; as[1][1]=x21*x21; as[2][2]=x22*x22; //local cov.
+	       align::RotationType rt=alidet->globalRotation();
+	       AlgebraicMatrix am(3,3);
+	       am[0][0]=rt.xx(); am[0][1]=rt.xy(); am[0][2]=rt.xz();
+	       am[1][0]=rt.yx(); am[1][1]=rt.yy(); am[1][2]=rt.yz();
+	       am[2][0]=rt.zx(); am[2][1]=rt.zy(); am[2][2]=rt.zz();
+	       am=am.T()*as*am; //symmetric matrix
+	       alidet->setAlignmentPositionError(GlobalError(am[0][0],am[1][0],am[1][1],am[2][0],am[2][1],am[2][2]));
+	       }
+	     else
+	       { alidet->setAlignmentPositionError(GlobalError(x11,x21,x22,x31,x32,x33)); //set for global
+	       }
+	     apeList.insert(apeId); //Flag it's been set
 	     }
 	   else
-	     { alidet->setAlignmentPositionError(GlobalError(x11,x21,x22,x31,x32,x33)); //set for global
+	     { edm::LogInfo("Alignment") << "@SUB=initialize" << "Not Setting APE for Composite DetId "<<apeId;
 	     }
-	   apeList.insert(apeId); //Flag it's been set
 	   }
 	 }
        else
@@ -138,25 +146,27 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
    edm::LogInfo("Alignment") << "@SUB=initialize" << "Set "<<apeList.size()<<" APE values.";
    }
 }
-
+ 
 
 // Call at end of job ---------------------------------------------------------
 //____________________________________________________
 void ApeSettingAlgorithm::terminate()
 {
-  //  edm::LogInfo("Alignment") << "@SUB=terminate" << "Could start manipulating Ape.";
-
   if (saveApeToAscii_)
     { AlignmentErrors* aliErr=theTracker->alignmentErrors();
     int theSize=aliErr->m_alignError.size();
     std::ofstream apeSaveFile(theConfig.getUntrackedParameter<std::string>("apeASCIISaveFile").c_str()); //requires <fstream>
     for (int i=0; i < theSize; ++i)
-      { apeSaveFile<<aliErr->m_alignError[i].rawId();
-      CLHEP::HepSymMatrix sm= aliErr->m_alignError[i].matrix();
-      for (int j=0; j < 3; ++j)
-	for (int k=0; k <= j; ++k)
-	  apeSaveFile<<"  "<<sm[j][k];
-      apeSaveFile<<std::endl;
+      { int id=	aliErr->m_alignError[i].rawId();
+      AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(DetId(id))); //NULL if none
+      if (alidet && ((alidet->components().size()<1) || saveComposites_))
+	{ apeSaveFile<<id;
+	CLHEP::HepSymMatrix sm= aliErr->m_alignError[i].matrix();
+	for (int j=0; j < 3; ++j)
+	  for (int k=0; k <= j; ++k)
+	    apeSaveFile<<"  "<<sm[j][k];
+	apeSaveFile<<std::endl;
+	}
       }
     delete aliErr;
     apeSaveFile.close();

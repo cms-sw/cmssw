@@ -21,12 +21,14 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 from Alignment.CommonAlignmentAlgorithm.ApeSettingAlgorithm_cfi import *
 process.AlignmentProducer.algoConfig = ApeSettingAlgorithm
-process.AlignmentProducer.saveApeToDB = True
+process.AlignmentProducer.saveApeToDB = False
 process.AlignmentProducer.algoConfig.readApeFromASCII = True
+process.AlignmentProducer.algoConfig.setComposites = False
 process.AlignmentProducer.algoConfig.readLocalNotGlobal = True
-process.AlignmentProducer.algoConfig.apeASCIIReadFile = 'Alignment/CommonAlignmentAlgorithm/test/ApeLocalDump.txt'
+process.AlignmentProducer.algoConfig.apeASCIIReadFile = 'Alignment/CommonAlignmentAlgorithm/test/ShortLocalInput.txt'
 process.AlignmentProducer.algoConfig.saveApeToASCII = True
-process.AlignmentProducer.algoConfig.apeASCIISaveFile = 'myDump.txt'
+process.AlignmentProducer.algoConfig.saveComposites = False
+process.AlignmentProducer.algoConfig.apeASCIISaveFile = 'myLocalDump.txt'
         
 # replace AlignmentProducer.doMisalignmentScenario = true
 # replace AlignmentProducer.applyDbAlignment = true # needs other conditions than fake!
