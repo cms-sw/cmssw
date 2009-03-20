@@ -345,13 +345,16 @@ void GctBlockUnpackerV2::blockToGctJetCandsAndCounts(const unsigned char * d, co
 
   p16 += NUM_JET_CATEGORIES * jetCandCategoryOffset; // Move the pointer over the data we've already unpacked.
 
-  // UNPACK JET COUNTS
+  // NOW UNPACK: HFBitCounts, HFRingEtSums, and Missing HT
   // NOTE: we are only unpacking one timesample of these currently!
 
   // Re-interpret block payload pointer to 32 bits so it sees six jet counts at a time.
   const uint32_t * p32 = reinterpret_cast<const uint32_t *>(p16);
 
-  gctHFBitCounts_->push_back(L1GctHFBitCounts::fromConcHFBitCounts(id,6,0,p32[0])); // Channel 0 carries both HF counts and sums
-  gctHFRingEtSums_->push_back(L1GctHFRingEtSums::fromConcRingSums(id,6,0,p32[0]));  
-  // Skip channel 1 for now. Later this may carry MHT would be accessed as p32[nSamples]
+  // Channel 0 carries both HF counts and sums
+  gctHFBitCounts_->push_back(L1GctHFBitCounts::fromConcHFBitCounts(id,6,0,p32[0])); 
+  gctHFRingEtSums_->push_back(L1GctHFRingEtSums::fromConcRingSums(id,6,0,p32[0]));
+  
+  // Channel 1 carries Missing HT.
+  gctHtMiss_->push_back(L1GctHtMiss(p32[nSamples], 0));
 }

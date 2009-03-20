@@ -82,6 +82,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   produces<L1GctEtTotalCollection>();
   produces<L1GctEtHadCollection>();
   produces<L1GctEtMissCollection>();
+  produces<L1GctHtMissCollection>();
   produces<L1GctHFBitCountsCollection>();
   produces<L1GctHFRingEtSumsCollection>();
   produces<L1GctFibreCollection>();
@@ -154,6 +155,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
   std::auto_ptr<L1GctEtTotalCollection> etTotResult( new L1GctEtTotalCollection() );
   std::auto_ptr<L1GctEtHadCollection> etHadResult( new L1GctEtHadCollection() );
   std::auto_ptr<L1GctEtMissCollection> etMissResult( new L1GctEtMissCollection() );
+  std::auto_ptr<L1GctHtMissCollection> htMissResult( new L1GctHtMissCollection() );
 
   // GCT intermediate data
   std::auto_ptr<L1GctInternEmCandCollection> gctInternEm( new L1GctInternEmCandCollection() ); 
@@ -176,6 +178,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     blockUnpacker_->setEtTotalCollection( etTotResult.get() );
     blockUnpacker_->setEtHadCollection( etHadResult.get() );
     blockUnpacker_->setEtMissCollection( etMissResult.get() );
+    blockUnpacker_->setHtMissCollection( htMissResult.get() );
     blockUnpacker_->setRctEmCollection( rctEm.get() );
     blockUnpacker_->setRctCaloRegionCollection( rctCalo.get() );
     blockUnpacker_->setInternEmCollection( gctInternEm.get() );
@@ -242,6 +245,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
       os << "Read " << etTotResult->size() << " GCT total et" << endl;
       os << "Read " << etHadResult->size() << " GCT ht" << endl;
       os << "Read " << etMissResult->size() << " GCT met" << endl;
+      os << "Read " << htMissResult->size() << " GCT mht" << endl;
       os << "Read " << gctInternEtSums->size() << " GCT intermediate et sums" << endl;
       os << "Read " << hfRingEtSums->size() << " GCT HF ring et sums" << endl;
       os << "Read " << hfBitCounts->size() << " GCT HF ring bit counts" << endl;
@@ -263,6 +267,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
   e.put(etTotResult);
   e.put(etHadResult);
   e.put(etMissResult);
+  e.put(htMissResult);
   e.put(gctInternEm);
   e.put(gctInternJets);
   e.put(gctInternEtSums);
@@ -270,7 +275,6 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
   e.put(rctEm);
   e.put(rctCalo);
   e.put(gctFibres);
-
 }
 
 

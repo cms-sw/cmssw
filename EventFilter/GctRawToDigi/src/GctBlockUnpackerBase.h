@@ -26,8 +26,8 @@
 * with older data.
 *
 * \author Robert Frazier
-* $Revision: 1.14 $
-* $Date: 2008/11/05 20:46:52 $
+* $Revision: 1.15 $
+* $Date: 2009/03/15 16:05:50 $
 */ 
 
 
@@ -69,6 +69,7 @@ public:
   void setEtTotalCollection(L1GctEtTotalCollection* etTotal) { gctEtTotal_ = etTotal; }
   void setEtHadCollection(L1GctEtHadCollection* etHad) { gctEtHad_ = etHad; }
   void setEtMissCollection(L1GctEtMissCollection* etMiss) { gctEtMiss_ = etMiss; }
+  void setHtMissCollection(L1GctHtMissCollection* htMiss) { gctHtMiss_ = htMiss; }
 
   void setInternJetDataCollection(L1GctInternJetDataCollection* coll) { gctInternJetData_ = coll; }
   void setInternEtSumCollection(L1GctInternEtSumCollection* coll) { gctInternEtSums_ = coll; }
@@ -114,6 +115,7 @@ protected:
   L1GctEtTotalCollection* gctEtTotal_;  ///< Total Et
   L1GctEtHadCollection* gctEtHad_;  /// Total Ht
   L1GctEtMissCollection* gctEtMiss_;  /// Missing Et
+  L1GctHtMissCollection* gctHtMiss_;  /// Missing Ht
   L1GctInternJetDataCollection* gctInternJetData_; ///< GCT internal jet data
   L1GctInternEtSumCollection* gctInternEtSums_; ///< GCT internal Et sums
   L1GctInternHFDataCollection* gctInternHFData_; ///< GCT internal HF data
