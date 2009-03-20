@@ -64,7 +64,7 @@ boost::shared_ptr<L1GtParameters> L1GtParametersConfigOnlineProd::newObject(
     //          DAQ_INCLUDE_PSB6,
     //          DAQ_INCLUDE_GMT,
     //          DAQ_INCLUDE_TIM,
-    //          DAQ_HEADER_NB_BC_PER_EVENT,
+    //          DAQ_NB_BC_PER_EVENT_FDL,
     //          BST_DATA_NB_BYTES
     //   FROM CMS_GT.GT_GTFE_SETUP
     //   WHERE GT_GTFE_SETUP.ID = objectKey
@@ -82,7 +82,7 @@ boost::shared_ptr<L1GtParameters> L1GtParametersConfigOnlineProd::newObject(
     columns.push_back("DAQ_INCLUDE_PSB6");
     columns.push_back("DAQ_INCLUDE_GMT");
     columns.push_back("DAQ_INCLUDE_TIM");
-    columns.push_back("DAQ_HEADER_NB_BC_PER_EVENT");
+    columns.push_back("DAQ_NB_BC_PER_EVENT_FDL");
     columns.push_back("BST_DATA_NB_BYTES");
 
     l1t::OMDSReader::QueryResults results = m_omdsReader.basicQuery(
@@ -132,7 +132,7 @@ boost::shared_ptr<L1GtParameters> L1GtParametersConfigOnlineProd::newObject(
     results.fillVariable("DAQ_INCLUDE_TIM", activeBoardsDaqTIM);
 
     std::string totalBxInEventStr;
-    results.fillVariable("DAQ_HEADER_NB_BC_PER_EVENT", totalBxInEventStr);
+    results.fillVariable("DAQ_NB_BC_PER_EVENT_FDL", totalBxInEventStr);
 
     std::string bstLengthBytesStr;
     results.fillVariable("BST_DATA_NB_BYTES", bstLengthBytesStr);
