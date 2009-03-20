@@ -27,6 +27,7 @@ class SiStripModuleHV {
   
   bool put(std::vector<uint32_t> & DetId);
   
+  bool operator == (const SiStripModuleHV& d) const { return d.v_hvoff==v_hvoff; } 
  
   void getDetIds(std::vector<uint32_t>& DetIds_) const ;
   
