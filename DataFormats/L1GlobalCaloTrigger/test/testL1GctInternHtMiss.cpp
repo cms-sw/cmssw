@@ -5,6 +5,7 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternHtMiss.h"
 
+#include <cassert>
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
@@ -18,6 +19,7 @@ uint32_t gRawVal1 = 0xf9ef8ecf;
 uint32_t gRawVal2 = 0x394e1d9f;
 
 // Prototypes
+void terminateIfAssertNotWorking();
 void testMethodsOfNullVariant();
 void testMethodsOfHtxVariant();
 void testMethodsOfHtyVariant();
@@ -27,6 +29,8 @@ void testInequalityOperatorsBetweenCtors();
 
 int main()
 {
+  terminateIfAssertNotWorking();
+    
   testMethodsOfNullVariant();
   testMethodsOfHtxVariant();
   testMethodsOfHtyVariant();
@@ -35,6 +39,18 @@ int main()
   
   cout << "Unit test for L1GctInternHtMiss passed successfully." << endl;
   return 0;
+}
+
+void terminateIfAssertNotWorking()
+{
+  bool assertsWork = false;
+  assert(assertsWork = true);
+  if(assertsWork) { return; }
+
+  cout << "ERROR! Cannot run unit test as the assert() function is being\n"
+          "optimised away by the compiler.  Please recompile test with\n"
+          "the debug options enabled and without #define NDEBUG" << endl;
+  exit(0);
 }
 
 void testMethodsOfNullVariant()
