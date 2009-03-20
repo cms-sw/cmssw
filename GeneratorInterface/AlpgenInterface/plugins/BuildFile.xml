@@ -1,15 +1,3 @@
-<library name="GeneratorInterfaceAlpgenMatching" file="JetMatchingAlpgen.cc alpg_match.F debug.F">
- <use name="FWCore/MessageLogger"/>
- <use name="FWCore/ParameterSet"/>
- <use name="GeneratorInterface/AlpgenInterface"/>
- <use name="GeneratorInterface/LHEInterface"/>
- <use name="SimDataFormats/GeneratorProducts"/>
- <use name="hepmc"/>
- <use name="pythia6"/>
- <flags FFLAGS="-O -Wno-unused"/>
- <flags EDM_PLUGIN="1"/>
-</library>
-
 <library name="GeneratorInterfaceAlpgenSource" file="AlpgenSource.cc">
  <use name="DataFormats/Math"/>
  <use name="FWCore/Framework"/>

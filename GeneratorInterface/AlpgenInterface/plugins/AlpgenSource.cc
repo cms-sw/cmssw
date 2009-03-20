@@ -400,14 +400,28 @@ bool AlpgenSource::produce(edm::Event &event)
   case 10:
   case 14:
   case 15:
-    fixEventWZ(hepeup);
+    alpgen::fixEventWZ(hepeup);
     break;
   case 5:
-    fixEventMultiBoson(hepeup);
+    alpgen::fixEventMultiBoson(hepeup);
     break;
   case 6:
-    fixEventTTbar(hepeup);
+    alpgen::fixEventTTbar(hepeup);
     break;
+  case 8:
+    alpgen::fixEventHiggsTTbar(hepeup);
+    break;
+  case 13:
+    alpgen::fixEventSingleTop(hepeup, header.masses[AlpgenHeader::mb], header.itopprc);
+    break;    
+  case 7:
+  case 9:
+  case 11:
+  case 12:
+  case 16:
+    // No fixes needed.
+    break;
+
   default: 
     throw cms::Exception("Generator|AlpgenInterface") 
       << "Unrecognized IHRD process code" << std::endl;
