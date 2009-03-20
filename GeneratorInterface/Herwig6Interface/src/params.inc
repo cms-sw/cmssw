@@ -85,6 +85,7 @@ struct ConfigParam {
 	PARM_N0   (kInt,     hwhard, IAPHIG),
 	PARM_N1_O1(kInt,     hwhard, IBRN),
 	PARM_N0   (kInt,     hwhard, IBSH),
+	PARM_N0   (kInt,     hwhard, IHPRO),
 	PARM_N0   (kDouble,  hwhard, OMEGA0),
 	PARM_N0   (kDouble,  hwhard, PHOMAS),
 	PARM_N1_O1(kDouble,  hwhard, PPOLN),

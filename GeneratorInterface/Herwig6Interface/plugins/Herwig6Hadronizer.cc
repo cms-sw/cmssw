@@ -116,6 +116,9 @@ class Herwig6Hadronizer : public gen::BaseHadronizer,
 	bool				useJimmy;
 	bool				doMPInteraction;
 	int				numTrials;
+
+        bool                            readMCatNLOfile;
+
 };
 
 extern "C" {
@@ -135,7 +138,8 @@ Herwig6Hadronizer::Herwig6Hadronizer(const edm::ParameterSet &params) :
 	comEnergy(params.getParameter<double>("comEnergy")),
 	useJimmy(params.getParameter<bool>("useJimmy")),
 	doMPInteraction(params.getParameter<bool>("doMPInteraction")),
-	numTrials(params.getUntrackedParameter<int>("numTrialsMPI", 100))
+	numTrials(params.getUntrackedParameter<int>("numTrialsMPI", 100)),
+	readMCatNLOfile(false)
 {
 	runInfo().setExternalXSecLO(
 		params.getUntrackedParameter<double>("crossSection", -1.0));
@@ -454,11 +458,41 @@ void Herwig6Hadronizer::upInit()
 	heprup_.pdfgup[0] = heprup_.pdfgup[1] = -1;
 	heprup_.pdfsup[0] = heprup_.pdfsup[1] = -1;
 	// we set up the PDFs ourselves
+	
+	// pass HERWIG paramaters fomr header (if present)
+	std::string mcnloHeader="herwig6header";
+	std::vector<lhef::LHERunInfo::Header> headers=lheRunInfo()->getHeaders();
+	for(std::vector<lhef::LHERunInfo::Header>::const_iterator hIter=headers.begin();hIter!=headers.end(); ++hIter) {
+	  if(hIter->tag()==mcnloHeader){
+	    readMCatNLOfile=true;
+	    for(lhef::LHERunInfo::Header::const_iterator lIter=hIter->begin(); lIter != hIter->end(); ++lIter) {
+	      if((lIter->c_str())[1]!='#') {   // it's not a comment
+		if (!give(*lIter))
+		  throw edm::Exception(edm::errors::Configuration)
+		    << "Herwig 6 did not accept the following: \""
+		    << *lIter << "\"." << std::endl;
+	      }
+	    }
+	  }
+	}
 }
 
 void Herwig6Hadronizer::upEvnt()
 {
 	lhef::CommonBlocks::fillHEPEUP(lheEvent()->getHEPEUP());
+
+	// if MCatNLO external file is read, read comment & pass IHPRO to HERWIG
+	if(readMCatNLOfile) {
+	  for(std::vector<std::string>::const_iterator iter=lheEvent()->getComments().begin();
+	      iter!=lheEvent()->getComments().end(); ++iter) {
+	    std::string toParse(iter->substr(1));
+	    if (!give(toParse))
+	      throw edm::Exception(edm::errors::Configuration)
+		    << "Herwig 6 did not accept the following: \""
+		    << toParse << "\"." << std::endl;
+	  }
+	}
+	
 }
 
 int Herwig6Hadronizer::pythiaStatusCode(const HepMC::GenParticle *p) const
