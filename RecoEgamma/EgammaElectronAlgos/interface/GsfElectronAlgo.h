@@ -12,8 +12,10 @@
  ************************************************************/
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
@@ -67,7 +69,8 @@ class GsfElectronAlgo {
     // create electrons from superclusters, tracks and Hcal rechits
     void process
      ( edm::Handle<reco::GsfTrackCollection> tracksH,
-       edm::Handle<reco::TrackCollection> ctfTracksH,
+	   edm::Handle<reco::GsfElectronCoreCollection> tracksH,
+	   edm::Handle<reco::TrackCollection> ctfTracksH,
        edm::Handle<CaloTowerCollection> towersH,
        edm::Handle<EcalRecHitCollection> reducedEBRecHits,
        edm::Handle<EcalRecHitCollection> reducedEERecHits,
@@ -75,15 +78,14 @@ class GsfElectronAlgo {
        GsfElectronPtrCollection & outEle);
 
     // preselection method
-    bool preSelection( const reco::SuperCluster &, double HoE1, double HoE2, 
+    bool preSelection( const reco::SuperCluster &, double HoE1, double HoE2,
        edm::Handle<EcalRecHitCollection> reducedEBRecHits,
        edm::Handle<EcalRecHitCollection> reducedEERecHits);
 
     // interface to be improved...
     void createElectron
-     ( const reco::SuperClusterRef & scRef,
-       const reco::BasicClusterRef & elbcRef, 
-       const reco::GsfTrackRef & trackRef,
+     ( const reco::GsfElectronCoreRef & coreRef,
+       const reco::BasicClusterRef & elbcRef,
        const reco::TrackRef & ctfTrackRef, const float shFracInnerHits,
        double HoE1, double HoE2,
        edm::Handle<EcalRecHitCollection> reducedEBRecHits,
@@ -138,12 +140,12 @@ class GsfElectronAlgo {
     // maximum fbrem
     double maxFbremBarrel_;
     double maxFbremEndcaps_;
-    
+
     // fiducial regions
     bool isBarrel_;
     bool isEndcaps_;
     bool isFiducial_;
-    
+
     // if this parameter is false, only SC level Escale correctoins are applied
     bool applyEtaCorrection_;
 
@@ -154,6 +156,7 @@ class GsfElectronAlgo {
     edm::InputTag barrelSuperClusters_;
     edm::InputTag endcapSuperClusters_;
     edm::InputTag tracks_;
+    edm::InputTag gsfElectronCores_ ;
     edm::InputTag ctfTracks_;
     edm::InputTag hcalTowers_;
     edm::InputTag reducedBarrelRecHitCollection_ ;

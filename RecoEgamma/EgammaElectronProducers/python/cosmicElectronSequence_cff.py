@@ -7,9 +7,9 @@ ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('cosmicSuperClusters'
 ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('cosmicSuperClusters','CosmicEndcapSuperClusters')
 ecalDrivenElectronSeeds.SeedConfiguration.fromTrackerSeeds = cms.bool(False)
 
-pixelMatchGsfElectrons.barrelSuperClusters = cms.InputTag('cosmicSuperClusters','CosmicBarrelSuperClusters')
-pixelMatchGsfElectrons.endcapSuperClusters = cms.InputTag('cosmicSuperClusters','CosmicEndcapSuperClusters')
-pixelMatchGsfElectrons.barrelClusterShapes = cms.InputTag('cosmicSuperClusters','CosmicBarrelSuperClusters')
-pixelMatchGsfElectrons.endcapClusterShapes = cms.InputTag('cosmicSuperClusters','CosmicEndcapSuperClusters')
+gsfElectrons.barrelSuperClusters = cms.InputTag('cosmicSuperClusters','CosmicBarrelSuperClusters')
+gsfElectrons.endcapSuperClusters = cms.InputTag('cosmicSuperClusters','CosmicEndcapSuperClusters')
+gsfElectrons.barrelClusterShapes = cms.InputTag('cosmicSuperClusters','CosmicBarrelSuperClusters')
+gsfElectrons.endcapClusterShapes = cms.InputTag('cosmicSuperClusters','CosmicEndcapSuperClusters')
 
 cosmicElectronSequence = cms.Sequence(electronSequence)

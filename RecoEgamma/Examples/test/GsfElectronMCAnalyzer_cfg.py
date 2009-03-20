@@ -20,7 +20,7 @@ process.source = cms.Source ("PoolSource",
 process.source.fileNames.extend(dbs_discovery.search())
 
 process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronMCAnalyzer",
-    electronCollection = cms.InputTag("pixelMatchGsfElectrons"),
+    electronCollection = cms.InputTag("gsfElectrons"),
     mcTruthCollection = cms.InputTag("generator"),
     outputFile = cms.string(os.environ['TEST_OUTPUT_FILE']),
     MaxPt = cms.double(100.0),

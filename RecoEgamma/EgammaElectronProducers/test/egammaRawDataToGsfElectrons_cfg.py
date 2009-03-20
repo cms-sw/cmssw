@@ -36,10 +36,10 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('SingleElectronPt10.root')
 )
 
-process.Timing = cms.Service("Timing")
+#process.Timing = cms.Service("Timing")
 
 process.mylocalreco =  cms.Sequence(process.trackerlocalreco*process.calolocalreco+process.particleFlowCluster)
-process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*electronGsfTracking*process.pixelMatchGsfElectronSequence) # 
+process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*electronGsfTracking*process.gsfElectronSequence) # 
 process.p = cms.Path(process.RawToDigi*process.mylocalreco*process.myglobalreco)
 
 process.outpath = cms.EndPath(process.out)

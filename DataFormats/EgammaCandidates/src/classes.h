@@ -1,36 +1,36 @@
 //
-// $Id: classes.h,v 1.29 2008/11/07 20:22:14 nancy Exp $
+// $Id: classes.h,v 1.30 2009/01/18 22:49:08 elmer Exp $
 //
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "Rtypes.h" 
-#include "Math/Cartesian3D.h" 
-#include "Math/Polar3D.h" 
-#include "Math/CylindricalEta3D.h" 
-#include "Math/PxPyPzE4D.h" 
-#include <boost/cstdint.hpp> 
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h" 
+#include "Rtypes.h"
+#include "Math/Cartesian3D.h"
+#include "Math/Polar3D.h"
+#include "Math/CylindricalEta3D.h"
+#include "Math/PxPyPzE4D.h"
+#include <boost/cstdint.hpp>
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h" 
-#include "FWCore/MessageLogger/interface/MessageLogger.h" 
-#include "DataFormats/TrackReco/interface/Track.h" 
-#include "DataFormats/Common/interface/RefProd.h" 
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h" 
-#include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h" 
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h" 
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h" 
-#include "DataFormats/EgammaReco/interface/BasicCluster.h" 
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h" 
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
-#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h" 
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
-#include "DataFormats/CLHEP/interface/Migration.h" 
-#include "DataFormats/GeometryVector/interface/LocalPoint.h" 
-#include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h" 
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h" 
+#include "DataFormats/CLHEP/interface/Migration.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonIsolationAssociation.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronIsoCollection.h"
@@ -69,18 +69,41 @@ namespace {
     edm::Wrapper<edm::RefToBaseVector<reco::Electron> > rtbve_w;
     edm::reftobase::BaseVectorHolder<reco::Electron> *bvhe_p;
 
+
+    edm::RefToBase<reco::GsfElectronCore> rtbgec;
+    edm::reftobase::IndirectHolder<reco::GsfElectronCore> ihgec;
+    edm::RefToBaseProd<reco::GsfElectronCore> rtbpgec;
+    edm::RefToBaseVector<reco::GsfElectronCore> rtbvgec;
+    edm::Wrapper<edm::RefToBaseVector<reco::GsfElectronCore> > rtbvgec_w;
+    edm::reftobase::BaseVectorHolder<reco::GsfElectronCore> *bvhgec_p;
+    reco::GsfElectronCoreCollection gecc;
+    edm::Wrapper<reco::GsfElectronCoreCollection> gecc_w;
+    edm::Ref<reco::GsfElectronCoreCollection> gecc_r;
+    edm::RefProd<reco::GsfElectronCoreCollection> gecc_rp;
+    edm::Wrapper<edm::RefVector<reco::GsfElectronCoreCollection> > gecc_rv;
+
+    reco::GsfElectron::TrackClusterMatching getcm ;
+    reco::GsfElectron::TrackExtrapolations gete ;
+    reco::GsfElectron::ClosestCtfTrack gecct ;
+    reco::GsfElectron::FiducialFlags geff ;
+    reco::GsfElectron::ShowerShape gess ;
+    reco::GsfElectron::IsolationVariables geiv ;
+    reco::GsfElectron::Corrections gec ;
+
     edm::RefToBase<reco::GsfElectron> rtbg;
     edm::reftobase::IndirectHolder<reco::GsfElectron> ihg;
     edm::RefToBaseProd<reco::GsfElectron> rtbpg;
     edm::RefToBaseVector<reco::GsfElectron> rtbvg;
     edm::Wrapper<edm::RefToBaseVector<reco::GsfElectron> > rtbvg_w;
     edm::reftobase::BaseVectorHolder<reco::GsfElectron> *bvhg_p;
-
     reco::GsfElectronCollection v4;
     edm::Wrapper<reco::GsfElectronCollection> w4;
     edm::Ref<reco::GsfElectronCollection> r4;
     edm::RefProd<reco::GsfElectronCollection> rp4;
     edm::Wrapper<edm::RefVector<reco::GsfElectronCollection> > rv4;
+
+
+
 
     reco::SiStripElectronCollection v5;
     edm::Wrapper<reco::SiStripElectronCollection> w5;

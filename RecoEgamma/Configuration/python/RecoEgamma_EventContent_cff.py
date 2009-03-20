@@ -16,7 +16,9 @@ import FWCore.ParameterSet.Config as cms
 
 # Full Event content 
 RecoEgammaFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_pixelMatchGsfElectrons_*_*', 
+    outputCommands = cms.untracked.vstring(
+        'keep *_gsfElectronCores_*_*', 
+        'keep *_gsfElectrons_*_*', 
         'keep *_eidRobustLoose_*_*',
         'keep *_eidRobustTight_*_*',
         'keep *_eidRobustHighEnergy_*_*',
@@ -41,7 +43,9 @@ RecoEgammaFEVT = cms.PSet(
 )
 # RECO content
 RecoEgammaRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep recoGsfElectrons_pixelMatchGsfElectrons_*_*', 
+    outputCommands = cms.untracked.vstring(
+        'keep recoGsfElectrons_gsfElectronCores_*_*', 
+        'keep recoGsfElectrons_gsfElectrons_*_*', 
         'keep floatedmValueMap_eidRobustLoose_*_*',
         'keep floatedmValueMap_eidRobustTight_*_*',
         'keep floatedmValueMap_eidRobustHighEnergy_*_*',
@@ -70,7 +74,9 @@ RecoEgammaRECO = cms.PSet(
 )
 # AOD content
 RecoEgammaAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep recoGsfElectrons_pixelMatchGsfElectrons_*_*', 
+    outputCommands = cms.untracked.vstring(
+        'keep recoGsfElectrons_gsfElectronCores_*_*', 
+        'keep recoGsfElectrons_gsfElectrons_*_*', 
         'keep floatedmValueMap_eidRobustLoose_*_*',
         'keep floatedmValueMap_eidRobustTight_*_*',
         'keep floatedmValueMap_eidRobustHighEnergy_*_*',

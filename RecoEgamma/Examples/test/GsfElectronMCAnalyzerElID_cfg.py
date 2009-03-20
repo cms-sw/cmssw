@@ -12,7 +12,7 @@ process.source = cms.Source ("PoolSource",
 )
 
 process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronMCAnalyzerElID",
-    electronCollection = cms.InputTag("pixelMatchGsfElectrons"),
+    electronCollection = cms.InputTag("gsfElectrons"),
     eidValueMapName = cms.string("eidLoose"),
     #eidValueMapName = cms.string("eidRobustLoose"),
     #eidValueMapName = cms.string("eidTight"),

@@ -16,7 +16,7 @@ process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi")
 process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
 process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff")
 process.load("RecoTracker.TransientTrackingRecHit.TTRHBuilders_cff")
-process.load("RecoEgamma.EgammaElectronProducers.pixelMatchGsfElectronSequence_cff")
+process.load("RecoEgamma.EgammaElectronProducers.gsfElectronSequence_cff")
 
 process.source = cms.Source("PoolSource",
     debugVerbosity = cms.untracked.uint32(1),
@@ -42,7 +42,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.Timing = cms.Service("Timing")
 
-process.p = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*process.newSeedFromPairs*process.newSeedFromTriplets*process.newCombinedSeeds*process.ecalClusters*process.pixelMatchGsfElectronSequence)
+process.p = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*process.newSeedFromPairs*process.newSeedFromTriplets*process.newCombinedSeeds*process.ecalClusters*process.gsfElectronSequence)
 
 process.outpath = cms.EndPath(process.out)
 process.GlobalTag.globaltag = 'IDEAL_30X::All'

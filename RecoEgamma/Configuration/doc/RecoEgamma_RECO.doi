@@ -3,18 +3,25 @@
 </tr>
 
 <tr>
-  <td><a href="classreco_1_1PixelMatchGsfElectron.html">reco::PixelMatchGsfElectron</a></td>
-  <td><a href="DataFormats_EgammaCandidates.html">reco::PixelMatchGsfElectronCollection</a></td>
-  <td><a href="RecoEgamma_Configuration.html">pixelMatchGsfElectrons</a></td>
+  <td><a href="classreco_1_1GsfElectron.html">reco::GsfElectron</a></td>
+  <td><a href="DataFormats_EgammaCandidates.html">reco::GsfElectronCollection</a></td>
+  <td><a href="RecoEgamma_Configuration.html">gsfElectrons</a></td>
   <td class="description">Pixel-matched electrons with Gsf tracks</td>
-  <td>U.Berthon</td>
+  <td>D.Chamont</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1GsfElectronCore.html">reco::GsfElectronCore</a></td>
+  <td><a href="DataFormats_EgammaCandidates.html">reco::GsfElectronCoreCollection</a></td>
+  <td><a href="RecoEgamma_Configuration.html">gsfElectronCores</a></td>
+  <td class="description">Pixel-matched core electrons with Gsf tracks</td>
+  <td>D.Chamont</td>
 </tr>
 <tr>
   <td><a href="classreco_1_1ElectronSeed.html">reco::ElectronSeed</a></td>
   <td><a href="DataFormats_EgammaReco.html">reco::ElectronSeedCollection</a></td>
   <td><a href="RecoEgamma_Configuration.html">ecalDrivenElectronSeeds</a></td>
   <td class="description">Trajectory seeds from electron pixel-matching</td>
-  <td>U.Berthon</td>
+  <td>D.Chamont</td>
 </tr>
 <tr>
   <td><a href="classreco_1_1SeedSuperClusterAssociation.html">reco::SeedSuperClusterAssociation</a></td>

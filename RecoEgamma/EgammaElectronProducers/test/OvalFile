@@ -2,6 +2,6 @@
 <diffline expr="(Begin processing the \S* record)">
 <diffline expr="(found \S* particles)">
 
-<executable name="cmsDriver.py" args="SingleElectronPt10.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,IDEAL_30X::All --python_filename=SingleElectronPt10Raw.py --fileout=SingleElectronPt10Raw.root">
+<executable name="cmsDriver.py" args="SingleElectronPt10.cfi -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW -n 10 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,IDEAL_30X::All --python_filename=SingleElectronPt10Raw.py --fileout=SingleElectronPt10Raw.root">
 
 <executable name="cmsRun" args="egammaRawDataToGsfElectrons_cfg.py">

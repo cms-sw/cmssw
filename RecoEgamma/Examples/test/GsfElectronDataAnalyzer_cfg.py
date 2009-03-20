@@ -18,7 +18,7 @@ process.mergedSuperClusters = cms.EDFilter("EgammaSuperClusterMerger",
 )
 
 process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronDataAnalyzer",
-    electronCollection = cms.InputTag("pixelMatchGsfElectrons"),
+    electronCollection = cms.InputTag("gsfElectrons"),
     matchingObjectCollection = cms.InputTag("mergedSuperClusters"),
     outputFile = cms.string('gsfElectronHistos_data.root'),
     MaxPt = cms.double(100.0),

@@ -4,9 +4,9 @@ import FWCore.ParameterSet.Config as cms
 # The current official sequence is based on pixels
 #==============================================================================
 
-from RecoEgamma.EgammaElectronProducers.pixelMatchGsfElectronSequence_cff import *
-#electronSequence = cms.Sequence(pixelMatchGsfElectronSequence)
-electronSequence = pixelMatchGsfElectronSequence
+from RecoEgamma.EgammaElectronProducers.gsfElectronSequence_cff import *
+#electronSequence = cms.Sequence(gsfElectronSequence)
+electronSequence = gsfElectronSequence
 
 
 #==============================================================================

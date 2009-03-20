@@ -12,24 +12,7 @@
 //===================================================================
 // Author: Federico Ferri - INFN Milano, Bicocca university
 // 12/2005
-// new classification numbering and showering subclasses
-// golden                     =>  0
-// big brem                   => 10
-// narrow                     => 20
-// showering nbrem 0          => 30
-// showering nbrem 1          => 31
-// showering nbrem 2          => 32
-// showering nbrem 3          => 33
-// showering nbrem 4 ou plus  => 34
-// EB/EE transition region    => 40
-// endcap                     => barrel + 100
-// EB eta gaps                => 41
-// EB phi gaps                => 42
-// EE ring gaps               => 141
-// EE dee gaps                => 142
-// CC 08/02/2006
-// CC added crack subdivision 16/09/2008
-// CC fiducial region (EB, EE, gaps) from electron interface
+// See GsfElectron::Classification
 //===================================================================
 
 using namespace reco;
@@ -40,7 +23,10 @@ void ElectronClassification::correct(GsfElectron &electron) {
   electron.classifyElectron(electronClass_);
 }
 
-void ElectronClassification::classify(const GsfElectron &electron) {
+void ElectronClassification::classify(const GsfElectron &electron)
+ {
+  electronClass_ = GsfElectron::UNKNOWN ;
+
 
    reco::SuperClusterRef sclRef=electron.superCluster();
 
@@ -48,40 +34,40 @@ void ElectronClassification::classify(const GsfElectron &electron) {
   float scEnergy=sclRef->energy();
 
   // first look whether it's in crack, barrel or endcap
-  if (electron.isEB()) {
-    electronClass_ = 0;
-  } else if (electron.isEE()) {
-    electronClass_ = 100;
-  } else {
-    electronClass_=-1;
+  if ((!electron.isEB())&&(!electron.isEE()))
+   {
     edm::LogWarning("") << "ElectronClassification::init(): Undefined electron, eta = " <<
       electron.eta() << "!!!!" ;
-    return;
-  }
+    return ;
+   }
 
-  // cracks
-  if (electron.isEBEEGap()) {
-    electronClass_+=40;
-    return;
-  } else if (electron.isEBEtaGap() || electron.isEERingGap()) {
-    electronClass_+=41;
-    return;
-  } else if (electron.isEBPhiGap() || electron.isEEDeeGap()) {
-    electronClass_+=42;
-    return;
-  }
+  if (electron.isGap())
+   {
+	electronClass_ = GsfElectron::GAP ;
+	return ;
+   }
+
+//  // cracks
+//  if (electron.isEBEEGap()) {
+//    electronClass_+=40;
+//    return;
+//  } else if (electron.isEBEtaGap() || electron.isEERingGap()) {
+//    electronClass_+=41;
+//    return;
+//  } else if (electron.isEBPhiGap() || electron.isEEDeeGap()) {
+//    electronClass_+=42;
+//    return;
+//  }
 
   // then decide for the others to which class it belongs
   float p0 = 7.20583e-04;
   float p1 = 9.20913e-02;
   float p2 = 8.97269e+00;
 
-  float pin  = electron.trackMomentumAtVtx().R();
-  float fbrem = electron.fbrem();
-
-  float peak = p0 + p1/(pin-p2);
-
-  int nbrem = electron.numberOfClusters()-1;
+  float pin  = electron.trackMomentumAtVtx().R() ;
+  float fbrem = electron.fbrem() ;
+  float peak = p0 + p1/(pin-p2) ;
+  int nbrem = electron.numberOfBrems() ;
 
   // golden
   if (nbrem == 0 &&
@@ -89,27 +75,29 @@ void ElectronClassification::classify(const GsfElectron &electron) {
       fabs(electron.caloPosition().phi() -
 	   electron.gsfTrack()->outerMomentum().phi() - peak) < 0.15 &&
       fbrem < 0.2) {
-    electronClass_ += 0;
+	  electronClass_ = GsfElectron::GOLDEN ;
   }
   // big brem
   else if (nbrem == 0 &&
 	   fbrem > 0.5 &&
 	   fabs(pin - scEnergy)/pin < 0.1) {
-    electronClass_ += 10;
+	  electronClass_ = GsfElectron::BIGBREM ;
   }
   // narrow
   else if (nbrem == 0 &&
 	   fabs(pin - scEnergy)/pin < 0.1) {
-    electronClass_ += 20;
+    electronClass_ = GsfElectron::NARROW ;
   }
   // showering
   else {
-    if (nbrem == 0) electronClass_ += 30;
-    if (nbrem == 1) electronClass_ += 31;
-    if (nbrem == 2) electronClass_ += 32;
-    if (nbrem == 3) electronClass_ += 33;
-    if (nbrem >= 4) electronClass_ += 34;
-  }
+	    electronClass_ = GsfElectron::SHOWERING ;
+	  }
+//    if (nbrem == 0) electronClass_ += 30;
+//    if (nbrem == 1) electronClass_ += 31;
+//    if (nbrem == 2) electronClass_ += 32;
+//    if (nbrem == 3) electronClass_ += 33;
+//    if (nbrem >= 4) electronClass_ += 34;
+//  }
 
 }
 

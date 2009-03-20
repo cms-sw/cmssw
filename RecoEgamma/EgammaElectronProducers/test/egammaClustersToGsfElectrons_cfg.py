@@ -6,7 +6,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.load("RecoEgamma.EgammaElectronProducers.pixelMatchGsfElectronSequence_cff")
+process.load("RecoEgamma.EgammaElectronProducers.gsfElectronSequence_cff")
 
 process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
 process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi")
@@ -42,7 +42,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronMCAnalyzer",
-    electronCollection = cms.InputTag("pixelMatchGsfElectrons"),
+    electronCollection = cms.InputTag("gsfElectrons"),
     mcTruthCollection = cms.InputTag("source"),
     outputFile = cms.string("gsfElectronHistos_RelVal330pre1SingleElectronPt35_testnewconfig_isEndcaps.root"),
     MaxPt = cms.double(100.0),
@@ -98,9 +98,9 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 
 #process.p = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*process.ckftracks*process.particleFlowReco*process.gsfElectronAnalysis)
-#process.p = cms.Path(process.RawToDigi*process.reconstruction*process.pixelMatchGsfElectronSequence*process.gsfElectronAnalysis)
+#process.p = cms.Path(process.RawToDigi*process.reconstruction*process.gsfElectronSequence*process.gsfElectronAnalysis)
 process.mylocalreco =  cms.Sequence(process.trackerlocalreco*process.calolocalreco)
-process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*process.pixelMatchGsfElectronSequence)
+process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*process.gsfElectronSequence)
 process.p = cms.Path(process.RawToDigi*process.mylocalreco*process.myglobalreco*process.gsfElectronAnalysis)
 
 #process.outpath = cms.EndPath(process.out)

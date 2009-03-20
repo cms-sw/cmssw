@@ -11,7 +11,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.electronIdAnalyzer = cms.EDAnalyzer("ElectronIDAnalyzer",
-    electronProducer = cms.string('pixelMatchGsfElectrons'),
+    electronProducer = cms.string('gsfElectrons'),
     electronLabelRobustTight = cms.string('eidRobustTight'),
     electronLabelTight = cms.string('eidTight'),
     electronLabelLoose = cms.string('eidLoose'),

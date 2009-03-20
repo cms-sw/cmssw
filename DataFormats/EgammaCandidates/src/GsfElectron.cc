@@ -1,167 +1,76 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h" 
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h" 
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
 #include <cmath>
 
 const double pi = M_PI, pi2 = 2 * M_PI;
- 
+
 using namespace reco;
 
 GsfElectron::GsfElectron()
- : scSigmaEtaEta_(std::numeric_limits<float>::infinity()),
-   scSigmaIEtaIEta_(std::numeric_limits<float>::infinity()),
-   scE1x5_(0.), scE2x5Max_(0.), scE5x5_(0.),
-   shFracInnerHits_(0.)
-{ }
+ : mva_(0), fbrem_(0), class_(UNKNOWN) {}
 
 GsfElectron::GsfElectron
  ( const LorentzVector & p4,
-   const SuperClusterRef scl,
-   const GsfTrackRef gsfTrack,
-   const GlobalPoint & tssuperPos, const GlobalVector & tssuperMom,
-   const GlobalPoint & tsseedPos, const GlobalVector & tsseedMom,
-   const GlobalPoint & innPos, const GlobalVector & innMom,
-   const GlobalPoint & vtxPos, const GlobalVector & vtxMom,
-   const GlobalPoint & outPos, const GlobalVector & outMom,
-   double hadOverEm1,double hadOverEm2,
-   float scSigmaEtaEta, float scSigmaIEtaIEta,
-   float scE1x5, float scE2x5Max, float scE5x5,
-   const TrackRef ctfTrack, const float shFracInnerHits,
-   const BasicClusterRef electronCluster,
-   const GlobalPoint & tselePos, const GlobalVector & tseleMom
+   const GsfElectronCoreRef & core,
+   const TrackClusterMatching & tcm, const TrackExtrapolations & te,
+   const ClosestCtfTrack & ctfInfo,
+   const FiducialFlags & ff, const ShowerShape & ss, float fbrem,
+   const IsolationVariables & dr03, const IsolationVariables & dr04,
+   float mva
  )
- : hadOverEm1_(hadOverEm1), hadOverEm2_(hadOverEm2), superCluster_(scl), track_(gsfTrack),
-   scSigmaEtaEta_(scSigmaEtaEta), scSigmaIEtaIEta_(scSigmaIEtaIEta),
-   scE1x5_(scE1x5), scE2x5Max_(scE2x5Max), scE5x5_(scE5x5),
-   ctfTrack_(ctfTrack), shFracInnerHits_(shFracInnerHits),
-   electronCluster_(electronCluster)
+ : core_(core),
+   trackClusterMatching_(tcm), trackExtrapolations_(te),
+   closestCtfTrack_(ctfInfo),
+   fiducialFlags_(ff), showerShape_(ss),
+   dr03_(dr03), dr04_(dr04),
+   mva_(mva),
+   fbrem_(fbrem), class_(UNKNOWN)
  {
-  setCharge(track_->charge()) ;
+  setCharge(gsfTrack()->charge()) ;
   setP4(p4) ;
-  setVertex(Point(vtxPos)) ;
-  setPdgId( -11 * charge()) ;
-
-  trackPositionAtVtx_=math::XYZPoint(vtxPos.x(),vtxPos.y(),vtxPos.z());
-  trackPositionAtCalo_=math::XYZPoint(tssuperPos.x(),
-                                       tssuperPos.y(),
-                                       tssuperPos.z());
-  trackMomentumAtCalo_=math::XYZVector(tssuperMom.x(),
-                                       tssuperMom.y(),
-                                       tssuperMom.z());
-  trackMomentumAtVtx_=math::XYZVector(vtxMom.x(),
-                                      vtxMom.y(),
-                                      vtxMom.z());
-  trackMomentumOut_=math::XYZVector(tsseedMom.x(),
-                                        tsseedMom.y(),
-                                        tsseedMom.z());
-  trackMomentumAtEleClus_=math::XYZVector(tseleMom.x(),
-                                        tseleMom.y(),
-                                        tseleMom.z());
-  //
-  // supercluster - track at impact match parameters
-  //
-  superClusterEnergy_=superCluster_->energy();
-  eSuperClusterOverP_=-1;
-  if (vtxMom.mag() > 0) eSuperClusterOverP_= superCluster_->energy()/vtxMom.mag();
-  
-  deltaEtaSuperClusterAtVtx_ = superCluster_->eta() - tssuperPos.eta();
-  float dphi                       = superCluster_->phi() - tssuperPos.phi();
-  if (fabs(dphi)>pi)
-    dphi = dphi < 0? pi2 + dphi : dphi - pi2;
-  deltaPhiSuperClusterAtVtx_ = dphi;
-
-  // 
-  // seed cluster - track at calo match quantities
-  //
-  const BasicClusterRef seedClus = superCluster_->seed();
-  eSeedClusterOverPout_ = -1;
-  if (tsseedMom.mag() > 0.)
-    eSeedClusterOverPout_ = seedClus->energy()/tsseedMom.mag();
-
-  deltaEtaSeedClusterAtCalo_ = seedClus->eta() - tsseedPos.eta();
-  dphi                       = seedClus->phi() - tsseedPos.phi();
-  if (fabs(dphi)>pi)
-    dphi = dphi < 0? pi2 + dphi : dphi - pi2;
-  deltaPhiSeedClusterAtCalo_ = dphi;
-
-  // 
-  // ele cluster - track at calo match quantities
-  //
-  eEleClusterOverPout_ = -1;
-  if (tseleMom.mag() > 0.)
-    eEleClusterOverPout_ = electronCluster->energy()/tseleMom.mag();
-
-  deltaEtaEleClusterAtCalo_ = electronCluster->eta() - tselePos.eta();
-  dphi                       = electronCluster->phi() - tselePos.phi();
-  if (fabs(dphi)>pi)
-    dphi = dphi < 0? pi2 + dphi : dphi - pi2;
-  deltaPhiEleClusterAtCalo_ = dphi;
-
-  eSeedClusterOverP_ = -1;
-  if (vtxMom.mag() > 0) 
-    eSeedClusterOverP_= seedClus->energy()/vtxMom.mag();
-
-  //
-  // other quantities
-  //
-  fbrem_ = 1.e30;
-  if (outMom.mag() > 0.) fbrem_ = (innMom.mag() - outMom.mag()) / outMom.mag();
-
-  energyScaleCorrected_=false;
-  momentumFromEpCombination_=false;
-  trackMomentumError_=0;
-  
-  isEB_=false;
-  isEE_=false;
-  isEBEEGap_=false;
-  isEBEtaGap_=false;
-  isEBPhiGap_=false;
-  isEEDeeGap_=false;
-  isEERingGap_=false;
-  
+  setVertex(te.positionAtVtx) ;
+  setPdgId(-11*charge()) ;
+  corrections_.ecalEnergy = superCluster()->energy() ;
 }
 
-void GsfElectron::correctElectronEnergyScale(const float newEnergy) {
-  
-  math::XYZTLorentzVectorD momentum=p4();
-  momentum*=newEnergy/momentum.e();
-  setP4(momentum);
-  hadOverEm1_ *=superClusterEnergy_/newEnergy; 
-  hadOverEm2_ *=superClusterEnergy_/newEnergy; 
-  eSuperClusterOverP_*=newEnergy/superClusterEnergy_;
-  superClusterEnergy_=newEnergy;
- 
-  energyScaleCorrected_=true;    
-}
- 
-void GsfElectron::correctElectronFourMomentum(const math::XYZTLorentzVectorD & momentum,float & enErr, float & tmErr) {
- 
-  setP4(momentum);
-  energyError_ = enErr;
-  trackMomentumError_ = tmErr;
-  momentumFromEpCombination_=true;
-}
- 
-void GsfElectron::classifyElectron(const int myclass)
-{
-  electronClass_ = myclass;
-}
+void GsfElectron::correctEcalEnergy( float newEnergy, float newEnergyError )
+ {
+  math::XYZTLorentzVectorD momentum = p4() ;
+  momentum *= newEnergy/momentum.e() ;
+  setP4(momentum) ;
+  showerShape_.hcalDepth1OverEcal *= corrections_.ecalEnergy/newEnergy ;
+  showerShape_.hcalDepth2OverEcal *= corrections_.ecalEnergy/newEnergy ;
+  trackClusterMatching_.eSuperClusterOverP *= newEnergy/corrections_.ecalEnergy ;
+  trackClusterMatching_.eSeedClusterOverP *= newEnergy/corrections_.ecalEnergy ;
+  trackClusterMatching_.eEleClusterOverPout *= newEnergy/corrections_.ecalEnergy ;
+  corrections_.ecalEnergy = newEnergy ;
+  corrections_.ecalEnergyError = newEnergyError ;
+  corrections_.isEcalEnergyCorrected = true ;
+ }
+
+void GsfElectron::correctMomentum
+ ( const reco::Candidate::LorentzVector & momentum,
+   float trackErr, float electronErr )
+ {
+  setP4(momentum) ;
+  corrections_.trackMomentumError = trackErr ;
+  corrections_.electronMomentumError = electronErr ;
+  corrections_.isMomentumCorrected = true ;
+ }
 
 bool GsfElectron::overlap( const Candidate & c ) const {
   const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
-  return ( o != 0 && 
+  return ( o != 0 &&
 	   ( checkOverlap( gsfTrack(), o->gsfTrack() ) ||
-	     checkOverlap( superCluster(), o->superCluster() ) ) 
+	     checkOverlap( superCluster(), o->superCluster() ) )
 	   );
   return false;
 }
 
-GsfElectron * GsfElectron::clone() const { 
-  return new GsfElectron( * this ); 
+GsfElectron * GsfElectron::clone() const {
+  return new GsfElectron( * this );
 }
 
-bool GsfElectron::isElectron() const {
-  return true;
-}

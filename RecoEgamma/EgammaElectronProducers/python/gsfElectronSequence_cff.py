@@ -6,8 +6,8 @@ import FWCore.ParameterSet.Config as cms
 # imported in the reco sequences since the integration with pflow.
 #==============================================================================
 
-from RecoEgamma.EgammaElectronProducers.pixelMatchGsfElectrons_cff import *
-pixelMatchGsfElectronSequence = cms.Sequence(pixelMatchGsfElectrons)
+from RecoEgamma.EgammaElectronProducers.gsfElectronModules_cff import *
+gsfElectronSequence = cms.Sequence(gsfElectronCores*gsfElectrons)
 
 
 #==============================================================================
