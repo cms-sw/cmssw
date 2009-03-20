@@ -70,9 +70,12 @@ class CalorimetryManager{
 
   void updateMap(int hi,float energy,int id,std::vector<std::vector<std::pair<int,float> > > & mymap,std::vector<int> & firedCells);
 
+  void respCorr(double);
+
   void clean(); 
 
  private:
+
   FSimEvent* mySimEvent;
   CaloGeometryHelper* myCalorimeter_;
 
@@ -115,7 +118,7 @@ class CalorimetryManager{
   //FR
   int optionHDSim_, hdGridSize_, hdSimMethod_;
   bool simulatePreshower_;
-  //RF
+  //RF 
 
   // Famos Random Engine
   const RandomEngine* random;
@@ -124,5 +127,15 @@ class CalorimetryManager{
 
   static std::vector<std::pair<int, float> > myZero_;
   bool initialized_;
+
+  // RespCorrP p, k_e(p), k_h(p) vectors  and evaluated for each p
+  // ecorr and hcorr  
+  std::vector<double> rsp;
+  std::vector<double> p_knots;
+  std::vector<double> k_e;
+  std::vector<double> k_h;
+  double ecorr;
+  double hcorr;
+
 };
 #endif

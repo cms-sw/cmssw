@@ -627,6 +627,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
   double pathPhi   = trackPosition.phi();	
   //  double pathTheta = trackPosition.theta();
 
+  double eint  = moment.e();
   double eGen  = myTrack.hcalEntrance().e();
   double e     = 0.;
   double sigma = 0.;
@@ -758,6 +759,9 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
       emeas = random->gaussShoot(e,sigma);      
       double correction = emeas / eGen;
       
+      // RespCorrP factors (ECAL and HCAL separately) calculation
+      respCorr(eint);     
+
       if(debug_)
 	LogDebug("FastCalorimetry") 
 	  << "CalorimetryManager::HDShowerSimulation - on-calo 2" << std::endl
@@ -780,6 +784,8 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 	for(mapitr=myGrid.getHits().begin(); mapitr!=endmapitr; ++mapitr) {
 	  double energy = mapitr->second;
           energy *= correction;              // RESCALING 
+          energy *= ecorr;
+
 	  if(energy > 0.000001) { 
 	    if(onECAL==1)
 		updateMap(EBDetId(mapitr->first).hashedIndex(),energy,myTrack.id(),EBMapping_,firedCellsEB_);
@@ -798,7 +804,8 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
       endmapitr=myHcalHitMaker.getHits().end();
       for(mapitr=myHcalHitMaker.getHits().begin(); mapitr!=endmapitr; ++mapitr) {
 	double energy = mapitr->second;
-	energy *= correction;              // RESCALING 
+	energy *= correction;               // RESCALING 
+	energy *= hcorr;
 
 	updateMap(HcalDetId(mapitr->first).hashed_index(),energy,myTrack.id(),HMapping_,firedCellsHCAL_);
 	if(debug_)
@@ -833,6 +840,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 
 
 void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
+
   edm::ParameterSet ECALparameters = fastCalo.getParameter<edm::ParameterSet>("ECAL");
   gridSize_ = ECALparameters.getParameter<int>("GridSize");
   spotFraction_ = ECALparameters.getParameter<double>("SpotFraction");
@@ -882,14 +890,44 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   LogInfo("FastCalorimetry") << " FrontLeakageProbability : " << pulledPadSurvivalProbability_ << std::endl;
   LogInfo("FastCalorimetry") << " GapLossProbability : " << crackPadSurvivalProbability_ << std::endl;
 
+  
+  // RespCorrP: p (momentum), ECAL and HCAL corrections = f(p)
+  edm::ParameterSet CalorimeterParam = fastCalo.getParameter<edm::ParameterSet>("CalorimeterProperties");
+
+  rsp = CalorimeterParam.getParameter<std::vector<double> >("RespCorrP");
+   LogInfo("FastCalorimetry") << " RespCorrP (rsp) size " << rsp.size() << std::endl;
+
+  if( rsp.size()%3 !=0 )  {
+    LogInfo("FastCalorimetry") 
+      << " RespCorrP size is wrong -> no corrections applied !!!" 
+      << std::endl;
+
+      p_knots.push_back(14000.);
+      k_e.push_back    (1.);
+      k_h.push_back    (1.);
+  }
+  else {
+    for(unsigned i = 0; i < rsp.size(); i += 3) { 
+     LogInfo("FastCalorimetry") << "i = " << i/3 << "   p = " << rsp [i] 
+				<< "   k_e(p) = " << rsp[i+1] 
+				<< "   k_e(p) = " << rsp[i+2] << std::endl; 
+      
+      p_knots.push_back(rsp[i]);
+      k_e.push_back    (rsp[i+1]);
+      k_h.push_back    (rsp[i+2]); 
+    }
+  }  
+ 
+
   //FR
   edm::ParameterSet HCALparameters = fastCalo.getParameter<edm::ParameterSet>("HCAL");
   optionHDSim_ = HCALparameters.getParameter<int>("SimOption");
-  hdGridSize_ = HCALparameters.getParameter<int>("GridSize");
+  hdGridSize_  = HCALparameters.getParameter<int>("GridSize");
   hdSimMethod_ = HCALparameters.getParameter<int>("SimMethod");
   //RF
 
   unfoldedMode_ = fastCalo.getUntrackedParameter<bool>("UnfoldedMode",false);
+  
 }
 
 
@@ -945,6 +983,56 @@ void CalorimetryManager::updateMap(int hi,float energy,int tid,std::vector<std::
     }
   
 }
+
+
+void CalorimetryManager::respCorr(double p) {
+
+  int sizeP = p_knots.size();
+
+  if(sizeP <= 1) {
+    ecorr = 1.;
+    hcorr = 1.;
+  }
+  else {
+    int ip = -1;    
+    for (int i = 0; i < sizeP; i++) { 
+      if (p < p_knots[i]) { ip = i; break;}
+    }
+    if (ip == 0) {
+      ecorr = k_e[0];
+      hcorr = k_h[0];
+    }
+    else {
+      if(ip == -1) {
+	ecorr = k_e[sizeP-1];
+	hcorr = k_h[sizeP-1];
+      } 
+      else {
+	double x1 =  p_knots[ip-1];
+	double x2 =  p_knots[ip];
+	double y1 =  k_e[ip-1];
+	double y2 =  k_e[ip];
+	
+	if(x1 == x2) {
+	  //        std::cout << " equal p_knots values!!! " << std::endl;
+	}	
+      
+	ecorr = (y1 + (y2 - y1) * (p - x1)/(x2 - x1));
+	
+	y1 =  k_h[ip-1];
+	y2 =  k_h[ip];
+	hcorr = (y1 + (y2 - y1) * (p - x1)/(x2 - x1)); 
+	
+      }
+    }
+  }
+
+  if(debug_)
+    LogDebug("FastCalorimetry") << " p, ecorr, hcorr = " << p << " "  
+			        << ecorr << "  " << hcorr << std::endl;
+	
+}
+
 
 void CalorimetryManager::loadFromEcalBarrel(edm::PCaloHitContainer & c) const
 { 
@@ -1057,3 +1145,5 @@ void CalorimetryManager::loadFromPreshower(edm::PCaloHitContainer & c) const
 	}
     }
 }
+
+
