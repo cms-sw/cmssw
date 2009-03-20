@@ -3,8 +3,8 @@
 
 /// \class MisalignmentScenarioBuilder
 ///
-/// $Date: 2008/04/25 06:29:53 $
-/// $Revision: 1.7 $
+/// $Date: 2009/03/15 17:10:46 $
+/// $Revision: 1.8 $
 ///
 /// $Author: flucke $
 /// \author Frederic Ronga - CERN-PH-CMG
@@ -72,7 +72,7 @@ protected: // Methods
   virtual bool isTopLevel_(const std::string& parameterSetName) const;
 
   /// Check whether structure 'subStruct' could be part of 'largeStruct',
-  //  defaults to true, but can be overwritten in derived classes to speed up recursive merging.
+  /// defaults to true, but can be overwritten in derived classes to speed up recursive merging.
   virtual bool possiblyPartOf(const std::string &subStruct, const std::string &largeStruct) const;
 
   /// Get root name of a parameter set (e.g. 'Rod' in 'Rods' or 'Rod1')
