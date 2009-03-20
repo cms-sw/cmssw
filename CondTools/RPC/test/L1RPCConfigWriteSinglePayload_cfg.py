@@ -15,8 +15,8 @@ process.load("CondTools.L1Trigger.L1TriggerKeyDummy_cff")
 process.L1TriggerKeyDummy.objectKeys = cms.VPSet(cms.PSet(
     record = cms.string('L1RPCConfigRcd'),
     type = cms.string('L1RPCConfig'),
-#    key = cms.string('DEFAULT')
-    key = cms.string('COSMIC')
+    key = cms.string('DEFAULT')
+#    key = cms.string('COSMIC')
 ))
 
 # Get L1TriggerKeyList from DB
@@ -35,7 +35,8 @@ process.orcon.DBParameters.authenticationPath = cms.untracked.string('.')
 # Generate L1RPCConfig object - here define the payload associated to the RPC key
 process.rpcconf = cms.ESProducer("RPCTriggerConfig",
 #    filedir = cms.untracked.string('L1Trigger/RPCTrigger/data/Eff90PPT12/'),
-    filedir = cms.untracked.string('L1Trigger/RPCTrigger/data/CosmicPats6/'),
+#    filedir = cms.untracked.string('L1Trigger/RPCTrigger/data/CosmicPats6/'),
+    filedir = cms.untracked.string('../../CR0T/CosmicPats6/'),
 #    PACsPerTower = cms.untracked.int32(12)
     PACsPerTower = cms.untracked.int32(1)
 )
@@ -46,7 +47,7 @@ process.rpcconfsrc = cms.ESSource("EmptyESSource",
 )
 
 # writer modules
-process.load("CondTools.L1Trigger.L1CondDBPayloadWriter_cfi")
+process.load("CondTools.L1Trigger.L1CondDBPayloadWriter_cff")
 process.L1CondDBPayloadWriter.writeL1TriggerKey = cms.bool(False)
 process.L1CondDBPayloadWriter.L1TriggerKeyListTag = cms.string('L1TriggerKeyList_IDEAL')
 process.L1CondDBPayloadWriter.offlineDB = cms.string('sqlite_file:l1config.db')
