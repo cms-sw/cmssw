@@ -56,6 +56,12 @@ void SiStripThreshold::setData(const uint16_t& strip, const float& lTh,const flo
   vthr.push_back(a);
 }
 
+void SiStripThreshold::setData(const uint16_t& strip, const float& lTh,const float& hTh, const float& cTh, Container& vthr){
+  Data a;
+  a.encode(strip,lTh,hTh,cTh);
+  vthr.push_back(a);
+}
+
 SiStripThreshold::Data SiStripThreshold::getData(const uint16_t& strip, const Range& range) const {
   uint16_t estrip=(strip & sistrip::FirstThStripMask_)<<sistrip::FirstThStripShift_ | (63 & sistrip::HighThStripMask_);
   ContainerIterator p = std::upper_bound(range.first,range.second,estrip,SiStripThreshold::dataStrictWeakOrdering());
@@ -88,3 +94,71 @@ void SiStripThreshold::allThresholds(std::vector<float> &lowThs, std::vector<flo
         std::fill( & highThs[firstStrip], & highThs[lastStrip], high );
     }
 }    
+
+void SiStripThreshold::printDebug(std::stringstream& ss) const{
+  RegistryIterator rit=getRegistryVectorBegin(), erit=getRegistryVectorEnd();
+  ContainerIterator it,eit;
+  for(;rit!=erit;++rit){
+    it=getDataVectorBegin()+rit->ibegin;
+    eit=getDataVectorBegin()+rit->iend;
+    ss << "\ndetid: " << rit->detid << " \t ";
+    for(;it!=eit;++it){
+      ss << "\n \t ";
+      it->print(ss);
+    }
+  }
+}
+
+void SiStripThreshold::printSummary(std::stringstream& ss) const{
+  RegistryIterator rit=getRegistryVectorBegin(), erit=getRegistryVectorEnd();
+  ContainerIterator it,eit,itp;
+  float meanLth, meanHth, meanCth; //mean value 
+  float rmsLth, rmsHth, rmsCth; //rms value 
+  float maxLth, maxHth, maxCth; //max value 
+  float minLth, minHth, minCth; //min value 
+  uint16_t n;
+  uint16_t firstStrip,stripRange;
+  for(;rit!=erit;++rit){
+    it=getDataVectorBegin()+rit->ibegin;
+    eit=getDataVectorBegin()+rit->iend;
+    ss << "\ndetid: " << rit->detid << " \t ";
+
+    meanLth=0; meanHth=0; meanCth=0; //mean value 
+    rmsLth=0; rmsHth=0; rmsCth=0; //rms value 
+    maxLth=0; maxHth=0; maxCth=0; //max value 
+    minLth=10000; minHth=10000; minCth=10000; //min value 
+    n=0;
+    firstStrip=0;
+    for(;it!=eit;++it){
+      itp=it+1;
+      firstStrip=it->getFirstStrip();
+      if(itp!=eit)
+	stripRange=(itp->getFirstStrip()-firstStrip);
+      else 
+	stripRange=firstStrip>511?768-firstStrip:512-firstStrip; //*FIXME, I dont' know ithis class the strip number of a detector, so I assume wrongly that if the last firstStrip<511 the detector has only 512 strips. Clearly wrong. to be fixed
+
+      addToStat(it->getLth()   ,stripRange,meanLth,rmsLth,minLth,maxLth);
+      addToStat(it->getHth()   ,stripRange,meanHth,rmsHth,minHth,maxHth);
+      addToStat(it->getClusth(),stripRange,meanCth,rmsCth,minCth,maxCth);
+      n+=stripRange;
+    }
+    meanLth/=n;
+    meanHth/=n;
+    meanCth/=n;
+    rmsLth= sqrt(rmsLth/n-meanLth*meanLth);
+    rmsHth= sqrt(rmsHth/n-meanHth*meanHth);
+    rmsCth= sqrt(rmsCth/n-meanCth*meanCth);
+    ss<< "\nn " << n << " \tmeanLth " << meanLth << " \t rmsLth " << rmsLth << " \t minLth " << minLth << " \t maxLth " << maxLth;  
+    ss<< "\n\tmeanHth " << meanHth << " \t rmsHth " << rmsHth << " \t minHth " << minHth << " \t maxHth " << maxHth;  
+    ss<< "\n\tmeanCth " << meanCth << " \t rmsCth " << rmsCth << " \t minCth " << minCth << " \t maxCth " << maxCth;  
+  }
+}
+
+void SiStripThreshold::addToStat(float value, uint16_t& range, float& sum, float& sum2, float& min, float& max) const{
+  sum+=value*range;
+  sum2+=value*value*range;
+  if(value<min)
+    min=value;
+  if(value>max)
+    max=value;
+}
