@@ -26,8 +26,8 @@
 * with older data.
 *
 * \author Robert Frazier
-* $Revision: 1.15 $
-* $Date: 2009/03/15 16:05:50 $
+* $Revision: 1.16 $
+* $Date: 2009/03/20 02:16:32 $
 */ 
 
 
@@ -74,6 +74,7 @@ public:
   void setInternJetDataCollection(L1GctInternJetDataCollection* coll) { gctInternJetData_ = coll; }
   void setInternEtSumCollection(L1GctInternEtSumCollection* coll) { gctInternEtSums_ = coll; }
   void setInternHFDataCollection(L1GctInternHFDataCollection* coll) { gctInternHFData_ = coll; }
+  void setInternHtMissCollection(L1GctInternHtMissCollection* coll) { gctInternHtMiss_ = coll; }
 
   /// Get digis from the block - will return true if it succeeds, false otherwise.
   virtual bool convertBlock(const unsigned char * d, const GctBlockHeaderBase& hdr) = 0;
@@ -119,6 +120,7 @@ protected:
   L1GctInternJetDataCollection* gctInternJetData_; ///< GCT internal jet data
   L1GctInternEtSumCollection* gctInternEtSums_; ///< GCT internal Et sums
   L1GctInternHFDataCollection* gctInternHFData_; ///< GCT internal HF data
+  L1GctInternHtMissCollection* gctInternHtMiss_; ///< GCT internal Missing Ht data.
 
 
   // PROTECTED METHODS
@@ -181,6 +183,12 @@ protected:
 
   /// unpack GCT internal input to wheel
   void blockToGctWheelInputInternEtAndRingSums(const unsigned char * d, const GctBlockHeaderBase& hdr);
+
+  /// unpack GCT internal Missing Ht data that is being input to the wheels.
+  void blockToGctInternHtMissPreWheel(const unsigned char* d, const GctBlockHeaderBase& hdr); 
+
+  /// unpack GCT internal Missing Ht data that is either wheel output or concJet input (i.e. after wheel processing).
+  void blockToGctInternHtMissPostWheel(const unsigned char* d, const GctBlockHeaderBase& hdr);
 
 private:
 

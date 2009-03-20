@@ -76,6 +76,7 @@ GctBlockUnpackerV2::GctBlockUnpackerV2(bool hltMode):
     //  -- ConcJet FPGA                                                             
     blockUnpackFn_[0x580] = &GctBlockUnpackerV2::blockToGctTrigObjects;             // ConcJet: Input TrigPathA (Jet Cands)
     blockUnpackFn_[0x581] = &GctBlockUnpackerV2::blockToGctInternRingSums;          // ConcJet: Input TrigPathB (HF Rings)
+    blockUnpackFn_[0x582] = &GctBlockUnpackerV2::blockToGctInternHtMissPostWheel;   // ConcJet: Input TrigPathC (MissHt)
     blockUnpackFn_[0x583] = &GctBlockUnpackerV2::blockToGctJetCandsAndCounts;       // ConcJet: Jet Cands and Counts Output to GT
     blockUnpackFn_[0x587] = &GctBlockUnpackerV2::blockDoNothing;                    // ConcJet: BX & Orbit Info
     //  -- ConcElec FPGA                                                            
@@ -99,8 +100,10 @@ GctBlockUnpackerV2::GctBlockUnpackerV2(bool hltMode):
     blockUnpackFn_[0xc83] = &GctBlockUnpackerV2::blockToGctInternEmCand;            // Leaf0ElecNegEtaU2: Sort Output
     blockUnpackFn_[0xc84] = &GctBlockUnpackerV2::blockToFibresAndToRctEmCand;       // Leaf0ElecNegEtaU2: Raw Input
     //  -- Wheel Pos-eta Jet FPGA                                                   
-    blockUnpackFn_[0x300] = &GctBlockUnpackerV2::blockToGctJetClusterMinimal;       // WheelPosEtaJet: Input TrigPathA
-    blockUnpackFn_[0x303] = &GctBlockUnpackerV2::blockToGctTrigObjects;             // WheelPosEtaJet: Output TrigPathA
+    blockUnpackFn_[0x300] = &GctBlockUnpackerV2::blockToGctJetClusterMinimal;       // WheelPosEtaJet: Input TrigPathA (Jet Sort)
+    blockUnpackFn_[0x301] = &GctBlockUnpackerV2::blockToGctInternHtMissPreWheel;    // WheelPosEtaJet: Input TrigPathB (MissHt)
+    blockUnpackFn_[0x303] = &GctBlockUnpackerV2::blockToGctTrigObjects;             // WheelPosEtaJet: Output TrigPathA (Jet Sort)
+    blockUnpackFn_[0x305] = &GctBlockUnpackerV2::blockToGctInternHtMissPostWheel;   // WheelPosEtaJet: Output TrigPathB (MissHt)
     blockUnpackFn_[0x306] = &GctBlockUnpackerV2::blockDoNothing;                    // WheelPosEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
     blockUnpackFn_[0x307] = &GctBlockUnpackerV2::blockDoNothing;                    // WheelPosEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
     //  -- Wheel Pos-eta Energy FPGA                                                
@@ -111,8 +114,10 @@ GctBlockUnpackerV2::GctBlockUnpackerV2(bool hltMode):
     blockUnpackFn_[0x386] = &GctBlockUnpackerV2::blockDoNothing;                    // WheelPosEtaEnergy: Test
     blockUnpackFn_[0x387] = &GctBlockUnpackerV2::blockDoNothing;                    // WheelPosEtaEnergy: BX & Orbit Info   (Potential data incompatibility between V24/V25 where block length=4, and V27.1 where block length=6)
     //  -- Wheel Neg-eta Jet FPGA                                                   
-    blockUnpackFn_[0x700] = &GctBlockUnpackerV2::blockToGctJetClusterMinimal;       // WheelNegEtaJet: Input TrigPathA
-    blockUnpackFn_[0x703] = &GctBlockUnpackerV2::blockToGctTrigObjects;             // WheelNegEtaJet: Output TrigPathA
+    blockUnpackFn_[0x700] = &GctBlockUnpackerV2::blockToGctJetClusterMinimal;       // WheelNegEtaJet: Input TrigPathA (Jet Sort)
+    blockUnpackFn_[0x701] = &GctBlockUnpackerV2::blockToGctInternHtMissPreWheel;    // WheelNegEtaJet: Input TrigPathB (MissHt)
+    blockUnpackFn_[0x703] = &GctBlockUnpackerV2::blockToGctTrigObjects;             // WheelNegEtaJet: Output TrigPathA (Jet Sort)
+    blockUnpackFn_[0x705] = &GctBlockUnpackerV2::blockToGctInternHtMissPostWheel;   // WheelNegEtaJet: Output TrigPathB (MissHt)
     blockUnpackFn_[0x706] = &GctBlockUnpackerV2::blockDoNothing;                    // WheelNegEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
     blockUnpackFn_[0x707] = &GctBlockUnpackerV2::blockDoNothing;                    // WheelNegEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
     //  -- Wheel Neg-eta Energy FPGA                                                

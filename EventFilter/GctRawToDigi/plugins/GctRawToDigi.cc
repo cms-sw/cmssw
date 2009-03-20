@@ -83,12 +83,16 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   produces<L1GctEtHadCollection>();
   produces<L1GctEtMissCollection>();
   produces<L1GctHtMissCollection>();
+  produces<L1GctInternHtMissCollection>();
   produces<L1GctHFBitCountsCollection>();
   produces<L1GctHFRingEtSumsCollection>();
   produces<L1GctFibreCollection>();
   produces<L1GctInternJetDataCollection>();
   produces<L1GctInternEtSumCollection>();
   produces<L1GctInternHFDataCollection>();
+  
+  // DEPRECATED! GT needs empty collection to avoid breaking things
+  produces<L1GctJetCountsCollection>();
 }
 
 
@@ -156,12 +160,14 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
   std::auto_ptr<L1GctEtHadCollection> etHadResult( new L1GctEtHadCollection() );
   std::auto_ptr<L1GctEtMissCollection> etMissResult( new L1GctEtMissCollection() );
   std::auto_ptr<L1GctHtMissCollection> htMissResult( new L1GctHtMissCollection() );
+  std::auto_ptr<L1GctJetCountsCollection> gctJetCounts ( new L1GctJetCountsCollection() );  // DEPRECATED. ONLY GT NEEDS THIS.
 
   // GCT intermediate data
   std::auto_ptr<L1GctInternEmCandCollection> gctInternEm( new L1GctInternEmCandCollection() ); 
   std::auto_ptr<L1GctInternJetDataCollection> gctInternJets( new L1GctInternJetDataCollection() ); 
   std::auto_ptr<L1GctInternEtSumCollection> gctInternEtSums( new L1GctInternEtSumCollection() ); 
   std::auto_ptr<L1GctInternHFDataCollection> gctInternHFData( new L1GctInternHFDataCollection() ); 
+  std::auto_ptr<L1GctInternHtMissCollection> gctInternHtMiss( new L1GctInternHtMissCollection() );
 
   // Fibres
   std::auto_ptr<L1GctFibreCollection> gctFibres( new L1GctFibreCollection() );
@@ -185,6 +191,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     blockUnpacker_->setInternJetDataCollection( gctInternJets.get() );
     blockUnpacker_->setInternEtSumCollection( gctInternEtSums.get() );
     blockUnpacker_->setInternHFDataCollection( gctInternHFData.get() );
+    blockUnpacker_->setInternHtMissCollection( gctInternHtMiss.get() );
     blockUnpacker_->setFibreCollection( gctFibres.get() );
   
     const unsigned char * data = d.data();  // The 8-bit wide raw-data array.  
@@ -250,6 +257,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
       os << "Read " << hfRingEtSums->size() << " GCT HF ring et sums" << endl;
       os << "Read " << hfBitCounts->size() << " GCT HF ring bit counts" << endl;
       os << "Read " << gctInternHFData->size() << " GCT intermediate HF data" << endl;
+      os << "Read " << gctInternHtMiss->size() << " GCT intermediate Missing Ht" << endl;
       os << "Read " << gctFibres->size() << " GCT raw fibre data" << endl;
       edm::LogVerbatim("GCT") << os.str();
     }
@@ -272,9 +280,11 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
   e.put(gctInternJets);
   e.put(gctInternEtSums);
   e.put(gctInternHFData);
+  e.put(gctInternHtMiss);
   e.put(rctEm);
   e.put(rctCalo);
   e.put(gctFibres);
+  e.put(gctJetCounts);  // DEPRECATED
 }
 
 
