@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.36 2009/03/15 19:52:55 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.37 2009/03/16 10:25:17 amraktad Exp $
 //
 
 // system include files
@@ -97,11 +97,22 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    TGLEmbeddedViewer* ev = m_embeddedViewer;
 
    m_autoRebin.changed_.connect(boost::bind(&FWEveLegoView::setAutoRebin,this));
+
+   TEveScene* ns = gEve->SpawnNewScene(staticTypeName().c_str());
+   m_scene.reset(ns);
+   nv->AddScene(ns);
+   m_viewer.reset(nv);
+   gEve->AddElement(nv, gEve->GetViewers());
+
    // take care of cameras
    //
    ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    //  ev->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
-   ev->SetEventHandler(new TEveLegoEventHandler("Lego", ev->GetGLWidget(), ev));
+   TEveLegoEventHandler* eh = new TEveLegoEventHandler("Lego", ev->GetGLWidget(), ev);
+   eh->fMode = TEveLegoEventHandler::kLocked;
+   ev->SetEventHandler(eh);
+
+
    if ( TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>( &(ev->RefCamera(TGLViewer::kCameraPerspXOY) ))) {
       m_cameraMatrixRef = const_cast<TGLMatrix*>(&(camera->GetCamTrans()));
       m_cameraMatrixBaseRef = const_cast<TGLMatrix*>(&(camera->GetCamBase()));
@@ -111,12 +122,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
       m_orthoCameraMatrixRef = const_cast<TGLMatrix*>(&(camera->GetCamTrans()));
    }
 
-   TEveScene* ns = gEve->SpawnNewScene(staticTypeName().c_str());
-   m_scene.reset(ns);
-   nv->AddScene(ns);
-   m_viewer.reset(nv);
-   gEve->AddElement(nv, gEve->GetViewers());
-
+  
    /*
      TEveRGBAPalette* pal = new TEveRGBAPalette(0, 100);
      // pal->SetLimits(0, data->GetMaxVal());
