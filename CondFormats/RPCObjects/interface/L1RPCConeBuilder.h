@@ -16,14 +16,14 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Fri Feb 22 12:27:02 CET 2008
-// $Id: L1RPCConeBuilder.h,v 1.6 2009/03/19 12:37:01 fruboes Exp $
+// $Id: L1RPCConeBuilder.h,v 1.7 2009/03/20 10:28:29 fruboes Exp $
 //
 
 #include <vector>
 #include <map>
 #include <stdint.h>
 #include <cstdlib>
-#include "CondFormats/RPCObjects/interface/L1RPCConeDefinition.h"
+#include "CondFormats/L1TObjects/interface/L1RPCConeDefinition.h"
 
 
 class L1RPCConeBuilder

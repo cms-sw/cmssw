@@ -39,7 +39,6 @@
   <class name="std::vector<RPCEMap::stripItem>"/>
 
   <class name="L1RPCConeBuilder"/>
-  <class name="L1RPCConeDefinition"/>
 
   <class name="L1RPCHwConfig"/>
   <class name="L1RPCDevCoords"/>
