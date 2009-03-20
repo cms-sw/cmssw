@@ -1,6 +1,9 @@
 #include <memory>
 
 #include "CondTools/SiPixel/test/SiPixelCondObjOfflineReader.h"
+#include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
+#include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineSimService.h"
+
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -11,9 +14,12 @@
 
 namespace cms{
 SiPixelCondObjOfflineReader::SiPixelCondObjOfflineReader(const edm::ParameterSet& conf): 
-    conf_(conf),
-    SiPixelGainCalibrationService_(conf)
+    conf_(conf)
 {
+  if(conf_.getParameter<bool>("useSimRcd"))
+    SiPixelGainCalibrationService_ = new  SiPixelGainCalibrationOfflineSimService(conf_);
+  else
+     SiPixelGainCalibrationService_ = new SiPixelGainCalibrationOfflineService(conf_);
 }
 
 void
@@ -32,7 +38,7 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
   uint32_t nnoisy=0;
   
   // Get the calibration data
-  SiPixelGainCalibrationService_.setESObjects(iSetup);
+  SiPixelGainCalibrationService_->setESObjects(iSetup);
   edm::LogInfo("SiPixelCondObjOfflineReader") << "[SiPixelCondObjOfflineReader::beginJob] End Reading CondObjOfflineects" << std::endl;
  
   // Get the Geometry
@@ -40,7 +46,7 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
   edm::LogInfo("SiPixelCondObjOfflineReader") <<" There are "<<tkgeom->dets().size() <<" detectors"<<std::endl;
   
   // Get the list of DetId's
-  std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationService_.getDetIds();
+  std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationService_->getDetIds();
 
   //Create histograms
   _TH1F_Dead_sum =  fs->make<TH1F>("Summary_dead","Dead pixel fraction (0=dead, 1=alive)",vdetId_.size()+1,0,vdetId_.size()+1);
@@ -101,13 +107,13 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
 	 nchannelspermod++;
 	 nchannels++;
 	 
-	 if(SiPixelGainCalibrationService_.isDead(detid,col_iter,row_iter)){
+	 if(SiPixelGainCalibrationService_->isDead(detid,col_iter,row_iter)){
 	    //	    std::cout << "found dead pixel " << detid << " " <<col_iter << "," << row_iter << std::endl;
 	   ndead++;
 	   _deadfrac_m[detid]++;
 	   continue;
 	 }
-	 else if(SiPixelGainCalibrationService_.isNoisy(detid,col_iter,row_iter)){
+	 else if(SiPixelGainCalibrationService_->isNoisy(detid,col_iter,row_iter)){
 	    //	    std::cout << "found noisy pixel " << detid << " " <<col_iter << "," << row_iter << std::endl;
 	   nnoisy++;
 	   _noisyfrac_m[detid]++;
@@ -115,7 +121,7 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
 	 }
 
 
-	 float gain  = SiPixelGainCalibrationService_.getGain(detid, col_iter, row_iter);
+	 float gain  = SiPixelGainCalibrationService_->getGain(detid, col_iter, row_iter);
 	 _TH1F_Gains_m[detid]->Fill( gain );
 	 _TH1F_Gains_all->Fill(gain);
 
@@ -124,7 +130,7 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
 	 if (detIdObject.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap))
 	   _TH1F_Gains_fpix->Fill(gain);
 
-	 float ped  = SiPixelGainCalibrationService_.getPedestal(detid, col_iter, row_iter);
+	 float ped  = SiPixelGainCalibrationService_->getPedestal(detid, col_iter, row_iter);
 	 _TH1F_Pedestals_m[detid]->Fill( ped );
        	 _TH1F_Pedestals_all->Fill(ped);
 	 //	 std::cout<<"detid  "<<detid<<"     ped "<<ped<<std::endl;

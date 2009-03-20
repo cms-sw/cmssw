@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjForHLTReader.h,v 1.4 2008/11/12 14:13:06 heyburn Exp $
+// $Id: SiPixelCondObjForHLTReader.h,v 1.5 2009/02/18 10:38:47 rougny Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -27,7 +27,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include "CondFormats/SiPixelObjForHLTects/interface/SiPixelGainCalibration.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "CondTools/SiPixel/interface/SiPixelGainCalibrationForHLTService.h"
+#include "CondTools/SiPixel/interface/SiPixelGainCalibrationServiceBase.h"
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -52,7 +52,7 @@ private:
   edm::ParameterSet conf_;
   edm::ESHandle<TrackerGeometry> tkgeom;
   //edm::ESHandle<SiPixelGainCalibration> SiPixelGainCalibration_;
-  SiPixelGainCalibrationForHLTService SiPixelGainCalibrationService_;
+  SiPixelGainCalibrationServiceBase *SiPixelGainCalibrationService_;
 
   std::map< uint32_t, TH1F* >  _TH1F_Pedestals_m;
   std::map< uint32_t, TH1F* >  _TH1F_Gains_m;
