@@ -1,10 +1,12 @@
 #include "GeneratorInterface/CosmicMuonGenerator/interface/SingleParticleEvent.h"
 
 void SingleParticleEvent::create(int id, double px, double py, double pz, double e, double m, double vx, double vy, double vz, double t0){
-    ID = id;
-    Px = px; Py = py; Pz = pz; E = e; M = m;
-    Vx = vx; Vy = vy; Vz = vz; T0 = t0;
-    HitTarget = false;
+  ID = ID_in = id;
+  Px = Px_in = px; Py = Py_in = py; Pz = Pz_in = pz; 
+  E = E_in = e; M = M_in = m;
+  Vx = Vx_in = vx; Vy = Vy_in = vy; Vz = Vz_in = vz; 
+  T0 = T0_in = t0;
+  HitTarget = false;
 }
 
 void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, double Z_DistTarget, double Z_CentrTarget, bool TrackerOnly, bool MTCCHalf){
@@ -220,6 +222,28 @@ double SingleParticleEvent::rVxyTmp(){
 }
 
 bool SingleParticleEvent::hitTarget(){ return HitTarget; }
+
+
+int    SingleParticleEvent::id_in(){ return ID_in; }
+
+double SingleParticleEvent::px_in(){ return Px_in; }
+
+double SingleParticleEvent::py_in(){ return Py_in; }
+
+double SingleParticleEvent::pz_in(){ return Pz_in; }
+
+double SingleParticleEvent::e_in(){ return E_in; }
+
+double SingleParticleEvent::m_in(){ return M_in; }
+
+double SingleParticleEvent::vx_in(){ return Vx_in; }
+
+double SingleParticleEvent::vy_in(){ return Vy_in; }
+
+double SingleParticleEvent::vz_in(){ return Vz_in; }
+
+double SingleParticleEvent::t0_in(){ return T0_in; }
+
 
 int    SingleParticleEvent::id(){ return ID; }
 

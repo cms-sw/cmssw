@@ -123,7 +123,7 @@ void CosmicMuonGenerator::initialize(CLHEP::HepRandomEngine *rng){
 #endif
     if (EventDisplay) initEvDis();
     std::cout << std::endl;
-    std::cout << "  generating " << NumberOfEvents << " events with random seed " << RanSeed << std::endl;
+    //std::cout << "  generating " << NumberOfEvents << " events with random seed " << RanSeed << std::endl;
     NotInitialized = false;
   }
 }
@@ -261,7 +261,8 @@ void CosmicMuonGenerator::terminate(){
     //at least 100 evts., and
     //downgoing inside theta parametersisation range
     //or upgoing neutrino muons 
-    if(n100cos>0 && (MaxTheta<84.26*Deg2Rad || MinTheta>90.*Deg2Rad)){
+    if(n100cos>0 && MaxTheta<84.26*Deg2Rad 
+       || MinTheta>90.*Deg2Rad) {
       // rate: corrected for area and selection-Eff. and normalized to known flux, integration over solid angle (dOmega) is implicit
       // flux is normalised with respect to known flux of vertical 100GeV muons in area at suface level 
       // rate seen by detector is lower than rate at surface area, so has to be corrected for selection-Eff.

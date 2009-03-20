@@ -13,7 +13,8 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(500)
+    #input = cms.untracked.int32(500)
+    input = cms.untracked.int32(10)
 )
 process.CMSCGEN_out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('cosmic.root')
