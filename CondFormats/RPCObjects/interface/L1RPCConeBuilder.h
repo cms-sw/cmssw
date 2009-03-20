@@ -16,7 +16,7 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Fri Feb 22 12:27:02 CET 2008
-// $Id: L1RPCConeBuilder.h,v 1.5 2009/02/06 00:55:50 elmer Exp $
+// $Id: L1RPCConeBuilder.h,v 1.6 2009/03/19 12:37:01 fruboes Exp $
 //
 
 #include <vector>
@@ -58,12 +58,28 @@ class L1RPCConeBuilder
         TCompressedCon() : m_tower(99),  m_mul(99), m_PAC(0), 
           m_logplane(99), m_validForStripFirst(0), m_validForStripLast(0), m_offset(-1000){};
           
-        int getLogStrip(int strip, const L1RPCConeDefinition::TLPSizesInTowers & LPSizesInTowers) const{
+        int getLogStrip(int strip, const L1RPCConeDefinition::TLPSizeVec & LPSizeVec) const{
           int ret = -1;
           if ( strip >= m_validForStripFirst && strip <= m_validForStripLast ){ 
             ret = int(m_mul)*strip+int(m_offset);
           
-            if (ret<0 || ret > LPSizesInTowers.at(std::abs(m_tower)).at(m_logplane-1)  )
+            int lpSize = -1;
+            L1RPCConeDefinition::TLPSizeVec::const_iterator it = LPSizeVec.begin();
+            L1RPCConeDefinition::TLPSizeVec::const_iterator itEnd = LPSizeVec.end();
+            for (;it!=itEnd;++it){
+            
+              if (it->m_tower != std::abs(m_tower) || it->m_LP != m_logplane-1) continue;
+              lpSize = it->m_size;
+            
+            }
+
+            //FIXME
+            if (lpSize==-1) {
+              //throw cms::Exception("getLogStrip") << " lpSize==-1\n";
+            }
+            
+            //if (ret<0 || ret > LPSizesInTowers.at(std::abs(m_tower)).at(m_logplane-1)  )
+            if (ret<0 || ret > lpSize )
               return -1;
           
           }

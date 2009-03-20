@@ -53,9 +53,12 @@ class L1RPCConeDefinitionProducer : public edm::ESProducer {
      int m_hwPlaneBeg;
      int m_hwPlaneEnd;
      
-     L1RPCConeDefinition::TLPSizesInTowers m_LPSizesInTowers;
+     //L1RPCConeDefinition::TLPSizesInTowers m_LPSizesInTowers;
+     L1RPCConeDefinition::TLPSizeVec m_LPSizeVec;
+     
      //L1RPCConeDefinition::TRingsToTowers m_RingsToTowers;
      L1RPCConeDefinition::TRingToTowerVec m_ringToTowerVec;
+     
      //L1RPCConeDefinition::TRingsToLP m_RingsToLP;
      L1RPCConeDefinition::TRingToLPVec m_ringToLPVec;
 };
@@ -83,15 +86,21 @@ L1RPCConeDefinitionProducer::L1RPCConeDefinitionProducer(const edm::ParameterSet
   // data is being produced
   setWhatProduced(this);
 
-  for (int i = m_towerBeg; i <= m_towerEnd; ++i){
+  for (int t = m_towerBeg; t <= m_towerEnd; ++t){
       
     std::stringstream name;
-    name << "lpSizeTower" << i;
+    name << "lpSizeTower" << t;
       
-    L1RPCConeDefinition::TLogPlaneSize newSizes = 
+    
+    std::vector<int> newSizes = 
         iConfig.getParameter<std::vector<int> >(name.str().c_str());
+    
+    for (unsigned int lp = 0; lp < newSizes.size();++lp){
+      L1RPCConeDefinition::TLPSize lps(t, lp,  newSizes[lp]);
+      m_LPSizeVec.push_back(lps);
+    }
       
-    m_LPSizesInTowers.push_back(newSizes);
+
     
   }
 
@@ -173,7 +182,7 @@ L1RPCConeDefinitionProducer::produce(const L1RPCConeDefinitionRcd& iRecord)
    pL1RPCConeDefinition->setFirstTower(m_towerBeg);
    pL1RPCConeDefinition->setLastTower(m_towerEnd);
    
-   pL1RPCConeDefinition->setLPSizeForTowers(m_LPSizesInTowers);
+   pL1RPCConeDefinition->setLPSizeVec(m_LPSizeVec);
    pL1RPCConeDefinition->setRingToLPVec(m_ringToLPVec);
    pL1RPCConeDefinition->setRingToTowerVec(m_ringToTowerVec);
    

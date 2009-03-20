@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Mar  3 13:34:20 CET 2008
-// $Id: RPCConeBuilderFromES.cc,v 1.5 2008/12/12 14:11:49 fruboes Exp $
+// $Id: RPCConeBuilderFromES.cc,v 1.6 2009/03/19 12:39:43 fruboes Exp $
 //
 
 // system include files
@@ -99,7 +99,7 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
       L1RPCConeBuilder::TCompressedConVec::const_iterator itComp = compressedConnPair.first;
       for (; itComp!=compressedConnPair.second; ++itComp){
          if ( hwConfig->isActive(itComp->m_tower, itComp->m_PAC)){
-           int logstrip = itComp->getLogStrip(digiIt->strip(),coneDef->getLPSizes());
+           int logstrip = itComp->getLogStrip(digiIt->strip(),coneDef->getLPSizeVec());
            if (logstrip!=-1){
                logHits.push_back( RPCLogHit(itComp->m_tower, itComp->m_PAC, itComp->m_logplane, logstrip ) );
            }

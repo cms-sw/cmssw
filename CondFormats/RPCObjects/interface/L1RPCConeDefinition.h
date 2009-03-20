@@ -9,9 +9,19 @@ class L1RPCConeDefinition {
 
   public:
       //  For logplane sizes
-    typedef std::vector<int> TLogPlaneSize;
-    typedef std::vector<TLogPlaneSize > TLPSizesInTowers;
-      
+    //typedef std::vector<int> TLogPlaneSize;
+    //typedef std::vector<TLogPlaneSize > TLPSizesInTowers;
+    struct TLPSize {
+      TLPSize(signed char t, signed char lp, unsigned char size) : 
+          m_tower(t), m_LP(lp), m_size(size) {};
+      signed char m_tower;
+      signed char m_LP;
+      unsigned char m_size;
+    };
+    typedef std::vector<TLPSize> TLPSizeVec;
+
+    
+          
       // For (roll,hwplane)->tower mapping
       /*
     typedef std::vector<int> TTowerList;
@@ -50,14 +60,17 @@ class L1RPCConeDefinition {
     
 
     //int getLPSize(int tower) const {return m_LPSizesInTowers.at(tower);};
-    const TLPSizesInTowers &  getLPSizes() const { return m_LPSizesInTowers;};
+    //const TLPSizesInTowers &  getLPSizes() const { return m_LPSizesInTowers;};
 
     void setFirstTower(int tow) {m_firstTower = tow;};
     void setLastTower(int tow) {m_lastTower = tow;};
 
+    /*
     void setLPSizeForTowers(const TLPSizesInTowers & lpSizes) { m_LPSizesInTowers = lpSizes;};
     const TLPSizesInTowers & getLPSizeForTowers() const { return m_LPSizesInTowers;};
-    
+    */
+    void setLPSizeVec(const TLPSizeVec & lpSizes) { m_LPSizeVec = lpSizes;};
+    const TLPSizeVec & getLPSizeVec() const { return m_LPSizeVec;};
     
     /*
     void setRingsToTowers(const TRingsToTowers & RingsToTowers) { m_RingsToTowers = RingsToTowers;};
@@ -79,7 +92,8 @@ class L1RPCConeDefinition {
          
     int m_firstTower;
     int m_lastTower;
-    TLPSizesInTowers m_LPSizesInTowers;
+    //TLPSizesInTowers m_LPSizesInTowers;
+    TLPSizeVec m_LPSizeVec;
     //TRingsToTowers m_RingsToTowers;
     TRingToTowerVec m_ringToTowerVec;
     

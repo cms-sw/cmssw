@@ -296,9 +296,26 @@ std::string WriteVHDL::writePACandLPDef(const edm::EventSetup& iSetup, int tower
 
     std::string coma1 = ""; 
     for (int lp = 0; lp < 6; ++lp){
-      int size = l1RPCConeDefinition->getLPSizes().at(tower).at(lp);
-      if (size == 0) size = 1;
-      ret << coma1 << size;
+      //int size = l1RPCConeDefinition->getLPSizes().at(tower).at(lp);
+      int lpSize = -1;
+      L1RPCConeDefinition::TLPSizeVec::const_iterator it = l1RPCConeDefinition->getLPSizeVec().begin();
+      L1RPCConeDefinition::TLPSizeVec::const_iterator itEnd = l1RPCConeDefinition->getLPSizeVec().end();
+      for (;it!=itEnd;++it){
+            
+        if (it->m_tower != std::abs(tower) || it->m_LP != lp) continue;
+        lpSize = it->m_size;
+            
+      }
+
+      //FIXME
+      if (lpSize==-1) {
+           throw cms::Exception("getLogStrip") << " lpSize==-1\n";
+      }
+      
+     
+      
+      if (lpSize == 0 || lpSize == -1) lpSize = 1;
+      ret << coma1 << lpSize;
       coma1 = ", ";
     }
 

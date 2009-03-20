@@ -450,20 +450,37 @@ std::pair<int, int> RPCConeBuilder::areConnected(RPCStripsRing::TIdToRindMap::it
     logplane = m_L1RPCConeDefinition->getRingsToLP().at(std::abs(other->second.getEtaPartition()))
            .at(other->second.getHwPlane()-1)
     .at(index);*/
-    L1RPCConeDefinition::TRingToLPVec::const_iterator it = m_L1RPCConeDefinition->getRingToLPVec().begin();
-    L1RPCConeDefinition::TRingToLPVec::const_iterator itEnd = m_L1RPCConeDefinition->getRingToLPVec().end();
-    for (;it!=itEnd;++it){
-      
-      if (it->m_etaPart != std::abs(other->second.getEtaPartition())
-          || it->m_hwPlane != std::abs(other->second.getHwPlane()-1) 
-          || it->m_index != index) continue;
-      
-      logplane = it->m_LP;  
-      
-    }
+    {
+      L1RPCConeDefinition::TRingToLPVec::const_iterator it = m_L1RPCConeDefinition->getRingToLPVec().begin();
+      L1RPCConeDefinition::TRingToLPVec::const_iterator itEnd = m_L1RPCConeDefinition->getRingToLPVec().end();
+      for (;it!=itEnd;++it){
         
-    lpSize = m_L1RPCConeDefinition->getLPSizeForTowers().at(refTower).at(logplane-1);
-     
+        if (it->m_etaPart != std::abs(other->second.getEtaPartition())
+            || it->m_hwPlane != std::abs(other->second.getHwPlane()-1) 
+            || it->m_index != index) continue;
+        
+        logplane = it->m_LP;  
+        
+      }
+    }    
+    //lpSize = m_L1RPCConeDefinition->getLPSizeForTowers().at(refTower).at(logplane-1);
+    
+    {
+      L1RPCConeDefinition::TLPSizeVec::const_iterator it = m_L1RPCConeDefinition->getLPSizeVec().begin();
+      L1RPCConeDefinition::TLPSizeVec::const_iterator itEnd = m_L1RPCConeDefinition->getLPSizeVec().end();
+      for (;it!=itEnd;++it){
+              
+        //std::cout << it->m_LP  << " " << logplane << std::endl;
+        if (it->m_tower != std::abs(refTower) || it->m_LP != logplane-1) continue;
+        lpSize = it->m_size;
+              
+      }
+  
+              //FIXME
+      if (lpSize==-1) {
+                //throw cms::Exception("getLogStrip") << " lpSize==-1\n";
+      }
+    }
   }
   
   
@@ -474,7 +491,7 @@ std::pair<int, int> RPCConeBuilder::areConnected(RPCStripsRing::TIdToRindMap::it
            << " logplane " << logplane
            << " lpsize " << lpSize 
            << std::endl;
-                                  }*/
+  }//*/
   
   return std::make_pair(logplane,lpSize);
 
