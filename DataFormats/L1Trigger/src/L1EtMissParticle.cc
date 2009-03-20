@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 18:22:52 EDT 2006
-// $Id: L1EtMissParticle.cc,v 1.6 2007/10/16 05:01:52 wsun Exp $
+// $Id: L1EtMissParticle.cc,v 1.7 2008/04/03 03:37:09 wsun Exp $
 //
 
 // system include files
@@ -34,36 +34,41 @@ L1EtMissParticle::L1EtMissParticle()
 }
 
 L1EtMissParticle::L1EtMissParticle(
-   const LorentzVector& p4,
-   const double& etTotal,
-   const double& etHad,
-   const edm::Ref< L1GctEtMissCollection >& aEtMissRef,
-   const edm::Ref< L1GctEtTotalCollection >& aEtTotalRef,
-   const edm::Ref< L1GctEtHadCollection >& aEtHadRef,
-   int bx )
+	const LorentzVector& p4,
+	EtMissType type,
+	const double& etTotal,
+	const edm::Ref< L1GctEtMissCollection >& aEtMissRef,
+	const edm::Ref< L1GctEtTotalCollection >& aEtTotalRef,
+	const edm::Ref< L1GctHtMissCollection >& aHtMissRef,
+	const edm::Ref< L1GctEtHadCollection >& aEtHadRef,
+	int bx )
    : LeafCandidate( ( char ) 0, p4 ),
+     type_( type ),
      etTot_( etTotal ),
-     etHad_( etHad ),
      etMissRef_( aEtMissRef ),
      etTotRef_( aEtTotalRef ),
+     htMissRef_( aHtMissRef ),
      etHadRef_( aEtHadRef ),
      bx_( bx )
 {
 }
 
+
 L1EtMissParticle::L1EtMissParticle(
-   const PolarLorentzVector& p4,
-   const double& etTotal,
-   const double& etHad,
-   const edm::Ref< L1GctEtMissCollection >& aEtMissRef,
-   const edm::Ref< L1GctEtTotalCollection >& aEtTotalRef,
-   const edm::Ref< L1GctEtHadCollection >& aEtHadRef,
-   int bx )
+	const PolarLorentzVector& p4,
+	EtMissType type,
+	const double& etTotal,
+	const edm::Ref< L1GctEtMissCollection >& aEtMissRef,
+	const edm::Ref< L1GctEtTotalCollection >& aEtTotalRef,
+	const edm::Ref< L1GctHtMissCollection >& aHtMissRef,
+	const edm::Ref< L1GctEtHadCollection >& aEtHadRef,
+	int bx )
    : LeafCandidate( ( char ) 0, p4 ),
+     type_( type ),
      etTot_( etTotal ),
-     etHad_( etHad ),
      etMissRef_( aEtMissRef ),
      etTotRef_( aEtTotalRef ),
+     htMissRef_( aHtMissRef ),
      etHadRef_( aEtHadRef ),
      bx_( bx )
 {

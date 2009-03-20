@@ -12,7 +12,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EtMissParticle.h,v 1.12 2007/11/13 17:27:23 wsun Exp $
+// $Id: L1EtMissParticle.h,v 1.13 2008/04/03 03:37:05 wsun Exp $
 //
 
 // system include files
@@ -25,101 +25,121 @@
 // forward declarations
 
 namespace l1extra {
+  class L1EtMissParticle : public reco::LeafCandidate
+    {
+    public:
+      enum EtMissType{ kET, kHT, kNumETTypes } ;
 
-   class L1EtMissParticle : public reco::LeafCandidate
-   {
+      L1EtMissParticle();
 
-      public:
-	 L1EtMissParticle();
+      // Default Refs are null.  For type = kET, only the first two are 
+      // filled; for type = kHT, only the second two are filled.
+      L1EtMissParticle(
+	const LorentzVector& p4,
+	EtMissType type,
+	const double& etTotal,
+	const edm::Ref< L1GctEtMissCollection >& aEtMissRef = edm::Ref< 
+	L1GctEtMissCollection >(),
+	const edm::Ref< L1GctEtTotalCollection >& aEtTotalRef = edm::Ref< 
+	L1GctEtTotalCollection >(),
+	const edm::Ref< L1GctHtMissCollection >& aHtMissRef = edm::Ref< 
+	L1GctHtMissCollection >(),
+	const edm::Ref< L1GctEtHadCollection >& aEtHadRef = edm::Ref< 
+	L1GctEtHadCollection >(),
+	int bx = 0 ) ;
 
-	 // Default Refs are null.
-	 L1EtMissParticle(
-            const LorentzVector& p4,
-	    const double& etTotal,
-	    const double& etHad,
-	    const edm::Ref< L1GctEtMissCollection >& aEtMissRef =
-	       edm::Ref< L1GctEtMissCollection >(),
-	    const edm::Ref< L1GctEtTotalCollection >& aEtTotalRef =
-	       edm::Ref< L1GctEtTotalCollection >(),
-	    const edm::Ref< L1GctEtHadCollection >& aEtHadRef =
-	       edm::Ref< L1GctEtHadCollection >(),
-	    int bx = 0 ) ;
+      L1EtMissParticle(
+	const PolarLorentzVector& p4,
+	EtMissType type,
+	const double& etTotal,
+	const edm::Ref< L1GctEtMissCollection >& aEtMissRef = edm::Ref< 
+	L1GctEtMissCollection >(),
+	const edm::Ref< L1GctEtTotalCollection >& aEtTotalRef = edm::Ref< 
+	L1GctEtTotalCollection >(),
+	const edm::Ref< L1GctHtMissCollection >& aHtMissRef = edm::Ref< 
+	L1GctHtMissCollection >(),
+	const edm::Ref< L1GctEtHadCollection >& aEtHadRef = edm::Ref< 
+	L1GctEtHadCollection >(),
+	int bx = 0 ) ;
 
-	 L1EtMissParticle(
-	    const PolarLorentzVector& p4,
-	    const double& etTotal,
-	    const double& etHad,
-	    const edm::Ref< L1GctEtMissCollection >& aEtMissRef =
-	       edm::Ref< L1GctEtMissCollection >(),
-	    const edm::Ref< L1GctEtTotalCollection >& aEtTotalRef =
-	       edm::Ref< L1GctEtTotalCollection >(),
-	    const edm::Ref< L1GctEtHadCollection >& aEtHadRef =
-	       edm::Ref< L1GctEtHadCollection >(),
-	    int bx = 0 ) ;
+      virtual ~L1EtMissParticle() {}
 
-	 virtual ~L1EtMissParticle() {}
+      // ---------- const member functions ---------------------
 
-	 // ---------- const member functions ---------------------
-	 double etMiss() const
-	 { return et() ; }
+      EtMissType type() const { return type_ ; }  // kET or kHT
 
-	 const double& etTotal() const
-	 { return etTot_ ; }
+      // For type = kET, this is |MET|; for type = kHT, this is |MHT|
+      double etMiss() const
+	{ return et() ; }
 
-	 const double& etHad() const
-	 { return etHad_ ; }
+      // For type = kET, this is total ET; for type = kHT, this is total HT
+      const double& etTotal() const
+	{ return etTot_ ; }
 
-	 const edm::Ref< L1GctEtMissCollection >& gctEtMissRef() const
-	 { return etMissRef_ ; }
+      // This is filled only for type = kET
+      const edm::Ref< L1GctEtMissCollection >& gctEtMissRef() const
+	{ return etMissRef_ ; }
 
-	 const edm::Ref< L1GctEtTotalCollection >& gctEtTotalRef() const
-	 { return etTotRef_ ; }
+      // This is filled only for type = kET
+      const edm::Ref< L1GctEtTotalCollection >& gctEtTotalRef() const
+	{ return etTotRef_ ; }
 
-	 const edm::Ref< L1GctEtHadCollection >& gctEtHadRef() const
-	 { return etHadRef_ ; }
+      // This is filled only for type = kHT
+      const edm::Ref< L1GctHtMissCollection >& gctHtMissRef() const
+	{ return htMissRef_ ; }
 
-	 const L1GctEtMiss* gctEtMiss() const
-	 { return etMissRef_.get() ; }
+      // This is filled only for type = kHT
+      const edm::Ref< L1GctEtHadCollection >& gctEtHadRef() const
+	{ return etHadRef_ ; }
 
-	 const L1GctEtTotal* gctEtTotal() const
-	 { return etTotRef_.get() ; }
+      // This is filled only for type = kET
+      const L1GctEtMiss* gctEtMiss() const
+	{ return etMissRef_.get() ; }
 
-	 const L1GctEtHad* gctEtHad() const
-	 { return etHadRef_.get() ; }
+      // This is filled only for type = kET
+      const L1GctEtTotal* gctEtTotal() const
+	{ return etTotRef_.get() ; }
 
-         virtual L1EtMissParticle* clone() const
-         { return new L1EtMissParticle( *this ) ; }
+      // This is filled only for type = kHT
+      const L1GctHtMiss* gctHtMiss() const
+	{ return htMissRef_.get() ; }
 
-	 int bx() const
-	 { return bx_ ; }
+      // This is filled only for type = kHT
+      const L1GctEtHad* gctEtHad() const
+	{ return etHadRef_.get() ; }
 
-	 // ---------- static member functions --------------------
+      virtual L1EtMissParticle* clone() const
+	{ return new L1EtMissParticle( *this ) ; }
 
-	 // ---------- member functions ---------------------------
-	 void setEtTotal( const double& etTotal )
-	 { etTot_ = etTotal ; }
+      int bx() const
+	{ return bx_ ; }
 
-	 void setEtHad( const double& etHad )
-	 { etHad_ = etHad ; }
+      // ---------- static member functions --------------------
 
-	 void setBx( int bx )
-	 { bx_ = bx ; }
+      // ---------- member functions ---------------------------
+      void setEtTotal( const double& etTotal )
+	{ etTot_ = etTotal ; }
 
-      private:
-	 // L1EtMissParticle(const L1EtMissParticle&); // stop default
+      void setBx( int bx )
+	{ bx_ = bx ; }
 
-	 // const L1EtMissParticle& operator=(const L1EtMissParticle&); // stop default
+    private:
+      // L1EtMissParticle(const L1EtMissParticle&); // stop default
 
-	 // ---------- member data --------------------------------
-	 double etTot_ ;
-	 double etHad_ ;
+      // const L1EtMissParticle& operator=(const L1EtMissParticle&); // stop default
 
-	 edm::Ref< L1GctEtMissCollection > etMissRef_ ;
-	 edm::Ref< L1GctEtTotalCollection > etTotRef_ ;
-	 edm::Ref< L1GctEtHadCollection > etHadRef_ ;
+      // ---------- member data --------------------------------
+      EtMissType type_ ;
 
-	 int bx_ ;
-   };
+      double etTot_ ;
+
+      edm::Ref< L1GctEtMissCollection > etMissRef_ ;
+      edm::Ref< L1GctEtTotalCollection > etTotRef_ ;
+      edm::Ref< L1GctHtMissCollection > htMissRef_ ;
+      edm::Ref< L1GctEtHadCollection > etHadRef_ ;
+
+      int bx_ ;
+    };
 }
 
 #endif
