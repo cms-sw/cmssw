@@ -105,7 +105,7 @@ private:
 	uint32_t TMB_WordCount;
 	uint32_t TMB_WordsExpected;
 	uint32_t TMB_Tbins;
-	uint32_t TMB_WordsExpectedCorrection;
+	uint32_t TMB_WordsRPC;
 	uint32_t TMB_Firmware_Revision;
 
 	uint32_t CFEB_SampleWordCount;

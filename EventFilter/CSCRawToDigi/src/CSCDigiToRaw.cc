@@ -1,8 +1,9 @@
 /** \file
  *
- *  $Date: 2009/02/17 16:27:29 $
- *  $Revision: 1.33 $
+ *  $Date: 2009/03/17 15:24:41 $
+ *  $Revision: 1.35 $
  *  \author A. Tumanov - Rice
+ *  But long, long ago...
  */
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -111,10 +112,22 @@ void CSCDigiToRaw::add(const CSCComparatorDigiCollection & comparatorDigis)
     {
       CSCDetId cscDetId=(*j).first;
       CSCEventData & cscData = findEventData(cscDetId);
+      
+      bool me1a = (cscDetId.station()==1) && (cscDetId.ring()==4);
 
       BOOST_FOREACH(CSCComparatorDigi digi, (*j).second)
         {
-          cscData.add(digi, cscDetId.layer() );
+	  // Move ME1/A comparators from CFEB=0 to CFEB=4 if this has not
+	  // been done already.
+	  if (me1a && digi.getStrip() <= 16) {
+	    CSCComparatorDigi digi_corr(64+digi.getStrip(),
+					digi.getComparator(),
+					digi.getTimeBinWord());
+	    cscData.add(digi_corr, cscDetId.layer());
+	  }
+	  else {
+	    cscData.add(digi, cscDetId.layer());
+	  }
         }
     }
 }
