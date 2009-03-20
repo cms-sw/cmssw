@@ -10,6 +10,7 @@
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 
 #include "GeneratorInterface/PartonShowerVeto/interface/JetMatchingMadgraph.h"
+#include "GeneratorInterface/PartonShowerVeto/interface/JetMatchingAlpgen.h"
 
 
 namespace gen {
@@ -51,6 +52,8 @@ std::auto_ptr<JetMatching> JetMatching::create(const edm::ParameterSet &params)
 
 	if (scheme == "Madgraph")
         	matching.reset(new JetMatchingMadgraph(params));
+	if (scheme == "Alpgen")
+	        matching.reset(new JetMatchingAlpgen(params));
 	else if (scheme == "MLM")
 		matching.reset();
 	else
