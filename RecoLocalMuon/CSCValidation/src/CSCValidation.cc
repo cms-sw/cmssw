@@ -805,15 +805,16 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::H
     }    
 
     // Fill some histograms
+    // only fill if 3 strips were used in the hit
+    histos->fill2DHistByStation(grecx,grecy,"hRHGlobal","recHit Global Position",idrec,100,-800.,800.,100,-800.,800.,"recHits");
     if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,4000,"recHits");
     else histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,2000,"recHits");
     histos->fill1DHistByType(rHratioQ,"hRHRatioQ","Charge Ratio (Ql+Qr)/Qt",idrec,120,-0.1,1.1,"recHits");
     histos->fill1DHistByType(rHtime,"hRHTiming","recHit Timing",idrec,100,0,10,"recHits");
-    histos->fill2DHistByStation(grecx,grecy,"hRHGlobal","recHit Global Position",idrec,100,-800.,800.,100,-800.,800.,"recHits");
     histos->fill1DHistByType(sqrt(xxerr),"hRHxerr","RecHit Error on Local X",idrec,100,-0.1,2,"recHits");
     histos->fill1DHistByType(sqrt(yyerr),"hRHyerr","RecHit Error on Local Y",idrec,100,-0.1,2,"recHits");
     histos->fill1DHistByType(xyerr,"hRHxyerr","Corr. RecHit XY Error",idrec,100,-1,2,"recHits");
-    histos->fill1DHistByType(stpos,"hRHstpos","Reconstructed Position on Strip",idrec,120,-0.6,0.6,"recHits");
+    if (adcsize == 12) histos->fill1DHistByType(stpos,"hRHstpos","Reconstructed Position on Strip",idrec,120,-0.6,0.6,"recHits");
     histos->fill1DHistByType(sterr,"hRHsterr","Estimated Error on Strip Measurement",idrec,120,-0.05,0.25,"recHits");
     histos->fillProfile(chamberSerial(idrec),rHSumQ,"hRHSumQProfile","Sum 3x3 recHit Charge",601,-0.5,600.5,0,4000,"recHits");
     histos->fillProfile(chamberSerial(idrec),rHtime,"hRHTimingProfile","recHit Timing",601,-0.5,600.5,-1,11,"recHits");
