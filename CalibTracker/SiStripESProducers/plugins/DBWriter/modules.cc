@@ -68,3 +68,15 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripBadChannelDummyDBWriter);
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 typedef DummyCondDBWriter<SiStripQuality,SiStripBadStrip,SiStripQualityRcd,BadStripRcdName> SiStripBadStripFromQualityDummyDBWriter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripBadStripFromQualityDummyDBWriter);
+
+
+//---------------------------------------------------------------------------------------------------------------
+
+#include "CalibTracker/SiStripESProducers/plugins/DBWriter/DummyCondObjPrinter.h"
+
+typedef DummyCondObjPrinter<SiStripNoises,SiStripNoisesRcd> SiStripNoisesDummyPrinter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripNoisesDummyPrinter);
+
+typedef DummyCondObjPrinter<SiStripThreshold,SiStripThresholdRcd> SiStripThresholdDummyPrinter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripThresholdDummyPrinter);
+
