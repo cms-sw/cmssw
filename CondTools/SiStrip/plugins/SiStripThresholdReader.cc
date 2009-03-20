@@ -24,19 +24,20 @@ void SiStripThresholdReader::analyze( const edm::Event& e, const edm::EventSetup
 	SiStripThreshold::Range range=SiStripThreshold_->getRange(detid[id]);
 	
 	//int strip=0;
-	float old_lowTh=-1, old_highTh=-1, old_FirstStrip=-1;
+	float old_clusTh=-1,old_lowTh=-1, old_highTh=-1, old_FirstStrip=-1;
 	for(int it=0;it<768;it++){
 	  SiStripThreshold::Data data=SiStripThreshold_->getData(it,range);
-	  if (old_lowTh!=data.getLth() || old_highTh!=data.getHth() || old_FirstStrip!=data.getFirstStrip()){
+	  std::stringstream ss;
+	  data.print(ss);
+	  if (old_clusTh!=data.getClusth() || old_lowTh!=data.getLth() || old_highTh!=data.getHth() || old_FirstStrip!=data.getFirstStrip()){
 	    edm::LogInfo("SiStripThresholdReader")  << "detid: " << detid[id] << " \t"
 						    << "strip: " << it << " \t" 
-						    << "firstStrip: " <<  data.getFirstStrip() << " \t"
-						    << "lTh: " << data.getLth()  << " \t" 
-						    << "hTh: " << data.getHth()   << " \t" 
-						    << "FirstStrip_and_Hth: " << data.FirstStrip_and_Hth << " \t"
+						    << ss.str()
+						    << "FirstStrip_and_Hth: " << data.FirstStrip_and_Hth << " \n"
 						    << std::endl; 	    
 	    old_lowTh=data.getLth();
 	    old_highTh=data.getHth();
+	    old_clusTh=data.getClusth();
 	    old_FirstStrip=data.getFirstStrip();
 	  }
 	} 

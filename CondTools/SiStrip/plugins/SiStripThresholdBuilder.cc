@@ -36,15 +36,21 @@ void SiStripThresholdBuilder::analyze(const edm::Event& evt, const edm::EventSet
 	hTh = lTh;
 	lTh = tmp;
       }
-      
-      obj->setData(strip,lTh,hTh,theSiStripVector);
-      if (count<(int)printdebug_)
-	edm::LogInfo("SiStripThresholdBuilder") <<"detid: "  << it->first << " \t"
-						<< "firstStrip: " << strip << " \t" << theSiStripVector.back().getFirstStrip() << " \t"
-						<< "lTh: " << lTh       << " \t" << theSiStripVector.back().getLth() << " \t"
-						<< "hTh: " << hTh       << " \t" << theSiStripVector.back().getHth() << " \t"
-						<< "FirstStrip_and_Hth: " << theSiStripVector.back().FirstStrip_and_Hth << " \t"
-						<< std::endl; 	    
+      float cTh = (RandFlat::shoot(1.) * 30.);      
+
+      obj->setData(strip,lTh,hTh,cTh,theSiStripVector);
+      if (count<(int)printdebug_){
+	std::stringstream ss;
+	theSiStripVector.back().print(ss);	
+	edm::LogInfo("SiStripThresholdBuilder") <<"detid: "  << it->first << " \n"
+						<< "firstStrip: " << strip << " \t"
+						<< "lTh: " << lTh       << " \t" 
+						<< "hTh: " << hTh       << " \t" 
+						<< "cTh: " << cTh       << " \t" 
+						<< "FirstStrip_and_Hth: " << theSiStripVector.back().FirstStrip_and_Hth << " \n"
+						<< ss.str()
+						<< std::endl; 
+      }	    
       obj->setData(strip+1,lTh,hTh,theSiStripVector);
       strip=(uint16_t) (RandFlat::shoot(strip+2,128*it->second.nApvs));
     }      
