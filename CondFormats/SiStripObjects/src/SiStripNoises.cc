@@ -2,6 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <algorithm>
+#include <math.h>
 
 SiStripNoises::SiStripNoises(const SiStripNoises& input){
   v_noises.clear();
@@ -63,11 +64,11 @@ void SiStripNoises::encode(const InputVector& Vi, std::vector<unsigned char>& Vo
   static const uint16_t  BITS_PER_STRIP  = 9;
   const size_t           VoSize          = (size_t)((Vi.size() *       BITS_PER_STRIP)/8+.999);
   Vo.resize(VoSize);
-  for(size_t i = 0; i<Vo.size(); ++i)
+  for(size_t i = 0; i<VoSize; ++i)
     Vo[i]   &=      0x00u;
   
   for(unsigned int stripIndex =0; stripIndex<Vi.size(); ++stripIndex){
-    unsigned char*  data    =       &Vo[Vo.size()-1];
+    unsigned char*  data    =       &Vo[VoSize-1];
     uint32_t lowBit         =       stripIndex * BITS_PER_STRIP;
     uint8_t firstByteBit    =       (lowBit & 0x7);
     uint8_t firstByteNBits  =       8 - firstByteBit;
@@ -209,3 +210,44 @@ std::string SiStripNoises::print_short_as_binary(const short ch) const
   return str;
 }
 */
+
+
+void SiStripNoises::printDebug(std::stringstream& ss) const{
+  RegistryIterator rit=getRegistryVectorBegin(), erit=getRegistryVectorEnd();
+  uint16_t Nstrips;
+  std::vector<float> vstripnoise;
+  for(;rit!=erit;++rit){
+    Nstrips = (rit->iend-rit->ibegin)*8/9; //number of strips = number of chars * char size / strip noise size
+    vstripnoise.resize(Nstrips);
+    allNoises(vstripnoise,make_pair(getDataVectorBegin()+rit->ibegin,getDataVectorBegin()+rit->iend));
+    ss << "\ndetid: " << rit->detid << " \t ";
+    for(size_t i=0;i<Nstrips;++i){
+      ss << "\n \t strip " << i << " value " << vstripnoise[i];
+    }
+  }
+}
+
+void SiStripNoises::printSummary(std::stringstream& ss) const{
+  RegistryIterator rit=getRegistryVectorBegin(), erit=getRegistryVectorEnd();
+  uint16_t Nstrips;
+  std::vector<float> vstripnoise;
+  double mean,rms,min, max;
+  for(;rit!=erit;++rit){
+    Nstrips = (rit->iend-rit->ibegin)*8/9; //number of strips = number of chars * char size / strip noise size
+    vstripnoise.resize(Nstrips);
+    allNoises(vstripnoise,make_pair(getDataVectorBegin()+rit->ibegin,getDataVectorBegin()+rit->iend));
+    ss << "\ndetid: " << rit->detid << " \t ";
+    mean=0; rms=0; min=10000; max=0;  
+    for(size_t i=0;i<Nstrips;++i){
+      mean+=vstripnoise[i];
+      rms+=vstripnoise[i]*vstripnoise[i];
+      if(vstripnoise[i]<min)
+	min=vstripnoise[i];
+      if(vstripnoise[i]>max)
+	max=vstripnoise[i];
+    }
+    mean/=Nstrips;
+    rms= sqrt(rms/Nstrips-mean*mean);
+    ss << "Nstrips " << Nstrips << " \t; mean " << mean << " \t; rms " << rms << " \t; min " << min << " \t; max " << max << "\t " ; 
+  }
+}

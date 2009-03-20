@@ -47,13 +47,15 @@ class SiStripNoises {
   void    allNoises (std::vector<float> & noises, const Range& range) const;
   void    setData(float noise_, InputVector& vped);
 
+  void printDebug(std::stringstream& ss) const;
+  void printSummary(std::stringstream& ss) const;
+
  private:
   void     encode(const InputVector& Vi, std::vector<unsigned char>& Vo_CHAR);
   uint16_t decode (const uint16_t& strip, const Range& range) const;
   /// Get 9 bits from a bit stream, starting from the right, skipping the first 'skip' bits (0 < skip < 8).
   /// Ptr must point to the rightmost bit, and is updated by this function
   inline uint16_t get9bits(const uint8_t * &ptr, int8_t skip) const ;
-
 
   Container 	v_noises; 
   Registry 	indexes;
