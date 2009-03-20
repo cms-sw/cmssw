@@ -257,7 +257,7 @@ bool Herwig6Hadronizer::initialize(const lhef::HEPRUP *heprup)
 
 	std::memset(hwprch.AUTPDF, ' ', sizeof hwprch.AUTPDF);
 	for(unsigned int i = 0; i < 2; i++) {
-		hwpram.MODPDF[i] = -1111;
+		hwpram.MODPDF[i] = -111;
 		std::memcpy(hwprch.AUTPDF[i], "HWLHAPDF", 8);
 	}
 

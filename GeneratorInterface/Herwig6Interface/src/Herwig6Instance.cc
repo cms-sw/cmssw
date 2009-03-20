@@ -38,6 +38,12 @@ using namespace gen;
 double gen::hwrgen_(int *idummy)
 { return FortranInstance::getInstance<Herwig6Instance>()->randomEngine->flat(); }
 
+void gen::cms_hwwarn_(char fn[6], int *code, int *exit)
+{
+	std::string function(fn, fn + sizeof fn);
+	*exit = FortranInstance::getInstance<Herwig6Instance>()->hwwarn(function, *code);
+}
+
 extern "C" {
 	void hwaend_()
 	{}
@@ -54,6 +60,12 @@ extern "C" {
 
 Herwig6Instance::Herwig6Instance(CLHEP::HepRandomEngine *randomEngine) :
 	randomEngine(randomEngine ? randomEngine : &getEngineReference()),
+	timeoutPrivate(0)
+{
+}
+
+Herwig6Instance::Herwig6Instance(int dummy) :
+	randomEngine(0),
 	timeoutPrivate(0)
 {
 }
@@ -150,6 +162,11 @@ bool Herwig6Instance::timeout(unsigned int secs, void (*fn)())
 	return false;
 }
 #endif
+
+bool Herwig6Instance::hwwarn(const std::string &fn, int code)
+{
+	return false;
+}
 
 // regular Herwig6Instance methods
 

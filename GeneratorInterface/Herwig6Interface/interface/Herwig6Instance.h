@@ -10,11 +10,13 @@ namespace gen {
 // the callbacks from Herwig which are passed on to the Herwig6Instance
 extern "C" {
 	double hwrgen_(int*);
+	void cms_hwwarn_(char fn[6], int*, int*);
 }
 
 class Herwig6Instance : public FortranInstance {
     public:
 	Herwig6Instance(CLHEP::HepRandomEngine *randomEngine = 0);
+	Herwig6Instance(int dummy);
 	virtual ~Herwig6Instance();
 
 	// passes a configuration parameter
@@ -23,9 +25,14 @@ class Herwig6Instance : public FortranInstance {
 	bool callWithTimeout(unsigned int secs, void (*fn)())
 	{ InstanceWrapper wrapper(this); return timeout(secs, fn); }
 
+    protected:
+	// intercept HERWIG warnings and errors (default: no)
+        virtual bool hwwarn(const std::string &fn, int code);
+
     private:
 	// list all the Fortran callbacks here
 	friend double gen::hwrgen_(int*);
+	friend void gen::cms_hwwarn_(char fn[6], int*, int*);
 
 	// call with timeout
 	bool timeout(unsigned int secs, void (*fn)());
