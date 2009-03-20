@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Fri Feb 22 13:57:06 CET 2008
-// $Id: RPCConeBuilder.cc,v 1.3 2008/12/12 14:13:59 fruboes Exp $
+// $Id: RPCConeBuilder.cc,v 1.4 2009/03/19 12:41:27 fruboes Exp $
 //
 //
 
@@ -345,6 +345,7 @@ std::pair<int, int> RPCConeBuilder::areConnected(RPCStripsRing::TIdToRindMap::it
   std::cout.flush();*/
   
   // refRing and otherRing areConnected, if they contribute to the same tower
+  /*
   L1RPCConeDefinition::TTowerList refTowList 
       = m_L1RPCConeDefinition->getRingsToTowers().at(std::abs(ref->second.getEtaPartition()))
                          .at(ref->second.getHwPlane()-1);
@@ -353,7 +354,60 @@ std::pair<int, int> RPCConeBuilder::areConnected(RPCStripsRing::TIdToRindMap::it
   L1RPCConeDefinition::TTowerList otherTowList 
       = m_L1RPCConeDefinition->getRingsToTowers().at(std::abs(other->second.getEtaPartition()))
                          .at(other->second.getHwPlane()-1);
+  */
+
+  L1RPCConeDefinition::TRingToTowerVec::const_iterator itRef
+      = m_L1RPCConeDefinition->getRingToTowerVec().begin();
   
+  const L1RPCConeDefinition::TRingToTowerVec::const_iterator itEnd 
+      = m_L1RPCConeDefinition->getRingToTowerVec().end();
+    
+  L1RPCConeDefinition::TRingToTowerVec::const_iterator itOther = itRef;
+  
+  int refTowerCnt = 0;
+  int index = -1;
+  int refTower = -1;
+  
+  for (;itRef != itEnd; ++itRef){
+    if ( itRef->m_etaPart != std::abs(ref->second.getEtaPartition())
+        || itRef->m_hwPlane != std::abs(ref->second.getHwPlane()-1) // -1?
+       ) continue;
+      
+    ++refTowerCnt;
+    refTower = itRef->m_tower;
+    
+    for (;itOther != itEnd; ++itOther){
+      if ( itOther->m_etaPart != std::abs(other->second.getEtaPartition())
+        || itOther->m_hwPlane != std::abs(other->second.getHwPlane()-1) // -1?
+        ) continue;  
+      
+      if (itOther->m_tower == refTower) index = itOther->m_index;
+      
+    }
+    
+  }
+  
+  if(refTowerCnt>1){
+    throw cms::Exception("RPCConeBuilder") << " Reference(?) ring "
+        << ref->first << " "
+        << "wants to be connected to " << refTowerCnt << " towers \n";
+  
+  }
+
+  if(refTowerCnt==0){
+    throw cms::Exception("RPCConeBuilder") << " Reference(?) ring "
+        << ref->first << " "
+        << " is not connected anywhere \n";
+  
+  }
+  
+  /*  
+  if(index == -1){
+    throw cms::Exception("RPCConeBuilder") << "Wrong Index -1 \n"
+                                  }*/
+  
+  
+  /*
   int refTower = -1;
   
   L1RPCConeDefinition::TTowerList::iterator rtlIt = refTowList.begin();
@@ -388,6 +442,7 @@ std::pair<int, int> RPCConeBuilder::areConnected(RPCStripsRing::TIdToRindMap::it
      }
      ++i;
   }
+  */
   
   int lpSize = 0;
   if (index != -1){

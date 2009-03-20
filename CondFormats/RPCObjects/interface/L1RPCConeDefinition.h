@@ -13,17 +13,43 @@ class L1RPCConeDefinition {
     typedef std::vector<TLogPlaneSize > TLPSizesInTowers;
       
       // For (roll,hwplane)->tower mapping
+      /*
     typedef std::vector<int> TTowerList;
     typedef std::vector<TTowerList > THWplaneToTower;
-    typedef std::vector<THWplaneToTower > TRingsToTowers;
+    typedef std::vector<THWplaneToTower > TRingsToTowers;*/
 
-      
-      // For (roll,hwplane)->logplane mapping
+    struct TRingToTower {
+      TRingToTower(signed char ep, signed char hp, signed char t, unsigned char i) : 
+        m_etaPart(ep), m_hwPlane(hp), m_tower(t), m_index(i) {};
+      signed char m_etaPart;
+      signed char m_hwPlane;
+      signed char m_tower;
+      unsigned char m_index;
+    };
+    typedef std::vector<TRingToTower> TRingToTowerVec;
+    
+    // For (roll,hwplane)->logplane mapping
+    
+    
     typedef std::vector<int> TLPList;
-    typedef std::vector<TTowerList > THWplaneToLP;
-    typedef std::vector<THWplaneToTower > TRingsToLP;
+    typedef std::vector<TLPList > THWplaneToLP;
+    typedef std::vector<THWplaneToLP > TRingsToLP;
+    
+    /*
+    struct TRingToTower {
+      TRingToTower(signed char ep, signed char hp, signed char t, unsigned char i) : 
+          m_etaPart(ep), m_hwPlane(hp), m_tower(t), m_index(i) {};
+      signed char m_etaPart;
+      signed char m_hwPlane;
+      signed char m_tower;
+      unsigned char m_index;
+    };
+    typedef std::vector<TRingToTower> TRingToTowerVec;
+    */
+    
+    
 
-
+    //int getLPSize(int tower) const {return m_LPSizesInTowers.at(tower);};
     const TLPSizesInTowers &  getLPSizes() const { return m_LPSizesInTowers;};
 
     void setFirstTower(int tow) {m_firstTower = tow;};
@@ -32,8 +58,14 @@ class L1RPCConeDefinition {
     void setLPSizeForTowers(const TLPSizesInTowers & lpSizes) { m_LPSizesInTowers = lpSizes;};
     const TLPSizesInTowers & getLPSizeForTowers() const { return m_LPSizesInTowers;};
     
+    
+    /*
     void setRingsToTowers(const TRingsToTowers & RingsToTowers) { m_RingsToTowers = RingsToTowers;};
-    const TRingsToTowers & getRingsToTowers() const { return m_RingsToTowers;};
+    const TRingsToTowers & getRingsToTowers() const { return m_RingsToTowers;};*/
+  void setRingToTowerVec(const TRingToTowerVec & ringToTowerVec) 
+        { m_ringToTowerVec = ringToTowerVec;};
+  const TRingToTowerVec & getRingToTowerVec() const { return m_ringToTowerVec;};
+
     
     void setRingsToLP(const TRingsToLP & RingsToLP) {m_RingsToLP = RingsToLP;};
     const TRingsToLP & getRingsToLP() const {return m_RingsToLP;};
@@ -44,7 +76,8 @@ class L1RPCConeDefinition {
     int m_firstTower;
     int m_lastTower;
     TLPSizesInTowers m_LPSizesInTowers;
-    TRingsToTowers m_RingsToTowers;
+    //TRingsToTowers m_RingsToTowers;
+    TRingToTowerVec m_ringToTowerVec;
     TRingsToLP m_RingsToLP;
 
 

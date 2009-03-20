@@ -25,8 +25,8 @@ process.load("L1Trigger.RPCTrigger.l1RpcEmulDigis_cfi")
 process.l1RpcEmulDigis.label = cms.string('simMuonRPCDigis')
 
 # rpc r2d
-process.load("EventFilter.RPCRawToDigi.RPCSQLiteCabling_cfi")
-process.load("EventFilter.RPCRawToDigi.rpcUnpacker_cfi")
+#process.load("EventFilter.RPCRawToDigi.RPCSQLiteCabling_cfi")
+#process.load("EventFilter.RPCRawToDigi.rpcUnpacker_cfi")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100000)
@@ -36,7 +36,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
-            'file:digi0T.root'
+            'file:digi.root'
 
     )
 )

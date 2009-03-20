@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Mon Feb 23 12:09:06 CET 2009
-// $Id$
+// $Id: L1RPCConeDefinitionProducer.cc,v 1.1 2009/03/19 14:38:13 fruboes Exp $
 //
 //
 
@@ -54,7 +54,8 @@ class L1RPCConeDefinitionProducer : public edm::ESProducer {
      int m_hwPlaneEnd;
      
      L1RPCConeDefinition::TLPSizesInTowers m_LPSizesInTowers;
-     L1RPCConeDefinition::TRingsToTowers m_RingsToTowers;
+     //L1RPCConeDefinition::TRingsToTowers m_RingsToTowers;
+     L1RPCConeDefinition::TRingToTowerVec m_ringToTowerVec;
      L1RPCConeDefinition::TRingsToLP m_RingsToLP;
 };
 
@@ -109,13 +110,13 @@ L1RPCConeDefinitionProducer::L1RPCConeDefinitionProducer(const edm::ParameterSet
    //     ----- roll 5, hwPlane 4 (3+1) contirubtes to tower 4 (OK)
   
    for (int roll = m_rollBeg; roll <= m_rollEnd; ++roll){
-    L1RPCConeDefinition::THWplaneToTower newHwPlToTower;
+    //L1RPCConeDefinition::THWplaneToTower newHwPlToTower;
     L1RPCConeDefinition::THWplaneToLP newHWplaneToLP;
     for (int hwpl = m_hwPlaneBeg; hwpl <= m_hwPlaneEnd; ++hwpl){
       std::stringstream name;
       name << "rollConnLP_" << roll << "_" << hwpl;
             
-      L1RPCConeDefinition::TTowerList newListLP = 
+      L1RPCConeDefinition::TLPList newListLP = 
       iConfig.getParameter<std::vector<int> >(name.str().c_str());
       newHWplaneToLP.push_back(newListLP);
             
@@ -123,11 +124,24 @@ L1RPCConeDefinitionProducer::L1RPCConeDefinitionProducer(const edm::ParameterSet
       std::stringstream name1;
       name1 << "rollConnT_" << roll << "_" << hwpl;
             
-      L1RPCConeDefinition::TLPList newListT =  
+      /*L1RPCConeDefinition::TLPList newListT =  
       iConfig.getParameter<std::vector<int> >(name1.str().c_str());
-      newHwPlToTower.push_back(newListT);
+      newHwPlToTower.push_back(newListT);*/
+      std::vector<int> hwPl2TowerVec = iConfig.getParameter<std::vector<int> >(name1.str().c_str());
+      
+      for (unsigned int i = 0;i < hwPl2TowerVec.size();++i){
+        
+        if (hwPl2TowerVec[i]>=0)
+        {
+          L1RPCConeDefinition::TRingToTower rt(roll, hwpl, hwPl2TowerVec[i],i);
+          m_ringToTowerVec.push_back(rt);
+        }
+      }
+
+
     }
-    m_RingsToTowers.push_back(newHwPlToTower);
+    //m_RingsToTowers.push_back(newHwPlToTower);
+    
     m_RingsToLP.push_back(newHWplaneToLP);
   }
 }
@@ -153,7 +167,7 @@ L1RPCConeDefinitionProducer::produce(const L1RPCConeDefinitionRcd& iRecord)
    
    pL1RPCConeDefinition->setLPSizeForTowers(m_LPSizesInTowers);
    pL1RPCConeDefinition->setRingsToLP(m_RingsToLP);
-   pL1RPCConeDefinition->setRingsToTowers(m_RingsToTowers);
+   pL1RPCConeDefinition->setRingToTowerVec(m_ringToTowerVec);
    
    
    return pL1RPCConeDefinition ;
