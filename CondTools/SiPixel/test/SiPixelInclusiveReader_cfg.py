@@ -26,7 +26,7 @@ process.TFileService = cms.Service("TFileService",
 
 ##### DATABASE CONNECTION INFO ######
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:test.db'
+process.CondDBCommon.connect = 'sqlite_file:/tmp/fblekman/freyatest.db'
 process.CondDBCommon.DBParameters.authenticationPath = '.'
 process.CondDBCommon.DBParameters.messageLevel = 1
 
@@ -51,40 +51,40 @@ process.PoolDBESSourceForReader = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     toGet = cms.VPSet(cms.PSet(
-           record = cms.string('SiPixelFedCablingMapRcd'),
-           tag = cms.string('SiPixelFedCablingMap_v14')
+            record = cms.string('SiPixelFedCablingMapRcd'),
+            tag = cms.string('SiPixelFedCablingMap_v14')
         ), 
         cms.PSet(
             record = cms.string('SiPixelLorentzAngleRcd'),
-            tag = cms.string('SiPixelLorentzAngle_v02')
+            tag = cms.string('SiPixelLorentzAngle_v01')
         ),
         cms.PSet(
             record = cms.string('SiPixelLorentzAngleSimRcd'),
-            tag = cms.string('SiPixelLorentzAngleSim_v02')
+            tag = cms.string('SiPixelLorentzAngleSim_v01')
         ),
         cms.PSet(
             record = cms.string('SiPixelTemplateDBObjectRcd'),
             tag = cms.string('SiPixelTemplateDBObject')
         ),
         cms.PSet(
-            record = cms.string('SiPixelQualityRcd'),
-            tag = cms.string('SiPixelQuality_ideal')
-        ), 
+           record = cms.string('SiPixelQualityRcd'),
+           tag = cms.string('SiPixelQuality_test')
+        ),
         cms.PSet(
             record = cms.string('SiPixelGainCalibrationOfflineRcd'),
-            tag = cms.string('V2_trivial_31X_TBuffer_startup_mc')
-        ),
-        cms.PSet(
-            record = cms.string('SiPixelGainCalibrationForHLTRcd'),
-            tag = cms.string('V2_trivial_31X_TBuffer_startup_hlt_mc')
+            tag = cms.string('SiPixelGainCalibration_TBuffer_const')
         ), 
         cms.PSet(
-            record = cms.string('SiPixelGainCalibrationOfflineSimRcd'),
-            tag = cms.string('V2_trivial_31X_TBuffer_startup_mc')
+            record = cms.string('SiPixelGainCalibrationForHLTRcd'),
+            tag = cms.string('SiPixelGainCalibration_TBuffer_hlt_const')
         ),
         cms.PSet(
+            record = cms.string('SiPixelGainCalibrationOfflineSimRcd'),
+            tag = cms.string('SiPixelGainCalibrationSim_TBuffer_const_new')
+        ), 
+        cms.PSet(
             record = cms.string('SiPixelGainCalibrationForHLTSimRcd'),
-            tag = cms.string('V2_trivial_31X_TBuffer_startup_hlt_mc')
+            tag = cms.string('SiPixelGainCalibrationSim_TBuffer_hlt_const')
         ))
 )
 
@@ -102,11 +102,23 @@ process.esprefer_DBReaders = cms.ESPrefer("PoolDBESSource", "PoolDBESSourceForRe
 
 ####### GAIN READERS ######
 process.SiPixelCondObjOfflineReader = cms.EDFilter("SiPixelCondObjOfflineReader",
-    process.SiPixelGainCalibrationServiceParameters
+                                                   process.SiPixelGainCalibrationServiceParameters,
+                                                   useSimRcd = cms.bool(False)
+)
+
+process.SiPixelCondObjOfflineSimReader = cms.EDFilter("SiPixelCondObjOfflineReader",
+                                                      process.SiPixelGainCalibrationServiceParameters,
+                                                      useSimRcd = cms.bool(True)
 )
 
 process.SiPixelCondObjForHLTReader = cms.EDFilter("SiPixelCondObjForHLTReader",
-    process.SiPixelGainCalibrationServiceParameters
+                                                  process.SiPixelGainCalibrationServiceParameters,
+                                                  useSimRcd = cms.bool(False)
+)
+
+process.SiPixelCondObjForHLTSimReader = cms.EDFilter("SiPixelCondObjForHLTReader",
+                                                     process.SiPixelGainCalibrationServiceParameters,
+                                                     useSimRcd = cms.bool(True)
 )
 
 
@@ -141,7 +153,7 @@ process.SiPixelTemplateDBObjectReader = cms.EDFilter("SiPixelTemplateDBObjectRea
 
 
 ####### DO ALL READERS (OR SELECT ONE YOU WANT) ########
-process.p = cms.Path(process.SiPixelCondObjOfflineReader*process.SiPixelLorentzAngleReader*process.SiPixelFedCablingMapAnalyzer*process.SiPixelCondObjForHLTReader*process.SiPixelTemplateDBObjectReader*process.SiPixelBadModuleReader)
+process.p = cms.Path(process.SiPixelCondObjOfflineReader*process.SiPixelCondObjOfflineSimReader*process.SiPixelLorentzAngleReader*process.SiPixelFedCablingMapAnalyzer*process.SiPixelCondObjForHLTReader*process.SiPixelCondObjForHLTSimReader*process.SiPixelTemplateDBObjectReader*process.SiPixelBadModuleReader)
 
 
 
