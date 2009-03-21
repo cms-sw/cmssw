@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/8E29_V224/V2 (CMSSW_3_1_X_2009-03-20-0300_HLT1)
+# /dev/CMSSW_3_1_0/pre2/8E29_V227/V2 (CMSSW_3_1_X_2009-03-20-0300_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/8E29_V224/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/8E29_V227/V2')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -1588,136 +1588,8 @@ hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
 )
 hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     inputObjects = cms.InputTag( "hltCsc2DRecHits" ),
-    algo_type = cms.int32( 4 ),
+    algo_type = cms.int32( 1 ),
     algo_psets = cms.VPSet( 
-      cms.PSet(  chamber_types = cms.vstring( 'ME1/a',
-  'ME1/b',
-  'ME1/2',
-  'ME1/3',
-  'ME2/1',
-  'ME2/2',
-  'ME3/1',
-  'ME3/2',
-  'ME4/1' ),
-        algo_name = cms.string( "CSCSegAlgoSK" ),
-        algo_psets = cms.VPSet( 
-          cms.PSet(  dPhiFineMax = cms.double( 0.025 ),
-            verboseInfo = cms.untracked.bool( True ),
-            chi2Max = cms.double( 99999.0 ),
-            dPhiMax = cms.double( 0.0030 ),
-            wideSeg = cms.double( 3.0 ),
-            minLayersApart = cms.int32( 2 ),
-            dRPhiFineMax = cms.double( 8.0 ),
-            dRPhiMax = cms.double( 8.0 )
-          ),
-          cms.PSet(  dPhiFineMax = cms.double( 0.025 ),
-            verboseInfo = cms.untracked.bool( True ),
-            chi2Max = cms.double( 99999.0 ),
-            dPhiMax = cms.double( 0.025 ),
-            wideSeg = cms.double( 3.0 ),
-            minLayersApart = cms.int32( 2 ),
-            dRPhiFineMax = cms.double( 3.0 ),
-            dRPhiMax = cms.double( 8.0 )
-          )
-        ),
-        parameters_per_chamber_type = cms.vint32( 2, 1, 1, 1, 1, 1, 1, 1, 1 )
-      ),
-      cms.PSet(  chamber_types = cms.vstring( 'ME1/a',
-  'ME1/b',
-  'ME1/2',
-  'ME1/3',
-  'ME2/1',
-  'ME2/2',
-  'ME3/1',
-  'ME3/2',
-  'ME4/1' ),
-        algo_name = cms.string( "CSCSegAlgoTC" ),
-        algo_psets = cms.VPSet( 
-          cms.PSet(  dPhiFineMax = cms.double( 0.02 ),
-            verboseInfo = cms.untracked.bool( True ),
-            SegmentSorting = cms.int32( 1 ),
-            chi2Max = cms.double( 6000.0 ),
-            dPhiMax = cms.double( 0.0030 ),
-            chi2ndfProbMin = cms.double( 1.0E-4 ),
-            minLayersApart = cms.int32( 2 ),
-            dRPhiFineMax = cms.double( 6.0 ),
-            dRPhiMax = cms.double( 1.2 )
-          ),
-          cms.PSet(  dPhiFineMax = cms.double( 0.013 ),
-            verboseInfo = cms.untracked.bool( True ),
-            SegmentSorting = cms.int32( 1 ),
-            chi2Max = cms.double( 6000.0 ),
-            dPhiMax = cms.double( 0.00198 ),
-            chi2ndfProbMin = cms.double( 1.0E-4 ),
-            minLayersApart = cms.int32( 2 ),
-            dRPhiFineMax = cms.double( 3.0 ),
-            dRPhiMax = cms.double( 0.6 )
-          )
-        ),
-        parameters_per_chamber_type = cms.vint32( 2, 1, 1, 1, 1, 1, 1, 1, 1 )
-      ),
-      cms.PSet(  chamber_types = cms.vstring( 'ME1/a',
-  'ME1/b',
-  'ME1/2',
-  'ME1/3',
-  'ME2/1',
-  'ME2/2',
-  'ME3/1',
-  'ME3/2',
-  'ME4/1' ),
-        algo_name = cms.string( "CSCSegAlgoDF" ),
-        algo_psets = cms.VPSet( 
-          cms.PSet(  preClustering = cms.untracked.bool( False ),
-            minHitsPerSegment = cms.int32( 3 ),
-            dPhiFineMax = cms.double( 0.025 ),
-            chi2Max = cms.double( 5000.0 ),
-            dXclusBoxMax = cms.double( 8.0 ),
-            tanThetaMax = cms.double( 1.2 ),
-            tanPhiMax = cms.double( 0.5 ),
-            maxRatioResidualPrune = cms.double( 3.0 ),
-            minHitsForPreClustering = cms.int32( 10 ),
-            CSCSegmentDebug = cms.untracked.bool( False ),
-            dRPhiFineMax = cms.double( 8.0 ),
-            nHitsPerClusterIsShower = cms.int32( 20 ),
-            minLayersApart = cms.int32( 2 ),
-            Pruning = cms.untracked.bool( False ),
-            dYclusBoxMax = cms.double( 8.0 )
-          ),
-          cms.PSet(  preClustering = cms.untracked.bool( False ),
-            minHitsPerSegment = cms.int32( 3 ),
-            dPhiFineMax = cms.double( 0.025 ),
-            chi2Max = cms.double( 5000.0 ),
-            dXclusBoxMax = cms.double( 8.0 ),
-            tanThetaMax = cms.double( 2.0 ),
-            tanPhiMax = cms.double( 0.8 ),
-            maxRatioResidualPrune = cms.double( 3.0 ),
-            minHitsForPreClustering = cms.int32( 10 ),
-            CSCSegmentDebug = cms.untracked.bool( False ),
-            dRPhiFineMax = cms.double( 12.0 ),
-            nHitsPerClusterIsShower = cms.int32( 20 ),
-            minLayersApart = cms.int32( 2 ),
-            Pruning = cms.untracked.bool( False ),
-            dYclusBoxMax = cms.double( 12.0 )
-          ),
-          cms.PSet(  preClustering = cms.untracked.bool( False ),
-            minHitsPerSegment = cms.int32( 3 ),
-            dPhiFineMax = cms.double( 0.025 ),
-            chi2Max = cms.double( 5000.0 ),
-            dXclusBoxMax = cms.double( 8.0 ),
-            tanThetaMax = cms.double( 1.2 ),
-            tanPhiMax = cms.double( 0.5 ),
-            maxRatioResidualPrune = cms.double( 3.0 ),
-            minHitsForPreClustering = cms.int32( 30 ),
-            CSCSegmentDebug = cms.untracked.bool( False ),
-            dRPhiFineMax = cms.double( 8.0 ),
-            nHitsPerClusterIsShower = cms.int32( 20 ),
-            minLayersApart = cms.int32( 2 ),
-            Pruning = cms.untracked.bool( False ),
-            dYclusBoxMax = cms.double( 8.0 )
-          )
-        ),
-        parameters_per_chamber_type = cms.vint32( 3, 1, 2, 2, 1, 2, 1, 2, 1 )
-      ),
       cms.PSet(  chamber_types = cms.vstring( 'ME1/a',
   'ME1/b',
   'ME1/2',
