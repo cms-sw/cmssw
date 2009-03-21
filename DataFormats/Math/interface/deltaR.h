@@ -30,25 +30,22 @@ namespace reco {
     return deltaR(t1.eta(), t1.phi(), t2.eta(), t2.phi());
   } 
 
+  template <class T>
+  T deltaR2 (T eta1, T phi1, T eta2, T phi2) {
+    T deta = eta1 - eta2;
+    T dphi = deltaPhi (phi1, phi2);
+    return deta*deta + dphi*dphi;
+  }
+
+  template <class T>
+    T deltaR (T eta1, T phi1, T eta2, T phi2) {
+    return sqrt (deltaR2 (eta1, phi1, eta2, phi2));
+  }
+
 }
 
-inline double deltaR2(double eta1, double phi1, double eta2, double phi2) {
-  return reco::deltaR2(eta1, phi1, eta2, phi2);
-}
-
-inline double deltaR(double eta1, double phi1, double eta2, double phi2) {
-  return reco::deltaR(eta1, phi1, eta2, phi2);
-}
-
-template<typename T1, typename T2>
-inline double deltaR2(const T1 & t1, const T2 & t2) {
-  return reco::deltaR2(t1, t2);
-}
-
-template<typename T1, typename T2>
-inline double deltaR(const T1 & t1, const T2 & t2) {
-  return reco::deltaR(t1, t2);
-}
+using reco::deltaR2;
+using reco::deltaR;
 
 template<typename T1, typename T2 = T1>
 struct DeltaR {
