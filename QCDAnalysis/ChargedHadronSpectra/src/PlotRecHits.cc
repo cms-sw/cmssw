@@ -47,11 +47,11 @@ void PlotRecHits::printPixelRecHit(const SiPixelRecHit * recHit)
   GlobalPoint p11 =  theTracker->idToDet(id)->toGlobal(LocalPoint( x, y,z));
 
   file << ", If[sd, {RGBColor[0.4,0.4,0.4], "
-                 <<"Line[{{"<< p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}, "
-                       <<"{"<< p01.x()<<","<<p01.y()<<",("<<p01.z()<<"-zs)*mz}, "
-                       <<"{"<< p11.x()<<","<<p11.y()<<",("<<p11.z()<<"-zs)*mz}, "
-                       <<"{"<< p10.x()<<","<<p10.y()<<",("<<p10.z()<<"-zs)*mz}, "
-                       <<"{"<< p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}}]}]"
+             <<"Line[{{"<< p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}, "
+                   <<"{"<< p01.x()<<","<<p01.y()<<",("<<p01.z()<<"-zs)*mz}, "
+                   <<"{"<< p11.x()<<","<<p11.y()<<",("<<p11.z()<<"-zs)*mz}, "
+                   <<"{"<< p10.x()<<","<<p10.y()<<",("<<p10.z()<<"-zs)*mz}, "
+                   <<"{"<< p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}}]}]"
        << endl;
   
   // RecHit
@@ -98,11 +98,11 @@ void PlotRecHits::printStripRecHit(const SiStripRecHit2D * recHit)
   GlobalPoint p11 =  theTracker->idToDet(id)->toGlobal(LocalPoint( x, y,z));
 
   file << ", If[sd, {RGBColor[0.6,0.6,0.6], "
-                 <<"Line[{{"<<p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}, "
-                       <<"{"<<p01.x()<<","<<p01.y()<<",("<<p01.z()<<"-zs)*mz}, "
-                       <<"{"<<p11.x()<<","<<p11.y()<<",("<<p11.z()<<"-zs)*mz}, "
-                       <<"{"<<p10.x()<<","<<p10.y()<<",("<<p10.z()<<"-zs)*mz}, "
-                       <<"{"<<p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}}]}]"
+             <<"Line[{{"<<p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}, "
+                   <<"{"<<p01.x()<<","<<p01.y()<<",("<<p01.z()<<"-zs)*mz}, "
+                   <<"{"<<p11.x()<<","<<p11.y()<<",("<<p11.z()<<"-zs)*mz}, "
+                   <<"{"<<p10.x()<<","<<p10.y()<<",("<<p10.z()<<"-zs)*mz}, "
+                   <<"{"<<p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}}]}]"
        << endl;
 
   // RecHit
@@ -133,7 +133,8 @@ void PlotRecHits::printPixelRecHits(const edm::Event& ev)
     const SiPixelRecHitCollection* thePixelHits = (*pixelColl).product();
 
     for(SiPixelRecHitCollection::DataContainer::const_iterator
-            recHit = thePixelHits->data().begin(); recHit!= thePixelHits->data().end(); recHit++)
+            recHit = thePixelHits->data().begin();
+            recHit!= thePixelHits->data().end(); recHit++)
     {
       if(recHit->isValid())
         printPixelRecHit(&(*recHit));
@@ -156,7 +157,8 @@ void PlotRecHits::printStripRecHits(const edm::Event& ev)
     const SiStripRecHit2DCollection* theStripHits = (*stripColl).product();
     
     for(SiStripRecHit2DCollection::DataContainer::const_iterator
-            recHit = theStripHits->data().begin(); recHit!= theStripHits->data().end(); recHit++)
+            recHit = theStripHits->data().begin();
+            recHit!= theStripHits->data().end(); recHit++)
     {
       if(recHit->isValid())
         printStripRecHit(&(*recHit));
@@ -176,7 +178,8 @@ void PlotRecHits::printStripRecHits(const edm::Event& ev)
     const SiStripMatchedRecHit2DCollection* theStripHits = (*stripColl).product();
 
     for(SiStripMatchedRecHit2DCollection::DataContainer::const_iterator
-            recHit = theStripHits->data().begin(); recHit!= theStripHits->data().end(); recHit++)
+            recHit = theStripHits->data().begin();
+            recHit!= theStripHits->data().end(); recHit++)
       {
         if(recHit->monoHit()->isValid())
           printStripRecHit((recHit->monoHit()));

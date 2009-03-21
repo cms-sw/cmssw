@@ -205,7 +205,6 @@ void EventPlotter::analyze(const edm::Event& ev, const edm::EventSetup& es)
   file << "}";
 
   // options
-  // FIXME
   file << ", PlotRange->{{"<<-mx<<","<<mx<<"}, {"
                            <<-my<<","<<my<<"}, {"
                            <<-mz<<"*z,"<<mz<<"*z}}";
