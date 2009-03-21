@@ -166,9 +166,9 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }
 
   /* Forward & MultiJet */
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_FwdJet20") == 0) {      
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_FwdJet50") == 0) {      
     if(map_BitOfStandardHLTPath.find("L1_IsoEG10_Jet6_ForJet6")->second == 1) {
-      if(OpenHltFwdJetPassed(20.)>=1) {      
+      if(OpenHltFwdJetPassed(50.)>=1) {      
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }     
       }      
     }      
@@ -294,6 +294,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }        
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1MuOpen") == 0) {         
     if( (map_BitOfStandardHLTPath.find("L1_SingleMuOpen")->second +
+	 map_BitOfStandardHLTPath.find("L1_SingleMu0")->second +
 	 map_BitOfStandardHLTPath.find("L1_SingleMu3")->second +
 	 map_BitOfStandardHLTPath.find("(L1_DoubleMu5")->second) > 0) {               
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
@@ -513,7 +514,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoublePhoton15_VeryLooseEcalIso_L1R") == 0) {
     if ( map_BitOfStandardHLTPath.find("L1_DoubleEG5")->second == 1 ) {   
-      if(OpenHlt1PhotonLooseEcalIsoPassed(15.,0,2,999.,999.,5.)>=1) {     
+      if(OpenHlt1PhotonVeryLooseEcalIsoPassed(15.,0,2,999.,999.,5.)>=1) {     
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }         
       }  
     }
@@ -694,6 +695,36 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }         
     }         
   }         
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_JPsiUpsilonEE") == 0) {
+    if ( map_BitOfStandardHLTPath.find("L1_DoubleEG5")->second == 1 ) {           
+
+      TLorentzVector e1;  
+      TLorentzVector e2;  
+      TLorentzVector meson; 
+      
+      int rc = 0; 
+      
+      for (int i=0;i<NohEle;i++) { 
+	for (int j=i;j<NohEle && j != i;i++) {  
+	  if (ohElePixelSeeds[i]>0 && ohElePixelSeeds[j]) {
+	    
+	    e1.SetPtEtaPhiM(ohEleEt[i],ohEleEta[i],ohElePhi[i],0.0); 
+	    e2.SetPtEtaPhiM(ohEleEt[j],ohEleEta[j],ohElePhi[j],0.0); 
+	    meson = e1 + e2; 
+	    
+	    float mesonmass = meson.M();  
+	    if(mesonmass > 2.0)
+	      rc++;
+	  }
+	}
+      }
+      if(rc >= 1) {  
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
+      }
+    }
+  }
+
 
   /* BTag */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet20") == 0) {
@@ -1069,6 +1100,147 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }
   }
 
+  else if (menu->GetTriggerName(it).CompareTo("OpenAlCa_EcalPi0") == 0) { 
+    if(map_BitOfStandardHLTPath.find("L1_SingleIsoEG5")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_SingleIsoEG8")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_SingleIsoEG10")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_SingleIsoEG12")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_SingleIsoEG15")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_SingleEG1")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_SingleEG2")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_SingleEG5")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_SingleEG10")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_SingleEG12")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_SingleEG15")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_SingleEG20")->second == 1) {
+
+      TLorentzVector gamma1; 
+      TLorentzVector gamma2; 
+      TLorentzVector meson;
+      TLorentzVector gammaiso;
+
+      int rc = 0;
+
+      for(int i = 0; i < Nalcapi0clusters; i++) {
+	for(int j = i+1;j < Nalcapi0clusters && j != i; j++) {
+	  gamma1.SetPtEtaPhiM(ohAlcapi0ptClusAll[i],ohAlcapi0etaClusAll[i],ohAlcapi0phiClusAll[i],0.0);
+	  gamma2.SetPtEtaPhiM(ohAlcapi0ptClusAll[j],ohAlcapi0etaClusAll[j],ohAlcapi0phiClusAll[j],0.0);
+	  meson = gamma1 + gamma2;
+
+          float mesonpt = meson.Pt(); 
+          float mesoneta = meson.Eta(); 
+          float mesonmass = meson.M(); 
+
+	  float iso = 0.0;
+	  float dr = 0.0;
+	  float deta = 0.0;
+	  for(int k = 0;k < Nalcapi0clusters && k != i && k != j; k++) { 
+	    gammaiso.SetPtEtaPhiM(ohAlcapi0ptClusAll[k],ohAlcapi0etaClusAll[k],ohAlcapi0phiClusAll[k],0.0);
+	    dr = gammaiso.DeltaR(meson);
+	    deta = TMath::Abs(ohAlcapi0etaClusAll[k] - mesoneta);
+
+	    if((dr < 0.2) && (deta < 0.05)) {
+	      iso = iso + ohAlcapi0ptClusAll[k];
+	    }
+	  }
+	  
+	  if(TMath::Abs(ohAlcapi0etaClusAll[i]) < 1.479 && TMath::Abs(ohAlcapi0etaClusAll[j]) < 1.479) {  
+	    //pi0 barrel
+	    if(ohAlcapi0ptClusAll[i] > 1.0 && ohAlcapi0ptClusAll[j] > 1.0 && 
+	       ohAlcapi0s4s9ClusAll[i] > 0.83 && ohAlcapi0s4s9ClusAll[j] > 0.83 &&  
+	       iso < 0.5 &&  
+	       mesonpt > 2.0 && 
+	       mesonmass > 0.06 && mesonmass < 0.22) 
+	      rc++; 
+	  }
+	  if(TMath::Abs(ohAlcapi0etaClusAll[i]) > 1.479 && TMath::Abs(ohAlcapi0etaClusAll[j]) > 1.479)  {   
+            //pi0 endcap  
+            if(ohAlcapi0ptClusAll[i] > 0.8 && ohAlcapi0ptClusAll[j] > 0.8 && 
+               ohAlcapi0s4s9ClusAll[i] > 0.9 && ohAlcapi0s4s9ClusAll[j] > 0.9 &&  
+	       iso < 0.5 && 
+               mesonpt > 3.0 && 
+               mesonmass > 0.05 && mesonmass < 0.3) 
+              rc++; 
+	  }
+	}
+      }
+      if(rc > 0) {
+	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }          
+      }
+    } 
+  } 
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenAlCa_EcalEta") == 0) {  
+    if(map_BitOfStandardHLTPath.find("L1_SingleIsoEG5")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_SingleIsoEG8")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_SingleIsoEG10")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_SingleIsoEG12")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_SingleIsoEG15")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_SingleEG1")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_SingleEG2")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_SingleEG5")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_SingleEG10")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_SingleEG12")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_SingleEG15")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_SingleEG20")->second == 1) { 
+ 
+      TLorentzVector gamma1;  
+      TLorentzVector gamma2;  
+      TLorentzVector meson; 
+      TLorentzVector gammaiso;
+
+      int rc = 0; 
+ 
+      for(int i = 0; i < Nalcapi0clusters; i++) { 
+        for(int j = i+1;j < Nalcapi0clusters && j != i; j++) { 
+          gamma1.SetPtEtaPhiM(ohAlcapi0ptClusAll[i],ohAlcapi0etaClusAll[i],ohAlcapi0phiClusAll[i],0.0); 
+          gamma2.SetPtEtaPhiM(ohAlcapi0ptClusAll[j],ohAlcapi0etaClusAll[j],ohAlcapi0phiClusAll[j],0.0); 
+          meson = gamma1 + gamma2; 
+          float mesonpt = meson.Pt(); 
+          float mesoneta = meson.Eta(); 
+          float mesonmass = meson.M(); 
+
+          float iso = 0.0; 
+          float dr = 0.0; 
+          float deta = 0.0; 
+          for(int k = 0;k < Nalcapi0clusters && k != i && k != j; k++) {  
+            gammaiso.SetPtEtaPhiM(ohAlcapi0ptClusAll[k],ohAlcapi0etaClusAll[k],ohAlcapi0phiClusAll[k],0.0); 
+            dr = gammaiso.DeltaR(meson); 
+            deta = TMath::Abs(ohAlcapi0etaClusAll[k] - mesoneta); 
+                   
+            if((dr < 0.3) && (deta < 0.1)) { 
+              iso = iso + ohAlcapi0ptClusAll[k]; 
+            } 
+          } 
+
+	  if(TMath::Abs(ohAlcapi0etaClusAll[i]) < 1.479 && TMath::Abs(ohAlcapi0etaClusAll[j]) < 1.479) { 
+	    //eta barrel  
+	    if(ohAlcapi0ptClusAll[i] > 1.2 && ohAlcapi0ptClusAll[j] > 1.2 &&    
+               ohAlcapi0s4s9ClusAll[i] > 0.9 && ohAlcapi0s4s9ClusAll[j] > 0.9 &&     
+               dr > 0.3 && deta > 0.1 &&    
+               mesonpt > 4.0 &&    
+	       mesonmass > 0.3 && mesonmass < 0.8)    
+	      rc++;    
+	  } 
+	  if(TMath::Abs(ohAlcapi0etaClusAll[i]) > 1.479 && TMath::Abs(ohAlcapi0etaClusAll[j]) > 1.479) {  
+	    //eta endcap   
+	    if(ohAlcapi0ptClusAll[i] > 1.5 && ohAlcapi0ptClusAll[j] > 1.5 &&     
+	       ohAlcapi0s4s9ClusAll[i] > 0.9 && ohAlcapi0s4s9ClusAll[j] > 0.9 &&      
+	       dr > 0.3 && deta > 0.1 &&     
+	       mesonpt > 5.0 &&     
+	       mesonmass > 0.3 && mesonmass < 0.8)     
+	      rc++;     
+	  }
+	} 
+      }
+      if(rc > 0) { 
+	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }           
+      } 
+    }  
+  }
+  
   /* Cross Triggers (approved in Jan 2009) */
 
   // SGL - lepton+jet cross-triggers. These are for 1E31, so the *corrected* 
@@ -1474,6 +1646,28 @@ int  OHltTree::OpenHlt1PhotonLooseEcalIsoPassed(float Et, int L1iso, float Tiso,
   }
   return rc;
 }
+
+int  OHltTree::OpenHlt1PhotonVeryLooseEcalIsoPassed(float Et, int L1iso, float Tiso, float Eiso, float HisoBR, float HisoEC)  
+{  
+  int rc = 0;  
+  // Loop over all oh photons  
+  for (int i=0;i<NohPhot;i++) {  
+    if ( ohPhotEt[i] > Et) {   
+      if ( ohPhotL1iso[i] >= L1iso ) {   
+        if( ohPhotTiso[i]<Tiso ) {   
+          if( ohPhotEiso[i] < Eiso || (ohPhotEiso[i]/ohPhotEt[i]) < 0.2 ) {   
+            if( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohPhotHiso[i] < HisoBR )  ||  
+                (1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohPhotHiso[i] < HisoEC ) ||   
+                (ohPhotHiso[i]/ohPhotEt[i] < 0.05) ) {  
+              rc++;  
+            }  
+          }  
+        }  
+      }  
+    }  
+  }  
+  return rc;  
+}  
 
 int  OHltTree::OpenHlt1PhotonPassed(float Et, int L1iso, float Tiso, float Eiso, float HisoBR, float HisoEC)
 {

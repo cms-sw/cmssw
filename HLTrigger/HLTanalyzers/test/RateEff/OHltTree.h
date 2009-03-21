@@ -12,6 +12,7 @@
 #include <TChain.h>
 #include <TFile.h>
 #include <TRandom3.h>
+#include <TLorentzVector.h>
 
 #include <vector>
 #include <string>
@@ -1731,6 +1732,7 @@ public :
   int OpenHlt1LWElectronPassed(float Et,int L1iso,float Tiso,float Hiso); 
   int OpenHlt1PhotonPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
   int OpenHlt1PhotonLooseEcalIsoPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
+  int OpenHlt1PhotonVeryLooseEcalIsoPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC); 
   int OpenHlt1MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
   int OpenHlt2MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
   int OpenHlt1L2MuonPassed(double ptl1,double ptl2,double dr);  

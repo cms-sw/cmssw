@@ -424,7 +424,8 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   map_L1SeedsOfStandardHLTPath.insert(mypair("L1_SingleJet10", myvec(1,"L1_SingleJet10")));  
   map_L1SeedsOfStandardHLTPath.insert(mypair("L1_SingleJet10_Barrel", myvec(1,"L1_SingleJet10_Barrel")));  
   map_L1SeedsOfStandardHLTPath.insert(mypair("L1_SingleJet10_Central", myvec(1,"L1_SingleJet10_Central")));  
-  map_L1SeedsOfStandardHLTPath.insert(mypair("L1_SingleJet10_Endcap", myvec(1,"L1_SingleJet10_Endcap")));  
+  map_L1SeedsOfStandardHLTPath.insert(mypair("L1_SingleJet10_Endcap", myvec(1,"L1_SingleJet10_Endcap")));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("L1_SingleJet15", myvec(1,"L1_SingleJet15")));   
   map_L1SeedsOfStandardHLTPath.insert(mypair("L1_SingleJet20", myvec(1,"L1_SingleJet20")));  
   map_L1SeedsOfStandardHLTPath.insert(mypair("L1_SingleJet20_Barrel", myvec(1,"L1_SingleJet20_Barrel")));  
   map_L1SeedsOfStandardHLTPath.insert(mypair("L1_SingleJet30", myvec(1,"L1_SingleJet30")));  
@@ -495,7 +496,6 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   vtmp.clear();
   vtmp.push_back("L1_DoubleTauJet30"); vtmp.push_back("L1_DoubleJet70");
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DoubleLooseIsoTau15_Trk5", vtmp));
-
   
   vtmp.clear();
   vtmp.push_back("L1_SingleTauJet20"); vtmp.push_back("L1_SingleJet40");
@@ -583,8 +583,9 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_Jet80", myvec(1,"L1_SingleJet50")));  
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_Jet110", myvec(1,"L1_SingleJet70")));  
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_Jet180", myvec(1,"L1_SingleJet70")));   
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_QuadJet30", myvec(1,"L1_SingleJet15"))); 
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_QuadJet30", myvec(1,"L1_QuadJet15"))); 
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_FwdJet20", myvec(1,"L1_IsoEG10_Jet15_ForJet10"))); 
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_FwdJet50", myvec(1,"L1_IsoEG10_Jet15_ForJet10")));  
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DiJetAve15U", myvec(1,"L1_SingleJet15"))); 
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DiJetAve30U", myvec(1,"L1_SingleJet30")));  
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DiJetAve50U", myvec(1,"L1_SingleJet50")));   
@@ -630,7 +631,8 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_L1DoubleMuOpen", myvec(1,"L1_DoubleMuOpen")));   
 
   vtmp.clear();  
-  vtmp.push_back("L1_SingleMuOpen"); vtmp.push_back("L1_SingleMu3"); vtmp.push_back("L1_SingleMu5");  
+  vtmp.push_back("L1_SingleMuOpen"); vtmp.push_back("L1_SingleMu0");
+  vtmp.push_back("L1_SingleMu3"); vtmp.push_back("L1_SingleMu5");  
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_L1MuOpen", vtmp));  
 
   vtmp.clear();   
@@ -680,4 +682,21 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   vtmp.push_back("L1_SingleEG1"); vtmp.push_back("L1_DoubleEG1"); vtmp.push_back("L1_SingleEG2");
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_MinBiasEcal", vtmp)); 
 
+  // AlCa
+  vtmp.clear();       
+  vtmp.push_back("L1_SingleEG1"); vtmp.push_back("L1_SingleEG2"); vtmp.push_back("L1_SingleEG5");   
+  vtmp.push_back("L1_SingleEG8"); vtmp.push_back("L1_SingleEG10"); vtmp.push_back("L1_SingleEG12");    
+  vtmp.push_back("L1_SingleEG15"); vtmp.push_back("L1_SingleEG20");  
+  vtmp.push_back("L1_SingleIsoEG5"); vtmp.push_back("L1_SingleIsoEG8"); vtmp.push_back("L1_SingleIsoEG10");  
+  vtmp.push_back("L1_SingleIsoEG12"); vtmp.push_back("L1_SingleIsoEG15");  
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenAlCa_EcalPi0", vtmp));  
+
+  vtmp.clear();        
+  vtmp.push_back("L1_SingleEG1"); vtmp.push_back("L1_SingleEG2"); vtmp.push_back("L1_SingleEG5");  
+  vtmp.push_back("L1_SingleEG8"); vtmp.push_back("L1_SingleEG10"); vtmp.push_back("L1_SingleEG12");   
+  vtmp.push_back("L1_SingleEG15"); vtmp.push_back("L1_SingleEG20"); 
+  vtmp.push_back("L1_SingleIsoEG5"); vtmp.push_back("L1_SingleIsoEG8"); vtmp.push_back("L1_SingleIsoEG10"); 
+  vtmp.push_back("L1_SingleIsoEG12"); vtmp.push_back("L1_SingleIsoEG15"); 
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenAlCa_EcalEta", vtmp));   
+  
 }
