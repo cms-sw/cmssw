@@ -11,8 +11,8 @@
 *  Block Header Version 2... For use with Pipeline Formats v20 and above.
 * 
 * \author Robert Frazier
-* $Revision: 1.8 $
-* $Date: 2008/06/24 15:58:26 $
+* $Revision: 1.9 $
+* $Date: 2009/03/16 16:59:39 $
 */ 
 
 
@@ -33,7 +33,7 @@ class GctBlockHeaderV2 : public GctBlockHeaderBase
 public:
 
   /// Enum for use with initBlockLengthMap static method.
-  enum BlockLengthMapVersion( BLOCK_LENGTHS_FOR_UNPACKER_V2, BLOCK_LENGTHS_FOR_UNPACKER_V3 ); 
+  enum BlockLengthMapVersion{ BLOCK_LENGTHS_FOR_UNPACKER_V2, BLOCK_LENGTHS_FOR_UNPACKER_V3 }; 
 
   GctBlockHeaderV2(const uint32_t data=0):GctBlockHeaderBase(data) {}
   GctBlockHeaderV2(const unsigned char * data):GctBlockHeaderBase(data) {}
