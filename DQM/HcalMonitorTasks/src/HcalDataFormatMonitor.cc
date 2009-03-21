@@ -174,7 +174,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meDCC_DataIntegrityCheck_->setBinLabel(16,"     OW",2); 		 
     meDCC_DataIntegrityCheck_->setBinLabel(15,"     BZ",2); 		 
     meDCC_DataIntegrityCheck_->setBinLabel(14,"Num Mis",2); //Num Mis	 
-    meDCC_DataIntegrityCheck_->setBinLabel(13,"    EvNt",2) 		 ;
+    meDCC_DataIntegrityCheck_->setBinLabel(13,"    EvN",2) 		 ;
     meDCC_DataIntegrityCheck_->setBinLabel(12,"    BcN",2); 		 
     meDCC_DataIntegrityCheck_->setBinLabel(11,"    OrN",2); 		 
     meDCC_DataIntegrityCheck_->setBinLabel(10,"DataLos",2); //Data Lost  
@@ -365,7 +365,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5, 2000,0,12000);
 
     type = "Num Event Frags by FED";
-    meFEDId_=m_dbe->book1D(type, type, 32, 699.5, 731.5);
+    meFEDId_=m_dbe->book1D(type, type, 32, 699.5, 731.5); //Show over & underflow stats.
     meFEDId_->setAxisTitle("HCAL FED ID",1);
 
     type = "Spigot Format Errors";
@@ -695,7 +695,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
   //DataIntegrity histogram bins
   int bin=0; 
-  if (( (dcc_) % 2 )==0) //...lucky that odd FED ID's all have slot 19....
+  if (( dcc_%2 )==0) //...lucky that odd FED ID's all have slot 19....
     bin = 3*( (int)DIMbin[dcc_]);
   else 
     bin = 1 + (3*(int)(DIMbin[dcc_]-0.5));
@@ -940,19 +940,19 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   bool FoundPnotB=false;
   bool FoundPnotV=false;
   bool FoundT=false;
-  for(int j=1; j<=HcalDCCHeader::SPIGOT_COUNT; j++) {
-    if ( dccHeader->getSpigotEnabled((unsigned int) j-1)         &&
-	 (dccHeader->getSpigotDataLength(j-1) <(unsigned long)10) ) 
+  for(int j=0; j<HcalDCCHeader::SPIGOT_COUNT; j++) {
+    if ( dccHeader->getSpigotEnabled((unsigned int) j)         &&
+	 (dccHeader->getSpigotDataLength(j) <(unsigned long)10) ) 
       ++DCC_DataIntegrityCheck_[bin][8];           // Lost HTR Data for sure
-    if (dccHeader->getSpigotEnabled((unsigned int) j-1) &&
-	!dccHeader->getSpigotPresent((unsigned int) j-1)      ) FoundEnotP=true;
+    if (dccHeader->getSpigotEnabled((unsigned int) j) &&
+	!dccHeader->getSpigotPresent((unsigned int) j)      ) FoundEnotP=true;
     //I got the wrong sign on getBxMismatchWithDCC; 
     //It's a match, not a mismatch, when true. I'm sorry. 
-    if (dccHeader->getSpigotPresent((unsigned int) j-1) &&
-	!dccHeader->getBxMismatchWithDCC((unsigned int) j-1)  ) FoundPnotB=true;
-    if (dccHeader->getSpigotPresent((unsigned int) j-1) &&
-	!dccHeader->getSpigotValid((unsigned int) j-1)        ) FoundPnotV=true;
-    if (dccHeader->getSpigotDataTruncated((unsigned int) j-1) ) {
+    if (dccHeader->getSpigotPresent((unsigned int) j) &&
+	!dccHeader->getBxMismatchWithDCC((unsigned int) j)  ) FoundPnotB=true;
+    if (dccHeader->getSpigotPresent((unsigned int) j) &&
+	!dccHeader->getSpigotValid((unsigned int) j)        ) FoundPnotV=true;
+    if (dccHeader->getSpigotDataTruncated((unsigned int) j) ) {
       ++DCC_DataIntegrityCheck_[bin][7];           // LRB truncated the data
       FoundT=true;}
   }
@@ -1080,7 +1080,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	channDIM_x = (channum*3)+1;
 	lastcapid=qie_work->capid();
 	samplecounter=1;}
-      // or the first TS of a this channel's DAQ data?
+      // or the first TS of this channel's DAQ data?
       else if (qie_work->fiberAndChan() != lastfibchan) {
 	channum= (3* (qie_work->fiber() - 1)) + qie_work->fiberChan();
 	channDIM_x = (channum*3)+1;
@@ -1117,12 +1117,11 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     else 
       ++Chann_DataIntegrityCheck_[dcc_][channDIM_x][channDIM_y+1];
 
-    // Prepare for the next round...
-    lastcapid=qie_work->capid();
-    lastfibchan=qie_work->fiberAndChan();
-
     if (chsummAOK) //better if every event? Here, every half-HTR's event....
       ++ChannSumm_DataIntegrityCheck_[chsummDIM_x][chsummDIM_y+2];
+
+    // Prepare for the next round...
+    lastfibchan=qie_work->fiberAndChan();
 
     if ( !(htr.getErrorsWord() >> 8) & 0x00000001) 
       fillzoos(14,dccid);
@@ -1141,7 +1140,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     unsigned int htrEvtN = htr.getL1ANumber();
 
     if (dccEvtNum != htrEvtN)
-      ++DCC_DataIntegrityCheck_[bin][13];
+      ++DCC_DataIntegrityCheck_[bin][12];
     if ((unsigned int) dccBCN != htrBCN)
       ++DCC_DataIntegrityCheck_[bin][11];
  
