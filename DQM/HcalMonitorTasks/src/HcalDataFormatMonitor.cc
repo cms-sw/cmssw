@@ -678,6 +678,9 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
   // FED id declared in the metadata
   int dccid=dccHeader->getSourceId();
+  //Force 0<= dcc_ <= 31
+  int dcc_=max(0,dccid-700);  
+  dcc_ = min(dcc_,31);       
   if(fVerbosity) cout << "DCC " << dccid << endl;
   //There should never be HCAL DCCs reporting a fed id outside [700:731]
   meFEDId_->Fill(dccid);
@@ -692,14 +695,14 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
   //DataIntegrity histogram bins
   int bin=0; 
-  if (( (dccid-700) % 2 )==0) //...lucky that odd FED ID's all have slot 19....
-    bin = 3*( (int)DIMbin[dccid-700]);
+  if (( (dcc_) % 2 )==0) //...lucky that odd FED ID's all have slot 19....
+    bin = 3*( (int)DIMbin[dcc_]);
   else 
-    bin = 1 + (3*(int)(DIMbin[dccid-700]-0.5));
+    bin = 1 + (3*(int)(DIMbin[dcc_]-0.5));
   int halfhtrDIM_x, halfhtrDIM_y;
   int chsummDIM_x, chsummDIM_y;
   int channDIM_x, channDIM_y;
-  chsummDIM_x = halfhtrDIM_x = 1 + (dccid-700)*3;
+  chsummDIM_x = halfhtrDIM_x = 1 + (dcc_)*3;
   
   //Orbit, BunchCount, and Event Numbers
   unsigned long dccEvtNum = dccHeader->getDCCEventNumber();
@@ -782,7 +785,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   if (CDFProbThisDCC) {
     fillzoos(6,dccid);
     //Set the problem flag for the ieta, iphi of any channel in this DCC
-    mapDCCproblem(dccid);
+    mapDCCproblem(dcc_);
   }
   if (CDFProbThisDCC)
     fedFatal_->Fill(dccid);
@@ -796,7 +799,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     if (CRC_err) {
       fillzoos(5,dccid);
       //Set the problem flag for the ieta, iphi of any channel in this DCC
-      mapHTRproblem(dccid, i);  
+      mapHTRproblem(dcc_, i);  
     }
   }
   
@@ -818,7 +821,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   if (TTS_state & 0x1) /*OFW*/ {
     ++DCC_DataIntegrityCheck_[bin][19];
     ///\\\///DATAFORMAT_PROBLEM_ZOO-> Fill(9);
-    mapDCCproblem(dccid);}
+    mapDCCproblem(dcc_);}
 
   ////////// Histogram problems with DCC Event Format compliance;////////////
   /* 1 */ //Make sure a reference value of the DCC Event Format version has been noted for this dcc.
@@ -887,7 +890,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     }
     if ((WholeErrorList>>2)&0x01) { //EE
       meDCCSummariesOfHTRs_->Fill(dccid, 3);
-      mapHTRproblem(dccid, j);
+      mapHTRproblem(dcc_, j);
       fillzoos(1,dccid);
     }
     if ((WholeErrorList>>3)&0x01) { //Trigger Rule Viol.
@@ -930,7 +933,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
       }
     }
     if (FoundOne) 
-      mapHTRproblem(dccid, j);
+      mapHTRproblem(dcc_, j);
   }
   /* [17:20] */ //Histogram condition of Enabled Spigots without data Present
   bool FoundEnotP=false;
@@ -959,8 +962,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   if (  FoundT  )meDCCSummariesOfHTRs_->Fill(dccid,20);
 
   //Fake a problem with each DCC a unique number of times
-  //if ((dccid+1)>= (ievt_+700))
-  //  mapDCCproblem(dccid); 
+  // if ((dcc_+1)>= ievt_)
+  //   mapDCCproblem(dcc_); 
 
   // walk through the HTR data...
   HcalHTRData htr;  
@@ -1031,10 +1034,10 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
     bool htrUnSuppressed=(HTRraw[6]>>15 & 0x0001);
     if (htrUnSuppressed) {
-      UScount[dccid-700][spigot]++;
-      int here=1+(HcalDCCHeader::SPIGOT_COUNT*(dccid-700))+spigot;
+      UScount[dcc_][spigot]++;
+      int here=1+(HcalDCCHeader::SPIGOT_COUNT*(dcc_))+spigot;
       meUSFractSpigs_->setBinContent(here,
-				     ((double)UScount[dccid-700][spigot])/(double)ievt_);}
+				     ((double)UScount[dcc_][spigot])/(double)ievt_);}
 
     // Consider removing this check and the histogram it fills; 
     // unless, say, unpacker is a customer (then retitle histo.)
@@ -1042,11 +1045,11 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     if (!htr.check()) {
       meInvHTRData_ -> Fill(spigot,dccid);
       fillzoos(8,dccid);
-      mapHTRproblem(dccid,spigot);}
+      mapHTRproblem(dcc_,spigot);}
 
     //Fake a problem with each HTR a unique number of times.
     // if ( (spigot+1) >= ievt_ ) 
-    //   mapHTRproblem(dccid,spigot); //Fill every one once, first.
+    //   mapHTRproblem(dcc_,spigot); //Fill every one once, first.
 
 
     // Fish out Front-End Errors from the precision channels
@@ -1085,7 +1088,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	if ((samplecounter != htr.getNDD()) &&
 	    (samplecounter != 1)             ) {
 	  ++ChannSumm_DataIntegrityCheck_[chsummDIM_x][chsummDIM_y+1];
-	  ++Chann_DataIntegrityCheck_[dccid-700][channDIM_x][channDIM_y];
+	  ++Chann_DataIntegrityCheck_[dcc_][channDIM_x][channDIM_y];
 	  channAOK=false;}
 	samplecounter=1;}
       else { //precision samples not the first timeslice
@@ -1093,9 +1096,9 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	if (hope==4) hope = 0;
 	if (qie_work->capid() != hope){
 	  ++ChannSumm_DataIntegrityCheck_[chsummDIM_x+1][chsummDIM_y+1];
-	  ++Chann_DataIntegrityCheck_[dccid-700][channDIM_x+1][channDIM_y];
+	  ++Chann_DataIntegrityCheck_[dcc_][channDIM_x+1][channDIM_y];
 	  ++ChannSumm_DataIntegrityCheck_[chsummDIM_x+1][chsummDIM_y+1];
-	  ++Chann_DataIntegrityCheck_[dccid-700][channDIM_x+1][channDIM_y];
+	  ++Chann_DataIntegrityCheck_[dcc_][channDIM_x+1][channDIM_y];
 	  channAOK=false;}
 	samplecounter++;}
         
@@ -1105,14 +1108,14 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
       if (!(qie_work->dv()) || qie_work->er()) {
 	++DCC_DataIntegrityCheck_[bin][4]; 
 	++ChannSumm_DataIntegrityCheck_[chsummDIM_x+1][chsummDIM_y+2];
-	++Chann_DataIntegrityCheck_[dccid-700][channDIM_x+1][channDIM_y+1];
+	++Chann_DataIntegrityCheck_[dcc_][channDIM_x+1][channDIM_y+1];
 	channAOK=false;}
     }
 
     //Summarize
     if (!channAOK) chsummAOK=false;
     else 
-      ++Chann_DataIntegrityCheck_[dccid-700][channDIM_x][channDIM_y+1];
+      ++Chann_DataIntegrityCheck_[dcc_][channDIM_x][channDIM_y+1];
 
     // Prepare for the next round...
     lastcapid=qie_work->capid();
@@ -1407,7 +1410,7 @@ void HcalDataFormatMonitor::fillzoos(int bin, int dccid) {
 void HcalDataFormatMonitor::mapHTRproblem (int dcc, int spigot) {
   int mydepth,myeta = 0;
   //dcc, spigot pair for finding this spigot's HcalDetIds
-  pair <int,int> thishtr = pair <int,int> (dcc-700, spigot);
+  pair <int,int> thishtr = pair <int,int> (dcc, spigot);
 
   //Light up all affected cells.
   for (std::vector<HcalDetId>::iterator thishdi = HTRtoCell[thishtr].begin(); 
@@ -1426,8 +1429,8 @@ void HcalDataFormatMonitor::mapDCCproblem(int dcc) {
   int mydepth,myeta = 0;
 
   //Light up all affected cells.
-  for (std::vector<HcalDetId>::iterator thishdi = DCCtoCell[dcc-700].begin(); 
-       thishdi != DCCtoCell[dcc-700].end(); thishdi++) {
+  for (std::vector<HcalDetId>::iterator thishdi = DCCtoCell[dcc].begin(); 
+       thishdi != DCCtoCell[dcc].end(); thishdi++) {
     mydepth = thishdi->depth() - 1; //Array indexes in mydepth, cells are labeled in depth. Sigh....
     if ( (thishdi->subdet() == HcalForward )   ) {
       if (thishdi->zside() < 0)  myeta   = thishdi->ieta()+int((etaBins_-2)/2)-1;
