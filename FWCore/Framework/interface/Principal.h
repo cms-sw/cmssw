@@ -156,7 +156,7 @@ namespace edm {
 
     // Used for indices to find groups by type and process
     typedef std::map<std::string, std::vector<BranchID> > ProcessLookup;
-    typedef std::map<std::string, ProcessLookup> TypeLookup;
+    typedef std::map<edm::TypeID, ProcessLookup> TypeLookup;
 
     size_t findGroups(TypeID const& typeID,
 		      TypeLookup const& typeLookup,

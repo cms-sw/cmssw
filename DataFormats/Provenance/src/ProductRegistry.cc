@@ -219,12 +219,21 @@ namespace edm {
 
       constProductList().insert(std::make_pair(i->first, ConstBranchDescription(i->second)));
 
-      ProcessLookup& processLookup = productLookup()[i->first.friendlyClassName_];
+      Reflex::Type type(Reflex::Type::ByName(i->second.className()));
+      if(not bool(type)) {
+         throw edm::Exception(errors::DictionaryNotFound)<<"Could not find a Reflex dictionary for class '"<<i->second.className()
+         <<"'.  This class was registered as one which is supposed to be held by an edm::Event, LuminosityBlock, or Run. "
+         "Please check\n"
+         "1) was a Reflex dictionary created for the class,\n"
+         "2) if so was the package with the dictionary linked with all plugins that use that class.\n";
+      }
+
+
+      ProcessLookup& processLookup = productLookup()[edm::TypeID(type.TypeInfo())];
       std::vector<BranchID>& vint = processLookup[i->first.processName_];
       vint.push_back(i->second.branchID());
       //[could use productID instead]
         
-      Reflex::Type type(Reflex::Type::ByName(i->second.className()));
       if (bool(type)) {
         
         // Here we look in the object named "type" for a typedef
@@ -262,9 +271,8 @@ namespace edm {
                                           const BranchKey& bk) const
   {
     TypeID typeID(type.TypeInfo());
-    std::string friendlyClassName = typeID.friendlyClassName();
     
-    ProcessLookup& processLookup = elementLookup()[friendlyClassName];
+    ProcessLookup& processLookup = elementLookup()[typeID];
     std::vector<BranchID>& vint = processLookup[bk.processName_];
     vint.push_back(id);    
   }

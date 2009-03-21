@@ -23,6 +23,7 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Provenance/interface/Transient.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 
 #include "Reflex/Type.h"
 
@@ -56,7 +57,7 @@ namespace edm {
     
     // Used for indices to find branch IDs by type and process
     typedef std::map<std::string, std::vector<BranchID> > ProcessLookup;
-    typedef std::map<std::string, ProcessLookup> TypeLookup;
+    typedef std::map<edm::TypeID, ProcessLookup> TypeLookup;
 
     void addProduct(BranchDescription const& productdesc, bool iFromListener=false);
 

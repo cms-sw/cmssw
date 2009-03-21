@@ -301,13 +301,8 @@ namespace edm {
 
     // A class without a dictionary cannot be in an Event/Lumi/Run.
     // First, we check if the class has a dictionary.  If it does not,
-    // we return immediately.  This is necessary to avoid an exception
-    // being thrown inside TypeID::friendlyClassName().
-    if (!typeID.hasDictionary()) {
-      return 0;
-    }
-
-    TypeLookup::const_iterator i = typeLookup.find(typeID.friendlyClassName());
+    // we return immediately.
+    TypeLookup::const_iterator i = typeLookup.find(typeID);
 
     if (i == typeLookup.end()) {
       return 0;
