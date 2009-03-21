@@ -7,7 +7,7 @@ siPixelClusters = cms.EDProducer("SiPixelClusterProducer",
     src = cms.InputTag("siPixelDigis"),
     ChannelThreshold = cms.int32(2500),
     MissCalibrate = cms.untracked.bool(True),
-    SplitClusters = cms.untracked.bool(False),
+    SplitClusters = cms.bool(False),
     VCaltoElectronGain = cms.int32(65),
     VCaltoElectronOffset = cms.int32(-414),                          
     # **************************************
