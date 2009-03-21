@@ -1,6 +1,6 @@
 <use name=TrackingTools/PatternTools>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=Geometry/CaloEventSetup>
+#<use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=SimTracker/TrackerHitAssociation>
@@ -10,7 +10,7 @@
   <lib name=QCDAnalysisChargedHadronSpectra>
   <use name=TrackingTools/PatternTools>
   <use name=Geometry/TrackerGeometryBuilder>
-  <use name=Geometry/CaloEventSetup>
+#  <use name=Geometry/CaloEventSetup>
   <use name=Geometry/CaloGeometry> 
   <use name=SimDataFormats/GeneratorProducts>
   <use name=SimTracker/TrackerHitAssociation>

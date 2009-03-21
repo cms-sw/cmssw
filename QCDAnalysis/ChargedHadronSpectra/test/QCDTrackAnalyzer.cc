@@ -442,10 +442,9 @@ float QCDTrackAnalyzer::refitWithVertex
 
     // Refit track with vertex constraint
     SingleTrackVertexConstraint stvc;
-    pair<TransientTrack, float> result =
+    SingleTrackVertexConstraint::BTFtuple result =
       stvc.constrain(theTransientTrack, vertexPosition, vertexError);
-
-    return result.first.impactPointTSCP().pt();
+    return result.get<1>().impactPointTSCP().pt();
   }
   else
     return recTrack.pt();
