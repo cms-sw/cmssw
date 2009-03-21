@@ -57,7 +57,7 @@ namespace edm {
     
     // Used for indices to find branch IDs by type and process
     typedef std::map<std::string, std::vector<BranchID> > ProcessLookup;
-    typedef std::map<edm::TypeID, ProcessLookup> TypeLookup;
+    typedef std::map<TypeID, ProcessLookup> TypeLookup;
 
     void addProduct(BranchDescription const& productdesc, bool iFromListener=false);
 
