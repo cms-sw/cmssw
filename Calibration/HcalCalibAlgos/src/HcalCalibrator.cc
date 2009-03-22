@@ -19,7 +19,7 @@ to the actual calibration code in "endJob()".
 //
 // Original Author:  "Anton Anastassov"
 //         Created:  Tue Sept 24 09:13:48 CDT 2008
-// $Id: HcalCalibrator.cc,v 1.1 2008/10/23 17:29:31 anastass Exp $
+// $Id: HcalCalibrator.cc,v 1.2 2008/10/27 16:10:00 anastass Exp $
 //
 //
 //_________________________________________________________________________________
@@ -84,6 +84,7 @@ HcalCalibrator::HcalCalibrator(const edm::ParameterSet& conf) :
   mMaxEtThirdJet(conf.getUntrackedParameter<double>("maxEtThirdJet")),
   mMinDPhiDiJets(conf.getUntrackedParameter<double>("minDPhiDiJets")),
   mSumDepths(conf.getUntrackedParameter<bool>("sumDepths")),
+  mSumSmallDepths(conf.getUntrackedParameter<bool>("sumSmallDepths")),
   mCombinePhi (conf.getUntrackedParameter<bool>("combinePhi")),   
   mHbClusterSize(conf.getUntrackedParameter<int>("hbClusterSize")),
   mHeClusterSize(conf.getUntrackedParameter<int>("heClusterSize")), 
@@ -162,6 +163,7 @@ HcalCalibrator::endJob() {
   calibrator->SetMaxEtThirdJet(mMaxEtThirdJet);
   calibrator->SetMinDPhiDiJets(mMinDPhiDiJets);
   calibrator->SetSumDepthsFlag(mSumDepths);
+  calibrator->SetSumSmallDepthsFlag(mSumSmallDepths);
   calibrator->SetCombinePhiFlag(mCombinePhi);
   calibrator->SetMinCellE(mMinCellE);
   calibrator->SetMinEOverP(mMinEOverP);

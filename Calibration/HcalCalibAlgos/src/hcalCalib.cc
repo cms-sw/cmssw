@@ -6,7 +6,7 @@
 //  Anton Anastassov (Northwestern)
 //  Email: aa@fnal.gov
 //
-// $Id: hcalCalib.cc,v 1.2 2008/10/27 16:10:00 anastass Exp $
+// $Id: hcalCalib.cc,v 1.3 2008/11/19 03:44:13 anastass Exp $
 //
 
 #include "Calibration/HcalCalibAlgos/interface/hcalCalib.h"
@@ -47,6 +47,9 @@ TFile* histoFile;
 // sanity check histograms
 TH1F* h1_trkP;
 TH1F* h1_allTrkP;
+
+TH1F* h1_selTrkP_iEta10;
+
 TH1F* h1_rawSumE;
 TH1F* h1_rawResp;
 TH1F* h1_corResp;
@@ -70,12 +73,16 @@ void hcalCalib::Begin(TTree * /*tree*/) {
   nEvents = 0;
 
   if (APPLY_PHI_SYM_COR_FLAG && !ReadPhiSymCor()) {
-    cout << "\n ERROR: Failed to read the phi symmetry corrections." << endl;
-    cout << "Check if the filename is correct. If the corrections are not needed, set the corresponding flag to false\n" << endl;
+    cout << "\nERROR: Failed to read the phi symmetry corrections." << endl;
+    cout << "Check if the filename is correct. If the corrections are not needed, set the corresponding flag to \"false\"\n" << endl;
+
+    cout << "\nThe program will be terminated\n" << endl;
+
+    exit(1);
+
   }
 
     
-
   //  cellEnergies.reserve(1000000);
   //  cellIds.reserve(1000000);
   //  targetEnergies.reserve(1000000);
@@ -85,6 +92,10 @@ void hcalCalib::Begin(TTree * /*tree*/) {
 
   h1_trkP    = new TH1F("h1_trkP", "Track momenta; p_{trk} (GeV); Number of tracks", 100, 0, 200);
   h1_allTrkP = new TH1F("h1_allTrkP", "Track momenta - all tracks; p_{trk} (GeV); Number of tracks", 100, 0, 200);
+
+  h1_selTrkP_iEta10 = new TH1F("h1_selTrkP_iEta10", "Track momenta - tracks with |iEta|<10; p_{trk} (GeV); Number of tracks", 100, 0, 200); 
+
+
 
   if (CALIB_TYPE=="ISO_TRACK") 
     h1_rawSumE = new TH1F("h1_rawSumE", "Cluster Energy; E_{cl} (GeV); Number of tracks", 100, 0, 200);
@@ -141,6 +152,7 @@ Bool_t hcalCalib::Process(Long64_t entry) {
   Bool_t acceptEvent = kTRUE;
    
   ++nEvents;
+
   if (!(nEvents%100000)) cout << "event: " << nEvents << endl;
 
 
@@ -153,13 +165,7 @@ Bool_t hcalCalib::Process(Long64_t entry) {
   vector<TCell> selectCells;
 
 
-  if (cells->GetSize()==0) {
-    return kFALSE;
-//     cout << "NO CELLS STORED IN THE NTUPLE!!!!" << endl; 
-//     cout << "tag Jet E: " << tagJetP4->E()  << ", emFrac: " <<  tagJetEmFrac << endl;
-//     cout << "probe Jet E: " << probeJetP4->E() << ", emFrac: " <<  probeJetEmFrac << endl;  
-  }
-  
+  if (cells->GetSize()==0) return kFALSE;
 
   if (CALIB_TYPE=="DI_JET" && probeJetEmFrac > 0.999) return kTRUE;
   
@@ -168,6 +174,15 @@ Bool_t hcalCalib::Process(Long64_t entry) {
     TCell* thisCell =  (TCell*) cells->At(i);
 
     if (HcalDetId(thisCell->id()).subdet()== HcalOuter)  continue;           // reject HO, make a switch!
+
+    if (HcalDetId(thisCell->id()).subdet() != HcalBarrel &&
+	HcalDetId(thisCell->id()).subdet() != HcalEndcap &&
+	HcalDetId(thisCell->id()).subdet() != HcalForward) {
+      
+      cout << "Unknown or wrong hcal subdetector: " << HcalDetId(thisCell->id()).subdet() << endl;
+
+    }
+
 
     // Apply phi symmetry corrections if the flag is set
     if (APPLY_PHI_SYM_COR_FLAG) thisCell->SetE(phiSymCor[thisCell->id()] * thisCell->e());
@@ -182,6 +197,9 @@ Bool_t hcalCalib::Process(Long64_t entry) {
 
 
   if (SUM_DEPTHS)  sumDepths(selectCells);
+  else if (SUM_SMALL_DEPTHS) sumSmallDepths(selectCells); // depth 1,2 in twrs 15,16
+
+
 
   // most energetic tower (IsoTracks) or centroid of probe jet (DiJets)
   pair<Int_t, UInt_t> refPos;
@@ -298,7 +316,14 @@ Bool_t hcalCalib::Process(Long64_t entry) {
     cellIds.push_back(ids);
     targetEnergies.push_back(targetE);
     refIEtaIPhi.push_back(refPos);
+
+    if (abs(refPos.first)<=10) 
+      h1_selTrkP_iEta10->Fill(targetE);
+
+
   }
+
+
 
     
   // Clean up
@@ -314,6 +339,7 @@ Bool_t hcalCalib::Process(Long64_t entry) {
 void hcalCalib::Terminate() {
 
   cout << "\n\nFinished reading the events.\n";
+  cout << "Number of input objects: " << cellIds.size()  << endl; 
   cout << "Performing minimization: depending on selected method can take some time...\n\n";
   
   for (vector<pair<Int_t, UInt_t> >::iterator it_rp=refIEtaIPhi.begin(); it_rp!=refIEtaIPhi.end(); ++it_rp ) {
@@ -331,16 +357,27 @@ void hcalCalib::Terminate() {
         
     solution = thisL3Algo->iterate(cellEnergies, cellIds, targetEnergies, numIterations);
 
-    for (map<UInt_t, Float_t>::iterator m_it = solution.begin(); m_it != solution.end(); ++m_it) {
-      Int_t  thisIEta  = HcalDetId(m_it->first).ieta();
-      UInt_t thisIPhi  = HcalDetId(m_it->first).iphi();
-      UInt_t thisDepth = HcalDetId(m_it->first).depth();
-      Float_t scale    = m_it->second;
-      iEtaCoefMap[HcalDetId(m_it->first).ieta()] = m_it->second;
-      //      cout << "iEta: " << thisIEta << "  iPhi: " << thisIPhi 
-      //	   << " depth: " << thisDepth  
-      //	   << " scale: " << scale << endl;
-    }
+    // in order to handle the case where sumDepths="false", but the flag to sum depths 1,2 in HB towers 15, 16
+    // is set (sumSmallDepths) we create entries in "solution" to create equal correction here
+    // for each encountered coef in depth one.
+
+    if (!SUM_DEPTHS && SUM_SMALL_DEPTHS) {
+      vector<UInt_t> idForSummedCells;
+
+      for (map<UInt_t, Float_t>::iterator m_it = solution.begin(); m_it != solution.end(); ++m_it) {
+	if (HcalDetId(m_it->first).ietaAbs()!=15 && HcalDetId(m_it->first).ietaAbs()!=16) continue;
+	if (HcalDetId(m_it->first).subdet()!=HcalBarrel) continue;
+	if (HcalDetId(m_it->first).depth()==1)
+	  idForSummedCells.push_back(HcalDetId(m_it->first));
+      }
+
+      for (vector<UInt_t>::iterator v_it=idForSummedCells.begin(); v_it!=idForSummedCells.end(); ++v_it) {
+	UInt_t addCoefId = HcalDetId(HcalBarrel, HcalDetId(*v_it).ieta(), HcalDetId(*v_it).iphi(), 2);
+	solution[addCoefId] = solution[*v_it];
+      }
+     
+    }  // end of special treatment for "sumSmallDepths" mode
+
 
     if (CALIB_METHOD=="L3_AND_MTRX_INV") {
       GetCoefFromMtrxInvOfAve();      
@@ -435,6 +472,9 @@ void hcalCalib::Terminate() {
   // save the histograms 
   h1_trkP->Write();
   h1_allTrkP->Write();
+
+h1_selTrkP_iEta10->Write();
+
   h1_rawSumE->Write();
   h1_rawResp->Write();
   h1_corResp->Write();
@@ -564,8 +604,7 @@ Bool_t hcalCalib::ReadPhiSymCor() {
   ifstream phiSymFile(PHI_SYM_COR_FILENAME.Data());
 
   if (!phiSymFile) {
-    cout << "\nERROR: Can not find file with phi symmetry constants " <<  PHI_SYM_COR_FILENAME.Data() << endl;
-    cout << "Provide valid file name of set the read flag to false\n" << endl;
+    cout << "\nERROR: Can not find file with phi symmetry constants \"" <<  PHI_SYM_COR_FILENAME.Data() << "\"" << endl;
     return kFALSE;
   }
 
@@ -594,7 +633,7 @@ Bool_t hcalCalib::ReadPhiSymCor() {
     else if (sdName=="HO") sd = HcalOuter;
     else if (sdName=="HF") sd = HcalForward;
     else {
-      cout << "\nInvalid detector name in phi symmetri constants file: " << sdName.Data() << endl;
+      cout << "\nInvalid detector name in phi symmetry constants file: " << sdName.Data() << endl;
       cout << "Check file and rerun!\n" << endl;
       return kFALSE;
     }
@@ -605,7 +644,7 @@ Bool_t hcalCalib::ReadPhiSymCor() {
       cout << "\nInconsistent info in phi symmetry file: subdet, iEta, iPhi, depth do not match rawId!\n" << endl;
       return kFALSE;    
     }
-    if (!validDetId(sd, iEta, iPhi, depth)) {
+    if (!HcalDetId::validDetId(sd, iEta, iPhi, depth)) {
       cout << "\nInvalid DetId from: iEta=" << iEta << " iPhi=" << iPhi << " depth=" << depth 
 	   << " subdet=" << sdName.Data() << " detId=" << detId << endl << endl; 
       return kFALSE;    
@@ -644,12 +683,14 @@ void hcalCalib::makeTextFile() {
 
 	  for(Int_t d=1; d<5; d++) {
 
-	    if (!validDetId(HcalSubdetector(sd), eta, phi, d)) continue;
+	    if (!HcalDetId::validDetId(HcalSubdetector(sd), eta, phi, d)) continue;
 	    HcalDetId id(HcalSubdetector(sd), eta, phi, d);
 	    Float_t corrFactor = 1.0;
 	    
 
 	    if (abs(eta)>=CALIB_ABS_IETA_MIN && abs(eta)<=CALIB_ABS_IETA_MAX && HcalSubdetector(sd)!=HcalOuter) {
+	    //	    if (abs(eta)>=CALIB_ABS_IETA_MIN && abs(eta)<=22 && HcalSubdetector(sd)!=HcalOuter) {
+
 
 	      // need some care when depths were summed for iEta=16 =>
 	      // the coeficients are saved in depth 1 of HB: affects
@@ -661,10 +702,19 @@ void hcalCalib::makeTextFile() {
 
 	      if (CALIB_METHOD=="L3" || CALIB_METHOD=="L3_AND_MTRX_INV") {
 
+
 		if (SUM_DEPTHS && COMBINE_PHI) corrFactor = solution[HcalDetId(HcalSubdetector(subdetInd), eta, 1, 1)];
 		else if (SUM_DEPTHS) corrFactor = solution[HcalDetId(HcalSubdetector(subdetInd), eta, phi, 1)];
 		else if (COMBINE_PHI) corrFactor = solution[HcalDetId(HcalSubdetector(sd), eta, 1, d)];
 		else corrFactor = solution[HcalDetId(HcalSubdetector(sd), eta, phi, d)];
+
+
+		// Remark: a new case was added (sumSmallDepths) where the first two depths in towers 15,16 
+		// are summed and stored in  depth 1.
+		// For now we create the correction coef for depth 2 (set equal to depth 1)
+		// after the call to the L3 minimizer so that this case is also handled without modifying the
+		// logic above. Probably it is better to move it here? 
+		
 
 	      }// L3
 

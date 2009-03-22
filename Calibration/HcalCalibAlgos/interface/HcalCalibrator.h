@@ -50,6 +50,7 @@ private:
   double mMaxEtThirdJet;
   double mMinDPhiDiJets;
   bool  mSumDepths;
+  bool  mSumSmallDepths;
   bool  mCombinePhi;    
   int   mHbClusterSize;
   int   mHeClusterSize; 

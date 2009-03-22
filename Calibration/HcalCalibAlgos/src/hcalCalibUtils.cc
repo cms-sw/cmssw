@@ -38,7 +38,7 @@ void sumDepths(vector<TCell> &selectCells) {
     
     
   // case where depth 1 has zero energy, but higher depths with same (iEta, iPhi) have energy.
-  // For iEta<=15 there is one depth -> selectCellsHighDepth is empty and we do not get in the loop.
+  // For iEta<15 there is one depth -> selectCellsHighDepth is empty and we do not get in the loop.
   for (vector<TCell>::iterator i_it2 = selectCellsHighDepth.begin(); i_it2 != selectCellsHighDepth.end(); ++i_it2) {
 
 
@@ -269,60 +269,71 @@ void filterCells5x5(vector<TCell>& selectCells, Int_t iEtaMaxE, UInt_t iPhiMaxE)
 }
               
 
-//******************************************
 
 
+// this is for the problematic layer near the HB/HE boundary
+// sum depths 1,2 in towers 15,16
 
-  // this will become part of CMSSW (but is not yet in as of 2_1_10)
-  // it is defined in the new version of HcalDetId
-  // remove when it is included in the new releases
+void sumSmallDepths(vector<TCell> &selectCells) {
+       
+  if (selectCells.size()==0) return;
+    
+  vector<TCell> newCells; // holds unaffected cells to which the modified ones are added
+  vector<TCell> manipulatedCells; // the ones that are combined
+    
+  for (vector<TCell>::iterator i_it = selectCells.begin(); i_it != selectCells.end(); ++i_it) {
 
-bool validDetId( HcalSubdetector sd,
-		 int             ies,
-		 int             ip,
-		 int             dp      ) 
-{
-  const int ie ( abs( ies ) ) ;
+    if ( (HcalDetId(i_it->id()).ietaAbs()==15 && HcalDetId(i_it->id()).depth()<=2) ||
+	 (HcalDetId(i_it->id()).ietaAbs()==16 && HcalDetId(i_it->id()).depth()<=2)) {
+      manipulatedCells.push_back(*i_it);
+    }
+    else {
+      newCells.push_back(*i_it);
+    }
+
+  }
+
+  // if the list is empty there is nothing to manipulate
+  // leave the original vector unchanged
+
+  if (manipulatedCells.size()<1) {
+    newCells.clear();    
+    return;
+  }
+
+
+  // See what cells are needed to hold the combined information:
+  // Make holders for depth=1 for each (iEta,iPhi) 
+  // if a cell with these values is present in "manupulatedCells"  
+  vector<UInt_t> dummyIds; // to keep track of kreated cells 
+  vector<TCell> createdCells; // cells that need to be added or they exists;
+
+  for (vector<TCell>::iterator i_it = manipulatedCells.begin(); i_it!=manipulatedCells.end(); ++i_it) {
+    UInt_t dummyId = HcalDetId(HcalDetId(i_it->id()).subdet(), HcalDetId(i_it->id()).ieta(), HcalDetId(i_it->id()).iphi(), 1);
+    if (find(dummyIds.begin(), dummyIds.end(), dummyId)==dummyIds.end()) {
+      dummyIds.push_back(dummyId);
+      createdCells.push_back(TCell(dummyId, 0.0));
+    }
+  }
+
+  for (vector<TCell>::iterator i_it = createdCells.begin(); i_it!=createdCells.end(); ++i_it) {
+    for (vector<TCell>::iterator i_it2 = manipulatedCells.begin(); i_it2!=manipulatedCells.end(); ++i_it2) {
+      if (HcalDetId(i_it->id()).ieta()==HcalDetId(i_it2->id()).ieta() && 
+	  HcalDetId(i_it->id()).iphi()==HcalDetId(i_it2->id()).iphi() &&
+	  HcalDetId(i_it2->id()).depth()<=2) {
+	i_it->SetE(i_it->e()+i_it2->e()); 
+      }  
+    }
+  }
+    
+  for (vector<TCell>::iterator i_it = createdCells.begin(); i_it!=createdCells.end(); ++i_it) {
+    newCells.push_back(*i_it);
+  }
   
-  return ( ( ip >=  1         ) &&
-	   ( ip <= 72         ) &&
-	   ( dp >=  1         ) &&
-	   ( ie >=  1         ) &&
-	   ( ( ( sd == HcalBarrel ) &&
-	       ( ( ( ie <= 14         ) &&
-		   ( dp ==  1         )    ) ||
-		 ( ( ( ie == 15 ) || ( ie == 16 ) ) && 
-		   ( dp <= 2          )                ) ) ) ||
-	     (  ( sd == HcalEndcap ) &&
-		( ( ( ie == 16 ) &&
-		    ( dp ==  3 )          ) ||
-		  ( ( ie == 17 ) &&
-		    ( dp ==  1 )          ) ||
-		  ( ( ie >= 18 ) &&
-		    ( ie <= 20 ) &&
-		    ( dp <=  2 )          ) ||
-		  ( ( ie >= 21 ) &&
-		    ( ie <= 26 ) &&
-		    ( dp <=  2 ) &&
-		    ( ip%2 == 1 )         ) ||
-		  ( ( ie >= 27 ) &&
-		    ( ie <= 28 ) &&
-		    ( dp <=  3 ) &&
-		    ( ip%2 == 1 )         ) ||
-		  ( ( ie == 29 ) &&
-		    ( dp <=  2 ) &&
-		    ( ip%2 == 1 )         )          )      ) ||
-	     (  ( sd == HcalOuter ) &&
-		( ie <= 15 ) &&
-		( dp ==  4 )           ) ||
-	     (  ( sd == HcalForward ) &&
-		( dp <=  2 )          &&
-		( ( ( ie >= 29 ) &&
-		    ( ie <= 39 ) &&
-		    ( ip%2 == 1 )    ) ||
-		  ( ( ie >= 40 ) &&
-		    ( ie <= 41 ) &&
-		    ( ip%4 == 3 )         )  ) ) ) ) ;
+    
+  // replace the original vectors with the new ones
+  selectCells = newCells;
+    
+  return;
 }
-
 

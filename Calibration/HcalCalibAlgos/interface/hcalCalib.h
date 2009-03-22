@@ -9,7 +9,7 @@
 //  Anton Anastassov (Northwestern)
 //  Email: aa@fnal.gov
 //
-// $Id: hcalCalib.h,v 1.1 2008/10/23 17:29:30 anastass Exp $
+// $Id: hcalCalib.h,v 1.2 2008/10/27 16:10:00 anastass Exp $
 //
 ///////////////////////////////////////////////////////////////
 
@@ -99,6 +99,7 @@ public :
     Float_t MIN_DPHI_DIJETS;
    
     Bool_t  SUM_DEPTHS;
+    Bool_t  SUM_SMALL_DEPTHS;
     Bool_t  COMBINE_PHI;
 
     Int_t   HB_CLUSTER_SIZE;
@@ -126,6 +127,7 @@ public :
     void SetMinTargetE(Float_t e)                   { MIN_TARGET_E = e; }
     void SetMaxTargetE(Float_t e)                   { MAX_TARGET_E = e; }
     void SetSumDepthsFlag(Bool_t b)                 { SUM_DEPTHS = b; }
+    void SetSumSmallDepthsFlag(Bool_t b)            { SUM_SMALL_DEPTHS = b; }
     void SetCombinePhiFlag(Bool_t b)                { COMBINE_PHI = b; }
     void SetMinCellE(Float_t e)                     { MIN_CELL_E = e; }
     void SetMinEOverP(Float_t e)                    { MIN_EOVERP = e; }
