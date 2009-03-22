@@ -21,6 +21,9 @@
 // severity level assignment for ECAL
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
+// need if we want to store the handles
+#include "FWCore/Framework/interface/ESHandle.h"
+
 
 #include <map>
 class HcalTopology;
@@ -32,8 +35,8 @@ class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2008/11/16 16:22:47 $
-  * $Revision: 1.14 $
+  * $Date: 2009/02/25 07:41:00 $
+  * $Revision: 1.15 $
   * \author R. Wilkinson - Caltech
   */
 
@@ -96,9 +99,9 @@ public:
   void setHcalChStatusFromDB(const HcalChannelQuality* s) { theHcalChStatus = s; }
   void setEcalChStatusFromDB(const EcalChannelStatus* s) { theEcalChStatus = s; }
 
-  // make maps based on information found in the DB
-  void makeHcalDeadChMap();
-  void makeEcalDeadChMap();
+  // Kake a map of number of channels not used in RecHit production.
+  // The key is the calotower id.
+  void makeHcalDropChMap();
 
   void begin();
   void process(const HBHERecHitCollection& hbhe);
@@ -147,6 +150,13 @@ public:
 
   // severity level calculator for ECAL
   void setEcalSevLvlAlgo(const EcalSeverityLevelAlgo* a) { theEcalSevLvlAlgo =  a; }
+
+
+  // set the EE EB handles
+  
+  void setEbHandle(const edm::Handle<EcalRecHitCollection> eb) { theEbHandle = eb; }
+  void setEeHandle(const edm::Handle<EcalRecHitCollection> ee) { theEeHandle = ee; }
+
 
 
 
@@ -268,26 +278,20 @@ private:
   typedef std::map<CaloTowerDetId, MetaTower> MetaTowerMap;
   MetaTowerMap theTowerMap;
 
-  // maps of number of dead channels in towers based in information in the DB 
-  // The number of bad channels can be reduced/incremented in the loop over RecHits if the channel
-  // was "recovered" (using a HCAL/ECAL recovery algorithm), or had a problem with
-  // high severety an event-by-event basis
-  //  
-  std::map<CaloTowerDetId, int> hcalDeadChMap;
-  std::map<CaloTowerDetId, int> ecalDeadChMap;
+  // Number of channels in the tower that were not used in RecHit production (dead/off,...).
+  // These channels are added to the other "bad" channels found in the recHit collection. 
+  std::map<CaloTowerDetId, int> hcalDropChMap;
 
-  // vector of DetId's of channel that were used to make hcalDeadChMap and ecalDeadChMap
-  // These vectors are used to prevent double counting: if for some reason such channels
-  // make it to the RecHit collections and are reasigned (for example are "recovered")
-  // the count of "bad" channels in a tower is reduced.
-  //
-  std::vector<DetId> hcalBadChanIdInDB;
-  std::vector<DetId> ecalBadChanIdInDB;
-  
   // clasification of channels in tower construction: the category definition is
   // affected by the setting in the configuration file
   // 
   enum ctHitCategory {GoodChan = 0, BadChan = 1, RecoveredChan = 2, ProblematicChan = 3 };
+
+
+  // the EE and EB collections for ecal anomalous cell info
+   
+  edm::Handle<EcalRecHitCollection> theEbHandle;
+  edm::Handle<EcalRecHitCollection> theEeHandle;
 
 
 

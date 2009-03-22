@@ -155,8 +155,40 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
 
   algo_.begin(); // clear the internal buffer
 
-  algo_.makeHcalDeadChMap();
-  algo_.makeEcalDeadChMap();
+  algo_.makeHcalDropChMap();
+
+
+  // ----------------------------------------------------------
+  // For ecal error handling need to 
+  // have access to the EB and EE collections at the end of 
+  // tower reconstruction.
+
+  edm::Handle<EcalRecHitCollection> ebHandle;
+  edm::Handle<EcalRecHitCollection> eeHandle;
+
+  for (std::vector<edm::InputTag>::const_iterator i=ecalLabels_.begin(); 
+       i!=ecalLabels_.end(); i++) {
+    
+    edm::Handle<EcalRecHitCollection> ec_tmp;
+    
+    if (! e.getByLabel(*i,ec_tmp) ) continue;
+    if (ec_tmp->size()==0) continue;
+
+    // check if this is EB or EE
+    if ( (ec_tmp->begin()->detid()).subdetId() == EcalBarrel ) {
+      ebHandle = ec_tmp;
+    }
+    else if ((ec_tmp->begin()->detid()).subdetId() == EcalEndcap ) {
+      eeHandle = ec_tmp;
+    }
+
+  }
+
+  algo_.setEbHandle(ebHandle);
+  algo_.setEeHandle(eeHandle);
+
+  //-----------------------------------------------------------
+
 
 
   bool present;
