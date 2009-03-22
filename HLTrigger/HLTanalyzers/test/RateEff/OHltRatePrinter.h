@@ -30,6 +30,9 @@ class OHltRatePrinter {
   void printRatesTex(OHltConfig *cfg, OHltMenu *menu);
   void printHltRatesTex(OHltConfig *cfg, OHltMenu *menu);
   void printL1RatesTex(OHltConfig *cfg, OHltMenu *menu);
+  void printRatesTwiki(OHltConfig *cfg, OHltMenu *menu); 
+  void printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu); 
+  void printL1RatesTwiki(OHltConfig *cfg, OHltMenu *menu); 
   void writeHistos(OHltConfig *cfg, OHltMenu *menu);
   TString GetFileName(OHltConfig *cfg, OHltMenu *menu);
   void printPrescalesCfg(OHltConfig *cfg, OHltMenu *menu);

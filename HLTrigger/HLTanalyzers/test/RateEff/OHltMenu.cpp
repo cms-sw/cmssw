@@ -667,7 +667,7 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   
   vtmp.clear();    
   vtmp.push_back("L1_ETM30"); vtmp.push_back("L1_SingleMu14");  
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_L1Mu14_L1ETM30", vtmp)); 
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_L1Mu14_L1ETM40", vtmp)); 
   
   // Minbias
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_ZeroBias", myvec(1,"OpenL1_ZeroBias")));

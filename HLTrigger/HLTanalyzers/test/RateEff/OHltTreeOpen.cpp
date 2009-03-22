@@ -706,8 +706,9 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       int rc = 0; 
       
       for (int i=0;i<NohEle;i++) { 
-	for (int j=i;j<NohEle && j != i;i++) {  
-	  if (ohElePixelSeeds[i]>0 && ohElePixelSeeds[j]) {
+	for (int j=0;j<NohEle && j != i;j++) {  
+	  
+	  if (ohElePixelSeeds[i]>0 && ohElePixelSeeds[j]>0) {
 	    
 	    e1.SetPtEtaPhiM(ohEleEt[i],ohEleEta[i],ohElePhi[i],0.0); 
 	    e2.SetPtEtaPhiM(ohEleEt[j],ohEleEta[j],ohElePhi[j],0.0); 
@@ -724,7 +725,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       }
     }
   }
-
 
   /* BTag */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet20") == 0) {

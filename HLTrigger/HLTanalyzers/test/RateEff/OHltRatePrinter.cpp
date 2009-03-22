@@ -55,6 +55,150 @@ void OHltRatePrinter::printRatesASCII(OHltConfig *cfg, OHltMenu *menu) {
   
 }
 
+/* ********************************************** */ 
+// Print out rates as twiki 
+/* ********************************************** */ 
+void OHltRatePrinter::printRatesTwiki(OHltConfig *cfg, OHltMenu *menu) { 
+  if (menu->IsL1Menu()) 
+    printL1RatesTwiki(cfg,menu); 
+  else 
+    printHltRatesTwiki(cfg,menu); 
+     
+} 
+
+
+/* ********************************************** */ 
+// Print out HLT rates as twiki
+/* ********************************************** */ 
+void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) { 
+  TString tableFileName = GetFileName(cfg,menu); 
+
+  TString twikiFile = tableFileName + TString(".twiki"); 
+  ofstream outFile(twikiFile.Data()); 
+  if (!outFile){cout<<"Error opening output file"<< endl;} 
+ 
+  outFile << "| *Path Name*"; 
+  outFile << " | *L1 condition*"; 
+  outFile << " | *L1  Prescale*"; 
+  outFile << " | *HLT Prescale*"; 
+  outFile << " | *HLT Rate [Hz]*"; 
+  outFile << " | *Total Rate [Hz]*"; 
+  outFile << " | *Avg. Size [MB]*";   
+  outFile << " | *Total Throughput [MB/s]* |" << endl;   
+
+  float cumulRate = 0.; 
+  float cumulRateErr = 0.; 
+  float cuThru = 0.; 
+  float cuThruErr = 0.; 
+  float physCutThru = 0.; 
+  float physCutThruErr = 0.; 
+  float cuPhysRate = 0.; 
+  float cuPhysRateErr = 0.; 
+
+  for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
+    cumulRate += spureRate[i]; 
+    cumulRateErr += pow(spureRateErr[i],2.); 
+    cuThru += spureRate[i] * menu->GetEventsize(i); 
+    cuThruErr += pow(spureRateErr[i]*menu->GetEventsize(i),2.); 
+ 
+    if (!(menu->GetTriggerName(i).Contains("AlCa"))) { 
+      cuPhysRate += spureRate[i]; 
+      cuPhysRateErr += pow(spureRateErr[i],2.); 
+      physCutThru += spureRate[i]*menu->GetEventsize(i); 
+      physCutThruErr += pow(spureRateErr[i]*menu->GetEventsize(i),2.); 
+    } 
+
+    TString tempTrigSeedPrescales; 
+    TString tempTrigSeeds; 
+    std::map<TString, std::vector<TString> > 
+      mapL1seeds = menu->GetL1SeedsOfHLTPathMap(); // mapping to all seeds 
+
+    vector<TString> vtmp; 
+    vector<int> itmp; 
+
+    typedef map< TString, vector<TString> >  mymap; 
+    for(mymap::const_iterator it = mapL1seeds.begin();it != mapL1seeds.end(); ++it) { 
+      if (it->first.CompareTo(menu->GetTriggerName(i)) == 0) { 
+        vtmp = it->second; 
+        //cout<<it->first<<endl; 
+        for (unsigned int j=0;j<it->second.size();j++) { 
+          itmp.push_back(menu->GetL1Prescale((it->second)[j])); 
+          //cout<<"\t"<<(it->second)[j]<<endl; 
+        } 
+      } 
+    } 
+    for (unsigned int j=0;j<vtmp.size();j++) { 
+      tempTrigSeeds = tempTrigSeeds + vtmp[j]; 
+      tempTrigSeedPrescales += itmp[j]; 
+      if (j<(vtmp.size()-1)) { 
+	tempTrigSeeds = tempTrigSeeds + " or "; 
+	tempTrigSeedPrescales = tempTrigSeedPrescales + ","; 
+      } 
+    } 
+
+    outFile << "| !"<< menu->GetTriggerName(i)
+	    << " | !" << tempTrigSeeds
+	    << " | " << tempTrigSeedPrescales
+	    << " | " << menu->GetPrescale(i)
+	    << " | " << Rate[i] << " +- " << RateErr[i]
+	    << " | " << cumulRate
+	    << " | " << menu->GetEventsize(i)
+	    << " | " << cuThru
+	    << " | " << endl; 
+  } 
+
+  outFile << "| Total " 
+	  << " | " 
+	  << " | " 
+	  << " | " 
+	  << " | " << cumulRate << " +- " << sqrt(cumulRateErr) 
+	  << " | " 
+	  << " | " 
+	  << " | " << cuThru << " +- " << sqrt(cuThruErr) 
+	  << " | " << endl;  
+  
+  outFile.close();
+   
+} 
+
+/* ********************************************** */  
+// Print out L1 rates as twiki 
+/* ********************************************** */  
+void OHltRatePrinter::printL1RatesTwiki(OHltConfig *cfg, OHltMenu *menu) {  
+  TString tableFileName = GetFileName(cfg,menu);  
+   
+  TString twikiFile = tableFileName + TString(".twiki");  
+  ofstream outFile(twikiFile.Data());  
+  if (!outFile){cout<<"Error opening output file"<< endl;}  
+
+  outFile << "| *Path Name*";  
+  outFile << " | *L1  Prescale*";   
+  outFile << " | *L1 rate [Hz]*";  
+  outFile << " | *Total Rate [Hz]*" << endl;  
+
+  float cumulRate = 0.; 
+  float cumulRateErr = 0.; 
+  for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
+    cumulRate += spureRate[i]; 
+    cumulRateErr += pow(spureRateErr[i],2.); 
+     
+    TString tempTrigName = menu->GetTriggerName(i); 
+ 
+    outFile << "| !" << tempTrigName 
+            << " | " <<  menu->GetPrescale(i)  
+            << " | " << Rate[i] << " +- " << RateErr[i] 
+            << " | " << cumulRate << " |" << endl; 
+  } 
+  
+  outFile << "| Total "  
+          << " | "  
+          << " | "  
+          << " | " << cumulRate << " +- " << sqrt(cumulRateErr)  << endl;
+  
+  outFile.close();
+
+}
+
 
 /* ********************************************** */
 // Fill histos

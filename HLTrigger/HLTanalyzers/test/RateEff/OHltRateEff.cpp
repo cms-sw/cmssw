@@ -63,6 +63,7 @@ int main(int argc, char *argv[]){
 
   if (ocfg->doPrintAll) {
     rprint->printRatesTex(ocfg,omenu);    
+    rprint->printRatesTwiki(ocfg,omenu);     
     rprint->printPrescalesCfg(ocfg,omenu);
     rprint->writeHistos(ocfg,omenu);    
   }
