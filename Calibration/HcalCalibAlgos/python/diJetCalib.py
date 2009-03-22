@@ -51,6 +51,10 @@ process.hcalCalib = cms.EDAnalyzer("HcalCalibrator",
 # ------- logical flag to combine phi in HCAL                                   
   combinePhi = cms.untracked.bool(True),
 
+# ------- logical flag to sum depths 1,2 in HB for towers 15,16.
+# --------If sumDepths="true" this flag has no effect
+  sumSmallDepths = cms.untracked.bool(True),
+
 # ------- cluster size in HB for isotracks: 3 or 5 (means 3x3, 5x5)                                   
   hbClusterSize = cms.untracked.int32(3),
 
@@ -80,7 +84,8 @@ process.hcalCalib = cms.EDAnalyzer("HcalCalibrator",
 # ------- min abs(eta) of probe jet allowed (does not affect isotracks)
   minProbeJetAbsEta = cms.untracked.double(1.4),
                                    
-# ------- file containing the phi symmetry corrections (to apply on the fly in isoTrack calibration):: USER PROVIDED!
+# ------- file containing the phi symmetry corrections (to apply on the fly in isoTrack calibration)
+# ------- USER PROVIDED!
   phiSymCorFileName = cms.untracked.string("phiSymCor.txt"),
 
 # ------- Flag to read phi symmetry corrections and apply on the fly (can be used for isoTrack)
