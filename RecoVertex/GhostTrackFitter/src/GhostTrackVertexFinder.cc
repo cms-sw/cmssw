@@ -54,7 +54,6 @@ namespace {
 
 	typedef SMatrix<double, 3, 3, MatRepSym<double, 3> > Matrix3S;
 	typedef SMatrix<double, 2, 2, MatRepSym<double, 2> > Matrix2S;
-	typedef SMatrix<double, 5, 4> Matrix54;
 	typedef SMatrix<double, 2, 3> Matrix23;
 
 	typedef ReferenceCountingPointer<VertexTrack<5> >
@@ -102,26 +101,7 @@ struct GhostTrackVertexFinder::FinderInfo {
 
 static TransientTrack transientGhostTrack(const GhostTrackPrediction &pred,
                                           const MagneticField *field)
-{
-	GlobalPoint origin = pred.origin();
-	GlobalVector dir = pred.direction();
-
-	Matrix54 jacobian;
-	jacobian(1, 2) = 1.;
-	jacobian(2, 3) = 1.;
-	jacobian(3, 1) = -1.;
-	jacobian(4, 0) = pred.rho2();
-	jacobian(4, 2) = pred.z() * pred.cotTheta() / pred.rho2();
-
-	AlgebraicSymMatrix55 err = Similarity(jacobian, pred.covariance());
-	err(0, 0) = 1.;
-	CurvilinearTrajectoryError trajectoryError(err);
-
-	GlobalTrajectoryParameters trajectoryParams(origin, dir, 0, field);
-	FreeTrajectoryState fts(trajectoryParams, trajectoryError);
-
-	return TransientTrackFromFTSFactory().build(fts);
-}
+{ return TransientTrackFromFTSFactory().build(pred.fts(field)); }
 
 static double vtxErrorLong(const GlobalError &error, const GlobalVector &dir)
 {

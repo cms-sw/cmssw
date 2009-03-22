@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 #include "RecoVertex/GhostTrackFitter/interface/GhostTrackState.h"
@@ -26,6 +28,8 @@ class GhostTrack {
 	const std::vector<GhostTrackState> &states() const { return states_; }
 	double ndof() const { return ndof_; }
 	double chi2() const { return chi2_; }
+
+	operator Track() const { return prediction_.track(ndof_, chi2_); }
 
     private:
 	GhostTrackPrediction		prediction_;

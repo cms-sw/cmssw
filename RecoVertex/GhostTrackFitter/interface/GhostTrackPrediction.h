@@ -9,6 +9,13 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+class MagneticField;
+class CurvilinearTrajectoryParameters;
+class GlobalTrajectoryParameters;
+class CurvilinearTrajectoryError;
+class FreeTrajectoryState;
 
 namespace reco {
 
@@ -24,6 +31,12 @@ class GhostTrackPrediction {
 	GhostTrackPrediction(const Vector &prediction, const Error &error) :
 		prediction_(prediction), covariance_(error)
 	{}
+
+	GhostTrackPrediction(const CurvilinearTrajectoryParameters &trajectory,
+	                     const CurvilinearTrajectoryError &error);
+	GhostTrackPrediction(const GlobalTrajectoryParameters &trajectory,
+	                     const CurvilinearTrajectoryError &error);
+	GhostTrackPrediction(const Track &track);
 
 	double z() const { return prediction_[0]; }
 	double ip() const { return prediction_[1]; }
@@ -50,6 +63,15 @@ class GhostTrackPrediction {
 	GlobalPoint position(double lambda = 0.) const
 	{ return origin() + lambda * direction(); }
 	GlobalError positionError(double lambda = 0.) const;
+
+	CurvilinearTrajectoryParameters curvilinearTrajectory() const;
+	GlobalTrajectoryParameters globalTrajectory(
+				const MagneticField *fieldProvider) const;
+	CurvilinearTrajectoryError curvilinearError() const;
+
+	FreeTrajectoryState fts(const MagneticField *fieldProvider) const;
+
+	Track track(double ndof = 0., double chi2 = 0.) const;
 
     private:
 	Vector	prediction_;
