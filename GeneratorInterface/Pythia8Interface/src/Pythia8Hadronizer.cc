@@ -10,6 +10,8 @@
 #include <Pythia.h>
 #include <HepMCInterface.h>
 
+#include <LesHouches.h>
+
 #include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,6 +28,7 @@
 #include "GeneratorInterface/Core/interface/HadronizerFilter.h"
 #include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 
 using namespace gen;
 using namespace Pythia8;
@@ -36,13 +39,13 @@ class Pythia8Hadronizer : public BaseHadronizer {
 	~Pythia8Hadronizer();
  
 	bool initializeForInternalPartons();
-//      bool initializeForExternalPartons();
+    bool initializeForExternalPartons();
 	bool declareStableParticles(const std::vector<int> &pdgIds);
 
 	void statistics();
 
 	bool generatePartonsAndHadronize();
-//      bool hadronize();
+    bool hadronize();
 	bool decay();
 	bool residualDecay();
 	void finalizeEvent();
@@ -61,10 +64,52 @@ class Pythia8Hadronizer : public BaseHadronizer {
 	/// Events to print if verbosity
 	unsigned int		maxEventsToPrint;
 
+    class LHAupLesHouches;
+
 	std::auto_ptr<Pythia>	pythia;
 	Event			*pythiaEvent;
 	HepMC::I_Pythia8	toHepMC;   
+
+    std::auto_ptr<LHAupLesHouches>      lhaUP;
+
 };
+
+class Pythia8Hadronizer::LHAupLesHouches : public LHAup {
+    public:
+    LHAupLesHouches() {}
+
+    void loadRunInfo(const boost::shared_ptr<lhef::LHERunInfo> &runInfo)
+    { this->runInfo = runInfo; }
+
+    //void loadEvent(const boost::shared_ptr<LHEEvent> &event)
+    //{ this->event = event; }
+
+    private:
+
+    bool setInit();
+    bool setEvent(int idProcIn);
+
+    //Hadronisation           *hadronisation;
+    boost::shared_ptr<lhef::LHERunInfo>   runInfo;
+    //boost::shared_ptr<LHEEvent> event;
+};
+
+bool Pythia8Hadronizer::LHAupLesHouches::setInit()
+{
+    //if (!runInfo)
+    //    return false;
+    //runInfo.reset();
+    return true;
+}
+
+bool Pythia8Hadronizer::LHAupLesHouches::setEvent(int inProcId)
+{
+    //if (!event)
+    //    return false;
+    //event.reset();
+    return true;
+}
+
 
 Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
 	parameters(params.getParameter<edm::ParameterSet>("PythiaParameters")),
@@ -120,6 +165,26 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
 	return true;
 }
 
+
+bool Pythia8Hadronizer::initializeForExternalPartons()
+{
+
+    std::cout << "Initializing for external partons" << std::endl;
+
+    RandomP8* RP8 = new RandomP8();
+
+    pythia.reset(new Pythia);
+    pythia->setRndmEnginePtr(RP8);
+    pythiaEvent = &pythia->event;
+
+    lhaUP.reset(new LHAupLesHouches());
+
+    pythia->init("ttbar.lhe");
+
+    return true;
+}
+
+
 #if 0
 // naive Pythia8 HepMC status fixup
 static int getStatus(const HepMC::GenParticle *p)
@@ -165,6 +230,17 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
 	toHepMC.fill_next_event(*pythiaEvent, event().get());
 
 	return true;
+}
+
+bool Pythia8Hadronizer::hadronize()
+{
+    if (!pythia->next())
+        return false;
+
+    event().reset(new HepMC::GenEvent);
+    toHepMC.fill_next_event(*pythiaEvent, event().get());
+
+    return true;
 }
 
 bool Pythia8Hadronizer::decay()
@@ -222,3 +298,6 @@ void Pythia8Hadronizer::finalizeEvent()
 
 typedef edm::GeneratorFilter<Pythia8Hadronizer> Pythia8GeneratorFilter;
 DEFINE_FWK_MODULE(Pythia8GeneratorFilter);
+
+typedef edm::HadronizerFilter<Pythia8Hadronizer> Pythia8HadronizerFilter;
+DEFINE_FWK_MODULE(Pythia8HadronizerFilter);
