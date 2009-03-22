@@ -47,7 +47,7 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.37 $'),
+    version = cms.untracked.string('$Revision: 1.38 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 0T')
 )
@@ -88,4 +88,4 @@ process.allPath = cms.Path( process.RawToDigi * process.reconstructionCosmics * 
 process.outpath = cms.EndPath(process.FEVT)
 
 #avoid frequent exceptions in 226:
-process.DQMOfflineCosmics.remove(process.hcalMonitor) 
+process.hcalMonitor.TrigPrimMonitor = False
