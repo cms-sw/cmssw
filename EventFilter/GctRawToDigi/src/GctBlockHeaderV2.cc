@@ -1,9 +1,10 @@
 #include "EventFilter/GctRawToDigi/src/GctBlockHeaderV2.h"
 
 using std::string;
+using std::make_pair;
 
 // Initialise the static block header length map
-GctBlockHeaderV2::BlockLengthMap GctBlockHeaderV2::blockLengthV2_();
+GctBlockHeaderV2::BlockLengthMap GctBlockHeaderV2::blockLengthV2_ = GctBlockHeaderV2::BlockLengthMap();
 
 
 // CONSTRUCTOR
@@ -16,154 +17,153 @@ GctBlockHeaderV2::GctBlockHeaderV2(uint16_t id, uint16_t nsamples, uint16_t bcid
 
 void GctBlockHeaderV2::initBlockLengthMap(const BlockLengthMapVersion lengthMapVersion)
 {
-  blockLengthMap().clear();
-  
+  blockLengthV2_.clear();
   
   // ** FIRST MAKE BLOCK-ID => BLOCK-LENGTH MAPPINGS COMMON TO ALL LENGTH MAP VERSIONS **
   
   // MISCELLANEOUS BLOCKS
-  blockLengthMap().insert(make_pair(0x000,0));      // NULL
-  blockLengthMap().insert(make_pair(0x0ff,198));    // Temporary hack: All RCT Calo Regions for CMSSW pack/unpack
+  blockLengthV2_.insert(make_pair(0x000,0));      // NULL
+  blockLengthV2_.insert(make_pair(0x0ff,198));    // Temporary hack: All RCT Calo Regions for CMSSW pack/unpack
   // CONC JET FPGA
-  blockLengthMap().insert(make_pair(0x580,12));     // ConcJet: Input TrigPathA (Jet Cands)
-  blockLengthMap().insert(make_pair(0x581,2));      // ConcJet: Input TrigPathB (HF Rings)
-  blockLengthMap().insert(make_pair(0x582,4));      // ConcJet: Input TrigPathC (MissHt)
-  blockLengthMap().insert(make_pair(0x583,8));      // ConcJet: Jet Cands and Counts Output to GT
-  blockLengthMap().insert(make_pair(0x587,4));      // ConcJet: BX & Orbit Info
+  blockLengthV2_.insert(make_pair(0x580,12));     // ConcJet: Input TrigPathA (Jet Cands)
+  blockLengthV2_.insert(make_pair(0x581,2));      // ConcJet: Input TrigPathB (HF Rings)
+  blockLengthV2_.insert(make_pair(0x582,4));      // ConcJet: Input TrigPathC (MissHt)
+  blockLengthV2_.insert(make_pair(0x583,8));      // ConcJet: Jet Cands and Counts Output to GT
+  blockLengthV2_.insert(make_pair(0x587,4));      // ConcJet: BX & Orbit Info
   // CONC ELEC FPGA
-  blockLengthMap().insert(make_pair(0x680,16));     // ConcElec: Input TrigPathA (EM Cands)
-  blockLengthMap().insert(make_pair(0x681,6));      // ConcElec: Input TrigPathB (Et Sums)
-  blockLengthMap().insert(make_pair(0x682,2));      // ConcElec: Input TrigPathC (Ht Sums)
-  blockLengthMap().insert(make_pair(0x683,6));      // ConcElec: EM Cands and Energy Sums Output to GT
-  blockLengthMap().insert(make_pair(0x686,2));      // ConcElec: Test (GT Serdes Loopback)
-  blockLengthMap().insert(make_pair(0x687,4));      // ConcElec: BX & Orbit Info
+  blockLengthV2_.insert(make_pair(0x680,16));     // ConcElec: Input TrigPathA (EM Cands)
+  blockLengthV2_.insert(make_pair(0x681,6));      // ConcElec: Input TrigPathB (Et Sums)
+  blockLengthV2_.insert(make_pair(0x682,2));      // ConcElec: Input TrigPathC (Ht Sums)
+  blockLengthV2_.insert(make_pair(0x683,6));      // ConcElec: EM Cands and Energy Sums Output to GT
+  blockLengthV2_.insert(make_pair(0x686,2));      // ConcElec: Test (GT Serdes Loopback)
+  blockLengthV2_.insert(make_pair(0x687,4));      // ConcElec: BX & Orbit Info
   // ELECTRON LEAF FPGAS
-  blockLengthMap().insert(make_pair(0x800,20));     // Leaf0ElecPosEtaU1: Sort Input
-  blockLengthMap().insert(make_pair(0x803,4));      // Leaf0ElecPosEtaU1: Sort Output
-  blockLengthMap().insert(make_pair(0x804,15));     // Leaf0ElecPosEtaU1: Raw Input
-  blockLengthMap().insert(make_pair(0x880,16));     // Leaf0ElecPosEtaU2: Sort Input
-  blockLengthMap().insert(make_pair(0x883,4));      // Leaf0ElecPosEtaU2: Sort Output
-  blockLengthMap().insert(make_pair(0x884,12));     // Leaf0ElecPosEtaU2: Raw Input
-  blockLengthMap().insert(make_pair(0xc00,20));     // Leaf0ElecNegEtaU1: Sort Input
-  blockLengthMap().insert(make_pair(0xc03,4));      // Leaf0ElecNegEtaU1: Sort Output
-  blockLengthMap().insert(make_pair(0xc04,15));     // Leaf0ElecNegEtaU1: Raw Input
-  blockLengthMap().insert(make_pair(0xc80,16));     // Leaf0ElecNegEtaU2: Sort Input
-  blockLengthMap().insert(make_pair(0xc83,4));      // Leaf0ElecNegEtaU2: Sort Output
-  blockLengthMap().insert(make_pair(0xc84,12));     // Leaf0ElecNegEtaU2: Raw Input
+  blockLengthV2_.insert(make_pair(0x800,20));     // Leaf0ElecPosEtaU1: Sort Input
+  blockLengthV2_.insert(make_pair(0x803,4));      // Leaf0ElecPosEtaU1: Sort Output
+  blockLengthV2_.insert(make_pair(0x804,15));     // Leaf0ElecPosEtaU1: Raw Input
+  blockLengthV2_.insert(make_pair(0x880,16));     // Leaf0ElecPosEtaU2: Sort Input
+  blockLengthV2_.insert(make_pair(0x883,4));      // Leaf0ElecPosEtaU2: Sort Output
+  blockLengthV2_.insert(make_pair(0x884,12));     // Leaf0ElecPosEtaU2: Raw Input
+  blockLengthV2_.insert(make_pair(0xc00,20));     // Leaf0ElecNegEtaU1: Sort Input
+  blockLengthV2_.insert(make_pair(0xc03,4));      // Leaf0ElecNegEtaU1: Sort Output
+  blockLengthV2_.insert(make_pair(0xc04,15));     // Leaf0ElecNegEtaU1: Raw Input
+  blockLengthV2_.insert(make_pair(0xc80,16));     // Leaf0ElecNegEtaU2: Sort Input
+  blockLengthV2_.insert(make_pair(0xc83,4));      // Leaf0ElecNegEtaU2: Sort Output
+  blockLengthV2_.insert(make_pair(0xc84,12));     // Leaf0ElecNegEtaU2: Raw Input
   // WHEEL POS ETA JET FPGA
-  blockLengthMap().insert(make_pair(0x300,27));     // WheelPosEtaJet: Input TrigPathA (Jet Sort)
-  blockLengthMap().insert(make_pair(0x301,3));      // WheelPosEtaJet: Input TrigPathB (MissHt)
-  blockLengthMap().insert(make_pair(0x303,6));      // WheelPosEtaJet: Output TrigPathA (Jet Sort)
-  blockLengthMap().insert(make_pair(0x305,2));      // WheelPosEtaJet: Output TrigPathB (MissHt)
-  blockLengthMap().insert(make_pair(0x306,32));     // WheelPosEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
-  blockLengthMap().insert(make_pair(0x307,4));      // WheelPosEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
+  blockLengthV2_.insert(make_pair(0x300,27));     // WheelPosEtaJet: Input TrigPathA (Jet Sort)
+  blockLengthV2_.insert(make_pair(0x301,3));      // WheelPosEtaJet: Input TrigPathB (MissHt)
+  blockLengthV2_.insert(make_pair(0x303,6));      // WheelPosEtaJet: Output TrigPathA (Jet Sort)
+  blockLengthV2_.insert(make_pair(0x305,2));      // WheelPosEtaJet: Output TrigPathB (MissHt)
+  blockLengthV2_.insert(make_pair(0x306,32));     // WheelPosEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
+  blockLengthV2_.insert(make_pair(0x307,4));      // WheelPosEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
   // WHEEL POS ETA ENERGY FPGA
-  blockLengthMap().insert(make_pair(0x380,21));     // WheelPosEtaEnergy: Input TrigPathA (Et)
-  blockLengthMap().insert(make_pair(0x381,3));      // WheelPosEtaEnergy: Input TrigPathB (Ht)
-  blockLengthMap().insert(make_pair(0x383,7));      // WheelPosEtaEnergy: Output TrigPathA (Et)
-  blockLengthMap().insert(make_pair(0x385,2));      // WheelPosEtaEnergy: Output TrigPathB (Ht)
-  blockLengthMap().insert(make_pair(0x386,32));     // WheelPosEtaEnergy: Test
-  blockLengthMap().insert(make_pair(0x387,6));      // WheelPosEtaEnergy: BX & Orbit Info   (Potential data incompatibility between V24/V25 where block length=4, and V27.1 where block length=6)
+  blockLengthV2_.insert(make_pair(0x380,21));     // WheelPosEtaEnergy: Input TrigPathA (Et)
+  blockLengthV2_.insert(make_pair(0x381,3));      // WheelPosEtaEnergy: Input TrigPathB (Ht)
+  blockLengthV2_.insert(make_pair(0x383,7));      // WheelPosEtaEnergy: Output TrigPathA (Et)
+  blockLengthV2_.insert(make_pair(0x385,2));      // WheelPosEtaEnergy: Output TrigPathB (Ht)
+  blockLengthV2_.insert(make_pair(0x386,32));     // WheelPosEtaEnergy: Test
+  blockLengthV2_.insert(make_pair(0x387,6));      // WheelPosEtaEnergy: BX & Orbit Info   (Potential data incompatibility between V24/V25 where block length=4, and V27.1 where block length=6)
   // WHEEL NEG ETA JET FPGA
-  blockLengthMap().insert(make_pair(0x700,27));     // WheelNegEtaJet: Input TrigPathA (Jet Sort)
-  blockLengthMap().insert(make_pair(0x701,3));      // WheelNegEtaJet: Input TrigPathB (MissHt)
-  blockLengthMap().insert(make_pair(0x703,6));      // WheelNegEtaJet: Output TrigPathA (Jet Sort)
-  blockLengthMap().insert(make_pair(0x705,2));      // WheelNegEtaJet: Output TrigPathB (MissHt)
-  blockLengthMap().insert(make_pair(0x706,32));     // WheelNegEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
-  blockLengthMap().insert(make_pair(0x707,4));      // WheelNegEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
+  blockLengthV2_.insert(make_pair(0x700,27));     // WheelNegEtaJet: Input TrigPathA (Jet Sort)
+  blockLengthV2_.insert(make_pair(0x701,3));      // WheelNegEtaJet: Input TrigPathB (MissHt)
+  blockLengthV2_.insert(make_pair(0x703,6));      // WheelNegEtaJet: Output TrigPathA (Jet Sort)
+  blockLengthV2_.insert(make_pair(0x705,2));      // WheelNegEtaJet: Output TrigPathB (MissHt)
+  blockLengthV2_.insert(make_pair(0x706,32));     // WheelNegEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
+  blockLengthV2_.insert(make_pair(0x707,4));      // WheelNegEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
   // WHEEL NEG ETA ENERGY FPGA
-  blockLengthMap().insert(make_pair(0x780,21));     // WheelNegEtaEnergy: Input TrigPathA (Et)
-  blockLengthMap().insert(make_pair(0x781,3));      // WheelNegEtaEnergy: Input TrigPathB (Ht)
-  blockLengthMap().insert(make_pair(0x783,7));      // WheelNegEtaEnergy: Output TrigPathA (Et)
-  blockLengthMap().insert(make_pair(0x785,2));      // WheelNegEtaEnergy: Output TrigPathB (Ht)
-  blockLengthMap().insert(make_pair(0x786,32));     // WheelNegEtaEnergy: Test
-  blockLengthMap().insert(make_pair(0x787,6));      // WheelNegEtaEnergy: BX & Orbit Info   (Potential data incompatibility between V24/V25 where block length=4, and V27.1 where block length=6)
+  blockLengthV2_.insert(make_pair(0x780,21));     // WheelNegEtaEnergy: Input TrigPathA (Et)
+  blockLengthV2_.insert(make_pair(0x781,3));      // WheelNegEtaEnergy: Input TrigPathB (Ht)
+  blockLengthV2_.insert(make_pair(0x783,7));      // WheelNegEtaEnergy: Output TrigPathA (Et)
+  blockLengthV2_.insert(make_pair(0x785,2));      // WheelNegEtaEnergy: Output TrigPathB (Ht)
+  blockLengthV2_.insert(make_pair(0x786,32));     // WheelNegEtaEnergy: Test
+  blockLengthV2_.insert(make_pair(0x787,6));      // WheelNegEtaEnergy: BX & Orbit Info   (Potential data incompatibility between V24/V25 where block length=4, and V27.1 where block length=6)
   // JET LEAF FPGAS - POSITIVE ETA
-  blockLengthMap().insert(make_pair(0x901,3));      // Leaf1JetPosEtaU1: JF2 Shared Received
-  blockLengthMap().insert(make_pair(0x902,3));      // Leaf1JetPosEtaU1: JF2 Shared Sent
-  blockLengthMap().insert(make_pair(0x903,10));     // Leaf1JetPosEtaU1: JF2 Output
-  blockLengthMap().insert(make_pair(0x904,8));      // Leaf1JetPosEtaU1: JF2 Raw Input
-  blockLengthMap().insert(make_pair(0x909,3));      // Leaf1JetPosEtaU1: JF3 Shared Received
-  blockLengthMap().insert(make_pair(0x90a,3));      // Leaf1JetPosEtaU1: JF3 Shared Sent
-  blockLengthMap().insert(make_pair(0x90b,10));     // Leaf1JetPosEtaU1: JF3 Output
-  blockLengthMap().insert(make_pair(0x90c,8));      // Leaf1JetPosEtaU1: JF3 Raw Input
-  blockLengthMap().insert(make_pair(0x980,3));      // Leaf1JetPosEtaU2: Eta0 Input
-  blockLengthMap().insert(make_pair(0x984,6));      // Leaf1JetPosEtaU2: Eta0 Raw Input
-  blockLengthMap().insert(make_pair(0x989,3));      // Leaf1JetPosEtaU2: JF1 Shared Received
-  blockLengthMap().insert(make_pair(0x98a,3));      // Leaf1JetPosEtaU2: JF1 Shared Sent
-  blockLengthMap().insert(make_pair(0x98b,10));     // Leaf1JetPosEtaU2: JF1 Output
-  blockLengthMap().insert(make_pair(0x98c,8));      // Leaf1JetPosEtaU2: JF1 Raw Input
-  blockLengthMap().insert(make_pair(0xa01,3));      // Leaf2JetPosEtaU1: JF2 Shared Received
-  blockLengthMap().insert(make_pair(0xa02,3));      // Leaf2JetPosEtaU1: JF2 Shared Sent
-  blockLengthMap().insert(make_pair(0xa03,10));     // Leaf2JetPosEtaU1: JF2 Output
-  blockLengthMap().insert(make_pair(0xa04,8));      // Leaf2JetPosEtaU1: JF2 Raw Input
-  blockLengthMap().insert(make_pair(0xa09,3));      // Leaf2JetPosEtaU1: JF3 Shared Received
-  blockLengthMap().insert(make_pair(0xa0a,3));      // Leaf2JetPosEtaU1: JF3 Shared Sent
-  blockLengthMap().insert(make_pair(0xa0b,10));     // Leaf2JetPosEtaU1: JF3 Output
-  blockLengthMap().insert(make_pair(0xa0c,8));      // Leaf2JetPosEtaU1: JF3 Raw Input
-  blockLengthMap().insert(make_pair(0xa80,3));      // Leaf2JetPosEtaU2: Eta0 Input
-  blockLengthMap().insert(make_pair(0xa84,6));      // Leaf2JetPosEtaU2: Eta0 Raw Input
-  blockLengthMap().insert(make_pair(0xa89,3));      // Leaf2JetPosEtaU2: JF1 Shared Received
-  blockLengthMap().insert(make_pair(0xa8a,3));      // Leaf2JetPosEtaU2: JF1 Shared Sent
-  blockLengthMap().insert(make_pair(0xa8b,10));     // Leaf2JetPosEtaU2: JF1 Output
-  blockLengthMap().insert(make_pair(0xa8c,8));      // Leaf2JetPosEtaU2: JF1 Raw Input
-  blockLengthMap().insert(make_pair(0xb01,3));      // Leaf3JetPosEtaU1: JF2 Shared Received
-  blockLengthMap().insert(make_pair(0xb02,3));      // Leaf3JetPosEtaU1: JF2 Shared Sent
-  blockLengthMap().insert(make_pair(0xb03,10));     // Leaf3JetPosEtaU1: JF2 Output
-  blockLengthMap().insert(make_pair(0xb04,8));      // Leaf3JetPosEtaU1: JF2 Raw Input
-  blockLengthMap().insert(make_pair(0xb09,3));      // Leaf3JetPosEtaU1: JF3 Shared Received
-  blockLengthMap().insert(make_pair(0xb0a,3));      // Leaf3JetPosEtaU1: JF3 Shared Sent
-  blockLengthMap().insert(make_pair(0xb0b,10));     // Leaf3JetPosEtaU1: JF3 Output
-  blockLengthMap().insert(make_pair(0xb0c,8));      // Leaf3JetPosEtaU1: JF3 Raw Input
-  blockLengthMap().insert(make_pair(0xb80,3));      // Leaf3JetPosEtaU2: Eta0 Input
-  blockLengthMap().insert(make_pair(0xb84,6));      // Leaf3JetPosEtaU2: Eta0 Raw Input
-  blockLengthMap().insert(make_pair(0xb89,3));      // Leaf3JetPosEtaU2: JF1 Shared Received
-  blockLengthMap().insert(make_pair(0xb8a,3));      // Leaf3JetPosEtaU2: JF1 Shared Sent
-  blockLengthMap().insert(make_pair(0xb8b,10));     // Leaf3JetPosEtaU2: JF1 Output
-  blockLengthMap().insert(make_pair(0xb8c,8));      // Leaf3JetPosEtaU2: JF1 Raw Input
+  blockLengthV2_.insert(make_pair(0x901,3));      // Leaf1JetPosEtaU1: JF2 Shared Received
+  blockLengthV2_.insert(make_pair(0x902,3));      // Leaf1JetPosEtaU1: JF2 Shared Sent
+  blockLengthV2_.insert(make_pair(0x903,10));     // Leaf1JetPosEtaU1: JF2 Output
+  blockLengthV2_.insert(make_pair(0x904,8));      // Leaf1JetPosEtaU1: JF2 Raw Input
+  blockLengthV2_.insert(make_pair(0x909,3));      // Leaf1JetPosEtaU1: JF3 Shared Received
+  blockLengthV2_.insert(make_pair(0x90a,3));      // Leaf1JetPosEtaU1: JF3 Shared Sent
+  blockLengthV2_.insert(make_pair(0x90b,10));     // Leaf1JetPosEtaU1: JF3 Output
+  blockLengthV2_.insert(make_pair(0x90c,8));      // Leaf1JetPosEtaU1: JF3 Raw Input
+  blockLengthV2_.insert(make_pair(0x980,3));      // Leaf1JetPosEtaU2: Eta0 Input
+  blockLengthV2_.insert(make_pair(0x984,6));      // Leaf1JetPosEtaU2: Eta0 Raw Input
+  blockLengthV2_.insert(make_pair(0x989,3));      // Leaf1JetPosEtaU2: JF1 Shared Received
+  blockLengthV2_.insert(make_pair(0x98a,3));      // Leaf1JetPosEtaU2: JF1 Shared Sent
+  blockLengthV2_.insert(make_pair(0x98b,10));     // Leaf1JetPosEtaU2: JF1 Output
+  blockLengthV2_.insert(make_pair(0x98c,8));      // Leaf1JetPosEtaU2: JF1 Raw Input
+  blockLengthV2_.insert(make_pair(0xa01,3));      // Leaf2JetPosEtaU1: JF2 Shared Received
+  blockLengthV2_.insert(make_pair(0xa02,3));      // Leaf2JetPosEtaU1: JF2 Shared Sent
+  blockLengthV2_.insert(make_pair(0xa03,10));     // Leaf2JetPosEtaU1: JF2 Output
+  blockLengthV2_.insert(make_pair(0xa04,8));      // Leaf2JetPosEtaU1: JF2 Raw Input
+  blockLengthV2_.insert(make_pair(0xa09,3));      // Leaf2JetPosEtaU1: JF3 Shared Received
+  blockLengthV2_.insert(make_pair(0xa0a,3));      // Leaf2JetPosEtaU1: JF3 Shared Sent
+  blockLengthV2_.insert(make_pair(0xa0b,10));     // Leaf2JetPosEtaU1: JF3 Output
+  blockLengthV2_.insert(make_pair(0xa0c,8));      // Leaf2JetPosEtaU1: JF3 Raw Input
+  blockLengthV2_.insert(make_pair(0xa80,3));      // Leaf2JetPosEtaU2: Eta0 Input
+  blockLengthV2_.insert(make_pair(0xa84,6));      // Leaf2JetPosEtaU2: Eta0 Raw Input
+  blockLengthV2_.insert(make_pair(0xa89,3));      // Leaf2JetPosEtaU2: JF1 Shared Received
+  blockLengthV2_.insert(make_pair(0xa8a,3));      // Leaf2JetPosEtaU2: JF1 Shared Sent
+  blockLengthV2_.insert(make_pair(0xa8b,10));     // Leaf2JetPosEtaU2: JF1 Output
+  blockLengthV2_.insert(make_pair(0xa8c,8));      // Leaf2JetPosEtaU2: JF1 Raw Input
+  blockLengthV2_.insert(make_pair(0xb01,3));      // Leaf3JetPosEtaU1: JF2 Shared Received
+  blockLengthV2_.insert(make_pair(0xb02,3));      // Leaf3JetPosEtaU1: JF2 Shared Sent
+  blockLengthV2_.insert(make_pair(0xb03,10));     // Leaf3JetPosEtaU1: JF2 Output
+  blockLengthV2_.insert(make_pair(0xb04,8));      // Leaf3JetPosEtaU1: JF2 Raw Input
+  blockLengthV2_.insert(make_pair(0xb09,3));      // Leaf3JetPosEtaU1: JF3 Shared Received
+  blockLengthV2_.insert(make_pair(0xb0a,3));      // Leaf3JetPosEtaU1: JF3 Shared Sent
+  blockLengthV2_.insert(make_pair(0xb0b,10));     // Leaf3JetPosEtaU1: JF3 Output
+  blockLengthV2_.insert(make_pair(0xb0c,8));      // Leaf3JetPosEtaU1: JF3 Raw Input
+  blockLengthV2_.insert(make_pair(0xb80,3));      // Leaf3JetPosEtaU2: Eta0 Input
+  blockLengthV2_.insert(make_pair(0xb84,6));      // Leaf3JetPosEtaU2: Eta0 Raw Input
+  blockLengthV2_.insert(make_pair(0xb89,3));      // Leaf3JetPosEtaU2: JF1 Shared Received
+  blockLengthV2_.insert(make_pair(0xb8a,3));      // Leaf3JetPosEtaU2: JF1 Shared Sent
+  blockLengthV2_.insert(make_pair(0xb8b,10));     // Leaf3JetPosEtaU2: JF1 Output
+  blockLengthV2_.insert(make_pair(0xb8c,8));      // Leaf3JetPosEtaU2: JF1 Raw Input
   // JET LEAF FPGAS - NEGATIVE ETA
-  blockLengthMap().insert(make_pair(0xd01,3));      // Leaf1JetNegEtaU1: JF2 Shared Received
-  blockLengthMap().insert(make_pair(0xd02,3));      // Leaf1JetNegEtaU1: JF2 Shared Sent
-  blockLengthMap().insert(make_pair(0xd03,10));     // Leaf1JetNegEtaU1: JF2 Output
-  blockLengthMap().insert(make_pair(0xd04,8));      // Leaf1JetNegEtaU1: JF2 Raw Input
-  blockLengthMap().insert(make_pair(0xd09,3));      // Leaf1JetNegEtaU1: JF3 Shared Received
-  blockLengthMap().insert(make_pair(0xd0a,3));      // Leaf1JetNegEtaU1: JF3 Shared Sent
-  blockLengthMap().insert(make_pair(0xd0b,10));     // Leaf1JetNegEtaU1: JF3 Output
-  blockLengthMap().insert(make_pair(0xd0c,8));      // Leaf1JetNegEtaU1: JF3 Raw Input
-  blockLengthMap().insert(make_pair(0xd80,3));      // Leaf1JetNegEtaU2: Eta0 Input
-  blockLengthMap().insert(make_pair(0xd84,6));      // Leaf1JetNegEtaU2: Eta0 Raw Input
-  blockLengthMap().insert(make_pair(0xd89,3));      // Leaf1JetNegEtaU2: JF1 Shared Received
-  blockLengthMap().insert(make_pair(0xd8a,3));      // Leaf1JetNegEtaU2: JF1 Shared Sent
-  blockLengthMap().insert(make_pair(0xd8b,10));     // Leaf1JetNegEtaU2: JF1 Output
-  blockLengthMap().insert(make_pair(0xd8c,8));      // Leaf1JetNegEtaU2: JF1 Raw Input
-  blockLengthMap().insert(make_pair(0xe01,3));      // Leaf2JetNegEtaU1: JF2 Shared Received
-  blockLengthMap().insert(make_pair(0xe02,3));      // Leaf2JetNegEtaU1: JF2 Shared Sent
-  blockLengthMap().insert(make_pair(0xe03,10));     // Leaf2JetNegEtaU1: JF2 Output
-  blockLengthMap().insert(make_pair(0xe04,8));      // Leaf2JetNegEtaU1: JF2 Raw Input
-  blockLengthMap().insert(make_pair(0xe09,3));      // Leaf2JetNegEtaU1: JF3 Shared Received
-  blockLengthMap().insert(make_pair(0xe0a,3));      // Leaf2JetNegEtaU1: JF3 Shared Sent
-  blockLengthMap().insert(make_pair(0xe0b,10));     // Leaf2JetNegEtaU1: JF3 Output
-  blockLengthMap().insert(make_pair(0xe0c,8));      // Leaf2JetNegEtaU1: JF3 Raw Input
-  blockLengthMap().insert(make_pair(0xe80,3));      // Leaf2JetNegEtaU2: Eta0 Input
-  blockLengthMap().insert(make_pair(0xe84,6));      // Leaf2JetNegEtaU2: Eta0 Raw Input
-  blockLengthMap().insert(make_pair(0xe89,3));      // Leaf2JetNegEtaU2: JF1 Shared Received
-  blockLengthMap().insert(make_pair(0xe8a,3));      // Leaf2JetNegEtaU2: JF1 Shared Sent
-  blockLengthMap().insert(make_pair(0xe8b,10));     // Leaf2JetNegEtaU2: JF1 Output
-  blockLengthMap().insert(make_pair(0xe8c,8));      // Leaf2JetNegEtaU2: JF1 Raw Input
-  blockLengthMap().insert(make_pair(0xf01,3));      // Leaf3JetNegEtaU1: JF2 Shared Received
-  blockLengthMap().insert(make_pair(0xf02,3));      // Leaf3JetNegEtaU1: JF2 Shared Sent
-  blockLengthMap().insert(make_pair(0xf03,10));     // Leaf3JetNegEtaU1: JF2 Output
-  blockLengthMap().insert(make_pair(0xf04,8));      // Leaf3JetNegEtaU1: JF2 Raw Input
-  blockLengthMap().insert(make_pair(0xf09,3));      // Leaf3JetNegEtaU1: JF3 Shared Received
-  blockLengthMap().insert(make_pair(0xf0a,3));      // Leaf3JetNegEtaU1: JF3 Shared Sent
-  blockLengthMap().insert(make_pair(0xf0b,10));     // Leaf3JetNegEtaU1: JF3 Output
-  blockLengthMap().insert(make_pair(0xf0c,8));      // Leaf3JetNegEtaU1: JF3 Raw Input
-  blockLengthMap().insert(make_pair(0xf80,3));      // Leaf3JetNegEtaU2: Eta0 Input
-  blockLengthMap().insert(make_pair(0xf84,6));      // Leaf3JetNegEtaU2: Eta0 Raw Input
-  blockLengthMap().insert(make_pair(0xf89,3));      // Leaf3JetNegEtaU2: JF1 Shared Received
-  blockLengthMap().insert(make_pair(0xf8a,3));      // Leaf3JetNegEtaU2: JF1 Shared Sent
-  blockLengthMap().insert(make_pair(0xf8b,10));     // Leaf3JetNegEtaU2: JF1 Output
-  blockLengthMap().insert(make_pair(0xf8c,8));      // Leaf3JetNegEtaU2: JF1 Raw Input
+  blockLengthV2_.insert(make_pair(0xd01,3));      // Leaf1JetNegEtaU1: JF2 Shared Received
+  blockLengthV2_.insert(make_pair(0xd02,3));      // Leaf1JetNegEtaU1: JF2 Shared Sent
+  blockLengthV2_.insert(make_pair(0xd03,10));     // Leaf1JetNegEtaU1: JF2 Output
+  blockLengthV2_.insert(make_pair(0xd04,8));      // Leaf1JetNegEtaU1: JF2 Raw Input
+  blockLengthV2_.insert(make_pair(0xd09,3));      // Leaf1JetNegEtaU1: JF3 Shared Received
+  blockLengthV2_.insert(make_pair(0xd0a,3));      // Leaf1JetNegEtaU1: JF3 Shared Sent
+  blockLengthV2_.insert(make_pair(0xd0b,10));     // Leaf1JetNegEtaU1: JF3 Output
+  blockLengthV2_.insert(make_pair(0xd0c,8));      // Leaf1JetNegEtaU1: JF3 Raw Input
+  blockLengthV2_.insert(make_pair(0xd80,3));      // Leaf1JetNegEtaU2: Eta0 Input
+  blockLengthV2_.insert(make_pair(0xd84,6));      // Leaf1JetNegEtaU2: Eta0 Raw Input
+  blockLengthV2_.insert(make_pair(0xd89,3));      // Leaf1JetNegEtaU2: JF1 Shared Received
+  blockLengthV2_.insert(make_pair(0xd8a,3));      // Leaf1JetNegEtaU2: JF1 Shared Sent
+  blockLengthV2_.insert(make_pair(0xd8b,10));     // Leaf1JetNegEtaU2: JF1 Output
+  blockLengthV2_.insert(make_pair(0xd8c,8));      // Leaf1JetNegEtaU2: JF1 Raw Input
+  blockLengthV2_.insert(make_pair(0xe01,3));      // Leaf2JetNegEtaU1: JF2 Shared Received
+  blockLengthV2_.insert(make_pair(0xe02,3));      // Leaf2JetNegEtaU1: JF2 Shared Sent
+  blockLengthV2_.insert(make_pair(0xe03,10));     // Leaf2JetNegEtaU1: JF2 Output
+  blockLengthV2_.insert(make_pair(0xe04,8));      // Leaf2JetNegEtaU1: JF2 Raw Input
+  blockLengthV2_.insert(make_pair(0xe09,3));      // Leaf2JetNegEtaU1: JF3 Shared Received
+  blockLengthV2_.insert(make_pair(0xe0a,3));      // Leaf2JetNegEtaU1: JF3 Shared Sent
+  blockLengthV2_.insert(make_pair(0xe0b,10));     // Leaf2JetNegEtaU1: JF3 Output
+  blockLengthV2_.insert(make_pair(0xe0c,8));      // Leaf2JetNegEtaU1: JF3 Raw Input
+  blockLengthV2_.insert(make_pair(0xe80,3));      // Leaf2JetNegEtaU2: Eta0 Input
+  blockLengthV2_.insert(make_pair(0xe84,6));      // Leaf2JetNegEtaU2: Eta0 Raw Input
+  blockLengthV2_.insert(make_pair(0xe89,3));      // Leaf2JetNegEtaU2: JF1 Shared Received
+  blockLengthV2_.insert(make_pair(0xe8a,3));      // Leaf2JetNegEtaU2: JF1 Shared Sent
+  blockLengthV2_.insert(make_pair(0xe8b,10));     // Leaf2JetNegEtaU2: JF1 Output
+  blockLengthV2_.insert(make_pair(0xe8c,8));      // Leaf2JetNegEtaU2: JF1 Raw Input
+  blockLengthV2_.insert(make_pair(0xf01,3));      // Leaf3JetNegEtaU1: JF2 Shared Received
+  blockLengthV2_.insert(make_pair(0xf02,3));      // Leaf3JetNegEtaU1: JF2 Shared Sent
+  blockLengthV2_.insert(make_pair(0xf03,10));     // Leaf3JetNegEtaU1: JF2 Output
+  blockLengthV2_.insert(make_pair(0xf04,8));      // Leaf3JetNegEtaU1: JF2 Raw Input
+  blockLengthV2_.insert(make_pair(0xf09,3));      // Leaf3JetNegEtaU1: JF3 Shared Received
+  blockLengthV2_.insert(make_pair(0xf0a,3));      // Leaf3JetNegEtaU1: JF3 Shared Sent
+  blockLengthV2_.insert(make_pair(0xf0b,10));     // Leaf3JetNegEtaU1: JF3 Output
+  blockLengthV2_.insert(make_pair(0xf0c,8));      // Leaf3JetNegEtaU1: JF3 Raw Input
+  blockLengthV2_.insert(make_pair(0xf80,3));      // Leaf3JetNegEtaU2: Eta0 Input
+  blockLengthV2_.insert(make_pair(0xf84,6));      // Leaf3JetNegEtaU2: Eta0 Raw Input
+  blockLengthV2_.insert(make_pair(0xf89,3));      // Leaf3JetNegEtaU2: JF1 Shared Received
+  blockLengthV2_.insert(make_pair(0xf8a,3));      // Leaf3JetNegEtaU2: JF1 Shared Sent
+  blockLengthV2_.insert(make_pair(0xf8b,10));     // Leaf3JetNegEtaU2: JF1 Output
+  blockLengthV2_.insert(make_pair(0xf8c,8));      // Leaf3JetNegEtaU2: JF1 Raw Input
 
 
   // ** NOW DO BLOCK-ID => BLOCK-LENGTH MAPPINGS SPECIFIC TO EACH PARTICULAR LENGTH MAP VERSION **
@@ -171,48 +171,48 @@ void GctBlockHeaderV2::initBlockLengthMap(const BlockLengthMapVersion lengthMapV
   if(lengthMapVersion == BLOCK_LENGTHS_FOR_UNPACKER_V2)
   {
     // JET LEAF FPGAS - POSITIVE ETA
-    blockLengthMap().insert(make_pair(0x900,12));     // Leaf1JetPosEtaU1: JF2 Input
-    blockLengthMap().insert(make_pair(0x908,12));     // Leaf1JetPosEtaU1: JF3 Input
-    blockLengthMap().insert(make_pair(0x988,12));     // Leaf1JetPosEtaU2: JF1 Input
-    blockLengthMap().insert(make_pair(0xa00,12));     // Leaf2JetPosEtaU1: JF2 Input
-    blockLengthMap().insert(make_pair(0xa08,12));     // Leaf2JetPosEtaU1: JF3 Input
-    blockLengthMap().insert(make_pair(0xa88,12));     // Leaf2JetPosEtaU2: JF1 Input
-    blockLengthMap().insert(make_pair(0xb00,12));     // Leaf3JetPosEtaU1: JF2 Input
-    blockLengthMap().insert(make_pair(0xb08,12));     // Leaf3JetPosEtaU1: JF3 Input
-    blockLengthMap().insert(make_pair(0xb88,12));     // Leaf3JetPosEtaU2: JF1 Input
+    blockLengthV2_.insert(make_pair(0x900,12));     // Leaf1JetPosEtaU1: JF2 Input
+    blockLengthV2_.insert(make_pair(0x908,12));     // Leaf1JetPosEtaU1: JF3 Input
+    blockLengthV2_.insert(make_pair(0x988,12));     // Leaf1JetPosEtaU2: JF1 Input
+    blockLengthV2_.insert(make_pair(0xa00,12));     // Leaf2JetPosEtaU1: JF2 Input
+    blockLengthV2_.insert(make_pair(0xa08,12));     // Leaf2JetPosEtaU1: JF3 Input
+    blockLengthV2_.insert(make_pair(0xa88,12));     // Leaf2JetPosEtaU2: JF1 Input
+    blockLengthV2_.insert(make_pair(0xb00,12));     // Leaf3JetPosEtaU1: JF2 Input
+    blockLengthV2_.insert(make_pair(0xb08,12));     // Leaf3JetPosEtaU1: JF3 Input
+    blockLengthV2_.insert(make_pair(0xb88,12));     // Leaf3JetPosEtaU2: JF1 Input
     // JET LEAF FPGAS - NEGATIVE ETA
-    blockLengthMap().insert(make_pair(0xd00,12));     // Leaf1JetNegEtaU1: JF2 Input
-    blockLengthMap().insert(make_pair(0xd08,12));     // Leaf1JetNegEtaU1: JF3 Input
-    blockLengthMap().insert(make_pair(0xd88,12));     // Leaf1JetNegEtaU2: JF1 Input
-    blockLengthMap().insert(make_pair(0xe00,12));     // Leaf2JetNegEtaU1: JF2 Input
-    blockLengthMap().insert(make_pair(0xe08,12));     // Leaf2JetNegEtaU1: JF3 Input
-    blockLengthMap().insert(make_pair(0xe88,12));     // Leaf2JetNegEtaU2: JF1 Input
-    blockLengthMap().insert(make_pair(0xf00,12));     // Leaf3JetNegEtaU1: JF2 Input
-    blockLengthMap().insert(make_pair(0xf08,12));     // Leaf3JetNegEtaU1: JF3 Input
-    blockLengthMap().insert(make_pair(0xf88,12));     // Leaf3JetNegEtaU2: JF1 Input    
+    blockLengthV2_.insert(make_pair(0xd00,12));     // Leaf1JetNegEtaU1: JF2 Input
+    blockLengthV2_.insert(make_pair(0xd08,12));     // Leaf1JetNegEtaU1: JF3 Input
+    blockLengthV2_.insert(make_pair(0xd88,12));     // Leaf1JetNegEtaU2: JF1 Input
+    blockLengthV2_.insert(make_pair(0xe00,12));     // Leaf2JetNegEtaU1: JF2 Input
+    blockLengthV2_.insert(make_pair(0xe08,12));     // Leaf2JetNegEtaU1: JF3 Input
+    blockLengthV2_.insert(make_pair(0xe88,12));     // Leaf2JetNegEtaU2: JF1 Input
+    blockLengthV2_.insert(make_pair(0xf00,12));     // Leaf3JetNegEtaU1: JF2 Input
+    blockLengthV2_.insert(make_pair(0xf08,12));     // Leaf3JetNegEtaU1: JF3 Input
+    blockLengthV2_.insert(make_pair(0xf88,12));     // Leaf3JetNegEtaU2: JF1 Input    
   }
   else if(lengthMapVersion == BLOCK_LENGTHS_FOR_UNPACKER_V3)
   {
     // JET LEAF FPGAS - POSITIVE ETA
-    blockLengthMap().insert(make_pair(0x900,13));     // Leaf1JetPosEtaU1: JF2 Input
-    blockLengthMap().insert(make_pair(0x908,13));     // Leaf1JetPosEtaU1: JF3 Input
-    blockLengthMap().insert(make_pair(0x988,13));     // Leaf1JetPosEtaU2: JF1 Input
-    blockLengthMap().insert(make_pair(0xa00,13));     // Leaf2JetPosEtaU1: JF2 Input
-    blockLengthMap().insert(make_pair(0xa08,13));     // Leaf2JetPosEtaU1: JF3 Input
-    blockLengthMap().insert(make_pair(0xa88,13));     // Leaf2JetPosEtaU2: JF1 Input
-    blockLengthMap().insert(make_pair(0xb00,13));     // Leaf3JetPosEtaU1: JF2 Input
-    blockLengthMap().insert(make_pair(0xb08,13));     // Leaf3JetPosEtaU1: JF3 Input
-    blockLengthMap().insert(make_pair(0xb88,13));     // Leaf3JetPosEtaU2: JF1 Input
+    blockLengthV2_.insert(make_pair(0x900,13));     // Leaf1JetPosEtaU1: JF2 Input
+    blockLengthV2_.insert(make_pair(0x908,13));     // Leaf1JetPosEtaU1: JF3 Input
+    blockLengthV2_.insert(make_pair(0x988,13));     // Leaf1JetPosEtaU2: JF1 Input
+    blockLengthV2_.insert(make_pair(0xa00,13));     // Leaf2JetPosEtaU1: JF2 Input
+    blockLengthV2_.insert(make_pair(0xa08,13));     // Leaf2JetPosEtaU1: JF3 Input
+    blockLengthV2_.insert(make_pair(0xa88,13));     // Leaf2JetPosEtaU2: JF1 Input
+    blockLengthV2_.insert(make_pair(0xb00,13));     // Leaf3JetPosEtaU1: JF2 Input
+    blockLengthV2_.insert(make_pair(0xb08,13));     // Leaf3JetPosEtaU1: JF3 Input
+    blockLengthV2_.insert(make_pair(0xb88,13));     // Leaf3JetPosEtaU2: JF1 Input
     // JET LEAF FPGAS - NEGATIVE ETA
-    blockLengthMap().insert(make_pair(0xd00,13));     // Leaf1JetNegEtaU1: JF2 Input
-    blockLengthMap().insert(make_pair(0xd08,13));     // Leaf1JetNegEtaU1: JF3 Input
-    blockLengthMap().insert(make_pair(0xd88,13));     // Leaf1JetNegEtaU2: JF1 Input
-    blockLengthMap().insert(make_pair(0xe00,13));     // Leaf2JetNegEtaU1: JF2 Input
-    blockLengthMap().insert(make_pair(0xe08,13));     // Leaf2JetNegEtaU1: JF3 Input
-    blockLengthMap().insert(make_pair(0xe88,13));     // Leaf2JetNegEtaU2: JF1 Input
-    blockLengthMap().insert(make_pair(0xf00,13));     // Leaf3JetNegEtaU1: JF2 Input
-    blockLengthMap().insert(make_pair(0xf08,13));     // Leaf3JetNegEtaU1: JF3 Input
-    blockLengthMap().insert(make_pair(0xf88,13));     // Leaf3JetNegEtaU2: JF1 Input    
+    blockLengthV2_.insert(make_pair(0xd00,13));     // Leaf1JetNegEtaU1: JF2 Input
+    blockLengthV2_.insert(make_pair(0xd08,13));     // Leaf1JetNegEtaU1: JF3 Input
+    blockLengthV2_.insert(make_pair(0xd88,13));     // Leaf1JetNegEtaU2: JF1 Input
+    blockLengthV2_.insert(make_pair(0xe00,13));     // Leaf2JetNegEtaU1: JF2 Input
+    blockLengthV2_.insert(make_pair(0xe08,13));     // Leaf2JetNegEtaU1: JF3 Input
+    blockLengthV2_.insert(make_pair(0xe88,13));     // Leaf2JetNegEtaU2: JF1 Input
+    blockLengthV2_.insert(make_pair(0xf00,13));     // Leaf3JetNegEtaU1: JF2 Input
+    blockLengthV2_.insert(make_pair(0xf08,13));     // Leaf3JetNegEtaU1: JF3 Input
+    blockLengthV2_.insert(make_pair(0xf88,13));     // Leaf3JetNegEtaU2: JF1 Input    
   }
 }
 

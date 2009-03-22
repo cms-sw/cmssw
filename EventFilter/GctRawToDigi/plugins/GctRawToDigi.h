@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.24 2009/03/15 23:20:20 frazier Exp $
+// $Id: GctRawToDigi.h,v 1.25 2009/03/16 17:01:47 frazier Exp $
 //
 //
 
@@ -58,7 +58,7 @@ private: // methods
 
   /// Looks at the firmware version header in the S-Link packet and instantiates relevant unpacker + block lengths.
   /*! Returns false on failure. */
-  bool setupBlockUnpackerAndBlockLengths(const unsigned char * data);
+  void setupBlockUnpackerAndBlockLengths(const unsigned char * data);
 
   virtual void endJob();
 

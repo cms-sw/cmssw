@@ -489,13 +489,13 @@ void GctBlockUnpackerBase::blockToGctInternHtMissPreWheel(const unsigned char* d
   // Re-interpret pointer to 32 bits 
   uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
   
-  for (unsigned int iLength=0; i<length; ++iLength)
+  for (unsigned int iLength=0; iLength < length; ++iLength)
   {
     // Loop over timesamples (i.e. bunch crossings)
     for (unsigned int bx=0; bx<nSamples; ++bx) 
     {
       gctInternHtMiss_->push_back(L1GctInternHtMiss::unpackerMissHtxHty(id, iLength, bx, *p));
-      ++p
+      ++p;
     }
   }
 }
@@ -512,14 +512,14 @@ void GctBlockUnpackerBase::blockToGctInternHtMissPostWheel(const unsigned char* 
   // Re-interpret pointer to 32 bits 
   uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
 
-  for (unsigned int iLength=0; i<length; ++iLength)
+  for (unsigned int iLength=0; iLength < length; ++iLength)
   {
     // Loop over timesamples (i.e. bunch crossings)
     for (unsigned int bx=0; bx<nSamples; ++bx) 
     {
       if(iLength % 2) { gctInternHtMiss_->push_back(L1GctInternHtMiss::unpackerMissHty(id, iLength, bx, *p)); }  // Hty on odd numbers
       else { gctInternHtMiss_->push_back(L1GctInternHtMiss::unpackerMissHtx(id, iLength, bx, *p)); } // Htx on even numbers
-      ++p
+      ++p;
     }
   }
 }

@@ -32,12 +32,15 @@
 // GCT block unpackers
 #include "EventFilter/GctRawToDigi/src/GctBlockUnpackerV1.h"
 #include "EventFilter/GctRawToDigi/src/GctBlockUnpackerV2.h"
+#include "EventFilter/GctRawToDigi/src/GctBlockUnpackerV3.h"
 
 // Namespace resolution
 using std::cout;
 using std::endl;
 using std::vector;
 using std::string;
+using std::dec;
+using std::hex;
 
 
 GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
@@ -45,9 +48,9 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   fedId_(iConfig.getParameter<int>("gctFedId")),
   hltMode_(iConfig.getParameter<bool>("hltMode")),
   unpackerVersion_(iConfig.getParameter<unsigned>("unpackerVersion")),
+  verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
   blockUnpacker_(0),
   unpackFailures_(0)
-  verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
 {
   LogDebug("GCT") << "GctRawToDigi will unpack FED Id " << fedId_;
 
@@ -59,11 +62,11 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
     case 1:  blockUnpacker_ = new GctBlockUnpackerV1(hltMode_); break;
     case 2:
       blockUnpacker_ = new GctBlockUnpackerV2(hltMode_);
-      GctBlockHeaderV2::initBlockLengthMap(BLOCK_LENGTHS_FOR_UNPACKER_V2);
+      GctBlockHeaderV2::initBlockLengthMap(GctBlockHeaderV2::BLOCK_LENGTHS_FOR_UNPACKER_V2);
       break;
     case 3:
       blockUnpacker_ = new GctBlockUnpackerV3(hltMode_); break;
-      GctBlockHeaderV2::initBlockLengthMap(BLOCK_LENGTHS_FOR_UNPACKER_V3);
+      GctBlockHeaderV2::initBlockLengthMap(GctBlockHeaderV2::BLOCK_LENGTHS_FOR_UNPACKER_V3);
       break;
     default: edm::LogInfo("GCT") << "The required GctBlockUnpacker will be automatically determined from the first S-Link packet header.";
   }
@@ -131,9 +134,9 @@ void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // do a simple check of the raw data - this will detect empty events
   if(gctRcd.size() < 16)
   {
-      LogDebug("GCT") << "Cannot unpack: empty/invalid GCT raw data (size = "
-                      << gctRcd.size() << "). Returning empty collections!";
-      invalidDataFlag = true;
+    LogDebug("GCT") << "Cannot unpack: empty/invalid GCT raw data (size = "
+                    << gctRcd.size() << "). Returning empty collections!";
+    invalidDataFlag = true;
   }
 
   unpack(gctRcd, iEvent, invalidDataFlag);
@@ -174,92 +177,95 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
 
   if(invalidDataFlag == false) // Only attempt unpack with valid data
   {
-    blockUnpacker_->setIsoEmCollection( gctIsoEm.get() );
-    blockUnpacker_->setNonIsoEmCollection( gctNonIsoEm.get() );
-    blockUnpacker_->setCentralJetCollection( gctCenJets.get() );
-    blockUnpacker_->setForwardJetCollection( gctForJets.get() );
-    blockUnpacker_->setTauJetCollection( gctTauJets.get() );
-    blockUnpacker_->setHFBitCountsCollection( hfBitCounts.get() );
-    blockUnpacker_->setHFRingEtSumsCollection( hfRingEtSums.get() );
-    blockUnpacker_->setEtTotalCollection( etTotResult.get() );
-    blockUnpacker_->setEtHadCollection( etHadResult.get() );
-    blockUnpacker_->setEtMissCollection( etMissResult.get() );
-    blockUnpacker_->setHtMissCollection( htMissResult.get() );
-    blockUnpacker_->setRctEmCollection( rctEm.get() );
-    blockUnpacker_->setRctCaloRegionCollection( rctCalo.get() );
-    blockUnpacker_->setInternEmCollection( gctInternEm.get() );
-    blockUnpacker_->setInternJetDataCollection( gctInternJets.get() );
-    blockUnpacker_->setInternEtSumCollection( gctInternEtSums.get() );
-    blockUnpacker_->setInternHFDataCollection( gctInternHFData.get() );
-    blockUnpacker_->setInternHtMissCollection( gctInternHtMiss.get() );
-    blockUnpacker_->setFibreCollection( gctFibres.get() );
-  
     const unsigned char * data = d.data();  // The 8-bit wide raw-data array.  
 
     // If no block unpacker yet set, need to auto-detect from header.  If can't, then bail from event!
-    if(!blockUnpacker_) { if(!setupBlockUnpackerAndBlockLengths(data)) { break; } }
+    if(!blockUnpacker_) { setupBlockUnpackerAndBlockLengths(data); }
 
-    // Data offset - starts at 16 as there is a 64-bit S-Link header followed
-    // by a 64-bit software-controlled header (for pipeline format version
-    // info that is not yet used).
-    unsigned dPtr = 16;
-    
-    if(unpackerVersion_ == 1) { dPtr = 8; }  // No software-controlled secondary header in old UnpackerV1 scheme. 
-    
-    const unsigned dEnd = d.size() - 8; // End of payload is at (packet size - final slink header)
-
-    edm::OwnVector<GctBlockHeaderBase> bHdrs; // Self-cleaning vector for storing block headers for verbosity print-out.
-
-    // read blocks
-    for (unsigned nb=0; dPtr<dEnd; ++nb)
+    if(blockUnpacker_)
     {
-      if(nb >= MAX_BLOCKS) { LogDebug("GCT") << "Reached block limit - bailing out from this event!"; ++unpackFailures_; break; }
-      
-      // read block header
-      std::auto_ptr<GctBlockHeaderBase> blockHeader;
-      if(unpackerVersion_ == 1) { blockHeader = std::auto_ptr<GctBlockHeaderBase>(new GctBlockHeaderV1(&data[dPtr])); }
-      else { blockHeader = std::auto_ptr<GctBlockHeaderBase>(new GctBlockHeaderV2(&data[dPtr])); }
-      
-      // unpack the block; dPtr+4 is to get to the block data.
-      if(!blockUnpacker_->convertBlock(&data[dPtr+4], *blockHeader)) // Record if we had an unpack problem then skip rest of event.
+      blockUnpacker_->setIsoEmCollection( gctIsoEm.get() );
+      blockUnpacker_->setNonIsoEmCollection( gctNonIsoEm.get() );
+      blockUnpacker_->setCentralJetCollection( gctCenJets.get() );
+      blockUnpacker_->setForwardJetCollection( gctForJets.get() );
+      blockUnpacker_->setTauJetCollection( gctTauJets.get() );
+      blockUnpacker_->setHFBitCountsCollection( hfBitCounts.get() );
+      blockUnpacker_->setHFRingEtSumsCollection( hfRingEtSums.get() );
+      blockUnpacker_->setEtTotalCollection( etTotResult.get() );
+      blockUnpacker_->setEtHadCollection( etHadResult.get() );
+      blockUnpacker_->setEtMissCollection( etMissResult.get() );
+      blockUnpacker_->setHtMissCollection( htMissResult.get() );
+      blockUnpacker_->setRctEmCollection( rctEm.get() );
+      blockUnpacker_->setRctCaloRegionCollection( rctCalo.get() );
+      blockUnpacker_->setInternEmCollection( gctInternEm.get() );
+      blockUnpacker_->setInternJetDataCollection( gctInternJets.get() );
+      blockUnpacker_->setInternEtSumCollection( gctInternEtSums.get() );
+      blockUnpacker_->setInternHFDataCollection( gctInternHFData.get() );
+      blockUnpacker_->setInternHtMissCollection( gctInternHtMiss.get() );
+      blockUnpacker_->setFibreCollection( gctFibres.get() );
+  
+      // Data offset - starts at 16 as there is a 64-bit S-Link header followed
+      // by a 64-bit software-controlled header (for pipeline format version
+      // info that is not yet used).
+      unsigned dPtr = 16;
+    
+      if(unpackerVersion_ == 1) { dPtr = 8; }  // No software-controlled secondary header in old UnpackerV1 scheme. 
+    
+      const unsigned dEnd = d.size() - 8; // End of payload is at (packet size - final slink header)
+
+      edm::OwnVector<GctBlockHeaderBase> bHdrs; // Self-cleaning vector for storing block headers for verbosity print-out.
+
+      // read blocks
+      for (unsigned nb=0; dPtr<dEnd; ++nb)
       {
-        LogDebug("GCT") << "Encountered block unpack error - bailing out from this event!";
-        ++unpackFailures_; break;
-      } 
+        if(nb >= MAX_BLOCKS) { LogDebug("GCT") << "Reached block limit - bailing out from this event!"; ++unpackFailures_; break; }
+      
+        // read block header
+        std::auto_ptr<GctBlockHeaderBase> blockHeader;
+        if(unpackerVersion_ == 1) { blockHeader = std::auto_ptr<GctBlockHeaderBase>(new GctBlockHeaderV1(&data[dPtr])); }
+        else { blockHeader = std::auto_ptr<GctBlockHeaderBase>(new GctBlockHeaderV2(&data[dPtr])); }
+      
+        // unpack the block; dPtr+4 is to get to the block data.
+        if(!blockUnpacker_->convertBlock(&data[dPtr+4], *blockHeader)) // Record if we had an unpack problem then skip rest of event.
+        {
+          LogDebug("GCT") << "Encountered block unpack error - bailing out from this event!";
+          ++unpackFailures_; break;
+        } 
   
-      // advance pointer
-      dPtr += 4*(blockHeader->length()*blockHeader->nSamples()+1); // *4 because blockLen is in 32-bit words, +1 for header
+        // advance pointer
+        dPtr += 4*(blockHeader->length()*blockHeader->nSamples()+1); // *4 because blockLen is in 32-bit words, +1 for header
 
-      // If verbose, store the header in vector.
-      if(verbose_) { bHdrs.push_back(blockHeader); }
-    }
+        // If verbose, store the header in vector.
+        if(verbose_) { bHdrs.push_back(blockHeader); }
+      }
   
-    // dump summary in verbose mode
-    if (verbose_)
-    {
-      std::ostringstream os;
-      os << "Found " << bHdrs.size() << " GCT block headers" << endl;
-      for (unsigned i=0, size = bHdrs.size(); i<size; ++i) { os << bHdrs[i]<< endl; }
-      os << "Read " << rctEm->size() << " RCT EM candidates" << endl;
-      os << "Read " << rctCalo->size() << " RCT Calo Regions" << endl;
-      os << "Read " << gctIsoEm->size() << " GCT iso EM candidates" << endl;
-      os << "Read " << gctNonIsoEm->size() << " GCT non-iso EM candidates" << endl;
-      os << "Read " << gctInternEm->size() << " GCT intermediate EM candidates" << endl;
-      os << "Read " << gctCenJets->size() << " GCT central jet candidates" << endl;
-      os << "Read " << gctForJets->size() << " GCT forward jet candidates" << endl;
-      os << "Read " << gctTauJets->size() << " GCT tau jet candidates" << endl;
-      os << "Read " << gctInternJets->size() << " GCT intermediate jet candidates" << endl;
-      os << "Read " << etTotResult->size() << " GCT total et" << endl;
-      os << "Read " << etHadResult->size() << " GCT ht" << endl;
-      os << "Read " << etMissResult->size() << " GCT met" << endl;
-      os << "Read " << htMissResult->size() << " GCT mht" << endl;
-      os << "Read " << gctInternEtSums->size() << " GCT intermediate et sums" << endl;
-      os << "Read " << hfRingEtSums->size() << " GCT HF ring et sums" << endl;
-      os << "Read " << hfBitCounts->size() << " GCT HF ring bit counts" << endl;
-      os << "Read " << gctInternHFData->size() << " GCT intermediate HF data" << endl;
-      os << "Read " << gctInternHtMiss->size() << " GCT intermediate Missing Ht" << endl;
-      os << "Read " << gctFibres->size() << " GCT raw fibre data" << endl;
-      edm::LogVerbatim("GCT") << os.str();
+      // dump summary in verbose mode
+      if (verbose_)
+      {
+        std::ostringstream os;
+        os << "Found " << bHdrs.size() << " GCT block headers" << endl;
+        for (unsigned i=0, size = bHdrs.size(); i<size; ++i) { os << bHdrs[i]<< endl; }
+        os << "Read " << rctEm->size() << " RCT EM candidates" << endl;
+        os << "Read " << rctCalo->size() << " RCT Calo Regions" << endl;
+        os << "Read " << gctIsoEm->size() << " GCT iso EM candidates" << endl;
+        os << "Read " << gctNonIsoEm->size() << " GCT non-iso EM candidates" << endl;
+        os << "Read " << gctInternEm->size() << " GCT intermediate EM candidates" << endl;
+        os << "Read " << gctCenJets->size() << " GCT central jet candidates" << endl;
+        os << "Read " << gctForJets->size() << " GCT forward jet candidates" << endl;
+        os << "Read " << gctTauJets->size() << " GCT tau jet candidates" << endl;
+        os << "Read " << gctInternJets->size() << " GCT intermediate jet candidates" << endl;
+        os << "Read " << etTotResult->size() << " GCT total et" << endl;
+        os << "Read " << etHadResult->size() << " GCT ht" << endl;
+        os << "Read " << etMissResult->size() << " GCT met" << endl;
+        os << "Read " << htMissResult->size() << " GCT mht" << endl;
+        os << "Read " << gctInternEtSums->size() << " GCT intermediate et sums" << endl;
+        os << "Read " << hfRingEtSums->size() << " GCT HF ring et sums" << endl;
+        os << "Read " << hfBitCounts->size() << " GCT HF ring bit counts" << endl;
+        os << "Read " << gctInternHFData->size() << " GCT intermediate HF data" << endl;
+        os << "Read " << gctInternHtMiss->size() << " GCT intermediate Missing Ht" << endl;
+        os << "Read " << gctFibres->size() << " GCT raw fibre data" << endl;
+        edm::LogVerbatim("GCT") << os.str();
+      }
     }
   }
   else { ++unpackFailures_; }
@@ -288,7 +294,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
 }
 
 
-bool GctRawToDigi::setupBlockUnpackerAndBlockLengths(const unsigned char * d)
+void GctRawToDigi::setupBlockUnpackerAndBlockLengths(const unsigned char * d)
 {
   LogDebug("GCT") << "About to auto-detect the required block unpacker from the firmware version header.";
     
@@ -299,15 +305,15 @@ bool GctRawToDigi::setupBlockUnpackerAndBlockLengths(const unsigned char * d)
   {
     edm::LogInfo("GCT") << "Firmware Version V " << firmwareHeader << " detected: GctBlockUnpackerV3 will be used.";
     blockUnpacker_ = new GctBlockUnpackerV3(hltMode_);
-    GctBlockHeaderV2::initBlockLengthMap(BLOCK_LENGTHS_FOR_UNPACKER_V3);
-    return true;
+    GctBlockHeaderV2::initBlockLengthMap(GctBlockHeaderV2::BLOCK_LENGTHS_FOR_UNPACKER_V3);
+    return;
   }
   else if( firmwareHeader >= 25 && firmwareHeader <= 35 )
   {
     edm::LogInfo("GCT") << "Firmware Version V " << firmwareHeader << " detected: GctBlockUnpackerV2 will be used.";
     blockUnpacker_ = new GctBlockUnpackerV2(hltMode_);
-    GctBlockHeaderV2::initBlockLengthMap(BLOCK_LENGTHS_FOR_UNPACKER_V2);
-    return true;
+    GctBlockHeaderV2::initBlockLengthMap(GctBlockHeaderV2::BLOCK_LENGTHS_FOR_UNPACKER_V2);
+    return;
   }
   else if(firmwareHeader == 0xdeadffff) { /* Driver detected unknown firmware version. L1TriggerError code? */ }
   else if( firmwareHeader == 0xaaaaaaaa) { /* Before driver firmware version checks implemented. L1TriggerError code?  */ }
@@ -317,7 +323,7 @@ bool GctRawToDigi::setupBlockUnpackerAndBlockLengths(const unsigned char * d)
                      "(firmware header = 0x" << hex << firmwareHeader << dec << ")";
 
   ++unpackFailures_;
-  return false;
+  return;
 }
 
 
