@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Mar 14 19:04:20 CET 2009
-// $Id$
+// $Id: L1HFRings.h,v 1.1 2009/03/20 15:49:01 wsun Exp $
 //
 
 // system include files
@@ -44,7 +44,8 @@ class L1HFRings
 		 const edm::Ref< L1GctHFRingEtSumsCollection >& aHFEtSumsRef = 
 		 edm::Ref< L1GctHFRingEtSumsCollection >(),
 		 const edm::Ref< L1GctHFBitCountsCollection >& aHFBitCountsRef 
-		 = edm::Ref< L1GctHFBitCountsCollection >() ) ;
+		 = edm::Ref< L1GctHFBitCountsCollection >(),
+		 int bx = 0 ) ;
 
       virtual ~L1HFRings();
 
@@ -64,6 +65,8 @@ class L1HFRings
       const L1GctHFBitCounts* gctHFBitCounts() const
 	{ return m_bitCountsRef.get() ; }
 
+      int bx() const { return m_bx ; }
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -79,6 +82,8 @@ class L1HFRings
 
       edm::Ref< L1GctHFRingEtSumsCollection > m_etSumsRef ;
       edm::Ref< L1GctHFBitCountsCollection > m_bitCountsRef ;
+
+      int m_bx ;
 };
 }
 

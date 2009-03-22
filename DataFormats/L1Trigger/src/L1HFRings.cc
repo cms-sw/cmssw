@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Mar 20 12:16:54 CET 2009
-// $Id$
+// $Id: L1HFRings.cc,v 1.1 2009/03/20 15:49:02 wsun Exp $
 //
 
 // system include files
@@ -37,9 +37,11 @@ L1HFRings::L1HFRings(
    const double* hfEtSums, // array of etSums
    const int* hfBitCounts, // array of bitCounts
    const edm::Ref< L1GctHFRingEtSumsCollection >& aHFEtSumsRef,
-   const edm::Ref< L1GctHFBitCountsCollection >& aHFBitCountsRef )
+   const edm::Ref< L1GctHFBitCountsCollection >& aHFBitCountsRef,
+   int bx )
   : m_etSumsRef( aHFEtSumsRef ),
-    m_bitCountsRef( aHFBitCountsRef )
+    m_bitCountsRef( aHFBitCountsRef ),
+    m_bx( bx )
 {
   for( int i = 0 ; i < kNumRings ; ++i )
     {

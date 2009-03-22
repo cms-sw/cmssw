@@ -12,7 +12,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EtMissParticle.h,v 1.13 2008/04/03 03:37:05 wsun Exp $
+// $Id: L1EtMissParticle.h,v 1.14 2009/03/20 15:51:07 wsun Exp $
 //
 
 // system include files
@@ -28,7 +28,7 @@ namespace l1extra {
   class L1EtMissParticle : public reco::LeafCandidate
     {
     public:
-      enum EtMissType{ kET, kHT, kNumETTypes } ;
+      enum EtMissType{ kMET, kMHT, kNumTypes } ;
 
       L1EtMissParticle();
 
