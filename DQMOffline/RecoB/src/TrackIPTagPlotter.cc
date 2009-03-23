@@ -215,7 +215,15 @@ TrackIPTagPlotter::TrackIPTagPlotter(const TString & tagName,
   jetDistanceSignHisto = new FlavourHistograms<double>
        ("jetDistSign" + theExtensionString, "JetDistance significance",
 	50, -100.0, 100.0, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
-
+  ghostTrackDistanceValuHisto = new FlavourHistograms<double>
+       ("ghostTrackDist" + theExtensionString, "GhostTrackDistance",
+	50, -0.1, 0.1, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+  ghostTrackDistanceSignHisto = new FlavourHistograms<double>
+       ("ghostTrackDistSign" + theExtensionString, "GhostTrackDistance significance",
+	50, -100.0, 100.0, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
+  ghostTrackWeightHisto = new FlavourHistograms<double>
+       ("ghostTrackWeight" + theExtensionString, "GhostTrack fit participation weight",
+	50, 0.0, 1.0, false, false, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
 
   if (willFinalize_) createPlotsForFinalize();
 
@@ -230,6 +238,9 @@ TrackIPTagPlotter::~TrackIPTagPlotter ()
   delete decayLengthValuHisto;
   delete jetDistanceValuHisto;
   delete jetDistanceSignHisto;
+  delete ghostTrackDistanceValuHisto;
+  delete ghostTrackDistanceSignHisto;
+  delete ghostTrackWeightHisto;
 
   for(int n=0; n <= 4; n++) {
     delete tkcntHistosSig2D[n];
@@ -318,9 +329,11 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
   for(unsigned int n=0; n < ip.size(); n++) {
     double decayLen = (ip[n].closestToJetAxis - pv).mag();
     decayLengthValuHisto->fill(jetFlavour, decayLen);
-  }
-  for(unsigned int n=0; n < ip.size(); n++) {
-    jetDistanceValuHisto->fill(jetFlavour, ip[n].distanceToJetAxis);
+    jetDistanceValuHisto->fill(jetFlavour, ip[n].distanceToJetAxis.value());
+    jetDistanceSignHisto->fill(jetFlavour, ip[n].distanceToJetAxis.significance());
+    ghostTrackDistanceValuHisto->fill(jetFlavour, ip[n].distanceToGhostTrack.value());
+    ghostTrackDistanceSignHisto->fill(jetFlavour, ip[n].distanceToGhostTrack.significance());
+    ghostTrackWeightHisto->fill(jetFlavour, ip[n].ghostTrackWeight);
   }
 
 }
@@ -428,14 +441,19 @@ void TrackIPTagPlotter::psPlot(const TString & name)
 
   canvas.Print(name + cName + ".ps");
   canvas.Clear();
-  canvas.Divide(1,3);
+  canvas.Divide(2,3);
   canvas.cd(1);
   jetDistanceValuHisto->plot();
   canvas.cd(2);
   jetDistanceSignHisto->plot();
   canvas.cd(3);
   decayLengthValuHisto->plot();
-
+  canvas.cd(4);
+  ghostTrackDistanceValuHisto->plot();
+  canvas.cd(5);
+  ghostTrackDistanceSignHisto->plot();
+  canvas.cd(6);
+  ghostTrackWeightHisto->plot();
 
   canvas.Print(name + cName + ".ps");
   canvas.Print(name + cName + ".ps]");
@@ -447,9 +465,11 @@ void TrackIPTagPlotter::epsPlot(const TString & name)
   trkNbr2D->epsPlot(name);
   trkNbr3D->epsPlot(name);
   decayLengthValuHisto->epsPlot(name);
-  decayLengthSignHisto->epsPlot(name);
   jetDistanceValuHisto->epsPlot(name);
   jetDistanceSignHisto->epsPlot(name);
+  ghostTrackDistanceValuHisto->epsPlot(name);
+  ghostTrackDistanceSignHisto->epsPlot(name);
+  ghostTrackWeightHisto->epsPlot(name);
   for(int n=0; n <= 4; n++) {
     tkcntHistosSig2D[n]->epsPlot(name);
     tkcntHistosSig3D[n]->epsPlot(name);

@@ -48,8 +48,9 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
 
   FlavourHistograms<float> * tkcntHistosProb3D[5];
   FlavourHistograms<float> * tkcntHistosProb2D[5];
-  FlavourHistograms<double> *decayLengthValuHisto, *jetDistanceValuHisto;
-  FlavourHistograms<double> *decayLengthSignHisto, *jetDistanceSignHisto;
+  FlavourHistograms<double> *decayLengthValuHisto, *ghostTrackWeightHisto;
+  FlavourHistograms<double> *jetDistanceValuHisto, *jetDistanceSignHisto;
+  FlavourHistograms<double> *ghostTrackDistanceValuHisto, *ghostTrackDistanceSignHisto;
 
   bool finalized;
 } ;
