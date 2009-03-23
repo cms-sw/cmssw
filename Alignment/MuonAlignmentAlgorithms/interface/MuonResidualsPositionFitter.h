@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsPositionFitter_H
 
 /** \class MuonResidualsPositionFitter
- *  $Date: 2009/02/27 18:58:29 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/03/15 19:54:23 $
+ *  $Revision: 1.2 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -15,7 +15,7 @@ public:
     kPosition = 0,
     kZpos,
     kPhiz,
-    kBfield,
+    kScattering,
     kSigma,
     kGamma,
     kNPar
@@ -23,7 +23,7 @@ public:
 
   enum {
     kResidual = 0,
-    kQoverPt,
+    kAngleError,
     kTrackAngle,
     kTrackPosition,
     kNData
@@ -32,7 +32,7 @@ public:
   MuonResidualsPositionFitter(int residualsModel, int minHitsPerRegion): MuonResidualsFitter(residualsModel, minHitsPerRegion) {};
 
   int npar() {
-    if (residualsModel() == kPureGaussian) return kNPar - 2;
+    if (residualsModel() == kPureGaussian) return kNPar - 1;
     else if (residualsModel() == kPowerLawTails) return kNPar;
     else assert(false);
   };

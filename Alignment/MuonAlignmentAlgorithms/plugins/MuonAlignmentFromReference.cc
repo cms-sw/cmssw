@@ -74,15 +74,15 @@ private:
   std::vector<std::string> m_readTemporaryFiles;
   bool m_doAlignment;
   std::string m_residualsModel;
-  bool m_DT13fitBfield;
+  bool m_DT13fitScattering;
   bool m_DT13fitZpos;
   bool m_DT13fitPhiz;
   bool m_DT13fitSlopeBfield;
-  bool m_DT2fitBfield;
+  bool m_DT2fitScattering;
   bool m_DT2fitZpos;
   bool m_DT2fitPhiz;
   bool m_DT2fitSlopeBfield;
-  bool m_CSCfitBfield;
+  bool m_CSCfitScattering;
   bool m_CSCfitZpos;
   bool m_CSCfitPhiz;
   bool m_CSCfitSlopeBfield;
@@ -117,15 +117,15 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
   , m_readTemporaryFiles(iConfig.getParameter<std::vector<std::string> >("readTemporaryFiles"))
   , m_doAlignment(iConfig.getParameter<bool>("doAlignment"))
   , m_residualsModel(iConfig.getParameter<std::string>("residualsModel"))
-  , m_DT13fitBfield(iConfig.getParameter<bool>("DT13fitBfield"))
+  , m_DT13fitScattering(iConfig.getParameter<bool>("DT13fitScattering"))
   , m_DT13fitZpos(iConfig.getParameter<bool>("DT13fitZpos"))
   , m_DT13fitPhiz(iConfig.getParameter<bool>("DT13fitPhiz"))
   , m_DT13fitSlopeBfield(iConfig.getParameter<bool>("DT13fitSlopeBfield"))
-  , m_DT2fitBfield(iConfig.getParameter<bool>("DT2fitBfield"))
+  , m_DT2fitScattering(iConfig.getParameter<bool>("DT2fitScattering"))
   , m_DT2fitZpos(iConfig.getParameter<bool>("DT2fitZpos"))
   , m_DT2fitPhiz(iConfig.getParameter<bool>("DT2fitPhiz"))
   , m_DT2fitSlopeBfield(iConfig.getParameter<bool>("DT2fitSlopeBfield"))
-  , m_CSCfitBfield(iConfig.getParameter<bool>("CSCfitBfield"))
+  , m_CSCfitScattering(iConfig.getParameter<bool>("CSCfitScattering"))
   , m_CSCfitZpos(iConfig.getParameter<bool>("CSCfitZpos"))
   , m_CSCfitPhiz(iConfig.getParameter<bool>("CSCfitPhiz"))
   , m_CSCfitSlopeBfield(iConfig.getParameter<bool>("CSCfitSlopeBfield"))
@@ -180,14 +180,14 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
 
      if ((*ali)->alignableObjectId() == align::AlignableDTChamber) {
        m_rphiFitters[*ali] = new MuonResidualsPositionFitter(residualsModel, -1);
-       if (!m_DT13fitBfield) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kBfield);
+       if (!m_DT13fitScattering) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kScattering);
        if (!m_DT13fitZpos) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
        if (!m_DT13fitPhiz) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kPhiz);
        m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 0);
        m_fitterOrder.push_back(m_rphiFitters[*ali]);
        
        m_zFitters[*ali] = new MuonResidualsPositionFitter(residualsModel, -1);
-       if (!m_DT2fitBfield) m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kBfield);
+       if (!m_DT2fitScattering) m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kScattering);
        if (!m_DT2fitZpos) m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
        if (!m_DT2fitPhiz) m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kPhiz);
        m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 1);
@@ -208,7 +208,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
        if (align_x  &&  (!align_y  ||  !align_phiz)) throw cms::Exception("MuonAlignmentFromReference") << "CSCs are aligned in rphi, not x, so y and phiz must also be alignable" << std::endl;
 
        m_rphiFitters[*ali] = new MuonResidualsPositionFitter(residualsModel, -1);
-       if (!m_CSCfitBfield) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kBfield);
+       if (!m_CSCfitScattering) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kScattering);
        if (!m_CSCfitZpos) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
        if (!m_CSCfitPhiz) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kPhiz);
        m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 0);
@@ -332,7 +332,7 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const ConstT
 	      if (rphiFitter != m_rphiFitters.end()) {
 		double *residdata = new double[MuonResidualsPositionFitter::kNData];
 		residdata[MuonResidualsPositionFitter::kResidual] = chamberResidual->residual();
-		residdata[MuonResidualsPositionFitter::kQoverPt] = qoverpt;
+		residdata[MuonResidualsPositionFitter::kAngleError] = chamberResidual->resslope();
 		residdata[MuonResidualsPositionFitter::kTrackAngle] = chamberResidual->trackdxdz();
 		residdata[MuonResidualsPositionFitter::kTrackPosition] = chamberResidual->tracky();
 		rphiFitter->second->fill(residdata);
@@ -357,7 +357,7 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const ConstT
 	      if (zFitter != m_zFitters.end()) {
 		double *residdata = new double[MuonResidualsPositionFitter::kNData];
 		residdata[MuonResidualsPositionFitter::kResidual] = chamberResidual->residual();
-		residdata[MuonResidualsPositionFitter::kQoverPt] = qoverpt;
+		residdata[MuonResidualsPositionFitter::kAngleError] = chamberResidual->resslope();
 		residdata[MuonResidualsPositionFitter::kTrackAngle] = chamberResidual->trackdydz();
 		residdata[MuonResidualsPositionFitter::kTrackPosition] = chamberResidual->trackx();
 		zFitter->second->fill(residdata);
@@ -383,7 +383,7 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const ConstT
 	      if (rphiFitter != m_rphiFitters.end()) {
 		double *residdata = new double[MuonResidualsPositionFitter::kNData];
 		residdata[MuonResidualsPositionFitter::kResidual] = chamberResidual->residual();
-		residdata[MuonResidualsPositionFitter::kQoverPt] = qoverpt;
+		residdata[MuonResidualsPositionFitter::kAngleError] = chamberResidual->resslope();
 		residdata[MuonResidualsPositionFitter::kTrackAngle] = chamberResidual->trackdxdz();
 		residdata[MuonResidualsPositionFitter::kTrackPosition] = chamberResidual->tracky();
 		rphiFitter->second->fill(residdata);
@@ -444,22 +444,22 @@ void MuonAlignmentFromReference::terminate() {
 	     << "    def __init__(self, chamberId, postal_address, name):" << std::endl
 	     << "        self.chamberId, self.postal_address, self.name = chamberId, postal_address, name" << std::endl
 	     << "" << std::endl
-	     << "    def rphiFit(self, position, zpos, phiz, bfield, sigma, gamma, redchi2):" << std::endl
+	     << "    def rphiFit(self, position, zpos, phiz, scattering, sigma, gamma, redchi2):" << std::endl
 	     << "        self.rphiFit_status = \"PASS\"" << std::endl
 	     << "        self.rphiFit_position = position" << std::endl
 	     << "        self.rphiFit_zpos = zpos" << std::endl
 	     << "        self.rphiFit_phiz = phiz" << std::endl
-	     << "        self.rphiFit_bfield = bfield" << std::endl
+	     << "        self.rphiFit_scattering = scattering" << std::endl
 	     << "        self.rphiFit_sigma = sigma" << std::endl
 	     << "        self.rphiFit_gamma = gamma" << std::endl
 	     << "        self.rphiFit_redchi2 = redchi2" << std::endl
 	     << "" << std::endl
-	     << "    def zFit(self, position, zpos, phiz, bfield, sigma, gamma, redchi2):" << std::endl
+	     << "    def zFit(self, position, zpos, phiz, scattering, sigma, gamma, redchi2):" << std::endl
 	     << "        self.zFit_status = \"PASS\"" << std::endl
 	     << "        self.zFit_position = position" << std::endl
 	     << "        self.zFit_zpos = zpos" << std::endl
 	     << "        self.zFit_phiz = phiz" << std::endl
-	     << "        self.zFit_bfield = bfield" << std::endl
+	     << "        self.zFit_scattering = scattering" << std::endl
 	     << "        self.zFit_sigma = sigma" << std::endl
 	     << "        self.zFit_gamma = gamma" << std::endl
 	     << "        self.zFit_redchi2 = redchi2" << std::endl
@@ -588,10 +588,10 @@ void MuonAlignmentFromReference::terminate() {
 	  double phiz_uperr = rphiFitter->second->uperr(MuonResidualsPositionFitter::kPhiz);
 	  double phiz_downerr = rphiFitter->second->downerr(MuonResidualsPositionFitter::kPhiz);
 
-	  double bfield_value = rphiFitter->second->value(MuonResidualsPositionFitter::kBfield);
-	  double bfield_error = rphiFitter->second->error(MuonResidualsPositionFitter::kBfield);
-	  double bfield_uperr = rphiFitter->second->uperr(MuonResidualsPositionFitter::kBfield);
-	  double bfield_downerr = rphiFitter->second->downerr(MuonResidualsPositionFitter::kBfield);
+	  double scattering_value = rphiFitter->second->value(MuonResidualsPositionFitter::kScattering);
+	  double scattering_error = rphiFitter->second->error(MuonResidualsPositionFitter::kScattering);
+	  double scattering_uperr = rphiFitter->second->uperr(MuonResidualsPositionFitter::kScattering);
+	  double scattering_downerr = rphiFitter->second->downerr(MuonResidualsPositionFitter::kScattering);
 
 	  double sigma_value = rphiFitter->second->value(MuonResidualsPositionFitter::kSigma);
 	  double sigma_error = rphiFitter->second->error(MuonResidualsPositionFitter::kSigma);
@@ -654,7 +654,7 @@ void MuonAlignmentFromReference::terminate() {
 	    report << "reports[-1].rphiFit((" << position_value << ", " << position_error << ", " << position_uperr << ", " << position_downerr << "), \\" << std::endl
 		   << "                    (" << zpos_value << ", " << zpos_error << ", " << zpos_uperr << ", " << zpos_downerr << "), \\" << std::endl
 		   << "                    (" << phiz_value << ", " << phiz_error << ", " << phiz_uperr << ", " << phiz_downerr << "), \\" << std::endl
-		   << "                    (" << bfield_value << ", " << bfield_error << ", " << bfield_uperr << ", " << bfield_downerr << "), \\" << std::endl
+		   << "                    (" << scattering_value << ", " << scattering_error << ", " << scattering_uperr << ", " << scattering_downerr << "), \\" << std::endl
 		   << "                    (" << sigma_value << ", " << sigma_error << ", " << sigma_uperr << ", " << sigma_downerr << "), \\" << std::endl;
 	    if (rphiFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
 	      report << "                    (" << gamma_value << ", " << gamma_error << ", " << gamma_uperr << ", " << gamma_downerr << "), \\" << std::endl;
@@ -696,10 +696,10 @@ void MuonAlignmentFromReference::terminate() {
 	  double phiz_uperr = zFitter->second->uperr(MuonResidualsPositionFitter::kPhiz);
 	  double phiz_downerr = zFitter->second->downerr(MuonResidualsPositionFitter::kPhiz);
 
-	  double bfield_value = zFitter->second->value(MuonResidualsPositionFitter::kBfield);
-	  double bfield_error = zFitter->second->error(MuonResidualsPositionFitter::kBfield);
-	  double bfield_uperr = zFitter->second->uperr(MuonResidualsPositionFitter::kBfield);
-	  double bfield_downerr = zFitter->second->downerr(MuonResidualsPositionFitter::kBfield);
+	  double scattering_value = zFitter->second->value(MuonResidualsPositionFitter::kScattering);
+	  double scattering_error = zFitter->second->error(MuonResidualsPositionFitter::kScattering);
+	  double scattering_uperr = zFitter->second->uperr(MuonResidualsPositionFitter::kScattering);
+	  double scattering_downerr = zFitter->second->downerr(MuonResidualsPositionFitter::kScattering);
 
 	  double sigma_value = zFitter->second->value(MuonResidualsPositionFitter::kSigma);
 	  double sigma_error = zFitter->second->error(MuonResidualsPositionFitter::kSigma);
@@ -734,7 +734,7 @@ void MuonAlignmentFromReference::terminate() {
 	    report << "reports[-1].zFit((" << position_value << ", " << position_error << ", " << position_uperr << ", " << position_downerr << "), \\" << std::endl
 		   << "                 (" << zpos_value << ", " << zpos_error << ", " << zpos_uperr << ", " << zpos_downerr << "), \\" << std::endl
 		   << "                 (" << phiz_value << ", " << phiz_error << ", " << phiz_uperr << ", " << phiz_downerr << "), \\" << std::endl
-		   << "                 (" << bfield_value << ", " << bfield_error << ", " << bfield_uperr << ", " << bfield_downerr << "), \\" << std::endl
+		   << "                 (" << scattering_value << ", " << scattering_error << ", " << scattering_uperr << ", " << scattering_downerr << "), \\" << std::endl
 		   << "                 (" << sigma_value << ", " << sigma_error << ", " << sigma_uperr << ", " << sigma_downerr << "), \\" << std::endl;
 	    if (zFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
 	      report << "                 (" << gamma_value << ", " << gamma_error << ", " << gamma_uperr << ", " << gamma_downerr << "), \\" << std::endl;

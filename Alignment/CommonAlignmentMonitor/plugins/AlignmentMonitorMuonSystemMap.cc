@@ -52,15 +52,15 @@ private:
   std::string m_writeTemporaryFile;
   std::vector<std::string> m_readTemporaryFiles;
   bool m_doFits;
-  bool m_DT13fitBfield;
+  bool m_DT13fitScattering;
   bool m_DT13fitZpos;
   bool m_DT13fitPhiz;
   bool m_DT13fitSlopeBfield;
-  bool m_DT2fitBfield;
+  bool m_DT2fitScattering;
   bool m_DT2fitZpos;
   bool m_DT2fitPhiz;
   bool m_DT2fitSlopeBfield;
-  bool m_CSCfitBfield;
+  bool m_CSCfitScattering;
   bool m_CSCfitZpos;
   bool m_CSCfitPhiz;
   bool m_CSCfitSlopeBfield;
@@ -68,58 +68,62 @@ private:
 
   // the rphires vs z/r plots
   // last array is: 0 offset residual, a.k.a local x (mm)
-  //                1 bfield offset correction at 20 GeV (mm)
+  //                1 bfield offset correction (mm)
   //                2 zpos (mm) (rphires vs trackangle, nearly degenerate with phi)
   //                3 slope residual, a.k.a phiy (mrad)
-  //                4 bfield slope correction at 20 GeV (mrad)
-  TH1F *m_DTrphires_vsz_station1[12][5];
-  TH1F *m_DTrphires_vsz_station2[12][5];
-  TH1F *m_DTrphires_vsz_station3[12][5];
-  TH1F *m_DTrphires_vsz_station4[14][5];
-  TH1F *m_CSCrphires_vsr_me1[2][36][5];
-  TH1F *m_CSCrphires_vsr_me2[2][36][5];
-  TH1F *m_CSCrphires_vsr_me3[2][36][5];
-  TH1F *m_CSCrphires_vsr_me4[2][18][5];
+  //                4 bfield slope correction (mrad)
+  //                5 scattering correction (mm)
+  TH1F *m_DTrphires_vsz_station1[12][6];
+  TH1F *m_DTrphires_vsz_station2[12][6];
+  TH1F *m_DTrphires_vsz_station3[12][6];
+  TH1F *m_DTrphires_vsz_station4[14][6];
+  TH1F *m_CSCrphires_vsr_me1[2][36][6];
+  TH1F *m_CSCrphires_vsr_me2[2][36][6];
+  TH1F *m_CSCrphires_vsr_me3[2][36][6];
+  TH1F *m_CSCrphires_vsr_me4[2][18][6];
 
   // the zres vs z plots
   // last array is: 0 offset residual, a.k.a local y (mm)
-  //                1 bfield offset correction at 20 GeV (mm)
+  //                1 bfield offset correction (mm)
   //                2 phiz (mrad) (zres vs phi)
   //                3 slope residual, a.k.a phix (mrad)
-  //                4 bfield slope correction at 20 GeV (mrad)
-  TH1F *m_DTzres_vsz_station1[12][5];
-  TH1F *m_DTzres_vsz_station2[12][5];
-  TH1F *m_DTzres_vsz_station3[12][5];
+  //                4 bfield slope correction (mrad)
+  //                5 scattering correction (mm)
+  TH1F *m_DTzres_vsz_station1[12][6];
+  TH1F *m_DTzres_vsz_station2[12][6];
+  TH1F *m_DTzres_vsz_station3[12][6];
 
   // the rphires vs phi plots
   // the last array is: 0 offset residual, a.k.a local x (mm)
-  //                    1 bfield offset correction at 20 GeV (mm)
+  //                    1 bfield offset correction (mm)
   //                    2 phiz (mrad) (rphires vs z)
   //                    3 slope residual, a.k.a phiy (mrad)
-  //                    4 bfield slope correction at 20 GeV (mrad)
-  TH1F *m_DTrphires_vsphi_station1[5][5];
-  TH1F *m_DTrphires_vsphi_station2[5][5];
-  TH1F *m_DTrphires_vsphi_station3[5][5];
-  TH1F *m_DTrphires_vsphi_station4[5][5];
-  TH1F *m_CSCrphires_vsphi_me11[2][5];
-  TH1F *m_CSCrphires_vsphi_me12[2][5];
-  TH1F *m_CSCrphires_vsphi_me13[2][5];
-  TH1F *m_CSCrphires_vsphi_me14[2][5];
-  TH1F *m_CSCrphires_vsphi_me21[2][5];
-  TH1F *m_CSCrphires_vsphi_me22[2][5];
-  TH1F *m_CSCrphires_vsphi_me31[2][5];
-  TH1F *m_CSCrphires_vsphi_me32[2][5];
-  TH1F *m_CSCrphires_vsphi_me41[2][5];
+  //                    4 bfield slope correction (mrad)
+  //                    5 scattering correction (mm)
+  TH1F *m_DTrphires_vsphi_station1[5][6];
+  TH1F *m_DTrphires_vsphi_station2[5][6];
+  TH1F *m_DTrphires_vsphi_station3[5][6];
+  TH1F *m_DTrphires_vsphi_station4[5][6];
+  TH1F *m_CSCrphires_vsphi_me11[2][6];
+  TH1F *m_CSCrphires_vsphi_me12[2][6];
+  TH1F *m_CSCrphires_vsphi_me13[2][6];
+  TH1F *m_CSCrphires_vsphi_me14[2][6];
+  TH1F *m_CSCrphires_vsphi_me21[2][6];
+  TH1F *m_CSCrphires_vsphi_me22[2][6];
+  TH1F *m_CSCrphires_vsphi_me31[2][6];
+  TH1F *m_CSCrphires_vsphi_me32[2][6];
+  TH1F *m_CSCrphires_vsphi_me41[2][6];
 
   // the zres vs phi plots
   // the last array is: 0 offset residual a.k.a. local y (mm)
-  //                    1 bfield offset correction at 20 GeV (mm)
+  //                    1 bfield offset correction (mm)
   //                    2 zpos (mm) (zres vs trackangle, nearly degenerate with z)
   //                    3 slope residual, a.k.a phix (mrad)
-  //                    4 bfield slope correction at 20 GeV (mrad)
-  TH1F *m_DTzres_vsphi_station1[5][5];
-  TH1F *m_DTzres_vsphi_station2[5][5];
-  TH1F *m_DTzres_vsphi_station3[5][5];
+  //                    4 bfield slope correction (mrad)
+  //                    5 scattering correction (mm)
+  TH1F *m_DTzres_vsphi_station1[5][6];
+  TH1F *m_DTzres_vsphi_station2[5][6];
+  TH1F *m_DTzres_vsphi_station3[5][6];
 
   std::vector<TH1F*> m_DT13hists, m_DT2hists, m_CSChists;
 
@@ -140,7 +144,7 @@ private:
 
   std::map<std::pair<TH1F*,int>,MuonResidualsPositionFitter*> m_positionFitters;
   std::map<std::pair<TH1F*,int>,MuonResidualsAngleFitter*> m_angleFitters;
-  std::map<MuonResidualsFitter*,std::pair<TH1F*,int> > m_offsetBin, m_offsetbfieldBin, m_zposBin, m_phizBin, m_slopeBin, m_slopebfieldBin;
+  std::map<MuonResidualsFitter*,std::pair<TH1F*,int> > m_offsetBin, m_offsetbfieldBin, m_zposBin, m_phizBin, m_slopeBin, m_slopebfieldBin, m_scatteringBin;
   std::vector<MuonResidualsFitter*> m_allFitters;
 };
 
@@ -169,15 +173,15 @@ AlignmentMonitorMuonSystemMap::AlignmentMonitorMuonSystemMap(const edm::Paramete
    , m_writeTemporaryFile(cfg.getParameter<std::string>("writeTemporaryFile"))
    , m_readTemporaryFiles(cfg.getParameter<std::vector<std::string> >("readTemporaryFiles"))
    , m_doFits(cfg.getParameter<bool>("doFits"))
-   , m_DT13fitBfield(cfg.getParameter<bool>("DT13fitBfield"))
+   , m_DT13fitScattering(cfg.getParameter<bool>("DT13fitScattering"))
    , m_DT13fitZpos(cfg.getParameter<bool>("DT13fitZpos"))
    , m_DT13fitPhiz(cfg.getParameter<bool>("DT13fitPhiz"))
    , m_DT13fitSlopeBfield(cfg.getParameter<bool>("DT13fitSlopeBfield"))
-   , m_DT2fitBfield(cfg.getParameter<bool>("DT2fitBfield"))
+   , m_DT2fitScattering(cfg.getParameter<bool>("DT2fitScattering"))
    , m_DT2fitZpos(cfg.getParameter<bool>("DT2fitZpos"))
    , m_DT2fitPhiz(cfg.getParameter<bool>("DT2fitPhiz"))
    , m_DT2fitSlopeBfield(cfg.getParameter<bool>("DT2fitSlopeBfield"))
-   , m_CSCfitBfield(cfg.getParameter<bool>("CSCfitBfield"))
+   , m_CSCfitScattering(cfg.getParameter<bool>("CSCfitScattering"))
    , m_CSCfitZpos(cfg.getParameter<bool>("CSCfitZpos"))
    , m_CSCfitPhiz(cfg.getParameter<bool>("CSCfitPhiz"))
    , m_CSCfitSlopeBfield(cfg.getParameter<bool>("CSCfitSlopeBfield"))
@@ -197,7 +201,7 @@ AlignmentMonitorMuonSystemMap::AlignmentMonitorMuonSystemMap(const edm::Paramete
 void AlignmentMonitorMuonSystemMap::book_and_link_up(std::string namestart, std::string titlestart, std::string *lastarray_name, std::string *lastarray_title, TH1F **hist, bool phiz,
 						     double maxOffset, double maxZpos, double maxPhiz, double maxSlope,
 						     int bins, double low, double high, std::string vsname, std::string vstitle) {
-  for (int lastarray = 0;  lastarray < 5;  lastarray++) {
+  for (int lastarray = 0;  lastarray < 6;  lastarray++) {
     std::stringstream name, title;
     name << namestart << lastarray_name[lastarray] << vsname;
     title << titlestart << lastarray_title[lastarray] << vstitle;
@@ -209,6 +213,7 @@ void AlignmentMonitorMuonSystemMap::book_and_link_up(std::string namestart, std:
     else if (lastarray == 2  &&  !phiz) hist[lastarray]->SetAxisRange(-maxZpos, maxZpos, "Y");
     else if (lastarray == 3) hist[lastarray]->SetAxisRange(-maxSlope, maxSlope, "Y");
     else if (lastarray == 4) hist[lastarray]->SetAxisRange(-maxSlope, maxSlope, "Y");
+    else if (lastarray == 5) hist[lastarray]->SetAxisRange(-200., 200., "Y");
   }
 
   TProfile *offsetprof = NULL;
@@ -260,6 +265,7 @@ void AlignmentMonitorMuonSystemMap::book_and_link_up(std::string namestart, std:
     std::pair<TH1F*,int> index2(hist[2], bin);
     std::pair<TH1F*,int> index3(hist[3], bin);
     std::pair<TH1F*,int> index4(hist[4], bin);
+    std::pair<TH1F*,int> index5(hist[5], bin);
     
     m_positionFitters[index0] = positionFitter;
     m_angleFitters[index0] = angleFitter;
@@ -270,6 +276,7 @@ void AlignmentMonitorMuonSystemMap::book_and_link_up(std::string namestart, std:
     else m_zposBin[positionFitter] = index2;
     m_slopeBin[angleFitter] = index3;
     m_slopebfieldBin[angleFitter] = index4;
+    m_scatteringBin[positionFitter] = index5;
 
     m_offsetprofs[positionFitter] = std::pair<TProfile*,int>(offsetprof, bin);
     m_slopeprofs[angleFitter] = std::pair<TProfile*,int>(slopeprof, bin);
@@ -300,13 +307,14 @@ void AlignmentMonitorMuonSystemMap::book() {
   const double maxPhiz = 5.;
 
   std::string o;
-  std::string lastarray_name[5], lastarray_title[5];
+  std::string lastarray_name[6], lastarray_title[6];
   
   lastarray_name[0] = std::string("_rphi_offset");        lastarray_title[0] = std::string(" global rphi residual (mm)");
-  lastarray_name[1] = std::string("_rphi_offsetbfield");  lastarray_title[1] = std::string(" bfield on rphi at 20 GeV (mm)");
+  lastarray_name[1] = std::string("_rphi_offsetbfield");  lastarray_title[1] = std::string(" bfield on rphi (mm)");
   lastarray_name[2] = std::string("_rphi_zpos");          lastarray_title[2] = std::string(" local z correction from local x residuals (mm)");
   lastarray_name[3] = std::string("_rphi_slope");         lastarray_title[3] = std::string(" phiy residual (mrad)");
-  lastarray_name[4] = std::string("_rphi_slopebfield");   lastarray_title[4] = std::string(" bfield on phiy at 20 GeV (mrad)");
+  lastarray_name[4] = std::string("_rphi_slopebfield");   lastarray_title[4] = std::string(" bfield on phiy (mrad)");
+  lastarray_name[5] = std::string("_rphi_scattering");    lastarray_title[5] = std::string(" distance to scattering center (mm)");
 
   for (int sector = 1;  sector <= 14;  sector++) {
     if (sector < 10) o = std::string("0");
@@ -385,10 +393,11 @@ void AlignmentMonitorMuonSystemMap::book() {
   }
 
   lastarray_name[0] = std::string("_z_offset");        lastarray_title[0] = std::string(" global z residual (mm)");
-  lastarray_name[1] = std::string("_z_offsetbfield");  lastarray_title[1] = std::string(" bfield on z at 20 GeV (mm)");
+  lastarray_name[1] = std::string("_z_offsetbfield");  lastarray_title[1] = std::string(" bfield on z (mm)");
   lastarray_name[2] = std::string("_z_phiz");          lastarray_title[2] = std::string(" phiz correction from local y residuals (mrad)");
   lastarray_name[3] = std::string("_z_slope");         lastarray_title[3] = std::string(" phix residual (mrad)");
-  lastarray_name[4] = std::string("_z_slopebfield");   lastarray_title[4] = std::string(" bfield on phix at 20 GeV (mrad)");
+  lastarray_name[4] = std::string("_z_slopebfield");   lastarray_title[4] = std::string(" bfield on phix (mrad)");
+  lastarray_name[5] = std::string("_z_scattering");    lastarray_title[5] = std::string(" distance to scattering center (mm)");
 
   for (int sector = 1;  sector <= 14;  sector++) {
     if (sector < 10) o = std::string("0");
@@ -420,10 +429,11 @@ void AlignmentMonitorMuonSystemMap::book() {
   }
 
   lastarray_name[0] = std::string("_rphi_offset");        lastarray_title[0] = std::string(" global rphi residual (mm)");
-  lastarray_name[1] = std::string("_rphi_offsetbfield");  lastarray_title[1] = std::string(" bfield on rphi at 20 GeV (mm)");
+  lastarray_name[1] = std::string("_rphi_offsetbfield");  lastarray_title[1] = std::string(" bfield on rphi (mm)");
   lastarray_name[2] = std::string("_rphi_phiz");          lastarray_title[2] = std::string(" phiz correction from local x residuals (mrad)");
   lastarray_name[3] = std::string("_rphi_slope");         lastarray_title[3] = std::string(" phiy residual (mrad)");
-  lastarray_name[4] = std::string("_rphi_slopebfield");   lastarray_title[4] = std::string(" bfield on phiy at 20 GeV (mrad)");
+  lastarray_name[4] = std::string("_rphi_slopebfield");   lastarray_title[4] = std::string(" bfield on phiy (mrad)");
+  lastarray_name[5] = std::string("_rphi_scattering");    lastarray_title[5] = std::string(" distance to scattering center (mm)");
 
   for (int wheel = -2;  wheel <= 2;  wheel++) {
     std::string wheelname;
@@ -498,10 +508,11 @@ void AlignmentMonitorMuonSystemMap::book() {
   }
 
   lastarray_name[0] = std::string("_z_offset");        lastarray_title[0] = std::string(" global z residual (mm)");
-  lastarray_name[1] = std::string("_z_offsetbfield");  lastarray_title[1] = std::string(" bfield on z at 20 GeV (mm)");
+  lastarray_name[1] = std::string("_z_offsetbfield");  lastarray_title[1] = std::string(" bfield on z (mm)");
   lastarray_name[2] = std::string("_z_zpos");          lastarray_title[2] = std::string(" local z correction from local y residuals (mm)");
   lastarray_name[3] = std::string("_z_slope");         lastarray_title[3] = std::string(" phix residual (mrad)");
-  lastarray_name[4] = std::string("_z_slopebfield");   lastarray_title[4] = std::string(" bfield on phix at 20 GeV (mrad)");
+  lastarray_name[4] = std::string("_z_slopebfield");   lastarray_title[4] = std::string(" bfield on phix (mrad)");
+  lastarray_name[5] = std::string("_z_scattering");    lastarray_title[5] = std::string(" distance to scattering center (mm)");
 
   for (int wheel = -2;  wheel <= 2;  wheel++) {
     std::string wheelname;
@@ -541,7 +552,7 @@ void AlignmentMonitorMuonSystemMap::book() {
       std::pair<TH1F*,int> index(*hist, i);
       MuonResidualsPositionFitter *posfitter = m_positionFitters[index];
       MuonResidualsAngleFitter *angfitter = m_angleFitters[index];
-      if (!m_DT13fitBfield) posfitter->fix(MuonResidualsPositionFitter::kBfield);
+      if (!m_DT13fitScattering) posfitter->fix(MuonResidualsPositionFitter::kScattering);
       if (!m_DT13fitZpos) posfitter->fix(MuonResidualsPositionFitter::kZpos);
       if (!m_DT13fitPhiz) posfitter->fix(MuonResidualsPositionFitter::kPhiz);
       if (!m_DT13fitSlopeBfield) angfitter->fix(MuonResidualsAngleFitter::kBfield);
@@ -553,7 +564,7 @@ void AlignmentMonitorMuonSystemMap::book() {
       std::pair<TH1F*,int> index(*hist, i);
       MuonResidualsPositionFitter *posfitter = m_positionFitters[index];
       MuonResidualsAngleFitter *angfitter = m_angleFitters[index];
-      if (!m_DT2fitBfield) posfitter->fix(MuonResidualsPositionFitter::kBfield);
+      if (!m_DT2fitScattering) posfitter->fix(MuonResidualsPositionFitter::kScattering);
       if (!m_DT2fitZpos) posfitter->fix(MuonResidualsPositionFitter::kZpos);
       if (!m_DT2fitPhiz) posfitter->fix(MuonResidualsPositionFitter::kPhiz);
       if (!m_DT2fitSlopeBfield) angfitter->fix(MuonResidualsAngleFitter::kBfield);
@@ -565,7 +576,7 @@ void AlignmentMonitorMuonSystemMap::book() {
       std::pair<TH1F*,int> index(*hist, i);
       MuonResidualsPositionFitter *posfitter = m_positionFitters[index];
       MuonResidualsAngleFitter *angfitter = m_angleFitters[index];
-      if (!m_CSCfitBfield) posfitter->fix(MuonResidualsPositionFitter::kBfield);
+      if (!m_CSCfitScattering) posfitter->fix(MuonResidualsPositionFitter::kScattering);
       if (!m_CSCfitZpos) posfitter->fix(MuonResidualsPositionFitter::kZpos);
       if (!m_CSCfitPhiz) posfitter->fix(MuonResidualsPositionFitter::kPhiz);
       if (!m_CSCfitSlopeBfield) angfitter->fix(MuonResidualsAngleFitter::kBfield);
@@ -731,7 +742,7 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	      if (positionFitter_vsz != m_positionFitters.end()) {
 		double *residdata = new double[MuonResidualsPositionFitter::kNData];
 		residdata[MuonResidualsPositionFitter::kResidual] = residual * signConvention;
-		residdata[MuonResidualsPositionFitter::kQoverPt] = qoverpt * signConvention;
+		residdata[MuonResidualsPositionFitter::kAngleError] = resslope * signConvention;
 		residdata[MuonResidualsPositionFitter::kTrackAngle] = trackangle * signConvention;
 		residdata[MuonResidualsPositionFitter::kTrackPosition] = trackposition * signConvention;
 		positionFitter_vsz->second->fill(residdata);
@@ -755,7 +766,7 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	      if (positionFitter_vsphi != m_positionFitters.end()) {
 		double *residdata = new double[MuonResidualsPositionFitter::kNData];
 		residdata[MuonResidualsPositionFitter::kResidual] = residual * signConvention;
-		residdata[MuonResidualsPositionFitter::kQoverPt] = qoverpt * signConvention;
+		residdata[MuonResidualsPositionFitter::kAngleError] = resslope * signConvention;
 		residdata[MuonResidualsPositionFitter::kTrackAngle] = trackangle * signConvention;
 		residdata[MuonResidualsPositionFitter::kTrackPosition] = trackposition * signConvention;
 		positionFitter_vsphi->second->fill(residdata);
@@ -823,8 +834,8 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
       if (fitter->second->fit()) {
 	offsetValue = fitter->second->value(MuonResidualsPositionFitter::kPosition) * 10.;                // convert from cm to mm
 	offsetError = fitter->second->minoserr(MuonResidualsPositionFitter::kPosition) * 10.;
-	offsetbfieldValue = fitter->second->value(MuonResidualsPositionFitter::kBfield) * 0.05 * 10.;     // evaluate at 20 GeV and convert to mm
-	offsetbfieldError = fitter->second->minoserr(MuonResidualsPositionFitter::kBfield) * 0.05 * 10.;
+	offsetbfieldValue = fitter->second->value(MuonResidualsPositionFitter::kScattering) * 10.;        // convert from cm to mm
+	offsetbfieldError = fitter->second->minoserr(MuonResidualsPositionFitter::kScattering) * 0.05 * 10.;
 	zposValue = fitter->second->value(MuonResidualsPositionFitter::kZpos) * 10.;                      // convert from cm to mm
 	zposError = fitter->second->minoserr(MuonResidualsPositionFitter::kZpos) * 10.;
 	phizValue = fitter->second->value(MuonResidualsPositionFitter::kPhiz) * 1000.;                    // convert from radians to mrad
