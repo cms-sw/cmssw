@@ -40,6 +40,7 @@
   <class name="edm::Wrapper<std::vector<L1GctInternEmCand>>" splitLevel="0"/>
   <class name="edm::Wrapper<std::vector<L1GctInternJetData>>" splitLevel="0"/>
   <class name="edm::Wrapper<std::vector<L1GctInternEtSum>>" splitLevel="0"/>
+  <class name="edm::Wrapper<std::vector<L1GctInternHtMiss>>" splitLevel="0"/>
   <class name="edm::Wrapper<std::vector<L1GctInternHFData>>" splitLevel="0"/>
   <class name="edm::Wrapper<std::vector<L1GctFibreWord>>" splitLevel="0"/>
   <class name="edm::Wrapper<std::vector<L1GctEmCand>>" splitLevel="0"/>
