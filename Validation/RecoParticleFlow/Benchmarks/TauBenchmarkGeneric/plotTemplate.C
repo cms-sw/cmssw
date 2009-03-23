@@ -12,15 +12,6 @@ gROOT->LoadMacro("../Tools/Comparator.C");
 const char* file1 = "FILE1";
 const char* file2 = "FILE2";
 
-  //  const char* file1 = "benchmark_oldmethod.root";
-//const char* file2 = "benchmarkPFTau1stVersion.root";
-//const char* file1 = "benchmark_310_Full.root";
-//const char* file2 = "benchmarkPFTau1stVersion_tauminus.root";
-//const char* file2 = "benchmark_225_JEC.root";
-//const char* file2 = "benchmarkPFTau1stVersion_NoMaterialEffects30KEvents.root";
-  // const char* file2 = "benchmark_newmethod.root";
-  // const char* file1 = "ztautau.root";
-  // const char* file1 = "singleTaus.root";
 
   enum EtaModes {
     BARREL,
@@ -42,17 +33,9 @@ Comparator::Mode mode = Comparator::SCALE;
 int etamode = BARREL;
 //int etamode = ENDCAP;
 
-string outdir = "Plots_BarrelAndEndcap";
 string dir1 = "DQMData/PFTask/Benchmarks/DIR1/Gen";
 string dir2 = "DQMData/PFTask/Benchmarks/DIR2/Gen";
 string outdir = "OUTDIR";
-/*
-    //        dir1 = "DQMData/PFTask/Benchmarks/pfRecoTauProducerHighEfficiency_endcap/Gen";
-    dir1 = "DQMData/PFTask/Benchmarks/PFlowTaus_endcap/Gen";
-    //    dir2 = "DQMData/PFTask/Benchmarks/iterativeCone5CaloJets_endcap/Gen";
-      dir2 = "DQMData/PFTask/Benchmarks/CaloTaus_endcap/Gen";
-    outdir = "Plots_Endcap";
-*/  
 
   Comparator comp(file1,
 		  dir1.c_str(),
@@ -71,7 +54,7 @@ string outdir = "OUTDIR";
   FormatPad( &c1a, false ); 
   comp.DrawSlice("DeltaEtvsEt", ptMin, ptMax, mode);
   SavePlot("tauBenchmarkGeneric_lowpT", outdir.c_str() );
-  comp.SetAxis(binning);
+  comp.SetAxis(10);
 
   TCanvas c1a("c1a", "Tau benchmark relative, low pT");
   FormatPad( &c1a, false ); 
