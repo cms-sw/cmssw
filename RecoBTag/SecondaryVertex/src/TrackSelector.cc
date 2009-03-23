@@ -57,7 +57,7 @@ TrackSelector::operator () (const Track &track,
 	       track.normalizedChi2() < maxNormChi2 &&
 	       VectorUtil::DeltaR(jet.momentum(),
 	                          track.momentum()) < maxJetDeltaR &&
-	       std::abs(ipData.distanceToJetAxis) <= maxDistToAxis &&
+	       std::abs(ipData.distanceToJetAxis.value()) <= maxDistToAxis &&
 	       (ipData.closestToJetAxis - pv).mag() <= maxDecayLen &&
 	       ipData.ip2d.value()        >= sip2dValMin &&
 	       ipData.ip2d.value()        <= sip2dValMax &&

@@ -51,7 +51,7 @@ class JetProbabilityComputer : public JetTagComputer
       int i=0;
       for(std::vector<float>::const_iterator it = allProbabilities.begin(); it!=allProbabilities.end(); ++it, i++)
        {
-        if ( fabs(impactParameters[i].distanceToJetAxis) < m_cutMaxDistToAxis  &&        // distance to JetAxis
+        if ( fabs(impactParameters[i].distanceToJetAxis.value()) < m_cutMaxDistToAxis  &&        // distance to JetAxis
              (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen  &&      // max decay len
              (m_useAllQualities  == true || (*tracks[i]).quality(m_trackQuality)) // use selected track qualities
         )

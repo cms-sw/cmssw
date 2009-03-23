@@ -54,7 +54,7 @@ class TrackCountingComputer : public JetTagComputer
 
           for(std::vector<reco::TrackIPTagInfo::TrackIPData>::const_iterator it = impactParameters.begin(); it!=impactParameters.end(); ++it, i++)
            {
-           if(   fabs(impactParameters[i].distanceToJetAxis) < m_cutMaxDistToAxis  &&        // distance to JetAxis
+           if(   fabs(impactParameters[i].distanceToJetAxis.value()) < m_cutMaxDistToAxis  &&        // distance to JetAxis
                  (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen  &&      // max decay len
 		 (m_useAllQualities  == true || (*tracks[i]).quality(m_trackQuality)) // use selected track qualities
              )

@@ -25,6 +25,8 @@ class TrackIPProducer : public edm::EDProducer {
     edm::InputTag m_associator;
     edm::InputTag m_primaryVertexProducer;
     bool m_computeProbabilities;
+    bool m_computeGhostTrack;
+    double m_ghostTrackPriorDeltaR;
     HistogramProbabilityEstimator * m_probabilityEstimator;
     unsigned long long  m_calibrationCacheId2D; 
     unsigned long long  m_calibrationCacheId3D;
@@ -37,6 +39,7 @@ class TrackIPProducer : public edm::EDProducer {
     double  m_cutMaxChiSquared;
     double  m_cutMaxLIP;
     bool  m_directionWithTracks;
+    bool  m_directionWithGhostTrack;
     bool  m_useTrackQuality;
 };
 #endif

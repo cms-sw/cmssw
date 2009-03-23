@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: IPAnalyzer.cc,v 1.7 2007/09/24 21:20:47 fwyzard Exp $
+// $Id: IPAnalyzer.cc,v 1.8 2007/10/01 08:00:35 arizzi Exp $
 //
 //
 
@@ -110,9 +110,14 @@ IPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         cout << it->probabilities(1)[j] << "\t";
         cout << data.ip3d.value() << "\t";
         cout << data.ip3d.significance() << "\t";
-        cout << data.distanceToJetAxis << "\t";
+        cout << data.distanceToJetAxis.value() << "\t";
+        cout << data.distanceToJetAxis.significance() << "\t";
+        cout << data.distanceToGhostTrack.value() << "\t";
+        cout << data.distanceToGhostTrack.significance() << "\t";
         cout << data.closestToJetAxis << "\t";
-        cout << (data.closestToJetAxis -pv).mag() << "\t";
+        cout << (data.closestToJetAxis - pv).mag() << "\t";
+        cout << data.closestToGhostTrack << "\t";
+        cout << (data.closestToGhostTrack - pv).mag() << "\t";
         cout << data.ip2d.value() << "\t";
         cout << data.ip2d.significance() <<  endl;     
       }

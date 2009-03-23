@@ -116,8 +116,13 @@ CombinedSVComputer::threshTrack(const TrackIPTagInfo &trackIPTagInfo,
 	}
 
 	static const TrackIPTagInfo::TrackIPData dummy = {
-		  Measurement1D(-1.0, 1.0),
-		  Measurement1D(-1.0, 1.0),
+ 		GlobalPoint(),
+		GlobalPoint(),
+		Measurement1D(-1.0, 1.0),
+		Measurement1D(-1.0, 1.0),
+		Measurement1D(-1.0, 1.0),
+		Measurement1D(-1.0, 1.0),
+		0.
 	};
 	return dummy;
 }
@@ -277,8 +282,11 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 		            flipValue(data.ip2d.value(), false), true);
 		vars.insert(btau::trackSip2dSig,
 		            flipValue(data.ip2d.significance(), false), true);
-		vars.insert(btau::trackJetDist, data.distanceToJetAxis, true);
-		vars.insert(btau::trackFirstTrackDist, data.distanceToFirstTrack, true);
+		vars.insert(btau::trackJetDistVal, data.distanceToJetAxis.value(), true);
+//		vars.insert(btau::trackJetDistSig, data.distanceToJetAxis.significance(), true);
+//		vars.insert(btau::trackFirstTrackDist, data.distanceToFirstTrack, true);
+//		vars.insert(btau::trackGhostTrackVal, data.distanceToGhostTrack.value(), true);
+//		vars.insert(btau::trackGhostTrackSig, data.distanceToGhostTrack.significance(), true);
 		vars.insert(btau::trackDecayLenVal, havePv ? (data.closestToJetAxis - pv).mag() : -1.0, true);
 
 		vars.insert(btau::trackMomentum, trackMag, true);
