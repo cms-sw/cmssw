@@ -25,7 +25,7 @@ class ParamSetWalker {
       //cout << "Module Label: " << procPset->getParameter<string>("@module_label")
       //     << std::endl;
       
-     edm::ParameterSet allTrigPaths = procPset->getUntrackedParameter<edm::ParameterSet>("@trigger_paths");
+     edm::ParameterSet allTrigPaths = procPset->getParameter<edm::ParameterSet>("@trigger_paths");
      std::cout << "Found  Trig Path :" << allTrigPaths.toString() << std::endl; 
      
      if (allTrigPaths.empty())
