@@ -10,7 +10,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.h,v 1.1 2009/03/18 12:32:10 amraktad Exp $
+// $Id: FWElectronDetailView.h,v 1.2 2009/03/18 12:45:36 amraktad Exp $
 //
 
 
@@ -74,15 +74,12 @@ private:
 
    const FWEventItem* m_item;
 
+   bool  m_coordEtaPhi; // use XY coordinate if EndCap, else EtaPhi
+
    const EcalRecHitCollection *m_barrel_hits;
    const EcalRecHitCollection *m_endcap_hits;
    std::vector<DetId> seed_detids;
 
-
-   double m_xmin;
-   double m_xmax;
-   double m_ymin;
-   double m_ymax;
 };
 
 #endif
