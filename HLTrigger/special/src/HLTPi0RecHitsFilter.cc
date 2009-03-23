@@ -198,12 +198,10 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   }
   
   
-
+  preshHitProducer_   = iConfig.getParameter<edm::InputTag>("preshRecHitProducer");
   ///for storing rechits ES for each selected EE clusters.
   storeRecHitES_ = iConfig.getParameter<bool>("storeRecHitES");  
   if(storeRecHitES_){
-    
-    preshHitProducer_   = iConfig.getParameter<edm::InputTag>("preshRecHitProducer");
     // maximum number of matched ES clusters (in each ES layer) to each BC
     preshNclust_             = iConfig.getParameter<int>("preshNclust");
     // min energy of ES clusters
@@ -592,10 +590,8 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
 
   ///==============Start to process barrel part==================///
-  
-
+    
   Handle<EBRecHitCollection> barrelRecHitsHandle;
-
   iEvent.getByLabel(barrelHits_,barrelRecHitsHandle);
   if (!barrelRecHitsHandle.isValid()) {
     LogDebug("") << "AlCaPi0RecHitsProducer: Error! can't get product barrel hits!" << std::endl;
@@ -1112,20 +1108,18 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   ///==============End of  barrel ==================///
   
   
-
+  
 
   ///==============Start of  Endcap ==================///
-  
   ///get preshower rechits
   
   Handle<ESRecHitCollection> esRecHitsHandle;
   iEvent.getByLabel(preshHitProducer_,esRecHitsHandle);
   if( !esRecHitsHandle.isValid()){
-    LogDebug("") << "AlCaPi0RecHitsProducer: Error! can't get product eeRecHit!" << std::endl;
+    LogDebug("") << "AlCaPi0RecHitsProducer: Error! can't get product esRecHit!" << std::endl;
   }
-  
-  //  const EcalRecHitCollection* hitCollection_es = esRecHitsHandle.product();
-    // make a map of rechits:
+  const EcalRecHitCollection* hitCollection_es = esRecHitsHandle.product();
+  // make a map of rechits:
   std::map<DetId, EcalRecHit> esrechits_map;
   EcalRecHitCollection::const_iterator iter;
   for (iter = esRecHitsHandle->begin(); iter != esRecHitsHandle->end(); iter++) {
@@ -1135,10 +1129,9 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // The set of used DetID's for a given event:
   std::set<DetId> used_strips;
   used_strips.clear();
-  
   std::auto_ptr<ESRecHitCollection> selESRecHitCollection(new ESRecHitCollection );
   
-
+  
   Handle<EERecHitCollection> endcapRecHitsHandle;
   iEvent.getByLabel(endcapHits_,endcapRecHitsHandle);
   if (!endcapRecHitsHandle.isValid()) {
@@ -1146,7 +1139,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
   const EcalRecHitCollection *hitCollection_e = endcapRecHitsHandle.product();
-  if(debug_>=1) std::cout<<" pi0 endcap_input_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<hitCollection_e->size()<<std::endl;
+  if(debug_>=1) std::cout<<" pi0 endcap_input_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<hitCollection_e->size()<<" "<<hitCollection_es->size()<<std::endl;
   
   
   
@@ -1161,7 +1154,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   usedXtalsEndCap.clear();
   
   
-
+  
   ////make seeds. 
   EERecHitCollection::const_iterator ite;
   for (ite=endcapRecHitsHandle->begin(); ite!=endcapRecHitsHandle->end(); ite++) {
@@ -1492,7 +1485,6 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  
 	}
 	
-	
 	if( storeIsoClusRecHitPi0EE_){
 	  
 	  for(unsigned int iii=0 ; iii<IsoClus.size() ; iii++){   
@@ -1511,11 +1503,11 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  selESRecHitCollection->push_back(itmap->second);
 		}
 	      }
-
+	      
 	    }
 	  } 
 	}
-		
+	
 	npi0_se++;
 	if(npi0_se == MAXPI0S) return false; 
 	
@@ -1677,13 +1669,13 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   ////==============End of endcap ===============///
   
-  if(debug_>=1) std::cout<<" pi0 endcap_ouput_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<selEERecHitCollection->size()<<std::endl;
+  if(debug_>=1) std::cout<<" pi0 endcap_ouput_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<selEERecHitCollection->size()<<" "<<selESRecHitCollection->size()<<std::endl;
   
 
   //Put selected information in the event
   int collsize = int(selEBRecHitCollection->size());
   int collsizeEndCap = int(selEERecHitCollection->size());
-      
+  
   
   ///no rechits selected.
   if( collsize < 2 && collsizeEndCap <2) return false; 
