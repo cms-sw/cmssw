@@ -47,11 +47,11 @@ cp -r Plots_* ~/public/forColin/310FullSimAN/FastVsFull
 #TauMinus
 perl -pe "s/FILE2/benchmarkPFTau1stVersion_tauminus.root/g" temp_1 >! temp_2
 perl -pe "s/DIR1/PFlowTaus_barrel/g" temp_2 >! temp_3
-perl -pe "s/DIR2/PFlowTaus_barrel/g" temp_3 >! temp_4
+perl -pe "s/DIR2/CaloTaus_barrel/g" temp_3 >! temp_4
 perl -pe "s/OUTDIR/Plots_Barrel/g" temp_4 >! plotTauMinus.C
 root -b plotTauMinus.C
 perl -pe "s/DIR1/PFlowTaus_endcap/g" temp_2 >! temp_3
-perl -pe "s/DIR2/PFlowTaus_endcap/g" temp_3 >! temp_4
+perl -pe "s/DIR2/CaloTaus_endcap/g" temp_3 >! temp_4
 perl -pe "s/OUTDIR/Plots_Endcap/g" temp_4 >! plotTauMinus.C
 root -b plotTauMinus.C
 cp -r Plots_* ~/public/forColin/310FullSimAN/TauMinus
