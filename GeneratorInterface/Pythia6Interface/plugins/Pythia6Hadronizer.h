@@ -65,6 +65,14 @@ class JetMatching;
      
   private:
      
+     // methods
+     //
+     
+     void imposeProperTime();
+     
+     // data members
+     //
+     
      Pythia6Service* fPy6Service;
 
      // the following 3 params are common for all generators(interfaces)
@@ -89,6 +97,9 @@ class JetMatching;
      //
      bool fStopHadronsEnabled;
      bool fGluinoHadronsEnabled;
+     
+     // this is a "trick" to generate enriched mu-samples and the likes
+     bool fImposeProperTime;
      
      // and final touch - conversion of Py6 PID's into PDG convension 
      bool fConvertToPDG;

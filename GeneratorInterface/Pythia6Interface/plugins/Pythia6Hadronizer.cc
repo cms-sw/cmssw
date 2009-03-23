@@ -102,8 +102,8 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
      fPythiaListVerbosity(ps.getUntrackedParameter<int>("pythiaPylistVerbosity", 0))
 { 
 
-   // the following 3 params are "hacked", in the sense that 
-   // they're tracked but get in optionally;
+   // J.Y.: the following 3 params are "hacked", in the sense 
+   // that they're tracked but get in optionally;
    // this will be fixed once we update all applications
    //
 
@@ -114,6 +114,12 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
    fGluinoHadronsEnabled = false;
    if ( ps.exists( "gluinoHadrons" ) )
       fGluinoHadronsEnabled = ps.getParameter<bool>("gluinoHadrons");
+   
+   fImposeProperTime = false;
+   if ( ps.exists( "imposeProperTime" ) )
+   {
+      fImposeProperTime = ps.getParameter<bool>("imposeProperTime");
+   }
    
    fConvertToPDG = false;
    if ( ps.exists( "doPDGConvert" ) )
@@ -146,6 +152,7 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
    randomEngine = &getEngineReference();
 
    // first of all, silence Pythia6 banner printout
+   //
    if (!call_pygive("MSTU(12)=12345")) 
    {
       throw edm::Exception(edm::errors::Configuration,"PythiaError") 
@@ -162,14 +169,6 @@ Pythia6Hadronizer::~Pythia6Hadronizer()
 
 void Pythia6Hadronizer::finalizeEvent()
 {
-
-   // convert to HEPEVT
-   //
-   //call_pyhepc(1);
-      
-   // convert to HepMC
-   //
-   //event() = conv.read_next_event();
 
    bool lhe = lheEvent() != 0;
 
@@ -206,6 +205,10 @@ void Pythia6Hadronizer::finalizeEvent()
    event()->set_pdf_info( pdf ) ;
 
    event()->weights().push_back( pyint1.vint[96] );
+
+   // here we treat long-lived particles
+   //
+   if ( fImposeProperTime || pydat1.mstj[21]==3 || pydat1.mstj[21]==4 ) imposeProperTime();
 
    // final touch - convert Py6->PDG, if requested
    //
@@ -287,7 +290,6 @@ bool Pythia6Hadronizer::hadronize()
 
    // generate event with Pythia6
    //
-
    if ( fStopHadronsEnabled || fGluinoHadronsEnabled )
    {
       call_pygive("MSTJ(1)=-1");
@@ -303,15 +305,11 @@ bool Pythia6Hadronizer::hadronize()
       lheEvent()->count( lhef::LHERunInfo::kSelected );
 
       event().reset();
-/*
-      std::cout << " terminating loop inside event because of : " << 
-      FortranCallback::getInstance()->getIterationsPerEvent() << " " <<
-      hepeup_.nup << " " << pypars.msti[0] << std::endl;
-*/
       return false;
    }
 
    // update LHE matching statistics
+   //
    lheEvent()->count( lhef::LHERunInfo::kAccepted );
 
    if ( fStopHadronsEnabled || fGluinoHadronsEnabled )
@@ -323,7 +321,6 @@ bool Pythia6Hadronizer::hadronize()
       if ( fGluinoHadronsEnabled ) pyglfr_();
    }
 
-   //formEvent();
    call_pyhepc(1);
    event().reset( conv.read_next_event() );
    
@@ -346,11 +343,6 @@ bool Pythia6Hadronizer::residualDecay()
    int NPartsBeforeDecays = pyjets.n ;
    int NPartsAfterDecays = event()->particles_size();
    
-/* This is attempt to add to pyjets directly from GenEvent
-   rather than via HEPEVT;
-   apparently, I've scewed something up - will fix later...
-*/
-
    std::vector<int> part_idx_to_decay;
    
    //
@@ -391,7 +383,6 @@ bool Pythia6Hadronizer::residualDecay()
 	 pyjets.k[3][mother_id-1] = ipart;
          pyjets.k[4][mother_id-1] = ipart + mother->end_vertex()->particles_out_size();
       }
-      //
       //
       HepMC::GenVertex* end_vtx = part->end_vertex();      
       if ( end_vtx )
@@ -442,8 +433,10 @@ bool Pythia6Hadronizer::residualDecay()
       // check particle status and whether should be further decayed
       pyjets.n++;
       if ( status == 2 || status == 3 ) continue;
-      if ( abs(pdgid) < 100 ) continue;
-      if ( abs(pdgid) == 211 || abs(pdgid) == 321 || abs(pdgid) == 130 || abs(pdgid) == 310 ) continue;
+// these 2 lines below are from the old code
+//-->      if ( abs(pdgid) < 100 ) continue;
+//-->      if ( abs(pdgid) == 211 || abs(pdgid) == 321 || abs(pdgid) == 130 || abs(pdgid) == 310 ) continue;
+      if ( pydat3.mdcy[0][py6id-1] != 1 ) continue; // particle is not expected to decay
       // 
       // now mark for  decay
       //
@@ -455,33 +448,6 @@ bool Pythia6Hadronizer::residualDecay()
    {         
       pydecy_(part_idx_to_decay[ip]);
    }
-
-
-
-   // this will work with Tauola ONLY - the right scheme is above; 
-   // I think I've fixed it but am still double checking... 
-/*
-   call_pyhepc(2);
-   
-   for ( int iParticle=NPartsBeforeDecays+1; iParticle<=NPartsAfterDecays; iParticle++ )
-   {
-      int particleStatus = pyjets.k[0][iParticle - 1];
-      if ( particleStatus > 0 &&
-	   particleStatus < 10 ) {
-	int particleType = abs(pyjets.k[1][iParticle - 1]);
-	
-	if ( particleType >= 100 ) {
-	  if ( particleType != 211 &&   // PI+- 
-	       particleType != 321 &&   // K+- 
-	       particleType != 130 &&   // KL 
-	       particleType != 310 ) {  // KS
-	    pydecy_(iParticle);
-	  }
-	}
-      }
-
-   }
-*/
         
    call_pyhepc(1);
    
@@ -580,6 +546,72 @@ bool Pythia6Hadronizer::declareStableParticles( std::vector<int> pdg )
    }
    
    return true;
+}
+
+void Pythia6Hadronizer::imposeProperTime()
+{
+
+   // this is practically a copy/paste of the original code by J.Alcaraz, 
+   // taken directly from PythiaSource
+    
+   int dumm=0;
+   HepMC::GenEvent::vertex_const_iterator vbegin = event()->vertices_begin();
+   HepMC::GenEvent::vertex_const_iterator vend = event()->vertices_end();
+   HepMC::GenEvent::vertex_const_iterator vitr = vbegin;
+   for (; vitr != vend; ++vitr ) 
+   {
+      HepMC::GenVertex::particle_iterator pbegin = (*vitr)->particles_begin(HepMC::children);
+      HepMC::GenVertex::particle_iterator pend = (*vitr)->particles_end(HepMC::children);
+      HepMC::GenVertex::particle_iterator pitr = pbegin;
+      for (; pitr != pend; ++pitr) 
+      {
+         if ((*pitr)->end_vertex()) continue;
+         if ((*pitr)->status()!=1) continue;
+         
+	 int pdgcode= abs((*pitr)->pdg_id());
+         // Do nothing if the particle is not expected to decay
+         if ( pydat3.mdcy[0][pycomp_(pdgcode)-1] !=1 ) continue;
+
+         double ctau = pydat2.pmas[3][pycomp_(pdgcode)-1];
+         HepMC::FourVector mom = (*pitr)->momentum();
+         HepMC::FourVector vin = (*vitr)->position();
+         double x = 0.;
+         double y = 0.;
+         double z = 0.;
+         double t = 0.;
+         bool decayInRange = false;
+         while (!decayInRange) 
+	 {
+            double unif_rand = pyr_(&dumm);
+            // Value of 0 is excluded, so following line is OK
+            double proper_length = - ctau * log(unif_rand);
+            double factor = proper_length/mom.m();
+            x = vin.x() + factor * mom.px();
+            y = vin.y() + factor * mom.py();
+            z = vin.z() + factor * mom.pz();
+            t = vin.t() + factor * mom.e();
+            // Decay must be happen outside a cylindrical region
+            if (pydat1.mstj[21]==4) {
+               if (std::sqrt(x*x+y*y)>pydat1.parj[72] || fabs(z)>pydat1.parj[73]) decayInRange = true;
+               // Decay must be happen outside a given sphere
+               } 
+	       else if (pydat1.mstj[21]==3) {
+                  if (std::sqrt(x*x+y*y+z*z)>pydat1.parj[71]) decayInRange = true;
+               } 
+               // Decay is always OK otherwise
+	       else {
+                  decayInRange = true;
+               }
+         }
+                  
+         HepMC::GenVertex* vdec = new HepMC::GenVertex(HepMC::FourVector(x,y,z,t));
+         event()->add_vertex(vdec);
+         vdec->add_particle_in((*pitr));
+      }
+   }   
+
+   return;
+   
 }
 
 void Pythia6Hadronizer::statistics()
