@@ -5,7 +5,9 @@ ProvenanceAdaptor.cc
 ----------------------------------------------------------------------*/
   //------------------------------------------------------------
   // Class ProvenanceAdaptor: adapts old provenance (fileFormatVersion_.value() < 11) to new provenance.
-  // Also adapts old parameter sets (fileFormatVersion_.value() < 12) to new provenance.
+  // Also adapts parameter sets by value (fileFormatVersion_.value() < 12) to parameter sets by reference
+  // Also adapts untracked @trigger_paths (fileFormatVersion_.value() < 13) to tracked @trigger_paths.
+
 #include <algorithm>
 #include <cassert>
 #include "IOPool/Input/src/ProvenanceAdaptor.h"
@@ -21,7 +23,7 @@ namespace edm {
 
   namespace {
     void
-    insertIntoReplace(ProvenanceAdaptor::StringMap& replace,
+    insertIntoReplace(ParameterSetConverter::StringMap& replace,
 		std::string const& fromPrefix,
 		std::string const& from,
 		std::string const& fromPostfix,
@@ -32,8 +34,93 @@ namespace edm {
     }
   }
 
+  MainParameterSet::MainParameterSet(ParameterSetID const& oldID, std::string const& psetString) :
+      oldID_(oldID),
+      parameterSet_(psetString),
+      paths_(parameterSet_.getParameter<StringVector>("@paths")),
+      endPaths_(parameterSet_.getParameter<StringVector>("@end_paths")),
+      triggerPaths_() {
+    for (StringVector::const_iterator i = paths_.begin(), e = paths_.end(); i != e; ++i) {
+      if (!search_all(endPaths_, *i)) {
+        triggerPaths_.insert(*i);
+      }
+    }
+  }
+
+  MainParameterSet::~MainParameterSet() {}
+
+
+  TriggerPath::TriggerPath(ParameterSet const& pset) :
+      parameterSet_(pset),
+      tPaths_(parameterSet_.getParameter<StringVector>("@trigger_paths")),
+      triggerPaths_() {
+    for (StringVector::const_iterator i = tPaths_.begin(), e = tPaths_.end(); i != e; ++i) {
+      triggerPaths_.insert(*i);
+    }
+  }
+
+  TriggerPath::~TriggerPath() {}
+
+  //------------------------------------------------------------
+
+  ParameterSetConverter::ParameterSetConverter(ParameterSetMap const& psetMap,
+						ParameterSetIdConverter& idConverter,
+						bool alreadyByReference) :
+    parameterSets_(),
+    mainParameterSets_(),
+    triggerPaths_(),
+    replace_(),
+    parameterSetIdConverter_(idConverter)
+  {
+
+    for (ParameterSetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
+      parameterSets_.push_back(std::make_pair(i->second.pset_, i->first));
+    }
+    if (alreadyByReference) {
+      noConvertParameterSets();
+    } else {
+      replace_.insert(std::make_pair(std::string("=+p({})"), std::string("=+q({})")));
+      convertParameterSets();
+    }
+    for (std::vector<MainParameterSet>::iterator j = mainParameterSets_.begin(), jEnd = mainParameterSets_.end(); j != jEnd; ++j) {
+      for (std::vector<TriggerPath>::iterator i = triggerPaths_.begin(), iEnd = triggerPaths_.end(); i != iEnd; ++i) {
+	if (i->triggerPaths_ == j->triggerPaths_) {
+	  j->parameterSet_.addParameter("@trigger_paths", i->parameterSet_);
+	  break;
+        }
+      }
+    }
+    for (std::vector<MainParameterSet>::iterator i = mainParameterSets_.begin(), iEnd = mainParameterSets_.end(); i != iEnd; ++i) {
+      ParameterSet& pset = i->parameterSet_;
+      pset.registerIt();
+      pset.setFullyTracked();
+      ParameterSetID newID(pset.id());
+      if (i->oldID_ != newID && i->oldID_ != ParameterSetID()) {
+	parameterSetIdConverter_.insert(std::make_pair(i->oldID_, newID));
+      }
+    }
+  }
+
+  ParameterSetConverter::~ParameterSetConverter() {}
+
   void
-  ProvenanceAdaptor::convertParameterSets(StringWithIDList& in, StringMap& replace, ParameterSetIdConverter& psetIdConverter) {
+  ParameterSetConverter::noConvertParameterSets() {
+    for (StringWithIDList::iterator i = parameterSets_.begin(), iEnd = parameterSets_.end(); i != iEnd; ++i) {
+      if (i->first.find("@all_sources") != std::string::npos) {
+        mainParameterSets_.push_back(MainParameterSet(i->second, i->first));
+      } else {
+        ParameterSet pset(i->first);
+        pset.setFullyTracked();
+        pset.registerIt();
+	if (i->first.find("@trigger_paths") != std::string::npos) {
+	  triggerPaths_.push_back(pset);
+	}
+      } 
+    }
+  }
+
+  void
+  ParameterSetConverter::convertParameterSets() {
     std::string const comma(",");
     std::string const rparam(")");
     std::string const rvparam("})");
@@ -42,41 +129,47 @@ namespace edm {
     std::string const lparam("=+Q(");
     std::string const lvparam("=+q({");
     bool doItAgain = false;
-    for (StringMap::const_iterator j = replace.begin(), jEnd = replace.end(); j != jEnd; ++j) {
-      for (StringWithIDList::iterator i = in.begin(), iEnd = in.end(); i != iEnd; ++i) {
+    for (StringMap::const_iterator j = replace_.begin(), jEnd = replace_.end(); j != jEnd; ++j) {
+      for (StringWithIDList::iterator i = parameterSets_.begin(), iEnd = parameterSets_.end(); i != iEnd; ++i) {
 	for (std::string::size_type it = i->first.find(j->first); it != std::string::npos; it = i->first.find(j->first)) {
 	  i->first.replace(it, j->first.size(), j->second);
 	  doItAgain = true;
 	}
       }
     }
-    for (StringWithIDList::iterator i = in.begin(), iEnd = in.end(); i != iEnd;) {
+    for (StringWithIDList::iterator i = parameterSets_.begin(), iEnd = parameterSets_.end(); i != iEnd; ++i) {
       if (i->first.find("+P") == std::string::npos && i->first.find("+p") == std::string::npos) {
-        ParameterSet pset(i->first);
-        pset.registerIt();
-        pset.setFullyTracked();
-	std::string& from = i->first;
-	std::string to;
-	ParameterSetID newID(pset.id());
-	newID.toString(to);
-	insertIntoReplace(replace, loldparam, from, rparam, lparam, to, rparam);
-	insertIntoReplace(replace, comma, from, comma, comma, to, comma);
-	insertIntoReplace(replace, comma, from, rvparam, comma, to, rvparam);
-	insertIntoReplace(replace, loldvparam, from, comma, lvparam, to, comma);
-	insertIntoReplace(replace, loldvparam, from, rvparam, lvparam, to, rvparam);
-	if (i->second != newID && i->second != ParameterSetID()) {
-	  psetIdConverter.insert(std::make_pair(i->second, newID));
+	if (i->first.find("@all_sources") != std::string::npos) {
+	  mainParameterSets_.push_back(MainParameterSet(i->second, i->first));
+	} else {
+          ParameterSet pset(i->first);
+          pset.registerIt();
+          pset.setFullyTracked();
+	  std::string& from = i->first;
+	  std::string to;
+	  ParameterSetID newID(pset.id());
+	  newID.toString(to);
+	  insertIntoReplace(replace_, loldparam, from, rparam, lparam, to, rparam);
+	  insertIntoReplace(replace_, comma, from, comma, comma, to, comma);
+	  insertIntoReplace(replace_, comma, from, rvparam, comma, to, rvparam);
+	  insertIntoReplace(replace_, loldvparam, from, comma, lvparam, to, comma);
+	  insertIntoReplace(replace_, loldvparam, from, rvparam, lvparam, to, rvparam);
+	  if (i->second != newID && i->second != ParameterSetID()) {
+	    parameterSetIdConverter_.insert(std::make_pair(i->second, newID));
+	  }
+	  if (i->first.find("@trigger_paths") != std::string::npos) {
+	    triggerPaths_.push_back(pset);
+	  }
 	}
 	StringWithIDList::iterator icopy = i;
 	++i;
-	in.erase(icopy);
+	parameterSets_.erase(icopy);
+	--i;
 	doItAgain = true;
-      } else {
-	++i;
       }
     }
-    if (!doItAgain && !in.empty()) {
-      for (StringWithIDList::iterator i = in.begin(), iEnd = in.end(); i != iEnd; ++i) {
+    if (!doItAgain && !parameterSets_.empty()) {
+      for (StringWithIDList::iterator i = parameterSets_.begin(), iEnd = parameterSets_.end(); i != iEnd; ++i) {
 	std::list<std::string> pieces;
 	split(std::back_inserter(pieces), i->first, '<', ';', '>');
 	for (std::list<std::string>::iterator i= pieces.begin(), e = pieces.end(); i != e; ++i) {
@@ -84,14 +177,14 @@ namespace edm {
 	  if (removeName.size() >= 4) {
 	    if (removeName[1] == 'P') {
 	      std::string psetString(removeName.begin()+3, removeName.end()-1);
-	      in.push_back(std::make_pair(psetString, ParameterSetID()));
+	      parameterSets_.push_back(std::make_pair(psetString, ParameterSetID()));
 	      doItAgain = true;
 	    } else if (removeName[1] == 'p') {
 	      std::string pvec = std::string(removeName.begin()+3, removeName.end()-1);
 	      StringList temp;
 	      split(std::back_inserter(temp), pvec, '{', ',', '}');
 	      for (StringList::const_iterator j = temp.begin(), f = temp.end(); j != f; ++j) {
-		in.push_back(std::make_pair(*j, ParameterSetID()));
+		parameterSets_.push_back(std::make_pair(*j, ParameterSetID()));
 	      }
 	      doItAgain = true;
 	    }
@@ -100,7 +193,7 @@ namespace edm {
       }
     }
     if (doItAgain) {
-      convertParameterSets(in, replace, psetIdConverter);
+      convertParameterSets();
     }
   }
   
@@ -130,7 +223,7 @@ namespace edm {
   }
 
   namespace {
-    typedef std::vector<std::string> OneHistory;
+    typedef StringVector OneHistory;
     typedef std::set<OneHistory> Histories;
     typedef std::pair<std::string, BranchID> Product;
     typedef std::vector<Product> OrderedProducts;
@@ -170,51 +263,6 @@ namespace edm {
 	  if (pcset.insert(*i).second) {
 	    procConfigVector.push_back(*i);
 	  }
-	}
-      }
-    }
-
-    void
-    fillMapsInProductRegistry(ProcessConfigurationVector const& procConfigVector,
-			      ProductRegistry& productRegistry) {
-      for (ProductRegistry::ProductList::iterator
-	    it = productRegistry.productListUpdator().begin(),
-	    itEnd = productRegistry.productListUpdator().end();
-	    it != itEnd; ++it) {
-	BranchDescription& bd = it->second;
-	bd.parameterSetIDs().clear();
-	bd.moduleNames().clear();
-      }
-      std::string const triggerResults = std::string("TriggerResults");
-      std::string const source = std::string("source");
-      std::string const input = std::string("@main_input");
-      for (ProcessConfigurationVector::const_iterator i = procConfigVector.begin(), iEnd = procConfigVector.end();
-	  i != iEnd; ++i) {
-	ProcessConfigurationID pcid = i->id();
-	std::string const& processName = i->processName();
-	ParameterSetID const& processParameterSetID = i->parameterSetID();
-	ParameterSet processParameterSet;
-	pset::Registry::instance()->getMapped(processParameterSetID, processParameterSet);
-        if (processParameterSet.empty()) {
-          continue;
-        }
-	for (ProductRegistry::ProductList::iterator
-	    it = productRegistry.productListUpdator().begin(),
-	    itEnd = productRegistry.productListUpdator().end();
-	    it != itEnd; ++it) {
-	  BranchDescription& bd = it->second;
-	  if (processName != bd.processName()) {
-	    continue;
-	  }
-	  std::string const& moduleLabel = bd.moduleLabel();
-	  if (moduleLabel == triggerResults) {
-	    continue; // No parameter set for "TriggerResults"
-	  }
-	  bool isInput = (moduleLabel == source);
-	  ParameterSet moduleParameterSet = processParameterSet.getParameter<ParameterSet>(isInput ? input : moduleLabel);
-	  moduleParameterSet.registerIt();
-	  bd.parameterSetIDs().insert(std::make_pair(pcid, moduleParameterSet.id()));
-	  bd.moduleNames().insert(std::make_pair(pcid, moduleParameterSet.getParameter<std::string>("@module_type")));
 	}
       }
     }
@@ -289,11 +337,12 @@ namespace edm {
 		branchListIndexes_() {
     fixProcessHistory(pHistMap, pHistVector);
     fillProcessConfiguration(pHistVector, procConfigVector);
-    fillMapsInProductRegistry(procConfigVector, productRegistry);
     if (fullConversion) {
       fillListsAndIndexes(productRegistry, pHistMap, branchIDLists_, branchListIndexes_);
     }
   }
+
+  ProvenanceAdaptor::~ProvenanceAdaptor() {}
 
   ParameterSetID const&
   ProvenanceAdaptor::convertID(ParameterSetID const& oldID) const {
