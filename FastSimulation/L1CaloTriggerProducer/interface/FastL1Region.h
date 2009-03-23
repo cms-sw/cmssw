@@ -1,8 +1,8 @@
-#ifndef FastL1CaloSim_FastL1Region_h
-#define FastL1CaloSim_FastL1Region_h
+#ifndef RecoTauTag_FastL1Region_h
+#define RecoTauTag_FastL1Region_h
 // -*- C++ -*-
 //
-// Package:    FastL1CaloSim
+// Package:    L1CaloSim
 // Class:      FastL1Region
 // 
 /**\class FastL1Region
@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.h,v 1.15 2008/01/09 21:43:48 chinhan Exp $
+// $Id: FastL1Region.h,v 1.5 2009/02/08 18:14:36 chinhan Exp $
 //
 
 // user include files
@@ -39,6 +39,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
@@ -49,7 +50,7 @@
 // No BitInfos for release versions
 #include "FastSimDataFormats/External/interface/FastL1BitInfo.h" // FastL1BitInfo is not yet for publication
 
-struct FastL1Config {
+struct L1Config {
   bool DoJetCorr;
   bool DoEMCorr;
 
@@ -112,10 +113,10 @@ class FastL1Region {
   FastL1Region();
   ~FastL1Region();
 
-  void SetParameters(FastL1Config);
-  void FillTower(const CaloTower& t, int& tid); 
-  void FillTowerZero(const CaloTower& t, int& tid); 
-  void FillTower_Scaled(const CaloTower& t, int& tid, bool doRCTTrunc = true); 
+  void SetParameters(L1Config);
+  void FillTower(const CaloTower& t,int& tid,edm::ESHandle<CaloGeometry> &cGeom); 
+  void FillTowerZero(const CaloTower& t,int& tid); 
+  void FillTower_Scaled(const CaloTower& t,int& tid,bool doRCTTrunc,edm::ESHandle<CaloGeometry> &cGeom); 
   void FillEMCrystals(const CaloTowerConstituentsMap* theTowerConstituentsMap,
 		      const CaloTopology* calotopo,
 		      const CaloGeometry* cGeom,
@@ -141,7 +142,7 @@ class FastL1Region {
   int GetNEId(); 
   int GetSEId(); 
 
-  void SetRegionBits(edm::Event const& e,bool bitinfo);
+  void SetRegionBits(edm::Event const& e);
   void SetTowerBits();
   void SetRegionEnergy();
 
@@ -158,12 +159,26 @@ class FastL1Region {
 
   double SumE() { return CalcSumE(); };
   double SumEt() { return CalcSumEt(); };
+  double SumEmE() { return CalcSumEmE(); };
+  double SumEmEt() { return CalcSumEmEt(); };
+  double SumHadE() { return CalcSumHadE(); };
+  double SumHadEt() { return CalcSumHadEt(); };
   double CalcSumE();
   double CalcSumEt();
+  double CalcSumEmE();
+  double CalcSumEmEt();
+  double CalcSumHadE();
+  double CalcSumHadEt();
   double GetJetE() { return jetE; };
   double GetJetEt() { return jetEt; };
   void SetJetE(double jE) { jetE = jE; };
   void SetJetEt(double jEt) { jetEt = jEt; };
+
+  void SetDoBitInfo(bool doIt) {doBitInfo = doIt;}
+
+  int HighestEtTowerID();
+  int HighestEmEtTowerID();
+  int HighestHadEtTowerID();
 
   double GetJetE3x3() { return jetE3x3; };
   double GetJetEt3x3() { return jetEt3x3; };
@@ -177,6 +192,7 @@ class FastL1Region {
   FastL1BitInfo getBitInfo() { return BitInfo; }
 
   // public - has to bechanged!!!
+  bool doBitInfo;
   FastL1BitInfo BitInfo;
 
   void SetFGBit(int twrid,bool FGBIT);
@@ -184,7 +200,7 @@ class FastL1Region {
   void SetHOEBit(int twrid,bool FGBIT);
 
  private:
-  void SetTauBit(edm::Event const& e, bool bitinfo);
+  void SetTauBit(edm::Event const& e);
   void SetFGBit();
   void SetHOEBit();
   void SetQuietBit();
@@ -223,7 +239,7 @@ class FastL1Region {
   double sumEt;
   double sumE;
 
-  FastL1Config Config;
+  L1Config Config;
 };
 
 

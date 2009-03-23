@@ -13,11 +13,11 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1RegionMap.cc,v 1.9 2007/09/27 06:09:48 chinhan Exp $
+// $Id: FastL1RegionMap.cc,v 1.2 2008/07/24 10:20:31 chinhan Exp $
 //
 
+
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1RegionMap.h"
-#include <cstdlib>
 
 FastL1RegionMap::FastL1RegionMap()
 {
@@ -29,7 +29,7 @@ FastL1RegionMap::FastL1RegionMap()
 FastL1RegionMap* FastL1RegionMap::theInstance = 0;
 
 FastL1RegionMap*
-FastL1RegionMap::getL1RegionMap()
+FastL1RegionMap::getFastL1RegionMap()
 {
   if(theInstance == 0)
     {

@@ -1,8 +1,8 @@
-#ifndef FastL1CaloSim_FastL1GlobalAlgo_h
-#define FastL1CaloSim_FastL1GlobalAlgo_h
+#ifndef RecoTauTag_FastL1GlobalAlgo_h
+#define RecoTauTag_FastL1GlobalAlgo_h
 // -*- C++ -*-
 //
-// Package:    FastL1CaloSim
+// Package:    L1CaloSim
 // Class:      FastL1GlobalAlgo
 // 
 /**\class FastL1GlobalAlgo
@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.h,v 1.18 2008/01/12 00:14:06 chinhan Exp $
+// $Id: FastL1GlobalAlgo.h,v 1.2 2008/07/24 10:20:30 chinhan Exp $
 //
 
 // system include files
@@ -74,8 +74,8 @@ class FastL1GlobalAlgo {
 
       void CaloTowersDump(edm::Event const& e);
 
-      l1extra::L1EtMissParticle getMET() const { return m_MET; }
-      //l1extra::L1EtMissParticleCollection getMET() const { return m_METs; }
+      //l1extra::L1EtMissParticle getMET() const { return m_MET; }
+      l1extra::L1EtMissParticleCollection getMET() const { return m_METs; }
       l1extra::L1JetParticleCollection getTauJets() const { return m_TauJets; }
       l1extra::L1JetParticleCollection getCenJets() const { return m_CenJets; }
       l1extra::L1JetParticleCollection getForJets() const { return m_ForJets; }
@@ -97,6 +97,9 @@ class FastL1GlobalAlgo {
       void FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& c);
       void FillEgammasTP(edm::Event const&);
 
+      std::vector<FastL1Region> GetCaloRegions(){return m_Regions;}//KP
+      
+
  private:
       bool isMaxEtRgn_Window33(int rgnid);
       //int isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle p,const edm::Event& e);
@@ -112,8 +115,8 @@ class FastL1GlobalAlgo {
       double hcaletValue(const int ieta,const int compET);
       // ----------member data ---------------------------
       // output data
-      l1extra::L1EtMissParticle m_MET;
-      //l1extra::L1EtMissParticleCollection m_METs;
+      //l1extra::L1EtMissParticle m_MET;
+      l1extra::L1EtMissParticleCollection m_METs;
       l1extra::L1JetParticleCollection m_TauJets;
       l1extra::L1JetParticleCollection m_CenJets;
       l1extra::L1JetParticleCollection m_ForJets;
@@ -128,7 +131,7 @@ class FastL1GlobalAlgo {
       bool m_GctIso;
       double m_IsolationEt;
 
-      FastL1Config m_L1Config;
+      L1Config m_L1Config;
       double m_hcaluncomp[33][256];
 };
 

@@ -1,8 +1,8 @@
-#ifndef FastL1CaloSim_FastL1RegionMap_h
-#define FastL1CaloSim_FastL1RegionMap_h
+#ifndef RecoTauTag_FastL1RegionMap_h
+#define RecoTauTag_FastL1RegionMap_h
 // -*- C++ -*-
 //
-// Package:    FastL1CaloSim
+// Package:    L1CaloSim
 // Class:      FastL1RegionMap
 // 
 /**\class FastL1RegionMap
@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1RegionMap.h,v 1.1 2007/04/02 13:49:19 beaudett Exp $
+// $Id: FastL1RegionMap.h,v 1.2 2008/07/24 10:20:30 chinhan Exp $
 //
 
 #include <iostream>
@@ -52,7 +52,7 @@ class FastL1RegionMap {
   FastL1RegionMap();
   ~FastL1RegionMap();
 
-  static FastL1RegionMap* getL1RegionMap();
+  static FastL1RegionMap* getFastL1RegionMap();
 
   std::pair<int, int> getRegionEtaPhiIndex(std::pair<int, int> iEtaPhi);
   std::pair<int, int> getRegionEtaPhiIndex(CaloTowerDetId towerId);

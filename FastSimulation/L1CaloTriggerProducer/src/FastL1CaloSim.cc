@@ -1,3 +1,4 @@
+
 // -*- C++ -*-
 //
 // Package:    L1CaloTriggerProducer
@@ -13,7 +14,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1CaloSim.cc,v 1.10 2008/01/09 22:55:04 chinhan Exp $
+// $Id: FastL1CaloSim.cc,v 1.3 2008/07/24 17:06:20 chinhan Exp $
 //
 //
 
@@ -35,8 +36,8 @@ FastL1CaloSim::FastL1CaloSim(const edm::ParameterSet& iConfig)
   produces<l1extra::L1EmParticleCollection>("isoEgammas");
   */
 
-  produces<l1extra::L1EtMissParticle>();
-  //produces<l1extra::L1EtMissParticleCollection>();
+  //produces<l1extra::L1EtMissParticle>();
+  produces<l1extra::L1EtMissParticleCollection>();
   produces<l1extra::L1JetParticleCollection>("Tau");
   produces<l1extra::L1JetParticleCollection>("Central");
   produces<l1extra::L1JetParticleCollection>("Forward");
@@ -49,14 +50,14 @@ FastL1CaloSim::FastL1CaloSim(const edm::ParameterSet& iConfig)
   // No BitInfos for release versions
   m_DoBitInfo = iConfig.getParameter<bool>("DoBitInfo");
   if (m_DoBitInfo)
-    produces<FastL1BitInfoCollection>("FastL1BitInfos");
+    produces<FastL1BitInfoCollection>("L1BitInfos");
 
-  m_L1GlobalAlgo = new FastL1GlobalAlgo(iConfig);
+  m_FastL1GlobalAlgo = new FastL1GlobalAlgo(iConfig);
 }
 
 FastL1CaloSim::~FastL1CaloSim()
 {
-  delete m_L1GlobalAlgo;
+  delete m_FastL1GlobalAlgo;
 }
 
 
@@ -71,24 +72,24 @@ FastL1CaloSim::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //edm::LogInfo("FastL1CaloSim::produce()");
 
   if (m_AlgorithmSource == "RecHits") {
-    m_L1GlobalAlgo->FillL1Regions(iEvent, iSetup);
-    m_L1GlobalAlgo->FillEgammas(iEvent);
+    m_FastL1GlobalAlgo->FillL1Regions(iEvent, iSetup);
+    m_FastL1GlobalAlgo->FillEgammas(iEvent);
   } else if (m_AlgorithmSource == "TrigPrims") {
-    m_L1GlobalAlgo->FillL1RegionsTP(iEvent,iSetup);
-    m_L1GlobalAlgo->FillEgammasTP(iEvent);
+    m_FastL1GlobalAlgo->FillL1RegionsTP(iEvent,iSetup);
+    m_FastL1GlobalAlgo->FillEgammasTP(iEvent);
   } else {
     std::cerr<<"AlgorithmSource not valid: "<<m_AlgorithmSource<<std::endl;
     return;
   }
-  //m_L1GlobalAlgo->FillMET(iEvent); // using CaloTowers
-  m_L1GlobalAlgo->FillMET();     // using Regions
-  m_L1GlobalAlgo->FillJets(iSetup);
+  m_FastL1GlobalAlgo->FillMET(iEvent); // using CaloTowers
+  //m_FastL1GlobalAlgo->FillMET();     // using Regions
+  m_FastL1GlobalAlgo->FillJets(iSetup);
   
   if (m_DoBitInfo)
-    m_L1GlobalAlgo->FillBitInfos();
+    m_FastL1GlobalAlgo->FillBitInfos();
 
-  std::auto_ptr<l1extra::L1EtMissParticle> METResult(new l1extra::L1EtMissParticle);
-  //std::auto_ptr<l1extra::L1EtMissParticleCollection> METResult(new l1extra::L1EtMissParticleCollection);
+  //std::auto_ptr<l1extra::L1EtMissParticle> METResult(new l1extra::L1EtMissParticle);
+  std::auto_ptr<l1extra::L1EtMissParticleCollection> METResult(new l1extra::L1EtMissParticleCollection);
   std::auto_ptr<l1extra::L1JetParticleCollection> TauJetResult(new l1extra::L1JetParticleCollection);
   std::auto_ptr<l1extra::L1JetParticleCollection> CenJetResult(new l1extra::L1JetParticleCollection);
   std::auto_ptr<l1extra::L1JetParticleCollection> ForJetResult(new l1extra::L1JetParticleCollection);
@@ -97,29 +98,32 @@ FastL1CaloSim::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // muon is dummy!
   std::auto_ptr<l1extra::L1MuonParticleCollection> muonDummy(new l1extra::L1MuonParticleCollection);
   //
-  *METResult = m_L1GlobalAlgo->getMET();
-  for (int i=0; i<std::min(4,(int)m_L1GlobalAlgo->getTauJets().size()); i++) {
-    TauJetResult->push_back(m_L1GlobalAlgo->getTauJets().at(i));
+  //*METResult = m_FastL1GlobalAlgo->getMET();
+  for (int i=0; i<(int)m_FastL1GlobalAlgo->getMET().size(); i++) {
+    METResult->push_back(m_FastL1GlobalAlgo->getMET().at(i));
   }
-  for (int i=0; i<std::min(4,(int)m_L1GlobalAlgo->getCenJets().size()); i++) {
-    CenJetResult->push_back(m_L1GlobalAlgo->getCenJets().at(i));
+  for (int i=0; i<std::min(4,(int)m_FastL1GlobalAlgo->getTauJets().size()); i++) {
+    TauJetResult->push_back(m_FastL1GlobalAlgo->getTauJets().at(i));
   }
-  for (int i=0; i<std::min(4,(int)m_L1GlobalAlgo->getForJets().size()); i++) {
-    ForJetResult->push_back(m_L1GlobalAlgo->getForJets().at(i));
+  for (int i=0; i<std::min(4,(int)m_FastL1GlobalAlgo->getCenJets().size()); i++) {
+    CenJetResult->push_back(m_FastL1GlobalAlgo->getCenJets().at(i));
   }
-  for (int i=0; i<std::min(4,(int)m_L1GlobalAlgo->getEgammas().size()); i++) {
-    EgammaResult->push_back(m_L1GlobalAlgo->getEgammas().at(i));
+  for (int i=0; i<std::min(4,(int)m_FastL1GlobalAlgo->getForJets().size()); i++) {
+    ForJetResult->push_back(m_FastL1GlobalAlgo->getForJets().at(i));
   }
-  for (int i=0; i<std::min(4,(int)m_L1GlobalAlgo->getisoEgammas().size()); i++) {
-    isoEgammaResult->push_back(m_L1GlobalAlgo->getisoEgammas().at(i));
+  for (int i=0; i<std::min(4,(int)m_FastL1GlobalAlgo->getEgammas().size()); i++) {
+    EgammaResult->push_back(m_FastL1GlobalAlgo->getEgammas().at(i));
+  }
+  for (int i=0; i<std::min(4,(int)m_FastL1GlobalAlgo->getisoEgammas().size()); i++) {
+    isoEgammaResult->push_back(m_FastL1GlobalAlgo->getisoEgammas().at(i));
   }
 
   if (m_DoBitInfo) {
-  std::auto_ptr<FastL1BitInfoCollection> FastL1BitInfoResult(new FastL1BitInfoCollection);
-    for (int i=0; i<(int)m_L1GlobalAlgo->getBitInfos().size(); i++) {
-      FastL1BitInfoResult->push_back(m_L1GlobalAlgo->getBitInfos().at(i));
+  std::auto_ptr<FastL1BitInfoCollection> L1BitInfoResult(new FastL1BitInfoCollection);
+    for (int i=0; i<(int)m_FastL1GlobalAlgo->getBitInfos().size(); i++) {
+      L1BitInfoResult->push_back(m_FastL1GlobalAlgo->getBitInfos().at(i));
     }
-    iEvent.put(FastL1BitInfoResult,"FastL1BitInfos");
+    iEvent.put(L1BitInfoResult,"L1BitInfos");
   }
 
   // put the collections into the event
@@ -140,7 +144,6 @@ FastL1CaloSim::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(muonDummy);
 
 }
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(FastL1CaloSim);

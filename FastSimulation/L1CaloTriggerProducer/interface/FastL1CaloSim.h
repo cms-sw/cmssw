@@ -1,11 +1,11 @@
-#ifndef L1CaloTriggerProducer_FastL1CaloSim_h
-#define L1CaloTriggerProducer_FastL1CaloSim_h
+#ifndef RecoTauTag_FastL1CaloSim_h
+#define RecoTauTag_FastL1CaloSim_h
 // -*- C++ -*-
 //
 // Package:    L1CaloTriggerProducer
 // Class:      FastL1CaloSim
 // 
-/**\class FastL1CaloSim FastL1CaloSim.h FastSimulation/L1CaloTriggerProducer/src/FastL1CaloSim.h
+/**\class FastL1CaloSim FastL1CaloSim.h
 
  Description: Fast Simulation of the L1 Calo Trigger.
 
@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1CaloSim.h,v 1.5 2007/09/07 19:36:59 smaruyam Exp $
+// $Id: FastL1CaloSim.h,v 1.2 2008/07/24 10:20:30 chinhan Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FastSimulation/L1CaloTriggerProducer/interface/FastL1GlobalAlgo.h"
+#include "FastSimulation/L1CaloTriggerProducer//interface/FastL1GlobalAlgo.h"
 #include "FastSimDataFormats/External/interface/FastL1BitInfo.h"
 
 //
@@ -45,7 +45,7 @@ class FastL1CaloSim : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
-      FastL1GlobalAlgo* m_L1GlobalAlgo;
+      FastL1GlobalAlgo* m_FastL1GlobalAlgo;
 
       bool m_DoBitInfo;
       std::string m_AlgorithmSource;

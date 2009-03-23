@@ -9,11 +9,10 @@ fastL1CaloSim = cms.EDFilter("FastL1CaloSim",
     DoJetCorr = cms.bool(True),
     EMActiveLevel = cms.double(3.0),
     EMSeedEnThreshold = cms.double(0.01),
-    CrystalEEThreshold = cms.double(0.0), ##0.45
-
+    CrystalEEThreshold = cms.double(0.0),
     TowerHadLSB = cms.double(0.5),
     FGEEThreshold = cms.double(0.5),
-    HcalTPInput = cms.InputTag("simHcalTriggerPrimitiveDigis"),
+    HcalTPInput = cms.InputTag("hcalTriggerPrimitiveDigis"),
     TowerEBScale = cms.double(1.0),
     IsolationEt = cms.double(3.0),
     TowerHBScale = cms.double(1.0),
@@ -22,14 +21,9 @@ fastL1CaloSim = cms.EDFilter("FastL1CaloSim",
     hOeThreshold = cms.double(0.05),
     noFGThreshold = cms.double(50.0),
     TowerInput = cms.InputTag("towerMaker"),
-    CrystalEBThreshold = cms.double(0.0), ##0.09
-
-    EmInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE")),
+    CrystalEBThreshold = cms.double(0.0),
     HadActiveLevel = cms.double(3.0),
     TowerHEScale = cms.double(1.0),
-    # Defaults
-    # "RecHits" or "TrigPrims" 
-    AlgorithmSource = cms.string('RecHits'),
     EMLSB = cms.double(0.5),
     TowerHEThreshold = cms.double(0.0),
     TowerEEThreshold = cms.double(0.0),
@@ -39,10 +33,13 @@ fastL1CaloSim = cms.EDFilter("FastL1CaloSim",
     DoEMCorr = cms.bool(True),
     FGEBThreshold = cms.double(0.8),
     QuietRegionThreshold = cms.double(3.0),
-    EcalTPInput = cms.InputTag("simEcalTriggerPrimitiveDigis"),
+    EcalTPInput = cms.InputTag("ecalTriggerPrimitiveDigis"),
     TowerEBThreshold = cms.double(0.0),
-    DoBitInfo = cms.bool(False),
-    HadNoiseLevel = cms.double(2.0)
+    #DoBitInfo = cms.bool(False),
+    DoBitInfo = cms.bool(True),
+    HadNoiseLevel = cms.double(2.0),
+    AlgorithmSource = cms.string('RecHits'),
+    EmInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE"))
 )
 
 

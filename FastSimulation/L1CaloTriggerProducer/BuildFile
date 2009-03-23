@@ -1,12 +1,6 @@
 <flags EDM_PLUGIN=1>
-##### for standalone mode!! To be removed before commit!!!
-#
-#<flags SEAL_PLUGIN_NAME="FastSimulationL1CaloTriggerProducer">
 <use name=FastSimDataFormats/External>
-#
-#####
 <use name=DataFormats/JetReco>
-
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/L1Trigger>
@@ -19,5 +13,4 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/HcalDigi>
-
 <use name=DataFormats/GeometryVector>
