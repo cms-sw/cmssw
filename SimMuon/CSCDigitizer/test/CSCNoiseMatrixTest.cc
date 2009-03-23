@@ -13,8 +13,10 @@ class CSCNoiseMatrixTest : public edm::EDAnalyzer
 public:
   CSCNoiseMatrixTest(const edm::ParameterSet & pset) : theDbConditions(pset) {}
   virtual ~CSCNoiseMatrixTest() {}
-  virtual void beginRun(edm::Run const& run, edm::EventSetup const& eventSetup)
+  //virtual void beginRun(edm::Run const& run, edm::EventSetup const& eventSetup)
+  virtual void analyze(const edm::Event&, const edm::EventSetup&eventSetup)
   {
+    theDbConditions.initializeEvent(eventSetup);
     // fake signal is going to get noisified 200000 times!
     const int nScaBins = 8;
     const float scaBinSize = 50.;
@@ -33,15 +35,21 @@ public:
       unsigned nstrips = (**layerItr).geometry()->numberOfStrips();
       for(unsigned istrip = 1; istrip != nstrips; ++istrip)
       {
-std::cout << "ID " << (**layerItr).id() << "STRIP " << istrip << std::endl;
         CSCAnalogSignal signal(istrip, scaBinSize, binValues, 0., 0.);
         //theDbConditions.fetchNoisifier((**layerItr).id(),istrip); 
-        theDbConditions.noisify((**layerItr).id(), signal);
+        try {       
+          theDbConditions.noisify((**layerItr).id(), signal);
+        }
+        catch(cms::Exception & e) {
+           std::cerr << "Bad Noise Matrix for " << (**layerItr).id()  
+                     << "strip " << istrip << "\n";
+           std::cerr << e.what() << std::endl;
+        }
       }
     }
   }
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
+  //virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
 
 private:
   CSCDbStripConditions theDbConditions;
