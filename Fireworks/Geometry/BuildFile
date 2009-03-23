@@ -12,8 +12,10 @@
 <use name=Geometry/CaloTopology>
 <use name=DataFormats/HcalDetId>
 <use name=DataFormats/EcalDetId>
+<use name=rootgraphics>
 <lib name=Gpad>
 <lib name=Geom>
+<lib name=Thread>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=Gpad>
