@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: sm_hookscript.pl,v 1.10 2009/03/19 14:44:11 jserrano Exp $
+# $Id: sm_hookscript.pl,v 1.11 2009/03/23 13:51:57 jserrano Exp $
 ################################################################################
 
 use strict;
@@ -26,7 +26,8 @@ my $appname     = $ENV{'SM_APPNAME'};
 my $type        = $ENV{'SM_TYPE'};
 my $checksum    = $ENV{'SM_CHECKSUM'};
 my $producer    = 'StorageManager';
-my $retries      = 2;
+my $retries     = 2;
+my $copydelay   = 3;
 
 
 ## special treatment for calibration stream
@@ -38,7 +39,7 @@ my $retries      = 2;
 #    }
 #}
 
-# pecial treatment for EcalCalibration
+# special treatment for EcalCalibration
 my $doca = $ENV{'SM_CALIB_NFS'};
 if($fields[3] eq "EcalCalibration") {
     if (defined $doca) {
@@ -47,11 +48,12 @@ if($fields[3] eq "EcalCalibration") {
         while ($copyresult && $retries) {
            $copyresult = system($COPYCOMMAND);
            $retries--;
+           sleep($copydelay);
         }
-    fi
     }
     my $RMCOMMAND = 'rm -f $SM_PATHNAME/$SM_FILENAME';
     system($RMCOMMAND);
+    exit 0;
 }
 
 
