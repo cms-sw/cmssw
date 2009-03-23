@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.18 2009/02/23 12:49:18 arizzi Exp $
+// $Id: TrackIPProducer.cc,v 1.19 2009/03/23 09:21:40 saout Exp $
 //
 //
 
@@ -71,7 +71,7 @@ TrackIPProducer::TrackIPProducer(const edm::ParameterSet& iConfig) :
   m_primaryVertexProducer   = m_config.getParameter<InputTag>("primaryVertex");
   m_computeProbabilities    = m_config.getParameter<bool>("computeProbabilities");
   m_computeGhostTrack       = m_config.getParameter<bool>("computeGhostTrack");
-  m_ghostTrackPriorDeltaR   = m_config.getParameter<double>("m_ghostTrackPriorDeltaR");
+  m_ghostTrackPriorDeltaR   = m_config.getParameter<double>("ghostTrackPriorDeltaR");
   m_cutPixelHits            = m_config.getParameter<int>("minimumNumberOfPixelHits");
   m_cutTotalHits            = m_config.getParameter<int>("minimumNumberOfHits");
   m_cutMaxTIP               = m_config.getParameter<double>("maximumTransverseImpactParameter");
