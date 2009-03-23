@@ -3,7 +3,7 @@
  *
  * \author Olga Kodolova
  *        
- * $Date: 2008/08/13 09:20:27 $
+ * $Date: 2009/03/13 17:30:14 $
  * $Revision: 1.1 $
  *
  *
@@ -90,8 +90,8 @@ void DQMHcalPhiSymAlCaReco::beginJob(const EventSetup& context){
 		 hiDistr_y_max_
 		 );
 
-  hiDistrMBPl2D_->setAxisTitle("i#phi ", 1);
-  hiDistrMBPl2D_->setAxisTitle("# rechits", 2);
+  hiDistrMBPl2D_->setAxisTitle("i#phi ", 2);
+  hiDistrMBPl2D_->setAxisTitle("i#eta ", 1);
 
 
   hiDistrNoisePl2D_ = 
@@ -104,8 +104,8 @@ void DQMHcalPhiSymAlCaReco::beginJob(const EventSetup& context){
 		 hiDistr_y_max_
 		 );
 
-  hiDistrNoisePl2D_->setAxisTitle("i#phi ", 1);
-  hiDistrNoisePl2D_->setAxisTitle("# rechits", 2);
+  hiDistrNoisePl2D_->setAxisTitle("i#phi ", 2);
+  hiDistrNoisePl2D_->setAxisTitle("i#eta ", 1);
 
 //==================================================================================
 
@@ -119,8 +119,8 @@ void DQMHcalPhiSymAlCaReco::beginJob(const EventSetup& context){
 		 hiDistr_y_max_
 		 );
 
-  hiDistrMBMin2D_->setAxisTitle("i#phi ", 1);
-  hiDistrMBMin2D_->setAxisTitle("# rechits", 2);
+  hiDistrMBMin2D_->setAxisTitle("i#phi ", 2);
+  hiDistrMBMin2D_->setAxisTitle("i#eta ", 1);
 
 
   hiDistrNoiseMin2D_ = 
@@ -133,8 +133,8 @@ void DQMHcalPhiSymAlCaReco::beginJob(const EventSetup& context){
 		 hiDistr_y_max_
 		 );
 
-  hiDistrNoiseMin2D_->setAxisTitle("i#phi ", 1);
-  hiDistrNoiseMin2D_->setAxisTitle("# rechits", 2);
+  hiDistrNoiseMin2D_->setAxisTitle("i#phi ", 2);
+  hiDistrNoiseMin2D_->setAxisTitle("i#eta ", 1);
 
   std::cout<<" DQMHcalPhiSymAlCaReco::beginJob::end "<<std::endl;
 
@@ -282,7 +282,25 @@ void DQMHcalPhiSymAlCaReco::endRun(const Run& r, const EventSetup& context){
 }
 //--------------------------------------------------------
 void DQMHcalPhiSymAlCaReco::endJob(){
-  
+  cout<<" Number of events "<<eventCounter_<<endl;
+  for(int k=0; k<hiDistr_x_nbin_;k++)
+  {
+    for(int j=0; j<hiDistr_y_nbin_;j++)
+    {
+       float cc=hiDistrMBPl2D_->getBinContent(k,j);
+       cc = cc * 1./eventCounter_;
+       hiDistrMBPl2D_->setBinContent(k,j,cc); 
+       cc=hiDistrNoisePl2D_->getBinContent(k,j);
+       cc = cc * 1./eventCounter_;
+       hiDistrNoisePl2D_->setBinContent(k,j,cc);
+       cc=hiDistrMBMin2D_->getBinContent(k,j);
+       cc = cc * 1./eventCounter_;
+       hiDistrMBMin2D_->setBinContent(k,j,cc);
+       cc=hiDistrNoiseMin2D_->getBinContent(k,j);
+       cc = cc * 1./eventCounter_;
+       hiDistrNoiseMin2D_->setBinContent(k,j,cc);
+    }
+  }
   if (saveToFile_) {
      dbe_->save(fileName_);
   }
