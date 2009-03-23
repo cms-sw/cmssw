@@ -137,93 +137,93 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
   }// end if(zs_)
  
   bool frameAdded=false;
-
+  
   // if there is an error on xtal id ignore next error checks  
   // otherwise, assume channel_id is valid and proceed with making and checking the data frame
   if(errorOnXtal) return SKIP_BLOCK_UNPACKING;
-
-    pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
+  
+  pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
+  
+  if(pDetId_){// checking that requested EEDetId exists
     
-    if(pDetId_){// checking that requested EEDetId exists
-      
-      (*digis_)->push_back(*pDetId_);
-      EEDataFrame df( (*digis_)->back() );
-      frameAdded=true;
-      bool wrongGain(false);
-	 
-      //set samples in the frame
-      for(uint i =0; i< nTSamples_ ;i++){ 
-        xData_++;
-        uint data =  (*xData_) & TOWER_DIGI_MASK;
-        uint gain =  data>>12;
-        xtalGains_[i]=gain;
-        if(gain == 0){	  wrongGain = true; } 
-        df.setSample(i,data);
-      }	
+    (*digis_)->push_back(*pDetId_);
+    EEDataFrame df( (*digis_)->back() );
+    frameAdded=true;
+    bool wrongGain(false);
     
-      if(wrongGain){ 
-        if( ! DCCDataUnpacker::silentMode_ ){
-          edm::LogWarning("EcalRawToDigiGainZero")
+    //set samples in the frame
+    for(uint i =0; i< nTSamples_ ;i++){ 
+      xData_++;
+      uint data =  (*xData_) & TOWER_DIGI_MASK;
+      uint gain =  data>>12;
+      xtalGains_[i]=gain;
+      if(gain == 0){	  wrongGain = true; }  // although gain==0 found, produce the dataFrame in order to have (saturation case)
+      df.setSample(i,data);
+    }
+    
+    if(wrongGain){ 
+      if( ! DCCDataUnpacker::silentMode_ ){
+	edm::LogWarning("EcalRawToDigiGainZero")
           <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
           <<"\n Gain zero was found in strip "<<stripId<<" and xtal "<<xtalId;   
-        }
-	
-	(*invalidGains_)->push_back(*pDetId_); 
-        errorOnXtal = true;
-	
-	//return here, so to skip all the rest
-	//make special collection for gain0 data frames (saturation)
-	//Point to begin of next xtal Block
-	data_ += numbDWInXtalBlock_;
-	
-	return BLOCK_UNPACKED;
-
-      }
-	
-   
-      short firstGainWrong=-1;
-      short numGainWrong=0;
-	    
-      for (uint i=0; i<nTSamples_; i++ ) {
-        if (i>0 && xtalGains_[i-1]>xtalGains_[i]) {
-          numGainWrong++;
-          if (firstGainWrong == -1) { firstGainWrong=i;}
-        }
       }
       
-      if (numGainWrong>0) {
-        if( ! DCCDataUnpacker::silentMode_ ){
-          edm::LogWarning("EcalRawToDigiGainSwitch")
-            <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-            <<"\n A wrong gain transition switch was found in strip "<<stripId<<" and xtal "<<xtalId;    
-        }
-	
-	(*invalidGainsSwitch_)->push_back(*pDetId_);
-	
-	errorOnXtal = true;
-      } 
-
-      //Add frame to collection only if all data format and gain rules are respected
-      if(errorOnXtal&&frameAdded) {
-	(*digis_)->pop_back();
-      }
-
-    }// End 'if EE id exist'
+      (*invalidGains_)->push_back(*pDetId_); 
+      errorOnXtal = true;
+      
+      //return here, so to skip all the rest
+      //make special collection for gain0 data frames (saturation)
+      //Point to begin of next xtal Block
+      data_ += numbDWInXtalBlock_;
+      
+      return BLOCK_UNPACKED;
+      
+    }
     
-    else{// in case EE did not exist
-      if( ! DCCDataUnpacker::silentMode_ ){
-        edm::LogWarning("EcalRawToDigiChId")
-            <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-            <<"\n An EEDetId was requested that does not exist";    
+    
+    short firstGainWrong=-1;
+    short numGainWrong=0;
+    
+    for (uint i=0; i<nTSamples_; i++ ) {
+      if (i>0 && xtalGains_[i-1]>xtalGains_[i]) {
+	numGainWrong++;
+	if (firstGainWrong == -1) { firstGainWrong=i;}
       }
     }
     
-
+    if (numGainWrong>0) {
+      if( ! DCCDataUnpacker::silentMode_ ){
+	edm::LogWarning("EcalRawToDigiGainSwitch")
+	  <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+	  <<"\n A wrong gain transition switch was found in strip "<<stripId<<" and xtal "<<xtalId;    
+      }
+      
+      (*invalidGainsSwitch_)->push_back(*pDetId_);
+      
+      errorOnXtal = true;
+    } 
+    
+    //Add frame to collection only if all data format and gain rules are respected
+    if(errorOnXtal&&frameAdded) {
+      (*digis_)->pop_back();
+    }
+    
+  }// End 'if EE id exist'
+  
+  else{// in case EE did not exist
+    if( ! DCCDataUnpacker::silentMode_ ){
+      edm::LogWarning("EcalRawToDigiChId")
+	<<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+	<<"\n An EEDetId was requested that does not exist";    
+    }
+  }
+  
+  
   //Point to begin of next xtal Block
   data_ += numbDWInXtalBlock_;
-
+  
   return BLOCK_UNPACKED;
-      
+  
 }
 
 
