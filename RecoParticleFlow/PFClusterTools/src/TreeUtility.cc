@@ -45,7 +45,8 @@ unsigned TreeUtility::getCalibratablesFromRootFile(TChain& tree,
 
 }
 
-void TreeUtility::dumpCaloDataToCSV(TChain& tree, std::string csvFilename, double range) {
+void TreeUtility::dumpCaloDataToCSV(TChain& tree, std::string csvFilename, double range, bool gaus) {
+
 	CalibratablePtr calib_ptr(new Calibratable());
 
 	tree.SetBranchAddress("Calibratable", &calib_ptr);
@@ -76,56 +77,27 @@ void TreeUtility::dumpCaloDataToCSV(TChain& tree, std::string csvFilename, doubl
 			 	frequencies.Fill(static_cast<int>(floor(c.sim_energyEvent_)));
 				c.recompute();
 				csvFile << c.sim_energyEvent_ << "\t";
+				/*
 				csvFile << c.sim_energyEcal_ << "\t";
 				csvFile << c.sim_energyHcal_ << "\t";
-				
-				
-				//csvFile << c.cluster_energyEcal_/range << "\t";
-				//csvFile << c.cluster_energyHcal_/range << "\t";
-				csvFile << c.cluster_ecal_.size() << "\t";
-				csvFile << c.cluster_hcal_.size() << "\t";
-				csvFile << c.rechits_energyEcal_/range << "\t";
-				csvFile << c.rechits_energyHcal_/range << "\t";
-				csvFile << c.rechits_ecal_.size()/20 << "\t";
-				csvFile << c.rechits_hcal_.size()/20 << "\t";
-				
-				/*
-				unsigned count(0);
-				unsigned leadingHits(5);
-				std::vector<CalibratableElement>::const_iterator eIt = c.rechits_ecal_.begin();
-				for(; eIt != c.rechits_ecal_.end(); ++eIt) {
-					const CalibratableElement ce = *eIt;
-					csvFile << ce.energy_/range << "\t";
-					double dR =deltaR(ce.eta_, c.rechits_meanEcal_.eta_, ce.phi_, c.rechits_meanEcal_.phi_);
-					//csvFile << dR << "\t";
-					++count;
-					if(count == 2)
-						break;
+
+
+				csvFile << c.cluster_energyEcal_/range << "\t";
+				csvFile << c.cluster_energyHcal_/range << "\t";
+
+				CaloWindow newEcalWindow(c.cluster_meanEcal_.eta_, c.cluster_meanEcal_.phi_, 5, 0.01, 3);
+				const std::vector<CalibratableElement>& ecal = c.cluster_ecal_;
+				std::vector<CalibratableElement>::const_iterator cit = ecal.begin();
+				for(; cit != ecal.end(); ++cit) {
+					const CalibratableElement& hit = *cit;
+					bool added = newEcalWindow.addHit(hit.eta_, hit.phi_, hit.energy_);
+					if(!added)
+						veto = true;
 				}
-				unsigned numEcal = c.rechits_ecal_.size();
-				for(unsigned q(numEcal); q < 2; ++q) {
-					csvFile << "0\t";
-					
-				} 
-				
-				count = 0;
-				std::vector<CalibratableElement>::const_iterator hIt = c.rechits_hcal_.begin();
-				for(; hIt != c.rechits_hcal_.end(); ++hIt) {
-					const CalibratableElement ce = *hIt;
-					csvFile << ce.energy_/range << "\t";
-					double dR =deltaR(ce.eta_, c.rechits_meanHcal_.eta_, ce.phi_, c.rechits_meanHcal_.phi_);
-					//csvFile << dR << "\t";
-					++count;
-					if(count == leadingHits)
-						break;
-				}
-				unsigned numHcal = c.rechits_hcal_.size();
-				for(unsigned q(numHcal); q < leadingHits; ++q) {
-					csvFile << "0\t";
-				} */
-				
+				*/
+
 				csvFile << fabs(c.sim_eta_/2) << "\n";
-				
+
 				++writes;
 		 	}
 		}
