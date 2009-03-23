@@ -11,6 +11,7 @@
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "TClass.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
@@ -66,6 +67,15 @@ namespace edm
 
     pset::fillMap(pset::Registry::instance(), psetMap);
     sd.setParameterSetMap(psetMap);
+
+    typedef ProcessConfigurationRegistry::collection_type PCMap;
+    PCMap const& procConfigMap = ProcessConfigurationRegistry::instance()->data();
+    ProcessConfigurationVector procConfigVector;
+    for (PCMap::const_iterator i = procConfigMap.begin(), e = procConfigMap.end(); i != e; ++i) {
+      procConfigVector.push_back(i->second);
+    }
+    sort_all(procConfigVector);
+    sd.setProcessConfigurations(procConfigVector);
 
     data_buffer.rootbuf_.Reset();
 

@@ -7,6 +7,7 @@
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/Framework/interface/FillProductRegistryTransients.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
@@ -29,6 +30,7 @@
 
 #include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
@@ -85,6 +87,7 @@ namespace edm {
     if (subsequent) {
       ProductRegistry pReg;
       pReg.updateFromInput(descs);
+      fillProductRegistryTransients(header.processConfigurations(), pReg);
       std::string mergeInfo = reg.merge(pReg, std::string(), BranchDescription::Permissive);
       if (!mergeInfo.empty()) {
         throw cms::Exception("MismatchedInput","RootInputFileSequence::previousEvent()") << mergeInfo;
@@ -95,6 +98,7 @@ namespace edm {
       buildClassCache(descs);
       loadExtraClasses();
       reg.updateFromInput(descs);
+      fillProductRegistryTransients(header.processConfigurations(), reg);
       BranchIDListHelper::updateFromInput(header.branchIDLists(), std::string());
     }
   }
@@ -239,6 +243,7 @@ namespace edm {
   StreamerInputSource::deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent)
   {
      std::auto_ptr<SendJobHeader> sd = deserializeRegistry(initView);
+     ProcessConfigurationVector const& pcv = sd->processConfigurations();
      mergeIntoRegistry(*sd, productRegistryUpdate(), subsequent);
      SendJobHeader::ParameterSetMap const & psetMap = sd->processParameterSet();
      pset::Registry& psetRegistry = *pset::Registry::instance();
@@ -247,6 +252,10 @@ namespace edm {
        pset.setID(i->first);
        pset.setFullyTracked();
        psetRegistry.insertMapped(pset);
+     }
+     ProcessConfigurationRegistry& pcReg = *ProcessConfigurationRegistry::instance();
+     for (ProcessConfigurationVector::const_iterator it = pcv.begin(), itEnd = pcv.end(); it != itEnd; ++it) {
+       pcReg.insertMapped(*it);
      }
   }
 

@@ -2,5 +2,5 @@
 
 namespace edm
 {
-  int getFileFormatVersion() { return 12; }
+  int getFileFormatVersion() { return 13; }
 }

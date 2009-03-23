@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/FillProductRegistryTransients.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
@@ -226,8 +227,8 @@ namespace edm {
 
     // Need to read to a temporary registry so we can do a translation of the BranchKeys.
     // This preserves backward compatibility against friendly class name algorithm changes.
-    ProductRegistry inputProdHistReg;
-    ProductRegistry *ppReg = &inputProdHistReg;
+    ProductRegistry inputProdDescReg;
+    ProductRegistry *ppReg = &inputProdDescReg;
     metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
 
     typedef std::map<ParameterSetID, ParameterSetBlob> PsetMap;
@@ -278,15 +279,9 @@ namespace edm {
     // Here we read the metadata tree
     input::getEntry(metaDataTree, 0);
 
-    ProvenanceAdaptor::ParameterSetIdConverter psetIdConverter;
-    if (!fileFormatVersion().parameterSetsByReference()) {
-      ProvenanceAdaptor::StringWithIDList params;
-      ProvenanceAdaptor::StringMap replace;
-      replace.insert(std::make_pair(std::string("=+p({})"), std::string("=+q({})")));
-      for (PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
-	params.push_back(std::make_pair(i->second.pset_, i->first));
-      }
-      ProvenanceAdaptor::convertParameterSets(params, replace, psetIdConverter);
+    ParameterSetConverter::ParameterSetIdConverter psetIdConverter;
+    if (!fileFormatVersion().triggerPathsTracked()) {
+      ParameterSetConverter converter(psetMap, psetIdConverter, fileFormatVersion().parameterSetsByReference());
     } else {
       // Merge into the parameter set registry.
       pset::Registry& psetRegistry = *pset::Registry::instance();
@@ -300,14 +295,14 @@ namespace edm {
     if (!fileFormatVersion().splitProductIDs()) {
       // Old provenance format input file.  Create a provenance adaptor.
       provenanceAdaptor_.reset(new ProvenanceAdaptor(
-	    inputProdHistReg, pHistMap, pHistVector, procConfigVector, psetIdConverter, true));
+	    inputProdDescReg, pHistMap, pHistVector, procConfigVector, psetIdConverter, true));
       // Fill in the branchIDLists branch from the provenance adaptor
       branchIDLists_ = provenanceAdaptor_->branchIDLists();
     } else {
-      if (!fileFormatVersion().parameterSetsByReference()) {
-        // New provenance format, but old ParameterSet Format. Create a provenance adaptor.
+      if (!fileFormatVersion().triggerPathsTracked()) {
+        // New provenance format, but change in ParameterSet Format. Create a provenance adaptor.
         provenanceAdaptor_.reset(new ProvenanceAdaptor(
-	    inputProdHistReg, pHistMap, pHistVector, procConfigVector, psetIdConverter, false));
+	    inputProdDescReg, pHistMap, pHistVector, procConfigVector, psetIdConverter, false));
       }
       // New provenance format input file. The branchIDLists branch was read directly from the input file. 
       if (metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) == 0) {
@@ -355,21 +350,23 @@ namespace edm {
     readEventHistoryTree();
 
     // Set product presence information in the product registry.
-    ProductRegistry::ProductList const& pList = inputProdHistReg.productList();
+    ProductRegistry::ProductList const& pList = inputProdDescReg.productList();
     for (ProductRegistry::ProductList::const_iterator it = pList.begin(), itEnd = pList.end();
         it != itEnd; ++it) {
       BranchDescription const& prod = it->second;
       treePointers_[prod.branchType()]->setPresence(prod);
     }
+  
+    fillProductRegistryTransients(procConfigVector, inputProdDescReg);
 
     // freeze our temporary product registry
-    inputProdHistReg.setFrozen();
+    inputProdDescReg.setFrozen();
 
     std::auto_ptr<ProductRegistry> newReg(new ProductRegistry);
 
     // Do the translation from the old registry to the new one
     {
-      ProductRegistry::ProductList const& prodList = inputProdHistReg.productList();
+      ProductRegistry::ProductList const& prodList = inputProdDescReg.productList();
       for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
            it != itEnd; ++it) {
         BranchDescription const& prod = it->second;
