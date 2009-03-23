@@ -74,7 +74,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/02/23 14:01:09 $ 
+ **  $Date: 2009/03/12 16:07:00 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -183,8 +183,9 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   MonitorElement* p_efficiencyVsEtaHLT_;
   MonitorElement* p_efficiencyVsEtHLT_;
 
-  MonitorElement* p_convFractionVsEta_;
-  MonitorElement* p_convFractionVsEt_;
+
+
+
 
 
 
@@ -282,6 +283,13 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > h_nHitsVsEta_;
   std::vector<MonitorElement*> p_nHitsVsEta_isol_;
   std::vector<std::vector<MonitorElement*> > p_nHitsVsEta_;
+
+
+  std::vector<MonitorElement*> p_convFractionVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_convFractionVsEta_;
+  std::vector<MonitorElement*> p_convFractionVsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_convFractionVsEt_;
+
 
   ////////3D vectors of histograms
 

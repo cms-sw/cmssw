@@ -12,7 +12,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/02/27 09:03:32 $ 
+ **  $Date: 2009/03/12 16:10:34 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -197,11 +197,7 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
     p_efficiencyVsEtHLT_ = dbe_->book1D("EfficiencyVsEtHLT","Fraction of Photons passing HLT vs. Et;Et (GeV)",etBin,etMin, etMax);  
 
 
-    //Conversion fraction histograms
-    
-    p_convFractionVsEta_ = dbe_->book1D("convFractionVsEta","Fraction of Converted Photons  vs. Eta;#eta",etaBin,etaMin, etaMax);
-    p_convFractionVsEt_ = dbe_->book1D("convFractionVsEt","Fraction of Converted Photons vs. Et;Et (GeV)",etBin,etMin, etMax);
-    
+
     //Triggers passed
     
     h_filters_ = dbe_->book1D("Filters","Filters Passed;;Fraction of Photons Passing",11,0,11);
@@ -379,8 +375,6 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 
       //conversion plots
 
-
-
       for(uint type=0;type!=types.size();++type){ //looping over isolation type
 
 	currentFolder_.str("");	
@@ -429,7 +423,10 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 	h_dEtaTracksAtEcal_isol_.push_back(h_dEtaTracksAtEcal_part_);
 	h_dEtaTracksAtEcal_part_.clear();
 
-
+	//Conversion fraction histograms
+	p_convFractionVsEta_isol_.push_back(dbe_->book1D("convFractionVsEta","Fraction of Converted Photons  vs. Eta;#eta",etaBin,etaMin, etaMax));
+	p_convFractionVsEt_isol_.push_back(dbe_->book1D("convFractionVsEt","Fraction of Converted Photons vs. Et;Et (GeV)",etBin,etMin, etMax));
+    
 	h_phoConvEta_isol_.push_back(dbe_->book1D("phoConvEta",types[type]+" Converted Photon Eta;#eta ",etaBin,etaMin, etaMax)) ;
 	h_phoConvPhi_isol_.push_back(dbe_->book1D("phoConvPhi",types[type]+" Converted Photon Phi;#phi ",phiBin,phiMin,phiMax)) ;
 
@@ -488,7 +485,11 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
       p_nHitsVsEta_.push_back(p_nHitsVsEta_isol_);
       p_nHitsVsEta_isol_.clear();
 
- 
+      p_convFractionVsEt_.push_back(p_convFractionVsEt_isol_);
+      p_convFractionVsEt_isol_.clear();
+      p_convFractionVsEta_.push_back(p_convFractionVsEta_isol_);
+      p_convFractionVsEta_isol_.clear(); 
+
     }
 
 
@@ -714,7 +715,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	fill2DHistoVector(h_nTrackIsolSolid_,(*iPho).nTrkSolidConeDR04(),cut,type);
 	fill2DHistoVector(h_trackPtSumSolid_,(*iPho).isolationTrkSolidConeDR04(),cut,type);
 	fill2DHistoVector(h_nTrackIsolHollow_,(*iPho).nTrkHollowConeDR04(),cut,type);
-	fill2DHistoVector(h_trackPtSumHollow_,(*iPho).isolationTrkSolidConeDR04(),cut,type);
+	fill2DHistoVector(h_trackPtSumHollow_,(*iPho).isolationTrkHollowConeDR04(),cut,type);
     
 	fill2DHistoVector(h_ecalSumVsEta_,(*iPho).eta(), (*iPho).ecalRecHitSumConeDR04(),cut,type);
 	fill2DHistoVector(h_hcalSumVsEta_,(*iPho).eta(), (*iPho).hcalTowerSumConeDR04(),cut,type);
@@ -895,11 +896,7 @@ void PhotonAnalyzer::endJob()
     dividePlots(dbe_->get(EffPath+"EfficiencyVsEtaHLT"),dbe_->get(AllPath+currentFolder_.str() + "phoEta"),dbe_->get(EffPath+ "phoEtaHLT"));
     dividePlots(dbe_->get(EffPath+"EfficiencyVsEtHLT"),dbe_->get(AllPath+currentFolder_.str() + "phoEtAllEcal"),dbe_->get(EffPath+ "phoEtHLT")); 
        
-    //making conversion fraction plots
-    
-    dividePlots(dbe_->get(EffPath+"convFractionVsEta"),dbe_->get(AllPath+currentFolder_.str() +  "Conversions/phoConvEta"),dbe_->get(AllPath+currentFolder_.str() + "phoEta"));
-    dividePlots(dbe_->get(EffPath+"convFractionVsEt"),dbe_->get(AllPath+currentFolder_.str() +  "Conversions/phoConvEtAllEcal"),dbe_->get(AllPath+currentFolder_.str() + "phoEtAllEcal"));
-    
+
     currentFolder_.str("");
     currentFolder_ << EffPath;
     dbe_->setCurrentFolder(currentFolder_.str());
@@ -919,6 +916,11 @@ void PhotonAnalyzer::endJob()
 	currentFolder_.str("");
 	currentFolder_ << "Egamma/PhotonAnalyzer/" << types[type] << "Photons/Et above " << cut*cutStep_ << " GeV/";
 
+	//making conversion fraction plots
+	
+	dividePlots(dbe_->get(currentFolder_.str()+"Conversions/convFractionVsEta"),dbe_->get(currentFolder_.str() +  "Conversions/phoConvEta"),dbe_->get(currentFolder_.str() + "phoEta"));
+	dividePlots(dbe_->get(currentFolder_.str()+"Conversions/convFractionVsEt"),dbe_->get(currentFolder_.str() +  "Conversions/phoConvEtAllEcal"),dbe_->get(currentFolder_.str() + "phoEtAllEcal"));
+    
 	//making profiles
 	
 	doProfileX( dbe_->get(currentFolder_.str()+"nIsoTracksSolidVsEta2D"),dbe_->get(currentFolder_.str()+"nIsoTracksSolidVsEta"));
