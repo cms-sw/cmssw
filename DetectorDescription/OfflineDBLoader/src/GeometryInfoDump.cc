@@ -21,8 +21,8 @@ GeometryInfoDump::~GeometryInfoDump () { }
   
 
 void GeometryInfoDump::dumpInfo ( bool dumpHistory, bool dumpSpecs, bool dumpPosInfo
-				  , const DDCompactView& cpv ) {
-
+				  , const DDCompactView& cpv, std::string fname, int nVols ) {
+  fname = "dump" + fname;
   DDExpandedView epv(cpv);
   std::cout << "Top Most LogicalPart =" << epv.logicalPart() << std::endl;
   if ( dumpHistory || dumpPosInfo) {
@@ -33,11 +33,13 @@ void GeometryInfoDump::dumpInfo ( bool dumpHistory, bool dumpSpecs, bool dumpPos
     typedef std::map<nav_type,int> id_type;
     id_type idMap;
     int id=0;
-    std::ofstream dump("dumpGeoHistory");
+    std::ofstream dump(fname.c_str());
+    bool notReachedDepth(true);
     do {
       nav_type pos = epv.navPos();
       idMap[pos]=id;
-      dump << id << " - " << epv.geoHistory();
+      //      dump << id 
+      dump << " - " << epv.geoHistory();
       DD3Vector x, y, z;
       epv.rotation().GetComponents(x,y,z);
       if ( dumpPosInfo ) {
@@ -73,13 +75,15 @@ void GeometryInfoDump::dumpInfo ( bool dumpHistory, bool dumpSpecs, bool dumpPos
       }
       dump << std::endl;;
       ++id;
-    } while (epv.next());
+      if ( nVols != 0 && id > nVols ) notReachedDepth = false;
+    } while (epv.next() && notReachedDepth);
     dump.close();
   }
   if ( dumpSpecs ) {
     DDSpecifics::iterator<DDSpecifics> spit(DDSpecifics::begin()), spend(DDSpecifics::end());
     // ======= For each DDSpecific...
-    std::ofstream dump("dumpSpecs");
+    std::string dsname = "dumpSpecs" + fname;
+    std::ofstream dump(dsname.c_str());
     for (; spit != spend; ++spit) {
       if ( !spit->isDefined().second ) continue;  
       const DDSpecifics & sp = *spit;

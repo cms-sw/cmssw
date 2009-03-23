@@ -8,7 +8,7 @@ public:
   ~GeometryInfoDump();
 
   void dumpInfo ( bool dumpHistory, bool dumpSpecs, bool dumpPosInfo
-		, const DDCompactView& cpv );
+		, const DDCompactView& cpv, std::string fname = "GeoHistory", int nVols = 0 );
 
 };
 
