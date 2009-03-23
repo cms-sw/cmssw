@@ -26,6 +26,8 @@ namespace reco {
       DET_HCAL_BARREL,
       DET_HCAL_ENDCAP,
       DET_HF,
+      DET_HF_EM,
+      DET_HF_HAD,
       DET_HO,
       DET_NONE
     };
