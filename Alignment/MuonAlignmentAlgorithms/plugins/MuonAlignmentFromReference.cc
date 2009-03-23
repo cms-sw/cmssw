@@ -70,6 +70,9 @@ private:
   int m_minDT13Hits;
   int m_minDT2Hits;
   int m_minCSCHits;
+  double m_maxDT13AngleError;
+  double m_maxDT2AngleError;
+  double m_maxCSCAngleError;
   std::string m_writeTemporaryFile;
   std::vector<std::string> m_readTemporaryFiles;
   bool m_doAlignment;
@@ -113,6 +116,9 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
   , m_minDT13Hits(iConfig.getParameter<int>("minDT13Hits"))
   , m_minDT2Hits(iConfig.getParameter<int>("minDT2Hits"))
   , m_minCSCHits(iConfig.getParameter<int>("minCSCHits"))
+  , m_maxDT13AngleError(iConfig.getParameter<double>("maxDT13AngleError"))
+  , m_maxDT2AngleError(iConfig.getParameter<double>("maxDT2AngleError"))
+  , m_maxCSCAngleError(iConfig.getParameter<double>("maxCSCAngleError"))
   , m_writeTemporaryFile(iConfig.getParameter<std::string>("writeTemporaryFile"))
   , m_readTemporaryFiles(iConfig.getParameter<std::vector<std::string> >("readTemporaryFiles"))
   , m_doAlignment(iConfig.getParameter<bool>("doAlignment"))
@@ -330,13 +336,15 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const ConstT
 	      std::map<Alignable*,MuonResidualsAngleFitter*>::const_iterator phiyFitter = m_phiyFitters.find(chamberResidual->chamberAlignable());
 
 	      if (rphiFitter != m_rphiFitters.end()) {
-		double *residdata = new double[MuonResidualsPositionFitter::kNData];
-		residdata[MuonResidualsPositionFitter::kResidual] = chamberResidual->residual();
-		residdata[MuonResidualsPositionFitter::kAngleError] = chamberResidual->resslope();
-		residdata[MuonResidualsPositionFitter::kTrackAngle] = chamberResidual->trackdxdz();
-		residdata[MuonResidualsPositionFitter::kTrackPosition] = chamberResidual->tracky();
-		rphiFitter->second->fill(residdata);
-		// the MuonResidualsPositionFitter will delete the array when it is destroyed
+		if (fabs(chamberResidual->resslope()) < m_maxDT13AngleError) {
+		  double *residdata = new double[MuonResidualsPositionFitter::kNData];
+		  residdata[MuonResidualsPositionFitter::kResidual] = chamberResidual->residual();
+		  residdata[MuonResidualsPositionFitter::kAngleError] = chamberResidual->resslope();
+		  residdata[MuonResidualsPositionFitter::kTrackAngle] = chamberResidual->trackdxdz();
+		  residdata[MuonResidualsPositionFitter::kTrackPosition] = chamberResidual->tracky();
+		  rphiFitter->second->fill(residdata);
+		  // the MuonResidualsPositionFitter will delete the array when it is destroyed
+		}
 	      }
 	      
 	      if (phiyFitter != m_phiyFitters.end()) {
@@ -355,13 +363,15 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const ConstT
 	      std::map<Alignable*,MuonResidualsAngleFitter*>::const_iterator phixFitter = m_phixFitters.find(chamberResidual->chamberAlignable());
 
 	      if (zFitter != m_zFitters.end()) {
-		double *residdata = new double[MuonResidualsPositionFitter::kNData];
-		residdata[MuonResidualsPositionFitter::kResidual] = chamberResidual->residual();
-		residdata[MuonResidualsPositionFitter::kAngleError] = chamberResidual->resslope();
-		residdata[MuonResidualsPositionFitter::kTrackAngle] = chamberResidual->trackdydz();
-		residdata[MuonResidualsPositionFitter::kTrackPosition] = chamberResidual->trackx();
-		zFitter->second->fill(residdata);
-		// the MuonResidualsPositionFitter will delete the array when it is destroyed
+		if (fabs(chamberResidual->resslope()) < m_maxDT2AngleError) {
+		  double *residdata = new double[MuonResidualsPositionFitter::kNData];
+		  residdata[MuonResidualsPositionFitter::kResidual] = chamberResidual->residual();
+		  residdata[MuonResidualsPositionFitter::kAngleError] = chamberResidual->resslope();
+		  residdata[MuonResidualsPositionFitter::kTrackAngle] = chamberResidual->trackdydz();
+		  residdata[MuonResidualsPositionFitter::kTrackPosition] = chamberResidual->trackx();
+		  zFitter->second->fill(residdata);
+		  // the MuonResidualsPositionFitter will delete the array when it is destroyed
+		}
 	      }
 
 	      if (phixFitter != m_phixFitters.end()) {
@@ -381,13 +391,15 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const ConstT
 	      std::map<Alignable*,MuonResidualsAngleFitter*>::const_iterator phiyFitter = m_phiyFitters.find(chamberResidual->chamberAlignable());
 
 	      if (rphiFitter != m_rphiFitters.end()) {
-		double *residdata = new double[MuonResidualsPositionFitter::kNData];
-		residdata[MuonResidualsPositionFitter::kResidual] = chamberResidual->residual();
-		residdata[MuonResidualsPositionFitter::kAngleError] = chamberResidual->resslope();
-		residdata[MuonResidualsPositionFitter::kTrackAngle] = chamberResidual->trackdxdz();
-		residdata[MuonResidualsPositionFitter::kTrackPosition] = chamberResidual->tracky();
-		rphiFitter->second->fill(residdata);
-		// the MuonResidualsPositionFitter will delete the array when it is destroyed
+		if (fabs(chamberResidual->resslope()) < m_maxCSCAngleError) {
+		  double *residdata = new double[MuonResidualsPositionFitter::kNData];
+		  residdata[MuonResidualsPositionFitter::kResidual] = chamberResidual->residual();
+		  residdata[MuonResidualsPositionFitter::kAngleError] = chamberResidual->resslope();
+		  residdata[MuonResidualsPositionFitter::kTrackAngle] = chamberResidual->trackdxdz();
+		  residdata[MuonResidualsPositionFitter::kTrackPosition] = chamberResidual->tracky();
+		  rphiFitter->second->fill(residdata);
+		  // the MuonResidualsPositionFitter will delete the array when it is destroyed
+		}
 	      }
 
 	      if (phiyFitter != m_phiyFitters.end()) {

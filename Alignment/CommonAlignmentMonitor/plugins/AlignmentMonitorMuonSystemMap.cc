@@ -49,6 +49,9 @@ private:
   int m_minDT13Hits;
   int m_minDT2Hits;
   int m_minCSCHits;
+  double m_maxDT13AngleError;
+  double m_maxDT2AngleError;
+  double m_maxCSCAngleError;
   std::string m_writeTemporaryFile;
   std::vector<std::string> m_readTemporaryFiles;
   bool m_doFits;
@@ -170,6 +173,9 @@ AlignmentMonitorMuonSystemMap::AlignmentMonitorMuonSystemMap(const edm::Paramete
    , m_minDT13Hits(cfg.getParameter<int>("minDT13Hits"))
    , m_minDT2Hits(cfg.getParameter<int>("minDT2Hits"))
    , m_minCSCHits(cfg.getParameter<int>("minCSCHits"))
+   , m_maxDT13AngleError(cfg.getParameter<double>("maxDT13AngleError"))
+   , m_maxDT2AngleError(cfg.getParameter<double>("maxDT2AngleError"))
+   , m_maxCSCAngleError(cfg.getParameter<double>("maxCSCAngleError"))
    , m_writeTemporaryFile(cfg.getParameter<std::string>("writeTemporaryFile"))
    , m_readTemporaryFiles(cfg.getParameter<std::vector<std::string> >("readTemporaryFiles"))
    , m_doFits(cfg.getParameter<bool>("doFits"))
@@ -614,7 +620,7 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	  double trackangle = 0;
 	  double trackposition = 0;
 	  if (chamberResidual->chamberId().subdetId() == MuonSubdetId::DT  &&  (*index) % 2 == 0) {
-	    if (chamberResidual->numHits() >= m_minDT13Hits) {
+	    if (chamberResidual->numHits() >= m_minDT13Hits  &&  fabs(chamberResidual->resslope()) < m_maxDT13AngleError) {
 	      okay = true;
 
 	      DTChamberId chamberId(chamberResidual->chamberId().rawId());
@@ -647,7 +653,7 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	  } // end if DT13
 
 	  else if (chamberResidual->chamberId().subdetId() == MuonSubdetId::DT  &&  (*index) % 2 == 1) {
-	    if (chamberResidual->numHits() >= m_minDT2Hits) {
+	    if (chamberResidual->numHits() >= m_minDT2Hits  &&  fabs(chamberResidual->resslope()) < m_maxDT2AngleError) {
 	      okay = true;
 
 	      DTChamberId chamberId(chamberResidual->chamberId().rawId());
@@ -676,7 +682,7 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	  } // end if DT2
 
 	  else if (chamberResidual->chamberId().subdetId() == MuonSubdetId::CSC) {
-	    if (chamberResidual->numHits() >= m_minCSCHits) {
+	    if (chamberResidual->numHits() >= m_minCSCHits  &&  fabs(chamberResidual->resslope()) < m_maxCSCAngleError) {
 	      okay = true;
 
 	      CSCDetId chamberId(chamberResidual->chamberId().rawId());

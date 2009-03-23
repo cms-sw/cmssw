@@ -17,13 +17,13 @@ void MuonResidualsPositionFitter_FCN(int &npar, double *gin, double &fval, doubl
       const double angleerror = (*resiter)[MuonResidualsPositionFitter::kAngleError];
       const double trackangle = (*resiter)[MuonResidualsPositionFitter::kTrackAngle];
       const double trackposition = (*resiter)[MuonResidualsPositionFitter::kTrackPosition];
-
+      
       double center = 0.;
       center += par[MuonResidualsPositionFitter::kPosition];
       center += par[MuonResidualsPositionFitter::kZpos] * trackangle;
       center += par[MuonResidualsPositionFitter::kPhiz] * trackposition;
       center += par[MuonResidualsPositionFitter::kScattering] * angleerror;
-
+      
       if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian) {
 	fval += -log(MuonResidualsFitter_pureGaussian(residual, center, par[MuonResidualsPositionFitter::kSigma]));
       }
@@ -136,9 +136,13 @@ void MuonResidualsPositionFitter::plot(std::string name, TFileDirectory *dir) {
 
   TH1F *raw_hist = dir->make<TH1F>(raw_name.str().c_str(), (raw_name.str() + std::string(" (mm)")).c_str(), 100, -100., 100.);
   TH1F *narrowed_hist = dir->make<TH1F>(narrowed_name.str().c_str(), (narrowed_name.str() + std::string(" (mm)")).c_str(), 100, -100., 100.);
-  TProfile *angleerror_hist = dir->make<TProfile>(angleerror_name.str().c_str(), (angleerror_name.str() + std::string(" (mm)")).c_str(), 100, -20., 20.);
+  TProfile *angleerror_hist = dir->make<TProfile>(angleerror_name.str().c_str(), (angleerror_name.str() + std::string(" (mm)")).c_str(), 100, -30., 30.);
   TProfile *trackangle_hist = dir->make<TProfile>(trackangle_name.str().c_str(), (trackangle_name.str() + std::string(" (mm)")).c_str(), 100, -0.5, 0.5);
   TProfile *trackposition_hist = dir->make<TProfile>(trackposition_name.str().c_str(), (trackposition_name.str() + std::string(" (mm)")).c_str(), 100, -300., 300.);
+
+  angleerror_hist->SetAxisRange(-100., 100.);
+  trackangle_hist->SetAxisRange(-10., 10.);
+  trackposition_hist->SetAxisRange(-10., 10.);
 
   narrowed_name << "fit";
   angleerror_name << "fit";
@@ -159,7 +163,7 @@ void MuonResidualsPositionFitter::plot(std::string name, TFileDirectory *dir) {
     narrowed_fit->Write();
   }
 
-  TF1 *angleerror_fit = new TF1(angleerror_name.str().c_str(), "[0]+x*[1]", -20., 20.);
+  TF1 *angleerror_fit = new TF1(angleerror_name.str().c_str(), "[0]+x*[1]", -30., 30.);
   angleerror_fit->SetParameters(value(kPosition) * 10., value(kScattering) * 10./1000.);
   angleerror_fit->Write();
 
@@ -185,7 +189,7 @@ void MuonResidualsPositionFitter::plot(std::string name, TFileDirectory *dir) {
 
     raw_hist->Fill(raw_residual * 10.);
     narrowed_hist->Fill(corrected_residual * 10.);
-
+    
     if (inRange(corrected_residual)) {
       angleerror_hist->Fill(angleerror*1000., (raw_residual - trackangle_correction - trackposition_correction) * 10.);
       trackangle_hist->Fill(trackangle, (raw_residual - angleerror_correction - trackposition_correction) * 10.);
