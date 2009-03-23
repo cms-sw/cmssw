@@ -26,24 +26,24 @@ namespace modules
 
 // Generic TrackCategory selector
 
-typedef ObjectSelector<CategoryCriteria<TrackCollection, TrackClassifier> > TrackSelector;
-DEFINE_FWK_MODULE(TrackSelector);
+typedef ObjectSelector<CategoryCriteria<TrackCollection, TrackClassifier> > TrackCategorySelector;
+DEFINE_FWK_MODULE(TrackCategorySelector);
 
-typedef ObjectSelector<CategoryCriteria<TrackingParticleCollection, TrackClassifier> > TrackingParticleSelector;
-DEFINE_FWK_MODULE(TrackingParticleSelector);
+typedef ObjectSelector<CategoryCriteria<TrackingParticleCollection, TrackClassifier> > TrackingParticleCategorySelector;
+DEFINE_FWK_MODULE(TrackingParticleCategorySelector);
 
 // Generic VertexCategory selector
 
-typedef ObjectSelector<CategoryCriteria<VertexCollection, VertexClassifier> > VertexSelector;
-DEFINE_FWK_MODULE(VertexSelector);
+typedef ObjectSelector<CategoryCriteria<VertexCollection, VertexClassifier> > VertexCategorySelector;
+DEFINE_FWK_MODULE(VertexCategorySelector);
 
-typedef ObjectSelector<CategoryCriteria<TrackingVertexCollection, VertexClassifier> > TrackingVertexSelector;
-DEFINE_FWK_MODULE(TrackingVertexSelector);
+typedef ObjectSelector<CategoryCriteria<TrackingVertexCollection, VertexClassifier> > TrackingVertexCategorySelector;
+DEFINE_FWK_MODULE(TrackingVertexCategorySelector);
 
 typedef ObjectSelector<
 CategoryCriteria<SecondaryVertexTagInfoCollection, VertexClassifierByProxy<SecondaryVertexTagInfoCollection> >
-> SecondaryVertexTagInfoSelector;
-DEFINE_FWK_MODULE(SecondaryVertexTagInfoSelector);
+> SecondaryVertexTagInfoCategorySelector;
+DEFINE_FWK_MODULE(SecondaryVertexTagInfoCategorySelector);
 
 }
 }
