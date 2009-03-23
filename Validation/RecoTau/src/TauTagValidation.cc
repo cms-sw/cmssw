@@ -251,7 +251,6 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
       for (genCandidateCollection::const_iterator RefJet= ReferenceCollection->begin() ; RefJet != ReferenceCollection->end(); RefJet++ ){ 
 
-	//	if ((fabs(RefJet->eta()) > 2.5) || (RefJet->pt() < 5.0)) continue;
 	
 	ptTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->pt());
 	etaTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->eta());
@@ -331,8 +330,6 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       caloTauProduct = theCaloTauHandle.product();
       
       for (genCandidateCollection::const_iterator RefJet= ReferenceCollection->begin() ; RefJet != ReferenceCollection->end(); RefJet++ ){ 
-	
-	//	if ((fabs(RefJet->eta()) > 2.5) || (RefJet->pt() < 5.0)) continue;
 	
 	ptTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->pt());
 	etaTauVisibleMap.find(refCollection_.instance())->second->Fill(RefJet->eta());
