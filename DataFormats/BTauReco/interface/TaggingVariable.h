@@ -41,8 +41,11 @@ namespace reco {
       trackSip3dSig,                            // track 3D signed impact parameter significance
       trackDecayLenVal,                         // track decay length
       trackDecayLenSig,                         // track decay length significance
-      trackJetDist,                             // minimum track approach distance to jet axis
-      trackFirstTrackDist,			// minimum approach distance to first track
+      trackJetDistVal,                          // minimum track approach distance to jet axis
+      trackJetDistSig,                          // minimum track approach distance to jet axis significance
+      trackGhostTrackDistVal,			// minimum approach distance to ghost track
+      trackGhostTrackDistSig,			// minimum approach distance to ghost track significance
+      trackGhostTrackWeight,			// weight of track participation in ghost track fit
 
       trackSumJetEtRatio,                       // ratio of track sum transverse energy over jet energy
       trackSumJetDeltaR,                        // pseudoangular distance between jet axis and track fourvector sum
@@ -53,6 +56,7 @@ namespace reco {
 
       vertexMass,                               // mass of track sum at secondary vertex
       vertexNTracks,                            // number of tracks at secondary vertex
+      vertexFitProb,                            // vertex fit probability
 
       vertexEnergyRatio,                        // ratio of energy at secondary vertex over total energy
       vertexJetDeltaR,                          // pseudoangular distance between jet axis and secondary vertex direction

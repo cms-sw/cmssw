@@ -55,8 +55,11 @@ TaggingVariableList TrackIPTagInfo::taggingVariables(void) const {
      vars.insert(btau::trackSip2dVal, data->ip2d.value(), true);
      vars.insert(btau::trackSip2dSig, data->ip2d.significance(), true);
      vars.insert(btau::trackDecayLenVal, havePv ? (data->closestToJetAxis - pv).mag() : -1.0, true);
-     vars.insert(btau::trackJetDist, data->distanceToJetAxis, true);
-     vars.insert(btau::trackFirstTrackDist, data->distanceToFirstTrack, true);
+     vars.insert(btau::trackJetDistVal, data->distanceToJetAxis.value(), true);
+     vars.insert(btau::trackJetDistSig, data->distanceToJetAxis.significance(), true);
+     vars.insert(btau::trackGhostTrackDistVal, data->distanceToGhostTrack.value(), true);
+     vars.insert(btau::trackGhostTrackDistSig, data->distanceToGhostTrack.significance(), true);
+     vars.insert(btau::trackGhostTrackWeight, data->ghostTrackWeight, true);
      vars.insert(btau::trackChi2, track->normalizedChi2(), true);
      vars.insert(btau::trackNTotalHits, track->hitPattern().numberOfValidHits(), true);
      vars.insert(btau::trackNPixelHits, track->hitPattern().numberOfValidPixelHits(), true);

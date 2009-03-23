@@ -8,39 +8,42 @@
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 namespace reco {
  
-class TrackIPTagInfo : public JTATagInfo
- {
-  public:
- struct TrackIPData
- {
-  Measurement1D ip2d;
-  Measurement1D ip3d;
-  GlobalPoint closestToJetAxis;
-  GlobalPoint closestToFirstTrack;
-  float  distanceToJetAxis;
-  float  distanceToFirstTrack;
- };
+class TrackIPTagInfo : public JTATagInfo {
+public:
+  struct TrackIPData {
+    GlobalPoint closestToJetAxis;
+    GlobalPoint closestToGhostTrack;
+    Measurement1D ip2d;
+    Measurement1D ip3d;
+    Measurement1D distanceToJetAxis;
+    Measurement1D distanceToGhostTrack;
+    float ghostTrackWeight;
+  };
   
- TrackIPTagInfo(
-    std::vector<TrackIPData> ipData,
-   std::vector<float> prob2d,
-   std::vector<float> prob3d,
-   edm::RefVector<TrackCollection> selectedTracks,const JetTracksAssociationRef & jtaRef,
-   const edm::Ref<VertexCollection> & pv) : JTATagInfo(jtaRef),
-     m_data(ipData),  m_prob2d(prob2d),
-     m_prob3d(prob3d), m_selectedTracks(selectedTracks), m_pv(pv) {}
+  TrackIPTagInfo(
+    const std::vector<TrackIPData> & ipData,
+    const std::vector<float> & prob2d,
+    const std::vector<float> & prob3d,
+    const edm::RefVector<TrackCollection> & selectedTracks,
+    const JetTracksAssociationRef & jtaRef,
+    const edm::Ref<VertexCollection> & pv,
+    const GlobalVector & axis,
+    const TrackRef & ghostTrack) :
+      JTATagInfo(jtaRef), m_data(ipData),  m_prob2d(prob2d),
+      m_prob3d(prob3d), m_selectedTracks(selectedTracks), m_pv(pv),
+      m_axis(axis), m_ghostTrack(ghostTrack) {}
 
   TrackIPTagInfo() {}
   
   virtual ~TrackIPTagInfo() {}
   
   /// clone
-  virtual TrackIPTagInfo * clone(void) const {
-    return new TrackIPTagInfo(*this);
-  }
+  virtual TrackIPTagInfo * clone(void) const
+  { return new TrackIPTagInfo(*this); }
 
  /**
    Check if probability information is globally available 
@@ -50,12 +53,15 @@ class TrackIPTagInfo : public JTATagInfo
    if some problem occured
   */
 
-  virtual bool hasProbabilities() const { return  m_data.size()==m_prob3d.size(); }
+  virtual bool hasProbabilities() const
+  { return m_data.size() == m_prob3d.size(); }
   
   /**
    Vectors of TrackIPData orderd as the selectedTracks()
    */
-  const std::vector<TrackIPData> & impactParameterData() const {return m_data; }
+  const std::vector<TrackIPData> & impactParameterData() const
+  { return m_data; }
+
   /**
    Return the vector of tracks for which the IP information is available
    Quality cuts are applied to reject fake tracks  
@@ -63,8 +69,8 @@ class TrackIPTagInfo : public JTATagInfo
   const edm::RefVector<TrackCollection> & selectedTracks() const { return m_selectedTracks; }
   const std::vector<float> & probabilities(int ip) const {return (ip==0)?m_prob3d:m_prob2d; }
 
-  typedef enum {IP3DSig = 0, Prob3D = 1, IP2DSig = 2, Prob2D =3 , 
-                IP3DValue =4, IP2DValue=5 } SortCriteria;
+  enum SortCriteria { IP3DSig = 0, Prob3D, IP2DSig, Prob2D, 
+                      IP3DValue, IP2DValue };
 
   /**
    Return the list of track index sorted by mode
@@ -84,14 +90,19 @@ class TrackIPTagInfo : public JTATagInfo
 
   virtual TaggingVariableList taggingVariables(void) const; 
  
-  edm::Ref<VertexCollection>   primaryVertex() const {return m_pv; }
-   private:
-   std::vector<TrackIPData> m_data;
-   std::vector<float> m_prob2d;   
-   std::vector<float> m_prob3d;   
-   edm::RefVector<TrackCollection> m_selectedTracks;
-   edm::Ref<VertexCollection> m_pv;
+  const edm::Ref<VertexCollection> & primaryVertex() const { return m_pv; }
 
+  const GlobalVector & axis() const { return m_axis; }
+  const TrackRef & ghostTrack() const { return m_ghostTrack; }
+
+private:
+  std::vector<TrackIPData> m_data;
+  std::vector<float> m_prob2d;   
+  std::vector<float> m_prob3d;   
+  edm::RefVector<TrackCollection> m_selectedTracks;
+  edm::Ref<VertexCollection> m_pv;
+  GlobalVector m_axis;
+  TrackRef m_ghostTrack;
 };
 
 //typedef edm::ExtCollection< TrackIPTagInfo,JetTagCollection> TrackCountingExtCollection;
