@@ -1,6 +1,6 @@
 #include "RPCRecoIdealDBLoader.h"
 
-#include <Geometry/DTGeometryBuilder/src/DTGeometryParsFromDD.h>
+#include <Geometry/RPCGeometryBuilder/src/RPCGeometryParsFromDD.h>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -51,9 +51,9 @@ RPCRecoIdealDBLoader::beginJob( edm::EventSetup const& es)
   es.get<MuonNumberingRecord>().get( pMNDC );
 
   const DDCompactView& cpv = *pDD;
-  DTGeometryParsFromDD dtgp;
+  RPCGeometryParsFromDD rpcpd;
 
-  dtgp.build( &cpv, *pMNDC, *rig );
+  rpcpd.build( &cpv, *pMNDC, *rig );
 
   if ( mydbservice->isNewTagRequest("RPCRecoGeometryRcd") ) {
     mydbservice->createNewIOV<RecoIdealGeometry>(rig
