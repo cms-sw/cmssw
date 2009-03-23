@@ -206,9 +206,9 @@ uint16_t L1GctJetEtCalibrationFunction::calibratedEt(const double correctedEt) c
 
   uint16_t jetEtOut = static_cast<uint16_t>(scaledEt);
 
-  if(jetEtOut > L1CaloEtScale::linScaleMax) {
-    return L1CaloEtScale::linScaleMax;
-  } else {
-    return jetEtOut;
-  }
+//   if(jetEtOut > L1CaloEtScale::linScaleMax) {
+//     return L1CaloEtScale::linScaleMax;
+//   } else {
+//     return jetEtOut;
+//   }
 }
