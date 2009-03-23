@@ -20,6 +20,7 @@ namespace edm
     bool splitProductIDs() const;
     bool fastCopyPossible() const;
     bool parameterSetsByReference() const;
+    bool triggerPathsTracked() const;
     int value() const {return value_;}
     
    private:

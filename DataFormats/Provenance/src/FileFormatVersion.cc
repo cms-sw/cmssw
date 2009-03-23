@@ -52,6 +52,10 @@ namespace edm {
     return value_ >= 12;
   }
 
+  bool
+  FileFormatVersion::triggerPathsTracked() const {
+    return value_ >= 13;
+  }
 
   std::ostream&
   operator<< (std::ostream& os, FileFormatVersion const& ff) {

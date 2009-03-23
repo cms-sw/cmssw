@@ -79,11 +79,11 @@ namespace {
   std::vector<std::vector<edm::ParameterSetID> > dummyVectorVectorParameterSetID;
 
   // The remaining ones are for backward compatibility only.
-  std::map<edm::ModuleDescriptionID, edm::ModuleDescription> dummyMapMod;
-  std::pair<edm::ModuleDescriptionID, edm::ModuleDescription> dummyPairMod;
   std::vector<edm::EventProcessHistoryID> dummyEventProcessHistory;
   edm::EntryDescriptionID dummyEntryDescriptionID;
   std::vector<edm::EventEntryInfo> dummyVectorEventEntryInfo;
   std::vector<edm::RunLumiEntryInfo> dummyVectorRunLumiEntryInfo;
+
+  std::pair<edm::ModuleDescriptionID, edm::ModuleDescription> dummyPairMod;
 };
 }

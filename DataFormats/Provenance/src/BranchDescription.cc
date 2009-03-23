@@ -22,7 +22,9 @@ namespace edm {
     transient_(false),
     type_(),
     splitLevel_(),
-    basketSize_() {
+    basketSize_(),
+    parameterSetIDs_(),
+    moduleNames_() {
    }
 
   BranchDescription::BranchDescription() :
@@ -34,8 +36,6 @@ namespace edm {
     fullClassName_(),
     friendlyClassName_(),
     productInstanceName_(),
-    parameterSetIDs_(),
-    moduleNames_(),
     branchAliases_(),
     transients_()
   {
@@ -59,16 +59,14 @@ namespace edm {
     fullClassName_(name),
     friendlyClassName_(fName),
     productInstanceName_(pin),
-    parameterSetIDs_(),
-    moduleNames_(),
     branchAliases_(aliases),
     transients_()
   {
     present() = true;
     produced() = true;
     transients_.get().parameterSetID_ = modDesc.parameterSetID();
-    parameterSetIDs_.insert(std::make_pair(modDesc.processConfigurationID(),modDesc.parameterSetID()));
-    moduleNames_.insert(std::make_pair(modDesc.processConfigurationID(),modDesc.moduleName()));
+    parameterSetIDs().insert(std::make_pair(modDesc.processConfigurationID(),modDesc.parameterSetID()));
+    moduleNames().insert(std::make_pair(modDesc.processConfigurationID(),modDesc.moduleName()));
     init();
   }
 
@@ -161,8 +159,8 @@ namespace edm {
 
   void
   BranchDescription::merge(BranchDescription const& other) {
-    parameterSetIDs_.insert(other.parameterSetIDs().begin(), other.parameterSetIDs().end());
-    moduleNames_.insert(other.moduleNames().begin(), other.moduleNames().end());
+    parameterSetIDs().insert(other.parameterSetIDs().begin(), other.parameterSetIDs().end());
+    moduleNames().insert(other.moduleNames().begin(), other.moduleNames().end());
     branchAliases_.insert(other.branchAliases().begin(), other.branchAliases().end());
     present() = present() || other.present();
     if (splitLevel() == invalidSplitLevel) splitLevel() = other.splitLevel();

@@ -73,10 +73,12 @@ namespace edm {
     int & basketSize() const {return transients_.get().basketSize_;}
 
     ParameterSetID const& parameterSetID() const {return transients_.get().parameterSetID_;}
-    std::map<ProcessConfigurationID, ParameterSetID> const& parameterSetIDs() const {return parameterSetIDs_;}
-    std::map<ProcessConfigurationID, std::string> const& moduleNames() const {return moduleNames_;}
-    std::map<ProcessConfigurationID, ParameterSetID>& parameterSetIDs() {return parameterSetIDs_;}
-    std::map<ProcessConfigurationID, std::string>& moduleNames() {return moduleNames_;}
+    std::map<ProcessConfigurationID, ParameterSetID>& parameterSetIDs() const {
+      return transients_.get().parameterSetIDs_;
+    }
+    std::map<ProcessConfigurationID, std::string>& moduleNames() const {
+      return transients_.get().moduleNames_;
+    }
     ParameterSetID const& psetID() const;
     bool isPsetIDUnique() const {return parameterSetIDs().size() == 1;}
     std::set<std::string> const& branchAliases() const {return branchAliases_;}
@@ -125,6 +127,14 @@ namespace edm {
       // The basket size of the branch, as marked
       // in the data dictionary.
       int basketSize_;
+
+      // ID's of process configurations for products on this branch
+      //  with corresponding parameter set IDs,
+      mutable std::map<ProcessConfigurationID, ParameterSetID> parameterSetIDs_;
+
+      // ID's of process configurations for products on this branch
+      //  with corresponding module names
+      mutable std::map<ProcessConfigurationID, std::string> moduleNames_;
     };
 
   private:
@@ -157,22 +167,6 @@ namespace edm {
     // a user-supplied name to distinguish multiple products of the same type
     // that are produced by the same producer
     std::string productInstanceName_;
-
-    // ID's of parameter set of the creators of products
-    // on this branch
-    // std::set<ParameterSetID> psetIDs_;
-
-    // ID's of process configurations for products
-    // on this branch
-    // std::set<ProcessConfigurationID> processConfigurationIDs_;
-
-    // ID's of process configurations for products on this branch
-    //  with corresponding parameter set IDs,
-    std::map<ProcessConfigurationID, ParameterSetID> parameterSetIDs_;
-
-    // ID's of process configurations for products on this branch
-    //  with corresponding module names
-    std::map<ProcessConfigurationID, std::string> moduleNames_;
 
     // The branch ROOT alias(es), which are settable by the user.
     std::set<std::string> branchAliases_;
