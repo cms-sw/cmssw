@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.99 2009/03/16 20:19:34 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.100 2009/03/20 16:11:36 amraktad Exp $
 //
 
 // system include files
@@ -449,6 +449,7 @@ void
 FWGUIManager::subviewSwapWithCurrent(FWGUISubviewArea* sva)
 {
    sva->getEveWindow()->SwapWindowWithCurrent();
+   subviewCurrentChanged(sva->getEveWindow());
 }
 
 
