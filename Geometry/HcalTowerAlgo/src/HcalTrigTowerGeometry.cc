@@ -64,8 +64,96 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
 
 
 std::vector<HcalDetId>
-HcalTrigTowerGeometry::detIds(const HcalTrigTowerDetId &) const {
+HcalTrigTowerGeometry::detIds(const HcalTrigTowerDetId & hcalTrigTowerDetId) const {
+  // Written, tested by E. Berry (Princeton)
   std::vector<HcalDetId> results;
+
+  int tower_ieta = hcalTrigTowerDetId.ieta();
+  int tower_iphi = hcalTrigTowerDetId.iphi();
+
+  int cell_ieta = tower_ieta;
+  int cell_iphi = tower_iphi;
+
+  int min_depth, n_depths;
+
+  // HB
+  
+  if (abs(cell_ieta) <= theTopology.lastHBRing()){
+    theTopology.depthBinInformation(HcalBarrel, abs(tower_ieta), n_depths, min_depth);
+    for (int cell_depth = min_depth; cell_depth <= min_depth + n_depths - 1; cell_depth++)
+      results.push_back(HcalDetId(HcalBarrel,cell_ieta,cell_iphi,cell_depth));
+  }
+
+  // HO
+  
+  if (abs(cell_ieta) <= theTopology.lastHORing()){ 
+    theTopology.depthBinInformation(HcalOuter , abs(tower_ieta), n_depths, min_depth);  
+    for (int ho_depth = min_depth; ho_depth <= min_depth + n_depths - 1; ho_depth++)
+      results.push_back(HcalDetId(HcalOuter, cell_ieta,cell_iphi,ho_depth));
+  }
+
+  // HE 
+
+  if (abs(cell_ieta) >= theTopology.firstHERing() && 
+      abs(cell_ieta) <  theTopology.lastHERing()){   
+
+    theTopology.depthBinInformation(HcalEndcap, abs(tower_ieta), n_depths, min_depth);
+    
+    // Special for double-phi cells
+    if (abs(cell_ieta) >= theTopology.firstHEDoublePhiRing())
+      if (tower_iphi%2 == 0) cell_iphi = tower_iphi - 1;
+    
+    for (int cell_depth = min_depth; cell_depth <= min_depth + n_depths - 1; cell_depth++)
+      results.push_back(HcalDetId(HcalEndcap, cell_ieta, cell_iphi, cell_depth));
+    
+    // Special for split-eta cells
+    if (abs(tower_ieta) == 28){
+      theTopology.depthBinInformation(HcalEndcap, abs(tower_ieta)+1, n_depths, min_depth);
+      for (int cell_depth = min_depth; cell_depth <= min_depth + n_depths - 1; cell_depth++){
+	if (tower_ieta < 0) results.push_back(HcalDetId(HcalEndcap, tower_ieta - 1, cell_iphi, cell_depth));
+	if (tower_ieta > 0) results.push_back(HcalDetId(HcalEndcap, tower_ieta + 1, cell_iphi, cell_depth));
+      }
+    }
+    
+  }
+    
+  // HF 
+  
+  if (abs(cell_ieta) >= theTopology.firstHFRing()){  
+    
+    int HfTowerPhiSize     = 72 / nPhiBins(tower_ieta);
+    int HfTowerEtaSize     = hfTowerEtaSize(tower_ieta);
+    int FirstHFRingInTower = firstHFRingInTower(abs(tower_ieta));
+    
+    for (int iHFTowerPhiSegment = 0; iHFTowerPhiSegment < HfTowerPhiSize; iHFTowerPhiSegment++){      
+            
+      cell_iphi =  (tower_iphi / HfTowerPhiSize) * HfTowerPhiSize; // Find the minimum phi segment
+      cell_iphi -= 2;                        // The first trigger tower starts at HCAL iphi = 71, not HCAL iphi = 1
+      cell_iphi += iHFTowerPhiSegment;       // Get all of the HCAL iphi values in this trigger tower
+      cell_iphi += 72;                       // Don't want to take the mod of a negative number
+      cell_iphi =  cell_iphi % 72;           // There are, at most, 72 cells.
+      cell_iphi += 1;                        // There is no cell at iphi = 0
+      
+      if (cell_iphi%2 == 0) continue;        // These cells don't exist.
+
+      for (int iHFTowerEtaSegment = 0; iHFTowerEtaSegment < HfTowerEtaSize; iHFTowerEtaSegment++){
+		
+	cell_ieta = FirstHFRingInTower + iHFTowerEtaSegment;
+
+	if (cell_ieta >= 40 && cell_iphi%4 == 1) continue;  // These cells don't exist.
+
+	theTopology.depthBinInformation(HcalForward, cell_ieta, n_depths, min_depth);  
+
+	// Negative tower_ieta -> negative cell_ieta
+	if (tower_ieta < 0) cell_ieta *= -1;	       
+
+	for (int cell_depth = min_depth; cell_depth <= min_depth + n_depths - 1; cell_depth++)
+	  results.push_back(HcalDetId(HcalForward, cell_ieta, cell_iphi, cell_depth));
+	
+      }    
+    }
+  }
+
   return results;
 }
 
