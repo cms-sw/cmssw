@@ -514,7 +514,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoublePhoton15_VeryLooseEcalIso_L1R") == 0) {
     if ( map_BitOfStandardHLTPath.find("L1_DoubleEG5")->second == 1 ) {   
-      if(OpenHlt1PhotonVeryLooseEcalIsoPassed(15.,0,2,999.,999.,5.)>=1) {     
+      if(OpenHlt1PhotonVeryLooseEcalIsoPassed(15.,0,2,999.,999.,5.)>=2) {     
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }         
       }  
     }
