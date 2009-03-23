@@ -1,4 +1,4 @@
-#include "GeneratorInterface/PomwigInterface/interface/HWRGEN.h"
+#include "HWRGEN.h"
 #include "CLHEP/Random/RandomEngine.h"
 
 CLHEP::HepRandomEngine* randomEngine;

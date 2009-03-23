@@ -1,21 +1,26 @@
 /*
- *  Original Author: Fabian Stoeckli 
- *  26/09/06
+ *  Based on Herwig6Interface (author: Fabian Stoeckli) 
  * 
- *  Modified for PomwigInterface: Antonio.Vilela.Pereira@cern.ch
+ *  Modified for PomwigProducer: Antonio.Vilela.Pereira@cern.ch
  */
 
-#include "GeneratorInterface/PomwigInterface/interface/PomwigSource.h"
-#include "GeneratorInterface/PomwigInterface/interface/Dummies.h"
-#include "GeneratorInterface/PomwigInterface/interface/HWRGEN.h"
+#include "PomwigProducer.h"
+#include "Dummies.h"
+#include "HWRGEN.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/JamesRandom.h"
+#include "CLHEP/Random/RandFlat.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/Run.h"
+
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include <iostream>
 #include "time.h"
@@ -26,10 +31,10 @@ using namespace std;
 
 #include "HepMC/HerwigWrapper6_4.h"
 #include "HepMC/IO_HERWIG.h"
+#include "HepMC/HEPEVT_Wrapper.h"
 
 // INCLUDE JIMMY,HERWIG,LHAPDF,POMWIG COMMON BLOCKS AND FUNTIONS
 #include "herwig.h"
-
 
 extern"C" {
   void setpdfpath_(char*,int*);
@@ -47,21 +52,21 @@ extern"C" {
 #define cmsending cmsending_
 
 // -----------------  Source Code -----------------------------------------
-PomwigSource::PomwigSource( const ParameterSet & pset, 
-			    InputSourceDescription const& desc ) :
-  GeneratedInputSource(pset, desc), evt(0), 
+PomwigProducer::PomwigProducer( const ParameterSet & pset) :
+  EDProducer(), evt(0), 
   herwigVerbosity_ (pset.getUntrackedParameter<int>("herwigVerbosity",0)),
   herwigHepMCVerbosity_ (pset.getUntrackedParameter<bool>("herwigHepMCVerbosity",false)),
   herwigLhapdfVerbosity_ (pset.getUntrackedParameter<int>("herwigLhapdfVerbosity",0)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",0)),
-  comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
-  lhapdfSetPath_(pset.getUntrackedParameter<string>("lhapdfSetPath","")),
+  comEnergy_(pset.getParameter<double>("comEnergy")),
   printCards_(pset.getUntrackedParameter<bool>("printCards",false)),
-  extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
-  extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
-  survivalProbability(pset.getUntrackedParameter<double>("survivalProbability", 0.05)),
-  diffTopology(pset.getParameter<int>("diffTopology")),
-  enableForcedDecays(pset.getUntrackedParameter<bool>("enableForcedDecays",false))
+  extCrossSect_(pset.getUntrackedParameter<double>("crossSection", -1.)),
+  extFilterEff_(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
+  survivalProbability_(pset.getParameter<double>("survivalProbability")),
+  diffTopology_(pset.getParameter<int>("diffTopology")),
+  h1fit_(pset.getParameter<int>("h1fit")),
+  enableForcedDecays_(pset.getUntrackedParameter<bool>("enableForcedDecays",false)),
+  eventNumber_(0)
 {
   useJimmy_ = false;
   numTrials_ = 100;
@@ -70,7 +75,7 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   std::ostringstream header_str;
 
   header_str << "----------------------------------------------\n";
-  header_str << "Initializing PomwigSource\n";
+  header_str << "Initializing PomwigProducer\n";
   header_str << "----------------------------------------------\n";
 
   
@@ -99,27 +104,26 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
 
   // setting up lhapdf path name from environment varaible (***)
   char* lhaPdfs = NULL;
-  header_str<<"   Trying to find LHAPATH in environment ...";
+  header_str <<"   Trying to find LHAPATH in environment ...";
   lhaPdfs = getenv("LHAPATH");
+  std::string lhapdfSetPath = std::string(lhaPdfs);
   if(lhaPdfs != NULL) {
-    header_str<<" done.\n";
-    lhapdfSetPath_=std::string(lhaPdfs);
-    header_str<<"   Using "<< lhapdfSetPath_ << "\n";	
+    header_str << " done.\n";
+    header_str << "  Using "<< lhapdfSetPath << "\n";	
   }
   else{
-    header_str<<" failed.\n";
-    header_str<<"   Using "<< lhapdfSetPath_ << "\n";
+    throw edm::Exception(edm::errors::Configuration,"PomwigError")
+          << " Could not find LHAPATH";
   }
-
 
   // Call hwudat to set up HERWIG block data
   hwudat();
   
   // Setting basic parameters ...
-  hwproc.PBEAM1 = comenergy/2.;
-  hwproc.PBEAM2 = comenergy/2.;
+  hwproc.PBEAM1 = comEnergy_/2.;
+  hwproc.PBEAM2 = comEnergy_/2.;
   // Choose beam particles for POMWIG depending on topology
-  switch (diffTopology){
+  switch (diffTopology_){
         case 0: //DPE
                 hwbmch.PART1[0]  = 'E';
                 hwbmch.PART1[1]  = '-';
@@ -153,16 +157,16 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
     hwbmch.PART1[i]  = ' ';
     hwbmch.PART2[i]  = ' ';}
 
-  int numEvents = maxEvents();  
   if(useJimmy_) jmparm.MSFLAG = 1;
 
   // initialize other common blocks ...
   hwigin();
 
-  double fracErrors_ = pset.getUntrackedParameter<double>("fracErrors",0.1);
-  int maxerrors = int(fracErrors_*numEvents);
-  hwevnt.MAXER = maxerrors;
-  if(hwevnt.MAXER<100) hwevnt.MAXER = 100;
+  hwevnt.MAXER = 100000000;	// O(inf)
+  hwpram.LWSUD = 0;		// don't write Sudakov form factors
+  hwdspn.LWDEC = 0;		// don't write three/four body decays
+           			// (no fort.77 and fort.88 ...)
+
   header_str << "   MAXER set to " << hwevnt.MAXER << "\n";
 
   if(useJimmy_) jimmin();
@@ -170,7 +174,6 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   // set some 'non-herwig' defaults
   hwevnt.MAXPR =  maxEventsToPrint_;           // no printing out of events
   hwpram.IPRINT = herwigVerbosity_;            // HERWIG print out mode
-  hwprop.RMASS[6] = 175.0;
 
   // Set HERWIG parameters in a single ParameterSet
   ParameterSet herwig_params = 
@@ -214,21 +217,21 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   header_str << "Setting Herwig random number generator seeds" << "\n";
   header_str << "----------------------------------------------" << "\n";
   edm::Service<RandomNumberGenerator> rng;
-  randomEngine = &(rng->getEngine());
   int wwseed = rng->mySeed();
+  randomEngine = fRandomEngine = &(rng->getEngine());
   bool rngok = setRngSeeds(wwseed);
   if(!rngok)
     throw edm::Exception(edm::errors::Configuration,"HerwigError")
       <<" Impossible error in setting 'NRN(.)'.";
-  header_str << "   NRN(1) = "<<hwevnt.NRN[0]<<"\n";
-  header_str << "   NRN(2) = "<<hwevnt.NRN[1]<<"\n";
+  header_str << "   NRN(1) = " << hwevnt.NRN[0] << "\n";
+  header_str << "   NRN(2) = " << hwevnt.NRN[1] << "\n";
 
   // set the LHAPDF grid directory and path
   setherwpdf();
   char pdfpath[232];
-  int pathlen = lhapdfSetPath_.length();
+  int pathlen = lhapdfSetPath.length();
   for(int i=0; i<pathlen; ++i) 
-  pdfpath[i]=lhapdfSetPath_.at(i);
+  pdfpath[i]=lhapdfSetPath.at(i);
   for(int i=pathlen; i<232; ++i) 
   pdfpath[i]=' ';
   mysetpdfpath(pdfpath);
@@ -255,7 +258,7 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
 
   // Initialization
 
-  if(enableForcedDecays){
+  if(enableForcedDecays_){
     header_str << "\n----------------------------------------------" << "\n";
     header_str << "HWMODK will be called to force decays" << "\n";
     header_str << "----------------------------------------------" << "\n";
@@ -308,9 +311,9 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   hwusta("PI0     ",1);
 
   // Initialize H1 pomeron/reggeon
-  if(diffTopology != 3){
+  if(diffTopology_ != 3){
         int nstru = hwpram.NSTRU;
-        int ifit = pset.getParameter<int>("h1fit");
+        int ifit = h1fit_;
         if(nstru == 9){
                 if((ifit <= 0)||(ifit >= 7)){
                         throw edm::Exception(edm::errors::Configuration,"PomwigError")
@@ -408,7 +411,8 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   if(useJimmy_) jminit();
 
   produces<HepMCProduct>();
-  produces<GenInfoProduct, edm::InRun>();
+  produces<GenEventInfoProduct>();
+  produces<GenRunInfoProduct, edm::InRun>();
 
   header_str << "\n----------------------------------------------" << "\n";
   header_str << "Starting event generation" << "\n";
@@ -420,7 +424,7 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
 }
 
 
-PomwigSource::~PomwigSource(){
+PomwigProducer::~PomwigProducer(){
 
   std::ostringstream footer_str;
 
@@ -433,14 +437,14 @@ PomwigSource::~PomwigSource(){
   clear();
 }
 
-void PomwigSource::clear() {
+void PomwigProducer::clear() {
   // teminate elementary process
   hwefin();
   if(useJimmy_) jmefin();
 }
 
 
-bool PomwigSource::produce(Event & e) {
+void PomwigProducer::produce(Event & e, const EventSetup& es) {
 
   int counter = 0;
   double mpiok = 1.0;
@@ -462,7 +466,14 @@ bool PomwigSource::produce(Event & e) {
   // event after numTrials MP is not ok -> skip event
   if(mpiok > 0.5) {
     LogWarning("") <<"   JIMMY could not produce MI in "<<numTrials_<<" trials.\n"<<"   Event will be skipped to prevent from deadlock.\n";
-    return true;
+
+// Throw an exception if generation fails.  Use the EventCorruption
+// exception since it maps onto SkipEvent which is what we want to do here.
+
+    std::ostringstream sstr;
+    sstr << "PomwigProducer: JIMMY could not produce MI in " << numTrials_ << " trials.\n";
+    edm::Exception except(edm::errors::EventCorruption, sstr.str());
+    throw except;
   }  
   
   hwdhob();
@@ -474,23 +485,26 @@ bool PomwigSource::produce(Event & e) {
   hwufne();
   
   // if event was killed by HERWIG; skip 
-  if(hwevnt.IERROR!=0) return true;
-
-  //intCrossSect = 1000.0*survivalProbability*hwevnt.AVWGT;
+  if(hwevnt.IERROR!=0) {
+    std::ostringstream sstr;
+    sstr << "PomwigProducer: HERWIG indicates a failure. Abandon the event.\n";
+    edm::Exception except(edm::errors::EventCorruption, sstr.str());
+    throw except;
+  }
 
   // -----------------  HepMC converter --------------------
-  HepMC::IO_HERWIG conv;
+  //HepMC::IO_HERWIG conv;
 
   // HEPEVT is ok, create new HepMC event
   evt = new HepMC::GenEvent();
   bool ok = conv.fill_next_event( evt );
   // if conversion failed; throw excpetion and stop processing
   if(!ok) throw cms::Exception("HerwigError")
-    <<" Conversion problems in event nr."<<numberEventsInRun() - remainingEvents() - 1<<".";  
+    <<" Conversion problems in event nr."<< eventNumber_ << ".";  
 
   // set process id and event number
   evt->set_signal_process_id(hwproc.IPROC);  
-  evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
+  evt->set_event_number(eventNumber_);
   
   if (herwigHepMCVerbosity_) {
     LogWarning("") << "Event process = " << evt->signal_process_id() << "\n----------------------\n";
@@ -503,21 +517,23 @@ bool PomwigSource::produce(Event & e) {
     bare_product->addHepMCData(evt );
     e.put(bare_product);
   }
+
+  std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(evt));
+  e.put(genEventInfo);
   
-  return true;
+  return;
 }
 
 // -------------------------------------------------------------------------------------------------
 // function to pass parameters to common blocks
-bool PomwigSource::hwgive(const std::string& ParameterString) {
+bool PomwigProducer::hwgive(const std::string& ParameterString) {
   bool accepted = 1;
 
- 
   if(!strncmp(ParameterString.c_str(),"IPROC",5)) {
     hwproc.IPROC = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]);
     if(hwproc.IPROC<0) {
       throw cms::Exception("HerwigError")
-	<<" Attempted to set IPROC to a negative value. This is not allowed.\n Please use the McatnloInterface to cope with negative valued IPROCs.";
+	<<" Attempted to set IPROC to a negative value. This is not allowed.\n Please use the McatnloProducer to cope with negative valued IPROCs.";
     }
   }
   else if(!strncmp(ParameterString.c_str(),"AUTPDF(",7)){
@@ -1248,6 +1264,7 @@ bool PomwigSource::hwgive(const std::string& ParameterString) {
   return accepted;
 }
 
+
 #ifdef NEVER
 //-------------------------------------------------------------------------------
 // dummy hwaend (to be REMOVED from herwig)
@@ -1259,7 +1276,7 @@ extern "C" {
 //-------------------------------------------------------------------------------
 #endif
 
-bool PomwigSource::setRngSeeds(int mseed)
+bool PomwigProducer::setRngSeeds(int mseed)
 {
   double temx[5];
   for (int i=0; i<5; i++) {
@@ -1288,29 +1305,18 @@ bool PomwigSource::setRngSeeds(int mseed)
   return true;
 }
 
-void PomwigSource::endRun(Run & r) {
+void PomwigProducer::endRun(Run & run) {
  
- auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
+ double intCrossSect = 1000.0*survivalProbability_*hwevnt.AVWGT;
 
- //-----------------------------------------------
- // compute cross-section (internal HERWIG style)
- double RNWGT=1./hwevnt.NWGTS;
- double AVWGT=hwevnt.WGTSUM*RNWGT;
+ auto_ptr<GenRunInfoProduct> genRunInfoProd (new GenRunInfoProduct());
+ genRunInfoProd->setInternalXSec(intCrossSect);
+ genRunInfoProd->setFilterEfficiency(extFilterEff_);
+ genRunInfoProd->setExternalXSecLO(extCrossSect_);
+ genRunInfoProd->setExternalXSecNLO(-1.);   
 
- intCrossSect=1000.*survivalProbability*AVWGT;
- //-----------------------------------------------
-
- giprod->set_cross_section(intCrossSect);
- cout<<">>>>> Cross section = " << intCrossSect << std::endl;
- giprod->set_external_cross_section(extCrossSect);
- giprod->set_filter_efficiency(extFilterEff);
- r.put(giprod);
-
+ run.put(genRunInfoProd);
 }
-
-
-
-
 
 #ifdef NEVER
 extern "C" {
@@ -1320,3 +1326,5 @@ extern "C" {
   }
 }
 #endif
+
+DEFINE_ANOTHER_FWK_MODULE(PomwigProducer);

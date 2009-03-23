@@ -7,15 +7,15 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-	fileNames = cms.untracked.vstring("rfio:/castor/cern.ch/user/a/antoniov/Summer08/POMWIG_SingleDiffractiveDijetsMinus_10TeV_Pt_80_cff_py_GEN.root")
+    fileNames = cms.untracked.vstring("file:/tmp/antoniov/POMWIG_SingleDiffractiveDijetsPlus_10TeV_Pt_30_cff_py_GEN_producer.root")
 )
 
-process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
-process.load('PhysicsTools.HepMCCandAlgos.genParticles_cfi')
-process.load('RecoJets.Configuration.GenJetParticles_cff')
-process.load('RecoJets.Configuration.RecoGenJets_cff')
+#process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+#process.load('PhysicsTools.HepMCCandAlgos.genParticles_cfi')
+#process.load('RecoJets.Configuration.GenJetParticles_cff')
+#process.load('RecoJets.Configuration.RecoGenJets_cff')
 
-process.genParticles.abortOnUnknownPDGCode = False
+#process.genParticles.abortOnUnknownPDGCode = False
 
 process.genParticlesVisible = cms.EDFilter("GenJetParticleRefSelector",
     includeList = cms.vstring(),
@@ -46,8 +46,8 @@ process.SDDijets = cms.EDAnalyzer("SDDijetsAnalyzer",
 )
 
 process.add_(cms.Service("TFileService",
-		fileName = cms.string("analysisSDDijets_histos.root")
+		fileName = cms.string("analysisSDDijets_histos_producer.root")
 	)
 )
 
-process.analysis = cms.Path(process.genParticles*process.genParticlesVisible*process.genJetParticles*process.recoGenJets*process.SDDijets)
+process.analysis = cms.Path(process.genParticlesVisible*process.SDDijets)

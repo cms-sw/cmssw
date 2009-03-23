@@ -10,10 +10,9 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include <map>
-#include <string>
 #include "HepMC/GenEvent.h"
+
+#include <HepMC/IO_HERWIG.h>
 
 class Run;
 namespace CLHEP {
@@ -44,25 +43,25 @@ namespace edm
     bool herwigHepMCVerbosity_;
     int herwigLhapdfVerbosity_;
     int maxEventsToPrint_;
-    double comenergy;
-    std::string lhapdfSetPath_;
+    double comEnergy_;
     bool useJimmy_;
     bool doMPInteraction_;
     bool printCards_;
     int numTrials_;
 
-    double extCrossSect;
-    double intCrossSect;
-    double extFilterEff;
+    double extCrossSect_;
+    double extFilterEff_;
 
-    double survivalProbability;
-    int diffTopology;			
-    bool enableForcedDecays;
+    double survivalProbability_;
+    int diffTopology_;			
+    int h1fit_;
+    bool enableForcedDecays_;
 
-    int maxEvents_;
     int eventNumber_;
 
     CLHEP::HepRandomEngine* fRandomEngine;
+
+    HepMC::IO_HERWIG                conv;
   };
 } 
 
