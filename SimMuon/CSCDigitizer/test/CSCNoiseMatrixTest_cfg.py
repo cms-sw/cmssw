@@ -21,5 +21,10 @@ process.cscNoiseTest = cms.EDAnalyzer("CSCNoiseMatrixTest",
       resistiveCrosstalkScaling = cms.double(1.8),
       doCorrelatedNoise = cms.bool(True))
 
+process.RandomNumberGeneratorService.cscNoiseTest = cms.PSet(
+                   engineName = cms.untracked.string('HepJamesRandom'),
+                   initialSeed = cms.untracked.uint32(1234)
+)
+
 
 process.path = cms.Path(process.cscNoiseTest)
