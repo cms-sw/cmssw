@@ -101,6 +101,9 @@ herwigDefaultsBlock = cms.PSet(
 		'insert LHEHandler:LesHouchesReaders 0 LHEReader',
 		'cd /Herwig/Generators',
 		'set LHCGenerator:EventHandler /Herwig/EventHandlers/LHEHandler',
+		'cd /Herwig/Shower',
+		'set Evolver:HardVetoScaleSource Read',
+		'set Evolver:MECorrMode No',
 		'cd /',
 	),
 
