@@ -1,4 +1,4 @@
-// $Id: ServiceManager.cc,v 1.18 2008/10/13 13:05:36 hcheung Exp $
+// $Id: ServiceManager.cc,v 1.19 2008/12/19 23:34:20 biery Exp $
 
 #include <EventFilter/StorageManager/interface/ServiceManager.h>
 #include "EventFilter/StorageManager/interface/Configurator.h"
@@ -340,7 +340,7 @@ void ServiceManager::collectStreamerPSets(const std::string& config)
        boost::shared_ptr<ParameterSet> procPset = pdesc->getProcessPSet();
        
         ParameterSet allTrigPaths = procPset->
-	 getUntrackedParameter<ParameterSet>("@trigger_paths");
+	 getParameter<ParameterSet>("@trigger_paths");
        
        if (allTrigPaths.empty())
          throw cms::Exception("collectStreamerPSets","ServiceManager")
