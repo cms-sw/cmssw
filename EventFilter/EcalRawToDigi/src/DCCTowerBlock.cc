@@ -146,74 +146,74 @@ int DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
   frameAdded=true;  
   bool wrongGain(false);
   
-       //set samples in the frame
-      for(uint i =0; i< nTSamples_ ;i++){ 
-        xData_++;
-        uint data =  (*xData_) & TOWER_DIGI_MASK;
-        uint gain =  data>>12;
-        xtalGains_[i]=gain;
-        if(gain == 0){ 
-	    wrongGain = true; 
-	    // continue here to skip part of the loop
-	    // as well as add the error to the collection and write the message 
-	    break;
-	} 
-	
-	df.setSample(i,data);
-      }
-	
+  //set samples in the frame
+  for(uint i =0; i< nTSamples_ ;i++){ // loop on samples 
+    xData_++;
+    uint data =  (*xData_) & TOWER_DIGI_MASK;
+    uint gain =  data>>12;
+    xtalGains_[i]=gain;
+    // gain==0 occurs either in case of data corruption or of ADC saturation
+    //                                  \->reject digi            \-> keep digi
+    if(gain == 0){ 
+      wrongGain = true; 
+      // although gain==0 found, produce the dataFrame in order to have (saturation case)  
+      break;
+    } 
+    df.setSample(i,data);
     
-      if(wrongGain){ 
-        if( ! DCCDataUnpacker::silentMode_ ){
-          edm::LogWarning("EcalRawToDigiGainZero")
-	    <<"\n For event L1A: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-	    <<"\n Gain zero was found in strip "<<stripId<<" and xtal "<<xtalId;   
-         }
-	
-	(*invalidGains_)->push_back(*pDetId_);
-        errorOnXtal = true;
-	
-	//return here, so to skip all the rest
-	//make special collection for gain0 data frames when due to saturation
-	//Point to begin of next xtal Block
-	data_ += numbDWInXtalBlock_;
-	
-	return BLOCK_UNPACKED;
-
-      }
-      
-      short firstGainWrong=-1;
-      short numGainWrong=0;
-	    
-      for (uint i=1; i<nTSamples_; i++ ) {
-        if (i>0 && xtalGains_[i-1]>xtalGains_[i]) {
+  }// loop on samples	
+  
+  if(wrongGain){ 
+    if( ! DCCDataUnpacker::silentMode_ ){
+      edm::LogWarning("EcalRawToDigiGainZero")
+	<<"\n For event L1A: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+	<<"\n Gain zero was found in strip "<<stripId<<" and xtal "<<xtalId;   
+    }
+    
+    (*invalidGains_)->push_back(*pDetId_);
+    errorOnXtal = true;
+    
+    //return here, so to skip all the rest
+    //make special collection for gain0 data frames when due to saturation
+    //Point to begin of next xtal Block
+    data_ += numbDWInXtalBlock_;
+    
+    return BLOCK_UNPACKED;
+    
+  }
+  
+  short firstGainWrong=-1;
+  short numGainWrong=0;
+  
+  for (uint i=1; i<nTSamples_; i++ ) {
+    if (i>0 && xtalGains_[i-1]>xtalGains_[i]) {
           numGainWrong++;
           if (firstGainWrong == -1) { firstGainWrong=i;}
-        }
-      }
-
-
-      if (numGainWrong>0) {
-        if( ! DCCDataUnpacker::silentMode_ ){
-          edm::LogWarning("EcalRawToDigiGainSwitch")
-            <<"\n For event L1A: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-            <<"\n A wrong gain transition switch was found in strip "<<stripId<<" and xtal "<<xtalId;    
-        }
-
-        (*invalidGainsSwitch_)->push_back(*pDetId_);
-
-         errorOnXtal = true;
-      } 
-
-      //Add frame to collection only if all data format and gain rules are respected
-      if(errorOnXtal&&frameAdded) {
-	(*digis_)->pop_back();
-      }
- 
-      //Point to begin of next xtal Block
-      data_ += numbDWInXtalBlock_;
-
-      return BLOCK_UNPACKED;
+    }
+  }
+  
+  
+  if (numGainWrong>0) {
+    if( ! DCCDataUnpacker::silentMode_ ){
+      edm::LogWarning("EcalRawToDigiGainSwitch")
+	<<"\n For event L1A: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+	<<"\n A wrong gain transition switch was found in strip "<<stripId<<" and xtal "<<xtalId;    
+    }
+    
+    (*invalidGainsSwitch_)->push_back(*pDetId_);
+    
+    errorOnXtal = true;
+  } 
+  
+  //Add frame to collection only if all data format and gain rules are respected
+  if(errorOnXtal&&frameAdded) {
+    (*digis_)->pop_back();
+  }
+  
+  //Point to begin of next xtal Block
+  data_ += numbDWInXtalBlock_;
+  
+  return BLOCK_UNPACKED;
 }
 
 
