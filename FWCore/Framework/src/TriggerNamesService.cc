@@ -19,7 +19,7 @@ namespace edm {
     TriggerNamesService::TriggerNamesService(const ParameterSet& pset) {
 
       trigger_pset_ = 
-	pset.getUntrackedParameter<ParameterSet>("@trigger_paths");
+	pset.getParameter<ParameterSet>("@trigger_paths");
 
       trignames_ = trigger_pset_.getParameter<Strings>("@trigger_paths");
       end_names_ = pset.getParameter<Strings>("@end_paths");

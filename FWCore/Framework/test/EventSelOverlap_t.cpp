@@ -210,7 +210,7 @@ int main()
 
   ParameterSet trigPaths;
   trigPaths.addParameter<Strings>("@trigger_paths", trigger_path_names);
-  proc_pset.addUntrackedParameter<ParameterSet>("@trigger_paths", trigPaths);
+  proc_pset.addParameter<ParameterSet>("@trigger_paths", trigPaths);
 
   Strings endPaths;
   proc_pset.addParameter<Strings>("@end_paths", endPaths);

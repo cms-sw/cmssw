@@ -589,7 +589,7 @@ class Process(object):
         # trigger_paths are a little different
         p = processDesc.newPSet()
         p.addVString(True, "@trigger_paths", triggerPaths)
-        processPSet.addPSet(False, "@trigger_paths", p)
+        processPSet.addPSet(True, "@trigger_paths", p)
         # add all these paths
         #pathValidator = PathValidator()
         #endpathValidator = EndPathValidator()
