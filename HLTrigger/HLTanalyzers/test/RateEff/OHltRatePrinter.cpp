@@ -76,6 +76,9 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
   TString twikiFile = tableFileName + TString(".twiki"); 
   ofstream outFile(twikiFile.Data()); 
   if (!outFile){cout<<"Error opening output file"<< endl;} 
+
+  outFile.setf(ios::floatfield,ios::fixed);  
+  outFile<<setprecision(2);  
  
   outFile << "| *Path Name*"; 
   outFile << " | *L1 condition*"; 
@@ -132,7 +135,7 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
       tempTrigSeedPrescales += itmp[j]; 
       if (j<(vtmp.size()-1)) { 
 	tempTrigSeeds = tempTrigSeeds + " or "; 
-	tempTrigSeedPrescales = tempTrigSeedPrescales + ","; 
+	tempTrigSeedPrescales = tempTrigSeedPrescales + ", "; 
       } 
     } 
 
@@ -140,22 +143,22 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
 	    << " | !" << tempTrigSeeds
 	    << " | " << tempTrigSeedPrescales
 	    << " | " << menu->GetPrescale(i)
-	    << " | " << Rate[i] << " +- " << RateErr[i]
+	    << " | " << Rate[i] << "+-" << RateErr[i]
 	    << " | " << cumulRate
 	    << " | " << menu->GetEventsize(i)
 	    << " | " << cuThru
 	    << " | " << endl; 
   } 
 
-  outFile << "| Total " 
-	  << " | " 
-	  << " | " 
-	  << " | " 
-	  << " | " << cumulRate << " +- " << sqrt(cumulRateErr) 
-	  << " | " 
-	  << " | " 
-	  << " | " << cuThru << " +- " << sqrt(cuThruErr) 
-	  << " | " << endl;  
+  outFile << "| *Total* " 
+          << " | *Rate (AlCa not included) [Hz]*" 
+          << " | *Throughput (AlCa included) [MB/s]* |" 
+          << endl; 
+ 
+  outFile << "| HLT "  
+          << " | " << cuPhysRate << "+-" << sqrt(cuPhysRate)  
+          << " | " << cuThru << "+-" << sqrt(cuThruErr)  
+          << " | " << endl;   
   
   outFile.close();
    
@@ -171,10 +174,13 @@ void OHltRatePrinter::printL1RatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
   ofstream outFile(twikiFile.Data());  
   if (!outFile){cout<<"Error opening output file"<< endl;}  
 
+  outFile.setf(ios::floatfield,ios::fixed);  
+  outFile<<setprecision(2);  
+
   outFile << "| *Path Name*";  
   outFile << " | *L1  Prescale*";   
   outFile << " | *L1 rate [Hz]*";  
-  outFile << " | *Total Rate [Hz]*" << endl;  
+  outFile << " | *Total Rate [Hz]* |" << endl;  
 
   float cumulRate = 0.; 
   float cumulRateErr = 0.; 
@@ -186,15 +192,18 @@ void OHltRatePrinter::printL1RatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
  
     outFile << "| !" << tempTrigName 
             << " | " <<  menu->GetPrescale(i)  
-            << " | " << Rate[i] << " +- " << RateErr[i] 
+            << " | " << Rate[i] << "+-" << RateErr[i] 
             << " | " << cumulRate << " |" << endl; 
   } 
   
-  outFile << "| Total "  
-          << " | "  
-          << " | "  
-          << " | " << cumulRate << " +- " << sqrt(cumulRateErr)  << endl;
-  
+  outFile << "| *Total* "  
+          << " | *Rate [Hz]* |"  
+          << endl;  
+ 
+  outFile << "| L1 "   
+          << " | " << cumulRate << "+-" << sqrt(cumulRateErr)  
+	  << " | " << endl; 
+
   outFile.close();
 
 }
