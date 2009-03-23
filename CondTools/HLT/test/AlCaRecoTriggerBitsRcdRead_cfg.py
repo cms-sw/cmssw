@@ -10,28 +10,33 @@ process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
 
 # the module writing to DB
 process.load("CondTools.HLT.AlCaRecoTriggerBitsRcdRead_cfi")
-# process.AlCaRecoTriggerBitsRcdRead.pythonOutput = False
+process.AlCaRecoTriggerBitsRcdRead.pythonOutput = False
  
 
-# No data, but have to specify run number:
+# No data, but have to specify run number (default is 1):
 process.source = cms.Source("EmptySource",
                             #numberEventsInRun = cms.untracked.uint32(1),
                             #firstRun = cms.untracked.uint32(5)
                             )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
-# DB input
-import CondCore.DBCommon.CondDBSetup_cfi
-process.dbInput = cms.ESSource(
-    "PoolDBESSource",
-    CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup,
-    connect = cms.string('sqlite_file:AlCaRecoTriggerBits.db'),
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string('AlCaRecoTriggerBitsRcd'),
-        tag = cms.string('TestTag') # choose tag you want
-        )
-                      )
-    )
+# Input for AlCaRecoTriggerBitsRcd,
+# either via GloblalTag:
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+# process.GlobalTag.globaltag = "IDEAL_30X::All" # my choose non-default tag
+
+# ...or specify database and tag:  
+#import CondCore.DBCommon.CondDBSetup_cfi
+#process.dbInput = cms.ESSource(
+#    "PoolDBESSource",
+#    CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup,
+#    connect = cms.string('sqlite_file:AlCaRecoTriggerBits.db'),
+#    toGet = cms.VPSet(cms.PSet(
+#        record = cms.string('AlCaRecoTriggerBitsRcd'),
+#        tag = cms.string('AlCaRecoHLTpaths8e29_1e31_v2') # choose tag you want
+#        )
+#                      )
+#    )
 
 # Put module in path:
 process.p = cms.Path(process.AlCaRecoTriggerBitsRcdRead)
