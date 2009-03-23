@@ -29,7 +29,7 @@
 #define FED_HCTRLID    0x50000000
 #define FED_TCTRLID    0xa0000000
 #define REAL_SOID_MASK 0x0003FF00
-#define FED_RBIT_MASK  0x00000004
+#define FED_RBIT_MASK  0x0000C004
 
 
 using namespace std;
