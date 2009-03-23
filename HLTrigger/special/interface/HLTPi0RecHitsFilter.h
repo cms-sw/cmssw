@@ -46,10 +46,14 @@ Description: Producer for EcalRecHits to be used for pi0 ECAL calibration. ECAL 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 
-
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
+// ES stuff
+#include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/PreshowerClusterAlgo.h"
+
+#include <set>
 
 //
 // class declaration
@@ -101,9 +105,16 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       std::string etaBarrelHits_;
       std::string etaEndcapHits_;
       
+      std::string pi0ESHits_;
+      std::string etaESHits_;
+      
+      
+
       ///interal use
       std::string BarrelHits_;
       std::string EndcapHits_;
+      std::string ESHits_;
+      
       
       
       
@@ -138,6 +149,14 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       bool doSelForPi0Endcap_; 
       double selePtGammaEndCap_;
       double selePtPi0EndCap_;
+      double region1_Pi0EndCap_;
+      double selePtGammaPi0EndCap_region1_; 
+      double selePtPi0EndCap_region1_;
+      double region2_Pi0EndCap_;
+      double selePtGammaPi0EndCap_region2_; 
+      double selePtPi0EndCap_region2_;
+      double selePtGammaPi0EndCap_region3_; 
+      double selePtPi0EndCap_region3_;
       double seleMinvMaxPi0EndCap_;
       double seleMinvMinPi0EndCap_;
       double seleS4S9GammaEndCap_;
@@ -164,6 +183,7 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       double massLowPi0Cand_; 
       double massHighPi0Cand_; 
       bool store5x5RecHitEtaEB_;
+      bool store5x5IsoClusRecHitEtaEB_;
       bool storeIsoClusRecHitEtaEB_;
 
 
@@ -173,6 +193,14 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       double seleS4S9GammaEtaEndCap_;
       double seleS9S25GammaEtaEndCap_;
       double selePtEtaEndCap_;
+      double region1_EtaEndCap_;
+      double selePtGammaEtaEndCap_region1_; 
+      double selePtEtaEndCap_region1_;
+      double region2_EtaEndCap_;
+      double selePtGammaEtaEndCap_region2_; 
+      double selePtEtaEndCap_region2_;
+      double selePtGammaEtaEndCap_region3_; 
+      double selePtEtaEndCap_region3_;
       double seleMinvMaxEtaEndCap_;
       double seleMinvMinEtaEndCap_;
       double ptMinForIsolationEtaEndCap_;
@@ -181,12 +209,36 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       double seleEtaBeltDetaEndCap_;
       bool storeIsoClusRecHitEtaEE_;
       bool store5x5RecHitEtaEE_;
+      bool store5x5IsoClusRecHitEtaEE_;
       
-       
       
       bool doBarrel; 
       bool doEndcap; 
+    
       
+
+
+      bool storeRecHitES_; 
+      edm::InputTag preshHitProducer_;         // name of module/plugin/producer producing hits
+      
+      ///whether or not to add ES energy when do selections
+      bool addESEnergyToEECluster_; 
+      
+      
+      
+      int preshNclust_;
+      float preshClustECut;
+      double etThresh_;
+      double calib_planeX_;
+      double calib_planeY_;
+      double mip_;
+      double gamma_;
+      PreshowerClusterAlgo * presh_algo; // algorithm doing the real work
+      PreshowerClusterAlgo::DebugLevel debugL;  
+      // name out output ES cluster collections
+      std::string preshClusterCollectionX_;  
+      std::string preshClusterCollectionY_;  
+     
 
       bool ParameterLogWeighted_;
       double ParameterX0_;
@@ -254,13 +306,14 @@ class HLTPi0RecHitsFilter : public HLTFilter {
 
       EcalElectronicsMapping* TheMapping;
  
-
-      const CaloSubdetectorGeometry *geometry_eb;
-      const CaloSubdetectorGeometry *geometry_ee;
-      const CaloSubdetectorGeometry *geometry_es;
-      const CaloSubdetectorTopology *topology_eb;
-      const CaloSubdetectorTopology *topology_ee;
-
+      
+      //  const CaloSubdetectorGeometry *geometry_eb;
+      // const CaloSubdetectorGeometry *geometry_ee;
+      // const CaloSubdetectorGeometry *geometry_es;
+      //const CaloSubdetectorTopology *topology_eb;
+      // const CaloSubdetectorTopology *topology_ee;
+      //CaloSubdetectorTopology *topology_es;
+      
  
       PositionCalc posCalculator_;
  
