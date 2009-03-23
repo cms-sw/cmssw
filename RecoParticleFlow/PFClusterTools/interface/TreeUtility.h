@@ -42,7 +42,7 @@ public:
 			CalibrationTarget target, DetectorElementPtr offset,
 			DetectorElementPtr ecal, DetectorElementPtr hcal, bool includeOffset = false);
 			
-	void dumpCaloDataToCSV(TChain& chain, std::string csvFilename, double range);
+	void dumpCaloDataToCSV(TChain& chain, std::string csvFilename, double range, bool gaus = false);
 
 	
 private:
