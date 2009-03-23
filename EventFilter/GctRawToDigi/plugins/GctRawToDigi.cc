@@ -65,7 +65,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
       GctBlockHeaderV2::initBlockLengthMap(GctBlockHeaderV2::BLOCK_LENGTHS_FOR_UNPACKER_V2);
       break;
     case 3:
-      blockUnpacker_ = new GctBlockUnpackerV3(hltMode_); break;
+      blockUnpacker_ = new GctBlockUnpackerV3(hltMode_);
       GctBlockHeaderV2::initBlockLengthMap(GctBlockHeaderV2::BLOCK_LENGTHS_FOR_UNPACKER_V3);
       break;
     default: edm::LogInfo("GCT") << "The required GctBlockUnpacker will be automatically determined from the first S-Link packet header.";
