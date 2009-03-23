@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 ALCARECOMuAlBeamHaloHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
-    HLTPaths = ['HLT_CSCBeamHalo', 'HLT_CSCBeamHaloRing2or3'],
+    eventSetupPathsKey = 'MuAlBeamHalo',
     throw = False
     )
 

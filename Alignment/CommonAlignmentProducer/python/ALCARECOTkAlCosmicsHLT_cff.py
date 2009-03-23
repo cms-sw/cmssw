@@ -1,12 +1,12 @@
-# last update: $Date: 2008/10/29 17:28:42 $ by $Author: flucke $
+# last update: $Date: 2009/02/20 13:15:06 $ by $Author: edelhoff $
 import FWCore.ParameterSet.Config as cms
 
 #_________________________________HLT bits___________________________________________
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 ALCARECOTkAlCosmicsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     andOr = True, ## choose logical OR between Triggerbits
-    HLTPaths = ['HLT_TrackerCosmics'],
-    throw = False # tolerate triggers stated above, but not available
+    eventSetupPathsKey = 'TkAlCosmics',
+    throw = False # tolerate triggers not available
     )
     
 #________________________________Track selection____________________________________
