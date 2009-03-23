@@ -156,6 +156,7 @@ namespace sistrip {
       bool l1aBxFIFOEmptyFlag() const { return getBit(7); }
       void print(std::ostream& os) const { printHex(&data_,2,os); }
       void printFlags(std::ostream& os) const;
+      bool feDataMissingFlag(const uint8_t internalFEUnitNum) const { return getBit(8+internalFEUnitNum); }
     private:
       bool getBit(const uint8_t num) const { return ( (0x1<<num) & (data_) ); }
       const uint16_t data_;

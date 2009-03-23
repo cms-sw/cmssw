@@ -130,6 +130,10 @@ namespace sistrip {
       const FEDFEHeader* feHeader() const { return feHeader_.get(); }
       //check that a FE unit is enabled, has a good majority address and, if in full debug mode, that it is present
       bool feGood(uint8_t internalFEUnitNum) const { return ( !majorityAddressErrorForFEUnit(internalFEUnitNum) && !feOverflow(internalFEUnitNum) && fePresent(internalFEUnitNum) ); }
+      //check that a FE unit is present in the data.
+      //The high order byte of the FEDStatus register in the tracker special header is used in APV error mode.
+      //The FE length from the full debug header is used in full debug mode.
+      bool fePresent(uint8_t internalFEUnitNum) const { return fePresent_[internalFEUnitNum]; }
       //check that channel is on enabled FE Unit and has no errors
       bool channelGood(uint8_t internalFEDChannelNum) const;
       bool channelGood(uint8_t internalFEUnitNum, uint8_t internalChannelNum) const
@@ -168,7 +172,6 @@ namespace sistrip {
       //print a summary of all checks
       virtual std::string checkSummary() const;
     private:
-      bool fePresent(uint8_t internalFEUnitNum) const { return fePresent_[internalFEUnitNum]; }
       uint8_t nFEUnitsPresent() const;
       void findChannels();
       uint8_t getCorrectPacketCode() const;

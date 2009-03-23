@@ -32,15 +32,21 @@ namespace sistrip {
     }
     payloadLength_ = getPointerToByteAfterEndOfPayload()-payloadPointer_;
     //check if FE units are present in data
-    //only possible for FullDebug header
+    //in Full Debug mode, use the lengths from the header
     const FEDFullDebugHeader* fdHeader = dynamic_cast<FEDFullDebugHeader*>(feHeader_.get());
     if (fdHeader) {
       for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
         if (fdHeader->fePresent(iFE)) fePresent_[iFE] = true;
         else fePresent_[iFE] = false;
       }
-    } else {
-      memset(fePresent_,true,FEUNITS_PER_FED);
+    }
+    //in APV error mode, use the FE present byte in the FED status register
+    // a value of '1' means a FE unit's data is missing (in old firmware versions it is always 0)
+    else {
+      for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
+        if (fedStatusRegister().feDataMissingFlag(iFE)) fePresent_[iFE] = false;
+        else fePresent_[iFE] = true;
+      }
     }
     //try to find channels
     lastValidChannel_ = 0;
