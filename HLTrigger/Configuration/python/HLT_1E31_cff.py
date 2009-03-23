@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/1E31_V227/V2 (CMSSW_3_1_X_2009-03-20-0300_HLT1)
+# /dev/CMSSW_3_1_0/pre2/1E31_V229/V2 (CMSSW_3_1_X_2009-03-20-0300_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/1E31_V227/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/1E31_V229/V2')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -30,51 +30,6 @@ MCJetCorrectorIcone5 = cms.ESSource( "JetCorrectionServiceChain",
     'L3AbsoluteJetCorrector' )
 )
 
-mixedlayerpairs = cms.ESProducer( "MixedLayerPairsESProducer",
-  appendToDataLabel = cms.string( "" ),
-  ComponentName = cms.string( "MixedLayerPairs" ),
-  layerList = cms.vstring( 'BPix1+BPix2',
-    'BPix1+BPix3',
-    'BPix2+BPix3',
-    'BPix1+FPix1_pos',
-    'BPix1+FPix1_neg',
-    'BPix1+FPix2_pos',
-    'BPix1+FPix2_neg',
-    'BPix2+FPix1_pos',
-    'BPix2+FPix1_neg',
-    'BPix2+FPix2_pos',
-    'BPix2+FPix2_neg',
-    'FPix1_pos+FPix2_pos',
-    'FPix1_neg+FPix2_neg',
-    'FPix2_pos+TEC1_pos',
-    'FPix2_pos+TEC2_pos',
-    'TEC1_pos+TEC2_pos',
-    'TEC2_pos+TEC3_pos',
-    'FPix2_neg+TEC1_neg',
-    'FPix2_neg+TEC2_neg',
-    'TEC1_neg+TEC2_neg',
-    'TEC2_neg+TEC3_neg' ),
-  BPix = cms.PSet( 
-    useErrorsFromParam = cms.untracked.bool( True ),
-    hitErrorRPhi = cms.double( 0.0027 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
-    HitProducer = cms.string( "hltSiPixelRecHits" ),
-    hitErrorRZ = cms.double( 0.0060 )
-  ),
-  FPix = cms.PSet( 
-    useErrorsFromParam = cms.untracked.bool( True ),
-    hitErrorRPhi = cms.double( 0.0051 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
-    HitProducer = cms.string( "hltSiPixelRecHits" ),
-    hitErrorRZ = cms.double( 0.0036 )
-  ),
-  TEC = cms.PSet( 
-    useRingSlector = cms.untracked.bool( True ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
-    minRing = cms.int32( 1 ),
-    maxRing = cms.int32( 1 )
-  )
-)
 AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
   PropagationDirection = cms.string( "anyDirection" ),
@@ -664,6 +619,51 @@ hltKFSmoother = cms.ESProducer( "KFTrajectorySmootherESProducer",
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
 )
+mixedlayerpairs = cms.ESProducer( "SeedingLayersESProducer",
+  appendToDataLabel = cms.string( "" ),
+  ComponentName = cms.string( "MixedLayerPairs" ),
+  layerList = cms.vstring( 'BPix1+BPix2',
+    'BPix1+BPix3',
+    'BPix2+BPix3',
+    'BPix1+FPix1_pos',
+    'BPix1+FPix1_neg',
+    'BPix1+FPix2_pos',
+    'BPix1+FPix2_neg',
+    'BPix2+FPix1_pos',
+    'BPix2+FPix1_neg',
+    'BPix2+FPix2_pos',
+    'BPix2+FPix2_neg',
+    'FPix1_pos+FPix2_pos',
+    'FPix1_neg+FPix2_neg',
+    'FPix2_pos+TEC1_pos',
+    'FPix2_pos+TEC2_pos',
+    'TEC1_pos+TEC2_pos',
+    'TEC2_pos+TEC3_pos',
+    'FPix2_neg+TEC1_neg',
+    'FPix2_neg+TEC2_neg',
+    'TEC1_neg+TEC2_neg',
+    'TEC2_neg+TEC3_neg' ),
+  BPix = cms.PSet( 
+    hitErrorRZ = cms.double( 0.0060 ),
+    hitErrorRPhi = cms.double( 0.0027 ),
+    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    HitProducer = cms.string( "hltSiPixelRecHits" ),
+    useErrorsFromParam = cms.untracked.bool( True )
+  ),
+  FPix = cms.PSet( 
+    hitErrorRZ = cms.double( 0.0036 ),
+    hitErrorRPhi = cms.double( 0.0051 ),
+    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    HitProducer = cms.string( "hltSiPixelRecHits" ),
+    useErrorsFromParam = cms.untracked.bool( True )
+  ),
+  TEC = cms.PSet( 
+    useRingSlector = cms.untracked.bool( True ),
+    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    minRing = cms.int32( 1 ),
+    maxRing = cms.int32( 1 )
+  )
+)
 muonCkfTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "muonCkfTrajectoryFilter" ),
   appendToDataLabel = cms.string( "" ),
@@ -683,7 +683,7 @@ navigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
   ComponentName = cms.string( "SimpleNavigationSchool" ),
   appendToDataLabel = cms.string( "" )
 )
-pixellayerpairs = cms.ESProducer( "PixelLayerPairsESProducer",
+pixellayerpairs = cms.ESProducer( "SeedingLayersESProducer",
   appendToDataLabel = cms.string( "" ),
   ComponentName = cms.string( "PixelLayerPairs" ),
   layerList = cms.vstring( 'BPix1+BPix2',
@@ -700,21 +700,22 @@ pixellayerpairs = cms.ESProducer( "PixelLayerPairsESProducer",
     'FPix1_pos+FPix2_pos',
     'FPix1_neg+FPix2_neg' ),
   BPix = cms.PSet( 
-    HitProducer = cms.string( "hltSiPixelRecHits" ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
-    useErrorsFromParam = cms.untracked.bool( True ),
+    hitErrorRZ = cms.double( 0.0060 ),
     hitErrorRPhi = cms.double( 0.0027 ),
-    hitErrorRZ = cms.double( 0.0060 )
+    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    HitProducer = cms.string( "hltSiPixelRecHits" ),
+    useErrorsFromParam = cms.untracked.bool( True )
   ),
   FPix = cms.PSet( 
-    HitProducer = cms.string( "hltSiPixelRecHits" ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
-    useErrorsFromParam = cms.untracked.bool( True ),
+    hitErrorRZ = cms.double( 0.0036 ),
     hitErrorRPhi = cms.double( 0.0051 ),
-    hitErrorRZ = cms.double( 0.0036 )
-  )
+    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    HitProducer = cms.string( "hltSiPixelRecHits" ),
+    useErrorsFromParam = cms.untracked.bool( True )
+  ),
+  TEC = cms.PSet(  )
 )
-pixellayertriplets = cms.ESProducer( "PixelLayerTripletsESProducer",
+pixellayertriplets = cms.ESProducer( "SeedingLayersESProducer",
   appendToDataLabel = cms.string( "" ),
   ComponentName = cms.string( "PixelLayerTriplets" ),
   layerList = cms.vstring( 'BPix1+BPix2+BPix3',
@@ -723,19 +724,20 @@ pixellayertriplets = cms.ESProducer( "PixelLayerTripletsESProducer",
     'BPix1+FPix1_pos+FPix2_pos',
     'BPix1+FPix1_neg+FPix2_neg' ),
   BPix = cms.PSet( 
-    HitProducer = cms.string( "hltSiPixelRecHits" ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
-    useErrorsFromParam = cms.untracked.bool( True ),
+    hitErrorRZ = cms.double( 0.0060 ),
     hitErrorRPhi = cms.double( 0.0027 ),
-    hitErrorRZ = cms.double( 0.0060 )
+    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    HitProducer = cms.string( "hltSiPixelRecHits" ),
+    useErrorsFromParam = cms.untracked.bool( True )
   ),
   FPix = cms.PSet( 
-    HitProducer = cms.string( "hltSiPixelRecHits" ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
-    useErrorsFromParam = cms.untracked.bool( True ),
+    hitErrorRZ = cms.double( 0.0036 ),
     hitErrorRPhi = cms.double( 0.0051 ),
-    hitErrorRZ = cms.double( 0.0036 )
-  )
+    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    HitProducer = cms.string( "hltSiPixelRecHits" ),
+    useErrorsFromParam = cms.untracked.bool( True )
+  ),
+  TEC = cms.PSet(  )
 )
 softLeptonByDistance = cms.ESProducer( "LeptonTaggerByDistanceESProducer",
   appendToDataLabel = cms.string( "" ),
@@ -2187,7 +2189,7 @@ hltSiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
     SeedThreshold = cms.int32( 3000 ),
     ClusterThreshold = cms.double( 5050.0 ),
     VCaltoElectronGain = cms.int32( 65 ),
-    VCaltoElectronOffset = cms.int32( 0 ),
+    VCaltoElectronOffset = cms.int32( -414 ),
     MissCalibrate = cms.untracked.bool( True )
 )
 hltSiPixelRecHits = cms.EDProducer( "SiPixelRecHitConverter",
