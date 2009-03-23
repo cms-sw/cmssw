@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:21 EST 2009
-// $Id: FWTabularWidget.cc,v 1.2 2009/02/04 14:47:28 chrjones Exp $
+// $Id: FWTabularWidget.cc,v 1.3 2009/03/04 16:13:21 chrjones Exp $
 //
 
 // system include files
@@ -184,7 +184,7 @@ FWTabularWidget::translateToRowColumn(Int_t iX, Int_t iY, Int_t& oRow, Int_t& oC
       oRow = -1;
       oRelY=0;
    } else {
-      oRow = float(iY+m_vOffset)/(m_textHeight+2*kTextBuffer+kSeperatorWidth);
+      oRow = (int)(float(iY+m_vOffset)/(m_textHeight+2*kTextBuffer+kSeperatorWidth));
       oRelY = iY-oRow*(m_textHeight+2*kTextBuffer+kSeperatorWidth)+m_vOffset-kTextBuffer;
       Int_t numRows = m_table->numberOfRows();
       if(oRow > numRows) {

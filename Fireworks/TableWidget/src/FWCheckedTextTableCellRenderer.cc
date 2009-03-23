@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb  3 14:29:51 EST 2009
-// $Id: FWCheckedTextTableCellRenderer.cc,v 1.1 2009/02/03 20:33:04 chrjones Exp $
+// $Id: FWCheckedTextTableCellRenderer.cc,v 1.2 2009/03/04 15:31:20 chrjones Exp $
 //
 
 // system include files
@@ -121,3 +121,4 @@ UInt_t FWCheckedTextTableCellRenderer::width() const
 // static member functions
 //
 ClassImp(FWCheckedTextTableCellRenderer)
+
