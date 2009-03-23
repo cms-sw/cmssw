@@ -615,13 +615,15 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	  bool okay = false;
 	  TH1F *hist_vszr = NULL;
 	  TH1F *hist_vsphi = NULL;
-	  double residual = 0;
-	  double resslope = 0;
-	  double trackangle = 0;
-	  double trackposition = 0;
+	  double residual = 0.;
+	  double resslope = 0.;
+	  double trackangle = 0.;
+	  double trackposition = 0.;
+	  double maxAngleError = 0.;
 	  if (chamberResidual->chamberId().subdetId() == MuonSubdetId::DT  &&  (*index) % 2 == 0) {
-	    if (chamberResidual->numHits() >= m_minDT13Hits  &&  fabs(chamberResidual->resslope()) < m_maxDT13AngleError) {
+	    if (chamberResidual->numHits() >= m_minDT13Hits) {
 	      okay = true;
+	      maxAngleError = m_maxDT13AngleError;
 
 	      DTChamberId chamberId(chamberResidual->chamberId().rawId());
 	      assert(1 <= chamberId.sector()  &&  chamberId.sector() <= 14  &&  (chamberId.station() == 4  ||  chamberId.sector() <= 12));
@@ -653,8 +655,9 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	  } // end if DT13
 
 	  else if (chamberResidual->chamberId().subdetId() == MuonSubdetId::DT  &&  (*index) % 2 == 1) {
-	    if (chamberResidual->numHits() >= m_minDT2Hits  &&  fabs(chamberResidual->resslope()) < m_maxDT2AngleError) {
+	    if (chamberResidual->numHits() >= m_minDT2Hits) {
 	      okay = true;
+	      maxAngleError = m_maxDT2AngleError;
 
 	      DTChamberId chamberId(chamberResidual->chamberId().rawId());
 	      assert(1 <= chamberId.sector()  &&  chamberId.sector() <= 14  &&  (chamberId.station() == 4  ||  chamberId.sector() <= 12));
@@ -682,8 +685,9 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	  } // end if DT2
 
 	  else if (chamberResidual->chamberId().subdetId() == MuonSubdetId::CSC) {
-	    if (chamberResidual->numHits() >= m_minCSCHits  &&  fabs(chamberResidual->resslope()) < m_maxCSCAngleError) {
+	    if (chamberResidual->numHits() >= m_minCSCHits) {
 	      okay = true;
+	      maxAngleError = m_maxCSCAngleError;
 
 	      CSCDetId chamberId(chamberResidual->chamberId().rawId());
 	      assert(1 <= chamberId.endcap()  &&  chamberId.endcap() <= 2);
@@ -746,13 +750,16 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	      std::map<std::pair<TH1F*,int>,MuonResidualsAngleFitter*>::const_iterator angleFitter_vsz = m_angleFitters.find(std::pair<TH1F*,int>(hist_vszr, bin_vszr));
 
 	      if (positionFitter_vsz != m_positionFitters.end()) {
-		double *residdata = new double[MuonResidualsPositionFitter::kNData];
-		residdata[MuonResidualsPositionFitter::kResidual] = residual * signConvention;
-		residdata[MuonResidualsPositionFitter::kAngleError] = resslope * signConvention;
-		residdata[MuonResidualsPositionFitter::kTrackAngle] = trackangle * signConvention;
-		residdata[MuonResidualsPositionFitter::kTrackPosition] = trackposition * signConvention;
-		positionFitter_vsz->second->fill(residdata);
-		// the MuonResidualsFitter will delete the array when it is destroyed
+		assert(maxAngleError != 0.);
+		if (fabs(chamberResidual->resslope()) < maxAngleError) {
+		  double *residdata = new double[MuonResidualsPositionFitter::kNData];
+		  residdata[MuonResidualsPositionFitter::kResidual] = residual * signConvention;
+		  residdata[MuonResidualsPositionFitter::kAngleError] = resslope * signConvention;
+		  residdata[MuonResidualsPositionFitter::kTrackAngle] = trackangle * signConvention;
+		  residdata[MuonResidualsPositionFitter::kTrackPosition] = trackposition * signConvention;
+		  positionFitter_vsz->second->fill(residdata);
+		  // the MuonResidualsFitter will delete the array when it is destroyed
+		}
 	      }
 	      else assert(false);  // to catch programming errors
 
@@ -770,13 +777,16 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	      std::map<std::pair<TH1F*,int>,MuonResidualsAngleFitter*>::const_iterator angleFitter_vsphi = m_angleFitters.find(std::pair<TH1F*,int>(hist_vsphi, bin_vsphi));
 
 	      if (positionFitter_vsphi != m_positionFitters.end()) {
-		double *residdata = new double[MuonResidualsPositionFitter::kNData];
-		residdata[MuonResidualsPositionFitter::kResidual] = residual * signConvention;
-		residdata[MuonResidualsPositionFitter::kAngleError] = resslope * signConvention;
-		residdata[MuonResidualsPositionFitter::kTrackAngle] = trackangle * signConvention;
-		residdata[MuonResidualsPositionFitter::kTrackPosition] = trackposition * signConvention;
-		positionFitter_vsphi->second->fill(residdata);
-		// this record must be separate because both MuonResidualsFitters will delete their contents
+		assert(maxAngleError != 0.);
+		if (fabs(chamberResidual->resslope()) < maxAngleError) {
+		  double *residdata = new double[MuonResidualsPositionFitter::kNData];
+		  residdata[MuonResidualsPositionFitter::kResidual] = residual * signConvention;
+		  residdata[MuonResidualsPositionFitter::kAngleError] = resslope * signConvention;
+		  residdata[MuonResidualsPositionFitter::kTrackAngle] = trackangle * signConvention;
+		  residdata[MuonResidualsPositionFitter::kTrackPosition] = trackposition * signConvention;
+		  positionFitter_vsphi->second->fill(residdata);
+		  // this record must be separate because both MuonResidualsFitters will delete their contents
+		}
 	      }
 	      else assert(false);
 
