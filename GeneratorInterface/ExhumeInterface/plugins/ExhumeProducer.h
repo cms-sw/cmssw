@@ -8,28 +8,19 @@
  * Based on PythiaProducer
  ***************************************/
 
-#define PYCOMP pycomp_
-
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <map>
-#include <string>
 #include "HepMC/GenEvent.h"
-//#include "CLHEP/Random/JamesRandom.h"
-//#include "CLHEP/Random/RandFlat.h"
-
-//ExHuME headers
-#include "GeneratorInterface/ExhumeInterface/interface/Event.h"
-#include "GeneratorInterface/ExhumeInterface/interface/QQ.h"
-#include "GeneratorInterface/ExhumeInterface/interface/GG.h"
-#include "GeneratorInterface/ExhumeInterface/interface/Higgs.h"
-
-#include "GeneratorInterface/ExhumeInterface/interface/PYR.h"
 
 class Run;
 namespace CLHEP {
 class HepRandomEngine;
 class RandFlat;
+}
+
+namespace Exhume {
+class Event;
+class CrossSection;
 }
 
 namespace edm
@@ -44,7 +35,6 @@ namespace edm
     virtual ~ExhumeProducer();
 
     void endRun( Run& r);	
-
 
   private:
 
@@ -67,27 +57,19 @@ namespace edm
     /// Events to print if verbosity
     unsigned int maxEventsToPrint_;    
     
-    double comenergy;
+    double comEnergy_;
 	
     // external cross section and filter efficiency
-    double extCrossSect;
-    double extFilterEff;
+    double extCrossSect_;
+    double extFilterEff_;
 	
     CLHEP::HepRandomEngine* fRandomEngine;
     CLHEP::RandFlat*        fRandomGenerator;
 
-    Exhume::Event* ExhumeEvent;	
-    //Exhume::Higgs* higgs;
-    Exhume::CrossSection* ExhumeProcess;
+    Exhume::Event* exhumeEvent_;	
+    Exhume::CrossSection* exhumeProcess_;
 
-    std::string ProcessType;	
-    int HiggsDecay;       //for Higgs
-    int QuarkType;        //for QQ	
-    double ThetaMin;	  //for QQ and GG
-    double MassRangeLow;
-    double MassRangeHigh;
-
-    int sigID;		
+    int sigID_;		
 
 // Added by JMM
     unsigned int eventNumber_;

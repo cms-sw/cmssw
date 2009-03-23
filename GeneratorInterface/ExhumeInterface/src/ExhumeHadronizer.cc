@@ -12,13 +12,7 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "GeneratorInterface/Core/interface/FortranCallback.h"
-
-#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
-
-#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
-
 #include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
-
 #include "GeneratorInterface/ExhumeInterface/interface/PYR.h"
 
 HepMC::IO_HEPEVT conv;
@@ -30,8 +24,6 @@ HepMC::IO_HEPEVT conv;
 #include "GeneratorInterface/ExhumeInterface/interface/QQ.h"
 #include "GeneratorInterface/ExhumeInterface/interface/GG.h"
 #include "GeneratorInterface/ExhumeInterface/interface/Higgs.h"
-
-//#include "GeneratorInterface/Pythia6Interface/plugins/Pythia6Hadronizer.h"//not very nice
 
 #include <string>
 #include <sstream>
@@ -84,8 +76,6 @@ inline bool call_pygive(const std::string &line)
  
 ExhumeHadronizer::ExhumeHadronizer(edm::ParameterSet const& pset) 
    : comEnergy_(pset.getParameter<double>("comEnergy")),
-     //processPSet_(pset.getParameter<edm::ParameterSet>("ExhumeProcess")),
-     //paramsPSet_(pset.getParameter<edm::ParameterSet>("ExhumeParameters")),
      myPSet_(pset),
      hepMCVerbosity_(pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
      maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint", 0)),
@@ -121,31 +111,17 @@ void ExhumeHadronizer::finalizeEvent()
 {
    //pythia6Hadronizer_->finalizeEvent();
 
-   bool lhe = lheEvent() != 0;
+   event()->set_signal_process_id( pypars.msti[0] );
+   event()->set_event_scale( pypars.pari[16] );
 
    HepMC::PdfInfo pdf;
-
-   // if we are in hadronizer mode, we can pass on information from
-   // the LHE input
-   if (lhe)
-   {
-      lheEvent()->fillEventInfo( event().get() );
-      lheEvent()->fillPdfInfo( &pdf );
-   }
-
-   if (!lhe || event()->signal_process_id() < 0) event()->set_signal_process_id( pypars.msti[0] );
-   if (!lhe || event()->event_scale() < 0)       event()->set_event_scale( pypars.pari[16] );
-   
-   // get pdf info directly from Pythia6 and set it up into HepMC::GenEvent
-   // S. Mrenna: Prefer vint block
-   //
-   if (!lhe || pdf.id1() < 0)      pdf.set_id1( pyint1.mint[14] == 21 ? 0 : pyint1.mint[14] );
-   if (!lhe || pdf.id2() < 0)      pdf.set_id2( pyint1.mint[15] == 21 ? 0 : pyint1.mint[15] );
-   if (!lhe || pdf.x1() < 0)       pdf.set_x1( pyint1.vint[40] );
-   if (!lhe || pdf.x2() < 0)       pdf.set_x2( pyint1.vint[41] );
-   if (!lhe || pdf.pdf1() < 0)     pdf.set_pdf1( pyint1.vint[38] / pyint1.vint[40] );
-   if (!lhe || pdf.pdf2() < 0)     pdf.set_pdf2( pyint1.vint[39] / pyint1.vint[41] );
-   if (!lhe || pdf.scalePDF() < 0) pdf.set_scalePDF( pyint1.vint[50] );
+   pdf.set_id1( pyint1.mint[14] == 21 ? 0 : pyint1.mint[14] );
+   pdf.set_id2( pyint1.mint[15] == 21 ? 0 : pyint1.mint[15] );
+   pdf.set_x1( pyint1.vint[40] );
+   pdf.set_x2( pyint1.vint[41] );
+   pdf.set_pdf1( pyint1.vint[38] / pyint1.vint[40] );
+   pdf.set_pdf2( pyint1.vint[39] / pyint1.vint[41] );
+   pdf.set_scalePDF( pyint1.vint[50] );
 
    event()->set_pdf_info( pdf ) ;
 
@@ -206,7 +182,6 @@ bool ExhumeHadronizer::initializeForExternalPartons()
 bool ExhumeHadronizer::initializeForInternalPartons()
 {
    //Exhume Initialization
-   //std::string processType = processPSet_.getParameter<std::string>("ProcessType");
    edm::ParameterSet processPSet = myPSet_.getParameter<edm::ParameterSet>("ExhumeProcess");
    std::string processType = processPSet.getParameter<std::string>("ProcessType");
    int sigID = -1;
