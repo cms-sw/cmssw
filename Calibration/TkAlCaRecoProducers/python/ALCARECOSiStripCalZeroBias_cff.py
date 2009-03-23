@@ -32,14 +32,14 @@ siStripQualityESProducerUnbiased.ListOfRecordToMerge = cms.VPSet(
 
 # Digitiser #
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
-siStripDigis.ProductLabel = 'source'
+siStripDigis.ProductLabel = ''
 
 # Zero Suppression #
 from RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi import *
 
 # Clusterizer #
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import *
-siStripClusters.SiStripQualityLabel = 'unbiased'
+siStripClusters.QualityLabel = 'unbiased'
 
 # SiStripQuality (only to test the different data labels)#
 qualityStatistics = cms.EDFilter("SiStripQualityStatistics",
@@ -48,4 +48,7 @@ qualityStatistics = cms.EDFilter("SiStripQualityStatistics",
 )
 
 # Sequence #
-seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*siStripDigis*siStripZeroSuppression*siStripClusters)
+seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*
+                                             #siStripDigis*                 // The digis can be taken from standard reconstruction
+                                             #siStripZeroSuppression*       // since they are independent from channel masking
+                                             siStripClusters)
