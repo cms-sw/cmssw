@@ -9,6 +9,7 @@
 namespace PhysicsTools {
 
 class MVATrainer;
+namespace { class TrainInterceptor; }
 
 class Source {
     public:
@@ -25,14 +26,15 @@ class Source {
 
     protected:
 	friend class MVATrainer;
+	friend class TrainInterceptor;
 
 	inline SourceVariableSet &getInputs() { return inputs; }
-	inline const SourceVariableSet &getInputs() const { return inputs; }
-
 	inline SourceVariableSet &getOutputs() { return outputs; }
+
+	inline const SourceVariableSet &getInputs() const { return inputs; }
 	inline const SourceVariableSet &getOutputs() const { return outputs; }
 
-	bool				trained;
+	bool			trained;
 
     private:
 	AtomicId		name;
