@@ -10,7 +10,7 @@ from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
 
 
 egammareco = cms.Sequence(electronSequence*conversionSequence*photonSequence)
-egammarecoFull = cms.Sequence(egammareco*egammaIsolationSequence*interestingEgammaIsoDetIds*photonIDSequence*eIdSequence)
+egammarecoFull = cms.Sequence(egammareco*interestingEgammaIsoDetIds*photonIDSequence*eIdSequence)
 egammarecoWithID = cms.Sequence(egammareco*photonIDSequence*eIdSequence)
 egammareco_woConvPhotons = cms.Sequence(electronSequence*photonSequence)
 egammareco_withIsolation = cms.Sequence(egammareco*egammaIsolationSequence)
