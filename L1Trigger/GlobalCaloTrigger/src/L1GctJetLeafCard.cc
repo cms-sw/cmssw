@@ -8,6 +8,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <iostream>
+
 //DEFINE STATICS
 const int L1GctJetLeafCard::MAX_JET_FINDERS = 3;  
 
@@ -197,27 +199,40 @@ void L1GctJetLeafCard::process() {
 
     // Finish Et and Ht sums for the Leaf Card
     // First Et and missing Et
-    std::vector< etTotalType > etStripSum(6);
-    etStripSum.at(0) = m_jetFinderA->getEtStrip0();
-    etStripSum.at(1) = m_jetFinderA->getEtStrip1();
-    etStripSum.at(2) = m_jetFinderB->getEtStrip0();
-    etStripSum.at(3) = m_jetFinderB->getEtStrip1();
-    etStripSum.at(4) = m_jetFinderC->getEtStrip0();
-    etStripSum.at(5) = m_jetFinderC->getEtStrip1();
+//     std::vector< etTotalType > etStripSum(6);
+//     etStripSum.at(0) = m_jetFinderA->getEtStrip0();
+//     etStripSum.at(1) = m_jetFinderA->getEtStrip1();
+//     etStripSum.at(2) = m_jetFinderB->getEtStrip0();
+//     etStripSum.at(3) = m_jetFinderB->getEtStrip1();
+//     etStripSum.at(4) = m_jetFinderC->getEtStrip0();
+//     etStripSum.at(5) = m_jetFinderC->getEtStrip1();
 
     m_etSum.reset();
     m_exSum.reset();
     m_eySum.reset();
 
-    for (unsigned i=0; i<6; ++i) {
-      m_etSum = m_etSum + etStripSum.at(i);
-    }
+//     for (unsigned i=0; i<6; ++i) {
+//       m_etSum = m_etSum + etStripSum.at(i);
+//     }
 
-    for (unsigned i=0; i<3; ++i) {
-      unsigned jphi = 2*(phiPosition*3+i);
-      m_exSum = m_exSum + exComponent(etStripSum.at(2*i), etStripSum.at(2*i+1), jphi);
-      m_eySum = m_eySum + eyComponent(etStripSum.at(2*i), etStripSum.at(2*i+1), jphi);
-    }
+    m_etSum = m_etSum + m_jetFinderA->getEtSum();
+    m_exSum = m_exSum + m_jetFinderA->getExSum();
+    m_eySum = m_eySum + m_jetFinderA->getEySum();
+    m_etSum = m_etSum + m_jetFinderB->getEtSum();
+    m_exSum = m_exSum + m_jetFinderB->getExSum();
+    m_eySum = m_eySum + m_jetFinderB->getEySum();
+    m_etSum = m_etSum + m_jetFinderC->getEtSum();
+    m_exSum = m_exSum + m_jetFinderC->getExSum();
+    m_eySum = m_eySum + m_jetFinderC->getEySum();
+
+//     for (unsigned i=0; i<3; ++i) {
+//       unsigned jphi = 2*(phiPosition*3+i);
+//       m_exSum = m_exSum + exComponent(etStripSum.at(2*i), etStripSum.at(2*i+1), jphi);
+//       m_eySum = m_eySum + eyComponent(etStripSum.at(2*i), etStripSum.at(2*i+1), jphi);
+//     }
+
+//     std::cout << "ex sum " << m_exSum << ", from jetfinders " << exSumFromJf << std::endl;
+//     std::cout << "ey sum " << m_eySum << ", from jetfinders " << eySumFromJf << std::endl;
 
     // Exactly the same procedure for Ht and missing Ht
     // Note using etTotalType for the strips but the output sum is etHadType

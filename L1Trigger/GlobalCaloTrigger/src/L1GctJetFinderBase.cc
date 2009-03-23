@@ -294,6 +294,8 @@ void L1GctJetFinderBase::doEnergySums()
   //calculate the Hf tower Et sums and tower-over-threshold counts
   m_outputHfSums = calcHfSums();
     
+  doEtVectorSum();
+
   return;
 }
 
@@ -350,6 +352,43 @@ L1GctJetFinderBase::etTotalType L1GctJetFinderBase::calcHtStrip(const UShort str
   return temp;
 }
 
+// Calculates vector sum of Et over input regions
+void L1GctJetFinderBase::doEtVectorSum() {
+  unsigned et0 = 0;
+  unsigned et1 = 0;
+  bool of = false;
+
+  // Add the Et values from regions 13 to 23 for strip 0,
+  //     the Et values from regions 25 to 35 for strip 1.
+  unsigned offset = COL_OFFSET * centralCol0();
+  for (UShort i=1; i < COL_OFFSET; ++i) {
+    offset++;
+    et0 += m_inputRegions.at(offset).et();
+    of  |= m_inputRegions.at(offset).overFlow();
+  }
+  offset++;
+  for (UShort i=1; i < COL_OFFSET; ++i) {
+    offset++;
+    et1 += m_inputRegions.at(offset).et();
+    of  |= m_inputRegions.at(offset).overFlow();
+  }
+
+  etTotalType etStrip0(et0);
+  etTotalType etStrip1(et1);
+  etStrip0.setOverFlow(etStrip0.overFlow() || of);
+  etStrip1.setOverFlow(etStrip1.overFlow() || of);
+  unsigned xfact0 = (4*m_id +  6) % 36;
+  unsigned xfact1 = (4*m_id +  8) % 36;
+  unsigned yfact0 = (4*m_id + 15) % 36;
+  unsigned yfact1 = (4*m_id + 17) % 36;
+  m_outputEtSum = etStrip0 + etStrip1;
+  m_outputExSum = etComponentForJetFinder<L1GctInternEtSum::kTotEtOrHtNBits,L1GctInternEtSum::kJetMissEtNBits>
+    (etStrip0, xfact0, etStrip1, xfact1);
+  m_outputEySum = etComponentForJetFinder<L1GctInternEtSum::kTotEtOrHtNBits,L1GctInternEtSum::kJetMissEtNBits>
+    (etStrip0, yfact0, etStrip1, yfact1);
+}
+
+
 // Calculates Hf inner rings Et sum, and counts number of "fineGrain" bits set
 L1GctJetFinderBase::hfTowerSumsType L1GctJetFinderBase::calcHfSums() const
 {
@@ -380,3 +419,97 @@ L1GctJetFinderBase::hfTowerSumsType L1GctJetFinderBase::calcHfSums() const
   temp.etSum1.setOverFlow(temp.etSum1.overFlow() || of.at(1));
   return temp;
 }
+
+
+// Here is where the rotations are actually done
+// Procedure suitable for implementation in hardware, using
+// integer multiplication and bit shifting operations
+
+template <int kBitsInput, int kBitsOutput>
+L1GctTwosComplement<kBitsOutput>
+L1GctJetFinderBase::etComponentForJetFinder(const L1GctUnsignedInt<kBitsInput>& etStrip0, const unsigned& fact0,
+					    const L1GctUnsignedInt<kBitsInput>& etStrip1, const unsigned& fact1) {
+
+  // typedefs and constants
+  typedef L1GctTwosComplement<kBitsOutput> OutputType;
+
+  // The sin(phi), cos(phi) factors are represented in 15 bits, 
+  // as numbers in the range -2^14 to 2^14.
+  // We multiply each input strip Et by the required factor
+  // then shift, to divide by 2^13. This gives an extra bit
+  // of precision on the LSB of the output values.
+  // It's important to avoid systematically biasing the Ex, Ey
+  // component values because this results in an asymmetric
+  // distribution in phi for the final MEt.
+  // The extra LSB is required because one of the factors is 0.5.
+  // Applying this factor without the extra LSB corrects odd values
+  // systematically down by 0.5; or all values by 0.25
+  // on average, giving a shift of -2 units in Ex.
+
+  static const int internalComponentSize = 15;
+  static const int maxEt                 = 1<<internalComponentSize;
+
+  static const int kBitsFactor           = internalComponentSize+kBitsInput+1;
+  static const int maxFactor             = 1<<kBitsFactor;
+
+  static const int bitsToShift           = internalComponentSize-2;
+  static const int halfInputLsb          = 1<<(bitsToShift-1);
+
+  // These factors correspond to the sine of angles from -90 degrees to
+  // 90 degrees in 10 degree steps, multiplied by 16383 and written
+  // as a <kBitsFactor>-bit 2s-complement number.
+  const int factors[19] = {maxFactor-16383, maxFactor-16134, maxFactor-15395, maxFactor-14188, maxFactor-12550,
+			   maxFactor-10531,  maxFactor-8192,  maxFactor-5603,  maxFactor-2845, 0,
+			   2845, 5603, 8192, 10531, 12550, 14188, 15395, 16134, 16383};
+
+  int rotatedValue0, rotatedValue1, myFact;
+  int etComponentSum = 0;
+
+  if (fact0 >= 36 || fact1 >= 36) {
+    if (m_verbose) {
+      edm::LogError("L1GctProcessingError")
+	<< "L1GctJetLeafCard::rotateEtValue() has been called with factor numbers "
+	<< fact0 << " and " << fact1 << "; should be less than 36 \n";
+    } 
+  } else {
+
+    // First strip - choose the required multiplication factor
+    if (fact0>18) { myFact = factors[(36-fact0)]; }
+    else { myFact = factors[fact0]; }
+
+    // Multiply the Et value by the factor.
+    rotatedValue0 = static_cast<int>(etStrip0.value()) * myFact;
+
+    // Second strip - choose the required multiplication factor
+    if (fact1>18) { myFact = factors[(36-fact1)]; }
+    else { myFact = factors[fact1]; }
+
+    // Multiply the Et value by the factor.
+    rotatedValue1 = static_cast<int>(etStrip1.value()) * myFact;
+
+    // Add the two scaled values together, with full resolution including
+    // fractional parts from the sin(phi), cos(phi) scaling.
+    // Adjust the value to avoid truncation errors since these
+    // accumulate and cause problems for the missing Et measurement.
+    // Then discard the 13 LSB and interpret the result as
+    // a 15-bit twos complement integer.
+    etComponentSum = ((rotatedValue0 + rotatedValue1) + halfInputLsb)>>bitsToShift;
+
+    etComponentSum = etComponentSum & (maxEt-1);
+    if (etComponentSum >= (maxEt/2)) {
+      etComponentSum = etComponentSum - maxEt;
+    }
+  }
+
+  // Store as a TwosComplement format integer and return
+  OutputType temp(etComponentSum);
+  temp.setOverFlow(temp.overFlow() || etStrip0.overFlow() || etStrip1.overFlow());
+  return temp;
+}
+
+// Declare the specific versions we want to use, to help the linker out
+template
+L1GctJetFinderBase::etCompInternJfType
+L1GctJetFinderBase::etComponentForJetFinder<L1GctInternEtSum::kTotEtOrHtNBits,L1GctInternEtSum::kJetMissEtNBits>
+(const L1GctJetFinderBase::etTotalType&, const unsigned&,
+ const L1GctJetFinderBase::etTotalType&, const unsigned&);

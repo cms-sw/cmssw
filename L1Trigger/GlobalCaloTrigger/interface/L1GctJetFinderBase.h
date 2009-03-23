@@ -4,9 +4,8 @@
 #include "CondFormats/L1TObjects/interface/L1GctHfLutSetup.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtTotal.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternEtSum.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternHtMiss.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
@@ -59,8 +58,10 @@ public:
   typedef std::vector<L1GctJet>     RawJetVector;
   typedef std::vector<L1GctJetCand> JetVector;
   typedef Pipeline<L1GctJet>        RawJetPipeline;
-  typedef L1GctUnsignedInt<L1GctEtTotal::kEtTotalNBits> etTotalType;
-  typedef L1GctUnsignedInt<  L1GctEtHad::kEtHadNBits  > etHadType;
+  typedef L1GctUnsignedInt<L1GctInternEtSum::kTotEtOrHtNBits> etTotalType;
+  typedef L1GctUnsignedInt<L1GctInternEtSum::kTotEtOrHtNBits> etHadType;
+  typedef L1GctTwosComplement<  L1GctInternEtSum::kJetMissEtNBits > etCompInternJfType;
+  typedef L1GctTwosComplement< L1GctInternHtMiss::kJetMissHtNBits > htCompInternJfType;
 
 
   // For HF-based triggers we sum the Et in the two "inner" (large eta) rings;
@@ -175,6 +176,13 @@ public:
   etTotalType getEtStrip1() const { return m_outputEtStrip1; }  ///< Get transverse energy strip sum 1
   etTotalType getHtStrip0() const { return m_outputHtStrip0; }  ///< Get the total calibrated energy in jets (Ht) in strip 0
   etTotalType getHtStrip1() const { return m_outputHtStrip1; }  ///< Get the total calibrated energy in jets (Ht) in strip 1
+  // The hardware output quantities - refactored
+  etTotalType        getEtSum() const { return m_outputEtSum; }  ///< Get the scalar sum of Et summed over the input regions
+  etCompInternJfType getExSum() const { return m_outputExSum; }  ///< Get the x component of vector Et summed over the input regions
+  etCompInternJfType getEySum() const { return m_outputEySum; }  ///< Get the y component of vector Et summed over the input regions
+  etHadType          getHtSum() const { return m_outputHtSum; }  ///< Get the scalar sum of Ht summed over jets above threshold
+  htCompInternJfType getHxSum() const { return m_outputHxSum; }  ///< Get the x component of vector Ht summed over jets above threshold
+  htCompInternJfType getHySum() const { return m_outputHySum; }  ///< Get the y component of vector Ht summed over jets above threshold
 
   hfTowerSumsType getHfSums() const { return m_outputHfSums; }  ///< Get the Hf tower Et sums and tower-over-threshold counts
 
@@ -267,6 +275,14 @@ public:
   etTotalType m_outputHtStrip0;
   etTotalType m_outputHtStrip1;
 
+  /// output Et strip sums and Ht - refactored
+  etTotalType        m_outputEtSum;
+  etCompInternJfType m_outputExSum;
+  etCompInternJfType m_outputEySum;
+  etHadType          m_outputHtSum;
+  htCompInternJfType m_outputHxSum;
+  htCompInternJfType m_outputHySum;
+
   hfTowerSumsType m_outputHfSums;
     
   //PROTECTED METHODS
@@ -291,6 +307,9 @@ public:
   /// Calculates total calibrated energy in jets (Ht) sum
   etTotalType calcHtStrip(const UShort strip) const;
   
+  /// Calculates vector sum of Et over input regions
+  void doEtVectorSum() ;
+  
   /// Calculates Et sum and number of towers over threshold in Hf
   hfTowerSumsType calcHfSums() const;
 
@@ -306,6 +325,12 @@ public:
 
   /// Output jets "pipeline memory" for checking
   RawJetPipeline m_outputJetsPipe;
+
+  /// Private method for calculating MEt and MHt components
+  template <int kBitsInput, int kBitsOutput>
+    L1GctTwosComplement<kBitsOutput>
+    etComponentForJetFinder(const L1GctUnsignedInt<kBitsInput>& etStrip0, const unsigned& fact0,
+			    const L1GctUnsignedInt<kBitsInput>& etStrip1, const unsigned& fact1);
 
 
 };
