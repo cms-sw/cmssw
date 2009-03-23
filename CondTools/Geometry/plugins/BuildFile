@@ -20,6 +20,8 @@
 <use name=Geometry/CSCGeometryBuilder>
 <use name=Geometry/DTGeometry> 
 <use name=Geometry/DTGeometryBuilder>
+<use name=Geometry/RPCGeometry>
+<use name=Geometry/RPCGeometryBuilder>
 <use name=Geometry/MuonNumbering>  
 
 <library file="*.cc" name=CondToolsGeometryPlugins>
