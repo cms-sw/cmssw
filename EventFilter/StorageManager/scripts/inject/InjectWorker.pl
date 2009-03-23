@@ -1,6 +1,7 @@
-#!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.30 2008/10/09 02:23:05 loizides Exp $
+#!/usr/bin/env perl
+# $Id: InjectWorker.pl,v 1.32 2008/10/29 00:20:13 loizides Exp $
 
+use warnings;
 use strict;
 use DBI;
 use Getopt::Long;
@@ -184,7 +185,9 @@ sub inject($$)
         print "Error in obtained parameters\n";
         return -1;
     }
-    
+
+    return 0 if($stream eq 'EcalCalibration'); #skip EcalCalibration
+
     # index file name and size
     my $indfile     = $filename;
     $indfile =~ s/\.dat$/\.ind/;

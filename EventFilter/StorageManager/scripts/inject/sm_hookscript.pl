@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: sm_hookscript.pl,v 1.9 2009/03/06 15:54:06 jserrano Exp $
+# $Id: sm_hookscript.pl,v 1.10 2009/03/19 14:44:11 jserrano Exp $
 ################################################################################
 
 use strict;
@@ -26,24 +26,23 @@ my $appname     = $ENV{'SM_APPNAME'};
 my $type        = $ENV{'SM_TYPE'};
 my $checksum    = $ENV{'SM_CHECKSUM'};
 my $producer    = 'StorageManager';
-my $smid        = 1;
 my $retries      = 2;
 
 
-# special treatment for calibration stream
-my $doca = $ENV{'SM_CALIB_NFS'};
-if (defined $doca) {
-    if($fields[3] eq "Calibration") {
-        my $COPYCOMMAND = '$SMT0_BASE_DIR/sm_nfscopy.sh $SM_CALIB_NFS $SM_PATHNAME/$SM_FILENAME $SM_CALIBAREA 5';
-        system($COPYCOMMAND);
-    }
-}
+## special treatment for calibration stream
+#my $doca = $ENV{'SM_CALIB_NFS'};
+#if (defined $doca) {
+#    if($fields[3] eq "Calibration") {
+#        my $COPYCOMMAND = '$SMT0_BASE_DIR/sm_nfscopy.sh $SM_CALIB_NFS $SM_PATHNAME/$SM_FILENAME $SM_CALIBAREA 5';
+#        system($COPYCOMMAND);
+#    }
+#}
 
-# pecial treatment for ecal calibration
-#my $doeca = destionation point?
+# pecial treatment for EcalCalibration
+my $doca = $ENV{'SM_CALIB_NFS'};
 if($fields[3] eq "EcalCalibration") {
     if (defined $doca) {
-        #my $COPYCOMMAND = '$SMT0_BASE_DIR/sm_nfscopy.sh $SM_CALIB_NFS $SM_PATHNAME/$SM_FILENAME $SM_CALIBAREA 5';
+        my $COPYCOMMAND = '$SMT0_BASE_DIR/sm_nfscopy.sh $SM_CALIB_NFS $SM_PATHNAME/$SM_FILENAME $SM_CALIBAREA 5';
         my $copyresult = 1;
         while ($copyresult && $retries) {
            $copyresult = system($COPYCOMMAND);
@@ -51,7 +50,7 @@ if($fields[3] eq "EcalCalibration") {
         }
     fi
     }
-    #my $RMCOMMAND = 'rm $SM_PATHNAME/$SM_FILENAME';
+    my $RMCOMMAND = 'rm -f $SM_PATHNAME/$SM_FILENAME';
     system($RMCOMMAND);
 }
 
