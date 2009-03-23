@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/03/12 16:11:59 $ 
+ **  $Date: 2009/03/23 10:54:20 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -80,11 +80,7 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
   dividePlots(dbe_->get(EffPath+"EfficiencyVsEtTight"),dbe_->get(EffPath+ "phoEtTight"),dbe_->get(AllPath+currentFolder_.str() + "phoEtAllEcal"));
   dividePlots(dbe_->get(EffPath+"EfficiencyVsEtaHLT"),dbe_->get(AllPath+currentFolder_.str() + "phoEta"),dbe_->get(EffPath+ "phoEtaHLT"));
   dividePlots(dbe_->get(EffPath+"EfficiencyVsEtHLT"),dbe_->get(AllPath+currentFolder_.str() + "phoEtAllEcal"),dbe_->get(EffPath+ "phoEtHLT")); 
-  //making conversion fraction plots
-  
-  dividePlots(dbe_->get(EffPath+"convFractionVsEta"),dbe_->get(AllPath+currentFolder_.str() +  "Conversions/phoConvEta"),dbe_->get(AllPath+currentFolder_.str() + "phoEta"));
-  dividePlots(dbe_->get(EffPath+"convFractionVsEt"),dbe_->get(AllPath+currentFolder_.str() +  "Conversions/phoConvEtAllEcal"),dbe_->get(AllPath+currentFolder_.str() + "phoEtAllEcal"));
-  
+
   currentFolder_.str("");
   currentFolder_ << EffPath;
   dbe_->setCurrentFolder(currentFolder_.str());
