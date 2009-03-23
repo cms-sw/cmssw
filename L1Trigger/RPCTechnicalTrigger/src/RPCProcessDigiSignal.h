@@ -1,4 +1,4 @@
-// $Id: RPCProcessDigiSignal.h,v 1.1 2009/02/05 13:46:21 aosorio Exp $
+// $Id: RPCProcessDigiSignal.h,v 1.2 2009/02/16 09:11:30 aosorio Exp $
 #ifndef RPCPROCESSDIGISIGNAL_H 
 #define RPCPROCESSDIGISIGNAL_H 1
 
@@ -62,7 +62,9 @@ public:
 protected:
   
 private:
-  
+
+  int getBarrelLayer(const int &, const int &);
+    
   TTUInput * m_ttuwheelmap;
   RPCInputSignal * m_wmin;
   

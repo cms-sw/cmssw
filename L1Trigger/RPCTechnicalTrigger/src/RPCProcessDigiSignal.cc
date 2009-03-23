@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RPCProcessDigiSignal.cc,v 1.1 2009/01/30 15:42:48 aosorio Exp $
 // Include files 
 
 
@@ -58,17 +58,22 @@ int RPCProcessDigiSignal::next()
     
     if((roll->isForward())) {
       std::cout << "RPCProcessDigiSignal: roll is forward" << std::endl;
-      continue;
+      //continue;
     }
     
-    int wheel  = roll->id().ring() + 2;
-    int sector = roll->id().sector() - 1;
-    int layer  = roll->id().layer();
+    int wheel   = roll->id().ring();                    // -2,-1,0,+1,+2
+    int sector  = roll->id().sector() - 1;              // 0 to 11 (12)
+    int layer   = roll->id().layer();                   // 1,2
+    int station = roll->id().station();                 // 1-4
+    int blayer  = getBarrelLayer( layer, station ) - 1; // 1 to 6
     
-    std::cout << "Bx: "     << bx     << '\t'
-              << "Wheel: "  << wheel  << '\t'
-              << "Sector: " << sector << '\t'
-              << "Layer: "  << layer  << '\n';
+    std::cout << "Bx: "      << bx      << '\t'
+              << "Wheel: "   << wheel   << '\t'
+              << "Sector: "  << sector  << '\t'
+              << "Station: " << station << '\t'
+              << "Layer: "   << layer   << '\t'
+              << "B-Layer: " << blayer  << '\n';
+    
     
     if ( wheel != prev_wheel_id ) {
       wheelmap = new RPCWheelMap( wheel );
@@ -110,4 +115,20 @@ int RPCProcessDigiSignal::next()
   
 }
 
+int RPCProcessDigiSignal::getBarrelLayer( const int & _layer, const int & _station )
+{
+  
+  //... Calculates the generic Barrel Layer (1 to 6)
+  int blayer(0);
+  
+  if ( _station < 3 ) {
+    blayer = ( (_station-1) * 2 ) + _layer;
+  }
+  else {
+    blayer = _station + 2;
+  }
+  
+  return blayer;
+  
+}
 
