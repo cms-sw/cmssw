@@ -783,3 +783,82 @@ float  EcalClusterTools::getIPhi(const DetId& id)
   }
   return 0.;    
 }
+
+std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology, const CaloGeometry* geometry, float w0)
+{
+  const reco::BasicCluster bcluster = *(cluster.seed());
+  
+  float e_5x5 = e5x5(bcluster, recHits, topology);
+  float covEtaEta, covEtaPhi, covPhiPhi;
+  
+  if (e_5x5 > 0.) {
+    std::vector<std::pair<DetId, float> > v_id = cluster.hitsAndFractions();
+    std::pair<float,float> meanEtaPhi =  meanClusterPositionInCrysCoord(bcluster, recHits, topology);
+    
+    // now we can calculate the covariances
+    double numeratorEtaEta = 0;
+    double numeratorEtaPhi = 0;
+    double numeratorPhiPhi = 0;
+    double denominator     = 0;
+    
+    const double barrelCrysSize = 0.01745; //approximate size of crystal in eta,phi in barrel
+    const double endcapCrysSize = 0.0447; //the approximate crystal size sigmaEtaEta was corrected to in the endcap
+    
+    DetId id = getMaximum(v_id, recHits).first;  
+    bool isBarrel=id.subdetId()==EcalBarrel;
+    
+    const double crysSize = isBarrel ? barrelCrysSize : endcapCrysSize;
+    
+    for (size_t i = 0; i < v_id.size(); ++i) {
+      CaloNavigator<DetId> cursor = CaloNavigator<DetId>(v_id[i].first, topology->getSubdetectorTopology(v_id[i].first));
+      float energy = recHitEnergy(*cursor, recHits);
+      
+      if (energy <= 0) 
+        continue;
+      
+      float crysIEta = getIEta(*cursor);
+      float crysIPhi = getIPhi(*cursor);
+      double dEta = crysIEta - meanEtaPhi.first;
+      double dPhi = crysIPhi - meanEtaPhi.second;
+      
+      //no iEta=0 in barrel, so if go from positive to negative
+      //need to reduce abs(detEta) by 1
+      if(isBarrel){ 
+        if(crysIEta*meanEtaPhi.first<0){ // -1 to 1 transition
+          if(crysIEta>0) dEta--;
+          else dEta++;
+        }
+      }
+      if(isBarrel){ //if barrel, need to map into 0-180 
+        if (dPhi > + 180) { dPhi = 360 - dPhi; }
+        if (dPhi < - 180) { dPhi = 360 + dPhi; }
+      }
+      
+      double w = 0.;
+      w = std::max(0.0, w0 + log( energy / e_5x5 ));
+      
+      denominator += w;
+      numeratorEtaEta += w * dEta * dEta;
+      numeratorEtaPhi += w * dEta * dPhi;
+      numeratorPhiPhi += w * dPhi * dPhi;
+    }
+    
+    //multiplying by crysSize to make the values compariable to normal covariances
+    covEtaEta =  crysSize*crysSize* numeratorEtaEta / denominator;
+    covEtaPhi =  crysSize*crysSize* numeratorEtaPhi / denominator;
+    covPhiPhi =  crysSize*crysSize* numeratorPhiPhi / denominator;
+  } else {
+    // Warn the user if there was no energy in the cells and return zeroes.
+    // std::cout << "\ClusterShapeAlgo::Calculate_Covariances:  no energy in supplied cells.\n";
+    covEtaEta = 0;
+    covEtaPhi = 0;
+    covPhiPhi = 0;
+  }
+  
+  std::vector<float> v;
+  v.push_back( covEtaEta );
+  v.push_back( covEtaPhi );
+  v.push_back( covPhiPhi );
+ 
+  return v;
+}
