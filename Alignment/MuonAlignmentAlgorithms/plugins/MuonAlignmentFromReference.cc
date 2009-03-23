@@ -82,15 +82,12 @@ private:
   bool m_DT13fitPhiz;
   bool m_DT13fitSlopeBfield;
   bool m_DT2fitScattering;
-  bool m_DT2fitZpos;
   bool m_DT2fitPhiz;
   bool m_DT2fitSlopeBfield;
   bool m_CSCfitScattering;
   bool m_CSCfitZpos;
   bool m_CSCfitPhiz;
   bool m_CSCfitSlopeBfield;
-  bool m_DTzFrom13;
-  bool m_DTphizFrom13;
   std::string m_reportFileName;
   std::string m_rootDirectory;
 
@@ -128,15 +125,12 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
   , m_DT13fitPhiz(iConfig.getParameter<bool>("DT13fitPhiz"))
   , m_DT13fitSlopeBfield(iConfig.getParameter<bool>("DT13fitSlopeBfield"))
   , m_DT2fitScattering(iConfig.getParameter<bool>("DT2fitScattering"))
-  , m_DT2fitZpos(iConfig.getParameter<bool>("DT2fitZpos"))
   , m_DT2fitPhiz(iConfig.getParameter<bool>("DT2fitPhiz"))
   , m_DT2fitSlopeBfield(iConfig.getParameter<bool>("DT2fitSlopeBfield"))
   , m_CSCfitScattering(iConfig.getParameter<bool>("CSCfitScattering"))
   , m_CSCfitZpos(iConfig.getParameter<bool>("CSCfitZpos"))
   , m_CSCfitPhiz(iConfig.getParameter<bool>("CSCfitPhiz"))
   , m_CSCfitSlopeBfield(iConfig.getParameter<bool>("CSCfitSlopeBfield"))
-  , m_DTzFrom13(iConfig.getParameter<bool>("DTzFrom13"))
-  , m_DTphizFrom13(iConfig.getParameter<bool>("DTphizFrom13"))
   , m_reportFileName(iConfig.getParameter<std::string>("reportFileName"))
   , m_rootDirectory(iConfig.getParameter<std::string>("rootDirectory"))
 {
@@ -194,7 +188,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
        
        m_zFitters[*ali] = new MuonResidualsPositionFitter(residualsModel, -1);
        if (!m_DT2fitScattering) m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kScattering);
-       if (!m_DT2fitZpos) m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
+       m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
        if (!m_DT2fitPhiz) m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kPhiz);
        m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 1);
        m_fitterOrder.push_back(m_zFitters[*ali]);
@@ -455,6 +449,10 @@ void MuonAlignmentFromReference::terminate() {
       report << "class Report:" << std::endl
 	     << "    def __init__(self, chamberId, postal_address, name):" << std::endl
 	     << "        self.chamberId, self.postal_address, self.name = chamberId, postal_address, name" << std::endl
+	     << "        self.rphiFit_status = \"UNKNOWN\"" << std::endl
+	     << "        self.zFit_status = \"UNKNOWN\"" << std::endl
+	     << "        self.phixFit_status = \"UNKNOWN\"" << std::endl
+	     << "        self.phiyFit_status = \"UNKNOWN\"" << std::endl
 	     << "" << std::endl
 	     << "    def rphiFit(self, position, zpos, phiz, scattering, sigma, gamma, redchi2):" << std::endl
 	     << "        self.rphiFit_status = \"PASS\"" << std::endl
@@ -497,10 +495,22 @@ void MuonAlignmentFromReference::terminate() {
 	     << "                     deltax, deltay, deltaz, deltaphix, deltaphiy, deltaphiz" << std::endl
 	     << "" << std::endl
 	     << "    def errors(self, err2x, err2y, err2z):" << std::endl
-	     << "        self.err2x, self.err2y, self.err2z = err2x, err2y, err2z" << std::endl;
+	     << "        self.err2x, self.err2y, self.err2z = err2x, err2y, err2z" << std::endl << std::endl << std::endl;
     }
 
     for (std::vector<Alignable*>::const_iterator ali = m_alignables.begin();  ali != m_alignables.end();  ++ali) {
+      // HACK
+      DetId hackid = (*ali)->geomDetId();
+      if (hackid.subdetId() == MuonSubdetId::DT) {
+	DTChamberId dtid(hackid.rawId());
+	if (dtid.sector() != 1) continue;
+      }
+      else if (hackid.subdetId() == MuonSubdetId::CSC) {
+	CSCDetId cscid(hackid.rawId());
+	if (cscid.chamber() != 1) continue;
+      }
+      else continue;
+
       std::vector<bool> selector = (*ali)->alignmentParameters()->selector();
       bool align_x = selector[0];
       bool align_y = selector[1];
@@ -626,11 +636,11 @@ void MuonAlignmentFromReference::terminate() {
 	      cov[paramIndex[2]][paramIndex[2]] = 0.;
 	    }
 
-	    if (align_z  &&  m_DTzFrom13) {
+	    if (align_z) {
 	      params[paramIndex[2]] = zpos_value;
 	    }
 	  
-	    if (align_phiz  &&  m_DTphizFrom13) {
+	    if (align_phiz) {
 	      params[paramIndex[5]] = phiz_value;
 	    }
 	  } // end if DT
@@ -731,14 +741,6 @@ void MuonAlignmentFromReference::terminate() {
 	    if (align_x) {
 	      params[paramIndex[1]] = position_value;
 	      cov[paramIndex[1]][paramIndex[1]] = 0.;   // local y is the global z direction: this is now a good parameter
-	    }
-
-	    if (align_z  &&  !m_DTzFrom13) {
-	      params[paramIndex[2]] = zpos_value;
-	    }
-	  
-	    if (align_phiz  &&  !m_DTphizFrom13) {
-	      params[paramIndex[5]] = phiz_value;
 	    }
 	  } // end if DT
 

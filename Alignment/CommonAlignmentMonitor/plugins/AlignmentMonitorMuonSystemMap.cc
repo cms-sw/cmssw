@@ -60,7 +60,6 @@ private:
   bool m_DT13fitPhiz;
   bool m_DT13fitSlopeBfield;
   bool m_DT2fitScattering;
-  bool m_DT2fitZpos;
   bool m_DT2fitPhiz;
   bool m_DT2fitSlopeBfield;
   bool m_CSCfitScattering;
@@ -184,7 +183,6 @@ AlignmentMonitorMuonSystemMap::AlignmentMonitorMuonSystemMap(const edm::Paramete
    , m_DT13fitPhiz(cfg.getParameter<bool>("DT13fitPhiz"))
    , m_DT13fitSlopeBfield(cfg.getParameter<bool>("DT13fitSlopeBfield"))
    , m_DT2fitScattering(cfg.getParameter<bool>("DT2fitScattering"))
-   , m_DT2fitZpos(cfg.getParameter<bool>("DT2fitZpos"))
    , m_DT2fitPhiz(cfg.getParameter<bool>("DT2fitPhiz"))
    , m_DT2fitSlopeBfield(cfg.getParameter<bool>("DT2fitSlopeBfield"))
    , m_CSCfitScattering(cfg.getParameter<bool>("CSCfitScattering"))
@@ -571,7 +569,7 @@ void AlignmentMonitorMuonSystemMap::book() {
       MuonResidualsPositionFitter *posfitter = m_positionFitters[index];
       MuonResidualsAngleFitter *angfitter = m_angleFitters[index];
       if (!m_DT2fitScattering) posfitter->fix(MuonResidualsPositionFitter::kScattering);
-      if (!m_DT2fitZpos) posfitter->fix(MuonResidualsPositionFitter::kZpos);
+      posfitter->fix(MuonResidualsPositionFitter::kZpos);
       if (!m_DT2fitPhiz) posfitter->fix(MuonResidualsPositionFitter::kPhiz);
       if (!m_DT2fitSlopeBfield) angfitter->fix(MuonResidualsAngleFitter::kBfield);
     }

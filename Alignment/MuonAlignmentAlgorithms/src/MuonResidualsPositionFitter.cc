@@ -140,9 +140,9 @@ void MuonResidualsPositionFitter::plot(std::string name, TFileDirectory *dir) {
   TProfile *trackangle_hist = dir->make<TProfile>(trackangle_name.str().c_str(), (trackangle_name.str() + std::string(" (mm)")).c_str(), 100, -0.5, 0.5);
   TProfile *trackposition_hist = dir->make<TProfile>(trackposition_name.str().c_str(), (trackposition_name.str() + std::string(" (mm)")).c_str(), 100, -300., 300.);
 
-  angleerror_hist->SetAxisRange(-100., 100.);
-  trackangle_hist->SetAxisRange(-10., 10.);
-  trackposition_hist->SetAxisRange(-10., 10.);
+  angleerror_hist->SetAxisRange(-100., 100., "Y");
+  trackangle_hist->SetAxisRange(-10., 10., "Y");
+  trackposition_hist->SetAxisRange(-10., 10., "Y");
 
   narrowed_name << "fit";
   angleerror_name << "fit";
