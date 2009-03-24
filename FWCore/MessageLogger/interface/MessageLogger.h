@@ -15,7 +15,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.30 2008/09/12 14:33:34 eulisse Exp $
+// $Id: MessageLogger.h,v 1.31 2008/11/18 02:06:20 wmtan Exp $
 //
 // =================================================
 // Change log
@@ -56,9 +56,13 @@
 //		    which "obviously" ought to emerge, but allowing specific
 //		    suppression as if it were at the LogError level, rather
 //		    than the non-suppressible LogAbsolute.
+//
 // 12 ge 12/09/08   MessageLogger now works even when compiled with -DNDEBUG.
 //                  The problem was that Suppress_LogDebug_ was missing the operator<<
-//                  needed for streaming `std::iomaip`s.
+//                  needed for streaming `std::iomanip`s.
+//
+// 13 mf  3/23/09   ap.get() used whenever possible suppression, to avoid
+//		    null pointer usage
 //
 // =================================================
 
@@ -186,19 +190,20 @@ public:
 
   template< class T >
     LogVerbatim & 
-    operator<< (T const & t)  { (*ap) << t; return *this; }
+    operator<< (T const & t)  { if(ap.get()) (*ap) << t; return *this; } 
+    								// Change log 13
   LogVerbatim & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-    				      { (*ap) << f; return *this; }
+    				      { if(ap.get()) (*ap) << f; return *this; }
   LogVerbatim & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-    				      { (*ap) << f; return *this; }     
+    				      { if(ap.get()) (*ap) << f; return *this; }   
 
 private:
   std::auto_ptr<MessageSender> ap; 
   LogVerbatim( LogVerbatim const& );				// Change log 9
   
-};  // LogVerbaitm
+};  // LogVerbatim
 
 // verbatim version of LogWarning
 class LogPrint							// change log 3
@@ -211,13 +216,14 @@ public:
 
   template< class T >
     LogPrint & 
-    operator<< (T const & t)  { (*ap) << t; return *this; }
+    operator<< (T const & t)  { if(ap.get()) (*ap) << t; return *this; } 
+    								// Change log 13
   LogPrint & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-    				      { (*ap) << f; return *this; }
+    				{ if(ap.get()) (*ap) << f; return *this; }
   LogPrint & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-    				      { (*ap) << f; return *this; }     
+    				{ if(ap.get()) (*ap) << f; return *this; }      
 
 private:
   std::auto_ptr<MessageSender> ap; 
