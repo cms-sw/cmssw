@@ -24,7 +24,7 @@
 // ********************************************************************
 //
 //
-// $Id: HadronPhysicsQGSP_WP.cc,v 1.2 2008/02/29 23:40:56 syjun Exp $
+// $Id: HadronPhysicsQGSP_WP.cc,v 1.3 2009/02/04 17:05:26 syjun Exp $
 // GEANT4 tag $Name:  $
 //
 //---------------------------------------------------------------------------
@@ -42,6 +42,7 @@
 #include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_WP.h"
 #include "SimG4Core/GFlash/interface/G4PiKBuilder_WP.h"
 #include "SimG4Core/GFlash/interface/G4ProtonBuilder_WP.h"
+#include "SimG4Core/GFlash/interface/G4MiscLHEPBuilder_WP.h"
 
 #include "globals.hh"
 #include "G4ios.hh"
@@ -77,7 +78,7 @@ void HadronPhysicsQGSP_WP::CreateModels()
   thePiK->RegisterMe(theLEPPiK=new G4LEPPiKBuilder);
   theLEPPiK->SetMaxEnergy(25*GeV);
   
-  theMiscLHEP=new G4MiscLHEPBuilder;
+  theMiscLHEP=new G4MiscLHEPBuilder_WP;
 }
 
 HadronPhysicsQGSP_WP::~HadronPhysicsQGSP_WP()
