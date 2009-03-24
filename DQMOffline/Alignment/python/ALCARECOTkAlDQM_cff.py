@@ -148,6 +148,27 @@ ALCARECOTkAlMuonIsolatedTkAlDQM = ALCARECOTkAlMinBiasTkAlDQM.clone(
 )
 ALCARECOTkAlMuonIsolatedDQM = cms.Sequence( ALCARECOTkAlMuonIsolatedTrackingDQM + ALCARECOTkAlMuonIsolatedTkAlDQM)
 
+####################################################
+#############---  TkAlLAS ---#######################
+####################################################
+import DQMOffline.Alignment.ALCARECOTkAlLASDQM_cfi
+__selectionName = 'TkAlLAS'
+ALCARECOTkAlLASDigiDQM= DQMOffline.Alignment.ALCARECOTkAlLASDQM_cfi.laserAlignmentT0ProducerDQM.clone(
+# names and designation
+  FolderName = __selectionName,
+# settings
+  LowerAdcThreshold = 15,
+  UpperAdcThreshold = 220,
+  DigiProducerList = cms.VPSet(
+    cms.PSet(
+      DigiLabel = cms.string( 'ZeroSuppressed' ),
+      DigiType = cms.string( 'Processed' ),
+      DigiProducer = cms.string( 'laserAlignmentT0Producer' )
+    )
+  )
+)
+ALCARECOTkAlLASDQM = cms.Sequence( ALCARECOTkAlLASDigiDQM )
+
 ################################################
 ###### DQM modules for cosmic data taking ######
 ################################################
