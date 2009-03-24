@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/02/11 18:36:29 $
- * $Revision: 1.106 $
+ * $Date: 2009/02/13 17:29:29 $
+ * $Revision: 1.107 $
  * \author W Fisher
  * \author J Temple
  *
@@ -54,6 +54,8 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   checkHE_=ps.getUntrackedParameter<bool>("checkHE", 1);  
   checkHO_=ps.getUntrackedParameter<bool>("checkHO", 1);  
   checkHF_=ps.getUntrackedParameter<bool>("checkHF", 1);   
+
+  AnalyzeOrbGapCT_=ps.getUntrackedParameter<bool>("AnalyzeOrbitGap", 0);   
 
   evtSel_ = new HcalMonitorSelector(ps);
   
@@ -546,11 +548,11 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Do default setup...
   ievt_++;
 
-  int evtMask=DO_HCAL_DIGIMON|DO_HCAL_DFMON|DO_HCAL_RECHITMON|DO_HCAL_PED_CALIBMON|DO_HCAL_LED_CALIBMON|DO_HCAL_LASER_CALIBMON; // add in DO_HCAL_TPMON, DO_HCAL_CTMON?  (in HcalMonitorSelector.h)
+  int evtMask=DO_HCAL_DIGIMON|DO_HCAL_DFMON|DO_HCAL_RECHITMON|DO_HCAL_PED_CALIBMON|DO_HCAL_LED_CALIBMON|DO_HCAL_LASER_CALIBMON; // add in DO_HCAL_TPMON, DO_HCAL_CTMON?  (in HcalMonitorSelector.h) 
 
   //  int trigMask=0;
   if(mtccMon_==NULL){
-    evtSel_->processEvent(e);
+    evtSel_->processEvent(e);   
     evtMask = evtSel_->getEventMask();
     //    trigMask =  evtSel_->getTriggerMask();
   }
@@ -599,8 +601,54 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 	  meFEDS_->Fill(feds[f]);    
 	}
 	fedsListed_ = true;
+	fedss = feds; //Assign to a non-const holder
       }
     }
+
+  //Orbit Gap Data Quality Monitoring
+  bool InconsistentCalibTypes=false;
+  HcalCalibrationEventType CalibType = hc_Null;
+
+  if (AnalyzeOrbGapCT_) {
+
+    //Get the calibration type from the unpackable fedss in the collection
+    for (vector<int>::const_iterator i=fedss.begin();i!=fedss.end(); i++) {
+      const FEDRawData& fed = (*rawraw).FEDData(*i);
+      if (fed.size()<12) continue;  //At least the size of headers and trailers of a DCC.
+      // get the DCC header 
+      const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fed.data());
+      if(!dccHeader) continue;
+      // All FEDS should report the same CalibType within the event.
+      if ( (i!=fedss.begin()) && 
+	   (CalibType != dccHeader-> getCalibType())  ) {
+	if (debug_) cout << "Inconsistent CalibTypes" << (int) CalibType << " and " << dccHeader->getCalibType() <<endl;
+	InconsistentCalibTypes = true;
+      }
+      CalibType = dccHeader-> getCalibType();
+      //Expedient only while testing: Skip non-calibration events.
+      if (CalibType == hc_Null) return;
+    }
+  }
+  if (!InconsistentCalibTypes && AnalyzeOrbGapCT_) {
+    // If we're doing the Orbit Gap DQM, set the right evtMask for
+    // the Calibration Event Type.
+    evtMask = DO_HCAL_DFMON; 
+    switch (CalibType) {
+    case hc_Null:
+      break;
+    case hc_Pedestal:
+      evtMask |= DO_HCAL_PED_CALIBMON;
+      break;
+    case hc_RADDAM:
+    case hc_HBHEHPD:
+    case hc_HOHPD:
+    case hc_HFPMT:
+      evtMask |= DO_HCAL_LASER_CALIBMON;
+      break;
+    default:
+      break;
+    }
+  } 
 
   // try to get digis
   edm::Handle<HBHEDigiCollection> hbhe_digi;

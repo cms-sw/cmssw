@@ -21,9 +21,8 @@ process.source = cms.Source("PoolSource",
                             
                             fileNames = cms.untracked.vstring
                             (
-    
     # recent cosmics run with known hot cell in HF
-    '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root',
+        '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root',
     # NON-ZERO-SUPPRESSED RUN
     #'/store/data/Commissioning08/Cosmics/RAW/v1/000/064/103/2A983512-E18F-DD11-BE84-001617E30CA4.root'
     #'/store/data/Commissioning08/Cosmics/RAW/v1/000/066/904/02944F1F-EB9E-DD11-8D88-001D09F2A465.root',
@@ -45,7 +44,7 @@ process.source = cms.Source("PoolSource",
 ###  Case 3:  Run on HCAL local runs (pedestal, LED, etc.).  You need to have access to /bigspool or have a local copy of the file available.  This syntax has now been tested, and is found to work in python.
 
 ###process.source = cms.Source("HcalTBSource",
-###                            fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/s/stjohn/scratch0/USC_044790.root'),
+###                            fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/s/stjohn/scratch0/USC_077834.root'),
 ###                            streams   = cms.untracked.vstring(#HBHEa,b,c:
 ###                                                              'HCAL_DCC700','HCAL_DCC701','HCAL_DCC702','HCAL_DCC703','HCAL_DCC704','HCAL_DCC705',
 ###                                                              'HCAL_DCC706','HCAL_DCC707','HCAL_DCC708','HCAL_DCC709','HCAL_DCC710','HCAL_DCC711',
@@ -86,11 +85,12 @@ process.dqmSaver.saveByRun = 1
 #-----------------------------
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_21X_GLOBALTAG'
-process.GlobalTag.globaltag = 'CRAFT_V3P::All'  # update GlobalTag as neceesary
+process.GlobalTag.globaltag = 'CRAFT_ALL_V8::All'  # update GlobalTag as neceesary
 process.prefer("GlobalTag")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-
+# Tone down the logging messages, MessageLogger!
+process.MessageLogger.cerr.FwkReport.reportEvery = 50
 
 #-----------------------------
 # Hcal DQM Source, including SimpleReconstrctor
@@ -104,11 +104,12 @@ process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_zdc_cfi")
 
 # hcalMonitor configurable values -----------------------
 process.hcalMonitor.debug = 0
-#process.hcalMonitor.DigiOccThresh = -999999999 ##Temporary measure while DigiOcc is reworked -- why was this done in the first place?  What was the problem with a threshold of 0?  -- Jeff
-process.hcalMonitor.pedestalsInFC = True
-process.hcalMonitor.showTiming = False
-process.hcalMonitor.checkNevents=100
-process.hcalMonitor.dump2database = False
+#process.hcalMonitor.DigiOccThresh = -999999999 ##Temporary measure while DigiOcc is reworked -- why was this done in the first place?  What was the problem with a threshold of 0?  -- Jeff. Yes, forgive me, I was young. -- Jason.
+process.hcalMonitor.pedestalsInFC   = True
+process.hcalMonitor.showTiming      = False
+process.hcalMonitor.checkNevents    = 500
+process.hcalMonitor.dump2database   = False
+process.hcalMonitor.AnalyzeOrbitGap = False
 
 # Turn on/off individual hcalMonitor modules ------------
 process.hcalMonitor.DataFormatMonitor   = True
@@ -155,16 +156,14 @@ process.hcalClient.SummaryClient        = True
 
 
 #-----------------------------
-# Scheduling
+# Scheduling & Path to follow each event
 #-----------------------------
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound', 
         'TooManyProducts', 
         'TooFewProducts')
 )
-
 process.p = cms.Path(process.hcalDigis*process.horeco*process.hfreco*process.hbhereco*process.zdcreco*process.hcalMonitor*process.hcalClient*process.dqmEnv*process.dqmSaver)
-
 
 #-----------------------------
 # Quality Tester 
