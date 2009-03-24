@@ -98,12 +98,12 @@ void L1TRPCTFClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   {
 
     MonitorElement *me 
-         = dbe_->get( (input_dir_+"/RPCTF_muons_tower_phipacked").c_str() );
+        = dbe_->get( (input_dir_+"/RPCTF_muons_eta_phi_bx0").c_str() );
      
     if (me){
       const QReport *qreport;
       
-      qreport = me->getQReport("DeadChannels2D");
+      qreport = me->getQReport("DeadChannels_RPCTF_2D");
       if (qreport) {
         vector<dqm::me_util::Channel> badChannels = qreport->getBadChannels();
         for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin();
@@ -116,7 +116,7 @@ void L1TRPCTFClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
         } // for(badchannels)
       } //if (qreport)
       
-      qreport = me->getQReport("HotChannels2D");
+      qreport = me->getQReport("HotChannels_RPCTF_2D");
       if (qreport) {
         vector<dqm::me_util::Channel> badChannels = qreport->getBadChannels();
         for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin();
@@ -129,7 +129,7 @@ void L1TRPCTFClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       } //if (qreport)
 //      else std::cout << "dupa" << std::endl;
     } // if (me)
-  
+    
 
   }
 

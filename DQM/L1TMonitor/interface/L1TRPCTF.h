@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTF.h
  *
- * $Date: 2009/03/19 12:52:48 $
- * $Revision: 1.16 $
+ * $Date: 2009/03/20 12:07:02 $
+ * $Revision: 1.17 $
  * \author J. Berryhill
  *
 */
@@ -82,11 +82,12 @@ private:
   MonitorElement* rpctfptvalue[3];
   MonitorElement* rpctfchargevalue[3];
   MonitorElement* rpctfquality[3];
-  MonitorElement* rpctfntrack;
+  MonitorElement* rpctfntrack_b[3];
+  MonitorElement* rpctfntrack_e[3];
   MonitorElement* rpctfbx;
-  MonitorElement* m_qualVsEta;
-  MonitorElement* m_muonsEtaPhi;
-  MonitorElement* m_phipacked;
+  MonitorElement* m_qualVsEta[3];
+  MonitorElement* m_muonsEtaPhi[3];
+  //MonitorElement* m_phipacked;
   
   MonitorElement * m_rateAvg;
   MonitorElement * m_rateMin;
@@ -107,8 +108,7 @@ private:
   bool monitorDaemon_;
   //bool m_rpcDigiFine;
   //bool m_useRpcDigi;
-  
-  unsigned long m_ntracks;
+
   int m_rateUpdateTime;
   int m_rateBinSize;
   int m_rateNoOfBins;
