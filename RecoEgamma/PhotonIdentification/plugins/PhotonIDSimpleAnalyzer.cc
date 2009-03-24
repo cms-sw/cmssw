@@ -16,7 +16,7 @@
 //  Editing Author:  M.B. Anderson
 //
 //         Created:  Fri May 9 11:03:51 CDT 2008
-// $Id: PhotonIDSimpleAnalyzer.cc,v 1.5 2008/09/03 18:40:20 anderson Exp $
+// $Id: PhotonIDSimpleAnalyzer.cc,v 1.6 2008/11/04 22:52:24 askew Exp $
 //
 ///////////////////////////////////////////////////////////////////////
 //                    header file for this analyzer                  //
@@ -194,10 +194,10 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
       //                fill histograms                    //
       ///////////////////////////////////////////////////////
       // PhotonID Variables
-      h_isoEcalRecHit_->Fill(pho->ecalRecHitSumConeDR04());
-      h_isoHcalRecHit_->Fill(pho->hcalTowerSumConeDR04());
-      h_trk_pt_solid_ ->Fill(pho->isolationTrkSolidConeDR04());
-      h_trk_pt_hollow_->Fill(pho->isolationTrkHollowConeDR04());
+      h_isoEcalRecHit_->Fill(pho->ecalRecHitSumEtConeDR04());
+      h_isoHcalRecHit_->Fill(pho->hcalTowerSumEtConeDR04());
+      h_trk_pt_solid_ ->Fill(pho->trkSumPtSolidConeDR04());
+      h_trk_pt_hollow_->Fill(pho->trkSumPtHollowConeDR04());
       h_ntrk_solid_->   Fill(pho->nTrkSolidConeDR04());
       h_ntrk_hollow_->  Fill(pho->nTrkHollowConeDR04());
       h_ebgap_->        Fill(pho->isEBGap());
@@ -227,10 +227,10 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
       //                fill TTree (optional)              //
       ///////////////////////////////////////////////////////
       if ( createPhotonTTree_ ) {
-	recPhoton.isolationEcalRecHit    = pho->ecalRecHitSumConeDR04();
-	recPhoton.isolationHcalRecHit    = pho->hcalTowerSumConeDR04();
-	recPhoton.isolationSolidTrkCone  = pho->isolationTrkSolidConeDR04();
-	recPhoton.isolationHollowTrkCone = pho->isolationTrkHollowConeDR04();
+	recPhoton.isolationEcalRecHit    = pho->ecalRecHitSumEtConeDR04();
+	recPhoton.isolationHcalRecHit    = pho->hcalTowerSumEtConeDR04();
+	recPhoton.isolationSolidTrkCone  = pho->trkSumPtSolidConeDR04();
+	recPhoton.isolationHollowTrkCone = pho->trkSumPtHollowConeDR04();
 	recPhoton.nTrkSolidCone          = pho->nTrkSolidConeDR04();
 	recPhoton.nTrkHollowCone         = pho->nTrkHollowConeDR04();
 	recPhoton.isEBGap                = pho->isEBGap();
