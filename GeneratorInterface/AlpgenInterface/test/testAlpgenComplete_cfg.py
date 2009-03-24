@@ -21,6 +21,7 @@ process.RandomNumberGeneratorService.generator = cms.PSet(
 # The Alpgen Producer.
 # Change the jet matching parameters as you see fit.
 process.load("GeneratorInterface.AlpgenInterface.generator_cfi")
+process.generator.maxEventsToPrint = 0
 process.generator.jetMatching.applyMatching = True
 process.generator.jetMatching.exclusive = True
 process.generator.jetMatching.etMin = 25.0
@@ -35,10 +36,6 @@ process.p0 = cms.Path(process.generator)
 #process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 
 #process.VtxSmeared.src = 'generator'
-#process.genEventWeight.src = 'generator'
-#process.genEventScale.src = 'generator'
-#process.genEventPdfInfo.src = 'generator'
-#process.genEventProcID.src = 'generator'
 #process.genParticles.src = 'generator'
 #process.genParticleCandidates.src = 'generator'
 
@@ -46,7 +43,8 @@ process.p0 = cms.Path(process.generator)
 #process.g4SimHits.Generator.HepMCProductLabel = 'generator'
 #process.mergedtruth.HepMCDataLabels.append('generator')
 
-#process.p0 = (process.generator * process.pgen)
+# Comment the path above if you want to use this one.
+#process.p0 = cms.Path(process.generator * process.pgen)
 
 process.load("Configuration.EventContent.EventContent_cff")
 

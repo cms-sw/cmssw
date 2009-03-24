@@ -2,7 +2,7 @@
 <use name="root"/>
 <use name="DataFormats/Math"/>
 <use name="SimDataFormats/GeneratorProducts"/>
-<flags SKIP_FILES="alpg_debug.F" />
+<use name="f77compiler" />
 <export>
  <use name="boost"/>
  <use name="root"/>
