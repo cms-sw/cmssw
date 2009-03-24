@@ -81,7 +81,8 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
   bsSigmaZ 	= dqmStore_->book1D("bsSigmaZ", "BeamSpot sigmaZ", 100, 0., 10. );
   bsDxdz 	= dqmStore_->book1D("bsDxdz", "BeamSpot dxdz", 100, -0.0003, 0.0003);
   bsDydz 	= dqmStore_->book1D("bsDydz", "BeamSpot dydz", 100, -0.0003, 0.0003);
-  bsBeamWidth 	= dqmStore_->book1D("bsBeamWidth", "BeamSpot BeamWidth", 100, 0., 100.);
+  bsBeamWidthX 	= dqmStore_->book1D("bsBeamWidthX", "BeamSpot BeamWidthX", 100, 0., 100.);
+  bsBeamWidthY 	= dqmStore_->book1D("bsBeamWidthY", "BeamSpot BeamWidthY", 100, 0., 100.);
   bsType	= dqmStore_->book1D("bsType", "BeamSpot type", 4, -1.5, 2.5);
   bsType->getTH1F()->GetXaxis()->SetBinLabel(1,"Unknown");
   bsType->getTH1F()->GetXaxis()->SetBinLabel(2,"Fake");
@@ -131,7 +132,8 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
   bsSigmaZ->Fill(beamSpot.sigmaZ());
   bsDxdz->Fill(beamSpot.dxdz());
   bsDydz->Fill(beamSpot.dydz());
-  bsBeamWidth->Fill(beamSpot.BeamWidth()*10000);
+  bsBeamWidthX->Fill(beamSpot.BeamWidthX()*10000);
+  bsBeamWidthY->Fill(beamSpot.BeamWidthY()*10000);
   // bsType->Fill(beamSpot.type());
 
 }

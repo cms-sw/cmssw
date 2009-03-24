@@ -46,7 +46,7 @@ class PrimaryVertexMonitor : public edm::EDAnalyzer {
   MonitorElement *xerrVsTrks[2] , *yerrVsTrks[2], *zerrVsTrks[2] ;
   MonitorElement *vtxchi2[2] , *vtxndf[2], *vtxprob[2] , *nans[2];
   MonitorElement *type[2];
-  MonitorElement *bsX, *bsY, *bsZ, *bsSigmaZ, *bsDxdz, *bsDydz, *bsBeamWidth, *bsType;
+  MonitorElement *bsX, *bsY, *bsZ, *bsSigmaZ, *bsDxdz, *bsDydz, *bsBeamWidthX, *bsBeamWidthY, *bsType;
 };
 
 
