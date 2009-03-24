@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: HadronPhysicsQGSP_BERT_WP.h,v 1.1 2008/05/14 20:53:28 syjun Exp $
+// $Id: HadronPhysicsQGSP_BERT_WP.h,v 1.2 2009/02/04 17:05:27 syjun Exp $
 // GEANT4 tag $Name:  $
 //
 //---------------------------------------------------------------------------
@@ -42,9 +42,6 @@
 //
 #ifndef HadronPhysicsQGSP_BERT_WP_h
 #define HadronPhysicsQGSP_BERT_WP_h 1
-
-#include "SimG4Core/GFlash/interface/G4PiKBuilder_WP.h"
-#include "SimG4Core/GFlash/interface/G4ProtonBuilder_WP.h"
 
 #include "globals.hh"
 #include "G4ios.hh"
@@ -65,6 +62,10 @@
 #include "G4LEPNeutronBuilder.hh"
 #include "G4QGSPNeutronBuilder.hh"
 #include "G4BertiniNeutronBuilder.hh"
+
+class G4PiKBuilder_WP;
+class G4ProtonBuilder_WP;
+class G4MiscLHEPBuilder_WP;
 
 class HadronPhysicsQGSP_BERT_WP : public G4VPhysicsConstructor
 {
@@ -96,7 +97,7 @@ class HadronPhysicsQGSP_BERT_WP : public G4VPhysicsConstructor
     G4QGSPProtonBuilder * theQGSPPro; 
     G4BertiniProtonBuilder * theBertiniPro;
     
-    G4MiscLHEPBuilder * theMiscLHEP;
+    G4MiscLHEPBuilder_WP * theMiscLHEP;
     
     G4bool QuasiElastic;
     G4bool ProjectileDiffraction;
