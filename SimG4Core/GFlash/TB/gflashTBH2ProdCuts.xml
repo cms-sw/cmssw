@@ -4,7 +4,7 @@
 <SpecParSection label="regions.xml" eval="true">
   <SpecPar name="ecal">
     <PartSelector path="//ECAL" />
-    <Parameter name="CMSCutsRegion" value="GflashRegion" eval="false"/>
+    <Parameter name="CMSCutsRegion" value="CaloRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="1*mm"/>
     <Parameter name="ProdCutsForPositrons" value="1*mm"/>
     <Parameter name="ProdCutsForGamma" value="1*mm"/>
@@ -14,7 +14,7 @@
     <PartSelector path="//HBS.*"/> 
     <PartSelector path="//HES.*"/> 
     <PartSelector path="//HTS.*"/> 
-    <Parameter name="CMSCutsRegion"  value="GflashRegion" eval="false"/> 
+    <Parameter name="CMSCutsRegion"  value="CaloRegion" eval="false"/> 
     <Parameter name="ProdCutsForElectrons" value="1*mm"/>
     <Parameter name="ProdCutsForPositrons" value="1*mm"/>
     <Parameter name="ProdCutsForGamma" value="10*mm"/>
