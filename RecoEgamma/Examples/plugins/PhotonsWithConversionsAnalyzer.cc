@@ -291,7 +291,9 @@ void PhotonsWithConversionsAnalyzer::analyze( const edm::Event& e, const edm::Ev
 
       if ( !(*iPho).hasConversionTracks() ) continue;
       //   std::cout << " This photons has " << (*iPho).conversions().size() << " conversions candidates " << std::endl;
-      std::vector<reco::ConversionRef> conversions = (*iPho).conversions();
+      reco::ConversionRefVector conversions = (*iPho).conversions();
+      //std::vector<reco::ConversionRef> conversions = (*iPho).conversions();
+
 
       for (unsigned int i=0; i<conversions.size(); i++) {
 	//std::cout << " Conversion candidate Energy " << (*iPho).energy() << " number of tracks " << conversions[i]->nTracks() << std::endl;
