@@ -1,13 +1,13 @@
-#ifndef RecoEcal_EgammaCoreTools_EcalClusterLocalContCorrectionBaseClass_h
-#define RecoEcal_EgammaCoreTools_EcalClusterLocalContCorrectionBaseClass_h
+#ifndef RecoEcal_EgammaCoreTools_EcalClusterEnergyUncertaintyBaseClass_h
+#define RecoEcal_EgammaCoreTools_EcalClusterEnergyUncertaintyBaseClass_h
 
-/** \class EcalClusterLocalContCorrection
+/** \class EcalClusterEnergyUncertaintyBaseClass
   *  Function to correct cluster for the so called local containment
   *
-  *  $Id: EcalClusterLocalContCorrection.h
+  *  $Id: EcalClusterEnergyUncertaintyBaseClass.h
   *  $Date:
   *  $Revision:
-  *  \author Federico Ferri, CEA Saclay, November 2008
+  *  \author Yurii Maravin, KSU, March 20, 2009
   */
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
@@ -15,7 +15,7 @@
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
@@ -24,14 +24,14 @@ namespace edm {
         class ParameterSet;
 }
 
-class EcalClusterLocalContCorrectionBaseClass : public EcalClusterFunctionBaseClass {
+class EcalClusterEnergyUncertaintyBaseClass : public EcalClusterFunctionBaseClass {
         public:
-                EcalClusterLocalContCorrectionBaseClass();
-                EcalClusterLocalContCorrectionBaseClass( const edm::ParameterSet & ) {};
-                virtual ~EcalClusterLocalContCorrectionBaseClass();
+                EcalClusterEnergyUncertaintyBaseClass();
+                EcalClusterEnergyUncertaintyBaseClass( const edm::ParameterSet & ) {};
+                virtual ~EcalClusterEnergyUncertaintyBaseClass();
 
                 // get/set explicit methods for parameters
-                const EcalClusterLocalContCorrParameters * getParameters() const { return params_; }
+                const EcalClusterEnergyUncertaintyParameters * getParameters() const { return params_; }
                 // check initialization
                 void checkInit() const;
                 
@@ -39,12 +39,13 @@ class EcalClusterLocalContCorrectionBaseClass : public EcalClusterFunctionBaseCl
                 virtual float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const = 0;
                 virtual float getValue( const reco::SuperCluster &, const int mode ) const = 0;
 
+
                 // set parameters
                 virtual void init( const edm::EventSetup& es );
 
         protected:
-                edm::ESHandle<EcalClusterLocalContCorrParameters> esParams_;
-                const EcalClusterLocalContCorrParameters * params_;
+                edm::ESHandle<EcalClusterEnergyUncertaintyParameters> esParams_;
+                const EcalClusterEnergyUncertaintyParameters * params_;
 };
 
 #endif
