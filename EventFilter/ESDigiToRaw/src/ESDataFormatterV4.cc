@@ -291,7 +291,7 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawDa
 	if (fedIdOptoRxFiber_[fedId-FEDNumbering::MINPreShowerFEDID][iopto][kchip_fiber.second-1]) { 
 	  
 	  // Set all PACEs enabled for MC 
-	  word1 = (0 << sKFLAG1) | (0x15 << sKFLAG2) | (((kchip_fiber.first<<2) | 0x02) << sKID);
+	  word1 = (0 << sKFLAG1) | (0xf << sKFLAG2) | (((kchip_fiber.first<<2) | 0x02) << sKID);
 	  word2 = (0x9 << sKHEAD) | (kchip_ec_ << sKEC) | (kchip_bc_ << sKBC); 
 	  
 	  word  = (Word64(word2) << 32 ) | Word64(word1);       
