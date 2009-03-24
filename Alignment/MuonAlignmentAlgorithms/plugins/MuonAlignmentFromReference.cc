@@ -45,6 +45,7 @@
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsFromTrack.h"
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsPositionFitter.h"
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsAngleFitter.h"
+#include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsTwoBin.h"
 
 #include <map>
 #include <sstream>
@@ -80,14 +81,11 @@ private:
   bool m_DT13fitScattering;
   bool m_DT13fitZpos;
   bool m_DT13fitPhiz;
-  bool m_DT13fitSlopeBfield;
   bool m_DT2fitScattering;
   bool m_DT2fitPhiz;
-  bool m_DT2fitSlopeBfield;
   bool m_CSCfitScattering;
   bool m_CSCfitZpos;
   bool m_CSCfitPhiz;
-  bool m_CSCfitSlopeBfield;
   std::string m_reportFileName;
   std::string m_rootDirectory;
 
@@ -123,14 +121,11 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
   , m_DT13fitScattering(iConfig.getParameter<bool>("DT13fitScattering"))
   , m_DT13fitZpos(iConfig.getParameter<bool>("DT13fitZpos"))
   , m_DT13fitPhiz(iConfig.getParameter<bool>("DT13fitPhiz"))
-  , m_DT13fitSlopeBfield(iConfig.getParameter<bool>("DT13fitSlopeBfield"))
   , m_DT2fitScattering(iConfig.getParameter<bool>("DT2fitScattering"))
   , m_DT2fitPhiz(iConfig.getParameter<bool>("DT2fitPhiz"))
-  , m_DT2fitSlopeBfield(iConfig.getParameter<bool>("DT2fitSlopeBfield"))
   , m_CSCfitScattering(iConfig.getParameter<bool>("CSCfitScattering"))
   , m_CSCfitZpos(iConfig.getParameter<bool>("CSCfitZpos"))
   , m_CSCfitPhiz(iConfig.getParameter<bool>("CSCfitPhiz"))
-  , m_CSCfitSlopeBfield(iConfig.getParameter<bool>("CSCfitSlopeBfield"))
   , m_reportFileName(iConfig.getParameter<std::string>("reportFileName"))
   , m_rootDirectory(iConfig.getParameter<std::string>("rootDirectory"))
 {
@@ -194,12 +189,16 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
        m_fitterOrder.push_back(m_zFitters[*ali]);
 
        m_phixFitters[*ali] = new MuonResidualsAngleFitter(residualsModel, -1);
-       if (!m_DT2fitSlopeBfield) m_phixFitters[*ali]->fix(MuonResidualsAngleFitter::kBfield);
+       m_phixFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompt);
+       m_phixFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompz);
+       m_phixFitters[*ali]->fix(MuonResidualsAngleFitter::kdEdx);
        m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 2);
        m_fitterOrder.push_back(m_phixFitters[*ali]);
 
        m_phiyFitters[*ali] = new MuonResidualsAngleFitter(residualsModel, -1);
-       if (!m_DT13fitSlopeBfield) m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfield);
+       m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompt);
+       m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompz);
+       m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kdEdx);
        m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 3);
        m_fitterOrder.push_back(m_phiyFitters[*ali]);
      }
@@ -215,7 +214,9 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
        m_fitterOrder.push_back(m_rphiFitters[*ali]);
 
        m_phiyFitters[*ali] = new MuonResidualsAngleFitter(residualsModel, -1);
-       if (!m_CSCfitSlopeBfield) m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfield);
+       m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompt);
+       m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompz);
+       m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kdEdx);
        m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 1);
        m_fitterOrder.push_back(m_phiyFitters[*ali]);
 
@@ -315,6 +316,7 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const ConstT
 
     if (m_minTrackPt < track->pt()  &&  track->pt() < m_maxTrackPt) {
       double qoverpt = track->charge() / track->pt();
+      double qoverpz = track->charge() / track->pz();
       MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, m_alignableNavigator, 1000.);
 
       if (muonResidualsFromTrack.trackerNumHits() >= m_minTrackerHits  &&  muonResidualsFromTrack.trackerRedChi2() < m_maxTrackerRedChi2  &&  (m_allowTIDTEC  ||  !muonResidualsFromTrack.contains_TIDTEC())) {
@@ -345,6 +347,7 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const ConstT
 		double *residdata = new double[MuonResidualsAngleFitter::kNData];
 		residdata[MuonResidualsAngleFitter::kResidual] = chamberResidual->resslope();
 		residdata[MuonResidualsAngleFitter::kQoverPt] = qoverpt;
+		residdata[MuonResidualsAngleFitter::kQoverPz] = qoverpz;
 		phiyFitter->second->fill(residdata);
 		// the MuonResidualsAngleFitter will delete the array when it is destroyed
 	      }
@@ -372,6 +375,7 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const ConstT
 		double *residdata = new double[MuonResidualsAngleFitter::kNData];
 		residdata[MuonResidualsAngleFitter::kResidual] = chamberResidual->resslope();
 		residdata[MuonResidualsAngleFitter::kQoverPt] = qoverpt;
+		residdata[MuonResidualsAngleFitter::kQoverPz] = qoverpz;
 		phixFitter->second->fill(residdata);
 		// the MuonResidualsAngleFitter will delete the array when it is destroyed
 	      }
@@ -400,6 +404,7 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const ConstT
 		double *residdata = new double[MuonResidualsAngleFitter::kNData];
 		residdata[MuonResidualsAngleFitter::kResidual] = chamberResidual->resslope();
 		residdata[MuonResidualsAngleFitter::kQoverPt] = qoverpt;
+		residdata[MuonResidualsAngleFitter::kQoverPz] = qoverpz;
 		phiyFitter->second->fill(residdata);
 		// the MuonResidualsAngleFitter will delete the array when it is destroyed
 	      }
@@ -499,18 +504,6 @@ void MuonAlignmentFromReference::terminate() {
     }
 
     for (std::vector<Alignable*>::const_iterator ali = m_alignables.begin();  ali != m_alignables.end();  ++ali) {
-      // HACK
-      DetId hackid = (*ali)->geomDetId();
-      if (hackid.subdetId() == MuonSubdetId::DT) {
-	DTChamberId dtid(hackid.rawId());
-	if (dtid.sector() != 1) continue;
-      }
-      else if (hackid.subdetId() == MuonSubdetId::CSC) {
-	CSCDetId cscid(hackid.rawId());
-	if (cscid.chamber() != 1) continue;
-      }
-      else continue;
-
       std::vector<bool> selector = (*ali)->alignmentParameters()->selector();
       bool align_x = selector[0];
       bool align_y = selector[1];
@@ -584,16 +577,87 @@ void MuonAlignmentFromReference::terminate() {
 	}
       }
 
+      bool phiyOkay = false;
+      double phiyValue = 0.;
+      if (phiyFitter != m_phiyFitters.end()) {
+	// the fit is verbose in std::cout anyway
+	std::cout << "=============================================================================================" << std::endl;
+	std::cout << "Fitting " << name.str() << " phiy" << std::endl;
+	std::cout << "=============================================================================================" << std::endl;
+
+	if (phiyFitter->second->fit(0.)) {
+	  std::stringstream name2;
+	  name2 << name.str() << "_phiyFit";
+	  phiyFitter->second->plot(0., name2.str(), &rootDirectory);
+	  double redchi2 = phiyFitter->second->redchi2(0., name2.str(), &rootDirectory);
+
+	  double angle_value = phiyFitter->second->value(MuonResidualsAngleFitter::kAngle);
+	  double angle_error = phiyFitter->second->error(MuonResidualsAngleFitter::kAngle);
+	  double angle_uperr = phiyFitter->second->uperr(MuonResidualsAngleFitter::kAngle);
+	  double angle_downerr = phiyFitter->second->downerr(MuonResidualsAngleFitter::kAngle);
+	  phiyOkay = true;
+	  phiyValue = angle_value;
+
+	  double bfield_value = 0.; // phiyFitter->second->value(MuonResidualsAngleFitter::kBfield);
+	  double bfield_error = 0.; // phiyFitter->second->error(MuonResidualsAngleFitter::kBfield);
+	  double bfield_uperr = 0.; // phiyFitter->second->uperr(MuonResidualsAngleFitter::kBfield);
+	  double bfield_downerr = 0.; // phiyFitter->second->downerr(MuonResidualsAngleFitter::kBfield);
+
+	  double sigma_value = phiyFitter->second->value(MuonResidualsAngleFitter::kSigma);
+	  double sigma_error = phiyFitter->second->error(MuonResidualsAngleFitter::kSigma);
+	  double sigma_uperr = phiyFitter->second->uperr(MuonResidualsAngleFitter::kSigma);
+	  double sigma_downerr = phiyFitter->second->downerr(MuonResidualsAngleFitter::kSigma);
+
+	  double gamma_value, gamma_error, gamma_uperr, gamma_downerr;
+	  gamma_value = gamma_error = gamma_uperr = gamma_downerr = 0.;
+	  if (phiyFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
+	    gamma_value = phiyFitter->second->value(MuonResidualsAngleFitter::kGamma);
+	    gamma_error = phiyFitter->second->error(MuonResidualsAngleFitter::kGamma);
+	    gamma_uperr = phiyFitter->second->uperr(MuonResidualsAngleFitter::kGamma);
+	    gamma_downerr = phiyFitter->second->downerr(MuonResidualsAngleFitter::kGamma);
+	  }
+
+	  if (id.subdetId() == MuonSubdetId::DT) {
+	    if (align_phiy) {
+	      params[paramIndex[4]] = angle_value;
+	    }
+	  } // end if DT
+
+	  else {
+	    if (align_phiy) {
+	      params[paramIndex[4]] = angle_value;
+	    }
+	  } // end if CSC
+
+	  if (writeReport) {
+	    report << "reports[-1].phiyFit((" << angle_value << ", " << angle_error << ", " << angle_uperr << ", " << angle_downerr << "), \\" << std::endl
+		   << "                    (" << bfield_value << ", " << bfield_error << ", " << bfield_uperr << ", " << bfield_downerr << "), \\" << std::endl
+		   << "                    (" << sigma_value << ", " << sigma_error << ", " << sigma_uperr << ", " << sigma_downerr << "), \\" << std::endl;
+	    if (phiyFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
+	      report << "                    (" << gamma_value << ", " << gamma_error << ", " << gamma_uperr << ", " << gamma_downerr << "), \\" << std::endl;
+	    }
+	    else {
+	      report << "                    None, \\" << std::endl;
+	    }
+	    report << "                    " << redchi2 << ")" << std::endl;
+	  } // end if writeReport
+	}
+	else if (writeReport) {
+	  report << "reports[-1].phiyFit_status = \"FAIL\"" << std::endl;
+	}
+      }
+
       if (rphiFitter != m_rphiFitters.end()) {
 	// the fit is verbose in std::cout anyway
 	std::cout << "=============================================================================================" << std::endl;
 	std::cout << "Fitting " << name.str() << " rphi" << std::endl;
 	std::cout << "=============================================================================================" << std::endl;
-	if (rphiFitter->second->fit()) {
+
+	if (phiyOkay  &&  rphiFitter->second->fit(phiyValue)) {
 	  std::stringstream name2;
 	  name2 << name.str() << "_rphiFit";
-	  rphiFitter->second->plot(name2.str(), &rootDirectory);
-	  double redchi2 = rphiFitter->second->redchi2(name2.str(), &rootDirectory);
+	  rphiFitter->second->plot(phiyValue, name2.str(), &rootDirectory);
+	  double redchi2 = rphiFitter->second->redchi2(phiyValue, name2.str(), &rootDirectory);
 
 	  double position_value = rphiFitter->second->value(MuonResidualsPositionFitter::kPosition);
 	  double position_error = rphiFitter->second->error(MuonResidualsPositionFitter::kPosition);
@@ -692,16 +756,81 @@ void MuonAlignmentFromReference::terminate() {
 	}
       }
 
+      bool phixOkay = false;
+      double phixValue = 0.;
+      if (phixFitter != m_phixFitters.end()) {
+	// the fit is verbose in std::cout anyway
+	std::cout << "=============================================================================================" << std::endl;
+	std::cout << "Fitting " << name.str() << " phix" << std::endl;
+	std::cout << "=============================================================================================" << std::endl;
+
+	if (phixFitter->second->fit(0.)) {
+	  std::stringstream name2;
+	  name2 << name.str() << "_phixFit";
+	  phixFitter->second->plot(0., name2.str(), &rootDirectory);
+	  double redchi2 = phixFitter->second->redchi2(0., name2.str(), &rootDirectory);
+
+	  double angle_value = phixFitter->second->value(MuonResidualsAngleFitter::kAngle);
+	  double angle_error = phixFitter->second->error(MuonResidualsAngleFitter::kAngle);
+	  double angle_uperr = phixFitter->second->uperr(MuonResidualsAngleFitter::kAngle);
+	  double angle_downerr = phixFitter->second->downerr(MuonResidualsAngleFitter::kAngle);
+	  phixOkay = true;
+	  phixValue = angle_value;
+
+	  double bfield_value = 0.; // phixFitter->second->value(MuonResidualsAngleFitter::kBfield);
+	  double bfield_error = 0.; // phixFitter->second->error(MuonResidualsAngleFitter::kBfield);
+	  double bfield_uperr = 0.; // phixFitter->second->uperr(MuonResidualsAngleFitter::kBfield);
+	  double bfield_downerr = 0.; // phixFitter->second->downerr(MuonResidualsAngleFitter::kBfield);
+
+	  double sigma_value = phixFitter->second->value(MuonResidualsAngleFitter::kSigma);
+	  double sigma_error = phixFitter->second->error(MuonResidualsAngleFitter::kSigma);
+	  double sigma_uperr = phixFitter->second->uperr(MuonResidualsAngleFitter::kSigma);
+	  double sigma_downerr = phixFitter->second->downerr(MuonResidualsAngleFitter::kSigma);
+
+	  double gamma_value, gamma_error, gamma_uperr, gamma_downerr;
+	  gamma_value = gamma_error = gamma_uperr = gamma_downerr = 0.;
+	  if (phixFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
+	    gamma_value = phixFitter->second->value(MuonResidualsAngleFitter::kGamma);
+	    gamma_error = phixFitter->second->error(MuonResidualsAngleFitter::kGamma);
+	    gamma_uperr = phixFitter->second->uperr(MuonResidualsAngleFitter::kGamma);
+	    gamma_downerr = phixFitter->second->downerr(MuonResidualsAngleFitter::kGamma);
+	  }
+
+	  if (id.subdetId() == MuonSubdetId::DT) {
+	    if (align_phix) {
+	      params[paramIndex[3]] = angle_value;
+	    }
+	  } // end if DT
+
+	  if (writeReport) {
+	    report << "reports[-1].phixFit((" << angle_value << ", " << angle_error << ", " << angle_uperr << ", " << angle_downerr << "), \\" << std::endl
+		   << "                    (" << bfield_value << ", " << bfield_error << ", " << bfield_uperr << ", " << bfield_downerr << "), \\" << std::endl
+		   << "                    (" << sigma_value << ", " << sigma_error << ", " << sigma_uperr << ", " << sigma_downerr << "), \\" << std::endl;
+	    if (phixFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
+	      report << "                    (" << gamma_value << ", " << gamma_error << ", " << gamma_uperr << ", " << gamma_downerr << "), \\" << std::endl;
+	    }
+	    else {
+	      report << "                    None, \\" << std::endl;
+	    }
+	    report << "                    " << redchi2 << ")" << std::endl;
+	  } // end if writeReport
+	}
+	else if (writeReport) {
+	  report << "reports[-1].phixFit_status = \"FAIL\"" << std::endl;
+	}
+      }
+
       if (zFitter != m_zFitters.end()) {
 	// the fit is verbose in std::cout anyway
 	std::cout << "=============================================================================================" << std::endl;
 	std::cout << "Fitting " << name.str() << " z" << std::endl;
 	std::cout << "=============================================================================================" << std::endl;
-	if (zFitter->second->fit()) {
+
+	if (phixOkay  &&  zFitter->second->fit(phixValue)) {
 	  std::stringstream name2;
 	  name2 << name.str() << "_zFit";
-	  zFitter->second->plot(name2.str(), &rootDirectory);
-	  double redchi2 = zFitter->second->redchi2(name2.str(), &rootDirectory);
+	  zFitter->second->plot(phixValue, name2.str(), &rootDirectory);
+	  double redchi2 = zFitter->second->redchi2(phixValue, name2.str(), &rootDirectory);
 
 	  double position_value = zFitter->second->value(MuonResidualsPositionFitter::kPosition);
 	  double position_error = zFitter->second->error(MuonResidualsPositionFitter::kPosition);
@@ -761,130 +890,6 @@ void MuonAlignmentFromReference::terminate() {
 	}
 	else if (writeReport) {
 	  report << "reports[-1].zFit_status = \"FAIL\"" << std::endl;
-	}
-      }
-
-      if (phixFitter != m_phixFitters.end()) {
-	// the fit is verbose in std::cout anyway
-	std::cout << "=============================================================================================" << std::endl;
-	std::cout << "Fitting " << name.str() << " phix" << std::endl;
-	std::cout << "=============================================================================================" << std::endl;
-	if (phixFitter->second->fit()) {
-	  std::stringstream name2;
-	  name2 << name.str() << "_phixFit";
-	  phixFitter->second->plot(name2.str(), &rootDirectory);
-	  double redchi2 = phixFitter->second->redchi2(name2.str(), &rootDirectory);
-
-	  double angle_value = phixFitter->second->value(MuonResidualsAngleFitter::kAngle);
-	  double angle_error = phixFitter->second->error(MuonResidualsAngleFitter::kAngle);
-	  double angle_uperr = phixFitter->second->uperr(MuonResidualsAngleFitter::kAngle);
-	  double angle_downerr = phixFitter->second->downerr(MuonResidualsAngleFitter::kAngle);
-
-	  double bfield_value = phixFitter->second->value(MuonResidualsAngleFitter::kBfield);
-	  double bfield_error = phixFitter->second->error(MuonResidualsAngleFitter::kBfield);
-	  double bfield_uperr = phixFitter->second->uperr(MuonResidualsAngleFitter::kBfield);
-	  double bfield_downerr = phixFitter->second->downerr(MuonResidualsAngleFitter::kBfield);
-
-	  double sigma_value = phixFitter->second->value(MuonResidualsAngleFitter::kSigma);
-	  double sigma_error = phixFitter->second->error(MuonResidualsAngleFitter::kSigma);
-	  double sigma_uperr = phixFitter->second->uperr(MuonResidualsAngleFitter::kSigma);
-	  double sigma_downerr = phixFitter->second->downerr(MuonResidualsAngleFitter::kSigma);
-
-	  double gamma_value, gamma_error, gamma_uperr, gamma_downerr;
-	  gamma_value = gamma_error = gamma_uperr = gamma_downerr = 0.;
-	  if (phixFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
-	    gamma_value = phixFitter->second->value(MuonResidualsAngleFitter::kGamma);
-	    gamma_error = phixFitter->second->error(MuonResidualsAngleFitter::kGamma);
-	    gamma_uperr = phixFitter->second->uperr(MuonResidualsAngleFitter::kGamma);
-	    gamma_downerr = phixFitter->second->downerr(MuonResidualsAngleFitter::kGamma);
-	  }
-
-	  if (id.subdetId() == MuonSubdetId::DT) {
-	    if (align_phix) {
-	      params[paramIndex[3]] = angle_value;
-	    }
-	  } // end if DT
-
-	  if (writeReport) {
-	    report << "reports[-1].phixFit((" << angle_value << ", " << angle_error << ", " << angle_uperr << ", " << angle_downerr << "), \\" << std::endl
-		   << "                    (" << bfield_value << ", " << bfield_error << ", " << bfield_uperr << ", " << bfield_downerr << "), \\" << std::endl
-		   << "                    (" << sigma_value << ", " << sigma_error << ", " << sigma_uperr << ", " << sigma_downerr << "), \\" << std::endl;
-	    if (phixFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
-	      report << "                    (" << gamma_value << ", " << gamma_error << ", " << gamma_uperr << ", " << gamma_downerr << "), \\" << std::endl;
-	    }
-	    else {
-	      report << "                    None, \\" << std::endl;
-	    }
-	    report << "                    " << redchi2 << ")" << std::endl;
-	  } // end if writeReport
-	}
-	else if (writeReport) {
-	  report << "reports[-1].phixFit_status = \"FAIL\"" << std::endl;
-	}
-      }
-
-      if (phiyFitter != m_phiyFitters.end()) {
-	// the fit is verbose in std::cout anyway
-	std::cout << "=============================================================================================" << std::endl;
-	std::cout << "Fitting " << name.str() << " phiy" << std::endl;
-	std::cout << "=============================================================================================" << std::endl;
-	if (phiyFitter->second->fit()) {
-	  std::stringstream name2;
-	  name2 << name.str() << "_phiyFit";
-	  phiyFitter->second->plot(name2.str(), &rootDirectory);
-	  double redchi2 = phiyFitter->second->redchi2(name2.str(), &rootDirectory);
-
-	  double angle_value = phiyFitter->second->value(MuonResidualsAngleFitter::kAngle);
-	  double angle_error = phiyFitter->second->error(MuonResidualsAngleFitter::kAngle);
-	  double angle_uperr = phiyFitter->second->uperr(MuonResidualsAngleFitter::kAngle);
-	  double angle_downerr = phiyFitter->second->downerr(MuonResidualsAngleFitter::kAngle);
-
-	  double bfield_value = phiyFitter->second->value(MuonResidualsAngleFitter::kBfield);
-	  double bfield_error = phiyFitter->second->error(MuonResidualsAngleFitter::kBfield);
-	  double bfield_uperr = phiyFitter->second->uperr(MuonResidualsAngleFitter::kBfield);
-	  double bfield_downerr = phiyFitter->second->downerr(MuonResidualsAngleFitter::kBfield);
-
-	  double sigma_value = phiyFitter->second->value(MuonResidualsAngleFitter::kSigma);
-	  double sigma_error = phiyFitter->second->error(MuonResidualsAngleFitter::kSigma);
-	  double sigma_uperr = phiyFitter->second->uperr(MuonResidualsAngleFitter::kSigma);
-	  double sigma_downerr = phiyFitter->second->downerr(MuonResidualsAngleFitter::kSigma);
-
-	  double gamma_value, gamma_error, gamma_uperr, gamma_downerr;
-	  gamma_value = gamma_error = gamma_uperr = gamma_downerr = 0.;
-	  if (phiyFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
-	    gamma_value = phiyFitter->second->value(MuonResidualsAngleFitter::kGamma);
-	    gamma_error = phiyFitter->second->error(MuonResidualsAngleFitter::kGamma);
-	    gamma_uperr = phiyFitter->second->uperr(MuonResidualsAngleFitter::kGamma);
-	    gamma_downerr = phiyFitter->second->downerr(MuonResidualsAngleFitter::kGamma);
-	  }
-
-	  if (id.subdetId() == MuonSubdetId::DT) {
-	    if (align_phiy) {
-	      params[paramIndex[4]] = angle_value;
-	    }
-	  } // end if DT
-
-	  else {
-	    if (align_phiy) {
-	      params[paramIndex[4]] = angle_value;
-	    }
-	  } // end if CSC
-
-	  if (writeReport) {
-	    report << "reports[-1].phiyFit((" << angle_value << ", " << angle_error << ", " << angle_uperr << ", " << angle_downerr << "), \\" << std::endl
-		   << "                    (" << bfield_value << ", " << bfield_error << ", " << bfield_uperr << ", " << bfield_downerr << "), \\" << std::endl
-		   << "                    (" << sigma_value << ", " << sigma_error << ", " << sigma_uperr << ", " << sigma_downerr << "), \\" << std::endl;
-	    if (phiyFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
-	      report << "                    (" << gamma_value << ", " << gamma_error << ", " << gamma_uperr << ", " << gamma_downerr << "), \\" << std::endl;
-	    }
-	    else {
-	      report << "                    None, \\" << std::endl;
-	    }
-	    report << "                    " << redchi2 << ")" << std::endl;
-	  } // end if writeReport
-	}
-	else if (writeReport) {
-	  report << "reports[-1].phiyFit_status = \"FAIL\"" << std::endl;
 	}
       }
 

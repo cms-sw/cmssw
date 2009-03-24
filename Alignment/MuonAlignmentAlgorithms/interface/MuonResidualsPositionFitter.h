@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsPositionFitter_H
 
 /** \class MuonResidualsPositionFitter
- *  $Date: 2009/03/15 19:54:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/03/23 11:50:53 $
+ *  $Revision: 1.3 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -38,9 +38,9 @@ public:
   };
   int ndata() { return kNData; };
 
-  bool fit();
-  void plot(std::string name, TFileDirectory *dir);
-  double redchi2(std::string name, TFileDirectory *dir, bool write=false, int bins=100, double low=-5., double high=5.);
+  bool fit(double phiValue);
+  void plot(double phiValue, std::string name, TFileDirectory *dir);
+  double redchi2(double phiValue, std::string name, TFileDirectory *dir, bool write=false, int bins=100, double low=-5., double high=5.);
 
 protected:
   void inform(TMinuit *tMinuit);

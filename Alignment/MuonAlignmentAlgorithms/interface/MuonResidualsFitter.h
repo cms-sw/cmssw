@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFitter_H
 
 /** \class MuonResidualsFitter
- *  $Date: 2009/03/09 22:57:32 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/03/15 19:54:23 $
+ *  $Revision: 1.3 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -69,7 +69,7 @@ public:
 
   // this block of results is only valid if fit() returns true
   // also gamma is only valid if the model is kPowerLawTails
-  virtual bool fit() = 0;
+  virtual bool fit(double v1) = 0;
   double value(int parNum) { assert(m_goodfit  &&  0 <= parNum  &&  parNum < npar());  return m_value[parNum]; };
   double error(int parNum) { assert(m_goodfit  &&  0 <= parNum  &&  parNum < npar());  return m_error[parNum]; };
   double uperr(int parNum) { assert(m_goodfit  &&  0 <= parNum  &&  parNum < npar());  return m_uperr[parNum]; };
@@ -77,8 +77,8 @@ public:
   double minoserr(int parNum) { return (fabs(uperr(parNum)) + fabs(downerr(parNum))) / 2.; };
 
   // demonstration plots
-  virtual void plot(std::string name, TFileDirectory *dir) = 0;
-  virtual double redchi2(std::string name, TFileDirectory *dir=NULL, bool write=false, int bins=100, double low=-5., double high=5.) = 0;
+  virtual void plot(double v1, std::string name, TFileDirectory *dir) = 0;
+  virtual double redchi2(double v1, std::string name, TFileDirectory *dir=NULL, bool write=false, int bins=100, double low=-5., double high=5.) = 0;
 
   // I/O of temporary files for collect mode
   void write(FILE *file, int which=0);

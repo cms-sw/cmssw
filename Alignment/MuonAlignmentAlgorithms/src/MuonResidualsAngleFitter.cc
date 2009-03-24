@@ -15,10 +15,13 @@ void MuonResidualsAngleFitter_FCN(int &npar, double *gin, double &fval, double *
     const double residual = (*resiter)[MuonResidualsAngleFitter::kResidual];
     if (fitter->inRange(residual)) {
       const double qoverpt = (*resiter)[MuonResidualsAngleFitter::kQoverPt];
+      const double qoverpz = (*resiter)[MuonResidualsAngleFitter::kQoverPz];
 
       double center = 0.;
       center += par[MuonResidualsAngleFitter::kAngle];
-      center += par[MuonResidualsAngleFitter::kBfield] * qoverpt;
+      center += par[MuonResidualsAngleFitter::kBfrompt] * qoverpt;
+      center += par[MuonResidualsAngleFitter::kBfrompz] * qoverpz;
+      center += par[MuonResidualsAngleFitter::kdEdx] * (1./qoverpt/qoverpt + 1./qoverpz/qoverpz) * (qoverpt > 0. ? 1. : -1.);
 
       if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian) {
 	fval += -log(MuonResidualsFitter_pureGaussian(residual, center, par[MuonResidualsAngleFitter::kSigma]));
@@ -31,7 +34,7 @@ void MuonResidualsAngleFitter_FCN(int &npar, double *gin, double &fval, double *
   }
 }
 
-bool MuonResidualsAngleFitter::fit() {
+bool MuonResidualsAngleFitter::fit(double v1) {
   initialize_table();  // if not already initialized
   m_goodfit = false;
   m_minResidual = m_maxResidual = 0.;
@@ -107,28 +110,36 @@ bool MuonResidualsAngleFitter::fit() {
   std::vector<double> low;
   std::vector<double> high;
 
-  parNum.push_back(kAngle);     parName.push_back(std::string("angle"));     start.push_back(m_mean);   step.push_back(0.1);             low.push_back(m_mean-m_stdev);      high.push_back(m_mean+m_stdev);
-  parNum.push_back(kBfield);    parName.push_back(std::string("bfield"));    start.push_back(0.);     step.push_back(0.1*m_stdev/0.05);  low.push_back(-2.*m_stdev/0.05);  high.push_back(2.*m_stdev/0.05);
-  parNum.push_back(kSigma);     parName.push_back(std::string("sigma"));     start.push_back(m_stdev);  step.push_back(0.1*m_stdev);       low.push_back(0.00001);         high.push_back(3.*m_stdev);
+  parNum.push_back(kAngle);     parName.push_back(std::string("angle"));     start.push_back(m_mean);   step.push_back(0.1);               low.push_back(m_mean-m_stdev);      high.push_back(m_mean+m_stdev);
+  parNum.push_back(kBfrompt);   parName.push_back(std::string("bfrompt"));   start.push_back(0.);       step.push_back(0.1*m_stdev/0.05);  low.push_back(-2.*m_stdev/0.05);    high.push_back(2.*m_stdev/0.05);
+  parNum.push_back(kBfrompz);   parName.push_back(std::string("bfrompz"));   start.push_back(0.);       step.push_back(0.1*m_stdev/0.05);  low.push_back(-2.*m_stdev/0.05);    high.push_back(2.*m_stdev/0.05);
+  parNum.push_back(kdEdx);      parName.push_back(std::string("dEdx"));      start.push_back(0.);       step.push_back(0.1*m_stdev/0.05);  low.push_back(-2.*m_stdev/0.05);    high.push_back(2.*m_stdev/0.05);
+  parNum.push_back(kSigma);     parName.push_back(std::string("sigma"));     start.push_back(m_stdev);  step.push_back(0.1*m_stdev);       low.push_back(0.00001);             high.push_back(3.*m_stdev);
   if (residualsModel() != kPureGaussian) {
-  parNum.push_back(kGamma);     parName.push_back(std::string("gamma"));     start.push_back(m_stdev);  step.push_back(0.1*m_stdev);       low.push_back(0.00001);         high.push_back(3.*m_stdev);
+  parNum.push_back(kGamma);     parName.push_back(std::string("gamma"));     start.push_back(m_stdev);  step.push_back(0.1*m_stdev);       low.push_back(0.00001);             high.push_back(3.*m_stdev);
   }
 
   return dofit(&MuonResidualsAngleFitter_FCN, parNum, parName, start, step, low, high);
 }
 
-void MuonResidualsAngleFitter::plot(std::string name, TFileDirectory *dir) {
-  std::stringstream raw_name, narrowed_name, qoverpt_name;
+void MuonResidualsAngleFitter::plot(double v1, std::string name, TFileDirectory *dir) {
+  std::stringstream raw_name, narrowed_name, qoverpt_name, qoverpz_name, psquared_name;
   raw_name << name << "_raw";
   narrowed_name << name << "_narrowed";
   qoverpt_name << name << "_qoverpt";
+  qoverpz_name << name << "_qoverpz";
+  psquared_name << name << "_psquared";
 
-  TH1F *raw_hist = dir->make<TH1F>(raw_name.str().c_str(), (raw_name.str() + std::string(" (mm)")).c_str(), 100, -100., 100.);
-  TH1F *narrowed_hist = dir->make<TH1F>(narrowed_name.str().c_str(), (narrowed_name.str() + std::string(" (mm)")).c_str(), 100, -100., 100.);
-  TProfile *qoverpt_hist = dir->make<TProfile>(qoverpt_name.str().c_str(), (qoverpt_name.str() + std::string(" (mm)")).c_str(), 100, -0.05, 0.05);
+  TH1F *raw_hist = dir->make<TH1F>(raw_name.str().c_str(), (raw_name.str() + std::string(" (mrad)")).c_str(), 100, -100., 100.);
+  TH1F *narrowed_hist = dir->make<TH1F>(narrowed_name.str().c_str(), (narrowed_name.str() + std::string(" (mrad)")).c_str(), 100, -100., 100.);
+  TProfile *qoverpt_hist = dir->make<TProfile>(qoverpt_name.str().c_str(), (qoverpt_name.str() + std::string(" (mrad)")).c_str(), 100, -0.05, 0.05);
+  TProfile *qoverpz_hist = dir->make<TProfile>(qoverpz_name.str().c_str(), (qoverpz_name.str() + std::string(" (mrad)")).c_str(), 100, -0.05, 0.05);
+  TProfile *psquared_hist = dir->make<TProfile>(psquared_name.str().c_str(), (psquared_name.str() + std::string(" (mrad)")).c_str(), 100, -0.05, 0.05);
 
   narrowed_name << "fit";
   qoverpt_name << "fit";
+  qoverpz_name << "fit";
+  psquared_name << "fit";
 
   double scale_factor = double(numResiduals()) * (100. - -100.)/100;   // (max - min)/nbins
 
@@ -145,24 +156,40 @@ void MuonResidualsAngleFitter::plot(std::string name, TFileDirectory *dir) {
   }
 
   TF1 *qoverpt_fit = new TF1(qoverpt_name.str().c_str(), "[0]+x*[1]", -0.05, 0.05);
-  qoverpt_fit->SetParameters(value(kAngle) * 1000., value(kBfield) * 1000.);
+  qoverpt_fit->SetParameters(value(kAngle) * 1000., value(kBfrompt) * 1000.);
   qoverpt_fit->Write();
+
+  TF1 *qoverpz_fit = new TF1(qoverpz_name.str().c_str(), "[0]+x*[1]", -0.05, 0.05);
+  qoverpz_fit->SetParameters(value(kAngle) * 1000., value(kBfrompz) * 1000.);
+  qoverpz_fit->Write();
+
+  TF1 *psquared_fit = new TF1(psquared_name.str().c_str(), "[0]+[1]*x**2", -0.05, 0.05);
+  psquared_fit->SetParameters(value(kAngle) * 1000., value(kdEdx) * 1000.);
+  psquared_fit->Write();
 
   for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
     const double raw_residual = (*resiter)[kResidual];
     const double qoverpt = (*resiter)[kQoverPt];
-    double qoverpt_correction = value(kBfield) * qoverpt;
-    double corrected_residual = raw_residual - qoverpt_correction;
+    const double qoverpz = (*resiter)[kQoverPz];
+    const double psquared = (1./qoverpt/qoverpt + 1./qoverpz/qoverpz) * (qoverpt > 0. ? 1. : -1.);
+
+    double qoverpt_correction = value(kBfrompt) * qoverpt;
+    double qoverpz_correction = value(kBfrompz) * qoverpz;
+    double dEdx_correction = value(kdEdx) * psquared;
+    double corrected_residual = raw_residual - qoverpt_correction - qoverpz_correction - dEdx_correction;
 
     raw_hist->Fill(raw_residual * 1000.);
     narrowed_hist->Fill(corrected_residual * 1000.);
+
     if (inRange(corrected_residual)) {
-      qoverpt_hist->Fill(qoverpt, raw_residual * 1000.);
+      qoverpt_hist->Fill(qoverpt, (raw_residual - qoverpz_correction - dEdx_correction) * 1000.);
+      qoverpz_hist->Fill(qoverpz, (raw_residual - qoverpt_correction - dEdx_correction) * 1000.);
+      psquared_hist->Fill(psquared, (raw_residual - qoverpt_correction - qoverpz_correction) * 1000.);
     }
   }
 }
 
-double MuonResidualsAngleFitter::redchi2(std::string name, TFileDirectory *dir, bool write, int bins, double low, double high) {
+double MuonResidualsAngleFitter::redchi2(double v1, std::string name, TFileDirectory *dir, bool write, int bins, double low, double high) {
   std::stringstream histname;
   histname << name << "_norm";
 
@@ -193,12 +220,16 @@ double MuonResidualsAngleFitter::redchi2(std::string name, TFileDirectory *dir, 
   for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
     const double raw_residual = (*resiter)[kResidual];
     const double qoverpt = (*resiter)[kQoverPt];
+    const double qoverpz = (*resiter)[kQoverPz];
+    const double psquared = (1./qoverpt/qoverpt + 1./qoverpz/qoverpz) * (qoverpt > 0. ? 1. : -1.);
 
     double correction = value(kAngle);
-    double qoverpt_correction = value(kBfield) * qoverpt;
+    double qoverpt_correction = value(kBfrompt) * qoverpt;
+    double qoverpz_correction = value(kBfrompz) * qoverpz;
+    double dEdx_correction = value(kdEdx) * psquared;
     double scale = value(kSigma);
 
-    hist->Fill((raw_residual - correction - qoverpt_correction)/scale);
+    hist->Fill((raw_residual - correction - qoverpt_correction - qoverpz_correction - dEdx_correction)/scale);
   } // end loop over residuals
 
   double chi2 = 0.;

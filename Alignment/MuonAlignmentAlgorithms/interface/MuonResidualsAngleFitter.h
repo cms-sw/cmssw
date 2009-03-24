@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsAngleFitter_H
 
 /** \class MuonResidualsAngleFitter
- *  $Date: 2009/03/15 19:54:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/03/23 11:52:09 $
+ *  $Revision: 1.3 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -13,7 +13,9 @@ class MuonResidualsAngleFitter: public MuonResidualsFitter {
 public:
   enum {
     kAngle = 0,
-    kBfield,
+    kBfrompt,
+    kBfrompz,
+    kdEdx,
     kSigma,
     kGamma,
     kNPar
@@ -22,6 +24,7 @@ public:
   enum {
     kResidual = 0,
     kQoverPt,
+    kQoverPz,
     kNData
   };
 
@@ -34,9 +37,9 @@ public:
   };
   int ndata() { return kNData; };
 
-  bool fit();
-  void plot(std::string name, TFileDirectory *dir);
-  double redchi2(std::string name, TFileDirectory *dir, bool write=false, int bins=100, double low=-5., double high=5.);
+  bool fit(double value);
+  void plot(double value, std::string name, TFileDirectory *dir);
+  double redchi2(double value, std::string name, TFileDirectory *dir, bool write=false, int bins=100, double low=-5., double high=5.);
 
 protected:
   void inform(TMinuit *tMinuit);

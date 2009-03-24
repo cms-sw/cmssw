@@ -1,6 +1,7 @@
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsPositionFitter.h"
 
 static TMinuit *MuonResidualsPositionFitter_TMinuit;
+static double MuonResidualsPositionFitter_phiValue;
 
 void MuonResidualsPositionFitter::inform(TMinuit *tMinuit) {
   MuonResidualsPositionFitter_TMinuit = tMinuit;
@@ -22,8 +23,8 @@ void MuonResidualsPositionFitter_FCN(int &npar, double *gin, double &fval, doubl
       center += par[MuonResidualsPositionFitter::kPosition];
       center += par[MuonResidualsPositionFitter::kZpos] * trackangle;
       center += par[MuonResidualsPositionFitter::kPhiz] * trackposition;
-      center += par[MuonResidualsPositionFitter::kScattering] * angleerror;
-      
+      center += par[MuonResidualsPositionFitter::kScattering] * (angleerror - MuonResidualsPositionFitter_phiValue);
+
       if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian) {
 	fval += -log(MuonResidualsFitter_pureGaussian(residual, center, par[MuonResidualsPositionFitter::kSigma]));
       }
@@ -35,10 +36,11 @@ void MuonResidualsPositionFitter_FCN(int &npar, double *gin, double &fval, doubl
   }
 }
 
-bool MuonResidualsPositionFitter::fit() {
+bool MuonResidualsPositionFitter::fit(double phiValue) {
   initialize_table();  // if not already initialized
   m_goodfit = false;
   m_minResidual = m_maxResidual = 0.;
+  MuonResidualsPositionFitter_phiValue = phiValue;
 
   double sum_x = 0.;
   double sum_xx = 0.;
@@ -126,7 +128,7 @@ bool MuonResidualsPositionFitter::fit() {
   return dofit(&MuonResidualsPositionFitter_FCN, parNum, parName, start, step, low, high);
 }
 
-void MuonResidualsPositionFitter::plot(std::string name, TFileDirectory *dir) {
+void MuonResidualsPositionFitter::plot(double phiValue, std::string name, TFileDirectory *dir) {
   std::stringstream raw_name, narrowed_name, angleerror_name, trackangle_name, trackposition_name;
   raw_name << name << "_raw";
   narrowed_name << name << "_narrowed";
@@ -181,7 +183,7 @@ void MuonResidualsPositionFitter::plot(std::string name, TFileDirectory *dir) {
     const double trackangle = (*resiter)[kTrackAngle];
     const double trackposition = (*resiter)[kTrackPosition];
 
-    double angleerror_correction = value(kScattering) * angleerror;
+    double angleerror_correction = value(kScattering) * (angleerror - phiValue);
     double trackangle_correction = value(kZpos) * trackangle;
     double trackposition_correction = value(kPhiz) * trackposition;
 
@@ -198,7 +200,7 @@ void MuonResidualsPositionFitter::plot(std::string name, TFileDirectory *dir) {
   }
 }
 
-double MuonResidualsPositionFitter::redchi2(std::string name, TFileDirectory *dir, bool write, int bins, double low, double high) {
+double MuonResidualsPositionFitter::redchi2(double phiValue, std::string name, TFileDirectory *dir, bool write, int bins, double low, double high) {
   std::stringstream histname;
   histname << name << "_norm";
 
@@ -233,7 +235,7 @@ double MuonResidualsPositionFitter::redchi2(std::string name, TFileDirectory *di
     const double trackposition = (*resiter)[kTrackPosition];
 
     double correction = value(kPosition);
-    double angleerror_correction = value(kScattering) * angleerror;
+    double angleerror_correction = value(kScattering) * (angleerror - phiValue);
     double trackangle_correction = value(kZpos) * trackangle;
     double trackposition_correction = value(kPhiz) * trackposition;
     double scale = value(kSigma);

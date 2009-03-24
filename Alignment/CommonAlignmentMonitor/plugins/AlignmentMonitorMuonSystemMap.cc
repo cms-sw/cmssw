@@ -58,14 +58,11 @@ private:
   bool m_DT13fitScattering;
   bool m_DT13fitZpos;
   bool m_DT13fitPhiz;
-  bool m_DT13fitSlopeBfield;
   bool m_DT2fitScattering;
   bool m_DT2fitPhiz;
-  bool m_DT2fitSlopeBfield;
   bool m_CSCfitScattering;
   bool m_CSCfitZpos;
   bool m_CSCfitPhiz;
-  bool m_CSCfitSlopeBfield;
   int m_residualsModel;
 
   // the rphires vs z/r plots
@@ -181,14 +178,11 @@ AlignmentMonitorMuonSystemMap::AlignmentMonitorMuonSystemMap(const edm::Paramete
    , m_DT13fitScattering(cfg.getParameter<bool>("DT13fitScattering"))
    , m_DT13fitZpos(cfg.getParameter<bool>("DT13fitZpos"))
    , m_DT13fitPhiz(cfg.getParameter<bool>("DT13fitPhiz"))
-   , m_DT13fitSlopeBfield(cfg.getParameter<bool>("DT13fitSlopeBfield"))
    , m_DT2fitScattering(cfg.getParameter<bool>("DT2fitScattering"))
    , m_DT2fitPhiz(cfg.getParameter<bool>("DT2fitPhiz"))
-   , m_DT2fitSlopeBfield(cfg.getParameter<bool>("DT2fitSlopeBfield"))
    , m_CSCfitScattering(cfg.getParameter<bool>("CSCfitScattering"))
    , m_CSCfitZpos(cfg.getParameter<bool>("CSCfitZpos"))
    , m_CSCfitPhiz(cfg.getParameter<bool>("CSCfitPhiz"))
-   , m_CSCfitSlopeBfield(cfg.getParameter<bool>("CSCfitSlopeBfield"))
 {
   std::string model = cfg.getParameter<std::string>("residualsModel");
   if (model == std::string("pureGaussian")) {
@@ -217,7 +211,7 @@ void AlignmentMonitorMuonSystemMap::book_and_link_up(std::string namestart, std:
     else if (lastarray == 2  &&  !phiz) hist[lastarray]->SetAxisRange(-maxZpos, maxZpos, "Y");
     else if (lastarray == 3) hist[lastarray]->SetAxisRange(-maxSlope, maxSlope, "Y");
     else if (lastarray == 4) hist[lastarray]->SetAxisRange(-maxSlope, maxSlope, "Y");
-    else if (lastarray == 5) hist[lastarray]->SetAxisRange(-200., 200., "Y");
+    else if (lastarray == 5) hist[lastarray]->SetAxisRange(-10000., 10000., "Y");
   }
 
   TProfile *offsetprof = NULL;
@@ -559,7 +553,9 @@ void AlignmentMonitorMuonSystemMap::book() {
       if (!m_DT13fitScattering) posfitter->fix(MuonResidualsPositionFitter::kScattering);
       if (!m_DT13fitZpos) posfitter->fix(MuonResidualsPositionFitter::kZpos);
       if (!m_DT13fitPhiz) posfitter->fix(MuonResidualsPositionFitter::kPhiz);
-      if (!m_DT13fitSlopeBfield) angfitter->fix(MuonResidualsAngleFitter::kBfield);
+      angfitter->fix(MuonResidualsAngleFitter::kBfrompt);
+      angfitter->fix(MuonResidualsAngleFitter::kBfrompz);
+      angfitter->fix(MuonResidualsAngleFitter::kdEdx);
     }
   }
 
@@ -571,7 +567,9 @@ void AlignmentMonitorMuonSystemMap::book() {
       if (!m_DT2fitScattering) posfitter->fix(MuonResidualsPositionFitter::kScattering);
       posfitter->fix(MuonResidualsPositionFitter::kZpos);
       if (!m_DT2fitPhiz) posfitter->fix(MuonResidualsPositionFitter::kPhiz);
-      if (!m_DT2fitSlopeBfield) angfitter->fix(MuonResidualsAngleFitter::kBfield);
+      angfitter->fix(MuonResidualsAngleFitter::kBfrompt);
+      angfitter->fix(MuonResidualsAngleFitter::kBfrompz);
+      angfitter->fix(MuonResidualsAngleFitter::kdEdx);
     }
   }
 
@@ -583,7 +581,9 @@ void AlignmentMonitorMuonSystemMap::book() {
       if (!m_CSCfitScattering) posfitter->fix(MuonResidualsPositionFitter::kScattering);
       if (!m_CSCfitZpos) posfitter->fix(MuonResidualsPositionFitter::kZpos);
       if (!m_CSCfitPhiz) posfitter->fix(MuonResidualsPositionFitter::kPhiz);
-      if (!m_CSCfitSlopeBfield) angfitter->fix(MuonResidualsAngleFitter::kBfield);
+      angfitter->fix(MuonResidualsAngleFitter::kBfrompt);
+      angfitter->fix(MuonResidualsAngleFitter::kBfrompz);
+      angfitter->fix(MuonResidualsAngleFitter::kdEdx);
     }
   }
 
@@ -599,6 +599,7 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 
     if (m_minTrackPt < track->pt()  &&  track->pt() < m_maxTrackPt) {
       double qoverpt = track->charge() / track->pt();
+      double qoverpz = track->charge() / track->pz();
       MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, pNavigator(), 1000.);
 
       if (muonResidualsFromTrack.trackerNumHits() >= m_minTrackerHits  &&  muonResidualsFromTrack.trackerRedChi2() < m_maxTrackerRedChi2  &&  (m_allowTIDTEC  ||  !muonResidualsFromTrack.contains_TIDTEC())) {
@@ -765,6 +766,7 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 		double *residdata = new double[MuonResidualsAngleFitter::kNData];
 		residdata[MuonResidualsAngleFitter::kResidual] = resslope * signConvention;
 		residdata[MuonResidualsAngleFitter::kQoverPt] = qoverpt * signConvention;
+		residdata[MuonResidualsAngleFitter::kQoverPz] = qoverpz * signConvention;
 		angleFitter_vsz->second->fill(residdata);
 	      }
 	      else assert(false);
@@ -792,6 +794,7 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 		double *residdata = new double[MuonResidualsAngleFitter::kNData];
 		residdata[MuonResidualsAngleFitter::kResidual] = resslope * signConvention;
 		residdata[MuonResidualsAngleFitter::kQoverPt] = qoverpt * signConvention;
+		residdata[MuonResidualsAngleFitter::kQoverPz] = qoverpz * signConvention;
 		angleFitter_vsphi->second->fill(residdata);
 	      }
 	      else assert(false);
@@ -829,27 +832,30 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
     for (std::map<std::pair<TH1F*,int>,MuonResidualsPositionFitter*>::const_iterator fitter = m_positionFitters.begin();  fitter != m_positionFitters.end();  ++fitter) {
       std::map<MuonResidualsFitter*,std::pair<TH1F*,int> >::const_iterator offsetBin = m_offsetBin.find((*fitter).second);
       std::map<MuonResidualsFitter*,std::pair<TH1F*,int> >::const_iterator offsetbfieldBin = m_offsetbfieldBin.find((*fitter).second);
+      std::map<MuonResidualsFitter*,std::pair<TH1F*,int> >::const_iterator scatteringBin = m_scatteringBin.find((*fitter).second);
       std::map<MuonResidualsFitter*,std::pair<TH1F*,int> >::const_iterator zposBin = m_zposBin.find((*fitter).second);
       std::map<MuonResidualsFitter*,std::pair<TH1F*,int> >::const_iterator phizBin = m_phizBin.find((*fitter).second);
 
-      double offsetValue = 2000.;
-      double offsetError = 1000.;
-      double offsetbfieldValue = 2000.;
-      double offsetbfieldError = 1000.;
-      double zposValue = 2000.;
-      double zposError = 1000.;
-      double phizValue = 2000.;
-      double phizError = 1000.;
+      double offsetValue = 200000.;
+      double offsetError = 100000.;
+//       double offsetbfieldValue = 200000.;
+//       double offsetbfieldError = 100000.;
+      double scatteringValue = 200000.;
+      double scatteringError = 100000.;
+      double zposValue = 200000.;
+      double zposError = 100000.;
+      double phizValue = 200000.;
+      double phizError = 100000.;
 
       // the fit is verbose in std::cout anyway
       std::cout << "=====================================================================================================" << std::endl;
       std::cout << "Fitting " << offsetBin->second.first->GetTitle() << " bin " << offsetBin->second.second << " (" << fitter->second->numResiduals() << " super-residuals)" << std::endl;
       std::cout << "=====================================================================================================" << std::endl;
-      if (fitter->second->fit()) {
+      if (fitter->second->fit(0.)) {
 	offsetValue = fitter->second->value(MuonResidualsPositionFitter::kPosition) * 10.;                // convert from cm to mm
 	offsetError = fitter->second->minoserr(MuonResidualsPositionFitter::kPosition) * 10.;
-	offsetbfieldValue = fitter->second->value(MuonResidualsPositionFitter::kScattering) * 10.;        // convert from cm to mm
-	offsetbfieldError = fitter->second->minoserr(MuonResidualsPositionFitter::kScattering) * 0.05 * 10.;
+	scatteringValue = fitter->second->value(MuonResidualsPositionFitter::kScattering) * 10.;          // convert from cm to mm
+	scatteringError = fitter->second->minoserr(MuonResidualsPositionFitter::kScattering) * 10.;
 	zposValue = fitter->second->value(MuonResidualsPositionFitter::kZpos) * 10.;                      // convert from cm to mm
 	zposError = fitter->second->minoserr(MuonResidualsPositionFitter::kZpos) * 10.;
 	phizValue = fitter->second->value(MuonResidualsPositionFitter::kPhiz) * 1000.;                    // convert from radians to mrad
@@ -862,9 +868,9 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
       }
       else assert(false);
     
-      if (offsetbfieldBin != m_offsetbfieldBin.end()) {
-	offsetbfieldBin->second.first->SetBinContent(offsetbfieldBin->second.second, offsetbfieldValue);
-	offsetbfieldBin->second.first->SetBinError(offsetbfieldBin->second.second, offsetbfieldError);
+      if (scatteringBin != m_scatteringBin.end()) {
+	scatteringBin->second.first->SetBinContent(scatteringBin->second.second, scatteringValue);
+	scatteringBin->second.first->SetBinError(scatteringBin->second.second, scatteringError);
       }
       else assert(false);
     
@@ -895,11 +901,11 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
       std::cout << "=====================================================================================================" << std::endl;
       std::cout << "Fitting " << slopeBin->second.first->GetTitle() << " bin " << slopeBin->second.second << " (" << fitter->second->numResiduals() << " super-residuals)" << std::endl;
       std::cout << "=====================================================================================================" << std::endl;
-      if (fitter->second->fit()) {
+      if (fitter->second->fit(0.)) {
 	slopeValue = fitter->second->value(MuonResidualsAngleFitter::kAngle) * 1000.;                     // convert from radians to mrad
 	slopeError = fitter->second->minoserr(MuonResidualsAngleFitter::kAngle) * 1000.;
-	slopebfieldValue = fitter->second->value(MuonResidualsAngleFitter::kBfield) * 0.05 * 1000.;       // evaluate at 20 GeV and convert to mrad
-	slopebfieldError = fitter->second->minoserr(MuonResidualsAngleFitter::kBfield) * 0.05 * 1000.;
+	slopebfieldValue = 0.;  // fitter->second->value(MuonResidualsAngleFitter::kBfield) * 0.05 * 1000.;       // evaluate at 20 GeV and convert to mrad
+	slopebfieldError = 0.;  // fitter->second->minoserr(MuonResidualsAngleFitter::kBfield) * 0.05 * 1000.;
       }
 
       if (slopeBin != m_slopeBin.end()) {
