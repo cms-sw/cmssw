@@ -16,7 +16,8 @@ public:
       InvalidLB = 5,
       EmptyPackedStrips = 6,
       InvalidDetId = 7,
-      InvalidStrip = 8 
+      InvalidStrip = 8, 
+      EOD = 9 
   };
 
   explicit ReadoutError(const ReadoutErrorType & type = NoProblem) : theType(type) { }

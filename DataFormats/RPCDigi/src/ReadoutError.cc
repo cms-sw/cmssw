@@ -14,6 +14,7 @@ std::string ReadoutError::name(const ReadoutErrorType & code)
     case (EmptyPackedStrips)    : { result = "EmptyPackedStrips"; break; }
     case (InvalidDetId)         : { result = "InvalidDetId"; break; }
     case (InvalidStrip)         : { result = "InvalidStrip"; break; }
+    case (EOD)                  : { result = "EOD"; break; }
     default                     : { result = "NoProblem"; }
   }
   return result;

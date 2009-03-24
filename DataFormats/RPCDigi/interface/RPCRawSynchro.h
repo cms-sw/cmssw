@@ -2,6 +2,7 @@
 #define DataFormats_RPCDigi_RPCRawSynchro_H
 
 #include <map>
+#include <string>
 #include <vector>
 #include "CondFormats/RPCObjects/interface/LinkBoardElectronicIndex.h"
 
@@ -19,7 +20,25 @@ public:
   };
 
 private:
-  typedef std::map<LinkBoardElectronicIndex, std::vector<int>, RPCRawSynchro::lessLB > LBCountMap; 
+
+  class LinkSynchroCounts {
+  public:
+    LinkSynchroCounts() : theCounts(std::vector<int>(8,0)) {}
+    void add(int bxDiff);
+    double rms() const;
+    double mean() const;
+    int sum() const { return mom0(); }
+    std::string print() const;
+    const  std::vector<int> & counts() const { return theCounts; }
+  private:
+    int  mom0() const;
+    double mom1() const;
+    std::vector<int> theCounts;
+  };
+
+
+  friend class RPCLinkSynchroHistoMaker;
+  typedef std::map<LinkBoardElectronicIndex, LinkSynchroCounts, RPCRawSynchro::lessLB > LBCountMap; 
   LBCountMap theSynchroCounts;
 
 };

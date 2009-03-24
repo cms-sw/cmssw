@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <sstream>
 #include <cmath>
 #include "TH2D.h"
 #include "TH1D.h"
@@ -40,10 +41,42 @@ void RPCRawSynchro::add(const ProdItem & vItem)
   for (ProdItem::const_iterator it = vItem.begin(); it != vItem.end(); ++it) { 
     const LinkBoardElectronicIndex & key = it->first;
     int bxDiff = it->second;
-    if (theSynchroCounts.find(key)==theSynchroCounts.end()) theSynchroCounts[key]=vector<int>(8,0);
-    vector<int> & v = theSynchroCounts[key];
-    if (bxDiff < 0) continue;
-    if (bxDiff > 7) continue;
-    v[bxDiff]++;
+    if (theSynchroCounts.find(key)==theSynchroCounts.end()) theSynchroCounts[key]=LinkSynchroCounts();
+    theSynchroCounts[key].add(bxDiff);
   }
 }
+
+void RPCRawSynchro::LinkSynchroCounts::add(int bxDiff)
+{
+  if (bxDiff < 0 || bxDiff > 7) return;
+  theCounts[bxDiff]++;
+}
+
+int RPCRawSynchro::LinkSynchroCounts::mom0() const
+{ int result = 0; for (int i=0; i<8; ++i) result += theCounts[i]; return result; }
+
+double RPCRawSynchro::LinkSynchroCounts::mom1() const
+{ double result = 0.; for (int i=0; i<8; ++i) result += i*theCounts[i]; return result; }
+
+double RPCRawSynchro::LinkSynchroCounts::mean() const
+{ int sum = mom0(); return sum==0 ? 0. : mom1()/sum; }
+
+double RPCRawSynchro::LinkSynchroCounts::rms() const
+{
+  double result = 0.;
+  int      sum = mom0();
+  if (sum==0) return 0.;
+  double mean = mom1()/sum; 
+  for (int i=0; i<8; ++i) result += theCounts[i]*(mean-i)*(mean-i);
+  result /= sum;
+  return sqrt(result);
+}
+
+string RPCRawSynchro::LinkSynchroCounts::print() const
+{
+  std::ostringstream str;
+  for (int i=0; i<8; ++i) str<<" "<<setw(6)<<theCounts[i];
+  return str.str();
+}
+
+
