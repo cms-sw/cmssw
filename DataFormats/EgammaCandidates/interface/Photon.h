@@ -2,216 +2,258 @@
 #define EgammaCandidates_Photon_h
 /** \class reco::Photon 
  *
- * Reco Candidates with an Photon component
+ * \author  N. Marinelli Univ. of Notre Dame
  *
- * \author Luca Lista, INFN
- *
- * \version $Id: Photon.h,v 1.25 2009/02/02 23:20:49 nancy Exp $
+ * \version $Id: Photon.h,v 1.26 2009/03/03 14:00:57 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+
+
 
 namespace reco {
 
   class Photon : public RecoCandidate {
   public:
+    /// Forward declaration of data structures included in the object
+    struct  FiducialFlags;
+    struct  IsolationVariables;
+    struct  ShowerShape;
+    
     /// default constructor
     Photon() : RecoCandidate() { }
+
+    /// copy constructor
+    Photon ( const Photon&); 
+
     /// constructor from values
-    Photon( const LorentzVector & p4, Point caloPos, 
-	    const SuperClusterRef scl, 
-            float HoE1, float HoE2,
-	    bool hasPixelSeed=false, const Point & vtx = Point( 0, 0, 0 ) );
+    Photon( const LorentzVector & p4, 
+	    Point caloPos, 
+	    const PhotonCoreRef & core,  
+	    const Point & vtx = Point( 0, 0, 0 ) );
+
     /// destructor
     virtual ~Photon();
+
     /// returns a clone of the candidate
     virtual Photon * clone() const;
-    /// reference to SuperCluster
-    virtual reco::SuperClusterRef superCluster() const;
+
+    /// returns a reference to the core photon object
+    reco::PhotonCoreRef photonCore() const { return photonCore_;}
+    //
+    /// Retrieve photonCore attributes
+    //
+    /// Ref to SuperCluster
+    reco::SuperClusterRef superCluster() const {return photonCore_->superCluster();}
     /// vector of references to  Conversion's
-    std::vector<reco::ConversionRef> conversions() const ; 
-    /// set reference to SuperCluster
-    void setSuperCluster( const reco::SuperClusterRef & r ) { superCluster_ = r; }
-    /// add  single ConversionRef to the vector of Refs
-    void addConversion( const reco::ConversionRef & r ) { conversions_.push_back(r); }
-    /// set primary event vertex used to define photon direction
-    void setVertex(const Point & vertex);
-    /// set flags for photons in the ECAL fiducial volume
-    void setFiducialVolumeFlags( const bool& a, 
-				 const bool& b, 
-				 const bool& c, 
-				 const bool& d, 
-				 const bool& e) 
-      {  isEB_=a; isEE_=b; isEBGap_=c; isEEGap_=d; isEBEEGap_=e; } 
-    /// set relevant shower shape variables 
-    void setShowerShapeVariables ( const float& a, 
-				   const float& b, 
-				   const float& c, 
-				   const float& d, 
-				   const float& e, 
-				   const float& f,
-				   const float& g)
- 
-      { maxEnergyXtal_=a, e1x5_=b; e2x5_=c; e3x3_=d; e5x5_=e; covEtaEta_=f; covIetaIeta_=g;}
-    /// set relevant isolation variables
-    void setIsolationVariablesConeDR04 ( const float a, 
-					 const float b, 
-					 const float c, 
-					 const float d, 
-					 const float e, 
-					 const float f, 
-					 const int g, 
-					 const int h  ) { 
-      isolationEcalRecHitSumConeDR04_=a; 
-      isolationHcalTowerSumConeDR04_=b;
-      isolationHcalDepth1TowerSumConeDR04_=c;
-      isolationHcalDepth2TowerSumConeDR04_=d;
-      isolationTrkSolidConeDR04_=e;
-      isolationTrkHollowConeDR04_=f;
-      nTrkSolidConeDR04_=g;
-      nTrkHollowConeDR04_=h;
-    }
-    void setIsolationVariablesConeDR03 ( const float a, 
-					 const float b, 
-					 const float c, 
-					 const float d, 
-					 const float e, 
-					 const float f, 
-					 const int g, 
-					 const int h  ) { 
-      isolationEcalRecHitSumConeDR03_=a; 
-      isolationHcalTowerSumConeDR03_ =b;
-      isolationHcalDepth1TowerSumConeDR03_ =c;
-      isolationHcalDepth2TowerSumConeDR03_ =d;
-      isolationTrkSolidConeDR03_ =e;
-      isolationTrkHollowConeDR03_=f;
-      nTrkSolidConeDR03_ =g;
-      nTrkHollowConeDR03_=h;
-    }
-
+    reco::ConversionRefVector conversions() const {return photonCore_->conversions() ;}  
+    /// Bool flagging photons with a vector of refereces to conversions with size >0
+    bool hasConversionTracks() const { if (photonCore_->conversions().size() > 0)  return true; else return false;}
+    /// reference to electron Pixel seed 
+    reco::ElectronSeedRefVector electronPixelSeeds() const {return photonCore_->electronPixelSeeds();}
+    /// Bool flagging photons having a non-zero size vector of Ref to electornPixel seeds
+    bool hasPixelSeed() const { if ((photonCore_->electronPixelSeeds()).size() > 0 ) return true; else return false; }
 
  
-    /// set ID variables and output
-    //    void setCutBasedIDOutput ( const bool a, const bool b, const bool c ) { cutBasedLooseEM_=a; cutBasedLoosePhoton_ =b;cutBasedTightPhoton_ =c;  } 
-    ////////////  Retrieve quantities
     /// position in ECAL: this is th SC position if r9<0.93. If r8>0.93 is position of seed BasicCluster taking shower depth for unconverted photon
     math::XYZPoint caloPosition() const {return caloPosition_;}
-    /// the total hadronic over electromagnetic fraction
-    float hadronicOverEm() const {return  hadDepth1OverEm_ + hadDepth2OverEm_ ;}
-    /// the  hadronic release in depth1 over electromagnetic fraction
-    float hadronicDepth1OverEm() const {return  hadDepth1OverEm_  ;}
-    /// the  hadronic release in depth2 over electromagnetic fraction
-    float hadronicDepth2OverEm() const {return  hadDepth2OverEm_  ;}
-    /// Whether or not the SuperCluster has a matched GsfElectron pixel seed 
-    bool hasPixelSeed() const { return pixelSeed_; }
-    /// Bool flagging photons with a vector of refereces to conversions with size >0
-    bool hasConversionTracks() const;
-    /// Fiducial volume
-    /// true if photon is in ECAL barrel
-    bool isEB() const{return isEB_;}
-    // true if photon is in ECAL endcap
-    bool isEE() const{return isEE_;}
-    /// true if photon is in EB, and inside the boundaries in super crystals/modules
-    bool isEBGap() const{return isEBGap_;}
-    /// true if photon is in EE, and inside the boundaries in supercrystal/D
-    bool isEEGap() const{return isEEGap_;}
-    /// true if photon is in boundary between EB and EE
-    bool isEBEEGap() const{return isEBEEGap_;}
-    ///  Shower shape variables
-    float maxEnergyXtal() const {return maxEnergyXtal_;}
-    float e1x5()          const {return e1x5_;}
-    float e2x5()          const {return e2x5_;}
-    float e3x3()          const {return e3x3_;}
-    float e5x5()          const {return e5x5_;}
-    float sigmaEtaEta()     const {return sqrt(covEtaEta_);}
-    float sigmaIetaIeta()   const {return sqrt(covIetaIeta_);}
-    float r1x5 ()         const {return e1x5_/e5x5_;}
-    float r2x5 ()         const {return e2x5_/e5x5_;}
-    float r9 ()           const {return e3x3_/this->superCluster()->rawEnergy();}  
+    /// set primary event vertex used to define photon direction
+    void setVertex(const Point & vertex);
+    /// Implement Candidate method for particle species
+    bool isPhoton() const { return true ; }
 
+    //=======================================================
+    // Fiducial Flags
+    //=======================================================
+    struct  FiducialFlags
+    {
+      
+      //Fiducial flags
+      bool isEB;//Photon is in EB
+      bool isEE;//Photon is in EE
+      bool isEBGap;//Photon is in supermodule/supercrystal gap in EB
+      bool isEEGap;//Photon is in crystal gap in EE
+      bool isEBEEGap;//Photon is in border between EB and EE.
+      
+      FiducialFlags():
+	isEB(false),
+	   isEE(false),
+	   isEBGap(false),
+	   isEEGap(false),
+	   isEBEEGap(false)
+	   
+      {}
+      
+      
+    };
+
+    /// set flags for photons in the ECAL fiducial volume
+    void setFiducialVolumeFlags  ( const FiducialFlags&  a )  { fiducialFlagBlock_= a ;}
+    /// Ritrievs fiducial flags
+    /// true if photon is in ECAL barrel
+    bool isEB() const{return  fiducialFlagBlock_.isEB;}
+    // true if photon is in ECAL endcap
+    bool isEE() const{return fiducialFlagBlock_.isEE;}
+    /// true if photon is in EB, and inside the boundaries in super crystals/modules
+    bool isEBGap() const{return fiducialFlagBlock_.isEBGap;}
+    /// true if photon is in EE, and inside the boundaries in supercrystal/D
+    bool isEEGap() const{return fiducialFlagBlock_.isEEGap;}
+    /// true if photon is in boundary between EB and EE
+    bool isEBEEGap() const{return fiducialFlagBlock_.isEBEEGap;}
+
+    //=======================================================
+    // Shower Shape Variables
+    //=======================================================
+
+    struct ShowerShape
+    {
+      float sigmaEtaEta ;
+      float sigmaIetaIeta ;
+      float e1x5 ;
+      float e2x5 ;
+      float e3x3 ;
+      float e5x5 ;
+      float maxEnergyXtal ; 
+      float hcalDepth1OverEcal ; // hcal over ecal energy using first hcal depth
+      float hcalDepth2OverEcal ; // hcal over ecal energy using 2nd hcal depth
+      ShowerShape()
+	: sigmaEtaEta(std::numeric_limits<float>::infinity()),
+	   sigmaIetaIeta(std::numeric_limits<float>::infinity()),
+	   e1x5(0), 
+	   e2x5(0), 
+	   e3x3(0), 
+	   e5x5(0), 
+	   maxEnergyXtal(0),
+	   hcalDepth1OverEcal(0),
+	   hcalDepth2OverEcal(0)
+	   
+      {}
+    } ;
+    void setShowerShapeVariables ( const ShowerShape& a )     { showerShapeBlock_ = a ;}
+    /// the total hadronic over electromagnetic fraction
+    float hadronicOverEm() const {return   showerShapeBlock_.hcalDepth1OverEcal + showerShapeBlock_.hcalDepth2OverEcal  ;}
+    /// the  hadronic release in depth1 over electromagnetic fraction
+    float hadronicDepth1OverEm() const {return  showerShapeBlock_.hcalDepth1OverEcal  ;}
+    /// the  hadronic release in depth2 over electromagnetic fraction
+    float hadronicDepth2OverEm() const {return  showerShapeBlock_.hcalDepth2OverEcal  ;}
+
+    ///  Shower shape variables
+    float e1x5()            const {return showerShapeBlock_.e1x5;}
+    float e2x5()            const {return showerShapeBlock_.e2x5;}
+    float e3x3()            const {return showerShapeBlock_.e3x3;}
+    float e5x5()            const {return showerShapeBlock_.e5x5;}
+    float maxEnergyXtal()   const {return showerShapeBlock_.maxEnergyXtal;}
+    float sigmaEtaEta()     const {return sqrt(showerShapeBlock_.sigmaEtaEta);}
+    float sigmaIetaIeta()   const {return sqrt(showerShapeBlock_.sigmaIetaIeta);}
+    float r1x5 ()           const {return showerShapeBlock_.e1x5/showerShapeBlock_.e5x5;}
+    float r2x5 ()           const {return showerShapeBlock_.e2x5/showerShapeBlock_.e5x5;}
+    float r9 ()             const {return showerShapeBlock_.e3x3/this->superCluster()->rawEnergy();}  
+
+
+
+    //=======================================================
+    // Isolation Variables
+    //=======================================================
+
+    struct IsolationVariables
+    {
+      //These are analysis quantities calculated in the PhotonIDAlgo class
+      
+      //EcalRecHit isolation
+      float ecalRecHitSumEt;
+      //HcalDepth1Tower isolation
+      float hcalTowerSumEt;
+      //HcalDepth1Tower isolation
+      float hcalDepth1TowerSumEt;
+      //HcalDepth2Tower isolation
+      float hcalDepth2TowerSumEt;
+      //Sum of track pT in a cone of dR
+      float trkSumPtSolidCone;
+      //Sum of track pT in a hollow cone of outer radius, inner radius
+      float trkSumPtHollowCone;
+      //Number of tracks in a cone of dR
+      int nTrkSolidCone;
+      //Number of tracks in a hollow cone of outer radius, inner radius
+      int nTrkHollowCone;
+      
+      IsolationVariables():
+	
+	ecalRecHitSumEt(0),
+	   hcalTowerSumEt(0),
+	   hcalDepth1TowerSumEt(0),
+	   hcalDepth2TowerSumEt(0),
+	   trkSumPtSolidCone(0),
+	   trkSumPtHollowCone(0),
+	   nTrkSolidCone(0),
+	   nTrkHollowCone(0)
+	   
+      {}
+      
+      
+    };
+    
+    /// set relevant isolation variables
+    void setIsolationVariables ( const IsolationVariables& isolInDr04, const IsolationVariables& isolInDr03) {  isolationR04_ = isolInDr04 ; isolationR03_ = isolInDr03 ;} 
     /// Isolation variables in cone dR=0.4
     ///Ecal isolation sum calculated from recHits
-    float ecalRecHitSumConeDR04()      const{return isolationEcalRecHitSumConeDR04_;}
+    float ecalRecHitSumEtConeDR04()      const{return  isolationR04_.ecalRecHitSumEt;}
     /// Hcal isolation sum
-    float hcalTowerSumConeDR04()      const{return isolationHcalTowerSumConeDR04_;}
+    float hcalTowerSumEtConeDR04()      const{return  isolationR04_.hcalTowerSumEt ;}
     /// Hcal-Depth1 isolation sum
-    float hcalDepth1TowerSumConeDR04()      const{return isolationHcalDepth1TowerSumConeDR04_;}
+    float hcalDepth1TowerSumEtConeDR04()      const{return  isolationR04_.hcalDepth1TowerSumEt;}
     /// Hcal-Depth2 isolation sum
-    float hcalDepth2TowerSumConeDR04()      const{return isolationHcalDepth2TowerSumConeDR04_;}
+    float hcalDepth2TowerSumEtConeDR04()      const{return  isolationR04_.hcalDepth2TowerSumEt;}
     //  Track pT sum c
-    float isolationTrkSolidConeDR04()    const{return  isolationTrkSolidConeDR04_;}
+    float trkSumPtSolidConeDR04()    const{return   isolationR04_.trkSumPtSolidCone;}
     //As above, excluding the core at the center of the cone
-    float isolationTrkHollowConeDR04()   const{return  isolationTrkHollowConeDR04_;}
+    float trkSumPtHollowConeDR04()   const{return   isolationR04_.trkSumPtHollowCone;}
     //Returns number of tracks in a cone of dR
-    int nTrkSolidConeDR04()              const{return  nTrkSolidConeDR04_;}
+    int nTrkSolidConeDR04()              const{return   isolationR04_.nTrkSolidCone;}
     //As above, excluding the core at the center of the cone
-    int nTrkHollowConeDR04()            const{return  nTrkHollowConeDR04_;}
+    int nTrkHollowConeDR04()            const{return   isolationR04_.nTrkHollowCone;}
     //
     /// Isolation variables in cone dR=0.3
-    float ecalRecHitSumConeDR03()      const{return isolationEcalRecHitSumConeDR03_;}
+    float ecalRecHitSumEtConeDR03()      const{return  isolationR03_.ecalRecHitSumEt;}
     /// Hcal isolation sum
-    float hcalTowerSumConeDR03()      const{return isolationHcalTowerSumConeDR03_;}
+    float hcalTowerSumEtConeDR03()      const{return isolationR03_.hcalTowerSumEt;}
     /// Hcal-Depth1 isolation sum
-    float hcalDepth1TowerSumConeDR03()      const{return isolationHcalDepth1TowerSumConeDR03_;}
+    float hcalDepth1TowerSumEtConeDR03()      const{return isolationR03_.hcalDepth1TowerSumEt;}
     /// Hcal-Depth2 isolation sum
-    float hcalDepth2TowerSumConeDR03()      const{return isolationHcalDepth2TowerSumConeDR03_;}
+    float hcalDepth2TowerSumEtConeDR03()      const{return isolationR03_.hcalDepth2TowerSumEt;}
     //  Track pT sum c
-    float isolationTrkSolidConeDR03()    const{return  isolationTrkSolidConeDR03_;}
+    float trkSumPtSolidConeDR03()    const{return  isolationR03_.trkSumPtSolidCone;}
     //As above, excluding the core at the center of the cone
-    float isolationTrkHollowConeDR03()   const{return  isolationTrkHollowConeDR03_;}
+    float trkSumPtHollowConeDR03()   const{return  isolationR03_.trkSumPtHollowCone;}
     //Returns number of tracks in a cone of dR
-    int nTrkSolidConeDR03()              const{return  nTrkSolidConeDR03_;}
+    int nTrkSolidConeDR03()              const{return  isolationR03_.nTrkSolidCone;}
     //As above, excluding the core at the center of the cone
-    int nTrkHollowConeDR03()             const{return  nTrkHollowConeDR03_;}
+    int nTrkHollowConeDR03()             const{return  isolationR03_.nTrkHollowCone;}
+
+
+
+
 
   private:
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
     /// position of seed BasicCluster for shower depth of unconverted photon
     math::XYZPoint caloPosition_;
-    /// reference to a SuperCluster
-    reco::SuperClusterRef superCluster_;
-    // vector of references to Conversions
-    std::vector<reco::ConversionRef>  conversions_;
-
-    float hadOverEm_;
-    float hadDepth1OverEm_;
-    float hadDepth2OverEm_;
+    /// reference to the PhotonCore
+    reco::PhotonCoreRef photonCore_;
+    //
     bool pixelSeed_;
-    bool isEB_;
-    bool isEE_;
-    bool isEBGap_;
-    bool isEEGap_;
-    bool isEBEEGap_;
-    /// shower shape variables
-    float maxEnergyXtal_;
-    float e1x5_;
-    float e2x5_;
-    float e3x3_;
-    float e5x5_;
-    float covEtaEta_;
-    float covIetaIeta_;
-    /// Isolation variables in cone dR=0.4
-    float  isolationEcalRecHitSumConeDR04_;
-    float  isolationHcalTowerSumConeDR04_;
-    float  isolationHcalDepth1TowerSumConeDR04_;
-    float  isolationHcalDepth2TowerSumConeDR04_;
-    float  isolationTrkSolidConeDR04_;
-    float  isolationTrkHollowConeDR04_;
-    int  nTrkSolidConeDR04_;
-    int  nTrkHollowConeDR04_;
-    /// Isolation variables in cone dR=0.3
-    float  isolationEcalRecHitSumConeDR03_;
-    float  isolationHcalTowerSumConeDR03_;
-    float  isolationHcalDepth1TowerSumConeDR03_;
-    float  isolationHcalDepth2TowerSumConeDR03_;
-    float  isolationTrkSolidConeDR03_;
-    float  isolationTrkHollowConeDR03_;
-    int  nTrkSolidConeDR03_;
-    int  nTrkHollowConeDR03_;
+    //
+    FiducialFlags fiducialFlagBlock_;
+    IsolationVariables isolationR04_;
+    IsolationVariables isolationR03_;
+    ShowerShape        showerShapeBlock_;
 
+
+   
 
 
   };
