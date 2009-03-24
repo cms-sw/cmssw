@@ -497,7 +497,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
      if ((DP>5.) && ((DP/SigmaDP)>3))
        LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
      PFTrajectoryPoint dummyHCALentrance;
-     pftrack.addPoint(dummyHCALentrance); 
+     brem.addPoint(dummyHCALentrance); 
    }  
 
    //HCAL exit
@@ -510,7 +510,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
      if ((DP>5.) && ((DP/SigmaDP)>3))
        LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
      PFTrajectoryPoint dummyHCALexit;
-     pftrack.addPoint(dummyHCALexit); 
+     brem.addPoint(dummyHCALexit); 
    }
 
    pftrack.addBrem(brem);
