@@ -9,7 +9,8 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelTrackResidualSource.cc,v 1.4 2008/11/05 13:53:08 wehrlilu Exp $
+//         Updated by Lukas Wehrli (plots for clusters on/off track added)
+// $Id: SiPixelTrackResidualSource.cc,v 1.5 2009/01/28 10:54:35 wehrlilu Exp $
 
 
 #include <iostream>
@@ -519,6 +520,24 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 
 	      const RectangularPixelTopology * topol = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
 	      //fill histograms for clusters on tracks
+	      //correct SiPixelTrackResidualModule
+	      std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.find((*hit).geographicalId().rawId());
+
+	      //CHARGE CORRECTION (for track impact angle)
+	      // calculate alpha and beta from cluster position
+	      LocalTrajectoryParameters ltp = tsos.localParameters();
+	      LocalVector localDir = ltp.momentum()/ltp.momentum().mag();
+	      
+	      float clust_alpha = atan2(localDir.z(), localDir.x());
+	      float clust_beta = atan2(localDir.z(), localDir.y());
+	      double corrCharge = clust->charge() * sqrt( 1.0 / ( 1.0/pow( tan(clust_alpha), 2 ) + 
+								  1.0/pow( tan(clust_beta ), 2 ) + 
+								  1.0 )
+							  )/1000.;
+
+	      if (pxd!=theSiPixelStructure.end()) (*pxd).second->fill((*clust), true, corrCharge, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn); 	
+
+
 	      trackclusters++;
 	      meClChargeOnTrack_all->Fill((*clust).charge()/1000.);
 	      meClSizeOnTrack_all->Fill((*clust).size());
@@ -592,15 +611,27 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   for(TrackerGeometry::DetContainer::const_iterator it = TG->dets().begin(); it != TG->dets().end(); it++){
     if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){ 
       DetId detId = (*it)->geographicalId();
-
+      //++
+      int nofclOnTrack = 0, nofclOffTrack=0; 
+      
       edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch = clustColl.find(detId);
       if( isearch != clustColl.end() ) {  // Not an empty iterator
 	edmNew::DetSet<SiPixelCluster>::const_iterator  di;
 	for(di=isearch->begin(); di!=isearch->end(); di++){
 	  unsigned int temp = clusterSet.size();
 	  clusterSet.insert(*di);
+	  //check if cluster is off track
 	  if(clusterSet.size()>temp) {
 	    otherclusters++;
+	    nofclOffTrack++; 
+	    //fill histograms for clusters off tracks
+	    //correct SiPixelTrackResidualModule
+	    std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.find((*it)->geographicalId().rawId());
+
+	    if (pxd!=theSiPixelStructure.end()) (*pxd).second->fill((*di), false, -1., modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn); 
+	    
+
+
 	    meClSizeNotOnTrack_all->Fill((*di).size());
 	    meClChargeNotOnTrack_all->Fill((*di).charge()/1000);
 
@@ -661,9 +692,16 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	      } 
 
 	    }
-	  }	
+	  }// end "if cluster off track"
+	  else {
+	    nofclOnTrack++; 
+	  }
 	}
       }
+      //++ fill the number of clusters on a module
+      std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.find((*it)->geographicalId().rawId());
+      if (pxd!=theSiPixelStructure.end()) (*pxd).second->nfill(nofclOnTrack, nofclOffTrack, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn); 
+      
     }
   }
 
