@@ -8,13 +8,13 @@
  *
  * \author Christian Veelken, UC Davis
  *
- * \version $Revision: 1.10 $
+ * \version $Revision: 1.1 $
  *
- * $Id: GenEventSelector.h,v 1.10 2007/06/18 18:33:52 llista Exp $
+ * $Id: TauGenJetDecayModeSelector.h,v 1.1 2009/01/21 15:31:19 veelken Exp $
  *
  */
 
-#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 

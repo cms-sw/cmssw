@@ -1,5 +1,5 @@
 //
-// $Id: TauGenJetSelector.h,v 1.3 2008/06/19 13:22:12 veelken Exp $
+// $Id: TauGenJetSelector.h,v 1.1 2009/01/21 15:31:19 veelken Exp $
 //
  
 #ifndef PhysicsTools_JetMCAlgos_TauGenJetSelector_h
@@ -7,9 +7,9 @@
  
 #include "DataFormats/Common/interface/RefVector.h"
  
-#include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
+#include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
  
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"

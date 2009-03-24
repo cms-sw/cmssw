@@ -1,5 +1,5 @@
 //
-// $Id: GenJetSelector.h,v 1.1 2009/01/21 15:31:19 veelken Exp $
+// $Id: GenJetSelector.h,v 1.1 2009/03/14 21:33:13 vasquez Exp $
 //
  
 #ifndef PhysicsTools_JetMCAlgos_GenJetSelector_h
@@ -7,9 +7,9 @@
  
 #include "DataFormats/Common/interface/RefVector.h"
  
-#include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
+#include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
  
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
