@@ -7,6 +7,9 @@
 
 #include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
 #include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 
 class HcalHotCellClient : public HcalBaseClient {
@@ -27,7 +30,7 @@ class HcalHotCellClient : public HcalBaseClient {
   void beginJob(const EventSetup& c);
   
   /// EndJob
-  void endJob(void);
+  void endJob(std::map<HcalDetId, unsigned int>& myqual);
   
   /// BeginRun
   void beginRun(void);
@@ -71,10 +74,8 @@ private:
   bool hotclient_test_energy_;
 
   int hotclient_checkNevents_;
-  int hotclient_checkNevents_pedestal_;
-  int hotclient_checkNevents_neighbor_;
-  int hotclient_checkNevents_energy_;
-  int hotclient_checkNevents_persistent_;
+  
+  bool dump2database_;
 
   // Histograms
   TH2F* ProblemHotCells;
@@ -105,6 +106,7 @@ private:
   TH2F* d_ZDCenergyVsNeighbor;
 
   TH2F* d_avgrechitenergymap[6];
+  TH2F* d_avgrechitoccupancymap[6];
 };
 
 #endif

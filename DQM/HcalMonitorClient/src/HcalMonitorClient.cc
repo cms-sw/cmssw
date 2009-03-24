@@ -111,6 +111,8 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
     }
   
   runningStandalone_ = ps.getUntrackedParameter<bool>("runningStandalone", false);
+  dump2database_ = false; // controls whether we write bad cells to database
+
   if (debug_>1)
     {
       if( runningStandalone_ ) cout << "-->standAlone switch is ON" << endl;
@@ -312,7 +314,7 @@ void HcalMonitorClient::endJob(void) {
   if( dataformat_client_ )     dataformat_client_->endJob();
   if( digi_client_ )           digi_client_->endJob();
   if( rechit_client_ )         rechit_client_->endJob();
-  if( hot_client_ )            hot_client_->endJob();
+  if( hot_client_ )            hot_client_->endJob(myquality_);
   if( dead_client_ )           dead_client_->endJob();
   if( pedestal_client_ )       pedestal_client_->endJob();
   if( led_client_ )            led_client_->endJob();
@@ -378,6 +380,63 @@ void HcalMonitorClient::endJob(void) {
   }
   XMLPlatformUtils::Terminate();
   */
+
+  // dumping to database
+  if (dump2database_)
+    {
+      if (debug_>0) cout <<"<HcalMonitorModule::endJob>  Writing file for database"<<endl;
+      std::vector<DetId> mydetids = chanquality_->getAllChannels();
+      HcalChannelQuality* newChanQual = new HcalChannelQuality();
+      for (unsigned int i=0;i<mydetids.size();++i)
+	{
+	  if (mydetids[i].det()!=4) continue; // not hcal
+	  //HcalDetId id(mydetids[i]);
+	  HcalDetId id=mydetids[i];
+	  // get original channel status item
+	  const HcalChannelStatus* origstatus=chanquality_->getValues(mydetids[i]);
+	  // make copy of status
+	  HcalChannelStatus* mystatus=new HcalChannelStatus(origstatus->rawId(),origstatus->getValue());
+	  if (myquality_.find(id)!=myquality_.end())
+	    {
+	      // Set bit 1 for cells which aren't present 	 
+	      /*if ((id.subdet()==HcalBarrel &&!HBpresent_) || 	 
+		  (id.subdet()==HcalEndcap &&!HEpresent_) || 	 
+		  (id.subdet()==HcalOuter  &&!HOpresent_) || 	 
+		  (id.subdet()==HcalForward&&!HFpresent_))*/
+	      
+	      // Update -- why do the check that subdetector is present?
+	      // In normal running, if subdetector out of run, we'll still
+	      // want to mark that as bad.
+	      if (id.subdet()==HcalBarrel || id.subdet()==HcalEndcap ||
+		  id.subdet()==HcalOuter || id.subdet()==HcalForward )
+		{ 	 
+		  mystatus->setBit(1); 	 
+		} 	 
+	      // Only perform these checks if bit 0 not set?
+	      // check dead cells
+	      if ((myquality_[id]>>5)&0x1)
+		  mystatus->setBit(5);
+	      else
+		mystatus->unsetBit(5);
+	      // check hot cells
+	      if ((myquality_[id]>>6)&0x1)
+		mystatus->setBit(6);
+	      else
+		mystatus->unsetBit(6);
+	    } // if (myquality_.find_...)
+	  newChanQual->addValues(*mystatus);
+	  // Clean up pointers to avoid memory leaks
+	  delete origstatus;
+	  delete mystatus;
+ 	} // for (unsigned int i=0;...)
+      // Now dump out to text file
+      std::ostringstream file;
+      file <<"HcalDQMstatus_"<<irun_<<".txt";
+      std::ofstream outStream(file.str().c_str());
+      HcalDbASCIIIO::dumpObject (outStream, (*newChanQual));
+
+    } // if (dump2databse_)
+
 
   return;
 }
@@ -476,12 +535,18 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
 
 
   // Need to increment summary client on every event, not just when prescale is called, since summary_client_ plots error rates/event.
-  if( summary_client_ ) {
-    summary_client_->incrementCounters(); // All this does is increment a counter.
-    if (ievt_ ==1) {
+  if( summary_client_ ) 
+    {
+      summary_client_->incrementCounters(); // All this does is increment a counter.
+      /*
+      // No reason this has to be done on first event, right?
+      // counters are initialized to -1 in setup
+      if (ievt_ ==1) {
       summary_client_->analyze();}}        // Check if HBHE, HO, or HF is in the run at all.
+      */
+    }
   if ( runningStandalone_ || prescale()) return;
-
+  
   else analyze();
 }
 

@@ -297,34 +297,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 	    } // loop over capids
 	} // if (makeDiagnostics)
 
-
-
-      // initialize all counters to 0
-      for (unsigned int eta=0;eta<ETABINS;++eta)
-	{
-	  for (unsigned int phi=0;phi<PHIBINS;++phi)
-	    {
-	      for (unsigned int depth=0;depth<6;++depth)
-		{
-		  pedcounts[eta][phi][depth]=0;
-		  ADC_pedsum[eta][phi][depth]=0;
-		  ADC_pedsum2[eta][phi][depth]=0;
-		  fC_pedsum[eta][phi][depth]=0;
-		  fC_pedsum2[eta][phi][depth]=0;
-		  for (unsigned int capid=0;capid<4;++capid)
-		    {
-		      pedcounts_bycapid[eta][phi][depth][capid]=0;
-		      ADC_pedsum_bycapid[eta][phi][depth][capid]=0;
-		      ADC_pedsum2_bycapid[eta][phi][depth][capid]=0;
-		      fC_pedsum_bycapid[eta][phi][depth][capid]=0;
-		      fC_pedsum2_bycapid[eta][phi][depth][capid]=0;
-		    } // loop over capids;
-		} // loop over depths
-	    } // loop over phi
-	} // loop over eta
-
-
-
+      zeroCounters();
 
     } // if (m_dbe)
 
@@ -894,5 +867,33 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
   return;
 } // void HcalPedestalMonitor::fillDBValues(void)
 
+
+void HcalPedestalMonitor::zeroCounters(void)
+{
+  // initialize all counters to 0
+  for (unsigned int eta=0;eta<ETABINS;++eta)
+    {
+      for (unsigned int phi=0;phi<PHIBINS;++phi)
+	{
+	  for (unsigned int depth=0;depth<6;++depth)
+	    {
+	      pedcounts[eta][phi][depth]=0;
+	      ADC_pedsum[eta][phi][depth]=0;
+	      ADC_pedsum2[eta][phi][depth]=0;
+	      fC_pedsum[eta][phi][depth]=0;
+	      fC_pedsum2[eta][phi][depth]=0;
+	      for (unsigned int capid=0;capid<4;++capid)
+		{
+		  pedcounts_bycapid[eta][phi][depth][capid]=0;
+		  ADC_pedsum_bycapid[eta][phi][depth][capid]=0;
+		  ADC_pedsum2_bycapid[eta][phi][depth][capid]=0;
+		  fC_pedsum_bycapid[eta][phi][depth][capid]=0;
+		  fC_pedsum2_bycapid[eta][phi][depth][capid]=0;
+		} // loop over capids;
+	    } // loop over depths
+	} // loop over phi
+    } // loop over eta
+  
+}
 
 // ******************************************************** //

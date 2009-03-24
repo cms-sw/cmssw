@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2009/01/07 18:37:28 $
-  * $Revision: 1.34 $
+  * $Date: 2009/01/08 19:31:00 $
+  * $Revision: 1.35 $
   * \author W. Fisher - FNAL
   * \author J. Temple - Univ. of Maryland
   */
@@ -68,6 +68,7 @@ public:
   void setSubDetectors(bool hb, bool he, bool ho, bool hf);
 private:  ///Methods
 
+  void zeroCounters();
   void fill_Nevents();
   void setupHists(DigiHists& hist,  DQMStore* dbe); // enable this feature at some point
 

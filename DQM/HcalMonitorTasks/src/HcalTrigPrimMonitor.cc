@@ -36,8 +36,10 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
   TPdigi_ = ps.getUntrackedParameter<int>("TrigPrimMonitor_TPdigiTS", 1);
   ADCdigi_ = ps.getUntrackedParameter<int>("TrigPrimMonitor_ADCdigiTS", 3);
-
+  
+  if (fVerbosity) cout <<"TP:  CHECKN = "<<checkNevents_<<endl;
   tp_checkNevents_=ps.getUntrackedParameter<int>("TrigPrimMonitor_checkNevents",checkNevents_);
+  if (fVerbosity) cout <<"tp_check = "<<tp_checkNevents_<<endl;
   tp_makeDiagnostics_=ps.getUntrackedParameter<bool>("TrigPrimMonitor_makeDiagnostics",makeDiagnostics);
 
   ievt_=0;
@@ -68,6 +70,11 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     TPTimingTop_    = m_dbe->book1D(type,type,10,0,10);
     type = "TP Timing (Bottom wedges)";
     TPTimingBot_    = m_dbe->book1D(type,type,10,0,10);
+    if (fVerbosity)
+      {
+	std::cout <<"TPTimingBot STARTING POINTER: "<< TPTimingBot_ << std::endl;
+	std::cout <<"\t TPTimingBot type:"<< TPTimingBot_->kind() << std::endl;
+      }
     type = "TS with max ADC";
     TS_MAX_         = m_dbe->book1D(type,type,10,0,10);
 
@@ -447,7 +454,6 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	} //for (eta=-16;...)
     } // for (phi=1;...)
 
-
   if (ievt_%tp_checkNevents_==0)
     fill_Nevents();
   return;
@@ -456,7 +462,11 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
 void HcalTrigPrimMonitor::fill_Nevents()
 {
-
+  if (fVerbosity)
+    {  
+      std::cout <<"  TP CURRENT POINTER: "<< TPTimingBot_ << std::endl;
+      std::cout <<"\t  TP KIND "<< TPTimingBot_->kind() << std::endl;
+    }
   for (int i=0;i<200;++i)
     {
       if (val_tpSpectrumAll_[i])
@@ -503,6 +513,7 @@ void HcalTrigPrimMonitor::fill_Nevents()
       if (val_tpSOI_ET_[i])
 	tpSOI_ET_->setBinContent(i+1,val_tpSOI_ET_[i]);
     }
+  
 
   for (int i=0;i<10;++i)
     {
@@ -510,8 +521,10 @@ void HcalTrigPrimMonitor::fill_Nevents()
 	TPTiming_->setBinContent(i+1,val_TPTiming_[i]);
       if (val_TPTimingTop_[i])
 	TPTimingTop_->setBinContent(i+1,val_TPTimingTop_[i]);
-      if (val_TPTimingBot_[i])
-	TPTimingBot_->setBinContent(i+1,val_TPTimingBot_[i]);
+      if (val_TPTimingBot_[i]>=0)
+	{
+	  TPTimingBot_->setBinContent(i+1,val_TPTimingBot_[i]);
+	}
       if (val_TS_MAX_[i])
 	TS_MAX_->setBinContent(i+1,val_TS_MAX_[i]);
     }

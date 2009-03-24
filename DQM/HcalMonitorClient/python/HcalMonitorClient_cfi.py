@@ -66,10 +66,6 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           HotCellClient_test_energy                     = cms.untracked.bool(True),
                           HotCellClient_test_neighbor                   = cms.untracked.bool(False),
                           HotCellClient_checkNevents                    = cms.untracked.int32(100),
-                          HotCellClient_checkNevents_persistent         = cms.untracked.int32(100),
-                          HotCellClient_checkNevents_pedestal           = cms.untracked.int32(100),
-                          HotCellClient_checkNevents_energy             = cms.untracked.int32(100),
-                          HotCellClient_checkNevents_neighbor           = cms.untracked.int32(100),
                           HotCellClient_minErrorFlag                    = cms.untracked.double(0.05),
                           HotCellClient_makeDiagnosticPlots             = cms.untracked.bool(False),
                           
@@ -145,10 +141,6 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     client.HotCellClient_test_pedestal            = monitor.HotCellMonitor_test_pedestal
     client.HotCellClient_test_energy              = monitor.HotCellMonitor_test_energy
     client.HotCellClient_test_neighbor            = monitor.HotCellMonitor_test_neighbor
-    client.HotCellClient_checkNevents_persistent  = monitor.HotCellMonitor_checkNevents_persistent
-    client.HotCellClient_checkNevents_pedestal    = monitor.HotCellMonitor_checkNevents_pedestal
-    client.HotCellClient_checkNevents_neighbor    = monitor.HotCellMonitor_checkNevents_neighbor
-    client.HotCellClient_checkNevents_energy      = monitor.HotCellMonitor_checkNevents_energy
     #client.HotCellClient_minErrorFlag            = monitor.HotCellMonitor_minErrorFlag # want to keep these separate?
     client.HotCellClient_makeDiagnosticPlots      = monitor.HotCellMonitor_makeDiagnosticPlots
 

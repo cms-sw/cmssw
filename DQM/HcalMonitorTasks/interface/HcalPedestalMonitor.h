@@ -10,8 +10,8 @@
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2009/02/12 19:52:45 $
-  * $Revision: 1.21 $
+  * $Date: 2009/02/18 14:18:34 $
+  * $Revision: 1.22 $
   * \author W. Fisher - FNAL
   */
 
@@ -33,6 +33,7 @@ public:
   void fillDBValues(const HcalDbService& cond);
   void fillPedestalHistos(void); // fills histograms once every (checkNevents_) events
   void clearME(); // overrides base class function
+  void zeroCounters();
 
 private:
 
@@ -89,6 +90,9 @@ private:
   std::vector<std::vector<MonitorElement*> > ADC_WidthFromDBByDepth_1D_bycapid;
   std::vector<std::vector<MonitorElement*> > fC_PedestalFromDBByDepth_1D_bycapid;
   std::vector<std::vector<MonitorElement*> > fC_WidthFromDBByDepth_1D_bycapid;
+
+  
+  std::vector<MonitorElement*> PedestalOcc;
 
   // "raw" pedestal plots in ADC
   std::vector<MonitorElement*> ADCPedestalMean;

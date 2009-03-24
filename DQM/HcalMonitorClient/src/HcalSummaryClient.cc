@@ -69,8 +69,8 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
   recHitMon_.ievtName       = "RecHitMonitor_Hcal/RecHit Task Event Number";
   pedestalMon_.ievtName     = "PedestalMonitor_Hcal/Pedestal Task Event Number";
   ledMon_.ievtName          = "";
-  hotCellMon_.ievtName      = "HotCellMonitor_Hcal/HotCell Task Event Number";
-  deadCellMon_.ievtName     = "DeadCellMonitor_Hcal/DeadCell Task Event Number";
+  hotCellMon_.ievtName      = "HotCellMonitor_Hcal/Hot Cell Task Event Number";
+  deadCellMon_.ievtName     = "DeadCellMonitor_Hcal/Dead Cell Task Event Number";
   trigPrimMon_.ievtName     = "";
   caloTowerMon_.ievtName    = "";
 
@@ -224,6 +224,32 @@ void HcalSummaryClient::setup(void)
   myhist->SetOption("textcolz");
   //myhist->SetOptStat(0);
 
+  // Set initial counters to -1 (unknown)
+  status_global_=-1; 
+  status_HB_=-1; 
+  status_HE_=-1; 
+  status_HO_=-1; 
+  status_HF_=-1; 
+  status_ZDC_=-1;
+
+  MonitorElement* advancedMap = dqmStore_->get(prefixME_ + "/EventInfo/advancedReportSummaryMap");
+  // Set all bins to "unknown" to start
+
+  if (advancedMap)
+    {
+      for (int ieta=1;ieta<=etaBins_;++ieta)
+	for (int iphi=1; iphi<=phiBins_;++iphi)
+	  advancedMap->setBinContent(ieta,iphi,-1);
+    }
+  MonitorElement* reportMap = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
+  if (!reportMap)
+    {
+      cout <<"<HcalSummaryClient::setup> Could not get reportSummaryMap!"<<endl;
+      return;
+    }
+  for (int i=1;i<=5;++i)
+    reportMap->setBinContent(i,1,-1);
+
   return;
       
 } // void HcalSummaryClient::setup(void)
@@ -266,7 +292,7 @@ void HcalSummaryClient::analyze(void)
   MonitorElement* simpleMap = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
   if (!simpleMap)
     {
-      cout <<"<HcalSummaryClient::analyze> Could not get advancedReportSummaryMap!"<<endl;
+      cout <<"<HcalSummaryClient::analyze> Could not get reportSummaryMap!"<<endl;
       return;
     }
   for (int ix=1;ix<=5;++ix)
@@ -279,9 +305,7 @@ void HcalSummaryClient::analyze(void)
       reportMap->setBinContent(ieta,iphi,-1);
 
 
-  // Set values to 'unknown' status; they'll be set by analyze_everything routines 
-
-
+  // Start with counters in 'unknown' status; they'll be set by analyze_everything routines 
   status_global_=-1; 
   status_HB_=-1; 
   status_HE_=-1; 
@@ -513,6 +537,18 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
   TH2F* hist;
   MonitorElement* reportMap = dqmStore_->get(prefixME_ + "/EventInfo/advancedReportSummaryMap");
 
+  int ievtTask=-1;
+  name.str("");
+  name <<prefixME_<<"/"<<s.ievtName;
+  me = dbe_->get(name.str().c_str());
+  name.str("");
+  if (me)
+    {
+      string s = me->valueString();
+      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievtTask);
+      if ( debug_>0 ) cout << "Found '" << name.str().c_str() << "'" << endl;
+    }
+
   // Layer 1 HB& HF
   if (HBpresent_ || HFpresent_)
     {
@@ -524,19 +560,11 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       if (me)
 	{
 	  hist=me->getTH2F();
-	  int ievt=0; // jeff's test
-	  name.str("");
-	  name <<prefixME_<<"/"<<s.ievtName;
-	  me = dbe_->get(name.str().c_str());
-	  name.str("");
-	  if (me)
+
+	  if (ievtTask>0)
 	    {
-	      string s = me->valueString();
-	      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt);
-	      if ( debug_>0 ) cout << "Found '" << name.str().c_str() << "'" << endl;
+	      hist->Scale(1./ievtTask);
 	    }
-	  if (ievt>0)
-	    hist->Scale(1./ievt);
 	  etabins=hist->GetNbinsX();
 	  phibins=hist->GetNbinsY();
 	  etamin=hist->GetXaxis()->GetXmin();
@@ -579,19 +607,9 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       if (me)
 	{
 	  hist=me->getTH2F();
-	  int ievt=0; // jeff's test
-	  name.str("");
-	  name <<prefixME_<<"/"<<s.ievtName;
-	  me = dbe_->get(name.str().c_str());
-	  name.str("");
-	  if (me)
-	    {
-	      string s = me->valueString();
-	      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt);
-	      if ( debug_>0 ) cout << "Found '" << name.str().c_str() << "'" << endl;
-	    }
-	  if (ievt>0)
-	    hist->Scale(1./ievt);
+	  if (ievtTask>0)	  
+	    hist->Scale(1./ievtTask);
+
 	  etabins=hist->GetNbinsX();
 	  phibins=hist->GetNbinsY();
 	  etamin=hist->GetXaxis()->GetXmin();
@@ -617,6 +635,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 			  if (phi%2==0) continue; // skip non-physical phi bins
 			  if (abs(eta)>39 && phi%4!=3) continue; // skip non-physical phi bins
 			  HFstatus+=bincontent;
+			  cout <<"incrementing HF2 status by "<<bincontent<<endl;
 			}
 		    } // if (bincontent>0)
 		} // for (int iphi=1;...)
@@ -634,6 +653,8 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       if (me)
 	{
 	  hist=me->getTH2F();
+	  if (ievtTask>0)
+	    hist->Scale(1./ievtTask);
 	  etabins=hist->GetNbinsX();
 	  phibins=hist->GetNbinsY();
 	  etamin=hist->GetXaxis()->GetXmin();
@@ -674,6 +695,8 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       if (me)
 	{
 	  hist=me->getTH2F();
+	  if (ievtTask>0)
+	    hist->Scale(1./ievtTask);
 	  etabins=hist->GetNbinsX();
 	  phibins=hist->GetNbinsY();
 	  etamin=hist->GetXaxis()->GetXmin();
@@ -709,6 +732,8 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       if (me)
 	{
 	  hist=me->getTH2F();
+	  if (ievtTask>0)
+	    hist->Scale(1./ievtTask);
 	  etabins=hist->GetNbinsX();
 	  phibins=hist->GetNbinsY();
 	  etamin=hist->GetXaxis()->GetXmin();
@@ -743,6 +768,8 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       if (me)
 	{
 	  hist=me->getTH2F();
+	  if (ievtTask>0)
+	    hist->Scale(1./ievtTask);
 	  etabins=hist->GetNbinsX();
 	  phibins=hist->GetNbinsY();
 	  etamin=hist->GetXaxis()->GetXmin();
@@ -840,11 +867,12 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
   if (debug_>0)
     {
       cout <<s.problemDir<<endl;
-      cout <<"HB = "<<HBstatus<<endl;
-      cout <<"HE = "<<HEstatus<<endl;
-      cout <<"HO = "<<HOstatus<<endl;
-      cout <<"HF = "<<HFstatus<<endl;
-      cout <<"TOTAL = "<<s.ALLstatus<<endl;
+      cout <<"ReportSummary:  HB = "<<HBstatus<<endl;
+      cout <<"ReportSummary: HE = "<<HEstatus<<endl;
+      cout <<"ReportSummary: HO = "<<HOstatus<<endl;
+      cout <<"ReportSummary: HF = "<<HFstatus<<endl;
+      cout <<"ReportSummary: TOTAL = "<<s.ALLstatus<<endl;
+      cout <<"Avg # of bad cells: "<<endl;
       cout <<"sumHB = "<<status_HB_<<endl;
       cout <<"sumHE = "<<status_HE_<<endl;
       cout <<"sumHO = "<<status_HO_<<endl;

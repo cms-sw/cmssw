@@ -13,8 +13,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2008/11/06 18:02:33 $
-  * $Revision: 1.23 $
+  * $Date: 2008/11/27 16:52:29 $
+  * $Revision: 1.20 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -30,8 +30,8 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   void done();
   void clearME(); // overrides base class function
   void reset();
-
-  
+  void zeroCounters();
+ 
   void processEvent(const HBHERecHitCollection& hbHits,
                     const HORecHitCollection& hoHits,
                     const HFRecHitCollection& hfHits

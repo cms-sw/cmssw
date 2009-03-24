@@ -473,10 +473,13 @@ void HcalRecHitClient::resetAllME()
 
   // Reset counter?  Is this what we want to do, or do we want to implement a separate counter from the 'overall' one?  This also won't work, since the next call to ievt within HcalMonitor will simply fill with the ievt stored there.  Or will it clear that as well, since evt # is a pointer within the Monitor?
   // We also need the parameters that call resetAllME to also reset the counters used to fill the histograms.  Can we just use a fill command for the histograms and clear the counters when the fill is complete?  
-  
+  // Don't seem to be able to reset a counter.  Hmm, investigate further at some point.
+
+  /*
   name<<process_.c_str()<<"Hcal/RecHitMonitor_Hcal/RecHit Event Number";
   resetME(name.str().c_str(),dbe_);
   name.str("");
+  */
 
   // Reset individual histograms
   name<<process_.c_str()<<"RecHitMonitor_Hcal/ ProblemRecHits";

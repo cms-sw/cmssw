@@ -15,6 +15,7 @@ class SubTaskSummaryStatus
   double ALLstatus;
   std::string problemName; // name for the set of SJ6 problem histograms
   std::string problemDir;
+  std::string ievtName;
   bool onoff;
  private:
   //bool onoff;

@@ -5,6 +5,8 @@
 #include <math.h>
 #include <iostream>
 
+#define BITSHIFT 6
+
 HcalHotCellClient::HcalHotCellClient(){} // constructor 
 
 void HcalHotCellClient::init(const ParameterSet& ps, DQMStore* dbe,string clientName){
@@ -23,15 +25,13 @@ void HcalHotCellClient::init(const ParameterSet& ps, DQMStore* dbe,string client
   hotclient_test_energy_            = ps.getUntrackedParameter<bool>("HotCellClient_test_energy",true);
 
   hotclient_checkNevents_ = ps.getUntrackedParameter<int>("HotCellClient_checkNevents",100);
-  hotclient_checkNevents_persistent_ = ps.getUntrackedParameter<int>("HotCellClient_checkNevents_persistent",hotclient_checkNevents_);
-  hotclient_checkNevents_pedestal_  = ps.getUntrackedParameter<int>("HotCellClient_checkNevents_pedestal" ,hotclient_checkNevents_);
-  hotclient_checkNevents_neighbor_  = ps.getUntrackedParameter<int>("HotCellClient_checkNevents_neighbor" ,hotclient_checkNevents_);
-  hotclient_checkNevents_energy_    = ps.getUntrackedParameter<int>("HotCellClient_checkNevents_energy"   ,hotclient_checkNevents_);
 
   minErrorFlag_ = ps.getUntrackedParameter<double>("HotCellClient_minErrorFlag",0.0);
 
   hotclient_makeDiagnostics_ = ps.getUntrackedParameter<bool>("HotCellClient_makeDiagnosticPlots",false);
 
+  dump2database_ = false; // eventually, make this a configurable boolean
+  
   // Set histograms to NULL
   ProblemHotCells=0;
   for (int i=0;i<6;++i)
@@ -43,6 +43,7 @@ void HcalHotCellClient::init(const ParameterSet& ps, DQMStore* dbe,string client
       AboveNeighborsHotCellsByDepth[i]        =0;
       AboveEnergyThresholdCellsByDepth[i]     =0;
       d_avgrechitenergymap[i]                 =0;
+      d_avgrechitoccupancymap[i]              =0;
     }  
 
   if (hotclient_makeDiagnostics_)
@@ -123,7 +124,7 @@ void HcalHotCellClient::beginRun(void)
 } // void HcalHotCellClient::beginRun(void)
 
 
-void HcalHotCellClient::endJob(void) 
+void HcalHotCellClient::endJob(std::map<HcalDetId, unsigned int>& myqual) 
 {
   if (showTiming_)
     {
@@ -132,6 +133,102 @@ void HcalHotCellClient::endJob(void)
 
   if ( debug_>1 ) cout << "HcalHotCellClient: endJob, ievt = " << ievt_ << endl;
 
+  if (dump2database_==true) // don't do anything special unless specifically asked to dump db file
+    {
+      int eta,phi;
+      float binval;
+      int mydepth;
+
+      int subdet;
+      char* subdetname;
+      if (debug_>1)
+	{
+	  cout <<"<HcalHotCellClient>  Summary of Hot Cells in Run: "<<endl;
+	  cout <<"(Error rate must be >= "<<minErrorFlag_*100.<<"% )"<<endl;  
+	}
+
+      float etaMin = ProblemHotCells->GetXaxis()->GetXmin();
+      float phiMin = ProblemHotCells->GetYaxis()->GetXmin();
+      int etabins  = ProblemHotCells->GetNbinsX();
+      int phibins  = ProblemHotCells->GetNbinsY();
+      for (int ieta=1;ieta<=etabins;++ieta)
+	{
+	  for (int iphi=1;iphi<=phibins;++iphi)
+	    {
+	      eta=ieta+int(etaMin)-1;
+	      phi=iphi+int(phiMin)-1;
+	      
+	      for (int d=0;d<6;++d)
+		{
+		  // ProblemHotCells have already been normalized
+		  binval=ProblemHotCellsByDepth[d]->GetBinContent(ieta,iphi);
+		  
+		  // Set subdetector labels for output
+		  if (d<2) // HB/HF
+		    {
+		      if (abs(eta)<29)
+			{
+			  subdetname="HB";
+			  subdet=1;
+			}
+		      else
+			{
+			  subdetname="HF";
+			  subdet=4;
+			}
+		    }
+		  else if (d==3)
+		    {
+		      if (abs(eta)==43)
+			{
+			  subdetname="ZDC";
+			  subdet=7; // correct value??
+			}
+		      else
+			{
+			  subdetname="HO";
+			  subdet=3;
+			}
+		    }
+		  else
+		    {
+		      subdetname="HE";
+		      subdet=2;
+		    }
+		  // Set correct depth label
+		  if (d>3)
+		    mydepth=d-3;
+		  else
+		    mydepth=d+1;
+		  HcalDetId myid((HcalSubdetector)(subdet), eta, phi, mydepth);
+		  // Need this to keep from flagging non-existent HE/HF cells
+		  if (!validDetId((HcalSubdetector)(subdet), eta, phi, mydepth))
+		    continue;
+		  if (binval<=minErrorFlag_)
+		    continue;
+		  if (debug_>0)
+		    cout <<"Hot Cell "<<subdet<<"("<<eta<<", "<<phi<<", "<<mydepth<<"):  "<<binval*100.<<"%"<<endl;
+
+		  // if we've reached here, hot cell condition was met
+		  int value=1;
+
+		  if (myqual.find(myid)==myqual.end())
+		    {
+		      myqual[myid]=(value<<BITSHIFT);  // hotcell shifted to bit 6
+		    }
+		  else
+		    {
+		      int mask=(1<<BITSHIFT);
+		      if (value==1)
+			myqual[myid] |=mask;
+		  
+		      else
+			myqual[myid] &=~mask;
+		    }
+		} // for (int d=0;d<6;++d) // loop over depth histograms
+	    } // for (int iphi=1;iphi<=phibins;++iphi)
+	} // for (int ieta=1;ieta<=etabins;++ieta)
+    } // if (dump2database_==true)
   this->cleanup();
   if (showTiming_)
     {
@@ -149,8 +246,7 @@ void HcalHotCellClient::endRun(void)
       cpu_timer.reset(); cpu_timer.start();
     }
 
-  if ( debug_>1 ) cout << "HcalHotCellClient: endRun, jevt = " << jevt_ << endl;
-
+  // write to DB here as well?
   this->cleanup();
   if (showTiming_)
     {
@@ -189,6 +285,7 @@ void HcalHotCellClient::cleanup(void)
 	  if (AboveNeighborsHotCellsByDepth[i])        delete AboveNeighborsHotCellsByDepth[i];
 	  if (AboveEnergyThresholdCellsByDepth[i])     delete AboveEnergyThresholdCellsByDepth[i];
 	  if (d_avgrechitenergymap[i])                 delete d_avgrechitenergymap[i];
+	  if (d_avgrechitoccupancymap[i])              delete d_avgrechitoccupancymap[i];
 	}
       
       if (hotclient_makeDiagnostics_)
@@ -226,6 +323,7 @@ void HcalHotCellClient::cleanup(void)
       AboveNeighborsHotCellsByDepth[i]        =0;
       AboveEnergyThresholdCellsByDepth[i]     =0;
       d_avgrechitenergymap[i]                 =0;
+      d_avgrechitoccupancymap[i]              =0;
     }
   
   if (hotclient_makeDiagnostics_)
@@ -311,17 +409,38 @@ void HcalHotCellClient::getHistograms()
   name<<process_.c_str()<<"HotCellMonitor_Hcal/ ProblemHotCells";
   ProblemHotCells = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
   name.str("");
+  if (ievt_>0) ProblemHotCells->Scale(1./ievt_);
 
   getSJ6histos("HotCellMonitor_Hcal/problem_hotcells/", " Problem Hot Cell Rate", ProblemHotCellsByDepth);
+  
 
   if (hotclient_test_persistent_) getSJ6histos("HotCellMonitor_Hcal/hot_rechit_always_above_threshold/",   "Hot Cells Persistently Above Energy Threshold", AbovePersistentThresholdCellsByDepth);
   if (hotclient_test_pedestal_)  getSJ6histos("HotCellMonitor_Hcal/hot_pedestaltest/", "Hot Cells Above Pedestal", AbovePedestalHotCellsByDepth);
   if (hotclient_test_neighbor_)  getSJ6histos("HotCellMonitor_Hcal/hot_neighbortest/", "Hot Cells Failing Neighbor Test", AboveNeighborsHotCellsByDepth);
   if (hotclient_test_energy_)    getSJ6histos("HotCellMonitor_Hcal/hot_rechit_above_threshold/",   "Hot Cells Above Energy Threshold", AboveEnergyThresholdCellsByDepth);
+  if (ievt_>0)
+    {
+      for (int i=0;i<6;++i)
+	{
+	  if (ProblemHotCellsByDepth[i]) ProblemHotCellsByDepth[i]->Scale(1./ievt_);
+	  if (AbovePersistentThresholdCellsByDepth[i])
+	    AbovePersistentThresholdCellsByDepth[i]->Scale(1./ievt_);
+	  if (AbovePedestalHotCellsByDepth[i])
+	    AbovePedestalHotCellsByDepth[i]->Scale(1./ievt_);
+	  if (AboveNeighborsHotCellsByDepth[i])
+	    AboveNeighborsHotCellsByDepth[i]->Scale(1./ievt_);
+	  if (AboveEnergyThresholdCellsByDepth[i])
+	    AboveEnergyThresholdCellsByDepth[i]->Scale(1./ievt_);
+	}
+    }
 
   if (hotclient_makeDiagnostics_)
     {
       getSJ6histos("HotCellMonitor_Hcal/diagnostics/rechitenergy/","Average rec hit energy per cell",d_avgrechitenergymap);
+      getSJ6histos("HotCellMonitor_Hcal/diagnostics/rechitenergy/","Rec hit occupancy per cell",d_avgrechitoccupancymap);
+      for (int i=0;i<6;++i)
+	d_avgrechitenergymap[i]->Divide(d_avgrechitoccupancymap[i]);
+      // At some point, clean these up so that histograms are only retrieved if corresponding process ran in Task
       d_HBnormped=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HB_normped").c_str(), process_, dbe_, debug_, cloneME_);
       d_HBrechitenergy=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/rechitenergy/HB_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
       d_HBenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HB_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
@@ -338,6 +457,11 @@ void HcalHotCellClient::getHistograms()
 
 
   // Force min/max on problemcells
+  if (ProblemHotCells) 
+    {
+      ProblemHotCells->SetMaximum(1);
+      ProblemHotCells->SetMinimum(0);
+    }
   for (int i=0;i<6;++i)
     {
       if (ProblemHotCellsByDepth[i])
@@ -669,7 +793,7 @@ ofstream htmlFile;
   if (hotclient_test_pedestal_)
     {
       htmlFile << "<h2><strong><a name=\"PED_PROBLEMS\">Pedestal Test Problems</strong></h2>"<<endl;
-      htmlFile <<"A cell fails this test if its ADC sum is above (pedestal + Nsigma) for  "<<hotclient_checkNevents_pedestal_<<" consecutive events <br>"<<endl;
+      htmlFile <<"A cell fails this test if its ADC sum is above (pedestal + Nsigma) for  "<<hotclient_checkNevents_<<" consecutive events <br>"<<endl;
       htmlFile <<"<a href= \"#EXPERT_HOTCELL_TOP\" > Back to Top</a><br>"<<endl;
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
       htmlFile << "cellpadding=\"10\"> " << endl;
@@ -732,7 +856,7 @@ ofstream htmlFile;
   if (hotclient_test_persistent_)
     {
       htmlFile << "<h2><strong><a name=\"PERSISTENT_PROBLEMS\">Persistent Hot Cell Problems</strong></h2>"<<endl;
-      htmlFile <<"A cell fails this test if its rechit energy is above threshold for "<<hotclient_checkNevents_persistent_<<" consecutive events.<br>"<<endl;
+      htmlFile <<"A cell fails this test if its rechit energy is above threshold for "<<hotclient_checkNevents_<<" consecutive events.<br>"<<endl;
       htmlFile <<"<a href= \"#EXPERT_HOTCELL_TOP\" > Back to Top</a><br>"<<endl;
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
       htmlFile << "cellpadding=\"10\"> " << endl;
@@ -820,6 +944,11 @@ void HcalHotCellClient::loadHistograms(TFile* infile)
   // Grab individual histograms
   name<<process_.c_str()<<"HotCellMonitor_Hcal/ ProblemHotCells";
   ProblemHotCells = (TH2F*)infile->Get(name.str().c_str());
+  cout <<"ievt_ = "<<ievt_<<endl;
+  if (ievt_>0)
+    ProblemHotCells->Scale(1./ievt_);
+  ProblemHotCells->SetMinimum(0);
+  ProblemHotCells->SetMaximum(1);
   name.str("");
   
   for (int i=0;i<6;++i)
@@ -827,6 +956,10 @@ void HcalHotCellClient::loadHistograms(TFile* infile)
       // Grab arrays of histograms
       name<<process_.c_str()<<"HotCellMonitor_Hcal/problem_pedestals/"<<subdets_[i]<<" Problem Pedestal Rate";
       ProblemHotCellsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
+      if (ievt_>0)
+	ProblemHotCellsByDepth[i]->Scale(1./ievt_);
+      ProblemHotCellsByDepth[i]->SetMinimum(0);
+      ProblemHotCellsByDepth[i]->SetMaximum(1);
       name.str("");
       if (hotclient_test_persistent_)
 	{
@@ -854,6 +987,62 @@ void HcalHotCellClient::loadHistograms(TFile* infile)
 	}
 
     } //for (int i=0;i<6;++i)
+
+  if (hotclient_makeDiagnostics_)
+    {
+      for (int i=0;i<6;++i)
+	{
+	  name<<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/rechitenergy/Average rec hit energy per cell";
+	  d_avgrechitenergymap[i] = (TH2F*)infile->Get(name.str().c_str());
+	  name.str("");
+	  name<<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/rechitenergy/Rec hit occupancy per cell";
+	  d_avgrechitoccupancymap[i] = (TH2F*)infile->Get(name.str().c_str());
+	  name.str("");
+	  if (d_avgrechitoccupancymap[i]->GetMaximum()>0)
+	    d_avgrechitenergymap[i]->Divide(d_avgrechitoccupancymap[i]);
+	}
+      
+      name <<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/pedestal/HB_normped";
+      d_HBnormped = (TH1F*)infile->Get(name.str().c_str());
+      name.str("");
+      name <<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/pedestal/HB_rechitenergy";
+      d_HBrechitenergy = (TH1F*)infile->Get(name.str().c_str());
+      name.str("");
+      name <<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/pedestal/HB_energyVsNeighbor";
+      d_HBenergyVsNeighbor = (TH2F*)infile->Get(name.str().c_str());
+      name.str("");
+      name <<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/pedestal/HE_normped";
+      d_HEnormped = (TH1F*)infile->Get(name.str().c_str());
+      name.str("");
+      name <<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/pedestal/HE_rechitenergy";
+      d_HErechitenergy = (TH1F*)infile->Get(name.str().c_str());
+      name.str("");
+      name <<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/pedestal/HE_energyVsNeighbor";
+      d_HEenergyVsNeighbor = (TH2F*)infile->Get(name.str().c_str());
+      name.str("");
+      name <<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/pedestal/HO_normped";
+      d_HOnormped = (TH1F*)infile->Get(name.str().c_str());
+      name.str("");
+      name <<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/pedestal/HO_rechitenergy";
+      d_HOrechitenergy = (TH1F*)infile->Get(name.str().c_str());
+      name.str("");
+      name <<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/pedestal/HO_energyVsNeighbor";
+      d_HOenergyVsNeighbor = (TH2F*)infile->Get(name.str().c_str());
+      name.str("");
+      name <<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/pedestal/HF_normped";
+      d_HFnormped = (TH1F*)infile->Get(name.str().c_str());
+      name.str("");
+      name <<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/pedestal/HF_rechitenergy";
+      d_HFrechitenergy = (TH1F*)infile->Get(name.str().c_str());
+      name.str("");
+      name <<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/pedestal/HF_energyVsNeighbor";
+      d_HFenergyVsNeighbor = (TH2F*)infile->Get(name.str().c_str());
+      name.str("");
+    } // if (hotclient_makeDiagnostics_)
+
+
+
+
   if (showTiming_)
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalHotCellClient LOAD HISTOGRAMS -> "<<cpu_timer.cpuTime()<<endl;

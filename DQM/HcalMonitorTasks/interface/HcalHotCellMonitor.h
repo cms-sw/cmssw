@@ -14,8 +14,8 @@
 
 /** \class HcalHotCellMonitor
   *
-  * $Date: 2008/11/06 18:02:33 $
-  * $Revision: 1.23 $
+  * $Date: 2009/02/13 14:23:33 $
+  * $Revision: 1.24 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -76,8 +76,9 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   void fillNevents_neighbor();
   void fillNevents_energy();
   void fillNevents_persistentenergy();
-
+  
   void fillNevents_problemCells();
+  void zeroCounters();
 
   bool doFCpeds_; //specify whether pedestals are in fC (if not, assume ADC)
   bool hotmon_makeDiagnostics_;
@@ -89,11 +90,6 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   bool hotmon_test_persistent_;
 
   int hotmon_checkNevents_;  // specify how often to check is cell is hot
-  // Let each test have its own checkNevents value
-  int hotmon_checkNevents_pedestal_;
-  int hotmon_checkNevents_neighbor_;
-  int hotmon_checkNevents_energy_;
-  int hotmon_checkNevents_persistent_;
 
   double energyThreshold_, HBenergyThreshold_, HEenergyThreshold_, HOenergyThreshold_, HFenergyThreshold_, ZDCenergyThreshold_;
   double persistentThreshold_, HBpersistentThreshold_, HEpersistentThreshold_, HOpersistentThreshold_, HFpersistentThreshold_, ZDCpersistentThreshold_;
@@ -121,12 +117,12 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   std::map<HcalDetId, double> rechitEnergies_;
   
 
-  unsigned int abovepedestal[ETABINS][PHIBINS][4]; // filled when digi is above pedestal+nsigma
-  unsigned int aboveneighbors[ETABINS][PHIBINS][4];
-  unsigned int aboveenergy[ETABINS][PHIBINS][4]; // when rechit is above threshold energy
-  unsigned int abovepersistent[ETABINS][PHIBINS][4]; // when rechit is consistently above some threshold
-  unsigned int rechit_occupancy_sum[ETABINS][PHIBINS][4];
-  float rechit_energy_sum[ETABINS][PHIBINS][4];
+  int abovepedestal[ETABINS][PHIBINS][6]; // filled when digi is above pedestal+nsigma
+  int aboveneighbors[ETABINS][PHIBINS][6];
+  int aboveenergy[ETABINS][PHIBINS][6]; // when rechit is above threshold energy
+  int abovepersistent[ETABINS][PHIBINS][6]; // when rechit is consistently above some threshold
+  int rechit_occupancy_sum[ETABINS][PHIBINS][6];
+  float rechit_energy_sum[ETABINS][PHIBINS][6];
   
   // counters for diagnostic plots
   int diagADC_HB[300];
@@ -156,7 +152,8 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   MonitorElement* d_ZDCenergyVsNeighbor;
 
   std::vector<MonitorElement*> d_avgrechitenergymap;
-  
+  std::vector<MonitorElement*> d_avgrechitoccupancymap;
+
   hotNeighborParams defaultNeighborParams_, HBNeighborParams_, HENeighborParams_, HONeighborParams_, HFNeighborParams_, ZDCNeighborParams_;
 };
 

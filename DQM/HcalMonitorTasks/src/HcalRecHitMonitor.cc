@@ -63,85 +63,7 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
 
   // zero all counters
 
-  // TH2F counters
-  for (int i=0;i<ETABINS;++i)
-    {
-      for (int j=0;j<PHIBINS;++j)
-	{
-	  for (int k=0;k<6;++k)
-	    {
-	      occupancy_[i][j][k]=0;
-	      occupancy_thresh_[i][j][k]=0;
-	      energy_[i][j][k]=0;
-	      energy_thresh_[i][j][k]=0;
-	      time_[i][j][k]=0;
-	      time_thresh_[i][j][k]=0;
-	    }
-	} // for (int j=0;j<PHIBINS;++j)
-    } // for (int i=0;i<ETABINS;++i)
-
-  // TH1F counters
-  
-  // energy
-  for (int i=0;i<200;++i)
-    {
-      HBenergy_[i]=0;
-      HBenergy_thresh_[i]=0;
-      HEenergy_[i]=0;
-      HEenergy_thresh_[i]=0;
-      HOenergy_[i]=0;
-      HOenergy_thresh_[i]=0;
-      HFenergy_[i]=0;
-      HFenergy_thresh_[i]=0;
-      HFenergyLong_[i]=0;
-      HFenergyLong_thresh_[i]=0;
-      HFenergyShort_[i]=0;
-      HFenergyShort_thresh_[i]=0;
-    }
-
-  // time
-  for (int i=0;i<(TIME_MAX-TIME_MIN);++i)
-    {
-      HBtime_[i]=0;
-      HBtime_thresh_[i]=0;
-      HEtime_[i]=0;
-      HEtime_thresh_[i]=0;
-      HOtime_[i]=0;
-      HOtime_thresh_[i]=0;
-      HFtime_[i]=0;
-      HFtime_thresh_[i]=0;
-      HFtimeLong_[i]=0;
-      HFtimeLong_thresh_[i]=0;
-      HFtimeShort_[i]=0;
-      HFtimeShort_thresh_[i]=0;
-    }
-
-  // occupancy
-  for (int i=0;i<2593;++i)
-    {
-      HB_occupancy_[i]=0;
-      HE_occupancy_[i]=0;
-      HB_occupancy_thresh_[i]=0;
-      HE_occupancy_thresh_[i]=0;
-      if (i<=2160)
-	{
-	  HO_occupancy_[i]=0;
-	  HO_occupancy_thresh_[i]=0;
-	}
-      if (i<=1728)
-	{
-	  HF_occupancy_[i]=0;
-	  HF_occupancy_thresh_[i]=0;
-	}
-      if (i<=864)
-	{
-	  HFlong_occupancy_[i] =0;
-	  HFshort_occupancy_[i]=0;
-	  HFlong_occupancy_thresh_[i] =0;
-	  HFshort_occupancy_thresh_[i]=0;
-	}
-    } // for (int i=0;i<2592;++i)
-
+  zeroCounters();
 
   // Set up histograms
   if (m_dbe)
@@ -623,12 +545,12 @@ void HcalRecHitMonitor::fillNevents(void)
 	      for (int depth=0;depth<6;++depth)
 		{
 		  mydepth=depth;
-		  OccupancyByDepth[mydepth]->setBinContent(eta+2,phi+2,occupancy_[eta][phi][mydepth]*1./ievt_);
-		  OccupancyThreshByDepth[mydepth]->setBinContent(eta+2,phi+2,occupancy_thresh_[eta][phi][mydepth]*1./ievt_);
-		  EnergyByDepth[mydepth]->setBinContent(eta+2,phi+2,energy_[eta][phi][mydepth]*1./ievt_);
-		  EnergyThreshByDepth[mydepth]->setBinContent(eta+2,phi+2,energy_thresh_[eta][phi][mydepth]*1./ievt_);
-		  TimeByDepth[mydepth]->setBinContent(eta+2,phi+2,time_[eta][phi][mydepth]*1./ievt_);
-		  TimeThreshByDepth[mydepth]->setBinContent(eta+2,phi+2,time_thresh_[eta][phi][mydepth]*1./ievt_);
+		  OccupancyByDepth[mydepth]->Fill(eta+1,phi+1,occupancy_[eta][phi][mydepth]);
+		  OccupancyThreshByDepth[mydepth]->Fill(eta+1,phi+1,occupancy_thresh_[eta][phi][mydepth]);
+		  EnergyByDepth[mydepth]->Fill(eta+1,phi+1,energy_[eta][phi][mydepth]);
+		  EnergyThreshByDepth[mydepth]->Fill(eta+1,phi+1,energy_thresh_[eta][phi][mydepth]);
+		  TimeByDepth[mydepth]->Fill(eta+1,phi+1,time_[eta][phi][mydepth]);
+		  TimeThreshByDepth[mydepth]->Fill(eta+1,phi+1,time_thresh_[eta][phi][mydepth]);
 
 		} // for (int depth=0;depth<6;++depth)
 	    } // for (int phi=0;phi<72;++phi)
@@ -648,43 +570,35 @@ void HcalRecHitMonitor::fillNevents(void)
     {
       if (HBenergy_[i]!=0) 
 	{
-	  h_HBEnergy->setBinContent(i+1,h_HBEnergy->getBinContent(i+1)+HBenergy_[i]);
-	  HBenergy_[i]=0;
+	  h_HBEnergy->Fill(i,HBenergy_[i]);
 	}
       if (HBenergy_thresh_[i]!=0) 
 	{
-	  h_HBThreshEnergy->setBinContent(i+1,h_HBThreshEnergy->getBinContent(i+1)+HBenergy_thresh_[i]);
-	  HBenergy_thresh_[i]=0;
+	  h_HBThreshEnergy->Fill(i,HBenergy_thresh_[i]);
 	}
       if (HEenergy_[i]!=0) 
 	{
-	  h_HEEnergy->setBinContent(i+1,h_HEEnergy->getBinContent(i+1)+HEenergy_[i]);
-	  HEenergy_[i]=0;
+	  h_HEEnergy->Fill(i,HEenergy_[i]);
 	}
       if (HEenergy_thresh_[i]!=0) 
 	{
-	  h_HEThreshEnergy->setBinContent(i+1,h_HEThreshEnergy->getBinContent(i+1)+HEenergy_thresh_[i]);
-	  HEenergy_thresh_[i]=0;
+	  h_HEThreshEnergy->Fill(i,HEenergy_thresh_[i]);
 	}
       if (HOenergy_[i]!=0) 
 	{
-	  h_HOEnergy->setBinContent(i+1,h_HOEnergy->getBinContent(i+1)+HOenergy_[i]);
-	  HOenergy_[i]=0;
+	  h_HOEnergy->Fill(i,HOenergy_[i]);
 	}
       if (HOenergy_thresh_[i]!=0) 
 	{
-	  h_HOThreshEnergy->setBinContent(i+1,h_HOThreshEnergy->getBinContent(i+1)+HOenergy_thresh_[i]);
-	  HOenergy_thresh_[i]=0;
+	  h_HOThreshEnergy->Fill(i,HOenergy_thresh_[i]);
 	}
       if (HFenergy_[i]!=0) 
 	{
-	  h_HFEnergy->setBinContent(i+1,h_HFEnergy->getBinContent(i+1)+HFenergy_[i]);
-	  HFenergy_[i]=0;
+	  h_HFEnergy->Fill(i,HFenergy_[i]);
 	}
       if (HFenergy_thresh_[i]!=0) 
 	{
-	  h_HFThreshEnergy->setBinContent(i+1,h_HFThreshEnergy->getBinContent(i+1)+HFenergy_thresh_[i]);
-	  HFenergy_thresh_[i]=0;
+	  h_HFThreshEnergy->Fill(i,HFenergy_thresh_[i]);
 	}
     }// for (int i=0;i<200;++i) // Jeff
 
@@ -692,43 +606,36 @@ void HcalRecHitMonitor::fillNevents(void)
     {
       if (HBtime_[i]!=0)
 	{
-	  h_HBTime->setBinContent(i+1,h_HBTime->getBinContent(i+1)+HBtime_[i]);
-	  HBtime_[i]=0;
+	  h_HBTime->Fill(i,HBtime_[i]);
 	}
       if (HBtime_thresh_[i]!=0)
 	{
-	  h_HBThreshTime->setBinContent(i+1,h_HBThreshTime->getBinContent(i+1)+HBtime_thresh_[i]);
-	  HBtime_thresh_[i]=0;
+	  h_HBThreshTime->Fill(i,HBtime_thresh_[i]);
 	}
       if (HEtime_[i]!=0)
 	{
-	  h_HETime->setBinContent(i+1,h_HETime->getBinContent(i+1)+HEtime_[i]);
-	  HEtime_[i]=0;
+
+	  h_HETime->Fill(i,HEtime_[i]);
 	}
       if (HEtime_thresh_[i]!=0)
 	{
-	  h_HEThreshTime->setBinContent(i+1,h_HEThreshTime->getBinContent(i+1)+HEtime_thresh_[i]);
-	  HEtime_thresh_[i]=0;
+	  h_HEThreshTime->Fill(i,HEtime_thresh_[i]);
 	}
       if (HOtime_[i]!=0)
 	{
-	  h_HOTime->setBinContent(i+1,h_HOTime->getBinContent(i+1)+HOtime_[i]);
-	  HOtime_[i]=0;
+	  h_HOTime->Fill(i,HOtime_[i]);
 	}
       if (HOtime_thresh_[i]!=0)
 	{
-	  h_HOThreshTime->setBinContent(i+1,h_HOThreshTime->getBinContent(i+1)+HOtime_thresh_[i]);
-	  HOtime_thresh_[i]=0;
+	  h_HOThreshTime->Fill(i,HOtime_thresh_[i]);
 	}
       if (HFtime_[i]!=0)
 	{
-	  h_HFTime->setBinContent(i+1,h_HFTime->getBinContent(i+1)+HFtime_[i]);
-	  HFtime_[i]=0;
+	  h_HFTime->Fill(i,HFtime_[i]);
 	}
       if (HFtime_thresh_[i]!=0)
 	{
-	  h_HFThreshTime->setBinContent(i+1,h_HFThreshTime->getBinContent(i+1)+HFtime_thresh_[i]);
-	  HFtime_thresh_[i]=0;
+	  h_HFThreshTime->Fill(i,HFtime_thresh_[i]);
 	}
     } // for (int  i=0;i<(TIME_MAX-TIME_MIN);++i)
 
@@ -736,23 +643,19 @@ void HcalRecHitMonitor::fillNevents(void)
     {
       if (HB_occupancy_[i]>0)
 	{
-	  h_HBOccupancy->setBinContent(i+1,h_HBOccupancy->getBinContent(i+1)+HB_occupancy_[i]);
-	  HB_occupancy_[i]=0;
+	  h_HBOccupancy->Fill(i,HB_occupancy_[i]);
 	}
       if (HB_occupancy_thresh_[i]>0)
 	{
-	  h_HBThreshOccupancy->setBinContent(i+1,h_HBThreshOccupancy->getBinContent(i+1)+HB_occupancy_thresh_[i]);
-	  HB_occupancy_thresh_[i]=0;
+	  h_HBThreshOccupancy->Fill(i,HB_occupancy_thresh_[i]);
 	}
       if (HE_occupancy_[i]>0)
 	{
-	  h_HEOccupancy->setBinContent(i+1,h_HEOccupancy->getBinContent(i+1)+HE_occupancy_[i]);
-	  HE_occupancy_[i]=0;
+	  h_HEOccupancy->Fill(i,HE_occupancy_[i]);
 	}
       if (HE_occupancy_thresh_[i]>0)
 	{
-	  h_HEThreshOccupancy->setBinContent(i+1,h_HEThreshOccupancy->getBinContent(i+1)+HE_occupancy_thresh_[i]);
-	  HE_occupancy_thresh_[i]=0;
+	  h_HEThreshOccupancy->Fill(i,HE_occupancy_thresh_[i]);
 	}
     }//for (int i=0;i<2593;++i)
 
@@ -760,13 +663,11 @@ void HcalRecHitMonitor::fillNevents(void)
     {
       if (HO_occupancy_[i]>0)
 	{
-	  h_HOOccupancy->setBinContent(i+1,h_HOOccupancy->getBinContent(i+1)+HO_occupancy_[i]);
-	  HO_occupancy_[i]=0;
+	  h_HOOccupancy->Fill(i,HO_occupancy_[i]);
 	}
       if (HO_occupancy_thresh_[i]>0)
 	{
-	  h_HOThreshOccupancy->setBinContent(i+1,h_HOThreshOccupancy->getBinContent(i+1)+HO_occupancy_thresh_[i]);
-	  HO_occupancy_thresh_[i]=0;
+	  h_HOThreshOccupancy->Fill(i,HO_occupancy_thresh_[i]);
 	}
     }//  for (int i=0;i<2161;++i)
 
@@ -774,24 +675,109 @@ void HcalRecHitMonitor::fillNevents(void)
     {
       if (HF_occupancy_[i]>0)
 	{
-	  h_HFOccupancy->setBinContent(i+1,h_HFOccupancy->getBinContent(i+1)+HF_occupancy_[i]);
-	  HF_occupancy_[i]=0;
+	  h_HFOccupancy->Fill(i,HF_occupancy_[i]);
 	}
       if (HF_occupancy_thresh_[i]>0)
 	{
-	  h_HFThreshOccupancy->setBinContent(i+1,h_HFThreshOccupancy->getBinContent(i+1)+HF_occupancy_thresh_[i]);
-	  HF_occupancy_thresh_[i]=0;
+	  h_HFThreshOccupancy->Fill(i,HF_occupancy_thresh_[i]);
 	}
     }//  for (int i=0;i<2161;++i)
 
-
+  zeroCounters();
 
   if (fVerbosity>0)
-    cout <<"<HcalRecHitMonitor::fillNevents_problemCells> FILLING REC HIT CELL PLOTS"<<endl;
-  
+    cout <<"<HcalRecHitMonitor::fillNevents_problemCells> FILLED REC HIT CELL PLOTS"<<endl;
+    
   if (showTiming)
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalRecHitMonitor FILLNEVENTS -> "<<cpu_timer.cpuTime()<<endl;
     }
 
 } // void HcalRecHitMonitor::fillNevents(void)
+
+
+void HcalRecHitMonitor::zeroCounters(void)
+{
+  // Set all histogram counters back to zero
+
+  // TH2F counters
+  for (int i=0;i<ETABINS;++i)
+    {
+      for (int j=0;j<PHIBINS;++j)
+	{
+	  for (int k=0;k<6;++k)
+	    {
+	      occupancy_[i][j][k]=0;
+	      occupancy_thresh_[i][j][k]=0;
+	      energy_[i][j][k]=0;
+	      energy_thresh_[i][j][k]=0;
+	      time_[i][j][k]=0;
+	      time_thresh_[i][j][k]=0;
+	    }
+	} // for (int j=0;j<PHIBINS;++j)
+    } // for (int i=0;i<ETABINS;++i)
+
+  // TH1F counters
+  
+  // energy
+  for (int i=0;i<200;++i)
+    {
+      HBenergy_[i]=0;
+      HBenergy_thresh_[i]=0;
+      HEenergy_[i]=0;
+      HEenergy_thresh_[i]=0;
+      HOenergy_[i]=0;
+      HOenergy_thresh_[i]=0;
+      HFenergy_[i]=0;
+      HFenergy_thresh_[i]=0;
+      HFenergyLong_[i]=0;
+      HFenergyLong_thresh_[i]=0;
+      HFenergyShort_[i]=0;
+      HFenergyShort_thresh_[i]=0;
+    }
+
+  // time
+  for (int i=0;i<(TIME_MAX-TIME_MIN);++i)
+    {
+      HBtime_[i]=0;
+      HBtime_thresh_[i]=0;
+      HEtime_[i]=0;
+      HEtime_thresh_[i]=0;
+      HOtime_[i]=0;
+      HOtime_thresh_[i]=0;
+      HFtime_[i]=0;
+      HFtime_thresh_[i]=0;
+      HFtimeLong_[i]=0;
+      HFtimeLong_thresh_[i]=0;
+      HFtimeShort_[i]=0;
+      HFtimeShort_thresh_[i]=0;
+    }
+
+  // occupancy
+  for (int i=0;i<2593;++i)
+    {
+      HB_occupancy_[i]=0;
+      HE_occupancy_[i]=0;
+      HB_occupancy_thresh_[i]=0;
+      HE_occupancy_thresh_[i]=0;
+      if (i<=2160)
+	{
+	  HO_occupancy_[i]=0;
+	  HO_occupancy_thresh_[i]=0;
+	}
+      if (i<=1728)
+	{
+	  HF_occupancy_[i]=0;
+	  HF_occupancy_thresh_[i]=0;
+	}
+      if (i<=864)
+	{
+	  HFlong_occupancy_[i] =0;
+	  HFshort_occupancy_[i]=0;
+	  HFlong_occupancy_thresh_[i] =0;
+	  HFshort_occupancy_thresh_[i]=0;
+	}
+    } // for (int i=0;i<2592;++i)
+
+  return;
+} //void HcalRecHitMonitor::zeroCounters(void)

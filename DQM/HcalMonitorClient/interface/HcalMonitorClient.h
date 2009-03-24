@@ -36,6 +36,12 @@
 //#include <DQM/HcalMonitorModule/interface/HcalMonitorSelector.h>
 
 #include <DQM/HcalMonitorClient/interface/HcalDQMDbInterface.h>
+// Use to hold/get channel status
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+
+
 
 #include "TROOT.h"
 #include "TTree.h"
@@ -184,6 +190,10 @@ public:
   HcalBeamClient*            beam_client_;
   HcalHotCellDbInterface*    dqm_db_;
 
+  // myquality_ will store status values for each det ID I find
+  bool dump2database_;
+  std::map<HcalDetId, unsigned int> myquality_;
+  HcalChannelQuality* chanquality_;
 
 };
 
