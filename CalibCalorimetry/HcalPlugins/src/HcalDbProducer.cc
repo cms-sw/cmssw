@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.20 2008/03/09 18:21:13 rofierzy Exp $
+// $Id: HcalDbProducer.cc,v 1.21 2008/11/08 21:16:27 rofierzy Exp $
 //
 //
 
@@ -41,14 +41,14 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced (this, (dependsOn (&HcalDbProducer::pedestalsCallback) &
+  setWhatProduced (this, (dependsOn (&HcalDbProducer::pedestalsCallback,
+				     &HcalDbProducer::respCorrsCallback,
+				     &HcalDbProducer::gainsCallback) &
 			  &HcalDbProducer::pedestalWidthsCallback &
-			  &HcalDbProducer::gainsCallback &
-			  &HcalDbProducer::gainWidthsCallback &
 			  &HcalDbProducer::QIEDataCallback &
+			  &HcalDbProducer::gainWidthsCallback &
 			  &HcalDbProducer::channelQualityCallback &
 			  &HcalDbProducer::zsThresholdsCallback &
-			  &HcalDbProducer::respCorrsCallback &
 			  &HcalDbProducer::L1triggerObjectsCallback &
 			  &HcalDbProducer::electronicsMapCallback
 			  )
@@ -98,7 +98,7 @@ void HcalDbProducer::pedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecor
   fRecord.get (item);
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("PedestalWidths")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL Pedestals set" << std::endl;
+    *mDumpStream << "New HCAL PedestalWidths set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }
 }
@@ -109,7 +109,7 @@ void HcalDbProducer::gainsCallback (const HcalGainsRcd& fRecord) {
   fRecord.get (item);
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Gains")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL Pedestals set" << std::endl;
+    *mDumpStream << "New HCAL Gains set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }
 }
@@ -120,7 +120,7 @@ void HcalDbProducer::gainWidthsCallback (const HcalGainWidthsRcd& fRecord) {
   fRecord.get (item);
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("GainWidths")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL Pedestals set" << std::endl;
+    *mDumpStream << "New HCAL GainWidths set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }
 }
@@ -130,7 +130,7 @@ void HcalDbProducer::QIEDataCallback (const HcalQIEDataRcd& fRecord) {
   fRecord.get (item);
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIEData")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL Pedestals set" << std::endl;
+    *mDumpStream << "New HCAL QIEData set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }
 }
@@ -140,7 +140,7 @@ void HcalDbProducer::channelQualityCallback (const HcalChannelQualityRcd& fRecor
   fRecord.get (item);
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ChannelQuality")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL Pedestals set" << std::endl;
+    *mDumpStream << "New HCAL ChannelQuality set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }
 }
@@ -150,7 +150,7 @@ void HcalDbProducer::respCorrsCallback (const HcalRespCorrsRcd& fRecord) {
   fRecord.get (item);
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("RespCorrs")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL Pedestals set" << std::endl;
+    *mDumpStream << "New HCAL RespCorrs set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }
 }
@@ -160,7 +160,7 @@ void HcalDbProducer::zsThresholdsCallback (const HcalZSThresholdsRcd& fRecord) {
   fRecord.get (item);
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ZSThresholds")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL Pedestals set" << std::endl;
+    *mDumpStream << "New HCAL ZSThresholds set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }
 }
@@ -170,7 +170,7 @@ void HcalDbProducer::L1triggerObjectsCallback (const HcalL1TriggerObjectsRcd& fR
   fRecord.get (item);
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("L1TriggerObjects")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL Pedestals set" << std::endl;
+    *mDumpStream << "New HCAL L1TriggerObjects set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }
 }

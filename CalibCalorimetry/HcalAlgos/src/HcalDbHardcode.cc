@@ -1,6 +1,6 @@
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.19 2007/08/24 21:12:08 mansj Exp $
+// $Id: HcalDbHardcode.cc,v 1.20 2008/01/22 19:07:19 muzaffar Exp $
 //
 #include <vector>
 #include <string>
@@ -34,7 +34,7 @@ HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalGenericDetId fId) {
   HcalPedestalWidth result (fId.rawId ());
   for (int i = 0; i < 4; i++) {
     double width = value;
-    for (int j = 0; j <= i; j++) {
+    for (int j = 0; j < 4; j++) {
       result.setSigma (i, j, i == j ? width * width : 0);
     }
   } 

@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.40 2008/11/10 10:13:15 rofierzy Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.41 2009/02/26 09:07:26 argiro Exp $
 //
 #include <vector>
 #include <string>
@@ -264,7 +264,9 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestals* fObject) {
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size()==0) continue; // blank line
     if (items.size () < 8) {
-      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, 4x values" << std::endl;
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, 4x values" 
+				      << " or 12 items: eta, phi, depth, subdet, 4x values for mean, 4x values for width"
+				      << std::endl;
       continue;
     }
     DetId id = getId (items);
@@ -273,10 +275,25 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestals* fObject) {
 //      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
 //    else
 //      {
+
+    if (items.size() < 12) // old format without widths
+      {
 	HcalPedestal* fCondObject = new HcalPedestal(id, atof (items [4].c_str()), atof (items [5].c_str()), 
-				       atof (items [6].c_str()), atof (items [7].c_str()));
+						     atof (items [6].c_str()), atof (items [7].c_str()), 
+						     0., 0., 0., 0. );
 	fObject->addValues(*fCondObject);
 	delete fCondObject;
+      }
+    else // new format with widths
+      {
+	HcalPedestal* fCondObject = new HcalPedestal(id, atof (items [4].c_str()), atof (items [5].c_str()), 
+						     atof (items [6].c_str()), atof (items [7].c_str()), 
+						     atof (items [8].c_str()), atof (items [9].c_str()),
+						     atof (items [10].c_str()), atof (items [11].c_str()) );
+	fObject->addValues(*fCondObject);
+	delete fCondObject;
+      }
+
 	//      }
   }
   return true;
@@ -289,7 +306,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPedestals& fObj
   else  sprintf (buffer, "#U fC  << this is the unit \n");
   fOutput << buffer;
 
-  sprintf (buffer, "# %15s %15s %15s %15s %8s %8s %8s %8s %10s\n", "eta", "phi", "dep", "det", "cap0", "cap1", "cap2", "cap3", "DetId");
+  sprintf (buffer, "# %15s %15s %15s %15s %8s %8s %8s %8s %8s %8s %8s %8s %10s\n", "eta", "phi", "dep", "det", "cap0", "cap1", "cap2", "cap3", "widthcap0", "widthcap1", "widthcap2", "widthcap3", "DetId");
   fOutput << buffer;
 
   std::vector<DetId> channels = fObject.getAllChannels ();
@@ -300,8 +317,8 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPedestals& fObj
     const float* values = fObject.getValues (*channel)->getValues ();
     if (values) {
       dumpId (fOutput, *channel);
-      sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %10X\n",
-	       values[0], values[1], values[2], values[3], channel->rawId ());
+      sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %10X\n",
+	       values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], channel->rawId ());
       fOutput << buffer;
     }
   }
@@ -465,7 +482,9 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestalWidths* fObject
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size()==0) continue; // blank line
     if (items.size () < 14) {
-      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line number: " << linecounter << "\n line must contain 14 items: eta, phi, depth, subdet, 10x correlations" << std::endl;
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line number: " << linecounter << "\n line must contain 14 items: eta, phi, depth, subdet, 10x correlations" 
+				      << " or 20 items: eta, phi, depth, subdet, 16x correlations" 
+				      << std::endl;
       continue;
     }
     DetId id = getId (items);
@@ -474,6 +493,9 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestalWidths* fObject
 //      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
 //    else
 //      {
+
+    if (items.size() < 20) //old format
+      {
 	HcalPedestalWidth values(id);
 	values.setSigma (0, 0, atof (items [4].c_str()));
 	values.setSigma (1, 0, atof (items [5].c_str()));
@@ -485,7 +507,36 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestalWidths* fObject
 	values.setSigma (3, 1, atof (items [11].c_str()));
 	values.setSigma (3, 2, atof (items [12].c_str()));
 	values.setSigma (3, 3, atof (items [13].c_str()));
-	fObject->addValues(values);
+	values.setSigma (0, 1, 0.);
+	values.setSigma (0, 2, 0.);
+	values.setSigma (0, 3, 0.);
+	values.setSigma (1, 2, 0.);
+	values.setSigma (1, 3, 0.);
+	values.setSigma (2, 3, 0.);
+	fObject->addValues(values);	
+      }
+    else // new format
+      {
+	HcalPedestalWidth values(id);
+	values.setSigma (0, 0, atof (items [4].c_str()) );
+	values.setSigma (0, 1, atof (items [5].c_str()) );
+	values.setSigma (0, 2, atof (items [6].c_str()) );
+	values.setSigma (0, 3, atof (items [7].c_str()) );
+	values.setSigma (1, 0, atof (items [8].c_str()) );
+	values.setSigma (1, 1, atof (items [9].c_str()) );
+	values.setSigma (1, 2, atof (items [10].c_str()) );
+	values.setSigma (1, 3, atof (items [11].c_str()) );
+	values.setSigma (2, 0, atof (items [12].c_str()) );
+	values.setSigma (2, 1, atof (items [13].c_str()) );
+	values.setSigma (2, 2, atof (items [14].c_str()) );
+	values.setSigma (2, 3, atof (items [15].c_str()) );
+	values.setSigma (3, 0, atof (items [16].c_str()) );
+	values.setSigma (3, 1, atof (items [17].c_str()) );
+	values.setSigma (3, 2, atof (items [18].c_str()) );
+	values.setSigma (3, 3, atof (items [19].c_str()) );
+	fObject->addValues(values);	
+      }
+
 	//      }
   }
   return true;
@@ -497,9 +548,9 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPedestalWidths&
   else  sprintf (buffer, "#U fC  << this is the unit \n");
   fOutput << buffer;
 
-  sprintf (buffer, "# %15s %15s %15s %15s %8s %8s %8s %8s %8s %8s %8s %8s %8s %8s %10s\n", 
+  sprintf (buffer, "# %15s %15s %15s %15s %8s %8s %8s %8s %8s %8s %8s %8s %8s %8s %8s %8s %8s %8s %8s %8s %10s\n", 
 	   "eta", "phi", "dep", "det", 
-	   "sig_0_0", "sig_1_0", "sig_1_1", "sig_2_0", "sig_2_1", "sig_2_2", "sig_3_0", "sig_3_1", "sig_3_2", "sig_3_3", 
+	   "cov_0_0", "cov_0_1", "cov_0_2", "cov_0_3", "cov_1_0", "cov_1_1", "cov_1_2", "cov_1_3", "cov_2_0", "cov_2_1", "cov_2_2", "cov_2_3", "cov_3_0", "cov_3_1", "cov_3_2", "cov_3_3", 
 	   "DetId");
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
@@ -510,8 +561,10 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPedestalWidths&
     const HcalPedestalWidth* item = fObject.getValues (*channel);
     if (item) {
       dumpId (fOutput, *channel);
-      sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %10X\n",
-	       item->getSigma (0,0), item->getSigma (1,0), item->getSigma (1,1), item->getSigma (2,0), item->getSigma (2,1), item->getSigma (2,2), 
+      sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %10X\n",
+	       item->getSigma (0,0), item->getSigma (0,1), item->getSigma (0,2), item->getSigma (0,3), 
+	       item->getSigma (1,0), item->getSigma (1,1), item->getSigma (1,2), item->getSigma (1,3),
+	       item->getSigma (2,0), item->getSigma (2,1), item->getSigma (2,2), item->getSigma (2,3),
 	       item->getSigma (3,0), item->getSigma (3,1), item->getSigma (3,2), item->getSigma (3,3), channel->rawId ());
       fOutput << buffer;
     }

@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.15 2008/07/15 12:59:11 rofierzy Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.16 2008/11/08 21:16:30 rofierzy Exp $
 //
 //
 
@@ -227,6 +227,7 @@ std::auto_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const H
   }
   return result;
 }
+
 std::auto_ptr<HcalZSThresholds> HcalHardcodeCalibrations::produceZSThresholds (const HcalZSThresholdsRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceZSThresholds-> ...";
   std::auto_ptr<HcalZSThresholds> result (new HcalZSThresholds ());
