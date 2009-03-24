@@ -8,6 +8,7 @@
 #include "G4KaonMinus.hh"
 #include "G4KaonPlus.hh"
 #include "G4Proton.hh"
+#include "G4AntiProton.hh"
 #include "G4VProcess.hh"
 #include "G4RegionStore.hh"
 #include "G4FastSimulationManager.hh"
@@ -36,6 +37,8 @@ G4bool GflashHadronShowerModel::IsApplicable(const G4ParticleDefinition& particl
     &particleType == G4PionPlus::PionPlusDefinition() ||
     &particleType == G4KaonMinus::KaonMinusDefinition() ||
     &particleType == G4KaonPlus::KaonPlusDefinition() ||
+    //@@@turn-off AntiProton parameterization until it is completed
+    //    &particleType == G4AntiProton::AntiProtonDefinition() ||
     &particleType == G4Proton::ProtonDefinition() ;
 }
 
@@ -101,6 +104,8 @@ G4bool GflashHadronShowerModel::isFirstInelasticInteraction(const G4FastTrack& f
      (particleType == G4PionMinus::PionMinusDefinition() && procName == "WrappedPionMinusInelastic") ||
      (particleType == G4KaonPlus::KaonPlusDefinition() && procName == "WrappedKaonPlusInelastic") ||
      (particleType == G4KaonMinus::KaonMinusDefinition() && procName == "WrappedKaonMinusInelastic") ||
+     //@@@turn-off AntiProton parameterization until it is completed
+     //     (particleType == G4AntiProton::AntiProtonDefinition() && procName == "WrappedAntiProtonInelastic") ||
      (particleType == G4Proton::ProtonDefinition() && procName == "WrappedProtonInelastic")) {
 
     //skip to the second interaction if the first inelastic is a quasi-elastic like interaction
