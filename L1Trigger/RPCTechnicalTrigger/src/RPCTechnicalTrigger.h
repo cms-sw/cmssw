@@ -44,9 +44,9 @@ Implementation:
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+//#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+//#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+//#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
