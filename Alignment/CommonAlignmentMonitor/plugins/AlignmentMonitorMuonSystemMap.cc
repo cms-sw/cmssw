@@ -311,10 +311,10 @@ void AlignmentMonitorMuonSystemMap::book() {
   std::string lastarray_name[6], lastarray_title[6];
   
   lastarray_name[0] = std::string("_rphi_offset");        lastarray_title[0] = std::string(" global rphi residual (mm)");
-  lastarray_name[1] = std::string("_rphi_offsetantisym");  lastarray_title[1] = std::string(" bfield on rphi (mm)");
+  lastarray_name[1] = std::string("_rphi_offsetantisym");  lastarray_title[1] = std::string(" charge-antisymmmetric rphi residual (mm)");
   lastarray_name[2] = std::string("_rphi_zpos");          lastarray_title[2] = std::string(" local z correction from local x residuals (mm)");
   lastarray_name[3] = std::string("_rphi_slope");         lastarray_title[3] = std::string(" phiy residual (mrad)");
-  lastarray_name[4] = std::string("_rphi_slopeantisym");   lastarray_title[4] = std::string(" bfield on phiy (mrad)");
+  lastarray_name[4] = std::string("_rphi_slopeantisym");   lastarray_title[4] = std::string(" charge-antisymmetric phiy residual (mrad)");
   lastarray_name[5] = std::string("_rphi_scattering");    lastarray_title[5] = std::string(" distance to scattering center (m)");
 
   for (int sector = 1;  sector <= 14;  sector++) {
@@ -394,10 +394,10 @@ void AlignmentMonitorMuonSystemMap::book() {
   }
 
   lastarray_name[0] = std::string("_z_offset");        lastarray_title[0] = std::string(" global z residual (mm)");
-  lastarray_name[1] = std::string("_z_offsetantisym");  lastarray_title[1] = std::string(" bfield on z (mm)");
+  lastarray_name[1] = std::string("_z_offsetantisym");  lastarray_title[1] = std::string(" charge-antisymmetric z residual (mm)");
   lastarray_name[2] = std::string("_z_phiz");          lastarray_title[2] = std::string(" phiz correction from local y residuals (mrad)");
   lastarray_name[3] = std::string("_z_slope");         lastarray_title[3] = std::string(" phix residual (mrad)");
-  lastarray_name[4] = std::string("_z_slopeantisym");   lastarray_title[4] = std::string(" bfield on phix (mrad)");
+  lastarray_name[4] = std::string("_z_slopeantisym");   lastarray_title[4] = std::string(" charge-antisymmetric phix residual (mrad)");
   lastarray_name[5] = std::string("_z_scattering");    lastarray_title[5] = std::string(" distance to scattering center (m)");
 
   for (int sector = 1;  sector <= 14;  sector++) {
@@ -430,10 +430,10 @@ void AlignmentMonitorMuonSystemMap::book() {
   }
 
   lastarray_name[0] = std::string("_rphi_offset");        lastarray_title[0] = std::string(" global rphi residual (mm)");
-  lastarray_name[1] = std::string("_rphi_offsetantisym");  lastarray_title[1] = std::string(" bfield on rphi (mm)");
+  lastarray_name[1] = std::string("_rphi_offsetantisym");  lastarray_title[1] = std::string(" charge-antisymmetric rphi residual (mm)");
   lastarray_name[2] = std::string("_rphi_phiz");          lastarray_title[2] = std::string(" phiz correction from local x residuals (mrad)");
   lastarray_name[3] = std::string("_rphi_slope");         lastarray_title[3] = std::string(" phiy residual (mrad)");
-  lastarray_name[4] = std::string("_rphi_slopeantisym");   lastarray_title[4] = std::string(" bfield on phiy (mrad)");
+  lastarray_name[4] = std::string("_rphi_slopeantisym");   lastarray_title[4] = std::string(" charge-antisymmetric phiy residual (mrad)");
   lastarray_name[5] = std::string("_rphi_scattering");    lastarray_title[5] = std::string(" distance to scattering center (m)");
 
   for (int wheel = -2;  wheel <= 2;  wheel++) {
@@ -509,10 +509,10 @@ void AlignmentMonitorMuonSystemMap::book() {
   }
 
   lastarray_name[0] = std::string("_z_offset");        lastarray_title[0] = std::string(" global z residual (mm)");
-  lastarray_name[1] = std::string("_z_offsetantisym");  lastarray_title[1] = std::string(" bfield on z (mm)");
+  lastarray_name[1] = std::string("_z_offsetantisym");  lastarray_title[1] = std::string(" charge-antisymmetric z residual (mm)");
   lastarray_name[2] = std::string("_z_zpos");          lastarray_title[2] = std::string(" local z correction from local y residuals (mm)");
   lastarray_name[3] = std::string("_z_slope");         lastarray_title[3] = std::string(" phix residual (mrad)");
-  lastarray_name[4] = std::string("_z_slopeantisym");   lastarray_title[4] = std::string(" bfield on phix (mrad)");
+  lastarray_name[4] = std::string("_z_slopeantisym");   lastarray_title[4] = std::string(" charge-antisymmetric phix residual (mrad)");
   lastarray_name[5] = std::string("_z_scattering");    lastarray_title[5] = std::string(" distance to scattering center (m)");
 
   for (int wheel = -2;  wheel <= 2;  wheel++) {
