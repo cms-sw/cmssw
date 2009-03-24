@@ -61,6 +61,9 @@ class ElectronSeed : public TrajectorySeed
     //! Utility
     TrackCharge getCharge() const { return startingState().parameters().charge() ; }
 
+    bool isEcalDriven() const { return isEcalDriven_ ; }
+    bool isTrackerDriven() const { return isTrackerDriven_ ; }
+
   private:
 
     CtfTrackRef ctfTrack_ ;
@@ -68,6 +71,8 @@ class ElectronSeed : public TrajectorySeed
     int subDet2_ ;
     float dRz2_ ;
     float dPhi2_ ;
+    bool isEcalDriven_ ;
+    bool isTrackerDriven_ ;
 
  } ;
 
