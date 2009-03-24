@@ -134,11 +134,9 @@ bool PomwigHadronizer::initializeForInternalPartons()
 {
    clear();
 
-   std::ostringstream header_str;
-
-   header_str << "----------------------------------------------\n";
-   header_str << "Initializing PomwigHadronizer\n";
-   header_str << "----------------------------------------------\n";
+   edm::LogVerbatim("") << "----------------------------------------------\n"
+                        << "Initializing PomwigHadronizer\n"
+                        << "----------------------------------------------\n";
 
    // Call hwudat to set up HERWIG block data
    hwudat();
@@ -198,24 +196,18 @@ bool PomwigHadronizer::initializeForInternalPartons()
    hwevnt.MAXPR = maxEventsToPrint;
    hwpram.IPRINT = herwigVerbosity;
 
-   if (printCards) {
-                header_str << "\n";
-                header_str << "------------------------------------\n";
-                header_str << "Reading HERWIG parameters\n";
-                header_str << "------------------------------------\n";
+   edm::LogVerbatim("") << "------------------------------------\n"
+                        << "Reading HERWIG parameters\n"
+                        << "------------------------------------\n";
     
-   }
    for(gen::ParameterCollector::const_iterator line = parameters.begin();
                                                line != parameters.end(); ++line) {
-      if (printCards)
-          header_str << "   " << *line << "\n";
+      edm::LogVerbatim("") << "   " << *line;
       if (!give(*line))
           throw edm::Exception(edm::errors::Configuration)
                 << "Herwig 6 did not accept the following: \""
                 << *line << "\"." << std::endl;
    }
-
-   if (printCards) header_str << "\n";
 
    needClear = true;
  
@@ -223,108 +215,54 @@ bool PomwigHadronizer::initializeForInternalPartons()
 
    hwusta("PI0     ",1);
  
-   // Initialize H1 pomeron/reggeon
-   if(diffTopology != 3){
-        int nstru = hwpram.NSTRU;
-        int ifit = h1fit;
-        if(nstru == 9){
-                if((ifit <= 0)||(ifit >= 7)){
-                        throw edm::Exception(edm::errors::Configuration,"PomwigError")
-                        <<" Attempted to set non existant H1 1997 fit index. Has to be 1...6";
-                }
-                header_str << "   H1 1997 pomeron pdf's" << "\n";
-                header_str << "   IFIT = "<< ifit << "\n";
-                double xp = 0.1;
-                double Q2 = 75.0;
-                double xpq[13];
-                qcd_1994(xp,Q2,xpq,ifit);
-        } else if(nstru == 10){
-                if((ifit <= 0)||(ifit >= 7)){
-                        throw edm::Exception(edm::errors::Configuration,"PomwigError")
-                        <<" Attempted to set non existant H1 1997 fit index. Has to be 1...6";
-                }
-                header_str << "   H1 1997 reggeon pdf's" << "\n";
-                header_str << "   IFIT = "<< ifit << "\n";
-                double xp = 0.1;
-                double Q2 = 75.0;
-                double xpq[13];
-                qcd_1994(xp,Q2,xpq,ifit);
-
-        } else if(nstru == 12){
-                /*if(ifit != 1){
-                        throw edm::Exception(edm::errors::Configuration,"PomwigError")
-                        <<" Attempted to set non existant H1 2006 A fit index. Only IFIT=1";
-                }*/
-                ifit = 1;
-                header_str << "   H1 2006 A pomeron pdf's" << "\n";
-                header_str << "   IFIT = "<< ifit << "\n";
-                double xp = 0.1;
-                double Q2 = 75.0;
-                double xpq[13];
-                double f2[2];
-                double fl[2];
-                double c2[2];
-                double cl[2];
-                qcd_2006(xp,Q2,ifit,xpq,f2,fl,c2,cl);
-        } else if(nstru == 13){
-                /*if(ifit != 1){
-                        throw edm::Exception(edm::errors::Configuration,"PomwigError")
-                        <<" Attempted to set non existant H1 2006 A fit index. Only IFIT=1";
-                }*/
-                ifit = 1;
-                header_str << "   H1 2006 A reggeon pdf's" << "\n";
-                header_str << "   IFIT = "<< ifit << "\n";
-                double xp = 0.1;
-                double Q2 = 75.0;
-                double xpq[13];
-                double f2[2];
-                double fl[2];
-                double c2[2];
-                double cl[2];
-                qcd_2006(xp,Q2,ifit,xpq,f2,fl,c2,cl);
-        } else if(nstru == 14){
-                /*if(ifit != 2){
-                        throw edm::Exception(edm::errors::Configuration,"PomwigError")
-                        <<" Attempted to set non existant H1 2006 B fit index. Only IFIT=2";
-                }*/
-                ifit = 2;
-                header_str << "   H1 2006 B pomeron pdf's" << "\n";
-                header_str << "   IFIT = "<< ifit << "\n";
-                double xp = 0.1;
-                double Q2 = 75.0;
-                double xpq[13];
-                double f2[2];
-                double fl[2];
-                double c2[2];
-                double cl[2];
-                qcd_2006(xp,Q2,ifit,xpq,f2,fl,c2,cl);
-        } else if(nstru == 15){
-                /*if(ifit != 2){
-                        throw edm::Exception(edm::errors::Configuration,"PomwigError")
-                        <<" Attempted to set non existant H1 2006 B fit index. Only IFIT=2";
-                }*/
-                ifit = 2;
-                header_str << "   H1 2006 B reggeon pdf's" << "\n";
-                header_str << "   IFIT = "<< ifit << "\n";
-                double xp = 0.1;
-                double Q2 = 75.0;
-                double xpq[13];
-                double f2[2];
-                double fl[2];
-                double c2[2];
-                double cl[2];
-                qcd_2006(xp,Q2,ifit,xpq,f2,fl,c2,cl);
-        } else{
-                throw edm::Exception(edm::errors::Configuration,"PomwigError")
-                <<" Only running Pomeron H1 1997 (NSTRU=9), H1 2006 fit A (NSTRU=12) and H1 2006 fit B (NSTRU=14) or Reggeon H1 1997 (NSTRU=10), H1 2006 fit A (NSTRU=13) and H1 2006 fit B (NSTRU=15)";
-        }
-   }
+   if(!initializeDPDF()) return false;
 
    call(hweini);
 
-   edm::LogInfo("") << header_str.str();
-
    return true;
+}
+
+bool PomwigHadronizer::initializeDPDF()
+{
+   // Initialize H1 pomeron/reggeon
+   if((diffTopology != 0)&&(diffTopology != 1)&&(diffTopology != 2)) return false;
+
+   int nstru = hwpram.NSTRU;
+   int ifit = h1fit;
+   if((nstru == 9)||(nstru == 10)){
+         if((ifit <= 0)||(ifit >= 7)){
+              throw edm::Exception(edm::errors::Configuration,"PomwigError")
+              <<" Attempted to set non existant H1 1997 fit index. Has to be 1...6";
+         }
+         std::string aux((nstru == 9)?"Pomeron":"Reggeon"); 
+         edm::LogVerbatim("") << "   H1 1997 pdf's: " << aux << "\n"
+                              << "   IFIT = " << ifit;
+         double xp = 0.1;
+         double Q2 = 75.0;
+         double xpq[13];
+         qcd_1994(xp,Q2,xpq,ifit);
+    } else if((nstru >= 12)&&(nstru <= 15)){
+         bool isPom = (nstru == 12)||(nstru == 14);
+         bool isFitA = (nstru == 12)||(nstru == 13);
+         ifit = (isFitA)?1:2;
+         std::string aux_0((isFitA)?"A":"B");
+         std::string aux_1((isPom)?"Pomeron":"Reggeon"); 
+         edm::LogVerbatim("") << "   H1 2006 Fit " << aux_0 << " " << aux_1 << "\n"
+                              << "   IFIT = "<< ifit;
+         double xp = 0.1;
+         double Q2 = 75.0;
+         double xpq[13];
+         double f2[2];
+         double fl[2];
+         double c2[2];
+         double cl[2];
+         qcd_2006(xp,Q2,ifit,xpq,f2,fl,c2,cl);
+    } else{
+         throw edm::Exception(edm::errors::Configuration,"PomwigError")
+               <<" Only running Pomeron H1 1997 (NSTRU=9), H1 2006 fit A (NSTRU=12) and H1 2006 fit B (NSTRU=14) or Reggeon H1 1997 (NSTRU=10), H1 2006 fit A (NSTRU=13) and H1 2006 fit B (NSTRU=15)";
+    }
+
+    return true;
 }
 
 bool PomwigHadronizer::declareStableParticles(const std::vector<int> &pdgIds)

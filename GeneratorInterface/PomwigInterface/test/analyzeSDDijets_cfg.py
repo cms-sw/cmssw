@@ -7,7 +7,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("file:/tmp/antoniov/POMWIG_SingleDiffractiveDijetsPlus_10TeV_Pt_30_cff_py_GEN_producer.root")
+    fileNames = cms.untracked.vstring("file:/tmp/antoniov/POMWIG_SingleDiffractiveDijetsPlus_10TeV_Pt_30_cff_py_GEN.root")
 )
 
 #process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -46,7 +46,7 @@ process.SDDijets = cms.EDAnalyzer("SDDijetsAnalyzer",
 )
 
 process.add_(cms.Service("TFileService",
-		fileName = cms.string("analysisSDDijets_histos_producer.root")
+		fileName = cms.string("analysisSDDijets_histos.root")
 	)
 )
 

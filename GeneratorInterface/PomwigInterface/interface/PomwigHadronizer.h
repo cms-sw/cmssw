@@ -33,6 +33,7 @@ namespace gen
 
     private:
         void clear();
+        bool initializeDPDF();
 
         bool                            needClear;
 
