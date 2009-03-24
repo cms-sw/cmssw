@@ -1,5 +1,4 @@
 #include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonIDAlgo.h"
-#include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonID.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
@@ -101,7 +100,7 @@ void CutBasedPhotonIDAlgo::decideEB(const reco::Photon* pho, bool &LoosePhoton, 
   //////////////
   //Cut on the sum of ecal rec hits in a cone
   if(dophotonEcalRecHitIsolationCut_){
-    if(pho->ecalRecHitSumConeDR04() > loosephotonEcalRecHitIsolationCutEB_){
+    if(pho->ecalRecHitSumEtConeDR04() > loosephotonEcalRecHitIsolationCutEB_){
       LoosePhoton = false;
       TightPhoton = false;
       return;
@@ -110,7 +109,7 @@ void CutBasedPhotonIDAlgo::decideEB(const reco::Photon* pho, bool &LoosePhoton, 
   
   //Cut on the sum of hcal rec hits in a cone (HBHE)
   if(dophotonHcalTowerIsolationCut_){
-    if(pho->hcalTowerSumConeDR04() > loosephotonHcalTowerIsolationCutEB_){
+    if(pho->hcalTowerSumEtConeDR04() > loosephotonHcalTowerIsolationCutEB_){
       LoosePhoton = false;
       TightPhoton = false;
       return;
@@ -137,7 +136,7 @@ void CutBasedPhotonIDAlgo::decideEB(const reco::Photon* pho, bool &LoosePhoton, 
   
   //Cut on the sum of tracks within a solid cone
   if (dophotonSCTrkIsolationCut_){
-    if (pho->isolationTrkSolidConeDR04() > loosephotonSolidConeTrkIsolationCutEB_){
+    if (pho->trkSumPtSolidConeDR04() > loosephotonSolidConeTrkIsolationCutEB_){
       LoosePhoton = false;
       TightPhoton = false;
       return;
@@ -146,7 +145,7 @@ void CutBasedPhotonIDAlgo::decideEB(const reco::Photon* pho, bool &LoosePhoton, 
 
   //Cut on the sum of tracks within a hollow cone
   if (dophotonHCTrkIsolationCut_){
-    if (pho->isolationTrkHollowConeDR04() > loosephotonHollowConeTrkIsolationCutEB_){
+    if (pho->trkSumPtHollowConeDR04() > loosephotonHollowConeTrkIsolationCutEB_){
       LoosePhoton = false;
       TightPhoton = false;
       return;
@@ -193,7 +192,7 @@ void CutBasedPhotonIDAlgo::decideEB(const reco::Photon* pho, bool &LoosePhoton, 
   //////////////
     //Cut on the sum of ecal rec hits in a cone
   if(dophotonEcalRecHitIsolationCut_){
-    if(pho->ecalRecHitSumConeDR04() > tightphotonEcalRecHitIsolationCutEB_){
+    if(pho->ecalRecHitSumEtConeDR04() > tightphotonEcalRecHitIsolationCutEB_){
       LoosePhoton = true;
       TightPhoton = false;
       return;
@@ -202,7 +201,7 @@ void CutBasedPhotonIDAlgo::decideEB(const reco::Photon* pho, bool &LoosePhoton, 
   
   //Cut on the sum of hcal rec hits in a cone (HBHE)
   if(dophotonHcalTowerIsolationCut_){
-    if(pho->hcalTowerSumConeDR04() > tightphotonHcalTowerIsolationCutEB_){
+    if(pho->hcalTowerSumEtConeDR04() > tightphotonHcalTowerIsolationCutEB_){
       LoosePhoton = true;
       TightPhoton = false;
       return;
@@ -229,7 +228,7 @@ void CutBasedPhotonIDAlgo::decideEB(const reco::Photon* pho, bool &LoosePhoton, 
   
   //Cut on the sum of tracks within a solid cone
   if (dophotonSCTrkIsolationCut_){
-    if (pho->isolationTrkSolidConeDR04() > tightphotonSolidConeTrkIsolationCutEB_){
+    if (pho->trkSumPtSolidConeDR04() > tightphotonSolidConeTrkIsolationCutEB_){
       LoosePhoton = true;
       TightPhoton = false;
       return;
@@ -238,7 +237,7 @@ void CutBasedPhotonIDAlgo::decideEB(const reco::Photon* pho, bool &LoosePhoton, 
 
   //Cut on the sum of tracks within a hollow cone
   if (dophotonHCTrkIsolationCut_){
-    if (pho->isolationTrkHollowConeDR04() > tightphotonHollowConeTrkIsolationCutEB_){
+    if (pho->trkSumPtHollowConeDR04() > tightphotonHollowConeTrkIsolationCutEB_){
       LoosePhoton = true;
       TightPhoton = false;
       return;
@@ -321,7 +320,7 @@ void CutBasedPhotonIDAlgo::decideEE(const reco::Photon* pho, bool &LoosePhoton, 
   //////////////
   //Cut on the sum of ecal rec hits in a cone
   if(dophotonEcalRecHitIsolationCut_){
-    if(pho->ecalRecHitSumConeDR04() > loosephotonEcalRecHitIsolationCutEE_){
+    if(pho->ecalRecHitSumEtConeDR04() > loosephotonEcalRecHitIsolationCutEE_){
       LoosePhoton = false;
       TightPhoton = false;  
       return;
@@ -330,7 +329,7 @@ void CutBasedPhotonIDAlgo::decideEE(const reco::Photon* pho, bool &LoosePhoton, 
   
   //Cut on the sum of hcal rec hits in a cone (HBHE)
   if(dophotonHcalTowerIsolationCut_){
-    if(pho->hcalTowerSumConeDR04() > loosephotonHcalTowerIsolationCutEE_){
+    if(pho->hcalTowerSumEtConeDR04() > loosephotonHcalTowerIsolationCutEE_){
       LoosePhoton = false;
       TightPhoton = false;        
       return;
@@ -357,7 +356,7 @@ void CutBasedPhotonIDAlgo::decideEE(const reco::Photon* pho, bool &LoosePhoton, 
   
   //Cut on the sum of tracks within a solid cone
   if (dophotonSCTrkIsolationCut_){
-    if (pho->isolationTrkSolidConeDR04() > loosephotonSolidConeTrkIsolationCutEE_){
+    if (pho->trkSumPtSolidConeDR04() > loosephotonSolidConeTrkIsolationCutEE_){
       LoosePhoton = false;
       TightPhoton = false;  
       return;
@@ -366,7 +365,7 @@ void CutBasedPhotonIDAlgo::decideEE(const reco::Photon* pho, bool &LoosePhoton, 
 
   //Cut on the sum of tracks within a hollow cone
   if (dophotonHCTrkIsolationCut_){
-    if (pho->isolationTrkHollowConeDR04() > loosephotonHollowConeTrkIsolationCutEE_){
+    if (pho->trkSumPtHollowConeDR04() > loosephotonHollowConeTrkIsolationCutEE_){
       LoosePhoton = false;
       TightPhoton = false;  
       return;
@@ -414,7 +413,7 @@ void CutBasedPhotonIDAlgo::decideEE(const reco::Photon* pho, bool &LoosePhoton, 
   //////////////
     //Cut on the sum of ecal rec hits in a cone
   if(dophotonEcalRecHitIsolationCut_){
-    if(pho->ecalRecHitSumConeDR04() > tightphotonEcalRecHitIsolationCutEE_){
+    if(pho->ecalRecHitSumEtConeDR04() > tightphotonEcalRecHitIsolationCutEE_){
       LoosePhoton = true;
       TightPhoton = false;  
       return;
@@ -423,7 +422,7 @@ void CutBasedPhotonIDAlgo::decideEE(const reco::Photon* pho, bool &LoosePhoton, 
   
   //Cut on the sum of hcal rec hits in a cone (HBHE)
   if(dophotonHcalTowerIsolationCut_){
-    if(pho->hcalTowerSumConeDR04() > tightphotonHcalTowerIsolationCutEE_){
+    if(pho->hcalTowerSumEtConeDR04() > tightphotonHcalTowerIsolationCutEE_){
       LoosePhoton = true;
       TightPhoton = false;  
       return;
@@ -450,7 +449,7 @@ void CutBasedPhotonIDAlgo::decideEE(const reco::Photon* pho, bool &LoosePhoton, 
   
   //Cut on the sum of tracks within a solid cone
   if (dophotonSCTrkIsolationCut_){
-    if (pho->isolationTrkSolidConeDR04() > tightphotonSolidConeTrkIsolationCutEE_){
+    if (pho->trkSumPtSolidConeDR04() > tightphotonSolidConeTrkIsolationCutEE_){
       LoosePhoton = true;
       TightPhoton = false;  
       return;
@@ -459,7 +458,7 @@ void CutBasedPhotonIDAlgo::decideEE(const reco::Photon* pho, bool &LoosePhoton, 
 
   //Cut on the sum of tracks within a hollow cone
   if (dophotonHCTrkIsolationCut_){
-    if (pho->isolationTrkHollowConeDR04() > tightphotonHollowConeTrkIsolationCutEE_){
+    if (pho->trkSumPtHollowConeDR04() > tightphotonHollowConeTrkIsolationCutEE_){
       LoosePhoton = true;
       TightPhoton = false;  
       return;

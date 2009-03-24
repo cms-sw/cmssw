@@ -110,9 +110,9 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
 void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
 				     const edm::Event& e,
 				     const edm::EventSetup& es,
-				     PhotonFiducialFlags& phofid, 
-				     PhotonIsolationVariables& phoisolR1, 
-				     PhotonIsolationVariables& phoisolR2){
+				     reco::Photon::FiducialFlags& phofid, 
+				     reco::Photon::IsolationVariables& phoisolR1, 
+				     reco::Photon::IsolationVariables& phoisolR2){
 
 
   //Get fiducial information
@@ -123,8 +123,8 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
   bool isEBEEGap = false;
   classify(pho, isEBPho, isEEPho, isEBGap, isEEGap, isEBEEGap);
 
-  phofid.isEBPho = isEBPho;
-  phofid.isEEPho = isEEPho;
+  phofid.isEB = isEBPho;
+  phofid.isEE = isEEPho;
   phofid.isEBGap = isEBGap;
   phofid.isEEGap = isEEGap;
   phofid.isEBEEGap = isEBEEGap;
@@ -143,9 +143,9 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
 		    trackConeOuterRadiusA_, 0.);
 
   phoisolR1.nTrkHollowCone = ntrkA;
-  phoisolR1.isolationHollowTrkCone = trkisoA;
+  phoisolR1.trkSumPtHollowCone = trkisoA;
   phoisolR1.nTrkSolidCone = sntrkA;
-  phoisolR1.isolationSolidTrkCone = strkisoA;
+  phoisolR1.trkSumPtSolidCone = strkisoA;
 
   //Calculate hollow cone track isolation, CONE B
   int ntrkB=0;
@@ -160,9 +160,9 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
 		    trackConeOuterRadiusB_, 0.);
 
   phoisolR2.nTrkHollowCone = ntrkB;
-  phoisolR2.isolationHollowTrkCone = trkisoB;
+  phoisolR2.trkSumPtHollowCone = trkisoB;
   phoisolR2.nTrkSolidCone = sntrkB;
-  phoisolR2.isolationSolidTrkCone = strkisoB;
+  phoisolR2.trkSumPtSolidCone = strkisoB;
 
 //   std::cout << "Output from solid cone track isolation: ";
 //   std::cout << " Sum pT: " << strkiso << " ntrk: " << sntrk << std::endl;
@@ -173,7 +173,7 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
                                                 photonEcalRecHitEtaSliceA_,
 						photonEcalRecHitThreshEA_,
 						photonEcalRecHitThreshEtA_);
-  phoisolR1.isolationEcalRecHit = EcalRecHitIsoA;
+  phoisolR1.ecalRecHitSumEt = EcalRecHitIsoA;
 
   double EcalRecHitIsoB = calculateEcalRecHitIso(pho, e, es,
 						photonEcalRecHitConeOuterRadiusB_,
@@ -181,31 +181,31 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
                                                 photonEcalRecHitEtaSliceB_,
 						photonEcalRecHitThreshEB_,
 						photonEcalRecHitThreshEtB_);
-  phoisolR2.isolationEcalRecHit = EcalRecHitIsoB;
+  phoisolR2.ecalRecHitSumEt = EcalRecHitIsoB;
 
   double HcalTowerIsoA = calculateHcalTowerIso(pho, e, es, photonHcalTowerConeOuterRadiusA_,
 					      photonHcalTowerConeInnerRadiusA_,
 					      photonHcalTowerThreshEA_, -1 );
-  phoisolR1.isolationHcalTower = HcalTowerIsoA;
+  phoisolR1.hcalTowerSumEt = HcalTowerIsoA;
 
 
   double HcalTowerIsoB = calculateHcalTowerIso(pho, e, es, photonHcalTowerConeOuterRadiusB_,
 					      photonHcalTowerConeInnerRadiusB_,
 					      photonHcalTowerThreshEB_, -1 );
-  phoisolR2.isolationHcalTower = HcalTowerIsoB;
+  phoisolR2.hcalTowerSumEt = HcalTowerIsoB;
 
   //// Hcal depth1
 
   double HcalDepth1TowerIsoA = calculateHcalTowerIso(pho, e, es, photonHcalDepth1TowerConeOuterRadiusA_,
 					      photonHcalDepth1TowerConeInnerRadiusA_,
 					      photonHcalDepth1TowerThreshEA_, 1 );
-  phoisolR1.isolationHcalDepth1Tower = HcalDepth1TowerIsoA;
+  phoisolR1.hcalDepth1TowerSumEt = HcalDepth1TowerIsoA;
 
 
   double HcalDepth1TowerIsoB = calculateHcalTowerIso(pho, e, es, photonHcalDepth1TowerConeOuterRadiusB_,
 					      photonHcalDepth1TowerConeInnerRadiusB_,
 					      photonHcalDepth1TowerThreshEB_, 1 );
-  phoisolR2.isolationHcalDepth1Tower = HcalDepth1TowerIsoB;
+  phoisolR2.hcalDepth1TowerSumEt = HcalDepth1TowerIsoB;
 
 
 
@@ -214,13 +214,13 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
   double HcalDepth2TowerIsoA = calculateHcalTowerIso(pho, e, es, photonHcalDepth2TowerConeOuterRadiusA_,
 					      photonHcalDepth2TowerConeInnerRadiusA_,
 					      photonHcalDepth2TowerThreshEA_, 2 );
-  phoisolR1.isolationHcalDepth2Tower = HcalDepth2TowerIsoA;
+  phoisolR1.hcalDepth2TowerSumEt = HcalDepth2TowerIsoA;
 
 
   double HcalDepth2TowerIsoB = calculateHcalTowerIso(pho, e, es, photonHcalDepth2TowerConeOuterRadiusB_,
 					      photonHcalDepth2TowerConeInnerRadiusB_,
 					      photonHcalDepth2TowerThreshEB_, 2 );
-  phoisolR2.isolationHcalDepth2Tower = HcalDepth2TowerIsoB;
+  phoisolR2.hcalDepth2TowerSumEt = HcalDepth2TowerIsoB;
 
 
 
