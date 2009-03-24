@@ -30,13 +30,16 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.20 2009/02/14 11:00:26 charlot Exp $
+ * \version $Id: GsfElectron.h,v 1.21 2009/03/20 22:59:16 chamont Exp $
  *
  ****************************************************************************/
 
 //*****************************************************************************
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.21  2009/03/20 22:59:16  chamont
+// new class GsfElectronCore and new interface for GsfElectron
+//
 // Revision 1.20  2009/02/14 11:00:26  charlot
 // new interface for fiducial regions
 //
@@ -248,12 +251,12 @@ class GsfElectron : public RecoCandidate
     struct FiducialFlags
      {
 	  bool isEB ;        // true if particle is in ECAL Barrel
-	  bool isEE ;        // true if particle is in ECAL Endcap
-  	  bool isEBEEGap ;   // true if particle is in boundary between EB and EE
-	  bool isEBEtaGap ;  // true if particle is in EB, and inside the eta boundaries in super crystals/modules
-	  bool isEBPhiGap ;  // true if particle is in EB, and inside the phi boundaries in super crystals/modules
-      bool isEEDeeGap ;  // true if particle is in EE, and inside the dee boundaries in supercrystal/D
-	  bool isEERingGap ; // true if particle is in EE, and inside the ring boundaries in supercrystal/D
+	  bool isEE ;        // true if particle is in ECAL Endcaps
+  	  bool isEBEEGap ;   // true if particle is in the crack between EB and EE
+	  bool isEBEtaGap ;  // true if particle is in EB, and inside the eta gaps between modules
+	  bool isEBPhiGap ;  // true if particle is in EB, and inside the phi gaps between modules
+          bool isEEDeeGap ;  // true if particle is in EE, and inside the gaps between dees
+	  bool isEERingGap ; // true if particle is in EE, and inside the gaps between rings
 	  FiducialFlags()
        : isEB(false), isEE(false), isEBEEGap(false),
          isEBEtaGap(false), isEBPhiGap(false),
@@ -288,13 +291,13 @@ class GsfElectron : public RecoCandidate
 
 	struct ShowerShape
 	 {
-	  float sigmaEtaEta ;        // super-cluster ...
-	  float sigmaIetaIeta ;      // super-cluster ...
-	  float e1x5 ;               // super-cluster ...
-	  float e2x5Max ;            // super-cluster ...
-	  float e5x5 ;               // super-cluster ...
-	  float hcalDepth1OverEcal ; // hcal over ecal energy using first hcal depth
-	  float hcalDepth2OverEcal ; // hcal over ecal energy using 2nd hcal depth
+	  float sigmaEtaEta ;        // weighted cluster rms along eta and inside 5x5 (absolute eta)
+	  float sigmaIetaIeta ;      // weighted cluster rms along eta and inside 5x5 (new, Xtal eta)
+	  float e1x5 ;               // energy inside 1x5 in etaxphi around the seed Xtal
+	  float e2x5Max ;            // energy inside 2x5 in etaxphi around the seed Xtal (max bwt the 2 possible sums)
+	  float e5x5 ;               // energy inside 5x5 in etaxphi around the seed Xtal
+	  float hcalDepth1OverEcal ; // hcal over ecal seed cluster energy using first hcal depth (hcal is energy of towers within dR=015)
+	  float hcalDepth2OverEcal ; // hcal over ecal seed cluster energy using 2nd hcal depth (hcal is energy of towers within dR=015)
 	  ShowerShape()
 	   : sigmaEtaEta(std::numeric_limits<float>::infinity()),
 		 sigmaIetaIeta(std::numeric_limits<float>::infinity()),
@@ -338,10 +341,10 @@ class GsfElectron : public RecoCandidate
 
     struct IsolationVariables
 	 {
-      float tkSumPt ;
-      float ecalRecHitSumEt ;
-      float hcalDepth1TowerSumEt ;
-      float hcalDepth2TowerSumEt ;
+      float tkSumPt ;                // track iso deposit with electron footprint removed
+      float ecalRecHitSumEt ;        // ecal iso deposit with electron footprint removed
+      float hcalDepth1TowerSumEt ;   // hcal depht 1 iso deposit with electron footprint removed
+      float hcalDepth2TowerSumEt ;   // hcal depht 2 iso deposit with electron footprint removed
       IsolationVariables()
        : tkSumPt(0.), ecalRecHitSumEt(0.), hcalDepth1TowerSumEt(0.), hcalDepth2TowerSumEt(0.)
        {}
@@ -380,7 +383,7 @@ class GsfElectron : public RecoCandidate
   private:
 
     // attributes
-    float mva_ ;
+    float mva_ ;                    // electron ID variable from mva (tracker driven electrons)
 
 
   //=======================================================
@@ -404,8 +407,8 @@ class GsfElectron : public RecoCandidate
   private:
 
 	// attributes
-	float fbrem_ ; // the brem fraction: (track momentum in - track momentum out) / track momentum in
-	Classification class_ ;
+	float fbrem_ ; // the brem fraction from gsf fit: (track momentum in - track momentum out) / track momentum in
+	Classification class_ ; // fbrem and number of clusters based electron classification 
 
 
   //=======================================================
@@ -414,13 +417,13 @@ class GsfElectron : public RecoCandidate
   // The only methods, with classification, which modify
   // the electrons after they have been constructed.
   // They change a given characteristic, such as the super-cluster
-  // energy, and try to propagate the change consistently
+  // energy, and propagate the change consistently
   // to all the depending attributes.
   // We expect the methods to be called in a given order
   // and so to store specific kind of corrections
   // 1) classify()
   // 2) correctEcalEnergy() : depending on classification and eta
-  // 3) correctMomemtum() : depending on classification and E/P combination
+  // 3) correctMomemtum() : depending on classification and acal energy and tracker momentum errors
   //
   // Beware that correctEcalEnergy() is modifying few attributes which
   // were potentially used for preselection, whose value used in
@@ -433,12 +436,12 @@ class GsfElectron : public RecoCandidate
 
     struct Corrections
   	 {
-      bool isEcalEnergyCorrected ; // true if caloEnergy has been corrected
-      float ecalEnergy ;
-  	  float ecalEnergyError ;      // error on correctedCaloEnergy
-      bool isMomentumCorrected ;   // true if momemtum
-  	  float trackMomentumError ;
-  	  float electronMomentumError ;
+          bool isEcalEnergyCorrected ;  // true if ecal energy has been corrected 
+          float ecalEnergy ;            // ecal corrected energy (if !isEcalEnergyCorrected this value is identical to the supercluster energy)
+  	  float ecalEnergyError ;       // error on correctedCaloEnergy
+          bool isMomentumCorrected ;    // true if E-p combination has been applied (if not the electron momentum is the ecal corrected energy)
+  	  float trackMomentumError ;    // track momentum error from gsf fit 
+  	  float electronMomentumError ; // the final electron momentum error  
   	  Corrections()
   	   : isEcalEnergyCorrected(false), ecalEnergy(0.), ecalEnergyError(999.),
   	     isMomentumCorrected(false), trackMomentumError(999.), electronMomentumError(999.)

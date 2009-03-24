@@ -27,10 +27,8 @@ GsfElectronCore::GsfElectronCore
      { edm::LogError("GsfElectronCore")<<"The GsfTrack seed is not an ElectronSeed ?!" ; }
     else
      {
-      if (!(elseed->caloCluster().isNull()))
-       { isEcalDriven_ = true ; }
-      if (!(elseed->ctfTrack().isNull()))
-       { isTrackerDriven_ = true ; }
+      if (elseed->isEcalDriven()) isEcalDriven_ = true ; 
+      if (elseed->isTrackerDriven()) isTrackerDriven_ = true ; 
      }
    }
  }
