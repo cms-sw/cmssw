@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.10 2009/02/26 15:47:23 berryhil Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.11 2009/02/26 21:59:00 berryhil Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -36,7 +36,9 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
-#include "PhysicsTools/Utilities/interface/deltaR.h"
+//#include "PhysicsTools/Utilities/interface/deltaR.h"
+//#include "CommonTools/Utils/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
