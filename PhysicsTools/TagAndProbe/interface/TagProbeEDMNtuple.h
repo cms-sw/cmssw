@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon May  5 09:05:35 CDT 2008
-// $Id: TagProbeEDMNtuple.h,v 1.5 2008/10/07 18:11:21 kalanand Exp $
+// $Id: TagProbeEDMNtuple.h,v 1.6 2008/11/24 15:38:46 haupt Exp $
 //
 // Kalanand Mishra: October 7, 2008 
 // Added vertex information of the tag & probe candidates in edm::TTree
@@ -53,7 +53,7 @@ class TagProbeEDMNtuple : public edm::EDProducer
       ~TagProbeEDMNtuple();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

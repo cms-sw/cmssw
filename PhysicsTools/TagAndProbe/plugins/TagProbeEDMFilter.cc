@@ -13,7 +13,7 @@
 //
 // Original Author:  Nadia Adam
 //         Created:  Fri Jun  6 09:10:41 CDT 2008
-// $Id: TagProbeEDMFilter.cc,v 1.1.2.1 2008/07/30 13:29:26 srappocc Exp $
+// $Id: TagProbeEDMFilter.cc,v 1.2 2008/07/30 13:38:25 srappocc Exp $
 //
 //
 
@@ -79,7 +79,7 @@ TagProbeEDMFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TagProbeEDMFilter::beginJob(const edm::EventSetup&)
+TagProbeEDMFilter::beginJob()
 {
 }
 

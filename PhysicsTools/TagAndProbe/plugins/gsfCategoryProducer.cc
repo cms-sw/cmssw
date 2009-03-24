@@ -113,7 +113,7 @@ void gsfCategoryProducer::produce(edm::Event &event, const edm::EventSetup &even
 
 
 
-void gsfCategoryProducer::beginJob(const edm::EventSetup &eventSetup) {
+void gsfCategoryProducer::beginJob() {
 }
 
 

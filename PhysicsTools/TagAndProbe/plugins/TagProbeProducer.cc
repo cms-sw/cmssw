@@ -13,7 +13,7 @@
 //
 // Original Author:  Nadia Adam
 //         Created:  Wed Apr 16 09:46:30 CDT 2008
-// $Id: TagProbeProducer.cc,v 1.1.2.1 2008/07/30 13:29:26 srappocc Exp $
+// $Id: TagProbeProducer.cc,v 1.2 2008/07/30 13:38:25 srappocc Exp $
 //
 //
 
@@ -133,7 +133,7 @@ TagProbeProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TagProbeProducer::beginJob(const edm::EventSetup&)
+TagProbeProducer::beginJob()
 {
 }
 

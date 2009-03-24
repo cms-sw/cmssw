@@ -16,7 +16,7 @@
 //
 // Original Author: Nadia Adam (Princeton) 
 //         Created:  Fri Jun  6 09:13:10 CDT 2008
-// $Id: TagProbeEDMFilter.h,v 1.1.2.1 2008/07/30 13:29:24 srappocc Exp $
+// $Id: TagProbeEDMFilter.h,v 1.2 2008/07/30 13:38:24 srappocc Exp $
 //
 
 // system include files
@@ -42,7 +42,7 @@ class TagProbeEDMFilter : public edm::EDFilter
       ~TagProbeEDMFilter();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       

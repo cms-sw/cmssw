@@ -2034,7 +2034,7 @@ void TagProbeEDMAnalysis::CalculateEfficiencies()
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TagProbeEDMAnalysis::beginJob(const edm::EventSetup&)
+TagProbeEDMAnalysis::beginJob()
 {
 
 }

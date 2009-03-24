@@ -127,8 +127,7 @@ void ElectronDuplicateRemover::produce(edm::Event &event, const edm::EventSetup 
 
 
 
-void ElectronDuplicateRemover::beginJob(const edm::EventSetup &eventSetup) {
-}
+void ElectronDuplicateRemover::beginJob() {}
 
 
 

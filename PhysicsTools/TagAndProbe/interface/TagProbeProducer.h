@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr 16 10:08:13 CDT 2008
-// $Id: TagProbeProducer.h,v 1.1.2.1 2008/07/30 13:29:24 srappocc Exp $
+// $Id: TagProbeProducer.h,v 1.2 2008/07/30 13:38:24 srappocc Exp $
 //
 
 // system include files
@@ -38,7 +38,7 @@ class TagProbeProducer : public edm::EDProducer
       ~TagProbeProducer();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       

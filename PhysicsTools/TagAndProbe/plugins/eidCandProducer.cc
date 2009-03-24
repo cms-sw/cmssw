@@ -75,14 +75,12 @@ void eidCandProducer::produce(edm::Event &event,
 
 
 
-void eidCandProducer::beginJob(const edm::EventSetup &eventSetup) {
-}
+void eidCandProducer::beginJob() {}
 
 
 
 
-void eidCandProducer::endJob() {
-}
+void eidCandProducer::endJob() {}
 
 
 

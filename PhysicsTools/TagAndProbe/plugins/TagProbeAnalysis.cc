@@ -13,7 +13,7 @@
 //
 // Original Author:  "Adam Hunt"
 //         Created:  Sun Apr 20 10:35:25 CDT 2008
-// $Id: TagProbeAnalysis.cc,v 1.1.2.1 2008/07/30 13:29:26 srappocc Exp $
+// $Id: TagProbeAnalysis.cc,v 1.2 2008/07/30 13:38:25 srappocc Exp $
 //
 //
 
@@ -1129,7 +1129,7 @@ void TagProbeAnalysis::CalculateMCTruthEfficiencies()
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TagProbeAnalysis::beginJob(const edm::EventSetup&)
+TagProbeAnalysis::beginJob()
 {
 
 }

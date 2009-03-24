@@ -95,7 +95,7 @@ void IsolatedElectronCandProducer::produce(edm::Event& iEvent,
 // ------- method called once each job just before starting event loop --
 
 
-void IsolatedElectronCandProducer::beginJob(const edm::EventSetup &iSetup){}
+void IsolatedElectronCandProducer::beginJob(){}
 
 
 void IsolatedElectronCandProducer::endJob() {}

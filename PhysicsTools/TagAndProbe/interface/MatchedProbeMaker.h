@@ -37,7 +37,7 @@ class MatchedProbeMaker : public edm::EDProducer
       ~MatchedProbeMaker();
       
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -136,7 +136,7 @@ void MatchedProbeMaker<T>::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
 // ------------ method called once each job just before starting event loop  ------------
 template< typename T >
-void MatchedProbeMaker<T>::beginJob(const edm::EventSetup&)
+void MatchedProbeMaker<T>::beginJob()
 {
 }
 

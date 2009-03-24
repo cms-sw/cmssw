@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.9 2009/01/21 21:01:59 neadam Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.10 2009/02/17 17:27:49 haupt Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -81,7 +81,7 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
       ~TagProbeEDMAnalysis();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

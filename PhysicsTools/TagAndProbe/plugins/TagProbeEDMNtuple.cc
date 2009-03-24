@@ -13,7 +13,7 @@
 //
 // Original Author:  Nadia Adam
 //         Created:  Mon May  5 08:47:29 CDT 2008
-// $Id: TagProbeEDMNtuple.cc,v 1.10 2008/11/24 15:38:47 haupt Exp $
+// $Id: TagProbeEDMNtuple.cc,v 1.11 2009/03/09 21:45:45 ahunt Exp $
 //
 //
 // Kalanand Mishra: October 7, 2008 
@@ -450,7 +450,7 @@ TagProbeEDMNtuple::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TagProbeEDMNtuple::beginJob(const edm::EventSetup&)
+TagProbeEDMNtuple::beginJob()
 {
 }
 

@@ -214,7 +214,7 @@ void eTriggerCandProducer::produce(edm::Event &event,
 
 
 
-void eTriggerCandProducer::beginJob(const edm::EventSetup &eventSetup) {
+void eTriggerCandProducer::beginJob() {
 }
 
 

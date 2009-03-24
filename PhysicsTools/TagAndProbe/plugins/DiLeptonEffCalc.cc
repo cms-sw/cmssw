@@ -49,7 +49,7 @@ class DiLepEffCalc : public edm::EDAnalyzer {
   
   
  private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   dibin SetAppropriateKey(int i,int j, int k,int l, int flag);
@@ -161,7 +161,7 @@ DiLepEffCalc::~DiLepEffCalc(){
 
 
 //=====================================================
-void DiLepEffCalc::beginJob(const edm::EventSetup&){}
+void DiLepEffCalc::beginJob(){}
 //=====================================================
 
 

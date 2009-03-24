@@ -13,7 +13,7 @@
 //
 // Original Authors:  Nadia Adam, Valerie Halyo
 //         Created:  Wed Oct  8 11:06:35 CDT 2008
-// $Id: TrgMatchedMuonRefProducer.cc,v 1.1 2008/10/13 20:45:39 neadam Exp $
+// $Id: TrgMatchedMuonRefProducer.cc,v 1.2 2009/01/21 21:01:59 neadam Exp $
 //
 //
 
@@ -174,7 +174,7 @@ TrgMatchedMuonRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TrgMatchedMuonRefProducer::beginJob(const edm::EventSetup&)
+TrgMatchedMuonRefProducer::beginJob()
 {
 }
 

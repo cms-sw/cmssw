@@ -1074,7 +1074,7 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-ElectronTPValidator::beginJob(const edm::EventSetup&)
+ElectronTPValidator::beginJob()
 {
   TString filename_histo = outputFile_;
   //  histofile = TFile::Open(filename_histo,"RECREATE");
