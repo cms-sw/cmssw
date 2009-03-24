@@ -3,8 +3,8 @@
  *
  * \author Olga Kodolova
  *        
- * $Date: 2009/03/13 17:30:14 $
- * $Revision: 1.1 $
+ * $Date: 2009/03/23 15:06:15 $
+ * $Revision: 1.2 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -80,6 +80,7 @@ void DQMHcalPhiSymAlCaReco::beginJob(const EventSetup& context){
   dbe_->setCurrentFolder(folderName_);
 
   // book some histograms 1D
+  // First moment
   hiDistrMBPl2D_ = 
     dbe_->book2D("MBdepthPl1", "iphi- +ieta signal distribution at depth1",
 		 hiDistr_x_nbin_, 
@@ -106,9 +107,64 @@ void DQMHcalPhiSymAlCaReco::beginJob(const EventSetup& context){
 
   hiDistrNoisePl2D_->setAxisTitle("i#phi ", 2);
   hiDistrNoisePl2D_->setAxisTitle("i#eta ", 1);
+// Second moment
+  hiDistrMB2Pl2D_ =
+    dbe_->book2D("MB2depthPl1", "iphi- +ieta signal distribution at depth1",
+                 hiDistr_x_nbin_,
+                 hiDistr_x_min_,
+                 hiDistr_x_max_,
+                 hiDistr_y_nbin_,
+                 hiDistr_y_min_,
+                 hiDistr_y_max_
+                 );
+
+  hiDistrMB2Pl2D_->setAxisTitle("i#phi ", 2);
+  hiDistrMB2Pl2D_->setAxisTitle("i#eta ", 1);
+
+
+  hiDistrNoise2Pl2D_ =
+    dbe_->book2D("Noise2depthPl1", "iphi-ieta noise distribution at depth1",
+                 hiDistr_x_nbin_,
+                 hiDistr_x_min_,
+                 hiDistr_x_max_,
+                 hiDistr_y_nbin_,
+                 hiDistr_y_min_,
+                 hiDistr_y_max_
+                 );
+
+  hiDistrNoise2Pl2D_->setAxisTitle("i#phi ", 2);
+  hiDistrNoise2Pl2D_->setAxisTitle("i#eta ", 1);
+
+// Variance
+  hiDistrVarMBPl2D_ =
+    dbe_->book2D("VarMBdepthPl1", "iphi- +ieta signal distribution at depth1",
+                 hiDistr_x_nbin_,
+                 hiDistr_x_min_,
+                 hiDistr_x_max_,
+                 hiDistr_y_nbin_,
+                 hiDistr_y_min_,
+                 hiDistr_y_max_
+                 );
+
+  hiDistrVarMBPl2D_->setAxisTitle("i#phi ", 2);
+  hiDistrVarMBPl2D_->setAxisTitle("i#eta ", 1);
+
+
+  hiDistrVarNoisePl2D_ =
+    dbe_->book2D("VarNoisedepthPl1", "iphi-ieta noise distribution at depth1",
+                 hiDistr_x_nbin_,
+                 hiDistr_x_min_,
+                 hiDistr_x_max_,
+                 hiDistr_y_nbin_,
+                 hiDistr_y_min_,
+                 hiDistr_y_max_
+                 );
+
+  hiDistrVarNoisePl2D_->setAxisTitle("i#phi ", 2);
+  hiDistrVarNoisePl2D_->setAxisTitle("i#eta ", 1);
 
 //==================================================================================
-
+// First moment
   hiDistrMBMin2D_ = 
     dbe_->book2D("MBdepthMin1", "iphi- +ieta signal distribution at depth1",
 		 hiDistr_x_nbin_, 
@@ -135,6 +191,61 @@ void DQMHcalPhiSymAlCaReco::beginJob(const EventSetup& context){
 
   hiDistrNoiseMin2D_->setAxisTitle("i#phi ", 2);
   hiDistrNoiseMin2D_->setAxisTitle("i#eta ", 1);
+// Second moment
+  hiDistrMB2Min2D_ =
+    dbe_->book2D("MB2depthMin1", "iphi- +ieta signal distribution at depth1",
+                 hiDistr_x_nbin_,
+                 hiDistr_x_min_,
+                 hiDistr_x_max_,
+                 hiDistr_y_nbin_,
+                 hiDistr_y_min_,
+                 hiDistr_y_max_
+                 );
+
+  hiDistrMB2Min2D_->setAxisTitle("i#phi ", 2);
+  hiDistrMB2Min2D_->setAxisTitle("i#eta ", 1);
+
+
+  hiDistrNoise2Min2D_ =
+    dbe_->book2D("Noise2depthMin1", "iphi-ieta noise distribution at depth1",
+                 hiDistr_x_nbin_,
+                 hiDistr_x_min_,
+                 hiDistr_x_max_,
+                 hiDistr_y_nbin_,
+                 hiDistr_y_min_,
+                 hiDistr_y_max_
+                 );
+
+  hiDistrNoise2Min2D_->setAxisTitle("i#phi ", 2);
+  hiDistrNoise2Min2D_->setAxisTitle("i#eta ", 1);
+
+// Variance
+  hiDistrVarMBMin2D_ =
+    dbe_->book2D("VarMBdepthMin1", "iphi- +ieta signal distribution at depth1",
+                 hiDistr_x_nbin_,
+                 hiDistr_x_min_,
+                 hiDistr_x_max_,
+                 hiDistr_y_nbin_,
+                 hiDistr_y_min_,
+                 hiDistr_y_max_
+                 );
+
+  hiDistrVarMBMin2D_->setAxisTitle("i#phi ", 2);
+  hiDistrVarMBMin2D_->setAxisTitle("i#eta ", 1);
+
+
+  hiDistrVarNoiseMin2D_ =
+    dbe_->book2D("VarNoisedepthMin1", "iphi-ieta noise distribution at depth1",
+                 hiDistr_x_nbin_,
+                 hiDistr_x_min_,
+                 hiDistr_x_max_,
+                 hiDistr_y_nbin_,
+                 hiDistr_y_min_,
+                 hiDistr_y_max_
+                 );
+
+  hiDistrVarNoiseMin2D_->setAxisTitle("i#phi ", 2);
+  hiDistrVarNoiseMin2D_->setAxisTitle("i#eta ", 1);
 
   std::cout<<" DQMHcalPhiSymAlCaReco::beginJob::end "<<std::endl;
 
@@ -183,8 +294,10 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
 		 if(hid.depth() == 1) {
                  if( hid.ieta() > 0 ) {
 		 hiDistrNoisePl2D_->Fill(hid.ieta(),hid.iphi(),hbheItr->energy());
+                 hiDistrNoise2Pl2D_->Fill(hid.ieta(),hid.iphi(),hbheItr->energy()*hbheItr->energy());
                  } else {
 		 hiDistrNoiseMin2D_->Fill(fabs(hid.ieta()),hid.iphi(),hbheItr->energy());
+                 hiDistrNoise2Min2D_->Fill(fabs(hid.ieta()),hid.iphi(),hbheItr->energy()*hbheItr->energy());
 		 }
 		 }
         }
@@ -208,8 +321,10 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
 		 if(hid.depth() == 1) {
                  if( hid.ieta() > 0 ) {
 		 hiDistrMBPl2D_->Fill(hid.ieta(),hid.iphi(),hbheItr->energy());
+                 hiDistrMB2Pl2D_->Fill(hid.ieta(),hid.iphi(),hbheItr->energy()*hbheItr->energy());
                  } else {
 		 hiDistrMBMin2D_->Fill(fabs(hid.ieta()),hid.iphi(),hbheItr->energy());
+                 hiDistrMB2Min2D_->Fill(fabs(hid.ieta()),hid.iphi(),hbheItr->energy()*hbheItr->energy());
 		 }
 		 }
 
@@ -234,8 +349,10 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
 		 if(hid.depth() == 1) {
                  if( hid.ieta() > 0 ) {
 		 hiDistrNoisePl2D_->Fill(hid.ieta(),hid.iphi(),hbheItr->energy());
+                 hiDistrNoise2Pl2D_->Fill(hid.ieta(),hid.iphi(),hbheItr->energy()*hbheItr->energy());
                  } else {
 		 hiDistrNoiseMin2D_->Fill(fabs(hid.ieta()),hid.iphi(),hbheItr->energy());
+                 hiDistrNoise2Min2D_->Fill(fabs(hid.ieta()),hid.iphi(),hbheItr->energy()*hbheItr->energy());
 		 }
 		 }
 	
@@ -260,8 +377,10 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
 		 if(hid.depth() == 1) {
                  if( hid.ieta() > 0 ) {
 		 hiDistrMBPl2D_->Fill(hid.ieta(),hid.iphi(),hbheItr->energy());
+                 hiDistrMB2Pl2D_->Fill(hid.ieta(),hid.iphi(),hbheItr->energy()*hbheItr->energy());
                  } else {
 		 hiDistrMBMin2D_->Fill(fabs(hid.ieta()),hid.iphi(),hbheItr->energy());
+                 hiDistrMB2Min2D_->Fill(fabs(hid.ieta()),hid.iphi(),hbheItr->energy()*hbheItr->energy());
 		 }
 		 }
         }	
@@ -287,18 +406,36 @@ void DQMHcalPhiSymAlCaReco::endJob(){
   {
     for(int j=0; j<hiDistr_y_nbin_;j++)
     {
-       float cc=hiDistrMBPl2D_->getBinContent(k,j);
-       cc = cc * 1./eventCounter_;
-       hiDistrMBPl2D_->setBinContent(k,j,cc); 
-       cc=hiDistrNoisePl2D_->getBinContent(k,j);
-       cc = cc * 1./eventCounter_;
-       hiDistrNoisePl2D_->setBinContent(k,j,cc);
-       cc=hiDistrMBMin2D_->getBinContent(k,j);
-       cc = cc * 1./eventCounter_;
-       hiDistrMBMin2D_->setBinContent(k,j,cc);
-       cc=hiDistrNoiseMin2D_->getBinContent(k,j);
-       cc = cc * 1./eventCounter_;
-       hiDistrNoiseMin2D_->setBinContent(k,j,cc);
+// First moment
+       float cc1=hiDistrMBPl2D_->getBinContent(k,j);
+       cc1 = cc1 * 1./eventCounter_;
+       hiDistrMBPl2D_->setBinContent(k,j,cc1); 
+       float cc2=hiDistrNoisePl2D_->getBinContent(k,j);
+       cc2 = cc2 * 1./eventCounter_;
+       hiDistrNoisePl2D_->setBinContent(k,j,cc2);
+       float cc3=hiDistrMBMin2D_->getBinContent(k,j);
+       cc3 = cc3 * 1./eventCounter_;
+       hiDistrMBMin2D_->setBinContent(k,j,cc3);
+       float cc4=hiDistrNoiseMin2D_->getBinContent(k,j);
+       cc4 = cc4 * 1./eventCounter_;
+       hiDistrNoiseMin2D_->setBinContent(k,j,cc4);
+// Second moment
+       float cc11=hiDistrMB2Pl2D_->getBinContent(k,j);
+       cc11 = cc11 * 1./eventCounter_;
+       hiDistrMB2Pl2D_->setBinContent(k,j,cc11);
+       hiDistrVarMBPl2D_->setBinContent(k,j,cc11-cc1*cc1);
+       float cc22=hiDistrNoise2Pl2D_->getBinContent(k,j);
+       cc22 = cc22 * 1./eventCounter_;
+       hiDistrNoise2Pl2D_->setBinContent(k,j,cc22);
+       hiDistrVarNoisePl2D_->setBinContent(k,j,cc22-cc2*cc2);
+       float cc33=hiDistrMB2Min2D_->getBinContent(k,j);
+       cc33 = cc33 * 1./eventCounter_;
+       hiDistrMB2Min2D_->setBinContent(k,j,cc33);
+       hiDistrVarMBMin2D_->setBinContent(k,j,cc33-cc3*cc3);
+       float cc44=hiDistrNoise2Min2D_->getBinContent(k,j);
+       cc44 = cc44 * 1./eventCounter_;
+       hiDistrNoise2Min2D_->setBinContent(k,j,cc44);
+       hiDistrVarNoiseMin2D_->setBinContent(k,j,cc44-cc4*cc4);
     }
   }
   if (saveToFile_) {
