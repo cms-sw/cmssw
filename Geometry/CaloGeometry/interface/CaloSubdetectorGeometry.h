@@ -7,7 +7,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "PhysicsTools/Utilities/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 /** \class CaloSubdetectorGeometry
       
@@ -15,8 +15,8 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2008/11/12 19:39:25 $
-$Revision: 1.20 $
+$Date: 2009/01/23 15:03:24 $
+$Revision: 1.21 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
