@@ -64,6 +64,17 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
   trigPrimMon_.problemDir     = "";
   caloTowerMon_.problemDir    = "";
   
+  dataFormatMon_.ievtName   = "";
+  digiMon_.ievtName         = "DigiMonitor_Hcal/Digi Task Event Number";
+  recHitMon_.ievtName       = "RecHitMonitor_Hcal/RecHit Task Event Number";
+  pedestalMon_.ievtName     = "PedestalMonitor_Hcal/Pedestal Task Event Number";
+  ledMon_.ievtName          = "";
+  hotCellMon_.ievtName      = "HotCellMonitor_Hcal/HotCell Task Event Number";
+  deadCellMon_.ievtName     = "DeadCellMonitor_Hcal/DeadCell Task Event Number";
+  trigPrimMon_.ievtName     = "";
+  caloTowerMon_.ievtName    = "";
+
+
   // All initial status floats set to -1 (unknown)
   status_HB_=-1;
   status_HE_=-1;
@@ -134,17 +145,19 @@ void HcalSummaryClient::beginRun(void)
 void HcalSummaryClient::endJob(void)
 {
   if ( debug_>0 ) cout << "<HcalSummaryClient: endJob> ievt = " << ievt_ << endl;
-  // When the job ends, we want to make a summary before exiting
-  if (ievt_>lastupdate_)
-    analyze();
+  // When the job ends, do we want to make a summary before exiting?
+  // Or does this interfere with normalization of histograms?
+  //if (ievt_>lastupdate_)
+  //  analyze();
   this->cleanup();
 } // void HcalSummaryClient::endJob(void)
 
 void HcalSummaryClient::endRun(void) 
 {
   if ( debug_ ) cout << "<HcalSummaryClient: endRun> jevt = " << jevt_ << endl;
-  // When the run ends, we want to make a summary before exiting
-  analyze();
+  // When the run ends, do we want to make a summary before exiting?
+  // Or does this interfere with normalization of histograms?
+  //analyze();
   lastupdate_=ievt_;
   this->cleanup();
 } // void HcalSummaryClient::endRun(void) 
@@ -489,6 +502,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
   double ZDCstatus=-1; // not yet implemented
   double ALLstatus=0;
 
+
   double etamin, etamax, phimin, phimax;
   int etabins, phibins;
   int eta, phi;
@@ -505,10 +519,24 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       name.str("");
       name <<prefixME_<<"/"<<s.problemDir<<"/"<<"HB HF Depth 1 "<<s.problemName;
       me=dqmStore_->get(name.str().c_str());
+      name.str("");
       if (!me && debug_>0)  cout <<"<HcalSummaryClient::analyze_subtask> CAN'T FIND HISTOGRAM WITH NAME:  "<<name.str().c_str()<<endl;
       if (me)
 	{
 	  hist=me->getTH2F();
+	  int ievt=0; // jeff's test
+	  name.str("");
+	  name <<prefixME_<<"/"<<s.ievtName;
+	  me = dbe_->get(name.str().c_str());
+	  name.str("");
+	  if (me)
+	    {
+	      string s = me->valueString();
+	      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt);
+	      if ( debug_>0 ) cout << "Found '" << name.str().c_str() << "'" << endl;
+	    }
+	  if (ievt>0)
+	    hist->Scale(1./ievt);
 	  etabins=hist->GetNbinsX();
 	  phibins=hist->GetNbinsY();
 	  etamin=hist->GetXaxis()->GetXmin();
@@ -551,6 +579,19 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       if (me)
 	{
 	  hist=me->getTH2F();
+	  int ievt=0; // jeff's test
+	  name.str("");
+	  name <<prefixME_<<"/"<<s.ievtName;
+	  me = dbe_->get(name.str().c_str());
+	  name.str("");
+	  if (me)
+	    {
+	      string s = me->valueString();
+	      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt);
+	      if ( debug_>0 ) cout << "Found '" << name.str().c_str() << "'" << endl;
+	    }
+	  if (ievt>0)
+	    hist->Scale(1./ievt);
 	  etabins=hist->GetNbinsX();
 	  phibins=hist->GetNbinsY();
 	  etamin=hist->GetXaxis()->GetXmin();
