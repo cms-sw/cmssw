@@ -10,7 +10,7 @@ process.esRawToDigi.debugMode = True
 
 # Input source
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('file:/home/cmkuo/CMSSW/DQM/CMSSW_3_0_0_pre1/src/EventFilter/ESDigiToRaw/test/digi2raw.root')
+                            fileNames = cms.untracked.vstring('file:/home/cmkuo/CMSSW/tmp/CMSSW_3_1_0_pre4/src/EventFilter/ESDigiToRaw/test/digi2raw.root')
                             )
 
 # Output definition
