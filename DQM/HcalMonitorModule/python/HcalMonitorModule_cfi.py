@@ -153,10 +153,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            HotCellMonitor_test_energy                  = cms.untracked.bool(True),
                            HotCellMonitor_test_persistent              = cms.untracked.bool(True),
                            HotCellMonitor_checkNevents                 = cms.untracked.int32(1000),
-                           HotCellMonitor_checkNevents_pedestal        = cms.untracked.int32(1000),
-                           HotCellMonitor_checkNevents_neighbor        = cms.untracked.int32(1000),
-                           HotCellMonitor_checkNevents_energy          = cms.untracked.int32(1000),
-                           HotCellMonitor_checkNevents_persistent      = cms.untracked.int32(1000),
+                           
                            #checking for cells consistently above (ped + Nsigma*width)
                            HotCellMonitor_pedestal_Nsigma              = cms.untracked.double(3.),
                            HotCellMonitor_pedestal_HB_Nsigma           = cms.untracked.double(3.),
@@ -334,10 +331,6 @@ def setHcalTaskValues(process):
     process.DeadCellMonitor_checkNevents_energy           = checkNevents
     process.DigiMonitor_checkNevents                      = checkNevents
     process.HotCellMonitor_checkNevents                   = checkNevents
-    process.HotCellMonitor_checkNevents_persistent        = checkNevents
-    process.HotCellMonitor_checkNevents_pedestal          = checkNevents
-    process.HotCellMonitor_checkNevents_neighbor          = checkNevents
-    process.HotCellMonitor_checkNevents_energy            = checkNevents
     process.PedestalMonitor_checkNevents                  = checkNevents
     process.RecHitMonitor_checkNevents                    = checkNevents
     process.TrigPrimMonitor_checkNevents                  = checkNevents

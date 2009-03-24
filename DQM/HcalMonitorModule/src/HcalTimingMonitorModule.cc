@@ -198,15 +198,41 @@ class HcalTimingMonitorModule : public edm::EDAnalyzer {
 };
 
 HcalTimingMonitorModule::HcalTimingMonitorModule(const edm::ParameterSet& iConfig){
+string str;   
    parameters_ = iConfig;
    dbe_ = Service<DQMStore>().operator->();
-   monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","HcalTimingMonitor");
-   if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
+   // Base folder for the contents of this job
+   string subsystemname = parameters_.getUntrackedParameter<string>("subSystemFolder", "HcalTiming") ;
+   
+   monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","HcalTiming");
+   if (monitorName_ != "" ) monitorName_ =subsystemname+"/"+monitorName_+"/" ;
    counterEvt_=0;
    
+   // some curretly dummy things for compartability with GUI
+   dbe_->setCurrentFolder(subsystemname+"/EventInfo/");
+   str="reportSummary";
+   dbe_->bookFloat(str)->Fill(1);     // Good statub by default
+   str="reportSummaryMap";
+   MonitorElement* me=dbe_->book2D(str,str,5,0,5,1,0,1); // Good statub by default
+   TH2F* myhist=me->getTH2F();
+   myhist->GetXaxis()->SetBinLabel(1,"HB");
+   myhist->GetXaxis()->SetBinLabel(2,"HE");
+   myhist->GetXaxis()->SetBinLabel(3,"HO");
+   myhist->GetXaxis()->SetBinLabel(4,"HF");
+   myhist->GetYaxis()->SetBinLabel(1,"Status");
+   // Good statub by default
+   myhist->SetBinContent(1,1,1);
+   myhist->SetBinContent(2,1,1);
+   myhist->SetBinContent(3,1,1);
+   myhist->SetBinContent(4,1,1);
+   // Add ZDC at some point
+   myhist->GetXaxis()->SetBinLabel(5,"ZDC");
+   myhist->SetBinContent(5,1,-1); // no ZDC info known
+   myhist->SetOption("textcolz");
+     
    run_number=0;
    TrigCSC=TrigDT=TrigRPC=TrigGCT=0;
-   L1ADataLabel   = iConfig.getUntrackedParameter<std::string>("l1GtData" , "l1GtUnpack");
+   L1ADataLabel   = iConfig.getUntrackedParameter<std::string>("L1ADataLabel" , "l1GtUnpack");
    prescaleLS_    = parameters_.getUntrackedParameter<int>("prescaleLS",  1);
    prescaleEvt_   = parameters_.getUntrackedParameter<int>("prescaleEvt", 1);
    GCTTriggerBit1_= parameters_.getUntrackedParameter<int>("GCTTriggerBit1", -1);         
@@ -228,7 +254,6 @@ void HcalTimingMonitorModule::endJob(){}
 
 void HcalTimingMonitorModule::initialize(){
 char *str;
-  
   dbe_->setCurrentFolder(monitorName_+"DebugPlots");
   str="L1MuGMTReadoutRecord_getDTBXCands";   DTcand  =dbe_->book1D(str,str,5,-0.5,4.5);
   str="L1MuGMTReadoutRecord_getBrlRPCCands"; RPCbcand=dbe_->book1D(str,str,5,-0.5,4.5);
@@ -518,3 +543,5 @@ int TRIGGER=0;
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(HcalTimingMonitorModule);
+
+
