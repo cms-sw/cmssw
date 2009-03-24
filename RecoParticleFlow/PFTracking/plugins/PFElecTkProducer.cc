@@ -26,6 +26,7 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "TMath.h"
 using namespace std;
 using namespace edm;
