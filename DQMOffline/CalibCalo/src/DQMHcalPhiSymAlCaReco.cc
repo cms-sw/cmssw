@@ -3,8 +3,8 @@
  *
  * \author Olga Kodolova
  *        
- * $Date: 2009/03/23 15:06:15 $
- * $Revision: 1.2 $
+ * $Date: 2009/03/24 15:31:11 $
+ * $Revision: 1.3 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -61,11 +61,11 @@ eventCounter_(0)
 
   // Distribution of rechits in iPhi, iEta 
   hiDistr_y_nbin_= ps.getUntrackedParameter<int>("hiDistr_y_nbin",72);
-  hiDistr_y_min_=  ps.getUntrackedParameter<double>("hiDistr_y_min",1.);
-  hiDistr_y_max_=  ps.getUntrackedParameter<double>("hiDistr_y_max",72.);
+  hiDistr_y_min_=  ps.getUntrackedParameter<double>("hiDistr_y_min",0.5);
+  hiDistr_y_max_=  ps.getUntrackedParameter<double>("hiDistr_y_max",72.5);
   hiDistr_x_nbin_= ps.getUntrackedParameter<int>("hiDistr_x_nbin",41);
-  hiDistr_x_min_=  ps.getUntrackedParameter<double>("hiDistr_x_min",1.);
-  hiDistr_x_max_=  ps.getUntrackedParameter<double>("hiDistr_x_max",41.);
+  hiDistr_x_min_=  ps.getUntrackedParameter<double>("hiDistr_x_min",0.5);
+  hiDistr_x_max_=  ps.getUntrackedParameter<double>("hiDistr_x_max",41.5);
     
 }
 
