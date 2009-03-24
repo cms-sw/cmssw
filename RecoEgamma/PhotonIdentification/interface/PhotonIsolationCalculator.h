@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonID.h"
+
 
 #include <string>
 
@@ -21,9 +21,9 @@ public:
 
   void calculate(const reco::Photon*, 
 		 const edm::Event&, const edm::EventSetup& es,
-		 PhotonFiducialFlags& phofid, 
-		 PhotonIsolationVariables& phoisolR03, 
-		 PhotonIsolationVariables& phoisolR04 );
+		 reco::Photon::FiducialFlags& phofid, 
+		 reco::Photon::IsolationVariables& phoisolR03, 
+		 reco::Photon::IsolationVariables& phoisolR04 );
 
   void classify(const reco::Photon* photon, 
 		bool &isEBPho,
