@@ -83,6 +83,14 @@ namespace Gflash {
     {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00 }
   };
 
+  const G4double protonscale[3][4] = {
+    {  3.7385e+00,  3.3977e+00,  3.0798e-01,  3.8725e+00 },
+    {  2.4081e-01,  1.6057e-01, -6.1439e-01,  1.9368e+00 },
+    //correction of response if ssp is between Ecal and Hcal
+    {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00 }
+  };
+
+
   const G4double par[8*NPar][4] = {
     {  6.7438e-01,  1.7413e-01,  8.1317e-01,  2.6713e+00 }, //Mean Ecal ShowerType1
     {  9.5916e-01,  1.0649e+00,  1.8075e-01,  3.0428e+00 },
