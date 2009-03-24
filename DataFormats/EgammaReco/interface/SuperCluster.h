@@ -7,11 +7,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.16 2009/01/27 09:53:06 ferriff Exp $
+ * \version $Id: SuperCluster.h,v 1.17 2009/03/05 16:25:12 ferriff Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -32,6 +33,14 @@ namespace reco {
     SuperCluster( double energy, const Point& position,
                   const BasicClusterRef & seed,
                   const BasicClusterRefVector& clusters,
+		  double Epreshower=0.,
+		  double phiWidth=0., double etaWidth=0. );
+
+    // to be merged in the previous one? -- FIXME
+    SuperCluster( double energy, const Point& position,
+                  const BasicClusterRef & seed,
+                  const BasicClusterRefVector& clusters,
+                  const PreshowerClusterRefVector& preshowerClusters,
 		  double Epreshower=0.,
 		  double phiWidth=0., double etaWidth=0. );
 
@@ -59,6 +68,12 @@ namespace reco {
     /// last iterator over BasicCluster constituents
     basicCluster_iterator clustersEnd() const { return clusters_.end(); }
 
+    /// fist iterator over PreshowerCluster constituents
+    PreshowerCluster_iterator preshowerClustersBegin() const { return preshowerClusters_.begin(); }
+
+    /// last iterator over PreshowerCluster constituents
+    PreshowerCluster_iterator preshowerClustersEnd() const { return preshowerClusters_.end(); }
+
     /// number of BasicCluster constituents
     size_t clustersSize() const { return clusters_.size(); }
 
@@ -71,6 +86,9 @@ namespace reco {
     /// add reference to constituent BasicCluster
     void add( const BasicClusterRef & r ) { clusters_.push_back( r ); }
 
+    /// add reference to constituent BasicCluster
+    void add( const PreshowerClusterRef & r ) { preshowerClusters_.push_back( r ); }
+
   private:
 
     /// reference to BasicCluster seed
@@ -78,6 +96,9 @@ namespace reco {
 
     /// references to BasicCluster constitunets
     BasicClusterRefVector clusters_;
+
+    /// references to BasicCluster constitunets
+    PreshowerClusterRefVector preshowerClusters_;
 
     /// used hits by detId - retrieved from BC constituents -- now inherited from CaloCluster
     //std::vector<DetId> usedHits_;
