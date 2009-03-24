@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2008/07/06 05:17:00 $
-//   $Revision: 1.5 $
+//   $Date: 2008/10/09 11:09:22 $
+//   $Revision: 1.6 $
 //
 //   Modifications:
 //
@@ -57,8 +57,8 @@ CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer() {
   //TimingReport::current()->dump(std::cout);
 }
 
-void CSCTriggerPrimitivesProducer::beginJob(const edm::EventSetup& setup) {
-}
+//void CSCTriggerPrimitivesProducer::beginRun(const edm::EventSetup& setup) {
+//}
 
 void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
 					   const edm::EventSetup& setup) {
