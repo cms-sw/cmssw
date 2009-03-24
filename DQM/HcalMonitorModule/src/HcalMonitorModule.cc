@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/02/13 17:29:29 $
- * $Revision: 1.107 $
+ * $Date: 2009/03/24 15:26:08 $
+ * $Revision: 1.108 $
  * \author W Fisher
  * \author J Temple
  *
@@ -606,6 +606,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     }
 
   //Orbit Gap Data Quality Monitoring
+  /*Requires 
+    cvs co -r 1.1 ataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h
+    cvs co -r 1.8 EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h
+  */
   bool InconsistentCalibTypes=false;
   HcalCalibrationEventType CalibType = hc_Null;
 
