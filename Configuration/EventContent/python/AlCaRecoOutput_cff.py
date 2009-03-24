@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
-
-# last update: $Date: 2009/03/04 18:49:18 $ by $Author: futyand $
+# last update: $Date: 2009/03/19 17:04:03 $ by $Author: argiro $
+###############################################################
 # Tracker Alignment
+###############################################################
 # AlCaReco for track based alignment using ZMuMu events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_Output_cff import *
 # AlCaReco for track based alignment using Cosmic muon events
@@ -28,8 +29,9 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_Output_cff impor
 
 # AlCaReco for tracker based alignment using beam halo 
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlBeamHalo_Output_cff import *
-
+###############################################################
 # ECAL Calibration
+###############################################################
 # ECAL calibration with phi symmetry 
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPhiSym_Output_cff import *
 # ECAL calibration with isol. electrons
@@ -42,7 +44,9 @@ from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_Output_cff im
 #  include "Calibration/EcalAlCaRecoProducers/data/ALCARECOEcalCalPi0BC_Output.cff"
 # ECAL calibration with pi0 hlt path
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPi0Calib_Output_cff import *
+###############################################################
 # HCAL Calibration
+###############################################################
 # HCAL calibration with dijets
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalDijets_Output_cff import *
 # HCAL calibration with gamma + jet
@@ -56,18 +60,23 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_Output_cff import 
 #  include "Calibration/HcalAlCaRecoProducers/data/ALCARECOHcalCalZMuMu_Output.cff"
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHO_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHOCosmics_Output_cff import *
+###############################################################
+# Muon Alignment (incl. stream for calibration)
+###############################################################
 # Muon Alignment with cosmics
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlStandAloneCosmics_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlGlobalCosmics_Output_cff import *
-# Muon calibration with minbias
-from Alignment.CommonAlignmentProducer.ALCARECOMuCaliMinBias_Output_cff import *
 # Muon Alignment with isolated muons
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlCalIsolatedMu_Output_cff import *
+# Muon Alignment using ZMuMu events
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlZMuMu_Output_cff import *
 # Muon Alignment using CSC overlaps
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlOverlaps_Output_cff import *
 # Muon Alignment using beam halo
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlBeamHaloOverlaps_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlBeamHalo_Output_cff import *
+###############################################################
 # RPC calibration
+###############################################################
 from CalibMuon.RPCCalibration.ALCARECORpcCalHLT_Output_cff import *
 
