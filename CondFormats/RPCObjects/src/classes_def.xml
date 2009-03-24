@@ -82,6 +82,10 @@
   <class name="RPCObGasmap::GasMap_Item"/>
   <class name="std::vector<RPCObGasmap::GasMap_Item>"/>
 
+  <class name="RPCObAlignment"/>
+  <class name="RPCObAlignment::Alignment_Item"/>
+  <class name="std::vector<RPCObAlignment::Alignment_Item>"/>
+
   <class name="RPCTechTriggerConfig"/>
   <class name="RBCBoardSpecs"/>
   <class name="RBCBoardSpecs::RBCBoardConfig"/>
