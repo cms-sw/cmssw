@@ -12,7 +12,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/03/12 16:10:34 $ 
+ **  $Date: 2009/03/23 10:50:30 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -709,22 +709,23 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	//filling isolation variable histograms
 
 	fill2DHistoVector(h_nTrackIsolSolidVsEta_,(*iPho).eta(),(*iPho).nTrkSolidConeDR04(),cut,type);
-	fill2DHistoVector(h_trackPtSumSolidVsEta_,(*iPho).eta(),(*iPho).isolationTrkSolidConeDR04(),cut,type);
+	fill2DHistoVector(h_trackPtSumSolidVsEta_,(*iPho).eta(),(*iPho).trkSumPtSolidConeDR04(),cut,type);
 	fill2DHistoVector(h_nTrackIsolHollowVsEta_,(*iPho).eta(),(*iPho).nTrkHollowConeDR04(),cut,type);
-	fill2DHistoVector(h_trackPtSumHollowVsEta_,(*iPho).eta(), (*iPho).isolationTrkHollowConeDR04(),cut,type);
+	fill2DHistoVector(h_trackPtSumHollowVsEta_,(*iPho).eta(), (*iPho).trkSumPtHollowConeDR04(),cut,type);
 	fill2DHistoVector(h_nTrackIsolSolid_,(*iPho).nTrkSolidConeDR04(),cut,type);
-	fill2DHistoVector(h_trackPtSumSolid_,(*iPho).isolationTrkSolidConeDR04(),cut,type);
+	fill2DHistoVector(h_trackPtSumSolid_,(*iPho).trkSumPtSolidConeDR04(),cut,type);
 	fill2DHistoVector(h_nTrackIsolHollow_,(*iPho).nTrkHollowConeDR04(),cut,type);
-	fill2DHistoVector(h_trackPtSumHollow_,(*iPho).isolationTrkHollowConeDR04(),cut,type);
+	fill2DHistoVector(h_trackPtSumHollow_,(*iPho).trkSumPtSolidConeDR04(),cut,type);
     
-	fill2DHistoVector(h_ecalSumVsEta_,(*iPho).eta(), (*iPho).ecalRecHitSumConeDR04(),cut,type);
-	fill2DHistoVector(h_hcalSumVsEta_,(*iPho).eta(), (*iPho).hcalTowerSumConeDR04(),cut,type);
-	fill2DHistoVector(h_ecalSum_,(*iPho).ecalRecHitSumConeDR04(),cut,type);
-	fill2DHistoVector(h_hcalSum_,(*iPho).hcalTowerSumConeDR04(),cut,type);
+	fill2DHistoVector(h_ecalSumVsEta_,(*iPho).eta(), (*iPho).ecalRecHitSumEtConeDR04(),cut,type);
+	fill2DHistoVector(h_hcalSumVsEta_,(*iPho).eta(), (*iPho).hcalTowerSumEtConeDR04(),cut,type);
+	fill2DHistoVector(h_ecalSum_,(*iPho).ecalRecHitSumEtConeDR04(),cut,type);
+	fill2DHistoVector(h_hcalSum_,(*iPho).hcalTowerSumEtConeDR04(),cut,type);
 
 	fill3DHistoVector(h_hOverE_,(*iPho).hadronicOverEm(),cut,type,part);
 	fill3DHistoVector(h_h1OverE_,(*iPho).hadronicDepth1OverEm(),cut,type,part);
 	fill3DHistoVector(h_h2OverE_,(*iPho).hadronicDepth2OverEm(),cut,type,part);
+
 
 	//filling photon histograms
 
@@ -774,7 +775,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
  
 	//loop over conversions
 
-	std::vector<reco::ConversionRef> conversions = (*iPho).conversions();
+	reco::ConversionRefVector conversions = (*iPho).conversions();
 	for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
 
 	  reco::ConversionRef aConv=conversions[iConv];
