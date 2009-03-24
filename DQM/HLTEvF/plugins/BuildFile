@@ -22,6 +22,11 @@
   <use name="FWCore/ParameterSet">
   <use name="FWCore/PluginManager">
   <use name="FWCore/ServiceRegistry">
+  <use name=Geometry/Records>
+  <use name=Geometry/CommonDetUnit>
+  <use name=MagneticField/Records>
+  <use name=MagneticField/Engine>
+  <use name=TrackingTools/TrajectoryState>
   <use name="rootcore">
   <flags EDM_PLUGIN="1">
 </library>
