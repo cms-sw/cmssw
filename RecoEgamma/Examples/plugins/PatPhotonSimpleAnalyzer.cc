@@ -161,10 +161,10 @@ PatPhotonSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& e
       //                fill histograms                    //
       ///////////////////////////////////////////////////////
       // PhotonID Variables
-      h_isoEcalRecHit_->Fill(currentPhoton.ecalRecHitSumConeDR04());
-      h_isoHcalRecHit_->Fill(currentPhoton.hcalTowerSumConeDR04());
-      h_trk_pt_solid_ ->Fill(currentPhoton.isolationTrkSolidConeDR04());
-      h_trk_pt_hollow_->Fill(currentPhoton.isolationTrkHollowConeDR04());
+      h_isoEcalRecHit_->Fill(currentPhoton.ecalRecHitSumEtConeDR04());
+      h_isoHcalRecHit_->Fill(currentPhoton.hcalTowerSumEtConeDR04());
+      h_trk_pt_solid_ ->Fill(currentPhoton.trkSumPtSolidConeDR04());
+      h_trk_pt_hollow_->Fill(currentPhoton.trkSumPtHollowConeDR04());
       h_ntrk_solid_->   Fill(currentPhoton.nTrkSolidConeDR04());
       h_ntrk_hollow_->  Fill(currentPhoton.nTrkHollowConeDR04());
       h_ebgap_->        Fill(currentPhoton.isEBGap());
@@ -193,10 +193,10 @@ PatPhotonSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& e
       //                fill TTree (optional)              //
       ///////////////////////////////////////////////////////
       if ( createPhotonTTree_ ) {
-	recPhoton.isolationEcalRecHit    = currentPhoton.ecalRecHitSumConeDR04();
-	recPhoton.isolationHcalRecHit    = currentPhoton.hcalTowerSumConeDR04();
-	recPhoton.isolationSolidTrkCone  = currentPhoton.isolationTrkSolidConeDR04();
-	recPhoton.isolationHollowTrkCone = currentPhoton.isolationTrkHollowConeDR04();
+	recPhoton.isolationEcalRecHit    = currentPhoton.ecalRecHitSumEtConeDR04();
+	recPhoton.isolationHcalRecHit    = currentPhoton.hcalTowerSumEtConeDR04();
+	recPhoton.isolationSolidTrkCone  = currentPhoton.trkSumPtSolidConeDR04();
+	recPhoton.isolationHollowTrkCone = currentPhoton.trkSumPtHollowConeDR04();
 	recPhoton.nTrkSolidCone          = currentPhoton.nTrkSolidConeDR04();
 	recPhoton.nTrkHollowCone         = currentPhoton.nTrkHollowConeDR04();
 	recPhoton.isEBGap                = currentPhoton.isEBGap();
