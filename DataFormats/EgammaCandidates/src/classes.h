@@ -1,15 +1,16 @@
 //
-// $Id: classes.h,v 1.30 2009/01/18 22:49:08 elmer Exp $
+// $Id: classes.h,v 1.31 2009/03/20 22:59:17 chamont Exp $
 //
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "Rtypes.h"
-#include "Math/Cartesian3D.h"
-#include "Math/Polar3D.h"
-#include "Math/CylindricalEta3D.h"
-#include "Math/PxPyPzE4D.h"
-#include <boost/cstdint.hpp>
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "Rtypes.h" 
+#include "Math/Cartesian3D.h" 
+#include "Math/Polar3D.h" 
+#include "Math/CylindricalEta3D.h" 
+#include "Math/PxPyPzE4D.h" 
+#include <boost/cstdint.hpp> 
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h" 
+#include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -43,12 +44,26 @@
 
 namespace {
   struct dictionary {
+
+
+    reco::PhotonCoreCollection v0;
+    edm::Wrapper<reco::PhotonCoreCollection> w0;
+    edm::Ref<reco::PhotonCoreCollection> r0;
+    edm::RefProd<reco::PhotonCoreCollection> rp0;
+    edm::Wrapper<edm::RefVector<reco::PhotonCoreCollection> > rv0;
+    edm::RefToBase<reco::PhotonCore> rtbgpc;
+    edm::reftobase::IndirectHolder<reco::PhotonCore> ihgpc;
+    edm::RefToBaseProd<reco::PhotonCore> rtbpgpc;
+    edm::RefToBaseVector<reco::PhotonCore> rtbvgpc;
+    edm::Wrapper<edm::RefToBaseVector<reco::PhotonCore> > rtbvgpc_w;
+    edm::reftobase::BaseVectorHolder<reco::PhotonCore> *bvhgpc_p;
+
+
     reco::PhotonCollection v1;
     edm::Wrapper<reco::PhotonCollection> w1;
     edm::Ref<reco::PhotonCollection> r1;
     edm::RefProd<reco::PhotonCollection> rp1;
     edm::Wrapper<edm::RefVector<reco::PhotonCollection> > rv1;
-
     edm::RefToBase<reco::Photon> rtbp;
     edm::reftobase::IndirectHolder<reco::Photon> ihp;
     edm::RefToBaseProd<reco::Photon> rtbpp;
