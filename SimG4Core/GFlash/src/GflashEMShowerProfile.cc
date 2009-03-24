@@ -1,5 +1,5 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.13 2008/10/21 23:03:24 dwjang Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.14 2009/02/04 17:05:26 syjun Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 
@@ -89,7 +89,6 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
   G4double pathLength0 = theHelix->getPathLengthAtRhoEquals(showerStartingPosition.getRho());
   G4double pathLength = pathLength0; // this will grow along the shower development
 
-
   //--- 2.2  Fix intrinsic properties of em. showers.
 
   G4double fluctuatedTmax = std::log(logY - 0.7157);
@@ -178,7 +177,6 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
   // this needs to be deleted manually at the end of this loop.
   theGflashNavigator = new G4Navigator();
   theGflashNavigator->SetWorldVolume(G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
-
 
   // loop for longitudinal integration
   while(energy > 0.0 && stepLengthLeft > 0.0) { 
@@ -333,7 +331,7 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
       theGflashStep->GetPreStepPoint()->SetSensitiveDetector(aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector());
       G4VSensitiveDetector* aSensitive = theGflashStep->GetPreStepPoint()->GetSensitiveDetector();
       
-      if( aSensitive == 0 ) continue;
+      if( aSensitive == 0 || (std::fabs(SpotPosition.getZ()/cm) > Gflash::Zmax[Gflash::kHE]) ) continue;
       aSensitive->Hit(theGflashStep);
 
       nSpots_sd++;
