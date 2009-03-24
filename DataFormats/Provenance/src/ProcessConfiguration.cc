@@ -6,7 +6,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: ProcessConfiguration.cc,v 1.4.8.2 2008/12/18 00:17:06 wmtan Exp $
+$Id: ProcessConfiguration.cc,v 1.5 2008/12/18 05:00:32 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -27,14 +27,18 @@ namespace edm {
 
 
   ProcessConfigurationID
-  ProcessConfiguration::id() const
-  {
+  ProcessConfiguration::id() const {
+    if(pcid().isValid()) {
+      return pcid();
+    }
     // This implementation is ripe for optimization.
     std::ostringstream oss;
     oss << *this;
     std::string stringrep = oss.str();
     cms::Digest md5alg(stringrep);
-    return ProcessConfigurationID(md5alg.digest().toString());
+    ProcessConfigurationID tmp(md5alg.digest().toString());
+    pcid().swap(tmp);
+    return pcid();
   }
 
   bool operator<(ProcessConfiguration const& a, ProcessConfiguration const& b) {

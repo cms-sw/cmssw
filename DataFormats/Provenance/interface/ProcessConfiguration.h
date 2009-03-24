@@ -8,6 +8,7 @@
 #include "DataFormats/Provenance/interface/PassID.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
+#include "DataFormats/Provenance/interface/Transient.h"
 
 namespace edm {
   class ProcessConfiguration {
@@ -24,11 +25,18 @@ namespace edm {
     PassID const& passID() const {return passID_;}
     ProcessConfigurationID id() const;
 
+    struct Transients {
+      Transients() : pcid_() {}
+      ProcessConfigurationID pcid_;
+    };
+
   private:
+    ProcessConfigurationID & pcid() const {return transients_.get().pcid_;}
     std::string processName_;
     ParameterSetID parameterSetID_;
     ReleaseVersion releaseVersion_; 
     PassID passID_;
+    mutable Transient<Transients> transients_;
   };
 
   bool

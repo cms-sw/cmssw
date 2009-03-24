@@ -17,9 +17,11 @@ namespace edm {
   {}
 
   ParentageID
-  Parentage::id() const
-  {
+  Parentage::id() const {
     // This implementation is ripe for optimization.
+    if(parentageID().isValid()) {
+      return parentageID();
+    }
     std::ostringstream oss;
     for (std::vector<BranchID>::const_iterator 
 	   i = parents_.begin(),
@@ -32,9 +34,10 @@ namespace edm {
     
     std::string stringrep = oss.str();
     cms::Digest md5alg(stringrep);
-    return ParentageID(md5alg.digest().toString());
+    ParentageID tmp(md5alg.digest().toString());
+    parentageID().swap(tmp);
+    return parentageID();
   }
-
 
   void
   Parentage::write(std::ostream& os) const {

@@ -39,13 +39,28 @@ namespace edm {
 
     std::vector<BranchID> const& parents() const {return parents_;}
     std::vector<BranchID> & parents() {return parents_;}
+    void swap(Parentage& other) {parents_.swap(other.parents_); parentageID().swap(other.parentageID());}
+
+    struct Transients {
+      Transients() : parentageID_() {}
+      ParentageID parentageID_;
+    };
 
   private:
+    ParentageID& parentageID() const {return transients_.get().parentageID_;}
     // The Branch IDs of the parents
     std::vector<BranchID> parents_;
+    mutable Transient<Transients> transients_;
 
   };
-  
+
+  // Free swap function
+  inline
+  void
+  swap(Parentage& a, Parentage& b) {
+    a.swap(b);
+  }
+
   inline
   std::ostream&
   operator<<(std::ostream& os, Parentage const& p) {
@@ -58,3 +73,4 @@ namespace edm {
   inline bool operator!=(Parentage const& a, Parentage const& b) { return !(a==b); }
 }
 #endif
+
