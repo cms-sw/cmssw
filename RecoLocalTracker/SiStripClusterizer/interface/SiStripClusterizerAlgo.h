@@ -9,6 +9,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include <vector>
@@ -59,18 +60,33 @@ class SiStripClusterizerAlgo {
   void eventSetup( const edm::EventSetup& );
   
  protected:
-  
+
   /// Pure virtual method to be implemented in derived class
   virtual void clusterize( const DigisDSnew&, ClustersV& ) = 0;
   
-  /// Access to noise for algorithms
-  const SiStripNoises* const noise();
+  /// Check DetId against cached value
+  bool checkDetId( uint32_t det_id ) const;
   
-  /// Access to quality for algorithms
-  const SiStripQuality* const quality();
+  /// Cache conditions data
+  void conditions( uint32_t det_id );
+
+  /** Access to noise object for algorithms. */
+  inline const SiStripNoises* const noise() const;
+
+  /** Access to quality object for algorithms. */
+  inline const SiStripQuality* const quality() const;
+
+  /** Access to gain object for algorithms. */
+  inline const SiStripGain* const gain() const;
+
+  /// Access to noise range for algorithms
+  SiStripNoises::Range noiseRange() const;
   
-  /// Access to gain for algorithms
-  const SiStripGain* const gain();
+  /// Access to quality range for algorithms
+  SiStripQuality::Range qualityRange() const;
+  
+  /// Access to gain range for algorithms
+  SiStripApvGain::Range gainRange() const;
   
  private:
 
@@ -85,19 +101,29 @@ class SiStripClusterizerAlgo {
 
   virtual void endDet( ClustersV&, const uint32_t& id ) {;}
   
-  const SiStripNoises* noise_;
+  const SiStripNoises*  noise_;
   const SiStripQuality* quality_;
-  const SiStripGain* gain_;
-
+  const SiStripGain*    gain_;
+  
   uint32_t nCacheId_;
   uint32_t qCacheId_;
   uint32_t gCacheId_;
-
+  
+  SiStripNoises::Range  noiseRange_;
+  SiStripQuality::Range qualityRange_;
+  SiStripApvGain::Range gainRange_;
+  
+  uint32_t detId_;
+  
 };
 
-inline const SiStripNoises* const SiStripClusterizerAlgo::noise() { return noise_; }
-inline const SiStripQuality* const SiStripClusterizerAlgo::quality() { return quality_; }
-inline const SiStripGain* const SiStripClusterizerAlgo::gain() { return gain_; }
+inline bool SiStripClusterizerAlgo::checkDetId( uint32_t det_id ) const { return ( det_id == detId_ ); }
+const SiStripNoises* const SiStripClusterizerAlgo::noise() const { return noise_; }
+const SiStripQuality* const SiStripClusterizerAlgo::quality() const { return quality_; }
+const SiStripGain* const SiStripClusterizerAlgo::gain() const { return gain_; }
+inline SiStripNoises::Range SiStripClusterizerAlgo::noiseRange() const { return noiseRange_; }
+inline SiStripQuality::Range SiStripClusterizerAlgo::qualityRange() const { return qualityRange_; }
+inline SiStripApvGain::Range SiStripClusterizerAlgo::gainRange() const { return gainRange_; }
 
 #endif // RecoLocalTracker_SiStripClusterizer_SiStripClusterizerAlgo_H
 

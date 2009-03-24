@@ -39,12 +39,14 @@ void SiStripThreeThresholdAlgo::add( ClustersV& data,
 				     const uint16_t& istrip, 
 				     const uint16_t& adc ) 
 {
-  bool disable = quality()->IsStripBad(quality()->getRange(id),istrip);
-  float stripnoise = noise()->getNoise(istrip,noise()->getRange(id));
-  float stripgain = gain()->getStripGain(istrip,gain()->getRange(id));
-  bool thresh = threshold(adc,stripnoise,disable);
-  bool prox = proximity(istrip);
 
+  conditions( id );
+  bool disable = quality()->IsStripBad( qualityRange(),istrip );
+  float stripnoise = noise()->getNoise( istrip, noiseRange() );
+  float stripgain = gain()->getStripGain( istrip, gainRange() );
+  bool thresh = threshold( adc, stripnoise, disable );
+  bool prox = proximity( istrip );
+  
   //if strip dead and non zero, continue.
   if (disable) {digis_.push_back(istrip);} 
   //if strip above threshold (and not dead) and within range of cluster, add strip.
@@ -58,9 +60,10 @@ void SiStripThreeThresholdAlgo::add( ClustersV& data,
 
 }
 
-void SiStripThreeThresholdAlgo::endDet( ClustersV& data, const uint32_t& id) 
+void SiStripThreeThresholdAlgo::endDet( ClustersV& data, const uint32_t& id ) 
 {
-  endCluster(data,id); digis_.clear();
+  if ( checkDetId( id ) ) { endCluster(data,id); }
+  digis_.clear();
 }
 
 bool SiStripThreeThresholdAlgo::proximity(const uint16_t& istrip) const 

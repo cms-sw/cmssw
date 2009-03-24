@@ -12,7 +12,14 @@ SiStripClusterizerAlgo::SiStripClusterizerAlgo( const edm::ParameterSet& pset) :
   gain_(0),
   nCacheId_(0),
   qCacheId_(0),
-  gCacheId_(0)
+  gCacheId_(0),
+  noiseRange_( SiStripNoises::Range( SiStripNoises::ContainerIterator(0),
+				     SiStripNoises::ContainerIterator(0) ) ),
+  qualityRange_( SiStripQuality::Range( SiStripQuality::ContainerIterator(0),
+					SiStripQuality::ContainerIterator(0) ) ),
+  gainRange_( SiStripApvGain::Range( SiStripApvGain::ContainerIterator(0),
+				     SiStripApvGain::ContainerIterator(0) ) ),
+  detId_(0)
 {;}
 
 // -----------------------------------------------------------------------------
@@ -87,6 +94,32 @@ void SiStripClusterizerAlgo::eventSetup( const edm::EventSetup& setup ) {
     setup.get<SiStripGainRcd>().get(g);
     gain_ = g.product();
     gCacheId_ = g_cache_id;
+  }
+  
+}
+
+// -----------------------------------------------------------------------------
+// 
+void SiStripClusterizerAlgo::conditions( uint32_t det_id ) { 
+  
+  if ( checkDetId( det_id ) ) { return; }
+  detId_ = det_id;
+  
+  // all horrible! need to add "invalid range" to condition objects
+  
+  if ( noise_ ) { noiseRange_ = noise_->getRange(detId_); }
+  else { noiseRange_ = SiStripNoises::Range( SiStripNoises::ContainerIterator(0),
+					     SiStripNoises::ContainerIterator(0) );
+  }
+
+  if ( quality_ ) { qualityRange_ = quality_->getRange(detId_); }
+  else { qualityRange_ = SiStripQuality::Range( SiStripQuality::ContainerIterator(0),
+						SiStripQuality::ContainerIterator(0) );
+  }
+  
+  if ( gain_ ) { gainRange_ = gain_->getRange(detId_); }
+  else { gainRange_ = SiStripApvGain::Range( SiStripApvGain::ContainerIterator(0),
+					     SiStripApvGain::ContainerIterator(0) );
   }
   
 }
