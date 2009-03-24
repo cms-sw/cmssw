@@ -123,9 +123,7 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
    
    fConvertToPDG = false;
    if ( ps.exists( "doPDGConvert" ) )
-   {
       fConvertToPDG = ps.getParameter<bool>("doPDGConvert");
-   }
    
    if ( ps.exists("jetMatching") )
    {
@@ -210,23 +208,11 @@ void Pythia6Hadronizer::finalizeEvent()
    //
    if ( fImposeProperTime || pydat1.mstj[21]==3 || pydat1.mstj[21]==4 ) imposeProperTime();
 
-   // final touch - convert Py6->PDG, if requested
-   //
-   if ( fConvertToPDG )
-   {
-      // do conversion here
-/* this comes from example by Todd Adams, see talk at the Gen meeting on 03/16/09
-
-      for ( HepMC::GenEvent::particle_iterator part = event()->particles_begin();
-         part != event()->particles_end(); ++part) {
-         if ((*part)->pdg_id() != HepPID::translatePythiatoPDT((*part)->pdg_id())) {
-           std::cout << " found a change orig=" << (*part)->pdg_id() << " new="
-                     << HepPID::translatePythiatoPDT((*part)->pdg_id()) << std::endl;
-         }
+   // convert particle IDs Py6->PDG, if requested
+   if ( fConvertToPDG ) {
+      for ( HepMC::GenEvent::particle_iterator part = event()->particles_begin(); part != event()->particles_end(); ++part) {
          (*part)->set_pdg_id(HepPID::translatePythiatoPDT((*part)->pdg_id()));
       }
-
-*/
    }
    
    // service printouts, if requested
