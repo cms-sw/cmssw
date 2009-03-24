@@ -60,7 +60,6 @@ namespace edm
     //Get header/init from Producer
     InitMsgView const* header = pr_->getHeader();
     deserializeAndMergeWithRegistry(*header); 
-    saveTriggerNames(header);
   }
 
   template <typename Producer>
@@ -74,7 +73,6 @@ namespace edm
         //Get header/init from Producer
         InitMsgView const* header = pr_->getHeader();
         deserializeAndMergeWithRegistry(*header, true);
-        saveTriggerNames(header);
     } 
     if (eview == 0) {
         return  std::auto_ptr<EventPrincipal>();

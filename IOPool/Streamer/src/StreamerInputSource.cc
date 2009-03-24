@@ -128,15 +128,6 @@ namespace edm {
     }
   }
 
-  void
-  StreamerInputSource::saveTriggerNames(InitMsgView const* header) {
-    ParameterSet trigger_pset;
-    std::vector<std::string> paths;
-    header->hltTriggerNames(paths);
-    trigger_pset.addParameter<Strings>("@trigger_paths", paths);
-    trigger_pset.registerIt();
-  }
-
   boost::shared_ptr<RunPrincipal>
   StreamerInputSource::readRun_() {
     assert(newRun_);

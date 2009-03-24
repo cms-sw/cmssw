@@ -63,7 +63,6 @@ namespace edm {
   protected:
     static void declareStreamers(SendDescs const& descs);
     static void buildClassCache(SendDescs const& descs);
-    void saveTriggerNames(InitMsgView const* header);
     void setEndRun() {runEndingFlag_ = true;}
     void resetAfterEndRun();
 
