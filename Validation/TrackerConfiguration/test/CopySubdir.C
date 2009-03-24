@@ -55,6 +55,20 @@ void CopySubdir(const char * oldfile, const char * newfile){
   CopyDir(dirsimhit);
   CopyDir(dirrechits);
   CopyDir(dirdigis);
-  CopyDir(dirTP);  
-  
+  CopyDir(dirTP);
+  TList* new_list = oldf->GetListOfKeys() ;
+  newf->cd();
+  TIter     newkey_iter( new_list) ;
+  TKey*     new_key ;
+  TObject*  new_obj ;
+  while ( new_key = (TKey*) newkey_iter() ) {
+    new_obj = new_key->ReadObj() ;
+    if (strcmp(new_obj->IsA()->GetName(),"TObjString")==0) {
+      TObjString * cversion = (TObjString*) new_obj;
+      if(cversion->GetString().Contains("CMSSW")){
+	cversion->Write();
+	break;
+      }
+    }
+  }
 }

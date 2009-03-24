@@ -1,6 +1,6 @@
 #! /bin/csh
 
-set RefRelease="CMSSW_3_1_0_pre2"
+set RefRelease="CMSSW_3_1_0_pre3"
 
 # Possible values are:
 # Reconstruction  : preforms reconstruction+validation + histograms comparison
