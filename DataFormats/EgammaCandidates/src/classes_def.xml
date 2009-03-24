@@ -1,9 +1,27 @@
 <lcgdict>
+  <class name="reco::PhotonCore"/>
   <class name="reco::Photon"/>
   <class name="reco::Conversion"/>
   <class name="reco::Electron"/>
   <class name="reco::SiStripElectron"/>
 
+  <class name="reco::Photon::FiducialFlags"/>
+  <class name="reco::Photon::ShowerShape"/>
+  <class name="reco::Photon::IsolationVariables"/>
+ 
+  <class name="std::vector<reco::PhotonCore>"/>  
+  <class name="edm::RefToBase<reco::PhotonCore>" />
+  <class name="edm::reftobase::IndirectHolder<reco::PhotonCore>" />
+  <class name="edm::RefToBaseProd<reco::PhotonCore>" />
+  <class name="edm::RefToBaseVector<reco::PhotonCore>" />
+  <class name="edm::Wrapper<edm::RefToBaseVector<reco::PhotonCore> >" />
+  <class name="edm::reftobase::BaseVectorHolder<reco::PhotonCore>" />
+  <class name="edm::Wrapper<std::vector<reco::PhotonCore> >"/>
+  <class name="edm::Ref<std::vector<reco::PhotonCore>,reco::PhotonCore,edm::refhelper::FindUsingAdvance<std::vector<reco::PhotonCore>,reco::PhotonCore> >"/>
+  <class name="edm::RefProd<std::vector<reco::PhotonCore> >"/>
+  <class name="edm::RefVector<std::vector<reco::PhotonCore>,reco::PhotonCore,edm::refhelper::FindUsingAdvance<std::vector<reco::PhotonCore>,reco::PhotonCore> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PhotonCore>,reco::PhotonCore,edm::refhelper::FindUsingAdvance<std::vector<reco::PhotonCore>,reco::PhotonCore> > >"/>
+  
 
 
   <class name="std::vector<reco::Photon>"/>
@@ -12,7 +30,6 @@
   <class name="edm::RefProd<std::vector<reco::Photon> >"/>
   <class name="edm::RefVector<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > >"/>
-
   <class name="edm::RefToBase<reco::Photon>" />
   <class name="edm::reftobase::IndirectHolder<reco::Photon>" />
   <class name="edm::RefToBaseProd<reco::Photon>" />
@@ -30,7 +47,7 @@
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Electron>,reco::Electron,edm::refhelper::FindUsingAdvance<std::vector<reco::Electron>,reco::Electron> > >"/>
 
 
-  <class name="edm::RefToBase<reco::Electron>" />
+ <class name="edm::RefToBase<reco::Electron>" />
 <class name="edm::reftobase::IndirectHolder<reco::Electron>" />
 <class name="edm::RefToBaseProd<reco::Electron>" />
 <class name="edm::RefToBaseVector<reco::Electron>" />
@@ -76,17 +93,15 @@
 
 
 
-
-
   <class name="std::vector<reco::Conversion>"/>
   <class name="edm::Wrapper<std::vector<reco::Conversion> >"/>
   <class name="edm::Ref<std::vector<reco::Conversion>,reco::Conversion,edm::refhelper::FindUsingAdvance<std::vector<reco::Conversion>,reco::Conversion> >"/>
   <class name="edm::RefProd<std::vector<reco::Conversion> >"/>
   <class name="edm::RefVector<std::vector<reco::Conversion>,reco::Conversion,edm::refhelper::FindUsingAdvance<std::vector<reco::Conversion>,reco::Conversion> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Conversion>,reco::Conversion,edm::refhelper::FindUsingAdvance<std::vector<reco::Conversion>,reco::Conversion> > >"/>
-  <class name="std::vector<edm::Ref<std::vector<reco::Conversion>,reco::Conversion,edm::refhelper::FindUsingAdvance<std::vector<reco::Conversion>,reco::Conversion> > >"/>
+ 
   
-  
+ 
   
 
 
