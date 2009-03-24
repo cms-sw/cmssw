@@ -36,8 +36,8 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
     hCPU(0), hDigi(0), theTimer(0)
 {
 
-  includeErrors = config_.getUntrackedParameter<bool>("IncludeErrors",false);
-  checkOrder = config_.getUntrackedParameter<bool>("CheckPixelOrder",false);
+  includeErrors = config_.getParameter<bool>("IncludeErrors");
+  checkOrder = config_.getParameter<bool>("CheckPixelOrder");
   useCablingTree_ = config_.getUntrackedParameter<bool>("UseCablingTree",true);
 
   // Products
@@ -95,7 +95,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   }
 
   edm::Handle<FEDRawDataCollection> buffers;
-  static edm::InputTag label = config_.getUntrackedParameter<edm::InputTag>("InputLabel",edm::InputTag("source"));
+  static edm::InputTag label = config_.getParameter<edm::InputTag>("InputLabel");
   ev.getByLabel( label, buffers);
 
 // create product (digis & errors)

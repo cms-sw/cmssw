@@ -54,7 +54,7 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
 
   edm::Handle< edm::DetSetVector<PixelDigi> > digiCollection;
   //static string label = config_.getUntrackedParameter<string>("InputLabel","source");
-  static edm::InputTag label = config_.getUntrackedParameter<edm::InputTag>("InputLabel",edm::InputTag("source"));
+  static edm::InputTag label = config_.getParameter<edm::InputTag>("InputLabel");
   ev.getByLabel( label, digiCollection);
 
   PixelDataFormatter::Digis digis;
@@ -98,6 +98,7 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
   }
   allWordCounter += formatter.nWords();
   if (debug) LogDebug("SiPixelDigiToRaw") 
+
         << "Words/Digis this ev: "<<digiCounter<<"(fm:"<<formatter.nDigis()<<")/"
         <<formatter.nWords()
         <<"  all: "<< allDigiCounter <<"/"<<allWordCounter;
