@@ -18,14 +18,12 @@ GsfElectron::GsfElectron
    const TrackClusterMatching & tcm, const TrackExtrapolations & te,
    const ClosestCtfTrack & ctfInfo,
    const FiducialFlags & ff, const ShowerShape & ss, float fbrem,
-   const IsolationVariables & dr03, const IsolationVariables & dr04,
    float mva
  )
  : core_(core),
    trackClusterMatching_(tcm), trackExtrapolations_(te),
    closestCtfTrack_(ctfInfo),
    fiducialFlags_(ff), showerShape_(ss),
-   dr03_(dr03), dr04_(dr04),
    mva_(mva),
    fbrem_(fbrem), class_(UNKNOWN)
  {

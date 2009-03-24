@@ -30,13 +30,16 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.21 2009/03/20 22:59:16 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.22 2009/03/24 17:26:27 charlot Exp $
  *
  ****************************************************************************/
 
 //*****************************************************************************
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.22  2009/03/24 17:26:27  charlot
+// updated provenance and added comments in headers
+//
 // Revision 1.21  2009/03/20 22:59:16  chamont
 // new class GsfElectronCore and new interface for GsfElectron
 //
@@ -54,23 +57,21 @@ class GsfElectron : public RecoCandidate
 
   public :
 
-	// some nested structures defined later on
-	struct TrackClusterMatching ;
-	struct TrackExtrapolations ;
-	struct ClosestCtfTrack ;
-	struct FiducialFlags ;
-	struct ShowerShape ;
-	struct IsolationVariables ;
+    // some nested structures defined later on
+    struct TrackClusterMatching ;
+    struct TrackExtrapolations ;
+    struct ClosestCtfTrack ;
+    struct FiducialFlags ;
+    struct ShowerShape ;
+    struct IsolationVariables ;
 
     GsfElectron() ;
     GsfElectron
      (
-	  const LorentzVector & p4, const GsfElectronCoreRef &,
-	  const TrackClusterMatching &, const TrackExtrapolations &, const ClosestCtfTrack &,
-	  const FiducialFlags &, const ShowerShape &, float fbrem,
-	  const IsolationVariables & dr03, const IsolationVariables & dr04,
-	  float mva
-	 ) ;
+      const LorentzVector & p4, const GsfElectronCoreRef &,
+      const TrackClusterMatching &, const TrackExtrapolations &, const ClosestCtfTrack &,
+      const FiducialFlags &, const ShowerShape &, float fbrem, float mva
+     ) ;
     GsfElectron * clone() const ;
     virtual ~GsfElectron() {} ;
 
@@ -84,7 +85,7 @@ class GsfElectron : public RecoCandidate
 
   public:
 
-	bool isElectron() const { return true ; }
+    bool isElectron() const { return true ; }
 
   protected :
 
@@ -103,17 +104,17 @@ class GsfElectron : public RecoCandidate
     // accessors
     GsfElectronCoreRef core() const { return core_ ; }
 
-	// forward core methods
+    // forward core methods
     SuperClusterRef superCluster() const { return core_->superCluster() ; }
     GsfTrackRef gsfTrack() const { return core_->gsfTrack() ; }
     SuperClusterRef pflowSuperCluster() const { return core_->pflowSuperCluster() ; }
-	bool isEcalDriven() const { return core_->isEcalDriven() ; }
-	bool isTrackerDriven() const { return core_->isTrackerDriven() ; }
+    bool isEcalDriven() const { return core_->isEcalDriven() ; }
+    bool isTrackerDriven() const { return core_->isTrackerDriven() ; }
 
   private:
 
-	// attributes
-	GsfElectronCoreRef core_ ;
+    // attributes
+    GsfElectronCoreRef core_ ;
 
 
   //=======================================================
@@ -123,7 +124,7 @@ class GsfElectron : public RecoCandidate
   public:
 
     struct TrackClusterMatching
-	 {
+     {
       BasicClusterRef electronCluster ; // basic cluster best matching gsf track
       float eSuperClusterOverP ;        // the supercluster energy / track momentum at the PCA to the beam spot
       float eSeedClusterOverP ;         // the seed cluster energy / track momentum at the PCA to the beam spot
@@ -135,7 +136,7 @@ class GsfElectron : public RecoCandidate
       float deltaPhiEleClusterAtCalo ;  // the supercluster phi - track phi position at calo extrapolated from the innermost track state
       float deltaPhiSuperClusterAtVtx ; // the seed cluster phi - track phi position at calo extrapolated from the outermost track state
       float deltaPhiSeedClusterAtCalo ; // the electron cluster phi - track phi position at calo extrapolated from the outermost track state
-	 } ;
+     } ;
 
     // accessors
     BasicClusterRef electronCluster() const { return trackClusterMatching_.electronCluster ; }
@@ -150,14 +151,14 @@ class GsfElectron : public RecoCandidate
     float deltaPhiSeedClusterTrackAtCalo() const { return trackClusterMatching_.deltaPhiSeedClusterAtCalo ; }
     float deltaPhiEleClusterTrackAtCalo() const { return trackClusterMatching_.deltaPhiEleClusterAtCalo ; }
 
-	// for backward compatibility
+    // for backward compatibility
     void setDeltaEtaSuperClusterAtVtx( float de ) { trackClusterMatching_.deltaEtaSuperClusterAtVtx = de ; }
     void setDeltaPhiSuperClusterAtVtx( float dphi ) { trackClusterMatching_.deltaPhiSuperClusterAtVtx = dphi ; }
 
 
   private:
 
-	// attributes
+    // attributes
     TrackClusterMatching trackClusterMatching_ ;
 
 
@@ -169,12 +170,12 @@ class GsfElectron : public RecoCandidate
 
     struct TrackExtrapolations
      {
-	  math::XYZPoint  positionAtVtx ;     // the track PCA to the beam spot
-	  math::XYZPoint  positionAtCalo ;    // the track PCA to the supercluster position
-	  math::XYZVector momentumAtVtx ;     // the track momentum at the PCA to the beam spot
-	  math::XYZVector momentumAtCalo ;    // the track momentum extrapolated at the supercluster position from the innermost track state
-	  math::XYZVector momentumOut ;       // the track momentum extrapolated at the seed cluster position from the outermost track state
-	  math::XYZVector momentumAtEleClus ; // the track momentum extrapolated at the ele cluster position from the outermost track state
+      math::XYZPoint  positionAtVtx ;     // the track PCA to the beam spot
+      math::XYZPoint  positionAtCalo ;    // the track PCA to the supercluster position
+      math::XYZVector momentumAtVtx ;     // the track momentum at the PCA to the beam spot
+      math::XYZVector momentumAtCalo ;    // the track momentum extrapolated at the supercluster position from the innermost track state
+      math::XYZVector momentumOut ;       // the track momentum extrapolated at the seed cluster position from the outermost track state
+      math::XYZVector momentumAtEleClus ; // the track momentum extrapolated at the ele cluster position from the outermost track state
      } ;
 
     // accessors
@@ -185,7 +186,7 @@ class GsfElectron : public RecoCandidate
     math::XYZVector trackMomentumOut() const { return trackExtrapolations_.momentumOut ; }
     math::XYZVector trackMomentumAtEleClus() const { return trackExtrapolations_.momentumAtEleClus ; }
 
-	// for backward compatibility
+    // for backward compatibility
     math::XYZPoint TrackPositionAtVtx() const { return trackPositionAtVtx() ; }
     math::XYZPoint TrackPositionAtCalo() const { return trackPositionAtCalo() ; }
 
@@ -208,7 +209,6 @@ class GsfElectron : public RecoCandidate
     basicCluster_iterator basicClustersEnd() const { return superCluster()->clustersEnd() ; }
 
     // for backward compatibility
-    int numberOfClusters() const { return basicClustersSize() ; }
     math::XYZPoint caloPosition() const { return superCluster()->position() ; }
 
 
@@ -237,7 +237,7 @@ class GsfElectron : public RecoCandidate
 
   private:
 
-  	// attributes
+    // attributes
     ClosestCtfTrack closestCtfTrack_ ;
     GsfTrackRefVector ambiguousGsfTracks_ ; // ambiguous gsf tracks
 
@@ -250,14 +250,14 @@ class GsfElectron : public RecoCandidate
 
     struct FiducialFlags
      {
-	  bool isEB ;        // true if particle is in ECAL Barrel
-	  bool isEE ;        // true if particle is in ECAL Endcaps
-  	  bool isEBEEGap ;   // true if particle is in the crack between EB and EE
-	  bool isEBEtaGap ;  // true if particle is in EB, and inside the eta gaps between modules
-	  bool isEBPhiGap ;  // true if particle is in EB, and inside the phi gaps between modules
-          bool isEEDeeGap ;  // true if particle is in EE, and inside the gaps between dees
-	  bool isEERingGap ; // true if particle is in EE, and inside the gaps between rings
-	  FiducialFlags()
+      bool isEB ;        // true if particle is in ECAL Barrel
+      bool isEE ;        // true if particle is in ECAL Endcaps
+      bool isEBEEGap ;   // true if particle is in the crack between EB and EE
+      bool isEBEtaGap ;  // true if particle is in EB, and inside the eta gaps between modules
+      bool isEBPhiGap ;  // true if particle is in EB, and inside the phi gaps between modules
+      bool isEEDeeGap ;  // true if particle is in EE, and inside the gaps between dees
+      bool isEERingGap ; // true if particle is in EE, and inside the gaps between rings
+      FiducialFlags()
        : isEB(false), isEE(false), isEBEEGap(false),
          isEBEtaGap(false), isEBPhiGap(false),
 	     isEEDeeGap(false), isEERingGap(false)
@@ -279,7 +279,7 @@ class GsfElectron : public RecoCandidate
 
   private:
 
-	// attributes
+    // attributes
     FiducialFlags fiducialFlags_ ;
 
 
@@ -289,48 +289,48 @@ class GsfElectron : public RecoCandidate
 
   public :
 
-	struct ShowerShape
-	 {
-	  float sigmaEtaEta ;        // weighted cluster rms along eta and inside 5x5 (absolute eta)
-	  float sigmaIetaIeta ;      // weighted cluster rms along eta and inside 5x5 (new, Xtal eta)
-	  float e1x5 ;               // energy inside 1x5 in etaxphi around the seed Xtal
-	  float e2x5Max ;            // energy inside 2x5 in etaxphi around the seed Xtal (max bwt the 2 possible sums)
-	  float e5x5 ;               // energy inside 5x5 in etaxphi around the seed Xtal
-	  float hcalDepth1OverEcal ; // hcal over ecal seed cluster energy using first hcal depth (hcal is energy of towers within dR=015)
-	  float hcalDepth2OverEcal ; // hcal over ecal seed cluster energy using 2nd hcal depth (hcal is energy of towers within dR=015)
-	  ShowerShape()
-	   : sigmaEtaEta(std::numeric_limits<float>::infinity()),
-		 sigmaIetaIeta(std::numeric_limits<float>::infinity()),
-		 e1x5(0.), e2x5Max(0.), e5x5(0.),
-		 hcalDepth1OverEcal(0), hcalDepth2OverEcal(0)
-	   {}
-	 } ;
+    struct ShowerShape
+     {
+      float sigmaEtaEta ;        // weighted cluster rms along eta and inside 5x5 (absolute eta)
+      float sigmaIetaIeta ;      // weighted cluster rms along eta and inside 5x5 (new, Xtal eta)
+      float e1x5 ;               // energy inside 1x5 in etaxphi around the seed Xtal
+      float e2x5Max ;            // energy inside 2x5 in etaxphi around the seed Xtal (max bwt the 2 possible sums)
+      float e5x5 ;               // energy inside 5x5 in etaxphi around the seed Xtal
+      float hcalDepth1OverEcal ; // hcal over ecal seed cluster energy using first hcal depth (hcal is energy of towers within dR=015)
+      float hcalDepth2OverEcal ; // hcal over ecal seed cluster energy using 2nd hcal depth (hcal is energy of towers within dR=015)
+      ShowerShape()
+       : sigmaEtaEta(std::numeric_limits<float>::infinity()),
+	     sigmaIetaIeta(std::numeric_limits<float>::infinity()),
+	     e1x5(0.), e2x5Max(0.), e5x5(0.),
+	     hcalDepth1OverEcal(0), hcalDepth2OverEcal(0)
+       {}
+     } ;
 
-	// accessors
-	float sigmaEtaEta() const { return showerShape_.sigmaEtaEta ; }
-	float sigmaIetaIeta() const { return showerShape_.sigmaIetaIeta ; }
-	float e1x5() const { return showerShape_.e1x5 ; }
-	float e2x5Max() const { return showerShape_.e2x5Max ; }
-	float e5x5() const { return showerShape_.e5x5 ; }
-	float hcalDepth1OverEcal() const { return showerShape_.hcalDepth1OverEcal ; }
-	float hcalDepth2OverEcal() const { return showerShape_.hcalDepth2OverEcal ; }
-	float hcalOverEcal() const { return hcalDepth1OverEcal() + hcalDepth2OverEcal() ; }
+    // accessors
+    float sigmaEtaEta() const { return showerShape_.sigmaEtaEta ; }
+    float sigmaIetaIeta() const { return showerShape_.sigmaIetaIeta ; }
+    float e1x5() const { return showerShape_.e1x5 ; }
+    float e2x5Max() const { return showerShape_.e2x5Max ; }
+    float e5x5() const { return showerShape_.e5x5 ; }
+    float hcalDepth1OverEcal() const { return showerShape_.hcalDepth1OverEcal ; }
+    float hcalDepth2OverEcal() const { return showerShape_.hcalDepth2OverEcal ; }
+    float hcalOverEcal() const { return hcalDepth1OverEcal() + hcalDepth2OverEcal() ; }
 
-	// for backward compatibility
-	float scSigmaEtaEta() const { return sigmaEtaEta() ; }
-	float scSigmaIEtaIEta() const { return sigmaIetaIeta() ; }
-	float scE1x5() const { return e1x5() ; }
-	float scE2x5Max() const { return e2x5Max() ; }
-	float scE5x5() const { return e5x5() ; }
-	float hadronicOverEm() const {return hcalOverEcal();}
-	float hadronicOverEm1() const {return hcalDepth1OverEcal();}
-	float hadronicOverEm2() const {return hcalDepth2OverEcal();}
+    // for backward compatibility
+    float scSigmaEtaEta() const { return sigmaEtaEta() ; }
+    float scSigmaIEtaIEta() const { return sigmaIetaIeta() ; }
+    float scE1x5() const { return e1x5() ; }
+    float scE2x5Max() const { return e2x5Max() ; }
+    float scE5x5() const { return e5x5() ; }
+    float hadronicOverEm() const {return hcalOverEcal();}
+    float hadronicOverEm1() const {return hcalDepth1OverEcal();}
+    float hadronicOverEm2() const {return hcalDepth2OverEcal();}
 
 
   private:
 
-	// attributes
-	ShowerShape showerShape_ ;
+    // attributes
+    ShowerShape showerShape_ ;
 
 
   //=======================================================
@@ -340,7 +340,7 @@ class GsfElectron : public RecoCandidate
   public :
 
     struct IsolationVariables
-	 {
+     {
       float tkSumPt ;                // track iso deposit with electron footprint removed
       float ecalRecHitSumEt ;        // ecal iso deposit with electron footprint removed
       float hcalDepth1TowerSumEt ;   // hcal depht 1 iso deposit with electron footprint removed
@@ -348,25 +348,28 @@ class GsfElectron : public RecoCandidate
       IsolationVariables()
        : tkSumPt(0.), ecalRecHitSumEt(0.), hcalDepth1TowerSumEt(0.), hcalDepth2TowerSumEt(0.)
        {}
-	 } ;
+     } ;
 
-	// 03 accessors
+    // 03 accessors
     float dr03TkSumPt() const { return dr03_.tkSumPt ; }
     float dr03EcalRecHitSumEt() const { return dr03_.ecalRecHitSumEt ; }
     float dr03HcalDepth1TowerSumEt() const { return dr03_.hcalDepth1TowerSumEt ; }
     float dr03HcalDepth2TowerSumEt() const { return dr03_.hcalDepth2TowerSumEt ; }
     float dr03HcalTowerSumEt() const { return dr03HcalDepth1TowerSumEt()+dr03HcalDepth2TowerSumEt() ; }
 
-	// 04 accessors
+    // 04 accessors
     float dr04TkSumPt() const { return dr04_.tkSumPt ; }
     float dr04EcalRecHitSumEt() const { return dr04_.ecalRecHitSumEt ; }
     float dr04HcalDepth1TowerSumEt() const { return dr04_.hcalDepth1TowerSumEt ; }
     float dr04HcalDepth2TowerSumEt() const { return dr04_.hcalDepth2TowerSumEt ; }
     float dr04HcalTowerSumEt() const { return dr04HcalDepth1TowerSumEt()+dr04HcalDepth2TowerSumEt() ; }
 
+    void setIsolation03(struct IsolationVariables dr03) { dr03_=dr03; }
+    void setIsolation04(struct IsolationVariables dr04) { dr04_=dr04; }
+
   private:
 
-	// attributes
+    // attributes
     IsolationVariables dr03_ ;
     IsolationVariables dr04_ ;
 
@@ -394,21 +397,21 @@ class GsfElectron : public RecoCandidate
 
   public :
 
-	enum Classification { UNKNOWN =-1, GOLDEN, BIGBREM, NARROW, SHOWERING, GAP } ;
+    enum Classification { UNKNOWN =-1, GOLDEN, BIGBREM, NARROW, SHOWERING, GAP } ;
 
-	// accessors
-	float fbrem() const { return fbrem_ ; }
-	int numberOfBrems() const { return basicClustersSize()-1 ; }
-	Classification classification() const { return class_ ; }
+    // accessors
+    float fbrem() const { return fbrem_ ; }
+    int numberOfBrems() const { return basicClustersSize()-1 ; }
+    Classification classification() const { return class_ ; }
 
-	// setters
-	void classifyElectron( Classification myclass ) { class_ = myclass ; }
+    // setters
+    void classifyElectron( Classification myclass ) { class_ = myclass ; }
 
   private:
 
-	// attributes
-	float fbrem_ ; // the brem fraction from gsf fit: (track momentum in - track momentum out) / track momentum in
-	Classification class_ ; // fbrem and number of clusters based electron classification 
+    // attributes
+    float fbrem_ ; // the brem fraction from gsf fit: (track momentum in - track momentum out) / track momentum in
+    Classification class_ ; // fbrem and number of clusters based electron classification 
 
 
   //=======================================================
@@ -435,18 +438,18 @@ class GsfElectron : public RecoCandidate
   public :
 
     struct Corrections
-  	 {
-          bool isEcalEnergyCorrected ;  // true if ecal energy has been corrected 
-          float ecalEnergy ;            // ecal corrected energy (if !isEcalEnergyCorrected this value is identical to the supercluster energy)
-  	  float ecalEnergyError ;       // error on correctedCaloEnergy
-          bool isMomentumCorrected ;    // true if E-p combination has been applied (if not the electron momentum is the ecal corrected energy)
-  	  float trackMomentumError ;    // track momentum error from gsf fit 
-  	  float electronMomentumError ; // the final electron momentum error  
-  	  Corrections()
-  	   : isEcalEnergyCorrected(false), ecalEnergy(0.), ecalEnergyError(999.),
-  	     isMomentumCorrected(false), trackMomentumError(999.), electronMomentumError(999.)
-  	   {}
-  	 } ;
+     {
+      bool isEcalEnergyCorrected ;  // true if ecal energy has been corrected 
+      float ecalEnergy ;            // ecal corrected energy (if !isEcalEnergyCorrected this value is identical to the supercluster energy)
+      float ecalEnergyError ;       // error on correctedCaloEnergy
+      bool isMomentumCorrected ;    // true if E-p combination has been applied (if not the electron momentum is the ecal corrected energy)
+      float trackMomentumError ;    // track momentum error from gsf fit 
+      float electronMomentumError ; // the final electron momentum error  
+      Corrections()
+       : isEcalEnergyCorrected(false), ecalEnergy(0.), ecalEnergyError(999.),
+  	 isMomentumCorrected(false), trackMomentumError(999.), electronMomentumError(999.)
+       {}
+     } ;
 
     // correctors
     void correctEcalEnergy( float newEnergy, float newEnergyError ) ;
