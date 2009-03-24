@@ -72,7 +72,7 @@ void AlCaRecoTriggerBitsRcdRead::analyze(const edm::Event& evt, const edm::Event
       output << "      cms.PSet(listName = cms.string('" << i->first << "'),\n"
 	     << "               hltPaths = cms.vstring(";
     } else {
-      output << "trigger list key: " << i->first << "\npaths:\n";
+      output << "trigger list key: '" << i->first << "'\npaths:\n";
     }
     // We must avoid a map<string,vector<string> > in DB for performance reason,
     // so the paths are mapped into one string separated by ';':
