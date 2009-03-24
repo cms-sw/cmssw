@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: HadronPhysicsQGSP_BERT_WP.cc,v 1.1 2008/05/14 20:53:28 syjun Exp $
+// $Id: HadronPhysicsQGSP_BERT_WP.cc,v 1.2 2009/02/04 17:05:26 syjun Exp $
 // GEANT4 tag $Name:  $
 //
 //---------------------------------------------------------------------------
@@ -44,6 +44,7 @@
 #include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_BERT_WP.h"
 #include "SimG4Core/GFlash/interface/G4PiKBuilder_WP.h"
 #include "SimG4Core/GFlash/interface/G4ProtonBuilder_WP.h"
+#include "SimG4Core/GFlash/interface/G4MiscLHEPBuilder_WP.h"
 
 #include "globals.hh"
 #include "G4ios.hh"
@@ -91,7 +92,7 @@ void HadronPhysicsQGSP_BERT_WP::CreateModels()
   thePiK->RegisterMe(theBertiniPiK=new G4BertiniPiKBuilder);
   theBertiniPiK->SetMaxEnergy(9.9*GeV);
   
-  theMiscLHEP=new G4MiscLHEPBuilder;
+  theMiscLHEP=new G4MiscLHEPBuilder_WP;
 }
 
 HadronPhysicsQGSP_BERT_WP::~HadronPhysicsQGSP_BERT_WP()
