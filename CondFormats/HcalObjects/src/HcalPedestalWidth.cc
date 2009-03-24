@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 correlation matrix for pedestals
 $Author: ratnikov
-$Date: 2008/10/02 09:45:36 $
-$Revision: 1.7 $
+$Date: 2008/11/07 16:06:24 $
+$Revision: 1.8 $
 */
 
 #include <math.h>
@@ -14,16 +14,17 @@ $Revision: 1.7 $
 
 namespace {
   int offset (int fCapId1, int fCapId2) {
-    static int offsets [4] = {0, 1, 3, 6};
-    if (fCapId1 < fCapId2) { // swap
-      int tmp = fCapId1; fCapId1 = fCapId2; fCapId2 = tmp;
-    }
-    return offsets [fCapId1] + fCapId2;
+    //    static int offsets [4] = {0, 1, 3, 6};
+    //    if (fCapId1 < fCapId2) { // swap
+    //      int tmp = fCapId1; fCapId1 = fCapId2; fCapId2 = tmp;
+    //    }
+    //    return offsets [fCapId1] + fCapId2;
+    return fCapId1*4 + fCapId2;
   }
 }
 
 HcalPedestalWidth::HcalPedestalWidth (int fId) : mId (fId) {
-  for (int i = 10; --i >= 0; *(&mSigma00 + i) = 0) {}
+  for (int i = 16; --i >= 0; *(&mSigma00 + i) = 0) {}
 }
 
 float HcalPedestalWidth::getWidth (int fCapId) const {

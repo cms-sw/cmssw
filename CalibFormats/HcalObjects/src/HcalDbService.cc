@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.25 2008/11/08 21:16:42 rofierzy Exp $
+// $Id: HcalDbService.cc,v 1.26 2009/01/14 10:42:34 rofierzy Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -187,8 +187,24 @@ const HcalQIEShape* HcalDbService::getHcalShape () const {
   }
   return 0;
 }
+
 const HcalElectronicsMap* HcalDbService::getHcalMapping () const {
   return mElectronicsMap;
+}
+
+const HcalL1TriggerObject* HcalDbService::getHcalL1TriggerObject (const HcalGenericDetId& fId) const
+{
+  return mL1TriggerObjects->getValues (fId);
+}
+
+const HcalChannelStatus* HcalDbService::getHcalChannelStatus (const HcalGenericDetId& fId) const
+{
+  return mChannelQuality->getValues (fId);
+}
+
+const HcalZSThreshold* HcalDbService::getHcalZSThreshold (const HcalGenericDetId& fId) const
+{
+  return mZSThresholds->getValues (fId);
 }
 
 EVENTSETUP_DATA_REG(HcalDbService);

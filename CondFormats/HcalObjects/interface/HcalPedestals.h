@@ -24,6 +24,8 @@ class HcalPedestals: public HcalCondObjectContainer<HcalPedestal>
   // set unit boolean
   void setUnitADC(bool isADC) {unitIsADC = isADC;}
 
+  std::string myname() const {return (std::string)"HcalPedestals";}
+
  private:
   bool unitIsADC;
 

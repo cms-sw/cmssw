@@ -35,7 +35,7 @@ class HcalCondObjectContainer
  private:
   void initContainer(int container, bool h2mode_ = false);
 
-  bool m_h2mode;
+  //  bool m_h2mode;
 
   std::vector<Item> HBcontainer;
   std::vector<Item> HEcontainer;
@@ -49,7 +49,8 @@ class HcalCondObjectContainer
 
 
 template<class Item>
-HcalCondObjectContainer<Item>::HcalCondObjectContainer(): m_h2mode(false)
+HcalCondObjectContainer<Item>::HcalCondObjectContainer()
+//: m_h2mode(false)
 {
 }
 
@@ -61,23 +62,30 @@ HcalCondObjectContainer<Item>::~HcalCondObjectContainer()
 template<class Item> void
 HcalCondObjectContainer<Item>::initContainer(int container, bool h2mode_)
 {
-  m_h2mode = h2mode_;
+  //  if (!m_h2mode) m_h2mode = h2mode_;
 
   Item emptyItem;
 
   switch (container) 
     {
-    case HcalGenericDetId::HcalGenBarrel: for (int i=0; i<2592; i++) HBcontainer.push_back(emptyItem); break;
+    case HcalGenericDetId::HcalGenBarrel: 
+      for (int i=0; i<(2*HcalGenericDetId::HBhalf); i++) HBcontainer.push_back(emptyItem); break;
     case HcalGenericDetId::HcalGenEndcap: 
-      if (!h2mode_) for (int i=0; i<2592; i++) HEcontainer.push_back(emptyItem); 
-      else for (int i=0; i<8064; i++) HEcontainer.push_back(emptyItem); 
+      if (!h2mode_) for (int i=0; i<(2*HcalGenericDetId::HEhalf); i++) HEcontainer.push_back(emptyItem); 
+      else for (int i=0; i<(2*HcalGenericDetId::HEhalfh2mode); i++) HEcontainer.push_back(emptyItem); 
       break;
-    case HcalGenericDetId::HcalGenOuter: for (int i=0; i<2160; i++) HOcontainer.push_back(emptyItem); break;
-    case HcalGenericDetId::HcalGenForward: for (int i=0; i<1728; i++) HFcontainer.push_back(emptyItem); break;
-    case HcalGenericDetId::HcalGenTriggerTower: for (int i=0; i<4176; i++) HTcontainer.push_back(emptyItem); break;
-    case HcalGenericDetId::HcalGenZDC: for (int i=0; i<22; i++) ZDCcontainer.push_back(emptyItem); break;
-    case HcalGenericDetId::HcalGenCalibration: for (int i=0; i<1386; i++) CALIBcontainer.push_back(emptyItem); break;
-    case HcalGenericDetId::HcalGenCastor: for (int i=0; i<448; i++) CASTORcontainer.push_back(emptyItem); break;
+    case HcalGenericDetId::HcalGenOuter: 
+      for (int i=0; i<(2*HcalGenericDetId::HOhalf); i++) HOcontainer.push_back(emptyItem); break;
+    case HcalGenericDetId::HcalGenForward: 
+      for (int i=0; i<(2*HcalGenericDetId::HFhalf); i++) HFcontainer.push_back(emptyItem); break;
+    case HcalGenericDetId::HcalGenTriggerTower: 
+      for (int i=0; i<(2*HcalGenericDetId::HThalf); i++) HTcontainer.push_back(emptyItem); break;
+    case HcalGenericDetId::HcalGenZDC: 
+      for (int i=0; i<(2*HcalGenericDetId::ZDChalf); i++) ZDCcontainer.push_back(emptyItem); break;
+    case HcalGenericDetId::HcalGenCalibration: 
+      for (int i=0; i<(2*HcalGenericDetId::CALIBhalf); i++) CALIBcontainer.push_back(emptyItem); break;
+    case HcalGenericDetId::HcalGenCastor: 
+      for (int i=0; i<(2*HcalGenericDetId::CASTORhalf); i++) CASTORcontainer.push_back(emptyItem); break;
     default: break;
     }
 }
@@ -87,7 +95,9 @@ template<class Item> const Item*
 HcalCondObjectContainer<Item>::getValues(DetId fId) const
 {
   HcalGenericDetId myId(fId);
-  int index = myId.hashedId(m_h2mode);
+  bool h2mode_ = (HEcontainer.size()==(2*HcalGenericDetId::HEhalfh2mode));
+
+  int index = myId.hashedId(h2mode_);
   //  std::cout << "::::: getting values at index " << index  << ", DetId " << myId << std::endl;
   unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
 
@@ -141,7 +151,9 @@ template<class Item> const bool
 HcalCondObjectContainer<Item>::exists(DetId fId) const
 {
   HcalGenericDetId myId(fId);
-  int index = myId.hashedId(m_h2mode);
+  bool h2mode_ = (HEcontainer.size()==(2*HcalGenericDetId::HEhalfh2mode));
+
+  int index = myId.hashedId(h2mode_);
   if (index < 0) return false;
   unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
   const Item* cell = NULL;

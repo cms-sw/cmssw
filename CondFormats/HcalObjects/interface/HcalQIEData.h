@@ -7,8 +7,8 @@
    (preserve backwards compatibility of methods for this release)
 POOL object to store QIE parameters
 $Author: ratnikov
-$Date: 2008/03/08 15:22:28 $
-$Revision: 1.8 $
+$Date: 2008/07/15 13:00:16 $
+$Revision: 1.9 $
 */
 
 #include <vector>
@@ -43,6 +43,8 @@ class HcalQIEData: public HcalCondObjectContainer<HcalQIECoder>
   // sort values by channelId - remove in the next version  
   void sort () {}
   
+  std::string myname() const {return (std::string)"HcalQIEData";}
+
   //not needed/not used  HcalQIEData(const HcalQIEData&);
 
 };

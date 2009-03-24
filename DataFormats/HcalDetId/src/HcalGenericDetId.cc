@@ -1,7 +1,7 @@
 /** \class HcalGenericDetId
     \author F.Ratnikov, UMd
    Generic HCAL detector ID suitable for all Hcal subdetectors
-   $Id: HcalGenericDetId.cc,v 1.10 2009/01/23 16:29:13 rofierzy Exp $
+   $Id: HcalGenericDetId.cc,v 1.11 2009/02/19 17:05:33 rofierzy Exp $
 */
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
@@ -90,15 +90,6 @@ std::ostream& operator<<(std::ostream& s,const HcalGenericDetId& id) {
 
 int HcalGenericDetId::hashedId(bool h2mode_) const {
   int index = -1;
-
-  int HBhalf = 1296;
-  int HEhalf = 1296;
-  if (h2mode_) HEhalf = 4032;
-  int HOhalf = 1080;
-  int HFhalf = 864;
-  int HThalf = 2088;
-  int ZDChalf = 11;
-  int CASTORhalf = 224;
 
   int zside=0, ietaAbs=0, ieta=0, iphi=0, depth=0, channel=0, sector=0, module=0;
 
@@ -221,7 +212,7 @@ int HcalGenericDetId::hashedId(bool h2mode_) const {
       sector = tid.sector();
       module = tid.module();
 
-      index = 16*(sector-1) + (module-1);
+      index = 14*(sector-1) + (module-1);
       if (zside == -1) index += CASTORhalf;
 
     }

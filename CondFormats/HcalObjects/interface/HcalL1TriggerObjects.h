@@ -21,6 +21,8 @@ class HcalL1TriggerObjects: public HcalCondObjectContainer<HcalL1TriggerObject>
   std::string getTagString() const {return (std::string)mTag;}
   std::string getAlgoString() const {return (std::string)mAlgo;}
 
+  std::string myname() const {return (std::string)"HcalL1TriggerObjects";}
+
  private:
   char mTag[128];
   char mAlgo[128];
