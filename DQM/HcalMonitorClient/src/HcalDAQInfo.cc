@@ -54,8 +54,8 @@ class HcalDAQInfo : public edm::EDAnalyzer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
-      virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
+      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) ;
+      virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) ;
 
    // ----------member data ---------------------------
 
@@ -121,21 +121,21 @@ HcalDAQInfo::endJob()
 
 // ------------ method called just before starting a new run  ------------
 void 
-HcalDAQInfo::beginRun(const edm::Run& run, const edm::EventSetup& c)
+HcalDAQInfo::beginLuminosityBlock(const edm::LuminosityBlock& run, const edm::EventSetup& c)
 {
-  if (debug_>0) std::cout<<"<HcalDAQInfo::beginRun>"<<std::endl;
+  if (debug_>0) std::cout<<"<HcalDAQInfo::beginLuminosityBlock>"<<std::endl;
 }
 
 // ------------ method called right after a run ends ------------
 void 
-HcalDAQInfo::endRun(const edm::Run& run, const edm::EventSetup& c)
+HcalDAQInfo::endLuminosityBlock(const edm::LuminosityBlock& run, const edm::EventSetup& c)
 {
-  if (debug_>0) std::cout <<"<HcalDAQInfo::endRun> "<<endl;
+  if (debug_>0) std::cout <<"<HcalDAQInfo::endLuminosityBlock> "<<endl;
   dbe->setCurrentFolder("Hcal");
   std::string currDir = dbe->pwd();
-  if (debug_>1) std::cout << "--- Current Directory " << currDir << std::endl;
+  if (debug_>0) std::cout << "--- Current Directory " << currDir << std::endl;
   std::vector<MonitorElement*> mes = dbe->getAllContents("");
-  if (debug_>1) std::cout << "found " << mes.size() << " monitoring elements:" << std::endl;
+  if (debug_>0) std::cout << "found " << mes.size() << " monitoring elements:" << std::endl;
 
   dbe->setCurrentFolder("Hcal/EventInfo/DAQContents/");
   MonitorElement* HcalDaqFraction = dbe->bookFloat("HcalDaqFraction");
@@ -143,6 +143,7 @@ HcalDAQInfo::endRun(const edm::Run& run, const edm::EventSetup& c)
   HcalDaqFraction->Fill(-1);
 
   int nevt = (dbe->get("Hcal/EventInfo/processedEvents"))->getIntValue();
+  if (debug_>0) std::cout << "HcalDAQInfo::nevt= " << nevt << std::endl;
   if (nevt<1) {
     edm::LogInfo("HcalDAQInfo")<<"Nevents processed ="<<nevt<<" => exit"<<std::endl;
     return;
@@ -163,6 +164,7 @@ HcalDAQInfo::endRun(const edm::Run& run, const edm::EventSetup& c)
 
 
 // ---------------------- end of DAQ Info
+  if (debug_>0) std::cout << "HcalDAQInfo::MEfilled " << std::endl;
 
 }
 
