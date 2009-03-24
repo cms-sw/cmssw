@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 import DQM.TrackingMonitor.TrackingMonitor_cfi as _TrackMon
 import DQMOffline.Alignment.muonAlignment_cfi as _MuonAl
-#from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagator_cfi import *
-from Configuration.StandardSequences.ReconstructionCosmics_cff import *
+#from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
+#from Configuration.StandardSequences.ReconstructionCosmics_cff import *
+from RecoMuon.Configuration.RecoMuonCosmics_cff import *
 
 #Below all DQM modules for MuonAlignment AlCaRecos are instanciated.
 
@@ -112,3 +113,27 @@ TrackPtBin = 100,
 TrackPtMin = 0,
 TrackPtMax = 30
 )
+
+###############MuAlZMuMu##################################
+ALCARECOMuAlZMuMuTrackingDQM= _TrackMon.TrackMon.clone(
+#names & designations  
+TrackProducer = 'ALCARECOMuAlZMuMu:StandAlone',
+AlgoName = 'ALCARECOMuAlZMuMu',
+FolderName = 'MuAlZMuMu',
+#sizes                      
+TkSizeBin = 5,
+TkSizeMin = 0,
+TkSizeMax = 5,
+TrackPtBin = 100,
+TrackPtMin = 0,
+TrackPtMax = 100
+)
+
+ALCARECOMuAlZMuMuMuAlDQM= _MuonAl.muonAlignment.clone(
+    doSummary = cms.untracked.bool(True),
+    FolderName ='MuAlCaZMuMu',
+    MuonCollection = 'ALCARECOMuAlZMuMu:StandAlone'
+ )
+
+ALCARECOMuAlZMuMuDQM = cms.Sequence( ALCARECOMuAlZMuMuTrackingDQM + ALCARECOMuAlZMuMuMuAlDQM)
+
