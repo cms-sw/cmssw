@@ -28,7 +28,7 @@ l1CaloScales = cms.ESProducer("L1ScalesTrivialProducer",
         450.0, 475.0, 500.0, 525.0, 550.0, 
         575.0, 600.0, 625.0, 650.0, 675.0, 
         700.0, 725.0, 750.0, 775.0),
-    L1CaloRegionEtScaleLSB = cms.double(0.5)
+    L1CaloRegionEtScaleLSB = cms.double(0.5),
     L1HtMissThresholds = cms.vdouble(
       0.0, 2.0, 4.0, 6.0, 8.0,
       10.0, 12.0, 14.0, 16.0, 18.0,
