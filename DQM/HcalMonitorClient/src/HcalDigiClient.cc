@@ -341,7 +341,6 @@ void HcalDigiClient::report(){
       if ( debug_ ) cout << "Found '" << name.str().c_str() << "'" << endl;
     }
   name.str("");
-  getHistograms();
 
   if (showTiming_)
     {
@@ -351,7 +350,7 @@ void HcalDigiClient::report(){
 }
 
 void HcalDigiClient::analyze(void){
-
+  // analyze function only runs every N events to save time
   if (showTiming_)
     {
       cpu_timer.reset(); cpu_timer.start();
@@ -362,6 +361,8 @@ void HcalDigiClient::analyze(void){
   if ( updates % 10 == 0 ) {
     if ( debug_ ) cout << "HcalDigiClient: " << updates << " updates" << endl;
   }
+  report();
+  getHistograms();
   if (showTiming_)
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalDigiClient ANALYZE  -> "<<cpu_timer.cpuTime()<<endl;
@@ -378,6 +379,17 @@ void HcalDigiClient::getHistograms(){
   if (debug_>0) cout <<"HcalDigiClient> getHistograms()"<<endl;
 
   ostringstream name;
+
+  MonitorElement* me = dbe_->get(name.str().c_str());
+  if ( me ) 
+    {
+      string s = me->valueString();
+      ievt_ = -1;
+      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+      if ( debug_>1 ) cout << "Found '" << name.str().c_str() << "'" << endl;
+    }
+  name.str("");
+
   TH2F* dummy2D = new TH2F();
   TH1F* dummy1D = new TH1F();
 
@@ -522,15 +534,19 @@ void HcalDigiClient::getHistograms(){
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/ ProblemDigis";   //ProblemDigis
   ProblemDigis = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  if (ievt_>0) ProblemDigis->Scale(1./ievt_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/Digi VME Occupancy Map";   //DigiOccupancyVME
   DigiOccupancyVME = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/Digi Spigot Occupancy Map";   //DigiOccupancySpigot
   DigiOccupancySpigot = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  /*
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/Digi Geo Error Map";   //DigiErrorEtaPhi
   DigiErrorEtaPhi = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  */
+
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/Digi VME Error Map";   //DigiErrorVME
   DigiErrorVME = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
@@ -568,6 +584,10 @@ void HcalDigiClient::getHistograms(){
 
   getSJ6histos("DigiMonitor_Hcal/digi_occupancy/"," Digi Eta-Phi Occupancy Map",DigiOccupancyByDepth);
   getSJ6histos("DigiMonitor_Hcal/problem_digis/"," Problem Digi Rate",ProblemDigisByDepth);
+  for (int i=0;i<6;++i)
+    {
+      ProblemDigisByDepth[i]->Scale(1./ievt_);
+    }
   getSJ6histos("DigiMonitor_Hcal/problem_digis/badcapID/"," Digis with Bad Cap ID Rotation",DigiErrorsBadCapID);
   getSJ6histos("DigiMonitor_Hcal/problem_digis/baddigisize/"," Digis with Bad Size",DigiErrorsBadDigiSize);
   getSJ6histos("DigiMonitor_Hcal/problem_digis/badADCsum/"," Digis with ADC sum below threshold ADC counts",DigiErrorsBadADCSum);
@@ -742,9 +762,11 @@ void HcalDigiClient::resetAllME()
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/Digi Spigot Occupancy Map";
   resetME(name.str().c_str(),dbe_);
   name.str("");
+  /*
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/Digi Geo Error Map";
   resetME(name.str().c_str(),dbe_);
   name.str("");
+  */
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/Digi VME Error Map";
   resetME(name.str().c_str(),dbe_);
   name.str("");
@@ -1170,11 +1192,13 @@ void HcalDigiClient::createTests(){
     {
       cpu_timer.reset(); cpu_timer.start();
     }
-  char meTitle[250], name[250];    
-  vector<string> params;
   
   if(debug_) cout <<"Creating Digi tests..."<<endl;
   
+  /*
+  char meTitle[250], name[250];   
+  vector<string> params;
+  */
   for(int i=0; i<4; ++i){
     if(!subDetsOn_[i]) continue;
 
@@ -1182,7 +1206,7 @@ void HcalDigiClient::createTests(){
     if(i==1) type = "HE"; 
     if(i==2) type = "HF"; 
     if(i==3) type = "HO";
-    
+    /*
     sprintf(meTitle,"%sHcal/DigiMonitor/%s/%s Digi Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s Digi Errors by Geo_metry",type.c_str());
     if(dqmQtests_.find(name) == dqmQtests_.end()){	
@@ -1196,7 +1220,7 @@ void HcalDigiClient::createTests(){
 	createH2ContentTest(dbe_, params);
       }
     }
-
+    */
     /*
     sprintf(meTitle,"%sHcal/DigiMonitor/%s/%s QIE Cap-ID",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s QIE CapID",type.c_str());
@@ -1371,6 +1395,7 @@ void HcalDigiClient::loadHistograms(TFile* infile){
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/ ProblemDigis";
   ProblemDigis = static_cast<TH2F*>(infile->Get(name.str().c_str()));
+  if (ievt_>0) ProblemDigis->Scale(1./ievt_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/Digi VME Occupancy Map";
   DigiOccupancyVME = static_cast<TH2F*>(infile->Get(name.str().c_str()));
@@ -1378,9 +1403,11 @@ void HcalDigiClient::loadHistograms(TFile* infile){
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/Digi Spigot Occupancy Map";
   DigiOccupancySpigot = static_cast<TH2F*>(infile->Get(name.str().c_str()));
   name.str("");
+  /*
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/Digi Geo Error Map";
   DigiErrorEtaPhi = static_cast<TH2F*>(infile->Get(name.str().c_str()));
   name.str("");
+  */
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/Digi VME Error Map";
   DigiErrorVME = static_cast<TH2F*>(infile->Get(name.str().c_str()));
   name.str("");
@@ -1423,6 +1450,8 @@ void HcalDigiClient::loadHistograms(TFile* infile){
       name.str("");
       name<<process_.c_str()<<"DigiMonitor_Hcal/problem_digis/"<<subdets_[i]<<" Problem Digi Rate";
       ProblemDigisByDepth[i] = static_cast<TH2F*>(infile->Get(name.str().c_str()));
+      if (ievt_>0) ProblemDigisByDepth[i]->Scale(1./ievt_);
+      cout <<"i = "<<i<<"  Problem Max = "<<ProblemDigisByDepth[i]->GetMaximum()<<endl;
       name.str("");
       name<<process_.c_str()<<"DigiMonitor_Hcal/problem_digis/badcapID/"<<subdets_[i]<<" Digis with Bad Cap ID Rotation";
       DigiErrorsBadCapID[i] = static_cast<TH2F*>(infile->Get(name.str().c_str()));
@@ -1457,7 +1486,7 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   
   if (debug_>0) cout << "<HcalDigiClient::htmlOutput> Preparing html output ..." << endl;
 
-  getHistograms(); // only do this here; no need to do it in regular analyze() method?
+  getHistograms();
 
   string client = "DigiMonitor";
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);

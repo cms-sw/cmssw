@@ -58,7 +58,6 @@ class HcalDigiClient : public HcalBaseClient {
   /// Cleanup
   void cleanup(void);
   
-  
   ///process report
   void report();
   

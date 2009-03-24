@@ -283,6 +283,17 @@ void HcalRecHitClient::getHistograms()
   if(!dbe_) return;
 
   ostringstream name;
+
+  MonitorElement* me = dbe_->get(name.str().c_str());
+  if ( me ) 
+    {
+      string s = me->valueString();
+      ievt_ = -1;
+      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+      if ( debug_>1 ) cout << "Found '" << name.str().c_str() << "'" << endl;
+    }
+  name.str("");
+
   // dummy histograms
   TH2F* dummy2D = new TH2F();
   TH1F* dummy1D = new TH1F();
@@ -291,6 +302,8 @@ void HcalRecHitClient::getHistograms()
   name<<process_.c_str()<<"RecHitMonitor_Hcal/ ProblemRecHits";
   ProblemRecHits = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
   name.str("");
+  if (ievt_>0)
+    ProblemRecHits->Scale(1./ievt_);
 
   getSJ6histos("RecHitMonitor_Hcal/problem_rechits/", " Problem RecHit Rate", ProblemRecHitsByDepth);
   getSJ6histos("RecHitMonitor_Hcal/rechit_occupancy/","Rec Hit Average Occupancy", OccupancyByDepth);
@@ -299,7 +312,18 @@ void HcalRecHitClient::getHistograms()
   getSJ6histos("RecHitMonitor_Hcal/rechit_energy/","Rec Hit Average Energy Above Threshold", EnergyThreshByDepth);
   getSJ6histos("RecHitMonitor_Hcal/rechit_time/","Rec Hit Average Time", TimeByDepth);
   getSJ6histos("RecHitMonitor_Hcal/rechit_time/","Rec Hit Average Time Above Threshold", TimeThreshByDepth);
-
+  if (ievt_>0)
+    {
+      for (int i=0;i<6;++i)
+	{
+	  ProblemRecHitsByDepth[i]->Scale(1./ievt_);
+	  OccupancyByDepth[i]->Scale(1./ievt_);
+	  EnergyByDepth[i]->Scale(1./ievt_);
+	  EnergyThreshByDepth[i]->Scale(1./ievt_);
+	  TimeByDepth[i]->Scale(1./ievt_);
+	  TimeThreshByDepth[i]->Scale(1./ievt_);
+	}
+    }
   if (rechitclient_makeDiagnostics_)
     {
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hb/HB_energy";
@@ -446,6 +470,13 @@ void HcalRecHitClient::resetAllME()
   if(!dbe_) return;
   
   ostringstream name;
+
+  // Reset counter?  Is this what we want to do, or do we want to implement a separate counter from the 'overall' one?  This also won't work, since the next call to ievt within HcalMonitor will simply fill with the ievt stored there.  Or will it clear that as well, since evt # is a pointer within the Monitor?
+  // We also need the parameters that call resetAllME to also reset the counters used to fill the histograms.  Can we just use a fill command for the histograms and clear the counters when the fill is complete?  
+  
+  name<<process_.c_str()<<"Hcal/RecHitMonitor_Hcal/RecHit Event Number";
+  resetME(name.str().c_str(),dbe_);
+  name.str("");
 
   // Reset individual histograms
   name<<process_.c_str()<<"RecHitMonitor_Hcal/ ProblemRecHits";
