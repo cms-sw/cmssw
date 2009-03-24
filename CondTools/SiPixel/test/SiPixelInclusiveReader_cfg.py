@@ -26,7 +26,7 @@ process.TFileService = cms.Service("TFileService",
 
 ##### DATABASE CONNECTION INFO ######
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:/tmp/fblekman/freyatest.db'
+process.CondDBCommon.connect = 'sqlite_file:test.db'
 process.CondDBCommon.DBParameters.authenticationPath = '.'
 process.CondDBCommon.DBParameters.messageLevel = 1
 
@@ -56,11 +56,11 @@ process.PoolDBESSourceForReader = cms.ESSource("PoolDBESSource",
         ), 
         cms.PSet(
             record = cms.string('SiPixelLorentzAngleRcd'),
-            tag = cms.string('SiPixelLorentzAngle_v01')
+            tag = cms.string('trivial_LorentzAngle')
         ),
         cms.PSet(
             record = cms.string('SiPixelLorentzAngleSimRcd'),
-            tag = cms.string('SiPixelLorentzAngleSim_v01')
+            tag = cms.string('SiPixelLorentzAngleSim_v02')
         ),
         cms.PSet(
             record = cms.string('SiPixelTemplateDBObjectRcd'),
@@ -85,7 +85,7 @@ process.PoolDBESSourceForReader = cms.ESSource("PoolDBESSource",
         cms.PSet(
             record = cms.string('SiPixelGainCalibrationForHLTSimRcd'),
             tag = cms.string('SiPixelGainCalibrationSim_TBuffer_hlt_const')
-        ))
+       ))
 )
 
 
@@ -123,8 +123,16 @@ process.SiPixelCondObjForHLTSimReader = cms.EDFilter("SiPixelCondObjForHLTReader
 
 
 
-####### LORENTZ ANGLE READER ######
-process.SiPixelLorentzAngleReader = cms.EDFilter("SiPixelLorentzAngleReader")
+####### LORENTZ ANGLE READERS ######
+process.SiPixelLorentzAngleReader = cms.EDFilter("SiPixelLorentzAngleReader",
+    printDebug = cms.untracked.bool(False),
+    useSimRcd = cms.bool(False)
+)
+
+process.SiPixelLorentzAngleSimReader = cms.EDFilter("SiPixelLorentzAngleReader",
+    printDebug = cms.untracked.bool(False),
+    useSimRcd = cms.bool(True)
+)
 
 
 
@@ -153,7 +161,16 @@ process.SiPixelTemplateDBObjectReader = cms.EDFilter("SiPixelTemplateDBObjectRea
 
 
 ####### DO ALL READERS (OR SELECT ONE YOU WANT) ########
-process.p = cms.Path(process.SiPixelCondObjOfflineReader*process.SiPixelCondObjOfflineSimReader*process.SiPixelLorentzAngleReader*process.SiPixelFedCablingMapAnalyzer*process.SiPixelCondObjForHLTReader*process.SiPixelCondObjForHLTSimReader*process.SiPixelTemplateDBObjectReader*process.SiPixelBadModuleReader)
-
+process.p = cms.Path(
+process.SiPixelCondObjOfflineReader*
+process.SiPixelCondObjOfflineSimReader*
+process.SiPixelLorentzAngleReader*
+process.SiPixelLorentzAngleSimReader*
+process.SiPixelFedCablingMapAnalyzer*
+process.SiPixelCondObjForHLTReader*
+process.SiPixelCondObjForHLTSimReader*
+process.SiPixelTemplateDBObjectReader*
+process.SiPixelBadModuleReader
+)
 
 
