@@ -1,4 +1,4 @@
-// $Id: Photon.cc,v 1.18 2008/10/28 18:51:00 nancy Exp $
+// $Id: Photon.cc,v 1.19 2008/12/15 19:51:22 nancy Exp $
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
 
@@ -6,45 +6,34 @@ using namespace reco;
 
 Photon::Photon( const LorentzVector & p4, 
 		Point caloPos,
-		const SuperClusterRef scl,   
-		float HoE1, float HoE2, 
-		bool hasPixelSeed, 
+                const PhotonCoreRef & core,
 		const Point & vtx) : 
-    RecoCandidate( 0, p4, vtx, 22 ), caloPosition_( caloPos ),
-    superCluster_(scl), 
-    hadDepth1OverEm_(HoE1), 
-    hadDepth2OverEm_(HoE2), 
-    pixelSeed_( hasPixelSeed )
+    RecoCandidate( 0, p4, vtx, 22 ), 
+    caloPosition_( caloPos ),
+    photonCore_(core)
 
+{ }
+
+
+Photon::Photon( const Photon& rhs ) : 
+  RecoCandidate(rhs),
+  caloPosition_(rhs.caloPosition_), 
+  photonCore_ ( rhs.photonCore_),
+  pixelSeed_  ( rhs.pixelSeed_ ),
+  fiducialFlagBlock_ ( rhs.fiducialFlagBlock_ ),
+  isolationR04_ ( rhs.isolationR04_),
+  isolationR03_ ( rhs.isolationR03_),
+  showerShapeBlock_ ( rhs.showerShapeBlock_)
 {}
+
+
+ 
 
 Photon::~Photon() { }
 
 Photon * Photon::clone() const { 
   return new Photon( * this ); 
 }
-
-reco::SuperClusterRef Photon::superCluster() const {
-  return superCluster_;
-}
-
-
-
-std::vector<reco::ConversionRef>  Photon::conversions() const { 
-   return conversions_;
-}
-
-
-
-bool Photon::hasConversionTracks() const {
-  
-  if ( this->conversions().size() > 0) 
-    return true;
-  else
-    return false;
-}
-
-
 
 
 bool Photon::overlap( const Candidate & c ) const {
