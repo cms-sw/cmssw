@@ -7,7 +7,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string("$Revision: 1.1 $"),
+    version = cms.untracked.string("$Revision: 1.2 $"),
     name = cms.untracked.string("$Source: /cvs_server/repositories/CMSSW/CMSSW/L1Trigger/CSCTriggerPrimitives/test/EvtGen+DetSim+Digi+CscLCTs_cfg.py,v $"),
     annotation = cms.untracked.string("SV: single particle gun mu- 50 GeV")
 )
@@ -20,7 +20,8 @@ process.MessageLogger = cms.Service("MessageLogger",
         # untracked PSet FwkJob  = { untracked int32 limit = -1 } # except *all* of FwkJob's
         # threshold = cms.untracked.string("DEBUG")
         threshold = cms.untracked.string("INFO")
-    )
+        )#,
+    #debugModules = cms.untracked.vstring("cscTriggerPrimitiveDigis","cscpacker")
 )
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
@@ -54,7 +55,7 @@ process.source = cms.Source("FlatRandomPtGunSource",
 
 #process.load("Configuration.StandardSequences.FakeConditions_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_V6::All'
+process.GlobalTag.globaltag = 'IDEAL_V11::All'
 #process.GlobalTag.globaltag = 'STARTUP_V5::All'
 #process.prefer("GlobalTag")
 
@@ -73,10 +74,23 @@ process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
 
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
+#- CSC TP Emulator
+process.load("L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesConfig_cff")
+process.load("L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi")
+process.cscTriggerPrimitiveDigis.alctParamMTCC2.verbosity = 2
+process.cscTriggerPrimitiveDigis.clctParamMTCC2.verbosity = 2
+process.cscTriggerPrimitiveDigis.tmbParam.verbosity = 2
+
+#- CSC digi->raw
+process.load("EventFilter.CSCRawToDigi.cscPacker_cfi")
+process.cscpacker.alctDigiTag = cms.InputTag("cscTriggerPrimitiveDigis")
+process.cscpacker.clctDigiTag = cms.InputTag("cscTriggerPrimitiveDigis")
+process.cscpacker.correlatedLCTDigiTag = cms.InputTag("cscTriggerPrimitiveDigis","MPCSORTED")
+
 # Output module
 #
 process.GENSIMDIGI = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string("/data0/slava/test/muminus_pt50_CMSSW_2_1_4+.root"),
+    fileName = cms.untracked.string("/data0/slava/test/muminus_pt50_CMSSW_2_2_6.root"),
     outputCommands = cms.untracked.vstring("keep *", 
          # "drop *_simSiPixelDigis_*_*",
          # "drop *_simSiStripDigis_*_*",
@@ -95,7 +109,8 @@ process.GENSIMDIGI = cms.OutputModule("PoolOutputModule",
 #sequence calDigi = { ecalUnsuppressedDigis & hcalDigis }
 #sequence muonDigi = { simMuonCSCDigis &  simMuonDTDigis & simMuonRPCDigis}
 #sequence doDigi = { trDigi & calDigi & muonDigi }
+#- Gen->Sim->Digi
 process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits*process.mix*process.muonDigi)
-#path p1 = { VtxSmeared, g4SimHits, mix, muonDigi, cscTriggerPrimitiveDigis }
-#path p1 = { VtxSmeared, g4SimHits, mix, simMuonCSCDigis }
+#- Gen->Sim->Digi->L1->Raw
+#process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits*process.mix*process.muonDigi*process.cscTriggerPrimitiveDigis*process.cscpacker)
 process.outpath = cms.EndPath(process.GENSIMDIGI)
