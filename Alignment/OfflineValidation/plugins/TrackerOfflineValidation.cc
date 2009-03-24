@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.24 2009/02/13 11:25:08 jdraeger Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.25 2009/03/24 15:34:08 jdraeger Exp $
 //
 //
 
@@ -1178,7 +1178,7 @@ TrackerOfflineValidation::fillTree(TTree &tree,
       treeMem.fitSigmaNormX = fitResult2.second;
     }
     //get median for absolute residuals
-    treeMem.MedianX   = this->getMedian(it->second.ResXprimeHisto);
+    treeMem.medianX   = this->getMedian(it->second.ResXprimeHisto);
 
 
     int numberOfBins=it->second.ResXprimeHisto->GetNbinsX();
@@ -1223,7 +1223,7 @@ TrackerOfflineValidation::fillTree(TTree &tree,
 	treeMem.fitSigmaY = fitMeanSigma.second;
       }
       //get median for absolute residuals
-      treeMem.MedianY   = this->getMedian(h);
+      treeMem.medianY   = this->getMedian(h);
 
       treeMem.histNameY = h->GetName();
     }
@@ -1303,21 +1303,6 @@ TrackerOfflineValidation::getMedian(const TH1 *histo) const
   delete[] x; x = 0;
   delete [] y; y = 0;  
 
-
-  // std::vector<double> x;
-  //x.resize(nbins);
-  //std::vector<double> y;
-  //y.resize(nbins);
-  //for (int j = 0; j < nbins; ++j) {
-    //std::cout<<"Bin content: "<<histo->GetBinContent(j+1)<<std::endl;
-  //  x.push_back( histo->GetBinCenter(j+1) );
-  //  y.push_back( histo->GetBinContent(j+1) );
-  //}
-  //if (nbins>0){
-    //median = TMath::Median(nbins,&(x[0]),&(y[0]));
-    // median = TMath::Median(x.begin(),x.end(),y.begin()));
-  //std::cout<<"Median: "<<median<<std::endl;
-  //}
   return median;
 
 }

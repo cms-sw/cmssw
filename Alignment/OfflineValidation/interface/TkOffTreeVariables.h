@@ -37,7 +37,7 @@ struct TkOffTreeVariables
   {
     // variable Float_t's
     meanLocalX = meanNormLocalX = meanX = meanNormX = meanY = meanNormY
-       = MedianX = MedianY
+       = medianX = medianY
       = chi2PerDofX = chi2PerDofY
       = rmsLocalX = rmsNormLocalX = rmsX = rmsNormX = rmsY = rmsNormY
       = sigmaX = sigmaNormX
@@ -58,7 +58,7 @@ struct TkOffTreeVariables
   Float_t meanLocalX, meanNormLocalX, 
     meanX, meanNormX,    //mean value read out from modul histograms
     meanY, meanNormY, 
-    MedianX, MedianY,   //Median read out from modul histograms
+    medianX, medianY,   //Median read out from modul histograms
     chi2PerDofX, chi2PerDofY,
     rmsLocalX, rmsNormLocalX, rmsX, rmsNormX,  //rms value read out from modul histograms
     rmsY, rmsNormY,sigmaX,sigmaNormX,

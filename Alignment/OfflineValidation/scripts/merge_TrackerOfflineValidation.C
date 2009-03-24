@@ -285,7 +285,7 @@ void RewriteTree( TDirectory *target, TTree *tree, const std::map<unsigned int,T
       const std::pair<float,float> meanSigma = FitResiduals(h, h->GetMean(), h->GetRMS());
       treeVar->fitMeanX = meanSigma.first;
       treeVar->fitSigmaX= meanSigma.second;
-      treeVar->MedianX = getMedian(h);
+      treeVar->medianX = getMedian(h);
       delete h; h = 0;
     } else {
       std::cout << "Module " << treeVar->moduleId << " without hist X: " 
@@ -357,7 +357,7 @@ void RewriteTree( TDirectory *target, TTree *tree, const std::map<unsigned int,T
 	const std::pair<float,float> meanSigma = FitResiduals(h, h->GetMean(), h->GetRMS());
 	treeVar->fitMeanY = meanSigma.first;
 	treeVar->fitSigmaY= meanSigma.second;
-	treeVar->MedianY = getMedian(h);
+	treeVar->medianY = getMedian(h);
 	delete h; h = 0;
       } else {
 	std::cout << "Module " << treeVar->moduleId << " without hist Y " 
