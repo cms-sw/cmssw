@@ -22,6 +22,7 @@
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsFromTrack.h"
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsPositionFitter.h"
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsAngleFitter.h"
+#include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsTwoBin.h"
 
 #include <sstream>
 
@@ -67,10 +68,10 @@ private:
 
   // the rphires vs z/r plots
   // last array is: 0 offset residual, a.k.a local x (mm)
-  //                1 bfield offset correction (mm)
+  //                1 offset antisymmetric part (mm)
   //                2 zpos (mm) (rphires vs trackangle, nearly degenerate with phi)
   //                3 slope residual, a.k.a phiy (mrad)
-  //                4 bfield slope correction (mrad)
+  //                4 slope antisymmetric part (mrad)
   //                5 scattering correction (mm)
   TH1F *m_DTrphires_vsz_station1[12][6];
   TH1F *m_DTrphires_vsz_station2[12][6];
@@ -83,10 +84,10 @@ private:
 
   // the zres vs z plots
   // last array is: 0 offset residual, a.k.a local y (mm)
-  //                1 bfield offset correction (mm)
+  //                1 offset antisymmetric part (mm)
   //                2 phiz (mrad) (zres vs phi)
   //                3 slope residual, a.k.a phix (mrad)
-  //                4 bfield slope correction (mrad)
+  //                4 slope antisymmetric part (mrad)
   //                5 scattering correction (mm)
   TH1F *m_DTzres_vsz_station1[12][6];
   TH1F *m_DTzres_vsz_station2[12][6];
@@ -94,10 +95,10 @@ private:
 
   // the rphires vs phi plots
   // the last array is: 0 offset residual, a.k.a local x (mm)
-  //                    1 bfield offset correction (mm)
+  //                    1 offset antisymmetric part (mm)
   //                    2 phiz (mrad) (rphires vs z)
   //                    3 slope residual, a.k.a phiy (mrad)
-  //                    4 bfield slope correction (mrad)
+  //                    4 slope antisymmetric part (mrad)
   //                    5 scattering correction (mm)
   TH1F *m_DTrphires_vsphi_station1[5][6];
   TH1F *m_DTrphires_vsphi_station2[5][6];
@@ -115,10 +116,10 @@ private:
 
   // the zres vs phi plots
   // the last array is: 0 offset residual a.k.a. local y (mm)
-  //                    1 bfield offset correction (mm)
+  //                    1 offset antisymmetric part (mm)
   //                    2 zpos (mm) (zres vs trackangle, nearly degenerate with z)
   //                    3 slope residual, a.k.a phix (mrad)
-  //                    4 bfield slope correction (mrad)
+  //                    4 slope antisymmetric part (mrad)
   //                    5 scattering correction (mm)
   TH1F *m_DTzres_vsphi_station1[5][6];
   TH1F *m_DTzres_vsphi_station2[5][6];
@@ -127,12 +128,12 @@ private:
   std::vector<TH1F*> m_DT13hists, m_DT2hists, m_CSChists;
 
   // profiles for all the offsets and slopes
-  std::map<MuonResidualsPositionFitter*,std::pair<TProfile*,int> > m_offsetprofs;
-  std::map<MuonResidualsAngleFitter*,std::pair<TProfile*,int> > m_slopeprofs;
+  std::map<MuonResidualsTwoBin*,std::pair<TProfile*,int> > m_offsetprofs;
+  std::map<MuonResidualsTwoBin*,std::pair<TProfile*,int> > m_slopeprofs;
 
   // and 1-D histogram projections of those profiles
-  std::map<MuonResidualsPositionFitter*,TH1F*> m_offsethists;
-  std::map<MuonResidualsAngleFitter*,TH1F*> m_slopehists;
+  std::map<MuonResidualsTwoBin*,TH1F*> m_offsethists;
+  std::map<MuonResidualsTwoBin*,TH1F*> m_slopehists;
 
   void book_and_link_up(std::string namestart, std::string titlestart, std::string *lastarray_name, std::string *lastarray_title, TH1F **hist, bool phiz,
 			double maxOffset, double maxZpos, double maxPhiz, double maxSlope,
@@ -141,10 +142,10 @@ private:
   void book_vsr(std::string namestart, std::string titlestart, std::string *lastarray_name, std::string *lastarray_title, TH1F **hist, bool phiz, double maxOffset, double maxZpos, double maxPhiz, double maxSlope);
   void book_vsphi(std::string namestart, std::string titlestart, std::string *lastarray_name, std::string *lastarray_title, TH1F **hist, bool phiz, double maxOffset, double maxZpos, double maxPhiz, double maxSlope);
 
-  std::map<std::pair<TH1F*,int>,MuonResidualsPositionFitter*> m_positionFitters;
-  std::map<std::pair<TH1F*,int>,MuonResidualsAngleFitter*> m_angleFitters;
-  std::map<MuonResidualsFitter*,std::pair<TH1F*,int> > m_offsetBin, m_offsetbfieldBin, m_zposBin, m_phizBin, m_slopeBin, m_slopebfieldBin, m_scatteringBin;
-  std::vector<MuonResidualsFitter*> m_allFitters;
+  std::map<std::pair<TH1F*,int>,MuonResidualsTwoBin*> m_positionFitters;
+  std::map<std::pair<TH1F*,int>,MuonResidualsTwoBin*> m_angleFitters;
+  std::map<MuonResidualsTwoBin*,std::pair<TH1F*,int> > m_offsetBin, m_offsetantisymBin, m_zposBin, m_phizBin, m_slopeBin, m_slopeantisymBin, m_scatteringBin;
+  std::vector<MuonResidualsTwoBin*> m_allFitters;
 };
 
 //
@@ -249,8 +250,8 @@ void AlignmentMonitorMuonSystemMap::book_and_link_up(std::string namestart, std:
   }
 
   for (int bin = 1;  bin <= bins;  bin++) {
-    MuonResidualsPositionFitter *positionFitter = new MuonResidualsPositionFitter(m_residualsModel, -1);
-    MuonResidualsAngleFitter *angleFitter = new MuonResidualsAngleFitter(m_residualsModel, -1);
+    MuonResidualsTwoBin *positionFitter = new MuonResidualsTwoBin(new MuonResidualsPositionFitter(m_residualsModel, -1), new MuonResidualsPositionFitter(m_residualsModel, -1));
+    MuonResidualsTwoBin *angleFitter = new MuonResidualsTwoBin(new MuonResidualsAngleFitter(m_residualsModel, -1), new MuonResidualsAngleFitter(m_residualsModel, -1));
     m_allFitters.push_back(positionFitter);
     m_allFitters.push_back(angleFitter);
 
@@ -269,11 +270,11 @@ void AlignmentMonitorMuonSystemMap::book_and_link_up(std::string namestart, std:
     m_angleFitters[index0] = angleFitter;
   
     m_offsetBin[positionFitter] = index0;
-    m_offsetbfieldBin[positionFitter] = index1;
+    m_offsetantisymBin[positionFitter] = index1;
     if (phiz) m_phizBin[positionFitter] = index2;
     else m_zposBin[positionFitter] = index2;
     m_slopeBin[angleFitter] = index3;
-    m_slopebfieldBin[angleFitter] = index4;
+    m_slopeantisymBin[angleFitter] = index4;
     m_scatteringBin[positionFitter] = index5;
 
     m_offsetprofs[positionFitter] = std::pair<TProfile*,int>(offsetprof, bin);
@@ -308,10 +309,10 @@ void AlignmentMonitorMuonSystemMap::book() {
   std::string lastarray_name[6], lastarray_title[6];
   
   lastarray_name[0] = std::string("_rphi_offset");        lastarray_title[0] = std::string(" global rphi residual (mm)");
-  lastarray_name[1] = std::string("_rphi_offsetbfield");  lastarray_title[1] = std::string(" bfield on rphi (mm)");
+  lastarray_name[1] = std::string("_rphi_offsetantisym");  lastarray_title[1] = std::string(" bfield on rphi (mm)");
   lastarray_name[2] = std::string("_rphi_zpos");          lastarray_title[2] = std::string(" local z correction from local x residuals (mm)");
   lastarray_name[3] = std::string("_rphi_slope");         lastarray_title[3] = std::string(" phiy residual (mrad)");
-  lastarray_name[4] = std::string("_rphi_slopebfield");   lastarray_title[4] = std::string(" bfield on phiy (mrad)");
+  lastarray_name[4] = std::string("_rphi_slopeantisym");   lastarray_title[4] = std::string(" bfield on phiy (mrad)");
   lastarray_name[5] = std::string("_rphi_scattering");    lastarray_title[5] = std::string(" distance to scattering center (mm)");
 
   for (int sector = 1;  sector <= 14;  sector++) {
@@ -391,10 +392,10 @@ void AlignmentMonitorMuonSystemMap::book() {
   }
 
   lastarray_name[0] = std::string("_z_offset");        lastarray_title[0] = std::string(" global z residual (mm)");
-  lastarray_name[1] = std::string("_z_offsetbfield");  lastarray_title[1] = std::string(" bfield on z (mm)");
+  lastarray_name[1] = std::string("_z_offsetantisym");  lastarray_title[1] = std::string(" bfield on z (mm)");
   lastarray_name[2] = std::string("_z_phiz");          lastarray_title[2] = std::string(" phiz correction from local y residuals (mrad)");
   lastarray_name[3] = std::string("_z_slope");         lastarray_title[3] = std::string(" phix residual (mrad)");
-  lastarray_name[4] = std::string("_z_slopebfield");   lastarray_title[4] = std::string(" bfield on phix (mrad)");
+  lastarray_name[4] = std::string("_z_slopeantisym");   lastarray_title[4] = std::string(" bfield on phix (mrad)");
   lastarray_name[5] = std::string("_z_scattering");    lastarray_title[5] = std::string(" distance to scattering center (mm)");
 
   for (int sector = 1;  sector <= 14;  sector++) {
@@ -427,10 +428,10 @@ void AlignmentMonitorMuonSystemMap::book() {
   }
 
   lastarray_name[0] = std::string("_rphi_offset");        lastarray_title[0] = std::string(" global rphi residual (mm)");
-  lastarray_name[1] = std::string("_rphi_offsetbfield");  lastarray_title[1] = std::string(" bfield on rphi (mm)");
+  lastarray_name[1] = std::string("_rphi_offsetantisym");  lastarray_title[1] = std::string(" bfield on rphi (mm)");
   lastarray_name[2] = std::string("_rphi_phiz");          lastarray_title[2] = std::string(" phiz correction from local x residuals (mrad)");
   lastarray_name[3] = std::string("_rphi_slope");         lastarray_title[3] = std::string(" phiy residual (mrad)");
-  lastarray_name[4] = std::string("_rphi_slopebfield");   lastarray_title[4] = std::string(" bfield on phiy (mrad)");
+  lastarray_name[4] = std::string("_rphi_slopeantisym");   lastarray_title[4] = std::string(" bfield on phiy (mrad)");
   lastarray_name[5] = std::string("_rphi_scattering");    lastarray_title[5] = std::string(" distance to scattering center (mm)");
 
   for (int wheel = -2;  wheel <= 2;  wheel++) {
@@ -506,10 +507,10 @@ void AlignmentMonitorMuonSystemMap::book() {
   }
 
   lastarray_name[0] = std::string("_z_offset");        lastarray_title[0] = std::string(" global z residual (mm)");
-  lastarray_name[1] = std::string("_z_offsetbfield");  lastarray_title[1] = std::string(" bfield on z (mm)");
+  lastarray_name[1] = std::string("_z_offsetantisym");  lastarray_title[1] = std::string(" bfield on z (mm)");
   lastarray_name[2] = std::string("_z_zpos");          lastarray_title[2] = std::string(" local z correction from local y residuals (mm)");
   lastarray_name[3] = std::string("_z_slope");         lastarray_title[3] = std::string(" phix residual (mrad)");
-  lastarray_name[4] = std::string("_z_slopebfield");   lastarray_title[4] = std::string(" bfield on phix (mrad)");
+  lastarray_name[4] = std::string("_z_slopeantisym");   lastarray_title[4] = std::string(" bfield on phix (mrad)");
   lastarray_name[5] = std::string("_z_scattering");    lastarray_title[5] = std::string(" distance to scattering center (mm)");
 
   for (int wheel = -2;  wheel <= 2;  wheel++) {
@@ -548,8 +549,8 @@ void AlignmentMonitorMuonSystemMap::book() {
   for (std::vector<TH1F*>::const_iterator hist = m_DT13hists.begin();  hist != m_DT13hists.end();  ++hist) {
     for (int i = 1;  i <= (*hist)->GetNbinsX();  i++) {
       std::pair<TH1F*,int> index(*hist, i);
-      MuonResidualsPositionFitter *posfitter = m_positionFitters[index];
-      MuonResidualsAngleFitter *angfitter = m_angleFitters[index];
+      MuonResidualsTwoBin *posfitter = m_positionFitters[index];
+      MuonResidualsTwoBin *angfitter = m_angleFitters[index];
       if (!m_DT13fitScattering) posfitter->fix(MuonResidualsPositionFitter::kScattering);
       if (!m_DT13fitZpos) posfitter->fix(MuonResidualsPositionFitter::kZpos);
       if (!m_DT13fitPhiz) posfitter->fix(MuonResidualsPositionFitter::kPhiz);
@@ -562,8 +563,8 @@ void AlignmentMonitorMuonSystemMap::book() {
   for (std::vector<TH1F*>::const_iterator hist = m_DT2hists.begin();  hist != m_DT2hists.end();  ++hist) {
     for (int i = 1;  i <= (*hist)->GetNbinsX();  i++) {
       std::pair<TH1F*,int> index(*hist, i);
-      MuonResidualsPositionFitter *posfitter = m_positionFitters[index];
-      MuonResidualsAngleFitter *angfitter = m_angleFitters[index];
+      MuonResidualsTwoBin *posfitter = m_positionFitters[index];
+      MuonResidualsTwoBin *angfitter = m_angleFitters[index];
       if (!m_DT2fitScattering) posfitter->fix(MuonResidualsPositionFitter::kScattering);
       posfitter->fix(MuonResidualsPositionFitter::kZpos);
       if (!m_DT2fitPhiz) posfitter->fix(MuonResidualsPositionFitter::kPhiz);
@@ -576,8 +577,8 @@ void AlignmentMonitorMuonSystemMap::book() {
   for (std::vector<TH1F*>::const_iterator hist = m_CSChists.begin();  hist != m_CSChists.end();  ++hist) {
     for (int i = 1;  i <= (*hist)->GetNbinsX();  i++) {
       std::pair<TH1F*,int> index(*hist, i);
-      MuonResidualsPositionFitter *posfitter = m_positionFitters[index];
-      MuonResidualsAngleFitter *angfitter = m_angleFitters[index];
+      MuonResidualsTwoBin *posfitter = m_positionFitters[index];
+      MuonResidualsTwoBin *angfitter = m_angleFitters[index];
       if (!m_CSCfitScattering) posfitter->fix(MuonResidualsPositionFitter::kScattering);
       if (!m_CSCfitZpos) posfitter->fix(MuonResidualsPositionFitter::kZpos);
       if (!m_CSCfitPhiz) posfitter->fix(MuonResidualsPositionFitter::kPhiz);
@@ -598,6 +599,7 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
     const reco::Track* track = (*trajtrack).second;
 
     if (m_minTrackPt < track->pt()  &&  track->pt() < m_maxTrackPt) {
+      char charge = (track->charge() > 0 ? 1 : -1);
       double qoverpt = track->charge() / track->pt();
       double qoverpz = track->charge() / track->pz();
       MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, pNavigator(), 1000.);
@@ -745,8 +747,8 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	    int bin_vsphi = hist_vsphi->FindBin(trackpos.phi());
 
 	    if (1 <= bin_vszr  &&  bin_vszr <= hist_vszr->GetNbinsX()) {
-	      std::map<std::pair<TH1F*,int>,MuonResidualsPositionFitter*>::const_iterator positionFitter_vsz = m_positionFitters.find(std::pair<TH1F*,int>(hist_vszr, bin_vszr));
-	      std::map<std::pair<TH1F*,int>,MuonResidualsAngleFitter*>::const_iterator angleFitter_vsz = m_angleFitters.find(std::pair<TH1F*,int>(hist_vszr, bin_vszr));
+	      std::map<std::pair<TH1F*,int>,MuonResidualsTwoBin*>::const_iterator positionFitter_vsz = m_positionFitters.find(std::pair<TH1F*,int>(hist_vszr, bin_vszr));
+	      std::map<std::pair<TH1F*,int>,MuonResidualsTwoBin*>::const_iterator angleFitter_vsz = m_angleFitters.find(std::pair<TH1F*,int>(hist_vszr, bin_vszr));
 
 	      if (positionFitter_vsz != m_positionFitters.end()) {
 		assert(maxAngleError != 0.);
@@ -756,7 +758,7 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 		  residdata[MuonResidualsPositionFitter::kAngleError] = resslope * signConvention;
 		  residdata[MuonResidualsPositionFitter::kTrackAngle] = trackangle * signConvention;
 		  residdata[MuonResidualsPositionFitter::kTrackPosition] = trackposition * signConvention;
-		  positionFitter_vsz->second->fill(residdata);
+		  positionFitter_vsz->second->fill(charge, residdata);
 		  // the MuonResidualsFitter will delete the array when it is destroyed
 		}
 	      }
@@ -767,14 +769,14 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 		residdata[MuonResidualsAngleFitter::kResidual] = resslope * signConvention;
 		residdata[MuonResidualsAngleFitter::kQoverPt] = qoverpt * signConvention;
 		residdata[MuonResidualsAngleFitter::kQoverPz] = qoverpz * signConvention;
-		angleFitter_vsz->second->fill(residdata);
+		angleFitter_vsz->second->fill(charge, residdata);
 	      }
 	      else assert(false);
 	    }
 
 	    if (1 <= bin_vsphi  &&  bin_vsphi <= hist_vsphi->GetNbinsX()) {
-	      std::map<std::pair<TH1F*,int>,MuonResidualsPositionFitter*>::const_iterator positionFitter_vsphi = m_positionFitters.find(std::pair<TH1F*,int>(hist_vsphi, bin_vsphi));
-	      std::map<std::pair<TH1F*,int>,MuonResidualsAngleFitter*>::const_iterator angleFitter_vsphi = m_angleFitters.find(std::pair<TH1F*,int>(hist_vsphi, bin_vsphi));
+	      std::map<std::pair<TH1F*,int>,MuonResidualsTwoBin*>::const_iterator positionFitter_vsphi = m_positionFitters.find(std::pair<TH1F*,int>(hist_vsphi, bin_vsphi));
+	      std::map<std::pair<TH1F*,int>,MuonResidualsTwoBin*>::const_iterator angleFitter_vsphi = m_angleFitters.find(std::pair<TH1F*,int>(hist_vsphi, bin_vsphi));
 
 	      if (positionFitter_vsphi != m_positionFitters.end()) {
 		assert(maxAngleError != 0.);
@@ -784,7 +786,7 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 		  residdata[MuonResidualsPositionFitter::kAngleError] = resslope * signConvention;
 		  residdata[MuonResidualsPositionFitter::kTrackAngle] = trackangle * signConvention;
 		  residdata[MuonResidualsPositionFitter::kTrackPosition] = trackposition * signConvention;
-		  positionFitter_vsphi->second->fill(residdata);
+		  positionFitter_vsphi->second->fill(charge, residdata);
 		  // this record must be separate because both MuonResidualsFitters will delete their contents
 		}
 	      }
@@ -795,7 +797,7 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 		residdata[MuonResidualsAngleFitter::kResidual] = resslope * signConvention;
 		residdata[MuonResidualsAngleFitter::kQoverPt] = qoverpt * signConvention;
 		residdata[MuonResidualsAngleFitter::kQoverPz] = qoverpz * signConvention;
-		angleFitter_vsphi->second->fill(residdata);
+		angleFitter_vsphi->second->fill(charge, residdata);
 	      }
 	      else assert(false);
 	    }
@@ -818,7 +820,7 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
       fread(&size, sizeof(int), 1, file);
       if (int(m_allFitters.size()) != size) throw cms::Exception("AlignmentMonitorMuonSystemMap") << "file \"" << *fileName << "\" has " << size << " fitters, but this job has " << m_allFitters.size() << " fitters (probably corresponds to the wrong plotting job)" << std::endl;
 
-      std::vector<MuonResidualsFitter*>::const_iterator fitter = m_allFitters.begin();
+      std::vector<MuonResidualsTwoBin*>::const_iterator fitter = m_allFitters.begin();
       for (int i = 0;  i < size;  ++i, ++fitter) {
 	(*fitter)->read(file, i);
       }
@@ -829,41 +831,46 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
 
   if (m_doFits) {
     // run all of the position fitters and put their results into the histograms
-    for (std::map<std::pair<TH1F*,int>,MuonResidualsPositionFitter*>::const_iterator fitter = m_positionFitters.begin();  fitter != m_positionFitters.end();  ++fitter) {
-      std::map<MuonResidualsFitter*,std::pair<TH1F*,int> >::const_iterator offsetBin = m_offsetBin.find((*fitter).second);
-      std::map<MuonResidualsFitter*,std::pair<TH1F*,int> >::const_iterator offsetbfieldBin = m_offsetbfieldBin.find((*fitter).second);
-      std::map<MuonResidualsFitter*,std::pair<TH1F*,int> >::const_iterator scatteringBin = m_scatteringBin.find((*fitter).second);
-      std::map<MuonResidualsFitter*,std::pair<TH1F*,int> >::const_iterator zposBin = m_zposBin.find((*fitter).second);
-      std::map<MuonResidualsFitter*,std::pair<TH1F*,int> >::const_iterator phizBin = m_phizBin.find((*fitter).second);
+    for (std::map<std::pair<TH1F*,int>,MuonResidualsTwoBin*>::const_iterator fitter = m_positionFitters.begin();  fitter != m_positionFitters.end();  ++fitter) {
+      std::map<MuonResidualsTwoBin*,std::pair<TH1F*,int> >::const_iterator offsetBin = m_offsetBin.find((*fitter).second);
+      std::map<MuonResidualsTwoBin*,std::pair<TH1F*,int> >::const_iterator offsetantisymBin = m_offsetantisymBin.find((*fitter).second);
+      std::map<MuonResidualsTwoBin*,std::pair<TH1F*,int> >::const_iterator scatteringBin = m_scatteringBin.find((*fitter).second);
+      std::map<MuonResidualsTwoBin*,std::pair<TH1F*,int> >::const_iterator zposBin = m_zposBin.find((*fitter).second);
+      std::map<MuonResidualsTwoBin*,std::pair<TH1F*,int> >::const_iterator phizBin = m_phizBin.find((*fitter).second);
 
-      double offsetValue = 200000.;
-      double offsetError = 100000.;
-//       double offsetbfieldValue = 200000.;
-//       double offsetbfieldError = 100000.;
-      double scatteringValue = 200000.;
-      double scatteringError = 100000.;
-      double zposValue = 200000.;
-      double zposError = 100000.;
-      double phizValue = 200000.;
-      double phizError = 100000.;
+      double offsetValue = 2e10;
+      double offsetError = 1e10;
+      double offsetAntisym = 2e10;
+      double scatteringValue = 2e10;
+      double scatteringError = 1e10;
+      double zposValue = 2e10;
+      double zposError = 1e10;
+      double phizValue = 2e10;
+      double phizError = 1e10;
 
       // the fit is verbose in std::cout anyway
       std::cout << "=====================================================================================================" << std::endl;
-      std::cout << "Fitting " << offsetBin->second.first->GetTitle() << " bin " << offsetBin->second.second << " (" << fitter->second->numResiduals() << " super-residuals)" << std::endl;
-      std::cout << "=====================================================================================================" << std::endl;
+      std::cout << "Fitting " << offsetBin->second.first->GetTitle() << " bin " << offsetBin->second.second << " (" << fitter->second->numResidualsPos() << " + " << fitter->second->numResidualsNeg() << " super-residuals)" << std::endl;
       if (fitter->second->fit(0.)) {
 	offsetValue = fitter->second->value(MuonResidualsPositionFitter::kPosition) * 10.;                // convert from cm to mm
-	offsetError = fitter->second->minoserr(MuonResidualsPositionFitter::kPosition) * 10.;
+	offsetError = fitter->second->error(MuonResidualsPositionFitter::kPosition) * 10.;
+	offsetAntisym = fitter->second->antisym(MuonResidualsPositionFitter::kPosition) * 10.;
 	scatteringValue = fitter->second->value(MuonResidualsPositionFitter::kScattering) * 10.;          // convert from cm to mm
-	scatteringError = fitter->second->minoserr(MuonResidualsPositionFitter::kScattering) * 10.;
+	scatteringError = fitter->second->error(MuonResidualsPositionFitter::kScattering) * 10.;
 	zposValue = fitter->second->value(MuonResidualsPositionFitter::kZpos) * 10.;                      // convert from cm to mm
-	zposError = fitter->second->minoserr(MuonResidualsPositionFitter::kZpos) * 10.;
+	zposError = fitter->second->error(MuonResidualsPositionFitter::kZpos) * 10.;
 	phizValue = fitter->second->value(MuonResidualsPositionFitter::kPhiz) * 1000.;                    // convert from radians to mrad
-	phizError = fitter->second->minoserr(MuonResidualsPositionFitter::kPhiz) * 1000.;
+	phizError = fitter->second->error(MuonResidualsPositionFitter::kPhiz) * 1000.;
       }
 
       if (offsetBin != m_offsetBin.end()) {
 	offsetBin->second.first->SetBinContent(offsetBin->second.second, offsetValue);
+	offsetBin->second.first->SetBinError(offsetBin->second.second, offsetError);
+      }
+      else assert(false);
+    
+      if (offsetantisymBin != m_offsetantisymBin.end()) {
+	offsetBin->second.first->SetBinContent(offsetBin->second.second, offsetAntisym);
 	offsetBin->second.first->SetBinError(offsetBin->second.second, offsetError);
       }
       else assert(false);
@@ -888,24 +895,21 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
     }
   
     // run all of the angle fitters and put their results into the histograms
-    for (std::map<std::pair<TH1F*,int>,MuonResidualsAngleFitter*>::const_iterator fitter = m_angleFitters.begin();  fitter != m_angleFitters.end();  ++fitter) {
-      std::map<MuonResidualsFitter*,std::pair<TH1F*,int> >::const_iterator slopeBin = m_slopeBin.find((*fitter).second);
-      std::map<MuonResidualsFitter*,std::pair<TH1F*,int> >::const_iterator slopebfieldBin = m_slopebfieldBin.find((*fitter).second);
+    for (std::map<std::pair<TH1F*,int>,MuonResidualsTwoBin*>::const_iterator fitter = m_angleFitters.begin();  fitter != m_angleFitters.end();  ++fitter) {
+      std::map<MuonResidualsTwoBin*,std::pair<TH1F*,int> >::const_iterator slopeBin = m_slopeBin.find((*fitter).second);
+      std::map<MuonResidualsTwoBin*,std::pair<TH1F*,int> >::const_iterator slopeantisymBin = m_slopeantisymBin.find((*fitter).second);
 
-      double slopeValue = 2000.;
-      double slopeError = 1000.;
-      double slopebfieldValue = 2000.;
-      double slopebfieldError = 1000.;
+      double slopeValue = 2e10;
+      double slopeError = 1e10;
+      double slopeAntisym = 2e10;
 
       // the fit is verbose in std::cout anyway
       std::cout << "=====================================================================================================" << std::endl;
-      std::cout << "Fitting " << slopeBin->second.first->GetTitle() << " bin " << slopeBin->second.second << " (" << fitter->second->numResiduals() << " super-residuals)" << std::endl;
-      std::cout << "=====================================================================================================" << std::endl;
+      std::cout << "Fitting " << slopeBin->second.first->GetTitle() << " bin " << slopeBin->second.second << " (" << fitter->second->numResidualsPos() << " + " << fitter->second->numResidualsNeg() << " super-residuals)" << std::endl;
       if (fitter->second->fit(0.)) {
 	slopeValue = fitter->second->value(MuonResidualsAngleFitter::kAngle) * 1000.;                     // convert from radians to mrad
-	slopeError = fitter->second->minoserr(MuonResidualsAngleFitter::kAngle) * 1000.;
-	slopebfieldValue = 0.;  // fitter->second->value(MuonResidualsAngleFitter::kBfield) * 0.05 * 1000.;       // evaluate at 20 GeV and convert to mrad
-	slopebfieldError = 0.;  // fitter->second->minoserr(MuonResidualsAngleFitter::kBfield) * 0.05 * 1000.;
+	slopeError = fitter->second->error(MuonResidualsAngleFitter::kAngle) * 1000.;
+	slopeAntisym = fitter->second->antisym(MuonResidualsAngleFitter::kAngle) * 1000.;
       }
 
       if (slopeBin != m_slopeBin.end()) {
@@ -914,42 +918,54 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
       }
       else assert(false);
 
-      if (slopebfieldBin != m_slopebfieldBin.end()) {
-	slopebfieldBin->second.first->SetBinContent(slopebfieldBin->second.second, slopebfieldValue);
-	slopebfieldBin->second.first->SetBinError(slopebfieldBin->second.second, slopebfieldError);
+      if (slopeantisymBin != m_slopeantisymBin.end()) {
+	slopeantisymBin->second.first->SetBinContent(slopeantisymBin->second.second, slopeAntisym);
+	slopeantisymBin->second.first->SetBinError(slopeantisymBin->second.second, slopeError);
       }
       else assert(false);
     }
   } // end doFits
 
   // fill the profiles and simple histograms whether or not you actually do fitting
-  for (std::map<MuonResidualsPositionFitter*,std::pair<TProfile*,int> >::const_iterator fitter = m_offsetprofs.begin();  fitter != m_offsetprofs.end();  ++fitter) {
+  for (std::map<MuonResidualsTwoBin*,std::pair<TProfile*,int> >::const_iterator fitter = m_offsetprofs.begin();  fitter != m_offsetprofs.end();  ++fitter) {
     TProfile* prof = fitter->second.first;
     int bin = fitter->second.second;
     double center = prof->GetBinCenter(bin);
 
-    for (std::vector<double*>::const_iterator residiter = fitter->first->residuals_begin();  residiter != fitter->first->residuals_end();  ++residiter) {
+    for (std::vector<double*>::const_iterator residiter = fitter->first->residualsPos_begin();  residiter != fitter->first->residualsPos_end();  ++residiter) {
+      prof->Fill(center, (*residiter)[MuonResidualsPositionFitter::kResidual]) * 10.;
+    }
+    for (std::vector<double*>::const_iterator residiter = fitter->first->residualsNeg_begin();  residiter != fitter->first->residualsNeg_end();  ++residiter) {
       prof->Fill(center, (*residiter)[MuonResidualsPositionFitter::kResidual]) * 10.;
     }
   }
-  for (std::map<MuonResidualsAngleFitter*,std::pair<TProfile*,int> >::const_iterator fitter = m_slopeprofs.begin();  fitter != m_slopeprofs.end();  ++fitter) {
+  for (std::map<MuonResidualsTwoBin*,std::pair<TProfile*,int> >::const_iterator fitter = m_slopeprofs.begin();  fitter != m_slopeprofs.end();  ++fitter) {
     TProfile* prof = fitter->second.first;
     int bin = fitter->second.second;
     double center = prof->GetBinCenter(bin);
 
-    for (std::vector<double*>::const_iterator residiter = fitter->first->residuals_begin();  residiter != fitter->first->residuals_end();  ++residiter) {
+    for (std::vector<double*>::const_iterator residiter = fitter->first->residualsPos_begin();  residiter != fitter->first->residualsPos_end();  ++residiter) {
+      prof->Fill(center, (*residiter)[MuonResidualsAngleFitter::kResidual] * 1000.);
+    }
+    for (std::vector<double*>::const_iterator residiter = fitter->first->residualsNeg_begin();  residiter != fitter->first->residualsNeg_end();  ++residiter) {
       prof->Fill(center, (*residiter)[MuonResidualsAngleFitter::kResidual] * 1000.);
     }
   }
-  for (std::map<MuonResidualsPositionFitter*,TH1F*>::const_iterator fitter = m_offsethists.begin();  fitter != m_offsethists.end();  ++fitter) {
+  for (std::map<MuonResidualsTwoBin*,TH1F*>::const_iterator fitter = m_offsethists.begin();  fitter != m_offsethists.end();  ++fitter) {
     TH1F* hist = fitter->second;
-    for (std::vector<double*>::const_iterator residiter = fitter->first->residuals_begin();  residiter != fitter->first->residuals_end();  ++residiter) {
+    for (std::vector<double*>::const_iterator residiter = fitter->first->residualsPos_begin();  residiter != fitter->first->residualsPos_end();  ++residiter) {
+      hist->Fill((*residiter)[MuonResidualsPositionFitter::kResidual]) * 10.;
+    }
+    for (std::vector<double*>::const_iterator residiter = fitter->first->residualsNeg_begin();  residiter != fitter->first->residualsNeg_end();  ++residiter) {
       hist->Fill((*residiter)[MuonResidualsPositionFitter::kResidual]) * 10.;
     }
   }
-  for (std::map<MuonResidualsAngleFitter*,TH1F*>::const_iterator fitter = m_slopehists.begin();  fitter != m_slopehists.end();  ++fitter) {
+  for (std::map<MuonResidualsTwoBin*,TH1F*>::const_iterator fitter = m_slopehists.begin();  fitter != m_slopehists.end();  ++fitter) {
     TH1F* hist = fitter->second;
-    for (std::vector<double*>::const_iterator residiter = fitter->first->residuals_begin();  residiter != fitter->first->residuals_end();  ++residiter) {
+    for (std::vector<double*>::const_iterator residiter = fitter->first->residualsPos_begin();  residiter != fitter->first->residualsPos_end();  ++residiter) {
+      hist->Fill((*residiter)[MuonResidualsAngleFitter::kResidual] * 1000.);
+    }
+    for (std::vector<double*>::const_iterator residiter = fitter->first->residualsNeg_begin();  residiter != fitter->first->residualsNeg_end();  ++residiter) {
       hist->Fill((*residiter)[MuonResidualsAngleFitter::kResidual] * 1000.);
     }
   }
@@ -961,7 +977,7 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
     int size = m_allFitters.size();
     fwrite(&size, sizeof(int), 1, file);
 
-    std::vector<MuonResidualsFitter*>::const_iterator fitter = m_allFitters.begin();
+    std::vector<MuonResidualsTwoBin*>::const_iterator fitter = m_allFitters.begin();
     for (int i = 0;  i < size;  ++i, ++fitter) {
       (*fitter)->write(file, i);
     }

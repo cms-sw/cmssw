@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFitter_H
 
 /** \class MuonResidualsFitter
- *  $Date: 2009/03/15 19:54:23 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/03/24 00:04:44 $
+ *  $Revision: 1.4 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -71,10 +71,7 @@ public:
   // also gamma is only valid if the model is kPowerLawTails
   virtual bool fit(double v1) = 0;
   double value(int parNum) { assert(m_goodfit  &&  0 <= parNum  &&  parNum < npar());  return m_value[parNum]; };
-  double error(int parNum) { assert(m_goodfit  &&  0 <= parNum  &&  parNum < npar());  return m_error[parNum]; };
-  double uperr(int parNum) { assert(m_goodfit  &&  0 <= parNum  &&  parNum < npar());  return m_uperr[parNum]; };
-  double downerr(int parNum) { assert(m_goodfit  &&  0 <= parNum  &&  parNum < npar());  return m_downerr[parNum]; };
-  double minoserr(int parNum) { return (fabs(uperr(parNum)) + fabs(downerr(parNum))) / 2.; };
+  double error(int parNum) { assert(m_goodfit  &&  0 <= parNum  &&  parNum < npar());  return (fabs(m_uperr[parNum]) + fabs(m_downerr[parNum])) / 2.; };
 
   // demonstration plots
   virtual void plot(double v1, std::string name, TFileDirectory *dir) = 0;

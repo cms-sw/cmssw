@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsTwoBin_H
 
 /** \class MuonResidualsTwoBin
- *  $Date: Mon Mar 23 18:32:20 CDT 2009 $
- *  $Revision: 1.0 $
+ *  $Date: 2009/03/24 00:04:04 $
+ *  $Revision: 1.1 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -14,6 +14,12 @@ class MuonResidualsTwoBin {
 public:
   MuonResidualsTwoBin(MuonResidualsFitter *pos, MuonResidualsFitter *neg): m_pos(pos), m_neg(neg) {};
   ~MuonResidualsTwoBin() { delete m_pos;  delete m_neg; };
+
+  int residualsModel() const { assert(m_pos->residualsModel() == m_neg->residualsModel());  return m_pos->residualsModel(); };
+  long numResidualsPos() const { return m_pos->numResiduals(); };
+  long numResidualsNeg() const { return m_neg->numResiduals(); };
+  int npar() { assert(m_pos->npar() == m_neg->npar());  return m_pos->npar(); };
+  int ndata() { assert(m_pos->ndata() == m_neg->ndata());  return m_pos->ndata(); };
 
   void fix(int parNum, bool value=true) {
     m_pos->fix(parNum, value);
@@ -31,11 +37,8 @@ public:
 
   bool fit(double v1) { return m_pos->fit(v1)  &&  m_neg->fit(v1); };
   double value(int parNum) { return (m_pos->value(parNum) + m_neg->value(parNum)) / 2.; };
-  double antisym(int parNum) { return (m_pos->value(parNum) - m_neg->value(parNum)) / 2.; };
   double error(int parNum) { return sqrt(pow(m_pos->error(parNum), 2.) + pow(m_neg->error(parNum), 2.)) / 2.; };
-  double uperr(int parNum) { return sqrt(pow(m_pos->uperr(parNum), 2.) + pow(m_neg->uperr(parNum), 2.)) / 2.; };
-  double downerr(int parNum) { return -sqrt(pow(m_pos->downerr(parNum), 2.) + pow(m_neg->downerr(parNum), 2.)) / 2.; };
-  double minoserr(int parNum) { return sqrt(pow(m_pos->minoserr(parNum), 2.) + pow(m_neg->minoserr(parNum), 2.)) / 2.; };
+  double antisym(int parNum) { return (m_pos->value(parNum) - m_neg->value(parNum)) / 2.; };
 
   // demonstration plots
   void plot(double v1, std::string name, TFileDirectory *dir) {
@@ -56,6 +59,11 @@ public:
   // I/O of temporary files for collect mode
   void write(FILE *file, int which=0) { m_pos->write(file, 2*which);  m_neg->write(file, 2*which + 1); };
   void read(FILE *file, int which=0) { m_pos->read(file, 2*which);  m_neg->read(file, 2*which + 1); }
+
+  std::vector<double*>::const_iterator residualsPos_begin() const { return m_pos->residuals_begin(); };
+  std::vector<double*>::const_iterator residualsPos_end() const { return m_pos->residuals_end(); };
+  std::vector<double*>::const_iterator residualsNeg_begin() const { return m_neg->residuals_begin(); };
+  std::vector<double*>::const_iterator residualsNeg_end() const { return m_neg->residuals_end(); };
 
 protected:
   MuonResidualsFitter *m_pos, *m_neg;
