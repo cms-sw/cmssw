@@ -38,8 +38,12 @@ process.QualityReader = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(
 		cms.PSet(
 			record = cms.string("SiPixelLorentzAngleRcd"),
-			tag = cms.string("trivial_LorentzAngle")	
-		)	
+			tag = cms.string("trivial_LorentzAngle")
+		),
+		cms.PSet(
+			record = cms.string("SiPixelLorentzAngleSimRcd"),
+			tag = cms.string("trivial_LorentzAngle_Sim")
+		)
 	),
     connect = cms.string('sqlite_file:SiPixelLorentzAngle.db')
 )
@@ -47,7 +51,16 @@ process.QualityReader = cms.ESSource("PoolDBESSource",
 process.es_prefer_QualityReader = cms.ESPrefer("PoolDBESSource","QualityReader")
 
 process.LorentzAngleReader = cms.EDFilter("SiPixelLorentzAngleReader",
-    printDebug = cms.untracked.bool(False)
+    printDebug = cms.untracked.bool(False),
+    useSimRcd = cms.bool(False)
 )
 
-process.p = cms.Path(process.LorentzAngleReader)
+process.LorentzAngleSimReader = cms.EDFilter("SiPixelLorentzAngleReader",
+    printDebug = cms.untracked.bool(False),
+    useSimRcd = cms.bool(True)
+                                             
+)
+
+
+process.p = cms.Path(process.LorentzAngleReader*process.LorentzAngleSimReader)
+

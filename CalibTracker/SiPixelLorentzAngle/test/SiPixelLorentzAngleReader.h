@@ -34,6 +34,7 @@
     bool printdebug_;
     TH1F* LorentzAngleBarrel_;
     TH1F* LorentzAngleForward_;
+    bool useSimRcd_;
   };
 
 #endif
