@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2009/03/10 16:09:13 $
- * $Revision: 1.33 $
+ * $Date: 2009/03/19 17:42:27 $
+ * $Revision: 1.35 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -328,7 +328,7 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg, GlobalPoint &gpos,
     // define the local position (extr.) of the segment. Needed by the third step 
     LocalPoint segPosAtLayer=segPos+segDir*(-segPos.z())/cos(segDir.theta());
 
-    DTRecHit1D newHit1D=(*hit);
+    DTRecHit1D newHit1D = (*hit);
 
     bool ok = true;
 
@@ -347,28 +347,24 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg, GlobalPoint &gpos,
 
     } else if (step == 4) {
 
-  static const double vminf = seg->vDrift();   //  vdrift correction are recorded in the segment    
-  static const double cminf = - seg->t0()*0.00543;
+      static const double vminf = seg->vDrift();   //  vdrift correction are recorded in the segment    
+      static const double cminf = - seg->t0()*0.00543;
 
-    const float xwire = layer->specificTopology().wirePosition(hit->wireId().wire());
-    const float distance = fabs(hit->localPosition().x() - xwire);
+      const float xwire = layer->specificTopology().wirePosition(hit->wireId().wire());
+      const float distance = fabs(hit->localPosition().x() - xwire);
 
-    const int ilc = ( hit->lrSide() == DTEnums::Left ) ? 1 : -1;
+      const int ilc = ( hit->lrSide() == DTEnums::Left ) ? 1 : -1;
 
-    const double dy_corr = (vminf*ilc*distance-cminf*ilc ); 
+      const double dy_corr = (vminf*ilc*distance-cminf*ilc ); 
 
-    LocalPoint point(hit->localPosition().x() + dy_corr, +segPosAtLayer.y(), 0.);
+      LocalPoint point(hit->localPosition().x() + dy_corr, +segPosAtLayer.y(), 0.);
 
-    LocalError error(T0_hit_resolution*T0_hit_resolution,0.,0.);
+      LocalError error(T0_hit_resolution*T0_hit_resolution,0.,0.);
 
-        newHit1D.setPositionAndError(point, error);
-
-      updatedRecHits.push_back(newHit1D);
+      newHit1D.setPositionAndError(point, error);
 
       //FIXME: check that the hit is still inside the cell
       ok = true;
-
-
 
     } else throw cms::Exception("DTSegmentUpdator")<<" updateHits called with wrong step " << endl;
 
