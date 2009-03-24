@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 rpcunpacker = cms.EDFilter("RPCUnpackingModule",
-    InputLabel = cms.untracked.InputTag("source"),
-    doSynchro = cms.bool(False)
+    InputLabel = cms.InputTag("source"),
+    doSynchro = cms.bool(True)
 )
 
 

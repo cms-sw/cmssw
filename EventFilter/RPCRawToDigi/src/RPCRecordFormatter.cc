@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2008/11/28 15:50:10 $
- *  $Revision: 1.40 $
+ *  $Date: 2009/01/24 00:24:26 $
+ *  $Revision: 1.41 $
  *
  * \author Ilaria Segoni
  */
@@ -106,6 +106,10 @@ int RPCRecordFormatter::recordUnpack(
   eleIndex.lbNumInLink = event.recordCD().lbInLink();
 
   if(synchro) synchro->push_back( make_pair(eleIndex,event.dataToTriggerDelay() ));
+
+  if( event.recordCD().eod() ) {
+     if(counter) counter->addReadoutError(currentFED, ReadoutError(ReadoutError::EOD));
+  }
 
   if(readoutMapping == 0) return error.type();
   const LinkBoardSpec* linkBoard = readoutMapping->location(eleIndex);

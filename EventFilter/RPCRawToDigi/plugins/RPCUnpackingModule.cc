@@ -36,7 +36,7 @@ typedef uint64_t Word64;
 
 
 RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset) 
-  : dataLabel_(pset.getUntrackedParameter<edm::InputTag>("InputLabel",edm::InputTag("source"))),
+  : dataLabel_(pset.getParameter<edm::InputTag>("InputLabel")),
     doSynchro_(pset.getParameter<bool>("doSynchro")),
     eventCounter_(0),
     theCabling(0)
@@ -176,11 +176,12 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
           str <<" type:"<<record.type()<<DataRecord::print(record);
           if (event.complete()) {
             str<< " --> dccId: "<<fedId
-               << " dccInputChannelNum: " <<event.recordSLD().rmb()
-               << " tbLinkInputNum: "<<event.recordSLD().tbLinkInputNumber()
-               << " lbNumInLink: "<<event.recordCD().lbInLink()
-               << " partition "<<event.recordCD().partitionNumber()
-               << " cdData "<<event.recordCD().partitionData();
+               << " rmb: " <<event.recordSLD().rmb()
+               << " lnk: "<<event.recordSLD().tbLinkInputNumber()
+               << " lb: "<<event.recordCD().lbInLink()
+               << " part: "<<event.recordCD().partitionNumber()
+               << " data: "<<event.recordCD().partitionData()
+               << " eod: "<<event.recordCD().eod();
           }
           LogTrace("") << str.str();
         }

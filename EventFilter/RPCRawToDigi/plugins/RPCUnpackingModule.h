@@ -3,12 +3,8 @@
 
 
 /** \class RPCUnpackingModule
- *  Driver class for unpacking RPC raw data (DCC format)
- *
- *  $Date: 2008/03/28 07:39:46 $
- *  $Revision: 1.4 $
- *  \author Ilaria Segoni - CERN
- */
+ ** unpacking RPC raw data
+ **/
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
