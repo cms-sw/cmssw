@@ -28,7 +28,7 @@ class SourceCardRouting {
 			unsigned short (&eNonIsoRegionId)[4],
 			unsigned short (&MIPbits)[7][2],
 			unsigned short (&Qbits)[7][2],
-			unsigned short (&SFP)[2][4] 	);
+			unsigned short (&SFP)[2][4] 	) const;
 
 //SFP arrays are SFP[cycle<2][sfp number<4]
 //electron arrays are eIsoRank[candidate number<4]
@@ -41,7 +41,7 @@ class SourceCardRouting {
 			unsigned short (&eNonIsoRegionId)[4],
 			unsigned short (&MIPbits)[7][2],
 			unsigned short (&Qbits)[7][2],
-			unsigned short (&SFP)[2][4]	);
+			unsigned short (&SFP)[2][4]	) const;
 
 /***********************************************************************************************************************/
 //RC arrays are RC[receiver card number<7][region<2]
@@ -52,7 +52,7 @@ class SourceCardRouting {
 			unsigned short (&RCtau)[7][2],
 			unsigned short (&HF)[4][2],
 			unsigned short (&HFQ)[4][2],
-			unsigned short (&SFP)[2][4]	);
+			unsigned short (&SFP)[2][4]	) const;
 
 //RC arrays are RC[receiver card number<7][region<2]
 //HF arrays are HF[eta<4][HF region<2]
@@ -62,21 +62,21 @@ class SourceCardRouting {
 			unsigned short (&RCtau)[7][2],
 			unsigned short (&HF)[4][2],
 			unsigned short (&HFQ)[4][2],
-			unsigned short (&SFP)[2][4]	);
+			unsigned short (&SFP)[2][4]	) const;
 
 //RC arrays are RC[receiver card number<7][region<2]
 //SFP arrays are SFP[cycle<2][sfp number<4]
     void RC012toSFP(	unsigned short (&RC)[7][2],
 			unsigned short (&RCof)[7][2],
 			unsigned short (&RCtau)[7][2],
-			unsigned short (&SFP)[2][4]	);
+			unsigned short (&SFP)[2][4]	) const;
 
 //RC arrays are RC[receiver card number<7][region<2]
 //SFP arrays are SFP[cycle<2][sfp number<4]
     void SFPtoRC012(	unsigned short (&RC)[7][2],
 			unsigned short (&RCof)[7][2],
 			unsigned short (&RCtau)[7][2],
-			unsigned short (&SFP)[2][4]	);
+			unsigned short (&SFP)[2][4]	) const;
 
 //RC arrays are RC[receiver card number<7][region<2]
 //SFP arrays are SFP[cycle<2][sfp number<4]
@@ -86,7 +86,7 @@ class SourceCardRouting {
 			unsigned short (&sisterRC)[7][2],
 			unsigned short (&sisterRCof)[7][2],
 			unsigned short (&sisterRCtau)[7][2],
-			unsigned short (&SFP)[2][4]	);
+			unsigned short (&SFP)[2][4]	) const;
 
 //RC arrays are RC[receiver card number<7][region<2]
 //SFP arrays are SFP[cycle<2][sfp number<4]
@@ -96,7 +96,7 @@ class SourceCardRouting {
 			unsigned short (&sisterRC)[7][2],
 			unsigned short (&sisterRCof)[7][2],
 			unsigned short (&sisterRCtau)[7][2],
-			unsigned short (&SFP)[2][4]	);
+			unsigned short (&SFP)[2][4]	) const;
 
 /***********************************************************************************************************************/
 
@@ -105,14 +105,14 @@ class SourceCardRouting {
 
     void SFPtoVHDCI(	int RoutingMode,
 			unsigned short (&SFP)[2][4],
-			unsigned long (&VHDCI)[2][2] );
+			unsigned long (&VHDCI)[2][2] ) const;
 
 
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
 //SFP arrays are SFP[cycle<2][sfp number<4]
     void VHDCItoSFP(	int RoutingMode,
 			unsigned short (&SFP)[2][4],
-			unsigned long (&VHDCI)[2][2]	);
+			unsigned long (&VHDCI)[2][2]	) const;
 
 /***********************************************************************************************************************/
 
@@ -128,7 +128,7 @@ class SourceCardRouting {
 			unsigned short (&eNonIsoRegionId)[4],
 			unsigned short (&MIPbits)[7][2],
 			unsigned short (&Qbits)[7][2],
-			unsigned long (&VHDCI)[2][2] 	);
+			unsigned long (&VHDCI)[2][2] 	) const;
 
 
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
@@ -142,7 +142,7 @@ class SourceCardRouting {
 			unsigned short (&eNonIsoRegionId)[4],
 			unsigned short (&MIPbits)[7][2],
 			unsigned short (&Qbits)[7][2],
-			unsigned long (&VHDCI)[2][2]	);
+			unsigned long (&VHDCI)[2][2]	) const;
 
 
 
@@ -156,7 +156,7 @@ class SourceCardRouting {
 			unsigned short (&RCtau)[7][2],
 			unsigned short (&HF)[4][2],
 			unsigned short (&HFQ)[4][2],
-			unsigned long (&VHDCI)[2][2]	);
+			unsigned long (&VHDCI)[2][2]	) const;
 
 //RC arrays are RC[receiver card number<7][region<2]
 //HF arrays are HF[eta<4][HF region<2]
@@ -166,21 +166,21 @@ class SourceCardRouting {
 			unsigned short (&RCtau)[7][2],
 			unsigned short (&HF)[4][2],
 			unsigned short (&HFQ)[4][2],
-			unsigned long (&VHDCI)[2][2]	);
+			unsigned long (&VHDCI)[2][2]	) const;
 
 //RC arrays are RC[receiver card number<7][region<2]
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
     void RC012toVHDCI(	unsigned short (&RC)[7][2],
 			unsigned short (&RCof)[7][2],
 			unsigned short (&RCtau)[7][2],
-			unsigned long (&VHDCI)[2][2]);
+			unsigned long (&VHDCI)[2][2]) const;
 
 //RC arrays are RC[receiver card number<7][region<2]
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
     void VHDCItoRC012(	unsigned short (&RC)[7][2],
 			unsigned short (&RCof)[7][2],
 			unsigned short (&RCtau)[7][2],
-			unsigned long (&VHDCI)[2][2]	);
+			unsigned long (&VHDCI)[2][2]	) const;
 
 //RC arrays are RC[receiver card number<7][region<2]
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
@@ -190,7 +190,7 @@ class SourceCardRouting {
 			unsigned short (&sisterRC)[7][2],
 			unsigned short (&sisterRCof)[7][2],
 			unsigned short (&sisterRCtau)[7][2],
-			unsigned long (&VHDCI)[2][2]	);
+			unsigned long (&VHDCI)[2][2]	) const;
 
 //RC arrays are RC[receiver card number<7][region<2]
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
@@ -200,7 +200,7 @@ class SourceCardRouting {
 			unsigned short (&sisterRC)[7][2],
 			unsigned short (&sisterRCof)[7][2],
 			unsigned short (&sisterRCtau)[7][2],
-			unsigned long (&VHDCI)[2][2]	);
+			unsigned long (&VHDCI)[2][2]	) const;
 
 /***********************************************************************************************************************/
 
@@ -217,7 +217,7 @@ class SourceCardRouting {
 			unsigned short (&eNonIsoRegionId)[4],
 			unsigned short (&MIPbits)[7][2],
 			unsigned short (&Qbits)[7][2],
-			std::string &dataString	);
+			std::string &dataString	) const;
 
 //RC arrays are RC[receiver card number<7][region<2]
 //HF arrays are HF[eta<4][HF region<2]
@@ -228,7 +228,7 @@ class SourceCardRouting {
 			unsigned short (&RCtau)[7][2],
 			unsigned short (&HF)[4][2],
 			unsigned short (&HFQ)[4][2],
-			std::string &dataString	);
+			std::string &dataString	) const;
 
 //RC arrays are RC[receiver card number<7][region<2]
     void RC012toSTRING(	unsigned short &logicalCardID,
@@ -236,7 +236,7 @@ class SourceCardRouting {
 			unsigned short (&RC)[7][2],
 			unsigned short (&RCof)[7][2],
 			unsigned short (&RCtau)[7][2],
-			std::string &dataString	);
+			std::string &dataString	) const;
 
 //RC arrays are RC[receiver card number<7][region<2]
     void RC234toSTRING(	unsigned short &logicalCardID,
@@ -247,7 +247,7 @@ class SourceCardRouting {
 			unsigned short (&sisterRC)[7][2],
 			unsigned short (&sisterRCof)[7][2],
 			unsigned short (&sisterRCtau)[7][2],
-			std::string &dataString	);
+			std::string &dataString	) const;
 
 /***********************************************************************************************************************/
 
@@ -256,7 +256,7 @@ class SourceCardRouting {
 			unsigned short &eventNumber,
 			int RoutingMode,
 			unsigned short (&SFP)[2][4],
-			std::string &dataString	);
+			std::string &dataString	) const;
 
 /***********************************************************************************************************************/
 
@@ -264,24 +264,24 @@ class SourceCardRouting {
     void STRINGtoVHDCI(	unsigned short &logicalCardID,
 			unsigned short &eventNumber,
 			std::string &dataString,
-			unsigned long (&VHDCI)[2][2]	);
+			unsigned long (&VHDCI)[2][2]	) const;
 
 
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
     void VHDCItoSTRING(	unsigned short &logicalCardID,
 			unsigned short &eventNumber,
 			std::string &dataString,
-			unsigned long (&VHDCI)[2][2]	);
+			unsigned long (&VHDCI)[2][2]	) const;
 
 /***********************************************************************************************************************/
 
     void LogicalCardIDtoRoutingMode( unsigned short &logicalCardID,
 				     int &RoutingMode,
-				     int &RCTCrateNumber	);
+				     int &RCTCrateNumber	) const;
 
    void RoutingModetoLogicalCardID( unsigned short &logicalCardID,
 				     int &RoutingMode,
-				     int &RCTCrateNumber	);
+				     int &RCTCrateNumber	) const;
 
 
 
