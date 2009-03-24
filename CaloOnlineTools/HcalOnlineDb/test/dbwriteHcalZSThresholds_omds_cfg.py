@@ -22,11 +22,17 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.es_ascii = cms.ESSource("HcalOmdsCalibrations",
     input = cms.VPSet(cms.PSet(
-        #object = cms.string('ChannelQuality'),
         object = cms.string('ZSThresholds'),
-        #file = cms.FileInPath('occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22')
-        #file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_channelStatus_default.txt')
-        tag = cms.string('GREN_ZS_9adc_v2')
+        tag = cms.string('GREN_ZS_9adc_v2'),
+        version = cms.string('GREN07:1'),
+        subversion = cms.int32(1),
+        accessor = cms.string('occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44,LHWM_VERSION=22'),
+        query = cms.string('''
+        SELECT zero_suppression, z*eta as ieta, phi, depth, detector_name as subdetector 
+        FROM CMS_HCL_HCAL_CONDITION_OWNER.V_HCAL_ZERO_SUPPRESSION 
+        FROM CMS_HCL_HCAL_COND.V_HCAL_ZERO_SUPPRESSION 
+        WHERE TAG_NAME=\'GREN_ZS_9adc_v2\'
+        ''')
     ))
 )
 

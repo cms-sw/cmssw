@@ -1,7 +1,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalTextCalibrations
-// $Id: HcalOmdsCalibrations.h,v 1.0 2009/03/11 18:04:35 kukartse Exp $
+// $Id: HcalOmdsCalibrations.h,v 1.1 2009/03/13 11:27:36 kukartse Exp $
 //
 //
 #include <map>
@@ -52,5 +52,9 @@ protected:
   std::auto_ptr<HcalL1TriggerObjects> produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd);
  private:
   std::map <std::string, std::string> mInputs;
+  std::map <std::string, std::string> mVersion;
+  std::map <std::string, int> mSubversion;
+  std::map <std::string, std::string> mAccessor;
+  std::map <std::string, std::string> mQuery;
 };
 

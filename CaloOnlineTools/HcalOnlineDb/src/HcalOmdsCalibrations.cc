@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalOmdsCalibrations
-// $Id: HcalOmdsCalibrations.cc,v 1.1 2009/03/13 11:27:37 kukartse Exp $
+// $Id: HcalOmdsCalibrations.cc,v 1.2 2009/03/14 15:52:06 kukartse Exp $
 //
 //
 
@@ -45,8 +45,12 @@ HcalOmdsCalibrations::HcalOmdsCalibrations ( const edm::ParameterSet& iConfig )
   std::vector<edm::ParameterSet>::iterator request = data.begin ();
   for (; request != data.end (); request++) {
     std::string objectName = request->getParameter<std::string> ("object");
-    //edm::FileInPath fp = request->getParameter<edm::FileInPath>("file");
-    //mInputs [objectName] = fp.fullPath();
+
+    if (request->exists("version")) mVersion[objectName] = request->getParameter<string>("version");
+    if (request->exists("subversion")) mSubversion[objectName] = request->getParameter<int>("subversion");
+    if (request->exists("accessor")) mAccessor[objectName] = request->getParameter<string>("accessor");
+    if (request->exists("query")) mQuery[objectName] = request->getParameter<string>("query");
+
     mInputs [objectName] = request->getParameter<std::string>("tag");
     if (objectName == "Pedestals") {
       setWhatProduced (this, &HcalOmdsCalibrations::producePedestals);
@@ -124,7 +128,6 @@ std::auto_ptr<T> produce_impl (const std::string & fTag, const std::string& fAcc
 
   HCALConfigDB * db = new HCALConfigDB();
   try {
-    // FIXME: check that all disconnects, releases and cleanup is done in the end
     db -> connect( fAccessor );
   } catch (hcal::exception::ConfigurationDatabaseException & e) {
     std::cerr << "Cannot connect to the database" << endl;

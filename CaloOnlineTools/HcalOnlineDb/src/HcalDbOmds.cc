@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbASCIIIO.cc,v 1.41
-// $Id: HcalDbOmds.cc,v 1.3 2009/03/15 14:36:14 kukartse Exp $
+// $Id: HcalDbOmds.cc,v 1.4 2009/03/16 01:43:24 kukartse Exp $
 //
 //
 #include <vector>
@@ -82,6 +82,11 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection, const std::st
     query            += " FROM CMS_HCL_HCAL_CONDITION_OWNER.V_HCAL_ZERO_SUPPRESSION ";
     //query            += " FROM CMS_HCL_HCAL_COND.V_HCAL_ZERO_SUPPRESSION ";
     query            += " WHERE TAG_NAME='GREN_ZS_9adc_v2'";
+
+    // FIXME: use bind variables!!!!!! Like this:
+    //query += " WHERE TRIGGER_KEY_ID=:1";
+    //oracle::occi::Statement* stmt = conn.getStatement(query);
+    //stmt->setString(1,key);
 
     ResultSet *rs = stmt->executeQuery(query.c_str());
 
