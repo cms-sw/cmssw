@@ -2,8 +2,10 @@ import FWCore.ParameterSet.Config as cms
 import DQM.TrackingMonitor.TrackingMonitor_cfi
 import DQMOffline.Alignment.TkAlCaRecoMonitor_cfi
 
-#Below all DQM modules for TrackerAlignment AlCaRecos are instanciated.
+#Below all DQM modules for TrackerAlignment AlCaRecos are instantiated.
+######################################################
 #############---  TkAlZMuMu ---#######################
+######################################################
 __selectionName = 'TkAlZMuMu'
 ALCARECOTkAlZMuMuTrackingDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone(
 #names and desigantions
@@ -37,7 +39,9 @@ ALCARECOTkAlZMuMuTkAlDQM =  DQMOffline.Alignment.TkAlCaRecoMonitor_cfi.TkAlCaRec
 )
 ALCARECOTkAlZMuMuDQM = cms.Sequence( ALCARECOTkAlZMuMuTrackingDQM + ALCARECOTkAlZMuMuTkAlDQM )
 
+#########################################################
 #############---  TkAlJpsiMuMu ---#######################
+#########################################################
 __selectionName = 'TkAlJpsiMuMu'
 ALCARECOTkAlJpsiMuMuTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
 #names and desigantions
@@ -58,7 +62,9 @@ ALCARECOTkAlJpsiMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
 )
 ALCARECOTkAlJpsiMuMuDQM = cms.Sequence( ALCARECOTkAlJpsiMuMuTrackingDQM + ALCARECOTkAlJpsiMuMuTkAlDQM )
 
+############################################################
 #############---  TkAlUpsilonMuMu ---#######################
+############################################################
 __selectionName = 'TkAlUpsilonMuMu'
 ALCARECOTkAlUpsilonMuMuTrackingDQM = ALCARECOTkAlJpsiMuMuTrackingDQM.clone(
 #names and desigantions
@@ -79,7 +85,9 @@ ALCARECOTkAlUpsilonMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
 ALCARECOTkAlUpsilonMuMuDQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuTrackingDQM + ALCARECOTkAlUpsilonMuMuTkAlDQM)
 
 
+#########################################################
 #############---  TkAlBeamHalo ---#######################
+#########################################################
 __selectionName = 'TkAlBeamHalo'
 ALCARECOTkAlBeamHaloTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
 #names and desigantions
@@ -89,7 +97,9 @@ ALCARECOTkAlBeamHaloTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
 )
 ALCARECOTkAlBeamHaloDQM = cms.Sequence( ALCARECOTkAlBeamHaloTrackingDQM )
 
+########################################################
 #############---  TkAlMinBias ---#######################
+########################################################
 __selectionName = 'TkAlMinBias'
 ALCARECOTkAlMinBiasTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
 #names and desigantions
@@ -117,7 +127,9 @@ ALCARECOTkAlMinBiasTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
 )
 ALCARECOTkAlMinBiasDQM = cms.Sequence( ALCARECOTkAlMinBiasTrackingDQM + ALCARECOTkAlMinBiasTkAlDQM)
 
+#############################################################
 #############---  TkAlMuonIsolated ---#######################
+#############################################################
 __selectionName = 'TkAlMuonIsolated'
 ALCARECOTkAlMuonIsolatedTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
 #names and desigantions
@@ -136,28 +148,12 @@ ALCARECOTkAlMuonIsolatedTkAlDQM = ALCARECOTkAlMinBiasTkAlDQM.clone(
 )
 ALCARECOTkAlMuonIsolatedDQM = cms.Sequence( ALCARECOTkAlMuonIsolatedTrackingDQM + ALCARECOTkAlMuonIsolatedTkAlDQM)
 
-#############---  TkAlLAS ---#######################
-import DQMOffline.Alignment.ALCARECOTkAlLASDQM_cfi
-__selectionName = 'TkAlLAS'
-ALCARECOTkAlLASDigiDQM= DQMOffline.Alignment.ALCARECOTkAlLASDQM_cfi.laserAlignmentT0ProducerDQM.clone(
-# names and designation
-  FolderName = __selectionName,
-# settings
-  LowerAdcThreshold = cms.uint32( 15 ),
-  UpperAdcThreshold = cms.uint32( 220 ),
-  DigiProducerList = cms.VPSet(
-    cms.PSet(
-      DigiLabel = cms.string( 'ZeroSuppressed' ),
-      DigiType = cms.string( 'Processed' ),
-      DigiProducer = cms.string( 'laserAlignmentT0Producer' )
-    )
-  )
-)
-ALCARECOTkAlLASDQM = cms.Sequence( ALCARECOTkAlLASDigiDQM )
-
-
+################################################
 ###### DQM modules for cosmic data taking ######
+################################################
+########################
 ### TkAlCosmicsCTF0T ###
+########################
 __selectionName = 'TkAlCosmicsCTF0T'
 ALCARECOTkAlCosmicsCTF0TTrackingDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone(
 #names and desigantions
@@ -175,6 +171,7 @@ ALCARECOTkAlCosmicsCTF0TTrackingDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.Tr
 ALCARECOTkAlCosmicsCTF0TTkAlDQM = ALCARECOTkAlMinBiasTkAlDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
+    ReferenceTrackProducer = 'ctfWithMaterialTracksP5',
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = 'TkAlCosmics',
 # margins and settings
@@ -182,7 +179,9 @@ ALCARECOTkAlCosmicsCTF0TTkAlDQM = ALCARECOTkAlMinBiasTkAlDQM.clone(
 )
 ALCARECOTkAlCosmicsCTF0TDQM = cms.Sequence( ALCARECOTkAlCosmicsCTF0TTrackingDQM + ALCARECOTkAlCosmicsCTF0TTkAlDQM)
 
+#############################
 ### TkAlCosmicsCosmicTF0T ###
+#############################
 __selectionName = 'TkAlCosmicsCosmicTF0T'
 ALCARECOTkAlCosmicsCosmicTF0TTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone(
 #names and desigantions
@@ -192,11 +191,14 @@ ALCARECOTkAlCosmicsCosmicTF0TTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.c
 ALCARECOTkAlCosmicsCosmicTF0TTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
+    ReferenceTrackProducer = 'cosmictrackfinderP5',
     AlgoName = 'ALCARECO'+__selectionName
 )
 ALCARECOTkAlCosmicsCosmicTF0TDQM = cms.Sequence( ALCARECOTkAlCosmicsCosmicTF0TTrackingDQM + ALCARECOTkAlCosmicsCosmicTF0TTkAlDQM )
 
+#######################
 ### TkAlCosmicsRS0T ###
+#######################
 __selectionName = 'TkAlCosmicsRS0T'
 ALCARECOTkAlCosmicsRS0TTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone(
 #names and desigantions
@@ -206,11 +208,17 @@ ALCARECOTkAlCosmicsRS0TTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone(
 ALCARECOTkAlCosmicsRS0TTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
+    ReferenceTrackProducer = 'rsWithMaterialTracksP5',
     AlgoName = 'ALCARECO'+__selectionName
 )
 ALCARECOTkAlCosmicsRS0TDQM = cms.Sequence( ALCARECOTkAlCosmicsRS0TTrackingDQM + ALCARECOTkAlCosmicsRS0TTkAlDQM)
 
+##########################################################################
+###### DQM modules for cosmic data taking with momentum measurement ######
+##########################################################################
+######################
 ### TkAlCosmicsCTF ###
+######################
 __selectionName = 'TkAlCosmicsCTF'
 ALCARECOTkAlCosmicsCTFTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone(
 #names and desigantions
@@ -220,11 +228,14 @@ ALCARECOTkAlCosmicsCTFTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone(
 ALCARECOTkAlCosmicsCTFTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
+    ReferenceTrackProducer = ALCARECOTkAlCosmicsCTF0TTkAlDQM.ReferenceTrackProducer,
     AlgoName = 'ALCARECO'+__selectionName
 )
 ALCARECOTkAlCosmicsCTFDQM = cms.Sequence( ALCARECOTkAlCosmicsCTFTrackingDQM + ALCARECOTkAlCosmicsCTFTkAlDQM )
 
+###########################
 ### TkAlCosmicsCosmicTF ###
+###########################
 __selectionName = 'TkAlCosmicsCosmicTF'
 ALCARECOTkAlCosmicsCosmicTFTrackingDQM = ALCARECOTkAlCosmicsCTFTrackingDQM.clone(
 #names and desigantions
@@ -234,11 +245,14 @@ ALCARECOTkAlCosmicsCosmicTFTrackingDQM = ALCARECOTkAlCosmicsCTFTrackingDQM.clone
 ALCARECOTkAlCosmicsCosmicTFTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
+    ReferenceTrackProducer = ALCARECOTkAlCosmicsCosmicTF0TTkAlDQM.ReferenceTrackProducer,
     AlgoName = 'ALCARECO'+__selectionName
 )
 ALCARECOTkAlCosmicsCosmicTFDQM = cms.Sequence( ALCARECOTkAlCosmicsCosmicTFTrackingDQM + ALCARECOTkAlCosmicsCosmicTFTkAlDQM)
 
+#####################
 ### TkAlCosmicsRS ###
+#####################
 __selectionName = 'TkAlCosmicsRS'
 ALCARECOTkAlCosmicsRSTrackingDQM = ALCARECOTkAlCosmicsCTFTrackingDQM.clone(
 #names and desigantions
@@ -248,6 +262,7 @@ ALCARECOTkAlCosmicsRSTrackingDQM = ALCARECOTkAlCosmicsCTFTrackingDQM.clone(
 ALCARECOTkAlCosmicsRSTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
+    ReferenceTrackProducer = ALCARECOTkAlCosmicsRS0TTkAlDQM.ReferenceTrackProducer,
     AlgoName = 'ALCARECO'+__selectionName
 )
 ALCARECOTkAlCosmicsRSDQM = cms.Sequence( ALCARECOTkAlCosmicsRSTrackingDQM + ALCARECOTkAlCosmicsRSTkAlDQM )
