@@ -22,9 +22,9 @@ extern "C" {
 	extern void alsetp_();
 //	extern void alevnt_();
 	extern void alveto_(int *ipveto);
-//      extern void dbpart_();
-//      extern void dbinrd_();
-//      extern void pyupre_();
+      extern void dbpart_();
+      extern void dbinrd_();
+      extern void pyupre_();
 
 	void alshcd_(char csho[3]);
 	void alshen_();
@@ -130,8 +130,8 @@ void JetMatchingAlpgen::beforeHadronisation(const lhef::LHEEvent* event)
   
   // Possibly not interesting for us.
   // (except perhaps for debugging?)
-  //pyupre_();
-  //dbpart_();
+  pyupre_();
+  dbpart_();
 	
   eventInitialized = true;
 }
@@ -157,15 +157,19 @@ int JetMatchingAlpgen::match(const HepMC::GenEvent *partonLevel,
 
   // If matching not required (e.g., icckw = 0), don't run the
   // FORTRAN veto code.
-  if(!applyMatching) return 1;
+  if(!applyMatching) return 0;
   
-  // Call the Fortran veto code and set veto to 1 if vetoed.
+  // Call the Fortran veto code. 
   int veto = 0;
   alveto_(&veto);
   
   eventInitialized = false;
-  
-  return veto ? 0 : 1;
+
+  // If event was vetoed, the variable veto will contain the number 1. 
+  // In this case, we must return 1 - that will be used as the return value from UPVETO.
+  // If event was accepted, the variable veto will contain the number 0.
+  // In this case, we must return 0 - that will be used as the return value from UPVETO.
+  return veto ? 1 : 0;
 }
 
 void alshcd_(char csho[3])
