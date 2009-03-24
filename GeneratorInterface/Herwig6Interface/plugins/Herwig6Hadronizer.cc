@@ -365,53 +365,38 @@ void Herwig6Hadronizer::statistics()
 
 bool Herwig6Hadronizer::hadronize()
 {
+
 	// hard process generation, parton shower, hadron formation
 
 	InstanceWrapper wrapper(this);	// safe guard
 
 	event().reset();
 
-	int counter = 0;
-	while(counter++ < numTrials) {
-		// call herwig routines to create HEPEVT
+	// call herwig routines to create HEPEVT
 
-		hwuine();	// initialize event
-
-		if (callWithTimeout(10, hwepro)) { // process event and PS
-			// We hung for more than 10 seconds
-			int error = 199;
-			hwwarn_("HWHGUP", &error);
-		}
-
-		hwbgen();	// parton cascades
-
-		// call jimmy ... only if event is not killed yet by HERWIG
-		if (useJimmy && doMPInteraction && !hwevnt.IERROR &&
-		    call_hwmsct())
-				continue;
-
-		hwdhob();	// heavy quark decays
-		hwcfor();	// cluster formation
-		hwcdec();	// cluster decays
-
-		// if event was not killed by HERWIG, break out of retry loop
-		if (!hwevnt.IERROR)
-			break;
-
-		hwufne();	// finalize event
+	hwuine();	// initialize event
+	
+	if (callWithTimeout(10, hwepro)) { // process event and PS
+	  // We hung for more than 10 seconds
+	  int error = 199;
+	  hwwarn_("HWHGUP", &error);
 	}
+	
+	hwbgen();	// parton cascades
 
-	if (counter >= numTrials) {
-		edm::LogWarning("Generator|Herwig6Hadronizer")
-			<< "JIMMY could not produce MI in "
-			<< numTrials << " trials." << std::endl
-			<< "Event will be skipped to prevent"
-			<< " from deadlock." << std::endl;
+	// call jimmy ... only if event is not killed yet by HERWIG
+	if (useJimmy && doMPInteraction && !hwevnt.IERROR && call_hwmsct()) 
+	  return false;
+	
+	hwdhob();	// heavy quark decays
+	hwcfor();	// cluster formation
+	hwcdec();	// cluster decays
+	
+	// if event *not* killed by HERWIG, return true
+	if (!hwevnt.IERROR) return true;
 
-		return false;
-	}
-
-	return true;
+	hwufne();	// finalize event	
+	return false;
 }
 
 void Herwig6Hadronizer::finalizeEvent()
@@ -422,6 +407,8 @@ void Herwig6Hadronizer::finalizeEvent()
 		pythiaStatusCodes();
 
 	event()->set_signal_process_id(hwproc.IPROC);
+	// add the event weight
+	event()->weights().push_back(hwevnt.EVWGT);
 }
 
 bool Herwig6Hadronizer::decay()
