@@ -327,12 +327,6 @@ famosWithCaloTowers = cms.Sequence(
     caloTowersRec
 )
 
-famosWithJets = cms.Sequence(
-    famosWithCaloTowers+
-    caloJetMetGen+
-    caloJetMet
-)
-
 famosWithTracksAndCaloTowers = cms.Sequence(
     famosWithTracksAndCaloHits+
     caloTowersRec
@@ -340,8 +334,14 @@ famosWithTracksAndCaloTowers = cms.Sequence(
 
 famosWithTracksAndJets = cms.Sequence(
     famosWithTracksAndCaloTowers+
+    vertexreco+
     caloJetMetGen+
     caloJetMet
+)
+
+### alias of the above one, as Jets cannot be done without vetrexreco
+famosWithJets = cms.Sequence(
+   famosWithTracksAndJets
 )
 
 famosWithCaloTowersAndParticleFlow = cms.Sequence(
