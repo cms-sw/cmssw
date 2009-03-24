@@ -4,8 +4,8 @@
 /*
  * \file EBClusterTaskExtras.h
  *
- * $Date: 2009/02/27 13:53:37 $
- * $Revision: 1.1 $
+ * $Date: 2009/02/27 16:18:36 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
  */
@@ -88,7 +88,6 @@ std::vector<std::string> meList_;
 
 #ifndef EBCLUSTERTASKEXTRAS_DQMOFFLINE
 MonitorElement* meSCSizXtal_;
-MonitorElement* meSCXtalsVsEne_;
 MonitorElement* meSCSizBC_;
 MonitorElement* meSCSizPhi_;
 
@@ -117,7 +116,10 @@ MonitorElement* meSCSeedTimePerFed_[36];
 
 MonitorElement* meSCSeedMapOccTrg_[5];
 MonitorElement* meSCSeedMapOccTrgExcl_[5];
+MonitorElement* meSCSeedMapTimeTrgMod_[5];
 #endif
+
+MonitorElement* meSCXtalsVsEne_;
 
 MonitorElement* meSCSeedMapOcc_;
 MonitorElement* meSCSeedMapOccHighEneTT_;
@@ -125,7 +127,6 @@ MonitorElement* meSCSeedMapOccHighEneTT_;
 MonitorElement* meSCSeedMapOccTrgTT_[5];
 MonitorElement* meSCSeedMapOccTrgExclTT_[5];
 
-MonitorElement* meSCSeedMapTimeTrgMod_[5];
 MonitorElement* meSCSeedMapTimeTrgTT_[5];
 MonitorElement* meSCSeedTimeTrg_[5];
 

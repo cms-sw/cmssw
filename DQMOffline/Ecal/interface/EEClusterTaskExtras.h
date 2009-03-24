@@ -4,8 +4,8 @@
 /*
  * \file EEClusterTaskExtras.h
  *
- * $Date: 2009/02/27 13:53:56 $
- * $Revision: 1.1 $
+ * $Date: 2009/02/27 16:18:42 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
  */
@@ -88,7 +88,6 @@ std::vector<std::string> meList_;
 
 #ifndef EECLUSTERTASKEXTRAS_DQMOFFLINE
 MonitorElement* meSCSizXtal_;
-MonitorElement* meSCXtalsVsEne_;
 MonitorElement* meSCSizBC_;
 
 MonitorElement* meSCSeedEne_;
@@ -110,6 +109,8 @@ MonitorElement* meSCSeedTimeEEP_;
 MonitorElement* meSCSeedTimePerFed_[18];
 MonitorElement* meSCSeedMapTimeSC_[2][5];
 #endif
+
+MonitorElement* meSCXtalsVsEne_;
 
 MonitorElement* meSCSeedMapOcc_[2];
 MonitorElement* meSCSeedMapOccHighEneSC_[2];

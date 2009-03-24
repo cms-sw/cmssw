@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTaskExtras.cc
  *
- * $Date: 2009/02/27 13:53:10 $
- * $Revision: 1.1 $
+ * $Date: 2009/02/27 16:12:26 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -73,7 +73,6 @@ EEClusterTaskExtras::EEClusterTaskExtras(const ParameterSet& ps){
    // histograms...
 #ifndef EECLUSTERTASKEXTRAS_DQMOFFLINE
    meSCSizXtal_ = 0;
-   meSCXtalsVsEne_ = 0;
    meSCSizBC_ = 0;
 
    meSCSeedEne_ = 0;
@@ -100,6 +99,8 @@ EEClusterTaskExtras::EEClusterTaskExtras(const ParameterSet& ps){
    for(int i=0;i!=18;++i)
       meSCSeedTimePerFed_[i] = 0;
 #endif
+
+   meSCXtalsVsEne_ = 0;
 
    for(int i=0;i!=2;++i) {
       meSCSeedMapOcc_[i] = 0;
@@ -143,7 +144,6 @@ void EEClusterTaskExtras::endRun(const Run& r, const EventSetup& c) {
 void EEClusterTaskExtras::reset(void) {
 #ifndef EECLUSTERTASKEXTRAS_DQMOFFLINE
    if ( meSCSizXtal_ ) meSCSizXtal_->Reset();
-   if ( meSCXtalsVsEne_ ) meSCXtalsVsEne_->Reset();
    if ( meSCSizBC_ ) meSCSizBC_->Reset(); 
 
    if ( meSCSeedEne_ ) meSCSeedEne_->Reset();
@@ -172,6 +172,8 @@ void EEClusterTaskExtras::reset(void) {
       if ( meSCSeedTimePerFed_[i] ) meSCSeedTimePerFed_[i]->Reset();
 #endif
 
+   if ( meSCXtalsVsEne_ ) meSCXtalsVsEne_->Reset();
+
    for(int i=0;i!=2;++i) {
       if ( meSCSeedMapOcc_[i] ) meSCSeedMapOcc_[i]->Reset();
       if ( meSCSeedMapOccHighEneSC_[i] ) meSCSeedMapOccHighEneSC_[i]->Reset();
@@ -198,11 +200,6 @@ void EEClusterTaskExtras::setup(void){
       sprintf(histo, "EECLTE SC size (xtals)");
       meSCSizXtal_ = dqmStore_->book1D(histo,histo,150,0,150);
       meSCSizXtal_->setAxisTitle("super cluster size (xtals)", 1);
-
-      sprintf(histo, "EECLTE SC size (xtals) vs energy (GeV)");
-      meSCXtalsVsEne_ = dqmStore_->bookProfile(histo,histo,200,0.,10.,150,0,150);
-      meSCXtalsVsEne_->setAxisTitle("energy (GeV)", 1);
-      meSCXtalsVsEne_->setAxisTitle("super cluster size (xtals)", 2);
 
       sprintf(histo, "EECLTE SC size (basic clusters)");
       meSCSizBC_ = dqmStore_->book1D(histo,histo,20,0,20);
@@ -399,6 +396,11 @@ void EEClusterTaskExtras::setup(void){
 
 #endif
 
+      sprintf(histo, "EECLTE SC size (xtals) vs energy (GeV)");
+      meSCXtalsVsEne_ = dqmStore_->bookProfile(histo,histo,200,0.,10.,150,0,150);
+      meSCXtalsVsEne_->setAxisTitle("energy (GeV)", 1);
+      meSCXtalsVsEne_->setAxisTitle("super cluster size (xtals)", 2);
+
       sprintf(histo, "EECLTE SC seed occupancy map EE -");
       meSCSeedMapOcc_[0] = dqmStore_->book2D(histo,histo,100,0,100,100,0,100);
       meSCSeedMapOcc_[0]->setAxisTitle("jx", 1);
@@ -581,8 +583,6 @@ void EEClusterTaskExtras::cleanup(void){
 #ifndef EECLUSTERTASKEXTRAS_DQMOFFLINE
       if ( meSCSizXtal_ ) dqmStore_->removeElement( meSCSizXtal_->getName() );
       meSCSizXtal_ = 0;
-      if ( meSCXtalsVsEne_ ) dqmStore_->removeElement( meSCXtalsVsEne_->getName() );
-      meSCXtalsVsEne_ = 0;
       if ( meSCSizBC_ ) dqmStore_->removeElement( meSCSizBC_->getName() );
       meSCSizBC_ = 0;
 
@@ -631,6 +631,9 @@ void EEClusterTaskExtras::cleanup(void){
       meSCSeedTimeEEP_ = 0;
 
 #endif
+
+      if ( meSCXtalsVsEne_ ) dqmStore_->removeElement( meSCXtalsVsEne_->getName() );
+      meSCXtalsVsEne_ = 0;
 
       for(int i=0;i!=2;++i) {
 	 if ( meSCSeedMapOcc_[i] ) dqmStore_->removeElement( meSCSeedMapOcc_[i]->getName() );
@@ -741,7 +744,6 @@ void EEClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 	    if(meSCSizBC_) meSCSizBC_->Fill( float(sCluster->clustersSize()) );
 
 	    if(meSCSizXtal_) meSCSizXtal_->Fill(sIds.size());
-	    if(meSCXtalsVsEne_) meSCXtalsVsEne_->Fill(sCluster->energy(),sIds.size());
 	    if(meSCSeedEne_) meSCSeedEne_->Fill(eMax);
 	    if(meSCEne2_) meSCEne2_->Fill(eMax+e2nd);
 	    //if(meSCEneVsEMax_) meSCEneVsEMax_->Fill(eMax,sCluster->energy());
@@ -789,6 +791,8 @@ void EEClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 	       }
 	    }
 #endif
+
+	    if(meSCXtalsVsEne_) meSCXtalsVsEne_->Fill(sCluster->energy(),sIds.size());
 
 	    for(int i=0;i!=5;++i) {
 	       if(triggers[i]) {

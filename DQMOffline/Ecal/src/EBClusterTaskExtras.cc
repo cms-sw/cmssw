@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTaskExtras.cc
  *
- * $Date: 2009/02/27 13:52:48 $
- * $Revision: 1.1 $
+ * $Date: 2009/02/27 16:12:16 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -74,7 +74,6 @@ EBClusterTaskExtras::EBClusterTaskExtras(const ParameterSet& ps){
    // histograms...
 #ifndef EBCLUSTERTASKEXTRAS_DQMOFFLINE
    meSCSizXtal_ = 0;
-   meSCXtalsVsEne_ = 0;
    meSCSizBC_ = 0;
    meSCSizPhi_ = 0;
 
@@ -104,8 +103,11 @@ EBClusterTaskExtras::EBClusterTaskExtras(const ParameterSet& ps){
    for(int i=0;i!=5;++i) {
       meSCSeedMapOccTrg_[i] = 0;
       meSCSeedMapOccTrgExcl_[i] = 0;
+      meSCSeedMapTimeTrgMod_[i] = 0;
    }
 #endif
+
+   meSCXtalsVsEne_ = 0;
 
    meSCSeedMapOcc_ = 0;
    meSCSeedMapOccHighEneTT_ = 0;
@@ -113,7 +115,6 @@ EBClusterTaskExtras::EBClusterTaskExtras(const ParameterSet& ps){
       meSCSeedMapOccTrgTT_[i] = 0;
       meSCSeedMapOccTrgExclTT_[i] = 0;
 
-      meSCSeedMapTimeTrgMod_[i] = 0;
       meSCSeedMapTimeTrgTT_[i] = 0;
       meSCSeedTimeTrg_[i] = 0;
    }
@@ -153,7 +154,6 @@ void EBClusterTaskExtras::endRun(const Run& r, const EventSetup& c) {
 void EBClusterTaskExtras::reset(void) {
 #ifndef EBCLUSTERTASKEXTRAS_DQMOFFLINE
    if ( meSCSizXtal_ ) meSCSizXtal_->Reset();
-   if ( meSCXtalsVsEne_ ) meSCXtalsVsEne_->Reset();
    if ( meSCSizBC_ ) meSCSizBC_->Reset(); 
    if ( meSCSizPhi_ ) meSCSizPhi_->Reset();
 
@@ -184,10 +184,13 @@ void EBClusterTaskExtras::reset(void) {
    for(int i=0;i!=5;++i) {
       if ( meSCSeedMapOccTrg_[i] ) meSCSeedMapOccTrg_[i]->Reset();
       if ( meSCSeedMapOccTrgExcl_[i] ) meSCSeedMapOccTrgExcl_[i]->Reset();
+      if ( meSCSeedMapTimeTrgMod_[i] ) meSCSeedMapTimeTrgMod_[i]->Reset();
    }
 
    if ( meSCSeedMapTimeMod_ ) meSCSeedMapTimeMod_->Reset();
 #endif
+
+   if ( meSCXtalsVsEne_ ) meSCXtalsVsEne_->Reset();
 
    if ( meSCSeedMapOcc_ ) meSCSeedMapOcc_->Reset();
    if ( meSCSeedMapOccHighEneTT_ ) meSCSeedMapOccHighEneTT_->Reset();
@@ -197,7 +200,6 @@ void EBClusterTaskExtras::reset(void) {
       if ( meSCSeedMapOccTrgTT_[i] ) meSCSeedMapOccTrgTT_[i]->Reset();
       if ( meSCSeedMapOccTrgExclTT_[i] ) meSCSeedMapOccTrgExclTT_[i]->Reset();
 
-      if ( meSCSeedMapTimeTrgMod_[i] ) meSCSeedMapTimeTrgMod_[i]->Reset();
       if ( meSCSeedMapTimeTrgTT_[i] ) meSCSeedMapTimeTrgTT_[i]->Reset();
       if ( meSCSeedTimeTrg_[i] ) meSCSeedTimeTrg_[i]->Reset();
    }
@@ -219,11 +221,6 @@ void EBClusterTaskExtras::setup(void){
       sprintf(histo, "EBCLTE SC size (xtals)");
       meSCSizXtal_ = dqmStore_->book1D(histo,histo,150,0,150);
       meSCSizXtal_->setAxisTitle("super cluster size (xtals)", 1);
-
-      sprintf(histo, "EBCLTE SC size (xtals) vs energy (GeV)");
-      meSCXtalsVsEne_ = dqmStore_->bookProfile(histo,histo,200,0.,10.,150,0,150);
-      meSCXtalsVsEne_->setAxisTitle("energy (GeV)", 1);
-      meSCXtalsVsEne_->setAxisTitle("super cluster size (xtals)", 2);
 
       sprintf(histo, "EBCLTE SC size (basic clusters)");
       meSCSizBC_ = dqmStore_->book1D(histo,histo,20,0,20);
@@ -379,7 +376,37 @@ void EBClusterTaskExtras::setup(void){
       meSCSeedMapOccTrg_[4]->setAxisTitle("j#phi", 1);
       meSCSeedMapOccTrg_[4]->setAxisTitle("j#eta", 2);
 
+      sprintf(histo, "EBCLTE SC seed crystal timing map (CSC triggered) module binned");
+      meSCSeedMapTimeTrgMod_[0] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
+      meSCSeedMapTimeTrgMod_[0]->setAxisTitle("j#phi", 1);
+      meSCSeedMapTimeTrgMod_[0]->setAxisTitle("j#eta", 2);
+
+      sprintf(histo, "EBCLTE SC seed crystal timing map (DT triggered) module binned");
+      meSCSeedMapTimeTrgMod_[1] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
+      meSCSeedMapTimeTrgMod_[1]->setAxisTitle("j#phi", 1);
+      meSCSeedMapTimeTrgMod_[1]->setAxisTitle("j#eta", 2);
+
+      sprintf(histo, "EBCLTE SC seed crystal timing map (ECAL triggered) module binned");
+      meSCSeedMapTimeTrgMod_[2] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
+      meSCSeedMapTimeTrgMod_[2]->setAxisTitle("j#phi", 1);
+      meSCSeedMapTimeTrgMod_[2]->setAxisTitle("j#eta", 2);
+
+      sprintf(histo, "EBCLTE SC seed crystal timing map (HCAL triggered) module binned");
+      meSCSeedMapTimeTrgMod_[3] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
+      meSCSeedMapTimeTrgMod_[3]->setAxisTitle("j#phi", 1);
+      meSCSeedMapTimeTrgMod_[3]->setAxisTitle("j#eta", 2);
+
+      sprintf(histo, "EBCLTE SC seed crystal timing map (RPC triggered) module binned");
+      meSCSeedMapTimeTrgMod_[4] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
+      meSCSeedMapTimeTrgMod_[4]->setAxisTitle("j#phi", 1);
+      meSCSeedMapTimeTrgMod_[4]->setAxisTitle("j#eta", 2);
+
 #endif
+
+      sprintf(histo, "EBCLTE SC size (xtals) vs energy (GeV)");
+      meSCXtalsVsEne_ = dqmStore_->bookProfile(histo,histo,200,0.,10.,150,0,150);
+      meSCXtalsVsEne_->setAxisTitle("energy (GeV)", 1);
+      meSCXtalsVsEne_->setAxisTitle("super cluster size (xtals)", 2);
 
       sprintf(histo, "EBCLTE SC seed crystal occupancy map");
       meSCSeedMapOcc_ = dqmStore_->book2D(histo,histo,360,0,360,170,-85,85);
@@ -440,31 +467,6 @@ void EBClusterTaskExtras::setup(void){
       meSCSeedMapOccTrgExclTT_[4] = dqmStore_->book2D(histo,histo,72,0,360,34,-85,85);
       meSCSeedMapOccTrgExclTT_[4]->setAxisTitle("j#phi", 1);
       meSCSeedMapOccTrgExclTT_[4]->setAxisTitle("j#eta", 2);
-
-      sprintf(histo, "EBCLTE SC seed crystal timing map (CSC triggered) module binned");
-      meSCSeedMapTimeTrgMod_[0] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
-      meSCSeedMapTimeTrgMod_[0]->setAxisTitle("j#phi", 1);
-      meSCSeedMapTimeTrgMod_[0]->setAxisTitle("j#eta", 2);
-
-      sprintf(histo, "EBCLTE SC seed crystal timing map (DT triggered) module binned");
-      meSCSeedMapTimeTrgMod_[1] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
-      meSCSeedMapTimeTrgMod_[1]->setAxisTitle("j#phi", 1);
-      meSCSeedMapTimeTrgMod_[1]->setAxisTitle("j#eta", 2);
-
-      sprintf(histo, "EBCLTE SC seed crystal timing map (ECAL triggered) module binned");
-      meSCSeedMapTimeTrgMod_[2] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
-      meSCSeedMapTimeTrgMod_[2]->setAxisTitle("j#phi", 1);
-      meSCSeedMapTimeTrgMod_[2]->setAxisTitle("j#eta", 2);
-
-      sprintf(histo, "EBCLTE SC seed crystal timing map (HCAL triggered) module binned");
-      meSCSeedMapTimeTrgMod_[3] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
-      meSCSeedMapTimeTrgMod_[3]->setAxisTitle("j#phi", 1);
-      meSCSeedMapTimeTrgMod_[3]->setAxisTitle("j#eta", 2);
-
-      sprintf(histo, "EBCLTE SC seed crystal timing map (RPC triggered) module binned");
-      meSCSeedMapTimeTrgMod_[4] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
-      meSCSeedMapTimeTrgMod_[4]->setAxisTitle("j#phi", 1);
-      meSCSeedMapTimeTrgMod_[4]->setAxisTitle("j#eta", 2);
 
       sprintf(histo, "EBCLTE SC seed crystal timing map (CSC exclusive triggered) trigger tower binned");
       meSCSeedMapTimeTrgTT_[0] = dqmStore_->bookProfile2D(histo,histo,72,0,360,34,-85,85,78,0.,10.,"s");
@@ -534,9 +536,6 @@ void EBClusterTaskExtras::cleanup(void){
       if ( meSCSizXtal_ ) dqmStore_->removeElement( meSCSizXtal_->getName() );
       meSCSizXtal_ = 0;
 
-      if ( meSCXtalsVsEne_ ) dqmStore_->removeElement( meSCXtalsVsEne_->getName() );
-      meSCXtalsVsEne_ = 0;
-
       if ( meSCSizBC_ ) dqmStore_->removeElement( meSCSizBC_->getName() );
       meSCSizBC_ = 0;
 
@@ -602,8 +601,14 @@ void EBClusterTaskExtras::cleanup(void){
 	 meSCSeedMapOccTrg_[i] = 0;
 	 if ( meSCSeedMapOccTrgExcl_[i] ) dqmStore_->removeElement( meSCSeedMapOccTrgExcl_[i]->getName() );
 	 meSCSeedMapOccTrgExcl_[i] = 0;
+	 if ( meSCSeedMapTimeTrgMod_[i] ) dqmStore_->removeElement( meSCSeedMapTimeTrgMod_[i]->getName() );
+	 meSCSeedMapTimeTrgMod_[i] = 0;
       }
 #endif
+
+      if ( meSCXtalsVsEne_ ) dqmStore_->removeElement( meSCXtalsVsEne_->getName() );
+      meSCXtalsVsEne_ = 0;
+
 
       if ( meSCSeedMapOcc_ ) dqmStore_->removeElement( meSCSeedMapOcc_->getName() );
       meSCSeedMapOcc_ = 0;
@@ -616,9 +621,6 @@ void EBClusterTaskExtras::cleanup(void){
 	 meSCSeedMapOccTrgTT_[i] = 0;
 	 if ( meSCSeedMapOccTrgExclTT_[i] ) dqmStore_->removeElement( meSCSeedMapOccTrgExclTT_[i]->getName() );
 	 meSCSeedMapOccTrgExclTT_[i] = 0;
-
-	 if ( meSCSeedMapTimeTrgMod_[i] ) dqmStore_->removeElement( meSCSeedMapTimeTrgMod_[i]->getName() );
-	 meSCSeedMapTimeTrgMod_[i] = 0;
 
 	 if ( meSCSeedMapTimeTrgTT_[i] ) dqmStore_->removeElement( meSCSeedMapTimeTrgTT_[i]->getName() );
 	 meSCSeedMapTimeTrgTT_[i] = 0;
@@ -725,9 +727,9 @@ void EBClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 	    if(meSCEneLow_) meSCEneLow_->Fill( sCluster->energy() );
 	    if(meSCEneHigh_) meSCEneHigh_->Fill( sCluster->energy() );
 	    if(meSCSizBC_) meSCSizBC_->Fill( float(sCluster->clustersSize()) );
+	    if(meSCSizPhi_) meSCSizPhi_->Fill(xebphi,sCluster->clustersSize());
 
 	    if(meSCSizXtal_) meSCSizXtal_->Fill(sIds.size());
-	    if(meSCSizPhi_) meSCSizPhi_->Fill(xebphi,sCluster->clustersSize());
 	    if(meSCSeedEne_) meSCSeedEne_->Fill(eMax);
 	    if(meSCEne2_) meSCEne2_->Fill(eMax+e2nd);
 	    //if(meSCEneVsEMax_) meSCEneVsEMax_->Fill(eMax,sCluster->energy());
@@ -765,6 +767,8 @@ void EBClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 		  if(meSCSeedMapOccTrg_[i]) meSCSeedMapOccTrg_[i]->Fill(xebphi, xebeta);
 		  bool isExclusive = true;
 		  for(int j=0;j!=5;++j) {
+		     if(pAgc.isValid()) 
+			if(meSCSeedMapTimeTrgMod_[i]) meSCSeedMapTimeTrgMod_[i]->Fill(xebphi, xebeta, seedItr->time() + 5);
 		     if(j != i && triggers[j])
 			isExclusive = false;
 		  }
@@ -772,6 +776,8 @@ void EBClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 	       }
 	    }
 #endif
+	    if(meSCXtalsVsEne_) meSCXtalsVsEne_->Fill(sCluster->energy(),sIds.size());
+
 	    if(meSCSeedMapOcc_) meSCSeedMapOcc_->Fill(xebphi, xebeta);
 
 	    if(sCluster->energy() > 2) if(meSCSeedMapOccHighEneTT_) meSCSeedMapOccHighEneTT_->Fill(xebphi, xebeta);
@@ -783,7 +789,6 @@ void EBClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 		  if(meTrg_) meTrg_->Fill(i);
 
 		  if(pAgc.isValid()) {
-		     if(meSCSeedMapTimeTrgMod_[i]) meSCSeedMapTimeTrgMod_[i]->Fill(xebphi, xebeta, seedItr->time() + 5);
 		     if(meSCSeedMapTimeTrgTT_[i]) meSCSeedMapTimeTrgTT_[i]->Fill(xebphi, xebeta, seedItr->time() + 5);
 		     if(meSCSeedTimeTrg_[i]) meSCSeedTimeTrg_[i]->Fill(seedItr->time() + 5);
 		  }
