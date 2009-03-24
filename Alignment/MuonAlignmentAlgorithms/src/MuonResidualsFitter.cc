@@ -220,19 +220,42 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
   MuonResidualsFitter_TMinuit->mnexcm("SET STR", arglist, 1, ierflg);
   if (ierflg != 0) { delete MuonResidualsFitter_TMinuit; delete fitinfo; return false; }
 
+  bool try_again = false;
+
   // minimize
   for (int i = 0;  i < 10;  i++) arglist[i] = 0.;
   ierflg = 0;
   MuonResidualsFitter_TMinuit->mnexcm("MIGRAD", arglist, 0, ierflg);
-  if (ierflg != 0) { delete MuonResidualsFitter_TMinuit; delete fitinfo; return false; }
+  if (ierflg != 0) try_again = true;
 
-  // uncertainty in parameters
-  for (int i = 0;  i < 10;  i++) arglist[i] = 0.;
-  ierflg = 0;
-  MuonResidualsFitter_TMinuit->mnexcm("MINOS", arglist, 0, ierflg);
-  if (ierflg != 0) { delete MuonResidualsFitter_TMinuit; delete fitinfo; return false; }
+  if (!try_again) {
+    // uncertainty in parameters
+    for (int i = 0;  i < 10;  i++) arglist[i] = 0.;
+    ierflg = 0;
+    MuonResidualsFitter_TMinuit->mnexcm("MINOS", arglist, 0, ierflg);
+    if (ierflg != 0) try_again = true;
+  }
 
-  if (MuonResidualsFitter_inbadregion) { delete MuonResidualsFitter_TMinuit; delete fitinfo; return false; }
+  if (!try_again) {
+    if (MuonResidualsFitter_inbadregion) try_again = true;
+  }
+  
+  // just once more, if needed (using the final Minuit parameters from the failed fit; often works)
+  if (try_again) {
+    // minimize
+    for (int i = 0;  i < 10;  i++) arglist[i] = 0.;
+    ierflg = 0;
+    MuonResidualsFitter_TMinuit->mnexcm("MIGRAD", arglist, 0, ierflg);
+    if (ierflg != 0) { delete MuonResidualsFitter_TMinuit; delete fitinfo; return false; }
+
+    // uncertainty in parameters
+    for (int i = 0;  i < 10;  i++) arglist[i] = 0.;
+    ierflg = 0;
+    MuonResidualsFitter_TMinuit->mnexcm("MINOS", arglist, 0, ierflg);
+    if (ierflg != 0) { delete MuonResidualsFitter_TMinuit; delete fitinfo; return false; }
+
+    if (MuonResidualsFitter_inbadregion) { delete MuonResidualsFitter_TMinuit; delete fitinfo; return false; }
+  }
   
   // read-out the results
   m_goodfit = true;

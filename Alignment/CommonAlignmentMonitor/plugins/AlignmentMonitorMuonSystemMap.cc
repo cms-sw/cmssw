@@ -56,6 +56,7 @@ private:
   std::string m_writeTemporaryFile;
   std::vector<std::string> m_readTemporaryFiles;
   bool m_doFits;
+  bool m_twoBin;
   bool m_DT13fitScattering;
   bool m_DT13fitZpos;
   bool m_DT13fitPhiz;
@@ -176,6 +177,7 @@ AlignmentMonitorMuonSystemMap::AlignmentMonitorMuonSystemMap(const edm::Paramete
    , m_writeTemporaryFile(cfg.getParameter<std::string>("writeTemporaryFile"))
    , m_readTemporaryFiles(cfg.getParameter<std::vector<std::string> >("readTemporaryFiles"))
    , m_doFits(cfg.getParameter<bool>("doFits"))
+   , m_twoBin(cfg.getParameter<bool>("twoBin"))
    , m_DT13fitScattering(cfg.getParameter<bool>("DT13fitScattering"))
    , m_DT13fitZpos(cfg.getParameter<bool>("DT13fitZpos"))
    , m_DT13fitPhiz(cfg.getParameter<bool>("DT13fitPhiz"))
@@ -250,8 +252,8 @@ void AlignmentMonitorMuonSystemMap::book_and_link_up(std::string namestart, std:
   }
 
   for (int bin = 1;  bin <= bins;  bin++) {
-    MuonResidualsTwoBin *positionFitter = new MuonResidualsTwoBin(new MuonResidualsPositionFitter(m_residualsModel, -1), new MuonResidualsPositionFitter(m_residualsModel, -1));
-    MuonResidualsTwoBin *angleFitter = new MuonResidualsTwoBin(new MuonResidualsAngleFitter(m_residualsModel, -1), new MuonResidualsAngleFitter(m_residualsModel, -1));
+    MuonResidualsTwoBin *positionFitter = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsPositionFitter(m_residualsModel, -1), new MuonResidualsPositionFitter(m_residualsModel, -1));
+    MuonResidualsTwoBin *angleFitter = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(m_residualsModel, -1), new MuonResidualsAngleFitter(m_residualsModel, -1));
     m_allFitters.push_back(positionFitter);
     m_allFitters.push_back(angleFitter);
 

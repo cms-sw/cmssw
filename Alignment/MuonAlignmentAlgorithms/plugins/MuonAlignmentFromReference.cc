@@ -78,6 +78,7 @@ private:
   std::vector<std::string> m_readTemporaryFiles;
   bool m_doAlignment;
   std::string m_residualsModel;
+  bool m_twoBin;
   bool m_DT13fitScattering;
   bool m_DT13fitZpos;
   bool m_DT13fitPhiz;
@@ -118,6 +119,7 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
   , m_readTemporaryFiles(iConfig.getParameter<std::vector<std::string> >("readTemporaryFiles"))
   , m_doAlignment(iConfig.getParameter<bool>("doAlignment"))
   , m_residualsModel(iConfig.getParameter<std::string>("residualsModel"))
+  , m_twoBin(iConfig.getParameter<bool>("twoBin"))
   , m_DT13fitScattering(iConfig.getParameter<bool>("DT13fitScattering"))
   , m_DT13fitZpos(iConfig.getParameter<bool>("DT13fitZpos"))
   , m_DT13fitPhiz(iConfig.getParameter<bool>("DT13fitPhiz"))
@@ -174,28 +176,28 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
      bool align_phiz = selector[5];
 
      if ((*ali)->alignableObjectId() == align::AlignableDTChamber) {
-       m_rphiFitters[*ali] = new MuonResidualsTwoBin(new MuonResidualsPositionFitter(residualsModel, -1), new MuonResidualsPositionFitter(residualsModel, -1));
+       m_rphiFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsPositionFitter(residualsModel, -1), new MuonResidualsPositionFitter(residualsModel, -1));
        if (!m_DT13fitScattering) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kScattering);
        if (!m_DT13fitZpos) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
        if (!m_DT13fitPhiz) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kPhiz);
        m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 0);
        m_fitterOrder.push_back(m_rphiFitters[*ali]);
        
-       m_zFitters[*ali] = new MuonResidualsTwoBin(new MuonResidualsPositionFitter(residualsModel, -1), new MuonResidualsPositionFitter(residualsModel, -1));
+       m_zFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsPositionFitter(residualsModel, -1), new MuonResidualsPositionFitter(residualsModel, -1));
        if (!m_DT2fitScattering) m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kScattering);
        m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
        if (!m_DT2fitPhiz) m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kPhiz);
        m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 1);
        m_fitterOrder.push_back(m_zFitters[*ali]);
 
-       m_phixFitters[*ali] = new MuonResidualsTwoBin(new MuonResidualsAngleFitter(residualsModel, -1), new MuonResidualsAngleFitter(residualsModel, -1));
+       m_phixFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, -1), new MuonResidualsAngleFitter(residualsModel, -1));
        m_phixFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompt);
        m_phixFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompz);
        m_phixFitters[*ali]->fix(MuonResidualsAngleFitter::kdEdx);
        m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 2);
        m_fitterOrder.push_back(m_phixFitters[*ali]);
 
-       m_phiyFitters[*ali] = new MuonResidualsTwoBin(new MuonResidualsAngleFitter(residualsModel, -1), new MuonResidualsAngleFitter(residualsModel, -1));
+       m_phiyFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, -1), new MuonResidualsAngleFitter(residualsModel, -1));
        m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompt);
        m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompz);
        m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kdEdx);
@@ -206,14 +208,14 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
      else if ((*ali)->alignableObjectId() == align::AlignableCSCChamber) {
        if (align_x  &&  (!align_y  ||  !align_phiz)) throw cms::Exception("MuonAlignmentFromReference") << "CSCs are aligned in rphi, not x, so y and phiz must also be alignable" << std::endl;
 
-       m_rphiFitters[*ali] = new MuonResidualsTwoBin(new MuonResidualsPositionFitter(residualsModel, -1), new MuonResidualsPositionFitter(residualsModel, -1));
+       m_rphiFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsPositionFitter(residualsModel, -1), new MuonResidualsPositionFitter(residualsModel, -1));
        if (!m_CSCfitScattering) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kScattering);
        if (!m_CSCfitZpos) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
        if (!m_CSCfitPhiz) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kPhiz);
        m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 0);
        m_fitterOrder.push_back(m_rphiFitters[*ali]);
 
-       m_phiyFitters[*ali] = new MuonResidualsTwoBin(new MuonResidualsAngleFitter(residualsModel, -1), new MuonResidualsAngleFitter(residualsModel, -1));
+       m_phiyFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, -1), new MuonResidualsAngleFitter(residualsModel, -1));
        m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompt);
        m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompz);
        m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kdEdx);
@@ -501,7 +503,7 @@ void MuonAlignmentFromReference::terminate() {
 	     << "    def errors(self, err2x, err2y, err2z):" << std::endl
 	     << "        self.err2x, self.err2y, self.err2z = err2x, err2y, err2z" << std::endl << std::endl << std::endl;
     }
-
+    
     for (std::vector<Alignable*>::const_iterator ali = m_alignables.begin();  ali != m_alignables.end();  ++ali) {
       std::vector<bool> selector = (*ali)->alignmentParameters()->selector();
       bool align_x = selector[0];
