@@ -103,23 +103,23 @@ CastorHardcodeGeometryLoader::makeCell( const HcalCastorDetId&   detId ,
 
 // length units are cm
 
-   const double sign ( 0 == isect/2 ? -1 : 1 ) ;
+   const unsigned int iz ( section == HcalCastorDetId::EM ? module : 2 + module ) ;
+
+   const double sign ( 0 == isect%2 ? -1 : 1 ) ;
    const double dxl ( sign*1.55/2. ) ; 
    double dxh ( 0 ) ; 
    double dh ( 0 ) ;
-   double dz ( 0 ) ;
    
-   static const double zm ( 1439.0 ) ;
-   static const double an ( atan( 1.0 ) ) ;
-   static const double can ( cos( an ) ) ;
-   static const double san ( sin( an ) ) ;
-   static const double dR ( 7.48 ) ;
+   static const double zm    ( 1439.0 ) ;
+   static const double an    ( atan( 1.0 ) ) ;
+   static const double can   ( cos( an ) ) ;
+   static const double san   ( sin( an ) ) ;
+   static const double dR    ( 7.48 ) ;
+   static const double dzEM  ( 5.45 ) ;
+   static const double dzHAD ( 10.075 ) ;
 
    static const double dphi 
       ( 2.*M_PI/(1.0*HcalCastorDetId::kNumberSectorsPerEnd ) ) ;
-   static const double dphi2 ( dphi/2. ) ;
-   static const double sdphi2 ( sin( dphi2 ) ) ;
-   static const double cdphi2 ( cos( dphi2 ) ) ;
 
    const double phi  ( ( sector - 0.5 )*dphi ) ;
    const double sphi ( sin( phi ) ) ;
@@ -129,15 +129,14 @@ CastorHardcodeGeometryLoader::makeCell( const HcalCastorDetId&   detId ,
    {
       dxh = sign*5.73 ;
       dh  = 14.26 ;
-      dz  = 0.0 ;
    }
    else
    {
       dxh = sign*7.37;
       dh  = 19.88 ;
-      dz  = 0.0 ;
    }
 
+   const double dz  ( dh*can ) ;
    const double dy  ( dh*san ) ;
    const double dx  ( ( dxl + dxh )/2. ) ;
    const double leg ( dR + dy ) ;
@@ -145,7 +144,9 @@ CastorHardcodeGeometryLoader::makeCell( const HcalCastorDetId&   detId ,
 
    const double xc ( len*cphi ) ;
    const double yc ( len*sphi ) ; 
-   const double zc ( zm ) ;
+   const double zc ( zside*( zm + dz + 
+			     ( iz<3 ? ( 1.*module - 1.0 )*dzEM :
+			       2.*dzEM +  ( 1.*module - 1 )*dzHAD ) ) ) ;
 
    const GlobalPoint fc ( xc, yc, zc ) ;
 

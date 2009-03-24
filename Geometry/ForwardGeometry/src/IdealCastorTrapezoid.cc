@@ -26,14 +26,14 @@ namespace calogeom {
 
       std::vector<HepPoint3D>  lc ( 8, HepPoint3D( 0,0,0) ) ;
 
-      lc[ 0 ] = HepPoint3D(      -dx, -dy ,  dzs ) ;
-      lc[ 1 ] = HepPoint3D(      -dx, +dy ,  dzb ) ;
-      lc[ 2 ] = HepPoint3D( +dxh -dx, +dy ,  dzb ) ;
-      lc[ 3 ] = HepPoint3D( +dxl -dx, -dy ,  dzs ) ;
-      lc[ 4 ] = HepPoint3D(      -dx, -dy , -dzb ) ;
-      lc[ 5 ] = HepPoint3D(      -dx, +dy , -dzs ) ;
-      lc[ 6 ] = HepPoint3D( +dxh -dx, +dy , -dzs ) ;
-      lc[ 7 ] = HepPoint3D( +dxl -dx, -dy , -dzb ) ;
+      lc[ 0 ] = HepPoint3D(      -dx, -dy ,  dzb ) ;
+      lc[ 1 ] = HepPoint3D(      -dx, +dy ,  dzs ) ;
+      lc[ 2 ] = HepPoint3D( +dxh -dx, +dy ,  dzs ) ;
+      lc[ 3 ] = HepPoint3D( +dxl -dx, -dy ,  dzb ) ;
+      lc[ 4 ] = HepPoint3D(      -dx, -dy , -dzs ) ;
+      lc[ 5 ] = HepPoint3D(      -dx, +dy , -dzb ) ;
+      lc[ 6 ] = HepPoint3D( +dxh -dx, +dy , -dzb ) ;
+      lc[ 7 ] = HepPoint3D( +dxl -dx, -dy , -dzs ) ;
 
       ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
       return lc ;
