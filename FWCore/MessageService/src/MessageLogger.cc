@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.27 2008/06/24 20:31:40 fischler Exp $
+// $Id: MessageLogger.cc,v 1.28 2008/12/20 17:39:55 wmtan Exp $
 //
 // Change log
 //
@@ -21,7 +21,7 @@
 // 2  mf  5/27/06	In preEventProcessing, change the syntax for 
 //			runEvent from 1/23 to Run: 1 Event: 23
 //
-// 3 mf   6/27/06	PreModuleCOnstruction and PreSourceCOnstruction get
+// 3 mf   6/27/06	PreModuleConstruction and PreSourceConstruction get
 //			correct module name
 //
 // 4 mf   6/27/06	Between events the run/event is previous one
@@ -38,6 +38,8 @@
 // 9 mf   7/25/07	Modify names of the MessageLoggerQ methods, eg MLqLOG
 //
 //10 mf   6/18/07	Insert into the PostEndJob a possible SummarizeInJobReport
+//
+//11 mf   3/18/09	Fix wrong-sense test establishing anyDebugEnabled_
 
 // system include files
 // user include files
@@ -127,14 +129,15 @@ MessageLogger( ParameterSet const & iPS
   // set up for tracking whether current module is debug-enabled 
   // (and info-enabled and warning-enabled)
   if ( debugModules.empty()) {
-    MessageDrop::instance()->debugEnabled = false;	// change log 2
+    anyDebugEnabled_ = false;					// change log 11
+    MessageDrop::instance()->debugEnabled = false;		// change log 1
   } else {
-    anyDebugEnabled_ = true;
-    MessageDrop::instance()->debugEnabled = true;
+    anyDebugEnabled_ = true;					// change log 11
+    MessageDrop::instance()->debugEnabled = false;
     // this will be over-ridden when specific modules are entered
   }
 
-  if ( debugModules.empty()) anyDebugEnabled_ = true;
+  // if ( debugModules.empty()) anyDebugEnabled_ = true; // wrong; change log 11
   for( vString::const_iterator it  = debugModules.begin();
                                it != debugModules.end(); ++it ) {
     if (*it == "*") { 

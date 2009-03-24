@@ -58,7 +58,7 @@
 //	Useful in a .cfi file, in conjunction with potential replace commands.
 //
 //  10 - 6/6/06 mf  - in configure_dest()
-//	Changed cfg keyward interval to reportEvery
+//	Changed cfg keyword interval to reportEvery
 //
 //  11 - 6/12/06 mf  - in configure_errorlog()
 //	Check for placeholder before attaching a destination that may not be
@@ -159,8 +159,8 @@
 //  32 - 10/21/08 mf - in ctor and in run() and new runCommand()
 //	 split up run() to have ability to implement single-thread
 //
-//  33 - 20/22/08 mf
-//	 implementatoin of singleThread
+//  33 - 10/22/08 mf
+//	 implementation of singleThread
 //
 // ----------------------------------------------------------------------
 

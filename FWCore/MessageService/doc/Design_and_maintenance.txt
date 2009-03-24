@@ -485,10 +485,153 @@ CountAndLimit::add(xid), and are as follows:
    
 3) If we are OK on both accounts, we will react to this message.  In that case,
    skipped should be reset to zero.
-   
-   
 
+===================
+Activity Callbacks 
+===================
+
+The MessageLogger responds to the following callbacks from the framework,
+in the indicated ways (implementation in MessageLogger.cc):
+
+postBeginJob		module = "" ;  runEvent = Beforevents
+preEventProcessing	run/event # set up; this is PreProcessEvent in framewk
+preSourceConstruction	module name set to name*ctor*; 
+			debug (only) enabled or not according to module label
+preSource		module name set to "main_input:source"
+			debug, info, warning enabled or not based on "source"
+preModuleConstruction	module name set to name*ctor*; 
+			debug (only) enabled or not according to module label
+postModuleConstruction	module name set to "AfterModuleConstruction" 
+preModule		module name set to "name:label"
+			debug, info, warning enabled or not based on label
+postModule		module name set to "PostModule" 
+postSource		module name set to "PostSource" 
+postEventProcessing	{nothing done here anymore}   
+postEndJob		Put summary info into Job Rep and trigger summary
+
+Notice that:
+
+1) Suppression of Warning and Info messages is only modified in 
+   PreModule (and PreSource); this is probably an overly restrictive
+   situation for some users.  Also, nothing in particular is done to
+   re-enable or re-suppress these in the wasteland between modules.
+
+One other area of potential improvement is:
+
+Users might wish to control suppression based on phases which we are not
+reacting to here (or not setting up the enabling variables).  For example,
+if you wish to enable PostModule debugs, you can't except for debug = "*".
+If user input clamors for this control, changes can be made.
    
+   
+===================
+Message Suppression
+===================
+
+A logged message is said to be "suppressed" if the result of the issuing of
+that message does NOT include anything going onto the message queue.  To
+quote the html documentation in 
+www.uscms.org/LPC/lpc_offl/MessageLogger/parameters.html#suppress
+
+... such suppressed messages will not even be put on the queue of messages to 
+    be handled by the Message Service. In consequence:
+
+* Items streamed to these messages will not be needed in any way. 
+  In optimized builds, their computation may be eliminated by the compiler 
+  unless that computation has other side effects.
+* Suppressed messages will not appear in any message statistics accounting.
+* Suppressed messages are not counted toward any limits or "reportEvery" 
+  intervals, and do not affect any timespans. 
+   
+Originally, only DEBUG-level messages were intended to be candidates for
+suppression.  However, this was expanded to INFO or WARNING-level messages
+from configurably particular modules.  The intent is to provide a way to
+totally squelch noxiously verbose modules, while leaving the verbosity in place
+in the code, for use by experts in that module.
+
+DEBUG-level messages behave differently than INFO or WARNING messages in an
+important way: For DEBUG messages, the user must provide a list of modules NOT 
+to be suppressed; this is the meaning of the debugModules parameter.  For INFO
+or WARNING messages, this list is not present; all modules not explicitly and
+individually suppressed are enabled.  The debugModules parameter can be "*";
+the analagous wildcard for INFO or WARNING would be moot since they are all
+non-suppressed by default anyway.
+
+Suppression Implementation Details
+----------------------------------
+
+The suppression decision starts with configuration.  Unlike most configuration
+of the MessageLogger, which occurs in MessageLoggerScribe, this has to occur
+on the user side of the fence.  It happens in MessageLogger.cc, which checks
+for parameters debugModules, suppressDebug, suppressInfo, and suppressWarning.
+
+From the latter three are formed a map suppression_levels_, indexed by module
+name, containing the highest suppression level specified for each mentioned
+module.  From debugModules is formed the list debugEnabledModules_ and its
+boss-booleans anyDebugEnabled_ and everyDebugEnabled_.
+
+Now, as the code sequences from module to module, and phase to phase of the
+framework, the debugEnabled member of the MessageDrop is set to true or false 
+according to suppression_levels_ OR debugEnabledModules_ and its boss-booleans. 
+Similarly, infoEnabled and warningEnabled are set according to
+suppression_levels_.  The details are as follows:
+
+The relevant callbacks are:
+
+preSourceConstruction	module name set to name*ctor*; 
+			debug (only) enabled or not according to module label
+			debugEnabledModules_.count(desc.moduleLabel());
+preSource		module name set to "main_input:source"
+			debug, info, warning enabled or not based on "source"
+preModuleConstruction	module name set to name*ctor*; 
+			debug (only) enabled or not according to module label
+			debugEnabledModules_.count(desc.moduleLabel());
+preModule		module name set to "name:label"
+			debug, info, warning enabled or not based on label
+			debugEnabledModules_.count(desc.moduleLabel());
+			it = suppression_levels_.find(desc.moduleLabel());
+  			if ( it != suppression_levels_.end() ) {
+    			 messageDrop->debugEnabled  = messageDrop->debugEnabled 
+                           && (it->second < ELseverityLevel::ELsev_success );
+    			 messageDrop->infoEnabled    
+			   = (it->second < ELseverityLevel::ELsev_info );
+    			 messageDrop->warningEnabled 
+			   = (it->second < ELseverityLevel::ELsev_warning );
+  			} else {
+    			  messageDrop->infoEnabled    = true;
+    			  messageDrop->warningEnabled = true;
+  			}
+
+So  
+* During PostSource Construction, for each module, debug is enabled properly.
+* info and warning are not affected by module lable till later.
+* Afterwards, until the first preModule in the actual event loop, the last
+  module influences debug enabling.  This is not proper.
+* All are properly set in premodule.
+* Nothing is turned off, so infoEnabled may be left off for all the post-loop
+  phases.  This is wrong again.
+
+And currently, ap is established as:
+
+LogWarning:	warningEnabled ? new MessageSender(ELwarning,id) : 0 
+LogPrint:	warningEnabled ? new MessageSender(ELwarning,id) : 0  ###
+LogInfo:	infoEnabled ? new MessageSender(ELwarning,id) : 0 
+LogVerbatim:	infoEnabled ? new MessageSender(ELwarning,id) : 0     ###
+LogError	new MessageSender(ELerror,id)
+LogProblem	new MessageSender(ELerror,id)
+LogImportant	new MessageSender(ELerror,id)
+LogSystem	new MessageSender(ELsevere,id)
+LogAbsolute	new MessageSender(ELsevere,id)
+  
+When is ap established with a possible 0, ap.get() is always used except
+where marked ###.  For example
+
+operator<< (T const & t)  { if(ap.get()) (*ap) << t; return *this; } 
+
+This prevents any action when the message is to be supressed.  What happens
+in the MessageSender dtor when ap is null?  Trick question:  There IS no
+MessageSender to destruct when ap is null!  
+
 
 
 
