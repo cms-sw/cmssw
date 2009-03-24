@@ -6,7 +6,6 @@
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
 <use name=RecoLocalCalo/EcalRecAlgos>
-<use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=RecoEcal/EgammaClusterAlgos>
@@ -31,7 +30,6 @@
   <use name=RecoLocalCalo/EcalRecAlgos>
   <use name=TrackingTools/TrackAssociator>
   <use name=Utilities/Timing>
-  <use name=Geometry/CaloEventSetup>
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloTopology>
   <use name=RecoEcal/EgammaClusterAlgos>
