@@ -116,6 +116,26 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
   histname = "Hits_XvsY_";
   Hits_XvsY_ = dqmStore_->book2D(histname+AlgoName, histname+AlgoName, rBin, -rMax, rMax, rBin, -rMax, rMax);
 
+  edm::ESHandle<TrackerGeometry> tkGeom;
+  iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
+  TrackerGeometry tracker  = TrackerGeometry(*tkGeom);
+  std::vector<int> sortedRawIds;
+  for( std::vector<DetId>::const_iterator iDetId = tracker.detUnitIds().begin(); iDetId != tracker.detUnitIds().end(); ++iDetId){
+    sortedRawIds.push_back( (*iDetId).rawId() );
+  }
+  std::sort(sortedRawIds.begin(),sortedRawIds.end());
+
+  int i = 0;
+  for( std::vector<int>::iterator iRawId = sortedRawIds.begin(); iRawId != sortedRawIds.end(); ++iRawId){
+    binByRawId_[ (*iRawId) ] = i;
+    i++;
+  }
+  
+  histname = "Hits_perDetId_";
+  int nModules = binByRawId_.size();
+  Hits_perDetId_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, nModules, static_cast<double>(nModules) -0.5, static_cast<double>(nModules) -0.5);
+  Hits_perDetId_->setAxisTitle("rawId Bins");
+
 }
 //
 // -- Analyse
@@ -148,7 +168,7 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if(runsOnReco_){
     iEvent.getByLabel(jetCollection, jets);
     if(! jets.isValid()){
-      LogError("Alignment")<<"no jets found in event!";
+      LogError("Alignment")<<"no jet collection found in event!";
     }
   }
 
@@ -217,7 +237,7 @@ void TkAlCaRecoMonitor::fillHitmaps(const reco::Track &track, const TrackerGeome
 	r*= globP.y() / fabs( globP.y() );
       Hits_ZvsR_->Fill( globP.z(), r );
       Hits_XvsY_->Fill( globP.x(), globP.y() );
-
+      Hits_perDetId_->Fill( binByRawId_[ geoId.rawId() ]);
     }
     //me->Fill( tHit->globalPosition().z(), tHit->globalPosition().mag() );
   }
