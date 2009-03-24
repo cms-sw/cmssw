@@ -11,31 +11,26 @@ process.source = cms.Source (
     "PoolSource",    
     fileNames = cms.untracked.vstring(
     # Fast
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre1/aod_QCDForPF_Fast_0.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre1/aod_QCDForPF_Fast_1.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre1/aod_QCDForPF_Fast_2.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre1/aod_QCDForPF_Fast_3.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre1/aod_QCDForPF_Fast_4.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre1/aod_QCDForPF_Fast_5.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre1/aod_QCDForPF_Fast_6.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre1/aod_QCDForPF_Fast_7.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre1/aod_QCDForPF_Fast_8.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre1/aod_QCDForPF_Fast_9.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre1/aod_QCDForPF_Fast_10.root'
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Fast_0.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Fast_1.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Fast_2.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Fast_3.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Fast_4.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Fast_5.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Fast_6.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Fast_7.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Fast_8.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Fast_9.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Fast_10.root'
     # Full
-       'file:aod_QCDForPF_Full_000.root',
-       'file:aod_QCDForPF_Full_001.root',
-       'file:aod_QCDForPF_Full_002.root',
-       'file:aod_QCDForPF_Full_003.root',
-       'file:aod_QCDForPF_Full_004.root',
-       'file:aod_QCDForPF_Full_005.root',
-       'file:aod_QCDForPF_Full_006.root',
-       'file:aod_QCDForPF_Full_007.root',
-       'file:aod_QCDForPF_Full_008.root'
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Full_001.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Full_002.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre4/aod_QCDForPF_Full_003.root',
        #'file:aod.root'
        ),
     secondaryFileNames = cms.untracked.vstring(),
-    noEventSort = cms.untracked.bool(True)
+    noEventSort = cms.untracked.bool(True),
+    duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
     
     )
 
@@ -57,6 +52,13 @@ process.load("JetMETCorrections.Configuration.ZSPJetCorrections152_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.iterativeCone5PFJets.inputEtMin = 0.0
+# Endcap
+# process.pfJetBenchmarkGeneric.minEta = cms.double(1.6)
+# process.caloJetBenchmarkGeneric.minEta = cms.double(1.6)
+# process.jptJetBenchmarkGeneric.minEta = cms.double(1.6)
+# process.pfJetBenchmarkGeneric.maxEta = cms.double(2.4)
+# process.caloJetBenchmarkGeneric.maxEta = cms.double(2.4)
+# process.jptJetBenchmarkGeneric.maxEta = cms.double(2.4)
 
 # should do a cloning
 process.genParticlesForJets.ignoreParticleIDs.append(14)
