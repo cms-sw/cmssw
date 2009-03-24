@@ -212,7 +212,7 @@ void AlignmentMonitorMuonSystemMap::book_and_link_up(std::string namestart, std:
     else if (lastarray == 2  &&  !phiz) hist[lastarray]->SetAxisRange(-maxZpos, maxZpos, "Y");
     else if (lastarray == 3) hist[lastarray]->SetAxisRange(-maxSlope, maxSlope, "Y");
     else if (lastarray == 4) hist[lastarray]->SetAxisRange(-maxSlope, maxSlope, "Y");
-    else if (lastarray == 5) hist[lastarray]->SetAxisRange(-10000., 10000., "Y");
+    else if (lastarray == 5) hist[lastarray]->SetAxisRange(-3., 3., "Y");
   }
 
   TProfile *offsetprof = NULL;
@@ -313,7 +313,7 @@ void AlignmentMonitorMuonSystemMap::book() {
   lastarray_name[2] = std::string("_rphi_zpos");          lastarray_title[2] = std::string(" local z correction from local x residuals (mm)");
   lastarray_name[3] = std::string("_rphi_slope");         lastarray_title[3] = std::string(" phiy residual (mrad)");
   lastarray_name[4] = std::string("_rphi_slopeantisym");   lastarray_title[4] = std::string(" bfield on phiy (mrad)");
-  lastarray_name[5] = std::string("_rphi_scattering");    lastarray_title[5] = std::string(" distance to scattering center (mm)");
+  lastarray_name[5] = std::string("_rphi_scattering");    lastarray_title[5] = std::string(" distance to scattering center (m)");
 
   for (int sector = 1;  sector <= 14;  sector++) {
     if (sector < 10) o = std::string("0");
@@ -396,7 +396,7 @@ void AlignmentMonitorMuonSystemMap::book() {
   lastarray_name[2] = std::string("_z_phiz");          lastarray_title[2] = std::string(" phiz correction from local y residuals (mrad)");
   lastarray_name[3] = std::string("_z_slope");         lastarray_title[3] = std::string(" phix residual (mrad)");
   lastarray_name[4] = std::string("_z_slopeantisym");   lastarray_title[4] = std::string(" bfield on phix (mrad)");
-  lastarray_name[5] = std::string("_z_scattering");    lastarray_title[5] = std::string(" distance to scattering center (mm)");
+  lastarray_name[5] = std::string("_z_scattering");    lastarray_title[5] = std::string(" distance to scattering center (m)");
 
   for (int sector = 1;  sector <= 14;  sector++) {
     if (sector < 10) o = std::string("0");
@@ -432,7 +432,7 @@ void AlignmentMonitorMuonSystemMap::book() {
   lastarray_name[2] = std::string("_rphi_phiz");          lastarray_title[2] = std::string(" phiz correction from local x residuals (mrad)");
   lastarray_name[3] = std::string("_rphi_slope");         lastarray_title[3] = std::string(" phiy residual (mrad)");
   lastarray_name[4] = std::string("_rphi_slopeantisym");   lastarray_title[4] = std::string(" bfield on phiy (mrad)");
-  lastarray_name[5] = std::string("_rphi_scattering");    lastarray_title[5] = std::string(" distance to scattering center (mm)");
+  lastarray_name[5] = std::string("_rphi_scattering");    lastarray_title[5] = std::string(" distance to scattering center (m)");
 
   for (int wheel = -2;  wheel <= 2;  wheel++) {
     std::string wheelname;
@@ -511,7 +511,7 @@ void AlignmentMonitorMuonSystemMap::book() {
   lastarray_name[2] = std::string("_z_zpos");          lastarray_title[2] = std::string(" local z correction from local y residuals (mm)");
   lastarray_name[3] = std::string("_z_slope");         lastarray_title[3] = std::string(" phix residual (mrad)");
   lastarray_name[4] = std::string("_z_slopeantisym");   lastarray_title[4] = std::string(" bfield on phix (mrad)");
-  lastarray_name[5] = std::string("_z_scattering");    lastarray_title[5] = std::string(" distance to scattering center (mm)");
+  lastarray_name[5] = std::string("_z_scattering");    lastarray_title[5] = std::string(" distance to scattering center (m)");
 
   for (int wheel = -2;  wheel <= 2;  wheel++) {
     std::string wheelname;
@@ -855,8 +855,8 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
 	offsetValue = fitter->second->value(MuonResidualsPositionFitter::kPosition) * 10.;                // convert from cm to mm
 	offsetError = fitter->second->error(MuonResidualsPositionFitter::kPosition) * 10.;
 	offsetAntisym = fitter->second->antisym(MuonResidualsPositionFitter::kPosition) * 10.;
-	scatteringValue = fitter->second->value(MuonResidualsPositionFitter::kScattering) * 10.;          // convert from cm to mm
-	scatteringError = fitter->second->error(MuonResidualsPositionFitter::kScattering) * 10.;
+	scatteringValue = fitter->second->value(MuonResidualsPositionFitter::kScattering) / 100.;         // convert from cm to m
+	scatteringError = fitter->second->error(MuonResidualsPositionFitter::kScattering) / 100.;
 	zposValue = fitter->second->value(MuonResidualsPositionFitter::kZpos) * 10.;                      // convert from cm to mm
 	zposError = fitter->second->error(MuonResidualsPositionFitter::kZpos) * 10.;
 	phizValue = fitter->second->value(MuonResidualsPositionFitter::kPhiz) * 1000.;                    // convert from radians to mrad
