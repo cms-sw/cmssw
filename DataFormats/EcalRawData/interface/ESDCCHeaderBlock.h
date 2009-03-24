@@ -12,11 +12,13 @@ class ESDCCHeaderBlock {
   typedef int key_type;
 
   enum ESDCCRunType {
-    PHYSICS_RUN = 0,
     PEDESTAL_RUN = 1,
     TESTPULSE_RUN = 2,
-    GLOBAL_PHYSICS_RUN = 5,
-    LOCAL_PHYSICS_RUN = 6
+    COSMIC_RUN = 3,
+    BEAM_RUN = 4,
+    PHYSICS_RUN = 5,
+    TEST_RUN = 6,
+    GLOBAL_COSMIC_RUN = 7
   };
   
   enum ESSeqType {
