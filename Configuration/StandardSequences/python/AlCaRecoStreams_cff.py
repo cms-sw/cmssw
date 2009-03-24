@@ -1,10 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2009/03/04 17:44:17 $ by $Author: futyand $
+# last update: $Date: 2009/03/19 17:04:09 $ by $Author: argiro $
 
 # AlCaReco sequence definitions:
 
+###############################################################
 # Tracker Alignment
+###############################################################
 # AlCaReco for track based alignment using ZMuMu events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_cff import *
 # AlCaReco for track based alignment using Cosmic muon events
@@ -20,16 +22,25 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlJpsiMuMu_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlUpsilonMuMu_cff import *
 # AlCaReco for track based alignment using MinBias events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_cff import *
-# AlCaReco for pixel calibration using muons
+
+###############################################################
+# Tracker Calibration
+###############################################################
+# AlCaReco for pixel calibration using muons 
 from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelLorentzAngle_cff import *
 # AlCaReco for tracker calibration using MinBias events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBias_cff import *
+# AlCaReco for tracker calibration using ZeroBias events (noise)
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_cff import *
 
+###############################################################
 # ECAL Calibration
+###############################################################
 # ECAL calibration with isol. electrons
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_cff import *
+###############################################################
 # HCAL Calibration
+###############################################################
 # HCAL calibration with dijets
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalDijets_cff import *
 # HCAL calibration with gamma+jet
@@ -38,23 +49,34 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalGammaJet_cff import *
 #  include "Calibration/HcalAlCaRecoProducers/data/ALCARECOHcalCalZMuMu.cff"
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHO_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHOCosmics_cff import *
+###############################################################
+# Muon alignment
+###############################################################
 # Muon Alignment with cosmics
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlStandAloneCosmics_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlGlobalCosmics_cff import *
-# Muon Alignment with isolated muons
+# Muon Alignment/Calibration with isolated muons
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlCalIsolatedMu_cff import *
+# Muon Alignment using ZMuMu events
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlZMuMu_cff import *
 # Muon Alignment using CSC overlaps
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlOverlaps_cff import *
+###############################################################
 # RPC calibration
+###############################################################
 from CalibMuon.RPCCalibration.ALCARECORpcCalHLT_cff import *
+
+###############################################################
 # nonbeam alcas
+###############################################################
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlBeamHalo_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlLAS_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlBeamHalo_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlBeamHaloOverlaps_cff import *
 
 # NOTE: the ALCARECO DQM modules can not be placed together in a single path 
-# because they act as filters. They are therefore inserted per ALCARECO path.
+# because the non-DQM sequences act as filters.
+# They are therefore inserted per ALCARECO path.
 from DQMOffline.Configuration.AlCaRecoDQM_cff import *
 
 # AlCaReco path definitions:
@@ -74,6 +96,7 @@ pathALCARECOHcalCalGammaJet = cms.Path(seqALCARECOHcalCalGammaJet)
 pathALCARECOHcalCalHO = cms.Path(seqALCARECOHcalCalHO)
 pathALCARECOHcalCalHOCosmics = cms.Path(seqALCARECOHcalCalHOCosmics)
 pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu*ALCARECOMuAlCalIsolatedMuDQM)
+pathALCARECOMuAlZMuMu = cms.Path(seqALCARECOMuAlZMuMu*ALCARECOMuAlZMuMuDQM)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps*ALCARECOMuAlOverlapsDQM)
 pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
 pathALCARECOTkAlBeamHalo = cms.Path(seqALCARECOTkAlBeamHalo)
@@ -86,9 +109,9 @@ pathALCARECOTkAlCosmicsRS = cms.Path(seqALCARECOTkAlCosmicsRS*ALCARECOTkAlCosmic
 pathALCARECOTkAlCosmicsCTF0T = cms.Path(seqALCARECOTkAlCosmicsCTF0T*ALCARECOTkAlCosmicsCTF0TDQM)
 pathALCARECOTkAlCosmicsCosmicTF0T = cms.Path(seqALCARECOTkAlCosmicsCosmicTF0T*ALCARECOTkAlCosmicsCosmicTF0TDQM)
 pathALCARECOTkAlCosmicsRS0T = cms.Path(seqALCARECOTkAlCosmicsRS0T*ALCARECOTkAlCosmicsRS0TDQM)
-pathALCARECOTkAlCosmicsCTFHLT = cms.Path(seqALCARECOTkAlCosmicsCTFHLT)
-pathALCARECOTkAlCosmicsCosmicTFHLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTFHLT)
-pathALCARECOTkAlCosmicsRSHLT = cms.Path(seqALCARECOTkAlCosmicsRSHLT)
+pathALCARECOTkAlCosmicsCTFHLT = cms.Path(seqALCARECOTkAlCosmicsCTFHLT*ALCARECOTkAlCosmicsCTFDQM)
+pathALCARECOTkAlCosmicsCosmicTFHLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTFHLT*ALCARECOTkAlCosmicsCosmicTFDQM)
+pathALCARECOTkAlCosmicsRSHLT = cms.Path(seqALCARECOTkAlCosmicsRSHLT*ALCARECOTkAlCosmicsRSDQM)
 pathALCARECOTkAlCosmicsCTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCTF0THLT*ALCARECOTkAlCosmicsCTF0TDQM)
 pathALCARECOTkAlCosmicsCosmicTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTF0THLT*ALCARECOTkAlCosmicsCosmicTF0TDQM)
 pathALCARECOTkAlCosmicsRS0THLT = cms.Path(seqALCARECOTkAlCosmicsRS0THLT*ALCARECOTkAlCosmicsRS0TDQM)
@@ -224,6 +247,15 @@ ALCARECOStreamMuAlCalIsolatedMu = cms.FilteredStream(
 	paths  = (pathALCARECOMuAlCalIsolatedMu),
 	content = OutALCARECOMuAlCalIsolatedMu.outputCommands,
 	selectEvents = OutALCARECOMuAlCalIsolatedMu.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamMuAlZMuMu = cms.FilteredStream(
+	responsible = 'Javier Fernandez',
+	name = 'ALCARECOMuAlZMuMu',
+	paths  = (pathALCARECOMuAlZMuMu),
+	content = OutALCARECOMuAlZMuMu.outputCommands,
+	selectEvents = OutALCARECOMuAlZMuMu.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
