@@ -45,7 +45,7 @@ if (gSystem->Getenv("CMSSW_RELEASE_BASE") != '\0') {
 #include "TF1.h"
 #include "TString.h"
 #include "TObjString.h"
-
+#include "TMath.h"
 // global variables:
 bool copiedTree_ = false;
 std::map<unsigned int, TkOffTreeVariables> map_;
@@ -56,7 +56,7 @@ void MergeRootfile( TDirectory *target, TList *sourcelist );
 void RewriteTree( TDirectory *target,TTree *tree,
 		  const std::map<unsigned int,TkOffTreeVariables> &map_);
 std::pair<float,float> FitResiduals(TH1 *h, float meantmp, float rmstmp);
-
+float getMedian(const TH1 *histo);
 //////////////////////////////////////////////////////////////////////////
 // master method
 //////////////////////////////////////////////////////////////////////////
@@ -260,7 +260,7 @@ void RewriteTree( TDirectory *target, TTree *tree, const std::map<unsigned int,T
     treeVar->clear(); 
     // first get 'constant' values from map ('constant' means not effected by merging)
     (*treeVar) = it->second; // (includes module id)
-    std::cout << "Module " << counter << ", ID " << treeVar->moduleId << std::endl;
+    // std::cout << "Module " << counter << ", ID " << treeVar->moduleId << std::endl;
     
     // now path name:
     const TString &path = idPathMap_[treeVar->moduleId]; 
@@ -285,11 +285,11 @@ void RewriteTree( TDirectory *target, TTree *tree, const std::map<unsigned int,T
       const std::pair<float,float> meanSigma = FitResiduals(h, h->GetMean(), h->GetRMS());
       treeVar->fitMeanX = meanSigma.first;
       treeVar->fitSigmaX= meanSigma.second;
-      
+      treeVar->MedianX = getMedian(h);
       delete h; h = 0;
     } else {
       std::cout << "Module " << treeVar->moduleId << " without hist X: " 
-		<< path << treeVar->histNameX << std::endl;
+      		<< path << treeVar->histNameX << std::endl;
     }
 
     ////////////////////////////////////////////////////////////////
@@ -322,6 +322,7 @@ void RewriteTree( TDirectory *target, TTree *tree, const std::map<unsigned int,T
       if (h) {
 	treeVar->meanLocalX = h->GetMean();      //get mean value from histogram
 	treeVar->rmsLocalX = h->GetRMS();        //get RMS value from histogram
+	
 	delete h; h = 0;
       } else {
 	std::cout << "Module " << treeVar->moduleId << " without hist local X: " 
@@ -356,7 +357,7 @@ void RewriteTree( TDirectory *target, TTree *tree, const std::map<unsigned int,T
 	const std::pair<float,float> meanSigma = FitResiduals(h, h->GetMean(), h->GetRMS());
 	treeVar->fitMeanY = meanSigma.first;
 	treeVar->fitSigmaY= meanSigma.second;
-
+	treeVar->MedianY = getMedian(h);
 	delete h; h = 0;
       } else {
 	std::cout << "Module " << treeVar->moduleId << " without hist Y " 
@@ -416,4 +417,28 @@ std::pair<float,float> FitResiduals(TH1 *h,float meantmp,float rmstmp)
   }
 
   return fitResult;
+}
+
+float getMedian(const TH1 *histo)
+{
+
+  float median = 999;
+  int nbins = histo->GetNbinsX();
+
+ //extract median from histogram
+   
+   double *x = new double[nbins];
+  double *y = new double[nbins];
+  for (int j = 0; j < nbins; j++) {
+    x[j] = histo->GetBinCenter(j+1);
+    y[j] = histo->GetBinContent(j+1);
+  }
+  median = TMath::Median(nbins, x, y);
+  
+
+  delete[] x; x = 0;
+  delete[] y; y = 0;
+
+  return median;
+
 }

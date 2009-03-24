@@ -36,7 +36,8 @@ struct TkOffTreeVariables
   void clearMergeAffectedPart()
   {
     // variable Float_t's
-    meanLocalX = meanNormLocalX = meanX = meanNormX = meanY = meanNormY 
+    meanLocalX = meanNormLocalX = meanX = meanNormX = meanY = meanNormY
+       = MedianX = MedianY
       = chi2PerDofX = chi2PerDofY
       = rmsLocalX = rmsNormLocalX = rmsX = rmsNormX = rmsY = rmsNormY
       = sigmaX = sigmaNormX
@@ -56,7 +57,9 @@ struct TkOffTreeVariables
   ///////////////////////////////////////////////////////////////////////////////
   Float_t meanLocalX, meanNormLocalX, 
     meanX, meanNormX,    //mean value read out from modul histograms
-    meanY, meanNormY, chi2PerDofX, chi2PerDofY,
+    meanY, meanNormY, 
+    MedianX, MedianY,   //Median read out from modul histograms
+    chi2PerDofX, chi2PerDofY,
     rmsLocalX, rmsNormLocalX, rmsX, rmsNormX,  //rms value read out from modul histograms
     rmsY, rmsNormY,sigmaX,sigmaNormX,
     fitMeanX, fitSigmaX, fitMeanNormX, fitSigmaNormX,

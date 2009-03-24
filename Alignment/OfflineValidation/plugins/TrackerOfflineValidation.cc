@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.23 2009/01/20 08:26:25 jdraeger Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.24 2009/02/13 11:25:08 jdraeger Exp $
 //
 //
 
@@ -24,6 +24,8 @@
 #include <sstream>
 #include <math.h>
 #include <utility>
+#include <vector>
+#include <iostream>
 
 // ROOT includes
 #include "TH1.h"
@@ -32,6 +34,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TF1.h"
+#include "TMath.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -160,8 +163,8 @@ private:
     
   float Fwhm(const TH1* hist) const;
   std::pair<float,float> fitResiduals(TH1 *hist) const; //, float meantmp, float rmstmp);
-
-  // From MillePedeAlignmentMonitor: Get Index for Arbitary vector<class> by name
+  float getMedian( const TH1 *hist) const; 
+ // From MillePedeAlignmentMonitor: Get Index for Arbitary vector<class> by name
   template <class OBJECT_TYPE>  
   int GetIndex(const std::vector<OBJECT_TYPE*> &vec, const TString &name);
 
@@ -1174,6 +1177,9 @@ TrackerOfflineValidation::fillTree(TTree &tree,
       treeMem.fitMeanNormX = fitResult2.first;
       treeMem.fitSigmaNormX = fitResult2.second;
     }
+    //get median for absolute residuals
+    treeMem.MedianX   = this->getMedian(it->second.ResXprimeHisto);
+
 
     int numberOfBins=it->second.ResXprimeHisto->GetNbinsX();
     treeMem.numberOfUnderflows = it->second.ResXprimeHisto->GetBinContent(0);
@@ -1216,6 +1222,9 @@ TrackerOfflineValidation::fillTree(TTree &tree,
 	treeMem.fitMeanY  = fitMeanSigma.first;
 	treeMem.fitSigmaY = fitMeanSigma.second;
       }
+      //get median for absolute residuals
+      treeMem.MedianY   = this->getMedian(h);
+
       treeMem.histNameY = h->GetName();
     }
     if (it->second.NormResYprimeHisto) {
@@ -1273,6 +1282,44 @@ TrackerOfflineValidation::fitResiduals(TH1 *hist) const
   
   return fitResult;
 }
+float 
+TrackerOfflineValidation::getMedian(const TH1 *histo) const
+{
 
+  float median = 999;
+  int nbins = histo->GetNbinsX();
+
+ 
+  //extract median from histogram
+  double *x = new double[nbins];
+  double *y = new double[nbins];
+  for (int j = 0; j < nbins; j++) {
+    x[j] = histo->GetBinCenter(j+1);
+    y[j] = histo->GetBinContent(j+1);
+  }
+  median = TMath::Median(nbins, x, y);
+  
+
+  delete[] x; x = 0;
+  delete [] y; y = 0;  
+
+
+  // std::vector<double> x;
+  //x.resize(nbins);
+  //std::vector<double> y;
+  //y.resize(nbins);
+  //for (int j = 0; j < nbins; ++j) {
+    //std::cout<<"Bin content: "<<histo->GetBinContent(j+1)<<std::endl;
+  //  x.push_back( histo->GetBinCenter(j+1) );
+  //  y.push_back( histo->GetBinContent(j+1) );
+  //}
+  //if (nbins>0){
+    //median = TMath::Median(nbins,&(x[0]),&(y[0]));
+    // median = TMath::Median(x.begin(),x.end(),y.begin()));
+  //std::cout<<"Median: "<<median<<std::endl;
+  //}
+  return median;
+
+}
 //define this as a plug-in
 DEFINE_FWK_MODULE(TrackerOfflineValidation);
