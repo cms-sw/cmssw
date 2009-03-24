@@ -552,18 +552,27 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
             // header for printing algorithms
 
-            myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n\n"
-            << "L1 Trigger Menu Name:      " << m_triggerMenuName << "\n"
+            myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n"
+            << "\nL1 Trigger Menu Interface: " << m_triggerMenuInterface
+            << "\nL1 Trigger Menu Name:      " << m_triggerMenuName
+            << "\nL1 Trigger Menu Implementation: " << m_triggerMenuImplementation
             << "\nAssociated Scale DB Key: " << m_scaleDbKey << "\n\n"
             << "\nL1 Physics Algorithms: " << nrDefinedAlgo << " algorithms defined." << "\n\n"
-            << "Bit Number " << " Algorithm Name " << std::endl;
+            << "Bit Number "
+            << std::right << std::setw(35) << "Algorithm Name" << "  "
+            << std::right << std::setw(35) << "Algorithm Alias"
+            << std::endl;
 
             for (CItBit itBit = algoBitToAlgo.begin(); itBit != algoBitToAlgo.end(); itBit++) {
 
                 int bitNumber = itBit->first;
                 std::string aName = (itBit->second)->algoName();
+                std::string aAlias = (itBit->second)->algoAlias();
 
-                myCout << std::setw(6) << bitNumber << "       " << aName << std::endl;
+                myCout << std::setw(6) << bitNumber << "     "
+                    << std::right << std::setw(35) << aName << "  "
+                    << std::right << std::setw(35) << aAlias
+                    << std::endl;
             }
 
             myCout
@@ -577,8 +586,12 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
                 int bitNumber = itBit->first;
                 std::string aName = (itBit->second)->algoName();
+                std::string aAlias = (itBit->second)->algoAlias();
 
-                myCout << std::setw(6) << bitNumber << "       " << aName << std::endl;
+                myCout << std::setw(6) << bitNumber << "       "
+                << std::right << std::setw(35) << aName << "  "
+                << std::right << std::setw(35) << aAlias
+                << std::endl;
             }
 
         }
@@ -588,20 +601,30 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
             // header for printing algorithms
 
-            myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n\n"
-            << "L1 Trigger Menu Name:      " << m_triggerMenuName << "\n"
+            myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n"
+            << "\nL1 Trigger Menu Interface: " << m_triggerMenuInterface
+            << "\nL1 Trigger Menu Name:      " << m_triggerMenuName
+            << "\nL1 Trigger Menu Implementation: " << m_triggerMenuImplementation
             << "\nAssociated Scale DB Key: " << m_scaleDbKey << "\n\n"
             << "\nL1 Physics Algorithms: " << nrDefinedAlgo << " algorithms defined." << "\n\n"
-            << "Bit Number " << " Algorithm Name " << "\n  Logical Expresssion \n" << std::endl;
+            << "Bit Number "
+            << std::right << std::setw(35) << "Algorithm Name" << "  "
+            << std::right << std::setw(35) << "Algorithm Alias"
+            << "\n  Logical Expression \n"
+            << std::endl;
 
             for (CItBit itBit = algoBitToAlgo.begin(); itBit != algoBitToAlgo.end(); itBit++) {
 
                 int bitNumber = itBit->first;
                 std::string aName = (itBit->second)->algoName();
+                std::string aAlias = (itBit->second)->algoAlias();
                 std::string aLogicalExpression = (itBit->second)->algoLogicalExpression();
 
-                myCout << std::setw(6) << bitNumber << "       " << aName
-                    << "\n  Logical expression: " << aLogicalExpression << "\n" << std::endl;
+                myCout << std::setw(6) << bitNumber << "     "
+                << std::right << std::setw(35) << aName << "  "
+                << std::right << std::setw(35) << aAlias
+                << "\n  Logical expression: " << aLogicalExpression << "\n"
+                << std::endl;
             }
 
             myCout
@@ -625,8 +648,11 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
             // header for printing algorithms
 
-            myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n\n"
-            << "L1 Trigger Menu Name: " << m_triggerMenuName << "\n\n"
+            myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n"
+            << "\nL1 Trigger Menu Interface: " << m_triggerMenuInterface
+            << "\nL1 Trigger Menu Name:      " << m_triggerMenuName
+            << "\nL1 Trigger Menu Implementation: " << m_triggerMenuImplementation
+            << "\nAssociated Scale DB Key: " << m_scaleDbKey << "\n\n"
             << "\nL1 Physics Algorithms: " << nrDefinedAlgo << " algorithms defined." << "\n\n"
             << std::endl;
 

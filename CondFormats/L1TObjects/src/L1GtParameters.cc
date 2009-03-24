@@ -1,14 +1,14 @@
 /**
  * \class L1GtParameters
- * 
- * 
- * Description: L1 GT parameters.  
+ *
+ *
+ * Description: L1 GT parameters.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -62,10 +62,26 @@ void L1GtParameters::setGtEvmActiveBoards(const boost::uint16_t& activeBoardsVal
 
 }
 
+// set number of Bx for L1 GT DAQ record
+void L1GtParameters::setGtDaqNrBxBoard(const std::vector<int>& nrBxBoardValue)
+{
+
+    m_daqNrBxBoard = nrBxBoardValue;
+
+}
+
+// set number of Bx for L1 GT EVM record
+void L1GtParameters::setGtEvmNrBxBoard(const std::vector<int>& nrBxBoardValue)
+{
+
+    m_evmNrBxBoard = nrBxBoardValue;
+
+}
+
 void L1GtParameters::setGtBstLengthBytes(const unsigned int& bstLengthBytesValue) {
-    
+
     m_bstLengthBytes = bstLengthBytesValue;
-        
+
 }
 
 // print all the L1 GT parameters
@@ -92,11 +108,44 @@ void L1GtParameters::print(std::ostream& myCout) const
     << std::endl;
 
     myCout
+    << "\n"
+    << "  Number of bunch crosses per board in L1 GT DAQ record\n"
+    << "  Board bit gives the position of the board in the \"active boards\" word.\n"
+    << std::endl;
+
+    int iBit = 0;
+    for (std::vector<int>::const_iterator cIt = m_daqNrBxBoard.begin(); cIt != m_daqNrBxBoard.end(); ++cIt) {
+        myCout << "    Board active bit " << iBit << ": " << (*cIt) << " BXs" << std::endl;
+        iBit++;
+    }
+
+
+    myCout
+    << "\n"
+    << "  Number of bunch crosses per board in L1 GT EVM record\n"
+    << "  Board bit gives the position of the board in the \"active boards\" word.\n"
+    << std::endl;
+
+    iBit = 0;
+    for (std::vector<int>::const_iterator cIt = m_evmNrBxBoard.begin(); cIt != m_evmNrBxBoard.end(); ++cIt) {
+        myCout << "    Board active bit " << iBit << ": " << (*cIt) << " BXs" << std::endl;
+        iBit++;
+    }
+
+    myCout
     << "\n  Length of the BST message = "
     << m_bstLengthBytes
     << std::endl;
 
     myCout
     << "\n" << std::endl;
+
+}
+
+// output stream operator
+std::ostream& operator<<(std::ostream& os, const L1GtParameters& result)
+{
+    result.print(os);
+    return os;
 
 }

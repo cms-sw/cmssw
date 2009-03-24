@@ -121,6 +121,7 @@ void L1GtAlgorithm::print(std::ostream& myCout) const {
     myCout << std::endl;
 
     myCout << "    Algorithm name:         " << m_algoName << std::endl;
+    myCout << "    Algorithm alias:        " << m_algoAlias << std::endl;
 
     myCout << "    Bit number:             " << m_algoBitNumber;
     if (m_algoBitNumber < 0) {
