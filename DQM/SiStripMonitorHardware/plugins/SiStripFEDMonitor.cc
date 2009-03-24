@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.7 2009/03/20 14:52:27 nc302 Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.8 2009/03/24 14:05:22 nc302 Exp $
 //
 //
 
@@ -470,14 +470,14 @@ bool SiStripFEDMonitorPlugin::analyzeFEUnits(const sistrip::FEDBuffer* buffer, u
       }
     }
     //check for missing data
-    if (!buffer->fePresent(iFE)) {
+    /*if (!buffer->fePresent(iFE)) {
       if (hasCabledChannels) {
         fillHistogram(feMissingDetailed_[fedId],iFE);
         foundMissing = true;
         (*nFEMissing)++;
       }
       continue;
-    }
+      }*/
     if (buffer->majorityAddressErrorForFEUnit(iFE)) {
       bookFEDHistograms(fedId);
       fillHistogram(badMajorityAddressDetailed_[fedId],iFE);
