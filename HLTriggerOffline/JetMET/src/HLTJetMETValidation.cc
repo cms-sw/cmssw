@@ -76,7 +76,7 @@ HLTJetMETValidation::HLTJetMETValidation(const edm::ParameterSet& ps) :
       //_meTurnOnJetPt= store->book1D("_meTurnOnJetPt","Jet Pt Turn-On",100,0,500);
     }
 
-  if (writeFile_) printf("Initializing\n");
+  //if (writeFile_) printf("Initializing\n");
 }
 
 HLTJetMETValidation::~HLTJetMETValidation()
@@ -102,9 +102,9 @@ HLTJetMETValidation::endJob()
     if (&*edm::Service<DQMStore>() && writeFile_) {
       edm::Service<DQMStore>()->save (outFile_);
 
-      printf("\n\n");
-      printf("NRef = %i\n",NRef);
-      printf("NProbe = %i\n",NProbe);
+      //printf("\n\n");
+      //printf("NRef = %i\n",NRef);
+      //printf("NProbe = %i\n",NProbe);
     }
   
 }
@@ -178,14 +178,19 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   Handle<TriggerResults> hltresults,hltresultsDummy;
   iEvent.getByLabel(HLTriggerResults,hltresults);
-  if (! hltresults.isValid() ) { cout << "  -- No HLTRESULTS"; gotHLT=false;}
+  if (! hltresults.isValid() ) { 
+    //cout << "  -- No HLTRESULTS"; 
+    edm::LogWarning("HLTJetMETValidation") << "  -- No HLTRESULTS";    
+    gotHLT=false;
+  }
 
   if (gotHLT) {
     getHLTResults(*hltresults);
     //    trig_iter=hltTriggerMap.find(MyTrigger);
     trig_iter=hltTriggerMap.find(_HLTPath.label());
     if (trig_iter==hltTriggerMap.end()){
-      cout << "Could not find trigger path with name: " << _probefilter.label() << endl;
+      //cout << "Could not find trigger path with name: " << _probefilter.label() << endl;
+      edm::LogWarning("HLTJetMETValidation") << "Could not find trigger path with name: " << _probefilter.label(); 
     }else{
       myTrig=trig_iter->second;
     }
@@ -214,7 +219,8 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
     }
   }else{
-    cout << "  -- No CaloJets" << endl;
+    //cout << "  -- No CaloJets" << endl;
+    edm::LogWarning("HLTJetMETValidation") << "  -- No CaloJets"; 
   }
 
   Handle<GenJetCollection> genJets,genJetsDummy;
@@ -240,7 +246,8 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
     }
   }else{
-    cout << "  -- No GenJets" << endl;
+    //cout << "  -- No GenJets" << endl;
+    edm::LogWarning("HLTJetMETValidation") << "  -- No GenJets"; 
   }
 
   edm::Handle<CaloMETCollection> recmet, recmetDummy;
@@ -258,7 +265,8 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if (myTrig) _meRecoMETTrg -> Fill(calMet);
     }
   }else{
-    cout << "  -- No MET Collection with name: " << CaloMETColl << endl;
+    //cout << "  -- No MET Collection with name: " << CaloMETColl << endl;
+    edm::LogWarning("HLTJetMETValidation") << "  -- No MET Collection with name: "<< CaloMETColl; 
   }
 
   edm::Handle<GenMETCollection> genmet, genmetDummy;
@@ -276,7 +284,8 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if (myTrig) _meGenMETTrg -> Fill(genMet);
     }
   }else{
-    cout << "  -- No GenMET Collection with name: " << GenMETColl << endl;
+    //cout << "  -- No GenMET Collection with name: " << GenMETColl << endl;
+    edm::LogWarning("HLTJetMETValidation") << "  -- No GenMET Collection with name: "<< GenMETColl; 
   }
 
   // get the reference and probe jets
@@ -403,7 +412,7 @@ void HLTJetMETValidation::getHLTResults( const edm::TriggerResults& hltresults) 
     HLTinit_=true;
     triggerNames_.init(hltresults);
     
-    if (writeFile_) cout << "Number of HLT Paths: " << ntrigs << endl;
+    //if (writeFile_) cout << "Number of HLT Paths: " << ntrigs << endl;
 
     // book histogram and label axis with trigger names
     //h_TriggerResults = fs->make<TH1F>( "TriggerResults", "HLT Results", ntrigs, 0, ntrigs );
