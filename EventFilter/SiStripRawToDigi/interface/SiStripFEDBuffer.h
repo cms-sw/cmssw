@@ -168,6 +168,9 @@ namespace sistrip {
 	{ return checkStatusBits(internalFEDChannelNum(internalFEUnitNum,internalChannelNum)); }
       //same but for all channels on enabled FE units
       bool checkAllChannelStatusBits() const;
+      
+      //check that all FE unit payloads are present
+      bool checkFEPayloadsPresent() const;
   
       //print a summary of all checks
       virtual std::string checkSummary() const;

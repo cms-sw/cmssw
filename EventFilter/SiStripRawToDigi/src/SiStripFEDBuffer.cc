@@ -234,11 +234,27 @@ namespace sistrip {
     }
     return lengthFromChannels;
   }
+  
+  bool FEDBuffer::checkFEPayloadsPresent() const
+  {
+    for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
+      if (!fePresent(iFE)) return false;
+    }
+    return true;
+  }
 
   std::string FEDBuffer::checkSummary() const
   {
     std::stringstream summary;
     summary << FEDBufferBase::checkSummary();
+    summary << "Check FE unit payloads are all present: " << (checkFEPayloadsPresent() ? "passed" : "FAILED" ) << std::endl;
+    if (!checkFEPayloadsPresent()) {
+      summary << "FE units missing payloads: ";
+      for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
+        if (!fePresent(iFE)) summary << uint16_t(iFE) << " ";
+      }
+      summary << std::endl;
+    }
     summary << "Check channel status bits: " << ( checkAllChannelStatusBits() ? "passed" : "FAILED" ) << std::endl;
     if (!checkAllChannelStatusBits()) {
       summary << "Channels with errors: ";
