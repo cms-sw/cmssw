@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.16 2009/02/25 16:51:34 hdyoo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.17 2009/02/25 19:12:54 hdyoo Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -50,6 +50,20 @@ Implementation:
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
+
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+
+#include "PhysicsTools/Utilities/interface/deltaR.h"
 
 #include "TMath.h" 
 
@@ -142,10 +156,11 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
       string dirname;
       if( trig < nTrigs ) dirname = theHLTCollectionLabels[trig] + "/";
       else if( trig == nTrigs ) dirname = "Combined/";
-      for ( int level = 1; level < 6; ++level ) {
+      for ( int level = 1; level < 7; ++level ) {
 	if( level < 4 ) sprintf(name,"Level%i",level);
 	else if (level == 4 ) sprintf(name,"Level%iSeed", level-2);
 	else if (level == 5 ) sprintf(name,"Level%iSeed", level-2);
+	else if (level == 6 ) sprintf(name,"Level2Isolation");
 	
 	if( level == 1 ) pt_max = 140;
 	else pt_max = 200;
@@ -162,7 +177,64 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	  hnMuValidHits[trig] = dbe_->book1D("HLTMuonL3_nMuValidHits", "L3 Number of Valid Muon Hits", NBINS, 0., 100.);
 	  hnMuValidHits[trig]->setAxisTitle("Number of Valid Muon Hits", 1);
 	}
-	if( level < 4 ) {
+	if( level == 1 ) {
+	  int eta_nbin = 62;
+	  float eta_bins[63] = {
+	      		 -2.40, -2.35, -2.30, -2.25, -2.20, -2.15, -2.10, -2.05,
+			 -2.00, -1.95, -1.90, -1.85, -1.80, -1.75, -1.70, -1.60,
+			 -1.50, -1.40, -1.30, -1.20, -1.10, -1.00, -0.90, -0.80,
+			 -0.70, -0.60, -0.50, -0.40, -0.30, -0.20, -0.10, -0.00,
+	                 0.10,  0.20,  0.30,  0.40,  0.50,  0.60,  0.70,  0.80,
+	                 0.90,  1.00,  1.10,  1.20,  1.30,  1.40,  1.50,  1.60,
+			 1.70,  1.75,  1.80,  1.85,  1.90,  1.95,  2.00,  2.05,
+			 2.10,  2.15,  2.20,  2.25,  2.30,  2.35,  2.40
+			 };
+	  int phi_nbin = 144;		 
+	  float phi_bins[145];
+	  for( int ibin = 0; ibin < 145; ibin++ ) {
+	      phi_bins[ibin] = -3.15 + (ibin)*(6.30/144);
+	  }
+	  float pt_bins[51];
+	  for( int ibin = 0; ibin < 51; ibin++ ) {
+	      pt_bins[ibin] = ibin*(140/50);
+	  }
+	  sprintf(name,"HLTMuonL%i_NMu",level);
+	  sprintf(title,"L%i number of muons",level);
+	  hNMu[trig][level-1] = dbe_->book1D(name,title, 5, -0.5, 4.5);
+	  hNMu[trig][level-1]->setAxisTitle("Number of muons", 1);
+	  sprintf(name,"HLTMuonL%i_pt",level);
+	  sprintf(title,"L%i Pt",level);
+	  hpt[trig][level-1] = dbe_->book1D(name,title, NBINS, pt_bins);
+	  hpt[trig][level-1]->setAxisTitle("Pt", 1);
+	  sprintf(name,"HLTMuonL%i_eta",level);
+	  sprintf(title,"L%i Muon #eta",level);
+	  heta[trig][level-1] = dbe_->book1D(name,title, eta_nbin, eta_bins);
+	  heta[trig][level-1]->setAxisTitle("#eta", 1);
+	  sprintf(name,"HLTMuonL%i_phi",level);
+	  sprintf(title,"L%i Muon #phi",level);
+	  hphi[trig][level-1] = dbe_->book1D(name,title, phi_nbin, phi_bins);
+	  hphi[trig][level-1]->setAxisTitle("#phi", 1);
+	  sprintf(name,"HLTMuonL%i_etaphi",level);
+	  sprintf(title,"L%i Muon #eta vs #phi",level);
+	  hetaphi[trig][level-1] = dbe_->book2D(name,title, phi_nbin, phi_bins, eta_nbin, eta_bins);
+	  hetaphi[trig][level-1]->setAxisTitle("#phi", 1);
+	  hetaphi[trig][level-1]->setAxisTitle("#eta", 2); 
+	  sprintf(name,"HLTMuonL%i_ptphi",level);
+	  sprintf(title,"L%i Muon pt vs #phi",level);         
+	  hptphi[trig][level-1] = dbe_->book2D(name,title, NBINS, pt_bins, phi_nbin, phi_bins);
+	  hptphi[trig][level-1]->setAxisTitle("pt", 1);
+	  hptphi[trig][level-1]->setAxisTitle("#phi", 2);
+	  sprintf(name,"HLTMuonL%i_pteta",level);
+	  sprintf(title,"L%i Muon pt vs #eta",level);         
+	  hpteta[trig][level-1] = dbe_->book2D(name,title, NBINS, pt_bins, eta_nbin, eta_bins);
+	  hpteta[trig][level-1]->setAxisTitle("pt", 1);
+	  hpteta[trig][level-1]->setAxisTitle("#eta", 2);
+	  sprintf(name,"HLTMuonL%i_charge",level);
+	  sprintf(title,"L%i Muon Charge",level);         
+	  hcharge[trig][level-1]  = dbe_->book1D(name,title, 3, -1.5, 1.5);
+	  hcharge[trig][level-1]->setAxisTitle("Charge", 1);
+	}
+	if( level > 1 && level < 4 ) {
 	  sprintf(name,"HLTMuonL%i_NMu",level);
 	  sprintf(title,"L%i number of muons",level);
 	  hNMu[trig][level-1] = dbe_->book1D(name,title, 5, -0.5, 4.5);
@@ -173,14 +245,12 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	  hpt[trig][level-1]->setAxisTitle("Pt", 1);
 	  sprintf(name,"HLTMuonL%i_eta",level);
 	  sprintf(title,"L%i Muon #eta",level);
-	  if( level == 1 ) NBINS = 25; // for l1 muon eta, phi
 	  heta[trig][level-1] = dbe_->book1D(name,title, NBINS, -2.5, 2.5);
 	  heta[trig][level-1]->setAxisTitle("#eta", 1);
 	  sprintf(name,"HLTMuonL%i_phi",level);
 	  sprintf(title,"L%i Muon #phi",level);
 	  hphi[trig][level-1] = dbe_->book1D(name,title, NBINS, -3.15, 3.15);
 	  hphi[trig][level-1]->setAxisTitle("#phi", 1);
-	  if( level == 1 ) NBINS = 50; // back to normal
 	  sprintf(name,"HLTMuonL%i_etaphi",level);
 	  sprintf(title,"L%i Muon #eta vs #phi",level);
 	  hetaphi[trig][level-1] = dbe_->book2D(name,title, NBINS, -3.15, 3.15,NBINS,-2.5, 2.5);
@@ -196,18 +266,16 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	  hpteta[trig][level-1] = dbe_->book2D(name,title, NBINS, 0., pt_max,NBINS,-2.5, 2.5);
 	  hpteta[trig][level-1]->setAxisTitle("pt", 1);
 	  hpteta[trig][level-1]->setAxisTitle("#eta", 2);
-	  if( level > 1 ) {
-	    sprintf(name,"HLTMuonL%i_nHits",level);
-	    sprintf(title,"L%i Number of Hits",level);         
-	    hnHits[trig][level-1] = dbe_->book1D(name,title, NBINS, 0., 100.);
-	    hnHits[trig][level-1]->setAxisTitle("Number of Hits", 1);
-	  }
+	  sprintf(name,"HLTMuonL%i_nHits",level);
+	  sprintf(title,"L%i Number of Hits",level);         
+	  hnHits[trig][level-1] = dbe_->book1D(name,title, NBINS, 0., 100.);
+	  hnHits[trig][level-1]->setAxisTitle("Number of Hits", 1);
 	  sprintf(name,"HLTMuonL%i_charge",level);
 	  sprintf(title,"L%i Muon Charge",level);         
 	  hcharge[trig][level-1]  = dbe_->book1D(name,title, 3, -1.5, 1.5);
 	  hcharge[trig][level-1]->setAxisTitle("Charge", 1);
 	}
-	else if( level >= 4 ) {
+	else if( level == 4 || level == 5 ) {
 	  sprintf(name,"HLTMuonL%iSeed_NMu",level-2);
 	  sprintf(title,"L%iSeed number of muons",level-2);
 	  hNMu[trig][level-1] = dbe_->book1D(name,title, 5, -0.5, 4.5);
@@ -281,6 +349,94 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	  sprintf(title,"L%iSeedNMu per L%i",level-2,level-3);         
 	  hseedNMuper[trig][level-4] = dbe_->book1D(name, title, 5, -0.5, 4.5);
 	  hseedNMuper[trig][level-4]->setAxisTitle(title, 1);
+	}
+	else if( level == 6 ) {
+	  double max_energy = 1.0;
+	  sprintf(name,"HLTMuonL2_driso");
+	  sprintf(title,"dR Cone Size");
+	  hL2muonIsoDR[trig] = dbe_->book2D(name, title, 10, 0, 0.24, NBINS, 0, 5.0);
+	  hL2muonIsoDR[trig]->setAxisTitle(title, 1);
+	  hL2muonIsoDR[trig]->setAxisTitle("Calo Energy in Iso Cone (GeV)", 2);
+
+	  sprintf(name,"HLTCaloTower_dRwithL2");
+	  sprintf(title,"#Delta R(L2muon, CaloTower)");
+	  htowerdRL2[trig] = dbe_->book1D(name, title, NBINS, 0, 0.5);
+	  htowerdRL2[trig]->setAxisTitle(title, 1);
+	  sprintf(name,"HLTCaloTower_dRwithL3");
+	  sprintf(title,"#Delta R(L3muon, CaloTower)");
+	  htowerdRL3[trig] = dbe_->book1D(name, title, NBINS, 0, 0.5);
+	  htowerdRL3[trig]->setAxisTitle(title, 1);
+
+	  sprintf(name,"HLTCaloTower_Et");
+	  sprintf(title,"HLT CaloTower Et");
+	  htowerEt[trig] = dbe_->book1D(name, title, NBINS, 0, max_energy);
+	  htowerEt[trig]->setAxisTitle(title, 1);
+	  sprintf(name,"HLTCaloTower_Eta");
+	  sprintf(title,"HLT CaloTower #eta");
+	  htowerEta[trig] = dbe_->book1D(name, title, NBINS, -2.5, 2.5);
+	  htowerEta[trig]->setAxisTitle(title, 1);
+	  sprintf(name,"HLTCaloTower_Phi");
+	  sprintf(title,"HLT CaloTower #phi");
+	  htowerPhi[trig] = dbe_->book1D(name, title, NBINS, -3.14, 3.14);
+	  htowerPhi[trig]->setAxisTitle(title, 1);
+	  
+	  sprintf(name,"HLTCaloTower_HadEnergy");
+	  sprintf(title,"HLT CaloTower hadEnergy");
+	  htowerHadEnergy[trig] = dbe_->book1D(name, title, NBINS, 0, max_energy);
+	  htowerHadEnergy[trig]->setAxisTitle(title, 1);
+	  sprintf(name,"HLTCaloTower_EmEnergy");
+	  sprintf(title,"HLT CaloTower emEnergy");
+	  htowerEmEnergy[trig] = dbe_->book1D(name, title, NBINS, 0, max_energy);
+	  htowerEmEnergy[trig]->setAxisTitle(title, 1);
+	  sprintf(name,"HLTCaloTower_OuterEnergy");
+	  sprintf(title,"HLT CaloTower outerEnergy");
+	  htowerOuterEnergy[trig] = dbe_->book1D(name, title, NBINS, 0, max_energy);
+	  htowerOuterEnergy[trig]->setAxisTitle(title, 1);
+	 
+	  sprintf(name,"HLTCaloTower_HadEt");
+	  sprintf(title,"HLT CaloTower hadEt");
+	  htowerHadEt[trig] = dbe_->book1D(name, title, NBINS, 0, max_energy);
+	  htowerHadEt[trig]->setAxisTitle(title, 1);
+	  sprintf(name,"HLTCaloTower_EmEt");
+	  sprintf(title,"HLT CaloTower emEt");
+	  htowerEmEt[trig] = dbe_->book1D(name, title, NBINS, 0, max_energy);
+	  htowerEmEt[trig]->setAxisTitle(title, 1);
+	  sprintf(name,"HLTCaloTower_OuterEt");
+	  sprintf(title,"HLT CaloTower outerEt");
+	  htowerOuterEt[trig] = dbe_->book1D(name, title, NBINS, 0, max_energy);
+	  htowerOuterEt[trig]->setAxisTitle(title, 1);
+
+	  sprintf(name,"HLTCaloTower_EtaHadEt");
+	  sprintf(title,"HLT CaloTower hadEt");
+	  htowerEtaHadEt[trig] = dbe_->book2D(name, title, NBINS, -2.5, 2.5, NBINS, 0, max_energy);
+	  htowerEtaHadEt[trig]->setAxisTitle("CaloTower #eta", 1);
+	  htowerEtaHadEt[trig]->setAxisTitle(title, 2);
+	  sprintf(name,"HLTCaloTower_EtaEmEt");
+	  sprintf(title,"HLT CaloTower emEt");
+	  htowerEtaEmEt[trig] = dbe_->book2D(name, title, NBINS, -2.5, 2.5, NBINS, 0, max_energy);
+	  htowerEtaEmEt[trig]->setAxisTitle("CaloTower #eta", 1);
+	  htowerEtaEmEt[trig]->setAxisTitle(title, 2);
+	  sprintf(name,"HLTCaloTower_EtaOuterEt");
+	  sprintf(title,"HLT CaloTower outerEt");
+	  htowerEtaOuterEt[trig] = dbe_->book2D(name, title, NBINS, -2.5, 2.5, NBINS, 0, max_energy);
+	  htowerEtaOuterEt[trig]->setAxisTitle("CaloTower #eta", 1);
+	  htowerEtaOuterEt[trig]->setAxisTitle(title, 2);
+
+	  sprintf(name,"HLTCaloTower_PhiHadEt");
+	  sprintf(title,"HLT CaloTower hadEt");
+	  htowerPhiHadEt[trig] = dbe_->book2D(name, title, NBINS, -3.15, 3.15, NBINS, 0, max_energy);
+	  htowerPhiHadEt[trig]->setAxisTitle("CaloTower #phi", 1);
+	  htowerPhiHadEt[trig]->setAxisTitle(title, 2);
+	  sprintf(name,"HLTCaloTower_PhiEmEt");
+	  sprintf(title,"HLT CaloTower emEt");
+	  htowerPhiEmEt[trig] = dbe_->book2D(name, title, NBINS, -3.15, 3.15, NBINS, 0, max_energy);
+	  htowerPhiEmEt[trig]->setAxisTitle("CaloTower #phi", 1);
+	  htowerPhiEmEt[trig]->setAxisTitle(title, 2);
+	  sprintf(name,"HLTCaloTower_PhiOuterEt");
+	  sprintf(title,"HLT CaloTower outerEt");
+	  htowerPhiOuterEt[trig] = dbe_->book2D(name, title, NBINS, -3.15, 3.15, NBINS, 0, max_energy);
+	  htowerPhiOuterEt[trig]->setAxisTitle("CaloTower #phi", 1);
+	  htowerPhiOuterEt[trig]->setAxisTitle(title, 2);
 	}
 	
 	if (level>1&&level<4){
@@ -568,13 +724,10 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
   for( int trig = 0; trig < nTrigs+1; trig++ ) {
     for( int level = 1; level < 3; ++level ) {
       char name[512];
-      double pt_max;
-      if( level == 1 ) pt_max = 140;
-      else pt_max = 200;
       sprintf(name, "DenominatorL%iptTrig%i", level, trig);
-      _hpt1[trig][level-1] = new TH1D(name, name, 40, 0, pt_max);
+      _hpt1[trig][level-1] = new TH1D(name, name, 40, 0, 140);
       sprintf(name, "NumeratorL%iptTrig%i", level, trig);
-      _hpt2[trig][level-1] = new TH1D(name, name, 40, 0, pt_max);
+      _hpt2[trig][level-1] = new TH1D(name, name, 40, 0, 140);
       sprintf(name, "DenominatorL%ietaTrig%i", level, trig);
       _heta1[trig][level-1] = new TH1D(name, name, 40, -2.5, 2.5);
       sprintf(name, "NumeratorL%ietaTrig%i", level, trig);
@@ -630,6 +783,14 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   nTrig_++;
   // combined results
   FiredTriggers[nTrigs] = true;
+
+  //get the field
+  edm::ESHandle<MagneticField> magField;
+  iSetup.get<IdealMagneticFieldRecord>().get(magField);
+
+  //get the geometry
+  edm::ESHandle<GlobalTrackingGeometry> glbTrackingGeometry;
+  iSetup.get<GlobalTrackingGeometryRecord>().get(glbTrackingGeometry);
   
   Handle<RecoChargedCandidateCollection> l2mucands, l3mucands;
   iEvent.getByLabel (l2collectionTag_,l2mucands);
@@ -641,7 +802,6 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   Handle<L3MuonTrajectorySeedCollection> l3seeds; 
   iEvent.getByLabel (l3seedscollectionTag_,l3seeds);
 
-  
   for( int ntrig = 0; ntrig < nTrigs+1; ntrig++ ) {
     if( !FiredTriggers[ntrig] ) continue;
     if( !l2seeds.failedToGet() ) {
@@ -650,10 +810,15 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
       map<L1MuonParticleRef, int> l1map;
       for (l2seed=l2seeds->begin() ; l2seed != l2seeds->end();++l2seed){
 	PTrajectoryStateOnDet state=l2seed->startingState();
-	float pt=state.parameters().momentum().perp();
-	float eta=state.parameters().momentum().phi();
-	float phi=state.parameters().momentum().eta();
-	hcharge[ntrig][3]->Fill(state.parameters().charge());
+	// Transform Trajectory State on Det to a TSOS
+	TrajectoryStateTransform tsTransform;
+	DetId seedDetId(state.detId());
+	const GeomDet* gdet = glbTrackingGeometry->idToDet( seedDetId );
+	TrajectoryStateOnSurface tsos = tsTransform.transientState(state, &(gdet->surface()), magField.product());
+	float pt = tsos.globalMomentum().perp();
+	float eta = tsos.globalPosition().eta();
+	float phi = tsos.globalPosition().phi();
+	hcharge[ntrig][3]->Fill(tsos.charge());
 	hpt[ntrig][3]->Fill(pt);
 	hphi[ntrig][3]->Fill(phi);
 	heta[ntrig][3]->Fill(eta);
@@ -775,10 +940,16 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
       map<TrackRef, int> l2map;
       for (l3seed=l3seeds->begin() ; l3seed != l3seeds->end();++l3seed){
 	PTrajectoryStateOnDet state=l3seed->startingState();
-	float pt=state.parameters().momentum().perp();
-	float eta=state.parameters().momentum().phi();
-	float phi=state.parameters().momentum().eta();
-	hcharge[ntrig][4]->Fill(state.parameters().charge());
+	// Transform Trajectory State on Det to a TSOS
+	TrajectoryStateTransform tsTransform;
+	DetId seedDetId(state.detId());
+	const GeomDet* gdet = glbTrackingGeometry->idToDet( seedDetId );
+	TrajectoryStateOnSurface tsos = tsTransform.transientState(state, &(gdet->surface()), magField.product());
+
+	float pt = tsos.globalMomentum().perp();
+	float eta = tsos.globalPosition().eta();
+	float phi = tsos.globalPosition().phi();
+	hcharge[ntrig][4]->Fill(tsos.charge());
 	hpt[ntrig][4]->Fill(pt);
 	hphi[ntrig][4]->Fill(phi);
 	heta[ntrig][4]->Fill(eta);
@@ -820,6 +991,13 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	    reco::IsoDepositMap::value_type calDeposit = (*l2depMap)[tk];
 	    double dephlt = calDeposit.depositWithin(coneSize_);
 	    if( dephlt != 0 ) hiso[ntrig][0]->Fill(dephlt);
+	    // 2D plot: cone size vs. dep
+	    double depL2[10];
+	    for( int idep = 0; idep < 10; idep++ ) {
+		double conesize = (idep + 1)*coneSize_/10.0;
+		depL2[idep] = calDeposit.depositWithin(conesize);
+		if( depL2[idep] != 0 ) hL2muonIsoDR[ntrig]->Fill(conesize, depL2[idep]);
+	    }
 	  }
 	}
 	
@@ -975,6 +1153,59 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
       }
     }
   }
+
+
+  // Tower
+  Handle<CaloTowerCollection> caloTower; 
+  iEvent.getByLabel(InputTag("hltTowerMakerForMuons"), caloTower);
+  for( int ntrig = 0; ntrig < nTrigs+1; ntrig++ ) {
+    if( !FiredTriggers[ntrig] ) continue;
+    if( caloTower.isValid() ) {
+      CaloTowerCollection::const_iterator itower;
+      for( itower = caloTower->begin(); itower != caloTower->end(); ++itower ) {
+	  if( (*itower).et() == 0 ) continue;
+
+	  // deltaR with l2muon
+	  if (!l2mucands.failedToGet()) {
+	      for (cand=l2mucands->begin(); cand!=l2mucands->end(); ++cand) {
+		  TrackRef l2tk= cand->get<TrackRef>();
+	          double deltaR_l2 = reco::deltaR(*l2tk, (*itower));
+		  htowerdRL2[ntrig]->Fill(deltaR_l2);
+	      }
+	  }
+	  // deltaR with l3muon
+	  if (!l3mucands.failedToGet()) {
+	      for (cand=l3mucands->begin(); cand!=l3mucands->end(); ++cand) {
+		  TrackRef l3tk= cand->get<TrackRef>();
+	          double deltaR_l3 = reco::deltaR(*l3tk, (*itower));
+		  htowerdRL3[ntrig]->Fill(deltaR_l3);
+	      }
+	  }
+	  htowerEt[ntrig]->Fill((*itower).et());
+	  htowerPhi[ntrig]->Fill((*itower).phi());
+	  htowerEta[ntrig]->Fill((*itower).eta());
+	  
+	  // energy contributions from different detectors
+	  // energy in HO ("outerEnergy")is not included in "hadEnergy"
+	  htowerOuterEnergy[ntrig]->Fill((*itower).outerEnergy());
+	  htowerHadEnergy[ntrig]->Fill((*itower).hadEnergy());
+	  htowerEmEnergy[ntrig]->Fill((*itower).emEnergy());
+
+	  htowerOuterEt[ntrig]->Fill((*itower).outerEt());
+	  htowerHadEt[ntrig]->Fill((*itower).hadEt());
+	  htowerEmEt[ntrig]->Fill((*itower).emEt());
+
+	  // 2D plots
+	  htowerPhiOuterEt[ntrig]->Fill((*itower).phi(), (*itower).outerEt());
+	  htowerPhiHadEt[ntrig]->Fill((*itower).phi(), (*itower).hadEt());
+	  htowerPhiEmEt[ntrig]->Fill((*itower).phi(), (*itower).emEt());
+	  htowerEtaOuterEt[ntrig]->Fill((*itower).eta(), (*itower).outerEt());
+	  htowerEtaHadEt[ntrig]->Fill((*itower).eta(), (*itower).hadEt());
+	  htowerEtaEmEt[ntrig]->Fill((*itower).eta(), (*itower).emEt());
+      }
+    }
+  }
+  
 }
 
 
