@@ -1124,18 +1124,18 @@ plotPFTauHighEfficiencyEfficienciesLeadingPion = cms.EDAnalyzer("DQMHistPlotter"
       labels = cms.vstring('pt', 'eta'),
       drawOptionSet = cms.string('efficiency')
     ),
-#    LeadingTrackPtCutEff = cms.PSet(
-#      plots = cms.PSet(
-#        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency/LeadingTrackPtCutEff#PAR#'),
-#        processes = cms.vstring('test', 'reference')
-#      ),  
-#      parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
-#      xAxis = cms.string('#PAR#'),
-#      yAxis = cms.string('efficiency'),
-#      legend = cms.string('efficiency'),
-#      labels = cms.vstring('pt', 'eta'),
-#      drawOptionSet = cms.string('efficiency')
-#    ),
+    LeadingTrackPtCutEff = cms.PSet(
+      plots = cms.PSet(
+        dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationByLeadingPionPtCutHighEfficiency/LeadingPionPtCutEff#PAR#'),
+        processes = cms.vstring('test', 'reference')
+      ),  
+      parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
+      xAxis = cms.string('#PAR#'),
+      yAxis = cms.string('efficiency'),
+      legend = cms.string('efficiency'),
+      labels = cms.vstring('pt', 'eta'),
+      drawOptionSet = cms.string('efficiency')
+    ),
     TrackIsolationEff = cms.PSet(
       plots = cms.PSet(
         dqmMonitorElements = cms.vstring('#PROCESSDIR#/RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationByTrackIsolationUsingLeadingPionHighEfficiency/TrackIsolationEff#PAR#'),
