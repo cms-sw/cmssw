@@ -62,6 +62,12 @@ protected:
 
   void endJob();
 
+  void convxtalid(int & , int &);
+  int diff_neta_s(int,int);
+  int diff_nphi_s(int,int);
+
+
+
 private:
  
 
@@ -69,93 +75,250 @@ private:
   int eventCounter_;      
                         
 
-  /// Distribution of rechits in iPhi   
-  MonitorElement * hiPhiDistrEB_;
+  /// Distribution of rechits in iPhi (pi0)   
+  MonitorElement * hiPhiDistrEBpi0_;
 
-  /// Distribution of rechits in iEta
-  MonitorElement * hiEtaDistrEB_;
+  /// Distribution of rechits in ix EE  (pi0)
+  MonitorElement * hiXDistrEEpi0_;
 
-  /// Energy Distribution of rechits  
-  MonitorElement * hRechitEnergyEB_;
+  /// Distribution of rechits in iPhi (eta)   
+  MonitorElement * hiPhiDistrEBeta_;
 
-  /// Distribution of total event energy
-  MonitorElement * hEventEnergyEB_;
+  /// Distribution of rechits in ix EE  (eta)
+  MonitorElement * hiXDistrEEeta_;
+
+  /// Distribution of rechits in iEta (pi0)
+  MonitorElement * hiEtaDistrEBpi0_;
+
+  /// Distribution of rechits in iy EE (pi0)
+  MonitorElement * hiYDistrEEpi0_;
+
+  /// Distribution of rechits in iEta (eta)
+  MonitorElement * hiEtaDistrEBeta_;
+
+  /// Distribution of rechits in iy EE (eta)
+  MonitorElement * hiYDistrEEeta_;
+
+  /// Energy Distribution of rechits EB (pi0)
+  MonitorElement * hRechitEnergyEBpi0_;
+
+  /// Energy Distribution of rechits EE (pi0) 
+  MonitorElement * hRechitEnergyEEpi0_;
+
+  /// Energy Distribution of rechits EB (eta)  
+  MonitorElement * hRechitEnergyEBeta_;
+
+  /// Energy Distribution of rechits EE (eta) 
+  MonitorElement * hRechitEnergyEEeta_;
+
+  /// Distribution of total event energy EB (pi0)
+  MonitorElement * hEventEnergyEBpi0_;
+
+  /// Distribution of total event energy EE (pi0)
+  MonitorElement * hEventEnergyEEpi0_;
   
-  /// Distribution of number of RecHits
-  MonitorElement * hNRecHitsEB_;
+  /// Distribution of total event energy EB (eta)
+  MonitorElement * hEventEnergyEBeta_;
 
-  /// Distribution of Mean energy per rechit
-  MonitorElement * hMeanRecHitEnergyEB_;
+  /// Distribution of total event energy EE (eta)
+  MonitorElement * hEventEnergyEEeta_;
+  
+  /// Distribution of number of RecHits EB (pi0)
+  MonitorElement * hNRecHitsEBpi0_;
+
+  /// Distribution of number of RecHits EE (pi0)
+  MonitorElement * hNRecHitsEEpi0_;
+
+  /// Distribution of number of RecHits EB (eta)
+  MonitorElement * hNRecHitsEBeta_;
+
+  /// Distribution of number of RecHits EE (eta)
+  MonitorElement * hNRecHitsEEeta_;
+
+  /// Distribution of Mean energy per rechit EB (pi0)
+  MonitorElement * hMeanRecHitEnergyEBpi0_;
+
+  /// Distribution of Mean energy per rechit EE (pi0)
+  MonitorElement * hMeanRecHitEnergyEEpi0_;
+
+  /// Distribution of Mean energy per rechit EB (eta)
+  MonitorElement * hMeanRecHitEnergyEBeta_;
+
+  /// Distribution of Mean energy per rechit EE (eta)
+  MonitorElement * hMeanRecHitEnergyEEeta_;
 
   /// Pi0 invariant mass in EB
   MonitorElement * hMinvPi0EB_;
 
-  /// Pt of the 1st most energetic Pi0 photon in EB
+  /// Pi0 invariant mass in EE
+  MonitorElement * hMinvPi0EE_;
+
+  /// Eta invariant mass in EB
+  MonitorElement * hMinvEtaEB_;
+
+  /// Eta invariant mass in EE
+  MonitorElement * hMinvEtaEE_;
+
+  /// Pt of the 1st most energetic Pi0 photon in EB 
   MonitorElement *hPt1Pi0EB_;
+
+  /// Pt of the 1st most energetic Pi0 photon in EE
+  MonitorElement *hPt1Pi0EE_;
+
+  /// Pt of the 1st most energetic Eta photon in EB
+  MonitorElement *hPt1EtaEB_;
+
+  /// Pt of the 1st most energetic Eta photon in EE
+  MonitorElement *hPt1EtaEE_;
 
   
   /// Pt of the 2nd most energetic Pi0 photon in EB
   MonitorElement *hPt2Pi0EB_;
 
+  /// Pt of the 2nd most energetic Pi0 photon in EE
+  MonitorElement *hPt2Pi0EE_;
+
+  /// Pt of the 2nd most energetic Eta photon in EB
+  MonitorElement *hPt2EtaEB_;
+
+  /// Pt of the 2nd most energetic Eta photon in EE
+  MonitorElement *hPt2EtaEE_;
+
   
   /// Pi0 Pt in EB
   MonitorElement * hPtPi0EB_;
 
-  /// Pi0 Iso
+  /// Pi0 Pt in EE
+  MonitorElement * hPtPi0EE_;
+
+  /// Eta Pt in EB
+  MonitorElement * hPtEtaEB_;
+
+  /// Eta Pt in EE
+  MonitorElement * hPtEtaEE_;
+
+  /// Pi0 Iso EB
   MonitorElement * hIsoPi0EB_;
 
+  /// Pi0 Iso EE
+  MonitorElement * hIsoPi0EE_;
+
+  /// Eta Iso EB
+  MonitorElement * hIsoEtaEB_;
+
+  /// Eta Iso EE
+  MonitorElement * hIsoEtaEE_;
+
   /// S4S9 of the 1st most energetic pi0 photon
-  MonitorElement * hS4S91EB_;
+  MonitorElement * hS4S91Pi0EB_;
+
+  /// S4S9 of the 1st most energetic pi0 photon EE
+  MonitorElement * hS4S91Pi0EE_;
+
+  /// S4S9 of the 1st most energetic eta photon
+  MonitorElement * hS4S91EtaEB_;
+
+  /// S4S9 of the 1st most energetic eta photon EE
+  MonitorElement * hS4S91EtaEE_;
 
   /// S4S9 of the 2nd most energetic pi0 photon
-  MonitorElement * hS4S92EB_;
+  MonitorElement * hS4S92Pi0EB_;
+  
+  /// S4S9 of the 2nd most energetic pi0 photon EE
+  MonitorElement * hS4S92Pi0EE_;
+  
+  /// S4S9 of the 2nd most energetic eta photon
+  MonitorElement * hS4S92EtaEB_;
+  
+  /// S4S9 of the 2nd most energetic eta photon EE
+  MonitorElement * hS4S92EtaEE_;
   
 
 
-  /// Energy Distribution of rechits  
-  MonitorElement * hRechitEnergyEE_;
-
-  /// Distribution of total event energy
-  MonitorElement * hEventEnergyEE_;
-  
-  /// Distribution of number of RecHits
-  MonitorElement * hNRecHitsEE_;
-
-  /// Distribution of Mean energy per rechit
-  MonitorElement * hMeanRecHitEnergyEE_;
 
   /// object to monitor
-  edm::InputTag productMonitoredEB_;
+  edm::InputTag productMonitoredEBpi0_;
+  edm::InputTag productMonitoredEBeta_;
 
  /// object to monitor
-  edm::InputTag productMonitoredEE_;
+  edm::InputTag productMonitoredEEpi0_;
+  edm::InputTag productMonitoredEEeta_;
 
-  int gammaCandEtaSize_;
-  int gammaCandPhiSize_;
+      int gammaCandEtaSize_;
+      int gammaCandPhiSize_;
+
+      double seleXtalMinEnergy_;
+      double seleXtalMinEnergyEndCap_;
 
   double clusSeedThr_;
   int clusEtaSize_;
   int clusPhiSize_;
 
-  double selePtGammaOne_;
-  double selePtGammaTwo_;
-  double selePtPi0_;
-  double seleMinvMaxPi0_;
-  double seleMinvMinPi0_;
-  double seleXtalMinEnergy_;
-  int seleNRHMax_;
-  //New criteria
-  double seleS4S9GammaOne_;
-  double seleS4S9GammaTwo_;
-  double selePi0BeltDR_;
-  double selePi0BeltDeta_;
-  double selePi0Iso_;
+  double clusSeedThrEndCap_;
+
+      //// for pi0->gg barrel 
+      double selePtGamma_;
+      double selePtPi0_;
+      double seleMinvMaxPi0_;
+      double seleMinvMinPi0_;
+      double seleS4S9Gamma_;
+      double selePi0BeltDR_;
+      double selePi0BeltDeta_;
+      double selePi0Iso_;
+      double ptMinForIsolation_; 
+
+      ///for pi0->gg endcap
+      double selePtGammaEndCap_;
+      double selePtPi0EndCap_;
+      double seleMinvMaxPi0EndCap_;
+      double seleMinvMinPi0EndCap_;
+      double seleS4S9GammaEndCap_;
+      double selePi0IsoEndCap_;
+      double selePi0BeltDREndCap_;
+      double selePi0BeltDetaEndCap_;
+      double ptMinForIsolationEndCap_; 
+
+      ///for eta->gg barrel
+      double selePtGammaEta_;
+      double selePtEta_;
+      double seleS4S9GammaEta_; 
+      double seleS9S25GammaEta_; 
+      double seleMinvMaxEta_; 
+      double seleMinvMinEta_; 
+      double ptMinForIsolationEta_; 
+      double seleEtaIso_; 
+      double seleEtaBeltDR_; 
+      double seleEtaBeltDeta_; 
+
+      ///for eta->gg endcap
+      double selePtGammaEtaEndCap_;
+      double seleS4S9GammaEtaEndCap_;
+      double seleS9S25GammaEtaEndCap_;
+      double selePtEtaEndCap_;
+      double seleMinvMaxEtaEndCap_;
+      double seleMinvMinEtaEndCap_;
+      double ptMinForIsolationEtaEndCap_;
+      double seleEtaIsoEndCap_;
+      double seleEtaBeltDREndCap_;
+      double seleEtaBeltDetaEndCap_;
+
+
   bool ParameterLogWeighted_;
   double ParameterX0_;
   double ParameterT0_barl_;
+  double ParameterT0_endc_;
+  double ParameterT0_endcPresh_;
   double ParameterW0_;
 
-  //  std::map<DetId, EcalRecHit> *recHitsEB_map;
+
+
+  std::vector<EBDetId> detIdEBRecHits; 
+  std::vector<EcalRecHit> EBRecHits; 
+ 
+  
+  std::vector<EEDetId> detIdEERecHits; 
+  std::vector<EcalRecHit> EERecHits; 
+
 
 
   /// Monitor every prescaleFactor_ events
@@ -168,8 +331,10 @@ private:
   bool saveToFile_;
 
   /// which subdet will be monitored
-  bool isMonEB_;
-  bool isMonEE_;
+  bool isMonEBpi0_;
+  bool isMonEBeta_;
+  bool isMonEEpi0_;
+  bool isMonEEeta_;
 
   /// Output file name if required
   std::string fileName_;
