@@ -26,6 +26,9 @@ public:
   /** Is this a valid cell id? */
   virtual bool valid(const HcalCastorDetId& id) const;
 
+  /** Is this a valid cell id? */
+  virtual bool validRaw(const HcalCastorDetId& id) const;
+
   /** Get the neighbors of the given cell with higher #sector */
   virtual std::vector<DetId> incSector(const DetId& id) const;
   
@@ -48,8 +51,6 @@ public:
   int lastCell(HcalCastorDetId::Section section)const;
  
  private:
-  
-  bool validRaw(const HcalCastorDetId& id) const;
   
   std::vector<HcalCastorDetId> exclusionList_;
   

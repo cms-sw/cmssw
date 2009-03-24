@@ -23,7 +23,7 @@ class CastorGeometry : public CaloSubdetectorGeometry
 
       enum { k_NumberOfShapes = 2 } ;
 
-      enum { k_NumberOfParametersPerShape = 3 } ;
+      enum { k_NumberOfParametersPerShape = 6 } ;
 
       static std::string dbString() { return "PCastorRcd" ; }
 

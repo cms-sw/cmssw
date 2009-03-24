@@ -1,28 +1,28 @@
 #include "Geometry/ForwardGeometry/interface/CastorTopology.h"
 #include <cmath>
 #include <iostream>
-#include <algorithm>
+
 
 static const int MODULE_EM_MAX = 2;
 static const int MODULE_HAD_MAX = 12;
 
 CastorTopology::CastorTopology() :
-  excludeEM_(false),
-  excludeHAD_(false),
-  excludeZP_(false),
-  excludeZN_(false),
-  firstEMModule_(1),
-  lastEMModule_(2),
-  firstHADModule_(3),
-  lastHADModule_(14)
+   excludeEM_(false),
+   excludeHAD_(false),
+   excludeZP_(false),
+   excludeZN_(false),
+   firstEMModule_(1),
+   lastEMModule_(2),
+   firstHADModule_(3),
+   lastHADModule_(14)
 {
 }
 
-bool CastorTopology::valid(const HcalCastorDetId& id) const {
-  // check the raw rules
-  bool ok=validRaw(id);
-  ok=ok && !isExcluded(id);
-  return ok;
+bool 
+CastorTopology::valid(const HcalCastorDetId& id) const 
+{
+   return ( validRaw( id )  &&
+	    !isExcluded( id )  ) ;
 }
 
 bool CastorTopology::isExcluded(const HcalCastorDetId& id) const {
@@ -114,17 +114,12 @@ HcalCastorDetId::Section section2, int isec2, int imod2) {
   return n;
 }
 
-bool CastorTopology::validRaw(const HcalCastorDetId& id) const{
-  bool ok = true;
-  if(abs(id.zside())!=1)return false;
-  if(id.module() <= 0)return false;
-  if(!(id.section()== HcalCastorDetId::EM || 
-       id.section()== HcalCastorDetId::HAD )) return false;
-  if(id.section()== HcalCastorDetId::EM && id.module() > MODULE_EM_MAX)
-    return false;
-  if(id.section()== HcalCastorDetId::HAD && id.module() > MODULE_HAD_MAX)
-    return false;
-  return ok;
+bool CastorTopology::validRaw(const HcalCastorDetId& id) const
+{
+   return HcalCastorDetId::validDetId( id.section(),
+				       id.zside()>0,
+				       id.sector(),
+				       id.module()  )  ;
 }
 
 std::vector<DetId> CastorTopology::incSector(const DetId& id) const{
