@@ -19,6 +19,7 @@ L1ScalesTrivialProducer::L1ScalesTrivialProducer(const edm::ParameterSet& ps)
   // data is being produced
   setWhatProduced(this, &L1ScalesTrivialProducer::produceEmScale);
   setWhatProduced(this, &L1ScalesTrivialProducer::produceJetScale);
+  setWhatProduced(this, &L1ScalesTrivialProducer::produceHtMissScale);
 
   //now do what ever other initialization is needed
   
@@ -28,6 +29,8 @@ L1ScalesTrivialProducer::L1ScalesTrivialProducer(const edm::ParameterSet& ps)
 
   m_jetEtScaleInputLsb = ps.getParameter<double>("L1CaloRegionEtScaleLSB"); 
   m_jetEtThresholds = ps.getParameter< std::vector<double> >("L1CaloJetThresholds");
+
+  m_htMissThresholds = ps.getParameter< std::vector<double> >("L1HtMissThresholds");  
 
 }
 
@@ -63,4 +66,15 @@ std::auto_ptr<L1CaloEtScale> L1ScalesTrivialProducer::produceJetScale(const L1Je
 
    return jetEtScale ;
 }
+
+
+std::auto_ptr<L1CaloEtScale> L1ScalesTrivialProducer::produceHtMissScale(const L1HtMissScaleRcd& iRecord)
+{
+   using namespace edm::es;
+
+   std::auto_ptr<L1CaloEtScale> htMissScale = std::auto_ptr<L1CaloEtScale>( new L1CaloEtScale(0xffff, 0x7f, m_jetEtScaleInputLsb, m_htMissThresholds) );
+
+   return htMissScale ;
+}
+
 
