@@ -23,6 +23,7 @@ def dumpBranches(filename):
       tmpBranch = Branch()
       tmpBranch.name = branch.GetName()
       if not "EventAux" in tmpBranch.name:
+        tmpBranch.process = tmpBranch.name.split("_")[3]  
         tmpBranch.label = tmpBranch.name.split("_")[2]
         tmpBranch.type = branchType(branch)
         tmpBranch.module = tmpBranch.name.split("_")[1]
@@ -30,7 +31,7 @@ def dumpBranches(filename):
         branches.append(copy.copy(tmpBranch))
 
     for branch in branches:
-      print '%s    "%s"    "%s"' %(branch.type, branch.module, branch.label)
+      print '%s    "%s"    "%s"    "%s"' %(branch.type, branch.module, branch.label, branch.process)
 
 
 if __name__ == "__main__":
