@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <memory>
 #include <cmath>
 #include <map>
@@ -99,16 +100,20 @@ class JetSignalVertexCompatibility : public edm::EDProducer {
 	virtual void produce(edm::Event &event, const edm::EventSetup &es);
 
     private:
+	double activation(double compat) const;
+
 	const edm::InputTag	jetTracksAssocLabel;
 	const edm::InputTag	primaryVerticesLabel;
-	const double		primaryVertexThreshold;
+	const double		cut;
+	const double		temperature;
 };
 
 JetSignalVertexCompatibility::JetSignalVertexCompatibility(
 					const edm::ParameterSet &params) :
 	jetTracksAssocLabel(params.getParameter<edm::InputTag>("jetTracksAssoc")),
 	primaryVerticesLabel(params.getParameter<edm::InputTag>("primaryVertices")),
-	primaryVertexThreshold(params.getParameter<double>("primaryVertexThreshold"))
+	cut(params.getParameter<double>("cut")),
+	temperature(params.getParameter<double>("temperature"))
 {
 	produces<JetFloatAssociation::Container>();
 }
@@ -149,31 +154,19 @@ void JetSignalVertexCompatibility::produce(edm::Event &event,
 
 		for(TrackRefVector::const_iterator track = tracks.begin();
 		    track != tracks.end(); ++track) {
-			if (!(*track)->quality(TrackBase::tight))
-				continue;
-
 			const TransientTrack &transientTrack =
 					convert(trackMap, *trackBuilder,
 					        TrackBaseRef(*track));
-
-			double bestCompat = 1000.;
-			int best = -1;
 
 			for(int i = 0; i < (int)primaryVertices->size(); i++) {
 				double compat =
 					trackVertexCompat(
 						(*primaryVertices)[i],
 						transientTrack);
-				if (compat < bestCompat) {
-					best = i;
-					bestCompat = compat;
-				}
+
+				*(i == 0 ? &sigSum : &bkgSum) +=
+					activation(compat) * (*track)->pt();
 			}
-
-			if (best < 0 || bestCompat > primaryVertexThreshold)
-				continue;
-
-			*(best == 0 ? &sigSum : &bkgSum) += (*track)->pt();
 		}
 
 		double sum = sigSum + bkgSum;
@@ -184,6 +177,11 @@ void JetSignalVertexCompatibility::produce(edm::Event &event,
 	}
 
 	event.put(result);
+}
+
+double JetSignalVertexCompatibility::activation(double compat) const
+{
+	return 1. / (std::exp((compat - cut) / temperature) + 1.);
 }
 
 } // namespace reco
