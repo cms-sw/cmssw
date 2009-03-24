@@ -27,8 +27,8 @@ namespace calogeom {
   
   Total: 7 parameters 
   
-  $Date: 2009/01/24 03:59:46 $
-  $Revision: 1.5 $
+  $Date: 2009/03/24 18:30:23 $
+  $Revision: 1.6 $
   \author P. Katsas - UoA
   */
    class IdealCastorTrapezoid: public CaloCellGeometry 
@@ -52,9 +52,9 @@ namespace calogeom {
 	 const double dh()  const { return param()[2] ; }
 	 const double dy()  const { return dh()*sin(an()) ; }
 	 const double dz()  const { return param()[3] ; }
-	 const double dhs() const { return dh()*cos(an()) ; }
-	 const double dzb() const { return dz() + dhs() ; }
-	 const double dzs() const { return dz() - dhs() ; }
+	 const double dhz() const { return dh()*cos(an()) ; }
+	 const double dzb() const { return dz() + dhz() ; }
+	 const double dzs() const { return dz() - dhz() ; }
 	 const double an()  const { return param()[4] ; }
 	 const double dR()  const { return param()[5] ; }
 
