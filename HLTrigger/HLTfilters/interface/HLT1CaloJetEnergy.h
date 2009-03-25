@@ -8,8 +8,8 @@
  *  single jet requirement with an Energy threshold (not Et!)
  *  Based on HLTSinglet
  *
- *  $Date: 2008/05/05 15:48:33 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/03/25 09:21:15 $
+ *  $Revision: 1.1 $
  *
  *  \author Jim Brooke
  *
@@ -34,6 +34,7 @@ class HLT1CaloJetEnergy : public HLTFilter {
       edm::InputTag inputTag_; // input tag identifying product
       bool saveTag_;           // whether to save this tag
       double min_E_;          // energy threshold in GeV 
+      double max_Eta_;          // maximum eta
 
 };
 

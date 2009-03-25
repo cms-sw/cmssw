@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/05/05 15:48:34 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/03/25 09:21:15 $
+ *  $Revision: 1.1 $
  *
  *  \author Jim Brooke
  *
@@ -29,7 +29,8 @@
 HLT1CaloJetEnergy::HLT1CaloJetEnergy(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.getParameter<edm::InputTag>("inputTag")),
   saveTag_  (iConfig.getUntrackedParameter<bool>("saveTag",false)),
-  min_E_    (iConfig.getParameter<double>       ("MinE"   ))
+  min_E_    (iConfig.getParameter<double>       ("MinE"   )),
+  max_Eta_  (iConfig.getParameter<double>       ("MaxEta"   ))
 {
    LogDebug("") << "Input/ecut : "
 		<< inputTag_.encode() << " "
@@ -76,7 +77,8 @@ HLT1CaloJetEnergy::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int n(0);
    CaloJetCollection::const_iterator i ( jets->begin() );
    for (; i!=jets->end(); i++) {
-     if ( i->energy() >= min_E_ ) {
+     if ( i->energy() >= min_E_  &&
+	  i->eta() <= max_Eta_   ) {
        n++;
        ref=Ref<CaloJetCollection>(jets,distance(jets->begin(),i));
        filterobject->addObject(TriggerJet,ref);
@@ -91,3 +93,8 @@ HLT1CaloJetEnergy::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    return accept;
 }
+
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(HLT1CaloJetEnergy);
