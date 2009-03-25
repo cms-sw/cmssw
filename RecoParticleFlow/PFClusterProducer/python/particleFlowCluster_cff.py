@@ -7,9 +7,14 @@ from RecoParticleFlow.PFClusterProducer.particleFlowRecHitPS_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterECAL_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCAL_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterPS_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHFEM_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHFHAD_cfi import *
 
 pfClusteringECAL = cms.Sequence(particleFlowRecHitECAL*particleFlowClusterECAL)
-pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowClusterHCAL)
+#pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowClusterHCAL)
+pfClusteringHCALall = cms.Sequence(particleFlowClusterHCAL+particleFlowClusterHFHAD+particleFlowClusterHFEM)
+pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*pfClusteringHCALall)
+#pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowClusterHCAL*particleFlowClusterHFHAD*particleFlowClusterHFEM)
 pfClusteringPS = cms.Sequence(particleFlowRecHitPS*particleFlowClusterPS)
 
 towerMakerPF = RecoJets.JetProducers.CaloTowerSchemeB_cfi.towerMaker.clone()

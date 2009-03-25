@@ -1,22 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 
-particleFlowClusterHCAL = cms.EDProducer("PFClusterProducer",
+particleFlowClusterHFHAD = cms.EDProducer("PFClusterProducer",
     # verbosity 
     verbose = cms.untracked.bool(False),
     # PFRecHit collection                                  
-    PFRecHits = cms.InputTag("particleFlowRecHitHCAL"),
+    PFRecHits = cms.InputTag("particleFlowRecHitHCAL","HFHAD"),
+    #PFCluster Collection name
+    #PFClusterCollectionName =  cms.string("HFHAD"),                                
     #----all thresholds are in GeV
     # seed threshold in HCAL barrel 
     thresh_Seed_Barrel = cms.double(1.4),
     # cell threshold in HCAL barrel 
     thresh_Barrel = cms.double(0.8),
     # seed threshold in HCAL endcap 
-    thresh_Seed_Endcap = cms.double(1.4),
-    # cell threshold in HCAL endcap
-    thresh_Endcap = cms.double(0.8),    
+    thresh_Seed_Endcap = cms.double(0.0),
+    # cell threshold in HCAL endcap 
+    thresh_Endcap = cms.double(0.0),
     #----HCAL options
     # n neighbours in HCAL 
-    nNeighbours = cms.int32(4),
+    nNeighbours = cms.int32(8),
     # sigma of the shower in HCAL     
     showerSigma = cms.double(10.0),
     # n crystals for position calculation in HCAL

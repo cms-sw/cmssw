@@ -90,10 +90,13 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   
   inputTagPFRecHits_ = 
     iConfig.getParameter<InputTag>("PFRecHits");
+  //---ab
 
+  //inputTagClusterCollectionName_ =  iConfig.getParameter<string>("PFClusterCollectionName");    
  
- 
-  produces<reco::PFClusterCollection>();
+  // produces<reco::PFClusterCollection>(inputTagClusterCollectionName_);
+   produces<reco::PFClusterCollection>();
+    //---ab
 }
 
 

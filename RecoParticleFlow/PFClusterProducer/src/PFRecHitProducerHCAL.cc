@@ -51,6 +51,16 @@ PFRecHitProducerHCAL::PFRecHitProducerHCAL(const edm::ParameterSet& iConfig)
    
   thresh_HF_ = 
     iConfig.getParameter<double>("thresh_HF");
+  navigation_HF_ = 
+    iConfig.getParameter<bool>("navigation_HF");
+  weight_HFem_ =
+    iConfig.getParameter<double>("weight_HFem");
+  weight_HFhad_ =
+    iConfig.getParameter<double>("weight_HFhad");
+  //--ab
+  produces<reco::PFRecHitCollection>("HFHAD").setBranchAlias("HFHADRecHits");
+  produces<reco::PFRecHitCollection>("HFEM").setBranchAlias("HFEMRecHits");
+  //--ab
 }
 
 
@@ -86,7 +96,11 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
   const CaloSubdetectorGeometry *hcalEndcapGeometry = 
     geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
 
- 
+  //--ab
+  auto_ptr<reco::PFRecHitCollection> HFHADRecHits ( new reco::PFRecHitCollection);
+  auto_ptr<reco::PFRecHitCollection> HFEMRecHits ( new reco::PFRecHitCollection);
+  //--ab
+
   // 2 possibilities to make HCAL clustering :
   // - from the HCAL rechits
   // - from the CaloTowers. 
@@ -139,10 +153,17 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	// just wrong for the HF (in which em/had are artificially 
 	// separated. 
 	double energy = ct.hadEnergy();
-	double energyEM = ct.emEnergy(); // For HF !
+	// double energyEM = ct.emEnergy(); // For HF !
+// <<<<<<< PFRecHitProducerHCAL.cc
+
+// 	//---ab: store EM energy and had energy separatly for the HF
+// 	double energyemHF = ct.emEnergy();
+// 	double energyhadHF = ct.hadEnergy();
+
+// =======
+
 	if( energy < 1e-9 ) continue;  
-	  
-	  
+	  	  
 	  
 	assert( ct.constituentsSize() );	  
 	//Mike: The DetId will be taken by the first Hadronic constituent
@@ -172,6 +193,9 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	  }
 	  
 	reco::PFRecHit* pfrh = 0;
+	//---ab: need 2 rechits for the HF:
+	reco::PFRecHit* pfrhHFEM = 0;
+	reco::PFRecHit* pfrhHFHAD = 0;
 
 	if(foundHCALConstituent)
 	  {
@@ -198,12 +222,25 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	      break;
 	    case HcalForward:
 	      {
-		if( energy+energyEM < thresh_HF_ ) continue;
-		pfrh = createHcalRecHit( detid, 
-					 energy+energyEM, 
-					 PFLayer::HCAL_HF, 
-					 hcalEndcapGeometry,
-					 ct.id().rawId() );
+		//---ab: 2 rechits for HF:
+		double energyemHF = weight_HFem_*ct.emEnergy();
+		double energyhadHF = weight_HFhad_*ct.hadEnergy();
+		if(energy < thresh_HF_ ) continue;
+		if(energyemHF > thresh_HF_ ){
+		  pfrhHFEM = createHcalRecHit( detid, 
+					   energyemHF, 
+					   PFLayer::HF_EM, 
+					   hcalEndcapGeometry,
+					   ct.id().rawId() );
+		}
+		if(energyhadHF > thresh_HF_ ){
+		  pfrhHFHAD = createHcalRecHit( detid, 
+					    energyhadHF, 
+					    PFLayer::HF_HAD, 
+					    hcalEndcapGeometry,
+					    ct.id().rawId() );
+		}
+
 	      }
 	      break;
 	    default:
@@ -211,20 +248,34 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		<<"CaloTower constituent: unknown layer : "
 		<<detid.subdet()<<endl;
 	    } 
-	    
 	    if(pfrh) { 
 	      rechits.push_back( *pfrh );
 	      delete pfrh;
 	      idSortedRecHits.insert( make_pair(ct.id().rawId(), 
 						rechits.size()-1 ) ); 
 	    }
-
+	    //---ab: 2nd rechit for HF:	   
+	    if(pfrhHFEM) { 
+	      //rechits.push_back( *pfrhHFEM );
+	      HFEMRecHits->push_back( *pfrhHFEM );
+	      delete pfrhHFEM;
+	      idSortedRecHits.insert( make_pair(ct.id().rawId(), 
+						rechits.size()-1 ) ); 
+	    }
+	    if(pfrhHFHAD) { 
+	      //rechits.push_back( *pfrhHFHAD );
+	      HFHADRecHits->push_back( *pfrhHFHAD );
+	      delete pfrhHFHAD;
+	      idSortedRecHits.insert( make_pair(ct.id().rawId(), 
+						rechits.size()-1 ) ); 
+	    }
+	    //---ab	   
 	  }
-	
       }
-	
-	
-
+      //---ab
+      iEvent.put( HFHADRecHits,"HFHAD" );	
+      iEvent.put( HFEMRecHits,"HFEM" );	
+      //---ab
       // do navigation 
       for(unsigned i=0; i<rechits.size(); i++ ) {
 	
@@ -294,7 +345,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	    if(energy < thresh_HF_ ) continue;
 	    pfrh = createHcalRecHit( detid, 
 				     energy, 
-				     PFLayer::HCAL_HF, 
+				     PFLayer::HF_HAD, 
 				     hcalEndcapGeometry );
  	  }
 	  break;
@@ -384,10 +435,12 @@ PFRecHitProducerHCAL::findRecHitNeighbours
   const CaloSubdetectorTopology& endcapTopology, 
   const CaloSubdetectorGeometry& endcapGeometry ) {
   
-
-  if( rh.layer() == PFLayer::HCAL_HF )
-    return;
-  
+ if(navigation_HF_ == false){
+    if( rh.layer() == PFLayer::HF_HAD )
+      return;
+    if( rh.layer() == PFLayer::HF_EM )
+      return;
+  } 
   DetId detid( rh.detId() );
 
   const CaloSubdetectorTopology* topology = 0;
@@ -501,10 +554,12 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
 ( reco::PFRecHit& rh, 
   const map<unsigned, unsigned >& sortedHits, 
   const CaloSubdetectorTopology& topology ) {
-
-  if( rh.layer() == PFLayer::HCAL_HF )
-    return;
-
+  if(navigation_HF_ == false){
+    if( rh.layer() == PFLayer::HF_HAD )
+      return;
+    if( rh.layer() == PFLayer::HF_EM )
+      return;
+  }
   CaloTowerDetId ctDetId( rh.detId() );
     
 

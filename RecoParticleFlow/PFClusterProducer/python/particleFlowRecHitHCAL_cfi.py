@@ -10,7 +10,17 @@ particleFlowRecHitHCAL = cms.EDFilter("PFRecHitProducerHCAL",
     # cell threshold in HF
     thresh_HF = cms.double(0.4),
     # cell threshold in endcap 
-    thresh_Endcap = cms.double(0.4)
+    thresh_Endcap = cms.double(0.4),
+    # Navigation in HF: 
+    # False = no real clustering in HF
+    # True  = do clustering in HF
+    navigation_HF = cms.bool(True),
+#AUGUSTE: TO BE CHECKED:
+    weight_HFem = cms.double(1.429),
+    weight_HFhad = cms.double(1.429)
+#   weight_HFem = cms.double(1.0),
+#   weight_HFhad = cms.double(1.0)
+                                  
 )
 
 
