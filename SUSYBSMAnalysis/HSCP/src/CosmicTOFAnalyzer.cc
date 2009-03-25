@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea RIZZI
 //         Created:  Sun Dec  7 12:41:44 CET 2008
-// $Id: CosmicTOFAnalyzer.cc,v 1.3 2009/03/05 17:04:04 arizzi Exp $
+// $Id: CosmicTOFAnalyzer.cc,v 1.4 2009/03/09 10:33:35 arizzi Exp $
 //
 //
 
@@ -58,9 +58,14 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+
+
+#include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
+
 //
 // class decleration
 //
+  using namespace susybsm;
   using namespace edm;
   using namespace std;
   using namespace reco;
@@ -144,6 +149,7 @@ class CosmicTOFAnalyzer : public edm::EDFilter {
       void initHistos(std::string collName);
       void writeBias(std::string collName);
       bool analyzeCollection(const MuonCollection & muons, std::string collName, const edm::Event& iEvent);
+      bool analyzeDiMuonEvent(const reco::Muon & muon0, const reco::Muon & muon1, std::string collName, const edm::Event& iEvent, MuonTime&  mt0, MuonTime & mt1);
       void initBranch(std::string collName, TTree * t);
 
       TTree * diMuEventTree;
@@ -201,11 +207,41 @@ CosmicTOFAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    Handle<MuonCollection> muH2;
    bool t0Coll = iEvent.getByLabel("muonsWitht0Correction",muH2);
-  if(t0Coll)
-  {  
+   if(t0Coll)
+   {  
      const MuonCollection & muonsT0  =  *muH2.product();
-    if( analyzeCollection(muonsT0,"muonsWitht0Correction",iEvent)) result=true;
-  } 
+     if( analyzeCollection(muonsT0,"muonsWitht0Correction",iEvent)) result=true;
+   } 
+
+
+   Handle<MuonTOFCollection> muTofOLD;
+   bool oldColl =  iEvent.getByLabel("betaFromTOF",muTofOLD);
+   if (oldColl)
+    {
+      const MuonTOFCollection & dtInfos  =  *muTofOLD.product();
+      if(dtInfos.size()==2 && (dtInfos[0].second.nHits >= 25 ) && (dtInfos[1].second.nHits >= 25 ) )
+      {
+        MuonTime mt0;
+        mt0.timeAtIpInOut=dtInfos[0].second.vertexTime;
+        mt0.timeAtIpInOutErr=dtInfos[0].second.vertexTimeErr;
+        MuonTime mt1;
+        mt1.timeAtIpInOut=dtInfos[1].second.vertexTime;
+        mt1.timeAtIpInOutErr=dtInfos[1].second.vertexTimeErr;
+        
+        if(dtInfos[0].first->outerTrack().isNull() ||  dtInfos[1].first->outerTrack().isNull())
+        {
+            cout << "Invalid Ref: " << dtInfos[0].second.nHits << " " << dtInfos[1].second.nHits << endl;
+        } 
+       else
+         if(dtInfos[0].second.vertexTime!=0.000 && dtInfos[1].second.vertexTime!=0.000 )
+          {
+            if(analyzeDiMuonEvent(*dtInfos[0].first,*dtInfos[1].first,"oldBetaFromTOF",iEvent, mt0,mt1 )) result = true;
+          }
+     }  
+   }
+
+
+
   if(result) diMuEventTree->Fill();
   return result;
 }
@@ -213,7 +249,50 @@ CosmicTOFAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 bool CosmicTOFAnalyzer::analyzeCollection(const MuonCollection & muons, std::string collName, const edm::Event& iEvent)
 { 
    
-   h_[collName].nMuons->Fill(muons.size());
+h_[collName].nMuons->Fill(muons.size());
+
+   if(muons.size()!=2) return false;
+   
+MuonTime mt0 = muons[0].time();
+MuonTime mt1= muons[1].time();
+
+ return analyzeDiMuonEvent(muons[0],muons[1],collName,iEvent, mt0,mt1 );
+}
+
+bool CosmicTOFAnalyzer::analyzeDiMuonEvent(const  reco::Muon & muon0, const  reco::Muon & muon1, std::string collName, const edm::Event& iEvent, MuonTime&  mt0, MuonTime & mt1)
+{
+
+   h_[collName].hitsVsHits->Fill(muon0.bestTrack()->hitPattern().numberOfValidMuonDTHits(), muon1.bestTrack()->hitPattern().numberOfValidMuonDTHits());
+   if(muon0.outerTrack().isNonnull() && muon1.outerTrack().isNonnull())
+          h_[collName].posVsPos->Fill(muon0.outerTrack()->innerPosition().y(),muon1.outerTrack()->innerPosition().y());
+   h_[collName].ptVsPt->Fill(muon0.bestTrack()->pt(),muon1.bestTrack()->pt());
+   h_[collName].ptDiff->Fill(muon0.bestTrack()->pt()-muon1.bestTrack()->pt());
+
+
+   float etamin,phimin;
+   int hitsmin;
+   if(muon0.bestTrack()->hitPattern().numberOfValidMuonDTHits() < muon1.bestTrack()->hitPattern().numberOfValidMuonDTHits())
+    {
+       etamin=muon0.bestTrack()->eta();
+       phimin=muon0.bestTrack()->phi();
+       hitsmin=muon0.bestTrack()->hitPattern().numberOfValidMuonDTHits();
+    } else {
+       etamin=muon1.bestTrack()->eta();
+       phimin=muon1.bestTrack()->phi();
+       hitsmin=muon1.bestTrack()->hitPattern().numberOfValidMuonDTHits();
+    }
+
+  h_[collName].minHits->Fill(hitsmin);
+  h_[collName].minHitsVsPhi->Fill(hitsmin,phimin);
+  h_[collName].minHitsVsEta->Fill(hitsmin,etamin);
+
+  if( muon0.bestTrack()->hitPattern().numberOfValidMuonDTHits() < 25 ) return false;
+  if( muon1.bestTrack()->hitPattern().numberOfValidMuonDTHits() < 25 ) return false;
+
+
+   h_[collName].ptVsPtSel->Fill(muon0.bestTrack()->pt(),muon1.bestTrack()->pt());
+   h_[collName].ptDiffSel->Fill(muon0.bestTrack()->pt()-muon1.bestTrack()->pt());
+
 h_[collName].event.t0 = 0;
 h_[collName].event.t1 = 0;
 h_[collName].event.t0e = 0;
@@ -233,41 +312,6 @@ h_[collName].event.w0=0;
 h_[collName].event.w1=0;
 
 
-   if(muons.size()!=2) return false;
-
-   h_[collName].hitsVsHits->Fill(muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits(), muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits());
-   if(muons[0].outerTrack().isNonnull() && muons[1].outerTrack().isNonnull())    h_[collName].posVsPos->Fill(muons[0].outerTrack()->innerPosition().y(),muons[1].outerTrack()->innerPosition().y());
-   h_[collName].ptVsPt->Fill(muons[0].bestTrack()->pt(),muons[1].bestTrack()->pt());
-   h_[collName].ptDiff->Fill(muons[0].bestTrack()->pt()-muons[1].bestTrack()->pt());
-
-
-   float etamin,phimin;
-   int hitsmin;
-   if(muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits() < muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits())
-    { 
-       etamin=muons[0].bestTrack()->eta();
-       phimin=muons[0].bestTrack()->phi();
-       hitsmin=muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits();
-    } else {  
-       etamin=muons[1].bestTrack()->eta();
-       phimin=muons[1].bestTrack()->phi();
-       hitsmin=muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits();
-    }
-
-  h_[collName].minHits->Fill(hitsmin);
-  h_[collName].minHitsVsPhi->Fill(hitsmin,phimin);
-  h_[collName].minHitsVsEta->Fill(hitsmin,etamin);
-
-  if( muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits() < 25 ) return false;
-  if( muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits() < 25 ) return false;
-
-   h_[collName].ptVsPtSel->Fill(muons[0].bestTrack()->pt(),muons[1].bestTrack()->pt());
-   h_[collName].ptDiffSel->Fill(muons[0].bestTrack()->pt()-muons[1].bestTrack()->pt());
-
-MuonTime mt0 = muons[0].time();
-MuonTime mt1= muons[1].time();
-
-
 
 float t0 = mt0.timeAtIpInOut;
 float t1 = mt1.timeAtIpInOut;
@@ -275,12 +319,12 @@ float t1 = mt1.timeAtIpInOut;
 h_[collName].diff->Fill(t0-t1);
  int w0=0,s0=0,w1=0,s1=0;
  DTChamberId * id;
- cout << "matches0: " << muons[0].matches().size() << endl;
- cout << "matches1: " << muons[1].matches().size() << endl;
-// id = dynamic_cast<const DTChamberId *> (& muons[0].second.timeMeasurements[0].driftCell);
+ cout << "matches0: " << muon0.matches().size() << endl;
+ cout << "matches1: " << muon1.matches().size() << endl;
+// id = dynamic_cast<const DTChamberId *> (& muon0.second.timeMeasurements[0].driftCell);
  std::set<unsigned int> dets1; 
 //cout << "Mu1 " ; 
- for(trackingRecHit_iterator match = muons[0].bestTrack()->recHitsBegin() ; match != muons[0].bestTrack()->recHitsEnd() ; ++match)
+ for(trackingRecHit_iterator match = muon0.bestTrack()->recHitsBegin() ; match != muon0.bestTrack()->recHitsEnd() ; ++match)
  {
   DetId did=(*match)->geographicalId() ;
   if(did.det() == 2 && did.subdetId() == MuonSubdetId::DT)
@@ -299,7 +343,7 @@ h_[collName].diff->Fill(t0-t1);
  }
 // cout << endl;
 //cout << "Mu2 " ; 
- for(trackingRecHit_iterator match = muons[1].bestTrack()->recHitsBegin() ; match != muons[1].bestTrack()->recHitsEnd() ; ++match)
+ for(trackingRecHit_iterator match = muon1.bestTrack()->recHitsBegin() ; match != muon1.bestTrack()->recHitsEnd() ; ++match)
  {
   DetId did=(*match)->geographicalId() ;
   if(did.det() == 2 && did.subdetId() == MuonSubdetId::DT)
@@ -327,28 +371,28 @@ if(s0 ==0 || s1 ==0)
     return true;
  }
 
-if(muons[0].pt() > 20 && muons[1].pt()  > 20)  h_[collName].pairs[w0+2][s0][w1+2][s1]->Fill(t0-t1);
+if(muon0.pt() > 20 && muon1.pt()  > 20)  h_[collName].pairs[w0+2][s0][w1+2][s1]->Fill(t0-t1);
 
  // use only sectors for which we do know the bias quite well (at least 50 measurement)
  if(h_[collName].points[w0+2][s0][w1+2][s1]>=50) 
  { 
       h_[collName].diffBiasCorrected->Fill(t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]);
-      float error = sqrt(muons[0].time().timeAtIpInOutErr*muons[0].time().timeAtIpInOutErr  + muons[1].time().timeAtIpInOutErr *muons[1].time().timeAtIpInOutErr ); 
+      float error = sqrt(mt0.timeAtIpInOutErr*mt0.timeAtIpInOutErr  + mt1.timeAtIpInOutErr *mt1.timeAtIpInOutErr ); 
       h_[collName].diffBiasCorrectedVsErr->Fill(error ,abs(t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1])); 
       h_[collName].pull->Fill((t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1])/error) ;
 
 //TODO: try different Err cuts like: 0.8, 1, 1.2, 1.5, 2, 5
 //TODO: Pull distribution (t-t0)/(sqrt(err0**2+err1**2))
 
-       if( muons[1].time().timeAtIpInOutErr < 10 && muons[0].time().timeAtIpInOutErr < 10&&  (muons[0].momentum() - muons[1].momentum()).r() < 30   ) 
+       if( mt1.timeAtIpInOutErr < 10 && mt0.timeAtIpInOutErr < 10&&  (muon0.momentum() - muon1.momentum()).r() < 30   ) 
        {
           h_[collName].diffBiasCorrectedErr->Fill(t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]);
-          h_[collName].diffBiasCorrectedErrPt->Fill(muons[0].pt(),t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]);
+          h_[collName].diffBiasCorrectedErrPt->Fill(muon0.pt(),t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]);
 
-          if(muons[0].pt() > 50)
+          if(muon0.pt() > 50)
           {
              h_[collName].diffBiasCorrectedErrPtCut->Fill(t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]);
-             if( fabs(muons[0].phi()+1.5708 ) < 0.785  && fabs(muons[1].phi()+1.5708 ) < 0.785  ) 
+             if( fabs(muon0.phi()+1.5708 ) < 0.785  && fabs(muon1.phi()+1.5708 ) < 0.785  ) 
                {
                    h_[collName].diffBiasCorrectedErrPtCutPhiCut->Fill(t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]);
                }
@@ -359,46 +403,51 @@ if(muons[0].pt() > 20 && muons[1].pt()  > 20)  h_[collName].pairs[w0+2][s0][w1+2
           if( fabs(t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]) > 15)
           {
               cout << "TAIL ("  << collName << ") e,r:" << iEvent.id().event() << " , "<< iEvent.id().run() <<
-                      " Values: " << t0 << " " << t1 << " Err: " << muons[0].time().timeAtIpInOutErr << " " << 
-                      muons[1].time().timeAtIpInOutErr << "  #hits "  << muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits() << " " << 
-                      muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits() << " W/S " << w0 << "/" << s0 << " " << w1 << "/" << s1  <<
-                      " Momentum: " << muons[0].momentum() << " " <<  muons[1].momentum()  <<  " " << 
-                      (muons[0].momentum() - muons[1].momentum()).r()/(muons[0].momentum() + muons[1].momentum()).r() 
+                      " Values: " << t0 << " " << t1 << " Err: " << mt0.timeAtIpInOutErr << " " << 
+                      mt1.timeAtIpInOutErr << "  #hits "  << muon0.bestTrack()->hitPattern().numberOfValidMuonDTHits() << " " << 
+                      muon1.bestTrack()->hitPattern().numberOfValidMuonDTHits() << " W/S " << w0 << "/" << s0 << " " << w1 << "/" << s1  <<
+                      " Momentum: " << muon0.momentum() << " " <<  muon1.momentum()  <<  " " << 
+                      (muon0.momentum() - muon1.momentum()).r()/(muon0.momentum() + muon1.momentum()).r() 
                    <<   endl;
           }
 
  } // if error ok and muon pt matching 
+ h_[collName].event.deltaT = t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]; 
+
+} // if bias ok
+ else
+ { 
+ h_[collName].event.deltaT = -1000; 
+ }
 
  h_[collName].event.t0 = t0;
  h_[collName].event.t1 = t1;
  h_[collName].event.t0e = mt0.timeAtIpInOutErr;
  h_[collName].event.t1e = mt1.timeAtIpInOutErr;
- h_[collName].event.deltaT = t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]; 
- h_[collName].event.pt0=muons[0].pt();
- h_[collName].event.pt1=muons[1].pt();
- h_[collName].event.eta0=muons[0].eta();
- h_[collName].event.eta1=muons[1].eta();
- h_[collName].event.phi0=muons[0].phi();
- h_[collName].event.phi1=muons[1].phi();
- h_[collName].event.nh0= muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits();
- h_[collName].event.nh1= muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits();
+ h_[collName].event.pt0=muon0.pt();
+ h_[collName].event.pt1=muon1.pt();
+ h_[collName].event.eta0=muon0.eta();
+ h_[collName].event.eta1=muon1.eta();
+ h_[collName].event.phi0=muon0.phi();
+ h_[collName].event.phi1=muon1.phi();
+ h_[collName].event.nh0= muon0.bestTrack()->hitPattern().numberOfValidMuonDTHits();
+ h_[collName].event.nh1= muon1.bestTrack()->hitPattern().numberOfValidMuonDTHits();
  h_[collName].event.s0=s0;
  h_[collName].event.s1=s1;
  h_[collName].event.w0=w0;
  h_[collName].event.w1=w1;
- h_[collName].event.y0=muons[0].outerTrack()->innerPosition().y();
- h_[collName].event.y1=muons[1].outerTrack()->innerPosition().y();
+ h_[collName].event.y0=muon0.outerTrack()->innerPosition().y();
+ h_[collName].event.y1=muon1.outerTrack()->innerPosition().y();
 
  h_[collName].event.ev= iEvent.id().event();
  h_[collName].event.run = iEvent.id().run();
 // h_[collName].branch->Fill();
 
-} // if bias ok
 
 if( fabs(t0-t1) > 50)
  {
-  cout << "OVERFLOW ("  << collName << ") Values: " << t0 << " " << t1 << " Err: " << muons[0].time().timeAtIpInOutErr << " " << muons[1].time().timeAtIpInOutErr << "  #hits " 
- << muons[0].bestTrack()->hitPattern().numberOfValidMuonDTHits() << " " << muons[1].bestTrack()->hitPattern().numberOfValidMuonDTHits() << " W/S " << w0 << "/" << s0 << " " << w1 << "/" << s1  << endl;
+  cout << "OVERFLOW ("  << collName << ") Values: " << t0 << " " << t1 << " Err: " << mt0.timeAtIpInOutErr << " " << mt1.timeAtIpInOutErr << "  #hits " 
+ << muon0.bestTrack()->hitPattern().numberOfValidMuonDTHits() << " " << muon1.bestTrack()->hitPattern().numberOfValidMuonDTHits() << " W/S " << w0 << "/" << s0 << " " << w1 << "/" << s1  << endl;
  }
  return true;
 }
@@ -412,11 +461,14 @@ CosmicTOFAnalyzer::beginJob(const edm::EventSetup&)
   initHistos("muons");
   readBias("muonsWitht0Correction");
   initHistos("muonsWitht0Correction");
+  readBias("oldBetaFromTOF");
+  initHistos("oldBetaFromTOF");
   edm::Service<TFileService> fs;
   TFileDirectory * ntupleDir = new TFileDirectory(fs->mkdir( "tree" ));
   diMuEventTree  = ntupleDir->make<TTree>("DiMuEventTree","Tree with di muon events");
   initBranch("muons",diMuEventTree);
   initBranch("muonsWitht0Correction",diMuEventTree);
+  initBranch("oldBetaFromTOF",diMuEventTree);
  
 }
 
@@ -491,6 +543,7 @@ void
 CosmicTOFAnalyzer::endJob() {
  writeBias("muons");
  writeBias("muonsWitht0Correction");
+ writeBias("oldBetaFromTOF");
 }
 void 
 CosmicTOFAnalyzer::writeBias(std::string collName) {
