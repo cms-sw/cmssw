@@ -74,7 +74,23 @@ public:
   double modulePhiBoundary_;
   std::vector<double> moduleEtaBoundary_;
 
-  //Isolation parameters
+  std::vector<double>  trkIsoBarrelRadiusA_;
+  std::vector<double>  ecalIsoBarrelRadiusA_;
+  std::vector<double>  hcalIsoBarrelRadiusA_;
+  std::vector<double>  trkIsoBarrelRadiusB_;
+  std::vector<double>  ecalIsoBarrelRadiusB_;
+  std::vector<double>  hcalIsoBarrelRadiusB_;
+
+  std::vector<double>  trkIsoEndcapRadiusA_;
+  std::vector<double>  ecalIsoEndcapRadiusA_;
+  std::vector<double>  hcalIsoEndcapRadiusA_;
+  std::vector<double>  trkIsoEndcapRadiusB_;
+  std::vector<double>  ecalIsoEndcapRadiusB_;
+  std::vector<double>  hcalIsoEndcapRadiusB_;
+
+  
+
+  //Isolation parameters variables
   double photonEcalRecHitConeInnerRadiusA_;
   double photonEcalRecHitConeOuterRadiusA_;
   double photonEcalRecHitEtaSliceA_;
