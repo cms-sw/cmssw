@@ -341,9 +341,9 @@ void L1GlobalCaloTrigger::setupTauAlgo(const bool useImprovedAlgo, const bool ig
 }
 
 /// setup Hf sum LUTs
-void L1GlobalCaloTrigger::setupHfSumLuts(const L1GctHfLutSetup* iSetup) {
+void L1GlobalCaloTrigger::setupHfSumLuts(const L1CaloEtScale* scale) {
   if (getHfSumProcessor() != 0) {
-    getHfSumProcessor()->setupLuts(iSetup);
+    getHfSumProcessor()->setupLuts(scale);
   }
 }
 
@@ -662,10 +662,10 @@ L1GctHFBitCountsCollection L1GlobalCaloTrigger::getHFBitCountsCollection() const
     for (int i=0; i<m_numOfBx; i++) {
       L1GctHFBitCounts temp =
 	L1GctHFBitCounts::fromGctEmulator(static_cast<int16_t>(bx),
-					  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountPosEtaRing1).at(i),
-					  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountNegEtaRing1).at(i),
-					  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountPosEtaRing2).at(i),
-					  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountNegEtaRing2).at(i));
+					  getHfSumProcessor()->hfSumsOutput(L1GctHfEtSumsLut::bitCountPosEtaRing1).at(i),
+					  getHfSumProcessor()->hfSumsOutput(L1GctHfEtSumsLut::bitCountNegEtaRing1).at(i),
+					  getHfSumProcessor()->hfSumsOutput(L1GctHfEtSumsLut::bitCountPosEtaRing2).at(i),
+					  getHfSumProcessor()->hfSumsOutput(L1GctHfEtSumsLut::bitCountNegEtaRing2).at(i));
       result.at(i) = temp;
       bx++;
     }
@@ -680,10 +680,10 @@ L1GctHFRingEtSumsCollection L1GlobalCaloTrigger::getHFRingEtSumsCollection() con
     for (int i=0; i<m_numOfBx; i++) {
       L1GctHFRingEtSums temp =
 	L1GctHFRingEtSums::fromGctEmulator(static_cast<int16_t>(bx),
-					   getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumPosEtaRing1).at(i),
-					   getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumNegEtaRing1).at(i),
-					   getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumPosEtaRing2).at(i),
-					   getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumNegEtaRing2).at(i));
+					   getHfSumProcessor()->hfSumsOutput(L1GctHfEtSumsLut::etSumPosEtaRing1).at(i),
+					   getHfSumProcessor()->hfSumsOutput(L1GctHfEtSumsLut::etSumNegEtaRing1).at(i),
+					   getHfSumProcessor()->hfSumsOutput(L1GctHfEtSumsLut::etSumPosEtaRing2).at(i),
+					   getHfSumProcessor()->hfSumsOutput(L1GctHfEtSumsLut::etSumNegEtaRing2).at(i));
       result.at(i) = temp;
       bx++;
     }

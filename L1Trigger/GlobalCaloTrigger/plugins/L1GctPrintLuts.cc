@@ -13,7 +13,7 @@
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctHfLutSetupRcd.h"
+#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
 
 // GCT include files
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
@@ -108,22 +108,22 @@ L1GctPrintLuts::beginJob(const edm::EventSetup& c)
 	// Print the Hf luts
 	file << "\n\n Hf ring jet bit count luts:" << std::endl;
 	file << "\n Positive eta, ring1" << std::endl;
-	file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getBCLut(L1GctHfLutSetup::bitCountPosEtaRing1) << std::endl;
+	file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getBCLut(L1GctHfEtSumsLut::bitCountPosEtaRing1) << std::endl;
 	file << "\n Positive eta, ring2" << std::endl;
-	file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getBCLut(L1GctHfLutSetup::bitCountPosEtaRing2) << std::endl;
+	file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getBCLut(L1GctHfEtSumsLut::bitCountPosEtaRing2) << std::endl;
 	file << "\n Negative eta, ring1" << std::endl;
-	file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getBCLut(L1GctHfLutSetup::bitCountNegEtaRing1) << std::endl;
+	file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getBCLut(L1GctHfEtSumsLut::bitCountNegEtaRing1) << std::endl;
 	file << "\n Negative eta, ring2" << std::endl;
-	file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getBCLut(L1GctHfLutSetup::bitCountNegEtaRing2) << std::endl;
+	file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getBCLut(L1GctHfEtSumsLut::bitCountNegEtaRing2) << std::endl;
 	file << "\n\n Hf Et sum luts:" << std::endl;
 	file << "\n Positive eta, ring1" << std::endl;
-	file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getESLut(L1GctHfLutSetup::etSumPosEtaRing1) << std::endl;
+	file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getESLut(L1GctHfEtSumsLut::etSumPosEtaRing1) << std::endl;
 	file << "\n Positive eta, ring2" << std::endl;
-	file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getESLut(L1GctHfLutSetup::etSumPosEtaRing2) << std::endl;
+	file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getESLut(L1GctHfEtSumsLut::etSumPosEtaRing2) << std::endl;
 	file << "\n Negative eta, ring1" << std::endl;
-	file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getESLut(L1GctHfLutSetup::etSumNegEtaRing1) << std::endl;
+	file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getESLut(L1GctHfEtSumsLut::etSumNegEtaRing1) << std::endl;
 	file << "\n Negative eta, ring2" << std::endl;
-	file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getESLut(L1GctHfLutSetup::etSumNegEtaRing2) << std::endl;
+	file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getESLut(L1GctHfEtSumsLut::etSumNegEtaRing2) << std::endl;
       } else {
 	edm::LogWarning("LutFileError") << "Error opening file " << m_hfSumLutOutFileName << ". No lookup tables written." << std::endl;
       }
@@ -145,8 +145,8 @@ int L1GctPrintLuts::configureGct(const edm::EventSetup& c)
     // get data from EventSetup
     edm::ESHandle< L1GctJetFinderParams > jfPars ;
     c.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
-    edm::ESHandle< L1GctHfLutSetup > hfLSetup ;
-    c.get< L1GctHfLutSetupRcd >().get( hfLSetup ) ; // which record?
+    edm::ESHandle< L1CaloEtScale > hfRingEtScale ;
+    c.get< L1HfRingEtScaleRcd >().get( hfRingEtScale ) ; // which record?
     edm::ESHandle< L1GctChannelMask > chanMask ;
     c.get< L1GctChannelMaskRcd >().get( chanMask ) ; // which record?
     edm::ESHandle< L1CaloEtScale > etScale ;
@@ -158,7 +158,7 @@ int L1GctPrintLuts::configureGct(const edm::EventSetup& c)
 	<< "Failed to find a L1GctJetFinderParamsRcd:L1GctJetFinderParams in EventSetup!" << std::endl;
     }
 
-    if (hfLSetup.product() == 0) {
+    if (hfRingEtScale.product() == 0) {
       success = -1;
       edm::LogWarning("L1GctConfigFailure")
 	<< "Failed to find a L1GctHfLutSetupRcd:L1GctHfLutSetup in EventSetup!" << std::endl;
@@ -181,7 +181,7 @@ int L1GctPrintLuts::configureGct(const edm::EventSetup& c)
       // pass all the setup info to the gct
       m_gct->setJetEtCalibrationLuts(m_jetEtCalibLuts);
       m_gct->setJetFinderParams(jfPars.product());
-      m_gct->setupHfSumLuts(hfLSetup.product());
+      m_gct->setupHfSumLuts(hfRingEtScale.product());
       m_gct->setChannelMask(chanMask.product());
   
     }

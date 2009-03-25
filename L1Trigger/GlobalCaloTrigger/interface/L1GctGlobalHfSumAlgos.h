@@ -3,6 +3,7 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctHfEtSumsLut.h"
 
 #include <vector>
 #include <map>
@@ -10,7 +11,6 @@
 class L1GctWheelJetFpga;
 class L1GctHfLutSetup;
 class L1GctHfBitCountsLut;
-class L1GctHfEtSumsLut;
 
 /*!
  * \class L1GctGlobalHfSumAlgos
@@ -45,18 +45,18 @@ class L1GctGlobalHfSumAlgos : public L1GctProcessor
   virtual void process();
 
   /// Access to output quantities
-  std::vector<uint16_t> hfSumsOutput(const L1GctHfLutSetup::hfLutType type) const;
+  std::vector<uint16_t> hfSumsOutput(const L1GctHfEtSumsLut::hfLutType type) const;
   std::vector<unsigned> hfSumsWord() const;
 
   /// Setup luts
-  void setupLuts(const L1GctHfLutSetup* iSetup);
+  void setupLuts(const L1CaloEtScale* scale);
 
   /// Get lut pointers
-  const L1GctHfBitCountsLut* getBCLut(const L1GctHfLutSetup::hfLutType type) const;
-  const L1GctHfEtSumsLut* getESLut(const L1GctHfLutSetup::hfLutType type) const;
+  const L1GctHfBitCountsLut* getBCLut(const L1GctHfEtSumsLut::hfLutType type) const;
+  const L1GctHfEtSumsLut* getESLut(const L1GctHfEtSumsLut::hfLutType type) const;
 
   /// Get thresholds
-  std::vector<unsigned> getThresholds(const L1GctHfLutSetup::hfLutType type) const;
+  std::vector<unsigned> getThresholds(const L1GctHfEtSumsLut::hfLutType type) const;
 
   /// provide access to input pointer, Wheel Jet Fpga 1
   L1GctWheelJetFpga* getPlusWheelJetFpga() const { return m_plusWheelJetFpga; }
@@ -80,23 +80,23 @@ class L1GctGlobalHfSumAlgos : public L1GctProcessor
   L1GctWheelJetFpga* m_minusWheelJetFpga;
 
   // Here are the lookup tables
-  std::map<L1GctHfLutSetup::hfLutType, const L1GctHfBitCountsLut*> m_bitCountLuts;
-  std::map<L1GctHfLutSetup::hfLutType, const L1GctHfEtSumsLut*> m_etSumLuts;
+  std::map<L1GctHfEtSumsLut::hfLutType, const L1GctHfBitCountsLut*> m_bitCountLuts;
+  std::map<L1GctHfEtSumsLut::hfLutType, const L1GctHfEtSumsLut*> m_etSumLuts;
 
   // Input data for one bunch crossing
   hfTowerSumsType m_hfInputSumsPlusWheel;
   hfTowerSumsType m_hfInputSumsMinusWheel;
 
   // Output data
-  std::map<L1GctHfLutSetup::hfLutType, Pipeline<uint16_t> > m_hfOutputSumsPipe;
+  std::map<L1GctHfEtSumsLut::hfLutType, Pipeline<uint16_t> > m_hfOutputSumsPipe;
 
   bool m_setupOk;
 
   // private methods
   // Convert bit count value using LUT and store in the pipeline
-  void storeBitCount(L1GctHfLutSetup::hfLutType type, uint16_t value);
+  void storeBitCount(L1GctHfEtSumsLut::hfLutType type, uint16_t value);
   // Convert et sum value using LUT and store in the pipeline
-  void storeEtSum(L1GctHfLutSetup::hfLutType type, uint16_t value);
+  void storeEtSum(L1GctHfEtSumsLut::hfLutType type, uint16_t value);
 
 };
 

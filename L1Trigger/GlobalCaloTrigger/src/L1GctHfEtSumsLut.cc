@@ -1,18 +1,20 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHfEtSumsLut.h"
 
-//DEFINE STATICS
-const int L1GctHfEtSumsLut::NAddress=L1GctHfLutSetup::kHfEtSumBits;
-const int L1GctHfEtSumsLut::NData   =L1GctHfLutSetup::kHfOutputBits;
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 
-L1GctHfEtSumsLut::L1GctHfEtSumsLut(const L1GctHfLutSetup::hfLutType& type, const L1GctHfLutSetup* const fn) :
+//DEFINE STATICS
+const int L1GctHfEtSumsLut::NAddress=8;
+const int L1GctHfEtSumsLut::NData   =3;
+
+L1GctHfEtSumsLut::L1GctHfEtSumsLut(const L1GctHfEtSumsLut::hfLutType& type, const L1CaloEtScale* const scale) :
   L1GctLut<NAddress,NData>(),
-  m_lutFunction(fn),
+  m_lutFunction(scale),
   m_lutType(type)
 {
-  if (fn != 0) m_setupOk = true;
+  if (scale != 0) m_setupOk = true;
 }
 
-L1GctHfEtSumsLut::L1GctHfEtSumsLut(const L1GctHfLutSetup::hfLutType& type) :
+L1GctHfEtSumsLut::L1GctHfEtSumsLut(const L1GctHfEtSumsLut::hfLutType& type) :
   L1GctLut<NAddress,NData>(),
   m_lutFunction(0),
   m_lutType(type)
@@ -46,8 +48,8 @@ L1GctHfEtSumsLut L1GctHfEtSumsLut::operator= (const L1GctHfEtSumsLut& lut)
 std::ostream& operator << (std::ostream& os, const L1GctHfEtSumsLut& lut)
 {
   os << "===L1GctHfEtSumsLut===" << std::endl;
-  std::vector<unsigned> thresholds = lut.m_lutFunction->getThresholds(lut.m_lutType);
-  std::vector<unsigned>::const_iterator thr = thresholds.begin();
+  std::vector<double> thresholds = lut.m_lutFunction->getThresholds();
+  std::vector<double>::const_iterator thr = thresholds.begin();
   os << "Thresholds are: " << *(thr++);
   for ( ; thr != thresholds.end(); thr++) {
     os << ", " << *thr;
@@ -64,6 +66,6 @@ template class L1GctLut<L1GctHfEtSumsLut::NAddress,L1GctHfEtSumsLut::NData>;
 
 uint16_t L1GctHfEtSumsLut::value (const uint16_t lutAddress) const
 {
-  return m_lutFunction->outputValue(m_lutType, lutAddress) ;
+  return m_lutFunction->rank(lutAddress) ;
 }
 

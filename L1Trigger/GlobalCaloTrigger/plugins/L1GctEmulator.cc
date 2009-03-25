@@ -17,13 +17,12 @@
 
 // Trigger configuration includes
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
-#include "CondFormats/L1TObjects/interface/L1GctHfLutSetup.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
-#include "CondFormats/DataRecord/interface/L1GctHfLutSetupRcd.h"
 
 // GCT include files
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
@@ -125,26 +124,19 @@ int L1GctEmulator::configureGct(const edm::EventSetup& c)
     // get data from EventSetup
     edm::ESHandle< L1GctJetFinderParams > jfPars ;
     c.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
-    edm::ESHandle< L1GctHfLutSetup > hfLSetup ;
-    c.get< L1GctHfLutSetupRcd >().get( hfLSetup ) ; // which record?
     edm::ESHandle< L1GctChannelMask > chanMask ;
     c.get< L1GctChannelMaskRcd >().get( chanMask ) ; // which record?
     edm::ESHandle< L1CaloEtScale > etScale ;
     c.get< L1JetEtScaleRcd >().get( etScale ) ; // which record?
+    edm::ESHandle< L1CaloEtScale > hfRingEtScale ;
+    c.get< L1HfRingEtScaleRcd >().get( hfRingEtScale ) ; // which record?
+
 
     if (jfPars.product() == 0) {
       success = -1;
       if (m_verbose) {
 	edm::LogWarning("L1GctConfigFailure")
 	  << "Failed to find a L1GctJetFinderParamsRcd:L1GctJetFinderParams in EventSetup!" << std::endl;
-      }
-    }
-
-    if (hfLSetup.product() == 0) {
-      success = -1;
-      if (m_verbose) {
-	edm::LogWarning("L1GctConfigFailure")
-	  << "Failed to find a L1GctHfLutSetupRcd:L1GctHfLutSetup in EventSetup!" << std::endl;
       }
     }
 
@@ -156,6 +148,15 @@ int L1GctEmulator::configureGct(const edm::EventSetup& c)
       }
     }
 
+    if (hfRingEtScale.product() == 0) {
+      success = -1;
+      if (m_verbose) {
+	edm::LogWarning("L1GctConfigFailure")
+	  << "Failed to find a L1HfRingEtScaleRcd:L1HfRingEtScaleRcd in EventSetup!" << std::endl;
+      }
+    }
+
+
     if (success==0) {
       // tell the jet Et Luts about the scales
       for (unsigned ieta=0; ieta<m_jetEtCalibLuts.size(); ieta++) {
@@ -166,7 +167,7 @@ int L1GctEmulator::configureGct(const edm::EventSetup& c)
       // pass all the setup info to the gct
       m_gct->setJetEtCalibrationLuts(m_jetEtCalibLuts);
       m_gct->setJetFinderParams(jfPars.product());
-      m_gct->setupHfSumLuts(hfLSetup.product());
+      m_gct->setupHfSumLuts(hfRingEtScale.product());
       m_gct->setChannelMask(chanMask.product());
     }
   }

@@ -86,7 +86,7 @@ public:
   void setupTauAlgo(const bool useImprovedAlgo, const bool ignoreVetoBitsForIsolation);
 
   /// setup Hf sum LUTs
-  void setupHfSumLuts(const L1GctHfLutSetup* iSetup);
+  void setupHfSumLuts(const L1CaloEtScale* scale);
 
   /// setup the input channel mask
   void setChannelMask(const L1GctChannelMask* mask); 
