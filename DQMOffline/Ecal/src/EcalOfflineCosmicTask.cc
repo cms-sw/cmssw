@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Sean Patrick Lynch
 //         Created:  Thu Nov  6 16:44:17 CET 2008
-// $Id: EcalOfflineCosmicTask.cc,v 1.1 2009/02/01 19:38:46 slynch Exp $
+// $Id: EcalOfflineCosmicTask.cc,v 1.2 2009/02/24 15:36:11 emanuele Exp $
 //
 //
 
@@ -239,7 +239,8 @@ int EcalOfflineCosmicTask::getNumBins(std::vector<float> bins) {
 
 void EcalOfflineCosmicTask::bookClusterHists(int ecalSubDet, int numBins) {
    std::string ecalSubDetString = ecalSubDetToString(ecalSubDet);
-   dbe_->setCurrentFolder("EcalOfflineCosmicTask/"+ecalSubDetString+"/AllEvents/ClusterHists");
+   std::string ecalSubDetPrefix = (ecalSubDet == EB) ? "EB" : "EE";
+   dbe_->setCurrentFolder(ecalSubDetString+"/"+ecalSubDetPrefix+"OfflineCosmicTask/AllEvents/ClusterHists");
    // Book Cluster Hists
    std::string name = "NumXtalsInCluster";
    std::string title = "Number of Xtals in Cluster "+ecalSubDetString+";NumXtals";
@@ -262,7 +263,8 @@ void EcalOfflineCosmicTask::bookClusterHists(int ecalSubDet, int numBins) {
 
 void EcalOfflineCosmicTask::bookEnergyHists(int ecalSubDet, int numBins) {
    std::string ecalSubDetString = ecalSubDetToString(ecalSubDet);
-   dbe_->setCurrentFolder("EcalOfflineCosmicTask/"+ecalSubDetString+"/AllEvents/EnergyHists");
+   std::string ecalSubDetPrefix = (ecalSubDet == EB) ? "EB" : "EE";
+   dbe_->setCurrentFolder(ecalSubDetString+"/"+ecalSubDetPrefix+"OfflineCosmicTask/AllEvents/EnergyHists");
    // Book Energy Hists
    std::string name = "E1";
    std::string title = "Seed Energy for All Feds "+ecalSubDetString+";Seed Energy (GeV)";
@@ -292,7 +294,8 @@ void EcalOfflineCosmicTask::bookEnergyHists(int ecalSubDet, int numBins) {
 
 void EcalOfflineCosmicTask::bookOccupancyHists(int ecalSubDet) {
    std::string ecalSubDetString = ecalSubDetToString(ecalSubDet);
-   dbe_->setCurrentFolder("EcalOfflineCosmicTask/"+ecalSubDetString+"/AllEvents/OccupancyHists");
+   std::string ecalSubDetPrefix = (ecalSubDet == EB) ? "EB" : "EE";
+   dbe_->setCurrentFolder(ecalSubDetString+"/"+ecalSubDetPrefix+"OfflineCosmicTask/AllEvents/OccupancyHists");
    std::string xTitle = (ecalSubDet == EB) ? "i#phi" : "ix";
    std::string yTitle = (ecalSubDet == EB) ? "i#eta" : "iy";
 
@@ -350,7 +353,8 @@ void EcalOfflineCosmicTask::bookOccupancyTrgHists(int ecalSubDet) {
 
    for(int l1Trigger = 0; l1Trigger != 5; ++l1Trigger) {
       std::string l1TriggerString = l1TriggerToString(l1Trigger);
-      dbe_->setCurrentFolder("EcalOfflineCosmicTask/"+ecalSubDetString+"/"+l1TriggerString+"/OccupancyHists");
+      std::string ecalSubDetPrefix = (ecalSubDet == EB) ? "EB" : "EE";
+      dbe_->setCurrentFolder(ecalSubDetString+"/"+ecalSubDetPrefix+"OfflineCosmicTask/"+l1TriggerString+"/OccupancyHists");
 
       std::string name="Occupancy";
       std::string title="Occupancy "+ecalSubDetString+" "+l1TriggerString+" triggered;"
@@ -381,7 +385,8 @@ void EcalOfflineCosmicTask::bookOccupancyTrgHists(int ecalSubDet) {
 
 void EcalOfflineCosmicTask::bookTimingHists(int ecalSubDet, int numBins) {
    std::string ecalSubDetString = ecalSubDetToString(ecalSubDet);
-   dbe_->setCurrentFolder("EcalOfflineCosmicTask/"+ecalSubDetString+"/AllEvents/TimingHists");
+   std::string ecalSubDetPrefix = (ecalSubDet == EB) ? "EB" : "EE";
+   dbe_->setCurrentFolder(ecalSubDetString+"/"+ecalSubDetPrefix+"OfflineCosmicTask/AllEvents/TimingHists");
    std::string xTitle = (ecalSubDet == EB) ? "i#phi" : "ix";
    std::string yTitle = (ecalSubDet == EB) ? "i#eta" : "iy";
 
@@ -438,7 +443,8 @@ void EcalOfflineCosmicTask::bookTimingHists(int ecalSubDet, int numBins) {
 
 void EcalOfflineCosmicTask::bookTimingFedHists(int ecalSubDet) {
    std::string ecalSubDetString = ecalSubDetToString(ecalSubDet);
-   dbe_->setCurrentFolder("EcalOfflineCosmicTask/"+ecalSubDetString+"/AllEvents/FEDTimingHists");
+   std::string ecalSubDetPrefix = (ecalSubDet == EB) ? "EB" : "EE";
+   dbe_->setCurrentFolder(ecalSubDetString+"/"+ecalSubDetPrefix+"OfflineCosmicTask/AllEvents/FEDTimingHists");
    int startFed = 0;
    int stopFed = 0;
    if(ecalSubDet == EB)  {
@@ -454,8 +460,17 @@ void EcalOfflineCosmicTask::bookTimingFedHists(int ecalSubDet) {
       stopFed = 654;
    }
    for(int fedId=startFed; fedId!=stopFed+1; ++fedId) {
-      std::string name="TimingFed"+intToString(fedId);
-      std::string title="Timing for FED "+intToString(fedId)+";Relative Time (1 clock = 25ns)";
+
+     int ism = -1;
+     if(ecalSubDet == EB) ism = fedId - 610 + 1;
+     else if(ecalSubDet == EEM) ism = fedId - 601 + 1;
+     else if(ecalSubDet == EEP) ism = fedId - 646 + 10;
+
+     std::string name;
+     if(ecalSubDet == EB) name = "Timing " + Numbers::sEB(ism);
+     else if(ecalSubDet == EEM || ecalSubDet == EEP) name = "Timing " + Numbers::sEE(ism);
+
+      std::string title=name+";Relative Time (1 clock = 25ns)";
       h1f_timingFED_[fedId] = dbe_->book1D(name,title,78,-7,7);
    }
    std::string name = "timingEBM";
@@ -505,7 +520,8 @@ void EcalOfflineCosmicTask::bookTimingTrgHists(int ecalSubDet) {
 
    for(int l1Trigger = 0; l1Trigger != 5; ++l1Trigger) {
       std::string l1TriggerString = l1TriggerToString(l1Trigger);
-   dbe_->setCurrentFolder("EcalOfflineCosmicTask/"+ecalSubDetString+"/"+l1TriggerString+"/TimingHists");
+      std::string ecalSubDetPrefix = (ecalSubDet == EB) ? "EB" : "EE";
+      dbe_->setCurrentFolder(ecalSubDetString+"/"+ecalSubDetPrefix+"OfflineCosmicTask/"+l1TriggerString+"/TimingHists");
 
       if(ecalSubDet == EB) {
 	 std::string name = "timingModBinning3D";
@@ -878,9 +894,9 @@ std::string EcalOfflineCosmicTask::intToString(int num) {
 std::string EcalOfflineCosmicTask::ecalSubDetToString(int ecalSubDet) {
    std::string ret="";
    switch(ecalSubDet) {
-      case 0:  ret="EEM"; break;
-      case 1:  ret="EB";  break;
-      case 2:  ret="EEP"; break;
+      case 0:  ret="EcalEndcap"; break;
+      case 1:  ret="EcalBarrel";  break;
+      case 2:  ret="EcalEndcap"; break;
       default: ret="";    break;
    }
    return ret;
@@ -889,11 +905,11 @@ std::string EcalOfflineCosmicTask::ecalSubDetToString(int ecalSubDet) {
 std::string EcalOfflineCosmicTask::l1TriggerToString(int l1Trigger) {
    std::string ret = "";
    switch(l1Trigger) {
-      case 0:  ret = "DT";   break;
-      case 1:  ret = "CSC";  break;
-      case 2:  ret = "RPC";  break;
-      case 3:  ret = "HCAL"; break;
-      case 4:  ret = "ECAL"; break;
+      case 0:  ret = "TriggerDT";   break;
+      case 1:  ret = "TriggerCSC";  break;
+      case 2:  ret = "TriggerRPC";  break;
+      case 3:  ret = "TriggerHCAL"; break;
+      case 4:  ret = "TriggerECAL"; break;
       default: ret = "";     break;
    }
    return ret;
