@@ -1,5 +1,5 @@
 //
-// $Id: GenericParticle.cc,v 1.2 2008/06/03 22:28:07 gpetrucc Exp $
+// $Id: GenericParticle.cc,v 1.3 2008/07/08 20:56:48 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
@@ -171,7 +171,7 @@ void GenericParticle::fillInFrom(const reco::Candidate &cand) {
 
 bool GenericParticle::overlap( const reco::Candidate &cand ) const {
     const reco::RecoCandidate *rc = dynamic_cast<const reco::RecoCandidate *>(&cand);
-    if (rc == 0) {
+    if (rc != 0) {
         if (rc->track().isNonnull()          && (track() == rc->track())) return true;
         if (rc->gsfTrack().isNonnull()       && (gsfTrack() == rc->gsfTrack())) return true;
         if (rc->standAloneMuon().isNonnull() && (standAloneMuon() == rc->standAloneMuon())) return true;
@@ -180,7 +180,7 @@ bool GenericParticle::overlap( const reco::Candidate &cand ) const {
         if (rc->caloTower().isNonnull()      && (caloTower() == rc->caloTower())) return true;
    }
     const GenericParticle *rc2 = dynamic_cast<const GenericParticle *>(&cand);
-    if (rc2 == 0) {
+    if (rc2 != 0) {
         if (rc2->track().isNonnull()          && (track() == rc2->track())) return true;
         if (rc2->gsfTrack().isNonnull()       && (gsfTrack() == rc2->gsfTrack())) return true;
         if (rc2->standAloneMuon().isNonnull() && (standAloneMuon() == rc2->standAloneMuon())) return true;
