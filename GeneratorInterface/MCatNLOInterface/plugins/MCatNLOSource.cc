@@ -141,14 +141,14 @@ bool MCatNLOSource::produce(edm::Event &event)
 {
   InstanceWrapper wrapper(this);
 
+  int lastEventDone=0;
+  int ihpro=0;
   // skip events if asked to...
   while(skipEvents--) {
     mcatnloupevnt_(&processCode,&lastEventDone,&ihpro);
     if(lastEventDone) return false;
   }
 
-  int lastEventDone=0;
-  int ihpro=0;
   // call UPINIT privided by MC@NLO (v3.4)
   mcatnloupevnt_(&processCode,&lastEventDone,&ihpro);
 
