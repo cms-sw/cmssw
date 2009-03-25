@@ -4,7 +4,8 @@ hltHITval = cms.EDAnalyzer('ValHcalIsoTrackHLT',
 
 produceRates=cms.bool(False), 
 sampleCrossSection=cms.double(7.53E10),
-luminosity=cms.double(1E31),
+luminosity=cms.double(8E29),
+SaveToRootFile=cms.bool(False),
 outputTxtFileName=cms.string("rates_minBias.txt"),
 
 doL1Prescaling=cms.bool(False),

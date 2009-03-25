@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltHITdqm = cms.EDAnalyzer('DQMHcalIsoTrackHLT',
 folderName=cms.string("HLT/HLT_IsoTrack"),
+SaveToRootFile=cms.bool(False),
 outputRootFileName=cms.string("hltHITdqm.root"),
 
 hltRAWTriggerEventLabel=cms.string("hltTriggerSummaryRAW"),

@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory SAFRONOV
 //         Created:  Mon Oct  6 10:10:22 CEST 2008
-// $Id: DQMHcalIsoTrackAlCaRaw.cc,v 1.2 2009/01/28 22:20:22 safronov Exp $
+// $Id: DQMHcalIsoTrackHLT.cc,v 1.1 2009/03/03 11:09:08 safronov Exp $
 //
 //
 
@@ -87,6 +87,8 @@ private:
 
   bool useHLTDebug_;
 
+  bool saveToRootFile_;
+
 
   //ONLINE
   MonitorElement* hL2TowerOccupancy;
@@ -146,6 +148,8 @@ DQMHcalIsoTrackHLT::DQMHcalIsoTrackHLT(const edm::ParameterSet& iConfig)
   l1filterLabel_=iConfig.getParameter<std::string>("hltL1filterLabel");
   l2filterLabel_=iConfig.getParameter<std::string>("hltL2filterLabel");
   hltProcess_=iConfig.getParameter<std::string>("hltProcessName");
+
+  saveToRootFile_=iConfig.getParameter<bool>("SaveToRootFile");
 
 }
 
@@ -378,7 +382,7 @@ void DQMHcalIsoTrackHLT::beginJob(const edm::EventSetup&)
 
 void DQMHcalIsoTrackHLT::endJob() {
 
-if(dbe_) 
+if(dbe_&&saveToRootFile_) 
   {  
     dbe_->save(outRootFileName_);
   }

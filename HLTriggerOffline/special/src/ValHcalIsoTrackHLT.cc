@@ -70,6 +70,7 @@ private:
   double lumi_;
   std::string outTxtFileName_;
   std::string folderName_;
+  bool saveToRootFile_;
   std::string outRootFileName_;
   edm::InputTag hltEventTag_;
   edm::InputTag hltFilterTag_;
@@ -168,6 +169,7 @@ ValHcalIsoTrackHLT::ValHcalIsoTrackHLT(const edm::ParameterSet& iConfig)
   outTxtFileName_=iConfig.getParameter<std::string>("outputTxtFileName");
   
   folderName_ = iConfig.getParameter<std::string>("folderName");
+  saveToRootFile_=iConfig.getParameter<bool>("SaveToRootFile");
   outRootFileName_=iConfig.getParameter<std::string>("outputRootFileName");
 
   hltEventTag_=iConfig.getParameter<edm::InputTag>("hltTriggerEventLabel");
@@ -572,6 +574,7 @@ void ValHcalIsoTrackHLT::endJob() {
 
 if(dbe_) 
   {  
+/*
     TH1F* hpTgLe=hpTgenLead->getTH1F();
     TH1F* hpTgNe=hpTgenNext->getTH1F();
     
@@ -591,8 +594,8 @@ if(dbe_)
 
     hLeadTurnOn=dbe_->book1D("hLeadTurnOn",hLTurnOn);
     hNextToLeadTurnOn=dbe_->book1D("hNextToLeadTurnOn",hNLTurnOn);
-
-    dbe_->save(outRootFileName_);
+*/
+    if (saveToRootFile_) dbe_->save(outRootFileName_);
   }
 }
 
