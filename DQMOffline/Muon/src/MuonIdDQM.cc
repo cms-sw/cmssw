@@ -141,24 +141,24 @@ MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             Fill(hDTDx[i][station], muon->dX(station+1, MuonSubdetId::DT));
             Fill(hDTPullx[i][station], muon->pullX(station+1, MuonSubdetId::DT, Muon::SegmentArbitration, true));
             Fill(hDTDdXdZ[i][station], muon->dDxDz(station+1, MuonSubdetId::DT));
-            Fill(hDTPulldXdZ[i][station], muon->pullDxDz(station+1, MuonSubdetId::DT));
+            Fill(hDTPulldXdZ[i][station], muon->pullDxDz(station+1, MuonSubdetId::DT, Muon::SegmentArbitration, true));
 
             if (station < 3) {
                Fill(hDTDy[i][station], muon->dY(station+1, MuonSubdetId::DT));
                Fill(hDTPully[i][station], muon->pullY(station+1, MuonSubdetId::DT, Muon::SegmentArbitration, true));
                Fill(hDTDdYdZ[i][station], muon->dDyDz(station+1, MuonSubdetId::DT));
-               Fill(hDTPulldYdZ[i][station], muon->pullDyDz(station+1, MuonSubdetId::DT));
+               Fill(hDTPulldYdZ[i][station], muon->pullDyDz(station+1, MuonSubdetId::DT, Muon::SegmentArbitration, true));
             }
 
             hCSCNumSegments[i][station]->Fill(muon->numberOfSegments(station+1, MuonSubdetId::CSC, Muon::NoArbitration));
             Fill(hCSCDx[i][station], muon->dX(station+1, MuonSubdetId::CSC));
             Fill(hCSCPullx[i][station], muon->pullX(station+1, MuonSubdetId::CSC, Muon::SegmentArbitration, true));
             Fill(hCSCDdXdZ[i][station], muon->dDxDz(station+1, MuonSubdetId::CSC));
-            Fill(hCSCPulldXdZ[i][station], muon->pullDxDz(station+1, MuonSubdetId::CSC));
+            Fill(hCSCPulldXdZ[i][station], muon->pullDxDz(station+1, MuonSubdetId::CSC, Muon::SegmentArbitration, true));
             Fill(hCSCDy[i][station], muon->dY(station+1, MuonSubdetId::CSC));
             Fill(hCSCPully[i][station], muon->pullY(station+1, MuonSubdetId::CSC, Muon::SegmentArbitration, true));
             Fill(hCSCDdYdZ[i][station], muon->dDyDz(station+1, MuonSubdetId::CSC));
-            Fill(hCSCPulldYdZ[i][station], muon->pullDyDz(station+1, MuonSubdetId::CSC));
+            Fill(hCSCPulldYdZ[i][station], muon->pullDyDz(station+1, MuonSubdetId::CSC, Muon::SegmentArbitration, true));
          }
       }
    }// muon
