@@ -1,5 +1,5 @@
 //
-// $Id: PATObject.h,v 1.20 2008/10/08 15:11:33 srappocc Exp $
+// $Id: PATObject.h,v 1.21 2008/10/09 17:48:23 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -15,7 +15,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Volker Adler, Sal Rappoccio
-  \version  $Id: PATObject.h,v 1.20 2008/10/08 15:11:33 srappocc Exp $
+  \version  $Id: PATObject.h,v 1.21 2008/10/09 17:48:23 lowette Exp $
 */
 
 
@@ -116,6 +116,18 @@ namespace pat {
       /// Note that generator level particles can only be all embedded or all not embedded.
       void embedGenParticle() ;
 
+      /// Returns true if there was at least one overlap for this test label
+      bool hasOverlaps(const std::string &label) const ;
+      /// Return the list of overlaps for one label (can be empty)
+      /// The original ordering of items is kept (usually it's by increasing deltaR from this item)
+      const reco::CandidatePtrVector & overlaps(const std::string &label) const ;
+      /// Returns the labels of the overlap tests that found at least one overlap
+      const std::vector<std::string> & overlapLabels() const { return overlapLabels_; }
+      /// Sets the list of overlapping items for one label 
+      /// Note that adding an empty PtrVector has no effect at all
+      /// Items within the list should already be sorted appropriately (this method won't sort them)
+      void setOverlaps(const std::string &label, const reco::CandidatePtrVector & overlaps) ;
+
       /// Returns user-defined data. Returns NULL if the data is not present, or not of type T.
       template<typename T> const T * userData(const std::string &key) const {
           const pat::UserData * data = userDataObject_(key);
@@ -160,6 +172,7 @@ namespace pat {
       }
       
       /// Get user-defined float
+      /// Note: it will return 0.0 if the key is not found; you can check if the key exists with 'hasUserFloat' method.
       float userFloat( const std::string & key ) const;
       /// Set user-defined float
       void addUserFloat( const  std::string & label, float data );
@@ -170,6 +183,7 @@ namespace pat {
         return std::find(userFloatLabels_.begin(), userFloatLabels_.end(), key) != userFloatLabels_.end();
       }
       /// Get user-defined int
+      /// Note: it will return 0 if the key is not found; you can check if the key exists with 'hasUserInt' method.
       int32_t userInt( const std::string & key ) const;
       /// Set user-defined int
       void addUserInt( const std::string & label,  int32_t data );
@@ -196,6 +210,11 @@ namespace pat {
       std::vector<reco::GenParticleRef> genParticleRef_;
       /// vector to hold an embedded generator level particle
       std::vector<reco::GenParticle>    genParticleEmbedded_; 
+
+      /// Overlapping test labels (only if there are any overlaps)
+      std::vector<std::string> overlapLabels_;
+      /// Overlapping items (sorted by distance)
+      std::vector<reco::CandidatePtrVector> overlapItems_;
 
       /// User data object
       std::vector<std::string>      userDataLabels_;
@@ -355,6 +374,31 @@ namespace pat {
         return reco::GenParticleRef();
   }
 
+  template <class ObjectType>
+  bool PATObject<ObjectType>::hasOverlaps(const std::string &label) const {
+        return std::find(overlapLabels_.begin(), overlapLabels_.end(), label) != overlapLabels_.end();
+  }
+
+  template <class ObjectType>
+  const reco::CandidatePtrVector & PATObject<ObjectType>::overlaps(const std::string &label) const {
+        static const reco::CandidatePtrVector EMPTY;
+        std::vector<std::string>::const_iterator match = std::find(overlapLabels_.begin(), overlapLabels_.end(), label);
+        if (match == overlapLabels_.end()) return EMPTY;
+        return overlapItems_[match - overlapLabels_.begin()];
+  }
+
+  template <class ObjectType>
+  void PATObject<ObjectType>::setOverlaps(const std::string &label, const reco::CandidatePtrVector & overlaps) {
+        if (!overlaps.empty()) {
+            std::vector<std::string>::const_iterator match = std::find(overlapLabels_.begin(), overlapLabels_.end(), label);
+            if (match == overlapLabels_.end()) {
+                overlapLabels_.push_back(label);
+                overlapItems_.push_back(overlaps);
+            } else {
+                overlapItems_[match - overlapLabels_.begin()] = overlaps;
+            }
+        }
+  }
 
   template <class ObjectType>
   const pat::UserData * PATObject<ObjectType>::userDataObject_( const std::string & key ) const
