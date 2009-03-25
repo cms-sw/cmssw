@@ -27,14 +27,16 @@ void DDPixBarStackLinear::initialize(const DDNumericArguments & nArgs,
 				 const DDStringArguments & sArgs,
 				 const DDStringVectorArguments &) {
 
-  number    = int(nArgs["Number"]);
-  theta     = nArgs["Theta"];
-  phi       = nArgs["Phi"];
-  offset    = nArgs["Offset"];
-  delta     = nArgs["Delta"];
-  centre    = vArgs["Center"];
-  rotMat    = sArgs["Rotation"];
-  zoffset   = nArgs["ZOffset"];
+  number      = int(nArgs["Number"]);
+  theta       = nArgs["Theta"];
+  phi         = nArgs["Phi"];
+  offset      = nArgs["Offset"];
+  delta       = nArgs["Delta"];
+  centre      = vArgs["Center"];
+  rotMat      = sArgs["Rotation"];
+  stackoffset = nArgs["StackOffset"];
+  stackoffsetT= int(nArgs["StackOffsetT"]);
+  zoffset     = nArgs["ZOffset"];
   
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
@@ -63,22 +65,39 @@ void DDPixBarStackLinear::execute() {
     rot = DDRotation(DDName(rotstr, rotns));
   }
 
-  for (int i=0; i<number; i++) {
+  for (int i=0; i<(number/2); i++) {
+
+    if((stackoffset!=0.0)&&(i!=0)) {
+      if(i%stackoffsetT==0) offset+=stackoffset;
+    }
 	
     DDTranslation tran = base + (offset + double(i)*delta)*direction;
-    DDpos (child, mother, i+1, tran, rot);
+    DDpos (child, mother, 2*i+1, tran, rot);
     LogDebug("TrackerGeom") << "DDPixBarStackLinear test: " << child << " number "
-			    << i+1 << " positioned in " << mother << " at "
+			    << 2*i+1 << " positioned in " << mother << " at "
 			    << tran << " with " << rot;
 
-    if(zoffset!=0.0){
+    DDTranslation tran2 = base - (offset + double(i)*delta)*direction;
+    DDpos (child, mother, 2*i+2, tran2, rot);
+    LogDebug("TrackerGeom") << "DDPixBarStackLinear test: " << child << " number "
+                            << 2*i+2 << " positioned in " << mother << " at "
+                            << tran << " with " << rot;
+
+    if(zoffset!=0.0){ 
       if((i+1)!=number){
         i++;
-        DDTranslation tran = zbase + (offset + double(i)*delta)*direction;
-        DDpos (child, mother, i+1, tran, rot);
+        DDTranslation tran3 = zbase + (offset + double(i)*delta)*direction;
+        DDpos (child, mother, 2*i+1, tran3, rot);
         LogDebug("TrackerGeom") << "DDPixBarStackLinear test: " << child << " number "
-                            << i+1 << " positioned in " << mother << " at "
+                            << 2*i+1 << " positioned in " << mother << " at "
                             << tran << " with " << rot;
+    
+        DDTranslation tran4 = zbase - (offset + double(i)*delta)*direction;
+        DDpos (child, mother, 2*i+2, tran4, rot);
+        LogDebug("TrackerGeom") << "DDPixBarStackLinear test: " << child << " number "
+                            << 2*i+2 << " positioned in " << mother << " at "
+                            << tran << " with " << rot;
+
       }
     }
 

@@ -33,7 +33,8 @@ private:
   std::vector<double>      centre;      //Centre
   std::string              rotMat;      //Rotation matrix
   double                   zoffset;     //Offset of modules in y
-
+  double		   stackoffset; //Offset of modules to compensate for eta
+  int			   stackoffsetT;//Period of offset of modules to compensate for eta
 };
 
 #endif

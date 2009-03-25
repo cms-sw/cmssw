@@ -100,6 +100,13 @@ void DDPixBarStackLayerAlgo::execute() {
   double r_vol_inner = moduleRadius-(delta1+delta2+delta3);
   double r_vol_outer = moduleRadius+(delta1+delta2+delta3);
 
+  double r_vol_innerT;
+  if(r_vol_inner>r_vol_outer) {
+    r_vol_innerT=r_vol_inner;
+    r_vol_inner=r_vol_outer-30;
+    r_vol_outer=r_vol_innerT+30;
+  }
+
   std::string name;
 
   int component_copy_no=1;
