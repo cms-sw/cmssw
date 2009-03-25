@@ -20,7 +20,7 @@ PFCluster::PFCluster(PFLayer::Layer layer, double energy,
   CaloCluster( energy, 
 	       math::XYZPoint(x,y,z), 
 	       PFLayer::toCaloID(layer),
-	       particleFlow ),
+	       pFClusters ),
   posrep_( position_.Rho(), position_.Eta(), position_.Phi() ),
   color_(2)
 {  }

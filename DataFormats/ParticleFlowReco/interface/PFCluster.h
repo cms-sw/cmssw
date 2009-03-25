@@ -47,7 +47,7 @@ namespace reco {
   
     /// default constructor
       
-    PFCluster() : CaloCluster(particleFlow), color_(1) {}
+    PFCluster() : CaloCluster(pFClusters), color_(1) {}
 
     /// constructor
     PFCluster(PFLayer::Layer layer, double energy,
