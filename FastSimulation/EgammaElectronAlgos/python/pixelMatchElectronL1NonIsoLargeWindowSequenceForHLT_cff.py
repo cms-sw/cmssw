@@ -18,7 +18,7 @@ hltL1NonIsoLargeWindowElectronPixelSeeds.SeedConfiguration = cms.PSet(
     block_hltL1NonIsoLargeWindowElectronPixelSeeds
 )
 hltL1NonIsoLargeWindowElectronPixelSeeds.barrelSuperClusters = 'hltCorrectedHybridSuperClustersL1NonIsolated'
-hltL1NonIsoLargeWindowElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedEndcapSuperClustersWithPreshowerL1NonIsolated'
+hltL1NonIsoLargeWindowElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1NonIsolated'
 
 # Track candidate
 import FastSimulation.Tracking.TrackCandidateProducer_cfi

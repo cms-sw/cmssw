@@ -20,14 +20,14 @@ hltL1NonIsoElectronPixelSeeds.SeedConfiguration = cms.PSet(
     block_hltL1NonIsoElectronPixelSeeds
 )
 hltL1NonIsoElectronPixelSeeds.barrelSuperClusters = 'hltCorrectedHybridSuperClustersL1NonIsolated'
-hltL1NonIsoElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedEndcapSuperClustersWithPreshowerL1NonIsolated'
+hltL1NonIsoElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1NonIsolated'
 
 hltL1NonIsoStartUpElectronPixelSeeds = FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi.fastElectronSeeds.clone()
 hltL1NonIsoStartUpElectronPixelSeeds.SeedConfiguration = cms.PSet(
     block_hltL1NonIsoStartUpElectronPixelSeeds
 )
 hltL1NonIsoStartUpElectronPixelSeeds.barrelSuperClusters = 'hltCorrectedHybridSuperClustersL1NonIsolated'
-hltL1NonIsoStartUpElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedEndcapSuperClustersWithPreshowerL1NonIsolated'
+hltL1NonIsoStartUpElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1NonIsolated'
 
 
 # CKFTrackCandidateMaker
