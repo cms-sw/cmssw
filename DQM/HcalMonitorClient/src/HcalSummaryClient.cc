@@ -64,7 +64,7 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
   trigPrimMon_.problemDir     = "";
   caloTowerMon_.problemDir    = "";
   
-  dataFormatMon_.ievtName   = "";
+  dataFormatMon_.ievtName   = "DataFormatMonitor/Data Format Task Event Number";
   digiMon_.ievtName         = "DigiMonitor_Hcal/Digi Task Event Number";
   recHitMon_.ievtName       = "RecHitMonitor_Hcal/RecHit Task Event Number";
   pedestalMon_.ievtName     = "PedestalMonitor_Hcal/Pedestal Task Event Number";
