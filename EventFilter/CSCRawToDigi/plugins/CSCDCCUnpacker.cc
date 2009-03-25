@@ -80,6 +80,9 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   inputObjectsTag = pset.getParameter<edm::InputTag>("InputObjects");
   unpackMTCCData = pset.getUntrackedParameter<bool>("isMTCCData", false);
 
+  // Enable Format Status Digis
+  useFormatStatus = pset.getUntrackedParameter<bool>("UseFormatStatus", false);
+
   // Selective unpacking mode will skip only troublesome CSC blocks and not whole DCC/DDU block
   useSelectiveUnpacking = pset.getUntrackedParameter<bool>("UseSelectiveUnpacking", false);
 
@@ -207,7 +210,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
 	// Fill Format status digis per FED
 	// Remove examiner->errors() != 0 check if we need to put status digis for every event
-	if (unpackStatusDigis && (examiner->errors() !=0))
+	if (useFormatStatus && (examiner->errors() !=0))
 	  // formatStatusProduct->insertDigi(CSCDetId(1,1,1,1,1), CSCDCCFormatStatusDigi(id,examiner,dccBinCheckMask));
 	  formatStatusProduct->insertDigi(CSCDetId(1,1,1,1,1), 
 		CSCDCCFormatStatusDigi(id,dccBinCheckMask,
@@ -509,17 +512,17 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   e.put(comparatorProduct,    "MuonCSCComparatorDigi");
   e.put(rpcProduct,           "MuonCSCRPCDigi");
   e.put(corrlctProduct,       "MuonCSCCorrelatedLCTDigi");
-  if (unpackStatusDigis) 
+
+  if (useFormatStatus)  e.put(formatStatusProduct,    "MuonCSCDCCFormatStatusDigi");
+
+  if (unpackStatusDigis)
     {
-      e.put(formatStatusProduct,    "MuonCSCDCCFormatStatusDigi");
-/*
       e.put(cfebStatusProduct,    "MuonCSCCFEBStatusDigi");
       e.put(dmbStatusProduct,     "MuonCSCDMBStatusDigi");
       e.put(tmbStatusProduct,     "MuonCSCTMBStatusDigi");
       e.put(dduStatusProduct,     "MuonCSCDDUStatusDigi");
       e.put(dccStatusProduct,     "MuonCSCDCCStatusDigi");
       e.put(alctStatusProduct,    "MuonCSCALCTStatusDigi");
-*/
     }
   if (printEventNumber) LogTrace("CSCDCCUnpacker|CSCRawToDigi") 
    <<"[CSCDCCUnpacker]: " << numOfEvents << " events processed ";
