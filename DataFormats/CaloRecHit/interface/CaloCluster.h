@@ -7,7 +7,7 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: CaloCluster.h,v 1.13 2009/03/04 17:09:32 ferriff Exp $
+ * \version $Id: CaloCluster.h,v 1.14 2009/03/04 17:13:45 ferriff Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -21,11 +21,11 @@
 
 namespace reco {
 
-  //FIXME: to be moved inside CaloCluster
-  enum AlgoId { island = 0, hybrid = 1, fixedMatrix = 2, dynamicHybrid = 3, multi5x5 = 4, pFClusters = 5 , ALGO_undefined = 100};
 
   class CaloCluster {
   public:
+    
+    enum AlgoId { island = 0, hybrid = 1, fixedMatrix = 2, dynamicHybrid = 3, multi5x5 = 4, particleFlow = 5 , undefined = 100};
 
    //FIXME:  
    //temporary fix... to be removed before 310 final
