@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/16 16:30:03 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/04/23 14:02:48 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -52,7 +52,8 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
     center_(GlobalPoint(fv.translation().x()/cm,
 			fv.translation().y()/cm,
 			fv.translation().z()/cm)),
-    expand(expand2Pi)
+    expand(expand2Pi),
+    isIronFlag(false)
 {
   for (int i=0; i<6; ++i) {
     isAssigned[i] = false;
@@ -101,6 +102,10 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
     }
   }
 
+  // Get material for this volume
+  if (fv.logicalPart().material().name().name() == "Iron") isIronFlag=true;  
+
+
   if (MagGeoBuilderFromDDD::debug) {  
     cout << " RMin =  " << theRMin <<endl;
     cout << " RMax =  " << theRMax <<endl;
@@ -114,7 +119,8 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
 	 << " R " << center().perp()
 	 << " phi " << center().phi()
 	 << " magFile " << magFile
-	 << " Material= " << fv.logicalPart().material().name();
+	 << " Material= " << fv.logicalPart().material().name()
+	 << " isIron= " << isIronFlag;
 
     cout << " Orientation of surfaces:";
     std::string sideName[3] =  {"positiveSide", "negativeSide", "onSurface"};
