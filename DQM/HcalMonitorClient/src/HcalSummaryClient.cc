@@ -32,7 +32,7 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
 
   // Find out which subtasks are being run
   // At the moment, only hot/dead/pedestal comply with correct format of histograms; ignore all others
-  //dataFormatMon_.onoff=(ps.getUntrackedParameter<bool>("DataFormatClient",false));
+  dataFormatMon_.onoff=(ps.getUntrackedParameter<bool>("DataFormatClient",false));
   digiMon_.onoff=(ps.getUntrackedParameter<bool>("DigiClient",false));
   recHitMon_.onoff=(ps.getUntrackedParameter<bool>("RecHitClient",false));
   pedestalMon_.onoff=(ps.getUntrackedParameter<bool>("PedestalClient",false));
@@ -44,7 +44,7 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
   //caloTowerMon_.onoff=(ps.getUntrackedParameter<bool>("CaloTowerClient",false));
 
   // Set histogram problem names & directories  for each subtask
-  dataFormatMon_.problemName  = "";
+  dataFormatMon_.problemName  = " Hardware Watch Cells";
   digiMon_.problemName        = " Problem Digi Rate";
   recHitMon_.problemName      = " Problem RecHit Rate";
   pedestalMon_.problemName    = " Problem Pedestal Rate";
@@ -54,7 +54,7 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
   trigPrimMon_.problemName    = "";
   caloTowerMon_.problemName   = "";
 
-  dataFormatMon_.problemDir   = "";
+  dataFormatMon_.problemDir   = "DataFormatMonitor";
   digiMon_.problemDir         = "DigiMonitor_Hcal/problem_digis";
   recHitMon_.problemDir       = "RecHitMonitor_Hcal/problem_rechits";
   pedestalMon_.problemDir     = "PedestalMonitor_Hcal/problem_pedestals";
