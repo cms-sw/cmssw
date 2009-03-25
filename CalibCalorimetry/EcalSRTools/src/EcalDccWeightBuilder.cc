@@ -1,4 +1,4 @@
-/* $Id$
+/* $Id: EcalDccWeightBuilder.cc,v 1.2 2009/03/09 13:58:58 pgras Exp $
  *
  * authors: Ph. Gras (CEA/Saclay), F. Cavallari
  *          some code copied from CalibCalorimetry/EcalTPGTools code
@@ -27,8 +27,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/ODWeightsDat.h"
 
-#include "CalibCalorimetry/EcalSRTools/src/ecalDccMap.h"
-
+#include "CalibCalorimetry/EcalSRTools/src/PasswordReader.h"
 
 using namespace std;
 using namespace edm;
@@ -55,7 +54,7 @@ EcalDccWeightBuilder::EcalDccWeightBuilder(edm::ParameterSet const& ps):
   rootOutputFileName_(ps.getParameter<string>("rootOutputFileName")),
   dbSid_(ps.getParameter<string>("dbSid")),
   dbUser_(ps.getParameter<string>("dbUser")),
-  dbPassword_(ps.getParameter<string>("dbPassword")),
+  dbPassword_(ps.getUntrackedParameter<string>("dbPassword","")),
   dbTag_(ps.getParameter<string>("dbTag")),
   dbVersion_(ps.getParameter<int>("dbVersion")),
   sqlMode_(ps.getParameter<bool>("sqlMode")),
@@ -95,9 +94,6 @@ EcalDccWeightBuilder::analyze(const edm::Event& event,
     calibMap_ = intercalib->getMap();
   }
 
-  cout << __FILE__ << ":" << __LINE__ << ": "
-       <<  endl;
-  
   //gets geometry
   es.get<CaloGeometryRecord>().get(geom_);
 
@@ -339,11 +335,26 @@ void EcalDccWeightBuilder::writeWeightToAsciiFile(){
   }
   
   if(sqlMode_){
-    file<< "column recid new_val recid;\n"
-      "select COND2CONF_INFO_SQ.NextVal recid from DUAL;\n"
-      "insert into weights_info (rec_id,tag,version) values (&recid,"
-        << dbTag_ << "," << dbVersion_ << ")\n";
+    file << "variable recid number;\n"
+      "exec select COND2CONF_INFO_SQ.NextVal into :recid from DUAL;\n"
+      "insert into weights_info (rec_id,tag,version) values (:recid,'"
+        << dbTag_ << "'," << dbVersion_ << ");\n";
+    file << "\n" << comment
+         << "index of first sample used in the weighting sum\n"
+      "begin\n"
+      "  for fedid in " << ecalDccFedIdMin << ".." << ecalDccFedIdMax
+         << " loop\n"
+      "    insert into dcc_weightsample_dat (rec_id, logic_id, sample_id, \n"
+      "    weight_number)\n"
+      "    values(:recid,fedid," << dcc1stSample_ << ",1);\n"
+      "  end loop;\n"
+      "end;\n"
+      "/\n";
+  } else{
+    file << "1st DCC sample: " << dcc1stSample_ << "\n";
   }
+
+  file << "\n" << comment << "list of weights per crystal channel\n";
   
   for(map<DetId, std::vector<int32_t> >::const_iterator it
         = encodedWeights_.begin();
@@ -362,9 +373,11 @@ void EcalDccWeightBuilder::writeWeightToAsciiFile(){
     char delim = sqlMode_?',':' ';
 
     if(sqlMode_) file << "-- detId " << detId.rawId() << "\n"
-                      << "insert into dcc_weights_dat(rec_id,sm_id,fed_id,tt_id,"
-                   "cry_id,weight_0,weight_1,weight_2,weight_3,weight_4,weight_5) values ("
-                   "&recId";
+                      << "insert into dcc_weights_dat(rec_id,sm_id,fed_id,"
+                   "tt_id, cry_id,\n"
+                   "weight_0,weight_1,weight_2,weight_3,weight_4,weight_5) \n"
+                   "values ("
+                   ":recid";
     
     const vector<int>& weights = it->second;
     if(!sqlMode_) file << setw(10) << detId.rawId();
@@ -445,6 +458,17 @@ void EcalDccWeightBuilder::writeWeightToDB(){
 
   try {
     cout << "Making connection..." << flush;
+    const string& filePrefix = string("file:");
+    if(dbPassword_.find(filePrefix)==0){ //password must be read for a file
+      string fileName = dbPassword_.substr(filePrefix.size());
+      //substitute dbPassword_ value by the password read from the file
+      PasswordReader pr;
+      pr.readPassword(fileName, dbUser_, dbPassword_);
+    }
+
+//     cout << __FILE__ << ":" << __LINE__ << ": "
+//           <<  "Password: " << dbPassword_ << "\n";
+
     econn = new EcalCondDBInterface( dbSid_, dbUser_, dbPassword_ );
     cout << "Done." << endl;
   } catch (runtime_error &e) {
@@ -465,7 +489,14 @@ void EcalDccWeightBuilder::writeWeightToDB(){
   vector<ODWeightsDat> datadel;
   datadel.reserve(encodedWeights_.size());
 
-
+  vector<ODWeightsSamplesDat> dcc1stSampleConfig(nDccs);
+  for(int i = ecalDccFedIdMin; i <= ecalDccFedIdMax; ++i){
+    dcc1stSampleConfig[i].setId(weight_id);
+    dcc1stSampleConfig[i].setFedId(601+i);
+    dcc1stSampleConfig[i].setSampleId(dcc1stSample_);
+    dcc1stSampleConfig[i].setWeightNumber(-1); //not used.
+  }
+  econn->insertConfigDataArraySet(dcc1stSampleConfig, &weight_info);
   
   for(map<DetId, std::vector<int32_t> >::const_iterator it
         = encodedWeights_.begin();
@@ -550,4 +581,3 @@ void EcalDccWeightBuilder::dbId(const DetId& detId, int& fedId, int& smId,
        <<  xtalId << "\n";
 #endif
 }
-

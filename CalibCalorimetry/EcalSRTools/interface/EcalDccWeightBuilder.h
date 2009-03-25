@@ -1,5 +1,5 @@
 /*
- * $Id: EcalDccWeightBuilder.h,v 1.1 2009/03/04 22:50:34 pgras Exp $
+ * $Id: EcalDccWeightBuilder.h,v 1.2 2009/03/09 13:58:58 pgras Exp $
  */
 
 #ifndef ECALDCCWEIGHTBUILDER_CC
@@ -128,6 +128,10 @@ private:
 
   static const double weightScale_;
   const EcalElectronicsMapping* ecalElectronicsMap_;
+
+  static const int ecalDccFedIdMin = 601;
+  static const int ecalDccFedIdMax = 654;
+  static const int nDccs = ecalDccFedIdMax-ecalDccFedIdMin+1;
 };
 
 #endif //ECALDCCWEIGHTBUILDER_CC not defined
