@@ -21,12 +21,12 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 from Alignment.CommonAlignmentAlgorithm.ApeSettingAlgorithm_cfi import *
 process.AlignmentProducer.algoConfig = ApeSettingAlgorithm
-process.AlignmentProducer.saveApeToDB = False
+process.AlignmentProducer.saveApeToDB = True
 process.AlignmentProducer.algoConfig.readApeFromASCII = True
 process.AlignmentProducer.algoConfig.setComposites = False
 process.AlignmentProducer.algoConfig.readLocalNotGlobal = True
-process.AlignmentProducer.algoConfig.apeASCIIReadFile = 'Alignment/CommonAlignmentAlgorithm/test/ShortLocalInput.txt'
-process.AlignmentProducer.algoConfig.saveApeToASCII = True
+process.AlignmentProducer.algoConfig.apeASCIIReadFile = 'Alignment/CommonAlignmentAlgorithm/test/ApeLocalInput.txt'
+process.AlignmentProducer.algoConfig.saveApeToASCII = False
 process.AlignmentProducer.algoConfig.saveComposites = False
 process.AlignmentProducer.algoConfig.apeASCIISaveFile = 'myLocalDump.txt'
         
@@ -74,9 +74,9 @@ process.PoolDBOutputService = cms.Service(
     "PoolDBOutputService",
     CondDBSetup,
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:TkAlignmentApe.db'),
+    connect = cms.string('sqlite_file:MyLocalApe.db'),
     toPut = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
-                               tag = cms.string('testTagAPE')
+                               tag = cms.string('AlignmentErrors')
                                )
                       )
     )
