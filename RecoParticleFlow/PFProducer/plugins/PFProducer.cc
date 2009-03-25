@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFProducer/interface/PFProducer.h"
+#include "RecoParticleFlow/PFProducer/plugins/PFProducer.h"
 #include "RecoParticleFlow/PFAlgo/interface/PFAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
