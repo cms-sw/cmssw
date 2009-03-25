@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 # need to run the digitizer on raw strip data first
 import EventFilter.SiStripRawToDigi.SiStripDigis_cfi
 TkAlLASsiStripDigis = EventFilter.SiStripRawToDigi.SiStripDigis_cfi.siStripDigis.clone(
-  ProductLabel = cms.untracked.string( 'source' )
+  ProductLabel = 'source'
 )
 
 # redefine the input digis according to the clone's name
