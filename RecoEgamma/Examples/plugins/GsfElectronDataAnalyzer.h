@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.h,v 1.5 2008/12/11 23:29:35 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.h,v 1.6 2009/03/06 12:42:16 chamont Exp $
 //
 //
 
@@ -254,6 +254,15 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TH1F *histSclEoEmatchingObjectShowering0_endcaps;
   TH1F *histSclEoEmatchingObjectShowering1234_barrel;
   TH1F *histSclEoEmatchingObjectShowering1234_endcaps;
+  
+  TH1F *h_ele_tkSumPt_dr03; 
+  TH1F *h_ele_ecalRecHitSumEt_dr03;
+  TH1F *h_ele_hcalDepth1TowerSumEt_dr03;
+  TH1F *h_ele_hcalDepth2TowerSumEt_dr03;
+  TH1F *h_ele_tkSumPt_dr04; 
+  TH1F *h_ele_ecalRecHitSumEt_dr04;
+  TH1F *h_ele_hcalDepth1TowerSumEt_dr04;
+  TH1F *h_ele_hcalDepth2TowerSumEt_dr04;
 
   std::string outputFile_;
   edm::InputTag electronCollection_;

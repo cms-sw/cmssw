@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.h,v 1.6 2009/02/26 14:31:45 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.h,v 1.7 2009/03/06 12:42:16 chamont Exp $
 //
 //
 
@@ -118,6 +118,7 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH2F *histSclEtaVsPhi_ ;
   TH1F *histSclEta_ ;
   TH1F *histSclPhi_ ;
+
   TH1F *histSclSigEtaEta_ ;
   TH1F *histSclSigIEtaIEtabarrel_ ;
   TH1F *histSclSigIEtaIEtaendcaps_ ;
@@ -262,7 +263,16 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH1F *histSclEoEtrueShowering0_endcaps;
   TH1F *histSclEoEtrueShowering1234_barrel;
   TH1F *histSclEoEtrueShowering1234_endcaps;
-
+  
+  TH1F *h_ele_tkSumPt_dr03; 
+  TH1F *h_ele_ecalRecHitSumEt_dr03;
+  TH1F *h_ele_hcalDepth1TowerSumEt_dr03;
+  TH1F *h_ele_hcalDepth2TowerSumEt_dr03;
+  TH1F *h_ele_tkSumPt_dr04; 
+  TH1F *h_ele_ecalRecHitSumEt_dr04;
+  TH1F *h_ele_hcalDepth1TowerSumEt_dr04;
+  TH1F *h_ele_hcalDepth2TowerSumEt_dr04;
+   
   std::string outputFile_;
   edm::InputTag electronCollection_;
   edm::InputTag  mcTruthCollection_;

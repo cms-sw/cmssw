@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.14 2009/03/06 12:42:16 chamont Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.15 2009/03/06 21:46:20 chamont Exp $
 //
 //
 
@@ -309,7 +309,17 @@ void GsfElectronMCAnalyzer::beginJob(){
   histSclEoEtrueShowering0_endcaps = new TH1F("h_scl_EoEtrue showering0, endcaps","ele supercluster energy over true energy, showering0, endcaps",100,0.2,1.2);
   histSclEoEtrueShowering1234_barrel = new TH1F("h_scl_EoEtrue showering1234, barrel","ele supercluster energy over true energy, showering1234, barrel",100,0.2,1.2);
   histSclEoEtrueShowering1234_endcaps = new TH1F("h_scl_EoEtrue showering1234, endcaps","ele supercluster energy over true energy, showering1234, endcaps",100,0.2,1.2);
-
+    
+  // isolation  
+  h_ele_tkSumPt_dr03 = new TH1F("h_tkSumPt, dR=0.3","tk isolation deposit, dR=0.3",100,0.0,20.);
+  h_ele_ecalRecHitSumEt_dr03= new TH1F("h_ecalRecHitSumEt, dR=0.3","ecal isolation deposit, dR=0.3",100,0.0,20.);
+  h_ele_hcalDepth1TowerSumEt_dr03= new TH1F("h_hcalDepth1SumEt, dR=0.3","hcal depth1 isolation deposit, dR=0.3",100,0.0,20.);
+  h_ele_hcalDepth2TowerSumEt_dr03= new TH1F("h_hcalDepth1SumEt, dR=0.3","hcal depth2 isolation deposit, dR=0.3",100,0.0,20.);
+  h_ele_tkSumPt_dr04= new TH1F("h_tkSumPt, dR=0.4","hcal isolation deposit, dR=0.4",100,0.0,20.);
+  h_ele_ecalRecHitSumEt_dr04= new TH1F("h_ecalRecHitSumEt, dR=0.4","ecal isolation deposit, dR=0.4",100,0.0,20.);
+  h_ele_hcalDepth1TowerSumEt_dr04= new TH1F("h_hcalDepth1SumEt, dR=0.4","hcal depth1 isolation deposit, dR=0.4",100,0.0,20.);
+  h_ele_hcalDepth2TowerSumEt_dr04= new TH1F("h_hcalDepth1SumEt, dR=0.4","hcal depth2 isolation deposit, dR=0.4",100,0.0,20.);
+  
   // fbrem
   h_ele_fbrem = new TH1F( "h_ele_fbrem","fbrem, mode",50,0.,1.);
   h_ele_fbremVsEta_mode = new TProfile( "h_ele_fbremvsEtamode","mean fbrem vs eta, mode",nbineta2D,etamin,etamax,0.,1.);
@@ -442,6 +452,15 @@ GsfElectronMCAnalyzer::endJob(){
   histSclE2x5max_->Sumw2();
   histSclE5x5_->Sumw2();
 
+  h_ele_tkSumPt_dr03->Sumw2();
+  h_ele_ecalRecHitSumEt_dr03->Sumw2();
+  h_ele_hcalDepth1TowerSumEt_dr03->Sumw2();
+  h_ele_hcalDepth2TowerSumEt_dr03->Sumw2();
+  h_ele_tkSumPt_dr04->Sumw2();
+  h_ele_ecalRecHitSumEt_dr04->Sumw2();
+  h_ele_hcalDepth1TowerSumEt_dr04->Sumw2();
+  h_ele_hcalDepth2TowerSumEt_dr04->Sumw2();
+  
   // matched electron, gsf tracks
   h_ele_ambiguousTracks->Sumw2();
   h_ele_ambiguousTracksVsEta->Sumw2();
@@ -881,6 +900,16 @@ GsfElectronMCAnalyzer::endJob(){
   histSclEoEtrueShowering1234_barrel->Write();
   histSclEoEtrueShowering1234_endcaps->Write();
 
+  // isolation
+  h_ele_tkSumPt_dr03->Write();
+  h_ele_ecalRecHitSumEt_dr03->Write();
+  h_ele_hcalDepth1TowerSumEt_dr03->Write();
+  h_ele_hcalDepth2TowerSumEt_dr03->Write();
+  h_ele_tkSumPt_dr04->Write();
+  h_ele_ecalRecHitSumEt_dr04->Write();
+  h_ele_hcalDepth1TowerSumEt_dr04->Write();
+  h_ele_hcalDepth2TowerSumEt_dr04->Write();
+
   // fbrem
   h_ele_fbrem->Write();
   h_ele_fbremVsEta_mode->Write();
@@ -1232,6 +1261,15 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	 h_ele_PtinVsPtoutShowering0_mean ->  Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
         if (eleClass == 31 || eleClass == 32  || eleClass == 33 || eleClass == 34 )
 	 h_ele_PtinVsPtoutShowering1234_mean ->  Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
+
+        h_ele_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt());
+        h_ele_ecalRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
+        h_ele_hcalDepth1TowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalDepth1TowerSumEt());
+        h_ele_hcalDepth2TowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalDepth2TowerSumEt());
+        h_ele_tkSumPt_dr04->Fill(bestGsfElectron.dr04TkSumPt());
+        h_ele_ecalRecHitSumEt_dr04->Fill(bestGsfElectron.dr04EcalRecHitSumEt());
+        h_ele_hcalDepth1TowerSumEt_dr03->Fill(bestGsfElectron.dr04HcalDepth1TowerSumEt());
+        h_ele_hcalDepth2TowerSumEt_dr03->Fill(bestGsfElectron.dr04HcalDepth2TowerSumEt());
 
       } // gsf electron found
 
