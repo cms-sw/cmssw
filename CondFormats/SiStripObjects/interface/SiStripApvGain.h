@@ -16,7 +16,8 @@ class SiStripApvGain {
   typedef std::vector<unsigned int>                        Registry;
   typedef Registry::iterator                               RegistryIterator;
   typedef Registry::const_iterator                         RegistryConstIterator;
- 
+  typedef std::vector<float>                               InputVector;
+
   SiStripApvGain(){};
   ~SiStripApvGain(){};
   
