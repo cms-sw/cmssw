@@ -227,14 +227,12 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 	preselCutValues = preselCutValuesBarrel_;
         minR9=minR9Barrel_;
         hits=  ecalBarrelHits;
-	std::cout << " Photon Producer : Barrel " << std::endl;
       }
     else if  (subdet==EcalEndcap) 
       { 
 	preselCutValues = preselCutValuesEndcap_;
         minR9=minR9Endcap_;
 	hits=  ecalEndcapHits;
-	std::cout << " Photon Producer : Endcap " << std::endl;
       }
     else
       { edm::LogWarning("")<<"PhotonProducer: do not know if it is a barrel or endcap SuperCluster" ; }
