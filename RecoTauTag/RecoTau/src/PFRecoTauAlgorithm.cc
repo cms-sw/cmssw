@@ -2,12 +2,14 @@
 
 // Turn off filtering by pt.  Min pt is set to zero,
 //  as this functionality is implemented in the underlying
-//  PFTauTagInfo production.
+//  PFTauTagInfo production.  Additional pt filters are applied
+//  the discriminators.
 
-#define PFTauAlgo_NeutrHadrCand_minPt_  (0.0)
-#define PFTauAlgo_GammaCand_minPt_      (0.0)
-#define PFTauAlgo_PFCand_minPt_         (0.0)
-#define PFTauAlgo_Track_minPt_          (0.0)
+#define PFTauAlgo_NeutrHadrCand_minPt_   (0.0)
+#define PFTauAlgo_GammaCand_minPt_       (0.0)
+#define PFTauAlgo_PFCand_minPt_          (0.0)
+#define PFTauAlgo_Track_minPt_           (0.0)
+#define PFTauAlgo_ChargedHadrCand_minPt_ (0.0)
 
 PFRecoTauAlgorithm::PFRecoTauAlgorithm() : TransientTrackBuilder_(0){}  
 PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) : TransientTrackBuilder_(0){
@@ -181,9 +183,9 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     
     //Taking signal PFCandidates
     PFCandidateRefVector mySignalPFChargedHadrCands,mySignalPFNeutrHadrCands,mySignalPFGammaCands,mySignalPFCands;
-    if (UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable) mySignalPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInCone(myPFTau.momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,ChargedHadrCand_minPt_,ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_,myleadPFCand_rectkDZ);
+    if (UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable) mySignalPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInCone(myPFTau.momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,PFTauAlgo_ChargedHadrCand_minPt_,ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_,myleadPFCand_rectkDZ);
 
-    else mySignalPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInCone(myPFTau.momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,ChargedHadrCand_minPt_);
+    else mySignalPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInCone(myPFTau.momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,PFTauAlgo_ChargedHadrCand_minPt_);
 
     myPFTau.setsignalPFChargedHadrCands(mySignalPFChargedHadrCands);
 
@@ -212,9 +214,9 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     //Filter candidates by DZ constraint
     PFCandidateRefVector myUnfilteredIsolPFChargedHadrCands,myIsolPFNeutrHadrCands,myIsolPFGammaCands,myIsolPFCands;
     if (UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable) 
-       myUnfilteredIsolPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInAnnulus(myPFTau.momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,ChargedHadrCand_minPt_,ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_,myleadPFCand_rectkDZ);
+       myUnfilteredIsolPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInAnnulus(myPFTau.momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,PFTauAlgo_ChargedHadrCand_minPt_,ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_,myleadPFCand_rectkDZ);
     else 
-       myUnfilteredIsolPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInAnnulus(myPFTau.momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,ChargedHadrCand_minPt_);
+       myUnfilteredIsolPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInAnnulus(myPFTau.momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,PFTauAlgo_ChargedHadrCand_minPt_);
 
     // filter isolation annulus with additional nHits quality cut (note that other cuts [pt, chi2, are already cut on])
     PFCandidateRefVector myIsolPFChargedHadrCands;
@@ -290,8 +292,8 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   //Use the electron rejection only in case there is a charged leading pion
   if(myleadPFChargedCand.isNonnull()){
     // A continous ore discrete mva depends on if usePFElectrons is set TRUE or FALSE!!!
-    myPFTau.setelectronPreIDOutput(myleadPFChargedCand->mva_e_pi());// particleFlow.usePFElectrons = cms.bool(True)
-    if (myleadPFChargedCand->mva_e_pi()==1) {// particleFlow.usePFElectrons = cms.bool(False)
+    myPFTau.setelectronPreIDOutput(myleadPFChargedCand->mva_e_pi());  // particleFlow.usePFElectrons = cms.bool(True)
+    if (myleadPFChargedCand->mva_e_pi()==1) {                         // particleFlow.usePFElectrons = cms.bool(False)
       myElecPreid = true;
     }
 
