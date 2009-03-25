@@ -3,7 +3,7 @@ from SimMuon.CSCDigitizer.muonCSCDigis_cfi import simMuonCSCDigis
 
 simMuonCSCSuppressedDigis = cms.EDProducer("CSCDigiSuppressor",
     simMuonCSCDigis.strips,
-    stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
+    digiLabel = cms.string("simMuonCSCDigis"),
     lctTag = cms.InputTag("simCscTriggerPrimitiveDigis")
 )
 
