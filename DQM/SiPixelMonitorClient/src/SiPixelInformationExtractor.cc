@@ -1592,8 +1592,13 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
 
 void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::EventSetup const& eSetup, int nFEDs, bool Tier0Flag)
 {
+
+  TH2F * allmodsMap;
+  TH2F * errmodsMap;
+  TH2F * goodmodsMap;
+
   //calculate eta and phi of the modules and fill a 2D plot:
-  if(init){
+//  if(init){
     if(!Tier0Flag){
       allmodsMap = new TH2F("allmodsMap","allmodsMap",40,0.,40.,36,0.,36.);
       errmodsMap = new TH2F("errmodsMap","errmodsMap",40,0.,40.,36,0.,36.);
@@ -1609,8 +1614,8 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
       SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
       if(SummaryReportMap) for(int i=1; i!=41; i++) for(int j=1; j!=37; j++) SummaryReportMap->setBinContent(i,j,-1.);
     }
-    init=false;
-  }
+//    init=false;
+//  }
   if(nFEDs==0) return;
   eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
   

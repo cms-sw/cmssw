@@ -199,9 +199,9 @@ class SiPixelInformationExtractor {
   TH2F * allmodsEtaPhi;
   TH2F * errmodsEtaPhi;
   TH2F * goodmodsEtaPhi;
-  TH2F * allmodsMap;
-  TH2F * errmodsMap;
-  TH2F * goodmodsMap;
+//  TH2F * allmodsMap;
+//  TH2F * errmodsMap;
+//  TH2F * goodmodsMap;
   int count;
   int errcount;
   bool gotDigis;
