@@ -90,6 +90,8 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     ),
 
     tmbParam = cms.PSet(
+        mpcBlockMe1a = cms.uint32(1),
+        # Debug
         verbosity = cms.untracked.int32(0)
     )
 )
