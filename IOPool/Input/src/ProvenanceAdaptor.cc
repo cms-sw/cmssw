@@ -110,8 +110,9 @@ namespace edm {
         mainParameterSets_.push_back(MainParameterSet(i->second, i->first));
       } else {
         ParameterSet pset(i->first);
+        pset.setID(i->second);
         pset.setFullyTracked();
-        pset.registerIt();
+	pset::Registry::instance()->insertMapped(pset);
 	if (i->first.find("@trigger_paths") != std::string::npos) {
 	  triggerPaths_.push_back(pset);
 	}
