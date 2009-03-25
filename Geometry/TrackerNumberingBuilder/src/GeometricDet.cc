@@ -175,7 +175,7 @@ GeometricDet::GeometricDet ( const PGeometricDet::Item& onePGD, GeometricEnumTyp
   // PGeometricDet is persistent version... make it... then come back here and make the
   // constructor.
   _fromDD = false;
-  _ddd = std::vector<int>(); // basically empty nav_type!
+  //  _ddd = std::vector<int>(); // basically empty nav_type!
   if(onePGD._shape==1||onePGD._shape==3){ //The parms vector is neede only in the case of box or trap shape
     _params.push_back(onePGD._params0);
     _params.push_back(onePGD._params1);
@@ -197,7 +197,7 @@ GeometricDet::GeometricDet ( const PGeometricDet::Item& onePGD, GeometricEnumTyp
 			  onePGD._a31, onePGD._a32, onePGD._a33);
   _shape = DDSolidShape(onePGD._shape);
   //  std::cout << "name = " << onePGD._name;
-  _ddname = DDName(onePGD._name, "fromdb");
+  _ddname = DDName(onePGD._name, onePGD._ns);//, "fromdb");
   //  std::cout << "DDName = " << _ddname << std::endl;
   _parents = DDGeoHistory(); // will remain empty... hate wasting the space but want all methods to work.
   _volume = onePGD._volume;
@@ -213,7 +213,28 @@ GeometricDet::GeometricDet ( const PGeometricDet::Item& onePGD, GeometricEnumTyp
   _pixROCy = onePGD._pixROCy;
   _stereo =  onePGD._stereo;
   _siliconAPVNum = onePGD._siliconAPVNum;
+
   _geographicalID = DetId(onePGD._geographicalID);
+  _ddd.push_back(onePGD._nt0);
+  _ddd.push_back(onePGD._nt1);
+  _ddd.push_back(onePGD._nt2);
+  _ddd.push_back(onePGD._nt3);
+  if ( onePGD._numnt > 4 ) {
+    _ddd.push_back(onePGD._nt4);
+    if ( onePGD._numnt > 5 ) {
+      _ddd.push_back(onePGD._nt5);
+      if ( onePGD._numnt > 6 ) {
+	_ddd.push_back(onePGD._nt6);
+	if ( onePGD._numnt > 7 ) {
+	  _ddd.push_back(onePGD._nt7);
+	  if ( onePGD._numnt > 8 ) {
+	    _ddd.push_back(onePGD._nt8);
+	    if ( onePGD._numnt > 9 ) {
+	      _ddd.push_back(onePGD._nt9);
+	      if ( onePGD._numnt > 10 ) {
+		_ddd.push_back(onePGD._nt10);
+	      }}}}}}
+  }
 
 }
 
