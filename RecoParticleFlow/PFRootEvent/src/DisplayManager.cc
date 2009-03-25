@@ -509,10 +509,14 @@ void DisplayManager::createGRecHit(reco::PFRecHit& rh,int ident, double maxe, do
     break;           
   case PFLayer::HCAL_ENDCAP:
     thresh = em_->clusterAlgoHCAL_.threshEndcap();
-    break;           
-  case PFLayer::HCAL_HF: 
+    break;                     
+  case PFLayer::HF_HAD: 
     // how to handle a different threshold for HF?
     thresh = em_->clusterAlgoHCAL_.threshEndcap();
+    break;           
+  case PFLayer::HF_EM: 
+    // how to handle a different threshold for HF?
+    thresh = em_->clusterAlgoECAL_.threshEndcap();
     break;           
   case PFLayer::PS1:
   case PFLayer::PS2:
@@ -534,7 +538,7 @@ void DisplayManager::createGRecHit(reco::PFRecHit& rh,int ident, double maxe, do
     bool isHCAL = (layer == PFLayer::HCAL_BARREL1 || 
                    layer == PFLayer::HCAL_BARREL2 || 
                    layer == PFLayer::HCAL_ENDCAP || 
-                   layer == PFLayer::HCAL_HF);
+                   layer == PFLayer::HF_HAD);
     
     if(  viewType == EPH && 
          ! isHCAL) {
@@ -600,7 +604,7 @@ void DisplayManager::createGRecHit(reco::PFRecHit& rh,int ident, double maxe, do
             ( viewType == XY &&  
               ( layer == PFLayer::ECAL_ENDCAP || 
                 layer == PFLayer::HCAL_ENDCAP || 
-                layer == PFLayer::HCAL_HF
+                layer == PFLayer::HF_HAD
                 ) ) ) ) {
       
       
@@ -1125,7 +1129,8 @@ double DisplayManager::getMaxE(int layer) const
   case PFLayer::HCAL_ENDCAP:
   case PFLayer::HCAL_BARREL1:
   case PFLayer::HCAL_BARREL2:
-  case PFLayer::HCAL_HF:
+  case PFLayer::HF_EM: 
+  case PFLayer::HF_HAD: 
     vec = &(em_->rechitsHCAL_);
     break;
   case PFLayer::PS1:
@@ -1151,7 +1156,9 @@ double DisplayManager::getMaxEEcal() {
   if( maxERecHitEcal_<0 ) {
     double maxeec = getMaxE( PFLayer::ECAL_ENDCAP );
     double maxeb =  getMaxE( PFLayer::ECAL_BARREL );
-    maxERecHitEcal_ = maxeec > maxeb ? maxeec:maxeb; 
+    double maxehf =  getMaxE( PFLayer::HF_EM );
+    maxERecHitHcal_ =  maxeec>maxeb  ?  maxeec:maxeb;
+    maxERecHitHcal_ = maxERecHitHcal_>maxehf ? maxERecHitHcal_:maxehf;
     // max of both barrel and endcap
   }
   return  maxERecHitEcal_;
@@ -1160,7 +1167,7 @@ double DisplayManager::getMaxEEcal() {
 double DisplayManager::getMaxEHcal() {
         
   if(maxERecHitHcal_ < 0) {
-    double maxehf = getMaxE( PFLayer::HCAL_HF );
+    double maxehf = getMaxE( PFLayer::HF_HAD );
     double maxeec = getMaxE( PFLayer::HCAL_ENDCAP );
     double maxeb =  getMaxE( PFLayer::HCAL_BARREL1 );
     maxERecHitHcal_ =  maxeec>maxeb  ?  maxeec:maxeb;
