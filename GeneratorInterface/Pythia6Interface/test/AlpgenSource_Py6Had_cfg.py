@@ -17,7 +17,7 @@ process.source = cms.Source("AlpgenSource",
 	fileNames = cms.untracked.vstring('file:w2j')
 )
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10)) # put here -1, if you want the whole
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1)) # put here -1, if you want the whole
 
 process.configurationMetadata = cms.untracked.PSet(
 	version = cms.untracked.string('alpha'),
@@ -32,7 +32,7 @@ process.MessageLogger.fwkJobReports = []
 
 process.generator = cms.EDFilter("Pythia6HadronizerFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(True),
-    maxEventsToPrint = cms.untracked.int32(2),
+    maxEventsToPrint = cms.untracked.int32(0),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     comEnergy = cms.double(10000.0), # this will be disregarded in case of processing ME partons
     PythiaParameters = cms.PSet(
@@ -40,7 +40,8 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
         processParameters = cms.vstring
 	(
 	   'MSEL=0         ! User defined processes', 
-	   'MSTJ(11)=3       ! Choice of fragmentation function'
+	   'MSTJ(1)=1      ! Fragmentation/hadronization on or off'
+	   'MSTJ(11)=3     ! Choice of fragmentation function'
 	),
         # This is a vector of ParameterSet names to be read, in this order
         parameterSets = cms.vstring
@@ -48,14 +49,23 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
 	   'pythiaUESettings', 
            'processParameters'
 	)
+    ),
+    jetMatching = cms.untracked.PSet(
+        scheme = cms.string("Alpgen"),
+        applyMatching = cms.bool(True),
+        exclusive = cms.bool(True),
+        etMin = cms.double(25.),
+        drMin = cms.double(0.7)
     )
+
 )
 
 ###process.load("Configuration.EventContent.EventContent_cff")
 
 process.USER = cms.OutputModule("PoolOutputModule",
    ###process.FEVTSIMEventContent,
-   fileName = cms.untracked.string('testAGPy6Had.root')
+   fileName = cms.untracked.string('testAGPy6Had.root'),
+   SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p'))
 )
 
 ###process.LHE.outputCommands.append("keep *_source_*_*")
