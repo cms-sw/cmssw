@@ -128,14 +128,10 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
       } else { cout << "Ht sum check leaf " << leaf << endl; testPass = false; }
       if (leafHtxSum == gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx).value()) {
 	hxMinusVl += leafHtxSum;
-      } else { cout << "Hx sum check leaf " << leaf 
-		    << " expected " << leafHtxSum
-		    << " found " << gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx) << endl; testPass = false; }
+      } else { cout << "Hx sum check leaf " << leaf << endl; testPass = false; }
       if (leafHtySum == gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx).value()) {
 	hyMinusVl += leafHtySum;
-      } else { cout << "Hy sum check leaf " << leaf 
-		    << " expected " << leafHtySum
-		    << " found " << gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx) << endl; testPass = false; }
+      } else { cout << "Hy sum check leaf " << leaf << endl; testPass = false; }
       if ((gct->getJetLeafCards().at(leaf)->getAllOutputHt().at(bx).overFlow() == leafHttOvf) &&
 	  (gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx).overFlow() == leafHtmOvf) &&
 	  (gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx).overFlow() == leafHtmOvf)) {
@@ -166,14 +162,10 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
       } else { cout << "Ht sum check leaf " << leaf << endl; testPass = false; }
       if (leafHtxSum == gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx).value()) {
 	hxPlusVal += leafHtxSum;
-      } else { cout << "Hx sum check leaf " << leaf 
-		    << " expected " << leafHtxSum
-		    << " found " << gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx) << endl; testPass = false; }
+      } else { cout << "Hx sum check leaf " << leaf << endl; testPass = false; }
       if (leafHtySum == gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx).value()) {
 	hyPlusVal += leafHtySum;
-      } else { cout << "Hy sum check leaf " << leaf 
-		    << " expected " << leafHtySum
-		    << " found " << gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx) << endl; testPass = false; }
+      } else { cout << "Hy sum check leaf " << leaf << endl; testPass = false; }
       if ((gct->getJetLeafCards().at(leaf)->getAllOutputHt().at(bx).overFlow() == leafHttOvf) &&
 	  (gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx).overFlow() == leafHtmOvf) &&
 	  (gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx).overFlow() == leafHtmOvf)) {
@@ -353,10 +345,10 @@ gctTestHt::rawJetData gctTestHt::rawJetFinderOutput(const L1GctJetFinderBase* jf
 
   // Check for overflow
   const int maxOutput=0x800;
-  if (sumHtx >= maxOutput) { sumHtx -= maxOutput*2; sumHtmOvrFlo = true; }
-  if (sumHtx < -maxOutput) { sumHtx += maxOutput*2; sumHtmOvrFlo = true; }
-  if (sumHty >= maxOutput) { sumHty -= maxOutput*2; sumHtmOvrFlo = true; }
-  if (sumHty < -maxOutput) { sumHty += maxOutput*2; sumHtmOvrFlo = true; }
+  while (sumHtx >= maxOutput) { sumHtx -= maxOutput*2; sumHtmOvrFlo = true; }
+  while (sumHtx < -maxOutput) { sumHtx += maxOutput*2; sumHtmOvrFlo = true; }
+  while (sumHty >= maxOutput) { sumHty -= maxOutput*2; sumHtmOvrFlo = true; }
+  while (sumHty < -maxOutput) { sumHty += maxOutput*2; sumHtmOvrFlo = true; }
 
   rawJetData result(jetList, sumHtt, sumHtx, sumHty, sumHttOvrFlo, sumHtmOvrFlo);
   return result;
