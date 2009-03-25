@@ -8,6 +8,5 @@ from DQMOffline.Configuration.DQMOffline_CRT_cff import *
 
 DQMOffline_Certification = cms.Sequence(dqmDaqInfo)
 
-#DQMOffline_Certification = cms.Sequence(daq_dqmoffline*dcs_dqmoffline*crt_dqmoffline)
-
+newDQMOffline_Certification = cms.Sequence(daq_dqmoffline*dcs_dqmoffline*crt_dqmoffline)
 
