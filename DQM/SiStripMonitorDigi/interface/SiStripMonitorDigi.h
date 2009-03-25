@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.16 2009/02/17 10:05:53 wilkenka Exp $
+// $Id: SiStripMonitorDigi.h,v 1.17 2009/02/20 21:28:52 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQM/SiStripCommon/interface/TkHistoMap.h"
 
 class DQMStore;
 
@@ -104,6 +105,8 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   edm::Handle< edm::DetSetVector<SiStripDigi> > digi_detsetvektor[4];
   std::vector<uint32_t> ModulesToBeExcluded_;
 
+  TkHistoMap* tkmapdigi;  
+
   int runNb, eventNb;
   int firstEvent;
 
@@ -115,7 +118,6 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   bool layerswitchstripoccupancyon;
   bool layerswitchnumdigisprofon;
   bool layerswitchdigiadcprofon;
-  bool layerswitchdigitkhistomapon;
 
   bool moduleswitchnumdigison;
   bool moduleswitchnumdigispstripon;
@@ -128,6 +130,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
 
   bool Mod_On_;
 
+  bool digitkhistomapon;
   bool createTrendMEs;
 };
 #endif

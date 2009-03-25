@@ -75,6 +75,8 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
         subdetswitchon = cms.bool(False)
     ),
 
+    TkHistoMapDigi = cms.bool(False),
+
     CreateTrendMEs = cms.bool(False),
     Trending = cms.PSet(
         Nbins = cms.int32(600),
@@ -116,5 +118,5 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
     # by default do not write out any file with histograms
     # can overwrite this in .cfg file with: replace SiStripMonitorDigi.OutputMEsInRootFile = true
     OutputMEsInRootFile = cms.bool(False),
-    OutputFileName = cms.string('/tmp/borrell/test_digi_sim.root'),
+    OutputFileName = cms.string('test_digi_sim.root'),
 )

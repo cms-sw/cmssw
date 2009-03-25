@@ -14,7 +14,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5000)
+    input = cms.untracked.int32(1000)
 )
 
 #-------------------------------------------------
@@ -54,11 +54,15 @@ process.DQMStore = cms.Service("DQMStore",
     verbose = cms.untracked.int32(0)
 )
 
+process.TkDetMap = cms.Service("TkDetMap")
+process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+
 #--------------------------
 # SiStrip MonitorDigi
 #--------------------------
 process.load("DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi")
 process.SiStripMonitorDigi.CreateTrendMEs = True
+process.SiStripMonitorDigi.TkHistoMapDigi = True
 process.SiStripMonitorDigi.OutputMEsInRootFile = True
 process.SiStripMonitorDigi.TProfTotalNumberOfDigis.subdetswitchon = True
 process.SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True

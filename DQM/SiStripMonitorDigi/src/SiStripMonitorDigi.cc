@@ -73,6 +73,8 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
   edm::ParameterSet ParametersDigiApvProf = conf_.getParameter<edm::ParameterSet>("TProfDigiApvCycle");
   subdetswitchapvcycleprofon = ParametersDigiApvProf.getParameter<bool>("subdetswitchon");
   
+  digitkhistomapon = conf_.getParameter<bool>("TkHistoMapDigi"); 
+  
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
   Mod_On_ = conf_.getParameter<bool>("Mod_On");
 
@@ -132,6 +134,9 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
     
     // create SiStripFolderOrganizer
     SiStripFolderOrganizer folder_organizer;
+
+    // Create TkHistoMap for Digi
+    if (digitkhistomapon) tkmapdigi = new TkHistoMap("SiStrip/TkHistoMap","Digi",0.);
     
     std::vector<uint32_t> tibDetIds;
     // loop over detectors and book MEs
@@ -181,12 +186,13 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
 
         SiStripHistoId hidmanager;
 	std::string label = hidmanager.getSubdetid(detid, false);
-        if (label.size() > 0) {
-          LayerDetMap[label] = layerDetIds;
-          // book Layer plots      
-          folder_organizer.setLayerFolder(detid,det_layer_pair.second); 
-          createLayerMEs(label, layerDetIds.size());
-        }
+        LayerDetMap[label] = layerDetIds;
+
+        // book Layer plots      
+	folder_organizer.setLayerFolder(detid,det_layer_pair.second); 
+
+	createLayerMEs(label, layerDetIds.size());
+
       }    
     
     }//end of loop over detectors
@@ -264,6 +270,8 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       if (layerswitchnumdigisprofon) 
 	local_layermes.LayerNumberOfDigisProfile->Fill(iDet*1.0,ndigi_det);
 
+      if (digitkhistomapon) tkmapdigi->fill(detid,ndigi_det);
+
       if (ndigi_det == 0) continue; // no digis for this detid => jump to next step of loop
      
       ndigi_layer += ndigi_det;	
@@ -271,7 +279,12 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       int largest_adc=(digi_detset.data.begin())->adc();
       int smallest_adc=(digi_detset.data.begin())->adc();
       
+
+      // Check if these parameters are really needed
+      SiStripHistoId hidmanager;
+      std::string label = hidmanager.getSubdetid(detid, false);
       float det_occupancy = 0.0;
+      
       for(edm::DetSet<SiStripDigi>::const_iterator digiIter = digi_detset.data.begin(); 
 	  digiIter!= digi_detset.data.end(); digiIter++ ){
 	
