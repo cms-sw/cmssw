@@ -420,9 +420,11 @@ void HcalEEUSMonitor::unpack(const FEDRawData& raw,
       else {
 	consecutiveEETriggers[dccid-700][spigot] = 0;
 	consecutiveNETriggers[dccid-700][spigot] = 1;}}
-//    printf("%5d, %7.2d, %d, %8d, %22d, %22d, %20d, %3d, %10d\n",dccid,spigot,dccOrN,prevOrN,\
-//	   consecutiveEETriggers[dccid-700][spigot],consecutiveNETriggers[dccid-700][spigot],\
-//	   consecutiveTriggers[dccid-700][spigot],EE,prevWasEE[dccid-700][spigot]);
+    /*
+      printf("%5d, %7.2d, %d, %8d, %22d, %22d, %20d, %3d, %10d\n",dccid,spigot,dccOrN,prevOrN,\
+      consecutiveEETriggers[dccid-700][spigot],consecutiveNETriggers[dccid-700][spigot],\
+      consecutiveTriggers[dccid-700][spigot],EE,prevWasEE[dccid-700][spigot]);
+    */
     if (EE) prevWasEE[dccid-700][spigot] = 1;
     else    prevWasEE[dccid-700][spigot] = 0;
 
