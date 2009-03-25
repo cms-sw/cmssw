@@ -10,14 +10,14 @@ import string
 ######### User variables
 
 #Reference release
-NewRelease='CMSSW_3_1_0_pre3'
+NewRelease='CMSSW_3_1_0_pre4'
 
 # startup and ideal sample list
 #startupsamples= ['RelValTTbar', 'RelValZMM']
-startupsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
+startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
 #startupsamples= ['']
 
-idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
+idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
 #idealsamples= ['RelValTTbar']
 
 
@@ -61,6 +61,7 @@ StartupReferenceSelection='STARTUP_30X_noPU'
 NewSelectionLabel=''
 
 WorkDirBase = '/tmp/'
+#WorkDirBase = '/tmp/aperrott'
 #WorkDirBase = '/afs/cern.ch/user/a/aeverett/scratch0'
 
 #Reference and new repository
@@ -215,7 +216,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     lancialines+='eval `scramv1 run -sh` \n\n'
                     lancialines+='cd '+WorkDir+'\n'
                     lancialines+='cmsRun '+cfgFileName+'.py  >&  ' + cfgFileName + '.log < /dev/zero \n'
-                    lancialines+='mv  DQM_V0001_R000000001__' + GlobalTagUse+ '__' + sample + '__Validation.root' + ' ' + 'val.' +sample+'.root'
+                    lancialines+='mv  DQM_V0001_R000000001__' + GlobalTagUse+ '__' + sample + '__Validation.root' + ' ' + 'val.' +sample+'.root \n'
                     
                     lanciaName=('lancia_%s_%s_%d') % (GlobalTag,sample,thisFile)
                     lanciaFile = open(lanciaName,'w')
