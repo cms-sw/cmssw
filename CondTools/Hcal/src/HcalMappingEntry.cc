@@ -173,7 +173,8 @@ char* HOHXLogicalMapEntry::printLMapLine() {
   int myphi     = -1;
   if ( hcalgenid.isHcalCalibDetId() ) {
     HcalCalibDetId hcalcompid(hcalDetID_);
-    mydet   = "HX";
+    //mydet   = "HX";
+    mydet   = "HOX";
     mydepth = 4;
     myside  = hcalcompid.zside();
     myeta   = hcalcompid.ieta()*myside;

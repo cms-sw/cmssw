@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.41 2009/02/26 09:07:26 argiro Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.42 2009/03/24 16:11:33 rofierzy Exp $
 //
 #include <vector>
 #include <string>
@@ -436,7 +436,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalL1TriggerObject
     const HcalL1TriggerObject* item = fObject.getValues (*channel);
     if (item) {
       dumpId (fOutput, *channel);
-      sprintf (buffer, " %8.5f %8.5f %12d %10X\n",
+      sprintf (buffer, " %10.7f %10.7f %12d %10X\n",
 	       item->getPedestal(), item->getRespGain(), item->getFlag(), channel->rawId ());
       fOutput << buffer;
     }
@@ -799,7 +799,9 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap& fObject) {
   std::vector<HcalElectronicsId> eids = fObject.allElectronicsId ();
   char buf [1024];
-  sprintf (buf, "#%10s %6s %6s %6s %6s %6s %6s %6s %15s %15s %15s %15s",
+  // changes by Jared, 6.03.09/(included 25.03.09)
+  //  sprintf (buf, "#%10s %6s %6s %6s %6s %6s %6s %6s %15s %15s %15s %15s",
+  sprintf (buf, "# %7s %3s %3s %3s %4s %7s %10s %14s %7s %5s %5s %6s",
 	   "i", "cr", "sl", "tb", "dcc", "spigot", "fiber/slb", "fibcha/slbcha", "subdet", "ieta", "iphi", "depth");
   fOutput << buf << std::endl;
 
@@ -809,10 +811,14 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap&
       DetId trigger = fObject.lookupTrigger (eid);
       if (trigger.rawId ()) {
 	HcalText2DetIdConverter converter (trigger);
-	sprintf (buf, " %10X %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
+	// changes by Jared, 6.03.09/(included 25.03.09)
+	//	sprintf (buf, " %10X %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
+	sprintf (buf, " %7X %3d %3d %3c %4d %7d %10d %14d %7s %5s %5s %6s",
 		 //		 i,
 		 converter.getId().rawId(),
-		 eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
+		 // changes by Jared, 6.03.09/(included 25.03.09)
+		 //		 eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
+		 eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.slbSiteNumber(), eid.slbChannelIndex(),
 		 converter.getFlavor ().c_str (), converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str ()
 		 );
 	fOutput << buf << std::endl;
@@ -821,7 +827,9 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap&
       DetId channel = fObject.lookup (eid);
       if (channel.rawId()) {
 	HcalText2DetIdConverter converter (channel);
-	sprintf (buf, " %10X %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
+	// changes by Jared, 6.03.09/(included 25.03.09)
+	//	sprintf (buf, " %10X %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
+	sprintf (buf, " %7X %3d %3d %3c %4d %7d %10d %14d %7s %5s %5s %6s",
 		 //		 i,
 		 converter.getId().rawId(),
 		 eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),

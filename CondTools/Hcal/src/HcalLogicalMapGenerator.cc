@@ -755,12 +755,19 @@ void HcalLogicalMapGenerator::buildHOXMap(std::vector <HOHXLogicalMapEntry>& HOH
   }
   
   std::string rmspecialdet_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
-    { "HX", "HO", "HO", "HO", "HO", "HO" }, // ring +2 phi = 5
-    { "HX", "HO", "HO", "HO", "HO", "HO" }, // ring +2 phi = 67
+    { "HOX", "HO", "HO", "HO", "HO", "HO" }, // ring +2 phi = 5
+    { "HOX", "HO", "HO", "HO", "HO", "HO" }, // ring +2 phi = 67
     { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 57
     { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 65
-    { "HX", "HO", "HO", "HO", "HO", "HO" },  // ring -2 phi = 16
-    { "HX", "HO", "HO", "HO", "HO", "HO" }  // ring -2 phi = 31
+    { "HOX", "HO", "HO", "HO", "HO", "HO" },  // ring -2 phi = 16
+    { "HOX", "HO", "HO", "HO", "HO", "HO" }  // ring -2 phi = 31
+
+//    { "HX", "HO", "HO", "HO", "HO", "HO" }, // ring +2 phi = 5
+//    { "HX", "HO", "HO", "HO", "HO", "HO" }, // ring +2 phi = 67
+//    { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 57
+//    { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 65
+//    { "HX", "HO", "HO", "HO", "HO", "HO" },  // ring -2 phi = 16
+//    { "HX", "HO", "HO", "HO", "HO", "HO" }  // ring -2 phi = 31
   };
   for (int jj = 0; jj < 6; jj++) {
     for (int kk = 0; kk < 6; kk++) {
@@ -968,7 +975,8 @@ void HcalLogicalMapGenerator::buildHOXMap(std::vector <HOHXLogicalMapEntry>& HOH
         mystream<<tempbuff;
         rbx = mystream.str();
         mystream.str("");
-        if (ieta == 16) det = "HX";
+        //if (ieta == 16) det = "HX";
+        if (ieta == 16) det = "HOX";
         else det = "HO";
         
         //  the new htr_fi stuff for HX
@@ -1045,7 +1053,8 @@ void HcalLogicalMapGenerator::buildHOXMap(std::vector <HOHXLogicalMapEntry>& HOH
             iadc = 4;
             ifi_ch = 0;
             letter = "X";
-            det = "HX";
+            //det = "HX";
+            det = "HOX";
             HOHXLogicalMapEntry hoxlmapentry(
 					     ifi_ch, ihtr_fi, ispigot, ifed, icrate, ihtr, fpga,
 					     det, iside, ieta, iphi, idepth,
@@ -1066,7 +1075,8 @@ void HcalLogicalMapGenerator::buildHOXMap(std::vector <HOHXLogicalMapEntry>& HOH
             iadc = 1;
             ifi_ch = 1;
             letter = "X";
-            det = "HX";
+            //det = "HX";
+            det = "HOX";
             HOHXLogicalMapEntry hoxlmapentry(
 					     ifi_ch, ihtr_fi, ispigot, ifed, icrate, ihtr, fpga,
 					     det, iside, ieta, iphi, idepth,
