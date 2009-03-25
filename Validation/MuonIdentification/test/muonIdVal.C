@@ -99,12 +99,11 @@ void muonIdVal(char* filename1, char* filename2 = 0, bool make2DPlots = true, bo
             obj2 = d2->Get(obj1->GetName());
          // For backwards compatibility with old dqm files where histograms may be
          // stored in different directories, try FindObjectAny before giving up
-         // However, only do this for the TH2s because they are the only things
-         // that were moved around, and otherwise I might mistakenly draw tracker
-         // muon distributions on top of global muon distributions
-         if (! obj2)
-            if (obj1->InheritsFrom(TH2::Class()))
-               obj2 = f2->FindObjectAny(obj1->GetName());
+         // However, only do this for histograms located in the "base" directory
+         // of the first file, which is the only place to which I have been relocating
+         // histograms
+         if (! obj2 && i == 0)
+            obj2 = f2->FindObjectAny(obj1->GetName());
 
          if (obj1->InheritsFrom(TH1::Class()) || (obj1->InheritsFrom(TH2::Class()) && make2DPlots)) {
             // If there are two TH1Fs better normalize them
