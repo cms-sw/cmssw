@@ -66,10 +66,17 @@ void PFSuperClusterReader::analyze(const edm::Event & iEvent,const edm::EventSet
   for(unsigned igsf=0;igsf<ngsf;++igsf)
     {
       reco::GsfTrackRef theTrackRef(gsfTracksH, igsf);
-      if(mySCValueMap[theTrackRef].isNull()) continue;
+      if(mySCValueMap[theTrackRef].isNull()) 
+	{
+	  continue;
+	}
       const reco::SuperCluster & mySuperCluster(*(mySCValueMap[theTrackRef]));
       float mva=myMVAValueMap[theTrackRef];
       std::cout << " Super Cluster energy " << mySuperCluster.energy() << std::endl;
+      if(mySuperCluster.seed().isNull())
+	{
+	  continue;
+	}
       std::cout << " Super Cluster seed energy " << mySuperCluster.seed()->energy() << std::endl;
       std::cout << " Preshower contribution " << mySuperCluster.preshowerEnergy() << std::endl;
       std::cout << " MVA value " << mva << std::endl;
