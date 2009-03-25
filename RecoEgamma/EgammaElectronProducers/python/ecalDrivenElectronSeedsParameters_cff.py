@@ -12,7 +12,9 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     # SC filtering
     SCEtCut = cms.double(4.0),
     hcalRecHits = cms.InputTag("hbhereco"),
-    maxHOverE = cms.double(0.1),
+    # H/E cut moved back to electron preselection
+    #maxHOverE = cms.double(0.1),
+    maxHOverE = cms.double(10000.),
     
     # r/z windows
     z2MinB = cms.double(-0.09),

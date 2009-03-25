@@ -15,10 +15,13 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     
     # steering
+    applyPreselection = cms.bool(True),
     applyEtaCorrection = cms.bool(False),
     applyAmbResolution = cms.bool(True),
     
     # preselection parameters
+    minSCEtBarrel = cms.double(4.0),
+    minSCEtEndcaps = cms.double(4.0),
     minEOverPBarrel = cms.double(0.0),
     maxEOverPBarrel = cms.double(10000.0),
     minEOverPEndcaps = cms.double(0.0),
@@ -39,6 +42,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     isBarrel = cms.bool(False),
     isEndcaps = cms.bool(False),
     isFiducial = cms.bool(False),
+    seedFromTEC = cms.bool(True),
     
     # nested parameter set for TransientInitialStateEstimator
     TransientInitialStateEstimatorParameters = cms.PSet(

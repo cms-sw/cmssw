@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronProducer.cc,v 1.12 2009/03/06 12:42:10 chamont Exp $
+// $Id: GsfElectronProducer.cc,v 1.13 2009/03/20 22:59:18 chamont Exp $
 //
 //
 
@@ -44,6 +44,8 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& iConfig)
   //create algo
   algo_ = new
     GsfElectronAlgo(iConfig,
+		    iConfig.getParameter<double>("minSCEtBarrel"),
+		    iConfig.getParameter<double>("minSCEtEndcaps"),
 		    iConfig.getParameter<double>("maxEOverPBarrel"),
 		    iConfig.getParameter<double>("maxEOverPEndcaps"),
 		    iConfig.getParameter<double>("minEOverPBarrel"),
@@ -64,6 +66,8 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& iConfig)
 		    iConfig.getParameter<bool>("isBarrel"),
 		    iConfig.getParameter<bool>("isEndcaps"),
 		    iConfig.getParameter<bool>("isFiducial"),
+		    iConfig.getParameter<bool>("seedFromTEC"),
+		    iConfig.getParameter<bool>("applyPreselection"),
 		    iConfig.getParameter<bool>("applyEtaCorrection"),
 		    iConfig.getParameter<bool>("applyAmbResolution")
 		    );
