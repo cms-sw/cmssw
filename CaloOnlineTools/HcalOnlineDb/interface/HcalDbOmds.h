@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbOmds.h
-// $Id: HcalDbOmds.h,v 1.2 2009/03/14 15:52:06 kukartse Exp $
+// $Id: HcalDbOmds.h,v 1.3 2009/03/16 01:43:24 kukartse Exp $
 //
 //
 #ifndef HcalDbOmds_h
@@ -24,7 +24,7 @@ using namespace oracle::occi;
    \class HcalDbOmds
    \brief IO for OMDS instances of Hcal Calibrations
    \author Gena Kukartsev March 11, 2009
-   $Id: HcalDbOmds.h,v 1.2 2009/03/14 15:52:06 kukartse Exp $
+   $Id: HcalDbOmds.h,v 1.3 2009/03/16 01:43:24 kukartse Exp $
    
 Text file formats for different data types is as following:
 - # in first column comments the line
@@ -46,30 +46,82 @@ Text file formats for different data types is as following:
   if electronics channel is known to be unconnected, either "subdet" or "eta" should be NA
 */
 namespace HcalDbOmds {
-  bool getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalPedestals* fObject);
+  bool getObject (oracle::occi::Connection * connection, 
+		  const std::string & fTag, 
+		  const std::string & fVersion,
+		  const int fSubversion,
+		  const std::string & fQuery,
+		  HcalPedestals* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalPedestals& fObject);
-  bool getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalPedestalWidths* fObject);
+  bool getObject (oracle::occi::Connection * connection, 
+		  const std::string & fTag, 
+		  const std::string & fVersion,
+		  const int fSubversion,
+		  const std::string & fQuery,
+		  HcalPedestalWidths* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalPedestalWidths& fObject);
-  bool getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalGains* fObject);
+  bool getObject (oracle::occi::Connection * connection, 
+		  const std::string & fTag, 
+		  const std::string & fVersion,
+		  const int fSubversion,
+		  const std::string & fQuery,
+		  HcalGains* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalGains& fObject);
-  bool getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalGainWidths* fObject);
+  bool getObject (oracle::occi::Connection * connection, 
+		  const std::string & fTag, 
+		  const std::string & fVersion,
+		  const int fSubversion,
+		  const std::string & fQuery,
+		  HcalGainWidths* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalGainWidths& fObject);
-  bool getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalQIEData* fObject);
+  bool getObject (oracle::occi::Connection * connection, 
+		  const std::string & fTag, 
+		  const std::string & fVersion,
+		  const int fSubversion,
+		  const std::string & fQuery,
+		  HcalQIEData* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalQIEData& fObject);
-  bool getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalCalibrationQIEData* fObject);
+  bool getObject (oracle::occi::Connection * connection, 
+		  const std::string & fTag, 
+		  const std::string & fVersion,
+		  const int fSubversion,
+		  const std::string & fQuery,
+		  HcalCalibrationQIEData* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalCalibrationQIEData& fObject);
-  bool getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalElectronicsMap* fObject);
+  bool getObject (oracle::occi::Connection * connection, 
+		  const std::string & fTag, 
+		  const std::string & fVersion,
+		  const int fSubversion,
+		  const std::string & fQuery,
+		  HcalElectronicsMap* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalElectronicsMap& fObject);
-
-  bool getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalChannelQuality* fObject);
+  bool getObject (oracle::occi::Connection * connection, 
+		  const std::string & fTag, 
+		  const std::string & fVersion,
+		  const int fSubversion,
+		  const std::string & fQuery,
+		  HcalChannelQuality* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalChannelQuality& fObject);
-  bool getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalRespCorrs* fObject);
+  bool getObject (oracle::occi::Connection * connection, 
+		  const std::string & fTag, 
+		  const std::string & fVersion,
+		  const int fSubversion,
+		  const std::string & fQuery,
+		  HcalRespCorrs* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalRespCorrs& fObject);
-
-  bool getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalZSThresholds* fObject);
+  bool getObject (oracle::occi::Connection * connection, 
+		  const std::string & fTag, 
+		  const std::string & fVersion,
+		  const int fSubversion,
+		  const std::string & fQuery,
+		  HcalZSThresholds* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject);
-
-  bool getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalL1TriggerObjects* fObject);
+  bool getObject (oracle::occi::Connection * connection, 
+		  const std::string & fTag, 
+		  const std::string & fVersion,
+		  const int fSubversion,
+		  const std::string & fQuery,
+		  HcalL1TriggerObjects* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalL1TriggerObjects& fObject);
 
   HcalSubdetector get_subdetector( std::string _det );

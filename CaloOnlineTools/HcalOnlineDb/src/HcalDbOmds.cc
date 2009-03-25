@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbASCIIIO.cc,v 1.41
-// $Id: HcalDbOmds.cc,v 1.4 2009/03/16 01:43:24 kukartse Exp $
+// $Id: HcalDbOmds.cc,v 1.5 2009/03/24 14:33:28 kukartse Exp $
 //
 //
 #include <vector>
@@ -18,77 +18,120 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
 
 
-bool HcalDbOmds::getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalPedestals* fObject) {
+bool HcalDbOmds::getObject (oracle::occi::Connection * connection, 
+			    const std::string & fTag, 
+			    const std::string & fVersion,
+			    const int fSubversion,
+			    const std::string & fQuery,
+			    HcalPedestals* fObject) {
   std::cerr << "NOT IMPLEMENTED!" << std::endl;
   return false;
 }
 
 
-bool HcalDbOmds::getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalPedestalWidths* fObject) {
+bool HcalDbOmds::getObject (oracle::occi::Connection * connection, 
+			    const std::string & fTag, 
+			    const std::string & fVersion,
+			    const int fSubversion,
+			    const std::string & fQuery,
+			    HcalPedestalWidths* fObject) {
   std::cerr << "NOT IMPLEMENTED!" << std::endl;
   return false;
 }
 
 
-bool HcalDbOmds::getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalGains* fObject) {
+bool HcalDbOmds::getObject (oracle::occi::Connection * connection, 
+			    const std::string & fTag, 
+			    const std::string & fVersion,
+			    const int fSubversion,
+			    const std::string & fQuery,
+			    HcalGains* fObject) {
   std::cerr << "NOT IMPLEMENTED!" << std::endl;
   return false;
 }
 
 
-bool HcalDbOmds::getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalGainWidths* fObject) {
+bool HcalDbOmds::getObject (oracle::occi::Connection * connection, 
+			    const std::string & fTag, 
+			    const std::string & fVersion,
+			    const int fSubversion,
+			    const std::string & fQuery,
+			    HcalGainWidths* fObject) {
   std::cerr << "NOT IMPLEMENTED!" << std::endl;
   return false;
 }
 
 
-bool HcalDbOmds::getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalQIEData* fObject) {
+bool HcalDbOmds::getObject (oracle::occi::Connection * connection, 
+			    const std::string & fTag, 
+			    const std::string & fVersion,
+			    const int fSubversion,
+			    const std::string & fQuery,
+			    HcalQIEData* fObject) {
   std::cerr << "NOT IMPLEMENTED!" << std::endl;
   return false;
 }
 
 
-bool HcalDbOmds::getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalCalibrationQIEData* fObject) {
+bool HcalDbOmds::getObject (oracle::occi::Connection * connection, 
+			    const std::string & fTag, 
+			    const std::string & fVersion,
+			    const int fSubversion,
+			    const std::string & fQuery,
+			    HcalCalibrationQIEData* fObject) {
   std::cerr << "NOT IMPLEMENTED!" << std::endl;
   return false;
 }
 
 
-bool HcalDbOmds::getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalElectronicsMap* fObject) {
+bool HcalDbOmds::getObject (oracle::occi::Connection * connection, 
+			    const std::string & fTag, 
+			    const std::string & fVersion,
+			    const int fSubversion,
+			    const std::string & fQuery,
+			    HcalElectronicsMap* fObject) {
   std::cerr << "NOT IMPLEMENTED!" << std::endl;
   return false;
 }
 
 
-bool HcalDbOmds::getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalChannelQuality* fObject) {
+bool HcalDbOmds::getObject (oracle::occi::Connection * connection, 
+			    const std::string & fTag, 
+			    const std::string & fVersion,
+			    const int fSubversion,
+			    const std::string & fQuery,
+			    HcalChannelQuality* fObject) {
   std::cerr << "NOT IMPLEMENTED!" << std::endl;
   return false;
 }
 
 
-bool HcalDbOmds::getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalRespCorrs* fObject) {
+bool HcalDbOmds::getObject (oracle::occi::Connection * connection, 
+			    const std::string & fTag, 
+			    const std::string & fVersion,
+			    const int fSubversion,
+			    const std::string & fQuery,
+			    HcalRespCorrs* fObject) {
   std::cerr << "NOT IMPLEMENTED!" << std::endl;
   return false;
 }
 
 // Oracle database connection ownership is transferred here, DO terminate after use
-bool HcalDbOmds::getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalZSThresholds* fObject) {
+bool HcalDbOmds::getObject (oracle::occi::Connection * connection, 
+			    const std::string & fTag, 
+			    const std::string & fVersion,
+			    const int fSubversion,
+			    const std::string & fQuery,
+			    HcalZSThresholds* fObject) {
   bool result=true;
   if (!fObject) fObject = new HcalZSThresholds;
   try {
-    Statement * stmt = connection->createStatement();
+    oracle::occi::Statement* stmt = connection->createStatement(fQuery);
+    stmt->setString(1,fTag);
+    stmt->setString(2,fVersion);
+    //stmt->setInt(3,fSubversion);
 
-    std::string query = " SELECT zero_suppression,z*eta as ieta,phi,depth,detector_name as subdetector ";
-    query            += " FROM CMS_HCL_HCAL_CONDITION_OWNER.V_HCAL_ZERO_SUPPRESSION ";
-    //query            += " FROM CMS_HCL_HCAL_COND.V_HCAL_ZERO_SUPPRESSION ";
-    query            += " WHERE TAG_NAME='GREN_ZS_9adc_v2'";
-
-    // FIXME: use bind variables!!!!!! Like this:
-    //query += " WHERE TRIGGER_KEY_ID=:1";
-    //oracle::occi::Statement* stmt = conn.getStatement(query);
-    //stmt->setString(1,key);
-
-    ResultSet *rs = stmt->executeQuery(query.c_str());
+    ResultSet *rs = stmt->executeQuery();
 
     RooGKCounter _row(1,100);
     _row.setMessage("HCAL channels processed: ");
@@ -112,23 +155,16 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection, const std::st
   } catch (SQLException& e) {
     throw cms::Exception("ReadError") << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << std::endl;
   }
-
-
-  /*
-  oracle::occi::ResultSet * rs=0;
-  if (!fObject) fObject = new HcalZSThresholds;
-  HcalDetId id(HcalBarrel,15,49,1);
-  int zs=9;
-  HcalZSThreshold * fCondObject = new HcalZSThreshold(id, zs);
-  fObject->addValues(*fCondObject);
-  delete fCondObject;
-  */  
-
   return result;
 }
 
 
-bool HcalDbOmds::getObject (oracle::occi::Connection * connection, const std::string & fTag, HcalL1TriggerObjects* fObject) {
+bool HcalDbOmds::getObject (oracle::occi::Connection * connection, 
+			    const std::string & fTag, 
+			    const std::string & fVersion,
+			    const int fSubversion,
+			    const std::string & fQuery,
+			    HcalL1TriggerObjects* fObject) {
   std::cerr << "NOT IMPLEMENTED!" << std::endl;
   return false;
 }

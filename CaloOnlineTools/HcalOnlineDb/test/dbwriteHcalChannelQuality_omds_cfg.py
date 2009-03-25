@@ -43,6 +43,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     timetype = cms.untracked.string('runnumber'),
     logconnect= cms.untracked.string('sqlite_file:log.db'),
     toPut = cms.VPSet(cms.PSet(
+        #record = cms.string('HcalChannelQualityRcd'),
+        #tag = cms.string('hcal_channelStatus_trivial_mc')
         record = cms.string('HcalZSThresholdsRcd'),
         tag = cms.string('hcal_zs_thresholds_trivial_mc')
          ))
@@ -50,6 +52,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
 #process.mytest = cms.EDAnalyzer("HcalChannelQualityPopConAnalyzer",
 process.mytest = cms.EDAnalyzer("HcalZSThresholdsPopConAnalyzer",
+    #record = cms.string('HcalChannelQualityRcd'),
     record = cms.string('HcalZSThresholdsRcd'),
     loggingOn= cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),

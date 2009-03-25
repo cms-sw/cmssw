@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalOmdsCalibrations
-// $Id: HcalOmdsCalibrations.cc,v 1.2 2009/03/14 15:52:06 kukartse Exp $
+// $Id: HcalOmdsCalibrations.cc,v 1.3 2009/03/24 14:33:28 kukartse Exp $
 //
 //
 
@@ -119,11 +119,17 @@ HcalOmdsCalibrations::setIntervalFor( const edm::eventsetup::EventSetupRecordKey
 }
 
 // FIXME: put this into the HcalDbOmds namespace
-const static std::string omds_occi_default_accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22";
-//const static std::string omds_occi_default_accessor = "occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44,LHWM_VERSION=22";
+//const static std::string omds_occi_default_accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22";
+const static std::string omds_occi_default_accessor = "occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44,LHWM_VERSION=22";
+const static std::string default_version = "";
+const static std::string default_query = "";
 
 template <class T>
-std::auto_ptr<T> produce_impl (const std::string & fTag, const std::string& fAccessor = omds_occi_default_accessor) {
+std::auto_ptr<T> produce_impl (const std::string & fTag, 
+			       const std::string & fVersion=default_version, 
+			       const int fSubversion=1, 
+			       const std::string & fQuery = default_query, 
+			       const std::string& fAccessor = omds_occi_default_accessor ) {
   std::auto_ptr<T> result (new T ());
 
   HCALConfigDB * db = new HCALConfigDB();
@@ -134,7 +140,7 @@ std::auto_ptr<T> produce_impl (const std::string & fTag, const std::string& fAcc
   }
   oracle::occi::Connection * _connection = db -> getConnection();
   if (_connection){
-    if (!HcalDbOmds::getObject (_connection, fTag, &*result)) {
+    if (!HcalDbOmds::getObject (_connection, fTag, fVersion, fSubversion, fQuery, &*result)) {
       std::cerr << "HcalOmdsCalibrations-> Can not read tag name '" << fTag << "' from database '" << fAccessor << "'" << std::endl;
       throw cms::Exception("ReadError") << "Can not read tag name '" << fTag << "' from database '" << fAccessor << "'" << std::endl;
     }
@@ -172,7 +178,7 @@ std::auto_ptr<HcalChannelQuality> HcalOmdsCalibrations::produceChannelQuality (c
 }
 
 std::auto_ptr<HcalZSThresholds> HcalOmdsCalibrations::produceZSThresholds (const HcalZSThresholdsRcd& rcd) {
-  return produce_impl<HcalZSThresholds> (mInputs ["ZSThresholds"]);
+  return produce_impl<HcalZSThresholds> (mInputs ["ZSThresholds"], mVersion["ZSThresholds"], mSubversion["ZSThresholds"], mQuery["ZSThresholds"], mAccessor["ZSThresholds"]);
 }
 
 std::auto_ptr<HcalRespCorrs> HcalOmdsCalibrations::produceRespCorrs (const HcalRespCorrsRcd& rcd) {
