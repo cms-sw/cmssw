@@ -12,7 +12,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/03/23 10:50:30 $ 
+ **  $Date: 2009/03/24 19:10:48 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -796,8 +796,8 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	    else if(fabs(conversions[iConv]->caloCluster()[0]->eta()) < 1){
 	      fill2DHistoVector(h_convVtxR_,sqrt( conversions[iConv]->conversionVertex().position().perp2() ),cut,type);
 
-	      fill2DHistoVector(h_convVtxYvsX_,fabs( conversions[iConv]->conversionVertex().position().x() ),  
-				fabs( conversions[iConv]->conversionVertex().position().y() ),cut,type);
+	      fill2DHistoVector(h_convVtxYvsX_,conversions[iConv]->conversionVertex().position().x(),  
+				conversions[iConv]->conversionVertex().position().y(),cut,type);
 	    }
 
 	  }
