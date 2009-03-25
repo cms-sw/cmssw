@@ -35,7 +35,6 @@ class  PFRecoTauAlgorithm  {
   bool checkPos(std::vector<math::XYZPoint>,math::XYZPoint) const;
 
   double   LeadPFCand_minPt_;
-  double   ChargedHadrCand_minPt_;
   double   LeadTrack_minPt_;
   bool     UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_;
   double   ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_;
