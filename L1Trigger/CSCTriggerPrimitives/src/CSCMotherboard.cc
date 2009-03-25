@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2008/10/09 11:12:02 $
-//   $Revision: 1.18 $
+//   $Date: 2009/03/16 17:51:14 $
+//   $Revision: 1.19 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -41,13 +41,26 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 
+// Default values of configuration parameters.
+const unsigned int CSCMotherboard::def_mpc_block_me1a = 1;
+
 CSCMotherboard::CSCMotherboard() :
                    theEndcap(1), theStation(1), theSector(1),
                    theSubsector(1), theTrigChamber(1) {
   // Constructor used only for testing.  -JM
+  static bool config_dumped = false;
+
   alct = new CSCAnodeLCTProcessor();
   clct = new CSCCathodeLCTProcessor();
+  mpc_block_me1a = def_mpc_block_me1a;
   infoV = 2;
+
+  // Check and print configuration parameters.
+  checkConfigParameters();
+  if (infoV > 0 && !config_dumped) {
+    dumpConfigParams();
+    config_dumped = true;
+  }
 }
 
 CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
@@ -58,6 +71,7 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
                    theSubsector(subsector), theTrigChamber(chamber) {
   // Normal constructor.  -JM
   // Pass ALCT, CLCT, and common parameters on to ALCT and CLCT processors.
+  static bool config_dumped = false;
 
   // Some congiguration parameters and some details of the emulator
   // algorithms depend on whether we want to emulate the trigger logic
@@ -89,7 +103,15 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   // Motherboard parameters: common for all configurations.
   edm::ParameterSet tmbParams  =
     conf.getParameter<edm::ParameterSet>("tmbParam");
-  infoV = tmbParams.getUntrackedParameter<int>("verbosity", 0);
+  mpc_block_me1a = tmbParams.getParameter<unsigned int>("mpcBlockMe1a");
+  infoV          = tmbParams.getUntrackedParameter<int>("verbosity", 0);
+
+  // Check and print configuration parameters.
+  checkConfigParameters();
+  if (infoV > 0 && !config_dumped) {
+    dumpConfigParams();
+    config_dumped = true;
+  }
 
   // test to make sure that what goes into a correlated LCT is also what
   // comes back out.
@@ -113,6 +135,23 @@ void CSCMotherboard::setConfigParameters(const CSCL1TPParameters* conf) {
   alct->setConfigParameters(conf);
   clct->setConfigParameters(conf);
   // No config. parameters for the TMB itself yet.
+}
+
+void CSCMotherboard::checkConfigParameters() {
+  // Make sure that the parameter values are within the allowed range.
+
+  // Max expected values.
+  static const unsigned int max_mpc_block_me1a = 1 << 1;
+
+  // Checks.
+  if (mpc_block_me1a >= max_mpc_block_me1a) {
+    if (infoV > 0) edm::LogError("CSCMotherboard")
+      << "+++ Value of mpc_block_me1a, " << mpc_block_me1a
+      << ", exceeds max allowed, " << max_mpc_block_me1a-1 << " +++\n"
+      << "+++ Try to proceed with the default value, mpc_block_me1a="
+      << def_mpc_block_me1a << " +++\n";
+    mpc_block_me1a = def_mpc_block_me1a;
+  }
 }
 
 void CSCMotherboard::run(
@@ -194,16 +233,23 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
 std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::getLCTs() {
   std::vector<CSCCorrelatedLCTDigi> tmpV;
 
-  // Do not report LCTs found in ME1/A.
-  bool me11 =
-    (theStation == 1 &&
-     CSCTriggerNumbering::ringFromTriggerLabels(theStation,theTrigChamber)==1);
-  if (firstLCT.isValid())
-    if (!me11 || firstLCT.getStrip() <= 127)
-      tmpV.push_back(firstLCT);
-  if (secondLCT.isValid())
-    if (!me11 || secondLCT.getStrip() <= 127)
-      tmpV.push_back(secondLCT);
+  if (mpc_block_me1a) {
+    // Do not report LCTs found in ME1/A.
+    bool me11 =
+      (theStation == 1 &&
+       CSCTriggerNumbering::ringFromTriggerLabels(theStation,theTrigChamber)==1);
+    if (firstLCT.isValid())
+      if (!me11 || firstLCT.getStrip() <= 127)
+	tmpV.push_back(firstLCT);
+    if (secondLCT.isValid())
+      if (!me11 || secondLCT.getStrip() <= 127)
+	tmpV.push_back(secondLCT);
+  }
+  else {
+    // Report all LCTs found.
+    if (firstLCT.isValid())  tmpV.push_back(firstLCT);
+    if (secondLCT.isValid()) tmpV.push_back(secondLCT);
+  }
   return tmpV;
 }
 
@@ -513,4 +559,16 @@ void CSCMotherboard::testLCT() {
       }
     }
   }
+}
+
+void CSCMotherboard::dumpConfigParams() const {
+  std::ostringstream strm;
+  strm << "\n";
+  strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+  strm << "+                   TMB configuration parameters:                  +\n";
+  strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+  strm << " mpc_block_me1a [block/not block triggers which come from ME1/A] = "
+       << mpc_block_me1a << "\n";
+  strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+  LogDebug("CSCMotherboard") << strm.str();
 }

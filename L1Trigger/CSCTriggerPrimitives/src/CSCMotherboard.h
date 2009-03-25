@@ -31,8 +31,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2008/07/06 05:17:00 $
- * $Revision: 1.7 $
+ * $Date: 2008/09/10 10:45:20 $
+ * $Revision: 1.8 $
  *
  */
 
@@ -98,11 +98,20 @@ class CSCMotherboard
   /** Flag for new (2007) version of TMB firmware. */
   bool isTMB07;
 
+  /** Configuration parameters. */
+  unsigned int mpc_block_me1a;
+
+  /** Default values of configuration parameters. */
+  static const unsigned int def_mpc_block_me1a;
+
   /** Container for first correlated LCT. */
   CSCCorrelatedLCTDigi firstLCT;
 
   /** Container for second correlated LCT. */
   CSCCorrelatedLCTDigi secondLCT;
+
+  /** Make sure that the parameter values are within the allowed range. */
+  void checkConfigParameters();
 
   void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
 		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT);
@@ -114,6 +123,9 @@ class CSCMotherboard
   // Obsolete methods
   int findSTA(const bool, const bool, const bool, const bool);
   int findBxnMatch(const int aBxn, const int cBxn);
+
+  /** Dump TMB/MPC configuration parameters. */
+  void dumpConfigParams() const;
 
   // Method for tests
   void testLCT();
