@@ -113,7 +113,11 @@ void CSCDbStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
 
   // the other diagonal elements can just come from the pedestal sigma
   float sigma = pedestalSigma(detId, istrip);
-  float scaVariance = 2 * sigma * sigma;
+  //@@  float scaVariance = 2 * sigma * sigma;
+  //@@ The '2 *' IS strictly correct, but currently the value in the cond db is 2x too large since
+  //@@ it is the rms of the distribution of pedestals of all 8 time samples rather than the rms of
+  //@@ the average of the first two time samples
+  float scaVariance = sigma * sigma;
   matrix(0,0) = matrix(1,1) = matrix(7,7) = scaVariance;
 
   // unknown neighbors can be the average of the known neighbors
