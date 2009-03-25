@@ -23,9 +23,12 @@ class PGeometricDet{
     //  nav_type _ddd; DO NOT SAVE!
     //  DDName _ddname; DO NOT SAVE!
     std::string _name; // save only the name, not the namespace.
+    std::string _ns; // save only the name, not the namespace.
     int _type;
 
     double _params0,_params1,_params2,_params3,_params4,_params5,_params6,_params7,_params8,_params9,_params10;
+    int _numnt;
+    int _nt0, _nt1, _nt2, _nt3, _nt4, _nt5, _nt6 , _nt7, _nt8, _nt9, _nt10;
     
     int _geographicalID; // to be converted to DetId
     //  std::vector< DDExpandedNode > _parents; DO NOT SAVE!
