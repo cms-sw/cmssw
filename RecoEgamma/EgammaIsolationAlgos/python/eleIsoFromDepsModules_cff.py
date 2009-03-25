@@ -11,7 +11,7 @@ eleIsoFromDepsTk = cms.EDProducer("CandIsolatorFromDeposits",
     ))
 )
 
-eleIsoFromDepsEcalFromHits = cms.EDProducer("CandIsolatorFromDeposits",
+eleIsoFromDepsEcalFromHits= cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(cms.PSet(
         mode = cms.string('sum'),
         src = cms.InputTag("eleIsoDepositEcalFromHits"),
@@ -20,9 +20,23 @@ eleIsoFromDepsEcalFromHits = cms.EDProducer("CandIsolatorFromDeposits",
         vetos = cms.vstring('EcalBarrel:0.045', 
                             'EcalBarrel:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)',
                             'EcalBarrel:AbsThresholdFromTransverse(0.08)',
-                            'EcalEndcaps:AbsThresholdFromTransverse(0.3)',
+                            'EcalEndcaps:AbsThreshold(0.100)',
                             'EcalEndcaps:0.070', 
                             'EcalEndcaps:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)'), 
+        skipDefaultVeto = cms.bool(True)
+    ))
+)
+
+eleIsoFromDepsEcalFromHitsByCrystal = cms.EDProducer("CandIsolatorFromDeposits",
+    deposits = cms.VPSet(cms.PSet(
+        mode = cms.string('sum'),
+        src = cms.InputTag("eleIsoDepositEcalFromHits"),
+        weight = cms.string('1'),
+        deltaR = cms.double(0.4),
+        vetos = cms.vstring('NumCrystalVeto(3.0)', 
+                            'NumCrystalEtaPhiVeto(1.0,9999.0)',
+                            'EcalBarrel:AbsThresholdFromTransverse(0.08)',
+                            'EcalEndcaps:AbsThreshold(0.100)'),
         skipDefaultVeto = cms.bool(True)
     ))
 )

@@ -5,6 +5,7 @@ interestingGamIsoDetId = cms.EDProducer("GamIsoDetIdCollectionProducer",
     emObjectLabel = cms.InputTag("photons"),
     etCandCut = cms.double(0.0),
     energyCut = cms.double(0.040),
+    etCut = cms.double(0),
     outerRadius = cms.double(0.6),
     innerRadius = cms.double(0.0),
     interestingDetIdCollection = cms.string('')

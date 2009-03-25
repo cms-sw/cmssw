@@ -28,6 +28,7 @@ EleIsoDetIdCollectionProducer::EleIsoDetIdCollectionProducer(const edm::Paramete
     emObjectLabel_ = iConfig.getParameter< edm::InputTag > ("emObjectLabel");
     etCandCut_ = iConfig.getParameter<double> ("etCandCut");
     energyCut_ = iConfig.getParameter<double>("energyCut");
+    etCut_ = iConfig.getParameter<double>("etCut");
     outerRadius_ = iConfig.getParameter<double>("outerRadius");
     innerRadius_ = iConfig.getParameter<double>("innerRadius");
     interestingDetIdCollection_ = iConfig.getParameter<std::string>("interestingDetIdCollection");
@@ -62,6 +63,7 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
 
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);    
+    const CaloGeometry* caloGeom = pG.product();
 
     CaloDualConeSelector *doubleConeSel_ = 0;
     if(recHitsLabel_.instance() == "EcalRecHitsEB")
@@ -72,7 +74,7 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
     //Create empty output collections
     std::auto_ptr< DetIdCollection > detIdCollection (new DetIdCollection() ) ;
 
-    reco::PixelMatchGsfElectronCollection::const_iterator emObj;
+    reco::GsfElectronCollection::const_iterator emObj;
     if(doubleConeSel_) { //if cone selector was created
         for (emObj = emObjectH->begin(); emObj != emObjectH->end();  emObj++) { //Loop over candidates
 
@@ -84,10 +86,17 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
             CaloRecHitMetaCollectionV::const_iterator recIt;
             for (recIt = chosen->begin(); recIt!= chosen->end () ; ++recIt) { // Select RecHits 
 
-                if ( fabs(recIt->energy()) < energyCut_) continue;  //dont fill if below noise value
+                if ( fabs(recIt->energy()) < energyCut_) continue;  //dont fill if below E noise value
+
+
+                double et = recIt->energy() * 
+                            caloGeom->getPosition(recIt->detid()).perp() / 
+                            caloGeom->getPosition(recIt->detid()).mag();
+
+                if ( fabs(et) < energyCut_) continue;  //dont fill if below ET noise value
 
                 if(std::find(detIdCollection->begin(),detIdCollection->end(),recIt->detid()) == detIdCollection->end()) 
-		  detIdCollection->push_back(recIt->detid()); 
+		            detIdCollection->push_back(recIt->detid()); 
             } //end rechits
 
         } //end candidates

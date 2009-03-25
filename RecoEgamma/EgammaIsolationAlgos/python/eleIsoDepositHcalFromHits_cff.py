@@ -6,7 +6,7 @@ from RecoEgamma.EgammaIsolationAlgos.eleHcalExtractorBlocks_cff import *
 #isolation with RecHits.
 #Currently, EGamma POG is recommending HCAL Isolation with Towers
 eleIsoDepositHcalFromHits = cms.EDProducer("CandIsoDepositProducer",
-    src = cms.InputTag("pixelMatchGsfElectrons"),
+    src = cms.InputTag("gsfElectrons"),
     trackType = cms.string('candidate'),
     MultipleDepositsFlag = cms.bool(False),
     ExtractorPSet = cms.PSet(EleIsoHcalFromHitsExtractorBlock)

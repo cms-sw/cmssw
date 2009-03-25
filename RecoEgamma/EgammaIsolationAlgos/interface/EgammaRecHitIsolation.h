@@ -36,6 +36,8 @@ class EgammaRecHitIsolation {
   
   double getEtSum (const reco::Candidate * emObject) const {return getSum_(emObject,true);}
   double getEnergySum (const reco::Candidate * emObject) const{ return  getSum_(emObject,false);}
+  void setUseNumCrystals (bool b=true) { useNumCrystals_ = b; }
+  void setVetoClustered (bool b=true) { vetoClustered_ = b; }
 
   //destructor 
   ~EgammaRecHitIsolation() ;
@@ -48,9 +50,13 @@ class EgammaRecHitIsolation {
   double etaSlice_;
   double etLow_ ;
   double eLow_ ;
+
   
   edm::ESHandle<CaloGeometry>  theCaloGeom_ ;
   CaloRecHitMetaCollectionV* caloHits_ ;
+
+  bool useNumCrystals_;
+  bool vetoClustered_;
 
   const CaloSubdetectorGeometry* subdet_[2]; // barrel+endcap
 

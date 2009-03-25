@@ -21,11 +21,11 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -43,6 +43,7 @@ EgammaRecHitExtractor::EgammaRecHitExtractor(const edm::ParameterSet& par) :
     endcapEcalHitsTag_(par.getParameter<edm::InputTag>("endcapEcalHits")),
     fakeNegativeDeposit_(par.getParameter<bool>("subtractSuperClusterEnergy")),
     tryBoth_(par.getParameter<bool>("tryBoth")),
+    vetoClustered_(par.getParameter<bool>("vetoClustered")),
     sameTag_(false)
 { 
 
@@ -95,7 +96,6 @@ reco::IsoDeposit EgammaRecHitExtractor::deposit(const edm::Event & iEvent,
     //define isodeposit starting from candidate
     reco::SuperClusterRef sc = emObject.get<reco::SuperClusterRef>();
     math::XYZPoint caloPosition = sc->position();
-    GlobalPoint point(caloPosition.x(), caloPosition.y() , caloPosition.z());
 
     Direction candDir(caloPosition.eta(), caloPosition.phi());
     reco::IsoDeposit deposit( candDir );
@@ -112,46 +112,69 @@ reco::IsoDeposit EgammaRecHitExtractor::deposit(const edm::Event & iEvent,
     // fill rechits
     bool inBarrel = sameTag_ || ( abs(sc->eta()) < 1.479 ); //check for barrel. If only one collection is used, use barrel
     if (inBarrel || tryBoth_) {
-      collect(deposit, point, barrelgeom, caloGeom, *barrelEcalRecHitsH);
+      collect(deposit, sc, barrelgeom, caloGeom, *barrelEcalRecHitsH);
     } 
     if ((!inBarrel) || tryBoth_) {
-      collect(deposit, point, endcapgeom, caloGeom, *endcapEcalRecHitsH);
+      collect(deposit, sc, endcapgeom, caloGeom, *endcapEcalRecHitsH);
     }
     
     return deposit;
 }
 
 void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit, 
-				    const GlobalPoint &caloPosition, const CaloSubdetectorGeometry* subdet, 
+				    const reco::SuperClusterRef& sc, const CaloSubdetectorGeometry* subdet, 
 				    const CaloGeometry* caloGeom,
 				    const EcalRecHitCollection &hits) const 
 {
 
-  CaloSubdetectorGeometry::DetIdSet chosen = subdet->getCells(caloPosition,extRadius_);
-  EcalRecHitCollection::const_iterator j=hits.end();
-  
-  double caloeta=caloPosition.eta();
-  double calophi=caloPosition.phi();
-  double r2 = intRadius_*intRadius_;
-  
-  for (CaloSubdetectorGeometry::DetIdSet::const_iterator i = chosen.begin(), end = chosen.end() ; i != end;  ++i)  {  
-    j=hits.find(*i);
-    if(j != hits.end()){
-      const  GlobalPoint & position = caloGeom->getPosition(*i);
-      double eta = position.eta();
-      double phi = position.phi();
-      double energy = j->energy();
-      double et = energy*position.perp()/position.mag();
-      double phiDiff= deltaPhi(phi,calophi);
-      
-      if ( et > etMin_ 
-	   && fabs(energy) > energyMin_  //Changed to fabs
-	   && fabs(eta-caloeta) > intStrip_ 
-	   && (eta-caloeta)*(eta-caloeta) + phiDiff*phiDiff >r2){
-	deposit.addDeposit( Direction(eta, phi), (useEt_ ? et : energy) );
-      }
+    GlobalPoint caloPosition(sc->position().x(), sc->position().y() , sc->position().z());
+    CaloSubdetectorGeometry::DetIdSet chosen = subdet->getCells(caloPosition,extRadius_);
+    EcalRecHitCollection::const_iterator j=hits.end();
+
+    double caloeta=caloPosition.eta();
+    double calophi=caloPosition.phi();
+    double r2 = intRadius_*intRadius_;
+    reco::basicCluster_iterator bcIt;
+    std::vector< std::pair<DetId, float> >::const_iterator rhIt;
+
+
+    for (CaloSubdetectorGeometry::DetIdSet::const_iterator i = chosen.begin(), end = chosen.end() ; i != end;  ++i)  {  
+        j=hits.find(*i);
+        if(j != hits.end()){
+            const  GlobalPoint & position = caloGeom->getPosition(*i);
+            double eta = position.eta();
+            double phi = position.phi();
+            double energy = j->energy();
+            double et = energy*position.perp()/position.mag();
+            double phiDiff= deltaPhi(phi,calophi);
+
+            //check if we are supposed to veto clustered and then do so
+            if(vetoClustered_) {
+
+                //Loop over basic clusters:
+                bool isClustered = false;
+                for(bcIt = sc->clustersBegin();bcIt != sc->clustersEnd(); ++bcIt) {
+                    for(rhIt = (*bcIt)->hitsAndFractions().begin();rhIt != (*bcIt)->hitsAndFractions().end(); ++rhIt) {
+                        if( rhIt->first == *i ) isClustered = true;
+                        if( isClustered ) break;
+                    }
+                    if( isClustered ) break;
+                } //end loop over basic clusters
+
+                if(isClustered) continue;
+            }  //end if removeClustered
+ 
+
+            if ( et > etMin_ 
+                    && fabs(energy) > energyMin_  //Changed to fabs
+                    && fabs(eta-caloeta) > intStrip_ 
+                    && (eta-caloeta)*(eta-caloeta) + phiDiff*phiDiff >r2) {
+
+                deposit.addDeposit( Direction(eta, phi), (useEt_ ? et : energy) );
+
+            }
+        }
     }
-  }
 } 
 
 

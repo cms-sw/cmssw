@@ -42,14 +42,17 @@ EgammaEcalRecHitIsolationProducer::EgammaEcalRecHitIsolationProducer(const edm::
   egIsoEMinEndcap_                = conf_.getParameter<double>("eMinEndcap");
   egIsoConeSizeInBarrel_          = conf_.getParameter<double>("intRadiusBarrel");
   egIsoConeSizeInEndcap_          = conf_.getParameter<double>("intRadiusEndcap");
-  egIsoConeSizeOut_         = conf_.getParameter<double>("extRadius");
-  egIsoJurassicWidth_       = conf_.getParameter<double>("jurassicWidth");
+  egIsoConeSizeOut_               = conf_.getParameter<double>("extRadius");
+  egIsoJurassicWidth_             = conf_.getParameter<double>("jurassicWidth");
+
 
 
   // options
-  useIsolEt_ = conf_.getParameter<bool>("useIsolEt");
-  tryBoth_   = conf_.getParameter<bool>("tryBoth");
-  subtract_  = conf_.getParameter<bool>("subtract");
+  useIsolEt_      = conf_.getParameter<bool>("useIsolEt");
+  tryBoth_        = conf_.getParameter<bool>("tryBoth");
+  subtract_       = conf_.getParameter<bool>("subtract");
+  useNumCrystals_ = conf_.getParameter<bool>("useNumCrystals");
+  vetoClustered_  = conf_.getParameter<bool>("vetoClustered");
 
   //register your products
   produces < edm::ValueMap<double> >();
@@ -98,7 +101,12 @@ EgammaEcalRecHitIsolationProducer::produce(edm::Event& iEvent, const edm::EventS
 
 
   EgammaRecHitIsolation ecalBarrelIsol(egIsoConeSizeOut_,egIsoConeSizeInBarrel_,egIsoJurassicWidth_,egIsoPtMinBarrel_,egIsoEMinBarrel_,caloGeom,&ecalBarrelHits,DetId::Ecal);
+  ecalBarrelIsol.setUseNumCrystals(useNumCrystals_);
+  ecalBarrelIsol.setVetoClustered(vetoClustered_);
+
   EgammaRecHitIsolation ecalEndcapIsol(egIsoConeSizeOut_,egIsoConeSizeInEndcap_,egIsoJurassicWidth_,egIsoPtMinEndcap_,egIsoEMinEndcap_,caloGeom,&ecalEndcapHits,DetId::Ecal);
+  ecalEndcapIsol.setUseNumCrystals(useNumCrystals_);
+  ecalEndcapIsol.setVetoClustered(vetoClustered_);
   
   
   for( size_t i = 0 ; i < emObjectHandle->size(); ++i) {

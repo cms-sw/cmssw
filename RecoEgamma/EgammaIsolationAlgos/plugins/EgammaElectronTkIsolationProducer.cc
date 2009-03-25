@@ -17,6 +17,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/Candidate/interface/CandAssociation.h"
 
 
@@ -49,7 +50,7 @@ EgammaElectronTkIsolationProducer::~EgammaElectronTkIsolationProducer(){}
 void EgammaElectronTkIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // Get the  filtered objects
-  edm::Handle< reco::PixelMatchGsfElectronCollection> electronHandle;
+  edm::Handle< reco::GsfElectronCollection> electronHandle;
   iEvent.getByLabel(electronProducer_,electronHandle);
   
   //get the tracks

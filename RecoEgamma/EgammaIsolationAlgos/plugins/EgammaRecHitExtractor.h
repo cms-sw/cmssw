@@ -27,6 +27,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 namespace egammaisolation {
 
@@ -42,7 +44,7 @@ namespace egammaisolation {
 
       private:
          void collect(reco::IsoDeposit &deposit, 
-                  const GlobalPoint &caloPosition, const CaloSubdetectorGeometry* subdet,
+                  const reco::SuperClusterRef& sc, const CaloSubdetectorGeometry* subdet,
                   const CaloGeometry* caloGeom,
                   const EcalRecHitCollection &hits) const;
 
@@ -56,7 +58,8 @@ namespace egammaisolation {
          bool fakeNegativeDeposit_;
          bool  tryBoth_;
          bool  useEt_;
-	 bool  sameTag_;
+         bool  vetoClustered_;
+	     bool  sameTag_;
 
    };
 }

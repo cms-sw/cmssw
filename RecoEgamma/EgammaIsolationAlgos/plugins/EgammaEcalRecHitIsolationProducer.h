@@ -60,6 +60,9 @@ class EgammaEcalRecHitIsolationProducer : public edm::EDProducer {
   bool tryBoth_ ; // use rechits from barrel + endcap 
   bool subtract_ ; // subtract SC energy (allows veto cone of zero size)
 
+  bool useNumCrystals_ ; // veto on number of crystals
+  bool vetoClustered_ ;  // veto all clusterd rechits
+
   edm::ParameterSet conf_;
 
 };

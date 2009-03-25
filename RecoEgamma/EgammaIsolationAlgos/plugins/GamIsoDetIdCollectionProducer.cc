@@ -28,6 +28,7 @@ GamIsoDetIdCollectionProducer::GamIsoDetIdCollectionProducer(const edm::Paramete
     emObjectLabel_ = iConfig.getParameter< edm::InputTag > ("emObjectLabel");
     etCandCut_ = iConfig.getParameter<double> ("etCandCut");
     energyCut_ = iConfig.getParameter<double>("energyCut");
+    etCut_ = iConfig.getParameter<double>("energyCut");
     outerRadius_ = iConfig.getParameter<double>("outerRadius");
     innerRadius_ = iConfig.getParameter<double>("innerRadius");
     interestingDetIdCollection_ = iConfig.getParameter<std::string>("interestingDetIdCollection");
@@ -62,6 +63,7 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
 
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);    
+    const CaloGeometry* caloGeom = pG.product();
 
     CaloDualConeSelector *doubleConeSel_ = 0;
     if(recHitsLabel_.instance() == "EcalRecHitsEB")
@@ -84,7 +86,13 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
             CaloRecHitMetaCollectionV::const_iterator recIt;
             for (recIt = chosen->begin(); recIt!= chosen->end () ; ++recIt) { // Select RecHits 
 
-                if ( fabs(recIt->energy()) < energyCut_) continue;  //dont fill if below noise value
+                if ( fabs(recIt->energy()) < energyCut_) continue;  //dont fill if below E noise value
+
+                double et = recIt->energy() *
+                            caloGeom->getPosition(recIt->detid()).perp() /
+                            caloGeom->getPosition(recIt->detid()).mag();
+                
+                if ( fabs(et) < energyCut_) continue;  //dont fill if below ET noise value
 
                 if(std::find(detIdCollection->begin(),detIdCollection->end(),recIt->detid()) == detIdCollection->end()) 
                     detIdCollection->push_back(recIt->detid());

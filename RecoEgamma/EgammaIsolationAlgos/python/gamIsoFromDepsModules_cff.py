@@ -22,7 +22,21 @@ gamIsoFromDepsEcalFromHits = cms.EDProducer("CandIsolatorFromDeposits",
                             'EcalBarrel:AbsThresholdFromTransverse(0.080)', 
                             'EcalEndcaps:0.070', 
                             'EcalEndcaps:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)', 
-                            'EcalEndcaps:AbsThresholdFromTransverse(0.30)'),
+                            'EcalEndcaps:AbsThreshold(0.100)'),
+        skipDefaultVeto = cms.bool(True)
+    ))
+)
+
+gamIsoFromDepsEcalFromHitsByCrystal = cms.EDProducer("CandIsolatorFromDeposits",
+    deposits = cms.VPSet(cms.PSet(
+        mode = cms.string('sum'),
+        src = cms.InputTag("gamIsoDepositEcalFromHits"),
+        weight = cms.string('1'),
+        deltaR = cms.double(0.4),
+        vetos = cms.vstring('NumCrystalVeto(3.0)', 
+                            'NumCrystalEtaPhiVeto(1.0,9999.0)',
+                            'EcalBarrel:AbsThresholdFromTransverse(0.08)',
+                            'EcalEndcaps:AbsThreshold(0.100)'),
         skipDefaultVeto = cms.bool(True)
     ))
 )

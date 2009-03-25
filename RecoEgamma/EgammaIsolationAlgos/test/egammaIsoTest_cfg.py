@@ -22,7 +22,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 process.out.outputCommands.append('drop *_*_*_*')
-process.out.outputCommands.append('keep *_pixelMatchGsfElectrons_*_*')
+process.out.outputCommands.append('keep *_gsfElectrons_*_*')
 process.out.outputCommands.append('keep *_photons_*_*')
 process.out.outputCommands.append('keep *_*_*_eleIso')
 

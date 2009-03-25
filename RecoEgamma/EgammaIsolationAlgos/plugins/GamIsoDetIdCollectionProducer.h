@@ -47,6 +47,7 @@ class GamIsoDetIdCollectionProducer : public edm::EDProducer {
       edm::InputTag recHitsLabel_;
       edm::InputTag emObjectLabel_;
       double energyCut_;
+      double etCut_;
       double etCandCut_;
       double outerRadius_;
       double innerRadius_;
