@@ -38,12 +38,15 @@ public:
 						       
  bool operator==(const KinematicState& other) const;
 
+  /**
+   * The mass of the particle
+   */
+ ParticleMass mass() const;
+
 /**
  * Access methods to parameters
  * and private data
  */
- ParticleMass mass() const;
-
  KinematicParameters kinematicParameters() const;
 
  KinematicParametersError kinematicParametersError() const;

@@ -19,25 +19,45 @@ public:
 
   typedef ROOT::Math::SVector<double,7> AlgebraicVector7;
 
-  KinematicParameters():
-              vl(false)
+  KinematicParameters() : vl(false) {}
+
+  KinematicParameters(const AlgebraicVector7& pr): par(pr),vl(true)
   {}
 
-  KinematicParameters(const AlgebraicVector7& pr):
-                                par(pr),vl(true)
-  {}
+  /**
+   * \brief The full vector (7 elements)
+   * 
+   * The order of the parameters is (x,y,z,p_x,p_y,p_z,m)
+   */
+  AlgebraicVector7 vector() const {return par;}
 
-/**
- * access methods
- */
+  /**
+   * \brief Allows to access directly one component of the vector (index between 0 and 6)
+   * 
+   * The order of the parameters is (x,y,z,p_x,p_y,p_z,m)
+   */
+  double operator()(const int i) const  {return par(i);}
 
-  AlgebraicVector7 vector() const
-  {return par;}
-  
+  /**
+   * The momentum vector
+   */
   GlobalVector momentum() const;
   
+  /**
+   * The position of the state
+   */
   GlobalPoint position() const;
   
+  /**
+   * The mass of the particle
+   */
+  double mass() const {return par(6);}
+
+  /**
+   * The energy of the particle
+   */
+  double energy() const;
+
   bool isValid() const
   {return vl;}
 
