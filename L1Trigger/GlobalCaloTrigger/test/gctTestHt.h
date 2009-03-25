@@ -36,12 +36,12 @@ public:
   typedef std::vector<lutPtr> lutPtrVector;
 
   struct rawJetData {
-    RawJetsVector jets; unsigned htStripSum0; unsigned htStripSum1; bool htOverFlow;
+    RawJetsVector jets; unsigned httSum; int htxSum; int htySum; bool httOverFlow; bool htmOverFlow;
 
     rawJetData() :
-      jets(), htStripSum0(0), htStripSum1(0), htOverFlow(false) {}
-    rawJetData(const RawJetsVector jv, const unsigned ht0, const unsigned ht1, const bool of) : 
-      jets(jv), htStripSum0(ht0), htStripSum1(ht1), htOverFlow(of) {}
+      jets(), httSum(0), htxSum(0), htySum(0), httOverFlow(false), htmOverFlow(false) {}
+    rawJetData(const RawJetsVector jv, const unsigned htt, const int htx, const int hty, const bool httof, const bool htmof) : 
+      jets(jv), httSum(htt), htxSum(htx), htySum(hty), httOverFlow(httof), htmOverFlow(htmof) {}
   };
 
   // Constructor and destructor
@@ -61,7 +61,7 @@ private:
 
   //
 
-  rawJetData rawJetFinderOutput(const L1GctJetFinderBase* jf, const int bx) const;
+  rawJetData rawJetFinderOutput(const L1GctJetFinderBase* jf, const unsigned phiPos, const int bx) const;
 
   int m_bxStart;
   int m_numOfBx;
@@ -69,7 +69,7 @@ private:
   std::vector<rawJetData> minusWheelJetDta;
   std::vector<rawJetData> plusWheelJetData;
 
-  int etComponent(const unsigned Emag0, const unsigned fact0,
+  int htComponent(const unsigned Emag0, const unsigned fact0,
 		  const unsigned Emag1, const unsigned fact1) const;
 };
 

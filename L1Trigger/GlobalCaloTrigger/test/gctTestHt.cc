@@ -31,23 +31,23 @@ void gctTestHt::fillRawJetData(const L1GlobalCaloTrigger* gct) {
   plusWheelJetData.resize(9*m_numOfBx);
 
   int bx=m_bxStart;
-  int mPos=0;
-  int pPos=0;
+  unsigned mPos=0;
+  unsigned pPos=0;
   for (int ibx=0; ibx<m_numOfBx; ibx++) { 
     int leaf=0;
 
     // Minus Wheel
     for ( ; leaf<3; leaf++) {
-      minusWheelJetDta.at(mPos++) = rawJetFinderOutput(gct->getJetLeafCards().at(leaf)->getJetFinderA(), bx);
-      minusWheelJetDta.at(mPos++) = rawJetFinderOutput(gct->getJetLeafCards().at(leaf)->getJetFinderB(), bx);
-      minusWheelJetDta.at(mPos++) = rawJetFinderOutput(gct->getJetLeafCards().at(leaf)->getJetFinderC(), bx);
+      minusWheelJetDta.at(mPos) = rawJetFinderOutput(gct->getJetLeafCards().at(leaf)->getJetFinderA(), mPos%9, bx); mPos++;
+      minusWheelJetDta.at(mPos) = rawJetFinderOutput(gct->getJetLeafCards().at(leaf)->getJetFinderB(), mPos%9, bx); mPos++;
+      minusWheelJetDta.at(mPos) = rawJetFinderOutput(gct->getJetLeafCards().at(leaf)->getJetFinderC(), mPos%9, bx); mPos++;
     }
 
     // Plus Wheel
     for ( ; leaf<6; leaf++) {
-      plusWheelJetData.at(pPos++) = rawJetFinderOutput(gct->getJetLeafCards().at(leaf)->getJetFinderA(), bx);
-      plusWheelJetData.at(pPos++) = rawJetFinderOutput(gct->getJetLeafCards().at(leaf)->getJetFinderB(), bx);
-      plusWheelJetData.at(pPos++) = rawJetFinderOutput(gct->getJetLeafCards().at(leaf)->getJetFinderC(), bx);
+      plusWheelJetData.at(pPos) = rawJetFinderOutput(gct->getJetLeafCards().at(leaf)->getJetFinderA(), pPos%9, bx); pPos++;
+      plusWheelJetData.at(pPos) = rawJetFinderOutput(gct->getJetLeafCards().at(leaf)->getJetFinderB(), pPos%9, bx); pPos++;
+      plusWheelJetData.at(pPos) = rawJetFinderOutput(gct->getJetLeafCards().at(leaf)->getJetFinderC(), pPos%9, bx); pPos++;
     }
 
     bx++;
@@ -95,10 +95,11 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
     int hxPlusVal = 0;
     int hyMinusVl = 0;
     int hyPlusVal = 0;
-    bool htMinusInputOf = false;
-    bool htPlusInputOvf = false;
+    bool httMinusInputOf = false;
+    bool httPlusInputOvf = false;
+    bool htmMinusInputOf = false;
+    bool htmPlusInputOvf = false;
 
-    unsigned fRotX0 = 17;
     //
     // Check the Ht calculation (starting from the found jets)
     //--------------------------------------------------------------------------------------
@@ -106,96 +107,102 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
     // Minus Wheel
     int leaf=0;
     for ( ; leaf<3; leaf++) {
-      unsigned leafHtSum = 0;
-      int leafHxSum = 0;
-      int leafHySum = 0;
-      bool leafHtOvf = false;
+      unsigned leafHttSum = 0;
+      int leafHtxSum = 0;
+      int leafHtySum = 0;
+      bool leafHttOvf = false;
+      bool leafHtmOvf = false;
 
       for (int jf=0; jf<3; jf++) {
 	assert (mJet != minusWheelJetDta.end());
-	leafHtSum += (mJet->htStripSum0 + mJet->htStripSum1); 
-	leafHtOvf |= (mJet->htOverFlow);
-
-        unsigned fRotX1 = (fRotX0+ 6) % 36;
-        unsigned fRotY0 = (fRotX0+27) % 36;
-        unsigned fRotY1 = (fRotX0+33) % 36;
-	leafHxSum += etComponent(mJet->htStripSum0, fRotX0, mJet->htStripSum1, fRotX1); 
-	leafHySum += etComponent(mJet->htStripSum0, fRotY0, mJet->htStripSum1, fRotY1); 
-	fRotX0 = (fRotX0+32) % 36;
+	leafHttSum += (mJet->httSum); 
+	leafHttOvf |= (mJet->httOverFlow);
+	leafHtxSum += (mJet->htxSum); 
+	leafHtySum += (mJet->htySum); 
+	leafHtmOvf |= (mJet->htmOverFlow);
 	mJet++;
       }
-      if (leafHtSum >= 4096) { leafHtSum -= 4096; }
-      if (leafHtSum == gct->getJetLeafCards().at(leaf)->getAllOutputHt().at(bx).value()) {
-	htMinusVl += leafHtSum;
+      if (leafHttSum >= 4096) { leafHttSum -= 4096; }
+      if (leafHttSum == gct->getJetLeafCards().at(leaf)->getAllOutputHt().at(bx).value()) {
+	htMinusVl += leafHttSum;
       } else { cout << "Ht sum check leaf " << leaf << endl; testPass = false; }
-      if (leafHxSum == gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx).value()) {
-	hxMinusVl += leafHxSum;
-      } else { cout << "Hx sum check leaf " << leaf << endl; testPass = false; }
-      if (leafHySum == gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx).value()) {
-	hyMinusVl += leafHySum;
-      } else { cout << "Hy sum check leaf " << leaf << endl; testPass = false; }
-      if ((gct->getJetLeafCards().at(leaf)->getAllOutputHt().at(bx).overFlow() == leafHtOvf) &&
-	  (gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx).overFlow() == leafHtOvf) &&
-	  (gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx).overFlow() == leafHtOvf)) {
-	htMinusInputOf |= leafHtOvf;
+      if (leafHtxSum == gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx).value()) {
+	hxMinusVl += leafHtxSum;
+      } else { cout << "Hx sum check leaf " << leaf 
+		    << " expected " << leafHtxSum
+		    << " found " << gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx) << endl; testPass = false; }
+      if (leafHtySum == gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx).value()) {
+	hyMinusVl += leafHtySum;
+      } else { cout << "Hy sum check leaf " << leaf 
+		    << " expected " << leafHtySum
+		    << " found " << gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx) << endl; testPass = false; }
+      if ((gct->getJetLeafCards().at(leaf)->getAllOutputHt().at(bx).overFlow() == leafHttOvf) &&
+	  (gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx).overFlow() == leafHtmOvf) &&
+	  (gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx).overFlow() == leafHtmOvf)) {
+	httMinusInputOf |= leafHttOvf;
+	htmMinusInputOf |= leafHtmOvf;
       } else { cout << "Ht minus overflow check leaf " << leaf << endl; testPass = false; }
     }
 
     // Plus Wheel
     for ( ; leaf<6; leaf++) {
-      unsigned leafHtSum = 0;
-      int leafHxSum = 0;
-      int leafHySum = 0;
-      bool leafHtOvf = false;
+      unsigned leafHttSum = 0;
+      int leafHtxSum = 0;
+      int leafHtySum = 0;
+      bool leafHttOvf = false;
+      bool leafHtmOvf = false;
       for (int jf=0; jf<3; jf++) {
 	assert (pJet != plusWheelJetData.end());
-	leafHtSum += (pJet->htStripSum0 + pJet->htStripSum1);
-	leafHtOvf |= (pJet->htOverFlow);
-
-        unsigned fRotX1 = (fRotX0+ 6) % 36;
-        unsigned fRotY0 = (fRotX0+27) % 36;
-        unsigned fRotY1 = (fRotX0+33) % 36;
-	leafHxSum += etComponent(pJet->htStripSum0, fRotX0, pJet->htStripSum1, fRotX1); 
-	leafHySum += etComponent(pJet->htStripSum0, fRotY0, pJet->htStripSum1, fRotY1); 
-	fRotX0 = (fRotX0+32) % 36;
+	leafHttSum += (pJet->httSum);
+	leafHttOvf |= (pJet->httOverFlow);
+	leafHtxSum += (pJet->htxSum);
+	leafHtySum += (pJet->htySum);
+	leafHtmOvf |= (pJet->htmOverFlow);
 	pJet++;
       }
-      if (leafHtSum >= 4096) { leafHtSum -= 4096; }
-      if (leafHtSum == gct->getJetLeafCards().at(leaf)->getAllOutputHt().at(bx).value()) {
-	htPlusVal += leafHtSum;
+      if (leafHttSum >= 4096) { leafHttSum -= 4096; }
+      if (leafHttSum == gct->getJetLeafCards().at(leaf)->getAllOutputHt().at(bx).value()) {
+	htPlusVal += leafHttSum;
       } else { cout << "Ht sum check leaf " << leaf << endl; testPass = false; }
-      if (leafHxSum == gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx).value()) {
-	hxPlusVal += leafHxSum;
-      } else { cout << "Hx sum check leaf " << leaf << endl; testPass = false; }
-      if (leafHySum == gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx).value()) {
-	hyPlusVal += leafHySum;
-      } else { cout << "Hy sum check leaf " << leaf << endl; testPass = false; }
-      if ((gct->getJetLeafCards().at(leaf)->getAllOutputHt().at(bx).overFlow() == leafHtOvf) &&
-	  (gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx).overFlow() == leafHtOvf) &&
-	  (gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx).overFlow() == leafHtOvf)) {
-	htPlusInputOvf |= leafHtOvf;
+      if (leafHtxSum == gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx).value()) {
+	hxPlusVal += leafHtxSum;
+      } else { cout << "Hx sum check leaf " << leaf 
+		    << " expected " << leafHtxSum
+		    << " found " << gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx) << endl; testPass = false; }
+      if (leafHtySum == gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx).value()) {
+	hyPlusVal += leafHtySum;
+      } else { cout << "Hy sum check leaf " << leaf 
+		    << " expected " << leafHtySum
+		    << " found " << gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx) << endl; testPass = false; }
+      if ((gct->getJetLeafCards().at(leaf)->getAllOutputHt().at(bx).overFlow() == leafHttOvf) &&
+	  (gct->getJetLeafCards().at(leaf)->getAllOutputHx().at(bx).overFlow() == leafHtmOvf) &&
+	  (gct->getJetLeafCards().at(leaf)->getAllOutputHy().at(bx).overFlow() == leafHtmOvf)) {
+	httPlusInputOvf |= leafHttOvf;
+	htmPlusInputOvf |= leafHtmOvf;
       } else { cout << "Ht plus overflow check leaf " << leaf << endl; testPass = false; }
     }
 
     unsigned htTotal = htMinusVl + htPlusVal;
 
-    bool htMinusOvrFlow = (htMinusVl>=4096) || htMinusInputOf;
-    bool htPlusOverFlow = (htPlusVal>=4096) || htPlusInputOvf;
+    bool httMinusOvrFlow = (htMinusVl>=4096) || httMinusInputOf;
+    bool httPlusOverFlow = (htPlusVal>=4096) || httPlusInputOvf;
 
     htMinusVl = htMinusVl%4096;
     htPlusVal = htPlusVal%4096;
 
-    bool htTotalOvrFlow = (htTotal>=4096) || htMinusOvrFlow  || htPlusOverFlow;
+    bool httTotalOvrFlow = (htTotal>=4096) || httMinusOvrFlow  || httPlusOverFlow;
 
     htTotal = htTotal%4096;
 
     int hxTotal = hxMinusVl + hxPlusVal;
     int hyTotal = hyMinusVl + hyPlusVal;
-    //
+
+    bool htmMinusOvrFlow = htmMinusInputOf;
+    bool htmPlusOverFlow = htmPlusInputOvf;
     // Check the input to the final GlobalEnergyAlgos is as expected
     //--------------------------------------------------------------------------------------
     //
-    if (!myGlobalEnergy->getInputHtVlMinusWheel().at(bx).overFlow() && !htMinusOvrFlow &&
+    if (!myGlobalEnergy->getInputHtVlMinusWheel().at(bx).overFlow() && !httMinusOvrFlow &&
 	(myGlobalEnergy->getInputHtVlMinusWheel().at(bx).value()!=htMinusVl)) { 
       cout << "ht Minus " << htMinusVl <<endl; 
       testPass = false; 
@@ -206,7 +213,7 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
       testPass = false; 
     }
 
-    if (!myGlobalEnergy->getInputHtValPlusWheel().at(bx).overFlow() && !htPlusOverFlow &&
+    if (!myGlobalEnergy->getInputHtValPlusWheel().at(bx).overFlow() && !httPlusOverFlow &&
 	(myGlobalEnergy->getInputHtValPlusWheel().at(bx).value()!=htPlusVal)) { 
       cout << "ht Plus " << htPlusVal <<endl; 
       testPass = false; 
@@ -234,18 +241,18 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
       testPass = false; 
     }
 
-    if ((myGlobalEnergy->getInputHtVlMinusWheel().at(bx).overFlow() == htMinusOvrFlow) &&
-	(myGlobalEnergy->getInputHxVlMinusWheel().at(bx).overFlow() == htMinusOvrFlow) &&
-	(myGlobalEnergy->getInputHyVlMinusWheel().at(bx).overFlow() == htMinusOvrFlow)) {
+    if ((myGlobalEnergy->getInputHtVlMinusWheel().at(bx).overFlow() == httMinusOvrFlow) &&
+	(myGlobalEnergy->getInputHxVlMinusWheel().at(bx).overFlow() == htmMinusOvrFlow) &&
+	(myGlobalEnergy->getInputHyVlMinusWheel().at(bx).overFlow() == htmMinusOvrFlow)) {
     } else { cout << "Ht minus overflow check wheel" << endl; testPass = false; }
 
-    if ((myGlobalEnergy->getInputHtValPlusWheel().at(bx).overFlow() == htPlusOverFlow) &&
-	(myGlobalEnergy->getInputHxValPlusWheel().at(bx).overFlow() == htPlusOverFlow) &&
-	(myGlobalEnergy->getInputHyValPlusWheel().at(bx).overFlow() == htPlusOverFlow)) {
+    if ((myGlobalEnergy->getInputHtValPlusWheel().at(bx).overFlow() == httPlusOverFlow) &&
+	(myGlobalEnergy->getInputHxValPlusWheel().at(bx).overFlow() == htmPlusOverFlow) &&
+	(myGlobalEnergy->getInputHyValPlusWheel().at(bx).overFlow() == htmPlusOverFlow)) {
     } else { cout << "Ht plus overflow check wheel" << endl; testPass = false; }
 
     // Check the output value
-    if (!myGlobalEnergy->getEtHadColl().at(bx).overFlow() && !htTotalOvrFlow &&
+    if (!myGlobalEnergy->getEtHadColl().at(bx).overFlow() && !httTotalOvrFlow &&
 	(myGlobalEnergy->getEtHadColl().at(bx).value() != htTotal)) {
       cout << "Algo etHad" << endl; 
       testPass = false;
@@ -266,7 +273,7 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
     unsigned htMiss = static_cast<unsigned>(dhm/16.);
     unsigned htMPhi = static_cast<unsigned>(phi/M_PI*18.)*2;
 
-    if (htMiss>63 || htMinusOvrFlow || htPlusOverFlow) htMiss = 63;
+    if (htMiss>63 || htmMinusOvrFlow || htmPlusOverFlow) htMiss = 63;
 
     if ((htMiss != myGlobalEnergy->getHtMissColl().at(bx).value()) ||
 	(htMPhi != myGlobalEnergy->getHtMissPhiColl().at(bx).value())) {
@@ -300,14 +307,17 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
 //
 // PRIVATE MEMBER FUNCTIONS
 //
-gctTestHt::rawJetData gctTestHt::rawJetFinderOutput(const L1GctJetFinderBase* jf, const int bx) const
+gctTestHt::rawJetData gctTestHt::rawJetFinderOutput(const L1GctJetFinderBase* jf, const unsigned phiPos, const int bx) const
 {
+  assert (phiPos<9);
   lutPtrVector  lutsFromJf = jf->getJetEtCalLuts();
   RawJetsVector jetsFromJf = jf->getRawJets();
   RawJetsVector jetList;
+  unsigned sumHtt = 0;
   unsigned sumHtStrip0 = 0;
   unsigned sumHtStrip1 = 0;
-  bool     sumHtOvrFlo = false;
+  bool     sumHttOvrFlo = false;
+  bool     sumHtmOvrFlo = false;
   for (RawJetsVector::const_iterator jet=jetsFromJf.begin(); jet!=jetsFromJf.end(); jet++) {
     if (jet->bx()==bx && !jet->isNullJet()) {
 //        cout << "found a jet " << jet->rawsum()
@@ -319,21 +329,40 @@ gctTestHt::rawJetData gctTestHt::rawJetFinderOutput(const L1GctJetFinderBase* jf
        unsigned etaBin = jet->rctEta();
        unsigned htJet   = jet->calibratedEt(lutsFromJf.at(etaBin));
        if (htJet >= jf->getHttSumJetThreshold()) {
+	 sumHtt += htJet;
+	 sumHttOvrFlo |= (jet->overFlow());
+       }
+       if (htJet >= jf->getHtmSumJetThreshold()) {
 	 if (jet->rctPhi() == 0) {
 	   sumHtStrip0 += htJet;
 	 }
 	 if (jet->rctPhi() == 1) {
 	   sumHtStrip1 += htJet;
 	 }
-	 sumHtOvrFlo |= (jet->overFlow());
+	 sumHtmOvrFlo |= (jet->overFlow());
        }
     }
   }
-  rawJetData result(jetList, sumHtStrip0, sumHtStrip1, sumHtOvrFlo);
+  unsigned xFact0 = (53-4*phiPos)%36;
+  unsigned xFact1 = (59-4*phiPos)%36;
+  unsigned yFact0 = (44-4*phiPos)%36;
+  unsigned yFact1 = (50-4*phiPos)%36;
+
+  int sumHtx = htComponent(sumHtStrip0, xFact0, sumHtStrip1, xFact1);
+  int sumHty = htComponent(sumHtStrip0, yFact0, sumHtStrip1, yFact1);
+
+  // Check for overflow
+  const int maxOutput=0x800;
+  if (sumHtx >= maxOutput) { sumHtx -= maxOutput*2; sumHtmOvrFlo = true; }
+  if (sumHtx < -maxOutput) { sumHtx += maxOutput*2; sumHtmOvrFlo = true; }
+  if (sumHty >= maxOutput) { sumHty -= maxOutput*2; sumHtmOvrFlo = true; }
+  if (sumHty < -maxOutput) { sumHty += maxOutput*2; sumHtmOvrFlo = true; }
+
+  rawJetData result(jetList, sumHtt, sumHtx, sumHty, sumHttOvrFlo, sumHtmOvrFlo);
   return result;
 }
 
-int gctTestHt::etComponent(const unsigned Emag0, const unsigned fact0,
+int gctTestHt::htComponent(const unsigned Emag0, const unsigned fact0,
 			   const unsigned Emag1, const unsigned fact1) const {
   // Copy the Ex, Ey conversion from the hardware emulation
   const unsigned sinFact[10] = {0, 2845, 5603, 8192, 10531, 12550, 14188, 15395, 16134, 16383};
@@ -390,6 +419,7 @@ int gctTestHt::etComponent(const unsigned Emag0, const unsigned fact0,
     result = (result+0x1000)>>13;
     result = result-(1<<15);
   } else { result = (result+0x1000)>>13; }
+
   return result;
 }
 
