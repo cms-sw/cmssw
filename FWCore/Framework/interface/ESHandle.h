@@ -1,5 +1,5 @@
-#ifndef Framework_ESHandle_h
-#define Framework_ESHandle_h
+#ifndef FWCore_Framework_ESHandle_h
+#define FWCore_Framework_ESHandle_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,67 +16,64 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 14:47:35 EST 2005
-// $Id: ESHandle.h,v 1.9 2006/08/26 18:39:49 chrjones Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 
 // forward declarations
 namespace edm {
-template< class T>
-class ESHandle
-{
 
+class ESHandleBase {
    public:
-      typedef T value_type;
-   
-      ESHandle() : data_(0), description_(0) {}
-      ESHandle(const T* iData) : data_(iData), description_(0) {}
-//      { std::cout<<"Call ESHanlde(data) ctor"<<std::endl; }
-      ESHandle(const T* iData, const edm::eventsetup::ComponentDescription* desc) 
+      ESHandleBase() : data_(0), description_(0) {}
+      ESHandleBase(void const* iData, edm::eventsetup::ComponentDescription const* desc) 
            : data_(iData), description_(desc) {}
-//      { std::cout<<"Call ESHanlde(data,desc) ctor"<<std::endl; }
-      //virtual ~ESHandle();
 
-      // ---------- const member functions ---------------------
-      const T* product() const { return data_; }
-      const T* operator->() const { return product(); }
-      const T& operator*() const { return *product(); }
-      const edm::eventsetup::ComponentDescription* description() const { 
-         if(!description_) {
-            throw edm::Exception(edm::errors::InvalidReference,"NullPointer");
-         }
-         return description_; 
-      }
+      edm::eventsetup::ComponentDescription const* description() const;
       
       bool isValid() const { return 0 != data_ && 0 != description_; }
-      // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      void swap(ESHandle<T>& iOther) {
+      void swap(ESHandleBase& iOther) {
          std::swap(data_, iOther.data_);
          std::swap(description_, iOther.description_);
       }
+   protected:
+     void const *productStorage() const {return data_;}
+
+   private:
+      // ---------- member data --------------------------------
+      void const* data_; 
+      edm::eventsetup::ComponentDescription const* description_;
+};
+
+template<typename T>
+class ESHandle : public ESHandleBase {
+   public:
+      typedef T value_type;
+   
+      ESHandle() : ESHandleBase() {}
+      explicit ESHandle(T const* iData) : ESHandleBase(iData, 0) {}
+      ESHandle(T const* iData, edm::eventsetup::ComponentDescription const* desc) : ESHandleBase(iData, desc) {}
+
+      // ---------- const member functions ---------------------
+      T const* product() const { return static_cast<T const *>(productStorage()); }
+      T const* operator->() const { return product(); }
+      T const& operator*() const { return *product(); }
+      // ---------- static member functions --------------------
+
+      // ---------- member functions ---------------------------
       
    private:
-      //ESHandle(const ESHandle&); // stop default
-
-      //const ESHandle& operator=(const ESHandle&); // stop default
-
-      // ---------- member data --------------------------------
-      const T* data_; 
-      const edm::eventsetup::ComponentDescription* description_;
 };
 
   // Free swap function
   template <class T>
   inline
   void
-  swap(ESHandle<T>& a, ESHandle<T>& b) 
+  swap(ESHandleBase& a, ESHandleBase& b) 
   {
     a.swap(b);
   }
