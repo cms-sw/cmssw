@@ -810,14 +810,12 @@ void MVATrainer::fillOutputVars(SourceVariableSet &vars, Source *source,
 				(flags | Variable::FLAG_MULTIPLE);
 
 		SourceVariable *var = createVariable(source, name, flags);
-		if (!var)
+		if (!var || vars.append(var))
 			throw cms::Exception("MVATrainer")
 				<< "Output variable "
 				<< (const char*)source->getName()
 				<< ":" << (const char*)name
 				<< " defined twice." << std::endl;
-
-		vars.append(var);
 	}
 }
 
@@ -1107,7 +1105,7 @@ Calibration::MVAComputer *MVATrainer::getCalibration() const
 				std::find(this->processors.begin(),
 				          this->processors.end(), *iter);
 			assert(this->processors.end() - begin >
-			       foreach->nProcs + 1);
+			       (int)(foreach->nProcs + 1));
 			++begin;
 			std::vector<AtomicId>::const_iterator end =
 						begin + foreach->nProcs;

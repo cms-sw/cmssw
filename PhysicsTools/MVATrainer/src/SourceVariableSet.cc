@@ -15,7 +15,9 @@ bool SourceVariableSet::append(SourceVariable *var, Magic magic, int offset)
 			std::lower_bound(vars.begin(), vars.end(),
 			                 var->getName(), PosVar::VarNameLess);
 
-	if (pos != vars.end() && pos->var == var)
+	if (pos != vars.end() && (pos->var == var ||
+	                          (pos->var->getSource() == var->getSource() &&
+	                           pos->var->getName() == var->getName())))
 		return true;
 
 	PosVar item;
