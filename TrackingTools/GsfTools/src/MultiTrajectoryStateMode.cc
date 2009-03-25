@@ -167,12 +167,34 @@ MultiTrajectoryStateMode::momentumFromModePPhiEta (const TrajectoryStateOnSurfac
   double p = pUtils.modeIsValid() ? pUtils.mode().mean() : pUtils.mean();
   double phi = phiUtils.modeIsValid() ? phiUtils.mode().mean() : phiUtils.mean();
   double eta = etaUtils.modeIsValid() ? etaUtils.mode().mean() : etaUtils.mean();
-  double theta = 2*atan(exp(-eta));
+//   double theta = 2*atan(exp(-eta));
   double tanth2 = exp(-eta);
   double pt = p*2*tanth2/(1+tanth2*tanth2);  // p*sin(theta)
   double pz = p*(1-tanth2*tanth2)/(1+tanth2*tanth2);  // p*cos(theta)
   // conversion to a cartesian momentum vector
   momentum = GlobalVector(pt*cos(phi),pt*sin(phi),pz);
   return true;
+}
+
+int
+MultiTrajectoryStateMode::chargeFromMode (const TrajectoryStateOnSurface tsos) const
+{
+  //
+  // clear result vector and check validity of the TSOS
+  //
+  if ( !tsos.isValid() ) {
+    edm::LogInfo("MultiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
+    return 0;
+  }
+  //  
+  // mode computation for local co-ordinates q/p
+  // extraction of multi-state using helper class
+  MultiGaussianState1D state1D = MultiGaussianStateTransform::multiState1D(tsos,0);
+  GaussianSumUtilities1D utils(state1D);
+  // mode (in case of failure: mean)
+  double result = utils.mode().mean();
+  if ( !utils.modeIsValid() )  result = utils.mean();
+
+  return result>0. ? 1 : -1;
 }
 

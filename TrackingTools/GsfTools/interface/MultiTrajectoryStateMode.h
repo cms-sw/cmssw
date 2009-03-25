@@ -22,6 +22,8 @@ public:
    *  Return value true for success. */
   bool momentumFromModePPhiEta (const TrajectoryStateOnSurface tsos,
 				GlobalVector& momentum) const;
+  /** Charge from 1D mode calculation in q/p. Q=0 in case of failure. */
+  int chargeFromMode (const TrajectoryStateOnSurface tsos) const;
 };
 
 
