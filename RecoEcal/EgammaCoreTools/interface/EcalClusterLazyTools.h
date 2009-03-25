@@ -13,6 +13,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 
@@ -79,6 +80,8 @@ class EcalClusterLazyTools {
                 //Warning: covIEtaIEta has been studied by egamma, but so far covIPhiIPhi hasnt been studied extensively so there could be a bug in 
                 //         the covIPhiIEta or covIPhiIPhi calculations. I dont think there is but as it hasnt been heavily used, there might be one
                 std::vector<float> localCovariances(const reco::BasicCluster &cluster, float w0 = 4.7);
+                std::vector<float> scLocalCovariances(const reco::SuperCluster &cluster, float w0 = 4.7);
+
                 double zernike20( const reco::BasicCluster &cluster, double R0 = 6.6, bool logW = true, float w0 = 4.7 );
                 double zernike42( const reco::BasicCluster &cluster, double R0 = 6.6, bool logW = true, float w0 = 4.7 );
 

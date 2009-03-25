@@ -784,7 +784,7 @@ float  EcalClusterTools::getIPhi(const DetId& id)
   return 0.;    
 }
 
-std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology, const CaloGeometry* geometry, float w0)
+std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology, float w0)
 {
   const reco::BasicCluster bcluster = *(cluster.seed());
   
