@@ -24,7 +24,7 @@ public:
 	     DDSolidShape shape, const MagneticFieldProvider<float> * mfp,
 	     double sf=1.) :
     Base(pos,rot), MagneticField(), theShape(shape), theProvider(mfp), 
-    theScalingFactor(sf) {}
+    theScalingFactor(sf), isIronFlag(false) {}
 
   virtual ~MagVolume() {}
 
@@ -47,11 +47,17 @@ public:
     return fieldInTesla( gp);
   }
 
+  /// Temporary hack to pass information on material. Will eventually be replaced!
+  bool isIron() const {return isIronFlag;}
+  void setIsIron(bool iron) {isIronFlag = iron;}
+
 private:
 
   DDSolidShape theShape;
   const MagneticFieldProvider<float> * theProvider;
   double theScalingFactor;
+  // Temporary hack to keep information on material. Will eventually be replaced!
+  bool isIronFlag;
 
 };
 
