@@ -1351,7 +1351,7 @@ void HcalDeadCellMonitor::fillNevents_occupancy(void)
 		      (!checkHF_ && subdet==4)) continue;
 		  mydepth=depth-1 ; // my depth starts at 0, not 1
 		  if (subdet==2 && depth<3) // remember that HE depths 1 and 2 are shifter up by 4 in occupancy array
-		    mydepth=depth+4;
+		    mydepth=mydepth+4;
 		  if (occupancy[eta][phi][mydepth]==0)
 		    {
 		      if (fVerbosity>0) cout <<"DEAD CELL; NO OCCUPANCY: subdet = "<<subdet<<", eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<endl;
@@ -1424,7 +1424,7 @@ void HcalDeadCellMonitor::fillNevents_pedestal(void)
 
 		  mydepth=depth-1; // my depth starts at 0, not 1
 		  if (subdet==2) // remember that HE depths 1 & 2 are shifter up by 4
-		    mydepth=depth+4;
+		    mydepth=mydepth+4;
 
 		  // Now that we have a valid cell, check whether it was ever above the pedestal threshold
 		  if (abovepedestal[eta][phi][mydepth]>0)
@@ -1495,15 +1495,8 @@ void HcalDeadCellMonitor::fillNevents_energy(void)
 		      (!checkHF_ && subdet==4)) continue;
 		  mydepth=depth-1; // my depth index starts at 0, not 1
 		  if (subdet==2 && depth<3) // remember that HE depths 1 & 2 are shifted by 4
-		    mydepth=depth+4;
+		    mydepth=mydepth+4;
 		  
-		  
-		  int oldevts=(ievt_/deadmon_checkNevents_);
-		  if (ievt_%deadmon_checkNevents_==0)
-		    oldevts-=1;
-		  oldevts*=deadmon_checkNevents_;
-		  int newevts=ievt_-oldevts;
-		  if (newevts<0) newevts=0; // shouldn't happen
 		  if (rechit_occupancy[eta][phi][mydepth]==0 && deadmon_test_rechit_occupancy_) // no rechits found; 
 		    {
 		      UnoccupiedRecHitsByDepth[mydepth]->Fill(ieta,iphi,deadmon_checkNevents_);
@@ -1522,7 +1515,7 @@ void HcalDeadCellMonitor::fillNevents_energy(void)
 		  if (fVerbosity>2) 
 		    cout <<"DEAD CELL; BELOW ENERGY THRESHOLD = "<<subdet<<" eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<endl;
 		  
-		  // Cell is below energy for all 'newevts' consecutive events; update histogram
+		  // Cell is below energy for all 'checkNevents_' consecutive events; update histogram
 		  // BinContent starts at 1, not 0 (offset by 0)
 		  // Offset by another 1 due to empty bins at edges
 
@@ -1586,7 +1579,7 @@ void HcalDeadCellMonitor::fillNevents_neighbor(void)
 		      (!checkHF_ && subdet==4)) continue;
 		  mydepth=depth-1; // my depth starts at 0, not 1
 		  if (subdet==2 && depth<3) // remember that HE depths 1 & 2 are shifted by +4
-		    mydepth=depth+4;
+		    mydepth=mydepth+4;
 		  if (rechit_occupancy[eta][phi][mydepth]==0) // no rechits found; ignore test
 		    {
 		      belowneighbors[eta][phi][mydepth]=0; // shouldn't be necessary
