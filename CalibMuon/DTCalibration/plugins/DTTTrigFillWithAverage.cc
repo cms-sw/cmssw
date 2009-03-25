@@ -1,13 +1,14 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/03 09:13:59 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/12/11 16:34:34 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
 #include "DTTTrigFillWithAverage.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
@@ -38,9 +39,10 @@ DTTTrigData DTTTrigFillWithAverage::correction(const DTSuperLayerId& slId) {
     return DTTTrigData(tTrigMean,tTrigSigma,kFactor);
   } else {
     if(!foundAverage_) getAverage();
-    double corrMean = initialTTrig_.aveMean;
-    double corrSigma = initialTTrig_.aveSigma;
-    return DTTTrigData(corrMean,corrSigma,kFactor); //FIXME: kFactor is not anymore a unique one
+    float corrMean = initialTTrig_.aveMean;
+    float corrSigma = initialTTrig_.aveSigma;
+    float corrKFactor = initialTTrig_.aveKFactor; 
+    return DTTTrigData(corrMean,corrSigma,corrKFactor); //FIXME: kFactor is not anymore a unique one
   } 
 }
 
@@ -48,11 +50,12 @@ void DTTTrigFillWithAverage::getAverage() {
   //Get the superlayers list
   vector<DTSuperLayer*> dtSupLylist = muonGeom_->superLayers();
 
-  double aveMean = 0.;
-  double ave2Mean = 0.;
-  double aveSigma = 0.;
-  double ave2Sigma = 0.;
-  double nIter = 0.;
+  float aveMean = 0.;
+  float ave2Mean = 0.;
+  float aveSigma = 0.;
+  float ave2Sigma = 0.;
+  float aveKFactor = 0.;
+  int nIter = 0;
   
   for(vector<DTSuperLayer*>::const_iterator sl = muonGeom_->superLayers().begin();
                                             sl != muonGeom_->superLayers().end(); ++sl) {
@@ -64,21 +67,30 @@ void DTTTrigFillWithAverage::getAverage() {
       ave2Mean += tTrigMean*tTrigMean;
       aveSigma += tTrigSigma;
       ave2Sigma += tTrigSigma*tTrigSigma;
+      aveKFactor += kFactor;
     }
   }
 
   // Compute average
   aveMean /= nIter;
-  double rmsMean = ave2Mean/(nIter - 1) - aveMean*aveMean;
+  float rmsMean = ave2Mean/(nIter - 1) - aveMean*aveMean;
   rmsMean = sqrt(rmsMean);
   aveSigma /= nIter;
-  double rmsSigma = ave2Sigma/(nIter - 1) - aveSigma*aveSigma;
+  float rmsSigma = ave2Sigma/(nIter - 1) - aveSigma*aveSigma;
   rmsSigma = sqrt(rmsSigma);
+  aveKFactor /= nIter;  
 
   initialTTrig_.aveMean = aveMean;
   initialTTrig_.rmsMean = rmsMean;
   initialTTrig_.aveSigma = aveSigma;
   initialTTrig_.rmsSigma = rmsSigma;
+  initialTTrig_.aveKFactor = aveKFactor;
 
+  LogVerbatim("Calibration") << "[DTTTrigFillWithAverage] Found from " << nIter << " SL's\n"
+                             << "                               average tTrig mean: " << aveMean << "\n"
+                             << "                               tTrig mean RMS: " << rmsMean << "\n"
+                             << "                               average tTrig sigma: " << aveSigma << "\n"
+                             << "                               tTrig sigma RMS: " << rmsSigma << "\n" 
+                             << "                               kFactor mean: " << aveKFactor;
   foundAverage_ = true;
 }

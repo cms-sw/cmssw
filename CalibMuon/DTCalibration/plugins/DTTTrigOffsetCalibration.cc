@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/03 08:34:49 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/12/11 16:34:34 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
@@ -218,11 +218,21 @@ void DTTTrigOffsetCalibration::analyze(const Event & event, const EventSetup& ev
       LocalVector segment4DLocalDir = (*segment).localDirection();
       if(fabs(atan(segment4DLocalDir.y()/segment4DLocalDir.z())* 180./Geom::pi()) > theMaxZAngle_) continue; // cut on the angle
       if(fabs(atan(segment4DLocalDir.x()/segment4DLocalDir.z())* 180./Geom::pi()) > theMaxPhiAngle_) continue; // cut on the angle
-
       // Fill t0-seg values
-      if((*segment).hasPhi()) (theT0SegHistoMap_[*chamberIdIt])[0]->Fill(segment->phiSegment()->t0());
-      if((*segment).hasZed()) (theT0SegHistoMap_[*chamberIdIt])[1]->Fill(segment->zSegment()->t0());
-
+      if((*segment).hasPhi()) {
+	if((segment->phiSegment()->t0()) != 0.00){
+	  (theT0SegHistoMap_[*chamberIdIt])[0]->Fill(segment->phiSegment()->t0());
+	}
+      }
+      if((*segment).hasZed()){
+    	if((segment->zSegment()->t0()) != 0.00){
+	  (theT0SegHistoMap_[*chamberIdIt])[1]->Fill(segment->zSegment()->t0());
+	}
+      }
+      
+      // Fill t0-seg values
+    //      if((*segment).hasPhi()) (theT0SegHistoMap_[*chamberIdIt])[0]->Fill(segment->phiSegment()->t0());
+    //  if((*segment).hasZed()) (theT0SegHistoMap_[*chamberIdIt])[1]->Fill(segment->zSegment()->t0());
       //if((*segment).hasZed() && (*segment).hasPhi()) {}
 
       /*//loop over the segments 
@@ -316,8 +326,8 @@ void DTTTrigOffsetCalibration::bookHistos(DTChamberId chId) {
 
   vector<TH1F*> histos;
   // Note the order matters
-  histos.push_back(new TH1F(("hRPhiSegT0"+chHistoName).c_str(), "t0 from Phi segments", 200, -35., 35.));
-  if(chId.station() != 4) histos.push_back(new TH1F(("hRZSegT0"+chHistoName).c_str(), "t0 from Z segments", 200, -35., 35.));
+  histos.push_back(new TH1F(("hRPhiSegT0"+chHistoName).c_str(), "t0 from Phi segments", 250, -60., 60.));
+  if(chId.station() != 4) histos.push_back(new TH1F(("hRZSegT0"+chHistoName).c_str(), "t0 from Z segments", 250, -60., 60.));
 
   theT0SegHistoMap_[chId] = histos;
 }

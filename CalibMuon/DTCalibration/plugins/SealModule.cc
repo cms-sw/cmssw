@@ -21,6 +21,7 @@
 
 #include "CalibMuon/DTCalibration/interface/DTTTrigCorrectionFactory.h"
 #include "CalibMuon/DTCalibration/plugins/DTTTrigT0SegCorrection.h"
+#include "CalibMuon/DTCalibration/plugins/DTTTrigResidualCorrection.h"
 #include "CalibMuon/DTCalibration/plugins/DTTTrigMatchRPhi.h"
 #include "CalibMuon/DTCalibration/plugins/DTTTrigFillWithAverage.h"
 
@@ -42,5 +43,6 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(DTFakeT0ESProducer);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(DTFakeVDriftESProducer);
 
 DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,DTTTrigT0SegCorrection,"DTTTrigT0SegCorrection");
+DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,DTTTrigResidualCorrection,"DTTTrigResidualCorrection");
 DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,DTTTrigMatchRPhi,"DTTTrigMatchRPhi");
 DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,DTTTrigFillWithAverage,"DTTTrigFillWithAverage");

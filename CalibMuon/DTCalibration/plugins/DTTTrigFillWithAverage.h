@@ -5,7 +5,7 @@
  *  Concrete implementation of a DTTTrigBaseCorrection.
  *  Fills missing tTrig values in DB 
  *
- *  $Revision: 1.2 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
@@ -37,10 +37,11 @@ private:
   edm::ESHandle<DTGeometry> muonGeom_;
 
   struct {
-    double aveMean;
-    double rmsMean;
-    double aveSigma;
-    double rmsSigma;
+    float aveMean;
+    float rmsMean;
+    float aveSigma;
+    float rmsSigma;
+    float aveKFactor;
   } initialTTrig_;
 
   bool foundAverage_; 

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/13 12:42:09 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/12/11 16:34:34 $
+ *  $Revision: 1.6 $
  *  \author S. Maselli - INFN Torino
  *          A. Vilela Pereira
  */
@@ -72,7 +72,7 @@ void DTTTrigCorrection::endJob() {
                                             sl != muonGeom_->superLayers().end(); ++sl) {
     // Get old value from DB
     float tTrigMean,tTrigSigma,kFactor;
-    tTrigMap_->get((*sl)->id(),tTrigMean,tTrigSigma,kFactor,DTTimeUnits::ns);
+    int status = tTrigMap_->get((*sl)->id(),tTrigMean,tTrigSigma,kFactor,DTTimeUnits::ns);
 
     //Compute new ttrig
     try{
@@ -88,6 +88,14 @@ void DTTTrigCorrection::endJob() {
 				 << " kFactor from " << kFactor << " to " << kFactorNew << endl;
     } catch(cms::Exception& e){
       LogError("Calibration") << e.explainSelf();
+      // Set db to the old value, if it was there in the first place
+      if(!status){
+         tTrigNewMap->set((*sl)->id(),tTrigMean,tTrigSigma,kFactor,DTTimeUnits::ns);
+         LogVerbatim("Calibration") << "Keep old tTrig for : " << (*sl)->id()
+                                    << " mean " << tTrigMean
+                                    << " sigma " << tTrigSigma
+                                    << " kFactor " << kFactor << endl;
+      } 
       continue;
     }
   }//End of loop on superlayers 
