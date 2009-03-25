@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoEgamma.PhotonIdentification.isolationCalculator_cfi import *
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.22 2009/03/04 15:30:44 nancy Exp $
+# $Id: photons_cfi.py,v 1.23 2009/03/25 11:16:32 nancy Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     photonCoreProducer = cms.string('photonCore'),
@@ -20,13 +20,14 @@ photons = cms.EDProducer("PhotonProducer",
     hbheModule = cms.string('hbhereco'),
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     hcalTowers = cms.InputTag("towerMaker"),
-    minSCEt = cms.double(10.0),
     highEt  = cms.double(100.),                       
     minR9Barrel = cms.double(0.93),
     minR9Endcap = cms.double(0.93),                     
     hOverEConeSize = cms.double(0.1),
     posCalc_x0 = cms.double(0.89),
     posCalc_t0_barl = cms.double(7.7),
+    minSCEtBarrel = cms.double(10.0),
+    minSCEtEndcap = cms.double(10.0),                     
     maxHoverEBarrel = cms.double(0.5),
     maxHoverEEndcap = cms.double(0.5),
     ecalRecHitSumEtBarrel = cms.double(10.0),

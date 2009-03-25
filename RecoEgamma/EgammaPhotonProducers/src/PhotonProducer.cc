@@ -35,20 +35,15 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   photonCoreProducer_   = conf_.getParameter<std::string>("photonCoreProducer");
   barrelEcalHits_   = conf_.getParameter<edm::InputTag>("barrelEcalHits");
   endcapEcalHits_   = conf_.getParameter<edm::InputTag>("endcapEcalHits");
-
   vertexProducer_   = conf_.getParameter<std::string>("primaryVertexProducer");
   PhotonCoreCollection_ = conf_.getParameter<std::string>("photonCollection");
   hcalTowers_ = conf_.getParameter<edm::InputTag>("hcalTowers");
-
   hOverEConeSize_   = conf_.getParameter<double>("hOverEConeSize");
-  minSCEt_        = conf_.getParameter<double>("minSCEt");
   highEt_        = conf_.getParameter<double>("highEt");
   // R9 value to decide converted/unconverted
   minR9Barrel_        = conf_.getParameter<double>("minR9Barrel");
   minR9Endcap_        = conf_.getParameter<double>("minR9Endcap");
   usePrimaryVertex_ = conf_.getParameter<bool>("usePrimaryVertex");
-
-
  
  
   // Parameters for the position calculation:
@@ -61,6 +56,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   providedParameters.insert(std::make_pair("X0",conf_.getParameter<double>("posCalc_x0")));
   posCalculator_ = PositionCalc(providedParameters);
   // cut values for pre-selection
+  preselCutValuesBarrel_.push_back(conf_.getParameter<double>("minSCEtBarrel")); 
   preselCutValuesBarrel_.push_back(conf_.getParameter<double>("maxHoverEBarrel")); 
   preselCutValuesBarrel_.push_back(conf_.getParameter<double>("ecalRecHitSumEtBarrel")); 
   preselCutValuesBarrel_.push_back(conf_.getParameter<double>("hcalTowerSumEtBarrel"));
@@ -70,6 +66,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   preselCutValuesBarrel_.push_back(conf_.getParameter<double>("trackPtSumHollowConeBarrel"));     
   preselCutValuesBarrel_.push_back(conf_.getParameter<double>("sigmaIetaIetaCutBarrel"));     
   //  
+  preselCutValuesEndcap_.push_back(conf_.getParameter<double>("minSCEtEndcap")); 
   preselCutValuesEndcap_.push_back(conf_.getParameter<double>("maxHoverEEndcap")); 
   preselCutValuesEndcap_.push_back(conf_.getParameter<double>("ecalRecHitSumEtEndcap")); 
   preselCutValuesEndcap_.push_back(conf_.getParameter<double>("hcalTowerSumEtEndcap"));
@@ -230,29 +227,29 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 	preselCutValues = preselCutValuesBarrel_;
         minR9=minR9Barrel_;
         hits=  ecalBarrelHits;
+	std::cout << " Photon Producer : Barrel " << std::endl;
       }
     else if  (subdet==EcalEndcap) 
       { 
 	preselCutValues = preselCutValuesEndcap_;
         minR9=minR9Endcap_;
 	hits=  ecalEndcapHits;
+	std::cout << " Photon Producer : Endcap " << std::endl;
       }
     else
-      { edm::LogWarning("")<<"GsfElectronAlgo::createElectron(): do not know if it is a barrel or endcap seed cluster !!!!" ; }
-
+      { edm::LogWarning("")<<"PhotonProducer: do not know if it is a barrel or endcap SuperCluster" ; }
     
+        
     // SC energy preselection
-    if (scRef->energy()/cosh(scRef->eta()) <= minSCEt_) continue;
+    if (scRef->energy()/cosh(scRef->eta()) <= preselCutValues[0] ) continue;
     // calculate HoE
-
-
-     const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
-     EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,0.,1,hcalTowersColl) ;  
-     EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,0.,2,hcalTowersColl) ;  
-     double HoE1=towerIso1.getTowerESum(&(*scRef))/scRef->energy();
-     double HoE2=towerIso2.getTowerESum(&(*scRef))/scRef->energy(); 
-     //     std::cout << " PhotonProducer " << HoE1  << "  HoE2 " << HoE2 << std::endl;
-     //std::cout << " PhotonProducer calcualtion of HoE1 " << HoE1  << "  HoE2 " << HoE2 << std::endl;
+    const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
+    EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,0.,1,hcalTowersColl) ;  
+    EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,0.,2,hcalTowersColl) ;  
+    double HoE1=towerIso1.getTowerESum(&(*scRef))/scRef->energy();
+    double HoE2=towerIso2.getTowerESum(&(*scRef))/scRef->energy(); 
+    //     std::cout << " PhotonProducer " << HoE1  << "  HoE2 " << HoE2 << std::endl;
+    //std::cout << " PhotonProducer calcualtion of HoE1 " << HoE1  << "  HoE2 " << HoE2 << std::endl;
 
     
     // recalculate position of seed BasicCluster taking shower depth for unconverted photon
@@ -262,7 +259,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     float e1x5    =   EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology)); 
     float e2x5    =   EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology)); 
     float e3x3    =   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology)); 
-    float e5x5    = EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology)); 
+    float e5x5    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology)); 
     std::vector<float> cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry); 
     float sigmaEtaEta = sqrt(cov[0]);
     std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology)); 
@@ -323,14 +320,14 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     bool isLooseEM=true;
     
     if ( newCandidate.pt() < highEt_) { 
-      if ( newCandidate.hadronicOverEm()                 >= preselCutValues[0] )      isLooseEM=false;
-      if ( newCandidate.ecalRecHitSumEtConeDR04()        > preselCutValues[1] )       isLooseEM=false;
-      if ( newCandidate.hcalTowerSumEtConeDR04()         > preselCutValues[2] )       isLooseEM=false;
-      if ( newCandidate.nTrkSolidConeDR04()              > int(preselCutValues[3]) )  isLooseEM=false;
-      if ( newCandidate.nTrkHollowConeDR04()             > int(preselCutValues[4]) )  isLooseEM=false;
-      if ( newCandidate.trkSumPtSolidConeDR04()          > preselCutValues[5] )       isLooseEM=false;
-      if ( newCandidate.trkSumPtHollowConeDR04()         > preselCutValues[6] )       isLooseEM=false;
-      if ( newCandidate.sigmaIetaIeta()                  > preselCutValues[7] )       isLooseEM=false;
+      if ( newCandidate.hadronicOverEm()                 >= preselCutValues[1] )      isLooseEM=false;
+      if ( newCandidate.ecalRecHitSumEtConeDR04()        > preselCutValues[2] )       isLooseEM=false;
+      if ( newCandidate.hcalTowerSumEtConeDR04()         > preselCutValues[3] )       isLooseEM=false;
+      if ( newCandidate.nTrkSolidConeDR04()              > int(preselCutValues[4]) )  isLooseEM=false;
+      if ( newCandidate.nTrkHollowConeDR04()             > int(preselCutValues[5]) )  isLooseEM=false;
+      if ( newCandidate.trkSumPtSolidConeDR04()          > preselCutValues[6] )       isLooseEM=false;
+      if ( newCandidate.trkSumPtHollowConeDR04()         > preselCutValues[7] )       isLooseEM=false;
+      if ( newCandidate.sigmaIetaIeta()                  > preselCutValues[8] )       isLooseEM=false;
     } 
     
     
