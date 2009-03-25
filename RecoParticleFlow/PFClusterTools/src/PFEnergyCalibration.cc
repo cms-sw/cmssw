@@ -292,6 +292,26 @@ PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,std::vector<dou
   return calibrated; 
 }
 
+double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,std::vector<double> &EclustersPS1,std::vector<double> &EclustersPS2,
+			      double& ps1,double& ps2){
+  double eEcal = clusterEcal.energy();
+  //temporaty ugly fix
+  reco::PFCluster myPFCluster=clusterEcal;
+  myPFCluster.calculatePositionREP();
+  double eta = myPFCluster.positionREP().eta();
+  double phi = myPFCluster.positionREP().phi();
+
+  double ePS1 = 0;
+  double ePS2 = 0;
+
+  for(unsigned i=0;i<EclustersPS1.size();i++) ePS1 += EclustersPS1[i];
+  for(unsigned i=0;i<EclustersPS2.size();i++) ePS2 += EclustersPS2[i];
+
+  double calibrated = Ecorr(eEcal,ePS1,ePS2,eta,phi,ps1,ps2);
+  if(eEcal!=0 && calibrated==0) std::cout<<"Eecal = "<<eEcal<<"  eta = "<<eta<<"  phi = "<<phi<<std::endl; 
+  return calibrated; 
+}
+
 
 double 
 PFEnergyCalibration::energyHad(double uncalibratedEnergyHCAL, 
@@ -642,6 +662,32 @@ PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal
   return result;
 } 
 
+// returns the corrected energy in the PS (1.65,2.6)
+// only when (ePS1>0)||(ePS2>0)
+double
+PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal,double & outputPS1, double & outputPS2) {
+
+  // gives the good weights to each subdetector
+  double gammaprime=Gamma(etaEcal)/9e-5;
+  outputPS1=gammaprime*ePS1;
+  outputPS2=gammaprime*Alpha(etaEcal)*ePS2;
+  double E = Beta(1.0155*eEcal+0.025*(ePS1+0.5976*ePS2)/9e-5,etaEcal)*eEcal+outputPS1+outputPS2;
+
+  //Correction of the residual energy dependency
+  static double p0 = 1.00;
+  static double p1 = 2.18;
+  static double p2 =1.94;
+  static double p3 =4.13;
+  static double p4 =1.127;
+  
+  double corrfac=(p0+p1*TMath::Exp(-E/p2)-p3*TMath::Exp(-E/p4));
+  outputPS1*=corrfac;
+  outputPS2*=corrfac;
+  double result = E*corrfac;
+
+  return result;
+} 
+
 
 // returns the corrected energy in the PS (1.65,2.6)
 // only when (ePS1=0)&&(ePS2=0)
@@ -718,6 +764,32 @@ PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,double eta,doubl
     else if(eta <= beginingPS)                   result = EcorrZoneBeforePS(eEcal,eta);
     else if((eta < endPS) && ePS1==0 && ePS2==0) result = EcorrPS_ePSNil(eEcal,eta);
     else if(eta < endPS)                         result = EcorrPS(eEcal,ePS1,ePS2,eta);
+    else if(eta < endEndCap)                     result = EcorrZoneAfterPS(eEcal,eta); 
+    else result =eEcal;
+  }
+  else result = eEcal;// useful if eEcal=0 or eta>2.98
+  return result;
+}
+
+// returns the corrected energy everywhere
+// this work should be improved between 1.479 and 1.52 (junction barrel-endcap)
+double
+PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,double& ps1,double&ps2)  {
+
+  static double endBarrel=1.48;
+  static double beginingPS=1.65;
+  static double endPS=2.6;
+  static double endEndCap=2.98;
+ 
+  double result=0;
+
+  eta=TMath::Abs(eta);
+
+  if(eEcal>0){
+    if(eta <= endBarrel)                         result = EcorrBarrel(eEcal,eta,phi);
+    else if(eta <= beginingPS)                   result = EcorrZoneBeforePS(eEcal,eta);
+    else if((eta < endPS) && ePS1==0 && ePS2==0) result = EcorrPS_ePSNil(eEcal,eta);
+    else if(eta < endPS)                         result = EcorrPS(eEcal,ePS1,ePS2,eta,ps1,ps2);
     else if(eta < endEndCap)                     result = EcorrZoneAfterPS(eEcal,eta); 
     else result =eEcal;
   }
