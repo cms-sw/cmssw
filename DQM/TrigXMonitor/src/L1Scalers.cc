@@ -1,4 +1,4 @@
-// $Id: L1Scalers.cc,v 1.11 2008/09/16 17:19:13 wittich Exp $
+// $Id: L1Scalers.cc,v 1.12 2008/09/17 20:55:54 lorenzo Exp $
 #include <iostream>
 
 
@@ -53,10 +53,13 @@ L1Scalers::L1Scalers(const edm::ParameterSet &ps):
   fedStart_(ps.getUntrackedParameter<unsigned int>("firstFED", 0)),
   fedStop_(ps.getUntrackedParameter<unsigned int>("lastFED", 931)), 
   fedRawCollection_(ps.getParameter<edm::InputTag>("fedRawData")),
-  maskedList_(ps.getUntrackedParameter<std::vector<int> >("maskedChannels", maskedList_)), //this is using the ashed index
   HcalRecHitCollection_(ps.getParameter<edm::InputTag>("HFRecHitCollection"))
 {
   LogDebug("Status") << "constructor" ;
+  std::vector<int> maskedlist;
+  maskedlist.push_back(-1);
+  maskedList_ = ps.getUntrackedParameter<std::vector<int> >("maskedChannels", maskedlist); //this is using the ashed index
+
 } 
 
 
