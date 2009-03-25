@@ -102,7 +102,7 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
      fPythiaListVerbosity(ps.getUntrackedParameter<int>("pythiaPylistVerbosity", 0))
 { 
 
-   // J.Y.: the following 3 params are "hacked", in the sense 
+   // J.Y.: the following 4 params are "hacked", in the sense 
    // that they're tracked but get in optionally;
    // this will be fixed once we update all applications
    //
@@ -210,7 +210,8 @@ void Pythia6Hadronizer::finalizeEvent()
 
    // convert particle IDs Py6->PDG, if requested
    if ( fConvertToPDG ) {
-      for ( HepMC::GenEvent::particle_iterator part = event()->particles_begin(); part != event()->particles_end(); ++part) {
+      for ( HepMC::GenEvent::particle_iterator part = event()->particles_begin(); 
+                                               part != event()->particles_end(); ++part) {
          (*part)->set_pdg_id(HepPID::translatePythiatoPDT((*part)->pdg_id()));
       }
    }
