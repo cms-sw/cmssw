@@ -240,7 +240,7 @@ void L1GctTwosComplement<nBits>::checkOverFlow(uint32_t rawValue, uint32_t &mask
 template <int nBits>
 std::ostream& operator<<(std::ostream& s, const L1GctTwosComplement<nBits>& data) {
 
-  s << "L1GctTwosComplement raw : " << data.raw() << ", " << "value : " << data.value();
+  s << "L1GctTwosComplement<" << data.size() << "> raw : " << data.raw() << ", " << "value : " << data.value();
   if (data.overFlow()) { s << " Overflow set! "; }
 
   return s;
