@@ -737,7 +737,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   } // then check against it.
   if (dccHeader->getCDFEventType()!= CDFEvT_it->second) {
     meCDFErrorFound_->Fill(dccid,3);
-    CDFProbThisDCC = true; 
+    // OK to change for Orbit Gap Calibration Triggers... 
+    // CDFProbThisDCC = true; 
   }
   /* 4 */ //There should always be a '5' in CDF Header word 0, bits [63:60]
   if (dccHeader->BOEshouldBe5Always()!=5) {
@@ -753,12 +754,13 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   CDFReservedBits_it = CDFReservedBits_list.find(dccid);
   if (CDFReservedBits_it  == CDFReservedBits_list.end()) {
     CDFReservedBits_list.insert(pair<int,short>
-				(dccid,dccHeader->getSlink64ReservedBits() ) );
+ 				(dccid,dccHeader->getSlink64ReservedBits() & 0x00FFFF ) );
     CDFReservedBits_it = CDFReservedBits_list.find(dccid);
   } // then check against it.
   if ((int) dccHeader->getSlink64ReservedBits()!= CDFReservedBits_it->second) {
     meCDFErrorFound_->Fill(dccid,6);
-    CDFProbThisDCC = true; 
+    // On probation until safe against Orbit Gap Calibration Triggers...
+    // CDFProbThisDCC = true; 
   }
   /* 7 */ //There should always be 0x0 in CDF Header word 1, bits [63:60]
   if (dccHeader->BOEshouldBeZeroAlways() !=0) {
@@ -817,11 +819,13 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   }
   if (TTS_state & 0x2) /*SYN*/ {
     ++DCC_DataIntegrityCheck_[bin][17];
-    ++DCC_DataIntegrityCheck_[bin][ 6];}          // DCC lost data
+    ++DCC_DataIntegrityCheck_[bin][ 6];
+    mapDCCproblem(dccid);}          // DCC lost data
+
   if (TTS_state & 0x1) /*OFW*/ {
     ++DCC_DataIntegrityCheck_[bin][19];
     ///\\\///DATAFORMAT_PROBLEM_ZOO-> Fill(9);
-    mapDCCproblem(dcc_);}
+  }
 
   ////////// Histogram problems with DCC Event Format compliance;////////////
   /* 1 */ //Make sure a reference value of the DCC Event Format version has been noted for this dcc.
@@ -890,7 +894,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     }
     if ((WholeErrorList>>2)&0x01) { //EE
       meDCCSummariesOfHTRs_->Fill(dccid, 3);
-      mapHTRproblem(dcc_, j);
+      //mapHTRproblem(dccid, j);
       fillzoos(1,dccid);
     }
     if ((WholeErrorList>>3)&0x01) { //Trigger Rule Viol.
@@ -933,7 +937,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
       }
     }
     if (FoundOne) 
-      mapHTRproblem(dcc_, j);
+      ;//mapHTRproblem(dccid, j);
   }
   /* [17:20] */ //Histogram condition of Enabled Spigots without data Present
   bool FoundEnotP=false;
@@ -1045,11 +1049,12 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     if (!htr.check()) {
       meInvHTRData_ -> Fill(spigot,dccid);
       fillzoos(8,dccid);
-      mapHTRproblem(dcc_,spigot);}
+      mapHTRproblem(dccid,spigot);
+    }
 
     //Fake a problem with each HTR a unique number of times.
     // if ( (spigot+1) >= ievt_ ) 
-    //   mapHTRproblem(dcc_,spigot); //Fill every one once, first.
+    //  mapHTRproblem(dccid,spigot); 
 
 
     // Fish out Front-End Errors from the precision channels
@@ -1285,7 +1290,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	  else if (cratenum ==17)meCrate17HTRErr_ -> Fill(slotnum,i);
 	} 
       }
-    }    
+    }
   } //  for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) 
   return;
 } // void HcalDataFormatMonitor::unpack(
@@ -1406,7 +1411,7 @@ void HcalDataFormatMonitor::fillzoos(int bin, int dccid) {
   ///\\\///    HO_DATAFORMAT_PROBLEM_ZOO->Fill(bin);
 }
 
-void HcalDataFormatMonitor::mapHTRproblem (int dcc, int spigot) {
+void HcalDataFormatMonitor::mapHTRproblem(int dcc, int spigot) {
   int mydepth,myeta = 0;
   //dcc, spigot pair for finding this spigot's HcalDetIds
   pair <int,int> thishtr = pair <int,int> (dcc, spigot);
@@ -1426,7 +1431,7 @@ void HcalDataFormatMonitor::mapHTRproblem (int dcc, int spigot) {
 
 void HcalDataFormatMonitor::mapDCCproblem(int dcc) {
   int mydepth,myeta = 0;
-
+ 
   //Light up all affected cells.
   for (std::vector<HcalDetId>::iterator thishdi = DCCtoCell[dcc].begin(); 
        thishdi != DCCtoCell[dcc].end(); thishdi++) {
@@ -1472,8 +1477,8 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
       for (int depth=0;depth<DEPTHBINS;++depth) {// this is one unit less "true" depth (for indexing purposes)
 	if (0 == problemcount[eta][phi][depth]) 
 	  continue;
-	  // remember that HF's elements are stored in towers farther forward than "true"
-        if ( ((depth==0)||(depth==1)) &&
+	// remember that HF's elements are stored in towers farther forward than "true"
+	if ( ((depth==0)||(depth==1)) &&
 	     (abs(ieta)>29)              ) { 
 	  if (eta<int((etaBins_-2)/2)) ieta=eta-int((etaBins_-2)/2)+1;
 	  else                         ieta=eta-int((etaBins_-2)/2)-1;
