@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.100 2009/03/20 16:11:36 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.101 2009/03/23 19:51:32 amraktad Exp $
 //
 
 // system include files
@@ -188,6 +188,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
 
 FWGUIManager::~FWGUIManager()
 {
+   gEve->GetWindowManager()->Disconnect("WindowSelected(TEveWindow*)", this, "subviewCurrentChanged(TEveWindow*)");
    for(std::vector<FWViewBase* >::iterator it = m_viewBases.begin(), itEnd = m_viewBases.end();
        it != itEnd;
        ++it) {
