@@ -225,6 +225,9 @@ bool PomwigHadronizer::initializeForInternalPartons()
 bool PomwigHadronizer::initializeDPDF()
 {
    // Initialize H1 pomeron/reggeon
+
+   if(diffTopology == 3) return true;
+ 
    if((diffTopology != 0)&&(diffTopology != 1)&&(diffTopology != 2)) return false;
 
    int nstru = hwpram.NSTRU;
@@ -261,7 +264,7 @@ bool PomwigHadronizer::initializeDPDF()
          throw edm::Exception(edm::errors::Configuration,"PomwigError")
                <<" Only running Pomeron H1 1997 (NSTRU=9), H1 2006 fit A (NSTRU=12) and H1 2006 fit B (NSTRU=14) or Reggeon H1 1997 (NSTRU=10), H1 2006 fit A (NSTRU=13) and H1 2006 fit B (NSTRU=15)";
     }
-
+ 
     return true;
 }
 
@@ -298,47 +301,31 @@ bool PomwigHadronizer::generatePartonsAndHadronize()
 
 	event().reset();
 
-	int counter = 0;
-	while(counter++ < numTrials) {
-		// call herwig routines to create HEPEVT
+	// call herwig routines to create HEPEVT
 
-		hwuine();	// initialize event
-
-		if (callWithTimeout(10, hwepro)) { // process event and PS
-			// We hung for more than 10 seconds
-			int error = 199;
-			hwwarn_("HWHGUP", &error);
-		}
-
-		hwbgen();	// parton cascades
-
-		// call jimmy ... only if event is not killed yet by HERWIG
-		if (useJimmy && doMPInteraction && !hwevnt.IERROR &&
-		    call_hwmsct())
-				continue;
-
-		hwdhob();	// heavy quark decays
-		hwcfor();	// cluster formation
-		hwcdec();	// cluster decays
-
-		// if event was not killed by HERWIG, break out of retry loop
-		if (!hwevnt.IERROR)
-			break;
-
-		hwufne();	// finalize event
+	hwuine();	// initialize event
+	
+	if (callWithTimeout(10, hwepro)) { // process event and PS
+	  // We hung for more than 10 seconds
+	  int error = 199;
+	  hwwarn_("HWHGUP", &error);
 	}
+	
+	hwbgen();	// parton cascades
 
-	if (counter >= numTrials) {
-		edm::LogWarning("Generator|PomwigHadronizer")
-			<< "JIMMY could not produce MI in "
-			<< numTrials << " trials." << std::endl
-			<< "Event will be skipped to prevent"
-			<< " from deadlock." << std::endl;
+	// call jimmy ... only if event is not killed yet by HERWIG
+	if (useJimmy && doMPInteraction && !hwevnt.IERROR && call_hwmsct()) 
+	  return false;
+	
+	hwdhob();	// heavy quark decays
+	hwcfor();	// cluster formation
+	hwcdec();	// cluster decays
+	
+	// if event *not* killed by HERWIG, return true
+	if (!hwevnt.IERROR) return true;
 
-		return false;
-	}
-
-	return true;
+	hwufne();	// finalize event	
+	return false;
 }
 
 void PomwigHadronizer::finalizeEvent()
@@ -346,6 +333,8 @@ void PomwigHadronizer::finalizeEvent()
 	lhef::LHEEvent::fixHepMCEventTimeOrdering(event().get());
 
 	event()->set_signal_process_id(hwproc.IPROC);
+
+        event()->weights().push_back(hwevnt.EVWGT);
 }
 
 bool PomwigHadronizer::decay()

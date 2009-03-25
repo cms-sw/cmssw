@@ -6,7 +6,6 @@
 <use name=herwig>
 <use name=lhapdf>
 <use name=jimmy>
-<use name=GeneratorInterface/CommonInterface>
 <use name=GeneratorInterface/Herwig6Interface> 
 <use name=GeneratorInterface/Core>
 <use name=f77compiler>
