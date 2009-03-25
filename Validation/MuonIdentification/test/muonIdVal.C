@@ -124,6 +124,7 @@ void muonIdVal(char* filename1, char* filename2 = 0, bool make2DPlots = true, bo
             ((TH1*)obj1)->Draw();
             c1->Update();
             s1 = (TPaveStats*)obj1->FindObject("stats");
+            s1->SetTextColor(4);
             s1->SetFillStyle(0);
 
             if (obj2) {
@@ -133,6 +134,7 @@ void muonIdVal(char* filename1, char* filename2 = 0, bool make2DPlots = true, bo
                c1->Update();
 
                s2 = (TPaveStats*)obj2->FindObject("stats");
+               s2->SetTextColor(2);
                s2->SetFillStyle(0);
                double height = s2->GetY2NDC()-s2->GetY1NDC();
                s2->SetY2NDC(s1->GetY1NDC()-.005);
