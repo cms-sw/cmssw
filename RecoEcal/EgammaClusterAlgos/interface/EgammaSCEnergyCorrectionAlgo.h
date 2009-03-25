@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -22,14 +23,14 @@ class EgammaSCEnergyCorrectionAlgo
 
     // public member functions
     EgammaSCEnergyCorrectionAlgo(double noise, 
-				 reco::AlgoId theAlgo,
+				 reco::CaloCluster::AlgoId theAlgo,
 				 const edm::ParameterSet& pset, 
 				 VerbosityLevel verbosity = pERROR
                                  );
     ~EgammaSCEnergyCorrectionAlgo();
 
     // take a SuperCluster and return a corrected SuperCluster
-    reco::SuperCluster applyCorrection(const reco::SuperCluster &cl, const EcalRecHitCollection &rhc, reco::AlgoId theAlgo, const CaloSubdetectorGeometry* geometry);
+    reco::SuperCluster applyCorrection(const reco::SuperCluster &cl, const EcalRecHitCollection &rhc, reco::CaloCluster::AlgoId theAlgo, const CaloSubdetectorGeometry* geometry);
  
     // function to set the verbosity level
     void setVerbosity(VerbosityLevel verbosity)
@@ -47,7 +48,7 @@ class EgammaSCEnergyCorrectionAlgo
 
     // correction factor as a function of number of crystals,
     // BasicCluster algo and location in the detector    
-    float fNCrystals(int nCry, reco::AlgoId theAlgo, EcalSubdetector theBase);
+    float fNCrystals(int nCry, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase);
 
     // Return the number of crystals in a BasicCluster above 
     // 2sigma noise level
@@ -60,7 +61,7 @@ class EgammaSCEnergyCorrectionAlgo
     //  the verbosity level
     VerbosityLevel verbosity_;
 
-    reco::AlgoId theAlgo_;
+    reco::CaloCluster::AlgoId theAlgo_;
 
     //Paramete sets for corrections functions
     std::vector<double> fBrem_; 

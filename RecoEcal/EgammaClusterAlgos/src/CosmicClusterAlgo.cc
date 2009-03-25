@@ -272,7 +272,7 @@ void CosmicClusterAlgo::makeCluster(
 //       std::cout << "JH****Emax****  "<<energyMax << " ieta " <<detFir.ieta() <<" iphi "<<detFir.ieta()  << std::endl;
 //       std::cout << "JH****Esec****  "<<energySecond << " ieta " <<detSec.ieta() <<" iphi "<<detSec.ieta() << std::endl;
     }
-   clusters_v.push_back(reco::BasicCluster(energy, position, reco::CaloID(), current_v25Sup, reco::island));
+   clusters_v.push_back(reco::BasicCluster(energy, position, reco::CaloID(), current_v25Sup, reco::CaloCluster::island));
 }
 
 bool CosmicClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator)

@@ -5,6 +5,7 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 #include <vector>
@@ -49,17 +50,17 @@ class BremRecoveryClusterAlgo
     }
   
   // the method called from outside to do the SuperClustering - returns a vector of SCs:
-  reco::SuperClusterCollection makeSuperClusters(reco::BasicClusterRefVector & clusters);
+  reco::SuperClusterCollection makeSuperClusters(reco::CaloClusterPtrVector & clusters);
   
  private:
   
   // make superclusters out of clusters produced by the Island algorithm:
-  void makeIslandSuperClusters(reco::BasicClusterRefVector &clusters_v, 
+  void makeIslandSuperClusters(reco::CaloClusterPtrVector &clusters_v, 
 			       double etaRoad, double phiRoad);
   
   // return true if the cluster is within the search phi-eta window of the seed
-  bool match(reco::BasicClusterRef seed_p, 
-	     reco::BasicClusterRef cluster_p,
+  bool match(reco::CaloClusterPtr seed_p, 
+	     reco::CaloClusterPtr cluster_p,
 	     double etaRoad, double phiRoad);
   
   //

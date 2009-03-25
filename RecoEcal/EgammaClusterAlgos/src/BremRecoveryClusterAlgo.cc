@@ -1,21 +1,22 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/BremRecoveryClusterAlgo.h"
 
-reco::SuperClusterCollection BremRecoveryClusterAlgo::makeSuperClusters(reco::BasicClusterRefVector & clustersCollection)
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+
+reco::SuperClusterCollection BremRecoveryClusterAlgo::makeSuperClusters(reco::CaloClusterPtrVector & clustersCollection)
 {
   const float etaBorder = 1.479;
 
   superclusters_v.clear();
   
   // create vectors of references to clusters of a specific origin...
-  reco::BasicClusterRefVector islandClustersBarrel_v;
-  reco::BasicClusterRefVector islandClustersEndCap_v;
+  reco::CaloClusterPtrVector islandClustersBarrel_v;
+  reco::CaloClusterPtrVector islandClustersEndCap_v;
 
   // ...and populate them:
-  reco::basicCluster_iterator it;
-  for (it = clustersCollection.begin(); it != clustersCollection.end(); it++)
+  for (reco::CaloCluster_iterator it = clustersCollection.begin(); it != clustersCollection.end(); it++)
     {
-      reco::BasicClusterRef cluster_p = *it;
-      if (cluster_p->algo() == reco::island) 
+      reco::CaloClusterPtr cluster_p = *it;
+      if (cluster_p->algo() == reco::CaloCluster::island) 
       {
 	  if (fabs(cluster_p->position().eta()) < etaBorder)
 	    {
@@ -38,12 +39,11 @@ reco::SuperClusterCollection BremRecoveryClusterAlgo::makeSuperClusters(reco::Ba
 
 #include "DataFormats/Math/interface/Vector3D.h"
 
-void BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVector &clusters_v, 
+void BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterPtrVector &clusters_v, 
 						      double etaRoad, double phiRoad)
 {
 
-  reco::basicCluster_iterator currentSeed;
-  for (currentSeed = clusters_v.begin(); !clusters_v.empty(); clusters_v.erase(currentSeed))
+  for ( reco::CaloCluster_iterator currentSeed = clusters_v.begin(); currentSeed != clusters_v.end(); ++currentSeed)
     {
       // Does our highest energy cluster have high enough energy?
       if ((*currentSeed)->energy() * sin((*currentSeed)->position().theta()) < seedTransverseEnergyThreshold) break;
@@ -63,9 +63,9 @@ void BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVecto
 	}
 
       // and add the matching clusters:
-      reco::BasicClusterRefVector constituentClusters;
-      constituentClusters.push_back(*currentSeed);
-      reco::basicCluster_iterator currentCluster = currentSeed + 1;
+      reco::CaloClusterPtrVector constituentClusters;
+      constituentClusters.push_back( *currentSeed );
+      reco::CaloCluster_iterator currentCluster = currentSeed + 1;
       while (currentCluster != clusters_v.end())
 	{
 	  if (match(*currentSeed, *currentCluster, etaRoad, phiRoad))
@@ -80,9 +80,8 @@ void BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVecto
 		  std::cout << "Cluster R = " << (*currentCluster)->position().Rho() << std::endl;
 		}
 
-	      clusters_v.erase(currentCluster);
-	    }
-	  else currentCluster++;
+            }
+          ++currentCluster;
 	}
 
       position_ /= energy_;
@@ -109,12 +108,12 @@ void BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVecto
 		    << newSuperCluster.position().theta() << ")" << std::endl;
 	}
     }
-  currentSeed = clusters_v.end();
+  clusters_v.clear();
 }
 
 
-bool BremRecoveryClusterAlgo::match(reco::BasicClusterRef seed_p, 
-				    reco::BasicClusterRef cluster_p,
+bool BremRecoveryClusterAlgo::match(reco::CaloClusterPtr seed_p, 
+				    reco::CaloClusterPtr cluster_p,
 				    double dEtaMax, double dPhiMax)
 {
   math::XYZPoint clusterPosition = cluster_p->position();

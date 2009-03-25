@@ -80,7 +80,7 @@ class IslandClusterAlgo
   std::set<DetId> used_s;
 
   // The vector of DetId's in the cluster currently reconstructed
-  std::vector<DetId> current_v;
+  std::vector< std::pair<DetId, float> > current_v;
 
   // The vector of clusters
   std::vector<reco::BasicCluster> clusters_v;

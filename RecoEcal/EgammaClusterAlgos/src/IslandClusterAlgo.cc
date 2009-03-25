@@ -11,6 +11,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/ClusterEtLess.h"
 
 //
+#include "DataFormats/CaloRecHit/interface/CaloID.h"
 
 // Return a vector of clusters from a collection of EcalRecHits:
 std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(
@@ -135,7 +136,7 @@ void IslandClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
       // clear the vector of hits in current cluster
       current_v.clear();
 
-      current_v.push_back(it->id());
+      current_v.push_back( std::pair<DetId, float>(it->id(), 1.) ); // by default hit energy fractions are set at 1.
       used_s.insert(it->id());
 
       // Create a navigator at the seed
@@ -169,7 +170,7 @@ void IslandClusterAlgo::searchNorth(const CaloNavigator<DetId> &navigator)
 
   if (shouldBeAdded(northern_it, southern_it))
     {
-      current_v.push_back(northern);
+      current_v.push_back( std::pair<DetId, float>(northern, 1.)); // by default hit energy fractions are set at 1.
       used_s.insert(northern);
       searchNorth(navigator);
     }
@@ -190,7 +191,7 @@ void IslandClusterAlgo::searchSouth(const CaloNavigator<DetId> &navigator)
 
   if (shouldBeAdded(southern_it, northern_it))
     {
-      current_v.push_back(southern);
+      current_v.push_back( std::pair<DetId, float>(southern, 1.)); // by default hit energy fractions are set at 1.
       used_s.insert(southern);
       searchSouth(navigator);
     }
@@ -216,7 +217,7 @@ void IslandClusterAlgo::searchWest(const CaloNavigator<DetId> &navigator, const 
       nsNavigator.home();
       searchWest(navigator, topology);
 
-      current_v.push_back(western);
+      current_v.push_back( std::pair<DetId, float>(western, 1.)); // by default hit energy fractions are set at 1.
       used_s.insert(western);
     }
 }
@@ -241,7 +242,7 @@ void IslandClusterAlgo::searchEast(const CaloNavigator<DetId> &navigator, const 
       nsNavigator.home();
       searchEast(navigator, topology);
 
-      current_v.push_back(eastern);
+      current_v.push_back( std::pair<DetId, float>(eastern, 1.)); // by default hit energy fractions are set at 1.
       used_s.insert(eastern);
     }
 }
@@ -267,16 +268,21 @@ void IslandClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
 				    const CaloSubdetectorGeometry *geometryES)
 {
   double energy = 0;
-  double chi2   = 0;
+  reco::CaloID caloID;
 
   Point position;
   position = posCalculator_.Calculate_Location(current_v,hits,geometry,geometryES);
   
-  std::vector<DetId>::iterator it;
+  std::vector< std::pair<DetId, float> >::iterator it;
   for (it = current_v.begin(); it != current_v.end(); it++)
     {
-      EcalRecHitCollection::const_iterator itt = hits->find(*it);
+      EcalRecHitCollection::const_iterator itt = hits->find( (*it).first );
       EcalRecHit hit_p = *itt;
+      if ( (*it).first.subdetId() == EcalBarrel ) {
+              caloID = reco::CaloID::DET_ECAL_BARREL;
+      } else {
+              caloID = reco::CaloID::DET_ECAL_ENDCAP;
+      }
       //      if (hit_p != 0)
       //	{
 	  energy += hit_p.energy();
@@ -285,9 +291,7 @@ void IslandClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
       //	{
       //	  std::cout << "DEBUG ALERT: Requested rechit has gone missing from rechits map! :-S" << std::endl;
       //	}
-      chi2 += 0;
     }
-  chi2 /= energy;
 
   if (verbosity < pINFO)
     { 
@@ -298,5 +302,5 @@ void IslandClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
       std::cout << "     Eta        = " << position.eta() << std::endl;
       std::cout << "*****************************" << std::endl;
     }
-  clusters_v.push_back(reco::BasicCluster(energy, position, chi2, current_v, reco::island));
+  clusters_v.push_back(reco::BasicCluster(energy, position, caloID, current_v, reco::CaloCluster::island));
 }

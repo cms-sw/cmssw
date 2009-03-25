@@ -138,7 +138,7 @@ class HybridClusterAlgo
 		    const std::vector<EcalEtaPhiRegion>& regions = std::vector<EcalEtaPhiRegion>());
 
   //Make superclusters from the references to the BasicClusters in the event.
-  reco::SuperClusterCollection makeSuperClusters(const reco::BasicClusterRefVector&);
+  reco::SuperClusterCollection makeSuperClusters(const reco::CaloClusterPtrVector&);
 
   //The routine doing the real work.
   void mainSearch(const EcalRecHitCollection* hits, const CaloSubdetectorGeometry * geometry);

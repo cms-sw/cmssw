@@ -1,22 +1,21 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/Multi5x5BremRecoveryClusterAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/BremRecoveryPhiRoadAlgo.h"
 
-reco::SuperClusterCollection Multi5x5BremRecoveryClusterAlgo::makeSuperClusters(reco::BasicClusterRefVector & clustersCollection)
+reco::SuperClusterCollection Multi5x5BremRecoveryClusterAlgo::makeSuperClusters(reco::CaloClusterPtrVector & clustersCollection)
 {
   const float etaBorder = 1.479;
 
   superclusters_v.clear();
   
   // create vectors of references to clusters of a specific origin...
-  reco::BasicClusterRefVector islandClustersBarrel_v;
-  reco::BasicClusterRefVector islandClustersEndCap_v;
+  reco::CaloClusterPtrVector islandClustersBarrel_v;
+  reco::CaloClusterPtrVector islandClustersEndCap_v;
 
   // ...and populate them:
-  reco::basicCluster_iterator it;
-  for (it = clustersCollection.begin(); it != clustersCollection.end(); it++)
+  for (reco::CaloCluster_iterator it = clustersCollection.begin(); it != clustersCollection.end(); it++)
     {
-      reco::BasicClusterRef cluster_p = *it;
-      if (cluster_p->algo() == reco::island) 
+      reco::CaloClusterPtr cluster_p = *it;
+      if (cluster_p->algo() == reco::CaloCluster::island) 
       {
 	  if (fabs(cluster_p->position().eta()) < etaBorder)
 	    {
@@ -39,13 +38,15 @@ reco::SuperClusterCollection Multi5x5BremRecoveryClusterAlgo::makeSuperClusters(
 
 #include "DataFormats/Math/interface/Vector3D.h"
 
-void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVector &clusters_v, 
+void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterPtrVector &clusters_v, 
 						      double etaRoad, double phiRoad)
 {
 
-  reco::basicCluster_iterator currentSeed;
-  for (currentSeed = clusters_v.begin(); !clusters_v.empty(); clusters_v.erase(currentSeed))
+            std::cerr << "Multi5x5BremRecoveryClusterAlgo" << std::endl;
+  //for (reco::CaloCluster_iterator currentSeed = clusters_v.begin(); !clusters_v.empty(); clusters_v.erase(currentSeed))
+  for (reco::CaloCluster_iterator currentSeed = clusters_v.begin(); currentSeed != clusters_v.end(); ++currentSeed)
     {
+            std::cerr << "inside" << std::endl;
       // Does our highest energy cluster have high enough energy?
       // changed this to continue from break (to be robust against the order of sorting of the seed clusters)
       if ((*currentSeed)->energy() * sin((*currentSeed)->position().theta()) < seedTransverseEnergyThreshold) continue;
@@ -66,9 +67,9 @@ void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicCluster
 	}
 
       // and add the matching clusters:
-      reco::BasicClusterRefVector constituentClusters;
+      reco::CaloClusterPtrVector constituentClusters;
       constituentClusters.push_back(*currentSeed);
-      reco::basicCluster_iterator currentCluster = currentSeed + 1;
+      reco::CaloCluster_iterator currentCluster = currentSeed + 1;
       while (currentCluster != clusters_v.end())
 	{
 
@@ -89,10 +90,9 @@ void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicCluster
 		{
 		  std::cout << "Cluster R = " << (*currentCluster)->position().Rho() << std::endl;
 		}
+            }
 
-	      clusters_v.erase(currentCluster);
-	    }
-	  else currentCluster++;
+          ++currentCluster;
 	}
 
       position_ /= energy;
@@ -119,12 +119,13 @@ void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicCluster
 		    << newSuperCluster.position().theta() << ")" << std::endl;
 	}
     }
-  currentSeed = clusters_v.end();
+  //currentSeed = clusters_v.end();
+  clusters_v.clear();
 }
 
 
-bool Multi5x5BremRecoveryClusterAlgo::match(reco::BasicClusterRef seed_p, 
-				    reco::BasicClusterRef cluster_p,
+bool Multi5x5BremRecoveryClusterAlgo::match(reco::CaloClusterPtr seed_p, 
+				    reco::CaloClusterPtr cluster_p,
 				    double dEtaMax, double dPhiMax)
 {
   math::XYZPoint clusterPosition = cluster_p->position();

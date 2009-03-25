@@ -9,6 +9,8 @@
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "RecoEcal/EgammaCoreTools/interface/ClusterEtLess.h"
 
+#include "DataFormats/CaloRecHit/interface/CaloID.h"
+
 // Return a vector of clusters from a collection of EcalRecHits:
 //
 std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(
@@ -182,19 +184,23 @@ void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
 {
 
    double energy = 0;
-   double chi2   = 0;
+   reco::CaloID caloID;
    Point position;
    position = posCalculator_.Calculate_Location(current_v, hits,geometry, geometryES);
   
-   std::vector<DetId>::iterator it;
+   std::vector< std::pair<DetId, float> >::iterator it;
    for (it = current_v.begin(); it != current_v.end(); it++)
    {
-      EcalRecHitCollection::const_iterator itt = hits->find(*it);
+      EcalRecHitCollection::const_iterator itt = hits->find( (*it).first );
       EcalRecHit hit_p = *itt;
       energy += hit_p.energy();
-      chi2 += 0;
+      if ( (*it).first.subdetId() == EcalBarrel ) {
+              caloID = reco::CaloID::DET_ECAL_BARREL;
+      } else {
+              caloID = reco::CaloID::DET_ECAL_ENDCAP;
+      }
+
    }
-   chi2 /= energy;
 
    if (verbosity < pINFO)
    { 
@@ -210,7 +216,7 @@ void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
    // must be at least the seed energy
    if (energy >= seedEnergy)
    {
-      clusters_v.push_back(reco::BasicCluster(energy, position, chi2, current_v, reco::island));
+      clusters_v.push_back(reco::BasicCluster(energy, position, caloID, current_v, reco::CaloCluster::island));
    }
 
 }
@@ -322,7 +328,7 @@ void Multi5x5ClusterAlgo::addCrystal(const DetId &det)
       if ((used_s.find(thisIt->id()) == used_s.end())) 
       {
 	 //std::cout << "   ... this is a good crystal and will be added" << std::endl;
-         current_v.push_back(det);
+         current_v.push_back( std::pair<DetId, float>(det, 1.) ); // by default hit energy fractions are set at 1.
          used_s.insert(det);
       }
    } 
