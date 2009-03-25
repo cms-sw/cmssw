@@ -46,11 +46,12 @@ namespace reco {
     typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
   
     /// default constructor
-    PFCluster() : CaloCluster(pFClusters), color_(1) {}
+      
+    PFCluster() : CaloCluster(particleFlow), color_(1) {}
 
     /// constructor
     PFCluster(PFLayer::Layer layer, double energy,
-              double x, double y, double z );
+	      double x, double y, double z );
 
 
 
@@ -59,52 +60,52 @@ namespace reco {
     
     /// add a given fraction of the rechit
     void addRecHitFraction( const reco::PFRecHitFraction& frac);
-                                                
+    
     /// vector of rechit fractions
     const std::vector< reco::PFRecHitFraction >& recHitFractions() const 
       { return rechits_; }
-
+    
     /// set layer
     void setLayer( PFLayer::Layer layer);
     
     /// cluster layer, see PFLayer.h in this directory
     PFLayer::Layer  layer() const;     
-
+    
     /// cluster energy
     double        energy() const {return energy_;}
-
+    
     /// cluster position: rho, eta, phi
     const REPPoint&       positionREP() const {return posrep_;}
-
+    
     /// computes posrep_ once and for all
     void calculatePositionREP() {
       posrep_.SetCoordinates( position_.Rho(), 
 			      position_.Eta(), 
 			      position_.Phi() ); 
     }
-
+    
     /// \todo move to PFClusterTools
     static double getDepthCorrection(double energy, bool isBelowPS = false,
-                                     bool isHadron = false);
-
+				     bool isHadron = false);
+    
     /// set cluster color (for the PFRootEventManager display)
     void         setColor(int color) {color_ = color;}
-
+    
     /// \return color
     int          color() const {return color_;}
-  
-
+    
+    
     PFCluster& operator=(const PFCluster&);
-
+    
     friend    std::ostream& operator<<(std::ostream& out, 
-                                       const PFCluster& cluster);
+				       const PFCluster& cluster);
     /// counter
     static unsigned     instanceCounter_;
-
+    
     /// \todo move to PFClusterTools
     static void setDepthCorParameters(int mode, 
-                                      double a, double b, 
-                                      double ap, double bp ) {
+				      double a, double b, 
+				      double ap, double bp ) {
       depthCorMode_ = mode;
       depthCorA_ = a; 
       depthCorB_ = b; 
@@ -112,32 +113,32 @@ namespace reco {
       depthCorBp_ = bp; 
     } 
     
-
+    
   private:
-  
+    
     /// vector of rechit fractions (transient)
     std::vector< reco::PFRecHitFraction >  rechits_;
-
+    
     /// cluster position: rho, eta, phi (transient)
     REPPoint            posrep_;
-
-
+    
+    
     /// \todo move to PFClusterTools
     static int    depthCorMode_;
-
+    
     /// \todo move to PFClusterTools
     static double depthCorA_;
-
+    
     /// \todo move to PFClusterTools
     static double depthCorB_ ;
-
+    
     /// \todo move to PFClusterTools
     static double depthCorAp_;
-
+    
     /// \todo move to PFClusterTools
     static double depthCorBp_;
-
-
+    
+    
     /// color (transient)
     int                 color_;
     
