@@ -2,8 +2,8 @@
  *
  * Digi for CLCT trigger primitives.
  *
- * $Date: 2008/10/29 18:34:40 $
- * $Revision: 1.13 $
+ * $Date: 2009/02/23 17:00:27 $
+ * $Revision: 1.14 $
  *
  * \author N. Terentiev, CMU
  */
@@ -44,136 +44,52 @@ void CSCCLCTDigi::clear() {
   cfeb_      = 0;
   bx_        = 0;
   trknmb_    = 0;
-  fullbx_   = 0;
+  fullbx_    = 0;
 }
 
 bool CSCCLCTDigi::operator > (const CSCCLCTDigi& rhs) const {
+  // Several versions of CLCT sorting criteria were used before 2008.
+  // They are available in CMSSW versions prior to 3_1_0; here we only keep
+  // the latest one, used in TMB-07 firmware (w/o distrips).
   bool returnValue = false;
-  /* The quality value for the cathodeLCT is different than for the
-     anodeLCT.  Remember that for the anodeLCT, the more layers that were
-     hit the higher the quality. For the cathodeLCT there is a pattern
-     assignment given.  This is based on the range of strips hit and
-     the number of layers.  The hits on the strips are divided into
-     high Pt (transverse momentum) and low Pt. A half strip pattern check
-     is used for high Pt; and a di-strip pattern is used for low Pt.
-     The order of quality from highest to lowest is 6/6 halfstrip, 
-     5/6 halfstrip, 6/6 distrip, 4/6 halfstrip, 5/6 distrip, 4/6 distrip.  
-     (see CSCCathodeLCTProcessor for further details.) -JM
-  */
-  int quality      = getQuality();
-  int rhsQuality   = rhs.getQuality();
 
-#ifdef TB
-  // Test beams' implementation.
+  int quality1 = getQuality();
+  int quality2 = rhs.getQuality();
+  // The bend-direction bit pid[0] is ignored (left and right bends have
+  // equal quality).
+  int pattern1 = getPattern()     & 14;
+  int pattern2 = rhs.getPattern() & 14;
 
-#ifdef TBs
-  // This algo below was used in 2003 and 2004 test beams, but not in MTCC.
-  int stripType    = getStripType();
-  int rhsStripType = rhs.getStripType();
-
-  if (stripType == rhsStripType) { // both di-strip or half-strip
-    if      (quality >  rhsQuality) {returnValue = true;}
-#ifdef LATER
-    else if (quality == rhsQuality) {
-      // The rest SEEMS NOT TO BE USED at the moment.  Brian's comment:
-      // "There is a bug in the TMB firmware in terms of swapping the lcts."
-      // In the case of identical quality, select higher pattern.
-      int pattern    = getPattern();
-      int rhsPattern = rhs.getPattern();
-      if (pattern > rhsPattern) {returnValue = true;}
-      else if (pattern == rhsPattern) {
-	// In the case of identical pattern, select lower key strip number.
-	if (getKeyStrip() < rhs.getKeyStrip()) {returnValue = true;}
-      }
-    }
-#endif
-  }
-  else if (stripType > rhsStripType) {
-    // Always select half-strip pattern over di-strip pattern.
-    returnValue = true;
-  }
-#else
-  // MTCC variant.
-  if (quality > rhsQuality) {returnValue = true;}
-#endif
-
-#else
-#ifndef TBs
-  int stripType    = getStripType();
-  int rhsStripType = rhs.getStripType();
-#endif
-  // Hack to preserve old behaviour; needs to be clarified.
-  quality    -= 3;
-  rhsQuality -= 3;
-  if (quality < 0 || rhsQuality < 0) {
-    std::cout << " +++ CSCCLCTDigi, overloaded > : undefined qualities "
-	      << quality << " " << rhsQuality << " ... Do nothing +++"
-	      << std::endl;
-    return returnValue;
-  }
-  // Default ORCA option.
-  if (stripType == rhsStripType) { // both di-strip or half-strip
-    if (quality > rhsQuality) {returnValue = true;}
-    else if (quality == rhsQuality) {
-      // In the case of cathode LCTs with identical quality, the lower
-      // strip number is selected.
-      if (getKeyStrip() < rhs.getKeyStrip()) {returnValue = true;}
-    }
-  }
-  else if (stripType > rhsStripType) { // halfstrip, distrip
-    // 5/6, 6/6 halfstrip better than all but 6/6 distrip:
-    // If halfstrip quality is 2 or 3, it beats all distrip qualities.
-    // If halfstrip quality is 1, it beats everything except 
-    // distrip quality or 3.
-    if (quality >= rhsQuality - 1) {returnValue = true;}
-  }
-  else if (stripType < rhsStripType) { // distrip, halfstrip
-    // If distrip quality is 3, it beats a halfstrip quality of 1.
-    if (quality - 1 > rhsQuality) {returnValue = true;}
-  }
-#endif
+  // Better-quality CLCTs are preferred.
+  // If two qualities are equal, larger pattern id (i.e., straighter pattern)
+  // is preferred; left- and right-bend patterns are considered to be of
+  // the same quality.
+  // If both qualities and pattern id's are the same, lower keystrip
+  // is preferred.
+  if ((quality1  > quality2) ||
+      (quality1 == quality2 && pattern1 > pattern2) ||
+      (quality1 == quality2 && pattern1 == pattern2 &&
+       getKeyStrip() < rhs.getKeyStrip())) {returnValue = true;}
 
   return returnValue;
 }
 
 bool CSCCLCTDigi::operator == (const CSCCLCTDigi& rhs) const {
-  bool returnValue = false;
-
   // Exact equality.
+  bool returnValue = false;
   if (isValid()      == rhs.isValid()    && getQuality() == rhs.getQuality() &&
       getPattern()   == rhs.getPattern() && getKeyStrip()== rhs.getKeyStrip()&&
       getStripType() == rhs.getStripType() && getBend()  == getBend()        &&
       getBX()        == rhs.getBX()) {
     returnValue = true;
   }
-  else {
-    int stripType    = getStripType();
-    int rhsStripType = rhs.getStripType();
-
-    // Note: if both muons are either high and low pT, then there's the chance
-    // that one of them is at exactly the strip of the other. Don't
-    // want to chuck out muons that way!
-    // The numbering is not obvious because of the 'staggering' on each of the
-    // layers.  When the staggering is completely understood, this algorithm
-    // should be re-checked for consistency. -JM
-    if (stripType != rhsStripType) {
-      if (abs(getKeyStrip() - rhs.getKeyStrip()) < 5) {
-	returnValue = true;
-      }
-    }
-  }
   return returnValue;
 }
 
 bool CSCCLCTDigi::operator != (const CSCCLCTDigi& rhs) const {
-  bool returnValue = false;
-  // Check exact equality.
-  if (isValid()      != rhs.isValid()    || getQuality() != rhs.getQuality() ||
-      getPattern()   != rhs.getPattern() || getKeyStrip()!= rhs.getKeyStrip()||
-      getStripType() != rhs.getStripType() || getBend()  != getBend()        ||
-      getBX()        != rhs.getBX()) {
-    returnValue = true;
-  }
+  // True if == is false.
+  bool returnValue = true;
+  if ((*this) == rhs) returnValue = false;
   return returnValue;
 }
 
@@ -211,4 +127,3 @@ std::ostream & operator<<(std::ostream & o, const CSCCLCTDigi& digi) {
            << " CFEB = "      << digi.getCFEB()
            << " BX = "        << digi.getBX();
 }
-
