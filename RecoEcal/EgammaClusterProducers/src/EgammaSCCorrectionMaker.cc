@@ -36,22 +36,22 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   //And obtain forrection parameters form cfg file
   edm::ParameterSet fCorrPset;
   if (sCAlgo_str=="Hybrid") {
-    sCAlgo_= reco::hybrid;
+    sCAlgo_= reco::CaloCluster::hybrid;
     fCorrPset = ps.getParameter<edm::ParameterSet>("hyb_fCorrPset"); 
   } else if (sCAlgo_str=="Island") {
-    sCAlgo_= reco::island;
+    sCAlgo_= reco::CaloCluster::island;
     fCorrPset = ps.getParameter<edm::ParameterSet>("isl_fCorrPset");
   } else if (sCAlgo_str=="DynamicHybrid") {
-    sCAlgo_ = reco::dynamicHybrid;
+    sCAlgo_ = reco::CaloCluster::dynamicHybrid;
     fCorrPset = ps.getParameter<edm::ParameterSet>("dyn_fCorrPset"); 
   } else if (sCAlgo_str=="Multi5x5") {
-    sCAlgo_ = reco::multi5x5;
+    sCAlgo_ = reco::CaloCluster::multi5x5;
     fCorrPset = ps.getParameter<edm::ParameterSet>("fix_fCorrPset");
   } else {
     edm::LogError("EgammaSCCorrectionMakerError") 
       << "Error! SuperClusterAlgo in config file must be Hybrid or Island: " 
       << sCAlgo_str << "  Using Hybrid by default";
-    sCAlgo_=reco::hybrid;
+    sCAlgo_=reco::CaloCluster::hybrid;
   }
   
   // set correction algo parameters

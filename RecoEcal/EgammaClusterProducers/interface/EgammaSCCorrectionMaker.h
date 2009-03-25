@@ -14,7 +14,7 @@
 //
 // Original Author:  Dave Evans
 //         Created:  Thu Apr 13 15:50:17 CEST 2006
-// $Id: EgammaSCCorrectionMaker.h,v 1.7 2008/03/03 11:33:52 kkaadze Exp $
+// $Id: EgammaSCCorrectionMaker.h,v 1.8 2008/03/18 12:38:34 dlevans Exp $
 //
 //
 
@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
 
@@ -54,7 +55,7 @@ class EgammaSCCorrectionMaker : public edm::EDProducer {
      edm::InputTag rHInputProducer_;
      edm::InputTag sCInputProducer_;
 
-     reco::AlgoId sCAlgo_;
+     reco::CaloCluster::AlgoId sCAlgo_;
      std::string outputCollection_;
 
 };

@@ -151,14 +151,14 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
        float e1=0;
        float e2=0;
        float deltaE=0;
-       reco::BasicClusterRefVector new_BC; 
+       reco::CaloClusterPtrVector new_BC; 
        ++isc;
 
        if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << " superE = " << it_super->energy() << " superETA = " << it_super->eta() 
        		                                       << " superPHI = " << it_super->phi() << std::endl;
        if ( debugL == PreshowerClusterAlgo::pINFO ) std::cout << " This SC contains " << it_super->clustersSize() << " BCs" << std::endl;
 
-       reco::BasicClusterRefVector::iterator bc_iter = it_super->clustersBegin();
+       reco::CaloCluster_iterator bc_iter = it_super->clustersBegin();
        for ( ; bc_iter !=it_super->clustersEnd(); ++bc_iter ) {  
 	 if (geometry)
 	   {

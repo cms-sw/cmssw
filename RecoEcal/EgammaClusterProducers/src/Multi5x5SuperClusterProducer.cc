@@ -103,12 +103,12 @@ void Multi5x5SuperClusterProducer::produceSuperclustersForECALPart(edm::Event& e
 							   std::string superclusterCollection)
 {
   // get the cluster collection out and turn it to a BasicClusterRefVector:
-  reco::BasicClusterRefVector *clusterRefVector_p = new reco::BasicClusterRefVector;
-  getClusterRefVector(evt, clusterProducer, clusterCollection, clusterRefVector_p);
+  reco::CaloClusterPtrVector *clusterPtrVector_p = new reco::CaloClusterPtrVector;
+  getClusterPtrVector(evt, clusterProducer, clusterCollection, clusterPtrVector_p);
 
   // run the brem recovery and get the SC collection
   std::auto_ptr<reco::SuperClusterCollection> 
-    superclusters_ap(new reco::SuperClusterCollection(bremAlgo_p->makeSuperClusters(*clusterRefVector_p)));
+    superclusters_ap(new reco::SuperClusterCollection(bremAlgo_p->makeSuperClusters(*clusterPtrVector_p)));
 
   // count the total energy and the number of superclusters
   reco::SuperClusterCollection::iterator it;
@@ -121,11 +121,11 @@ void Multi5x5SuperClusterProducer::produceSuperclustersForECALPart(edm::Event& e
   // put the SC collection in the event
   evt.put(superclusters_ap, superclusterCollection);
 
-  delete clusterRefVector_p;
+  delete clusterPtrVector_p;
 }
 
 
-void Multi5x5SuperClusterProducer::getClusterRefVector(edm::Event& evt, std::string clusterProducer_, std::string clusterCollection_, reco::BasicClusterRefVector *clusterRefVector_p)
+void Multi5x5SuperClusterProducer::getClusterPtrVector(edm::Event& evt, std::string clusterProducer_, std::string clusterCollection_, reco::CaloClusterPtrVector *clusterPtrVector_p)
 {  
   edm::Handle<reco::BasicClusterCollection> bccHandle;
   try
@@ -134,22 +134,18 @@ void Multi5x5SuperClusterProducer::getClusterRefVector(edm::Event& evt, std::str
       if (!(bccHandle.isValid()))
 	{
 	  edm::LogError("Multi5x5SuperClusterProducerError") << "could not get a handle on the BasicCluster Collection!";
-	  clusterRefVector_p = 0;
+	  clusterPtrVector_p = 0;
 	}
     } 
   catch ( cms::Exception& ex )
     {
       edm::LogError("Multi5x5SuperClusterProducerError") << "Error! can't get the product " << clusterCollection_.c_str(); 
-      clusterRefVector_p = 0;
+      clusterPtrVector_p = 0;
     }
 
   const reco::BasicClusterCollection *clusterCollection_p = bccHandle.product();
   for (unsigned int i = 0; i < clusterCollection_p->size(); i++)
     {
-      clusterRefVector_p->push_back(reco::BasicClusterRef(bccHandle, i));
+      clusterPtrVector_p->push_back(reco::CaloClusterPtr(bccHandle, i));
     }
 }                               
-
-
-
-

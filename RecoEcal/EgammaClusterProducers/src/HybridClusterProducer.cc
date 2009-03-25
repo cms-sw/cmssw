@@ -173,12 +173,12 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   if (debugL == HybridClusterAlgo::pDEBUG)
     std::cout << "Got the BasicClusterCollection" << std::endl;
 
-  reco::BasicClusterRefVector clusterRefVector;
+  reco::CaloClusterPtrVector clusterPtrVector;
   for (unsigned int i = 0; i < clusterCollection.size(); i++){
-    clusterRefVector.push_back(reco::BasicClusterRef(bccHandle, i));
+    clusterPtrVector.push_back(reco::CaloClusterPtr(bccHandle, i));
   }
 
-  reco::SuperClusterCollection superClusters = hybrid_p->makeSuperClusters(clusterRefVector);
+  reco::SuperClusterCollection superClusters = hybrid_p->makeSuperClusters(clusterPtrVector);
 
   if (debugL == HybridClusterAlgo::pDEBUG)
     std::cout << "Found: " << superClusters.size() << " superclusters." << std::endl;  

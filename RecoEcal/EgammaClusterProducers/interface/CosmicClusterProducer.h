@@ -13,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/CosmicClusterAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
@@ -83,7 +84,7 @@ class CosmicClusterProducer : public edm::EDProducer
 			      const std::string& clusterShapeAssociation,
                               const CosmicClusterAlgo::EcalPart& ecalPart);
 
-      void outputValidationInfo(reco::BasicClusterRefVector &clusterRefVector);
+      void outputValidationInfo(reco::CaloClusterPtrVector &clusterPtrVector);
 	  
 	 
 };

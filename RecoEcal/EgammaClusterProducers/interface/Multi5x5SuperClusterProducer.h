@@ -58,7 +58,7 @@ class Multi5x5SuperClusterProducer : public edm::EDProducer
       int noSuperClusters;
 
       
-      void getClusterRefVector(edm::Event& evt, std::string clusterProducer_, std::string clusterCollection_, reco::BasicClusterRefVector *);
+      void getClusterPtrVector(edm::Event& evt, std::string clusterProducer_, std::string clusterCollection_, reco::CaloClusterPtrVector *);
   
       void produceSuperclustersForECALPart(edm::Event& evt, 
 					   std::string clusterProducer, 
