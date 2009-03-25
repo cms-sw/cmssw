@@ -1052,7 +1052,7 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
       ieta=digi.id().ieta();
       iphi=digi.id().iphi();
-      depth=digi.id().depth()
+      depth=digi.id().depth();
       if ((HcalSubdetector)(digi.id().subdet())==HcalBarrel)
 	{
 	  HBpresent_=true;
@@ -1595,7 +1595,7 @@ void HcalDeadCellMonitor::fillNevents_neighbor(void)
 		  if (belowneighbors[eta][phi][mydepth]>0)
 		    {
 		      if (fVerbosity>2) cout <<"DEAD CELL; BELOW NEIGHBORS = "<<subdet<<" eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<endl;
-		      BelowNeighbrosDeadCellsByDepth[mydepth]->Fill(ieta,iphi,belowneighbors[eta][phi][mydepth]);
+		      BelowNeighborsDeadCellsByDepth[mydepth]->Fill(ieta,iphi,belowneighbors[eta][phi][mydepth]);
 		      //reset counter
 		      belowneighbors[eta][phi][depth]=0;
 		    } // if (belowneighbors[eta][phi][mydepth]>0)
