@@ -51,11 +51,17 @@ std::auto_ptr<JetMatching> JetMatching::create(const edm::ParameterSet &params)
 	std::auto_ptr<JetMatching> matching;
 
 	if (scheme == "Madgraph")
+	{
         	matching.reset(new JetMatchingMadgraph(params));
-	if (scheme == "Alpgen")
+	}
+	else if (scheme == "Alpgen")
+	{
 	        matching.reset(new JetMatchingAlpgen(params));
+	}
 	else if (scheme == "MLM")
+	{
 		matching.reset();
+	}
 	else
 		throw cms::Exception("InvalidJetMatching")
 			<< "Unknown scheme \"" << scheme << "\""
