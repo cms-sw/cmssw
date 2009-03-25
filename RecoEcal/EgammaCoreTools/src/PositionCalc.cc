@@ -33,7 +33,7 @@ const PositionCalc& PositionCalc::operator=( const PositionCalc& rhs )
 }
 
 math::XYZPoint 
-PositionCalc::Calculate_Location( const std::vector<DetId>&      iDetIds  ,
+PositionCalc::Calculate_Location( const std::vector< std::pair<DetId, float> >&      iDetIds  ,
 				  const EcalRecHitCollection*    iRecHits ,
 				  const CaloSubdetectorGeometry* iSubGeom ,
 				  const CaloSubdetectorGeometry* iESGeom   )
@@ -62,9 +62,9 @@ PositionCalc::Calculate_Location( const std::vector<DetId>&      iDetIds  ,
 
       // Check that DetIds are nonzero
       EcalRecHitCollection::const_iterator endRecHits ( iRecHits->end() ) ;
-      for( DetIdVec::const_iterator n ( iDetIds.begin() ) ; n != iDetIds.end() ; ++n ) 
+      for( std::vector< std::pair<DetId, float> >::const_iterator n ( iDetIds.begin() ) ; n != iDetIds.end() ; ++n ) 
       {
-	 const DetId dId ( *n ) ;
+	 const DetId dId ( (*n).first ) ;
 	 if( !dId.null() )
 	 {
 	    EcalRecHitCollection::const_iterator iHit ( iRecHits->find( dId ) ) ;
@@ -168,4 +168,3 @@ PositionCalc::Calculate_Location( const std::vector<DetId>&      iDetIds  ,
    }
    return returnValue ;
 }
-
