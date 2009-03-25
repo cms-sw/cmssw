@@ -10,7 +10,7 @@ from Calibration.HcalAlCaRecoProducers.alcadijets_cfi import *
 dijetsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 #    HLTPaths = ['HLT_Jet30','HLT_Jet50','HLT_Jet80',     #1E31 Menu
 #                'HLT_Jet15U','HLT_Jet30U','HLT_Jet50U'], #8E29 Menu
-    eventSetupPathsKey='ALCARECOHcalCalDijets',
+    eventSetupPathsKey='HcalCalDijets',
     throw = False
 )
 
