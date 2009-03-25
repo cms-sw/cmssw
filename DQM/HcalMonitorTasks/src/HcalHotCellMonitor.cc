@@ -1605,11 +1605,18 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
 		}
 	      // do we want to force the problemvalue to be <= hotmon_checkNevents, to minimize double counting?
 	      // Or does the double-counting tell us something useful?
-	      problemvalue=min((double)hotmon_checkNevents_,problemvalue);
-	      ProblemHotCellsByDepth[mydepth]->Fill(ieta,iphi,problemvalue);
+
+	      // Need to use setbincontent, rather than Fill, for problem cells, since problemvalue is
+	      // the total number of bad cells found so far, not just the number of bad cells in the
+	      // last checkNevents.
+	      
+	      //problemvalue=min((double)hotmon_checkNevents_,problemvalue);
+	      ProblemHotCellsByDepth[mydepth]->setBinContent(eta+2,phi+2,problemvalue);
+
 	    } // for (int mydepth=0;mydepth<6;...)
-	  sumproblemvalue=min((double)hotmon_checkNevents_,sumproblemvalue);
-	  ProblemHotCells->Fill(ieta,iphi,sumproblemvalue);
+	  //sumproblemvalue=min((double)hotmon_checkNevents_,sumproblemvalue);
+	  ProblemHotCells->setBinContent(eta+2,phi+2,sumproblemvalue);
+
 	} // loop on phi=0;phi<72
     } // loop on eta=0; eta<(etaBins_-2)
   

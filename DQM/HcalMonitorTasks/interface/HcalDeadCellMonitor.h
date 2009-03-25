@@ -14,8 +14,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2008/11/06 18:02:33 $
-  * $Revision: 1.23 $
+  * $Date: 2009/01/08 19:34:07 $
+  * $Revision: 1.24 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -128,11 +128,11 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   std::map<HcalDetId, double> rechitEnergies_;
   
 
-  unsigned int occupancy[ETABINS][PHIBINS][4]; // will get filled when an occupied digi is found
-  unsigned int rechit_occupancy[ETABINS][PHIBINS][4]; // filled when rechit is present
-  unsigned int abovepedestal[ETABINS][PHIBINS][4]; // filled when digi is below pedestal+nsigma
-  unsigned int belowneighbors[ETABINS][PHIBINS][4];
-  unsigned int aboveenergy[ETABINS][PHIBINS][4];
+  unsigned int occupancy[ETABINS][PHIBINS][6]; // will get filled when an occupied digi is found
+  unsigned int rechit_occupancy[ETABINS][PHIBINS][6]; // filled when rechit is present
+  unsigned int abovepedestal[ETABINS][PHIBINS][6]; // filled when digi is below pedestal+nsigma
+  unsigned int belowneighbors[ETABINS][PHIBINS][6];
+  unsigned int aboveenergy[ETABINS][PHIBINS][6];
 
   // Diagnostic plots
   MonitorElement* d_HBnormped;

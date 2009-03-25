@@ -572,7 +572,6 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 	      ADCPedestalRMS[depth]->setBinContent(eta+2,phi+2,ADC_RMS);
 	      ADCPedestalMean_1D[depth]->Fill(ADC_mean);
 	      ADCPedestalRMS_1D[depth]->Fill(ADC_RMS);
-	      // cout <<"SET MEAN"<<eta+2<<"  "<<phi+2<<"  "<<fC_mean<<endl;
 	      fCPedestalMean[depth]->setBinContent(eta+2,phi+2,fC_mean);
 	      fCPedestalMean_1D[depth]->Fill(fC_mean);
 	      fCPedestalRMS[depth]->setBinContent(eta+2,phi+2,fC_RMS);

@@ -220,7 +220,19 @@ void HcalDeadCellClient::getHistograms()
 {
   if(!dbe_) return;
 
+
+
   ostringstream name;
+  
+  // Get ievt_ value
+  MonitorElement* me = dbe_->get(name.str().c_str());
+  if ( me ) {
+    string s = me->valueString();
+    ievt_ = -1;
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+    if ( debug_>1 ) cout << "Found '" << name.str().c_str() << "'" << endl;
+  }
+
   // dummy histograms
   TH2F* dummy2D = new TH2F();
   TH1F* dummy1D = new TH1F();
@@ -232,7 +244,7 @@ void HcalDeadCellClient::getHistograms()
   name<<process_.c_str()<<"DeadCellMonitor_Hcal/ ProblemDeadCells";
   ProblemDeadCells = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
   name.str("");
-
+  
   getSJ6histos("DeadCellMonitor_Hcal/problem_deadcells/", " Problem Dead Cell Rate", ProblemDeadCellsByDepth);
 
   if (deadclient_test_occupancy_) getSJ6histos("DeadCellMonitor_Hcal/dead_unoccupied_digi/",   "Dead Cells with No Digis", UnoccupiedDeadCellsByDepth);
@@ -257,6 +269,15 @@ void HcalDeadCellClient::getHistograms()
       d_HFrechitenergy=getAnyHisto(dummy1D,(process_+"DeadCellMonitor_Hcal/diagnostics/energythreshold/HF_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
       d_HFenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"DeadCellMonitor_Hcal/diagnostics/neighborcells/HF_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
     } // if (deadclient_makeDiagnostics_)
+
+  // Scale rate histograms
+  if (ievt_>0)
+    {
+      ProblemDeadCells->Scale(1./ievt_);
+      for (int i=0;i<6;++i)
+	ProblemDeadCellsByDepth[i]->Scale(1./ievt_);
+      // scale other histograms here as well?
+    }
 
 
   // Force min/max on problemcells
@@ -782,6 +803,70 @@ void HcalDeadCellClient::loadHistograms(TFile* infile)
 	}
 
     } //for (int i=0;i<6;++i)
+
+  if (deadclient_makeDiagnostics_)
+    {
+      name<<process_.c_str()<<"DeadCellMonitor_Hcal/diagnostics/pedestal/HB_normped";
+      d_HBnormped = (TH1F*)infile->Get(name.str().c_str());
+      name.str("");
+      name<<process_.c_str()<<"DeadCellMonitor_Hcal/diagnostics/pedestal/HB_rechitenergy";
+      d_HBrechitenergy = (TH1F*)infile->Get(name.str().c_str());
+      name.str("");
+      name<<process_.c_str()<<"DeadCellMonitor_Hcal/diagnostics/pedestal/HB_energyVsNeighbor";
+      d_HBenergyVsNeighbor = (TH2F*)infile->Get(name.str().c_str());
+      name.str("");
+      name<<process_.c_str()<<"DeadCellMonitor_Hcal/diagnostics/pedestal/HE_normped";
+      d_HEnormped = (TH1F*)infile->Get(name.str().c_str());
+      name.str("");
+      name<<process_.c_str()<<"DeadCellMonitor_Hcal/diagnostics/pedestal/HE_rechitenergy";
+      d_HErechitenergy = (TH1F*)infile->Get(name.str().c_str());
+      name.str("");
+      name<<process_.c_str()<<"DeadCellMonitor_Hcal/diagnostics/pedestal/HE_energyVsNeighbor";
+      d_HEenergyVsNeighbor = (TH2F*)infile->Get(name.str().c_str());
+      name.str("");
+      name<<process_.c_str()<<"DeadCellMonitor_Hcal/diagnostics/pedestal/HO_normped";
+      d_HOnormped = (TH1F*)infile->Get(name.str().c_str());
+      name.str("");
+      name<<process_.c_str()<<"DeadCellMonitor_Hcal/diagnostics/pedestal/HO_rechitenergy";
+      d_HOrechitenergy = (TH1F*)infile->Get(name.str().c_str());
+      name.str("");
+      name<<process_.c_str()<<"DeadCellMonitor_Hcal/diagnostics/pedestal/HO_energyVsNeighbor";
+      d_HOenergyVsNeighbor = (TH2F*)infile->Get(name.str().c_str());
+      name.str("");
+      name<<process_.c_str()<<"DeadCellMonitor_Hcal/diagnostics/pedestal/HF_normped";
+      d_HFnormped = (TH1F*)infile->Get(name.str().c_str());
+      name.str("");
+      name<<process_.c_str()<<"DeadCellMonitor_Hcal/diagnostics/pedestal/HF_rechitenergy";
+      d_HFrechitenergy = (TH1F*)infile->Get(name.str().c_str());
+      name.str("");
+      name<<process_.c_str()<<"DeadCellMonitor_Hcal/diagnostics/pedestal/HF_energyVsNeighbor";
+      d_HFenergyVsNeighbor = (TH2F*)infile->Get(name.str().c_str());
+      name.str("");
+    } // if (deadclient_makeDiagnostics_)
+
+
+
+  // Scale rate histograms
+  if (ievt_>0)
+    {
+      ProblemDeadCells->Scale(1./ievt_);
+      for (int i=0;i<6;++i)
+	ProblemDeadCellsByDepth[i]->Scale(1./ievt_);
+      // scale other histograms here as well?
+    }
+
+  // Force min/max on problemcells
+  for (int i=0;i<6;++i)
+    {
+      if (ProblemDeadCellsByDepth[i])
+	{
+	  ProblemDeadCellsByDepth[i]->SetMaximum(1);
+	  ProblemDeadCellsByDepth[i]->SetMinimum(0);
+	}
+      name.str("");
+
+    } // for (int i=0;i<6;++i)
+
   return;
 } // void HcalDeadCellClient::loadHistograms(...)
 

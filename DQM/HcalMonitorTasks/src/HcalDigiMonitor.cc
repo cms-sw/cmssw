@@ -1036,18 +1036,18 @@ void HcalDigiMonitor::fill_Nevents()
   // Loop over eta, phi, depth
   for (int phi=0;phi<(phiBins_-2);++phi)
     {
-      DigiOccupancyPhi->Fill(phi+1,occupancyPhi[phi]);
+      iPhi=phi+1;
+      DigiOccupancyPhi->Fill(iPhi,occupancyPhi[phi]);
       for (int eta=0;eta<(etaBins_-2);++eta)
 	{
+	  iEta=eta-int((etaBins_-2)/2);
 	  if (phi==0)
-	    DigiOccupancyEta->Fill(eta+1,occupancyEta[eta]);
+	    DigiOccupancyEta->Fill(iEta,occupancyEta[eta]);
 	  problemsum=0;  
 	  valid=false;
 
 	  for (int d=0;d<6;++d)
 	    {
-	      iPhi=phi+1;
-	      iEta=eta-int((etaBins_-2)/2);
 	      iDepth=d+1;
 	     
 	      // HB
@@ -1064,23 +1064,23 @@ void HcalDigiMonitor::fill_Nevents()
 		      // Fill plots as fractions of total # of events
 		      
 		      // Occupancy plot needs to get old occupancy value, since counter gets reset
-		      DigiOccupancyByDepth[d]->Fill(eta+1,phi+1,
-							     occupancyEtaPhi[eta][phi][d]);
-
-		      DigiErrorsBadCapID[d]->Fill(eta+1, phi+1,
-							   badcapID[eta][phi][d]);
-		      DigiErrorsBadDigiSize[d]->Fill(eta+1, phi+1,
-							      baddigisize[eta][phi][d]);
-		      DigiErrorsBadADCSum[d]->Fill(eta+1, phi+1,
-							    badADCsum[eta][phi][d]);
-		      DigiErrorsDVErr[d]->Fill(eta+1, phi+1,
-							digierrorsdverr[eta][phi][d]);
+		      DigiOccupancyByDepth[d]->Fill(iEta, iPhi,
+						    occupancyEtaPhi[eta][phi][d]);
+		      
+		      DigiErrorsBadCapID[d]->Fill(iEta, iPhi,
+						  badcapID[eta][phi][d]);
+		      DigiErrorsBadDigiSize[d]->Fill(iEta, iPhi,
+						     baddigisize[eta][phi][d]);
+		      DigiErrorsBadADCSum[d]->Fill(iEta, iPhi,
+						   badADCsum[eta][phi][d]);
+		      DigiErrorsDVErr[d]->Fill(iEta, iPhi,
+					       digierrorsdverr[eta][phi][d]);
 		      problemsum+=problemdigis[eta][phi][d];
 		      problemvalue=problemdigis[eta][phi][d];
-		      ProblemDigisByDepth[d]->Fill(eta+1, phi+1,
+		      ProblemDigisByDepth[d]->Fill(iEta, iPhi,
 							    problemvalue);
 		      // Use this for testing purposes only
-		      //ProblemDigisByDepth[d]->Fill(eta+1, phi+1, ievt_);
+		      //ProblemDigisByDepth[d]->Fill(iEta, iPhi, ievt_);
 		    } // if (hbHists.check)
 		} 
 	      // HE (depth=3 only)
@@ -1098,21 +1098,21 @@ void HcalDigiMonitor::fill_Nevents()
 		      // Update -- making fractional plots needs to take place in Client; otherwise offline jobs split among processes won't calculate fractions correctly
 		      
 		      // Occupancy plot needs to get old occupancy value, since counter gets reset
-		      DigiOccupancyByDepth[d]->Fill(eta+1,phi+1,
-							     occupancyEtaPhi[eta][phi][d]);
+		      DigiOccupancyByDepth[d]->Fill(iEta, iPhi,
+						    occupancyEtaPhi[eta][phi][d]);
 		      
-		      DigiErrorsBadCapID[d]->Fill(eta+1, phi+1,
-							   badcapID[eta][phi][d]);
-		      DigiErrorsBadDigiSize[d]->Fill(eta+1, phi+1,
-							      baddigisize[eta][phi][d]);
-		      DigiErrorsBadADCSum[d]->Fill(eta+1, phi+1,
-							    badADCsum[eta][phi][d]);
-		      DigiErrorsDVErr[d]->Fill(eta+1, phi+1,
-							digierrorsdverr[eta][phi][d]);
+		      DigiErrorsBadCapID[d]->Fill(iEta, iPhi,
+						  badcapID[eta][phi][d]);
+		      DigiErrorsBadDigiSize[d]->Fill(iEta, iPhi,
+						     baddigisize[eta][phi][d]);
+		      DigiErrorsBadADCSum[d]->Fill(iEta, iPhi,
+						   badADCsum[eta][phi][d]);
+		      DigiErrorsDVErr[d]->Fill(iEta, iPhi,
+					       digierrorsdverr[eta][phi][d]);
 		      problemsum+=problemdigis[eta][phi][d];
 		      problemvalue=problemdigis[eta][phi][d];
-		      ProblemDigisByDepth[d]->Fill(eta+1, phi+1,
-							    problemvalue);
+		      ProblemDigisByDepth[d]->Fill(iEta, iPhi,
+						   problemvalue);
 		    } // if (heHists.check)
 		} 
 	      // HO 
@@ -1129,21 +1129,21 @@ void HcalDigiMonitor::fill_Nevents()
 		      // Fill plots as fractions of total # of events
 		      
 		      // Occupancy plot needs to get old occupancy value, since counter gets reset
-		      DigiOccupancyByDepth[d]->Fill(eta+1,phi+1,
-							     occupancyEtaPhi[eta][phi][d]);
+		      DigiOccupancyByDepth[d]->Fill(iEta, iPhi,
+						    occupancyEtaPhi[eta][phi][d]);
 
-		      DigiErrorsBadCapID[d]->Fill(eta+1, phi+1,
-							   badcapID[eta][phi][d]);
-		      DigiErrorsBadDigiSize[d]->Fill(eta+1, phi+1,
-							      baddigisize[eta][phi][d]);
-		      DigiErrorsBadADCSum[d]->Fill(eta+1, phi+1,
-							    badADCsum[eta][phi][d]);
-		      DigiErrorsDVErr[d]->Fill(eta+1, phi+1,
-							digierrorsdverr[eta][phi][d]);
+		      DigiErrorsBadCapID[d]->Fill(iEta, iPhi,
+						  badcapID[eta][phi][d]);
+		      DigiErrorsBadDigiSize[d]->Fill(iEta, iPhi,
+						     baddigisize[eta][phi][d]);
+		      DigiErrorsBadADCSum[d]->Fill(iEta, iPhi,
+						   badADCsum[eta][phi][d]);
+		      DigiErrorsDVErr[d]->Fill(iEta, iPhi,
+					       digierrorsdverr[eta][phi][d]);
 		      problemsum+=problemdigis[eta][phi][d];
 		      problemvalue=problemdigis[eta][phi][d];
-		      ProblemDigisByDepth[d]->Fill(eta+1, phi+1,
-							    problemvalue);
+		      ProblemDigisByDepth[d]->Fill(iEta, iPhi,
+						   problemvalue);
 		    } // if (hoHists.check)
 		}
 	      // HF
@@ -1160,20 +1160,20 @@ void HcalDigiMonitor::fill_Nevents()
 		      // Fill plots as fractions of total # of events
 		      
 		      // Occupancy plot needs to get old occupancy value, since counter gets reset
-		      DigiOccupancyByDepth[d]->Fill(eta+1,phi+1,
-							     occupancyEtaPhi[eta][phi][d]);
+		      DigiOccupancyByDepth[d]->Fill(iEta, iPhi,
+						    occupancyEtaPhi[eta][phi][d]);
 
-		      DigiErrorsBadCapID[d]->Fill(eta+1, phi+1,
-							   badcapID[eta][phi][d]);
-		      DigiErrorsBadDigiSize[d]->Fill(eta+1, phi+1,
-							      baddigisize[eta][phi][d]);
-		      DigiErrorsBadADCSum[d]->Fill(eta+1, phi+1,
-							    badADCsum[eta][phi][d]);
-		      DigiErrorsDVErr[d]->Fill(eta+1, phi+1,
-							digierrorsdverr[eta][phi][d]);
+		      DigiErrorsBadCapID[d]->Fill(iEta, iPhi,
+						  badcapID[eta][phi][d]);
+		      DigiErrorsBadDigiSize[d]->Fill(iEta, iPhi,
+						     baddigisize[eta][phi][d]);
+		      DigiErrorsBadADCSum[d]->Fill(iEta, iPhi,
+						   badADCsum[eta][phi][d]);
+		      DigiErrorsDVErr[d]->Fill(iEta, iPhi,
+					       digierrorsdverr[eta][phi][d]);
 		      problemsum+=problemdigis[eta][phi][d];
 		      problemvalue=problemdigis[eta][phi][d];
-		      ProblemDigisByDepth[d]->Fill(eta+1, phi+1,
+		      ProblemDigisByDepth[d]->Fill(iEta, iPhi,
 							    problemvalue);
 		    } // if (hfHists.check)
 		}
@@ -1190,21 +1190,21 @@ void HcalDigiMonitor::fill_Nevents()
 			  problemdigis[eta][phi][d]+=digi_checkNevents_;
 			}
 		      
-		      DigiOccupancyByDepth[d]->Fill(eta+1,phi+1,
-							     occupancyEtaPhi[eta][phi][d]);
-
-		      DigiErrorsBadCapID[d]->Fill(eta+1, phi+1,
-							   badcapID[eta][phi][d]);
-		      DigiErrorsBadDigiSize[d]->Fill(eta+1, phi+1,
-							      baddigisize[eta][phi][d]);
-		      DigiErrorsBadADCSum[d]->Fill(eta+1, phi+1,
-							    badADCsum[eta][phi][d]);
-		      DigiErrorsDVErr[d]->Fill(eta+1, phi+1,
-							digierrorsdverr[eta][phi][d]);
+		      DigiOccupancyByDepth[d]->Fill(iEta, iPhi,
+						    occupancyEtaPhi[eta][phi][d]);
+		      
+		      DigiErrorsBadCapID[d]->Fill(iEta, iPhi,
+						  badcapID[eta][phi][d]);
+		      DigiErrorsBadDigiSize[d]->Fill(iEta, iPhi,
+						     baddigisize[eta][phi][d]);
+		      DigiErrorsBadADCSum[d]->Fill(iEta, iPhi,
+						   badADCsum[eta][phi][d]);
+		      DigiErrorsDVErr[d]->Fill(iEta, iPhi,
+					       digierrorsdverr[eta][phi][d]);
 		      problemsum+=problemdigis[eta][phi][d];
 		      problemvalue=problemdigis[eta][phi][d];
-		      ProblemDigisByDepth[d]->Fill(eta+1, phi+1,
-							    problemvalue);
+		      ProblemDigisByDepth[d]->Fill(iEta, iPhi,
+						   problemvalue);
 		    } // if (validDetId(HcalEndcap,iEta,iPhi,iDepth)
 		} //if (d>3)
 	     
@@ -1212,8 +1212,8 @@ void HcalDigiMonitor::fill_Nevents()
 	    } // for (int d=0;...)
 	  if (valid==true) // only fill overall problem plot if the (eta,phi) value was valid for some depth
 	    {
-	      problemvalue=min(1.,problemsum/ievt_);
-	      ProblemDigis->Fill(eta+1,phi+1,problemvalue);
+	      //problemvalue=min(1.,problemsum/ievt_);
+	      ProblemDigis->Fill(iEta, iPhi,problemsum);
 	    }
 	} // for (int phi=0;...)
     } // for (int eta=0;...)
