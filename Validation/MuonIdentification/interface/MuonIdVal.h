@@ -13,7 +13,7 @@
 //
 // Original Author:  Jacob Ribnik
 //         Created:  Wed Apr 18 13:48:08 CDT 2007
-// $Id: MuonIdVal.h,v 1.4 2008/10/24 14:59:49 jribnik Exp $
+// $Id: MuonIdVal.h,v 1.5 2008/10/30 19:17:43 jribnik Exp $
 //
 //
 
@@ -22,7 +22,6 @@
 
 // system include files
 #include <string>
-#include <vector>
 
 // user include files
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
@@ -56,9 +55,10 @@ class MuonIdVal : public edm::EDAnalyzer {
       ~MuonIdVal();
 
    private:
-      virtual void beginJob(const edm::EventSetup&);
+      virtual void beginJob();
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void endJob();
+      virtual void Fill(MonitorElement*, float);
 
       DQMStore* dbe_;
 
@@ -68,9 +68,7 @@ class MuonIdVal : public edm::EDAnalyzer {
       edm::InputTag inputCSCSegmentCollection_;
       bool useTrackerMuons_;
       bool useGlobalMuons_;
-      bool makeDQMPlots_;
       bool makeEnergyPlots_;
-      bool makeIsoPlots_;
       bool make2DPlots_;
       bool makeAllChamberPlots_;
       std::string baseFolder_;
@@ -81,8 +79,14 @@ class MuonIdVal : public edm::EDAnalyzer {
       edm::ESHandle<GlobalTrackingGeometry> geometry_;
 
       // trackerMuon == 0; globalMuon == 1
-      MonitorElement* hNumChambers[2];
-      MonitorElement* hNumMatches[2];
+      // energy deposits
+      MonitorElement* hEnergyEMBarrel[2];
+      MonitorElement* hEnergyHABarrel[2];
+      MonitorElement* hEnergyHO[2];
+      MonitorElement* hEnergyEMEndcap[2];
+      MonitorElement* hEnergyHAEndcap[2];
+
+      // muonid
       MonitorElement* hCaloCompat[2];
       MonitorElement* hSegmentCompat[2];
       MonitorElement* hCaloSegmentCompat[2];
@@ -96,70 +100,23 @@ class MuonIdVal : public edm::EDAnalyzer {
       MonitorElement* hTMLastStationOptimizedLowPtLooseBool[2];
       MonitorElement* hTMLastStationOptimizedLowPtTightBool[2];
 
-      MonitorElement* hEnergyEMBarrel[2];
-      MonitorElement* hEnergyHABarrel[2];
-      MonitorElement* hEnergyHO[2];
-      MonitorElement* hEnergyEMEndcap[2];
-      MonitorElement* hEnergyHAEndcap[2];
-
-      MonitorElement* hIso03sumPt[2];
-      MonitorElement* hIso03emEt[2];
-      MonitorElement* hIso03hadEt[2];
-      MonitorElement* hIso03hoEt[2];
-      MonitorElement* hIso03nTracks[2];
-      MonitorElement* hIso03nJets[2];
-      MonitorElement* hIso05sumPt[2];
-      MonitorElement* hIso05emEt[2];
-      MonitorElement* hIso05hadEt[2];
-      MonitorElement* hIso05hoEt[2];
-      MonitorElement* hIso05nTracks[2];
-      MonitorElement* hIso05nJets[2];
-
-      // by station, trackerMuons only
-      MonitorElement* hDTNumSegments[4];
-      MonitorElement* hDTDx[4];
-      MonitorElement* hDTPullx[4];
-      MonitorElement* hDTPullxPropErr[4];
-      MonitorElement* hDTDdXdZ[4];
-      MonitorElement* hDTPulldXdZ[4];
-      MonitorElement* hDTPulldXdZPropErr[4];
-      MonitorElement* hDTDy[3];
-      MonitorElement* hDTPully[3];
-      MonitorElement* hDTPullyPropErr[3];
-      MonitorElement* hDTDdYdZ[3];
-      MonitorElement* hDTPulldYdZ[3];
-      MonitorElement* hDTPulldYdZPropErr[3];
-      MonitorElement* hDTDistWithSegment[4];
-      MonitorElement* hDTDistWithNoSegment[4];
-      MonitorElement* hDTPullDistWithSegment[4];
-      MonitorElement* hDTPullDistWithNoSegment[4];
-      MonitorElement* hCSCNumSegments[4];
-      MonitorElement* hCSCDx[4];
-      MonitorElement* hCSCPullx[4];
-      MonitorElement* hCSCPullxPropErr[4];
-      MonitorElement* hCSCDdXdZ[4];
-      MonitorElement* hCSCPulldXdZ[4];
-      MonitorElement* hCSCPulldXdZPropErr[4];
-      MonitorElement* hCSCDy[4];
-      MonitorElement* hCSCPully[4];
-      MonitorElement* hCSCPullyPropErr[4];
-      MonitorElement* hCSCDdYdZ[4];
-      MonitorElement* hCSCPulldYdZ[4];
-      MonitorElement* hCSCPulldYdZPropErr[4];
-      MonitorElement* hCSCDistWithSegment[4];
-      MonitorElement* hCSCDistWithNoSegment[4];
-      MonitorElement* hCSCPullDistWithSegment[4];
-      MonitorElement* hCSCPullDistWithNoSegment[4];
-
-      MonitorElement* hSegmentIsAssociatedBool;
-      MonitorElement* hSegmentIsAssociatedRZ;
-      MonitorElement* hSegmentIsAssociatedXY;
-      MonitorElement* hSegmentIsNotAssociatedRZ;
-      MonitorElement* hSegmentIsNotAssociatedXY;
-      MonitorElement* hSegmentIsBestDrAssociatedRZ;
-      MonitorElement* hSegmentIsBestDrAssociatedXY;
-      MonitorElement* hSegmentIsBestDrNotAssociatedRZ;
-      MonitorElement* hSegmentIsBestDrNotAssociatedXY;
+      // by station
+      MonitorElement* hDTPullxPropErr[2][4];
+      MonitorElement* hDTPulldXdZPropErr[2][4];
+      MonitorElement* hDTPullyPropErr[2][3];
+      MonitorElement* hDTPulldYdZPropErr[2][3];
+      MonitorElement* hDTDistWithSegment[2][4];
+      MonitorElement* hDTDistWithNoSegment[2][4];
+      MonitorElement* hDTPullDistWithSegment[2][4];
+      MonitorElement* hDTPullDistWithNoSegment[2][4];
+      MonitorElement* hCSCPullxPropErr[2][4];
+      MonitorElement* hCSCPulldXdZPropErr[2][4];
+      MonitorElement* hCSCPullyPropErr[2][4];
+      MonitorElement* hCSCPulldYdZPropErr[2][4];
+      MonitorElement* hCSCDistWithSegment[2][4];
+      MonitorElement* hCSCDistWithNoSegment[2][4];
+      MonitorElement* hCSCPullDistWithSegment[2][4];
+      MonitorElement* hCSCPullDistWithNoSegment[2][4];
 
       // by chamber, trackerMuons only
       // DT:  [station][wheel][sector]
@@ -176,6 +133,16 @@ class MuonIdVal : public edm::EDAnalyzer {
       MonitorElement* hCSCChamberEdgeXWithNoSegment[2][4][4][36];
       MonitorElement* hCSCChamberEdgeYWithSegment[2][4][4][36];
       MonitorElement* hCSCChamberEdgeYWithNoSegment[2][4][4][36];
+
+      // segment matching "efficiency"
+      MonitorElement* hSegmentIsAssociatedRZ;
+      MonitorElement* hSegmentIsAssociatedXY;
+      MonitorElement* hSegmentIsNotAssociatedRZ;
+      MonitorElement* hSegmentIsNotAssociatedXY;
+      MonitorElement* hSegmentIsBestDrAssociatedRZ;
+      MonitorElement* hSegmentIsBestDrAssociatedXY;
+      MonitorElement* hSegmentIsBestDrNotAssociatedRZ;
+      MonitorElement* hSegmentIsBestDrNotAssociatedXY;
 };
 
 #endif
