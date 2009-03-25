@@ -12,6 +12,7 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include <DetectorDescription/Core/interface/DDCompactView.h>
 #include <DetectorDescription/Core/interface/DDExpandedView.h>
+#include "DetectorDescription/Core/interface/DDExpandedNode.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
@@ -128,6 +129,7 @@ void PGeometricDetBuilder::putOne ( const GeometricDet* gd, PGeometricDet* pgd, 
   DD3Vector x, y, z;
   rot.GetComponents(x, y, z);
   item._name           = gd->name().name();
+  item._ns             = gd->name().ns();
   item._level          = lev;
   item._x              = tran.X();
   item._y              = tran.Y();
@@ -196,6 +198,26 @@ void PGeometricDetBuilder::putOne ( const GeometricDet* gd, PGeometricDet* pgd, 
   item._pixROCy        = gd->pixROCy();
   item._stereo         = gd->stereo();
   item._siliconAPVNum = gd->siliconAPVNum();
+
+  GeometricDet::nav_type nt = gd->navType();
+  size_t nts = nt.size();
+  item._numnt = nts;
+  std::vector<int> tempnt = nt;
+  for ( size_t extrant = nt.size(); extrant < 11; ++extrant ) {
+    tempnt.push_back(-1);
+  } 
+  item._nt0 = tempnt[0];
+  item._nt1 = tempnt[1];
+  item._nt2 = tempnt[2];
+  item._nt3 = tempnt[3];
+  item._nt4 = tempnt[4];
+  item._nt5 = tempnt[5];
+  item._nt6 = tempnt[6];
+  item._nt7 = tempnt[7];
+  item._nt8 = tempnt[8];
+  item._nt9 = tempnt[9];
+  item._nt10 = tempnt[10];
+
   pgd->pgeomdets_.push_back ( item );
 }
 
