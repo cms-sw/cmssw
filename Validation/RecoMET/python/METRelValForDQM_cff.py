@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-# File: METRelValForDQM.cfi
+# File: METRelValForDQM.cff
 # Author:  R. Remington
 # Date: 03.01.09
 # Fill validation histograms for MET.
@@ -28,7 +28,6 @@ genMetCaloAndNonPromptAnalyzer.FineBinning = cms.untracked.bool(False)
 from Validation.RecoMET.caloTowers_cfi import *
 towerSchemeBAnalyzer.FineBinning = cms.untracked.bool(False)
 
-
 METRelValSequence = cms.Sequence(
     metAnalyzer*
     metHOAnalyzer*
@@ -43,6 +42,6 @@ METRelValSequence = cms.Sequence(
     genMetTrueAnalyzer*
     genMetCaloAnalyzer*
     genMetCaloAndNonPromptAnalyzer*
-    towerSchemeBAnalyzer
-    
-)
+
+    }
+
