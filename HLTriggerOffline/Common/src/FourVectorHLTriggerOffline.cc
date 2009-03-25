@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.11 2009/02/26 21:59:00 berryhil Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.12 2009/03/24 21:48:57 nuno Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -35,9 +35,9 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-
-//#include "PhysicsTools/Utilities/interface/deltaR.h"
-//#include "CommonTools/Utils/interface/deltaR.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
+#include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -151,6 +151,21 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
     return;
   }
 
+  Handle<GenJetCollection> genJets;
+  iEvent.getByLabel("iterativeCone5GenJets",genJets);
+  if(!genJets.isValid()) { 
+    edm::LogInfo("FourVectorHLTriggerOffline") << "genJets not found, "
+      "skipping event"; 
+    return;
+  }
+
+  Handle<GenMETCollection> genMets;
+  iEvent.getByLabel("genMetTrue",genMets);
+  if(!genMets.isValid()) { 
+    edm::LogInfo("FourVectorHLTriggerOffline") << "genMets not found, "
+      "skipping event"; 
+    return;
+  }
 
   edm::Handle<TriggerResults> triggerResults;
   iEvent.getByLabel(triggerResultsLabel_,triggerResults);
@@ -518,13 +533,12 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
       // for jet triggers, loop over and fill offline 4-vectors
       else if (triggertype == trigger::TriggerJet || triggertype == trigger::TriggerL1CenJet || triggertype == trigger::TriggerL1ForJet)
 	{
-	if (genParticles.isValid()){
-           for(size_t i = 0; i < genParticles->size(); ++ i) {
-          const GenParticle & p = (*genParticles)[i];
-          if ((abs(p.pdgId()) == 21 || (abs(p.pdgId()) <= 5 && abs(p.pdgId()) >=1)) && p.status() == 3 && fabs(p.eta()) <= jetEtaMax_ && p.pt() >= jetEtMin_ ){
+	if (genJets.isValid()){
+           for(GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
+          if (fabs(gjet->eta()) <= jetEtaMax_ && gjet->pt() >= jetEtMin_ ){
             NMc++; 
-	    v->getMcEtMcHisto()->Fill(p.pt());
-	    v->getMcEtaVsMcPhiMcHisto()->Fill(p.eta(),p.phi());
+	    v->getMcEtMcHisto()->Fill(gjet->pt());
+	    v->getMcEtaVsMcPhiMcHisto()->Fill(gjet->eta(),gjet->phi());
 	  }
 	 }
 	}
@@ -569,15 +583,13 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	       }
 	     }
 
-
-	    if (genParticles.isValid()){
-               for(size_t i = 0; i < genParticles->size(); ++ i) {
-              const GenParticle & p = (*genParticles)[i];
-              if ((abs(p.pdgId()) == 21 || (abs(p.pdgId()) <= 5 && abs(p.pdgId()) >=1)) && p.status() == 3 && fabs(p.eta()) <= jetEtaMax_ && p.pt() >= jetEtMin_ ){
-	       if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
+	if (genJets.isValid()){
+           for(GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
+             if (fabs(gjet->eta()) <= jetEtaMax_ && gjet->pt() >= jetEtMin_ ){
+	       if (reco::deltaR(gjet->eta(),gjet->phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
 	        NL1Mc++;
-	        v->getMcEtL1McHisto()->Fill(p.pt());
-	        v->getMcEtaVsMcPhiL1McHisto()->Fill(p.eta(),p.phi());
+	        v->getMcEtL1McHisto()->Fill(gjet->pt());
+	        v->getMcEtaVsMcPhiL1McHisto()->Fill(gjet->eta(),gjet->phi());
     	       }
 	      }
              }
@@ -618,14 +630,12 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	 }
 
 	
-
-	 if (genParticles.isValid()){
-           for(size_t i = 0; i < genParticles->size(); ++ i) {
-          const GenParticle & p = (*genParticles)[i];
-          if (abs(p.pdgId()) == 5 && p.status() == 3 && fabs(p.eta()) <= bjetEtaMax_ && p.pt() >= bjetEtMin_){
+	 if (genJets.isValid()){
+           for(GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
+          if (fabs(gjet->eta()) <= bjetEtaMax_ && gjet->pt() >= bjetEtMin_){
             NMc++; 
-	    v->getMcEtMcHisto()->Fill(p.pt());
-	    v->getMcEtaVsMcPhiMcHisto()->Fill(p.eta(),p.phi());
+	    v->getMcEtMcHisto()->Fill(gjet->pt());
+	    v->getMcEtaVsMcPhiMcHisto()->Fill(gjet->eta(),gjet->phi());
 	   }
 	  }
 	 }
@@ -675,15 +685,14 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	   }
 	  }
 	 }
-
-	    if (genParticles.isValid()){
-               for(size_t i = 0; i < genParticles->size(); ++ i) {
-              const GenParticle & p = (*genParticles)[i];
-              if (abs(p.pdgId()) == 5 && p.status() == 3 && fabs(p.eta()) <= bjetEtaMax_ && p.pt() >= bjetEtMin_ ){
-	       if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
+	
+	    if (genJets.isValid()){
+               for(GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
+              if (fabs(gjet->eta()) <= bjetEtaMax_ && gjet->pt() >= bjetEtMin_ ){
+	       if (reco::deltaR(gjet->eta(),gjet->phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
 	        NL1Mc++;
-	        v->getMcEtL1McHisto()->Fill(p.pt());
-	        v->getMcEtaVsMcPhiL1McHisto()->Fill(p.eta(),p.phi());
+	        v->getMcEtL1McHisto()->Fill(gjet->pt());
+	        v->getMcEtaVsMcPhiL1McHisto()->Fill(gjet->eta(),gjet->phi());
     	       }
 	      }
              }
@@ -699,23 +708,16 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
       else if (triggertype == trigger::TriggerMET || triggertype == trigger::TriggerL1ETM)
 	{
 
-	if (genParticles.isValid()){
-          double metx = 0.0; double mety = 0.0; 
-          double met = 0.0; //double metphi = 0.0;
-          for(size_t i = 0; i < genParticles->size(); ++ i) {
-           const GenParticle & p = (*genParticles)[i];
-          if ((abs(p.pdgId()) == 12 || abs(p.pdgId()) == 14 || abs(p.pdgId()) == 16 || abs(p.pdgId()) == 18 || abs(p.pdgId()) == 1000022 || abs(p.pdgId()) == 1000039) && p.status() == 3){ 
-	    metx += p.pt()*cos(p.phi());
-	    mety += p.pt()*sin(p.phi());
-	  }
-	 }
-	    met = sqrt(metx*metx+mety*mety);
-            if (met >= metMin_){
+	  if (genMets.isValid())
+	  {
+           for(GenMETCollection::const_iterator gmet=genMets->begin(); gmet!=genMets->end(); gmet++) {
+	     if (gmet->pt() > metMin_){
 	    NMc++;
-            v->getMcEtMcHisto()->Fill(met);
-	    v->getMcEtaVsMcPhiMcHisto()->Fill(0.0,atan2(mety,metx));
-	    }
-	}
+            v->getMcEtMcHisto()->Fill(gmet->pt());
+	    v->getMcEtaVsMcPhiMcHisto()->Fill(0.0,gmet->phi());
+	     }
+	   }
+	  }
 
 	  if (metHandle.isValid()){
          const reco::CaloMETCollection metCollection = *(metHandle.product());
@@ -759,25 +761,19 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	     }
 
 
-          if (genParticles.isValid()){
-            double metx = 0.0; double mety = 0.0; 
-            double met = 0.0; //double metphi = 0.0;
-            for(size_t i = 0; i < genParticles->size(); ++ i) {
-            const GenParticle & p = (*genParticles)[i];
-            if ((abs(p.pdgId()) == 12 || abs(p.pdgId()) == 14 || abs(p.pdgId()) == 16 || abs(p.pdgId()) == 18 || abs(p.pdgId()) == 1000022 || abs(p.pdgId()) == 1000039) && p.status() == 3){ 
-  	      metx += p.pt()*cos(p.phi());
-	      mety += p.pt()*sin(p.phi());
-	     }
-	    }
-	    met = sqrt(metx*metx+mety*mety);
-	    if (met >= metMin_){
+	  if (genMets.isValid())
+	  {
+           for(GenMETCollection::const_iterator gmet=genMets->begin(); gmet!=genMets->end(); gmet++) {
+	     if (gmet->pt() > metMin_){
 	    NL1Mc++;
-	    v->getMcEtL1McHisto()->Fill(met);
-	    v->getMcEtaVsMcPhiL1McHisto()->Fill(0.0,atan2(mety,metx));
-	    }
-       	   }
-
+            v->getMcEtL1McHisto()->Fill(gmet->pt());
+	    v->getMcEtaVsMcPhiL1McHisto()->Fill(0.0,gmet->phi());
+	     }
 	   }
+	  }
+
+	      }
+
             ++idtypeiter;
 	   }
          }
@@ -843,20 +839,16 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	     }
 
 
-          if (genParticles.isValid()){
-            double sumet = 0.0; //double metphi = 0.0;
-            for(size_t i = 0; i < genParticles->size(); ++ i) {
-            const GenParticle & p = (*genParticles)[i];
-            if ((abs(p.pdgId()) != 12 && abs(p.pdgId()) != 14 && abs(p.pdgId()) != 16 && abs(p.pdgId()) != 18 && abs(p.pdgId()) != 1000022 && abs(p.pdgId()) != 1000039) && p.status() == 3 && fabs(p.eta()) < 5.0){ 
-  	      sumet += p.pt();
-	     }
-	    }
-	    if (sumet >= sumEtMin_){
+	  if (genMets.isValid())
+	  {
+           for(GenMETCollection::const_iterator gmet=genMets->begin(); gmet!=genMets->end(); gmet++) {
+	     if (gmet->sumEt() > sumEtMin_){
 	    NL1Mc++;
-	    v->getMcEtL1McHisto()->Fill(sumet);
+            v->getMcEtL1McHisto()->Fill(gmet->sumEt());
 	    v->getMcEtaVsMcPhiL1McHisto()->Fill(0.0,0.0);
-	    }
-       	   }
+	     }
+	   }
+	  }
 
 	   }
             ++idtypeiter;
@@ -1279,14 +1271,13 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	    ++idtypeiter;
 	  }
 
-	if (genParticles.isValid()){
-           for(size_t i = 0; i < genParticles->size(); ++ i) {
-          const GenParticle & p = (*genParticles)[i];
-          if ((abs(p.pdgId()) == 21 ||(abs(p.pdgId()) <=5 && abs(p.pdgId()) >=1)) && p.status() == 3 && fabs(p.eta()) <= jetEtaMax_ && p.pt() >= jetEtMin_ ){ 
-	   if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
+	if (genJets.isValid()){
+          for(GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
+          if (fabs(gjet->eta()) <= jetEtaMax_ && gjet->pt() >= jetEtMin_ ){ 
+	   if (reco::deltaR(gjet->eta(),gjet->phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
 	    NOnMc++;
-	    v->getMcEtOnMcHisto()->Fill(p.pt());
-	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(p.eta(),p.phi());
+	    v->getMcEtOnMcHisto()->Fill(gjet->pt());
+	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(gjet->eta(),gjet->phi());
 	   }
 	  }
 	 }
@@ -1343,14 +1334,13 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	    ++idtypeiter;
 	  }
 
-	if (genParticles.isValid()){
-           for(size_t i = 0; i < genParticles->size(); ++ i) {
-          const GenParticle & p = (*genParticles)[i];
-          if (abs(p.pdgId()) == 5 && p.status() == 3 && fabs(p.eta()) <= bjetEtaMax_ && p.pt() >= bjetEtMin_ ){ 
-	   if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
+	if (genJets.isValid()){
+          for(GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
+          if (fabs(gjet->eta()) <= bjetEtaMax_ && gjet->pt() >= bjetEtMin_ ){ 
+	   if (reco::deltaR(gjet->eta(),gjet->phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
 	    NOnMc++;
-	    v->getMcEtOnMcHisto()->Fill(p.pt());
-	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(p.eta(),p.phi());
+	    v->getMcEtOnMcHisto()->Fill(gjet->pt());
+	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(gjet->eta(),gjet->phi());
 	   }
 	  }
 	 }
@@ -1386,24 +1376,16 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	    ++idtypeiter;
 	  }
 
-	if (genParticles.isValid()){
-          double metx = 0.0; double mety = 0.0; 
-          double met = 0.0; //double metphi = 0.0;
-          for(size_t i = 0; i < genParticles->size(); ++ i) {
-          const GenParticle & p = (*genParticles)[i];
-          if ((abs(p.pdgId()) == 12 || abs(p.pdgId()) == 14 || abs(p.pdgId()) == 16 || abs(p.pdgId()) == 18 || abs(p.pdgId()) == 1000022 || abs(p.pdgId()) == 1000039) && p.status() == 3){ 
-	    metx += p.pt()*cos(p.phi());
-	    mety += p.pt()*sin(p.phi());
+	  if (genMets.isValid())
+	  {
+           for(GenMETCollection::const_iterator gmet=genMets->begin(); gmet!=genMets->end(); gmet++) {
+	     if (gmet->pt() > metMin_){
+	    NOnMc++;
+            v->getMcEtOnMcHisto()->Fill(gmet->pt());
+	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(0.0,gmet->phi());
+	     }
+	   }
 	  }
-	 }
-	 met = sqrt(metx*metx+mety*mety);
-         if (met > metMin_){
-	 NOnMc++;  
-	 v->getMcEtOnMcHisto()->Fill(met);
-	 v->getMcEtaVsMcPhiOnMcHisto()->Fill(0.0,atan2(mety,metx));
-	 }
-	}
-
 
       }
       // for sumet triggers, loop over and fill offline 4-vectors
@@ -1435,21 +1417,18 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	    ++idtypeiter;
 	  }
 
-	if (genParticles.isValid()){ 
-          double sumet = 0.0; //double metphi = 0.0;
-          for(size_t i = 0; i < genParticles->size(); ++ i) {
-          const GenParticle & p = (*genParticles)[i];
-          if ((abs(p.pdgId()) != 12 && abs(p.pdgId()) != 14 && abs(p.pdgId()) != 16 && abs(p.pdgId()) != 18 && abs(p.pdgId()) != 1000022 && abs(p.pdgId()) != 1000039) && p.status() == 3 && fabs(p.eta()) < 5.0){ 
-	    sumet += p.pt();
-	  }
-	 }
-         if (sumet > sumEtMin_){
-	 NOnMc++;  
-	 v->getMcEtOnMcHisto()->Fill(sumet);
-	 v->getMcEtaVsMcPhiOnMcHisto()->Fill(0.0,0.0);
-	 }
-	}
 
+
+	  if (genMets.isValid())
+	  {
+           for(GenMETCollection::const_iterator gmet=genMets->begin(); gmet!=genMets->end(); gmet++) {
+	     if (gmet->sumEt() > sumEtMin_){
+	    NOnMc++;
+            v->getMcEtOnMcHisto()->Fill(gmet->sumEt());
+	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(0.0,0.0);
+	     }
+	   }
+	  }
 
       }
 
