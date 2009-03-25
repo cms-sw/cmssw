@@ -17,7 +17,8 @@ namespace reco {
   public:
     HLTTau() {
       emIsolation_ = -1000.;
-      sumPtTracks_ = -1000.;
+      sumPtTracksL25_ = -1000.;
+      sumPtTracksL3_ = -1000.;
       trackIsolationL25_ = -1;
       nTrackIsolationL25_ = -1;
       leadTrackPtL25_ = 0.;
@@ -60,7 +61,8 @@ namespace reco {
     int   getL3TrackIsolationResponse()const { return trackIsolationL3_; }
     int   getNL3TrackIsolation() const { return nTrackIsolationL3_; }
     float getL3LeadTrackPtValue() const { return leadTrackPtL3_; }
-    float getSumPtTracks() const {return sumPtTracks_;}
+    float getSumPtTracksL25() const {return sumPtTracksL25_;}
+    float getSumPtTracksL3() const {return sumPtTracksL3_;}
 
     double getSeedEcalHitEt() const {return seedEcalHitEt_;} //Lead PF Cluster Et /or simple cluster/or crystal
     std::vector<double> getEcalClusterShape() const {return ecalClusterShape_;} //cluster shapes eta [0], Phi[0] DeltaR [1]
@@ -73,9 +75,9 @@ namespace reco {
 
 
     void   setNL25TrackIsolation(int nTracks)  { nTrackIsolationL25_ = nTracks; }
-    void   setNL3TrackIsolation(int nTracks)  { nTrackIsolationL3_ = nTracks; }
-    float setSumPtTracks(double sumPt) {sumPtTracks_ = sumPt;}
-    
+    void   setNL3TrackIsolation(int nTracks)  { nTrackIsolationL3_ = nTracks; }  
+    float setSumPtTracksL25(double sumPt) {sumPtTracksL25_ = sumPt;}
+    float setSumPtTracksL3(double sumPt) {sumPtTracksL3_ = sumPt;}    
     void setSeedEcalHitEt(double  seed)   {seedEcalHitEt_ = seed;} 
     void setEcalClusterShape(std::vector<double> clusters)  {ecalClusterShape_ = clusters;} 
     void setNEcalHits(int nhits)  { nEcalHits_ = nhits;} 
@@ -102,7 +104,8 @@ namespace reco {
     double seedHcalHitEt_;
     std::vector<double> hcalClusterShape_;
     int nHcalHits_;
-    double sumPtTracks_;
+    double sumPtTracksL25_;
+    double sumPtTracksL3_;
   };
   
 }
