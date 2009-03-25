@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.32 2009/03/04 15:30:29 nancy Exp $ 
- **  $Date: 2009/03/04 15:30:29 $ 
- **  $Revision: 1.32 $
+ **  $Id: PhotonProducer.h,v 1.33 2009/03/04 21:20:09 nancy Exp $ 
+ **  $Date: 2009/03/04 21:20:09 $ 
+ **  $Revision: 1.33 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -22,12 +22,12 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
 
@@ -47,31 +47,22 @@ class PhotonProducer : public edm::EDProducer {
 
   void fillPhotonCollection(edm::Event& evt,
 			    edm::EventSetup const & es,
-                            const edm::Handle<reco::SuperClusterCollection> & scHandle,
-                            const CaloGeometry* geometry,
-			    const CaloSubdetectorGeometry* subDetGeometry,
-			    const CaloSubdetectorGeometry* geometryES,
+                            const edm::Handle<reco::PhotonCoreCollection> & photonCoreHandle,
                             const CaloTopology *topology,
-			    const EcalRecHitCollection* hits,
+			    const EcalRecHitCollection* ecalBarrelHits,
+			    const EcalRecHitCollection* ecalEndcapHits,
 			    const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
-                            const double r9Val, 
-			    std::vector<double> preselCutValues,
-			    const edm::Handle<reco::ConversionCollection> & conversionHandle,
-			    const reco::ElectronSeedCollection& pixelSeeds,
 			    math::XYZPoint & vtx,
 			    reco::PhotonCollection & outputCollection,
 			    int& iSC);
 
-  reco::ConversionRef solveAmbiguity( const edm::Handle<reco::ConversionCollection> & conversionHandle, reco::SuperClusterRef& sc);
 
-  double hOverE(const reco::SuperClusterRef & scRef, HBHERecHitMetaCollection *mhbhe);
 
+ 
+
+  std::string PhotonCoreCollection_;
   std::string PhotonCollection_;
-  edm::InputTag scHybridBarrelProducer_;
-  edm::InputTag scIslandEndcapProducer_;
-  edm::InputTag scHybridBarrelCollection_;
-  edm::InputTag scIslandEndcapCollection_;
-
+  edm::InputTag photonCoreProducer_;
   edm::InputTag barrelEcalHits_;
   edm::InputTag endcapEcalHits_;
 
@@ -94,16 +85,15 @@ class PhotonProducer : public edm::EDProducer {
   std::string pixelSeedProducer_;
   std::string vertexProducer_;
   bool usePrimaryVertex_;
-  bool risolveAmbiguity_;
   edm::ParameterSet conf_;
 
   PositionCalc posCalculator_;
-  std::string likelihoodWeights_;
+
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;
   edm::ESHandle<CaloTopology> theCaloTopo_;
   HoECalculator  theHoverEcalc_;
-  ConversionLikelihoodCalculator* theLikelihoodCalc_;
+
 
   bool validPixelSeeds_;
   PhotonIsolationCalculator* thePhotonIsolationCalculator_;
