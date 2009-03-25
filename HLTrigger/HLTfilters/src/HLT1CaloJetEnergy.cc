@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/03/25 09:21:15 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/03/25 10:31:19 $
+ *  $Revision: 1.2 $
  *
  *  \author Jim Brooke
  *
@@ -30,11 +30,14 @@ HLT1CaloJetEnergy::HLT1CaloJetEnergy(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.getParameter<edm::InputTag>("inputTag")),
   saveTag_  (iConfig.getUntrackedParameter<bool>("saveTag",false)),
   min_E_    (iConfig.getParameter<double>       ("MinE"   )),
-  max_Eta_  (iConfig.getParameter<double>       ("MaxEta"   ))
+  max_Eta_  (iConfig.getParameter<double>       ("MaxEta"   )),
+  min_N_    (iConfig.getParameter<unsigned>      ("MinN"   ))
 {
-   LogDebug("") << "Input/ecut : "
+   LogDebug("") << "Input/ecut/etacut/ncut : "
 		<< inputTag_.encode() << " "
-		<< min_E_ ;
+		<< min_E_ << " "
+		<< max_Eta_ << " "
+		<< min_N_ ;
 
    //register your products
    produces<trigger::TriggerFilterObjectWithRefs>();
@@ -86,7 +89,7 @@ HLT1CaloJetEnergy::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    // filter decision
-   bool accept(n>=1);
+   bool accept(n>=min_N_);
 
    // put filter object into the Event
    iEvent.put(filterobject);
