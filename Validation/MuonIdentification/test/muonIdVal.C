@@ -95,15 +95,16 @@ void muonIdVal(char* filename1, char* filename2 = 0, bool make2DPlots = true, bo
          obj1 = key->ReadObj();
          obj2 = 0;
          s2   = 0;
-         if (d2)
+         if (d2) {
             obj2 = d2->Get(obj1->GetName());
-         // For backwards compatibility with old dqm files where histograms may be
-         // stored in different directories, try FindObjectAny before giving up
-         // However, only do this for histograms located in the "base" directory
-         // of the first file, which is the only place to which I have been relocating
-         // histograms
-         if (! obj2 && i == 0)
-            obj2 = f2->FindObjectAny(obj1->GetName());
+            // For backwards compatibility with old dqm files where histograms may be
+            // stored in different directories, try FindObjectAny before giving up
+            // However, only do this for histograms located in the "base" directory
+            // of the first file, which is the only place to which I have been relocating
+            // histograms
+            if (! obj2 && i == 0)
+               obj2 = f2->FindObjectAny(obj1->GetName());
+         }
 
          if (obj1->InheritsFrom(TH1::Class()) || (obj1->InheritsFrom(TH2::Class()) && make2DPlots)) {
             // If there are two TH1Fs better normalize them
