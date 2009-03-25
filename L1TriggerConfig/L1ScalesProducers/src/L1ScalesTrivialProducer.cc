@@ -72,7 +72,7 @@ std::auto_ptr<L1CaloEtScale> L1ScalesTrivialProducer::produceHtMissScale(const L
 {
    using namespace edm::es;
 
-   std::auto_ptr<L1CaloEtScale> htMissScale = std::auto_ptr<L1CaloEtScale>( new L1CaloEtScale(0xffff, 0x7f, m_jetEtScaleInputLsb, m_htMissThresholds) );
+   std::auto_ptr<L1CaloEtScale> htMissScale = std::auto_ptr<L1CaloEtScale>( new L1CaloEtScale(0, 0x7f, m_jetEtScaleInputLsb, m_htMissThresholds) );
 
    return htMissScale ;
 }
