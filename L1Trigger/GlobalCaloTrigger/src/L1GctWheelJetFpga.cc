@@ -24,14 +24,13 @@ L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
   m_rawCentralJets(MAX_JETS_IN),
   m_rawForwardJets(MAX_JETS_IN),
   m_rawTauJets(MAX_JETS_IN),
-  m_inputHt(MAX_LEAF_CARDS),
   m_inputHx(MAX_LEAF_CARDS),
   m_inputHy(MAX_LEAF_CARDS),
   m_inputHfSums(MAX_LEAF_CARDS),
   m_centralJets(MAX_JETS_OUT),
   m_forwardJets(MAX_JETS_OUT),
   m_tauJets(MAX_JETS_OUT),
-  m_outputHt(0), m_outputHx(0), m_outputHy(0), m_outputHfSums()
+  m_outputHx(0), m_outputHy(0), m_outputHfSums()
 {
   if (checkSetup()) {
 
@@ -107,11 +106,6 @@ std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga)
 //     {
 //       os << fpga.m_inputJets.at(i);
 //     } 
-  os << "Input Ht " << endl;
-  for(unsigned i=0; i < fpga.m_inputHt.size(); i++)
-    {
-      os << (fpga.m_inputHt.at(i)) << endl;
-    } 
 //   os << "No. of raw central Jets " << fpga.m_rawCentralJets.size() << endl;
 //   for(unsigned i=0; i < fpga.m_rawCentralJets.size(); i++)
 //     {
@@ -127,7 +121,6 @@ std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga)
 //     {
 //       os << fpga.m_rawTauJets.at(i);
 //     } 
-  os << "Output Ht " << fpga.m_outputHt << endl;
 //   os << "No. of output central Jets " << fpga.m_centralJets.size() << endl;
 //   for(unsigned i=0; i < fpga.m_centralJets.size(); i++)
 //     {
@@ -151,12 +144,10 @@ void L1GctWheelJetFpga::resetProcessor()
 {
   for (unsigned int i=0; i<MAX_LEAF_CARDS; ++i)
   {
-    m_inputHt.at(i).reset();
     m_inputHx.at(i).reset();
     m_inputHy.at(i).reset();
     m_inputHfSums.at(i).reset();
   }
-  m_outputHt.reset();
   m_outputHx.reset();
   m_outputHy.reset();
   m_outputHfSums.reset();
@@ -180,7 +171,6 @@ void L1GctWheelJetFpga::fetchInput()
 	  storeJets(m_inputLeafCards.at(iLeaf)->getOutputJetsC(), iLeaf, 2*L1GctJetFinderBase::MAX_JETS_OUT);
         
 	  // Deal with the Ht inputs
-	  m_inputHt.at(iLeaf) = m_inputLeafCards.at(iLeaf)->getOutputHt();
 	  m_inputHx.at(iLeaf) = m_inputLeafCards.at(iLeaf)->getOutputHx();
 	  m_inputHy.at(iLeaf) = m_inputLeafCards.at(iLeaf)->getOutputHy();
 
@@ -212,7 +202,6 @@ void L1GctWheelJetFpga::process()
       }
 
     //Ht processing
-    m_outputHt = m_inputHt.at(0) + m_inputHt.at(1) + m_inputHt.at(2);
     m_outputHx = m_inputHx.at(0) + m_inputHx.at(1) + m_inputHx.at(2);
     m_outputHy = m_inputHy.at(0) + m_inputHy.at(1) + m_inputHy.at(2);
 
@@ -238,22 +227,6 @@ void L1GctWheelJetFpga::setInputJet(int i, L1GctJetCand jet)
       }
     }
 }
-
-void L1GctWheelJetFpga::setInputHt (int i, unsigned ht)
-{   
-  if(i >= 0 && i < static_cast<int>(MAX_LEAF_CARDS))
-    {
-      m_inputHt.at(i).setValue(ht);
-    }
-  else
-    {
-      if (m_verbose) {
-	edm::LogError("L1GctInputError")
-	  << "L1GctWheelJetFpga::setInputHt() : In WheelJetFpga ID  " << m_id << ", inputted Ht value " 
-	  << i << " is outside input index range of 0 to " << (MAX_LEAF_CARDS-1) << "\n";
-      }
-    }
-} 
 
 void L1GctWheelJetFpga::storeJets(JetVector jets, unsigned short iLeaf, unsigned short offset)
 {

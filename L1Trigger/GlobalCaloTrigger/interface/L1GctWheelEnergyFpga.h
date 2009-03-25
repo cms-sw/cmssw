@@ -31,8 +31,9 @@ class L1GctWheelEnergyFpga : public L1GctProcessor
 {
 public:
         /// typedefs for energy values in fixed numbers of bits
-        typedef L1GctUnsignedInt< L1GctEtTotal::kEtTotalNBits   > etTotalType;
-        typedef L1GctJetLeafCard::etComponentType etComponentType;
+        typedef L1GctUnsignedInt<L1GctInternEtSum::kTotEtOrHtNBits> etTotalType;
+	typedef L1GctUnsignedInt<L1GctInternEtSum::kTotEtOrHtNBits> etHadType;
+	typedef L1GctTwosComplement<  L1GctInternEtSum::kMissExOrEyNBits > etComponentType;
 
         /// Max number of leaf card pointers
         static const unsigned int MAX_LEAF_CARDS;
@@ -52,7 +53,7 @@ public:
 	virtual void process();
 
 	/// set input data; not used in normal operation
-	void setInputEnergy(unsigned i, int ex, int ey, unsigned et);
+	void setInputEnergy(unsigned i, int ex, int ey, unsigned et, unsigned ht);
 
 	/// provide access to input Leaf card pointer (0-2)
 	L1GctJetLeafCard* getinputLeafCard(unsigned leafnum) const { return m_inputLeafCards.at(leafnum); }
@@ -63,13 +64,17 @@ public:
 	inline etComponentType getInputEy(unsigned leafnum) const { return m_inputEy.at(leafnum); }
 	/// get input Et value from a Leaf card (0-2)
 	inline etTotalType getInputEt(unsigned leafnum) const { return m_inputEt.at(leafnum); }
+	/// get input Ht value from a Leaf card (0-2)
+	inline etHadType inputHt(unsigned leafnum) const { return m_inputHt.at(leafnum); }
 
 	/// get output Ex value
 	inline etComponentType getOutputEx() const { return m_outputEx; }
 	/// get output Ey value
 	inline etComponentType getOutputEy() const { return m_outputEy; }
 	/// get output Et value
-	inline etTotalType getOutputEt() const { return m_outputEt; }
+	inline etTotalType getOutputEt() const { return m_outputEt; }    
+	/// get the output Ht
+	inline etHadType getOutputHt() const { return m_outputHt; }
 
 	/// check the setup
 	bool setupOk() const { return m_setupOk; }
@@ -96,11 +101,13 @@ public:
 	std::vector< etComponentType > m_inputEx;
 	std::vector< etComponentType > m_inputEy;
 	std::vector< etTotalType > m_inputEt;
+	std::vector< etHadType > m_inputHt;
 	///
 	/// output data
 	etComponentType m_outputEx;
 	etComponentType m_outputEy;
 	etTotalType m_outputEt;
+	etHadType m_outputHt;
 	
 	/// check the setup
 	bool m_setupOk;

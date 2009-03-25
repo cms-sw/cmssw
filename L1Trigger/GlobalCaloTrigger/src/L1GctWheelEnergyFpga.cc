@@ -19,6 +19,8 @@ L1GctWheelEnergyFpga::L1GctWheelEnergyFpga(int id, vector<L1GctJetLeafCard*> lea
   m_inputEx(MAX_LEAF_CARDS),
   m_inputEy(MAX_LEAF_CARDS),
   m_inputEt(MAX_LEAF_CARDS),
+  m_inputHt(MAX_LEAF_CARDS),
+  m_outputEx(0), m_outputEy(0), m_outputEt(0), m_outputHt(0),
   m_setupOk(true)
 {
   //Check wheelEnergyFpga setup
@@ -88,9 +90,15 @@ ostream& operator << (ostream& os, const L1GctWheelEnergyFpga& fpga)
     {
       os << fpga.m_inputEt.at(i) << endl;
     } 
+  os << "Input Ht " << endl;
+  for(unsigned i=0; i < fpga.m_inputHt.size(); i++)
+    {
+      os << (fpga.m_inputHt.at(i)) << endl;
+    } 
   os << "Output Ex " << fpga.m_outputEx << endl;
   os << "Output Ey " << fpga.m_outputEy << endl;
   os << "Output Et " << fpga.m_outputEt << endl;
+  os << "Output Ht " << fpga.m_outputHt << endl;
   os << endl;
   return os;
 }
@@ -101,10 +109,12 @@ void L1GctWheelEnergyFpga::resetProcessor()
     m_inputEx.at(i).reset();
     m_inputEy.at(i).reset();
     m_inputEt.at(i).reset();
+    m_inputHt.at(i).reset();
   }
   m_outputEx.reset();
   m_outputEy.reset();
   m_outputEt.reset();
+  m_outputHt.reset();
 }
 
 void L1GctWheelEnergyFpga::fetchInput()
@@ -115,6 +125,7 @@ void L1GctWheelEnergyFpga::fetchInput()
       m_inputEx.at(i) = m_inputLeafCards.at(i)->getOutputEx();
       m_inputEy.at(i) = m_inputLeafCards.at(i)->getOutputEy();
       m_inputEt.at(i) = m_inputLeafCards.at(i)->getOutputEt();
+      m_inputHt.at(i) = m_inputLeafCards.at(i)->getOutputHt();
     }
   }
 }
@@ -125,6 +136,7 @@ void L1GctWheelEnergyFpga::process()
     m_outputEx = m_inputEx.at(0) + m_inputEx.at(1) + m_inputEx.at(2);
     m_outputEy = m_inputEy.at(0) + m_inputEy.at(1) + m_inputEy.at(2);
     m_outputEt = m_inputEt.at(0) + m_inputEt.at(1) + m_inputEt.at(2);
+    m_outputHt = m_inputHt.at(0) + m_inputHt.at(1) + m_inputHt.at(2);
 
   }
 }
@@ -132,13 +144,14 @@ void L1GctWheelEnergyFpga::process()
 
 ///
 /// set input data
-void L1GctWheelEnergyFpga::setInputEnergy(unsigned i, int ex, int ey, unsigned et)
+void L1GctWheelEnergyFpga::setInputEnergy(unsigned i, int ex, int ey, unsigned et, unsigned ht)
 {
   // Set the three input values from this Leaf card
   if (i>=0 && i<MAX_LEAF_CARDS) {
     m_inputEx.at(i).setValue(ex);
     m_inputEy.at(i).setValue(ey);
     m_inputEt.at(i).setValue(et);
+    m_inputHt.at(i).setValue(ht);
   }
 
 }

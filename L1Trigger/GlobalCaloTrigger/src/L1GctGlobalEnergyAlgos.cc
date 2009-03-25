@@ -202,14 +202,14 @@ void L1GctGlobalEnergyAlgos::fetchInput() {
     m_exValPlusWheel = m_plusWheelFpga->getOutputEx();
     m_eyValPlusWheel = m_plusWheelFpga->getOutputEy();
     m_etValPlusWheel = m_plusWheelFpga->getOutputEt();
-    m_htValPlusWheel = m_plusWheelJetFpga->getOutputHt();
+    m_htValPlusWheel = m_plusWheelFpga->getOutputHt();
     m_hxValPlusWheel = m_plusWheelJetFpga->getOutputHx();
     m_hyValPlusWheel = m_plusWheelJetFpga->getOutputHy();
   
     m_exVlMinusWheel = m_minusWheelFpga->getOutputEx();
     m_eyVlMinusWheel = m_minusWheelFpga->getOutputEy();
     m_etVlMinusWheel = m_minusWheelFpga->getOutputEt();
-    m_htVlMinusWheel = m_minusWheelJetFpga->getOutputHt();
+    m_htVlMinusWheel = m_minusWheelFpga->getOutputHt();
     m_hxVlMinusWheel = m_minusWheelJetFpga->getOutputHx();
     m_hyVlMinusWheel = m_minusWheelJetFpga->getOutputHy();
 
