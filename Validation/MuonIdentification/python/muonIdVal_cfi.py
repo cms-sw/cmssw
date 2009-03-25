@@ -6,10 +6,8 @@ muonIdVal = cms.EDAnalyzer("MuonIdVal",
     inputCSCSegmentCollection     = cms.InputTag("cscSegments"),
     useTrackerMuons               = cms.untracked.bool(True),
     useGlobalMuons                = cms.untracked.bool(True),
-    makeDQMPlots                  = cms.untracked.bool(False),
-    makeEnergyPlots               = cms.untracked.bool(False),
-    makeIsoPlots                  = cms.untracked.bool(False),
+    makeEnergyPlots               = cms.untracked.bool(True),
     make2DPlots                   = cms.untracked.bool(False),
     makeAllChamberPlots           = cms.untracked.bool(False),
-    baseFolder                    = cms.untracked.string("Muons/MuonIdVal"),
+    baseFolder                    = cms.untracked.string("Muons/MuonIdVal")
 )
