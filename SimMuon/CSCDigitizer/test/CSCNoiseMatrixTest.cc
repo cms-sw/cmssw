@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "CondFormats/CSCObjects/interface/CSCConditions.h"
+#include "CalibMuon/CSCCalibration/interface/CSCConditions.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
