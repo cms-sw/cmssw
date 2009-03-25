@@ -22,8 +22,8 @@ extern "C" {
 	extern void alsetp_();
 //	extern void alevnt_();
 	extern void alveto_(int *ipveto);
+
       extern void dbpart_();
-      extern void dbinrd_();
       extern void pyupre_();
 
 	void alshcd_(char csho[3]);
@@ -130,9 +130,8 @@ void JetMatchingAlpgen::beforeHadronisation(const lhef::LHEEvent* event)
   
   // Possibly not interesting for us.
   // (except perhaps for debugging?)
-  pyupre_();
-  dbpart_();
-	
+  //  pyupre_();
+  //  dbpart_();
   eventInitialized = true;
 }
 
