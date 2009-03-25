@@ -5,8 +5,8 @@
  *
  * Digi for ALCT trigger primitives. 
  *
- * $Date: 2007/03/21 15:50:52 $
- * $Revision: 1.11 $
+ * $Date: 2008/10/29 18:34:40 $
+ * $Revision: 1.12 $
  *
  * \author N. Terentiev, CMU
  */
@@ -82,7 +82,7 @@ class CSCALCTDigi {
   uint16_t valid_      ;
   uint16_t quality_    ;
   uint16_t accel_      ;
-  uint16_t patternb_   ;
+  uint16_t patternb_   ; // not used since 2007
   uint16_t keywire_    ;
   uint16_t bx_         ;
   uint16_t trknmb_     ;

@@ -5,8 +5,8 @@
  *
  * Digi for Correlated LCT trigger primitives. 
  *
- * $Date: 2008/02/29 17:01:30 $
- * $Revision: 1.14 $
+ * $Date: 2008/10/29 18:34:40 $
+ * $Revision: 1.15 $
  *
  * \author L. Gray, UF
  */
@@ -19,10 +19,11 @@ class CSCCorrelatedLCTDigi
  public:
   
   /// Constructors
-  CSCCorrelatedLCTDigi(const int trknmb, const int valid, const int quality,       /// from values
-		       const int keywire, const int strip, const int clct_pattern, /// clct pattern is 4 bit pattern! 
-		       const int bend, const int bx, const int& mpclink = 0,       /// (pattern) | (strip_type << 3) 
-		       const uint16_t & bx0=0, const uint16_t & syncErr = 0, const uint16_t & cscID=0);
+  CSCCorrelatedLCTDigi(const int trknmb, const int valid, const int quality,
+		       const int keywire, const int strip, const int pattern,
+		       const int bend, const int bx, const int mpclink = 0,
+		       const uint16_t bx0=0, const uint16_t syncErr = 0,
+		       const uint16_t cscID=0);
   CSCCorrelatedLCTDigi();                               /// default
 
   /// clear this LCT
@@ -47,15 +48,15 @@ class CSCCorrelatedLCTDigi
   int getPattern() const { return pattern; }
 
   /// return bend
-  int getBend()   const  { return bend; }
+  int getBend()    const { return bend; }
 
   /// return BX
-  int getBX()     const { return bx; }
+  int getBX()      const { return bx; }
 
-  /// return CLCT pattern number
+  /// return CLCT pattern number (obsolete since mid-2008)
   int getCLCTPattern() const { return (pattern & 0x7); }
 
-  /// return strip type
+  /// return strip type (obsolete since mid-2008)
   int getStripType() const   { return ((pattern & 0x8) >> 3); }
 
   /// return MPC link number, 0 means not sorted, 1-3 give MPC sorting rank

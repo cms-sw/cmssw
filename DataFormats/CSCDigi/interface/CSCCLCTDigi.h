@@ -5,8 +5,8 @@
  *
  * Digi for CLCT trigger primitives. 
  *
- * $Date: 2008/02/15 15:08:00 $
- * $Revision: 1.11 $
+ * $Date: 2008/10/29 18:34:40 $
+ * $Revision: 1.12 $
  *
  * \author N. Terentiev, CMU
  */
@@ -84,13 +84,10 @@ class CSCCLCTDigi {
   /// number.
   bool operator >  (const CSCCLCTDigi&) const;
 
-  /// True if the two LCTs have exactly the same members OR they
-  /// are high- and low-pT LCTs from the exact same location in the chamber.
+  /// True if the two LCTs have exactly the same members (except the number).
   bool operator == (const CSCCLCTDigi&) const;
 
-  /// False only when both LCTs have exactly the same members.
-  /** @@ Shouldn't be false only when the preceding one is true?
-      To be checked. */
+  /// True if the preceding one is false.
   bool operator != (const CSCCLCTDigi&) const;
 
   /// Print content of digi.
@@ -101,7 +98,7 @@ class CSCCLCTDigi {
   uint16_t valid_      ;
   uint16_t quality_    ;
   uint16_t pattern_    ;
-  uint16_t striptype_  ;
+  uint16_t striptype_  ; // not used since mid-2008
   uint16_t bend_       ;
   uint16_t strip_      ;
   uint16_t cfeb_       ;
