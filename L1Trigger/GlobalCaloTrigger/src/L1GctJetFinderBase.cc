@@ -291,11 +291,14 @@ void L1GctJetFinderBase::doEnergySums()
   m_outputHtStrip0 = calcHtStrip(0);
   m_outputHtStrip1 = calcHtStrip(1);
 
+  // Refactored energy sums code - find scalar and vector sums
+  // of Et and Ht instead of strip stums
+  doEtSums();
+  doHtSums();
+
   //calculate the Hf tower Et sums and tower-over-threshold counts
   m_outputHfSums = calcHfSums();
     
-  doEtVectorSum();
-
   return;
 }
 
@@ -352,8 +355,8 @@ L1GctJetFinderBase::etTotalType L1GctJetFinderBase::calcHtStrip(const UShort str
   return temp;
 }
 
-// Calculates vector sum of Et over input regions
-void L1GctJetFinderBase::doEtVectorSum() {
+// Calculates scalar and vector sum of Et over input regions
+void L1GctJetFinderBase::doEtSums() {
   unsigned et0 = 0;
   unsigned et1 = 0;
   bool of = false;
@@ -386,6 +389,61 @@ void L1GctJetFinderBase::doEtVectorSum() {
     (etStrip0, xfact0, etStrip1, xfact1);
   m_outputEySum = etComponentForJetFinder<L1GctInternEtSum::kTotEtOrHtNBits,L1GctInternEtSum::kJetMissEtNBits>
     (etStrip0, yfact0, etStrip1, yfact1);
+}
+
+
+
+// Calculates scalar and vector sum of Ht over calibrated jets
+void L1GctJetFinderBase::doHtSums() {
+  unsigned htt = 0;
+  unsigned ht0 = 0;
+  unsigned ht1 = 0;
+  bool of = false;
+
+  for(UShort i=0; i < MAX_JETS_OUT; ++i)
+  {
+    // Only sum Ht for valid jets
+    if (!m_outputJets.at(i).isNullJet()) {
+      unsigned ieta  = m_outputJets.at(i).rctEta();
+      unsigned htJet = m_outputJets.at(i).calibratedEt(m_jetEtCalLuts.at(ieta));
+      // Scalar sum of Htt, with associated threshold
+      if (htJet >= m_HttSumJetThreshold) {
+	htt += htJet;
+      } 
+      // Strip sums, for input to Htm calculation, with associated threshold
+      if (htJet >= m_HtmSumJetThreshold) {
+	if (m_outputJets.at(i).rctPhi() == 0) {
+	  ht0 += htJet;
+	}
+	if (m_outputJets.at(i).rctPhi() == 1) {
+	  ht1 += htJet;
+	}
+	of |= m_outputJets.at(i).overFlow();
+      }
+    }
+  }
+
+  etHadType httTotal(htt);
+  etHadType htStrip0(ht0);
+  etHadType htStrip1(ht1);
+  httTotal.setOverFlow(httTotal.overFlow() || of);
+  htStrip0.setOverFlow(htStrip0.overFlow() || of);
+  htStrip1.setOverFlow(htStrip1.overFlow() || of);
+  unsigned xfact0 = (4*m_id + 10) % 36;
+  unsigned xfact1 = (4*m_id +  4) % 36;
+  unsigned yfact0 = (4*m_id + 19) % 36;
+  unsigned yfact1 = (4*m_id + 13) % 36;
+  m_outputHtSum = httTotal;
+  m_outputHxSum = etComponentForJetFinder<L1GctInternEtSum::kTotEtOrHtNBits,L1GctInternHtMiss::kJetMissHtNBits>
+    (htStrip0, xfact0, htStrip1, xfact1);
+  m_outputHySum = etComponentForJetFinder<L1GctInternEtSum::kTotEtOrHtNBits,L1GctInternHtMiss::kJetMissHtNBits>
+    (htStrip0, yfact0, htStrip1, yfact1);
+
+  // Common overflow for Ht components
+  bool htmOverFlow = m_outputHxSum.overFlow() || m_outputHySum.overFlow();
+  m_outputHxSum.setOverFlow(htmOverFlow);
+  m_outputHySum.setOverFlow(htmOverFlow);
+
 }
 
 
@@ -508,8 +566,16 @@ L1GctJetFinderBase::etComponentForJetFinder(const L1GctUnsignedInt<kBitsInput>& 
 }
 
 // Declare the specific versions we want to use, to help the linker out
+// One for the MET components
 template
 L1GctJetFinderBase::etCompInternJfType
 L1GctJetFinderBase::etComponentForJetFinder<L1GctInternEtSum::kTotEtOrHtNBits,L1GctInternEtSum::kJetMissEtNBits>
+(const L1GctJetFinderBase::etTotalType&, const unsigned&,
+ const L1GctJetFinderBase::etTotalType&, const unsigned&);
+
+// One for the MHT components
+template
+L1GctJetFinderBase::htCompInternJfType
+L1GctJetFinderBase::etComponentForJetFinder<L1GctInternEtSum::kTotEtOrHtNBits,L1GctInternHtMiss::kJetMissHtNBits>
 (const L1GctJetFinderBase::etTotalType&, const unsigned&,
  const L1GctJetFinderBase::etTotalType&, const unsigned&);

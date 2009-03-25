@@ -307,8 +307,11 @@ public:
   /// Calculates total calibrated energy in jets (Ht) sum
   etTotalType calcHtStrip(const UShort strip) const;
   
-  /// Calculates vector sum of Et over input regions
-  void doEtVectorSum() ;
+  /// Calculates scalar and vector sum of Et over input regions
+  void doEtSums() ;
+  
+  /// Calculates scalar and vector sum of Ht over calibrated jets
+  void doHtSums() ;
   
   /// Calculates Et sum and number of towers over threshold in Hf
   hfTowerSumsType calcHfSums() const;
