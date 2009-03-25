@@ -16,8 +16,10 @@ MuonIdDQM::MuonIdDQM(const edm::ParameterSet& iConfig)
 MuonIdDQM::~MuonIdDQM() {}
 
 void 
-MuonIdDQM::beginJob(const edm::EventSetup&)
+MuonIdDQM::beginJob()
 {
+   char name[100], title[200];
+
    // trackerMuon == 0; globalMuon == 1
    for (unsigned int i = 0; i < 2; i++) {
       if ((i == 0 && ! useTrackerMuons_) || (i == 1 && ! useGlobalMuons_)) continue;
@@ -26,61 +28,88 @@ MuonIdDQM::beginJob(const edm::EventSetup&)
 
       hNumChambers[i] = dbe_->book1D("hNumChambers", "Number of Chambers", 11, -0.5, 10.5);
       hNumMatches[i] = dbe_->book1D("hNumMatches", "Number of Matches", 11, -0.5, 10.5);
-   }
-
-   if (useTrackerMuons_) {
-      dbe_->setCurrentFolder(baseFolder_+"/TrackerMuons");
-
-      char name[100], title[200];
 
       // by station
       for(int station = 0; station < 4; ++station)
       {
          sprintf(name, "hDT%iNumSegments", station+1);
          sprintf(title, "DT Station %i Number of Segments (No Arbitration)", station+1);
-         hDTNumSegments[station] = dbe_->book1D(name, title, 11, -0.5, 10.5);
+         hDTNumSegments[i][station] = dbe_->book1D(name, title, 11, -0.5, 10.5);
 
          sprintf(name, "hDT%iDx", station+1);
          sprintf(title, "DT Station %i Delta X", station+1);
-         hDTDx[station] = dbe_->book1D(name, title, 100, -100., 100.);
+         hDTDx[i][station] = dbe_->book1D(name, title, 100, -100., 100.);
 
          sprintf(name, "hDT%iPullx", station+1);
          sprintf(title, "DT Station %i Pull X", station+1);
-         hDTPullx[station] = dbe_->book1D(name, title, 100, -20., 20.);
+         hDTPullx[i][station] = dbe_->book1D(name, title, 100, -20., 20.);
+
+         sprintf(name, "hDT%iDdXdZ", station+1);
+         sprintf(title, "DT Station %i Delta DxDz", station+1);
+         hDTDdXdZ[i][station] = dbe_->book1D(name, title, 100, -1., 1.);
+
+         sprintf(name, "hDT%iPulldXdZ", station+1);
+         sprintf(title, "DT Station %i Pull DxDz", station+1);
+         hDTPulldXdZ[i][station] = dbe_->book1D(name, title, 100, -20., 20.);
 
          if (station < 3) {
             sprintf(name, "hDT%iDy", station+1);
             sprintf(title, "DT Station %i Delta Y", station+1);
-            hDTDy[station] = dbe_->book1D(name, title, 100, -150., 150.);
+            hDTDy[i][station] = dbe_->book1D(name, title, 100, -150., 150.);
 
             sprintf(name, "hDT%iPully", station+1);
             sprintf(title, "DT Station %i Pull Y", station+1);
-            hDTPully[station] = dbe_->book1D(name, title, 100, -20., 20.);
+            hDTPully[i][station] = dbe_->book1D(name, title, 100, -20., 20.);
+
+            sprintf(name, "hDT%iDdYdZ", station+1);
+            sprintf(title, "DT Station %i Delta DyDz", station+1);
+            hDTDdYdZ[i][station] = dbe_->book1D(name, title, 100, -2., 2.);
+
+            sprintf(name, "hDT%iPulldYdZ", station+1);
+            sprintf(title, "DT Station %i Pull DyDz", station+1);
+            hDTPulldYdZ[i][station] = dbe_->book1D(name, title, 100, -20., 20.);
          }
 
          sprintf(name, "hCSC%iNumSegments", station+1);
          sprintf(title, "CSC Station %i Number of Segments (No Arbitration)", station+1);
-         hCSCNumSegments[station] = dbe_->book1D(name, title, 11, -0.5, 10.5);
+         hCSCNumSegments[i][station] = dbe_->book1D(name, title, 11, -0.5, 10.5);
 
          sprintf(name, "hCSC%iDx", station+1);
          sprintf(title, "CSC Station %i Delta X", station+1);
-         hCSCDx[station] = dbe_->book1D(name, title, 100, -50., 50.);
+         hCSCDx[i][station] = dbe_->book1D(name, title, 100, -50., 50.);
 
          sprintf(name, "hCSC%iPullx", station+1);
          sprintf(title, "CSC Station %i Pull X", station+1);
-         hCSCPullx[station] = dbe_->book1D(name, title, 100, -20., 20.);
+         hCSCPullx[i][station] = dbe_->book1D(name, title, 100, -20., 20.);
+
+         sprintf(name, "hCSC%iDdXdZ", station+1);
+         sprintf(title, "CSC Station %i Delta DxDz", station+1);
+         hCSCDdXdZ[i][station] = dbe_->book1D(name, title, 100, -1., 1.);
+
+         sprintf(name, "hCSC%iPulldXdZ", station+1);
+         sprintf(title, "CSC Station %i Pull DxDz", station+1);
+         hCSCPulldXdZ[i][station] = dbe_->book1D(name, title, 100, -20., 20.);
 
          sprintf(name, "hCSC%iDy", station+1);
          sprintf(title, "CSC Station %i Delta Y", station+1);
-         hCSCDy[station] = dbe_->book1D(name, title, 100, -50., 50.);
+         hCSCDy[i][station] = dbe_->book1D(name, title, 100, -50., 50.);
 
          sprintf(name, "hCSC%iPully", station+1);
          sprintf(title, "CSC Station %i Pull Y", station+1);
-         hCSCPully[station] = dbe_->book1D(name, title, 100, -20., 20.);
-      }// station
+         hCSCPully[i][station] = dbe_->book1D(name, title, 100, -20., 20.);
 
-      hSegmentIsAssociatedBool = dbe_->book1D("hSegmentIsAssociatedBool", "Segment Is Associated Boolean", 2, -0.5, 1.5);
+         sprintf(name, "hCSC%iDdYdZ", station+1);
+         sprintf(title, "CSC Station %i Delta DyDz", station+1);
+         hCSCDdYdZ[i][station] = dbe_->book1D(name, title, 100, -1., 1.);
+
+         sprintf(name, "hCSC%iPulldYdZ", station+1);
+         sprintf(title, "CSC Station %i Pull DyDz", station+1);
+         hCSCPulldYdZ[i][station] = dbe_->book1D(name, title, 100, -20., 20.);
+      }// station
    }
+
+   dbe_->setCurrentFolder(baseFolder_);
+   hSegmentIsAssociatedBool = dbe_->book1D("hSegmentIsAssociatedBool", "Segment Is Associated Boolean", 2, -0.5, 1.5);
 }
 
 void
@@ -104,31 +133,35 @@ MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
          hNumChambers[i]->Fill(muon->numberOfChambers());
          hNumMatches[i]->Fill(muon->numberOfMatches());
-      }
 
-      if (! useTrackerMuons_ || ! muon->isTrackerMuon()) continue;
+         // by station
+         for(int station = 0; station < 4; ++station)
+         {
+            hDTNumSegments[i][station]->Fill(muon->numberOfSegments(station+1, MuonSubdetId::DT, Muon::NoArbitration));
+            Fill(hDTDx[i][station], muon->dX(station+1, MuonSubdetId::DT));
+            Fill(hDTPullx[i][station], muon->pullX(station+1, MuonSubdetId::DT, Muon::SegmentArbitration, true));
+            Fill(hDTDdXdZ[i][station], muon->dDxDz(station+1, MuonSubdetId::DT));
+            Fill(hDTPulldXdZ[i][station], muon->pullDxDz(station+1, MuonSubdetId::DT));
 
-      // by station
-      for(int station = 0; station < 4; ++station)
-      {
-         hDTNumSegments[station]->Fill(muon->numberOfSegments(station+1, MuonSubdetId::DT, Muon::NoArbitration));
-         hDTDx[station]->Fill(muon->dX(station+1, MuonSubdetId::DT));
-         hDTPullx[station]->Fill(muon->pullX(station+1, MuonSubdetId::DT, Muon::SegmentArbitration, true));
+            if (station < 3) {
+               Fill(hDTDy[i][station], muon->dY(station+1, MuonSubdetId::DT));
+               Fill(hDTPully[i][station], muon->pullY(station+1, MuonSubdetId::DT, Muon::SegmentArbitration, true));
+               Fill(hDTDdYdZ[i][station], muon->dDyDz(station+1, MuonSubdetId::DT));
+               Fill(hDTPulldYdZ[i][station], muon->pullDyDz(station+1, MuonSubdetId::DT));
+            }
 
-         if (station < 3) {
-            hDTDy[station]->Fill(muon->dY(station+1, MuonSubdetId::DT));
-            hDTPully[station]->Fill(muon->pullY(station+1, MuonSubdetId::DT, Muon::SegmentArbitration, true));
+            hCSCNumSegments[i][station]->Fill(muon->numberOfSegments(station+1, MuonSubdetId::CSC, Muon::NoArbitration));
+            Fill(hCSCDx[i][station], muon->dX(station+1, MuonSubdetId::CSC));
+            Fill(hCSCPullx[i][station], muon->pullX(station+1, MuonSubdetId::CSC, Muon::SegmentArbitration, true));
+            Fill(hCSCDdXdZ[i][station], muon->dDxDz(station+1, MuonSubdetId::CSC));
+            Fill(hCSCPulldXdZ[i][station], muon->pullDxDz(station+1, MuonSubdetId::CSC));
+            Fill(hCSCDy[i][station], muon->dY(station+1, MuonSubdetId::CSC));
+            Fill(hCSCPully[i][station], muon->pullY(station+1, MuonSubdetId::CSC, Muon::SegmentArbitration, true));
+            Fill(hCSCDdYdZ[i][station], muon->dDyDz(station+1, MuonSubdetId::CSC));
+            Fill(hCSCPulldYdZ[i][station], muon->pullDyDz(station+1, MuonSubdetId::CSC));
          }
-
-         hCSCNumSegments[station]->Fill(muon->numberOfSegments(station+1, MuonSubdetId::CSC, Muon::NoArbitration));
-         hCSCDx[station]->Fill(muon->dX(station+1, MuonSubdetId::CSC));
-         hCSCPullx[station]->Fill(muon->pullX(station+1, MuonSubdetId::CSC, Muon::SegmentArbitration, true));
-         hCSCDy[station]->Fill(muon->dY(station+1, MuonSubdetId::CSC));
-         hCSCPully[station]->Fill(muon->pullY(station+1, MuonSubdetId::CSC, Muon::SegmentArbitration, true));
       }
    }// muon
-
-   if (! useTrackerMuons_) return;
 
    for(DTRecSegment4DCollection::const_iterator segment = dtSegmentCollectionH_->begin();
          segment != dtSegmentCollectionH_->end(); ++segment)
@@ -225,6 +258,12 @@ MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 void 
 MuonIdDQM::endJob() {}
+
+void MuonIdDQM::Fill(MonitorElement* me, float f) {
+   if (fabs(f) > 900000) return;
+   //if (fabs(f) < 1E-8) return;
+   me->Fill(f);
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(MuonIdDQM);

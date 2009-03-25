@@ -13,7 +13,7 @@
 //
 // Original Author:  Jacob Ribnik
 //         Created:  Wed Apr 18 13:48:08 CDT 2007
-// $Id: MuonIdDQM.h,v 1.5 2008/10/30 19:17:43 jribnik Exp $
+// $Id: MuonIdDQM.h,v 1.1 2008/11/04 09:23:23 jribnik Exp $
 //
 //
 
@@ -54,9 +54,10 @@ class MuonIdDQM : public edm::EDAnalyzer {
       ~MuonIdDQM();
 
    private:
-      virtual void beginJob(const edm::EventSetup&);
+      virtual void beginJob();
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void endJob();
+      virtual void Fill(MonitorElement*, float);
 
       DQMStore* dbe_;
 
@@ -77,18 +78,27 @@ class MuonIdDQM : public edm::EDAnalyzer {
       MonitorElement* hNumChambers[2];
       MonitorElement* hNumMatches[2];
 
-      // by station, trackerMuons only
-      MonitorElement* hDTNumSegments[4];
-      MonitorElement* hDTDx[4];
-      MonitorElement* hDTPullx[4];
-      MonitorElement* hDTDy[3];
-      MonitorElement* hDTPully[3];
-      MonitorElement* hCSCNumSegments[4];
-      MonitorElement* hCSCDx[4];
-      MonitorElement* hCSCPullx[4];
-      MonitorElement* hCSCDy[4];
-      MonitorElement* hCSCPully[4];
+      // by station
+      MonitorElement* hDTNumSegments[2][4];
+      MonitorElement* hDTDx[2][4];
+      MonitorElement* hDTPullx[2][4];
+      MonitorElement* hDTDdXdZ[2][4];
+      MonitorElement* hDTPulldXdZ[2][4];
+      MonitorElement* hDTDy[2][3];
+      MonitorElement* hDTPully[2][3];
+      MonitorElement* hDTDdYdZ[2][3];
+      MonitorElement* hDTPulldYdZ[2][3];
+      MonitorElement* hCSCNumSegments[2][4];
+      MonitorElement* hCSCDx[2][4];
+      MonitorElement* hCSCPullx[2][4];
+      MonitorElement* hCSCDdXdZ[2][4];
+      MonitorElement* hCSCPulldXdZ[2][4];
+      MonitorElement* hCSCDy[2][4];
+      MonitorElement* hCSCPully[2][4];
+      MonitorElement* hCSCDdYdZ[2][4];
+      MonitorElement* hCSCPulldYdZ[2][4];
 
+      // segment matching "efficiency"
       MonitorElement* hSegmentIsAssociatedBool;
 };
 
