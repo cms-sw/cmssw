@@ -6,6 +6,7 @@
 <use name=DataFormats/MuonDetId>
 <use name=FWCore/ParameterSet>
 <use name=CondFormats/DTObjects>
+<use name=DataFormats/DTDigi>
 <use name=DataFormats/DTRecHit>
 <use name=CondFormats/DataRecord>
 <use name=CondCore/DBOutputService>
