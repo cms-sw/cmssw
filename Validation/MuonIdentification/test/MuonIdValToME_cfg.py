@@ -13,6 +13,8 @@ process.source = cms.Source("PoolSource",
 
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.dqmSaver.convention = "Offline" # "RelVal"
-process.dqmSaver.workflow = "/Muons/MuonIdVal/TEST"
+process.dqmSaver.workflow = "/Muons/MuonIdVal/RelValSingleMuPt10"
+process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
+process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
 
 process.p = cms.Path(process.EDMtoMEConverter*process.dqmSaver)
