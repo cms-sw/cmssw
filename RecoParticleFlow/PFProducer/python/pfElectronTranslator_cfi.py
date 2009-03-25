@@ -7,5 +7,6 @@ pfElectronTranslator = cms.EDProducer("PFElectronTranslator",
                                       PFPreshowerClusters = cms.string("pf"),
                                       PFSuperClusters = cms.string("pf"),
                                       ElectronMVA = cms.string("pf"),
-                                      ElectronSC = cms.string("pf")
+                                      ElectronSC = cms.string("pf"),
+                                      MVACut = cms.double(-1.)
                                       )

@@ -24,7 +24,7 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet & iConfig) {
   PFSuperClusterCollection_ = iConfig.getParameter<std::string>("PFSuperClusters");
   PFMVAValueMap_ = iConfig.getParameter<std::string>("ElectronMVA");
   PFSCValueMap_ = iConfig.getParameter<std::string>("ElectronSC");
-  
+  MVACut_ = iConfig.getParameter<double>("MVACut");
 
   produces<reco::BasicClusterCollection>(PFBasicClusterCollection_); 
   produces<reco::PreshowerClusterCollection>(PFPreshowerClusterCollection_); 
@@ -69,6 +69,7 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
   preshowerClusters_.clear();
   superClusters_.clear();
   basicClusterRefs_.clear();
+  preshowerClusterRefs_.clear();
   gsfPFCandidateIndex_.clear();
   scMap_.clear();
   gsfMvaMap_.clear();
@@ -85,6 +86,8 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
     const reco::PFCandidate& cand = (*pfCandidates)[i];    
     if(cand.particleId()!=reco::PFCandidate::e) continue; 
     if(cand.gsfTrackRef().isNull()) continue;
+    // Note that -1 will still cut some total garbage candidates 
+    if(cand.mva_e_pi()<MVACut_) continue;
 
     GsfTrackRef_.push_back(cand.gsfTrackRef());
     gsfPFCandidateIndex_.push_back(i);
@@ -283,7 +286,7 @@ void PFElectronTranslator::fillMVAValueMap(edm::Event& iEvent, edm::ValueMap<flo
   fetchGsfCollection(gsfTracks,
 		     inputTagGSFTracks_,
 		     iEvent);
-  unsigned ngsf=GsfTrackRef_.size();
+  unsigned ngsf=gsfTracks->size();
   std::vector<float> values;
   for(unsigned igsf=0;igsf<ngsf;++igsf)
     {
@@ -291,8 +294,9 @@ void PFElectronTranslator::fillMVAValueMap(edm::Event& iEvent, edm::ValueMap<flo
       std::map<reco::GsfTrackRef,float>::const_iterator itcheck=gsfMvaMap_.find(theTrackRef);
       if(itcheck==gsfMvaMap_.end())
 	{
-	  edm::LogWarning("PFElectronTranslator") << "MVA Map, missing GSF track ref " << std::endl;
+	  //	  edm::LogWarning("PFElectronTranslator") << "MVA Map, missing GSF track ref " << std::endl;
 	  values.push_back(-99.);
+	  //	  std::cout << " Push_back -99. " << std::endl;
 	}
       else
 	{
@@ -310,7 +314,7 @@ void PFElectronTranslator::fillSCRefValueMap(edm::Event& iEvent,
   fetchGsfCollection(gsfTracks,
 		     inputTagGSFTracks_,
 		     iEvent);
-  unsigned ngsf=GsfTrackRef_.size();
+  unsigned ngsf=gsfTracks->size();
   std::vector<reco::SuperClusterRef> values;
   for(unsigned igsf=0;igsf<ngsf;++igsf)
     {
@@ -318,7 +322,7 @@ void PFElectronTranslator::fillSCRefValueMap(edm::Event& iEvent,
       std::map<reco::GsfTrackRef,reco::SuperClusterRef>::const_iterator itcheck=scMap_.find(theTrackRef);
       if(itcheck==scMap_.end())
 	{
-	  edm::LogWarning("PFElectronTranslator") << "SCRef Map, missing GSF track ref" << std::endl;
+	  //	  edm::LogWarning("PFElectronTranslator") << "SCRef Map, missing GSF track ref" << std::endl;
 	  values.push_back(reco::SuperClusterRef());
 	}
       else
@@ -336,7 +340,7 @@ void PFElectronTranslator::createSuperClusters(const reco::PFCandidateCollection
   unsigned nGSF=GsfTrackRef_.size();
   for(unsigned iGSF=0;iGSF<nGSF;++iGSF)
     {
-      
+      //      std::cout << pfCand[gsfPFCandidateIndex_[iGSF]] << std::endl;
       // First compute the total preshower energy; raw energy, no weighting factor
       // Will probably need to be adapted 
       unsigned nps=preshowerClusters_[iGSF].size();
@@ -384,6 +388,10 @@ void PFElectronTranslator::createSuperClusters(const reco::PFCandidateCollection
       else
 	{
 	  //	  std::cout << "SuperCluster creation ; seed energy " << 0 << std::endl;
+//	  std::cout << "SuperCluster creation ; energy " << pfCand[gsfPFCandidateIndex_[iGSF]].ecalEnergy();
+//	  std::cout << " " <<   pfCand[gsfPFCandidateIndex_[iGSF]].rawEcalEnergy() << std::endl;
+//	  std::cout << " No seed found " << 0 << std::endl;	  
+//	  std::cout << " MVA " << pfCand[gsfPFCandidateIndex_[iGSF]].mva_e_pi() << std::endl;
 	  mySuperCluster.setSeed(reco::BasicClusterRef());
 	}
       // the seed should be the first basic cluster

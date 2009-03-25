@@ -71,6 +71,7 @@ class PFElectronTranslator : public edm::EDProducer
   std::string PFSuperClusterCollection_;
   std::string PFMVAValueMap_;
   std::string PFSCValueMap_;
+  double MVACut_;
 
   // The following vectors correspond to a GSF track, but the order is not 
   // the order of the tracks in the GSF track collection
