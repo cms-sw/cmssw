@@ -2,8 +2,16 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 
-# one library for the 'real' AlignmentProducers
-<library name=AlignmentCommonAlignmentProducers file=AlignmentProducer.cc,FakeAlignment*.cc>
+# One library for the 'fake' AlignmentProducers. 
+# Do not put in same lib as AlignmentProducer since the latter
+# has many dependencies that should be avoided if only Fake is needed!
+<library name=AlignmentCommonAlignmentFakeProducers file=FakeAlignment*.cc>
+ <use name=CondFormats/Alignment>
+ <use name=CondFormats/AlignmentRecord>
+</library>
+
+# one library for the 'real' AlignmentProducer
+<library name=AlignmentCommonAlignmentProducerPlugin file=AlignmentProducer.cc>
  <use name=Alignment/CommonAlignment>
  <use name=Alignment/CommonAlignmentAlgorithm>
  <use name=Alignment/CommonAlignmentMonitor>
@@ -26,6 +34,7 @@
  <use name=TrackingTools/PatternTools>
  <use name=boost>
 </library>
+
 
 # one library for the selector modules
 <library name=CommonAlignmentProducerSelectors file=Alignment*SelectorModule.cc,AlignmentMuonHIPTrajectorySelector.cc>
