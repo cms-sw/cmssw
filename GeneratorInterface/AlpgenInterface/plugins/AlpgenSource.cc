@@ -412,7 +412,8 @@ bool AlpgenSource::produce(edm::Event &event)
     alpgen::fixEventHiggsTTbar(hepeup);
     break;
   case 13:
-    alpgen::fixEventSingleTop(hepeup, header.masses[AlpgenHeader::mb], header.itopprc);
+    alpgen::fixEventSingleTop(hepeup, header.masses[AlpgenHeader::mb],
+			      int(header.params[AlpgenHeader::itopprc]));
     break;    
   case 7:
   case 9:
