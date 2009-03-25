@@ -77,7 +77,7 @@
   <class name="RPCObFebmap"/>
   <class name="RPCObFebmap::Feb_Item"/>
   <class name="std::vector<RPCObFebmap::Feb_Item>"/>
-
+	
   <class name="RPCObGasmap"/>
   <class name="RPCObGasmap::GasMap_Item"/>
   <class name="std::vector<RPCObGasmap::GasMap_Item>"/>
@@ -85,6 +85,11 @@
   <class name="RPCObAlignment"/>
   <class name="RPCObAlignment::Alignment_Item"/>
   <class name="std::vector<RPCObAlignment::Alignment_Item>"/>
+
+  <class name="RPCRunIOV"/>
+  <class name="RPCRunIOV::RunIOV_Item"/>
+  <class name="std::vector<RPCRunIOV::RunIOV_Item>"/>
+
 
   <class name="RPCTechTriggerConfig"/>
   <class name="RBCBoardSpecs"/>

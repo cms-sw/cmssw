@@ -24,6 +24,7 @@
 #include "CondFormats/RPCObjects/interface/RPCObFebmap.h"
 #include "CondFormats/RPCObjects/interface/RPCObGasmap.h"
 #include "CondFormats/RPCObjects/interface/RPCObAlignment.h"
+#include "CondFormats/RPCObjects/interface/RPCRunIOV.h"
 
 namespace{
   struct dictionary {
