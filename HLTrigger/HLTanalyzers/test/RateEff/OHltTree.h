@@ -414,8 +414,9 @@ public :
   Int_t           L1_HTT300; 
   Int_t           L1_IsoEG10_Jet15_ForJet10; 
   Int_t           L1_MinBias_HTT10; 
-  Int_t           L1_Mu3_EG5; 
-  Int_t           L1_Mu5_Jet15; 
+  Int_t           L1_Mu3QE8_EG5; 
+  Int_t           L1_Mu3QE8_Jet15;  
+  Int_t           L1_Mu5QE8_Jet15; 
   Int_t           L1_QuadJet15; 
   Int_t           L1_SingleEG1; 
   Int_t           L1_SingleEG10; 
@@ -1237,8 +1238,9 @@ public :
   TBranch        *b_L1_HTT300;   //! 
   TBranch        *b_L1_IsoEG10_Jet15_ForJet10;   //! 
   TBranch        *b_L1_MinBias_HTT10;   //! 
-  TBranch        *b_L1_Mu3_EG5;   //! 
-  TBranch        *b_L1_Mu5_Jet15;   //! 
+  TBranch        *b_L1_Mu3QE8_EG5;   //!
+  TBranch        *b_L1_Mu3QE8_Jet15;   //!  
+  TBranch        *b_L1_Mu5QE8_Jet15;   //! 
   TBranch        *b_L1_QuadJet15;   //! 
   TBranch        *b_L1_SingleEG1;   //! 
   TBranch        *b_L1_SingleEG10;   //! 
@@ -2231,8 +2233,9 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_HTT300", &L1_HTT300, &b_L1_HTT300); 
   fChain->SetBranchAddress("L1_IsoEG10_Jet15_ForJet10", &L1_IsoEG10_Jet15_ForJet10, &b_L1_IsoEG10_Jet15_ForJet10); 
   fChain->SetBranchAddress("L1_MinBias_HTT10", &L1_MinBias_HTT10, &b_L1_MinBias_HTT10); 
-  fChain->SetBranchAddress("L1_Mu3_EG5", &L1_Mu3_EG5, &b_L1_Mu3_EG5); 
-  fChain->SetBranchAddress("L1_Mu5_Jet15", &L1_Mu5_Jet15, &b_L1_Mu5_Jet15); 
+  fChain->SetBranchAddress("L1_Mu3QE8_EG5", &L1_Mu3QE8_EG5, &b_L1_Mu3QE8_EG5); 
+  fChain->SetBranchAddress("L1_Mu3QE8_Jet15", &L1_Mu3QE8_Jet15, &b_L1_Mu3QE8_Jet15);  
+  fChain->SetBranchAddress("L1_Mu5QE8_Jet15", &L1_Mu5QE8_Jet15, &b_L1_Mu5QE8_Jet15); 
   fChain->SetBranchAddress("L1_QuadJet15", &L1_QuadJet15, &b_L1_QuadJet15); 
   fChain->SetBranchAddress("L1_SingleEG1", &L1_SingleEG1, &b_L1_SingleEG1); 
   fChain->SetBranchAddress("L1_SingleEG10", &L1_SingleEG10, &b_L1_SingleEG10); 
@@ -2695,8 +2698,9 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_HTT300", &map_BitOfStandardHLTPath["L1_HTT300"], &b_L1_HTT300); 
   fChain->SetBranchAddress("L1_IsoEG10_Jet15_ForJet10", &map_BitOfStandardHLTPath["L1_IsoEG10_Jet15_ForJet10"], &b_L1_IsoEG10_Jet15_ForJet10); 
   fChain->SetBranchAddress("L1_MinBias_HTT10", &map_BitOfStandardHLTPath["L1_MinBias_HTT10"], &b_L1_MinBias_HTT10); 
-  fChain->SetBranchAddress("L1_Mu3_EG5", &map_BitOfStandardHLTPath["L1_Mu3_EG5"], &b_L1_Mu3_EG5); 
-  fChain->SetBranchAddress("L1_Mu5_Jet15", &map_BitOfStandardHLTPath["L1_Mu5_Jet15"], &b_L1_Mu5_Jet15); 
+  fChain->SetBranchAddress("L1_Mu3QE8_EG5", &map_BitOfStandardHLTPath["L1_Mu3QE8_EG5"], &b_L1_Mu3QE8_EG5); 
+  fChain->SetBranchAddress("L1_Mu3QE8_Jet15", &map_BitOfStandardHLTPath["L1_Mu3QE8_Jet15"], &b_L1_Mu3QE8_Jet15);  
+  fChain->SetBranchAddress("L1_Mu5QE8_Jet15", &map_BitOfStandardHLTPath["L1_Mu5QE8_Jet15"], &b_L1_Mu5QE8_Jet15); 
   fChain->SetBranchAddress("L1_QuadJet15", &map_BitOfStandardHLTPath["L1_QuadJet15"], &b_L1_QuadJet15); 
   fChain->SetBranchAddress("L1_SingleEG1", &map_BitOfStandardHLTPath["L1_SingleEG1"], &b_L1_SingleEG1); 
   fChain->SetBranchAddress("L1_SingleEG10", &map_BitOfStandardHLTPath["L1_SingleEG10"], &b_L1_SingleEG10); 

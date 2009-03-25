@@ -1276,7 +1276,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   // John Paul Chou - e(gamma) + mu cross-trigger. 
   // One non-isolated photon plus one non-isolated L2 muons.
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu5_Photon9_L1R") == 0){
-    if(map_BitOfStandardHLTPath.find("L1_Mu3_IsoEG5")->second == 1){      // L1 Seed  
+    if(map_BitOfStandardHLTPath.find("L1_Mu3_EG5")->second == 1){      // L1 Seed  
       if(OpenHlt1L2MuonPassed(5.,5.,2.)>=1 && OpenHlt1PhotonPassed(9.,0,9999.,9999.,9999.,9999.)>=1)
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
     } 
