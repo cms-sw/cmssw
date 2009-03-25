@@ -34,9 +34,7 @@ RPCGeometryBuilderFromCondDB::~RPCGeometryBuilderFromCondDB()
 RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
 {
   const std::vector<DetId>& detids(rgeo.detIds());
-  std::cout << "size " << detids.size() << std::endl;
   RPCGeometry* geometry = new RPCGeometry();
-  std::cout <<" RPC Geometry Built "<<std::endl;
   
   for (unsigned int id=0; id<detids.size(); id++){
     
