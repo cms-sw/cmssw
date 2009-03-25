@@ -29,7 +29,7 @@ void alpgen::fixEventWZ(lhef::HEPEUP &hepeup)
   int nup = hepeup.NUP;
 
   // Open up space for the vector boson.
-  hepeup.resize(nup + 1);
+  hepeup.resize(nup+1);
 
   // Assignments specific to individual hard processes.
   // This one fixes the Event Record for W and Z.
@@ -102,10 +102,10 @@ void alpgen::fixEventMultiBoson(lhef::HEPEUP &hepeup)
   
   // decay products pointers, starting from the end
   for(int i = 0; i != nvb; ++i) {
-    hepeup.MOTHUP[nup - 2*i].first = ivend-i;
     hepeup.MOTHUP[nup - 2*i -1].first = ivend-i;
-    hepeup.MOTHUP[nup - 2*i].second = 0;
+    hepeup.MOTHUP[nup - 2*i -2].first = ivend-i;
     hepeup.MOTHUP[nup - 2*i -1].second = 0;
+    hepeup.MOTHUP[nup - 2*i -2].second = 0;
   }
 
   hepeup.AQEDUP = hepeup.AQCDUP = -1.0; // alphas are not saved by Alpgen
@@ -328,7 +328,7 @@ void alpgen::fixEventSingleTop(lhef::HEPEUP &hepeup, double mb, int itopprc) {
   if(itopprc >= 3) nw = 2;
 
   // Open up space for W bosons and b quarks. 
-  hepeup.resize(nup+2*nw);
+  hepeup.resize(nup+2);
   
   // Assign mass to the incoming bottom quark, if required.
   for(int i =0; i!= 2; ++i) {
@@ -344,12 +344,12 @@ void alpgen::fixEventSingleTop(lhef::HEPEUP &hepeup, double mb, int itopprc) {
   int it = 0;
   int itbar = 0;
   if(hepeup.IDUP[2] == 6)
-    it = 3;
+    it = 2;
   else if(hepeup.IDUP[2] == -6)
-    itbar = 3;
+    itbar = 2;
   else {
     std::cout << "Wrong assumption about top position, stop." << std::endl;
-    // Should throw an exception here.
+    // FIXME: Should throw an exception here.
     return;
   }
 
@@ -361,7 +361,7 @@ void alpgen::fixEventSingleTop(lhef::HEPEUP &hepeup, double mb, int itopprc) {
     iwdec = nup-2;
   else if(nw == 2)
     iwdec = nup-4;
-  
+
   // Put W and b at the end.
   int iwup = nup;
   int ibup = iwup+1;
@@ -371,6 +371,7 @@ void alpgen::fixEventSingleTop(lhef::HEPEUP &hepeup, double mb, int itopprc) {
       hepeup.MOTHUP[iup].second = 0;
       iwch = (iwch - hepeup.IDUP[iup]%2); 
   }
+
   if(iwch > 0) {
     hepeup.IDUP[iwup] = 24;
     hepeup.IDUP[ibup] = 5;
@@ -441,4 +442,5 @@ void alpgen::fixEventSingleTop(lhef::HEPEUP &hepeup, double mb, int itopprc) {
     hepeup.ICOLUP[iwup].first = 0;
     hepeup.ICOLUP[iwup].second = 0;
   }
+
 }
