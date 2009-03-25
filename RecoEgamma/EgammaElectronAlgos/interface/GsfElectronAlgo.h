@@ -90,8 +90,9 @@ class GsfElectronAlgo {
        ElectronTkIsolation & tkIso03, ElectronTkIsolation & tkIso04,
        EgammaTowerIsolation & had1Iso03, EgammaTowerIsolation & had2Iso03, 
        EgammaTowerIsolation & had1Iso04, EgammaTowerIsolation & had2Iso04, 
-       EgammaRecHitIsolation & ecalIso03,EgammaRecHitIsolation & ecalIso04,
-       edm::Handle<EcalRecHitCollection> reducedRecHits,
+       EgammaRecHitIsolation & ecalBarrelIso03,EgammaRecHitIsolation & ecalEndcapsIso03,
+       EgammaRecHitIsolation & ecalBarrelIso04,EgammaRecHitIsolation & ecalEndcapsIso04,
+       edm::Handle<EcalRecHitCollection> reducedEBRecHits,edm::Handle<EcalRecHitCollection> reducedEERecHits,
        GsfElectronPtrCollection & outEle ) ;
 
     void preselectElectrons( GsfElectronPtrCollection &, GsfElectronPtrCollection & outEle ) ;

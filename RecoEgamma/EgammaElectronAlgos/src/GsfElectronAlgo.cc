@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.45 2009/03/20 22:59:18 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.46 2009/03/25 02:15:43 charlot Exp $
 //
 //
 
@@ -278,7 +278,7 @@ void GsfElectronAlgo::process(
   
   float egIsoConeSizeOutSmall=0.3, egIsoConeSizeOutLarge=0.4, egIsoJurassicWidth=0.02;
   float egIsoPtMinBarrel=-9999.,egIsoEMinBarrel=0.08, egIsoConeSizeInBarrel=0.045;
-  float egIsoPtMinEndcap=-9999.,egIsoEMinEndcap=0.3, egIsoConeSizeInEndcap=0.07;
+  float egIsoPtMinEndcap=0.1,egIsoEMinEndcap=-9999., egIsoConeSizeInEndcap=0.07;
   EcalRecHitMetaCollection ecalBarrelHits(*reducedEBRecHits);
   EcalRecHitMetaCollection ecalEndcapHits(*reducedEERecHits);
   EgammaRecHitIsolation ecalBarrelIsol03(egIsoConeSizeOutSmall,egIsoConeSizeInBarrel,egIsoJurassicWidth,egIsoPtMinBarrel,egIsoEMinBarrel,theCaloGeom,&ecalBarrelHits,DetId::Ecal);
@@ -306,9 +306,6 @@ void GsfElectronAlgo::process(
     const SuperCluster theClus = *scRef ;
 
     BasicClusterRef elbcRef = getEleBasicCluster(gsfTrackRef,scRef) ;
-    //std::vector<DetId> vecId=theClus.seed()->getHitsByDetId();
-    //subdet_ =vecId[0].subdetId();
-    subdet_ = theClus.seed()->hitsAndFractions()[0].first.subdetId();
 
     // calculate Trajectory StatesOnSurface....
     if (!calculateTSOS(*gsfTrackRef,theClus, bsPosition)) continue ;
@@ -323,14 +320,9 @@ void GsfElectronAlgo::process(
     const TrackRef ctfTrackRef = ctfpair.first ;
     const float fracShHits = ctfpair.second ;
 
-    if (subdet_==EcalBarrel)
-     createElectron(coreRef,elbcRef,ctfTrackRef,fracShHits,HoE1,HoE2,tkIsolation03,tkIsolation04,
-      hadDepth1Isolation03,hadDepth2Isolation03,hadDepth1Isolation04,hadDepth2Isolation04,
-      ecalBarrelIsol03,ecalBarrelIsol04,reducedEBRecHits,outEle) ;
-    else if (subdet_==EcalEndcap)
-     createElectron(coreRef,elbcRef,ctfTrackRef,fracShHits,HoE1,HoE2,tkIsolation03,tkIsolation04,
-      hadDepth1Isolation03,hadDepth2Isolation03,hadDepth1Isolation04,hadDepth2Isolation04,
-      ecalEndcapIsol03,ecalEndcapIsol04,reducedEERecHits,outEle) ;      
+    createElectron(coreRef,elbcRef,ctfTrackRef,fracShHits,HoE1,HoE2,tkIsolation03,tkIsolation04,
+     hadDepth1Isolation03,hadDepth2Isolation03,hadDepth1Isolation04,hadDepth2Isolation04,
+     ecalBarrelIsol03,ecalBarrelIsol04,ecalEndcapIsol03,ecalEndcapIsol04,reducedEBRecHits,reducedEERecHits,outEle) ;
 
     LogInfo("")<<"Constructed new electron with energy  "<< scRef->energy();
 
@@ -430,8 +422,9 @@ void GsfElectronAlgo::createElectron
    ElectronTkIsolation & tkIso03, ElectronTkIsolation & tkIso04,
    EgammaTowerIsolation & had1Iso03, EgammaTowerIsolation & had2Iso03, 
    EgammaTowerIsolation & had1Iso04, EgammaTowerIsolation & had2Iso04, 
-   EgammaRecHitIsolation & ecalIso03,EgammaRecHitIsolation & ecalIso04,
-   edm::Handle<EcalRecHitCollection> reducedRecHits,
+   EgammaRecHitIsolation & ecalBarrelIso03,EgammaRecHitIsolation & ecalEndcapsIso03,
+   EgammaRecHitIsolation & ecalBarrelIso04,EgammaRecHitIsolation & ecalEndcapsIso04,
+   edm::Handle<EcalRecHitCollection> reducedEBRecHits,edm::Handle<EcalRecHitCollection> reducedEERecHits,
    GsfElectronPtrCollection & outEle )
 
  {
@@ -552,14 +545,18 @@ void GsfElectronAlgo::createElectron
   reco::GsfElectron::ShowerShape showerShape ;
   const CaloTopology * topology = theCaloTopo.product() ;
   const CaloGeometry * geometry = theCaloGeom.product() ;
-  const EcalRecHitCollection * reducedRHits = reducedRecHits.product() ;
-  std::vector<float> covariances = EcalClusterTools::covariances(seedCluster,reducedRHits,topology,geometry) ;
-  std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,reducedRHits,topology) ;
+  const EcalRecHitCollection * reducedRecHits = 0 ;
+  if (fiducialFlags.isEB)
+   { reducedRecHits = reducedEBRecHits.product() ; }
+  else
+   { reducedRecHits = reducedEERecHits.product() ; }
+  std::vector<float> covariances = EcalClusterTools::covariances(seedCluster,reducedRecHits,topology,geometry) ;
+  std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,reducedRecHits,topology) ;
   showerShape.sigmaEtaEta = sqrt(covariances[0]) ;
   showerShape.sigmaIetaIeta = sqrt(localCovariances[0]) ;
-  showerShape.e1x5 = EcalClusterTools::e1x5(seedCluster,reducedRHits,topology)  ;
-  showerShape.e2x5Max = EcalClusterTools::e2x5Max(seedCluster,reducedRHits,topology)  ;
-  showerShape.e5x5 = EcalClusterTools::e5x5(seedCluster,reducedRHits,topology) ;
+  showerShape.e1x5 = EcalClusterTools::e1x5(seedCluster,reducedRecHits,topology)  ;
+  showerShape.e2x5Max = EcalClusterTools::e2x5Max(seedCluster,reducedRecHits,topology)  ;
+  showerShape.e5x5 = EcalClusterTools::e5x5(seedCluster,reducedRecHits,topology) ;
   showerShape.hcalDepth1OverEcal = HoE1 ;
   showerShape.hcalDepth2OverEcal = HoE2 ;
 
@@ -595,11 +592,11 @@ void GsfElectronAlgo::createElectron
   dr03.tkSumPt = tkIso03.getPtTracks(ele);
   dr03.hcalDepth1TowerSumEt = had1Iso03.getTowerEtSum(ele);
   dr03.hcalDepth2TowerSumEt = had2Iso03.getTowerEtSum(ele);
-  dr03.ecalRecHitSumEt = ecalIso03.getEtSum(ele);
+  dr03.ecalRecHitSumEt = ecalBarrelIso03.getEtSum(ele)+ecalEndcapsIso03.getEtSum(ele);
   dr04.tkSumPt = tkIso04.getPtTracks(ele);
   dr04.hcalDepth1TowerSumEt = had1Iso04.getTowerEtSum(ele);
   dr04.hcalDepth2TowerSumEt = had2Iso04.getTowerEtSum(ele);
-  dr04.ecalRecHitSumEt = ecalIso04.getEtSum(ele);
+  dr04.ecalRecHitSumEt = ecalBarrelIso04.getEtSum(ele)+ecalEndcapsIso04.getEtSum(ele);
   ele->setIsolation03(dr03);
   ele->setIsolation04(dr04);
 
