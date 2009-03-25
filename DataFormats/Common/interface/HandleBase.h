@@ -80,8 +80,6 @@ namespace edm {
       return 0 != whyFailed_.get();
     }
     
-    void const* productStorage() const;
-
     Provenance const* provenance() const {
       return prov_;
     }
@@ -91,6 +89,11 @@ namespace edm {
     boost::shared_ptr<cms::Exception> whyFailed() const {
       return whyFailed_;
     }
+
+  protected:
+
+    void const* productStorage() const;
+
   private:
     void const* product_;
     Provenance const* prov_;
