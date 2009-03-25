@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.12 2009/03/19 17:29:08 jmuelmen Exp $
+// $Id: FWElectronDetailView.cc,v 1.13 2009/03/23 15:54:12 amraktad Exp $
 //
 
 // system include files
@@ -393,9 +393,6 @@ void FWElectronDetailView::fillData (const std::vector<DetId> &detids,
 TEveElementList *FWElectronDetailView::makeLabels (const reco::GsfElectron &electron)
 {
    TEveElementList *ret = new TEveElementList("electron labels");
-   // title
-   textView()->AddLine("Electron detailed view");
-   textView()->AddLine("");
    // summary
    if (electron.charge() > 0)
       textView()->AddLine("charge = +1");
@@ -438,6 +435,8 @@ TEveElementList *FWElectronDetailView::makeLabels (const reco::GsfElectron &elec
    if (electron.superCluster()->getHitsByDetId().size() > 0 &&
        electron.superCluster()->getHitsByDetId().begin()->subdetId() == EcalEndcap)
       is_endcap = true;
+
+   textView()->SetWidth(textView()->ReturnLongestLineWidth());
    return ret;
 }
 

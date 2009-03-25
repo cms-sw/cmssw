@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWPhotonDetailView.cc,v 1.1 2009/01/13 02:10:02 chrjones Exp $
+// $Id: FWPhotonDetailView.cc,v 1.2 2009/01/23 21:35:46 amraktad Exp $
 //
 
 // system include files
@@ -495,9 +495,6 @@ TEveElementList *FWPhotonDetailView::makeLabels (const reco::Photon &photon)
 {
    TEveElementList *ret = new TEveElementList("photon labels");
 #if DRAW_LABELS_IN_SEPARATE_VIEW
-   // title
-   textView()->AddLine("Photon detailed view");
-   textView()->AddLine("");
    // summary
 //      if (photon.charge() > 0)
 //        textView()->AddLine("charge = +1");

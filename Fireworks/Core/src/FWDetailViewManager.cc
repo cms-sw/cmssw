@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.23 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.24 2009/03/04 17:02:16 chrjones Exp $
 //
 
 // system include files
@@ -111,9 +111,14 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    TGHorizontalFrame* hf = new TGHorizontalFrame(frame);
    frame->AddFrame(hf,new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX | kLHintsExpandY));
    text_view = new TGTextView(hf,20,20);
+   // title
+   text_view->AddLine(Form("%s detail view:",  id.item()->name().c_str()));
+   text_view->AddLine(Form("item[%d] index[%d]", (unsigned int)id.item(), id.index()));
+   text_view->AddLine("");
+
    hf->AddFrame(text_view, new TGLayoutHints(kLHintsLeft|kLHintsTop|kLHintsExpandY));
    TGLEmbeddedViewer* v = new TGLEmbeddedViewer(hf, 0, 0);
-   TEveViewer* nv = new TEveViewer();
+   nv = new TEveViewer();
    nv->SetGLViewer(v,v->GetFrame());
    nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    if ( TGLOrthoCamera* oCamera = dynamic_cast<TGLOrthoCamera*>( &(nv->GetGLViewer()->CurrentCamera()) ) )
@@ -129,7 +134,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    exit_butt->Resize(20, 20);
    exit_butt->Connect("Clicked()", "FWDetailViewManager", this, "close_button()");
    frame->AddFrame(exit_butt, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
-   frame->SetWindowName("Detail View");
+   frame->SetWindowName(Form("%s Detail View",id.item()->name().c_str()));
    frame->SetIconName("Detail View Icon");
 
    // find the right viewer for this item
