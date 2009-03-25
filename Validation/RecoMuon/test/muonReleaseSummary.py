@@ -5,8 +5,8 @@ import sys
 import fileinput
 import string
 
-NewRelease='CMSSW_3_1_0_pre3'
-RefRelease='CMSSW_3_1_0_pre2'
+NewRelease='CMSSW_3_1_0_pre4'
+RefRelease='CMSSW_3_1_0_pre3'
 
 samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
 
@@ -14,6 +14,7 @@ Submit=True
 Publish=False
 
 NewTag='IDEAL'
+#NewTag='IDEAL_noPU_ootb_FSIM'  # Add "_FSIM" for FastSim
 RefTag='IDEAL'
 
 NewLabel='IDEAL_30X'
