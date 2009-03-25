@@ -6,7 +6,6 @@
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=TrackingTools/TrajectoryState>
-<use name=TrackingTools/Records>
 <use name=TrackingTools/TransientTrack>
 <use name=MagneticField/Engine>
 <use name=RecoVertex/VertexPrimitives>
