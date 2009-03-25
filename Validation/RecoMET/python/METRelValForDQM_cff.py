@@ -41,7 +41,7 @@ METRelValSequence = cms.Sequence(
     tcMetAnalyzer*
     genMetTrueAnalyzer*
     genMetCaloAnalyzer*
-    genMetCaloAndNonPromptAnalyzer*
+    genMetCaloAndNonPromptAnalyzer)
 
-    }
+    
 
