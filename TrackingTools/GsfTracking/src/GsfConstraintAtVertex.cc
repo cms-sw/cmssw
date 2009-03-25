@@ -41,33 +41,52 @@ GsfConstraintAtVertex::~GsfConstraintAtVertex ()
 }
 
 
-
 TrajectoryStateOnSurface
-GsfConstraintAtVertex::constrainAtVertex (const reco::GsfTrack& track,
-				       const reco::BeamSpot& beamSpot) const
+GsfConstraintAtVertex::constrainAtBeamSpot (const reco::GsfTrack& track,
+					    const reco::BeamSpot& beamSpot) const
 {
-  using namespace std;
   //
   // Beamspot (global co-ordinates)
   //
   GlobalPoint bsPosGlobal(beamSpot.x0(),beamSpot.y0(),beamSpot.z0());
   GlobalError bsCovGlobal(beamSpot.covariance3D());
   //
+  return constrainAtPoint(track,bsPosGlobal,bsCovGlobal);
+}
+
+TrajectoryStateOnSurface
+GsfConstraintAtVertex::constrainAtVertex (const reco::GsfTrack& track,
+					  const reco::Vertex& vertex) const
+{
+  //
+  // Beamspot (global co-ordinates)
+  //
+  GlobalPoint vtxPosGlobal(vertex.position().x(),vertex.position().y(),vertex.position().z());
+  GlobalError vtxCovGlobal(vertex.covariance());
+  //
+  return constrainAtPoint(track,vtxPosGlobal,vtxCovGlobal);
+}
+
+TrajectoryStateOnSurface
+GsfConstraintAtVertex::constrainAtPoint (const reco::GsfTrack& track,
+					 const GlobalPoint& globalPosition,
+					 const GlobalError& globalError) const
+{
+  //
   // Track on TIP plane
   //
   TrajectoryStateOnSurface innerState = 
     multiStateTransformer_.innerStateOnSurface(track,*geometry_,magField_);
   if ( !innerState.isValid() )  return TrajectoryStateOnSurface();
-  TrajectoryStateOnSurface tipState = tipExtrapolator_->extrapolate(innerState,bsPosGlobal);
+  TrajectoryStateOnSurface tipState = tipExtrapolator_->extrapolate(innerState,globalPosition);
   if ( !tipState.isValid() )  return TrajectoryStateOnSurface();
   //
   // RecHit from beam spot
   //
-  LocalError bsCovLocal = ErrorFrameTransformer().transform(bsCovGlobal,tipState.surface());
+  LocalError bsCovLocal = ErrorFrameTransformer().transform(globalError,tipState.surface());
   TransientTrackingRecHit::RecHitPointer bsHit = 
-    TRecHit2DPosConstraint::build(tipState.surface().toLocal(bsPosGlobal),
-				  bsCovLocal,
-				  &tipState.surface());
+    TRecHit2DPosConstraint::build(tipState.surface().toLocal(globalPosition),
+				  bsCovLocal,&tipState.surface());
   //
   // update with constraint
   //

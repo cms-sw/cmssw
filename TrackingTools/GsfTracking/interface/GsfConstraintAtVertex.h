@@ -10,6 +10,7 @@
 #include "TrackingTools/GsfTracking/interface/GsfMultiStateUpdator.h"
 #include "TrackingTools/GsfTracking/interface/GsfChi2MeasurementEstimator.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit2DPosConstraint.h"
 
 class TrackerGeometry;
@@ -22,8 +23,16 @@ public:
   explicit GsfConstraintAtVertex (const edm::EventSetup&);
   ~GsfConstraintAtVertex();
   
+  /// (multi)TSOS after including the beamspot
+  TrajectoryStateOnSurface constrainAtBeamSpot (const reco::GsfTrack&,
+						const reco::BeamSpot&) const;
+  /// (multi)TSOS after include a vertex
   TrajectoryStateOnSurface constrainAtVertex (const reco::GsfTrack&,
-					      const reco::BeamSpot&) const;
+					      const reco::Vertex&) const;
+  /// (multi)TSOS after including a point with covariance matrix
+  TrajectoryStateOnSurface constrainAtPoint (const reco::GsfTrack&,
+					     const GlobalPoint& globalPosition,
+					     const GlobalError& globalError) const;
 
 private:
 

@@ -20,6 +20,7 @@
  <use name="TrackingTools/TrajectoryState">
  <use name="TrackingTools/TransientTrackingRecHit">
  <use name=DataFormats/BeamSpot>
+ <use name=DataFormats/VertexReco>
  <use name=DataFormats/GsfTrackReco>
  <use name=MagneticField/Engine>
 </export>
@@ -41,6 +42,7 @@
 <use name="TrackingTools/TrajectoryState">
 <use name="TrackingTools/TransientTrackingRecHit">
 <use name=DataFormats/BeamSpot>
+<use name=DataFormats/VertexReco>
 <use name=DataFormats/GsfTrackReco>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
