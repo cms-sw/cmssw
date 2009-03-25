@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/02 17:10:15 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/03/03 12:58:02 $
+ *  $Revision: 1.19 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -455,6 +455,9 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
 					    (*vol)->shape(),
 					    (*vol)->sides(),
 					    mp, sf);
+
+    // FIXME temporary hack 
+    (*vol)->magVolume->setIsIron((*vol)->isIron());
 
     // FIXME: debug, to be removed
     (*vol)->magVolume->name = (*vol)->name;
