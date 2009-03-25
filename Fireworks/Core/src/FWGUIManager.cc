@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.101 2009/03/23 19:51:32 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.102 2009/03/25 19:21:24 amraktad Exp $
 //
 
 // system include files
@@ -33,6 +33,7 @@
 #include "TBrowser.h"
 #include "TGMenu.h"
 #include "TEveManager.h"
+#include "TGPack.h"
 //#include "TEveGedEditor.h"
 #include "TEveWindow.h"
 #include "TEveWindowManager.h"
@@ -189,6 +190,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
 FWGUIManager::~FWGUIManager()
 {
    gEve->GetWindowManager()->Disconnect("WindowSelected(TEveWindow*)", this, "subviewCurrentChanged(TEveWindow*)");
+
    for(std::vector<FWViewBase* >::iterator it = m_viewBases.begin(), itEnd = m_viewBases.end();
        it != itEnd;
        ++it) {
@@ -228,6 +230,7 @@ FWGUIManager::parentForNextView()
    TEveWindowSlot* slot = 0;
    if (m_viewSecPack == 0) {
       slot = m_viewPrimPack->NewSlot();
+      getGUISubviewArea(slot)->configurePrimaryView();
       m_viewSecPack = m_viewPrimPack->NewSlot()->MakePack();
       m_viewSecPack->SetVertical();
       m_viewSecPack->SetShowTitleBar(kFALSE);
@@ -938,23 +941,50 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
 
    oTo.addKeyValue(kMainWindow,mainWindow,true);
 
+
+   // sort list of TEveWindows by layout
+   std::vector<TEveWindow*> wpacked;
+   {
+      // read primary pack
+      TGPack* pp = m_viewPrimPack->GetPack();
+      TGFrameElement *pel = (TGFrameElement*) pp->GetList()->First();
+      TEveCompositeFrame* pef = dynamic_cast<TEveCompositeFrame*>(pel->fFrame);
+      if (pef)
+      {
+         printf("eve window %s \n", pef->GetEveWindow()->GetElementName());
+         wpacked.push_back( pef->GetEveWindow());
+      }
+
+      // secondary pack
+      TGPack* sp = m_viewSecPack->GetPack();
+      Int_t nf = sp->GetList()->GetSize();
+      TIter frame_iterator(sp->GetList());
+      for (Int_t i=0; i<nf; ++i)
+      {
+         TGFrameElement *sel = (TGFrameElement*)frame_iterator();
+         TEveCompositeFrame *sef = dynamic_cast<TEveCompositeFrame*>(sel->fFrame);
+         if (sef)
+         {
+            printf("eve window %s \n", sef->GetEveWindow()->GetElementName());
+            wpacked.push_back( sef->GetEveWindow());
+         }
+      }
+   }
+
    FWConfiguration views(1);
-   for(std::vector<FWViewBase* >::const_iterator it = m_viewBases.begin(),
-                                                 itEnd = m_viewBases.end();
-       it != itEnd;
-       ++it) {
+   for(std::vector<TEveWindow*>::const_iterator it = m_viewWindows.begin(); it != m_viewWindows.end(); ++it)
+   {
       FWConfiguration temp(1);
-      (*it)->addTo(temp);
-      views.addKeyValue((*it)->typeName(), temp, true);
+      FWViewBase* wb = (FWViewBase*)((*it)->GetUserData());
+      wb->addTo(temp);
+      views.addKeyValue(wb->typeName(), temp, true);
+      
    }
    oTo.addKeyValue(kViews,views,true);
 
-   //remember the sizes in the view area
-
-   FWConfiguration viewArea(1);
-   FrameAddTo frameAddTo(viewArea);
-   recursivelyApplyToFrame(m_splitFrame,frameAddTo);
-   oTo.addKeyValue(kViewArea,viewArea,true);
+   // remember the sizes in the view area not implemented (empty) !!
+   // FWConfiguration viewArea(1);
+   // FrameAddTo frameAddTo(viewArea);
 
    //Remember where controllers were placed if they are open
    FWConfiguration controllers(1);
@@ -1046,9 +1076,10 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
       m_viewBases.back()->setFrom(it->second);
    }
 
-   //now configure the view area
-   const FWConfiguration* viewArea = iFrom.valueForKey(kViewArea);
-   assert(0!=viewArea);
+   // configure the view area not implemented (empty) !!
+   // const FWConfiguration* viewArea = iFrom.valueForKey(kViewArea);
+   // assert(0!=viewArea);
+  
    m_viewPrimPack->GetGUIFrame()->Layout();
 
 

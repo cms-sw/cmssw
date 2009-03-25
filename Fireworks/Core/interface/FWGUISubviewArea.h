@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.14 2009/03/16 20:19:34 amraktad Exp $
+// $Id: FWGUISubviewArea.h,v 1.15 2009/03/20 16:11:36 amraktad Exp $
 //
 
 #include "TGFrame.h"
@@ -65,6 +65,8 @@ public:
    sigc::signal<void, FWGUISubviewArea*> goingToBeDestroyed_;
    sigc::signal<void, FWGUISubviewArea*> selected_;
    sigc::signal<void, FWGUISubviewArea*> unselected_;
+
+   void configurePrimaryView();
 
    TEveWindow* getEveWindow();
    FWViewBase* getFWView();
