@@ -16,7 +16,8 @@ HFEMClusterProducer::HFEMClusterProducer(edm::ParameterSet const& conf): hfreco_
   produces<reco::BasicClusterCollection>();
   produces<reco::SuperClusterCollection>();
   produces<reco::HFEMClusterShapeAssociationCollection>(); 
-  algo_.setup(conf.getParameter<double>("minTowerEnergy"));
+  algo_.setup(conf.getParameter<double>("minTowerEnergy"),
+	      conf.getParameter<double>("seedThresholdET"));
 }
 
 void HFEMClusterProducer::produce(edm::Event & e, edm::EventSetup const& iSetup) {  

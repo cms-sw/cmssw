@@ -23,7 +23,7 @@ class HFClusterAlgo {
 public:
   HFClusterAlgo(); 
 
-    void setup(double minTowerEnergy);
+  void setup(double minTowerEnergy, double seedThreshold);
 
   /** Analyze the hits */
   void clusterize(const HFRecHitCollection& hf, 
@@ -36,7 +36,9 @@ public:
 private:
   friend class CompareHFCompleteHitET;
   friend class CompareHFCore;
-  double m_minTowerEnergy;
+  double m_minTowerEnergy, m_seedThreshold;
+  std::vector<double> m_cutByEta;
+ 
   struct HFCompleteHit {
     HcalDetId id;
     double energy, et;

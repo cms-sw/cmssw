@@ -32,9 +32,12 @@ public:
   }
 };
 
-void HFClusterAlgo::setup(double minTowerEnergy) {
-  
+void HFClusterAlgo::setup(double minTowerEnergy, double seedThreshold) {
+  m_seedThreshold=seedThreshold;
   m_minTowerEnergy=minTowerEnergy;
+  for(int ii=0;ii<13;ii++){
+    m_cutByEta.push_back(-1);
+  }
 }
 
 /** Analyze the hits */
@@ -44,7 +47,7 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
 			       BasicClusterCollection& BasicClusters,
 			       SuperClusterCollection& SuperClusters) {
   
-  std::vector<HFCompleteHit> hits, seeds;
+  std::vector<HFCompleteHit> protoseeds, seeds;
   HFRecHitCollection::const_iterator j;
   std::vector<HFCompleteHit>::iterator i;
   std::vector<HFCompleteHit>::iterator k;
@@ -53,38 +56,46 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
   HFEMClusterShape clusShp;
   BasicCluster Bclus;
   SuperCluster Sclus;
-   bool doCluster=false;
-  for (j=hf.begin(); j!= hf.end(); j++)  {
-    HFCompleteHit ahit;
-    ahit.id=j->id();
-    ahit.energy=j->energy();
-    double eta=geom.getPosition(j->id()).eta();
-    ahit.et=ahit.energy/cosh(eta);
-    
-    hits.push_back(ahit);
-  }
+  bool doCluster=false;
+  int seedCount=0;
   
-  std::sort(hits.begin(), hits.end(), CompareHFCompleteHitET());
-  for (i=hits.begin(); i!= hits.end(); i++)  {
-    isok=true;
-    doCluster=false;
-    if (i->et > 5) {
+  for (j=hf.begin(); j!= hf.end(); j++)  {
+    int iz=(j->id().ietaAbs()-29);
+
+    if (iz<0 || iz>12) {
+      edm::LogWarning("HFClusterAlgo") << "Strange invalid HF hit: " << j->id();
+      continue;
+    }
+
+    if (m_cutByEta[iz]<0) {
+      double eta=geom.getPosition(j->id()).eta();
+      m_cutByEta[iz]=m_seedThreshold*cosh(eta); // convert ET to E for this ring
+    }
+    if (j->energy()>m_cutByEta[iz]) {
+      HFCompleteHit ahit;
+      double eta=geom.getPosition(j->id()).eta();
+      ahit.id=j->id();
+      ahit.energy=j->energy();
+      ahit.et=ahit.energy/cosh(eta);
+      seedCount++;
+      protoseeds.push_back(ahit);
+    }
+  }
+
+  if(seedCount>0){
+   
+    std::sort(protoseeds.begin(), protoseeds.end(), CompareHFCompleteHitET());
+    for (i=protoseeds.begin(); i!= protoseeds.end(); i++)  {
+      isok=true;
+      doCluster=false;
       if ((i->id.ietaAbs()==40)||(i->id.ietaAbs()==41)||(i->id.ietaAbs()==29)||(i->id.depth()!=1)) 
 	isok = false; 
-      
-      if ( (i==hits.begin()) && (isok) ) {
+      if ( (i==protoseeds.begin()) && (isok) ) {
 	doCluster=true;
-// 	seeds.push_back(*i);
-// 	makeCluster( i->id(),hf, geom,clusShp,Bclus,Sclus);
-// 	clusterShapes.push_back(clusShp); 
-// 	BasicClusters.push_back(Bclus);
-// 	SuperClusters.push_back(Sclus);  	
-	//clusterAsoc.insert(SuperClusters,clusterShapes);
-  
-      }
-      else {
+      }else {
+	// check for overlap with existing clusters 
 	for (k=seeds.begin(); isok && k!=seeds.end(); k++) { //i->hits, k->seeds
-	  
+	    
 	  for (dE=-2; dE<=2; dE++)
 	    for (dP=-4;dP<=4; dP+=2) {
 	      PWrap=k->id.iphi()+dP;	
@@ -96,7 +107,7 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
 	      if ( (i->id.iphi()==PWrap) && (i->id.ieta()==k->id.ieta()+dE))
 		isok = false;
 	    }
-	} 
+	}
 	if (isok) {
 	  doCluster=true;
 	}
@@ -104,20 +115,16 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
       if (doCluster) { 
 	seeds.push_back(*i);
 	makeCluster( i->id(),hf, geom,clusShp,Bclus,Sclus);
-	
+	  
 	clusterShapes.push_back(clusShp);
 	BasicClusters.push_back(Bclus);
 	SuperClusters.push_back(Sclus);
 	
-// 	clusterAssoc.insert(edm::Ref<SuperClusterCollection>(SuperClusters,where),
-// 			    edm::Ref<HFEMClusterShapeCollection>(clusterShapes,where));
-	
       }
-      
-    }  
-    // clusterAsoc.insert(SuperClusters,clusters);
-  }
+    }//end protoseed loop
+  }//end if seeCount
 }
+
 
 void HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 				const HFRecHitCollection& hf, 
