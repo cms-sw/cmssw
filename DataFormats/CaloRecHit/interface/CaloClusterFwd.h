@@ -18,7 +18,7 @@ namespace reco {
   typedef edm::PtrVector<CaloCluster> CaloClusterPtrVector;
   typedef edm::View<CaloCluster> CaloClusterView;
 
-
+  typedef CaloClusterPtrVector::iterator CaloCluster_iterator;
 
 
 }
