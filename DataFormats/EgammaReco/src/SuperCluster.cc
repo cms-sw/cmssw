@@ -1,4 +1,4 @@
-// $Id: SuperCluster.cc,v 1.13 2009/01/27 09:53:06 ferriff Exp $
+// $Id: SuperCluster.cc,v 1.14 2009/03/24 10:47:55 ferriff Exp $
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 using namespace reco;
@@ -10,8 +10,8 @@ SuperCluster::SuperCluster( double energy, const math::XYZPoint& position ) :
 
 
 SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
-                            const BasicClusterRef & seed,
-                            const BasicClusterRefVector& clusters,
+                            const CaloClusterPtr & seed,
+                            const CaloClusterPtrVector& clusters,
 			    double Epreshower, double phiWidth, double etaWidth) :
   CaloCluster(energy,position), rawEnergy_(-1.)
 {
@@ -21,7 +21,7 @@ SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
   preshowerEnergy_ = Epreshower;
 
   // set references to constituent basic clusters and update list of rechits
-  for(BasicClusterRefVector::const_iterator bcit  = clusters.begin();
+  for(CaloClusterPtrVector::const_iterator bcit  = clusters.begin();
                                             bcit != clusters.end();
                                           ++bcit) {
     clusters_.push_back( (*bcit) );
@@ -40,9 +40,9 @@ SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
 
 
 SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
-                            const BasicClusterRef & seed,
-                            const BasicClusterRefVector& clusters,
-                            const PreshowerClusterRefVector& preshowerClusters,
+                            const CaloClusterPtr & seed,
+                            const CaloClusterPtrVector& clusters,
+                            const CaloClusterPtrVector& preshowerClusters,
 			    double Epreshower, double phiWidth, double etaWidth) :
   CaloCluster(energy,position), rawEnergy_(-1.)
 {
@@ -52,7 +52,7 @@ SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
   preshowerEnergy_ = Epreshower;
 
   // set references to constituent basic clusters and update list of rechits
-  for(BasicClusterRefVector::const_iterator bcit  = clusters.begin();
+  for(CaloClusterPtrVector::const_iterator bcit  = clusters.begin();
                                             bcit != clusters.end();
                                           ++bcit) {
     clusters_.push_back( (*bcit) );
@@ -67,7 +67,7 @@ SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
   } // loop over basic clusters
 
   // set references to preshower clusters
-  for(PreshowerClusterRefVector::const_iterator pcit  = preshowerClusters.begin();
+  for(CaloClusterPtrVector::const_iterator pcit  = preshowerClusters.begin();
                                             pcit != preshowerClusters.end();
                                           ++pcit) {
     preshowerClusters_.push_back( (*pcit) );
@@ -80,8 +80,7 @@ double SuperCluster::rawEnergy() const
 {
   if (rawEnergy_<0) {
     rawEnergy_ = 0.;
-    reco::basicCluster_iterator bcItr;
-    for(bcItr = clustersBegin(); bcItr != clustersEnd(); bcItr++)
+    for(CaloClusterPtrVector::const_iterator bcItr = clustersBegin(); bcItr != clustersEnd(); bcItr++)
       {
 	rawEnergy_ += (*bcItr)->energy();
       }

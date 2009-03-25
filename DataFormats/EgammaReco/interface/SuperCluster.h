@@ -7,14 +7,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.17 2009/03/05 16:25:12 ferriff Exp $
+ * \version $Id: SuperCluster.h,v 1.18 2009/03/24 10:47:55 ferriff Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include <Rtypes.h>
 
@@ -31,16 +29,16 @@ namespace reco {
     SuperCluster( double energy, const Point& position );
 
     SuperCluster( double energy, const Point& position,
-                  const BasicClusterRef & seed,
-                  const BasicClusterRefVector& clusters,
+                  const CaloClusterPtr & seed,
+                  const CaloClusterPtrVector& clusters,
 		  double Epreshower=0.,
 		  double phiWidth=0., double etaWidth=0. );
 
     // to be merged in the previous one? -- FIXME
     SuperCluster( double energy, const Point& position,
-                  const BasicClusterRef & seed,
-                  const BasicClusterRefVector& clusters,
-                  const PreshowerClusterRefVector& preshowerClusters,
+                  const CaloClusterPtr & seed,
+                  const CaloClusterPtrVector& clusters,
+                  const CaloClusterPtrVector& preshowerClusters,
 		  double Epreshower=0.,
 		  double phiWidth=0., double etaWidth=0. );
 
@@ -60,19 +58,19 @@ namespace reco {
     void setEtaWidth( double ew ) { etaWidth_ = ew; }
 
     /// seed BasicCluster
-    const BasicClusterRef & seed() const { return seed_; }
+    const CaloClusterPtr & seed() const { return seed_; }
 
     /// fist iterator over BasicCluster constituents
-    basicCluster_iterator clustersBegin() const { return clusters_.begin(); }
+    CaloCluster_iterator clustersBegin() const { return clusters_.begin(); }
 
     /// last iterator over BasicCluster constituents
-    basicCluster_iterator clustersEnd() const { return clusters_.end(); }
+    CaloCluster_iterator clustersEnd() const { return clusters_.end(); }
 
     /// fist iterator over PreshowerCluster constituents
-    PreshowerCluster_iterator preshowerClustersBegin() const { return preshowerClusters_.begin(); }
+    CaloCluster_iterator preshowerClustersBegin() const { return preshowerClusters_.begin(); }
 
     /// last iterator over PreshowerCluster constituents
-    PreshowerCluster_iterator preshowerClustersEnd() const { return preshowerClusters_.end(); }
+    CaloCluster_iterator preshowerClustersEnd() const { return preshowerClusters_.end(); }
 
     /// number of BasicCluster constituents
     size_t clustersSize() const { return clusters_.size(); }
@@ -81,24 +79,24 @@ namespace reco {
     //std::vector<DetId> getHitsByDetId() const { return usedHits_; }
 
     /// set reference to seed BasicCluster
-    void setSeed( const BasicClusterRef & r ) { seed_ = r; }
+    void setSeed( const CaloClusterPtr & r ) { seed_ = r; }
 
     /// add reference to constituent BasicCluster
-    void add( const BasicClusterRef & r ) { clusters_.push_back( r ); }
+    void addCluster( const CaloClusterPtr & r ) { clusters_.push_back( r ); }
 
     /// add reference to constituent BasicCluster
-    void add( const PreshowerClusterRef & r ) { preshowerClusters_.push_back( r ); }
+    void addPreshowerCluster( const CaloClusterPtr & r ) { preshowerClusters_.push_back( r ); }
 
   private:
 
     /// reference to BasicCluster seed
-    BasicClusterRef seed_;
+    CaloClusterPtr seed_;
 
     /// references to BasicCluster constitunets
-    BasicClusterRefVector clusters_;
+    CaloClusterPtrVector clusters_;
 
     /// references to BasicCluster constitunets
-    PreshowerClusterRefVector preshowerClusters_;
+    CaloClusterPtrVector preshowerClusters_;
 
     /// used hits by detId - retrieved from BC constituents -- now inherited from CaloCluster
     //std::vector<DetId> usedHits_;

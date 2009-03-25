@@ -5,11 +5,10 @@
  *
  * \authors Dmirty Bandurin (KSU), Ted Kolberg (ND)
  */
-// $Id: PreshowerCluster.h,v 1.17 2008/04/28 19:46:15 meridian Exp $
+// $Id: PreshowerCluster.h,v 1.18 2009/01/27 09:53:06 ferriff Exp $
 //
 #include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h" 
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 
 #include <cmath>
 
@@ -46,19 +45,19 @@ namespace reco {
     bool operator<(const PreshowerCluster&) const;
 
     /// Associated basic cluster;
-    BasicClusterRef basicCluster() const {return bc_ref_;}
+    CaloClusterPtr basicCluster() const {return bc_ref_;}
 
     /// DetIds of component RecHits -- now inherited from CaloCluster
     //std::vector<DetId> getHitsByDetId() const { return usedHits_; }
 
-    void setBCRef( const BasicClusterRef & r ) { bc_ref_ = r; }
+    void setBCRef( const CaloClusterPtr & r ) { bc_ref_ = r; }
 
   private:
 
     int plane_;
 
     /// Associated basic cluster;
-    BasicClusterRef bc_ref_;
+    CaloClusterPtr bc_ref_;
 
     /// used hits by detId -- now inherited from CaloCluster
     //std::vector<DetId> usedHits_;
