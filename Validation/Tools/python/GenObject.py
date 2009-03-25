@@ -12,7 +12,7 @@ import ConfigParser
 import PhysicsTools.PythonAnalysis as cmstools
 import pprint
 import random
-
+import sys
 
 class GenObject (object):
     """Infrastruture to define general objects and their attributes."""
@@ -250,7 +250,9 @@ class GenObject (object):
                     aliasMatch = re.search (r'alias=(\S+)', word)
                     if aliasMatch:
                         myTuple = (tofillName, aliasMatch.group (1))
-                        ntupleDict.setdefault ('_alias', []).append (myTuple)
+                        ntupleDict.setdefault ('_alias', {}).\
+                                              setdefault (tofillName,
+                                                          aliasMatch.group(1))
                         continue
                     # If we're still here, then we didn't have a valid
                     # option.  Complain vociferously
@@ -348,7 +350,7 @@ class GenObject (object):
                         raise RuntimeError, "Config file parsing error"
                     GenObject.addObjectVariable (objName, varName, \
                                                  **optionsDict)
-                else:
+                else: # if modeEnum.define != mode
                     ############################
                     ## Variable 'tofill' Info ##
                     ############################
@@ -377,6 +379,17 @@ class GenObject (object):
                                  setdefault (tupleName, {}).\
                                  setdefault (objName, {})
                     tofillDict[varName] = [partsList, optionsDict]
+        # We aren't guarenteed (ugh) that the file will be processed
+        # in the order it is written.  I think that eventually I'll
+        # want to process the file myself, but for now just wait until
+        # everything is read and then add 'index' to all of the
+        # objects that are not singletons.
+        for objName in GenObject._objsDict:
+            # if this isn't a singleton, add 'index' as a variable
+            if not GenObject.isSingleton (objName):
+                GenObject.addObjectVariable (objName, 'index',
+                                             type='int',
+                                             form='%3d')
 
 
     @staticmethod
@@ -563,9 +576,19 @@ class GenObject (object):
     @staticmethod
     def setAliases (eventTree, tupleName):
         """runs SetAlias on all saved aliases"""
-        aliases = GenObject._ntupleDict[tupleName].get('_alias', [])
-        for alias in aliases:
-            eventTree.SetAlias (alias[0], alias[1])
+        aliases = GenObject._ntupleDict[tupleName].get('_alias', {})
+        for name, alias in aliases.iteritems():
+            eventTree.SetAlias (name, alias)
+
+
+    @staticmethod
+    def changeAlias (tupleName, name, alias):
+        """Updates an alias for an object for a given tuple"""
+        aliasDict = GenObject._ntupleDict[tupleName]['_alias']
+        if not aliasDict.has_key (name):
+            raise RuntimeError, "unknown name '%s' in tuple '%s'" % \
+                  (name, tupleName)
+        aliasDict[name] = alias
 
 
     @staticmethod
@@ -898,6 +921,22 @@ class GenObject (object):
 
 
     @staticmethod
+    def setGlobalFlag (key, value):
+        """Sets a global flag in _kitchenSinkDict"""
+        GenObject._kitchenSinkDict [key] = value
+
+
+    @staticmethod
+    def printTuple (chain):
+        """Prints out all events to stdout"""
+        numEntries = GenObject._kitchenSinkDict[chain]['numEntries']        
+        for entryIndex in xrange (numEntries):
+            event = GenObject.loadEventFromTree (chain, entryIndex)            
+            GenObject.printEvent (event)
+            return
+
+
+    @staticmethod
     def try1 ():
         """A temporary function for development"""
         # Set a random seed for 'blurEvents'
@@ -913,6 +952,7 @@ class GenObject (object):
         GenObject.compareTwoTrees (chain, chain, blur=True)
         return
     
+
         
     ######################
     ## Member Functions ##

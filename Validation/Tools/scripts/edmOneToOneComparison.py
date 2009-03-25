@@ -12,7 +12,10 @@ if __name__ == "__main__":
     modeGroup.add_option ('--compare', dest='compare', action='store_true',
                           help='Compare tuple1 to tuple2')
     modeGroup.add_option ('--saveAs', dest='saveAs', type='string',
-                          help='Save tuple1 as GO Root file')
+                          help='Save tuple1 as GO Root file')    
+    modeGroup.add_option ('--printTuple', dest='printTuple',
+                          action='store_true',
+                          help='Print out all events in tuple1')
     # tuple group
     tupleGroup.add_option ('--tuple1', dest='tuple1', type='string',
                            default='GenObject',
@@ -54,13 +57,24 @@ if __name__ == "__main__":
     GenObject.loadConfigFile (options.config)
     ROOT.gSystem.Load("libFWCoreFWLite.so")
     ROOT.AutoLibraryLoader.enable()
+    # Let's parse any args
+    aliasRE = re.compile (r'alias:(.+):(.+):(.+)')
+    for arg in args:
+        aliasMatch = aliasRE.match (arg)
+        if aliasMatch:
+            GenObject.changeAlias (aliasMatch.group (1),
+                                   aliasMatch.group (2),
+                                   aliasMatch.group (3))
+            continue
+        # if we're here, then we have an argument that we don't understand
+        raise RuntimeError, "Unknown argument '%s'" % arg        
     # We don't want to use options beyond the main code, so let thee
     # kitchen sink know what we want
     if options.printEvent:
-        GenObject._kitchenSinkDict['printEvent'] = True
+        GenObject.setGlobalFlag ('printEvent', True)
     if options.blur:
-        GenObject._kitchenSinkDict['blur'] = options.blur
-    GenObject._kitchenSinkDict['blurRate'] = options.blurRate
+        GenObject.setGlobalFlag ('blur', options.blur)
+        GenObject.setGlobalFlag ('blurRate', options.blurRate)
     if options.compare:
         # Compare two files
         chain1 = GenObject.prepareTuple (options.tuple1, options.file1)
@@ -71,6 +85,11 @@ if __name__ == "__main__":
     if options.saveAs:
         chain1 = GenObject.prepareTuple (options.tuple1, options.file1)
         GenObject.saveTupleAs (chain1, options.saveAs)
+    if options.printTuple:
+        GenObject.setGlobalFlag ('printEvent', True)
+        chain1 = GenObject.prepareTuple (options.tuple1, options.file1)
+        GenObject.printTuple (chain1)
+        #GenObject.saveTupleAs (chain1, options.saveAs)
     if options.printStatic:
         GenObject.printStatic()
 
