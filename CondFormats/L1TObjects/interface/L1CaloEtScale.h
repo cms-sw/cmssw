@@ -59,6 +59,9 @@ class L1CaloEtScale {
   /// convert from rank to physically meaningful quantity
   double et(const uint16_t rank) const;
 
+  /// get thresholds
+  std::vector<double> getThresholds() const { return m_thresholds; }
+
   void print(std::ostream& s) const;
 
  private:
