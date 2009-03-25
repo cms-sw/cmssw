@@ -219,7 +219,8 @@ ostream& reco::operator<<(  ostream& out,
   int iEB = 0;
   int iHE = 0;
   int iHB = 0;
-  int iHF = 0;
+  int iHFEM = 0;
+  int iHFHAD = 0;
 
   // for each element in turn
   std::vector<bool> toPrint(elements.size(),static_cast<bool>(true));
@@ -276,10 +277,13 @@ ostream& reco::operator<<(  ostream& out,
         iHB++;
         ss << "HB" << iHB;
         break;
-      case PFLayer::HCAL_HF:
-        iHF++;
-        ss << "HF" << iHF;
+      case PFLayer::HF_EM:
+        iHFEM++;
+        ss << "HFEM" << iHFEM;
         break;
+      case PFLayer::HF_HAD:
+        iHFHAD++;
+        ss << "HFHAD" << iHFHAD;
       default:
         iel++;   
         ss << "??" << iel;
