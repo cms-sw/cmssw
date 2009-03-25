@@ -376,9 +376,9 @@ void PFElectronTranslator::createSuperClusters(const reco::PFCandidateCollection
       // protection against empty basic cluster collection ; the value is -2 in this case
       if(nbasics)
 	{
-	  std::cout << "SuperCluster creation; energy " << pfCand[gsfPFCandidateIndex_[iGSF]].ecalEnergy();
-	  std::cout << " " <<   pfCand[gsfPFCandidateIndex_[iGSF]].rawEcalEnergy() << std::endl;
-	  std::cout << "Seed energy from basic " << basicClusters_[iGSF][0].energy() << std::endl;
+//	  std::cout << "SuperCluster creation; energy " << pfCand[gsfPFCandidateIndex_[iGSF]].ecalEnergy();
+//	  std::cout << " " <<   pfCand[gsfPFCandidateIndex_[iGSF]].rawEcalEnergy() << std::endl;
+//	  std::cout << "Seed energy from basic " << basicClusters_[iGSF][0].energy() << std::endl;
 	  mySuperCluster.setSeed(basicClusterRefs_[iGSF][0]);
 	}
       else
