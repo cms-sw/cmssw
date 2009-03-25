@@ -19,6 +19,9 @@
  <use name="TrackingTools/TrackFitters">
  <use name="TrackingTools/TrajectoryState">
  <use name="TrackingTools/TransientTrackingRecHit">
+ <use name=DataFormats/BeamSpot>
+ <use name=DataFormats/GsfTrackReco>
+ <use name=MagneticField/Engine>
 </export>
 
 <use name="DataFormats/TrajectorySeed">
@@ -37,3 +40,9 @@
 <use name="TrackingTools/TrackFitters">
 <use name="TrackingTools/TrajectoryState">
 <use name="TrackingTools/TransientTrackingRecHit">
+<use name=DataFormats/BeamSpot>
+<use name=DataFormats/GsfTrackReco>
+<use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
