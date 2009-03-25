@@ -8,7 +8,7 @@ from Calibration.HcalAlCaRecoProducers.alcaisotrk_cfi import *
 
 isoHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 #    HLTPaths = ['HLT_IsoTrack'],
-    eventSetupPathsKey='ALCARECOHcalCalIsoTrk',
+    eventSetupPathsKey='HcalCalIsoTrk',
     throw = False #dont throw except on unknown path name
 
 )

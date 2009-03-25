@@ -14,7 +14,7 @@ import HLTrigger.HLTfilters.hltHighLevel_cfi
 ALCARECOHcalCalHOHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 #   HLTPaths = ['HLT_IsoMu3',   #for 8E29
 #               'HLT_IsoMu9'],  #for 1E30
-   eventSetupPathsKey='ALCARECOHcalCalHO',
+   eventSetupPathsKey='HcalCalHO',
    throw = False #dont throw except on unknown path name
 ) 
 
