@@ -2,8 +2,8 @@
  *
  * Digi for ALCT trigger primitives.
  *
- * $Date: 2007/07/23 12:08:20 $
- * $Revision: 1.10 $
+ * $Date: 2008/10/29 18:34:40 $
+ * $Revision: 1.11 $
  *
  * \author N. Terentiev, CMU
  */
@@ -46,17 +46,15 @@ void CSCALCTDigi::clear() {
 }
 
 bool CSCALCTDigi::operator > (const CSCALCTDigi& rhs) const {
-  // The > operator first checks the quality of ALCTs.
-  // If two qualities are equal, the ALCT furthest from the beam axis
-  // (lowest eta, highest wire group number) is selected.
-  // IMPROVE: in ORCA, we used 3-bit patternHits (quality plus the promotion
-  // bit as the MSB) instead of 2-bit quality; needs to be checked.
   bool returnValue = false;
-#ifdef TB
-  // Firmware "feature" in 2003 and 2004 test beam data.
+
+  // Early ALCTs are always preferred to the ones found at later bx's.
   if (getBX()  < rhs.getBX()) {returnValue = true;}
   if (getBX() != rhs.getBX()) {return returnValue;}
-#endif
+
+  // The > operator then checks the quality of ALCTs.
+  // If two qualities are equal, the ALCT furthest from the beam axis
+  // (lowest eta, highest wire group number) is selected.
   int quality1 = getQuality();
   int quality2 = rhs.getQuality();
   if (quality1 > quality2) {returnValue = true;}
@@ -109,4 +107,3 @@ std::ostream & operator<<(std::ostream & o, const CSCALCTDigi& digi) {
            << " Key wire group = " << digi.getKeyWG()
            << " BX = "             << digi.getBX();
 }
-
