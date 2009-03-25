@@ -27,6 +27,8 @@
   <use name=MagneticField/Records>
   <use name=MagneticField/Engine>
   <use name=TrackingTools/TrajectoryState>
+  <use name="DataFormats/BeamSpot">
+  <use name="DataFormats/BTauReco">
   <use name="rootcore">
   <flags EDM_PLUGIN="1">
 </library>
