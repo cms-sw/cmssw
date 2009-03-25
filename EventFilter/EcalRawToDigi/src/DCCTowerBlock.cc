@@ -1,7 +1,8 @@
+#include <stdio.h>
+#include <algorithm>
 #include "EventFilter/EcalRawToDigi/interface/DCCTowerBlock.h"
 #include "EventFilter/EcalRawToDigi/interface/DCCEventBlock.h"
 #include "EventFilter/EcalRawToDigi/interface/DCCDataUnpacker.h"
-#include <stdio.h>
 #include "EventFilter/EcalRawToDigi/interface/EcalElectronicsMapper.h"
 
 
@@ -134,7 +135,7 @@ int DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
   }// end if (zs_)
 
 
-  bool frameAdded=false;
+  bool addedFrame=false;
 
   // if there is an error on xtal id ignore next error checks  
   // otherwise, assume channel_id is valid and proceed with making and checking the data frame
@@ -143,44 +144,76 @@ int DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
   pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
   (*digis_)->push_back(*pDetId_);
   EBDataFrame df( (*digis_)->back() );
-  frameAdded=true;  
+  addedFrame=true;
   bool wrongGain(false);
   
-  //set samples in the frame
+  //set samples in the data frame
   for(uint i =0; i< nTSamples_ ;i++){ // loop on samples 
     xData_++;
     uint data =  (*xData_) & TOWER_DIGI_MASK;
     uint gain =  data>>12;
     xtalGains_[i]=gain;
-    // gain==0 occurs either in case of data corruption or of ADC saturation
-    //                                  \->reject digi            \-> keep digi
     if(gain == 0){ 
       wrongGain = true; 
-      // although gain==0 found, produce the dataFrame in order to have (saturation case)  
-      break;
+      // although gain==0 found, produce the dataFrame in order to have it, for saturation case
     } 
     df.setSample(i,data);
-    
   }// loop on samples	
-  
-  if(wrongGain){ 
-    if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogWarning("EcalRawToDigiGainZero")
-	<<"\n For event L1A: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-	<<"\n Gain zero was found in strip "<<stripId<<" and xtal "<<xtalId;   
+
+  if(wrongGain){
+    
+    // check whether the gain==0 has features of saturation or not
+    // gain==0 occurs either in case of data corruption or of ADC saturation
+    //                                  \->reject digi            \-> keep digi
+    
+    // determine where gainId==0 starts
+    short firstGainZeroSampID(-1);    short firstGainZeroSampADC(-1);
+    for (uint s=0; s<nTSamples_; s++ ) {
+      if(df.sample(s).gainId()==0 && firstGainZeroSampID==-1)
+	{
+	  firstGainZeroSampID  = s;
+	  firstGainZeroSampADC = df.sample(s).adc();
+	  break;
+	}
     }
     
-    (*invalidGains_)->push_back(*pDetId_);
-    errorOnXtal = true;
+    // check whether gain==0 and adc() stays constant for (at least) 5 consecutive samples
+    uint plateauEnd = min(nTSamples_,(uint)(firstGainZeroSampID+5));
+    bool isSaturation(true);
+    for (uint s=firstGainZeroSampID; s<plateauEnd; s++) 
+      {
+	if( df.sample(s).gainId()==0 && df.sample(s).adc()==firstGainZeroSampADC ) {;}
+	else
+	  { isSaturation=false;  break;}  //it's not saturation
+      }
+    // get rid of channels which are stuck in gain0
+    if(firstGainZeroSampID<3) {isSaturation=false; }
+
+    if( (! DCCDataUnpacker::silentMode_) ){
+      if (! isSaturation)       {edm::LogWarning("EcalRawToDigiGainZero")
+	  <<"\n For event L1A: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+	  <<"\n Gain zero was found in strip "<<stripId<<" and xtal "<<xtalId;}
+      else       {edm::LogWarning("EcalRawToDigiGainZero")
+	  <<"\n For event L1A: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+	  <<"\n Gain zero was found in strip "<<stripId<<" and xtal "<<xtalId << " with features of saturation";}
+    }
     
-    //return here, so to skip all the rest
-    //make special collection for gain0 data frames when due to saturation
-    //Point to begin of next xtal Block
-    data_ += numbDWInXtalBlock_;
-    
-    return BLOCK_UNPACKED;
-    
-  }
+    if (! isSaturation)
+      {
+	(*invalidGains_)->push_back(*pDetId_);
+	errorOnXtal = true; 
+	
+	//Point to begin of next xtal Block
+	data_ += numbDWInXtalBlock_;
+	//return here, so to skip all the rest
+	//make special collection for gain0 data frames when due to saturation
+	return BLOCK_UNPACKED;
+      }//end isSaturation 
+
+    }//end WrongGain
+  
+  
+  // from here on, care about gain switches
   
   short firstGainWrong=-1;
   short numGainWrong=0;
@@ -206,7 +239,7 @@ int DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
   } 
   
   //Add frame to collection only if all data format and gain rules are respected
-  if(errorOnXtal&&frameAdded) {
+  if(errorOnXtal&&addedFrame) {
     (*digis_)->pop_back();
   }
   

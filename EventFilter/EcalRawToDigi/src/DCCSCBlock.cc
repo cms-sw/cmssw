@@ -136,7 +136,7 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     }// end else
   }// end if(zs_)
  
-  bool frameAdded=false;
+  bool addedFrame=false;
   
   // if there is an error on xtal id ignore next error checks  
   // otherwise, assume channel_id is valid and proceed with making and checking the data frame
@@ -148,7 +148,7 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     
     (*digis_)->push_back(*pDetId_);
     EEDataFrame df( (*digis_)->back() );
-    frameAdded=true;
+    addedFrame=true;
     bool wrongGain(false);
     
     //set samples in the frame
@@ -157,29 +157,62 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
       uint data =  (*xData_) & TOWER_DIGI_MASK;
       uint gain =  data>>12;
       xtalGains_[i]=gain;
-      if(gain == 0){	  wrongGain = true; }  // although gain==0 found, produce the dataFrame in order to have (saturation case)
+      if(gain == 0){	  wrongGain = true; }      // although gain==0 found, produce the dataFrame in order to have it, for saturation case
       df.setSample(i,data);
     }
     
     if(wrongGain){ 
-      if( ! DCCDataUnpacker::silentMode_ ){
-	edm::LogWarning("EcalRawToDigiGainZero")
-          <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-          <<"\n Gain zero was found in strip "<<stripId<<" and xtal "<<xtalId;   
+      
+      // check whether the gain==0 has features of saturation or not 
+      // gain==0 occurs either in case of data corruption or of ADC saturation 
+      //                                  \->reject digi            \-> keep digi 
+      
+      // determine where gainId==0 starts
+      short firstGainZeroSampID(-1);    short firstGainZeroSampADC(-1);
+      for (uint s=0; s<nTSamples_; s++ ) {
+	if(df.sample(s).gainId()==0 && firstGainZeroSampID==-1)
+	  {
+	  firstGainZeroSampID  = s;
+	  firstGainZeroSampADC = df.sample(s).adc();
+	  break;
+	  }
       }
       
-      (*invalidGains_)->push_back(*pDetId_); 
-      errorOnXtal = true;
-      
-      //return here, so to skip all the rest
-      //make special collection for gain0 data frames (saturation)
-      //Point to begin of next xtal Block
-      data_ += numbDWInXtalBlock_;
-      
-      return BLOCK_UNPACKED;
-      
+    // check whether gain==0 and adc() stays constant for (at least) 5 consecutive samples
+    uint plateauEnd = min(nTSamples_,(uint)(firstGainZeroSampID+5));
+    bool isSaturation(true);
+    for (uint s=firstGainZeroSampID; s<plateauEnd; s++) 
+      {
+	if( df.sample(s).gainId()==0 && df.sample(s).adc()==firstGainZeroSampADC ) {;}
+	else
+	  { isSaturation=false;   break;}  //it's not saturation
+      }
+    // get rid of channels which are stuck in gain0
+    if(firstGainZeroSampID<3) {isSaturation=false; }
+
+    if( (! DCCDataUnpacker::silentMode_) ){
+      if (! isSaturation)       {edm::LogWarning("EcalRawToDigiGainZero")
+	  <<"\n For event L1A: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+	  <<"\n Gain zero was found in strip "<<stripId<<" and xtal "<<xtalId;}
+      else       {edm::LogWarning("EcalRawToDigiGainZero")
+	  <<"\n For event L1A: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+	  <<"\n Gain zero was found in strip "<<stripId<<" and xtal "<<xtalId << " with features of saturation";}
     }
-    
+
+    if (! isSaturation)
+      {     
+	(*invalidGains_)->push_back(*pDetId_); 
+	errorOnXtal = true;
+	
+	//return here, so to skip all the rest
+	//make special collection for gain0 data frames (saturation)
+	//Point to begin of next xtal Block
+	data_ += numbDWInXtalBlock_;
+	
+	return BLOCK_UNPACKED;
+	
+      }//end isSaturation 
+    }//end WrongGain
     
     short firstGainWrong=-1;
     short numGainWrong=0;
@@ -204,7 +237,7 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     } 
     
     //Add frame to collection only if all data format and gain rules are respected
-    if(errorOnXtal&&frameAdded) {
+    if(errorOnXtal&&addedFrame) {
       (*digis_)->pop_back();
     }
     
