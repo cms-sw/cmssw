@@ -20,6 +20,7 @@ L1ScalesTrivialProducer::L1ScalesTrivialProducer(const edm::ParameterSet& ps)
   setWhatProduced(this, &L1ScalesTrivialProducer::produceEmScale);
   setWhatProduced(this, &L1ScalesTrivialProducer::produceJetScale);
   setWhatProduced(this, &L1ScalesTrivialProducer::produceHtMissScale);
+  setWhatProduced(this, &L1ScalesTrivialProducer::produceHfRingScale);
 
   //now do what ever other initialization is needed
   
@@ -31,6 +32,7 @@ L1ScalesTrivialProducer::L1ScalesTrivialProducer(const edm::ParameterSet& ps)
   m_jetEtThresholds = ps.getParameter< std::vector<double> >("L1CaloJetThresholds");
 
   m_htMissThresholds = ps.getParameter< std::vector<double> >("L1HtMissThresholds");  
+  m_hfRingThresholds = ps.getParameter< std::vector<double> >("L1HfRingThresholds");  
 
 }
 
@@ -75,6 +77,16 @@ std::auto_ptr<L1CaloEtScale> L1ScalesTrivialProducer::produceHtMissScale(const L
    std::auto_ptr<L1CaloEtScale> htMissScale = std::auto_ptr<L1CaloEtScale>( new L1CaloEtScale(0, 0x7f, m_jetEtScaleInputLsb, m_htMissThresholds) );
 
    return htMissScale ;
+}
+
+
+std::auto_ptr<L1CaloEtScale> L1ScalesTrivialProducer::produceHfRingScale(const L1HfRingEtScaleRcd& iRecord)
+{
+   using namespace edm::es;
+
+   std::auto_ptr<L1CaloEtScale> hfRingEtScale = std::auto_ptr<L1CaloEtScale>( new L1CaloEtScale(0xff, 0x7, m_jetEtScaleInputLsb, m_hfRingThresholds) );
+
+   return hfRingEtScale ;
 }
 
 

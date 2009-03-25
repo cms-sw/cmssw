@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Sep 27 17:51:32 CEST 2006
-// $Id: L1ScalesTrivialProducer.h,v 1.1 2007/03/20 14:37:20 heath Exp $
+// $Id: L1ScalesTrivialProducer.h,v 1.2 2009/03/24 00:47:14 jbrooke Exp $
 //
 //
 
@@ -36,6 +36,7 @@
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
 
 
 //
@@ -50,6 +51,7 @@ public:
   std::auto_ptr<L1CaloEtScale> produceEmScale(const L1EmEtScaleRcd&);
   std::auto_ptr<L1CaloEtScale> produceJetScale(const L1JetEtScaleRcd&);
   std::auto_ptr<L1CaloEtScale> produceHtMissScale(const L1HtMissScaleRcd&);
+  std::auto_ptr<L1CaloEtScale> produceHfRingScale(const L1HfRingEtScaleRcd&);
 
 private:
   // ----------member data ---------------------------
@@ -61,6 +63,7 @@ private:
   std::vector<double> m_jetEtThresholds;
 
   std::vector<double> m_htMissThresholds;
+  std::vector<double> m_hfRingThresholds;
   
 };
 
