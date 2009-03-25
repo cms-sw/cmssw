@@ -11,6 +11,10 @@
 
  ************************************************************/
 
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
+
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -27,8 +31,6 @@
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -44,6 +46,7 @@ class GsfElectronAlgo {
 
     GsfElectronAlgo(
       const edm::ParameterSet & conf,
+      double minSCEtBarrel, double minSCEtEndcaps,
       double maxEOverPBarrel, double maxEOverPEndcaps,
       double minEOverPBarrel, double minEOverPEndcaps,
       double maxDeltaEtaBarrel, double maxDeltaEtaEndcaps,
@@ -54,8 +57,9 @@ class GsfElectronAlgo {
       double maxSigmaIetaIetaBarrel, double maxSigmaIetaIetaEndcaps,
       double maxFbremBarrel, double maxFbremEndcaps,
       bool isBarrel, bool isEndcaps, bool isFiducial,
-      bool applyEtaCorrection, bool applyAmbResolution
-		) ;
+      bool seedFromTEC,
+      bool applyPreselection, bool applyEtaCorrection, bool applyAmbResolution) ;
+
     ~GsfElectronAlgo() ;
 
     void setupES( const edm::EventSetup & setup ) ;
@@ -77,20 +81,20 @@ class GsfElectronAlgo {
        const math::XYZPoint &bs,
        GsfElectronPtrCollection & outEle);
 
-    // preselection method
-    bool preSelection( const reco::SuperCluster &, double HoE1, double HoE2,
-       edm::Handle<EcalRecHitCollection> reducedEBRecHits,
-       edm::Handle<EcalRecHitCollection> reducedEERecHits);
-
     // interface to be improved...
     void createElectron
      ( const reco::GsfElectronCoreRef & coreRef,
        const reco::BasicClusterRef & elbcRef,
        const reco::TrackRef & ctfTrackRef, const float shFracInnerHits,
-       double HoE1, double HoE2,
-       edm::Handle<EcalRecHitCollection> reducedEBRecHits,
-       edm::Handle<EcalRecHitCollection> reducedEERecHits,
+       double HoE1, double HoE2, 
+       ElectronTkIsolation & tkIso03, ElectronTkIsolation & tkIso04,
+       EgammaTowerIsolation & had1Iso03, EgammaTowerIsolation & had2Iso03, 
+       EgammaTowerIsolation & had1Iso04, EgammaTowerIsolation & had2Iso04, 
+       EgammaRecHitIsolation & ecalIso03,EgammaRecHitIsolation & ecalIso04,
+       edm::Handle<EcalRecHitCollection> reducedRecHits,
        GsfElectronPtrCollection & outEle ) ;
+
+    void preselectElectrons( GsfElectronPtrCollection &, GsfElectronPtrCollection & outEle ) ;
 
     void resolveElectrons( GsfElectronPtrCollection &, reco::GsfElectronCollection & outEle ) ;
 
@@ -112,6 +116,9 @@ class GsfElectronAlgo {
     bool calculateTSOS(const reco::GsfTrack &t,const reco::SuperCluster & theClus, const math::XYZPoint & bs);
 
     // preselection parameters
+    // minimum SC Et 
+    double minSCEtBarrel_;
+    double minSCEtEndcaps_;
     // maximum E/p where E is the supercluster corrected energy and p the track momentum at innermost state
     double maxEOverPBarrel_;
     double maxEOverPEndcaps_;
@@ -146,7 +153,15 @@ class GsfElectronAlgo {
     bool isEndcaps_;
     bool isFiducial_;
 
-    // if this parameter is false, only SC level Escale correctoins are applied
+    // electron seed
+    // select or not electrons with seed having second hit in TEC layers 
+    bool seedFromTEC_;
+    
+    // if this parameter is true, electron preselection is applied
+    bool applyPreselection_;
+
+    // if this parameter is true, electron level escale corrections are used on top
+    // of the cluster level corrections
     bool applyEtaCorrection_;
 
     // if this parameter is true, "double" electrons are resolved
@@ -186,6 +201,7 @@ class GsfElectronAlgo {
     unsigned long long cacheIDTopo_;
     unsigned long long cacheIDTDGeom_;
     unsigned long long cacheIDMagField_;
+    
  } ;
 
 #endif // GsfElectronAlgo_H

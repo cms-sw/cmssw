@@ -1,21 +1,17 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
 
-//#include "ElectronPhoton/ElectronReco/interface/PRecElectron.h"
-//#include "ElectronPhoton/EgammaPreshower/interface/EgammaEndcapCluster.h"
-//#include <CLHEP/Vector/LorentzVector.h>
-
-//===================================================================
-// Author: Federico Ferri - INFN Milano, Bicocca university
-//         Ivica Puljak - FESB, Split
-// 12/2005
-// updated f(eta) corrections from Ivica
-// CC 02/2006
-// adapted for crack subdivision
-// 09/2008
-// ported to CMSSW by U. Berthon, dec 2006
-//
-//===================================================================
+/****************************************************************************
+ *
+ * Classification based eta corrections for the ecal cluster ebergy
+ *
+ * \author Federico Ferri - INFN Milano, Bicocca university
+ * \author Ivica Puljak - FESB, Split
+ * \author Stephanie Baffioni - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
+ *
+ * \version $Id: GsfElectron.h,v 1.21 2009/03/20 22:59:16 chamont Exp $
+ *
+ ****************************************************************************/
 
 float energyError(float E, float *par)
  { return sqrt( pow(par[0]/sqrt(E),2) + pow(par[1]/E,2) + pow(par[2],2) ) ; }

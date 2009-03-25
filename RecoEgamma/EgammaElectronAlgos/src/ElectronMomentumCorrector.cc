@@ -12,15 +12,22 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//===================================================================
-// Author: Federico Ferri - INFN Milano, Bicocca university
-// 12/2005
-// Stephanie's parametrisation
-// 02/2006
-// adapted for crack subdivision
-// 09/2008
-//adapted to CMSSW by U.Berthon,LLR Paliaseau,  dec 2006
-//===================================================================
+/****************************************************************************
+ *
+ * Class based E-p combination for the final electron momentum. It relies on
+ * the electron classification and on the dtermination of track momentum and ecal
+ * supercluster energy errors. The track momentum error is taken from the gsf fit. 
+ * The ecal supercluster energy error is taken from a class dependant parametrisation 
+ * of the energy resolution. 
+ *
+ *
+ * \author Federico Ferri - INFN Milano, Bicocca university
+ * \author Ivica Puljak - FESB, Split
+ * \author Stephanie Baffioni - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
+ *
+ * \version $Id: GsfElectron.h,v 1.21 2009/03/20 22:59:16 chamont Exp $
+ *
+ ****************************************************************************/
 
 
 /** The electron classification.
@@ -50,47 +57,19 @@ void ElectronMomentumCorrector::correct(reco::GsfElectron &electron, TrajectoryS
 	return ;
    }
 
-//  // steph third sigma
-//  float parEB[5][3] = {
-//       { 2.46e-02,  1.97e-01, 5.23e-03},          // golden
-//       { 9.99e-07,  2.80e-01, 5.69e-03},          // big brem
-//       { 9.37e-07,  2.32e-01, 5.82e-03},          // narrow
-//       { 7.30e-02,  1.95e-01, 1.30e-02},          // showering
-//       { 9.25e-06,  2.84e-01, 8.77e-03}           // nominal --> crack
-//  };
-//
-//  float parEE[5][3] = {
-//       { 1.25841e-01, 7.01145e-01, 2.81884e-11},  // golden
-//       { 1.25841e-01, 7.01145e-01, 2.81884e-11},  // big brem = golden
-//       { 1.25841e-01, 7.01145e-01, 2.81884e-11},  // narrow = golden
-//       { 1.63634e-01, 1.11307e+00, 3.64770e-03},  // showering
-//       {         .02,         .15,        .005}   // nominal --> gap
-//  };
-//
-//  // first calculate error on energy
-//  errorEnergy_ = 999. ;
-//  float scEnergy = electron.ecalEnergy() ;
-//  if (electron.isEB()) { // barrel
-//    errorEnergy_ =  scEnergy * energyError(scEnergy,parEB[elClass]);
-//  }
-//  else if (electron.isEE()) { //endcap
-//    errorEnergy_ =  scEnergy * energyError(scEnergy,parEE[elClass]);
-//  }
-//  else
-//   { edm::LogWarning("ElectronMomentumCorrector::correct")<<"nor barrel neither endcap electron ?!" ; }
-//
   float scEnergy = electron.ecalEnergy() ;
   errorEnergy_ = electron.ecalEnergyError() ;
 
-  // then retrieve error on track momentum
-  //  float trackMomentum  =  electron.getGsfTrack()->impactPointModeMomentum().mag();
-  errorTrackMomentum_ = 999. ;
   float trackMomentum  = electron.trackMomentumAtVtx().R() ;
-  // momentum error rescaling
-  //  std::vector<TrajectoryStateOnSurface> vtx_loc_comp = electron.getGsfTrack()->impactPointState().components();
+  errorTrackMomentum_ = 999. ;
+
+  // retreive momentum error 
   MultiGaussianState1D qpState(MultiGaussianStateTransform::multiState1D(vtxTsos,0));
   GaussianSumUtilities1D qpUtils(qpState);
   errorTrackMomentum_ = trackMomentum*trackMomentum*sqrt(qpUtils.mode().variance());
+
+  float finalMomentum = electron.p4().t(); // initial
+  float finalMomentumError = 999.;
 
   // calculate E/p and corresponding error
   float eOverP = scEnergy / trackMomentum;
@@ -99,54 +78,52 @@ void ElectronMomentumCorrector::correct(reco::GsfElectron &electron, TrajectoryS
 		   (scEnergy*errorTrackMomentum_/trackMomentum/trackMomentum)*
 		   (scEnergy*errorTrackMomentum_/trackMomentum/trackMomentum));
 
-  // combination
-  float finalMomentum = (scEnergy/errorEnergy_/errorEnergy_ + trackMomentum/errorTrackMomentum_/errorTrackMomentum_) /
-                       (1/errorEnergy_/errorEnergy_ + 1/errorTrackMomentum_/errorTrackMomentum_);
   if ( eOverP  > 1 + 2.5*errorEOverP )
    {
-    finalMomentum = scEnergy ;
+    finalMomentum = scEnergy; finalMomentumError = errorEnergy_;
     if ((elClass==reco::GsfElectron::GOLDEN) && (eOverP<1.15))
      {
-	  if (scEnergy<15) finalMomentum = trackMomentum ;
+	  if (scEnergy<15) {finalMomentum = trackMomentum ; finalMomentumError = errorTrackMomentum_;}
      }
    }
   else if ( eOverP < 1 - 2.5*errorEOverP )
    {
-    finalMomentum = scEnergy ;
+    finalMomentum = scEnergy; finalMomentumError = errorEnergy_;
     if (elClass==reco::GsfElectron::SHOWERING)
      {
       if (electron.isEB())
        {
-	    if(scEnergy<18) finalMomentum = trackMomentum;
+	    if(scEnergy<18) {finalMomentum = trackMomentum; finalMomentumError = errorTrackMomentum_;}
        }
       else if (electron.isEE())
        {
-	    if(scEnergy<13) finalMomentum = trackMomentum;
+	    if(scEnergy<13) {finalMomentum = trackMomentum; finalMomentumError = errorTrackMomentum_;}
        }
       else
        { edm::LogWarning("ElectronMomentumCorrector::correct")<<"nor barrel neither endcap electron ?!" ; }
      }
     else if (electron.isGap())
      {
-	  if(scEnergy<60) finalMomentum = trackMomentum;
+	  if(scEnergy<60) {finalMomentum = trackMomentum; finalMomentumError = errorTrackMomentum_;}
      }
    }
-  float finalMomentumVariance = 1 / (1/errorEnergy_/errorEnergy_ + 1/errorTrackMomentum_/errorTrackMomentum_);
-  float finalMomentumError = sqrt(finalMomentumVariance);
+  else 
+   {
+    // combination
+    finalMomentum = (scEnergy/errorEnergy_/errorEnergy_ + trackMomentum/errorTrackMomentum_/errorTrackMomentum_) /
+                       (1/errorEnergy_/errorEnergy_ + 1/errorTrackMomentum_/errorTrackMomentum_);
+    float finalMomentumVariance = 1 / (1/errorEnergy_/errorEnergy_ + 1/errorTrackMomentum_/errorTrackMomentum_);
+    finalMomentumError = sqrt(finalMomentumVariance);
+   } 
 
-  //  HepLorentzVector oldMomentum = electron.fourMomentum();
-  //  newMomentum_ = HepLorentzVector(
   math::XYZTLorentzVector oldMomentum = electron.p4() ;
   newMomentum_ = math::XYZTLorentzVector
    ( oldMomentum.x()*finalMomentum/oldMomentum.t(),
      oldMomentum.y()*finalMomentum/oldMomentum.t(),
-	 oldMomentum.z()*finalMomentum/oldMomentum.t(),
+     oldMomentum.z()*finalMomentum/oldMomentum.t(),
      finalMomentum ) ;
 
   // final set
   electron.correctMomentum(newMomentum_,errorTrackMomentum_,finalMomentumError);
  }
 
-float ElectronMomentumCorrector::energyError(float E, float *par) const{
-  return sqrt( pow(par[0]/sqrt(E),2) + pow(par[1]/E,2) + pow(par[2],2) );
-}
