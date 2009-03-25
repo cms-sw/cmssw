@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-#doHarvest.py
-# produces configs for running relval harvesting
-#nuno.leonardo@cern.ch 09.03
-
 import sys
 import os
 
@@ -49,7 +45,18 @@ print "dataset: ", dsetpath
 print "data files: "
 for afile in api.listFiles(path=dsetpath):
   print "  %s" % afile['LogicalFileName']
-  
+
+#Determine number of events/processes
+totnevts=0
+for afile in api.listFiles(path=dsetpath):
+  totnevts += afile['NumberOfEvents']
+njobs = 1
+nevtref = 9000
+if totnevts > nevtref : njobs = (int) (totnevts / 9000)
+print "Total # events: ", totnevts, \
+      " to be executed in ", njobs, "processes"
+
+
 #Run cmsDriver command
 raw_cmsdriver = "cmsDriver.py harvest -s HARVESTING:validationHarvesting --mc  --conditions FrontierConditions_GlobalTag,STARTUP_30X::All --harvesting AtJobEnd --no_exec -n -1"
 
@@ -102,7 +109,6 @@ eMail=nuno@cern.ch
 
 [CMSSW]
 total_number_of_events=-1
-number_of_jobs = 1
 show_prod = 1
 """
 
@@ -117,6 +123,7 @@ rootfile = "DQM_V0001_R000000001" \
            + dsetpath.replace('/','__') \
            + ".root"
 
+crab_cfg.write("number_of_jobs=" + str(njobs) + "\n")
 crab_cfg.write("pset=" + pyout_name + "\n")
 crab_cfg.write("output_file=" + rootfile + "\n")
 crab_cfg.write("datasetpath=" + dsetpath + "\n")
