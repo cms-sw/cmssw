@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.11 2009/01/28 18:21:45 alinn Exp $
-// Latest tag:  $Name: V03-02-00 $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.12 2009/02/11 17:58:58 alinn Exp $
+// Latest tag:  $Name: V03-02-01 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripCondObjBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
@@ -27,10 +27,7 @@
 using namespace std;
 using namespace sistrip;
 
-// -----------------------------------------------------------------------------
-/** */
-//float SiStripCondObjBuilderFromDb::defaultGainValue_ = 0.8;
-
+                                   
 // -----------------------------------------------------------------------------
 /** */
 SiStripCondObjBuilderFromDb::SiStripCondObjBuilderFromDb(const edm::ParameterSet&,
@@ -159,20 +156,20 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
     return;
   }
 
-// #ifdef USING_GAIN
+  //#ifdef USING_GAIN
 
-//   // Retrieve gain from configuration database
-//   SiStripConfigDb::AnalysisDescriptionsRange anal_descriptions = 
-//     db->getAnalysisDescriptions( CommissioningAnalysisDescription::T_ANALYSIS_OPTOSCAN );
-//   if ( anal_descriptions.empty() ) {
-//     edm::LogWarning(mlESSources_)
-//       << "SiStripCondObjBuilderFromDb::" << __func__ << "]"
-//       << " Unable to build SiStripApvGain object!"
-//       << " No opto-scan analysis descriptions found!";
-//     return;
-//   }
+  // Retrieve gain from configuration database
+  SiStripConfigDb::AnalysisDescriptionsRange anal_descriptions = 
+    db->getAnalysisDescriptions( CommissioningAnalysisDescription::T_ANALYSIS_TIMING );
+  if ( anal_descriptions.empty() ) {
+    edm::LogWarning(mlESSources_)
+      << "SiStripCondObjBuilderFromDb::" << __func__ << "]"
+      << " Unable to build SiStripApvGain object!"
+      << " No timing-scan analysis descriptions found!";
+    return;
+  }
 
-// #endif
+  //#endif
   
   // Retrieve list of active DetIds
   vector<uint32_t> det_ids;
@@ -192,7 +189,7 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
   noises_=new SiStripNoises();
   threshold_= new SiStripThreshold();
   quality_=new SiStripQuality();
-  //  gain_ = new SiStripApvGain();
+  gain_ = new SiStripApvGain();
 
 
   SiStripDetInfoFileReader * fr=edm::Service<SiStripDetInfoFileReader>().operator->();
@@ -232,7 +229,7 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
     for ( ; ipair != conns.end(); ipair++ ){ 
       // Check if the ApvPair is connected
       if (ipair->fedId()!=sistrip::invalid_ && ipair->apvPairNumber()<3){
-	ssMessage << "\nTEST filling listConns for detid " << *det_id << "  position " << ipair-conns.begin() << " ipair->ApvPairNumber " << ipair->apvPairNumber() << std::endl;
+	//ssMessage << "\nTEST filling listConns for detid " << *det_id << "  position " << ipair-conns.begin() << " ipair->ApvPairNumber " << ipair->apvPairNumber() << std::endl;
 	ipair->print(ssMessage);
 	ssMessage<< std::endl;
 	listConns[ipair-conns.begin()]=ipair;
@@ -250,14 +247,14 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
     SiStripNoises::InputVector inputNoises;
     SiStripThreshold::InputVector inputThreshold;
     SiStripQuality::InputVector inputQuality;
-    //    vector<float> inputApvGain;
+    SiStripApvGain::InputVector inputApvGain;
 
 
     vector< vector<FedChannelConnection>::const_iterator >::const_iterator ilistConns=listConns.begin();
-    for (uint16_t apvPair=0;apvPair<listConns.size();apvPair++){
+  for (uint16_t apvPair=0;apvPair<listConns.size();apvPair++){
       ipair=listConns[apvPair];
       
-      ssMessage << "\n Looping on listConns: connection idx " << apvPair;
+      ssMessage << "\n Looping on listConns: connection idx " << apvPair << std::endl;
       if ( ipair == conns.end() ) {
 	// Fill object with default values
 	ssMessage
@@ -271,57 +268,43 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
 	  pedestals_->setData( 0.,inputPedestals );
 	  noises_->setData( 0., inputNoises );
 	}
+	
+	float defaultTickHeight_ = 666.6;
 
-	// Added by R.B. 
-	//	inputApvGain.push_back(defaultGainValue_); // APV0
-	//inputApvGain.push_back(defaultGainValue_); // APV1
+	inputApvGain.push_back(defaultTickHeight_); // APV0
+	inputApvGain.push_back(defaultTickHeight_); // APV1
 	continue;
       }
 
 
 
-      // Added by R.B. ----------------------------------------
-      
-// #ifdef USING_GAIN
+    
+      SiStripConfigDb::AnalysisDescriptionsV::const_iterator iii = anal_descriptions.begin();
+      SiStripConfigDb::AnalysisDescriptionsV::const_iterator jjj = anal_descriptions.end();
+      while ( iii != jjj ) {
+	CommissioningAnalysisDescription* tmp = *iii;
+	uint16_t fed_id = tmp->getFedId();
+	uint16_t fed_ch = SiStripFedKey::fedCh( tmp->getFeUnit(), tmp->getFeChan() );
+	if ( fed_id == ipair->fedId() && fed_ch == ipair->fedCh() ) { break; }
+	iii++;
+      }
 
-//       SiStripConfigDb::AnalysisDescriptionsV::const_iterator iii = anal_descriptions.begin();
-//       SiStripConfigDb::AnalysisDescriptionsV::const_iterator jjj = anal_descriptions.end();
-//       while ( iii != jjj ) {
-// 	CommissioningAnalysisDescription* tmp = *iii;
-// 	uint16_t fed_id = tmp->getFedId();
-// 	uint16_t fed_ch = SiStripFedKey::fedCh( tmp->getFeUnit(), tmp->getFeChan() );
-// 	if ( fed_id == ipair->fedId() && fed_ch == ipair->fedCh() ) { break; }
-// 	iii++;
-//       }
+      TimingAnalysisDescription *anal=0;
+      float defaultTickHeight=888.8;
+      if ( iii != jjj ) { anal = dynamic_cast<TimingAnalysisDescription*>(*iii); }
+      if ( anal ) {
+	float tick_height = anal->getHeight();
+	//float tick_base = anal->getBase();
+	//float tick_top = anal->getPeak();
+	//ssMessage<< "Fill ApvGainObject for DetId: "<< *det_id <<" with TickHeight: "  << tick_height <<std::endl;
+	inputApvGain.push_back( tick_height ); // APV0
+	inputApvGain.push_back( tick_height); // APV1
+      } else {
+	inputApvGain.push_back(defaultTickHeight); // APV0
+	inputApvGain.push_back(defaultTickHeight); // APV1
+      }
 
-//       OptoScanAnalysisDescription* anal = 0;
-//       if ( iii != jjj ) { anal = dynamic_cast<OptoScanAnalysisDescription*>(*iii); }
-//       if ( anal ) {
-// 	uint16_t gain_setting = anal->getGain();
-// 	float gain_value = defaultGainValue_;
-// 	if      ( gain_setting == 0 ) { gain_value = anal->getMeasGain0(); }
-// 	else if ( gain_setting == 1 ) { gain_value = anal->getMeasGain1(); }
-// 	else if ( gain_setting == 2 ) { gain_value = anal->getMeasGain2(); }
-// 	else if ( gain_setting == 3 ) { gain_value = anal->getMeasGain3(); }
-// 	else { /* invalid gain setting! */ }
-// 	inputApvGain.push_back( gain_value ); // APV0
-// 	inputApvGain.push_back( gain_value ); // APV1
-//       } else {
-// 	inputApvGain.push_back(defaultGainValue_); // APV0
-// 	inputApvGain.push_back(defaultGainValue_); // APV1
-//       }
-
-// #else //@@ old database model
-
-//       inputApvGain.push_back(defaultGainValue_); // APV0
-//       inputApvGain.push_back(defaultGainValue_); // APV1
-
-// #endif
-      
-      // Above added by R.B. ----------------------------------------
-
-
-      
+          
       // Check if description exists for given FED id 
       SiStripConfigDb::FedDescriptionsV::const_iterator description = descriptions.begin();
       while ( description != descriptions.end() ) {
@@ -408,13 +391,13 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
     }
 
 //     // Insert threshold values into Gain object
-//     SiStripApvGain::Range range( inputApvGain.begin(), inputApvGain.end() );
-//     if ( !gain_->put( *det_id, range ) ) {
-//       edm::LogWarning(mlESSources_)
-// 	<< "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
-// 	<< " Unable to insert values into SiStripApvGain object!"
-// 	<< " DetId already exists!";
-//     }
+    SiStripApvGain::Range range( inputApvGain.begin(), inputApvGain.end() );
+      if ( !gain_->put( *det_id, range ) ) {
+      edm::LogWarning(mlESSources_)
+	<< "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
+	<< " Unable to insert values into SiStripApvGain object!"
+	<< " DetId already exists!";
+    }
 
     
     edm::LogInfo(mlESSources_) << "\n\n--------------\n" << ssMessage.str();
