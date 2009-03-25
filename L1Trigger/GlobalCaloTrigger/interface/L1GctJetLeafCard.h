@@ -35,14 +35,11 @@ public:
   static const int MAX_JET_FINDERS;  ///< Number of jetfinders per jet leaf card
 
   //Typedefs
-  typedef L1GctUnsignedInt< L1GctEtTotal::kEtTotalNBits   > etTotalType;
-  typedef L1GctUnsignedInt<   L1GctEtHad::kEtHadNBits     > etHadType;
-  typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissNBits    > etMissType;
-  typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissPhiNBits > etMissPhiType;
+  typedef L1GctUnsignedInt<L1GctInternEtSum::kTotEtOrHtNBits> etTotalType;
+  typedef L1GctUnsignedInt<L1GctInternEtSum::kTotEtOrHtNBits> etHadType;
 
-  // Use the same number of bits as the firmware (range -131072 to 131071)
-  enum { etComponentSize=18 };
-  typedef L1GctTwosComplement<etComponentSize> etComponentType;
+  typedef L1GctTwosComplement<  L1GctInternEtSum::kMissExOrEyNBits > etComponentType;
+  typedef L1GctTwosComplement< L1GctInternHtMiss::kMissHxOrHyNBits > htComponentType;
 
   typedef L1GctJetFinderBase::hfTowerSumsType hfTowerSumsType;
 
@@ -109,8 +106,8 @@ public:
   std::vector< etComponentType > getAllOutputEy() const { return m_eySumPipe.contents; }
 
   /// get the output Ht components history
-  std::vector< etComponentType > getAllOutputHx() const { return m_hxSumPipe.contents; }
-  std::vector< etComponentType > getAllOutputHy() const { return m_hySumPipe.contents; }
+  std::vector< htComponentType > getAllOutputHx() const { return m_hxSumPipe.contents; }
+  std::vector< htComponentType > getAllOutputHy() const { return m_hySumPipe.contents; }
     
   /// get the Et output history
   std::vector< etTotalType > getAllOutputEt() const { return m_etSumPipe.contents; }
@@ -146,8 +143,8 @@ public:
 
   etComponentType m_exSum;
   etComponentType m_eySum;
-  etComponentType m_hxSum;
-  etComponentType m_hySum;
+  htComponentType m_hxSum;
+  htComponentType m_hySum;
   etTotalType m_etSum;
   etHadType   m_htSum;
 
@@ -156,25 +153,13 @@ public:
   // stored copies of output data
   Pipeline<etComponentType> m_exSumPipe;
   Pipeline<etComponentType> m_eySumPipe;
-  Pipeline<etComponentType> m_hxSumPipe;
-  Pipeline<etComponentType> m_hySumPipe;
+  Pipeline<htComponentType> m_hxSumPipe;
+  Pipeline<htComponentType> m_hySumPipe;
   Pipeline<etTotalType>     m_etSumPipe;
   Pipeline<etHadType>       m_htSumPipe;
   Pipeline<hfTowerSumsType> m_hfSumsPipe;
 
   bool m_ctorInputOk;
-
-  // PRIVATE MEMBER FUNCTIONS
-  // Given a strip Et sum, perform rotations by sine and cosine
-  // factors to find the corresponding Ex and Ey
-  etComponentType exComponent(const etTotalType etStrip0, const etTotalType etStrip1, const unsigned jphi) const;
-  etComponentType eyComponent(const etTotalType etStrip0, const etTotalType etStrip1, const unsigned jphi) const;
-  // The same thing for Hx and Hy
-  etComponentType hxComponent(const etTotalType etStrip0, const etTotalType etStrip1, const unsigned jphi) const;
-  etComponentType hyComponent(const etTotalType etStrip0, const etTotalType etStrip1, const unsigned jphi) const;
-  // Here is where the rotations are actually done
-  etComponentType etValueForJetFinder(const etTotalType etStrip0, const unsigned fact0,
-                                      const etTotalType etStrip1, const unsigned fact1) const;
 
 };
 

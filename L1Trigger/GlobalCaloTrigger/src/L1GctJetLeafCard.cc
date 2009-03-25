@@ -8,8 +8,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
-
 //DEFINE STATICS
 const int L1GctJetLeafCard::MAX_JET_FINDERS = 3;  
 
@@ -199,65 +197,34 @@ void L1GctJetLeafCard::process() {
 
     // Finish Et and Ht sums for the Leaf Card
     // First Et and missing Et
-//     std::vector< etTotalType > etStripSum(6);
-//     etStripSum.at(0) = m_jetFinderA->getEtStrip0();
-//     etStripSum.at(1) = m_jetFinderA->getEtStrip1();
-//     etStripSum.at(2) = m_jetFinderB->getEtStrip0();
-//     etStripSum.at(3) = m_jetFinderB->getEtStrip1();
-//     etStripSum.at(4) = m_jetFinderC->getEtStrip0();
-//     etStripSum.at(5) = m_jetFinderC->getEtStrip1();
-
-    m_etSum.reset();
-    m_exSum.reset();
-    m_eySum.reset();
-
-//     for (unsigned i=0; i<6; ++i) {
-//       m_etSum = m_etSum + etStripSum.at(i);
-//     }
-
-    m_etSum = m_etSum + m_jetFinderA->getEtSum();
-    m_exSum = m_exSum + m_jetFinderA->getExSum();
-    m_eySum = m_eySum + m_jetFinderA->getEySum();
-    m_etSum = m_etSum + m_jetFinderB->getEtSum();
-    m_exSum = m_exSum + m_jetFinderB->getExSum();
-    m_eySum = m_eySum + m_jetFinderB->getEySum();
-    m_etSum = m_etSum + m_jetFinderC->getEtSum();
-    m_exSum = m_exSum + m_jetFinderC->getExSum();
-    m_eySum = m_eySum + m_jetFinderC->getEySum();
-
-//     for (unsigned i=0; i<3; ++i) {
-//       unsigned jphi = 2*(phiPosition*3+i);
-//       m_exSum = m_exSum + exComponent(etStripSum.at(2*i), etStripSum.at(2*i+1), jphi);
-//       m_eySum = m_eySum + eyComponent(etStripSum.at(2*i), etStripSum.at(2*i+1), jphi);
-//     }
-
-//     std::cout << "ex sum " << m_exSum << ", from jetfinders " << exSumFromJf << std::endl;
-//     std::cout << "ey sum " << m_eySum << ", from jetfinders " << eySumFromJf << std::endl;
+    m_etSum =
+      m_jetFinderA->getEtSum() +
+      m_jetFinderB->getEtSum() +
+      m_jetFinderC->getEtSum();
+    m_exSum =
+      ((etComponentType) m_jetFinderA->getExSum()) +
+      ((etComponentType) m_jetFinderB->getExSum()) +
+      ((etComponentType) m_jetFinderC->getExSum());
+    m_eySum =
+      ((etComponentType) m_jetFinderA->getEySum()) +
+      ((etComponentType) m_jetFinderB->getEySum()) +
+      ((etComponentType) m_jetFinderC->getEySum());
 
     // Exactly the same procedure for Ht and missing Ht
-    // Note using etTotalType for the strips but the output sum is etHadType
-    std::vector< etTotalType > htStripSum(6);
-    htStripSum.at(0) = m_jetFinderA->getHtStrip0();
-    htStripSum.at(1) = m_jetFinderA->getHtStrip1();
-    htStripSum.at(2) = m_jetFinderB->getHtStrip0();
-    htStripSum.at(3) = m_jetFinderB->getHtStrip1();
-    htStripSum.at(4) = m_jetFinderC->getHtStrip0();
-    htStripSum.at(5) = m_jetFinderC->getHtStrip1();
+    m_htSum =
+      m_jetFinderA->getHtSum() +
+      m_jetFinderB->getHtSum() +
+      m_jetFinderC->getHtSum();
+    m_hxSum =
+      ((htComponentType) m_jetFinderA->getHxSum()) +
+      ((htComponentType) m_jetFinderB->getHxSum()) +
+      ((htComponentType) m_jetFinderC->getHxSum());
+    m_hySum =
+      ((htComponentType) m_jetFinderA->getHySum()) +
+      ((htComponentType) m_jetFinderB->getHySum()) +
+      ((htComponentType) m_jetFinderC->getHySum());
 
-    m_htSum.reset();
-    m_hxSum.reset();
-    m_hySum.reset();
-
-    for (unsigned i=0; i<6; ++i) {
-      m_htSum = m_htSum + htStripSum.at(i);
-    }
-
-    for (unsigned i=0; i<3; ++i) {
-      unsigned jphi = 2*(phiPosition*3+i);
-      m_hxSum = m_hxSum + hxComponent(htStripSum.at(2*i), htStripSum.at(2*i+1), jphi);
-      m_hySum = m_hySum + hyComponent(htStripSum.at(2*i), htStripSum.at(2*i+1), jphi);
-    }
-
+    // And the same again for Hf Sums
     m_hfSums = 
       m_jetFinderA->getHfSums() +
       m_jetFinderB->getHfSums() +
@@ -288,106 +255,3 @@ L1GctJetLeafCard::getOutputJetsB() const { return m_jetFinderB->getJets(); }  //
 L1GctJetFinderBase::JetVector
 L1GctJetLeafCard::getOutputJetsC() const { return m_jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
 
-// PRIVATE MEMBER FUNCTIONS
-// Given a strip Et sum, perform rotations by sine and cosine
-// factors to find the corresponding Ex and Ey
-
-L1GctJetLeafCard::etComponentType
-L1GctJetLeafCard::exComponent(const L1GctJetLeafCard::etTotalType etStrip0,
-                              const L1GctJetLeafCard::etTotalType etStrip1,
-			      const unsigned jphi) const {
-  unsigned fact0 = (2*jphi+6) % 36;
-  unsigned fact1 = (2*jphi+8) % 36;
-  return etValueForJetFinder(etStrip0, fact0, etStrip1, fact1);
-}
-
-L1GctJetLeafCard::etComponentType
-L1GctJetLeafCard::eyComponent(const L1GctJetLeafCard::etTotalType etStrip0,
-                              const L1GctJetLeafCard::etTotalType etStrip1,
-			      const unsigned jphi) const {
-  unsigned fact0 = (2*jphi+15) % 36;
-  unsigned fact1 = (2*jphi+17) % 36;
-  return etValueForJetFinder(etStrip0, fact0, etStrip1, fact1);
-}
-
-// The same thing for Hx and Hy. Note that due to the exchange of data between jetfinders,
-// the phi rotations are different for jet "strip sums" than for the raw region energies above
-
-L1GctJetLeafCard::etComponentType
-L1GctJetLeafCard::hxComponent(const L1GctJetLeafCard::etTotalType etStrip0,
-                              const L1GctJetLeafCard::etTotalType etStrip1,
-			      const unsigned jphi) const {
-  unsigned fact0 = (2*jphi+10) % 36;
-  unsigned fact1 = (2*jphi+ 4) % 36;
-  return etValueForJetFinder(etStrip0, fact0, etStrip1, fact1);
-}
-
-L1GctJetLeafCard::etComponentType
-L1GctJetLeafCard::hyComponent(const L1GctJetLeafCard::etTotalType etStrip0,
-                              const L1GctJetLeafCard::etTotalType etStrip1,
-			      const unsigned jphi) const {
-  unsigned fact0 = (2*jphi+19) % 36;
-  unsigned fact1 = (2*jphi+13) % 36;
-  return etValueForJetFinder(etStrip0, fact0, etStrip1, fact1);
-}
-
-// Here is where the rotations are actually done
-// Procedure suitable for implementation in hardware, using
-// integer multiplication and bit shifting operations
-L1GctJetLeafCard::etComponentType
-L1GctJetLeafCard::etValueForJetFinder(const etTotalType etStrip0, const unsigned fact0,
-                                      const etTotalType etStrip1, const unsigned fact1) const{
-  // These factors correspond to the sine of angles from -90 degrees to
-  // 90 degrees in 10 degree steps, multiplied by 16383 and written in 28 bits
-  const int factors[19] = {0xfffc001, 0xfffc0fa, 0xfffc3dd, 0xfffc894, 0xfffcefa,
-                           0xfffd6dd, 0xfffe000, 0xfffea1d, 0xffff4e3, 0x0000000,
-                           0x0000b1d, 0x00015e3, 0x0002000, 0x0002923, 0x0003106,
-                           0x000376c, 0x0003c23, 0x0003f06, 0x0003fff};
-
-  static const int internalComponentSize=15;
-  static const int maxEt=1<<internalComponentSize;
-
-  int rotatedValue0, rotatedValue1, myFact;
-  int etComponentSum = 0;
-
-  if (fact0 >= 36 || fact1 >= 36) {
-    if (m_verbose) {
-      edm::LogError("L1GctProcessingError")
-	<< "L1GctJetLeafCard::rotateEtValue() has been called with factor numbers "
-	<< fact0 << " and " << fact1 << "; should be less than 36 \n";
-    } 
-  } else {
-
-    // First strip - choose the required multiplication factor
-    if (fact0>18) { myFact = factors[(36-fact0)]; }
-    else { myFact = factors[fact0]; }
-
-    // Multiply the 14-bit Et value by the 28-bit factor.
-    rotatedValue0 = static_cast<int>(etStrip0.value()) * myFact;
-
-    // Second strip - choose the required multiplication factor
-    if (fact1>18) { myFact = factors[(36-fact1)]; }
-    else { myFact = factors[fact1]; }
-
-    // Multiply the 14-bit Et value by the 28-bit factor.
-    rotatedValue1 = static_cast<int>(etStrip1.value()) * myFact;
-
-    // Add the two scaled values together, with full resolution including
-    // fractional parts from the sin(phi), cos(phi) scaling.
-    // Adjust the value to avoid truncation errors since these
-    // accumulate and cause problems for the missing Et measurement.
-    // Then discard the 13 LSB and interpret the result as
-    // a 15-bit twos complement integer.
-    etComponentSum = ((rotatedValue0 + rotatedValue1) + 0x1000)>>13;
-
-    etComponentSum = etComponentSum & (maxEt-1);
-    if (etComponentSum >= (maxEt/2)) {
-      etComponentSum = etComponentSum - maxEt;
-    }
-  }
-
-  // Store as a TwosComplement format integer and return
-  etComponentType temp(etComponentSum);
-  temp.setOverFlow(temp.overFlow() || etStrip0.overFlow() || etStrip1.overFlow());
-  return temp;
-}
