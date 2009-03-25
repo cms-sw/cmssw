@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.23 2009/02/23 16:25:42 borrell Exp $
+// $Id: SiStripMonitorCluster.h,v 1.24 2009/03/03 10:47:54 kaussen Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQM/SiStripCommon/interface/TkHistoMap.h"
 
 #include <vector>
 
@@ -111,6 +112,9 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   edm::ParameterSet Parameters;
 
   std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;
+  
+  // TkHistoMap added
+  TkHistoMap* tkmapcluster; 
 
   int runNb, eventNb;
   int firstEvent;
@@ -140,7 +144,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   bool moduleswitchnrclusterizedstrip;
   bool subdetswitchtotclusterprofon;
 
-  
+  bool clustertkhistomapon;
   bool createTrendMEs;
 
   bool Mod_On_;

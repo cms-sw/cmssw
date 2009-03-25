@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.52 2009/03/03 10:47:54 kaussen Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.53 2009/03/08 18:08:17 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -96,9 +96,10 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
   edm::ParameterSet ParametersClusterWidthProf = conf_.getParameter<edm::ParameterSet>("TProfClusterWidth");
   layerswitchclusterwidthprofon = ParametersClusterWidthProf.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersTotDigiProf = conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfClusters");
-  subdetswitchtotclusterprofon = ParametersTotDigiProf.getParameter<bool>("subdetswitchon");
+  edm::ParameterSet ParametersTotClusterProf = conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfClusters");
+  subdetswitchtotclusterprofon = ParametersTotClusterProf.getParameter<bool>("subdetswitchon");
 
+  clustertkhistomapon = conf_.getParameter<bool>("TkHistoMapCluster");
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
   Mod_On_ = conf_.getParameter<bool>("Mod_On");
 } 
@@ -141,6 +142,9 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 
     SiStripFolderOrganizer folder_organizer;
     folder_organizer.setSiStripFolder();
+
+    // Create TkHistoMap for Digi
+    if (clustertkhistomapon) tkmapcluster = new TkHistoMap("SiStrip/TkHistoMap","Cluster",0.);
 
     // loop over detectors and book MEs
     edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<"nr. of activeDets:  "<<activeDets.size();
@@ -286,6 +290,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	if(found_module_me && moduleswitchncluson && (mod_single.NumberOfClusters)){
 	  (mod_single.NumberOfClusters)->Fill(0.); // no clusters for this detector module,fill histogram with 0
 	}
+	if(clustertkhistomapon) tkmapcluster->fill(detid,0.);
 	if (found_layer_me && layerswitchnumclusterprofon) layer_single.LayerNumberOfClusterProfile->Fill(iDet, 0.0);
 	continue; // no clusters for this detid => jump to next step of loop
       }
@@ -293,6 +298,11 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       //cluster_detset is a structure, cluster_detset.data is a std::vector<SiStripCluster>, cluster_detset.id is uint32_t
       edmNew::DetSet<SiStripCluster> cluster_detset = (*cluster_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
       
+      // Filling TkHistoMap with number of clusters for each module 
+      if(clustertkhistomapon) {
+	tkmapcluster->fill(detid,static_cast<float>(cluster_detset.size()));
+      }
+
       if(moduleswitchncluson && found_module_me && (mod_single.NumberOfClusters != NULL)){ // nr. of clusters per module
 	(mod_single.NumberOfClusters)->Fill(static_cast<float>(cluster_detset.size()));
       }
@@ -301,7 +311,6 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       ncluster_layer +=  cluster_detset.size();
       
       short total_clusterized_strips = 0;
-      //
       
       SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detid);
       SiStripApvGain::Range detGainRange = gainHandle->getRange(detid); 
@@ -618,7 +627,7 @@ void SiStripMonitorCluster::fillModuleMEs(ModMEs& mod_mes, ClusterProperties& cl
   
   // position of digis in cluster
   if(moduleswitchclusdigiposon && (mod_mes.ClusterDigiPosition)) {
-    for(uint ipos=cluster.start+1; ipos<=cluster.start+cluster.width; ipos++){
+    for(int ipos=cluster.start+1; ipos<=cluster.start+cluster.width; ipos++){
       (mod_mes.ClusterDigiPosition)->Fill(ipos);
     }
   }

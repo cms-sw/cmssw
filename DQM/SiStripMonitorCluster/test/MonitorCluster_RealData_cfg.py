@@ -11,7 +11,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2000)
+    input = cms.untracked.int32(1000)
 )
 
 #-------------------------------------------------
@@ -53,11 +53,16 @@ process.DQMStore = cms.Service("DQMStore",
     referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(0)
 )
+
+process.TkDetMap = cms.Service("TkDetMap")
+process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+
 #--------------------------
 # SiStrip MonitorCluster
 #--------------------------
 process.load("DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi")
 process.SiStripMonitorCluster.CreateTrendMEs = True
+process.SiStripMonitorCluster.TkHistoMapCluster = True
 process.SiStripMonitorCluster.SelectAllDetectors = True
 process.SiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = True
 process.SiStripMonitorCluster.OutputMEsInRootFile = True
