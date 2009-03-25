@@ -31,6 +31,34 @@ ESElectronicsMapper::ESElectronicsMapper(const edm::ParameterSet& ps) {
     std::cout<<"ESElectronicsMapper::ESElectronicsMapper : Look up table file can not be found in "<<lookup_.fullPath().c_str()<<std::endl;
   }
 
+  // EE-ES FEDs mapping
+  int eefed[18] = {601, 602, 603, 604, 605, 606, 607, 608, 609, 546, 547, 548, 549, 550, 551, 552, 553, 554};
+  int nesfed[18] = {7, 5, 5, 5, 5, 8, 5, 7, 5, 8, 5, 5, 5, 5, 7, 5, 7, 5};
+  int esfed[18][8] = {
+    {524, 525, 528, 539, 540, 541, 542},
+    {528, 529, 530, 541, 542},
+    {529, 530, 541, 542, 545},
+    {531, 532, 545, 546, 547},
+    {531, 532, 545, 546, 547},
+    {520, 522, 523, 532, 534, 535, 546, 547},
+    {520, 522, 523, 534, 535},
+    {522, 523, 524, 525, 535, 537, 539},
+    {524, 525, 537, 539, 540},
+    {548, 549, 560, 561, 563, 572, 573, 574},
+    {548, 549, 551, 563, 564},
+    {548, 549, 551, 563, 564},
+    {551, 553, 554, 565, 566},
+    {553, 554, 565, 566, 568},
+    {553, 554, 555, 556, 568, 570, 571},
+    {555, 556, 557, 570, 571},
+    {556, 557, 560, 570, 571, 572, 573},
+    {560, 561, 572, 573, 574}
+  };
+  
+  for (int i=0; i<18; ++i) 
+    for (int j=0; j<nesfed[i]; ++j)
+      ee_es_map_[eefed[i]].push_back(esfed[i][j]);
+  
 }
 
 int ESElectronicsMapper::getFED(const ESDetId& id) { 
@@ -47,94 +75,21 @@ int ESElectronicsMapper::getFED(int zside, int plane, int x, int y) {
   return fed_[zside-1][plane-1][x-1][y-1]; 
 } 
 
-std::vector<int> ESElectronicsMapper::GetListofFEDs(const EcalEtaPhiRegion region) const {
-  std::vector<int> FEDs;
-  GetListofFEDs(region, FEDs);
-  return FEDs;
+std::vector<int> ESElectronicsMapper::GetListofFEDs(const std::vector<int> eeFEDs) const {
+  std::vector<int> esFEDs;
+  GetListofFEDs(eeFEDs, esFEDs);
+  return esFEDs;
 }
 
-void ESElectronicsMapper::GetListofFEDs(const EcalEtaPhiRegion region, std::vector<int> & FEDs) const {
+void ESElectronicsMapper::GetListofFEDs(std::vector<int> eeFEDs, std::vector<int> & esFEDs) const {
 
-  double etahigh = region.etaHigh();
-  double phihigh = region.phiHigh();  
-  double etalow = region.etaLow();
-  double philow = region.phiLow();
-
-  int zside = (etahigh > 0) ? 1 : 2;
-
-  int x[4][2], y[4][2], fed[4][2];
-
-  // for plane 1
-  findXY(1, etahigh, phihigh, x[0][1], y[0][1]);
-  findXY(1, etahigh, philow,  x[1][1], y[1][1]);
-  findXY(1, etalow,  phihigh, x[2][1], y[2][1]);
-  findXY(1, etalow,  philow,  x[3][1], y[3][1]);
-
-  // for plane 2
-  findXY(2, etahigh, phihigh, x[0][2], y[0][2]);
-  findXY(2, etahigh, philow,  x[1][2], y[1][2]);
-  findXY(2, etalow,  phihigh, x[2][2], y[2][2]);
-  findXY(2, etalow,  philow,  x[3][2], y[3][2]);
-  
-  for (int i=0; i<4; ++i) 
-    for (int j=0; j<2; ++j) {
-      if (x[i][j]<0 || y[i][j]<0) continue;
-      fed[i][j] = fed_[zside-1][j][x[i][j]][y[i][j]];
-      FEDs.push_back(fed[i][j]);
-    }
-
-  sort(FEDs.begin(), FEDs.end());
-  unique(FEDs.begin(), FEDs.end());
-
-}
-
-void ESElectronicsMapper::findXY(const int plane, const double eta, const double phi, int &row, int &col) const {
-  
-  float zplane_[2]= { 303.353, 307.838 };
-  
-  float waf_w_ = 6.3; 
-  float act_w_ = 6.1; 
-  float intra_lad_gap_ = 0.04; 
-  float inter_lad_gap_ = 0.05;
-  float centre_gap_ = 0.05; 
-
-  float theta = 2.*atan(exp(-1.*eta));
-  float r = zplane_[plane-1]/cos(theta);
-  float x = r * sin(theta) * cos(phi);
-  float y = r * sin(theta) * sin(phi);
-  
-  float x0,y0;
-
-  if (plane == 1) {
-    x0 = x;
-    y0 = y;
-  } else {
-    y0 = x;
-    x0 = y;
+  for (uint i=0; i<eeFEDs.size(); ++i) {
+    std::vector<int> esfed = ee_es_map_.find(eeFEDs[i])->second;
+    for (uint j=0; j<esfed.size(); ++j) esFEDs.push_back(esfed[j]);
   }
 
-  //find row
-  int imul = (y0 < 0.) ? +1 : -1 ; 
-  float yr = -(y0 + imul*centre_gap_ )/act_w_;
-  row = (yr < 0.) ? (19 + int(yr) ) : (20 + int(yr));
-  row= 40 - row;
-
-  if (row < 1 || row > 40 ) row = -1;
-  
-  //find col
-  col = 40 ;
-  int nlad = (col < 20 ) ? (20-col)/2 :(19-col)/2 ;
-  float edge =  (20-col) * (waf_w_ + intra_lad_gap_)+ nlad * inter_lad_gap_;
-  edge = -edge;
-  while (x0 < edge && col > 0){
-    col--;
-    nlad = (col < 20 ) ? (20-col)/2 :(19-col)/2 ;
-    edge = (20-col) * (waf_w_ + intra_lad_gap_) + nlad * inter_lad_gap_;   
-    edge = -edge;
-  }
-  
-  col++;
-
-  if ( col < 1 || col > 40 || x0 < edge) col = -1;
+  sort(esFEDs.begin(), esFEDs.end());
+  std::vector<int>::iterator it = unique(esFEDs.begin(), esFEDs.end());
+  esFEDs.erase(it, esFEDs.end());
 
 }
