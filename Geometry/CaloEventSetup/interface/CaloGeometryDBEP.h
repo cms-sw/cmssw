@@ -91,7 +91,7 @@ class CaloGeometryDBEP : public edm::ESProducer
 	 }
 	 else
 	 {
-	    std::cout<<"Getting Geometry from DB for "<<T::producerTag()<<std::endl ;
+           //std::cout<<"Getting Geometry from DB for "<<T::producerTag()<<std::endl ;
 	    edm::ESHandle<PCaloGeometry> pG ;
 	    iRecord.template getRecord<typename T::PGeometryRecord >().get( pG ) ; 
 
