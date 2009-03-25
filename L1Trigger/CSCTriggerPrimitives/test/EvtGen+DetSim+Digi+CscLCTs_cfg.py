@@ -7,7 +7,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string("$Revision: 1.2 $"),
+    version = cms.untracked.string("$Revision: 1.3 $"),
     name = cms.untracked.string("$Source: /cvs_server/repositories/CMSSW/CMSSW/L1Trigger/CSCTriggerPrimitives/test/EvtGen+DetSim+Digi+CscLCTs_cfg.py,v $"),
     annotation = cms.untracked.string("SV: single particle gun mu- 50 GeV")
 )
@@ -24,38 +24,38 @@ process.MessageLogger = cms.Service("MessageLogger",
     #debugModules = cms.untracked.vstring("cscTriggerPrimitiveDigis","cscpacker")
 )
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    sourceSeed = cms.untracked.uint32(15932458),
-    moduleSeeds = cms.PSet(
-        VtxSmeared = cms.untracked.uint32(48543987),
-        g4SimHits = cms.untracked.uint32(9876),
-        simMuonCSCDigis = cms.untracked.uint32(468),
-        simMuonDTDigis = cms.untracked.uint32(468),
-        simMuonRPCDigis = cms.untracked.uint32(468)
-    )
-)
+# Random number seeds
+#
+process.load("Configuration/StandardSequences/SimulationRandomNumberGeneratorSeeds_cff")
+process.RandomNumberGeneratorService.simMuonCSCDigis.initialSeed = 468
+#- Randomize all the seeds
+#from IOMC.RandomEngine.RandomServiceHelper import RandomNumberServiceHelper
+#randSvc = RandomNumberServiceHelper(process.RandomNumberGeneratorService)
+#randSvc.populate()
 
 # Event Generation.  Single muons
 #
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.source = cms.Source("FlatRandomPtGunSource",
-    PGunParameters = cms.untracked.PSet(
+process.source = cms.Source("EmptySource")
+process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+    firstRun = cms.untracked.uint32(1),
+    PGunParameters = cms.PSet(
         # you can request more than 1 particle
-        # untracked vint32  PartID = {211,11}
-        PartID = cms.untracked.vint32(13),
-        MinEta = cms.untracked.double(-2.5),
-        MaxEta = cms.untracked.double(2.5),
-        MinPhi = cms.untracked.double(-3.14159265359), ## must be in rads
-        MaxPhi = cms.untracked.double(3.14159265359),
-        MinPt = cms.untracked.double(49.99),
-        MaxPt = cms.untracked.double(50.01)
+        # PartID = cms.vint32(211,11,-13),
+        PartID = cms.vint32(13),
+        MinEta = cms.double(-2.5),
+        MaxEta = cms.double(2.5),
+        MinPhi = cms.double(-3.14159265359), ## must be in rads
+        MaxPhi = cms.double(3.14159265359),
+        MinPt  = cms.double(49.99),
+        MaxPt  = cms.double(50.01)
     ),
+    AddAntiParticle = cms.bool(False),
     Verbosity = cms.untracked.int32(0) ## set to 1 (or greater) for printouts
 )
 
-#process.load("Configuration.StandardSequences.FakeConditions_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_V11::All'
+process.GlobalTag.globaltag = 'IDEAL_30X::All'
 #process.GlobalTag.globaltag = 'STARTUP_V5::All'
 #process.prefer("GlobalTag")
 
@@ -63,6 +63,8 @@ process.GlobalTag.globaltag = 'IDEAL_V11::All'
 # Note : all internal generators will always do (0,0,0) vertex
 #
 process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
+
+process.load("Configuration.StandardSequences.Services_cff")
 
 process.load("Configuration.StandardSequences.Simulation_cff")
 
@@ -90,7 +92,7 @@ process.cscpacker.correlatedLCTDigiTag = cms.InputTag("cscTriggerPrimitiveDigis"
 # Output module
 #
 process.GENSIMDIGI = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string("/data0/slava/test/muminus_pt50_CMSSW_2_2_6.root"),
+    fileName = cms.untracked.string("/data0/slava/test/muminus_pt50_CMSSW_3_1_0_pre4.root"),
     outputCommands = cms.untracked.vstring("keep *", 
          # "drop *_simSiPixelDigis_*_*",
          # "drop *_simSiStripDigis_*_*",
@@ -110,7 +112,7 @@ process.GENSIMDIGI = cms.OutputModule("PoolOutputModule",
 #sequence muonDigi = { simMuonCSCDigis &  simMuonDTDigis & simMuonRPCDigis}
 #sequence doDigi = { trDigi & calDigi & muonDigi }
 #- Gen->Sim->Digi
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits*process.mix*process.muonDigi)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.mix*process.muonDigi)
 #- Gen->Sim->Digi->L1->Raw
 #process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits*process.mix*process.muonDigi*process.cscTriggerPrimitiveDigis*process.cscpacker)
 process.outpath = cms.EndPath(process.GENSIMDIGI)
