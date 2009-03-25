@@ -34,8 +34,8 @@ L1GctInternEtSum L1GctInternEtSum::fromJetTotEt(const uint16_t capBlock,
                                                 const int16_t bx,
                                                 const uint32_t data) {
   L1GctInternEtSum s;
-  s.setEt(data & 0xfff);
-  s.setOflow((data>>12)&0x1);
+  s.setEt(data & kTotEtOrHtMaxValue);
+  s.setOflow((data>>kTotEtOrHtNBits)&0x1);
   s.setType(jet_tot_et);
   return s;
 }
@@ -45,8 +45,9 @@ L1GctInternEtSum L1GctInternEtSum::fromJetTotHt(const uint16_t capBlock,
                                                 const int16_t bx,
                                                 const uint32_t data) {
   L1GctInternEtSum s;
-  s.setEt((data>>16) & 0xfff);
-  s.setOflow((data>>12)&0x1);
+  uint32_t word=data>>16;
+  s.setEt(word & kTotEtOrHtMaxValue);
+  s.setOflow((word>>kTotEtOrHtNBits)&0x1);
   s.setType(jet_tot_ht);
   return s;
 }
@@ -56,8 +57,8 @@ L1GctInternEtSum L1GctInternEtSum::fromJetMissEt(const uint16_t capBlock,
                                                  const int16_t bx,
                                                  const uint32_t data) {
   L1GctInternEtSum s;
-  s.setEt(data & 0xffff);
-  s.setOflow((data>>17) & 0x1);
+  s.setEt(data & kJetMissEtMaxValue);
+  s.setOflow((data>>kJetMissEtNBits) & 0x1);
   s.setType(jet_miss_et);
   return s;
 }
@@ -68,8 +69,8 @@ L1GctInternEtSum L1GctInternEtSum::fromTotalEtOrHt(const uint16_t capBlock,
                                                    const int16_t bx,
                                                    const uint32_t data) {
   L1GctInternEtSum s;
-  s.setEt(data & 0xfff);
-  s.setOflow((data>>12) & 0x1);
+  s.setEt(data & kTotEtOrHtMaxValue);
+  s.setOflow((data>>kTotEtOrHtNBits) & 0x1);
   s.setType(total_et_or_ht);
   return s;
 }
@@ -79,7 +80,7 @@ L1GctInternEtSum L1GctInternEtSum::fromMissEtxOrEty(const uint16_t capBlock,
                                                     const int16_t bx,
                                                     const uint32_t data) {
   L1GctInternEtSum s;
-  s.setEt(data & 0xfffff);
+  s.setEt(data & kMissExOrEyNBits);
   s.setOflow(0); // No over flow bit at the moment
   s.setType(miss_etx_or_ety);
   return s;

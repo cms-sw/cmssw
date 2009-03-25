@@ -25,6 +25,17 @@ class L1GctInternHtMiss
                               miss_hty,
                               miss_htx_and_hty };
 
+  enum numberOfBits {
+    kJetMissHtNBits   = 12,
+    kMissHxOrHyNBits  = 14,
+    kJetMissHtOFlowBit  = 1 << kJetMissHtNBits,
+    kMissHxOrHyOFlowBit = 1 << kMissHxOrHyNBits,
+    kJetMissHtMaxValue  = kJetMissHtOFlowBit  - 1,
+    kMissHxOrHyMaxValue = kMissHxOrHyOFlowBit - 1,
+    kJetMissHtRawCtorMask  = kJetMissHtOFlowBit  | kJetMissHtMaxValue,
+    kMissHxOrHyRawCtorMask = kMissHxOrHyOFlowBit | kMissHxOrHyMaxValue
+  };
+
   /// default constructor (for vector initialisation etc.)
   L1GctInternHtMiss();
 

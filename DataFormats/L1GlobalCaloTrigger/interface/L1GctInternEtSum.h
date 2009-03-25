@@ -25,6 +25,21 @@ class L1GctInternEtSum {
                               miss_etx_or_ety  // conc input, wheel input and output
   };
 
+  enum numberOfBits {
+    kTotEtOrHtNBits   = 12,
+    kJetMissEtNBits   = 17,
+    kMissExOrEyNBits  = 20,
+    kTotEtOrHtOFlowBit  = 1 << kTotEtOrHtNBits,
+    kJetMissEtOFlowBit  = 1 << kJetMissEtNBits,
+    kMissExOrEyOFlowBit = 1 << kMissExOrEyNBits,
+    kTotEtOrHtMaxValue  = kTotEtOrHtOFlowBit  - 1,
+    kJetMissEtMaxValue  = kJetMissEtOFlowBit  - 1,
+    kMissExOrEyMaxValue = kMissExOrEyOFlowBit - 1,
+    kTotEtOrHtRawCtorMask  = kTotEtOrHtOFlowBit  | kTotEtOrHtMaxValue,
+    kJetMissEtRawCtorMask  = kJetMissEtOFlowBit  | kJetMissEtMaxValue,
+    kMissExOrEyRawCtorMask = kMissExOrEyOFlowBit | kMissExOrEyMaxValue
+  };
+
   /// default constructor (for vector initialisation etc.)
   L1GctInternEtSum();
 
