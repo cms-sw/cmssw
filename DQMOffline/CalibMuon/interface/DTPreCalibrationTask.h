@@ -5,8 +5,8 @@
  *  Analysis on DT digis (TB + occupancy) before the calibration step
  *
  *
- *  $Date: 2008/10/31 08:51:46 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/03/24 10:00:54 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -14,6 +14,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include <string>
 #include <map>
@@ -40,11 +45,20 @@ public:
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   /// Book histos
-  void bookHistos(int wheel, int sector);
+  void bookTimeBoxes(int wheel, int sector);
+  void bookOccupancyPlot(int wheel, int sector);
+
+  ///EndJob
+  void endJob();
 
 private:
 
   DQMStore* dbe;
+  std::string digiLabel;
+  int  minTriggerWidth;
+  int  maxTriggerWidth;
+  bool saveFile;
+  std::string outputFileName;
 
   // Time boxes map
   std::map<std::pair<int,int>, MonitorElement* > TimeBoxes;

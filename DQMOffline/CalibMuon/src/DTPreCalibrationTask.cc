@@ -3,11 +3,13 @@
 
 // Framework
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Geometry
 #include "Geometry/DTGeometry/interface/DTLayer.h"
@@ -37,29 +39,42 @@ DTPreCalibrationTask::DTPreCalibrationTask(const edm::ParameterSet& ps){
 
   dbe = Service<DQMStore>().operator->();
 
+  // Label to retrieve DT digis from the event
+  digiLabel = ps.getUntrackedParameter<string>("digiLabel"); 
+
+  // parameter for Time Boxes booking
+  minTriggerWidth = ps.getUntrackedParameter<int>("minTriggerWidth",2000); 
+  maxTriggerWidth = ps.getUntrackedParameter<int>("maxTriggerWidth",6000); 
+
+  // histo saving on file
+  saveFile = ps.getUntrackedParameter<bool>("SaveFile",false); 
+  // output file name
+  outputFileName = ps.getUntrackedParameter<string>("outputFileName"); 
+
 }
 
 
-DTPreCalibrationTask::~DTPreCalibrationTask(){
-}
+DTPreCalibrationTask::~DTPreCalibrationTask(){}
 
 
 void DTPreCalibrationTask::beginJob(const edm::EventSetup& context){
  
   for(int wheel=-2; wheel<=2; wheel++){
-    for(int sector=1; sector<=12; sector++){
-      LogTrace("DTPreCalibSummary") <<"[DTPrecalibrationTask]: Book histos for wheel "<<wheel<<", sector "<<sector<<endl;
-      bookHistos(wheel, sector);
+   for(int sector=1; sector<=14; sector++){
+     LogTrace("DTPreCalibSummary") <<"[DTPrecalibrationTask]: Book histos for wheel "<<wheel<<", sector "<<sector<<endl;
+     bookTimeBoxes(wheel, sector);
+     if(sector<13) bookOccupancyPlot(wheel, sector);
     }
   }
 
 }
 
-void DTPreCalibrationTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
+void DTPreCalibrationTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
+  
   // Get the digis from the event
   edm::Handle<DTDigiCollection> dtdigis;
-  event.getByLabel("dtunpacker", dtdigis);
+  event.getByLabel(digiLabel, dtdigis);
 
   // LOOP OVER ALL THE DIGIS OF THE EVENT
   DTDigiCollection::DigiRangeIterator dtLayerId_It;
@@ -95,24 +110,40 @@ void DTPreCalibrationTask::analyze(const edm::Event& event, const edm::EventSetu
 }
 
 
-void DTPreCalibrationTask::bookHistos(int wheel, int sector) {
+void DTPreCalibrationTask::endJob(){
+  
+  // save file for offLine analysis
+  if(saveFile)
+    dbe->save(outputFileName);
+
+}
+
+
+void DTPreCalibrationTask::bookTimeBoxes(int wheel, int sector) {
 
   stringstream wh; wh << wheel;
   stringstream sec; sec << sector;
 
   // book the time boxes
   dbe->setCurrentFolder("DTCalib/TimeBoxes");  
-  int TriggerWidth = 32448; // conversion from ns to TDC counts: 25350*(32/25)
-  int numBin = TriggerWidth/50;
-  TimeBoxes[make_pair(wheel, sector)]= dbe->book1D("TimeBox_W"+wh.str()+"_Sec"+sec.str(), "Time Box W"+wh.str()+"_Sec"+sec.str(),numBin, 0, TriggerWidth);
+  TimeBoxes[make_pair(wheel, sector)]= dbe->book1D("TimeBox_W"+wh.str()+"_Sec"+sec.str(), "Time Box W"+wh.str()+"_Sec"+sec.str(),(maxTriggerWidth-minTriggerWidth)/50, minTriggerWidth, maxTriggerWidth);
   TimeBoxes[make_pair(wheel, sector)]->setAxisTitle("TDC counts");
+
+}
+
+
+
+void DTPreCalibrationTask::bookOccupancyPlot(int wheel, int sector) {
+
+  stringstream wh; wh << wheel;
+  stringstream sec; sec << sector;
 
   // book the occpancy plot
   dbe->setCurrentFolder("DTCalib/OccupancyHistos");
-  if(sector!=4 && sector!=10)
-    OccupancyHistos[make_pair(wheel, sector)]= dbe->book2D("Occupancy_W"+wh.str()+"_Sec"+sec.str(), "Occupancy W"+wh.str()+"_Sec"+sec.str(),100,1,100,44,1,45);
-  else
+  if(sector==4 || sector==10)
     OccupancyHistos[make_pair(wheel, sector)]= dbe->book2D("Occupancy_W"+wh.str()+"_Sec"+sec.str(), "Occupancy W"+wh.str()+"_Sec"+sec.str(),100,1,100,52,1,53);
+  else
+    OccupancyHistos[make_pair(wheel, sector)]= dbe->book2D("Occupancy_W"+wh.str()+"_Sec"+sec.str(), "Occupancy W"+wh.str()+"_Sec"+sec.str(),100,1,100,44,1,45);
   OccupancyHistos[make_pair(wheel, sector)]->setAxisTitle("wire number", 1);
   OccupancyHistos[make_pair(wheel, sector)]->setBinLabel(1,"M1L1",2);
   OccupancyHistos[make_pair(wheel, sector)]->setBinLabel(2,"M1L2",2);
