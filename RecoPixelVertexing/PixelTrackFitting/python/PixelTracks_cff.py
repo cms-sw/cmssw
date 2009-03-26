@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # Tracker Geometry Builder
 # Tracker Numbering Builder
 # Reco geometry 
-from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
+#from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 # for Transient rechits?
 from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
