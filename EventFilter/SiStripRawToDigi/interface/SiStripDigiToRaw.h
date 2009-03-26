@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRaw.h,v 1.16 2007/10/09 17:03:27 bainbrid Exp $
+// Last commit: $Id: OldSiStripDigiToRaw.h,v 1.17 2008/04/02 08:47:42 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H
 #define EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H
@@ -16,19 +16,19 @@ class SiStripDigi;
 
 /**
    @file EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h
-   @class SiStripDigiToRaw 
+   @class OldSiStripDigiToRaw 
    
    @brief Input: edm::DetSetVector<SiStripDigi>. 
    Output: FEDRawDataCollection.
 */
-class SiStripDigiToRaw {
+class OldSiStripDigiToRaw {
   
  public: // ----- public interface -----
   
-  SiStripDigiToRaw( std::string readout_mode, 
+  OldSiStripDigiToRaw( std::string readout_mode, 
 		    int16_t appended_bytes,
 		    bool use_fed_key );
-  ~SiStripDigiToRaw();
+  ~OldSiStripDigiToRaw();
   
   void createFedBuffers( edm::Event&, 
 			 edm::ESHandle<SiStripFedCabling>& cabling,

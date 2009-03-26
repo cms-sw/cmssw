@@ -2,9 +2,7 @@
 #include <sstream>
 #include <iostream>
 
-using namespace sistrip;
-
-SiStripRawToClustersLazyUnpacker::SiStripRawToClustersLazyUnpacker(const SiStripRegionCabling& regioncabling, const SiStripClusterizerFactory& clustfact, const FEDRawDataCollection& data) :
+OldSiStripRawToClustersLazyUnpacker::OldSiStripRawToClustersLazyUnpacker(const SiStripRegionCabling& regioncabling, const SiStripClusterizerFactory& clustfact, const FEDRawDataCollection& data) :
 
   raw_(&data),
   regions_(&(regioncabling.getRegionCabling())),
@@ -16,7 +14,7 @@ SiStripRawToClustersLazyUnpacker::SiStripRawToClustersLazyUnpacker(const SiStrip
   fedEvents_.assign(1024,static_cast<Fed9U::Fed9UEvent*>(0));
 }
 
-SiStripRawToClustersLazyUnpacker::~SiStripRawToClustersLazyUnpacker() {
+OldSiStripRawToClustersLazyUnpacker::~OldSiStripRawToClustersLazyUnpacker() {
   std::vector< Fed9U::Fed9UEvent*>::iterator ifedevent = fedEvents_.begin();
   for (; ifedevent!=fedEvents_.end(); ifedevent++) {
     if (*ifedevent) {
@@ -26,7 +24,7 @@ SiStripRawToClustersLazyUnpacker::~SiStripRawToClustersLazyUnpacker() {
   }
 }
 
-void SiStripRawToClustersLazyUnpacker::fill(const uint32_t& index, record_type& record) {
+void OldSiStripRawToClustersLazyUnpacker::fill(const uint32_t& index, record_type& record) {
 
   //Get region, subdet and layer from element-index
   uint32_t region = SiStripRegionCabling::region(index);
@@ -67,8 +65,8 @@ void SiStripRawToClustersLazyUnpacker::fill(const uint32_t& index, record_type& 
 	// Check on FEDRawData pointer
 	if ( !data_u32 ) {
 	  if ( edm::isDebugEnabled() ) {
-	    edm::LogWarning(mlRawToCluster_)
-	      << "[SiStripRawToClustersLazyGetter::" 
+	    edm::LogWarning(sistrip::mlRawToCluster_)
+	      << "[OldSiStripRawToClustersLazyGetter::" 
 	      << __func__ 
 	      << "]"
 	      << " NULL pointer to FEDRawData for FED id " 
@@ -80,8 +78,8 @@ void SiStripRawToClustersLazyUnpacker::fill(const uint32_t& index, record_type& 
 	// Check on FEDRawData size
 	if ( !size_u32 ) {
 	  if ( edm::isDebugEnabled() ) {
-	    edm::LogWarning(mlRawToCluster_)
-	      << "[SiStripRawToClustersLazyGetter::" 
+	    edm::LogWarning(sistrip::mlRawToCluster_)
+	      << "[OldSiStripRawToClustersLazyGetter::" 
 	      << __func__ << "]"
 	      << " FEDRawData has zero size for FED id " 
 	      << iconn->fedId();
@@ -132,7 +130,7 @@ void SiStripRawToClustersLazyUnpacker::fill(const uint32_t& index, record_type& 
             #ifdef USE_PATCH_TO_CATCH_CORRUPT_FED_DATA
 	    if ( !( strip < strips && ( !strip || strip > last_strip ) ) ) { 
 	      edm::LogWarning(mlRawToDigi_)
-		<< "[SiStripRawToClustersLazyUnpacker::" 
+		<< "[OldSiStripRawToClustersLazyUnpacker::" 
 		<< __func__ << "]"
 		<< " Corrupt FED data found for FED id " 
 		<< iconn->fedId()
@@ -164,141 +162,143 @@ void SiStripRawToClustersLazyUnpacker::fill(const uint32_t& index, record_type& 
   }
 }
   
-sistrip::RawToClustersLazyUnpacker::RawToClustersLazyUnpacker(const SiStripRegionCabling& regioncabling, const SiStripClusterizerFactory& clustfact, const FEDRawDataCollection& data, bool dump) :
+namespace sistrip { 
 
-  raw_(&data),
-  regions_(&(regioncabling.getRegionCabling())),
-  clusterizer_(&clustfact),
-  buffers_(),
-  rawToDigi_(0,0,0,0,0),
-  dump_(dump),
-  mode_(sistrip::READOUT_MODE_INVALID),
-  fedRawData_()
-{
-  buffers_.assign(1024,static_cast<sistrip::FEDBuffer*>(0));
-}
+  RawToClustersLazyUnpacker::RawToClustersLazyUnpacker(const SiStripRegionCabling& regioncabling, const SiStripClusterizerFactory& clustfact, const FEDRawDataCollection& data, bool dump) :
 
-sistrip::RawToClustersLazyUnpacker::~RawToClustersLazyUnpacker() {
-
-  std::vector< sistrip::FEDBuffer*>::iterator ibuffer = buffers_.begin();
-  for (; ibuffer!=buffers_.end(); ibuffer++) {
-    if (*ibuffer) delete *ibuffer;
+    raw_(&data),
+    regions_(&(regioncabling.getRegionCabling())),
+    clusterizer_(&clustfact),
+    buffers_(),
+    rawToDigi_(0,0,0,0,0),
+    dump_(dump),
+    mode_(sistrip::READOUT_MODE_INVALID),
+    fedRawData_()
+  {
+    buffers_.assign(1024,static_cast<sistrip::FEDBuffer*>(0));
   }
-}
 
-void sistrip::RawToClustersLazyUnpacker::fill(const uint32_t& index, record_type& record) {
+  RawToClustersLazyUnpacker::~RawToClustersLazyUnpacker() {
 
-  // Get region, subdet and layer from element-index
-  uint32_t region = SiStripRegionCabling::region(index);
-  uint32_t subdet = static_cast<uint32_t>(SiStripRegionCabling::subdet(index));
-  uint32_t layer = SiStripRegionCabling::layer(index);
+    std::vector< sistrip::FEDBuffer*>::iterator ibuffer = buffers_.begin();
+    for (; ibuffer!=buffers_.end(); ibuffer++) {
+      if (*ibuffer) delete *ibuffer;
+    }
+  }
+
+  void RawToClustersLazyUnpacker::fill(const uint32_t& index, record_type& record) {
+
+    // Get region, subdet and layer from element-index
+    uint32_t region = SiStripRegionCabling::region(index);
+    uint32_t subdet = static_cast<uint32_t>(SiStripRegionCabling::subdet(index));
+    uint32_t layer = SiStripRegionCabling::layer(index);
  
-  // Retrieve cabling for element
-  const SiStripRegionCabling::ElementCabling& element = (*regions_)[region][subdet][layer];
+    // Retrieve cabling for element
+    const SiStripRegionCabling::ElementCabling& element = (*regions_)[region][subdet][layer];
   
-  // Loop dets
-  SiStripRegionCabling::ElementCabling::const_iterator idet = element.begin();
-  for (;idet!=element.end();idet++) {
+    // Loop dets
+    SiStripRegionCabling::ElementCabling::const_iterator idet = element.begin();
+    for (;idet!=element.end();idet++) {
     
-    // If det id is null or invalid continue.
-    if ( !(idet->first) || (idet->first == sistrip::invalid32_) ) { continue; }
+      // If det id is null or invalid continue.
+      if ( !(idet->first) || (idet->first == sistrip::invalid32_) ) { continue; }
     
-    // Loop over apv-pairs of det
-    std::vector<FedChannelConnection>::const_iterator iconn = idet->second.begin();
-    for (;iconn!=idet->second.end();iconn++) {
+      // Loop over apv-pairs of det
+      std::vector<FedChannelConnection>::const_iterator iconn = idet->second.begin();
+      for (;iconn!=idet->second.end();iconn++) {
       
-      // If fed id is null or connection is invalid continue
-      if ( !iconn->fedId() || !iconn->isConnected() ) { continue; }    
+	// If fed id is null or connection is invalid continue
+	if ( !iconn->fedId() || !iconn->isConnected() ) { continue; }    
       
-      // If Fed hasnt already been initialised, extract data and initialise
-      if (!buffers_[iconn->fedId()]) {
+	// If Fed hasnt already been initialised, extract data and initialise
+	if (!buffers_[iconn->fedId()]) {
 	
-	// Retrieve FED raw data for given FED
-	const FEDRawData& input = raw_->FEDData( static_cast<int>(iconn->fedId()) );
+	  // Retrieve FED raw data for given FED
+	  const FEDRawData& input = raw_->FEDData( static_cast<int>(iconn->fedId()) );
 	
-	// Cache new correctly-ordered FEDRawData object (to maintain scope for Fed9UEvent)
-	fedRawData_.push_back( FEDRawData() );
-	rawToDigi_.locateStartOfFedBuffer( iconn->fedId(), input, fedRawData_.back() );
+	  // Cache new correctly-ordered FEDRawData object (to maintain scope for Fed9UEvent)
+	  fedRawData_.push_back( FEDRawData() );
+	  rawToDigi_.locateStartOfFedBuffer( iconn->fedId(), input, fedRawData_.back() );
 	
-	// Check on FEDRawData pointer
-	if ( !fedRawData_.back().data() ) {
-	  edm::LogWarning(mlRawToCluster_)
-	    << "[sistrip::RawToClustersLazyGetter::" 
-	    << __func__ 
-	    << "]"
-	    << " NULL pointer to FEDRawData for FED id " 
-	    << iconn->fedId();
-	  continue;
-	}	
+	  // Check on FEDRawData pointer
+	  if ( !fedRawData_.back().data() ) {
+	    edm::LogWarning(sistrip::mlRawToCluster_)
+	      << "[sistrip::RawToClustersLazyGetter::" 
+	      << __func__ 
+	      << "]"
+	      << " NULL pointer to FEDRawData for FED id " 
+	      << iconn->fedId();
+	    continue;
+	  }	
 	
-	// Check on FEDRawData size
-	if ( !fedRawData_.back().size() ) {
-	  edm::LogWarning(mlRawToCluster_)
-	    << "[sistrip::RawToClustersLazyGetter::" 
-	    << __func__ << "]"
-	    << " FEDRawData has zero size for FED id " 
-	    << iconn->fedId();
-	  continue;
-	}
+	  // Check on FEDRawData size
+	  if ( !fedRawData_.back().size() ) {
+	    edm::LogWarning(sistrip::mlRawToCluster_)
+	      << "[sistrip::RawToClustersLazyGetter::" 
+	      << __func__ << "]"
+	      << " FEDRawData has zero size for FED id " 
+	      << iconn->fedId();
+	    continue;
+	  }
 	
-	// construct FEDBuffer
-	try {buffers_[iconn->fedId()] = new sistrip::FEDBuffer(fedRawData_.back().data(),fedRawData_.back().size());}
-	catch (const cms::Exception& e) { 
-	  edm::LogWarning(mlRawToCluster_) 
-	    << e.what();
-	  if ( buffers_[iconn->fedId()] ) { delete buffers_[iconn->fedId()]; }
-	  buffers_[iconn->fedId()] = 0;
-	  continue;
+	  // construct FEDBuffer
+	  try {buffers_[iconn->fedId()] = new sistrip::FEDBuffer(fedRawData_.back().data(),fedRawData_.back().size());}
+	  catch (const cms::Exception& e) { 
+	    edm::LogWarning(sistrip::mlRawToCluster_) 
+	      << e.what();
+	    if ( buffers_[iconn->fedId()] ) { delete buffers_[iconn->fedId()]; }
+	    buffers_[iconn->fedId()] = 0;
+	    continue;
+	  }
+
+	  // dump of FEDRawData to stdout
+	  if ( dump_ ) {
+	    std::stringstream ss;
+	    rawToDigi_.dumpRawData( iconn->fedId(), input, ss );
+	    LogTrace(mlRawToDigi_) 
+	      << ss.str();
+	  }
+
+	  // record readout mode
+	  mode_ = buffers_[iconn->fedId()]->readoutMode();
 	}
 
-	// dump of FEDRawData to stdout
-	if ( dump_ ) {
-	  std::stringstream ss;
-	  rawToDigi_.dumpRawData( iconn->fedId(), input, ss );
-	  LogTrace(mlRawToDigi_) 
-	    << ss.str();
-	}
-
-	// record readout mode
-	mode_ = buffers_[iconn->fedId()]->readoutMode();
-      }
-
-      // check channel
-      if (!buffers_[iconn->fedId()]->channelGood(iconn->fedCh())) continue; 
+	// check channel
+	if (!buffers_[iconn->fedId()]->channelGood(iconn->fedCh())) continue; 
       
-      // Determine key that should be used to index digi containers
-      uint32_t key = iconn->detId();
+	// Determine key that should be used to index digi containers
+	uint32_t key = iconn->detId();
       
-      // Determine APV std::pair number
-      uint16_t ipair = iconn->apvPairNumber();
+	// Determine APV std::pair number
+	uint16_t ipair = iconn->apvPairNumber();
 
 
-      if (mode_ == sistrip::READOUT_MODE_ZERO_SUPPRESSED ) { 
+	if (mode_ == sistrip::READOUT_MODE_ZERO_SUPPRESSED ) { 
 	
-	// create unpacker
-	sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffers_[iconn->fedId()]->channel(iconn->fedCh()));
+	  // create unpacker
+	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffers_[iconn->fedId()]->channel(iconn->fedCh()));
 	
-	// unpack
-	while (unpacker.hasData()) {
-	  clusterizer_->algorithm()->add(record,key,unpacker.strip()+ipair*256,unpacker.adc());
-	  unpacker++;
+	  // unpack
+	  while (unpacker.hasData()) {
+	    clusterizer_->algorithm()->add(record,key,unpacker.strip()+ipair*256,unpacker.adc());
+	    unpacker++;
+	  }
 	}
-      }
 
-      else if (mode_ == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE ) { 
+	else if (mode_ == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE ) { 
 	
-	// create unpacker
-	sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffers_[iconn->fedId()]->channel(iconn->fedCh()));
+	  // create unpacker
+	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffers_[iconn->fedId()]->channel(iconn->fedCh()));
 	
-	// unpack
-	while (unpacker.hasData()) {
-	  clusterizer_->algorithm()->add(record,key,unpacker.strip()+ipair*256,unpacker.adc());
-	  unpacker++;
+	  // unpack
+	  while (unpacker.hasData()) {
+	    clusterizer_->algorithm()->add(record,key,unpacker.strip()+ipair*256,unpacker.adc());
+	    unpacker++;
+	  }
 	}
-      }
 
-      else {
-	  edm::LogWarning(mlRawToCluster_)
+	else {
+	  edm::LogWarning(sistrip::mlRawToCluster_)
 	    << "[sistrip::RawToClustersLazyGetter::" 
 	    << __func__ << "]"
 	    << " FEDRawData readout mode "
@@ -308,8 +308,9 @@ void sistrip::RawToClustersLazyUnpacker::fill(const uint32_t& index, record_type
 	    << " not supported."; 
 	  continue;
 	}
+      }
+      clusterizer_->algorithm()->endDet(record,idet->first);
     }
-    clusterizer_->algorithm()->endDet(record,idet->first);
   }
-}
 
+}  

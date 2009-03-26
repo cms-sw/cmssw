@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRaw.cc,v 1.31 2008/12/03 13:18:32 pwing Exp $
+// Last commit: $Id: OldSiStripDigiToRaw.cc,v 1.32 2009/03/04 13:37:50 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -18,7 +18,7 @@ using namespace std;
 
 // -----------------------------------------------------------------------------
 /** */
-SiStripDigiToRaw::SiStripDigiToRaw( std::string mode, 
+OldSiStripDigiToRaw::OldSiStripDigiToRaw( std::string mode, 
 				    int16_t nbytes,
 				    bool use_fed_key ) : 
   readoutMode_(mode),
@@ -27,17 +27,17 @@ SiStripDigiToRaw::SiStripDigiToRaw( std::string mode,
 {
   if ( edm::isDebugEnabled() ) {
     LogDebug("DigiToRaw")
-      << "[SiStripDigiToRaw::SiStripDigiToRaw]"
+      << "[OldSiStripDigiToRaw::OldSiStripDigiToRaw]"
       << " Constructing object...";
   }
 }
 
 // -----------------------------------------------------------------------------
 /** */
-SiStripDigiToRaw::~SiStripDigiToRaw() {
+OldSiStripDigiToRaw::~OldSiStripDigiToRaw() {
   if ( edm::isDebugEnabled() ) {
     LogDebug("DigiToRaw")
-      << "[SiStripDigiToRaw::~SiStripDigiToRaw]"
+      << "[OldSiStripDigiToRaw::~OldSiStripDigiToRaw]"
       << " Destructing object...";
   }
 }
@@ -51,7 +51,7 @@ SiStripDigiToRaw::~SiStripDigiToRaw() {
 //     Fed9UEvent object using current FEDRawData buffer, dumps FED
 //     buffer to stdout, retrieves data from various header fields
 */
-void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
+void OldSiStripDigiToRaw::createFedBuffers( edm::Event& event,
 					 edm::ESHandle<SiStripFedCabling>& cabling,
 					 edm::Handle< edm::DetSetVector<SiStripDigi> >& collection,
 					 auto_ptr<FEDRawDataCollection>& buffers ) {
@@ -98,7 +98,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
 	  if ( strip >= strips_per_fed ) {
 	    if ( edm::isDebugEnabled() ) {
 	      std::stringstream ss;
-	      ss << "[SiStripDigiToRaw::createFedBuffers]"
+	      ss << "[OldSiStripDigiToRaw::createFedBuffers]"
 		 << " strip >= strips_per_fed";
 	      edm::LogWarning("DigiToRaw") << ss.str();
 	    }
@@ -109,7 +109,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
 	  if ( edm::isDebugEnabled() ) {
 	    if ( raw_data[strip] && raw_data[strip] != (*idigi).adc() ) {
 	      std::stringstream ss; 
-	      ss << "[SiStripDigiToRaw::createFedBuffers]" 
+	      ss << "[OldSiStripDigiToRaw::createFedBuffers]" 
 		 << " Incompatible ADC values in buffer!"
 		 << "  FedId/FedCh: " << *ifed << "/" << iconn->fedCh()
 		 << "  DetStrip: " << (*idigi).strip() 
@@ -132,7 +132,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
       if ( readoutMode_ == "SCOPE_MODE" ) {
 	if ( edm::isDebugEnabled() ) {
 	  edm::LogWarning("DigiToRaw")
- 	    << "[SiStripDigiToRaw::createFedBuffers]" 
+ 	    << "[OldSiStripDigiToRaw::createFedBuffers]" 
 	    << " Fed9UBufferCreatorScopeMode not implemented yet!";
 	}
       } else if ( readoutMode_ == "VIRGIN_RAW" ) {
@@ -144,7 +144,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
       } else {
 	if ( edm::isDebugEnabled() ) {
 	  edm::LogWarning("DigiToRaw")
- 	    << "[SiStripDigiToRaw::createFedBuffers]" 
+ 	    << "[OldSiStripDigiToRaw::createFedBuffers]" 
 	    << " UNKNOWN readout mode";
 	}
       }
@@ -152,7 +152,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
       if ( !creator ) { 
 	if ( edm::isDebugEnabled() ) {
 	  edm::LogWarning("DigiToRaw")
- 	    << "[SiStripDigiToRaw::createFedBuffers]" 
+ 	    << "[OldSiStripDigiToRaw::createFedBuffers]" 
 	    << " NULL pointer to Fed9UBufferCreator";
 	}
 	return; 
@@ -198,7 +198,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
   catch ( std::string err ) {
     if ( edm::isDebugEnabled() ) {
       edm::LogWarning("DigiToRaw") 
-	<< "SiStripDigiToRaw::createFedBuffers] " 
+	<< "OldSiStripDigiToRaw::createFedBuffers] " 
 	<< "Exception caught : " << err;
     }
   }
