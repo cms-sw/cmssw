@@ -1,5 +1,5 @@
-#ifndef TSCPBuilderNoMaterial_H
-#define TSCPBuilderNoMaterial_H
+#ifndef TSCBLBuilderWithPropagator_H
+#define TSCBLBuilderWithPropagator_H
 
 #include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
