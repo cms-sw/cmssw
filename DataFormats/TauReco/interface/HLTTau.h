@@ -61,7 +61,7 @@ namespace reco {
     int   getL3TrackIsolationResponse()const { return trackIsolationL3_; }
     int   getNL3TrackIsolation() const { return nTrackIsolationL3_; }
     float getL3LeadTrackPtValue() const { return leadTrackPtL3_; }
-    float getSumPtTracksL25() const {return sumPtTracksL25_;}
+    float getSumPtTracksL26() const {return sumPtTracksL25_;}
     float getSumPtTracksL3() const {return sumPtTracksL3_;}
 
     double getSeedEcalHitEt() const {return seedEcalHitEt_;} //Lead PF Cluster Et /or simple cluster/or crystal
@@ -74,15 +74,15 @@ namespace reco {
     int getNHcalHits() const {return nHcalHits_;}
 
 
-    void   setNL25TrackIsolation(int nTracks)  { nTrackIsolationL25_ = nTracks; }
-    void   setNL3TrackIsolation(int nTracks)  { nTrackIsolationL3_ = nTracks; }  
-    float setSumPtTracksL25(double sumPt) {sumPtTracksL25_ = sumPt;}
-    float setSumPtTracksL3(double sumPt) {sumPtTracksL3_ = sumPt;}    
+    void  setNL25TrackIsolation(int nTracks)  { nTrackIsolationL25_ = nTracks; }
+    void  setNL3TrackIsolation(int nTracks)  { nTrackIsolationL3_ = nTracks; }  
+    void setSumPtTracksL25(double sumPt) {sumPtTracksL25_ = sumPt;}
+    void setSumPtTracksL3(double sumPt) {sumPtTracksL3_ = sumPt;}    
     void setSeedEcalHitEt(double  seed)   {seedEcalHitEt_ = seed;} 
     void setEcalClusterShape(std::vector<double> clusters)  {ecalClusterShape_ = clusters;} 
     void setNEcalHits(int nhits)  { nEcalHits_ = nhits;} 
     
-   void setHcalIsolEt(double hcalIso)  { hcalIsolEt_ = hcalIso;}
+    void setHcalIsolEt(double hcalIso)  { hcalIsolEt_ = hcalIso;}
     void setSeedHcalHitEt(double seed)  { seedHcalHitEt_ = seed;}
     void setHcalClusterShape(std::vector<double> clusters)  { hcalClusterShape_ = clusters;}
     void setNHcalHits(int nhits)  { nHcalHits_ = nhits;}
