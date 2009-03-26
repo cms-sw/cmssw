@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.25 2009/03/24 15:34:08 jdraeger Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.26 2009/03/24 16:13:54 jdraeger Exp $
 //
 //
 
@@ -1144,22 +1144,34 @@ TrackerOfflineValidation::fillTree(TTree &tree,
     treeMem.posZ   = gPModule.z();
  
     const Surface& surface =  tkgeom.idToDet(detId_)->surface();
-       
-
-    LocalPoint  lPhiDirection(1.,0.,0.), lROrZDirection(0.,1.,0.);
-    GlobalPoint gPhiDirection  = surface.toGlobal(lPhiDirection),
-                gROrZDirection = surface.toGlobal(lROrZDirection);
-  double dPhi = deltaPhi(gPhiDirection.phi(),gPModule.phi());
-  if(dPhi>=0.)treeMem.phiDirection = 1; else treeMem.phiDirection = -1;
-  if(treeMem.subDetId== 1 || treeMem.subDetId== 3 || treeMem.subDetId==5){
-    double dZ = gROrZDirection.z() - gPModule.z();
-    if(dZ>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
-  }else{
-    double dR = gROrZDirection.perp() - gPModule.perp();
-    if(dR>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
-  }
-
-
+    
+    //global Orientation of local coordinate system of dets/detUnits   
+    LocalPoint  lUDirection(1.,0.,0.), lVDirection(0.,1.,0.), lWDirection(0.,0.,1.);
+    GlobalPoint gUDirection = surface.toGlobal(lUDirection),
+                gVDirection = surface.toGlobal(lVDirection),
+		gWDirection = surface.toGlobal(lWDirection);
+    double dR(999.), dPhi(999.), dZ(999.);
+    if(treeMem.subDetId==PixelSubdetector::PixelBarrel || treeMem.subDetId==StripSubdetector::TIB || treeMem.subDetId==StripSubdetector::TOB){
+      dR = gWDirection.perp() - gPModule.perp();
+      dPhi = deltaPhi(gUDirection.phi(),gPModule.phi());
+      dZ = gVDirection.z() - gPModule.z();
+      if(dZ>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
+    }else if(treeMem.subDetId==PixelSubdetector::PixelEndcap){
+      dR = gUDirection.perp() - gPModule.perp();
+      dPhi = deltaPhi(gVDirection.phi(),gPModule.phi());
+      dZ = gWDirection.z() - gPModule.z();
+      if(dR>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
+    }else if(treeMem.subDetId==StripSubdetector::TID || treeMem.subDetId==StripSubdetector::TEC){
+      dR = gVDirection.perp() - gPModule.perp();
+      dPhi = deltaPhi(gUDirection.phi(),gPModule.phi());
+      dZ = gWDirection.z() - gPModule.z();
+      if(dR>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
+    }
+    if(dR>=0.)treeMem.rDirection = 1; else treeMem.rDirection = -1;
+    if(dPhi>=0.)treeMem.phiDirection = 1; else treeMem.phiDirection = -1;
+    if(dZ>=0.)treeMem.zDirection = 1; else treeMem.zDirection = -1;
+    
+    
     //mean and RMS values (extracted from histograms(Xprime on module level)
     treeMem.entries = static_cast<UInt_t>(it->second.ResXprimeHisto->GetEntries());
     treeMem.meanX = it->second.ResXprimeHisto->GetMean();
