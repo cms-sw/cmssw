@@ -12,7 +12,7 @@
 //
 // Original Author:  Piotr Traczyk, CERN
 //         Created:  Mon Mar 16 12:27:22 CET 2009
-// $Id$
+// $Id: MuonTimingProducer.cc,v 1.1 2009/03/26 23:23:10 ptraczyk Exp $
 //
 //
 
@@ -78,10 +78,6 @@ MuonTimingProducer::endJob() {
 void
 MuonTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-//  using namespace edm;
-
-//  std::auto_ptr<reco::MuonTimeExtraCollection> muonTimeColl(new reco::MuonTimeExtraCollection());
-//  reco::MuonTimeExtraRefProd muonTimeCollRefProd = iEvent.getRefBeforePut<reco::MuonTimeExtraCollection>();
   std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMap(new reco::MuonTimeExtraMap());
   reco::MuonTimeExtraMap::Filler filler(*muonTimeMap);
   
@@ -143,8 +139,7 @@ MuonTimingProducer::fillTiming( reco::MuonRef muon, reco::MuonTimeExtra& dtTime,
   if (dtTime.nDof())
     fillTimeFromMeasurements(dtTmSeq, combinedTime);
      
-//     LogTrace("MuonTime") 
-  cout << "Global 1/beta: " << combinedTime.inverseBeta() << " +/- " << combinedTime.inverseBetaErr()<<std::endl;
+  LogTrace("MuonTime") << "Global 1/beta: " << combinedTime.inverseBeta() << " +/- " << combinedTime.inverseBetaErr()<<std::endl;
   LogTrace("MuonTime") << "  Free 1/beta: " << combinedTime.freeInverseBeta() << " +/- " << combinedTime.freeInverseBetaErr()<<std::endl;
   LogTrace("MuonTime") << "  Vertex time (in-out): " << combinedTime.timeAtIpInOut() << " +/- " << combinedTime.timeAtIpInOutErr()
                        << "  # of points: " << combinedTime.nDof() <<std::endl;
@@ -230,7 +225,6 @@ MuonTimingProducer::rawFit(double &a, double &da, double &b, double &db, const v
     db = sqrt(s/d);
   }
 }
-
 
 //define this as a plug-in
 //DEFINE_FWK_MODULE(MuonTimingProducer);
