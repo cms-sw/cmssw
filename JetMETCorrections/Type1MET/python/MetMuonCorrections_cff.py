@@ -1,19 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-import JetMETCorrections.Type1MET.corMetMuons_cfi
+from TrackingTools.TrackAssociator.default_cfi import *
+from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
 
-
-goodMuonsforMETCorrection = cms.EDFilter("MuonSelector",
-    src = cms.InputTag("muons"),
-    cut = cms.string('isGlobalMuon=1 & pt > 10.0 & abs(eta)<2.5 & innerTrack.numberOfValidHits>5 & combinedMuon.qoverpError< 0.5')
+corMetGlobalMuons = cms.EDProducer("MuonMET",
+     metTypeInputTag = cms.InputTag("CaloMET"),
+     uncorMETInputTag = cms.InputTag("met"),
+     muonsInputTag  = cms.InputTag("muons"),
+     muonValueMapFlagInputTag = cms.InputTag("muonMETValueMapProducer","muCorrFlag",""),
+     muonValueMapDeltaXInputTag = cms.InputTag("muonMETValueMapProducer","muCorrDepX",""),
+     muonValueMapDeltaYInputTag = cms.InputTag("muonMETValueMapProducer","muCorrDepY","")
 )
-
-corMetGlobalMuons = JetMETCorrections.Type1MET.corMetMuons_cfi.corMetMuons.clone()
-##MetMuonCorrections = cms.Sequence(corMetGlobalMuons)
-MetMuonCorrections = cms.Sequence(goodMuonsforMETCorrection*corMetGlobalMuons)
-corMetGlobalMuons.TrackAssociatorParameters.useEcal = False
-corMetGlobalMuons.TrackAssociatorParameters.useHcal = False
-corMetGlobalMuons.TrackAssociatorParameters.useHO = False
-corMetGlobalMuons.TrackAssociatorParameters.useCalo = True
-corMetGlobalMuons.TrackAssociatorParameters.useMuon = False
-corMetGlobalMuons.TrackAssociatorParameters.truthMatch = False
