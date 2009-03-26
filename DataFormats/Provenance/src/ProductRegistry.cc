@@ -12,6 +12,8 @@
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <algorithm>
 #include <sstream>
 
@@ -217,45 +219,54 @@ namespace edm {
       }
 
       constProductList().insert(std::make_pair(i->first, ConstBranchDescription(i->second)));
-
+      
       Reflex::Type type(Reflex::Type::ByName(i->second.className()));
-      if(!bool(type)) {
-        throw edm::Exception(errors::DictionaryNotFound) << "Could not find a Reflex dictionary for class '"
-          << i->second.className()
-          << "'.  This class was registered as one that is supposed to be held by an edm::Event, LuminosityBlock, or Run. "
+      //only do the following if the data is supposed to be available in the event
+      if(i->second.present()) {
+        if(not bool(type)) {
+          edm::LogWarning("Missing Dictionary")<<"Could not find a Reflex dictionary for class '"<<i->second.className()
+          <<"'.  This class was registered as one which is supposed to be held by an edm::Event, LuminosityBlock, or Run but will not be available. "
           "Please check\n"
-          "1) was a Reflex dictionary created for the class,\n"
-          "2) if so was the package with the dictionary linked with all plugins that use that class.\n";
-      }
-
-      ProcessLookup& processLookup = productLookup()[edm::TypeID(type.TypeInfo())];
-      std::vector<BranchID>& vint = processLookup[i->first.processName_];
-      vint.push_back(i->second.branchID());
-
-      // Here we look in the object named "type" for a typedef
-      // named "value_type" and get the Reflex::Type for it.
-      // Then check to ensure the Reflex dictionary is defined
-      // for this value_type.
-      // I do not throw an exception here if the check fails
-      // because there are known cases where the dictionary does
-      // not exist and we do not need to support those cases.
-      Reflex::Type valueType;
-      if ((is_RefVector(type, valueType) || 
-	   is_RefToBaseVector(type, valueType ) || 
-	   value_type_of(type, valueType)) 
-          && bool(valueType)) {
-
-        fillElementLookup(valueType, i->second.branchID(), i->first);
-
-        // Repeat this for all public base classes of the value_type
-        std::vector<Reflex::Type> baseTypes;
-        public_base_classes(valueType, baseTypes);
-
-        for (std::vector<Reflex::Type>::iterator iter = baseTypes.begin(),
-	     iend = baseTypes.end();
-             iter != iend;
-             ++iter) {
-          fillElementLookup(*iter, i->second.branchID(), i->first);
+          " 1) was a Reflex dictionary created for the class,\n"
+          " 2) if so was the package with the dictionary linked with all plugins that use that class,\n"
+          " 3) the file is from an old release and this data type has been removed from the present release.";
+          continue;
+        }
+        
+        
+        ProcessLookup& processLookup = productLookup()[edm::TypeID(type.TypeInfo())];
+        std::vector<BranchID>& vint = processLookup[i->first.processName_];
+        vint.push_back(i->second.branchID());
+        //[could use productID instead]
+        
+        if (bool(type)) {
+          
+          // Here we look in the object named "type" for a typedef
+          // named "value_type" and get the Reflex::Type for it.
+          // Then check to ensure the Reflex dictionary is defined
+          // for this value_type.
+          // I do not throw an exception here if the check fails
+          // because there are known cases where the dictionary does
+          // not exist and we do not need to support those cases.
+          Reflex::Type valueType;
+          if ((is_RefVector(type, valueType) || 
+               is_RefToBaseVector(type, valueType ) || 
+               value_type_of(type, valueType)) 
+              && bool(valueType)) {
+            
+            fillElementLookup(valueType, i->second.branchID(), i->first);
+            
+            // Repeat this for all public base classes of the value_type
+            std::vector<Reflex::Type> baseTypes;
+            public_base_classes(valueType, baseTypes);
+            
+            for (std::vector<Reflex::Type>::iterator iter = baseTypes.begin(),
+                 iend = baseTypes.end();
+                    iter != iend;
+                 ++iter) {
+              fillElementLookup(*iter, i->second.branchID(), i->first);
+            }
+          }
         }
       }
     }
