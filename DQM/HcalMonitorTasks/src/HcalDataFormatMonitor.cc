@@ -681,7 +681,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   //Force 0<= dcc_ <= 31
   int dcc_=max(0,dccid-700);  
   dcc_ = min(dcc_,31);       
-  if(fVerbosity) cout << "DCC " << dccid << endl;
+  if(fVerbosity>1) cout << "DCC " << dccid << endl;
   //There should never be HCAL DCCs reporting a fed id outside [700:731]
   meFEDId_->Fill(dccid);
 

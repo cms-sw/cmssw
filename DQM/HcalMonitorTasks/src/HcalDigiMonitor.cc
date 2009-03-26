@@ -139,6 +139,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 	  DigiErrorsBadADCSum[i]->setTitle(static_cast<const string>(name.str().c_str()));
 	  name.str("");
 	}
+      // These are no longer filled here -- taken care of in dead cell monitor 
       m_dbe->setCurrentFolder(baseFolder_+"/problem_digis/nodigis");
       name<<" Digis Missing for a Number of Consecutive Events";
       // setup requires char*; .c_str() returns const char*; recast
@@ -1049,7 +1050,7 @@ void HcalDigiMonitor::fill_Nevents()
 	  for (int d=0;d<6;++d)
 	    {
 	      iDepth=d+1;
-	     
+	      ProblemDigisByDepth[d]->setBinContent(0,0,ievt_); // underflow bin contains event counter
 	      // HB
 	      if (validDetId(HcalBarrel, iEta, iPhi, iDepth))
 		{
@@ -1076,9 +1077,9 @@ void HcalDigiMonitor::fill_Nevents()
 		      DigiErrorsDVErr[d]->Fill(iEta, iPhi,
 					       digierrorsdverr[eta][phi][d]);
 		      problemsum+=problemdigis[eta][phi][d];
-		      problemvalue=problemdigis[eta][phi][d];
+		      problemvalue=min(ievt_,problemdigis[eta][phi][d]);
 		      ProblemDigisByDepth[d]->Fill(iEta, iPhi,
-							    problemvalue);
+						   problemvalue);
 		      // Use this for testing purposes only
 		      //ProblemDigisByDepth[d]->Fill(iEta, iPhi, ievt_);
 		    } // if (hbHists.check)
@@ -1213,7 +1214,9 @@ void HcalDigiMonitor::fill_Nevents()
 	  if (valid==true) // only fill overall problem plot if the (eta,phi) value was valid for some depth
 	    {
 	      //problemvalue=min(1.,problemsum/ievt_);
+	      problemsum=min((double)ievt_,problemsum);
 	      ProblemDigis->Fill(iEta, iPhi,problemsum);
+	      ProblemDigis->setBinContent(0,0,ievt_);
 	    }
 	} // for (int phi=0;...)
     } // for (int eta=0;...)

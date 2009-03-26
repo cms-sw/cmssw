@@ -1,6 +1,6 @@
 #include "DQM/HcalMonitorTasks/interface/HcalHotCellMonitor.h"
 
-#define OUT if(fverbosity_)cout
+#define OUT if(fverbosity_)std::cout
 #define BITSHIFT 6
 
 using namespace std;
@@ -36,12 +36,12 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
   baseFolder_ = rootFolder_+"HotCellMonitor_Hcal";
 
   if (fVerbosity>0)
-    cout <<"<HcalHotCellMonitor::setup>  Setting up histograms"<<endl;
+    std::cout <<"<HcalHotCellMonitor::setup>  Setting up histograms"<<std::endl;
   
   // Hot Cell Monitor - specific cfg variables
 
   if (fVerbosity>1)
-    cout <<"<HcalHotCellMonitor::setup>  Getting variable values from cfg files"<<endl;
+    std::cout <<"<HcalHotCellMonitor::setup>  Getting variable values from cfg files"<<std::endl;
   // determine whether database pedestals are in FC or ADC
   doFCpeds_ = ps.getUntrackedParameter<bool>("HotCellMonitor_pedestalsInFC", true);
 
@@ -109,7 +109,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
   if (m_dbe)
     {
       if (fVerbosity>1)
-	cout <<"<HcalHotCellMonitor::setup>  Setting up histograms"<<endl;
+	std::cout <<"<HcalHotCellMonitor::setup>  Setting up histograms"<<std::endl;
 
       m_dbe->setCurrentFolder(baseFolder_);
       meEVT_ = m_dbe->bookInt("Hot Cell Task Event Number");
@@ -310,7 +310,7 @@ void HcalHotCellMonitor::createMaps(const HcalDbService& cond)
     }
   
   if (fVerbosity>0)
-    cout <<"<HcalHotCellMonitor::createMaps>:  Making pedestal maps"<<endl;
+    std::cout <<"<HcalHotCellMonitor::createMaps>:  Making pedestal maps"<<std::endl;
   double ped=0;
   double width=0;
   HcalCalibrations calibs;
@@ -373,7 +373,7 @@ void HcalHotCellMonitor::createMaps(const HcalDbService& cond)
 
 		  pedestals_[hcal]=ped;
 		  widths_[hcal]=width;
-		  if (fVerbosity>1) cout <<"<HcalHotCellMonitor::createMaps>  Pedestal Value -- ID = "<<(HcalSubdetector)subdet<<"  ("<<ieta<<", "<<iphi<<", "<<depth<<"): "<<ped<<"; width = "<<width<<endl;
+		  if (fVerbosity>1) std::cout <<"<HcalHotCellMonitor::createMaps>  Pedestal Value -- ID = "<<(HcalSubdetector)subdet<<"  ("<<ieta<<", "<<iphi<<", "<<depth<<"): "<<ped<<"; width = "<<width<<std::endl;
 		  pedestal_thresholds_[hcal]=ped+myNsigma*width;
 		} // for (int subdet=1,...)
 	    } // for (int depth=1;...)
@@ -412,8 +412,8 @@ void HcalHotCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
   char* subdetname;
   if (fVerbosity>1)
     {
-      cout <<"<HcalHotCellMonitor>  Summary of Hot Cells in Run: "<<endl;
-      cout <<"(Error rate must be >= "<<hotmon_minErrorFlag_*100.<<"% )"<<endl;  
+      std::cout <<"<HcalHotCellMonitor>  Summary of Hot Cells in Run: "<<std::endl;
+      std::cout <<"(Error rate must be >= "<<hotmon_minErrorFlag_*100.<<"% )"<<std::endl;  
     }
   for (int ieta=1;ieta<=etaBins_;++ieta)
     {
@@ -467,7 +467,7 @@ void HcalHotCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
 	      if (!validDetId((HcalSubdetector)(subdet), eta, phi, mydepth))
 		continue;
 	      if (fVerbosity>0 && binval>hotmon_minErrorFlag_)
-		cout <<"Hot Cell "<<subdet<<"("<<eta<<", "<<phi<<", "<<mydepth<<"):  "<<binval*100.<<"%"<<endl;
+		std::cout <<"Hot Cell "<<subdet<<"("<<eta<<", "<<phi<<", "<<mydepth<<"):  "<<binval*100.<<"%"<<std::endl;
 	      
 	      if (binval<=hotmon_minErrorFlag_)
 		continue;
@@ -530,7 +530,7 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 				       const HcalDbService& cond
 				       )
 {
-
+  
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
@@ -539,7 +539,7 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
   ++ievt_;
   if (m_dbe) meEVT_->Fill(ievt_);
 
-  if (fVerbosity>1) cout <<"<HcalHotCellMonitor::processEvent> Processing event..."<<endl;
+  if (fVerbosity>1) std::cout <<"<HcalHotCellMonitor::processEvent> Processing event..."<<std::endl;
 
   // Search for cells consistently above (pedestal + N sigma)
   if (hotmon_test_pedestal_)
@@ -609,7 +609,7 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
       cpu_timer.reset(); cpu_timer.start();
     }
 
- if (fVerbosity>1) cout <<"<HcalHotCellMonitor::processEvent_rechitenergy> Processing rechits..."<<endl;
+ if (fVerbosity>1) std::cout <<"<HcalHotCellMonitor::processEvent_rechitenergy> Processing rechits..."<<std::endl;
  if (hotmon_test_neighbor_)   rechitEnergies_.clear();
 
  // loop over HBHE
@@ -698,7 +698,9 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 	   }
 	 if (hotmon_makeDiagnostics_) d_HFrechitenergy->Fill(en);
 	 if (en>=HFenergyThreshold_)
-	   ++aboveenergy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]; 
+	   {
+	     ++aboveenergy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]; 
+	   }
 	 if (en>=HFpersistentThreshold_)
 	   ++abovepersistent[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
 	 if (hotmon_test_neighbor_) rechitEnergies_[id]=en;
@@ -709,18 +711,18 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
  // Fill histograms 
   if (ievt_%hotmon_checkNevents_==0)
     {
-	if (fVerbosity) cout <<"<HcalHotCellMonitor::processEvent_digi> Filling HotCell Energy plots"<<endl;
+	if (fVerbosity) std::cout <<"<HcalHotCellMonitor::processEvent_digi> Filling HotCell Energy plots"<<std::endl;
 	fillNevents_energy();
     }
   if (ievt_%hotmon_checkNevents_==0)
     {
-	if (fVerbosity) cout <<"<HcalHotCellMonitor::processEvent_digi> Filling HotCell Persistent Energy plots"<<endl;
+	if (fVerbosity) std::cout <<"<HcalHotCellMonitor::processEvent_digi> Filling HotCell Persistent Energy plots"<<std::endl;
 	fillNevents_persistentenergy();
     }
   
  if (showTiming)
    {
-     cpu_timer.stop();  cout <<"TIMER:: HcalHotCellMonitor PROCESSEVENT_RECHITENERGY -> "<<cpu_timer.cpuTime()<<endl;
+     cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellMonitor PROCESSEVENT_RECHITENERGY -> "<<cpu_timer.cpuTime()<<std::endl;
    }
  
  return;
@@ -742,7 +744,7 @@ void HcalHotCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollectio
       cpu_timer.reset(); cpu_timer.start();
     }
 
- if (fVerbosity>1) cout <<"<HcalHotCellMonitor::processEvent_rechitneighbors> Processing rechits..."<<endl;
+ if (fVerbosity>1) std::cout <<"<HcalHotCellMonitor::processEvent_rechitneighbors> Processing rechits..."<<std::endl;
 
  // if Energy tests weren't run, need to create map of Detid:rechitenergy here
  if (!hotmon_test_energy_ && !hotmon_test_persistent_)
@@ -1037,13 +1039,13 @@ void HcalHotCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollectio
  // Fill histograms 
   if (ievt_%hotmon_checkNevents_==0)
     {
-	if (fVerbosity) cout <<"<HcalHotCellMonitor::processEvent_digi> Filling HotCell Neighbor plots"<<endl;
+	if (fVerbosity) std::cout <<"<HcalHotCellMonitor::processEvent_digi> Filling HotCell Neighbor plots"<<std::endl;
 	fillNevents_neighbor();
     }
 
  if (showTiming)
    {
-     cpu_timer.stop();  cout <<"TIMER:: HcalHotCellMonitor PROCESSEVENT_RECHITNEIGHBOR -> "<<cpu_timer.cpuTime()<<endl;
+     cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellMonitor PROCESSEVENT_RECHITNEIGHBOR -> "<<cpu_timer.cpuTime()<<std::endl;
    }
  return;
 } // void HcalHotCellMonitor::processEvent_rechitneighbor
@@ -1065,7 +1067,7 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
       cpu_timer.reset(); cpu_timer.start();
     }
 
-  if (fVerbosity>1) cout <<"<HcalHotCellMonitor::processEvent_pedestal> Processing digis..."<<endl;
+  if (fVerbosity>1) std::cout <<"<HcalHotCellMonitor::processEvent_pedestal> Processing digis..."<<std::endl;
 
   // Variables used in pedestal check
   float digival=0;
@@ -1084,7 +1086,7 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
 
   // Loop over HBHE digis
 
-  if (fVerbosity>2) cout <<"<HcalHotCellMonitor::processEvent_pedestal> Processing HBHE..."<<endl;
+  if (fVerbosity>2) std::cout <<"<HcalHotCellMonitor::processEvent_pedestal> Processing HBHE..."<<std::endl;
 
   for (HBHEDigiCollection::const_iterator j=hbhedigi.begin();
        j!=hbhedigi.end(); ++j)
@@ -1164,7 +1166,7 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
   // Loop over HO
   if (checkHO_)
     {
-      if (fVerbosity>2) cout <<"<HcalHotCellMonitor::processEvent_pedestal> Processing HO..."<<endl;
+      if (fVerbosity>2) std::cout <<"<HcalHotCellMonitor::processEvent_pedestal> Processing HO..."<<std::endl;
       
       for (HODigiCollection::const_iterator j=hodigi.begin();
 	   j!=hodigi.end(); ++j)
@@ -1236,7 +1238,7 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
   if (checkHF_)
     {
       // Loop over HF
-      if (fVerbosity>2) cout <<"<HcalHotCellMonitor::processEvent_pedestal> Processing HF..."<<endl;
+      if (fVerbosity>2) std::cout <<"<HcalHotCellMonitor::processEvent_pedestal> Processing HF..."<<std::endl;
 
       for (HFDigiCollection::const_iterator j=hfdigi.begin();
 	   j!=hfdigi.end(); ++j)
@@ -1308,13 +1310,13 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
   // Fill histograms 
   if (ievt_%hotmon_checkNevents_==0)
     {
-      if (fVerbosity) cout <<"<HcalHotCellMonitor::processEvent_pedestal> Filling HotCell Pedestal plots"<<endl;
+      if (fVerbosity) std::cout <<"<HcalHotCellMonitor::processEvent_pedestal> Filling HotCell Pedestal plots"<<std::endl;
       fillNevents_pedestal();
     }
 
    if (showTiming)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalHotCellMonitor PROCESSEVENT_PEDESTAL -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellMonitor PROCESSEVENT_PEDESTAL -> "<<cpu_timer.cpuTime()<<std::endl;
     }
 
   return;
@@ -1334,7 +1336,7 @@ void HcalHotCellMonitor::fillNevents_persistentenergy(void)
     }
 
   if (fVerbosity>0)
-    cout <<"<HcalHotCellMonitor::fillNevents_persistentenergy> FILLING PERSISTENT ENERGY PLOTS"<<endl;
+    std::cout <<"<HcalHotCellMonitor::fillNevents_persistentenergy> FILLING PERSISTENT ENERGY PLOTS"<<std::endl;
   
   int ieta=0;
   int iphi=0;
@@ -1362,7 +1364,7 @@ void HcalHotCellMonitor::fillNevents_persistentenergy(void)
 		  abovepersistent[eta][phi][depth]=0;
 		  continue;  		
 		}
-	      if (fVerbosity>0) cout <<"HOT CELL; PERSISTENT ENERGY at eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<endl;
+	      if (fVerbosity>0) std::cout <<"HOT CELL; PERSISTENT ENERGY at eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<(depth<5 ? depth+1 : depth -3)<<std::endl;
 	      AbovePersistentThresholdCellsByDepth[depth]->Fill(ieta,iphi,abovepersistent[eta][phi][depth]);		      
 	      //ProblemHotCellsByDepth[depth]->Fill(ieta,iphi,abovepersistent[eta][phi][depth]);
 	      abovepersistent[eta][phi][depth]=0; // reset counter
@@ -1373,7 +1375,7 @@ void HcalHotCellMonitor::fillNevents_persistentenergy(void)
 
   if (showTiming)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalHotCellMonitor FILLNEVENTS_PERSISTENTENERGY -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellMonitor FILLNEVENTS_PERSISTENTENERGY -> "<<cpu_timer.cpuTime()<<std::endl;
     }
 
   return;
@@ -1393,7 +1395,7 @@ void HcalHotCellMonitor::fillNevents_pedestal(void)
     }
 
   if (fVerbosity>0)
-    cout <<"<HcalHotCellMonitor::fillNevents_pedestal> FILLING HOT CELL PEDESTAL PLOTS"<<endl;
+    std::cout <<"<HcalHotCellMonitor::fillNevents_pedestal> FILLING HOT CELL PEDESTAL PLOTS"<<std::endl;
 
   if (hotmon_makeDiagnostics_)
     {
@@ -1432,7 +1434,7 @@ void HcalHotCellMonitor::fillNevents_pedestal(void)
 		}
 
 	      if (fVerbosity>0) 
-		cout <<"HOT CELL; ABOVE PEDESTAL THRESHOLD at eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<endl;
+		std::cout <<"HOT CELL; ABOVE PEDESTAL THRESHOLD at eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<(depth<5 ? depth+1 : depth -3)<<std::endl;
 
 	      AbovePedestalHotCellsByDepth[depth]->Fill(ieta,iphi,abovepedestal[eta][phi][depth]);
 	      //ProblemHotCellsByDepth[depth]->Fill(ieta,iphi,abovepedestal[eta][phi][depth]);
@@ -1445,7 +1447,7 @@ void HcalHotCellMonitor::fillNevents_pedestal(void)
 
   if (showTiming)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalHotCellMonitor FILLNEVENTS_ABOVEPEDESTAL -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellMonitor FILLNEVENTS_ABOVEPEDESTAL -> "<<cpu_timer.cpuTime()<<std::endl;
     }
 
   return;
@@ -1467,7 +1469,7 @@ void HcalHotCellMonitor::fillNevents_energy(void)
     }
 
   if (fVerbosity>0)
-    cout <<"<HcalHotCellMonitor::fillNevents_energy> ABOVE-ENERGY-THRESHOLD PLOTS"<<endl;
+    std::cout <<"<HcalHotCellMonitor::fillNevents_energy> ABOVE-ENERGY-THRESHOLD PLOTS"<<std::endl;
 
   int ieta=0;
   int iphi=0;
@@ -1482,7 +1484,7 @@ void HcalHotCellMonitor::fillNevents_energy(void)
 	      if (aboveenergy[eta][phi][depth]>0)
 		{
 		  if (fVerbosity>2) 
-		    cout <<"HOT CELL; ABOVE ENERGY THRESHOLD at eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<(depth>4 ? depth -1 : depth -3)<<endl;
+		    std::cout <<"HOT CELL; ABOVE ENERGY THRESHOLD at eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<(depth>4 ? depth -1 : depth -3)<<std::endl;
 		  AboveEnergyThresholdCellsByDepth[depth]->Fill(ieta,iphi, aboveenergy[eta][phi][depth]);
 		  //ProblemHotCellsByDepth[depth]->Fill(ieta,iphi,aboveenergy[eta][phi][depth]);
 		  aboveenergy[eta][phi][depth]=0;
@@ -1494,7 +1496,7 @@ void HcalHotCellMonitor::fillNevents_energy(void)
   FillUnphysicalHEHFBins(AboveEnergyThresholdCellsByDepth);
   if (showTiming)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalHotCellMonitor FILLNEVENTS_ENERGY -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellMonitor FILLNEVENTS_ENERGY -> "<<cpu_timer.cpuTime()<<std::endl;
     }
 
   return;
@@ -1516,7 +1518,7 @@ void HcalHotCellMonitor::fillNevents_neighbor(void)
     }
 
   if (fVerbosity>0)
-    cout <<"<HcalHotCellMonitor::fillNevents_neighbor> FILLING ABOVE-NEIGHBOR-ENERGY PLOTS"<<endl;
+    std::cout <<"<HcalHotCellMonitor::fillNevents_neighbor> FILLING ABOVE-NEIGHBOR-ENERGY PLOTS"<<std::endl;
 
   int ieta=0;
   int iphi=0;
@@ -1530,7 +1532,7 @@ void HcalHotCellMonitor::fillNevents_neighbor(void)
             {
 	      if (aboveneighbors[eta][phi][depth]>0)
 		{
-		  if (fVerbosity>2) cout <<"HOT CELL; ABOVE NEIGHBORS at eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<(depth>4 ? depth+1 : depth-3)<<endl;
+		  if (fVerbosity>2) std::cout <<"HOT CELL; ABOVE NEIGHBORS at eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<(depth>4 ? depth+1 : depth-3)<<std::endl;
 		      AboveNeighborsHotCellsByDepth[depth]->Fill(ieta,iphi,aboveneighbors[eta][phi][depth]);
 		      //ProblemHotCellsByDepth[depth]->Fill(ieta,iphi,aboveneighbors[eta][phi][depth]);
 		      //reset counter
@@ -1544,7 +1546,7 @@ void HcalHotCellMonitor::fillNevents_neighbor(void)
 
   if (showTiming)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalHotCellMonitor FILLNEVENTS_NEIGHBOR -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellMonitor FILLNEVENTS_NEIGHBOR -> "<<cpu_timer.cpuTime()<<std::endl;
     }
 
   return;
@@ -1565,7 +1567,7 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
     }
 
   if (fVerbosity>0)
-    cout <<"<HcalHotCellMonitor::fillNevents_problemCells> FILLING PROBLEM CELL PLOTS"<<endl;
+    std::cout <<"<HcalHotCellMonitor::fillNevents_problemCells> FILLING PROBLEM CELL PLOTS"<<std::endl;
 
   int ieta=0;
   int iphi=0;
@@ -1610,13 +1612,13 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
 	      // the total number of bad cells found so far, not just the number of bad cells in the
 	      // last checkNevents.
 	      
-	      //problemvalue=min((double)hotmon_checkNevents_,problemvalue);
+	      problemvalue = min((double)ievt_, problemvalue);
 	      ProblemHotCellsByDepth[mydepth]->setBinContent(eta+2,phi+2,problemvalue);
-
+	      ProblemHotCellsByDepth[mydepth]->setBinContent(0,0,ievt_); // set underflow bin to total number of events (used for normalization)
 	    } // for (int mydepth=0;mydepth<6;...)
-	  //sumproblemvalue=min((double)hotmon_checkNevents_,sumproblemvalue);
+	  sumproblemvalue=min((double)ievt_,sumproblemvalue);
 	  ProblemHotCells->setBinContent(eta+2,phi+2,sumproblemvalue);
-
+	  ProblemHotCells->setBinContent(0,0,ievt_);
 	} // loop on phi=0;phi<72
     } // loop on eta=0; eta<(etaBins_-2)
   
@@ -1625,7 +1627,7 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
   
   if (showTiming)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalHotCellMonitor FILLNEVENTS_PROBLEMCELLS -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellMonitor FILLNEVENTS_PROBLEMCELLS -> "<<cpu_timer.cpuTime()<<std::endl;
     }
 
 } // void HcalHotCellMonitor::fillNevents_problemCells(void)

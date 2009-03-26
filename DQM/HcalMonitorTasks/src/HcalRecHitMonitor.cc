@@ -533,6 +533,11 @@ void HcalRecHitMonitor::fillNevents(void)
   int ieta=0;
   int iphi=0;
   int mydepth=0;
+
+  ProblemRecHits->setBinContent(0,0,ievt_);
+  for (int i=0;i<6;++i)
+    ProblemRecHitsByDepth[i]->setBinContent(0,0,ievt_);
+
   // Fill Occupancy & Average Energy,Time plots
   if (ievt_>0)
     {
@@ -545,12 +550,12 @@ void HcalRecHitMonitor::fillNevents(void)
 	      for (int depth=0;depth<6;++depth)
 		{
 		  mydepth=depth;
-		  OccupancyByDepth[mydepth]->Fill(eta+1,phi+1,occupancy_[eta][phi][mydepth]);
-		  OccupancyThreshByDepth[mydepth]->Fill(eta+1,phi+1,occupancy_thresh_[eta][phi][mydepth]);
-		  EnergyByDepth[mydepth]->Fill(eta+1,phi+1,energy_[eta][phi][mydepth]);
-		  EnergyThreshByDepth[mydepth]->Fill(eta+1,phi+1,energy_thresh_[eta][phi][mydepth]);
-		  TimeByDepth[mydepth]->Fill(eta+1,phi+1,time_[eta][phi][mydepth]);
-		  TimeThreshByDepth[mydepth]->Fill(eta+1,phi+1,time_thresh_[eta][phi][mydepth]);
+		  OccupancyByDepth[mydepth]->Fill(ieta,iphi,occupancy_[eta][phi][mydepth]);
+		  OccupancyThreshByDepth[mydepth]->Fill(ieta,iphi,occupancy_thresh_[eta][phi][mydepth]);
+		  EnergyByDepth[mydepth]->Fill(ieta,iphi,energy_[eta][phi][mydepth]);
+		  EnergyThreshByDepth[mydepth]->Fill(ieta,iphi,energy_thresh_[eta][phi][mydepth]);
+		  TimeByDepth[mydepth]->Fill(ieta,iphi,time_[eta][phi][mydepth]);
+		  TimeThreshByDepth[mydepth]->Fill(ieta,iphi,time_thresh_[eta][phi][mydepth]);
 
 		} // for (int depth=0;depth<6;++depth)
 	    } // for (int phi=0;phi<72;++phi)
