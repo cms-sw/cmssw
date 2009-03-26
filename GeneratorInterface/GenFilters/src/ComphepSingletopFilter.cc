@@ -13,7 +13,7 @@
 //
 // Original Author:  Vladimir Molchanov
 //         Created:  Wed Mar 25 19:43:12 CET 2009
-// $Id$
+// $Id: ComphepSingletopFilter.cc,v 1.1 2009/03/25 21:08:15 mol4anov Exp $
 //
 //
 
@@ -23,33 +23,13 @@
 #include <boost/format.hpp>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "GeneratorInterface/GenFilters/interface/ComphepSingletopFilter.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 
 //
 // class declaration
 //
-
-
-class ComphepSingletopFilter : public edm::EDFilter {
-public:
-    explicit ComphepSingletopFilter(const edm::ParameterSet&);
-    ~ComphepSingletopFilter();
-private:
-    virtual void beginJob(const edm::EventSetup&) ;
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
-private:
-    double ptsep;
-    unsigned int read22, read23;
-    unsigned int pass22, pass23;
-};
-
 
 ComphepSingletopFilter::ComphepSingletopFilter(const edm::ParameterSet& iConfig) {
     ptsep = iConfig.getParameter<double>("pTSep");
@@ -183,4 +163,3 @@ bool ComphepSingletopFilter::filter(
 }
 
 
-DEFINE_FWK_MODULE(ComphepSingletopFilter);

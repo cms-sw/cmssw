@@ -29,7 +29,8 @@
 #include "GeneratorInterface/GenFilters/interface/EMEnrichingFilter.h"
 #include "GeneratorInterface/GenFilters/interface/MCDecayingPionKaonFilter.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterEMJetHeep.h"
-
+#include "GeneratorInterface/GenFilters/interface/ComphepSingletopFilter.h"
+#include "GeneratorInterface/GenFilters/interface/STFilter.h"
 
 
 DEFINE_SEAL_MODULE();
@@ -62,5 +63,7 @@ DEFINE_SEAL_MODULE();
   DEFINE_ANOTHER_FWK_MODULE(EMEnrichingFilter);
   DEFINE_ANOTHER_FWK_MODULE(MCDecayingPionKaonFilter);
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilterEMJetHeep);
+  DEFINE_ANOTHER_FWK_MODULE(ComphepSingletopFilter);
+  DEFINE_ANOTHER_FWK_MODULE(STFilter);
 
 
