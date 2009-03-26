@@ -11,7 +11,7 @@ Description: Input text file to be loaded into the source cards and output RCT d
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: SourceCardTextToRctDigi.cc,v 1.5 2007/09/26 19:45:51 tapper Exp $
+// $Id: SourceCardTextToRctDigi.cc,v 1.6 2008/07/05 14:53:27 tapper Exp $
 //
 //
 
@@ -24,7 +24,7 @@ using namespace std;
 
 // Set constants
 const static unsigned NUM_LINES_PER_EVENT = 63;
-const static unsigned NUM_RCT_CRATES = 18;
+const static int NUM_RCT_CRATES = 18;
 
 SourceCardTextToRctDigi::SourceCardTextToRctDigi(const edm::ParameterSet& iConfig):
   m_textFileName(iConfig.getParameter<std::string>("TextFileName")),
@@ -60,12 +60,12 @@ SourceCardTextToRctDigi::~SourceCardTextToRctDigi()
 void SourceCardTextToRctDigi::putEmptyDigi(edm::Event& iEvent) {
   auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
   auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
-  for (unsigned i=0; i<NUM_RCT_CRATES; i++){  
-    for (unsigned j=0; j<4; j++) {
+  for (int i=0; i<NUM_RCT_CRATES; i++){  
+    for (int j=0; j<4; j++) {
       em->push_back(L1CaloEmCand(0, i, true));
       em->push_back(L1CaloEmCand(0, i, false));
     }
-    for (unsigned j=0; j<14; j++)
+    for (int j=0; j<14; j++)
       rgn->push_back(L1CaloRegion(0,false,false,false,false,i,j/2,j%2));
     for (unsigned j=0; j<8; j++)
       rgn->push_back(L1CaloRegion(0,true,i,j));
@@ -137,7 +137,7 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
         << " unexpected end of file " << m_textFileName << endl;
     }      
   
-  int thisEventNumber;  
+  int thisEventNumber=-1;  
   // Read in file one line at a time 
   for (unsigned line=0; line<NUM_LINES_PER_EVENT; line++){  
 

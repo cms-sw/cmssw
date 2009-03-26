@@ -47,11 +47,11 @@ class GtPsbTextToDigi : public edm::EDProducer {
   /// Number of events to be offset wrt input
   int m_fileEventOffset;
 
-  /// Event counter
-  int m_nevt;
-  
   /// Name out input file
   std::string m_textFileName;
+
+  /// Event counter
+  int m_nevt;
 
   /// File handle
   std::ifstream m_file[4];

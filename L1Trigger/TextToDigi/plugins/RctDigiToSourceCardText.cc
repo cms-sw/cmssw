@@ -11,7 +11,7 @@ Description: Input RCT digis and output GCT text file to be loaded into the sour
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Feb 16 14:52:19 CET 2007
-// $Id: RctDigiToSourceCardText.cc,v 1.1 2007/04/19 22:27:20 tapper Exp $
+// $Id: RctDigiToSourceCardText.cc,v 1.2 2007/07/10 13:32:50 tapper Exp $
 //
 //
 
@@ -23,7 +23,7 @@ using namespace edm;
 using namespace std;
 
 // Set constant
-const static unsigned NUM_RCT_CRATES = 18;
+const static int NUM_RCT_CRATES = 18;
 
 RctDigiToSourceCardText::RctDigiToSourceCardText(const edm::ParameterSet& iConfig):
   m_rctInputLabel(iConfig.getParameter<edm::InputTag>("RctInputLabel")),
