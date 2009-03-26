@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hcalnoiseinfoproducer = cms.EDProducer(
+hcalnoise = cms.EDProducer(
     'HcalNoiseInfoProducer',
     fillDigis = cms.bool(True),
     fillRecHits = cms.bool(True),

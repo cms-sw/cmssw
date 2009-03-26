@@ -214,7 +214,7 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       const HcalNoiseRBX &oldrbx=(*rit);
       HcalNoiseRBX &newrbx=rbxarray[oldrbx.idnumber()];
 
-      // copy over the Digi Information
+      // copy over the Digi-level Information
       newrbx.allCharge_ = oldrbx.allCharge_;
       std::vector<HcalNoiseHPD>::iterator hit1 = newrbx.hpds_.begin();
       std::vector<HcalNoiseHPD>::const_iterator hit2 = oldrbx.hpds_.begin(); 

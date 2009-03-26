@@ -7,8 +7,8 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 # load the noise info producer
 process.load('RecoMET.METProducers.hcalnoiseinfoproducer_cfi')
 
-process.hcalnoiseinfoproducer.dropRefVectors = cms.bool(False)
-process.hcalnoiseinfoproducer.requirePedestals = cms.bool(False)
+process.hcalnoise.dropRefVectors = cms.bool(False)
+process.hcalnoise.requirePedestals = cms.bool(False)
 
 # run over files
 readFiles = cms.untracked.vstring()
@@ -40,7 +40,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 #process.Timing = cms.Service('Timing')
 
 # for pedestals
-#if process.hcalnoiseinfoproducer.requirePedestals == True:
+#if process.hcalnoise.requirePedestals == True:
 #    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #    process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
 #    process.GlobalTag.globaltag = "CRUZET4_V2P::All"
@@ -60,6 +60,6 @@ process.out = cms.OutputModule("PoolOutputModule",
                                )
 
   
-process.p = cms.Path(process.hcalnoiseinfoproducer)
+process.p = cms.Path(process.hcalnoise)
 
 process.e = cms.EndPath(process.out)
