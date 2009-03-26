@@ -44,12 +44,10 @@ namespace cms
     edm::InputTag metTypeInputTag_;
     edm::InputTag uncorMETInputTag_;
     edm::InputTag muonsInputTag_;
-    TrackDetectorAssociator   trackAssociator_;
-    TrackAssociatorParameters trackAssociatorParameters_;
-    bool useTrackAssociatorPositions_;
-    bool useRecHits_;
-    bool useHO_; 
-    double towerEtThreshold_;
+    edm::InputTag muonValueMapFlagInputTag_;
+    edm::InputTag muonValueMapDeltaXInputTag_;
+    edm::InputTag muonValueMapDeltaYInputTag_;
+    
   };
 }
 
