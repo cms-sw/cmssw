@@ -1,10 +1,10 @@
 /** \file
  *
- *  $Date: 2009/03/16 17:03:23 $
+ *  $Date: 2009/03/20 18:06:50 $
  *  \author M. Maggi - INFN Bari
  */
 
-#include "Geometry/RPCGeometryBuilder/src/RPCGeometryESModule.h"
+#include "Geometry/RPCGeometryBuilder/plugins/RPCGeometryESModule.h"
 #include "Geometry/RPCGeometryBuilder/src/RPCGeometryBuilderFromDDD.h"
 #include "Geometry/RPCGeometryBuilder/src/RPCGeometryBuilderFromCondDB.h"
 
