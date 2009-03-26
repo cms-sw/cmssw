@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Schmitt
 //         Created:  Sat Jul 12 17:43:33 CEST 2008
-// $Id: CSCSkim.cc,v 1.6 2009/03/03 15:14:33 malgeri Exp $
+// $Id: CSCSkim.cc,v 1.7 2009/03/26 09:12:37 schmittm Exp $
 //
 //
 //======================================================================
@@ -189,11 +189,6 @@ CSCSkim::endJob() {
     << "\t\tevents w/ long SA track ..... \t" << nEventsLongSATrack << "\n"
     << "\t\tevents good for BField  ..... \t" << nEventsForBFieldStudies << "\n"
     <<     "\t=========================================================================\n\n";
-
-  cout << "\n\n\n\t((( end job )))\n\n"
-       << "\tnEventsAnalyzed = " << nEventsAnalyzed << endl
-       << "\tnEventsSelected = " << nEventsSelected << "\n\n\n";
-
 
   if (makeHistograms || makeHistogramsForMessyEvents) {
     // Write the histos to file
