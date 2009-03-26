@@ -21,6 +21,8 @@ public:
 
   typedef std::vector<int> ChannelContainer;
   typedef edm::RangeMap<int, std::vector<float> > ADCContainer;
+  
+  enum SharedInputType {all = TrackingRecHit::all, some = TrackingRecHit::some, allWires, someWires, allStrips, someStrips};
 
   CSCRecHit2D();
 
@@ -67,6 +69,12 @@ public:
   /// flags for involvement of 'bad' channels
   short int badStrip() const { return theBadStrip; }
   short int badWireGroup() const { return theBadWireGroup; }
+  
+  /// Returns true if the two TrackingRecHits are using the same input information, false otherwise.  In this case, looks at the geographical ID and channel numbers for strips and wires.
+  virtual bool sharesInput(const TrackingRecHit *other, TrackingRecHit::SharedInputType what) const;
+  
+  /// Returns true if the two TrackingRecHits are using the same input information, false otherwise.  In this case, looks at the geographical ID and channel numbers for strips and wires.
+  bool sharesInput(const TrackingRecHit *other, CSCRecHit2D::SharedInputType what) const;
 
 private:
 	
