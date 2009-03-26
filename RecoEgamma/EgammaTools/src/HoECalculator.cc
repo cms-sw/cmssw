@@ -29,7 +29,7 @@ double HoECalculator::operator() ( const reco::SuperCluster* clus,
   double HoE=0.;
   switch (ialgo) {
     case 1:
-      for (reco::BasicClusterRefVector::iterator bc=clus->clustersBegin(); bc!=clus->clustersEnd(); bc++) {
+      for (reco::CaloCluster_iterator bc=clus->clustersBegin(); bc!=clus->clustersEnd(); bc++) {
 	double HoEi = getHoE(GlobalPoint((*bc)->x(),(*bc)->y(),(*bc)->z()),clus->energy(), mhbhe);
 	if (HoEi > HoE) HoE = HoEi;
       }
