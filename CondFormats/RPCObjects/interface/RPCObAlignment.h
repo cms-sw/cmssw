@@ -7,7 +7,8 @@ class RPCObAlignment {
       struct Alignment_Item {
 
         int   dpid;
-        float align;
+        float alocalX;
+	float alocalPhi
     };
     RPCObAlignment(){}
     virtual ~RPCObAlignment(){}
