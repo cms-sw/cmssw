@@ -1,9 +1,11 @@
-/* $Id: EcalDccWeightBuilder.cc,v 1.2 2009/03/09 13:58:58 pgras Exp $
+/* $Id: EcalDccWeightBuilder.cc,v 1.3 2009/03/25 09:28:27 pgras Exp $
  *
  * authors: Ph. Gras (CEA/Saclay), F. Cavallari
  *          some code copied from CalibCalorimetry/EcalTPGTools code
  *          written by P. Paganini and F. Cavallari
  */
+
+//#define DB_WRITE_SUPPORT
 
 #include "CalibCalorimetry/EcalSRTools/interface/EcalDccWeightBuilder.h"
 
@@ -24,8 +26,11 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/ODWeightsDat.h"
+
+#ifdef DB_WRITE_SUPPORT
+#  include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#  include "OnlineDB/EcalCondDB/interface/ODWeightsDat.h"
+#endif //DB_WRITE_SUPPORT defined
 
 #include "CalibCalorimetry/EcalSRTools/src/PasswordReader.h"
 
@@ -452,6 +457,14 @@ void EcalDccWeightBuilder::writeWeightToRootFile(){
   file.Close();
 }
 
+#ifndef DB_WRITE_SUPPORT
+void EcalDccWeightBuilder::writeWeightToDB(){
+  throw cms::Exception("DccWeight")
+    << "Code was compiled without support for writing dcc weights directly "
+    " into configuration DB. Configurable writeToDB must be set to False. "
+    "sqlMode can be used to produce an SQL*PLUS script to fill the DB\n";
+}
+#else //DB_WRITE_SUPPORT defined
 void EcalDccWeightBuilder::writeWeightToDB(){
   cout << "going to write to the online DB "<<dbSid_<<" user "<<dbUser_<<endl;;
   EcalCondDBInterface* econn;
@@ -543,6 +556,8 @@ void EcalDccWeightBuilder::writeWeightToDB(){
   delete econn;
   cout<< "closed DB connection ... done"  << endl;
 }
+#endif //DB_WRITE_SUPPORT not defined
+
 
 void EcalDccWeightBuilder::dbId(const DetId& detId, int& fedId, int& smId,
                                 int& ruId,
