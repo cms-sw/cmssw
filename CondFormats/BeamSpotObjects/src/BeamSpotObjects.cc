@@ -13,7 +13,10 @@ void BeamSpotObjects::print(std::stringstream& ss) const {
 	     << " dxdz         = " << Getdxdz() << " +/- " << GetdxdzError() << " [radians]\n"
 	     << " dydz         = " << Getdydz() << " +/- " << GetdydzError() << " [radians]\n"
 	     << " Beam Width X = " << GetBeamWidthX() << " +/- " << GetBeamWidthXError() << " [cm]\n"
-		 << " Beam Width Y = " << GetBeamWidthY() << " +/- " << GetBeamWidthYError() << " [cm]\n" 
+		 << " Beam Width Y = " << GetBeamWidthY() << " +/- " << GetBeamWidthYError() << " [cm]\n"
+		 << " Emittance X  = " << GetEmittanceX() << " [cm]\n"
+		 << " Emittance Y  = " << GetEmittanceY() << " [cm]\n"
+		 << " Beta star    = " << GetBetaStar() << " [cm]\n"
 	     << "-----------------------------------------------------\n\n";
 }
 

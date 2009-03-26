@@ -7,7 +7,7 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: BeamSpot.h,v 1.6 2009/03/13 21:21:58 yumiceva Exp $
+ * \version $Id: BeamSpot.h,v 1.7 2009/03/18 11:25:38 yumiceva Exp $
  *
  */
 
@@ -92,7 +92,7 @@ namespace reco {
     double BeamWidthXError() const { return sqrt ( error_(6,6) );}
 	/// error on beam width Y, assume error in X = Y
     double BeamWidthYError() const { return sqrt ( error_(6,6) );}
-
+		
 	///
 	void setBeamWidthX( double v ) { BeamWidthX_ = v; }
 	void setBeamWidthY( double v ) { BeamWidthY_ = v; }
@@ -120,10 +120,15 @@ namespace reco {
     Covariance3DMatrix rotatedCovariance3D() const;
 
 	/// additional information
-	double emittance() const { return emittance_; }
+	double emittanceX() const { return emittanceX_; }
+	double emittanceY() const { return emittanceY_; }
 	double betaStar() const { return betaStar_; }
+	double beamWidthFromBeta( double z, double e ) const {
+		return sqrt( e*betaStar_*(1 + pow((z-position_.Z())/betaStar_,2) ) );
+	}
 	///
-	void setEmittance( double v ) { emittance_ = v; }
+	void setEmittanceX( double v ) { emittanceX_ = v; }
+	void setEmittanceY( double v ) { emittanceY_ = v; }
 	void setbetaStar( double v ) { betaStar_ = v; }
 	
     /// print information
@@ -140,7 +145,8 @@ namespace reco {
 	Double32_t BeamWidthY_;
 	Double32_t dxdz_;
 	Double32_t dydz_;
-	Double32_t emittance_;
+	Double32_t emittanceX_;
+	Double32_t emittanceY_;
 	Double32_t betaStar_;
 	
 	BeamType type_;

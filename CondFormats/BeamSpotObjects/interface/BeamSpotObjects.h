@@ -7,7 +7,7 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: BeamSpotObjects.h,v 1.8 2009/03/13 21:22:47 yumiceva Exp $
+ * \version $Id: BeamSpotObjects.h,v 1.9 2009/03/26 18:39:42 yumiceva Exp $
  *
  */
 
@@ -21,10 +21,13 @@ class BeamSpotObjects {
 
 	/// default constructor
 	BeamSpotObjects(): sigmaZ_(0), beamwidthX_(0), beamwidthY_(0),
-		dxdz_(0), dydz_(0), type_(-1), emittance_(0), betaStar_(0) {
+		dxdz_(0), dydz_(0), type_(-1) {
 
 		beamwidthXError_ = 0;
 		beamwidthYError_ = 0;
+		emittanceX_ = 0;
+		emittanceY_ = 0;
+		betaStar_ = 0;
 		std::memset(position_, 0, sizeof position_);
 		std::memset(covariance_, 0, sizeof covariance_);
 	}
@@ -58,7 +61,9 @@ class BeamSpotObjects {
 	/// set beam type
 	void SetType(int type) { type_ = type; }
 	/// set emittance
-	void SetEmittance(double val) { emittance_ = val;}
+	void SetEmittanceX(double val) { emittanceX_ = val;}
+	/// set emittance
+	void SetEmittanceY(double val) { emittanceY_ = val;}
 	/// set beta star
 	void SetBetaStar(double val) { betaStar_ = val;}
 	
@@ -99,7 +104,9 @@ class BeamSpotObjects {
 	/// get beam type
 	int GetBeamType() const { return type_; }
 	/// get emittance
-	double GetEmittance() const { return emittance_; }
+	double GetEmittanceX() const { return emittanceX_; }
+	/// get emittance
+	double GetEmittanceY() const { return emittanceY_; }
 	/// get beta star
 	double GetBetaStar() const { return betaStar_; }
 	
@@ -118,7 +125,8 @@ class BeamSpotObjects {
 	double dydz_;
 	double covariance_[7][7];
 	int type_;
-	double emittance_;
+	double emittanceX_;
+	double emittanceY_;
 	double betaStar_;
 	
 };
