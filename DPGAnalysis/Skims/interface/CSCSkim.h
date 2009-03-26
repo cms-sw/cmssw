@@ -141,6 +141,13 @@ private:
   std::string outputFileName;
   std::string histogramFileName;
 
+  // tag names
+  edm::InputTag cscRecHitTag;
+  edm::InputTag cscSegmentTag;
+  edm::InputTag SAMuonTag;
+  edm::InputTag GLBMuonTag;
+  edm::InputTag trackTag;
+
   // parameters for the selection
   bool isSimulation;
   int typeOfSkim;
