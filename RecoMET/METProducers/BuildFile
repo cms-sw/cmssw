@@ -4,6 +4,7 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/Common>
 <use name=DataFormats/JetReco>
+<use name=DataFormats/TrackReco>
 <use name=CalibFormats/HcalObjects>
 <export>
  <lib name=RecoMETMETProducers>
@@ -12,5 +13,6 @@
  <use name=FWCore/Framework>
  <use name=DataFormats/Common>
  <use name=DataFormats/JetReco>
+ <use name=DataFormats/TrackReco>
  <use name=CalibFormats/HcalObjects>
 </export>

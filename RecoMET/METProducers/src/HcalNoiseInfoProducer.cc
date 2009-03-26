@@ -11,10 +11,13 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+
 
 using namespace reco;
 
@@ -29,18 +32,34 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig)
   fillRecHits_    = iConfig.getParameter<bool>("fillRecHits");
   fillCaloTowers_ = iConfig.getParameter<bool>("fillCaloTowers");
   fillJets_       = iConfig.getParameter<bool>("fillJets");
+  fillTracks_     = iConfig.getParameter<bool>("fillTracks");
   dropRefVectors_ = iConfig.getParameter<bool>("dropRefVectors");
   refillRefVectors_ = iConfig.getParameter<bool>("refillRefVectors");
 
-  HPDEnergyThreshold_ = iConfig.getParameter<double>("HPDEnergyThreshold");
-  RBXEnergyThreshold_ = iConfig.getParameter<double>("RBXEnergyThreshold");
-  maxProblemRBXs_     = iConfig.getParameter<int>("maxProblemRBXs");
+  minHPDEnergy_    = iConfig.getParameter<double>("minHPDEnergy");
+  minRBXEnergy_    = iConfig.getParameter<double>("minRBXEnergy");
+  minRecHitEnergy_ = iConfig.getParameter<double>("minRecHitEnergy");
+  minHPDNumRecHit_ = iConfig.getParameter<int>("minHPDNumRecHit");
+  minRBXNumZeros_  = iConfig.getParameter<int>("minRBXNumZeros");
+  minRBXMaxZeros_  = iConfig.getParameter<int>("minRBXMaxZeros");
+  minRBXTime_      = iConfig.getParameter<double>("minRBXTime");
+  maxRBXTime_      = iConfig.getParameter<double>("maxRBXTime");
+  minHPDEnergyRatio_ = iConfig.getParameter<double>("minHPDEnergyRatio");
+  minHPDRatio_     = iConfig.getParameter<double>("minHPDRatio");
+  maxHPDRatio_     = iConfig.getParameter<double>("maxHPDRatio");
+  maxProblemRBXs_  = iConfig.getParameter<int>("maxProblemRBXs");
+
   maxJetEmFraction_   = iConfig.getParameter<double>("maxJetEmFraction");
+  maxJetEta_          = iConfig.getParameter<double>("maxJetEta");
+  maxCaloTowerIEta_   = iConfig.getParameter<int>("maxCaloTowerIEta");
+  maxTrackEta_        = iConfig.getParameter<double>("maxTrackEta");
+  minTrackPt_         = iConfig.getParameter<double>("minTrackPt");
 
   digiCollName_      = iConfig.getParameter<std::string>("digiCollName");
   recHitCollName_    = iConfig.getParameter<std::string>("recHitCollName");
   caloTowerCollName_ = iConfig.getParameter<std::string>("caloTowerCollName");
   caloJetCollName_   = iConfig.getParameter<std::string>("caloJetCollName");
+  trackCollName_     = iConfig.getParameter<std::string>("trackCollName");
   hcalNoiseRBXCollName_ = iConfig.getParameter<std::string>("hcalNoiseRBXCollName");
 
   requirePedestals_ = iConfig.getParameter<bool>("requirePedestals");
@@ -89,29 +108,69 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     if(fillDigis_)      filldigis(iEvent, iSetup, rbxarray);
     if(fillCaloTowers_) fillcalotwrs(iEvent, iSetup, rbxarray, summary);
     if(fillJets_)       filljets(iEvent, iSetup, summary);    
-    
+    if(fillTracks_)     filltracks(iEvent, iSetup, summary);
+
     // select those RBXs which are interesting
+    // also look for the highest energy RBX
+    HcalNoiseRBXArray::iterator maxit=rbxarray.begin();
+    double maxenergy=maxit->recHitEnergy();
+    bool maxwritten=false;
     for(HcalNoiseRBXArray::iterator rit = rbxarray.begin(); rit!=rbxarray.end(); ++rit) {
       HcalNoiseRBX &rbx=(*rit);
       
-      // select certain RBXs to be written
-      
-      // the total energy in an RBX or HPD has to be above some energy threshold
-      if(rbx.recHitEnergy()>RBXEnergyThreshold_ || rbx.maxHPD()->recHitEnergy()>HPDEnergyThreshold_) {
+      // calculate certain quantities once and once only
+      double hpdenergy=rbx.maxHPD()->recHitEnergy();
+      double rbxenergy=rbx.recHitEnergy();
+      double bigratio = rbx.maxHPD()->bigChargeHighest2TS()/rbx.maxHPD()->bigChargeTotal();
 
+      // find the highest energy rbx
+      if(rbxenergy>maxenergy) {
+	maxenergy=rbxenergy;
+	maxit=rit;
+	maxwritten=false;
+      }
+
+      // select certain RBXs to be written
+      if(rbxenergy>=minRBXEnergy_ ||
+         hpdenergy>=minHPDEnergy_ ||
+	 (hpdenergy>=minHPDEnergyRatio_ && bigratio<minHPDRatio_) ||
+	 (hpdenergy>=minHPDEnergyRatio_ && bigratio>maxHPDRatio_) ||
+	 rbx.maxHPD()->numRecHits(minRecHitEnergy_) >=minHPDNumRecHit_ ||
+	 rbx.totalZeros()>=minRBXNumZeros_ ||
+	 rbx.maxZeros()>=minRBXMaxZeros_ ||
+	 rbx.maxRecHitTime()<minRBXTime_ ||
+	 rbx.minRecHitTime()>maxRBXTime_) {
+      
 	// drop the ref vectors if we need to
 	if(dropRefVectors_) {
 	  for(std::vector<HcalNoiseHPD>::iterator hit = rbx.hpds_.begin(); hit != rbx.hpds_.end(); ++hit) {
 	    hit->rechits_.clear();
 	    hit->calotowers_.clear();
 	  }
+	  
+	  summary.nproblemRBXs_++;
+	  if(summary.nproblemRBXs_<=maxProblemRBXs_) {
+	    result1->push_back(rbx);
+	    if(maxit==rit) maxwritten=true;
+	  }
 	}
-	summary.nproblemRBXs_++;
-	if(summary.nproblemRBXs_<=maxProblemRBXs_)
-	  result1->push_back(rbx);
+      }
+    } // end loop over rbxs
+
+    // if we still haven't written the maximum energy rbx, write it now
+    if(!maxwritten) {
+      HcalNoiseRBX &rbx=(*maxit);
+      
+      // drop the ref vectors if we need to
+      if(dropRefVectors_) {
+	for(std::vector<HcalNoiseHPD>::iterator hit = rbx.hpds_.begin(); hit != rbx.hpds_.end(); ++hit) {
+	  hit->rechits_.clear();
+	  hit->calotowers_.clear();
+	}
+	result1->push_back(rbx);
       }
     }
-
+  
     // determine if the event is noisy
     summary.filterstatus_=0;
     
@@ -150,14 +209,14 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       HcalNoiseRBX &newrbx=rbxarray[oldrbx.idnumber()];
 
       // copy over the Digi Information
+      newrbx.allCharge_ = oldrbx.allCharge_;
       std::vector<HcalNoiseHPD>::iterator hit1 = newrbx.hpds_.begin();
       std::vector<HcalNoiseHPD>::const_iterator hit2 = oldrbx.hpds_.begin(); 
       for( ; hit1 != newrbx.hpds_.end() && hit2 != oldrbx.hpds_.end(); ++hit1, ++hit2) {
 	hit1->totalZeros_ = hit2->totalZeros_;
 	hit1->maxZeros_ = hit2->maxZeros_;
-	hit1->bigDigi_ = hit2->bigDigi_;
-	hit1->big5Digi_ = hit2->big5Digi_;
-	hit1->allDigi_ = hit2->allDigi_;
+	hit1->bigCharge_ = hit2->bigCharge_;
+	hit1->big5Charge_ = hit2->big5Charge_;
       }
 
       result->push_back(newrbx);
@@ -250,6 +309,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
   // loop over all of the digi information
   for(HBHEDigiCollection::const_iterator it=handle->begin(); it!=handle->end(); ++it) {
     const HBHEDataFrame &digi=(*it);
+    HcalNoiseRBX &rbx=(*array.findRBX(digi));
     HcalNoiseHPD &hpd=(*array.findHPD(digi));
     edm::RefVector<HBHERecHitCollection> &rechits=hpd.rechits_;
 
@@ -291,9 +351,9 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
       double corrfc = digi[ts].nominal_fC()-pedestal;
 
       // fill the relevant digi arrays
-      if(isBig)  hpd.bigDigi_[ts]+=corrfc;
-      if(isBig5) hpd.big5Digi_[ts]+=corrfc;
-      hpd.allDigi_[ts]+=corrfc;
+      if(isBig)  hpd.bigCharge_[ts]+=corrfc;
+      if(isBig5) hpd.big5Charge_[ts]+=corrfc;
+      rbx.allCharge_[ts]+=corrfc;
     }
 
     // record the maximum number of zero's found
@@ -317,7 +377,7 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
     return;
   }
 
-  summary.min10_=summary.min25_=-99999.;
+  summary.min10_=summary.min25_=99999.;
   summary.max10_=summary.max25_=-99999.;
   summary.rms10_=summary.rms25_=0.0;
   int cnt10=0, cnt25=0;
@@ -392,6 +452,9 @@ HcalNoiseInfoProducer::fillcalotwrs(edm::Event& iEvent, const edm::EventSetup& i
   for(CaloTowerCollection::const_iterator it = handle->begin(); it!=handle->end(); ++it) {
     const CaloTower& twr=(*it);
 
+    // skip over anything with |ieta|>maxCaloTowerIEta
+    if(twr.ietaAbs()>maxCaloTowerIEta_) continue;
+
     // create a persistent reference to the tower
     edm::Ref<CaloTowerCollection> myRef(handle, it-handle->begin());
 
@@ -426,7 +489,7 @@ HcalNoiseInfoProducer::filljets(edm::Event& iEvent, const edm::EventSetup& iSetu
   
   for(reco::CaloJetCollection::const_iterator iJet = handle->begin(); iJet!=handle->end(); ++iJet) {
     reco::CaloJet jet=*iJet;
-    if(jet.eta()>3.5) continue;
+    if(jet.eta()>maxJetEta_) continue;
     
     // create a persistent reference to the jet
     edm::Ref<CaloJetCollection> myRef(handle, iJet-handle->begin());
@@ -445,6 +508,27 @@ HcalNoiseInfoProducer::filljets(edm::Event& iEvent, const edm::EventSetup& iSetu
   return;
 }
 
+void
+HcalNoiseInfoProducer::filltracks(edm::Event& iEvent, const edm::EventSetup& iSetup, HcalNoiseSummary& summary) const
+{
+  edm::Handle<reco::TrackCollection> handle;
+  iEvent.getByLabel(trackCollName_, handle);
+  if(!handle.isValid()) {
+    throw edm::Exception(edm::errors::ProductNotFound)
+      << " could not find trackCollection named " << trackCollName_ << "\n.";
+    return;
+  }
+
+  summary.trackenergy_=0.0;
+  for(reco::TrackCollection::const_iterator iTrack = handle->begin(); iTrack!=handle->end(); ++iTrack) {
+    reco::Track trk=*iTrack;
+    if(trk.pt()<minTrackPt_ || fabs(trk.eta())>maxTrackEta_) continue;
+
+    summary.trackenergy_ += trk.p();
+  }
+
+  return;
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HcalNoiseInfoProducer);

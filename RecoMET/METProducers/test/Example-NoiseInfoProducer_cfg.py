@@ -8,7 +8,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('RecoMET.METProducers.hcalnoiseinfoproducer_cfi')
 
 process.hcalnoiseinfoproducer.dropRefVectors = cms.bool(False)
-process.hcalnoiseinfoproducer.requirePedestals = cms.bool(True)
+process.hcalnoiseinfoproducer.requirePedestals = cms.bool(False)
 
 # run over files
 readFiles = cms.untracked.vstring()
@@ -40,10 +40,11 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 #process.Timing = cms.Service('Timing')
 
 # for pedestals
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRUZET4_V2P::All"
-process.prefer("GlobalTag")
+#if process.hcalnoiseinfoproducer.requirePedestals == True:
+#    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#    process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
+#    process.GlobalTag.globaltag = "CRUZET4_V2P::All"
+#    process.prefer("GlobalTag")
 
 process.out = cms.OutputModule("PoolOutputModule",
                                fileName = cms.untracked.string('file:noise_skim.root'),
@@ -54,7 +55,8 @@ process.out = cms.OutputModule("PoolOutputModule",
                                                                       'keep HBHERecHitsSorted_*_*_*',
                                                                       'keep recoCaloJets_iterativeCone5CaloJets_*_*',
                                                                       'keep CaloTowersSorted_towerMaker_*_*',
-                                                                      'keep recoMET*_*_*_*')
+                                                                      'keep recoMET*_*_*_*',
+                                                                      'keep recoTracks_generalTracks_*_*')
                                )
 
   
