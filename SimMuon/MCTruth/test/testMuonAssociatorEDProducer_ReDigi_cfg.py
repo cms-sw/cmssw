@@ -91,7 +91,11 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load("Configuration.StandardSequences.Digi_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+# for 3XX MC data
 process.GlobalTag.globaltag = cms.string('IDEAL_30X::All')
+# for 2XX MC data
+#process.GlobalTag.globaltag = cms.string('IDEAL_V12::All') # 22X
+#process.GlobalTag.globaltag = cms.string('IDEAL_V9::All')  # 21X
 
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
