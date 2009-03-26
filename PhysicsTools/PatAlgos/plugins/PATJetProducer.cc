@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.31 2009/02/19 16:18:08 rwolf Exp $
+// $Id: PATJetProducer.cc,v 1.32 2009/03/26 05:02:42 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -273,7 +273,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
                         if (itTI->jet() == jetRef) { match = &*itTI; break; }
                     }
                 }
-                if (match != 0) ajet.addTagInfo(tagInfoLabels_[k], *match);
+		//TODO !!!                if (match != 0) ajet.addTagInfo(tagInfoLabels_[k], *match);
             }
         }    
     }

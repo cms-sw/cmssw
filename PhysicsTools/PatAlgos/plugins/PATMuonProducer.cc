@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.20 2008/11/28 22:05:56 lowette Exp $
+// $Id: PATMuonProducer.cc,v 1.21 2009/03/26 05:02:42 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -135,7 +135,7 @@ PATMuonProducer::~PATMuonProducer() {
 
 void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
   
-edm::Handle<edm::View<MuonType> > muons;
+edm::Handle<edm::View<reco::Muon> > muons;
   iEvent.getByLabel(muonSrc_, muons);
 
   if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);

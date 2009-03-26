@@ -1,5 +1,5 @@
 //
-// $Id: PATObjectFilter.h,v 1.2 2008/12/11 10:03:45 lowette Exp $
+// $Id: PATObjectFilter.h,v 1.3 2009/01/22 14:13:23 veelken Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATObjectFilter_h
@@ -16,7 +16,7 @@
 
 namespace pat {
 
-  typedef ObjectCountFilter<edm::View<reco::Candidate>, AnySelector, AndSelector<MinNumberSelector, MaxNumberSelector> >::type PATCandViewCountFilter;
+  typedef ObjectCountFilter<edm::View<reco::Candidate>, AnySelector, AndSelector<MinNumberSelector, MaxNumberSelector> > PATCandViewCountFilter;
 
 }
 

@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.20 2009/02/21 15:27:20 veelken Exp $
+// $Id: PATTauProducer.cc,v 1.21 2009/03/26 05:02:42 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -19,8 +19,6 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
-
-#include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 
 #include <vector>
 #include <memory>
@@ -108,11 +106,6 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
     }
   }
 
-  // construct resolution calculator
-  if (addResolutions_) {
-    theResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(tauResoFile_).fullPath(), useNNReso_);
-  }
-
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
   if (addEfficiencies_) {
@@ -130,7 +123,6 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
 
 PATTauProducer::~PATTauProducer() 
 {
-  if (addResolutions_) delete theResoCalc_;
 }
 
 void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
@@ -258,11 +250,6 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     
     for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
       aTau.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[tausRef]);
-    }
-
-    // add resolution info if demanded
-    if (addResolutions_) {
-      (*theResoCalc_)(aTau);
     }
 
     if (efficiencyLoader_.enabled()) {
