@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbASCIIIO.cc,v 1.41
-// $Id: HcalDbOmds.cc,v 1.7 2009/03/26 03:55:49 kukartse Exp $
+// $Id: HcalDbOmds.cc,v 1.8 2009/03/26 13:58:37 kukartse Exp $
 //
 //
 #include <vector>
@@ -26,6 +26,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    HcalPedestals* fObject) {
   bool result=true;
   if (!fObject) fObject = new HcalPedestals;
+  int _unit=0;
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
@@ -38,7 +39,6 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
     _row.setMessage("HCAL channels processed: ");
     _row.setPrintCount(true);
     _row.setNewLine(true);
-    int _unit=0;
     while (rs->next()) {
       _row.count();
       _unit = rs->getInt(1);
