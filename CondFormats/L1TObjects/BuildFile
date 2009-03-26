@@ -5,6 +5,7 @@
 <use name=FWCore/Framework>
 <use name=rootrflx>
 <use name=DataFormats/L1GlobalMuonTrigger>
+<use name=DataFormats/L1GlobalCaloTrigger>
 <use name=DataFormats/L1GlobalTrigger>
 
 <export>
@@ -15,6 +16,7 @@
   <use name=DataFormats/MuonDetId>
   <use name=rootrflx>
   <use name=DataFormats/L1GlobalMuonTrigger>
+  <use name=DataFormats/L1GlobalCaloTrigger>
   <use name=DataFormats/L1GlobalTrigger>
 </export>
 
