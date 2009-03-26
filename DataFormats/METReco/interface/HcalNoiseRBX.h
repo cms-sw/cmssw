@@ -93,7 +93,7 @@ namespace reco {
     double maxRecHitTime(double threshold=10.0) const;
 
     // total number of rechits above some threshold in the RBX
-    int numRecHits(double threshold) const;
+    int numRecHits(double threshold=1.5) const;
     
     // calotower properties integrated over the entire RBX
     //    double caloTowerHadE(void) const;
