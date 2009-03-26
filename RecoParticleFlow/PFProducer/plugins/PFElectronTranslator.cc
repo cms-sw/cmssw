@@ -340,17 +340,8 @@ void PFElectronTranslator::createSuperClusters(const reco::PFCandidateCollection
   unsigned nGSF=GsfTrackRef_.size();
   for(unsigned iGSF=0;iGSF<nGSF;++iGSF)
     {
-      //      std::cout << pfCand[gsfPFCandidateIndex_[iGSF]] << std::endl;
-      // First compute the total preshower energy; raw energy, no weighting factor
-      // Will probably need to be adapted 
-      unsigned nps=preshowerClusters_[iGSF].size();
-      double psenergy=0.;
-      for(unsigned ips=0;ips<nps;++ips)
-	{
-	  psenergy+=preshowerClusters_[iGSF][ips].energy();
-	}
-      
-      // Now compute energy position a la e/gamma 
+
+      // Computes energy position a la e/gamma 
       double sclusterE=0;
       double posX=0.;
       double posY=0.;
@@ -363,7 +354,7 @@ void PFElectronTranslator::createSuperClusters(const reco::PFCandidateCollection
 	  sclusterE += e;
 	  posX += e * basicClusters_[iGSF][ibc].position().X();
 	  posY += e * basicClusters_[iGSF][ibc].position().Y();
-	  posZ += e * basicClusters_[iGSF][ibc].position().Z();
+	  posZ += e * basicClusters_[iGSF][ibc].position().Z();	  
 	}
       posX /=sclusterE;
       posY /=sclusterE;
@@ -410,7 +401,9 @@ void PFElectronTranslator::createSuperClusters(const reco::PFCandidateCollection
 	  } // loop over rechits      
 	}      
       // Commented until the new DataFormat allows it
-      //      mySuperCluster.setPreshowerEnergy(psenergy);
+      //      mySuperCluster.setPreshowerEnergy(pfCand[gsfPFCandidateIndex_[iGSF]].pS1Energy()+
+      //                                        pfCand[gsfPFCandidateIndex_[iGSF]].pS2Energy());
+
       superClusters.push_back(mySuperCluster);
    }
 }
