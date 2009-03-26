@@ -13,7 +13,7 @@
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Mon Mar  2 12:33:08 CET 2009
-// $Id$
+// $Id: DQMHOAlCaRecoStream.cc,v 1.1 2009/03/16 16:03:32 kodolova Exp $
 //
 //
 
@@ -103,6 +103,8 @@ class DQMHOAlCaRecoStream : public edm::EDAnalyzer {
   double m_lowEdge;
   double m_highEdge;
 
+  bool saveToFile_;
+
       // ----------member data ---------------------------
 
 };
@@ -129,7 +131,7 @@ DQMHOAlCaRecoStream::DQMHOAlCaRecoStream(const edm::ParameterSet& iConfig) {
   m_lowEdge = iConfig.getUntrackedParameter<double>("lowedge",-2.0);  
   m_highEdge = iConfig.getUntrackedParameter<double>("highedge",6.0);  
   m_nbins = iConfig.getUntrackedParameter<int>("nbins",40);
-
+  saveToFile_ = iConfig.getUntrackedParameter<bool>("saveToFile",false);
 }
 
 
@@ -433,7 +435,7 @@ DQMHOAlCaRecoStream::endJob() {
     delete c1y;
     */
 
-    dbe_->save(theRootFileName); 
+     if (saveToFile_) dbe_->save(theRootFileName); 
   }
 
 }
