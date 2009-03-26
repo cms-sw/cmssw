@@ -17,8 +17,8 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TMath.h"
-
 
 
 using namespace std;
@@ -43,134 +43,186 @@ MET MuonMETAlgo::makeMET (const MET& fMet,
   return MET (fSumEt, fCorrections, fP4, fMet.vertex ()); 
 }
 
-template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::Event& iEvent,
-						     const edm::EventSetup& iSetup, 
+ 
+
+template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::View<reco::Muon>& inputMuons,
+						     const edm::ValueMap<int>& vm_flags,
+						     const edm::ValueMap<double>& vm_deltax,
+						     const edm::ValueMap<double>& vm_deltay,
 						     const edm::View<T>& v_uncorMET,
-						     const edm::View<Muon>& inputMuons,
-						     TrackDetectorAssociator& trackAssociator,
-						     TrackAssociatorParameters& trackAssociatorParameters,
-						     vector<T>* v_corMET,
-						     bool useTrackAssociatorPositions,
-						     bool useRecHits,
-						     bool useHO,
-						     double towerEtThreshold) {
-  
-  
-  edm::ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-    
-//get the B-field at the origin
-  double Bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
+						     vector<T>* v_corMET) {
   T uncorMETObj = v_uncorMET.front();
-    
+  
   double uncorMETX = uncorMETObj.px();
   double uncorMETY = uncorMETObj.py();
-    
+  
   double corMETX = uncorMETX;
   double corMETY = uncorMETY;
   
   CorrMETData delta;
-  double sumMuEt=0;
-  double sumMuDepEt = 0;
-  for(edm::View<Muon>::const_iterator mus_it = inputMuons.begin();
-      mus_it != inputMuons.end(); mus_it++) {
+  double sumMuPx    = 0.;
+  double sumMuPy    = 0.;
+  double sumMuDepEx = 0.;
+  double sumMuDepEy = 0.;
 
-    bool useAverage = false;
-    //decide whether or not we want to correct on average based 
-    //on isolation information from the muon
-    double sumPt   = mus_it->isIsolationValid()? mus_it->isolationR03().sumPt       : 0.0;
-    double sumEtEcal = mus_it->isIsolationValid() ? mus_it->isolationR03().emEt     : 0.0;
-    double sumEtHcal    = mus_it->isIsolationValid() ? mus_it->isolationR03().hadEt : 0.0;
-    
-    if(sumPt > 3 || sumEtEcal + sumEtHcal > 5) useAverage = true;
-
-    //get the energy using TrackAssociator if
-    //the muon turns out to be isolated
-    MuonMETInfo muMETInfo;
-    muMETInfo.useAverage = useAverage;
-    muMETInfo.useTkAssociatorPositions = useTrackAssociatorPositions;
-    muMETInfo.useHO = useHO;
-
-    TrackRef mu_track = mus_it->globalTrack();
-    TrackDetMatchInfo info = 
-      trackAssociator.associate(iEvent, iSetup,
-				trackAssociator.getFreeTrajectoryState(iSetup, *mu_track),
-				trackAssociatorParameters);
-    if(useTrackAssociatorPositions) {
-      muMETInfo.ecalPos  = info.trkGlobPosAtEcal;
-      muMETInfo.hcalPos  = info.trkGlobPosAtHcal;
-      muMETInfo.hoPos    = info.trkGlobPosAtHO;
+  unsigned int nMuons = inputMuons.size();
+  for(unsigned int iMu = 0; iMu<nMuons; iMu++) {
+    const reco::Muon *mu = &inputMuons[iMu]; //new
+    int flag = (vm_flags)[inputMuons.refAt(iMu)];      
+    double deltax = (vm_deltax)[inputMuons.refAt(iMu)];      
+    double deltay = (vm_deltay)[inputMuons.refAt(iMu)];      
+        
+    //new
+    LorentzVector mup4;
+    if (flag == 0) //this muon is not used to correct the MET
+      continue;
+    if (flag == 1) {
+      if( !mu->isGlobalMuon()) {//correct using global Mu
+	edm::LogError("MuonMETAlgo") << "This is not a global muon, but is flagged as one " 
+					<< "by the MET ValueMap. Not correcting for this muon!!" 
+					<< "Check your collection!!!" << endl;
+	continue;
+      }
+      mup4 = LorentzVector(mu->globalTrack()->px(), mu->globalTrack()->py(),
+			   mu->globalTrack()->pz(), mu->globalTrack()->p());
+    }
+    if( flag == 2) {
+      if( ! mu->isTrackerMuon()) {
+	edm::LogError("MuonMET") << "This is not a tracker muon, but is flagged as one " 
+	     << "by the MET ValueMap. Not correcting for this muon!!" 
+	     << "Check your collection!!!" << endl;
+	continue;
+      }
+      mup4 = LorentzVector(mu->innerTrack()->px(), mu->innerTrack()->py(),
+			   mu->innerTrack()->pz(), mu->innerTrack()->p());
+    }
+    if( flag == 3) {
+      edm::LogVerbatim("MuonMET") << "Are you sure you want to correct using the StandAlone fit??" << endl;
+      if(!mu->isStandAloneMuon()) {
+	edm::LogError("MuonMET") << "This is not a standAlone muon, but is flagged as one " 
+	     << "by the MET ValueMap. Not correcting for this muon!!" 
+	     << "Check your collection!!!" << endl;
+	continue;
+      }
+      mup4 = LorentzVector(mu->standAloneMuon()->px(), mu->standAloneMuon()->py(),
+			   mu->standAloneMuon()->pz(), mu->standAloneMuon()->p());
     }
     
-    if(!useAverage) {
-
-      if(useRecHits) {
-	muMETInfo.ecalE = mus_it->calEnergy().emS9;
-	muMETInfo.hcalE = mus_it->calEnergy().hadS9;
-	if(useHO) //muMETInfo.hoE is 0 by default
-	  muMETInfo.hoE   = mus_it->calEnergy().hoS9;
-      } else {// use Towers (this is the default)
-	//only include towers whose Et > 0.5 since 
-	//by default the MET only includes towers with Et > 0.5
-	vector<const CaloTower*> towers = info.crossedTowers;
-	for(vector<const CaloTower*>::const_iterator it = towers.begin();
-	    it != towers.end(); it++) {
-	  if( (*it)->et() <  towerEtThreshold) continue;
-	  muMETInfo.ecalE =+ (*it)->emEt();
-	  muMETInfo.hcalE =+ (*it)->hadEt();
-	  if(useHO)
-	    muMETInfo.hoE =+ (*it)->outerEt();
-	}
-      }//use Towers
-    }
   
-    
-    sumMuEt += mus_it->et();
-    double metxBeforeCorr = corMETX;
-    double metyBeforeCorr = corMETY;
-    
-    
-    //The tracker has better resolution for pt < 200 GeV
-    math::XYZTLorentzVector mup4;
-    if(mus_it->globalTrack()->pt() < 200) {
-      mup4 = LorentzVector(mus_it->innerTrack()->px(), mus_it->innerTrack()->py(),
-			   mus_it->innerTrack()->pz(), mus_it->innerTrack()->p());
-    } else {
-      mup4 = LorentzVector(mus_it->globalTrack()->px(), mus_it->globalTrack()->py(),
-			   mus_it->globalTrack()->pz(), mus_it->globalTrack()->p());
-    }	
-    
-    //call function that does the work 
-    correctMETforMuon(corMETX, corMETY, Bfield, mus_it->charge(),
-		      mup4, mus_it->vertex(),
-		      muMETInfo);
-    double sumMuDepEx = corMETX - metxBeforeCorr + mus_it->px();
-    double sumMuDepEy = corMETY - metyBeforeCorr + mus_it->py();
-    sumMuDepEt += sqrt(pow(sumMuDepEx,2)+pow(sumMuDepEy,2));
-    
+    sumMuPx    += mup4.px();
+    sumMuPy    += mup4.py();
+    sumMuDepEx += deltax;
+    sumMuDepEy += deltay;
+    corMETX    = corMETX - mup4.px() + deltax;
+    corMETY    = corMETY - mup4.py() + deltay;
+  
   }
-  
-  double corMET   = sqrt(corMETX*corMETX   +   corMETY*corMETY    );
-  delta.mex   = corMETX - uncorMETX;
-  delta.mey   = corMETY - uncorMETY;
-  //remove muon's contribution to sumEt and add in the 
-  //muon Et from track
-  delta.sumet = sumMuEt - sumMuDepEt;
-    
-  MET::LorentzVector correctedMET4vector( corMETX, corMETY, 0., corMET);
-  //----------------- get previous corrections and push into new corrections
+  delta.mex = sumMuDepEx - sumMuPx;
+  delta.mey = sumMuDepEy - sumMuPy;
+  delta.sumet = sqrt(sumMuPx*sumMuPx + sumMuPy*sumMuPy) - sqrt(sumMuDepEx*sumMuDepEx + sumMuDepEy*sumMuDepEy);
+  MET::LorentzVector correctedMET4vector( corMETX, corMETY, 0., sqrt(corMETX*corMETX + corMETY*corMETY));
   std::vector<CorrMETData> corrections = uncorMETObj.mEtCorr();
-  corrections.push_back( delta );
-  
+  corrections.push_back(delta);
+   
   T result = makeMET(uncorMETObj, uncorMETObj.sumEt()+delta.sumet, corrections, correctedMET4vector);
   v_corMET->push_back(result);
+
+}
+
+void MuonMETAlgo::GetMuDepDeltas(const reco::Muon* inputMuon,
+				  TrackDetMatchInfo& info,
+				  bool useTrackAssociatorPositions,
+				  bool useRecHits,
+				  bool useHO,
+				  double towerEtThreshold,
+				  double& deltax, double& deltay,
+				  double Bfield) {
   
+        
+  bool useAverage = false;
+  //decide whether or not we want to correct on average based 
+  //on isolation information from the muon
+  double sumPt   = inputMuon->isIsolationValid()? inputMuon->isolationR03().sumPt       : 0.0;
+  double sumEtEcal = inputMuon->isIsolationValid() ? inputMuon->isolationR03().emEt     : 0.0;
+  double sumEtHcal    = inputMuon->isIsolationValid() ? inputMuon->isolationR03().hadEt : 0.0;
+    
+  if(sumPt > 3 || sumEtEcal + sumEtHcal > 5) useAverage = true;
+  
+  //get the energy using TrackAssociator if
+  //the muon turns out to be isolated
+  MuonMETInfo muMETInfo;
+  muMETInfo.useAverage = useAverage;
+  muMETInfo.useTkAssociatorPositions = useTrackAssociatorPositions;
+  muMETInfo.useHO = useHO;
+  
+  
+  TrackRef mu_track;
+  if(inputMuon->isGlobalMuon()) {
+    mu_track = inputMuon->globalTrack();
+  } else if(inputMuon->isTrackerMuon()) {
+    mu_track = inputMuon->innerTrack();
+  } else 
+    mu_track = inputMuon->outerTrack();
+
+  if(useTrackAssociatorPositions) {
+    muMETInfo.ecalPos  = info.trkGlobPosAtEcal;
+    muMETInfo.hcalPos  = info.trkGlobPosAtHcal;
+    muMETInfo.hoPos    = info.trkGlobPosAtHO;
+  }
+  
+  if(!useAverage) {
+    
+    if(useRecHits) {
+      muMETInfo.ecalE = inputMuon->calEnergy().emS9;
+      muMETInfo.hcalE = inputMuon->calEnergy().hadS9;
+      if(useHO) //muMETInfo.hoE is 0 by default
+	muMETInfo.hoE   = inputMuon->calEnergy().hoS9;
+    } else {// use Towers (this is the default)
+      //only include towers whose Et > 0.5 since 
+      //by default the MET only includes towers with Et > 0.5
+      vector<const CaloTower*> towers = info.crossedTowers;
+      for(vector<const CaloTower*>::const_iterator it = towers.begin();
+	  it != towers.end(); it++) {
+	if((*it)->et() < towerEtThreshold) continue;
+	muMETInfo.ecalE =+ (*it)->emEt();
+	muMETInfo.hcalE =+ (*it)->hadEt();
+	if(useHO)
+	  muMETInfo.hoE =+ (*it)->outerEt();
+      }
+    }//use Towers
+  }
+  
+  
+
+  //This needs to be fixed!!!!!
+  //The tracker has better resolution for pt < 200 GeV
+  math::XYZTLorentzVector mup4;
+  if(inputMuon->isGlobalMuon()) {
+    if(inputMuon->globalTrack()->pt() < 200) {
+      mup4 = LorentzVector(inputMuon->innerTrack()->px(), inputMuon->innerTrack()->py(),
+			   inputMuon->innerTrack()->pz(), inputMuon->innerTrack()->p());
+    } else {
+      mup4 = LorentzVector(inputMuon->globalTrack()->px(), inputMuon->globalTrack()->py(),
+			   inputMuon->globalTrack()->pz(), inputMuon->globalTrack()->p());
+    }	
+  } else if(inputMuon->isTrackerMuon()) {
+    mup4 = LorentzVector(inputMuon->innerTrack()->px(), inputMuon->innerTrack()->py(),
+			 inputMuon->innerTrack()->pz(), inputMuon->innerTrack()->p());
+  } else 
+    mup4 = LorentzVector(inputMuon->outerTrack()->px(), inputMuon->outerTrack()->py(),
+			 inputMuon->outerTrack()->pz(), inputMuon->outerTrack()->p());
+  
+  
+  //call function that does the work 
+  correctMETforMuon(deltax, deltay, Bfield, inputMuon->charge(),
+		    mup4, inputMuon->vertex(),
+		    muMETInfo);
 }
    
 //----------------------------------------------------------------------------
 
-void MuonMETAlgo::correctMETforMuon(double& metx, double& mety, double bfield, int muonCharge,
-				    math::XYZTLorentzVector muonP4, math::XYZPoint muonVertex,
+void MuonMETAlgo::correctMETforMuon(double& deltax, double& deltay, double bfield, int muonCharge,
+				    math::XYZTLorentzVector muonP4,math::XYZPoint muonVertex,
 				    MuonMETInfo& muonMETInfo) {
   
   double mu_p     = muonP4.P();
@@ -180,12 +232,6 @@ void MuonMETAlgo::correctMETforMuon(double& metx, double& mety, double bfield, i
   double mu_vz    = muonVertex.z()/100.;
   double mu_pz    = muonP4.Pz();
   
-  
-  
-  //add in the muon's pt
-  metx -= mu_pt*cos(mu_phi);
-  mety -= mu_pt*sin(mu_phi);
-
   double ecalPhi, ecalTheta;
   double hcalPhi, hcalTheta;
   double hoPhi, hoTheta;
@@ -247,7 +293,7 @@ void MuonMETAlgo::correctMETforMuon(double& metx, double& mety, double bfield, i
       } else {
         double te_ecal = -(fabs(zFaceEcal) + mu_vz)*mu_pt/(bendr*mu_pz);
         xEcal = bendr*(TMath::Sin(te_ecal+mu_phi) - TMath::Sin(mu_phi));
-        yEcal = bendr*(-TMath::Cos(te_ecal+mu_phi) + TMath::Cos(mu_phi));
+	yEcal = bendr*(-TMath::Cos(te_ecal+mu_phi) + TMath::Cos(mu_phi));
         zEcal = -fabs(zFaceEcal);
       }
     }
@@ -314,10 +360,11 @@ void MuonMETAlgo::correctMETforMuon(double& metx, double& mety, double bfield, i
       hcalPhi = mu_phi - fabs(dphi);
       if(fabs(hcalPhi) > TMath::Pi()) {
         double temp = 2*TMath::Pi() - fabs(hcalPhi);
-        hcalPhi = -1*temp*hcalPhi/fabs(hcalPhi);
+	hcalPhi = -1*temp*hcalPhi/fabs(hcalPhi);
       }
       xHcal = r2dHcal*TMath::Cos(hcalPhi);
       yHcal = r2dHcal*TMath::Sin(hcalPhi);
+
          
       //Ho
       dphi = mu_phi - hoPhi;
@@ -344,8 +391,8 @@ void MuonMETAlgo::correctMETforMuon(double& metx, double& mety, double bfield, i
       + muonMETInfo.hcalE*sin(hcalTheta)*sin(hcalPhi)
       + muonMETInfo.hoE*sin(hoTheta)*sin(hoPhi);
 
-    metx += mu_Ex;
-    mety += mu_Ey;
+    deltax += mu_Ex;
+    deltay += mu_Ey;
     
   } else { //non-isolated muons - derive the correction
     
@@ -382,55 +429,37 @@ void MuonMETAlgo::correctMETforMuon(double& metx, double& mety, double bfield, i
     if(dep < 0.5) dep = 0;
     //use the average phi of the 3 subdetectors
     if(fabs(mu_eta) < 1.3) {
-      metx += dep*cos((ecalPhi+hcalPhi+hoPhi)/3);
-      mety += dep*sin((ecalPhi+hcalPhi+hoPhi)/3);
+      deltax += dep*cos((ecalPhi+hcalPhi+hoPhi)/3);
+      deltay += dep*sin((ecalPhi+hcalPhi+hoPhi)/3);
     } else {
-      metx += dep*cos( (ecalPhi+hcalPhi)/2);
-      mety += dep*cos( (ecalPhi+hcalPhi)/2);
+      deltax += dep*cos( (ecalPhi+hcalPhi)/2);
+      deltay += dep*cos( (ecalPhi+hcalPhi)/2);
     }
   }
 
   
 }
 //----------------------------------------------------------------------------
-void MuonMETAlgo::run(const edm::Event& iEvent,
-		      const edm::EventSetup& iSetup,
-		      const edm::View<reco::MET>& uncorMET, 
-		      const edm::View<reco::Muon>& Muons, 
-		      TrackDetectorAssociator& trackAssociator,
-		      TrackAssociatorParameters& trackAssociatorParameters,
-		      METCollection *corMET,
-		      bool useTrackAssociatorPositions,
-		      bool useRecHits,
-		      bool useHO,
-		      double towerEtThreshold) {
-		     
-  
-  return MuonMETAlgo_run(iEvent, iSetup, uncorMET, Muons, 
-			 trackAssociator, trackAssociatorParameters,
-			 corMET, useTrackAssociatorPositions,
-			 useRecHits, useHO, towerEtThreshold);
+void MuonMETAlgo::run(const edm::View<reco::Muon>& inputMuons,
+		      const edm::ValueMap<int>& vm_flags,
+		      const edm::ValueMap<double>& vm_deltax,
+		      const edm::ValueMap<double>& vm_deltay,
+		      const edm::View<reco::MET>& uncorMET,
+		      METCollection *corMET) {
+
+  MuonMETAlgo_run(inputMuons, vm_flags, vm_deltax, vm_deltay, uncorMET, corMET);
 }
 
-
 //----------------------------------------------------------------------------
-void MuonMETAlgo::run(const edm::Event& iEvent,
-		      const edm::EventSetup& iSetup,
-		      const edm::View<reco::CaloMET>& uncorMET, 
-		      const edm::View<reco::Muon>& Muons,
-		      TrackDetectorAssociator& trackAssociator,
-		      TrackAssociatorParameters& trackAssociatorParameters,
-		      CaloMETCollection *corMET,
-		      bool useTrackAssociatorPositions,
-		      bool useRecHits,
-		      bool useHO,
-		      double towerEtThreshold) {
-		      
+void MuonMETAlgo::run(const edm::View<reco::Muon>& inputMuons,
+		      const edm::ValueMap<int>& vm_flags,
+		      const edm::ValueMap<double>& vm_deltax,
+		      const edm::ValueMap<double>& vm_deltay,
+		      const edm::View<reco::CaloMET>& uncorMET,
+		      CaloMETCollection *corMET) {
   
-  return MuonMETAlgo_run(iEvent, iSetup, uncorMET, Muons,
-			 trackAssociator, trackAssociatorParameters,
-			 corMET, useTrackAssociatorPositions,
-			 useRecHits, useHO, towerEtThreshold);
+  MuonMETAlgo_run(inputMuons, vm_flags, vm_deltax, vm_deltay, uncorMET, corMET);
+  
 }
 
 
@@ -441,4 +470,6 @@ MuonMETAlgo::MuonMETAlgo() {}
 //----------------------------------------------------------------------------
 MuonMETAlgo::~MuonMETAlgo() {}
 //----------------------------------------------------------------------------
+
+
 
