@@ -31,6 +31,8 @@
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
 
+#include "DataFormats/Math/interface/deltaR.h"
+
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
@@ -46,7 +48,10 @@ IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const e
   vtxCutSeed_=config.getParameter<double>("MaxVtxDXYSeed");
   vtxCutIsol_=config.getParameter<double>("MaxVtxDXYIsol");
   vertexLabel_=config.getParameter<edm::InputTag>("VertexLabel");
-  
+  //Sb add parameter to remove hardcoded cuts  
+  minPtTrackValue_=config.getParameter<double>("minPtTrack");
+  maxPtForIsolationValue_=config.getParameter<double>("maxPtTrackForIsolation");
+
   // Register the product
   produces< reco::IsolatedPixelTrackCandidateCollection >();
 
@@ -106,7 +111,7 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
 	}
     }
 
-  double minPtTrack_=2;
+  double minPtTrack_=minPtTrackValue_;
   double drMaxL1Track_=tauAssocCone_;
   
   int ntr=0;
@@ -140,9 +145,11 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
       bool tmatch=false;
       
       //select tracks not matched to triggered L1 jet
-      double dPhi=fabs(track->phi()-phiTriggered);
-      if (dPhi>3.1415926535) dPhi=2*3.1415926535-dPhi;
-      double R=sqrt(dPhi*dPhi+pow(track->eta()-etaTriggered,2));
+      //Change code DR for official one...
+      //      double dPhi=fabs(track->phi()-phiTriggered);
+      //      if (dPhi>3.1415926535) dPhi=2*3.1415926535-dPhi;
+      //      double R=sqrt(dPhi*dPhi+pow(track->eta()-etaTriggered,2));
+      double R=deltaR(etaTriggered, phiTriggered, track->eta(), track->phi());
       if (R<tauUnbiasCone_) continue;
       
       //check taujet matching
@@ -179,7 +186,7 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
       if (tmatch) good=true;
       if (!tmatch&&vtxMatch) good=true;
 
-      if (good&&maxPt<5)
+      if (good&&maxPt<maxPtForIsolationValue_)
 	{
 	  reco::IsolatedPixelTrackCandidate newCandidate(reco::TrackRef(pixelTracks,track-pixelTracks->begin()), l1extra::L1JetParticleRef(l1eTauJets,selj-l1eTauJets->begin()), maxPt, sumPt);
 	  trackCollection->push_back(newCandidate);
