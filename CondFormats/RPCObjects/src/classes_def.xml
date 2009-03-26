@@ -90,6 +90,9 @@
   <class name="RPCRunIOV::RunIOV_Item"/>
   <class name="std::vector<RPCRunIOV::RunIOV_Item>"/>
 
+  <class name="RPCObFebAssmap"/>
+  <class name="RPCObFebAssmap::FebAssmap_Item"/>
+  <class name="std::vector<RPCObFebAssmap::FebAssmap_Item>"/>
 
   <class name="RPCTechTriggerConfig"/>
   <class name="RBCBoardSpecs"/>

@@ -8,7 +8,7 @@ class RPCObAlignment {
 
         int   dpid;
         float alocalX;
-	float alocalPhi
+	float alocalPhi;
     };
     RPCObAlignment(){}
     virtual ~RPCObAlignment(){}
