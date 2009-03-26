@@ -110,9 +110,9 @@ void CosmicMuonGenerator::initialize(CLHEP::HepRandomEngine *rng){
     //set energy and angle limits for CMSCGEN, give same seed as above 
     if (MinTheta >= 90.*Deg2Rad) //upgoing muons from neutrinos
       Cosmics->initializeNuMu(MinP, MaxP, MinTheta, MaxTheta, MinEnu, MaxEnu, 
-			      MinPhi, MaxPhi, RanSeed);
+			      MinPhi, MaxPhi, RanGen);
     else 
-      Cosmics->initialize(MinP, MaxP, MinTheta, MaxTheta, RanSeed, TIFOnly_constant, TIFOnly_linear);
+      Cosmics->initialize(MinP, MaxP, MinTheta, MaxTheta, RanGen, TIFOnly_constant, TIFOnly_linear);
    
 #if ROOT_INTERACTIVE
   // book histos
