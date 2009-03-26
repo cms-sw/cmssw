@@ -24,7 +24,7 @@ namespace sistrip { class RawToClustersLazyUnpacker; }
 class SiStripClusterizerAlgo {
   
   // Access to private methods for RawToCluster code
-  friend class SiStripRawToClustersLazyUnpacker;
+  friend class OldSiStripRawToClustersLazyUnpacker;
   friend class sistrip::RawToClustersLazyUnpacker;
   friend class StripByStripTestDriver;
   
