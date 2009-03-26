@@ -171,8 +171,8 @@ uint16_t L1GctJetFinderParams::correctedEtGct(const double correctedEt) const
 
   uint16_t jetEtOut = static_cast<uint16_t>(scaledEt);
   
-  if(jetEtOut > L1GctStaticParameters::kJetRankMax) {
-    return L1GctStaticParameters::kJetRankMax;
+  if(jetEtOut > L1GctStaticParameters::jetCalibratedEtMax) {
+    return L1GctStaticParameters::jetCalibratedEtMax;
   } else {
     return jetEtOut;
   }
