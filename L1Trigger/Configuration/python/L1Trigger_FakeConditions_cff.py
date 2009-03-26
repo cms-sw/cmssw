@@ -13,6 +13,7 @@ from L1TriggerConfig.L1GeometryProducers.l1CaloGeomConfig_cff import *
 from L1TriggerConfig.DTTrackFinder.L1DTTrackFinderConfig_cff import *
 from L1TriggerConfig.CSCTFConfigProducers.L1CSCTFConfig_cff import *
 from L1TriggerConfig.RPCTriggerConfig.L1RPCConfig_cff import *
+from L1TriggerConfig.RPCTriggerConfig.RPCConeDefinition_cff import *
 from L1TriggerConfig.GMTConfigProducers.L1MuGMTParametersConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff import *
