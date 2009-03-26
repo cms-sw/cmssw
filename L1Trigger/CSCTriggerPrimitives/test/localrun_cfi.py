@@ -1,6 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-run = 59318
+# run = 59318
+run = 62232
+# run = 65882
+# run = 67926 # RUI00-18
+# run = 67912 # RUI00-18
+# run = 72038
 dir =  "/data0/slava/data/run" + str(run) + "/"
 file = "csc_000" + str(run) + "_"
 ext = "_Monitor_000.raw"
@@ -10,7 +15,7 @@ source = cms.Source("DaqSource",
     readerPluginName = cms.untracked.string("CSCFileReader"),
     readerPset = cms.untracked.PSet(
         #firstEvent = cms.untracked.int32(35555),
-        RUI00 = cms.untracked.vstring(dir+file+"EmuRUI00"+ext),
+        #RUI00 = cms.untracked.vstring(dir+file+"EmuRUI00"+ext),
         RUI01 = cms.untracked.vstring(dir+file+"EmuRUI01"+ext),
         RUI02 = cms.untracked.vstring(dir+file+"EmuRUI02"+ext),
         RUI03 = cms.untracked.vstring(dir+file+"EmuRUI03"+ext),
@@ -51,6 +56,7 @@ source = cms.Source("DaqSource",
         FED751 = cms.untracked.vstring("RUI10", "RUI11", "RUI12", "RUI13", "RUI14", "RUI15", "RUI16", "RUI17", "RUI18"),
         FED752 = cms.untracked.vstring("RUI19", "RUI20", "RUI21", "RUI22", "RUI23", "RUI24", "RUI25", "RUI26", "RUI27"),
         FED753 = cms.untracked.vstring("RUI28", "RUI29", "RUI30", "RUI31", "RUI32", "RUI33", "RUI34", "RUI35", "RUI36")
+        # For CSC TF.
         #FED760 = cms.untracked.vstring("RUI00")
     )
 )

@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("CSCTPEmulator")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(10000)
 )
 
 # Hack to add "test" directory to the python path.
@@ -24,15 +24,13 @@ sys.path.insert(0, os.path.join(os.environ['CMSSW_BASE'],
 #        int32 max_queue_depth = 5
 #    }
 
-process.load("localrun_cfi")
-
 #process.source = cms.Source("PoolSource",
 #    fileNames = cms.untracked.vstring('file:/data0/slava/data/run58731/4C6067C2-B972-DD11-9672-000423D996B4.root')
 ##        untracked uint32 debugVebosity = 10
 ##        untracked bool   debugFlag     = false
 ###	untracked uint32 skipEvents    = 2370
 #)
-#process.load("run43434_cfi")
+process.load("localrun_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring("debug"),
@@ -62,10 +60,9 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 # ===================================
 process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 
-#process.load("Configuration.StandardSequences.FakeConditions_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'STARTUP_V5::All'
-process.prefer("GlobalTag")
+process.GlobalTag.globaltag = 'STARTUP_30X::All'
+#process.prefer("GlobalTag")
 
 # magnetic field (do I need it?)
 # ==============================
@@ -73,7 +70,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 # Cabling map
 # ===========
-process.load("EventFilter.CSCRawToDigi.cscFrontierCablingUnpck_cff")
+#process.load("EventFilter.CSCRawToDigi.cscFrontierCablingUnpck_cff")
 
 # CSC raw --> digi unpacker
 # =========================
@@ -97,8 +94,9 @@ process.cscunpacker = cms.EDFilter("CSCDCCUnpacker",
 
 # CSC Trigger Primitives configuration
 # ====================================
-process.load("L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesConfig_cff")
-process.load("L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesDBConfig_cff")
+#process.load("L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesConfig_cff")
+#process.load("L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesDBConfig_cff")
+#process.prefer("l1csctpdbconfsrc")
 # process.l1csctpconf.alctParamMTCC2.alctDriftDelay = 2
 # process.l1csctpconf.alctParamMTCC2.alctL1aWindowWidth = 7
 #process.l1csctpconf.alctParamMTCC2.alctDriftDelay = 9
@@ -128,8 +126,9 @@ process.lctreader.isMTCCData = False
 # Output
 # ======
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string("/data0/slava/test/lcts_run58731.root"),
+    #fileName = cms.untracked.string("/data0/slava/test/lcts_run58731.root"),
     #fileName = cms.untracked.string("/data0/slava/test/lcts_run59318.root"),
+    fileName = cms.untracked.string("/data0/slava/test/lcts_run62232.root"),
     #fileName = cms.untracked.string("/data0/slava/test/lcts_run65882.root"),
     outputCommands = cms.untracked.vstring("keep *", 
         "drop *_DaqSource_*_*")
