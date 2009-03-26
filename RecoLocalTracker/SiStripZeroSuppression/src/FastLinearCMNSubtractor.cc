@@ -24,7 +24,7 @@ subtract_(const uint32_t& detId,std::vector<T>& digis){
     const float slope = median(tmp)/64.;
 
     while (strip < endAPV) {
-      *strip = static_cast<T>( *strip - (offset + ((endAPV-strip)-128-64)*slope) );
+      *strip = static_cast<T>( *strip - (offset + slope*(65 - (endAPV-strip) ) ) );
       strip++;
     }
 
