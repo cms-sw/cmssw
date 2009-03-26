@@ -2,7 +2,7 @@
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include <iostream>
 
 using namespace reco;
@@ -123,7 +123,7 @@ TrackTransientTrack::stateOnSurface(const GlobalPoint & point) const
 TrajectoryStateClosestToBeamLine TrackTransientTrack::stateAtBeamLine() const
 {
   if (!blStateAvailable) {
-    TrajectoryStateClosestToBeamLineBuilder blsBuilder;
+    TSCBLBuilderNoMaterial blsBuilder;
     trajectoryStateClosestToBeamLine = blsBuilder(initialFTS, theBeamSpot);
     blStateAvailable = true;
   }

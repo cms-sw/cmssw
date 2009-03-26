@@ -4,7 +4,7 @@
 #include "TrackingTools/GsfTools/interface/GsfPropagatorAdapter.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include <iostream>
 
 using namespace reco;
@@ -147,7 +147,7 @@ GsfTransientTrack::trajectoryStateClosestToPoint( const GlobalPoint & point ) co
 TrajectoryStateClosestToBeamLine GsfTransientTrack::stateAtBeamLine() const
 {
   if (!blStateAvailable) {
-    TrajectoryStateClosestToBeamLineBuilder blsBuilder;
+    TSCBLBuilderNoMaterial blsBuilder;
     trajectoryStateClosestToBeamLine = blsBuilder(initialFTS, theBeamSpot);
     blStateAvailable = true;
   }

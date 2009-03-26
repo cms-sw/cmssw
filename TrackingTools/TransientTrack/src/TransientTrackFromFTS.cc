@@ -3,7 +3,7 @@
 #include "DataFormats/Math/interface/Vector3D.h" 
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include <iostream>
 
 using namespace reco;
@@ -128,7 +128,7 @@ const Track & TransientTrackFromFTS::track() const
 TrajectoryStateClosestToBeamLine TransientTrackFromFTS::stateAtBeamLine() const
 {
   if (!blStateAvailable) {
-    TrajectoryStateClosestToBeamLineBuilder blsBuilder;
+    TSCBLBuilderNoMaterial blsBuilder;
     trajectoryStateClosestToBeamLine = blsBuilder(initialFTS, theBeamSpot);
     blStateAvailable = true;
   }
