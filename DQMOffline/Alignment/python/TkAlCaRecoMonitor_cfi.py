@@ -24,6 +24,14 @@ TkAlCaRecoMonitor = cms.EDAnalyzer("TkAlCaRecoMonitor",
                                    MassMin = cms.double(0.0),
                                    MassMax = cms.double(100.0),
                                    #
+                                   TrackPtBin= cms.uint32(110),
+                                   TrackPtMin = cms.double(0.0),
+                                   TrackPtMax = cms.double(110.0),
+                                   #
+                                   TrackCurvatureBin= cms.uint32(2000),
+                                   TrackCurvatureMin = cms.double(-0.01),
+                                   TrackCurvatureMax = cms.double(0.01),
+                                   #
                                    JetPtBin= cms.uint32(100),
                                    JetPtMin = cms.double(0.0),
                                    JetPtMax = cms.double(50.0),
@@ -44,6 +52,6 @@ TkAlCaRecoMonitor = cms.EDAnalyzer("TkAlCaRecoMonitor",
                                    daughterMass = cms.double(0.10565836),#Gev
                                    FolderName = cms.string("TkAlCaRecoMonitor"),
                                    OutputMEsInRootFile = cms.bool(False),
-                                   OutputFileName = cms.string("MonitorTrack.root")
+                                   OutputFileName = cms.string("TkAlCaRecoDQM.root")
                                    )
                                    

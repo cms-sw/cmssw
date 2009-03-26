@@ -6,4 +6,5 @@
 <use name=RecoMuon/TrackingTools>
 <use name=TrackingTools/TransientTrack>
 <use name=Alignment/LaserAlignment>
+<use name=MagneticField/Engine>
 <flags EDM_PLUGIN=1>

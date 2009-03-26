@@ -44,17 +44,23 @@ class TkAlCaRecoMonitor : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
+  edm::ESHandle<MagneticField> magneticField_;
+
 
   double maxJetPt_;
   
   //1D
   MonitorElement* invariantMass_;
   MonitorElement* sumCharge_;
+  MonitorElement* TrackQuality_;
   MonitorElement* jetPt_;
   MonitorElement* minJetDeltaR_;
   MonitorElement* minTrackDeltaR_;
   MonitorElement* AlCaRecoTrackEfficiency_;
   MonitorElement* Hits_perDetId_;
+  MonitorElement* TrackPtPositive_;
+  MonitorElement* TrackPtNegative_;
+  MonitorElement* TrackCurvature_;
   //2D
   MonitorElement* Hits_ZvsR_;
   MonitorElement* Hits_XvsY_;

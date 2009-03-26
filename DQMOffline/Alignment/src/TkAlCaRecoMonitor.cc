@@ -21,6 +21,7 @@
 #include <DataFormats/Math/interface/deltaR.h>
 
 #include <string>
+//#include <sstream>
 #include "TLorentzVector.h"
 
 TkAlCaRecoMonitor::TkAlCaRecoMonitor(const edm::ParameterSet& iConfig) {
@@ -59,6 +60,40 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
     invariantMass_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, MassBin, MassMin, MassMax);
     invariantMass_->setAxisTitle("invariant Mass / GeV");
   }
+
+  unsigned int TrackPtPositiveBin = conf_.getParameter<unsigned int>("TrackPtBin");
+  double TrackPtPositiveMin = conf_.getParameter<double>("TrackPtMin");
+  double TrackPtPositiveMax = conf_.getParameter<double>("TrackPtMax");
+
+  histname = "TrackPtPositive_";
+  TrackPtPositive_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackPtPositiveBin, TrackPtPositiveMin, TrackPtPositiveMax);
+  TrackPtPositive_->setAxisTitle("p_{T} of tracks charge > 0");
+
+  unsigned int TrackPtNegativeBin = conf_.getParameter<unsigned int>("TrackPtBin");
+  double TrackPtNegativeMin = conf_.getParameter<double>("TrackPtMin");
+  double TrackPtNegativeMax = conf_.getParameter<double>("TrackPtMax");
+
+  histname = "TrackPtNegative_";
+  TrackPtNegative_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackPtNegativeBin, TrackPtNegativeMin, TrackPtNegativeMax);
+  TrackPtNegative_->setAxisTitle("p_{T} of tracks charge < 0");
+
+  unsigned int TrackCurvatureBin = conf_.getParameter<unsigned int>("TrackCurvatureBin");
+  double TrackCurvatureMin = conf_.getParameter<double>("TrackCurvatureMin");
+  double TrackCurvatureMax = conf_.getParameter<double>("TrackCurvatureMax");
+
+  histname = "TrackCurvature_";
+  TrackCurvature_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackCurvatureBin, TrackCurvatureMin, TrackCurvatureMax);
+  TrackCurvature_->setAxisTitle("#kappa track");
+
+
+  histname = "TrackQuality_";
+  TrackQuality_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, 
+				 reco::TrackBase::qualitySize-1, -0.5, reco::TrackBase::qualitySize-1.5);
+  TrackQuality_->setAxisTitle("quality");
+  for ( int i = 0; i<reco::TrackBase::qualitySize-1; ++i){
+    TrackQuality_->getTH1()->GetXaxis()->SetBinLabel(i+1,
+	            reco::TrackBase::qualityName( reco::TrackBase::TrackQuality(i) ).c_str());
+  } 
 
   unsigned int SumChargeBin = conf_.getParameter<unsigned int>("SumChargeBin");
   double SumChargeMin = conf_.getParameter<double>("SumChargeMin");
@@ -136,6 +171,19 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
   Hits_perDetId_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, nModules, static_cast<double>(nModules) -0.5, static_cast<double>(nModules) -0.5);
   Hits_perDetId_->setAxisTitle("rawId Bins");
 
+//// impossible takes too much memory :(  
+//  std::stringstream binLabel;
+//  for( std::map<int,int>::iterator it = binByRawId_.begin(); it != binByRawId_.end(); ++it ){
+//    binLabel.str() = "";
+//    binLabel << (*it).first;
+//    Hits_perDetId_->getTH1()->GetXaxis()->SetBinLabel( (*it).second +1, binLabel.str().c_str());
+//  }
+
+  iSetup.get<IdealMagneticFieldRecord>().get(magneticField_);
+  if (!magneticField_.isValid()){
+    LogError("Alignment")<<"invalid magnetic field configuration encountered!";
+    return;
+  }
 }
 //
 // -- Analyse
@@ -196,6 +244,18 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
       if(dR < minTrackDeltaR && dR > 1e-6)
 	minTrackDeltaR = dR;
     }
+
+    if( (*track).charge() > 0 )
+      TrackPtPositive_->Fill( (*track).pt() );
+    if( (*track).charge() < 0 )
+      TrackPtNegative_->Fill( (*track).pt() );
+
+    GlobalPoint gPoint((*track).vx(), (*track).vy(), (*track).vz());
+    double B = magneticField_->inTesla(gPoint).z();
+    double curv = -(*track).charge()*0.002998*B/(*track).pt();
+    //std::cout << "curv: "<<curv<<std::endl;
+    TrackCurvature_->Fill( curv );
+    TrackQuality_->Fill( (*track).qualityMask()  );
     minTrackDeltaR_->Fill( minTrackDeltaR );
     fillHitmaps( *track, *geometry );
     sumOfCharges += (*track).charge();
@@ -237,7 +297,7 @@ void TkAlCaRecoMonitor::fillHitmaps(const reco::Track &track, const TrackerGeome
 	r*= globP.y() / fabs( globP.y() );
       Hits_ZvsR_->Fill( globP.z(), r );
       Hits_XvsY_->Fill( globP.x(), globP.y() );
-      Hits_perDetId_->Fill( binByRawId_[ geoId.rawId() ]);
+      Hits_perDetId_->Fill( binByRawId_[ geoId.rawId() ]);  
     }
     //me->Fill( tHit->globalPosition().z(), tHit->globalPosition().mag() );
   }
@@ -255,3 +315,4 @@ void TkAlCaRecoMonitor::endJob(void) {
 }
 
 DEFINE_FWK_MODULE(TkAlCaRecoMonitor);
+
