@@ -8,6 +8,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 //#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -30,13 +31,16 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.22 2009/03/24 17:26:27 charlot Exp $
+ * \version $Id: GsfElectron.h,v 1.23 2009/03/24 23:07:03 charlot Exp $
  *
  ****************************************************************************/
 
 //*****************************************************************************
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.23  2009/03/24 23:07:03  charlot
+// added setter for isolation
+//
 // Revision 1.22  2009/03/24 17:26:27  charlot
 // updated provenance and added comments in headers
 //
@@ -125,7 +129,7 @@ class GsfElectron : public RecoCandidate
 
     struct TrackClusterMatching
      {
-      BasicClusterRef electronCluster ; // basic cluster best matching gsf track
+      CaloClusterPtr electronCluster ;  // basic cluster best matching gsf track
       float eSuperClusterOverP ;        // the supercluster energy / track momentum at the PCA to the beam spot
       float eSeedClusterOverP ;         // the seed cluster energy / track momentum at the PCA to the beam spot
       float eSeedClusterOverPout ;      // the seed cluster energy / track momentum at calo extrapolated from the outermost track state
@@ -139,7 +143,7 @@ class GsfElectron : public RecoCandidate
      } ;
 
     // accessors
-    BasicClusterRef electronCluster() const { return trackClusterMatching_.electronCluster ; }
+    CaloClusterPtr electronCluster() const { return trackClusterMatching_.electronCluster ; }
     float eSuperClusterOverP() const { return trackClusterMatching_.eSuperClusterOverP ; }
     float eSeedClusterOverP() const { return trackClusterMatching_.eSeedClusterOverP ; }
     float eSeedClusterOverPout() const { return trackClusterMatching_.eSeedClusterOverPout ; }
@@ -205,8 +209,8 @@ class GsfElectron : public RecoCandidate
     // direct accessors
     math::XYZPoint superClusterPosition() const { return superCluster()->position() ; } // the super cluster position
     int basicClustersSize() const { return superCluster()->clustersSize() ; } // number of basic clusters inside the supercluster
-    basicCluster_iterator basicClustersBegin() const { return superCluster()->clustersBegin() ; }
-    basicCluster_iterator basicClustersEnd() const { return superCluster()->clustersEnd() ; }
+    CaloCluster_iterator basicClustersBegin() const { return superCluster()->clustersBegin() ; }
+    CaloCluster_iterator basicClustersEnd() const { return superCluster()->clustersEnd() ; }
 
     // for backward compatibility
     math::XYZPoint caloPosition() const { return superCluster()->position() ; }
