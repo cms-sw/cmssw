@@ -24,7 +24,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
-
+#include "DataFormats/Common/interface/ValueMap.h" 
 #include "JetMETCorrections/Type1MET/interface/MuonMETInfo.h"
 
 class MuonMETAlgo 
@@ -40,42 +40,37 @@ class MuonMETAlgo
 			const std::vector<CorrMETData>& fCorrections, 
 			const MET::LorentzVector& fP4);
   
-  virtual void run(const edm::Event& iEvent,
-		   const edm::EventSetup& iSetup, 
+  virtual void run(const edm::View<reco::Muon>& inputMuons,
+		   const edm::ValueMap<int>& vm_flags,
+		   const edm::ValueMap<double>& vm_deltax,
+		   const edm::ValueMap<double>& vm_deltay,
 		   const edm::View<reco::MET>& uncorMET,
-		   const edm::View<reco::Muon>& Muons,
-		   TrackDetectorAssociator& trackAssociator,
-		   TrackAssociatorParameters& trackAssociatorParameters,
-		   reco::METCollection* corMET,
-		   bool useTrackAssociatorPositions,
-		   bool useRecHits,
-		   bool useHO,
-		   double towerEtThreshold);
-  virtual void run(const edm::Event& iEvent,
-		   const edm::EventSetup& iSetup, 
-		   const edm::View<reco::CaloMET>& uncorMET, 
-                   const edm::View<reco::Muon>& Muons,
-		   TrackDetectorAssociator& trackAssociator,
-		   TrackAssociatorParameters& trackAssociatorParameters,
-		   reco::CaloMETCollection* corMET,
-		   bool useTrackAssociatorPositions,
-		   bool useRecHits,
-		   bool useHO,
-		   double towerEtThreshold);
+		   METCollection *corMET);
 		   
-  template <class T> void MuonMETAlgo_run(const edm::Event& iEvent,
-					  const edm::EventSetup& iSetup,
+  virtual void run(const edm::View<reco::Muon>& inputMuons,
+		   const edm::ValueMap<int>& vm_flags,
+		   const edm::ValueMap<double>& vm_deltax,
+		   const edm::ValueMap<double>& vm_deltay,
+		   const edm::View<reco::CaloMET>& uncorMET,
+		   CaloMETCollection *corMET);
+		     
+  
+  void GetMuDepDeltas(const reco::Muon* inputMuon,
+		      TrackDetMatchInfo& info,
+		      bool useTrackAssociatorPositions,
+		      bool useRecHits,
+		      bool useHO,
+		      double towerEtThreshold,
+		      double& deltax, double& deltay, double Bfield);
+  
+  template <class T> void MuonMETAlgo_run(const edm::View<reco::Muon>& inputMuons,
+					  const edm::ValueMap<int>& vm_flags,
+					  const edm::ValueMap<double>& vm_deltax,
+					  const edm::ValueMap<double>& vm_deltay,
 					  const edm::View<T>& v_uncorMET,
-	                                  const edm::View<reco::Muon>& inputMuons,
-					  TrackDetectorAssociator& trackAssociator,
-					  TrackAssociatorParameters& trackAssociatorParameters,
-					  std::vector<T>* v_corMET,
-					  bool useTrackAssociatorPositions,
-					  bool useRecHits,
-					  bool useHO,
-					  double towerEtThreshold);
+					  vector<T>* v_corMET);
 					  
-  static void  correctMETforMuon(double& metx, double& mety,
+  static void  correctMETforMuon(double& deltax, double& deltay,
 				 double bfield, int muonCharge,
 				 const math::XYZTLorentzVector muonP4,
 				 const math::XYZPoint muonVertex,
