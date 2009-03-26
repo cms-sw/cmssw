@@ -18,7 +18,8 @@ struct TkOffTreeVariables
 
     // Now the rest:
     // Float_t's
-    posR = posPhi = posEta = posX = posY = posZ = 0.;
+    posR = posPhi = posEta = posX = posY = posZ
+      = rDirection = phiDirection = zDirection = rOrZDirection = 0.;
     // Int_t's
     moduleId = subDetId
       = layer = side = rod 
@@ -43,8 +44,7 @@ struct TkOffTreeVariables
       = sigmaX = sigmaNormX
       = fitMeanX = fitSigmaX = fitMeanNormX = fitSigmaNormX  
       = fitMeanY = fitSigmaY = fitMeanNormY = fitSigmaNormY  
-      = numberOfUnderflows = numberOfOverflows = numberOfOutliers 
-      = phiDirection = rOrZDirection = 0.;
+      = numberOfUnderflows = numberOfOverflows = numberOfOutliers = 0.;
 
     // variable Int_t's
     entries = 0;
@@ -67,7 +67,7 @@ struct TkOffTreeVariables
     posR, posPhi, posEta,                     //global coordiantes    
     posX, posY, posZ,             //global coordiantes 
     numberOfUnderflows, numberOfOverflows, numberOfOutliers,
-    phiDirection, rOrZDirection ;
+    rDirection, phiDirection, zDirection, rOrZDirection;
   UInt_t  entries, moduleId, subDetId, //number of entries for each modul //modul Id = detId and subdetector Id
     layer, side, rod, 
     ring, petal, 
