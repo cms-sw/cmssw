@@ -151,22 +151,21 @@ ALCARECOTkAlMuonIsolatedDQM = cms.Sequence( ALCARECOTkAlMuonIsolatedTrackingDQM 
 ####################################################
 #############---  TkAlLAS ---#######################
 ####################################################
-import DQMOffline.Alignment.ALCARECOTkAlLASDQM_cfi
+import DQMOffline.Alignment.LaserAlignmentT0ProducerDQM_cfi
 __selectionName = 'TkAlLAS'
-ALCARECOTkAlLASDigiDQM= DQMOffline.Alignment.ALCARECOTkAlLASDQM_cfi.laserAlignmentT0ProducerDQM.clone(
-# names and designation
-  FolderName = __selectionName,
-# settings
-  LowerAdcThreshold = 15,
-  UpperAdcThreshold = 220,
-  DigiProducerList = cms.VPSet(
-    cms.PSet(
-      DigiLabel = cms.string( 'ZeroSuppressed' ),
-      DigiType = cms.string( 'Processed' ),
-      DigiProducer = cms.string( 'laserAlignmentT0Producer' )
+ALCARECOTkAlLASDigiDQM= DQMOffline.Alignment.LaserAlignmentT0ProducerDQM_cfi.LaserAlignmentT0ProducerDQM.clone(
+    # names and designation
+    FolderName = __selectionName,
+    # settings
+    LowerAdcThreshold = 15,
+    UpperAdcThreshold = 220,
+    DigiProducerList = cms.VPSet(
+    cms.PSet(DigiLabel = cms.string( 'ZeroSuppressed' ),
+             DigiType = cms.string( 'Processed' ),
+             DigiProducer = cms.string( 'laserAlignmentT0Producer' )
+             )
     )
-  )
-)
+    )
 ALCARECOTkAlLASDQM = cms.Sequence( ALCARECOTkAlLASDigiDQM )
 
 ################################################
