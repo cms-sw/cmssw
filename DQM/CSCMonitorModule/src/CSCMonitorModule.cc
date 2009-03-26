@@ -48,6 +48,22 @@ CSCMonitorModule::~CSCMonitorModule() {
 }
 
 /**
+ * @brief  Begin module job
+ * @param  c Event setup
+ */
+void CSCMonitorModule::beginJob(const edm::EventSetup& c) {
+
+  dbe->setCurrentFolder("CSC/EventInfo/DCSContents");
+  MonitorElement* dcs = dbe->bookFloat("CSCDCS");
+  dcs->Fill(-1.0);
+
+  dbe->setCurrentFolder("CSC/EventInfo/CertificationContents");
+  MonitorElement* cert = dbe->bookFloat("CSCCertification");
+  cert->Fill(-1.0);
+
+}
+
+/**
  * @brief  Analyze Event.
  * @param  e Event to analyze
  * @param  c Event Setup

@@ -95,7 +95,7 @@ class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProv
 
   protected:
 
-    void beginJob(const edm::EventSetup& c) { }
+    void beginJob(const edm::EventSetup& c);
     void beginRun(const edm::Run& r, const edm::EventSetup& c) { }
     void setup() { }
     void analyze(const edm::Event& e, const edm::EventSetup& c);
