@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.73 2008/10/31 09:22:50 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.74 2008/10/31 09:35:35 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -88,6 +88,7 @@ class SiStripConfigDb {
   friend class SiStripPedestalsBuilderFromDb;
   friend class SiStripNoiseBuilderFromDb;
   friend class SiStripCondObjBuilderFromDb;
+  friend class SiStripPsuDetIdMap;
   
   // Commissioning clients
   friend class SiStripCommissioningDbClient;
@@ -108,6 +109,7 @@ class SiStripConfigDb {
   // Utility and tests
   friend class SiStripPartition;
   friend class testSiStripConfigDb;
+  
 
 
   // ---------- Typedefs ----------
