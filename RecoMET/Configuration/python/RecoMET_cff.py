@@ -9,6 +9,8 @@ import FWCore.ParameterSet.Config as cms
 # Date: 10/21/08 
 # Addition of MET significance by F.Blekman
 # Date: 10/23/08
+# Addition of HCAL noise by JP Chou
+# Date:  3/26/09
 
 from RecoJets.Configuration.CaloTowersES_cfi import *
 from RecoMET.METProducers.CaloTowersOpt_cfi import *
@@ -16,10 +18,12 @@ from RecoMET.METProducers.CaloMET_cfi import *
 from RecoMET.METProducers.HTMET_cfi import *
 from RecoMET.METProducers.CaloMETSignif_cfi import *
 from RecoMET.METProducers.TCMET_cfi import *
-#sequence metreco = {met, metsig, htMetIC5, htMetMC5}
+from RecoMET.METProducers.hcalnoiseinfoproducer_cfi import *
+#sequence metreco = {met, metsig, htMetIC5, htMetMC5, hcalnoise}
 metreco = cms.Sequence(
         met+metNoHF+metHO+metNoHFHO+
             calotoweroptmaker+metOpt+metOptNoHF+calotoweroptmakerWithHO+metOptHO+metOptNoHFHO+
-            htMetSC5+htMetSC7+htMetKT4+htMetKT6+htMetIC5+tcMet
+            htMetSC5+htMetSC7+htMetKT4+htMetKT6+htMetIC5+tcMet+
+            hcalnoise
             )
 
