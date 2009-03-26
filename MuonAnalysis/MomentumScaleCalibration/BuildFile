@@ -24,6 +24,8 @@
 <use name=ROOTMath>
 <use name=ROOTMinuit>
 
+<flags CXXFLAGS="-O0 -g3 -fno-inline">
+
 <export>
   <lib name=MuonAnalysisMomentumScaleCalibration>
   <use name=FWCore/Framework>

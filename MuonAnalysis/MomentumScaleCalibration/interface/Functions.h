@@ -359,25 +359,77 @@ public:
 template <class T>
 class scaleFunctionType14 : public scaleFunctionBase<T> {
 public:
-  scaleFunctionType14() { this->parNum_ = 8; }
+  scaleFunctionType14() { this->parNum_ = 10; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
-    return( (parScale[0] + parScale[1]*pt +
-             parScale[2]*fabs(eta) +
-             parScale[3]*eta*eta +
-             parScale[4]*fabs(eta*eta*eta) +
-             parScale[5]*eta*eta*eta*eta +
-             parScale[6]*fabs(eta*eta*eta*eta*eta))*pt );
+    return( ( parScale[0] +
+              parScale[1]*pt + parScale[2]*pt*pt + parScale[3]*pt*pt*pt +
+              parScale[4]*fabs(eta) + parScale[5]*pow(eta,2) + parScale[6]*fabs(pow(eta,3)) +
+              parScale[7]*pow(eta,4) + parScale[8]*fabs(pow(eta,5)) + parScale[9]*pow(eta,6) +
+              parScale[10]*pow(eta,7) + parScale[11]*fabs(pow(eta,8)) + parScale[12]*pow(eta,9) )*pt );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
-    double thisStep[] = {0.001, 0.01, 0.01, 0.01, 0.00001, 0.0000001, 0.000000001};
-    TString thisParName[] = {"Pt offset", "Pt slope", "Eta slope", "Eta quadr", "Eta cubic", "Eta quartic", "Eta fifth grade", "Eta sixth grade"};
+    double thisStep[] = {0.001,
+                         0.01, 0.01, 0.001,
+                         0.01, 0.00001, 0.0000001, 0.00000001, 0.00000001, 0.000000001};
+    TString thisParName[] = {"Pt offset",
+                             "Pt slope", "Pt quadr", "Pt cubic",
+                             "Eta slope", "Eta quadr", "Eta cubic", "Eta quartic", "Eta fifth grade", "Eta sixth grade"};
     if( muonType == 1 ) {
-      double thisMini[] = {0.9, -0.3, -0.3, -0.3, -0.01, -0.001, -0.0001, -0.00001};
-      double thisMaxi[] = {1.1, 0.3, 0.3, 0.3, 0.01, 0.001, 0.0001, 0.00001};
+      double thisMini[] = {0.9,
+                           -0.3, -0.3, -0.3,
+                           -0.3, -0.3, -0.01, -0.001, -0.0001, -0.00001};
+      double thisMaxi[] = {1.1,
+                           0.3,  0.3,  0.3,
+                           0.3,  0.3,  0.01,  0.001,  0.0001, 0.00001};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
-      double thisMini[] = {0.97, -0.1, -0.1, -0.1, -0.01, -0.001, -0.0001, -0.00001};
-      double thisMaxi[] = {1.03, 0.1, 0.1, 0.1, 0.01, 0.001, 0.0001, 0.00001};
+      double thisMini[] = {0.97,
+                           -0.1, -0.1, -0.1,
+                           -0.1, -0.01, -0.001, -0.0001, -0.00001, -0.000001};
+      double thisMaxi[] = {1.03,
+                           0.1, 0.1, 0.1,
+                           0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+};
+
+// linear in pt and cubic in |eta|
+// --------------------------------------
+template <class T>
+class scaleFunctionType15 : public scaleFunctionBase<T> {
+public:
+  scaleFunctionType15() { this->parNum_ = 5; }
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+    if( pt > parScale[0] ) {
+      return( ( parScale[1] + parScale[3]*fabs(eta) + parScale[4]*pow(eta,2) )*pt );
+    }
+    else {
+      return( ( parScale[2] + parScale[3]*fabs(eta) + parScale[4]*pow(eta,2) )*pt );
+    }
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
+    double thisStep[] = {0.001,
+                         0.01, 0.01,
+                         0.01, 0.00001};
+    TString thisParName[] = {"Pt offset",
+                             "Pt slope 1", "Pt slope 2",
+                             "Eta slope", "Eta quadr"};
+    if( muonType == 1 ) {
+      double thisMini[] = {30.,
+                           0.9, 0.9,
+                           -0.3, -0.3};
+      double thisMaxi[] = {50.,
+                           1.1,  1.1,
+                           0.3,  0.3};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMini[] = {30.,
+                           0.97, 0.97,
+                           -0.1, -0.01};
+      double thisMaxi[] = {50.,
+                           1.03, 1.03,
+                           0.1, 0.01};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }

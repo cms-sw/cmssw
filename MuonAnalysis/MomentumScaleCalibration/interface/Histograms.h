@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2009/01/14 15:34:14 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/03/16 12:41:24 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -83,6 +83,7 @@ public:
                      const reco::Particle::LorentzVector & genP1,
                      const reco::Particle::LorentzVector & recoP2,
                      const reco::Particle::LorentzVector & genP2 ) {};
+  virtual void Fill( const double & x, const double & y ) {};
 
   virtual double Get( const reco::Particle::LorentzVector & recoP1, const TString & covarianceName ) { return 0.; };
 
@@ -93,7 +94,7 @@ public:
     theWeight_ = weight;
   }
 
-   virtual TString GetName() {
+  virtual TString GetName() {
     return name_;
   }
 
@@ -105,6 +106,43 @@ protected:
 
 private:
 
+};
+
+/// A wrapper for the TH2D histogram to allow it to be put inside the same map as all the other classes in this file
+class HTH2D : public Histograms
+{
+public:
+  HTH2D( TFile * outputFile, const TString & name, const TString & title,
+         const int xBins, const double & xMin, const double & xMax,
+         const int yBins, const double & yMin, const double & yMax ) : Histograms(outputFile, name),
+                                                                       tH2d_( new TH2D(name, title, xBins, xMin, xMax, yBins, yMin, yMax) ),
+                                                                       tProfile_( new TProfile(name+"Prof", title+" profile", xBins, xMin, xMax, yMin, yMax) ) {}
+  virtual void Fill( const double & x, const double & y ) {
+    tH2d_->Fill(x,y);
+    tProfile_->Fill(x,y);
+  }
+  virtual void Write() {
+    if(histoDir_ != 0) histoDir_->cd();
+    tH2d_->Write();
+    tProfile_->Write();
+  }
+  virtual void Clear() {
+    tH2d_->Clear();
+    tProfile_->Clear();
+  }
+  virtual void SetXTitle(const TString & title) {
+    tH2d_->GetXaxis()->SetTitle(title);
+    tProfile_->GetXaxis()->SetTitle(title);
+  }
+  virtual void SetYTitle(const TString & title) {
+    tH2d_->GetYaxis()->SetTitle(title);
+    tProfile_->GetYaxis()->SetTitle(title);
+  }
+  TH2D * operator->() { return tH2d_; }
+  TProfile * getProfile() { return tProfile_; }
+protected:
+  TH2D * tH2d_;
+  TProfile * tProfile_;
 };
 
 // -----------------------------------------------------

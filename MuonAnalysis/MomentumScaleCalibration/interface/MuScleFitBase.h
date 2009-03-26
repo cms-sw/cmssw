@@ -31,7 +31,7 @@ protected:
   /// Clean the histograms map
   void clearHistoMap();
   /// Save the histograms map to file
-  void writeHistoMap();
+  void writeHistoMap( const unsigned int iLoop );
 
   /**
    * Read probability distributions from the database.
@@ -50,8 +50,11 @@ protected:
 
   int debug_;
 
+  /// The files were the histograms are saved
+  std::vector<TFile*> theFiles_;
+
   /// The map of histograms
-  map<string, Histograms*> mapHisto;
+  map<string, Histograms*> mapHisto_;
   TProfile * Mass_P;
   TProfile * Mass_fine_P;
   TH2D * PtminvsY;

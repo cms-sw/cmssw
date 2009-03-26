@@ -14,41 +14,49 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   if( MuScleFitUtils::resfind[0] != 1 ) {
     maxMass = 30.;
   }
-  mapHisto["hRecBestMu"]      = new HParticle ("hRecBestMu", minMass, maxMass);
-  mapHisto["hRecBestMu_Acc"]  = new HParticle ("hRecBestMu_Acc", minMass, maxMass); 
-  mapHisto["hDeltaRecBestMu"] = new HDelta ("hDeltaRecBestMu");
+  mapHisto_["hRecBestMu"]      = new HParticle ("hRecBestMu", minMass, maxMass);
+  mapHisto_["hRecBestMu_Acc"]  = new HParticle ("hRecBestMu_Acc", minMass, maxMass); 
+  mapHisto_["hDeltaRecBestMu"] = new HDelta ("hDeltaRecBestMu");
 
-  mapHisto["hRecBestRes"]     = new HParticle   ("hRecBestRes", minMass, maxMass);
-  mapHisto["hRecBestRes_Acc"] = new HParticle   ("hRecBestRes_Acc", minMass, maxMass); 
+  mapHisto_["hRecBestRes"]     = new HParticle   ("hRecBestRes", minMass, maxMass);
+  mapHisto_["hRecBestRes_Acc"] = new HParticle   ("hRecBestRes_Acc", minMass, maxMass); 
   // If not finding Z, use a smaller mass window
   vector<int>::const_iterator resFindIt = MuScleFitUtils::resfind.begin();
-  mapHisto["hRecBestResVSMu"] = new HMassVSPart ("hRecBestResVSMu", minMass, maxMass);
+  mapHisto_["hRecBestResVSMu"] = new HMassVSPart ("hRecBestResVSMu", minMass, maxMass);
   
   // Likelihood values VS muon variables
   // -------------------------------------
-  mapHisto["hLikeVSMu"]       = new HLikelihoodVSPart ("hLikeVSMu");
-  mapHisto["hLikeVSMuMinus"]  = new HLikelihoodVSPart ("hLikeVSMuMinus");
-  mapHisto["hLikeVSMuPlus"]   = new HLikelihoodVSPart ("hLikeVSMuPlus");
+  mapHisto_["hLikeVSMu"]       = new HLikelihoodVSPart ("hLikeVSMu");
+  mapHisto_["hLikeVSMuMinus"]  = new HLikelihoodVSPart ("hLikeVSMuMinus");
+  mapHisto_["hLikeVSMuPlus"]   = new HLikelihoodVSPart ("hLikeVSMuPlus");
 
   //Resolution VS muon kinematic
   //----------------------------
-  mapHisto["hResolMassVSMu"]         = new HResolutionVSPart (outputFile, "hResolMassVSMu");
-  mapHisto["hResolPtGenVSMu"]        = new HResolutionVSPart (outputFile, "hResolPtGenVSMu");
-  mapHisto["hResolPtSimVSMu"]        = new HResolutionVSPart (outputFile, "hResolPtSimVSMu");
-  mapHisto["hResolEtaGenVSMu"]       = new HResolutionVSPart (outputFile, "hResolEtaGenVSMu");
-  mapHisto["hResolEtaSimVSMu"]       = new HResolutionVSPart (outputFile, "hResolEtaSimVSMu");
-  mapHisto["hResolThetaGenVSMu"]     = new HResolutionVSPart (outputFile, "hResolThetaGenVSMu");
-  mapHisto["hResolThetaSimVSMu"]     = new HResolutionVSPart (outputFile, "hResolThetaSimVSMu");
-  mapHisto["hResolCotgThetaGenVSMu"] = new HResolutionVSPart (outputFile, "hResolCotgThetaGenVSMu");
-  mapHisto["hResolCotgThetaSimVSMu"] = new HResolutionVSPart (outputFile, "hResolCotgThetaSimVSMu");
-  mapHisto["hResolPhiGenVSMu"]       = new HResolutionVSPart (outputFile, "hResolPhiGenVSMu");
-  mapHisto["hResolPhiSimVSMu"]       = new HResolutionVSPart (outputFile, "hResolPhiSimVSMu");
+  mapHisto_["hResolMassVSMu"]         = new HResolutionVSPart (outputFile, "hResolMassVSMu");
+  mapHisto_["hResolPtGenVSMu"]        = new HResolutionVSPart (outputFile, "hResolPtGenVSMu");
+  mapHisto_["hResolPtSimVSMu"]        = new HResolutionVSPart (outputFile, "hResolPtSimVSMu");
+  mapHisto_["hResolEtaGenVSMu"]       = new HResolutionVSPart (outputFile, "hResolEtaGenVSMu");
+  mapHisto_["hResolEtaSimVSMu"]       = new HResolutionVSPart (outputFile, "hResolEtaSimVSMu");
+  mapHisto_["hResolThetaGenVSMu"]     = new HResolutionVSPart (outputFile, "hResolThetaGenVSMu");
+  mapHisto_["hResolThetaSimVSMu"]     = new HResolutionVSPart (outputFile, "hResolThetaSimVSMu");
+  mapHisto_["hResolCotgThetaGenVSMu"] = new HResolutionVSPart (outputFile, "hResolCotgThetaGenVSMu");
+  mapHisto_["hResolCotgThetaSimVSMu"] = new HResolutionVSPart (outputFile, "hResolCotgThetaSimVSMu");
+  mapHisto_["hResolPhiGenVSMu"]       = new HResolutionVSPart (outputFile, "hResolPhiGenVSMu");
+  mapHisto_["hResolPhiSimVSMu"]       = new HResolutionVSPart (outputFile, "hResolPhiSimVSMu");
 
+  HTH2D * recoGenHisto = new HTH2D(outputFile, "hPtRecoVsPtGen", "Pt reco vs Pt gen", 120, 0., 120., 120, 0, 120.);
+  (*recoGenHisto)->SetXTitle("Pt gen (GeV)");
+  (*recoGenHisto)->SetYTitle("Pt reco (GeV)");
+  mapHisto_["hPtRecoVsPtGen"] = recoGenHisto;
+  HTH2D * recoSimHisto = new HTH2D(outputFile, "hPtRecoVsPtSim", "Pt reco vs Pt sim", 120, 0., 120., 120, 0, 120.);
+  (*recoSimHisto)->SetXTitle("Pt sim (GeV)");
+  (*recoSimHisto)->SetYTitle("Pt reco (GeV)");
+  mapHisto_["hPtRecoVsPtSim"] = recoSimHisto;
   // Resolutions from resolution functions
   // -------------------------------------
-  mapHisto["hFunctionResolPt"]        = new HFunctionResolution (outputFile, "hFunctionResolPt");
-  mapHisto["hFunctionResolCotgTheta"] = new HFunctionResolution (outputFile, "hFunctionResolCotgTheta");
-  mapHisto["hFunctionResolPhi"]       = new HFunctionResolution (outputFile, "hFunctionResolPhi");
+  mapHisto_["hFunctionResolPt"]        = new HFunctionResolution (outputFile, "hFunctionResolPt");
+  mapHisto_["hFunctionResolCotgTheta"] = new HFunctionResolution (outputFile, "hFunctionResolCotgTheta");
+  mapHisto_["hFunctionResolPhi"]       = new HFunctionResolution (outputFile, "hFunctionResolPhi");
 
   // Mass probability histograms
   // ---------------------------
@@ -71,24 +79,25 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   // Mass resolution vs (pt, eta) of the muons from MC
   massResolutionVsPtEta_ = new HCovarianceVSxy ( "Mass", "Mass", 100, 0., ptMax, 60, -3, 3, outputFile->mkdir("MassCovariance") );
   // Mass resolution vs (pt, eta) from resolution function
-  mapHisto["hFunctionResolMass"] = new HFunctionResolution (outputFile, "hFunctionResolMass", ptMax);
+  mapHisto_["hFunctionResolMass"] = new HFunctionResolution (outputFile, "hFunctionResolMass", ptMax);
 }
 
 void MuScleFitBase::clearHistoMap() {
-  for (map<string, Histograms*>::const_iterator histo=mapHisto.begin(); 
-       histo!=mapHisto.end(); histo++) {
+  for (map<string, Histograms*>::const_iterator histo=mapHisto_.begin(); 
+       histo!=mapHisto_.end(); histo++) {
     delete (*histo).second;
   }
   massResolutionVsPtEta_->Clear();
   delete massResolutionVsPtEta_;
 }
 
-void MuScleFitBase::writeHistoMap() {
-  for (map<string, Histograms*>::const_iterator histo=mapHisto.begin(); 
-       histo!=mapHisto.end(); histo++) {
+void MuScleFitBase::writeHistoMap( const unsigned int iLoop ) {
+  for (map<string, Histograms*>::const_iterator histo=mapHisto_.begin(); 
+       histo!=mapHisto_.end(); histo++) {
+    // This is to avoid writing into subdirs. Need a workaround.
+    theFiles_[iLoop]->cd();
     (*histo).second->Write();
   }
-  // theFiles[iLoop]->cd();
   massResolutionVsPtEta_->Write();
 }
 

@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2009/01/29 13:20:26 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/03/16 12:39:02 $
+ *  $Revision: 1.12 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -48,11 +48,11 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
 
   // Operations
   // ----------
-  virtual void beginOfJob (const edm::EventSetup& eventSetup) ;
-  virtual void endOfJob() ;
+  virtual void beginOfJob (const edm::EventSetup& eventSetup);
+  virtual void endOfJob();
 
-  virtual void startingNewLoop (unsigned int iLoop) ;
-  virtual edm::EDLooper::Status endOfLoop (const edm::EventSetup& eventSetup, unsigned int iLoop) ;
+  virtual void startingNewLoop (unsigned int iLoop);
+  virtual edm::EDLooper::Status endOfLoop (const edm::EventSetup& eventSetup, unsigned int iLoop);
   virtual edm::EDLooper::Status duringLoop (const edm::Event & event, const edm::EventSetup& eventSetup);
 
  template<typename T>
@@ -90,6 +90,8 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
 
   /// Check if two lorentzVector are near in deltaR
   bool checkDeltaR(reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu);
+  /// Fill the reco vs gen and reco vs sim comparison histograms
+  void fillComparisonHistograms( const reco::Particle::LorentzVector & genMu, const reco::Particle::LorentzVector & recoMu, const string & inputName );
 
   /**
    * Simple method to check parameters consistency. It aborts the job if the parameters
@@ -104,8 +106,6 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
 //   void writeHistoMap();
 
   MuonServiceProxy *theService;
-
-  std::vector<TFile*> theFiles;
 
   // bool readPdfFromDB;
   

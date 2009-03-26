@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/03/10 16:08:43 $
- *  $Revision: 1.24 $
+ *  $Date: 2009/03/16 12:43:04 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -227,10 +227,10 @@ pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes (vector<reco::
 
   // Very simple method taking the two highest Pt muons in the event
   // ---------------------------------------------------------------
-  lorentzVector * firstMuon = 0;
-  lorentzVector * secondMuon = 0;
-  double firstMuonPt = 0;
-  double secondMuonPt = 0;
+//   lorentzVector * firstMuon = 0;
+//   lorentzVector * secondMuon = 0;
+//   double firstMuonPt = 0;
+//   double secondMuonPt = 0;
 
 //   struct byPt
 //   {
@@ -556,7 +556,7 @@ lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
   // array[0] = parval[shift], array[1] = parval[shift+1], ...
   ptEtaPhiE[0] = scaleFunction->scale(ptEtaPhiE[0], ptEtaPhiE[1], ptEtaPhiE[2], chg, &(parval[shift]));
 
-  if (ScaleFitType < 0 || ScaleFitType > 14) {
+  if (ScaleFitType < 0 || ScaleFitType > 15) {
     cout << "[MuScleFitUtils]: Wrong fit type: " << ScaleFitType << " aborting!";
     abort();
   }
@@ -1278,9 +1278,10 @@ void MuScleFitUtils::minimizeLikelihood () {
   for (int i=0; i<parnumber; i++) {
     // NB ind[] has been set as parorder[] previously
     if (n_times<ind[i]) {
+      cout << "n_times = " << n_times << ", ind["<<i<<"] = " << ind[i] << ", scaleParNum = " << scaleParNum << ", doScaleFit["<<loopCounter<<"] = " << doScaleFit[loopCounter] << endl;
       // Set the n_times only if we will do the fit
       if ( i<resParNum && doResolFit[loopCounter] ) n_times = ind[i];
-      else if( i<scaleParNum && doResolFit[loopCounter]) n_times = ind[i];
+      else if( i<resParNum+scaleParNum && doScaleFit[loopCounter]) n_times = ind[i];
       else if( doBackgroundFit[loopCounter]) n_times = ind[i];
     }
   }

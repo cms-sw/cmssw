@@ -21,10 +21,13 @@ TestCorrection::TestCorrection(const edm::ParameterSet& iConfig) :
   MuScleFitBase( iConfig )
 {
   //now do what ever initialization is needed
-  outputFile_ = new TFile(theRootFileName_.c_str(), "RECREATE");
-  outputFile_->cd();
+  TFile * outputFile = new TFile(theRootFileName_.c_str(), "RECREATE");
+  theFiles_.push_back(outputFile);
+  // outputFile_ = new TFile(theRootFileName_.c_str(), "RECREATE");
+  // outputFile_->cd();
+  outputFile->cd();
   MuScleFitUtils::resfind = iConfig.getParameter<vector<int> >("resfind");
-  fillHistoMap(outputFile_, 0);
+  fillHistoMap(outputFile, 0);
   uncorrectedPt_ = new TH1F("uncorrectedPt", "uncorrected pt", 1000, 0, 100);
   uncorrectedPtVsEta_ = new TProfile("uncorrectedPtVsEta", "uncorrected pt vs eta", 1000, 0, 100, -3., 3.);
   correctedPt_ = new TH1F("correctedPt", "corrected pt", 1000, 0, 100);
@@ -47,7 +50,7 @@ TestCorrection::TestCorrection(const edm::ParameterSet& iConfig) :
 
 TestCorrection::~TestCorrection()
 {
-  outputFile_->cd();
+  theFiles_[0]->cd();
   TCanvas canvas("ptComparison","pt comparison", 1000, 800);
   canvas.cd();
   uncorrectedPt_->GetXaxis()->SetTitle("Pt(GeV)");
@@ -67,8 +70,8 @@ TestCorrection::~TestCorrection()
   correctedPt_->Write();
   correctedPtVsEta_->Write();
 
-  writeHistoMap();
-  outputFile_->Close();
+  writeHistoMap(0);
+  theFiles_[0]->Close();
 
   cout << "Total analyzed events = " << eventCounter_ << endl;
 }
@@ -148,22 +151,22 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     Y->Fill(fabs(bestRecRes.Rapidity()));
     MY->Fill(fabs(bestRecRes.Rapidity()),bestRecRes.mass());
     MYP->Fill(fabs(bestRecRes.Rapidity()),bestRecRes.mass());
-    mapHisto["hRecBestMu"]->Fill(recMu1);
+    mapHisto_["hRecBestMu"]->Fill(recMu1);
     if ((abs(recMu1.eta())<2.5) && (recMu1.pt()>2.5)) {
-      mapHisto["hRecBestMu_Acc"]->Fill(recMu1);
+      mapHisto_["hRecBestMu_Acc"]->Fill(recMu1);
     }
-    mapHisto["hRecBestMu"]->Fill(recMu2);
+    mapHisto_["hRecBestMu"]->Fill(recMu2);
     if ((abs(recMu2.eta())<2.5) && (recMu2.pt()>2.5)) {
-      mapHisto["hRecBestMu_Acc"]->Fill(recMu2);
+      mapHisto_["hRecBestMu_Acc"]->Fill(recMu2);
     }
-    mapHisto["hDeltaRecBestMu"]->Fill(recMu1, recMu2);
+    mapHisto_["hDeltaRecBestMu"]->Fill(recMu1, recMu2);
     
-    mapHisto["hRecBestRes"]->Fill(bestRecRes);
+    mapHisto_["hRecBestRes"]->Fill(bestRecRes);
     if ((abs(recMu1.eta())<2.5) && (recMu1.pt()>2.5) && (abs(recMu2.eta())<2.5) &&  (recMu2.pt()>2.5)){
-      mapHisto["hRecBestRes_Acc"]->Fill(bestRecRes);
+      mapHisto_["hRecBestRes_Acc"]->Fill(bestRecRes);
       // Fill histogram of Res mass vs muon variable
-      mapHisto["hRecBestResVSMu"]->Fill (recMu1, bestRecRes, -1);
-      mapHisto["hRecBestResVSMu"]->Fill (recMu2, bestRecRes, +1);
+      mapHisto_["hRecBestResVSMu"]->Fill (recMu1, bestRecRes, -1);
+      mapHisto_["hRecBestResVSMu"]->Fill (recMu2, bestRecRes, +1);
     }
   }
 

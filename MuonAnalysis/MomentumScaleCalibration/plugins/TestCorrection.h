@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: TestCorrection.h,v 1.2 2008/11/21 16:50:12 demattia Exp $
+// $Id: TestCorrection.h,v 1.3 2009/03/16 12:36:17 demattia Exp $
 //
 //
 
@@ -90,8 +90,6 @@ private:
 
   // Collections labels
   // ------------------
-  TFile * outputFile_;
-
   TH1F * uncorrectedPt_;
   TProfile * uncorrectedPtVsEta_;
   TH1F * correctedPt_;
