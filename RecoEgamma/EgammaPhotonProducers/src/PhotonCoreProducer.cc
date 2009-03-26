@@ -178,7 +178,7 @@ void PhotonCoreProducer::fillPhotonCollection(edm::Event& evt,
     if ( validPixelSeeds_) {
       for( unsigned int icp = 0;  icp < pixelSeedHandle->size(); icp++) {
 	reco::ElectronSeedRef cpRef(reco::ElectronSeedRef(pixelSeedHandle,icp));
-	//// check the provenance here: MISSING 
+	if ( ! cpRef->isEcalDriven() ) continue;
 	if (!( scRef.id() == cpRef->caloCluster().id() && scRef.key() == cpRef->caloCluster().key() )) continue; 
 	newCandidate.addElectronPixelSeed(cpRef);     
       }	
