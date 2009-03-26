@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.46 2009/03/25 02:15:43 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.47 2009/03/25 13:59:59 charlot Exp $
 //
 //
 
@@ -305,7 +305,7 @@ void GsfElectronAlgo::process(
     if (scRef.isNull()) continue ;
     const SuperCluster theClus = *scRef ;
 
-    BasicClusterRef elbcRef = getEleBasicCluster(gsfTrackRef,scRef) ;
+    CaloClusterPtr elbcRef = getEleBasicCluster(gsfTrackRef,scRef) ;
 
     // calculate Trajectory StatesOnSurface....
     if (!calculateTSOS(*gsfTrackRef,theClus, bsPosition)) continue ;
@@ -416,7 +416,7 @@ math::XYZVector convert( const GlobalVector & gv )
 // interface to be improved...
 void GsfElectronAlgo::createElectron
  ( const GsfElectronCoreRef & coreRef,
-   const BasicClusterRef & elbcRef,
+   const CaloClusterPtr & elbcRef,
    const TrackRef & ctfTrackRef, const float shFracInnerHits,
    double HoE1, double HoE2,
    ElectronTkIsolation & tkIso03, ElectronTkIsolation & tkIso04,
@@ -604,13 +604,13 @@ void GsfElectronAlgo::createElectron
  }
 
 
-const BasicClusterRef GsfElectronAlgo::getEleBasicCluster(const GsfTrackRef &t, const SuperClusterRef & scRef) {
+const CaloClusterPtr GsfElectronAlgo::getEleBasicCluster(const GsfTrackRef &t, const SuperClusterRef & scRef) {
 
-    BasicClusterRef eleRef;
+    CaloClusterPtr eleRef;
     TrajectoryStateOnSurface tempTSOS;
     TrajectoryStateOnSurface outTSOS = mtsTransform_->outerStateOnSurface(*t);
     float dphimin = 1.e30;
-    for (basicCluster_iterator bc=scRef->clustersBegin(); bc!=scRef->clustersEnd(); bc++) {
+    for (CaloCluster_iterator bc=scRef->clustersBegin(); bc!=scRef->clustersEnd(); bc++) {
       GlobalPoint posclu((*bc)->position().x(),(*bc)->position().y(),(*bc)->position().z());
       tempTSOS = mtsTransform_->extrapolatedState(outTSOS,posclu) ;
       if (!tempTSOS.isValid()) tempTSOS=outTSOS;

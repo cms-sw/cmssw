@@ -36,6 +36,7 @@
 
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"  
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 

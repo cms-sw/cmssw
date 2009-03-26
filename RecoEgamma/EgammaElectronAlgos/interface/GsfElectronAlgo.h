@@ -18,6 +18,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -84,7 +85,7 @@ class GsfElectronAlgo {
     // interface to be improved...
     void createElectron
      ( const reco::GsfElectronCoreRef & coreRef,
-       const reco::BasicClusterRef & elbcRef,
+       const reco::CaloClusterPtr & elbcRef,
        const reco::TrackRef & ctfTrackRef, const float shFracInnerHits,
        double HoE1, double HoE2, 
        ElectronTkIsolation & tkIso03, ElectronTkIsolation & tkIso04,
@@ -105,7 +106,7 @@ class GsfElectronAlgo {
     // associations
     const reco::SuperClusterRef getTrSuperCluster(const reco::GsfTrackRef & trackRef);
 
-    const reco::BasicClusterRef getEleBasicCluster(const reco::GsfTrackRef &
+    const reco::CaloClusterPtr getEleBasicCluster(const reco::GsfTrackRef &
      trackRef, const reco::SuperClusterRef & scRef);
 
     // From Puneeth Kalavase : returns the CTF track that has the highest fraction

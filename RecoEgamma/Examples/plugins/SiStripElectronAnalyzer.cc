@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:49:38 EDT 2006
-// $Id: SiStripElectronAnalyzer.cc,v 1.9 2009/02/06 13:30:03 chamont Exp $
+// $Id: SiStripElectronAnalyzer.cc,v 1.10 2009/03/06 12:42:16 chamont Exp $
 //
 
 // system include files
@@ -27,6 +27,8 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -393,7 +395,7 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 
 
-    for (reco::basicCluster_iterator basicClusterIter = clusterIter->clustersBegin() ;
+    for (reco::CaloCluster_iterator basicClusterIter = clusterIter->clustersBegin() ;
 	 basicClusterIter != clusterIter->clustersEnd() ;
 	 ++basicClusterIter ){
 
@@ -514,7 +516,7 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     double phi2bar = 0. ;
     double eTotSuperCluster = 0. ;
 
-    for (reco::basicCluster_iterator basicClusterIter = electronIter->superCluster()->clustersBegin() ;
+    for (reco::CaloCluster_iterator basicClusterIter = electronIter->superCluster()->clustersBegin() ;
 	 basicClusterIter != electronIter->superCluster()->clustersEnd() ;
 	 ++basicClusterIter ){
 
