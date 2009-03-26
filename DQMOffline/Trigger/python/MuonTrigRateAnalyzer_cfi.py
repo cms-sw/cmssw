@@ -7,19 +7,40 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
     # To disable gen or reco matching, set to an empty string
     GenLabel   = cms.untracked.string('genParticles'),
 	#GenLabel   = cms.untracked.string(''),
-    RecoLabel  = cms.untracked.string('globalMuons'),
+    #RecoLabel  = cms.untracked.string('globalMuons'),
 
     # If the RAW trigger summary is unavailable, you can use the AOD instead
     #UseAod     = cms.untracked.bool(False),
 	UseAod     = cms.untracked.bool(True),
+
+    # These labels are not used anymore									
 	AodL1Label = cms.untracked.string('hltMuLevel1PathL1Filtered'),
     AodL2Label = cms.untracked.string('hltSingleMuLevel2NoIsoL2PreFiltered'),
 
 	# Save histograms to a separate file
 	# Useful for debugging										 
-	# createStandAloneHistos = cms.untracked.bool(True),
+	#createStandAloneHistos = cms.untracked.bool(True),
     createStandAloneHistos = cms.untracked.bool(False),
 	histoFileName = cms.untracked.string("MuonTrigHistos_RECO.root"),
+
+	# which collections will you use?
+
+	# Using only "globalMuons" is equivalent
+	# to the way relval is configured.								
+	# allCollectionNames = cms.vstring ("globalMuons"),
+
+
+	allCollectionNames = cms.vstring ("globalMuons",
+									  "barrelMuonTracks",
+									  "overlapMuonTracks",
+									  "endcapMuonTracks"),
+
+#  Other possible collection names									
+#									  "highPtMuonTracks"),
+#									  "barrelMuonTracks",
+#									  "overlapMuonTracks",
+#									  "endcapMuonTracks",
+#									  "externalMuonTracks"),								
 											 
     # Save variables to an ntuple for more in-depth trigger studies
     NtuplePath         = cms.untracked.string('HLT_IsoMu9'),
@@ -27,20 +48,28 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
     RootFileName       = cms.untracked.string(''),
 
     # Set the ranges and numbers of bins for histograms
-    MaxPtParameters    = cms.vdouble(20,0.,40.),
+    MaxPtParameters    = cms.vdouble(40,0.,80.),
     # PtParmeters is not currently used
-	PtParameters       = cms.vdouble(10,0.,1000.),
-    EtaParameters      = cms.vdouble(20,-2.1,2.1),
-    PhiParameters      = cms.vdouble(20,-3.15,3.15),
+	PtParameters       = cms.vdouble(50,0.,80.),
+    EtaParameters      = cms.vdouble(50, -3.5,3.5),
+    PhiParameters      = cms.vdouble(50, -3.15,3.15),
+    ResParameters      = cms.vdouble(50, -0.15, 0.15),									
 
     # Set cuts placed on the generated muons and matching criteria
-    # Use pt cut just below 10 to allow through SingleMuPt10 muons  
-    MinPtCut           = cms.untracked.double(9.9),
-    MaxEtaCut          = cms.untracked.double(2.1),
+    # Use pt cut just below 10 to allow through SingleMuPt10 muons
+	# All of this is obselete								
+    MinPtCut           = cms.untracked.double(0),
+    MaxEtaCut          = cms.untracked.double(3.5),
     MotherParticleId   = cms.untracked.uint32(0),
-    L1DrCut            = cms.untracked.double(0.4),
-    L2DrCut            = cms.untracked.double(0.25),
-    L3DrCut            = cms.untracked.double(0.015),
+   # L1DrCut            = cms.untracked.double(0.4),
+   # L2DrCut            = cms.untracked.double(0.25),
+   # L3DrCut            = cms.untracked.double(0.015),
+	# for testing								
+	L1DrCut   = cms.untracked.double(0.4),
+	L2DrCut   = cms.untracked.double(0.4),
+	L3DrCut   = cms.untracked.double(0.4),								
+									
+	#L3DrCut            = cms.untracked.double(0.1),
     TriggerResultLabel = cms.InputTag("TriggerResults","","HLT"),
 
     DQMStore = cms.untracked.bool(True),
