@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Tue Mar 20 12:30:19 CET 2007
-// $Id: RPCTriggerConfig.cc,v 1.4 2008/02/22 12:03:29 fruboes Exp $
+// $Id: RPCTriggerConfig.cc,v 1.5 2008/07/17 14:54:52 michals Exp $
 //
 //
 
@@ -148,13 +148,13 @@ RPCTriggerConfig::produce(const L1RPCConfigRcd& iRecord)
 	    parser.parse(fname.str());
 
 	    RPCPattern::RPCPatVec npats = parser.getPatternsVec(tower, logSector, logSegment);
-            for (int ip=0; ip<npats.size(); ip++) {
+            for (unsigned int ip=0; ip<npats.size(); ip++) {
               npats[ip].setCoords(tower,logSector,logSegment);
               pL1RPCConfig->m_pats.push_back(npats[ip]);
             }
 
             RPCPattern::TQualityVec nquals = parser.getQualityVec(); 
-            for (int iq=0; iq<nquals.size(); iq++) {
+            for (unsigned int iq=0; iq<nquals.size(); iq++) {
               nquals[iq].m_tower=tower;
               nquals[iq].m_logsector=logSector;
               nquals[iq].m_logsegment=logSegment;

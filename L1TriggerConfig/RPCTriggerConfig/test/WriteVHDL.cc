@@ -340,7 +340,7 @@ std::string WriteVHDL::writeQualTable(const edm::EventSetup& iSetup, int tower, 
   RPCPattern::TQualityVec::const_iterator it = qvec->begin();
   RPCPattern::TQualityVec::const_iterator itEnd = qvec->end();
 
-  int ppt = conf.product()->getPPT();
+  //unsigned int ppt = conf.product()->getPPT();
  // if (ppt == 1) {
     sector = 0;
  // }
