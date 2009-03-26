@@ -475,114 +475,26 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   // L1 prescales can be checked in the same way as 
   // for standard hlt in CheckOpenHlt(). 
   // Look for "New Taus" in OHltTreeOpen.cpp!
+
+  /* Taus */
+  /* Clean up tau code: remove study triggers, _L2R triggers become standard and are removed from names */
   vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet20"); vtmp.push_back("L1_SingleJet30");
+  vtmp.push_back("L1_SingleTauJet30"); vtmp.push_back("L1_SingleJet70");
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau20", vtmp));
 
   vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet30"); vtmp.push_back("L1_SingleJet60");
-  //vtmp.push_back("L1_SingleTauJet50"); vtmp.push_back("L1_SingleJet60");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau30_Trk5", vtmp));
-  
-  vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet20"); vtmp.push_back("L1_SingleJet60");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau20_Trk5", vtmp));
-  
-  vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet30"); vtmp.push_back("L1_SingleJet60");
-  //vtmp.push_back("L1_SingleTauJet50"); vtmp.push_back("L1_SingleJet60");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau30_Trk10", vtmp));
-  
-  vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet20"); vtmp.push_back("L1_SingleJet60");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau20_Trk10", vtmp));
-  
-  vtmp.clear();
-  vtmp.push_back("L1_DoubleTauJet20"); vtmp.push_back("L1_DoubleJet40");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DoubleLooseIsoTau15", vtmp));
-  
-  vtmp.clear();
   vtmp.push_back("L1_DoubleTauJet30"); vtmp.push_back("L1_DoubleJet70");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DoubleLooseIsoTau15_Trk5", vtmp));
-  
-  vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet20"); vtmp.push_back("L1_SingleJet40");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau20_L2R", vtmp));
-
-  vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet30"); vtmp.push_back("L1_SingleJet60");
-  //vtmp.push_back("L1_SingleTauJet50"); vtmp.push_back("L1_SingleJet60");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau30_Trk5_L2R", vtmp));
-  
-  vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet20"); vtmp.push_back("L1_SingleJet60");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau20_Trk5_L2R", vtmp));
-  
-  vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet30"); vtmp.push_back("L1_SingleJet60");
-  //vtmp.push_back("L1_SingleTauJet50"); vtmp.push_back("L1_SingleJet60");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau30_Trk10_L2R", vtmp));
-  
-  vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet20"); vtmp.push_back("L1_SingleJet60");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau20_Trk10_L2R", vtmp));
-  
-  vtmp.clear();
-  vtmp.push_back("L1_DoubleTauJet20"); vtmp.push_back("L1_DoubleJet40");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DoubleLooseIsoTau15_L2R", vtmp));
-  
-  vtmp.clear();
-  vtmp.push_back("L1_DoubleTauJet20"); vtmp.push_back("L1_DoubleJet40");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DoubleLooseIsoTau15_Trk5_L2R", vtmp));
-
-  // L3 iso
-  vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet30"); vtmp.push_back("L1_SingleJet60");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau30_Trk5_L3I", vtmp));
-  
-  vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet30"); vtmp.push_back("L1_SingleJet60");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau30_Trk5_L2R_L3I", vtmp));
-  
-  vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet30"); vtmp.push_back("L1_SingleJet60");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau30_Trk10_L3I", vtmp));
-  
-  vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet30"); vtmp.push_back("L1_SingleJet60");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau30_Trk10_L2R_L3I", vtmp));
-  
-  vtmp.clear();
-  vtmp.push_back("L1_DoubleTauJet20"); vtmp.push_back("L1_DoubleJet40");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DoubleLooseIsoTau15_Trk5_L3I", vtmp));
-
-  vtmp.clear();
-  vtmp.push_back("L1_DoubleTauJet20"); vtmp.push_back("L1_DoubleJet40");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DoubleLooseIsoTau15_Trk5_L2R_L3I", vtmp));
-
-  vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet20"); vtmp.push_back("L1_SingleJet60");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau20_Trk5_L3I", vtmp));
-  
-  vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet20"); vtmp.push_back("L1_SingleJet60");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau20_Trk5_L2R_L3I", vtmp));
-  
-  vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet20"); vtmp.push_back("L1_SingleJet60");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau20_Trk10_L3I", vtmp));
-  
-  vtmp.clear();
-  vtmp.push_back("L1_SingleTauJet20"); vtmp.push_back("L1_SingleJet60");
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleLooseIsoTau20_Trk10_L2R_L3I", vtmp));
-  
-  vtmp.clear(); 
-  vtmp.push_back("L1_SingleTauJet20"); vtmp.push_back("L1_SingleMu14"); 
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_L1Mu14", vtmp)); 
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DoubleLooseIsoTau15", vtmp));
 
   vtmp.clear();
   vtmp.push_back("L1_SingleTauJet40"); vtmp.push_back("L1_SingleJet100");   
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleIsoTau20_Trk5", vtmp));
+
+  vtmp.clear();
+  vtmp.push_back("L1_DoubleTauJet30"); vtmp.push_back("L1_DoubleJet70");
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DoubleLooseIsoTau15_Trk5", vtmp));
+  /* End: Taus */
+  
 
   // Jets
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_L1Jet15", myvec(1,"L1_SingleJet15"))); 
