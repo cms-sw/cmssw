@@ -94,6 +94,12 @@ L1SubsystemParams = cms.PSet(
             key = cms.string('dummy')
         ), 
         cms.PSet(
+            record = cms.string('L1RPCConeDefinitionRcd'),
+            tag = cms.string('L1RPCConeDefinition_IDEAL'),
+            type = cms.string('L1RPCConeDefinition'),
+            key = cms.string('dummy')
+        ),
+        cms.PSet(
             record = cms.string('L1MuGMTParametersRcd'),
             tag = cms.string('L1MuGMTParameters_IDEAL'),
             type = cms.string('L1MuGMTParameters'),

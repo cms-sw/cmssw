@@ -134,6 +134,12 @@ REGISTER_L1_WRITER(L1MuCSCPtLutRcd, L1MuCSCPtLut);
 REGISTER_PLUGIN(L1RPCConfigRcd, L1RPCConfig);
 REGISTER_L1_WRITER(L1RPCConfigRcd, L1RPCConfig);
 
+#include "CondFormats/L1TObjects/interface/L1RPCConeDefinition.h"
+#include "CondFormats/DataRecord/interface/L1RPCConeDefinitionRcd.h"
+
+REGISTER_PLUGIN(L1RPCConeDefinitionRcd, L1RPCConeDefinition);
+REGISTER_L1_WRITER(L1RPCConeDefinitionRcd, L1RPCConeDefinition);
+
 // GMT records
 #include "CondFormats/L1TObjects/interface/L1MuGMTParameters.h"
 #include "CondFormats/DataRecord/interface/L1MuGMTParametersRcd.h"
