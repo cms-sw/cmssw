@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.20 2008/10/16 13:33:03 veelken Exp $
+// $Id: Tau.h,v 1.21 2008/11/28 19:02:15 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Tau.h,v 1.20 2008/10/16 13:33:03 veelken Exp $
+  \version  $Id: Tau.h,v 1.21 2008/11/28 19:02:15 lowette Exp $
 */
 
 
@@ -25,6 +25,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
+
+#include "DataFormats/Common/interface/BoolCache.h"
 
 #include "DataFormats/PatCandidates/interface/TauPFSpecific.h"
 #include "DataFormats/PatCandidates/interface/TauCaloSpecific.h"
@@ -64,11 +66,11 @@ namespace pat {
 
       // ---- methods for content embedding ----
       /// override the reco::BaseTau::isolationTracks method, to access the internal storage of the isolation tracks
-      reco::TrackRefVector isolationTracks() const;
+      const reco::TrackRefVector & isolationTracks() const;
       /// override the reco::BaseTau::leadTrack method, to access the internal storage of the leading track
       reco::TrackRef leadTrack() const;
       /// override the reco::BaseTau::signalTracks method, to access the internal storage of the signal tracks
-      reco::TrackRefVector signalTracks() const;
+	const reco::TrackRefVector & signalTracks() const;	
       /// method to store the isolation tracks internally
       void embedIsolationTracks();
       /// method to store the leading track internally
@@ -218,10 +220,14 @@ namespace pat {
       // ---- for content embedding ----
       bool embeddedIsolationTracks_;
       std::vector<reco::Track> isolationTracks_;
+      mutable reco::TrackRefVector isolationTracksTransientRefVector_;
+      mutable edm::BoolCache       isolationTracksTransientRefVectorFixed_;
       bool embeddedLeadTrack_;
       std::vector<reco::Track> leadTrack_;
       bool embeddedSignalTracks_;
       std::vector<reco::Track> signalTracks_;
+      mutable reco::TrackRefVector signalTracksTransientRefVector_;
+      mutable edm::BoolCache       signalTracksTransientRefVectorFixed_;
       // ---- matched GenJet holder ----
       std::vector<reco::GenJet> genJet_;
       // ---- tau ID's holder ----
