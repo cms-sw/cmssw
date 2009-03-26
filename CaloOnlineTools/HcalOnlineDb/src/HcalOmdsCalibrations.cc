@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalOmdsCalibrations
-// $Id: HcalOmdsCalibrations.cc,v 1.3 2009/03/24 14:33:28 kukartse Exp $
+// $Id: HcalOmdsCalibrations.cc,v 1.4 2009/03/25 23:41:44 kukartse Exp $
 //
 //
 
@@ -162,7 +162,7 @@ std::auto_ptr<HcalPedestalWidths> HcalOmdsCalibrations::producePedestalWidths (c
 }
 
 std::auto_ptr<HcalGains> HcalOmdsCalibrations::produceGains (const HcalGainsRcd&) {
-  return produce_impl<HcalGains> (mInputs ["Gains"]);
+  return produce_impl<HcalGains> (mInputs ["Gains"], mVersion["Gains"], mSubversion["Gains"], mQuery["Gains"], mAccessor["Gains"]);
 }
 
 std::auto_ptr<HcalGainWidths> HcalOmdsCalibrations::produceGainWidths (const HcalGainWidthsRcd&) {
@@ -182,7 +182,7 @@ std::auto_ptr<HcalZSThresholds> HcalOmdsCalibrations::produceZSThresholds (const
 }
 
 std::auto_ptr<HcalRespCorrs> HcalOmdsCalibrations::produceRespCorrs (const HcalRespCorrsRcd& rcd) {
-  return produce_impl<HcalRespCorrs> (mInputs ["RespCorrs"]);
+  return produce_impl<HcalRespCorrs> (mInputs ["RespCorrs"], mVersion["RespCorrs"], mSubversion["RespCorrs"], mQuery["RespCorrs"], mAccessor["RespCorrs"]);
 }
 
 std::auto_ptr<HcalL1TriggerObjects> HcalOmdsCalibrations::produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd) {
