@@ -13,7 +13,7 @@
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:13:51 EDT 2006
-// $Id: L1ExtraParticlesProd.h,v 1.6 2007/12/18 03:31:12 wsun Exp $
+// $Id: L1ExtraParticlesProd.h,v 1.7 2008/04/03 03:39:05 wsun Exp $
 //
 
 // system include files
@@ -33,6 +33,8 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1HFRings.h"
+#include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
 
 // forward declarations
 class L1CaloGeometry ;
@@ -66,6 +68,9 @@ class L1ExtraParticlesProd : public edm::EDProducer {
       edm::InputTag etTotSource_ ;
       edm::InputTag etHadSource_ ;
       edm::InputTag etMissSource_ ;
+      edm::InputTag htMissSource_ ;
+      edm::InputTag hfRingEtSumsSource_ ;
+      edm::InputTag hfRingBitCountsSource_ ;
 
       static double muonMassGeV_ ;
 

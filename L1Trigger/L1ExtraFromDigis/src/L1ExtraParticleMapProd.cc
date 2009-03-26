@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 16 23:19:38 EDT 2006
-// $Id: L1ExtraParticleMapProd.cc,v 1.27 2007/08/07 01:21:23 wsun Exp $
+// $Id: L1ExtraParticleMapProd.cc,v 1.28 2007/08/08 03:49:05 wsun Exp $
 //
 //
 
@@ -54,7 +54,9 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(
      tauJetSource_( iConfig.getParameter< edm::InputTag >(
 	"tauJetSource" ) ),
      etMissSource_( iConfig.getParameter< edm::InputTag >(
-	"etMissSource" ) )
+        "etMissSource" ) ),
+     htMissSource_( iConfig.getParameter< edm::InputTag >(
+	"htMissSource" ) )
 {
    using namespace l1extra ;
 
@@ -798,8 +800,11 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
    Handle< L1EtMissParticle > metHandle ;
    iEvent.getByLabel( etMissSource_, metHandle ) ;
 
+   Handle< L1EtMissParticle > mhtHandle ;
+   iEvent.getByLabel( htMissSource_, mhtHandle ) ;
+
    double met = metHandle->etMiss() ;
-   double ht = metHandle->etHad() ;
+   double ht = mhtHandle->etTotal() ;
    double ett = metHandle->etTotal() ;
 
    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -963,7 +968,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	 if( ht >= singleThresholds_[ itrig ] )
 	 {
 	    decision = true ;
-	    metRefTmp = L1EtMissParticleRefProd( metHandle ) ;
+	    metRefTmp = L1EtMissParticleRefProd( mhtHandle ) ;
 	 }
       }
       else if( itrig == L1ParticleMap::kETM10 ||
@@ -1227,7 +1232,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
 	    if( decision )
 	    {
-	       metRefTmp = L1EtMissParticleRefProd( metHandle ) ;
+	       metRefTmp = L1EtMissParticleRefProd( mhtHandle ) ;
 	    }
 	 }
       }
@@ -1245,7 +1250,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
 	    if( decision )
 	    {
-	       metRefTmp = L1EtMissParticleRefProd( metHandle ) ;
+	       metRefTmp = L1EtMissParticleRefProd( mhtHandle ) ;
 	    }
 	 }
       }
@@ -1263,7 +1268,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
 	    if( decision )
 	    {
-	       metRefTmp = L1EtMissParticleRefProd( metHandle ) ;
+	       metRefTmp = L1EtMissParticleRefProd( mhtHandle ) ;
 	    }
 	 }
       }
@@ -1281,7 +1286,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
 	    if( decision )
 	    {
-	       metRefTmp = L1EtMissParticleRefProd( metHandle ) ;
+	       metRefTmp = L1EtMissParticleRefProd( mhtHandle ) ;
 	    }
 	 }
       }
@@ -1299,7 +1304,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
 	    if( decision )
 	    {
-	       metRefTmp = L1EtMissParticleRefProd( metHandle ) ;
+	       metRefTmp = L1EtMissParticleRefProd( mhtHandle ) ;
 	    }
 	 }
       }
@@ -1548,7 +1553,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
 	    if( decision )
 	    {
-	       metRefTmp = L1EtMissParticleRefProd( metHandle ) ;
+	       metRefTmp = L1EtMissParticleRefProd( mhtHandle ) ;
 	    }
 	 }
       }
@@ -1569,7 +1574,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
 	    if( decision )
 	    {
-	       metRefTmp = L1EtMissParticleRefProd( metHandle ) ;
+	       metRefTmp = L1EtMissParticleRefProd( mhtHandle ) ;
 	    }
 	 }
       }
@@ -1590,7 +1595,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
 	    if( decision )
 	    {
-	       metRefTmp = L1EtMissParticleRefProd( metHandle ) ;
+	       metRefTmp = L1EtMissParticleRefProd( mhtHandle ) ;
 	    }
 	 }
       }
@@ -1611,7 +1616,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
 	    if( decision )
 	    {
-	       metRefTmp = L1EtMissParticleRefProd( metHandle ) ;
+	       metRefTmp = L1EtMissParticleRefProd( mhtHandle ) ;
 	    }
 	 }
       }
@@ -1632,7 +1637,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
 	    if( decision )
 	    {
-	       metRefTmp = L1EtMissParticleRefProd( metHandle ) ;
+	       metRefTmp = L1EtMissParticleRefProd( mhtHandle ) ;
 	    }
 	 }
       }
@@ -1825,7 +1830,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	 if( ht >= 10. )
 	 {
 	    decision = true ;
-	    metRefTmp = L1EtMissParticleRefProd( metHandle ) ;
+	    metRefTmp = L1EtMissParticleRefProd( mhtHandle ) ;
 	 }
       }
       else if( itrig == L1ParticleMap::kZeroBias )

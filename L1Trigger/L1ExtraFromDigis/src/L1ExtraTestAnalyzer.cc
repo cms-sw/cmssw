@@ -10,7 +10,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 28 14:22:31 EDT 2006
-// $Id: L1ExtraTestAnalyzer.cc,v 1.5 2007/12/18 03:32:44 wsun Exp $
+// $Id: L1ExtraTestAnalyzer.cc,v 1.1 2008/11/24 09:36:07 jbrooke Exp $
 //
 //
 
@@ -66,6 +66,7 @@ class L1ExtraTestAnalyzer : public edm::EDAnalyzer {
       edm::InputTag tauJetSource_ ;
       edm::InputTag muonSource_ ;
       edm::InputTag etMissSource_ ;
+      edm::InputTag htMissSource_ ;
       edm::InputTag gtReadoutSource_ ;
       edm::InputTag particleMapSource_ ;
 
@@ -99,6 +100,8 @@ L1ExtraTestAnalyzer::L1ExtraTestAnalyzer(const edm::ParameterSet& iConfig)
       "muonSource" ) ),
      etMissSource_( iConfig.getParameter< edm::InputTag >(
       "etMissSource" ) ),
+     htMissSource_( iConfig.getParameter< edm::InputTag >(
+      "htMissSource" ) ),
      gtReadoutSource_( iConfig.getParameter< edm::InputTag >(
       "gtReadoutSource" ) ),
      particleMapSource_( iConfig.getParameter< edm::InputTag >(
@@ -278,7 +281,16 @@ L1ExtraTestAnalyzer::analyze(const edm::Event& iEvent,
 	<< ", " << etMissColl->begin()->energy()
         << ") phi " << etMissColl->begin()->phi()
         << " EtTot " << etMissColl->begin()->etTotal()
-	<< " EtHad " << etMissColl->begin()->etHad()
+	<< endl ;
+
+   Handle< L1EtMissParticleCollection > htMissColl ;
+   iEvent.getByLabel( htMissSource_, htMissColl ) ;
+   cout << "MHT Coll (" << htMissColl->begin()->px()
+	<< ", " << htMissColl->begin()->py()
+	<< ", " << htMissColl->begin()->pz()
+	<< ", " << htMissColl->begin()->energy()
+        << ") phi " << htMissColl->begin()->phi()
+        << " HtTot " << htMissColl->begin()->etTotal()
 	<< endl ;
 
 

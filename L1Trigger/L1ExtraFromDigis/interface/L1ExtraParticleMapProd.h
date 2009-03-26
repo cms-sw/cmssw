@@ -12,7 +12,7 @@
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:14:00 EDT 2006
-// $Id: L1ExtraParticleMapProd.h,v 1.8 2007/08/08 03:49:05 wsun Exp $
+// $Id: L1ExtraParticleMapProd.h,v 1.9 2007/09/27 23:08:00 ratnik Exp $
 //
 
 // system include files
@@ -155,6 +155,7 @@ class L1ExtraParticleMapProd : public edm::EDProducer {
       edm::InputTag forJetSource_ ;
       edm::InputTag tauJetSource_ ;
       edm::InputTag etMissSource_ ;
+      edm::InputTag htMissSource_ ;
 
       double singleThresholds_[ l1extra::L1ParticleMap::kNumOfL1TriggerTypes ];
       int prescales_[ l1extra::L1ParticleMap::kNumOfL1TriggerTypes ] ;

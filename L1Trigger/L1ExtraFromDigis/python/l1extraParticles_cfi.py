@@ -5,6 +5,7 @@ l1extraParticles = cms.EDProducer("L1ExtraParticlesProd",
     etTotalSource = cms.InputTag("gctDigis"),
     nonIsolatedEmSource = cms.InputTag("gctDigis","nonIsoEm"),
     etMissSource = cms.InputTag("gctDigis"),
+    htMissSource = cms.InputTag("gctDigis"),
     produceMuonParticles = cms.bool(True),
     forwardJetSource = cms.InputTag("gctDigis","forJets"),
     centralJetSource = cms.InputTag("gctDigis","cenJets"),
@@ -12,6 +13,8 @@ l1extraParticles = cms.EDProducer("L1ExtraParticlesProd",
     tauJetSource = cms.InputTag("gctDigis","tauJets"),
     isolatedEmSource = cms.InputTag("gctDigis","isoEm"),
     etHadSource = cms.InputTag("gctDigis"),
+    hfRingEtSumsSource = cms.InputTag("gctDigis"),
+    hfRingBitCountsSource = cms.InputTag("gctDigis"),
     centralBxOnly = cms.bool(True)
 )
 
