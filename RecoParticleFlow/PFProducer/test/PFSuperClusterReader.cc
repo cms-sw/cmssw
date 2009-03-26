@@ -92,7 +92,7 @@ void PFSuperClusterReader::analyze(const edm::Event & iEvent,const edm::EventSet
 	  std::cout << " Basic cluster " << (*it)->energy() << std::endl ;
 	}
       std::cout << " Summary " << mySuperCluster.energy() << " " << eta << " " << et ;
-      std::cout << " " <<mySuperCluster.preshowerEnergy() << std::endl;
+      std::cout << " " <<mySuperCluster.preshowerEnergy() << " " << mva << std::endl;
       std::cout << std::endl;
     }
 }
