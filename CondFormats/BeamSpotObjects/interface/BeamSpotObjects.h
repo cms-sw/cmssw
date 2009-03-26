@@ -7,7 +7,7 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: BeamSpotObjects.h,v 1.7 2009/01/30 22:31:48 elmer Exp $
+ * \version $Id: BeamSpotObjects.h,v 1.8 2009/03/13 21:22:47 yumiceva Exp $
  *
  */
 
@@ -22,7 +22,9 @@ class BeamSpotObjects {
 	/// default constructor
 	BeamSpotObjects(): sigmaZ_(0), beamwidthX_(0), beamwidthY_(0),
 		dxdz_(0), dydz_(0), type_(-1), emittance_(0), betaStar_(0) {
-		
+
+		beamwidthXError_ = 0;
+		beamwidthYError_ = 0;
 		std::memset(position_, 0, sizeof position_);
 		std::memset(covariance_, 0, sizeof covariance_);
 	}
@@ -45,13 +47,21 @@ class BeamSpotObjects {
 	void SetBeamWidthX(double val) { beamwidthX_ = val; }
     /// set average transverse beam width Y
 	void SetBeamWidthY(double val) { beamwidthY_ = val; }
+	/// set beam width X error
+	void SetBeamWidthXError(double val) { beamwidthXError_ = val; }
+	/// set beam width Y error
+	void SetBeamWidthYError(double val) { beamwidthYError_ = val; }
 	/// set i,j element of the full covariance matrix 7x7
 	void SetCovariance(int i, int j, double val) {
 		covariance_[i][j] = val;
 	}
 	/// set beam type
 	void SetType(int type) { type_ = type; }
-
+	/// set emittance
+	void SetEmittance(double val) { emittance_ = val;}
+	/// set beta star
+	void SetBetaStar(double val) { betaStar_ = val;}
+	
 	/// get X beam position
 	double GetX() const { return position_[0]; }
 	/// get Y beam position
@@ -102,6 +112,8 @@ class BeamSpotObjects {
 	double sigmaZ_;
 	double beamwidthX_;
 	double beamwidthY_;
+	double beamwidthXError_;
+	double beamwidthYError_;
 	double dxdz_;
 	double dydz_;
 	double covariance_[7][7];
