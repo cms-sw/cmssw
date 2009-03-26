@@ -3,7 +3,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/EcalRawData/interface/EcalListOfFEDS.h"
+#include "DataFormats/EcalRawData/interface/ESListOfFEDS.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h" 
 #include "DataFormats/EcalRawData/interface/ESDCCHeaderBlock.h"
 #include "DataFormats/EcalRawData/interface/ESKCHIPBlock.h"
@@ -42,7 +42,7 @@ void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   
   std::vector<int> esFeds_to_unpack;
   if (regional_) {
-    edm::Handle<EcalListOfFEDS> fedslist;
+    edm::Handle<ESListOfFEDS> fedslist;
     e.getByLabel(fedsListLabel_, fedslist);
     esFeds_to_unpack = fedslist->GetList();
   }
