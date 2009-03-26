@@ -16,3 +16,8 @@ DEFINE_EDM_PLUGIN(IsoDepositExtractorFactory, muonisolation::CaloExtractor, "Cal
 DEFINE_EDM_PLUGIN(IsoDepositExtractorFactory, muonisolation::CaloExtractorByAssociator, "CaloExtractorByAssociator");
 DEFINE_EDM_PLUGIN(IsoDepositExtractorFactory, muonisolation::JetExtractor, "JetExtractor");
 DEFINE_EDM_PLUGIN(IsoDepositExtractorFactory, muonisolation::ExtractorFromDeposits, "ExtractorFromDeposits");
+
+#include "RecoMuon/MuonIsolation/interface/MuonIsolatorFactory.h"
+#include "RecoMuon/MuonIsolation/interface/SimpleCutsIsolator.h"
+
+DEFINE_EDM_PLUGIN(MuonIsolatorFactory, SimpleCutsIsolator, "SimpleCutsIsolator");
