@@ -51,11 +51,6 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           DeadCellClient_test_energy                    = cms.untracked.bool(True),
                           DeadCellClient_test_neighbor                  = cms.untracked.bool(False),
                           DeadCellClient_checkNevents                   = cms.untracked.int32(100),
-                          DeadCellClient_checkNevents_occupancy         = cms.untracked.int32(100),
-                          DeadCellClient_checkNevents_rechit_occupancy  = cms.untracked.int32(100),
-                          DeadCellClient_checkNevents_pedestal          = cms.untracked.int32(100),
-                          DeadCellClient_checkNevents_energy            = cms.untracked.int32(100),
-                          DeadCellClient_checkNevents_neighbor          = cms.untracked.int32(100),
                           DeadCellClient_minErrorFlag                   = cms.untracked.double(0.05),
                           DeadCellClient_makeDiagnosticPlots            = cms.untracked.bool(False),
 
@@ -125,10 +120,6 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     client.DeadCellClient_test_pedestal           = monitor.DeadCellMonitor_test_pedestal
     client.DeadCellClient_test_energy             = monitor.DeadCellMonitor_test_energy
     client.DeadCellClient_test_neighbor           = monitor.DeadCellMonitor_test_neighbor
-    client.DeadCellClient_checkNevents_occupancy  = monitor.DeadCellMonitor_checkNevents_occupancy 
-    client.DeadCellClient_checkNevents_pedestal   = monitor.DeadCellMonitor_checkNevents_pedestal
-    client.DeadCellClient_checkNevents_neighbor   = monitor.DeadCellMonitor_checkNevents_neighbor       
-    client.DeadCellClient_checkNevents_energy     = monitor.DeadCellMonitor_checkNevents_energy        
     #client.DeadCellClient_minErrorFlag           = monitor.DeadCellMonitor_minErrorFlag # want to keep these separate?
     client.DeadCellClient_makeDiagnosticPlots     = monitor.DeadCellMonitor_makeDiagnosticPlots          
 
@@ -182,10 +173,6 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
         print "\t\t Test DeadCell pedestal? ", client.DeadCellClient_test_pedestal
         print "\t\t Test DeadCell energy? ", client.DeadCellClient_test_energy
         print "\t\t Test DeadCell neighbor? ", client.DeadCellClient_test_neighbor
-        print "\t\t CheckNevents DeadCell occupancy", client.DeadCellClient_checkNevents_occupancy
-        print "\t\t CheckNevents DeadCell pedestal", client.DeadCellClient_checkNevents_pedestal
-        print "\t\t CheckNevents DeadCell energy", client.DeadCellClient_checkNevents_energy
-        print "\t\t CheckNevents DeadCell neighbor", client.DeadCellClient_checkNevents_neighbor
         print "\t\t Min Error Flag  = ",client.DeadCellClient_minErrorFlag
         print "\t\t make diagnostics? ",client.DeadCellClient_makeDiagnosticPlots
 
@@ -194,10 +181,6 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
         print "\t\t Test HotCell pedestal? ",                     client.HotCellClient_test_pedestal
         print "\t\t Test HotCell energy? ",                       client.HotCellClient_test_energy
         print "\t\t Test HotCell neighbor? ",                     client.HotCellClient_test_neighbor
-        print "\t\t CheckNevents HotCell persistent",             client.HotCellClient_checkNevents_persistent
-        print "\t\t CheckNevents HotCell pedestal",               client.HotCellClient_checkNevents_pedestal
-        print "\t\t CheckNevents HotCell energy",                 client.HotCellClient_checkNevents_energy
-        print "\t\t CheckNevents HotCell neighbor",               client.HotCellClient_checkNevents_neighbor
         print "\t\t Min Error Flag  = ",                          client.HotCellClient_minErrorFlag
         print "\t\t make diagnostics? ",                          client.HotCellClient_makeDiagnosticPlots
                                                                                         
