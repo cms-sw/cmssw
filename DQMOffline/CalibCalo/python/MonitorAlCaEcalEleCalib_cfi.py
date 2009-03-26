@@ -7,6 +7,6 @@ EcalEleCalibMon = cms.EDAnalyzer("DQMSourceEleCalib",
     AlCaStreamEETag = cms.InputTag("alCaIsolatedElectrons","alcaEndcapHits"),
     electronCollection = cms.InputTag("electronFilter"),
     # DQM folder to write to
-    FolderName = cms.untracked.string('ALCAStreamEcalSingleEle')
+    FolderName = cms.untracked.string('AlCaReco/EcalSingleEle')
 )
 

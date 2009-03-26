@@ -5,7 +5,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: MonitorAlCaEcalPhisym_cfi.py,v 1.2 2008/08/14 09:33:36 argiro Exp $
+# $Id: MonitorAlCaHcalPhisym_cfi.py,v 1.1 2009/03/13 17:30:13 kodolova Exp $
 #
 # \author Stefano Argiro
 #
@@ -18,10 +18,10 @@ HcalPhiSymMon = cms.EDAnalyzer("DQMHcalPhiSymAlCaReco",
     hoInputNoise = cms.InputTag("horecoNoise"),
     hfInputNoise = cms.InputTag("hfrecoNoise"),
     # File to save 
-    SaveToFile = cms.untracked.bool(True),
+    SaveToFile = cms.untracked.bool(False),
     FileName = cms.untracked.string('MonitorAlCaHcalPhiSym.root'),
     # DQM folder to write to
-    FolderName = cms.untracked.string('ALCAStreamHcalPhiSym')
+    FolderName = cms.untracked.string('AlCaReco/HcalPhiSym')
 )
 
 

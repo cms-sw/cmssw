@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 EcalPi0Mon = cms.EDFilter("DQMSourcePi0",
     prescaleFactor = cms.untracked.int32(1),
-    FolderName = cms.untracked.string('StreamAlCaEcalPi0'),
+    FolderName = cms.untracked.string('AlCaReco/EcalPi0'),
 
     AlCaStreamEBpi0Tag = cms.untracked.InputTag("hltAlCaPi0RegRecHits","pi0EcalRecHitsEB"),
     AlCaStreamEEpi0Tag = cms.untracked.InputTag("hltAlCaPi0RegRecHits","pi0EcalRecHitsEE"),
