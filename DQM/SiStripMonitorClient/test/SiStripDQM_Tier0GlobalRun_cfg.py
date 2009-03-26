@@ -16,8 +16,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 #-----------------------------
 process.source = cms.Source("PoolSource",
      fileNames = cms.untracked.vstring(
-#     '/store/data/Commissioning08/Cosmics/RAW/v1/000/069/365/0A92FA00-01AB-DD11-A6AF-001617DBD288.root'
-     '/store/data/Commissioning08/Cosmics/RAW/v1/000/069/365/8C367B78-05AB-DD11-8ADF-001617C3B79A.root'
+     '/store/data/Commissioning08/Cosmics/RAW/v1/000/069/365/0A92FA00-01AB-DD11-A6AF-001617DBD288.root'
+# '/store/data/Commissioning08/Cosmics/RAW/v1/000/069/365/8C367B78-05AB-DD11-8ADF-001617C3B79A.root'
      )
 )                            
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(2000))
@@ -70,7 +70,7 @@ process.load("DQM.SiStripMonitorClient.SiStripDQMTier0GlobalRun_cff")
 # output module
 #----------------------
 process.myOut = cms.OutputModule("PoolOutputModule",
-                                  fileName = cms.untracked.string('sistrip_reco2.root'),
+                                  fileName = cms.untracked.string('sistrip_reco1.root'),
                                   outputCommands = cms.untracked.vstring('drop *', 'keep *_MEtoEDMConverter_*_*')
                                 )
 #--------------------------

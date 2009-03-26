@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.SiStripMonitorHardware.buffer_hack_cfi import *
-HardwareMonitor.rootFile = ''
-HardwareMonitor.buildAllHistograms = False
+from DQM.SiStripMonitorHardware.siStripFEDMonitor_P5_cff import *
 
 # SiStripMonitorDigi ####
 from DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi import *

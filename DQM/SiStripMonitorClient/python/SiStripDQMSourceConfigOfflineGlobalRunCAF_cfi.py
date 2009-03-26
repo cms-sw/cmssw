@@ -3,9 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # SiStrip DQM Source
 
 # Hardware Monitoring
-from DQM.SiStripMonitorHardware.buffer_hack_cfi import *
-HardwareMonitor.rootFile           = ''
-HardwareMonitor.buildAllHistograms = False
+from DQM.SiStripMonitorHardware.siStripFEDMonitor_P5_cff import *
 
 # Condition DB Monitoring
 from DQM.SiStripMonitorSummary.SiStripMonitorCondData_cfi import *
@@ -88,7 +86,7 @@ TrackMonCAF_rs.AlgoName      = 'RSTk'
 TrackMonCAF_rs.FolderName    = 'SiStrip/Tracks'
 
 # Scheduling
-SiStripDQMSourceGlobalRunCAF_fromRAW  = cms.Sequence( HardwareMonitor )
+SiStripDQMSourceGlobalRunCAF_fromRAW  = cms.Sequence( siStripFEDMonitor )
 SiStripDQMSourceGlobalRunCAF_common   = cms.Sequence( CondDataMonitoring + DqmEventInfoSiStrip + SiStripMonitorDigiCAF + SiStripMonitorClusterCAF )
 SiStripDQMSourceGlobalRunCAF_cosmikTk = cms.Sequence( SiStripMonitorTrackCAF_cosmicTk + MonitorTrackResidualsCAF_cosmicTk + TrackMonCAF_cosmicTk )
 SiStripDQMSourceGlobalRunCAF_ckf      = cms.Sequence( SiStripMonitorTrackCAF_ckf      + MonitorTrackResidualsCAF_ckf      + TrackMonCAF_ckf )

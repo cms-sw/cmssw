@@ -1,4 +1,26 @@
 <TESTSCONFIGURATION> 
+<QTEST name="MeanWithinExpectedRange:nFEDErrors">
+      <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="error">0.05</PARAM>
+      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="mean">1.0</PARAM>
+      <PARAM name="useRMS">0</PARAM>
+      <PARAM name="useSigma">0</PARAM>
+      <PARAM name="useRange">1</PARAM>
+      <PARAM name="xmin">0.0</PARAM>
+      <PARAM name="xmax">0.1</PARAM>
+</QTEST>
+<QTEST name="MeanWithinExpectedRange:nFEDBadChannels">
+      <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="error">0.05</PARAM>
+      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="mean">1.0</PARAM>
+      <PARAM name="useRMS">0</PARAM>
+      <PARAM name="useSigma">0</PARAM>
+      <PARAM name="useRange">1</PARAM>
+      <PARAM name="xmin">0.0</PARAM>
+      <PARAM name="xmax">3800.0</PARAM>
+</QTEST>
 <QTEST name="ContentsWithinExpected:Digi">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="minMean">0.0</PARAM>
@@ -8,6 +30,7 @@
         <PARAM name="toleranceMean">-1</PARAM>
         <PARAM name="minEntries">20</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="minEntries">30</PARAM>
         <PARAM name="error">0.30</PARAM>
         <PARAM name="warning">0.70</PARAM>
 </QTEST>
@@ -18,8 +41,8 @@
         <PARAM name="minRMS">0</PARAM>
         <PARAM name="maxRMS">0</PARAM>
         <PARAM name="toleranceMean">-1</PARAM>
-        <PARAM name="minEntries">20</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="minEntries">30</PARAM>
         <PARAM name="error">0.30</PARAM>
         <PARAM name="warning">0.70</PARAM>
 </QTEST>
@@ -31,7 +54,7 @@
       <PARAM name="useRMS">0</PARAM>
       <PARAM name="useSigma">0</PARAM>
       <PARAM name="useRange">1</PARAM>
-      <PARAM name="minEntries">200</PARAM>
+      <PARAM name="minEntries">300</PARAM>
       <PARAM name="xmin">25.0</PARAM>
       <PARAM name="xmax">50.0</PARAM>
 </QTEST>
@@ -43,7 +66,8 @@
       <PARAM name="useRMS">0</PARAM>
       <PARAM name="useSigma">0</PARAM>
       <PARAM name="useRange">1</PARAM>
-      <PARAM name="xmin">25.0</PARAM>
+      <PARAM name="minEntries">300</PARAM>
+      <PARAM name="xmin">30.0</PARAM>
       <PARAM name="xmax">50.0</PARAM>
 </QTEST>
 <QTEST name="MeanWithinExpectedRange:StoNTEC">
@@ -55,7 +79,7 @@
       <PARAM name="useSigma">0</PARAM>
       <PARAM name="useRange">1</PARAM>
       <PARAM name="minEntries">200</PARAM>
-      <PARAM name="xmin">25.0</PARAM>
+      <PARAM name="xmin">27.0</PARAM>
       <PARAM name="xmax">50.0</PARAM>
 </QTEST>
 <QTEST name="MeanWithinExpectedRange:StoNTID">
@@ -78,12 +102,17 @@
       <PARAM name="useRMS">0</PARAM>
       <PARAM name="useSigma">0</PARAM>
       <PARAM name="useRange">1</PARAM>
-      <PARAM name="minEntries">200</PARAM>
       <PARAM name="xmin">0.0</PARAM>
       <PARAM name="xmax">25.0</PARAM>
 </QTEST>
 
 
+<LINK name="*nFEDErrors*">
+  <TestName activate="true">MeanWithinExpectedRange:nFEDErrors</TestName>
+</LINK>
+<LINK name="*nBadActiveChannelStatusBits*">
+  <TestName activate="true">MeanWithinExpectedRange:nFEDBadChannels</TestName>
+</LINK>
 <LINK name="*NumberOfDigiProfile__*">
   <TestName activate="true">ContentsWithinExpected:Digi</TestName>
 </LINK>

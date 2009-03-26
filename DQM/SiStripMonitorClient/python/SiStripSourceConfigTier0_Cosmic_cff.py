@@ -9,6 +9,8 @@ siStripFEDCheck.CheckChannelPacketCodes  = True
 siStripFEDCheck.CheckFELengths           = True
 siStripFEDCheck.CheckChannelStatus       = True
 
+# FED Monitoring
+from DQM.SiStripMonitorHardware.siStripFEDMonitor_Tier0_cff import *
 
 # SiStripMonitorDigi ####
 from DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi import *
@@ -128,4 +130,4 @@ SiStripDQMTier0_ckf = cms.Sequence(SiStripMonitorTrack_ckf*MonitorTrackResiduals
 
 SiStripDQMTier0_rs = cms.Sequence(SiStripMonitorTrack_rs*MonitorTrackResiduals_rs*TrackMon_rs*TrackEffMon_rs)
 
-SiStripDQMTier0 = cms.Sequence(siStripFEDCheck*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_cosmicTk*TrackMon_ckf*TrackMon_rs*TrackEffMon_ckf*dqmInfoSiStrip)
+SiStripDQMTier0 = cms.Sequence(siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_cosmicTk*TrackMon_ckf*TrackMon_rs*TrackEffMon_ckf*dqmInfoSiStrip)
