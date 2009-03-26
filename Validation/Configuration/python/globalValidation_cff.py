@@ -25,3 +25,7 @@ globalValidation = cms.Sequence(trackerHitsValidation+trackerDigisValidation+tra
                                 hcalSimHitStudy+hcalRecHitsValidationSequence+calotowersValidationSequence+
                                 validSimHit+muondtdigianalyzer+cscDigiValidation+validationMuonRPCDigis+recoMuonValidation)
 
+globalValidation_pu = cms.Sequence(trackerHitsValidation+trackerDigisValidation+trackingTruthValid+tracksValidation+
+                                   ecalSimHitsValidationSequence+hcalSimHitStudy+hcalRecHitsValidationSequence+calotowersValidationSequence+
+                                   validSimHit+muondtdigianalyzer+validationMuonRPCDigis)
+
