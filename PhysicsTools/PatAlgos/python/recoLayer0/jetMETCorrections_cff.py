@@ -29,13 +29,16 @@ from JetMETCorrections.Type1MET.MetType1Corrections_cff import *
 corMetType1Icone5.corrector = cms.string('L2L3JetCorrectorIC5Calo')
 
 
-# MET corrections from muons
+# MET corrections from muons:
+#   dependencies
+from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
+from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
+from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
+#   muon MET correction modules 
 from JetMETCorrections.Type1MET.MetMuonCorrections_cff import corMetGlobalMuons, goodMuonsforMETCorrection
-# muon MET correction maker 
-globalMuonsForMET     = goodMuonsforMETCorrection.clone(cut = cms.string('isGlobalMuon = 1'))
-goodGlobalMuonsForMET = goodMuonsforMETCorrection.clone(src = cms.InputTag("globalMuonsForMET"))
-corMetType1Icone5Muons = corMetGlobalMuons.clone(inputUncorMetLabel = cms.InputTag('corMetType1Icone5'),
-                                                 muonsInputTag      = cms.InputTag('goodGlobalMuonsForMET'))
+#   muon MET correction maker 
+corMetType1Icone5Muons = corMetGlobalMuons.clone(uncorMETInputTag = cms.InputTag('corMetType1Icone5'),
+                                                 muonsInputTag      = cms.InputTag('goodMuonsforMETCorrection'))
 
 # It would be better to get this config to JetMETCorrections/Type1MET/data/ at some point
 corMetType1Icone5Muons.TrackAssociatorParameters.useEcal = False ## RecoHits
@@ -46,18 +49,8 @@ corMetType1Icone5Muons.TrackAssociatorParameters.useMuon = False ## RecoHits
 corMetType1Icone5Muons.TrackAssociatorParameters.truthMatch = False
 
 
-# re-key jet energy corrections to layer 0 output
-layer0JetCorrFactors = cms.EDFilter("JetCorrFactorsValueMapSkimmer",
-    collection  = cms.InputTag("allLayer0Jets"),
-    backrefs    = cms.InputTag("allLayer0Jets"),
-    association = cms.InputTag("jetCorrFactors"),
-)
-
+patMETCorrections = cms.Sequence(goodMuonsforMETCorrection * corMetType1Icone5 * corMetType1Icone5Muons)
 
 # default PAT sequence for JetMET corrections before cleaners
-patAODJetMETCorrections = cms.Sequence(jetCorrFactors +
-                                       globalMuonsForMET * goodGlobalMuonsForMET * corMetType1Icone5 * corMetType1Icone5Muons)
-
-# default PAT sequence for JetMET corrections after cleaners
-patLayer0JetMETCorrections = cms.Sequence(layer0JetCorrFactors)
+patJetMETCorrections = cms.Sequence(jetCorrFactors + patMETCorrections)
 

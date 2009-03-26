@@ -6,7 +6,6 @@
 
 using namespace pat::helper;
 
-
 MultiIsolator::MultiIsolator(const edm::ParameterSet &conf, bool cuts) {
     using pat::Flags;
     if (conf.exists("tracker")) addIsolator(conf.getParameter<edm::ParameterSet>("tracker"), cuts, Flags::Isolation::Tracker, pat::TrackerIso);
@@ -25,6 +24,7 @@ MultiIsolator::MultiIsolator(const edm::ParameterSet &conf, bool cuts) {
     if (conf.exists("pfGamma"))         addIsolator(conf.getParameter<edm::ParameterSet>("pfGamma"), cuts,Flags::Isolation::Calo, pat::GammaParticleIso);
     
     if (conf.exists("user")) {
+   
         std::vector<edm::ParameterSet> psets = conf.getParameter<std::vector<edm::ParameterSet> >("user");
         if (psets.size() > 5) {
             throw cms::Exception("Configuration") << 
@@ -59,7 +59,7 @@ MultiIsolator::make(const edm::ParameterSet &conf, bool withCut) {
 
 void 
 MultiIsolator::addIsolator(const edm::ParameterSet &conf, bool withCut, uint32_t mask, pat::IsolationKeys key) {
-    BaseIsolator * iso = make(conf, withCut);
+   BaseIsolator * iso = make(conf, withCut);
     if (iso) addIsolator(iso, mask, key);
 }
 

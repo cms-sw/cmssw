@@ -14,7 +14,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Apr 21 10:03:50 CEST 2008
-// $Id: PATUserDataTestModule.cc,v 1.1 2008/10/07 17:44:35 gpetrucc Exp $
+// $Id: PATUserDataTestModule.cc,v 1.2.2.1 2009/02/03 09:09:20 gpetrucc Exp $
 //
 //
 
@@ -75,6 +75,7 @@ class PATUserDataTestModule : public edm::EDProducer {
 
       // ----------member data ---------------------------
       edm::InputTag muons_;
+      std::string   label_;
       enum TestMode { TestRead, TestWrite, TestExternal };
       TestMode mode_;
 };
@@ -84,15 +85,17 @@ class PATUserDataTestModule : public edm::EDProducer {
 //
 PATUserDataTestModule::PATUserDataTestModule(const edm::ParameterSet& iConfig):
   muons_(iConfig.getParameter<edm::InputTag>("muons")),
+  label_(iConfig.existsAs<std::string>("label") ? iConfig.getParameter<std::string>("label") : ""),
   mode_( iConfig.getParameter<std::string>("mode") == "write" ? TestWrite : 
         (iConfig.getParameter<std::string>("mode") == "read"  ? TestRead  : 
          TestExternal
         ))
+
 {
   if (mode_ != TestExternal) {
       produces<std::vector<pat::Muon> >();
   } else {
-      produces<edm::ValueMap<int> >();
+      produces<edm::ValueMap<int> >(label_);
       produces<edm::ValueMap<float> >();
       produces<edm::OwnVector<pat::UserData> >();
       produces<edm::ValueMap<edm::Ptr<pat::UserData> > >();
@@ -138,6 +141,7 @@ PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
            } else {
                std::cout << "Muon #" << (muon - muons->begin()) << ":" << std::endl;
                std::cout << "\tanswer   = " << muon->userInt("answer") << std::endl;
+               std::cout << "\tanswer:il= " << muon->userInt("answer:il") << std::endl;
                std::cout << "\tpi       = " << muon->userFloat("pi") << std::endl;
                std::cout << "\tmiss int = " << muon->userInt("missing int") << std::endl;
                std::cout << "\tmiss flt = " << muon->userFloat("missing flt") << std::endl;
@@ -172,7 +176,7 @@ PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
        ValueMap<int>::Filler intfiller(*answers);
        intfiller.insert(recoMuons, ints.begin(), ints.end());
        intfiller.fill();
-       iEvent.put(answers);
+       iEvent.put(answers, label_);
        std::cout << "Filled in the answer" << std::endl;
 
        vector<float> floats(recoMuons->size(), 3.14);

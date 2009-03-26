@@ -1,13 +1,11 @@
 //
-// $Id: PATMETProducer.cc,v 1.7 2008/10/06 13:29:16 gpetrucc Exp $
+// $Id: PATMETProducer.cc,v 1.8 2008/11/28 22:05:56 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMETProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/Common/interface/View.h"
-
-#include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 
 #include <memory>
 
@@ -25,11 +23,6 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig):
   addTrigMatch_   = iConfig.getParameter<bool>         ( "addTrigMatch" );
   trigMatchSrc_   = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
   addResolutions_ = iConfig.getParameter<bool>         ("addResolutions");
-  useNNReso_      = iConfig.getParameter<bool>         ("useNNResolutions");
-  metResoFile_    = iConfig.getParameter<std::string>  ("metResoFile");
-  
-  // construct resolution calculator
-  if (addResolutions_) metResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(metResoFile_).fullPath(), useNNReso_);
 
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
@@ -50,7 +43,6 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig):
 
 
 PATMETProducer::~PATMETProducer() {
-  if (addResolutions_) delete metResoCalc_;
 }
 
 
@@ -60,6 +52,7 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   edm::Handle<edm::View<reco::MET> > mets;
   iEvent.getByLabel(metSrc_, mets);
 
+  if (mets->size() != 1) throw cms::Exception("Corrupt Data") << "The input MET collection " << metSrc_.encode() << " has size " << mets->size() << " instead of 1 as it should.\n";
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
 
   // Get the vector of generated met from the event if needed
@@ -88,10 +81,6 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
           amet.addTriggerMatch(*trigPrim);
         }
       }
-    }
-    // add MET resolution info if demanded
-    if (addResolutions_) {
-      (*metResoCalc_)(amet);
     }
 
     if (efficiencyLoader_.enabled()) {

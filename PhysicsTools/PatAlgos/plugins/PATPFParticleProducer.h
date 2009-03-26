@@ -1,5 +1,5 @@
 //
-// $Id: PATPFParticleProducer.h,v 1.2 2008/09/01 14:47:38 gpetrucc Exp $
+// $Id: PATPFParticleProducer.h,v 1.3 2008/11/28 22:05:56 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPFParticleProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::PFCandidate.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATPFParticleProducer.h,v 1.2 2008/09/01 14:47:38 gpetrucc Exp $
+  \version  $Id: PATPFParticleProducer.h,v 1.3 2008/11/28 22:05:56 lowette Exp $
 */
 
 
@@ -35,10 +35,7 @@
 
 namespace pat {
 
-
-  class ObjectResolutionCalc;
   class LeptonLRCalc;
-
 
   class PATPFParticleProducer : public edm::EDProducer {
 

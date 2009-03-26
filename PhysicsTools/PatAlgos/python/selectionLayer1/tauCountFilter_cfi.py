@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 countLayer1Taus = cms.EDFilter("PATCandViewCountFilter",
     minNumber = cms.uint32(0),
     maxNumber = cms.uint32(999999),
-    src = cms.InputTag("selectedLayer1Taus")
+    src = cms.InputTag("cleanLayer1Taus")
 )
 
 

@@ -17,26 +17,9 @@ allLayer1GenericParticles = cms.EDProducer("PATGenericParticleProducer",
 
     # Isolation configurables
     isolation = cms.PSet(
-        tracker = cms.PSet(
-            veto = cms.double(0.015),
-            src = cms.InputTag("REPLACE_ME"),
-            deltaR = cms.double(0.3),
-            threshold = cms.double(1.5)
-        ),
-        ecal = cms.PSet(
-            src = cms.InputTag("REPLACE_ME"),
-            deltaR = cms.double(0.3)
-        ),
-        hcal = cms.PSet(
-            src = cms.InputTag("REPLACE_ME"),
-            deltaR = cms.double(0.3)
-        ),
     ),
     # embed IsoDeposits to recompute isolation
     isoDeposits = cms.PSet(
-        hcal = cms.InputTag("REPLACE_ME"),
-        tracker = cms.InputTag("REPLACE_ME"),
-        ecal = cms.InputTag("REPLACE_ME")
     ),
 
     # any sort of "quality" value

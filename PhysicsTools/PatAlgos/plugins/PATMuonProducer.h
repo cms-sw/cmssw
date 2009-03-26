@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.14 2008/10/10 14:02:33 lowette Exp $
+// $Id: PATMuonProducer.h,v 1.15 2008/11/28 22:05:56 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::Muon.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.14 2008/10/10 14:02:33 lowette Exp $
+  \version  $Id: PATMuonProducer.h,v 1.15 2008/11/28 22:05:56 lowette Exp $
 */
 
 
@@ -38,9 +38,9 @@
 
 namespace pat {
 
-
-  class ObjectResolutionCalc;
   class LeptonLRCalc;
+  class TrackerIsolationPt;
+  class CaloIsolationEnergy;
 
 
   class PATMuonProducer : public edm::EDProducer {
@@ -55,37 +55,51 @@ namespace pat {
 
     private:
 
-
-      typedef std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > GenAssociations;
-
-      typedef std::vector<edm::Handle<edm::Association<TriggerPrimitiveCollection> > > TrigAssociations;
-
-
-      void fillMuon( Muon& patMuon, 
-		     const MuonBaseRef& muonRef,
-		     const reco::CandidateBaseRef& baseRef,
-		     const GenAssociations& genMatches,
-		     const TrigAssociations&  trigMatches) const;
-
       // configurables
       edm::InputTag muonSrc_;
-      edm::InputTag pfMuonSrc_;
-      bool          useParticleFlow_;
+
       bool          embedTrack_;
       bool          embedStandAloneMuon_;
       bool          embedCombinedMuon_;
-      bool          embedPFCandidate_;
+
+
+      bool          embedPickyMuon_;
+      bool          embedTpfmsMuon_;
+      
+      bool          addTeVRefits_;
+      edm::InputTag pickySrc_;
+      edm::InputTag tpfmsSrc_;
+
+  
       bool          addGenMatch_;
       bool          embedGenMatch_;
       std::vector<edm::InputTag> genMatchSrc_;
       bool          addTrigMatch_;
       std::vector<edm::InputTag> trigMatchSrc_;
       bool          addResolutions_;
-      bool          useNNReso_;
-      std::string   muonResoFile_;
       bool          addLRValues_;
+
+
+      // pflow specific
+      bool          useParticleFlow_;
+      edm::InputTag pfMuonSrc_;
+      bool          embedPFCandidate_;
+
+
+      typedef std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > GenAssociations;
+
+      typedef std::vector<edm::Handle<edm::Association<TriggerPrimitiveCollection> > > TrigAssociations;
+
+
+      void fillMuon( Muon& aMuon, 
+		     const MuonBaseRef& muonRef,
+		     const reco::CandidateBaseRef& baseRef,
+		     const GenAssociations& genMatches,
+		     const TrigAssociations&  trigMatches) const;
+
+     
+
       // tools
-      ObjectResolutionCalc * theResoCalc_;
       GreaterByPt<Muon>      pTComparator_;
 
       pat::helper::MultiIsolator isolator_; 

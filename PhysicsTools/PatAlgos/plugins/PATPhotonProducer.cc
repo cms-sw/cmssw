@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.17 2008/11/17 22:41:53 askew Exp $
+// $Id: PATPhotonProducer.cc,v 1.18 2008/11/28 22:05:56 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonIDAssociation.h"
 
 #include <memory>
 
@@ -113,7 +114,6 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
             iEvent.getByLabel(genMatchSrc_[j], genMatches[j]);
         }
   }
-
 
   if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
   

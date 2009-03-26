@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.20 2008/11/13 15:52:04 salerno Exp $
+// $Id: PATElectronProducer.cc,v 1.21 2008/11/28 22:05:55 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -12,7 +12,9 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-#include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+
 #include "PhysicsTools/PatUtils/interface/TrackerIsolationPt.h"
 #include "PhysicsTools/PatUtils/interface/CaloIsolationEnergy.h"
 
@@ -33,6 +35,12 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   embedGsfTrack_    = iConfig.getParameter<bool>         ( "embedGsfTrack" );
   embedSuperCluster_= iConfig.getParameter<bool>         ( "embedSuperCluster" );
   embedTrack_       = iConfig.getParameter<bool>         ( "embedTrack" );
+
+  // pflow specific
+  pfElecSrc_           = iConfig.getParameter<edm::InputTag>( "pfElectronSource" );
+  useParticleFlow_        = iConfig.getParameter<bool>( "useParticleFlow" );
+  embedPFCandidate_   = iConfig.getParameter<bool>( "embedPFCandidate" );
+
   
   // MC matching configurables
   addGenMatch_      = iConfig.getParameter<bool>          ( "addGenMatch" );
@@ -51,8 +59,6 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
 
   // resolution configurables
   addResolutions_   = iConfig.getParameter<bool>         ( "addResolutions" );
-  useNNReso_        = iConfig.getParameter<bool>         ( "useNNResolutions" );
-  electronResoFile_ = iConfig.getParameter<std::string>  ( "electronResoFile" );
 
   // electron ID configurables
   addElecID_        = iConfig.getParameter<bool>         ( "addElectronID" );
@@ -83,9 +89,6 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   }
   
   // construct resolution calculator
-  if(addResolutions_){
-    theResoCalc_= new ObjectResolutionCalc(edm::FileInPath(electronResoFile_).fullPath(), useNNReso_);
-  }
 
   // IsoDeposit configurables
   if (iConfig.exists("isoDeposits")) {
@@ -93,6 +96,12 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
      if (depconf.exists("tracker")) isoDepositLabels_.push_back(std::make_pair(TrackerIso, depconf.getParameter<edm::InputTag>("tracker")));
      if (depconf.exists("ecal"))    isoDepositLabels_.push_back(std::make_pair(ECalIso, depconf.getParameter<edm::InputTag>("ecal")));
      if (depconf.exists("hcal"))    isoDepositLabels_.push_back(std::make_pair(HCalIso, depconf.getParameter<edm::InputTag>("hcal")));
+     if (depconf.exists("particle"))           isoDepositLabels_.push_back(std::make_pair(ParticleIso, depconf.getParameter<edm::InputTag>("particle")));
+     if (depconf.exists("chargedparticle"))    isoDepositLabels_.push_back(std::make_pair(ChargedParticleIso, depconf.getParameter<edm::InputTag>("chargedparticle")));
+     if (depconf.exists("neutralparticle")) isoDepositLabels_.push_back(std::make_pair(NeutralParticleIso,depconf.getParameter<edm::InputTag>("neutralparticle")));
+     if (depconf.exists("gammaparticle"))    isoDepositLabels_.push_back(std::make_pair(GammaParticleIso, depconf.getParameter<edm::InputTag>("gammaparticle")));
+
+
      if (depconf.exists("user")) {
         std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
         std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
@@ -127,7 +136,6 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
 
 
 PATElectronProducer::~PATElectronProducer() {
-  if(addResolutions_) delete theResoCalc_;
 }
 
 
@@ -147,11 +155,20 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   }
 
   // prepare the MC matching
-  std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > genMatches(genMatchSrc_.size());
+  GenAssociations  genMatches(genMatchSrc_.size());
   if (addGenMatch_) {
         for (size_t j = 0, nd = genMatchSrc_.size(); j < nd; ++j) {
             iEvent.getByLabel(genMatchSrc_[j], genMatches[j]);
         }
+  }
+
+
+  // prepare the trigger matching
+  TrigAssociations  trigMatches(trigMatchSrc_.size());
+  if ( addTrigMatch_ ) {
+    for ( size_t i = 0; i < trigMatchSrc_.size(); ++i ) {
+      iEvent.getByLabel(trigMatchSrc_[i], trigMatches[i]);
+    }
   }
 
   // prepare ID extraction 
@@ -165,49 +182,88 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
         ids[i].first = elecIDSrcs_[i].first;
      }
   }
-  
-  //prepare electron cluster shapes extraction
-  std::auto_ptr<EcalClusterLazyTools> lazyTools_;
+
+
   if (addElecShapes_) {
     lazyTools_ .reset(new EcalClusterLazyTools( iEvent , iSetup , reducedBarrelRecHitCollection_ , reducedEndcapRecHitCollection_ ));  
-   }
+  }
 
   std::vector<Electron> * patElectrons = new std::vector<Electron>();
-  for (edm::View<reco::GsfElectron>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); ++itElectron) {
+
+  if( useParticleFlow_ ) {
+    edm::Handle< reco::PFCandidateCollection >  pfElectrons;
+    iEvent.getByLabel(pfElecSrc_, pfElectrons);
+    unsigned index=0;
+  
+    for( reco::PFCandidateConstIterator i = pfElectrons->begin(); 
+	 i != pfElectrons->end(); ++i, ++index) {
+
+      reco::PFCandidateRef pfRef(pfElectrons,index);
+      reco::PFCandidatePtr ptrToMother(pfElectrons,index);
+      reco::CandidateBaseRef pfBaseRef( pfRef ); 
+      
+      reco::GsfTrackRef PfTk= i->gsfTrackRef(); 
+
+      bool Matched=false;
+      for (edm::View<reco::GsfElectron>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); ++itElectron) {
+	unsigned int idx = itElectron - electrons->begin();
+	if (Matched) continue;
+	reco::GsfTrackRef EgTk= itElectron->gsfTrack();
+	if (itElectron->gsfTrack()==i->gsfTrackRef()){
+	  const edm::RefToBase<reco::GsfElectron> elecsRef = electrons->refAt(idx);
+	  Electron anElectron(elecsRef);
+	  FillElectron(anElectron,elecsRef,pfBaseRef, genMatches, trigMatches);
+	  Matched=true;
+	  anElectron.setPFCandidateRef( pfRef  );
+	  if( embedPFCandidate_ ) anElectron.embedPFCandidate();
+
+	  if (isolator_.enabled()){
+	    reco::CandidatePtr mother =  ptrToMother->sourceCandidatePtr(0);
+	    isolator_.fill(mother, isolatorTmpStorage_);
+	    typedef pat::helper::MultiIsolator::IsolationValuePairs IsolationValuePairs;
+	    for (IsolationValuePairs::const_reverse_iterator it = isolatorTmpStorage_.rbegin(), 
+		   ed = isolatorTmpStorage_.rend(); it != ed; ++it) {
+	      anElectron.setIsolation(it->first, it->second);
+	    }
+	    for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
+	      anElectron.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[mother]);
+	    }
+	  }
+	  //Electron Id
+	  if (addElecID_) {
+	    //STANDARD EL ID 
+	    for (size_t i = 0; i < elecIDSrcs_.size(); ++i) {
+	      ids[i].second = (*idhandles[i])[elecsRef];    
+	    }
+	    //SPECIFIC PF ID
+	    ids.push_back(std::make_pair("pf_evspi",pfRef->mva_e_pi()));
+	    ids.push_back(std::make_pair("pf_evsmu",pfRef->mva_e_mu()));
+	    anElectron.setElectronIDs(ids);
+	  }
+
+	  patElectrons->push_back(anElectron);
+
+	}
+
+	
+      }
+ 
+      
+    }
+  }
+
+  else{
+    for (edm::View<reco::GsfElectron>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); ++itElectron) {
     // construct the Electron from the ref -> save ref to original object
     unsigned int idx = itElectron - electrons->begin();
     edm::RefToBase<reco::GsfElectron> elecsRef = electrons->refAt(idx);
     edm::Ptr<reco::GsfElectron> electronPtr = electrons->ptrAt(idx);
     Electron anElectron(elecsRef);
-    if (embedGsfTrack_) anElectron.embedGsfTrack();
-    if (embedSuperCluster_) anElectron.embedSuperCluster();
-    if (embedTrack_) anElectron.embedTrack();
 
-    // store the match to the generated final state muons
-    if (addGenMatch_) {
-      for(size_t i = 0, n = genMatches.size(); i < n; ++i) {
-          reco::GenParticleRef genElectron = (*genMatches[i])[elecsRef];
-          anElectron.addGenParticleRef(genElectron);
-      }
-      if (embedGenMatch_) anElectron.embedGenParticle();
-    }
+    FillElectron(anElectron,elecsRef,elecBaseRef, genMatches, trigMatches);
     
-    // matches to trigger primitives
-    if ( addTrigMatch_ ) {
-      for ( size_t i = 0; i < trigMatchSrc_.size(); ++i ) {
-        edm::Handle<edm::Association<TriggerPrimitiveCollection> > trigMatch;
-        iEvent.getByLabel(trigMatchSrc_[i], trigMatch);
-        TriggerPrimitiveRef trigPrim = (*trigMatch)[elecsRef];
-        if ( trigPrim.isNonnull() && trigPrim.isAvailable() ) {
-          anElectron.addTriggerMatch(*trigPrim);
-        }
-      }
-    }
 
     // add resolution info
-    if(addResolutions_){
-      (*theResoCalc_)(anElectron);
-    }
     
     // Isolation
     if (isolator_.enabled()) {
@@ -223,10 +279,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
         anElectron.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[elecsRef]);
     }
 
-    if (efficiencyLoader_.enabled()) {
-        efficiencyLoader_.setEfficiencies( anElectron, elecsRef );
-    }
-
     // add electron ID info
     if (addElecID_) {
         for (size_t i = 0; i < elecIDSrcs_.size(); ++i) {
@@ -240,22 +292,11 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       userDataHelper_.add( anElectron, iEvent, iSetup );
     }
     
-    //  add electron shapes info
-    if (addElecShapes_) {
-	std::vector<float> covariances = lazyTools_->covariances(*(itElectron->superCluster()->seed())) ;
-	std::vector<float> localCovariances = lazyTools_->localCovariances(*(itElectron->superCluster()->seed())) ;
-	float scSigmaEtaEta = sqrt(covariances[0]) ;
-	float scSigmaIEtaIEta = sqrt(localCovariances[0]) ;
-	float scE1x5 = lazyTools_->e1x5(*(itElectron->superCluster()->seed()))  ;
-	float scE2x5Max = lazyTools_->e2x5Max(*(itElectron->superCluster()->seed()))  ;
-	float scE5x5 = lazyTools_->e5x5(*(itElectron->superCluster()->seed())) ;
-	anElectron.setClusterShapes(scSigmaEtaEta,scSigmaIEtaIEta,scE1x5,scE2x5Max,scE5x5) ;
-    }
     
     // add sel to selected
     patElectrons->push_back(anElectron);
   }
-
+  }
   
   // sort electrons in pt
   std::sort(patElectrons->begin(), patElectrons->end(), pTComparator_);
@@ -269,18 +310,47 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
 }
 
+void PATElectronProducer::FillElectron(Electron& anElectron,
+				       const edm::RefToBase<reco::GsfElectron>& elecsRef,
+				       const reco::CandidateBaseRef& baseRef,
+				       const GenAssociations& genMatches,
+				       const TrigAssociations& trigMatches)const {
+  if (embedGsfTrack_) anElectron.embedGsfTrack();
+  if (embedSuperCluster_) anElectron.embedSuperCluster();
+  if (embedTrack_) anElectron.embedTrack();
 
-double PATElectronProducer::electronID(const edm::Handle<edm::View<reco::GsfElectron> > & electrons,
-                                       const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs,
-	                               unsigned int idx) {
-  //find elecID for elec with index idx
-  edm::Ref<std::vector<reco::GsfElectron> > elecsRef = electrons->refAt(idx).castTo<edm::Ref<std::vector<reco::GsfElectron> > >();
-  reco::ElectronIDAssociationCollection::const_iterator elecID = elecIDs->find( elecsRef );
-
-  //return corresponding elecID (only 
-  //cut based available at the moment)
-  const reco::ElectronIDRef& id = elecID->val;
-  return id->cutBasedDecision();
+  // store the match to the generated final state muons
+  if (addGenMatch_) {
+    for(size_t i = 0, n = genMatches.size(); i < n; ++i) {
+      reco::GenParticleRef genElectron = (*genMatches[i])[elecsRef];
+      anElectron.addGenParticleRef(genElectron);
+    }
+    if (embedGenMatch_) anElectron.embedGenParticle();
+  }
+    // matches to trigger primitives
+    if ( addTrigMatch_ ) {
+      for ( size_t i = 0; i < trigMatchSrc_.size(); ++i ) {
+        TriggerPrimitiveRef trigPrim = (*trigMatches[i])[elecsRef];
+        if ( trigPrim.isNonnull() && trigPrim.isAvailable() ) {
+          anElectron.addTriggerMatch(*trigPrim);
+        }
+      }
+    }
+    
+    if (efficiencyLoader_.enabled()) {
+      efficiencyLoader_.setEfficiencies( anElectron, elecsRef );
+    }
+    //  add electron shapes info
+    if (addElecShapes_) {
+	std::vector<float> covariances = lazyTools_->covariances(*(elecsRef->superCluster()->seed())) ;
+	std::vector<float> localCovariances = lazyTools_->localCovariances(*(elecsRef->superCluster()->seed())) ;
+	float scSigmaEtaEta = sqrt(covariances[0]) ;
+	float scSigmaIEtaIEta = sqrt(localCovariances[0]) ;
+	float scE1x5 = lazyTools_->e1x5(*(elecsRef->superCluster()->seed()))  ;
+	float scE2x5Max = lazyTools_->e2x5Max(*(elecsRef->superCluster()->seed()))  ;
+	float scE5x5 = lazyTools_->e5x5(*(elecsRef->superCluster()->seed())) ;
+	anElectron.setClusterShapes(scSigmaEtaEta,scSigmaIEtaIEta,scE1x5,scE2x5Max,scE5x5) ;
+    }
 }
 
 

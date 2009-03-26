@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 allLayer1Taus = cms.EDProducer("PATTauProducer",
     # General configurables
-    tauSource = cms.InputTag("allLayer0Taus"),
+    tauSource = cms.InputTag("pfRecoTauProducer"),
 
     # user data to add
     userData = cms.PSet(
@@ -28,9 +28,7 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
     embedIsolationTracks = cms.bool(False), ## whether to embed in AOD externally stored isolation tracks
 
     # resolution configurables
-    addResolutions = cms.bool(True),
-    tauResoFile = cms.string('PhysicsTools/PatUtils/data/Resolutions_tau.root'),
-    useNNResolutions = cms.bool(True), ## use the neural network approach?
+    addResolutions = cms.bool(False),
 
     # isolation configurables
     # Store isolation values
@@ -66,13 +64,13 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
     tauIDSources = cms.PSet(
         # configure many IDs as InputTag <someName> = <someTag>
         # you can comment out those you don't want to save some disk space
-        leadingTrackFinding = cms.InputTag("patPFRecoTauDiscriminationByLeadingTrackFinding"),
-        leadingTrackPtCut = cms.InputTag("patPFRecoTauDiscriminationByLeadingTrackPtCut"),
-        trackIsolation = cms.InputTag("patPFRecoTauDiscriminationByTrackIsolation"),
-        ecalIsolation = cms.InputTag("patPFRecoTauDiscriminationByECALIsolation"),
-        byIsolation = cms.InputTag("patPFRecoTauDiscriminationByIsolation"),
-        againstElectron = cms.InputTag("patPFRecoTauDiscriminationAgainstElectron"),
-        againstMuon = cms.InputTag("patPFRecoTauDiscriminationAgainstMuon")
+        leadingTrackFinding = cms.InputTag("pfRecoTauDiscriminationByLeadingTrackFinding"),
+        leadingTrackPtCut = cms.InputTag("pfRecoTauDiscriminationByLeadingTrackPtCut"),
+        trackIsolation = cms.InputTag("pfRecoTauDiscriminationByTrackIsolation"),
+        ecalIsolation = cms.InputTag("pfRecoTauDiscriminationByECALIsolation"),
+        byIsolation = cms.InputTag("pfRecoTauDiscriminationByIsolation"),
+        againstElectron = cms.InputTag("pfRecoTauDiscriminationAgainstElectron"),
+        againstMuon = cms.InputTag("pfRecoTauDiscriminationAgainstMuon")
     ),
 
     # Trigger matching configurables

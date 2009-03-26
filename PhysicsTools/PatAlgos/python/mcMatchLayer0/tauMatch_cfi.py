@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 # (using old values from TQAF, january 2008)
 #
 tauMatch = cms.EDFilter("MCMatcher",
-    src = cms.InputTag("allLayer0Taus"),    # RECO objects to match
+    src = cms.InputTag("pfRecoTauProducer"),    # RECO objects to match
     matched = cms.InputTag("genParticles"), # mc-truth particle collection
     mcPdgId     = cms.vint32(15), # one or more PDG ID (15 = tau); absolute values (see below)
     checkCharge = cms.bool(True), # True = require RECO and MC objects to have the same charge
@@ -19,7 +19,7 @@ tauMatch = cms.EDFilter("MCMatcher",
 )
 
 tauGenJetMatch = cms.EDFilter("GenJetMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
-    src      = cms.InputTag("allLayer0Taus"),         ## RECO jets (any View<Jet> is ok)
+    src      = cms.InputTag("pfRecoTauProducer"),         ## RECO jets (any View<Jet> is ok)
     matched  = cms.InputTag("tauGenJets"), ## GEN jets  (must be GenJetCollection)
     mcPdgId  = cms.vint32(),       # n/a
     mcStatus = cms.vint32(),       # n/a

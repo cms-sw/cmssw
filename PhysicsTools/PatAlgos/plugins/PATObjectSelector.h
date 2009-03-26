@@ -1,5 +1,5 @@
 //
-// $Id: PATObjectSelector.h,v 1.2 2008/06/05 20:05:13 gpetrucc Exp $
+// $Id: PATObjectSelector.h,v 1.3.4.1 2009/01/22 12:09:09 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATObjectSelector_h
@@ -18,7 +18,7 @@
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
-#include "DataFormats/PatCandidates/interface/Particle.h"
+#include "DataFormats/PatCandidates/interface/PFParticle.h"
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
 
 
@@ -53,9 +53,9 @@ namespace pat {
               StringCutObjectSelector<MET>
           > PATMETSelector;
   typedef SingleObjectSelector<
-              std::vector<Particle>,
-              StringCutObjectSelector<Particle>
-          > PATParticleSelector;
+              std::vector<PFParticle>,
+              StringCutObjectSelector<PFParticle>
+          > PATPFParticleSelector;
   typedef SingleObjectSelector<
               std::vector<GenericParticle>,
               StringCutObjectSelector<GenericParticle>
@@ -92,10 +92,10 @@ namespace pat {
               edm::RefVector<std::vector<MET> >
           > PATMETRefSelector;
   typedef SingleObjectSelector<
-              std::vector<Particle>,
-              StringCutObjectSelector<Particle>,
-              edm::RefVector<std::vector<Particle> >
-          > PATParticleRefSelector;
+              std::vector<PFParticle>,
+              StringCutObjectSelector<PFParticle>,
+              edm::RefVector<std::vector<PFParticle> >
+          > PATPFParticleRefSelector;
   typedef SingleObjectSelector<
               std::vector<GenericParticle>,
               StringCutObjectSelector<GenericParticle>,

@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 countLayer1Electrons = cms.EDFilter("PATCandViewCountFilter",
     minNumber = cms.uint32(0),
     maxNumber = cms.uint32(999999),
-    src = cms.InputTag("selectedLayer1Electrons")
+    src = cms.InputTag("cleanLayer1Electrons")
 )
 
 

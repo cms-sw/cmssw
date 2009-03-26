@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.12 2008/11/13 15:52:04 salerno Exp $
+// $Id: PATElectronProducer.h,v 1.13 2008/11/28 22:05:56 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::GsfElectron.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.12 2008/11/13 15:52:04 salerno Exp $
+  \version  $Id: PATElectronProducer.h,v 1.13 2008/11/28 22:05:56 lowette Exp $
 */
 
 
@@ -26,8 +26,6 @@
 #include "DataFormats/Candidate/interface/CandAssociation.h"
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
-#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
-#include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
@@ -45,7 +43,6 @@
 namespace pat {
 
 
-  class ObjectResolutionCalc;
   class TrackerIsolationPt;
   class CaloIsolationEnergy;
   class LeptonLRCalc;
@@ -62,11 +59,6 @@ namespace pat {
 
     private:
 
-      double electronID(const edm::Handle<edm::View<reco::GsfElectron> > & elecs, 
-                        const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs,
-	                unsigned int idx);
-    private:
-
       // configurables
       edm::InputTag electronSrc_;
       bool          embedGsfTrack_;
@@ -78,14 +70,28 @@ namespace pat {
       bool          addTrigMatch_;
       std::vector<edm::InputTag> trigMatchSrc_;
       bool          addResolutions_;
-      bool          useNNReso_;
-      std::string   electronResoFile_;
       bool          addElecID_;
+
+      /// pflow specific
+      bool          useParticleFlow_;
+      edm::InputTag pfElecSrc_;
+      bool          embedPFCandidate_; 
+
+      typedef std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > GenAssociations;
+
+      typedef std::vector<edm::Handle<edm::Association<TriggerPrimitiveCollection> > > TrigAssociations;
+
+      void FillElectron(Electron& aEl,
+			const edm::RefToBase<reco::GsfElectron>& elecRef,
+			const reco::CandidateBaseRef& baseRef,
+			const GenAssociations& genMatches,
+			const TrigAssociations& trigMatches) const;
+  
+
       typedef std::pair<std::string, edm::InputTag> NameTag;
       std::vector<NameTag> elecIDSrcs_;
 
       // tools
-      ObjectResolutionCalc * theResoCalc_;
       GreaterByPt<Electron>       pTComparator_;
 
       pat::helper::MultiIsolator isolator_; 
@@ -98,9 +104,12 @@ namespace pat {
       bool useUserData_;
       pat::PATUserDataHelper<pat::Electron>      userDataHelper_;
       
-      //Add electron Cluster Shapes
+      //Add electron Cluster Shapes */
       bool         addElecShapes_;
-      //For the Cluster Shape reading
+      //Ecal Cluster Lazy Tools
+      std::auto_ptr<EcalClusterLazyTools> lazyTools_;
+
+      //For the Cluster Shape reading */
       edm::InputTag reducedBarrelRecHitCollection_;
       edm::InputTag reducedEndcapRecHitCollection_;
       

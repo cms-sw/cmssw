@@ -5,7 +5,7 @@ jetPartons = cms.EDFilter("PartonSelector",
 )
 
 jetPartonAssociation = cms.EDFilter("JetPartonMatcher",
-    jets    = cms.InputTag("allLayer0Jets"),
+    jets    = cms.InputTag("iterativeCone5CaloJets"),
     partons = cms.InputTag("jetPartons"),
     coneSizeToAssociate = cms.double(0.3),
 )
@@ -16,5 +16,5 @@ jetFlavourAssociation = cms.EDFilter("JetFlavourIdentifier",
 )
 
 # default PAT sequence for jet flavour identification
-patJetFlavourId = cms.Sequence(jetPartons * jetPartonAssociation * jetFlavourAssociation)
+jetFlavourId = cms.Sequence(jetPartons * jetPartonAssociation * jetFlavourAssociation)
 

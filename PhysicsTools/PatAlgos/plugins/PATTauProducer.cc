@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.19 2008/11/28 22:05:56 lowette Exp $
+// $Id: PATTauProducer.cc,v 1.20 2009/02/21 15:27:20 veelken Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -58,8 +58,6 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
   addTrigMatch_   = iConfig.getParameter<bool>               ( "addTrigMatch" );
   trigMatchSrc_   = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
   addResolutions_ = iConfig.getParameter<bool>         ( "addResolutions" );
-  useNNReso_      = iConfig.getParameter<bool>         ( "useNNResolutions" );
-  tauResoFile_    = iConfig.getParameter<std::string>  ( "tauResoFile" );
 
   // tau ID configurables
   addTauID_       = iConfig.getParameter<bool>         ( "addTauID" );

@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-selectedLayer1Hemispheres = cms.EDProducer("PATHemisphereProducer",
-    patElectrons = cms.InputTag("selectedLayer1Electrons"),
-    patJets      = cms.InputTag("selectedLayer1Jets"),
-    patMets      = cms.InputTag("selectedLayer1METs"),
-    patMuons     = cms.InputTag("selectedLayer1Muons"),
-    patPhotons   = cms.InputTag("selectedLayer1Photons"),
-    patTaus      = cms.InputTag("selectedLayer1Taus"),
+cleanLayer1Hemispheres = cms.EDProducer("PATHemisphereProducer",
+    patElectrons = cms.InputTag("cleanLayer1Electrons"),
+    patJets      = cms.InputTag("cleanLayer1Jets"),
+    patMuons     = cms.InputTag("cleanLayer1Muons"),
+    patPhotons   = cms.InputTag("cleanLayer1Photons"),
+    patTaus      = cms.InputTag("cleanLayer1Taus"),
+    patMets      = cms.InputTag("layer1METs"),
 
     minJetEt = cms.double(30),
     minMuonEt = cms.double(7),

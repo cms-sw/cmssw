@@ -1,12 +1,8 @@
-# The following comments couldn't be translated into the new config version:
-
-# Minimum Tk Pt
-# inner cone veto (endcaps, |eta| >= 1.479)
 import FWCore.ParameterSet.Config as cms
 
 allLayer1Photons = cms.EDProducer("PATPhotonProducer",
     # General configurables
-    photonSource = cms.InputTag("allLayer0Photons"),
+    photonSource = cms.InputTag("photons"),
 
                                   
     # user data to add
@@ -34,58 +30,26 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
     #   store isolation values
     isolation = cms.PSet(
         tracker = cms.PSet(
-            # source IsoDeposit
-            src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositTk"),
-            # parameters (E/gamma POG defaults)
-            deltaR = cms.double(0.3),              # Cone radius
-            vetos  = cms.vstring('0.015',          # Inner veto cone radius
-                                'Threshold(1.0)'), # Pt threshold
-            skipDefaultVeto = cms.bool(True),
+            src = cms.InputTag("gamIsoFromDepsTk"),
         ),
         ecal = cms.PSet(
-            # source IsoDeposit
-            #src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromHits"),
-            src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromClusts"),
-            # parameters (E/gamma POG defaults)
-            deltaR          = cms.double(0.4),
-            vetos           = cms.vstring('EcalBarrel:0.045', 'EcalEndcaps:0.070'),
-            skipDefaultVeto = cms.bool(True),
+            src = cms.InputTag("gamIsoFromDepsEcalFromHits"),
         ),
-        ## other option, using gamIsoDepositEcalSCVetoFromClust (see also recoLayer0/photonIsolation_cff.py)
-        #PSet ecal = cms.PSet( 
-        #   src    = cms.InputTag("layer0PhotonIsolations", "gamIsoDepositEcalSCVetoFromClusts")
-        #   deltaR = cms.double(0.4)
-        #   vetos  = cms.vstring()     # no veto, already done with SC
-        #   skipDefaultVeto = cms.bool(True)
-        #),
         hcal = cms.PSet(
-            # source IsoDeposit
-            #src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromHits"),
-            src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromTowers"),
-            # parameters (E/gamma POG defaults)
-            deltaR          = cms.double(0.4),
-            skipDefaultVeto = cms.bool(True),
+            src = cms.InputTag("gamIsoFromDepsHcalFromTowers"),
         ),
         user = cms.VPSet(),
     ),
     #   store isodeposits to recompute isolation
     isoDeposits = cms.PSet(
-        tracker = cms.InputTag("layer0PhotonIsolations","gamIsoDepositTk"),
-        #ecal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromHits"),
-        ecal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromClusts"),
-        #hcal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromHits"),
-        hcal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromTowers"),
+        tracker = cms.InputTag("gamIsoDepositTk"),
+        ecal    = cms.InputTag("gamIsoDepositEcalFromHits"),
+        hcal    = cms.InputTag("gamIsoDepositHcalFromTowers"),
     ),
 
-    # photon ID configurables
+    # Photon ID configurables
     addPhotonID = cms.bool(True),
-    photonIDSources = cms.PSet(
-        # configure many IDs as InputTag <someName> = <someTag>
-        # you can comment out those you don't want to save some disk space
-        phoidCutBasedLoose = cms.InputTag("patPhotonIds:PhotonIDProdPhotonCutBasedIDLoose"),
-        phoidCutBasedTight = cms.InputTag("patPhotonIds:PhotonIDProdPhotonCutBasedIDTight"),
-
-    ),
+    photonIDSource = cms.InputTag("PhotonIDProd","PhotonAssociatedID"), ## ValueMap<reco::PhotonID> keyed to photonSource
 
     # Trigger matching configurables
     addTrigMatch = cms.bool(True),
@@ -100,6 +64,8 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
     addEfficiencies = cms.bool(False),
     efficiencies    = cms.PSet(),
 
+    # Resolutions
+    addResolutions  = cms.bool(False),
 )
 
 
