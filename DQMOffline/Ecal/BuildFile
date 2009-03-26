@@ -8,6 +8,7 @@
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
 <use name=DQM/EcalCommon>
+<use name=CondFormats/EcalObjects>
 <export>
    <use name=DQMServices/Core>
    <use name=RecoEcal/EgammaCoreTools>
@@ -15,6 +16,7 @@
    <use name=DataFormats/L1GlobalTrigger>
    <use name=CondFormats/L1TObjects>
    <use name=CondFormats/DataRecord>
+   <use name=CondFormats/EcalObjects>
    <use name=DQM/EcalCommon>
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
