@@ -6,9 +6,10 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/02/11 20:21:26 $
- *  $Revision: 1.30 $
+ *  $Date: 2009/02/27 13:22:16 $
+ *  $Revision: 1.1 $
  *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
+ *  \author  J. Slaunwhite (modified from above
  */
 
 // Base Class Headers
@@ -48,13 +49,14 @@ public:
 
   /// Constructor
   HLTMuonGenericRate( const edm::ParameterSet& pset, std::string triggerName,
-		      std::vector<std::string> moduleNames );
+		      std::vector<std::string> moduleNames, std::string myRecoCollection );
 
   // Operations
   void            begin  ( );
   void            analyze( const edm::Event & iEvent );
   void            finish ( );
   MonitorElement* bookIt ( TString name, TString title, std::vector<double> );
+
 
 private:
 
@@ -64,9 +66,24 @@ private:
     //const reco::GenParticle*   genCand;
     const reco::Track*         recCand;
     LorentzVector              l1Cand;
+    LorentzVector              l1RawCand;
     std::vector<LorentzVector> hltCands;
+    std::vector<LorentzVector> hltRawCands;
     std::vector<const reco::RecoChargedCandidate*> hltTracks;
+
+    // Do we really want to store just the lorentz vectors
+    // for the trigger objects? No charge, d0 information
+    
   };
+
+  // Structure that  holds a Lorentz Vector corresponding
+  // to an HLT object and a bool to indicate whether or
+  // not it is a fake
+  struct HltFakeStruct {    
+    LorentzVector              myHltCand;
+    bool                       isAFake;    
+  };
+  
 
   const reco::Candidate* findMother( const reco::Candidate* );
   int findGenMatch( double eta, double phi, double maxDeltaR,
@@ -98,10 +115,30 @@ private:
   std::string  theAodL1Label;
   std::string  theAodL2Label;
 
+  // 1-D histogram paramters
   std::vector<double> theMaxPtParameters;
   std::vector<double> thePtParameters;
   std::vector<double> theEtaParameters;
   std::vector<double> thePhiParameters;
+  std::vector<double> theD0Parameters; 
+  std::vector<double> theZ0Parameters;
+  std::vector<double> theChargeParameters;
+  std::vector<double> theDRParameters;
+  std::vector<double> theChargeFlipParameters;
+  
+
+  // 2-D histogram parameters
+  std::vector<double> theMaxPtParameters2d;
+  std::vector<double> theEtaParameters2d;
+  std::vector<double> thePhiParameters2d;
+  std::vector<double> thePhiEtaParameters2d;
+  
+
+  // Resolution hisotgram parameters
+  std::vector<double> theResParameters;
+  
+  
+
 
   double       theMinPtCut;
   double       theMaxEtaCut;
@@ -134,7 +171,54 @@ private:
   std::vector <MonitorElement*> hPassMaxPtRec;
   std::vector <MonitorElement*> hPassEtaRec;
   std::vector <MonitorElement*> hPassPhiRec;
+  std::vector <MonitorElement*> hPassMatchPtRec;
+  std::vector <MonitorElement*> hPassExaclyOneMuonMaxPtRec;
+  std::vector <MonitorElement*> hPtMatchVsPtRec;
+  std::vector <MonitorElement*> hEtaMatchVsEtaRec;
+  std::vector <MonitorElement*> hPhiMatchVsPhiRec;
+  std::vector <MonitorElement*> hPhiVsEtaRec;
+  std::vector <MonitorElement*> hPassPtRec;
+  std::vector <MonitorElement*> hPassPtRecExactlyOne;
+  std::vector <MonitorElement*> hResoPtAodRec;
+  std::vector <MonitorElement*> hResoEtaAodRec;
+  std::vector <MonitorElement*> hResoPhiAodRec;
+  std::vector <MonitorElement*> hPassD0Rec;
+  std::vector <MonitorElement*> hPassZ0Rec;
+  std::vector <MonitorElement*> hPassCharge;
+  std::vector <MonitorElement*> hPassD0BeamRec;
+  std::vector <MonitorElement*> hPassZ0BeamRec;
+  std::vector <MonitorElement*> hBeamSpotZ0Rec;
 
+  std::vector <MonitorElement*> hDeltaRMatched;
+  std::vector <MonitorElement*> hIsolationRec;
+  std::vector <MonitorElement*> hChargeFlipMatched;
+
+  std::vector <MonitorElement*> allHltCandPt;
+  std::vector <MonitorElement*> allHltCandEta;
+  std::vector <MonitorElement*> allHltCandPhi;
+  // can't do d0, z0 becuase only have 4 vectors
+  //std::vector <MonitorElement*> allHltCandD0Rec;
+  //std::vector <MonitorElement*> allHltCandZ0Rec;
+    
+  std::vector <MonitorElement*> fakeHltCandPt;
+  std::vector <MonitorElement*> fakeHltCandEta;
+  std::vector <MonitorElement*> fakeHltCandPhi;
+  //std::vector <MonitorElement*> fakeHltCandD0Rec;
+  //std::vector <MonitorElement*> fakeHltCandZ0Rec;
+
+  std::vector <MonitorElement*> fakeHltCandEtaPhi;
+  //std::vector <MonitorElement*> fakeHltCandDeltaR;
+
+  // RAW histograms
+  // L1, L2, L3
+  std::vector <MonitorElement*> rawMatchHltCandPt;
+  std::vector <MonitorElement*> rawMatchHltCandEta;
+  std::vector <MonitorElement*> rawMatchHltCandPhi;
+
+  // 
+  //std::string highPtTrackCollection;
+  
+  
   MonitorElement *hNumObjects;
   MonitorElement *hNumOrphansGen;
   MonitorElement *hNumOrphansRec;
