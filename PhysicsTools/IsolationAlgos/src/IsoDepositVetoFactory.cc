@@ -6,6 +6,7 @@
 
 // ---------- FIRST DEFINE NEW VETOS ------------
 namespace reco { namespace isodeposit {
+
     class SwitchingEcalVeto : public AbsVeto {
         public:
             // creates SwitchingEcalVeto from another AbsVeto (which becomes owned by this veto) 
@@ -21,6 +22,50 @@ namespace reco { namespace isodeposit {
             std::auto_ptr<AbsVeto> veto_;
             bool barrel_;   
     };
+
+    class NumCrystalVeto : public AbsVeto {
+        public:
+            NumCrystalVeto(Direction dir, double iR) : vetoDir_(dir), iR_(iR) {}
+            virtual bool veto(double eta, double phi, float value) const {
+                if( fabs(vetoDir_.eta()) < 1.479) {
+                    return ( vetoDir_.deltaR(Direction(eta,phi)) < 0.0174*iR_ );
+                } else {
+                    return ( vetoDir_.deltaR(Direction(eta,phi)) < 0.00864*sinh(eta)*iR_ );
+                }
+            }
+            virtual void centerOn(double eta, double phi) { vetoDir_ = Direction(eta,phi); }
+        private:
+            Direction vetoDir_; float iR_;
+    };
+
+    class NumCrystalEtaPhiVeto : public AbsVeto {
+        public:
+            NumCrystalEtaPhiVeto(math::XYZVectorD dir, double iEta, double iPhi) :
+                vetoDir_(dir.eta(),dir.phi()), 
+                iEta_(iEta), 
+                iPhi_(iPhi) {}
+            NumCrystalEtaPhiVeto(Direction dir, double iEta, double iPhi) : 
+                vetoDir_(dir.eta(),dir.phi()), 
+                iEta_(iEta), 
+                iPhi_(iPhi) {}
+            virtual bool veto(double eta, double phi, float value) const {
+                double dPhi = phi - vetoDir_.phi();
+                double dEta = eta - vetoDir_.eta();
+                while( dPhi < -M_PI )   dPhi += 2*M_PI;
+                while( dPhi >= M_PI )   dPhi -= 2*M_PI;
+                if( fabs(vetoDir_.eta()) < 1.479) {
+                    return ( (fabs(dEta) < 0.0174*iEta_) && (fabs(dPhi) < 0.0174*iPhi_) );
+                } else {
+                    return ( (fabs(dEta) < 0.00864*sinh(eta)*iEta_) && 
+                             (fabs(dPhi) < 0.00864*sinh(eta)*iPhi_) );
+                }
+            }
+            virtual void centerOn(double eta, double phi) { vetoDir_ = Direction(eta,phi); }
+        private:
+            Direction vetoDir_;
+            double iEta_, iPhi_;
+    };
+
 } }
 
 // ---------- THEN THE ACTUAL FACTORY CODE ------------
@@ -48,6 +93,8 @@ IsoDepositVetoFactory::make(const char *string, reco::isodeposit::EventDependent
         angleCone("AngleCone\\((\\d+\\.\\d+)\\)"),
         angleVeto("AngleVeto\\((\\d+\\.\\d+)\\)"),
         rectangularEtaPhiVeto("RectangularEtaPhiVeto\\(([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+)\\)"),
+        numCrystal("NumCrystalVeto\\((\\d+\\.\\d+)\\)"),
+        numCrystalEtaPhi("NumCrystalEtaPhiVeto\\((\\d+\\.\\d+),(\\d+\\.\\d+)\\)"),
         otherCandidates("OtherCandidatesByDR\\((\\w+:?\\w*:?\\w*),\\s*(\\d+\\.?|\\d*\\.\\d*)\\)"),
         number("^(\\d+\\.?|\\d*\\.\\d*)$");
     boost::cmatch match;
@@ -72,9 +119,13 @@ IsoDepositVetoFactory::make(const char *string, reco::isodeposit::EventDependent
     } else if (regex_match(string, match, angleVeto)) {
         return new AngleConeVeto(Direction(), atof(match[1].first));
     } else if (regex_match(string, match, rectangularEtaPhiVeto)) {
-        return new RectangularEtaPhiVeto(reco::isodeposit::Direction(), 
+        return new RectangularEtaPhiVeto(Direction(), 
                     atof(match[1].first), atof(match[2].first), 
                     atof(match[3].first), atof(match[4].first));
+    } else if (regex_match(string, match, numCrystal)) {
+        return new NumCrystalVeto(Direction(), atof(match[1].first));
+    } else if (regex_match(string, match, numCrystalEtaPhi)) {
+        return new NumCrystalEtaPhiVeto(Direction(),atof(match[1].first),atof(match[2].first));
     } else if (regex_match(string, match, otherCandidates)) {
         OtherCandidatesDeltaRVeto *ret = new OtherCandidatesDeltaRVeto(edm::InputTag(match[1]), 
                                                                         atof(match[2].first));
