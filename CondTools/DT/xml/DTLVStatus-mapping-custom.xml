@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="DTLVStatusRcd" >
+   <Class table="DTCCBSTATUS" id_columns="IOV_VALUE_ID" name="DTLVStatus" mapping_version="DTLVStatus-1.0" >
+     <Primitive column="DATA_VERSION" name="dataVersion" />
+     <Container table="DT_CCBSTATUSLIST" id_columns="IOV_VALUE_ID" name="dataList" position_column="DATA_ID" >
+       <Object name="value_type" >
+         <Object name="first" >
+           <Primitive column="WHEEL"     name="wheelId" />
+           <Primitive column="STATION"   name="stationId" />
+           <Primitive column="SECTOR"    name="sectorId" />
+         </Object >
+         <Object name="second" >
+           <Primitive column="CCBSTATUS" name="flag" />
+         </Object >
+       </Object >
+     </Container >
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

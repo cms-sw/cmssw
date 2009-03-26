@@ -98,3 +98,23 @@
 <use name=boost_regex>
 <flags EDM_PLUGIN=1>
 </library>
+
+<library file="DTHVStatusPyWrapper.cc" name=DTHVStatusPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/DTObjects>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="DTLVStatusPyWrapper.cc" name=DTLVStatusPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/DTObjects>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>

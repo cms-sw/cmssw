@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="DTLVStatusRcd" >
+   <Class name="DTLVStatus" mapping_version="DTLVStatus-1.0" >
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

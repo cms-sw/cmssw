@@ -7,6 +7,8 @@
  * DTStatusFlag
  * DTDeadFlag
  * DTPerformance
+ * DTLVStatus
+ * DTHVStatus
  * DTCCBConfig
  * DTTPGParameters
  */
@@ -21,6 +23,8 @@
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 #include "CondFormats/DTObjects/interface/DTDeadFlag.h"
 #include "CondFormats/DTObjects/interface/DTPerformance.h"
+#include "CondFormats/DTObjects/interface/DTLVStatus.h"
+#include "CondFormats/DTObjects/interface/DTHVStatus.h"
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include "CondFormats/DTObjects/interface/DTConfigList.h"
 #include "CondFormats/DTObjects/interface/DTConfigData.h"
@@ -36,6 +40,8 @@ namespace {
     std::pair<   DTStatusFlagId,   DTStatusFlagData>  statusFlagPair;
     std::pair<     DTDeadFlagId,     DTDeadFlagData>    deadFlagPair;
     std::pair<  DTPerformanceId,  DTPerformanceData> performancePair;
+    std::pair<     DTLVStatusId,     DTLVStatusData>    lvStatusPair;
+    std::pair<     DTHVStatusId,     DTHVStatusData>    hvStatusPair;
     std::pair<          DTCCBId,                int>         ccbPair;
     std::pair<DTTPGParametersId,DTTPGParametersData>         tpgPair;
 
@@ -56,6 +62,10 @@ namespace {
                               DTDeadFlagData> >    deadFlagMap;
     std::vector< std::pair<  DTPerformanceId,
                            DTPerformanceData> > performanceMap;
+    std::vector< std::pair<     DTLVStatusId,
+                              DTLVStatusData> >    lvStatusMap;
+    std::vector< std::pair<     DTHVStatusId,
+                              DTHVStatusData> >    hvStatusMap;
     std::vector< std::pair<          DTCCBId,
                                          int> >         ccbMap;
     std::vector< std::pair<DTTPGParametersId,
@@ -75,26 +85,30 @@ namespace {
 // wrapper declarations
 namespace {
    struct wrappers {
-      pool::PolyPtr<DTReadOutMapping > p0;
-      cond::DataWrapper<DTReadOutMapping > dw0;
-      pool::PolyPtr<DTT0 > p1;
-      cond::DataWrapper<DTT0 > dw1;
-      pool::PolyPtr<DTRangeT0 > p2;
-      cond::DataWrapper<DTRangeT0 > dw2;
-      pool::PolyPtr<DTTtrig > p3;
-      cond::DataWrapper<DTTtrig > dw3;
-      pool::PolyPtr<DTMtime > p4;
-      cond::DataWrapper<DTMtime > dw4;
-      pool::PolyPtr<DTStatusFlag > p5;
-      cond::DataWrapper<DTStatusFlag > dw5;
-      pool::PolyPtr<DTDeadFlag > p6;
-      cond::DataWrapper<DTDeadFlag > dw6;
-      pool::PolyPtr<DTPerformance > p7;
-      cond::DataWrapper<DTPerformance > dw7;
-      pool::PolyPtr<DTCCBConfig > p8;
-      cond::DataWrapper<DTCCBConfig > dw8;
-      pool::PolyPtr<DTTPGParameters > p9;
-      cond::DataWrapper<DTTPGParameters > dw9;
+      pool::Ptr<DTReadOutMapping >          pMap;
+      cond::DataWrapper<DTReadOutMapping > dwMap;
+      pool::Ptr<DTT0 >                     pT0;
+      cond::DataWrapper<DTT0 >            dwT0;
+      pool::Ptr<DTRangeT0 >                pRangeT0;
+      cond::DataWrapper<DTRangeT0 >       dwRangeT0;
+      pool::Ptr<DTTtrig >                  pTtrig;
+      cond::DataWrapper<DTTtrig >         dwTtrig;
+      pool::Ptr<DTMtime >                  pMTime;
+      cond::DataWrapper<DTMtime >         dwMTime;
+      pool::Ptr<DTStatusFlag >             pStatusFlag;
+      cond::DataWrapper<DTStatusFlag >    dwStatusFlag;
+      pool::Ptr<DTDeadFlag >               pDeadFlag;
+      cond::DataWrapper<DTDeadFlag >      dwDeadFlag;
+      pool::Ptr<DTPerformance >            pPerformance;
+      cond::DataWrapper<DTPerformance >   dwPerformance;
+      pool::Ptr<DTCCBConfig >              pCCBConfig;
+      cond::DataWrapper<DTCCBConfig >     dwCCBConfig;
+      pool::Ptr<DTLVStatus >               pLVStatus;
+      cond::DataWrapper<DTLVStatus >      dwLVStatus;
+      pool::Ptr<DTHVStatus >               pHVStatus;
+      cond::DataWrapper<DTHVStatus >      dwHVStatus;
+      pool::Ptr<DTTPGParameters >          pTPGParameter;
+      cond::DataWrapper<DTTPGParameters > dwTPGParameter;
 
    };
 }

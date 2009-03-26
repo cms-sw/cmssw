@@ -44,6 +44,16 @@
   <class name="DTConfigList" id="9CB14BE8-30A2-DB11-9935-000E0C5CE283"/>
   <class name="DTConfigData" id="3858CAFE-30A2-DB11-9E86-000E0C5CE283"/>
   <class name="DTConfigToken" id="4AA88D8D-31A2-DB11-A311-000E0C5CE283"/>
+  <class name="DTLVStatus" id="926ACBCB-E3B7-DD11-B87E-000E0C5CE282"/>
+  <class name="std::pair<DTLVStatusId,DTLVStatusData>"/>
+  <class name="std::vector<std::pair<DTLVStatusId,DTLVStatusData> >"/>
+  <class name="DTLVStatusId" id="247E954C-E4B7-DD11-8EAE-000E0C5CE282"/>
+  <class name="DTLVStatusData" id="BA71D84D-E4B7-DD11-81D2-000E0C5CE282"/>
+  <class name="DTHVStatus" id="A4DD98F1-E8B7-DD11-8802-000E0C5CE282"/>
+  <class name="std::pair<DTHVStatusId,DTHVStatusData>"/>
+  <class name="std::vector<std::pair<DTHVStatusId,DTHVStatusData> >"/>
+  <class name="DTHVStatusId" id="923F57F2-E8B7-DD11-BBCC-000E0C5CE282"/>
+  <class name="DTHVStatusData" id="FA40B6F2-E8B7-DD11-B586-000E0C5CE282"/>
   <class name="DTTPGParameters" id="80556B7A-C7C5-DD11-8FEE-000E0C5CE282"/>
   <class name="std::pair<DTTPGParametersId,DTTPGParametersData>"/>
   <class name="std::vector<std::pair<DTTPGParametersId,DTTPGParametersData> >"/>
