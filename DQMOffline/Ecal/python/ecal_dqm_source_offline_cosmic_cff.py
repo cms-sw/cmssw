@@ -7,7 +7,9 @@ from DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBHltTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EcalEndcapMonitorTasks_cfi import *
 from DQM.EcalEndcapMonitorTasks.EEHltTask_cfi import *
-from DQMOffline.Ecal.ecalOfflineCosmicTask_cfi import *
+
+from DQMOffline.Ecal.EBClusterTaskExtras_cfi import *
+from DQMOffline.Ecal.EEClusterTaskExtras_cfi import *
 
 dqmInfoEB = cms.EDFilter("DQMEventInfo",
     subSystemFolder = cms.untracked.string('EcalBarrel')
@@ -18,10 +20,10 @@ dqmInfoEE = cms.EDFilter("DQMEventInfo",
 )
 
 ## standard
-eb_dqm_source_offline = cms.Sequence(ecalBarrelMonitorModule*dqmInfoEB*ecalBarrelOccupancyTask*ecalBarrelIntegrityTask*ecalBarrelStatusFlagsTask*ecalBarrelPedestalOnlineTask*ecalBarrelTriggerTowerTask*ecalBarrelClusterTask*ecalBarrelHltTask)
+eb_dqm_source_offline = cms.Sequence(ecalBarrelMonitorModule*dqmInfoEB*ecalBarrelOccupancyTask*ecalBarrelIntegrityTask*ecalBarrelStatusFlagsTask*ecalBarrelPedestalOnlineTask*ecalBarrelCosmicTask*ecalBarrelTriggerTowerTask*ecalBarrelClusterTask*ecalBarrelHltTask*ecalBarrelClusterTaskExtras)
 
 ## standard with Selective Readout Task and Raw Data Task
-eb_dqm_source_offline1 = cms.Sequence(ecalBarrelMonitorModule*dqmInfoEB*ecalBarrelOccupancyTask*ecalBarrelIntegrityTask*ecalBarrelStatusFlagsTask*ecalBarrelSelectiveReadoutTask*ecalBarrelRawDataTask*ecalBarrelPedestalOnlineTask*ecalBarrelTriggerTowerTask*ecalBarrelClusterTask*ecalBarrelHltTask*ecalOfflineCosmicTask)
+eb_dqm_source_offline1 = cms.Sequence(ecalBarrelMonitorModule*dqmInfoEB*ecalBarrelOccupancyTask*ecalBarrelIntegrityTask*ecalBarrelStatusFlagsTask*ecalBarrelSelectiveReadoutTask*ecalBarrelRawDataTask*ecalBarrelPedestalOnlineTask*ecalBarrelCosmicTask*ecalBarrelTriggerTowerTask*ecalBarrelClusterTask*ecalBarrelHltTask*ecalBarrelClusterTaskExtras)
 
 ## standard
 #ee_dqm_source_offline = cms.Sequence(ecalEndcapMonitorModule*dqmInfoEE*ecalEndcapOccupancyTask*ecalEndcapIntegrityTask*ecalEndcapStatusFlagsTask*ecalEndcapPedestalOnlineTask*ecalEndcapTriggerTowerTask*ecalEndcapCosmicTask*ecalEndcapClusterTask*ecalEndcapHltTask)
@@ -30,12 +32,12 @@ eb_dqm_source_offline1 = cms.Sequence(ecalBarrelMonitorModule*dqmInfoEB*ecalBarr
 #ee_dqm_source_offline1 = cms.Sequence(ecalEndcapMonitorModule*dqmInfoEE*ecalEndcapOccupancyTask*ecalEndcapIntegrityTask*ecalEndcapStatusFlagsTask*ecalEndcapSelectiveReadoutTask*ecalEndcapRawDataTask*ecalEndcapPedestalOnlineTask*ecalEndcapTriggerTowerTask*ecalEndcapCosmicTask*ecalEndcapClusterTask*ecalEndcapHltTask)
 
 ## standard, but remove Trigger Tower Task
-ee_dqm_source_offline = cms.Sequence(ecalEndcapMonitorModule*dqmInfoEE*ecalEndcapOccupancyTask*ecalEndcapIntegrityTask*ecalEndcapStatusFlagsTask*ecalEndcapPedestalOnlineTask*ecalEndcapCosmicTask*ecalEndcapClusterTask*ecalEndcapHltTask)
+ee_dqm_source_offline = cms.Sequence(ecalEndcapMonitorModule*dqmInfoEE*ecalEndcapOccupancyTask*ecalEndcapIntegrityTask*ecalEndcapStatusFlagsTask*ecalEndcapPedestalOnlineTask*ecalEndcapCosmicTask*ecalEndcapClusterTask*ecalEndcapHltTask*ecalEndcapClusterTaskExtras)
 
 ## standard with Selective Readout Task and Raw Data Task, but remove Trigger Tower Task
-ee_dqm_source_offline1 = cms.Sequence(ecalEndcapMonitorModule*dqmInfoEE*ecalEndcapOccupancyTask*ecalEndcapIntegrityTask*ecalEndcapStatusFlagsTask*ecalEndcapSelectiveReadoutTask*ecalEndcapRawDataTask*ecalEndcapPedestalOnlineTask*ecalEndcapCosmicTask*ecalEndcapClusterTask*ecalEndcapHltTask)
+ee_dqm_source_offline1 = cms.Sequence(ecalEndcapMonitorModule*dqmInfoEE*ecalEndcapOccupancyTask*ecalEndcapIntegrityTask*ecalEndcapStatusFlagsTask*ecalEndcapSelectiveReadoutTask*ecalEndcapRawDataTask*ecalEndcapPedestalOnlineTask*ecalEndcapCosmicTask*ecalEndcapClusterTask*ecalEndcapHltTask*ecalEndcapClusterTaskExtras)
 
-ecal_dqm_source_offline = cms.Sequence(eb_dqm_source_offline*ee_dqm_source_offline*ecalOfflineCosmicTask)
+ecal_dqm_source_offline = cms.Sequence(eb_dqm_source_offline*ee_dqm_source_offline)
 
 ecalBarrelMonitorModule.EcalRawDataCollection = 'ecalDigis:'
 ecalBarrelMonitorModule.EBDigiCollection = 'ecalDigis:ebDigis'
@@ -127,11 +129,17 @@ ecalEndcapTriggerTowerTask.EcalTrigPrimDigiCollectionEmul = 'ecalDigis:EcalTrigg
 
 ecalBarrelClusterTask.EcalRawDataCollection = 'ecalDigis:'
 ecalBarrelClusterTask.BasicClusterCollection = 'cosmicBasicClusters:CosmicBarrelBasicClusters'
-ecalBarrelClusterTask.SuperClusterCollection = 'hybridSuperClusters:'
+ecalBarrelClusterTask.SuperClusterCollection = 'cosmicSuperClusters:CosmicBarrelSuperClusters'
 
 ecalEndcapClusterTask.EcalRawDataCollection = 'ecalDigis:'
 ecalEndcapClusterTask.BasicClusterCollection = 'cosmicBasicClusters:CosmicEndcapBasicClusters'
-ecalEndcapClusterTask.SuperClusterCollection = 'hybridSuperClusters:'
+ecalEndcapClusterTask.SuperClusterCollection = 'cosmicSuperClusters:CosmicEndcapSuperClusters'
+
+ecalBarrelClusterTaskExtras.BasicClusterCollection = 'cosmicBasicClusters:CosmicBarrelBasicClusters'
+ecalBarrelClusterTaskExtras.SuperClusterCollection = 'cosmicSuperClusters:CosmicBarrelSuperClusters'
+
+ecalEndcapClusterTaskExtras.BasicClusterCollection = 'cosmicBasicClusters:CosmicEndcapBasicClusters'
+ecalEndcapClusterTaskExtras.SuperClusterCollection = 'cosmicSuperClusters:CosmicEndcapSuperClusters'
 
 ecalBarrelHltTask.EBDetIdCollection0 = 'ecalDigis:EcalIntegrityDCCSizeErrors'
 ecalBarrelHltTask.EBDetIdCollection1 = 'ecalDigis:EcalIntegrityGainErrors'
