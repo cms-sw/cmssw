@@ -9,26 +9,35 @@ import FWCore.ParameterSet.Config as cms
 # track selection
 import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
 
-secStepVtx = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
-secStepVtx.src = 'iterativeSecondTrackMerging'
-secStepVtx.copyTrajectories = True
-secStepVtx.chi2n_par = 0.9
-secStepVtx.res_par = ( 0.003, 0.001 )
-secStepVtx.d0_par1 = ( 0.85, 3.0 )
-secStepVtx.dz_par1 = ( 0.8, 3.0 )
-secStepVtx.d0_par2 = ( 0.9, 3.0 )
-secStepVtx.dz_par2 = ( 0.9, 3.0 )
+secStepVtx = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
+src = 'iterativeSecondTrackMerging',
+copyTrajectories = True,
+copyExtras = True,
+chi2n_par = 0.9,
+res_par = ( 0.003, 0.001 ),
+minNumberLayers = 3,
+minNumber3DLayers = 3,
+maxNumberLostLayers = 1,
+d0_par1 = ( 0.85, 3.0 ),
+dz_par1 = ( 0.8, 3.0 ),
+d0_par2 = ( 0.9, 3.0 ),
+dz_par2 = ( 0.9, 3.0 )
+)
 
-secStepTrk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
-secStepTrk.src = 'iterativeSecondTrackMerging'
-secStepTrk.copyTrajectories = True
-secStepTrk.chi2n_par = 0.5
-secStepTrk.res_par = ( 0.003, 0.001 )
-secStepTrk.minNumberLayers = 5
-secStepTrk.d0_par1 = ( 0.9, 4.0 )
-secStepTrk.dz_par1 = ( 0.9, 4.0 )
-secStepTrk.d0_par2 = ( 0.9, 4.0 )
-secStepTrk.dz_par2 = ( 0.9, 4.0 )
+secStepTrk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
+src = 'iterativeSecondTrackMerging',
+copyTrajectories = True,
+copyExtras = True,
+chi2n_par = 0.5,
+res_par = ( 0.003, 0.001 ),
+minNumberLayers = 5,
+minNumber3DLayers = 3,
+maxNumberLostLayers = 1,
+d0_par1 = ( 0.9, 4.0 ),
+dz_par1 = ( 0.9, 4.0 ),
+d0_par2 = ( 0.9, 4.0 ),
+dz_par2 = ( 0.9, 4.0 )
+)
 
 ##import RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi
 ##secStep = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()

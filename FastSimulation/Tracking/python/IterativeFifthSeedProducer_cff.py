@@ -17,8 +17,8 @@ iterativeFifthSeeds.maxZ0 = [99.]
 #-----
 iterativeFifthSeeds.numberOfHits = [2]
 #values for the seed compatibility constraint
-iterativeFifthSeeds.originRadius = [20.0]
-iterativeFifthSeeds.originHalfLength = [30.0]
+iterativeFifthSeeds.originRadius = [5.0]
+iterativeFifthSeeds.originHalfLength = [10.0]
 iterativeFifthSeeds.originpTMin = [0.9]
 iterativeFifthSeeds.zVertexConstraint = [-1.0]
 iterativeFifthSeeds.primaryVertices = ['none']
