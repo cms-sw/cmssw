@@ -5,8 +5,8 @@
 /// when producing Misalignment scenarios.
 ///
 /// \file
-/// $Date: 2008/06/17 18:28:56 $
-/// $Revision: 1.7 $
+/// $Date: 2009/03/02 10:22:16 $
+/// $Revision: 1.10 $
 /// \author Andre Sznajder - UERJ(Brazil)
 ///
  
@@ -80,8 +80,7 @@ private:
 //__________________________________________________________________________________________________
 MisalignedMuonESProducer::MisalignedMuonESProducer(const edm::ParameterSet& p) :
   theSaveToDB(p.getUntrackedParameter<bool>("saveToDbase")),
-  //  theScenario(p.getParameter<edm::ParameterSet>("scenario")), // does not yet work...
-  theScenario(p),
+  theScenario(p.getParameter<edm::ParameterSet>("scenario")),
   theDTAlignRecordName( "DTAlignmentRcd" ),
   theDTErrorRecordName( "DTAlignmentErrorRcd" ),
   theCSCAlignRecordName( "CSCAlignmentRcd" ),
