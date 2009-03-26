@@ -1,6 +1,7 @@
 #ifndef CondFormats_CastorObjects_AllClasses_h
 #define CondFormats_CastorObjects_AllClasses_h
-
+#include "CondFormats/CastorObjects/interface/AllObjects.h"
+/*
 class CastorPedestals;
 class CastorPedestalWidths;
 class CastorGains;
@@ -11,5 +12,5 @@ class CastorQIEData;
 class CastorCalibrationQIEData;
 class CastorChannelQuality;
 class CastorElectronicsMap;
-class CastorElectronicsMap;
+*/
 #endif

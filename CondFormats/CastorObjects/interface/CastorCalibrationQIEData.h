@@ -3,7 +3,10 @@
 
 /** 
 \class CastorCalibrationQIEData
-\author Panos Katsas (UoA)
+\author Fedor Ratnikov (UMd), with changes by Radek Ofierzynski 
+   (preserve backwards compatibility of methods for this release)
+   Adapted for CASTOR by L. Mundim
+
 POOL object to store calibration mode QIE parameters
 $Id
 */
@@ -11,32 +14,25 @@ $Id
 #include <vector>
 #include <algorithm>
 
+#include "CondFormats/CastorObjects/interface/CastorCondObjectContainer.h"
+
 #include "CondFormats/CastorObjects/interface/CastorCalibrationQIECoder.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 
-// 
-class CastorCalibrationQIEData {
+class CastorCalibrationQIEData: public CastorCondObjectContainer<CastorCalibrationQIECoder>
+{
  public:
    
-  CastorCalibrationQIEData();
-  ~CastorCalibrationQIEData();
-
-   /// get QIE parameters
-   const CastorCalibrationQIECoder* getCoder (DetId fId) const;
-   // get list of all available channels
-   std::vector<DetId> getAllChannels () const;
-   // check if data are sorted
-   bool sorted () const {return mSorted;}
-   // fill values [capid][range]
-   bool addCoder (DetId fId, const CastorCalibrationQIECoder& fCoder);
+  /// get QIE parameters
+  const CastorCalibrationQIECoder* getCoder (DetId fId) const { return getValues(fId); }
+  // check if data are sorted
+  bool sorted () const {return true;}
+  // fill values [capid][range]
+  bool addCoder (const CastorCalibrationQIECoder& fCoder) { return addValues(fCoder); }
    // sort values by channelId  
-   void sort ();
-  typedef CastorCalibrationQIECoder Item;
-  typedef std::vector <Item> Container;
- private:
-   Container mItems;
-   bool mSorted;
+  void sort () {}
+
 };
 
 #endif

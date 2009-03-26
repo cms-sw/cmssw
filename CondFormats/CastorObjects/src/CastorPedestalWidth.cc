@@ -1,7 +1,11 @@
 /** 
 \class CastorPedestalWidth
-\author Panos Katsas (UoA)
+\author Fedor Ratnikov (UMd)
 correlation matrix for pedestals
+$Author: ratnikov
+$Date: 2009/03/24 16:05:35 $
+$Revision: 1.9 $
+Adapted for CASTOR by L. Mundim
 */
 
 #include <math.h>
@@ -11,16 +15,17 @@ correlation matrix for pedestals
 
 namespace {
   int offset (int fCapId1, int fCapId2) {
-    static int offsets [4] = {0, 1, 3, 6};
-    if (fCapId1 < fCapId2) { // swap
-      int tmp = fCapId1; fCapId1 = fCapId2; fCapId2 = tmp;
-    }
-    return offsets [fCapId1] + fCapId2;
+    //    static int offsets [4] = {0, 1, 3, 6};
+    //    if (fCapId1 < fCapId2) { // swap
+    //      int tmp = fCapId1; fCapId1 = fCapId2; fCapId2 = tmp;
+    //    }
+    //    return offsets [fCapId1] + fCapId2;
+    return fCapId1*4 + fCapId2;
   }
 }
 
 CastorPedestalWidth::CastorPedestalWidth (int fId) : mId (fId) {
-  for (int i = 10; --i >= 0; *(&mSigma00 + i) = 0) {}
+  for (int i = 16; --i >= 0; *(&mSigma00 + i) = 0) {}
 }
 
 float CastorPedestalWidth::getWidth (int fCapId) const {

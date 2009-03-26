@@ -1,13 +1,14 @@
-
 #ifndef CastorElectronicsMap_h
 #define CastorElectronicsMap_h
 
 /** 
 \class CastorElectronicsMap
-\author Panos Katsas (UoA)
-
-    Description:  POOL object to store map between detector ID, electronics ID and trigger ID
-
+\author Fedor Ratnikov (UMd)
+POOL object to store map between detector ID, electronics ID and trigger ID
+$Author: ratnikov 
+$Date: 2007/12/14 13:31:21 $
+$Revision: 1.17 $
+Modified for CASTOR by L. Mundim
 */
 
 #include <vector>

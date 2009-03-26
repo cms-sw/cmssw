@@ -3,9 +3,12 @@
 
 /** 
 \class CastorQIECoder
-\author Panos Katsas (UoA)
+\author Fedor Ratnikov (UMd)
 POOL object to store QIE coder parameters for one channel
-$Author: katsas
+$Author: ratnikov
+$Date: 2008/03/05 10:38:03 $
+$Revision: 1.9 $
+Modified for CASTOR by L. Mundim
 */
 #include <boost/cstdint.hpp>
 
@@ -16,8 +19,14 @@ class CastorQIEShape;
 
 class CastorQIECoder {
  public:
-  CastorQIECoder (unsigned long fId = 0) : mId (fId) {}
-#ifndef __REFLEX__
+  CastorQIECoder (unsigned long fId = 0) : mId (fId), mOffset00(0),   mOffset01(0),  mOffset02(0),
+                 mOffset03(0),  mOffset10(0),  mOffset11(0),  mOffset12(0),  mOffset13(0),
+                 mOffset20(0),  mOffset21(0),  mOffset22(0),  mOffset23(0),  mOffset30(0),
+                 mOffset31(0),  mOffset32(0),  mOffset33(0),  mSlope00(0),  mSlope01(0),  
+                 mSlope02(0),  mSlope03(0),  mSlope10(0),  mSlope11(0),  mSlope12(0),  
+                 mSlope13(0),  mSlope20(0),  mSlope21(0),  mSlope22(0),  mSlope23(0), 
+                 mSlope30(0),  mSlope31(0),  mSlope32(0),  mSlope33(0) {};
+
   /// ADC [0..127] + capid [0..3] -> fC conversion
   float charge (const CastorQIEShape& fShape, unsigned fAdc, unsigned fCapId) const;
   /// fC + capid [0..3] -> ADC conversion
@@ -31,7 +40,6 @@ class CastorQIECoder {
   void setSlope (unsigned fCapId, unsigned fRange, float fValue);
 
   uint32_t rawId () const {return mId;}
-#endif
 
  private:
   uint32_t mId;

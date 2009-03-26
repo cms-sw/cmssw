@@ -1,16 +1,16 @@
 /** 
 \class CastorElectronicsMap
-\author Panos Katsas (UoA)
-
-POOL object to store mapping for Castor channels (based on HCAL electronics map)
-
+\author Fedor Ratnikov (UMd)
+POOL object to store mapping for Castor channels
+$Author: ratnikov
+$Date: 2008/01/22 18:58:47 $
+$Revision: 1.23 $
+Adapted for CASTOR by L. Mundim
 */
 
 #include <iostream>
 #include <set>
 
-#include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "CondFormats/CastorObjects/interface/CastorElectronicsMap.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -164,7 +164,7 @@ bool CastorElectronicsMap::mapEId2tId (CastorElectronicsId fElectronicsId, HcalT
     item.mTrigId = fTriggerId.rawId (); // just cast avoiding long machinery
   } 
   else if (item.mTrigId != fTriggerId.rawId ()) {
-    edm::LogWarning("CASTOR") << "CastorElectronicsMap::mapEId2tId-> Electroχφnics channel " <<  fElectronicsId  << " already mapped to trigger channel " 
+    edm::LogWarning("CASTOR") << "CastorElectronicsMap::mapEId2tId-> Electronics channel " <<  fElectronicsId  << " already mapped to trigger channel " 
 	      << (HcalTrigTowerDetId(item.mTrigId)) << ". New value " << fTriggerId << " is ignored" ;
     return false;
   }

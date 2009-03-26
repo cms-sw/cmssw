@@ -11,5 +11,4 @@
 #include "CondFormats/CastorObjects/interface/CastorCalibrationQIEData.h"
 #include "CondFormats/CastorObjects/interface/CastorChannelQuality.h"
 #include "CondFormats/CastorObjects/interface/CastorElectronicsMap.h"
-#include "CondFormats/CastorObjects/interface/CastorElectronicsMap.h"
 #endif

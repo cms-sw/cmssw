@@ -3,9 +3,12 @@
 
 /** 
 \class CastorPedestalWidth
-\author Panos Katsas (UoA)
+\author Fedor Ratnikov (UMd)
 POOL object to store PedestalWidth values 4xCapId
-$Author: katsas
+$Author: ratnikov
+$Date: 2009/03/24 16:05:29 $
+$Revision: 1.10 $
+Adapted for CASTOR by L. Mundim
 */
 #include <boost/cstdint.hpp>
 
@@ -32,11 +35,17 @@ class CastorPedestalWidth {
  private:
   uint32_t mId;
   float mSigma00;
+  float mSigma01;
+  float mSigma02;
+  float mSigma03;
   float mSigma10;
   float mSigma11;
+  float mSigma12;
+  float mSigma13;
   float mSigma20;
   float mSigma21;
   float mSigma22;
+  float mSigma23;
   float mSigma30;
   float mSigma31;
   float mSigma32;
