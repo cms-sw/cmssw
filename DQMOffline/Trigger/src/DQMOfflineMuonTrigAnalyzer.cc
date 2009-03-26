@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: MuonTriggerRateTimeAnalyzer.cc,v 1.11 2009/01/06 19:22:27 klukas Exp $
+// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.1 2009/02/27 13:12:09 slaunwhj Exp $
 //
 //
 
@@ -67,20 +67,40 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
                                 ("TriggerNames");
   string theHltProcessName = pset.getParameter<string>("HltProcessName");
 
+  //string defRecoLabel = pset.getUntrackedParameter<string>("RecoLabel","");
+  //string highPtTracksLabel =  pset.getParameter <string> ("highPtTrackCollection");
+
+  vector<string> recoCollectionNames = pset.getParameter < vector<string> > ("allCollectionNames");
+
+  
+  // make analyzers for each collection. Push the collections into a vector
+  //vector <string> recoCollectionNames;
+  //if (defRecoLabel != "") recoCollectionNames.push_back(defRecoLabel);
+  //if (highPtTracksLabel != "") recoCollectionNames.push_back(highPtTracksLabel);
+
+  
+  
   HLTConfigProvider hltConfig;
   hltConfig.init(theHltProcessName);
   vector<string> validTriggerNames = hltConfig.triggerNames();
 
-  for( size_t i = 0; i < triggerNames.size(); i++) {
-    bool isValidTriggerName = false;
-    for ( size_t j = 0; j < validTriggerNames.size(); j++ )
-      if ( triggerNames[i] == validTriggerNames[j] ) isValidTriggerName = true;
-    if ( !isValidTriggerName ) {}   
-    else {
-      vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
-      HLTMuonGenericRate *analyzer;
-      analyzer = new HLTMuonGenericRate( pset, triggerNames[i], moduleNames );
-      theTriggerAnalyzers.push_back( analyzer );
+  vector<string>::const_iterator iRecCollection;
+
+  for ( iRecCollection = recoCollectionNames.begin();
+        iRecCollection != recoCollectionNames.end();
+        iRecCollection++) {
+  
+    for( size_t i = 0; i < triggerNames.size(); i++) {
+      bool isValidTriggerName = false;
+      for ( size_t j = 0; j < validTriggerNames.size(); j++ )
+        if ( triggerNames[i] == validTriggerNames[j] ) isValidTriggerName = true;
+      if ( !isValidTriggerName ) {}   
+      else {
+        vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
+        HLTMuonGenericRate *analyzer;
+        analyzer = new HLTMuonGenericRate( pset, triggerNames[i], moduleNames, (*iRecCollection) );
+        theTriggerAnalyzers.push_back( analyzer );
+      }
     }
   }
   theOverlapAnalyzer = new HLTMuonOverlap( pset );    
