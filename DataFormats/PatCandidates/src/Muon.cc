@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.16 2008/11/28 19:02:15 lowette Exp $
+// $Id: Muon.cc,v 1.17 2009/03/26 15:19:30 tucker Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -125,9 +125,9 @@ reco::TrackRef Muon::tpfmsMuon() const {
 }
 
 /// reference to the source IsolatedPFCandidates
-reco::IsolatedPFCandidateRef Muon::pfCandidateRef() const {
+reco::PFCandidateRef Muon::pfCandidateRef() const {
   if (embeddedPFCandidate_) {
-    return reco::IsolatedPFCandidateRef(&pfCandidate_, 0);
+    return reco::PFCandidateRef(&pfCandidate_, 0);
   } else {
     return pfCandidateRef_;
   }
