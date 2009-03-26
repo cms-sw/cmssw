@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Schmitt
 //         Created:  Sat Jul 12 17:43:33 CEST 2008
-// $Id: CSCSkim.cc,v 1.5 2009/03/03 10:57:14 schmittm Exp $
+// $Id: CSCSkim.cc,v 1.6 2009/03/03 15:14:33 malgeri Exp $
 //
 //
 //======================================================================
@@ -52,6 +52,13 @@ using namespace edm;
 //===================
 CSCSkim::CSCSkim(const edm::ParameterSet& pset)
 {
+
+  // input tags
+  cscRecHitTag  = pset.getParameter<edm::InputTag>("cscRecHitTag");
+  cscSegmentTag = pset.getParameter<edm::InputTag>("cscSegmentTag");
+  SAMuonTag     = pset.getParameter<edm::InputTag>("SAMuonTag");
+  GLBMuonTag    = pset.getParameter<edm::InputTag>("GLBMuonTag");
+  trackTag      = pset.getParameter<edm::InputTag>("trackTag");
 
   // Get the various input parameters
   bool isSimulation = false;
@@ -183,6 +190,11 @@ CSCSkim::endJob() {
     << "\t\tevents good for BField  ..... \t" << nEventsForBFieldStudies << "\n"
     <<     "\t=========================================================================\n\n";
 
+  cout << "\n\n\n\t((( end job )))\n\n"
+       << "\tnEventsAnalyzed = " << nEventsAnalyzed << endl
+       << "\tnEventsSelected = " << nEventsSelected << "\n\n\n";
+
+
   if (makeHistograms || makeHistogramsForMessyEvents) {
     // Write the histos to file
     LogDebug("[CSCSkim]") << "======= write out my histograms ====\n" ;
@@ -238,27 +250,25 @@ CSCSkim::filter(edm::Event& event, const edm::EventSetup& eventSetup)
 
   // Get the RecHits collection :
   Handle<CSCRecHit2DCollection> cscRecHits;
-  event.getByLabel("csc2DRecHits",cscRecHits);
+  event.getByLabel(cscRecHitTag,cscRecHits);
 
   // get CSC segment collection
   Handle<CSCSegmentCollection> cscSegments;
-  event.getByLabel("cscSegments", cscSegments);
+  event.getByLabel(cscSegmentTag, cscSegments);
 
   // get the cosmic muons collection
   Handle<reco::TrackCollection> saMuons;
   if (typeOfSkim == 8) {
-    event.getByLabel("cosmicMuonsEndCapsOnly",saMuons);
+    event.getByLabel(SAMuonTag,saMuons);
   }
 
   // get the stand-alone muons collection
   Handle<reco::TrackCollection> tracks;
   Handle<reco::MuonCollection> gMuons;
   if (typeOfSkim == 9) {
-    event.getByLabel("cosmicMuonsEndCapsOnly",saMuons);
-    //    event.getByLabel("cosmictrackfinderP5",tracks);
-    //    event.getByLabel("globalCosmicMuons",gMuons);
-    event.getByLabel("ctfWithMaterialTracksP5",tracks);
-    event.getByLabel("GLBMuonsEndCapsOnly",gMuons);
+    event.getByLabel(SAMuonTag,saMuons);
+    event.getByLabel(trackTag,tracks);
+    event.getByLabel(GLBMuonTag,gMuons);
   }
 
 
@@ -1066,7 +1076,6 @@ bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,
 
   bool acceptThisEvent = false;
 
-
   //-----------------------------------
   // examine the stand-alone tracks
   //-----------------------------------
@@ -1219,40 +1228,42 @@ bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,
   // examine the global muons
   //-----------------------------------
   int nGoodGlobalMuons = 0;
-  for (reco::MuonCollection::const_iterator global = gMuons->begin(); global != gMuons->end(); ++ global ) {
-    float pDef  = global->p();
-    float redChiSq = global->globalTrack()->normalizedChi2();
+  for (reco::MuonCollection::const_iterator global = gMuons->begin(); global != gMuons->end(); ++global ) {
 
-    const reco::HitPattern& hp = (global->globalTrack())->hitPattern();
-    // int nTotalHits = hp.numberOfHits();
-    //    int nValidHits = hp.numberOfValidHits();
-    int nTrackerHits = hp.numberOfValidTrackerHits();
-    // int nPixelHits   = hp.numberOfValidPixelHits();
-    // int nStripHits   = hp.numberOfValidStripHits();
-    
-    int nDTHits = 0;
-    int nCSCHits = 0;
-    for (trackingRecHit_iterator hit = (global->globalTrack())->recHitsBegin(); hit != (global->globalTrack())->recHitsEnd(); ++hit ) {
-      const DetId detId( (*hit)->geographicalId() );
-      if (detId.det() == DetId::Muon) {
-	if (detId.subdetId() == MuonSubdetId::DT) {
-	  nDTHits++;
-	}
-	else if (detId.subdetId() == MuonSubdetId::CSC) {
-	  nCSCHits++;
-	}
-      }
-    } // end loop over hits
+    if (global->isGlobalMuon()) {
 
-    bool goodGlobalMuon = (pDef > pMin)
-      && ( nTrackerHits >= nValidHitsMin )
-      && ( nCSCHits >= nCSCHitsMin ) 
-      && ( redChiSq < redChiSqMax );
+      float pDef  = global->p();
+      float redChiSq = global->globalTrack()->normalizedChi2();
+      const reco::HitPattern& hp = (global->globalTrack())->hitPattern();
+      // int nTotalHits = hp.numberOfHits();
+      //    int nValidHits = hp.numberOfValidHits();
+      int nTrackerHits = hp.numberOfValidTrackerHits();
+      // int nPixelHits   = hp.numberOfValidPixelHits();
+      // int nStripHits   = hp.numberOfValidStripHits();
+      
+      int nDTHits = 0;
+      int nCSCHits = 0;
+      for (trackingRecHit_iterator hit = (global->globalTrack())->recHitsBegin(); hit != (global->globalTrack())->recHitsEnd(); ++hit ) {
+	const DetId detId( (*hit)->geographicalId() );
+	if (detId.det() == DetId::Muon) {
+	  if (detId.subdetId() == MuonSubdetId::DT) {
+	    nDTHits++;
+	  }
+	  else if (detId.subdetId() == MuonSubdetId::CSC) {
+	    nCSCHits++;
+	  }
+	}
+      } // end loop over hits
+      
+      bool goodGlobalMuon = (pDef > pMin)
+	&& ( nTrackerHits >= nValidHitsMin )
+	&& ( nCSCHits >= nCSCHitsMin ) 
+	&& ( redChiSq < redChiSqMax );
 
       if (goodGlobalMuon) {nGoodGlobalMuons++;}
-
+      
+    } // this is a global muon
   } // end loop over stand-alone muon collection
-  
 
   //-----------------------------------
   // do we accept this event?
