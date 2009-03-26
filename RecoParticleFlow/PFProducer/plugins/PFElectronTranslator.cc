@@ -409,7 +409,8 @@ void PFElectronTranslator::createSuperClusters(const reco::PFCandidateCollection
 	    mySuperCluster.addHitAndFraction(diIt->first,diIt->second);
 	  } // loop over rechits      
 	}      
-      mySuperCluster.setPreshowerEnergy(psenergy);
+      // Commented until the new DataFormat allows it
+      //      mySuperCluster.setPreshowerEnergy(psenergy);
       superClusters.push_back(mySuperCluster);
    }
 }
