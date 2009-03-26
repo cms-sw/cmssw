@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.23 2009/03/26 03:58:28 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.24 2009/03/26 09:51:53 wsun Exp $
 //
 //
 
@@ -563,10 +563,10 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
       Handle< L1GctHtMissCollection > hwHtMissColl ;
       iEvent.getByLabel( htMissSource_, hwHtMissColl ) ;
 
-//       ESHandle< L1GctJetFinderParams > jetFinderParams ;
-//       iSetup.get< L1GctJetFinderParamsRcd >().get( jetFinderParams ) ;
-//       double htSumLSB = jetFinderParams->getHtLsbGeV();
-      double htSumLSB = 1. ;
+      ESHandle< L1GctJetFinderParams > jetFinderParams ;
+      iSetup.get< L1GctJetFinderParamsRcd >().get( jetFinderParams ) ;
+      double htSumLSB = jetFinderParams->getHtLsbGeV();
+//      double htSumLSB = 1. ;
 
       auto_ptr< L1EtMissParticleCollection > htMissColl(
 	 new L1EtMissParticleCollection );
