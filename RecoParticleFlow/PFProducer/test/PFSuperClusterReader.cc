@@ -72,7 +72,11 @@ void PFSuperClusterReader::analyze(const edm::Event & iEvent,const edm::EventSet
 	}
       const reco::SuperCluster & mySuperCluster(*(mySCValueMap[theTrackRef]));
       float mva=myMVAValueMap[theTrackRef];
-      std::cout << " Super Cluster energy " << mySuperCluster.energy() << std::endl;
+      float eta=mySuperCluster.position().eta();
+      float et=mySuperCluster.energy()*sin(mySuperCluster.position().theta());
+      std::cout << " Super Cluster energy, eta, Et " << mySuperCluster.energy() << " " ;
+      std::cout <<  eta << " " << et << std::endl;
+	           
       if(mySuperCluster.seed().isNull())
 	{
 	  continue;
@@ -87,6 +91,8 @@ void PFSuperClusterReader::analyze(const edm::Event & iEvent,const edm::EventSet
 	{
 	  std::cout << " Basic cluster " << (*it)->energy() << std::endl ;
 	}
+      std::cout << " Summary " << mySuperCluster.energy() << " " << eta << " " << et ;
+      std::cout << " " <<mySuperCluster.preshowerEnergy() << std::endl;
       std::cout << std::endl;
     }
 }
