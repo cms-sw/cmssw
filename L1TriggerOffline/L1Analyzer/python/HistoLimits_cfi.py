@@ -1,13 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
 histoLimits = cms.PSet(
+    bitsNBins = cms.untracked.int32(128),
+    bitsMin = cms.untracked.double(-0.5),
+    bitsMax = cms.untracked.double(127.5),
     etProfMax = cms.untracked.double(100.0),
     etaResMin = cms.untracked.double(-1.0),
     etaResMax = cms.untracked.double(1.0),
     phiNBins = cms.untracked.int32(19),
     delRNBins = cms.untracked.int32(100),
     etaMin = cms.untracked.double(-5.0),
-    etResMin = cms.untracked.double(-1.0),
+    etResMin = cms.untracked.double(-5.0),
     etaProfMax = cms.untracked.double(5.0),
     etaMax = cms.untracked.double(5.0),
     phiMax = cms.untracked.double(3.3161256),
@@ -26,7 +29,7 @@ histoLimits = cms.PSet(
     etaResNBins = cms.untracked.int32(100),
     phiProfMin = cms.untracked.double(-3.1415927),
     # Bins and limits for the resolutions
-    etResNBins = cms.untracked.int32(150),
+    etResNBins = cms.untracked.int32(300),
     phiProfNBins = cms.untracked.int32(100),
     # Bins and limits for 2D correlations
     etCorNBins = cms.untracked.int32(100),

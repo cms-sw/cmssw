@@ -3,19 +3,19 @@ import FWCore.ParameterSet.Config as cms
 #Muons
 # Clone L1 muons
 CloneL1ExtraMuons = cms.EDProducer("L1MuonParticleShallowCloneProducer",
-    src = cms.InputTag("l1extraParticles")
+    src = cms.InputTag("hltL1extraParticles")
 )
 
 # Select L1 muons
 SelectL1Muons = cms.EDFilter("PtMinCandSelector",
     src = cms.InputTag("CloneL1ExtraMuons"),
-    ptMin = cms.double(10.0)
+    ptMin = cms.double(20.0)
 )
 
 # Iso EM
 # Clone L1 isolated EM
 CloneL1ExtraIsoEm = cms.EDProducer("L1EmParticleShallowCloneProducer",
-    src = cms.InputTag("l1extraParticles","Isolated")
+    src = cms.InputTag("hltL1extraParticles","Isolated")
 )
 
 # Select L1 isolated EM
@@ -27,7 +27,7 @@ SelectL1IsoEm = cms.EDFilter("PtMinCandSelector",
 # Non-iso EM
 # Clone L1 isolated EM
 CloneL1ExtraNonIsoEm = cms.EDProducer("L1EmParticleShallowCloneProducer",
-    src = cms.InputTag("l1extraParticles","NonIsolated")
+    src = cms.InputTag("hltL1extraParticles","NonIsolated")
 )
 
 # Select L1 isolated EM
@@ -45,37 +45,37 @@ CloneL1ExtraCenJets = cms.EDProducer("L1JetParticleShallowCloneProducer",
 # Select L1 central jets
 SelectL1CenJets = cms.EDFilter("PtMinCandSelector",
     src = cms.InputTag("CloneL1ExtraCenJets"),
-    ptMin = cms.double(20.0)
+    ptMin = cms.double(10.0)
 )
 
 # For Jets
 # Clone L1 forward jets
 CloneL1ExtraForJets = cms.EDProducer("L1JetParticleShallowCloneProducer",
-    src = cms.InputTag("l1extraParticles","Forward")
+    src = cms.InputTag("hltL1extraParticles","Forward")
 )
 
 # Select L1 forward jets
 SelectL1ForJets = cms.EDFilter("PtMinCandSelector",
     src = cms.InputTag("CloneL1ExtraForJets"),
-    ptMin = cms.double(20.0)
+    ptMin = cms.double(10.0)
 )
 
 # Tau Jets
 # Clone L1 tau jets
 CloneL1ExtraTauJets = cms.EDProducer("L1JetParticleShallowCloneProducer",
-    src = cms.InputTag("l1extraParticles","Tau")
+    src = cms.InputTag("hltL1extraParticles","Tau")
 )
 
 # Select L1 tau jets
 SelectL1TauJets = cms.EDFilter("PtMinCandSelector",
     src = cms.InputTag("CloneL1ExtraTauJets"),
-    ptMin = cms.double(20.0)
+    ptMin = cms.double(10.0)
 )
 
 # Missing Et
 # Clone L1 Met
 CloneL1ExtraMet = cms.EDProducer("L1EtMissParticleShallowCloneProducer",
-    src = cms.InputTag("l1extraParticles")
+    src = cms.InputTag("hltL1extraParticles")
 )
 
 # Select L1 Met

@@ -34,7 +34,8 @@ SelectRecoElec = cms.EDFilter("EtaPtMinCandSelector",
 
 # Clone Reco jets
 CloneRecoJets = cms.EDProducer("CaloJetShallowCloneProducer",
-    src = cms.InputTag("MCJetCorJetIcone5")
+##    src = cms.InputTag("MCJetCorJetIcone5")
+    src = cms.InputTag("iterativeCone5CaloJets")
 )
 
 # Select Reco Cen jets
@@ -42,7 +43,7 @@ SelectRecoCenJets = cms.EDFilter("EtaPtMinCandSelector",
     src = cms.InputTag("CloneRecoJets"),
     etaMin = cms.double(-3.0),
     etaMax = cms.double(3.0),
-    ptMin = cms.double(20.0)
+    ptMin = cms.double(5.0)
 )
 
 # Select Reco For jets
@@ -50,7 +51,7 @@ SelectRecoForJets = cms.EDFilter("EtaPtMinCandSelector",
     src = cms.InputTag("CloneRecoJets"),
     etaMin = cms.double(-5.0),
     etaMax = cms.double(-3.0),
-    ptMin = cms.double(20.0)
+    ptMin = cms.double(5.0)
 )
 
 # Make tau jet collection
@@ -69,7 +70,7 @@ SelectRecoTauJets = cms.EDFilter("EtaPtMinCandSelector",
     src = cms.InputTag("CloneRecoTauJets"),
     etaMin = cms.double(-3.0),
     etaMax = cms.double(3.0),
-    ptMin = cms.double(10.0)
+    ptMin = cms.double(5.0)
 )
 
 # Missing Et

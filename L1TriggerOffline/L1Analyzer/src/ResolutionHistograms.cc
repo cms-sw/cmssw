@@ -8,11 +8,11 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Tue Dec  5 14:02:34 CET 2006
-// $Id: ResolutionHistograms.cc,v 1.3 2007/11/13 19:54:46 wsun Exp $
+// $Id: ResolutionHistograms.cc,v 1.4 2008/07/21 20:37:26 llista Exp $
 //
 
 #include "L1TriggerOffline/L1Analyzer/interface/ResolutionHistograms.h"
-#include "PhysicsTools/Utilities/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 ResolutionHistograms::ResolutionHistograms(const std::string name, const edm::ParameterSet & cfg): 
   m_dirName(name),
