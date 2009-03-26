@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTriggerOffline.h,v 1.7 2009/02/26 21:59:00 berryhil Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.8 2009/02/26 22:30:51 berryhil Exp $
 //
 //
 
@@ -80,18 +80,25 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
       
       double electronEtaMax_;
       double electronEtMin_;
+      double electronDRMatch_;
       double muonEtaMax_;
       double muonEtMin_;
+      double muonDRMatch_;
       double tauEtaMax_;
       double tauEtMin_;
+      double tauDRMatch_;
       double jetEtaMax_;
       double jetEtMin_;
+      double jetDRMatch_;
       double bjetEtaMax_;
       double bjetEtMin_;
+      double bjetDRMatch_;
       double photonEtaMax_;
       double photonEtMin_;
+      double photonDRMatch_;
       double trackEtaMax_;
       double trackEtMin_;
+      double trackDRMatch_;
       double metMin_;
       double htMin_;
       double sumEtMin_;
