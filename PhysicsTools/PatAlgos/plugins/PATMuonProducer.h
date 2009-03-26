@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.15 2008/11/28 22:05:56 lowette Exp $
+// $Id: PATMuonProducer.h,v 1.16 2009/03/26 05:02:42 hegner Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::Muon.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.15 2008/11/28 22:05:56 lowette Exp $
+  \version  $Id: PATMuonProducer.h,v 1.16 2009/03/26 05:02:42 hegner Exp $
 */
 
 
@@ -23,7 +23,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
 
-#include "PhysicsTools/Utilities/interface/PtComparator.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
 

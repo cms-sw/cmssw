@@ -1,5 +1,5 @@
 //
-// $Id: PATMETProducer.h,v 1.5.4.1 2008/11/25 15:39:40 gpetrucc Exp $
+// $Id: PATMETProducer.h,v 1.6 2009/03/26 05:02:42 hegner Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMETProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of METType.
 
   \author   Steven Lowette
-  \version  $Id: PATMETProducer.h,v 1.5.4.1 2008/11/25 15:39:40 gpetrucc Exp $
+  \version  $Id: PATMETProducer.h,v 1.6 2009/03/26 05:02:42 hegner Exp $
 */
 
 
@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "PhysicsTools/Utilities/interface/EtComparator.h"
+#include "CommonTools/Utils/interface/EtComparator.h"
 
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"

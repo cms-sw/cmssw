@@ -6,7 +6,7 @@
    
 
   \author   Jordan Tucker (original module), Giovanni Petrucciani (PAT integration)
-  \version  $Id: PATGenCandsFromSimTracksProducer.cc,v 1.4 2009/03/26 05:02:42 hegner Exp $
+  \version  $Id: PATGenCandsFromSimTracksProducer.cc,v 1.5 2009/03/26 05:34:29 hegner Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -20,7 +20,7 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
-#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
 
 #include <ext/algorithm>

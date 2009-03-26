@@ -1,5 +1,5 @@
 //
-// $Id: PATUserDataHelper.h,v 1.3 2008/10/06 14:21:14 gpetrucc Exp $
+// $Id: PATUserDataHelper.h,v 1.4 2008/10/07 17:44:16 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATUserDataHelper_h
@@ -22,7 +22,7 @@
 	    This also can add "in situ" string-parser-based methods directly. 
 
   \author   Salvatore Rappoccio
-  \version  $Id: PATUserDataHelper.h,v 1.3 2008/10/06 14:21:14 gpetrucc Exp $
+  \version  $Id: PATUserDataHelper.h,v 1.4 2008/10/07 17:44:16 gpetrucc Exp $
 */
 
 
@@ -38,7 +38,7 @@
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataMerger.h"
-#include "PhysicsTools/Utilities/interface/StringObjectFunction.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
 
 
 #include <iostream>

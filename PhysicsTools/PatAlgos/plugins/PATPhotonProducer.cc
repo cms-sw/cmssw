@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.18 2008/11/28 22:05:56 lowette Exp $
+// $Id: PATPhotonProducer.cc,v 1.19 2009/03/26 05:02:42 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -7,7 +7,6 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonIDAssociation.h"
 
 #include <memory>
 

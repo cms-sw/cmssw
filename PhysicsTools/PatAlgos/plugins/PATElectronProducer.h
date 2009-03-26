@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.13 2008/11/28 22:05:56 lowette Exp $
+// $Id: PATElectronProducer.h,v 1.14 2009/03/26 05:02:42 hegner Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::GsfElectron.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.13 2008/11/28 22:05:56 lowette Exp $
+  \version  $Id: PATElectronProducer.h,v 1.14 2009/03/26 05:02:42 hegner Exp $
 */
 
 
@@ -25,7 +25,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Candidate/interface/CandAssociation.h"
 
-#include "PhysicsTools/Utilities/interface/PtComparator.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
 
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"

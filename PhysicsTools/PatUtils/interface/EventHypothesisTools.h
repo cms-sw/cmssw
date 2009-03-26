@@ -3,7 +3,7 @@
 
 #include "boost/ptr_container/ptr_vector.hpp"
 #include "DataFormats/PatCandidates/interface/EventHypothesis.h"
-#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 namespace pat { namespace eventhypothesis {
 

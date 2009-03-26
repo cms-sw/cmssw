@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATSingleVertexSelector_h
 #define PhysicsTools_PatAlgos_PATSingleVertexSelector_h
 //
-// $Id: PATSingleVertexSelector.h,v 1.9 2008/05/14 12:10:48 fronga Exp $
+// $Id: PATSingleVertexSelector.h,v 1.1 2008/07/22 12:47:02 gpetrucc Exp $
 //
 
 /**
@@ -10,14 +10,14 @@
 
 
   \author   Giovanni Petrucciani
-  \version  $Id: PATSingleVertexSelector.h,v 1.9 2008/05/14 12:10:48 fronga Exp $
+  \version  $Id: PATSingleVertexSelector.h,v 1.1 2008/07/22 12:47:02 gpetrucc Exp $
 */
 
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Candidate/interface/Candidate.h"

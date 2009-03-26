@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.h,v 1.13.2.1 2008/11/25 15:39:40 gpetrucc Exp $
+// $Id: PATTauProducer.h,v 1.14 2009/03/26 05:02:42 hegner Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauProducer.h,v 1.13.2.1 2008/11/25 15:39:40 gpetrucc Exp $
+  \version  $Id: PATTauProducer.h,v 1.14 2009/03/26 05:02:42 hegner Exp $
 */
 
 
@@ -24,7 +24,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "PhysicsTools/Utilities/interface/PtComparator.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
 
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"

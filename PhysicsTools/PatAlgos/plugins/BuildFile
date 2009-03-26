@@ -15,7 +15,6 @@
   <use name=AnalysisDataFormats/Egamma>
   <use name=PhysicsTools/PatUtils>
   <use name=PhysicsTools/JetCharge>
-  <use name=RecoBTag/MCTools>
   <use name=CondFormats/JetMETObjects>
   <use name=TrackingTools/TransientTrack>
   <use name=SimDataFormats/Track>

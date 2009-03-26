@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.h,v 1.14 2008/11/17 22:41:53 askew Exp $
+// $Id: PATPhotonProducer.h,v 1.15 2009/03/26 05:02:42 hegner Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of PhotonType.
 
   \author   Steven Lowette
-  \version  $Id: PATPhotonProducer.h,v 1.14 2008/11/17 22:41:53 askew Exp $
+  \version  $Id: PATPhotonProducer.h,v 1.15 2009/03/26 05:02:42 hegner Exp $
 */
 
 
@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "PhysicsTools/Utilities/interface/EtComparator.h"
+#include "CommonTools/Utils/interface/EtComparator.h"
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
 

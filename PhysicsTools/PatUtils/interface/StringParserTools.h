@@ -2,8 +2,8 @@
 #define PhysicsTools_PatUtils_interface_StringParserTools_h
 
 #include <boost/shared_ptr.hpp>
-#include "PhysicsTools/Utilities/interface/StringObjectFunction.h"
-#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"

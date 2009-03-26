@@ -1,5 +1,5 @@
 //
-// $Id: PATCompositeCandidateProducer.h,v 1.6 2008/09/01 14:35:48 gpetrucc Exp $
+// $Id: PATCompositeCandidateProducer.h,v 1.1 2008/12/02 03:36:03 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATCompositeCandidateProducer_h
@@ -13,7 +13,7 @@
    any collection of Candidates
 
   \author   Salvatore Rappoccio
-  \version  $Id: PATCompositeCandidateProducer.h,v 1.6 2008/09/01 14:35:48 srappocc Exp $
+  \version  $Id: PATCompositeCandidateProducer.h,v 1.1 2008/12/02 03:36:03 srappocc Exp $
 */
 
 
@@ -26,7 +26,7 @@
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-#include "PhysicsTools/Utilities/interface/EtComparator.h"
+#include "CommonTools/Utils/interface/EtComparator.h"
 
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 

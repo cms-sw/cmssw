@@ -11,7 +11,7 @@
 
 #include "DataFormats/Common/interface/View.h"
 
-#include "PhysicsTools/Utilities/interface/EtComparator.h"
+#include "CommonTools/Utils/interface/EtComparator.h"
 
 namespace pat { 
     

@@ -1,5 +1,5 @@
 //
-// $Id: PATCleaner.cc,v 1.1.2.1 2009/01/14 17:27:56 gpetrucc Exp $
+// $Id: PATCleaner.cc,v 1.2 2009/03/26 05:02:41 hegner Exp $
 //
 
 /**
@@ -9,7 +9,7 @@
             The same module is used for all collections.
 
   \author   Giovanni Petrucciani
-  \version  $Id: PATCleaner.cc,v 1.1.2.1 2009/01/14 17:27:56 gpetrucc Exp $
+  \version  $Id: PATCleaner.cc,v 1.2 2009/03/26 05:02:41 hegner Exp $
 */
 
 
@@ -18,8 +18,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "PhysicsTools/Utilities/interface/StringObjectFunction.h"
-#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"

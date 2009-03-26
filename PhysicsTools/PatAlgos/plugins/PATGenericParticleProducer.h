@@ -1,5 +1,5 @@
 //
-// $Id: PATGenericParticleProducer.h,v 1.5 2008/07/22 12:47:02 gpetrucc Exp $
+// $Id: PATGenericParticleProducer.h,v 1.6 2008/09/01 14:35:48 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATGenericParticleProducer_h
@@ -13,7 +13,7 @@
    any collection of Candidates
 
   \author   Giovanni Petrucciani
-  \version  $Id: PATGenericParticleProducer.h,v 1.5 2008/07/22 12:47:02 gpetrucc Exp $
+  \version  $Id: PATGenericParticleProducer.h,v 1.6 2008/09/01 14:35:48 gpetrucc Exp $
 */
 
 
@@ -26,7 +26,7 @@
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-#include "PhysicsTools/Utilities/interface/EtComparator.h"
+#include "CommonTools/Utils/interface/EtComparator.h"
 
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
 

@@ -1,5 +1,5 @@
 //
-// $Id: PATCompositeCandidateProducer.cc,v 1.8 2008/11/04 15:42:03 gpetrucc Exp $
+// $Id: PATCompositeCandidateProducer.cc,v 1.1 2008/12/02 03:36:03 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATCompositeCandidateProducer.h"
@@ -7,7 +7,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "PhysicsTools/Utilities/interface/StringObjectFunction.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <memory>
 
