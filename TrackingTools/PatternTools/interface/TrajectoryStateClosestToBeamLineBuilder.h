@@ -6,7 +6,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 
 /**
- * This class builds a TrajectoryStateClosestToBeamLine given an original 
+ * This is the abstract class to build a TrajectoryStateClosestToBeamLine given an original 
  * FreeTrajectoryState. This new state is then 
  * defined at the point of closest approach to the beam line.
  */
@@ -17,8 +17,8 @@ public:
 
   typedef FreeTrajectoryState		FTS;
 
-  TrajectoryStateClosestToBeamLine operator()
-    (const FTS& originalFTS, const reco::BeamSpot & beamSpot) const;
+  virtual TrajectoryStateClosestToBeamLine operator()
+    (const FTS& originalFTS, const reco::BeamSpot & beamSpot) const = 0;
 
 };
 #endif
