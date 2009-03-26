@@ -36,6 +36,7 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig)
   dropRefVectors_ = iConfig.getParameter<bool>("dropRefVectors");
   refillRefVectors_ = iConfig.getParameter<bool>("refillRefVectors");
 
+  RBXEnergyThreshold_ = iConfig.getParameter<double>("RBXEnergyThreshold");
   minHPDEnergy_    = iConfig.getParameter<double>("minHPDEnergy");
   minRBXEnergy_    = iConfig.getParameter<double>("minRBXEnergy");
   minRecHitEnergy_ = iConfig.getParameter<double>("minRecHitEnergy");
@@ -44,7 +45,6 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig)
   minRBXMaxZeros_  = iConfig.getParameter<int>("minRBXMaxZeros");
   minRBXTime_      = iConfig.getParameter<double>("minRBXTime");
   maxRBXTime_      = iConfig.getParameter<double>("maxRBXTime");
-  minHPDEnergyRatio_ = iConfig.getParameter<double>("minHPDEnergyRatio");
   minHPDRatio_     = iConfig.getParameter<double>("minHPDRatio");
   maxHPDRatio_     = iConfig.getParameter<double>("maxHPDRatio");
   maxProblemRBXs_  = iConfig.getParameter<int>("maxProblemRBXs");
@@ -130,29 +130,33 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	maxwritten=false;
       }
 
+      // skip RBXs unless they meet some basic threshold energy
+      if(rbxenergy<RBXEnergyThreshold_) continue;
+
       // select certain RBXs to be written
       if(rbxenergy>=minRBXEnergy_ ||
          hpdenergy>=minHPDEnergy_ ||
-	 (hpdenergy>=minHPDEnergyRatio_ && bigratio<minHPDRatio_) ||
-	 (hpdenergy>=minHPDEnergyRatio_ && bigratio>maxHPDRatio_) ||
+	 bigratio<minHPDRatio_ ||
+	 bigratio>maxHPDRatio_ ||
 	 rbx.maxHPD()->numRecHits(minRecHitEnergy_) >=minHPDNumRecHit_ ||
 	 rbx.totalZeros()>=minRBXNumZeros_ ||
 	 rbx.maxZeros()>=minRBXMaxZeros_ ||
-	 rbx.maxRecHitTime()<minRBXTime_ ||
-	 rbx.minRecHitTime()>maxRBXTime_) {
-      
+	 rbx.minRecHitTime()<minRBXTime_ ||
+	 rbx.maxRecHitTime()>maxRBXTime_) {
+
 	// drop the ref vectors if we need to
 	if(dropRefVectors_) {
 	  for(std::vector<HcalNoiseHPD>::iterator hit = rbx.hpds_.begin(); hit != rbx.hpds_.end(); ++hit) {
 	    hit->rechits_.clear();
 	    hit->calotowers_.clear();
 	  }
-	  
-	  summary.nproblemRBXs_++;
-	  if(summary.nproblemRBXs_<=maxProblemRBXs_) {
-	    result1->push_back(rbx);
-	    if(maxit==rit) maxwritten=true;
-	  }
+	}
+
+	// add the RBX to the event
+	summary.nproblemRBXs_++;
+	if(summary.nproblemRBXs_<=maxProblemRBXs_) {
+	  result1->push_back(rbx);
+	  if(maxit==rit) maxwritten=true;
 	}
       }
     } // end loop over rbxs
@@ -167,8 +171,10 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	  hit->rechits_.clear();
 	  hit->calotowers_.clear();
 	}
-	result1->push_back(rbx);
       }
+
+      // add the RBX to the event
+      result1->push_back(rbx);
     }
   
     // determine if the event is noisy

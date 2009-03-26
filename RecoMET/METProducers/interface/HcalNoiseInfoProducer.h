@@ -81,15 +81,15 @@ namespace reco {
     bool refillRefVectors_; // find HcalNoiseRBXs already present in the event, and fill the RefVectors
 
     // These provide the requirements for writing an RBX to the event
-    double minHPDEnergy_;    // HPD Energy threshold
-    double minRBXEnergy_;    // RBX Energy threshold
+    double RBXEnergyThreshold_; // minimum energy to even be considered for writing to edm
+    double minHPDEnergy_;    // min HPD Energy
+    double minRBXEnergy_;    // min RBX Energy
     double minRecHitEnergy_; // Minimum rechit energy to consider
     int minHPDNumRecHit_;    // Minimum number of RecHits in an HPD
     int minRBXNumZeros_;     // minimum number of zeros in an RBX
     int minRBXMaxZeros_;     // minimum number of "max zeros" in a pixel in the RBX
     double maxRBXTime_;      // maximum time in the RBX
     double minRBXTime_;      // minimum time in the RBX
-    double minHPDEnergyRatio_; // minimum energy used to consider the ratio cuts below
     double minHPDRatio_;     // minimum energy ratio in 2 highest timeslices to all 10 timeslices
     double maxHPDRatio_;     // minimum energy ratio in 2 highest timeslices to all 10 timeslices
     int maxProblemRBXs_;     // maximum number of problematic RBXs to be written to the event record
