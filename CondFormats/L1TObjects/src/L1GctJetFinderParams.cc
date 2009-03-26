@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <math.h>
 
-#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctStaticParameters.h"
 
 
 const unsigned L1GctJetFinderParams::NUMBER_ETA_VALUES = 11;
@@ -171,9 +171,8 @@ uint16_t L1GctJetFinderParams::correctedEtGct(const double correctedEt) const
 
   uint16_t jetEtOut = static_cast<uint16_t>(scaledEt);
   
-  // TODO : clean up these statics that are littered all over the place
-  if(jetEtOut > L1CaloEtScale::linScaleMax) {
-    return L1CaloEtScale::linScaleMax;
+  if(jetEtOut > L1GctStaticParameters::kJetRankMax) {
+    return L1GctStaticParameters::kJetRankMax;
   } else {
     return jetEtOut;
   }
