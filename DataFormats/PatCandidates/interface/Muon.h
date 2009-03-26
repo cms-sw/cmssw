@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.21 2008/11/28 19:02:15 lowette Exp $
+// $Id: Muon.h,v 1.22 2009/03/09 21:01:53 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Muon.h,v 1.21 2008/11/28 19:02:15 lowette Exp $
+  \version  $Id: Muon.h,v 1.22 2009/03/09 21:01:53 lowette Exp $
 */
 
 
@@ -81,6 +81,18 @@ namespace pat {
       /// set reference to Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon)
       void embedCombinedMuon();
 
+      // ---- methods for TeV refit tracks ----
+      /// reference to Track reconstructed using hits in the tracker + "good" muon hits
+      reco::TrackRef pickyMuon() const;
+      void setPickyMuon(const reco::TrackRef& t) { pickyMuonRef_ = t; }
+      /// reference to Track reconstructed using hits in the tracker + info from the first muon station that has hits
+      reco::TrackRef tpfmsMuon() const;
+      void setTpfmsMuon(const reco::TrackRef& t) { tpfmsMuonRef_ = t; }
+      /// embed reference to the above picky Track
+      void embedPickyMuon();
+      /// embed reference to the above tpfms Track
+      void embedTpfmsMuon();
+
       // ---- PF specific methods ----
       /// reference to the source IsolatedPFCandidates
       /// null if this has been built from a standard muon
@@ -101,6 +113,17 @@ namespace pat {
       std::vector<reco::Track> standAloneMuon_;
       bool embeddedCombinedMuon_;
       std::vector<reco::Track> combinedMuon_;
+
+      // TeV refit tracks, which are not currently stored in the
+      // reco::Muon like the above tracks are. Also provide capability
+      // to embed them.
+      bool embeddedPickyMuon_;
+      bool embeddedTpfmsMuon_;
+      reco::TrackRef pickyMuonRef_;
+      reco::TrackRef tpfmsMuonRef_;
+      std::vector<reco::Track> pickyMuon_;
+      std::vector<reco::Track> tpfmsMuon_;
+
       // ---- PF specific members ----
       /// true if the IsolatedPFCandidate is embedded
       bool embeddedPFCandidate_;      

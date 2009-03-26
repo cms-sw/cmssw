@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.15 2008/10/10 17:44:57 lowette Exp $
+// $Id: Muon.cc,v 1.16 2008/11/28 19:02:15 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -14,6 +14,10 @@ Muon::Muon() :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
+    embeddedPickyMuon_(false),
+    embeddedTpfmsMuon_(false),
+    pickyMuonRef_(),
+    tpfmsMuonRef_(),
     embeddedPFCandidate_(false),
     pfCandidateRef_()
 {
@@ -26,6 +30,10 @@ Muon::Muon(const reco::Muon & aMuon) :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
+    embeddedPickyMuon_(false),
+    embeddedTpfmsMuon_(false),
+    pickyMuonRef_(),
+    tpfmsMuonRef_(),
     embeddedPFCandidate_(false),
     pfCandidateRef_()
 {
@@ -38,6 +46,10 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
+    embeddedPickyMuon_(false),
+    embeddedTpfmsMuon_(false),
+    pickyMuonRef_(),
+    tpfmsMuonRef_(),
     embeddedPFCandidate_(false),
     pfCandidateRef_()
 {
@@ -50,6 +62,10 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
+    embeddedPickyMuon_(false),
+    embeddedTpfmsMuon_(false),
+    pickyMuonRef_(),
+    tpfmsMuonRef_(),
     embeddedPFCandidate_(false),
     pfCandidateRef_()
 {
@@ -90,6 +106,23 @@ reco::TrackRef Muon::combinedMuon() const {
   }
 }
 
+/// reference to Track reconstructed using hits in the tracker + "good" muon hits
+reco::TrackRef Muon::pickyMuon() const {
+  if (embeddedPickyMuon_) {
+    return reco::TrackRef(&pickyMuon_, 0);
+  } else {
+    return pickyMuonRef_;
+  }
+}
+
+/// reference to Track reconstructed using hits in the tracker + info from the first muon station that has hits
+reco::TrackRef Muon::tpfmsMuon() const {
+  if (embeddedTpfmsMuon_) {
+    return reco::TrackRef(&tpfmsMuon_, 0);
+  } else {
+    return tpfmsMuonRef_;
+  }
+}
 
 /// reference to the source IsolatedPFCandidates
 reco::IsolatedPFCandidateRef Muon::pfCandidateRef() const {
@@ -130,6 +163,23 @@ void Muon::embedCombinedMuon() {
   }
 }
 
+/// embed the picky Track
+void Muon::embedPickyMuon() {
+  pickyMuon_.clear();
+  if (pickyMuonRef_.isNonnull()) {
+      pickyMuon_.push_back(*pickyMuonRef_);
+      embeddedPickyMuon_ = true;
+  }
+}
+
+/// embed the tpfms Track
+void Muon::embedTpfmsMuon() {
+  tpfmsMuon_.clear();
+  if (tpfmsMuonRef_.isNonnull()) {
+      tpfmsMuon_.push_back(*tpfmsMuonRef_);
+      embeddedTpfmsMuon_ = true;
+  }
+}
 
 /// embed the IsolatedPFCandidate pointed to by pfCandidateRef_
 void Muon::embedPFCandidate() {
