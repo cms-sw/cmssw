@@ -4,14 +4,14 @@
 class L1GctStaticParameters {
  public:
 
-  static const unsigned JetRankMax;
-  static const unsigned JetRankNBits;
+  static const unsigned jetRankMax;
+  static const unsigned jetRankNBits;
 
-  static const unsigned JetCalibratedEtMax;
-  static const unsigned JetCalibratedEtNBits;
+  static const unsigned jetCalibratedEtMax;
+  static const unsigned jetCalibratedEtNBits;
 
-  static const unsigned EmRankMax;
-  static const unsigned EmRankNBits;
+  static const unsigned emRankMax;
+  static const unsigned emRankNBits;
 
 };
 
