@@ -9,10 +9,10 @@ class ParameterSet;
 
 class CastorPedestals;
 class CastorPedestalWidths;
-class CastorGains;
-class CastorGainWidths;
+//class CastorGains;
+//class CastorGainWidths;
 class CastorQIEData;
-class CastorChannelQuality;
+//class CastorChannelQuality;
 class CastorElectronicsMap;
 
 class CastorPedestalsRcd;

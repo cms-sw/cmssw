@@ -1,3 +1,8 @@
+//
+// F.Ratnikov (UMd), Dec 14, 2005
+// $Id: CastorDbHardcode.cc,v 1.21 2009/03/24 16:11:34 rofierzy Exp $
+// Adapted for Castor by L. Mundim
+//
 #include <vector>
 #include <string>
 
@@ -34,7 +39,7 @@ CastorPedestalWidth CastorDbHardcode::makePedestalWidth (HcalGenericDetId fId) {
   CastorPedestalWidth result (fId.rawId ());
   for (int i = 0; i < 4; i++) {
     double width = value;
-    for (int j = 0; j <= i; j++) {
+    for (int j = 0; j < 4; j++) {
       result.setSigma (i, j, i == j ? width * width : 0);
     }
   } 

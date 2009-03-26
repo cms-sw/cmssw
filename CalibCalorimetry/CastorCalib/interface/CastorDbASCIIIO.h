@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "CondFormats/CastorObjects/interface/AllClasses.h"
+#include "CondFormats/CastorObjects/interface/AllObjects.h"
 
 /**
    \class CastorDbASCIIIO
@@ -42,9 +42,9 @@ namespace CastorDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const CastorQIEData& fObject);
   bool getObject (std::istream& fInput, CastorCalibrationQIEData* fObject);
   bool dumpObject (std::ostream& fOutput, const CastorCalibrationQIEData& fObject);
-  bool getObject (std::istream& fInput, CastorChannelQuality* fObject);
-  bool dumpObject (std::ostream& fOutput, const CastorChannelQuality& fObject);
   bool getObject (std::istream& fInput, CastorElectronicsMap* fObject);
   bool dumpObject (std::ostream& fOutput, const CastorElectronicsMap& fObject);
+  bool getObject (std::istream& fInput, CastorChannelQuality* fObject);
+  bool dumpObject (std::ostream& fOutput, const CastorChannelQuality& fObject);
 } 
 #endif

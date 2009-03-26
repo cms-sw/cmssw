@@ -4,7 +4,8 @@
 #include <iostream>
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "CondFormats/CastorObjects/interface/AllClasses.h"
+//#include "CondFormats/CastorObjects/interface/AllClasses.h"
+#include "CondFormats/CastorObjects/interface/AllObjects.h"
 
 /**
    \brief IO for XML instances of Hcal/Castor Calibrations

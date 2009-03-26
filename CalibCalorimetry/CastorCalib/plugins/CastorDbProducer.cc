@@ -1,45 +1,52 @@
+// -*- C++ -*-
+//
+// Package:    CastorDbProducer
+// Class:      CastorDbProducer
+// 
+/**\class CastorDbProducer CastorDbProducer.h CalibFormats/CastorDbProducer/interface/CastorDbProducer.h
+
+ Description: <one line class summary>
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Fedor Ratnikov
+//         Created:  Tue Aug  9 19:10:10 CDT 2005
+//         Adapted for CASTOR by L. Mundim
+// $Id: CastorDbProducer.cc,v 1.22 2009/03/24 16:11:35 rofierzy Exp $
+//
+//
+
+
 // system include files
 #include <iostream>
 #include <fstream>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbService.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
 
-#include "CondFormats/CastorObjects/interface/CastorChannelQuality.h"
-#include "CondFormats/CastorObjects/interface/CastorElectronicsMap.h"
-#include "CondFormats/CastorObjects/interface/CastorGainWidths.h"
-#include "CondFormats/CastorObjects/interface/CastorGains.h"
-#include "CondFormats/CastorObjects/interface/CastorPedestalWidths.h"
-#include "CondFormats/CastorObjects/interface/CastorPedestals.h"
-#include "CondFormats/CastorObjects/interface/CastorQIEData.h"
 
-#include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h" 
-#include "CondFormats/DataRecord/interface/CastorElectronicsMapRcd.h"  	 
-#include "CondFormats/DataRecord/interface/CastorGainWidthsRcd.h"
-#include "CondFormats/DataRecord/interface/CastorGainsRcd.h"
-#include "CondFormats/DataRecord/interface/CastorPedestalWidthsRcd.h"
-#include "CondFormats/DataRecord/interface/CastorPedestalsRcd.h" 
-#include "CondFormats/DataRecord/interface/CastorQIEDataRcd.h"
-
-#include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h"
+#include "CondFormats/CastorObjects/interface/AllObjects.h"
 
 #include "CastorDbProducer.h"
 
 CastorDbProducer::CastorDbProducer( const edm::ParameterSet& fConfig)
   : ESProducer(),
-    mService (new CastorDbService ()),
+    mService (new CastorDbService (fConfig)),
     mDumpRequest (),
     mDumpStream(0)
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced (this, (dependsOn (&CastorDbProducer::pedestalsCallback) &
+  setWhatProduced (this, (dependsOn (&CastorDbProducer::pedestalsCallback,
+				     &CastorDbProducer::gainsCallback) &
 			  &CastorDbProducer::pedestalWidthsCallback &
-			  &CastorDbProducer::gainsCallback &
-			  &CastorDbProducer::gainWidthsCallback &
 			  &CastorDbProducer::QIEDataCallback &
+			  &CastorDbProducer::gainWidthsCallback &
 			  &CastorDbProducer::channelQualityCallback &
 			  &CastorDbProducer::electronicsMapCallback
 			  )
@@ -63,6 +70,7 @@ CastorDbProducer::~CastorDbProducer()
   if (mDumpStream != &std::cout) delete mDumpStream;
 }
 
+
 //
 // member functions
 //
@@ -83,7 +91,7 @@ void CastorDbProducer::pedestalsCallback (const CastorPedestalsRcd& fRecord) {
   }
 }
 
-  void CastorDbProducer::pedestalWidthsCallback (const CastorPedestalWidthsRcd& fRecord) {
+void CastorDbProducer::pedestalWidthsCallback (const CastorPedestalWidthsRcd& fRecord) {
   edm::ESHandle <CastorPedestalWidths> item;
   fRecord.get (item);
   mService->setData (item.product ());
@@ -94,23 +102,23 @@ void CastorDbProducer::pedestalsCallback (const CastorPedestalsRcd& fRecord) {
 }
 
 
-  void CastorDbProducer::gainsCallback (const CastorGainsRcd& fRecord) {
+void CastorDbProducer::gainsCallback (const CastorGainsRcd& fRecord) {
   edm::ESHandle <CastorGains> item;
   fRecord.get (item);
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Gains")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL/CASTOR Pedestals set" << std::endl;
+    *mDumpStream << "New HCAL/CASTOR Gains set" << std::endl;
     CastorDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }
 }
 
 
-  void CastorDbProducer::gainWidthsCallback (const CastorGainWidthsRcd& fRecord) {
+void CastorDbProducer::gainWidthsCallback (const CastorGainWidthsRcd& fRecord) {
   edm::ESHandle <CastorGainWidths> item;
   fRecord.get (item);
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("GainWidths")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL Pedestals set" << std::endl;
+    *mDumpStream << "New HCAL/CASTOR GainWidths set" << std::endl;
     CastorDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }
 }
@@ -120,7 +128,7 @@ void CastorDbProducer::QIEDataCallback (const CastorQIEDataRcd& fRecord) {
   fRecord.get (item);
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIEData")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL/CASTOR Pedestals set" << std::endl;
+    *mDumpStream << "New HCAL/CASTOR QIEData set" << std::endl;
     CastorDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }
 }
@@ -130,7 +138,7 @@ void CastorDbProducer::channelQualityCallback (const CastorChannelQualityRcd& fR
   fRecord.get (item);
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ChannelQuality")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL/CASTOR Pedestals set" << std::endl;
+    *mDumpStream << "New HCAL/CASTOR ChannelQuality set" << std::endl;
     CastorDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }
 }

@@ -1,3 +1,9 @@
+// -*- C++ -*-
+// Original Author:  Fedor Ratnikov
+// $Id: CastorHardcodeCalibrations.cc,v 1.17 2009/03/24 16:11:36 rofierzy Exp $
+// Adapted for CASTOR by L. Mundim
+//
+
 #include <memory>
 #include <iostream>
 
@@ -6,13 +12,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbHardcode.h"
-#include "CondFormats/CastorObjects/interface/CastorPedestals.h"
-#include "CondFormats/CastorObjects/interface/CastorPedestalWidths.h"
-#include "CondFormats/CastorObjects/interface/CastorGains.h"
-#include "CondFormats/CastorObjects/interface/CastorGainWidths.h"
-#include "CondFormats/CastorObjects/interface/CastorElectronicsMap.h"
-#include "CondFormats/CastorObjects/interface/CastorChannelQuality.h"
-#include "CondFormats/CastorObjects/interface/CastorQIEData.h"
 
 #include "CondFormats/DataRecord/interface/CastorPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/CastorPedestalWidthsRcd.h"
@@ -21,6 +20,8 @@
 #include "CondFormats/DataRecord/interface/CastorElectronicsMapRcd.h"
 #include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/CastorQIEDataRcd.h"
+
+
 #include "Geometry/ForwardGeometry/interface/CastorTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -126,25 +127,23 @@ CastorHardcodeCalibrations::setIntervalFor( const edm::eventsetup::EventSetupRec
 
 std::auto_ptr<CastorPedestals> CastorHardcodeCalibrations::producePedestals (const CastorPedestalsRcd&) {
   edm::LogInfo("HCAL") << "CastorHardcodeCalibrations::producePedestals-> ...";
-  std::auto_ptr<CastorPedestals> result (new CastorPedestals ());
+  std::auto_ptr<CastorPedestals> result (new CastorPedestals (false));
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     CastorPedestal item = CastorDbHardcode::makePedestal (*cell);
-    result->addValue (*cell, item.getValues ());
+    result->addValues(item);
   }
-  result->sort ();
   return result;
 }
 
 std::auto_ptr<CastorPedestalWidths> CastorHardcodeCalibrations::producePedestalWidths (const CastorPedestalWidthsRcd&) {
   edm::LogInfo("HCAL") << "CastorHardcodeCalibrations::producePedestalWidths-> ...";
-  std::auto_ptr<CastorPedestalWidths> result (new CastorPedestalWidths ());
+  std::auto_ptr<CastorPedestalWidths> result (new CastorPedestalWidths (false));
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     CastorPedestalWidth item = CastorDbHardcode::makePedestalWidth (*cell);
-    result->setWidth (item);
+    result->addValues(item);
   }
-  result->sort ();
   return result;
 }
 
@@ -154,9 +153,8 @@ std::auto_ptr<CastorGains> CastorHardcodeCalibrations::produceGains (const Casto
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     CastorGain item = CastorDbHardcode::makeGain (*cell);
-    result->addValue (*cell, item.getValues ());
+    result->addValues(item);
   }
-  result->sort ();
   return result;
 }
 
@@ -166,9 +164,8 @@ std::auto_ptr<CastorGainWidths> CastorHardcodeCalibrations::produceGainWidths (c
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     CastorGainWidth item = CastorDbHardcode::makeGainWidth (*cell);
-    result->addValue (*cell, item.getValues ());
+    result->addValues(item);
   }
-  result->sort ();
   return result;
 }
 
@@ -178,9 +175,8 @@ std::auto_ptr<CastorQIEData> CastorHardcodeCalibrations::produceQIEData (const C
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     CastorQIECoder coder = CastorDbHardcode::makeQIECoder (*cell);
-    result->addCoder (*cell, coder);
+    result->addCoder(coder);
   }
-  result->sort ();
   return result;
 }
 
@@ -189,9 +185,9 @@ std::auto_ptr<CastorChannelQuality> CastorHardcodeCalibrations::produceChannelQu
   std::auto_ptr<CastorChannelQuality> result (new CastorChannelQuality ());
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
-    result->setChannel (cell->rawId (), CastorChannelQuality::GOOD);
+    CastorChannelStatus item(cell->rawId(),CastorChannelStatus::GOOD);
+    result->addValues(item);
   }
-  result->sort ();
   return result;
 }
 

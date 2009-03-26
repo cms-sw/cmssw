@@ -7,15 +7,8 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CondFormats/CastorObjects/interface/AllObjects.h"
 class ParameterSet;
-
-class CastorPedestals;
-class CastorPedestalWidths;
-class CastorGains;
-class CastorGainWidths;
-class CastorQIEData;
-class CastorChannelQuality;
-class CastorElectronicsMap;
 
 class CastorPedestalsRcd;
 class CastorPedestalWidthsRcd;
