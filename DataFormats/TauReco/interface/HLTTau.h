@@ -61,7 +61,7 @@ namespace reco {
     int   getL3TrackIsolationResponse()const { return trackIsolationL3_; }
     int   getNL3TrackIsolation() const { return nTrackIsolationL3_; }
     float getL3LeadTrackPtValue() const { return leadTrackPtL3_; }
-    float getSumPtTracksL26() const {return sumPtTracksL25_;}
+    float getSumPtTracksL25() const {return sumPtTracksL25_;}
     float getSumPtTracksL3() const {return sumPtTracksL3_;}
 
     double getSeedEcalHitEt() const {return seedEcalHitEt_;} //Lead PF Cluster Et /or simple cluster/or crystal
