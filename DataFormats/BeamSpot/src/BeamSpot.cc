@@ -7,7 +7,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpot.cc,v 1.9 2009/03/26 18:38:36 yumiceva Exp $
+ version $Id: BeamSpot.cc,v 1.10 2009/03/26 19:39:03 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -55,7 +55,7 @@ namespace reco {
 	   << " Beam width Y = " << BeamWidthY() << " +/- " << BeamWidthYError() << " [cm]\n"
 	   << " EmittanceX   = " << emittanceX() << " [cm]\n"
 	   << " EmittanceY   = " << emittanceY() << " [cm]\n"
-	   << " beta-star    = " << betaStar() << "\n"
+	   << " beta-star    = " << betaStar() << " [cm]\n"
        << "-----------------------------------------------------\n\n";
 	
   }
