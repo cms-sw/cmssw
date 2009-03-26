@@ -52,13 +52,14 @@
 template <class myHist>
 myHist* getAnyHisto(myHist* hist,
 		    std::string name, std::string process, DQMStore* dbe_,
-		    bool verb, bool clone)
+		    bool verb, bool clone, float scale=1.)
 {
   /* 
      Method returns histogram named 'name' from DQMStore dbe_;
      'hist' pointer must be declared with 'new' (e.g., new TH2F())
      in function call so that the pointer actually points to something.
      Otherwise, the call to hist->ClassName() will fail.
+     We might implement a scale functionality at some later point?
   */
 
   using std::cout;
@@ -71,7 +72,7 @@ myHist* getAnyHisto(myHist* hist,
   sprintf(title, "%sHcal/%s",process.c_str(),name.c_str());
 
   MonitorElement* me = dbe_->get(title); // get Monitor Element named 'title'
-
+  
   if (!me) 
     {
       if (verb) cout <<"SORRY, COULD NOT FIND HISTOGRAM NAMED ["<< title<<"]"<<endl;
@@ -91,7 +92,10 @@ myHist* getAnyHisto(myHist* hist,
   */
 
   std::string histtype = hist->ClassName();
-
+  /*
+  if (scale!=1.)
+    me->scale(scale);
+  */
   // return TH1F from ME
   if (histtype=="TH1F")
     {
@@ -107,7 +111,6 @@ myHist* getAnyHisto(myHist* hist,
       TH2F* out;
       if (clone) out = dynamic_cast<TH2F*>(me->getTH2F()->Clone(clonehisto));
       else out = me->getTH2F();
-  
       return dynamic_cast<myHist*>(out);
     }
 
