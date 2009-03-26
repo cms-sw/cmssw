@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.13 2008/11/25 08:58:00 fronga Exp $
+// $Id: Electron.cc,v 1.14 2008/11/28 19:02:15 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -163,3 +163,19 @@ void Electron::setClusterShapes (const float& scSigmaEtaEta, const float& scSigm
   }
 
 
+/// reference to the source PFCandidates
+reco::PFCandidateRef Electron::pfCandidateRef() const {
+  if (embeddedPFCandidate_) {
+    return reco::PFCandidateRef(&pfCandidate_, 0);
+  } else {
+    return pfCandidateRef_;
+  }
+}
+/// embed the IsolatedPFCandidate pointed to by pfCandidateRef_
+void Electron::embedPFCandidate() {
+  pfCandidate_.clear();
+  if ( pfCandidateRef_.isAvailable() && pfCandidateRef_.isNonnull()) {
+    pfCandidate_.push_back( *pfCandidateRef_ );
+    embeddedPFCandidate_ = true;
+  }
+}
