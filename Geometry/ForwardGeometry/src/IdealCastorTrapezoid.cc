@@ -26,14 +26,14 @@ namespace calogeom {
 
       std::vector<HepPoint3D>  lc ( 8, HepPoint3D( 0,0,0) ) ;
 
-      lc[ 0 ] = HepPoint3D(      -dx, -dy ,  dzb ) ;
-      lc[ 1 ] = HepPoint3D(      -dx, +dy ,  dzs ) ;
-      lc[ 2 ] = HepPoint3D( +dxh -dx, +dy ,  dzs ) ;
-      lc[ 3 ] = HepPoint3D( +dxl -dx, -dy ,  dzb ) ;
-      lc[ 4 ] = HepPoint3D(      -dx, -dy , -dzs ) ;
-      lc[ 5 ] = HepPoint3D(      -dx, +dy , -dzb ) ;
-      lc[ 6 ] = HepPoint3D( +dxh -dx, +dy , -dzb ) ;
-      lc[ 7 ] = HepPoint3D( +dxl -dx, -dy , -dzs ) ;
+      lc[ 0 ] = HepPoint3D(        -dx, -dy ,  dzb ) ;
+      lc[ 1 ] = HepPoint3D(        -dx, +dy ,  dzs ) ;
+      lc[ 2 ] = HepPoint3D( +2*dxh -dx, +dy ,  dzs ) ;
+      lc[ 3 ] = HepPoint3D( +2*dxl -dx, -dy ,  dzb ) ;
+      lc[ 4 ] = HepPoint3D(        -dx, -dy , -dzs ) ;
+      lc[ 5 ] = HepPoint3D(        -dx, +dy , -dzb ) ;
+      lc[ 6 ] = HepPoint3D( +2*dxh -dx, +dy , -dzb ) ;
+      lc[ 7 ] = HepPoint3D( +2*dxl -dx, -dy , -dzs ) ;
 
       ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
       return lc ;
@@ -55,12 +55,15 @@ namespace calogeom {
 	 const HepPoint3D lb ( lf.x() , lf.y() , lf.z() - 2.*dz() ) ;
 	 const HepPoint3D ls ( lf.x() - dx(), lf.y(), lf.z() ) ;
 
-	 const double asign ( 0<dxl() ? 1. : -1. ) ;
-	 static const double dphi ( M_PI/8. ) ;
+
+	 const double fphi ( atan( dx()/( dR() + dy() ) ) ) ;
 	 const HepPoint3D  gb ( gf.x() , gf.y() , gf.z() + 2.*zsign*dz() ) ;
-	 const double myperp ( dR() + dy() ) ;
-	 const HepPoint3D gs ( sqrt( myperp*myperp + gf.z()*gf.z() )*
-			       ( HepRotateZ3D( asign*dphi )*gf ).unit() ) ;
+
+	 const double rho ( dR() + dy() ) ;
+	 const double phi ( gf.phi() + fphi ) ;
+	 const HepPoint3D gs ( rho*cos(phi) ,
+			       rho*sin(phi) ,
+			       gf.z()         ) ;
 
 	 const HepTransform3D tr ( lf, lb, ls,
 				   gf, gb, gs ) ;
@@ -79,18 +82,18 @@ namespace calogeom {
    {
       const HepPoint3D p ( point.x(), point.y(), point.z() ) ;
 
-      static const unsigned int nc[6][4] = 
-	 { { 0,1,2,3 }, { 7,6,5,4 }, 
-	   { 0,4,5,1 }, { 3,2,6,7 },
-	   { 0,3,7,4 }, { 1,5,6,2 } } ;
-
       bool ok ( false ) ;
 
       // loose cut to avoid some calculations
       const HepPoint3D fc ( getPosition().x(),
 			    getPosition().y(),
 			    getPosition().z() ) ;
-      if( (3.*dz()) > ( fc - p ).mag() )
+
+      if( 0 < p.z()*fc.z()                                 && //gross cuts
+	  fabs( p.z() ) > fabs( fc.z() ) - dhz()           &&
+	  fabs( p.z() ) < fabs( fc.z() ) + 2.*dz() + dhz() &&
+	  fabs( p.perp() ) > dR()                          &&
+	  fabs( p.perp() ) < dR() + 3.*dy()                  )
       {
 	 ok = true ;
 
@@ -107,16 +110,21 @@ namespace calogeom {
 
 	 for( unsigned int face ( 0 ) ; face != 6 ; ++(++face) )
 	 {
+	    static const unsigned int nc[6][4] = 
+	       { { 0,1,2,3 }, { 7,6,5,4 }, 
+		 { 0,4,5,1 }, { 3,2,6,7 },
+		 { 0,3,7,4 }, { 1,5,6,2 } } ;
 	    const unsigned int* ic1 ( &nc[face  ][0] ) ;
 	    const unsigned int* ic2 ( &nc[face+1][0] ) ;
 	    const HepPlane3D pl1 ( cv[ic1[0]], cv[ic1[1]], cv[ic1[2]] ) ;
 	    const HepPlane3D pl2 ( cv[ic2[0]], cv[ic2[1]], cv[ic2[2]] ) ;
-	    
-	    const HepPoint3D p1 ( pl1.point( p ) ) ;
+
+/*	    const HepPoint3D p1 ( pl1.point( p ) ) ;
 	    const HepPoint3D p2 ( pl2.point( p ) ) ;
-	    const HepVector3D v1 ( p - p1 ) ;
-	    const HepVector3D v2 ( p - p2 ) ;
-	    if( 0 < v1.dot( v2 ) )
+	    const HepVector3D v1 ( p1 - p ) ;
+	    const HepVector3D v2 ( p2 - p ) ;*/
+
+	    if( 0 > pl1.distance(p)*pl2.distance(p) ) //v1.dot( v2 ) )
 	    {
 	       ok = false ;
 	       break ;
@@ -129,9 +137,9 @@ namespace calogeom {
    std::ostream& operator<<( std::ostream& s, const IdealCastorTrapezoid& cell ) 
    {
       s << "Center: " <<  cell.getPosition() << std::endl ;
-      s 	 << ", dx = " << cell.dx() 
+//      s 	 << ", dx = " << cell.dx() 
 //<< "TiltAngle = " << cell.an() 
-	<< ", dy = " << cell.dy() << ", dz = " << cell.dz() << std::endl ;
+//	<< ", dy = " << cell.dy() << ", dz = " << cell.dz() << std::endl ;
       return s;
    }
 }

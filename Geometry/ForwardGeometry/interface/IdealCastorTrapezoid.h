@@ -25,10 +25,10 @@ namespace calogeom {
 
   - locaton x, y and z of faceCenter
   
-  Total: 7 parameters 
+  Total: 6+3 parameters 
   
-  $Date: 2009/03/24 18:30:23 $
-  $Revision: 1.6 $
+  $Date: 2009/03/24 20:41:15 $
+  $Revision: 1.7 $
   \author P. Katsas - UoA
   */
    class IdealCastorTrapezoid: public CaloCellGeometry 

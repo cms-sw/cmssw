@@ -103,52 +103,59 @@ CastorHardcodeGeometryLoader::makeCell( const HcalCastorDetId&   detId ,
 
 // length units are cm
 
-   const unsigned int iz ( section == HcalCastorDetId::EM ? module : 2 + module ) ;
 
    const double sign ( 0 == isect%2 ? -1 : 1 ) ;
 
 //********* HERE ARE HARDWIRED GEOMETRY NUMBERS ACTUALLY USED *****
 
-   static const double dxlEM  ( 1.55/2. ) ;
-   static const double dxhEM  ( 5.73/2. ) ;
-   static const double dxhHAD ( 7.37/2. ) ;
-   static const double dhEM   ( 14.26/2. ) ;
-   static const double dhHAD  ( 19.88/2. ) ;
-   static const double zm     ( 1439.0 ) ;
-   static const double an     ( atan( 1.0 ) ) ;
-   static const double can    ( cos( an ) ) ;
-   static const double san    ( sin( an ) ) ;
-   static const double dR     ( 2.*dhEM*dxlEM/( dxhEM-dxlEM ) ) ;
-   static const double dzEM   ( 5.45 ) ;
-   static const double dzHAD  ( 10.075 ) ;
+   static const double an     ( atan( 1.)); //angle of cant w.r.t. beam
+   static const double can    ( cos( an ));
+   static const double san    ( sin( an ));
+   static const double dxlEM  ( 1.55/2. ) ; //halflength of side near beam
+   static const double dxhEM  ( 5.73/2. ) ; //halflength of side away from beam
+   static const double dhEM   ( 14.26/2. ); //halflength of 2nd longest side
+   static const double dR     ( 0.1 + 2.*dhEM*san*dxlEM/( dxhEM-dxlEM ) ) ;
+   static const double dhHAD  ( 19.88/2. ); //halflength of 2nd longest side 
+
+   static const double dxhHAD ( dxhEM*( 2.*dhHAD*san + dR )/
+				( 2.*dhEM*san + dR ) ) ; //halflength of side away from beam
+   static const double zm     ( 1439.0  ) ;  //z of start of EM
+   static const double dzEM   ( 5.45/2 ) ;   // halflength in z of EM
+   static const double dzHAD  ( 10.075/2 ) ; // halflength in z of HAD
 
 //*****************************************************************
 
    const double dxl ( sign*dxlEM ) ; // same for EM and HAD
 
-   static const double dphi 
-      ( 2.*M_PI/(1.0*HcalCastorDetId::kNumberSectorsPerEnd ) ) ;
-
-   const double phi  ( ( sector - 0.5 )*dphi ) ;
-   const double sphi ( sin( phi ) ) ;
-   const double cphi ( cos( phi ) ) ;
-
    const double dxh ( sign*( section == HcalCastorDetId::EM ?
 			     dxhEM : dxhHAD ) ) ;
    const double dh  ( section == HcalCastorDetId::EM ?
 		      dhEM : dhHAD ) ;
+   const double dz  ( section == HcalCastorDetId::EM ?
+		      dzEM : dzHAD ) ;
 
-   const double dz  ( dh*can ) ;
+   const double delz  ( dh*can ) ;
    const double dy  ( dh*san ) ;
    const double dx  ( ( dxl + dxh )/2. ) ;
    const double leg ( dR + dy ) ;
    const double len ( sqrt( leg*leg + dx*dx ) ) ;
 
+   static const double dphi 
+      ( 2.*M_PI/(1.0*HcalCastorDetId::kNumberSectorsPerEnd ) ) ;
+
+   const double fphi ( atan( dx/( dR + dy ) ) ) ;
+
+   const double phi  ( 0==isect%2 ? (sector-1.)*dphi - fphi :
+		       sector*dphi - fphi ) ;
+
+   const double sphi ( sin( phi ) ) ;
+   const double cphi ( cos( phi ) ) ;
+
    const double xc ( len*cphi ) ;
    const double yc ( len*sphi ) ; 
-   const double zc ( zside*( zm + dz + 
-			     ( iz<3 ? ( 1.*module - 1.0 )*dzEM :
-			       2.*dzEM +  ( 1.*module - 1 )*dzHAD ) ) ) ;
+   const double zc ( zside*( zm + delz + 
+			     ( module<3 ? ( 1.*module - 1.0 )*2.*dzEM :
+			       4.*dzEM +  ( 1.*(module-2) - 1 )*2.*dzHAD ) ) ) ;
 
    const GlobalPoint fc ( xc, yc, zc ) ;
 
@@ -160,16 +167,7 @@ CastorHardcodeGeometryLoader::makeCell( const HcalCastorDetId&   detId ,
    zz.push_back( dz ) ;
    zz.push_back( an ) ;
    zz.push_back( dR ) ;
-/*
-   std::cout<<"For detId="<<detId
-	    <<", dxl="<<dxl
-	    <<", dxh="<<dxh
-	    <<", dh="<<dh
-	    <<", dz="<<dz
-	    <<", an="<<an
-	    <<", dR="<<dR
-	    <<std::endl ;
-*/
+
    return new calogeom::IdealCastorTrapezoid( 
       fc, 
       geom->cornersMgr(),
