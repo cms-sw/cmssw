@@ -10,12 +10,13 @@
  *
  * \author  N. Marinelli Univ. of Notre Dame
  * 
- * \version $Id: $
+ * \version $Id: PhotonCore.h,v 1.1 2009/03/24 17:59:18 nancy Exp $
  * $Log $
  */
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCoreFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 
@@ -27,7 +28,7 @@ namespace reco {
     /// default constructor
     PhotonCore() {}
 
-    PhotonCore(const SuperClusterRef & scl ):  superCluster_(scl) { }
+    PhotonCore(const reco::SuperClusterRef & scl ):  superCluster_(scl) { }
 
     /// destructor
     virtual ~PhotonCore() { }
