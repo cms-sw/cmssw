@@ -10,7 +10,6 @@
 <use name=DataFormats/DetId>
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EcalDetId>
-<use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=RecoPixelVertexing/PixelTrackFitting>
