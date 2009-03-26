@@ -998,8 +998,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   /* Cross Triggers (approved in Jan 2009) */
 
   // SGL - lepton+jet cross-triggers. These are for 1E31, so the *corrected* 
-  // jets are used at HLT. For now, they run on the translated *uncorrected* 
-  // L1 jet seeds.
+  // jets are used at HLT. 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9_1JetU15") == 0){ 
     if((map_BitOfStandardHLTPath.find("L1_Mu5_Jet6")->second == 1)) {      // L1 Seed  
       int rc = 0; 
@@ -1030,7 +1029,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   // John Paul Chou - e(gamma) + mu cross-trigger. 
   // One non-isolated photon plus one non-isolated L2 muons.
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu5_Photon9_L1R") == 0){
-    if(map_BitOfStandardHLTPath.find("L1_Mu3_EG5")->second == 1){      // L1 Seed  
+    if(map_BitOfStandardHLTPath.find("L1_Mu3QE8_EG5")->second == 1){      // L1 Seed  
       if(OpenHlt1L2MuonPassed(5.,5.,2.)>=1 && OpenHlt1PhotonPassed(9.,0,9999.,9999.,9999.,9999.)>=1)
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
     } 
@@ -1078,7 +1077,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   // Lepton+jet triggers for... top? exotica? b-tagging?
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9_DiJet30") == 0) {
     int njetswithmu = 0;
-    if(map_BitOfStandardHLTPath.find("L1_Mu5_Jet15")->second == 1){      // L1 Seed   
+    if(map_BitOfStandardHLTPath.find("L1_Mu5QE8_Jet15")->second == 1){      // L1 Seed   
       if(OpenHlt1L2MuonPassed(9.,9.,2.)>=1) {
 	for(int i = 0; i < NrecoJetCal; i++) {
 	  if(recoJetCorCalPt[i] > 30.) { // Cut on corrected jet energy
@@ -1104,7 +1103,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
     } 
   }
-  }
+}
     
 void OHltTree::PrintOhltVariables(int level, int type)
 {
