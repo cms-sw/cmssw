@@ -93,7 +93,8 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 			adummy->SetCovariance(4,4,pow(1.39248e-05,2));
 			adummy->SetCovariance(5,5,pow(1.31797e-05,2));
 			adummy->SetCovariance(6,6,pow(2.0e-4,2));
-			adummy->SetEmittance(7.03e-08);
+			adummy->SetEmittanceX(7.03e-08);
+			adummy->SetEmittanceY(7.03e-08);
 			adummy->SetBetaStar(300.0);
 		}
 

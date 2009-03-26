@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.5 2009/03/18 14:39:41 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.6 2009/03/26 18:46:38 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -289,7 +289,8 @@ BeamSpotAnalyzer::endJob() {
 	} else {
 		fasciiFile << "Cov(6,j) 0 0 0 0 0 0 " << beam_default.covariance(6,6) << std::endl;
 	}
-	fasciiFile << "Emittance " << beam_default.emittance() << std::endl;
+	fasciiFile << "EmittanceX " << beam_default.emittanceX() << std::endl;
+	fasciiFile << "EmittanceY " << beam_default.emittanceY() << std::endl;
 	fasciiFile << "BetaStar " << beam_default.betaStar() << std::endl;
 	
 	
