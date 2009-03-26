@@ -3,8 +3,11 @@
 /** \class reco::Photon 
  *
  * \author  N. Marinelli Univ. of Notre Dame
- *
- * \version $Id: Photon.h,v 1.26 2009/03/03 14:00:57 nancy Exp $
+ * Photon object built out of PhotonCore
+ * stores isolation, shower shape and additional info
+ * needed for identification
+ * 
+ * \version $Id: Photon.h,v 1.27 2009/03/24 18:00:56 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
