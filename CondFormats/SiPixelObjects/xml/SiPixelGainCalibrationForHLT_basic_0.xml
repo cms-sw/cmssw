@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="SiPixelGainCalibrationForHLTRcd" >
+  <PoolContainer name="SiPixelGainCalibrationForHLT" >
    <Class table="SIPIXELGAINCALHLT" id_columns="ID" name="SiPixelGainCalibrationForHLT" mapping_version="SiPixelGainCalibrationForHLT_basic" >
      <Container table="SIPIXELGAINCALHLTIDX" id_columns="ID_ID" name="indexes" position_column="POS" >
        <Object name="value_type" >

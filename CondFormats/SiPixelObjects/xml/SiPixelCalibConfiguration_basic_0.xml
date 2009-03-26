@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="SiPixelCalibConfigurationRcd" >
+  <PoolContainer name="SiPixelCalibConfiguration" >
    <Class table="SIPIXELCALIBCONFIG_1" id_columns="ID" name="SiPixelCalibConfiguration" mapping_version="SiPixelCalibConfiguration_basic" >
      <Container table="SIPIXELCALIBCONFIG_2" id_columns="ID_ID" name="fColumnPattern" position_column="POS" >
        <Primitive column="FCOLUMNPATTERN_VALUE_TYPE" name="value_type" />

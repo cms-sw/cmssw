@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="SiPixelFedCablingMapRcd" >
+  <PoolContainer name="SiPixelFedCablingMap" >
    <Class table="SIPIXELFEDCABLINGMAP" id_columns="ID" name="SiPixelFedCablingMap" mapping_version="SiPixelFedCablingMap_basic">
      <Container table="SIPIXELFEDCABLINGM_1" id_columns="ID_ID" name="theFedCablings" position_column="POS" >
        <Primitive column="THEFEDCABLINGS_KEY_TYPE" name="key_type" />

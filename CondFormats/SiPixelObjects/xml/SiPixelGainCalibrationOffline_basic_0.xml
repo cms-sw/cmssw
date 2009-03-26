@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="SiPixelGainCalibrationOfflineRcd" >
+  <PoolContainer name="SiPixelGainCalibrationOffline" >
    <Class table="SIPIXELGAINCALOFFLINE" id_columns="ID" name="SiPixelGainCalibrationOffline" mapping_version="SiPixelGainCalibrationOffline_basic" >
      <Container table="SIPIXELGAINCALOFFLINEIDX" id_columns="ID_ID" name="indexes" position_column="POS" >
        <Object name="value_type" >

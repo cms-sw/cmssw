@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="SiPixelPerformanceSummaryRcd" >
+  <PoolContainer name="SiPixelPerformanceSummary" >
    <Class table="SIPIXELPERFORMANCE_1" id_columns="ID" name="SiPixelPerformanceSummary" mapping_version="SiPixelPerformanceSummary_basic" >
      <Container table="SIPIXELPERFORMANCE_2" id_columns="ID_ID" name="allDetSummaries_" position_column="POS" >
        <Object name="value_type" >
