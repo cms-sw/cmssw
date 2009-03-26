@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-import DQMOffline.CalibCalo.MonitorAlCaHcalPhiSym_cfi
+import DQMOffline.CalibCalo.MonitorAlCaHcalPhisym_cfi
 import DQMOffline.CalibCalo.MonitorHcalDiJetsAlCaReco_cfi
 import DQMOffline.CalibCalo.MonitorHcalIsoTrackAlCaReco_cfi
 import DQMOffline.CalibCalo.MonitorHOAlCaRecoStream_cfi
