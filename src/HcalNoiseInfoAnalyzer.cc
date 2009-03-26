@@ -74,20 +74,18 @@ HcalNoiseInfoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if(rbx.maxZeros()>3)   failures |= 0x1;
     if(rbx.totalZeros()>7) failures |= 0x2;
 
+    double totale2ts=rbx.allChargeHighest2TS();
+    double totale10ts=rbx.allChargeTotal();
+
     // loop over the HPDs in the RBX
-    double totale2ts=0;
-    double totale10ts=0;
     for(std::vector<HcalNoiseHPD>::const_iterator hit=rbx.HPDs().begin(); hit!=rbx.HPDs().end(); ++hit) {
       HcalNoiseHPD hpd=(*hit);
 
       // make sure we have at least 1 hit above 5 GeV
       if(hpd.numRecHits(5.0)<1) continue;
 
-      totale2ts  += hpd.allDigiHighest2TS();
-      totale10ts += hpd.allDigiTotal();
-
-      double e2ts=hpd.bigDigiHighest2TS();
-      double e10ts=hpd.bigDigiTotal();
+      double e2ts=hpd.bigChargeHighest2TS();
+      double e10ts=hpd.bigChargeTotal();
 
       hE2ts_->Fill(e2ts);
       hE10ts_->Fill(e10ts);
