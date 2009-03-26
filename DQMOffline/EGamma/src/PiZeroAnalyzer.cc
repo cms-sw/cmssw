@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PiZeroAnalyzer
- **  $Date: 2009/01/26 09:56:33 $ 
+ **  $Date: 2009/01/28 14:00:07 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -317,7 +317,8 @@ void PiZeroAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
     if(seedAlreadyUsed)continue;
     topology_p = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
     std::vector<DetId> clus_v = topology_p->getWindow(seed_id,clusEtaSize_,clusPhiSize_);       
-    std::vector<DetId> clus_used;
+    //std::vector<DetId> clus_used;
+    std::vector<std::pair<DetId, float> > clus_used;
 
     vector<EcalRecHit> RecHitsInWindow;
     
@@ -340,7 +341,7 @@ void PiZeroAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
 	aHit = recHitsEB_map.find(*det);
 	usedXtals.push_back(*det);
 	RecHitsInWindow.push_back(aHit->second);
-	clus_used.push_back(*det);
+	clus_used.push_back( std::pair<DetId, float>(*det, 1.) );
 	simple_energy = simple_energy + aHit->second.energy();
       }
     }
