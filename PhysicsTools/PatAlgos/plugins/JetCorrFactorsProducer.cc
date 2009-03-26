@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactorsProducer.cc,v 1.3 2008/11/04 14:12:58 auterman Exp $
+// $Id: JetCorrFactorsProducer.cc,v 1.4 2009/02/19 16:18:08 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/JetCorrFactorsProducer.h"
@@ -30,36 +30,38 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& iConfig)
   
   // define CombinedJetCorrectors
 
-  // flavor
-  if(levels_.find("L5")!=std::string::npos && 
-     levels_.find("L7")!=std::string::npos){
+  // flavor & parton
+  if(levels_.find("L5")!=std::string::npos && levels_.find("L7")!=std::string::npos){
     // available options: see below
-    jetCorrector_    = new CombinedJetCorrector(levels_, tags_, "Flavor:g   & Parton:jJ");
-    jetCorrectorGlu_ = new CombinedJetCorrector(levels_, tags_, "Flavor:g   & Parton:gJ");
-    jetCorrectorUds_ = new CombinedJetCorrector(levels_, tags_, "Flavor:uds & Parton:qJ");
-    jetCorrectorC_   = new CombinedJetCorrector(levels_, tags_, "Flavor:c   & Parton:cJ");
-    jetCorrectorB_   = new CombinedJetCorrector(levels_, tags_, "Flavor:b   & Parton:bJ");
+    jetCorrector_    = new CombinedJetCorrector(levels_, tags_, "Flavor:gJ & Parton:gJ");
+    jetCorrectorGlu_ = new CombinedJetCorrector(levels_, tags_, "Flavor:gJ & Parton:gJ");
+    jetCorrectorUds_ = new CombinedJetCorrector(levels_, tags_, "Flavor:qJ & Parton:qJ");
+    jetCorrectorC_   = new CombinedJetCorrector(levels_, tags_, "Flavor:cJ & Parton:cJ");
+    jetCorrectorB_   = new CombinedJetCorrector(levels_, tags_, "Flavor:bJ & Parton:bJ");
   }
   // flavor
   else if(levels_.find("L5")!=std::string::npos){
     // available options are: 
-    // Flavor:g    gluon
-    // Flavor:uds  uds
-    // Flavor:c    charm
-    // Flavor:b    beauty
-    jetCorrector_    = new CombinedJetCorrector(levels_, tags_, "Flavor:g");
-    jetCorrectorGlu_ = new CombinedJetCorrector(levels_, tags_, "Flavor:g");
-    jetCorrectorUds_ = new CombinedJetCorrector(levels_, tags_, "Flavor:uds");
-    jetCorrectorC_   = new CombinedJetCorrector(levels_, tags_, "Flavor:c"  );
-    jetCorrectorB_   = new CombinedJetCorrector(levels_, tags_, "Flavor:b"  );
+    // Flavor:gJ   gluon
+    // Flavor:qJ   uds
+    // Flavor:cJ   charm
+    // Flavor:bJ   beauty
+    jetCorrector_    = new CombinedJetCorrector(levels_, tags_, "Flavor:gJ");
+    jetCorrectorGlu_ = new CombinedJetCorrector(levels_, tags_, "Flavor:gJ");
+    jetCorrectorUds_ = new CombinedJetCorrector(levels_, tags_, "Flavor:qJ");
+    jetCorrectorC_   = new CombinedJetCorrector(levels_, tags_, "Flavor:cJ"  );
+    jetCorrectorB_   = new CombinedJetCorrector(levels_, tags_, "Flavor:bJ"  );
   }
   // parton
   else if(levels_.find("L7")!=std::string::npos){
     // available options are: 
-    // Parton:gJ/gT  gluon  from dijets/top
+    // Parton:gJ/--  gluon  from dijets
     // Parton:qJ/qT  uds    from dijets/top
     // Parton:cJ/cT  charm  from dijets/top
     // Parton:bJ/bT  beauty from dijets/top
+    // Parton:jJ/tT  mc input mixture from dijets/top
+    // be aware that from the top sample there is no
+    // gluon correction available down to parton level
     jetCorrector_    = new CombinedJetCorrector(levels_, tags_, "Parton:jJ");
     jetCorrectorGlu_ = new CombinedJetCorrector(levels_, tags_, "Parton:gJ");
     jetCorrectorUds_ = new CombinedJetCorrector(levels_, tags_, "Parton:qJ");
@@ -73,7 +75,6 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& iConfig)
   // produces valuemap of jet correction factors
   produces<JetCorrFactorsMap>();
 }
-
 
 JetCorrFactorsProducer::~JetCorrFactorsProducer() 
 {
@@ -101,7 +102,7 @@ JetCorrFactorsProducer::evaluate(edm::View<reco::Jet>::const_iterator& jet, Comb
     correction = (corrector->getSubCorrections(jet->pt(), jet->eta()))[idx];
   }
   else{
-    // to have the emf accessibla to the corrector the jet needs to 
+    // to have the emf accessible to the corrector the jet needs to 
     // be a CaloJet
     correction = (corrector->getSubCorrections(jet->pt(), jet->eta()))[idx];
   }
@@ -118,51 +119,72 @@ JetCorrFactorsProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
   std::vector<JetCorrFactors> jetCorrs;
   for (edm::View<reco::Jet>::const_iterator jet = jets->begin(); jet != jets->end(); jet++) {
     // loop over jets and retrieve the correction factors
-    float l1=-1, l2=-1, l3=-1, l4=-1, l6=-1;
-    JetCorrFactors::FlavourCorrections l5, l7;
-    
+    float l1=-1, l2=-1, l3=-1, l4=-1;
+    JetCorrFactors::FlavourCorrections l5, l6, l7;
     // get jet correction factors
     // from CombinedJetCorrectors 
-    int levelCounter = -1;
-    if(levels_.find("L1")!=std::string::npos){
-      // L1Offset
-      l1 = evaluate(jet, jetCorrector_, ++levelCounter);
-    }
-    if(levels_.find("L2")!=std::string::npos){
-      // L2Relative
-      l2 = evaluate(jet, jetCorrector_, ++levelCounter);
-    }
-    if(levels_.find("L3")!=std::string::npos){
-      // L3Absolute
-      l3 = evaluate(jet, jetCorrector_, ++levelCounter);
-    }
-    if(levels_.find("L4")!=std::string::npos){
-      // L4EMF
-      l4 = evaluate(jet, jetCorrector_, ++levelCounter);
-    }
+    int levelIdx = -1;
+    // --------------------------------------------
+    // floavor independend jet correctors
+    //
+
+    // L1Offset
+    levels_.find("L1")!=std::string::npos ? l1 = evaluate(jet, jetCorrector_, ++levelIdx) : l1= 1; 
+    // L2Relative
+    levels_.find("L2")!=std::string::npos ? l2 = evaluate(jet, jetCorrector_, ++levelIdx) : l2=l1; 
+    // L3Absolute
+    levels_.find("L3")!=std::string::npos ? l3 = evaluate(jet, jetCorrector_, ++levelIdx) : l3=l2; 
+    // L4EMF
+    levels_.find("L4")!=std::string::npos ? l4 = evaluate(jet, jetCorrector_, ++levelIdx) : l4=l3; 
+
+    // --------------------------------------------
+    // flavor dependend   jet correctors
+    //
+
+    // L5Flavor
     if(levels_.find("L5")!=std::string::npos){
-      // L5Flavor
-      ++levelCounter;
-      l5.uds = evaluate(jet, jetCorrectorUds_, levelCounter);
-      l5.g   = evaluate(jet, jetCorrectorGlu_, levelCounter);
-      l5.c   = evaluate(jet, jetCorrectorC_  , levelCounter);
-      l5.b   = evaluate(jet, jetCorrectorB_  , levelCounter);
+      ++levelIdx;
+      l5.uds = evaluate(jet, jetCorrectorUds_, levelIdx);
+      l5.g   = evaluate(jet, jetCorrectorGlu_, levelIdx);
+      l5.c   = evaluate(jet, jetCorrectorC_  , levelIdx);
+      l5.b   = evaluate(jet, jetCorrectorB_  , levelIdx);
     }
+    else{
+      l5.uds = l4;
+      l5.g   = l4;
+      l5.c   = l4;
+      l5.b   = l4;
+    }
+    // L6UE
     if(levels_.find("L6")!=std::string::npos){
-      // L6UE
-      l6 = evaluate(jet, jetCorrector_, ++levelCounter);
+      ++levelIdx;
+      l6.uds = evaluate(jet, jetCorrectorUds_, levelIdx);
+      l6.g   = evaluate(jet, jetCorrectorGlu_, levelIdx);
+      l6.c   = evaluate(jet, jetCorrectorC_  , levelIdx);
+      l6.b   = evaluate(jet, jetCorrectorB_  , levelIdx);
     }
+    else{
+      l6.uds = l5.uds;
+      l6.g   = l5.g;
+      l6.c   = l5.c;
+      l6.b   = l5.b;
+    }
+    // L7Parton
     if(levels_.find("L7")!=std::string::npos){
-      // L7Parton
-      ++levelCounter;
-      l7.uds = evaluate(jet, jetCorrectorUds_, levelCounter);
-      l7.g   = evaluate(jet, jetCorrectorGlu_, levelCounter);
-      l7.c   = evaluate(jet, jetCorrectorC_,   levelCounter);
-      l7.b   = evaluate(jet, jetCorrectorB_,   levelCounter);
+      ++levelIdx;
+      l7.uds = evaluate(jet, jetCorrectorUds_, levelIdx);
+      l7.g   = evaluate(jet, jetCorrectorGlu_, levelIdx);
+      l7.c   = evaluate(jet, jetCorrectorC_,   levelIdx);
+      l7.b   = evaluate(jet, jetCorrectorB_,   levelIdx);
+    }
+    else{
+      l7.uds = l6.uds;
+      l7.g   = l6.g;
+      l7.c   = l6.c;
+      l7.b   = l6.b;
     }
     // create the actual object with scalefactos we want the valuemap to refer to
     JetCorrFactors aJetCorr( moduleLabel_, l1, l2, l3, l4, l5, l6, l7 );
-
     jetCorrs.push_back(aJetCorr);
   }
 
