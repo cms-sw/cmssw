@@ -4,8 +4,8 @@
  * Slava Valuev  May 26, 2004
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2008/04/29 10:33:39 $
- * $Revision: 1.11 $
+ * $Date: 2008/07/30 08:40:57 $
+ * $Revision: 1.12 $
  *
  */
 
@@ -27,6 +27,7 @@ using namespace std;
 
 bool CSCCathodeLCTAnalyzer::debug = true;
 bool CSCCathodeLCTAnalyzer::isTMB07 = true;
+bool CSCCathodeLCTAnalyzer::doME1A = false;
 
 vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::getSimInfo(
       const CSCCLCTDigi& clct, const CSCDetId& clctId,
@@ -75,12 +76,6 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
   int digiId = -999;
   CSCCathodeLayerInfo tempInfo;
   vector<CSCCathodeLayerInfo> vectInfo;
-
-  // Parameters defining time window for accepting hits; should come from
-  // configuration file eventually.
-  const int fifo_tbins  = 12;
-  const int hit_persist = 6;
-  const int drift_delay = 2;
 
   // Inquire the clct for its key half-strip, strip type and pattern number.
   int clct_keystrip  = clct.getKeyStrip();
@@ -131,63 +126,22 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
     CSCDetId layerId(clctId.endcap(), clctId.station(), clctId.ring(),
 		     clctId.chamber(), i_layer+1);
 
-    // 'Staggering' for this layer.
-    const CSCLayer* csclayer = geom_->layer(layerId);
-    int stagger = (csclayer->geometry()->stagger()+1)/2;
-
     // Preselection of Digis: right layer and bx.
-    const CSCComparatorDigiCollection::Range rcompd = compdc->get(layerId);
-    for (CSCComparatorDigiCollection::const_iterator digiIt = rcompd.first;
-         digiIt != rcompd.second; ++digiIt) {
-      if (debug) LogDebug("lctDigis")
-	<< "Comparator digi: layer " << i_layer
-	<< " strip/comparator/time =" << (*digiIt);
+    digi_num += preselectDigis(clct_bx, layerId, compdc, digiMap,
+			       hfstripDigis, distripDigis,
+			       time, triad, digiNum);
 
-      if ((*digiIt).getComparator() == 0 || (*digiIt).getComparator() == 1) {
-	int bx_time = (*digiIt).getTimeBin();
-	if (bx_time >= 0 && bx_time < fifo_tbins) {
-
-	  // Do not use digis which could not have contributed to a given CLCT.
-	  int latch_bx = clct_bx + drift_delay;
-	  if (bx_time <= latch_bx-hit_persist || bx_time > latch_bx) {
-	    if (debug) LogDebug("lctDigis")
-	      << "Late comparator digi: layer " << i_layer
-	      << " strip/comparator/time =" << (*digiIt) << " skipping...";
-	    continue;
-	  }
-	    
-	  // If there is more than one digi on the same strip, pick the one
-	  // which occurred earlier.
-	  int i_strip = (*digiIt).getStrip() - 1; // starting from 0
-	  if (time[i_strip] <= 0 || time[i_strip] > bx_time) {
- 
-	    // @ Switch to maps; check for match in time.
-	    int i_hfstrip = 2*i_strip + (*digiIt).getComparator() + stagger;
-	    hfstripDigis[i_hfstrip] = digi_num;
-
-	    // Arrays for distrip stagger
-	    triad[i_strip]   = (*digiIt).getComparator();
-	    time[i_strip]    = bx_time;
-	    digiNum[i_strip] = digi_num;
-
-	    if (debug) LogDebug("lctDigis")
-	      << "digi_num = " << digi_num << " half-strip = " << i_hfstrip
-	      << " strip = " << i_strip;
-	  }
-	}
-      }
-      digiMap.push_back(*digiIt);
-      digi_num++;
-    }
-
-    // Loop for di-strips, including stagger
-    for (int i_strip = 0; i_strip < CSCConstants::MAX_NUM_STRIPS; i_strip++) {
-      if (time[i_strip] >= 0) {
-	int i_distrip = i_strip/2;
-	if (i_strip%2 && triad[i_strip] == 1 && stagger == 1)
-	  CSCCathodeLCTProcessor::distripStagger(triad, time, digiNum,
-						 i_strip);
-	distripDigis[i_distrip] = digiNum[i_strip];
+    // In case of ME1/1, one can also look for digis in ME1/A.
+    // Skip them for now since the resolution of CLCTs in ME1/A is
+    // terrible (strips are ganged; channel numbers translated to be
+    // in CFEB=4).
+    if (doME1A) {
+      if (clctId.station() == 1 && clctId.ring() == 1) {
+	CSCDetId layerId_me1a(clctId.endcap(), clctId.station(), 4,
+			      clctId.chamber(), i_layer+1);
+	digi_num += preselectDigis(clct_bx, layerId_me1a, compdc, digiMap,
+				   hfstripDigis, distripDigis,
+				   time, triad, digiNum);
       }
     }
 
@@ -242,6 +196,94 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
   return vectInfo;
 }
 
+int CSCCathodeLCTAnalyzer::preselectDigis(const int clct_bx,
+      const CSCDetId& layerId,
+      const CSCComparatorDigiCollection* compdc,
+      vector<CSCComparatorDigi>& digiMap,
+      int hfstripDigis[CSCConstants::NUM_HALF_STRIPS],
+      int distripDigis[CSCConstants::NUM_HALF_STRIPS],
+      int time[CSCConstants::MAX_NUM_STRIPS],
+      int triad[CSCConstants::MAX_NUM_STRIPS],
+      int digiNum[CSCConstants::MAX_NUM_STRIPS]) {
+  // Preselection of Digis: right layer and bx.
+  int digi_num = 0;
+
+  // Parameters defining time window for accepting hits; should come from
+  // configuration file eventually.
+  const int fifo_tbins  = 12;
+  const int hit_persist = 6;
+  const int drift_delay = 2;
+
+  // 'Staggering' for this layer.
+  const CSCLayer* csclayer = geom_->layer(layerId);
+  int stagger = (csclayer->geometry()->stagger()+1)/2;
+
+  bool me1a = (layerId.station() == 1) && (layerId.ring() == 4);
+
+  const CSCComparatorDigiCollection::Range rcompd = compdc->get(layerId);
+  for (CSCComparatorDigiCollection::const_iterator digiIt = rcompd.first;
+       digiIt != rcompd.second; ++digiIt) {
+    if (debug) LogDebug("lctDigis")
+      << "Comparator digi: layer " << layerId.layer()-1
+      << " strip/comparator/time =" << (*digiIt);
+
+    if ((*digiIt).getComparator() == 0 || (*digiIt).getComparator() == 1) {
+      int bx_time = (*digiIt).getTimeBin();
+      if (bx_time >= 0 && bx_time < fifo_tbins) {
+
+	// Do not use digis which could not have contributed to a given CLCT.
+	int latch_bx = clct_bx + drift_delay;
+	if (bx_time <= latch_bx-hit_persist || bx_time > latch_bx) {
+	  if (debug) LogDebug("lctDigis")
+	    << "Late comparator digi: layer " << layerId.layer()-1
+	    << " strip/comparator/time =" << (*digiIt) << " skipping...";
+	  continue;
+	}
+
+	// If there is more than one digi on the same strip, pick the one
+	// which occurred earlier.
+	int i_strip = (*digiIt).getStrip() - 1; // starting from 0
+	if (me1a && i_strip < 16) {
+	  // Move ME1/A comparators from CFEB=0 to CFEB=4 if this has not
+	  // been done already.
+	  i_strip += 64;
+	}
+
+	if (time[i_strip] <= 0 || time[i_strip] > bx_time) {
+ 
+	  // @ Switch to maps; check for match in time.
+	  int i_hfstrip = 2*i_strip + (*digiIt).getComparator() + stagger;
+	  hfstripDigis[i_hfstrip] = digi_num;
+
+	  // Arrays for distrip stagger
+	  triad[i_strip]   = (*digiIt).getComparator();
+	  time[i_strip]    = bx_time;
+	  digiNum[i_strip] = digi_num;
+
+	  if (debug) LogDebug("lctDigis")
+	    << "digi_num = " << digi_num << " half-strip = " << i_hfstrip
+	    << " strip = " << i_strip;
+	}
+      }
+    }
+    digiMap.push_back(*digiIt);
+    digi_num++;
+  }
+
+  // Loop for di-strips, including stagger
+  for (int i_strip = 0; i_strip < CSCConstants::MAX_NUM_STRIPS; i_strip++) {
+    if (time[i_strip] >= 0) {
+      int i_distrip = i_strip/2;
+      if (i_strip%2 && triad[i_strip] == 1 && stagger == 1)
+	CSCCathodeLCTProcessor::distripStagger(triad, time, digiNum,
+					       i_strip);
+      distripDigis[i_distrip] = digiNum[i_strip];
+    }
+  }
+
+  return digi_num;
+}
+
 void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info,
 				     const edm::PSimHitContainer* allSimHits) {
   // This routine matches up the closest simHit to every digi on a given layer.
@@ -253,6 +295,7 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info,
   vector<CSCComparatorDigi> thisLayerDigis = info.getRecDigis();
   if (!thisLayerDigis.empty()) {
     CSCDetId layerId = info.getId();
+    bool me11 = (layerId.station() == 1) && (layerId.ring() == 1);
 
     // Get simHits in this layer.
     for (edm::PSimHitContainer::const_iterator simHitIt = allSimHits->begin();
@@ -262,6 +305,12 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info,
       CSCDetId hitId = (CSCDetId)(*simHitIt).detUnitId();
       if (hitId == layerId)
 	simHits.push_back(*simHitIt);
+      if (me11) {
+	CSCDetId layerId_me1a(layerId.endcap(), layerId.station(), 4,
+			      layerId.chamber(), layerId.layer());
+	if (hitId == layerId_me1a)
+	  simHits.push_back(*simHitIt);
+      }
     }
 
     if (!simHits.empty()) {

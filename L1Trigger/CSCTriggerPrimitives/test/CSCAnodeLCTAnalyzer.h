@@ -8,8 +8,8 @@
  * \author Slava Valuev  26 May 2004.
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2006/09/12 09:00:29 $
- * $Revision: 1.1 $
+ * $Date: 2007/10/08 14:30:03 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -55,12 +55,18 @@ class CSCAnodeLCTAnalyzer
   static bool debug;
   static bool isMTCCMask;
 
+  /** Flag to decide whether to analyze stubs in ME1/A or not. */
+  static bool doME1A;
+
   /* Cache geometry for current event. */
   const CSCGeometry* geom_;
 
   /* Find the list of WireDigis belonging to this ALCT. */
   std::vector<CSCAnodeLayerInfo> lctDigis(const CSCALCTDigi& alct,
        const CSCDetId& alctId, const CSCWireDigiCollection* wiredc);
+  void preselectDigis(const int alct_bx, const CSCDetId& layerId,
+		      const CSCWireDigiCollection* wiredc,
+		      std::map<int, CSCWireDigi>& digiMap);
 
   /* Find SimHits closest to each WireDigi on ALCT. */
   void digiSimHitAssociator(CSCAnodeLayerInfo& info,
