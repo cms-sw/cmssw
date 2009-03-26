@@ -5,8 +5,9 @@ hltHITval = cms.EDAnalyzer('ValHcalIsoTrackHLT',
 produceRates=cms.bool(False), 
 sampleCrossSection=cms.double(7.53E10),
 luminosity=cms.double(8E29),
-SaveToRootFile=cms.bool(False),
 outputTxtFileName=cms.string("rates_minBias.txt"),
+
+SaveToRootFile=cms.bool(False),
 
 doL1Prescaling=cms.bool(False),
 gtDigiLabel=cms.InputTag("hltGtDigis"),
@@ -28,7 +29,7 @@ genJetsLabel=cms.InputTag("iterativeCone5GenJets"),
 
 produceRatePdep=cms.bool(True),
 
-folderName=cms.string("HLT/AlCa_IsoTrack"),
+folderName=cms.string("HLT/HcalIsoTrack"),
 outputRootFileName=cms.string("hltHITval.root"),
 
 DebugL2=cms.bool(True),

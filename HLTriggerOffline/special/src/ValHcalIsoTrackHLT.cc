@@ -267,68 +267,64 @@ void ValHcalIsoTrackHLT::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   bool l1pass=false;
 
-  if (produceRates_)
-    {
-      edm::ESHandle<L1GtTriggerMenu> menuRcd;
-      iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
-      const L1GtTriggerMenu* menu = menuRcd.product();
-      const AlgorithmMap& bitMap = menu->gtAlgorithmMap();
+  edm::ESHandle<L1GtTriggerMenu> menuRcd;
+  iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
+  const L1GtTriggerMenu* menu = menuRcd.product();
+  const AlgorithmMap& bitMap = menu->gtAlgorithmMap();
 
-      edm::ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
-      iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);        
-      const L1GtPrescaleFactors* preFac = l1GtPfAlgo.product();
-      const std::vector< std::vector< int > > prescaleSet=preFac->gtPrescaleFactors(); 
+  edm::ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
+  iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);        
+  const L1GtPrescaleFactors* preFac = l1GtPfAlgo.product();
+  const std::vector< std::vector< int > > prescaleSet=preFac->gtPrescaleFactors(); 
       
-      edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
-      iEvent.getByLabel(gtDigiLabel_ ,gtRecord);
-      const DecisionWord dWord = gtRecord->decisionWord(); 
+  edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
+  iEvent.getByLabel(gtDigiLabel_ ,gtRecord);
+  const DecisionWord dWord = gtRecord->decisionWord(); 
       
-      for (unsigned int i=0; i<l1seedNames_.size(); i++)
-	{
-	  int l1seedBitNumber=-10;
-	  for (CItAlgo itAlgo = bitMap.begin(); itAlgo != bitMap.end(); itAlgo++) 
-	    {
-	      if (itAlgo->first==l1seedNames_[i]) l1seedBitNumber = (itAlgo->second).algoBitNumber();
-	    }
-	  int prescale=prescaleSet[0][l1seedBitNumber];
-	  //          std::cout<<l1seedNames_[i]<<"  "<<prescale<<std::endl;
-	  if (menu->gtAlgorithmResult( l1seedNames_[i], dWord)) 
-	    {
-	      l1counter[i]++;
-	      if ((doL1Prescaling_&&l1counter[i]%prescale==0)||(!doL1Prescaling_))
-		{
-		  l1pass=true;
-		  break;
-		}
-	    }
-	}
-	
-      if (checkL1eff_) 
-	{
-	  edm::Handle<reco::GenJetCollection> gjcol;
-	  iEvent.getByLabel(genJetsLabel_,gjcol);
-	  
-	  reco::GenJetCollection::const_iterator gjit=gjcol->begin();
-	  if (gjit!=gjcol->end())
-	    {
-	      etaGJLead=gjit->eta();
-	      phiGJLead=gjit->phi();
-	      hpTgenLead->Fill(gjit->pt(),1);
-	      if (l1pass) hpTgenLeadL1->Fill(gjit->pt(),1);
-	      gjit++;
-	    }
-	  if (gjit!=gjcol->end())
-	    {
-	      hpTgenNext->Fill(gjit->pt(),1);
-	      if (l1pass) hpTgenNextL1->Fill(gjit->pt(),1);
+  for (unsigned int i=0; i<l1seedNames_.size(); i++)
+    {
+      int l1seedBitNumber=-10;
+      for (CItAlgo itAlgo = bitMap.begin(); itAlgo != bitMap.end(); itAlgo++) 
+        {
+          if (itAlgo->first==l1seedNames_[i]) l1seedBitNumber = (itAlgo->second).algoBitNumber();
+        }
+      int prescale=prescaleSet[0][l1seedBitNumber];
+      //          std::cout<<l1seedNames_[i]<<"  "<<prescale<<std::endl;
+      if (menu->gtAlgorithmResult( l1seedNames_[i], dWord)) 
+        {
+          l1counter[i]++;
+          if ((doL1Prescaling_&&l1counter[i]%prescale==0)||(!doL1Prescaling_))
+            {
+	      l1pass=true;
+	      break;
 	    }
 	}
-      
-      if (!l1pass) return;
-      else haccepts->Fill(1+0.0001,1);
-      
-      nL1accepts++;
     }
+  if (checkL1eff_) 
+    {
+      edm::Handle<reco::GenJetCollection> gjcol;
+      iEvent.getByLabel(genJetsLabel_,gjcol);
+	  
+      reco::GenJetCollection::const_iterator gjit=gjcol->begin();
+      if (gjit!=gjcol->end())
+        {
+          etaGJLead=gjit->eta();
+          phiGJLead=gjit->phi();
+          hpTgenLead->Fill(gjit->pt(),1);
+          if (l1pass) hpTgenLeadL1->Fill(gjit->pt(),1);
+          gjit++;
+        }
+      if (gjit!=gjcol->end())
+        {
+          hpTgenNext->Fill(gjit->pt(),1);
+          if (l1pass) hpTgenNextL1->Fill(gjit->pt(),1);
+        }
+    }
+     
+  if (!l1pass) return;
+  else haccepts->Fill(1+0.0001,1);
+      
+  nL1accepts++;
 
   edm::Handle<reco::IsolatedPixelTrackCandidateCollection> l2col;
   if (checkL2_)
@@ -470,6 +466,7 @@ void ValHcalIsoTrackHLT::analyze(const edm::Event& iEvent, const edm::EventSetup
     }
 
 if (passl3) nHLTL3accepts++;
+if (passl3) haccepts->Fill(2+0.0001,1);
 
 if (!l1pass||!passl3) return;
 
@@ -565,36 +562,12 @@ void ValHcalIsoTrackHLT::beginJob(const edm::EventSetup&)
   hpTgenNext=dbe_->book1D("hpTgenNext","hpTgenNext",100,0,100);
 
   hpTgenNextL1=dbe_->book1D("hpTgenNextL1","hpTgenNextL1",100,0,100);
-  
-  hLeadTurnOn=dbe_->book1D("hLeadTurnOn","hLeadTurnOn",100,0,100);
-  hNextToLeadTurnOn=dbe_->book1D("hNextToLeadTurnOn","hNextToLeadTurnOn",100,0,100);
 }
 
 void ValHcalIsoTrackHLT::endJob() {
 
 if(dbe_) 
   {  
-/*
-    TH1F* hpTgLe=hpTgenLead->getTH1F();
-    TH1F* hpTgNe=hpTgenNext->getTH1F();
-    
-    TH1F* hpTgLeL1=hpTgenLeadL1->getTH1F();
-    TH1F* hpTgNeL1=hpTgenNextL1->getTH1F();
-
-    hpTgLe->TH1F::Sumw2();
-    hpTgNe->TH1F::Sumw2();
-    hpTgLeL1->TH1F::Sumw2();
-    hpTgNeL1->TH1F::Sumw2();
-    
-    TH1F* hLTurnOn=new TH1F("hLTurnOn","hLTurnOn",100,0,100);
-    TH1F* hNLTurnOn=new TH1F("hNLTurnOn","hNLTurnOn",100,0,100);
-
-    hLTurnOn->Divide(hpTgLeL1,hpTgLe,1,1);
-    hNLTurnOn->Divide(hpTgNeL1,hpTgNe,1,1); 
-
-    hLeadTurnOn=dbe_->book1D("hLeadTurnOn",hLTurnOn);
-    hNextToLeadTurnOn=dbe_->book1D("hNextToLeadTurnOn",hNLTurnOn);
-*/
     if (saveToRootFile_) dbe_->save(outRootFileName_);
   }
 }
