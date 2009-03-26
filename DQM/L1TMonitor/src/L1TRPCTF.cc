@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2009/03/20 12:07:02 $
- * $Revision: 1.26 $
+ * $Date: 2009/03/24 14:13:57 $
+ * $Revision: 1.27 $
  * \author J. Berryhill
  *
  */
@@ -87,6 +87,20 @@ void L1TRPCTF::beginJob(const EventSetup& c)
   if ( m_dbe ) 
   {
     
+
+    ostringstream oDir; oDir<< output_dir_ << "/CrateSynchroHistograms/";
+    m_dbe->setCurrentFolder(oDir.str());
+    for( unsigned int i = 0; i < 12; i++) {
+      
+       ostringstream o; o<<"RPCTF_crate_"<<i<<"_synchro";
+       rpctfcratesynchro[i] = m_dbe->book2D(o.str(), o.str(), 5, -2.5, 2.5, 33, -16.5, 16.5);
+       for (int bx = -2; bx < 3; ++bx){
+          ostringstream b; b<<"BX="<<bx;
+          rpctfcratesynchro[i]->setBinLabel(bx+3, b.str(),1);
+       }
+       rpctfcratesynchro[i]->setAxisTitle("Tower",2);
+     
+    }
     m_dbe->setCurrentFolder(output_dir_);
     
     rpctfetavalue[1] = m_dbe->book1D("RPCTF_eta_value_bx0", 
@@ -226,11 +240,6 @@ void L1TRPCTF::beginJob(const EventSetup& c)
     }
 
     
-   
-    
-//     m_phipacked = m_dbe->book1D("RPCTF_phi_valuepacked", 
-//                            "RPCTF phi valuepacked", 144, -0.5, 143.5 ) ;
-
     
     m_rateMin = m_dbe->book1D("RPCTF_rate_min",
                               "RPCTrigger - minimal rate", m_rateNoOfBins, 0, m_rateNoOfBins); 
@@ -243,8 +252,10 @@ void L1TRPCTF::beginJob(const EventSetup& c)
                               
     m_bxDiff = m_dbe->book1D("RPCTF_bx_diff",
 			      "RPCTrigger - bx difference", 12000, -.5, 11999.5); 
-    
-  }  
+   
+
+
+  }   // if (m_dbe)
 }
 
 void L1TRPCTF::endRun(const edm::Run & r, const edm::EventSetup & c){
@@ -299,7 +310,10 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
   std::vector<int> nrpctftrack_b(3,0);
   std::vector<int> nrpctftrack_e(3,0);
   bool rpcCandsPresentInEvent = false;
- 
+
+  vector<L1TRPCTF::BxDelays> all_bxdelays;
+
+
   for( RRItr = gmt_records.begin() ;
        RRItr != gmt_records.end() ;
        RRItr++ ) 
@@ -359,7 +373,12 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
 
           m_qualVsEta[bxindex]->Fill(tower, ECItr->quality());
           m_muonsEtaPhi[bxindex]->Fill(tower, ECItr->phi_packed());
-         // m_phipacked->Fill(ECItr->phi_packed());
+
+          BxDelays bx_del;
+          bx_del.bx = ECItr->bx();
+          bx_del.eta_t = tower;
+          bx_del.phi_p = ECItr->phi_packed();
+          all_bxdelays.push_back(bx_del);
           
         } // if !empty
       } // end candidates iteration
@@ -388,6 +407,27 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
     
     
     
+  }
+
+
+   for(unsigned int i = 0; i < all_bxdelays.size(); i++) {
+
+     int sector= ((all_bxdelays[i].phi_p+ 2)%144)/12;
+     if (sector>11 || sector < 0) continue;
+     int eta_tower = all_bxdelays[i].eta_t;
+     for(unsigned int j = 0; j < all_bxdelays.size(); j++) {
+       if(i == j) continue;
+       int sector2= ((all_bxdelays[j].phi_p + 2)%144)/12;
+ 
+       int distance_cut = 1;
+       int distance = ((sector+12)-sector2)%12;
+       distance = min(distance, 11-distance);
+       if(distance<distance_cut) continue;
+ 
+       int bxDiff = all_bxdelays[i].bx-all_bxdelays[j].bx;
+       rpctfcratesynchro[sector]->Fill(bxDiff,eta_tower);
+     }
+
   }
   fillRateHistos(e.orbitNumber());
   
