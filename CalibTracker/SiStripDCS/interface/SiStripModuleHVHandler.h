@@ -19,13 +19,13 @@ namespace popcon{
       void getNewObjects();
       ~SiStripModuleHVHandler();
       SiStripModuleHVHandler(const edm::ParameterSet& pset);
+      std::string id() const { return m_name;}
       
     private:
       void setForTransfer();
-      bool isTransferNeeded();
       std::string m_name;
-      unsigned long long m_since;
-      SiStripModuleHV* SiStripModuleHV_;
+      //      unsigned long long m_since;
+      std::vector< std::pair<SiStripModuleHV*,cond::Time_t> > resultVec;
       edm::Service<SiStripModuleHVBuilder> modHVBuilder;
     };
 }

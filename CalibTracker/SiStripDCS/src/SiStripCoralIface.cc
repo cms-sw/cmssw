@@ -28,6 +28,7 @@ SiStripCoralIface::SiStripCoralIface (std::string connectionString , std::string
 
 // destructor
 SiStripCoralIface::~SiStripCoralIface() {	
+  LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] Destructor called."; 
   con->disconnect();
   delete session;
 }

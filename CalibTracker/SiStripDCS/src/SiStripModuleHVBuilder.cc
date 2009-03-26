@@ -9,9 +9,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <fstream>
+#include "boost/date_time/posix_time/posix_time.hpp"
+#include "boost/date_time.hpp"
 
 // constructor
-SiStripModuleHVBuilder::SiStripModuleHVBuilder(const edm::ParameterSet& pset) : 
+SiStripModuleHVBuilder::SiStripModuleHVBuilder(const edm::ParameterSet& pset, const edm::ActivityRegistry&) : 
   onlineDbConnectionString(pset.getUntrackedParameter<std::string>("onlineDB","")),
   authenticationPath(pset.getUntrackedParameter<std::string>("authPath","../data")),
   whichTable(pset.getUntrackedParameter<std::string>("queryType","STATUSCHANGE")),
@@ -22,7 +24,7 @@ SiStripModuleHVBuilder::SiStripModuleHVBuilder(const edm::ParameterSet& pset) :
   // set up vectors based on pset parameters (tDefault purely for initialization)
   tmin_par = pset.getUntrackedParameter< std::vector<int> >("Tmin",tDefault);
   tmax_par = pset.getUntrackedParameter< std::vector<int> >("Tmax",tDefault);
-
+  
   // initialize the coral timestamps
   if (tmin_par != tDefault && tmax_par != tDefault) {
     // Is there a better way to do this?  TODO - investigate
@@ -34,17 +36,17 @@ SiStripModuleHVBuilder::SiStripModuleHVBuilder(const edm::ParameterSet& pset) :
     LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "] time interval not set properly ... Returning ...";
     return;
   }
-
+  
   if (onlineDbConnectionString == "") {
     LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "] DB name has not been set properly ... Returning ...";
     return;
   }
-
+  
   if (fromFile && whichTable == "LASTVALUE" && lastValueFileName == "") {
     LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "] File expected for lastValue table, but filename not specified ... Returning ...";
     return;
   }
-
+  
   // write out the parameters
   std::stringstream ss;
   ss << "[SiStripModuleHVBuilder::" << __func__ << "]" << std::endl
@@ -64,8 +66,6 @@ SiStripModuleHVBuilder::SiStripModuleHVBuilder(const edm::ParameterSet& pset) :
 // destructor
 SiStripModuleHVBuilder::~SiStripModuleHVBuilder() { 
   LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: destructing ...";
-  delete SiStripModuleHV_; 
-  delete SiStripModuleLV_;
 }
 
 void SiStripModuleHVBuilder::BuildModuleHVObj() {
@@ -107,7 +107,7 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
     cif->doSettingsQuery(tmin,tmax,settingDate,settingValue,settingDpname,settingDpid);
     LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: Channel settings retrieved";
     LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: Number of PSU channels: " << settingDpname.size();
-    
+
     unsigned int missing = 0;
     std::stringstream ss;
     if (fromFile) {
@@ -124,7 +124,7 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
 	  actualStatus[j] = -1;
 	  dpname[j] = "UNKNOWN";
 	  missing++;
-	  ss << "DP ID = " << dpid[j] << " date = " << seal::TimeSpan((changeDate[j]).time()).seconds() << std::endl;
+	  ss << "DP ID = " << dpid[j] << " date = " <<  boost::posix_time::to_iso_extended_string(changeDate[j].time()) << std::endl;
 	}
       }
     } else {
@@ -136,7 +136,7 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
 	} else {
 	  actualStatus[j] = -1;
 	  missing++;
-	  ss << "Channel = " << dpname[j] << " date = " << seal::TimeSpan((changeDate[j]).time()).seconds() << std::endl;
+	  ss << "Channel = " << dpname[j] << " date = " << boost::posix_time::to_iso_extended_string(changeDate[j].time()) << std::endl;
 	}
       }
     }
@@ -151,14 +151,18 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
   SiStripPsuDetIdMap map_;
   map_.BuildMap();
   LogTrace("SiStripModuleHVBuilder") <<"[SiStripModuleHVBuilder::" << __func__ << "] DCU-DET ID map built";
-
-  // use map info to fill SiStripModuleHV objects
+  
+  // use map info to build input for list of objects
   // no need to check for duplicates, as put method for SiStripModuleHV checks for you!
-  std::vector<uint32_t> detidHV, detidLV;
+  DetIdTimeStampVector detidHV, detidLV;
+  std::vector<bool> HVStatusGood, LVStatusGood;
+  //  std::vector<uint32_t> detidHV, detidLV;
   std::stringstream ss1;
   unsigned int notMatched = 0, statusGood = 0, matched = 0;
   for (unsigned int dp = 0; dp < dpname.size(); dp++) {
-    if (dpname[dp] != "UNKNOWN" && actualStatus[dp] != 1) {
+    // 23/03/09 -  removed bad status requirements
+    //    if (dpname[dp] != "UNKNOWN" && actualStatus[dp] != 1) {
+    if (dpname[dp] != "UNKNOWN") {
       // figure out the channel
       std::string board = dpname[dp];
       std::string::size_type loc = board.size()-10;
@@ -167,14 +171,19 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
       std::vector<uint32_t> ids = map_.getDetID(dpname[dp]);
       if (!ids.empty()) {
 	matched++;
-	for (unsigned int i = 0; i < ids.size(); i++) {
-	  if (board == "channel000" || board == "channel001") {
-	    detidLV.push_back(ids[i]);
-	  } else if (board == "channel002" || board == "channel003") {
-	    detidHV.push_back(ids[i]);
+	if (board == "channel000" || board == "channel001") {
+	  detidLV.push_back( std::make_pair(ids,changeDate[dp]) );
+	  if (actualStatus[dp] != 1) {LVStatusGood.push_back(false);}
+	  else {LVStatusGood.push_back(true);}
+	} else if (board == "channel002" || board == "channel003") {
+	  detidHV.push_back( std::make_pair(ids,changeDate[dp]) );
+	  if (actualStatus[dp] != 1) {
+	    HVStatusGood.push_back(false);
 	  } else {
-	    LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "] channel name not recognised! " << board;
+	    HVStatusGood.push_back(true);
 	  }
+	} else {
+	  LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "] channel name not recognised! " << board;
 	}
       } else {
 	notMatched++;
@@ -188,13 +197,45 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
   LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: Number of modules with bad LV channels is         " << detidLV.size();
   //  LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: Channels with no associated Det IDs";
   //  LogTrace("SiStripModuleHVBuilder") << ss1.str();
+  
+  std::vector<bool> statusGoodHVVector, statusGoodLVVector;
+  DetIdCondTimeVector resultHVVector = mergeVectors(detidHV, HVStatusGood, statusGoodHVVector);
+  DetIdCondTimeVector resultLVVector = mergeVectors(detidLV, LVStatusGood, statusGoodLVVector);
 
-  // Store the Det IDs in your object
-  SiStripModuleHV_ = new SiStripModuleHV();
-  SiStripModuleHV_->put(detidHV);
+  std::vector< std::vector<unsigned int> > StatsHV, StatsLV;
 
-  SiStripModuleLV_ = new SiStripModuleHV();
-  SiStripModuleLV_->put(detidLV);
+  std::vector< std::pair<SiStripModuleHV*,cond::Time_t> > HVStore = buildObjectVector(resultHVVector, statusGoodHVVector, StatsHV);
+  std::vector< std::pair<SiStripModuleHV*,cond::Time_t> > LVStore = buildObjectVector(resultLVVector, statusGoodLVVector, StatsLV);
+  
+  // remove duplicate entries before storing in the final output data member
+  resultHV.push_back(HVStore[0]);
+  payloadStatsHV.push_back(StatsHV[0]);
+  unsigned int counter = 0;
+  for (unsigned int loop = 1; loop < HVStore.size(); loop++) {
+    std::vector<uint32_t> oldVec, newVec;
+    (resultHV[counter].first)->getDetIds(oldVec);
+    (HVStore[loop].first)->getDetIds(newVec);
+    if (oldVec != newVec) {
+      resultHV.push_back(HVStore[loop]);
+      payloadStatsHV.push_back(StatsHV[loop]);
+      counter++;
+    } 
+  }
+
+  resultLV.push_back(LVStore[0]);
+  payloadStatsLV.push_back(StatsLV[0]);
+  counter = 0;
+  for (unsigned int loop = 1; loop < LVStore.size(); loop++) {
+    std::vector<uint32_t> oldVec, newVec;
+    (resultLV[counter].first)->getDetIds(oldVec);
+    (LVStore[loop].first)->getDetIds(newVec);
+    if (oldVec != newVec) {
+      resultLV.push_back(LVStore[loop]);
+      payloadStatsLV.push_back(StatsLV[loop]);
+      counter++;
+    } 
+  }
+
 }
 
 int SiStripModuleHVBuilder::findSetting(uint32_t id, coral::TimeStamp changeDate, std::vector<uint32_t> settingID, std::vector<coral::TimeStamp> settingDate) {
@@ -210,8 +251,8 @@ int SiStripModuleHVBuilder::findSetting(uint32_t id, coral::TimeStamp changeDate
   // NB.  entries ordered by date!
   else {
     for (unsigned int j = 0; j < locations.size(); j++) {
-      long testSec = seal::TimeSpan(changeDate.time()).seconds();
-      long limitSec = seal::TimeSpan(settingDate[(unsigned int)locations[j]].time()).seconds();
+      const boost::posix_time::ptime& testSec = changeDate.time();
+      const boost::posix_time::ptime& limitSec = settingDate[(unsigned int)locations[j]].time();
       if (testSec >= limitSec) {setting = locations[j];}
     }
   }
@@ -231,8 +272,8 @@ int SiStripModuleHVBuilder::findSetting(std::string dpname, coral::TimeStamp cha
   // NB.  entries ordered by date!
   else {
     for (unsigned int j = 0; j < locations.size(); j++) {
-      long testSec = seal::TimeSpan(changeDate.time()).seconds();
-      long limitSec = seal::TimeSpan(settingDate[(unsigned int)locations[j]].time()).seconds();
+      const boost::posix_time::ptime& testSec = changeDate.time();
+      const boost::posix_time::ptime& limitSec = settingDate[(unsigned int)locations[j]].time();
       if (testSec >= limitSec) {setting = locations[j];}
     }
   }
@@ -301,4 +342,115 @@ void SiStripModuleHVBuilder::readLastValueFromFile(std::vector<uint32_t> &dpIDs,
     dateChange.push_back(date);
   }
   if (changeDates.size() != dateChange.size()) {edm::LogError("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: date conversion failed!!";}
+}
+
+cond::Time_t SiStripModuleHVBuilder::getIOVTime(coral::TimeStamp coralTime) {
+  unsigned long long coralTimeInNs = coralTime.total_nanoseconds();
+  // total seconds since the Epoch
+  unsigned long long iovSec = coralTimeInNs/1000000000;
+  // the rest of the elapsed time since the Epoch in micro seconds
+  unsigned long long iovMicroSec = (coralTimeInNs%1000000000)/1000;
+  // convert!
+  cond::Time_t iovtime = (iovSec << 32) + iovMicroSec;
+  return iovtime;
+}
+
+// compare to within a minute
+bool SiStripModuleHVBuilder::compareCoralTime(coral::TimeStamp timeA, coral::TimeStamp timeB) {
+  if (timeA.year() == timeB.year() && 
+      timeA.month() == timeB.month() &&
+      timeA.day() == timeB.day() &&
+      timeA.hour() == timeB.hour() &&
+      timeA.minute() == timeB.minute()) {return true;}
+  return false;
+}
+
+std::vector< std::pair< std::vector<uint32_t>, cond::Time_t> > SiStripModuleHVBuilder::mergeVectors(DetIdTimeStampVector inputVector, 
+												    std::vector<bool> inputStatus, std::vector<bool> & outputStatus) {
+  DetIdCondTimeVector resultVector;
+  
+  unsigned int vecSize = inputVector.size();
+  std::vector<bool> vecUsed(vecSize,false);
+  
+  for (unsigned int r = 0; r < (vecSize-1); r++) {
+    std::vector<uint32_t> detids;
+    cond::Time_t iovtime = 0;
+    bool goodStatus = false;
+    if (!vecUsed[r]) {
+      detids = (inputVector[r]).first;
+      iovtime = getIOVTime((inputVector[r]).second);
+      goodStatus = inputStatus[r];
+      vecUsed[r] = true;
+      for (unsigned int t = r+1; t < vecSize; t++) {
+	if (r != t) {
+	  if (!vecUsed[t]) {
+	    if (inputStatus[r] == inputStatus[t]) {
+	      if (compareCoralTime(((inputVector[r]).second), ((inputVector[t]).second))) {
+		detids.insert(detids.end(),((inputVector[t]).first).begin(),((inputVector[t]).first).end());
+		vecUsed[t] = true;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+    if (!detids.empty()) {
+      resultVector.push_back( std::make_pair(detids,iovtime) );
+      outputStatus.push_back(goodStatus);
+    }
+  }
+  return resultVector;
+}
+
+std::vector< std::pair<SiStripModuleHV*,cond::Time_t> > SiStripModuleHVBuilder::buildObjectVector(DetIdCondTimeVector inputVector, std::vector<bool> statusVector, 
+												  std::vector< std::vector<unsigned int> > & statsVector) {
+  std::vector< std::pair<SiStripModuleHV*,cond::Time_t> > storeVector;
+  std::vector<uint32_t> sumVector;
+  statsVector.clear();
+  
+  for (unsigned int i = 0; i < inputVector.size(); i++) {
+    unsigned int numAdded = 0, numRemoved = 0;
+    if (!statusVector[i]) {
+      numAdded = sumVector.size();
+      // if status is bad, add to the list for O2O
+      sumVector.insert(sumVector.end(),((inputVector[i]).first).begin(),((inputVector[i]).first).end());
+    } else { 
+      // if status is good, find the entries in the list and remove them
+      std::vector<uint32_t>::iterator toRemove = sumVector.end();
+      for (unsigned int m = 0; m < ((inputVector[i]).first).size(); m++) {
+	toRemove = find(sumVector.begin(),sumVector.end(),((inputVector[i]).first)[m]);
+	if (toRemove != sumVector.end()) {
+	  sumVector.erase(toRemove);
+	  numRemoved++;
+	}
+      }
+    }
+    // remove duplicates from the summed list before storing
+    std::sort(sumVector.begin(),sumVector.end());
+    std::vector<uint32_t>::iterator it = std::unique(sumVector.begin(),sumVector.end());
+    sumVector.resize( it - sumVector.begin() );
+    
+    if (sumVector.size() >= numAdded) {numAdded = sumVector.size() - numAdded;}
+
+    std::vector<unsigned int> stats(3,0);
+    stats[0] = sumVector.size();
+    stats[1] = numAdded;
+    stats[2] = numRemoved;
+    
+    // And store!
+    SiStripModuleHV * modHV = new SiStripModuleHV();
+    modHV->put(sumVector);
+    storeVector.push_back( std::make_pair(modHV,(inputVector[i].second)) ); 
+    statsVector.push_back(stats);
+  }
+  return storeVector;
+}
+
+std::vector< std::vector<uint32_t> > SiStripModuleHVBuilder::getPayloadStats( std::string powerType ) {
+  if (powerType == "LV") {return payloadStatsLV;}
+  else if (powerType == "HV") {return payloadStatsHV;}
+  
+  std::vector< std::vector<uint32_t> > emptyVec;
+  LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: powerType "  << powerType << " no recognised!";
+  return emptyVec;
 }

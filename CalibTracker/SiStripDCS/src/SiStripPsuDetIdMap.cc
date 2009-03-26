@@ -27,6 +27,7 @@ void SiStripPsuDetIdMap::BuildMap() {
   // initialize the map vector
   pgMap.clear();
   detectorLocations.clear();
+  dcuIds.clear();
   // first = DCU ID, second = pointer to TkDcuInfo object
   SiStripConfigDb::DcuDetIdsV dcu_detid_vector;
   // pointer to TkDcuPsuMap objects
@@ -82,11 +83,13 @@ void SiStripPsuDetIdMap::BuildMap() {
 	  if (!presentInMap && !multiEntry) {
 	    pgMap.push_back( std::make_pair( iter->second->getDetId(), powerGroup[psu]->getDatapointName() ) );
 	    detectorLocations.push_back( powerGroup[psu]->getPVSSName() );
+	    dcuIds.push_back( powerGroup[psu]->getDcuHardId() );
 	  }
 	  if (multiEntry) {
 	    pgMap[locInMap].first = iter->second->getDetId();
 	    pgMap[locInMap].second = powerGroup[psu]->getDatapointName();
 	    detectorLocations[locInMap] = powerGroup[psu]->getPVSSName();
+	    dcuIds[locInMap] = powerGroup[psu]->getDcuHardId();
 	  }
 	}
       }
@@ -185,6 +188,41 @@ std::string SiStripPsuDetIdMap::getPSUName(uint32_t detid) {
   // if we reach here, then we didn't find the detid in the map
   return "UNKNOWN";
 }
+
+// returns the PVSS name for a given DETID
+std::string SiStripPsuDetIdMap::getDetectorLocation(uint32_t detid) {
+  for (unsigned int i = 0; i < pgMap.size(); i++) {
+    if (pgMap[i].first == detid) {return detectorLocations[i];}
+  }
+  return "UNKNOWN";
+}
+
+// returns the PVSS name for a given PSU channel
+std::string SiStripPsuDetIdMap::getDetectorLocation(std::string pvss) {
+  for (unsigned int i = 0; i < pgMap.size(); i++) {
+    if (pgMap[i].second == pvss) {return detectorLocations[i];}
+  }
+  return "UNKNOWN";
+}
+
+// returns the DCU ID for a given PSU channel
+uint32_t SiStripPsuDetIdMap::getDcuId(std::string pvss) {
+  for (unsigned int i = 0; i < pgMap.size(); i++) {
+    if (pgMap[i].second == pvss) {return dcuIds[i];}
+  }
+  return 0;
+}
+
+uint32_t SiStripPsuDetIdMap::getDcuId(uint32_t detid) {
+  for (unsigned int i = 0; i < pgMap.size(); i++) {
+    if (pgMap[i].first == detid) {return dcuIds[i];}
+  }
+  return 0;
+}
+
+std::vector< std::pair<uint32_t, std::string> > SiStripPsuDetIdMap::getPsuDetIdMap() {return pgMap;}
+std::vector<std::string> SiStripPsuDetIdMap::getDetectorLocations() {return detectorLocations;}
+std::vector<uint32_t> SiStripPsuDetIdMap::getDcuIds() {return dcuIds;}
 
 // determine if a given PSU channel is HV or not
 int SiStripPsuDetIdMap::IsHVChannel(std::string pvss) {

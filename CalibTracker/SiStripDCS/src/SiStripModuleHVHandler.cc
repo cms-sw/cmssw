@@ -8,11 +8,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 popcon::SiStripModuleHVHandler::SiStripModuleHVHandler (const edm::ParameterSet& pset) :
-  m_name(pset.getUntrackedParameter<std::string>("name","SiStripModuleHVHandler")),
-  m_since(pset.getUntrackedParameter<uint32_t>("since",5))
+  m_name(pset.getUntrackedParameter<std::string>("name","SiStripModuleHVHandler"))
 { }
 
-popcon::SiStripModuleHVHandler::~SiStripModuleHVHandler() { }
+popcon::SiStripModuleHVHandler::~SiStripModuleHVHandler() { 
+  LogTrace("SiStripModuleHVHandler") << "[SiStripModuleHVHandler::" << __func__ << "] Destructing ...";
+}
 
 void popcon::SiStripModuleHVHandler::getNewObjects()
 {
@@ -45,43 +46,58 @@ void popcon::SiStripModuleHVHandler::getNewObjects()
   edm::LogInfo   ("SiStripModuleHVHandler") << dbstr.str();
   
 
-  if (isTransferNeeded()) {
-    setForTransfer();
-  }
+  //  if (isTransferNeeded()) {
+  setForTransfer();
+  //  }
 }
 
 void popcon::SiStripModuleHVHandler::setForTransfer() { 
-  edm::LogInfo   ("SiStripModuleHVHandler") << "\n\n-------\n setForTransfer "  << std::endl;
+  edm::LogInfo("SiStripModuleHVHandler") << "[SiStripModuleHVHandler::" << __func__ << "]" << std::endl;
+
+  // build the object!
+  resultVec.clear();
+  modHVBuilder->BuildModuleHVObj();
+  resultVec = modHVBuilder->getSiStripModuleHV();
+  std::vector< std::vector<uint32_t> > payloadStatsHV = modHVBuilder->getPayloadStats("HV");
   
-  SiStripModuleHV *modHV = 0;
-  modHV = modHVBuilder->getSiStripModuleHV();
-
-  if (!this->tagInfo().size) {
-    m_since=1;
-  } else {
-    if (modHV != 0){
-      edm::LogInfo("SiStripModuleHVHandler") << "setting since = " << m_since << std::endl;
-      this->m_to_transfer.push_back(std::make_pair(modHV,m_since));
+  if (!resultVec.empty()){
+    // assume by default that transfer is needed
+    bool is_transfer_needed = true;
+    
+    // check if there is an existing payload and retrieve if there is
+    if (tagInfo().size > 0) {
+      Ref payload = lastPayload();
+      // resultVec does not contain duplicates, so only need to compare payload with resultVec[0]
+      SiStripModuleHV * modHV = resultVec[0].first;
+      if (*modHV == *payload) {
+	is_transfer_needed = false;
+	LogTrace("SiStripModuleHVHandler") << "[SiStripModuleHVHandler::" << __func__ << "] Transfer of first element not required!";
+      }
     } else {
-      edm::LogError("SiStripModuleHVHandler") << "[setForTransfer] " 
-					      << m_name << "  : NULL pointer reported by SiStripModuleHVBuilderDb"
-					      << "\n Transfer aborted"<< std::endl;
+      LogTrace("SiStripModuleHVHandler") << "[SiStripModuleHVHandler::" << __func__ << "] No previous payload";
     }
-  }
-}
+    
+    std::stringstream ss;
+    ss << "@@@ Number of payloads transferred " << resultVec.size() << ". "
+       << "PayloadNo/Badmodules/NoAdded/NoRemoved: ";
+    for (unsigned int j = 0; j < payloadStatsHV.size(); j++) {
+      ss << j << "/" << payloadStatsHV[j][0] << "/" << payloadStatsHV[j][1] << "/" << payloadStatsHV[j][2] << ". ";
+    }
+    this->m_userTextLog = ss.str();
+    
+    for (unsigned int i = 0; i < resultVec.size(); i++) {
+      if (i == 0 && is_transfer_needed) {
+	this->m_to_transfer.push_back(resultVec[i]);
+      } else if (i > 0) {
+	this->m_to_transfer.push_back(resultVec[i]);
+      }
+    }
 
-bool popcon::SiStripModuleHVHandler::isTransferNeeded(){
-  edm::LogInfo("SiStripModuleHVHandler") << "[isTransferNeeded] checking for transfer"  << std::endl;
-  std::stringstream ss_logdb;
+    LogTrace("SiStripModuleHVHandler") << "[SiStripModuleHVHandler::" << __func__ << "] " << ss.str();
 
-  // get log information from previous upload
-  if (this->tagInfo().size) {
-    ss_logdb << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@"));
   } else {
-    ss_logdb << "";
+    edm::LogError("SiStripModuleHVHandler") << "[SiStripModuleHVHandler::" << __func__ << "] " 
+					    << m_name << "  : NULL pointer reported by SiStripModuleHVBuilder"
+					    << "\n Transfer aborted"<< std::endl;
   }
-
-  // how to decide whether a new upload is needed?
-
-  return false;
 }

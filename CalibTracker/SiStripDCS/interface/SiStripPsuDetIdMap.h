@@ -41,7 +41,21 @@ class SiStripPsuDetIdMap
   std::vector<uint32_t> getDetID(std::string pvss);
   /** Returns the PSU channel name for the specified Det ID. */
   std::string getPSUName(uint32_t detid);
+  /** Returns the detector location for the specified Det ID. */
+  std::string getDetectorLocation(uint32_t detid);
+  /** Returns the detector location for the specified PSU channel. */
+  std::string getDetectorLocation(std::string pvss);
+  /** Returns the DCU ID for the specified PSU channel. */
+  uint32_t getDcuId(std::string pvss);
+  uint32_t getDcuId(uint32_t detid);
   /** Produces a formatted printout of the PSU-DETID map. */
+
+  /** Return the PSU-DETID map as a vector. */
+  std::vector< std::pair<uint32_t, std::string> > getPsuDetIdMap();
+  /** Return the detector locations as a vector - one-to-one correspondance with the contents of the PSU-DetID map vector. */
+  std::vector<std::string> getDetectorLocations();
+  std::vector<uint32_t> getDcuIds();
+
   void printMap();
   /** Main routine that accesses the DB and builds the PSU-DETID map. */
   void BuildMap();
@@ -68,6 +82,7 @@ class SiStripPsuDetIdMap
   edm::Service<SiStripConfigDb> db_;
   PsuDetIdMap pgMap;
   std::vector<std::string> detectorLocations;
+  std::vector<uint32_t> dcuIds;
   DcuPsus DcuPsuMapPG_;
 };
 #endif
