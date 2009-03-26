@@ -395,12 +395,12 @@ void GctBlockUnpackerV3::blockToRctCaloRegions(const unsigned char * d, const Gc
       {
         if (crate<9) // negative eta
         {
-          ieta = 11-i; 
+          ieta = 12-i; 
           iphi = 2*((11-crate)%9);
         }
         else // positive eta
         {
-          ieta = 10+i;
+          ieta = 9+i;
           iphi = 2*((20-crate)%9);
         }
         
