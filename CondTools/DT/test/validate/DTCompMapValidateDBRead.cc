@@ -20,7 +20,7 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondTools/DT/test/stubs/DTCompMapValidateDBRead.h"
+#include "CondTools/DT/test/validate/DTCompMapValidateDBRead.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 #include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 
