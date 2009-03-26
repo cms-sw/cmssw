@@ -7,7 +7,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpot.cc,v 1.6 2008/04/04 16:16:59 yumiceva Exp $
+ version $Id: BeamSpot.cc,v 1.7 2009/03/13 21:21:58 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -86,7 +86,7 @@ namespace reco {
 
       AlgebraicSymMatrix33 diagError ;
       diagError(0,0) = pow(BeamWidthX(),2);
-      diagError(1,1) = pow(BeamWidthX(),2);
+      diagError(1,1) = pow(BeamWidthY(),2);
       diagError(2,2) = pow(sigmaZ(),2);
 
       Covariance3DMatrix matrix;
