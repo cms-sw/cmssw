@@ -14,7 +14,8 @@ using namespace reco;
 
 // default constructor
 HcalNoiseRBX::HcalNoiseRBX() :
-  idnumber_(0), hpds_(HcalHPDRBXMap::NUM_HPDS_PER_RBX)
+  idnumber_(0), hpds_(HcalHPDRBXMap::NUM_HPDS_PER_RBX),
+  allCharge_(HBHEDataFrame::MAXSAMPLES, 0.0)
 {
 }
 
@@ -49,7 +50,7 @@ int HcalNoiseRBX::iphihi(void) const
   return HcalHPDRBXMap::iphihiRBX(idnumber_);
 }
 
-const std::vector<HcalNoiseHPD>& HcalNoiseRBX::HPDs(void) const
+const std::vector<HcalNoiseHPD> HcalNoiseRBX::HPDs(void) const
 {
   return hpds_;
 }
@@ -68,6 +69,40 @@ std::vector<HcalNoiseHPD>::const_iterator HcalNoiseRBX::maxHPD(double threshold)
   return maxit;
 }
 
+const std::vector<float> HcalNoiseRBX::allCharge(void) const
+{
+  return allCharge_;
+}
+  
+float HcalNoiseRBX::allChargeTotal(void) const
+{
+  float total=0;
+  for(unsigned int i=0; i<allCharge_.size(); i++) {
+    total += allCharge_[i];
+  }
+  return total;
+}
+  
+float HcalNoiseRBX::allChargeHighest2TS(void) const
+{
+  float total=0;
+  for(unsigned int i=0; i<allCharge_.size()-1; i++) {
+    float temp = allCharge_[i]+allCharge_[i+1];
+    if(temp>total) total=temp;
+  }
+  return total;
+}
+  
+float HcalNoiseRBX::allChargeHighest3TS(void) const
+{
+  float total=0;
+  for(unsigned int i=0; i<allCharge_.size()-2; i++) {
+    float temp = allCharge_[i]+allCharge_[i+1]+allCharge_[i+2];
+    if(temp>total) total=temp;
+  }
+  return total;
+}
+  
 
 int HcalNoiseRBX::totalZeros(void) const
 {

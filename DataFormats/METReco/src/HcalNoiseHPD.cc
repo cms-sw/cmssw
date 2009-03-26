@@ -17,9 +17,8 @@ using namespace reco;
 // default constructor
 HcalNoiseHPD::HcalNoiseHPD()
   : idnumber_(0), totalZeros_(0), maxZeros_(0),
-    bigDigi_(HBHEDataFrame::MAXSAMPLES, 0.0),
-    big5Digi_(HBHEDataFrame::MAXSAMPLES, 0.0),
-    allDigi_(HBHEDataFrame::MAXSAMPLES, 0.0)
+    bigCharge_(HBHEDataFrame::MAXSAMPLES, 0.0),
+    big5Charge_(HBHEDataFrame::MAXSAMPLES, 0.0)
 {
   // reserve some space, so that there's no reallocation issues
   rechits_.reserve(19);
@@ -57,133 +56,69 @@ int HcalNoiseHPD::iphihi(void) const
   return HcalHPDRBXMap::iphihiHPD(idnumber_);
 }
   
-const std::vector<float>& HcalNoiseHPD::bigDigi(void) const
+const std::vector<float> HcalNoiseHPD::bigCharge(void) const
 {
-  return bigDigi_;
+  return bigCharge_;
 }
   
-float HcalNoiseHPD::bigDigiTime(void) const
-{
-  float total=0, time=0;
-  for(unsigned int i=0; i<bigDigi_.size(); i++) {
-    time  += i*bigDigi_[i];
-    total += bigDigi_[i];
-  }
-  return total!=0.0 ? time/total : -999.;
-}
-  
-float HcalNoiseHPD::bigDigiTotal(void) const
+float HcalNoiseHPD::bigChargeTotal(void) const
 {
   float total=0;
-  for(unsigned int i=0; i<bigDigi_.size(); i++) {
-    total += bigDigi_[i];
+  for(unsigned int i=0; i<bigCharge_.size(); i++) {
+    total += bigCharge_[i];
   }
   return total;
 }
   
-float HcalNoiseHPD::bigDigiHighest2TS(void) const
+float HcalNoiseHPD::bigChargeHighest2TS(void) const
 {
   float total=0;
-  for(unsigned int i=0; i<bigDigi_.size()-1; i++) {
-    float temp = bigDigi_[i]+bigDigi_[i+1];
+  for(unsigned int i=0; i<bigCharge_.size()-1; i++) {
+    float temp = bigCharge_[i]+bigCharge_[i+1];
     if(temp>total) total=temp;
   }
   return total;
 }
   
-float HcalNoiseHPD::bigDigiHighest3TS(void) const
+float HcalNoiseHPD::bigChargeHighest3TS(void) const
 {
   float total=0;
-  for(unsigned int i=0; i<bigDigi_.size()-2; i++) {
-    float temp = bigDigi_[i]+bigDigi_[i+1]+bigDigi_[i+2];
+  for(unsigned int i=0; i<bigCharge_.size()-2; i++) {
+    float temp = bigCharge_[i]+bigCharge_[i+1]+bigCharge_[i+2];
     if(temp>total) total=temp;
   }
   return total;
 }
   
-const std::vector<float>& HcalNoiseHPD::big5Digi(void) const
+const std::vector<float> HcalNoiseHPD::big5Charge(void) const
 {
-  return big5Digi_;
+  return big5Charge_;
 }
   
-float HcalNoiseHPD::big5DigiTime(void) const
-{
-  float total=0, time=0;
-  for(unsigned int i=0; i<big5Digi_.size(); i++) {
-    time  += i*big5Digi_[i];
-    total += big5Digi_[i];
-  }
-  return total!=0.0 ? time/total : -999.;
-}
-  
-float HcalNoiseHPD::big5DigiTotal(void) const
+float HcalNoiseHPD::big5ChargeTotal(void) const
 {
   float total=0;
-  for(unsigned int i=0; i<big5Digi_.size(); i++) {
-    total += big5Digi_[i];
+  for(unsigned int i=0; i<big5Charge_.size(); i++) {
+    total += big5Charge_[i];
   }
   return total;
 }
   
-float HcalNoiseHPD::big5DigiHighest2TS(void) const
+float HcalNoiseHPD::big5ChargeHighest2TS(void) const
 {
   float total=0;
-  for(unsigned int i=0; i<big5Digi_.size()-1; i++) {
-    float temp = big5Digi_[i]+big5Digi_[i+1];
+  for(unsigned int i=0; i<big5Charge_.size()-1; i++) {
+    float temp = big5Charge_[i]+big5Charge_[i+1];
     if(temp>total) total=temp;
   }
   return total;
 }
   
-float HcalNoiseHPD::big5DigiHighest3TS(void) const
+float HcalNoiseHPD::big5ChargeHighest3TS(void) const
 {
   float total=0;
-  for(unsigned int i=0; i<big5Digi_.size()-2; i++) {
-    float temp = big5Digi_[i]+big5Digi_[i+1]+big5Digi_[i+2];
-    if(temp>total) total=temp;
-  }
-  return total;
-}
-  
-const std::vector<float>& HcalNoiseHPD::allDigi(void) const
-{
-  return allDigi_;
-}
-  
-float HcalNoiseHPD::allDigiTime(void) const
-{
-  float total=0, time=0;
-  for(unsigned int i=0; i<allDigi_.size(); i++) {
-    time  += i*allDigi_[i];
-    total += allDigi_[i];
-  }
-  return total!=0.0 ? time/total : -999.;
-}
-  
-float HcalNoiseHPD::allDigiTotal(void) const
-{
-  float total=0;
-  for(unsigned int i=0; i<allDigi_.size(); i++) {
-    total += allDigi_[i];
-  }
-  return total;
-}
-  
-float HcalNoiseHPD::allDigiHighest2TS(void) const
-{
-  float total=0;
-  for(unsigned int i=0; i<allDigi_.size()-1; i++) {
-    float temp = allDigi_[i]+allDigi_[i+1];
-    if(temp>total) total=temp;
-  }
-  return total;
-}
-  
-float HcalNoiseHPD::allDigiHighest3TS(void) const
-{
-  float total=0;
-  for(unsigned int i=0; i<allDigi_.size()-2; i++) {
-    float temp = allDigi_[i]+allDigi_[i+1]+allDigi_[i+2];
+  for(unsigned int i=0; i<big5Charge_.size()-2; i++) {
+    float temp = big5Charge_[i]+big5Charge_[i+1]+big5Charge_[i+2];
     if(temp>total) total=temp;
   }
   return total;
@@ -199,7 +134,7 @@ int HcalNoiseHPD::maxZeros(void) const
   return maxZeros_;
 }
 
-const edm::RefVector<HBHERecHitCollection>& HcalNoiseHPD::recHits(void) const
+const edm::RefVector<HBHERecHitCollection> HcalNoiseHPD::recHits(void) const
 {
   return rechits_;
 }
@@ -244,7 +179,7 @@ int HcalNoiseHPD::numRecHits(float threshold) const
   return count;
 }
 
-const edm::RefVector<CaloTowerCollection>& HcalNoiseHPD::caloTowers(void) const
+const edm::RefVector<CaloTowerCollection> HcalNoiseHPD::caloTowers(void) const
 {
   return calotowers_;
 }

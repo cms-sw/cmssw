@@ -67,11 +67,17 @@ namespace reco {
     //
 
     // returns a reference to a vector of HcalNoiseHPDs
-    const std::vector<HcalNoiseHPD>& HPDs(void) const;
+    const std::vector<HcalNoiseHPD> HPDs(void) const;
 
     // return HPD with the highest rechit energy in the RBX
     // individual rechits only contribute if they have E>threshold
     std::vector<HcalNoiseHPD>::const_iterator maxHPD(double threshold=1.5) const;
+
+    // pedestal subtracted fC information for all of the pixels in the RBX
+    const std::vector<float> allCharge(void) const;
+    float allChargeTotal(void) const;
+    float allChargeHighest2TS(void) const;
+    float allChargeHighest3TS(void) const;
 
     // total number of adc zeros in the RBX
     int totalZeros(void) const;
@@ -102,6 +108,9 @@ namespace reco {
     
     // the hpds
     std::vector<HcalNoiseHPD> hpds_;
+
+    // the charge
+    std::vector<float> allCharge_;
   };
   
 } // end of namespace

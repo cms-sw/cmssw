@@ -85,29 +85,17 @@ namespace reco {
     // Digi accessors
     //
     
-    // pedestal subtracted fC information for the highest energy digi in the HPD by timeslice
-    // bigDigi() returns a const reference to the digis
-    // also returns the average time and total fC for the digi integrated over all timeslices
-    // bigDigiHighest2/3TS are the sum of the highest 2/3 consecutive time slices
-    const std::vector<float>& bigDigi(void) const;
-    float bigDigiTime(void) const;
-    float bigDigiTotal(void) const;
-    float bigDigiHighest2TS(void) const;
-    float bigDigiHighest3TS(void) const;
+    // pedestal subtracted fC information for the highest energy pixel in the HPD by timeslice
+    const std::vector<float> bigCharge(void) const;
+    float bigChargeTotal(void) const;
+    float bigChargeHighest2TS(void) const;
+    float bigChargeHighest3TS(void) const;
     
-    // same as above but the integral over the 5 highest energy Digis
-    const std::vector<float>& big5Digi(void) const;
-    float big5DigiTime(void) const;
-    float big5DigiTotal(void) const;
-    float big5DigiHighest2TS(void) const;
-    float big5DigiHighest3TS(void) const;
-    
-    // same as above but the integral over all the digis in the HPD
-    const std::vector<float>& allDigi(void) const;
-    float allDigiTime(void) const;
-    float allDigiTotal(void) const;
-    float allDigiHighest2TS(void) const;
-    float allDigiHighest3TS(void) const;
+    // same as above but the integral over the 5 highest energy pixels in the HPD
+    const std::vector<float> big5Charge(void) const;
+    float big5ChargeTotal(void) const;
+    float big5ChargeHighest2TS(void) const;
+    float big5ChargeHighest3TS(void) const;
     
     // total number of adc zeros
     int totalZeros(void) const;
@@ -120,7 +108,7 @@ namespace reco {
     //
 
     // returns a reference to a vector of references to the rechits
-    const edm::RefVector<HBHERecHitCollection>& recHits(void) const;
+    const edm::RefVector<HBHERecHitCollection> recHits(void) const;
     
     // integral of rechit energies in the HPD with E>threshold (default is 1.5 GeV)
     float recHitEnergy(float threshold=1.5) const;
@@ -137,7 +125,7 @@ namespace reco {
     //
     
     // returns a reference to a vector of references to the calotowers
-    const edm::RefVector<CaloTowerCollection>& caloTowers(void) const;
+    const edm::RefVector<CaloTowerCollection> caloTowers(void) const;
 
     // calotower properties integrated over the entire HPD
     double caloTowerHadE(void) const;
@@ -154,9 +142,8 @@ namespace reco {
     // digi data members
     int totalZeros_;
     int maxZeros_;
-    std::vector<float> bigDigi_;
-    std::vector<float> big5Digi_;
-    std::vector<float> allDigi_;
+    std::vector<float> bigCharge_;
+    std::vector<float> big5Charge_;
     
     // a vector of references to rechits
     edm::RefVector<HBHERecHitCollection> rechits_;
