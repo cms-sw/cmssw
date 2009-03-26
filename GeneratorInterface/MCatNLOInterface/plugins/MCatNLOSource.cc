@@ -125,11 +125,28 @@ void MCatNLOSource::beginRun(edm::Run &run)
     hw6header.addLine(makeConfigLine("EMMAX", mcpars_.emmax));
   if(mcpars_.gammaxs) 
     hw6header.addLine(makeConfigLine("GAMMAX",mcpars_.gammax));
+  if(mcpars_.gamzs) 
+    hw6header.addLine(makeConfigLine("GAMZ",mcpars_.gamz));
+  if(mcpars_.gamws) 
+    hw6header.addLine(makeConfigLine("GAMW",mcpars_.gamw));
   for(unsigned int i=0; i<1000; ++i) {
     if(mcpars_.rmasss[i])
       hw6header.addLine(makeConfigLine("RMASS",i+1,mcpars_.rmass[i]));
   }
+
+  // other needed MC@NLO defaults (from mcatnlo_hwdriver.f v3.4)
+  hw6header.addLine(makeConfigLine("SOFTME", false));
+  hw6header.addLine(makeConfigLine("NOWGT", false));
+  hw6header.addLine(makeConfigLine("NEGWTS", true));
+  if(abs(processCode)==1705 || abs(processCode)==11705)
+    hw6header.addLine(makeConfigLine("PSPLT",2,0.5));
+  double wgtmax_=1.000001;
+  hw6header.addLine(makeConfigLine("WGTMAX", wgtmax_));
+  hw6header.addLine(makeConfigLine("AVABW", wgtmax_));
+  hw6header.addLine(makeConfigLine("RLTIM",6, 1.0E-23));
+  hw6header.addLine(makeConfigLine("RLTIM",12, 1.0E-23));
   
+
   runInfo->addHeader(hw6header);
 
   run.put(runInfo);
@@ -144,10 +161,15 @@ bool MCatNLOSource::produce(edm::Event &event)
   int lastEventDone=0;
   int ihpro=0;
   // skip events if asked to...
-  while(skipEvents--) {
-    mcatnloupevnt_(&processCode,&lastEventDone,&ihpro);
-    if(lastEventDone) return false;
+
+  if(false) {
+    while(skipEvents>0) {
+      skipEvents--;
+      mcatnloupevnt_(&processCode,&lastEventDone,&ihpro);
+      if(lastEventDone) return false;
+    }
   }
+
 
   // call UPINIT privided by MC@NLO (v3.4)
   mcatnloupevnt_(&processCode,&lastEventDone,&ihpro);

@@ -6,14 +6,17 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 process.source = cms.Source("MCatNLOSource",
-	fileNames = cms.untracked.vstring('file:Higgs160.events'),
-        processCode = cms.int32(-1610)                       
+#                            fileNames = cms.untracked.vstring('file:/home/xv/fabstoec/mcnloscratch/WW.events'),
+#                            processCode = cms.int32(-12850),
+                            fileNames = cms.untracked.vstring('file:/home/xv/fabstoec/mcnloscratch/TT.events'),
+                            processCode = cms.int32(-11706),
+#                            fileNames = cms.untracked.vstring('file:/home/xv/fabstoec/mcnloscratch/Z.events'),
+#                            processCode = cms.int32(-11361),
+                            skipEvents=cms.untracked.uint32(0)
 
 )
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
-
-process.writer = cms.EDAnalyzer("LHEWriter")
 
 process.generator = cms.EDFilter("Herwig6HadronizerFilter",
 	comEnergy = cms.double(10000.0),
@@ -21,7 +24,7 @@ process.generator = cms.EDFilter("Herwig6HadronizerFilter",
 	doMPInteraction = cms.bool(False),
 
 	herwigHepMCVerbosity = cms.untracked.bool(False),
-	herwigVerbosity = cms.untracked.int32(0),
+	herwigVerbosity = cms.untracked.int32(1),
 	printCards = cms.untracked.bool(True),
 	maxEventsToPrint = cms.untracked.int32(0),
 
@@ -30,46 +33,39 @@ process.generator = cms.EDFilter("Herwig6HadronizerFilter",
 
 	emulatePythiaStatusCodes = cms.untracked.bool(False),
 
+        numTrialsMPI = cms.untracked.int32(1),
+
 	HerwigParameters = cms.PSet(
 		parameterSets = cms.vstring(
-			'jimmyUESettings',
-			'herwigHZZ4mu'
-#			'herwigQCDjets'
+			'herwigMcatnlo'
 		),
-		jimmyUESettings = cms.vstring(
-			'JMUEO      = 1          ! multiparton interaction model', 
-			'PTJIM      = 4.449      ! 2.8x(sqrt(s)/1.8TeV)^0.27 @ 10 TeV', 
-			'JMRAD(73)  = 1.8        ! inverse proton radius squared', 
-			'PRSOF      = 0.0        ! prob. of a soft underlying event'
-		),
-		herwigHZZ4mu = cms.vstring(
-			'RMASS(201) = 175        ! Mass of the Higgs boson',
-			'IPROC      = 1611       ! Process gg -> H -> ZZ',
-			'MODBOS(1)  = 3          ! enforde first Z -> mumu',
-			'MODBOS(2)  = 3          ! enforce second Z -> mumu',
-#			'MODPDF(1)  = 20060      ! PDF set according to LHAGLUE',
-#			'MODPDF(2)  = 20060      ! MRST2001LO',
-			'PTJIM	    = 2.5',
-			'PTMIN      = 2.5'
-		),
-		herwigQCDjets = cms.vstring(
-			'IPROC      = 2505      ! QCD 2->2 processes',
-			'PTMIN      = 80.       ! minimum pt in hadronic jet',
-			'MODPDF(1)  = 10041     ! PDF set according to LHAGLUE',
-			'MODPDF(2)  = 10041     ! CTEQ6L',
+                herwigMcatnlo = cms.vstring(
+			'PTMIN      = 0.5       ! minimum pt in hadronic jet'
 		)
 	)
 )
+
+
+process.RandomNumberGeneratorService.generator = cms.PSet(
+        initialSeed = cms.untracked.uint32(123456789),
+        engineName = cms.untracked.string('HepJamesRandom')
+)
+
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.threshold = 'INFO'
+
 
 process.ProductionFilterSequence = cms.Sequence(process.generator)
 
 process.generation_step = cms.Path(process.ProductionFilterSequence)
 
 process.output = cms.OutputModule("PoolOutputModule",
-	fileName = cms.untracked.string('herwigHZZ4mu.root'),
-	SelectEvents = cms.untracked.PSet(
-		SelectEvents = cms.vstring('generation_step')
-	)
+                                  fileName = cms.untracked.string('/home/xv/fabstoec/mcnloscratch/mcatnloTTee.root'),
+#                                  fileName = cms.untracked.string('/home/xv/fabstoec/mcnloscratch/mcatnloWWee.root'),
+#                                  fileName = cms.untracked.string('/home/xv/fabstoec/mcnloscratch/mcatnloZee.root'),
+                                  SelectEvents = cms.untracked.PSet(
+    SelectEvents = cms.vstring('generation_step')
+    )
 )
 
-process.output_step = cms.EndPath(process.writer*process.output)
+process.output_step = cms.EndPath(process.output)

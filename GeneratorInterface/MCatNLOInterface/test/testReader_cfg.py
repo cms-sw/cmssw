@@ -4,8 +4,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("LHE")
 
 process.source = cms.Source("MCatNLOSource",
-	fileNames = cms.untracked.vstring('file:Higgs160.events'),
-        processCode = cms.int32(-1610)                       
+	fileNames = cms.untracked.vstring('file:/home/xv/fabstoec/mcnloscratch/Z.events'),
+        processCode = cms.int32(-11361)                       
 
 )
 

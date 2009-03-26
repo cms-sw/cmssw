@@ -24,10 +24,14 @@ extern "C" {
     double emmax;
     double gammax;
     double rmass[1000];
+    double gamw;
+    double gamz;
     int emmins;
     int emmaxs;
     int gammaxs;
     int rmasss[1000];
+    int gamws;
+    int gamzs;
   } mcpars_; 
 }    
 
