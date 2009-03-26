@@ -30,7 +30,7 @@ if Source == str("TRIV") :
     process.SiStripDigiToRaw.InputDigiLabel = ''
 
     process.DigiValidator.TagCollection1 = "DigiSource"
-    process.newDigiValidator.TagCollection1 = "DigiSource"
+    process.oldDigiValidator.TagCollection1 = "DigiSource"
 
     process.p = cms.Path( process.DigiSource * process.s )
 
@@ -47,7 +47,7 @@ elif Source == str("SIM") :
     process.SiStripDigiToRaw.InputDigiLabel = 'ZeroSuppressed'
 
     process.DigiValidator.TagCollection1 = "simSiStripDigis:ZeroSuppressed"
-    process.newDigiValidator.TagCollection1 = "simSiStripDigis:ZeroSuppressed"
+    process.oldDigiValidator.TagCollection1 = "simSiStripDigis:ZeroSuppressed"
 
     process.p = cms.Path( process.s )
 
@@ -80,19 +80,19 @@ if Mode == str("ZS") :
     
     process.SiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
 
+    process.oldSiStripDigis.UseFedKey = False
     process.siStripDigis.UseFedKey = False
-    process.newSiStripDigis.UseFedKey = False
+
+    process.oldDigiValidator.TagCollection2 = "oldSiStripDigis:ZeroSuppressed"
+    process.oldDigiValidator.RawCollection1 = False
+    process.oldDigiValidator.RawCollection2 = False
 
     process.DigiValidator.TagCollection2 = "siStripDigis:ZeroSuppressed"
     process.DigiValidator.RawCollection1 = False
     process.DigiValidator.RawCollection2 = False
     
-    process.newDigiValidator.TagCollection2 = "newSiStripDigis:ZeroSuppressed"
-    process.newDigiValidator.RawCollection1 = False
-    process.newDigiValidator.RawCollection2 = False
-    
-    process.testDigiValidator.TagCollection1 = "siStripDigis:ZeroSuppressed"
-    process.testDigiValidator.TagCollection2 = "newSiStripDigis:ZeroSuppressed"
+    process.testDigiValidator.TagCollection1 = "oldSiStripDigis:ZeroSuppressed"
+    process.testDigiValidator.TagCollection2 = "siStripDigis:ZeroSuppressed"
     process.testDigiValidator.RawCollection1 = False
     process.testDigiValidator.RawCollection2 = False
     
@@ -113,20 +113,20 @@ elif Mode == str("VR") :
     
     process.SiStripDigiToRaw.FedReadoutMode = 'VIRGIN_RAW'
 
+    process.oldSiStripDigis.UseFedKey = False
     process.siStripDigis.UseFedKey = False
-    process.newSiStripDigis.UseFedKey = False
+    
+    process.oldDigiValidator.RawCollection1 = False
+    process.oldDigiValidator.TagCollection2 = "oldSiStripDigis:VirginRaw"
+    process.oldDigiValidator.RawCollection2 = True
 
     process.DigiValidator.RawCollection1 = False
     process.DigiValidator.TagCollection2 = "siStripDigis:VirginRaw"
     process.DigiValidator.RawCollection2 = True
     
-    process.newDigiValidator.RawCollection1 = False
-    process.newDigiValidator.TagCollection2 = "newSiStripDigis:VirginRaw"
-    process.newDigiValidator.RawCollection2 = True
-    
-    process.testDigiValidator.TagCollection1 = "siStripDigis:VirginRaw"
+    process.testDigiValidator.TagCollection1 = "oldSiStripDigis:VirginRaw"
     process.testDigiValidator.RawCollection1 = True
-    process.testDigiValidator.TagCollection2 = "newSiStripDigis:VirginRaw"
+    process.testDigiValidator.TagCollection2 = "siStripDigis:VirginRaw"
     process.testDigiValidator.RawCollection2 = True
     
 elif Mode == str("PR") :
@@ -146,20 +146,20 @@ elif Mode == str("PR") :
     
     process.SiStripDigiToRaw.FedReadoutMode = 'PROCESSED_RAW'
 
+    process.oldSiStripDigis.UseFedKey = False
     process.siStripDigis.UseFedKey = False
-    process.newSiStripDigis.UseFedKey = False
+    
+    process.oldDigiValidator.RawCollection1 = False
+    process.oldDigiValidator.TagCollection2 = "oldSiStripDigis:ProcessedRaw"
+    process.oldDigiValidator.RawCollection2 = True
 
     process.DigiValidator.RawCollection1 = False
     process.DigiValidator.TagCollection2 = "siStripDigis:ProcessedRaw"
     process.DigiValidator.RawCollection2 = True
     
-    process.newDigiValidator.RawCollection1 = False
-    process.newDigiValidator.TagCollection2 = "newSiStripDigis:ProcessedRaw"
-    process.newDigiValidator.RawCollection2 = True
-    
-    process.testDigiValidator.TagCollection1 = "siStripDigis:ProcessedRaw"
+    process.testDigiValidator.TagCollection1 = "oldSiStripDigis:ProcessedRaw"
     process.testDigiValidator.RawCollection1 = True
-    process.testDigiValidator.TagCollection2 = "newSiStripDigis:ProcessedRaw"
+    process.testDigiValidator.TagCollection2 = "siStripDigis:ProcessedRaw"
     process.testDigiValidator.RawCollection2 = True
     
 elif Mode == str("FK") :
@@ -180,20 +180,20 @@ elif Mode == str("FK") :
     process.SiStripDigiToRaw.FedReadoutMode = 'VIRGIN_RAW'
     process.SiStripDigiToRaw.UseFedKey = True
 
+    process.oldSiStripDigis.UseFedKey = True
     process.siStripDigis.UseFedKey = True
-    process.newSiStripDigis.UseFedKey = True
     
+    process.oldDigiValidator.RawCollection1 = False
+    process.oldDigiValidator.TagCollection2 = "oldSiStripDigis:VirginRaw"
+    process.oldDigiValidator.RawCollection2 = True
+
     process.DigiValidator.RawCollection1 = False
     process.DigiValidator.TagCollection2 = "siStripDigis:VirginRaw"
     process.DigiValidator.RawCollection2 = True
     
-    process.newDigiValidator.RawCollection1 = False
-    process.newDigiValidator.TagCollection2 = "newSiStripDigis:VirginRaw"
-    process.newDigiValidator.RawCollection2 = True
-    
-    process.testDigiValidator.TagCollection1 = "siStripDigis:VirginRaw"
+    process.testDigiValidator.TagCollection1 = "oldSiStripDigis:VirginRaw"
     process.testDigiValidator.RawCollection1 = True
-    process.testDigiValidator.TagCollection2 = "newSiStripDigis:VirginRaw"
+    process.testDigiValidator.TagCollection2 = "siStripDigis:VirginRaw"
     process.testDigiValidator.RawCollection2 = True
     
 else :

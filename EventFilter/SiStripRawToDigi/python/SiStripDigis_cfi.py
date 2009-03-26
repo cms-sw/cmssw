@@ -1,7 +1,3 @@
-
-# module SiStripRawToDigiModule -> old Fed9UUtils tkonline sw unpacking libs
-# module RawToDigiModule -> new SistripFEDBuffer CMSSW unpacking libs
-
 import FWCore.ParameterSet.Config as cms
 
 siStripDigis = cms.EDProducer(

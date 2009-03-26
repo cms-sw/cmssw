@@ -36,9 +36,11 @@ SiStripDigiToRaw.UseFedKey = False
 
 
 # RawToDigi (orig)
-from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
-siStripDigis.ProductLabel = 'SiStripDigiToRaw'
-siStripDigis.UseFedKey = False
+siStripDigis = cms.EDProducer(
+    "OldSiStripRawToDigiModule",
+    ProductLabel =  cms.untracked.string('SiStripDigiToRaw'),
+    UseFedKey = cms.untracked.bool(False),
+    )
 
 # Clusterizer (orig)
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import *
@@ -55,43 +57,43 @@ siStripClusterProducer.ProductLabel = cms.InputTag('siStripDigis:ZeroSuppressed'
 siStripClusterProducer.DetSetVectorNew = True
 
 
-# ----- Old RawToClusters chain -----
+# ----- New RawToClusters chain -----
 
 
-# RawToClusters (old)
+# RawToClusters (new)
 from EventFilter.SiStripRawToDigi.SiStripRawToClusters_cfi import *
 SiStripRawToClustersFacility.ProductLabel = cms.InputTag("SiStripDigiToRaw")
 
-# Regions Of Interest (old)
+# Regions Of Interest (new)
 from EventFilter.SiStripRawToDigi.SiStripRawToClustersRoI_cfi import *
 SiStripRoI.SiStripLazyGetter = cms.InputTag("SiStripRawToClustersFacility")
 
-# Clusters DSV Builder (old)
+# Clusters DSV Builder (new)
 from EventFilter.SiStripRawToDigi.test.SiStripClustersDSVBuilder_cfi import *
 siStripClustersDSV.SiStripLazyGetter = cms.InputTag("SiStripRawToClustersFacility")
 siStripClustersDSV.SiStripRefGetter = cms.InputTag("SiStripRoI")
 siStripClustersDSV.DetSetVectorNew = True
 
 
-# ----- New RawToClusters chain -----
+# ----- Old RawToClusters chain -----
 
 
-# RawToClusters (new)
-newSiStripRawToClustersFacility = cms.EDProducer(
-    "RawToClusters",
+# RawToClusters (old)
+oldSiStripRawToClustersFacility = cms.EDProducer(
+    "OldSiStripRawToClusters",
     SiStripClusterization,
     ProductLabel = cms.InputTag('SiStripDigiToRaw')
     )
 
-# Regions Of Interest (new)
-newSiStripRoI = SiStripRoI.clone()
-newSiStripRoI.SiStripLazyGetter = cms.InputTag("newSiStripRawToClustersFacility")
+# Regions Of Interest (old)
+oldSiStripRoI = SiStripRoI.clone()
+oldSiStripRoI.SiStripLazyGetter = cms.InputTag("oldSiStripRawToClustersFacility")
 
-# Clusters DSV Builder (new)
-newSiStripClustersDSV = siStripClustersDSV.clone()
-newSiStripClustersDSV.SiStripLazyGetter = cms.InputTag("newSiStripRawToClustersFacility")
-newSiStripClustersDSV.SiStripRefGetter = cms.InputTag("newSiStripRoI")
-newSiStripClustersDSV.DetSetVectorNew = True
+# Clusters DSV Builder (old)
+oldSiStripClustersDSV = siStripClustersDSV.clone()
+oldSiStripClustersDSV.SiStripLazyGetter = cms.InputTag("oldSiStripRawToClustersFacility")
+oldSiStripClustersDSV.SiStripRefGetter = cms.InputTag("oldSiStripRoI")
+oldSiStripClustersDSV.DetSetVectorNew = True
 
 
 # ----- Validators -----
@@ -101,19 +103,19 @@ newSiStripClustersDSV.DetSetVectorNew = True
 from EventFilter.SiStripRawToDigi.test.SiStripClusterValidator_cfi import *
 oldValidateSiStripClusters = ValidateSiStripClusters.clone()
 oldValidateSiStripClusters.Collection1 = cms.untracked.InputTag("siStripClusterProducer")
-oldValidateSiStripClusters.Collection2 = cms.untracked.InputTag("siStripClustersDSV")
+oldValidateSiStripClusters.Collection2 = cms.untracked.InputTag("oldSiStripClustersDSV")
 oldValidateSiStripClusters.DetSetVectorNew = True
 
 # Cluster Validator (new-to-orig)
 newValidateSiStripClusters = ValidateSiStripClusters.clone()
 newValidateSiStripClusters.Collection1 = cms.untracked.InputTag("siStripClusterProducer")
-newValidateSiStripClusters.Collection2 = cms.untracked.InputTag("newSiStripClustersDSV")
+newValidateSiStripClusters.Collection2 = cms.untracked.InputTag("siStripClustersDSV")
 newValidateSiStripClusters.DetSetVectorNew = True
 
 # Cluster Validator (new-to-old)
 testValidateSiStripClusters = ValidateSiStripClusters.clone()
-testValidateSiStripClusters.Collection1 = cms.untracked.InputTag("siStripClustersDSV")
-testValidateSiStripClusters.Collection2 = cms.untracked.InputTag("newSiStripClustersDSV")
+testValidateSiStripClusters.Collection1 = cms.untracked.InputTag("oldSiStripClustersDSV")
+testValidateSiStripClusters.Collection2 = cms.untracked.InputTag("siStripClustersDSV")
 testValidateSiStripClusters.DetSetVectorNew = True
 
 
@@ -137,16 +139,16 @@ orig = cms.Sequence(
     )
 
 old = cms.Sequence(
-    SiStripRawToClustersFacility *
-    SiStripRoI *
-    siStripClustersDSV *
+    oldSiStripRawToClustersFacility *
+    oldSiStripRoI *
+    oldSiStripClustersDSV *
     oldValidateSiStripClusters
     )
 
 new = cms.Sequence(
-    newSiStripRawToClustersFacility *
-    newSiStripRoI *
-    newSiStripClustersDSV *
+    SiStripRawToClustersFacility *
+    SiStripRoI *
+    siStripClustersDSV *
     newValidateSiStripClusters
     )
 

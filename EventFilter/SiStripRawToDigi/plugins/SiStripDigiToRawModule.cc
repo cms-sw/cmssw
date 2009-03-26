@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRawModule.cc,v 1.5 2008/04/02 08:47:42 bainbrid Exp $
+// Last commit: $Id: OldSiStripDigiToRawModule.cc,v 1.6 2008/07/04 14:07:47 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripDigiToRawModule.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
@@ -20,7 +20,7 @@ using namespace std;
 /** 
     Creates instance of DigiToRaw converter, defines EDProduct type.
 */
-SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& pset ) :
+OldSiStripDigiToRawModule::OldSiStripDigiToRawModule( const edm::ParameterSet& pset ) :
   inputModuleLabel_( pset.getParameter<std::string>( "InputModuleLabel" ) ),
   inputDigiLabel_( pset.getParameter<std::string>( "InputDigiLabel" ) ),
   digiToRaw_(0),
@@ -28,7 +28,7 @@ SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& pset ) 
 {
   if ( edm::isDebugEnabled() ) {
     LogDebug("DigiToRaw") 
-      << "[SiStripDigiToRawModule::SiStripDigiToRawModule]"
+      << "[OldSiStripDigiToRawModule::OldSiStripDigiToRawModule]"
       << " Constructing object...";
   }
 
@@ -36,7 +36,7 @@ SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& pset ) 
   std::string mode = pset.getUntrackedParameter<std::string>("FedReadoutMode","VIRGIN_RAW");
   int16_t nbytes = pset.getUntrackedParameter<int>("AppendedBytes",0);
   bool use_fed_key = pset.getUntrackedParameter<bool>("UseFedKey",false);
-  digiToRaw_ = new SiStripDigiToRaw( mode, nbytes, use_fed_key );
+  digiToRaw_ = new OldSiStripDigiToRaw( mode, nbytes, use_fed_key );
   
   produces<FEDRawDataCollection>();
 
@@ -44,10 +44,10 @@ SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& pset ) 
 
 // -----------------------------------------------------------------------------
 /** */
-SiStripDigiToRawModule::~SiStripDigiToRawModule() {
+OldSiStripDigiToRawModule::~OldSiStripDigiToRawModule() {
   if ( edm::isDebugEnabled() ) {
     LogDebug("DigiToRaw")
-      << "[SiStripDigiToRawModule::~SiStripDigiToRawModule]"
+      << "[OldSiStripDigiToRawModule::~OldSiStripDigiToRawModule]"
       << " Destructing object...";
   }
   if ( digiToRaw_ ) delete digiToRaw_;
@@ -60,7 +60,7 @@ SiStripDigiToRawModule::~SiStripDigiToRawModule() {
     (EDProduct), uses DigiToRaw converter to fill
     FEDRawDataCollection, attaches FEDRawDataCollection to Event.
 */
-void SiStripDigiToRawModule::produce( edm::Event& iEvent, 
+void OldSiStripDigiToRawModule::produce( edm::Event& iEvent, 
 				      const edm::EventSetup& iSetup ) {
 
   eventCounter_++; 

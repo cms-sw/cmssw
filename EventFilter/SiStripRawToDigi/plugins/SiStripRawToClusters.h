@@ -14,7 +14,7 @@ class SiStripRegionCabling;
 
 /**
    @file EventFilter/SiStripRawToDigi/interface/SiStripRawToClusters.h
-   @class SiStripRawToClusters
+   @class OldSiStripRawToClusters
 */
 
 namespace sistrip {
@@ -47,17 +47,17 @@ namespace sistrip {
   
 }
 
-class SiStripRawToClusters : public edm::EDProducer {
+class OldSiStripRawToClusters : public edm::EDProducer {
   
  public:
   
   typedef edm::LazyGetter<SiStripCluster> LazyGetter;
   typedef edm::RefGetter<SiStripCluster> RefGetter;
-  typedef SiStripRawToClustersLazyUnpacker LazyUnpacker;
+  typedef OldSiStripRawToClustersLazyUnpacker LazyUnpacker;
   typedef SiStripRegionCabling::SubDet SubDet;
   
-  SiStripRawToClusters( const edm::ParameterSet& );
-  ~SiStripRawToClusters();
+  OldSiStripRawToClusters( const edm::ParameterSet& );
+  ~OldSiStripRawToClusters();
   
   virtual void beginJob( const edm::EventSetup& );
   virtual void beginRun( edm::Run&, const edm::EventSetup& );

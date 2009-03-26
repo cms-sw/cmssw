@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRawModule.h,v 1.1 2007/04/24 16:58:58 bainbrid Exp $
+// Last commit: $Id: OldSiStripDigiToRawModule.h,v 1.2 2008/01/17 11:54:44 giordano Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripDigiToRawModule_H
 #define EventFilter_SiStripRawToDigi_SiStripDigiToRawModule_H
@@ -7,21 +7,21 @@
 #include "boost/cstdint.hpp"
 #include <string>
 
-class SiStripDigiToRaw;
+class OldSiStripDigiToRaw;
 
 /**
    @file EventFilter/SiStripRawToDigi/interface/SiStripDigiToRawModule.h
-   @class SiStripDigiToRawModule 
+   @class OldSiStripDigiToRawModule 
    
    @brief A plug-in module that takes StripDigis as input from the
    Event and creates an EDProduct comprising a FEDRawDataCollection.
 */
-class SiStripDigiToRawModule : public edm::EDProducer {
+class OldSiStripDigiToRawModule : public edm::EDProducer {
   
  public:
   
-  SiStripDigiToRawModule( const edm::ParameterSet& );
-  ~SiStripDigiToRawModule();
+  OldSiStripDigiToRawModule( const edm::ParameterSet& );
+  ~OldSiStripDigiToRawModule();
   
   virtual void beginJob( const edm::EventSetup& ) {;}
   virtual void endJob() {;}
@@ -32,7 +32,7 @@ class SiStripDigiToRawModule : public edm::EDProducer {
 
   std::string inputModuleLabel_;
   std::string inputDigiLabel_;
-  SiStripDigiToRaw* digiToRaw_;
+  OldSiStripDigiToRaw* digiToRaw_;
   uint32_t eventCounter_;
 
 };

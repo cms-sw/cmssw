@@ -10,7 +10,7 @@
 
 namespace sistrip { class RawToDigiModule; }
 namespace sistrip { class RawToDigiUnpacker; }
-class SiStripRawToDigiUnpacker;
+class OldSiStripRawToDigiUnpacker;
 class SiStripFedCabling;
 
 /**
@@ -48,12 +48,12 @@ namespace sistrip {
   
 }
 
-class SiStripRawToDigiModule : public edm::EDProducer {
+class OldSiStripRawToDigiModule : public edm::EDProducer {
   
  public:
   
-  SiStripRawToDigiModule( const edm::ParameterSet& );
-  ~SiStripRawToDigiModule();
+  OldSiStripRawToDigiModule( const edm::ParameterSet& );
+  ~OldSiStripRawToDigiModule();
   
   virtual void beginJob( const edm::EventSetup& );
   virtual void beginRun( edm::Run&, const edm::EventSetup& );
@@ -63,7 +63,7 @@ class SiStripRawToDigiModule : public edm::EDProducer {
 
   void updateCabling( const edm::EventSetup& );
   
-  SiStripRawToDigiUnpacker* rawToDigi_;
+  OldSiStripRawToDigiUnpacker* rawToDigi_;
   std::string label_;
   std::string instance_;
   const SiStripFedCabling* cabling_;

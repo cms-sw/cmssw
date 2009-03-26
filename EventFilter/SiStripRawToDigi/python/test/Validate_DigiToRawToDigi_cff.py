@@ -25,36 +25,36 @@ SiStripDigiToRaw.InputModuleLabel = 'DigiSource'
 SiStripDigiToRaw.InputDigiLabel = ''
 SiStripDigiToRaw.UseFedKey = False
 
-# RawToDigi (old)
+# RawToDigi (new)
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
 siStripDigis.ProductLabel = 'SiStripDigiToRaw'
 siStripDigis.UseFedKey = False
 
-# RawToDigi (new)
-newSiStripDigis = cms.EDProducer(
-    "RawToDigiModule",
+# RawToDigi (old)
+oldSiStripDigis = cms.EDProducer(
+    "OldSiStripRawToDigiModule",
     ProductLabel =  cms.untracked.string('SiStripDigiToRaw'),
     UseFedKey = cms.untracked.bool(False),
     )
 
-# Digi Validator (old)
+# Digi Validator (new)
 from EventFilter.SiStripRawToDigi.test.SiStripDigiValidator_cfi import *
 DigiValidator.TagCollection1 = "DigiSource"
 DigiValidator.TagCollection2 = "siStripDigis:ZeroSuppressed"
 DigiValidator.RawCollection1 = False
 DigiValidator.RawCollection2 = False
 
-# Digi Validator (new)
-newDigiValidator = DigiValidator.clone()
-newDigiValidator.TagCollection1 = "DigiSource"
-newDigiValidator.TagCollection2 = "newSiStripDigis:ZeroSuppressed"
-newDigiValidator.RawCollection1 = False
-newDigiValidator.RawCollection2 = False
+# Digi Validator (old)
+oldDigiValidator = DigiValidator.clone()
+oldDigiValidator.TagCollection1 = "DigiSource"
+oldDigiValidator.TagCollection2 = "oldSiStripDigis:ZeroSuppressed"
+oldDigiValidator.RawCollection1 = False
+oldDigiValidator.RawCollection2 = False
 
 # Digi Validator (compare)
 testDigiValidator = DigiValidator.clone()
-testDigiValidator.TagCollection1 = "siStripDigis:ZeroSuppressed"
-testDigiValidator.TagCollection2 = "newSiStripDigis:ZeroSuppressed"
+testDigiValidator.TagCollection1 = "oldSiStripDigis:ZeroSuppressed"
+testDigiValidator.TagCollection2 = "siStripDigis:ZeroSuppressed"
 testDigiValidator.RawCollection1 = False
 testDigiValidator.RawCollection2 = False
 
@@ -70,14 +70,14 @@ output = cms.OutputModule(
     )
 
 # Sequences and Paths
-old = cms.Sequence(
+new = cms.Sequence(
     siStripDigis *
     DigiValidator
     )
 
-new = cms.Sequence(
-    newSiStripDigis *
-    newDigiValidator
+old = cms.Sequence(
+    oldSiStripDigis *
+    oldDigiValidator
     )
 
 test = cms.Sequence(
