@@ -50,6 +50,13 @@
   <class name="RPCPattern::TQuality"/>
   <class name="std::vector<RPCPattern::TQuality>"/>
   <class name="std::vector<RPCPattern>"/>
+  <class name="L1RPCConeDefinition"/>
+  <class name="L1RPCConeDefinition::TLPSize"/>
+  <class name="std::vector<L1RPCConeDefinition::TLPSize>"/>
+  <class name="L1RPCConeDefinition::TRingToTower"/>
+  <class name="std::vector<L1RPCConeDefinition::TRingToTower>"/>
+  <class name="L1RPCConeDefinition::TRingToLP"/>
+  <class name="std::vector<L1RPCConeDefinition::TRingToLP>"/>
   <class name="L1TriggerKey"/>
   <class name="std::map<std::string, std::string>"/>
   <class name="std::map<std::string, std::string>::value_type"/>

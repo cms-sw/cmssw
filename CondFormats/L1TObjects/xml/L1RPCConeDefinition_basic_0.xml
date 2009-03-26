@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="L1RPCConeDefinitionRcd" >
+   <Class table="L1RPCCONEDEFINITION" id_columns="ID" name="L1RPCConeDefinition" mapping_version="L1RPCConeDefinition_basic" >
+     <Blob column="L1RPCCONEDEFINITIO_1_BLOB" name="m_LPSizeVec" />
+     <Primitive column="M_FIRSTTOWER" name="m_firstTower" />
+     <Primitive column="M_LASTTOWER" name="m_lastTower" />
+     <Blob column="L1RPCCONEDEFINITIO_2_BLOB" name="m_ringToLPVec" />
+     <Blob column="L1RPCCONEDEFINITIO_3_BLOB" name="m_ringToTowerVec" />
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

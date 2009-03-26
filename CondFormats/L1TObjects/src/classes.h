@@ -20,6 +20,7 @@
 #include "CondFormats/L1TObjects/interface/L1MuCSCPtLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFAlignment.h"
 #include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
+#include "CondFormats/L1TObjects/interface/L1RPCConeDefinition.h"
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
@@ -64,5 +65,9 @@ namespace {
     std::pair<std::pair<short,short>,std::pair<short,std::vector<short> > > dummy12 ;
     std::pair<int, std::vector<L1GtObject> > dummy13 ;
     std::vector<L1GctJetCounterSetup::cutDescription> dummy14;
+//    std::vector<L1RPCConeDefinition::TLPSize> dummy15;
+//    std::vector<L1RPCConeDefinition::TRingToTower> dummy15a;
+//    std::vector<L1RPCConeDefinition::TRingToLP> dummy15b;
+
   };
 }
