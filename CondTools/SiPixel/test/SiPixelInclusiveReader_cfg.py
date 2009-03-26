@@ -1,19 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("SiPixelInclusiveReader")
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
-    destinations = cms.untracked.vstring('cout')
-)
 
+
+process.load('Configuration/StandardSequences/Services_cff')
+process.load('Configuration/StandardSequences/GeometryIdeal_cff')
+process.load('Configuration/StandardSequences/MagneticField_38T_cff')
+process.load('Configuration/StandardSequences/Sim_cff')
+process.load('Configuration/StandardSequences/Digi_cff')
+process.load('Configuration/StandardSequences/SimL1Emulator_cff')
+process.load('Configuration/StandardSequences/L1TriggerDefaultMenu_cff')
+process.load('Configuration/StandardSequences/DigiToRaw_cff')
+process.load('Configuration/StandardSequences/RawToDigi_cff')
+process.load('Configuration/StandardSequences/Reconstruction_cff')
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = 'IDEAL_30X::All'
 
 
 ###### OUTPUT HISTOGRAM FILE NAME #######
@@ -25,10 +27,6 @@ process.TFileService = cms.Service("TFileService",
 
 
 ##### DATABASE CONNECTION INFO ######
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:test.db'
-process.CondDBCommon.DBParameters.authenticationPath = '.'
-process.CondDBCommon.DBParameters.messageLevel = 1
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -46,93 +44,19 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 
 
 
-###### TAGS TO READ ######
-process.PoolDBESSourceForReader = cms.ESSource("PoolDBESSource",
-    process.CondDBCommon,
-    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-    toGet = cms.VPSet(cms.PSet(
-            record = cms.string('SiPixelFedCablingMapRcd'),
-            tag = cms.string('SiPixelFedCablingMap_v14')
-        ), 
-        cms.PSet(
-            record = cms.string('SiPixelLorentzAngleRcd'),
-            tag = cms.string('trivial_LorentzAngle')
-        ),
-        cms.PSet(
-            record = cms.string('SiPixelLorentzAngleSimRcd'),
-            tag = cms.string('SiPixelLorentzAngleSim_v02')
-        ),
-        cms.PSet(
-            record = cms.string('SiPixelTemplateDBObjectRcd'),
-            tag = cms.string('SiPixelTemplateDBObject')
-        ),
-        cms.PSet(
-           record = cms.string('SiPixelQualityRcd'),
-           tag = cms.string('SiPixelQuality_test')
-        ),
-        cms.PSet(
-            record = cms.string('SiPixelGainCalibrationOfflineRcd'),
-            tag = cms.string('SiPixelGainCalibration_TBuffer_const')
-        ), 
-        cms.PSet(
-            record = cms.string('SiPixelGainCalibrationForHLTRcd'),
-            tag = cms.string('SiPixelGainCalibration_TBuffer_hlt_const')
-        ),
-        cms.PSet(
-            record = cms.string('SiPixelGainCalibrationOfflineSimRcd'),
-            tag = cms.string('SiPixelGainCalibrationSim_TBuffer_const_new')
-        ), 
-        cms.PSet(
-            record = cms.string('SiPixelGainCalibrationForHLTSimRcd'),
-            tag = cms.string('SiPixelGainCalibrationSim_TBuffer_hlt_const')
-       ))
-)
-
-
-
-
-
-
-###### PREFER ABOVE TAGS #######
-process.esprefer_DBReaders = cms.ESPrefer("PoolDBESSource", "PoolDBESSourceForReader")
-
-
-
-
-
 ####### GAIN READERS ######
 process.SiPixelCondObjOfflineReader = cms.EDFilter("SiPixelCondObjOfflineReader",
-                                                   process.SiPixelGainCalibrationServiceParameters,
-                                                   useSimRcd = cms.bool(False)
-)
-
-process.SiPixelCondObjOfflineSimReader = cms.EDFilter("SiPixelCondObjOfflineReader",
-                                                      process.SiPixelGainCalibrationServiceParameters,
-                                                      useSimRcd = cms.bool(True)
+    process.SiPixelGainCalibrationServiceParameters
 )
 
 process.SiPixelCondObjForHLTReader = cms.EDFilter("SiPixelCondObjForHLTReader",
-                                                  process.SiPixelGainCalibrationServiceParameters,
-                                                  useSimRcd = cms.bool(False)
-)
-
-process.SiPixelCondObjForHLTSimReader = cms.EDFilter("SiPixelCondObjForHLTReader",
-                                                     process.SiPixelGainCalibrationServiceParameters,
-                                                     useSimRcd = cms.bool(True)
+    process.SiPixelGainCalibrationServiceParameters
 )
 
 
 
-####### LORENTZ ANGLE READERS ######
-process.SiPixelLorentzAngleReader = cms.EDFilter("SiPixelLorentzAngleReader",
-    printDebug = cms.untracked.bool(False),
-    useSimRcd = cms.bool(False)
-)
-
-process.SiPixelLorentzAngleSimReader = cms.EDFilter("SiPixelLorentzAngleReader",
-    printDebug = cms.untracked.bool(False),
-    useSimRcd = cms.bool(True)
-)
+####### LORENTZ ANGLE READER ######
+process.SiPixelLorentzAngleReader = cms.EDFilter("SiPixelLorentzAngleReader")
 
 
 
@@ -161,16 +85,7 @@ process.SiPixelTemplateDBObjectReader = cms.EDFilter("SiPixelTemplateDBObjectRea
 
 
 ####### DO ALL READERS (OR SELECT ONE YOU WANT) ########
-process.p = cms.Path(
-process.SiPixelCondObjOfflineReader*
-process.SiPixelCondObjOfflineSimReader*
-process.SiPixelLorentzAngleReader*
-process.SiPixelLorentzAngleSimReader*
-process.SiPixelFedCablingMapAnalyzer*
-process.SiPixelCondObjForHLTReader*
-process.SiPixelCondObjForHLTSimReader*
-process.SiPixelTemplateDBObjectReader*
-process.SiPixelBadModuleReader
-)
+process.p = cms.Path(process.SiPixelCondObjOfflineReader*process.SiPixelLorentzAngleReader*process.SiPixelFedCablingMapAnalyzer*process.SiPixelCondObjForHLTReader*process.SiPixelTemplateDBObjectReader*process.SiPixelBadModuleReader)
+
 
 
