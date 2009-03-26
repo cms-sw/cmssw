@@ -36,6 +36,12 @@
   <class name="edm::Ref<std::vector<L1GctEtMiss>,L1GctEtMiss,edm::refhelper::FindUsingAdvance<std::vector<L1GctEtMiss>,L1GctEtMiss>>"/>
   <class name="edm::Ref<std::vector<L1GctEtTotal>,L1GctEtTotal,edm::refhelper::FindUsingAdvance<std::vector<L1GctEtTotal>,L1GctEtTotal>>"/>
   <class name="edm::Ref<std::vector<L1GctHtMiss>,L1GctHtMiss,edm::refhelper::FindUsingAdvance<std::vector<L1GctHtMiss>,L1GctHtMiss>>"/>
+  <class name="edm::Ref<std::vector<L1GctHFBitCounts>,L1GctHFBitCounts,edm::refhelper::FindUsingAdvance<std::vector<L1GctHFBitCounts>,L1GctHFBitCounts>>"/>
+  <class name="edm::Ref<std::vector<L1GctHFRingEtSums>,L1GctHFRingEtSums,edm::refhelper::FindUsingAdvance<std::vector<L1GctHFRingEtSums>,L1GctHFRingEtSums>>"/>
+  <class name="edm::RefProd<L1GctEtTotal>"/>
+  <class name="edm::RefProd<L1GctEtHad>"/>
+  <class name="edm::RefProd<L1GctEtMiss>"/>
+  <class name="edm::RefProd<L1GctHtMiss>"/>
   <class name="edm::Ref<std::vector<L1GctJetCounts>,L1GctJetCounts,edm::refhelper::FindUsingAdvance<std::vector<L1GctJetCounts>,L1GctJetCounts>>"/>
   <class name="edm::Wrapper<std::vector<L1GctInternEmCand>>" splitLevel="0"/>
   <class name="edm::Wrapper<std::vector<L1GctInternJetData>>" splitLevel="0"/>

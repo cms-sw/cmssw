@@ -68,7 +68,8 @@ namespace {
     edm::Ref<L1GctEtMissCollection> etMissCollRef ;
     edm::Ref<L1GctEtTotalCollection> etTotCollRef ;
     edm::Ref<L1GctHtMissCollection> htMissCollRef ;
+    edm::Ref<L1GctHFBitCountsCollection> hfBitCountsCollRef ;
+    edm::Ref<L1GctHFRingEtSumsCollection> hfEtSumsCollRef ;
     edm::Ref<L1GctJetCountsCollection> jetCountsCollRef;
-
   };
 }
