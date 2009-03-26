@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactors.h,v 1.3 2009/01/09 17:37:47 auterman Exp $
+// $Id: JetCorrFactors.h,v 1.4 2009/02/19 15:39:29 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_JetCorrFactors_h
@@ -15,7 +15,7 @@
    PAT Layer-1.
 
   \author   Giovanni Petrucciani
-  \version  $Id: JetCorrFactors.h,v 1.3 2009/01/09 17:37:47 auterman Exp $
+  \version  $Id: JetCorrFactors.h,v 1.4 2009/02/19 15:39:29 rwolf Exp $
 */
 
 #include <vector>
@@ -51,25 +51,21 @@ namespace pat {
    	  /// default Constructor
           JetCorrFactors();
 	  /// constructor by value
-          JetCorrFactors(std::string &label, float l1, float l2, float l3, float l4, FlavourCorrections l5, float l6, FlavourCorrections l7);
+          JetCorrFactors(std::string &label, float l1, float l2, float l3, float l4, FlavourCorrections l5, FlavourCorrections l6, FlavourCorrections l7);
 
-          /// default Scale Factor: Raw & L1 & L2 & L3 (ignore -1's)
+          /// default scale factor: Raw & L1 & L2 & L3
           float scaleDefault() const { return fabs(correction(L3)); };
-          /// returns true if a specific correction is available, false otherwise
-          bool  hasCorrection(CorrStep step) const;
-          /// Returns True if a specific correction is available, false otherwise
-          bool  hasCorrection(const size_t step, const size_t flavour) const {return hasCorrection((CorrStep)(step<<4|flavour));};
           /// returns the correction for a jet up to a given step, starting from another step.
           float correction(CorrStep step, CorrStep begin=Raw) const ;           
           /// convert a string into a CorrStep
           static CorrStep const corrStep(const std::string &step, const std::string &flavour="");  
           /// convert a CorrStep into a string
           std::string corrStep(CorrStep step) const;
-          /// return Flavour 
+          /// return flavour string
           std::string flavour (CorrStep step) const; 
 	  /// return label, i.e. the identifying name of this set of correction factors
 	  std::string getLabel() const { return label_; };
-	  /// clear label to save storage, if only one set of correction factors is used.
+	  /// clear label to save storage, if only one set of correction factors is used
 	  void clearLabel() { label_.clear(); };
 	  /// print function for debugging
 	  void print() const;
@@ -91,12 +87,12 @@ namespace pat {
 	  /// this string is empty to save storage
 	  std::string label_;
 
-          /// convert a CorrStep into a number 1-7
+          /// convert a CorrStep into a number 0-7
           static inline size_t istep(const CorrStep &cstep ) { return (static_cast<size_t>(cstep)) >> 4; }
           /// convert a CorrStep into a flavour code 0-5
           static inline size_t iflav(const CorrStep &cstep ) { return (static_cast<size_t>(cstep)) & 0xF; }
           /// get a flavour correction out of a CorrStep
-          static float getFlavCorr(const FlavourCorrections &, const size_t & flavcode ) ;
+          static float getFlavorCorrection(const FlavourCorrections &, const size_t& flav) ;
   };
 }
 
