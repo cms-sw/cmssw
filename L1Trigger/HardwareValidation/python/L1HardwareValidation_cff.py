@@ -106,6 +106,9 @@ valGmtDigis.RPCbCandidates = cms.InputTag("gtDigis","RPCb")
 valGmtDigis.RPCfCandidates = cms.InputTag("gtDigis","RPCf")
 valGtDigis.GmtInputTag = 'gtDigis'
 valGtDigis.GctInputTag = 'gctDigis'
+valGmtDigis.MipIsoData = 'gctDigis'
+#replace valGmtDigis.MipIsoData =
+#replace valGtDigis.TechnicalTriggerInputTag = ???
 
 #Emulator settings
 valHcalTriggerPrimitiveDigis.FG_threshold = cms.uint32(12)
@@ -132,9 +135,7 @@ deDttf = cms.Sequence(valCsctfTrackDigis*valDttfDigis*muonDtMon)
 deCsc = cms.Sequence(valCscTriggerPrimitiveDigis)
 deCsctf = cms.Sequence(valCsctfTrackDigis*valCsctfDigis*muonCscMon)
 deRpc = cms.Sequence(valRpcTriggerDigis)
-#replace valGmtDigis.MipIsoData =
 deGmt = cms.Sequence(valGmtDigis)
-#replace valGtDigis.TechnicalTriggerInputTag = ???
 deGt = cms.Sequence(valGtDigis)
 
 # the sequences
