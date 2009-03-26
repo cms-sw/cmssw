@@ -18,6 +18,7 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
    // Execute SQL queries to get data from OMDS (using key) and make C++ object
    // Example: SELECT A_PARAMETER FROM CMS_XXX.XXX_CONF WHERE XXX_CONF.XXX_KEY = objectKey
 
+  // get parameters
   std::vector< std::string > columns;
   columns.push_back( "GCT_RGN_ET_LSB" );
   columns.push_back( "GCT_HT_LSB" );
@@ -43,6 +44,10 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
       return boost::shared_ptr< L1GctJetFinderParams >() ;
    }
 
+   // TODO - get calibration coefficients
+
+
+   // fill values
    double rgnEtLsb=0.;
    double htLsb=0.;
    double cJetSeed=0.;

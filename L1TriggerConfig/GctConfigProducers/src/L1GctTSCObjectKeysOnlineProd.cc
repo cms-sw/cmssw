@@ -22,6 +22,8 @@ L1GctTSCObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
       {
          // Execute SQL queries to get data from OMDS (using key) and make C++ object.
          // Example: SELECT A_PARAMETER FROM CMS_XXX.XXX_CONF WHERE XXX_CONF.XXX_KEY = subsystemKey
+
+	// get main crate key
          l1t::OMDSReader::QueryResults mainCrateKeyResults =
 	   m_omdsReader.basicQuery(
 				   "GCT_MAIN_CRATE_KEY",
@@ -30,6 +32,8 @@ L1GctTSCObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 				   "GCT_CONFIG.CONFIG_KEY",
 				   m_omdsReader.singleAttribute( subsystemKey  ) );
 
+
+	 // get phys params key
          l1t::OMDSReader::QueryResults physParamsKeyResults =
 	   m_omdsReader.basicQuery(
 				   "GCT_PHYS_PARAMS_KEY",
@@ -40,25 +44,47 @@ L1GctTSCObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 	 
          std::string physParamsKey ;
 	 
-         // check if query was successful
-         if( physParamsKeyResults.queryFailed() )
-	   {
-             edm::LogError("L1-O2O")
-	       << "Problem with key for record L1GctJetFinderParamsRcd: query failed ";
-	   }
-         else if( physParamsKeyResults.numberRows() != 1 )
-	   {
-             edm::LogError("L1-O2O")
-	       << "Problem with key for record L1GctJetFinderParamsRcd: "
-	       << (physParamsKeyResults.numberRows()) << " rows were returned";
-	   }
-         else
-	   {
-	     physParamsKeyResults.fillVariable( physParamsKey ) ;
-	   }
+         if( physParamsKeyResults.queryFailed() ) {
+	   edm::LogError("L1-O2O")
+	     << "Problem with key for record L1GctJetFinderParamsRcd: query failed ";
+	 }
+         else if( physParamsKeyResults.numberRows() != 1 ) {
+	   edm::LogError("L1-O2O")
+	     << "Problem with key for record L1GctJetFinderParamsRcd: "
+	     << (physParamsKeyResults.numberRows()) << " rows were returned";
+	 }
+         else {
+	   physParamsKeyResults.fillVariable( physParamsKey ) ;
+	 }
 	 
+	 // get scales key
+         l1t::OMDSReader::QueryResults scalesKeyResults =
+	   m_omdsReader.basicQuery(
+				   "GCT_SCALES_KEY",
+				   "CMS_GCT",
+				   "GCT_PHYS_PARAMS",
+				   "GCT_PHYS_PARAMS.CONFIG_KEY",
+				   physParamsKeyResults );
+
+         std::string scalesKey ;
+	 
+         if( scalesKeyResults.queryFailed() ) {
+	   edm::LogError("L1-O2O")
+	     << "Problem with key for record L1GctJetFinderParamsRcd: query failed ";
+	 }
+         else if( scalesKeyResults.numberRows() != 1 ) {
+	   edm::LogError("L1-O2O")
+	     << "Problem with key for record L1GctJetFinderParamsRcd: "
+	     << (scalesKeyResults.numberRows()) << " rows were returned";
+	 }
+         else {
+	   scalesKeyResults.fillVariable( scalesKey ) ;
+	 }
+
          pL1TriggerKey->add( "L1GctJetFinderParamsRcd", "L1GctJetFinderParams", physParamsKey ) ;
-         pL1TriggerKey->add( "L1GctJetEtCalibrationFunctionRcd", "L1GctJetEtCalibrationFunction", physParamsKey ) ;
+         pL1TriggerKey->add( "L1JetEtScaleRcd", "L1CaloEtScale", scalesKey ) ;
+         pL1TriggerKey->add( "L1HtMissScaleRcd", "L1CaloEtScale", scalesKey ) ;
+         pL1TriggerKey->add( "L1HfRingEtScaleRcd", "L1CaloEtScale", scalesKey ) ;
 	 
       }
 }
