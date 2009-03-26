@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.21 2008/11/28 22:05:55 lowette Exp $
+// $Id: PATElectronProducer.cc,v 1.22 2009/03/26 05:02:41 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -257,7 +257,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     // construct the Electron from the ref -> save ref to original object
     unsigned int idx = itElectron - electrons->begin();
     edm::RefToBase<reco::GsfElectron> elecsRef = electrons->refAt(idx);
-    edm::Ptr<reco::GsfElectron> electronPtr = electrons->ptrAt(idx);
+    reco::CandidateBaseRef elecBaseRef(elecsRef);
     Electron anElectron(elecsRef);
 
     FillElectron(anElectron,elecsRef,elecBaseRef, genMatches, trigMatches);

@@ -6,7 +6,7 @@
    
 
   \author   Jordan Tucker (original module), Giovanni Petrucciani (PAT integration)
-  \version  $Id: PATGenCandsFromSimTracksProducer.cc,v 1.3 2008/11/18 11:47:32 gpetrucc Exp $
+  \version  $Id: PATGenCandsFromSimTracksProducer.cc,v 1.4 2009/03/26 05:02:42 hegner Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -240,57 +240,6 @@ PATGenCandsFromSimTracksProducer::makeGenParticle_(const SimTrack &tk, const edm
     GenParticle gp(charge, p4, vtx, tk.type(), setStatus_, true);
     if (mother.isNonnull()) gp.addMother(mother);
     return gp;
-}
-
-void PATGenCandsFromSimTracksProducer::trySetParent(GenParticle &gp, 
-                                                    const SimTrack &st,
-                                                    const SimTrackContainer &simtks, 
-                                                    const SimVertexContainer &simvtxs, 
-                                                    const edm::Handle<GenParticleCollection> &gens,
-                                                    const std::vector<int>                   &genBarcodes,
-                                                    bool                                      barcodesAreSorted) const 
-{
-    // First check if this SimTrack corresponds to a generator particle
-    if (st.genpartIndex() != -1) {
-
-        // Note that st.genpartIndex() is the barcode, not the index within GenParticleCollection, so I have to search the particle
-        std::vector<int>::const_iterator it;
-        if (barcodesAreSorted) {
-            it = std::lower_bound(genBarcodes.begin(), genBarcodes.end(), st.genpartIndex());
-        } else {
-            it = std::find(       genBarcodes.begin(), genBarcodes.end(), st.genpartIndex());
-        }
-
-        // Check that I found something
-        // I need to check '*it == st.genpartIndex()' because lower_bound just finds the right spot for an item in a sorted list, not the item
-        if ((it != genBarcodes.end()) && (*it == st.genpartIndex())) {
-            // Ok, I'll make the ref
-            reco::GenParticleRef rf(gens, it - genBarcodes.begin());
-            gp.addMother(rf);
-        } 
-
-    } else {
-        // Particle was produced by GEANT, I need to track it back
-
-        // Look at the production vertex. If there is no vertex, I can do nothing...
-        if (!st.noVertex()) {
-
-            // Pick the vertex (st.vertIndex() is really an index)
-            const SimVertex &vtx = simvtxs[st.vertIndex()];
-
-            // Check if the vertex has a parent track (otherwise, we're lost)
-            if (!vtx.noParent()) {
-    
-                // Now note that vtx.parentIndex() is NOT an index, it's a track id, so I have to search for it 
-                unsigned int idx = vtx.parentIndex();
-                SimTrackContainer::const_iterator it = std::lower_bound(simtks.begin(), simtks.end(), idx, LessById());
-                if ((it != simtks.end()) && (it->trackId() == idx)) {
-                    // Found the track, start recurring...
-                    trySetParent(gp, *it, simtks, simvtxs, gens, genBarcodes, barcodesAreSorted);
-                }
-            }
-        }
-    }
 }
 
 

@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.h,v 1.12 2009/01/16 22:24:06 srappocc Exp $
+// $Id: PATJetProducer.h,v 1.13 2009/03/26 05:02:42 hegner Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.12 2009/01/16 22:24:06 srappocc Exp $
+  \version  $Id: PATJetProducer.h,v 1.13 2009/03/26 05:02:42 hegner Exp $
 */
 
 
@@ -79,8 +79,6 @@ namespace pat {
       bool                     addJetCharge_;
       edm::InputTag            jetCharge_;
       // tools
-      ObjectResolutionCalc             * theResoCalc_;
-      ObjectResolutionCalc             * theBResoCalc_;
       GreaterByPt<Jet>                   pTComparator_;
 
       bool addEfficiencies_;
