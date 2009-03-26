@@ -46,18 +46,37 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 
 ####### GAIN READERS ######
 process.SiPixelCondObjOfflineReader = cms.EDFilter("SiPixelCondObjOfflineReader",
-    process.SiPixelGainCalibrationServiceParameters
+                                                   process.SiPixelGainCalibrationServiceParameters,
+                                                   useSimRcd = cms.bool(False)
+)
+
+process.SiPixelCondObjOfflineSimReader = cms.EDFilter("SiPixelCondObjOfflineReader",
+                                                      process.SiPixelGainCalibrationServiceParameters,
+                                                      useSimRcd = cms.bool(True)
 )
 
 process.SiPixelCondObjForHLTReader = cms.EDFilter("SiPixelCondObjForHLTReader",
-    process.SiPixelGainCalibrationServiceParameters
+                                                  process.SiPixelGainCalibrationServiceParameters,
+                                                  useSimRcd = cms.bool(False)
+)
+
+process.SiPixelCondObjForHLTSimReader = cms.EDFilter("SiPixelCondObjForHLTReader",
+                                                     process.SiPixelGainCalibrationServiceParameters,
+                                                     useSimRcd = cms.bool(True)
 )
 
 
 
 ####### LORENTZ ANGLE READER ######
-process.SiPixelLorentzAngleReader = cms.EDFilter("SiPixelLorentzAngleReader")
+process.SiPixelLorentzAngleReader = cms.EDFilter("SiPixelLorentzAngleReader",
+    printDebug = cms.untracked.bool(False),
+    useSimRcd = cms.bool(False)
+)
 
+process.SiPixelLorentzAngleSimReader = cms.EDFilter("SiPixelLorentzAngleReader",
+    printDebug = cms.untracked.bool(False),
+    useSimRcd = cms.bool(True)
+)
 
 
 ####### CABLING MAP READER ######
@@ -85,7 +104,18 @@ process.SiPixelTemplateDBObjectReader = cms.EDFilter("SiPixelTemplateDBObjectRea
 
 
 ####### DO ALL READERS (OR SELECT ONE YOU WANT) ########
-process.p = cms.Path(process.SiPixelCondObjOfflineReader*process.SiPixelLorentzAngleReader*process.SiPixelFedCablingMapAnalyzer*process.SiPixelCondObjForHLTReader*process.SiPixelTemplateDBObjectReader*process.SiPixelBadModuleReader)
+process.p = cms.Path(
+process.SiPixelCondObjOfflineReader*
+#process.SiPixelCondObjOfflineSimReader*
+process.SiPixelLorentzAngleReader*
+#process.SiPixelLorentzAngleSimReader*
+process.SiPixelFedCablingMapAnalyzer*
+process.SiPixelCondObjForHLTReader*
+#process.SiPixelCondObjForHLTSimReader*
+process.SiPixelTemplateDBObjectReader*
+process.SiPixelBadModuleReader
+)
+
 
 
 
