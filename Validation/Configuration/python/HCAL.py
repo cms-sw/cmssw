@@ -3,7 +3,7 @@ def customise(process):
 
 # extend the particle gun acceptance
 
-    process.source.AddAntiParticle = cms.untracked.bool(False)
+    process.generator.AddAntiParticle = cms.untracked.bool(False)
 
 # no magnetic field
 
