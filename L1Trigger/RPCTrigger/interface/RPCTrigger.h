@@ -4,8 +4,8 @@
 /** \class RPCTrigger
  *  \brief Implements RPC trigger emulation
  *
- *  $Date: 2008/03/03 14:34:58 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/08/29 08:28:12 $
+ *  $Revision: 1.15 $
  *  \author Tomasz Fruboes
  */
 
@@ -24,13 +24,10 @@
 #include <FWCore/Framework/interface/ESHandle.h> // Handle to read geometry
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 
 
 // L1RpcTrigger specific includes
-#include "L1Trigger/RPCTrigger/interface/RPCTriggerGeo.h"
 #include "L1Trigger/RPCTrigger/interface/RPCConeBuilderFromES.h"
 
 #include "L1Trigger/RPCTrigger/interface/RPCPacManager.h"
@@ -59,7 +56,6 @@ class RPCTrigger : public edm::EDProducer {
       // ----------member data ---------------------------
     
     
-    RPCTriggerGeo m_theLinksystem;  ///< Tells where to send no of fired strip.
     RPCConeBuilderFromES m_theLinksystemFromES;
 
     RPCPacManager<RPCPacData> m_pacManager;
@@ -69,7 +65,6 @@ class RPCTrigger : public edm::EDProducer {
     RPCPacTrigger* m_pacTrigger;
  
     bool m_firstRun;   
-    bool m_buildOwnLinkSystem; ///< Tells, if RPCTrigger should build its own connections, or use those from es
     int m_triggerDebug;
     unsigned long long m_cacheID;
     std::vector<L1MuRegionalCand> giveFinallCandindates(L1RpcTBMuonsVec finalMuons, int type, int bx);

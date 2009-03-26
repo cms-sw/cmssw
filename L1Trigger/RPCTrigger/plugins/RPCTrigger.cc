@@ -35,7 +35,6 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig):
      m_triggerDebug = 0;
    
   m_label = iConfig.getParameter<std::string>("label");
-  m_buildOwnLinkSystem = iConfig.getParameter<bool>("buildOwnLinkSystem");
 }
 
 
@@ -93,17 +92,6 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
  
-  // Build the trigger linksystem geometry (if not, use cone definitions from ES)
-  if (m_buildOwnLinkSystem && !m_theLinksystem.isGeometryBuilt()){
-
-    edm::LogInfo("RPC") << "Building RPC links map for a RPCTrigger";
-    edm::ESHandle<RPCGeometry> rpcGeom;
-    iSetup.get<MuonGeometryRecord>().get( rpcGeom );     
-    m_theLinksystem.buildGeometry(rpcGeom);
-    edm::LogInfo("RPC") << "RPC links map for a RPCTrigger built";
-
-  } 
-
   
   edm::Handle<RPCDigiCollection> rpcDigis;
 //  iEvent.getByType(rpcDigis);
@@ -115,21 +103,17 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (int iBx = -1; iBx < 2; ++ iBx) {
     
     L1RpcLogConesVec ActiveCones;
-    if (m_buildOwnLinkSystem){
-      ActiveCones = m_theLinksystem.getCones(rpcDigis, iBx);
-    } else { //use es
-      edm::ESHandle<L1RPCConeBuilder> coneBuilder;
-      iSetup.get<L1RPCConeBuilderRcd>().get(coneBuilder);
-      
-      edm::ESHandle<L1RPCConeDefinition> l1RPCConeDefinition;
-      iSetup.get<L1RPCConeDefinitionRcd>().get(l1RPCConeDefinition);
 
-      edm::ESHandle<L1RPCHwConfig> hwConfig;
-      iSetup.get<L1RPCHwConfigRcd>().get(hwConfig);
-
-      ActiveCones = m_theLinksystemFromES.getConesFromES(rpcDigis, coneBuilder, l1RPCConeDefinition, hwConfig, iBx);
+    edm::ESHandle<L1RPCConeBuilder> coneBuilder;
+    iSetup.get<L1RPCConeBuilderRcd>().get(coneBuilder);
       
-    }
+    edm::ESHandle<L1RPCConeDefinition> l1RPCConeDefinition;
+    iSetup.get<L1RPCConeDefinitionRcd>().get(l1RPCConeDefinition);
+
+    edm::ESHandle<L1RPCHwConfig> hwConfig;
+    iSetup.get<L1RPCHwConfigRcd>().get(hwConfig);
+
+    ActiveCones = m_theLinksystemFromES.getConesFromES(rpcDigis, coneBuilder, l1RPCConeDefinition, hwConfig, iBx);
     
     L1RpcTBMuonsVec2 finalMuons = m_pacTrigger->runEvent(ActiveCones);
   
