@@ -3,8 +3,8 @@
  *
  * \author Olga Kodolova
  *        
- * $Date: 2009/03/24 15:31:11 $
- * $Revision: 1.3 $
+ * $Date: 2009/03/24 16:05:46 $
+ * $Revision: 1.4 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -402,9 +402,9 @@ void DQMHcalPhiSymAlCaReco::endRun(const Run& r, const EventSetup& context){
 //--------------------------------------------------------
 void DQMHcalPhiSymAlCaReco::endJob(){
   cout<<" Number of events "<<eventCounter_<<endl;
-  for(int k=0; k<hiDistr_x_nbin_;k++)
+  for(int k=0; k<=hiDistr_x_nbin_;k++)
   {
-    for(int j=0; j<hiDistr_y_nbin_;j++)
+    for(int j=0; j<=hiDistr_y_nbin_;j++)
     {
 // First moment
        float cc1=hiDistrMBPl2D_->getBinContent(k,j);
