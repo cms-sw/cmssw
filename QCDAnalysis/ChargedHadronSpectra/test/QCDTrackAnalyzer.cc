@@ -289,7 +289,7 @@ bool QCDTrackAnalyzer::isPrimary(const edm::RefToBase<reco::Track> & recTrack)
   // Transverse impact paramter (0.2 cm or 5*sigma)
   double dt = fabs(recTrack->dxy(theBeamSpot->position()));
   double st = sqrt(recTrack->dxyError() * recTrack->dxyError() +
-                  theBeamSpot->BeamWidth() * theBeamSpot->BeamWidth());
+                  theBeamSpot->BeamWidthX() * theBeamSpot->BeamWidthX());
 
   if(dt > min(0.2, 5 * st)) return false;
 
@@ -435,7 +435,7 @@ float QCDTrackAnalyzer::refitWithVertex
                                closestVertex->position().y(),
                                closestVertex->position().z());
 
-    float beamSize = theBeamSpot->BeamWidth();
+    float beamSize = theBeamSpot->BeamWidthX();
     GlobalError vertexError(beamSize*beamSize, 0,
                             beamSize*beamSize, 0,
                             0,closestVertex->covariance(2,2));
@@ -873,7 +873,7 @@ void QCDTrackAnalyzer::analyze
   LogTrace("MinBiasTracking")
     << fixed << setprecision(4)
     << " [TrackAnalyzer] beamSpot sigmaZ = " << theBeamSpot->sigmaZ()
-                         << ", BeamWidth = " << theBeamSpot->BeamWidth();
+                         << ", BeamWidth = " << theBeamSpot->BeamWidthX();
 
   // Get vertices
   edm::Handle<reco::VertexCollection> vertexCollection;
