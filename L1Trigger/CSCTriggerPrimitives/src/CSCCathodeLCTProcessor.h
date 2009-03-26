@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2008/07/29 10:56:05 $
- * $Revision: 1.17 $
+ * $Date: 2008/07/30 08:38:21 $
+ * $Revision: 1.18 $
  *
  */
 
@@ -63,8 +63,9 @@ class CSCCathodeLCTProcessor
 	   int time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS],
 	   int digiNum[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS]);
  
-  /** Access routine to comparator digis. */
+  /** Access routines to comparator digis. */
   bool getDigis(const CSCComparatorDigiCollection* compdc);
+  void getDigis(const CSCComparatorDigiCollection* compdc, const CSCDetId& id);
 
   /** Best LCT in this chamber, as found by the processor. */
   CSCCLCTDigi bestCLCT;

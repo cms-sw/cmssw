@@ -13,8 +13,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2008/07/30 08:38:21 $
- * $Revision: 1.15 $
+ * $Date: 2008/09/10 10:45:20 $
+ * $Revision: 1.16 $
  *
  */
 
@@ -51,8 +51,9 @@ class CSCAnodeLCTProcessor
       mode. */
   void run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
 
-  /** Access routine to wire digis. */
+  /** Access routines to wire digis. */
   bool getDigis(const CSCWireDigiCollection* wiredc);
+  void getDigis(const CSCWireDigiCollection* wiredc, const CSCDetId& id);
 
   /** Maximum number of time bins reported in the ALCT readout. */
   enum {MAX_ALCT_BINS = 16};

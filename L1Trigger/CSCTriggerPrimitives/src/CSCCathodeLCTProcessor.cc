@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2008/09/10 10:42:55 $
-//   $Revision: 1.31 $
+//   $Date: 2008/10/09 11:12:02 $
+//   $Revision: 1.32 $
 //
 //   Modifications: 
 //
@@ -798,36 +798,51 @@ bool CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc)
 
   // Loop over layers and save comparator digis on each one into digiV[layer].
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+    digiV[i_layer].clear();
+    
     CSCDetId detid(theEndcap, theStation, theRing, theChamber, i_layer+1);
+    getDigis(compdc, detid);
 
-    const CSCComparatorDigiCollection::Range rcompd = compdc->get(detid);
-
-    // Skip if no comparator digis in this layer.
-    if (rcompd.second == rcompd.first) continue;
-
-    // If this is the first layer with digis in this chamber, clear digiV
-    // array and set the empty flag to false.
-    if (noDigis) {
-      for (int lay = 0; lay < CSCConstants::NUM_LAYERS; lay++) {
-	digiV[lay].clear();
-      }
-      noDigis = false;
+    // If this is ME1/1, fetch digis in corresponding ME1/A (ring=4) as well.
+    if (theStation == 1 && theRing == 1) {
+      CSCDetId detid_me1a(theEndcap, theStation, 4, theChamber, i_layer+1);
+      getDigis(compdc, detid_me1a);
     }
 
-    if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
-      << "found " << rcompd.second - rcompd.first
-      << " comparator digi(s) in layer " << i_layer << " of ME"
-      << ((theEndcap == 1) ? "+" : "-") << theStation << "/" << theRing
-      << "/" << theChamber << " (trig. sector " << theSector
-      << " subsector " << theSubsector << " id " << theTrigChamber << ")";
-
-    for (CSCComparatorDigiCollection::const_iterator digiIt = rcompd.first;
-	 digiIt != rcompd.second; ++digiIt) {
-      digiV[i_layer].push_back(*digiIt);
+    if (!digiV[i_layer].empty()) {
+      noDigis = false;
+      if (infoV > 1) {
+	LogTrace("CSCCathodeLCTProcessor")
+	  << "found " << digiV[i_layer].size()
+	  << " comparator digi(s) in layer " << i_layer << " of ME"
+	  << ((theEndcap == 1) ? "+" : "-") << theStation << "/" << theRing
+	  << "/" << theChamber << " (trig. sector " << theSector
+	  << " subsector " << theSubsector << " id " << theTrigChamber << ")";
+      }
     }
   }
 
   return noDigis;
+}
+
+void CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc,
+				      const CSCDetId& id) {
+  bool me1a = (id.station() == 1) && (id.ring() == 4);
+  const CSCComparatorDigiCollection::Range rcompd = compdc->get(id);
+  for (CSCComparatorDigiCollection::const_iterator digiIt = rcompd.first;
+       digiIt != rcompd.second; ++digiIt) {
+    if (me1a && digiIt->getStrip() <= 16) {
+      // Move ME1/A comparators from CFEB=0 to CFEB=4 if this has not
+      // been done already.
+      CSCComparatorDigi digi_corr(digiIt->getStrip()+64,
+				  digiIt->getComparator(),
+				  digiIt->getTimeBinWord());
+      digiV[id.layer()-1].push_back(digi_corr);
+    }
+    else {
+      digiV[id.layer()-1].push_back(*digiIt);
+    }
+  }
 }
 
 void CSCCathodeLCTProcessor::distripStagger(int stag_triad[CSCConstants::MAX_NUM_STRIPS],

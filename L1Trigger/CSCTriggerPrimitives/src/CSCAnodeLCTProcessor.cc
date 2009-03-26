@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2008/09/10 10:45:20 $
-//   $Revision: 1.29 $
+//   $Date: 2008/10/09 11:12:02 $
+//   $Revision: 1.30 $
 //
 //   Modifications: 
 //
@@ -507,37 +507,44 @@ bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
 
   // Loop over layers and save wire digis on each one into digiV[layer].
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+    digiV[i_layer].clear();
+
     CSCDetId detid(theEndcap, theStation, theRing, theChamber, i_layer+1);
+    getDigis(wiredc, detid);
 
-    const CSCWireDigiCollection::Range rwired = wiredc->get(detid);
-
-    // Skip if no wire digis in this layer.
-    if (rwired.second == rwired.first) continue;
-
-    // If this is the first layer with digis in this chamber, clear digiV
-    // array and set the empty flag to false.
-    if (noDigis) {
-      for (int lay = 0; lay < CSCConstants::NUM_LAYERS; lay++) {
-	digiV[lay].clear();
-      }
-      noDigis = false;
+    // If this is ME1/1, fetch digis in corresponding ME1/A (ring=4) as well.
+    if (theStation == 1 && theRing == 1) {
+      CSCDetId detid_me1a(theEndcap, theStation, 4, theChamber, i_layer+1);
+      getDigis(wiredc, detid_me1a);
     }
 
-    if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
-      << "found " << rwired.second - rwired.first
-      << " wire digi(s) in layer " << i_layer << " of ME"
-      << ((theEndcap == 1) ? "+" : "-") << theStation << "/" << theRing
-      << "/" << theChamber << " (trig. sector " << theSector
-      << " subsector " << theSubsector << " id " << theTrigChamber << ")";
-
-    for (CSCWireDigiCollection::const_iterator digiIt = rwired.first;
-	 digiIt != rwired.second; ++digiIt) {
-      digiV[i_layer].push_back(*digiIt);
-      if (infoV > 1) LogTrace("CSCAnodeLCTProcessor") << "   " << (*digiIt);
+    if (!digiV[i_layer].empty()) {
+      noDigis = false;
+      if (infoV > 1) {
+	LogTrace("CSCAnodeLCTProcessor")
+	  << "found " << digiV[i_layer].size()
+	  << " wire digi(s) in layer " << i_layer << " of ME"
+	  << ((theEndcap == 1) ? "+" : "-") << theStation << "/" << theRing
+	  << "/" << theChamber << " (trig. sector " << theSector
+	  << " subsector " << theSubsector << " id " << theTrigChamber << ")";
+	for (std::vector<CSCWireDigi>::iterator pld = digiV[i_layer].begin();
+	     pld != digiV[i_layer].end(); pld++) {
+	  LogTrace("CSCAnodeLCTProcessor") << "   " << (*pld);
+	}
+      }
     }
   }
 
   return noDigis;
+}
+
+void CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc,
+				    const CSCDetId& id) {
+  const CSCWireDigiCollection::Range rwired = wiredc->get(id);
+  for (CSCWireDigiCollection::const_iterator digiIt = rwired.first;
+       digiIt != rwired.second; ++digiIt) {
+    digiV[id.layer()-1].push_back(*digiIt);
+  }
 }
 
 void CSCAnodeLCTProcessor::readWireDigis(std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
