@@ -48,22 +48,6 @@ CSCMonitorModule::~CSCMonitorModule() {
 }
 
 /**
- * @brief  Begin module job
- * @param  c Event setup
- */
-void CSCMonitorModule::beginJob(const edm::EventSetup& c) {
-
-  dbe->setCurrentFolder("CSC/EventInfo/DCSContents");
-  MonitorElement* dcs = dbe->bookFloat("CSCDCS");
-  dcs->Fill(-1.0);
-
-  dbe->setCurrentFolder("CSC/EventInfo/CertificationContents");
-  MonitorElement* cert = dbe->bookFloat("CSCCertification");
-  cert->Fill(-1.0);
-
-}
-
-/**
  * @brief  Analyze Event.
  * @param  e Event to analyze
  * @param  c Event Setup
@@ -105,6 +89,12 @@ cscdqm::MonitorObject* CSCMonitorModule::bookMonitorObject(const cscdqm::HistoBo
   if (req.htype == cscdqm::FLOAT) {
     if (req.hdef->getId() == cscdqm::h::PAR_REPORT_SUMMARY) {
       dbe->setCurrentFolder(DIR_EVENTINFO);
+    } else if (cscdqm::Utility::regexMatch("^PAR_DCS_", cscdqm::h::keys[req.hdef->getId()])) {
+      dbe->setCurrentFolder(DIR_DCSINFO);
+    } else if (cscdqm::Utility::regexMatch("^PAR_DAQ_", cscdqm::h::keys[req.hdef->getId()])) {
+      dbe->setCurrentFolder(DIR_DAQINFO);
+    } else if (cscdqm::Utility::regexMatch("^PAR_CRT_", cscdqm::h::keys[req.hdef->getId()])) {
+      dbe->setCurrentFolder(DIR_CRTINFO);
     }
     me = new CSCMonitorObject(dbe->bookFloat(name));
     me->Fill(req.default_float);

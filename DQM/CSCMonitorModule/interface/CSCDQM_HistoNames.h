@@ -24,7 +24,10 @@
 #include <boost/preprocessor/control/if.hpp>
 #include <boost/preprocessor/comparison/less.hpp>
 #include <boost/preprocessor/punctuation/comma_if.hpp>
+#include <boost/preprocessor/arithmetic/add.hpp>
 #include <boost/preprocessor/arithmetic/inc.hpp>
+#include <boost/preprocessor/slot/slot.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
 namespace h {
 
@@ -37,8 +40,7 @@ namespace h {
  *  type.
  */
 
-#define CONFIG_HISTONAMES_SEQ \
-  \
+#define CONFIG_HISTONAMES_SEQ_01 \
   \
   (( CSC_ACTUAL_DMB_CFEB_DAV_FREQUENCY, "Actual_DMB_CFEB_DAV_Frequency" )) \
   (( CSC_ACTUAL_DMB_CFEB_DAV_MULTIPLICITY_FREQUENCY, "Actual_DMB_CFEB_DAV_multiplicity_Frequency" )) \
@@ -254,7 +256,10 @@ namespace h {
   (( EMU_PHYSICS_ME1, "Physics_ME1" )) \
   (( EMU_PHYSICS_ME2, "Physics_ME2" )) \
   (( EMU_PHYSICS_ME3, "Physics_ME3" )) \
-  (( EMU_PHYSICS_ME4, "Physics_ME4" )) \
+  (( EMU_PHYSICS_ME4, "Physics_ME4" ))
+
+#define CONFIG_HISTONAMES_SEQ_02 \
+  \
   (( PAR_REPORT_SUMMARY, "reportSummary" )) \
   (( PAR_CSC_SIDEMINUS, "CSC_SideMinus" )) \
   (( PAR_CSC_SIDEMINUS_STATION01, "CSC_SideMinus_Station01" )) \
@@ -280,28 +285,116 @@ namespace h {
   (( PAR_CSC_SIDEPLUS_STATION03_RING01, "CSC_SidePlus_Station03_Ring01" )) \
   (( PAR_CSC_SIDEPLUS_STATION03_RING02, "CSC_SidePlus_Station03_Ring02" )) \
   (( PAR_CSC_SIDEPLUS_STATION04, "CSC_SidePlus_Station04" )) \
+  (( PAR_DCS_SIDEMINUS, "CSC_SideMinus" )) \
+  (( PAR_DCS_SIDEMINUS_STATION01, "CSC_SideMinus_Station01" )) \
+  (( PAR_DCS_SIDEMINUS_STATION01_RING01, "CSC_SideMinus_Station01_Ring01" )) \
+  (( PAR_DCS_SIDEMINUS_STATION01_RING02, "CSC_SideMinus_Station01_Ring02" )) \
+  (( PAR_DCS_SIDEMINUS_STATION01_RING03, "CSC_SideMinus_Station01_Ring03" )) \
+  (( PAR_DCS_SIDEMINUS_STATION02, "CSC_SideMinus_Station02" )) \
+  (( PAR_DCS_SIDEMINUS_STATION02_RING01, "CSC_SideMinus_Station02_Ring01" )) \
+  (( PAR_DCS_SIDEMINUS_STATION02_RING02, "CSC_SideMinus_Station02_Ring02" )) \
+  (( PAR_DCS_SIDEMINUS_STATION03, "CSC_SideMinus_Station03" )) \
+  (( PAR_DCS_SIDEMINUS_STATION03_RING01, "CSC_SideMinus_Station03_Ring01" )) \
+  (( PAR_DCS_SIDEMINUS_STATION03_RING02, "CSC_SideMinus_Station03_Ring02" )) \
+  (( PAR_DCS_SIDEMINUS_STATION04, "CSC_SideMinus_Station04" )) \
+  (( PAR_DCS_SIDEPLUS, "CSC_SidePlus" )) \
+  (( PAR_DCS_SIDEPLUS_STATION01, "CSC_SidePlus_Station01" )) \
+  (( PAR_DCS_SIDEPLUS_STATION01_RING01, "CSC_SidePlus_Station01_Ring01" )) \
+  (( PAR_DCS_SIDEPLUS_STATION01_RING02, "CSC_SidePlus_Station01_Ring02" )) \
+  (( PAR_DCS_SIDEPLUS_STATION01_RING03, "CSC_SidePlus_Station01_Ring03" )) \
+  (( PAR_DCS_SIDEPLUS_STATION02, "CSC_SidePlus_Station02" )) \
+  (( PAR_DCS_SIDEPLUS_STATION02_RING01, "CSC_SidePlus_Station02_Ring01" )) \
+  (( PAR_DCS_SIDEPLUS_STATION02_RING02, "CSC_SidePlus_Station02_Ring02" )) \
+  (( PAR_DCS_SIDEPLUS_STATION03, "CSC_SidePlus_Station03" )) \
+  (( PAR_DCS_SIDEPLUS_STATION03_RING01, "CSC_SidePlus_Station03_Ring01" )) \
+  (( PAR_DCS_SIDEPLUS_STATION03_RING02, "CSC_SidePlus_Station03_Ring02" )) \
+  (( PAR_DCS_SIDEPLUS_STATION04, "CSC_SidePlus_Station04" )) \
+  (( PAR_CRT_SIDEMINUS, "CSC_SideMinus" )) \
+  (( PAR_CRT_SIDEMINUS_STATION01, "CSC_SideMinus_Station01" )) \
+  (( PAR_CRT_SIDEMINUS_STATION01_RING01, "CSC_SideMinus_Station01_Ring01" )) \
+  (( PAR_CRT_SIDEMINUS_STATION01_RING02, "CSC_SideMinus_Station01_Ring02" )) \
+  (( PAR_CRT_SIDEMINUS_STATION01_RING03, "CSC_SideMinus_Station01_Ring03" )) \
+  (( PAR_CRT_SIDEMINUS_STATION02, "CSC_SideMinus_Station02" )) \
+  (( PAR_CRT_SIDEMINUS_STATION02_RING01, "CSC_SideMinus_Station02_Ring01" )) \
+  (( PAR_CRT_SIDEMINUS_STATION02_RING02, "CSC_SideMinus_Station02_Ring02" )) \
+  (( PAR_CRT_SIDEMINUS_STATION03, "CSC_SideMinus_Station03" )) \
+  (( PAR_CRT_SIDEMINUS_STATION03_RING01, "CSC_SideMinus_Station03_Ring01" )) \
+  (( PAR_CRT_SIDEMINUS_STATION03_RING02, "CSC_SideMinus_Station03_Ring02" )) \
+  (( PAR_CRT_SIDEMINUS_STATION04, "CSC_SideMinus_Station04" )) \
+  (( PAR_CRT_SIDEPLUS, "CSC_SidePlus" )) \
+  (( PAR_CRT_SIDEPLUS_STATION01, "CSC_SidePlus_Station01" )) \
+  (( PAR_CRT_SIDEPLUS_STATION01_RING01, "CSC_SidePlus_Station01_Ring01" )) \
+  (( PAR_CRT_SIDEPLUS_STATION01_RING02, "CSC_SidePlus_Station01_Ring02" )) \
+  (( PAR_CRT_SIDEPLUS_STATION01_RING03, "CSC_SidePlus_Station01_Ring03" )) \
+  (( PAR_CRT_SIDEPLUS_STATION02, "CSC_SidePlus_Station02" )) \
+  (( PAR_CRT_SIDEPLUS_STATION02_RING01, "CSC_SidePlus_Station02_Ring01" )) \
+  (( PAR_CRT_SIDEPLUS_STATION02_RING02, "CSC_SidePlus_Station02_Ring02" )) \
+  (( PAR_CRT_SIDEPLUS_STATION03, "CSC_SidePlus_Station03" )) \
+  (( PAR_CRT_SIDEPLUS_STATION03_RING01, "CSC_SidePlus_Station03_Ring01" )) \
+  (( PAR_CRT_SIDEPLUS_STATION03_RING02, "CSC_SidePlus_Station03_Ring02" )) \
+  (( PAR_CRT_SIDEPLUS_STATION04, "CSC_SidePlus_Station04" )) \
+  (( PAR_DAQ_SIDEMINUS, "CSC_SideMinus" )) \
+  (( PAR_DAQ_SIDEMINUS_STATION01, "CSC_SideMinus_Station01" )) \
+  (( PAR_DAQ_SIDEMINUS_STATION01_RING01, "CSC_SideMinus_Station01_Ring01" )) \
+  (( PAR_DAQ_SIDEMINUS_STATION01_RING02, "CSC_SideMinus_Station01_Ring02" )) \
+  (( PAR_DAQ_SIDEMINUS_STATION01_RING03, "CSC_SideMinus_Station01_Ring03" )) \
+  (( PAR_DAQ_SIDEMINUS_STATION02, "CSC_SideMinus_Station02" )) \
+  (( PAR_DAQ_SIDEMINUS_STATION02_RING01, "CSC_SideMinus_Station02_Ring01" )) \
+  (( PAR_DAQ_SIDEMINUS_STATION02_RING02, "CSC_SideMinus_Station02_Ring02" )) \
+  (( PAR_DAQ_SIDEMINUS_STATION03, "CSC_SideMinus_Station03" )) \
+  (( PAR_DAQ_SIDEMINUS_STATION03_RING01, "CSC_SideMinus_Station03_Ring01" )) \
+  (( PAR_DAQ_SIDEMINUS_STATION03_RING02, "CSC_SideMinus_Station03_Ring02" )) \
+  (( PAR_DAQ_SIDEMINUS_STATION04, "CSC_SideMinus_Station04" )) \
+  (( PAR_DAQ_SIDEPLUS, "CSC_SidePlus" )) \
+  (( PAR_DAQ_SIDEPLUS_STATION01, "CSC_SidePlus_Station01" )) \
+  (( PAR_DAQ_SIDEPLUS_STATION01_RING01, "CSC_SidePlus_Station01_Ring01" )) \
+  (( PAR_DAQ_SIDEPLUS_STATION01_RING02, "CSC_SidePlus_Station01_Ring02" )) \
+  (( PAR_DAQ_SIDEPLUS_STATION01_RING03, "CSC_SidePlus_Station01_Ring03" )) \
+  (( PAR_DAQ_SIDEPLUS_STATION02, "CSC_SidePlus_Station02" )) \
+  (( PAR_DAQ_SIDEPLUS_STATION02_RING01, "CSC_SidePlus_Station02_Ring01" )) \
+  (( PAR_DAQ_SIDEPLUS_STATION02_RING02, "CSC_SidePlus_Station02_Ring02" )) \
+  (( PAR_DAQ_SIDEPLUS_STATION03, "CSC_SidePlus_Station03" )) \
+  (( PAR_DAQ_SIDEPLUS_STATION03_RING01, "CSC_SidePlus_Station03_Ring01" )) \
+  (( PAR_DAQ_SIDEPLUS_STATION03_RING02, "CSC_SidePlus_Station03_Ring02" )) \
+  (( PAR_DAQ_SIDEPLUS_STATION04, "CSC_SidePlus_Station04" )) \
   \
   \
+
+#define BOOST_PP_VALUE BOOST_PP_SEQ_SIZE(CONFIG_HISTONAMES_SEQ_01) + BOOST_PP_SEQ_SIZE(CONFIG_HISTONAMES_SEQ_02)
+#include BOOST_PP_ASSIGN_SLOT(1)
 
 /** Histogram name definition */
 #define CONFIG_MACRO_ID(r, data, i, elem) \
-  const HistoId BOOST_PP_TUPLE_ELEM(2, 0, elem) = i;
+  const HistoId BOOST_PP_TUPLE_ELEM(2, 0, elem) = data + i;
 
 /** Item of names list definition */
 #define CONFIG_MACRO_NAME(r, data, i, elem) \
-  BOOST_PP_TUPLE_ELEM(2, 1, elem) \
-  BOOST_PP_COMMA_IF(BOOST_PP_LESS(BOOST_PP_INC(i), BOOST_PP_SEQ_SIZE(CONFIG_HISTONAMES_SEQ)))
+  BOOST_PP_TUPLE_ELEM(2, 1, elem)\
+  BOOST_PP_COMMA_IF(BOOST_PP_LESS(BOOST_PP_INC(i), data))
+
+/** Item of keys list definition */
+#define CONFIG_MACRO_KEY(r, data, i, elem) \
+  BOOST_PP_STRINGIZE(BOOST_PP_TUPLE_ELEM(2, 0, elem))\
+  BOOST_PP_COMMA_IF(BOOST_PP_LESS(BOOST_PP_INC(i), data))
 
   /** Histogram names */
-  BOOST_PP_SEQ_FOR_EACH_I(CONFIG_MACRO_ID, _, CONFIG_HISTONAMES_SEQ)
+  BOOST_PP_SEQ_FOR_EACH_I(CONFIG_MACRO_ID, 0, CONFIG_HISTONAMES_SEQ_01)
+  BOOST_PP_SEQ_FOR_EACH_I(CONFIG_MACRO_ID, BOOST_PP_SEQ_SIZE(CONFIG_HISTONAMES_SEQ_01), CONFIG_HISTONAMES_SEQ_02)
 
   /** Array of histogram names */
   static const HistoName names[] = {
-    BOOST_PP_SEQ_FOR_EACH_I(CONFIG_MACRO_NAME, _, CONFIG_HISTONAMES_SEQ)
+    BOOST_PP_SEQ_FOR_EACH_I(CONFIG_MACRO_NAME, BOOST_PP_SEQ_SIZE(CONFIG_HISTONAMES_SEQ_01), CONFIG_HISTONAMES_SEQ_01),
+    BOOST_PP_SEQ_FOR_EACH_I(CONFIG_MACRO_NAME, BOOST_PP_SEQ_SIZE(CONFIG_HISTONAMES_SEQ_02), CONFIG_HISTONAMES_SEQ_02)
+  };
+
+  /** Array of histogram names */
+  static const HistoName keys[] = {
+    BOOST_PP_SEQ_FOR_EACH_I(CONFIG_MACRO_KEY, BOOST_PP_SEQ_SIZE(CONFIG_HISTONAMES_SEQ_01), CONFIG_HISTONAMES_SEQ_01),
+    BOOST_PP_SEQ_FOR_EACH_I(CONFIG_MACRO_KEY, BOOST_PP_SEQ_SIZE(CONFIG_HISTONAMES_SEQ_02), CONFIG_HISTONAMES_SEQ_02)
   };
 
   /** Number of histograms */
-  static const unsigned int namesSize = BOOST_PP_SEQ_SIZE(CONFIG_HISTONAMES_SEQ);
+  static const unsigned int namesSize = BOOST_PP_SLOT(1);
 
 }
 

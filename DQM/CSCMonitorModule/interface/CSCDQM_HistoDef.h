@@ -209,6 +209,15 @@ namespace cscdqm {
       }
 
       /**
+       * @brief  Get Histogram key name by id
+       * @param  p_id Histogram id
+       * @return Histogram key name
+       */
+      static const std::string getHistoKeyById(const HistoId& p_id) {
+        return h::keys[p_id];
+      }
+
+      /**
        * @brief  Process name by applying ID to %d pattern (pattern is stored in REGEXP_ONDEMAND)
        * @param  p_name String value to process
        * @param  p_id ID to include

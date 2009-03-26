@@ -52,6 +52,9 @@
 /// Local Constants
 static const char INPUT_TAG_LABEL[]      = "source";
 static const char DIR_EVENTINFO[]        = "CSC/EventInfo/";
+static const char DIR_DCSINFO[]          = "CSC/EventInfo/DCSContents/";
+static const char DIR_DAQINFO[]          = "CSC/EventInfo/DAQContents/";
+static const char DIR_CRTINFO[]          = "CSC/EventInfo/CertificationContents/";
 
 /**
  * @class CSCMonitorModule
@@ -95,7 +98,7 @@ class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProv
 
   protected:
 
-    void beginJob(const edm::EventSetup& c);
+    void beginJob(const edm::EventSetup& c) { }
     void beginRun(const edm::Run& r, const edm::EventSetup& c) { }
     void setup() { }
     void analyze(const edm::Event& e, const edm::EventSetup& c);
