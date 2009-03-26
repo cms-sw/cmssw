@@ -5,7 +5,7 @@
 <use name=DataFormats/EcalDetId>
 <use name=CondFormats/DataRecord> 
 <use name=CondFormats/EcalObjects>
-<use name=Geometry/CaloEventSetup>
+<!-- <use name=Geometry/CaloTopology> -->
 <use name=Geometry/EcalMapping>
 <use name=OnlineDB/EcalCondDB>
 <use name=OnlineDB/Oracle>
@@ -20,7 +20,7 @@
     <use name=DataFormats/EcalDetId>
     <use name=CondFormats/DataRecord>
     <use name=CondFormats/EcalObjects>
-    <use name=Geometry/CaloEventSetup>
+<!--    <use name=Geometry/CaloTopology> -->
     <use name=Geometry/EcalMapping>
     <use name=OnlineDB/EcalCondDB>
     <use name=OnlineDB/Oracle>
