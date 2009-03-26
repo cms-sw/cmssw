@@ -31,7 +31,7 @@ siStripQualityESProducerUnbiased.ListOfRecordToMerge = cms.VPSet(
 
 
 # Clusterizer #
-from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import *
+import RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi 
 calZeroBiasClusters = RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi.siStripClusters.clone()
 calZeroBiasClusters.QualityLabel = 'unbiased'
 
