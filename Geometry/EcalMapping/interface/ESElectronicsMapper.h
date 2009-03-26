@@ -28,7 +28,9 @@ class ESElectronicsMapper {
   edm::FileInPath lookup_;
 
   int fed_[2][2][40][40];
-  std::map<int, std::vector<int>  > ee_es_map_;
+  std::map < int, std::vector<int>  > ee_es_map_;
+
+  
 
 };
 

@@ -9,7 +9,8 @@ ESElectronicsMapper::ESElectronicsMapper(const edm::ParameterSet& ps) {
       for (int k=0; k<40; ++k) 
 	for (int m=0; m<40; ++m) 
 	  fed_[i][j][k][m] = -1; 
- 
+  
+  
   // read in look-up table
   int nLines, z, iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
   std::ifstream file;
@@ -30,7 +31,7 @@ ESElectronicsMapper::ESElectronicsMapper(const edm::ParameterSet& ps) {
   } else {
     std::cout<<"ESElectronicsMapper::ESElectronicsMapper : Look up table file can not be found in "<<lookup_.fullPath().c_str()<<std::endl;
   }
-
+  
   // EE-ES FEDs mapping
   int eefed[18] = {601, 602, 603, 604, 605, 606, 607, 608, 609, 646, 647, 648, 649, 650, 651, 652, 653, 654};
   int nesfed[18] = {7, 5, 5, 5, 5, 8, 5, 7, 5, 8, 5, 5, 5, 5, 7, 5, 7, 5};
@@ -54,10 +55,12 @@ ESElectronicsMapper::ESElectronicsMapper(const edm::ParameterSet& ps) {
     {556, 557, 560, 570, 571, 572, 573},
     {560, 561, 572, 573, 574}
   };
-  
-  for (int i=0; i<18; ++i) 
-    for (int j=0; j<nesfed[i]; ++j)
-      ee_es_map_[eefed[i]].push_back(esfed[i][j]);
+
+  for (int i=0; i<18; ++i) { // loop over EE feds
+    std::vector<int> esFeds;
+    for(int esFed=0; esFed<nesfed[i]; esFed++) esFeds.push_back(esfed[i][esFed]);
+    ee_es_map_.insert( make_pair(eefed[i],esFeds));
+  }
   
 }
 
@@ -84,10 +87,14 @@ std::vector<int> ESElectronicsMapper::GetListofFEDs(const std::vector<int> eeFED
 void ESElectronicsMapper::GetListofFEDs(std::vector<int> eeFEDs, std::vector<int> & esFEDs) const {
 
   for (uint i=0; i<eeFEDs.size(); ++i) {
-    std::vector<int> esfed = ee_es_map_.find(eeFEDs[i])->second;
-    for (uint j=0; j<esfed.size(); ++j) esFEDs.push_back(esfed[j]);
+    std::map< int, std::vector<int> >::const_iterator itr = ee_es_map_.find(eeFEDs[i]);
+    if(itr == ee_es_map_.end()) continue; 
+    std::vector<int> fed = itr->second;
+    for (uint j=0; j<fed.size(); ++j) {
+      esFEDs.push_back(fed[j]);
+    }
   }
-
+  
   sort(esFEDs.begin(), esFEDs.end());
   std::vector<int>::iterator it = unique(esFEDs.begin(), esFEDs.end());
   esFEDs.erase(it, esFEDs.end());
