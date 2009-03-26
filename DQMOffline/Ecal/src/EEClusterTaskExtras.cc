@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTaskExtras.cc
  *
- * $Date: 2009/02/27 16:12:26 $
- * $Revision: 1.2 $
+ * $Date: 2009/03/24 15:08:34 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -72,17 +72,17 @@ EEClusterTaskExtras::EEClusterTaskExtras(const ParameterSet& ps){
 
    // histograms...
 #ifndef EECLUSTERTASKEXTRAS_DQMOFFLINE
-   meSCSizXtal_ = 0;
+   meSCSizCrystal_ = 0;
    meSCSizBC_ = 0;
 
    meSCSeedEne_ = 0;
    meSCEne2_ = 0;
    meSCEneLow_ = 0;
    meSCEneHigh_ = 0;
-   meSCEneSingleXtal_ = 0;
+   meSCEneSingleCrystal_ = 0;
 
    for(int i=0;i!=2;++) {
-      meSCSeedMapOccSingleXtal_[i] = 0;
+      meSCSeedMapOccSingleCrystal_[i] = 0;
       meSCSeedMapOccSC_[i] = 0;
       meSCSeedMapOccHighEne_[i] = 0;
       meSCSeedMapTimeSC_[i] = 0;
@@ -100,7 +100,7 @@ EEClusterTaskExtras::EEClusterTaskExtras(const ParameterSet& ps){
       meSCSeedTimePerFed_[i] = 0;
 #endif
 
-   meSCXtalsVsEne_ = 0;
+  meSCSizCrystalVsEne_ = 0;
 
    for(int i=0;i!=2;++i) {
       meSCSeedMapOcc_[i] = 0;
@@ -143,17 +143,17 @@ void EEClusterTaskExtras::endRun(const Run& r, const EventSetup& c) {
 
 void EEClusterTaskExtras::reset(void) {
 #ifndef EECLUSTERTASKEXTRAS_DQMOFFLINE
-   if ( meSCSizXtal_ ) meSCSizXtal_->Reset();
+   if ( meSCSizCrystal_ ) meSCSizCrystal_->Reset();
    if ( meSCSizBC_ ) meSCSizBC_->Reset(); 
 
    if ( meSCSeedEne_ ) meSCSeedEne_->Reset();
    if ( meSCEne2_ ) meSCEne2_->Reset();
    if ( meSCEneLow_ ) meSCEneLow_->Reset();
    if ( meSCEneHigh_ ) meSCEneHigh_->Reset();
-   if ( meSCEneSingleXtal_ ) meSCEneSingleXtal_->Reset();
+   if ( meSCEneSingleCrystal_ ) meSCEneSingleCrystal_->Reset();
 
    for(int i=0;i!=2;++i) {
-      if ( meSCSeedMapOccSingleXtal_[i] ) meSCSeedMapOccSingleXtal_[i]->Reset();
+      if ( meSCSeedMapOccSingleCrystal_[i] ) meSCSeedMapOccSingleCrystal_[i]->Reset();
       if ( meSCSeedMapOccSC_[i] ) meSCSeedMapOccSC_[i]->Reset();
       if ( meSCSeedMapOccHighEne_[i] ) meSCSeedMapOccHighEne_[i]->Reset();
       if ( meSCSeedMapTimeSC_[i] ) meSCSeedMapTimeSC_[i]->Reset();
@@ -172,7 +172,7 @@ void EEClusterTaskExtras::reset(void) {
       if ( meSCSeedTimePerFed_[i] ) meSCSeedTimePerFed_[i]->Reset();
 #endif
 
-   if ( meSCXtalsVsEne_ ) meSCXtalsVsEne_->Reset();
+   if ( meSCSizCrystalVsEne_ ) meSCSizCrystalVsEne_->Reset();
 
    for(int i=0;i!=2;++i) {
       if ( meSCSeedMapOcc_[i] ) meSCSeedMapOcc_[i]->Reset();
@@ -197,9 +197,9 @@ void EEClusterTaskExtras::setup(void){
 
 #ifndef EECLUSTERTASKEXTRAS_DQMOFFLINE
       // Cluster hists
-      sprintf(histo, "EECLTE SC size (xtals)");
-      meSCSizXtal_ = dqmStore_->book1D(histo,histo,150,0,150);
-      meSCSizXtal_->setAxisTitle("super cluster size (xtals)", 1);
+      sprintf(histo, "EECLTE SC size (crystal)");
+      meSCSizCrystal_ = dqmStore_->book1D(histo,histo,150,0,150);
+      meSCSizCrystal_->setAxisTitle("super cluster size (crystal)", 1);
 
       sprintf(histo, "EECLTE SC size (basic clusters)");
       meSCSizBC_ = dqmStore_->book1D(histo,histo,20,0,20);
@@ -218,12 +218,12 @@ void EEClusterTaskExtras::setup(void){
       meSCEneLow_->setAxisTitle("energy (GeV)", 1);
 
       sprintf(histo, "EECLTE SC energy high scale");
-      meSCEneHigh_ = dqmStore_->book1D(histo,histo,200,0,1.8);
+      meSCEneHigh_ = dqmStore_->book1D(histo,histo,200,0,200);
       meSCEneHigh_->setAxisTitle("energy (GeV)", 1);
 
-      sprintf(histo, "EECLTE SC single xtal cluster energy (GeV)");
-      meSCEneSingleXtal_ = dqmStore_->book1D(histo,histo,200,0,200);
-      meSCEneSingleXtal_->setAxisTitle("energy (GeV)", 1);
+      sprintf(histo, "EECLTE SC single crystal cluster energy (GeV)");
+      meSCEneSingleCrystal_ = dqmStore_->book1D(histo,histo,200,0,200);
+      meSCEneSingleCrystal_->setAxisTitle("energy (GeV)", 1);
 
       sprintf(histo, "EECLTE SC seed occupancy map super crystal binned EE -");
       meSCSeedMapOccSC_[0] = dqmStore_->book2D(histo,histo,20,0,100,20,0,100);
@@ -235,10 +235,10 @@ void EEClusterTaskExtras::setup(void){
       meSCSeedMapOccHighEne_[0]->setAxisTitle("jx", 1);
       meSCSeedMapOccHighEne_[0]->setAxisTitle("jy", 2);
 
-      sprintf(histo, "EECLTE SC single xtal cluster seed occupancy map EE -");
-      meSCSeedMapOccSingleXtal_[0] = dqmStore_->book2D(histo,histo,100,0,100,100,0,100);
-      meSCSeedMapOccSingleXtal_[0]->setAxisTitle("jx", 1);
-      meSCSeedMapOccSingleXtal_[0]->setAxisTitle("jy", 2);
+      sprintf(histo, "EECLTE SC single crystal cluster seed occupancy map EE -");
+      meSCSeedMapOccSingleCrystal_[0] = dqmStore_->book2D(histo,histo,100,0,100,100,0,100);
+      meSCSeedMapOccSingleCrystal_[0]->setAxisTitle("jx", 1);
+      meSCSeedMapOccSingleCrystal_[0]->setAxisTitle("jy", 2);
 
       sprintf(histo, "EECLTE SC seed occupancy map EE - (CSC triggered)");
       meSCSeedMapOccTrg_[0][0] = dqmStore_->book2D(histo,histo,100,0,100,100,0,100);
@@ -300,10 +300,10 @@ void EEClusterTaskExtras::setup(void){
       meSCSeedMapOccHighEne_[1]->setAxisTitle("jx", 1);
       meSCSeedMapOccHighEne_[1]->setAxisTitle("jy", 2);
 
-      sprintf(histo, "EECLTE SC single xtal cluster seed occupancy map EE +");
-      meSCSeedMapOccSingleXtal_[1] = dqmStore_->book2D(histo,histo,100,0,100,100,0,100);
-      meSCSeedMapOccSingleXtal_[1]->setAxisTitle("jx", 1);
-      meSCSeedMapOccSingleXtal_[1]->setAxisTitle("jy", 2);
+      sprintf(histo, "EECLTE SC single crystal cluster seed occupancy map EE +");
+      meSCSeedMapOccSingleCrystal_[1] = dqmStore_->book2D(histo,histo,100,0,100,100,0,100);
+      meSCSeedMapOccSingleCrystal_[1]->setAxisTitle("jx", 1);
+      meSCSeedMapOccSingleCrystal_[1]->setAxisTitle("jy", 2);
 
       sprintf(histo, "EECLTE SC seed occupancy map EE + (CSC triggered)");
       meSCSeedMapOccTrg_[1][0] = dqmStore_->book2D(histo,histo,100,0,100,100,0,100);
@@ -396,10 +396,10 @@ void EEClusterTaskExtras::setup(void){
 
 #endif
 
-      sprintf(histo, "EECLTE SC size (xtals) vs energy (GeV)");
-      meSCXtalsVsEne_ = dqmStore_->bookProfile(histo,histo,200,0.,10.,150,0,150);
-      meSCXtalsVsEne_->setAxisTitle("energy (GeV)", 1);
-      meSCXtalsVsEne_->setAxisTitle("super cluster size (xtals)", 2);
+      sprintf(histo, "EECLTE SC size (crystal) vs energy (GeV)");
+     meSCSizCrystalVsEne_ = dqmStore_->bookProfile(histo,histo,200,0.,10.,150,0,150);
+     meSCSizCrystalVsEne_->setAxisTitle("energy (GeV)", 1);
+     meSCSizCrystalVsEne_->setAxisTitle("super cluster size (crystal)", 2);
 
       sprintf(histo, "EECLTE SC seed occupancy map EE -");
       meSCSeedMapOcc_[0] = dqmStore_->book2D(histo,histo,100,0,100,100,0,100);
@@ -581,8 +581,8 @@ void EEClusterTaskExtras::cleanup(void){
       dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTaskExtras");
 
 #ifndef EECLUSTERTASKEXTRAS_DQMOFFLINE
-      if ( meSCSizXtal_ ) dqmStore_->removeElement( meSCSizXtal_->getName() );
-      meSCSizXtal_ = 0;
+      if ( meSCSizCrystal_ ) dqmStore_->removeElement( meSCSizCrystal_->getName() );
+      meSCSizCrystal_ = 0;
       if ( meSCSizBC_ ) dqmStore_->removeElement( meSCSizBC_->getName() );
       meSCSizBC_ = 0;
 
@@ -594,16 +594,16 @@ void EEClusterTaskExtras::cleanup(void){
       meSCEneLow_ = 0;
       if ( meSCEneHigh_ ) dqmStore_->removeElement( meSCEneHigh_->getName() );
       meSCEneHigh_ = 0;
-      if ( meSCEneSingleXtal_ ) dqmStore_->removeElement( meSCEneSingleXtal_->getName() );
-      meSCEneSingleXtal_ = 0;
+      if ( meSCEneSingleCrystal_ ) dqmStore_->removeElement( meSCEneSingleCrystal_->getName() );
+      meSCEneSingleCrystal_ = 0;
 
       for(int i=0;i!=2;++i) {
       	 if ( meSCSeedMapOccSC_[i] ) dqmStore_->removeElement( meSCSeedMapOccSC_[i]->getName() );
 	 meSCSeedMapOccSC_[i] = 0;
 	 if ( meSCSeedMapOccHighEne_[i] ) dqmStore_->removeElement( meSCSeedMapOccHighEne_[i]->getName() );
 	 meSCSeedMapOccHighEne_[i] = 0;
-	 if ( meSCSeedMapOccSingleXtal_[i] ) dqmStore_->removeElement( meSCSeedMapOccSingleXtal_[i]->getName() );
-	 meSCSeedMapOccSingleXtal_[i] = 0;
+	 if ( meSCSeedMapOccSingleCrystal_[i] ) dqmStore_->removeElement( meSCSeedMapOccSingleCrystal_[i]->getName() );
+	 meSCSeedMapOccSingleCrystal_[i] = 0;
 	 if ( meSCSeedMapTimeSC_[i] ) dqmStore_->removeElement( meSCSeedMapTimeSC_[i]->getName() );
 	 meSCSeedMapTimeSC_[i] = 0;
 	 for(int j=0;j!=5;++j) {
@@ -632,8 +632,8 @@ void EEClusterTaskExtras::cleanup(void){
 
 #endif
 
-      if ( meSCXtalsVsEne_ ) dqmStore_->removeElement( meSCXtalsVsEne_->getName() );
-      meSCXtalsVsEne_ = 0;
+      if (meSCSizCrystalVsEne_ ) dqmStore_->removeElement(meSCSizCrystalVsEne_->getName() );
+     meSCSizCrystalVsEne_ = 0;
 
       for(int i=0;i!=2;++i) {
 	 if ( meSCSeedMapOcc_[i] ) dqmStore_->removeElement( meSCSeedMapOcc_[i]->getName() );
@@ -743,7 +743,7 @@ void EEClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 	    if(meSCEneHigh_) meSCEneHigh_->Fill( sCluster->energy() );
 	    if(meSCSizBC_) meSCSizBC_->Fill( float(sCluster->clustersSize()) );
 
-	    if(meSCSizXtal_) meSCSizXtal_->Fill(sIds.size());
+	    if(meSCSizCrystal_) meSCSizCrystal_->Fill(sIds.size());
 	    if(meSCSeedEne_) meSCSeedEne_->Fill(eMax);
 	    if(meSCEne2_) meSCEne2_->Fill(eMax+e2nd);
 	    //if(meSCEneVsEMax_) meSCEneVsEMax_->Fill(eMax,sCluster->energy());
@@ -755,8 +755,8 @@ void EEClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 	       if(meSCSeedMapOccHighEneSC_[side]) meSCSeedMapOccHighEneSC_[side]->Fill(xeex, xeey);
 	    }
 	    if(sIds.size() == 1) {
-	       if(meSCEneSingleXtal_) meSCEneSingleXtal_->Fill(sCluster->energy());
-	       if(meSCSeedMapOccSingleXtal_[side]) meSCSeedMapOccSingleXtal_[side]->Fill(xeex, xeey);
+	       if(meSCEneSingleCrystal_) meSCEneSingleCrystal_->Fill(sCluster->energy());
+	       if(meSCSeedMapOccSingleCrystal_[side]) meSCSeedMapOccSingleCrystal_[side]->Fill(xeex, xeey);
 	    }
 
 	    if(meSCSeedMapOcc_[side]) meSCSeedMapOcc_[side]->Fill(xeex, xeey);
@@ -792,7 +792,7 @@ void EEClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 	    }
 #endif
 
-	    if(meSCXtalsVsEne_) meSCXtalsVsEne_->Fill(sCluster->energy(),sIds.size());
+	    if(meSCSizCrystalVsEne_) meSCSizCrystalVsEne_->Fill(sCluster->energy(),sIds.size());
 
 	    for(int i=0;i!=5;++i) {
 	       if(triggers[i]) {

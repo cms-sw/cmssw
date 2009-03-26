@@ -4,8 +4,8 @@
 /*
  * \file EEClusterTaskExtras.h
  *
- * $Date: 2009/02/27 16:18:42 $
- * $Revision: 1.2 $
+ * $Date: 2009/03/24 15:08:50 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
  */
@@ -87,18 +87,18 @@ edm::InputTag l1GTReadoutRecTag_;
 std::vector<std::string> meList_;
 
 #ifndef EECLUSTERTASKEXTRAS_DQMOFFLINE
-MonitorElement* meSCSizXtal_;
+MonitorElement* meSCSizCrystal_;
 MonitorElement* meSCSizBC_;
 
 MonitorElement* meSCSeedEne_;
 MonitorElement* meSCEne2_;
 MonitorElement* meSCEneLow_;
 MonitorElement* meSCEneHigh_;
-MonitorElement* meSCEneSingleXtal_;
+MonitorElement* meSCEneSingleCrystal_;
 
 MonitorElement* meSCSeedMapOccSC_[2];
 MonitorElement* meSCSeedMapOccHighEne_[2];
-MonitorElement* meSCSeedMapOccSingleXtal_[2];
+MonitorElement* meSCSeedMapOccSingleCrystal_[2];
 MonitorElement* meSCSeedMapOccTrg_[2][5];
 MonitorElement* meSCSeedMapOccTrgExcl_[2][5];
 MonitorElement* meSCSeedTime_;
@@ -110,7 +110,7 @@ MonitorElement* meSCSeedTimePerFed_[18];
 MonitorElement* meSCSeedMapTimeSC_[2][5];
 #endif
 
-MonitorElement* meSCXtalsVsEne_;
+MonitorElement* meSCSizCrystalVsEne_;
 
 MonitorElement* meSCSeedMapOcc_[2];
 MonitorElement* meSCSeedMapOccHighEneSC_[2];
