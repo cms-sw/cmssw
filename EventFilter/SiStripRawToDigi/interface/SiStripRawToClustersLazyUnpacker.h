@@ -7,7 +7,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerFactory.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 #include <vector>
@@ -22,7 +22,7 @@ class OldSiStripRawToClustersLazyUnpacker : public edm::LazyUnpacker<SiStripClus
 
   typedef edm::DetSet<SiStripCluster> DetSet;
 
-  OldSiStripRawToClustersLazyUnpacker(const SiStripRegionCabling&, const SiStripClusterizerFactory&, const FEDRawDataCollection&); 
+  OldSiStripRawToClustersLazyUnpacker(const SiStripRegionCabling&, StripClusterizerAlgorithm&, const FEDRawDataCollection&); 
   
   virtual ~OldSiStripRawToClustersLazyUnpacker();
 
@@ -38,8 +38,8 @@ class OldSiStripRawToClustersLazyUnpacker : public edm::LazyUnpacker<SiStripClus
   /// cabling
   const SiStripRegionCabling::Cabling* regions_;
 
-  /// clusterizer factory
-  const SiStripClusterizerFactory* clusterizer_;
+  /// clusterizer algorithm
+  StripClusterizerAlgorithm* const clusterizer_;
 
   /// Fed9UEvent cache
   std::vector< Fed9U::Fed9UEvent* > fedEvents_;
@@ -60,7 +60,7 @@ namespace sistrip {
     
     typedef edm::DetSet<SiStripCluster> DetSet;
     
-    RawToClustersLazyUnpacker(const SiStripRegionCabling&, const SiStripClusterizerFactory&, const FEDRawDataCollection&, bool = false); 
+    RawToClustersLazyUnpacker(const SiStripRegionCabling&, StripClusterizerAlgorithm&, const FEDRawDataCollection&, bool = false); 
     
     virtual ~RawToClustersLazyUnpacker();
     
@@ -77,8 +77,8 @@ namespace sistrip {
     /// cabling
     const SiStripRegionCabling::Cabling* regions_;
     
-    /// clusterizer factory
-    const SiStripClusterizerFactory* clusterizer_;
+    /// clusterizer algorithm
+    StripClusterizerAlgorithm* const clusterizer_;
     
     /// FED event cache
     std::vector< sistrip::FEDBuffer* > buffers_;

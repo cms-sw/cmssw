@@ -9,7 +9,6 @@
 #include <memory>
 #include "boost/bind.hpp"
 
-class SiStripClusterizerFactory;
 class SiStripRegionCabling;
 
 /**
@@ -42,7 +41,7 @@ namespace sistrip {
     edm::InputTag productLabel_;
     const SiStripRegionCabling* cabling_;
     uint32_t cacheId_;
-    SiStripClusterizerFactory* clusterizer_;
+    std::auto_ptr<StripClusterizerAlgorithm> clusterizer_;
   };
   
 }
@@ -70,7 +69,7 @@ class OldSiStripRawToClusters : public edm::EDProducer {
   edm::InputTag productLabel_;
   const SiStripRegionCabling* cabling_;
   uint32_t cacheId_;
-  SiStripClusterizerFactory* clusterizer_;
+  std::auto_ptr<StripClusterizerAlgorithm> clusterizer_;
   
 };
 
