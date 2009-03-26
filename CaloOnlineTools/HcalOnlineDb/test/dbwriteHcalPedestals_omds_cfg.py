@@ -22,14 +22,17 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.es_ascii = cms.ESSource("HcalOmdsCalibrations",
     input = cms.VPSet(cms.PSet(
-        object = cms.string('ChannelQuality'),
+        object = cms.string('Pedestals'),
         tag = cms.string('ZS_HB8_HEHO9_HF10'),
         version = cms.string('GRuMM_test:1'),
         subversion = cms.int32(1),
         accessor = cms.string('occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44,LHWM_VERSION=22'),
         query = cms.string('''
-        SELECT zero_suppression, z*eta as ieta, phi, depth, detector_name as subdetector 
-          FROM CMS_HCL_HCAL_COND.V_HCAL_ZERO_SUPPRESSION 
+        SELECT zero_suppression as unit_is_ADC,
+               zero_suppression, zero_suppression, zero_suppression, zero_suppression,
+               zero_suppression, zero_suppression, zero_suppression, zero_suppression,
+               z*eta as ieta, phi, depth, detector_name as subdetector 
+        FROM CMS_HCL_HCAL_COND.V_HCAL_ZERO_SUPPRESSION 
         WHERE
           TAG_NAME=:1
         and
@@ -43,13 +46,13 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     timetype = cms.untracked.string('runnumber'),
     logconnect= cms.untracked.string('sqlite_file:log.db'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('HcalChannelQualityRcd'),
-        tag = cms.string('hcal_channelStatus_trivial_mc')
+        record = cms.string('HcalPedestalsRcd'),
+        tag = cms.string('hcal_resp_corrs_trivial_mc')
          ))
 )
 
-process.mytest = cms.EDAnalyzer("HcalChannelQualityPopConAnalyzer",
-    record = cms.string('HcalChannelQualityRcd'),
+process.mytest = cms.EDAnalyzer("HcalPedestalsPopConAnalyzer",
+    record = cms.string('HcalPedestalsRcd'),
     loggingOn= cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(

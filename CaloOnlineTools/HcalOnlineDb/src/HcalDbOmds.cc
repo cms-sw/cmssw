@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbASCIIIO.cc,v 1.41
-// $Id: HcalDbOmds.cc,v 1.6 2009/03/25 23:41:44 kukartse Exp $
+// $Id: HcalDbOmds.cc,v 1.7 2009/03/26 03:55:49 kukartse Exp $
 //
 //
 #include <vector>
@@ -24,8 +24,51 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const int fSubversion,
 			    const std::string & fQuery,
 			    HcalPedestals* fObject) {
-  std::cerr << "NOT IMPLEMENTED!" << std::endl;
-  return false;
+  bool result=true;
+  if (!fObject) fObject = new HcalPedestals;
+  try {
+    oracle::occi::Statement* stmt = connection->createStatement(fQuery);
+    stmt->setString(1,fTag);
+    stmt->setString(2,fVersion);
+    //stmt->setInt(3,fSubversion);
+
+    ResultSet *rs = stmt->executeQuery();
+
+    RooGKCounter _row(1,100);
+    _row.setMessage("HCAL channels processed: ");
+    _row.setPrintCount(true);
+    _row.setNewLine(true);
+    int _unit=0;
+    while (rs->next()) {
+      _row.count();
+      _unit = rs->getInt(1);
+      float cap0 = rs->getFloat(2);
+      float cap1 = rs->getFloat(3);
+      float cap2 = rs->getFloat(4);
+      float cap3 = rs->getFloat(5);
+      float variance0 = rs->getFloat(6);
+      float variance1 = rs->getFloat(7);
+      float variance2 = rs->getFloat(8);
+      float variance3 = rs->getFloat(9);
+      int ieta = rs->getInt(10);
+      int iphi = rs->getInt(11);
+      int depth = rs->getInt(12);
+      HcalSubdetector subdetector = get_subdetector(rs->getString(13));
+      HcalDetId id(subdetector,ieta,iphi,depth);
+      //cout << "DEBUG: " << id << " " << cap0 << " " << cap1 << " " << cap2 << " " << cap3 << endl;
+      HcalPedestal * fCondObject = new HcalPedestal(id.rawId(), cap0, cap1, cap2, cap3, variance0, variance1, variance2, variance3);
+      fObject->addValues(*fCondObject);
+      delete fCondObject;
+    }
+    //Always terminate statement
+    connection->terminateStatement(stmt);
+  } catch (SQLException& e) {
+    throw cms::Exception("ReadError") << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << std::endl;
+  }
+  bool unit_is_adc = false;
+  if (_unit!=0) unit_is_adc = true;
+  fObject->setUnitADC(unit_is_adc);
+  return result;
 }
 
 
@@ -91,8 +134,42 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const int fSubversion,
 			    const std::string & fQuery,
 			    HcalGainWidths* fObject) {
-  std::cerr << "NOT IMPLEMENTED!" << std::endl;
-  return false;
+  bool result=true;
+  if (!fObject) fObject = new HcalGainWidths;
+  try {
+    oracle::occi::Statement* stmt = connection->createStatement(fQuery);
+    stmt->setString(1,fTag);
+    stmt->setString(2,fVersion);
+    //stmt->setInt(3,fSubversion);
+
+    ResultSet *rs = stmt->executeQuery();
+
+    RooGKCounter _row(1,100);
+    _row.setMessage("HCAL channels processed: ");
+    _row.setPrintCount(true);
+    _row.setNewLine(true);
+    while (rs->next()) {
+      _row.count();
+      float cap0 = rs->getFloat(1);
+      float cap1 = rs->getFloat(2);
+      float cap2 = rs->getFloat(3);
+      float cap3 = rs->getFloat(4);
+      int ieta = rs->getInt(5);
+      int iphi = rs->getInt(6);
+      int depth = rs->getInt(7);
+      HcalSubdetector subdetector = get_subdetector(rs->getString(8));
+      HcalDetId id(subdetector,ieta,iphi,depth);
+      //cout << "DEBUG: " << id << " " << cap0 << " " << cap1 << " " << cap2 << " " << cap3 << endl;
+      HcalGainWidth * fCondObject = new HcalGainWidth(id, cap0, cap1, cap2, cap3);
+      fObject->addValues(*fCondObject);
+      delete fCondObject;
+    }
+    //Always terminate statement
+    connection->terminateStatement(stmt);
+  } catch (SQLException& e) {
+    throw cms::Exception("ReadError") << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << std::endl;
+  }
+  return result;
 }
 
 
@@ -135,8 +212,39 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const int fSubversion,
 			    const std::string & fQuery,
 			    HcalChannelQuality* fObject) {
-  std::cerr << "NOT IMPLEMENTED!" << std::endl;
-  return false;
+  bool result=true;
+  if (!fObject) fObject = new HcalChannelQuality;
+  try {
+    oracle::occi::Statement* stmt = connection->createStatement(fQuery);
+    stmt->setString(1,fTag);
+    stmt->setString(2,fVersion);
+    //stmt->setInt(3,fSubversion);
+
+    ResultSet *rs = stmt->executeQuery();
+
+    RooGKCounter _row(1,100);
+    _row.setMessage("HCAL channels processed: ");
+    _row.setPrintCount(true);
+    _row.setNewLine(true);
+    while (rs->next()) {
+      _row.count();
+      int value = rs->getInt(1);
+      int ieta = rs->getInt(2);
+      int iphi = rs->getInt(3);
+      int depth = rs->getInt(4);
+      HcalSubdetector subdetector = get_subdetector(rs->getString(5));
+      HcalDetId id(subdetector,ieta,iphi,depth);
+      //cout << "DEBUG: " << id << " " << zs << endl;
+      HcalChannelStatus * fCondObject = new HcalChannelStatus(id, value);
+      fObject->addValues(*fCondObject);
+      delete fCondObject;
+    }
+    //Always terminate statement
+    connection->terminateStatement(stmt);
+  } catch (SQLException& e) {
+    throw cms::Exception("ReadError") << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << std::endl;
+  }
+  return result;
 }
 
 

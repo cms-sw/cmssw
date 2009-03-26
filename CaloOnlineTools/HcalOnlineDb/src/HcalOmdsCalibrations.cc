@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalOmdsCalibrations
-// $Id: HcalOmdsCalibrations.cc,v 1.4 2009/03/25 23:41:44 kukartse Exp $
+// $Id: HcalOmdsCalibrations.cc,v 1.5 2009/03/26 03:55:49 kukartse Exp $
 //
 //
 
@@ -154,7 +154,7 @@ std::auto_ptr<T> produce_impl (const std::string & fTag,
 
 
 std::auto_ptr<HcalPedestals> HcalOmdsCalibrations::producePedestals (const HcalPedestalsRcd&) {
-  return produce_impl<HcalPedestals> (mInputs ["Pedestals"]);
+  return produce_impl<HcalPedestals> (mInputs ["Pedestals"], mVersion["Pedestals"], mSubversion["Pedestals"], mQuery["Pedestals"], mAccessor["Pedestals"]);
 }
 
 std::auto_ptr<HcalPedestalWidths> HcalOmdsCalibrations::producePedestalWidths (const HcalPedestalWidthsRcd&) {
@@ -166,7 +166,7 @@ std::auto_ptr<HcalGains> HcalOmdsCalibrations::produceGains (const HcalGainsRcd&
 }
 
 std::auto_ptr<HcalGainWidths> HcalOmdsCalibrations::produceGainWidths (const HcalGainWidthsRcd&) {
-  return produce_impl<HcalGainWidths> (mInputs ["GainWidths"]);
+  return produce_impl<HcalGainWidths> (mInputs ["GainWidths"], mVersion["GainWidths"], mSubversion["GainWidths"], mQuery["GainWidths"], mAccessor["GainWidths"]);
 }
 
 std::auto_ptr<HcalQIEData> HcalOmdsCalibrations::produceQIEData (const HcalQIEDataRcd& rcd) {
@@ -174,7 +174,7 @@ std::auto_ptr<HcalQIEData> HcalOmdsCalibrations::produceQIEData (const HcalQIEDa
 }
 
 std::auto_ptr<HcalChannelQuality> HcalOmdsCalibrations::produceChannelQuality (const HcalChannelQualityRcd& rcd) {
-  return produce_impl<HcalChannelQuality> (mInputs ["ChannelQuality"]);
+  return produce_impl<HcalChannelQuality> (mInputs ["ChannelQuality"], mVersion["ChannelQuality"], mSubversion["ChannelQuality"], mQuery["ChannelQuality"], mAccessor["ChannelQuality"]);
 }
 
 std::auto_ptr<HcalZSThresholds> HcalOmdsCalibrations::produceZSThresholds (const HcalZSThresholdsRcd& rcd) {
