@@ -8,7 +8,7 @@ process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = "frontier://FrontierInt/CMS_COND_30X_GLOBALTAG"
+#process.GlobalTag.connect = "frontier://FrontierInt/CMS_COND_30X_GLOBALTAG"
 process.GlobalTag.globaltag = "CRAFT_30X::All"
 process.prefer("GlobalTag")
 
@@ -45,4 +45,11 @@ process.DQMStore.collateHistograms = False
 process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun = False
 
-process.p1 = cms.Path(process.EDMtoMEConverter*process.SiStripOfflineDQMClient*process.siStripDaqInfo*process.siStripDcsInfo*process.siStripCertificationInfo*process.dqmSaver)
+# DQM Utility to calculate # of bins
+process.load("DQMServices.Components.DQMStoreStats_cfi")
+
+# Tracer service
+process.Tracer = cms.Service('Tracer',indentation = cms.untracked.string('$$'))
+process.load('DQM.SiStripCommon.MessageLogger_cfi')
+
+process.p1 = cms.Path(process.EDMtoMEConverter*process.SiStripOfflineDQMClient*process.siStripDaqInfo*process.siStripDcsInfo*process.siStripCertificationInfo*process.dqmSaver*process.dqmStoreStats)

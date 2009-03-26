@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2009/02/25 19:25:10 $
- * $Revision: 1.45 $
+ * $Date: 2009/03/14 18:29:11 $
+ * $Revision: 1.46 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -132,7 +132,7 @@ void SiStripAnalyser::beginJob(edm::EventSetup const& eSetup){
      edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: Error to read configuration file!! Summary will not be produced!!!";
      summaryFrequency_ = -1;
   }
-  if (globalStatusFilling_) actionExecutor_->bookGlobalStatus(dqmStore_);
+  if (globalStatusFilling_) actionExecutor_->createStatus(dqmStore_);
   nLumiSecs_ = 0;
   nEvents_   = 0;
 }
@@ -172,11 +172,10 @@ void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup
   if (nEvents_ == 1 && globalStatusFilling_ > 0) {
     checkTrackerFEDs(e);
     if (!trackerFEDsFound_) {
-      actionExecutor_->fillDummyGlobalStatus();
+      actionExecutor_->fillDummyStatus();
       actionExecutor_->createDummyShiftReport();
     } else {
-      if (globalStatusFilling_ == 1) actionExecutor_->fillGlobalStatusFromModule(dqmStore_);
-      if (globalStatusFilling_ == 2) actionExecutor_->fillGlobalStatusFromLayer(dqmStore_);
+      actionExecutor_->fillStatus(dqmStore_);
       if (shiftReportFrequency_ != -1) actionExecutor_->createShiftReport(dqmStore_);
     }
   }
@@ -233,8 +232,8 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
   }
   // Fill Global Status
   if (globalStatusFilling_ > 0 && trackerFEDsFound_) {
-    if (globalStatusFilling_ == 1) actionExecutor_->fillGlobalStatusFromModule(dqmStore_);
-    if (globalStatusFilling_ == 2) actionExecutor_->fillGlobalStatusFromLayer(dqmStore_);
+    if (globalStatusFilling_ == 1) actionExecutor_->fillStatus(dqmStore_);
+    if (globalStatusFilling_ == 2) actionExecutor_->fillStatus(dqmStore_);
   }
   // Create Shift Report
   if (shiftReportFrequency_ != -1 && trackerFEDsFound_ && nLumiSecs_%shiftReportFrequency_  == 0) {

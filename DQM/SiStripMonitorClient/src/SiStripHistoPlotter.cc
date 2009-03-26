@@ -87,13 +87,15 @@ void SiStripHistoPlotter::makePlot(DQMStore* dqm_store, const PlotParameter& par
       if (tproject) tproject->Draw();
       else histo->Draw();
     } else {
+      string name = histo->GetName();
+      if (name.find("Summary_Mean") != string::npos) histo->SetStats( kFALSE );
       histo->Draw();
     }
     TText tTitle;
     tTitle.SetTextFont(64);
     tTitle.SetTextSizePixels(20);
-    tTitle.DrawTextNDC(0.1, 0.92, histo->GetName());
-
+    //    tTitle.DrawTextNDC(0.1, 0.92, histo->GetName());
+    
     if (icol != 1) {
       TText tt;
       tt.SetTextSize(0.12);

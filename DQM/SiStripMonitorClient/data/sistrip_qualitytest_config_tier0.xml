@@ -11,7 +11,105 @@
         <PARAM name="error">0.30</PARAM>
         <PARAM name="warning">0.70</PARAM>
 </QTEST>
+<QTEST name="ContentsWithinExpected:Cluster">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="minMean">0.0</PARAM>
+        <PARAM name="maxMean">0.1</PARAM>
+        <PARAM name="minRMS">0</PARAM>
+        <PARAM name="maxRMS">0</PARAM>
+        <PARAM name="toleranceMean">-1</PARAM>
+        <PARAM name="minEntries">20</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.30</PARAM>
+        <PARAM name="warning">0.70</PARAM>
+</QTEST>
+<QTEST name="MeanWithinExpectedRange:StoNTIB">
+      <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="error">0.05</PARAM>
+      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="mean">1.0</PARAM>
+      <PARAM name="useRMS">0</PARAM>
+      <PARAM name="useSigma">0</PARAM>
+      <PARAM name="useRange">1</PARAM>
+      <PARAM name="minEntries">200</PARAM>
+      <PARAM name="xmin">25.0</PARAM>
+      <PARAM name="xmax">50.0</PARAM>
+</QTEST>
+<QTEST name="MeanWithinExpectedRange:StoNTOB">
+      <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="error">0.05</PARAM>
+      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="mean">1.0</PARAM>
+      <PARAM name="useRMS">0</PARAM>
+      <PARAM name="useSigma">0</PARAM>
+      <PARAM name="useRange">1</PARAM>
+      <PARAM name="xmin">25.0</PARAM>
+      <PARAM name="xmax">50.0</PARAM>
+</QTEST>
+<QTEST name="MeanWithinExpectedRange:StoNTEC">
+      <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="error">0.05</PARAM>
+      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="mean">1.0</PARAM>
+      <PARAM name="useRMS">0</PARAM>
+      <PARAM name="useSigma">0</PARAM>
+      <PARAM name="useRange">1</PARAM>
+      <PARAM name="minEntries">200</PARAM>
+      <PARAM name="xmin">25.0</PARAM>
+      <PARAM name="xmax">50.0</PARAM>
+</QTEST>
+<QTEST name="MeanWithinExpectedRange:StoNTID">
+      <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="error">0.05</PARAM>
+      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="mean">1.0</PARAM>
+      <PARAM name="useRMS">0</PARAM>
+      <PARAM name="useSigma">0</PARAM>
+      <PARAM name="useRange">1</PARAM>
+      <PARAM name="minEntries">200</PARAM>
+      <PARAM name="xmin">25.0</PARAM>
+      <PARAM name="xmax">50.0</PARAM>
+</QTEST>
+<QTEST name="MeanWithinExpectedRange:CKFTk">
+      <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="error">0.05</PARAM>
+      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="mean">1.0</PARAM>
+      <PARAM name="useRMS">0</PARAM>
+      <PARAM name="useSigma">0</PARAM>
+      <PARAM name="useRange">1</PARAM>
+      <PARAM name="minEntries">200</PARAM>
+      <PARAM name="xmin">0.0</PARAM>
+      <PARAM name="xmax">25.0</PARAM>
+</QTEST>
+
+
 <LINK name="*NumberOfDigiProfile__*">
   <TestName activate="true">ContentsWithinExpected:Digi</TestName>
 </LINK>
+<LINK name="*NumberOfClusterProfile__*">
+  <TestName activate="true">ContentsWithinExpected:Cluster</TestName>
+</LINK>
+<LINK name="*Summary_ClusterStoNCorr__OnTrack__TIB__layer__*">
+  <TestName activate="true">MeanWithinExpectedRange:StoNTIB</TestName>
+</LINK>
+<LINK name="*Summary_ClusterStoNCorr__OnTrack__TOB__layer__*">
+  <TestName activate="true">MeanWithinExpectedRange:StoNTOB</TestName>
+</LINK>
+<LINK name="*Summary_ClusterStoNCorr__OnTrack__TEC__side__1__wheel__*">
+  <TestName activate="true">MeanWithinExpectedRange:StoNTEC</TestName>
+</LINK>
+<LINK name="*Summary_ClusterStoNCorr__OnTrack__TEC__side__2__wheel__*">
+  <TestName activate="true">MeanWithinExpectedRange:StoNTEC</TestName>
+</LINK>
+<LINK name="*Summary_ClusterStoNCorr__OnTrack__TID__side__1__wheel__*">
+  <TestName activate="true">MeanWithinExpectedRange:StoNTID</TestName>
+</LINK>
+<LINK name="*Summary_ClusterStoNCorr__OnTrack__TID__side__2__wheel__*">
+  <TestName activate="true">MeanWithinExpectedRange:StoNTID</TestName>
+</LINK>
+<LINK name="*NumberOfTracks_CKFTk">
+  <TestName activate="true">MeanWithinExpectedRange:CKFTk</TestName>
+</LINK>
+
 </TESTCONFIGURATION>

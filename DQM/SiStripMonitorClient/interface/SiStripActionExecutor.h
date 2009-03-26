@@ -16,6 +16,7 @@ class SiStripSummaryCreator;
 class DQMStore;
 class MonitorUserInterface;
 class SiStripTrackerMapCreator;
+class SiStripQualityChecker;
 class SiStripFedCabling;
 class SiStripDetCabling;
 class SiStripConfigWriter;
@@ -38,12 +39,11 @@ class SiStripActionExecutor {
 		  const edm::ESHandle<SiStripFedCabling>& fedcabling, 
                   DQMStore* dqm_store, std::string& map_type);
 
- void bookGlobalStatus(DQMStore* dqm_store);     
- void fillGlobalStatusFromModule(DQMStore* dqm_store);
- void fillGlobalStatusFromLayer(DQMStore* dqm_store);
- 
- void resetGlobalStatus();
- void fillDummyGlobalStatus();
+ void createStatus(DQMStore* dqm_store);
+ void fillDummyStatus();
+ void fillStatus(DQMStore* dqm_store);
+
+
  void createDummyShiftReport();
  void createShiftReport(DQMStore * dqm_store);
  void printReportSummary(MonitorElement* me, std::ostringstream& str_val, std::string name);
@@ -54,11 +54,6 @@ class SiStripActionExecutor {
 
  private:
 
-  void fillSubDetStatusFromModule(DQMStore* dqm_store, std::string& dname, int& tot_me_subdet,
-				  int& error_me_subdet, unsigned int xbin);
-  void fillSubDetStatusFromLayer(DQMStore* dqm_store, std::string& dname, int& tot_me_subdet,
-		       int& error_me_subdet, unsigned int xbin);
-  void fillClusterReport(DQMStore* dqm_store, std::string& dname, int xbin);
   bool goToDir(DQMStore * dqm_store, std::string name);
 
 
@@ -66,19 +61,8 @@ class SiStripActionExecutor {
 
   SiStripSummaryCreator* summaryCreator_;
   SiStripTrackerMapCreator* tkMapCreator_;
+  SiStripQualityChecker*   qualityChecker_;
 
-  MonitorElement * SummaryReport;
-  MonitorElement * SummaryReportMap;
-  MonitorElement * SummaryTIB;
-  MonitorElement * SummaryTOB;
-  MonitorElement * SummaryTIDF;
-  MonitorElement * SummaryTIDB;
-  MonitorElement * SummaryTECF;
-  MonitorElement * SummaryTECB;
-
-  MonitorElement * OnTrackClusterReport;
-
-  bool bookedGlobalStatus_;
   SiStripConfigWriter* configWriter_;
 
   edm::ParameterSet pSet_;

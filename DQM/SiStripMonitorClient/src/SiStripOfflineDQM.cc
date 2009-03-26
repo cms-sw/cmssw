@@ -1,4 +1,3 @@
-
 // -*- C++ -*-
 //
 // Package:    SiStripMonitorCluster
@@ -14,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.22 2009/02/25 17:02:38 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.23 2009/02/25 19:32:53 dutta Exp $
 //
 //
 
@@ -99,7 +98,7 @@ void SiStripOfflineDQM::beginJob( const edm::EventSetup &eSetup) {
       createSummary_ = false;
     }
   }
-  if (globalStatusFilling_) actionExecutor_->bookGlobalStatus(dqmStore_);
+  if (globalStatusFilling_) actionExecutor_->createStatus(dqmStore_);
 
   edm::LogInfo("SiStripOfflineDQM") << "SiStripOfflineDQM::beginJob done";
 }
@@ -168,9 +167,9 @@ void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
   if (createSummary_)  actionExecutor_->createSummaryOffline(dqmStore_);
 
   // Fill Global Status
-  if (globalStatusFilling_ > 0 && trackerFEDsFound_) {
-    if (globalStatusFilling_ == 1) actionExecutor_->fillGlobalStatusFromModule(dqmStore_);
-    if (globalStatusFilling_ == 2) actionExecutor_->fillGlobalStatusFromLayer(dqmStore_);
+  if (globalStatusFilling_ > 0) {
+    if (!trackerFEDsFound_) actionExecutor_->fillDummyStatus();
+    else actionExecutor_->fillStatus(dqmStore_);
   }
 }
 /** 
