@@ -45,8 +45,9 @@ void gctTestHfEtSums::fillExpectedHfSums(const std::vector<RegionsVector>& input
   static const unsigned NUMBER_OF_RINGS_PER_WHEEL=L1CaloRegionDetId::N_ETA/2;
   //static const unsigned MIN_ETA_COUNTS =NUMBER_OF_RINGS_PER_WHEEL - NUMBER_OF_FRWRD_RINGS;
   static const unsigned MIN_ETA_HF_SUMS=NUMBER_OF_RINGS_PER_WHEEL - NUMBER_OF_INNER_RINGS;
-  static const unsigned MAX_ETSUM_VALUE = L1GctHfLutSetup::kHfEtSumMaxValue;
-  static const unsigned MAX_TOWER_COUNT = L1GctHfLutSetup::kHfCountMaxValue;
+  // TODO - put these bit sizes somewhere
+  static const unsigned MAX_ETSUM_VALUE = 1<<8;
+  static const unsigned MAX_TOWER_COUNT = 1<<5;
 
   unsigned numOfBx = inputRegions.size();
   m_expectedRing0EtSumPositiveEta.resize(numOfBx);
@@ -109,14 +110,14 @@ bool gctTestHfEtSums::checkHfEtSums(const L1GlobalCaloTrigger* gct, const int nu
 
   for (int bx=0; bx<numOfBx; bx++) {
 
-    unsigned bitCountRing0PositiveEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountPosEtaRing1).at(bx);
-    unsigned bitCountRing0NegativeEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountNegEtaRing1).at(bx);
-    unsigned bitCountRing1PositiveEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountPosEtaRing2).at(bx);
-    unsigned bitCountRing1NegativeEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountNegEtaRing2).at(bx);
-    unsigned etSumRing0PositiveEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumPosEtaRing1).at(bx);
-    unsigned etSumRing0NegativeEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumNegEtaRing1).at(bx);
-    unsigned etSumRing1PositiveEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumPosEtaRing2).at(bx);
-    unsigned etSumRing1NegativeEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumNegEtaRing2).at(bx);
+    unsigned bitCountRing0PositiveEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfEtSumsLut::bitCountPosEtaRing1).at(bx);
+    unsigned bitCountRing0NegativeEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfEtSumsLut::bitCountNegEtaRing1).at(bx);
+    unsigned bitCountRing1PositiveEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfEtSumsLut::bitCountPosEtaRing2).at(bx);
+    unsigned bitCountRing1NegativeEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfEtSumsLut::bitCountNegEtaRing2).at(bx);
+    unsigned etSumRing0PositiveEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfEtSumsLut::etSumPosEtaRing1).at(bx);
+    unsigned etSumRing0NegativeEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfEtSumsLut::etSumNegEtaRing1).at(bx);
+    unsigned etSumRing1PositiveEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfEtSumsLut::etSumPosEtaRing2).at(bx);
+    unsigned etSumRing1NegativeEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfEtSumsLut::etSumNegEtaRing2).at(bx);
 
     if (etSumRing0PositiveEta != etSumLut(m_expectedRing0EtSumPositiveEta.at(bx)))
       { cout << "Hf Et Sum Positive Eta, expected " << etSumLut(m_expectedRing0EtSumPositiveEta.at(bx)) 
@@ -160,7 +161,8 @@ unsigned gctTestHfEtSums::etSumLut (const unsigned expectedValue) const
 {
   // Note this assumes a particluar set of LUT thresholds and will
   // have to be re-written if the LUT changes
-  static const unsigned maxLut = L1GctHfLutSetup::kHfOutputMaxValue;
+  // TODO - put these bit sizes somewhere
+  static const unsigned maxLut = 1<<3;
   unsigned result = maxLut;
   unsigned compressedEt = expectedValue >> 1;
   if (compressedEt < maxLut) result = compressedEt;
@@ -171,7 +173,8 @@ unsigned gctTestHfEtSums::countLut (const unsigned expectedValue) const
 {
   // Note this assumes a particluar set of LUT thresholds and will
   // have to be re-written if the LUT changes
-  static const unsigned maxLut = L1GctHfLutSetup::kHfOutputMaxValue;
+  // TODO - put these bit sizes somewhere
+  static const unsigned maxLut = 1<<3;
   unsigned result = maxLut;
   unsigned compressedEt = expectedValue;
   if (compressedEt < maxLut) result = compressedEt;
