@@ -4,12 +4,13 @@ import FWCore.ParameterSet.Config as cms
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 ALCARECOSiStripCalZeroBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     andOr = True, # choose logical OR between Triggerbits
-    HLTPaths = [
-        #SiStripCalZeroBias
-        "HLT_ZeroBias",
-        #Random Trigger for Cosmic Runs
-        'RandomPath'
-        ],
+#    HLTPaths = [
+#        #SiStripCalZeroBias
+#        "HLT_ZeroBias",
+#        #Random Trigger for Cosmic Runs
+#        'RandomPath'
+#        ],
+    eventSetupPathsKey='SiStripCalZeroBias',
     throw = False # tolerate triggers stated above, but not available
 )
 
@@ -28,18 +29,11 @@ siStripQualityESProducerUnbiased.ListOfRecordToMerge = cms.VPSet(
     )
 )
 
-## Reconstruction ##
-
-# Digitiser #
-from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
-siStripDigis.ProductLabel = ''
-
-# Zero Suppression #
-from RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi import *
 
 # Clusterizer #
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import *
-siStripClusters.QualityLabel = 'unbiased'
+calZeroBiasClusters = RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi.siStripClusters.clone()
+calZeroBiasClusters.QualityLabel = 'unbiased'
 
 # SiStripQuality (only to test the different data labels)#
 qualityStatistics = cms.EDFilter("SiStripQualityStatistics",
@@ -48,7 +42,4 @@ qualityStatistics = cms.EDFilter("SiStripQualityStatistics",
 )
 
 # Sequence #
-seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*
-                                             #siStripDigis*                 // The digis can be taken from standard reconstruction
-                                             #siStripZeroSuppression*       // since they are independent from channel masking
-                                             siStripClusters)
+seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*calZeroBiasClusters)

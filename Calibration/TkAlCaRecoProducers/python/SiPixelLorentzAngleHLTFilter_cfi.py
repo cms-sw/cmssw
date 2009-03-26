@@ -7,7 +7,7 @@ SiPixelLorentzAngleHLTFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLeve
         'HLT_DoubleMu3_Upsilon', 
         'HLT_DoubleMu7_Z', 
         'HLT_DoubleMu3_SameSign'],
-    throw = [False] #dont throw except on unknown path name 
+    throw = False #dont throw except on unknown path name 
 )
 
 
