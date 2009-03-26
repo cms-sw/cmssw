@@ -6,14 +6,14 @@ import HLTrigger.HLTfilters.hltHighLevel_cfi
 from Calibration.EcalAlCaRecoProducers.electronFilter_cfi import *
 
 #
-# The current (as of $Date$) ALCA stream for single and double electron
+# The current (as of $Date: 2009/03/19 17:31:40 $) ALCA stream for single and double electron
 # calibration
 #
 
 isolElectronewkHLTFilter=HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 #   HLTPaths = ['HLT_Ele15_SW_L1R', 'HLT_DoubleEle10_SW_L1R', # 1E31
 #               'HLT_Ele10_LW_L1R', 'HLT_DoubleEle5_SW_L1R']  # 8E29
-    eventSetupPathsKey='ALCARECOEcalCalElectron',
+    eventSetupPathsKey='EcalCalElectron',
     throw = False
 )
 
