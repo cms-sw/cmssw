@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Tue Oct  7 14:56:49 CDT 2008
-// $Id: CSCOverlapsAlignmentAlgorithm.cc,v 1.1 2008/12/12 10:54:10 pivarski Exp $
+// $Id: CSCOverlapsAlignmentAlgorithm.cc,v 1.2 2008/12/12 11:37:02 pivarski Exp $
 //
 //
 
@@ -140,14 +140,6 @@ class CSCOverlapsAlignmentAlgorithm : public AlignmentAlgorithmBase {
       std::map<Alignable*,double> m_rphiPosDiff_w;
 
       std::map<Alignable*,double> m_radius;
-
-      std::map<std::pair<Alignable*,int>,TH1F*> m_hack_layer_hist;
-      std::map<std::pair<Alignable*,int>,TH1F*> m_hack_layerleft_hist;
-      std::map<std::pair<Alignable*,int>,TH1F*> m_hack_layerright_hist;
-      std::map<Alignable*,TProfile*> m_hack_layer_prof;
-      std::map<Alignable*,TProfile*> m_hack_layerleft_prof;
-      std::map<Alignable*,TProfile*> m_hack_layerright_prof;
-
 };
 
 CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::ParameterSet& iConfig)
@@ -282,33 +274,6 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, Al
 	m_hist_vertpos[*ali]->StatOverflows(kTRUE);
 	m_hist_indiv_relativephi[*ali]->StatOverflows(kTRUE);
 	m_hist_indiv_intercept_relativephi[*ali]->StatOverflows(kTRUE);
-
-	// hack-y layer plots
-	for (int layer = 1;  layer <= 6;  layer++) {
-	  std::stringstream layername, layertitle, layerleftname, layerlefttitle, layerrightname, layerrighttitle;
-	  layername << "LayerOffset" << name2.str() << "_layer" << layer;
-	  layertitle << "Layer " << layer << " offset" << title2.str() << " (mm)";
-	  layerleftname << "LayerLeftOffset" << name2.str() << "_layer" << layer;
-	  layerlefttitle << "Layer " << layer << " left offset" << title2.str() << " (mm)";
-	  layerrightname << "LayerRightOffset" << name2.str() << "_layer" << layer;
-	  layerrighttitle << "Layer " << layer << " right offset" << title2.str() << " (mm)";
-
-	  m_hack_layer_hist[std::pair<Alignable*,int>(*ali, layer)] = ring->make<TH1F>(layername.str().c_str(), layertitle.str().c_str(), 100, -10., 10.);
-	  m_hack_layerleft_hist[std::pair<Alignable*,int>(*ali, layer)] = ring->make<TH1F>(layerleftname.str().c_str(), layerlefttitle.str().c_str(), 100, -10., 10.);
-	  m_hack_layerright_hist[std::pair<Alignable*,int>(*ali, layer)] = ring->make<TH1F>(layerrightname.str().c_str(), layerrighttitle.str().c_str(), 100, -10., 10.);
-	}
-
-	std::stringstream layername2, layertitle2, layerleftname2, layerlefttitle2, layerrightname2, layerrighttitle2;
-	layername2 << "LayerOffset" << name2.str() << "_prof";
-	layertitle2 << "Layer-by-layer offset" << title2.str() << " (mm)";
-	layerleftname2 << "LayerLeftOffset" << name2.str() << "_prof";
-	layerlefttitle2 << "Layer-by-layer left offset" << title2.str() << " (mm)";
-	layerrightname2 << "LayerRightOffset" << name2.str() << "_prof";
-	layerrighttitle2 << "Layer-by-layer right offset" << title2.str() << " (mm)";
-
-	m_hack_layer_prof[*ali] = ring->make<TProfile>(layername2.str().c_str(), layertitle2.str().c_str(), 6, 0.5, 6.5, -10., 10.);
-	m_hack_layerleft_prof[*ali] = ring->make<TProfile>(layerleftname2.str().c_str(), layerlefttitle2.str().c_str(), 6, 0.5, 6.5, -10., 10.);
-	m_hack_layerright_prof[*ali] = ring->make<TProfile>(layerrightname2.str().c_str(), layerrighttitle2.str().c_str(), 6, 0.5, 6.5, -10., 10.);
 
       } // end if makeHistograms
    }
@@ -467,9 +432,7 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Con
       int iendcap = -1000;
       int istation = -1000;
       int iring = -1000;
-      std::vector<const TrackingRecHit*> evenhits, oddhits, hacklayerhits2;
-      const TrackingRecHit *minZ = NULL;
-      const TrackingRecHit *maxZ = NULL;
+      std::vector<const TrackingRecHit*> evenhits, oddhits;
       for (std::vector<const TrackingRecHit*>::const_iterator hit = station->begin();  hit != station->end();  ++hit) {
 	CSCDetId id((*hit)->geographicalId().rawId());
 	iendcap = id.endcap();
@@ -486,22 +449,7 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Con
 	  oddChamber = chamberId;
 	  oddhits.push_back(*hit);
 	}
-
-	hacklayerhits2.push_back(*hit);
-
-	double thisz = m_cscGeometry->idToDet(id)->toGlobal((*hit)->localPosition()).z();
-	if (minZ == NULL  ||  thisz < m_cscGeometry->idToDet(minZ->geographicalId())->toGlobal(minZ->localPosition()).z()) {
-	  minZ = *hit;
-	}
-	if (maxZ == NULL  ||  thisz > m_cscGeometry->idToDet(maxZ->geographicalId())->toGlobal(maxZ->localPosition()).z()) {
-	  maxZ = *hit;
-	}
-
       } // end loop over hits to find the even and odd chambers
-
-      std::vector<const TrackingRecHit*> hacklayerhits;
-      hacklayerhits.push_back(minZ);
-      hacklayerhits.push_back(maxZ);
       
       if (distinct_chambers.size() != 2) break;  // how could that happen?  Be careful anyway...
 
@@ -541,11 +489,6 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Con
       double odd_intercept, odd_intercept_err2, odd_slope, odd_slope_err2;
       trackFit(oddhits, convention2pi, zcenter, odd_intercept, odd_intercept_err2, odd_slope, odd_slope_err2);
       double odd_redChi2 = redChi2(oddhits, convention2pi, zcenter, odd_intercept, odd_slope);
-
-      double hacklayer_intercept, hacklayer_intercept_err2, hacklayer_slope, hacklayer_slope_err2;
-      if (minZ != maxZ) {
-	trackFit(hacklayerhits, convention2pi, zcenter, hacklayer_intercept, hacklayer_intercept_err2, hacklayer_slope, hacklayer_slope_err2);
-      }
 
       double radius = radiusFit(evenhits, oddhits, zcenter);
       std::vector<const TrackingRecHit*> emptyhitlist;      
@@ -646,48 +589,6 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Con
 
 	  m_hist_indiv_relativephi[chamber_i]->Fill(relativephi_i);
 	  m_hist_indiv_intercept_relativephi[chamber_i]->Fill(relativephi_i, phiPosDiff);
-
-	  // BEGIN hack-y layer plots
-	  if (minZ != maxZ) {
-	    for (std::vector<const TrackingRecHit*>::const_iterator hit = hacklayerhits2.begin();  hit != hacklayerhits2.end();  ++hit) {
-	      CSCDetId id((*hit)->geographicalId().rawId());
-
-	      LocalPoint localPoint = (*hit)->localPosition();
-	      GlobalPoint globalPoint = m_cscGeometry->idToDet(id)->toGlobal(localPoint);
-
-	      double phi = globalPoint.phi();
-	      if (convention2pi) {
-		while (phi < 0.) phi += 2.*M_PI;
-		while (phi >= 2.*M_PI) phi -= 2.*M_PI;
-	      }
-	      else {
-		while (phi < -M_PI) phi += 2.*M_PI;
-		while (phi >= M_PI) phi -= 2.*M_PI;
-	      }
-
-	      double z = globalPoint.z() - zcenter;
-	      double radius = sqrt(pow(globalPoint.x(), 2.) + pow(globalPoint.y(), 2.));
-	      double trackphi = hacklayer_intercept + z * hacklayer_slope;
-	      double layerresid = 10. * radius * (trackphi - phi);
-
-	      CSCDetId chamberId(id.endcap(), id.station(), id.ring(), id.chamber());
-	      Alignable *hackchamber = m_alignableNavigator->alignableFromDetId(chamberId).alignable();
-
-	      m_hack_layer_hist[std::pair<Alignable*,int>(hackchamber, id.layer())]->Fill(layerresid);
-	      m_hack_layer_prof[hackchamber]->Fill(id.layer(), layerresid);
-
-	      if (localPoint.x() < 0.) {
-		m_hack_layerleft_hist[std::pair<Alignable*,int>(hackchamber, id.layer())]->Fill(layerresid);
-		m_hack_layerleft_prof[hackchamber]->Fill(id.layer(), layerresid);
-	      }
-	      else {
-		m_hack_layerright_hist[std::pair<Alignable*,int>(hackchamber, id.layer())]->Fill(layerresid);
-		m_hack_layerright_prof[hackchamber]->Fill(id.layer(), layerresid);
-	      }
-	    }
-	  }
-	  // END hack-y layer plots
-
 	}
 
 	// "x" is vertpos, "y" is the quantity under study
