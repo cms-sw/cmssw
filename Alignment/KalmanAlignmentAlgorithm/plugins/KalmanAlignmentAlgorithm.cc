@@ -174,7 +174,7 @@ void KalmanAlignmentAlgorithm::run( const edm::EventSetup & setup,
   {
     // Run the refitter algorithm
     reco::BeamSpot dummyBeamSpot;
-    dummyBeamSpot.dummy();
+    //    dummyBeamSpot.dummy();
 
     TrackletCollection refittedTracklets = theRefitter->refitTracks( setup, theAlignmentSetups, tracks, &dummyBeamSpot );
 
