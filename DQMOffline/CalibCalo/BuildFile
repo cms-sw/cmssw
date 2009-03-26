@@ -16,7 +16,6 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloTopology>
 <use name=HLTrigger/HLTcore>
 <use name=RecoEcal/EgammaCoreTools>
@@ -28,7 +27,6 @@
   <use name=DQMServices/Core>
   <use name=FWCore/Framework>
   <use name=Geometry/Records>
-  <use name=Geometry/CaloEventSetup>
   <use name=Geometry/CaloGeometry>
   <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/Common>
