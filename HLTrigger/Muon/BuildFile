@@ -12,4 +12,5 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/PluginManager>
 <use name=HLTrigger/HLTcore>
+<use name=RecoMuon/MuonIsolation>
 <flags EDM_PLUGIN=1>

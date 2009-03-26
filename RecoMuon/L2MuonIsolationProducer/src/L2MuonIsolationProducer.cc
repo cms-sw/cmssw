@@ -21,6 +21,7 @@
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
+#include "RecoMuon/MuonIsolation/interface/MuonIsolatorFactory.h"
 
 #include <string>
 
@@ -31,18 +32,29 @@ using namespace muonisolation;
 
 /// constructor with config
 L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
-  theConfig(par),
   theSACollectionLabel(par.getParameter<edm::InputTag>("StandAloneCollectionLabel")), 
-  theCuts(par.getParameter<std::vector<double> > ("EtaBounds"),
-          par.getParameter<std::vector<double> > ("ConeSizes"),
-          par.getParameter<std::vector<double> > ("Thresholds")),
-  optOutputIsoDeposits(par.getParameter<bool>("OutputMuIsoDeposits")),
-  theExtractor(0)
+  theExtractor(0),
+  theDepositIsolator(0)
 {
   LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")<<" L2MuonIsolationProducer constructor called";
 
-  if (optOutputIsoDeposits) produces<reco::IsoDepositMap>();
-  produces<edm::ValueMap<bool> >();
+
+  //
+  // Extractor
+  //
+  edm::ParameterSet extractorPSet = par.getParameter<edm::ParameterSet>("ExtractorPSet");
+  std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
+  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet);  
+
+  
+  edm::ParameterSet isolatorPSet = par.getParameter<edm::ParameterSet>("IsolatorPSet");
+  optOutputDecision = !isolatorPSet.empty();
+  if (optOutputDecision){
+    std::string type = isolatorPSet.getParameter<std::string>("ComponentName");
+    theDepositIsolator = MuonIsolatorFactory::get()->create(type,isolatorPSet);
+  }
+  if (optOutputDecision) produces<edm::ValueMap<bool> >();
+  produces<reco::IsoDepositMap>();
 }
   
 /// destructor
@@ -53,12 +65,7 @@ L2MuonIsolationProducer::~L2MuonIsolationProducer(){
 
 ///beginJob
 void L2MuonIsolationProducer::beginJob(const edm::EventSetup& iSetup){
-  //
-  // Extractor
-  //
-  edm::ParameterSet extractorPSet = theConfig.getParameter<edm::ParameterSet>("ExtractorPSet");
-  std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet);  
+
 }
 
 /// build deposits
@@ -88,31 +95,26 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
 
       deps[i] = theExtractor->deposit(event, eventSetup, *tk);
 
-      muonisolation::Cuts::CutSpec cuts_here = theCuts(tk->eta());
-      
-      double conesize = cuts_here.conesize;
-      double dephlt = deps[i].depositWithin(conesize);
-      if (dephlt<cuts_here.threshold) {
-	isos[i] = true;
-      } else {
-	isos[i] = false;
+      if (optOutputDecision){
+	muonisolation::MuIsoBaseIsolator::DepositContainer isoContainer(1,muonisolation::MuIsoBaseIsolator::DepositAndVetos(&deps[i]));
+	isos[i] = theDepositIsolator->result( isoContainer, *tk ).valBool;
       }
   }
 
   
 
-  if (optOutputIsoDeposits){
-    //!do the business of filling iso map
-    reco::IsoDepositMap::Filler depFiller(*depMap);
-    depFiller.insert(tracks, deps.begin(), deps.end());
-    depFiller.fill();
-    event.put(depMap);
-  }
+  //!do the business of filling iso map
+  reco::IsoDepositMap::Filler depFiller(*depMap);
+  depFiller.insert(tracks, deps.begin(), deps.end());
+  depFiller.fill();
+  event.put(depMap);
 
-  edm::ValueMap<bool> ::Filler isoFiller(*isoMap);
-  isoFiller.insert(tracks, isos.begin(), isos.end());
-  isoFiller.fill();//! annoying -- I will forget it at some point
-  event.put(isoMap);
+  if (optOutputDecision){
+    edm::ValueMap<bool> ::Filler isoFiller(*isoMap);
+    isoFiller.insert(tracks, isos.begin(), isos.end());
+    isoFiller.fill();//! annoying -- I will forget it at some point
+    event.put(isoMap);
+  }
   
   LogDebug(metname) <<" Event loaded"
 		    <<"================================";

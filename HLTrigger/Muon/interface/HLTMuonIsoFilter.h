@@ -13,6 +13,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "RecoMuon/MuonIsolation/interface/MuIsoBaseIsolator.h"
 
 class HLTMuonIsoFilter : public HLTFilter {
 
@@ -24,8 +25,10 @@ class HLTMuonIsoFilter : public HLTFilter {
    private:
       edm::InputTag candTag_; // input tag identifying muon container
       edm::InputTag previousCandTag_;  // input tag identifying product contains muons passing the previous level
-      edm::InputTag isoTag_;  // input tag identifying isolation map
-      
+      std::vector<edm::InputTag> depTag_;  // input tag identifying deposit maps
+
+      const muonisolation::MuIsoBaseIsolator * theDepositIsolator;
+
       int    min_N_;          // minimum number of muons to fire the trigger
       bool saveTag_;            // should we save the input collection ?
 };

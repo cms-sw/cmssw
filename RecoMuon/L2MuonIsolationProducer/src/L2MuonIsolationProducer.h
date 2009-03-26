@@ -13,9 +13,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "RecoMuon/MuonIsolation/interface/Cuts.h"
-
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
+#include "RecoMuon/MuonIsolation/interface/MuIsoBaseIsolator.h"
 
 class L2MuonIsolationProducer : public edm::EDProducer {
 
@@ -36,20 +35,17 @@ class L2MuonIsolationProducer : public edm::EDProducer {
 
  private:
   
-  // this producer configs
-  edm::ParameterSet theConfig;
-
   // Muon track Collection Label
   edm::InputTag theSACollectionLabel;
 
-  // Isolation cuts
-  muonisolation::Cuts theCuts;
-
   // Option to write MuIsoDeposits into the event
-  double optOutputIsoDeposits;
+  bool optOutputDecision;
 
   // MuIsoExtractor
   reco::isodeposit::IsoDepositExtractor* theExtractor;
+
+  // muon isolator 
+  muonisolation::MuIsoBaseIsolator * theDepositIsolator;
 
 };
 
