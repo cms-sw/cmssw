@@ -89,7 +89,7 @@ HcalRecHitClient::~HcalRecHitClient()
 
 void HcalRecHitClient::beginJob(){
 
-  if ( debug_>1 ) cout << "HcalRecHitClient: beginJob" << endl;
+  if ( debug_>1 ) std::cout << "HcalRecHitClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -100,7 +100,7 @@ void HcalRecHitClient::beginJob(){
 
 void HcalRecHitClient::beginRun(void)
 {
-  if ( debug_>1 ) cout << "HcalRecHitClient: beginRun" << endl;
+  if ( debug_>1 ) std::cout << "HcalRecHitClient: beginRun" << std::endl;
 
   jevt_ = 0;
   this->setup();
@@ -111,7 +111,7 @@ void HcalRecHitClient::beginRun(void)
 
 void HcalRecHitClient::endJob(void) 
 {
-  if ( debug_>1 ) cout << "HcalRecHitClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_>1 ) std::cout << "HcalRecHitClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
   return;
@@ -120,7 +120,7 @@ void HcalRecHitClient::endJob(void)
 
 void HcalRecHitClient::endRun(void) 
 {
-  if ( debug_>1 ) cout << "HcalRecHitClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_>1 ) std::cout << "HcalRecHitClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
   return;
@@ -259,19 +259,9 @@ void HcalRecHitClient::cleanup(void)
 void HcalRecHitClient::report()
 {
   if(!dbe_) return;
-  if ( debug_>1 ) cout << "HcalRecHitClient: report" << endl;
+  if ( debug_>1 ) std::cout << "HcalRecHitClient: report" << std::endl;
   this->setup();
 
-  ostringstream name;
-  name<<process_.c_str()<<"Hcal/RecHitMonitor_Hcal/RecHit Event Number";
-  MonitorElement* me = dbe_->get(name.str().c_str());
-  if ( me ) 
-    {
-      string s = me->valueString();
-      ievt_ = -1;
-      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-      if ( debug_>1 ) cout << "Found '" << name.str().c_str() << "'" << endl;
-    }
   getHistograms();
 
   return;
@@ -283,6 +273,7 @@ void HcalRecHitClient::getHistograms()
   if(!dbe_) return;
 
   ostringstream name;
+  name<<process_.c_str()<<"Hcal/RecHitMonitor_Hcal/RecHit Event Number";
 
   MonitorElement* me = dbe_->get(name.str().c_str());
   if ( me ) 
@@ -290,7 +281,7 @@ void HcalRecHitClient::getHistograms()
       string s = me->valueString();
       ievt_ = -1;
       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-      if ( debug_>1 ) cout << "Found '" << name.str().c_str() << "'" << endl;
+      if ( debug_>1 ) std::cout << "Found '" << name.str().c_str() << "'" << std::endl;
     }
   name.str("");
 
@@ -449,7 +440,7 @@ void HcalRecHitClient::analyze(void)
   jevt_++;
   if ( jevt_ % 10 == 0 ) 
     {
-      if ( debug_>1 ) cout << "<HcalRecHitClient::analyze>  Running analyze "<<endl;
+      if ( debug_>1 ) std::cout << "<HcalRecHitClient::analyze>  Running analyze "<<std::endl;
     }
   getHistograms();
   return;
@@ -626,7 +617,7 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName)
       cpu_timer.reset(); cpu_timer.start();
     }
 
-  if (debug_>1) cout << "Preparing HcalRecHitClient html output ..." << endl;
+  if (debug_>1) std::cout << "Preparing HcalRecHitClient html output ..." << std::endl;
 
   string client = "RecHitMonitor";
 
@@ -634,58 +625,58 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   htmlFile.open((htmlDir + htmlName).c_str());
 
   // html page header
-  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
-  htmlFile << "<html>  " << endl;
-  htmlFile << "<head>  " << endl;
-  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
-  htmlFile << " http-equiv=\"content-type\">  " << endl;
-  htmlFile << "  <title>Monitor: Hcal Rec Hit Task output</title> " << endl;
-  htmlFile << "</head>  " << endl;
-  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
-  htmlFile << "<body>  " << endl;
-  htmlFile << "<br>  " << endl;
-  htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << endl;
-  htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal Rec Hits</span></h2> " << endl;
+  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << std::endl;
+  htmlFile << "<html>  " << std::endl;
+  htmlFile << "<head>  " << std::endl;
+  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << std::endl;
+  htmlFile << " http-equiv=\"content-type\">  " << std::endl;
+  htmlFile << "  <title>Monitor: Hcal Rec Hit Task output</title> " << std::endl;
+  htmlFile << "</head>  " << std::endl;
+  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << std::endl;
+  htmlFile << "<body>  " << std::endl;
+  htmlFile << "<br>  " << std::endl;
+  htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << std::endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << std::endl;
+  htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal Rec Hits</span></h2> " << std::endl;
 
-  htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
-  htmlFile << "<hr>" << endl;
+  htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << std::endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << std::endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << std::endl;
+  htmlFile << "<hr>" << std::endl;
 
-  htmlFile << "<h2><strong>Hcal Rec Hit Status</strong></h2>" << endl;
+  htmlFile << "<h2><strong>Hcal Rec Hit Status</strong></h2>" << std::endl;
 
 
-  htmlFile << "<table align=\"center\" border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile << "<table align=\"center\" border=\"0\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
+  htmlFile << "<tr align=\"center\">" << std::endl;
   gStyle->SetPalette(20,pcol_error_); // set palette to standard error color scheme
   htmlAnyHisto(runNo,ProblemRecHits,"i#eta","i#phi", 92, htmlFile, htmlDir);
-  htmlFile<<"</tr>"<<endl;
-  htmlFile<<"<tr align=\"center\"><td> There are as yet no criteria for marking a rec hit as 'bad'.  The plots in the link below are for diagnostic purposes only."<<endl;
+  htmlFile<<"</tr>"<<std::endl;
+  htmlFile<<"<tr align=\"center\"><td> There are as yet no criteria for marking a rec hit as 'bad'.  The plots in the link below are for diagnostic purposes only."<<std::endl;
  
-  htmlFile<<"</td>"<<endl;
-  htmlFile<<"</tr></table>"<<endl;
-  htmlFile<<"<hr><table align=\"center\" border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-  htmlFile<<"<tr><td align=center><a href=\"Expert_"<< htmlName<<"\"><h2>Detailed Rec Hit Plots</h2> </a></br></td>"<<endl;
-  htmlFile<<"</tr></table><br><hr>"<<endl;
+  htmlFile<<"</td>"<<std::endl;
+  htmlFile<<"</tr></table>"<<std::endl;
+  htmlFile<<"<hr><table align=\"center\" border=\"0\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
+  htmlFile << "<tr align=\"center\">" << std::endl;
+  htmlFile<<"<tr><td align=center><a href=\"Expert_"<< htmlName<<"\"><h2>Detailed Rec Hit Plots</h2> </a></br></td>"<<std::endl;
+  htmlFile<<"</tr></table><br><hr>"<<std::endl;
   
   // Now print out problem cells
-  htmlFile <<"<br>"<<endl;
-  htmlFile << "<h2><strong>Hcal Problem Rec Hits</strong></h2>" << endl;
-  htmlFile << "(A problem cell is listed below if its failure rate exceeds "<<(100.*minErrorFlag_)<<"%).<br><br>"<<endl;
-  htmlFile << "<table align=\"center\" border=\"1\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-  htmlFile <<"<td> Problem Rec Hits<br>(ieta, iphi, depth)</td><td align=\"center\"> Fraction of Events <br>in which cells are bad (%)</td></tr>"<<endl;
+  htmlFile <<"<br>"<<std::endl;
+  htmlFile << "<h2><strong>Hcal Problem Rec Hits</strong></h2>" << std::endl;
+  htmlFile << "(A problem cell is listed below if its failure rate exceeds "<<(100.*minErrorFlag_)<<"%).<br><br>"<<std::endl;
+  htmlFile << "<table align=\"center\" border=\"1\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
+  htmlFile << "<tr align=\"center\">" << std::endl;
+  htmlFile <<"<td> Problem Rec Hits<br>(ieta, iphi, depth)</td><td align=\"center\"> Fraction of Events <br>in which cells are bad (%)</td></tr>"<<std::endl;
 
   if (ProblemRecHits==0)
     {
-      if (debug_) cout <<"<HcalRecHitClient::htmlOutput>  ERROR: can't find Problem Rec Hit plot!"<<endl;
+      if (debug_) std::cout <<"<HcalRecHitClient::htmlOutput>  ERROR: can't find Problem Rec Hit plot!"<<std::endl;
       return;
     }
   int etabins  = ProblemRecHits->GetNbinsX();
@@ -719,7 +710,7 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 		  else if (depth==3)
 		    (fabs(eta)<42) ? name<<"HO" : name<<"ZDC";
 		  else name <<"HE";
-		  htmlFile<<"<td>"<<name.str().c_str()<<" ("<<eta<<", "<<phi<<", "<<mydepth<<")</td><td align=\"center\">"<<ProblemRecHitsByDepth[depth]->GetBinContent(ieta,iphi)*100.<<"</td></tr>"<<endl;
+		  htmlFile<<"<td>"<<name.str().c_str()<<" ("<<eta<<", "<<phi<<", "<<mydepth<<")</td><td align=\"center\">"<<ProblemRecHitsByDepth[depth]->GetBinContent(ieta,iphi)*100.<<"</td></tr>"<<std::endl;
 
 		  name.str("");
 		}
@@ -729,16 +720,16 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   
   
   // html page footer
-  htmlFile <<"</table> " << endl;
-  htmlFile << "</body> " << endl;
-  htmlFile << "</html> " << endl;
+  htmlFile <<"</table> " << std::endl;
+  htmlFile << "</body> " << std::endl;
+  htmlFile << "</html> " << std::endl;
 
   htmlFile.close();
   htmlExpertOutput(runNo, htmlDir, htmlName);
 
   if (showTiming_)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalRecHitClient HTMLOUTPUT  -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalRecHitClient HTMLOUTPUT  -> "<<cpu_timer.cpuTime()<<std::endl;
     }
 
   return;
@@ -754,7 +745,7 @@ void HcalRecHitClient::htmlExpertOutput(int runNo, string htmlDir, string htmlNa
     }
 
   if (debug_>1) 
-    cout <<" <HcalRecHitClient::htmlExpertOutput>  Preparing Expert html output ..." <<endl;
+    std::cout <<" <HcalRecHitClient::htmlExpertOutput>  Preparing Expert html output ..." <<std::endl;
   
   string client = "RecHitMonitor";
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_); // does this do anything?
@@ -763,46 +754,46 @@ void HcalRecHitClient::htmlExpertOutput(int runNo, string htmlDir, string htmlNa
   htmlFile.open((htmlDir +"Expert_"+ htmlName).c_str());
 
   // html page header
-  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
-  htmlFile << "<html>  " << endl;
-  htmlFile << "<head>  " << endl;
-  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
-  htmlFile << " http-equiv=\"content-type\">  " << endl;
-  htmlFile << "  <title>Monitor: Hcal Rec Hit Task output</title> " << endl;
-  htmlFile << "</head>  " << endl;
-  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
-  htmlFile << "<body>  " << endl;
-  htmlFile <<"<a name=\"EXPERT_RECHIT_TOP\" href = \".\"> Back to Main HCAL DQM Page </a><br>"<<endl;
-  htmlFile <<"<a href= \""<<htmlName.c_str()<<"\" > Back to Rec Hit Status Page </a><br>"<<endl;
-  htmlFile << "<br>  " << endl;
-  htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << endl;
-  htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal Rec Hits</span></h2> " << endl;
-  htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
-  htmlFile << "<hr>" << endl;
+  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << std::endl;
+  htmlFile << "<html>  " << std::endl;
+  htmlFile << "<head>  " << std::endl;
+  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << std::endl;
+  htmlFile << " http-equiv=\"content-type\">  " << std::endl;
+  htmlFile << "  <title>Monitor: Hcal Rec Hit Task output</title> " << std::endl;
+  htmlFile << "</head>  " << std::endl;
+  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << std::endl;
+  htmlFile << "<body>  " << std::endl;
+  htmlFile <<"<a name=\"EXPERT_RECHIT_TOP\" href = \".\"> Back to Main HCAL DQM Page </a><br>"<<std::endl;
+  htmlFile <<"<a href= \""<<htmlName.c_str()<<"\" > Back to Rec Hit Status Page </a><br>"<<std::endl;
+  htmlFile << "<br>  " << std::endl;
+  htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << std::endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << std::endl;
+  htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal Rec Hits</span></h2> " << std::endl;
+  htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << std::endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << std::endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << std::endl;
+  htmlFile << "<hr>" << std::endl;
 
-  htmlFile << "<table width=100%  border = 1>"<<endl;
-  htmlFile << "<tr><td align=\"center\" colspan=1><a href=\"#OVERALL_PROBLEMS\">PROBLEM CELLS BY DEPTH </a></td></tr>"<<endl;
-  htmlFile << "<tr><td align=\"center\">"<<endl;
-  htmlFile<<"<br><a href=\"#OCC_PLOTS\">RecHit Occupancy Plots </a>"<<endl;
-  htmlFile<<"<br><a href=\"#ENERGY_PLOTS\">RecHit Energy Plots</a>"<<endl;
-  htmlFile<<"<br><a href=\"#TIME_PLOTS\">RecHit Time Plots </a>"<<endl;
+  htmlFile << "<table width=100%  border = 1>"<<std::endl;
+  htmlFile << "<tr><td align=\"center\" colspan=1><a href=\"#OVERALL_PROBLEMS\">PROBLEM CELLS BY DEPTH </a></td></tr>"<<std::endl;
+  htmlFile << "<tr><td align=\"center\">"<<std::endl;
+  htmlFile<<"<br><a href=\"#OCC_PLOTS\">RecHit Occupancy Plots </a>"<<std::endl;
+  htmlFile<<"<br><a href=\"#ENERGY_PLOTS\">RecHit Energy Plots</a>"<<std::endl;
+  htmlFile<<"<br><a href=\"#TIME_PLOTS\">RecHit Time Plots </a>"<<std::endl;
 
-  htmlFile << "</td></tr>"<<endl;
-  htmlFile <<"</table>"<<endl;
-  htmlFile <<"<br><br>"<<endl;
+  htmlFile << "</td></tr>"<<std::endl;
+  htmlFile <<"</table>"<<std::endl;
+  htmlFile <<"<br><br>"<<std::endl;
 
 
   // Plot overall errors
-  htmlFile << "<h2><strong><a name=\"OVERALL_PROBLEMS\">Eta-Phi Maps of Problem Cells By Depth</strong></h2>"<<endl;
-  htmlFile <<" These plots of problem cells combine results from all rec hit tests<br>"<<endl;
-  htmlFile <<"<a href= \"#EXPERT_RECHIT_TOP\" > Back to Top</a><br>"<<endl;
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile << "<h2><strong><a name=\"OVERALL_PROBLEMS\">Eta-Phi Maps of Problem Cells By Depth</strong></h2>"<<std::endl;
+  htmlFile <<" These plots of problem cells combine results from all rec hit tests<br>"<<std::endl;
+  htmlFile <<"<a href= \"#EXPERT_RECHIT_TOP\" > Back to Top</a><br>"<<std::endl;
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
   gStyle->SetPalette(20,pcol_error_); // set palette to standard error color scheme
   
   // Depths are stored as:  0:  HB/HF depth 1, 1:  HB/HF 2, 2:  HE 3, 3:  HO/ZDC, 4: HE 1, 5:  HE2
@@ -810,148 +801,148 @@ void HcalRecHitClient::htmlExpertOutput(int runNo, string htmlDir, string htmlNa
   int mydepth[6]={0,1,4,5,2,3};
   for (int i=0;i<3;++i)
     {
-      htmlFile << "<tr align=\"left\">" << endl;
+      htmlFile << "<tr align=\"left\">" << std::endl;
       htmlAnyHisto(runNo,ProblemRecHitsByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,ProblemRecHitsByDepth[mydepth[2*i]+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
     }
 
-  htmlFile <<"</table>"<<endl;
-  htmlFile <<"<br><hr><br>"<<endl;
+  htmlFile <<"</table>"<<std::endl;
+  htmlFile <<"<br><hr><br>"<<std::endl;
   
   // Occupancy Plots
-  htmlFile << "<h2><strong><a name=\"OCC_PLOTS\">Occupancy Plots</strong></h2>"<<endl;
-  htmlFile <<"This shows average rechit occupancy of each cell per event<br>"<<endl;
-  htmlFile <<"<a href= \"#EXPERT_RECHIT_TOP\" > Back to Top</a><br>"<<endl;
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile << "<h2><strong><a name=\"OCC_PLOTS\">Occupancy Plots</strong></h2>"<<std::endl;
+  htmlFile <<"This shows average rechit occupancy of each cell per event<br>"<<std::endl;
+  htmlFile <<"<a href= \"#EXPERT_RECHIT_TOP\" > Back to Top</a><br>"<<std::endl;
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
   gStyle->SetPalette(1);
   for (int i=0;i<6;++i)
     {
-      htmlFile << "<tr align=\"left\">" << endl;
+      htmlFile << "<tr align=\"left\">" << std::endl;
       htmlAnyHisto(runNo,OccupancyByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,OccupancyThreshByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
     }
-  htmlFile <<"</table>"<<endl;
+  htmlFile <<"</table>"<<std::endl;
   if (rechitclient_makeDiagnostics_)
     {
-      htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-      htmlFile << "cellpadding=\"10\"> " << endl;
-      htmlFile<<"<tr align=\"left\">"<<endl;
+      htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
+      htmlFile << "cellpadding=\"10\"> " << std::endl;
+      htmlFile<<"<tr align=\"left\">"<<std::endl;
       htmlAnyHisto(runNo,d_HBOccupancy,"HB Occupancy","", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,d_HBThreshOccupancy,"HB Occupancy","", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
-      htmlFile<<"<tr align=\"left\">"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
+      htmlFile<<"<tr align=\"left\">"<<std::endl;
       htmlAnyHisto(runNo,d_HEOccupancy,"HE Occupancy","", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,d_HEThreshOccupancy,"HE Occupancy","", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
-      htmlFile<<"<tr align=\"left\">"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
+      htmlFile<<"<tr align=\"left\">"<<std::endl;
       htmlAnyHisto(runNo,d_HOOccupancy,"HO Occupancy","", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,d_HOThreshOccupancy,"HO Occupancy","", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
-      htmlFile<<"<tr align=\"left\">"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
+      htmlFile<<"<tr align=\"left\">"<<std::endl;
       htmlAnyHisto(runNo,d_HFOccupancy,"HF Occupancy","", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,d_HFThreshOccupancy,"HF Occupancy","", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
-      htmlFile <<"</table>"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
+      htmlFile <<"</table>"<<std::endl;
     }
 
-  htmlFile <<"<br><hr><br>"<<endl;
+  htmlFile <<"<br><hr><br>"<<std::endl;
 
   // energy Plots
-  htmlFile << "<h2><strong><a name=\"ENERGY_PLOTS\">Energy Plots</strong></h2>"<<endl;
-  htmlFile <<"This shows average rechit energy of each cell per event<br>"<<endl;
-  htmlFile <<"<a href= \"#EXPERT_RECHIT_TOP\" > Back to Top</a><br>"<<endl;
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile << "<h2><strong><a name=\"ENERGY_PLOTS\">Energy Plots</strong></h2>"<<std::endl;
+  htmlFile <<"This shows average rechit energy of each cell per event<br>"<<std::endl;
+  htmlFile <<"<a href= \"#EXPERT_RECHIT_TOP\" > Back to Top</a><br>"<<std::endl;
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
   gStyle->SetPalette(1);
   for (int i=0;i<6;++i)
     {
-      htmlFile << "<tr align=\"left\">" << endl;
+      htmlFile << "<tr align=\"left\">" << std::endl;
       htmlAnyHisto(runNo,EnergyByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,EnergyThreshByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
     }
-  htmlFile <<"</table>"<<endl;
+  htmlFile <<"</table>"<<std::endl;
   if (rechitclient_makeDiagnostics_)
     {
-      htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-      htmlFile << "cellpadding=\"10\"> " << endl;
-      htmlFile<<"<tr align=\"left\">"<<endl;
+      htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
+      htmlFile << "cellpadding=\"10\"> " << std::endl;
+      htmlFile<<"<tr align=\"left\">"<<std::endl;
       htmlAnyHisto(runNo,d_HBEnergy,"HB Energy","", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,d_HBThreshEnergy,"HB Energy","", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
-      htmlFile<<"<tr align=\"left\">"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
+      htmlFile<<"<tr align=\"left\">"<<std::endl;
       htmlAnyHisto(runNo,d_HEEnergy,"HE Energy","", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,d_HEThreshEnergy,"HE Energy","", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
-      htmlFile<<"<tr align=\"left\">"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
+      htmlFile<<"<tr align=\"left\">"<<std::endl;
       htmlAnyHisto(runNo,d_HOEnergy,"HO Energy","", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,d_HOThreshEnergy,"HO Energy","", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
-      htmlFile<<"<tr align=\"left\">"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
+      htmlFile<<"<tr align=\"left\">"<<std::endl;
       htmlAnyHisto(runNo,d_HFEnergy,"HF Energy","", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,d_HFThreshEnergy,"HF Energy","", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
-      htmlFile <<"</table>"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
+      htmlFile <<"</table>"<<std::endl;
     }
 
-  htmlFile <<"<br><hr><br>"<<endl;
+  htmlFile <<"<br><hr><br>"<<std::endl;
 
-  htmlFile << "<h2><strong><a name=\"TIME_PLOTS\">Time Plots</strong></h2>"<<endl;
-  htmlFile <<"This shows average rechit time of each cell per event<br>"<<endl;
-  htmlFile <<"<a href= \"#EXPERT_RECHIT_TOP\" > Back to Top</a><br>"<<endl;
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile << "<h2><strong><a name=\"TIME_PLOTS\">Time Plots</strong></h2>"<<std::endl;
+  htmlFile <<"This shows average rechit time of each cell per event<br>"<<std::endl;
+  htmlFile <<"<a href= \"#EXPERT_RECHIT_TOP\" > Back to Top</a><br>"<<std::endl;
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
   gStyle->SetPalette(1);
   for (int i=0;i<6;++i)
     {
-      htmlFile << "<tr align=\"left\">" << endl;
+      htmlFile << "<tr align=\"left\">" << std::endl;
       htmlAnyHisto(runNo,TimeByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,TimeThreshByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
     }
-  htmlFile <<"</table>"<<endl;
+  htmlFile <<"</table>"<<std::endl;
   if (rechitclient_makeDiagnostics_)
     {
-      htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-      htmlFile << "cellpadding=\"10\"> " << endl;
-      htmlFile<<"<tr align=\"left\">"<<endl;
+      htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
+      htmlFile << "cellpadding=\"10\"> " << std::endl;
+      htmlFile<<"<tr align=\"left\">"<<std::endl;
       htmlAnyHisto(runNo,d_HBTime,"HB Time","", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,d_HBThreshTime,"HB Time","", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
-      htmlFile<<"<tr align=\"left\">"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
+      htmlFile<<"<tr align=\"left\">"<<std::endl;
       htmlAnyHisto(runNo,d_HETime,"HE Time","", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,d_HEThreshTime,"HE Time","", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
-      htmlFile<<"<tr align=\"left\">"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
+      htmlFile<<"<tr align=\"left\">"<<std::endl;
       htmlAnyHisto(runNo,d_HOTime,"HO Time","", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,d_HOThreshTime,"HO Time","", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
-      htmlFile<<"<tr align=\"left\">"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
+      htmlFile<<"<tr align=\"left\">"<<std::endl;
       htmlAnyHisto(runNo,d_HFTime,"HF Time","", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,d_HFThreshTime,"HF Time","", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
-      htmlFile <<"</table>"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
+      htmlFile <<"</table>"<<std::endl;
     }
 
-  htmlFile <<"<br><hr><br>"<<endl;
+  htmlFile <<"<br><hr><br>"<<std::endl;
 
 
 
-  htmlFile <<"<br><hr><br><a href= \"#EXPERT_RECHIT_TOP\" > Back to Top of Page </a><br>"<<endl;
-  htmlFile <<"<a href = \".\"> Back to Main HCAL DQM Page </a><br>"<<endl;
-  htmlFile <<"<a href= \""<<htmlName.c_str()<<"\" > Back to Rec Hit Status Page </a><br>"<<endl;
+  htmlFile <<"<br><hr><br><a href= \"#EXPERT_RECHIT_TOP\" > Back to Top of Page </a><br>"<<std::endl;
+  htmlFile <<"<a href = \".\"> Back to Main HCAL DQM Page </a><br>"<<std::endl;
+  htmlFile <<"<a href= \""<<htmlName.c_str()<<"\" > Back to Rec Hit Status Page </a><br>"<<std::endl;
 
-  htmlFile << "</body> " << endl;
-  htmlFile << "</html> " << endl;
+  htmlFile << "</body> " << std::endl;
+  htmlFile << "</html> " << std::endl;
   
   htmlFile.close();
 
   if (showTiming_)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalRecHitClient  HTMLEXPERTOUTPUT ->"<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalRecHitClient  HTMLEXPERTOUTPUT ->"<<cpu_timer.cpuTime()<<std::endl;
     }
   return;
 } // void HcalRecHitClient::htmlExpertOutput(...)

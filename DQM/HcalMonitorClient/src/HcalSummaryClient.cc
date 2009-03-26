@@ -635,7 +635,6 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 			  if (phi%2==0) continue; // skip non-physical phi bins
 			  if (abs(eta)>39 && phi%4!=3) continue; // skip non-physical phi bins
 			  HFstatus+=bincontent;
-			  cout <<"incrementing HF2 status by "<<bincontent<<endl;
 			}
 		    } // if (bincontent>0)
 		} // for (int iphi=1;...)

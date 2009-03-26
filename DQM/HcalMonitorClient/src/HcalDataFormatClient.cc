@@ -214,7 +214,6 @@ void HcalDataFormatClient::analyze(void){
   if ( updates % 10 == 0 ) {
     if ( debug_>0 ) cout << "HcalDataFormatClient: " << updates << " updates" << endl;
   }
-
   return;
 }
 

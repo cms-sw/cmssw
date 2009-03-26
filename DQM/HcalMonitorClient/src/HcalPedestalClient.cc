@@ -239,15 +239,6 @@ void HcalPedestalClient::report()
   if ( debug_ ) cout << "HcalPedestalClient: report" << endl;
   this->setup();
 
-  ostringstream name;
-  name<<process_.c_str()<<"Hcal/PedestalMonitor_Hcal/Pedestal Task Event Number";
-  MonitorElement* me = dbe_->get(name.str().c_str());
-  if ( me ) {
-    string s = me->valueString();
-    ievt_ = -1;
-    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-    if ( debug_ ) cout << "Found '" << name.str().c_str() << "'" << endl;
-  }
   getHistograms();
 
   return;
@@ -260,6 +251,16 @@ void HcalPedestalClient::getHistograms()
 
   // Grab individual histograms
   ostringstream name;
+  name<<process_.c_str()<<"Hcal/PedestalMonitor_Hcal/Pedestal Task Event Number";
+  MonitorElement* me = dbe_->get(name.str().c_str());
+  if ( me ) {
+    string s = me->valueString();
+    ievt_ = -1;
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+    if ( debug_ ) cout << "Found '" << name.str().c_str() << "'" << endl;
+  }
+  name.str("");
+
   TH2F* dummy2D = new TH2F();
   name<<process_.c_str()<<"PedestalMonitor_Hcal/ ProblemPedestals";
   ProblemPedestals = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
