@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-# last update: $Date: 2009/03/19 17:04:03 $ by $Author: argiro $
+# last update: $Date: 2009/03/24 17:39:56 $ by $Author: flucke $
 ###############################################################
 # Tracker Alignment
 ###############################################################
@@ -44,6 +44,8 @@ from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_Output_cff im
 #  include "Calibration/EcalAlCaRecoProducers/data/ALCARECOEcalCalPi0BC_Output.cff"
 # ECAL calibration with pi0 hlt path
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPi0Calib_Output_cff import *
+# ECAL calibration with eta hlt path
+from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalEtaCalib_Output_cff import *
 ###############################################################
 # HCAL Calibration
 ###############################################################
