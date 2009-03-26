@@ -10,8 +10,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "PhysicsTools/Utilities/interface/deltaR.h"
-#include "PhysicsTools/Utilities/interface/Angle.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "CommonTools/Utils/interface/Angle.h"
 
 #include "Math/GenVector/VectorUtil.h" 
 

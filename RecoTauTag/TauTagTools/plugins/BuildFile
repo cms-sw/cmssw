@@ -4,7 +4,6 @@
   <use name=TrackingTools/TransientTrack>
   <use name=RecoVertex/VertexPrimitives>
   <use name=PhysicsTools/IsolationUtils>
-  <use name=PhysicsTools/Utilities>
   <use name=PhysicsTools/MVAComputer>
   <use name=PhysicsTools/MVATrainer>
   <use name=FWCore/Framework>

@@ -18,7 +18,7 @@
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "PhysicsTools/Utilities/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include <limits>
 
 using namespace std;

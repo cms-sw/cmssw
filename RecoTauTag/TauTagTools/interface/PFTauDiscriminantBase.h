@@ -3,7 +3,7 @@
 
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
 #include "PhysicsTools/UtilAlgos/interface/DeltaR.h"
-#include "PhysicsTools/Utilities/interface/Angle.h"
+#include "CommonTools/Utils/interface/Angle.h"
 #include "RecoTauTag/TauTagTools/interface/PFTauDiscriminantManager.h"
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
 #include "PhysicsTools/MVAComputer/interface/Variable.h"

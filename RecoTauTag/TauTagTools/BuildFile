@@ -7,7 +7,6 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
 <use name=PhysicsTools/IsolationUtils>
-<use name=PhysicsTools/Utilities>
 <use name=PhysicsTools/MVAComputer>
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/TransientTrack>
@@ -23,7 +22,6 @@
   <use name=TrackingTools/TransientTrack>
   <use name=RecoVertex/VertexPrimitives>
   <use name=PhysicsTools/IsolationUtils>
-  <use name=PhysicsTools/Utilities>
   <use name=PhysicsTools/MVAComputer>
   <lib name=RecoTauTagTauTagTools>
 </export>
