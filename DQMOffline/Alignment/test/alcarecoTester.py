@@ -122,7 +122,7 @@ class Sample:
 
       alcaFiles = []
       for i in range( 0,len(self.files) ):
-         alcaFilePath = os.path.join( self.__config.get("general","outDir"), "%s_%03i.root"%(filePrefix,i+1) )
+         alcaFilePath = os.path.join( self.__config.get("general","outDir"), self.name,"%s_%03i.root"%(filePrefix,i+1) )
          alcaFilePath = os.path.expandvars(alcaFilePath)
          alcaFilePath = os.path.abspath(alcaFilePath)   
          if alcaFilePath.startswith("/castor"):
