@@ -20,6 +20,8 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -70,7 +72,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
         double phiclus = pclu.phi();
         double r2 = intRadius_*intRadius_;
 
-        reco::basicCluster_iterator bcIt;
+        
         std::vector< std::pair<DetId, float> >::const_iterator rhIt;
 
 
@@ -106,7 +108,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 
                         //Loop over basic clusters:
                         bool isClustered = false;
-                        for(bcIt = sc->clustersBegin();bcIt != sc->clustersEnd(); ++bcIt) {
+                        for(reco::CaloCluster_iterator bcIt = sc->clustersBegin();bcIt != sc->clustersEnd(); ++bcIt) {
                             for(rhIt = (*bcIt)->hitsAndFractions().begin();rhIt != (*bcIt)->hitsAndFractions().end(); ++rhIt) {
                                 if( rhIt->first == *i ) isClustered = true;
                                 if( isClustered ) break;

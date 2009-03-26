@@ -88,7 +88,7 @@ double EgammaEcalIsolation::getEcalEtSum(const reco::Candidate* candidate){
 	if(MATCHEDSC){
 	  bool inSuperCluster = false;
 
-	  reco::basicCluster_iterator theEclust = matchedsupercluster->clustersBegin();
+	  reco::CaloCluster_iterator theEclust = matchedsupercluster->clustersBegin();
 	  // loop over the basic clusters of the matched supercluster
 	  for(;theEclust != matchedsupercluster->clustersEnd();
 	      theEclust++) {

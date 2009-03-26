@@ -24,6 +24,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
@@ -130,11 +132,10 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
     GlobalPoint caloPosition(sc->position().x(), sc->position().y() , sc->position().z());
     CaloSubdetectorGeometry::DetIdSet chosen = subdet->getCells(caloPosition,extRadius_);
     EcalRecHitCollection::const_iterator j=hits.end();
-
     double caloeta=caloPosition.eta();
     double calophi=caloPosition.phi();
     double r2 = intRadius_*intRadius_;
-    reco::basicCluster_iterator bcIt;
+
     std::vector< std::pair<DetId, float> >::const_iterator rhIt;
 
 
@@ -153,7 +154,7 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
 
                 //Loop over basic clusters:
                 bool isClustered = false;
-                for(bcIt = sc->clustersBegin();bcIt != sc->clustersEnd(); ++bcIt) {
+                for(    reco::CaloCluster_iterator bcIt = sc->clustersBegin();bcIt != sc->clustersEnd(); ++bcIt) {
                     for(rhIt = (*bcIt)->hitsAndFractions().begin();rhIt != (*bcIt)->hitsAndFractions().end(); ++rhIt) {
                         if( rhIt->first == *i ) isClustered = true;
                         if( isClustered ) break;
