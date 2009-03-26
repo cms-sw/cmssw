@@ -17,6 +17,7 @@
 #include <HepMC/HerwigWrapper6_4.h>
 #include <HepMC/HEPEVT_Wrapper.h>
 #include <HepMC/IO_HERWIG.h>
+#include "HepPID/ParticleIDTranslations.hh"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -116,6 +117,7 @@ class Herwig6Hadronizer : public gen::BaseHadronizer,
 	bool				useJimmy;
 	bool				doMPInteraction;
 	int				numTrials;
+        bool                            fConvertToPDG;  // convert PIDs 
 
         bool                            readMCatNLOfile;
 
@@ -145,6 +147,10 @@ Herwig6Hadronizer::Herwig6Hadronizer(const edm::ParameterSet &params) :
 		params.getUntrackedParameter<double>("crossSection", -1.0));
 	runInfo().setFilterEfficiency(
 		params.getUntrackedParameter<double>("filterEfficiency", -1.0));
+        fConvertToPDG = false;
+        if ( params.exists( "doPDGConvert" ) )
+           fConvertToPDG = params.getParameter<bool>("doPDGConvert");
+
 }
 
 Herwig6Hadronizer::~Herwig6Hadronizer()
@@ -430,6 +436,14 @@ bool Herwig6Hadronizer::decay()
 	if (!conv.fill_next_event(event().get()))
 		throw cms::Exception("Herwig6Error")
 			<< "HepMC Conversion problems in event." << std::endl;
+
+        // do particle ID conversion Herwig->PDG, if requested
+        if ( fConvertToPDG ) {
+           for ( HepMC::GenEvent::particle_iterator part = event()->particles_begin(); part != event()->particles_end(); ++part) {
+             if ((*part)->pdg_id() != HepPID::translateHerwigtoPDT((*part)->pdg_id()))
+               (*part)->set_pdg_id(HepPID::translateHerwigtoPDT((*part)->pdg_id()));
+           }
+        }
 
 	return true;
 }
