@@ -54,12 +54,14 @@ BeamSpotFakeConditions::ReturnType
 BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 
 
+	BeamSpotObjects *adummy = new BeamSpotObjects();
+	
 	if ( ! usedummy ) {
 	  //TBufferXML code removed from here...		
 	}
 	else {
 
-		BeamSpotObjects *adummy = new BeamSpotObjects();
+		
 
 		// we are going to use the truth values defined at the generator stage,
 		// see IOMC/EventVertexGenerators/data
@@ -155,10 +157,10 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 		}
 
 		
-		return ReturnType(adummy);
+		//return ReturnType(adummy);
 	}
   
-	
+	return ReturnType(adummy);
 }
 
 void BeamSpotFakeConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
