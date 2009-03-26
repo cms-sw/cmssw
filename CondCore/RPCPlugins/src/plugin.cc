@@ -44,6 +44,12 @@
 #include "CondFormats/DataRecord/interface/RPCObAlignmentRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCObAlignment.h"
 
+#include "CondFormats/DataRecord/interface/RPCObFebAssmapRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCObFebAssmap.h"
+
+#include "CondFormats/DataRecord/interface/RPCRunIOVRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCRunIOV.h"
+
 
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(RPCReadOutMappingRcd,RPCReadOutMapping);
@@ -61,8 +67,8 @@ REGISTER_PLUGIN(RPCDeadStripsRcd, RPCDeadStrips);
 REGISTER_PLUGIN(RPCObFebmapRcd, RPCObFebmap);
 REGISTER_PLUGIN(RPCObGasmapRcd, RPCObGasmap);
 REGISTER_PLUGIN(RPCObAlignmentRcd, RPCObAlignment);
-
-
+REGISTER_PLUGIN(RPCObFebAssmapRcd, RPCObFebAssmap);
+REGISTER_PLUGIN(RPCRunIOVRcd, RPCRunIOV);
 
 REGISTER_PLUGIN(RBCBoardSpecsRcd,RBCBoardSpecs);
 REGISTER_PLUGIN(TTUBoardSpecsRcd,TTUBoardSpecs);
