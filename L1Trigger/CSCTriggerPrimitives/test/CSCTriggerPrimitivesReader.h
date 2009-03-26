@@ -8,8 +8,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2008/04/29 10:48:06 $
- * $Revision: 1.11 $
+ * $Date: 2008/08/28 13:53:29 $
+ * $Revision: 1.12 $
  *
  */
 
@@ -70,6 +70,12 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   bool isMTCCData_;
 
   bool isTMB07;
+
+  // Flag to plot or not plot ME1/A as a separate chamber.
+  bool plotME1A;
+
+  // Flag to plot or not plot ME4/2.
+  bool plotME42;
 
   // Producer's labels
   std::string   lctProducerData_;

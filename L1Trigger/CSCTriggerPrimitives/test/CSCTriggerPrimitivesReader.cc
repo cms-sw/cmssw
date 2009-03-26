@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2008/08/28 13:53:29 $
-//   $Revision: 1.27 $
+//   $Date: 2009/01/09 10:23:17 $
+//   $Revision: 1.29 $
 //
 //   Modifications:
 //
@@ -101,6 +101,8 @@ CSCTriggerPrimitivesReader::CSCTriggerPrimitivesReader(const edm::ParameterSet& 
   emulLctsIn_ = conf.getParameter<bool>("emulLctsIn");
   isMTCCData_ = conf.getParameter<bool>("isMTCCData");
   isTMB07 = true;
+  plotME1A = false;
+  plotME42 = false;
   lctProducerData_ = conf.getUntrackedParameter<string>("CSCLCTProducerData",
 							"cscunpacker");
   lctProducerEmul_ = conf.getUntrackedParameter<string>("CSCLCTProducerEmul",
@@ -229,7 +231,7 @@ void CSCTriggerPrimitivesReader::endJob() {
     {
       edm::LogInfo("CSCTriggerPrimitivesReader") << "\n  ALCT efficiencies:";
       double tot_simh = 0.0, tot_alct = 0.0;
-      for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+      for (int idh = 0; idh < CSC_TYPES; idh++) {
 	double simh = hEfficHitsEtaCsc[idh]->Integral();
 	double alct = hEfficALCTEtaCsc[idh]->Integral();
 	double eff  = 0.;
@@ -248,7 +250,7 @@ void CSCTriggerPrimitivesReader::endJob() {
     {
       edm::LogInfo("CSCTriggerPrimitivesReader") << "\n  CLCT efficiencies:";
       double tot_simh = 0.0, tot_clct = 0.0;
-      for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+      for (int idh = 0; idh < CSC_TYPES; idh++) {
 	double simh = hEfficHitsEtaCsc[idh]->Integral();
 	double clct = hEfficCLCTEtaCsc[idh]->Integral();
 	double eff  = 0.;
@@ -1771,6 +1773,8 @@ void CSCTriggerPrimitivesReader::drawALCTHistos() {
   char pagenum[6], titl[50];
   TPaveLabel *title;
 
+  int max_idh = plotME42 ? CSC_TYPES : CSC_TYPES-1;
+
   ps->NewPage();
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "Number of ALCTs");
@@ -1798,9 +1802,8 @@ void CSCTriggerPrimitivesReader::drawALCTHistos() {
     gStyle->SetOptStat(10);
     pad[page]->Draw();
     pad[page]->Divide(2,5);
-    // Leave out ME1/A and ME4/2 for now.
-    for (int idh = 0; idh < CSC_TYPES-1; idh++) {
-      if (idh == 3) continue;
+    for (int idh = 0; idh < max_idh; idh++) {
+      if (!plotME1A && idh == 3) continue;
       hAlctCsc[endc][idh]->SetMinimum(0.0);
       pad[page]->cd(idh+1);  hAlctCsc[endc][idh]->Draw();
     }
@@ -1824,6 +1827,7 @@ void CSCTriggerPrimitivesReader::drawALCTHistos() {
   page++;  c1->Update();
 
   ps->Close();
+  delete c1;
 }
 
 void CSCTriggerPrimitivesReader::drawCLCTHistos() {
@@ -1852,6 +1856,8 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   pad[page]->Divide(1,3);
   pad[page]->cd(1);  hClctPerEvent->Draw();
 
+  int max_idh = plotME42 ? CSC_TYPES : CSC_TYPES-1;
+
   edm::LogInfo("CSCTriggerPrimitivesReader") << "\n";
   int nbins = hClctPerChamber->GetNbinsX();
   for (int ibin = 1; ibin <= nbins; ibin++) {
@@ -1878,9 +1884,8 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
     gStyle->SetOptStat(10);
     pad[page]->Draw();
     pad[page]->Divide(2,5);
-    // Leave out ME1/A and ME4/2 for now.
-    for (int idh = 0; idh < CSC_TYPES-1; idh++) {
-      if (idh == 3) continue;
+    for (int idh = 0; idh < max_idh; idh++) {
+      if (!plotME1A && idh == 3) continue;
       hClctCsc[endc][idh]->SetMinimum(0.0);
       pad[page]->cd(idh+1);  hClctCsc[endc][idh]->Draw();
     }
@@ -1944,8 +1949,8 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   gStyle->SetOptStat(110);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
-  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
-    if (idh == 3) continue; // skip ME1/A
+  for (int idh = 0; idh < max_idh; idh++) {
+    if (!plotME1A && idh == 3) continue;
     pad[page]->cd(idh+1);
     hClctBendCsc[idh][1]->GetXaxis()->SetTitle("Pattern bend");
     hClctBendCsc[idh][1]->GetYaxis()->SetTitle("Number of LCTs");
@@ -1962,8 +1967,8 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
     sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
     pad[page]->Draw();
     pad[page]->Divide(2,5);
-    for (int idh = 0; idh < CSC_TYPES-1; idh++) {
-      if (idh == 3) continue; // skip ME1/A
+    for (int idh = 0; idh < max_idh; idh++) {
+      if (!plotME1A && idh == 3) continue;
       pad[page]->cd(idh+1);
       hClctBendCsc[idh][0]->GetXaxis()->SetTitle("Pattern bend");
       hClctBendCsc[idh][0]->GetYaxis()->SetTitle("Number of LCTs");
@@ -1979,8 +1984,8 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
     sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
     pad[page]->Draw();
     pad[page]->Divide(2,5);
-    for (int idh = 0; idh < CSC_TYPES-1; idh++) {
-      if (idh == 3) continue; // skip ME1/A
+    for (int idh = 0; idh < max_idh; idh++) {
+      if (!plotME1A && idh == 3) continue;
       pad[page]->cd(idh+1);
       hClctKeyStripCsc[idh]->GetXaxis()->SetTitle("Key distrip");
       hClctKeyStripCsc[idh]->GetXaxis()->SetTitleOffset(1.2);
@@ -1990,6 +1995,7 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
     page++;  c1->Update();
   }
   ps->Close();
+  delete c1;
 }
 
 void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
@@ -2007,6 +2013,8 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   t.SetTextSize(0.025);
   char pagenum[6], titl[50];
   TPaveLabel *title;
+
+  int max_idh = plotME42 ? CSC_TYPES : CSC_TYPES-1;
 
   ps->NewPage();
   c1->Clear();  c1->cd(0);
@@ -2056,9 +2064,8 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
     gStyle->SetOptStat(10);
     pad[page]->Draw();
     pad[page]->Divide(2,5);
-    // Leave out ME1/A and ME4/2 for now.
-    for (int idh = 0; idh < CSC_TYPES-1; idh++) {
-      if (idh == 3) continue;
+    for (int idh = 0; idh < max_idh; idh++) {
+      if (!plotME1A && idh == 3) continue;
       hLctTMBCsc[endc][idh]->SetMinimum(0.0);
       pad[page]->cd(idh+1);  hLctTMBCsc[endc][idh]->Draw();
     }
@@ -2084,6 +2091,7 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   page++;  c1->Update();
 
   ps->Close();
+  delete c1;
 }
 
 void CSCTriggerPrimitivesReader::drawLCTMPCHistos() {
@@ -2155,6 +2163,7 @@ void CSCTriggerPrimitivesReader::drawLCTMPCHistos() {
   page++;  c1->Update();
 
   ps->Close();
+  delete c1;
 }
 
 void CSCTriggerPrimitivesReader::drawCompHistos() {
@@ -2179,6 +2188,8 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   teff.SetTextSize(0.08);
   char eff[25], titl[50];
 
+  int max_idh = plotME42 ? CSC_TYPES : CSC_TYPES-1;
+
   for (int endc = 0; endc < MAX_ENDCAPS; endc++) { // endcaps
     ps->NewPage();
     c1->Clear();  c1->cd(0);
@@ -2192,9 +2203,8 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
     pad[page]->Draw();
     pad[page]->Divide(2,5);
     TH1F *hAlctFoundEffVsCsc[MAX_ENDCAPS][CSC_TYPES];
-    // Leave out ME1/A and ME4/2 for now.
-    for (int idh = 0; idh < CSC_TYPES-1; idh++) {
-      if (idh == 3) continue;
+    for (int idh = 0; idh < max_idh; idh++) {
+      if (!plotME1A && idh == 3) continue;
       hAlctFoundEffVsCsc[endc][idh] =
 	(TH1F*)hAlctCompFoundCsc[endc][idh]->Clone();
       hAlctFoundEffVsCsc[endc][idh]->Divide(hAlctCompSameNCsc[endc][idh],
@@ -2244,9 +2254,8 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
     pad[page]->Draw();
     pad[page]->Divide(2,5);
     TH1F *hAlctMatchEffVsCsc[MAX_ENDCAPS][CSC_TYPES];
-    // Leave out ME1/A and ME4/2 for now.
-    for (int idh = 0; idh < CSC_TYPES-1; idh++) {
-      if (idh == 3) continue;
+    for (int idh = 0; idh < max_idh; idh++) {
+      if (!plotME1A && idh == 3) continue;
       hAlctMatchEffVsCsc[endc][idh] =
 	(TH1F*)hAlctCompTotalCsc[endc][idh]->Clone();
       hAlctMatchEffVsCsc[endc][idh]->Divide(hAlctCompMatchCsc[endc][idh],
@@ -2297,9 +2306,8 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
     pad[page]->Draw();
     pad[page]->Divide(2,5);
     TH1F *hClctFoundEffVsCsc[MAX_ENDCAPS][CSC_TYPES];
-    // Leave out ME1/A and ME4/2 for now.
-    for (int idh = 0; idh < CSC_TYPES-1; idh++) {
-      if (idh == 3) continue;
+    for (int idh = 0; idh < max_idh; idh++) {
+      if (!plotME1A && idh == 3) continue;
       hClctFoundEffVsCsc[endc][idh] =
 	(TH1F*)hClctCompFoundCsc[endc][idh]->Clone();
       hClctFoundEffVsCsc[endc][idh]->Divide(hClctCompSameNCsc[endc][idh],
@@ -2349,9 +2357,8 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
     pad[page]->Draw();
     pad[page]->Divide(2,5);
     TH1F *hClctMatchEffVsCsc[MAX_ENDCAPS][CSC_TYPES];
-    // Leave out ME1/A and ME4/2 for now.
-    for (int idh = 0; idh < CSC_TYPES-1; idh++) {
-      if (idh == 3) continue;
+    for (int idh = 0; idh < max_idh; idh++) {
+      if (!plotME1A && idh == 3) continue;
       hClctMatchEffVsCsc[endc][idh] =
 	(TH1F*)hClctCompTotalCsc[endc][idh]->Clone();
       hClctMatchEffVsCsc[endc][idh]->Divide(hClctCompMatchCsc[endc][idh],
@@ -2402,9 +2409,8 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
     pad[page]->Draw();
     pad[page]->Divide(2,5);
     TH1F *hLctFoundEffVsCsc[MAX_ENDCAPS][CSC_TYPES];
-    // Leave out ME1/A and ME4/2 for now.
-    for (int idh = 0; idh < CSC_TYPES-1; idh++) {
-      if (idh == 3) continue;
+    for (int idh = 0; idh < max_idh; idh++) {
+      if (!plotME1A && idh == 3) continue;
       hLctFoundEffVsCsc[endc][idh] =
 	(TH1F*)hLctCompFoundCsc[endc][idh]->Clone();
       hLctFoundEffVsCsc[endc][idh]->Divide(hLctCompSameNCsc[endc][idh],
@@ -2454,9 +2460,8 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
     pad[page]->Draw();
     pad[page]->Divide(2,5);
     TH1F *hLctMatchEffVsCsc[MAX_ENDCAPS][CSC_TYPES];
-    // Leave out ME1/A and ME4/2 for now.
-    for (int idh = 0; idh < CSC_TYPES-1; idh++) {
-      if (idh == 3) continue;
+    for (int idh = 0; idh < max_idh; idh++) {
+      if (!plotME1A && idh == 3) continue;
       hLctMatchEffVsCsc[endc][idh] =
 	(TH1F*)hLctCompTotalCsc[endc][idh]->Clone();
       hLctMatchEffVsCsc[endc][idh]->Divide(hLctCompMatchCsc[endc][idh],
@@ -2495,6 +2500,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   }
 
   ps->Close();
+  delete c1;
 }
 
 void CSCTriggerPrimitivesReader::drawResolHistos() {
@@ -2512,6 +2518,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   t.SetTextSize(0.025);
   char pagenum[6];
   TPaveLabel *title;
+
+  int max_idh = plotME42 ? CSC_TYPES : CSC_TYPES-1;
 
   ps->NewPage();
   c1->Clear();  c1->cd(0);
@@ -2544,7 +2552,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
-  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+  for (int idh = 0; idh < max_idh; idh++) {
+    if (!plotME1A && idh == 3) continue;
     hEtaDiffCsc[idh][0]->GetXaxis()->SetLabelSize(0.07); // default=0.04
     hEtaDiffCsc[idh][0]->GetYaxis()->SetLabelSize(0.07);
     pad[page]->cd(idh+1);  hEtaDiffCsc[idh][0]->Draw();
@@ -2560,7 +2569,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
-  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+  for (int idh = 0; idh < max_idh; idh++) {
+    if (!plotME1A && idh == 3) continue;
     hEtaDiffCsc[idh][1]->GetXaxis()->SetLabelSize(0.07); // default=0.04
     hEtaDiffCsc[idh][1]->GetYaxis()->SetLabelSize(0.07);
     pad[page]->cd(idh+1);  hEtaDiffCsc[idh][1]->Draw();
@@ -2576,7 +2586,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
-  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+  for (int idh = 0; idh < max_idh; idh++) {
+    if (!plotME1A && idh == 3) continue;
     hEtaDiffCsc[idh][2]->GetXaxis()->SetLabelSize(0.07); // default=0.04
     hEtaDiffCsc[idh][2]->GetYaxis()->SetLabelSize(0.07);
     pad[page]->cd(idh+1);  hEtaDiffCsc[idh][2]->Draw();
@@ -2613,7 +2624,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
-  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+  for (int idh = 0; idh < max_idh; idh++) {
+    if (!plotME1A && idh == 3) continue;
     pad[page]->cd(idh+1);  hEtaDiffVsWireCsc[idh]->SetMarkerSize(0.2);
     hEtaDiffVsWireCsc[idh]->GetXaxis()->SetTitle("Wiregroup");
     hEtaDiffVsWireCsc[idh]->GetXaxis()->SetTitleSize(0.07);
@@ -2663,7 +2675,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
-  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+  for (int idh = 0; idh < max_idh; idh++) {
+    if (!plotME1A && idh == 3) continue;
     hPhiDiffCsc[idh][0]->GetXaxis()->SetLabelSize(0.07); // default=0.04
     hPhiDiffCsc[idh][0]->GetYaxis()->SetLabelSize(0.07);
     pad[page]->cd(idh+1);  hPhiDiffCsc[idh][0]->Draw();
@@ -2680,7 +2693,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
-  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+  for (int idh = 0; idh < max_idh; idh++) {
+    if (!plotME1A && idh == 3) continue;
     hPhiDiffCsc[idh][4]->GetYaxis()->SetTitle("Entries");
     hPhiDiffCsc[idh][4]->GetYaxis()->SetTitleSize(0.07);
     hPhiDiffCsc[idh][4]->GetXaxis()->SetLabelSize(0.07); // default=0.04
@@ -2701,7 +2715,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
-  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+  for (int idh = 0; idh < max_idh; idh++) {
+    if (!plotME1A && idh == 3) continue;
     hPhiDiffCsc[idh][3]->GetXaxis()->SetLabelSize(0.07); // default=0.04
     hPhiDiffCsc[idh][3]->GetYaxis()->SetLabelSize(0.07);
     pad[page]->cd(idh+1);  hPhiDiffCsc[idh][3]->Draw();
@@ -2720,7 +2735,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
-  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+  for (int idh = 0; idh < max_idh; idh++) {
+    if (!plotME1A && idh == 3) continue;
     hPhiDiffCsc[idh][1]->GetXaxis()->SetLabelSize(0.07); // default=0.04
     hPhiDiffCsc[idh][1]->GetYaxis()->SetLabelSize(0.07);
     pad[page]->cd(idh+1);  hPhiDiffCsc[idh][1]->Draw();
@@ -2737,7 +2753,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
-  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+  for (int idh = 0; idh < max_idh; idh++) {
+    if (!plotME1A && idh == 3) continue;
     hPhiDiffCsc[idh][2]->GetXaxis()->SetLabelSize(0.07); // default=0.04
     hPhiDiffCsc[idh][2]->GetYaxis()->SetLabelSize(0.07);
     pad[page]->cd(idh+1);  hPhiDiffCsc[idh][2]->Draw();
@@ -2777,7 +2794,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   gStyle->SetOptStat(0);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
-  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+  for (int idh = 0; idh < max_idh; idh++) {
+    if (!plotME1A && idh == 3) continue;
     pad[page]->cd(idh+1);  hPhiDiffVsStripCsc[idh][1]->SetMarkerSize(0.2);
     hPhiDiffVsStripCsc[idh][1]->GetXaxis()->SetTitle("Halfstrip");
     hPhiDiffVsStripCsc[idh][1]->GetXaxis()->SetTitleOffset(1.4);
@@ -2795,7 +2813,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
-  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+  for (int idh = 0; idh < max_idh; idh++) {
+    if (!plotME1A && idh == 3) continue;
     pad[page]->cd(idh+1);  hPhiDiffVsStripCsc[idh][0]->SetMarkerSize(0.2);
     hPhiDiffVsStripCsc[idh][0]->GetXaxis()->SetTitle("Distrip");
     hPhiDiffVsStripCsc[idh][0]->GetXaxis()->SetTitleOffset(1.4);
@@ -2840,7 +2859,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
-  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+  for (int idh = 0; idh < max_idh; idh++) {
+    if (!plotME1A && idh == 3) continue;
     hTrueBendCsc[idh]->GetYaxis()->SetTitle("Entries");
     hTrueBendCsc[idh]->GetYaxis()->SetTitleSize(0.07);
     hTrueBendCsc[idh]->GetXaxis()->SetLabelSize(0.07); // default=0.04
@@ -2850,6 +2870,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   page++;  c1->Update();
 
   ps->Close();
+  delete c1;
 }
 
 void CSCTriggerPrimitivesReader::drawEfficHistos() {
@@ -2871,6 +2892,8 @@ void CSCTriggerPrimitivesReader::drawEfficHistos() {
   
   gStyle->SetOptDate(0);
   gStyle->SetTitleSize(0.1, "");   // size for pad title; default is 0.02
+
+  int max_idh = plotME42 ? CSC_TYPES : CSC_TYPES-1;
 
   ps->NewPage();
   c1->Clear();  c1->cd(0);
@@ -2902,7 +2925,8 @@ void CSCTriggerPrimitivesReader::drawEfficHistos() {
   pad[page]->Draw();
   pad[page]->Divide(2,5);
   TH1F *hALCTEffVsEtaCsc[CSC_TYPES];
-  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+  for (int idh = 0; idh < max_idh; idh++) {
+    if (!plotME1A && idh == 3) continue;
     hALCTEffVsEtaCsc[idh] = (TH1F*)hEfficHitsEtaCsc[idh]->Clone();
     hALCTEffVsEtaCsc[idh]->Divide(hEfficALCTEtaCsc[idh],
 				  hEfficHitsEtaCsc[idh], 1., 1., "B");
@@ -2958,7 +2982,8 @@ void CSCTriggerPrimitivesReader::drawEfficHistos() {
   pad[page]->Draw();
   pad[page]->Divide(2,5);
   TH1F *hCLCTEffVsEtaCsc[CSC_TYPES];
-  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+  for (int idh = 0; idh < max_idh; idh++) {
+    if (!plotME1A && idh == 3) continue;
     hCLCTEffVsEtaCsc[idh] = (TH1F*)hEfficHitsEtaCsc[idh]->Clone();
     hCLCTEffVsEtaCsc[idh]->Divide(hEfficCLCTEtaCsc[idh],
 				  hEfficHitsEtaCsc[idh], 1., 1., "B");
@@ -2984,6 +3009,7 @@ void CSCTriggerPrimitivesReader::drawEfficHistos() {
   page++;  c1->Update();
 
   ps->Close();
+  delete c1;
 }
 
 void CSCTriggerPrimitivesReader::drawHistosForTalks() {
@@ -2998,6 +3024,8 @@ void CSCTriggerPrimitivesReader::drawHistosForTalks() {
   int page = 1;
   TPaveLabel *title;
   gStyle->SetOptDate(0);
+
+  int max_idh = plotME42 ? CSC_TYPES : CSC_TYPES-1;
 
   TPostScript *eps1 = new TPostScript("clcts.eps", 113);
   eps1->NewPage();
@@ -3084,7 +3112,8 @@ void CSCTriggerPrimitivesReader::drawHistosForTalks() {
     gStyle->SetOptStat(111110);
     pad[page]->Draw();
     pad[page]->Divide(2,5);
-    for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    for (int idh = 0; idh < max_idh; idh++) {
+      if (!plotME1A && idh == 3) continue;
       pad[page]->cd(idh+1);  hPhiDiffCsc[idh][4]->Draw();
       //if (hPhiDiffCsc[idh][4]->GetEntries() > 1)
       //hPhiDiffCsc[idh][4]->Fit("gaus","Q");
@@ -3113,7 +3142,8 @@ void CSCTriggerPrimitivesReader::drawHistosForTalks() {
     pad[page]->Draw();
     pad[page]->Divide(2,5);
     TH1F *hALCTEffVsEtaCsc[CSC_TYPES];
-    for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    for (int idh = 0; idh < max_idh; idh++) {
+      if (!plotME1A && idh == 3) continue;
       hALCTEffVsEtaCsc[idh] = (TH1F*)hEfficHitsEtaCsc[idh]->Clone();
       hALCTEffVsEtaCsc[idh]->Divide(hEfficALCTEtaCsc[idh],
 				    hEfficHitsEtaCsc[idh], 1., 1., "B");
@@ -3143,7 +3173,8 @@ void CSCTriggerPrimitivesReader::drawHistosForTalks() {
     pad[page]->Draw();
     pad[page]->Divide(2,5);
     TH1F *hCLCTEffVsEtaCsc[CSC_TYPES];
-    for (int idh = 0; idh < CSC_TYPES-1; idh++) {
+    for (int idh = 0; idh < max_idh; idh++) {
+      if (!plotME1A && idh == 3) continue;
       hCLCTEffVsEtaCsc[idh] = (TH1F*)hEfficHitsEtaCsc[idh]->Clone();
       hCLCTEffVsEtaCsc[idh]->Divide(hEfficCLCTEtaCsc[idh],
 				    hEfficHitsEtaCsc[idh], 1., 1., "B");
@@ -3163,6 +3194,8 @@ void CSCTriggerPrimitivesReader::drawHistosForTalks() {
     page++;  c1->Update();
     eps7->Close();
   }
+  delete c1;
+  delete c2;
 }
 
 // Returns chamber type (0-9) according to the station and ring number
@@ -3176,7 +3209,7 @@ int CSCTriggerPrimitivesReader::getCSCType(const CSCDetId& id) {
     type = 3 + id.ring() + 2*(id.station()-2);
   }
 
-  assert(type >= 0 && type < CSC_TYPES-1); // no ME4/2
+  assert(type >= 0 && type < CSC_TYPES);
   return type;
 }
 
