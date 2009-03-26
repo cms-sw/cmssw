@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTaskExtras.cc
  *
- * $Date: 2009/02/27 16:12:16 $
- * $Revision: 1.2 $
+ * $Date: 2009/03/24 15:07:44 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -403,10 +403,10 @@ void EBClusterTaskExtras::setup(void){
 
 #endif
 
-      sprintf(histo, "EBCLTE SC size (xtals) vs energy (GeV)");
+      sprintf(histo, "EBCLTE SC size (crystals) vs energy (GeV)");
       meSCXtalsVsEne_ = dqmStore_->bookProfile(histo,histo,200,0.,10.,150,0,150);
       meSCXtalsVsEne_->setAxisTitle("energy (GeV)", 1);
-      meSCXtalsVsEne_->setAxisTitle("super cluster size (xtals)", 2);
+      meSCXtalsVsEne_->setAxisTitle("super cluster size (crystals)", 2);
 
       sprintf(histo, "EBCLTE SC seed crystal occupancy map");
       meSCSeedMapOcc_ = dqmStore_->book2D(histo,histo,360,0,360,170,-85,85);
