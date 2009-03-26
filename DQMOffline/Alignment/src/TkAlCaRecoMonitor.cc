@@ -50,6 +50,8 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
   fillInvariantMass_ = conf_.getParameter<bool>("fillInvariantMass");
   runsOnReco_ = conf_.getParameter<bool>("runsOnReco");
   useSignedR_ = conf_.getParameter<bool>("useSignedR");
+  fillRawIdMap_ = conf_.getParameter<bool>("fillRawIdMap");
+
   //    
   unsigned int MassBin = conf_.getParameter<unsigned int>("MassBin");
   double MassMin = conf_.getParameter<double>("MassMin");
@@ -165,19 +167,23 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
     binByRawId_[ (*iRawId) ] = i;
     i++;
   }
-  
-  histname = "Hits_perDetId_";
-  int nModules = binByRawId_.size();
-  Hits_perDetId_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, nModules, static_cast<double>(nModules) -0.5, static_cast<double>(nModules) -0.5);
-  Hits_perDetId_->setAxisTitle("rawId Bins");
+  if( fillRawIdMap_){
+    histname = "Hits_perDetId_";
+    
+    //leads to differences in axsis between samples??
+    //int nModules = binByRawId_.size();
+    //Hits_perDetId_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, nModules, static_cast<double>(nModules) -0.5, static_cast<double>(nModules) -0.5);
+    Hits_perDetId_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, 16601,-0.5, 16600.5 );
+    Hits_perDetId_->setAxisTitle("rawId Bins");
 
-//// impossible takes too much memory :(  
-//  std::stringstream binLabel;
-//  for( std::map<int,int>::iterator it = binByRawId_.begin(); it != binByRawId_.end(); ++it ){
-//    binLabel.str() = "";
-//    binLabel << (*it).first;
-//    Hits_perDetId_->getTH1()->GetXaxis()->SetBinLabel( (*it).second +1, binLabel.str().c_str());
-//  }
+    //// impossible takes too much memory :(  
+    //  std::stringstream binLabel;
+    //  for( std::map<int,int>::iterator it = binByRawId_.begin(); it != binByRawId_.end(); ++it ){
+    //    binLabel.str() = "";
+    //    binLabel << (*it).first;
+    //    Hits_perDetId_->getTH1()->GetXaxis()->SetBinLabel( (*it).second +1, binLabel.str().c_str());
+    //  }
+  }
 
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField_);
   if (!magneticField_.isValid()){
@@ -297,7 +303,8 @@ void TkAlCaRecoMonitor::fillHitmaps(const reco::Track &track, const TrackerGeome
 	r*= globP.y() / fabs( globP.y() );
       Hits_ZvsR_->Fill( globP.z(), r );
       Hits_XvsY_->Fill( globP.x(), globP.y() );
-      Hits_perDetId_->Fill( binByRawId_[ geoId.rawId() ]);  
+      if( fillRawIdMap_)
+	 Hits_perDetId_->Fill( binByRawId_[ geoId.rawId() ]);  
     }
     //me->Fill( tHit->globalPosition().z(), tHit->globalPosition().mag() );
   }

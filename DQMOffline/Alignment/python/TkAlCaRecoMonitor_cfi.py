@@ -8,6 +8,7 @@ TkAlCaRecoMonitor = cms.EDAnalyzer("TkAlCaRecoMonitor",
                                    MeasurementState = cms.string("default"),#All/OuterSurface/InnerSurface/ImpactPoint/default(track)                         
                                    runsOnReco = cms.bool(False),
                                    fillInvariantMass = cms.bool(False),
+                                   fillRawIdMap = cms.bool(True),
                                    useSignedR = cms.bool(False),
                                    #
                                    TrackEfficiencyBin =cms.uint32(102),

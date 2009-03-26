@@ -66,6 +66,7 @@ class TkAlCaRecoMonitor : public edm::EDAnalyzer {
   MonitorElement* Hits_XvsY_;
 
   bool fillInvariantMass_;
+  bool fillRawIdMap_;
   bool runsOnReco_;
   bool useSignedR_;
 
