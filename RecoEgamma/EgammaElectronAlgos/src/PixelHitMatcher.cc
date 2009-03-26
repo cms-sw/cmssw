@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.29 2008/10/02 13:12:53 charlot Exp $
+// $Id: PixelHitMatcher.cc,v 1.30 2008/10/27 11:15:24 chamont Exp $
 //
 //
 
@@ -372,104 +372,119 @@ PixelHitMatcher::compatibleSeeds
   mapTsos2_.clear();
   mapTsos_.reserve(seeds->size());
   mapTsos2_.reserve(seeds->size());
- 
+  
   for (unsigned int i=0;i<seeds->size();++i)
     {
 
-      TrajectorySeed::range r=(*seeds)[i].recHits();
- 
-      // first Hit
-      TrajectorySeed::const_iterator it=r.first;
-      if (!(*it).isValid()) continue;
-      DetId id=(*it).geographicalId();
-      const GeomDet *geomdet=theTrackerGeometry->idToDet((*it).geographicalId());
-      LocalPoint lp=(*it).localPosition();
-      GlobalPoint hitPos=geomdet->surface().toGlobal(lp);
+      TrajectorySeed::range rhits=(*seeds)[i].recHits();
 
-      TrajectoryStateOnSurface tsos1;
-      bool found = false;
-      std::vector<std::pair<const GeomDet *, TrajectoryStateOnSurface> >::iterator itTsos;
-      for (itTsos=mapTsos_.begin();itTsos!=mapTsos_.end();++itTsos) {
-        if ((*itTsos).first==geomdet) {
-          found=true;
-          break;
-        }
-      }
-      if (!found) {
-        tsos1 = prop1stLayer->propagate(tsos,geomdet->surface()) ;
-        mapTsos_.push_back(std::pair<const GeomDet *, TrajectoryStateOnSurface>(geomdet,tsos1));
-      } else {
-        tsos1=(*itTsos).second;
-      }
+      // build all possible pairs
+      TrajectorySeed::const_iterator it2=rhits.second;
+      for (TrajectorySeed::const_iterator it1=rhits.first;it1!=rhits.second;it1++) {
 
-      if (tsos1.isValid()) {
+        for (TrajectorySeed::const_iterator it2=it1+1;it2!=rhits.second;it2++) {
 
-	std::pair<bool,double> est;
- 	if (id.subdetId()%2==1) est=meas1stBLayer.estimate(tsos1,hitPos);
- 	else est=meas1stFLayer.estimate(tsos1,hitPos); 
-	if (!est.first)    continue;
+	   TrajectorySeed::range r(it1,it2);
 
-	// UB add test on phidiff
-        PhiCheck phiCheck(xmeas.phi()) ;
-        if (!phiCheck(hitPos.phi())) continue ;
+	   // first Hit
+	   TrajectorySeed::const_iterator it=r.first;
+	   if (!(*it).isValid()) continue;
+	   DetId id=(*it).geographicalId();
+	   const GeomDet *geomdet=theTrackerGeometry->idToDet((*it).geographicalId());
+	   LocalPoint lp=(*it).localPosition();
+	   GlobalPoint hitPos=geomdet->surface().toGlobal(lp);
 
-	// now second Hit
-	it++;
-        if (!(*it).isValid()) continue;
-        DetId id2=(*it).geographicalId();
-	const GeomDet *geomdet2=theTrackerGeometry->idToDet((*it).geographicalId());
-	TrajectoryStateOnSurface tsos2;
-
-	// compute the z vertex from the cluster point and the found pixel hit
-	double pxHit1z = hitPos.z();
-	double pxHit1x = hitPos.x();
-	double pxHit1y = hitPos.y();      
-	double r1diff = (pxHit1x-vprim.x())*(pxHit1x-vprim.x()) + (pxHit1y-vprim.y())*(pxHit1y-vprim.y());
-	r1diff=sqrt(r1diff);
-	double r2diff = (xmeas.x()-pxHit1x)*(xmeas.x()-pxHit1x) + (xmeas.y()-pxHit1y)*(xmeas.y()-pxHit1y);
-	r2diff=sqrt(r2diff);
-	double zVertexPred = pxHit1z - r1diff*(xmeas.z()-pxHit1z)/r2diff;
-
-	GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertexPred);
-    	FreeTrajectoryState fts2 = myFTS(theMagField,hitPos,vertexPred,energy, charge);
-
-	found = false;
-	std::vector<std::pair< std::pair<const GeomDet *,GlobalPoint>, TrajectoryStateOnSurface> >::iterator itTsos2;
-	for (itTsos2=mapTsos2_.begin();itTsos2!=mapTsos2_.end();++itTsos2) {
-          if (((*itTsos2).first).first==geomdet2 &&
-              (((*itTsos2).first).second).x()==hitPos.x() &&
-              (((*itTsos2).first).second).y()== hitPos.y() &&
-              (((*itTsos2).first).second).z()==hitPos.z()  ) {
-            found=true;
-            break;
-          }
-	}
-	if (!found) {
-          tsos2 = prop2ndLayer->propagate(fts2,geomdet2->surface()) ;
-          std::pair<const GeomDet *,GlobalPoint> pair(geomdet2,hitPos);
-          mapTsos2_.push_back(std::pair<std::pair<const GeomDet *,GlobalPoint>, TrajectoryStateOnSurface> (pair,tsos2));
-	} else {
-          tsos2=(*itTsos2).second;
-	}
-
-	if (tsos2.isValid()) {
-	  LocalPoint lp2=(*it).localPosition();
-	  GlobalPoint hitPos2=geomdet2->surface().toGlobal(lp2); 
-	  std::pair<bool,double> est2;
- 	  if (id2.subdetId()%2==1) est2=meas2ndBLayer.estimate(tsos2,hitPos2);
- 	  else est2=meas2ndFLayer.estimate(tsos2,hitPos2);
-	  if (est2.first)
-	   {
-            int subDet2 = id2.subdetId() ;  
-	    float dRz2 = (subDet2%2==1)?(hitPos2.z()-tsos2.globalPosition().z()):(hitPos2.perp()-tsos2.globalPosition().perp()) ;
-            float dPhi2 = PhiCheck::normalize(hitPos2.phi() - tsos2.globalPosition().phi()) ;
-	    result.push_back(SeedWithInfo((*seeds)[i],subDet2,dRz2,dPhi2)) ;
+	   TrajectoryStateOnSurface tsos1;
+	   bool found = false;
+	   std::vector<std::pair<const GeomDet *, TrajectoryStateOnSurface> >::iterator itTsos;
+	   for (itTsos=mapTsos_.begin();itTsos!=mapTsos_.end();++itTsos) {
+             if ((*itTsos).first==geomdet) {
+               found=true;
+               break;
+             }
 	   }
-	}
+	   if (!found) {
+             tsos1 = prop1stLayer->propagate(tsos,geomdet->surface()) ;
+             mapTsos_.push_back(std::pair<const GeomDet *, TrajectoryStateOnSurface>(geomdet,tsos1));
+	   } else {
+             tsos1=(*itTsos).second;
+	   }
 
-      } 
+	   if (tsos1.isValid()) {
 
-    } 
+	     std::pair<bool,double> est;
+ 	     if (id.subdetId()%2==1) est=meas1stBLayer.estimate(tsos1,hitPos);
+ 	     else est=meas1stFLayer.estimate(tsos1,hitPos); 
+	     if (!est.first)    continue;
+
+	     // UB add test on phidiff
+             PhiCheck phiCheck(xmeas.phi()) ;
+             if (!phiCheck(hitPos.phi())) continue ;
+
+	     // now second Hit
+	     //CC@@
+	     //it++;
+	     it=r.second;
+
+             if (!(*it).isValid()) continue;
+             DetId id2=(*it).geographicalId();
+	     const GeomDet *geomdet2=theTrackerGeometry->idToDet((*it).geographicalId());
+	     TrajectoryStateOnSurface tsos2;
+
+	     // compute the z vertex from the cluster point and the found pixel hit
+	     double pxHit1z = hitPos.z();
+	     double pxHit1x = hitPos.x();
+	     double pxHit1y = hitPos.y();      
+	     double r1diff = (pxHit1x-vprim.x())*(pxHit1x-vprim.x()) + (pxHit1y-vprim.y())*(pxHit1y-vprim.y());
+	     r1diff=sqrt(r1diff);
+	     double r2diff = (xmeas.x()-pxHit1x)*(xmeas.x()-pxHit1x) + (xmeas.y()-pxHit1y)*(xmeas.y()-pxHit1y);
+	     r2diff=sqrt(r2diff);
+	     double zVertexPred = pxHit1z - r1diff*(xmeas.z()-pxHit1z)/r2diff;
+
+	     GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertexPred);
+    	     FreeTrajectoryState fts2 = myFTS(theMagField,hitPos,vertexPred,energy, charge);
+
+	     found = false;
+	     std::vector<std::pair< std::pair<const GeomDet *,GlobalPoint>, TrajectoryStateOnSurface> >::iterator itTsos2;
+	     for (itTsos2=mapTsos2_.begin();itTsos2!=mapTsos2_.end();++itTsos2) {
+               if (((*itTsos2).first).first==geomdet2 &&
+        	   (((*itTsos2).first).second).x()==hitPos.x() &&
+        	   (((*itTsos2).first).second).y()== hitPos.y() &&
+        	   (((*itTsos2).first).second).z()==hitPos.z()  ) {
+        	 found=true;
+        	 break;
+               }
+	     }
+	     if (!found) {
+               tsos2 = prop2ndLayer->propagate(fts2,geomdet2->surface()) ;
+               std::pair<const GeomDet *,GlobalPoint> pair(geomdet2,hitPos);
+               mapTsos2_.push_back(std::pair<std::pair<const GeomDet *,GlobalPoint>, TrajectoryStateOnSurface> (pair,tsos2));
+	     } else {
+               tsos2=(*itTsos2).second;
+	     }
+
+	     if (tsos2.isValid()) {
+	       LocalPoint lp2=(*it).localPosition();
+	       GlobalPoint hitPos2=geomdet2->surface().toGlobal(lp2); 
+	       std::pair<bool,double> est2;
+ 	       if (id2.subdetId()%2==1) est2=meas2ndBLayer.estimate(tsos2,hitPos2);
+ 	       else est2=meas2ndFLayer.estimate(tsos2,hitPos2);
+	       if (est2.first)
+		{
+        	 int subDet2 = id2.subdetId() ;  
+		 float dRz2 = (subDet2%2==1)?(hitPos2.z()-tsos2.globalPosition().z()):(hitPos2.perp()-tsos2.globalPosition().perp()) ;
+        	 float dPhi2 = PhiCheck::normalize(hitPos2.phi() - tsos2.globalPosition().phi()) ;
+		 result.push_back(SeedWithInfo((*seeds)[i],subDet2,dRz2,dPhi2)) ;
+		}
+	     }
+
+	   } // end tsos1 is valid
+
+        } // end loop on second seed hit 
+
+      } // end loop on first seed hit
+       
+    } // end loop on seeds
 
   return result; 
 }
