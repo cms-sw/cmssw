@@ -3,8 +3,11 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/HcalDetId>
 <use name=CalibCalorimetry/HcalAlgos>
+<use name=CalibCalorimetry/CastorCalib>
 <use name=CondFormats/HcalObjects>
+<use name=CondFormats/CastorObjects>
 <use name=CalibFormats/HcalObjects>
+<use name=CalibFormats/CastorObjects>
 <use name=CondCore/IOVService>
 <use name=CondCore/DBCommon>
 <use name=RelationalAccess>
@@ -19,8 +22,11 @@
   <use name=FWCore/Framework>
   <use name=DataFormats/HcalDetId>
   <use name=CalibCalorimetry/HcalAlgos>
+  <use name=CalibCalorimetry/CastorCalib>
   <use name=CondFormats/HcalObjects>
+  <use name=CondFormats/CastorObjects>
   <use name=CalibFormats/HcalObjects>
+  <use name=CalibFormats/CastorObjects>
   <use name=CondCore/IOVService>
   <use name=CondCore/DBCommon>
   <use name=CondCore/MetaDataService>
