@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Ana")
 
 process.source = cms.Source("PoolSource",
-	fileNames = cms.untracked.vstring(*[("rfio:/castor/cern.ch/user/t/tboccali/ttbar_fastsim_224/TTbar_cfi_GEN_FASTSIM_PU.root.%d" % (x + 1)) for x in range(20)])
+	fileNames = cms.untracked.vstring(*[("rfio:/castor/cern.ch/user/t/tboccali/ttbar_fastsim_224_reco/TTbar_cfi_GEN_FASTSIM_PU.root.%d" % (x + 1)) for x in range(20)])
 )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -13,16 +13,11 @@ process.GlobalTag.globaltag = 'IDEAL_V11::All'
 
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
-process.pileupJetTagger = cms.EDProducer("JetSignalVertexCompatibility.cc",
-	jetTracksAssoc = cms.InputTag("ic5JetTracksAssociatorAtVertex"),
-	primaryVertices = cms.InputTag("offlinePrimaryVertices"),
-	cut = cms.double(3.0),
-	temperature = cms.double(1.5)
-)
+process.load("RecoJets.JetAssociationProducers.ic5JetVertexCompatibility_cfi")
 
 process.pileupJetAnalyzer = cms.EDAnalyzer("PileupJetAnalyzer",
 	jetTracksAssoc = cms.InputTag("ic5JetTracksAssociatorAtVertex"),
-	jetTagLabel = cms.InputTag("pileupJetTagger"),
+	jetTagLabel = cms.InputTag("ic5JetVertexCompatibility"),
 	signalFraction = cms.double(0.5),
 	jetMinE = cms.double(10),
 	jetMinEt = cms.double(10),
@@ -35,6 +30,6 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.path = cms.Path(
-	process.pileupJetTagger *
+	process.ic5JetVertexCompatibility *
 	process.pileupJetAnalyzer
 )

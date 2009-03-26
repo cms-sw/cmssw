@@ -1,3 +1,6 @@
+// call with
+// root -l pileupJetAnalysis_mkplots.C'("analysis.root", "pileupJetAnalyzer", 0.5)'
+
 #include <iostream>
 #include <stdlib.h>
 
@@ -125,19 +128,7 @@ TVirtualPad *PadService::Next()
 	return pad;
 }
 
-void Save(TVirtualPad *pad, TDirectory *dir, TString name = "")
-{
-	gSystem->mkdir("plots");
-	TString baseName = TString("plots/") + dir->GetName();
-	if (name.Length())
-		baseName += "_" + name;
-
-	pad->Print(baseName + ".eps");
-	pad->Print(baseName + ".pdf");
-	pad->Print(baseName + ".png");
-}
-
-void ana(TString fname, TString dir, double cut)
+void pileupJetAnalysis_mkplots(TString fname, TString dir, double cut)
 {
 	TFile *f = TFile::Open(fname);
 	TString name = "discriminator";
@@ -146,7 +137,6 @@ void ana(TString fname, TString dir, double cut)
 	TH1 *bkg = new TH1F("bkg", "bkg", 4000, 0, 5);
 
 	TTree *t = dynamic_cast<TTree*>(f->Get(dir + "/jets"));
-std::cout << "t = " << t << std::endl;
 	TString sigCut = Form("%s && mc >= %f", base, cut);
 	TString bkgCut = Form("%s && mc < %f", base, cut);
 
@@ -204,7 +194,6 @@ std::cout << "t = " << t << std::endl;
 	leg->Draw("same");
 
 	pad->RedrawAxis();
-//	Save(pad, dir, name + "_pdf");
 
 	TVirtualPad *pad = pads.Next();
 
@@ -261,12 +250,10 @@ std::cout << "t = " << t << std::endl;
 	sum[1]->Draw("C same");
 
 	pad->RedrawAxis();
-//	Save(pad, dir, name + "_effs");
 
 	gStyle->SetFillColor(kWhite);
-	pad = new TCanvas("c2");
 	pad->SetFillColor(kWhite);
-//	TVirtualPad *pad = pads.Next();
+	TVirtualPad *pad = pads.Next();
 
 	TH1F *tmp = new TH1F(name + "_tmpO6",
 	                     "efficiency vs. purity", n, 0, 1);
@@ -303,6 +290,4 @@ std::cout << "t = " << t << std::endl;
 	graph->Draw("C");
 
 	pad->RedrawAxis();
-	pad->Print("c1.eps");
-//	Save(pad, dir, name + "_effpur");
 }
