@@ -12,6 +12,12 @@ from DQMOffline.Alignment.ALCARECOMuAlDQM_cff import *
 from DQMOffline.Configuration.ALCARECOTkCalDQM_cff import *
 # Ecal Calibration
 from DQMOffline.Configuration.ALCARECOEcalCalDQM_cff import *
+# Hcal Calibration
+from DQMOffline.Configuration.ALCARECOHcalCalDQM_cff import *
+# Muon Calibration
+from DQMOffline.Configuration.ALCARECOMuonDQM_cff import *
+
+
 # unfortunally the ALCARECOTkAl-Producers can not go here because they are filters.
 pathALCARECODQM = cms.Path(MEtoEDMConverter)
 

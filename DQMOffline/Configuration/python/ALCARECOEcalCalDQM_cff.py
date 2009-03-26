@@ -7,5 +7,6 @@ import DQMOffline.CalibCalo.MonitorAlCaEcalEleCalib_cfi
 ALCARECOEcalCalPhisymDQM = DQMOffline.CalibCalo.MonitorAlCaEcalPhisym_cfi.EcalPhiSymMon.clone()
 
 ALCARECOEcalCalPi0CalibDQM =  DQMOffline.CalibCalo.MonitorAlCaEcalPi0_cfi.EcalPi0Mon.clone()
-
+ALCARECOEcalCalEtaCalibDQM =  DQMOffline.CalibCalo.MonitorAlCaEcalPi0_cfi.EcalPi0Mon.clone()
 ALCARECOEcalCalElectronCalibDQM =  DQMOffline.CalibCalo.MonitorAlCaEcalEleCalib_cfi.EcalEleCalibMon.clone()
+
