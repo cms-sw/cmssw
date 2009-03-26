@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/03/25 10:31:19 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/03/25 12:51:17 $
+ *  $Revision: 1.3 $
  *
  *  \author Jim Brooke
  *
@@ -31,7 +31,7 @@ HLT1CaloJetEnergy::HLT1CaloJetEnergy(const edm::ParameterSet& iConfig) :
   saveTag_  (iConfig.getUntrackedParameter<bool>("saveTag",false)),
   min_E_    (iConfig.getParameter<double>       ("MinE"   )),
   max_Eta_  (iConfig.getParameter<double>       ("MaxEta"   )),
-  min_N_    (iConfig.getParameter<unsigned>      ("MinN"   ))
+  min_N_    (iConfig.getParameter<int>          ("MinN"   ))
 {
    LogDebug("") << "Input/ecut/etacut/ncut : "
 		<< inputTag_.encode() << " "
@@ -99,5 +99,3 @@ HLT1CaloJetEnergy::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-DEFINE_FWK_MODULE(HLT1CaloJetEnergy);
