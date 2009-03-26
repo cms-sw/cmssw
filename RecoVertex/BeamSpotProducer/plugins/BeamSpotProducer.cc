@@ -76,7 +76,9 @@ BeamSpotProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 								spotDB->GetBeamWidthX(),
 								matrix );
 		aSpot.setBeamWidthY( spotDB->GetBeamWidthY() );
-				
+		aSpot.setEmittance( spotDB->GetEmittance() );
+		aSpot.setbetaStar( spotDB->GetBetaStar() );
+		
 	}
 	
 	catch (std::exception & err) {

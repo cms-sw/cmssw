@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotWrite2DB.cc,v 1.1 2008/05/14 15:39:18 yumiceva Exp $
+ version $Id: BeamSpotWrite2DB.cc,v 1.2 2009/03/18 14:39:41 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -55,11 +55,21 @@ BeamSpotWrite2DB::beginJob(const edm::EventSetup&)
 void 
 BeamSpotWrite2DB::endJob() {
 
-	std::cout << " Read beam spot data from flat file " << std::endl;
-	
+	std::cout << " Read beam spot data from text file: " << fasciiFileName << std::endl;
+	std::cout << " please see plugins/BeamSpotWrite2DB.cc for format of text file." << std::endl;
+	/*
+	std::cout << " Content of the file is expected to have this format with the first column as a keyword:" << std::endl;
+	std::cout << " x\n y\n z\n sigmaZ\n dxdz\n dydz\n beamWidthX\n beamWidthY" << std::endl;
+	for (int i =0; i<7; i++) {
+		for (int j=0; j<7; j++ ) {
+			
+			std::cout << " cov["<<i<<"]["<<j<<"] cov["<<i<<"]["<<j<<"] cov["<<i<<"]["<<j<<"] cov["<<i<<"]["<<j<<"] cov["<<i<<"]["<<j<<"] cov["<<j<<"]["<<j<<"] cov["<<i<<"]["<<j<<"]" << std::endl;
+		}
+	}
+	*/
 	
 	// extract from file
-	double x,y,z,sigmaZ,dxdz,dydz,beamWidthX,beamWidthY;
+	double x,y,z,sigmaZ,dxdz,dydz,beamWidthX,beamWidthY,emittance,betastar;
 	std::string tag;
 	double cov[7][7];
 
@@ -78,7 +88,8 @@ BeamSpotWrite2DB::endJob() {
 	fasciiFile >> tag >> cov[4][0] >> cov[4][1] >> cov[4][2] >> cov[4][3]>> cov[4][4] >> cov[4][5]>> cov[4][6];
 	fasciiFile >> tag >> cov[5][0] >> cov[5][1] >> cov[5][2] >> cov[5][3]>> cov[5][4] >> cov[5][5]>> cov[5][6];
 	fasciiFile >> tag >> cov[6][0] >> cov[6][1] >> cov[6][2] >> cov[6][3]>> cov[6][4] >> cov[6][5]>> cov[6][6];
-
+	fasciiFile >> tag >> emittance;
+	fasciiFile >> tag >> betastar;
 	
 	BeamSpotObjects *abeam = new BeamSpotObjects();
 	
@@ -88,7 +99,9 @@ BeamSpotWrite2DB::endJob() {
 	abeam->Setdydz(dydz);
 	abeam->SetBeamWidthX(beamWidthX);
 	abeam->SetBeamWidthY(beamWidthY);
-
+	abeam->SetEmittance( emittance );
+	abeam->SetBetaStar( betastar );
+	
 	for (int i=0; i<7; ++i) {
 	  for (int j=0; j<7; ++j) {
 	    abeam->SetCovariance(i,j,cov[i][j]);
