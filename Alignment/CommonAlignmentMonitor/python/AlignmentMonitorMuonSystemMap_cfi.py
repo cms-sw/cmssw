@@ -1,0 +1,30 @@
+import FWCore.ParameterSet.Config as cms
+
+AlignmentMonitorMuonSystemMap = cms.PSet(
+    monitors = cms.untracked.vstring("AlignmentMonitorMuonSystemMap"),
+    AlignmentMonitorMuonSystemMap = cms.untracked.PSet(
+    residualsModel = cms.string("powerLawTails"),
+    minTrackPt = cms.double(20.),
+    maxTrackPt = cms.double(100.),
+    minTrackerHits = cms.int32(10),
+    maxTrackerRedChi2 = cms.double(10.),
+    allowTIDTEC = cms.bool(True),
+    minDT13Hits = cms.int32(8),
+    minDT2Hits = cms.int32(4),
+    minCSCHits = cms.int32(6),
+    maxDT13AngleError = cms.double(0.005),
+    maxDT2AngleError = cms.double(0.030),
+    maxCSCAngleError = cms.double(0.005),
+    writeTemporaryFile = cms.string(""),
+    readTemporaryFiles = cms.vstring(),
+    doFits = cms.bool(True),
+    twoBin = cms.bool(True),
+    DT13fitScattering = cms.bool(True),
+    DT13fitZpos = cms.bool(True),
+    DT13fitPhiz = cms.bool(True),
+    DT2fitScattering = cms.bool(True),
+    DT2fitPhiz = cms.bool(True),
+    CSCfitScattering = cms.bool(True),
+    CSCfitZpos = cms.bool(False),
+    CSCfitPhiz = cms.bool(True),
+    ))

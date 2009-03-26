@@ -71,6 +71,7 @@ bool MuonResidualsPositionFitter::fit(double phiValue) {
   for (int i = 0;  i < 8;  i++) {
     if (N_bin[i] < m_minHitsPerRegion) enough_in_every_bin = false;
   }
+
   if ((m_minHitsPerRegion > 0  &&  !enough_in_every_bin)  ||  (m_minHitsPerRegion <= 0  &&  N <= 10)) return false;
 
   // truncated mean and stdev to seed the fit

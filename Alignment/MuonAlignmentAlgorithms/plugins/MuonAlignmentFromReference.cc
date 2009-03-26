@@ -62,7 +62,10 @@ public:
   void terminate();
 
 private:
-  std::string m_reference;
+  bool numeric(std::string s);
+  int number(std::string s);
+
+  std::vector<std::string> m_intrackfit;
   double m_minTrackPt;
   double m_maxTrackPt;
   int m_minTrackerHits;
@@ -79,6 +82,7 @@ private:
   bool m_doAlignment;
   std::string m_residualsModel;
   bool m_twoBin;
+  bool m_combineME11;
   bool m_DT13fitScattering;
   bool m_DT13fitZpos;
   bool m_DT13fitPhiz;
@@ -93,6 +97,7 @@ private:
   AlignableNavigator *m_alignableNavigator;
   AlignmentParameterStore *m_alignmentParameterStore;
   std::vector<Alignable*> m_alignables;
+  std::map<Alignable*,Alignable*> m_me11map;
   std::map<Alignable*,MuonResidualsTwoBin*> m_rphiFitters;
   std::map<Alignable*,MuonResidualsTwoBin*> m_zFitters;
   std::map<Alignable*,MuonResidualsTwoBin*> m_phixFitters;
@@ -103,7 +108,7 @@ private:
 
 MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &iConfig)
   : AlignmentAlgorithmBase(iConfig)
-  , m_reference(iConfig.getParameter<std::string>("reference"))
+  , m_intrackfit(iConfig.getParameter<std::vector<std::string> >("intrackfit"))
   , m_minTrackPt(iConfig.getParameter<double>("minTrackPt"))
   , m_maxTrackPt(iConfig.getParameter<double>("maxTrackPt"))
   , m_minTrackerHits(iConfig.getParameter<int>("minTrackerHits"))
@@ -120,6 +125,7 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
   , m_doAlignment(iConfig.getParameter<bool>("doAlignment"))
   , m_residualsModel(iConfig.getParameter<std::string>("residualsModel"))
   , m_twoBin(iConfig.getParameter<bool>("twoBin"))
+  , m_combineME11(iConfig.getParameter<bool>("combineME11"))
   , m_DT13fitScattering(iConfig.getParameter<bool>("DT13fitScattering"))
   , m_DT13fitZpos(iConfig.getParameter<bool>("DT13fitZpos"))
   , m_DT13fitPhiz(iConfig.getParameter<bool>("DT13fitPhiz"))
@@ -145,6 +151,25 @@ MuonAlignmentFromReference::~MuonAlignmentFromReference() {
   delete m_alignableNavigator;
 }
 
+bool MuonAlignmentFromReference::numeric(std::string s) {
+  return (s == std::string("0")  ||  s == std::string("1")  ||  s == std::string("2")  ||  s == std::string("3")  ||  s == std::string("4")  ||
+	  s == std::string("5")  ||  s == std::string("6")  ||  s == std::string("7")  ||  s == std::string("8")  ||  s == std::string("9"));
+}
+
+int MuonAlignmentFromReference::number(std::string s) {
+  if (s == std::string("0")) return 0;
+  else if (s == std::string("1")) return 1;
+  else if (s == std::string("2")) return 2;
+  else if (s == std::string("3")) return 3;
+  else if (s == std::string("4")) return 4;
+  else if (s == std::string("5")) return 5;
+  else if (s == std::string("6")) return 6;
+  else if (s == std::string("7")) return 7;
+  else if (s == std::string("8")) return 8;
+  else if (s == std::string("9")) return 9;
+  else assert(false);
+}
+
 void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, AlignableTracker* alignableTracker, AlignableMuon* alignableMuon, AlignmentParameterStore* alignmentParameterStore) {
    if (alignableMuon == NULL) {
      throw cms::Exception("MuonAlignmentFromReference") << "doMuon must be set to True" << std::endl;
@@ -160,6 +185,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
    else throw cms::Exception("MuonAlignmentFromReference") << "unrecognized residualsModel: \"" << m_residualsModel << "\"" << std::endl;
 
    // set up the MuonResidualsFitters (which also collect residuals for fitting)
+   m_me11map.clear();
    m_rphiFitters.clear();
    m_zFitters.clear();
    m_phixFitters.clear();
@@ -208,22 +234,41 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
      else if ((*ali)->alignableObjectId() == align::AlignableCSCChamber) {
        if (align_x  &&  (!align_y  ||  !align_phiz)) throw cms::Exception("MuonAlignmentFromReference") << "CSCs are aligned in rphi, not x, so y and phiz must also be alignable" << std::endl;
 
-       m_rphiFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsPositionFitter(residualsModel, -1), new MuonResidualsPositionFitter(residualsModel, -1));
-       if (!m_CSCfitScattering) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kScattering);
-       if (!m_CSCfitZpos) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
-       if (!m_CSCfitPhiz) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kPhiz);
-       m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 0);
-       m_fitterOrder.push_back(m_rphiFitters[*ali]);
+       Alignable *thisali = *ali;
+       CSCDetId id((*ali)->geomDetId().rawId());
+       if (m_combineME11  &&  id.station() == 1  &&  id.ring() == 4) {
+	 CSCDetId pairid(id.endcap(), 1, 1, id.chamber());
+	 
+	 for (std::vector<Alignable*>::const_iterator ali2 = m_alignables.begin();  ali2 != m_alignables.end();  ++ali2) {
+	   if ((*ali2)->alignableObjectId() == align::AlignableCSCChamber  &&  (*ali2)->geomDetId().rawId() == pairid.rawId()) {
+	     thisali = *ali2;
+	     break;
+	   }
+	 }
 
-       m_phiyFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, -1), new MuonResidualsAngleFitter(residualsModel, -1));
-       m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompt);
-       m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompz);
-       m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kdEdx);
-       m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 1);
-       m_fitterOrder.push_back(m_phiyFitters[*ali]);
+	 m_me11map[*ali] = thisali;
+       }
 
-       if (align_phix) {
-	 throw cms::Exception("MuonAlignmentFromReference") << "CSCChambers can't be aligned in phix" << std::endl;
+       if (thisali == *ali) {
+
+	 m_rphiFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsPositionFitter(residualsModel, -1), new MuonResidualsPositionFitter(residualsModel, -1));
+	 if (!m_CSCfitScattering) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kScattering);
+	 if (!m_CSCfitZpos) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
+	 if (!m_CSCfitPhiz) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kPhiz);
+	 m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 0);
+	 m_fitterOrder.push_back(m_rphiFitters[*ali]);
+	 
+	 m_phiyFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, -1), new MuonResidualsAngleFitter(residualsModel, -1));
+	 m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompt);
+	 m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompz);
+	 m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kdEdx);
+	 m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 1);
+	 m_fitterOrder.push_back(m_phiyFitters[*ali]);
+	 
+	 if (align_phix) {
+	   throw cms::Exception("MuonAlignmentFromReference") << "CSCChambers can't be aligned in phix" << std::endl;
+	 }
+
        }
      }
 
@@ -236,73 +281,187 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
    std::vector<Alignable*> all_DT_chambers = alignableMuon->DTChambers();
    std::vector<Alignable*> all_CSC_chambers = alignableMuon->CSCChambers();
    std::vector<Alignable*> deweight;
+   std::map<Alignable*,bool> already_seen;
 
-   for (std::vector<Alignable*>::const_iterator ali = all_DT_chambers.begin();  ali != all_DT_chambers.end();  ++ali) {
-     DTChamberId id((*ali)->geomDetId().rawId());
+   for (std::vector<std::string>::const_iterator name = m_intrackfit.begin();  name != m_intrackfit.end();  ++name) {
+     bool parsing_error = false;
 
-     if (m_reference == std::string("tracker")) {
-       deweight.push_back(*ali);
+     bool barrel = (name->substr(0, 2) == std::string("MB"));
+     bool endcap = (name->substr(0, 2) == std::string("ME"));
+     if (!barrel  &&  !endcap) parsing_error = true;
+
+     if (!parsing_error  &&  barrel) {
+       int index = 2;
+
+       if (name->substr(index, 1) == std::string(" ")) {
+	 index++;
+       }
+
+       bool plus = true;
+       if (name->substr(index, 1) == std::string("+")) {
+	 plus = true;
+	 index++;
+       }
+       else if (name->substr(index, 1) == std::string("-")) {
+	 plus = false;
+	 index++;
+       }
+       else if (numeric(name->substr(index, 1))) {}
+       else parsing_error = true;
+
+       int wheel = 0;
+       bool wheel_digit = false;
+       while (!parsing_error  &&  numeric(name->substr(index, 1))) {
+	 wheel *= 10;
+	 wheel += number(name->substr(index, 1));
+	 wheel_digit = true;
+	 index++;
+       }
+       if (!plus) wheel *= -1;
+       if (!wheel_digit) parsing_error = true;
+       
+       if (name->substr(index, 1) != std::string(" ")) parsing_error = true;
+       index++;
+
+       int station = 0;
+       bool station_digit = false;
+       while (!parsing_error  &&  numeric(name->substr(index, 1))) {
+	 station *= 10;
+	 station += number(name->substr(index, 1));
+	 station_digit = true;
+	 index++;
+       }
+       if (!station_digit) parsing_error = true;
+
+       if (name->substr(index, 1) != std::string(" ")) parsing_error = true;
+       index++;
+
+       int sector = 0;
+       bool sector_digit = false;
+       while (!parsing_error  &&  numeric(name->substr(index, 1))) {
+	 sector *= 10;
+	 sector += number(name->substr(index, 1));
+	 sector_digit = true;
+	 index++;
+       }
+       if (!sector_digit) parsing_error = true;
+
+       if (!parsing_error) {
+	 bool no_such_chamber = false;
+
+	 if (wheel < -2  ||  wheel > 2) no_such_chamber = true;
+	 if (station < 1  ||  station > 4) no_such_chamber = true;
+	 if (station == 4  &&  (sector < 1  ||  sector > 14)) no_such_chamber = true;
+	 if (station < 4  &&  (sector < 1  ||  sector > 12)) no_such_chamber = true;
+
+	 if (no_such_chamber) {
+	   throw cms::Exception("MuonAlignmentFromReference") << "intrackfit chamber doesn't exist: " << (*name) << std::endl;
+	 }
+
+	 DTChamberId id(wheel, station, sector);
+	 for (std::vector<Alignable*>::const_iterator ali = all_DT_chambers.begin();  ali != all_DT_chambers.end();  ++ali) {
+	   if ((*ali)->geomDetId().rawId() == id.rawId()) {
+	     std::map<Alignable*,bool>::const_iterator trial = already_seen.find(*ali);
+	     if (trial == already_seen.end()) {
+	       deweight.push_back(*ali);
+	       already_seen[*ali] = true;
+	     }
+	   }
+	 }
+       }
      }
+     if (!parsing_error  &&  endcap) {
+       int index = 2;
 
-     else if (m_reference == std::string("station1")) {
-       if (id.station() > 1) {
-	 deweight.push_back(*ali);
+       if (name->substr(index, 1) == std::string(" ")) {
+	 index++;
+       }
+
+       bool plus = true;
+       if (name->substr(index, 1) == std::string("+")) {
+	 plus = true;
+	 index++;
+       }
+       else if (name->substr(index, 1) == std::string("-")) {
+	 plus = false;
+	 index++;
+       }
+       else if (numeric(name->substr(index, 1))) {}
+       else parsing_error = true;
+
+       int station = 0;
+       bool station_digit = false;
+       while (!parsing_error  &&  numeric(name->substr(index, 1))) {
+	 station *= 10;
+	 station += number(name->substr(index, 1));
+	 station_digit = true;
+	 index++;
+       }
+       if (!plus) station *= -1;
+       if (!station_digit) parsing_error = true;
+
+       if (name->substr(index, 1) != std::string("/")) parsing_error = true;
+       index++;
+
+       int ring = 0;
+       bool ring_digit = false;
+       while (!parsing_error  &&  numeric(name->substr(index, 1))) {
+	 ring *= 10;
+	 ring += number(name->substr(index, 1));
+	 ring_digit = true;
+	 index++;
+       }
+       if (!ring_digit) parsing_error = true;
+
+       if (name->substr(index, 1) != std::string(" ")) parsing_error = true;
+       index++;
+
+       int chamber = 0;
+       bool chamber_digit = false;
+       while (!parsing_error  &&  numeric(name->substr(index, 1))) {
+	 chamber *= 10;
+	 chamber += number(name->substr(index, 1));
+	 chamber_digit = true;
+	 index++;
+       }
+       if (!chamber_digit) parsing_error = true;
+
+       if (!parsing_error) {
+	 bool no_such_chamber = false;
+
+	 int endcap = (station > 0 ? 1 : 2);
+	 station = abs(station);
+	 if (station < 1  ||  station > 4) no_such_chamber = true;
+	 if (station == 1  &&  (ring < 1  ||  ring > 4)) no_such_chamber = true;
+	 if (station > 1  &&  (ring < 1  ||  ring > 2)) no_such_chamber = true;
+	 if (station == 1  &&  (chamber < 1  ||  chamber > 36)) no_such_chamber = true;
+	 if (station > 1  &&  ring == 1  &&  (chamber < 1  ||  chamber > 18)) no_such_chamber = true;
+	 if (station > 1  &&  ring == 2  &&  (chamber < 1  ||  chamber > 36)) no_such_chamber = true;
+
+	 if (no_such_chamber) {
+	   throw cms::Exception("MuonAlignmentFromReference") << "intrackfit chamber doesn't exist: " << (*name) << std::endl;
+	 }
+
+	 CSCDetId id(endcap, station, ring, chamber);
+	 for (std::vector<Alignable*>::const_iterator ali = all_CSC_chambers.begin();  ali != all_CSC_chambers.end();  ++ali) {
+	   if ((*ali)->geomDetId().rawId() == id.rawId()) {
+	     std::map<Alignable*,bool>::const_iterator trial = already_seen.find(*ali);
+	     if (trial == already_seen.end()) {
+	       deweight.push_back(*ali);
+	       already_seen[*ali] = true;
+	     }
+	   }
+	 }
        }
      }
 
-     else if (m_reference == std::string("station2")) {
-       if (id.station() > 2) {
-	 deweight.push_back(*ali);
-       }
+     if (parsing_error) {
+       throw cms::Exception("MuonAlignmentFromReference") << "intrackfit chamber name is malformed: " << (*name) << std::endl;
      }
-
-     else if (m_reference == std::string("station3")) {
-       if (id.station() > 3) {
-	 deweight.push_back(*ali);
-       }
-     }
-
-     else if (m_reference == std::string("wheel0")) {
-       if (id.wheel() != 0) {
-	 deweight.push_back(*ali);
-       }
-     }
-
-     else if (m_reference == std::string("wheels0and1")) {
-       if (id.wheel() != 0  &&  abs(id.wheel()) != 1) {
-	 deweight.push_back(*ali);
-       }
-     }
-
-     else if (m_reference == std::string("barrel")  ||  m_reference == std::string("me1")  ||  m_reference == std::string("me2")  ||  m_reference == std::string("me3")) {}
    }
 
-   for (std::vector<Alignable*>::const_iterator ali = all_CSC_chambers.begin();  ali != all_CSC_chambers.end();  ++ali) {
-     CSCDetId id((*ali)->geomDetId().rawId());
-
-     if (m_reference == std::string("tracker")  ||  m_reference == std::string("wheel0")  ||  m_reference == std::string("wheels0and1")  ||  m_reference == std::string("barrel")) {
-       deweight.push_back(*ali);
-     }
-
-     else if (m_reference == std::string("me1")) {
-       if (id.station() != 1) {
-	 deweight.push_back(*ali);
-       }
-     }
-
-     else if (m_reference == std::string("me2")) {
-       if (id.station() != 1  &&  id.station() != 2) {
-	 deweight.push_back(*ali);
-       }
-     }
-
-     else if (m_reference == std::string("me3")) {
-       if (id.station() != 1  &&  id.station() != 2  &&  id.station() != 3) {
-	 deweight.push_back(*ali);
-       }
-     }
-   }
-
+   alignmentParameterStore->setAlignmentPositionError(all_DT_chambers, 0., 0.);
+   alignmentParameterStore->setAlignmentPositionError(all_CSC_chambers, 0., 0.);
    alignmentParameterStore->setAlignmentPositionError(deweight, 1000., 0.);
 }
 
@@ -388,8 +547,14 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const ConstT
 	  else if (chamberResidual->chamberId().subdetId() == MuonSubdetId::CSC) {
 
 	    if (chamberResidual->numHits() >= m_minCSCHits) {
-	      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator rphiFitter = m_rphiFitters.find(chamberResidual->chamberAlignable());
-	      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator phiyFitter = m_phiyFitters.find(chamberResidual->chamberAlignable());
+	      Alignable *ali = chamberResidual->chamberAlignable();
+	      CSCDetId id(ali->geomDetId().rawId());
+	      if (m_combineME11  &&  id.station() == 1  &&  id.ring() == 4) {
+		ali = m_me11map[ali];
+	      }
+
+	      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator rphiFitter = m_rphiFitters.find(ali);
+	      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator phiyFitter = m_phiyFitters.find(ali);
 
 	      if (rphiFitter != m_rphiFitters.end()) {
 		if (fabs(chamberResidual->resslope()) < m_maxCSCAngleError) {
@@ -544,12 +709,21 @@ void MuonAlignmentFromReference::terminate() {
       cov[paramIndex[1]][paramIndex[1]] = 1000.;
       cov[paramIndex[2]][paramIndex[2]] = 1000.;
 
-      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator rphiFitter = m_rphiFitters.find(*ali);
-      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator zFitter = m_zFitters.find(*ali);
-      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator phixFitter = m_phixFitters.find(*ali);
-      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator phiyFitter = m_phiyFitters.find(*ali);
-      
       DetId id = (*ali)->geomDetId();
+
+      Alignable *thisali = *ali;
+      if (m_combineME11  &&  id.subdetId() == MuonSubdetId::CSC) {
+	CSCDetId cscid(id.rawId());
+	if (cscid.station() == 1  &&  cscid.ring() == 4) {
+	  thisali = m_me11map[*ali];
+	}
+      }
+
+      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator rphiFitter = m_rphiFitters.find(thisali);
+      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator zFitter = m_zFitters.find(thisali);
+      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator phixFitter = m_phixFitters.find(thisali);
+      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator phiyFitter = m_phiyFitters.find(thisali);
+      
       std::stringstream name;
       if (id.subdetId() == MuonSubdetId::DT) {
 	DTChamberId chamberId(id.rawId());
@@ -685,11 +859,11 @@ void MuonAlignmentFromReference::terminate() {
 	    }
 
 	    if (align_z) {
-	      params[paramIndex[2]] = zpos_value;
+	      params[paramIndex[2]] = -zpos_value;   // this is the right sign convention
 	    }
 	  
 	    if (align_phiz) {
-	      params[paramIndex[5]] = phiz_value;
+	      params[paramIndex[5]] = -phiz_value;   // this is the right sign convention
 	    }
 	  } // end if DT
 
@@ -712,11 +886,12 @@ void MuonAlignmentFromReference::terminate() {
 	    }
 
 	    if (align_z) {
-	      params[paramIndex[2]] = zpos_value;
+	      params[paramIndex[2]] = -zpos_value;   // this is the right sign convention
 	    }
 
 	    if (align_phiz) {
-	      params[paramIndex[5]] += phiz_value;  // += not =    ...accumulated on top of whatever was needed for curvilinear rphi correction
+	      // += not =    ...accumulated on top of whatever was needed for curvilinear rphi correction
+	      params[paramIndex[5]] -= phiz_value;   // this is the right sign convention
 	    }
 	  } // end if CSC
 
