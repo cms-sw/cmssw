@@ -25,6 +25,10 @@ TrackAssociatorByPosDeltaR = cms.ESProducer('TrackAssociatorByPositionESProducer
     ConsiderAllSimHits = cms.bool(True)
 )
 
+#
+# Associators for Full Sim + Reco:
+#
+
 tpToTkmuTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
     associator = cms.string('TrackAssociatorByHits'),
     label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
@@ -136,6 +140,7 @@ tpToL3MuonAssociation.EfficiencyCut_track = 0.5
 tpToL3MuonAssociation.PurityCut_track = 0.75
 tpToL3MuonAssociation.ignoreMissingTrackCollection = True
 
+
 muonAssociation_seq = cms.Sequence((tpToTkMuonAssociation+tpToStaMuonAssociation+tpToGlbMuonAssociation)
                                   +(tpToTkmuTrackAssociation+tpToStaTrackAssociation+tpToGlbTrackAssociation))
 
@@ -148,4 +153,162 @@ muonAssociationHLT_seq = cms.Sequence(
     +tpToL3TrackAssociation
     +tpToL3TkTrackTrackAssociation
     )
+)
+
+
+#
+# Associators for Fast Sim
+#
+
+tpToTkmuTrackAssociationFS = cms.EDProducer('TrackAssociatorEDProducer',
+    associator = cms.string('TrackAssociatorByHits'),
+    label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
+    label_tr = cms.InputTag('generalTracks')
+)
+
+tpToStaTrackAssociationFS = cms.EDProducer('TrackAssociatorEDProducer',
+    associator = cms.string('TrackAssociatorByDeltaR'),
+    label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
+    label_tr = cms.InputTag('standAloneMuons','UpdatedAtVtx')
+)
+
+tpToGlbTrackAssociationFS = cms.EDProducer('TrackAssociatorEDProducer',
+    associator = cms.string('TrackAssociatorByDeltaR'),
+    label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
+    label_tr = cms.InputTag('globalMuons')
+)
+
+tpToL2TrackAssociationFS = cms.EDProducer('TrackAssociatorEDProducer',
+    ignoremissingtrackcollection=cms.untracked.bool(True),
+    associator = cms.string('TrackAssociatorByDeltaR'),
+    label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
+    label_tr = cms.InputTag('hltL2Muons','UpdatedAtVtx')
+)
+
+tpToL3TrackAssociationFS = cms.EDProducer("TrackAssociatorEDProducer",
+    ignoremissingtrackcollection=cms.untracked.bool(True),
+    associator = cms.string('TrackAssociatorByDeltaR'),
+    label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
+    label_tr = cms.InputTag('hltL3Muons')
+)
+
+tpToL3TkTrackTrackAssociationFS = cms.EDProducer("TrackAssociatorEDProducer",
+    ignoremissingtrackcollection=cms.untracked.bool(True),
+    associator = cms.string('TrackAssociatorByHits'),
+    label_tp = cms.InputTag('mergedtruth','MergedTrackTruth'),
+    label_tr = cms.InputTag('hltL3TkTracksFromL2','')
+)
+
+tpToL3L2TrackTrackAssociationFS = cms.EDProducer("TrackAssociatorEDProducer",
+    ignoremissingtrackcollection=cms.untracked.bool(True),
+    associator = cms.string('TrackAssociatorByHits'),
+    label_tp = cms.InputTag('mergedtruth','MergedTrackTruth'),
+    label_tr = cms.InputTag('hltL3Muons:L2Seeded')
+)
+
+
+#MuonAssociation
+import SimMuon.MCTruth.MuonAssociatorByHits_cfi
+
+tpToTkMuonAssociationFS   = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToStaMuonAssociationFS  = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToGlbMuonAssociationFS  = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToL3TkMuonAssociationFS = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToL2MuonAssociationFS   = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToL3MuonAssociationFS   = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+
+tpToTkMuonAssociationFS.tpTag = 'mergedtruth:MergedTrackTruth'
+tpToTkMuonAssociationFS.tracksTag = 'generalTracks'
+tpToTkMuonAssociationFS.UseTracker = True
+tpToTkMuonAssociationFS.UseMuon = False
+tpToTkMuonAssociationFS.EfficiencyCut_track = 0.5
+tpToTkMuonAssociationFS.PurityCut_track = 0.75
+tpToTkMuonAssociationFS.simtracksXFTag = "mix:famosSimHitsMuonSimTracks"
+tpToTkMuonAssociationFS.DTsimhitsXFTag  = "mix:MuonSimHitsMuonDTHits"
+tpToTkMuonAssociationFS.CSCsimHitsXFTag = "mix:MuonSimHitsMuonCSCHits"
+tpToTkMuonAssociationFS.RPCsimhitsXFTag = "mix:MuonSimHitsMuonRPCHits"
+tpToTkMuonAssociationFS.ROUList = ['famosSimHitsTrackerHits']
+
+tpToStaMuonAssociationFS.tpTag = 'mergedtruth:MergedTrackTruth'
+tpToStaMuonAssociationFS.tracksTag = 'standAloneMuons:UpdatedAtVtx'
+tpToStaMuonAssociationFS.UseTracker = False
+tpToStaMuonAssociationFS.UseMuon = True
+tpToStaMuonAssociationFS.EfficiencyCut_muon = 0.5
+tpToStaMuonAssociationFS.PurityCut_muon = 0.5
+tpToStaMuonAssociationFS.simtracksXFTag = "mix:famosSimHitsMuonSimTracks"
+tpToStaMuonAssociationFS.DTsimhitsXFTag  = "mix:MuonSimHitsMuonDTHits"
+tpToStaMuonAssociationFS.CSCsimHitsXFTag = "mix:MuonSimHitsMuonCSCHits"
+tpToStaMuonAssociationFS.RPCsimhitsXFTag = "mix:MuonSimHitsMuonRPCHits"
+tpToStaMuonAssociationFS.ROUList = ['famosSimHitsTrackerHits']
+
+tpToGlbMuonAssociationFS.tpTag = 'mergedtruth:MergedTrackTruth'
+tpToGlbMuonAssociationFS.tracksTag = 'globalMuons'
+tpToGlbMuonAssociationFS.UseTracker = True
+tpToGlbMuonAssociationFS.UseMuon = True
+tpToGlbMuonAssociationFS.EfficiencyCut_muon = 0.5
+tpToGlbMuonAssociationFS.PurityCut_muon = 0.5
+tpToGlbMuonAssociationFS.EfficiencyCut_track = 0.5
+tpToGlbMuonAssociationFS.PurityCut_track = 0.75
+tpToGlbMuonAssociationFS.simtracksXFTag = "mix:famosSimHitsMuonSimTracks"
+tpToGlbMuonAssociationFS.DTsimhitsXFTag  = "mix:MuonSimHitsMuonDTHits"
+tpToGlbMuonAssociationFS.CSCsimHitsXFTag = "mix:MuonSimHitsMuonCSCHits"
+tpToGlbMuonAssociationFS.RPCsimhitsXFTag = "mix:MuonSimHitsMuonRPCHits"
+tpToGlbMuonAssociationFS.ROUList = ['famosSimHitsTrackerHits']
+
+tpToL3TkMuonAssociationFS.tpTag = 'mergedtruth:MergedTrackTruth'
+tpToL3TkMuonAssociationFS.tracksTag = 'hltL3TkTracksFromL2'
+tpToL3TkMuonAssociationFS.UseTracker = True
+tpToL3TkMuonAssociationFS.UseMuon = False
+tpToL3TkMuonAssociationFS.EfficiencyCut_track = 0.5
+tpToL3TkMuonAssociationFS.PurityCut_track = 0.75
+tpToL3TkMuonAssociationFS.simtracksXFTag = "mix:famosSimHitsMuonSimTracks"
+tpToL3TkMuonAssociationFS.DTsimhitsXFTag  = "mix:MuonSimHitsMuonDTHits"
+tpToL3TkMuonAssociationFS.CSCsimHitsXFTag = "mix:MuonSimHitsMuonCSCHits"
+tpToL3TkMuonAssociationFS.RPCsimhitsXFTag = "mix:MuonSimHitsMuonRPCHits"
+tpToL3TkMuonAssociationFS.ROUList = ['famosSimHitsTrackerHits']
+tpToL3TkMuonAssociationFS.ignoreMissingTrackCollection = True
+
+tpToL2MuonAssociationFS.tpTag = 'mergedtruth:MergedTrackTruth'
+tpToL2MuonAssociationFS.tracksTag = 'hltL2Muons:UpdatedAtVtx'
+tpToL2MuonAssociationFS.UseTracker = False
+tpToL2MuonAssociationFS.UseMuon = True
+tpToL2MuonAssociationFS.EfficiencyCut_muon = 0.5
+tpToL2MuonAssociationFS.PurityCut_muon = 0.5
+tpToL2MuonAssociationFS.simtracksXFTag = "mix:famosSimHitsMuonSimTracks"
+tpToL2MuonAssociationFS.DTsimhitsXFTag  = "mix:MuonSimHitsMuonDTHits"
+tpToL2MuonAssociationFS.CSCsimHitsXFTag = "mix:MuonSimHitsMuonCSCHits"
+tpToL2MuonAssociationFS.RPCsimhitsXFTag = "mix:MuonSimHitsMuonRPCHits"
+tpToL2MuonAssociationFS.ROUList = ['famosSimHitsTrackerHits']
+tpToL2MuonAssociationFS.ignoreMissingTrackCollection = True
+
+tpToL3MuonAssociationFS.tpTag = 'mergedtruth:MergedTrackTruth'
+tpToL3MuonAssociationFS.tracksTag = 'hltL3Muons'
+tpToL3MuonAssociationFS.UseTracker = True
+tpToL3MuonAssociationFS.UseMuon = True
+tpToL3MuonAssociationFS.EfficiencyCut_muon = 0.5
+tpToL3MuonAssociationFS.PurityCut_muon = 0.5
+tpToL3MuonAssociationFS.EfficiencyCut_track = 0.5
+tpToL3MuonAssociationFS.PurityCut_track = 0.75
+tpToL3MuonAssociationFS.simtracksXFTag = "mix:famosSimHitsMuonSimTracks"
+tpToL3MuonAssociationFS.DTsimhitsXFTag  = "mix:MuonSimHitsMuonDTHits"
+tpToL3MuonAssociationFS.CSCsimHitsXFTag = "mix:MuonSimHitsMuonCSCHits"
+tpToL3MuonAssociationFS.RPCsimhitsXFTag = "mix:MuonSimHitsMuonRPCHits"
+tpToL3MuonAssociationFS.ROUList = ['famosSimHitsTrackerHits']
+tpToL3MuonAssociationFS.ignoreMissingTrackCollection = True
+
+
+
+muonAssociationFastSim_seq = cms.Sequence((tpToTkMuonAssociationFS+tpToStaMuonAssociationFS+tpToGlbMuonAssociationFS)
+                                   +(tpToTkmuTrackAssociationFS+tpToStaTrackAssociationFS+tpToGlbTrackAssociationFS))
+
+muonAssociationHLTFastSim_seq = cms.Sequence(
+    (tpToL2MuonAssociationFS
+     +tpToL3MuonAssociationFS
+     +tpToL3TkMuonAssociationFS)
+    +(
+    tpToL2TrackAssociationFS
+    +tpToL3TrackAssociationFS
+    +tpToL3TkTrackTrackAssociationFS
     )
+)
+
