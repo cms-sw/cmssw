@@ -37,9 +37,10 @@ RPCDqmClient::RPCDqmClient(const ParameterSet& iConfig)
   
   //check enabling
   enableDQMClients_ =parameters_.getUntrackedParameter<bool> ("EnableRPCDqmClients",true); 
-
+  minimumEvents_= parameters_.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
+  globalFolder_= parameters_.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
   //get prescale factor
-  prescaleFactor_ = parameters_.getUntrackedParameter<int>("DiagnosticPrescale", 1);
+  prescaleGlobalFactor_ = parameters_.getUntrackedParameter<int>("DiagnosticGlobalPrescale", 5);
 
   prefixDir_ = parameters_.getUntrackedParameter<string>("RPCDirectory", "RPC/RecHits");
 
@@ -71,6 +72,8 @@ void RPCDqmClient::beginJob(const EventSetup& iSetup){
 void  RPCDqmClient::beginRun(const Run& r, const EventSetup& c){
    LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: Begin Run";
   if (!enableDQMClients_) return;
+
+  init_ = false;
 
   vector<MonitorElement *>  myMeVect;
   vector<RPCDetId>   myDetIds;
@@ -136,7 +139,16 @@ void RPCDqmClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::
 
   edm::LogVerbatim ("rpcdqmclient") <<"[RPCDqmClient]: End of LS ";
 
-  if (!enableDQMClients_ || lumiSeg.id().luminosityBlock() % prescaleFactor_ != 0 ) return;
+   MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
+   float   rpcevents = RPCEvents -> getEntries();
+
+  if(!init_ && rpcevents < minimumEvents_) return;
+  else if(!init_) {
+    init_=true;
+    numLumBlock_ = prescaleGlobalFactor_;
+  }else numLumBlock_++;
+   
+  if (!enableDQMClients_ || numLumBlock_ % prescaleGlobalFactor_ != 0 ) return;
 
 
   for (vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )

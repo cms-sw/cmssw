@@ -48,12 +48,11 @@ public:
   void makeClientMap(void);
 
  private:
-  int prescaleFactor_;
+  int prescaleGlobalFactor_, minimumEvents_, numLumBlock_;
  
-  bool enableDQMClients_ ; 
-
+  bool enableDQMClients_ , init_; 
   std::string  prefixDir_;
-
+  std::string  globalFolder_;
   std::vector<std::string>  clientList_;
 
 
