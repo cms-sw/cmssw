@@ -4,4 +4,3 @@
 
 DEFINE_FWK_MODULE(GenJetSelector);
 
-DEFINE_FWK_MODULE(GenJetRefSelector);

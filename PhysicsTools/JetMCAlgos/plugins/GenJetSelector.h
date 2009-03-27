@@ -1,5 +1,5 @@
 //
-// $Id: GenJetSelector.h,v 1.1 2009/03/14 21:33:13 vasquez Exp $
+// $Id: GenJetSelector.h,v 1.2 2009/03/24 14:34:23 hegner Exp $
 //
  
 #ifndef PhysicsTools_JetMCAlgos_GenJetSelector_h
@@ -18,11 +18,5 @@ typedef SingleObjectSelector<
             reco::GenJetCollection,
             StringCutObjectSelector<reco::GenJet>
         > GenJetSelector;
-
-typedef SingleObjectSelector<
-               reco::GenJetCollection,
-               StringCutObjectSelector<reco::GenJet>,
-               edm::RefVector<reco::GenJetCollection>
-        > GenJetRefSelector;
 
 #endif
