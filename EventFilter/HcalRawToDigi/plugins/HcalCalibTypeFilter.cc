@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HcalCalibTypeFilter.cc,v 1.7 2008/09/02 08:25:39 gruen Exp $
+// $Id: HcalCalibTypeFilter.cc,v 1.1 2009/02/13 15:17:45 mansj Exp $
 //
 //
 
@@ -57,6 +57,7 @@ private:
   
   std::string DataLabel_ ;
   bool        Summary_ ;
+  std::vector<int> CalibTypes_ ;   
   std::vector<int> eventsByType ; 
 
 };
@@ -70,7 +71,8 @@ HcalCalibTypeFilter::HcalCalibTypeFilter(const edm::ParameterSet& iConfig)
   //now do what ever initialization is needed
 
   DataLabel_  = iConfig.getParameter<std::string>("InputLabel") ;
-  Summary_    = iConfig.getParameter<bool>("FilterSummary") ;   
+  Summary_    = iConfig.getParameter<bool>("FilterSummary") ;
+  CalibTypes_ = iConfig.getParameter< std::vector<int> >("CalibTypes") ; 
 }
 
 
@@ -93,37 +95,33 @@ HcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   
-  if (iEvent.isRealData()) {
-
-    edm::Handle<FEDRawDataCollection> rawdata;  
-    iEvent.getByLabel(DataLabel_,rawdata);
+  edm::Handle<FEDRawDataCollection> rawdata;  
+  iEvent.getByLabel(DataLabel_,rawdata);
   
-    // checking FEDs for calibration information
-    int calibType = -1 ; 
-    for (int i=FEDNumbering::getHcalFEDIds().first; 
-	 i<=FEDNumbering::getHcalFEDIds().second; i++) {
+  // checking FEDs for calibration information
+  int calibType = -1 ;
+  std::vector<int> calibTypeCounter(8,0) ; 
+  for (int i=FEDNumbering::getHcalFEDIds().first; 
+       i<=FEDNumbering::getHcalFEDIds().second; i++) {
       const FEDRawData& fedData = rawdata->FEDData(i) ; 
       if ( fedData.size() < 24 ) continue ; 
       int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ; 
-      if ( calibType < 0 ) {
-	calibType = value ; 
-      } else { 
-	if ( calibType != value ) 
-	  edm::LogWarning("HcalCalibTypeFilter") << "Conflicting calibration types found: " 
-						 << calibType << " vs. " << value
-						 << ".  Staying with " << calibType ; 
-      }
-    }
-
-    LogDebug("HcalCalibTypeFilter") << "Calibration type is: " << calibType ; 
-
-    eventsByType.at(calibType)++ ; 
-    return ( calibType != 0 ) ; 
-
-} else {
-  return true;
-}
-
+      calibTypeCounter.at(value)++ ; // increment the counter for this calib type
+  }
+  int maxCount = 0 ;
+  int numberOfFEDIds = FEDNumbering::getHcalFEDIds().second - FEDNumbering::getHcalFEDIds().first + 1 ; 
+  for (unsigned int i=0; i<calibTypeCounter.size(); i++) {
+      if ( calibTypeCounter.at(i) > maxCount ) { calibType = i ; maxCount = calibTypeCounter.at(i) ; } 
+      if ( maxCount == numberOfFEDIds ) break ;
+  }
+  if ( maxCount != numberOfFEDIds ) 
+      edm::LogWarning("HcalCalibTypeFilter") << "Conflicting calibration types found.  Assigning type " 
+                                             << calibType ; 
+  LogDebug("HcalCalibTypeFilter") << "Calibration type is: " << calibType ; 
+  eventsByType.at(calibType)++ ;
+  for (unsigned int i=0; i<CalibTypes_.size(); i++) 
+      if ( calibType == CalibTypes_.at(i) ) return true ;
+  return false ; 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
