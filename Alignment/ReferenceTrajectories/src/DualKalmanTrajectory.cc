@@ -3,8 +3,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2008
-///  $Revision: 1.1 $
-///  $Date: 2008/10/14 07:40:04 $
+///  $Revision: 1.2 $
+///  $Date: 2008/10/20 12:58:22 $
 ///  (last update by $Author: flucke $)
  
 #include "Alignment/ReferenceTrajectories/interface/DualKalmanTrajectory.h"
@@ -161,7 +161,8 @@ bool DualKalmanTrajectory::fillKalmanPart(const Trajectory::DataContainer &trajM
   // startFirst==false: skip first hit of recHitNums
   // iNextHit: first hit number to fill data members with
   //
-  // Two approaches, choosen by 'residualMethod':
+  // Three approaches, choosen by 'residualMethod':
+  // 0: Just take hit error and the updated state as millepede needs it to redo the last fit step.
   // 1: Use the unbiased residuals as for residual monitoring.
   // 2: Use the _updated_ state and calculate the sigma that is part of
   //    the pull as sqrt(sigma_hit^2 - sigma_tsos^2).
@@ -170,33 +171,28 @@ bool DualKalmanTrajectory::fillKalmanPart(const Trajectory::DataContainer &trajM
   //    numerical instabilities, cf.:
   //    https://hypernews.cern.ch/HyperNews/CMS/get/recoTracking/517/1/1/1/1/1.html
 
-  if (residualMethod != 1 && residualMethod != 2) {
-    throw cms::Exception("BadConfig")
-      << "[DualKalmanTrajectory::fillKalmanPart] expect residualMethod == 1 or 2, not " 
-      << residualMethod << ".";
-  }
-
-//   TrajectoryStateCombiner tsosComb; // needed only for residualMethod==1
   for (unsigned int iMeas = (startFirst ? 0 : 1); iMeas < recHitNums.size(); ++iMeas, ++iNextHit) {
     const TrajectoryMeasurement &trajMeasurement = trajMeasurements[recHitNums[iMeas]];
-//     const TrajectoryStateOnSurface tsos = // depends on method
-//       (residualMethod == 1 ? tsosComb(trajMeasurement.forwardPredictedState(),
-// 				      trajMeasurement.backwardPredictedState())
-//                            : trajMeasurement.updatedState()); // for method 2 
-//
-//     if (!tsos.isValid()) return false;
-//     theTsosVec.push_back(tsos);
-//    
-//     if (residualMethod == 1) {
-//       if (!this->fillMeasurementAndError1(trajMeasurement.recHit(), iNextHit, tsos)) return false;
-//     } else {
-//       if (!this->fillMeasurementAndError2(trajMeasurement.recHit(), iNextHit, tsos)) return false;
-//     }
 
-    const TrajectoryStateOnSurface tsos = // depends on method
-      (residualMethod == 1 
-       ? this->fillMeasurementAndError1(trajMeasurement.recHit(), iNextHit, trajMeasurement)
-       : this->fillMeasurementAndError2(trajMeasurement.recHit(), iNextHit, trajMeasurement));
+    TrajectoryStateOnSurface tsos; // depends on method
+    switch (residualMethod) {
+    case 0:
+      tsos = this->fillMeasurementAndError2(trajMeasurement.recHit(), iNextHit, trajMeasurement,
+					    false); // plain hit error, not pull
+      break;
+    case 1:
+      tsos = this->fillMeasurementAndError1(trajMeasurement.recHit(), iNextHit, trajMeasurement);
+      break;
+    case 2:
+      tsos = this->fillMeasurementAndError2(trajMeasurement.recHit(), iNextHit, trajMeasurement,
+					    true); // error of pull
+      break;
+    default:
+      throw cms::Exception("BadConfig")
+	<< "[DualKalmanTrajectory::fillKalmanPart] expect residualMethod == 0, 1 or 2, not "
+	<< residualMethod << ".";
+    }
+
     if (!tsos.isValid()) return false;
     theTsosVec.push_back(tsos);
     
@@ -246,7 +242,8 @@ DualKalmanTrajectory::fillMeasurementAndError1(const ConstRecHitPointer &hitPtr,
 TrajectoryStateOnSurface
 DualKalmanTrajectory::fillMeasurementAndError2(const ConstRecHitPointer &hitPtr,
 					       unsigned int iHit,
-					       const TrajectoryMeasurement &trajMeasurement)
+					       const TrajectoryMeasurement &trajMeasurement,
+					       bool doPull)
 {
   // Get the measurements and their errors.
   // We have to subtract error of updated tsos from hit.
@@ -263,23 +260,25 @@ DualKalmanTrajectory::fillMeasurementAndError2(const ConstRecHitPointer &hitPtr,
     // - hit local errors are always without APE,
     // - the tsos errors include APE since they come from track fit.
     const LocalError hitErr(this->hitErrorWithAPE(hitPtr));
-    const LocalError tsosErr(tsos.localError().positionError());
-    
-    // Should not be possible to become negative if all is correct - see above.
-    if (hitErr.xx() < tsosErr.xx() || hitErr.yy() < tsosErr.yy()) {
-      edm::LogError("Alignment") << "@SUB=DualKalmanTrajectory::fillMeasurementAndError2"
-				 << "not OK in subdet " << hitPtr->geographicalId().subdetId()
-				 << "\ns_x " << sqrt(hitErr.xx()) << " " << sqrt(tsosErr.xx())
-				 << "\ns_xy " << hitErr.xy() << " " << tsosErr.xy()
-				 << "\ns_y " << sqrt(hitErr.yy()) << " " << sqrt(tsosErr.yy());
-      return TrajectoryStateOnSurface(); // is invalid state
-    }
 
-    // cf. Blobel/Lohrmann, p. 236:
-    // But numerical stability? Should we return false if difference very small compared to values?
-    const LocalError localMeasurementCov(hitErr.xx() - tsosErr.xx(), // tsos puts correlation in,
-					 hitErr.xy() - tsosErr.xy(), // even for 1D strip!
-					 hitErr.yy() - tsosErr.yy());
+    LocalError localMeasurementCov(hitErr.xx(), hitErr.xy(), hitErr.yy());
+    if (doPull) {
+      const LocalError tsosErr(tsos.localError().positionError());
+      // Should not be possible to become negative if all is correct - see above.
+      if (hitErr.xx() < tsosErr.xx() || hitErr.yy() < tsosErr.yy()) {
+	edm::LogError("Alignment") << "@SUB=DualKalmanTrajectory::fillMeasurementAndError2"
+				   << "not OK in subdet " << hitPtr->geographicalId().subdetId()
+				   << "\ns_x " << sqrt(hitErr.xx()) << " " << sqrt(tsosErr.xx())
+				   << "\ns_xy " << hitErr.xy() << " " << tsosErr.xy()
+				   << "\ns_y " << sqrt(hitErr.yy()) << " " << sqrt(tsosErr.yy());
+	return TrajectoryStateOnSurface(); // is invalid state
+      }
+      // cf. Blobel/Lohrmann, p. 236:
+      // But numerical stability? Should we return false if difference very small compared to values?
+      localMeasurementCov = LocalError(hitErr.xx() - tsosErr.xx(), // tsos puts correlation in,   
+				       hitErr.xy() - tsosErr.xy(), // even for 1D strip!	    
+				       hitErr.yy() - tsosErr.yy());
+    }
 
     theMeasurements[nMeasPerHit*iHit]   = localMeasurement.x();
     theMeasurements[nMeasPerHit*iHit+1] = localMeasurement.y();

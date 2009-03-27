@@ -235,6 +235,6 @@ DualKalmanFactory = cms.PSet(
     TrajectoryFactoryBase,
     ParticleMass = cms.double(0.10565836),
     TrajectoryFactoryName = cms.string('DualKalmanFactory'),
-    ResidualMethod = cms.int32(2) # 1: unbiased residuals, 2: pulls
+    ResidualMethod = cms.int32(0) # 0: hitErrors only, 1: unbiased residuals, 2: pulls
 )
 

@@ -9,14 +9,15 @@
 /// More precisely, the uncertainties are those of the residuals, i.e. of 
 /// measurements() - trajectoryPositions().
 ///
-/// Currently two methods to set residual and error can be choosen via cfg:
-///   1: the unbiased residal approach
-///   2: the pull approach
+/// Currently three methods to set residual and error can be choosen via cfg:
+///   0: the hitError approach, i.e. residual w.r.t. updated state, but error from hit
+///   1: the unbiased residal approach as in validation
+///   2: the pull approach, i.e. residal w.r.t. to updated state withits error
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2008
-///  $Revision: 1.1 $
-///  $Date: 2008/10/14 07:40:04 $
+///  $Revision: 1.2 $
+///  $Date: 2008/10/20 12:58:21 $
 ///  (last update by $Author: flucke $)
 
 
@@ -72,14 +73,16 @@ protected:
   bool fillKalmanPart(const Trajectory::DataContainer &trajMeasurements,
 		      const std::vector<unsigned int> &recHitNums, bool startFirst,
 		      unsigned int iNextHit, int residualMethod);
-  /// helper for 'unbiased residual' method
+  /// helper for 'unbiased residual' method (i.e. returns merged fwd/bwd states)
   TrajectoryStateOnSurface 
   fillMeasurementAndError1(const TransientTrackingRecHit::ConstRecHitPointer &hitPtr,
 			   unsigned int iHit, const TrajectoryMeasurement &trajMeasurement);
-  /// helper for 'pull' method
+  /// helper for 'pull' (doPull=true) or 'hitError' method (doPull=false),
+  /// returns updated tsos in both cases
   TrajectoryStateOnSurface 
   fillMeasurementAndError2(const TransientTrackingRecHit::ConstRecHitPointer &hitPtr,
-			   unsigned int iHit, const TrajectoryMeasurement &trajMeasurement);
+			   unsigned int iHit, const TrajectoryMeasurement &trajMeasurement,
+			   bool doPull);
 
   /// fill trajectoryPositions
   void fillTrajectoryPositions(const AlgebraicMatrix &projection,
