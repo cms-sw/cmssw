@@ -1,7 +1,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.cc,v 1.11 2008/07/25 17:06:51 giordano Exp $
+// $Id: SiStripQuality.cc,v 1.12 2008/08/21 11:10:17 giordano Exp $
 //
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
@@ -87,6 +87,26 @@ bool SiStripQuality::operator ==(const SiStripQuality& other) const{
 }
 bool SiStripQuality::operator !=(const SiStripQuality& other) const { return !(*this == other) ; }
 
+void SiStripQuality::add(const SiStripModuleHV *Voff){
+  std::vector<unsigned int> vect;
+  short firstStrip=0;
+  short range=0;
+
+  //Get vector of Voff dets
+  std::vector<uint32_t> vdets;
+  Voff->getDetIds(vdets);
+  std::vector<uint32_t>::const_iterator iter=vdets.begin();
+  std::vector<uint32_t>::const_iterator iterEnd=vdets.end();
+
+  for(;iter!=iterEnd;++iter){
+    vect.clear();
+    range =  reader->getNumberOfApvsAndStripLength(*iter).second*128.;
+    LogTrace("SiStripQuality") << "[add Voff] add detid " << *iter << std::endl;
+    vect.push_back(encode(firstStrip,range));
+    SiStripBadStrip::Range Range(vect.begin(),vect.end());
+    add(*iter,Range);
+  }
+}
 
 void SiStripQuality::add(const SiStripDetCabling *cab){
   SiStripDetCabling_=cab;
