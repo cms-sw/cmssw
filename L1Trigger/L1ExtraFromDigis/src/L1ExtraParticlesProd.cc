@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.25 2009/03/26 09:53:30 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.26 2009/03/27 23:22:12 wsun Exp $
 //
 //
 
@@ -32,8 +32,8 @@
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
+// #include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
+// #include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 
