@@ -1,16 +1,14 @@
-#include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
-#include "FWCore/Utilities/interface/CRC16.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include <iomanip>
 #include <ostream>
 #include <sstream>
 #include <cstring>
 
+#include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
+
 namespace sistrip {
 
-  FEDBuffer::FEDBuffer(const uint8_t* fedBuffer, size_t fedBufferSize, bool allowBadBuffer)
-    : FEDBufferBase(fedBuffer,fedBufferSize,allowBadBuffer)
+  FEDBuffer::FEDBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowBadBuffer)
+    : FEDBufferBase(fedBuffer,fedBufferSize,allowBadBuffer,false)
   {
     channels_.reserve(FEDCH_PER_FED);
     //build the correct type of FE header object
@@ -27,7 +25,7 @@ namespace sistrip {
 	uint8_t headerNibble = trackerSpecialHeader().headerTypeNibble();
 	printHex(&headerNibble,1,ss);
 	ss << ". ";
-	throw cms::Exception("FEDBuffer") << ss;
+	throw cms::Exception("FEDBuffer") << ss.str();
       }
     }
     payloadLength_ = getPointerToByteAfterEndOfPayload()-payloadPointer_;
@@ -44,19 +42,19 @@ namespace sistrip {
     // a value of '1' means a FE unit's data is missing (in old firmware versions it is always 0)
     else {
       for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
-        if (fedStatusRegister().feDataMissingFlag(iFE)) fePresent_[iFE] = false;
-        else fePresent_[iFE] = true;
+      if (fedStatusRegister().feDataMissingFlag(iFE)) fePresent_[iFE] = false;
+      else fePresent_[iFE] = true;
       }
     }
     //try to find channels
-    lastValidChannel_ = 0;
+    validChannels_ = 0;
     try {
       findChannels();
     } catch (const cms::Exception& e) {
       //if there was a problem either rethrow the exception or just mark channel pointers NULL
       if (!allowBadBuffer) throw;
       else {
-	channels_.insert(channels_.end(),size_t(FEDCH_PER_FED-lastValidChannel_),FEDChannel(payloadPointer_,0));
+        channels_.insert(channels_.end(),size_t(FEDCH_PER_FED-validChannels_),FEDChannel(payloadPointer_,0));
       }
     }
   }
@@ -73,26 +71,30 @@ namespace sistrip {
       if (!feGood(i/FEDCH_PER_FEUNIT)) {
 	channels_.insert(channels_.end(),size_t(FEDCH_PER_FEUNIT),FEDChannel(payloadPointer_,0));
 	i += FEDCH_PER_FEUNIT-1;
-	lastValidChannel_ += FEDCH_PER_FEUNIT;
+	validChannels_ += FEDCH_PER_FEUNIT;
 	continue;
       }
       //if FE unit is enabled
       //check that channel length bytes fit into buffer
       if (offsetBeginningOfChannel+2 >= payloadLength_) {
-	throw cms::Exception("FEDBuffer") << "Channel " << uint16_t(i) << " does not fit into buffer. "
-						 << "Channel starts at " << uint16_t(offsetBeginningOfChannel) << " in payload. "
-						 << "Payload length is " << uint16_t(payloadLength_) << ". ";
+	std::ostringstream ss;
+        ss << "Channel " << uint16_t(i) << " does not fit into buffer. "
+           << "Channel starts at " << uint16_t(offsetBeginningOfChannel) << " in payload. "
+           << "Payload length is " << uint16_t(payloadLength_) << ". ";
+        throw cms::Exception("FEDBuffer") << ss.str();
       }
       channels_.push_back(FEDChannel(payloadPointer_,offsetBeginningOfChannel));
       //get length and check that whole channel fits into buffer
       uint16_t channelLength = channels_.back().length();
       if (offsetBeginningOfChannel+channelLength > payloadLength_) {
-	throw cms::Exception("FEDBuffer") << "Channel " << uint16_t(i) << " does not fit into buffer. "
-						 << "Channel starts at " << uint16_t(offsetBeginningOfChannel) << " in payload. "
-						 << "Channel length is " << uint16_t(channelLength) << ". "
-						 << "Payload length is " << uint16_t(payloadLength_) << ". ";
+	std::ostringstream ss;
+        ss << "Channel " << uint16_t(i) << " does not fit into buffer. "
+           << "Channel starts at " << uint16_t(offsetBeginningOfChannel) << " in payload. "
+           << "Channel length is " << uint16_t(channelLength) << ". "
+           << "Payload length is " << uint16_t(payloadLength_) << ". ";
+        throw cms::Exception("FEDBuffer") << ss.str();
       }
-      lastValidChannel_++;
+      validChannels_++;
       const size_t offsetEndOfChannel = offsetBeginningOfChannel+channelLength;
       //add padding if necessary and calculate offset for begining of next channel
       if (!( (i+1) % FEDCH_PER_FEUNIT )) {
@@ -104,11 +106,18 @@ namespace sistrip {
       }
     }
   }
+  
+  bool FEDBuffer::channelGood(const uint8_t internalFEDChannelNum) const
+  {
+    return ( (internalFEDChannelNum < validChannels_) &&
+             feGood(internalFEDChannelNum/FEDCH_PER_FEUNIT) &&
+             checkStatusBits(internalFEDChannelNum) );
+  }
 
   bool FEDBuffer::doChecks() const
   {
     //check that all channels were unpacked properly
-    if (lastValidChannel_ != FEDCH_PER_FED) return false;
+    if (validChannels_ != FEDCH_PER_FED) return false;
     //do checks from base class
     if (!FEDBufferBase::doChecks()) return false;
     return true;
@@ -141,7 +150,7 @@ namespace sistrip {
 
   bool FEDBuffer::checkChannelLengths() const
   {
-    return (lastValidChannel_ == FEDCH_PER_FED);
+    return (validChannels_ == FEDCH_PER_FED);
   }
 
   bool FEDBuffer::checkChannelLengthsMatchBufferLength() const
@@ -175,7 +184,7 @@ namespace sistrip {
 
   bool FEDBuffer::checkChannelPacketCodes() const
   {
-    uint8_t correctPacketCode = getCorrectPacketCode();
+    const uint8_t correctPacketCode = getCorrectPacketCode();
     //if the readout mode if not one which has a packet code then this is set to zero. in this case return true
     if (!correctPacketCode) return true;
     for (uint8_t iCh = 0; iCh < FEDCH_PER_FED; iCh++) {
@@ -225,7 +234,7 @@ namespace sistrip {
     return true;
   }
   
-  uint16_t FEDBuffer::calculateFEUnitLength(uint8_t internalFEUnitNumber) const
+  uint16_t FEDBuffer::calculateFEUnitLength(const uint8_t internalFEUnitNumber) const
   {
     //get length from channels
     uint16_t lengthFromChannels = 0;
@@ -257,16 +266,29 @@ namespace sistrip {
     }
     summary << "Check channel status bits: " << ( checkAllChannelStatusBits() ? "passed" : "FAILED" ) << std::endl;
     if (!checkAllChannelStatusBits()) {
-      summary << "Channels with errors: ";
       unsigned int badChannels = 0;
-      for (uint8_t iCh = 0; iCh < FEDCH_PER_FED; iCh++) {
-	if (!feGood(iCh/FEDCH_PER_FEUNIT)) continue;
-	if (!checkStatusBits(iCh)) {
-	  summary << uint16_t(iCh) << " ";
-	  badChannels++;
-	}
-      }
-      summary << std::endl;
+      if (headerType() == HEADER_TYPE_FULL_DEBUG) {
+        const FEDFullDebugHeader* fdHeader = dynamic_cast<FEDFullDebugHeader*>(feHeader_.get());
+        if (fdHeader) {
+          for (uint8_t iCh = 0; iCh < FEDCH_PER_FED; iCh++) {
+            if (!feGood(iCh/FEDCH_PER_FEUNIT)) continue;
+            if (!checkStatusBits(iCh)) {
+              summary << uint16_t(iCh) << ": " << fdHeader->getChannelStatus(iCh) << std::endl;
+              badChannels++;
+            }
+          }
+        }
+      } else {
+        summary << "Channels with errors: ";
+        for (uint8_t iCh = 0; iCh < FEDCH_PER_FED; iCh++) {
+          if (!feGood(iCh/FEDCH_PER_FEUNIT)) continue;
+          if (!checkStatusBits(iCh)) {
+            summary << uint16_t(iCh) << " ";
+            badChannels++;
+          }
+        }
+        summary << std::endl;
+      } 
       summary << "Number of channels with bad status bits: " << badChannels << std::endl;
     }
     summary << "Check channel lengths match buffer length: " << ( checkChannelLengthsMatchBufferLength() ? "passed" : "FAILED" ) << std::endl;
@@ -349,24 +371,46 @@ namespace sistrip {
   void FEDBuffer::print(std::ostream& os) const
   {
     FEDBufferBase::print(os);
-    if (headerType() == HEADER_TYPE_FULL_DEBUG) os << "FE units with data: " << uint16_t(nFEUnitsPresent()) << std::endl;
+    if (headerType() == HEADER_TYPE_FULL_DEBUG) {
+      os << "FE units with data: " << uint16_t(nFEUnitsPresent()) << std::endl;
+      os << "BE status register flags: ";
+      dynamic_cast<const FEDFullDebugHeader*>(feHeader())->beStatusRegister().printFlags(os);
+      os << std::endl;
+    }
   }
 
 
 
 
-  FEDBufferBase::FEDBufferBase(const uint8_t* fedBuffer, size_t fedBufferSize, bool allowUnrecognizedFormat)
+  FEDBufferBase::FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat)
+    : channels_(FEDCH_PER_FED,FEDChannel(NULL,0,0)),
+      originalBuffer_(fedBuffer),
+      bufferSize_(fedBufferSize)
+  {
+    init(fedBuffer,fedBufferSize,allowUnrecognizedFormat);
+  }
+  
+  FEDBufferBase::FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat, const bool fillChannelVector)
     : originalBuffer_(fedBuffer),
       bufferSize_(fedBufferSize)
+  {
+    init(fedBuffer,fedBufferSize,allowUnrecognizedFormat);
+    if (fillChannelVector) channels_.assign(FEDCH_PER_FED,FEDChannel(NULL,0,0));
+  }
+  
+  void FEDBufferBase::init(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat)
   {
     //min buffer length. DAQ header, DAQ trailer, tracker special header. 
     static const size_t MIN_BUFFER_SIZE = 8+8+8;
     //check size is non zero and data pointer is not NULL
-    if (!originalBuffer_) throw cms::Exception("FEDBuffer") << "Buffer pointer is NULL. ";
-    if (bufferSize_ < MIN_BUFFER_SIZE) 
-      throw cms::Exception("FEDBuffer") << "Buffer is too small. "
-					       << "Min size is " << MIN_BUFFER_SIZE << ". "
-					       << "Buffer size is " << bufferSize_ << ". ";
+    if (!originalBuffer_) throw cms::Exception("FEDBuffer") << "Buffer pointer is NULL.";
+    if (bufferSize_ < MIN_BUFFER_SIZE) {
+      std::ostringstream ss;
+      ss << "Buffer is too small. "
+         << "Min size is " << MIN_BUFFER_SIZE << ". "
+         << "Buffer size is " << bufferSize_ << ". ";
+      throw cms::Exception("FEDBuffer") << ss.str();
+    }
   
     //construct tracker special header using second 64 bit word
     specialHeader_ = TrackerSpecialHeader(originalBuffer_+8);
@@ -374,10 +418,10 @@ namespace sistrip {
     //check the buffer format
     const FEDBufferFormat bufferFormat = specialHeader_.bufferFormat();
     if (bufferFormat == BUFFER_FORMAT_INVALID && !allowUnrecognizedFormat) {
-      cms::Exception e("FEDBuffer");
-      e << "Buffer format not recognized. "
-	<< "Tracker special header: " << specialHeader_;
-      throw e;
+      std::ostringstream ss;
+      ss << "Buffer format not recognized. "
+         << "Tracker special header: " << specialHeader_;
+      throw cms::Exception("FEDBuffer") << ss.str();
     }
     //swap the buffer words so that the whole buffer is in slink ordering
     if ( (bufferFormat == BUFFER_FORMAT_OLD_VME) || (bufferFormat == BUFFER_FORMAT_NEW) ) {
@@ -421,24 +465,6 @@ namespace sistrip {
     if (orderedBuffer_ != originalBuffer_) delete[] orderedBuffer_;
   }
 
-  uint16_t FEDBufferBase::calcCRC() const
-  {
-    uint16_t crc = 0xFFFF;
-    for (size_t i = 0; i < bufferSize_-8; i++) {
-      crc = evf::compute_crc_8bit(crc,orderedBuffer_[i^7]);
-    }
-    for (size_t i=bufferSize_-8; i<bufferSize_; i++) {
-      uint8_t byte;
-      //set CRC bytes to zero since these were not set when CRC was calculated
-      if (i==bufferSize_-4 || i==bufferSize_-3)
-	byte = 0x00;
-      else
-	byte = orderedBuffer_[i^7];
-      crc = evf::compute_crc_8bit(crc,byte);
-    }
-    return crc;
-  }
-
   void FEDBufferBase::print(std::ostream& os) const
   {
     os << "buffer format: " << bufferFormat() << std::endl;
@@ -468,8 +494,8 @@ namespace sistrip {
 
   bool FEDBufferBase::checkSourceIDs() const
   {
-    return ( (daqSourceID() >= FEDNumbering::getSiStripFEDIds().first) &&
-	     (daqSourceID() <= FEDNumbering::getSiStripFEDIds().second) );
+    return ( (daqSourceID() >= FED_ID_MIN) &&
+	     (daqSourceID() <= FED_ID_MAX) );
   }
   
   bool FEDBufferBase::checkMajorityAddresses() const
@@ -480,7 +506,13 @@ namespace sistrip {
     }
     return true;
   }
-
+  
+  bool FEDBufferBase::channelGood(const uint8_t internalFEDChannelNum) const
+  {
+    const uint8_t feUnit = internalFEDChannelNum/FEDCH_PER_FEUNIT;
+    return ( !majorityAddressErrorForFEUnit(feUnit) && feEnabled(feUnit) && !feOverflow(feUnit) );
+  }
+  
   bool FEDBufferBase::doChecks() const
   {
     return (doTrackerSpecialHeaderChecks() && doDAQHeaderAndTrailerChecks());
@@ -533,7 +565,7 @@ namespace sistrip {
 
 
 
-  void FEDRawChannelUnpacker::throwBadChannelLength(uint16_t length)
+  void FEDRawChannelUnpacker::throwBadChannelLength(const uint16_t length)
   {
     std::stringstream ss;
     ss << "Channel length is invalid. Raw channels have 3 header bytes and 2 bytes per sample. "
@@ -545,7 +577,7 @@ namespace sistrip {
 
 
 
-  void FEDZSChannelUnpacker::throwBadChannelLength(uint16_t length)
+  void FEDZSChannelUnpacker::throwBadChannelLength(const uint16_t length)
   {
     std::stringstream ss;
     ss << "Channel length is longer than max allowed value. "

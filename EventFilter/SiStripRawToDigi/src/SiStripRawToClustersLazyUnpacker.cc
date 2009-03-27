@@ -277,7 +277,7 @@ namespace sistrip {
 	
 	  // unpack
 	  while (unpacker.hasData()) {
-	    clusterizer_->stripByStripAdd(unpacker.strip()+ipair*256,unpacker.adc(),record);
+	    clusterizer_->stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),record);
 	    unpacker++;
 	  }
 	}
@@ -289,7 +289,7 @@ namespace sistrip {
 	
 	  // unpack
 	  while (unpacker.hasData()) {
-	    clusterizer_->stripByStripAdd(unpacker.strip()+ipair*256,unpacker.adc(),record);
+	    clusterizer_->stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),record);
 	    unpacker++;
 	  }
 	}

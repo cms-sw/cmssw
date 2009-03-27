@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRaw.h,v 1.18 2009/03/26 18:56:05 bainbrid Exp $
+// Last commit: $Id: SiStripDigiToRaw.h,v 1.19 2009/03/27 10:21:52 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H
 #define EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H
@@ -9,6 +9,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "boost/cstdint.hpp"
 #include <string>
+
+#include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferGenerator.h"
 
 class SiStripFedCabling;
 class FEDRawDataCollection;
@@ -45,6 +47,7 @@ namespace sistrip {
     std::string readoutMode_;
     uint16_t nAppendedBytes_;
     bool useFedKey_;
+    FEDBufferGenerator bufferGenerator_;
     
   };
   

@@ -660,7 +660,7 @@ namespace sistrip {
 	
 	  /// unpack -> add check to make sure strip < nstrips && strip > last strip......
 
-	  while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.strip()+ipair*256,unpacker.adc()));unpacker++;}
+	  while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
 	
 	  regItem.length = zs_work_digis_.size() - regItem.index;
 	  if (regItem.length > 0) {
@@ -677,7 +677,7 @@ namespace sistrip {
 	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer_->channel(iconn->fedCh()));
 	
 	  /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-	  while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.strip()+ipair*256,unpacker.adc()));unpacker++;}
+	  while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
 	
 	  regItem.length = zs_work_digis_.size() - regItem.index;
 	  if (regItem.length > 0) {
