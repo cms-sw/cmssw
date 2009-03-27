@@ -16,6 +16,18 @@ L1SubsystemParams = cms.PSet(
             key = cms.string('dummy')
         ), 
         cms.PSet(
+            record = cms.string('L1HtMissScaleRcd'),
+            tag = cms.string('L1HtMissScale_IDEAL'),
+            type = cms.string('L1CaloEtScale'),
+            key = cms.string('dummy')
+        ), 
+        cms.PSet(
+            record = cms.string('L1HfRingEtScaleRcd'),
+            tag = cms.string('L1HfRingEtScale_IDEAL'),
+            type = cms.string('L1CaloEtScale'),
+            key = cms.string('dummy')
+        ), 
+        cms.PSet(
             record = cms.string('L1MuTriggerScalesRcd'),
             tag = cms.string('L1MuTriggerScales_IDEAL'),
             type = cms.string('L1MuTriggerScales'),
