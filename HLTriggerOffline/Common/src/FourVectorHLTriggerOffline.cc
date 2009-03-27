@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.15 2009/03/27 01:31:27 berryhil Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.16 2009/03/27 02:19:42 berryhil Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -337,7 +337,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	if (genParticles.isValid()){
            for(size_t i = 0; i < genParticles->size(); ++ i) {
           const GenParticle & p = (*genParticles)[i];
-          if (abs(p.pdgId()) == 13 && p.status() == 3 && fabs(p.eta()) <= muonEtaMax_ && p.pt() >= muonEtMin_){
+          if (abs(p.pdgId()) == 13 && p.status() == 1 && fabs(p.eta()) <= muonEtaMax_ && p.pt() >= muonEtMin_){
             NMc++;
 	    v->getMcEtMcHisto()->Fill(p.pt());
 	    v->getMcEtaVsMcPhiMcHisto()->Fill(p.eta(),p.phi());
