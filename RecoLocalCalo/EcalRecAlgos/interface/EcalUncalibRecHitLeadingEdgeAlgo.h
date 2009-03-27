@@ -16,19 +16,20 @@
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
-// not good to depend on simulation... FIXME
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 template < class C > class EcalUncalibRecHitLeadingEdgeAlgo : public EcalUncalibRecHitRecAbsAlgo < C > {
       public:
 	// destructor
-	EcalUncalibRecHitLeadingEdgeAlgo < C > () : leadingSample_(0) { };
+	EcalUncalibRecHitLeadingEdgeAlgo < C > () : leadingSample_(0), shape_(0) { };
 	virtual ~ EcalUncalibRecHitLeadingEdgeAlgo < C > () { };
 
         void setLeadingEdgeSample( int isample ) { leadingSample_ = isample; }
         int getLeadingEdgeSample() { return leadingSample_; }
+
+        void setPulseShape( std::vector<double> & shape ) { shape_ = shape; }
+        std::vector<double> & getPulseShape() { return shape_; }
 
 	/// Compute parameters
 	virtual EcalUncalibratedRecHit makeRecHit(const C & dataFrame, 
@@ -54,20 +55,17 @@ template < class C > class EcalUncalibRecHitLeadingEdgeAlgo : public EcalUncalib
 	// saturation correction  
 	double saturationCorrection(int unsaturatedSample)
         {
-		// get the EcalShape
-		EcalSimParameterMap parameterMap;
-		EBDetId barrel(1, 1);
-		double thisPhase = parameterMap.simParameters(barrel).timePhase();	// (theShape)(thisPhase) = 1
-		EcalShape theShape(thisPhase);
-		double tzero = thisPhase - (parameterMap.simParameters(barrel).binOfMaximum() - 1.) * 25.;
-		double correction = 1./ (theShape) (tzero + unsaturatedSample * 25.0);
-
-		//std::cout<< "saturation correction = " << correction << std::endl; 
-
-		return correction;
+                if ( unsaturatedSample > 0 && unsaturatedSample < (int)shape_.size() ) {
+                        return 1./ shape_[ unsaturatedSample ];
+                } else {
+                        edm::LogError("EcalUncalibRecHitLeadingEdgeAlgo") << "Invalid sample " << unsaturatedSample 
+                                << " for a shape vector of size " << shape_.size();
+                        return 0;
+                }
 	}
 
         private:
                 int leadingSample_;
+                std::vector< double > shape_;
 };
 #endif

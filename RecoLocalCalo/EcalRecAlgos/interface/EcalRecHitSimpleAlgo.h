@@ -4,9 +4,9 @@
 /** \class EcalRecHitSimpleAlgo
   *  Simple algoritm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitSimpleAlgo.h,v 1.1 2006/03/10 08:38:19 rahatlou Exp $
-  *  $Date: 2006/03/10 08:38:19 $
-  *  $Revision: 1.1 $
+  *  $Id: EcalRecHitSimpleAlgo.h,v 1.2 2008/10/17 10:16:55 meridian Exp $
+  *  $Date: 2008/10/17 10:16:55 $
+  *  $Revision: 1.2 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -32,15 +32,17 @@ class EcalRecHitSimpleAlgo : public EcalRecHitAbsAlgo {
 
   /// Compute parameters
   virtual EcalRecHit makeRecHit(const EcalUncalibratedRecHit& uncalibRH,
-                                const float& intercalibConstant) const {
+                                const float& intercalibConstant,
+                                const float& timeIntercalib = 0) const {
 
     if(!adcToGeVConstantIsSet_) {
       std::cout << "EcalRecHitSimpleAlgo::makeRecHit: adcToGeVConstant_ not set before calling this method!" << 
                    " will use -1 and produce bogus rechits!" << std::endl;
     }
 
+    float clockToNsConstant = 25;
     float energy = uncalibRH.amplitude()*adcToGeVConstant_*intercalibConstant;
-    float time   = uncalibRH.jitter();
+    float time   = uncalibRH.jitter() * clockToNsConstant + timeIntercalib;
     if (uncalibRH.isSaturated())
       time = EcalRecHit::kSATURATED;
 

@@ -4,9 +4,9 @@
 /** \class EcalRecHitAbsAlgo
   *  Template algorithm to make rechits from uncalibrated rechits
   *
-  *  $Id: $
-  *  $Date:  $
-  *  $Revision: $
+  *  $Id: EcalRecHitAbsAlgo.h,v 1.1 2006/03/10 08:38:19 rahatlou Exp $
+  *  $Date: 2006/03/10 08:38:19 $
+  *  $Revision: 1.1 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -27,7 +27,7 @@ class EcalRecHitAbsAlgo
   /// make rechits from dataframes
 
   virtual void setADCToGeVConstant(const float& value) = 0;
-  virtual EcalRecHit makeRecHit(const EcalUncalibratedRecHit& uncalibRH, const float& intercalib) const = 0;
+  virtual EcalRecHit makeRecHit(const EcalUncalibratedRecHit& uncalibRH, const float& intercalib, const float& timecalib) const = 0;
 
 };
 #endif
