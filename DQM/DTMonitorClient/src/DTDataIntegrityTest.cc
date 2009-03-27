@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2009/02/17 16:22:37 $
- * $Revision: 1.25 $
+ * $Date: 2009/03/27 13:19:58 $
+ * $Revision: 1.26 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -133,7 +133,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
   counter++;
 
   //Loop on FED id
-  for (int dduId=FEDNumbering::getDTFEDIds().first; dduId<FEDNumbering::getDTFEDIds().second; ++dduId) {
+  for (int dduId=FEDNumbering::MINDTFEDID; dduId<FEDNumbering::MAXDTFEDID; ++dduId){
     LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest")
       <<"[DTDataIntegrityTest]:FED Id: "<<dduId;
  
