@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbOmds.h
-// $Id: HcalDbOmds.h,v 1.3 2009/03/16 01:43:24 kukartse Exp $
+// $Id: HcalDbOmds.h,v 1.4 2009/03/25 23:41:44 kukartse Exp $
 //
 //
 #ifndef HcalDbOmds_h
@@ -15,6 +15,7 @@
 #include "occi.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 
 using namespace oracle::occi;
@@ -24,7 +25,7 @@ using namespace oracle::occi;
    \class HcalDbOmds
    \brief IO for OMDS instances of Hcal Calibrations
    \author Gena Kukartsev March 11, 2009
-   $Id: HcalDbOmds.h,v 1.3 2009/03/16 01:43:24 kukartse Exp $
+   $Id: HcalDbOmds.h,v 1.4 2009/03/25 23:41:44 kukartse Exp $
    
 Text file formats for different data types is as following:
 - # in first column comments the line
@@ -125,5 +126,14 @@ namespace HcalDbOmds {
   bool dumpObject (std::ostream& fOutput, const HcalL1TriggerObjects& fObject);
 
   HcalSubdetector get_subdetector( std::string _det );
+  HcalZDCDetId::Section get_zdc_section( std::string _section );
+
+  // get the proper detId from the result of the oracle query
+  // assumed that channel info comes in from of the ResultSet
+  // in the following order (some may not be filled):
+  // 1.objectname, ( values: HcalDetId, HcalCalibDetId, HcalTrigTowerDetId, HcalZDCDetId or HcalCastorDetId)
+  // 2.subdet, 3.ieta, 4.iphi, 5.depth, 6.type, 7.section, 8.ispositiveeta, 9.sector, 10.module, 11.channel 
+  DetId getId(oracle::occi::ResultSet * rs);
+  
 } 
 #endif

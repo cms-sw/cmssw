@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalOmdsCalibrations
-// $Id: HcalOmdsCalibrations.cc,v 1.5 2009/03/26 03:55:49 kukartse Exp $
+// $Id: HcalOmdsCalibrations.cc,v 1.6 2009/03/26 13:58:37 kukartse Exp $
 //
 //
 
@@ -158,7 +158,7 @@ std::auto_ptr<HcalPedestals> HcalOmdsCalibrations::producePedestals (const HcalP
 }
 
 std::auto_ptr<HcalPedestalWidths> HcalOmdsCalibrations::producePedestalWidths (const HcalPedestalWidthsRcd&) {
-  return produce_impl<HcalPedestalWidths> (mInputs ["PedestalWidths"]);
+  return produce_impl<HcalPedestalWidths> (mInputs ["PedestalWidths"], mVersion["PedestalWidths"], mSubversion["PedestalWidths"], mQuery["PedestalWidths"], mAccessor["PedestalWidths"]);
 }
 
 std::auto_ptr<HcalGains> HcalOmdsCalibrations::produceGains (const HcalGainsRcd&) {
@@ -170,7 +170,7 @@ std::auto_ptr<HcalGainWidths> HcalOmdsCalibrations::produceGainWidths (const Hca
 }
 
 std::auto_ptr<HcalQIEData> HcalOmdsCalibrations::produceQIEData (const HcalQIEDataRcd& rcd) {
-  return produce_impl<HcalQIEData> (mInputs ["QIEData"]);
+  return produce_impl<HcalQIEData> (mInputs ["QIEData"], mVersion["QIEData"], mSubversion["QIEData"], mQuery["QIEData"], mAccessor["QIEData"]);
 }
 
 std::auto_ptr<HcalChannelQuality> HcalOmdsCalibrations::produceChannelQuality (const HcalChannelQualityRcd& rcd) {
@@ -186,10 +186,10 @@ std::auto_ptr<HcalRespCorrs> HcalOmdsCalibrations::produceRespCorrs (const HcalR
 }
 
 std::auto_ptr<HcalL1TriggerObjects> HcalOmdsCalibrations::produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd) {
-  return produce_impl<HcalL1TriggerObjects> (mInputs ["L1TriggerObjects"]);
+  return produce_impl<HcalL1TriggerObjects> (mInputs ["L1TriggerObjects"], mVersion["L1TriggerObjects"], mSubversion["L1TriggerObjects"], mQuery["L1TriggerObjects"], mAccessor["L1TriggerObjects"]);
 }
 
 std::auto_ptr<HcalElectronicsMap> HcalOmdsCalibrations::produceElectronicsMap (const HcalElectronicsMapRcd& rcd) {
-  return produce_impl<HcalElectronicsMap> (mInputs ["ElectronicsMap"]);
+  return produce_impl<HcalElectronicsMap> (mInputs ["ElectronicsMap"], mVersion["ElectronicsMap"], mSubversion["ElectronicsMap"], mQuery["ElectronicsMap"], mAccessor["ElectronicsMap"]);
 }
 

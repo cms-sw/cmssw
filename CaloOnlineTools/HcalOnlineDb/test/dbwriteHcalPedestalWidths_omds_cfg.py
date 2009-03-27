@@ -22,17 +22,19 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.es_ascii = cms.ESSource("HcalOmdsCalibrations",
     input = cms.VPSet(cms.PSet(
-        object = cms.string('Pedestals'),
+        object = cms.string('PedestalWidths'),
         tag = cms.string('DUMMY-TAG-TEST001'),
         version = cms.string('TEST:1'),
         subversion = cms.int32(1),
         accessor = cms.string('occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44,LHWM_VERSION=22'),
         query = cms.string('''
-        SELECT IS_ADC_COUNTS, 
-               CAPACITOR_0_VALUE, CAPACITOR_1_VALUE, CAPACITOR_2_VALUE, CAPACITOR_3_VALUE, 
-               SIGMA_0_0, SIGMA_1_1, SIGMA_2_2, SIGMA_3_3, 
-               ieta, iphi, depth, subdet 
-        FROM CMS_HCL_HCAL_COND.V_HCAL_PEDESTALS_V3
+        SELECT OBJECTNAME, SUBDET, IETA, IPHI, DEPTH, TYPE, SECTION, ISPOSITIVEETA, SECTOR, MODULE, CHANNEL, 
+               IS_ADC_COUNTS,
+               COVARIANCE_00, COVARIANCE_01, COVARIANCE_02, COVARIANCE_03, 
+               COVARIANCE_10, COVARIANCE_11, COVARIANCE_12, COVARIANCE_13, 
+               COVARIANCE_20, COVARIANCE_21, COVARIANCE_22, COVARIANCE_23, 
+               COVARIANCE_30, COVARIANCE_31, COVARIANCE_32, COVARIANCE_33 
+        FROM CMS_HCL_HCAL_COND.V_HCAL_PEDESTAL_WIDTHS_V3
         WHERE
           TAG_NAME=:1
         and
@@ -46,13 +48,13 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     timetype = cms.untracked.string('runnumber'),
     logconnect= cms.untracked.string('sqlite_file:log.db'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('HcalPedestalsRcd'),
+        record = cms.string('HcalPedestalWidthsRcd'),
         tag = cms.string('hcal_resp_corrs_trivial_mc')
          ))
 )
 
-process.mytest = cms.EDAnalyzer("HcalPedestalsPopConAnalyzer",
-    record = cms.string('HcalPedestalsRcd'),
+process.mytest = cms.EDAnalyzer("HcalPedestalWidthsPopConAnalyzer",
+    record = cms.string('HcalPedestalWidthsRcd'),
     loggingOn= cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(
