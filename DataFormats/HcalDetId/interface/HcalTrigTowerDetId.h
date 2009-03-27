@@ -9,8 +9,8 @@
     
 Cell id for an Calo Trigger tower
 
-   $Date: 2006/02/16 17:01:57 $
-   $Revision: 1.7 $
+   $Date: 2007/07/31 15:20:09 $
+   $Revision: 1.8 $
    \author J. Mans - Minnesota
 */
 class HcalTrigTowerDetId : public DetId {
@@ -22,6 +22,9 @@ public:
   /** \brief Constructor from signed ieta, iphi
   */
   HcalTrigTowerDetId(int ieta, int iphi);
+  /** \brief Constructor from signed ieta, iphi, depth
+  */
+  HcalTrigTowerDetId(int ieta, int iphi, int depth);
 
   /** Constructor from a generic cell id */
   HcalTrigTowerDetId(const DetId& id);
@@ -38,6 +41,8 @@ public:
   int ieta() const { return zside()*ietaAbs(); }
   /// get the tower iphi
   int iphi() const { return id_&0x7F; }
+  /// get the depth (zero for LHC, may be nonzero for SuperCMS)
+  int depth() const { return (id_>>14)&0x7; }
 
   static const HcalTrigTowerDetId Undefined;
 
