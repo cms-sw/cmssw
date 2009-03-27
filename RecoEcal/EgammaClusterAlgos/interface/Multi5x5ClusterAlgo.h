@@ -16,6 +16,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalRecHitLess.h"
+#include "DataFormats/CaloRecHit/interface/CaloID.h"
 
 // C/C++ headers
 #include <string>
@@ -28,7 +29,6 @@ class Multi5x5ClusterAlgo
 {
  public:
   
-  enum EcalPart { barrel = 0, endcap = 1 };
   enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 }; 
 
   Multi5x5ClusterAlgo() {
@@ -53,7 +53,7 @@ class Multi5x5ClusterAlgo
                                                const CaloSubdetectorGeometry *geometry,
                                                const CaloSubdetectorTopology *topology_p,
                                                const CaloSubdetectorGeometry *geometryES_p,
-                                               EcalPart ecalPart,
+					       reco::CaloID::Detectors detector,
 					       bool regional = false,
 					       const std::vector<EcalEtaPhiRegion>& regions = std::vector<EcalEtaPhiRegion>());
 
@@ -65,6 +65,8 @@ class Multi5x5ClusterAlgo
   //algo to compute position of clusters
   PositionCalc posCalculator_;
 
+  /// The ecal region used
+  reco::CaloID::Detectors detector_;
 
   // Energy required for a seed:
   double ecalBarrelSeedThreshold;
@@ -83,7 +85,7 @@ class Multi5x5ClusterAlgo
 
 
   // The vector of DetId's in the cluster currently reconstructed
-  std::vector< std::pair<DetId, float> > current_v;
+  std::vector<std::pair<DetId, float> > current_v;
 
   // The vector of clusters
   std::vector<reco::BasicCluster> clusters_v;
@@ -94,8 +96,7 @@ class Multi5x5ClusterAlgo
   void mainSearch(const EcalRecHitCollection* hits,
                   const CaloSubdetectorGeometry *geometry_p,
                   const CaloSubdetectorTopology *topology_p,
-		  const CaloSubdetectorGeometry *geometryES_p,
-                  EcalPart ecalPart);
+		  const CaloSubdetectorGeometry *geometryES_p);
 
   // Is the crystal at the navigator position a 
   // local maxiumum in energy?
@@ -119,7 +120,7 @@ class Multi5x5ClusterAlgo
   void makeCluster(const EcalRecHitCollection* hits,
                    const CaloSubdetectorGeometry *geometry_p,
                    const CaloSubdetectorGeometry *geometryES_p, 
-	           double &seedEnergy);
+                   const EcalRecHitCollection::const_iterator &seedIt);
 
  };
 
