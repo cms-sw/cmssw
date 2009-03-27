@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTOnline.h,v 1.17 2009/02/26 22:30:17 berryhil Exp $
+// $Id: FourVectorHLTOnline.h,v 1.18 2009/03/27 03:13:58 berryhil Exp $
 //
 //
 
@@ -45,7 +45,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-
 
 class FourVectorHLTOnline : public edm::EDAnalyzer {
    public:
@@ -81,18 +80,25 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
       
       double electronEtaMax_;
       double electronEtMin_;
+      double electronDRMatch_;
       double muonEtaMax_;
       double muonEtMin_;
+      double muonDRMatch_;
       double tauEtaMax_;
       double tauEtMin_;
+      double tauDRMatch_;
       double jetEtaMax_;
       double jetEtMin_;
+      double jetDRMatch_;
       double bjetEtaMax_;
       double bjetEtMin_;
+      double bjetDRMatch_;
       double photonEtaMax_;
       double photonEtMin_;
+      double photonDRMatch_;
       double trackEtaMax_;
       double trackEtMin_;
+      double trackDRMatch_;
       double metMin_;
       double htMin_;
       double sumEtMin_;
@@ -125,7 +131,12 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
 		       MonitorElement* const l1Etavsl1PhiL1,
                        MonitorElement* const NL1On, 
                        MonitorElement* const l1EtL1On, 
-		       MonitorElement* const l1Etavsl1PhiL1On) {
+		       MonitorElement* const l1Etavsl1PhiL1On,
+                       MonitorElement* const NL1OnUM, 
+                       MonitorElement* const l1EtL1OnUM, 
+		       MonitorElement* const l1Etavsl1PhiL1OnUM)
+
+          {
           NOn_ = NOn;
 	  onEtOn_ = onEtOn;
 	  onEtavsonPhiOn_ = onEtavsonPhiOn;
@@ -135,6 +146,9 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
           NL1On_ = NL1On;
 	  l1EtL1On_ = l1EtL1On;
 	  l1Etavsl1PhiL1On_ = l1Etavsl1PhiL1On;
+          NL1OnUM_ = NL1OnUM;
+	  l1EtL1OnUM_ = l1EtL1OnUM;
+	  l1Etavsl1PhiL1OnUM_ = l1Etavsl1PhiL1OnUM;
 	}
 	MonitorElement * getNOnHisto() {
 	  return NOn_;
@@ -162,6 +176,15 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
 	}
 	MonitorElement * getL1EtaVsL1PhiL1OnHisto() {
 	  return l1Etavsl1PhiL1On_;
+	}
+	MonitorElement * getNL1OnUMHisto() {
+	  return NL1OnUM_;
+	}
+	MonitorElement * getL1EtL1OnUMHisto() {
+	  return l1EtL1OnUM_;
+	}
+	MonitorElement * getL1EtaVsL1PhiL1OnUMHisto() {
+	  return l1Etavsl1PhiL1OnUM_;
 	}
 	const std::string getLabel(void ) const {
 	  return filterName_;
@@ -197,6 +220,7 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
           NOn_(0), onEtOn_(0), onEtavsonPhiOn_(0),
 	  NL1_(0), l1EtL1_(0), l1Etavsl1PhiL1_(0),
           NL1On_(0), l1EtL1On_(0), l1Etavsl1PhiL1On_(0),
+          NL1OnUM_(0), l1EtL1OnUM_(0), l1Etavsl1PhiL1OnUM_(0),
 	  ptmin_(ptmin), ptmax_(ptmax)
 	  {
 	  };
@@ -210,12 +234,16 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
 		   MonitorElement *NL1On,
 		   MonitorElement *l1EtL1On,
 		   MonitorElement *l1Etavsl1PhiL1On,
+		   MonitorElement *NL1OnUM,
+		   MonitorElement *l1EtL1OnUM,
+		   MonitorElement *l1Etavsl1PhiL1OnUM,
 		   float ptmin, float ptmax
 		   ):
 	    denomPathName_(denomPathName), pathName_(pathName), l1pathName_(l1pathName), filterName_(filterName), processName_(processName), objectType_(type),
             NOn_(NOn), onEtOn_(onEtOn), onEtavsonPhiOn_(onEtavsonPhiOn),
 	    NL1_(NL1), l1EtL1_(l1EtL1), l1Etavsl1PhiL1_(l1Etavsl1PhiL1),
             NL1On_(NL1On), l1EtL1On_(l1EtL1On), l1Etavsl1PhiL1On_(l1Etavsl1PhiL1On),
+            NL1OnUM_(NL1OnUM), l1EtL1OnUM_(l1EtL1OnUM), l1Etavsl1PhiL1OnUM_(l1Etavsl1PhiL1OnUM),
 	    ptmin_(ptmin), ptmax_(ptmax)
 	    {};
 	    bool operator==(const std::string v) 
@@ -235,6 +263,7 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
           MonitorElement *NOn_, *onEtOn_, *onEtavsonPhiOn_;
 	  MonitorElement *NL1_, *l1EtL1_, *l1Etavsl1PhiL1_;
 	  MonitorElement *NL1On_, *l1EtL1On_, *l1Etavsl1PhiL1On_;
+	  MonitorElement *NL1OnUM_, *l1EtL1OnUM_, *l1Etavsl1PhiL1OnUM_;
 
 	  float ptmin_, ptmax_;
 
