@@ -40,7 +40,7 @@ sisCone7CaloJets.correctInputToSignalVertex = False
 
 doNoiseDigi=cms.Sequence(ecalDigis+ecalPreshowerDigis+hcalDigis)
 
-doNoiseLocalReco=cms.Sequence(pixeltrackerlocalreco + calolocalreco)
+doNoiseLocalReco=cms.Sequence(calolocalreco)
 
 doNoiseGlobalReco=cms.Sequence(caloTowersRec*recoJets + metreco)
 
