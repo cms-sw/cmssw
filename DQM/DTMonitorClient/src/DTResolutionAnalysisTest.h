@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/12/02 13:29:11 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/12/10 10:28:23 $
+ *  $Revision: 1.5 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -59,6 +59,7 @@ public:
 
 
 private:
+  void resetMEs();
 
   int nevents;
   unsigned int nLumiSegs;
@@ -81,11 +82,20 @@ private:
   // wheel summary histograms  
   std::map< int, MonitorElement* > wheelMeanHistos;
   std::map< int, MonitorElement* > wheelSigmaHistos;
- 
+  
+  std::map< int, MonitorElement* > meanDistr;
+  std::map< int, MonitorElement* > sigmaDistr;
+
+
   // Compute the station from the bin number of mean and sigma histos
   int stationFromBin(int bin) const;
   // Compute the sl from the bin number of mean and sigma histos
   int slFromBin(int bin) const;
+
+  bool meanInRange(double mean) const;
+  bool sigmaInRange(double sigma) const;
+
+  MonitorElement* globalResSummary;
 
 };
 

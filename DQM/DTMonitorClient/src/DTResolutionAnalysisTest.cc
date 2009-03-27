@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/18 15:51:42 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/01/13 17:21:43 $
+ *  $Revision: 1.13 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -35,11 +35,11 @@ using namespace edm;
 using namespace std;
 
 
-DTResolutionAnalysisTest::DTResolutionAnalysisTest(const edm::ParameterSet& ps){
+DTResolutionAnalysisTest::DTResolutionAnalysisTest(const ParameterSet& ps){
 
-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") << "[DTResolutionAnalysisTest]: Constructor";
+  LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") << "[DTResolutionAnalysisTest]: Constructor";
 
-  dbe = edm::Service<DQMStore>().operator->();
+  dbe = Service<DQMStore>().operator->();
 
   prescaleFactor = ps.getUntrackedParameter<int>("diagnosticPrescale", 1);
   folderRoot = ps.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
@@ -52,20 +52,65 @@ DTResolutionAnalysisTest::DTResolutionAnalysisTest(const edm::ParameterSet& ps){
 
 
 DTResolutionAnalysisTest::~DTResolutionAnalysisTest(){
-
-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") << "DTResolutionAnalysisTest: analyzed " << nevents << " events";
+  LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") << "DTResolutionAnalysisTest: analyzed " << nevents << " events";
 
 }
 
 
-void DTResolutionAnalysisTest::beginJob(const edm::EventSetup& context){
+void DTResolutionAnalysisTest::beginJob(const EventSetup& context){
 
-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") <<"[DTResolutionAnalysisTest]: BeginJob"; 
+  LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") <<"[DTResolutionAnalysisTest]: BeginJob"; 
 
   nevents = 0;
 
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
+
+  // global residual summary
+  dbe->setCurrentFolder("DT/02-Segments/");
+  globalResSummary = dbe->book2D("ResidualsGlbSummary", "Summary residuals",12,1,13,5,-2,3);
+
+
+
+  // book summaries for mean and sigma
+  dbe->setCurrentFolder("DT/02-Segments/00-MeanRes");
+  meanDistr[-2] = dbe->book1D("MeanDistr","Mean value of the residuals all (cm)",
+			      100,-0.1,0.1);
+  meanDistr[-1] = dbe->book1D("MeanDistr_Phi","Mean value of the residuals #phi SL (cm)",
+			      100,-0.1,0.1);
+  meanDistr[0] = dbe->book1D("MeanDistr_ThetaWh0","Mean values of the residuals #theta SL Wh 0 (cm)",
+			      100,-0.1,0.1);
+  meanDistr[1] = dbe->book1D("MeanDistr_ThetaWh1","Mean value of the residuals #theta SL Wh +/-1 (cm)",
+			      100,-0.1,0.1);
+  meanDistr[2] = dbe->book1D("MeanDistr_ThetaWh2","Mean value of the residuals #theta SL Wh +/-2 (cm)",
+			      100,-0.1,0.1);
+
+
+  stringstream meanRange; meanRange << (permittedMeanRange*10000);
+  string histoTitle = "SuperLayers with |mean of res.| > " + meanRange.str() + "#mum";
+  wheelMeanHistos[3] = dbe->book2D("MeanSummaryRes",histoTitle.c_str(),12,1,13,5,-2,3);
+  wheelMeanHistos[3]->setAxisTitle("Sector",1);
+  wheelMeanHistos[3]->setAxisTitle("Wheel",2);
+
+
+  dbe->setCurrentFolder("DT/02-Segments/01-SigmaRes");
+  sigmaDistr[-2] = dbe->book1D("SigmaDistr","Sigma value of the residuals all (cm)",
+			      50,0.0,0.2);
+  sigmaDistr[-1] = dbe->book1D("SigmaDistr_Phi","Sigma value of the residuals #phi SL (cm)",
+			      50,0.0,0.2);
+  sigmaDistr[0] = dbe->book1D("SigmaDistr_ThetaWh0","Sigma value of the residuals #theta SL Wh 0 (cm)",
+			      50,0.0,0.2);
+  sigmaDistr[1] = dbe->book1D("SigmaDistr_ThetaWh1","Sigma value of the residuals #theta SL Wh +/-1 (cm)",
+			      50,0.0,0.2);
+  sigmaDistr[2] = dbe->book1D("SigmaDistr_ThetaWh2","Sigma value of the residuals #theta SL Wh +/-2 (cm)",
+			      50,0.0,0.2);
+
+  stringstream sigmaRange; sigmaRange << (permittedSigmaRange*10000);
+  histoTitle = "SuperLayers with #sigma res. > " + sigmaRange.str() + "#mum";
+  wheelSigmaHistos[3] = dbe->book2D("SigmaSummaryRes",histoTitle.c_str(),12,1,13,5,-2,3);
+  wheelSigmaHistos[3]->setAxisTitle("Sector",1);
+  wheelSigmaHistos[3]->setAxisTitle("Wheel",2);
+
 
   // loop over all the CMS wheels, sectors & book the summary histos
   for (int wheel=-2; wheel<=2; wheel++){
@@ -80,27 +125,17 @@ void DTResolutionAnalysisTest::beginJob(const edm::EventSetup& context){
 
 void DTResolutionAnalysisTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") <<"[DTResolutionAnalysisTest]: Begin of LS transition";
+  LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") <<"[DTResolutionAnalysisTest]: Begin of LS transition";
 
   // Get the run number
   run = lumiSeg.run();
 
-  // Reset the summary histo
-  for(map<int, MonitorElement*> ::const_iterator histo = wheelMeanHistos.begin();
-      histo != wheelMeanHistos.end();
-      histo++) {
-    (*histo).second->Reset();
-  }
-  for(map<int, MonitorElement*> ::const_iterator histo = wheelSigmaHistos.begin();
-      histo != wheelSigmaHistos.end();
-      histo++) {
-    (*histo).second->Reset();
-  }
 
 }
 
 
-void DTResolutionAnalysisTest::analyze(const edm::Event& e, const edm::EventSetup& context){
+
+void DTResolutionAnalysisTest::analyze(const Event& e, const EventSetup& context){
 
   nevents++;
 
@@ -111,7 +146,7 @@ void DTResolutionAnalysisTest::analyze(const edm::Event& e, const edm::EventSetu
 void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   
 
-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") <<"[DTResolutionAnalysisTest]: End of LS transition, performing the DQM client operation";
+  LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") <<"[DTResolutionAnalysisTest]: End of LS transition, performing the DQM client operation";
 
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
@@ -119,132 +154,107 @@ void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg
   // prescale factor
   if ( nLumiSegs%prescaleFactor != 0 ) return;
 
-   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
-  vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+  // reset the ME with fixed scale
+  resetMEs();
 
-  for (; ch_it != ch_end; ++ch_it) {
+  for (vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
+       ch_it != muonGeom->chambers().end(); ++ch_it) {  // loop over the chambers
 
     DTChamberId chID = (*ch_it)->id();
 
     // Fill the test histos
-    int entry=-1;
-    if(chID.station() == 1) entry=0;
-    if(chID.station() == 2) entry=3;
-    if(chID.station() == 3) entry=6;
-    if(chID.station() == 4) entry=9;
+    for(vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin();
+	sl_it != (*ch_it)->superLayers().end(); ++sl_it) {    // loop over SLs
 
-    vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin(); 
-    vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
-
-    for(; sl_it != sl_end; ++sl_it) {
 
       DTSuperLayerId slID = (*sl_it)->id();
       MonitorElement * res_histo = dbe->get(getMEName(slID));
 
-      if(res_histo){
-
-	// Gaussian Fit
+      if(res_histo) { // Gaussian Fit
 	float statMean = res_histo->getMean(1);
 	float statSigma = res_histo->getRMS(1);
-	Double_t mean = -1;
-	Double_t sigma = -1;
+	double mean = -1;
+	double sigma = -1;
 	TH1F * histo_root = res_histo->getTH1F();
-	if(histo_root->GetEntries()>20){
+
+	// fill the summaries
+	int entry= (chID.station() - 1) * 3;
+	int binSect = slID.sector();
+	if(slID.sector() == 13) binSect = 4;
+	else if(slID.sector() == 14) binSect = 10;
+	int binSL = entry+slID.superLayer();
+	if(chID.station() == 4 && slID.superLayer() == 3) binSL--;
+	if((slID.sector()==13 || slID.sector()==14)  && slID.superLayer()==1) binSL=12;
+	if((slID.sector()==13 || slID.sector()==14) && slID.superLayer()==3) binSL=13;
+
+	if(histo_root->GetEntries()>20) {
 	  TF1 *gfit = new TF1("Gaussian","gaus",(statMean-(2*statSigma)),(statMean+(2*statSigma)));
 	  try {
-	    histo_root->Fit(gfit, "Q0");
+	    histo_root->Fit(gfit, "Q0", "", -0.1, 0.1);
 	  } catch (...) {
-	    edm::LogWarning ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
+	    LogWarning ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
 	      << "[DTResolutionAnalysisTask]: Exception when fitting SL : " << slID;
+	    // FIXME: the SL is set as OK in the summary
+	    double weight = 1/11.;
+	    if((binSect == 4 || binSect == 10) && slID.station() == 4)  weight = 1/22.;
+	    globalResSummary->Fill(binSect, slID.wheel(), weight);
 	    continue;
 	  }
+	  
 	  if(gfit){
+	    // get the mean and the sigma of the distribution
 	    mean = gfit->GetParameter(1); 
 	    sigma = gfit->GetParameter(2);
+	    
+	    // fill the distributions
+	    meanDistr[-2]->Fill(mean);
+	    sigmaDistr[-2]->Fill(sigma);
+	    if(slID.superlayer() == 2) {
+	      meanDistr[abs(slID.wheel())]->Fill(mean);
+	      sigmaDistr[abs(slID.wheel())]->Fill(sigma);
+	    } else {
+	      meanDistr[-1]->Fill(mean);
+	      sigmaDistr[-1]->Fill(sigma);
+	    }
+
+
+	    
+	    // sector summaries
+	    MeanHistos[make_pair(slID.wheel(),binSect)]->setBinContent(binSL, mean);	
+	    SigmaHistos[make_pair(slID.wheel(),binSect)]->setBinContent(binSL, sigma);
+	    
+	    // test the values of mean and sigma
+	    if(meanInRange(mean) && sigmaInRange(sigma)) {
+	    double weight = 1/11.;
+	    if((binSect == 4 || binSect == 10) && slID.station() == 4)  weight = 1/22.;
+	      globalResSummary->Fill(binSect, slID.wheel(), weight);
+	    } else {
+	      if(!meanInRange(mean)) {
+		wheelMeanHistos[slID.wheel()]->Fill(binSect,binSL);
+		wheelMeanHistos[3]->Fill(binSect,slID.wheel());
+	      }
+	      if(!sigmaInRange(sigma)) {
+		wheelSigmaHistos[slID.wheel()]->Fill(binSect,binSL);
+		wheelSigmaHistos[3]->Fill(binSect,slID.wheel());
+	      }				   
+	    }
 	  }
 	  delete gfit;
 	}
 	else{
-	  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
+	  LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
 	    << "[DTResolutionAnalysisTask] Fit of " << slID
 	    << " not performed because # entries < 20 ";
-	}
-	
-	int BinNumber = entry+slID.superLayer();
-	if(BinNumber == 12) BinNumber=11;
-	if((slID.sector()==13 || slID.sector()==14)  && slID.superLayer()==1) BinNumber=12;
-	if((slID.sector()==13 || slID.sector()==14) && slID.superLayer()==3) BinNumber=13;
+	  // FIXME: the SL is set as OK in the summary
+	  double weight = 1/11.;
+	  if((binSect == 4 || binSect == 10) && slID.station() == 4)  weight = 1/22.;
+	  globalResSummary->Fill(binSect, slID.wheel(), weight);
 
-	// Fill the summary histos
-	if(slID.sector()<13){
-	  MeanHistos[make_pair(slID.wheel(),slID.sector())]->setBinContent(BinNumber, mean);	
-	  SigmaHistos[make_pair(slID.wheel(),slID.sector())]->setBinContent(BinNumber, sigma);
-	}
-	if(slID.sector()==13){
-	  MeanHistos[make_pair(slID.wheel(),4)]->setBinContent(BinNumber, mean);	
-	  SigmaHistos[make_pair(slID.wheel(),4)]->setBinContent(BinNumber, sigma);
-	}
-	if(slID.sector()==14){
-	  MeanHistos[make_pair(slID.wheel(),10)]->setBinContent(BinNumber, mean);	
-	  SigmaHistos[make_pair(slID.wheel(),10)]->setBinContent(BinNumber, sigma);
 	}
       }
 
     } // loop on SLs
   } // Loop on Stations
-  
-
-  for(int wheel=-2; wheel<=2; wheel++){
-    for(int sector=1; sector<=12; sector++){
-
-      int lastBin=-1;
-      if(sector!=4 && sector!=10) lastBin=11;
-      else lastBin=13;
-
-      for (int bin=1; bin<=lastBin; bin++){
-
-	// Mean test
-	double mean = MeanHistos.find(make_pair(wheel,sector))->second->getBinContent(bin);
-	if(mean<(-permittedMeanRange) || mean>permittedMeanRange){
-// 	  edm::LogError("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") << "Bad mean channel: wh: " << wheel
-// 									  << " st: " << stationFromBin(bin)
-// 									  << " sect: " <<sector
-// 									  << " sl: " << slFromBin(bin)
-// 									  << " mean (cm): " << mean;
-	  // fill the wheel summary histos
-	  if(bin<12){
-	    wheelMeanHistos[wheel]->Fill(sector,bin);
-	    wheelMeanHistos[3]->Fill(sector,wheel);
-	  }
-	  else{
-	    wheelMeanHistos[wheel]->Fill(sector,11);
-	    wheelMeanHistos[3]->Fill(sector,wheel);
-	  }
-	}
-	
-	// Sigma test
-	double sigma = SigmaHistos.find(make_pair(wheel,sector))->second->getBinContent(bin);
-	if(sigma>permittedSigmaRange){
-// 	  edm::LogError("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") << "Bad sigma: wh: " << wheel
-// 									  << " st: " << stationFromBin(bin)
-// 									  << " sect: " <<sector
-// 									  << " sl: " << slFromBin(bin)
-// 									  << " sigma (cm): " << sigma;
-	  // fill the wheel summary histos
-	  if(bin<12){
-	    wheelSigmaHistos[wheel]->Fill(sector,bin);
-	    wheelSigmaHistos[3]->Fill(sector,wheel);
-	  }
-	  else{
-	    wheelSigmaHistos[wheel]->Fill(sector,11);
-	    wheelSigmaHistos[3]->Fill(sector,wheel);
-	  }
-	}
-
-      } // loop over bins
-
-    } // loop over sectors
-  } // loop over wheels
 
 }
 
@@ -258,20 +268,8 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
   string histoName =  "MeanSummaryRes_W" + wheel.str();
   stringstream meanRange; meanRange << (permittedMeanRange*10000);
   string histoTitle = "# of SL with |mean of res.| > " + meanRange.str() + "#mum (Wheel " + wheel.str() + ")";
-  wheelMeanHistos[wh] = dbe->book2D(histoName.c_str(),histoTitle.c_str(),12,1,13,11,1,12);
+  wheelMeanHistos[wh] = dbe->book2D(histoName.c_str(),histoTitle.c_str(),12,1,13,13,1,12);
   wheelMeanHistos[wh]->setAxisTitle("Sector",1);
-  wheelMeanHistos[wh]->setBinLabel(1,"1",1);
-  wheelMeanHistos[wh]->setBinLabel(2,"2",1);
-  wheelMeanHistos[wh]->setBinLabel(3,"3",1);
-  wheelMeanHistos[wh]->setBinLabel(4,"4",1);
-  wheelMeanHistos[wh]->setBinLabel(5,"5",1);
-  wheelMeanHistos[wh]->setBinLabel(6,"6",1);
-  wheelMeanHistos[wh]->setBinLabel(7,"7",1);
-  wheelMeanHistos[wh]->setBinLabel(8,"8",1);
-  wheelMeanHistos[wh]->setBinLabel(9,"9",1);
-  wheelMeanHistos[wh]->setBinLabel(10,"10",1);
-  wheelMeanHistos[wh]->setBinLabel(11,"11",1);
-  wheelMeanHistos[wh]->setBinLabel(12,"12",1);
   wheelMeanHistos[wh]->setBinLabel(1,"MB1_SL1",2);
   wheelMeanHistos[wh]->setBinLabel(2,"MB1_SL2",2);
   wheelMeanHistos[wh]->setBinLabel(3,"MB1_SL3",2);
@@ -283,46 +281,17 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
   wheelMeanHistos[wh]->setBinLabel(9,"MB3_SL3",2);
   wheelMeanHistos[wh]->setBinLabel(10,"MB4_SL1",2);
   wheelMeanHistos[wh]->setBinLabel(11,"MB4_SL3",2); 
+  wheelMeanHistos[wh]->setBinLabel(12,"MB4_SL1",2);
+  wheelMeanHistos[wh]->setBinLabel(13,"MB4_SL3",2); 
   
-  if(wheelMeanHistos.find(3) == wheelMeanHistos.end()){
-    string histoName =  "MeanSummaryRes";
-    histoTitle = "# of SL with |mean of res.| > " + meanRange.str() + "#mum";
-    wheelMeanHistos[3] = dbe->book2D(histoName.c_str(),histoTitle.c_str(),12,1,13,5,-2,3);
-    wheelMeanHistos[3]->setAxisTitle("Sector",1);
-    wheelMeanHistos[3]->setBinLabel(1,"1",1);
-    wheelMeanHistos[3]->setBinLabel(2,"2",1);
-    wheelMeanHistos[3]->setBinLabel(3,"3",1);
-    wheelMeanHistos[3]->setBinLabel(4,"4",1);
-    wheelMeanHistos[3]->setBinLabel(5,"5",1);
-    wheelMeanHistos[3]->setBinLabel(6,"6",1);
-    wheelMeanHistos[3]->setBinLabel(7,"7",1);
-    wheelMeanHistos[3]->setBinLabel(8,"8",1);
-    wheelMeanHistos[3]->setBinLabel(9,"9",1);
-    wheelMeanHistos[3]->setBinLabel(10,"10",1);
-    wheelMeanHistos[3]->setBinLabel(11,"11",1);
-    wheelMeanHistos[3]->setBinLabel(12,"12",1);
-    wheelMeanHistos[3]->setAxisTitle("Wheel",2);
-  }
 
 
   dbe->setCurrentFolder("DT/02-Segments/01-SigmaRes");
   histoName =  "SigmaSummaryRes_W" + wheel.str();
   stringstream sigmaRange; sigmaRange << (permittedSigmaRange*10000);
   histoTitle = "# of SL with #sigma res. > " + sigmaRange.str() + "#mum (Wheel " + wheel.str() + ")";
-  wheelSigmaHistos[wh] = dbe->book2D(histoName.c_str(),histoTitle.c_str(),12,1,13,11,1,12);
+  wheelSigmaHistos[wh] = dbe->book2D(histoName.c_str(),histoTitle.c_str(),12,1,13,13,1,12);
   wheelSigmaHistos[wh]->setAxisTitle("Sector",1);
-  wheelSigmaHistos[wh]->setBinLabel(1,"1",1);
-  wheelSigmaHistos[wh]->setBinLabel(2,"2",1);
-  wheelSigmaHistos[wh]->setBinLabel(3,"3",1);
-  wheelSigmaHistos[wh]->setBinLabel(4,"4",1);
-  wheelSigmaHistos[wh]->setBinLabel(5,"5",1);
-  wheelSigmaHistos[wh]->setBinLabel(6,"6",1);
-  wheelSigmaHistos[wh]->setBinLabel(7,"7",1);
-  wheelSigmaHistos[wh]->setBinLabel(8,"8",1);
-  wheelSigmaHistos[wh]->setBinLabel(9,"9",1);
-  wheelSigmaHistos[wh]->setBinLabel(10,"10",1);
-  wheelSigmaHistos[wh]->setBinLabel(11,"11",1);
-  wheelSigmaHistos[wh]->setBinLabel(12,"12",1);
   wheelSigmaHistos[wh]->setBinLabel(1,"MB1_SL1",2);
   wheelSigmaHistos[wh]->setBinLabel(2,"MB1_SL2",2);
   wheelSigmaHistos[wh]->setBinLabel(3,"MB1_SL3",2);
@@ -334,28 +303,9 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
   wheelSigmaHistos[wh]->setBinLabel(9,"MB3_SL3",2);
   wheelSigmaHistos[wh]->setBinLabel(10,"MB4_SL1",2);
   wheelSigmaHistos[wh]->setBinLabel(11,"MB4_SL3",2);
+  wheelSigmaHistos[wh]->setBinLabel(12,"MB4_SL1",2);
+  wheelSigmaHistos[wh]->setBinLabel(13,"MB4_SL3",2);
 
-  if(wheelSigmaHistos.find(3) == wheelSigmaHistos.end()){
-    string histoName =  "SigmaSummaryRes";
-    histoTitle = "# of SL with #sigma res. > " + sigmaRange.str() + "#mum";
-    wheelSigmaHistos[3] = dbe->book2D(histoName.c_str(),histoTitle.c_str(),14,1,15,5,-2,3);
-    wheelSigmaHistos[3]->setAxisTitle("Sector",1);
-    wheelSigmaHistos[3]->setBinLabel(1,"1",1);
-    wheelSigmaHistos[3]->setBinLabel(2,"2",1);
-    wheelSigmaHistos[3]->setBinLabel(3,"3",1);
-    wheelSigmaHistos[3]->setBinLabel(4,"4",1);
-    wheelSigmaHistos[3]->setBinLabel(5,"5",1);
-    wheelSigmaHistos[3]->setBinLabel(6,"6",1);
-    wheelSigmaHistos[3]->setBinLabel(7,"7",1);
-    wheelSigmaHistos[3]->setBinLabel(8,"8",1);
-    wheelSigmaHistos[3]->setBinLabel(9,"9",1);
-    wheelSigmaHistos[3]->setBinLabel(10,"10",1);
-    wheelSigmaHistos[3]->setBinLabel(11,"11",1);
-    wheelSigmaHistos[3]->setBinLabel(12,"12",1);
-    wheelSigmaHistos[3]->setBinLabel(13,"13",1);
-    wheelSigmaHistos[3]->setBinLabel(14,"14",1);
-    wheelSigmaHistos[3]->setAxisTitle("Wheel",2);
-  }  
 }
 
 
@@ -371,10 +321,13 @@ void DTResolutionAnalysisTest::bookHistos(int wh, int sect) {
   string folder = "DT/02-Segments/Wheel" + wheel.str() + "/Sector" + sector.str();
   dbe->setCurrentFolder(folder);
 
-  if(sect!=4 && sect!=10)
-    MeanHistos[make_pair(wh,sect)] = dbe->book1D(MeanHistoName.c_str(),"Mean (from gaussian fit) of the residuals distribution",11,1,12);
-  else
-    MeanHistos[make_pair(wh,sect)] = dbe->book1D(MeanHistoName.c_str(),"Mean (from gaussian fit) of the residuals distribution",13,1,14);
+  if(sect!=4 && sect!=10) {
+    MeanHistos[make_pair(wh,sect)] =
+      dbe->book1D(MeanHistoName.c_str(),"Mean (from gaussian fit) of the residuals distribution",11,1,12);
+  } else {
+    MeanHistos[make_pair(wh,sect)] =
+      dbe->book1D(MeanHistoName.c_str(),"Mean (from gaussian fit) of the residuals distribution",13,1,14);
+  }
   (MeanHistos[make_pair(wh,sect)])->setBinLabel(1,"MB1_SL1",1);
   (MeanHistos[make_pair(wh,sect)])->setBinLabel(2,"MB1_SL2",1);
   (MeanHistos[make_pair(wh,sect)])->setBinLabel(3,"MB1_SL3",1);
@@ -395,10 +348,13 @@ void DTResolutionAnalysisTest::bookHistos(int wh, int sect) {
     (MeanHistos[make_pair(wh,sect)])->setBinLabel(13,"MB4S10_SL3",1);
   }
 
-  if(sect!=4 && sect!=10)
-    SigmaHistos[make_pair(wh,sect)] = dbe->book1D(SigmaHistoName.c_str(),"Sigma (from gaussian fit) of the residuals distribution",11,1,12);
-  else
-    SigmaHistos[make_pair(wh,sect)] = dbe->book1D(SigmaHistoName.c_str(),"Sigma (from gaussian fit) of the residuals distribution",13,1,14);
+  if(sect!=4 && sect!=10) {
+    SigmaHistos[make_pair(wh,sect)] =
+      dbe->book1D(SigmaHistoName.c_str(),"Sigma (from gaussian fit) of the residuals distribution",11,1,12);
+  } else {
+    SigmaHistos[make_pair(wh,sect)] =
+      dbe->book1D(SigmaHistoName.c_str(),"Sigma (from gaussian fit) of the residuals distribution",13,1,14);
+  }
   (SigmaHistos[make_pair(wh,sect)])->setBinLabel(1,"MB1_SL1",1);  
   (SigmaHistos[make_pair(wh,sect)])->setBinLabel(2,"MB1_SL2",1);
   (SigmaHistos[make_pair(wh,sect)])->setBinLabel(3,"MB1_SL3",1);
@@ -458,3 +414,35 @@ int DTResolutionAnalysisTest::slFromBin(int bin) const {
   
   return ret;
 }
+
+
+bool DTResolutionAnalysisTest::meanInRange(double mean) const {
+  return fabs(mean) < permittedMeanRange;
+}
+
+
+bool DTResolutionAnalysisTest::sigmaInRange(double sigma) const {
+  return sigma < permittedSigmaRange;
+}
+
+
+void DTResolutionAnalysisTest::resetMEs() {
+  globalResSummary->Reset();
+  // Reset the summary histo
+  for(map<int, MonitorElement*> ::const_iterator histo = wheelMeanHistos.begin();
+      histo != wheelMeanHistos.end();
+      histo++) {
+    (*histo).second->Reset();
+  }
+  for(map<int, MonitorElement*> ::const_iterator histo = wheelSigmaHistos.begin();
+      histo != wheelSigmaHistos.end();
+      histo++) {
+    (*histo).second->Reset();
+  }
+
+  for(int indx = -2; indx != 3; ++indx) {
+    meanDistr[indx]->Reset();
+    sigmaDistr[indx]->Reset();
+  }
+}
+
