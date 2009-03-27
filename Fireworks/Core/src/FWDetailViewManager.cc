@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.24 2009/03/04 17:02:16 chrjones Exp $
+// $Id: FWDetailViewManager.cc,v 1.25 2009/03/25 22:14:08 amraktad Exp $
 //
 
 // system include files
@@ -103,20 +103,25 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    // make a frame
    if (frame != 0)
       frame->CloseWindow();
+
    frame = new // TGTransientFrame(0, gEve->GetBrowser(), 400, 400);
-           TGMainFrame(0, 800, 600);
-   // connect the close-window button to something useful
-   frame->Connect("CloseWindow()", "FWDetailViewManager", this, "close_wm()");
+      TGMainFrame(0, 800, 600);
    frame->SetCleanup(kDeepCleanup);
+   frame->SetWindowName(Form("%s Detail View",id.item()->name().c_str()));
+   frame->SetIconName("Detail View Icon");
+   frame->Connect("CloseWindow()", "FWDetailViewManager", this, "close_wm()");
+
    TGHorizontalFrame* hf = new TGHorizontalFrame(frame);
-   frame->AddFrame(hf,new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX | kLHintsExpandY));
+   frame->AddFrame(hf, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+
+   // text view 
    text_view = new TGTextView(hf,20,20);
-   // title
    text_view->AddLine(Form("%s detail view:",  id.item()->name().c_str()));
    text_view->AddLine(Form("item[%d] index[%d]", (unsigned int)id.item(), id.index()));
    text_view->AddLine("");
+   hf->AddFrame(text_view, new TGLayoutHints(kLHintsLeft|kLHintsTop |kLHintsExpandY));
 
-   hf->AddFrame(text_view, new TGLayoutHints(kLHintsLeft|kLHintsTop|kLHintsExpandY));
+   // viewer 
    TGLEmbeddedViewer* v = new TGLEmbeddedViewer(hf, 0, 0);
    nv = new TEveViewer();
    nv->SetGLViewer(v,v->GetFrame());
@@ -129,17 +134,16 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    // gEve->AddElement(nv, gEve->GetViewers());
    ns = gEve->SpawnNewScene("Detailed view");
    nv->AddScene(ns);
-   hf->AddFrame(v->GetFrame(),new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX | kLHintsExpandY));
+   hf->AddFrame(v->GetFrame(), new TGLayoutHints(kLHintsExpandX | kLHintsExpandY|kLHintsTop));
+
+   // exit
    TGTextButton* exit_butt = new TGTextButton(frame, "Close");
    exit_butt->Resize(20, 20);
    exit_butt->Connect("Clicked()", "FWDetailViewManager", this, "close_button()");
-   frame->AddFrame(exit_butt, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
-   frame->SetWindowName(Form("%s Detail View",id.item()->name().c_str()));
-   frame->SetIconName("Detail View Icon");
-
+   frame->AddFrame(exit_butt, new TGLayoutHints(kLHintsExpandX));
+  
    // find the right viewer for this item
    std::string typeName = ROOT::Reflex::Type::ByTypeInfo(*(id.item()->modelType()->GetTypeInfo())).Name(ROOT::Reflex::SCOPED);
-
    std::map<std::string, FWDetailViewBase *>::iterator viewer =
       m_viewers.find(typeName);
    if (viewer == m_viewers.end()) {
@@ -171,18 +175,16 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    //      light_set->SetLight(TGLLightSet::kLightRight	, false);
    //      light_set->SetLight(TGLLightSet::kLightMask	, false);
    light_set->SetLight(TGLLightSet::kLightSpecular, false);
-
    // run the viewer
    viewer->second->setTextView(text_view);
    viewer->second->setViewer(nv->GetGLViewer());
    TEveElement *list = viewer->second->build(id);
+   text_view->AdjustWidth();
 
    if(0!=list) {
       gEve->AddElement(list, ns);
    }
-   text_view->Update();
-   text_view->SetWidth(text_view->ReturnLongestLineWidth()+20);
-   text_view->Layout();
+
    double rotation_center[3] = { 0, 0, 0 };
    //      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
    nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 1, 0, rotation_center, 0.5, 0 );
@@ -191,12 +193,9 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    nv->GetGLViewer()->CurrentCamera().Reset();
    nv->GetGLViewer()->UpdateScene();
 
-   frame->Layout();
    frame->MapSubwindows();
-   //running the Layout after the MapSubwindows makes the sub areas render properly from the start
    frame->Layout();
    frame->MapWindow();
-
 }
 
 //
