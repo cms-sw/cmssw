@@ -470,7 +470,6 @@ class SequenceLabelVisitor(object):
     def enter(self,visitee):
         if isinstance(visitee,Sequence):
             if visitee.label_() == None:
-               print "SCREAM! " + repr(visitee)
             self.deps.append(visitee.label_())
         pass
     def leave(self,visitee):
