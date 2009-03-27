@@ -3,6 +3,7 @@
 <use name=CondCore/PopCon>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/EcalObjects>
+<use name=CondFormats/ESObjects>
 <use name=DataFormats/Common>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/Provenance>
