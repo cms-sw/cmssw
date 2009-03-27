@@ -5,13 +5,14 @@
 
 // Julia Yarba : related to particle gun prototypes
 //
-#include "IOMC/ParticleGuns/interface/FlatEGunASCIIWriter.h"
-#include "IOMC/ParticleGuns/interface/FlatRandomEGunSource.h"
-#include "IOMC/ParticleGuns/interface/FlatRandomPtGunSource.h"
-#include "IOMC/ParticleGuns/interface/FlatRandomEThetaGunSource.h"
-#include "IOMC/ParticleGuns/interface/FlatRandomPtThetaGunSource.h"
-#include "IOMC/ParticleGuns/interface/ExpoRandomPtGunSource.h"
-#include "IOMC/ParticleGuns/interface/MultiParticleInConeGunSource.h"
+//#include "IOMC/ParticleGuns/interface/FlatEGunASCIIWriter.h"
+//#include "IOMC/ParticleGuns/interface/FlatRandomEGunSource.h"
+//#include "IOMC/ParticleGuns/interface/FlatRandomPtGunSource.h"
+//#include "IOMC/ParticleGuns/interface/FlatRandomEThetaGunSource.h"
+//#include "IOMC/ParticleGuns/interface/FlatRandomPtThetaGunSource.h"
+//#include "IOMC/ParticleGuns/interface/ExpoRandomPtGunSource.h"
+//#include "IOMC/ParticleGuns/interface/MultiParticleInConeGunSource.h"
+
 #include "IOMC/ParticleGuns/interface/FlatRandomEGunProducer.h"
 #include "IOMC/ParticleGuns/interface/FlatRandomPtGunProducer.h"
 #include "IOMC/ParticleGuns/interface/FlatRandomEThetaGunProducer.h"
@@ -23,6 +24,7 @@
 //
   DEFINE_SEAL_MODULE();
   
+/*
 using edm::FlatEGunASCIIWriter;
 DEFINE_ANOTHER_FWK_MODULE(FlatEGunASCIIWriter);
 using edm::FlatRandomEGunSource;
@@ -37,6 +39,7 @@ using edm::ExpoRandomPtGunSource;
 DEFINE_ANOTHER_FWK_INPUT_SOURCE(ExpoRandomPtGunSource);
 using edm::MultiParticleInConeGunSource;
 DEFINE_ANOTHER_FWK_INPUT_SOURCE(MultiParticleInConeGunSource);
+*/
 
 using edm::FlatRandomEGunProducer;
 DEFINE_FWK_MODULE(FlatRandomEGunProducer);
