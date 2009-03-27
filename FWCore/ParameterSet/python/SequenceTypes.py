@@ -464,6 +464,18 @@ class SequenceVisitor(object):
     def leave(self,visitee):
         pass
 
+class SequenceLabelVisitor(object):
+    def __init__(self,d):
+        self.deps = d
+    def enter(self,visitee):
+        if isinstance(visitee,Sequence):
+            if visitee.label_() == None:
+               print "SCREAM! " + repr(visitee)
+            self.deps.append(visitee.label_())
+        pass
+    def leave(self,visitee):
+        pass
+
 
 class ModuleNodeVisitor(object):
     def __init__(self,l):
