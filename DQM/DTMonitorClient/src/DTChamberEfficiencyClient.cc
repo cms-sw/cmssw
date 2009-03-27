@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/08 11:39:40 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/12/15 10:38:39 $
+ *  $Revision: 1.3 $
  *  \author M. Pelliccioni - INFN Torino
  */
 
@@ -54,7 +54,6 @@ void DTChamberEfficiencyClient::beginJob(const EventSetup& context)
   context.get<MuonGeometryRecord>().get(muonGeom);
 
   bookHistos();
-
   return;
 }
 
@@ -90,6 +89,9 @@ void DTChamberEfficiencyClient::endLuminosityBlock(LuminosityBlock const& lumiSe
 {
   LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
     << "DTChamberEfficiencyClient: endRun";
+  
+  // reset the global summary
+  globalEffSummary->Reset();
 
   //Loop over the wheels
   for(int wheel=-2;wheel<=2;wheel++){
@@ -135,6 +137,49 @@ void DTChamberEfficiencyClient::endLuminosityBlock(LuminosityBlock const& lumiSe
     }
   }
 
+  // fill the global eff. summary
+  // problems at a granularity smaller than the chamber are ignored
+  for(int wheel=-2; wheel<=2; wheel++) { // loop over wheels
+    // retrieve the chamber efficiency summary
+    MonitorElement * segmentWheelSummary = summaryHistos[wheel+2][0];
+    if(segmentWheelSummary != 0) {
+      float nFailingChambers = 0.;
+
+      for(int sector=1; sector<=12; sector++) { // loop over sectors
+
+	double meaneff = 0.;
+	double errorsum = 0.;
+
+	for(int station = 1; station != 5; ++station) { // loop over stations
+	  
+	  const double tmpefficiency = segmentWheelSummary->getBinContent(sector, station);
+	  const double tmpvariance = pow(segmentWheelSummary->getBinError(sector, station),2);
+	  
+	  if(tmpefficiency == 0 || tmpvariance == 0){
+	    nFailingChambers++;
+	    continue;
+	  }
+
+	  meaneff += tmpefficiency/tmpvariance;
+	  errorsum += 1./tmpvariance;
+
+	  if(tmpefficiency < 0.2) nFailingChambers++;
+
+	  LogTrace("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
+	    << "Wheel: " << wheel << " Stat: " << station
+	    << " Sect: " << sector << " status: " << meaneff/errorsum << endl;
+	}
+
+	const double eff_result = meaneff/errorsum;
+
+	if(eff_result > 0.7) globalEffSummary->Fill(sector,wheel,1.);
+	else if(eff_result < 0.7 && eff_result > 0.5) globalEffSummary->Fill(sector,wheel,0.6);
+	else if(eff_result < 0.5 && eff_result > 0.3) globalEffSummary->Fill(sector,wheel,0.4);
+	else if(eff_result < 0.3 && eff_result > 0.) globalEffSummary->Fill(sector,wheel,0.15);
+
+      }
+    }
+  }
   return;
 }
 
@@ -147,6 +192,14 @@ void DTChamberEfficiencyClient::endJob()
 
 void DTChamberEfficiencyClient::bookHistos()
 {
+
+  dbe->setCurrentFolder("DT/05-ChamberEff");
+  globalEffSummary = dbe->book2D("EfficiencyGlbSummary","Efficiency Summary",12,1,13,5,-2,3);
+  globalEffSummary->setAxisTitle("sector",1);
+  globalEffSummary->setAxisTitle("wheel",2);
+
+
+
   for(int wh=-2; wh<=2; wh++){
     stringstream wheel; wheel << wh;
     string histoNameAll =  "EfficiencyMap_All_W" + wheel.str();
