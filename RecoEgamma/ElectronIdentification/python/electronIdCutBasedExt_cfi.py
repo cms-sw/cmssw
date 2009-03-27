@@ -44,13 +44,18 @@ eidCutBasedExt = cms.EDProducer("EleIdCutBasedExtProducer",
    
     #Robust High Energy Cuts
     #V00 CMSSW16X optimization 
+    #V01 CMSSW22X optimization 
     robusthighenergyEleIDCutsV00 = cms.PSet(
         barrel = cms.vdouble(0.050, 0.011, 0.090, 0.005),
         endcap = cms.vdouble(0.100, 0.0275, 0.090, 0.007)
     ),
+    robusthighenergyEleIDCutsV01 = cms.PSet(
+        barrel = cms.vdouble(0.050, 0.094, 0.090, 0.005),
+        endcap = cms.vdouble(0.050, 0.0275, 0.090, 0.007)
+    ),
     robusthighenergyEleIDCuts = cms.PSet(
-        barrel = cms.vdouble(0.050, 0.011, 0.090, 0.005),
-        endcap = cms.vdouble(0.100, 0.0275, 0.090, 0.007)
+        barrel = cms.vdouble(0.050, 0.094, 0.090, 0.005),
+        endcap = cms.vdouble(0.050, 0.0275, 0.090, 0.007)
     ),
 
     #Class Based Loose Cuts
