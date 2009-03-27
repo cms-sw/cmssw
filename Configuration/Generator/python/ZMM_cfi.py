@@ -32,4 +32,14 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
     )
 )
 
-ProductionFilterSequence = cms.Sequence(generator)
+mumugenfilter = cms.EDFilter("MCParticlePairFilter",
+    Status = cms.untracked.vint32(1, 1),
+    MinPt = cms.untracked.vdouble(2.5, 2.5),
+    MaxEta = cms.untracked.vdouble(2.5, 2.5),
+    MinEta = cms.untracked.vdouble(-2.5, -2.5),
+    ParticleCharge = cms.untracked.int32(-1),
+    ParticleID1 = cms.untracked.vint32(13),
+    ParticleID2 = cms.untracked.vint32(13)
+)
+
+ProductionFilterSequence = cms.Sequence(generator*mumugenfilter)
