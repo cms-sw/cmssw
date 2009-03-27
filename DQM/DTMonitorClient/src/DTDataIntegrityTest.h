@@ -5,8 +5,8 @@
  * *
  *  DQM Client to check the data integrity
  *
- *  $Date: 2008/03/01 00:39:51 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/06/03 16:33:51 $
+ *  $Revision: 1.9 $
  *  \author S. Bolognesi - INFN TO
  *   
  */
@@ -89,7 +89,7 @@ private:
   std::map<std::string, std::map<int, std::vector <MonitorElement*> > > dduVectorHistos;
 
   MonitorElement *summaryHisto;
-
+  MonitorElement *glbSummaryHisto;
  };
 
 #endif

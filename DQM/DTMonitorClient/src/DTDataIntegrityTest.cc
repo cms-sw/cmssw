@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2008/11/24 09:17:55 $
- * $Revision: 1.24 $
+ * $Date: 2009/02/17 16:22:37 $
+ * $Revision: 1.25 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -27,7 +27,7 @@ using namespace edm;
 
 DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps) : nevents(0) {
   
-  LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") << "[DTDataIntegrityTest]: Constructor";
+  LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") << "[DTDataIntegrityTest]: Constructor";
 
   //Number of bin in time histo
   nTimeBin =  ps.getUntrackedParameter<int>("nTimeBin", 10);
@@ -46,14 +46,14 @@ DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps) : nevents(0) {
 
 DTDataIntegrityTest::~DTDataIntegrityTest(){
 
-  LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") << "DataIntegrityTest: analyzed " << nupdates << " updates";
+  LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") << "DataIntegrityTest: analyzed " << nupdates << " updates";
 
 }
 
 
 void DTDataIntegrityTest::beginJob(const EventSetup& context){
 
-  LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") << "[DTDataIntegrityTest]: BeginJob";
+  LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") << "[DTDataIntegrityTest]: BeginJob";
 
   //nSTAEvents = 0;
   nupdates = 0;
@@ -70,13 +70,23 @@ void DTDataIntegrityTest::beginJob(const EventSetup& context){
   summaryHisto->setBinLabel(3,"FED772",2);
   summaryHisto->setBinLabel(4,"FED773",2);
   summaryHisto->setBinLabel(5,"FED774",2);
+
+  dbe->setCurrentFolder("DT/00-DataIntegrity");
+  glbSummaryHisto = dbe->book2D("DataIntegrityGlbSummary","Summary Data Integrity",12,1,13,5,770,775);
+  glbSummaryHisto->setAxisTitle("ROS",1);
+  glbSummaryHisto->setBinLabel(1,"FED770",2);
+  glbSummaryHisto->setBinLabel(2,"FED771",2);
+  glbSummaryHisto->setBinLabel(3,"FED772",2);
+  glbSummaryHisto->setBinLabel(4,"FED773",2);
+  glbSummaryHisto->setBinLabel(5,"FED774",2);
+
 }
 
 
 
 void DTDataIntegrityTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]: Begin of LS transition";
+  LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]: Begin of LS transition";
 
   // Get the run number
   run = lumiSeg.run();
@@ -86,41 +96,33 @@ void DTDataIntegrityTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, E
 
 
 void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
-
+  // count the analyzed events
   nevents++;
   if(nevents%1000 == 0)
-    LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") << "[DTDataIntegrityTest]: "<<nevents<<" events";
-
+    LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest")
+      << "[DTDataIntegrityTest]: "<<nevents<<" events";
 }
 
 
 
 void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  //nSTAEvents++;
- // if running in standalone perform diagnostic only after a reasonalbe amount of events
-  //if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
-  //   nSTAEvents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
- 
-  LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest")
-    <<"[DTDataIntegrityTest]: End of LS transition, performing the DQM client operation";
-
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
   stringstream nLumiSegs_s; nLumiSegs_s << nLumiSegs;
-
+  
   // prescale factor
-  if ( nLumiSegs%prescaleFactor != 0 ) return;
+  if (nLumiSegs%prescaleFactor != 0) return;
+  
+  LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest")
+    <<"[DTDataIntegrityTest]: End of LS " << nLumiSegs << ", performing client operations";
 
 
   // counts number of updats 
   nupdates++;
- 
-  LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]: "<<nupdates<<" updates";
-  LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]: "<<nLumiSegs<<" luminosity block number";
 
   if(writeHisto && nupdates%nTimeBin == 0){
-    LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]: saving all histos";
+    LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]: saving all histos";
     stringstream runNumber; runNumber << run;
     stringstream lumiNumber; lumiNumber << nLumiSegs;
     string rootFile = outputFile + "_" + lumiNumber.str() + "_" + runNumber.str() + ".root";
@@ -131,13 +133,14 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
   counter++;
 
   //Loop on FED id
-  for (int dduId=FEDNumbering::MINDTFEDID; dduId<FEDNumbering::MAXDTFEDID; ++dduId){
-    LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]:FED Id: "<<dduId;
+  for (int dduId=FEDNumbering::getDTFEDIds().first; dduId<FEDNumbering::getDTFEDIds().second; ++dduId) {
+    LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest")
+      <<"[DTDataIntegrityTest]:FED Id: "<<dduId;
  
     //Each nTimeBin onUpdate remove timing histos and book a new bunch of them
     stringstream dduId_s; dduId_s << dduId;
-    if(doTimeHisto && nupdates%nTimeBin == 1){
-      LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]: booking a new bunch of time histos";
+    if(doTimeHisto && nupdates%nTimeBin == 1) {
+      LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]: booking a new bunch of time histos";
       //if(nupdates>nTimeBin)
       //dbe->rmdir("DT/Tests/DTDataIntegrity/FED" + dduId_s.str() + "/TimeInfo"); //FIXME: it doesn't work anymore
       //    (dduVectorHistos.find("TTSVSTime")->second).find(dduId)->second.clear();
@@ -151,7 +154,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
     //1D histo: % of tts values 
     MonitorElement * tts_histo = dbe->get(getMEName("TTSValues",dduId));
     if (tts_histo) {
-        LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]:histo DDUTTSValues found";
+        LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]:histo DDUTTSValues found";
 
 	histoType = "TTSValues_Percent";   
 	if (dduHistos[histoType].find(dduId) == dduHistos[histoType].end()) {
@@ -195,7 +198,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
     //Check if the list of ROS is compatible with the channels enabled
     MonitorElement * ros_histo = dbe->get(getMEName("ROSStatus",dduId));
     if (ros_histo) {
-        LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]:histo DDUChannelStatus found";
+        LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]:histo DDUChannelStatus found";
 
  	for(int i=1;i<13;i++){
 	  if(ros_histo->getBinContent(1,i) != ros_histo->getBinContent(9,i))
@@ -209,7 +212,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
     //Monitor the number of ROS VS time
      MonitorElement * rosNumber_histo = dbe->get(getMEName("ROSList",dduId));
     if (rosNumber_histo && doTimeHisto) {
-      LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]:histo DDUROSList found";
+      LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]:histo DDUROSList found";
 
       double rosNumber_mean = rosNumber_histo->getMean();
       //Fill timing histos and set x label with luminosity block number
@@ -224,7 +227,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
     //Monitor the event lenght VS time
      MonitorElement * evLenght_histo = dbe->get(getMEName("EventLenght",dduId));
      if (evLenght_histo && doTimeHisto) {
-       LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]:histo DDUEventLenght found";
+       LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]:histo DDUEventLenght found";
        
        double evLenght_mean = evLenght_histo->getMean();
        //Fill timing histos and set x label with luminosity block number
@@ -240,7 +243,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
      //Monitor the FIFO occupancy VS time 
      MonitorElement * fifo_histo = dbe->get(getMEName("FIFOStatus",dduId));
      if (fifo_histo && doTimeHisto) {
-       LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]:histo DDUFIFOStatus found";
+       LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]:histo DDUFIFOStatus found";
        
        //Fill timing histos and set x label with luminosity block number
        histoType = "FIFOVSTime";
@@ -269,12 +272,16 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
        TH2F * histo_FEDSummary = FED_ROSSummary->getTH2F();
        for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) { // loop on the ROS
 	 int result = -2;
-	 if(histo_FEDSummary->Integral(1,11,rosNumber,rosNumber) == 0) { // no errors
+	 float nErrors = histo_FEDSummary->Integral(1,11,rosNumber,rosNumber);
+	 if(nErrors == 0) { // no errors
 	   result = 0;
 	 } else { // there are errors
 	   result = 2;
 	 }
 	 summaryHisto->setBinContent(rosNumber,dduId-769,result);
+	 // FIXME: different errors should have different weights
+	 float sectPerc = max((float)0., ((float)nevents-nErrors)/(float)nevents);
+	 glbSummaryHisto->setBinContent(rosNumber,dduId-769,sectPerc);
        }
        // Check that the FED is in the ReadOut using the FEDIntegrity histos
        if(hFEDEntry->getBinContent(dduId-769) == 0 &&
@@ -283,12 +290,14 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 	 // no data in this FED: it is off
 	 for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) {
 	   summaryHisto->setBinContent(rosNumber,dduId-769,1);
+	   glbSummaryHisto->setBinContent(rosNumber,dduId-769,0);
 	 }
        }
 
      } else { // no data in this FED: it is off
        for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) {
 	 summaryHisto->setBinContent(rosNumber,dduId-769,1);
+	 glbSummaryHisto->setBinContent(rosNumber,dduId-769,0);
        }
      }
   
@@ -305,7 +314,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 
 void DTDataIntegrityTest::endJob(){
 
-  LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest] endjob called!";
+  LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest] endjob called!";
 
 //   dbe->rmdir("DT/DTDataIntegrity");
 }
@@ -346,7 +355,7 @@ void DTDataIntegrityTest::bookTimeHistos(string histoType, int dduId, int nLumiS
   stringstream dduId_s; dduId_s << dduId;
   stringstream nLumiSegs_s; nLumiSegs_s << nLumiSegs;
   string histoName;
-  LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"Booking time histo "<<histoType<<" for ddu "<<dduId<<" from luminosity block "<<nLumiSegs;
+  LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"Booking time histo "<<histoType<<" for ddu "<<dduId<<" from luminosity block "<<nLumiSegs;
 
   //Counter for x bin in the timing histos
   counter = 1;//assuming synchronized booking for all histo VS time
