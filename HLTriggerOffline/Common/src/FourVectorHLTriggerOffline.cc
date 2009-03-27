@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.14 2009/03/26 21:44:47 berryhil Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.15 2009/03/27 01:31:27 berryhil Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -2043,6 +2043,16 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
     std::string filtername("dummy");
     float ptMin = 0.0;
     float ptMax = 100.0;
+    if (objectType == trigger::TriggerPhoton) ptMax = 100.0;
+    if (objectType == trigger::TriggerElectron) ptMax = 100.0;
+    if (objectType == trigger::TriggerMuon) ptMax = 100.0;
+    if (objectType == trigger::TriggerTau) ptMax = 100.0;
+    if (objectType == trigger::TriggerJet) ptMax = 300.0;
+    if (objectType == trigger::TriggerBJet) ptMax = 300.0;
+    if (objectType == trigger::TriggerMET) ptMax = 300.0;
+    if (objectType == trigger::TriggerHT) ptMax = 300.0;
+    if (objectType == trigger::TriggerTrack) ptMax = 100.0;
+
     if (objectType != 0){
     hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
       //create folder for pathname
@@ -2129,6 +2139,16 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
     std::string filtername("dummy");
     float ptMin = 0.0;
     float ptMax = 100.0;
+    if (objectType == trigger::TriggerPhoton) ptMax = 100.0;
+    if (objectType == trigger::TriggerElectron) ptMax = 100.0;
+    if (objectType == trigger::TriggerMuon) ptMax = 100.0;
+    if (objectType == trigger::TriggerTau) ptMax = 100.0;
+    if (objectType == trigger::TriggerJet) ptMax = 300.0;
+    if (objectType == trigger::TriggerBJet) ptMax = 300.0;
+    if (objectType == trigger::TriggerMET) ptMax = 300.0;
+    if (objectType == trigger::TriggerHT) ptMax = 300.0;
+    if (objectType == trigger::TriggerTrack) ptMax = 100.0;
+
     if (objectType != 0)
     hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
     
