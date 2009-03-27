@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2009/01/09 10:23:17 $
-//   $Revision: 1.29 $
+//   $Date: 2009/03/26 17:39:42 $
+//   $Revision: 1.30 $
 //
 //   Modifications:
 //
@@ -274,11 +274,11 @@ void CSCTriggerPrimitivesReader::endJob() {
     edm::LogInfo("CSCTriggerPrimitivesReader")
       << "\n  Correct half-strip assigned in " << cor << "/" << tot
       << " = " << cor/tot << " of half-strip CLCTs";
-    cor = hResolDeltaDS->GetBinContent(hResolDeltaDS->FindBin(0.));
-    tot = hResolDeltaDS->GetEntries();
-    edm::LogInfo("CSCTriggerPrimitivesReader")
-      << "  Correct di-strip assigned in " << cor << "/" << tot
-      << " = " << cor/tot << " of di-strip CLCTs";
+    //cor = hResolDeltaDS->GetBinContent(hResolDeltaDS->FindBin(0.));
+    //tot = hResolDeltaDS->GetEntries();
+    //edm::LogInfo("CSCTriggerPrimitivesReader")
+    //  << "  Correct di-strip assigned in " << cor << "/" << tot
+    //  << " = " << cor/tot << " of di-strip CLCTs";
     cor = hResolDeltaWG->GetBinContent(hResolDeltaWG->FindBin(0.));
     tot = hResolDeltaWG->GetEntries();
     edm::LogInfo("CSCTriggerPrimitivesReader")
@@ -1863,7 +1863,7 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   for (int ibin = 1; ibin <= nbins; ibin++) {
     double f_bin = hClctPerChamber->GetBinContent(ibin);
     edm::LogInfo("CSCTriggerPrimitivesReader")
-      << "  # CLCT/chamber: " << ibin-1 << "; events: " << f_bin << endl;
+      << "  # CLCTs/chamber: " << ibin-1 << "; events: " << f_bin << endl;
   }
 
   pad[page]->cd(2);  hClctPerChamber->Draw();
