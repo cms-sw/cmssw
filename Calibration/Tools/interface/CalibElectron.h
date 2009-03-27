@@ -6,6 +6,7 @@
 
 #include <vector>
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 
@@ -17,7 +18,7 @@ namespace calib
   public:
     
     CalibElectron();
-    CalibElectron(const reco::PixelMatchGsfElectron* ele ,const EcalRecHitCollection* theHits, const EcalRecHitCollection* theEEHits) : 
+    CalibElectron(const reco::GsfElectron* ele ,const EcalRecHitCollection* theHits, const EcalRecHitCollection* theEEHits) : 
       theElectron_(ele),
       theHits_(theHits), 
       theEEHits_(theEEHits) 
@@ -28,13 +29,13 @@ namespace calib
 
 
     std::vector< std::pair<int,float> > getCalibModulesWeights(TString calibtype);
-    const reco::PixelMatchGsfElectron* getRecoElectron() { return theElectron_; }
+    const reco::GsfElectron* getRecoElectron() { return theElectron_; }
     const EcalRecHitCollection* getRecHits() { return theHits_; }
     const EcalRecHitCollection* getEERecHits() { return theEEHits_; }
 
   private:
   
-    const reco::PixelMatchGsfElectron* theElectron_;
+    const reco::GsfElectron* theElectron_;
     
     const EcalRecHitCollection* theHits_;
     const EcalRecHitCollection* theEEHits_;
