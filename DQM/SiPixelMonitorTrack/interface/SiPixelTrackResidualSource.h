@@ -12,7 +12,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelTrackResidualSource.h,v 1.1 2008/07/25 20:41:29 schuang Exp $
+// $Id: SiPixelTrackResidualSource.h,v 1.2 2008/11/05 13:53:07 wehrlilu Exp $
 //
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
@@ -74,15 +74,106 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     MonitorElement* meClChargeOnTrack_all; 
     MonitorElement* meClChargeOnTrack_bpix; 
     MonitorElement* meClChargeOnTrack_fpix; 
+    MonitorElement* meClChargeOnTrack_layer1; 
+    MonitorElement* meClChargeOnTrack_layer2; 
+    MonitorElement* meClChargeOnTrack_layer3; 
+    MonitorElement* meClChargeOnTrack_diskp1; 
+    MonitorElement* meClChargeOnTrack_diskp2; 
+    MonitorElement* meClChargeOnTrack_diskm1; 
+    MonitorElement* meClChargeOnTrack_diskm2; 
     MonitorElement* meClChargeNotOnTrack_all; 
     MonitorElement* meClChargeNotOnTrack_bpix; 
     MonitorElement* meClChargeNotOnTrack_fpix; 
+    MonitorElement* meClChargeNotOnTrack_layer1; 
+    MonitorElement* meClChargeNotOnTrack_layer2; 
+    MonitorElement* meClChargeNotOnTrack_layer3; 
+    MonitorElement* meClChargeNotOnTrack_diskp1; 
+    MonitorElement* meClChargeNotOnTrack_diskp2; 
+    MonitorElement* meClChargeNotOnTrack_diskm1; 
+    MonitorElement* meClChargeNotOnTrack_diskm2;
     MonitorElement* meClSizeOnTrack_all; 
     MonitorElement* meClSizeOnTrack_bpix; 
     MonitorElement* meClSizeOnTrack_fpix; 
+    MonitorElement* meClSizeOnTrack_layer1; 
+    MonitorElement* meClSizeOnTrack_layer2; 
+    MonitorElement* meClSizeOnTrack_layer3; 
+    MonitorElement* meClSizeOnTrack_diskp1; 
+    MonitorElement* meClSizeOnTrack_diskp2; 
+    MonitorElement* meClSizeOnTrack_diskm1; 
+    MonitorElement* meClSizeOnTrack_diskm2; 
     MonitorElement* meClSizeNotOnTrack_all; 
     MonitorElement* meClSizeNotOnTrack_bpix; 
     MonitorElement* meClSizeNotOnTrack_fpix; 
+    MonitorElement* meClSizeNotOnTrack_layer1; 
+    MonitorElement* meClSizeNotOnTrack_layer2; 
+    MonitorElement* meClSizeNotOnTrack_layer3; 
+    MonitorElement* meClSizeNotOnTrack_diskp1; 
+    MonitorElement* meClSizeNotOnTrack_diskp2; 
+    MonitorElement* meClSizeNotOnTrack_diskm1; 
+    MonitorElement* meClSizeNotOnTrack_diskm2;
+    MonitorElement* meClSizeXOnTrack_all; 
+    MonitorElement* meClSizeXOnTrack_bpix; 
+    MonitorElement* meClSizeXOnTrack_fpix; 
+    MonitorElement* meClSizeXOnTrack_layer1; 
+    MonitorElement* meClSizeXOnTrack_layer2; 
+    MonitorElement* meClSizeXOnTrack_layer3; 
+    MonitorElement* meClSizeXOnTrack_diskp1; 
+    MonitorElement* meClSizeXOnTrack_diskp2; 
+    MonitorElement* meClSizeXOnTrack_diskm1; 
+    MonitorElement* meClSizeXOnTrack_diskm2; 
+    MonitorElement* meClSizeXNotOnTrack_all; 
+    MonitorElement* meClSizeXNotOnTrack_bpix; 
+    MonitorElement* meClSizeXNotOnTrack_fpix; 
+    MonitorElement* meClSizeXNotOnTrack_layer1; 
+    MonitorElement* meClSizeXNotOnTrack_layer2; 
+    MonitorElement* meClSizeXNotOnTrack_layer3; 
+    MonitorElement* meClSizeXNotOnTrack_diskp1; 
+    MonitorElement* meClSizeXNotOnTrack_diskp2; 
+    MonitorElement* meClSizeXNotOnTrack_diskm1; 
+    MonitorElement* meClSizeXNotOnTrack_diskm2;
+    MonitorElement* meClSizeYOnTrack_all; 
+    MonitorElement* meClSizeYOnTrack_bpix; 
+    MonitorElement* meClSizeYOnTrack_fpix; 
+    MonitorElement* meClSizeYOnTrack_layer1; 
+    MonitorElement* meClSizeYOnTrack_layer2; 
+    MonitorElement* meClSizeYOnTrack_layer3; 
+    MonitorElement* meClSizeYOnTrack_diskp1; 
+    MonitorElement* meClSizeYOnTrack_diskp2; 
+    MonitorElement* meClSizeYOnTrack_diskm1; 
+    MonitorElement* meClSizeYOnTrack_diskm2; 
+    MonitorElement* meClSizeYNotOnTrack_all; 
+    MonitorElement* meClSizeYNotOnTrack_bpix; 
+    MonitorElement* meClSizeYNotOnTrack_fpix; 
+    MonitorElement* meClSizeYNotOnTrack_layer1; 
+    MonitorElement* meClSizeYNotOnTrack_layer2; 
+    MonitorElement* meClSizeYNotOnTrack_layer3; 
+    MonitorElement* meClSizeYNotOnTrack_diskp1; 
+    MonitorElement* meClSizeYNotOnTrack_diskp2; 
+    MonitorElement* meClSizeYNotOnTrack_diskm1; 
+    MonitorElement* meClSizeYNotOnTrack_diskm2;
+
+    //new
+    MonitorElement* meNClustersOnTrack_all;
+    MonitorElement* meNClustersOnTrack_bpix;
+    MonitorElement* meNClustersOnTrack_fpix; 
+    MonitorElement* meNClustersOnTrack_layer1; 
+    MonitorElement* meNClustersOnTrack_layer2; 
+    MonitorElement* meNClustersOnTrack_layer3; 
+    MonitorElement* meNClustersOnTrack_diskp1; 
+    MonitorElement* meNClustersOnTrack_diskp2; 
+    MonitorElement* meNClustersOnTrack_diskm1; 
+    MonitorElement* meNClustersOnTrack_diskm2; 
+    MonitorElement* meNClustersNotOnTrack_all; 
+    MonitorElement* meNClustersNotOnTrack_bpix; 
+    MonitorElement* meNClustersNotOnTrack_fpix; 
+    MonitorElement* meNClustersNotOnTrack_layer1; 
+    MonitorElement* meNClustersNotOnTrack_layer2; 
+    MonitorElement* meNClustersNotOnTrack_layer3; 
+    MonitorElement* meNClustersNotOnTrack_diskp1; 
+    MonitorElement* meNClustersNotOnTrack_diskp2; 
+    MonitorElement* meNClustersNotOnTrack_diskm1; 
+    MonitorElement* meNClustersNotOnTrack_diskm2;
+    //
 
     MonitorElement* meClPosLayer1OnTrack; 
     MonitorElement* meClPosLayer2OnTrack; 

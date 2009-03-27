@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualSource.cc,v 1.5 2009/01/28 10:54:35 wehrlilu Exp $
+// $Id: SiPixelTrackResidualSource.cc,v 1.6 2009/03/24 13:43:09 wehrlilu Exp $
 
 
 #include <iostream>
@@ -167,13 +167,13 @@ void SiPixelTrackResidualSource::beginJob(edm::EventSetup const& iSetup) {
 
   //number of clusters (associated to track / not associated)
   dbe_->setCurrentFolder("Pixel/Clusters/OnTrack");
-  meNofClustersOnTrack_ = dbe_->book1D("nclusters_" + clustersrc_.label(),"Number of Clusters (on track)",3,0,3);
+  meNofClustersOnTrack_ = dbe_->book1D("nclusters_" + clustersrc_.label() + "_tot","Number of Clusters (on track)",3,0,3);
   meNofClustersOnTrack_->setAxisTitle("Number of Clusters on Track",1);
   meNofClustersOnTrack_->setBinLabel(1,"All");
   meNofClustersOnTrack_->setBinLabel(2,"BPix");
   meNofClustersOnTrack_->setBinLabel(3,"FPix");
   dbe_->setCurrentFolder("Pixel/Clusters/OffTrack");
-  meNofClustersNotOnTrack_ = dbe_->book1D("nclusters_" + clustersrc_.label(),"Number of Clusters (off track)",3,0,3);
+  meNofClustersNotOnTrack_ = dbe_->book1D("nclusters_" + clustersrc_.label() + "_tot","Number of Clusters (off track)",3,0,3);
   meNofClustersNotOnTrack_->setAxisTitle("Number of Clusters off Track",1);
   meNofClustersNotOnTrack_->setBinLabel(1,"All");
   meNofClustersNotOnTrack_->setBinLabel(2,"BPix");
@@ -189,6 +189,22 @@ void SiPixelTrackResidualSource::beginJob(edm::EventSetup const& iSetup) {
   meClChargeOnTrack_bpix->setAxisTitle("Charge size (in ke)",1);
   meClChargeOnTrack_fpix = dbe_->book1D("charge_" + clustersrc_.label() + "_Endcap","Charge (on track, endcap)",500,0.,500.);
   meClChargeOnTrack_fpix->setAxisTitle("Charge size (in ke)",1);
+
+  meClChargeOnTrack_layer1 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_1","Charge (on track, layer1)",500,0.,500.);
+  meClChargeOnTrack_layer1->setAxisTitle("Charge size (in ke)",1);
+  meClChargeOnTrack_layer2 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_2","Charge (on track, layer2)",500,0.,500.);
+  meClChargeOnTrack_layer2->setAxisTitle("Charge size (in ke)",1);
+  meClChargeOnTrack_layer3 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_3","Charge (on track, layer3)",500,0.,500.);
+  meClChargeOnTrack_layer3->setAxisTitle("Charge size (in ke)",1);
+  meClChargeOnTrack_diskp1 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_p1","Charge (on track, diskp1)",500,0.,500.);
+  meClChargeOnTrack_diskp1->setAxisTitle("Charge size (in ke)",1);
+  meClChargeOnTrack_diskp2 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_p2","Charge (on track, diskp2)",500,0.,500.);
+  meClChargeOnTrack_diskp2->setAxisTitle("Charge size (in ke)",1);
+  meClChargeOnTrack_diskm1 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_m1","Charge (on track, diskm1)",500,0.,500.);
+  meClChargeOnTrack_diskm1->setAxisTitle("Charge size (in ke)",1);
+  meClChargeOnTrack_diskm2 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_m2","Charge (on track, diskm2)",500,0.,500.);
+  meClChargeOnTrack_diskm2->setAxisTitle("Charge size (in ke)",1);
+
   //off track
   dbe_->setCurrentFolder("Pixel/Clusters/OffTrack");
   meClChargeNotOnTrack_all = dbe_->book1D("charge_" + clustersrc_.label(),"Charge (off track)",500,0.,500.);
@@ -197,26 +213,150 @@ void SiPixelTrackResidualSource::beginJob(edm::EventSetup const& iSetup) {
   meClChargeNotOnTrack_bpix->setAxisTitle("Charge size (in ke)",1);
   meClChargeNotOnTrack_fpix = dbe_->book1D("charge_" + clustersrc_.label() + "_Endcap","Charge (off track, endcap)",500,0.,500.);
   meClChargeNotOnTrack_fpix->setAxisTitle("Charge size (in ke)",1);
+  meClChargeNotOnTrack_layer1 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_1","Charge (off track, layer1)",500,0.,500.);
+  meClChargeNotOnTrack_layer1->setAxisTitle("Charge size (in ke)",1);
+  meClChargeNotOnTrack_layer2 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_2","Charge (off track, layer2)",500,0.,500.);
+  meClChargeNotOnTrack_layer2->setAxisTitle("Charge size (in ke)",1);
+  meClChargeNotOnTrack_layer3 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_3","Charge (off track, layer3)",500,0.,500.);
+  meClChargeNotOnTrack_layer3->setAxisTitle("Charge size (in ke)",1);
+  meClChargeNotOnTrack_diskp1 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_p1","Charge (off track, diskp1)",500,0.,500.);
+  meClChargeNotOnTrack_diskp1->setAxisTitle("Charge size (in ke)",1);
+  meClChargeNotOnTrack_diskp2 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_p2","Charge (off track, diskp2)",500,0.,500.);
+  meClChargeNotOnTrack_diskp2->setAxisTitle("Charge size (in ke)",1);
+  meClChargeNotOnTrack_diskm1 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_m1","Charge (off track, diskm1)",500,0.,500.);
+  meClChargeNotOnTrack_diskm1->setAxisTitle("Charge size (in ke)",1);
+  meClChargeNotOnTrack_diskm2 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_m2","Charge (off track, diskm2)",500,0.,500.);
+  meClChargeNotOnTrack_diskm2->setAxisTitle("Charge size (in ke)",1);
   //size
   //on track
   dbe_->setCurrentFolder("Pixel/Clusters/OnTrack");
   meClSizeOnTrack_all = dbe_->book1D("size_" + clustersrc_.label(),"Size (on track)",100,0.,100.);
   meClSizeOnTrack_all->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeOnTrack_bpix = dbe_->book1D("size" + clustersrc_.label() + "_Barrel","Size (on track, barrel)",100,0.,100.);
+  meClSizeOnTrack_bpix = dbe_->book1D("size_" + clustersrc_.label() + "_Barrel","Size (on track, barrel)",100,0.,100.);
   meClSizeOnTrack_bpix->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeOnTrack_fpix = dbe_->book1D("size_" + clustersrc_.label() + "_Endcap","Size (on track, endcap)",100,0.,100.);
   meClSizeOnTrack_fpix->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeOnTrack_layer1 = dbe_->book1D("size_" + clustersrc_.label() + "_Layer_1","Size (on track, layer1)",100,0.,100.);
+  meClSizeOnTrack_layer1->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeOnTrack_layer2 = dbe_->book1D("size_" + clustersrc_.label() + "_Layer_2","Size (on track, layer2)",100,0.,100.);
+  meClSizeOnTrack_layer2->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeOnTrack_layer3 = dbe_->book1D("size_" + clustersrc_.label() + "_Layer_3","Size (on track, layer3)",100,0.,100.);
+  meClSizeOnTrack_layer3->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeOnTrack_diskp1 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_p1","Size (on track, diskp1)",100,0.,100.);
+  meClSizeOnTrack_diskp1->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeOnTrack_diskp2 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_p2","Size (on track, diskp2)",100,0.,100.);
+  meClSizeOnTrack_diskp2->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeOnTrack_diskm1 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_m1","Size (on track, diskm1)",100,0.,100.);
+  meClSizeOnTrack_diskm1->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeOnTrack_diskm2 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_m2","Size (on track, diskm2)",100,0.,100.);
+  meClSizeOnTrack_diskm2->setAxisTitle("Cluster size (in pixels)",1);
+
+  meClSizeXOnTrack_all = dbe_->book1D("sizeX_" + clustersrc_.label(),"SizeX (on track)",100,0.,100.);
+  meClSizeXOnTrack_all->setAxisTitle("Cluster sizeX (in pixels)",1);
+  meClSizeXOnTrack_bpix = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Barrel","SizeX (on track, barrel)",100,0.,100.);
+  meClSizeXOnTrack_bpix->setAxisTitle("Cluster sizeX (in pixels)",1);
+  meClSizeXOnTrack_fpix = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Endcap","SizeX (on track, endcap)",100,0.,100.);
+  meClSizeXOnTrack_fpix->setAxisTitle("Cluster sizeX (in pixels)",1);
+  meClSizeXOnTrack_layer1 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Layer_1","SizeX (on track, layer1)",100,0.,100.);
+  meClSizeXOnTrack_layer1->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeXOnTrack_layer2 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Layer_2","SizeX (on track, layer2)",100,0.,100.);
+  meClSizeXOnTrack_layer2->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeXOnTrack_layer3 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Layer_3","SizeX (on track, layer3)",100,0.,100.);
+  meClSizeXOnTrack_layer3->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeXOnTrack_diskp1 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_p1","SizeX (on track, diskp1)",100,0.,100.);
+  meClSizeXOnTrack_diskp1->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeXOnTrack_diskp2 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_p2","SizeX (on track, diskp2)",100,0.,100.);
+  meClSizeXOnTrack_diskp2->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeXOnTrack_diskm1 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_m1","SizeX (on track, diskm1)",100,0.,100.);
+  meClSizeXOnTrack_diskm1->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeXOnTrack_diskm2 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_m2","SizeX (on track, diskm2)",100,0.,100.);
+  meClSizeXOnTrack_diskm2->setAxisTitle("Cluster size (in pixels)",1);
+
+  meClSizeYOnTrack_all = dbe_->book1D("sizeY_" + clustersrc_.label(),"SizeY (on track)",100,0.,100.);
+  meClSizeYOnTrack_all->setAxisTitle("Cluster sizeY (in pixels)",1);
+  meClSizeYOnTrack_bpix = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Barrel","SizeY (on track, barrel)",100,0.,100.);
+  meClSizeYOnTrack_bpix->setAxisTitle("Cluster sizeY (in pixels)",1);
+  meClSizeYOnTrack_fpix = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Endcap","SizeY (on track, endcap)",100,0.,100.);
+  meClSizeYOnTrack_fpix->setAxisTitle("Cluster sizeY (in pixels)",1);
+  meClSizeYOnTrack_layer1 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Layer_1","SizeY (on track, layer1)",100,0.,100.);
+  meClSizeYOnTrack_layer1->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeYOnTrack_layer2 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Layer_2","SizeY (on track, layer2)",100,0.,100.);
+  meClSizeYOnTrack_layer2->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeYOnTrack_layer3 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Layer_3","SizeY (on track, layer3)",100,0.,100.);
+  meClSizeYOnTrack_layer3->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeYOnTrack_diskp1 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_p1","SizeY (on track, diskp1)",100,0.,100.);
+  meClSizeYOnTrack_diskp1->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeYOnTrack_diskp2 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_p2","SizeY (on track, diskp2)",100,0.,100.);
+  meClSizeYOnTrack_diskp2->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeYOnTrack_diskm1 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_m1","SizeY (on track, diskm1)",100,0.,100.);
+  meClSizeYOnTrack_diskm1->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeYOnTrack_diskm2 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_m2","SizeY (on track, diskm2)",100,0.,100.);
+  meClSizeYOnTrack_diskm2->setAxisTitle("Cluster size (in pixels)",1);
   //off track
   dbe_->setCurrentFolder("Pixel/Clusters/OffTrack");
   meClSizeNotOnTrack_all = dbe_->book1D("size_" + clustersrc_.label(),"Size (off track)",100,0.,100.);
-  meClSizeNotOnTrack_all->setAxisTitle("Cluster size (in pixels)",1);
-  
+  meClSizeNotOnTrack_all->setAxisTitle("Cluster size (in pixels)",1); 
   meClSizeNotOnTrack_bpix = dbe_->book1D("size_" + clustersrc_.label() + "_Barrel","Size (off track, barrel)",100,0.,100.);
   meClSizeNotOnTrack_bpix->setAxisTitle("Cluster size (in pixels)",1);
-  
   meClSizeNotOnTrack_fpix = dbe_->book1D("size_" + clustersrc_.label() + "_Endcap","Size (off track, endcap)",100,0.,100.);
   meClSizeNotOnTrack_fpix->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeNotOnTrack_layer1 = dbe_->book1D("size_" + clustersrc_.label() + "_Layer_1","Size (off track, layer1)",100,0.,100.);
+  meClSizeNotOnTrack_layer1->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeNotOnTrack_layer2 = dbe_->book1D("size_" + clustersrc_.label() + "_Layer_2","Size (off track, layer2)",100,0.,100.);
+  meClSizeNotOnTrack_layer2->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeNotOnTrack_layer3 = dbe_->book1D("size_" + clustersrc_.label() + "_Layer_3","Size (off track, layer3)",100,0.,100.);
+  meClSizeNotOnTrack_layer3->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeNotOnTrack_diskp1 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_p1","Size (off track, diskp1)",100,0.,100.);
+  meClSizeNotOnTrack_diskp1->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeNotOnTrack_diskp2 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_p2","Size (off track, diskp2)",100,0.,100.);
+  meClSizeNotOnTrack_diskp2->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeNotOnTrack_diskm1 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_m1","Size (off track, diskm1)",100,0.,100.);
+  meClSizeNotOnTrack_diskm1->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeNotOnTrack_diskm2 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_m2","Size (off track, diskm2)",100,0.,100.);
+  meClSizeNotOnTrack_diskm2->setAxisTitle("Cluster size (in pixels)",1);
 
+
+  meClSizeXNotOnTrack_all = dbe_->book1D("sizeX_" + clustersrc_.label(),"SizeX (off track)",100,0.,100.);
+  meClSizeXNotOnTrack_all->setAxisTitle("Cluster sizeX (in pixels)",1);
+  meClSizeXNotOnTrack_bpix = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Barrel","SizeX (off track, barrel)",100,0.,100.);
+  meClSizeXNotOnTrack_bpix->setAxisTitle("Cluster sizeX (in pixels)",1);
+  meClSizeXNotOnTrack_fpix = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Endcap","SizeX (off track, endcap)",100,0.,100.);
+  meClSizeXNotOnTrack_fpix->setAxisTitle("Cluster sizeX (in pixels)",1);
+  meClSizeXNotOnTrack_layer1 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Layer_1","SizeX (off track, layer1)",100,0.,100.);
+  meClSizeXNotOnTrack_layer1->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeXNotOnTrack_layer2 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Layer_2","SizeX (off track, layer2)",100,0.,100.);
+  meClSizeXNotOnTrack_layer2->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeXNotOnTrack_layer3 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Layer_3","SizeX (off track, layer3)",100,0.,100.);
+  meClSizeXNotOnTrack_layer3->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeXNotOnTrack_diskp1 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_p1","SizeX (off track, diskp1)",100,0.,100.);
+  meClSizeXNotOnTrack_diskp1->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeXNotOnTrack_diskp2 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_p2","SizeX (off track, diskp2)",100,0.,100.);
+  meClSizeXNotOnTrack_diskp2->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeXNotOnTrack_diskm1 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_m1","SizeX (off track, diskm1)",100,0.,100.);
+  meClSizeXNotOnTrack_diskm1->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeXNotOnTrack_diskm2 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_m2","SizeX (off track, diskm2)",100,0.,100.);
+  meClSizeXNotOnTrack_diskm2->setAxisTitle("Cluster size (in pixels)",1);
+
+  meClSizeYNotOnTrack_all = dbe_->book1D("sizeY_" + clustersrc_.label(),"SizeY (off track)",100,0.,100.);
+  meClSizeYNotOnTrack_all->setAxisTitle("Cluster sizeY (in pixels)",1);
+  meClSizeYNotOnTrack_bpix = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Barrel","SizeY (off track, barrel)",100,0.,100.);
+  meClSizeYNotOnTrack_bpix->setAxisTitle("Cluster sizeY (in pixels)",1);
+  meClSizeYNotOnTrack_fpix = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Endcap","SizeY (off track, endcap)",100,0.,100.);
+  meClSizeYNotOnTrack_fpix->setAxisTitle("Cluster sizeY (in pixels)",1);
+  meClSizeYNotOnTrack_layer1 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Layer_1","SizeY (off track, layer1)",100,0.,100.);
+  meClSizeYNotOnTrack_layer1->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeYNotOnTrack_layer2 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Layer_2","SizeY (off track, layer2)",100,0.,100.);
+  meClSizeYNotOnTrack_layer2->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeYNotOnTrack_layer3 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Layer_3","SizeY (off track, layer3)",100,0.,100.);
+  meClSizeYNotOnTrack_layer3->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeYNotOnTrack_diskp1 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_p1","SizeY (off track, diskp1)",100,0.,100.);
+  meClSizeYNotOnTrack_diskp1->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeYNotOnTrack_diskp2 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_p2","SizeY (off track, diskp2)",100,0.,100.);
+  meClSizeYNotOnTrack_diskp2->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeYNotOnTrack_diskm1 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_m1","SizeY (off track, diskm1)",100,0.,100.);
+  meClSizeYNotOnTrack_diskm1->setAxisTitle("Cluster size (in pixels)",1);
+  meClSizeYNotOnTrack_diskm2 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_m2","SizeY (off track, diskm2)",100,0.,100.);
+  meClSizeYNotOnTrack_diskm2->setAxisTitle("Cluster size (in pixels)",1);
 
   //cluster global position
   //on track
@@ -244,6 +384,28 @@ void SiPixelTrackResidualSource::beginJob(edm::EventSetup const& iSetup) {
   meClPosDisk2mzOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_mz_Disk_2","Clusters -Z Disk2 (on track)",80,-20.,20.,80,-20.,20.);
   meClPosDisk2mzOnTrack->setAxisTitle("Global X (cm)",1);
   meClPosDisk2mzOnTrack->setAxisTitle("Global Y (cm)",2);
+
+  meNClustersOnTrack_all = dbe_->book1D("nclusters_" + clustersrc_.label(),"Number of Clusters (on Track)",50,0.,50.);
+  meNClustersOnTrack_all->setAxisTitle("Number of Clusters",1);
+  meNClustersOnTrack_bpix = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Barrel","Number of Clusters (on track, barrel)",50,0.,50.);
+  meNClustersOnTrack_bpix->setAxisTitle("Number of Clusters",1);
+  meNClustersOnTrack_fpix = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Endcap","Number of Clusters (on track, endcap)",50,0.,50.);
+  meNClustersOnTrack_fpix->setAxisTitle("Number of Clusters",1);
+  meNClustersOnTrack_layer1 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Layer_1","Number of Clusters (on track, layer1)",50,0.,50.);
+  meNClustersOnTrack_layer1->setAxisTitle("Number of Clusters",1);
+  meNClustersOnTrack_layer2 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Layer_2","Number of Clusters (on track, layer2)",50,0.,50.);
+  meNClustersOnTrack_layer2->setAxisTitle("Number of Clusters",1);
+  meNClustersOnTrack_layer3 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Layer_3","Number of Clusters (on track, layer3)",50,0.,50.);
+  meNClustersOnTrack_layer3->setAxisTitle("Number of Clusters",1);
+  meNClustersOnTrack_diskp1 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_p1","Number of Clusters (on track, diskp1)",50,0.,50.);
+  meNClustersOnTrack_diskp1->setAxisTitle("Number of Clusters",1);
+  meNClustersOnTrack_diskp2 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_p2","Number of Clusters (on track, diskp2)",50,0.,50.);
+  meNClustersOnTrack_diskp2->setAxisTitle("Number of Clusters",1);
+  meNClustersOnTrack_diskm1 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_m1","Number of Clusters (on track, diskm1)",50,0.,50.);
+  meNClustersOnTrack_diskm1->setAxisTitle("Number of Clusters",1);
+  meNClustersOnTrack_diskm2 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_m2","Number of Clusters (on track, diskm2)",50,0.,50.);
+  meNClustersOnTrack_diskm2->setAxisTitle("Number of Clusters",1);
+
   //not on track
   dbe_->setCurrentFolder("Pixel/Clusters/OffTrack");
   //bpix
@@ -269,6 +431,27 @@ void SiPixelTrackResidualSource::beginJob(edm::EventSetup const& iSetup) {
   meClPosDisk2mzNotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_mz_Disk_2","Clusters -Z Disk2 (off track)",80,-20.,20.,80,-20.,20.);
   meClPosDisk2mzNotOnTrack->setAxisTitle("Global X (cm)",1);
   meClPosDisk2mzNotOnTrack->setAxisTitle("Global Y (cm)",2);
+
+  meNClustersNotOnTrack_all = dbe_->book1D("nclusters_" + clustersrc_.label(),"Number of Clusters (off Track)",50,0.,50.);
+  meNClustersNotOnTrack_all->setAxisTitle("Number of Clusters",1);
+  meNClustersNotOnTrack_bpix = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Barrel","Number of Clusters (off track, barrel)",50,0.,50.);
+  meNClustersNotOnTrack_bpix->setAxisTitle("Number of Clusters",1);
+  meNClustersNotOnTrack_fpix = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Endcap","Number of Clusters (off track, endcap)",50,0.,50.);
+  meNClustersNotOnTrack_fpix->setAxisTitle("Number of Clusters",1);
+  meNClustersNotOnTrack_layer1 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Layer_1","Number of Clusters (off track, layer1)",50,0.,50.);
+  meNClustersNotOnTrack_layer1->setAxisTitle("Number of Clusters",1);
+  meNClustersNotOnTrack_layer2 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Layer_2","Number of Clusters (off track, layer2)",50,0.,50.);
+  meNClustersNotOnTrack_layer2->setAxisTitle("Number of Clusters",1);
+  meNClustersNotOnTrack_layer3 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Layer_3","Number of Clusters (off track, layer3)",50,0.,50.);
+  meNClustersNotOnTrack_layer3->setAxisTitle("Number of Clusters",1);
+  meNClustersNotOnTrack_diskp1 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_p1","Number of Clusters (off track, diskp1)",50,0.,50.);
+  meNClustersNotOnTrack_diskp1->setAxisTitle("Number of Clusters",1);
+  meNClustersNotOnTrack_diskp2 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_p2","Number of Clusters (off track, diskp2)",50,0.,50.);
+  meNClustersNotOnTrack_diskp2->setAxisTitle("Number of Clusters",1);
+  meNClustersNotOnTrack_diskm1 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_m1","Number of Clusters (off track, diskm1)",50,0.,50.);
+  meNClustersNotOnTrack_diskm1->setAxisTitle("Number of Clusters",1);
+  meNClustersNotOnTrack_diskm2 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_m2","Number of Clusters (off track, diskm2)",50,0.,50.);
+  meNClustersNotOnTrack_diskm2->setAxisTitle("Number of Clusters",1);
 
   if (debug_) {
     // book summary residual histograms in a debugging folder - one (x,y) pair of histograms per subdetector 
@@ -407,7 +590,6 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
     }																
   } 
 
-  //NEWPART
 
   //get trajectories
   edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
@@ -539,8 +721,11 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 
 
 	      trackclusters++;
-	      meClChargeOnTrack_all->Fill((*clust).charge()/1000.);
+	      //CORR CHARGE
+	      meClChargeOnTrack_all->Fill(corrCharge);
 	      meClSizeOnTrack_all->Fill((*clust).size());
+	      meClSizeXOnTrack_all->Fill((*clust).sizeX());
+	      meClSizeYOnTrack_all->Fill((*clust).sizeY());
 	      clusterSet.insert(*clust);
 
 	      //find cluster global position (rphi, z)
@@ -557,34 +742,85 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	      bool endcap = DetId::DetId((*hit).geographicalId()).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
 	      if(barrel) {
 		barreltrackclusters++;
-		meClChargeOnTrack_bpix->Fill((*clust).charge()/1000.);
+		//CORR CHARGE
+		meClChargeOnTrack_bpix->Fill(corrCharge);
 		meClSizeOnTrack_bpix->Fill((*clust).size());
+		meClSizeXOnTrack_bpix->Fill((*clust).sizeX());
+		meClSizeYOnTrack_bpix->Fill((*clust).sizeY());
 		uint32_t DBlayer = PixelBarrelName::PixelBarrelName(DetId::DetId((*hit).geographicalId())).layerName();
 		float phi = clustgp.phi(); 
 		float z = clustgp.z();
 		switch(DBlayer){
-		case 1: meClPosLayer1OnTrack->Fill(z,phi); break;
-		case 2: meClPosLayer2OnTrack->Fill(z,phi); break;
-		case 3: meClPosLayer3OnTrack->Fill(z,phi); break;
+		case 1: {
+		  meClPosLayer1OnTrack->Fill(z,phi); 
+		  meClChargeOnTrack_layer1->Fill(corrCharge);
+		  meClSizeOnTrack_layer1->Fill((*clust).size());
+		  meClSizeXOnTrack_layer1->Fill((*clust).sizeX());
+		  meClSizeYOnTrack_layer1->Fill((*clust).sizeY());
+		  break;
+		}
+		case 2: {
+		  meClPosLayer2OnTrack->Fill(z,phi); 
+		  meClChargeOnTrack_layer2->Fill(corrCharge);
+		  meClSizeOnTrack_layer2->Fill((*clust).size());
+		  meClSizeXOnTrack_layer2->Fill((*clust).sizeX());
+		  meClSizeYOnTrack_layer2->Fill((*clust).sizeY());
+		  break;
+		}
+		case 3: {
+		  meClPosLayer3OnTrack->Fill(z,phi); 
+		  meClChargeOnTrack_layer3->Fill(corrCharge);
+		  meClSizeOnTrack_layer3->Fill((*clust).size());
+		  meClSizeXOnTrack_layer3->Fill((*clust).sizeX());
+		  meClSizeYOnTrack_layer3->Fill((*clust).sizeY());
+		  break;
+		}
 		
 		}
 		
 	      }
 	      if(endcap) {
 		endcaptrackclusters++;
-		meClChargeOnTrack_fpix->Fill((*clust).charge()/1000.);
+		//CORR CHARGE
+		meClChargeOnTrack_fpix->Fill(corrCharge);
 		meClSizeOnTrack_fpix->Fill((*clust).size());
+		meClSizeXOnTrack_fpix->Fill((*clust).sizeX());
+		meClSizeYOnTrack_fpix->Fill((*clust).sizeY());
 		uint32_t DBdisk = PixelEndcapName::PixelEndcapName(DetId::DetId((*hit).geographicalId())).diskName();
 		float x = clustgp.x(); 
 		float y = clustgp.y(); 
 		float z = clustgp.z();
 		if(z>0){
-		  if(DBdisk==1) meClPosDisk1pzOnTrack->Fill(x,y);
-		  if(DBdisk==2) meClPosDisk2pzOnTrack->Fill(x,y); 
+		  if(DBdisk==1) {
+		    meClPosDisk1pzOnTrack->Fill(x,y);
+		    meClChargeOnTrack_diskp1->Fill(corrCharge);
+		    meClSizeOnTrack_diskp1->Fill((*clust).size());
+		    meClSizeXOnTrack_diskp1->Fill((*clust).sizeX());
+		    meClSizeYOnTrack_diskp1->Fill((*clust).sizeY());
+		  }
+		  if(DBdisk==2) {
+		    meClPosDisk2pzOnTrack->Fill(x,y); 
+		    meClChargeOnTrack_diskp2->Fill(corrCharge);
+		    meClSizeOnTrack_diskp2->Fill((*clust).size());
+		    meClSizeXOnTrack_diskp2->Fill((*clust).sizeX());
+		    meClSizeYOnTrack_diskp2->Fill((*clust).sizeY());
+		  }
 		}
 		else{
-		  if(DBdisk==1) meClPosDisk1mzOnTrack->Fill(x,y);
-		  if(DBdisk==2) meClPosDisk2mzOnTrack->Fill(x,y); 
+		  if(DBdisk==1) {
+		    meClPosDisk1mzOnTrack->Fill(x,y);
+		    meClChargeOnTrack_diskm1->Fill(corrCharge);
+		    meClSizeOnTrack_diskm1->Fill((*clust).size());
+		    meClSizeXOnTrack_diskm1->Fill((*clust).sizeX());
+		    meClSizeYOnTrack_diskm1->Fill((*clust).sizeY());
+		  }
+		  if(DBdisk==2) {
+		    meClPosDisk2mzOnTrack->Fill(x,y); 
+		    meClChargeOnTrack_diskm2->Fill(corrCharge);
+		    meClSizeOnTrack_diskm2->Fill((*clust).size());
+		    meClSizeXOnTrack_diskm2->Fill((*clust).sizeX());
+		    meClSizeYOnTrack_diskm2->Fill((*clust).sizeY());
+		  }
 		} 
 	      }
 	      
@@ -611,9 +847,17 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   for(TrackerGeometry::DetContainer::const_iterator it = TG->dets().begin(); it != TG->dets().end(); it++){
     if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){ 
       DetId detId = (*it)->geographicalId();
-      //++
-      int nofclOnTrack = 0, nofclOffTrack=0; 
       
+      int nofclOnTrack = 0, nofclOffTrack=0; 
+      uint32_t DBlayer=10, DBdisk=10; 
+      float z=0.; 
+      //set layer/disk
+      if(DetId::DetId(detId).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
+	DBlayer = PixelBarrelName::PixelBarrelName(DetId::DetId(detId)).layerName();
+      }
+      if(DetId::DetId(detId).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)){
+	DBdisk = PixelEndcapName::PixelEndcapName(DetId::DetId(detId )).diskName();
+      }
       edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch = clustColl.find(detId);
       if( isearch != clustColl.end() ) {  // Not an empty iterator
 	edmNew::DetSet<SiPixelCluster>::const_iterator  di;
@@ -633,6 +877,8 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 
 
 	    meClSizeNotOnTrack_all->Fill((*di).size());
+	    meClSizeXNotOnTrack_all->Fill((*di).sizeX());
+	    meClSizeYNotOnTrack_all->Fill((*di).sizeY());
 	    meClChargeNotOnTrack_all->Fill((*di).charge()/1000);
 
 	    /////////////////////////////////////////////////
@@ -660,48 +906,166 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	    //barrel
 	    if(DetId::DetId(detId).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
 	      meClSizeNotOnTrack_bpix->Fill((*di).size());
+	      meClSizeXNotOnTrack_bpix->Fill((*di).sizeX());
+	      meClSizeYNotOnTrack_bpix->Fill((*di).sizeY());
 	      meClChargeNotOnTrack_bpix->Fill((*di).charge()/1000);
 	      barrelotherclusters++;
-	      uint32_t DBlayer = PixelBarrelName::PixelBarrelName(DetId::DetId(detId)).layerName();
+	      //DBlayer = PixelBarrelName::PixelBarrelName(DetId::DetId(detId)).layerName();
 	      float phi = clustgp.phi(); 
 	      //float r = clustgp.perp();
-	      float z = clustgp.z();
+	      z = clustgp.z();
 	      switch(DBlayer){
-	      case 1: meClPosLayer1NotOnTrack->Fill(z,phi); break;
-	      case 2: meClPosLayer2NotOnTrack->Fill(z,phi); break;
-	      case 3: meClPosLayer3NotOnTrack->Fill(z,phi); break;
+	      case 1: {
+		meClPosLayer1NotOnTrack->Fill(z,phi); 
+		meClSizeNotOnTrack_layer1->Fill((*di).size());
+		meClSizeXNotOnTrack_layer1->Fill((*di).sizeX());
+		meClSizeYNotOnTrack_layer1->Fill((*di).sizeY());
+		meClChargeNotOnTrack_layer1->Fill((*di).charge()/1000);
+		break;
+	      }
+	      case 2: {
+		meClPosLayer2NotOnTrack->Fill(z,phi);
+		meClSizeNotOnTrack_layer2->Fill((*di).size());
+		meClSizeXNotOnTrack_layer2->Fill((*di).sizeX());
+		meClSizeYNotOnTrack_layer2->Fill((*di).sizeY());
+		meClChargeNotOnTrack_layer2->Fill((*di).charge()/1000);
+		break;
+	      }
+	      case 3: {
+		meClPosLayer3NotOnTrack->Fill(z,phi); 
+		meClSizeNotOnTrack_layer3->Fill((*di).size());
+		meClSizeXNotOnTrack_layer3->Fill((*di).sizeX());
+		meClSizeYNotOnTrack_layer3->Fill((*di).sizeY());
+		meClChargeNotOnTrack_layer3->Fill((*di).charge()/1000);
+		break;
+	      }
 		
 	      }
 	    }
 	    //endcap
 	    if(DetId::DetId(detId).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
 	      meClSizeNotOnTrack_fpix->Fill((*di).size());
+	      meClSizeXNotOnTrack_fpix->Fill((*di).sizeX());
+	      meClSizeYNotOnTrack_fpix->Fill((*di).sizeY());
 	      meClChargeNotOnTrack_fpix->Fill((*di).charge()/1000);
 	      endcapotherclusters++;
-	      uint32_t DBdisk = PixelEndcapName::PixelEndcapName(DetId::DetId(detId )).diskName();
+	      //DBdisk = PixelEndcapName::PixelEndcapName(DetId::DetId(detId )).diskName();
 	      float x = clustgp.x(); 
 	      float y = clustgp.y(); 
-	      float z = clustgp.z();
+	      z = clustgp.z();
 	      if(z>0){
-		if(DBdisk==1) meClPosDisk1pzNotOnTrack->Fill(x,y);
-		if(DBdisk==2) meClPosDisk2pzNotOnTrack->Fill(x,y); 
+		if(DBdisk==1) {
+		  meClPosDisk1pzNotOnTrack->Fill(x,y);
+		  meClSizeNotOnTrack_diskp1->Fill((*di).size());
+		  meClSizeXNotOnTrack_diskp1->Fill((*di).sizeX());
+		  meClSizeYNotOnTrack_diskp1->Fill((*di).sizeY());
+		  meClChargeNotOnTrack_diskp1->Fill((*di).charge()/1000);
+		}
+		if(DBdisk==2) {
+		  meClPosDisk2pzNotOnTrack->Fill(x,y); 
+		  meClSizeNotOnTrack_diskp2->Fill((*di).size());
+		  meClSizeXNotOnTrack_diskp2->Fill((*di).sizeX());
+		  meClSizeYNotOnTrack_diskp2->Fill((*di).sizeY());
+		  meClChargeNotOnTrack_diskp2->Fill((*di).charge()/1000);
+		}
 	      }
 	      else{
-		if(DBdisk==1) meClPosDisk1mzNotOnTrack->Fill(x,y);
-		if(DBdisk==2) meClPosDisk2mzNotOnTrack->Fill(x,y); 
+		if(DBdisk==1) {
+		  meClPosDisk1mzNotOnTrack->Fill(x,y);
+		  meClSizeNotOnTrack_diskm1->Fill((*di).size());
+		  meClSizeXNotOnTrack_diskm1->Fill((*di).sizeX());
+		  meClSizeYNotOnTrack_diskm1->Fill((*di).sizeY());
+		  meClChargeNotOnTrack_diskm1->Fill((*di).charge()/1000);
+		}
+		if(DBdisk==2) {
+		  meClPosDisk2mzNotOnTrack->Fill(x,y); 
+		  meClSizeNotOnTrack_diskm2->Fill((*di).size());
+		  meClSizeXNotOnTrack_diskm2->Fill((*di).sizeX());
+		  meClSizeYNotOnTrack_diskm2->Fill((*di).sizeY());
+		  meClChargeNotOnTrack_diskm2->Fill((*di).charge()/1000);
+		}
 	      } 
 
 	    }
 	  }// end "if cluster off track"
 	  else {
 	    nofclOnTrack++; 
+	    if(z == 0 && DBdisk != 10){
+	      //find cluster global position (rphi, z) get cluster
+	      //define tracker and pixel geometry and topology
+	      const TrackerGeometry& theTracker(*theTrackerGeometry);
+	      const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*> (theTracker.idToDet(detId) );
+	      //test if PixelGeomDetUnit exists
+	      if(theGeomDet == 0) {
+		if(debug_) std::cout << "NO THEGEOMDET\n";
+		continue;
+	      }
+	      const RectangularPixelTopology * topol = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+	      //center of gravity (of charge)
+	      float xcenter = di->x();
+	      float ycenter = di->y();
+	      // get the cluster position in local coordinates (cm) 
+	      LocalPoint clustlp = topol->localPosition( MeasurementPoint(xcenter, ycenter) );
+	      // get the cluster position in global coordinates (cm)
+	      GlobalPoint clustgp = theGeomDet->surface().toGlobal( clustlp );  
+	      z = clustgp.z();
+	    }
 	  }
 	}
       }
       //++ fill the number of clusters on a module
       std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.find((*it)->geographicalId().rawId());
       if (pxd!=theSiPixelStructure.end()) (*pxd).second->nfill(nofclOnTrack, nofclOffTrack, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn); 
-      
+      if(nofclOnTrack!=0) meNClustersOnTrack_all->Fill(nofclOnTrack); 
+      if(nofclOffTrack!=0) meNClustersNotOnTrack_all->Fill(nofclOffTrack); 
+      //barrel
+      if(DetId::DetId(detId).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)){
+	if(nofclOnTrack!=0) meNClustersOnTrack_bpix->Fill(nofclOnTrack); 
+	if(nofclOffTrack!=0) meNClustersNotOnTrack_bpix->Fill(nofclOffTrack); 
+	//DBlayer = PixelBarrelName::PixelBarrelName(DetId::DetId(detId)).layerName();
+	switch(DBlayer){
+	case 1: { 
+	  if(nofclOnTrack!=0) meNClustersOnTrack_layer1->Fill(nofclOnTrack);
+	  if(nofclOffTrack!=0) meNClustersNotOnTrack_layer1->Fill(nofclOffTrack); break;
+	}
+	case 2: {
+	  if(nofclOnTrack!=0) meNClustersOnTrack_layer2->Fill(nofclOnTrack);
+	  if(nofclOffTrack!=0) meNClustersNotOnTrack_layer2->Fill(nofclOffTrack); break; 
+	}
+	case 3: {
+	  if(nofclOnTrack!=0) meNClustersOnTrack_layer3->Fill(nofclOnTrack); 
+	  if(nofclOffTrack!=0) meNClustersNotOnTrack_layer3->Fill(nofclOffTrack); break; 
+	}
+	}
+      }//end barrel
+      //endcap
+      if(DetId::DetId(detId).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
+	//DBdisk = PixelEndcapName::PixelEndcapName(DetId::DetId(detId )).diskName();
+	//z = clustgp.z();
+	if(nofclOnTrack!=0) meNClustersOnTrack_fpix->Fill(nofclOnTrack); 
+	if(nofclOffTrack!=0) meNClustersNotOnTrack_fpix->Fill(nofclOffTrack);
+	if(z>0){
+	  if(DBdisk==1) {
+	    if(nofclOnTrack!=0) meNClustersOnTrack_diskp1->Fill(nofclOnTrack); 
+	    if(nofclOffTrack!=0) meNClustersNotOnTrack_diskp1->Fill(nofclOffTrack);
+	  }
+	  if(DBdisk==2) {
+	    if(nofclOnTrack!=0) meNClustersOnTrack_diskp2->Fill(nofclOnTrack); 
+	    if(nofclOffTrack!=0) meNClustersNotOnTrack_diskp2->Fill(nofclOffTrack);
+	  }
+	}
+	if(z<0){
+	  if(DBdisk==1) {
+	    if(nofclOnTrack!=0) meNClustersOnTrack_diskm1->Fill(nofclOnTrack); 
+	    if(nofclOffTrack!=0) meNClustersNotOnTrack_diskm1->Fill(nofclOffTrack);
+	  }
+	  if(DBdisk==2) {
+	    if(nofclOnTrack!=0) meNClustersOnTrack_diskm2->Fill(nofclOnTrack); 
+	    if(nofclOffTrack!=0) meNClustersNotOnTrack_diskm2->Fill(nofclOffTrack);
+	  }
+	}
+      }
+
     }
   }
 
