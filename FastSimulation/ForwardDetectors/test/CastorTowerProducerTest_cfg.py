@@ -4,7 +4,7 @@ process = cms.Process("PROD")
 
 # The number of events to be processed.
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
-
+    
 # For valgrind studies
 # process.ProfilerService = cms.Service("ProfilerService",
 #    lastEvent = cms.untracked.int32(13),
@@ -15,8 +15,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 # Include the RandomNumberGeneratorService definition
 process.load("FastSimulation/Configuration/RandomServiceInitialization_cff")
 
-# Generate H -> ZZ -> l+l- l'+l'- (l,l'=e or mu), with mH=180GeV/c2
-#process.load("FastSimulation/Configuration/HZZllll_cfi")
+# Generate H -> ZZ -> l+l- l'+l'- (l,l'=e or mu), with mH=200GeV/c2
+#process.load("Configuration.Generator.H200ZZ4L_cfi")
 # Generate ttbar events
 #  process.load("FastSimulation/Configuration/ttbar_cfi")
 # Generate multijet events with different ptHAT bins
@@ -28,7 +28,7 @@ process.load("FastSimulation/Configuration/MinBiasEvents_cfi")
 # process.load("FastSimulation/Configuration/FlatPtMuonGun_cfi")
 # replace FlatRandomPtGunSource.PGunParameters.PartID={130}
 # Generate di-electrons with pT=35 GeV
-# process.load("FastSimulation/Configuration/DiElectrons_cfi")
+#process.load("FastSimulation/Configuration/DiElectrons_cfi")
 
 # Famos sequences (Frontier conditions)
 process.load("FastSimulation/Configuration/CommonInputs_cff")
@@ -41,35 +41,37 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 
 # If you want to turn on/off pile-up
-#process.famosPileUp.PileUpSimulator.averageNumber = 5.0
+#process.famosPileUp.PileUpSimulator.averageNumber = 5.0    
 # You may not want to simulate everything for your study
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
 # process.famosSimHits.SimulateMuons = False
 
-# Castor FastSimulation
-process.load('FastSimulation.ForwardDetectors.CastorTowerProducer_cfi')
-# Castor Reconstruction
-#process.load('RecoLocalCalo.Castor.Castor_cfi')
+# include Castor fast sim
+process.load("FastSimulation.ForwardDetectors.CastorFastReco_cff")
 
 # Produce Tracks and Clusters
-process.p1 = cms.Path(process.famosWithEverything*process.CastorTowerReco)
-#process.p1 = cms.Path(process.famosWithEverything)
+process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithEverything*process.CastorFastReco)
 
 # To write out events (not need: FastSimulation _is_ fast!)
 process.o1 = cms.OutputModule(
-        "PoolOutputModule",
-            fileName = cms.untracked.string("MyFirstFamosFileCastorReco.root"),
-            #outputCommands = cms.untracked.vstring("drop *_mix_*_*")
-            outputCommands = cms.untracked.vstring("keep *_CastorTowerReco_*_*","drop *_mix_*_*")
-            )
+    "PoolOutputModule",
+    fileName = cms.untracked.string("MyFirstFamosFile.root"),
+    outputCommands = cms.untracked.vstring("keep *_Castor*Reco_*_*",
+                                           "drop *_mix_*_*")
+    )
 
 process.outpath = cms.EndPath(process.o1)
 
 # Keep the logging output to a nice level #
-# process.Timing =  cms.Service("Timing")
-# process.load("FWCore/MessageService/MessageLogger_cfi")
-# process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt")
 
+#process.Timing =  cms.Service("Timing")
+#process.load("FWCore/MessageService/MessageLogger_cfi")
+#process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt","cout")
+#process.MessageLogger.categories.append("FamosManager")
+#process.MessageLogger.cout = cms.untracked.PSet(threshold=cms.untracked.string("INFO"),
+#                                                default=cms.untracked.PSet(limit=cms.untracked.int32(0)),
+#                                                FamosManager=cms.untracked.PSet(limit=cms.untracked.int32(100000)))
 
-    
+# Make the job crash in case of missing product
+process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound') )
