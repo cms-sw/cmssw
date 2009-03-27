@@ -469,7 +469,6 @@ class SequenceLabelVisitor(object):
         self.deps = d
     def enter(self,visitee):
         if isinstance(visitee,Sequence):
-            if visitee.label_() == None:
             self.deps.append(visitee.label_())
         pass
     def leave(self,visitee):
