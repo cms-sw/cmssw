@@ -8,7 +8,6 @@
 <use name=RecoLocalCalo/EcalRecAlgos>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/MessageService>
-<use name=Geometry/CaloEventSetup>
 <use name=clhep>
 <export>
   <lib name=RecoLocalCaloEcalRecProducers>
@@ -19,7 +18,6 @@
   <use name=CondFormats/EcalObjects>
   <use name=CondFormats/DataRecord>
   <use name=RecoLocalCalo/EcalRecAlgos>
-  <use name=Geometry/CaloEventSetup>
   <use name=FWCore/MessageLogger>
   <use name=FWCore/MessageService>
   <use name=clhep>

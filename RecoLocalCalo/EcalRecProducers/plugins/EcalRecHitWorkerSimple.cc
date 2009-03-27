@@ -3,8 +3,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -20,6 +22,7 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps) :
 void EcalRecHitWorkerSimple::set(const edm::EventSetup& es)
 {
         es.get<EcalIntercalibConstantsRcd>().get(ical);
+        es.get<EcalTimeCalibConstantsRcd>().get(itime);
         es.get<EcalADCToGeVConstantRcd>().get(agc);
         es.get<EcalChannelStatusRcd>().get(chStatus);
         es.get<EcalLaserDbRecord>().get(laser);
@@ -70,8 +73,20 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
         // get laser coefficient
         float lasercalib = laser->getLaserCorrection( detid, evt.time());
 
+        // get time calibration coefficient
+        const EcalTimeCalibConstantMap & itimeMap = itime->getMap();  
+        EcalTimeCalibConstantMap::const_iterator itime = itimeMap.find(detid);
+        EcalTimeCalibConstant itimeconst = 0;
+        if( icalit!=icalMap.end() ) {
+                itimeconst = (*itime);
+        } else {
+                edm::LogError("EcalRecHitError") << "No time calib const found for xtal "
+                        << detid.rawId()
+                        << "! something wrong with EcalTimeCalibConstants in your DB? ";
+        }
+
         // make the rechit and put in the output collection
-        result.push_back(EcalRecHit( rechitMaker_->makeRecHit(uncalibRH, icalconst * lasercalib) ));
+        result.push_back(EcalRecHit( rechitMaker_->makeRecHit(uncalibRH, icalconst * lasercalib, itimeconst) ));
         return true;
 }
 

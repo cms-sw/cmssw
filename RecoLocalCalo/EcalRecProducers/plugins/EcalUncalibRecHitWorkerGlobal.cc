@@ -8,6 +8,7 @@
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
 
 EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&ps) :
         EcalUncalibRecHitWorkerBaseClass(ps)
@@ -21,6 +22,9 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
         EBtimeFitLimits_.second = ps.getParameter<double>("EBtimeFitLimits_Upper");
         EEtimeFitLimits_.first  = ps.getParameter<double>("EEtimeFitLimits_Lower");
         EEtimeFitLimits_.second = ps.getParameter<double>("EEtimeFitLimits_Upper");
+        // leading edge parameters
+        ebPulseShape_ = ps.getParameter<std::vector<double> >("ebPulseShape");
+        eePulseShape_ = ps.getParameter<std::vector<double> >("eePulseShape");
 }
 
 void
@@ -36,9 +40,8 @@ EcalUncalibRecHitWorkerGlobal::set(const edm::EventSetup& es)
 
         // for the ratio method
 
-        // for the saturation method
-
-        
+        // for the leading edge method
+        es.get<EcalTimeCalibConstantsRcd>().get(itime);
 }
 
 
@@ -98,18 +101,40 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
         // === amplitude computation ===
         int leadingSample = -1;
         if (detid.subdetId()==EcalEndcap) {
-                leadingSample = isSaturated<EEDataFrame>( *itdg );
+                leadingSample = ((EcalDataFrame)(*itdg)).lastUnsaturatedSample();
         } else {
-                leadingSample = isSaturated<EBDataFrame>( *itdg );
+                leadingSample = ((EcalDataFrame)(*itdg)).lastUnsaturatedSample();
         }
 
         if ( leadingSample >= 0 ) { // saturation
+                // compute the right bin of the pulse shape using time calibration constants
+                // -- for the moment this is not used
+                EcalTimeCalibConstantMap::const_iterator it = itime->find( detid );
+                EcalTimeCalibConstant itimeconst = 0;
+                if( it != itime->end() ) {
+                        itimeconst = (*it);
+                } else {
+                        edm::LogError("EcalRecHitError") << "No time intercalib const found for xtal "
+                                << detid.rawId()
+                                << "! something wrong with EcalTimeCalibConstants in your DB? ";
+                }
+                float clockToNsConstant = 25.;
                 // reconstruct the rechit
                 if (detid.subdetId()==EcalEndcap) {
+                        leadingEdgeMethod_endcap_.setPulseShape( eePulseShape_ );
+                        float mult = (float)eePulseShape_.size() / (float)(*itdg).size();
+                        // bin (or some analogous mapping) will be used instead of the leadingSample
+                        //int bin  = (int)(( (mult * leadingSample + mult/2) * clockToNsConstant + itimeconst ) / clockToNsConstant);
+                        // bin is not uset for the moment
                         leadingEdgeMethod_endcap_.setLeadingEdgeSample( leadingSample );
                         uncalibRecHit = leadingEdgeMethod_endcap_.makeRecHit(*itdg, pedVec, gainRatios, 0, 0);
                         leadingEdgeMethod_endcap_.setLeadingEdgeSample( -1 );
                 } else {
+                        leadingEdgeMethod_barrel_.setPulseShape( ebPulseShape_ );
+                        float mult = (float)ebPulseShape_.size() / (float)(*itdg).size();
+                        // bin (or some analogous mapping) will be used instead of the leadingSample
+                        //int bin  = (int)(( (mult * leadingSample + mult/2) * clockToNsConstant + itimeconst ) / clockToNsConstant);
+                        // bin is not uset for the moment
                         leadingEdgeMethod_barrel_.setLeadingEdgeSample( leadingSample );
                         uncalibRecHit = leadingEdgeMethod_barrel_.makeRecHit(*itdg, pedVec, gainRatios, 0, 0);
                         leadingEdgeMethod_barrel_.setLeadingEdgeSample( -1 );
