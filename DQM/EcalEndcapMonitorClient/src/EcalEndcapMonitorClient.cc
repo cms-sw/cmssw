@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/02/27 13:54:09 $
- * $Revision: 1.201 $
+ * $Date: 2009/03/01 08:10:02 $
+ * $Revision: 1.202 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1151,7 +1151,7 @@ void EcalEndcapMonitorClient::writeDb(bool flag) {
   moniov_.setRunIOV(runiov_);
   moniov_.setSubRunNumber(subrun_);
 
-  if ( enableMonitorDaemon_ ) {
+  if ( enableMonitorDaemon_ || subrun_ > 1 ) {
     moniov_.setSubRunStart(startSubRun);
   } else {
     moniov_.setSubRunStart(runiov_.getRunStart());

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/02/27 13:54:06 $
- * $Revision: 1.440 $
+ * $Date: 2009/03/01 08:10:01 $
+ * $Revision: 1.441 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1112,7 +1112,7 @@ void EcalBarrelMonitorClient::writeDb(bool flag) {
   moniov_.setRunIOV(runiov_);
   moniov_.setSubRunNumber(subrun_);
 
-  if ( enableMonitorDaemon_ ) {
+  if ( enableMonitorDaemon_ || subrun > 1 ) {
     moniov_.setSubRunStart(startSubRun);
   } else {
     moniov_.setSubRunStart(runiov_.getRunStart());
