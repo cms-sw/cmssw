@@ -6,7 +6,7 @@ process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_ALL_V4::All"
+process.GlobalTag.globaltag = "CRAFT_30X::All"
 process.prefer("GlobalTag")
 
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -27,7 +27,9 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
 #    dropMetaData = cms.untracked.bool(True),
     processingMode = cms.untracked.string("RunsLumisAndEvents"),
-    fileNames = cms.untracked.vstring('file:DTDQMOffline.root')
+    fileNames = cms.untracked.vstring(
+"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/r68958_calibS2/DTDQMOffline_1.root"
+)
 )
 
 process.maxEvents.input = -1
@@ -42,10 +44,13 @@ process.DQMStore.collateHistograms = False
 process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun = False
 
+process.load("DQMServices.Components.DQMStoreStats_cfi")
+
 process.p1 = cms.Path(process.EDMtoMEConverter*
                       process.dtClients*
                       process.dtCertification*
-                      process.dqmSaver)
+                      process.dqmSaver*
+                      process.dqmStoreStats)
 
 
 # message logger
