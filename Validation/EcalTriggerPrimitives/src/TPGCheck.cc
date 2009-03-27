@@ -13,8 +13,8 @@
 //
 // Original Author:  Muriel Cerutti
 //         Created:  Thu Oct 26 10:47:17 CEST 2006
-// $Id$
-//
+// $Id: TPGCheck.cc,v 1.1 2007/02/19 14:34:37 uberthon Exp $
+// $Id: TPGCheck.cc,v 1.2 2009/02/05 16:30:00 ebecheva Exp $
 //
 
 
@@ -41,7 +41,7 @@ using namespace edm;
 using namespace std;
 
 //
-// class decleration
+// class declaration
 //
 
 class TPGCheck : public edm::EDAnalyzer {
@@ -67,14 +67,6 @@ class TPGCheck : public edm::EDAnalyzer {
 };
 
 //
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
 TPGCheck::TPGCheck(const edm::ParameterSet& iConfig)
@@ -86,12 +78,20 @@ TPGCheck::TPGCheck(const edm::ParameterSet& iConfig)
 
   histFile_=new TFile("histos.root","RECREATE");
   for (unsigned int i=0;i<2;++i) {
-    ecal_et_[i]=new TH1I(ecal_parts_[i].c_str(),"Et",255,0,255);
-    char title[30];
-    sprintf(title,"%s_ttf",ecal_parts_[i].c_str());
-    ecal_tt_[i]=new TH1I(title,"TTF",10,0,10);
-    sprintf(title,"%s_fgvb",ecal_parts_[i].c_str());
-    ecal_fgvb_[i]=new TH1I(title,"FGVB",10,0,10);
+    // Energy
+    char t[30];
+    sprintf(t,"%s_energy",ecal_parts_[i].c_str());  
+    ecal_et_[i]=new TH1I(t,"Et",255,0,255);
+    
+    // Trigger Tower flag
+    char titleTTF[30];
+    sprintf(titleTTF,"%s_ttf",ecal_parts_[i].c_str());
+    ecal_tt_[i]=new TH1I(titleTTF,"TTF",10,0,10);
+    
+    // Fain Grain
+    char titleFG[30];
+    sprintf(titleFG,"%s_fgvb",ecal_parts_[i].c_str());
+    ecal_fgvb_[i]=new TH1I(titleFG,"FGVB",10,0,10);
   }
   
   label_= iConfig.getParameter<std::string>("Label");
@@ -152,6 +152,11 @@ TPGCheck::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 TPGCheck::endJob() {
+   for (unsigned int i=0;i<2;++i) {
+    ecal_et_[i]->Write();
+    ecal_tt_[i]->Write();
+    ecal_fgvb_[i]->Write();
+  }
 }
 
 //define this as a plug-in
