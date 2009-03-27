@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidateT.h,v 1.10 2008/10/07 19:54:45 srappocc Exp $
+ * \version $Id: CompositeRefCandidateT.h,v 1.11 2008/12/05 12:15:18 hegner Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -63,7 +63,9 @@ namespace reco {
     void addMother( const typename mothers::value_type & );    
     /// clear daughter references
     void clearDaughters() { dau.clear(); }
-    /// reference to daughter at given position
+    /// clear mother references
+    void clearMothers() { mom.clear(); }
+    /// reference to daughter at given position       
     typename daughters::value_type daughterRef( size_type i ) const { return dau[ i ]; }
     /// references to daughtes
     const daughters & daughterRefVector() const { return dau; }
@@ -73,6 +75,9 @@ namespace reco {
     const mothers & motherRefVector() const { return mom; }
     /// set daughters product ID
     void resetDaughters( const edm::ProductID & id ) { dau = daughters( id ); }
+    /// set mother product ID
+    void resetMothers( const edm::ProductID & id ) { mom = mothers( id ); }
+
 
   private:
     /// const iterator implementation
