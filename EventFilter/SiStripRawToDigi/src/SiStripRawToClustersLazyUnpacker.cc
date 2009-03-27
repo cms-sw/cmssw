@@ -2,11 +2,11 @@
 #include <sstream>
 #include <iostream>
 
-OldSiStripRawToClustersLazyUnpacker::OldSiStripRawToClustersLazyUnpacker(const SiStripRegionCabling& regioncabling, StripClusterizerAlgorithm& clustalgo, const FEDRawDataCollection& data) :
+OldSiStripRawToClustersLazyUnpacker::OldSiStripRawToClustersLazyUnpacker(const SiStripRegionCabling& regioncabling, const SiStripClusterizerFactory& clustfact, const FEDRawDataCollection& data) :
 
   raw_(&data),
   regions_(&(regioncabling.getRegionCabling())),
-  clusterizer_(&clustalgo),
+  clusterizer_(&clustfact),
   fedEvents_(),
   rawToDigi_(0,0,0,0,0),
   fedRawData_()
@@ -39,7 +39,7 @@ void OldSiStripRawToClustersLazyUnpacker::fill(const uint32_t& index, record_typ
   for (;idet!=element.end();idet++) {
     
     //If det id is null or invalid continue.
-    if ( !(idet->first) || (idet->first == sistrip::invalid32_) || !clusterizer_->stripByStripBegin(idet->first) ) { continue; }
+    if ( !(idet->first) || (idet->first == sistrip::invalid32_) ) { continue; }
     
     //Loop over apv-pairs of det
     std::vector<FedChannelConnection>::const_iterator iconn = idet->second.begin();
@@ -146,7 +146,7 @@ void OldSiStripRawToClustersLazyUnpacker::fill(const uint32_t& index, record_typ
 	    }
 	    last_strip = strip;
             #endif	 
-	    clusterizer_->stripByStripAdd(strip, (uint16_t)(*i++), record);
+	    clusterizer_->algorithm()->add(record,idet->first,strip,(uint16_t)(*i++));
 	  }
 	}
       } catch(...) { 
@@ -158,7 +158,7 @@ void OldSiStripRawToClustersLazyUnpacker::fill(const uint32_t& index, record_typ
 	rawToDigi_.unpacker()->handleException( __func__, sss.str() ); 
       } 
     }
-    clusterizer_->stripByStripEnd(record);
+    clusterizer_->algorithm()->endDet(record,idet->first);
   }
 }
   

@@ -15,17 +15,19 @@ OldSiStripRawToClusters::OldSiStripRawToClusters( const edm::ParameterSet& conf 
   productLabel_(conf.getParameter<edm::InputTag>("ProductLabel")),
   cabling_(0),
   cacheId_(0),
-  clusterizer_(StripClusterizerAlgorithmFactory::create(conf))
+  clusterizer_(0)
 {
   if ( edm::isDebugEnabled() ) {
     LogTrace("SiStripRawToCluster")
       << "[OldSiStripRawToClusters::" << __func__ << "]"
       << " Constructing object...";
   }
+  clusterizer_ = new SiStripClusterizerFactory(conf);
   produces<LazyGetter>();
 }
 
 OldSiStripRawToClusters::~OldSiStripRawToClusters() {
+  if (clusterizer_) { delete clusterizer_; }
   if ( edm::isDebugEnabled() ) {
     LogTrace("SiStripRawToCluster")
       << "[OldSiStripRawToClusters::" << __func__ << "]"
@@ -36,19 +38,19 @@ OldSiStripRawToClusters::~OldSiStripRawToClusters() {
 void OldSiStripRawToClusters::beginJob( const edm::EventSetup& setup) {
   //@@ unstable behaviour if uncommented!
   //updateCabling( setup );  
-  //clusterizer_->initialize(setup);
+  //clusterizer_->eventSetup(setup);
 }
 
 void OldSiStripRawToClusters::beginRun( edm::Run&, const edm::EventSetup& setup) {
   updateCabling( setup );  
-  clusterizer_->initialize(setup);
+  clusterizer_->eventSetup(setup);
 }
 
 void OldSiStripRawToClusters::produce( edm::Event& event,const edm::EventSetup& setup ) {
   
   // update cabling
   updateCabling( setup );  
-  clusterizer_->initialize( setup );
+  clusterizer_->eventSetup( setup );
   
   // get raw data
   edm::Handle<FEDRawDataCollection> buffers;
@@ -82,7 +84,7 @@ RawToClusters::RawToClusters( const edm::ParameterSet& conf ) :
   productLabel_(conf.getParameter<edm::InputTag>("ProductLabel")),
   cabling_(0),
   cacheId_(0),
-  clusterizer_(StripClusterizerAlgorithmFactory::create(conf))
+  clusterizer_(StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer")))
 {
   if ( edm::isDebugEnabled() ) {
     LogTrace("SiStripRawToCluster")
