@@ -1,8 +1,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
-
 DEFINE_SEAL_MODULE();
+
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripQualityFakeESSource.h"
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripQualityFakeESSource);
@@ -16,8 +17,6 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripHashedDetIdFakeESSource);
  //------------ NEW Template -------------------
 
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripTemplateFakeESSource.h"
-
-#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CalibTracker/SiStripESProducers/interface/SiStripNoisesGenerator.h"
@@ -50,12 +49,11 @@ typedef SiStripTemplateFakeESSource< SiStripBadStrip, SiStripBadModuleRcd, SiStr
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripBadModuleConfigurableFakeESSource);
 
 
-//---------- Bad Strips Empty Fake Source -----------//
+//---------- Empty Fake Source -----------//
 
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripTemplateEmptyFakeESSource.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 
-#include "CondFormats/DataRecord/interface/SiStripBadStripRcd.h"
 typedef SiStripTemplateEmptyFakeESSource<SiStripBadStrip,SiStripBadStripRcd> SiStripBadStripFakeESSource;
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripBadStripFakeESSource);
 
@@ -67,5 +65,11 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripBadFiberFakeESSource);
 
 typedef SiStripTemplateEmptyFakeESSource<SiStripBadStrip,SiStripBadModuleRcd> SiStripBadModuleFakeESSource;
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripBadModuleFakeESSource);
+
+typedef SiStripTemplateEmptyFakeESSource<SiStripModuleHV,SiStripModuleHVRcd> SiStripModuleHVFakeESSource;
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripModuleHVFakeESSource);
+
+typedef SiStripTemplateEmptyFakeESSource<SiStripModuleHV,SiStripModuleLVRcd> SiStripModuleLVFakeESSource;
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripModuleLVFakeESSource);
 
 //------------------------------------//
