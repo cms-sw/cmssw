@@ -13,7 +13,7 @@
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:13:51 EDT 2006
-// $Id: L1ExtraParticlesProd.h,v 1.7 2008/04/03 03:39:05 wsun Exp $
+// $Id: L1ExtraParticlesProd.h,v 1.8 2009/03/26 03:58:27 wsun Exp $
 //
 
 // system include files
@@ -75,6 +75,10 @@ class L1ExtraParticlesProd : public edm::EDProducer {
       static double muonMassGeV_ ;
 
       bool centralBxOnly_ ;
+
+      // Set this to true when rerunning on RAW data where the GCT did not
+      // produce a L1GctHtMiss record.
+      bool ignoreHtMiss_ ;
 };
 
 #endif

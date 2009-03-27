@@ -15,7 +15,8 @@ l1extraParticles = cms.EDProducer("L1ExtraParticlesProd",
     etHadSource = cms.InputTag("gctDigis"),
     hfRingEtSumsSource = cms.InputTag("gctDigis"),
     hfRingBitCountsSource = cms.InputTag("gctDigis"),
-    centralBxOnly = cms.bool(True)
+    centralBxOnly = cms.bool(True),
+    ignoreHtMiss = cms.bool(False)
 )
 
 
