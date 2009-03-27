@@ -56,15 +56,14 @@ process.validation = cms.Path(
     # process.HLTMuonVal
     # process.muonTriggerRateTimeAnalyzer
     #+process.HLTTauVal
-    #+process.EcalPi0Mon
-    #+process.EcalPhiSymMon
     #+process.egammaValidationSequence
     #+process.HLTTopVal
     #+process.HLTSusyExoVal
     #+process.HLTFourVector
     #+process.heavyFlavorValidationSequence
     #+process.HLTJetMETValSeq
-    #+process.hltHITval
+    #+process.HLTAlCaVal
+
     )
 
 process.post_validation = cms.Path(
@@ -77,8 +76,7 @@ process.post_validation = cms.Path(
     #+process.HLTriggerOfflineFourVectorClient
     #+process.heavyFlavorValidationHarvestingSequence
     #+process.JetMETPostVal
-    #+process.hltHITval_Harvest
-
+    #+process.HLTAlCaPostVal
     )
 
 process.qt_validation = cms.Path(
