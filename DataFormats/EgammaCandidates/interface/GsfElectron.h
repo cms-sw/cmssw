@@ -31,13 +31,16 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.23 2009/03/24 23:07:03 charlot Exp $
+ * \version $Id: GsfElectron.h,v 1.24 2009/03/26 11:20:20 charlot Exp $
  *
  ****************************************************************************/
 
 //*****************************************************************************
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.24  2009/03/26 11:20:20  charlot
+// updated for new supercluster dataformat
+//
 // Revision 1.23  2009/03/24 23:07:03  charlot
 // added setter for isolation
 //
@@ -108,6 +111,9 @@ class GsfElectron : public RecoCandidate
     // accessors
     GsfElectronCoreRef core() const { return core_ ; }
 
+    // setters
+    void setCore(const reco::GsfElectronCoreRef & c) { core_ = c ; }
+    
     // forward core methods
     SuperClusterRef superCluster() const { return core_->superCluster() ; }
     GsfTrackRef gsfTrack() const { return core_->gsfTrack() ; }
