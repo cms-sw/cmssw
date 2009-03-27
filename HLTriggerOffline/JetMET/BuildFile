@@ -6,7 +6,6 @@
 <use name=root>
 <use name=DataFormats/Candidate>
 <use name=Geometry/CaloGeometry>
-<use name=Geometry/CaloEventSetup>
 <use name=Geometry/Records>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/HepMCCandidate>
@@ -49,7 +48,6 @@
    <use name=root>
    <use name=Geometry/CaloGeometry>
    <use name=Geometry/Records>
-   <use name=Geometry/CaloEventSetup>
    <use name=DataFormats/Candidate>
    <use name=DataFormats/JetReco>
    <use name=DataFormats/HepMCCandidate>
