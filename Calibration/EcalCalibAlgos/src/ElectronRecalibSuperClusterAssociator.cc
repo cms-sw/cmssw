@@ -11,6 +11,8 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
 
 #include <iostream>
 
@@ -27,6 +29,7 @@ ElectronRecalibSuperClusterAssociator::ElectronRecalibSuperClusterAssociator(con
 
   //register your products
   produces<GsfElectronCollection>();
+  produces<GsfElectronCoreCollection>() ;
   produces<SuperClusterCollection>();
   
   scProducer_ = iConfig.getParameter<std::string>("scProducer");
@@ -58,6 +61,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 #endif
   // Create the output collections   
   std::auto_ptr<GsfElectronCollection> pOutEle(new GsfElectronCollection);
+  std::auto_ptr<GsfElectronCoreCollection> pOutEleCore(new GsfElectronCoreCollection);
   std::auto_ptr<SuperClusterCollection> pOutNewEndcapSC(new SuperClusterCollection);
 
   reco::SuperClusterRefProd rSC = e.getRefBeforePut<SuperClusterCollection>();
@@ -143,13 +147,19 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 	iSC++;
       }
       ////////////////////////      
-       
-      
+
+      GsfElectronCoreRefProd rEleCore=e.getRefBeforePut<GsfElectronCoreCollection>();
+      edm::Ref<GsfElectronCoreCollection>::key_type idxEleCore = 0;
+
       if(nearestSCbarrel && !nearestSCendcap){
-	reco::GsfElectron newEle(*eleIt);
-	newEle.setGsfTrack(eleIt->gsfTrack());
+ 	reco::GsfElectronCore newEleCore(*(eleIt->core()));
+	newEleCore.setGsfTrack(eleIt->gsfTrack());
 	reco::SuperClusterRef scRef(reco::SuperClusterRef(pSuperClusters, iscRef));
-	newEle.setSuperCluster(scRef);
+	newEleCore.setSuperCluster(scRef);
+	reco::GsfElectronCoreRef newEleCoreRef(reco::GsfElectronCoreRef(rEleCore, idxEleCore ++));
+	pOutEleCore->push_back(newEleCore);
+	reco::GsfElectron newEle(*eleIt);
+	newEle.setCore(newEleCoreRef);
 	pOutEle->push_back(newEle);
 #ifdef DEBUG
 	std::cout << "Association is with EB superCluster "<< std::endl;
@@ -161,9 +171,8 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 #ifdef DEBUG
 	std::cout << "Starting Association is with EE superCluster "<< std::endl;
 #endif  
-	  reco::GsfElectron newEle(*eleIt);
-	  newEle.setGsfTrack(eleIt->gsfTrack());
-	  float preshowerEnergy=eleIt->superCluster()->preshowerEnergy(); 
+
+	float preshowerEnergy=eleIt->superCluster()->preshowerEnergy(); 
 #ifdef DEBUG
 	  std::cout << "preshowerEnergy"<< preshowerEnergy << std::endl;
 #endif  
@@ -173,42 +182,56 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 	  reco::SuperCluster newSC(nearestSCendcap->energy() + preshowerEnergy, nearestSCendcap->position() , nearestSCendcap->seed(),newBCRef , preshowerEnergy );
 	  pOutNewEndcapSC->push_back(newSC);
 	  reco::SuperClusterRef scRef(reco::SuperClusterRef(rSC, idxSC ++));
-	  newEle.setSuperCluster(scRef);
+
+	  reco::GsfElectronCore newEleCore(*(eleIt->core()));
+	  newEleCore.setGsfTrack(eleIt->gsfTrack());
+	  newEleCore.setSuperCluster(scRef);
+	  reco::GsfElectronCoreRef newEleCoreRef(reco::GsfElectronCoreRef(rEleCore, idxEleCore ++));
+	  pOutEleCore->push_back(newEleCore);
+	  reco::GsfElectron newEle(*eleIt);
+	  newEle.setCore(newEleCoreRef);
 	  pOutEle->push_back(newEle);
+
 #ifdef DEBUG
 	std::cout << "Association is with EE superCluster "<< std::endl;
 #endif  
       }  
     
       if(nearestSCbarrel && nearestSCendcap){
-	
-	reco::GsfElectron newEle(*eleIt);
-        newEle.setGsfTrack(eleIt->gsfTrack());
+	reco::GsfElectronCore newEleCore(*(eleIt->core()));
+	newEleCore.setGsfTrack(eleIt->gsfTrack());
+
 	
 	if(DeltaRMineleSCendcap>=DeltaRMineleSCbarrel)
 	  {
 	    reco::SuperClusterRef scRef(reco::SuperClusterRef(pSuperClusters, iscRef));
-	    newEle.setSuperCluster(scRef);
-	    pOutEle->push_back(newEle);
+	    newEleCore.setSuperCluster(scRef);
+
+
+
 #ifdef DEBUG
 	    std::cout << "Association is with EB superCluster, after quarrel "<< std::endl;
 #endif  
 	  }
 	else if(DeltaRMineleSCendcap<DeltaRMineleSCbarrel)
 	  {
-	  float preshowerEnergy=eleIt->superCluster()->preshowerEnergy(); 
-	  BasicClusterRefVector newBCRef;
-	  for (BasicClusterRefVector::const_iterator bcRefIt=nearestSCendcap->clustersBegin();bcRefIt!=nearestSCendcap->clustersEnd();++bcRefIt)
-	    newBCRef.push_back(*bcRefIt);
-	  reco::SuperCluster newSC(nearestSCendcap->energy() + preshowerEnergy,  nearestSCendcap->position() , nearestSCendcap->seed(), newBCRef , preshowerEnergy );
-	  pOutNewEndcapSC->push_back(newSC);
-	  reco::SuperClusterRef scRef(reco::SuperClusterRef(rSC, idxSC ++));
-	  newEle.setSuperCluster(scRef);
-	  pOutEle->push_back(newEle);
+	    float preshowerEnergy=eleIt->superCluster()->preshowerEnergy(); 
+	    BasicClusterRefVector newBCRef;
+	    for (BasicClusterRefVector::const_iterator bcRefIt=nearestSCendcap->clustersBegin();bcRefIt!=nearestSCendcap->clustersEnd();++bcRefIt)
+	      newBCRef.push_back(*bcRefIt);
+	    reco::SuperCluster newSC(nearestSCendcap->energy() + preshowerEnergy,  nearestSCendcap->position() , nearestSCendcap->seed(), newBCRef , preshowerEnergy );
+	    pOutNewEndcapSC->push_back(newSC);
+	    reco::SuperClusterRef scRef(reco::SuperClusterRef(rSC, idxSC ++));
+	    newEleCore.setSuperCluster(scRef);
 #ifdef DEBUG
-	  std::cout << "Association is with EE superCluster, after quarrel "<< std::endl;
+	    std::cout << "Association is with EE superCluster, after quarrel "<< std::endl;
 #endif  
 	  }	
+	reco::GsfElectronCoreRef newEleCoreRef(reco::GsfElectronCoreRef(rEleCore, idxEleCore ++));
+	pOutEleCore->push_back(newEleCore);
+	reco::GsfElectron newEle(*eleIt);
+	newEle.setCore(newEleCoreRef);
+	pOutEle->push_back(newEle);
       }
       
 
@@ -218,11 +241,14 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
   
 #ifdef DEBUG
   std::cout << "Filled new electrons  " << pOutEle->size() << std::endl;
+  std::cout << "Filled new electronsCore  " << pOutEleCore->size() << std::endl;
   std::cout << "Filled new endcapSC  " << pOutNewEndcapSC->size() << std::endl;
 #endif  
   
   // put result into the Event
+
   e.put(pOutEle);
+  e.put(pOutEleCore);
   e.put(pOutNewEndcapSC);
   
 }
