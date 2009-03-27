@@ -252,7 +252,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
       GCT_NonIsoEm_nBadCh+=GCT_NonIsoEm_nDeadCh;
     } 
-    else std::cout << "      GCT_NonIsoEm_DeadCh_QReport = False  !! " << std::endl;
+//    else std::cout << "      GCT_NonIsoEm_DeadCh_QReport = False  !! " << std::endl;
 
     if (GCT_NonIsoEm_HotCh_QReport) {
       int GCT_NonIsoEm_nHotCh = GCT_NonIsoEm_HotCh_QReport->getBadChannels().size();
@@ -263,14 +263,14 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
       GCT_NonIsoEm_nBadCh+=GCT_NonIsoEm_nHotCh;
     }
-    else std::cout << "      GCT_NonIsoEm_HotCh_QReport = False  !!" << std::endl;
+//    else std::cout << "      GCT_NonIsoEm_HotCh_QReport = False  !!" << std::endl;
 
     if( verbose ) std::cout << "    GCT_NonIsoEm total efficiency = " << 1 - (float)GCT_NonIsoEm_nBadCh/(float)GCT_NonIsoEm_nCh << std::endl;
 
     summaryContent[1] = 1 - (float)GCT_NonIsoEm_nBadCh/(float)GCT_NonIsoEm_nCh;
     reportSummaryContent_[1]->Fill( summaryContent[1] );
   }
-  else std::cout << "      GCT_NonIsoEm_QHist = False  !! " << std::endl;
+//  else std::cout << "      GCT_NonIsoEm_QHist = False  !! " << std::endl;
 
 
 
@@ -295,7 +295,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
       GCT_IsoEm_nBadCh+=GCT_IsoEm_nDeadCh;
     } 
-    else std::cout << "      GCT_IsoEm_DeadCh_QReport = False  !! " << std::endl;
+//    else std::cout << "      GCT_IsoEm_DeadCh_QReport = False  !! " << std::endl;
 
     if (GCT_IsoEm_HotCh_QReport) {
       int GCT_IsoEm_nHotCh = GCT_IsoEm_HotCh_QReport->getBadChannels().size();
@@ -306,14 +306,14 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
       GCT_IsoEm_nBadCh+=GCT_IsoEm_nHotCh;
     }
-    else std::cout << "      GCT_IsoEm_HotCh_QReport = False  !!" << std::endl;
+//    else std::cout << "      GCT_IsoEm_HotCh_QReport = False  !!" << std::endl;
 
     if( verbose ) std::cout << "    GCT_IsoEm total efficiency = " << 1 - (float)GCT_IsoEm_nBadCh/(float)GCT_IsoEm_nCh << std::endl;
 
     summaryContent[2] = 1 - (float)GCT_IsoEm_nBadCh/(float)GCT_IsoEm_nCh;
     reportSummaryContent_[2]->Fill( summaryContent[2] );
   }
-  else std::cout << "      GCT_IsoEm_QHist = False  !! " << std::endl;
+//  else std::cout << "      GCT_IsoEm_QHist = False  !! " << std::endl;
 
 
 
@@ -336,7 +336,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
       GCT_TauJets_nBadCh+=GCT_TauJets_nDeadCh;
     } 
-    else std::cout << "      GCT_TauJets_DeadCh_QReport = False  !! " << std::endl;
+//    else std::cout << "      GCT_TauJets_DeadCh_QReport = False  !! " << std::endl;
 
     if (GCT_TauJets_HotCh_QReport) {
       int GCT_TauJets_nHotCh = GCT_TauJets_HotCh_QReport->getBadChannels().size();
@@ -347,14 +347,14 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
       GCT_TauJets_nBadCh+=GCT_TauJets_nHotCh;
     }
-    else std::cout << "      GCT_TauJets_HotCh_QReport = False  !!" << std::endl;
+//    else std::cout << "      GCT_TauJets_HotCh_QReport = False  !!" << std::endl;
 
     if( verbose ) std::cout << "    GCT_TauJets total efficiency = " << 1 - (float)GCT_TauJets_nBadCh/(float)GCT_TauJets_nCh << std::endl;
 
     summaryContent[3] = 1 - (float)GCT_TauJets_nBadCh/(float)GCT_TauJets_nCh;
     reportSummaryContent_[3]->Fill( summaryContent[3] );
   }
-  else std::cout << "      GCT_TauJets_QHist = False  !! " << std::endl;
+//  else std::cout << "      GCT_TauJets_QHist = False  !! " << std::endl;
 
 
 
@@ -377,7 +377,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
       GCT_AllJets_nBadCh+=GCT_AllJets_nDeadCh;
     } 
-    else std::cout << "      GCT_AllJets_DeadCh_QReport = False  !! " << std::endl;
+//    else std::cout << "      GCT_AllJets_DeadCh_QReport = False  !! " << std::endl;
 
     if (GCT_AllJets_HotCh_QReport) {
       int GCT_AllJets_nHotCh = GCT_AllJets_HotCh_QReport->getBadChannels().size();
@@ -388,14 +388,14 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
       GCT_AllJets_nBadCh+=GCT_AllJets_nHotCh;
     }
-    else std::cout << "      GCT_AllJets_HotCh_QReport = False  !!" << std::endl;
+//    else std::cout << "      GCT_AllJets_HotCh_QReport = False  !!" << std::endl;
 
     if( verbose ) std::cout << "    GCT_AllJets total efficiency = " << 1 - (float)GCT_AllJets_nBadCh/(float)GCT_AllJets_nCh << std::endl;
 
     summaryContent[4] = 1 - (float)GCT_AllJets_nBadCh/(float)GCT_AllJets_nCh;
     reportSummaryContent_[4]->Fill( summaryContent[4] );
   }
-  else std::cout << "      GCT_AllJets_QHist = False  !! " << std::endl;
+//  else std::cout << "      GCT_AllJets_QHist = False  !! " << std::endl;
 
 
 
@@ -418,7 +418,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
       GMT_nBadCh+=GMT_nDeadCh;
     } 
-    else std::cout << "      GMT_DeadCh_QReport = False  !! " << std::endl;
+//    else std::cout << "      GMT_DeadCh_QReport = False  !! " << std::endl;
 
     if (GMT_HotCh_QReport) {
       int GMT_nHotCh = GMT_HotCh_QReport->getBadChannels().size();
@@ -429,14 +429,14 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
       GMT_nBadCh+=GMT_nHotCh;
     }
-    else std::cout << "      GMT_HotCh_QReport = False  !!" << std::endl;
+//    else std::cout << "      GMT_HotCh_QReport = False  !!" << std::endl;
 
     if( verbose ) std::cout << "    GMT total efficiency = " << 1 - (float)GMT_nBadCh/(float)GMT_nCh << std::endl;
 
     summaryContent[5] = 1 - (float)GMT_nBadCh/(float)GMT_nCh;
     reportSummaryContent_[5]->Fill( summaryContent[5] );
   }
-  else std::cout << "      GMT_QHist = False  !! " << std::endl;
+//  else std::cout << "      GMT_QHist = False  !! " << std::endl;
 
 
 
@@ -459,10 +459,10 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       //if( verbose ) std::cout << " GT_AlgoBits QTResult = " << GT_AlgoBits_QReport->getQTresult() << std::endl;
       //gt_algobits_prob = GT_AlgoBits_QReport->getQTresult();
     } 
-    else std::cout << "      GT_AlgoBits_QReport = False  !! " << std::endl;
+//    else std::cout << "      GT_AlgoBits_QReport = False  !! " << std::endl;
 
   }
-  else std::cout << "      GT_AlgoBits_QHist = False  !! " << std::endl;
+//  else std::cout << "      GT_AlgoBits_QHist = False  !! " << std::endl;
 
   if (GT_TechBits_QHist){
     const QReport *GT_TechBits_QReport = GT_TechBits_QHist->getQReport("CompareHist_GT");
@@ -477,9 +477,9 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       //if( verbose ) std::cout << " GT_TechBits QTResult = " << GT_TechBits_QReport->getQTresult() << std::endl;
       //gt_techbits_prob = GT_TechBits_QReport->getQTresult();
     } 
-    else std::cout << "      GT_TechBits_QReport = False  !! " << std::endl;
+//    else std::cout << "      GT_TechBits_QReport = False  !! " << std::endl;
   }
-  else std::cout << "      GT_TechBits_QHist = False  !! " << std::endl;
+//  else std::cout << "      GT_TechBits_QHist = False  !! " << std::endl;
 
   if( GT_AlgoBits_nBadCh!=-1 && GT_AlgoBits_nBadCh!=-1 ){
     if( verbose ) 
@@ -488,7 +488,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     summaryContent[6] = 1-(float)(GT_AlgoBits_nBadCh+GT_TechBits_nBadCh)/(float)(GT_AlgoBits_nCh+GT_TechBits_nCh);
     reportSummaryContent_[6]->Fill( summaryContent[6] );
   }
-  else std::cout << "      QT Results for the GT not found  !! " << std::endl;
+//  else std::cout << "      QT Results for the GT not found  !! " << std::endl;
 
 
 
