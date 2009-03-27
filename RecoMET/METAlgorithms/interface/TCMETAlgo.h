@@ -40,6 +40,7 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 #include "TH2D.h"
 
 class TCMETAlgo 
@@ -57,18 +58,13 @@ class TCMETAlgo
   double sumEt;
 
   edm::Handle<reco::MuonCollection> MuonHandle;
-  //  edm::Handle<reco::PixelMatchGsfElectronCollection> ElectronHandle;
   edm::Handle<reco::GsfElectronCollection> ElectronHandle;
   edm::Handle<reco::CaloMETCollection> metHandle;
   edm::Handle<reco::TrackCollection> TrackHandle;
   edm::Handle<reco::BeamSpot> beamSpotHandle;
 
-  edm::Handle<edm::ValueMap<int>    > muon_flag_h;
-  edm::Handle<edm::ValueMap<double> > muon_delx_h;
-  edm::Handle<edm::ValueMap<double> > muon_dely_h;
-  edm::Handle<edm::ValueMap<int>    > tcmet_flag_h;
-  edm::Handle<edm::ValueMap<double> > tcmet_delx_h;
-  edm::Handle<edm::ValueMap<double> > tcmet_dely_h;
+  edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > muon_data_h;
+  edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > tcmet_data_h;
 
   edm::InputTag muonInputTag_;
   edm::InputTag electronInputTag_;
@@ -76,12 +72,8 @@ class TCMETAlgo
   edm::InputTag trackInputTag_;
   edm::InputTag beamSpotInputTag_;
 
-  edm::InputTag muonFlagInputTag_;
-  edm::InputTag muonDelXInputTag_;
-  edm::InputTag muonDelYInputTag_;
-  edm::InputTag tcmetFlagInputTag_;
-  edm::InputTag tcmetDelXInputTag_;
-  edm::InputTag tcmetDelYInputTag_;
+  edm::InputTag muonDepValueMap_;
+  edm::InputTag tcmetDepValueMap_;
 
   double  minpt_;
   double  maxpt_;
@@ -94,12 +86,8 @@ class TCMETAlgo
 
   class TH2D* response_function;
 
-  edm::ValueMap<int>    muon_flag;
-  edm::ValueMap<double> muon_delx;
-  edm::ValueMap<double> muon_dely;
-  edm::ValueMap<int>    tcmet_flag;
-  edm::ValueMap<double> tcmet_delx;
-  edm::ValueMap<double> tcmet_dely;
+  edm::ValueMap<reco::MuonMETCorrectionData> muon_data;
+  edm::ValueMap<reco::MuonMETCorrectionData> tcmet_data;
 
   bool isMuon( unsigned int );
   bool isElectron( unsigned int ); 
