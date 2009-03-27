@@ -69,8 +69,14 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripBadChannelDummyDBWriter);
 typedef DummyCondDBWriter<SiStripQuality,SiStripBadStrip,SiStripQualityRcd,BadStripRcdName> SiStripBadStripFromQualityDummyDBWriter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripBadStripFromQualityDummyDBWriter);
 
+#include "CondFormats/SiStripObjects/interface/SiStripModuleHV.h"
+struct ModuleHVRcdName{ static const char* name(){return "SiStripModuleHVRcd";}};
+typedef DummyCondDBWriter<SiStripModuleHV,SiStripModuleHV,SiStripModuleHVRcd,ModuleHVRcdName> SiStripModuleHVDummyDBWriter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripModuleHVDummyDBWriter);
+
 
 //---------------------------------------------------------------------------------------------------------------
+// Dummy printers
 
 #include "CalibTracker/SiStripESProducers/plugins/DBWriter/DummyCondObjPrinter.h"
 
