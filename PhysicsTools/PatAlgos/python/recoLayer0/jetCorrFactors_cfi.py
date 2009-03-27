@@ -13,7 +13,7 @@ jetCorrFactors = cms.EDProducer("JetCorrFactorsProducer",
      L4EMF     = cms.string('none'),
      L5Flavor  = cms.string('L5Flavor_IC5'),
      L6UE      = cms.string('none'),                           
-     L7Parton  = cms.string('L7parton_IC5')
+     L7Parton  = cms.string('L7Parton_IC5')
 )
 
 
