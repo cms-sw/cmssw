@@ -27,9 +27,14 @@ process.maxEvents = cms.untracked.PSet(
 process.load("CalibTracker.SiStripESProducers.fake.SiStripBadModuleFakeESSource_cfi")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripBadFiberFakeESSource_cfi")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripBadChannelFakeESSource_cfi")
+process.load("CalibTracker.SiStripESProducers.fake.SiStripModuleHVFakeESSource_cfi")
+process.load("CalibTracker.SiStripESProducers.fake.SiStripModuleLVFakeESSource_cfi")
+
 
 process.load("CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi")
 process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
+     cms.PSet( record = cms.string("SiStripModuleHVRcd"), tag    = cms.string("") ),
+     cms.PSet( record = cms.string("SiStripModuleLVRcd"), tag    = cms.string("") ),
      cms.PSet( record = cms.string("SiStripBadChannelRcd"), tag    = cms.string("") ),
      cms.PSet( record = cms.string("SiStripBadFiberRcd"),   tag    = cms.string("") ),
      cms.PSet( record = cms.string("SiStripBadModuleRcd"),  tag    = cms.string("") )
