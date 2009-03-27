@@ -64,7 +64,13 @@ void MVAComputer::setup(const Calibration::MVAComputer *calib)
 	nVars = calib->inputSet.size();
 	output = calib->output;
 
-	VarProcessor::ConfigCtx config(nVars);
+	std::vector<Variable::Flags> flags(nVars, Variable::FLAG_ALL);
+	const TrainMVAComputerCalibration *trainCalib =
+		dynamic_cast<const TrainMVAComputerCalibration*>(calib);
+	if (trainCalib)
+		trainCalib->initFlags(flags);
+
+	VarProcessor::ConfigCtx config(flags);
 	std::vector<Calibration::VarProcessor*> processors =
 							calib->getProcessors();
 

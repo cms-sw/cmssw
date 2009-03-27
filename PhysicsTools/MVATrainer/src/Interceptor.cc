@@ -10,7 +10,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat May 05 09:05 CEST 2007
-// $Id: Interceptor.cc,v 1.1 2007/05/15 21:37:57 saout Exp $
+// $Id: Interceptor.cc,v 1.2 2007/05/17 15:04:10 saout Exp $
 //
 
 #include <vector>
@@ -59,8 +59,11 @@ Interceptor::~Interceptor()
 
 void Interceptor::configure(ConfIterator iter, unsigned int n)
 {
-	std::vector<Variable::Flags> flags =
-					interceptor->configure(computer, n);
+	std::vector<Variable::Flags> flags;
+	for(ConfIterator iter2 = iter; iter2; iter2++)
+		flags.push_back(*iter2);
+
+	flags = interceptor->configure(computer, n, flags);
 	if (flags.size() != n)
 		return;
 

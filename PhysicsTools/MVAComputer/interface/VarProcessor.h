@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: VarProcessor.h,v 1.5 2007/12/07 15:04:42 saout Exp $
+// $Id: VarProcessor.h,v 1.6 2007/12/08 16:11:11 saout Exp $
 //
 
 #include <algorithm>
@@ -68,9 +68,7 @@ class VarProcessor :
 
 		struct Context { virtual ~Context() {} };
 
-		ConfigCtx(unsigned int nVars) :
-			configs(nVars, Config(Variable::FLAG_ALL, 1)),
-			loop(0), ctx(0) {}
+		ConfigCtx(std::vector<Variable::Flags> flags);
 		~ConfigCtx() { delete ctx; }
 
 		inline size_type size() const { return configs.size(); }
@@ -138,6 +136,10 @@ class VarProcessor :
 		/// add a new output variable that inherits values from \a origin
 		ConfIterator &operator << (const ConfIterator &origin)
 		{ return *this << Config(config[origin.cur()].mask, origin.cur()); }
+
+		/// return the current input variable flags
+		Variable::Flags operator * () const
+		{ return config[cur()].mask; }
 
 		/// test for end of iterator
 		inline operator bool() const { return cur; }

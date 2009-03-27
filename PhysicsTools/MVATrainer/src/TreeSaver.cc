@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <functional>
 #include <algorithm>
 #include <iostream>
 #include <sstream>
@@ -53,6 +54,7 @@ class TreeSaver : public TrainProcessor {
 	virtual ~TreeSaver();
 
 	virtual void configure(DOMElement *elem);
+	virtual void passFlags(const std::vector<Variable::Flags> &flags);
 
 	virtual void trainBegin();
 	virtual void trainData(const std::vector<double> *values,
@@ -60,7 +62,7 @@ class TreeSaver : public TrainProcessor {
 	virtual void trainEnd();
 
     private:
-	void runTMVATrainer();
+	void init();
 
 	std::string getTreeName() const
 	{ return trainer->getName() + '_' + (const char*)getName(); }
@@ -70,12 +72,23 @@ class TreeSaver : public TrainProcessor {
 		ITER_DONE
 	} iteration;
 
-	std::vector<std::string>	names;
+	struct Var {
+		std::string		name;
+		Variable::Flags		flags;
+		double			value;
+		std::vector<double>	values;
+		std::vector<double>	*ptr;
+
+		bool hasName(std::string other) const
+		{ return name == other; }
+	};
+
 	std::auto_ptr<TFile>		file;
 	TTree				*tree;
 	Double_t			weight;
 	Bool_t				target;
-	std::vector<Double_t>		vars;
+	std::vector<Var>		vars;
+	bool				flagsPassed, begun;
 };
 
 static TreeSaver::Registry registry("TreeSaver");
@@ -83,7 +96,7 @@ static TreeSaver::Registry registry("TreeSaver");
 TreeSaver::TreeSaver(const char *name, const AtomicId *id,
                    MVATrainer *trainer) :
 	TrainProcessor(name, id, trainer),
-	iteration(ITER_EXPORT), tree(0)
+	iteration(ITER_EXPORT), tree(0), flagsPassed(false), begun(false)
 {
 }
 
@@ -99,21 +112,61 @@ void TreeSaver::configure(DOMElement *elem)
 	    iter != inputs.end(); iter++) {
 		std::string name = (const char*)(*iter)->getName();
 
-		if (std::find(names.begin(), names.end(), name)
-		    != names.end()) {
+		if (std::find_if(vars.begin(), vars.end(),
+		                 std::bind2nd(std::mem_fun_ref(&Var::hasName),
+		                              name)) != vars.end()) {
 			for(unsigned i = 1;; i++) {
 				std::ostringstream ss;
 				ss << name << "_" << i;
-				if (std::find(names.begin(), names.end(),
-				              ss.str()) == names.end()) {
-					name == ss.str();
+				if (std::find_if(vars.begin(), vars.end(),
+				                 std::bind2nd(
+							std::mem_fun_ref(
+								&Var::hasName),
+							name)) == vars.end())
 					break;
-				}
 			}
 		}
 
-		names.push_back(name);
+		Var var;
+		var.name = name;
+		var.flags = Variable::FLAG_NONE;
+		var.ptr = 0;
+		vars.push_back(var);
 	}
+}
+
+void TreeSaver::init()
+{
+	tree->Branch("__WEIGHT__", &weight, "__WEIGHT__/D");
+	tree->Branch("__TARGET__", &target, "__TARGET__/O");
+
+	vars.resize(vars.size());
+
+	std::vector<Var>::iterator pos = vars.begin();
+	for(std::vector<Var>::iterator iter = vars.begin();
+	    iter != vars.end(); iter++, pos++) {
+		if (iter->flags & Variable::FLAG_MULTIPLE) {
+			iter->ptr = &iter->values;
+			tree->Branch(iter->name.c_str(),
+			             "std::vector<double>",
+			             &pos->ptr);
+		} else
+			tree->Branch(iter->name.c_str(), &pos->value,
+			            (iter->name + "/D").c_str());
+	}
+}
+
+void TreeSaver::passFlags(const std::vector<Variable::Flags> &flags)
+{
+	assert(flags.size() == vars.size());
+	unsigned int idx = 0;
+	for(std::vector<Variable::Flags>::const_iterator iter = flags.begin();
+	    iter != flags.end(); ++iter, idx++)
+		vars[idx].flags = *iter;
+
+	if (begun && !flagsPassed)
+		init();
+	flagsPassed = true;
 }
 
 void TreeSaver::trainBegin()
@@ -133,17 +186,9 @@ void TreeSaver::trainBegin()
 		tree = new TTree(getTreeName().c_str(),
 		                 "MVATrainer signal and background");
 
-		tree->Branch("__WEIGHT__", &weight, "__WEIGHT__/D");
-		tree->Branch("__TARGET__", &target, "__TARGET__/O");
-
-		vars.resize(names.size());
-
-		std::vector<Double_t>::iterator pos = vars.begin();
-		for(std::vector<std::string>::const_iterator iter =
-			names.begin(); iter != names.end(); iter++, pos++) {
-			tree->Branch(iter->c_str(), &*pos,
-			            (*iter + "/D").c_str());
-		}
+		if (!begun && flagsPassed)
+			init();
+		begun = true;
 	}
 }
 
@@ -155,8 +200,15 @@ void TreeSaver::trainData(const std::vector<double> *values,
 
 	this->weight = weight;
 	this->target = target;
-	for(unsigned int i = 0; i < vars.size(); i++, values++)
-		vars[i] = values->front();
+	for(unsigned int i = 0; i < vars.size(); i++, values++) {
+		Var &var = vars[i];
+		if (var.flags & Variable::FLAG_MULTIPLE)
+			var.values = *values;
+		else if (values->empty())
+			var.value = -999.0;
+		else
+			var.value = values->front();
+	}
 
 	tree->Fill();
 }
