@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithmFactory.h"
+#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripRawProcessingFactory.h"
 
 using namespace std;
 
@@ -84,7 +85,8 @@ RawToClusters::RawToClusters( const edm::ParameterSet& conf ) :
   productLabel_(conf.getParameter<edm::InputTag>("ProductLabel")),
   cabling_(0),
   cacheId_(0),
-  clusterizer_(StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer")))
+  clusterizer_(StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer"))),
+  rawAlgos_(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms")))
 {
   if ( edm::isDebugEnabled() ) {
     LogTrace("SiStripRawToCluster")
@@ -106,11 +108,13 @@ RawToClusters::RawToClusters( const edm::ParameterSet& conf ) :
     //@@ unstable behaviour if uncommented!
     //updateCabling( setup );  
     //clusterizer_->initialize(setup);
+    //rawAlgos_->initialize(setup);
   }
 
   void RawToClusters::beginRun( edm::Run&, const edm::EventSetup& setup) {
     updateCabling( setup );  
     clusterizer_->initialize(setup);
+    rawAlgos_->initialize(setup);
   }
 
   void RawToClusters::produce( edm::Event& event,const edm::EventSetup& setup ) {
@@ -118,13 +122,14 @@ RawToClusters::RawToClusters( const edm::ParameterSet& conf ) :
     // update cabling
     updateCabling( setup );  
     clusterizer_->initialize( setup );
+    rawAlgos_->initialize( setup );
   
     // get raw data
     edm::Handle<FEDRawDataCollection> buffers;
     event.getByLabel( productLabel_, buffers ); 
 
     // create lazy unpacker
-    boost::shared_ptr<LazyUnpacker> unpacker( new LazyUnpacker( *cabling_, *clusterizer_, *buffers ) );
+    boost::shared_ptr<LazyUnpacker> unpacker( new LazyUnpacker( *cabling_, *clusterizer_, *rawAlgos_, *buffers ) );
 
     // create lazy getter
     std::auto_ptr<LazyGetter> collection( new LazyGetter( cabling_->getRegionCabling().size() * SiStripRegionCabling::ALLSUBDETS * SiStripRegionCabling::ALLLAYERS, unpacker ) );

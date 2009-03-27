@@ -164,11 +164,12 @@ void OldSiStripRawToClustersLazyUnpacker::fill(const uint32_t& index, record_typ
   
 namespace sistrip { 
 
-  RawToClustersLazyUnpacker::RawToClustersLazyUnpacker(const SiStripRegionCabling& regioncabling, StripClusterizerAlgorithm& clustalgo, const FEDRawDataCollection& data, bool dump) :
+  RawToClustersLazyUnpacker::RawToClustersLazyUnpacker(const SiStripRegionCabling& regioncabling, StripClusterizerAlgorithm& clustalgo, SiStripRawProcessingAlgorithms& rpAlgos, const FEDRawDataCollection& data, bool dump) :
 
     raw_(&data),
     regions_(&(regioncabling.getRegionCabling())),
     clusterizer_(&clustalgo),
+    rawAlgos_(&rpAlgos),
     buffers_(),
     rawToDigi_(0,0,0,0,0),
     dump_(dump),
@@ -291,6 +292,73 @@ namespace sistrip {
 	  while (unpacker.hasData()) {
 	    clusterizer_->stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),record);
 	    unpacker++;
+	  }
+	}
+
+	else if (mode_ = sistrip::READOUT_MODE_VIRGIN_RAW ) {
+
+	  // create unpacker
+	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffers_[iconn->fedId()]->channel(iconn->fedCh()));
+
+	  // unpack
+	  std::vector<int16_t> digis;
+	  while (unpacker.hasData()) {
+	    digis.push_back(unpacker.adc());
+	    unpacker++;
+	  }
+
+	  //process raw
+	  uint32_t id = iconn->detId();
+	  rawAlgos_->subtractorPed->subtract( id, ipair*256, digis);
+	  rawAlgos_->subtractorCMN->subtract( id, digis);
+	  edm::DetSet<SiStripDigi> zsdigis(id);
+	  rawAlgos_->suppressor->suppress( digis, zsdigis);
+	  for( edm::DetSet<SiStripDigi>::const_iterator it = zsdigis.begin(); it!=zsdigis.end(); it++) {
+	    clusterizer_->stripByStripAdd( it->strip(), it->adc(), record);
+	  }
+	}
+
+	else if (mode_ = sistrip::READOUT_MODE_PROC_RAW ) {
+
+	  // create unpacker
+	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::procRawModeUnpacker(buffers_[iconn->fedId()]->channel(iconn->fedCh()));
+
+	  // unpack
+	  std::vector<int16_t> digis;
+	  while (unpacker.hasData()) {
+	    digis.push_back(unpacker.adc());
+	    unpacker++;
+	  }
+
+	  //process raw
+	  uint32_t id = iconn->detId();
+	  edm::DetSet<SiStripDigi> zsdigis(id);
+	  rawAlgos_->suppressor->suppress( digis, zsdigis);
+	  for( edm::DetSet<SiStripDigi>::const_iterator it = zsdigis.begin(); it!=zsdigis.end(); it++) {
+	    clusterizer_->stripByStripAdd( it->strip(), it->adc(), record);
+	  }
+	}
+
+	else if (mode_ = sistrip::READOUT_MODE_SCOPE ) {
+
+	  // create unpacker
+	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::scopeModeUnpacker(buffers_[iconn->fedId()]->channel(iconn->fedCh()));
+
+	  // unpack
+	  std::vector<int16_t> digis;
+	  while (unpacker.hasData()) {
+	    digis.push_back(unpacker.adc());
+	    unpacker++;
+	  }
+
+	  //process raw
+	  uint32_t id = iconn->detId();
+	  rawAlgos_->subtractorPed->subtract( id, ipair*256, digis);
+	  rawAlgos_->subtractorCMN->subtract( id, digis);
+	  edm::DetSet<SiStripDigi> zsdigis;
+	  rawAlgos_->suppressor->suppress( digis, zsdigis);
+	  for( edm::DetSet<SiStripDigi>::const_iterator it = zsdigis.begin(); it!=zsdigis.end(); it++) {
+	    clusterizer_->stripByStripAdd( it->strip(), it->adc(), record);
 	  }
 	}
 

@@ -43,6 +43,7 @@ namespace sistrip {
     const SiStripRegionCabling* cabling_;
     uint32_t cacheId_;
     std::auto_ptr<StripClusterizerAlgorithm> clusterizer_;
+    std::auto_ptr<SiStripRawProcessingAlgorithms> rawAlgos_;
   };
   
 }

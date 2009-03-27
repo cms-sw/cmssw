@@ -9,6 +9,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerFactory.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
+#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripRawProcessingAlgorithms.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 #include <vector>
@@ -61,7 +62,7 @@ namespace sistrip {
     
     typedef edm::DetSet<SiStripCluster> DetSet;
     
-    RawToClustersLazyUnpacker(const SiStripRegionCabling&, StripClusterizerAlgorithm&, const FEDRawDataCollection&, bool = false); 
+    RawToClustersLazyUnpacker(const SiStripRegionCabling&, StripClusterizerAlgorithm&, SiStripRawProcessingAlgorithms&, const FEDRawDataCollection&, bool = false); 
     
     virtual ~RawToClustersLazyUnpacker();
     
@@ -80,6 +81,9 @@ namespace sistrip {
     
     /// clusterizer algorithm
     StripClusterizerAlgorithm* const clusterizer_;
+    
+    /// raw processing algorithms
+    SiStripRawProcessingAlgorithms* const rawAlgos_;
     
     /// FED event cache
     std::vector< sistrip::FEDBuffer* > buffers_;
