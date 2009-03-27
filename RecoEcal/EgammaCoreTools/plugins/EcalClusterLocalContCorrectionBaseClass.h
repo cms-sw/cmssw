@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
@@ -45,6 +46,8 @@ class EcalClusterLocalContCorrectionBaseClass : public EcalClusterFunctionBaseCl
         protected:
                 edm::ESHandle<EcalClusterLocalContCorrParameters> esParams_;
                 const EcalClusterLocalContCorrParameters * params_;
+		const edm::EventSetup * es_; //needed to access the ECAL geometry
+		 
 };
 
 #endif
