@@ -6,7 +6,6 @@
    Declaration of class ModuleRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.h,v 1.12 2009/02/13 02:43:59 wmtan Exp $
    \date 18 May 2005
 */
 
@@ -29,9 +28,6 @@ namespace edm {
      \brief The Registry of all workers that where requested
      Holds all instances of workers. In this implementation, Workers 
      are owned.
-
-     \author Stefano ARGIRO
-     \date 18 May 200
   */
 
   class WorkerRegistry : private boost::noncopyable {

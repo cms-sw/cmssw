@@ -5,8 +5,6 @@
   
 WorkerT: Code common to all workers.
 
-$Id: WorkerT.h,v 1.3 2008/10/16 23:06:29 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include <memory>

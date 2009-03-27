@@ -6,8 +6,6 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.36 2008/12/20 17:42:06 wmtan Exp $
-
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
 be Ready.  The Ready state can only be reestablished by doing a reset().
