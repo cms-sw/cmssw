@@ -1,9 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.SiStripClusterization.SiStripClusterization_cfi import *
+from RecoLocalTracker.SiStripClusterizer.DefaultClusterizer_cff import *
 SiStripRawToClustersFacility = cms.EDProducer("SiStripRawToClusters",
-    SiStripClusterization,
-    ProductLabel = cms.InputTag('rawDataCollector')
-)
-
-
+                                              Clusterizer = DefaultClusterizer,
+                                              ProductLabel = cms.InputTag('rawDataCollector')
+                                              )

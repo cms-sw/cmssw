@@ -45,12 +45,7 @@ siStripDigis = cms.EDProducer(
 
 # Clusterizer (orig)
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import *
-siStripClusters.DigiProducersList = cms.VPSet(
-    cms.PSet(
-    DigiLabel = cms.string('ZeroSuppressed'),
-    DigiProducer = cms.string('siStripDigis')
-    )
-    )
+siStripClusters.DigiProducersList = cms.VInputTag(cms.InputTag('siStripDigis:ZeroSuppressed'))
 
 # Clusterizer (new)
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterProducer_cfi import *
