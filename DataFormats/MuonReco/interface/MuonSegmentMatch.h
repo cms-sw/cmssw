@@ -30,6 +30,8 @@ namespace reco {
          float dXdZErr;        // uncertainty in dX/dZ
          float dYdZErr;        // uncertainty in dY/dZ
          unsigned int mask;    // arbitration mask
+         bool hasZed_;         // contains local y information (only relevant for segments in DT)
+         bool hasPhi_;         // contains local x information (only relevant for segments in DT)
 
          bool isMask( unsigned int flag = Arbitrated ) const { return mask & flag; }
          void setMask( unsigned int flag ) { if(!(mask & flag)) mask += flag; }
@@ -37,8 +39,8 @@ namespace reco {
       MuonSegmentMatch():x(0),y(0),xErr(0),yErr(0),dXdZ(0),dYdZ(0),
       dXdZErr(0),dYdZErr(0) {}
 
-         bool hasZed() const { return ! (fabs(y)<1E-6&&fabs(yErr)<1E-6); }
-         bool hasPhi() const { return ! (fabs(x)<1E-6&&fabs(xErr)<1E-6); }
+         bool hasZed() const { return hasZed_; }
+         bool hasPhi() const { return hasPhi_; }
    };
 }
 
