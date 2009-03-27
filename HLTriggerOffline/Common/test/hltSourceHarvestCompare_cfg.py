@@ -48,9 +48,9 @@ process.MessageLogger.cerr.DQMFileSaver = cms.untracked.PSet(
        )
 
 process.source.fileNames = cms.untracked.vstring(
-#'file:0AB7BC40-87E9-DD11-8CCF-003048767D51.root'
-'/store/relval/CMSSW_3_0_0_pre7/RelValTTbar/GEN-SIM-RECO/STARTUP_30X_v1/0002/0AB7BC40-87E9-DD11-8CCF-003048767D51.root'
+'/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-RECO/STARTUP_30X_v1/0001/A42D4BC9-8C16-DE11-8767-003048678B00.root'
 )
+
 process.validation = cms.Path(
     process.hltvalidation
     # process.HLTMuonVal
@@ -63,6 +63,8 @@ process.validation = cms.Path(
     #+process.HLTSusyExoVal
     #+process.HLTFourVector
     #+process.heavyFlavorValidationSequence
+    #+process.HLTJetMETValSeq
+    #+process.hltHITval
     )
 
 process.post_validation = cms.Path(
@@ -74,6 +76,9 @@ process.post_validation = cms.Path(
     #+process.SusyExoPostVal
     #+process.HLTriggerOfflineFourVectorClient
     #+process.heavyFlavorValidationHarvestingSequence
+    #+process.JetMETPostVal
+    #+process.hltHITval_Harvest
+
     )
 
 process.qt_validation = cms.Path(
