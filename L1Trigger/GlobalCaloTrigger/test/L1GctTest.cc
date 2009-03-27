@@ -134,7 +134,7 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      m_tester->fillRawJetData(m_gct);
      passAllTests &= m_tester->checkEnergySums(m_gct);
      passAllTests &= m_tester->checkHtSums(m_gct);
-     passAllTests &= m_tester->checkHfEtSums(m_gct);
+     //     passAllTests &= m_tester->checkHfEtSums(m_gct);
    }
 
    m_eventNo++;

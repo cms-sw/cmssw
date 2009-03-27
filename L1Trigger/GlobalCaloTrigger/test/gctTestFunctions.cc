@@ -4,7 +4,7 @@
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestFirmware.h"
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestHt.h"
-#include "L1Trigger/GlobalCaloTrigger/test/gctTestHfEtSums.h"
+//#include "L1Trigger/GlobalCaloTrigger/test/gctTestHfEtSums.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
@@ -17,7 +17,7 @@ gctTestFunctions::gctTestFunctions() :
   theEnergyAlgosTester    ( new gctTestEnergyAlgos() ),
   theFirmwareTester       ( new gctTestFirmware() ),
   theHtTester             ( new gctTestHt() ),
-  theHfEtSumsTester       ( new gctTestHfEtSums() ),
+  //  theHfEtSumsTester       ( new gctTestHfEtSums() ),
   m_inputEmCands(), m_inputRegions(),
   m_bxStart(0), m_numOfBx(1)
 {
@@ -28,7 +28,7 @@ gctTestFunctions::~gctTestFunctions() {
   delete theEnergyAlgosTester;
   delete theFirmwareTester;
   delete theHtTester;
-  delete theHfEtSumsTester;
+  //  delete theHfEtSumsTester;
 }
 
 //=================================================================================================================
@@ -160,15 +160,15 @@ bool gctTestFunctions::checkHtSums(const L1GlobalCaloTrigger* gct) const
   return theHtTester->checkHtSums(gct);
 }
 
-//=================================================================================================================
-//
-/// Check the Hf Et sums
-bool gctTestFunctions::checkHfEtSums(const L1GlobalCaloTrigger* gct) const
-{
-  theHfEtSumsTester->reset();
-  theHfEtSumsTester->fillExpectedHfSums(m_inputRegions);
-  return theHfEtSumsTester->checkHfEtSums(gct, m_numOfBx);
-}
+// //=================================================================================================================
+// //
+// /// Check the Hf Et sums
+// bool gctTestFunctions::checkHfEtSums(const L1GlobalCaloTrigger* gct) const
+// {
+//   theHfEtSumsTester->reset();
+//   theHfEtSumsTester->fillExpectedHfSums(m_inputRegions);
+//   return theHfEtSumsTester->checkHfEtSums(gct, m_numOfBx);
+// }
 
 
 //=================================================================================================================
