@@ -42,10 +42,8 @@ void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterP
 						      double etaRoad, double phiRoad)
 {
 
-  //for (reco::CaloCluster_iterator currentSeed = clusters_v.begin(); !clusters_v.empty(); clusters_v.erase(currentSeed))
   for (reco::CaloCluster_iterator currentSeed = clusters_v.begin(); currentSeed != clusters_v.end(); ++currentSeed)
     {
-      //      std::cerr << "inside" << std::endl;
       // Does our highest energy cluster have high enough energy?
       // changed this to continue from break (to be robust against the order of sorting of the seed clusters)
       if ((*currentSeed)->energy() * sin((*currentSeed)->position().theta()) < seedTransverseEnergyThreshold) continue;
@@ -118,7 +116,6 @@ void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterP
 		    << newSuperCluster.position().theta() << ")" << std::endl;
 	}
     }
-  //currentSeed = clusters_v.end();
   clusters_v.clear();
 }
 
