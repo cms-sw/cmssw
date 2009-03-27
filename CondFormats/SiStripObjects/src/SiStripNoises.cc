@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <math.h>
+#include <iomanip>
 
 SiStripNoises::SiStripNoises(const SiStripNoises& input){
   v_noises.clear();
@@ -211,18 +212,29 @@ std::string SiStripNoises::print_short_as_binary(const short ch) const
 }
 */
 
-
 void SiStripNoises::printDebug(std::stringstream& ss) const{
   RegistryIterator rit=getRegistryVectorBegin(), erit=getRegistryVectorEnd();
   uint16_t Nstrips;
   std::vector<float> vstripnoise;
+
+  ss << "detid" << std::setw(15) << "strip" << std::setw(10) << "noise" << std::endl;
+
+  int detId = 0;
+  int oldDetId = 0;
   for(;rit!=erit;++rit){
     Nstrips = (rit->iend-rit->ibegin)*8/9; //number of strips = number of chars * char size / strip noise size
     vstripnoise.resize(Nstrips);
     allNoises(vstripnoise,make_pair(getDataVectorBegin()+rit->ibegin,getDataVectorBegin()+rit->iend));
-    ss << "\ndetid: " << rit->detid << " \t ";
+
+    detId = rit->detid;
+    if( detId != oldDetId ) {
+      oldDetId = detId;
+      ss << detId;
+    }
+    else ss << "   ";
     for(size_t i=0;i<Nstrips;++i){
-      ss << "\n \t strip " << i << " value " << vstripnoise[i];
+      if( i != 0 ) ss << "   ";
+      ss << std::setw(15) << i << std::setw(10) << vstripnoise[i] << std::endl;
     }
   }
 }

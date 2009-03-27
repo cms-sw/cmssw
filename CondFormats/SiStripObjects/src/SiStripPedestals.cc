@@ -161,6 +161,47 @@ SiStripPedestals::allPeds  (std::vector<int>   & peds,  const Range& range) cons
     }
 }
 
+void SiStripPedestals::printSummary(std::stringstream& ss) const
+{
+  std::vector<uint32_t> detid;
+  getDetIds(detid);
+  SiStripDetSummary summary;
+  for( size_t id = 0; id < detid.size(); ++id ) {
+    SiStripPedestals::Range range = getRange(detid[id]);
+    for( int it=0; it < (range.second-range.first)*8/10; ++it ){
+      summary.add( detid[id], getPed(it,range) );
+    }
+  }
+  ss << "Summary of pedestals:" << endl;
+  summary.print(ss);
+}
+
+
+void SiStripPedestals::printDebug(std::stringstream& ss) const
+{
+  std::vector<uint32_t> detid;
+  getDetIds(detid);
+
+  ss << "Number of detids = " << detid.size() << std::endl;
+
+  for( size_t id = 0; id < detid.size(); ++id ) {
+    SiStripPedestals::Range range = getRange(detid[id]);
+
+    int strip = 0;
+    ss << "detid" << setw(15) << "strip" << setw(10) << "pedestal" << std::endl;
+    int detId = 0;
+    int oldDetId = 0;
+    for( int it=0; it < (range.second-range.first)*8/10; ++it ){
+      detId = detid[id];
+      if( detId != oldDetId ) {
+        oldDetId = detId;
+        ss << detid[id];
+      }
+      else ss << "   ";
+      ss << setw(15) << strip++ << setw(10) << getPed(it,range) << std::endl;
+    }
+  }
+}
 
 
 /**
