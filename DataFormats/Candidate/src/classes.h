@@ -57,6 +57,7 @@ namespace {
     reco::CandidateBaseRefProd rp2;
     std::vector<edm::RefToBase<reco::Candidate> > vrb1;
     std::vector<edm::Ptr<reco::Candidate> > vrb2;
+    std::vector<edm::PtrVector<reco::Candidate> > vrb3;
     edm::Wrapper<reco::CandFloatAssociations> wav1;
     edm::Wrapper<reco::CandDoubleAssociations> wav2;
     edm::Wrapper<reco::CandIntAssociations> wav3;
