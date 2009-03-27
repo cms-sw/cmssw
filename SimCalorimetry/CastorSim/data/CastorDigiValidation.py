@@ -7,7 +7,7 @@ process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
 
 process.load("SimCalorimetry.CastorSim.castordigi_cfi")
 
-process.load("RecoLocalCalo.CastorReco.test.CastorSimpleReconstructor_cfi")
+process.load("RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi")
 
 process.load("Geometry.CMSCommonData.cmsAllGeometryXML_cfi")
 
