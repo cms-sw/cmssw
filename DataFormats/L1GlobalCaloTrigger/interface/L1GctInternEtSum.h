@@ -80,6 +80,16 @@ class L1GctInternEtSum {
                                           int16_t bx,
                                           uint32_t data);
 
+  static L1GctInternEtSum fromEmulatorJetTotEt(unsigned totEt, bool overFlow, int16_t bx);
+
+  static L1GctInternEtSum fromEmulatorJetTotHt(unsigned totHt, bool overFlow, int16_t bx);
+  
+  static L1GctInternEtSum fromEmulatorJetMissEt(int missEtxOrEty, bool overFlow, int16_t bx);
+  
+  static L1GctInternEtSum fromEmulatorTotalEtOrHt(unsigned totEtOrHt, bool overFlow, int16_t bx);
+
+  static L1GctInternEtSum fromEmulatorMissEtxOrEty(int missEtxOrEty, bool overFlow, int16_t bx);
+
   /// metadata
 
   /// 'type' of object - not required?

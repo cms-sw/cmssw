@@ -36,6 +36,7 @@ L1GctInternEtSum L1GctInternEtSum::fromJetTotEt(const uint16_t capBlock,
   L1GctInternEtSum s;
   s.setEt(data & kTotEtOrHtMaxValue);
   s.setOflow((data>>kTotEtOrHtNBits)&0x1);
+  s.setBx(bx);
   s.setType(jet_tot_et);
   return s;
 }
@@ -48,6 +49,7 @@ L1GctInternEtSum L1GctInternEtSum::fromJetTotHt(const uint16_t capBlock,
   uint32_t word=data>>16;
   s.setEt(word & kTotEtOrHtMaxValue);
   s.setOflow((word>>kTotEtOrHtNBits)&0x1);
+  s.setBx(bx);
   s.setType(jet_tot_ht);
   return s;
 }
@@ -59,6 +61,7 @@ L1GctInternEtSum L1GctInternEtSum::fromJetMissEt(const uint16_t capBlock,
   L1GctInternEtSum s;
   s.setEt(data & kJetMissEtMaxValue);
   s.setOflow((data>>kJetMissEtNBits) & 0x1);
+  s.setBx(bx);
   s.setType(jet_miss_et);
   return s;
 }
@@ -71,6 +74,7 @@ L1GctInternEtSum L1GctInternEtSum::fromTotalEtOrHt(const uint16_t capBlock,
   L1GctInternEtSum s;
   s.setEt(data & kTotEtOrHtMaxValue);
   s.setOflow((data>>kTotEtOrHtNBits) & 0x1);
+  s.setBx(bx);
   s.setType(total_et_or_ht);
   return s;
 }
@@ -82,10 +86,58 @@ L1GctInternEtSum L1GctInternEtSum::fromMissEtxOrEty(const uint16_t capBlock,
   L1GctInternEtSum s;
   s.setEt(data & kMissExOrEyNBits);
   s.setOflow(0); // No over flow bit at the moment
+  s.setBx(bx);
   s.setType(miss_etx_or_ety);
   return s;
 }
 
+
+/// Emulator constructors
+
+L1GctInternEtSum L1GctInternEtSum::fromEmulatorJetTotEt(unsigned totEt, bool overFlow, int16_t bx) {
+  L1GctInternEtSum s;
+  s.setEt(totEt & kTotEtOrHtMaxValue);
+  if (overFlow || (totEt > kTotEtOrHtMaxValue)) s.setOflow(0x1);
+  s.setBx(bx);
+  s.setType(jet_tot_et);
+  return s;
+}
+
+L1GctInternEtSum L1GctInternEtSum::fromEmulatorJetTotHt(unsigned totHt, bool overFlow, int16_t bx) {
+  L1GctInternEtSum s;
+  s.setEt(totHt & kTotEtOrHtMaxValue);
+  if (overFlow || (totHt > kTotEtOrHtMaxValue)) s.setOflow(0x1);
+  s.setBx(bx);
+  s.setType(jet_tot_ht);
+  return s;
+}
+  
+L1GctInternEtSum L1GctInternEtSum::fromEmulatorJetMissEt(int missEtxOrEty, bool overFlow, int16_t bx) {
+  L1GctInternEtSum s;
+  s.setEt(missEtxOrEty & kJetMissEtMaxValue);
+  if (overFlow || (missEtxOrEty >= kJetMissEtOFlowBit/2) || (missEtxOrEty < -kJetMissEtOFlowBit/2)) s.setOflow(0x1);
+  s.setBx(bx);
+  s.setType(jet_miss_et);
+  return s;
+}
+  
+L1GctInternEtSum L1GctInternEtSum::fromEmulatorTotalEtOrHt(unsigned totEtOrHt, bool overFlow, int16_t bx) {
+  L1GctInternEtSum s;
+  s.setEt(totEtOrHt & kTotEtOrHtMaxValue);
+  if (overFlow || (totEtOrHt > kTotEtOrHtMaxValue)) s.setOflow(0x1);
+  s.setBx(bx);
+  s.setType(total_et_or_ht);
+  return s;
+}
+
+L1GctInternEtSum L1GctInternEtSum::fromEmulatorMissEtxOrEty(int missEtxOrEty, bool overFlow, int16_t bx) {
+  L1GctInternEtSum s;
+  s.setEt(missEtxOrEty & kMissExOrEyMaxValue);
+  if (overFlow || (missEtxOrEty >= kMissExOrEyOFlowBit/2) || (missEtxOrEty < -kMissExOrEyOFlowBit/2)) s.setOflow(0x1);
+  s.setBx(bx);
+  s.setType(miss_etx_or_ety);
+  return s;
+}
 
 /// equality operator
 bool L1GctInternEtSum::operator==(const L1GctInternEtSum& c) const {

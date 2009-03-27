@@ -43,6 +43,66 @@ L1GctInternHtMiss L1GctInternHtMiss::unpackerMissHtxHty(const uint16_t capBlock,
   return L1GctInternHtMiss(miss_htx_and_hty, capBlock, capIndex, bx, data & kDoubleComponentRawMask);
 }
 
+// Named ctor for making missing Ht x & y components object from unpacker raw data.
+L1GctInternHtMiss L1GctInternHtMiss::emulatorJetMissHt(const int htx,
+						       const int hty,
+						       const bool overFlow,
+						       const int16_t bx)
+{
+  int32_t xdata = (htx & kJetFinderComponentHtMask);
+  int32_t ydata = (hty & kJetFinderComponentHtMask) << kDoubleComponentHtyShift;
+  int32_t odata = 0;
+  if (overFlow
+      || (htx >= kJetFinderComponentHtMask/2) || (htx < -kJetFinderComponentHtMask/2)
+      || (hty >= kJetFinderComponentHtMask/2) || (hty < -kJetFinderComponentHtMask/2) )
+    odata = kDoubleComponentOflowMask;
+  return L1GctInternHtMiss(jf_miss_htx_and_hty, 0, 0, bx, xdata | ydata | odata);
+}
+
+/// Named ctor for making missing Ht x & y components object from emulator (wheel input).  
+L1GctInternHtMiss L1GctInternHtMiss::emulatorMissHtxHty(const int htx,
+							const int hty,
+							const bool overFlow,
+							const int16_t bx)
+{
+  int32_t xdata = (htx & kDoubleComponentHtMask);
+  int32_t ydata = (hty & kDoubleComponentHtMask) << kDoubleComponentHtyShift;
+  int32_t odata = 0;
+  if (overFlow
+      || (htx >= kDoubleComponentHtMask/2) || (htx < -kDoubleComponentHtMask/2)
+      || (hty >= kDoubleComponentHtMask/2) || (hty < -kDoubleComponentHtMask/2) )
+    odata = kDoubleComponentOflowMask;
+  return L1GctInternHtMiss(miss_htx_and_hty, 0, 0, bx, xdata | ydata | odata);
+}
+
+/// Named ctor for making missing Ht x component object from emulator  
+L1GctInternHtMiss L1GctInternHtMiss::emulatorMissHtx(const int htx,
+						     const bool overFlow,
+						     const int16_t bx)
+{
+  int32_t xdata = (htx & kSingleComponentHtMask);
+  int32_t odata = 0;
+  if (overFlow
+      || (htx >= kSingleComponentHtMask/2) || (htx < -kSingleComponentHtMask/2) )
+    odata = kSingleComponentOflowMask;
+  return L1GctInternHtMiss(miss_htx, 0, 0, bx, xdata | odata);
+}
+
+
+/// Named ctor for making missing Ht y component object from emulator  
+L1GctInternHtMiss L1GctInternHtMiss::emulatorMissHty(const int hty,
+						     const bool overFlow,
+						     const int16_t bx)
+{
+  int32_t ydata = (hty & kSingleComponentHtMask);
+  int32_t odata = 0;
+  if (overFlow
+      || (hty >= kSingleComponentHtMask/2) || (hty < -kSingleComponentHtMask/2) )
+    odata = kSingleComponentOflowMask;
+  return L1GctInternHtMiss(miss_hty, 0, 0, bx, ydata | odata);
+}
+
+
 // Get Ht x-component
 int16_t L1GctInternHtMiss::htx() const
 {

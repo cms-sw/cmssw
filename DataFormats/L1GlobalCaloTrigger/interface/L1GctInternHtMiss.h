@@ -23,17 +23,16 @@ class L1GctInternHtMiss
   enum L1GctInternHtMissType{ nulltype,
                               miss_htx,
                               miss_hty,
-                              miss_htx_and_hty };
+                              miss_htx_and_hty,
+			      jf_miss_htx_and_hty };
 
   enum numberOfBits {
+    // TODO - tidy up all these enums.
+    // These numbers of bits are needed to specify data sizes in the emulator
+    // Other masks are below in the private section.
     kJetMissHtNBits   = 12,
-    kMissHxOrHyNBits  = 14,
-    kJetMissHtOFlowBit  = 1 << kJetMissHtNBits,
-    kMissHxOrHyOFlowBit = 1 << kMissHxOrHyNBits,
-    kJetMissHtMaxValue  = kJetMissHtOFlowBit  - 1,
-    kMissHxOrHyMaxValue = kMissHxOrHyOFlowBit - 1,
-    kJetMissHtRawCtorMask  = kJetMissHtOFlowBit  | kJetMissHtMaxValue,
-    kMissHxOrHyRawCtorMask = kMissHxOrHyOFlowBit | kMissHxOrHyMaxValue
+    kMissHxAndHyNBits = 14,
+    kMissHxOrHyNBits  = 16
   };
 
   /// default constructor (for vector initialisation etc.)
@@ -64,6 +63,29 @@ class L1GctInternHtMiss
                                               const uint32_t data);
 
 
+  /// Named ctor for making missing Ht x & y components object from emulator (jetFinder output).  
+  static L1GctInternHtMiss emulatorJetMissHt(const int htx,
+					     const int hty,
+					     const bool overFlow,
+					     const int16_t bx);
+
+  /// Named ctor for making missing Ht x & y components object from emulator (wheel input).  
+  static L1GctInternHtMiss emulatorMissHtxHty(const int htx,
+					      const int hty,
+					      const bool overFlow,
+					      const int16_t bx);
+
+  /// Named ctor for making missing Ht x component object from emulator  
+  static L1GctInternHtMiss emulatorMissHtx(const int htx,
+					   const bool overFlow,
+					   const int16_t bx);
+
+  /// Named ctor for making missing Ht y component object from emulator  
+  static L1GctInternHtMiss emulatorMissHty(const int hty,
+					   const bool overFlow,
+					   const int16_t bx);
+
+
   /* Metadata */
 
   /// 'type' of object?
@@ -79,10 +101,10 @@ class L1GctInternHtMiss
   int16_t bx() const { return bx_; }
 
   /// Is there a valid Ht x-component stored?
-  bool isThereHtx() const { return (type() == miss_htx || type() == miss_htx_and_hty); }
+  bool isThereHtx() const { return (type() == miss_htx || type() == miss_htx_and_hty || type() == jf_miss_htx_and_hty); }
 
   /// Is there a valid Ht y-component stored?
-  bool isThereHty() const { return (type() == miss_hty || type() == miss_htx_and_hty); }
+  bool isThereHty() const { return (type() == miss_hty || type() == miss_htx_and_hty || type() == jf_miss_htx_and_hty); }
 
 
   /* Access to the actual data */
@@ -117,6 +139,7 @@ class L1GctInternHtMiss
                         kDoubleComponentOflowMask = (1 << 15), // Overflow bit mask in miss_htx_and_hty
                         kSingleComponentHtMask    = 0xffff,    // Ht component mask in miss_htx or miss_hty
                         kDoubleComponentHtMask    = 0x3fff,    // Ht component mask in miss_htx_and_hty
+                        kJetFinderComponentHtMask = 0x0fff,    // Ht component mask in jf_miss_htx_and_hty
                         kSingleComponentRawMask   = kSingleComponentOflowMask | kSingleComponentHtMask,    // To mask off all the non-data bits in raw data (e.g. BC0, etc)
                         kDoubleComponentRawMask   = (kDoubleComponentHtMask << kDoubleComponentHtyShift) |
                                                      kDoubleComponentOflowMask | kDoubleComponentHtMask };  
