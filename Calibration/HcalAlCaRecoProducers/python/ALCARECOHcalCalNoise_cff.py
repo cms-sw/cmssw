@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 noiseHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     HLTPaths = ['HLT_MET25'],
-#    eventSetupPathsKey='HcalCalIsoTrk',
+#    eventSetupPathsKey='HcalCalNoise',
     throw = False #dont throw except on unknown path name
 )
 

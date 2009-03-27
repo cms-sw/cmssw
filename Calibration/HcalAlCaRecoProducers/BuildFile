@@ -19,6 +19,7 @@
 <use name=Geometry/EcalAlgo>
 <use name=DataFormats/Math>
 <use name=RecoEcal/EgammaCoreTools>
+<use name=DataFormats/METReco>
 # EgammaClustersProducers is a plugin now remove from here
 # <use name=RecoEcal/EgammaClusterProducers>
 <use name=DataFormats/L1GlobalTrigger>
@@ -50,7 +51,7 @@
    <use name=DataFormats/Math>
    <use name=RecoEcal/EgammaCoreTools>
 #   <use name=RecoEcal/EgammaClusterProducers>
-
+   <use name=DataFormats/METReco>
    <use name=CondFormats/HcalObjects>
    <use name=DataFormats/HcalDigi>
    <use name=DataFormats/HcalRecHit>
