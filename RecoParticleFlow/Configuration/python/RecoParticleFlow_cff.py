@@ -7,8 +7,10 @@ from RecoParticleFlow.PFBlockProducer.particleFlowSimParticle_cff import *
 from RecoParticleFlow.PFBlockProducer.particleFlowBlock_cff import *
 
 from RecoParticleFlow.PFProducer.particleFlow_cff import *
+from RecoParticleFlow.PFProducer.pfElectronTranslator_cff import *
 
 particleFlowReco = cms.Sequence( particleFlowTrack*
                                  particleFlowBlock*
-                                 particleFlow )
+                                 particleFlow*
+                                 pfElectronTranslator)
 
