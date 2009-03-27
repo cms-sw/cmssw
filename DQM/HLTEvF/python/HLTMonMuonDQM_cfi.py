@@ -10,12 +10,24 @@ hltMonMuDQM = cms.EDAnalyzer("HLTMuonDQMSource",
     	# L1 muon
 	cms.PSet(
 		HLTCollectionLevel = cms.string("L1"),
+		HLTCollectionLabels = cms.string("HLT_L1MuOpen")
+	),
+	cms.PSet(
+		HLTCollectionLevel = cms.string("L1"),
 		HLTCollectionLabels = cms.string("HLT_L1Mu")
+	),
+	cms.PSet(
+		HLTCollectionLevel = cms.string("L1"),
+		HLTCollectionLabels = cms.string("HLT_L1Mu20")
 	),
     	# L2 muon
 	cms.PSet(
 		HLTCollectionLevel = cms.string("L2"),
 		HLTCollectionLabels = cms.string("HLT_L2Mu9")
+	),
+	cms.PSet(
+		HLTCollectionLevel = cms.string("L2"),
+		HLTCollectionLabels = cms.string("HLT_L2Mu15")
 	),
     	# L3 muon
 	cms.PSet(
@@ -24,7 +36,7 @@ hltMonMuDQM = cms.EDAnalyzer("HLTMuonDQMSource",
 	),
 	cms.PSet(
 		HLTCollectionLevel = cms.string("L3"),
-		HLTCollectionLabels = cms.string("HLT_IsoMu3")
+		HLTCollectionLabels = cms.string("HLT_Mu9")
 	)
     ),
     disableROOToutput = cms.untracked.bool(True)

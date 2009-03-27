@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.17 2009/02/25 19:12:54 hdyoo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.18 2009/03/24 10:12:53 hdyoo Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -118,7 +118,8 @@ HLTMuonDQMSource::HLTMuonDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0
     theHLTCollectionLabels.push_back(filterconf->getParameter<std::string>("HLTCollectionLabels"));
   }
   
-  nTrigs = theHLTCollectionLabels.size();
+  // L1PassThrough, L2PassThrough, L3PassThrough
+  nTrigs = 3;
   
 }
 
@@ -152,17 +153,18 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
     // create and cd into new folder
     char name[512], title[512];
     double pt_max;
-    for( int trig = 0; trig < nTrigs+1; trig++ ) {
+    for( int trig = 0; trig < nTrigs; trig++ ) {
       string dirname;
-      if( trig < nTrigs ) dirname = theHLTCollectionLabels[trig] + "/";
-      else if( trig == nTrigs ) dirname = "Combined/";
+      if( trig == 0 ) dirname = "L1PassThrough/";
+      if( trig == 1 ) dirname = "L2PassThrough/";
+      if( trig == 2 ) dirname = "L3PassThrough/";
       for ( int level = 1; level < 7; ++level ) {
 	if( level < 4 ) sprintf(name,"Level%i",level);
 	else if (level == 4 ) sprintf(name,"Level%iSeed", level-2);
 	else if (level == 5 ) sprintf(name,"Level%iSeed", level-2);
 	else if (level == 6 ) sprintf(name,"Level2Isolation");
 	
-	if( level == 1 ) pt_max = 140;
+	if( level == 1 ) pt_max = 145;
 	else pt_max = 200;
 	dbe_->setCurrentFolder(monitorName_+dirname+name);
 	if( level == 1 ) hl1quality[trig] = dbe_->book1D("h1L1Quality","GMT quality Flag", 8, 0., 8.);
@@ -196,7 +198,7 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	  }
 	  float pt_bins[51];
 	  for( int ibin = 0; ibin < 51; ibin++ ) {
-	      pt_bins[ibin] = ibin*(140/50);
+	      pt_bins[ibin] = ibin*(145./50.);
 	  }
 	  sprintf(name,"HLTMuonL%i_NMu",level);
 	  sprintf(title,"L%i number of muons",level);
@@ -721,13 +723,13 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
     dbe_->tagContents(monitorName_, detector_id);
   } 
   
-  for( int trig = 0; trig < nTrigs+1; trig++ ) {
+  for( int trig = 0; trig < nTrigs; trig++ ) {
     for( int level = 1; level < 3; ++level ) {
       char name[512];
       sprintf(name, "DenominatorL%iptTrig%i", level, trig);
-      _hpt1[trig][level-1] = new TH1D(name, name, 40, 0, 140);
+      _hpt1[trig][level-1] = new TH1D(name, name, 40, 0, 145);
       sprintf(name, "NumeratorL%iptTrig%i", level, trig);
-      _hpt2[trig][level-1] = new TH1D(name, name, 40, 0, 140);
+      _hpt2[trig][level-1] = new TH1D(name, name, 40, 0, 145);
       sprintf(name, "DenominatorL%ietaTrig%i", level, trig);
       _heta1[trig][level-1] = new TH1D(name, name, 40, -2.5, 2.5);
       sprintf(name, "NumeratorL%ietaTrig%i", level, trig);
@@ -769,10 +771,12 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
     TriggerNames trigName;
     trigName.init(*trigResult);
     for( int itrig = 0; itrig != ntrigs; ++itrig) {
-      for( unsigned int n = 0; n < (unsigned int)nTrigs; n++) { 
+      for( unsigned int n = 0; n < (unsigned int)theHLTCollectionLabels.size(); n++) { 
 	if( trigName.triggerIndex(theHLTCollectionLabels[n]) == (unsigned int)ntrigs ) continue;
         if( trigResult->accept(trigName.triggerIndex(theHLTCollectionLabels[n])) ) {
-	  FiredTriggers[n] = true;
+	  if( theHLTCollectionLevel[n] == "L1" ) FiredTriggers[0] = true;
+	  if( theHLTCollectionLevel[n] == "L2" ) FiredTriggers[1] = true;
+	  if( theHLTCollectionLevel[n] == "L3" ) FiredTriggers[2] = true;
 	  trigFired = true;
 	}
       }
@@ -781,8 +785,6 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   // trigger fired
   if( !trigFired ) return;
   nTrig_++;
-  // combined results
-  FiredTriggers[nTrigs] = true;
 
   //get the field
   edm::ESHandle<MagneticField> magField;
@@ -802,7 +804,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   Handle<L3MuonTrajectorySeedCollection> l3seeds; 
   iEvent.getByLabel (l3seedscollectionTag_,l3seeds);
 
-  for( int ntrig = 0; ntrig < nTrigs+1; ntrig++ ) {
+  for( int ntrig = 0; ntrig < nTrigs; ntrig++ ) {
     if( !FiredTriggers[ntrig] ) continue;
     if( !l2seeds.failedToGet() ) {
       hNMu[ntrig][3]->Fill(l2seeds->size());
@@ -1158,7 +1160,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   // Tower
   Handle<CaloTowerCollection> caloTower; 
   iEvent.getByLabel(InputTag("hltTowerMakerForMuons"), caloTower);
-  for( int ntrig = 0; ntrig < nTrigs+1; ntrig++ ) {
+  for( int ntrig = 0; ntrig < nTrigs; ntrig++ ) {
     if( !FiredTriggers[ntrig] ) continue;
     if( caloTower.isValid() ) {
       CaloTowerCollection::const_iterator itower;
