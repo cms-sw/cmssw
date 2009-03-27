@@ -70,56 +70,56 @@ from RecoTauTag.RecoTau.PFRecoTauDiscriminationByTrackIsolationUsingLeadingPion_
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByECALIsolationUsingLeadingPion_cfi  import *
 
 #copying Discriminator ByLeadingTrack(finding and pt_cut)
-shrinkingConeDiscriminationByLeadingTrackFinding                          = copy.deepcopy(pfRecoTauDiscriminationByLeadingTrackFinding)
-shrinkingConeDiscriminationByLeadingTrackFinding.PFTauProducer            = 'shrinkingConePFTauProducer'
+shrinkingConePFTauDiscriminationByLeadingTrackFinding                          = copy.deepcopy(pfRecoTauDiscriminationByLeadingTrackFinding)
+shrinkingConePFTauDiscriminationByLeadingTrackFinding.PFTauProducer            = 'shrinkingConePFTauProducer'
 
-shrinkingConeDiscriminationByLeadingTrackPtCut                            = copy.deepcopy(pfRecoTauDiscriminationByLeadingTrackPtCut)
-shrinkingConeDiscriminationByLeadingTrackPtCut.PFTauProducer              = 'shrinkingConePFTauProducer'
+shrinkingConePFTauDiscriminationByLeadingTrackPtCut                            = copy.deepcopy(pfRecoTauDiscriminationByLeadingTrackPtCut)
+shrinkingConePFTauDiscriminationByLeadingTrackPtCut.PFTauProducer              = 'shrinkingConePFTauProducer'
 
 #copying Discriminator ByPionTrackPtCut
-shrinkingConeDiscriminationByLeadingPionPtCut                             = copy.deepcopy(pfRecoTauDiscriminationByLeadingPionPtCut)
-shrinkingConeDiscriminationByLeadingPionPtCut.PFTauProducer               = 'shrinkingConePFTauProducer'
+shrinkingConePFTauDiscriminationByLeadingPionPtCut                             = copy.deepcopy(pfRecoTauDiscriminationByLeadingPionPtCut)
+shrinkingConePFTauDiscriminationByLeadingPionPtCut.PFTauProducer               = 'shrinkingConePFTauProducer'
 
 #copying the Discriminator by Isolation
-shrinkingConeDiscriminationByIsolation                                    = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
-shrinkingConeDiscriminationByIsolation.PFTauProducer                      = 'shrinkingConePFTauProducer'
+shrinkingConePFTauDiscriminationByIsolation                                    = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
+shrinkingConePFTauDiscriminationByIsolation.PFTauProducer                      = 'shrinkingConePFTauProducer'
 
-shrinkingConeDiscriminationByTrackIsolation                               = copy.deepcopy(pfRecoTauDiscriminationByTrackIsolation)
-shrinkingConeDiscriminationByTrackIsolation.PFTauProducer                 = 'shrinkingConePFTauProducer'
+shrinkingConePFTauDiscriminationByTrackIsolation                               = copy.deepcopy(pfRecoTauDiscriminationByTrackIsolation)
+shrinkingConePFTauDiscriminationByTrackIsolation.PFTauProducer                 = 'shrinkingConePFTauProducer'
 
-shrinkingConeDiscriminationByECALIsolation                                = copy.deepcopy(pfRecoTauDiscriminationByECALIsolation)
-shrinkingConeDiscriminationByECALIsolation.PFTauProducer                  = 'shrinkingConePFTauProducer'
+shrinkingConePFTauDiscriminationByECALIsolation                                = copy.deepcopy(pfRecoTauDiscriminationByECALIsolation)
+shrinkingConePFTauDiscriminationByECALIsolation.PFTauProducer                  = 'shrinkingConePFTauProducer'
 
 #copying the Discriminator by Isolation for leadingPion
-shrinkingConeDiscriminationByIsolationUsingLeadingPion                    = copy.deepcopy(pfRecoTauDiscriminationByIsolationUsingLeadingPion)
-shrinkingConeDiscriminationByIsolationUsingLeadingPion.PFTauProducer      = 'shrinkingConePFTauProducer'
+shrinkingConePFTauDiscriminationByIsolationUsingLeadingPion                    = copy.deepcopy(pfRecoTauDiscriminationByIsolationUsingLeadingPion)
+shrinkingConePFTauDiscriminationByIsolationUsingLeadingPion.PFTauProducer      = 'shrinkingConePFTauProducer'
 
-shrinkingConeDiscriminationByTrackIsolationUsingLeadingPion               = copy.deepcopy(pfRecoTauDiscriminationByTrackIsolationUsingLeadingPion)
-shrinkingConeDiscriminationByTrackIsolationUsingLeadingPion.PFTauProducer = 'shrinkingConePFTauProducer'
+shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion               = copy.deepcopy(pfRecoTauDiscriminationByTrackIsolationUsingLeadingPion)
+shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion.PFTauProducer = 'shrinkingConePFTauProducer'
 
-shrinkingConeDiscriminationByECALIsolationUsingLeadingPion                = copy.deepcopy(pfRecoTauDiscriminationByECALIsolationUsingLeadingPion)
-shrinkingConeDiscriminationByECALIsolationUsingLeadingPion.PFTauProducer  = 'shrinkingConePFTauProducer'
+shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion                = copy.deepcopy(pfRecoTauDiscriminationByECALIsolationUsingLeadingPion)
+shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion.PFTauProducer  = 'shrinkingConePFTauProducer'
 
 #copying discriminator against electrons and muons
-shrinkingConeDiscriminationAgainstElectron                                = copy.deepcopy(pfRecoTauDiscriminationAgainstElectron)
-shrinkingConeDiscriminationAgainstElectron.PFTauProducer                  = 'shrinkingConePFTauProducer'
+shrinkingConePFTauDiscriminationAgainstElectron                                = copy.deepcopy(pfRecoTauDiscriminationAgainstElectron)
+shrinkingConePFTauDiscriminationAgainstElectron.PFTauProducer                  = 'shrinkingConePFTauProducer'
 
-shrinkingConeDiscriminationAgainstMuon                                    = copy.deepcopy(pfRecoTauDiscriminationAgainstMuon)
-shrinkingConeDiscriminationAgainstMuon.PFTauProducer                      = 'shrinkingConePFTauProducer'
+shrinkingConePFTauDiscriminationAgainstMuon                                    = copy.deepcopy(pfRecoTauDiscriminationAgainstMuon)
+shrinkingConePFTauDiscriminationAgainstMuon.PFTauProducer                      = 'shrinkingConePFTauProducer'
 
 produceAndDiscriminateShrinkingConePFTaus = cms.Sequence(
       shrinkingConePFTauProducer*
       shrinkingConePFTauDecayModeProducer*
-      shrinkingConeDiscriminationByLeadingTrackFinding*
-      shrinkingConeDiscriminationByLeadingTrackPtCut*
-      shrinkingConeDiscriminationByLeadingPionPtCut*
-      shrinkingConeDiscriminationByIsolation*
-      shrinkingConeDiscriminationByTrackIsolation*
-      shrinkingConeDiscriminationByECALIsolation*
-      shrinkingConeDiscriminationByIsolationUsingLeadingPion*
-      shrinkingConeDiscriminationByTrackIsolationUsingLeadingPion*
-      shrinkingConeDiscriminationByECALIsolationUsingLeadingPion*
-      shrinkingConeDiscriminationAgainstElectron*
-      shrinkingConeDiscriminationAgainstMuon
+      shrinkingConePFTauDiscriminationByLeadingTrackFinding*
+      shrinkingConePFTauDiscriminationByLeadingTrackPtCut*
+      shrinkingConePFTauDiscriminationByLeadingPionPtCut*
+      shrinkingConePFTauDiscriminationByIsolation*
+      shrinkingConePFTauDiscriminationByTrackIsolation*
+      shrinkingConePFTauDiscriminationByECALIsolation*
+      shrinkingConePFTauDiscriminationByIsolationUsingLeadingPion*
+      shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion*
+      shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion*
+      shrinkingConePFTauDiscriminationAgainstElectron*
+      shrinkingConePFTauDiscriminationAgainstMuon
       )
 
