@@ -23,8 +23,8 @@ produce(edm::Event& event, const edm::EventSetup& es)  {
     if( findInput(inputNew, event) ) algorithm->clusterize(*inputNew, *output); else
       edm::LogWarning("Input Not Found");
 
-  edm::LogInfo("Output") << output->dataSize() << " clusters from " 
-			 << output->size()     << " modules";
+  LogDebug("Output") << output->dataSize() << " clusters from " 
+		     << output->size()     << " modules";
   event.put(output);
 }
 
@@ -38,7 +38,7 @@ findInput(edm::Handle<T>& handle, const edm::Event& e) {
 
     e.getByLabel(*inputTag, handle);
     if( handle.isValid() && !handle->empty() ) {
-      edm::LogInfo("Input") << *inputTag;
+      LogDebug("Input") << *inputTag;
       return true;
     }
   }
