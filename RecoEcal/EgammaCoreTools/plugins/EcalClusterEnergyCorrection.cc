@@ -12,8 +12,11 @@ float EcalClusterEnergyCorrection::fEta(float energy, float eta, int algorithm) 
   float p0 = (*params_)[0];  // should be 40.2198
   float p1 = (*params_)[1];  // should be -3.03103e-6
 
-  if ( ieta < p0 ) return energy;
-  else return energy/(1.0 + p1*(ieta-p0)*(ieta-p0));
+  float correctedEnergy = energy;
+  if ( ieta < p0 ) correctedEnergy = energy;
+  else             correctedEnergy = energy/(1.0 + p1*(ieta-p0)*(ieta-p0));
+  //std::cout << "ECEC fEta = " << correctedEnergy << std::endl;
+  return correctedEnergy;
 }
 
 float EcalClusterEnergyCorrection::fBrem(float e, float brem, int algorithm) const 
@@ -44,7 +47,7 @@ float EcalClusterEnergyCorrection::fBrem(float e, float brem, int algorithm) con
   float bremLowThr  = (*params_)[2 + offset];
   float bremHighThr = (*params_)[3 + offset];
   if ( brem < bremLowThr  ) brem = bremLowThr;
-  if ( brem < bremHighThr ) brem = bremHighThr;
+  if ( brem > bremHighThr ) brem = bremHighThr;
 
   // Parameters provided in cfg file
   float p0 = (*params_)[4 + offset];
@@ -54,7 +57,7 @@ float EcalClusterEnergyCorrection::fBrem(float e, float brem, int algorithm) con
   float p4 = (*params_)[8 + offset];
   // 
   float threshold = p4;  
-   
+
   float y = p0*threshold*threshold + p1*threshold + p2; 
   float yprime = 2*p0*threshold + p1; 
   float a = p3; 
@@ -67,6 +70,7 @@ float EcalClusterEnergyCorrection::fBrem(float e, float brem, int algorithm) con
   else  
     fCorr = a*brem*brem + b*brem + c; 
  
+  //std::cout << "ECEC fBrem " << e/fCorr << std::endl;
   return e/fCorr; 
 }   
 
@@ -75,6 +79,11 @@ float EcalClusterEnergyCorrection::fEtEta(float et, float eta, int algorithm) co
 { 
   // et -- Et of the SuperCluster (with respect to (0,0,0)) 
   // eta -- eta of the SuperCluster 
+
+  //std::cout << "fEtEta, mode = " << algorithm << std::endl;
+  //std::cout << "ECEC: p0    " << (*params_)[9]  << " " << (*params_)[10] << " " << (*params_)[11] << " " << (*params_)[12] << std::endl;
+  //std::cout << "ECEC: p1    " << (*params_)[13] << " " << (*params_)[14] << " " << (*params_)[15] << " " << (*params_)[16] << std::endl;
+  //std::cout << "ECEC: fcorr " << (*params_)[17] << " " << (*params_)[18] << " " << (*params_)[19] << std::endl;
  
   float fCorr = 0.; 
   int offset;
@@ -105,25 +114,30 @@ float EcalClusterEnergyCorrection::fEtEta(float et, float eta, int algorithm) co
   if ( fCorr < 0.5 ) fCorr = 0.5;  
   if ( fCorr > 1.5 ) fCorr = 1.5;   
  
+  //std::cout << "ECEC fEtEta " << et/fCorr << std::endl;
   return et/fCorr; 
 } 
 
 
 float EcalClusterEnergyCorrection::getValue( const reco::SuperCluster & superCluster, const int mode ) const
 {
+  // mode = 0; apply all corrections
+  // mode = 1; apply only f(brem)+f(eta) corrections
+
         checkInit();
 
 	int algorithm = -1; // -1: not defined, 0 -- EB, 1 -- EE+ES
 
-	float energy = superCluster.energy(); 
 	float eta = fabs(superCluster.eta()); 
 	float brem = superCluster.phiWidth()/superCluster.etaWidth(); 
 
 	float correctedEnergy = 0;
 
-	if ( superCluster.algoID() == reco::hybrid || superCluster.algoID() == reco::dynamicHybrid ) {
+	if ( superCluster.algoID() == reco::CaloCluster::hybrid || superCluster.algoID() == reco::CaloCluster::dynamicHybrid ) {
 	  // algorithm: Barrel
 	  algorithm = 0;
+
+	  float energy = superCluster.rawEnergy(); 
 
 	  // first apply shower leakage corrections
 	  correctedEnergy = fEta(energy, eta, algorithm);
@@ -131,22 +145,27 @@ float EcalClusterEnergyCorrection::getValue( const reco::SuperCluster & superClu
 	  // now apply F(brem)
 	  correctedEnergy = fBrem(correctedEnergy, brem, algorithm);
 
-	  float correctedEt = correctedEnergy/cosh(eta);
-	  correctedEt = fEtEta(correctedEt, eta, algorithm);
-	  correctedEnergy = correctedEt*cosh(eta);
-
-	} else if ( superCluster.algoID() == reco::multi5x5 ) {
+	  if ( mode == 0 ) {
+	    float correctedEt = correctedEnergy/cosh(eta);
+	    correctedEt = fEtEta(correctedEt, eta, algorithm);
+	    correctedEnergy = correctedEt*cosh(eta);
+	  }
+	} else if ( superCluster.algoID() == reco::CaloCluster::multi5x5 ) {
 	  algorithm = 1;
 
-	  correctedEnergy = fBrem(energy, brem, algorithm);
-	  float correctedEt = correctedEnergy/cosh(eta);
+	  float energy = superCluster.rawEnergy() + superCluster.preshowerEnergy(); 
 
-	  correctedEt = fEtEta(correctedEt, eta, algorithm);
-	  correctedEnergy = correctedEt*cosh(eta);
+	  correctedEnergy = fBrem(energy, brem, algorithm);
+
+	  if ( mode == 0 ) {
+	    float correctedEt = correctedEnergy/cosh(eta);
+	    correctedEt = fEtEta(correctedEt, eta, algorithm);
+	    correctedEnergy = correctedEt*cosh(eta);
+	  }
 	} else {
 
 	  // perform no correction
-	  correctedEnergy = energy;
+	  correctedEnergy = superCluster.energy();
 	}
 	
 	return correctedEnergy;
