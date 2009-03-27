@@ -27,8 +27,9 @@ class HcalDeadCellClient : public HcalBaseClient {
   void beginJob(const EventSetup& c);
   
   /// EndJob
-  void endJob(void);
-  
+  void endJob(std::map<HcalDetId, unsigned int>& myqual); 
+
+
   /// BeginRun
   void beginRun(void);
   
@@ -69,6 +70,7 @@ private:
   bool deadclient_test_pedestal_;
   bool deadclient_test_neighbor_;
   bool deadclient_test_energy_;
+  bool dump2database_;
 
   int deadclient_checkNevents_;
   int deadclient_checkNevents_occupancy_;

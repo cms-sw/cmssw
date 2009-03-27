@@ -376,6 +376,7 @@ void HcalDeadCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
   if (dump2database==0) 
     return;
 
+  return;  // this is now done within the client, rather than the task (so that it doesn't get done multiple times when runing offline DQM)
   // Dump to ascii file for database -- now taken care of through ChannelStatus objects
   /*
   char buffer [1024];

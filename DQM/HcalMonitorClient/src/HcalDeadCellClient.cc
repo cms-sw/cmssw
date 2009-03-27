@@ -5,6 +5,8 @@
 #include <math.h>
 #include <iostream>
 
+#define BITSHIFT 5
+
 HcalDeadCellClient::HcalDeadCellClient(){} // constructor 
 
 void HcalDeadCellClient::init(const ParameterSet& ps, DQMStore* dbe,string clientName){
@@ -24,6 +26,8 @@ void HcalDeadCellClient::init(const ParameterSet& ps, DQMStore* dbe,string clien
   minErrorFlag_ = ps.getUntrackedParameter<double>("DeadCellClient_minErrorFlag",0.0);
 
   deadclient_makeDiagnostics_ = ps.getUntrackedParameter<bool>("DeadCellClient_makeDiagnosticPlots",false);
+
+  dump2database_ = false; // eventually make this configurable
 
   // Set histograms to NULL
   ProblemDeadCells=0;
@@ -93,9 +97,108 @@ void HcalDeadCellClient::beginRun(void)
 } // void HcalDeadCellClient::beginRun(void)
 
 
-void HcalDeadCellClient::endJob(void) 
+void HcalDeadCellClient::endJob(std::map<HcalDetId, unsigned int>& myqual) 
 {
   if ( debug_>1 ) std::cout << "HcalDeadCellClient: endJob, ievt = " << ievt_ << std::endl;
+
+  if (dump2database_==true) // don't do anything special unless specifically asked to dump db file
+    {
+      int eta,phi;
+      float binval;
+      int mydepth;
+
+      int subdet;
+      char* subdetname;
+      if (debug_>1)
+	{
+	  std::cout <<"<HcalDeadCellClient>  Summary of Dead Cells in Run: "<<std::endl;
+	  std::cout <<"(Error rate must be >= "<<minErrorFlag_*100.<<"% )"<<std::endl;  
+	}
+
+      float etaMin = ProblemDeadCells->GetXaxis()->GetXmin();
+      float phiMin = ProblemDeadCells->GetYaxis()->GetXmin();
+      int etabins  = ProblemDeadCells->GetNbinsX();
+      int phibins  = ProblemDeadCells->GetNbinsY();
+      for (int ieta=1;ieta<=etabins;++ieta)
+	{
+	  for (int iphi=1;iphi<=phibins;++iphi)
+	    {
+	      eta=ieta+int(etaMin)-1;
+	      phi=iphi+int(phiMin)-1;
+	      
+	      for (int d=0;d<6;++d)
+		{
+		  // ProblemDeadCells have already been normalized
+		  binval=ProblemDeadCellsByDepth[d]->GetBinContent(ieta,iphi);
+		  
+		  // Set subdetector labels for output
+		  if (d<2) // HB/HF
+		    {
+		      if (abs(eta)<29)
+			{
+			  subdetname="HB";
+			  subdet=1;
+			}
+		      else
+			{
+			  subdetname="HF";
+			  subdet=4;
+			}
+		    }
+		  else if (d==3)
+		    {
+		      if (abs(eta)==43)
+			{
+			  subdetname="ZDC";
+			  subdet=7; // correct value??
+			}
+		      else
+			{
+			  subdetname="HO";
+			  subdet=3;
+			}
+		    }
+		  else
+		    {
+		      subdetname="HE";
+		      subdet=2;
+		    }
+		  // Set correct depth label
+		  if (d>3)
+		    mydepth=d-3;
+		  else
+		    mydepth=d+1;
+		  HcalDetId myid((HcalSubdetector)(subdet), eta, phi, mydepth);
+		  // Need this to keep from flagging non-existent HE/HF cells
+		  if (!validDetId((HcalSubdetector)(subdet), eta, phi, mydepth))
+		    continue;
+		  if (binval<=minErrorFlag_)
+		    continue;
+		  if (debug_>0)
+		    std::cout <<"Hot Cell "<<subdet<<"("<<eta<<", "<<phi<<", "<<mydepth<<"):  "<<binval*100.<<"%"<<std::endl;
+
+		  // if we've reached here, hot cell condition was met
+		  int value=1;
+
+		  if (myqual.find(myid)==myqual.end())
+		    {
+		      myqual[myid]=(value<<BITSHIFT);  // hotcell shifted to bit 6
+		    }
+		  else
+		    {
+		      int mask=(1<<BITSHIFT);
+		      if (value==1)
+			myqual[myid] |=mask;
+		  
+		      else
+			myqual[myid] &=~mask;
+		    }
+		} // for (int d=0;d<6;++d) // loop over depth histograms
+	    } // for (int iphi=1;iphi<=phibins;++iphi)
+	} // for (int ieta=1;ieta<=etabins;++ieta)
+    } // if (dump2database_==true)
+
+
 
   this->cleanup();
   return;

@@ -317,8 +317,8 @@ void HcalMonitorClient::endJob(void) {
   if( dataformat_client_ )     dataformat_client_->endJob();
   if( digi_client_ )           digi_client_->endJob();
   if( rechit_client_ )         rechit_client_->endJob();
+  if( dead_client_ )           dead_client_->endJob(myquality_);
   if( hot_client_ )            hot_client_->endJob(myquality_);
-  if( dead_client_ )           dead_client_->endJob();
   if( pedestal_client_ )       pedestal_client_->endJob();
   if( led_client_ )            led_client_->endJob();
   if( laser_client_ )          laser_client_->endJob();
