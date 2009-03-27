@@ -10,5 +10,6 @@ conversionTrackCandidates.scHybridBarrelProducer = cms.InputTag("cosmicSuperClus
 conversionTrackCandidates.scIslandEndcapProducer = cms.InputTag("cosmicSuperClusters","CosmicEndcapSuperClusters")
 conversionTrackCandidates.bcBarrelCollection = cms.InputTag("cosmicBasicClusters","CosmicBarrelBasicClusters")
 conversionTrackCandidates.bcEndcapCollection = cms.InputTag("cosmicBasicClusters","CosmicEndcapBasicClusters")
+conversions.recoverOneTrackCase =  cms.bool(False)
 
 cosmicConversionSequence = cms.Sequence(conversionSequence)
