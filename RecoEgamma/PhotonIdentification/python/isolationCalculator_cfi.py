@@ -30,15 +30,21 @@ isolationSumsCalculator = cms.PSet(
     isolationtrackThresholdA_Barrel = cms.double(0.0),
     TrackConeOuterRadiusA_Barrel = cms.double(0.4),
     TrackConeInnerRadiusA_Barrel = cms.double(0.04),
+    longImpactParameterA_Barrel  = cms.double(0.2),
+    transImpactParameterA_Barrel = cms.double(0.1),
+#
     isolationtrackThresholdB_Barrel = cms.double(0.0),
     TrackConeOuterRadiusB_Barrel = cms.double(0.3),
     TrackConeInnerRadiusB_Barrel = cms.double(0.04),
+    longImpactParameterB_Barrel  = cms.double(0.2),
+    transImpactParameterB_Barrel = cms.double(0.1),
     #Ecal rechits 
     EcalRecHitInnerRadiusA_Barrel = cms.double(0.06),
     EcalRecHitOuterRadiusA_Barrel = cms.double(0.4),
     EcalRecHitEtaSliceA_Barrel = cms.double(0.04),
     EcalRecHitThreshEA_Barrel = cms.double(0.0),
     EcalRecHitThreshEtA_Barrel = cms.double(0.0),
+#
     EcalRecHitInnerRadiusB_Barrel = cms.double(0.06),
     EcalRecHitOuterRadiusB_Barrel = cms.double(0.3),
     EcalRecHitEtaSliceB_Barrel = cms.double(0.04),
@@ -48,20 +54,19 @@ isolationSumsCalculator = cms.PSet(
     HcalTowerInnerRadiusA_Barrel = cms.double(0.15),
     HcalTowerOuterRadiusA_Barrel = cms.double(0.4),
     HcalTowerThreshEA_Barrel = cms.double(0.0),
-    HcalTowerInnerRadiusB_Barrel = cms.double(0.15),
-    HcalTowerOuterRadiusB_Barrel = cms.double(0.3),
-    HcalTowerThreshEB_Barrel = cms.double(0.0),
-
     HcalDepth1TowerInnerRadiusA_Barrel = cms.double(0.15),
     HcalDepth1TowerOuterRadiusA_Barrel = cms.double(0.4),
     HcalDepth1TowerThreshEA_Barrel = cms.double(0.0),
-    HcalDepth1TowerInnerRadiusB_Barrel = cms.double(0.15),
-    HcalDepth1TowerOuterRadiusB_Barrel = cms.double(0.3),
-    HcalDepth1TowerThreshEB_Barrel = cms.double(0.0),
-
     HcalDepth2TowerInnerRadiusA_Barrel = cms.double(0.15),
     HcalDepth2TowerOuterRadiusA_Barrel = cms.double(0.4),
     HcalDepth2TowerThreshEA_Barrel = cms.double(0.0),
+#
+    HcalTowerInnerRadiusB_Barrel = cms.double(0.15),
+    HcalTowerOuterRadiusB_Barrel = cms.double(0.3),
+    HcalTowerThreshEB_Barrel = cms.double(0.0),
+    HcalDepth1TowerInnerRadiusB_Barrel = cms.double(0.15),
+    HcalDepth1TowerOuterRadiusB_Barrel = cms.double(0.3),
+    HcalDepth1TowerThreshEB_Barrel = cms.double(0.0),
     HcalDepth2TowerInnerRadiusB_Barrel = cms.double(0.15),
     HcalDepth2TowerOuterRadiusB_Barrel = cms.double(0.3),
     HcalDepth2TowerThreshEB_Barrel = cms.double(0.0),
@@ -71,15 +76,21 @@ isolationSumsCalculator = cms.PSet(
     isolationtrackThresholdA_Endcap = cms.double(0.0),
     TrackConeOuterRadiusA_Endcap = cms.double(0.4),
     TrackConeInnerRadiusA_Endcap = cms.double(0.04),
+    longImpactParameterA_Endcap  = cms.double(0.2),
+    transImpactParameterA_Endcap = cms.double(0.1),
+##
     isolationtrackThresholdB_Endcap = cms.double(0.0),
     TrackConeOuterRadiusB_Endcap = cms.double(0.3),
     TrackConeInnerRadiusB_Endcap = cms.double(0.04),
+    longImpactParameterB_Endcap  = cms.double(0.2),
+    transImpactParameterB_Endcap = cms.double(0.1),
     #Ecal rechits 
     EcalRecHitInnerRadiusA_Endcap = cms.double(0.06),
     EcalRecHitOuterRadiusA_Endcap = cms.double(0.4),
     EcalRecHitEtaSliceA_Endcap = cms.double(0.04),
     EcalRecHitThreshEA_Endcap = cms.double(0.0),
     EcalRecHitThreshEtA_Endcap = cms.double(0.0),
+#
     EcalRecHitInnerRadiusB_Endcap = cms.double(0.06),
     EcalRecHitOuterRadiusB_Endcap = cms.double(0.3),
     EcalRecHitEtaSliceB_Endcap = cms.double(0.04),
@@ -89,28 +100,22 @@ isolationSumsCalculator = cms.PSet(
     HcalTowerInnerRadiusA_Endcap = cms.double(0.15),
     HcalTowerOuterRadiusA_Endcap = cms.double(0.4),
     HcalTowerThreshEA_Endcap = cms.double(0.0),
-    HcalTowerInnerRadiusB_Endcap = cms.double(0.15),
-    HcalTowerOuterRadiusB_Endcap = cms.double(0.3),
-    HcalTowerThreshEB_Endcap = cms.double(0.0),
-
     HcalDepth1TowerInnerRadiusA_Endcap = cms.double(0.15),
     HcalDepth1TowerOuterRadiusA_Endcap = cms.double(0.4),
     HcalDepth1TowerThreshEA_Endcap = cms.double(0.0),
-    HcalDepth1TowerInnerRadiusB_Endcap = cms.double(0.15),
-    HcalDepth1TowerOuterRadiusB_Endcap = cms.double(0.3),
-    HcalDepth1TowerThreshEB_Endcap = cms.double(0.0),
-
     HcalDepth2TowerInnerRadiusA_Endcap = cms.double(0.15),
     HcalDepth2TowerOuterRadiusA_Endcap = cms.double(0.4),
     HcalDepth2TowerThreshEA_Endcap = cms.double(0.0),
+#
+    HcalTowerInnerRadiusB_Endcap = cms.double(0.15),
+    HcalTowerOuterRadiusB_Endcap = cms.double(0.3),
+    HcalTowerThreshEB_Endcap = cms.double(0.0),
+    HcalDepth1TowerInnerRadiusB_Endcap = cms.double(0.15),
+    HcalDepth1TowerOuterRadiusB_Endcap = cms.double(0.3),
+    HcalDepth1TowerThreshEB_Endcap = cms.double(0.0),
     HcalDepth2TowerInnerRadiusB_Endcap = cms.double(0.15),
     HcalDepth2TowerOuterRadiusB_Endcap = cms.double(0.3),
     HcalDepth2TowerThreshEB_Endcap = cms.double(0.0),
-
-
-
-
-
 
 )
 
