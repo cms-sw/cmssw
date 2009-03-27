@@ -116,8 +116,9 @@ class EcalClusterTools {
 
                 static std::vector<EcalClusterEnergyDeposition> getEnergyDepTopology( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, bool logW, float w0 );
                 static math::XYZVector meanClusterPosition( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology *topology, const CaloGeometry *geometry );
-                //returns energy weighted mean of <iEta,iPhi>, iPhi is not defined for endcap and is returned as zero 
-                static std::pair<float,float>  meanClusterPositionInCrysCoord(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology);
+                //return energy weighted mean distance from the seed crystal in number of crystals
+                //<iEta,iPhi>, iPhi is not defined for endcap and is returned as zero 
+                static std::pair<float,float>  mean5x5PositionInLocalCrysCoord(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology);
 
                 static double f00(double r) { return 1; }
                 static double f11(double r) { return r; }
@@ -142,8 +143,12 @@ class EcalClusterTools {
                         return res;
                 }
 
+                //useful functions for the localCovariances function
                 static float getIEta(const DetId& id);
                 static float getIPhi(const DetId& id);
+                static float getNrCrysDiffInEta(const DetId& crysId,const DetId& orginId);
+                static float getNrCrysDiffInPhi(const DetId& crysId,const DetId& orginId);
+ 
 };
 
 #endif

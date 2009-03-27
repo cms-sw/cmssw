@@ -473,34 +473,41 @@ math::XYZVector EcalClusterTools::meanClusterPosition( const reco::BasicCluster 
         return meanPosition / e5x5( cluster, recHits, topology );
 }
 
-//returns mean energy weighted eta/phi in crystal coordinates
+
+
+//returns mean energy weighted eta/phi in crystals from the seed
 //iPhi is not defined for endcap and is returned as zero
 //return <eta,phi>
-std::pair<float,float>  EcalClusterTools::meanClusterPositionInCrysCoord(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology)
+//we have an issue in working out what to do for negative energies
+//I (Sam Harper) think it makes sense to ignore crystals with E<0 in the calculation as they are ignored
+//in the sigmaIEtaIEta calculation (well they arent fully ignored, they do still contribute to the e5x5 sum
+//in the sigmaIEtaIEta calculation but not here)
+std::pair<float,float>  EcalClusterTools::mean5x5PositionInLocalCrysCoord(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology)
 {
-  float meanEta=0.;
-  float meanPhi=0.;
-  
-   std::vector<DetId> v_id = matrixDetId( topology, getMaximum( cluster, recHits ).first, -2, 2, -2, 2 );
-        for ( std::vector<DetId>::const_iterator it = v_id.begin(); it != v_id.end(); ++it ) {
-		float crysIEta =getIEta(*it);
-		float crysIPhi =getIPhi(*it);
-                meanEta = meanEta + recHitEnergy( *it, recHits ) * crysIEta;
-		meanPhi = meanPhi + recHitEnergy( *it, recHits ) * crysIPhi;	
-        }
-	float energy5x5 = e5x5( cluster, recHits, topology );
-	meanEta /=energy5x5;
-	meanPhi /=energy5x5;
-	return std::make_pair<float,float>(meanEta,meanPhi);
-}
+  DetId seedId =  getMaximum( cluster, recHits ).first;
+  float meanDEta=0.;
+  float meanDPhi=0.;
+  float energySum=0.;
 
+  std::vector<DetId> v_id = matrixDetId( topology,seedId, -2, 2, -2, 2 );
+   for ( std::vector<DetId>::const_iterator it = v_id.begin(); it != v_id.end(); ++it ) {  
+     float energy = recHitEnergy(*it,recHits);
+     if(energy<0.) continue;//skipping negative energy crystals
+     meanDEta += energy * getNrCrysDiffInEta(*it,seedId);
+     meanDPhi += energy * getNrCrysDiffInPhi(*it,seedId);	
+     energySum +=energy;
+   }
+   meanDEta /=energySum;
+   meanDPhi /=energySum;
+   return std::make_pair<float,float>(meanDEta,meanDPhi);
+}
 
 
 std::vector<float> EcalClusterTools::covariances(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits, const CaloTopology *topology, const CaloGeometry* geometry, float w0)
 {
         float e_5x5 = e5x5( cluster, recHits, topology );
         float covEtaEta, covEtaPhi, covPhiPhi;
-        if (e_5x5 > 0.) {
+        if (e_5x5 >= 0.) {
                 //double w0_ = parameterMap_.find("W0")->second;
                 std::vector< std::pair<DetId, float> > v_id = cluster.hitsAndFractions();
                 math::XYZVector meanPosition = meanClusterPosition( cluster, recHits, topology, geometry );
@@ -568,18 +575,14 @@ std::vector<float> EcalClusterTools::covariances(const reco::BasicCluster &clust
 std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology,float w0)
 {
   
-
-
         float e_5x5 = e5x5( cluster, recHits, topology );
         float covEtaEta, covEtaPhi, covPhiPhi;
 
-        if (e_5x5 > 0.) {
+        if (e_5x5 >= 0.) {
                 //double w0_ = parameterMap_.find("W0")->second;
 	        std::vector< std::pair<DetId, float> > v_id = cluster.hitsAndFractions();
-	        std::pair<float,float> meanEtaPhi =  meanClusterPositionInCrysCoord( cluster, recHits, topology );
+	        std::pair<float,float> mean5x5PosInNrCrysFromSeed =  mean5x5PositionInLocalCrysCoord( cluster, recHits, topology );
 	
-	
-
                 // now we can calculate the covariances
                 double numeratorEtaEta = 0;
                 double numeratorEtaPhi = 0;
@@ -591,40 +594,25 @@ std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &
 		const double barrelCrysSize = 0.01745; //approximate size of crystal in eta,phi in barrel
 		const double endcapCrysSize = 0.0447; //the approximate crystal size sigmaEtaEta was corrected to in the endcap
 
-                DetId id = getMaximum( v_id, recHits ).first;
+                DetId seedId = getMaximum( v_id, recHits ).first;
 
-		bool isBarrel=id.subdetId()==EcalBarrel;
-
+		bool isBarrel=seedId.subdetId()==EcalBarrel;
 		const double crysSize = isBarrel ? barrelCrysSize : endcapCrysSize;
-		
-	
-                CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
+			
+                CaloNavigator<DetId> cursor = CaloNavigator<DetId>( seedId, topology->getSubdetectorTopology( seedId ) );
                 for ( int eastNr = -2; eastNr <= 2; ++eastNr ) { //east is eta in barrel
 		  for ( int northNr = -2; northNr <= 2; ++northNr ) { //north is phi in barrel
                                 cursor.home();
                                 cursor.offsetBy( eastNr, northNr);
                                 float energy = recHitEnergy( *cursor, recHits );
-
-				
                                 if ( energy <= 0 ) continue;
 			
-				float crysIEta = getIEta(*cursor);
-				float crysIPhi = getIPhi(*cursor);
-				double dEta = crysIEta - meanEtaPhi.first;
-				double dPhi = crysIPhi - meanEtaPhi.second;
+				float nrCrysFromSeedEta = getNrCrysDiffInEta(*cursor,seedId);
+				float nrCrysFromSeedPhi = getNrCrysDiffInPhi(*cursor,seedId);
 			
-				//no iEta=0 in barrel, so if go from positive to negative
-				//need to reduce abs(detEta) by 1
-				if(isBarrel){ 
-				  if(crysIEta*meanEtaPhi.first<0){ // -1 to 1 transition
-				    if(crysIEta>0) dEta--;
-				    else dEta++;
-				  }
-				}
-				if(isBarrel){ //if barrel, need to map into 0-180 
-				  if (dPhi > + 180) { dPhi = 360 - dPhi; }
-				  if (dPhi < - 180) { dPhi = 360 + dPhi; }
-				}
+				float dEta = nrCrysFromSeedEta - mean5x5PosInNrCrysFromSeed.first;
+				float dPhi = nrCrysFromSeedPhi - mean5x5PosInNrCrysFromSeed.second;
+
                                 double w = 0.;
                                 w = std::max(0.0, w0 + log( energy / e_5x5 ));
 
@@ -783,6 +771,41 @@ float  EcalClusterTools::getIPhi(const DetId& id)
   }
   return 0.;    
 }
+//nr crystals crysId is away from orgin id in eta
+float EcalClusterTools::getNrCrysDiffInEta(const DetId& crysId,const DetId& orginId)
+{
+  float crysIEta = getIEta(crysId);
+  float orginIEta = getIEta(orginId);
+  bool isBarrel = orginId.subdetId()==EcalBarrel;
+
+  float nrCrysDiff = crysIEta-orginIEta;
+
+  //no iEta=0 in barrel, so if go from positive to negative
+  //need to reduce abs(detEta) by 1
+  if(isBarrel){ 
+    if(crysIEta*orginIEta<0){ // -1 to 1 transition
+      if(crysIEta>0) nrCrysDiff--;
+      else nrCrysDiff++;
+    }
+  }
+  return nrCrysDiff;
+}
+
+//nr crystals crysId is away from orgin id in phi
+float EcalClusterTools::getNrCrysDiffInPhi(const DetId& crysId,const DetId& orginId)
+{
+  float crysIPhi = getIPhi(crysId);
+  float orginIPhi = getIPhi(orginId);
+  bool isBarrel = orginId.subdetId()==EcalBarrel;
+
+  float nrCrysDiff = crysIPhi-orginIPhi;
+
+  if(isBarrel){ //if barrel, need to map into 0-180 
+    if (nrCrysDiff > + 180) { nrCrysDiff = nrCrysDiff - 360; }
+    if (nrCrysDiff < - 180) { nrCrysDiff = nrCrysDiff + 360; }
+  }
+  return nrCrysDiff;
+}
 
 std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology, float w0)
 {
@@ -791,9 +814,9 @@ std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster
   float e_5x5 = e5x5(bcluster, recHits, topology);
   float covEtaEta, covEtaPhi, covPhiPhi;
   
-  if (e_5x5 > 0.) {
+  if (e_5x5 >= 0.) {
     std::vector<std::pair<DetId, float> > v_id = cluster.hitsAndFractions();
-    std::pair<float,float> meanEtaPhi =  meanClusterPositionInCrysCoord(bcluster, recHits, topology);
+    std::pair<float,float> mean5x5PosInNrCrysFromSeed =  mean5x5PositionInLocalCrysCoord(bcluster, recHits, topology);
     
     // now we can calculate the covariances
     double numeratorEtaEta = 0;
@@ -804,8 +827,8 @@ std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster
     const double barrelCrysSize = 0.01745; //approximate size of crystal in eta,phi in barrel
     const double endcapCrysSize = 0.0447; //the approximate crystal size sigmaEtaEta was corrected to in the endcap
     
-    DetId id = getMaximum(v_id, recHits).first;  
-    bool isBarrel=id.subdetId()==EcalBarrel;
+    DetId seedId = getMaximum(v_id, recHits).first;  
+    bool isBarrel=seedId.subdetId()==EcalBarrel;
     
     const double crysSize = isBarrel ? barrelCrysSize : endcapCrysSize;
     
@@ -813,26 +836,14 @@ std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster
       CaloNavigator<DetId> cursor = CaloNavigator<DetId>(v_id[i].first, topology->getSubdetectorTopology(v_id[i].first));
       float energy = recHitEnergy(*cursor, recHits);
       
-      if (energy <= 0) 
-        continue;
+      if (energy <= 0) continue;
       
-      float crysIEta = getIEta(*cursor);
-      float crysIPhi = getIPhi(*cursor);
-      double dEta = crysIEta - meanEtaPhi.first;
-      double dPhi = crysIPhi - meanEtaPhi.second;
-      
-      //no iEta=0 in barrel, so if go from positive to negative
-      //need to reduce abs(detEta) by 1
-      if(isBarrel){ 
-        if(crysIEta*meanEtaPhi.first<0){ // -1 to 1 transition
-          if(crysIEta>0) dEta--;
-          else dEta++;
-        }
-      }
-      if(isBarrel){ //if barrel, need to map into 0-180 
-        if (dPhi > + 180) { dPhi = 360 - dPhi; }
-        if (dPhi < - 180) { dPhi = 360 + dPhi; }
-      }
+      float nrCrysFromSeedEta = getNrCrysDiffInEta(*cursor,seedId);
+      float nrCrysFromSeedPhi = getNrCrysDiffInPhi(*cursor,seedId);
+  
+      float dEta = nrCrysFromSeedEta - mean5x5PosInNrCrysFromSeed.first;
+      float dPhi = nrCrysFromSeedPhi - mean5x5PosInNrCrysFromSeed.second;
+
       
       double w = 0.;
       w = std::max(0.0, w0 + log( energy / e_5x5 ));
