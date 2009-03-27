@@ -1,17 +1,11 @@
 <use name=boost>
 <use name=FWCore/Framework>
 <use name=SimDataFormats/GeneratorProducts>
+<use name=GeneratorInterface/Core>
 <use name=clhep> 
 <use name=pythia6>
 <use name=f77compiler>
-
 <export>
- <use name=boost>
- <use name=FWCore/Framework>
- <use name=SimDataFormats/GeneratorProducts>
- <use name=clhep> 
- <use name=pythia6>
- <use name=f77compiler>
- <lib name=GeneratorInterfacePythia6Interface>
+  <lib name=GeneratorInterfacePythia6Interface>
 </export>
 

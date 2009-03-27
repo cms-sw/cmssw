@@ -11,19 +11,13 @@
 #include "HepMC/HEPEVT_Wrapper.h"
 #include "HepMC/IO_HEPEVT.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "GeneratorInterface/Core/interface/FortranCallback.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
-
-#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
-
-#include "GeneratorInterface/Pythia6Interface/interface/PYR.h"
 
 #include "GeneratorInterface/PartonShowerVeto/interface/JetMatching.h"
 
@@ -42,35 +36,6 @@ namespace gen
 {
 
 extern "C" {
-   void upinit_() { FortranCallback::getInstance()->fillHeader(); return; }
-   void upevnt_() { 
-      FortranCallback::getInstance()->fillEvent(); 
-      if ( !Pythia6Hadronizer::getJetMatching() ) return;
-      
-      Pythia6Hadronizer::getJetMatching()->beforeHadronisationExec();
-      return ; 
-   }
-   
-   void upveto_(int* veto) { 
-         
-      if ( !Pythia6Hadronizer::getJetMatching() )
-      {
-         *veto=0;
-	 return;
-      }
-      
-      if ( !hepeup_.nup || Pythia6Hadronizer::getJetMatching()->isMatchingDone() )
-      { 
-         *veto=1;
-         return;
-      }
-      
-      // NOTE: I'm passing NULL pointers, instead of HepMC::GenEvent, etc.
-      //   
-      *veto = Pythia6Hadronizer::getJetMatching()->match(0, 0, true);
-
-      return; 
-   }
    
    //
    // these two are NOT part of Pythi6 core code but are "custom" add-ons
@@ -92,10 +57,38 @@ extern "C" {
 } // extern "C"
 
 
+class Pythia6ServiceWithCallback : public Pythia6Service {
+  public:
+     Pythia6ServiceWithCallback( const edm::ParameterSet& ps ) : Pythia6Service(ps) {}
+
+  private:
+    void upInit()
+    { FortranCallback::getInstance()->fillHeader(); }
+
+    void upEvnt()
+    {
+      FortranCallback::getInstance()->fillEvent(); 
+      if ( Pythia6Hadronizer::getJetMatching() )
+        Pythia6Hadronizer::getJetMatching()->beforeHadronisationExec();
+    }
+
+    bool upVeto()
+    { 
+      if ( !Pythia6Hadronizer::getJetMatching() )
+        return false;
+
+      if ( !hepeup_.nup || Pythia6Hadronizer::getJetMatching()->isMatchingDone() )
+         return true;
+
+      // NOTE: I'm passing NULL pointers, instead of HepMC::GenEvent, etc.
+      return Pythia6Hadronizer::getJetMatching()->match(0, 0, true);
+    }
+};
+
 JetMatching* Pythia6Hadronizer::fJetMatching = 0;
 
 Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps) 
-   : fPy6Service( new Pythia6Service(ps) ), // this will store py6 params for further settings
+   : fPy6Service( new Pythia6ServiceWithCallback(ps) ), // this will store py6 params for further settings
      fCOMEnergy(ps.getParameter<double>("comEnergy")),
      fHepMCVerbosity(ps.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
      fMaxEventsToPrint(ps.getUntrackedParameter<int>("maxEventsToPrint", 0)),
@@ -144,10 +137,6 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
    //runInfo().setsetExternalXSecNLO(
    //    GenRunInfoProduct::XSec(ps.getUntrackedParameter<double>("...", -1.)) );
 
-
-   // Initialize the random engine unconditionally
-   //
-   randomEngine = &getEngineReference();
 
    // first of all, silence Pythia6 banner printout
    //
@@ -235,6 +224,7 @@ void Pythia6Hadronizer::finalizeEvent()
 
 bool Pythia6Hadronizer::generatePartonsAndHadronize()
 {
+   Pythia6Service::InstanceWrapper guard(fPy6Service);	// grab Py6 instance
 
    FortranCallback::getInstance()->resetIterationsPerEvent();
    
@@ -267,6 +257,8 @@ bool Pythia6Hadronizer::generatePartonsAndHadronize()
 
 bool Pythia6Hadronizer::hadronize()
 {
+   Pythia6Service::InstanceWrapper guard(fPy6Service);	// grab Py6 instance
+
    FortranCallback::getInstance()->setLHEEvent( lheEvent() );
    FortranCallback::getInstance()->resetIterationsPerEvent();
    if ( fJetMatching )
@@ -321,6 +313,7 @@ bool Pythia6Hadronizer::decay()
 
 bool Pythia6Hadronizer::residualDecay()
 {
+   Pythia6Service::InstanceWrapper guard(fPy6Service);	// grab Py6 instance
    
    // int nDocLines = pypars.msti[3];
    
@@ -445,6 +438,7 @@ bool Pythia6Hadronizer::residualDecay()
 
 bool Pythia6Hadronizer::initializeForExternalPartons()
 {
+   Pythia6Service::InstanceWrapper guard(fPy6Service);	// grab Py6 instance
 
    // note: CSA mode is NOT supposed to woirk with external partons !!!
    
@@ -494,6 +488,7 @@ bool Pythia6Hadronizer::initializeForExternalPartons()
 
 bool Pythia6Hadronizer::initializeForInternalPartons()
 {
+   Pythia6Service::InstanceWrapper guard(fPy6Service);	// grab Py6 instance
     
    fPy6Service->setGeneralParams();   
    fPy6Service->setCSAParams();
@@ -569,7 +564,7 @@ void Pythia6Hadronizer::imposeProperTime()
          bool decayInRange = false;
          while (!decayInRange) 
 	 {
-            double unif_rand = pyr_(&dumm);
+            double unif_rand = fPy6Service->call(pyr_, &dumm);
             // Value of 0 is excluded, so following line is OK
             double proper_length = - ctau * log(unif_rand);
             double factor = proper_length/mom.m();

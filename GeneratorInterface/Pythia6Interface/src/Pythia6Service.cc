@@ -11,6 +11,11 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 
+#include <CLHEP/Random/RandomEngine.h>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
@@ -28,14 +33,34 @@ extern "C"
       return iretrn;
    }
 
+   double gen::pyr_(int *idummy)
+   {
+      // getInstance will throw if no one used enter/leave
+      // or this is the wrong caller class, like e.g. Herwig6Instance
+      Pythia6Service* service = FortranInstance::getInstance<Pythia6Service>();
+      return service->fRandomEngine->flat(); 
+   }
 }
 
 using namespace gen;
 using namespace edm;
 
-Pythia6Service::Pythia6Service( const ParameterSet& ps )
-   : fUnitSLHA(24)
+Pythia6Service* Pythia6Service::fPythia6Owner = 0;
+
+Pythia6Service::Pythia6Service()
+   : fRandomEngine(&getEngineReference()), fUnitSLHA(24)
 {
+}
+
+Pythia6Service::Pythia6Service( const ParameterSet& ps )
+   : fRandomEngine(&getEngineReference()), fUnitSLHA(24)
+{
+   if (fPythia6Owner)
+      throw cms::Exception("PythiaError") <<
+	    "Two Pythia6Service instances claiming Pythia6 ownership." <<
+	    std::endl;
+
+   fPythia6Owner = this;
 
 /*
    ParameterCollector collector(ps.getParameter<edm::ParameterSet>("PythiaParameters"));
@@ -97,14 +122,32 @@ Pythia6Service::Pythia6Service( const ParameterSet& ps )
 	 }
       }
    }
-
 }
 
 Pythia6Service::~Pythia6Service()
 {
+   if (fPythia6Owner == this)
+      fPythia6Owner = 0;
+
    fParamGeneral.clear();
    fParamCSA.clear();
    fParamSLHA.clear();
+}
+
+void Pythia6Service::enter()
+{
+   FortranInstance::enter();
+
+   if (!fPythia6Owner) {
+     edm::LogInfo("Generator|Pythia6Interface") <<
+          "gen::Pythia6Service is going to initialise Pythia, as no other "
+          "instace has done so yet, and Pythia service routines have been "
+          "requested by a dummy instance." << std::endl;
+
+     call_pyinit("NONE", "", "", 0.0);
+
+     fPythia6Owner = this;
+   }
 }
 
 void Pythia6Service::setGeneralParams()

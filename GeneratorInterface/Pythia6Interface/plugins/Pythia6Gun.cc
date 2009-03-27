@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/03/13 19:21:45 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/03/17 17:38:22 $
+ *  $Revision: 1.6 $
  *  \author Julia Yarba
  */
 
@@ -15,10 +15,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-
-#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
-
-#include "GeneratorInterface/Pythia6Interface/interface/PYR.h"
 
 using namespace edm;
 using namespace gen;
@@ -45,9 +41,6 @@ Pythia6Gun::Pythia6Gun( const ParameterSet& pset ) :
    fHepMCVerbosity   = pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity", false ) ;
    fPylistVerbosity  = pset.getUntrackedParameter<int>( "pythiaPylistVerbosity", 0 ) ;
    fMaxEventsToPrint = pset.getUntrackedParameter<int>( "maxEventsToPrint", 0 );
-
-// setup random engine
-   randomEngine = &getEngineReference();
 
 // Turn off banner printout
    if (!call_pygive("MSTU(12)=12345")) 
@@ -83,9 +76,10 @@ void Pythia6Gun::endJob()
 
 void Pythia6Gun::beginRun( Run & r, EventSetup const& es )
 {
-
    assert ( fPy6Service ) ;
-   
+
+   Pythia6Service::InstanceWrapper guard(fPy6Service);	// grab Py6 instance
+
    fPy6Service->setGeneralParams();
    fPy6Service->setCSAParams();
    fPy6Service->setSLHAParams();
@@ -93,7 +87,6 @@ void Pythia6Gun::beginRun( Run & r, EventSetup const& es )
    call_pyinit("NONE", "", "", 0.0);
 
    return;
-   
 }
 
 void Pythia6Gun::endRun( Run & r, EventSetup const& es )

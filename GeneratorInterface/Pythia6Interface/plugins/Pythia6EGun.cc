@@ -39,6 +39,8 @@ Pythia6EGun::~Pythia6EGun()
 void Pythia6EGun::generateEvent()
 {
    
+   Pythia6Service::InstanceWrapper guard(fPy6Service);	// grab Py6 instance
+
    // now actualy, start cooking up the event gun 
    //
 

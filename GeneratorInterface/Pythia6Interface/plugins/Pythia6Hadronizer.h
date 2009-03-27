@@ -27,11 +27,6 @@ namespace HepMC
 class GenEvent;
 }
 
-namespace CLHEP {
-class HepRandomEngine;
-class RandFlat;
-}
-
 
 namespace gen
 {
@@ -64,7 +59,6 @@ class JetMatching;
      const char* classname() const;
      
   private:
-     
      // methods
      //
      

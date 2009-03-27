@@ -1,7 +1,6 @@
 <use name=GeneratorInterface/Core>
 <use name=GeneratorInterface/Pythia6Interface>
 
-
 #<library file="PythiaSource.cc,PythiaProducer.cc,SealModule.cc,*.f" name=GeneratorInterfacePythiaSource>
 #  <use name=GeneratorInterface/CommonInterface>
 #  <flags EDM_PLUGIN=1>

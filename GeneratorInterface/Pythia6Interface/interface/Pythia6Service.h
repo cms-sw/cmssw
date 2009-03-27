@@ -6,15 +6,28 @@
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "GeneratorInterface/Core/interface/FortranInstance.h"
+
 // #include "HepMC/PythiaWrapper6_2.h"
+
+namespace CLHEP
+{
+   class HepRandomEngine;
+}
 
 namespace gen
 {
 
-   class Pythia6Service
+   // the callbacks from Pythia which are passed on to the Pythia6Service
+   extern "C" {
+      double pyr_(int* idummy);
+   }
+
+   class Pythia6Service : public FortranInstance
    {
       public:         
          // ctor & dtor
+         Pythia6Service();
 	 Pythia6Service( edm::ParameterSet const& );
 	 ~Pythia6Service() ; 
      
@@ -25,12 +38,23 @@ namespace gen
 	 
 	 void openSLHA( const char* );
 	 void closeSLHA();
-	      
+
+         // initialise Pythia on first call from "dummy" instance
+         virtual void enter();
+
      private:
+        friend double gen::pyr_(int*);
+
+        bool fInitialising;
+
+        CLHEP::HepRandomEngine* fRandomEngine;
+
         std::vector<std::string> fParamGeneral;
         std::vector<std::string> fParamCSA;
         std::vector<std::string> fParamSLHA; 
 	int  fUnitSLHA;
+
+        static Pythia6Service *fPythia6Owner;
    };
 
 }
