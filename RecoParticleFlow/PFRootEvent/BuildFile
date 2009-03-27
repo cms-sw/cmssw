@@ -18,7 +18,7 @@
 <use name=RecoJets/JetAlgorithms>
 <use name=root>
 <use name=rootcore>
-<use name=rootinteractive>
+<use name=rootinteractive2>
 <export>
 <lib name=RecoParticleFlowPFRootEvent>
 <use name=FWCore/Framework>
