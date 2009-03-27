@@ -44,7 +44,7 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
   
   CastorCalibrations calibrations;
   
-  if (det_==DetId::Hcal) {
+//  if (det_==DetId::Hcal) {
      if (det_==DetId::Calo && subdet_==HcalCastorDetId::SubdetectorId) {
     edm::Handle<CastorDigiCollection> digi;
     e.getByLabel(inputLabel_,digi);
@@ -55,10 +55,10 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
     CastorDigiCollection::const_iterator i;
     for (i=digi->begin(); i!=digi->end(); i++) {
       HcalCastorDetId cell = i->id();	  
-      // const CastorCalibrations& calibrations=conditions->getCastorCalibrations(cell);
+ const CastorCalibrations& calibrations=conditions->getCastorCalibrations(cell);
 
 
-conditions->makeCastorCalibration (cell, &calibrations);
+//conditions->makeCastorCalibration (cell, &calibrations);
 
       const CastorQIECoder* channelCoder = conditions->getCastorCoder (cell);
       CastorCoderDb coder (*channelCoder, *shape);
@@ -66,6 +66,6 @@ conditions->makeCastorCalibration (cell, &calibrations);
     }
     // return result
     e.put(rec);     
-     }
+//     }
   }
 }
