@@ -1,39 +1,16 @@
 #ifndef RPCClusterSizeTest_H
 #define RPCClusterSizeTest_H
 
-/****************************************
-*****************************************
-**                                     **
-**  Class RPCClusterSizeTest           **
-**  DQM Event Summary module for RPCs  **
-**                                     **
-**  $Date: 2009/01/13 16:40:20 $       **
-**  $Revision: 1.0 $                   **
-**  David Lomidze                      **
-**  INFN di Napoli                     **
-**                                     **
-*****************************************   
-****************************************/                 
-        
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "DQM/RPCMonitorClient/interface/RPCClient.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
+#include <map>
 #include <memory>
 #include <string>
-#include <map>
-
-class DQMStore;
-class RPCDetId;
+#include <vector>
 
 
-class RPCClusterSizeTest:public edm::EDAnalyzer {
+class RPCClusterSizeTest:public RPCClient{
 public:
 
   /// Constructor
@@ -43,10 +20,10 @@ public:
   virtual ~RPCClusterSizeTest();
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& iSetup);
+  void beginJob(DQMStore *);
 
   //Begin Run
-   void beginRun(const edm::Run& r, const edm::EventSetup& c);
+   void beginRun(const edm::Run& r, const edm::EventSetup& c ,std::vector<MonitorElement *> , std::vector<RPCDetId>);
   
   
   /// Begin Lumi block 
@@ -57,22 +34,34 @@ public:
 
   /// End Lumi Block
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
- 
+  
+  virtual void  endJob(void);
+
+  virtual void  endRun(const edm::Run& r, const edm::EventSetup& c);
 
  private:
   
-  std::string prefixDir_;
-  
+  std::string globalFolder_;
+  int numberOfDisks_;
   int prescaleFactor_;
-  bool verbose_;
+ 
   DQMStore* dbe_;
   int nLumiSegs_;
   
-  edm::ESHandle<RPCGeometry> muonGeom;
-  
-  std::vector<std::string> segmentNames; 
-  
-  std::map<RPCDetId,std::string>  meCollection;
+  std::vector<MonitorElement *>  myClusterMe_;
+  std::vector<RPCDetId>   myDetIds_;
+
+ 
+  MonitorElement * CLSWheel[5];          // ClusterSize in 1 bin, Roll vs Sector
+  MonitorElement * CLSDWheel[5];         // ClusterSize in 1 bin, Distribution
+  MonitorElement * MEANWheel[5];         // Mean ClusterSize, Roll vs Sector
+  MonitorElement * MEANDWheel[5];        // Mean ClusterSize, Distribution
+
+  MonitorElement * CLSDisk[10];          // ClusterSize in 1 bin, Roll vs Sector
+  MonitorElement * CLSDDisk[10];         // ClusterSize in 1 bin, Distribution
+  MonitorElement * MEANDisk[10];         // Mean ClusterSize, Roll vs Sector
+  MonitorElement * MEANDDisk[10];        // Mean ClusterSize, Distribution
+
 };
 
 #endif

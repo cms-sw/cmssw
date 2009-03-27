@@ -6,8 +6,8 @@
  * *
  *  DQM Event Summary module for RPCs
  *
- *  $Date: 2008/11/12 12:26:53 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/12/15 16:28:30 $
+ *  $Revision: 1.8 $
  *  \author Anna Cimmino
  *   
  */
@@ -18,12 +18,11 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "DQM/RPCMonitorClient/interface/RPCClient.h"
+
 
 #include <memory>
 #include <string>
-#include <map>
+
 
 class DQMStore;
 class RPCDetId;
@@ -55,13 +54,6 @@ public:
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
  
 
-
-
- protected:
-  
-  /// Get the ME name
-  std::string getMEName(RPCDetId & detId);
-  void fillReportSummary(const std::map<int,std::map<int,std::pair<float,float> > >& sumMap, int region);
   
  private:
   
@@ -72,18 +64,14 @@ public:
   int prescaleFactor_;
   bool verbose_;
   DQMStore* dbe_;
-  int minHitsInRoll_;
+ 
   int nLumiSegs_;
+  std::string summaryFolder_;
   
-  float allRolls_;
-  float allGood_;
+  int numberDisk_;
 
-  std::vector<MonitorElement *>  myOccupancyMe_;
-  std::vector<RPCDetId>   myDetIds_;
-  std::vector<std::string>    myRollNames_;
-  
-  std::vector<std::string> segmentNames; 
 
+  enum RPCQualityFlags{DEAD = 6, PARTIALLY_DEAD=5};
 
 };
 

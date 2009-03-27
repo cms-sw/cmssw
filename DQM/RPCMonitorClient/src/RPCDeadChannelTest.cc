@@ -3,13 +3,10 @@
  */
 #include "DQM/RPCMonitorDigi/interface/utils.h"
 #include <DQM/RPCMonitorClient/interface/RPCDeadChannelTest.h>
-#include "DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h"
+
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-//DataFormats
-#include "DataFormats/RPCDigi/interface/RPCDigi.h"
-#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include <FWCore/Framework/interface/ESHandle.h>
 
 // Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
@@ -25,35 +22,43 @@ RPCDeadChannelTest::RPCDeadChannelTest(const ParameterSet& ps ){
  
   LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Constructor";
 
-  globalFolder_ = ps.getUntrackedParameter<string>("GlobalFolder", "SummaryHistograms");
-  prescaleFactor_ = ps.getUntrackedParameter<int>("diagnosticPrescale", 1);
-  prefixDir_= ps.getUntrackedParameter<string>("GlobalFolder", "RPC/RecHits");
+  globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
+  prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
+  numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
 }
 
-RPCDeadChannelTest::~RPCDeadChannelTest(){
-  dbe_ = 0;
+RPCDeadChannelTest::~RPCDeadChannelTest(){dbe_ = 0;}
+
+void RPCDeadChannelTest::beginJob(DQMStore *  dbe ){
+  dbe_=dbe;
 }
 
-void RPCDeadChannelTest::beginJob(const EventSetup& iSetup){
-
- LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Begin job";
- dbe_ = Service<DQMStore>().operator->();
- dbe_->setVerbose(0);
-}
-
-void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup){
+void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
 
  edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Begin run";
 
  MonitorElement* me;
- dbe_->setCurrentFolder( prefixDir_+"/"+globalFolder_);
- 
+ dbe_->setCurrentFolder( globalFolder_);
+
  stringstream histoName;
 
+<<<<<<< RPCDeadChannelTest.cc
+ rpcdqm::utils rpcUtils;
+
+ int limit = numberOfDisks_;
+ if(numberOfDisks_ < 2) limit = 2;
+
+ for (int i = -1 * limit; i<= limit;i++ ){//loop on wheels and disks
+   if (i>-3 && i<3){//wheels
+=======
  for (int i = -4; i<=4;i++ ){//loop on wheels and disks
    if (i>-3 && i<3) {//wheels
+>>>>>>> 1.16
      histoName.str("");
      histoName<<"DeadChannelFraction_Roll_vs_Sector_Wheel"<<i;
+<<<<<<< RPCDeadChannelTest.cc
+     if ( me = dbe_->get(globalFolder_ +"/"+ histoName.str()) ) {
+=======
      if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
        dbe_->removeElement(me->getName());
      }
@@ -70,8 +75,14 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup){
      histoName.str("");
      histoName<<"DeadChannelFraction_Distribution_Wheel"<<i;
      if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
+>>>>>>> 1.16
        dbe_->removeElement(me->getName());
      }
+<<<<<<< RPCDeadChannelTest.cc
+     DEADWheel[i+2] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
+     rpcUtils.labelXAxisSector( DEADWheel[i+2]);
+     rpcUtils.labelYAxisRoll( DEADWheel[i+2], 0, i);
+=======
      me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(), 51, -0.5, 100.5);
 
 
@@ -98,15 +109,21 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup){
 
 
 
+>>>>>>> 1.16
    }//end wheels
+   
+   if (i == 0  || i > numberOfDisks_ || i< (-1 * numberOfDisks_))continue;
 
-   if (i ==0 )continue;
+   int offset = numberOfDisks_;
+   if (i>0) offset --; //used to skip case equale to zero
 
    histoName.str("");
    histoName<<"DeadChannelFraction_Roll_vs_Sector_Disk"<<i;
-   if ( me = dbe_->get(prefixDir_+"/"+globalFolder_ +"/"+ histoName.str()) ) {
+   if ( me = dbe_->get(globalFolder_ +"/"+ histoName.str()) ) {
      dbe_->removeElement(me->getName());
    }
+<<<<<<< RPCDeadChannelTest.cc
+=======
    me = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 6, 0.5, 6.5, 54, 0.5, 54.5);
    
    for(int bin =1; bin<7;bin++) {
@@ -136,10 +153,17 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup){
 //      me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),40, 0.5, 20.5 );
 
 
+>>>>>>> 1.16
 
+   DEADDisk[i+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 6, 0.5, 6.5, 54, 0.5, 54.5);
 
+   rpcUtils.labelXAxisSector( DEADDisk[i+offset]);
+   rpcUtils.labelYAxisRoll( DEADDisk[i+offset], 1, i);
  }//end loop on wheels and disks
 
+<<<<<<< RPCDeadChannelTest.cc
+ //Get Occuoancy ME for each roll
+=======
  //Start booking global histos
  histoName.str("");
  histoName<<"DeadChannelPercentage_Barrel";
@@ -147,7 +171,11 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup){
        dbe_->removeElement(me->getName());
  }
  me = dbe_->book2D(histoName.str().c_str(), "Dead Channel Fraction in Barrel", 12, 0.5, 12.5, 5, -2.5, 2.5);
+>>>>>>> 1.16
 
+<<<<<<< RPCDeadChannelTest.cc
+ for (unsigned int i = 0 ; i<meVector.size(); i++){
+=======
  for(int bin =1; bin<13; bin++) {//set labels
    histoName.str("");
    histoName<<"Sec"<< bin;
@@ -165,16 +193,26 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup){
    dbe_->removeElement(me->getName());
  }
  me = dbe_->book2D(histoName.str().c_str(), "Dead Channel Fraction in Endcap+", 6, 0.5, 6.5, 4, -2, 2);
+>>>>>>> 1.16
 
- for(int bin =1; bin<7; bin++) {//set labels
-   histoName.str("");
-   histoName<<"Sec"<< bin;
-   me->setBinLabel( bin,histoName.str().c_str(),1);
-   if(bin<5) {
-     histoName.str("");
-     histoName<<"Disk"<<bin;
-     me->setBinLabel(bin,histoName.str().c_str(),2);
+   bool flag= false;
+   
+   DQMNet::TagList tagList;
+   tagList = meVector[i]->getTags();
+   DQMNet::TagList::iterator tagItr = tagList.begin();
+
+   while (tagItr != tagList.end() && !flag ) {
+     if((*tagItr) ==  rpcdqm::OCCUPANCY)
+       flag= true;
+   
+     tagItr++;
    }
+<<<<<<< RPCDeadChannelTest.cc
+   
+   if(flag){
+      myOccupancyMe_.push_back(meVector[i]);
+      myDetIds_.push_back(detIdVector[i]);
+=======
  }
  
  histoName.str("");
@@ -192,34 +230,9 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup){
      histoName.str("");
      histoName<<"Disk"<<bin;
      me->setBinLabel(bin,histoName.str().c_str(),2);
+>>>>>>> 1.16
    }
  }
-
- ESHandle<RPCGeometry> rpcGeo;
- iSetup.get<MuonGeometryRecord>().get(rpcGeo);
- 
- //loop on all geometry and get all histos
- for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-   if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
-     RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
-     std::vector< const RPCRoll*> roles = (ch->rolls());
-     //Loop on rolls in given chamber
-     for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-       RPCDetId detId = (*r)->id();
-      
-       //Get Occupancy ME for roll
-       RPCGeomServ RPCname(detId);	   
-       
-       RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
-       MonitorElement * myMe = dbe_->get(prefixDir_+"/"+ folderStr->folderStructure(detId)+"/Occupancy_"+RPCname.name()); 
-       if (!myMe)continue;
-
-       myOccupancyMe_.push_back(myMe);
-       myDetIds_.push_back(detId);
-       myRollNames_.push_back(RPCname.name());
-     }
-   }
- }//end loop on all geometry and get all histos
 }
 
 void RPCDeadChannelTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {}
@@ -229,22 +242,18 @@ void RPCDeadChannelTest::analyze(const edm::Event& iEvent, const edm::EventSetup
 void RPCDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {
  
   edm::LogVerbatim ("deadChannel") <<"[RPCDeadChannelTest]: End of LS transition, performing the DQM client operation";
-
+  
   // counts number of lumiSegs 
   int nLumiSegs = lumiSeg.id().luminosityBlock();
 
   //check some statements and prescale Factor
-  if(nLumiSegs%prescaleFactor_ == 0) {
+  if(nLumiSegs%prescaleFactor_ != 0) return;
 
     //Loop on chambers
     for (unsigned int  i = 0 ; i<myOccupancyMe_.size();i++){
       this->CalculateDeadChannelPercentage(myDetIds_[i],myOccupancyMe_[i],iSetup);
     }//End loop on rolls in given chambers
 
-    this->fillDeadChannelHisto(barrelMap_, 0);
-    this->fillDeadChannelHisto(endcapMap_, 1);
-    // this->fillDeadChannelHisto(endcapMap_, -1);
-  }
 }
  
 void RPCDeadChannelTest::endRun(const Run& r, const EventSetup& c){}
@@ -255,10 +264,50 @@ void RPCDeadChannelTest::endJob(){}
 //User Defined methods
 //
 void  RPCDeadChannelTest::CalculateDeadChannelPercentage(RPCDetId & detId, MonitorElement * myMe, EventSetup const& iSetup){
+<<<<<<< RPCDeadChannelTest.cc
+
+  ESHandle<RPCGeometry> rpcgeo;
+  iSetup.get<MuonGeometryRecord>().get(rpcgeo); 
+
+  const RPCRoll * rpcRoll = rpcgeo->roll(detId);      
+
+  unsigned int nstrips =rpcRoll->nstrips();
+
+  MonitorElement * DEAD = NULL;
+
+   const QReport * theOccupancyQReport = myMe->getQReport("DeadChannel_0");  
+   if(theOccupancyQReport) {
+     
+     vector<dqm::me_util::Channel> badChannels = theOccupancyQReport->getBadChannels();
+     
+     if (detId.region()==0)   DEAD = DEADWheel[detId.ring() + 2] ;
+     else{
+       if(((detId.station() * detId.region() ) + numberOfDisks_) >= 0 ){
+	 
+	 if(detId.region()<0){
+	   DEAD  = DEADDisk[(detId.station() * detId.region() ) + numberOfDisks_];
+	 }else{
+	   DEAD = DEADDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
+	 }
+       }
+     }
+
+     if (DEAD){
+       rpcdqm::utils rollNumber;
+       int nr = rollNumber.detId2RollNr(detId);
+      DEAD->setBinContent(detId.sector(),nr, badChannels.size()/nstrips );       
+     }
+   }
+}
+
+=======
  
   edm::ESHandle<RPCGeometry> rpcgeo;
   iSetup.get<MuonGeometryRecord>().get(rpcgeo); 
+>>>>>>> 1.16
 
+<<<<<<< RPCDeadChannelTest.cc
+=======
   const RPCRoll * rpcRoll = rpcgeo->roll(detId);      
 
   unsigned int nstrips =rpcRoll->nstrips();
@@ -359,3 +408,4 @@ void  RPCDeadChannelTest::fillDeadChannelHisto(const map<int,map<int,pair<float,
     }
   }
 }
+>>>>>>> 1.16

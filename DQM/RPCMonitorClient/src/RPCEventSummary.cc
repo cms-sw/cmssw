@@ -1,9 +1,8 @@
 /*  \author Anna Cimmino*/
-#include <string>
 #include <sstream>
-#include <map>
+
 #include <DQM/RPCMonitorClient/interface/RPCEventSummary.h>
-#include "DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h"
+
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
@@ -11,25 +10,22 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //DQM Services
 #include "DQMServices/Core/interface/DQMStore.h"
-//DataFormats
-#include <DataFormats/MuonDetId/interface/RPCDetId.h>
-//Geometry
-#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 using namespace edm;
 using namespace std;
 RPCEventSummary::RPCEventSummary(const ParameterSet& ps ){
   LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Constructor";
 
+  //
+  numberDisk_=3;
+
   enableReportSummary_ = ps.getUntrackedParameter<bool>("EnableSummaryReport",true);
-  prescaleFactor_ =  ps.getUntrackedParameter<int>("PrescaleFactor", 10);
+  prescaleFactor_ =  ps.getUntrackedParameter<int>("PrescaleFactor", 1);
   eventInfoPath_ = ps.getUntrackedParameter<string>("EventInfoPath", "RPC/EventInfo");
-  prefixDir_ = ps.getUntrackedParameter<string>("RPCPrefixDir", "RPC/RecHits");
+  summaryFolder_ = ps.getUntrackedParameter<string>("RPCSummaryFolder", "RPC/RecHits/SummaryHistograms");
   verbose_=ps.getUntrackedParameter<bool>("VerboseLevel", 0);
-  minHitsInRoll_=ps.getUntrackedParameter<unsigned int>("MinimunHitsPerRoll", 2000);
- tier0_=ps.getUntrackedParameter<bool>("Tier0", false);
+ 
+  tier0_=ps.getUntrackedParameter<bool>("Tier0", false);
 
 }
 
@@ -47,8 +43,6 @@ void RPCEventSummary::beginJob(const EventSetup& iSetup){
 void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
  LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Begin run";
 
- nLumiSegs_=0;
-
  MonitorElement* me;
  dbe_->setCurrentFolder(eventInfoPath_);
 
@@ -62,12 +56,12 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
   me = dbe_->bookFloat(histoName);
   me->Fill(1);
 
-  //TH2F ME providing a map of values[0-1] to show if problems are localized or distributed
+  //TH2F ME providing a mapof values[0-1] to show if problems are localized or distributed
   if ( me = dbe_->get(eventInfoPath_ + "/reportSummaryMap") ) {
      dbe_->removeElement(me->getName());
   }
   me = dbe_->book2D("reportSummaryMap", "RPC Report Summary Map", 15, -7.5, 7.5, 12, 0.5 ,12.5);
-  
+   cout<<__LINE__<<endl;
   //customize the 2d histo
   stringstream BinLabel;
   for (int i= 1 ; i<=15; i++){
@@ -95,16 +89,23 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
      for (int j=1; j<=12; j++ ){
        if(i==5 || i==11 || (j>6 && (i<6 || i>10)))    
 	 me->setBinContent(i,j,-1);//bins that not correspond to subdetector parts
-       else     
+       else
 	 me->setBinContent(i,j,1);
      }
    }
+
+  if(numberDisk_ < 4)
+    for (int j=1; j<=12; j++ ){
+	me->setBinContent(1,j,-1);//bins that not correspond to subdetector parts
+	me->setBinContent(15,j,-1);
+    }
 
  //the reportSummaryContents folder containins a collection of ME floats [0-1] (order of 5-10)
  // which describe the behavior of the respective subsystem sub-components.
   dbe_->setCurrentFolder(eventInfoPath_+ "/reportSummaryContents");
   
   stringstream segName;
+  vector<string> segmentNames;
   for(int i=-4; i<=4; i++){
     if(i>-3 && i<3) {
       segName.str("");
@@ -126,172 +127,95 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
     me->Fill(1);
   }
 
-
- ESHandle<RPCGeometry> rpcGeo;
- c.get<MuonGeometryRecord>().get(rpcGeo);
- 
- //loop on all geometry and get all histos
- for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-   if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
-     RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
-     std::vector< const RPCRoll*> roles = (ch->rolls());
-     //Loop on rolls in given chamber
-     for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-       RPCDetId detId = (*r)->id();
-      
-       //Get Occupancy ME for roll
-       RPCGeomServ RPCname(detId);	   
-       
-       RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
-       MonitorElement * myMe = dbe_->get(prefixDir_+"/"+ folderStr->folderStructure(detId)+"/Occupancy_"+RPCname.name()); 
-       if (!myMe)continue;
-
-       myOccupancyMe_.push_back(myMe);
-       myDetIds_.push_back(detId);
-       myRollNames_.push_back(RPCname.name());
-     }
-   }
- }//end loop on all geometry and get all histos
-
-
-
+  //excluded endcap parts
+  if(numberDisk_ < 4){
+    me=dbe_->get(eventInfoPath_ + "/reportSummaryContents/RPC_Disk4");
+    if(me)  me->Fill(-1);
+    me=dbe_->get(eventInfoPath_ + "/reportSummaryContents/RPC_Disk-4");
+    if(me)  me->Fill(-1);
+  }
 }
 
 void RPCEventSummary::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){} 
 
-void RPCEventSummary::analyze(const Event& iEvent, const EventSetup& c) {
-  nLumiSegs_=iEvent.luminosityBlock();
-}
+void RPCEventSummary::analyze(const Event& iEvent, const EventSetup& c) {}
 
 void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {  
   LogVerbatim ("rpceventsummary") <<"[RPCEventSummary]: End of LS transition, performing DQM client operation";
 
-  if (tier0_) return;
-
   // counts number of lumiSegs 
    nLumiSegs_ = lumiSeg.id().luminosityBlock();
-   //nLumiSegs_++;
+   stringstream meName;
 
   //check some statements and prescale Factor
-  if(enableReportSummary_  &&  (nLumiSegs_%prescaleFactor_ == 0)) {
- 
-  ESHandle<RPCGeometry> rpcGeo;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
- 
-  map<int, map< int ,  pair<float,float> > >  barrelMap, endcapPlusMap, endcapMinusMap;
-     edm::ESHandle<RPCGeometry> rpcgeo;
-    iSetup.get<MuonGeometryRecord>().get(rpcgeo);
+  if(!enableReportSummary_  ||  (nLumiSegs_%prescaleFactor_ != 0)) return;
 
-       stringstream meName;
-    //Loop on chambers
-    for (unsigned int  i = 0 ; i<myOccupancyMe_.size();i++){
-      
-      MonitorElement * myMe =myOccupancyMe_[i];
-      RPCDetId detId = myDetIds_[i];
-       
-      const RPCRoll * rpcRoll = rpcgeo->roll(detId);      
+  MonitorElement * myMe;
 
-      int nstrips =rpcRoll->nstrips();
-
-      	 
-      //check for enough statistics
-      if (myMe->getEntries() < minHitsInRoll_) continue;
-      
-      const QReport * theOccupancyQReport = myMe->getQReport("DeadChannel_0");  
-      if(!theOccupancyQReport) continue;
-      vector<dqm::me_util::Channel> badChannels = theOccupancyQReport->getBadChannels();
-      float goodFraction =(nstrips - badChannels.size())/nstrips;		  
-      if (detId.region()==0) {
-	barrelMap[detId.ring()][detId.sector()].first += goodFraction;
-	barrelMap[detId.ring()][detId.sector()].second++ ;
-      }else if(detId.region()==-1){
-	endcapMinusMap[-1 * detId.station()][detId.sector()].first +=  goodFraction;
-	endcapMinusMap[-1 * detId.station()][detId.sector()].second++ ;
-      }else {
-	endcapPlusMap[detId.station()][detId.sector()].first += goodFraction;
-	endcapPlusMap[detId.station()][detId.sector()].second++;
-      }
-    }
-
-    //clear counters
-    allRolls_=0;
-    allGood_=0;
-    
-    this->fillReportSummary(barrelMap, 0);
-    
-    this->fillReportSummary(endcapPlusMap, 1);
-    
-    this->fillReportSummary(endcapMinusMap, -1);
-    
-    //Fill report summary
-    MonitorElement *   reportSummary = dbe_->get(eventInfoPath_ +"/reportSummary");
-    if(reportSummary == NULL) return;
-    
-    if (allRolls_!=0)   reportSummary->Fill(allGood_/allRolls_);
-    else reportSummary->Fill(-1);
-  }
-}
-
-
-//Fill report summary
-void  RPCEventSummary::fillReportSummary(const map<int,map<int,pair<float,float> > > & sumMap, int region){
-
-  MonitorElement *   reportSummaryMap = dbe_->get(eventInfoPath_ +"/reportSummaryMap");
+  meName.str("");
+  meName<<eventInfoPath_ + "/reportSummaryMap";
+  MonitorElement * reportMe = dbe_->get(meName.str());
   
-  string path;
-  int binOffSet=0;
+  MonitorElement * globalMe;
 
-  if (region==0){
-    path="/reportSummaryContents/RPC_Wheel";
-    binOffSet=8;
-  }else if (region==1){
-    path="/reportSummaryContents/RPC_Disk";
-    binOffSet=11;
-  }else if (region==-1){
-    path="/reportSummaryContents/RPC_Disk-";
-    binOffSet=5;
-  }
+  //BARREL
+  float barrelFactor =0;
+  for(int w = -2 ; w<3; w++){
+ 
+    meName.str("");
+    meName<<summaryFolder_<<"/RPCChamberQuality_Roll_vs_Sector_Wheel"<<w;
+    myMe = dbe_->get(meName.str());
+  
+    if(myMe){      
+      float wheelFactor = 0;
 
-  map<int,map<int,pair<float,float> > >::const_iterator itr;
-  stringstream meName;
+      for(int s = 1; s<=myMe->getNbinsX() ; s++){
+	float sectorFactor = 0;
+	int rollInSector = 0;
 
-  if (sumMap.size()!=0){
-    //Loop on  report summary data 
-    for (itr=sumMap.begin(); itr!=sumMap.end(); itr++){
-      float Rolls=0; 
-      float Good=0;
-      for (map< int ,  pair<float,float> >::const_iterator meItr = (*itr).second.begin(); meItr!=(*itr).second.end();meItr++){
-	//Fill report summary map, a TH2F ME.
-	if ((*meItr).second.second != 0) {
-	  //	  cout<<"i'm here"<<(*itr).first<<"_"<< region<<endl;
-	  reportSummaryMap->setBinContent((*itr).first+binOffSet,(*meItr).first, ((*meItr).second.first/(*meItr).second.second) ); 
-      }  else reportSummaryMap->setBinContent((*itr).first+binOffSet,(*meItr).first,-1);
-	Good += (*meItr).second.first;
-	Rolls += (*meItr).second.second;
-      }
-      allGood_ += Good;
-      allRolls_ +=  Rolls ;
-      //Fill wheel/disk report summary
+     
+	for(int r = 1;r<=myMe->getNbinsY(); r++){
+	  if((s!=4 && r > 17 ) || ((s ==9 ||s ==10)  && r >15 ) )  continue;
+	  rollInSector++;
+
+
+	  if(myMe->getBinContent(s,r) == PARTIALLY_DEAD) sectorFactor+=0.8;
+	  else if(myMe->getBinContent(s,r) == DEAD )sectorFactor+=0;
+	  else sectorFactor+=1;	
+
+	}
+	if(rollInSector!=0)
+	  sectorFactor = sectorFactor/rollInSector;
+
+	 if(reportMe)	reportMe->setBinContent(w+8, s, sectorFactor);
+	wheelFactor += sectorFactor;
+
+      }//end loop on sectors
+
+      wheelFactor = wheelFactor/myMe->getNbinsX();
+
       meName.str("");
-      meName<<eventInfoPath_<<path<<(*itr).first;
+      meName<<eventInfoPath_ + "/reportSummaryContents/RPC_Wheel"<<w; 
+      globalMe=dbe_->get(meName.str());
+      if(globalMe) globalMe->Fill(wheelFactor);
 
-      MonitorElement *   reportSummaryContents = dbe_->get( meName.str());
-      if (Rolls != 0)  reportSummaryContents->Fill(Good/Rolls);
-      else reportSummaryContents->Fill(-1);
-    }  //End Loop on report summary data 
-  }else{
-    for (int j=0; j<=4; j++){
-      meName.str("");
-      meName<<eventInfoPath_<<path<<j;
+      barrelFactor += wheelFactor;
+    }//
 
-      MonitorElement *   reportSummaryContents = dbe_->get( meName.str());
-      if ( reportSummaryContents == NULL) continue;
-	reportSummaryContents->Fill(-1);
-      for(int h =1; h<=12; h++){
-	if(region!=0 && h>6) break; //endcap has only 6 sectors
-	if (region == -1) reportSummaryMap->setBinContent(-j+binOffSet,h, -1); 
-	else reportSummaryMap->setBinContent(j+binOffSet,h, -1); 
-      }
-    }   
-  }
+  
+  }//end loop on wheel
+
+
+  barrelFactor=barrelFactor/5;
+
+
+  //ENDCAPS
+
+
+
+  //Fill repor summary
+  globalMe = dbe_->get(eventInfoPath_ +"/reportSummary"); 
+  if(globalMe) globalMe->Fill(barrelFactor);
+
+
 }

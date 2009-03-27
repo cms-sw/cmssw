@@ -1,78 +1,56 @@
 #ifndef RPCOccupancyTest_H
 #define RPCOccupancyTest_H
 
-
-/** \class RPCOccupancyTest
- * *
- *  DQM Event Summary module for RPCs
- *
- *  $Date: 2008/12/04 20:17:20 $
- *  $Revision: 1.1 $
- *  \author Anna Cimmino
- *   
- */
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "DQM/RPCMonitorClient/interface/RPCClient.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
+#include <map>
 #include <memory>
 #include <string>
-#include <map>
-
-class DQMStore;
-class RPCDetId;
+#include <vector>
 
 
-class RPCOccupancyTest:public edm::EDAnalyzer {
+class RPCOccupancyTest:public RPCClient {
 public:
 
-  /// Constructor
   RPCOccupancyTest(const edm::ParameterSet& ps);
-  
-  /// Destructor
   virtual ~RPCOccupancyTest();
 
-  /// BeginJob
-  void beginJob(const edm::EventSetup& iSetup);
-
-  //Begin Run
-   void beginRun(const edm::Run& r, const edm::EventSetup& c);
-  
-  
-  /// Begin Lumi block 
+  void beginJob(DQMStore *);
+  void beginRun(const edm::Run& , const edm::EventSetup& , std::vector<MonitorElement *> , std::vector<RPCDetId>); 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
-  /// Analyze  
   void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
-
-  /// End Lumi Block
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
- 
+ void endRun(const edm::Run& , const edm::EventSetup& ); 		
+  void endJob();
  protected:
- void OccupancyDist();
-
+  // void OccupancyDist();
+  void fillGlobalME(RPCDetId & , MonitorElement *);
  private:
   
-  std::string prefixDir_;
+  std::string globalFolder_;
 
+ 
+  std::vector<MonitorElement *>  myOccupancyMe_;
+  std::vector<RPCDetId>   myDetIds_;
   int prescaleFactor_;
-  bool verbose_;
+ 
   DQMStore* dbe_;
-  int nLumiSegs_;
+  int numberOfDisks_;
+ 
+  float rpcevents_;
 
-  edm::ESHandle<RPCGeometry> muonGeom;
-  //edm::ESHandle<DTTtrig> tTrigMap;
+  MonitorElement * AsyMeWheel[5];      //Left Right Asymetry 
+  MonitorElement * NormOccupWheel[5];
+ 
+  MonitorElement * AsyMeDWheel[5];      //Left Right Asymetry 
+  MonitorElement * NormOccupDWheel[5];
 
-
-  std::vector<std::string> segmentNames; 
-
-  std::map<RPCDetId,std::string>  meCollection;
+  MonitorElement * AsyMeDisk[10];      //Left Right Asymetry 
+  MonitorElement * NormOccupDisk[10];
+ 
+  MonitorElement * AsyMeDDisk[10];      //Left Right Asymetry 
+  MonitorElement * NormOccupDDisk[10];
 };
 
 #endif

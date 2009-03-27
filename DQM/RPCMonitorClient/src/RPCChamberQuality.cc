@@ -126,7 +126,7 @@ void RPCChamberQuality::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 void RPCChamberQuality::analyze(const Event& iEvent, const EventSetup& c) {}
 
 void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {  
-  LogVerbatim ("rpceventsummary") <<"[RPCChamberQualit]: End of LS transition, performing DQM client operation";
+  LogVerbatim ("rpceventsummary") <<"[RPCChamberQuality]: End of LS transition, performing DQM client operation";
   
   // counts number of lumiSegs 
   nLumiSegs_ = lumiSeg.id().luminosityBlock();
@@ -141,33 +141,7 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
     MonitorElement * RCQD;         // Monitoring Element RPC Chamber Quality Distr (RCQD)
      
     stringstream meName;
-    //Loop on chambers
-    // for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    // if( dynamic_cast< RPChamber* >( *it ) != 0 ){
-    //	RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
-    //	std::vector< const RPCRoll*> roles = (ch->rolls());
-	
-	
-	//Loop on rolls in given chamber
-	//for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-    // RPCDetId detId = (*r)->id();
-    //	  rpcdqm::utils prova;
-	  
-	  
-    // int nr = prova.detId2RollNr(detId);
-    //if(detId.region() !=0) continue;
-	  
-	  //Get Occupancy ME for roll
-    //  RPCGeomServ RPCname(detId);
-	  
-    //  if (detId.region()==0){
-	    
-    //    string YLabel = RPCname.shortname();
-
-    
-  
-
-	    
+        
     RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
     stringstream mme;
     MonitorElement * myMe;
@@ -205,13 +179,13 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 	  for(int y=1; y<roll; y++) {
 	    //cout<<" xy "<< myMe -> getBinContent(x,y)<<endl;
 	    float dead = myMe -> getBinContent(x,y);
-	    if(dead>=80) {
+	    if(dead>=0.80) {
 	      // declare as DEAD chamber. fill map by a number
 	      RCQ -> setBinContent(x,y, 6);
 	      RCQD -> Fill(6, 1);
 	    }
 	    
-	    else if (33<=dead && dead<80){
+	    else if (0.33<=dead && dead<0.80){
 	      //Partially DEAD!!! Fill map by a number 
 	      //do dead FEB/CHIP s calculation
 	      RCQ -> setBinContent(x,y, 5);
@@ -228,7 +202,6 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 	      meName.str("");
 	      meName<<"RPC/RecHits/SummaryHistograms/RPCNoisyStrips_Roll_vs_Sector_Wheel" << i;
 	      NoisySt = dbe_ -> get(meName.str());
-
 
 	      float firstbin = CLS -> getBinContent(x,y);
 	      int noisystrips = NoisySt -> getBinContent(x,y);
@@ -248,7 +221,7 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 		//check Multiplicity to spot noisely Chamber
 		
 		meName.str("");
-		meName<<"RPC/RecHits/SummaryHistograms/NumberOfDigi_Roll_vs_Sector_Wheel" << i;
+		meName<<"RPC/RecHits/SummaryHistograms/NumberOfDigi_Mean_Roll_vs_Sector_Wheel" << i;
 		//meName<<"RPC/RecHits/SummaryHistograms/ClusterSizeIn1Bin_Roll_vs_Sector_Wheel" << i;
 		MULT = dbe_ -> get(meName.str());
 		

@@ -2,12 +2,15 @@
 #define RPCDeadChannelTest_H
 
 
+<<<<<<< RPCDeadChannelTest.h
+#include "DQM/RPCMonitorClient/interface/RPCClient.h"
+=======
 /** \class RPCDeadChannelTest
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/12/15 16:28:30 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/02/24 13:15:32 $
+ *  $Revision: 1.7 $
  *  \author 
  *   
  */
@@ -21,18 +24,25 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
+>>>>>>> 1.7
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
+<<<<<<< RPCDeadChannelTest.h
+=======
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
+>>>>>>> 1.7
 
+<<<<<<< RPCDeadChannelTest.h
+class RPCDeadChannelTest:public RPCClient{
+=======
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
 class RPCDeadChannelTest:public edm::EDAnalyzer{
+>>>>>>> 1.7
 
 public:
 
@@ -43,10 +53,10 @@ public:
   virtual ~RPCDeadChannelTest();
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& );
+  void beginJob(DQMStore *);
 
   //Begin Run
-   void beginRun(const edm::Run& , const edm::EventSetup& );
+   void beginRun(const edm::Run& , const edm::EventSetup& ,std::vector<MonitorElement *> , std::vector<RPCDetId>);
   
   
   /// Begin Lumi block 
@@ -65,18 +75,34 @@ public:
   void endJob();
 
  protected:
+<<<<<<< RPCDeadChannelTest.h
+  void CalculateDeadChannelPercentage(RPCDetId & , MonitorElement *  , edm::EventSetup const& );
+   
+ private:
+=======
   void fillDeadChannelHisto(const std::map<int,std::map<int,std::pair<float,float> > > & sumMap, int region);
   void CalculateDeadChannelPercentage(RPCDetId & detId, MonitorElement * myMe,  edm::EventSetup const& iSetup);
 
   
  private:
+>>>>>>> 1.7
   int prescaleFactor_;
-  std::string globalFolder_,prefixDir_;
+  std::string globalFolder_;
   std::vector<MonitorElement *>  myOccupancyMe_;
   std::vector<RPCDetId>   myDetIds_;
-  std::vector<std::string>    myRollNames_;
+ 
   DQMStore* dbe_;
+<<<<<<< RPCDeadChannelTest.h
+ 
+  int numberOfDisks_;
+
+  MonitorElement * DEADWheel[5];
+  MonitorElement * DEADDisk[10]; 
+
+
+=======
   std:: map<int, std::map< int ,  std::pair<float,float> > >  barrelMap_, endcapMap_;
+>>>>>>> 1.7
   
 };
 

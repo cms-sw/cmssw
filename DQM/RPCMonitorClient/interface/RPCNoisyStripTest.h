@@ -7,65 +7,53 @@
 #ifndef RPCNoisyStipTest_H
 #define RPCNoisyStipTest_H
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+
 #include "DQM/RPCMonitorClient/interface/RPCClient.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <memory>
 #include <string>
-#include <map>
-
-class DQMStore;
-class RPCDetId;
+#include <vector>
 
 
-class RPCNoisyStripTest:public edm::EDAnalyzer {
+class RPCNoisyStripTest:public RPCClient{
 public:
 
-  /// Constructor
+
   RPCNoisyStripTest(const edm::ParameterSet& ps);
-  
-  /// Destructor
   virtual ~RPCNoisyStripTest();
-
-  /// BeginJob
-  void beginJob(const edm::EventSetup& iSetup);
-
-  //Begin Run
-   void beginRun(const edm::Run& r, const edm::EventSetup& c);
-  
-  
-  /// Begin Lumi block 
+  void beginJob(DQMStore *);
+  void beginRun(const edm::Run& , const edm::EventSetup& , std::vector<MonitorElement *> , std::vector<RPCDetId>);
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
-  /// Analyze  
   void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
-
-  /// End Lumi Block
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
- 
+  void endRun(const edm::Run& , const edm::EventSetup& ); 		
+  void endJob();
+ protected:
+
+  void fillGlobalME(RPCDetId & , MonitorElement * ,edm::EventSetup const& );
+
 
  private:
   
-  std::string prefixDir_;
+  std::string globalFolder_;
 
   int prescaleFactor_;
-  bool verbose_;
+ 
   DQMStore* dbe_;
-  int nLumiSegs_;
-
-
+ 
   std::vector<MonitorElement *>  myOccupancyMe_;
   std::vector<RPCDetId>   myDetIds_;
+  
+  MonitorElement * NOISEWheel[5];
+  MonitorElement * NOISEDWheel[5];
+  MonitorElement * DEVDWheel[5]; 
 
-  std::vector<std::string> segmentNames; 
-
-  std::map<RPCDetId,std::string>  meCollection;
+  MonitorElement * NOISEDisk[10];
+  MonitorElement * NOISEDDisk[10];
+  MonitorElement * DEVDDisk[10]; 
+  int numberOfDisks_;
+  
 };
 
 #endif
