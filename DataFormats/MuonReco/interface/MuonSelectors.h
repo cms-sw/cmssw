@@ -5,14 +5,34 @@
 // 
 //
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
-// $Id: MuonSelectors.h,v 1.2 2008/04/30 22:58:14 dmytro Exp $
+// $Id: MuonSelectors.h,v 1.3 2008/10/30 19:51:54 jribnik Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TMath.h"
 
 namespace muon {
+   /// Selector type
+   enum SelectionType {
+        All,                      // dummy options - always true
+	AllGlobalMuons,           // checks isGlobalMuon flag
+	AllStandAloneMuons,       // checks isStandAloneMuon flag
+	AllTrackerMuons,          // checks isTrackerMuon flag
+	TrackerMuonArbitrated,    // resolve ambiguity of sharing segments
+	AllArbitrated,            // all muons with the tracker muon arbitrated
+	GlobalMuonPromptTight,    // global muons with tighter fit requirements
+	TMLastStationLoose,       // penetration depth loose selector
+	TMLastStationTight,       // penetration depth tight selector
+	TM2DCompatibilityLoose,   // likelihood based loose selector
+	TM2DCompatibilityTight,   // likelihood based tight selector
+	TMOneStationLoose,        // require one well matched segment
+	TMOneStationTight,        // require one well matched segment
+	TMLastStationOptimizedLowPtLoose, // combination of TMLastStation and TMOneStation
+	TMLastStationOptimizedLowPtTight  // combination of TMLastStation and TMOneStation
+   };
+
+     
    /// main GoodMuon wrapper call
-   bool isGoodMuon( const reco::Muon& muon, reco::Muon::SelectionType type );
+   bool isGoodMuon( const reco::Muon& muon, SelectionType type );
 
    // ===========================================================================
    //                               Support functions

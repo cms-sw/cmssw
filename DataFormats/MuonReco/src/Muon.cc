@@ -1,6 +1,5 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 using namespace reco;
 
@@ -672,14 +671,3 @@ void Muon::setIsolation( const MuonIsolation& isoR03, const MuonIsolation& isoR0
    isolationR05_ = isoR05;
    isolationValid_ = true; 
 }
-
-float Muon::segmentCompatibility() const
-{
-   return muon::segmentCompatibility( *this );
-}
-
-bool Muon::isGood( SelectionType type ) const
-{
-   return muon::isGoodMuon( *this, type );
-}
-

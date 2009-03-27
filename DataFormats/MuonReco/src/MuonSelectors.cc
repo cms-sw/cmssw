@@ -460,29 +460,29 @@ bool muon::isGoodMuon( const reco::Muon& muon,
    return goodMuon;
 }
 
-bool muon::isGoodMuon( const reco::Muon& muon, reco::Muon::SelectionType type )
+bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type )
 {
   switch (type)
      {
-      case reco::Muon::All:
+      case muon::All:
 	return true;
 	break;
-      case reco::Muon::AllGlobalMuons:
+      case muon::AllGlobalMuons:
 	return muon.isGlobalMuon();
 	break;
-      case reco::Muon::AllTrackerMuons:
+      case muon::AllTrackerMuons:
 	return muon.isTrackerMuon();
 	break;
-      case reco::Muon::AllStandAloneMuons:
+      case muon::AllStandAloneMuons:
 	return muon.isStandAloneMuon();
 	break;
-      case reco::Muon::TrackerMuonArbitrated:
+      case muon::TrackerMuonArbitrated:
 	return muon.isTrackerMuon() && muon.numberOfMatches(reco::Muon::SegmentAndTrackArbitration)>0;
 	break;
-      case reco::Muon::AllArbitrated:
+      case muon::AllArbitrated:
 	return ! muon.isTrackerMuon() || muon.numberOfMatches(reco::Muon::SegmentAndTrackArbitration)>0;
 	break;
-      case reco::Muon::GlobalMuonPromptTight:
+      case muon::GlobalMuonPromptTight:
 	return muon.isGlobalMuon() && muon.globalTrack()->normalizedChi2()<10.;
 	break;
    // For "Loose" algorithms we choose maximum y quantity cuts of 1E9 instead of
@@ -495,36 +495,36 @@ bool muon::isGoodMuon( const reco::Muon& muon, reco::Muon::SelectionType type )
    // not care at all about y information, we raise these limits.  In the
    // TMLastStation and TMOneStation algorithms we actually use this huge number
    // to determine whether to consider y information at all.
-      case reco::Muon::TMLastStationLoose:
+      case muon::TMLastStationLoose:
 	return isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,reco::Muon::SegmentAndTrackArbitration);
 	break;
-      case reco::Muon::TMLastStationTight:
+      case muon::TMLastStationTight:
 	return isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration);
 	break;
-      case reco::Muon::TMOneStationLoose:
+      case muon::TMOneStationLoose:
 	return isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,reco::Muon::SegmentAndTrackArbitration);
 	break;
-      case reco::Muon::TMOneStationTight:
+      case muon::TMOneStationTight:
 	return isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,reco::Muon::SegmentAndTrackArbitration);
 	break;
-      case reco::Muon::TMLastStationOptimizedLowPtLoose:
+      case muon::TMLastStationOptimizedLowPtLoose:
    if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
 	   return isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,reco::Muon::SegmentAndTrackArbitration);
    else
 	   return isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,reco::Muon::SegmentAndTrackArbitration);
 	break;
-      case reco::Muon::TMLastStationOptimizedLowPtTight:
+      case muon::TMLastStationOptimizedLowPtTight:
    if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
 	   return isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,reco::Muon::SegmentAndTrackArbitration);
    else
 	   return isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration);
 	break;
 	//compatibility loose
-      case reco::Muon::TM2DCompatibilityLoose:
+      case muon::TM2DCompatibilityLoose:
 	return isGoodMuon(muon,TM2DCompatibility,0.7);
 	break;
 	//compatibility tight
-      case reco::Muon::TM2DCompatibilityTight:
+      case muon::TM2DCompatibilityTight:
 	return isGoodMuon(muon,TM2DCompatibility,1.0);
 	break;
       default:

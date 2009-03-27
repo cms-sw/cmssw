@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.49 2009/03/15 03:33:32 dmytro Exp $
+ * \version $Id: Muon.h,v 1.50 2009/03/27 02:35:08 ptraczyk Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -90,7 +90,6 @@ namespace reco {
     float caloCompatibility() const { return caloCompatibility_; }
     void  setCaloCompatibility(float input){ caloCompatibility_ = input; }
     bool  isCaloCompatibilityValid() const { return caloCompatibility_>=0; } 
-    float segmentCompatibility() const;
     
     ///
     /// ====================== ISOLATION BLOCK ===========================
@@ -101,31 +100,6 @@ namespace reco {
     void setIsolation( const MuonIsolation& isoR03, const MuonIsolation& isoR05 );
     bool isIsolationValid() const { return isolationValid_; }
      
-    ///
-    /// ====================== SELECTOR BLOCK ===========================
-    ///
-    /// simple muon selection based on stored information inside the muon
-    /// object
-    enum SelectionType {
-         All,                      // dummy options - always true
-         AllGlobalMuons,           // checks isGlobalMuon flag
-         AllStandAloneMuons,       // checks isStandAloneMuon flag
-         AllTrackerMuons,          // checks isTrackerMuon flag
-	 TrackerMuonArbitrated,    // resolve ambiguity of sharing segments
-         AllArbitrated,            // all muons with the tracker muon arbitrated
-         GlobalMuonPromptTight,    // global muons with tighter fit requirements
-	 TMLastStationLoose,       // penetration depth loose selector
-	 TMLastStationTight,       // penetration depth tight selector
-	 TM2DCompatibilityLoose,   // likelihood based loose selector
-	 TM2DCompatibilityTight,   // likelihood based tight selector
-         TMOneStationLoose,        // require one well matched segment
-         TMOneStationTight,        // require one well matched segment
-         TMLastStationOptimizedLowPtLoose, // combination of TMLastStation and TMOneStation
-         TMLastStationOptimizedLowPtTight  // combination of TMLastStation and TMOneStation
-    };
-    bool isGood( SelectionType type = AllArbitrated ) const;
-     
-    
     /// define arbitration schemes
     enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration };
     
