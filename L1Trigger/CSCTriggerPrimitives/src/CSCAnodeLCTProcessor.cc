@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2008/10/09 11:12:02 $
-//   $Revision: 1.30 $
+//   $Date: 2009/03/26 15:32:49 $
+//   $Revision: 1.31 $
 //
 //   Modifications: 
 //
@@ -69,8 +69,10 @@ const int CSCAnodeLCTProcessor::pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS
 };
 
 // These mask the pattern envelope to give the desired accelerator pattern
-// and collision patterns A and B.
-const int CSCAnodeLCTProcessor::pattern_mask_default[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES] = {
+// and collision patterns A and B.  These masks were meant to be the default
+// ones in early 200X, but were never implemented because of limited FPGA
+// resources.
+const int CSCAnodeLCTProcessor::pattern_mask_slim[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES] = {
   // Accelerator pattern
   {0,  0,  1,
        0,  1,
@@ -96,9 +98,9 @@ const int CSCAnodeLCTProcessor::pattern_mask_default[CSCConstants::NUM_ALCT_PATT
            0,  0,  1}
 };
 
-// Both collision patterns used at the test beam and MTCC were "completely
-// open".
-const int CSCAnodeLCTProcessor::pattern_mask_MTCC[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES] = {
+// Since the test beams in 2003, both collision patterns are "completely
+// open".  This is our current default.
+const int CSCAnodeLCTProcessor::pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES] = {
   // Accelerator pattern
   {0,  0,  1,
        0,  1,
@@ -169,8 +171,9 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   infoV        = conf.getUntrackedParameter<int>("verbosity", 0);
 
   // Other parameters.
+  // Use open pattern instead of more restrictive (slim) ones.
   isMTCC       = comm.getParameter<bool>("isMTCC");
-  // Use TMB07 flag for DAQ-2006 version (implemented in late 2007).
+  // Use TMB07 flag for DAQ-2006 firmware version (implemented in late 2007).
   isTMB07      = comm.getParameter<bool>("isTMB07");
 
   // Check and print configuration parameters.
@@ -180,17 +183,17 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
     config_dumped = true;
   }
 
-  numWireGroups = 0;
+  numWireGroups = 0;  // Will be set later.
   MESelection   = (theStation < 3) ? 0 : 1;
 
   // Load appropriate pattern mask.
   for (int i_patt = 0; i_patt < CSCConstants::NUM_ALCT_PATTERNS; i_patt++) {
     for (int i_wire = 0; i_wire < NUM_PATTERN_WIRES; i_wire++) {
       if (isMTCC || isTMB07) {
-	pattern_mask[i_patt][i_wire] = pattern_mask_MTCC[i_patt][i_wire];
+	pattern_mask[i_patt][i_wire] = pattern_mask_open[i_patt][i_wire];
       }
       else {
-	pattern_mask[i_patt][i_wire] = pattern_mask_default[i_patt][i_wire];
+	pattern_mask[i_patt][i_wire] = pattern_mask_slim[i_patt][i_wire];
       }
     }
   }
@@ -217,6 +220,13 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() :
 
   numWireGroups = CSCConstants::MAX_NUM_WIRES;
   MESelection   = (theStation < 3) ? 0 : 1;
+
+  // Load default pattern mask.
+  for (int i_patt = 0; i_patt < CSCConstants::NUM_ALCT_PATTERNS; i_patt++) {
+    for (int i_wire = 0; i_wire < NUM_PATTERN_WIRES; i_wire++) {
+      pattern_mask[i_patt][i_wire] = pattern_mask_open[i_patt][i_wire];
+    }
+  }
 }
 
 void CSCAnodeLCTProcessor::setDefaultConfigParameters() {
@@ -388,7 +398,7 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
     if (theChamber) {
       numWireGroups = theChamber->layer(1)->geometry()->numberOfWireGroups();
       if (numWireGroups > CSCConstants::MAX_NUM_WIRES) {
-	if (infoV > 0) edm::LogWarning("CSCAnodeLCTProcessor")
+	if (infoV > 0) edm::LogError("CSCAnodeLCTProcessor")
 	  << "+++ Number of wire groups, " << numWireGroups
 	  << " found in ME" << ((theEndcap == 1) ? "+" : "-")
 	  << theStation << "/"
@@ -405,7 +415,7 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
       }
     }
     else {
-      if (infoV > 0) edm::LogWarning("CSCAnodeLCTProcessor")
+      if (infoV > 0) edm::LogError("CSCAnodeLCTProcessor")
 	<< "+++ ME" << ((theEndcap == 1) ? "+" : "-") << theStation << "/"
 	<< CSCTriggerNumbering::ringFromTriggerLabels(theStation,
 						      theTrigChamber) << "/"
@@ -420,7 +430,7 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
   }
 
   if (numWireGroups < 0) {
-    if (infoV > 0) edm::LogWarning("CSCAnodeLCTProcessor")
+    if (infoV > 0) edm::LogError("CSCAnodeLCTProcessor")
       << "+++ ME" << ((theEndcap == 1) ? "+" : "-") << theStation << "/"
       << CSCTriggerNumbering::ringFromTriggerLabels(theStation,
 						    theTrigChamber) << "/"
@@ -443,9 +453,20 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
       wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
     readWireDigis(wire);
 
-    // Then pass an array of wire times on to another run() doing the LCT
-    // search.
-    run(wire);
+    // Pass an array of wire times on to another run() doing the LCT search.
+    // If the number of layers containing digis is smaller than that
+    // required to trigger, quit right away.
+    const unsigned int min_layers =
+      (nplanes_hit_pattern <= nplanes_hit_accel_pattern)
+      ? nplanes_hit_pattern : nplanes_hit_accel_pattern;
+
+    unsigned int layersHit = 0;
+    for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+      for (int i_wire = 0; i_wire < numWireGroups; i_wire++) {
+	if (!wire[i_layer][i_wire].empty()) {layersHit++; break;}
+      }
+    }
+    if (layersHit >= min_layers) run(wire);
   }
 
   // Return vector of ALCTs.

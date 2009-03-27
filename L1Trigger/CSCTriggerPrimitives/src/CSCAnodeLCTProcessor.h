@@ -13,8 +13,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2008/09/10 10:45:20 $
- * $Revision: 1.16 $
+ * $Date: 2009/03/26 15:32:51 $
+ * $Revision: 1.17 $
  *
  */
 
@@ -74,8 +74,8 @@ class CSCAnodeLCTProcessor
   /** Pre-defined patterns. */
   enum {NUM_PATTERN_WIRES = 14};
   static const int pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
-  static const int pattern_mask_default[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
-  static const int pattern_mask_MTCC[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
+  static const int pattern_mask_slim[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
+  static const int pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
 
  private:
   /** Verbosity level: 0: no print (default).
@@ -99,7 +99,7 @@ class CSCAnodeLCTProcessor
   std::vector<CSCWireDigi> digiV[CSCConstants::NUM_LAYERS];
   unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
 
-  /** Flag for MTCC data. */
+  /** Flag for MTCC data (i.e., "open" patterns). */
   bool isMTCC;
 
   /** Use TMB07 flag for DAQ-2006 version (implemented in late 2007). */
