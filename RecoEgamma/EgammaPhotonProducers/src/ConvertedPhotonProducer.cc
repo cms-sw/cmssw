@@ -65,10 +65,6 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   
   scHybridBarrelProducer_       = conf_.getParameter<edm::InputTag>("scHybridBarrelProducer");
   scIslandEndcapProducer_       = conf_.getParameter<edm::InputTag>("scIslandEndcapProducer");
-  
-  //  scHybridBarrelCollection_     = conf_.getParameter<std::string>("scHybridBarrelCollection");
-  // scIslandEndcapCollection_     = conf_.getParameter<std::string>("scIslandEndcapCollection");
-  
 
   conversionOITrackProducer_ = conf_.getParameter<std::string>("conversionOITrackProducer");
   conversionIOTrackProducer_ = conf_.getParameter<std::string>("conversionIOTrackProducer");
@@ -214,6 +210,17 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   }
   LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer inOutTrack collection size " << (*inOutTrkHandle).size() << "\n";
 
+
+  //// Get the generalTracks if the recovery of one track cases is switched on
+
+  Handle<reco::TrackCollection> generalTrkHandle;
+  if (  recoverOneTrackCase_ ) {
+    theEvent.getByLabel("generalTracks", generalTrkHandle);
+    if (!generalTrkHandle.isValid()) {
+      std::cout << "Error! Can't get the genralTracks " << "\n";
+      edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the genralTracks " << "\n";
+    }
+  }  
   
   //// Get the association map between CKF in out tracks and the SC  where they originated
   Handle<reco::TrackCaloClusterPtrAssociation> inOutTrkSCAssocHandle;
@@ -225,14 +232,6 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   }
 
 
-  //// Get the generalTracks 
-  Handle<reco::TrackCollection> generalTrkHandle;
-  theEvent.getByLabel("generalTracks", generalTrkHandle);
-  if (!generalTrkHandle.isValid()) {
-    std::cout << "Error! Can't get the generalTracks " << "\n";
-    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the genralTracks " << "\n";
-    validTrackInputs=false;
-  }
   
 
   // Get the basic cluster collection in the Barrel 
@@ -294,8 +293,11 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 
 {
 
+  
   reco::Conversion::ConversionAlgorithm algo = reco::Conversion::algoByName(algoName_);
-  std::vector<reco::TransientTrack> t_generalTrk = ( *theTransientTrackBuilder_ ).build(generalTrkHandle );
+  std::vector<reco::TransientTrack> t_generalTrk;
+  if (  recoverOneTrackCase_ )  t_generalTrk = ( *theTransientTrackBuilder_ ).build(generalTrkHandle );
+ 
 
   //  Loop over SC in the barrel and reconstruct converted photons
   int myCands=0;
@@ -406,10 +408,6 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 	}
 	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer trackPairRef  " << trackPairRef.size() <<  "\n";
 
-
-
-	//	std::cout << "  ConvertedPhotonProducer  algo name " << algoName_ << std::endl;
-
         
 	minAppDist=calculateMinApproachDistance( trackPairRef[0],  trackPairRef[1]);
 
@@ -447,18 +445,6 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 	      float dCotTheta=-999.;
 	      reco::TrackRef goodRef;
 	      std::vector<reco::TransientTrack>::const_iterator iGoodGenTran;
-	      //	  for (unsigned int i=0; i< generalTrkHandle->size(); i++) {
-	      // reco::TrackRef trRef(generalTrkHandle, i);
-	      // if ( trRef->charge()*myTk->charge() > 0 ) continue;
-	      // 
-	      //  float theta2 = trRef->innerMomentum().Theta();
-	      //  dCotTheta =  1./tan(theta1) - 1./tan(theta2) ;
-	      //  if ( fabs(dCotTheta) < dCot ) {
-	      //    dCot = fabs(dCotTheta);
-	      //    goodRef = trRef;
-	      //  }
-	      //}
-	      
 	      for ( std::vector<reco::TransientTrack>::const_iterator iTran= t_generalTrk.begin(); iTran != t_generalTrk.end(); ++iTran) {
 		const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTran->basicTransientTrack());
 		reco::TrackRef trRef= ttt->persistentTrackRef(); 
