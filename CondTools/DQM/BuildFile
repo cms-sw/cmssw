@@ -1,0 +1,23 @@
+<use name=CondCore/DBCommon>
+<use name=CondCore/DBOutputService>
+<use name=CondCore/IOVService>
+<use name=CondCore/MetaDataService>
+<use name=CondCore/PopCon>
+<use name=CondFormats/DQMObjects>
+<use name=CoralBase>
+<use name=DataFormats/Provenance>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
+<use name=RelationalAccess>
+<use name=rootrflx>
+<export>
+  <use name=CondCore/PopCon>
+  <use name=CondCore/DBCommon>
+  <use name=CondCore/MetaDataService>
+  <use name=CondCore/DBOutputService>
+  <use name=CondFormats/DQMObjects>
+  <use name=CondCore/IOVService>
+  <use name=FWCore/ServiceRegistry>
+  <lib name=CondToolsDQM>
+</export>

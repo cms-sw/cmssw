@@ -1,0 +1,13 @@
+<use name=CondTools/DQM>
+<use name=CondCore/PopCon>
+<use name=CondFormats/DataRecord>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+
+<library file=DQMSummaryPopConAnalyzer.cc name=CondToolsDQMSummaryPopConAnalyzer>
+   <flags EDM_PLUGIN=1>
+</library>
+
+<library name=DQMSummaryEventSetupAnalyzer file=DQMSummaryEventSetupAnalyzer.cc>
+  <flags EDM_PLUGIN=1>
+</library>
