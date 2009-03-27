@@ -45,8 +45,8 @@ L1CaloEtScale::L1CaloEtScale(const double linearLsbInGeV, const vector<double> t
 
 // ctor that sets scale max values
 L1CaloEtScale::L1CaloEtScale(const unsigned linScaleMax, const unsigned rankScaleMax, const double linearLsbInGeV, const vector<double> thresholdsInGeV) :
-  m_linScaleMax(0x3ff),
-  m_rankScaleMax(0x3f),
+  m_linScaleMax(linScaleMax),
+  m_rankScaleMax(rankScaleMax),
   m_linearLsb(linearLsbInGeV),
   m_thresholds(thresholdsInGeV) {
 
