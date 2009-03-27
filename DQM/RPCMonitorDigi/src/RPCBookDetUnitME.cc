@@ -43,6 +43,8 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
   meMap[os.str()] = dbe->book1D(os.str(), os.str(), nstrips, 0.5, nstrips+0.5);
   dbe->tag( meMap[os.str()],  rpcdqm::OCCUPANCY);
 
+  cout<<meMap[os.str()]->flags()<<endl;
+
 
   if (dqmexpert) {    
     os.str("");

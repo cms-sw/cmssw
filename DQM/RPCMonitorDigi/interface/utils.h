@@ -2,6 +2,8 @@
 #define rpcdqm_utils_H
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
 #include <vector>
 #include <iomanip>
 #include <string>
@@ -148,7 +150,7 @@ namespace rpcdqm{
       
       ylabel[1] = "RB1in_B";
       ylabel[2] = "RB1in_F";
-      ylabel[3] = "RBiout_B";
+      ylabel[3] = "RB1out_B";
       ylabel[4] = "RB1out_F";
       ylabel[5] = "RB2in_B";
       ylabel[6] = "RB2in_F";
@@ -158,8 +160,8 @@ namespace rpcdqm{
       
       ylabel[8] = "RB2out_B";
       ylabel[9] = "RB2out_F";
-      ylabel[10] = "RB3-_F";
-      ylabel[11] = "RB3-_B";
+      ylabel[10] = "RB3-_B";
+      ylabel[11] = "RB3-_F";
       ylabel[12] = "RB3+_B";
       ylabel[13] = "RB3+_F";
       ylabel[14] = "RB4,-,--_B";
@@ -170,7 +172,30 @@ namespace rpcdqm{
       ylabel[19] = "RB4+-_F";
       ylabel[20] = "RB4++_B";
       ylabel[21] = "RB4++_F";
-           
+    }
+
+
+    void doEndcapLabeling(){          
+
+      string rolls[3];
+      rolls[0]="A";
+      rolls[1]="B";
+      rolls[2]="C";
+
+
+      stringstream myLabel;
+
+      for(int ring = 1 ; ring <=3; ring ++){
+	myLabel.str("");
+	myLabel<<"R"<<ring;
+	for(int ch = 1; ch<=6; ch++){
+	  myLabel<<"_C"<<ch;
+	  for(int r=0; r<3; r++){
+	    myLabel<<"_"<<rolls[r];
+	    endcapYLabels_.push_back(myLabel.str());
+	  }
+	}
+      }
     }
 
     string YLabel(int i) {
@@ -178,6 +203,49 @@ namespace rpcdqm{
       return ylabel[i];
       
     }
+
+    //use only with RollvsSector MEs
+    void labelXAxisSector(MonitorElement * myMe){
+      //before do some checks
+      if (!myMe) return;
+
+      stringstream xLabel;
+
+      for(int x = 1; x<= myMe->getNbinsX(); x++){
+	xLabel.str("");
+	xLabel<<"Sec"<<x;
+	myMe->setBinLabel(x, xLabel.str(), 1);
+      }
+      
+    }
+
+
+    //use only with RollvsSector MEs
+    void labelYAxisRoll(MonitorElement * myMe, int region, int ring){
+
+      //before do some checks
+      if (!myMe) return;
+      
+      if(ring == -2 || ring == 2) ylabel[7]=ylabel[0];
+
+      //set bin labels
+      if(region == 0){
+
+	//initialize label vector
+	this->dolabeling();  
+
+	for(int y = 1; y<= myMe->getNbinsY() && y<22; y++)	  
+	  myMe->setBinLabel(y, ylabel[y], 2);
+	
+      }else{//Endcap
+	this->doEndcapLabeling();
+  	for(int y = 1; y<= myMe->getNbinsY(); y++)	  
+	  myMe->setBinLabel(y, endcapYLabels_[y], 2);
+      }
+    }
+
+
+
 
 
   
@@ -287,7 +355,7 @@ std::string detId2ChamberLabel(const RPCDetId & _id){
   private:
       int _cnr;
       int ch;
-      
+      std::vector<std::string>  endcapYLabels_;
       std::string ChLabel;
       std::vector<int> Wvector2;
       std::vector<int> Wvector1;
