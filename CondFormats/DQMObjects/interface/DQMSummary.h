@@ -5,6 +5,15 @@
 #include <string>
 #include <vector>
 
+/*
+ *  \class DQMSummary
+ *  
+ *  hosting DQM information  
+ *
+ *  \author Salvatore Di Guida (diguida) - CERN (Mar-27-2009)
+ *
+*/
+
 class DQMSummary {
  public:
   long long m_run;
