@@ -71,6 +71,9 @@ public:
 	/// get output Et value
 	inline etTotalType getOutputEt() const { return m_outputEt; }
 
+	/// check the setup
+	bool setupOk() const { return m_setupOk; }
+
  protected:
 
 	/// Separate reset methods for the processor itself and any data stored in pipelines
@@ -99,6 +102,8 @@ public:
 	etComponentType m_outputEy;
 	etTotalType m_outputEt;
 	
+	/// check the setup
+	bool m_setupOk;
 	
 };
 

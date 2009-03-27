@@ -13,6 +13,7 @@
 </library>
 <library name="GeneratorInterfaceLHEIO" file="LHESource.cc MCDBSource.cc LHEWriter.cc">
 	<use name="FWCore/Framework"/>
+	<use name="FWCore/Sources"/>
 	<use name="SimDataFormats/GeneratorProducts"/>
 	<use name="mcdb"/>
 	<flags EDM_PLUGIN="1"/>
@@ -24,7 +25,7 @@
 	<use name="PhysicsTools/UtilAlgos"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
-<library name="GeneratorInterfacePythia6Hadronisation" file="Pythia6Hadronisation.cc">
+<library name="GeneratorInterfacePythia6Hadronisation" file="Pythia6Hadronisation.cc PythiaFortranGlue.F">
 	<use name="SimDataFormats/GeneratorProducts"/>
 	<use name="GeneratorInterface/CommonInterface"/>
 	<use name="pythia6"/>
@@ -39,5 +40,10 @@
 	<use name="SimDataFormats/GeneratorProducts"/>
 	<use name="f77compiler"/>
 	<flags LDFLAGS="-lherwig -lherwig_dummy -llhapdf -llhapdf_dummy -ljimmy"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+<library name="GeneratorInterfaceMadGraphMatching" file="JetMatchingMadgraph.cc ME2pythia.f getjet.f ktclusdble.f">
+	<use name="pythia6"/>
+	<flags FFLAGS="-w"/>
 	<flags EDM_PLUGIN="1"/>
 </library>

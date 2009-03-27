@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2008/10/03 04:32:51 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/10/02 01:10:34 $
+ *  $Revision: 1.3 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -470,10 +470,9 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
     // Geom::Phi should keep it in the range [-pi, pi]
     float dphi = fabs (ptg1.phi()-ptg2.phi());
     float eta2 = fabs( ptg2.eta() );
-    // be a little more lenient in cracks
-    bool crack = isCrack(*iter) || isCrack(first);
-    float detaWindow = crack ? 0.25 : 0.2;
-    if ( deta > detaWindow || dphi > .1 ) {
+
+    // Cox: Just too far away?
+    if ( deta > .2 || dphi > .1 ) {
       nr++;
       continue;
     }   // +vvp!!!
@@ -620,30 +619,23 @@ bool MuonSeedOrcaPatternRecognition::check(const MuonRecHitContainer & segments)
 }
 
 
-bool MuonSeedOrcaPatternRecognition::isCrack(const ConstMuonRecHitPointer & segment) const
-{
-  bool result = false;
-  double absEta = fabs(segment->globalPosition().eta());
-  for(std::vector<double>::const_iterator crackItr = theCrackEtas.begin();
-      crackItr != theCrackEtas.end(); ++crackItr)
-  {
-    if(fabs(absEta-*crackItr) < theCrackWindow) {
-      result = true;
-    }
-  }
-  return result;
-}
-
-
 void MuonSeedOrcaPatternRecognition::rememberCrackSegments(const MuonRecHitContainer & segments,
                                                            MuonRecHitContainer & crackSegments) const
 {
   for(MuonRecHitContainer::const_iterator segmentItr = segments.begin(); 
       segmentItr != segments.end(); ++segmentItr)
   {
-    if((**segmentItr).hit()->dimension() == 4 && isCrack(*segmentItr)) 
+    if((**segmentItr).hit()->dimension() == 4) 
     {
-       crackSegments.push_back(*segmentItr);
+      double absEta = fabs((**segmentItr).globalPosition().eta());
+
+      for(std::vector<double>::const_iterator crackItr = theCrackEtas.begin();
+          crackItr != theCrackEtas.end(); ++crackItr)
+      {
+        if(fabs(absEta-*crackItr) < theCrackWindow) {
+           crackSegments.push_back(*segmentItr);
+        }
+      }
     }
   }
 }

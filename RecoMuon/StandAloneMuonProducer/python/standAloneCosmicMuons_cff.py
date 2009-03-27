@@ -6,6 +6,9 @@ import FWCore.ParameterSet.Config as cms
 # in 150 shall be changed into
 # include "Geometry/CMSCommonData/data/cmsIdealGeometryXML.cff"
 from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
+from Geometry.DTGeometry.dtGeometry_cfi import *
+from Geometry.CSCGeometry.cscGeometry_cfi import *
+from Geometry.RPCGeometry.rpcGeometry_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 # Magnetic Field
 #include "MagneticField/Engine/data/uniformMagneticField.cfi" 
@@ -29,7 +32,7 @@ standAloneMuons.InputObjects = 'CosmicMuonSeed'
 standAloneMuons.STATrajBuilderParameters.NavigationType = 'Direct'
 standAloneMuons.TrackLoaderParameters.VertexConstraint = False
 # to run only over DT measurements uncomment these cards
-CosmicMuonSeed.EnableCSCMeasurement = False
+##CosmicMuonSeed.EnableCSCMeasurement = False
 #replace standAloneMuons.STATrajBuilderParameters.RefitterParameters.EnableRPCMeasurement = false
 standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableRPCMeasurement = False
 #replace standAloneMuons.STATrajBuilderParameters.RefitterParameters.EnableCSCMeasurement = false

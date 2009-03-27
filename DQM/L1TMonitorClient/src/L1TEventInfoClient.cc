@@ -168,7 +168,8 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   MonitorElement *GCT_QHist = dbe_->get("L1T/L1TGCT/NonIsoEmOccEtaPhi");
   MonitorElement *RCT_QHist = dbe_->get("L1T/L1TRCT/RctNonIsoEmOccEtaPhi");
   MonitorElement *GMT_QHist = dbe_->get("L1T/L1TGMT/GMT_etaphi");
-  MonitorElement *CSCTF_QHist = dbe_->get("L1T/L1TCSCTF/CSCTF_occupancies");
+  //MonitorElement *CSCTF_QHist = dbe_->get("L1T/L1TCSCTF/CSCTF_occupancies");
+  MonitorElement *CSCTF_QHist = dbe_->get("L1T/L1TCSCTF/CSCTF_Chamber_Occupancies");
   MonitorElement *DTTF_QHist = dbe_->get("L1T/L1TDTTF/DTTF_TRACKS/INTEG/Occupancy Summary");
   
   //MonitorElement *DTTF_QHist_phi = dbe_->get("L1T/L1TDTTF/DTTF_TRACKS/INTEG/Integrated Packed Phi");
@@ -268,12 +269,25 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   }
 
   if (CSCTF_QHist){
-    const QReport *CSCTF_QReport = CSCTF_QHist->getQReport("HotChannels_CSCTF");
-    if (CSCTF_QReport) {
-      int CSCTF_nBadCh = CSCTF_QReport->getBadChannels().size();
-      summaryContent[7] = 1 - CSCTF_nBadCh/CSCTF_nCh;
-      reportSummaryContent_[7]->Fill( summaryContent[7]);
-    } 
+//     const QReport *CSCTF_QReport = CSCTF_QHist->getQReport("HotChannels_CSCTF");
+//     if (CSCTF_QReport) {
+//       int CSCTF_nBadCh = CSCTF_QReport->getBadChannels().size();
+//       summaryContent[7] = 1 - CSCTF_nBadCh/CSCTF_nCh;
+//       reportSummaryContent_[7]->Fill( summaryContent[7]);
+//     } 
+
+    int nFilledBins_CSCTF = 0;
+    int nTotalBins_CSCTF  = 0;
+
+    for(int i=1; i<55; i++)// 54
+      for(int j=1; j<11;j++){ // 10
+	if( (j==1 || j==10) && ((i%9)>3 || (i%9)==0) ) continue;  // Skip uninstrumented regions
+	nTotalBins_CSCTF++;
+	if(CSCTF_QHist->getBinContent(i,j)) nFilledBins_CSCTF++;
+      }
+
+    summaryContent[7] = (float)nFilledBins_CSCTF / (float)nTotalBins_CSCTF;
+    reportSummaryContent_[7]->Fill( summaryContent[7] );
   }
 
   if (DTTF_QHist){
@@ -367,7 +381,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   if (reportSummary_) reportSummary_->Fill(reportSummary);
   
 
-    //5x4 summary map
+    //5x4 summary map", " << 
 //  int jcount=0;
 //    //fill the known systems
 //   for (int i = 0; i < nSubsystems; i++) {

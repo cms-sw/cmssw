@@ -25,7 +25,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         'HcalTBSim', 
         'FwkJob', 
         'VertexGenerator'),
-#    debugModules = cms.untracked.vstring('*'),
+    debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet(
@@ -34,28 +34,28 @@ process.MessageLogger = cms.Service("MessageLogger",
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+        FwkJob = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        VertexGenerator = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
         ),
         EcalGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        EcalSim = cms.untracked.PSet(
+        HCalGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+        CaloSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
         ),
-        HCalGeom = cms.untracked.PSet(
+        EcalSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         HcalSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         HcalTBSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        VertexGenerator = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         )
     )
@@ -107,7 +107,6 @@ process.VtxSmeared.MeanZ = -340.11
 process.VtxSmeared.SigmaX = 0.000001
 process.VtxSmeared.SigmaY = 0.000001
 process.VtxSmeared.SigmaZ = 0.000001
-process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
 process.g4SimHits.CaloSD = cms.PSet(

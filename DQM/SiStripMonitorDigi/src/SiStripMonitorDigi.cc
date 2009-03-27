@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.32 2008/10/13 12:33:32 dutta Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.35 2008/11/25 18:17:56 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -228,209 +228,152 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters DigiProducersList = conf_.getParameter<Parameters>("DigiProducersList");
   Parameters::iterator itDigiProducersList = DigiProducersList.begin();
-
+  int icoll = 0;
   for(; itDigiProducersList != DigiProducersList.end(); ++itDigiProducersList ) {
-
     std::string digiProducer = itDigiProducersList->getParameter<std::string>("DigiProducer");
     std::string digiLabel = itDigiProducersList->getParameter<std::string>("DigiLabel");
-    iEvent.getByLabel(digiProducer,digiLabel,digi_detsetvektor);
+    iEvent.getByLabel(digiProducer,digiLabel,digi_detsetvektor[icoll]);
+    icoll++;
+  }    
+  int nTotDigiTIB = 0; 
+  int nTotDigiTOB = 0;
+  int nTotDigiTEC = 0;
+  int nTotDigiTID = 0;
+  
+  for (std::map<std::string, std::vector< uint32_t > >::const_iterator iterLayer = LayerDetMap.begin();
+       iterLayer != LayerDetMap.end(); iterLayer++) {
     
-    if (!digi_detsetvektor.isValid()) continue; 
+    std::string layer_label = iterLayer->first;    
+    std::vector< uint32_t > layer_dets = iterLayer->second;
+    std::map<std::string, LayerMEs>::iterator iLayerME = LayerMEsMap.find(layer_label);
+      
+    //get Layer MEs 
+    LayerMEs local_layermes;
+    if(iLayerME == LayerMEsMap.end()) continue;
+    else local_layermes = iLayerME->second; 
+    int largest_adc_layer= 0;
+    int smallest_adc_layer= 99999;
+    int ndigi_layer = 0;
     
-    int nTotDigiTIB = 0; 
-    int nTotDigiTOB = 0;
-    int nTotDigiTEC = 0;
-    int nTotDigiTID = 0;
-
-
-    for (std::map<std::string, std::vector< uint32_t > >::const_iterator iterLayer = LayerDetMap.begin();
-	 iterLayer != LayerDetMap.end(); iterLayer++) {
-
-      std::string layer_label = iterLayer->first;
-
-      std::vector< uint32_t > layer_dets = iterLayer->second;
-      std::map<std::string, LayerMEs>::iterator iLayerME = LayerMEsMap.find(layer_label);
+    uint16_t iDet = 0;
+    // loop over all modules in the layer
+    for (std::vector< uint32_t >::const_iterator iterDets = layer_dets.begin() ; 
+	 iterDets != layer_dets.end() ; iterDets++) {
+      iDet++;
+      // detid and type of ME
+      uint32_t detid = (*iterDets);
+	
+      // DetId and corresponding set of MEs
+      std::map<uint32_t, ModMEs >::iterator pos = DigiMEs.find(detid);
+      ModMEs local_modmes = pos->second;
+	
+      // search  digis of detid
+      edm::DetSet<SiStripDigi> digi_detset;  
+      int ndigi_det = getDigiSource(detid, digi_detset); 
+      // no digis for this detector module, so fill histogram with 0
+      if(Mod_On_ && moduleswitchnumdigison && (local_modmes.NumberOfDigis != NULL))
+	(local_modmes.NumberOfDigis)->Fill(ndigi_det); 
       
-      //get Layer MEs 
-      LayerMEs local_layermes;
-      if(iLayerME == LayerMEsMap.end()) continue;
-      else local_layermes = iLayerME->second; 
-      int largest_adc_layer= 0;
-      int smallest_adc_layer= 99999;
-      int ndigi_layer = 0;
+      if (layerswitchnumdigisprofon) 
+	local_layermes.LayerNumberOfDigisProfile->Fill(iDet*1.0,ndigi_det);
+	  
+      if (ndigi_det == 0) continue; // no digis for this detid => jump to next step of loop
+     
+      ndigi_layer += ndigi_det;	
+      // ADCs
+      int largest_adc=(digi_detset.data.begin())->adc();
+      int smallest_adc=(digi_detset.data.begin())->adc();
       
-      uint16_t iDet = 0;
-      // loop over all modules in the layer
-      for (std::vector< uint32_t >::const_iterator iterDets = layer_dets.begin() ; 
-	   iterDets != layer_dets.end() ; iterDets++) {
-	iDet++;
-	// detid and type of ME
-	uint32_t detid = (*iterDets);
+      int subdetid;
+      int subsubdetid;
+      std::string label;
+      getLayerLabel(detid, label, subdetid, subsubdetid);
+      float det_occupancy = 0.0;
+      
+      for(edm::DetSet<SiStripDigi>::const_iterator digiIter = digi_detset.data.begin(); 
+	  digiIter!= digi_detset.data.end(); digiIter++ ){
 	
-	// DetId and corresponding set of MEs
-	std::map<uint32_t, ModMEs >::iterator pos = DigiMEs.find(detid);
-	ModMEs local_modmes = pos->second;
+	int this_adc = digiIter->adc();
+	if (this_adc > 0.0) det_occupancy++;
 	
-	// search  digis of detid
-	edm::DetSetVector<SiStripDigi>::const_iterator isearch = digi_detsetvektor->find(detid); 
+	if(this_adc>largest_adc) largest_adc  = this_adc; 
+	if(this_adc<smallest_adc) smallest_adc  = this_adc; 
 	
-	if(isearch==digi_detsetvektor->end()){
-	  
-	  // no digis for this detector module, so fill histogram with 0
-	  if(Mod_On_ && moduleswitchnumdigison && (local_modmes.NumberOfDigis != NULL))
-	    (local_modmes.NumberOfDigis)->Fill(0.0); 
-	  
-	  if (layerswitchnumdigisprofon) 
-	    local_layermes.LayerNumberOfDigisProfile->Fill(iDet*1.0,0.0);
-
-	  continue; // no digis for this detid => jump to next step of loop
-	}//end of if "isearch == digi ..."
+	if(Mod_On_ && moduleswitchdigiadcson && (local_modmes.DigiADCs != NULL) )
+	  (local_modmes.DigiADCs)->Fill(static_cast<float>(this_adc));
 	
-
-	//digi_detset is a structure
-	//digi_detset.data is a std::vector<SiStripDigi>
-	//digi_detset.id is uint32_t
-	edm::DetSet<SiStripDigi> digi_detset = (*digi_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
-
-	// nr. of digis per detector
-	if(Mod_On_ && moduleswitchnumdigison && (local_modmes.NumberOfDigis != NULL)) 
-	  (local_modmes.NumberOfDigis)->Fill(static_cast<float>(digi_detset.size()));
-        
-        ndigi_layer += digi_detset.size();
-
-	if (layerswitchnumdigisprofon) {
-          local_layermes.LayerNumberOfDigisProfile->Fill(iDet*1.0,digi_detset.size()*1.0);
-        }
+	//Fill #ADCs for this digi at layer level
+	if(layerswitchdigiadcson) {
+	  fillME(local_layermes.LayerDigiADCs , this_adc);
+	  if (createTrendMEs) fillTrend(local_layermes.LayerDigiADCsTrend, this_adc);
+	}
 	
-	// ADCs
-	int largest_adc=(digi_detset.data.begin())->adc();
-	int smallest_adc=(digi_detset.data.begin())->adc();
-
-	int subdetid;
-	int subsubdetid;
-	std::string label;
-	getLayerLabel(detid, label, subdetid, subsubdetid);
-        float det_occupancy = 0.0;
-
-	for(edm::DetSet<SiStripDigi>::const_iterator digiIter = digi_detset.data.begin(); 
-	    digiIter!= digi_detset.data.end(); digiIter++ ){
-	  
-	  int this_adc = digiIter->adc();
-	  if (this_adc > 0.0) det_occupancy++;
-
-	  if(this_adc>largest_adc) largest_adc  = this_adc; 
-	  if(this_adc<smallest_adc) smallest_adc  = this_adc; 
-	  
-	  if(Mod_On_ && moduleswitchdigiadcson && (local_modmes.DigiADCs != NULL) )
-	    (local_modmes.DigiADCs)->Fill(static_cast<float>(this_adc));
-	  	  
-	  //Fill #ADCs for this digi at layer level
-	  if(layerswitchdigiadcson) {
-	    fillME(local_layermes.LayerDigiADCs , this_adc);
-	    if (createTrendMEs) fillTrend(local_layermes.LayerDigiADCsTrend, this_adc);
-	  }
-
-	  if (layerswitchdigiadcprofon) 
-	    local_layermes.LayerDigiADCProfile->Fill(iDet*1.0,this_adc);
-
-	}//end of loop over digis in this det
-        
-        // Occupancy
-        if (local_modmes.nStrip > 0 && det_occupancy > 0 ) {
-          det_occupancy = det_occupancy/local_modmes.nStrip;
-	  if (Mod_On_ && moduleswitchstripoccupancyon && (local_modmes.StripOccupancy != NULL))
-            (local_modmes.StripOccupancy)->Fill(det_occupancy);
-          if (layerswitchstripoccupancyon) {
-	    fillME(local_layermes.LayerStripOccupancy, det_occupancy);
-            if (createTrendMEs) fillTrend(local_layermes.LayerStripOccupancyTrend, det_occupancy);
-          }
-        }
-
-        if  (largest_adc > largest_adc_layer) largest_adc_layer = largest_adc;
-        if  (smallest_adc < smallest_adc_layer) smallest_adc_layer = smallest_adc;
-
-	// nr. of adcs for hottest strip
-	if( Mod_On_ && moduleswitchadchotteston && (local_modmes.ADCsHottestStrip != NULL)) 
-	  (local_modmes.ADCsHottestStrip)->Fill(static_cast<float>(largest_adc));
+	if (layerswitchdigiadcprofon) 
+	  local_layermes.LayerDigiADCProfile->Fill(iDet*1.0,this_adc);
 	
-	// nr. of adcs for coolest strip	
-	if(Mod_On_ && moduleswitchadccooleston && (local_modmes.ADCsCoolestStrip != NULL)) 
-	  (local_modmes.ADCsCoolestStrip)->Fill(static_cast<float>(smallest_adc));
-	
-      }//end of loop over DetIds
-
-      if(layerswitchnumdigison) {
-	fillME(local_layermes.LayerNumberOfDigis,ndigi_layer);
-	if (createTrendMEs) fillTrend(local_layermes.LayerNumberOfDigisTrend,ndigi_layer);
+      }//end of loop over digis in this det
+      
+      // Occupancy
+      if (local_modmes.nStrip > 0 && det_occupancy > 0 ) {
+	det_occupancy = det_occupancy/local_modmes.nStrip;
+	if (Mod_On_ && moduleswitchstripoccupancyon && (local_modmes.StripOccupancy != NULL))
+	  (local_modmes.StripOccupancy)->Fill(det_occupancy);
+	if (layerswitchstripoccupancyon) {
+	  fillME(local_layermes.LayerStripOccupancy, det_occupancy);
+	  if (createTrendMEs) fillTrend(local_layermes.LayerStripOccupancyTrend, det_occupancy);
+	}
       }
-      if(layerswitchadchotteston) {
-	fillME(local_layermes.LayerADCsHottestStrip,largest_adc_layer);
-	if (createTrendMEs) fillTrend(local_layermes.LayerADCsHottestStripTrend,largest_adc_layer);
-      }
-      if(layerswitchadccooleston) {
-	fillME(local_layermes.LayerADCsCoolestStrip ,smallest_adc_layer);
-	if (createTrendMEs) fillTrend(local_layermes.LayerADCsCoolestStripTrend,smallest_adc_layer);
-      }
-
-      if (layer_label.find("TIB") != std::string::npos)      nTotDigiTIB += ndigi_layer;
-      else if (layer_label.find("TOB") != std::string::npos) nTotDigiTOB += ndigi_layer;
-      else if (layer_label.find("TEC") != std::string::npos) nTotDigiTEC += ndigi_layer;        
-      else if (layer_label.find("TID") != std::string::npos) nTotDigiTID += ndigi_layer;        
+      
+      if  (largest_adc > largest_adc_layer) largest_adc_layer = largest_adc;
+      if  (smallest_adc < smallest_adc_layer) smallest_adc_layer = smallest_adc;
+      
+      // nr. of adcs for hottest strip
+      if( Mod_On_ && moduleswitchadchotteston && (local_modmes.ADCsHottestStrip != NULL)) 
+	(local_modmes.ADCsHottestStrip)->Fill(static_cast<float>(largest_adc));
+      
+      // nr. of adcs for coolest strip	
+      if(Mod_On_ && moduleswitchadccooleston && (local_modmes.ADCsCoolestStrip != NULL)) 
+	(local_modmes.ADCsCoolestStrip)->Fill(static_cast<float>(smallest_adc));
+      
+    }//end of loop over DetIds
+    
+    if(layerswitchnumdigison) {
+      fillME(local_layermes.LayerNumberOfDigis,ndigi_layer);
+      if (createTrendMEs) fillTrend(local_layermes.LayerNumberOfDigisTrend,ndigi_layer);
     }
-    if (subdetswitchtotdigiprofon) {
-      for (std::map<std::string, MonitorElement*>::iterator it = SubDetMEsMap.begin();
-	   it != SubDetMEsMap.end(); it++) {
-	MonitorElement* me = it->second;
-	if (!me) continue;
-	if (it->first == "TIB") me->Fill(iOrbit,nTotDigiTIB);
-	else if (it->first == "TOB") me->Fill(iOrbit,nTotDigiTOB);
-	else if (it->first == "TID") me->Fill(iOrbit,nTotDigiTID);
-	else if (it->first == "TEC") me->Fill(iOrbit,nTotDigiTEC);      
-      }
-    }    
-  } //end of loop over digi producers (ZeroSuppressed, VirginRaw, ProcessedRaw, ScopeMode)
+    if(layerswitchadchotteston) {
+      fillME(local_layermes.LayerADCsHottestStrip,largest_adc_layer);
+      if (createTrendMEs) fillTrend(local_layermes.LayerADCsHottestStripTrend,largest_adc_layer);
+    }
+    if(layerswitchadccooleston) {
+      fillME(local_layermes.LayerADCsCoolestStrip ,smallest_adc_layer);
+      if (createTrendMEs) fillTrend(local_layermes.LayerADCsCoolestStripTrend,smallest_adc_layer);
+    }
+    
+    if (layer_label.find("TIB") != std::string::npos)      nTotDigiTIB += ndigi_layer;
+    else if (layer_label.find("TOB") != std::string::npos) nTotDigiTOB += ndigi_layer;
+    else if (layer_label.find("TEC") != std::string::npos) nTotDigiTEC += ndigi_layer;        
+    else if (layer_label.find("TID") != std::string::npos) nTotDigiTID += ndigi_layer;        
+  }
+  if (subdetswitchtotdigiprofon) {
+    for (std::map<std::string, MonitorElement*>::iterator it = SubDetMEsMap.begin();
+	 it != SubDetMEsMap.end(); it++) {
+      MonitorElement* me = it->second;
+      if (!me) continue;
+      if (it->first == "TIB") me->Fill(iOrbit,nTotDigiTIB);
+      else if (it->first == "TOB") me->Fill(iOrbit,nTotDigiTOB);
+      else if (it->first == "TID") me->Fill(iOrbit,nTotDigiTID);
+      else if (it->first == "TEC") me->Fill(iOrbit,nTotDigiTEC);      
+    }
+  }    
 }//end of method analyze
-
-
-
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::endJob(void){
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-  if(outputMEsInRootFile){
-    std::ofstream monitor_summary("monitor_digi_summary.txt");
-    monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
-    monitor_summary<<"SiStripMonitorDigi::endJob DigiMEs.size()="<<DigiMEs.size()<<std::endl;
 
-    for(std::map<uint32_t, ModMEs>::const_iterator idet = DigiMEs.begin(); idet!= DigiMEs.end(); idet++ ){
-
-      monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"      ++++++detid  "<<idet->first<<std::endl<<std::endl;
-
-      if(Mod_On_ && moduleswitchnumdigison) {     
-	monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"              +++ NumberOfDigis "<<(idet->second).NumberOfDigis->getEntries()<<" "<<(idet->second).NumberOfDigis->getMean()<<" "<<(idet->second).NumberOfDigis->getRMS()<<std::endl;
-      }
-
-      if(Mod_On_ && moduleswitchadchotteston) {     
-	monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"              +++ ADCsHottestStrip "<<(idet->second).ADCsHottestStrip->getEntries()<<" "<<(idet->second).ADCsHottestStrip->getMean()<<" "<<(idet->second).ADCsHottestStrip->getRMS()<<std::endl;
-      }
-
-      if(Mod_On_ && moduleswitchadccooleston) {     
-	monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"              +++ ADCsCoolestStrip "<<(idet->second).ADCsCoolestStrip->getEntries()<<" "<<(idet->second).ADCsCoolestStrip->getMean()<<" "<<(idet->second).ADCsCoolestStrip->getRMS()<<std::endl;
-      }
-
-      if(Mod_On_ && moduleswitchdigiadcson) {     
-	monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"              +++ DigiADCs         "<<(idet->second).DigiADCs->getEntries()<<" "<<(idet->second).DigiADCs->getMean()<<" "<<(idet->second).DigiADCs->getRMS()<<std::endl;
-      }
-    
-    }//end of loop over MEs
-
-    monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
-    
-    // save histograms in a file
-    dqmStore_->save(outputFileName);
-
-  }//end of if
-
+  // save histograms in a file
+  if(outputMEsInRootFile)     dqmStore_->save(outputFileName);
   
 }//end of method
 //--------------------------------------------------------------------------------------------
@@ -677,7 +620,7 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
 					      Parameters.getParameter<double>("ymax"),
 					      "" );
   if (!me) return;
-  me->setAxisTitle("Orbit Seconds",1);
+  me->setAxisTitle("Event Time in Seconds",1);
   if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) me->getTH1()->SetBit(TH1::kCanRebin);
   SubDetMEsMap.insert( std::make_pair(label, me));
 }
@@ -721,6 +664,25 @@ void SiStripMonitorDigi::getLayerLabel(uint32_t detid, std::string& label, int& 
   }
   label = label_str.str();
 }
-
+//
+// -- Get DetSet vector for a given Detector
+//
+int SiStripMonitorDigi::getDigiSource(uint32_t id, edm::DetSet<SiStripDigi>& digi_detset) {
+  int nDigi = 0;
+  for (unsigned int ival = 0; ival < 4; ival++) {
+    if (!digi_detsetvektor[ival].isValid() ) continue; 
+    edm::DetSetVector<SiStripDigi>::const_iterator isearch = digi_detsetvektor[ival]->find(id); 
+    if(isearch == digi_detsetvektor[ival]->end()) nDigi = 0;
+    else {
+      //digi_detset is a structure
+      //digi_detset.data is a std::vector<SiStripDigi>
+      //digi_detset.id is uint32_t
+      digi_detset = (*(digi_detsetvektor[ival]))[id];
+      nDigi = digi_detset.size();
+      return nDigi;
+    }
+  }
+  return nDigi;
+}
 //define this as a plug-in
 DEFINE_FWK_MODULE(SiStripMonitorDigi);

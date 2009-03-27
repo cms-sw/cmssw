@@ -92,6 +92,11 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
   // Initialize the beam spot, if not read from the DataBase
   theBeamSpot = math::XYZPoint(0.0,0.0,0.0);
 
+  // Initialize the distance from (0,0,0) after which *generated* particles are 
+  // no longer considered - because the mother could have interacted before.
+  // unit : cm x cm (so 10. corresponds to 3.1 cm)
+  lateVertexPosition = 10.;
+
   // Initialize the vectors of particles and vertices
   theGenParticles = new std::vector<HepMC::GenParticle*>(); 
   theSimTracks = new std::vector<FSimTrack>;
@@ -442,7 +447,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
   // Smear the main vertex if needed
   // Now takes the origin from the database
   XYZTLorentzVector smearedVertex; 
-  if ( primaryVertex->point3d().mag() < 1E-10 ) {
+  if ( primaryVertexPosition.Vect().Mag2() < 1E-16 ) {
     theVertexGenerator->generate();
     smearedVertex = XYZTLorentzVector(
       theVertexGenerator->X()-theVertexGenerator->beamSpot().X()+theBeamSpot.X(),
@@ -478,9 +483,44 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
     }
 
+    // Reject particles with late origin vertex (i.e., coming from late decays)
+    // This should not happen, but one never knows what users may be up to!
+    // For example exotic particles might decay late - keep the decay products in the case.
+    XYZTLorentzVector productionVertexPosition(0.,0.,0.,0.);
+    HepMC::GenVertex* productionVertex = p->production_vertex();
+    if ( productionVertex ) { 
+      unsigned productionMother = productionVertex->particles_in_size();
+      if ( productionMother ) {
+	int productionMotherId = (*(productionVertex->particles_in_const_begin()))->pdg_id();
+	if ( abs(productionMotherId) < 1000000 )
+	  productionVertexPosition = 
+	    XYZTLorentzVector(productionVertex->position().x()/10.,
+			      productionVertex->position().y()/10.,
+			      productionVertex->position().z()/10.,
+			      productionVertex->position().t()/10.) + smearedVertex;
+      }
+    }
+
+    if ( productionVertexPosition.Perp2() > lateVertexPosition ) continue;
+
+
     // Keep only: 
     // 1) Stable particles (watch out! New status code = 1001!)
     bool testStable = p->status()%1000==1;
+    // Declare stable standard particles that decay after a macroscopic path length
+    // (except if exotic)
+    if ( p->status() == 2 && abs(p->pdg_id()) < 1000000) {
+      HepMC::GenVertex* endVertex = p->end_vertex();
+      if ( endVertex ) { 
+	XYZTLorentzVector decayPosition = 
+	  XYZTLorentzVector(endVertex->position().x()/10.,
+			    endVertex->position().y()/10.,
+			    endVertex->position().z()/10.,
+			    endVertex->position().t()/10.) + smearedVertex;
+	// If the particle flew enough to be beyond the beam pipe enveloppe, just declare it stable
+	if ( decayPosition.Perp2() > lateVertexPosition ) testStable = true;
+      }
+    }      
 
     // 2) or particles with stable daughters (watch out! New status code = 1001!)
     bool testDaugh = false;
@@ -605,7 +645,7 @@ FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
 
   // Smear the main vertex if needed
   XYZTLorentzVector smearedVertex;
-  if ( primaryVertex.mag() < 1E-10 ) {
+  if ( primaryVertex.mag() < 1E-8 ) {
     theVertexGenerator->generate();
     smearedVertex = XYZTLorentzVector(
       theVertexGenerator->X()-theVertexGenerator->beamSpot().X()+theBeamSpot.X(),
@@ -628,9 +668,33 @@ FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
     nGenParticles++;
     const reco::GenParticle& p = myGenParticles[ip];
 
+    // Reject particles with late origin vertex (i.e., coming from late decays)
+    // This should not happen, but one never knows what users may be up to!
+    // For example exotic particles might decay late - keep the decay products in the case.
+    XYZTLorentzVector productionVertexPosition(0.,0.,0.,0.);
+    const reco::Candidate* productionMother = p.numberOfMothers() ? p.mother(0) : 0;
+    if ( productionMother ) {
+      int productionMotherId = productionMother->pdgId();
+      if ( abs(productionMotherId) < 1000000 )
+	productionVertexPosition = XYZTLorentzVector(p.vx(), p.vy(), p.vz(), 0.) + smearedVertex;
+    }
+    if ( productionVertexPosition.Perp2() > lateVertexPosition ) continue;
+
     // Keep only: 
     // 1) Stable particles
     bool testStable = p.status()%1000==1;
+    // Declare stable standard particles that decay after a macroscopic path length 
+    // (except if exotic particle)
+    if ( p.status() == 2 && abs(p.pdgId()) < 1000000 ) {
+      unsigned int nDaughters = p.numberOfDaughters();
+      if ( nDaughters ) { 
+	const reco::Candidate* daughter = p.daughter(0);
+	XYZTLorentzVector decayPosition = 
+	  XYZTLorentzVector(daughter->vx(), daughter->vy(), daughter->vz(), 0.) + smearedVertex;
+	// If the particle flew enough to be beyond the beam pipe enveloppe, just declare it stable
+	if ( decayPosition.Perp2() > lateVertexPosition ) testStable = true;
+      }
+    }
 
     // 2) or particles with stable daughters
     bool testDaugh = false;

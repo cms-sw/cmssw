@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/19 14:27:47 $
- *  $Revision: 1.28 $
+ *  $Date: 2008/11/24 09:17:19 $
+ *  $Revision: 1.30 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -48,6 +48,8 @@ DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps){
   parameters = ps;
 
   dbe = edm::Service<DQMStore>().operator->();
+  if(ps.getUntrackedParameter<bool>("readFile", false))	 
+     dbe->open(ps.getUntrackedParameter<string>("inputFile", "residuals.root"));
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
@@ -216,9 +218,9 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 	if(BinNumber == 12) BinNumber=11;
 	TProfile* prof = res_histo_2D_root->ProfileX();
 	prof->GetXaxis()->SetRangeUser(0,2);
-	//prof->Fit("pol1","Q");
+	//prof->Fit("pol1","Q0");
 	try {
-	  prof->Fit("pol1");
+	  prof->Fit("pol1","Q0");
 	} catch (...) {
           edm::LogError ("resolution") << "[DTResolutionTest]: Exception when fitting..."
 	  			       << "SuperLayer : " << slID << "\n"

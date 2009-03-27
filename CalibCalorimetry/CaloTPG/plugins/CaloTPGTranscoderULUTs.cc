@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Fri Sep 15 11:49:44 CDT 2006
-// $Id: CaloTPGTranscoderULUTs.cc,v 1.2 2008/01/22 18:49:54 muzaffar Exp $
+// $Id: CaloTPGTranscoderULUTs.cc,v 1.1 2007/04/23 17:10:13 tulika Exp $
 //
 //
 
@@ -54,8 +54,6 @@ private:
   // ----------member data ---------------------------
   edm::FileInPath hfilename1_;
   edm::FileInPath hfilename2_;
-  bool read_Ascii_Compression;
-  bool read_Ascii_RCT;
 };
 
 //
@@ -79,10 +77,6 @@ CaloTPGTranscoderULUTs::CaloTPGTranscoderULUTs(const edm::ParameterSet& iConfig)
    findingRecord<CaloTPGRecord>();
 
    //now do what ever other initialization is needed
-   read_Ascii_Compression = false;
-   read_Ascii_RCT = false;
-   read_Ascii_Compression=iConfig.getParameter<bool>("read_Ascii_Compression_LUTs");
-   read_Ascii_RCT=iConfig.getParameter<bool>("read_Ascii_RCT_LUTs");
 }
 
 
@@ -104,26 +98,11 @@ CaloTPGTranscoderULUTs::ReturnType
 CaloTPGTranscoderULUTs::produce(const CaloTPGRecord& iRecord)
 {
    using namespace edm::es;
-   if (read_Ascii_RCT && read_Ascii_Compression) {
-	 edm::LogInfo("Level1") << "Using " << hfilename1_.fullPath() << " & " << hfilename2_.fullPath()
+   edm::LogInfo("Level1") << "Using " << hfilename1_.fullPath() << " & " << hfilename2_.fullPath()
 			  << " for CaloTPGTranscoderULUTs HCAL initialization";
-	 std::auto_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT(hfilename1_.fullPath(), hfilename2_.fullPath()));
-	 return pTCoder;
-   } else if (read_Ascii_RCT && !read_Ascii_Compression) {
-	 edm::LogInfo("Level1") << "Using analytical compression and " << hfilename2_.fullPath()
-			  << " RCT decompression for CaloTPGTranscoderULUTs HCAL initialization";
-	 std::auto_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT("", hfilename2_.fullPath()));
-	 return pTCoder;
-   } else if (read_Ascii_Compression && !read_Ascii_RCT) {
-	 edm::LogInfo("Level1") << "Using ASCII compression tables " << hfilename1_.fullPath()
-			  << " and automatci RCT decompression for CaloTPGTranscoderULUTs HCAL initialization";
-	 std::auto_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT(hfilename1_.fullPath(),""));
-     return pTCoder;
-   } else {
-	 edm::LogInfo("Level1") << "Using analytical compression and RCT decompression for CaloTPGTranscoderULUTs HCAL initialization";
-	 std::auto_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT());
-	 return pTCoder;
-   }
+   std::auto_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT(hfilename1_.fullPath(), hfilename2_.fullPath()));
+
+   return pTCoder ;
 }
 
 //define this as a plug-in

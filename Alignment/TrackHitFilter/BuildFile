@@ -4,7 +4,6 @@
 <use name=RecoTracker/TrackProducer>
 <use name=DataFormats/TrackReco>
 <use name=Alignment/TrackerAlignment>
-<use name=AnalysisDataFormats/SiStripClusterInfo>
 <use name=rootrflx>
 
 <flags EDM_PLUGIN=1>
@@ -15,7 +14,5 @@
    <use name=FWCore/ParameterSet>
    <use name=RecoTracker/TrackProducer>
    <use name=Alignment/TrackerAlignment>
-   <use name=AnalysisDataFormats/SiStripClusterInfo>
    <use name=rootrflx>
 </export>
-<flags CXXFLAGS="-g">

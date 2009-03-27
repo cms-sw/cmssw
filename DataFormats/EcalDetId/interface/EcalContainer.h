@@ -37,7 +37,7 @@ class EcalContainer {
 
                 inline Item & operator[](uint32_t rawId) {
                         if (m_items.empty()) {
-                                m_items.resize(DetId::kSizeForDenseIndexing);
+                                m_items.resize(DetId::SIZE_HASH);
                         }
                         static Item dummy;
                         DetId id(rawId);

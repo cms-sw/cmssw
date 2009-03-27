@@ -19,7 +19,6 @@ TrackAlgoCompareUtil::TrackAlgoCompareUtil(const edm::ParameterSet& iConfig)
     associatormap_algoA = iConfig.getParameter< edm::InputTag >("associatormap_algoA");
     associatormap_algoB = iConfig.getParameter< edm::InputTag >("associatormap_algoB");
     UseAssociators = iConfig.getParameter< bool >("UseAssociators");
-    UseVertex = iConfig.getParameter< bool >("UseVertex");
   
     produces<RecoTracktoTPCollection>("AlgoA");
     produces<RecoTracktoTPCollection>("AlgoB");
@@ -65,12 +64,10 @@ TrackAlgoCompareUtil::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByLabel(trackingParticleLabel_effic, trackingParticleCollEffic);
   
     edm::Handle<reco::VertexCollection> vertexCollAlgoA;
+    iEvent.getByLabel(vertexLabel_algoA, vertexCollAlgoA);
+  
     edm::Handle<reco::VertexCollection> vertexCollAlgoB;
-    if(UseVertex) 
-    {
-        iEvent.getByLabel(vertexLabel_algoA, vertexCollAlgoA);
-        iEvent.getByLabel(vertexLabel_algoB, vertexCollAlgoB);
-    }
+    iEvent.getByLabel(vertexLabel_algoB, vertexCollAlgoB);
   
     // call the associator functions:
     reco::RecoToSimCollection recSimColl_AlgoA; 
@@ -134,17 +131,15 @@ TrackAlgoCompareUtil::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         {
             associatedTrackingParticles = recSimColl_AlgoA[recoTrack];
             recoTracktoTP.SetTrackingParticle( associatedTrackingParticles.begin()->first );
-            recoTracktoTP.SetShared( associatedTrackingParticles.begin()->second );
             SetTrackingParticleD0Dz(associatedTrackingParticles.begin()->first, beamSpot, magneticField, recoTracktoTP);
         }
         else
         {           
             recoTracktoTP.SetTrackingParticle(TrackingParticleRef());
-            recoTracktoTP.SetShared(-1.0);
         }       
         
         // get the reco primary vertex info
-        if(UseVertex && vertexCollAlgoA->size())  
+        if(vertexCollAlgoA->size())  
         {
             recoTracktoTP.SetRecoVertex( reco::VertexRef(vertexCollAlgoA, 0) );
         }
@@ -171,17 +166,15 @@ TrackAlgoCompareUtil::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         {
             associatedTrackingParticles = recSimColl_AlgoB[recoTrack];
             recoTracktoTP.SetTrackingParticle( associatedTrackingParticles.begin()->first );
-            recoTracktoTP.SetShared( associatedTrackingParticles.begin()->second );
             SetTrackingParticleD0Dz(associatedTrackingParticles.begin()->first, beamSpot, magneticField, recoTracktoTP);
         }
         else
         {           
             recoTracktoTP.SetTrackingParticle(TrackingParticleRef());
-            recoTracktoTP.SetShared(-1.0);
         }       
         
         // get the reco primary vertex info
-        if(UseVertex && vertexCollAlgoB->size())  
+        if(vertexCollAlgoB->size())  
         {
             recoTracktoTP.SetRecoVertex( reco::VertexRef(vertexCollAlgoB, 0) );
         }
@@ -208,16 +201,14 @@ TrackAlgoCompareUtil::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         {
             associatedRecoTracks = simRecColl_AlgoA[tparticle];
             tptoRecoTrack.SetRecoTrack_AlgoA(associatedRecoTracks.begin()->first );
-            tptoRecoTrack.SetShared_AlgoA(associatedRecoTracks.begin()->second );
         }
         else
         {
             tptoRecoTrack.SetRecoTrack_AlgoA(reco::TrackBaseRef());
-            tptoRecoTrack.SetShared_AlgoA(-1.0);
         }
         
         // get the recoVertex algo A
-        if(UseVertex && vertexCollAlgoA->size())
+        if(vertexCollAlgoA->size())
         {
             tptoRecoTrack.SetRecoVertex_AlgoA( reco::VertexRef(vertexCollAlgoA, 0) );
         }
@@ -231,15 +222,13 @@ TrackAlgoCompareUtil::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         {
             associatedRecoTracks = simRecColl_AlgoB[tparticle];
             tptoRecoTrack.SetRecoTrack_AlgoB(associatedRecoTracks.begin()->first );
-            tptoRecoTrack.SetShared_AlgoB(associatedRecoTracks.begin()->second );
         }
         else
         {
             tptoRecoTrack.SetRecoTrack_AlgoB(reco::TrackBaseRef());
-            tptoRecoTrack.SetShared_AlgoB(-1.0);
         }
         // get the recoVertex algo B
-        if(UseVertex && vertexCollAlgoB->size())
+        if(vertexCollAlgoB->size())
         {
             tptoRecoTrack.SetRecoVertex_AlgoB( reco::VertexRef(vertexCollAlgoB, 0) );
         }

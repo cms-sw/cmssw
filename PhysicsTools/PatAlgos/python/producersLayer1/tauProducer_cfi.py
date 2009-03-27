@@ -29,9 +29,7 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
     embedIsolationTracks = cms.bool(False), ## whether to embed in AOD externally stored isolation tracks
 
     # resolution configurables
-    addResolutions = cms.bool(True),
-    tauResoFile = cms.string('PhysicsTools/PatUtils/data/Resolutions_tau.root'),
-    useNNResolutions = cms.bool(True), ## use the neural network approach?
+    addResolutions = cms.bool(False),
 
     # isolation configurables
     isolation = cms.PSet(),

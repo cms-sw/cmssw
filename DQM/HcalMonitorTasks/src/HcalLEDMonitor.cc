@@ -18,34 +18,29 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   if ( ps.getUntrackedParameter<bool>("LEDPerChannel", false) ) {
     doPerChannel_ = true;
   }
-  etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 29.5);
-  etaMin_ = ps.getUntrackedParameter<double>("MinEta", -29.5);
-  etaBins_ = (int)(etaMax_ - etaMin_);
-  cout << "LED Monitor eta min/max set to " << etaMin_ << "/" << etaMax_ << endl;
-
-  phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", 73);
-  phiMin_ = ps.getUntrackedParameter<double>("MinPhi", 0);
-  phiBins_ = (int)(phiMax_ - phiMin_);
-  cout << "LED Monitor phi min/max set to " << phiMin_ << "/" << phiMax_ << endl;
+  if (fVerbosity>0)
+    cout << "LED Monitor eta min/max set to " << etaMin_ << "/" << etaMax_ << endl;
+  if (fVerbosity>0)
+    cout << "LED Monitor phi min/max set to " << phiMin_ << "/" << phiMax_ << endl;
 
   sigS0_ = ps.getUntrackedParameter<int>("FirstSignalBin", 0);
   sigS1_ = ps.getUntrackedParameter<int>("LastSignalBin", 9);
   
   adcThresh_ = ps.getUntrackedParameter<double>("LED_ADC_Thresh", 0);
-  cout << "LED Monitor threshold set to " << adcThresh_ << endl;
-  cout << "LED Monitor signal window set to " << sigS0_ <<"-"<< sigS1_ << endl;  
+  if (fVerbosity>0) cout << "LED Monitor threshold set to " << adcThresh_ << endl;
+  if (fVerbosity>0) cout << "LED Monitor signal window set to " << sigS0_ <<"-"<< sigS1_ << endl;  
 
   if(sigS0_<0){
-    printf("HcalLEDMonitor::setup, illegal range for first sample: %d\n",sigS0_);
+    if (fVerbosity>0) cout<<"HcalLEDMonitor::setup, illegal range for first sample: "<<sigS0_<<endl;
     sigS0_=0;
   }
   if(sigS1_>9){
-    printf("HcalLEDMonitor::setup, illegal range for last sample: %d\n",sigS1_);
+    if (fVerbosity>0) cout <<"HcalLEDMonitor::setup, illegal range for last sample: "<<sigS1_<<endl;
     sigS1_=9;
   }
 
   if(sigS0_>sigS1_){ 
-    printf("HcalLEDMonitor::setup, illegal range for first/last sample: %d/%d\n",sigS0_,sigS1_);
+    if (fVerbosity>0) cout <<"HcalLEDMonitor::setup, illegal range for first/last sample: "<<sigS0_<<"/"<<sigS1_<<endl;
     sigS0_=0; sigS1_=9;
   }
 
@@ -247,12 +242,13 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
   meEVT_->Fill(ievt_);
 
   if(!m_dbe) { 
-    if(fVerbosity) printf("HcalLEDMonitor::processEvent   DQMStore not instantiated!!!\n");  
+    if(fVerbosity) cout <<"HcalLEDMonitor::processEvent   DQMStore not instantiated!!!"<<endl;  
     return; }
   float vals[10];
 
-  try{
-    for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
+
+  for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++)
+    {
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
       
       calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
@@ -299,13 +295,11 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	}
 	if(doPerChannel_) perChanHists(1,digi.id(),vals,heHists.shape, heHists.time, heHists.energy, baseFolder_);
       }
-    }
-  } catch (...) {
-    if(fVerbosity) printf("HcalLEDMonitor::processEvent  No HBHE Digis.\n");
-  }
+    } // for (HBHEDigiCollection...)
+
   
-  try{
-    for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
+  for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++)
+    {
       const HODataFrame digi = (const HODataFrame)(*j);	
       calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
       float en=0;
@@ -336,13 +330,10 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	vals[i] = tmp-calibs_.pedestal(digi.sample(i).capid());
       }
       if(doPerChannel_) perChanHists(2,digi.id(),vals,hoHists.shape, hoHists.time, hoHists.energy, baseFolder_);
-    }        
-  } catch (...) {
-    if(fVerbosity) cout << "HcalLEDMonitor::processEvent  No HO Digis." << endl;
-  }
+    } // for (HODigiCollection...)       
   
-  try{
-    for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
+  for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++)
+    {
       const HFDataFrame digi = (const HFDataFrame)(*j);
       calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
       float en=0;
@@ -463,10 +454,6 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
       }
       if(doPerChannel_) perChanHists(3,digi.id(),vals,hfHists.shape, hfHists.time, hfHists.energy, baseFolder_);
     }
-  } catch (...) {
-    if(fVerbosity) cout << "HcalLEDMonitor::processEvent  No HF Digis." << endl;
-  }
-
   return;
 
 }
@@ -496,7 +483,7 @@ void HcalLEDMonitor::perChanHists(int id, const HcalDetId detid, float* vals,
   _meIter = tShape.find(detid);
   if (_meIter!=tShape.end()){
     _me= _meIter->second;
-    if(_me==NULL && fVerbosity) printf("HcalLEDAnalysis::perChanHists  This histo is NULL!!??\n");
+    if(_me==NULL && fVerbosity>0) cout <<"HcalLEDAnalysis::perChanHists  This histo is NULL!!??"<<endl;
     else{
       float en=0;
       float ts =0; float bs=0;

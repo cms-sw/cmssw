@@ -1,165 +1,18 @@
-<library name="ZeroFieldMuonHIPRefitter" file="ZeroFieldMuonHIPRefitter.cc">
- <use name=CondFormats/Alignment>
- <use name=DataFormats/GeometrySurface>
- <use name=DataFormats/MuonDetId>
- <use name=DataFormats/TrackingRecHit>
- <use name=DataFormats/TrackReco>
+<library name="MuonHIPAlignmentRefitter" file="MuonHIPAlignmentRefitter.cc">
  <use name=FWCore/Framework>
+ <use name=FWCore/PluginManager>
  <use name=FWCore/ParameterSet>
- <use name=Geometry/CommonDetUnit>
- <use name=Geometry/CSCGeometry>
- <use name=Geometry/DTGeometry>
- <use name=Geometry/Records>
- <use name=Geometry/TrackerGeometryBuilder>
- <use name=MagneticField/Engine>
- <use name=MagneticField/Records>
- <use name=RecoMuon/TransientTrackingRecHit>
- <use name=TrackingTools/PatternTools>
- <use name=TrackingTools/TrajectoryState>
- <use name=FWCore/ServiceRegistry>
- <use name=PhysicsTools/UtilAlgos>
- <use name=root>
- <flags EDM_PLUGIN=1>
-</library>
-
-<library name="MuonHIPOverlapsRefitter" file="MuonHIPOverlapsRefitter.cc">
- <use name=CondFormats/Alignment>
- <use name=DataFormats/GeometrySurface>
- <use name=DataFormats/MuonDetId>
- <use name=DataFormats/TrackingRecHit>
- <use name=DataFormats/TrackReco>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=Geometry/CommonDetUnit>
- <use name=Geometry/CSCGeometry>
- <use name=Geometry/DTGeometry>
- <use name=Geometry/Records>
- <use name=MagneticField/Engine>
- <use name=MagneticField/Records>
- <use name=RecoMuon/TransientTrackingRecHit>
- <use name=TrackingTools/PatternTools>
- <use name=TrackingTools/TrajectoryState>
- <use name=FWCore/ServiceRegistry>
- <use name=PhysicsTools/UtilAlgos>
- <use name=root>
- <flags EDM_PLUGIN=1>
-</library>
-
-<library name="MuonHIPOverlapsStripwiseRefitter" file="MuonHIPOverlapsStripwiseRefitter.cc">
- <use name=CondFormats/Alignment>
- <use name=DataFormats/GeometrySurface>
- <use name=DataFormats/MuonDetId>
- <use name=DataFormats/TrackingRecHit>
- <use name=DataFormats/TrackReco>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=Geometry/CommonDetUnit>
- <use name=Geometry/CSCGeometry>
- <use name=Geometry/DTGeometry>
- <use name=Geometry/Records>
- <use name=MagneticField/Engine>
- <use name=MagneticField/Records>
- <use name=RecoMuon/TransientTrackingRecHit>
- <use name=TrackingTools/PatternTools>
- <use name=TrackingTools/TrajectoryState>
- <use name=FWCore/ServiceRegistry>
- <use name=PhysicsTools/UtilAlgos>
- <use name=root>
- <flags EDM_PLUGIN=1>
-</library>
-
-<library name="MuonHIPOverlapsOneSideRefitter" file="MuonHIPOverlapsOneSideRefitter.cc">
- <use name=CondFormats/Alignment>
- <use name=DataFormats/GeometrySurface>
- <use name=DataFormats/MuonDetId>
- <use name=DataFormats/TrackingRecHit>
- <use name=DataFormats/TrackReco>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=Geometry/CommonDetUnit>
- <use name=Geometry/CSCGeometry>
- <use name=Geometry/DTGeometry>
- <use name=Geometry/Records>
- <use name=MagneticField/Engine>
- <use name=MagneticField/Records>
- <use name=RecoMuon/TransientTrackingRecHit>
- <use name=TrackingTools/PatternTools>
- <use name=TrackingTools/TrajectoryState>
- <use name=FWCore/ServiceRegistry>
- <use name=PhysicsTools/UtilAlgos>
- <use name=FWCore/MessageLogger>
- <use name=root>
- <flags EDM_PLUGIN=1>
-</library>
-
-<library name="MuonHIPOverlapsSegmentFilter" file="MuonHIPOverlapsSegmentFilter.cc">
- <use name=CondFormats/Alignment>
- <use name=DataFormats/GeometrySurface>
- <use name=DataFormats/MuonDetId>
- <use name=DataFormats/TrackingRecHit>
- <use name=DataFormats/TrackReco>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=Geometry/CommonDetUnit>
- <use name=Geometry/CSCGeometry>
- <use name=Geometry/DTGeometry>
- <use name=Geometry/Records>
- <use name=MagneticField/Engine>
- <use name=MagneticField/Records>
- <use name=RecoMuon/TransientTrackingRecHit>
- <use name=TrackingTools/PatternTools>
- <use name=TrackingTools/TrajectoryState>
- <use name=DataFormats/CSCRecHit>
- <use name=FWCore/ServiceRegistry>
- <use name=PhysicsTools/UtilAlgos>
- <use name=root>
- <flags EDM_PLUGIN=1>
-</library>
-
-<library name="ZeroFieldStandAloneMuonHIPRefitter" file="ZeroFieldStandAloneMuonHIPRefitter.cc">
- <use name=CondFormats/Alignment>
- <use name=DataFormats/GeometrySurface>
- <use name=DataFormats/MuonDetId>
- <use name=DataFormats/TrackingRecHit>
- <use name=DataFormats/TrackReco>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=Geometry/CommonDetUnit>
- <use name=Geometry/CSCGeometry>
- <use name=Geometry/DTGeometry>
- <use name=Geometry/Records>
- <use name=MagneticField/Engine>
- <use name=MagneticField/Records>
- <use name=RecoMuon/TransientTrackingRecHit>
- <use name=TrackingTools/PatternTools>
- <use name=TrackingTools/TrajectoryState>
- <use name=FWCore/ServiceRegistry>
- <use name=PhysicsTools/UtilAlgos>
- <use name=root>
+ <use name=DataFormats/MuonReco>
  <use name=TrackingTools/TrackRefitter>
- <use name=TrackingTools/GeomPropagators>
- <use name=TrackingTools/Records>
- <use name=Geometry/TrackerGeometryBuilder>
- <flags EDM_PLUGIN=1>
-</library>
-
-<library name="ZeroFieldStandAloneMuonHIPTrackJoiner" file="ZeroFieldStandAloneMuonHIPTrackJoiner.cc">
- <use name=DataFormats/GeometrySurface>
- <use name=DataFormats/MuonDetId>
- <use name=DataFormats/TrackingRecHit>
+ <use name=TrackingTools/PatternTools>
  <use name=DataFormats/TrackReco>
- <use name=Geometry/CommonDetUnit>
- <use name=Geometry/CSCGeometry>
+ <use name=TrackingTools/GeomPropagators>
  <use name=Geometry/DTGeometry>
+ <use name=Geometry/CSCGeometry>
+ <use name=TrackingTools/Records>
  <use name=Geometry/Records>
  <use name=MagneticField/Engine>
  <use name=MagneticField/Records>
- <use name=RecoMuon/TransientTrackingRecHit>
- <use name=TrackingTools/PatternTools>
- <use name=TrackingTools/TrajectoryState>
- <use name=DataFormats/CSCRecHit>
- <use name=FWCore/ServiceRegistry>
- <use name=PhysicsTools/UtilAlgos>
- <use name=root>
+ <use name=CondFormats/Alignment>
  <flags EDM_PLUGIN=1>
 </library>

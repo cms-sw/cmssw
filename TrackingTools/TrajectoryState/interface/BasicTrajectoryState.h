@@ -19,17 +19,18 @@ class FreeTrajectoryState;
 class Surface;
 class TrajectoryStateOnSurface;
 
+using namespace SurfaceSideDefinition;
+
 /** Abstract base class for TrajectoryState.
  *  It is ReferenceCounted.
  */
 
-class BasicTrajectoryState : public ReferenceCountedInEvent  {
+class BasicTrajectoryState : private ReferenceCounted {
 public:
 
   typedef BasicTrajectoryState                              BTSOS;
   typedef ProxyBase< BTSOS, CopyUsingClone<BTSOS> >         Proxy;
   typedef ReferenceCountingPointer<BasicTrajectoryState>    RCPtr;
-  typedef SurfaceSideDefinition::SurfaceSide SurfaceSide;
 
 private:
   friend class ProxyBase< BTSOS, CopyUsingClone<BTSOS> >;

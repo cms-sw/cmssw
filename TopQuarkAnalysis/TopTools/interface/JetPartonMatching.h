@@ -21,30 +21,33 @@ class JetPartonMatching {
 		    const int, const bool, const bool, const double);
   JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<reco::CaloJet>&,
 		    const int, const bool, const bool, const double);
-  JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<pat::JetType>&,
+  JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<pat::Jet>&,
 		    const int, const bool, const bool, const double);
   JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<const reco::Candidate*>&,
 		    const int, const bool, const bool, const double);
   ~JetPartonMatching(){};	
   
   //matching meta information
-  unsigned int getNumberOfUnmatchedPartons(){ return numberOfUnmatchedPartons; }
-  std::vector< std::pair<unsigned int, int> > getMatching() { return matching; }
-  int getMatchForParton(const unsigned int ip) { return matching[ip].second; }
-  double getAngleForParton(const unsigned int);
-  double getSumAngles();
+  unsigned int getNumberOfAvailableCombinations() { return matching.size(); }
+  int getNumberOfUnmatchedPartons(const unsigned int comb=0){ return (comb<numberOfUnmatchedPartons.size() ? (int)numberOfUnmatchedPartons[comb] : -1 ); }
+  int getMatchForParton(const unsigned int part, const unsigned int comb=0);
+  std::vector<int> getMatchesForPartons(const unsigned int comb=0);
+  double getDistanceForParton(const unsigned int part, const unsigned int comb=0);
+  double getSumDistances(const unsigned int comb=0);
 
   //matching quantities
-  double getSumDeltaE()   { return sumDeltaE;  }
-  double getSumDeltaPt()  { return sumDeltaPt; }
-  double getSumDeltaR()   { return sumDeltaR;  }
+  double getSumDeltaE (const unsigned int comb=0) { return (comb<sumDeltaE .size() ? sumDeltaE [comb] : -999.); }
+  double getSumDeltaPt(const unsigned int comb=0) { return (comb<sumDeltaPt.size() ? sumDeltaPt[comb] : -999.); }
+  double getSumDeltaR (const unsigned int comb=0) { return (comb<sumDeltaR .size() ? sumDeltaR [comb] : -999.); }
+
+  void print();
   
  private:
   
   void calculate();
   double distance(const math::XYZTLorentzVector&, const math::XYZTLorentzVector&);
   void matchingTotalMinDist();
-  void minSumDist_recursion(const unsigned int, std::vector<unsigned int>&, std::vector<bool>&, std::vector<int>&, double&);
+  void minSumDist_recursion(const unsigned int, std::vector<unsigned int>&, std::vector<bool>&, std::vector<std::pair<double, MatchingCollection> >&);
   void matchingMinSumDist();
   void matchingPtOrderedMinDist();
   void matchingUnambiguousOnly();
@@ -53,12 +56,12 @@ class JetPartonMatching {
  
   std::vector<const reco::Candidate*> partons;
   std::vector<const reco::Candidate*> jets;
-  MatchingCollection matching;
+  std::vector<MatchingCollection> matching;
   
-  unsigned int numberOfUnmatchedPartons;
-  double sumDeltaE;
-  double sumDeltaPt;
-  double sumDeltaR;
+  std::vector<unsigned int> numberOfUnmatchedPartons;
+  std::vector<double> sumDeltaE;
+  std::vector<double> sumDeltaPt;
+  std::vector<double> sumDeltaR;
   
   int algorithm_;
   bool useMaxDist_;

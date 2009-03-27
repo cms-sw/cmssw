@@ -39,6 +39,7 @@ public :
   virtual void applyDeltaAlpha(TMatrixD* corrMatrix);
   const TMatrixD* getParCurr(){ return &_parameters; }
 
+  virtual TString getInfoString();
   virtual void print(); 
   virtual void reset();
 

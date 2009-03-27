@@ -8,5 +8,5 @@ ecalEndcapSelectiveReadoutTask = cms.EDAnalyzer("EESelectiveReadoutTask",
     EEUsuppressedDigiCollection = cms.InputTag("ecalUnsuppressedDigis"),
     EESRFlagCollection = cms.InputTag("ecalEBunpacker"),
     EcalTrigPrimDigiCollection = cms.InputTag("ecalEBunpacker:EcalTriggerPrimitives"),
-    EcalFEDRawCollection = cms.InputTag("source")
+    FEDRawDataCollection = cms.InputTag("source")
 )

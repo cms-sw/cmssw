@@ -15,12 +15,14 @@ struct CSCCLCTDataWord {
   unsigned short cfeb_ : 4;
 };
 
+class CSCTMBHeader;
 
 class CSCCLCTData {
 
 public:
 
-  CSCCLCTData(int ncfebs=5, int ntbins=7);
+  explicit CSCCLCTData(const CSCTMBHeader * tmbHeader);
+  CSCCLCTData(int ncfebs, int ntbins);
   CSCCLCTData(int ncfebs, int ntbins, const unsigned short *e0bbuf);
 
   /** turns on/off debug flag for this class */
@@ -65,6 +67,10 @@ public:
 
 
  private:
+
+  // helper for constructors
+  void zero();
+
   static bool debug;
   int ncfebs_;
   int ntbins_;

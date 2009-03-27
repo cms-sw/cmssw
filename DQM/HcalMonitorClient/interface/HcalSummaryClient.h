@@ -5,8 +5,8 @@
  * \file HcalSummaryClient.h
  *
  * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2008/09/03 13:45:52 $
- * $Revision: 1.12 $
+ * $Date: 2008/11/03 09:40:03 $
+ * $Revision: 1.14 $
  * \author Jeff Temple
  *
 */
@@ -16,11 +16,30 @@
 #include <fstream>
 #include <sys/time.h>
 
+#include <memory>
+#include <iostream>
+#include <iomanip>
+#include <map>
+#include <cmath>
+#include <ostream>
+
 #include "TROOT.h"
+#include "TCanvas.h"
+#include "TStyle.h"
+#include "TColor.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
+
+#include "DQM/HcalMonitorClient/interface/HcalDataFormatClient.h"
+#include "DQM/HcalMonitorClient/interface/HcalDigiClient.h"
+#include "DQM/HcalMonitorClient/interface/HcalRecHitClient.h"
+#include "DQM/HcalMonitorClient/interface/HcalTrigPrimClient.h"
+#include "DQM/HcalMonitorClient/interface/HcalPedestalClient.h"
+#include "DQM/HcalMonitorClient/interface/HcalDeadCellClient.h"
+#include "DQM/HcalMonitorClient/interface/HcalHotCellClient.h"
+#include "DQM/HcalMonitorClient/interface/SubTaskSummaryStatus.h"
 
 class MonitorElement;
 class DQMStore;
@@ -31,11 +50,13 @@ class HcalSummaryClient : public HcalBaseClient {
 
   // Constructor
    
-  HcalSummaryClient(const edm::ParameterSet& ps);
+  HcalSummaryClient();
    
   // Destructor
   virtual ~HcalSummaryClient();
      
+  void init(const edm::ParameterSet& ps, DQMStore* dbe, string clientName);
+
   // BeginJob
   void beginJob(DQMStore* dqmStore);
     
@@ -57,12 +78,8 @@ class HcalSummaryClient : public HcalBaseClient {
 
   // Analyze
   void analyze(void);
-  float analyze_everything(std::string name, int type, float& subdet);
-
-  float analyze_deadcell(std::string name, float& subdet); 
-  float analyze_hotcell(std::string name, float& subdet);  
-  float analyze_digi(std::string name, float& subdet);
-
+  void analyze_subtask(SubTaskSummaryStatus& s);
+  void resetSummaryPlot(int Subdet);
   void incrementCounters(void);
 
   // HtmlOutput
@@ -79,9 +96,10 @@ class HcalSummaryClient : public HcalBaseClient {
   int jevt_;
   int lastupdate_;
 
+  int HBpresent_, HEpresent_, HOpresent_, HFpresent_, ZDCpresent_;
+
   bool cloneME_;
-  
-  bool verbose_;
+
   int debug_;
   
   std::string prefixME_;
@@ -90,31 +108,26 @@ class HcalSummaryClient : public HcalBaseClient {
 
   DQMStore* dqmStore_;
 
-  //MonitorElement* meGlobalSummary_;
-
-  bool dataFormatClient_, digiClient_, recHitClient_, pedestalClient_;
-  bool ledClient_, hotCellClient_, deadCellClient_, trigPrimClient_, caloTowerClient_;
-
+  SubTaskSummaryStatus dataFormatMon_, digiMon_, recHitMon_;
+  SubTaskSummaryStatus pedestalMon_, ledMon_, hotCellMon_;
+  SubTaskSummaryStatus deadCellMon_, trigPrimMon_, caloTowerMon_;
+  SubTaskSummaryStatus beamMon_;  // still needs to be added into src code
 
   std::map<std::string, int> subdetCells_;
   int totalcells_; // stores total possible # of cells being checked
 
-  // Individual status values for each task by subdetector
-  float status_dataformat[4];
-  float status_digi[4];
-  float status_deadcell[4];
-  float status_hotcell[4];
-
-  float status_HB_;
-  float status_HE_;
-  float status_HO_;
-  float status_HF_;
-  float status_global_;
-
-  double etaMin_, etaMax_, phiMin_, phiMax_;
-  int phiBins_, etaBins_;
+  // overall values for each subdetector and global status
+  double status_HB_;
+  double status_HE_;
+  double status_HO_;
+  double status_HF_;
+  double status_ZDC_;
+  double status_global_;
     
   ofstream htmlFile;
+
+  double etaMin_, etaMax_, phiMin_, phiMax_;
+  int etaBins_, phiBins_;
 
 }; // end of class declaration
 

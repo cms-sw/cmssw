@@ -46,20 +46,9 @@ namespace pos{
 
     void 	 writeASCII(std::string filename) const;
     void 	 writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
-    virtual void writeXMLHeader(pos::PixelConfigKey key, 
-				int version, 
-				std::string path, 
-				std::ofstream *out,
-				std::ofstream *out1 = NULL,
-				std::ofstream *out2 = NULL
-				) const ;
-    virtual void writeXML( std::ofstream *out,                                                              
-			   std::ofstream *out1 = NULL ,
-			   std::ofstream *out2 = NULL ) const ;
-    virtual void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = NULL,
-				  std::ofstream *out2 =NULL
-				  ) const ;
+    virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
+    virtual void writeXML(                                                              std::ofstream *out) const {;}
+    virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
 
     PixelROCTrimBits getTrimBits(int ROCId) const;
 

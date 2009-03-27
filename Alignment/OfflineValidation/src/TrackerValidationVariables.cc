@@ -30,16 +30,13 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"  
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
 
@@ -48,11 +45,10 @@ TrackerValidationVariables::TrackerValidationVariables(){}
 
 
 TrackerValidationVariables::TrackerValidationVariables(const edm::EventSetup& es, const edm::ParameterSet& iSetup) 
-  : conf_(iSetup)
+  : conf_(iSetup), fBfield(4.06)
 {
-  es.get<TrackerDigiGeometryRecord>().get( tkGeom_ );
-  es.get<IdealMagneticFieldRecord>().get(magneticField_);
-
+  es.get<TrackerDigiGeometryRecord>().get( tkgeom );
+  //es.get<SiStripDetCablingRcd>().get( SiStripDetCabling_ );
 }
 
 TrackerValidationVariables::~TrackerValidationVariables() {}
@@ -65,10 +61,10 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
   iEvent.getByLabel(conf_.getParameter<std::string>("trajectoryInput"),trajCollectionHandle);
   
   TrajectoryStateCombiner tsoscomb;
-  LogDebug("TrackerValidationVariables") << "trajColl->size(): " << trajCollectionHandle->size() ;
+  edm::LogVerbatim("TrackerValidationVariables") << "trajColl->size(): " << trajCollectionHandle->size() ;
   for(std::vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(), itEnd = trajCollectionHandle->end(); 
       it!=itEnd;++it){
-    const std::vector<TrajectoryMeasurement> &tmColl = it->measurements();
+    std::vector<TrajectoryMeasurement> tmColl = it->measurements();
     for(std::vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(), itTrajEnd = tmColl.end(); 
 	itTraj != itTrajEnd; ++itTraj) {
 
@@ -103,7 +99,7 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
 	// begin partly copied from Tifanalyser 
 
 	const GeomDetUnit* detUnit = hit->detUnit();
-	double dPhi = -999, dR = -999, dZ = -999, phiorientation = -999, zorientation = -999;
+	double dPhi = -999, dR = -999, dZ = -999, phiorientation = -999;
 	double R = 0.;
 	double origintointersect = 0.;	
 
@@ -118,22 +114,18 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
 	    gPhiDirection  = surface.toGlobal(lPhiDirection),
 	    gROrZDirection = surface.toGlobal(lROrZDirection);
 	  phiorientation = deltaPhi(gPhiDirection.phi(),gPModule.phi()) >= 0 ? +1. : -1.;
-	  zorientation = gROrZDirection.z() - gPModule.z() >= 0 ? +1. : -1.;
+
 	  dPhi = tsos.globalPosition().phi() - hit->globalPosition().phi();
 	  
 	  if(IntSubDetID == PixelSubdetector::PixelBarrel || IntSubDetID == PixelSubdetector::PixelEndcap || 
 	     IntSubDetID == StripSubdetector::TIB || 
 	     IntSubDetID == StripSubdetector::TOB) {
 	    hitStruct.resXprime = (res.x())*(phiorientation );
-	    hitStruct.resXprimeErr = errX;
-	    hitStruct.resYprime = (res.y())*(zorientation );
-	    hitStruct.resYprimeErr = errY;
 	    dZ = gROrZDirection.z() - gPModule.z();
 	  } else if (IntSubDetID == StripSubdetector::TID || IntSubDetID == StripSubdetector::TEC) {
 	    const RadialStripTopology* theTopol = dynamic_cast<const RadialStripTopology*>(&(detUnit->topology()));
 	    origintointersect =  static_cast<float>(theTopol->originToIntersection());
 	    
-
 	    MeasurementPoint theMeasHitPos = theTopol->measurementPosition(hit->localPosition());
 	    MeasurementPoint theMeasStatePos = theTopol->measurementPosition(tsos.localPosition());
 	    Measurement2DVector residual =  theMeasStatePos - theMeasHitPos;
@@ -142,19 +134,13 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
 	    MeasurementError theMeasStateErr = theTopol->measurementError(tsos.localPosition(),err1);
 
 	    double localPitch = theTopol->localPitch(hit->localPosition());
-	    double localStripLength =  theTopol->localStripLength(hit->localPosition());
-	    float xPrime = residual.x()*localPitch ;
-	    float measErr = std::sqrt( theMeasHitErr.uu()+theMeasStateErr.uu()) *localPitch;
-	    float measErrY = std::sqrt( theMeasHitErr.vv()+theMeasStateErr.vv()) *localStripLength;
 
+	    float measErr = std::sqrt( theMeasHitErr.uu()*localPitch*localPitch + theMeasStateErr.uu() );
 	    R = origintointersect;
 	    dR = theTopol->yDistanceToIntersection( tsos.localPosition().y()) - 
 	      theTopol->yDistanceToIntersection( hit->localPosition().y());
 	    
-	    hitStruct.resXprime = xPrime;
-	    hitStruct.resXprimeErr = measErr;
-	    hitStruct.resYprime = residual.y()*localStripLength;
-	    hitStruct.resYprimeErr =  measErrY * localStripLength;
+	    hitStruct.resXprime = residual.x()*localPitch ;
 	    
 	  } else {
 	    edm::LogWarning("TrackerValidationVariables") << "@SUB=TrackerValidationVariables::fillHitQuantities" 
@@ -173,57 +159,14 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
 	hitStruct.phi = tsos.globalDirection().phi();
 
 	// first try for overlapp residuals
-	// based on Code from Keith and Wolfgang
 	if(itTraj+1 != itTrajEnd) {
 	  TransientTrackingRecHit::ConstRecHitPointer hit2 = (itTraj+1)->recHit();
 	  TrackerAlignableId ali1, ali2;
 	  if(hit2->isValid() && 
-	     ali1.typeAndLayerFromDetId(hit->geographicalId()) == ali2.typeAndLayerFromDetId(hit2->geographicalId())  &&
-	     hit2->geographicalId().rawId() !=  SiStripDetId::SiStripDetId(IntRawDetID).partnerDetId()  
-	     ) {	    
-	    
-	    float overlapPath_;
-	    TrajectoryStateCombiner combiner_;
-	    AnalyticalPropagator propagator(&(*magneticField_));
-	    // forward and backward predicted states at module 1
-	    TrajectoryStateOnSurface fwdPred1 = (itTraj)->forwardPredictedState();
-	    TrajectoryStateOnSurface bwdPred1 = (itTraj)->backwardPredictedState();
-	    if ( !fwdPred1.isValid() || !bwdPred1.isValid() )  continue;
-	    // backward predicted state at module 2
-	    TrajectoryStateOnSurface bwdPred2 = (itTraj+1)->backwardPredictedState();
-	    TrajectoryStateOnSurface fwdPred2 = (itTraj+1)->forwardPredictedState();
-	    if ( !bwdPred2.isValid() )  continue;
-	    // extrapolation bwdPred2 to module 1
-	    TrajectoryStateOnSurface bwdPred2At1 = propagator.propagate(bwdPred2,fwdPred1.surface());
-	    if ( !bwdPred2At1.isValid() )  continue;
-	    // combination with fwdPred1 (ref. state, best estimate without hits 1 and 2)
-	    TrajectoryStateOnSurface comb1 = combiner_.combine(fwdPred1,bwdPred2At1);
-	    if ( !comb1.isValid() )  continue;
-	    
-	    //
-	    // propagation of reference parameters to module 2
-	    //
-	    std::pair<TrajectoryStateOnSurface,double> tsosWithS =
-	      propagator.propagateWithPath(comb1,bwdPred2.surface());
-	    TrajectoryStateOnSurface comb1At2 = tsosWithS.first;
-	    
-	    // Alternative possibility, not used at present
-	    //TrajectoryStateOnSurface comb1At2 = propagator.propagate(comb1,bwdPred2.surface());
-	    
-	    if ( !comb1At2.isValid() )  continue;
-	    overlapPath_ = tsosWithS.second;
-
-	    std::vector<GlobalPoint> predictedPositions;
-	    predictedPositions.push_back(comb1.globalPosition());
-	    predictedPositions.push_back(comb1At2.globalPosition());
-	    
-	    GlobalVector diff_pred = predictedPositions[0] - predictedPositions[1];
-
+	     ali1.typeAndLayerFromDetId(hit->geographicalId()) == ali2.typeAndLayerFromDetId(hit2->geographicalId()) ) {
 	    TrajectoryStateOnSurface tsos2 = tsoscomb( (itTraj+1)->forwardPredictedState(), (itTraj+1)->backwardPredictedState() );
 	    align::LocalVector res2 = tsos2.localPosition() - hit2->localPosition();
-	    //float overlapresidual = res2.x() - res.x();
-	    float overlapresidual = diff_pred.x();
- 
+	    float overlapresidual = res2.x() - res.x();
 	    hitStruct.overlapres = std::make_pair(hit2->geographicalId().rawId(),overlapresidual);
 	  }
 	}
@@ -243,7 +186,7 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& iEvent,
   edm::InputTag TkTag = conf_.getParameter<edm::InputTag>("Tracks");
   edm::Handle<reco::TrackCollection> RecoTracks;
   iEvent.getByLabel(TkTag,RecoTracks);
-  LogDebug("TrackerValidationVariables")<<"track collection size "<< RecoTracks->size();
+  edm::LogInfo("TrackInfoAnalyzerExample")<<"track collection size "<< RecoTracks->size();
   
   // Put here all track based quantities such as eta, phi, pt,.... 
   int i=0;
@@ -251,7 +194,6 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& iEvent,
        RecoTrack !=RecoTrackEnd ; ++i, ++RecoTrack) {
     AVTrackStruct trackStruct;
     trackStruct.pt = RecoTrack->pt();
-    trackStruct.ptError = RecoTrack->ptError();
     trackStruct.px = RecoTrack->px();
     trackStruct.py = RecoTrack->py();
     trackStruct.pz = RecoTrack->pz();
@@ -259,9 +201,7 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& iEvent,
     trackStruct.phi = RecoTrack->phi();
     trackStruct.chi2 = RecoTrack->chi2();
     trackStruct.normchi2 = RecoTrack->normalizedChi2();
-    GlobalPoint gPoint(RecoTrack->vx(), RecoTrack->vy(), RecoTrack->vz());
-    double theLocalMagField = magneticField_->inTesla(gPoint).z();
-    trackStruct.kappa = -RecoTrack->charge()*0.002998*theLocalMagField/RecoTrack->pt();
+    trackStruct.kappa = -RecoTrack->charge()*0.002998*fBfield/RecoTrack->pt();
     trackStruct.charge = RecoTrack->charge();
     trackStruct.d0 = RecoTrack->d0();
     trackStruct.dz = RecoTrack->dz();

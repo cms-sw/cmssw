@@ -18,7 +18,7 @@
  * - DQMServices/NodeROOT/src/SenderBase.cc
  * - DQMServices/NodeROOT/src/ReceiverBase.cc
  *
- * $Id: FUShmDQMOutputService.cc,v 1.9 2008/05/30 20:17:39 biery Exp $
+ * $Id: FUShmDQMOutputService.cc,v 1.10 2008/10/14 13:18:13 biery Exp $
  */
 
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
@@ -28,6 +28,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Utilities/src/Guid.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "TClass.h"
 #include "zlib.h"
 

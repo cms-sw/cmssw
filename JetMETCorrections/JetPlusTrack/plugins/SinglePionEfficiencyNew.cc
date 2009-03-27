@@ -204,7 +204,10 @@ private:
   double ptSim2, etaSim2, phiSim2; 
   // reconstructed tracks
   double ptTrk1, etaTrk1, phiTrk1, drTrk1, purityTrk1;
-  double ptTrk2, etaTrk2, phiTrk2, drTrk2, purityTrk2; 
+  double ptTrk2, etaTrk2, phiTrk2, drTrk2, purityTrk2;
+  // track quality and number of valid hits
+  int trkQuality1, trkQuality2, trkNVhits1, trkNVhits2;
+  int 	idmax1, idmax2;
   // reconstructed pixel triplets
   double ptPxl1, etaPxl1, phiPxl1, drPxl1, purityPxl1; 
   double ptPxl2, etaPxl2, phiPxl2, drPxl2, purityPxl2;
@@ -320,6 +323,9 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
    // Et in 7x7, 11x11 crystal matrix and 3x3, 5x5 HCAL matrix
    e1ECAL7x7 = 0.; e2ECAL7x7 = 0.; e1ECAL11x11 = 0.; e2ECAL11x11 = 0.; 
    e1HCAL3x3 = 0.; e2HCAL3x3 = 0.; e1HCAL5x5 = 0.; e2HCAL5x5 = 0.; 
+   //
+   trkQuality1 = -1; trkQuality2 = -1; trkNVhits1 = -1; trkNVhits2 = -1;
+   idmax1 = -1; idmax2 = -1;
 
    //
    // extract tracker geometry
@@ -366,6 +372,7 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
      
      HepLorentzVector pion((*p)->momentum().px(),(*p)->momentum().py(),(*p)->momentum().pz(),(*p)->momentum().e());
      genpions.push_back(pion);
+     /*
      cout <<" status : " << (*p)->status() 
 	  <<" pid = " << (*p)->pdg_id() 
 	  <<" eta = " << (*p)->momentum().eta()
@@ -374,6 +381,7 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  <<" pt =  " << (*p)->momentum().perp() 
 	  <<" charge = " << (pdt->particle((*p)->pdg_id()))->charge()
 	  <<" charge3 = " << (pdt->particle((*p)->pdg_id()))->ID().threeCharge() << endl;
+     */
    }
    //   edm::Handle<EBRecHitCollection> barrelRecHitsHandle;
    //   edm::Handle<EERecHitCollection> endcapRecHitsHandle;
@@ -435,7 +443,7 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
    iEvent.getByLabel(hbheInputSrc,hbhe);
    const HBHERecHitCollection Hithbhe = *(hbhe.product());
 
-   cout <<" ===> ZSP HBHERecHitCollection size = " << Hithbhe.size() << endl;
+   //   cout <<" ===> ZSP HBHERecHitCollection size = " << Hithbhe.size() << endl;
    //   cout <<" ===> NO ZSP HBHERecHitCollection size = " << HithbheR.size() << endl;
 
    for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++) {
@@ -589,18 +597,23 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
    iEvent.getByLabel(pxltracksSrc, pxltracks);
    //   cout << "====> number of pxl tracks "<< pxltracks->size() << endl;
 
-   /*   
+   //   cout <<" Sim Track size = " << theSimTracks.size() << endl;
+
    for(size_t j = 0; j < theSimTracks.size(); j++){
+     /*
      cout <<" sim track j = " << j
-	  <<" track mom = " << theSimTracks[j].momentum().perp() 
+	  <<" track mom = " << theSimTracks[j].momentum().pt() 
 	  <<" genpartIndex = " << theSimTracks[j].genpartIndex()
 	  <<" type = " << theSimTracks[j].type()
 	  <<" noGenpart = " << theSimTracks[j].noGenpart() 
 	  <<" simTrackId = " << theSimTracks[j].trackId() << endl;
+     */
    }
-   */
 
     int t = 0;
+
+    std::string theTrackQuality = "highPurity";
+    reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
 
     ptSim1     = genpions[0].perp(); 
     etaSim1    = genpions[0].eta(); 
@@ -610,9 +623,16 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
     etaSim2    = genpions[1].eta(); 
     phiSim2    = genpions[1].phi();
 
+    //    cout <<" Reco track size = " << tracks->size() << endl;
+
     for(TrackCollection::const_iterator track = tracks->begin();
 	track != tracks->end(); track++) {
       //     const reco::TrackExtraRef & trkExtra = track->extra();
+
+      int trkQuality = track->quality(trackQuality_);
+      int trkNVhits  = track->numberOfValidHits();
+      //      cout <<" track quality = " << trkQuality
+      //	   <<" number of valid hits = " << trkNVhits << endl;
 
       double eECAL7x7i = -1000.; 
       double eECAL11x11i = -1000.; 
@@ -701,8 +721,8 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 	   <<" pt = " << track->pt()
 	   <<" eta = " << track->eta()
 	   <<" phi = " << track->phi()
-	   <<" Nhits = " << Nhits 
-	   <<" NpxlHits = " << NpxlHits 
+	   <<" Nhits = " << track->recHitsSize()
+	   <<" NpxlHits = " << track->hitPattern().numberOfValidPixelHits()
 	  <<" ch2 = " << track->normalizedChi2()
 	   <<" lost hits = " << track->numberOfLostHits()
 	   <<" valid hits = " << track->numberOfValidHits()
@@ -752,16 +772,15 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      }
 	    }
 	    int trkid = closest.trackId();
-	    if(trkid <= (int) theSimTracks.size()) {
-	      if(theSimTracks[trkid-1].noGenpart() == 0) {
-		SimTrackIds.push_back(trkid);
-		//		cout <<"          closest simtrack id = " << closest.trackId() 
-		//		     <<" min dist = " << mindist << endl;
-		//		cout <<" " << endl;
-	      }
-	    } else {
-	      //	      cout <<" track ID > size of SimTracks " << endl;
-	    }
+	    //	    if(trkid <= (int) theSimTracks.size()) {
+	      //	      if(theSimTracks[trkid-1].noGenpart() == 0) {
+	    SimTrackIds.push_back(trkid);
+	      /*
+	      cout <<"          closest simtrack id = " << closest.trackId() 
+		   <<" min dist = " << mindist << endl;
+	      */
+	      //	      }
+	      //	    }
 	  } 
 	}
 	ih++;
@@ -784,12 +803,12 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 	float tothits = track->recHitsSize();//include pixel as well..
 	purity = totsim/tothits ;
 	/*
-	cout << " Track number # " << t 
+	cout << " ==> Track number # " << t 
 	     << "# of rechits = " << track->recHitsSize() 
-	     << " matched simtrack id= " << idmax 
-	     << " purity = " << purity 
-	     << " sim track mom = " << theSimTracks[idmax-1].momentum().perp() << endl;
-	*/
+	     << " best matched simtrack id= " << idmax 
+	     << " purity = " << purity << endl;
+	     .*/
+	//	     << " sim track mom = " << theSimTracks[idmax-1].momentum().pt() << endl;
       } else {
 	//	cout <<"  !!!!  no HepMC particles associated with this pixel triplet " << endl;
       }
@@ -806,6 +825,9 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 	e1ECAL11x11= eECAL11x11i;
 	e1HCAL3x3  = eHCAL3x3i;
 	e1HCAL5x5  = eHCAL5x5i;
+	trkQuality1 = trkQuality; 
+	trkNVhits1 = trkNVhits;
+	idmax1 = idmax;
       }
       double DR2 = genpions[1].deltaR(tracki);
       if(DR2 < drTrk2) {
@@ -818,6 +840,9 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 	e2ECAL11x11= eECAL11x11i;
 	e2HCAL3x3  = eHCAL3x3i;
 	e2HCAL5x5  = eHCAL5x5i;
+	trkQuality2 = trkQuality; 
+	trkNVhits2 = trkNVhits; 
+	idmax2 = idmax;
       }
       t++;
     }
@@ -840,7 +865,7 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 
     // loop over the pixel triplet collection
     //    cout <<"   " << endl;
-    cout <<" Loop over pixel triplet collection " << endl;
+    //    cout <<" Loop over pixel triplet collection " << endl;
     t = 0;
     for(TrackCollection::const_iterator pxltrack = pxltracks->begin();
 	pxltrack != pxltracks->end(); ++pxltrack) {
@@ -975,6 +1000,8 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 
    // fill tree
     t1->Fill();
+    //    cout <<" idmax1 = " << idmax1 <<" idmax2 = " << idmax2 << endl;
+
     delete hitAssociator;
 }
 
@@ -1035,6 +1062,13 @@ SinglePionEfficiencyNew::beginJob(const edm::EventSetup& iSetup)
   t1->Branch("e1HCAL5x5",&e1HCAL5x5,"e1HCAL5x5/D");
   t1->Branch("e2HCAL3x3",&e2HCAL3x3,"e2HCAL3x3/D");
   t1->Branch("e2HCAL5x5",&e2HCAL5x5,"e2HCAL5x5/D");
+  // tracker quality and number of hits
+  t1->Branch("trkQuality1",&trkQuality1,"trkQuality1/I");
+  t1->Branch("trkQuality2",&trkQuality2,"trkQuality2/I");
+  t1->Branch("trkNVhits1",&trkNVhits1,"trkNVhits1/I");
+  t1->Branch("trkNVhits2",&trkNVhits2,"trkNVhits2/I");
+  t1->Branch("idmax1",&idmax1,"idmax1/I");
+  t1->Branch("idmax2",&idmax2,"idmax2/I");
   //
   return ;
 }

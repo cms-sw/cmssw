@@ -24,6 +24,7 @@ class TauElementsOperators{
   ~TauElementsOperators(){}   
   // compute size of signal cone possibly depending on E(energy) and/or ET(transverse energy) of the tau-jet candidate
   double computeConeSize(const TFormula& ConeSizeTFormula,double ConeSizeMin,double ConeSizeMax);
+  double computeConeSize(const TFormula& ConeSizeTFormula,double ConeSizeMin,double ConeSizeMax, double transverseEnergy, double energy);
   TFormula computeConeSizeTFormula(const string& ConeSizeFormula,const char* errorMessage);
   void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr); 
   //return the leading (i.e. highest Pt) Track in a given cone around the jet axis or a given direction

@@ -13,8 +13,8 @@ process = cms.Process("DQMOnlineSimData")
 #-------------------------------------------------
 ## MAGNETIC FIELD
 #-------------------------------------------------
-# Magnetic field: force mag field to be 0.0 tesla
-process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
+process.load("Configuration.StandardSequences.MagneticField_0T_cff")
+process.prefer("VolumeBasedMagneticFieldESProducer")
 
 #-------------------------------------------------
 ## GEOMETRY

@@ -1,15 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TEST")
+process = cms.Process("SKIM")
+
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_GLOBAL/CRUZET3/CMSSW_2_1_2/src/DPGAnalysis/Skims/python/reco_50908_210_CRZT210_V1P.root')
-                            )
+                            fileNames = cms.untracked.vstring(
+  '/store/data/Commissioning08/Cosmics/RECO/CRAFT_ALL_V9_225-v1/0002/0A12CE23-D7F9-DD11-819E-00E081348D21.root'),
+                            secondaryFileNames = cms.untracked.vstring(
+        '/store/data/Commissioning08/Cosmics/RAW/v1/000/069/578/085EFED4-E5AB-DD11-9ACA-001617C3B6FE.root')
+)
+
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.6 $'),
+    version = cms.untracked.string('$Revision: 1.9 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/TrackerPointing_cfg.py,v $'),
-    annotation = cms.untracked.string('CRUZET4 TrackerPointing skim')
+    annotation = cms.untracked.string('CRAFT TrackerPointing skim')
 )
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
@@ -19,7 +24,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'CRZT210_V1::All' 
+process.GlobalTag.globaltag = 'CRAFT_V4P::All' 
 process.prefer("GlobalTag")
 
 process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
@@ -56,12 +61,13 @@ process.rsWithMaterialTracksP5TkCntPath = cms.Path(process.rsWithMaterialTracksP
 
 
 process.out = cms.OutputModule("PoolOutputModule",
+                               outputCommands = cms.untracked.vstring('keep *','drop *_MEtoEDMConverter_*_*'),
                                SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('cosmicMuonsBarrelOnlyTkPath',
                                                                                             'cosmictrackfinderP5TkCntPath',
                                                                                             'ctfWithMaterialTracksP5TkCntPath',
                                                                                             'rsWithMaterialTracksP5TkCntPath')),
                                dataset = cms.untracked.PSet(
-			                 dataTier = cms.untracked.string('RECO'),
+			                 dataTier = cms.untracked.string('RAW-RECO'),
                                          filterName = cms.untracked.string('TrackingPointing')),
                                fileName = cms.untracked.string('trackerPointing.root')
                                )

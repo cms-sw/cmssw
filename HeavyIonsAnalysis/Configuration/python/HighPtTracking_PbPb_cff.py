@@ -6,25 +6,12 @@ from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
 from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelTriplets_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
-
-# replace removed modules...
-#from RecoHI.HiTracking.PixelLowPtTracksWithZPos_cff import *
-#pixel3ProtoTracks = pixelLowPtTracksWithZPos.clone()
-#from RecoHI.HiTracking.PixelVertices_cfi import *
-#pixel3PrimTracks = pixelLowPtTracksWithZPos.clone()
-#from RecoHI.HiTracking.PixelTrackSeeds_cff import *
-#primSeeds = pixelTrackSeeds.clone()
-
-# ...with the updated versions
-from RecoPixelVertexing.PixelVertexFinding.PixelVertexes_cfi import *
-from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
-import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
-pixel3ProtoTracks = RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi.allPixelTracks.clone()
-pixel3PrimTracks = RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi.allPixelTracks.clone()
-import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
-primSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone()
-
-
+from RecoHI.HiTracking.PixelLowPtTracksWithZPos_cff import *
+pixel3ProtoTracks = pixelLowPtTracksWithZPos.clone()
+from RecoHI.HiTracking.PixelVertices_cfi import *
+pixel3PrimTracks = pixelLowPtTracksWithZPos.clone()
+from RecoHI.HiTracking.PixelTrackSeeds_cff import *
+primSeeds = pixelTrackSeeds.clone()
 from RecoTracker.CkfPattern.CkfTrackCandidates_cff import *
 from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cff import *
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
@@ -54,12 +41,12 @@ hiTrackingWithOfflineBeamSpot = cms.Sequence(offlineBeamSpot*trackerlocalreco*he
 pixel3ProtoTracks.passLabel = 'Pixel triplet tracks for vertexing'
 pixel3ProtoTracks.RegionFactoryPSet.RegionPSet.ptMin = 0.7
 pixel3ProtoTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.1
-#pixel3ProtoTracks.RegionFactoryPSet.RegionPSet.originZPos = 2.0 #variable removed
+pixel3ProtoTracks.RegionFactoryPSet.RegionPSet.originZPos = 2.0
 pixelVertices.TrackCollection = 'pixel3ProtoTracks'
 pixel3PrimTracks.passLabel = 'Pixel triplet primary tracks with vertex constraint'
 pixel3PrimTracks.RegionFactoryPSet.RegionPSet.ptMin = 1.5
 pixel3PrimTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.2
-#pixel3PrimTracks.RegionFactoryPSet.RegionPSet.originHalfLength = 0.2 #variable removed
+pixel3PrimTracks.RegionFactoryPSet.RegionPSet.originHalfLength = 0.2
 pixel3PrimTracks.RegionFactoryPSet.RegionPSet.useFoundVertices = True
 primSeeds.tripletList = ['pixel3PrimTracks']
 ckfBaseTrajectoryFilterForMinBias.ComponentName = 'ckfBaseTrajectoryFilterForMinBias'

@@ -25,7 +25,6 @@ namespace pos{
 
     void setROCTrimBits(PixelROCName rocid ,std::string bits);
 
-    int read(PixelROCName rocid, std::string in);
     int read(PixelROCName rocid, std::ifstream& in);
     int read(PixelROCName rocid, std::istringstream& in);
 
@@ -40,7 +39,7 @@ namespace pos{
     void writeBinary(std::ofstream& out) const;
 
     void writeASCII(std::ofstream& out) const;
-    void writeXML(  std::ofstream* out) const;
+//    void writeXML(pos::PixelConfigKey key, int version, std::string path) const {;}
 
     PixelROCName name() const {return rocid_;}
 

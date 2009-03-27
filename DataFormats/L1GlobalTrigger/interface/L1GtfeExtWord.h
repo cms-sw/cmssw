@@ -20,7 +20,7 @@
 // system include files
 #include <boost/cstdint.hpp>
 #include <vector>
-#include <iosfwd>
+#include <iostream>
 
 // user include files
 

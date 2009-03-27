@@ -1,6 +1,5 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 
-
 CaloTower::CaloTower() {
   emE_=0;
   hadE_=0;
@@ -13,141 +12,24 @@ CaloTower::CaloTower(const CaloTowerDetId& id,
 		     double emE, double hadE, double outerE,
 		     int ecal_tp, int hcal_tp,
 		     const PolarLorentzVector p4,
-		     GlobalPoint emPos, GlobalPoint hadPos) : 
+         GlobalPoint emPos, GlobalPoint hadPos) : 
   LeafCandidate(0, p4, Point(0,0,0)),  
   id_(id),
-  emPosition_(emPos), hadPosition_(hadPos), 
   emE_(emE), hadE_(hadE), outerE_(outerE),
-  emLvl1_(ecal_tp), hadLvl1_(hcal_tp) {}
-
+  emLvl1_(ecal_tp), hadLvl1_(hcal_tp),
+  emPosition_(emPos), hadPosition_(hadPos)  {}
+  
 
 CaloTower::CaloTower(const CaloTowerDetId& id,
 		     double emE, double hadE, double outerE,
 		     int ecal_tp, int hcal_tp,
 		     const LorentzVector p4,
-		     GlobalPoint emPos, GlobalPoint hadPos) : 
+         GlobalPoint emPos, GlobalPoint hadPos) : 
   LeafCandidate(0, p4, Point(0,0,0)),  
   id_(id),
-  emPosition_(emPos), hadPosition_(hadPos),
   emE_(emE), hadE_(hadE), outerE_(outerE),
-  emLvl1_(ecal_tp), hadLvl1_(hcal_tp) {}
-
-
-// recalculated momentum-related quantities wrt user provided vertex Z position
-
-
-math::PtEtaPhiMLorentzVector CaloTower::hadP4(double vtxZ) const {
-
-  math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
-
-  // note: for now we use the same position for HO as for the other detectors
-
-  double hcalTot;
-  if (abs(ieta())<16) hcalTot = (energy() - emE_);
-  else hcalTot = hadE_;
-
-  if (hcalTot>0) {
-    double ctgTheta = (hadPosition_.z() - vtxZ)/hadPosition_.perp();
-    double newEta = asinh(ctgTheta);  
-    double pf = 1.0/cosh(newEta);
-
-    newP4 = PolarLorentzVector(hcalTot * pf, newEta, hadPosition_.phi(), 0.0);   
-  }
-  
-  return newP4;
-}
-
-math::PtEtaPhiMLorentzVector CaloTower::emP4(double vtxZ) const {
-
-  math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
-
-  if (emE_>0) {
-    double ctgTheta = (emPosition_.z() - vtxZ)/emPosition_.perp();
-    double newEta = asinh(ctgTheta);  
-    double pf = 1.0/cosh(newEta);
-  
-    newP4 = math::PtEtaPhiMLorentzVector(emE_ * pf, newEta, emPosition_.phi(), 0.0);   
-  }
-  
-  return newP4;
-}
-
-
-// recalculated momentum-related quantities wrt user provided 3D vertex 
-
-
-math::PtEtaPhiMLorentzVector CaloTower::hadP4(Point v) const {
-
-  math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
-
-  GlobalPoint p(v.x(), v.y(), v.z());
-
-  // note: for now we use the same position for HO as for the other detectors
-
-  double hcalTot;
-  if (abs(ieta())<16) hcalTot = (energy() - emE_);
-  else hcalTot = hadE_;
-
-  if (hcalTot>0) {
-    math::XYZVector dir = math::XYZVector(hadPosition_ - p);
-    newP4 = math::PtEtaPhiMLorentzVector(hcalTot * sin(dir.theta()), dir.eta(), dir.phi(), 0.0);  
-  }
-
-  return newP4;
-}
-
-math::PtEtaPhiMLorentzVector CaloTower::emP4(Point v) const {
-
-  math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
-
-  GlobalPoint p(v.x(), v.y(), v.z());
-
-  if (emE_>0) {
-    math::XYZVector dir = math::XYZVector(emPosition_ - p);
-    newP4 = math::PtEtaPhiMLorentzVector(emE_ * sin(dir.theta()), dir.eta(), dir.phi(), 0.0);   
-  }
-  
-  return newP4;
-}
-
-
-math::PtEtaPhiMLorentzVector CaloTower::p4(double vtxZ) const {
-
-  math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
-
-  if (abs(ieta())<=29) {
-    newP4 += emP4(vtxZ);
-    newP4 += hadP4(vtxZ);
-  }
-  else { // em and had energy in HF are defined in a special way
-    double ctgTheta = (emPosition_.z() - vtxZ)/emPosition_.perp(); // em and had positions in HF are forced to be the same
-    double newEta = asinh(ctgTheta);  
-    double pf = 1.0/cosh(newEta);
-    newP4 = math::PtEtaPhiMLorentzVector(p4().energy() * pf, newEta, emPosition_.phi(), 0.0);   
-  }
-
-  return newP4;
-}
-
-
-math::PtEtaPhiMLorentzVector CaloTower::p4(Point v) const {
-
-  math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
-
-  if (abs(ieta())<=29) {
-    newP4 += emP4(v);
-    newP4 += hadP4(v);
-  }
-  else { // em and had energy in HF are defined in a special way
-    GlobalPoint p(v.x(), v.y(), v.z());
-    math::XYZVector dir = math::XYZVector(emPosition_ - p); // em and had positions in HF are forced to be the same
-    newP4 = math::PtEtaPhiMLorentzVector(p4().energy() * sin(dir.theta()), dir.eta(), dir.phi(), 0.0);   
-  }
-
-  return newP4;
-}
-
-
+  emLvl1_(ecal_tp), hadLvl1_(hcal_tp),
+  emPosition_(emPos), hadPosition_(hadPos)  {}
 
 
 void CaloTower::addConstituents( const std::vector<DetId>& ids ) {
@@ -168,7 +50,6 @@ int CaloTower::numCrystals() const {
 }
 
 std::ostream& operator<<(std::ostream& s, const CaloTower& ct) {
-  return s << ct.id() << ":"  << ct.et()
-	   << " GeV ET (EM=" << ct.emEt() <<
+  return s << ct.id() << ":" << ct.et() << " GeV ET (EM=" << ct.emEt() <<
     " HAD=" << ct.hadEt() << " OUTER=" << ct.outerEt() << ") (" << ct.eta() << "," << ct.phi() << ")";    
 }

@@ -117,6 +117,9 @@ combinatorialcosmicseedfinder = cms.EDFilter("CtfSpecialSeedGenerator",
         GlobalY = cms.double(-100.0)
     ),
     SeedsFromPositiveY = cms.bool(True),
+    #***top-bottom                                         
+    SeedsFromNegativeY = cms.bool(False),
+    #***
     doClusterCheck = cms.bool(True),
     CheckHitsAreOnDifferentLayers = cms.bool(False),
     SetMomentum = cms.bool(True),

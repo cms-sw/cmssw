@@ -66,7 +66,12 @@ void DQMGroup::incrementUpdates()
 
 bool DQMGroup::isReady(int currentTime)
 {
-  return( ( currentTime - lastUpdate_->GetSec() ) > readyTime_);
+  time_t lastUpdateSecs = lastUpdate_->GetSec();
+  // 29-Oct-2008, KAB - added a test that lastUpdateSecs is greater
+  // than zero so that we don't report that a brand-new group is
+  // ready before any updates have been added.
+  return( lastUpdateSecs > 0 &&
+          ( currentTime - lastUpdateSecs ) > readyTime_);
 }
 
 DQMGroup::~DQMGroup() 
@@ -170,6 +175,13 @@ int DQMInstance::updateObject(std::string groupName,
 bool DQMInstance::isReady(int currentTime)
 {
   bool readyFlag = true;
+
+  // 29-Oct-2008, KAB - if there are no groups, switch
+  // the default to false so that newly constructed DQMInstance
+  // objects don't report ready==true before any groups have
+  // even been created.
+  if (dqmGroups_.size() == 0) readyFlag = false;
+
   for (std::map<std::string, DQMGroup * >::iterator i0 = 
 	 dqmGroups_.begin(); i0 != dqmGroups_.end() ; ++i0)
   {
@@ -186,7 +198,7 @@ bool DQMInstance::isStale(int currentTime)
   return( ( currentTime - lastUpdate_->GetSec() ) > purgeTime_);
 }
 
-int DQMInstance::writeFile(std::string filePrefix)
+int DQMInstance::writeFile(std::string filePrefix, bool endRunFlag)
 {
   int reply = 0;
   char fileName[1024];
@@ -199,11 +211,14 @@ int DQMInstance::writeFile(std::string filePrefix)
 	 dqmGroups_.begin(); i0 != dqmGroups_.end() ; ++i0)
   {
     DQMGroup * group = i0->second;
-    sprintf(fileName,"%s/dqm_%8.8d_%4.4d_%4.4d.root", 
-	    filePrefix.c_str(), 
-	    runNumber_, 
-	    lumiSection_, 
-	    instance_);
+    if (endRunFlag) {
+      sprintf(fileName,"%s/DQM_V0001_EvF_R%9.9d.root", 
+              filePrefix.c_str(), runNumber_);
+    }
+    else {
+      sprintf(fileName,"%s/DQM_V0001_EvF_R%9.9d_L%6.6d.root", 
+              filePrefix.c_str(), runNumber_, lumiSection_);
+    }
 
     TFile * file = new TFile(fileName,"UPDATE");
     if (( file != NULL ) && file->IsOpen())

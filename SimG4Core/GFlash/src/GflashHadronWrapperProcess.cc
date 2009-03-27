@@ -36,42 +36,22 @@ G4VParticleChange* GflashHadronWrapperProcess::PostStepDoIt(const G4Track& track
 
   particleChange->UpdateStepForPostStep(const_cast<G4Step *> (&step));
 
-  // we may not want to update G4Track during this wrapper process if
-  // G4Track accessors are not used in the G4VFastSimulationModel model
+  // we may not want to update G4Track according to particleChange
   //  (const_cast<G4Step *> (&step))->UpdateTrack();
 
   // update safety after each invocation of PostStepDoIts
   // G4double safety = std::max(endpointSafety - (endpointSafOrigin - fPostStepPoint->GetPosition()).mag(),0.);
   // step.GetPostStepPoint()->SetSafety(safety);
 
-  // the secondaries from the original process are also created at the wrapper 
-  // process, but they must be deleted whether the parameterized physics is  
-  // an 'ExclusivelyForced' process or not.  Normally the secondaries will be 
-  // created after this wrapper process in G4SteppingManager::InvokePSDIP
+  // the secondaries from the original process will not be created at the wrapper
+  // process, so they will not be deleted them if the parameterized physics is not
+  // an 'ExclusivelyForced' process.  Normally the secondaries should be created after
+  // this wrapper process in G4SteppingManager::InvokePSDIP
 
-  // store the secondaries from ParticleChange to SecondaryList
-	
-  G4TrackVector* fSecondary = (const_cast<G4Step *> (&step))->GetfSecondary();
-  G4int nSecondarySave = fSecondary->size();
-
-  G4int num2ndaries = particleChange->GetNumberOfSecondaries();
-  G4Track* tempSecondaryTrack;
-
-  for(G4int DSecLoop=0 ; DSecLoop< num2ndaries; DSecLoop++){
-    tempSecondaryTrack = particleChange->GetSecondary(DSecLoop);
-    
-    // Set the process pointer which created this track
-    tempSecondaryTrack->SetCreatorProcess( pRegProcess );
-
-    //add secondaries from this wrapper process to the existing list
-    fSecondary->push_back( tempSecondaryTrack );
-
-  } //end of loop on secondary
-
-  // Now we can still impose conditions on the secondaries from ModelTrigger,
-  // such as the number of secondaries produced by the original process as well as
-  // those by other continuous processes - for the hadronic inelastic interaction, 
-  // it is always true that particleChange->GetNumberOfSecondaries() > 0
+  // We can still impose conditions on the secondaries,
+  // such as the number of secondaries produced by the original process - for the 
+  // hadronic inelastic interaction, it is always true that a few of secondaries are 
+  // created, i.e., particleChange->GetNumberOfSecondaries() > 0
 
   // at this stage, updated step information after all processes involved 
   // should be available
@@ -137,28 +117,18 @@ G4VParticleChange* GflashHadronWrapperProcess::PostStepDoIt(const G4Track& track
 	// update safety after each invocation of PostStepDoIts - acutally this
 	// is not necessary for the parameterized physics process, but do it anyway
         step.GetPostStepPoint()->SetSafety(0.0);
-	
+
 	// additional nullification 
+
 	(const_cast<G4Track *> (&track))->SetTrackStatus( particleChange->GetTrackStatus() );
+
+	//	(const_cast<G4Step *> (&step))->DeleteSecondaryVector();
 
       }
       // assume that there is one and only one parameterized physics
       break;
     }
   }
-
-  // remove secondaries of this wrapper process that were added to the secondary list
-  // since they will be added in the normal stepping procedure after this->PostStepDoIt 
-  // in G4SteppingManager::InvokePSDIP
-
-  //move the iterator to the (nSecondarySave+1)th element in the secondary list
-  G4TrackVector::iterator itv = fSecondary->begin();
-  itv += nSecondarySave;
-
-  //delete next num2ndaries tracks from the secondary list
-  fSecondary->erase(itv,itv+num2ndaries);
-
-  //end of specific actions of this wrapper process
 
   return particleChange;
 }

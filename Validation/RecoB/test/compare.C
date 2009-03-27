@@ -2,32 +2,66 @@
 #include <string>
 using namespace std;
 
-int colorList[] = {1,2,3,4,5,6,7,8,9,10}; 
-int markerStyleList[] = {21,21,23,23,22,22,23,23,21,21};  
 
-TObject * getHistogram(TFile * f, string algo,string histoName, string range = "GLOBAL")
+int colorList[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}; 
+int markerStyleList[] = {21,21,23,23,22,22,23,23,24,24,24,24,25,25,25,25,26,26,26,26};  
+
+TObject * getHistogram(TFile * f, string algo,string histoName, string range, string suffix)
 {
-string prefix = "DQMData/POG/Btag/JetTag";
+string prefix = "DQMData/POG_V0001/Btag/JetTag";
 string d = prefix+"_"+algo+"_"+range;
- cout <<" DIR "<<d<<endl;
+ cout <<" STR: "<<d<<endl; 
+ cout <<" DIR: "<<  f->Get(d.c_str())<<endl;
+ cout <<" HIS: "<<  (histoName+"_"+algo+"_"+range+suffix).c_str()<<endl;
+
+ TDirectory * dir  =(TDirectory *) f->Get(d.c_str());
+ return dir->Get((histoName+"_"+algo+"_"+range+suffix).c_str());
+}
+
+TObject * getHistogram2(TFile * f, string algo,string histoName, string range, string suffix)
+{
+string prefix = "JetTag";
+string d = prefix+"_"+algo+"_"+range;
+ cout <<" STR: "<<d<<endl; 
+ cout <<" DIR: "<<  f->Get(d.c_str())<<endl;
+ cout <<" HIS: "<<  (histoName+"_"+algo+"_"+range+suffix).c_str()<<endl;
+
+ TDirectory * dir  =(TDirectory *) f->Get(d.c_str());
+ return dir->Get((histoName+"_"+algo+"_"+range+suffix).c_str());
+}
+
+
+
+
+TObject * getHistogram2(TFile * f, string algo,string histoName, string range = "GLOBAL")
+{
+string prefix = "JetTag";
+string d = prefix+"_"+algo+"_"+range;
 TDirectory * dir  =(TDirectory *) f->Get(d.c_str());
 return dir->Get((histoName+"_"+algo+"_"+range).c_str());
 }
 
-
-void setStyle(int i, TH1F *obj)
+void setStyle(int i, TGraph *obj)
 {
 obj->SetMarkerColor(colorList[i]);
+obj->SetLineColor(colorList[i]);
 obj->SetMarkerStyle(markerStyleList[i]);
+obj->SetMarkerSize(.8);
 }
 
 
 
-void drawAll()
+TGraphErrors *  drawAll()
 {
-  //  TFile *_file0 = TFile::Open("jetTagAnalysisBoris_standard.root");
-  TFile *_file1 = TFile::Open("POG_CMSSW_2_1_0_pre4.root");
-  
+  TFile *_file1 = TFile::Open("here.root");
+
+  // use also an old style file??
+
+  bool old = false;
+  TFile *_file2;
+  if (old == true){
+  _file2= TFile::Open("jetTagAnalysis.root");
+  }
   vector<TFile *> files;
   vector<string> algos;
   algos.push_back("trackCountingHighPurBJetTags");
@@ -38,24 +72,11 @@ void drawAll()
   algos.push_back("combinedSecondaryVertexBJetTags");
   algos.push_back("combinedSecondaryVertexMVABJetTags");
   algos.push_back("softMuonBJetTags");
-  algos.push_back("softMuonNoIPBJetTags");
+  algos.push_back("softMuonByIP3dBJetTags");
+  algos.push_back("softMuonByPtBJetTags");
   algos.push_back("softElectronBJetTags");
 
-  files.push_back(_file1);
-  files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
-
-
-  TLegend * leg = new TLegend(0.4,0.4,0.6,0.6);
+  TLegend * leg = new TLegend(0.2,0.65,0.4,0.9);
   TCanvas * c1 = new TCanvas();
   c1->SetLogy();  
   c1->SetGridy();  
@@ -63,15 +84,73 @@ void drawAll()
   for(int i = 0 ; i < algos.size() ; i++)
    {
       cout << algos[i] << endl;
-      //TH1F * h = (TH1F *) getHistogram(files[i],algos[i],"FlavEffVsBEff_DUS_discr","ETA_0-1.4");
-     TH1F * h = (TH1F *) getHistogram(files[i],algos[i],"FlavEffVsBEff_DUS_discr","GLOBAL");
-     //TH1F * h = (TH1F *) getHistogram(files[i],algos[i],"FlavEffVsBEff_DUS_discr","ETA_1.4-2.4");
+      // get the eff vs dicriminant
+
+      TH1F* effdiscrb =  (TH1F *) getHistogram(_file1,algos[i],"effVsDiscrCut_discr","GLOBAL", "B");
+      TH1F* effdiscruds = (TH1F *) getHistogram(_file1,algos[i],"effVsDiscrCut_discr","GLOBAL", "DUS");
+      
+      cout <<" HISTOS "<<effdiscrb <<" " <<effdiscruds<<endl;
+
+      TGraphErrors * h = computeGraph(effdiscrb,effdiscruds);
+      //      h->SetMaximum(1.);
+            h->SetMinimum(1e-5);
+      //      h->GetXaxis()->SetLimits(0,.2);
+      //      h->GetYaxis()->SetLimits(1e-4,1);
      cout << h << endl;
-     if(i==0) h->Draw(); else h->Draw("same"); 
+     //     return h;
      setStyle(i,h);
+     if(i==0) h->Draw("ALP"); else h->Draw("lpsame"); 
      leg->AddEntry(h,algos[i].c_str(),"p");
    }
+
+  if (old == true){
+    
+    for(int i = 0 ; i < algos.size() ; i++)
+      {
+	cout << algos[i] << endl;
+	// get the eff vs dicriminant
+	
+	TH1F* effdiscrb =  (TH1F *) getHistogram2(_file2,algos[i],"effVsDiscrCut_discr","GLOBAL", "B");
+	TH1F* effdiscruds = (TH1F *) getHistogram2(_file2,algos[i],"effVsDiscrCut_discr","GLOBAL", "DUS");
+      
+	cout <<" HISTOS "<<effdiscrb <<" " <<effdiscruds<<endl;
+	
+	TGraphErrors * h = computeGraph(effdiscrb,effdiscruds);
+	//      h->SetMaximum(1.);
+	h->SetMinimum(1e-5);
+	//      h->GetXaxis()->SetLimits(0,.2);
+	//      h->GetYaxis()->SetLimits(1e-4,1);
+	cout << h << endl;
+	//     return h;
+     setStyle(i+10,h);
+     //     if(i==0) h->Draw("ALP"); else 
+     h->Draw("lpsame"); 
+     leg->AddEntry(h,algos[i].c_str(),"p");
+      }
+    
+  }
+
+
+
   leg->Draw("same");
 
 }
+
+
+TGraphErrors * computeGraph(TH1F * effdiscrb, TH1F* effdiscruds){
+  double be[1000],ber[1000], udse[1000], udser[1000];
+  int nbins = effdiscrb->GetNbinsX();
+  cout <<" BINS = "<<nbins<<endl;
+  for (int i=0; i<nbins; i++)    {
+    be[i] = effdiscrb->GetBinContent(i+1);
+    ber[i] = effdiscrb->GetBinError(i+1);
+    udse[i] = effdiscruds->GetBinContent(i+1);
+    udser[i] = effdiscruds->GetBinError(i+1);
+    cout <<" GOT "<< i<<" " << be[i]<<" " <<ber[i]<<" " <<udse[i]<<" " <<udser[i]<<endl;
+  }
+  TGraphErrors * result = new TGraphErrors(nbins, be, udse, ber, udser);
+  //  result->Draw();
+  return result;
+}
+
 

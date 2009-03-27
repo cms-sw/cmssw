@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 15 09:17:20 EDT 2005
-// $Id: ReferenceCounted.h,v 1.7 2008/10/23 08:13:27 innocent Exp $
+// $Id: ReferenceCounted.h,v 1.4 2006/07/28 13:02:27 tboccali Exp $
 //
 
 // system include files
@@ -26,23 +26,23 @@
 
 // forward declarations
 
-class BasicReferenceCounted
+class ReferenceCounted
 {
 
    public:
-      BasicReferenceCounted() : referenceCount_(0) {}
-      BasicReferenceCounted( const BasicReferenceCounted& iRHS ) : referenceCount_(0) {}
+      ReferenceCounted() : referenceCount_(0) {}
+      ReferenceCounted( const ReferenceCounted& iRHS ) : referenceCount_(0) {}
 
-      const BasicReferenceCounted& operator=( const BasicReferenceCounted& ) {
+      const ReferenceCounted& operator=( const ReferenceCounted& ) {
 	return *this;
       }
-      virtual ~BasicReferenceCounted() {}
+      virtual ~ReferenceCounted() {}
 
       // ---------- const member functions ---------------------
 
       void addReference() const { ++referenceCount_ ; }
       void removeReference() const { if( 0 == --referenceCount_ ) {
-	  delete const_cast<BasicReferenceCounted*>(this);
+	  delete const_cast<ReferenceCounted*>(this);
 	}
       }
 
@@ -76,87 +76,12 @@ template <class T> class ConstReferenceCountingPointer :
     boost::intrusive_ptr<const T>(&(*other)) {}
 };
 
-inline void intrusive_ptr_add_ref( const BasicReferenceCounted* iRef ) {
+inline void intrusive_ptr_add_ref( const ReferenceCounted* iRef ) {
   iRef->addReference();
 }
 
-inline void intrusive_ptr_release( const BasicReferenceCounted* iRef ) {
+inline void intrusive_ptr_release( const ReferenceCounted* iRef ) {
   iRef->removeReference();
 }
-
-
-#define CMSSW_POOLALLOCATOR
-
-#ifdef CMSSW_POOLALLOCATOR
-#include "DataFormats/GeometrySurface/interface/BlockWipedAllocator.h"
-#endif
-
-class ReferenceCountedPoolAllocated
-#ifdef CMSSW_POOLALLOCATOR
-  : public BlockWipedPoolAllocated
-#endif
-{
-      
-public:
-  static int s_alive;
-  static int s_referenced;
-
-  ReferenceCountedPoolAllocated() : referenceCount_(0) { 
-    s_alive++;
-  }
-
-  ReferenceCountedPoolAllocated( const ReferenceCountedPoolAllocated& iRHS ) : referenceCount_(0) {
-    s_alive++;
-  }
-  
-  const ReferenceCountedPoolAllocated& operator=( const ReferenceCountedPoolAllocated& ) {
-    return *this;
-  }
-
-  virtual ~ReferenceCountedPoolAllocated() {
-    s_alive--;
-  }
-  
-  // ---------- const member functions ---------------------
-  
-  void addReference() const { ++referenceCount_ ; s_referenced++; }
-  void removeReference() const { 
-    s_referenced--;
-    if( 0 == --referenceCount_ ) {
-      delete const_cast<ReferenceCountedPoolAllocated*>(this);
-    }
-  }
-  
-  unsigned int  references() const {return referenceCount_;}
-  
-  // ---------- static member functions --------------------
-  
-  // ---------- member functions ---------------------------
-  
-   private:
-  
-  // ---------- member data --------------------------------
-  mutable unsigned int referenceCount_;
-};
-
-inline void intrusive_ptr_add_ref( const ReferenceCountedPoolAllocated* iRef ) {
-  iRef->addReference();
-}
-
-inline void intrusive_ptr_release( const ReferenceCountedPoolAllocated* iRef ) {
-  iRef->removeReference();
-} 
-
-// condition uses naive RefCount
-typedef BasicReferenceCounted ReferenceCountedInConditions;
-
-
-// transient objects in algo and events are "poo allocated"
-typedef ReferenceCountedPoolAllocated  ReferenceCountedInEvent;
-
-// just to avoid changing all around 
-typedef ReferenceCountedPoolAllocated ReferenceCounted;
-
-
 
 #endif /* SURFACE_REFERENCECOUNTED_H */

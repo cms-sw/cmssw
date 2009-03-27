@@ -9,15 +9,13 @@
 
 #include <map>
 
-#define maxHDeB   14
-#define maxHDeF    7
-#define maxEMe     7
-#define maxHDetaB 30
-#define maxHDetaF 20
-#define maxEMeta  20
-#define maxMUe     4
+#define maxHDe    15   // energy points for hadrons 
+#define maxHDeta  51   // eta points for hadrons
+#define maxEMe     7   // energy points e/gamma in HF
+#define maxEMeta  20   //
+#define maxMUe     4   // energy points for muons
 #define maxMUeta   6   
-#define maxMUbin  40   
+#define maxMUbin  40   // binning oh muon histograms  
 
 typedef std::pair<double,double> response;
 enum part{hcbarrel=0, hcendcap=1, hcforward=2};
@@ -37,8 +35,9 @@ public:
   ~HCALResponse(){;} 
 
   // Get the response in the for of pair 
-  // parameters:  energy, eta, e/gamma = 0, hadron = 1, mu = 2
-  response responseHCAL(double energy, double eta, int partype);
+  // parameters:  energy, eta, e/gamma = 0, hadron = 1, mu = 2, mip: 0/1/2
+  // mip = 2 means "mean" response regardless actual mip
+  response responseHCAL(int mip, double energy, double eta, int partype);
 
   // legacy methods using simple furmulae
   double getHCALEnergyResponse   (double e, int hit);
@@ -49,8 +48,7 @@ private:
 
   // calculates interpolated-extrapolated reponse (mean and sigma, see below)
   // for hadrons and e/gamma (the latter in HF specifically)
-  void interHDB(double e, int ie, int ieta);
-  void interHDF(double e, int ie, int ieta);
+  void interHD(int mip, double e, int ie, int ieta);
   void interEM(double e, int ie, int ieta); 
   void interMU(double e, int ie, int ieta); 
 
@@ -74,20 +72,21 @@ private:
   double mean, sigma; 
 
   // Tabulated energy, et/pt and eta points
-  double eGridHDB[maxHDeB], eGridHDF[maxHDeF];    
-  double eGridEM[maxEMe];
-  double eGridMU[maxMUe];
+  double eGridHD  [maxHDe];
+  double eGridEM  [maxEMe];
+  double eGridMU  [maxMUe];
   double etaGridMU[maxMUeta];
 
   // Tabulated response and mean for hadrons normalized to the energy
-  double meanHDB[maxHDeB][maxHDetaB], sigmaHDB[maxHDeB][maxHDetaB];  
-  double meanHDF[maxHDeF][maxHDetaF], sigmaHDF[maxHDeF][maxHDetaF];  
+  double meanHD      [maxHDe][maxHDeta], sigmaHD      [maxHDe][maxHDeta];
+  double meanHD_mip  [maxHDe][maxHDeta], sigmaHD_mip  [maxHDe][maxHDeta];
+  double meanHD_nomip[maxHDe][maxHDeta], sigmaHD_nomip[maxHDe][maxHDeta];
+  
   // Tabulated response and mean for e/gamma in HF specifically (normalized) 
   double meanEM[maxEMe][maxEMeta], sigmaEM[maxEMe][maxEMeta];
 
   // muon histos 
   double responseMU[maxMUe][maxMUeta][maxMUbin]; 
-
 
   // Famos random engine
   const RandomEngine* random;

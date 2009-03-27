@@ -13,25 +13,40 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: miscalibExample.cc,v 1.5 2007/12/31 18:43:07 ratnik Exp $
+// $Id: miscalibExample.cc,v 1.4 2007/09/07 20:05:44 ratnik Exp $
 //
 //
 
 
 // system include files
+#include <memory>
 
 // user include files
 #include "Calibration/EcalCalibAlgos/interface/miscalibExample.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 //
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "TFile.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TF1.h"
+#include "TRandom.h"
 
 #include <iostream>
+#include <string>
 #include <stdexcept>
 #include <vector>
 

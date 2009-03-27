@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <iostream>
 #include <string>
 #include <memory>
@@ -73,7 +74,29 @@ TTree *getTree(const std::string &arg)
 
 int main(int argc, char **argv)
 {
-	if (argc < 4 || argc > 5) {
+	bool load = false;
+	bool save = true;
+	bool monitoring = true;
+	char **args = argv + 1;
+	argc--;
+	while(argc > 0 && **args == '-') {
+		if (std::strcmp(*args, "-l") || 
+		    std::strcmp(*args, "--load"))
+			load = true;
+		else if (std::strcmp(*args, "-s") || 
+		         std::strcmp(*args, "--no-save"))
+			save = false;
+		else if (std::strcmp(*args, "-m") || 
+		         std::strcmp(*args, "--no-monitoring"))
+			monitoring = false;
+		else
+			std::cerr << "Unsupported option " << *args
+			          << "." << std::endl;
+		args++;
+		argc--;
+	}
+
+	if (argc < 3 || argc > 4) {
 		std::cerr << "Syntax: " << argv[0] << " <train.xml> "
 		              "<output.mva> <data.root>\n";
 		std::cerr << "\t" << argv[0] << " <train.xml> <output.mva> "
@@ -85,18 +108,28 @@ int main(int argc, char **argv)
 
 	ROOT::Cintex::Cintex::Enable();
 
+	srandom(1);
+
 	try {
-		std::auto_ptr<TreeTrainer> trainer;
-		if (argc == 4)
-			trainer.reset(new TreeTrainer(getTree(argv[3])));
+		std::auto_ptr<TreeTrainer> treeTrainer;
+		if (argc == 3)
+			treeTrainer.reset(new TreeTrainer(getTree(args[2])));
 		else
-			trainer.reset(new TreeTrainer(getTree(argv[3]),
-			                              getTree(argv[4])));
+			treeTrainer.reset(new TreeTrainer(getTree(args[2]),
+			                                  getTree(args[3])));
+
+		MVATrainer trainer(args[0]);
+		trainer.setMonitoring(monitoring);
+		trainer.setAutoSave(save);
+		if (load)
+			trainer.loadState();
+
+		treeTrainer->train(&trainer);
 
 		std::auto_ptr<Calibration::MVAComputer> calib(
-						trainer->train(argv[1]));
+						trainer.getCalibration());
 
-		MVAComputer::writeCalibration(argv[2], calib.get());
+		MVAComputer::writeCalibration(args[1], calib.get());
 	} catch(cms::Exception e) {
 		std::cerr << e.what() << std::endl;
 	}

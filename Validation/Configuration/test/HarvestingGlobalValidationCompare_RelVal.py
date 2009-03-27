@@ -16,6 +16,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring("")
 )
+
 process.qTester = cms.EDFilter("QualityTester",
     qtList = cms.untracked.FileInPath('Validation/Configuration/data/QTGlobal.xml'),
     #QualityTestPrescaler = cms.untracked.int32(1)
@@ -26,6 +27,7 @@ process.qTester = cms.EDFilter("QualityTester",
     testInEventloop=cms.untracked.bool(False),
     qtestOnEndLumi=cms.untracked.bool(False)
 )
+
 process.DQMStore.collateHistograms = False
 
 process.DQMStore.referenceFileName = cms.untracked.string("")

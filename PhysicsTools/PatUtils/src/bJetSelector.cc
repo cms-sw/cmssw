@@ -25,16 +25,24 @@ bJetSelector::bJetSelector(const edm::ParameterSet& cfg) :
 bool
 bJetSelector::IsbTag(const pat::Jet& JetCand, 
                           const std::string& operpoint, 
-                          const std::string& tagger){ 
-	return JetCand.bDiscriminator(tagger) > discCut[operpoint][tagger];
+                          const std::string& tagger) const {
+
+	std::map<std::string,std::map<std::string,double> >::const_iterator ioperpoint = discCut.find(operpoint);
+	if ( ioperpoint == discCut.end() ) throw cms::Exception("UnknownOperatingPoint") << "Unknown or undefined operative point" << std::endl;
+	std::map<std::string,double>::const_iterator itagger = ioperpoint->second.find(tagger);
+	if ( itagger == ioperpoint->second.end() ) throw cms::Exception("UnknownTagger") << "Unknown or undefined tagger" << std::endl;
+	
+	return JetCand.bDiscriminator(tagger) > itagger->second;
 }
 bool
 bJetSelector::IsbTag(const pat::Jet& JetCand, 
-                          const std::string& operpoint){ 
+					 const std::string& operpoint) const {
+
+	
         return IsbTag(JetCand,operpoint,DefaultTg_);
 }
 bool
-bJetSelector::IsbTag(const pat::Jet& JetCand){ 
+bJetSelector::IsbTag(const pat::Jet& JetCand) const{ 
         return IsbTag(JetCand,DefaultOp_,DefaultTg_);
 }
 

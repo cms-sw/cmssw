@@ -10,7 +10,7 @@
  *
  */
 
-#include <iosfwd>
+#include <iostream>
 
 namespace reco {
 

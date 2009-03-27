@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2008/08/08 14:34:54 $
- *  $Revision: 1.34 $
+ *  $Date: 2008/08/11 13:13:29 $
+ *  $Revision: 1.35 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -161,7 +161,8 @@ MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos, const reco:
     LogTrace(metname) << "Trajectory inside the muon system";
 
     FreeTrajectoryState
-      result = thePropagator->propagate(*tsos.freeState(),beamSpot);
+      //      result = thePropagator->propagate(*tsos.freeState(),beamSpot);
+      result =  theService->propagator(thePropagatorName)->propagate(*tsos.freeState(),beamSpot);
     
     LogTrace(metname) << "MuonUpdatorAtVertex::propagate, path: "
 		      << result << " parameters: " << result.parameters();
@@ -283,7 +284,8 @@ MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos, c
     GlobalPoint p2(0.,0.,1500);
     
     pair<FreeTrajectoryState,double> 
-      result = thePropagator->propagateWithPath(*tsos.freeState(),p1,p2);
+      //      result = thePropagator->propagateWithPath(*tsos.freeState(),p1,p2);
+      result = theService->propagator(thePropagatorName)->propagateWithPath(*tsos.freeState(),p1,p2);
     
     LogTrace(metname) << "MuonUpdatorAtVertex::propagate, path: "
 		      << result.second << " parameters: " << result.first.parameters();

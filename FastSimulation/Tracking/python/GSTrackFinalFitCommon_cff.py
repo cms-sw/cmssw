@@ -11,6 +11,7 @@ from TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi import *
 # KFFittingSmootherESProducer
 from TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi import *
 from FastSimulation.Tracking.KFFittingSmootherWithOutlierRejection_cfi import *
+from FastSimulation.Tracking.KFFittingSmootherForElectrons_cfi import *
 # PropagatorWithMaterialESProducer
 from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 # PropagatorWithMaterialESProducer

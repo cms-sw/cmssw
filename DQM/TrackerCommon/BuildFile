@@ -1,0 +1,10 @@
+<use name=DQMServices/Core>
+<use name=rootgraphics>
+<use name=xdaq>
+<export>
+  <use name=DQMServices/Core>
+  <use name=rootgraphics>
+  <use name=xdaq>
+  <lib name=DQMTrackerCommon>
+</export>
+

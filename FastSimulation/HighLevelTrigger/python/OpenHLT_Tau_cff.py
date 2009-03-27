@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # import the whole HLT menu
-from HLTrigger.Configuration.HLT_2E30_cff import *
+from FastSimulation.Configuration.HLT_cff import *
 
 hltTauPrescaler = cms.EDFilter("HLTPrescaler",
     makeFilterObject = cms.bool(True),
@@ -11,18 +11,18 @@ hltTauPrescaler = cms.EDFilter("HLTPrescaler",
 
 hltTauL1SeedFilter = cms.EDFilter("HLTLevel1GTSeed",
     L1SeedsLogicalExpression = cms.string('L1_SingleJet30'),
-    L1GtReadoutRecordTag = cms.InputTag("hltGtDigis"),
-    L1GtObjectMapTag = cms.InputTag("hltL1GtObjectMap"),
-    L1CollectionsTag = cms.InputTag("hltL1extraParticles"),
-    L1MuonCollectionTag = cms.InputTag("hltL1extraParticles"),
+    L1GtReadoutRecordTag = cms.InputTag("gtDigis"),
+    L1GtObjectMapTag = cms.InputTag("gtDigis"),
+    L1CollectionsTag = cms.InputTag("l1extraParticles"),
+    L1MuonCollectionTag = cms.InputTag("l1extraParticles"),
     L1TechTriggerSeeding = cms.bool(False)
 )
 
-hltL2TauJets = cms.EDFilter("L2TauJetsProvider",
-    L1ParticlesJet = cms.InputTag("hltL1extraParticles","Central"),
+hltL2TauJets = cms.EDFilter("L2TauJetsMerger",
+    L1ParticlesJet = cms.InputTag("l1extraParticles","Central"),
     JetSrc = cms.VInputTag(cms.InputTag("hltIcone5Tau1"), cms.InputTag("hltIcone5Tau2"), cms.InputTag("hltIcone5Tau3"), cms.InputTag("hltIcone5Tau4"), cms.InputTag("hltIcone5Cen1"),cms.InputTag("hltIcone5Cen2"), cms.InputTag("hltIcone5Cen3"), cms.InputTag("hltIcone5Cen4")),
     EtMin = cms.double(5.0),
-    L1ParticlesTau = cms.InputTag("hltL1extraParticles","Tau"),
+    L1ParticlesTau = cms.InputTag("l1extraParticles","Tau"),
     L1TauTrigger = cms.InputTag("hltTauL1SeedFilter")
 )
 
@@ -69,7 +69,7 @@ hltCaloTowers = cms.EDFilter("CaloTowerCandidateCreator",
 hltCaloTowersCen1 = cms.EDFilter("CaloTowerCreatorForTauHLT",
     towers = cms.InputTag("hltTowerMakerForAll"),
     TauId = cms.int32(0),
-    TauTrigger = cms.InputTag("hltL1extraParticles","Central"),
+    TauTrigger = cms.InputTag("l1extraParticles","Central"),
     minimumE = cms.double(0.8),
     UseTowersInCone = cms.double(0.8),
     minimumEt = cms.double(0.5)
@@ -84,13 +84,14 @@ hltIcone5Cen1 = cms.EDProducer("IterativeConeJetProducer",
     seedThreshold = cms.double(1.0),
     debugLevel = cms.untracked.int32(0),
     jetType = cms.untracked.string('CaloJet'),
+    jetPtMin = cms.double(0.0),
     inputEMin = cms.double(0.0)
 )
 
 hltCaloTowersCen2 = cms.EDFilter("CaloTowerCreatorForTauHLT",
     towers = cms.InputTag("hltTowerMakerForAll"),
     TauId = cms.int32(1),
-    TauTrigger = cms.InputTag("hltL1extraParticles","Central"),
+    TauTrigger = cms.InputTag("l1extraParticles","Central"),
     minimumE = cms.double(0.8),
     UseTowersInCone = cms.double(0.8),
     minimumEt = cms.double(0.5)
@@ -105,13 +106,14 @@ hltIcone5Cen2 = cms.EDProducer("IterativeConeJetProducer",
     seedThreshold = cms.double(1.0),
     debugLevel = cms.untracked.int32(0),
     jetType = cms.untracked.string('CaloJet'),
+    jetPtMin = cms.double(0.0),
     inputEMin = cms.double(0.0)
 )
 
 hltCaloTowersCen3 = cms.EDFilter("CaloTowerCreatorForTauHLT",
     towers = cms.InputTag("hltTowerMakerForAll"),
     TauId = cms.int32(2),
-    TauTrigger = cms.InputTag("hltL1extraParticles","Central"),
+    TauTrigger = cms.InputTag("l1extraParticles","Central"),
     minimumE = cms.double(0.8),
     UseTowersInCone = cms.double(0.8),
     minimumEt = cms.double(0.5)
@@ -126,13 +128,14 @@ hltIcone5Cen3 = cms.EDProducer("IterativeConeJetProducer",
     seedThreshold = cms.double(1.0),
     debugLevel = cms.untracked.int32(0),
     jetType = cms.untracked.string('CaloJet'),
+    jetPtMin = cms.double(0.0),
     inputEMin = cms.double(0.0)
 )
 
 hltCaloTowersCen4 = cms.EDFilter("CaloTowerCreatorForTauHLT",
     towers = cms.InputTag("hltTowerMakerForAll"),
     TauId = cms.int32(3),
-    TauTrigger = cms.InputTag("hltL1extraParticles","Central"),
+    TauTrigger = cms.InputTag("l1extraParticles","Central"),
     minimumE = cms.double(0.8),
     UseTowersInCone = cms.double(0.8),
     minimumEt = cms.double(0.5)
@@ -147,6 +150,7 @@ hltIcone5Cen4 = cms.EDProducer("IterativeConeJetProducer",
     seedThreshold = cms.double(1.0),
     debugLevel = cms.untracked.int32(0),
     jetType = cms.untracked.string('CaloJet'),
+    jetPtMin = cms.double(0.0),
     inputEMin = cms.double(0.0)
 )
 
@@ -175,7 +179,7 @@ hltConeIsolationL25Tau = cms.EDFilter("ConeIsolation",
     useBeamSpot = cms.bool(True),
     MaximumNumberOfTracksIsolationRing = cms.int32(0),
     UseFixedSizeCone = cms.bool(True),
-    BeamSpotProducer = cms.InputTag("hltOfflineBeamSpot"),
+    BeamSpotProducer = cms.InputTag("offlineBeamSpot"),
     IsolationCone = cms.double(0.1),
     MinimumTransverseMomentumLeadingTrack = cms.double(1.0),
     useVertex = cms.bool(True)
@@ -196,6 +200,7 @@ hltIsolatedL25Tau = cms.EDFilter("IsolatedTauJetsSelector",
     UseVertex = cms.bool(False)
 )
 
+"""
 hltL3TauPixelSeeds = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string('StandardHitPairGenerator'),
@@ -244,9 +249,18 @@ hltCtfWithMaterialTracksL3Tau = cms.EDProducer("TrackProducer",
     alias = cms.untracked.string('ctfWithMaterialTracks'),
     TrajectoryInEvent = cms.bool(True),
     TTRHBuilder = cms.string('WithTrackAngle'),
-    beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
+    beamSpot = cms.InputTag( "offlineBeamSpot" ),
     AlgorithmName = cms.string( "undefAlgorithm" ),                                           
     Propagator = cms.string('RungeKuttaTrackerPropagator')
+)
+"""
+
+hltL3TauPixelSeeds = cms.Sequence(dummyModule)
+hltCkfTrackCandidatesL3Tau = cms.Sequence(globalPixelTracking)
+hltCtfWithMaterialTracksL3Tau = cms.EDFilter("FastTrackMerger",
+    SaveTracksOnly = cms.untracked.bool(True),
+    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks")),
+    ptMin = cms.untracked.double(1.0)
 )
 
 hltAssociatorL3Tau = cms.EDFilter("JetTracksAssociatorAtVertex",
@@ -273,7 +287,7 @@ hltConeIsolationL3Tau = cms.EDFilter("ConeIsolation",
     useBeamSpot = cms.bool(True),
     MaximumNumberOfTracksIsolationRing = cms.int32(0),
     UseFixedSizeCone = cms.bool(True),
-    BeamSpotProducer = cms.InputTag("hltOfflineBeamSpot"),
+    BeamSpotProducer = cms.InputTag("offlineBeamSpot"),
     IsolationCone = cms.double(0.1),
     MinimumTransverseMomentumLeadingTrack = cms.double(1.0),
     useVertex = cms.bool(True)
@@ -304,4 +318,4 @@ TauOpenHLT = cms.EDProducer("HLTTauProducer",
 )
 
 OpenHLTDoCaloSequence = cms.Sequence(hltEcalPreshowerDigis+hltEcalRegionalRestFEDs+hltEcalRegionalRestDigis+hltEcalRegionalRestWeightUncalibRecHit+hltEcalRegionalRestRecHitTmp+hltEcalRecHitAll+hltEcalPreshowerRecHit+HLTDoLocalHcalSequence+hltTowerMakerForAll+hltCaloTowers)
-HLTCaloTausCreatorSequence = cms.Sequence(OpenHLTDoCaloSequence+hltCaloTowersTau1+hltIcone5Tau1+hltCaloTowersTau2+hltIcone5Tau2+hltCaloTowersTau3+hltIcone5Tau3+hltCaloTowersTau4+hltIcone5Tau4+hltCaloTowersCen1+hltIcone5Cen1+hltCaloTowersCen2+hltIcone5Cen2+hltCaloTowersCen3+hltIcone5Cen3+hltCaloTowersCen4+hltIcone5Cen4)
+OpenHLTCaloTausCreatorSequence = cms.Sequence(OpenHLTDoCaloSequence+hltCaloTowersTau1+hltIcone5Tau1+hltCaloTowersTau2+hltIcone5Tau2+hltCaloTowersTau3+hltIcone5Tau3+hltCaloTowersTau4+hltIcone5Tau4+hltCaloTowersCen1+hltIcone5Cen1+hltCaloTowersCen2+hltIcone5Cen2+hltCaloTowersCen3+hltIcone5Cen3+hltCaloTowersCen4+hltIcone5Cen4)

@@ -10,8 +10,8 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2008/03/01 00:39:55 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/11/06 16:02:01 $
+ *  $Revision: 1.7 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -48,7 +48,8 @@ public:
 
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup);
-
+  
+ 
 protected:
 
 private:
@@ -56,11 +57,7 @@ private:
 
   edm::ESHandle<DTGeometry> dtGeom;
   
-
-  // Switch for verbosity
-  bool debug;
-
-  
+  int prescaleFactor;
   int resetCycle;
 
   // Lable of 4D segments in the event
@@ -74,7 +71,7 @@ private:
   void fillHistos(DTSuperLayerId slId,
 		  float distExtr,
 		  float residual);
-  
+
   std::map<DTSuperLayerId, std::vector<MonitorElement*> > histosPerSL;
 };
 #endif

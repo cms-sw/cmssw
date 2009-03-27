@@ -9,8 +9,8 @@
  *
  * \file EcalRawToDigi.h
  *
- * $Date: 2008/04/07 19:35:06 $
- * $Revision: 1.12 $
+ * $Date: 2008/07/14 11:22:44 $
+ * $Revision: 1.16 $
  * \author N. Almeida
  * \author G. Franzoni
  *

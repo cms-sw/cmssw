@@ -3,7 +3,7 @@
 
 #include <string>
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-// #include "RecoVertex/ConfigurableVertexReco/test/TrackHisto.h"
+#include "RecoVertex/ConfigurableVertexReco/test/TrackHisto.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"                                  
 
@@ -26,7 +26,7 @@ class VertexHisto {
 
    private:
       std::string filename_;
-   //   TrackHisto tracks_;
+      TrackHisto tracks_;
       bool hasStamped;
 };
 

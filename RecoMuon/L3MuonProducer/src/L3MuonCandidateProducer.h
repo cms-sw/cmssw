@@ -21,9 +21,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class L3MuonCandidateProducer : public edm::EDProducer {
@@ -41,12 +38,8 @@ class L3MuonCandidateProducer : public edm::EDProducer {
   
  private:
   
-  void insertOne(const reco::TrackRef & tkref, reco::RecoChargedCandidateCollection & candidates);
-
   // L3/GLB Collection Label
   edm::InputTag theL3CollectionLabel; 
-  bool theOnePerTrackPool;
-  bool theOutputTack;
 };
 
 #endif

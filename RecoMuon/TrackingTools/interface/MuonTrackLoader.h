@@ -5,8 +5,8 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2008/10/14 19:46:38 $
- *  $Revision: 1.25 $
+ *  $Date: 2008/04/29 13:46:12 $
+ *  $Revision: 1.23 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -28,8 +28,6 @@ class Propagator;
 class MuonServiceProxy;
 class MuonUpdatorAtVertex;
 class TrajectorySmoother;
-class ForwardDetLayer;
-class BarrelDetLayer;
 
 class MuonTrackLoader {
   public:

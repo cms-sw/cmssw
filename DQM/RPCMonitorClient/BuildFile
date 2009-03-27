@@ -12,6 +12,7 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/Records>
 <use name=EventFilter/Utilities>
+<use name=EventFilter/RPCRawToDigi>
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=DataFormats/RPCDigi>
 
@@ -30,6 +31,7 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/Records>
 <use name=EventFilter/Utilities>
+<use name=EventFilter/RPCRawToDigi>
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=DataFormats/RPCDigi>
 </export>

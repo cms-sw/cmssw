@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjOfflineReader.h,v 1.3 2008/04/25 14:53:24 fblekman Exp $
+// $Id: SiPixelCondObjOfflineReader.h,v 1.2 2008/03/25 22:11:55 fblekman Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -44,7 +44,6 @@ public:
 
   ~SiPixelCondObjOfflineReader(){};
   virtual void beginJob( const edm::EventSetup& );
-  virtual void beginRun( const edm::Run& run, const edm::EventSetup& );
   virtual void analyze(const edm::Event& , const edm::EventSetup& );
   virtual void endJob() ;
 

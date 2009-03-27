@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/09/02 14:23:02 $
- * $Revision: 1.168 $
+ * $Date: 2008/09/04 08:51:04 $
+ * $Revision: 1.169 $
  * \author G. Della Ricca
  *
 */
@@ -81,6 +81,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
   meTiming_         = 0;
   meTriggerTowerEt_        = 0;
   meTriggerTowerEmulError_ = 0;
+  meTriggerTowerTiming_ = 0;
 
   // summary errors
   meIntegrityErr_       = 0;
@@ -338,6 +339,12 @@ void EBSummaryClient::setup(void) {
   meTriggerTowerEmulError_->setAxisTitle("jphi'", 1);
   meTriggerTowerEmulError_->setAxisTitle("jeta'", 2);
 
+  if( meTriggerTowerTiming_ ) dqmStore_->removeElement( meTriggerTowerTiming_->getName() );
+  sprintf(histo, "EBTTT Trigger Primitives Timing summary");
+  meTriggerTowerTiming_ = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
+  meTriggerTowerTiming_->setAxisTitle("jphi'", 1);
+  meTriggerTowerTiming_->setAxisTitle("jeta'", 2);
+
   if( meGlobalSummary_ ) dqmStore_->removeElement( meGlobalSummary_->getName() );
   sprintf(histo, "EB global summary");
   meGlobalSummary_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
@@ -424,6 +431,9 @@ void EBSummaryClient::cleanup(void) {
   if ( meTriggerTowerEmulError_ ) dqmStore_->removeElement( meTriggerTowerEmulError_->getName() );
   meTriggerTowerEmulError_ = 0;
 
+  if ( meTriggerTowerTiming_ ) dqmStore_->removeElement( meTriggerTowerTiming_->getName() );
+  meTriggerTowerTiming_ = 0;
+
   if ( meGlobalSummary_ ) dqmStore_->removeElement( meGlobalSummary_->getName() );
   meGlobalSummary_ = 0;
 
@@ -481,6 +491,7 @@ void EBSummaryClient::analyze(void) {
     for ( int ipx = 1; ipx <= 72; ipx++ ) {
       meTriggerTowerEt_->setBinContent( ipx, iex, 0. );
       meTriggerTowerEmulError_->setBinContent( ipx, iex, 6. );
+      meTriggerTowerTiming_->setBinContent( ipx, iex, -1. );
     }
   }
 
@@ -510,6 +521,7 @@ void EBSummaryClient::analyze(void) {
   meTiming_->setEntries( 0 );
   meTriggerTowerEt_->setEntries( 0 );
   meTriggerTowerEmulError_->setEntries( 0 );
+  meTriggerTowerTiming_->setEntries( 0 );
 
   meGlobalSummary_->setEntries( 0 );
 
@@ -818,6 +830,17 @@ void EBSummaryClient::analyze(void) {
       for (int ie = 1; ie <= 17; ie++ ) {
         for (int ip = 1; ip <= 4; ip++ ) {
 
+          int iex;
+          int ipx;
+          
+          if ( ism <= 18 ) {
+            iex = 1+(17-ie);
+            ipx = ip+4*(ism-1);
+          } else {
+            iex = 17+ie;
+            ipx = 1+(4-ip)+4*(ism-19);
+          }
+
           if ( ebsfc ) {
 
             me = ebsfc->meh01_[ism-1];
@@ -829,17 +852,6 @@ void EBSummaryClient::analyze(void) {
               if ( me->getBinContent( ie, ip ) == 6 ) xval = 2;
               if ( me->getBinContent( ie, ip ) == 0 ) xval = 1;
               if ( me->getBinContent( ie, ip ) > 0 ) xval = 0;
-
-              int iex;
-              int ipx;
-
-              if ( ism <= 18 ) {
-                iex = 1+(17-ie);
-                ipx = ip+4*(ism-1);
-              } else {
-                iex = 17+ie;
-                ipx = 1+(4-ip)+4*(ism-19);
-              }
 
               if ( me->getEntries() != 0 ) {
                 meStatusFlags_->setBinContent( ipx, iex, xval );
@@ -863,18 +875,17 @@ void EBSummaryClient::analyze(void) {
               TProfile2D* obj = UtilsClient::getHisto<TProfile2D*>( me );
               if(obj && obj->GetBinEntries(obj->GetBin( ie, ip ))!=0) hasRealDigi = true;
 
-              int iex;
-              int ipx;
-
-              if ( ism <= 18 ) {
-                iex = 1+(17-ie);
-                ipx = ip+4*(ism-1);
-              } else {
-                iex = 17+ie;
-                ipx = 1+(4-ip)+4*(ism-19);
-              }
-
               meTriggerTowerEt_->setBinContent( ipx, iex, xval );
+
+            }
+
+            me = ebtttc->me_o01_[ism-1];
+
+            if ( me ) {
+
+              float xval = me->getBinContent( ie, ip );
+
+              meTriggerTowerTiming_->setBinContent( ipx, iex, xval );
 
             }
 
@@ -919,17 +930,6 @@ void EBSummaryClient::analyze(void) {
 
               if ( xval!=0 ) xval = 1;
 
-            }
-
-            int iex;
-            int ipx;
-
-            if ( ism <= 18 ) {
-              iex = 1+(17-ie);
-              ipx = ip+4*(ism-1);
-            } else {
-              iex = 17+ie;
-              ipx = 1+(4-ip)+4*(ism-19);
             }
 
             meTriggerTowerEmulError_->setBinContent( ipx, iex, xval );

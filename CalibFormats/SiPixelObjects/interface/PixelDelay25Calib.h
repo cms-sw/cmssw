@@ -30,22 +30,13 @@ namespace pos{
     ~PixelDelay25Calib();
 
     virtual void writeASCII(std::string dir="") const;
-    void 	 writeXML(        pos::PixelConfigKey key, int version, std::string path) const {;}
-    virtual void writeXMLHeader(  pos::PixelConfigKey key, 
-				  int version, 
-				  std::string path, 
-				  std::ofstream *out,
-				  std::ofstream *out1 = NULL,
-				  std::ofstream *out2 = NULL
-				  ) const ;
-    virtual void writeXML( 	  std::ofstream *out,			     	   			    
-			   	  std::ofstream *out1 = NULL ,
-			   	  std::ofstream *out2 = NULL ) const ;
-    virtual void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = NULL,
-				  std::ofstream *out2 = NULL
-				  ) const ;
+    void 	 writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
+    virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
+    virtual void writeXML(                                                              std::ofstream *out) const {;}
+    virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
 
+
+    virtual std::string mode() {return mode_;}
     std::set<std::string>& portcardList() {return portcardNames_;}
     bool allPortcards() {return allPortcards_;}
     bool allModules() {return allModules_;}
@@ -64,7 +55,7 @@ namespace pos{
     void closeFiles();
 
   private:
-
+    std::string mode_;
     std::set<std::string> portcardNames_;
     bool allPortcards_, allModules_;
     int origSDa_, origRDa_, range_, gridSize_, gridSteps_, numTests_, commands_;

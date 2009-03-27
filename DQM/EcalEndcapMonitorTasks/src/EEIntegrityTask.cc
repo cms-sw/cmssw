@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2008/04/08 18:11:28 $
- * $Revision: 1.38 $
+ * $Date: 2008/12/03 10:28:11 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
  */
@@ -316,9 +316,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EEDetIdCollection::const_iterator idItr = ids0->begin(); idItr != ids0->end(); ++idItr ) {
 
-      EEDetId id = (*idItr);
-
-      int ism = Numbers::iSM( id );
+      int ism = Numbers::iSM( *idItr );
 
       float xism = ism - 0.5;
 
@@ -422,13 +420,11 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++idItr ) {
 
-      EcalElectronicsId id = (*idItr);
+      if ( Numbers::subDet( *idItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
+      int ism = Numbers::iSM( *idItr );
 
-      int ism = Numbers::iSM( id );
-
-      vector<DetId> crystals = Numbers::crystals( id );
+      vector<DetId> crystals = Numbers::crystals( *idItr );
 
       for ( unsigned int i=0; i<crystals.size(); i++ ) {
 
@@ -460,13 +456,11 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++idItr ) {
 
-      EcalElectronicsId id = (*idItr);
+      if ( Numbers::subDet( *idItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
+      int ism = Numbers::iSM( *idItr );
 
-      int ism = Numbers::iSM( id );
-
-      vector<DetId> crystals = Numbers::crystals( id );
+      vector<DetId> crystals = Numbers::crystals( *idItr );
 
       for ( unsigned int i=0; i<crystals.size(); i++ ) {
 
@@ -498,13 +492,11 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++idItr ) {
 
-      EcalElectronicsId id = (*idItr);
+      if ( Numbers::subDet( *idItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
+      int ism = Numbers::iSM( *idItr );
 
-      int ism = Numbers::iSM( id );
-
-      int itt   = id.towerId();
+      int itt   = idItr->towerId();
       float iTt = itt + 0.5 - 69;
 
       if ( meIntegrityMemTTId[ism-1] ) meIntegrityMemTTId[ism-1]->Fill(iTt,0);
@@ -523,13 +515,11 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids7->begin(); idItr != ids7->end(); ++idItr ) {
 
-      EcalElectronicsId id = (*idItr);
+      if ( Numbers::subDet( *idItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
+      int ism = Numbers::iSM( *idItr );
 
-      int ism = Numbers::iSM( id );
-
-      int itt   = id.towerId();
+      int itt   = idItr->towerId();
       float iTt = itt + 0.5 - 69;
 
       if ( meIntegrityMemTTBlockSize[ism-1] ) meIntegrityMemTTBlockSize[ism-1]->Fill(iTt,0);
@@ -548,17 +538,15 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++idItr ) {
 
-      EcalElectronicsId id = (*idItr);
+      if ( Numbers::subDet( *idItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
+      int ism = Numbers::iSM( *idItr );
 
-      int ism = Numbers::iSM( id );
-
-      int chid = id.channelId();
+      int chid = idItr->channelId();
       int ie = EEIntegrityTask::chMemAbscissa[chid-1];
       int ip = EEIntegrityTask::chMemOrdinate[chid-1];
 
-      int itt = id.towerId();
+      int itt = idItr->towerId();
       ie += (itt-69)*5;
 
       float xix = ie - 0.5;
@@ -580,17 +568,15 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++idItr ) {
 
-      EcalElectronicsId id = (*idItr);
+      if ( Numbers::subDet( *idItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
+      int ism = Numbers::iSM( *idItr );
 
-      int ism = Numbers::iSM( id );
-
-      int chid = id.channelId();
+      int chid = idItr->channelId();
       int ie = EEIntegrityTask::chMemAbscissa[chid-1];
       int ip = EEIntegrityTask::chMemOrdinate[chid-1];
 
-      int itt = id.towerId();
+      int itt = idItr->towerId();
       ie += (itt-69)*5;
 
       float xix = ie - 0.5;

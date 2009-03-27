@@ -17,6 +17,9 @@
 /** @var DQMStore::verbose_
     Universal verbose flag for DQM. */
 
+/** @var DQMStore::verboseQT_
+    Verbose flag for xml-based QTests. */
+
 /** @var DQMStore::reset_
 
     Flag used to print out a warning when calling quality tests.
@@ -139,7 +142,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
   verbose_ = pset.getUntrackedParameter<int>("verbose", 0);
   if (verbose_ > 0)
     std::cout << "DQMStore: verbosity set to " << verbose_ << std::endl;
-
+  
   collateHistograms_ = pset.getUntrackedParameter<bool>("collateHistograms", false);
   if (collateHistograms_)
     std::cout << "DQMStore: histogram collation is enabled\n";
@@ -1817,7 +1820,7 @@ DQMStore::useQTest(const std::string &dir, const std::string &qtname)
 }
 
 /// attach quality test <qc> to monitor elements matching <pattern>.
-void
+int 
 DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname)
 {
   QCriterion *qc = getQCriterion(qtname);
@@ -1847,19 +1850,26 @@ DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname)
   // Apply the quality test.
   MEMap::iterator mi = data_.begin();
   MEMap::iterator me = data_.end();
-  for ( ; mi != me; ++mi)
-    if (rx->match(mi->first))
-      mi->second.addQReport(qts.second);
-}
 
+  int cases=0;
+  for ( ; mi != me; ++mi)
+    if (rx->match(mi->first)){
+    ++cases; 
+    mi->second.addQReport(qts.second);
+   }
+
+  //return the number of matched cases
+  return cases;
+}
 /// run quality tests (also finds updated contents in last monitoring cycle,
 /// including newly added content) 
 void
 DQMStore::runQTests(void)
 {
 
-  std::cout << "DQMStore: running runQTests() with reset = "
-            << ( reset_ ? "true" : "false" ) << std::endl;
+  if (verbose_ > 0)
+    std::cout << "DQMStore: running runQTests() with reset = "
+              << ( reset_ ? "true" : "false" ) << std::endl;
 
   // Apply quality tests to each monitor element, skipping references.
   MEMap::iterator mi = data_.begin();

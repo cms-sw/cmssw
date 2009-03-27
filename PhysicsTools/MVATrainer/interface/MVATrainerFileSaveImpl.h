@@ -28,7 +28,10 @@ class MVATrainerFileSaveImpl : public MVATrainerFileSave {
 	getToPut(const edm::EventSetup& es) const
 	{
 		edm::ESHandle<Calibration::MVAComputerContainer> handle;
-		es.get<Record_t>().get("trained", handle);
+		if (trained)
+			es.get<Record_t>().get("trained", handle);
+		else
+			es.get<Record_t>().get(handle);
 		return handle.product();
 	}
 };

@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2008/06/25 14:16:16 $
- * $Revision: 1.29 $
+ * $Date: 2008/06/25 15:08:19 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -124,6 +124,7 @@ MonitorElement* meCosmic_[2];
 MonitorElement* meTiming_[2];
 MonitorElement* meTriggerTowerEt_[2];
 MonitorElement* meTriggerTowerEmulError_[2];
+MonitorElement* meTriggerTowerTiming_[2];
 
 MonitorElement* meGlobalSummary_[2];
 

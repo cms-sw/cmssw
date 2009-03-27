@@ -1,633 +1,797 @@
 #include "DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
-HcalRecHitMonitor::HcalRecHitMonitor() {
-  doPerChannel_ = false;
-  occThresh_ = 1;
+#define OUT if(fverbosity_)cout
+#define TIME_MIN -250
+#define TIME_MAX 250
+
+using namespace std;
+
+HcalRecHitMonitor::HcalRecHitMonitor()
+{
   ievt_=0;
-}
+} //constructor
 
-HcalRecHitMonitor::~HcalRecHitMonitor() {
-}
-
-void HcalRecHitMonitor::reset(){}
-
-
-namespace HcalRecHitPerChan{
-  template<class RecHit>
-  inline void perChanHists(int id, const RecHit& rhit, 
-			   std::map<HcalDetId, MonitorElement*> &toolE, 
-			   std::map<HcalDetId, MonitorElement*> &toolT,
-			   DQMStore* dbe, string baseFolder) {
-    
-    std::map<HcalDetId,MonitorElement*>::iterator _mei;
-
-    string type = "HB";
-    if(id==1)type = "HE"; 
-    else if(id==2) type = "HO"; 
-    else if(id==3) type = "HF"; 
-
-    if(dbe) dbe->setCurrentFolder(baseFolder+"/"+type);
-
-    
-    ///energies by channel
-    _mei=toolE.find(rhit.id()); // look for a histogram with this hit's id
-    if (_mei!=toolE.end()){
-      if (_mei->second==0) return;
-      else _mei->second->Fill(rhit.energy()); // if it's there, fill it with energy
-    }
-    else{
-      if(dbe){
-	char name[1024];
-	sprintf(name,"%s RecHit Energy ieta=%d iphi=%d depth=%d",type.c_str(),rhit.id().ieta(),rhit.id().iphi(),rhit.id().depth());
-	//changed for GRUMM cosmics:
-	//	toolE[rhit.id()] =  dbe->book1D(name,name,200,0,200); 
-       	toolE[rhit.id()] =  dbe->book1D(name,name,200,-10,20); 
-	toolE[rhit.id()]->Fill(rhit.energy());
-      }
-    }
-    
-    ///times by channel
-    _mei=toolT.find(rhit.id()); // look for a histogram with this hit's id
-    if (_mei!=toolT.end()){
-      if (_mei->second==0) return;
-      else _mei->second->Fill(rhit.time()); // if it's there, fill it with time
-    }
-    else{
-      if(dbe){
-	char name[1024];
-	sprintf(name,"%s RecHit Time ieta=%d iphi=%d depth=%d",type.c_str(),rhit.id().ieta(),rhit.id().iphi(),rhit.id().depth());
-	toolT[rhit.id()] =  dbe->book1D(name,name,300,-100,200); 
-	toolT[rhit.id()]->Fill(rhit.time());
-      }
-    }
-  }
-}
+HcalRecHitMonitor::~HcalRecHitMonitor()
+{
+} //destructor
 
 
-void HcalRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
+/* ------------------------------------ */ 
+
+void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
+				DQMStore* dbe)
+{
   HcalBaseMonitor::setup(ps,dbe);
-  baseFolder_ = rootFolder_+"RecHitMonitor";
 
-  if ( ps.getUntrackedParameter<bool>("RecHitsPerChannel", false) ){
-    doPerChannel_ = true;
-  }
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+  if (fVerbosity>0)
+    cout <<"<HcalRecHitMonitor::setup>  Setting up histograms"<<endl;
+
+  baseFolder_ = rootFolder_+"RecHitMonitor_Hcal";
+
+  // Assume subdetectors not present until shown otherwise
+  HBpresent_=false;
+  HEpresent_=false;
+  HOpresent_=false;
+  HFpresent_=false;
+
+  // Rec Hit Monitor - specific cfg variables
+
+  if (fVerbosity>1)
+    cout <<"<HcalRecHitMonitor::setup>  Getting variable values from cfg files"<<endl;
   
-  etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 41.5);
-  etaMin_ = ps.getUntrackedParameter<double>("MinEta", -41.5);
-  etaBins_ = (int)(etaMax_ - etaMin_);
+  // rechit_makeDiagnostics_ will take on base task value unless otherwise specified
+  rechit_makeDiagnostics_ = ps.getUntrackedParameter<bool>("RecHitMonitor_makeDiagnosticPlots",makeDiagnostics);
   
-  phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", 73);
-  phiMin_ = ps.getUntrackedParameter<double>("MinPhi", 0);
-  phiBins_ = (int)(phiMax_ - phiMin_);
-  
-  occThresh_ = ps.getUntrackedParameter<double>("RecHitOccThresh", 1.0);
-  
+  // Set checkNevents values
+  rechit_checkNevents_ = ps.getUntrackedParameter<int>("RecHitMonitor_checkNevents",checkNevents_);
+  rechit_minErrorFlag_ = ps.getUntrackedParameter<double>("RecHitMonitor_minErrorFlag",0.0);
+
+  energyThreshold_       = ps.getUntrackedParameter<double>("RecHitMonitor_energyThreshold",                  0);
+  HBenergyThreshold_     = ps.getUntrackedParameter<double>("RecHitMonitor_HB_energyThreshold",energyThreshold_);
+  HEenergyThreshold_     = ps.getUntrackedParameter<double>("RecHitMonitor_HE_energyThreshold",energyThreshold_);
+  HOenergyThreshold_     = ps.getUntrackedParameter<double>("RecHitMonitor_HO_energyThreshold",energyThreshold_);
+  HFenergyThreshold_     = ps.getUntrackedParameter<double>("RecHitMonitor_HF_energyThreshold",energyThreshold_);
+  HFenergyThreshold_     = ps.getUntrackedParameter<double>("RecHitMonitor_HF_energyThreshold",            -999);
+  ZDCenergyThreshold_    = ps.getUntrackedParameter<double>("RecHitMonitor_ZDC_energyThreshold",           -999);
+
+  // Set initial event # to 0
   ievt_=0;
+
+  // zero all counters
+
+  // TH2F counters
+  for (int i=0;i<ETABINS;++i)
+    {
+      for (int j=0;j<PHIBINS;++j)
+	{
+	  for (int k=0;k<6;++k)
+	    {
+	      occupancy_[i][j][k]=0;
+	      occupancy_thresh_[i][j][k]=0;
+	      energy_[i][j][k]=0;
+	      energy_thresh_[i][j][k]=0;
+	      time_[i][j][k]=0;
+	      time_thresh_[i][j][k]=0;
+	    }
+	} // for (int j=0;j<PHIBINS;++j)
+    } // for (int i=0;i<ETABINS;++i)
+
+  // TH1F counters
   
-  if ( m_dbe !=NULL ) {    
+  // energy
+  for (int i=0;i<200;++i)
+    {
+      HBenergy_[i]=0;
+      HBenergy_thresh_[i]=0;
+      HEenergy_[i]=0;
+      HEenergy_thresh_[i]=0;
+      HOenergy_[i]=0;
+      HOenergy_thresh_[i]=0;
+      HFenergy_[i]=0;
+      HFenergy_thresh_[i]=0;
+      HFenergyLong_[i]=0;
+      HFenergyLong_thresh_[i]=0;
+      HFenergyShort_[i]=0;
+      HFenergyShort_thresh_[i]=0;
+    }
 
-    m_dbe->setCurrentFolder(baseFolder_);
-    //changed for cosmics
-    //    meRECHIT_E_all =  m_dbe->book1D("RecHit Total Energy","RecHit Total Energy",100,0,400);
-    meRECHIT_E_all =  m_dbe->book1D("RecHit Total Energy","RecHit Total Energy",100,-20,400);
-    meRECHIT_Ethresh_all =  m_dbe->book1D("RecHit Total Energy - Threshold","RecHit Total Energy - Threshold",100,0,400);
+  // time
+  for (int i=0;i<(TIME_MAX-TIME_MIN);++i)
+    {
+      HBtime_[i]=0;
+      HBtime_thresh_[i]=0;
+      HEtime_[i]=0;
+      HEtime_thresh_[i]=0;
+      HOtime_[i]=0;
+      HOtime_thresh_[i]=0;
+      HFtime_[i]=0;
+      HFtime_thresh_[i]=0;
+      HFtimeLong_[i]=0;
+      HFtimeLong_thresh_[i]=0;
+      HFtimeShort_[i]=0;
+      HFtimeShort_thresh_[i]=0;
+    }
 
-    meEVT_ = m_dbe->bookInt("RecHit Event Number");    
-    meEVT_->Fill(ievt_);
-    meOCC_MAP_L1 = m_dbe->book2D("RecHit Depth 1 Occupancy Map","RecHit Depth 1 Occupancy Map",
-				 etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    meOCC_MAP_L1_E = m_dbe->book2D("RecHit Depth 1 Energy Map","RecHit Depth 1 Energy Map",
-				   etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-
-    meOCC_MAP_L2 = m_dbe->book2D("RecHit Depth 2 Occupancy Map","RecHit Depth 2 Occupancy Map",
-				 etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    meOCC_MAP_L2_E = m_dbe->book2D("RecHit Depth 2 Energy Map","RecHit Depth 2 Energy Map",
-				   etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-
-    meOCC_MAP_L3 = m_dbe->book2D("RecHit Depth 3 Occupancy Map","RecHit Depth 3 Occupancy Map",
-				 etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    meOCC_MAP_L3_E = m_dbe->book2D("RecHit Depth 3 Energy Map","RecHit Depth 3 Energy Map",
-				   etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-
-    meOCC_MAP_L4 = m_dbe->book2D("RecHit Depth 4 Occupancy Map","RecHit Depth 4 Occupancy Map",
-				 etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    meOCC_MAP_L4_E = m_dbe->book2D("RecHit Depth 4 Energy Map","RecHit Depth 4 Energy Map",
-				   etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    
-    meOCC_MAP_ETA = m_dbe->book1D("RecHit Eta Occupancy Map","RecHit Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
-    meOCC_MAP_PHI = m_dbe->book1D("RecHit Phi Occupancy Map","RecHit Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
-
-    meOCC_MAP_ETA_E = m_dbe->book1D("RecHit Eta Energy Map","RecHit Eta Energy Map",etaBins_,etaMin_,etaMax_);
-    meOCC_MAP_PHI_E = m_dbe->book1D("RecHit Phi Energy Map","RecHit Phi Energy Map",phiBins_,phiMin_,phiMax_);
-
-    m_dbe->setCurrentFolder(baseFolder_+"/HB");
-    //changed for cosmics
-    //    hbHists.meRECHIT_E_tot = m_dbe->book1D("HB RecHit Total Energy","HB RecHit Total Energy",100,0,400);
-    hbHists.meRECHIT_E_tot = m_dbe->book1D("HB RecHit Total Energy","HB RecHit Total Energy",100,-200,200);
-    //    hbHists.meRECHIT_E_all = m_dbe->book1D("HB RecHit Energies","HB RecHit Energies",200,0,200);
-    hbHists.meRECHIT_E_all = m_dbe->book1D("HB RecHit Energies","HB RecHit Energies",200,-2,2);
-
-    hbHists.meRECHIT_E_low = m_dbe->book1D("HB RecHit Energies - Low Region","HB RecHit Energies - Low Region",200,0,10);
-    hbHists.meRECHIT_T_all = m_dbe->book1D("HB RecHit Times","HB RecHit Times",300,-100,200);
-    hbHists.meOCC_MAP_GEO = m_dbe->book2D("HB RecHit Geo Occupancy Map","HB RecHit Geo Occupancy Map",
-					  etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    
-    hbHists.meRECHIT_Ethresh_tot = m_dbe->book1D("HB RecHit Total Energy - Threshold","HB RecHit Total Energy - Threshold",100,0,400);
-    hbHists.meRECHIT_Tthresh_all = m_dbe->book1D("HB RecHit Times - Threshold","HB RecHit Times - Threshold",300,-100,200);
-    hbHists.meOCC_MAPthresh_GEO = m_dbe->book2D("HB RecHit Geo Occupancy Map - Threshold",
-						"HB RecHit Geo Occupancy Map - Threshold",
-						etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-
-
-    m_dbe->setCurrentFolder(baseFolder_+"/HE");
-    //changed for cosmics
-    //     heHists.meRECHIT_E_tot = m_dbe->book1D("HE RecHit Total Energy","HE RecHit Total Energy",100,0,400);
-    heHists.meRECHIT_E_tot = m_dbe->book1D("HE RecHit Total Energy","HE RecHit Total Energy",100,-200,200);
-    //    heHists.meRECHIT_E_all = m_dbe->book1D("HE RecHit Energies","HE RecHit Energies",200,0,200);
-    heHists.meRECHIT_E_all = m_dbe->book1D("HE RecHit Energies","HE RecHit Energies",200,-2,2);
-    heHists.meRECHIT_E_low = m_dbe->book1D("HE RecHit Energies - Low Region","HE RecHit Energies - Low Region",200,0,10);
-    heHists.meRECHIT_T_all = m_dbe->book1D("HE RecHit Times","HE RecHit Times",300,-100,200);
-    heHists.meOCC_MAP_GEO = m_dbe->book2D("HE RecHit Geo Occupancy Map","HE RecHit Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    heHists.meRECHIT_Ethresh_tot = m_dbe->book1D("HE RecHit Total Energy - Threshold","HE RecHit Total Energy - Threshold",100,0,400);
-    heHists.meRECHIT_Tthresh_all = m_dbe->book1D("HE RecHit Times - Threshold","HE RecHit Times - Threshold",300,-100,200);
-    heHists.meOCC_MAPthresh_GEO = m_dbe->book2D("HE RecHit Geo Occupancy Map - Threshold",
-						"HE RecHit Geo Occupancy Map - Threshold",
-						etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-
-    m_dbe->setCurrentFolder(baseFolder_+"/HF");
-    //changed for cosmics
-    // hfHists.meRECHIT_E_tot = m_dbe->book1D("HF RecHit Total Energy","HF RecHit Total Energy",100,0,400);
-    hfHists.meRECHIT_E_tot = m_dbe->book1D("HF RecHit Total Energy","HF RecHit Total Energy",100,-200,200);
-
-    //    hfHists.meRECHIT_E_all = m_dbe->book1D("HF Long, RecHit Energies","HF Long, RecHit Energies",200,0,200);
-    hfHists.meRECHIT_E_all = m_dbe->book1D("HF Long RecHit Energies","HF Long RecHit Energies",200,-5,5);
-    hfHists.meRECHIT_E_low = m_dbe->book1D("HF Long RecHit Energies - Low Region","HF Long RecHit Energies - Low Region",200,0,10);
-    hfHists.meRECHIT_T_all = m_dbe->book1D("HF Long RecHit Times","HF Long RecHit Times",300,-100,200);
-
-    
-    //need to see Long (depth1) and Short (depth2) fibers separately:
-    //hfHists.meRECHIT_E_all_L = m_dbe->book1D("HF Long, RecHit Energies","HF Long, RecHit Energies",200,-5,5);
-    //hfHists.meRECHIT_E_low_L = m_dbe->book1D("HF Long, RecHit Energies - Low Region","HF Long, RecHit Energies - Low Region",200,0,10);
-    //hfHists.meRECHIT_T_all_L = m_dbe->book1D("HF Long, RecHit Times","HF Long, RecHit Times",300,-100,200);
-    //--
-    //hfHists.meRECHIT_E_all_S = m_dbe->book1D("HF Short, RecHit Energies","HF Short, RecHit Energies",200,-5,5);
-    //hfHists.meRECHIT_E_low_S = m_dbe->book1D("HF Short, RecHit Energies - Low Region","HF Short, RecHit Energies - Low Region",200,0,10);
-    //hfHists.meRECHIT_T_all_S = m_dbe->book1D("HF Short, RecHit Times","HF Short, RecHit Times",300,-100,200);
-
-    //--but above is in a map...instead I just add 3 histos for Short:
-    hfshort_meRECHIT_E_all = m_dbe->book1D("HF Short RecHit Energies","HF Short RecHit Energies",200,-5,5);
-    hfshort_meRECHIT_E_low = m_dbe->book1D("HF Short RecHit Energies - Low Region","HF Short RecHit Energies - Low Region",200,0,10);
-    hfshort_meRECHIT_T_all = m_dbe->book1D("HF Short RecHit Times","HF Short RecHit Times",300,-100,200);
+  // occupancy
+  for (int i=0;i<2593;++i)
+    {
+      HB_occupancy_[i]=0;
+      HE_occupancy_[i]=0;
+      HB_occupancy_thresh_[i]=0;
+      HE_occupancy_thresh_[i]=0;
+      if (i<=2160)
+	{
+	  HO_occupancy_[i]=0;
+	  HO_occupancy_thresh_[i]=0;
+	}
+      if (i<=1728)
+	{
+	  HF_occupancy_[i]=0;
+	  HF_occupancy_thresh_[i]=0;
+	}
+      if (i<=864)
+	{
+	  HFlong_occupancy_[i] =0;
+	  HFshort_occupancy_[i]=0;
+	  HFlong_occupancy_thresh_[i] =0;
+	  HFshort_occupancy_thresh_[i]=0;
+	}
+    } // for (int i=0;i<2592;++i)
 
 
+  // Set up histograms
+  if (m_dbe)
+    {
+      if (fVerbosity>1)
+	cout <<"<HcalRecHitMonitor::setup>  Setting up histograms"<<endl;
 
-    hfHists.meOCC_MAP_GEO = m_dbe->book2D("HF RecHit Geo Occupancy Map","HF RecHit Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hfHists.meRECHIT_Ethresh_tot = m_dbe->book1D("HF RecHit Total Energy - Threshold","HF RecHit Total Energy - Threshold",100,0,400);
-    hfHists.meRECHIT_Tthresh_all = m_dbe->book1D("HF RecHit Times - Threshold","HF RecHit Times - Threshold",300,-100,200);
-    hfHists.meOCC_MAPthresh_GEO = m_dbe->book2D("HF RecHit Geo Occupancy Map - Threshold",
-						"HF RecHit Geo Occupancy Map - Threshold",
-						etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+      m_dbe->setCurrentFolder(baseFolder_);
+      meEVT_ = m_dbe->bookInt("RecHit Event Number");
+      meEVT_->Fill(ievt_);
 
+      // Create problem cell plots
+      // Overall plot gets an initial " " in its name
+      ProblemRecHits=m_dbe->book2D(" ProblemRecHits",
+                                     " Problem Rec Hit Rate for all HCAL",
+                                     etaBins_,etaMin_,etaMax_,
+                                     phiBins_,phiMin_,phiMax_);
+      ProblemRecHits->setAxisTitle("i#eta",1);
+      ProblemRecHits->setAxisTitle("i#phi",2);
+      // Only show problem cells that are above problem threshold
+      (ProblemRecHits->getTH2F())->SetMinimum(rechit_minErrorFlag_);
+      (ProblemRecHits->getTH2F())->SetMaximum(1.);
+      
+      // Overall Problem plot appears in main directory; plots by depth appear \in subdirectory
+      m_dbe->setCurrentFolder(baseFolder_+"/problem_rechits");
+      setupDepthHists2D(ProblemRecHitsByDepth, " Problem RecHit Rate","");
+      setMinMaxHists2D(ProblemRecHitsByDepth,rechit_minErrorFlag_,1.);
 
-    m_dbe->setCurrentFolder(baseFolder_+"/HO");
-    //changed for cosmics
-    //hoHists.meRECHIT_E_tot = m_dbe->book1D("HO RecHit Total Energy","HO RecHit Total Energy",100,0,400);
-    hoHists.meRECHIT_E_tot = m_dbe->book1D("HO RecHit Total Energy","HO RecHit Total Energy",100,-200,200);
-    //    hoHists.meRECHIT_E_all = m_dbe->book1D("HO RecHit Energies","HO RecHit Energies",200,0,200);
-    hoHists.meRECHIT_E_all = m_dbe->book1D("HO RecHit Energies","HO RecHit Energies",200,-2,2);
-    hoHists.meRECHIT_E_low = m_dbe->book1D("HO RecHit Energies - Low Region","HO RecHit Energies - Low Region",200,0,10);
-    hoHists.meRECHIT_T_all = m_dbe->book1D("HO RecHit Times","HO RecHit Times",300,-100,200);
-    hoHists.meOCC_MAP_GEO = m_dbe->book2D("HO RecHit Geo Occupancy Map","HO RecHit Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hoHists.meRECHIT_Ethresh_tot = m_dbe->book1D("HO RecHit Total Energy - Threshold","HO RecHit Total Energy - Threshold",100,0,400);
-    hoHists.meRECHIT_Tthresh_all = m_dbe->book1D("HO RecHit Times - Threshold","HO RecHit Times - Threshold",300,-100,200);
-    hoHists.meOCC_MAPthresh_GEO = m_dbe->book2D("HO RecHit Geo Occupancy Map - Threshold",
-						"HO RecHit Geo Occupancy Map - Threshold",
-						etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+      m_dbe->setCurrentFolder(baseFolder_+"/rechit_energy");
+      setupDepthHists2D(EnergyByDepth,"Rec Hit Average Energy","");
+      setupDepthHists2D(EnergyThreshByDepth,"Rec Hit Average Energy Above Threshold","");
+      
+      m_dbe->setCurrentFolder(baseFolder_+"/rechit_occupancy");
+      setupDepthHists2D(OccupancyByDepth,"Rec Hit Average Occupancy","");
+      setMinMaxHists2D(OccupancyByDepth,0,1);
+      setupDepthHists2D(OccupancyThreshByDepth,"Rec Hit Average Occupancy Above Threshold","");
+      setMinMaxHists2D(OccupancyThreshByDepth,0,1);
+      
+      m_dbe->setCurrentFolder(baseFolder_+"/rechit_time");
+      setupDepthHists2D(TimeByDepth,"Rec Hit Average Time","");
+      setupDepthHists2D(TimeThreshByDepth,"Rec Hit Average Time Above Threshold","");
+      
+      if (rechit_makeDiagnostics_)
+	{
+	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/hb");
+	  h_HBEnergy=m_dbe->book1D("HB_energy","HB Rec Hit Energy",200,-5,5);
+	  h_HBThreshEnergy=m_dbe->book1D("HB_energy_thresh", "HB Rec Hit Energy Above Threshold",200,-5,5);
+	  h_HBTotalEnergy=m_dbe->book1D("HB_total_energy","HB Rec Hit Total Energy",200,-200,200);
+	  h_HBThreshTotalEnergy=m_dbe->book1D("HB_total_energy_thresh", "HB Rec Hit Total Energy Above Threshold",200,-200,200);
+	  h_HBTime=m_dbe->book1D("HB_time","HB Rec Hit Time",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
+	  h_HBThreshTime=m_dbe->book1D("HB_time_thresh", "HB Rec Hit Time Above Threshold",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
+	  h_HBOccupancy=m_dbe->book1D("HB_occupancy","HB Rec Hit Occupancy",2593,-0.5,2592.5);
+	  h_HBThreshOccupancy=m_dbe->book1D("HB_occupancy_thresh","HB Rec Hit Occupancy Above Threshold",2593,-0.5,2592.5);
+	  // hb
 
-    // ZDC histograms
-    m_dbe->setCurrentFolder(baseFolder_+"/ZDC");
-    ZDCtanAlpha = m_dbe->book1D("ZDC_EM_tan_alpha","ZDC EM tan #alpha",100,-0.0003,0.0003);
-    ZDCaverageX = m_dbe->book1D("ZDC_EM_avg_weighted_X_position","ZDC EM avg weighted X position",
-				147,-73,74);
-    ZDCxplusVSxminus = m_dbe->book2D("ZDC_EM_Xplus_Vs_Xminus","ZDC EM <X+> vs <X->",
-				     147,-73,74,147,-73,74);
-    // Adjust these limits later
-    ZDChadVSem_plus = m_dbe->book2D("ZDCplus_HAD_vs_EM","ZDC+ HAD vs EM",400,-100,100,400,-100,100);
-    ZDChadVSem_minus = m_dbe->book2D("ZDCminus_HAD_vs_EM","ZDC- HAD vs EM",400,-100,100,400,-100,100);
-    ZDCenergy_plusVSminus = m_dbe->book2D("ZDC_energy_plus_vs_minus","ZDC Energy Plus vs Minus",
-					  400,-200,200,400,-200,200);
-    ZDCenergyVSlayer_plus = m_dbe->bookProfile("ZDC_plus_energy_vs_layer", "ZDC Plus Energy vs Layer",5,0,5,400,-200,200);
-    ZDCenergyVSlayer_plus->setBinLabel(1,"EM");
-    ZDCenergyVSlayer_plus->setBinLabel(2,"HAD0");
-    ZDCenergyVSlayer_plus->setBinLabel(3,"HAD1");
-    ZDCenergyVSlayer_plus->setBinLabel(4,"HAD2");
-    ZDCenergyVSlayer_plus->setBinLabel(5,"HAD3");
-    
-    ZDCenergyVSlayer_minus = m_dbe->bookProfile("ZDC_minus_energy_vs_layer", "ZDC Minus Energy vs Layer",5,0,5,400,-200,200);
-    ZDCenergyVSlayer_minus->setBinLabel(1,"EM");
-    ZDCenergyVSlayer_minus->setBinLabel(2,"HAD0");
-    ZDCenergyVSlayer_minus->setBinLabel(3,"HAD1");
-    ZDCenergyVSlayer_minus->setBinLabel(4,"HAD2");
-    ZDCenergyVSlayer_minus->setBinLabel(5,"HAD3");
-    
+	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/he");	
+	  h_HEEnergy=m_dbe->book1D("HE_energy","HE Rec Hit Energy",200,-5,5);
+	  h_HEThreshEnergy=m_dbe->book1D("HE_energy_thresh", "HE Rec Hit Energy Above Threshold",200,-5,5);
+	  h_HETotalEnergy=m_dbe->book1D("HE_total_energy","HE Rec Hit Total Energy",200,-200,200);
+	  h_HEThreshTotalEnergy=m_dbe->book1D("HE_total_energy_thresh", "HE Rec Hit Total Energy Above Threshold",200,-200,200);
+	  h_HETime=m_dbe->book1D("HE_time","HE Rec Hit Time",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
+	  h_HEThreshTime=m_dbe->book1D("HE_time_thresh", "HE Rec Hit Time Above Threshold",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
+	  h_HEOccupancy=m_dbe->book1D("HE_occupancy","HE Rec Hit Occupancy",2593,-0.5,2592.5);
+	  h_HEThreshOccupancy=m_dbe->book1D("HE_occupancy_thresh","HE Rec Hit Occupancy Above Threshold",2593,-0.5,2592.5);
+	  // he
 
-  } // if (m_dbe) !=NULL
+	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/ho");	
+	  h_HOEnergy=m_dbe->book1D("HO_energy","HO Rec Hit Energy",200,-5,5);
+	  h_HOThreshEnergy=m_dbe->book1D("HO_energy_thresh", "HO Rec Hit Energy Above Threshold",200,-5,5);
+	  h_HOTotalEnergy=m_dbe->book1D("HO_total_energy","HO Rec Hit Total Energy",200,-200,200);
+	  h_HOThreshTotalEnergy=m_dbe->book1D("HO_total_energy_thresh", "HO Rec Hit Total Energy Above Threshold",200,-200,200);
+	  h_HOTime=m_dbe->book1D("HO_time","HO Rec Hit Time",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
+	  h_HOThreshTime=m_dbe->book1D("HO_time_thresh", "HO Rec Hit Time Above Threshold",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
+	  h_HOOccupancy=m_dbe->book1D("HO_occupancy","HO Rec Hit Occupancy",2161,-0.5,2160.5);
+	  h_HOThreshOccupancy=m_dbe->book1D("HO_occupancy_thresh","HO Rec Hit Occupancy Above Threshold",2161,-0.5,2160.5);
+	  // ho
+
+	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/hf");	
+	  h_HFEnergy=m_dbe->book1D("HF_energy","HF Rec Hit Energy",200,-5,5);
+	  h_HFThreshEnergy=m_dbe->book1D("HF_energy_thresh", "HF Rec Hit Energy Above Threshold",200,-5,5);
+	  h_HFTotalEnergy=m_dbe->book1D("HF_total_energy","HF Rec Hit Total Energy",200,-200,200);
+	  h_HFThreshTotalEnergy=m_dbe->book1D("HF_total_energy_thresh", "HF Rec Hit Total Energy Above Threshold",200,-200,200);
+	  h_HFTime=m_dbe->book1D("HF_time","HF Rec Hit Time",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
+	  h_HFThreshTime=m_dbe->book1D("HF_time_thresh", "HF Rec Hit Time Above Threshold",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
+	  h_HFOccupancy=m_dbe->book1D("HF_occupancy","HF Rec Hit Occupancy",1729,-0.5,1728.5);
+	  h_HFThreshOccupancy=m_dbe->book1D("HF_occupancy_thresh","HF Rec Hit Occupancy Above Threshold",1729,-0.5,1728.5);
+	  // hf
+	  
+	} // if (rechit_Diagnostics_)
+    } // if (m_dbe)
 
   return;
-}
+  
+} //void HcalRecHitMonitor::setup(...)
 
-void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits, 
-				     const HORecHitCollection& hoHits, 
+
+/* --------------------------- */
+
+void HcalRecHitMonitor::reset(){}  // reset function is empty for now
+
+
+/* ------------------------- */
+
+void HcalRecHitMonitor::done()
+{
+  // Can eventually dump bad rec hit info here, when we decide on a definition for bad rec hits
+  return;
+  
+} // void HcalRecHitMonitor::done()
+
+
+
+/* --------------------------------- */
+
+void HcalRecHitMonitor::clearME()
+{
+  // I don't think this function gets cleared any more.  
+  // And need to add code to clear out subfolders as well?
+  if (m_dbe)
+    {
+      m_dbe->setCurrentFolder(baseFolder_);
+      m_dbe->removeContents();
+    }
+  return;
+} // void HcalRecHitMonitor::clearME()
+
+/* -------------------------------- */
+
+
+void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
+				     const HORecHitCollection& hoHits,
 				     const HFRecHitCollection& hfHits
-				     //const ZDCRecHitCollection& zdcHits // not yet ready for this withing main routine
-				     ){
-
-  if(!m_dbe) { 
-    if(fVerbosity) cout <<"HcalRecHitMonitor::processEvent   DQMStore not instantiated!!!"<<endl;  
-    return; 
-  }
-
-  ievt_++;
-  meEVT_->Fill(ievt_);
-
-
-  HBHERecHitCollection::const_iterator HBHEiter;
-  HORecHitCollection::const_iterator HOiter;
-  HFRecHitCollection::const_iterator HFiter;
-
-  float tot = 0, tot2=0, all =0;
-  float totThr = 0, tot2Thr=0, allThr =0;
-
-  if (showTiming) 
-    { 
-      cpu_timer.reset(); cpu_timer.start();  
-    } 
-
-
-  try{
-    if(hbHits.size()>0){    
-      for (HBHEiter=hbHits.begin(); HBHEiter!=hbHits.end(); ++HBHEiter) { // loop over all hits
-	float en = HBHEiter->energy();    
-	float ti = HBHEiter->time();
-	
-	HcalDetId id(HBHEiter->detid().rawId());
-
-	float ieta = id.ieta(); 
-	float iphi = id.iphi();
-	float depth = id.depth();
-	
-	//for cosmics, want to see whole distribution, changed to -100
-	//	if(en>0.0){
-	if(en>-100){
-	  if((HcalSubdetector)(id.subdet())==HcalBarrel){
-	    hbHists.meRECHIT_E_all->Fill(en);
-	    hbHists.meRECHIT_E_low->Fill(en);
-	    hbHists.meRECHIT_T_all->Fill(ti);
-	    //NON-threshold occupancy map:
-	    hbHists.meOCC_MAP_GEO->Fill(ieta,iphi);
-	    tot += en;
-
-	    if(en>occThresh_){
-	      totThr += en;
-	      hbHists.meOCC_MAPthresh_GEO->Fill(ieta,iphi);
-	      hbHists.meRECHIT_Tthresh_all->Fill(ti);
-
-	      meOCC_MAP_ETA->Fill(ieta);
-	      meOCC_MAP_PHI->Fill(iphi);	      
-	      meOCC_MAP_ETA_E->Fill(ieta,en);
-	      meOCC_MAP_PHI_E->Fill(iphi,en);
-	      
-	      if(depth==1){ 
-		meOCC_MAP_L1->Fill(ieta,iphi);
-		meOCC_MAP_L1_E->Fill(ieta,iphi, en);
-	      }
-	      else if(depth==2){ 
-		meOCC_MAP_L2->Fill(ieta,iphi);
-		meOCC_MAP_L2_E->Fill(ieta,iphi, en);
-	      }
-	      else if(depth==3){ 
-		meOCC_MAP_L3->Fill(ieta,iphi);
-		meOCC_MAP_L3_E->Fill(ieta,iphi, en);
-	      }
-	      if(depth==4){ 
-		meOCC_MAP_L4->Fill(ieta,iphi);
-		meOCC_MAP_L4_E->Fill(ieta,iphi, en);
-	      }
-	    }      
-	    if(doPerChannel_) 
-	      HcalRecHitPerChan::perChanHists<HBHERecHit>(0,*HBHEiter,hbHists.meRECHIT_E,hbHists.meRECHIT_T,m_dbe,baseFolder_);
-	  }
-	  else if((HcalSubdetector)(id.subdet())==HcalEndcap){
-	    heHists.meRECHIT_E_all->Fill(en);
-	    heHists.meRECHIT_E_low->Fill(en);
-	    heHists.meRECHIT_T_all->Fill(ti);
-	    //NON-threshold occupancy map:
-	    heHists.meOCC_MAP_GEO->Fill(ieta,iphi);
-
-	    tot2 += en;
-	    if(en>occThresh_){
-	      tot2Thr += en;
-	      meOCC_MAP_ETA->Fill(ieta);
-	      meOCC_MAP_PHI->Fill(iphi);
-	      meOCC_MAP_ETA_E->Fill(ieta,en);
-	      meOCC_MAP_PHI_E->Fill(iphi,en);
-	      	      
-	      heHists.meOCC_MAPthresh_GEO->Fill(ieta,iphi);
-	      heHists.meRECHIT_Tthresh_all->Fill(ti);
-
-	      if(depth==1){ 
-		meOCC_MAP_L1->Fill(ieta,iphi);
-		meOCC_MAP_L1_E->Fill(ieta,iphi, en);
-	      }
-	      else if(depth==2){ 
-		meOCC_MAP_L2->Fill(ieta,iphi);
-		meOCC_MAP_L2_E->Fill(ieta,iphi, en);
-	      }
-	      else if(depth==3){ 
-		meOCC_MAP_L3->Fill(ieta,iphi);
-		meOCC_MAP_L3_E->Fill(ieta,iphi, en);
-	      }
-	      if(depth==4){ 
-		meOCC_MAP_L4->Fill(ieta,iphi);
-		meOCC_MAP_L4_E->Fill(ieta,iphi, en);
-	      }
-	    }      
-	    if(doPerChannel_) 
-	      HcalRecHitPerChan::perChanHists<HBHERecHit>(1,*HBHEiter,heHists.meRECHIT_E,heHists.meRECHIT_T,m_dbe, baseFolder_);
-	  }
-	}
-	
-      }
-      //      if(tot>0) hbHists.meRECHIT_E_tot->Fill(tot);
-      if(tot>-100) hbHists.meRECHIT_E_tot->Fill(tot);
-      if(totThr>0) hbHists.meRECHIT_Ethresh_tot->Fill(totThr);
-      //if(tot2>0) heHists.meRECHIT_E_tot->Fill(tot2);
-      if(tot2>-100) heHists.meRECHIT_E_tot->Fill(tot2);
-      if(tot2Thr>0) heHists.meRECHIT_Ethresh_tot->Fill(tot2Thr);
-      all += tot;
-      all += tot2;
-      allThr += totThr;
-      allThr += tot2Thr;
-    }
-  } catch (...) {    
-    if(fVerbosity) cout<<"HcalRecHitMonitor::processEvent  Error in HBHE RecHit loop"<<endl;
-  }
-
-  if (showTiming)
-    { 
-      cpu_timer.stop(); std::cout << " TIMER::HcalRecHit RECHIT HBHE-> " << cpu_timer.cpuTime() << std::endl; 
-      cpu_timer.reset(); cpu_timer.start();  
-    } 
-
-  try{
-    tot = 0; totThr = 0;
-    if(hoHits.size()>0){
-      for (HOiter=hoHits.begin(); HOiter!=hoHits.end(); ++HOiter) { // loop over all hits
-	//changed to -100 for cosmics
-	//	if(HOiter->energy()>0.0){
-	if(HOiter->energy()>-100){
-	  hoHists.meRECHIT_E_all->Fill(HOiter->energy());
-	  hoHists.meRECHIT_E_low->Fill(HOiter->energy());
-	  hoHists.meRECHIT_T_all->Fill(HOiter->time());
-	  //HO for some reason DOES NOT have a non-threshold occupancy map
-	  
-	  tot += HOiter->energy();
-	  if(HOiter->energy()>occThresh_){
-	    totThr += HOiter->energy();
-	    HcalDetId id(HOiter->detid().rawId());
-
-	    hoHists.meOCC_MAPthresh_GEO->Fill(id.ieta(),id.iphi());
-	    hoHists.meRECHIT_Tthresh_all->Fill(HOiter->time());
-
-	    meOCC_MAP_ETA->Fill(id.ieta());
-	    meOCC_MAP_PHI->Fill(id.iphi());
-	    meOCC_MAP_ETA_E->Fill(id.ieta(),HOiter->energy());
-	    meOCC_MAP_PHI_E->Fill(id.iphi(),HOiter->energy());
-	    
-	    hoHists.meOCC_MAP_GEO->Fill(id.ieta(),id.iphi());
-	    if(id.depth()==1){ 
-	      meOCC_MAP_L1->Fill(id.ieta(),id.iphi());
-	      meOCC_MAP_L1_E->Fill(id.ieta(),id.iphi(), HOiter->energy());
-	    }
-	    else if(id.depth()==2){ 
-	      meOCC_MAP_L2->Fill(id.ieta(),id.iphi());
-	      meOCC_MAP_L2_E->Fill(id.ieta(),id.iphi(), HOiter->energy());
-	    }
-	    else if(id.depth()==3){ 
-	      meOCC_MAP_L3->Fill(id.ieta(),id.iphi());
-	      meOCC_MAP_L3_E->Fill(id.ieta(),id.iphi(), HOiter->energy());
-	    }
-	    if(id.depth()==4){ 
-	      meOCC_MAP_L4->Fill(id.ieta(),id.iphi());
-	      meOCC_MAP_L4_E->Fill(id.ieta(),id.iphi(), HOiter->energy());
-	    }
-	  }
-	  if(doPerChannel_) HcalRecHitPerChan::perChanHists<HORecHit>(2,*HOiter,hoHists.meRECHIT_E,hoHists.meRECHIT_T,m_dbe, baseFolder_);
-	}
-      }
-      //      if(tot>0) hoHists.meRECHIT_E_tot->Fill(tot);
-      if(tot>-100) hoHists.meRECHIT_E_tot->Fill(tot);
-      if(totThr>0) hoHists.meRECHIT_Ethresh_tot->Fill(totThr);
-      all += tot;
-      allThr += totThr;
-    }
-  } catch (...) {    
-    if(fVerbosity) printf("HcalRecHitMonitor::processEvent  Error in HO RecHit loop\n");
-  }
-   if (showTiming)
-    { 
-      cpu_timer.stop(); std::cout << " TIMER::HcalRecHit RECHIT HO-> " << cpu_timer.cpuTime() << std::endl; 
-      cpu_timer.reset(); cpu_timer.start();  
-    } 
-
-  try{
-    tot=0;  totThr=0;
-    if(hfHits.size()>0){
-      for (HFiter=hfHits.begin(); HFiter!=hfHits.end(); HFiter++) { // loop over all hits
-	//changed to -100 for cosmics
-	//	if(HFiter->energy()>0.0){
-	if(HFiter->energy()>-100){
-	  //Want to see these 3 histos for Long fibers:
-	  if (HFiter->id().depth()==1){
-	    hfHists.meRECHIT_E_all->Fill(HFiter->energy());
-	    hfHists.meRECHIT_E_low->Fill(HFiter->energy());
-	    hfHists.meRECHIT_T_all->Fill(HFiter->time());
-	  }
-
-	  HcalDetId id(HFiter->detid().rawId());
-	  //Fill 3 histos for Short Fibers :
-	  if (id.depth()==2){
-	    hfshort_meRECHIT_E_all->Fill(HFiter->energy());
-	    hfshort_meRECHIT_E_low->Fill(HFiter->energy());
-	    hfshort_meRECHIT_T_all->Fill(HFiter->time());
-	  }
-
-	  //HF: no non-threshold occupancy map is filled?
-	  
-	  tot += HFiter->energy();
-	  if(HFiter->energy()>occThresh_){
-	    totThr += HFiter->energy();
-	    hfHists.meOCC_MAPthresh_GEO->Fill(id.ieta(),id.iphi());
-	    hfHists.meRECHIT_Tthresh_all->Fill(HFiter->time());
-	    
-	    meOCC_MAP_ETA->Fill(id.ieta());
-	    meOCC_MAP_PHI->Fill(id.iphi());
-	    meOCC_MAP_ETA_E->Fill(id.ieta(),HFiter->energy());
-	    meOCC_MAP_PHI_E->Fill(id.iphi(),HFiter->energy());
-	    
-	    hfHists.meOCC_MAP_GEO->Fill(id.ieta(),id.iphi());
-	    if(id.depth()==1){ 
-	      meOCC_MAP_L1->Fill(id.ieta(),id.iphi());
-	      meOCC_MAP_L1_E->Fill(id.ieta(),id.iphi(), HFiter->energy());
-	    }
-	    else if(id.depth()==2){ 
-	      meOCC_MAP_L2->Fill(id.ieta(),id.iphi());
-	      meOCC_MAP_L2_E->Fill(id.ieta(),id.iphi(), HFiter->energy());
-	    }
-	    else if(id.depth()==3){ 
-	      meOCC_MAP_L3->Fill(id.ieta(),id.iphi());
-	      meOCC_MAP_L3_E->Fill(id.ieta(),id.iphi(), HFiter->energy());
-	    }
-	    if(id.depth()==4){ 
-	      meOCC_MAP_L4->Fill(id.ieta(),id.iphi());
-	      meOCC_MAP_L4_E->Fill(id.ieta(),id.iphi(), HFiter->energy());
-	    }
-	  }
-	  if(doPerChannel_) HcalRecHitPerChan::perChanHists<HFRecHit>(3,*HFiter,hfHists.meRECHIT_E,hfHists.meRECHIT_T,m_dbe, baseFolder_);
-	}
-      }
-      //      if(tot>0) hfHists.meRECHIT_E_tot->Fill(tot)
-      if(tot>-100) hfHists.meRECHIT_E_tot->Fill(tot);
-      if(totThr>0) hfHists.meRECHIT_Ethresh_tot->Fill(totThr);
-      all += tot;
-      allThr += totThr;
-    }
-  } catch (...) {    
-    if(fVerbosity) cout<<"HcalRecHitMonitor::processEvent  Error in HF RecHit loop"<<endl;
-  }
-
-  if (showTiming)
-    { 
-      cpu_timer.stop(); std::cout << " TIMER::HcalRecHit RECHIT HF-> " << cpu_timer.cpuTime() << std::endl; 
-    } 
-
-  //  if(all>0) meRECHIT_E_all->Fill(all);
-  if(all>-100) meRECHIT_E_all->Fill(all);
-  if(allThr>0) meRECHIT_Ethresh_all->Fill(allThr);
-
-  return;
-}
-
-
-void HcalRecHitMonitor::processZDC(const ZDCRecHitCollection& zdcHits)
+				     //const ZDCRecHitCollection& zdcHits,
+				     )
 {
 
-  if (showTiming)  cpu_timer.reset(); cpu_timer.start();  
-
-  ZDCRecHitCollection::const_iterator ZDCiter;
-
-  //cout <<"ZDC SIZE = "<<zdcHits.size()<<endl;
-  try
-    {
-      if(zdcHits.size()>0)
-	{
-	  // Each EM channel has a width of ~18 mm in X, extending from -46 -> +46 mm  
-	  // There are 5 EM channels.  Assume the mapping is:
-	  // channel 0:  -36.8 mm
-	  // channel 1:  -18.4 mm
-	  // channel 2:  0 mm
-	  // channel 3:  +18.4 mm
-	  // channel 4:  +36.8 mm
-	  // Change this mapping in the future if I've gotten it wrong.
-
-	  float EMmapping[5]={-36.8,-18.4,0.,18.4,+36.8};
-	  float weightedXplus=0;
-	  float weightedXminus=0;
-	  float sumEemplus=0;
-	  float sumEemminus=0;
-	  float sumEhadplus=0;
-	  float sumEhadminus=0;
-	  float sumEhadlayerplus[4]={0.};
-	  float sumEhadlayerminus[4]={0.};
-
-	  for (ZDCiter=zdcHits.begin(); ZDCiter!=zdcHits.end(); ++ZDCiter) 
-	    { // loop over all hits
-	      if (ZDCiter->id().section()==0 || ZDCiter->id().section()==3) continue;
-
-	      else if (ZDCiter->id().section()==1)  // found EM hit
-		{
-		  // positive side first
-		  if (ZDCiter->id().zside()==1)
-		    {
-		      // assume EM depth runs from 0-4; convert to distance using above mapping
-		      weightedXplus+=EMmapping[ZDCiter->id().depth()]*ZDCiter->energy();
-		      sumEemplus+=ZDCiter->energy();
-		    }
-		  else // negative side
-		    {
-		      // assume EM depth runs from 0-4; convert to distance using above mapping
-		      weightedXminus+=EMmapping[ZDCiter->id().depth()]*ZDCiter->energy();
-		      sumEemminus+=ZDCiter->energy(); 
-		    }
-		} // else if (ZDCiter->id().section==1)
-
-	      else if (ZDCiter->id().section()==2) // found HAD hit
-		{
-		  // positive side first
-		  if (ZDCiter->id().zside()==1)
-		    {
-		      sumEhadplus+=ZDCiter->energy();
-		      sumEhadlayerplus[ZDCiter->id().depth()]+=ZDCiter->energy();
-		    }
-		  else // negative side
-		    {
-		      sumEhadminus+=ZDCiter->energy();
-		      sumEhadlayerminus[ZDCiter->id().depth()]+=ZDCiter->energy();
-		    }
-		}
-	      else 
-		{ if (fVerbosity) cout <<"HcalRecHitMonitor::processEvent:  Unrecognized ZDC section:  "<<ZDCiter->id().section()<<endl;}
-
-	    } // for (ZDCiter=zdcHits.begin()...)
-
-	  // Finished looping on ZDC hits.  Now form weighted X positions
-	  weightedXplus/=sumEemplus;
-	  weightedXminus/=sumEemminus;
-
-	  // Fill histograms
-	  ZDCtanAlpha->Fill((weightedXplus-weightedXminus)/280000.0); // distance in mm
-	  ZDCaverageX->Fill((weightedXplus-weightedXminus)/2.);
-	  ZDCxplusVSxminus->Fill(weightedXminus, weightedXplus);
-	  ZDChadVSem_plus->Fill(sumEhadplus, sumEemplus);
-	  ZDChadVSem_minus->Fill(sumEhadminus, sumEemminus);
-	  ZDCenergy_plusVSminus->Fill((sumEemminus+sumEhadminus),(sumEemplus+sumEhadplus));
-	  
-	  // Fill dEdz plots as TProfiles with weight 1
-	  ZDCenergyVSlayer_plus->Fill(0,sumEemplus,1);
-	  ZDCenergyVSlayer_plus->Fill(1,sumEhadlayerplus[0],1);
-	  ZDCenergyVSlayer_plus->Fill(2,sumEhadlayerplus[1],1);
-	  ZDCenergyVSlayer_plus->Fill(3,sumEhadlayerplus[2],1);
-	  ZDCenergyVSlayer_plus->Fill(4,sumEhadlayerplus[3],1);
-	  	  
-	  ZDCenergyVSlayer_minus->Fill(0,sumEemminus,1);
-	  ZDCenergyVSlayer_minus->Fill(1,sumEhadlayerminus[0],1);
-	  ZDCenergyVSlayer_minus->Fill(2,sumEhadlayerminus[1],1);
-	  ZDCenergyVSlayer_minus->Fill(3,sumEhadlayerminus[2],1);
-	  ZDCenergyVSlayer_minus->Fill(4,sumEhadlayerminus[3],1);
-	  	
-	} // if (zdcHits.size()>0)
-    } // try
-  catch (...)
-    { if (fVerbosity) cout <<"HcalRecHitMonitor::processEvent Error in ZDC RecHit loop"<<endl;}
-
-
-
-
   if (showTiming)
-    { 
-      cpu_timer.stop(); std::cout << " TIMER::HcalRecHit RECHIT ZDC-> " << cpu_timer.cpuTime() << std::endl; 
-    } 
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
 
+  ++ievt_;
+  if (m_dbe) meEVT_->Fill(ievt_);
+  
+  if (hoHits.size()>0) HOpresent_=true;
+  if (hfHits.size()>0) HFpresent_=true;
+
+  if (fVerbosity>1) cout <<"<HcalRecHitMonitor::processEvent> Processing event..."<<endl;
+
+  processEvent_rechit(hbHits, hoHits, hfHits);
+  
+  // Fill problem cells
+  if (ievt_%rechit_checkNevents_ ==0)
+    {
+      fillNevents();
+    }
+
+  return;
+} // void HcalRecHitMonitor::processEvent(...)
+
+
+/* --------------------------------------- */
+
+
+void HcalRecHitMonitor::fillRecHitHistosAtEndRun()
+{
+  // Fill histograms one last time at endRun call
+  
+  /*
+    I'm not sure I like this feature.  Suppose checkNevents=500, and the end run occurs at 501?
+    Then the occupancy plot would create errors for whichever digis were not found in a single event.
+    That's not desired behavior.
+    We could just exclude the occupancy test from running here, but I'm not sure that's the best solution either.
+    For now (28 Oct. 2008), just disable this functionality.  We'll come back to it if necessary.
+  */
+  return;
+
+  fillNevents();
 }
+
+/* --------------------------------------- */
+
+
+void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHits,
+					     const HORecHitCollection& hoHits,
+					     const HFRecHitCollection& hfHits)
+  
+{
+  // Gather rechit info
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
+  if (fVerbosity>1) cout <<"<HcalRecHitMonitor::processEvent_rechitenergy> Processing rechits..."<<endl;
+  
+  // loop over HBHE
+  
+  int     hbocc=0;
+  int     heocc=0;
+  int     hboccthresh=0;
+  int     heoccthresh=0;
+  double  hbenergy=0;
+  double  heenergy=0;
+  double  hbenergythresh=0;
+  double  heenergythresh=0;
+  int HEbindepth=0;
+
+  for (HBHERecHitCollection::const_iterator HBHEiter=hbheHits.begin(); HBHEiter!=hbheHits.end(); ++HBHEiter) 
+    { // loop over all hits
+      float en = HBHEiter->energy();
+      float ti = HBHEiter->time();
+
+      HcalDetId id(HBHEiter->detid().rawId());
+      int ieta = id.ieta();
+      int iphi = id.iphi();
+      int depth = id.depth();
+      if (id.subdet()==HcalBarrel)
+	{
+	  HBpresent_=true;
+	  if (!checkHB_) continue;
+	
+	  ++occupancy_[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
+	  energy_[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]+=en;
+	  time_[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]+=ti;
+	  if (en>=HBenergyThreshold_)
+	    {
+	      ++occupancy_thresh_[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
+	      energy_thresh_[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]+=en;
+	      time_thresh_[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]+=ti;
+	    }
+	  if (rechit_makeDiagnostics_)
+	    {
+	      ++hbocc;
+	      hbenergy+=en;
+	      if (ti<TIME_MIN || ti>TIME_MAX)
+		h_HBTime->Fill(ti);
+	      else
+		++HBtime_[int(ti-TIME_MIN)];
+	      if (en<-5 || en>-5)
+		h_HBEnergy->Fill(en);
+	      else
+		++HBenergy_[20*int(en+5)];
+	      if (en>=HBenergyThreshold_)
+		{
+		  ++hboccthresh;
+		  hbenergythresh+=en;
+		  if (ti<TIME_MIN || ti>TIME_MAX)
+		    h_HBThreshTime->Fill(ti);
+		  else
+		    ++HBtime_thresh_[int(ti-TIME_MIN)];
+		  if (en<-5 || en>-5)
+		    h_HBThreshEnergy->Fill(en);
+		  else
+		    ++HBenergy_thresh_[20*int(en+5)];
+		} // if (en>=HBenergyThreshold_)
+	    } // if (rechit_makeDiagnostics_)
+	} // if (id.subdet()==HcalBarrel)
+
+      else if (id.subdet()==HcalEndcap)
+	{
+	  HEpresent_=true;
+	  if (!checkHE_) continue;
+	  HEbindepth=depth-1;
+	  if (depth<=2) HEbindepth+=4; 
+	  
+	  ++occupancy_[ieta+(int)((etaBins_-2)/2)][iphi-1][HEbindepth];
+	  energy_[ieta+(int)((etaBins_-2)/2)][iphi-1][HEbindepth]+=en;
+	  time_[ieta+(int)((etaBins_-2)/2)][iphi-1][HEbindepth]+=ti;
+	  if (en>=HEenergyThreshold_)
+	    {
+	      ++occupancy_thresh_[ieta+(int)((etaBins_-2)/2)][iphi-1][HEbindepth];
+	      energy_thresh_[ieta+(int)((etaBins_-2)/2)][iphi-1][HEbindepth]+=en;
+	      time_thresh_[ieta+(int)((etaBins_-2)/2)][iphi-1][HEbindepth]+=ti;
+	    }
+	  if (rechit_makeDiagnostics_)
+	    {
+	      ++heocc;
+	      heenergy+=en;
+	      if (ti<-100 || ti>200)
+		h_HETime->Fill(ti);
+	      else
+		++HEtime_[int(ti+100)];
+	      if (en<-5 || en>-5)
+		h_HEEnergy->Fill(en);
+	      else
+		++HEenergy_[20*int(en+5)];
+	      if (en>=HEenergyThreshold_)
+		{
+		  ++heoccthresh;
+		  heenergythresh+=en;
+		  if (ti<-100 || ti>200)
+		    h_HEThreshTime->Fill(ti);
+		  else
+		    ++HEtime_thresh_[int(ti+100)];
+		  if (en<-5 || en>-5)
+		    h_HEThreshEnergy->Fill(en);
+		  else
+		    ++HEenergy_thresh_[20*int(en+5)];
+		} // if (en>=HEenergyThreshold_)
+	    } // if (rechit_makeDiagnostics_)
+
+
+	} // else if (id.subdet()==HcalEndcap)
+     
+    } //for (HBHERecHitCollection::const_iterator HBHEiter=...)
+
+  if (rechit_makeDiagnostics_)
+    {
+      ++HB_occupancy_[hbocc];
+      ++HE_occupancy_[heocc];
+      ++HB_occupancy_thresh_[hboccthresh];
+      ++HE_occupancy_thresh_[heoccthresh];
+      h_HBTotalEnergy->Fill(hbenergy);
+      h_HETotalEnergy->Fill(heenergy);
+      h_HBThreshTotalEnergy->Fill(hbenergythresh);
+      h_HEThreshTotalEnergy->Fill(heenergythresh);
+    }
+
+  // loop over HO
+
+  if (checkHO_)
+   {
+     int hoocc=0;
+     int hooccthresh=0;
+     double hoenergy=0;
+     double hoenergythresh=0;
+     for (HORecHitCollection::const_iterator HOiter=hoHits.begin(); HOiter!=hoHits.end(); ++HOiter) 
+       { // loop over all hits
+	 float en = HOiter->energy();
+	 float ti = HOiter->time();
+
+	 HcalDetId id(HOiter->detid().rawId());
+	 int ieta = id.ieta();
+	 int iphi = id.iphi();
+	 int depth = id.depth();
+
+	 ++occupancy_[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
+	 energy_[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]+=en;
+	 time_[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]+=ti;
+
+	 if (en>=HOenergyThreshold_)
+	   {
+	     ++occupancy_thresh_[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
+	     energy_thresh_[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]+=en;
+	     time_thresh_[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]+=ti;
+	   }
+	 if (rechit_makeDiagnostics_)
+	   {
+	     ++hoocc;
+	     hoenergy+=en;
+	     if (ti<-100 || ti>200)
+	       h_HOTime->Fill(ti);
+	     else
+	       ++HOtime_[int(ti+100)];
+	     if (en<-5 || en>-5)
+	       h_HOEnergy->Fill(en);
+	     else
+	       ++HOenergy_[20*int(en+5)];
+	     if (en>=HOenergyThreshold_)
+	       {
+		 ++hooccthresh;
+		 hoenergythresh+=en;
+		 if (ti<-100 || ti>200)
+		   h_HOThreshTime->Fill(ti);
+		 else
+		   ++HOtime_thresh_[int(ti+100)];
+		 if (en<-5 || en>-5)
+		   h_HOThreshEnergy->Fill(en);
+		 else
+		   ++HOenergy_thresh_[20*int(en+5)];
+	       } // if (en>=HOenergyThreshold_)
+	   } // if (rechit_makeDiagnostics_)
+       } // loop over all HO hits
+     if (rechit_makeDiagnostics_)
+       {
+	 ++HO_occupancy_[hoocc];
+	 ++HO_occupancy_thresh_[hooccthresh];
+	 h_HOTotalEnergy->Fill(hoenergy);
+	 h_HOThreshTotalEnergy->Fill(hoenergythresh);
+       }
+
+   } // if (checkHO_)
+ 
+  // loop over HF
+  if (checkHF_)
+   {
+     int hfocc=0;
+     int hfoccthresh=0;
+     double hfenergy=0;
+     double hfenergythresh=0;
+     for (HFRecHitCollection::const_iterator HFiter=hfHits.begin(); HFiter!=hfHits.end(); ++HFiter) 
+       { // loop over all hits
+	 float en = HFiter->energy();
+	 float ti = HFiter->time();
+
+	 HcalDetId id(HFiter->detid().rawId());
+	 int ieta = id.ieta();
+	 int iphi = id.iphi();
+	 int depth = id.depth();
+
+	 ++occupancy_[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
+	 energy_[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]+=en;
+	 time_[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]+=ti;
+
+	 if (en>=HFenergyThreshold_)
+	   {
+	     ++occupancy_thresh_[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
+	     energy_thresh_[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]+=en;
+	     time_thresh_[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]+=ti;
+	   }
+	 if (rechit_makeDiagnostics_)
+	   {
+	     ++hfocc;
+	     hfenergy+=en;
+	     if (ti<-100 || ti>200)
+	       h_HFTime->Fill(ti);
+	     else
+	       ++HFtime_[int(ti+100)];
+	     if (en<-5 || en>-5)
+	       h_HFEnergy->Fill(en);
+	     else
+	       ++HFenergy_[20*int(en+5)];
+	     if (en>=HFenergyThreshold_)
+	       {
+		 ++hfoccthresh;
+		 hfenergythresh+=en;
+		 if (ti<-100 || ti>200)
+		   h_HFThreshTime->Fill(ti);
+		 else
+		   ++HFtime_thresh_[int(ti+100)];
+		 if (en<-5 || en>-5)
+		   h_HFThreshEnergy->Fill(en);
+		 else
+		   ++HFenergy_thresh_[20*int(en+5)];
+	       } // if (en>=HFenergyThreshold_)
+	   } // if (rechit_makeDiagnostics_)
+       } // loop over all HF hits
+     if (rechit_makeDiagnostics_)
+       {
+	 ++HF_occupancy_[hfocc];
+	 ++HF_occupancy_thresh_[hfoccthresh];
+	 h_HFTotalEnergy->Fill(hfenergy);
+	 h_HFThreshTotalEnergy->Fill(hfenergythresh);
+       }
+   } // if (checkHF_)
+ 
+ if (showTiming)
+   {
+     cpu_timer.stop();  cout <<"TIMER:: HcalRecHitMonitor PROCESSEVENT_RECHITENERGY -> "<<cpu_timer.cpuTime()<<endl;
+   }
+ return;
+} // void HcalRecHitMonitor::processEvent_rechitenergy
+
+/* --------------------------------------- */
+
+
+
+
+void HcalRecHitMonitor::fillNevents(void)
+{
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
+  int ieta=0;
+  int iphi=0;
+  int mydepth=0;
+  // Fill Occupancy & Average Energy,Time plots
+  if (ievt_>0)
+    {
+      for (int eta=0;eta<(etaBins_-2);++eta)
+	{
+	  ieta=eta-int((etaBins_-2)/2);
+	  for (int phi=0;phi<72;++phi)
+	    {
+	      iphi=phi+1;
+	      for (int depth=0;depth<6;++depth)
+		{
+		  mydepth=depth;
+		  OccupancyByDepth[mydepth]->setBinContent(eta+2,phi+2,occupancy_[eta][phi][mydepth]*1./ievt_);
+		  OccupancyThreshByDepth[mydepth]->setBinContent(eta+2,phi+2,occupancy_thresh_[eta][phi][mydepth]*1./ievt_);
+		  EnergyByDepth[mydepth]->setBinContent(eta+2,phi+2,energy_[eta][phi][mydepth]*1./ievt_);
+		  EnergyThreshByDepth[mydepth]->setBinContent(eta+2,phi+2,energy_thresh_[eta][phi][mydepth]*1./ievt_);
+		  TimeByDepth[mydepth]->setBinContent(eta+2,phi+2,time_[eta][phi][mydepth]*1./ievt_);
+		  TimeThreshByDepth[mydepth]->setBinContent(eta+2,phi+2,time_thresh_[eta][phi][mydepth]*1./ievt_);
+
+		} // for (int depth=0;depth<6;++depth)
+	    } // for (int phi=0;phi<72;++phi)
+	} // for (int eta=0;eta<(etaBins_-2);++eta)
+
+      FillUnphysicalHEHFBins(OccupancyByDepth);
+      FillUnphysicalHEHFBins(OccupancyThreshByDepth);
+      FillUnphysicalHEHFBins(EnergyByDepth);
+      FillUnphysicalHEHFBins(EnergyThreshByDepth);
+      FillUnphysicalHEHFBins(TimeByDepth);
+      FillUnphysicalHEHFBins(TimeThreshByDepth);
+    } // if (ievt_>0)
+
+  // Fill subdet plots
+
+  for (int i=0;i<200;++i)
+    {
+      if (HBenergy_[i]!=0) 
+	{
+	  h_HBEnergy->setBinContent(i+1,h_HBEnergy->getBinContent(i+1)+HBenergy_[i]);
+	  HBenergy_[i]=0;
+	}
+      if (HBenergy_thresh_[i]!=0) 
+	{
+	  h_HBThreshEnergy->setBinContent(i+1,h_HBThreshEnergy->getBinContent(i+1)+HBenergy_thresh_[i]);
+	  HBenergy_thresh_[i]=0;
+	}
+      if (HEenergy_[i]!=0) 
+	{
+	  h_HEEnergy->setBinContent(i+1,h_HEEnergy->getBinContent(i+1)+HEenergy_[i]);
+	  HEenergy_[i]=0;
+	}
+      if (HEenergy_thresh_[i]!=0) 
+	{
+	  h_HEThreshEnergy->setBinContent(i+1,h_HEThreshEnergy->getBinContent(i+1)+HEenergy_thresh_[i]);
+	  HEenergy_thresh_[i]=0;
+	}
+      if (HOenergy_[i]!=0) 
+	{
+	  h_HOEnergy->setBinContent(i+1,h_HOEnergy->getBinContent(i+1)+HOenergy_[i]);
+	  HOenergy_[i]=0;
+	}
+      if (HOenergy_thresh_[i]!=0) 
+	{
+	  h_HOThreshEnergy->setBinContent(i+1,h_HOThreshEnergy->getBinContent(i+1)+HOenergy_thresh_[i]);
+	  HOenergy_thresh_[i]=0;
+	}
+      if (HFenergy_[i]!=0) 
+	{
+	  h_HFEnergy->setBinContent(i+1,h_HFEnergy->getBinContent(i+1)+HFenergy_[i]);
+	  HFenergy_[i]=0;
+	}
+      if (HFenergy_thresh_[i]!=0) 
+	{
+	  h_HFThreshEnergy->setBinContent(i+1,h_HFThreshEnergy->getBinContent(i+1)+HFenergy_thresh_[i]);
+	  HFenergy_thresh_[i]=0;
+	}
+    }// for (int i=0;i<200;++i) // Jeff
+
+  for (int i=0;i<(TIME_MAX-TIME_MIN);++i)
+    {
+      if (HBtime_[i]!=0)
+	{
+	  h_HBTime->setBinContent(i+1,h_HBTime->getBinContent(i+1)+HBtime_[i]);
+	  HBtime_[i]=0;
+	}
+      if (HBtime_thresh_[i]!=0)
+	{
+	  h_HBThreshTime->setBinContent(i+1,h_HBThreshTime->getBinContent(i+1)+HBtime_thresh_[i]);
+	  HBtime_thresh_[i]=0;
+	}
+      if (HEtime_[i]!=0)
+	{
+	  h_HETime->setBinContent(i+1,h_HETime->getBinContent(i+1)+HEtime_[i]);
+	  HEtime_[i]=0;
+	}
+      if (HEtime_thresh_[i]!=0)
+	{
+	  h_HEThreshTime->setBinContent(i+1,h_HEThreshTime->getBinContent(i+1)+HEtime_thresh_[i]);
+	  HEtime_thresh_[i]=0;
+	}
+      if (HOtime_[i]!=0)
+	{
+	  h_HOTime->setBinContent(i+1,h_HOTime->getBinContent(i+1)+HOtime_[i]);
+	  HOtime_[i]=0;
+	}
+      if (HOtime_thresh_[i]!=0)
+	{
+	  h_HOThreshTime->setBinContent(i+1,h_HOThreshTime->getBinContent(i+1)+HOtime_thresh_[i]);
+	  HOtime_thresh_[i]=0;
+	}
+      if (HFtime_[i]!=0)
+	{
+	  h_HFTime->setBinContent(i+1,h_HFTime->getBinContent(i+1)+HFtime_[i]);
+	  HFtime_[i]=0;
+	}
+      if (HFtime_thresh_[i]!=0)
+	{
+	  h_HFThreshTime->setBinContent(i+1,h_HFThreshTime->getBinContent(i+1)+HFtime_thresh_[i]);
+	  HFtime_thresh_[i]=0;
+	}
+    } // for (int  i=0;i<(TIME_MAX-TIME_MIN);++i)
+
+  for (int i=0;i<2593;++i)
+    {
+      if (HB_occupancy_[i]>0)
+	{
+	  h_HBOccupancy->setBinContent(i+1,h_HBOccupancy->getBinContent(i+1)+HB_occupancy_[i]);
+	  HB_occupancy_[i]=0;
+	}
+      if (HB_occupancy_thresh_[i]>0)
+	{
+	  h_HBThreshOccupancy->setBinContent(i+1,h_HBThreshOccupancy->getBinContent(i+1)+HB_occupancy_thresh_[i]);
+	  HB_occupancy_thresh_[i]=0;
+	}
+      if (HE_occupancy_[i]>0)
+	{
+	  h_HEOccupancy->setBinContent(i+1,h_HEOccupancy->getBinContent(i+1)+HE_occupancy_[i]);
+	  HE_occupancy_[i]=0;
+	}
+      if (HE_occupancy_thresh_[i]>0)
+	{
+	  h_HEThreshOccupancy->setBinContent(i+1,h_HEThreshOccupancy->getBinContent(i+1)+HE_occupancy_thresh_[i]);
+	  HE_occupancy_thresh_[i]=0;
+	}
+    }//for (int i=0;i<2593;++i)
+
+  for (int i=0;i<2161;++i)
+    {
+      if (HO_occupancy_[i]>0)
+	{
+	  h_HOOccupancy->setBinContent(i+1,h_HOOccupancy->getBinContent(i+1)+HO_occupancy_[i]);
+	  HO_occupancy_[i]=0;
+	}
+      if (HO_occupancy_thresh_[i]>0)
+	{
+	  h_HOThreshOccupancy->setBinContent(i+1,h_HOThreshOccupancy->getBinContent(i+1)+HO_occupancy_thresh_[i]);
+	  HO_occupancy_thresh_[i]=0;
+	}
+    }//  for (int i=0;i<2161;++i)
+
+  for (int i=0;i<1729;++i)
+    {
+      if (HF_occupancy_[i]>0)
+	{
+	  h_HFOccupancy->setBinContent(i+1,h_HFOccupancy->getBinContent(i+1)+HF_occupancy_[i]);
+	  HF_occupancy_[i]=0;
+	}
+      if (HF_occupancy_thresh_[i]>0)
+	{
+	  h_HFThreshOccupancy->setBinContent(i+1,h_HFThreshOccupancy->getBinContent(i+1)+HF_occupancy_thresh_[i]);
+	  HF_occupancy_thresh_[i]=0;
+	}
+    }//  for (int i=0;i<2161;++i)
+
+
+
+  if (fVerbosity>0)
+    cout <<"<HcalRecHitMonitor::fillNevents_problemCells> FILLING REC HIT CELL PLOTS"<<endl;
+  
+  if (showTiming)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalRecHitMonitor FILLNEVENTS -> "<<cpu_timer.cpuTime()<<endl;
+    }
+
+} // void HcalRecHitMonitor::fillNevents(void)

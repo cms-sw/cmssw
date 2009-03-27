@@ -4,7 +4,7 @@
 TrajectoryCleanerESProducer::TrajectoryCleanerESProducer(const edm::ParameterSet& iConfig)
 {
   theComponentName = iConfig.getParameter<std::string>("ComponentName");
-  theConfig = iConfig;
+
   setWhatProduced(this, theComponentName);
 }
 
@@ -17,6 +17,6 @@ TrajectoryCleanerESProducer::produce(const  TrackingComponentsRecord & iRecord)
 {
    using namespace edm::es;
    
-   ReturnType tc(TrajectoryCleanerFactory::get()->create(theComponentName, theConfig));
+   ReturnType tc(TrajectoryCleanerFactory::get()->create(theComponentName));
    return tc;
 }

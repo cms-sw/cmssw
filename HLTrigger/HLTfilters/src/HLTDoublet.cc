@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/05/05 15:48:34 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/07/09 13:04:59 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -16,6 +16,8 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
+#include "DataFormats/Candidate/interface/Particle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -133,22 +135,22 @@ HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& i
      int n(0);
      T1Ref r1;
      T2Ref r2;
-     Particle p1,p2,p;
+     Particle::LorentzVector p1,p2,p;
      for (unsigned int i1=0; i1!=n1; i1++) {
        r1=coll1_[i1];
-       p1=*r1;
+       p1=r1->p4();
        unsigned int I(0);
        if (same_) {I=i1+1;}
        for (unsigned int i2=I; i2!=n2; i2++) {
 	 r2=coll2_[i2];
-	 p2=*r2;
+	 p2=r2->p4();
 
 	 double Dphi(abs(p1.phi()-p2.phi()));
 	 if (Dphi>M_PI) Dphi=2.0*M_PI-Dphi;
 	 
 	 double Deta(abs(p1.eta()-p2.eta()));
 	 
-	 p.setP4(Particle::LorentzVector(p1.px()+p2.px(),p1.py()+p2.py(),p1.pz()+p2.pz(),p1.energy()+p2.energy()));
+	 p=p1+p2;
 	 double Minv(abs(p.mass()));
 	 
 	 if ( ( (!cutdphi_) || (min_Dphi_ <= Dphi) && (Dphi <= max_Dphi_) ) &&

@@ -27,10 +27,10 @@ namespace edm {
     // Insert a new child for the given parent.
     void insertChild(BranchID parent, BranchID child);
 
-    // Look up all the descendents of the given parent, and insert them
-    // into descendents. N.B.: this does not clear out descendents first;
+    // Look up all the descendants of the given parent, and insert them
+    // into descendants. N.B.: this does not clear out descendants first;
     // it only appends *new* elements to the collection.
-    void appendToDescendents(BranchID parent, BranchIDSet& descendents) const;
+    void appendToDescendants(BranchID parent, BranchIDSet& descendants) const;
 
   private:
     typedef std::map<BranchID, BranchIDSet> map_t;

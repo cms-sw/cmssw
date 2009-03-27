@@ -7,7 +7,7 @@ L1GctConfigProducers = cms.ESProducer("L1GctConfigProducers",
     HfLutEtSumThresholds = cms.vuint32(2,4,6,8,10,12,14),
     HfLutBitCountThresholds = cms.vuint32(1,2,3,4,5,6,7),
     # The CalibrationStyle should be either "PowerSeries", "ORCAStyle" or "PiecewiseCubic"
-    CalibrationStyle = cms.string('PowerSeries'),
+    CalibrationStyle = cms.string('ORCAStyle'),
     L1CaloHtScaleLsbInGeV = cms.double(1.0),
     PowerSeriesCoefficients = cms.PSet(
         nonTauJetCalib0 = cms.vdouble( 1.0 ),

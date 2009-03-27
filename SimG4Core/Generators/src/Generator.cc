@@ -48,7 +48,7 @@ Generator::Generator(const ParameterSet & p) :
 
   Z_hector = theRDecLenCut*( ( 1 - exp(-2*theEtaCutForHector) ) / ( 2*exp(-theEtaCutForHector) ) );
 
-  LogDebug("SimG4CoreGenerator") << "Z_min = " << Z_lmin << " Z_max = " << Z_lmax << " Z_hector = " << Z_hector;
+  //  std::cout << "Z_min = " << Z_lmin << " Z_max = " << Z_lmax << " Z_hector = " << Z_hector << std::endl;
 
 }
 
@@ -86,13 +86,14 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
   
   if(verbose >0){
     evt->print();
-    LogDebug("SimG4CoreGenerator") << "\nPrim.Vtx : " << vtx_->x() << " " 
-				   << vtx_->y() << " "
-				   << vtx_->z();
+    cout << " " << endl;
+    cout << " Prim.Vtx : " << vtx_->x() << " " 
+         << vtx_->y() << " "
+         << vtx_->z() << endl;
   }
   
-  //  double x0 = vtx_->x();
-  //  double y0 = vtx_->y();
+  double x0 = vtx_->x();
+  double y0 = vtx_->y();
   
   for(HepMC::GenEvent::vertex_const_iterator vitr= evt->vertices_begin();
       vitr != evt->vertices_end(); ++vitr ) { 
@@ -217,7 +218,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
         // impose also proper time for status=1 and available end_vertex
         if ( (*vpitr)->status()==1 && (*vpitr)->end_vertex()!=0) {
           double proper_time=decay_length/(p.Beta()*p.Gamma()*c_light);
-          LogDebug("SimG4CoreGenerator") <<" beta="<<p.Beta()<<" gamma="<<p.Gamma()<<" Proper time=" <<proper_time<<" ns" ;
+          //LogDebug("SimG4CoreGenerator") <<" beta="<<p.beta()<<" gamma="<<p.gamma()<<" Proper time=" <<proper_time<<" ns" ;
           g4prim->SetProperTime(proper_time*ns);
         }
       }
@@ -291,22 +292,17 @@ bool Generator::particlePassesPrimaryCuts( const math::XYZTLorentzVector& mom, c
   
   double phi = mom.Phi() ;   
   double nrg  = mom.P() ;
-  bool   flag = true;
 
-  if ( (fEtaCuts) && (zimp < Z_lmin       || zimp > Z_lmax)      ) {
-    flag = false;
-  } else if ( (fPCuts)  && (nrg   < theMinPCut   || nrg  > theMaxPCut) ) {
-    flag = false;
-  } else if ( (fPhiCuts) && (phi  < theMinPhiCut || phi  > theMaxPhiCut) ) {
-    flag = false;
-  }
+  if ( (fEtaCuts) && (zimp < Z_lmin       || zimp > Z_lmax)       ) return false ;
+  if ( (fPCuts)  && (nrg   < theMinPCut   || nrg  > theMaxPCut)   ) return false ;
+  if ( (fPhiCuts) && (phi  < theMinPhiCut || phi  > theMaxPhiCut) ) return false ;
 
-  LogDebug("SimG4CoreGenerator") << "Generator p = " << nrg << " z_imp = " << zimp << " phi = " << mom.Phi() << " Flag = " << flag;
+  //  std::cout << "Passed p=" << mom.P() << " p_t=" << mom.Pt() << " z_imp=" << zimp << " eta=" << mom.Eta() << " theta=" << mom.Theta() << std::endl;
   
-  return flag;
+  return true;   
 }
 
-bool Generator::particlePassesPrimaryCuts(const G4PrimaryParticle * p) const 
+bool Generator::particlePassesPrimaryCuts(const G4PrimaryParticle * p) const
 {
 
   G4ThreeVector mom = p->GetMomentum();
@@ -314,56 +310,46 @@ bool Generator::particlePassesPrimaryCuts(const G4PrimaryParticle * p) const
   double        nrg  = sqrt(p->GetPx()*p->GetPx() + p->GetPy()*p->GetPy() + p->GetPz()*p->GetPz());
   nrg /= GeV ;  // need to convert, since Geant4 operates in MeV
   double        eta = -log(tan(mom.theta()/2));
-  bool   flag = true;
 
-  if ( (fEtaCuts) && (eta < theMinEtaCut || eta > theMaxEtaCut) ) {
-    flag = false;
-  } else if ( (fPCuts)  &&  (nrg  < theMinPCut  || nrg > theMaxPCut)   ) {
-    flag = false;
-  } else if ( (fPhiCuts) && (phi < theMinPhiCut || phi > theMaxPhiCut) ) {
-    flag = false;
-  }
-  
-  LogDebug("SimG4CoreGenerator") << "Generator p = " << nrg  << " eta = " << eta << " theta = " << mom.theta() << " phi = " << phi << " Flag = " << flag;
+  if ( (fEtaCuts) && (eta < theMinEtaCut || eta > theMaxEtaCut) ) return false ;
+  if ( (fPCuts)  &&  (nrg  < theMinPCut  || nrg > theMaxPCut)   ) return false ;
+  if ( (fPhiCuts) && (phi < theMinPhiCut || phi > theMaxPhiCut) ) return false ;
 
-  return flag;
+  return true;
 
 }
 
-void Generator::nonBeamEvent2G4(const HepMC::GenEvent * evt, G4Event * g4evt) 
+void Generator::nonBeamEvent2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
 {
   int i = 0; 
   for(HepMC::GenEvent::particle_const_iterator it = evt->particles_begin(); 
-      it != evt->particles_end(); ++it ) 
+      it != evt->particles_end(); ++it )
     {
       i++;
       HepMC::GenParticle * g = (*it);	
       int g_status = g->status();
       // storing only particle with status == 1 	
-      if (g_status == 1) 
+      if (g_status == 1)
 	{
 	  int g_id = g->pdg_id();	    
 	  G4PrimaryParticle * g4p = 
 	    new G4PrimaryParticle(g_id,g->momentum().px()*GeV,g->momentum().py()*GeV,g->momentum().pz()*GeV);
-	  if (g4p->GetG4code() != 0) 
+	  if (g4p->GetG4code() != 0)
 	    { 
 	      g4p->SetMass(g4p->GetG4code()->GetPDGMass());
 	      g4p->SetCharge(g4p->GetG4code()->GetPDGCharge()) ;
 	    }
 	  g4p->SetWeight(i*10000);
 	  setGenId(g4p,i);
-	  if (particlePassesPrimaryCuts(g4p)) 
+	  if (particlePassesPrimaryCuts(g4p))
 	    {
 	      G4PrimaryVertex * v = new 
-		G4PrimaryVertex(g->production_vertex()->position().x()*mm,
-				g->production_vertex()->position().y()*mm,
-				g->production_vertex()->position().z()*mm,
+		G4PrimaryVertex(g->production_vertex()->position().x()*mm,	     
+				g->production_vertex()->position().y()*mm,	     
+				g->production_vertex()->position().z()*mm,	     
 				g->production_vertex()->position().t()*mm/c_light);
 	      v->SetPrimary(g4p);
 	      g4evt->AddPrimaryVertex(v);
-	      if(verbose >0) {
-		v->Print();
-	      }
 	    }
 	}
     } // end loop on HepMC particles

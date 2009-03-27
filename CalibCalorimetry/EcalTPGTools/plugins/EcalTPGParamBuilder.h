@@ -43,14 +43,6 @@ class coeffStruc {
   int pedestals_[3] ;
 };
 
-class linStruc {
- public:
-  linStruc() { }
-  int pedestal_[3] ;
-  int mult_[3] ;
-  int shift_[3] ;
-};
-
 class EcalTPGParamBuilder : public edm::EDAnalyzer {
 
  public:
@@ -98,8 +90,6 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   unsigned int FG_lut_EB_ ;
   double FG_Threshold_EE_ ;
   unsigned int FG_lut_strip_EE_, FG_lut_tower_EE_ ;
-  int forcedPedestalValue_ ;
-  bool forceEtaSlice_ ;
 
   std::ofstream * out_file_ ;
   std::ofstream * geomFile_ ;
@@ -109,6 +99,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   bool writeToFiles_ ;
   unsigned int DBrunNb_ ;
   bool DBEE_ ;
+
 
 };
 #endif

@@ -39,7 +39,7 @@ int SiPixelFrameConverter::toDetector(const ElectronicIndex & cabling, DetectorI
   if (!link) {
     stringstream stm;
     stm << "FED shows no link of id= " << cabling.link;
-    edm::LogError("SiPixelFrameConverter") << stm.str();
+    LogDebug("SiPixelFrameConverter") << stm.str();
     return 1;
   }
 
@@ -47,7 +47,7 @@ int SiPixelFrameConverter::toDetector(const ElectronicIndex & cabling, DetectorI
   if (!roc) {
     stringstream stm;
     stm << "Link=" <<  cabling.link << " shows no ROC with id=" << cabling.roc;
-    edm::LogError("SiPixelFrameConverter") << stm.str();
+    LogDebug("SiPixelFrameConverter") << stm.str();
     return 2;
   }
 

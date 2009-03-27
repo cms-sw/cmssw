@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/02/15 18:14:49 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/07 15:13:59 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -97,8 +97,7 @@ void DTTtrigHandler::getNewObjects() {
                 >> qua
                 >> tri
                 >> rms ) {
-    status = tTrig->set( whe, sta, sec, qua, tri, rms,
-                         DTTimeUnits::counts );
+    status = tTrig->set( whe, sta, sec, qua, tri, rms );
     std::cout << whe << " "
               << sta << " "
               << sec << " "

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRawModule.cc,v 1.5 2008/04/02 08:47:42 bainbrid Exp $
+// Last commit: $Id: SiStripDigiToRawModule.cc,v 1.6 2008/07/04 14:07:47 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripDigiToRawModule.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"

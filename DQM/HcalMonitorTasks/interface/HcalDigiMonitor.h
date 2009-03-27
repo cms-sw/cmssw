@@ -5,95 +5,52 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
-// The following are needed for using pedestals in fC:
-#include "CondFormats/HcalObjects/interface/HcalPedestal.h"
-#include "CondFormats/HcalObjects/interface/HcalPedestalWidth.h"
+#include <cmath>
+
+#define DIGI_BQ_FRAC_NBINS 101
+#define DIGI_NUM 9072
+#define DIGI_SUBDET_NUM 3000
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/10/01 16:33:10 $
-  * $Revision: 1.32 $
+  * $Date: 2009/01/07 18:37:28 $
+  * $Revision: 1.34 $
   * \author W. Fisher - FNAL
+  * \author J. Temple - Univ. of Maryland
   */
-
 
 struct DigiHists
 {
-  // check whether to create histograms for each subdetector
-  bool origcheck;
-  bool check;
-  int checkNevents;
-  
-  bool makeDiagnostics; // determine whether or not to make diagnostic plots
-  
-  int type; // stores type  (1=hb, 2=he, 3=ho, 4=hf, 10=hcal)
-  std::string subdet; // stores subdetector name (HB, HE, ...)
+  // structure of MonitorElements for each subdetector, along with their associated counters
 
-    // Problem cells will be those cells with an error or with low occupancy
-  MonitorElement* PROBLEMDIGICELLS;
-  std::vector<MonitorElement*> PROBLEMDIGICELLS_DEPTH;
-  
-  TH2F* PROBLEMDIGICELLS_TEMP;
-  std::vector<TH2F*> PROBLEMDIGICELLS_TEMP_DEPTH;
-  // Separate by types of problems
-  std::vector<MonitorElement*> problemCell_noDigi;
-  std::vector<MonitorElement*> problemCell_BadCapID;
-  std::vector<MonitorElement*> problemCell_WrongDigiSize;
-  std::vector<MonitorElement*> problemCell_ADCSumIsZero;
+  bool check; // decide whether or not to use these histograms
 
-  MonitorElement* DIGI_NUM;
-  MonitorElement* DIGI_SIZE;
-  MonitorElement* DIGI_PRESAMPLE;
-  MonitorElement* QIE_CAPID;
-  MonitorElement* QIE_ADC;
-  MonitorElement* QIE_DV;
-  MonitorElement* ERR_MAP_GEO;
-  MonitorElement* ERR_MAP_VME;
-  
-  MonitorElement* ERR_MAP_DCC;
-  MonitorElement* OCC_MAP_GEO1;
-  MonitorElement* OCC_MAP_GEO2;
-  MonitorElement* OCC_MAP_GEO3;
-  MonitorElement* OCC_MAP_GEO4;
-  MonitorElement* OCC_ETA;
-  MonitorElement* OCC_PHI;
-  MonitorElement* OCC_MAP_VME;
-  
-  MonitorElement* OCC_MAP_DCC;
-  MonitorElement* SHAPE_tot;
-  MonitorElement* SHAPE_THR_tot;
-  
-  MonitorElement* CAPID_T0;
-  MonitorElement* BQDIGI_NUM;
-  MonitorElement* BQDIGI_FRAC;
-  
-  // Pedestal plots for each depth of each subdetector
-  MonitorElement* RAW_PEDESTAL_MEAN[4];
-  MonitorElement* RAW_PEDESTAL_RMS[4];
-  MonitorElement* SUB_PEDESTAL_MEAN[4];
-  MonitorElement* SUB_PEDESTAL_RMS[4];
-  // 1D versions of pedestal plots
-  MonitorElement* RAW_PEDESTAL_MEAN_1D[4];
-  MonitorElement* RAW_PEDESTAL_RMS_1D[4];
-  MonitorElement* SUB_PEDESTAL_MEAN_1D[4];
-  MonitorElement* SUB_PEDESTAL_RMS_1D[4];
+  MonitorElement* shape;
+  MonitorElement* shapeThresh;
+  MonitorElement* presample;
+  MonitorElement* BQ;
+  MonitorElement* BQFrac;
+  MonitorElement* DigiFirstCapID;
+  MonitorElement* DVerr;
+  MonitorElement* CapID;
+  MonitorElement* ADC;
+  MonitorElement* ADCsum;
+  std::vector<MonitorElement*> TS_sum_plus, TS_sum_minus;
 
-  
-
-  
-  std::vector<MonitorElement*> TS_SUM_P, TS_SUM_M;
-  
-  MonitorElement* diagnostic_BeforeBadDigi;
-  MonitorElement* diagnostic_AfterBadDigi;
-  
-  std::map<HcalDetId, MonitorElement*> SHAPE;
-
-  // temp variables for storing values that are periodically Filled in histograms
-  int temp_QIE_CAPID[5];
-  int temp_QIE_ADC[200];
-  float temp_SHAPE_tot[10];
-  float temp_SHAPE_THR_tot[10];
-  int temp_QIE_DV[4];
+  int count_shape[10];
+  int count_shapeThresh[10];
+  int count_presample[50];
+  int count_BQ[DIGI_SUBDET_NUM];
+  int count_BQFrac[DIGI_BQ_FRAC_NBINS];
+  int count_bad;
+  int count_all;
+  int capIDdiff[8]; // only bins 0-7 used for expected real values of cap ID difference (since cap IDs run from 0-3); bin 8 is overflow
+  int dverr[4];
+  int capid[4];
+  int adc[200];
+  int adcsum[200];
+  int tssumplus[50][10];
+  int tssumminus[50][10];
 };
 
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -107,39 +64,25 @@ public:
 		    const HFDigiCollection& hf,
 		    const HcalDbService& cond,
 		    const HcalUnpackerReport& report);
-  void setSubDetectors(bool hb, bool he, bool ho, bool hf);
   void reset();
-
+  void setSubDetectors(bool hb, bool he, bool ho, bool hf);
 private:  ///Methods
 
-  void fillErrors(const HBHEDataFrame& hb);
-  void fillErrors(const HODataFrame& ho);
-  void fillErrors(const HFDataFrame& hf);
-  void fillPedestalHistos(void);
-  void reset_Nevents(DigiHists& h);
-  void fill_Nevents(DigiHists& h);
+  void fill_Nevents();
   void setupHists(DigiHists& hist,  DQMStore* dbe); // enable this feature at some point
 
-
-  void HBHEDigiCheck(const HBHEDigiCollection& hbhe, DigiHists& hbHists, DigiHists& heHists, 
-		   DigiHists& hcalHists,  const HcalDbService& cond, 
-		   int& ndigi, int& nbqdigi);
-  void HODigiCheck(const HODigiCollection& ho, DigiHists& hoHists, 
-		   DigiHists& hcalHists,  const HcalDbService& cond, 
-		   int& ndigi, int& nbqdigi);
-  void HFDigiCheck(const HFDigiCollection& hf, DigiHists& hfHists, 
-		   DigiHists& hcalHists,  const HcalDbService& cond, 
-		   int& ndigi, int& nbqdigi);
-
-
   int ievt_;
-  double etaMax_, etaMin_, phiMax_, phiMin_;
-  int etaBins_, phiBins_;
   bool doPerChannel_;
   bool doFCpeds_;
+  int shapeThresh_;
   int occThresh_;
-  HcalCalibrations calibs_;
-  int checkNevents_;
+  int digi_checkNevents_;
+  int mindigisize_, maxdigisize_;
+  bool digi_checkoccupancy_;
+  bool digi_checkcapid_;
+  bool digi_checkdigisize_;
+  bool digi_checkadcsum_;
+  bool digi_checkdverr_;
 
 private:  
   const HcalQIEShape* shape_;
@@ -147,41 +90,55 @@ private:
 
   // Monitoring elements
   MonitorElement* meEVT_;
-  MonitorElement* OCC_ETA;
-  MonitorElement* OCC_PHI;
-  MonitorElement* OCC_L1;
-  MonitorElement* OCC_L2;
-  MonitorElement* OCC_L3;
-  MonitorElement* OCC_L4;
-  MonitorElement* OCC_ELEC_VME;
+  MonitorElement* ProblemDigis;
+  std::vector<MonitorElement*> ProblemDigisByDepth;
+  std::vector<MonitorElement*> DigiErrorsBadCapID;
+  std::vector<MonitorElement*> DigiErrorsBadDigiSize;
+  std::vector<MonitorElement*> DigiErrorsBadADCSum;
+  std::vector<MonitorElement*> DigiErrorsNoDigi;
+  std::vector<MonitorElement*> DigiErrorsDVErr;
+  MonitorElement* DigiSize;
+  int problemdigis[87][72][6];
+  int badcapID[87][72][6];
+  int baddigisize[87][72][6];
+  int badADCsum[87][72][6];
+  int digisize[20][4];
+  int digierrorsdverr[87][72][6];
+
+  std::vector<MonitorElement*> DigiOccupancyByDepth;
+  MonitorElement* DigiOccupancyEta;
+  MonitorElement* DigiOccupancyPhi;
+  MonitorElement* DigiOccupancyVME;
+  MonitorElement* DigiOccupancySpigot;
   
-  MonitorElement* OCC_ELEC_DCC;
-  MonitorElement* ERR_MAP_GEO;
-  MonitorElement* ERR_MAP_VME;
-
-  MonitorElement* ERR_MAP_DCC;
-
-  MonitorElement* CAPID_T0;
-  MonitorElement* DIGI_NUM;
-  MonitorElement* BQDIGI_NUM;
-  MonitorElement* BQDIGI_FRAC;
   
-  //Quick pedestal code
-  int pedcounts[87][72][4];
-  float rawpedsum[87][72][4];
-  float rawpedsum2[87][72][4];
-  float subpedsum[87][72][4]; 
-  float subpedsum2[87][72][4]; 
+  int occupancyEtaPhi[87][72][6];
+  int occupancyEta[87];
+  int occupancyPhi[72];
+  int occupancyVME[40][18];
+  int occupancySpigot[40][36];
 
-  /*
-  MonitorElement* RAW_PEDESTAL_MEAN[4];
-  MonitorElement* RAW_PEDESTAL_RMS[4];
-  MonitorElement* SUB_PEDESTAL_MEAN[4]; 
-  MonitorElement* SUB_PEDESTAL_RMS[4]; 
-  */
+  //MonitorElement* DigiErrorEtaPhi; //redundant; sample as ProblemDigis
+  MonitorElement* DigiErrorVME;
+  MonitorElement* DigiErrorSpigot;
+  MonitorElement* DigiBQ;
+  MonitorElement* DigiBQFrac;
 
-  DigiHists hbHists, heHists, hfHists, hoHists, hcalHists;
+  int digiBQ[DIGI_NUM]; 
+  int digiBQfrac[DIGI_BQ_FRAC_NBINS]; 
+  int errorVME[40][18];
+  int errorSpigot[15][36];// 15 is the value of SPIGOT_COUNT; may need to change this in the future?
 
+
+  MonitorElement* DigiFirstCapID;
+  MonitorElement* DigiNum;
+  int diginum[DIGI_NUM];
+ 
+
+
+  DigiHists hbHists, heHists, hfHists, hoHists;
+
+ 
 };
 
 #endif

@@ -12,8 +12,8 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2008/05/30 08:37:10 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/10/07 09:38:08 $
+ *  $Revision: 1.8 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -31,6 +31,7 @@
 class DTGeometry;
 class DQMStore;
 class MonitorElement;
+class DTTimeEvolutionHisto;
 
 class DTSegmentAnalysisTask: public edm::EDAnalyzer{
 public:
@@ -48,6 +49,10 @@ public:
 
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup);
+
+  /// Summary
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
 
 protected:
 
@@ -80,7 +85,17 @@ private:
   //  the histos
   std::map<DTChamberId, std::vector<MonitorElement*> > histosPerCh;
   std::map< int, MonitorElement* > summaryHistos;
+  std::map<int, std::map<int, DTTimeEvolutionHisto*> > histoTimeEvol;
 
+  int nEventsInLS;
+  DTTimeEvolutionHisto*hNevtPerLS;
+
+  // # of bins in the time histos
+  int nTimeBins;
+  // # of LS per bin in the time histos
+  int nLSTimeBin; 
+  // switch on/off sliding bins in time histos
+  bool slideTimeBins;
 };
 #endif
 

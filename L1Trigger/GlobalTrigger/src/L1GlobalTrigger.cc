@@ -88,87 +88,56 @@
 
 // constructors
 
-L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
+L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet) :
+            m_muGmtInputTag(parSet.getParameter<edm::InputTag> ("GmtInputTag")),
+            m_caloGctInputTag(parSet.getParameter<edm::InputTag> ("GctInputTag")),
+            m_castorInputTag(parSet.getParameter<edm::InputTag> ("CastorInputTag")),
+            m_technicalTriggersInputTags(parSet.getParameter<std::vector<edm::InputTag> > (
+                    "TechnicalTriggersInputTags")),
+            m_produceL1GtDaqRecord(parSet.getParameter<bool> ("ProduceL1GtDaqRecord")),
+            m_produceL1GtEvmRecord(parSet.getParameter<bool> ("ProduceL1GtEvmRecord")),
+            m_produceL1GtObjectMapRecord(parSet.getParameter<bool> ("ProduceL1GtObjectMapRecord")),
+            m_writePsbL1GtDaqRecord(parSet.getParameter<bool> ("WritePsbL1GtDaqRecord")),
+            m_readTechnicalTriggerRecords(parSet.getParameter<bool> ("ReadTechnicalTriggerRecords")),
+            m_emulateBxInEvent(parSet.getParameter<int> ("EmulateBxInEvent")), m_psBstLengthBytes(
+                    parSet.getParameter<int> ("BstLengthBytes"))
+
 {
 
-    // input tag for muon collection from GMT
-    m_muGmtInputTag = parSet.getParameter<edm::InputTag>("GmtInputTag");
+    if (edm::isDebugEnabled()) {
 
-    // input tag for calorimeter collection from GCT
-    m_caloGctInputTag = parSet.getParameter<edm::InputTag>("GctInputTag");
+        LogTrace("L1GlobalTrigger") << "\nInput tag for muon collection from GMT:         "
+                << m_muGmtInputTag << "\nInput tag for calorimeter collections from GCT: "
+                << m_caloGctInputTag << "\nInput tag for CASTOR record                     "
+                << m_castorInputTag << "\nInput tag for technical triggers:                "
+                << std::endl;
 
-    // input tag for CASTOR record
-    m_castorInputTag= parSet.getParameter<edm::InputTag>("CastorInputTag");
+        // loop over all producers of technical trigger records
+        for (std::vector<edm::InputTag>::const_iterator it = m_technicalTriggersInputTags.begin(); it
+                != m_technicalTriggersInputTags.end(); it++) {
+            LogTrace("L1GlobalTrigger") << "\n  " << ( *it ) << std::endl;
+        }
 
-    /// input tag for technical triggers
-    m_technicalTriggersInputTag =
-        parSet.getParameter<edm::InputTag>("TechnicalTriggersInputTag");
-
-    // logical flag to produce the L1 GT DAQ readout record
-    //     if true, produce the record
-    m_produceL1GtDaqRecord = parSet.getParameter<bool>("ProduceL1GtDaqRecord");
-
-
-    // logical flag to produce the L1 GT EVM readout record
-    //     if true, produce the record
-    m_produceL1GtEvmRecord = parSet.getParameter<bool>("ProduceL1GtEvmRecord");
-
-
-    // logical flag to produce the L1 GT object map record
-    //     if true, produce the record
-    m_produceL1GtObjectMapRecord = parSet.getParameter<bool>("ProduceL1GtObjectMapRecord");
+        LogTrace("L1GlobalTrigger") << "\nProduce the L1 GT DAQ readout record:           "
+                << m_produceL1GtDaqRecord << "\nProduce the L1 GT EVM readout record:           "
+                << m_produceL1GtEvmRecord << "\nProduce the L1 GT Object Map record:            "
+                << m_produceL1GtObjectMapRecord << " \n"
+                << "\nWrite Psb content to L1 GT DAQ Record:          " << m_writePsbL1GtDaqRecord
+                << " \n" << "\nRead technical trigger records:                 "
+                << m_readTechnicalTriggerRecords << " \n"
+                << "\nNumber of BxInEvent to be emulated:             " << m_emulateBxInEvent
+                << " \n" << "\nLength of BST message [bytes]:                  "
+                << m_psBstLengthBytes << "\n" << std::endl;
+    }
 
 
-    // logical flag to write the PSB content in the  L1 GT DAQ record
-    //     if true, write the PSB content in the record
-    m_writePsbL1GtDaqRecord = parSet.getParameter<bool>("WritePsbL1GtDaqRecord");
-
-    // logical flag to read the technical trigger records
-    //     if true, it will read via getMany the available records
-    m_readTechnicalTriggerRecords = parSet.getParameter<bool>("ReadTechnicalTriggerRecords");
-
-    // number of "bunch crossing in the event" (BxInEvent) to be emulated
-    // symmetric around L1Accept (BxInEvent = 0):
-    //    1 (BxInEvent = 0); 3 (F 0 1) (standard record); 5 (E F 0 1 2) (debug record)
-    // even numbers (except 0) "rounded" to the nearest lower odd number
-    m_emulateBxInEvent = parSet.getParameter<int>("EmulateBxInEvent");
-
-    // length of BST record (in bytes) from parameter set
-    m_psBstLengthBytes = parSet.getParameter<int>("BstLengthBytes");
-
-    LogTrace("L1GlobalTrigger")
-    << "\nInput tag for muon collection from GMT:         "
-    << m_muGmtInputTag
-    << "\nInput tag for calorimeter collections from GCT: "
-    << m_caloGctInputTag
-    << "\nInput tag for CASTOR record                     "
-    << m_castorInputTag
-    << "\nInput tag for technical triggers                "
-    << m_technicalTriggersInputTag
-    << "\nProduce the L1 GT DAQ readout record:           "
-    << m_produceL1GtDaqRecord
-    << "\nProduce the L1 GT EVM readout record:           "
-    << m_produceL1GtEvmRecord
-    << "\nProduce the L1 GT Object Map record:            "
-    << m_produceL1GtObjectMapRecord << " \n"
-    << "\nWrite Psb content to L1 GT DAQ Record:          "
-    << m_writePsbL1GtDaqRecord << " \n"
-    << "\nRead technical trigger records:                 "
-    << m_readTechnicalTriggerRecords << " \n"
-    << "\nNumber of BxInEvent to be emulated:             "
-    << m_emulateBxInEvent << " \n"
-    << "\nLength of BST message [bytes]:                  "
-    << m_psBstLengthBytes << "\n"
-    << std::endl;
-
-    if ((m_emulateBxInEvent > 0)  && ( (m_emulateBxInEvent%2) == 0) ) {
+    if ( ( m_emulateBxInEvent > 0 ) && ( ( m_emulateBxInEvent % 2 ) == 0 )) {
         m_emulateBxInEvent = m_emulateBxInEvent - 1;
 
         edm::LogInfo("L1GlobalTrigger")
-        << "\nWARNING: Number of bunch crossing to be emulated rounded to: "
-        << m_emulateBxInEvent
-        << "\n         The number must be an odd number!\n"
-        << std::endl;
+                << "\nWARNING: Number of bunch crossing to be emulated rounded to: "
+                << m_emulateBxInEvent << "\n         The number must be an odd number!\n"
+                << std::endl;
     }
 
     // register products
@@ -184,16 +153,14 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
         produces<L1GlobalTriggerObjectMapRecord>();
     }
 
-
     // create new PSBs
-    m_gtPSB = new L1GlobalTriggerPSB(m_technicalTriggersInputTag.label());
+    m_gtPSB = new L1GlobalTriggerPSB();
 
     // create new GTL
     m_gtGTL = new L1GlobalTriggerGTL();
 
     // create new FDL
     m_gtFDL = new L1GlobalTriggerFDL();
-
 
     // initialize cached IDs
 
@@ -214,7 +181,6 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
     m_nrL1TauJet = 0;
 
     m_nrL1JetCounts = 0;
-
 
     m_ifMuEtaNumberBits = 0;
     m_ifCaloEtaNumberBits = 0;
@@ -241,7 +207,6 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
     m_l1GtTmVetoAlgoCacheID = 0ULL;
     m_l1GtTmVetoTechCacheID = 0ULL;
 
-
 }
 
 // destructor
@@ -264,7 +229,8 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 	// get / update the stable parameters from the EventSetup
     // local cache & check on cacheIdentifier
 
-    unsigned long long l1GtStableParCacheID = evSetup.get<L1GtStableParametersRcd>().cacheIdentifier();
+    unsigned long long l1GtStableParCacheID =
+            evSetup.get<L1GtStableParametersRcd>().cacheIdentifier();
 
     if (m_l1GtStableParCacheID != l1GtStableParCacheID) {
 
@@ -929,7 +895,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         /// receive technical trigger
         if (m_readTechnicalTriggerRecords) {
             m_gtPSB->receiveTechnicalTriggers(iEvent,
-                    m_technicalTriggersInputTag, iBxInEvent, receiveTechTr,
+                    m_technicalTriggersInputTags, iBxInEvent, receiveTechTr,
                     m_numberTechnicalTriggers);
         }
 

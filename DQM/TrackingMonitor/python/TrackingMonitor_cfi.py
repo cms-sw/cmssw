@@ -15,6 +15,8 @@ TrackMon = cms.EDFilter("TrackingMonitor",
     FolderName = cms.string('Track/GlobalParameters'),
 
     MeasurementState = cms.string('default'),
+
+    doTrackerSpecific = cms.bool(False),
                         
     TkSizeBin = cms.int32(500),
     TkSizeMin = cms.double(-0.5),
@@ -40,9 +42,17 @@ TrackMon = cms.EDFilter("TrackingMonitor",
     VXMin = cms.double(-20.0),
     VXMax = cms.double(20.0),
 
-    RecHitBin = cms.int32(50),
+    RecHitBin = cms.int32(100),
     RecHitMin = cms.double(-0.5),
     RecHitMax = cms.double(99.5),
+
+    RecLostBin = cms.int32(20),
+    RecLostMin = cms.double(-0.5),
+    RecLostMax = cms.double(19.5),
+
+    RecLayBin = cms.int32(100),
+    RecLayMin = cms.double(-0.5),
+    RecLayMax = cms.double(99.5),
                         
     Chi2Max = cms.double(500.0),
     Chi2Bin = cms.int32(100),

@@ -15,10 +15,18 @@ TFileService::TFileService(const ParameterSet & cfg, ActivityRegistry & r) :
   file_(TFileDirectory::file_),
   fileName_(cfg.getParameter<string>("fileName")),
   fileNameRecorded_(false),
-  closeFileFast_(cfg.getUntrackedParameter<bool>("closeFileFast", false)) {
+  closeFileFast_(cfg.getUntrackedParameter<bool>("closeFileFast", false)) 
+{
+  // activities to monitor in order to set the proper directory
   r.watchPreModuleConstruction(this, & TFileService::setDirectoryName);
   r.watchPreModule(this, & TFileService::setDirectoryName);
   r.watchPreModuleBeginJob(this, & TFileService::setDirectoryName);
+  r.watchPreModuleEndJob(this, & TFileService::setDirectoryName);
+  r.watchPreModuleBeginRun(this, & TFileService::setDirectoryName);
+  r.watchPreModuleEndRun(this, & TFileService::setDirectoryName);
+  r.watchPreModuleBeginLumi(this, & TFileService::setDirectoryName);
+  r.watchPreModuleEndLumi(this, & TFileService::setDirectoryName);
+  // delay writing into JobReport after BeginJob
   r.watchPostBeginJob(this,&TFileService::afterBeginJob);
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file QualityTester.cc
  *
- * $Date: 2008/05/17 16:54:46 $
- * $Revision: 1.13 $
+ * $Date: 2008/09/17 06:03:35 $
+ * $Revision: 1.14 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -26,10 +26,11 @@ QualityTester::QualityTester(const ParameterSet& ps)
   getQualityTestsFromFile = ps.getUntrackedParameter<bool>("getQualityTestsFromFile", true);
   reportThreshold = ps.getUntrackedParameter<string>("reportThreshold", "");
   testInEventloop = ps.getUntrackedParameter<bool>("testInEventloop",false);
-  qtestOnEndRun = ps.getUntrackedParameter<bool>("qtestOnEndRun",false);
-  qtestOnEndJob = ps.getUntrackedParameter<bool>("qtestOnEndJob",false);
-  qtestOnEndLumi = ps.getUntrackedParameter<bool>("qtestOnEndLumi",true);
-  
+  qtestOnEndRun   = ps.getUntrackedParameter<bool>("qtestOnEndRun",false);
+  qtestOnEndJob   = ps.getUntrackedParameter<bool>("qtestOnEndJob",false);
+  qtestOnEndLumi  = ps.getUntrackedParameter<bool>("qtestOnEndLumi",true);
+  verboseQT       = ps.getUntrackedParameter<bool>("verboseQT", true);
+
   bei = &*edm::Service<DQMStore>();
 
   qtHandler=new QTestHandle;
@@ -84,7 +85,7 @@ void QualityTester::endJob(){
 void QualityTester::performTests(void)
 {
     // done here because new ME can appear while processing data
-    qtHandler->attachTests(bei);
+    qtHandler->attachTests(bei,verboseQT);
 
     edm::LogVerbatim ("QualityTester") << "Running the Quality Test";
 

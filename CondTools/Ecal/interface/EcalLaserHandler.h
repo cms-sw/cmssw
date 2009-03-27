@@ -36,7 +36,6 @@
 
 #include "OnlineDB/EcalCondDB/interface/all_monitoring_types.h"
 #include "OnlineDB/EcalCondDB/interface/all_lmf_types.h"
-#include "OnlineDB/EcalCondDB/interface/LMFLaserPrimDat.h"
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 

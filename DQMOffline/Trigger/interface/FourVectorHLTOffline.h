@@ -94,11 +94,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       class PathInfo {
 	PathInfo():
-<<<<<<< FourVectorHLTOffline.h
-	  pathIndex_(-1), pathName_("unset"), filterName_("unset"), processName_("unset"), objectType_(-1)
-=======
-	  pathIndex_(-1), denomPathName_("unset"), pathName_("unset"), filterName_("unset"), objectType_(-1)
->>>>>>> 1.8
+	  pathIndex_(-1), denomPathName_("unset"), pathName_("unset"), l1pathName_("unset"), filterName_("unset"), processName_("unset"), objectType_(-1)
 	  {};
       public:
 	void setHistos(
@@ -238,8 +234,14 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	const std::string getPath(void ) const {
 	  return pathName_;
 	}
+	const std::string getl1Path(void ) const {
+	  return l1pathName_;
+	}
 	const std::string getDenomPath(void ) const {
 	  return denomPathName_;
+	}
+	const std::string getProcess(void ) const {
+	  return processName_;
 	}
 	const int getObjectType(void ) const {
 	  return objectType_;
@@ -249,24 +251,10 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	  edm::InputTag tagName(filterName_,"",processName_);
           return tagName;
 	}
-        void setProcess(std::string process) {
-	  processName_ = process;
-	  return;
-	}
 	~PathInfo() {};
-<<<<<<< FourVectorHLTOffline.h
-	PathInfo(std::string pathName, std::string filterName, std::string processName, size_t type, float ptmin, 
-=======
-	PathInfo(std::string denomPathName, std::string pathName, std::string filterName, size_t type, float ptmin, 
->>>>>>> 1.8
+	PathInfo(std::string denomPathName, std::string pathName, std::string l1pathName, std::string filterName, std::string processName, size_t type, float ptmin, 
 		 float ptmax):
-<<<<<<< FourVectorHLTOffline.h
-	  pathName_(pathName), filterName_(filterName), processName_(processName), objectType_(type), 
-	  NOn_(0),etOn_(0), etaOn_(0), phiOn_(0), etavsphiOn_(0),
-	  etOff_(0), etaOff_(0), phiOff_(0), etavsphiOff_(0),
-	  etL1_(0), etaL1_(0), phiL1_(0), etavsphiL1_(0),
-=======
-	  denomPathName_(denomPathName), pathName_(pathName), filterName_(filterName), objectType_(type),
+	  denomPathName_(denomPathName), pathName_(pathName), l1pathName_(l1pathName), filterName_(filterName), processName_(processName), objectType_(type),
 	  NOn_(0),
           onEtOn_(0), onEtaOn_(0), onPhiOn_(0), onEtavsonPhiOn_(0),
 	  offEtOff_(0), offEtaOff_(0), offPhiOff_(0), offEtavsoffPhiOff_(0),
@@ -274,15 +262,10 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
           l1EtL1On_(0), l1EtaL1On_(0), l1PhiL1On_(0), l1Etavsl1PhiL1On_(0),
 	  offEtL1Off_(0), offEtaL1Off_(0), offPhiL1Off_(0), offEtavsoffPhiL1Off_(0),
 	  offEtOnOff_(0), offEtaOnOff_(0), offPhiOnOff_(0), offEtavsoffPhiOnOff_(0),
->>>>>>> 1.8
 	  ptmin_(ptmin), ptmax_(ptmax)
 	  {
 	  };
-<<<<<<< FourVectorHLTOffline.h
-	  PathInfo(std::string pathName, std::string filterName, std::string processName, size_t type,
-=======
-	  PathInfo(std::string denomPathName, std::string pathName, std::string filterName, size_t type,
->>>>>>> 1.8
+	  PathInfo(std::string denomPathName, std::string pathName, std::string l1pathName, std::string filterName, std::string processName, size_t type,
 		   MonitorElement *NOn,
 		   MonitorElement *onEtOn,
 		   MonitorElement *onEtaOn,
@@ -310,13 +293,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 		   MonitorElement *offEtavsoffPhiOnOff,
 		   float ptmin, float ptmax
 		   ):
-<<<<<<< FourVectorHLTOffline.h
-	    pathName_(pathName), filterName_(filterName), processName_(processName), objectType_(type),
-	    NOn_(NOn), etOn_(etOn), etaOn_(etaOn), phiOn_(phiOn), etavsphiOn_(etavsphiOn),
-	    etOff_(etOff), etaOff_(etaOff), phiOff_(phiOff), etavsphiOff_(etavsphiOff),
-	    etL1_(etL1), etaL1_(etaL1), phiL1_(phiL1), etavsphiL1_(etavsphiL1),
-=======
-	    denomPathName_(denomPathName), pathName_(pathName), filterName_(filterName), objectType_(type),
+	    denomPathName_(denomPathName), pathName_(pathName), l1pathName_(l1pathName), filterName_(filterName), processName_(processName), objectType_(type),
 	    NOn_(NOn), 
             onEtOn_(onEtOn), onEtaOn_(onEtaOn), onPhiOn_(onPhiOn), onEtavsonPhiOn_(onEtavsonPhiOn),
 	    offEtOff_(offEtOff), offEtaOff_(offEtaOff), offPhiOff_(offPhiOff), offEtavsoffPhiOff_(offEtavsoffPhiOff),
@@ -324,7 +301,6 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
             l1EtL1On_(l1EtL1On), l1EtaL1On_(l1EtaL1On), l1PhiL1On_(l1PhiL1On), l1Etavsl1PhiL1On_(l1Etavsl1PhiL1On),
 	    offEtL1Off_(offEtL1Off), offEtaL1Off_(offEtaL1Off), offPhiL1Off_(offPhiL1Off), offEtavsoffPhiL1Off_(offEtavsoffPhiL1Off),
 	    offEtOnOff_(offEtOnOff), offEtaOnOff_(offEtaOnOff), offPhiOnOff_(offPhiOnOff), offEtavsoffPhiOnOff_(offEtavsoffPhiOnOff),
->>>>>>> 1.8
 	    ptmin_(ptmin), ptmax_(ptmax)
 	    {};
 	    bool operator==(const std::string v) 
@@ -335,6 +311,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	  int pathIndex_;
 	  std::string denomPathName_;
 	  std::string pathName_;
+	  std::string l1pathName_;
 	  std::string filterName_;
 	  std::string processName_;
 	  int objectType_;

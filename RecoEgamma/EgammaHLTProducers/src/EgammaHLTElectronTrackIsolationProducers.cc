@@ -2,7 +2,7 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  * 
- * $Id: EgammaHLTElectronTrackIsolationProducers.cc,v 1.3 2007/03/07 09:22:03 monicava Exp $
+ * $Id: EgammaHLTElectronTrackIsolationProducers.cc,v 1.2 2006/10/27 01:35:36 wmtan Exp $
  *
  */
 
@@ -41,7 +41,6 @@ EgammaHLTElectronTrackIsolationProducers::EgammaHLTElectronTrackIsolationProduce
   egTrkIsoZSpan_                = conf_.getParameter<double>("egTrkIsoZSpan");
   egTrkIsoRSpan_                = conf_.getParameter<double>("egTrkIsoRSpan");
   egTrkIsoVetoConeSize_         = conf_.getParameter<double>("egTrkIsoVetoConeSize");
-  egCheckForOtherEleInCone_     = conf_.getUntrackedParameter<bool>("egCheckForOtherEleInCone",false);
 
 
   test_ = new EgammaHLTTrackIsolation(egTrkIsoPtMin_,egTrkIsoConeSize_,
@@ -78,21 +77,17 @@ EgammaHLTElectronTrackIsolationProducers::produce(edm::Event& iEvent, const edm:
   reco::ElectronIsolationMap isoMap;
 
   for(reco::ElectronCollection::const_iterator iElectron = electronHandle->begin(); iElectron != electronHandle->end(); iElectron++){
-    
-    
+
+
     reco::ElectronRef electronref(reco::ElectronRef(electronHandle,iElectron - electronHandle->begin()));
     reco::TrackRef electrontrackref = iElectron->track();
-    
-    float isol;
-    if (!egCheckForOtherEleInCone_) {
-      isol = test_->electronPtSum(&(*electrontrackref),trackCollection);
-    } else {
-      isol = test_->electronPtSum(&(*electrontrackref),electronHandle.product(),trackCollection);
-    }
+
+    float isol = test_->electronPtSum(&(*electrontrackref),trackCollection);
     if(electrontrackref->pt() != 0. ) isol = isol/electrontrackref->pt();
-    
+
     isoMap.insert(electronref, isol);
-      
+
+
   }
 
   std::auto_ptr<reco::ElectronIsolationMap> isolMap(new reco::ElectronIsolationMap(isoMap));

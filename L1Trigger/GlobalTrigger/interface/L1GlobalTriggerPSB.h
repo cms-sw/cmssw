@@ -34,8 +34,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "FWCore/Framework/interface/Selector.h"
-
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtBoard.h"
 #include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
@@ -66,9 +64,6 @@ public:
     // constructor
     L1GlobalTriggerPSB();
 
-    // string for the selector label edm::ModuleLabelSelector
-    L1GlobalTriggerPSB(const std::string selLabel);
-
     // destructor
     virtual ~L1GlobalTriggerPSB();
 
@@ -95,7 +90,7 @@ public:
 
     /// receive technical trigger
     void receiveTechnicalTriggers(edm::Event& iEvent,
-        const edm::InputTag& technicalTriggersInputTag,
+        const std::vector<edm::InputTag>& technicalTriggersInputTags,
         const int iBxInEvent, const bool receiveTechTr,
         const int nrL1TechTr);
 
@@ -204,12 +199,6 @@ private:
 
     /// technical trigger bits
     std::vector<bool> m_gtTechnicalTriggers;
-
-    /// handles to the technical trigger records
-    std::vector<edm::Handle<L1GtTechnicalTriggerRecord> > m_techTrigRecords;
-
-    /// selector for getMany methods
-    edm::Selector m_techTrigSelector;
 
 };
 

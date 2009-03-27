@@ -32,6 +32,9 @@ class DCCTowerBlock : public DCCFEBlock {
   protected:
 	 
     int unpackXtalData(uint stripID, uint xtalID);
+    void fillEcalElectronicsError( std::auto_ptr<EcalElectronicsIdCollection> * );
+    
+
 
     std::auto_ptr<EBDigiCollection>     * digis_;
     

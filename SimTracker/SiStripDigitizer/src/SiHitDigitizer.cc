@@ -73,15 +73,14 @@ LocalVector SiHitDigitizer::DriftDirection(const StripGeomDetUnit* _detp,GlobalV
   Frame detFrame(_detp->surface().position(),_detp->surface().rotation());
   LocalVector Bfield=detFrame.toLocal(_bfield);
   
-  if(langle==0.)
-    edm::LogError("StripDigiInfo")<< "ERROR: Lorentz angle = 0 for module "<<_detp->geographicalId().rawId();
-  
   float dir_x = -langle * Bfield.y();
   float dir_y = +langle * Bfield.x();
   float dir_z = 1.; // E field always in z direction
   LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
     edm::LogInfo("StripDigiInfo")<< " The drift direction in local coordinate is "<<theDriftDirection;
+    if(langle==0.)
+      edm::LogWarning("StripDigiInfo")<< "ERROR: Lorentz angle = 0 for module "<<_detp->geographicalId().rawId();
   }
   return theDriftDirection;
   

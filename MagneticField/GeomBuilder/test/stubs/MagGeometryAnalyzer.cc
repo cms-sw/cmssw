@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/03/29 14:39:17 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/04/09 17:12:38 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
@@ -60,14 +60,16 @@ void MagGeometryAnalyzer::analyze(const edm::Event & event, const edm::EventSetu
   
   // Test that findVolume succeeds for random points
   MagGeometryExerciser exe(field);
-//   exe.testFindVolume(100000);
+
+  //FIXME: the region to be tested is specified inside.
+  exe.testFindVolume(10000000);
 
   // Test that random points are inside one and only one volume
   // exe.testInside(100000,0.03); 
 
   
   // Test that each grid point is inside its own volume
-  if (true) {
+  if (false) {
     cout << "***TEST GRIDS: barrel volumes: " << field->barrelVolumes().size() << endl;
     testGrids( field->barrelVolumes());
     

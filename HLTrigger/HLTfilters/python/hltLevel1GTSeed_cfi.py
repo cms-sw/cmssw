@@ -29,7 +29,7 @@ hltLevel1GTSeed = cms.EDFilter("HLTLevel1GTSeed",
     L1GtObjectMapTag = cms.InputTag("l1GtObjectMap"),
     # seeding done via technical trigger bits, if value is "true";
     # default: false (seeding via physics algorithms)
-    L1TechTriggerSeeding = cms.bool(False)
+    L1TechTriggerSeeding = cms.bool(False),
+    # saveTags for AOD book-keeping
+    saveTags = cms.untracked.bool(True)
 )
-
-

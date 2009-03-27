@@ -101,6 +101,7 @@ echo "  -> debugging mode: '"${FLGDEBUG}"'"
 
 # set path to local LHAPDF installation
 export LHAPDFDIR=${IDIR}"/lhapdf-"${LHAPDFVER}
+export LHAPDFIDIR=${IDIR}"/LHAPDF_"${LHAPDFVER}
 
 
 # add compiler & linker flags
@@ -131,16 +132,18 @@ echo "LDFLAGS  (new):  "$LDFLAGS
 
 # download, extract compile/install LHAPDF
 cd ${IDIR}
-if [ ! -d ${LHAPDFDIR} ]; then
+#if [ ! -d ${LHAPDFDIR} ]; then
+if [ ! -d ${LHAPDFIDIR} ]; then
   echo " -> downloading LHAPDF "${LHAPDFVER}" from "${LHAPDFWEBLOCATION}/${LHAPDFFILE}
   wget ${LHAPDFWEBLOCATION}/${LHAPDFFILE}
   tar -xzf ${LHAPDFFILE}
   rm ${LHAPDFFILE}
   cd ${LHAPDFDIR}
   echo " -> configuring LHAPDF"
-  ./configure --prefix=${LHAPDFDIR}
-  echo " -> installing LHAPDF"
+  ./configure --prefix=${LHAPDFIDIR}
+  echo " -> making LHAPDF"
   make
+  echo " -> installing LHAPDF"
   make install
   if [ ${LVLCLEAN} -gt 0 ]; then 
     echo " -> cleaning up LHAPDF installation, level: "${LVLCLEAN}" ..."
@@ -151,8 +154,9 @@ if [ ! -d ${LHAPDFDIR} ]; then
 else
   echo " <W> path exists => using already installed LHAPDF"
 fi
+rm -rf ${LHAPDFDIR}
 cd ${HDIR}
 
 
 echo " -> LHAPDF installation directory is: "
-echo "  "${LHAPDFDIR}
+echo "  "${LHAPDFIDIR}

@@ -13,9 +13,13 @@
 //
 // Original Author:  Xin Shi & Freya Blekman, Cornell University
 //         Created:  Fri Sep 12 17:58:29 CEST 2008
-// $Id: PATMHTProducer.h,v 1.1.2.3 2008/10/15 18:54:30 xshi Exp $
+// $Id: PATMHTProducer.h,v 1.22 2009/03/23 19:06:14 xs32 Exp $
 //
 //
+
+#ifndef PhysicsTools_PatAlgos_PATMHTProducer_h
+#define PhysicsTools_PatAlgos_PATMHTProducer_h
+
 
 
 // system include files
@@ -44,6 +48,8 @@
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 
 #include "RecoMET/METAlgorithms/interface/SigInputObj.h"
@@ -51,39 +57,129 @@
 #include "RecoMET/METAlgorithms/interface/significanceAlgo.h"
 
 
+#include "TF1.h"
+#include "TMath.h"
+
+//--- For electrons ------------------------------//
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 //
 // class declaration
 //
 
 namespace pat {
-class PATMHTProducer : public edm::EDProducer {
-   public:
-      explicit PATMHTProducer(const edm::ParameterSet&);
-      ~PATMHTProducer();
-
-   private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void beginRun(const edm::EventSetup&) ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      
-      // ----------member data ---------------------------
-
-  // input tags.
-  edm::InputTag mhtLabel_;
-  edm::InputTag jetLabel_;
-  edm::InputTag eleLabel_;
-  edm::InputTag muoLabel_;
-  edm::InputTag tauLabel_;
-  edm::InputTag phoLabel_;
+  class PATMHTProducer : public edm::EDProducer {
+  public:
+    explicit PATMHTProducer(const edm::ParameterSet&);
+    ~PATMHTProducer();
+    
+  private:
+    virtual void beginJob(const edm::EventSetup&) ;
+    virtual void beginRun(const edm::EventSetup&) ;
+    virtual void produce(edm::Event&, const edm::EventSetup&);
+    virtual void endJob() ;
+    
+    double getJets(edm::Event&, const edm::EventSetup&);
+    double getElectrons(edm::Event&, const edm::EventSetup&);
+    double getMuons(edm::Event&, const edm::EventSetup&);
+    void   getTowers(edm::Event&, const edm::EventSetup&);
+    
+    
+    // ----------member data ---------------------------
+    
+    double verbose_;
+    
+    // input tags.
+    edm::InputTag mhtLabel_;
+    edm::InputTag jetLabel_;
+    edm::InputTag eleLabel_;
+    edm::InputTag muoLabel_;
+    edm::InputTag tauLabel_;
+    edm::InputTag phoLabel_;
   
-  std::vector<metsig::SigInputObj> physobjvector_ ;
+    std::vector<metsig::SigInputObj> physobjvector_ ;
 
-  double uncertaintyScaleFactor_; // scale factor for the uncertainty parameters.
+    double uncertaintyScaleFactor_; // scale factor for the uncertainty parameters.
+    bool    controlledUncertainty_; // use controlled uncertainty parameters.
 
-};
-//define this as a plug-in
+ 
+    //--- test the uncertainty parameters ---//
+
+    class uncertaintyFunctions{
+    public:
+      TF1 *etUncertainty;
+      TF1 *phiUncertainty;
+    };
+
+    void setUncertaintyParameters();// fills the following uncertaintyFunctions objects:
+    uncertaintyFunctions ecalEBUncertainty;
+    uncertaintyFunctions ecalEEUncertainty;
+    uncertaintyFunctions hcalHBUncertainty;
+    uncertaintyFunctions hcalHEUncertainty;
+    uncertaintyFunctions hcalHOUncertainty;
+    uncertaintyFunctions hcalHFUncertainty;
+
+    uncertaintyFunctions jetUncertainty;
+    uncertaintyFunctions jetCorrUncertainty;
+    uncertaintyFunctions eleUncertainty;
+    uncertaintyFunctions muonUncertainty;
+    uncertaintyFunctions muonCorrUncertainty;
+
+    //--- tags and parameters ---//
+
+    bool useCaloTowers_;
+    bool useJets_;
+    bool useElectrons_;
+    bool useMuons_;
+    std::set<CaloTowerDetId> s_clusteredTowers; 
+
+    bool noHF_;
+
+    double jetPtMin_;
+    double jetEtaMax_;
+    double jetEMfracMax_;
+
+    double elePtMin_;
+    double eleEtaMax_;
+
+    double muonPtMin_;
+    double muonEtaMax_;
+    double muonTrackD0Max_;
+    double muonTrackDzMax_;
+    int muonNHitsMin_;
+    double muonDPtMax_;
+    double muonChiSqMax_;
+
+    //  double uncertaintyScaleFactor_; // scale factor for the uncertainty parameters.
+
+    double jetEtUncertaintyParameter0_ ; 
+    double jetEtUncertaintyParameter1_ ; 
+    double jetEtUncertaintyParameter2_ ; 
+
+    double jetPhiUncertaintyParameter0_ ; 
+    double jetPhiUncertaintyParameter1_ ; 
+    double jetPhiUncertaintyParameter2_ ; 
+
+    double eleEtUncertaintyParameter0_ ; 
+    double elePhiUncertaintyParameter0_ ; 
+
+    double muonEtUncertaintyParameter0_ ; 
+    double muonPhiUncertaintyParameter0_ ; 
+
+    edm::InputTag CaloJetAlgorithmTag_; 
+    edm::InputTag CorJetAlgorithmTag_;
+    std::string   JetCorrectionService_;
+    edm::InputTag MuonTag_;
+    edm::InputTag ElectronTag_;
+    edm::InputTag CaloTowerTag_;
+    std::string metCollectionLabel_;
+    std::string significanceLabel_;
+
+  };
+  //define this as a plug-in
 
 } //end of namespace
 
+#endif

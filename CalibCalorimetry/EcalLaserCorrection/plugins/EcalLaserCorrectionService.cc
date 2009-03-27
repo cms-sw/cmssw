@@ -8,6 +8,9 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
 
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"

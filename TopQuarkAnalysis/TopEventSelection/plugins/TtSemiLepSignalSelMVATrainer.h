@@ -34,10 +34,9 @@ class TtSemiLepSignalSelMVATrainer : public edm::EDAnalyzer {
 
   edm::InputTag leptons_;
   edm::InputTag jets_;
-  //edm::InputTag matching_;
   edm::InputTag METs_;
 
-  unsigned int nJetsMax_;
+  unsigned int maxNJets_;
   
   int lepChannel_;
 

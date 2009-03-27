@@ -182,4 +182,4 @@ def makeTrackCandidates(process,
         triggerAs=['allLayer0Muons'],         # Replicate trigger match as all the ones used by these PAT collections (None = no trig.)
         layers=[0,1]):
     makeAODTrackCandidates(process, tracks=tracks, particleType=particleType, candSelection=preselection, label=label) 
-    makePATTrackCandidates(process, label=label, input='patAOD' + label, isolation=isolation, mcAs=mcAs, triggerAs=triggerAs, layers=layers)
+    makePATTrackCandidates(process, label=label, input='patAOD' + label, cleaning=cleaning, selection=selection, isolation=isolation, mcAs=mcAs, triggerAs=triggerAs, layers=layers)

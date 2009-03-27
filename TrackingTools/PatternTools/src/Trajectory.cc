@@ -176,3 +176,26 @@ bool Trajectory::lost( const TransientTrackingRecHit& hit)
   }
 }
 
+TrajectoryStateOnSurface Trajectory::geometricalInnermostState() const {
+
+  check();
+
+  //if trajectory is in one half, return the end closer to origin point
+  if ( firstMeasurement().updatedState().globalMomentum().perp() > 1.0
+      && ( firstMeasurement().updatedState().globalPosition().basicVector().dot( firstMeasurement().updatedState().globalMomentum().basicVector() ) *
+       lastMeasurement().updatedState().globalPosition().basicVector().dot( lastMeasurement().updatedState().globalMomentum().basicVector() )  > 0 ) ) {
+     return (firstMeasurement().updatedState().globalPosition().mag() < lastMeasurement().updatedState().globalPosition().mag() ) ?
+            firstMeasurement().updatedState() : lastMeasurement().updatedState();
+  }
+
+  //more complicated in case of traversing and low-pt trajectories with loops
+  return closestMeasurement(GlobalPoint(0.0,0.0,0.0)).updatedState();
+
+}
+
+TrajectoryMeasurement const & Trajectory::closestMeasurement(GlobalPoint point) const {
+  check();
+  vector<TrajectoryMeasurement>::const_iterator iter = std::min_element(measurements().begin(), measurements().end(), LessMag(point) );
+
+  return (*iter);
+}

@@ -16,20 +16,17 @@ process.TFileService = cms.Service("TFileService",
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
+    debugModules = cms.untracked.vstring('*'),
     categories = cms.untracked.vstring('CaloSim', 
         'EcalGeom', 
         'EcalSim', 
-        'G4cerr',
-        'G4cout',
         'HCalGeom', 
         'HcalSim', 
         'HcalTBSim', 
-        'SimG4CoreApplication', 
-        'SimG4CoreGeometry',
-	'SimG4CoreGenerator',
         'SimHCalData', 
+        'SimG4CoreGeometry', 
+        'SimG4CoreApplication', 
         'VertexGenerator'),
-#    debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG'),
         INFO = cms.untracked.PSet(
@@ -38,29 +35,8 @@ process.MessageLogger = cms.Service("MessageLogger",
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        EcalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        EcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HcalTBSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+        VertexGenerator = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
         ),
         SimG4CoreApplication = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -68,13 +44,25 @@ process.MessageLogger = cms.Service("MessageLogger",
         SimG4CoreGeometry = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        SimG4CoreGenerator = cms.untracked.PSet(
+        EcalGeom = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        HCalGeom = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        HcalTBSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        CaloSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        EcalSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        HcalSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         SimHCalData = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        VertexGenerator = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
     )
@@ -91,8 +79,8 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.common_beam_direction_parameters = cms.PSet(
     MinEta = cms.untracked.double(0.5655),
     MaxEta = cms.untracked.double(0.5655),
-    MinPhi = cms.untracked.double(0.1309),
-    MaxPhi = cms.untracked.double(0.1309),
+    MinPhi = cms.untracked.double(-0.1309),
+    MaxPhi = cms.untracked.double(-0.1309),
     BeamPosition = cms.untracked.double(-800.0)
 )
 
@@ -141,7 +129,6 @@ process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
 
 process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
-process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTF_BIC'
 process.g4SimHits.ECalSD.UseBirkLaw = False

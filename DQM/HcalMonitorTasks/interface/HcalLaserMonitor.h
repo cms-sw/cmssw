@@ -9,8 +9,8 @@
 
 /** \class HcalLaserMonitor
  *  
- * $Date: 2008/08/13 17:08:26 $
- * $Revision: 1.1 $
+ * $Date: 2008/10/08 12:31:44 $
+ * $Revision: 1.2 $
  * \author L. Lebolo - FIU
  */
 static const float adc2fc_[128] = { -0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5,
@@ -62,8 +62,6 @@ class HcalLaserMonitor: public HcalBaseMonitor {
   map<HcalDetId, MonitorElement*>::iterator meIter_;
 
   bool doPerChannel_;
-  double etaMax_, etaMin_, phiMax_, phiMin_;
-  int etaBins_, phiBins_;
   
   int sigS0_, sigS1_;
   float adcThresh_;

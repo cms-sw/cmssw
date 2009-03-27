@@ -51,8 +51,6 @@ simple analyzer to dump information about ECAL cond objects
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
 
-#include "CondFormats/EcalObjects/interface/EcalMappingElectronics.h"
-#include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
 
 using namespace std;
 
@@ -255,15 +253,7 @@ EcalObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
      std::cout << "EcalLaserAPDPNRatiosRef:  icalconst: " << (*apdPnRatioRefIt) << std::endl;
    } 
 
-   edm::ESHandle < EcalMappingElectronics > ecalmapping;
-   context.get< EcalMappingElectronicsRcd >().get(ecalmapping);
-   const EcalMappingElectronics* Mapping = ecalmapping.product();
-   const std::vector<EcalMappingElement>& ee = Mapping -> endcapItems();
-   for(int iMap=0;iMap < ee.size();iMap++)
-     {
-       std::cout << "EcalMappingElectronics: " <<  ee[iMap].electronicsid << " " << ee[iMap].triggerid << std::endl;
-     }
-   
+      
    
 } //end of ::Analyze()
 DEFINE_FWK_MODULE(EcalObjectAnalyzer);

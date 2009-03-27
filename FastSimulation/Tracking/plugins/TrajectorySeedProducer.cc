@@ -33,12 +33,19 @@
 
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
+
+//Propagator withMaterial
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+//analyticalpropagator
+//#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+
+
 //
 
 //for debug only 
 //#define FAMOS_DEBUG
 
-TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) 
+TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)  :thePropagator(0)
 {  
 
   // The input tag for the beam spot
@@ -202,6 +209,8 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
   
 // Virtual destructor needed.
 TrajectorySeedProducer::~TrajectorySeedProducer() {
+  
+  if(thePropagator) delete thePropagator;
 
   // do nothing
 #ifdef FAMOS_DEBUG
@@ -228,6 +237,8 @@ TrajectorySeedProducer::beginRun(edm::Run & run, const edm::EventSetup & es) {
   theMagField = &(*magField);
   theGeometry = &(*geometry);
   theFieldMap = &(*magFieldMap);
+
+  thePropagator = new PropagatorWithMaterial(alongMomentum,0.105,&(*theMagField)); 
 
   const GlobalPoint g(0.,0.,0.);
 
@@ -451,10 +462,17 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #ifdef FAMOS_DEBUG
 	  std::cout << "Are the two hits compatible with the PV? " << compatible << std::endl;
 #endif
+
+	  // Check if the pair is on the requested dets
+	  if ( numberOfHits[ialgo] == 2 ) compatible = compatible && theSeedHits[0].makesAPairWith(theSeedHits[1]);
+
+	  // Reject non suited pairs
 	  if ( !compatible ) continue;
+
 #ifdef FAMOS_DEBUG
 	  std::cout << "Pair kept! " << std::endl;
 #endif
+
 	  // Leave here if only two hits are required.
 	  if ( numberOfHits[ialgo] == 2 ) break; 
 	  
@@ -478,6 +496,10 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
 	    // Check if on the same layer as previous hit
 	    compatible = !(theSeedHits2.isOnTheSameLayer(theSeedHits1));
+
+	    // Check if the triplet is on the requested det combination
+	    compatible = compatible && theSeedHits[0].makesATripletWith(theSeedHits[1],theSeedHits[2]);
+
 #ifdef FAMOS_DEBUG
 	    if ( compatible ) 
 	      std::cout << "Apparently the third hit is on the requested detector! " << std::endl;
@@ -529,7 +551,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,theMagField);
       //  -> large initial errors
       AlgebraicSymMatrix errorMatrix(5,1);      
-      errorMatrix = errorMatrix * 10;
+      // errorMatrix = errorMatrix * 10;
 #ifdef FAMOS_DEBUG
       std::cout << "TrajectorySeedProducer: SimTrack parameters " << std::endl;
       std::cout << "\t\t pT  = " << (*theSimTracks)[simTrackId].momentum().Pt() << std::endl;
@@ -545,7 +567,13 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #endif
       // const GeomDetUnit* initialLayer = theGeometry->idToDetUnit( recHits.front().geographicalId() );
       const GeomDet* initialLayer = theGeometry->idToDet( recHits.front().geographicalId() );
-      const TrajectoryStateOnSurface initialTSOS(initialFTS, initialLayer->surface());      
+
+      //this is wrong because the FTS is defined at vertex, and it need to be properly propagated.
+      //      const TrajectoryStateOnSurface initialTSOS(initialFTS, initialLayer->surface());      
+
+      const TrajectoryStateOnSurface initialTSOS = thePropagator->propagate(initialFTS,initialLayer->surface()) ;
+      if (!initialTSOS.isValid()) continue; 
+
 #ifdef FAMOS_DEBUG
       std::cout << "TrajectorySeedProducer: TSOS global momentum "    << initialTSOS.globalMomentum() << std::endl;
       std::cout << "\t\t\tpT = "                                     << initialTSOS.globalMomentum().perp() << std::endl;

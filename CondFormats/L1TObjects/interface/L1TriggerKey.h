@@ -23,19 +23,6 @@ class L1TriggerKey
 public:
     typedef std::map<std::string, std::string> RecordToKey;
 
-    enum L1Subsystems
-      {
-	kCSCTF,
-	kDTTF,
-	kRPC,
-	kGMT,
-	kRCT,
-	kGCT,
-	kGT,
-	kTSP0,
-	kNumberSubsystems
-      } ;
-
     // Constructors
     L1TriggerKey () {}
 
@@ -43,21 +30,8 @@ public:
     void add (const std::string & record, const std::string & type, const std::string & key)
     { m_recordToKey.insert (std::make_pair (record + "@" + type, key)); }
 
-    void add (const RecordToKey& map)
-    {
-      for( RecordToKey::const_iterator itr = map.begin() ;
-	   itr != map.end() ;
-	   ++itr )
-	{
-	  m_recordToKey.insert( *itr ) ;
-	}
-    }
-
     void setTSCKey( const std::string& tscKey )
     { m_tscKey = tscKey ; }
-
-    void setSubsystemKey( L1Subsystems subsystem, const std::string& key )
-    { m_subsystemKeys[ subsystem ] = key ; }
 
     /* Gets payload key for record and type. If no such paylaod exists, emtpy string
      * is returned.
@@ -71,11 +45,8 @@ public:
             return it->second;
     }
 
-    const std::string& tscKey() const
+    std::string getTSCKey() const
       { return m_tscKey ; }
-
-    const std::string& subsystemKey( L1Subsystems subsystem ) const
-      { return m_subsystemKeys[ subsystem ] ; }
 
     const RecordToKey& recordToKeyMap() const
       { return m_recordToKey ; }
@@ -94,7 +65,6 @@ protected:
 
     // wsun 03/2008: add data member for TSC key
     std::string m_tscKey ;
-    std::string m_subsystemKeys[ kNumberSubsystems ] ;
 };
 
 #endif

@@ -5,4 +5,4 @@
 #include "FWCore/Python/src/PythonService.h"
 
 DEFINE_FWK_SERVICE(PythonService);
-DEFINE_ANOTHER_FWK_MODULE(PythonFilter);
+DEFINE_FWK_MODULE(PythonFilter);

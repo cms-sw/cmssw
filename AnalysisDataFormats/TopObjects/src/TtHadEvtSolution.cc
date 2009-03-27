@@ -1,5 +1,5 @@
 //
-// $Id: TtHadEvtSolution.cc,v 1.6 2008/01/25 13:34:29 vadler Exp $
+// $Id: TtHadEvtSolution.cc,v 1.7 2008/02/15 12:10:54 rwolf Exp $
 // adapted TtSemiEvtSolution.cc,v 1.13 2007/07/05 23:43:08 lowette Exp 
 // for fully hadronic channel
 
@@ -37,12 +37,14 @@ TtHadEvtSolution::~TtHadEvtSolution()
 //-------------------------------------------
 pat::Jet TtHadEvtSolution::getHadb() const 
 {
+  // WARNING this is obsolete and only 
+  // kept for backwards compatibility
   if(jetCorrScheme_==1){
     //jet calibrated according to MC truth
-    return hadb_->mcFlavCorrJet();
+    return hadb_->correctedJet("HAD", "B");
   }
   else if(jetCorrScheme_==2){
-    return hadb_->bCorrJet();
+    return hadb_->correctedJet("HAD", "B");
   }
   else{
     return *hadb_;
@@ -51,12 +53,14 @@ pat::Jet TtHadEvtSolution::getHadb() const
 
 pat::Jet TtHadEvtSolution::getHadp() const 
 {
+  // WARNING this is obsolete and only 
+  // kept for backwards compatibility
   if(jetCorrScheme_==1){
     //jet calibrated according to MC truth
-    return hadp_->mcFlavCorrJet();
+    return hadp_->correctedJet("HAD", "UDS");
   }
   else if(jetCorrScheme_==2){
-    return hadp_->wCorrJet();
+    return hadp_->correctedJet("HAD", "UDS");
   }
   else{
     return *hadp_;
@@ -65,12 +69,14 @@ pat::Jet TtHadEvtSolution::getHadp() const
 
 pat::Jet TtHadEvtSolution::getHadq() const 
 {
+  // WARNING this is obsolete and only 
+  // kept for backwards compatibility
   if(jetCorrScheme_==1){
     //jet calibrated according to MC truth
-    return hadq_->mcFlavCorrJet();
+    return hadq_->correctedJet("HAD", "UDS");
   }
   else if(jetCorrScheme_==2){
-    return hadq_->wCorrJet();
+    return hadq_->correctedJet("HAD", "UDS");
   }
   else{
     return *hadq_;
@@ -79,12 +85,14 @@ pat::Jet TtHadEvtSolution::getHadq() const
 
 pat::Jet TtHadEvtSolution::getHadbbar() const 
 {
+  // WARNING this is obsolete and only 
+  // kept for backwards compatibility
   if(jetCorrScheme_==1){
     //jet calibrated according to MC truth
-    return hadbbar_->mcFlavCorrJet();
+    return hadbbar_->correctedJet("HAD", "B");
   }
   else if(jetCorrScheme_==2){
-    return hadbbar_->bCorrJet();
+    return hadbbar_->correctedJet("HAD", "B");
   }
   else{
     return *hadbbar_;
@@ -93,12 +101,14 @@ pat::Jet TtHadEvtSolution::getHadbbar() const
 
 pat::Jet TtHadEvtSolution::getHadj() const 
 {
+  // WARNING this is obsolete and only 
+  // kept for backwards compatibility
   if(jetCorrScheme_==1){
     //jet calibrated according to MC truth
-    return hadj_->mcFlavCorrJet();
+    return hadj_->correctedJet("HAD", "UDS");
   }
   else if(jetCorrScheme_==2){
-    return hadj_->wCorrJet();
+    return hadj_->correctedJet("HAD", "UDS");
   }
   else{
     return *hadj_;
@@ -107,12 +117,14 @@ pat::Jet TtHadEvtSolution::getHadj() const
 
 pat::Jet TtHadEvtSolution::getHadk() const 
 {
+  // WARNING this is obsolete and only 
+  // kept for backwards compatibility
   if(jetCorrScheme_==1){
     //jet calibrated according to MC truth
-    return hadk_->mcFlavCorrJet();
+    return hadk_->correctedJet("HAD", "UDS");
   }
   else if(jetCorrScheme_==2){
-    return hadk_->wCorrJet();
+    return hadk_->correctedJet("HAD", "UDS");
   }
   else{
     return *hadk_;

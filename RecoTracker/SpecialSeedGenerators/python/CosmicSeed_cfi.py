@@ -16,7 +16,11 @@ cosmicseedfinder = cms.EDFilter("CosmicSeedGenerator",
     doClusterCheck = cms.bool(True),
     originRadius = cms.double(150.0),
     ClusterCollectionLabel = cms.InputTag("siStripClusters"),
-    originHalfLength = cms.double(90.0)
+    originHalfLength = cms.double(90.0),
+    #***top-bottom
+    PositiveYOnly = cms.bool(False),
+    NegativeYOnly = cms.bool(False)  
+    #***
 )
 
 

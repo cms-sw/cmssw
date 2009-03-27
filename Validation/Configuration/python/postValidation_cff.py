@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.RecoTrack.TrackValidation_cff import *
-multiTrackValidator.UseAssociators = True
+from Validation.RecoMuon.PostProcessor_cff import *
 
-postValidation = cms.Sequence(tracksValidation)
-
-
+postValidation = cms.Sequence(postProcessorMuonMultiTrack+postProcessorRecoMuon)

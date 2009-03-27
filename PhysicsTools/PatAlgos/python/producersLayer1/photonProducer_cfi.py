@@ -4,6 +4,8 @@
 # inner cone veto (endcaps, |eta| >= 1.479)
 import FWCore.ParameterSet.Config as cms
 
+from RecoEgamma.EgammaIsolationAlgos.gamIsoFromDepsModules_cff import gamIsoFromDepsEcalFromHits,gamIsoFromDepsHcalFromTowers,gamIsoFromDepsTk
+
 allLayer1Photons = cms.EDProducer("PATPhotonProducer",
     # General configurables
     photonSource = cms.InputTag("allLayer0Photons"),
@@ -28,7 +30,7 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
       userFunctionLabels = cms.vstring("")
     ),
 
-    embedSuperCluster = cms.bool(False), ## whether to embed in AOD externally stored supercluster
+    embedSuperCluster = cms.bool(True), ## whether to embed in AOD externally stored supercluster
 
     # Isolation configurables
     #   store isolation values
@@ -37,43 +39,41 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
             # source IsoDeposit
             src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositTk"),
             # parameters (E/gamma POG defaults)
-            deltaR = cms.double(0.3),              # Cone radius
-            vetos  = cms.vstring('0.015',          # Inner veto cone radius
-                                'Threshold(1.0)'), # Pt threshold
-            skipDefaultVeto = cms.bool(True),
+            vetos  = gamIsoFromDepsTk.deposits[0].vetos,
+            deltaR = gamIsoFromDepsTk.deposits[0].deltaR,
+            skipDefaultVeto = cms.bool(True), # This overrides previous settings
+#           # Or set your own vetos...
+#            deltaR = cms.double(0.3),              # Cone radius
+#            vetos  = cms.vstring('0.015',          # Inner veto cone radius
+#                                'Threshold(1.0)'), # Pt threshold
         ),
         ecal = cms.PSet(
             # source IsoDeposit
-            #src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromHits"),
-            src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromClusts"),
+            src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromHits"),
             # parameters (E/gamma POG defaults)
-            deltaR          = cms.double(0.4),
-            vetos           = cms.vstring('EcalBarrel:0.045', 'EcalEndcaps:0.070'),
+            vetos  = gamIsoFromDepsEcalFromHits.deposits[0].vetos,
+            deltaR = gamIsoFromDepsEcalFromHits.deposits[0].deltaR,
             skipDefaultVeto = cms.bool(True),
+#           # Or set your own vetos...
+#            deltaR          = cms.double(0.4),
+#            vetos           = cms.vstring('EcalBarrel:0.045', 'EcalEndcaps:0.070'),
         ),
-        ## other option, using gamIsoDepositEcalSCVetoFromClust (see also recoLayer0/photonIsolation_cff.py)
-        #PSet ecal = cms.PSet( 
-        #   src    = cms.InputTag("layer0PhotonIsolations", "gamIsoDepositEcalSCVetoFromClusts")
-        #   deltaR = cms.double(0.4)
-        #   vetos  = cms.vstring()     # no veto, already done with SC
-        #   skipDefaultVeto = cms.bool(True)
-        #),
         hcal = cms.PSet(
             # source IsoDeposit
-            #src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromHits"),
             src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromTowers"),
             # parameters (E/gamma POG defaults)
-            deltaR          = cms.double(0.4),
+            vetos  = gamIsoFromDepsHcalFromTowers.deposits[0].vetos,
+            deltaR = gamIsoFromDepsHcalFromTowers.deposits[0].deltaR,
             skipDefaultVeto = cms.bool(True),
+#           # Or set your own vetos...            
+#            deltaR          = cms.double(0.4),
         ),
         user = cms.VPSet(),
     ),
     #   store isodeposits to recompute isolation
     isoDeposits = cms.PSet(
         tracker = cms.InputTag("layer0PhotonIsolations","gamIsoDepositTk"),
-        #ecal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromHits"),
-        ecal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromClusts"),
-        #hcal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromHits"),
+        ecal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromHits"),
         hcal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromTowers"),
     ),
 
@@ -94,6 +94,8 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
     addEfficiencies = cms.bool(False),
     efficiencies    = cms.PSet(),
 
+    # Resolutions
+    addResolutions  = cms.bool(False),
 )
 
 

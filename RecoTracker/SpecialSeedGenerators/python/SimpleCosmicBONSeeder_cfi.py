@@ -36,26 +36,52 @@ simpleCosmicBONSeeds = cms.EDProducer("SimpleCosmicBONSeeder",
             doClusterCheck = cms.bool(True),
             MaxNumberOfCosmicClusters = cms.uint32(300),
             ClusterCollectionLabel = cms.InputTag("siStripClusters"),
+            DontCountDetsAboveNClusters = cms.uint32(20),  # if N > 0, ignore in total the dets with more than N clusters
     ),
     maxTriplets = cms.int32(50000),
-    maxSeeds    = cms.int32(10000),
+    maxSeeds    = cms.int32(20000),
     RegionPSet = cms.PSet(
-        originZPosition  = cms.double(0.0),
-        originRadius     = cms.double(150.0),
-        originHalfLength = cms.double(90.0),
-        ptMin = cms.double(0.1),
+        originZPosition  = cms.double(0.0),    # \    These three parameters
+        originRadius     = cms.double(150.0),  #  |-> probably don't change
+        originHalfLength = cms.double(90.0),   # /    anything at all.
+        ptMin = cms.double(0.5),               # pt cut, applied both at the triplet finding and at the seeding level
+        pMin  = cms.double(1.0),               # p  cut, applied only at the seeding level
     ),
     TripletsPSet = cms.PSet(
         layerInfo,
         layerList = makeSimpleCosmicSeedLayers('ALL'),
         debugLevel = cms.untracked.uint32(0),  # debug triplet finding (0 to 3)
     ),
-    rescaleError    = cms.double(50),  # rescale seed error (a factor 50 was used historically for cosmics)
     seedOnMiddle    = cms.bool(False), # after finding the triplet, add only two hits to the seed
+    rescaleError    = cms.double(1.0), # we don't need it anymore. At least for runs with BON
 
+    ClusterChargeCheck = cms.PSet(
+        checkCharge                 = cms.bool(False), # Apply cuts on cluster charge
+        matchedRecHitsUseAnd        = cms.bool(True), # Both clusters in the pair should pass the charge cut
+        Thresholds  = cms.PSet( # Uncorrected thresholds
+            TIB = cms.int32(0), #
+            TID = cms.int32(0), # Currenlty not used
+            TOB = cms.int32(0), # 
+            TEC = cms.int32(0), #
+        ),
+    ),
+    HitsPerModuleCheck = cms.PSet(
+        checkHitsPerModule = cms.bool(True), # Apply cuts on the number of hits per module 
+        Thresholds  = cms.PSet( # 
+            TIB = cms.int32(20), #
+            TID = cms.int32(20), # FIXME: to be optimized
+            TOB = cms.int32(20), # 
+            TEC = cms.int32(20), #
+        ),
+    ),
+    minimumGoodHitsInSeed = cms.int32(3),   # NO bad hits in the seed (set to '2' to allow one bad hit in the seed)
                                       
     writeTriplets   = cms.bool(False), # write the triplets to the Event as OwnVector<TrackingRecHit>
     helixDebugLevel = cms.untracked.uint32(0), # debug FastHelix (0 to 2)
     seedDebugLevel  = cms.untracked.uint32(0), # debug seed building (0 to 3)
+    #***top-bottom
+    PositiveYOnly = cms.bool(False),
+    NegativeYOnly = cms.bool(False)
+    #***
 )
 simpleCosmicBONSeeds.TripletsPSet.TEC.useSimpleRphiHitsCleaner = False

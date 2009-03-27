@@ -9,7 +9,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelTrackResidualModule.h,v 1.2 2007/06/11 18:29:02 schuang Exp $
+// $Id: SiPixelTrackResidualModule.h,v 1.1 2008/07/25 20:40:51 schuang Exp $
 
 
 #ifndef SiPixelMonitorTrack_SiPixelTrackResidualModule_h
@@ -28,14 +28,40 @@ class SiPixelTrackResidualModule {
     SiPixelTrackResidualModule(const uint32_t);
    ~SiPixelTrackResidualModule();
 
-    void book(const edm::ParameterSet&);
-    void fill(const Measurement2DVector&);
+   void book(const edm::ParameterSet&, int type=0);
+   void fill(const Measurement2DVector&, bool modon=true, bool ladon=true, bool layon=true, bool phion = true, bool bladeon=true, bool diskon=true, bool ringon=true);
+
   
   private:
     uint32_t id_; 
+    bool bBookTracks;
+
+    //MonitorElement* meNofTracks_;
 
     MonitorElement* meResidualX_;
     MonitorElement* meResidualY_;
+
+    //barrel
+    MonitorElement* meResidualXLad_;
+    MonitorElement* meResidualYLad_;
+
+    MonitorElement* meResidualXLay_;
+    MonitorElement* meResidualYLay_;
+
+    MonitorElement* meResidualXPhi_;
+    MonitorElement* meResidualYPhi_;
+
+    //forward
+    MonitorElement* meResidualXBlade_;
+    MonitorElement* meResidualYBlade_;
+
+    MonitorElement* meResidualXDisk_;
+    MonitorElement* meResidualYDisk_;
+
+    MonitorElement* meResidualXRing_;
+    MonitorElement* meResidualYRing_;
+
+
 };
 
 #endif

@@ -66,9 +66,7 @@ void CompositeKit::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
 		      tauHandle_,
 		      jetHandle_,
 		      METHandle_,
-		      photonHandle_,
-		      trackHandle_,
-		      genParticlesHandle_);
+		      photonHandle_);
 
   // --------------------------------------------------
   //    Step 2: invoke PhysicsHistograms to deal with all this.
@@ -86,9 +84,7 @@ void CompositeKit::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
 			  tauHandle_,
 			  jetHandle_,
 			  METHandle_,
-			  photonHandle_,
-			  trackHandle_,
-			  genParticlesHandle_);
+			  photonHandle_);
 
 
   // BEGIN YOUR CODE HERE

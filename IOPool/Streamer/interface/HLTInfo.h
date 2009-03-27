@@ -32,11 +32,19 @@ namespace stor
   struct FragEntry
   {
     FragEntry():buffer_object_(),buffer_address_() { }
+    /** @deprecated */
     FragEntry(void* bo, void* ba,int sz, int segn, int totseg, uint8 msgcode, 
               uint32 run, uint32 id, uint32 secondaryId):
       buffer_object_(bo),buffer_address_(ba),buffer_size_(sz),
       segNumber_(segn), totalSegs_(totseg), code_(msgcode), 
       run_(run), id_(id), secondaryId_(secondaryId) {}
+    FragEntry(void* bo, void* ba,int sz, int segn, int totseg, uint8 msgcode, 
+              uint32 run, uint32 id, uint32 secondaryId, uint32 originatorPid,
+              uint32 originatorGuid):
+      buffer_object_(bo),buffer_address_(ba),buffer_size_(sz),
+      segNumber_(segn), totalSegs_(totseg), code_(msgcode), 
+      run_(run), id_(id), secondaryId_(secondaryId),
+      originatorPid_(originatorPid), originatorGuid_(originatorGuid) {}
     void* buffer_object_;
     void* buffer_address_;
     int   buffer_size_;
@@ -50,16 +58,32 @@ namespace stor
     // on the context.  For EVENT messages, the output module ID is used.
     // For DQMEVENT messages, the folder ID is used.
     uint32 secondaryId_;
+    uint32 originatorPid_;
+    uint32 originatorGuid_;
+
+    char   hltURL_[64];
+    char   hltClassName_[64];
+    uint32 hltLocalId_;
+    uint32 hltInstance_;
+    uint32 hltTid_;
+    uint32 rbBufferID_;
   };
 
   struct FragKey
   {
+    /** @deprecated */
     FragKey(uint8 msgcode, uint32 run, uint32 event, uint32 secondaryId):
       code_(msgcode), run_(run), event_(event), secondaryId_(secondaryId) {}
+    FragKey(uint8 msgcode, uint32 run, uint32 event, uint32 secondaryId,
+	    uint32 originatorPid, uint32 originatorGuid):
+      code_(msgcode), run_(run), event_(event), secondaryId_(secondaryId),
+      originatorPid_(originatorPid), originatorGuid_(originatorGuid) {}
     bool operator<(FragKey const& b) const {
       if(code_ != b.code_) return code_ < b.code_;
       if(run_ != b.run_) return run_ < b.run_;
       if(event_ != b.event_) return event_ < b.event_;
+      if(originatorPid_ != b.originatorPid_) return originatorPid_ < b.originatorPid_;
+      if(originatorGuid_ != b.originatorGuid_) return originatorGuid_ < b.originatorGuid_;
       return secondaryId_ < b.secondaryId_;
     }
     // the data for the key
@@ -70,6 +94,8 @@ namespace stor
     // on the context.  For EVENT messages, the output module ID is used.
     // For DQMEVENT messages, the folder ID is used.
     uint32 secondaryId_;
+    uint32 originatorPid_;
+    uint32 originatorGuid_;
   };
 
   class HLTInfo

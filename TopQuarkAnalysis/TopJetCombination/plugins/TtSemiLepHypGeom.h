@@ -20,7 +20,7 @@ class TtSemiLepHypGeom : public TtSemiLepHypothesis  {
 			 const edm::Handle<edm::View<reco::RecoCandidate> >&,
 			 const edm::Handle<std::vector<pat::MET> >&,
 			 const edm::Handle<std::vector<pat::Jet> >&,
-			 std::vector<int>&);
+			 std::vector<int>&, const unsigned int iComb);
   double distance(const math::XYZTLorentzVector&, const math::XYZTLorentzVector&);
 
  private:

@@ -54,7 +54,7 @@ void EgammaBasicClusters::beginJob(edm::EventSetup const&)
 	else 
 		dbe_->setVerbose(0);
 
-	dbe_->setCurrentFolder("Ecal/CMSSW_"+CMSSW_Version_+"/EcalClusters/BasicClusters/");
+	dbe_->setCurrentFolder("EcalClustersV/CMSSW_"+CMSSW_Version_+"/EcalClusters/BasicClusters/");
 
 	hist_EB_BC_Size_ 
 		= dbe_->book1D("hist_EB_BC_Size_","# Basic Clusters in Barrel",

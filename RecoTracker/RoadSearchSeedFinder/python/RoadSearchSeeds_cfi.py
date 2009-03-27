@@ -14,6 +14,10 @@ import FWCore.ParameterSet.Config as cms
 # produces RoadSearchSeeds for seeding track reconstruction 
 #
 roadSearchSeeds = cms.EDFilter("RoadSearchSeedFinder",
+    #***top-bottom
+    AllPositiveOnly = cms.bool(False),
+    AllNegativeOnly = cms.bool(False),
+    #***
     # TrackingRecHit access configuration for outer seed rings
     # access mode for TrackingTools/RoadSearchHitAccess, allowed values: "STANDARD",'RPHI'
     OuterSeedRecHitAccessMode = cms.string('RPHI'),
@@ -63,7 +67,9 @@ roadSearchSeeds = cms.EDFilter("RoadSearchSeedFinder",
     # strip rechit collections
     matchedStripRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     # In the case of double sided sensors, return in addition to matched also rphi rechits which have not been matched
-    InnerSeedRecHitAccessUseRPhi = cms.bool(False)
+    InnerSeedRecHitAccessUseRPhi = cms.bool(False),
+    # Cut on max allowed # of seeds
+    MaxNumberOfSeeds = cms.int32(-1)
 )
 
 

@@ -29,9 +29,7 @@ class DCCEBEventBlock : public DCCEventBlock{
   public :
 
    DCCEBEventBlock( DCCDataUnpacker * u, EcalElectronicsMapper *m ,  bool hU, bool srpU, bool tccU, bool feU, bool memU);
-   
-   void unpack( uint64_t * buffer, uint bufferSize, uint expFedId);
-   
+  	
   protected :
   
     int unpackTCCBlocks();

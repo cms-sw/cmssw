@@ -21,95 +21,84 @@
 namespace cscdqm {
 
 
-  EventProcessor::EventProcessor(HPType* p_histoProvider) {
+  EventProcessor::EventProcessor(Configuration* const p_config) {
 
-    histoProvider = p_histoProvider;
-
-    nEvents = 0;
-    nBadEvents = 0;
-    nGoodEvents = 0;
-    nCSCEvents = 0;
-    unpackedDMBcount = 0;
-
+    config = p_config;
     fFirstEvent = true;
     fCloseL1As = true;
 
-    dduCheckMask = 0xFFFFFFFF;
-    binCheckMask = 0xFFFFFFFF;
-    dduBinCheckMask = 0x02080016;
-
   }
 
+  void EventProcessor::init() {
 
-  EventProcessor::~EventProcessor() {
-  }
+    binChecker.crcALCT(config->getBINCHECKER_CRC_ALCT());
+    binChecker.crcTMB(config->getBINCHECKER_CRC_CLCT());
+    binChecker.crcCFEB(config->getBINCHECKER_CRC_CFEB());
+    binChecker.modeDDU(config->getBINCHECKER_MODE_DDU());
 
-
-  void EventProcessor::blockHisto(const HistoType histo) {
-    blocked.insert(histo);
-  }
-
-
-  const bool EventProcessor::histoNotBlocked(const HistoType histo) const {
-    std::set<HistoType>::iterator found = blocked.find(histo);
-    return (found != blocked.end());
-  }
-
-
-  const bool EventProcessor::getEMUHisto(const HistoType histo, METype* me, const bool ref) {
-    if (!ref && !histoNotBlocked(histo)) return false;
-    EMUHistoType histoT;
-    histoT.histoId = histo;
-    histoT.reference = ref;
-    histoT.tag = TAG_EMU;
-    return histoProvider->getEMUHisto(histoT, me);
-  }
-
-
-  const bool EventProcessor::getDDUHisto(const int dduID, const HistoType histo, METype* me, const bool ref) {
-    if (!ref && !histoNotBlocked(histo)) return false;
-    DDUHistoType histoT;
-    histoT.histoId = histo;
-    histoT.dduId = dduID;
-    histoT.reference = ref;
-    histoT.tag = Form(TAG_DDU, dduID);
-    return histoProvider->getDDUHisto(histoT, me);
-  }
-
-
-  const bool EventProcessor::getCSCHisto(const int crateID, const int dmbSlot, const HistoType histo, METype* me, const int adId, const bool ref) {
-    if (!ref && !histoNotBlocked(histo)) return false;
-    CSCHistoType histoT;
-    histoT.histoId = histo;
-    histoT.crateId = crateID;
-    histoT.dmbId = dmbSlot;
-    histoT.addId = adId;
-    histoT.reference = ref;
-    histoT.tag = Form(TAG_CSC, crateID, dmbSlot);
-    return histoProvider->getCSCHisto(histoT, me);
-  }
-
-
-  void EventProcessor::setBinCheckerCRC(const BinCheckerCRCType crc, const bool value) {
-    switch (crc) {
-      case ALCT:
-        binChecker.crcALCT(value);
-      case CFEB:
-        binChecker.crcCFEB(value);
-      case TMB:
-        binChecker.crcTMB(value);
-    };
-  }
-
-
-  void EventProcessor::setBinCheckerOutput(const bool value) {
-    if (value) {
+    if (config->getBINCHECKER_OUTPUT()) {
       binChecker.output1().show();
       binChecker.output2().show();
     } else {
       binChecker.output1().hide();
       binChecker.output2().hide();
     }
+
+  }
+
+  const bool EventProcessor::getEMUHisto(const HistoId& histo, MonitorObject*& me) {
+    if (config->fnGetCacheEMUHisto(histo, me)) return (me != NULL);
+    EMUHistoDef histoD(histo);
+    if (config->fnGetHisto(histoD, me)) return (me != NULL);
+    return false;
+  }
+
+
+  const bool EventProcessor::getDDUHisto(const HistoId& histo, const HwId& dduID, MonitorObject*& me) {
+    if (config->fnGetCacheDDUHisto(histo, dduID, me)) return (me != NULL);
+    DDUHistoDef histoD(histo, dduID);
+    if (config->fnGetHisto(histoD, me)) return (me != NULL);
+    return false;
+  }
+
+
+  const bool EventProcessor::getCSCHisto(const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, MonitorObject*& me) {
+    if (config->fnGetCacheCSCHisto(histo, crateID, dmbSlot, 0, me)) return (me != NULL);
+    CSCHistoDef histoD(histo, crateID, dmbSlot);
+    if (config->fnGetHisto(histoD, me)) return (me != NULL);
+    return false;
+  }
+
+
+  const bool EventProcessor::getCSCHisto(const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, const HwId& adId, MonitorObject*& me) {
+    if (config->fnGetCacheCSCHisto(histo, crateID, dmbSlot, adId, me)) return (me != NULL);
+    CSCHistoDef histoD(histo, crateID, dmbSlot, adId);
+    if (config->fnGetHisto(histoD, me)) return (me != NULL);
+    return false;
+  }
+
+
+  const bool EventProcessor::getParHisto(const HistoId& histo, MonitorObject*& me) {
+    if (config->fnGetCacheParHisto(histo, me)) return (me != NULL);
+    ParHistoDef histoD(histo);
+    if (config->fnGetHisto(histoD, me)) return (me != NULL);
+    return false;
+  }
+
+  const bool EventProcessor::getCSCFromMap(const unsigned int& crateId, const unsigned int& dmbId, unsigned int& cscType, unsigned int& cscPosition) const {
+
+    if (crateId < 1 || crateId > 60 || dmbId < 1 || dmbId > 10) return false;
+
+    CSCDetId cid = config->fnGetCSCDetId(crateId, dmbId);
+    cscPosition  = cid.chamber();
+    int iring    = cid.ring();
+    int istation = cid.station();
+    int iendcap  = cid.endcap();
+    std::string tlabel = cscdqm::Utility::getCSCTypeLabel(iendcap, istation, iring);
+    cscType = cscdqm::Utility::getCSCTypeBin(tlabel);
+
+    return true;
+
   }
 
 }

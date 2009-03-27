@@ -29,6 +29,9 @@ namespace GenParticlesHelper {
   bool hasAncestor( const reco::GenParticle* particle,
 		    int pdgId, int status );
 
+  /// check if particle is direct (has status 3 or is a daughter of particle with status 3)
+  bool isDirect(const reco::GenParticleRef& particle);
+
   std::ostream& operator<<( std::ostream& out, 
 			    const reco::GenParticleRef& genRef );
 

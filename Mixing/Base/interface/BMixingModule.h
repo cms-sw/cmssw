@@ -47,13 +47,13 @@ namespace edm {
       bool poisson() const {return input_ ? input_->poisson() : 0.0 ;}
 
       virtual void createnewEDProduct() {std::cout << "BMixingModule::createnewEDProduct must be overwritten!" << std::endl;}
-      void merge(const int bcr, const EventPrincipalVector& vec,unsigned int worker, const edm::EventSetup& c);
-      virtual void addSignals(const edm::Event &e,const edm::EventSetup& c) {;}
-      virtual void addPileups(const int bcr, edm::Event*, unsigned int eventId,unsigned int worker, const edm::EventSetup& c) {;}
+      void merge(const int bcr, const EventPrincipalVector& vec,unsigned int worker);
+      virtual void addSignals(const edm::Event &e) {;}
+      virtual void addPileups(const int bcr, edm::Event*, unsigned int eventId,unsigned int worker) {;}
       virtual void setBcrOffset () {std::cout << "BMixingModule::setBcrOffset must be overwritten!" << std::endl;} //FIXME: LogWarning
       virtual void setSourceOffset (const unsigned int s) {std::cout << "BMixingModule::setSourceOffset must be overwritten!" << std::endl;}
-      virtual void put(edm::Event &e,const edm::EventSetup& c) {;}
-      virtual void doPileUp(edm::Event &e, const edm::EventSetup& c) {std::cout << "BMixingModule::doPileUp must be overwritten!" << std::endl;}
+      virtual void put(edm::Event &e) {;}
+      virtual void doPileUp(edm::Event &e) {std::cout << "BMixingModule::doPileUp must be overwritten!" << std::endl;}
       virtual void setEventStartInfo(const unsigned int s) {;} //to be set in CF
       virtual void getEventStartInfo(edm::Event & e,const unsigned int source) {;} //to be set locally
 

@@ -585,42 +585,33 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		    if(fabs(res)<fabs(minres)){
 		      minres=res;
 		      cluSize = recHit->clusterSize();
+		      if(debug) std::cout<<"DT  \t \t \t \t \t \t New Min Res "<<res<<"cm."<<std::endl;
 		    }
 		  }
-		  //-------------------------------------------
-		  
-		    
-		  //--------- Working with digis -----------------
 		  
 		  bool anycoincidence=false;
-		  int stripDetected = -1;
-
+	
 		  if(countRecHits==0){
 		    if(debug) std::cout <<"DT \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY RECHIT"<<std::endl;
 		  }else{
 		    assert(minres!=3000);     
 		    
 		    if(debug) std::cout<<"DT  \t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" Minimal Residual="<<minres<<std::endl;
-		    
-		    RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rollasociated->id());       
-		    for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
-		      if((fabs(float(digiIt->strip())-stripPredicted))/stripw<=rangestrips){
-			anycoincidence=true;
-			stripDetected=digiIt->strip();
-		      }
+		    if(debug) std::cout<<"DT  \t \t \t \t \t Minimal Residual less than stripw*rangestrips? minres="<<minres<<" range="<<rangestrips<<" stripw="<<stripw<<" cluSize"<<cluSize<<" <=compare minres with"<<(rangestrips+cluSize*0.5)*stripw<<std::endl;
+		    if(fabs(minres)<=(rangestrips+cluSize*0.5)*stripw){
+		      if(debug) std::cout<<"DT  \t \t \t \t \t \t True!"<<std::endl;
+		      anycoincidence=true;
 		    }
 		  }
 		  if(anycoincidence){
-		    assert(stripDetected!=-1);
-		    if(debug) std::cout<<"DT  \t \t \t \t \t At least onee Strip inside the range Detected"<<stripDetected<<" Predicted"<<stripPredicted<<" range"<<rangestrips<<std::endl;
-		    if(debug) std::cout<<"DT  \t \t \t \t \t Minimum Residual from Rec Hits="<<minres<<"cm"<<std::endl;
+		    if(debug) std::cout<<"DT  \t \t \t \t \t At least one RecHit inside the range, Predicted="<<stripPredicted<<" minres="<<minres<<"cm range="<<rangestrips<<"strips stripw="<<stripw<<"cm"<<std::endl;
 		    if(debug) std::cout<<"DT  \t \t \t \t \t Norm of Cosine Directors="<<dx*dx+dy*dy+dz*dz<<"~1?"<<std::endl;
 		    
 		    //-----RESIDUALS----------
 		    if(inves){
 		      float cosal = dx/sqrt(dx*dx+dz*dz);
-		      if(debug) std::cout<<"Angle="<<acos(cosal)*180/3.1415926<<" degree"<<std::endl;
-		      if(debug) std::cout<<"DT  \t \t \t \t \t Filling the Residuals Histogram for globals with "<<minres<<"And the angular incidence with Cos Alpha="<<cosal<<std::endl;
+		      if(debug) std::cout<<"DT \t \t \t \t \t Angle="<<acos(cosal)*180/3.1415926<<" degree"<<std::endl;
+		      if(debug) std::cout<<"DT \t \t \t \t \t Filling the Residuals Histogram for globals with "<<minres<<"And the angular incidence with Cos Alpha="<<cosal<<std::endl;
 		      if(rollId.station()==1&&rollId.layer()==1)     { if(cluSize==1*dupli) {hGlobalResClu1La1->Fill(minres); AngClu1La1->Fill(acos(cosal)); DistBorderClu1La1->Fill(minres/stripw+0.5);}if(cluSize==2*dupli){ hGlobalResClu2La1->Fill(minres);  AngClu2La1->Fill(acos(cosal));DistBorderClu2La1->Fill(minres/stripw+0.5);} if(cluSize==3*dupli){ hGlobalResClu3La1->Fill(minres);  AngClu3La1->Fill(acos(cosal));} DistBorderClu3La1->Fill(minres/stripw+0.5);}
 		      else if(rollId.station()==1&&rollId.layer()==2){ if(cluSize==1*dupli) {hGlobalResClu1La2->Fill(minres); AngClu1La2->Fill(acos(cosal)); DistBorderClu1La2->Fill(minres/stripw+0.5);}if(cluSize==2*dupli){ hGlobalResClu2La2->Fill(minres);  AngClu2La2->Fill(acos(cosal));DistBorderClu2La2->Fill(minres/stripw+0.5);} if(cluSize==3*dupli){ hGlobalResClu3La2->Fill(minres);  AngClu3La2->Fill(acos(cosal));} DistBorderClu3La2->Fill(minres/stripw+0.5);}
 		      else if(rollId.station()==2&&rollId.layer()==1){ if(cluSize==1*dupli) {hGlobalResClu1La3->Fill(minres); AngClu1La3->Fill(acos(cosal)); DistBorderClu1La3->Fill(minres/stripw+0.5);}if(cluSize==2*dupli){ hGlobalResClu2La3->Fill(minres);  AngClu2La3->Fill(acos(cosal));DistBorderClu2La3->Fill(minres/stripw+0.5);} if(cluSize==3*dupli){ hGlobalResClu3La3->Fill(minres);  AngClu3La3->Fill(acos(cosal));} DistBorderClu3La3->Fill(minres/stripw+0.5);}
@@ -855,37 +846,30 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			    cluSize = recHit->clusterSize();
 			  }
 			}		
-			//-------------------------------------------
-			
 
-			//--------- Working with digis -----------------
 			bool anycoincidence=false;
-			int stripDetected = -1;			
 			
 			if(countRecHits==0){
 			  if(debug) std::cout <<"MB4 \t \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY RECHIT"<<std::endl;
 			}else{     
 			  assert(minres!=3000); 
-			  
-			  if(debug) std::cout<<"MB4  \t \t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" Minimal Residual ="<<minres<<std::endl;
-			  RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rollasociated->id());       
-			  for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
-			    if((fabs(float(digiIt->strip())-stripPredicted))/stripw<=rangestripsRB4){
-			      anycoincidence=true;
-			      stripDetected=digiIt->strip();
-			    }
-			  }    
+
+			  if(debug) std::cout<<"MB4 \t \t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" Minimal Residual ="<<minres<<std::endl;
+			  if(debug) std::cout<<"MB4 \t \t \t \t \t \t Minimal Residual less than stripw*rangestrips? minres="<<minres<<" range="<<rangestrips<<" stripw="<<stripw<<" cluSize"<<cluSize<<" <=compare minres with"<<(rangestrips+cluSize*0.5)*stripw<<std::endl;
+			  if(fabs(minres)<=(rangestrips+cluSize*0.5)*stripw){
+			    if(debug) std::cout<<"MB4 \t \t \t \t \t \t \t True!"<<std::endl;
+			    anycoincidence=true;
+			  }
 			}
 			if(anycoincidence){
-			  assert(stripDetected!=-1);
-			  if(debug) std::cout<<"MB4 \t \t \t \t \t At least onee Strip inside the range Detected"<<stripDetected<<" Predicted"<<stripPredicted<<" range"<<rangestripsRB4<<std::endl;			  
-			  if(debug) std::cout<<"MB4 \t \t \t \t \t Minimum Residual from Rec Hits="<<minres<<"cm"<<std::endl;
+			  if(debug) std::cout<<"MB4  \t \t \t \t \t At least one RecHit inside the range, Predicted="<<stripPredicted<<" minres="<<minres<<"cm range="<<rangestrips<<"strips stripw="<<stripw<<"cm"<<std::endl;
+			  if(debug) std::cout<<"MB4  \t \t \t \t \t Norm of Cosine Directors="<<dx3*dx3+dy3*dy3+dz3*dz3<<"~1?"<<std::endl;
 		   
 			  //-----RESIDUALS----------
 			  if(inves){
 			    float cosal = dx/sqrt(dx*dx+dz*dz);
-			    if(debug) std::cout<<"Angle="<<acos(cosal)*180/3.1415926<<" degree"<<std::endl;
-			    if(debug) std::cout<<"MB4  \t \t \t \t \t Filling the Residuals Histogram for globals with "<<minres<<"And the angular incidence with Cos Theta="<<-1*dz<<std::endl;
+			    if(debug) std::cout<<"MB4 \t \t \t \t \t Angle="<<acos(cosal)*180/3.1415926<<" degree"<<std::endl;
+			    if(debug) std::cout<<"MB4 \t \t \t \t \t Filling the Residuals Histogram for globals with "<<minres<<"And the angular incidence with Cos Theta="<<-1*dz<<std::endl;
 			    assert(rollId.station()==4);
 			    if(cluSize==1*dupli){ hGlobalResClu1La6->Fill(minres); if(minres<0.005*stripw) AngClu1La6->Fill(acos(cosal)); if(fabs(minres)<stripw*0.5) DistBorderClu1La6->Fill(minres/stripw+0.5);}
 			    else if(cluSize==2*dupli){ hGlobalResClu2La6->Fill(minres); if(minres<0.005*stripw) AngClu2La6->Fill(acos(cosal));}
@@ -970,7 +954,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	if(debug) std::cout<<"CSC \t \t Number of segments in this CSC = "<<CSCSegmentsCounter[CSCId]<<std::endl;
 	if(debug) std::cout<<"CSC \t \t Is the only one in this CSC? is not ind the ring 1 or station 4? Are there more than 2 segments in the event?"<<std::endl;
 
-    	if(CSCSegmentsCounter[CSCId]==1 && CSCId.station()!=4 && CSCId.ring()!=1){
+    	if(CSCSegmentsCounter[CSCId]==1 && CSCId.station()!=4 && CSCId.ring()!=1 && allCSCSegments->size()>=2){
 	  if(debug) std::cout<<"CSC \t \t yes"<<std::endl;
     	  int cscEndCap = CSCId.endcap();
 	  int cscStation = CSCId.station();
@@ -991,10 +975,11 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
      
 	  LocalPoint segmentPosition= segment->localPosition();
 	  LocalVector segmentDirection=segment->localDirection();
+	  float dz=segmentDirection.z();
 	
-	  if(debug) std::cout<<"CSC \t \t Is a good Segment? dim = 4, 4 <= nRecHits <= 10 "<<std::endl;
+	  if(debug) std::cout<<"CSC \t \t Is a good Segment? dim = 4, 4 <= nRecHits <= 10 Incident angle int range 45 < "<<acos(dz)*180/3.1415926<<" < 135? "<<std::endl;
 
-	  if(segment->dimension()==4 && (segment->nRecHits()<=10 && segment->nRecHits()>=4)){ 
+	  if(segment->dimension()==4 && (segment->nRecHits()<=10 && segment->nRecHits()>=4)&& acos(dz)*180/3.1415926 > 45. && acos(dz)*180/3.1415926 < 160. ){ 
 	    
 	    //&& segment->chi2()< ??)Add 3 segmentes in the endcaps???
 
@@ -1155,7 +1140,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		    const float stripPredicted = 
 		      rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
 
-		    if(debug) std::cout<<"CSC  \t \t \t \t \t Candidate"<<rollId<<" "<<"(from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
+		    if(debug) std::cout<<"CSC  \t \t \t \t \t Candidate"<<rollId<<" "<<"(from CSC Segment) STRIP---> "<<stripPredicted<< std::endl;
 		    //--------- HISTOGRAM STRIP PREDICTED FROM CSC  -------------------
 		    
 		    char detUnitLabel[128];
@@ -1180,24 +1165,19 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		    rangeRecHits recHitCollection =  rpcHits->get(rollasociated->id());
 		    RPCRecHitCollection::const_iterator recHit;
 
-
 		    for (recHit = recHitCollection.first; recHit != recHitCollection.second ; recHit++) {
 		      countRecHits++;
 		      LocalPoint recHitPos=recHit->localPosition();
 		      float res=PointExtrapolatedRPCFrame.x()- recHitPos.x();
-		      if(debug) std::cout<<"CSC  \t \t \t \t \t Found Rec Hit at "<<res<<"cm of the prediction."<<std::endl;
+		      if(debug) std::cout<<"CSC  \t \t \t \t \t \t Found Rec Hit at "<<res<<"cm of the prediction."<<std::endl;
 		      if(fabs(res)<fabs(minres)){
 			minres=res;
 			cluSize = recHit->clusterSize();
+			if(debug) std::cout<<"CSC  \t \t \t \t \t \t \t New Min Res "<<res<<"cm."<<std::endl;
 		      }
 		    }
-		    //-------------------------------------------
-		  
-		    
-		    //--------- Working with digis -----------------
 		    
 		    bool anycoincidence = false;
-		    int stripDetected = -1;
 		    
 		    if(countRecHits==0){
 		      if(debug) std::cout <<"CSC \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY RECHIT"<<std::endl;
@@ -1205,24 +1185,18 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		      assert(minres!=3000); 
 		      
 		      if(debug) std::cout<<"CSC \t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" Minimal Residual"<<minres<<std::endl;
-		      
-		      RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rollasociated->id());       
-		      for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
-			if((fabs(float(digiIt->strip())-stripPredicted))/stripw<=rangestrips){
-			  anycoincidence=true;
-			  stripDetected=digiIt->strip();
-			}
+		      if(debug) std::cout<<"CSC  \t \t \t \t \t Minimal Residual less than stripw*rangestrips? minres="<<minres<<" range="<<rangestrips<<" stripw="<<stripw<<" cluSize"<<cluSize<<" <=compare minres with"<<(rangestrips+cluSize*0.5)*stripw<<std::endl;
+		      if(fabs(minres)<=(rangestrips+cluSize*0.5)*stripw){
+			if(debug) std::cout<<"CSC  \t \t \t \t \t \t True!"<<std::endl;
+			anycoincidence=true;
 		      }
 		    }
 		    if(anycoincidence){
-		      assert(stripDetected!=-1);
-		      if(debug) std::cout<<"CSC  \t \t \t \t \t At least onee Strip inside the range Detected"<<stripDetected<<" Predicted"<<stripPredicted<<" range"<<rangestrips<<std::endl;
-		      if(debug) std::cout<<"CSC  \t \t \t \t \t Minimum Residual from Rec Hits="<<minres<<"cm"<<std::endl;
+		      if(debug) std::cout<<"CSC  \t \t \t \t \t At least one RecHit inside the range, Predicted="<<stripPredicted<<" minres="<<minres<<"cm range="<<rangestrips<<"strips stripw="<<stripw<<"cm"<<std::endl;
 		      if(debug) std::cout<<"CSC  \t \t \t \t \t Norm of Cosine Directors="<<dx*dx+dy*dy+dz*dz<<"~1?"<<std::endl;
 
 		      //----RESIDUALS----
 		      if(inves){
-			float cosal = dx/sqrt(dx*dx+dz*dz);
 			if(rollId.ring()==2&&rollId.roll()==1){if(cluSize==1*dupli) hGlobalResClu1R2A->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2A->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2A->Fill(minres);}
 			if(rollId.ring()==2&&rollId.roll()==2){if(cluSize==1*dupli) hGlobalResClu1R2B->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2B->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2B->Fill(minres);}
 			if(rollId.ring()==2&&rollId.roll()==3){if(cluSize==1*dupli) hGlobalResClu1R2C->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2C->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2C->Fill(minres);}
@@ -1232,7 +1206,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		      }
 		      //------------------------
 		      sprintf(meIdRPC,"RPCDataOccupancyFromCSC_%s",detUnitLabel);
-		      if(debug) std::cout <<"CSC \t \t \t \t \t \t COINCEDENCE!!! Event="<<iEvent.id()<<"Filling Filling RPC Data Occupancy for "<<meIdRPC<<" with "<<stripPredicted<<std::endl;
+		      if(debug) std::cout <<"CSC \t \t \t \t \t \t COINCEDENCE!!! Event="<<iEvent.id()<<"Filling RPC Data Occupancy for "<<meIdRPC<<" with "<<stripPredicted<<std::endl;
 		      meMap[meIdRPC]->Fill(stripPredicted);
 		    }
 		    else{

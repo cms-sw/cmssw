@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi import *
+from RecoLocalTracker.SiStripRecHitConverter import SiStripRecHitConverter_cfi 
+siStripMatchedRecHits = SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
+    maximumHits2BeforeMatching = cms.uint32(1000)
+)
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi import *

@@ -8,6 +8,8 @@
 #include "EventFilter/Processor/interface/FUEventProcessor.h"
 
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
+#include "EventFilter/Utilities/interface/ServiceWebRegistry.h"
+#include "EventFilter/Utilities/interface/ServiceWeb.h"
 #include "EventFilter/Utilities/interface/TimeProfilerService.h"
 #include "EventFilter/Utilities/interface/Exception.h"
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
@@ -20,6 +22,7 @@
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ParameterSet/interface/PythonProcessDesc.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -117,7 +120,9 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , hasShMem_(true)
   , hasPrescaleService_(true)
   , hasModuleWebRegistry_(true)
+  , hasServiceWebRegistry_(true)
   , isRunNumberSetter_(true)
+  , isPython_(false)
   , outprev_(true)
   , monSleepSec_(1)
   , wlMonitoring_(0)
@@ -125,21 +130,26 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , watching_(false)
   , wlScalers_(0)
   , asScalers_(0)
-  , lsTimeOut_(360)
-  , lastLumiTimedOut_(false)
+  , localLsIncludingTimeOuts_(0)
+  , lsTimeOut_(105)
+  , firstLsTimeOut_(200)
+  , residualTimeOut_(0)
+  , lastLsTimedOut_(false)
+  , lastLsWithEvents_(0)
+  , lastLsWithTimeOut_(0)
   , reasonForFailedState_()
   , wlMonitoringActive_(false)
   , wlScalersActive_(false)
   , scalersUpdateAttempted_(0)
   , scalersUpdateCounter_(0)
-  , lumiSectionsCtr_(10)
-  , lumiSectionsTo_(10)
+  , lumiSectionsCtr_(lsRollSize_)
+  , lumiSectionsTo_(lsRollSize_)
   , allPastLumiProcessed_(0)
-  , rollingLsIndex_(10)
+  , rollingLsIndex_(lsRollSize_)
   , rollingLsWrap_(false)
   , squidnet_(3128,"http://localhost:8000/RELEASE-NOTES.txt")
-  , logRing_(50)
-  , logRingIndex_(50)
+  , logRing_(logRingSize_)
+  , logRingIndex_(logRingSize_)
   , logWrap_(false)
 {
   //list of variables for scalers flashlist
@@ -186,7 +196,9 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("hasSharedMemory",      &hasShMem_);
   ispace->fireItemAvailable("hasPrescaleService",   &hasPrescaleService_);
   ispace->fireItemAvailable("hasModuleWebRegistry", &hasModuleWebRegistry_);
+  ispace->fireItemAvailable("hasServiceWebRegistry", &hasServiceWebRegistry_);
   ispace->fireItemAvailable("isRunNumberSetter",    &isRunNumberSetter_);
+  ispace->fireItemAvailable("isPython",             &isPython_);
   ispace->fireItemAvailable("monSleepSec",          &monSleepSec_);
   ispace->fireItemAvailable("lsTimeOut",            &lsTimeOut_);
   ispace->fireItemAvailable("rcmsStateListener",     fsm_.rcmsStateListener());
@@ -202,6 +214,9 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   getApplicationInfoSpace()->addItemChangedListener("globalInputPrescale", this);
   getApplicationInfoSpace()->addItemChangedListener("globalOutputPrescale",this);
 
+  // findRcmsStateListener
+  fsm_.findRcmsStateListener();
+  
   // initialize monitoring infospace
 
   std::stringstream oss2;
@@ -252,6 +267,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   xgi::bind(this, &FUEventProcessor::defaultWebPage,   "Default"   );
   xgi::bind(this, &FUEventProcessor::spotlightWebPage, "Spotlight" );
   xgi::bind(this, &FUEventProcessor::moduleWeb     ,   "moduleWeb" );
+  xgi::bind(this, &FUEventProcessor::serviceWeb    ,   "serviceWeb" );
   xgi::bind(this, &FUEventProcessor::microState    ,   "microState");
 
   // instantiate the plugin manager, not referenced here after!
@@ -293,10 +309,14 @@ FUEventProcessor::~FUEventProcessor()
 bool FUEventProcessor::getTriggerReport(bool useLock)
   throw (toolbox::fsm::exception::Exception)
 {
+
+
   // Calling this method results in calling 
   // evtProcessor_->getTriggerReport, the value returned is encoded as
   // a xdata::Table.
   LOG4CPLUS_DEBUG(getApplicationLogger(),"getTriggerReport action invoked");
+  if(inRecovery_) { return false;} //stop scalers loop if caught in the middle of recovery
+
   //Get the trigger report.
   ModuleWebRegistry *mwr = 0;
   try{
@@ -318,24 +338,63 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
   if( it == scalersComplete_.end())
     {
       it = scalersComplete_.append();
+      it->setField("instance",instance_);
     }
-  it->setField("instance",instance_);
+  timeval tv;
   if(useLock) {
-    mwr->openBackDoor("DaqSource",lsTimeOut_.value_);
+    gettimeofday(&tv,0);
+    mwr->openBackDoor("DaqSource",residualTimeOut_);
+    string st = fsm_.stateName()->toString();
+    if(st!="Enabled" && st!="Configured" && st!="enabling" && st!="stopping") return false;
+    residualTimeOut_ = lsTimeOut_.value_ ;
   }
-  if(!inRecovery_)evtProcessor_->getTriggerReport(tr);
+  bool localTimeOut = false;
   try{
     xdata::Serializable *lsid = ispace->find("lumiSectionIndex");
     if(lsid) {
       ls = ((xdata::UnsignedInteger32*)(lsid))->value_;
-      it->setField("lsid",*lsid);
-      if(rollingLsIndex_==0){rollingLsIndex_=10; rollingLsWrap_ = true;}
-      rollingLsIndex_--;
-      lumiSectionsCtr_[rollingLsIndex_] = pair<unsigned int, unsigned int>(ls,evtProcessor_->totalEvents()-allPastLumiProcessed_);
-      allPastLumiProcessed_ = evtProcessor_->totalEvents();
+
       xdata::Boolean *to =  (xdata::Boolean*)ispace->find("lsTimedOut");
       if(to!=0)
-	lumiSectionsTo_[rollingLsIndex_] = to->value_;
+	{
+	  localTimeOut = to->value_;
+	  if(to->value_)
+	    {
+	      if(lastLsTimedOut_)localLsIncludingTimeOuts_.value_++;
+	      else localLsIncludingTimeOuts_.value_ = ls;
+	      lastLsTimedOut_ = true; 
+	      lastLsWithTimeOut_ = ls;
+	    }
+	  else
+	    {
+	      lastLsWithEvents_ = ls;
+	      if(lastLsTimedOut_)
+		{
+		  if(localLsIncludingTimeOuts_.value_ < (ls-1)) //cover timed out LS not yet accounted for when events return;
+		    for(localLsIncludingTimeOuts_.value_++; localLsIncludingTimeOuts_.value_ < ls; localLsIncludingTimeOuts_.value_++)
+		      {
+			if(rollingLsIndex_==0){rollingLsIndex_=lsRollSize_; rollingLsWrap_ = true;}
+			rollingLsIndex_--;
+			lumiSectionsTo_[rollingLsIndex_] = localTimeOut;
+			lumiSectionsCtr_[rollingLsIndex_] = pair<unsigned int, unsigned int>(localLsIncludingTimeOuts_.value_,
+											     evtProcessor_->totalEvents()-
+											     allPastLumiProcessed_);
+			it->setField("lsid", localLsIncludingTimeOuts_);
+			fireScalersUpdate();
+		      }
+
+		  timeval tv1;
+		  gettimeofday(&tv1,0);
+		  residualTimeOut_ -= (tv1.tv_sec - tv.tv_sec); //adjust timeout to handle rest of LS where events come back
+		  mwr->closeBackDoor("DaqSource"); 
+		  lastLsTimedOut_ = false;
+		  return true;
+		}
+	      localLsIncludingTimeOuts_.value_ = ls;
+	      lastLsTimedOut_ = false; 
+	    }
+	}
+      it->setField("lsid", localLsIncludingTimeOuts_);
     }
     xdata::Serializable *psid = ispace->find("prescaleSetIndex");
     if(psid) {
@@ -351,11 +410,22 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
     }
     return false;
   }
+
+
+  if(rollingLsIndex_==0){rollingLsIndex_=lsRollSize_; rollingLsWrap_ = true;}
+  rollingLsIndex_--;
+  lumiSectionsTo_[rollingLsIndex_] = localTimeOut;
+  lumiSectionsCtr_[rollingLsIndex_] = pair<unsigned int, unsigned int>(localLsIncludingTimeOuts_.value_,
+								       evtProcessor_->totalEvents()-
+								       allPastLumiProcessed_);
+  allPastLumiProcessed_ = evtProcessor_->totalEvents();
+
+
+  if(!inRecovery_)evtProcessor_->getTriggerReport(tr);
   if(useLock){
     mwr->closeBackDoor("DaqSource");
-  }
-  
-  if(inRecovery_) { return false;}
+  }  
+
   trh_.formatReportTable(tr,descs_);
   if(trh_.checkLumiSection(ls))
     {
@@ -410,6 +480,8 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 //______________________________________________________________________________
 bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 {
+  unsigned int tempLsTO = lsTimeOut_.value_;
+  lsTimeOut_.value_ = firstLsTimeOut_;
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start enabling ...");
     
@@ -464,7 +536,9 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
     ::sleep(1);
   }
   watching_ = true;
+  residualTimeOut_ = lsTimeOut_.value_;
   startScalersWorkLoop();
+  lsTimeOut_.value_ = tempLsTO;
   localLog("-I- Start completed");
   return false;
 }
@@ -483,6 +557,7 @@ bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
       {
 	epMState_ = evtProcessor_->currentStateName();
 	reasonForFailedState_ = "EventProcessor stop timed out";
+	localLog(reasonForFailedState_);
 	fsm_.fireFailed(reasonForFailedState_,this);
 
       }
@@ -490,9 +565,11 @@ bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
   }
   catch (xcept::Exception &e) {
     reasonForFailedState_ = "stopping FAILED: " + (string)e.what();
+    localLog(reasonForFailedState_);
     fsm_.fireFailed(reasonForFailedState_,this);
   }
   watching_ = false;
+  allPastLumiProcessed_ = 0;
   localLog("-I- Stop completed");
   return false;
 }
@@ -517,6 +594,21 @@ bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
       mwr->clear();
     }
 
+  ServiceWebRegistry *swr = 0;
+  try{
+    if(edm::Service<ServiceWebRegistry>().isAvailable())
+      swr = edm::Service<ServiceWebRegistry>().operator->();
+  }
+  catch(...) { 
+    LOG4CPLUS_INFO(getApplicationLogger(),
+		   "exception when trying to get service ModuleWebRegistry");
+  }
+  
+  if(swr) 
+    {
+      swr->clear();
+    }
+
   edm::event_processor::State st = evtProcessor_->getState();
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start halting ...");
@@ -538,14 +630,17 @@ bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
     else
       {
 	reasonForFailedState_ = "EventProcessor stop timed out";
+	localLog(reasonForFailedState_);
 	fsm_.fireFailed(reasonForFailedState_,this);
       }
   }
   catch (xcept::Exception &e) {
     reasonForFailedState_ = "halting FAILED: " + (string)e.what();
+    localLog(reasonForFailedState_);
     fsm_.fireFailed(reasonForFailedState_,this);
   }
   watching_ = false;
+  allPastLumiProcessed_ = 0;
   localLog("-I- Halt completed");
   return false;
 }
@@ -562,6 +657,7 @@ xoap::MessageReference FUEventProcessor::fsmCallback(xoap::MessageReference msg)
 //______________________________________________________________________________
 void FUEventProcessor::initEventProcessor()
 {
+  trh_.resetFormat(); //reset the report table even if HLT didn't change
   if (epInitialized_) {
     LOG4CPLUS_INFO(getApplicationLogger(),
 		   "CMSSW EventProcessor already initialized: skip!");
@@ -582,17 +678,25 @@ void FUEventProcessor::initEventProcessor()
   // job configuration string
   ParameterSetRetriever pr(configString_.value_);
   configuration_ = pr.getAsString();
-  
+  if (configString_.value_.size() > 3 && configString_.value_.substr(configString_.value_.size()-3) == ".py") isPython_ = true;
   boost::shared_ptr<edm::ParameterSet> params; // change this name!
   boost::shared_ptr<vector<edm::ParameterSet> > pServiceSets;
+  boost::shared_ptr<edm::ProcessDesc> pdesc;
   try{
-    makeParameterSets(configuration_, params, pServiceSets);
+    if(isPython_)
+      {
+	PythonProcessDesc ppdesc = PythonProcessDesc(configuration_);
+	pdesc = ppdesc.processDesc();
+      }
+    else
+      pdesc = boost::shared_ptr<edm::ProcessDesc>(new edm::ProcessDesc(configuration_));
   }
   catch(cms::Exception &e){
     reasonForFailedState_ = e.explainSelf();
     fsm_.fireFailed(reasonForFailedState_,this);
     return;
   } 
+  pServiceSets = pdesc->getServicesPSets();
   // add default set of services
   if(!servicesDone_) {
     internal::addServiceMaybe(*pServiceSets,"DQMStore");
@@ -601,6 +705,7 @@ void FUEventProcessor::initEventProcessor()
     internal::addServiceMaybe(*pServiceSets,"MicroStateService");
     if(hasPrescaleService_) internal::addServiceMaybe(*pServiceSets,"PrescaleService");
     if(hasModuleWebRegistry_) internal::addServiceMaybe(*pServiceSets,"ModuleWebRegistry");
+    if(hasServiceWebRegistry_) internal::addServiceMaybe(*pServiceSets,"ServiceWebRegistry");
     
     try{
       serviceToken_ = edm::ServiceRegistry::createSet(*pServiceSets);
@@ -648,20 +753,33 @@ void FUEventProcessor::initEventProcessor()
 
   if(mwr) mwr->clear(); // in case we are coming from stop we need to clear the mwr
 
+  ServiceWebRegistry *swr = 0;
+  try{
+    if(edm::Service<ServiceWebRegistry>().isAvailable())
+      swr = edm::Service<ServiceWebRegistry>().operator->();
+  }
+  catch(...) { 
+    LOG4CPLUS_INFO(getApplicationLogger(),
+		   "exception when trying to get service ModuleWebRegistry");
+  }
+
+  //  if(swr) swr->clear(); // in case we are coming from stop we need to clear the swr
+
+
   // instantiate the event processor
   try{
     vector<string> defaultServices;
+    vector<string> forcedServices;
     defaultServices.push_back("MessageLogger");
     defaultServices.push_back("InitRootHandlers");
     defaultServices.push_back("JobReportService");
-
+    pdesc->addServices(defaultServices, forcedServices);
     monitorInfoSpace_->lock();
     if (0!=evtProcessor_) delete evtProcessor_;
 
-    evtProcessor_ = new edm::EventProcessor(configuration_,
+    evtProcessor_ = new edm::EventProcessor(pdesc,
 					    serviceToken_,
-					    edm::serviceregistry::kTokenOverrides,
-					    defaultServices);
+					    edm::serviceregistry::kTokenOverrides);
 
     monitorInfoSpace_->unlock();
     //    evtProcessor_->setRunNumber(runNumber_.value_);
@@ -679,10 +797,11 @@ void FUEventProcessor::initEventProcessor()
     if(mwr) 
       {
 	mwr->publish(getApplicationInfoSpace());
-      }
-    if(mwr) 
-      {
 	mwr->publishToXmas(scalersInfoSpace_);
+      }
+    if(swr) 
+      {
+	swr->publish(getApplicationInfoSpace());
       }
     // get the prescale service
     LOG4CPLUS_INFO(getApplicationLogger(),
@@ -734,7 +853,7 @@ void FUEventProcessor::initEventProcessor()
   if(getApplicationDescriptor()->getInstance() == 0) macro_state_legend_ = oss.str();
   //fill microstate legend information
   descs_ = evtProcessor_->getAllModuleDescriptions();
-  trh_.resetFormat();
+
   std::stringstream oss2;
   unsigned int outcount = 0;
   oss2 << 0 << "=In ";
@@ -845,18 +964,15 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
 
+
   string urn = getApplicationDescriptor()->getURN();
-  ostringstream ourl;
-  ourl << "'/" <<  urn << "/microState'";
   *out << "<!-- base href=\"/" <<  urn
        << "\"> -->" << endl;
   *out << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">"	<< endl;
   *out << "<html>"								<< endl;
   *out << "<head>"								<< endl;
 
-  //insert javascript code
-  jsGen(in,out,ourl.str());
-
+  *out << "<script src=\"/evf/html/microEPPage.js\"></script>"<< endl;
   *out << "<style type=\"text/css\">"						<< endl;
   *out << "#s1 {"								<< endl;
   *out << "border-width: 2px; border: solid blue; text-align: right; "
@@ -928,7 +1044,7 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   //version number, please update consistently with TAG
   *out << "<tr>"								<< endl;
   *out << "  <td colspan=\"5\" align=\"right\">"				<< endl;
-  *out << "    Version 1.3.6"							<< endl;
+  *out << "    Version 1.4.7"							<< endl;
   *out << "  </td>"								<< endl;
   *out << "</tr>"								<< endl;
 
@@ -985,10 +1101,26 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "</tr>"                                            << endl;
   *out << "<tr>" << endl;
   *out << "<td >" << endl;
+  *out << "Is Python Config" << endl;
+  *out << "</td>" << endl;
+  *out << "<td>" << endl;
+  *out << isPython_.toString() << endl;
+  *out << "</td>" << endl;
+  *out << "</tr>"                                            << endl;
+  *out << "<tr>" << endl;
+  *out << "<td >" << endl;
   *out << "Has Module Web" << endl;
   *out << "</td>" << endl;
   *out << "<td>" << endl;
   *out << hasModuleWebRegistry_.toString() << endl;
+  *out << "</td>" << endl;
+  *out << "</tr>"                                            << endl;
+  *out << "<tr>" << endl;
+  *out << "<td >" << endl;
+  *out << "Has Service Web" << endl;
+  *out << "</td>" << endl;
+  *out << "<td>" << endl;
+  *out << hasServiceWebRegistry_.toString() << endl;
   *out << "</td>" << endl;
   *out << "</tr>"                                            << endl;
   *out << "<tr>" << endl;
@@ -1095,12 +1227,14 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
 	*out << "<td " << (lumiSectionsTo_[i] ? "bgcolor=\"red\"" : "")
 	     << ">" << lumiSectionsCtr_[i].first << "</td>" << endl;
       for(unsigned int i = 0; i < rollingLsIndex_; i++)
-	*out << "<td  " << (lumiSectionsTo_[i] ? "bgcolor=\"red\"" : "")
+	*out << "<td " << (lumiSectionsTo_[i] ? "bgcolor=\"red\"" : "")
 	     << ">" << lumiSectionsCtr_[i].first << "</td>" << endl;
     }
   else
       for(unsigned int i = rollingLsIndex_; i < lumiSectionsCtr_.size(); i++)
-	*out << "<td>" << lumiSectionsCtr_[i].first << "</td>" << endl;
+	*out << "<td  " << (lumiSectionsTo_[i] ? "bgcolor=\"red\"" : "")
+	     << ">" << lumiSectionsCtr_[i].first << "</td>" << endl;
+
   *out << "     </tr>"							<< endl;    
   *out << "     <tr>"							<< endl;
   *out << "       <td> Ev </td>";
@@ -1116,8 +1250,48 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
 	*out << "<td>" << lumiSectionsCtr_[i].second << "</td>" << endl;
   *out << "     </tr>"							<< endl;    
   *out << "</table>" << endl;
-  *out << "</th></tr>" << endl;
 
+  ServiceWebRegistry *swr = 0;
+  if(0!=evtProcessor_)
+    {
+      edm::ServiceRegistry::Operate operate(evtProcessor_->getToken());
+      try{
+	if(edm::Service<ServiceWebRegistry>().isAvailable())
+	  swr = edm::Service<ServiceWebRegistry>().operator->();
+      }
+      catch(...) {
+	LOG4CPLUS_WARN(getApplicationLogger(),
+		       "Exception when trying to get service ServiceWebRegistry");
+      }
+    }
+  if(0!=swr)
+    {
+      std::vector<ServiceWeb *> swebs = swr->getWebs();
+      *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
+      //      *out << "<colgroup> <colgroup align=\"right\">"                    << endl;
+      *out << "  <tr>"                                                   << endl;
+      *out << "    <th colspan=2>"                                       << endl;
+      *out << "      " << "Linked Services"                              << endl;
+      *out << "    </th>"                                                << endl;
+      *out << "  </tr>"                                                  << endl;
+      
+      *out << "<tr>" << endl;
+      *out << "<th >" << endl;
+      *out << "Service" << endl;
+      *out << "</th>" << endl;
+      *out << "<th>" << endl;
+      *out << "Address" << endl;
+      *out << "</th>" << endl;
+      *out << "</tr>" << endl;
+      for(unsigned int i = 0; i < swebs.size(); i++)
+	{
+	  *out << " <tr><td><a href=\"/" << urn << "/serviceWeb?service=" 
+	       << swebs[i]->name() << "\">" << swebs[i]->name() 
+	       << "</a></td><td>" << hex << (unsigned int)swebs[i] 
+	       << dec << "</td></tr>" << endl;
+	}
+      *out << "</table>" << endl;
+    }
   *out << "</table>"							<< endl;
   *out << "</body>"                                                  << endl;
   *out << "</html>"                                                  << endl;
@@ -1204,7 +1378,9 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,const string
           *out << "    <td align=\"right\">";
           *out << tpr->getFirst(descs_[idesc]->moduleLabel());
           *out << "</td>"                                                       << endl;
-          *out << "    <td align=\"right\">";
+          *out << "    <td align=\"right\"";
+	  *out << (tpr->getAve(descs_[idesc]->moduleLabel())>1. ? "bgcolor=\"red\"" : "") 
+	       << ">";
           *out << tpr->getAve(descs_[idesc]->moduleLabel());
           *out << "</td>"                                                       << endl;
           *out << "    <td align=\"right\">";
@@ -1248,59 +1424,35 @@ void FUEventProcessor::moduleWeb(xgi::Input  *in, xgi::Output *out)
 
 
 //______________________________________________________________________________
-void FUEventProcessor::jsGen(xgi::Input *in, xgi::Output *out, string url)
+void FUEventProcessor::serviceWeb(xgi::Input  *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  *out << "<script type=\"text/javascript\"> \n";
-  *out << "var xmlhttp \n";
-  *out << " \n";
-  *out << "function loadXMLDoc() \n";
-  *out << "{ \n";
-  *out << "xmlhttp=null \n";
-  *out << " \n";
-  *out << "document.getElementById('s2').innerHTML=\"XApp<br>EP<br>&mu;<br>Acc/Proc<br>LS<br>PS\"";
-  *out << " \n";
-  *out << "if (window.XMLHttpRequest) \n";
-  *out << "  { \n";
-  *out << "  xmlhttp=new XMLHttpRequest() \n";
-  *out << "  } \n";
-  *out << " \n";
-  *out << "else if (window.ActiveXObject) \n";
-  *out << "  { \n";
-  *out << "  xmlhttp=new ActiveXObject(\"Microsoft.XMLHTTP\") \n";
-  *out << "  } \n";
-  *out << "if (xmlhttp!=null) \n";
-  *out << "  { \n";
-  *out << "  xmlhttp.onreadystatechange=state_Change \n";
-  *out << "  xmlhttp.open(\"GET\"," << url << ",true) \n";
-  *out << "  xmlhttp.send(null) \n";
-  *out << "  setTimeout('loadXMLDoc()',500) \n";
-  *out << "  } \n";
-  *out << "else \n";
-  *out << "  { \n";
-  *out << "  alert(\"Your browser does not support XMLHTTP.\") \n";
-  *out << "  } \n";
-  *out << "} \n";
-  *out << " \n";
-  *out << "function state_Change() \n";
-  *out << "{ \n";
-  // if xmlhttp shows "loaded"
-  *out << "if (xmlhttp.readyState==4) \n";
-  *out << "  { \n";
-  // if "OK" 
-  *out << " if (xmlhttp.status==200) \n";
-  *out << "  { \n";
-  *out << "  document.getElementById('s1').innerHTML=xmlhttp.responseText \n";
-  *out << "  } \n";
-  *out << "  else \n";
-  *out << "  { \n";
-  *out << "  document.getElementById('s1').innerHTML=xmlhttp.statusText \n";
-  *out << "  } \n";
-  *out << "  } \n";
-  *out << "} \n";
-  *out << " \n";
-  *out << "</script> \n";
+  Cgicc cgi(in);
+  vector<FormEntry> el1;
+  cgi.getElement("service",el1);
+  if(evtProcessor_)  {
+    if(el1.size()!=0) {
+      string ser = el1[0].getValue();
+      edm::ServiceRegistry::Operate operate(evtProcessor_->getToken());
+      ServiceWebRegistry *swr = 0;
+      try{
+	if(edm::Service<ServiceWebRegistry>().isAvailable())
+	  swr = edm::Service<ServiceWebRegistry>().operator->();
+      }
+      catch(...) { 
+	LOG4CPLUS_WARN(getApplicationLogger(),
+		       "Exception when trying to get service ModuleWebRegistry");
+      }
+      swr->invoke(in,out,ser);
+    }
+  }
+  else {
+    *out<<"EventProcessor just disappeared "<<endl;
+  }
 }
+
+
+//______________________________________________________________________________
 
 
 void FUEventProcessor::spotlightWebPage(xgi::Input  *in, xgi::Output *out)
@@ -1352,8 +1504,7 @@ void FUEventProcessor::spotlightWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "  <td width=\"32\">"                                      << endl;
   *out << "  </td>"                                                  << endl;
   *out << "  <td width=\"32\">"                                      << endl;
-  *out << "    <a href=\"/" << urn 
-       << "/Default\">"                                              << endl;
+  *out << "    <a href=\"/" << urn << "/\">"                         << endl;
   *out << "      <img"                                               << endl;
   *out << "       align=\"middle\""                                  << endl;
   *out << "       src=\"/evf/images/epicon.jpg\""		     << endl;
@@ -1478,7 +1629,7 @@ void FUEventProcessor::microState(xgi::Input  *in, xgi::Output *out)
   *out << "<br>  " << micro2 << endl;
   *out << "<br>  " << nbAccepted_.value_ << "/" << nbProcessed_.value_  
        << " (" << float(nbAccepted_.value_)/float(nbProcessed_.value_)*100. <<"%)" << endl;
-  *out << "<br>  " << lsidAsString_ << endl;
+  *out << "<br>  " << lsidAsString_ << "/" << lsidTimedOutAsString_ << endl;
   *out << "<br>  " << psidAsString_ << endl;
   *out << " " << endl;
 }
@@ -1577,6 +1728,9 @@ bool FUEventProcessor::scalers(toolbox::task::WorkLoop* wl)
 	    wlScalersActive_ = false;
 	    return false;
 	  }
+	  if(lastLsTimedOut_) lsidTimedOutAsString_ = localLsIncludingTimeOuts_.toString();
+	  else lsidTimedOutAsString_ = "";
+	  if(lastLsTimedOut_ && lastLsWithEvents_==lastLsWithTimeOut_) return true;
 	  if(!fireScalersUpdate()){
 	    wlScalersActive_ = false;
 	    return false;
@@ -1811,8 +1965,9 @@ bool FUEventProcessor::fireScalersUpdate()
   headers->addHeader("x-xdaq-tags", "tag");
   tagName = envelope.createName( "originator", "", "");
   sampleElement.addAttribute(tagName,at.toString());
-
+  
   xdata::exdr::AutoSizeOutputStreamBuffer outBuffer;
+
   try
     {
       serializer.exportAll( &scalersComplete_, &outBuffer );
@@ -1822,7 +1977,7 @@ bool FUEventProcessor::fireScalersUpdate()
       LOG4CPLUS_WARN(getApplicationLogger(),
 		     "Exception in serialization of scalers table");      
       localLog("-W- Exception in serialization of scalers table");      
-      return false;
+      return true;
     }
   
   xoap::AttachmentPart * attachment = msg->createAttachmentPart(outBuffer.getBuffer(), outBuffer.tellp(), "application/x-xdata+exdr");
@@ -1846,10 +2001,12 @@ bool FUEventProcessor::fireScalersUpdate()
   }
   catch(xdaq::exception::Exception &ex)
     {
-	LOG4CPLUS_WARN(getApplicationLogger(),
-		       "exception when posting SOAP message to MonitorReceiver");
-	localLog("-W- exception when posting SOAP message to MonitorReceiver");
-	return false;
+      string message = "exception when posting SOAP message to MonitorReceiver";
+      message += ex.what();
+      LOG4CPLUS_WARN(getApplicationLogger(),message.c_str());
+      string lmessage = "-W- "+message;
+      localLog(lmessage);
+      return true;
    }
   delete appdesc; 
   delete ctxdsc;
@@ -1883,7 +2040,7 @@ void FUEventProcessor::localLog(string m)
   char datestring[256];
   strftime(datestring, sizeof(datestring),"%c", uptm);
 
-  if(logRingIndex_ == 0){logWrap_ = true; logRingIndex_ = 50;}
+  if(logRingIndex_ == 0){logWrap_ = true; logRingIndex_ = logRingSize_;}
   logRingIndex_--;
   ostringstream timestamp;
   timestamp << " at " << datestring;

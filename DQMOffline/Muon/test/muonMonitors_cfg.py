@@ -18,9 +18,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # Magnetic fiuld: force mag field to be 0.0 tesla
 process.load("Configuration.StandardSequences.Geometry_cff")
 
-process.load("Configuration.StandardSequences.MagneticField_cff")
-
-process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
+process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 
 process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
 

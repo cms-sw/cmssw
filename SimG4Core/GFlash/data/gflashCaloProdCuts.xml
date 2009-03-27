@@ -19,9 +19,6 @@
       <PartSelector path="//HBS.*"/>
       <PartSelector path="//HES.*"/>
       <PartSelector path="//HTS.*"/>
-      <PartSelector path="//HVQX" />
-      <PartSelector path="//HVQF" />
-      <PartSelector path="//HFFibre.*" />
       <Parameter name="CMSCutsRegion" value="GflashRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="1*mm"/>
       <Parameter name="ProdCutsForPositrons" value="1*mm"/>

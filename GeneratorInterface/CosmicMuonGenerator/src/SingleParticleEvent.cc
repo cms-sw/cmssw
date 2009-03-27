@@ -7,7 +7,7 @@ void SingleParticleEvent::create(int id, double px, double py, double pz, double
     HitTarget = false;
 }
 
-void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, double Z_DistTarget, bool TrackerOnly, bool MTCCHalf){
+void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, double Z_DistTarget, double Z_CentrTarget, bool TrackerOnly, bool MTCCHalf){
   MTCC=MTCCHalf; //need to know this boolean in absVzTmp()
   // calculated propagation direction
   dX = Px/absmom();
@@ -19,6 +19,8 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
   tmpVz = Vz;
   double RadiusTargetEff = RadiusTarget;
   double Z_DistTargetEff = Z_DistTarget;
+  double Z_CentrTargetEff = Z_CentrTarget;
+
   if(TrackerOnly==true){
     RadiusTargetEff = RadiusTracker;
     Z_DistTargetEff = Z_DistTracker;
@@ -29,10 +31,12 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
     double stepSize = MinStepSize*100000.;
     double acceptR = RadiusTargetEff + stepSize;
     double acceptZ = Z_DistTargetEff + stepSize;
+
     bool continuePropagation = true;
     while (continuePropagation){
       if (tmpVy < -acceptR) continuePropagation = false;
-      if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
+      //if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
+      if (fabs(tmpVz - Z_CentrTargetEff) < acceptZ && rVxyTmp() < acceptR){
 	HitTarget = true;
 	continuePropagation = false;
       }
@@ -47,7 +51,8 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
     bool continuePropagation = true;
     while (continuePropagation){
       if (tmpVy < -acceptR) continuePropagation = false;
-      if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
+      //if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
+      if (fabs(tmpVz - Z_CentrTargetEff) < acceptZ && rVxyTmp() < acceptR){
 	HitTarget = true;
 	continuePropagation = false;
       }
@@ -62,7 +67,8 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
     bool continuePropagation = true;
     while (continuePropagation){
       if (tmpVy < -acceptR) continuePropagation = false;
-      if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
+      //if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
+      if (fabs(tmpVz - Z_CentrTargetEff) < acceptZ && rVxyTmp() < acceptR){
 	HitTarget = true;
 	continuePropagation = false;
       }
@@ -77,7 +83,8 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
     bool continuePropagation = true;
     while (continuePropagation){
       if (tmpVy < -acceptR) continuePropagation = false;
-      if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
+      //if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
+      if (fabs(tmpVz - Z_CentrTargetEff) < acceptZ && rVxyTmp() < acceptR){
 	HitTarget = true;
 	continuePropagation = false;
       }
@@ -92,7 +99,8 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
     bool continuePropagation = true;
     while (continuePropagation){
       if (tmpVy < -acceptR) continuePropagation = false;
-      if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
+      //if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
+      if (fabs(tmpVz - Z_CentrTargetEff) < acceptZ && rVxyTmp() < acceptR){
 	HitTarget = true;
 	continuePropagation = false;
       }
@@ -108,7 +116,8 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
     while (continuePropagation){
       if (tmpVy < -acceptR) continuePropagation = false;
       if (0 < absVzTmp()){ //only check for MTCC setup in last step of propagation, need fine stepSize
-	if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
+	//if (absVzTmp() < acceptZ && rVxyTmp() < acceptR){
+	if (fabs(tmpVz - Z_CentrTargetEff) < acceptZ && rVxyTmp() < acceptR){
 	  HitTarget = true;
 	  continuePropagation = false;
 	}
@@ -119,7 +128,8 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
   // actual propagation + energy loss
   if (HitTarget == true){
     HitTarget = false;
-    int nAir = 0; int nWall = 0; int nRock = 0;
+    //int nAir = 0; int nWall = 0; int nRock = 0; int nClay = 0; int nPlug = 0;
+    int nMat[6] = {0, 0, 0, 0, 0, 0};
     double stepSize = MinStepSize*1.; // actual step size
     double acceptR = RadiusCMS + stepSize;
     double acceptZ = Z_DistCMS + stepSize;
@@ -130,20 +140,28 @@ void SingleParticleEvent::propagate(double ElossScaleFac, double RadiusTarget, d
     bool continuePropagation = true;
     while (continuePropagation){
       if (Vy < -acceptR) continuePropagation = false;
-      if (absVz() < acceptZ && rVxy() < acceptR){
+      //if (absVz() < acceptZ && rVxy() < acceptR){
+      if (fabs(Vz - Z_CentrTargetEff) < acceptZ && rVxy() < acceptR){
         HitTarget = true;
         continuePropagation = false;
       }
       if (continuePropagation) update(stepSize);
-      if (inAir(Vx,Vy,Vz))  ++nAir;
-      if (inWall(Vx,Vy,Vz)) ++nWall;
-      if (inRock(Vx,Vy,Vz)) ++nRock;
+
+      int Mat = inMat(Vx,Vy,Vz, PlugVx, PlugVz);
+
+      nMat[Mat]++;
     }
+
     if (HitTarget){
-      double lAir  = double(nAir) *stepSize;
-      double lWall = double(nWall)*stepSize;
-      double lRock = double(nRock)*stepSize;
-      double waterEquivalents = (lAir*RhoAir + lWall*RhoWall + lRock*RhoRock) *ElossScaleFac/10.; // [g cm^-2]
+      double lPlug = double(nMat[Plug])*stepSize;
+      double lWall = double(nMat[Wall])*stepSize;
+      double lAir = double(nMat[Air])*stepSize;
+      double lClay = double(nMat[Clay])*stepSize;
+      double lRock = double(nMat[Rock])*stepSize;      
+      //double lUnknown = double(nMat[Unknown])*stepSize;
+
+      double waterEquivalents = (lAir*RhoAir + lWall*RhoWall + lRock*RhoRock
+				 + lClay*RhoClay + lPlug*RhoPlug) *ElossScaleFac/10.; // [g cm^-2]
       subtractEloss(waterEquivalents);
       if (E < MuonMass) HitTarget = false; // muon stopped in the material around the target
     }

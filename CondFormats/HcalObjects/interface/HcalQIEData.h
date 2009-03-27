@@ -7,8 +7,8 @@
    (preserve backwards compatibility of methods for this release)
 POOL object to store QIE parameters
 $Author: ratnikov
-$Date: 2008/03/08 15:22:28 $
-$Revision: 1.8 $
+$Date: 2008/03/07 10:10:32 $
+$Revision: 1.7 $
 */
 
 #include <vector>
@@ -39,7 +39,7 @@ class HcalQIEData: public HcalCondObjectContainer<HcalQIECoder>
   // check if data are sorted - remove in the next version
   bool sorted () const { return true; }
   // fill values [capid][range]
-  bool addCoder (const HcalQIECoder& fCoder, bool h2mode_ = false) { return addValues(fCoder, h2mode_); }
+  bool addCoder (const HcalQIECoder& fCoder) { return addValues(fCoder); }
   // sort values by channelId - remove in the next version  
   void sort () {}
   

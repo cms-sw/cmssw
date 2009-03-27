@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2008/06/30 12:39:46 $
- * $Revision: 1.48 $
+ * $Date: 2008/11/06 16:01:13 $
+ * $Revision: 1.50 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -83,8 +83,8 @@ void DTDataIntegrityTask::postEndJob(){
 
 void DTDataIntegrityTask::bookHistos() {
   // Standard FED integrity histos
-  if(!hltMode) dbe->setCurrentFolder("DT/FEDIntegrity/");
-  else dbe->setCurrentFolder("DT/FEDIntegrity_EvF/");
+  if(!hltMode) dbe->setCurrentFolder("DT/FEDIntegrity_SM/");
+  else dbe->setCurrentFolder("DT/FEDIntegrity/");
 
   hFEDEntry = dbe->book1D("FEDEntries","# entries per DT FED",5,770,775);
   hFEDFatal = dbe->book1D("FEDFatal","# fatal errors DT FED",5,770,775);
@@ -177,7 +177,8 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
     histoType = "EventLenght";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
-    (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoName,1000,0,1000);
+    string histoTitle = "Event Lenght (Bytes) FED " +  dduID_s.str();
+    (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoTitle,1000,0,1000);
  
     histoType = "EventType";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
@@ -311,11 +312,12 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
     histoType = "ROSEventLenght";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSEventLenght";
-    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,100,0,1000);
+    string histoTitle = "Event Lenght (Bytes) FED " +  dduID_s.str() + " ROS " + rosID_s.str();
+    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoTitle,100,0,1000);
 
     histoType = "ROSError";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSError";
-    string histoTitle = histoName + " (ROBID error summary)";
+    histoTitle = histoName + " (ROBID error summary)";
     (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoTitle,13,0,13,26,0,26);
     MonitorElement* histo = (rosHistos[histoType])[code.getROSID()];
     histo->setBinLabel(1,"Link TimeOut",1);
@@ -620,7 +622,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     rosHistos["Trigger_frequency"][code.getROSID()]->Fill(frequency);
 
     // Plot the event lenght //NOHLT
-    rosHistos["ROSEventLenght"][code.getROSID()]->Fill(data.getROSTrailer().EventWordCount());
+    rosHistos["ROSEventLenght"][code.getROSID()]->Fill(data.getROSTrailer().EventWordCount()*4);
   }
 
    
@@ -868,7 +870,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 
   //1D HISTOS: EVENT LENGHT from trailer
   //cout<<"1D HISTOS WITH EVENT LENGHT from trailer"<<endl;
-  dduHistos["EventLenght"][code.getDDUID()]->Fill(trailer.lenght());
+  dduHistos["EventLenght"][code.getDDUID()]->Fill(trailer.lenght()*8);
 
   //1D HISTO: EVENT TYPE from header
   //cout<<"1D HISTO WITH EVENT TYPE from header"<<endl;

@@ -18,6 +18,8 @@
 
 using namespace std;
 
+//#define BarrelNavLayDBG
+
 SimpleBarrelNavigableLayer::
 SimpleBarrelNavigableLayer( BarrelDetLayer* detLayer,
 			    const BDLC& outerBLC, 
@@ -176,12 +178,25 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
   //GlobalVector transverseMomentum(fts.momentum().x(), fts.momentum().y(), 0);
   //bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
   bool isInOutTrackBarrel  = (transversePosition.dot(fts.momentum())>0) ? 1 : 0;
+  //cout << "dot: " << transversePosition.dot(fts.momentum()) << endl;
+
   float zpos = fts.position().z();
   bool isInOutTrackFWD = fts.momentum().z()*zpos>0;
+  
+
   //establish whether inner or outer layers are crossed after propagation, according
   //to BOTH propagationDirection AND track momentum
   bool dirOppositeXORisInOutTrackBarrel = ( !(dir == oppositeToMomentum) && isInOutTrackBarrel) || ((dir == oppositeToMomentum) && !isInOutTrackBarrel);
   bool dirOppositeXORisInOutTrackFWD = ( !(dir == oppositeToMomentum) && isInOutTrackFWD) || ((dir == oppositeToMomentum) && !isInOutTrackFWD);
+
+#ifdef BarrelNavLayDBG
+  bool pippo = dir == alongMomentum;
+  cout << "is alongMomentum? " << pippo << endl;
+  cout << "isInOutTrackBarrel: " << isInOutTrackBarrel << endl;
+  cout << "isInOutTrackFWD: " << isInOutTrackFWD << endl;
+  cout << "dirOppositeXORisInOutTrackFWD: " << dirOppositeXORisInOutTrackFWD << endl;
+  cout << "dirOppositeXORisInOutTrackBarrel: "<< dirOppositeXORisInOutTrackBarrel << endl;
+#endif
 
   bool signZmomentumXORdir = ( (fts.momentum().z() > 0) && !(dir == alongMomentum) ||
 			      !(fts.momentum().z() > 0) &&  (dir == alongMomentum)    );
@@ -203,12 +218,15 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
       wellInside( ftsWithoutErrors, dir, theNegInnerLayers, result);
     }
   } else if (!dirOppositeXORisInOutTrackBarrel && dirOppositeXORisInOutTrackFWD){
-      wellInside(ftsWithoutErrors, dir, theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(), result);	
-      if (signZmomentumXORdir){	
-	wellInside(ftsWithoutErrors, dir, theOuterLeftForwardLayers.begin(), theOuterLeftForwardLayers.end(), result);	
-      }	else {
-	wellInside(ftsWithoutErrors, dir, theOuterRightForwardLayers.begin(), theOuterRightForwardLayers.end(), result);
-      }
+    wellInside(ftsWithoutErrors, dir, theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(), result);	
+
+    if (signZmomentumXORdir){	
+      wellInside(ftsWithoutErrors, dir, theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(), result);
+      wellInside(ftsWithoutErrors, dir, theOuterLeftForwardLayers.begin(), theOuterLeftForwardLayers.end(), result);	
+    }	else {
+      wellInside(ftsWithoutErrors, dir, theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(), result);
+      wellInside(ftsWithoutErrors, dir, theOuterRightForwardLayers.begin(), theOuterRightForwardLayers.end(), result);
+    }
   } else {
      if (signZmomentumXORdir){
         wellInside(ftsWithoutErrors, dir, theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(), result);
@@ -219,7 +237,11 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
   }
 
   bool goingIntoTheBarrel = (!isInOutTrackBarrel && dir==alongMomentum) || (isInOutTrackBarrel && dir==oppositeToMomentum) ;
-  if (theSelfSearch){
+#ifdef BarrelNavLayDBG
+  cout << "goingIntoTheBarrel: " << goingIntoTheBarrel << endl;
+#endif  
+
+  if (theSelfSearch && result.size()==0){
     if (!goingIntoTheBarrel){     LogDebug("SimpleBarrelNavigableLayer")<<" state is not going toward the center of the barrel. not adding self search.";}
     else{
       const BarrelDetLayer * bl = dynamic_cast<const BarrelDetLayer *>(detLayer());      uint before=result.size();

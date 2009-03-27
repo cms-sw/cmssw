@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2008/09/10 10:45:20 $
-//   $Revision: 1.17 $
+//   $Date: 2008/10/09 11:12:02 $
+//   $Revision: 1.18 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -39,6 +39,7 @@
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
 //#include <Utilities/Timing/interface/TimingReport.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 
 CSCMotherboard::CSCMotherboard() :
                    theEndcap(1), theStation(1), theSector(1),
@@ -192,8 +193,17 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
 // Returns vector of found correlated LCTs, if any.
 std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::getLCTs() {
   std::vector<CSCCorrelatedLCTDigi> tmpV;
-  if (firstLCT.isValid())  tmpV.push_back(firstLCT);
-  if (secondLCT.isValid()) tmpV.push_back(secondLCT);
+
+  // Do not report LCTs found in ME1/A.
+  bool me11 =
+    (theStation == 1 &&
+     CSCTriggerNumbering::ringFromTriggerLabels(theStation,theTrigChamber)==1);
+  if (firstLCT.isValid())
+    if (!me11 || firstLCT.getStrip() <= 127)
+      tmpV.push_back(firstLCT);
+  if (secondLCT.isValid())
+    if (!me11 || secondLCT.getStrip() <= 127)
+      tmpV.push_back(secondLCT);
   return tmpV;
 }
 
