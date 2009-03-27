@@ -20,8 +20,8 @@ layer1METs = cms.EDProducer("PATMETProducer",
         src = cms.VInputTag('')
       ),
       # add "inline" functions here
-      userFunctions = cms.vstring(""),
-      userFunctionLabels = cms.vstring("")
+      userFunctions = cms.vstring(),
+      userFunctionLabels = cms.vstring()
     ),
 
     # Resolution configurables

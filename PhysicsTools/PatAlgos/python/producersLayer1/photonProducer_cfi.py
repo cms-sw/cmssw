@@ -20,8 +20,8 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
         src = cms.VInputTag('')
       ),
       # add "inline" functions here
-      userFunctions = cms.vstring(""),
-      userFunctionLabels = cms.vstring("")
+      userFunctions = cms.vstring(),
+      userFunctionLabels = cms.vstring()
     ),
 
     embedSuperCluster = cms.bool(True), ## whether to embed in AOD externally stored supercluster

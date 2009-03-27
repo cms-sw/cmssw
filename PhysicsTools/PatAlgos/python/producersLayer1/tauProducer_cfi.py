@@ -19,8 +19,8 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
         src = cms.VInputTag('')
       ),
       # add "inline" functions here
-      userFunctions = cms.vstring(""),
-      userFunctionLabels = cms.vstring("")
+      userFunctions = cms.vstring(),
+      userFunctionLabels = cms.vstring()
     ),
 
     embedLeadTrack       = cms.bool(False), ## whether to embed in AOD externally stored leading track

@@ -20,8 +20,8 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
         src = cms.VInputTag('')
       ),
       # add "inline" functions here
-      userFunctions = cms.vstring(""),
-      userFunctionLabels = cms.vstring("")
+      userFunctions = cms.vstring(),
+      userFunctionLabels = cms.vstring()
     ),
 
     # Embedding of AOD items
