@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2009/03/26 12:03:01 $ by $Author: argiro $
+# last update: $Date: 2009/03/26 17:43:31 $ by $Author: flucke $
 
 # AlCaReco sequence definitions:
 
@@ -43,12 +43,14 @@ from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_cff import *
 ###############################################################
 # HCAL calibration with dijets
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalDijets_cff import *
-# HCAL calibration with gamma+jet
+# HCAL calibration with gamma+jet (obsolete)
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalGammaJet_cff import *
 # HCAL calibration from HO (muons) 
 #  include "Calibration/HcalAlCaRecoProducers/data/ALCARECOHcalCalZMuMu.cff"
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHO_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHOCosmics_cff import *
+# HCAL isotrack
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_cff import *
 ###############################################################
 # Muon alignment
 ###############################################################
@@ -95,6 +97,7 @@ pathALCARECOHcalCalDijets = cms.Path(seqALCARECOHcalCalDijets*ALCARECOHcalCalDiJ
 pathALCARECOHcalCalGammaJet = cms.Path(seqALCARECOHcalCalGammaJet)
 pathALCARECOHcalCalHO = cms.Path(seqALCARECOHcalCalHO*ALCARECOHcalCalHODQM)
 pathALCARECOHcalCalHOCosmics = cms.Path(seqALCARECOHcalCalHOCosmics)
+pathALCARECOHcalCalIsoTrk = cms.Path(seqALCARECOHcalCalIsoTrk*ALCARECOHcalCalIsoTrackDQM)
 pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu*ALCARECOMuAlCalIsolatedMuDQM*ALCARECODTCalibrationDQM)
 pathALCARECOMuAlZMuMu = cms.Path(seqALCARECOMuAlZMuMu*ALCARECOMuAlZMuMuDQM)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps*ALCARECOMuAlOverlapsDQM)
@@ -240,6 +243,16 @@ ALCARECOStreamHcalCalHOCosmics = cms.FilteredStream(
 	selectEvents = OutALCARECOHcalCalHOCosmics.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
+
+ALCARECOStreamHcalCalIsoTrk = cms.FilteredStream(
+	responsible = 'Grigory Safronov',
+	name = 'ALCARECOHcalCalIsoTrk',
+	paths  = (pathALCARECOHcalCalIsoTrk),
+	content = OutALCARECOHcalCalIsoTrk.outputCommands,
+	selectEvents = OutALCARECOHcalCalIsoTrk.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
 
 ALCARECOStreamMuAlCalIsolatedMu = cms.FilteredStream(
 	responsible = 'Javier Fernandez',
