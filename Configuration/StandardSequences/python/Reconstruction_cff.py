@@ -42,9 +42,9 @@ globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing*ckftracks+ecalClust
 globalreco_plusRS = cms.Sequence(globalreco*rstracks)
 globalreco_plusGSF = cms.Sequence(globalreco*GsfGlobalElectronTestSequence)
 globalreco_plusRS_plusGSF = cms.Sequence(globalreco*rstracks*GsfGlobalElectronTestSequence)
-highlevelreco = cms.Sequence(recoJetAssociations*tautagging*egammarecoFull*reducedRecHitsSequence*btagging*particleFlowReco*recoPFJets*recoPFMET*PFTau)
+highlevelreco = cms.Sequence(recoJetAssociations*tautagging*particleFlowReco*egammarecoFull*reducedRecHitsSequence*btagging*recoPFJets*recoPFMET*PFTau)
 #emergency sequence wo conversions
-highlevelreco_woConv = cms.Sequence(recoJetAssociations*tautagging*egammareco_woConvPhotons*reducedRecHitsSequence*btagging*particleFlowReco*recoPFJets*recoPFMET*PFTau)
+highlevelreco_woConv = cms.Sequence(recoJetAssociations*tautagging*particleFlowReco*egammareco_woConvPhotons*reducedRecHitsSequence*btagging*recoPFJets*recoPFMET*PFTau)
 
 
 #
