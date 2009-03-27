@@ -10,7 +10,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 28 14:22:31 EDT 2006
-// $Id: L1ExtraTestAnalyzer.cc,v 1.1 2008/11/24 09:36:07 jbrooke Exp $
+// $Id: L1ExtraTestAnalyzer.cc,v 1.2 2009/03/26 03:58:28 wsun Exp $
 //
 //
 
@@ -36,6 +36,8 @@
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 #include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h"
+#include "DataFormats/L1Trigger/interface/L1HFRings.h"
+#include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -67,6 +69,7 @@ class L1ExtraTestAnalyzer : public edm::EDAnalyzer {
       edm::InputTag muonSource_ ;
       edm::InputTag etMissSource_ ;
       edm::InputTag htMissSource_ ;
+      edm::InputTag hfRingsSource_ ;
       edm::InputTag gtReadoutSource_ ;
       edm::InputTag particleMapSource_ ;
 
@@ -102,6 +105,8 @@ L1ExtraTestAnalyzer::L1ExtraTestAnalyzer(const edm::ParameterSet& iConfig)
       "etMissSource" ) ),
      htMissSource_( iConfig.getParameter< edm::InputTag >(
       "htMissSource" ) ),
+     hfRingsSource_( iConfig.getParameter< edm::InputTag >(
+      "hfRingsSource" ) ),
      gtReadoutSource_( iConfig.getParameter< edm::InputTag >(
       "gtReadoutSource" ) ),
      particleMapSource_( iConfig.getParameter< edm::InputTag >(
@@ -261,18 +266,7 @@ L1ExtraTestAnalyzer::analyze(const edm::Event& iEvent,
 	   << endl ;
    }
 
-   // MET particle
-//    Handle< L1EtMissParticle > etMiss ;
-//    iEvent.getByLabel( etMissSource_, etMiss ) ;
-//    cout << "MET (" << etMiss->px()
-// 	<< ", " << etMiss->py()
-// 	<< ", " << etMiss->pz()
-// 	<< ", " << etMiss->energy()
-//         << ") phi " << etMiss->phi()
-//         << " EtTot " << etMiss->etTotal()
-// 	<< " EtHad " << etMiss->etHad()
-// 	<< endl ;
-
+   // MET
    Handle< L1EtMissParticleCollection > etMissColl ;
    iEvent.getByLabel( etMissSource_, etMissColl ) ;
    cout << "MET Coll (" << etMissColl->begin()->px()
@@ -283,6 +277,7 @@ L1ExtraTestAnalyzer::analyze(const edm::Event& iEvent,
         << " EtTot " << etMissColl->begin()->etTotal()
 	<< endl ;
 
+   // MHT
    Handle< L1EtMissParticleCollection > htMissColl ;
    iEvent.getByLabel( htMissSource_, htMissColl ) ;
    cout << "MHT Coll (" << htMissColl->begin()->px()
@@ -293,82 +288,24 @@ L1ExtraTestAnalyzer::analyze(const edm::Event& iEvent,
         << " HtTot " << htMissColl->begin()->etTotal()
 	<< endl ;
 
+   // HF Rings
+   Handle< L1HFRingsCollection > hfRingsColl ;
+   iEvent.getByLabel( hfRingsSource_, hfRingsColl ) ;
+   cout << "HF Rings:" << endl ;
+   for( int i = 0 ; i < L1HFRings::kNumRings ; ++i )
+     {
+       cout << "  " << i << ": et sum = "
+	    << hfRingsColl->begin()->hfEtSum( (L1HFRings::HFRingLabels) i )
+	    << ", bit count = "
+	    << hfRingsColl->begin()->hfBitCount( (L1HFRings::HFRingLabels) i )
+	    << endl ;
+     }
+   cout << endl ;
 
 //    // L1GlobalTriggerReadoutRecord
 //    Handle< L1GlobalTriggerReadoutRecord > gtRecord ;
 //    iEvent.getByLabel( gtReadoutSource_, gtRecord ) ;
 //    cout << "Global trigger decision " << gtRecord->decision() << endl ;
-
-
-//    // L1ParticleMaps
-//    Handle< L1ParticleMapCollection > mapColl ;
-//    iEvent.getByLabel( particleMapSource_, mapColl ) ;
-//    cout << "Number of particle maps " << mapColl->size() << endl ;
-
-//    for( int imap = 0 ; imap < L1ParticleMap::kNumOfL1TriggerTypes ; ++imap )
-//    {
-//       const L1ParticleMap& map = ( *mapColl )[ imap ] ;
-
-//       cout << "Trig #" << map.triggerType()
-// 	   << " name " << map.triggerName()
-// 	   << " decision " << map.triggerDecision()
-// 	   << " #objs " << map.numOfObjects() ;
-//       cout << " types" ;
-//       for( int i = 0 ; i < map.numOfObjects() ; ++i )
-//       {
-// 	 cout << " " << map.objectTypes()[ i ] ;
-//       }
-//       cout << endl ;
-
-//       hist_.Fill( imap, ( map.triggerDecision() ? 1. : 0. ) ) ;
-
-//       if( map.triggerDecision() )
-//       {
-// 	 const L1EmParticleVectorRef& ems = map.emParticles() ;
-// 	 cout << "  EM particles ET" ;
-// 	 for( L1EmParticleVectorRef::const_iterator emItr = ems.begin() ;
-// 	      emItr != ems.end() ; ++emItr )
-// 	 {
-// 	    cout << " " << ( *emItr )->et() ;
-// 	 }
-// 	 cout << endl ;
-
-// 	 const L1JetParticleVectorRef& jets = map.jetParticles() ;
-// 	 cout << "  Jet particles ET" ;
-// 	 for( L1JetParticleVectorRef::const_iterator jetItr = jets.begin() ;
-// 	      jetItr != jets.end() ; ++jetItr )
-// 	 {
-// 	    cout << " " << ( *jetItr )->et() ;
-// 	 }
-// 	 cout << endl ;
-
-// 	 const L1MuonParticleVectorRef& muons = map.muonParticles() ;
-// 	 cout << "  Muon particles ET" ;
-// 	 for( L1MuonParticleVectorRef::const_iterator muonItr = muons.begin() ;
-// 	      muonItr != muons.end() ; ++muonItr )
-// 	 {
-// 	    cout << " " << ( *muonItr )->et() ;
-// 	 }
-// 	 cout << endl ;
-
-// 	 cout << "  Particle combinations" ;
-// 	 const L1ParticleMap::L1IndexComboVector& combos = map.indexCombos() ;
-// 	 for( L1ParticleMap::L1IndexComboVector::const_iterator comboItr =
-// 		 combos.begin() ; comboItr != combos.end() ; ++comboItr )
-// 	 {
-// 	    cout << " {" ;
-// 	    for( L1ParticleMap::L1IndexCombo::const_iterator indexItr =
-// 		    comboItr->begin() ;
-// 		 indexItr != comboItr->end() ; ++indexItr )
-// 	    {
-// 	       cout << *indexItr ;
-// 	    }
-// 	    cout << "}" ;
-// 	 }
-
-// 	 cout << endl ;
-//       }
-//    }
 
    cout << endl ;
 }

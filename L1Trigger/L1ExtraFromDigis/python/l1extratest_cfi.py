@@ -9,6 +9,7 @@ l1extratest = cms.EDAnalyzer("L1ExtraTestAnalyzer",
     forwardJetSource = cms.InputTag("l1extraParticles","Forward"),
     centralJetSource = cms.InputTag("l1extraParticles","Central"),
     tauJetSource = cms.InputTag("l1extraParticles","Tau"),
+    hfRingsSource = cms.InputTag("l1extraParticles"),
     particleMapSource = cms.InputTag("l1extraParticleMap"),
     isolatedEmSource = cms.InputTag("l1extraParticles","Isolated")
 )
