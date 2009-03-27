@@ -155,12 +155,22 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                         EcalUncalibRecHitRatioMethodAlgo<EEDataFrame>::CalculatedRecHit crh = ratioMethod_endcap_.getCalculatedRecHit();
                         uncalibRecHit.setJitter( crh.timeMax - 5 );
                         // FIXME: set the error?
+                        // it time too different from 5, reconstruct the amplitude 
+                        // with the ratioMethod and store it in the RecHit flags
+                        if ( fabs(crh.timeMax - 5) > 0.25 ) { // FIXME define threshold
+                                //uncalibRecHit.setFlags( chr.amplitudeMax );
+                        }
                 } else {
                         ratioMethod_endcap_.init( *itdg, pedVec, gainRatios );
                         ratioMethod_endcap_.computeTime( EBtimeFitParameters_, EBtimeFitLimits_ );
                         EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = ratioMethod_barrel_.getCalculatedRecHit();
                         uncalibRecHit.setJitter( crh.timeMax - 5 );
                         // FIXME: set the error?
+                        // it time too different from 5, reconstruct the amplitude 
+                        // with the ratioMethod and store it in the RecHit flags
+                        if ( fabs(crh.timeMax - 5) > 0.25 ) { // FIXME define threshold
+                                //uncalibRecHit.setFlags( chr.amplitudeMax );
+                        }
                 }
         }
 
