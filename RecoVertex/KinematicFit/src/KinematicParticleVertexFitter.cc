@@ -10,6 +10,7 @@
 #include "RecoVertex/LinearizationPointFinders/interface/DefaultLinearizationPointFinder.h"
 #include "RecoVertex/VertexTools/interface/SequentialVertexFitter.h"
 #include "DataFormats/CLHEP/interface/Migration.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 KinematicParticleVertexFitter::KinematicParticleVertexFitter()
 { 
@@ -72,6 +73,11 @@ RefCountedKinematicTree KinematicParticleVertexFitter::fit(vector<RefCountedKine
 //  }
 
  CachingVertex<6> vtx = fitter->vertex(ttf); 
+
+ if (!vtx.isValid())
+     LogDebug("RecoVertex/KinematicParticleVertexFitter") 
+       << "Fitted position is invalid. Returned Tree is invalid\n";
+    return ReferenceCountingPointer<KinematicTree>(new KinematicTree()); // return invalid vertex
 
  FinalTreeBuilder tBuilder;
  return tBuilder.buildTree(vtx, newPart); 
