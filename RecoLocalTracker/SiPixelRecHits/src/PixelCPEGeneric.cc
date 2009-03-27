@@ -226,69 +226,71 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 
 
   // Apply irradiation corrections.
-  // If IrradiationBiasCorrection is set to False in PixelCPEGeneric_cfi.py, these corrections are set to zero. 
-
-  if ( cluster.sizeX() == 1 )
+  // If IrradiationBiasCorrection_ is set to False in PixelCPEGeneric_cfi.py, these corrections are set to zero. 
+  if ( IrradiationBiasCorrection_ )
     {
-      // sanity chack
-      if ( cluster.maxPixelRow() != cluster.minPixelRow() )
+      if ( cluster.sizeX() == 1 )
+	{
+	  // sanity chack
+	  if ( cluster.maxPixelRow() != cluster.minPixelRow() )
+	    throw cms::Exception("PixelCPEGeneric::localPosition") 
+	      << "\nERROR: cluster.maxPixelRow() != cluster.minPixelRow() although x-size = 1 !!!!! " << "\n\n";
+	  
+	  // Find if pixel is double (big). 
+	  bool bigInX = theTopol->isItBigPixelInX( cluster.maxPixelRow() );
+	  
+	  if ( !bigInX ) 
+	    {
+	      //cout << "Apply correction correction_deltax1 = " << correction_deltax1 << " to xPos = " << xPos << endl;
+	      xPos -= correction_deltax1;
+	    }
+	  else           
+	    {
+	      //cout << "Apply correction correction_deltax2 = " << correction_deltax2 << " to xPos = " << xPos << endl;
+	      xPos -= correction_deltax2;
+	    }
+	}
+      else if ( cluster.sizeX() > 1 )
+	{
+	  //cout << "Apply correction correction_deltax = " << correction_deltax << " to xPos = " << xPos << endl;
+	  xPos -= correction_deltax;
+	}
+      else
 	throw cms::Exception("PixelCPEGeneric::localPosition") 
-	  << "\nERROR: cluster.maxPixelRow() != cluster.minPixelRow() although x-size = 1 !!!!! " << "\n\n";
-
-      // Find if pixel is double (big). 
-      bool bigInX = theTopol->isItBigPixelInX( cluster.maxPixelRow() );
-    
-      if ( !bigInX ) 
+	  << "\nERROR: Unphysical cluster x-size = " <<  (int)cluster.sizeX() << "\n\n";
+      
+      if ( cluster.sizeY() == 1 )
 	{
-	  //cout << "Apply correction correction_deltax1 = " << correction_deltax1 << " to xPos = " << xPos << endl;
-	  xPos -= correction_deltax1;
+	  // sanity chack
+	  if ( cluster.maxPixelCol() != cluster.minPixelCol() )
+	    throw cms::Exception("PixelCPEGeneric::localPosition") 
+	      << "\nERROR: cluster.maxPixelCol() != cluster.minPixelCol() although y-size = 1 !!!!! " << "\n\n";
+	  
+	  // Find if pixel is double (big). 
+	  bool bigInY = theTopol->isItBigPixelInY( cluster.maxPixelCol() );
+	  
+	  if ( !bigInY ) 
+	    {
+	      //cout << "Apply correction correction_deltay1 = " << correction_deltay1 << " to yPos = " << yPos  << endl;
+	      yPos -= correction_deltay1;
+	    }
+	  else           
+	    {
+	      //cout << "Apply correction correction_deltay2 = " << correction_deltay2  << " to yPos = " << yPos << endl;
+	      yPos -= correction_deltay2;
+	    }
 	}
-      else           
+      else if ( cluster.sizeY() > 1 )
 	{
-	  //cout << "Apply correction correction_deltax2 = " << correction_deltax2 << " to xPos = " << xPos << endl;
-	  xPos -= correction_deltax2;
+	  //cout << "Apply correction correction_deltay = " << correction_deltay << " to yPos = " << yPos << endl;
+	  yPos -= correction_deltay;
 	}
-    }
-  else if ( cluster.sizeX() > 1 )
-    {
-      //cout << "Apply correction correction_deltax = " << correction_deltax << " to xPos = " << xPos << endl;
-      xPos -= correction_deltax;
-    }
-  else
-    throw cms::Exception("PixelCPEGeneric::localPosition") 
-      << "\nERROR: Unphysical cluster x-size = " <<  (int)cluster.sizeX() << "\n\n";
-
-  if ( cluster.sizeY() == 1 )
-    {
-      // sanity chack
-      if ( cluster.maxPixelCol() != cluster.minPixelCol() )
+      else
 	throw cms::Exception("PixelCPEGeneric::localPosition") 
-	  << "\nERROR: cluster.maxPixelCol() != cluster.minPixelCol() although y-size = 1 !!!!! " << "\n\n";
-      
-      // Find if pixel is double (big). 
-      bool bigInY = theTopol->isItBigPixelInY( cluster.maxPixelCol() );
-      
-      if ( !bigInY ) 
-	{
-	  //cout << "Apply correction correction_deltay1 = " << correction_deltay1 << " to yPos = " << yPos  << endl;
-	  yPos -= correction_deltay1;
-	}
-      else           
-	{
-	  //cout << "Apply correction correction_deltay2 = " << correction_deltay2  << " to yPos = " << yPos << endl;
-	  yPos -= correction_deltay2;
-	}
-    }
-  else if ( cluster.sizeY() > 1 )
-    {
-      //cout << "Apply correction correction_deltay = " << correction_deltay << " to yPos = " << yPos << endl;
-      yPos -= correction_deltay;
-    }
-  else
-    throw cms::Exception("PixelCPEGeneric::localPosition") 
       << "\nERROR: Unphysical cluster y-size = " << (int)cluster.sizeY() << "\n\n";
-
-
+      
+    } // if ( IrradiationBiasCorrection_ )
+  
   //--- Now put the two together
   LocalPoint pos_in_local( xPos, yPos );
   return pos_in_local;
