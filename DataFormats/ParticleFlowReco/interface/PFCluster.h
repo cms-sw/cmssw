@@ -45,9 +45,7 @@ namespace reco {
 
     typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
   
-    /// default constructor
-      
-    PFCluster() : CaloCluster(pFClusters), color_(1) {}
+    PFCluster() : CaloCluster(CaloCluster::particleFlow), color_(1) {}
 
     /// constructor
     PFCluster(PFLayer::Layer layer, double energy,
