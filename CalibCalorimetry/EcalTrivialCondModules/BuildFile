@@ -2,6 +2,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=CondFormats/EcalObjects>
+<use name=CondFormats/ESObjects>
 <use name=CondFormats/DataRecord>
 <use name=DataFormats/EcalDetId>
 <use name=clhep>
@@ -9,6 +10,7 @@
   <lib name=CalibCalorimetryEcalTrivialCondModules>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
+  <use name=CondFormats/ESObjects>
   <use name=CondFormats/EcalObjects>
   <use name=CondFormats/DataRecord>
   <use name=DataFormats/EcalDetId>
