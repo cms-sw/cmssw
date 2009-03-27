@@ -63,11 +63,9 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
     setTheDet( det );
     computeAnglesFromDetPosition(cl, det);
     
-    // localError( cl, det ) must be called first because in PixelCPEGeneric::localError(...) 
-    // pix_maximum and irradiation corrections are determined and then used in PixelCPEGeneric::localPosition   
-        
-    LocalError le = localError( cl, det );        
+    // localPosition( cl, det ) must be called before localError( cl, det ) !!!
     LocalPoint lp = localPosition( cl, det );
+    LocalError le = localError( cl, det );   
     
     return std::make_pair( lp, le );
   }
@@ -83,11 +81,9 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
     setTheDet( det );
     computeAnglesFromTrajectory(cl, det, ltp);
 
-    // localError( cl, det ) must be called first because in PixelCPEGeneric::localError(...) 
-    // pix_maximum and irradiation corrections are determined and then used in PixelCPEGeneric::localPosition 
-
-    LocalError le = localError( cl, det );
+    // localPosition( cl, det ) must be called before localError( cl, det ) !!!
     LocalPoint lp = localPosition( cl, det );
+    LocalError le = localError( cl, det );   
 
     return std::make_pair( lp, le );
   } 
@@ -107,12 +103,10 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
     cotbeta_  = tan(HalfPi - beta_ );
     setTheDet( det );
 
-    // localError( cl, det ) must be called first because in PixelCPEGeneric::localError(...) 
-    // pix_maximum and irradiation corrections are determined and then used in PixelCPEGeneric::localPosition 
-
-    LocalError le = localError( cl, det );
+    // localPosition( cl, det ) must be called before localError( cl, det ) !!!
     LocalPoint lp = localPosition( cl, det );
-
+    LocalError le = localError( cl, det );   
+    
     return std::make_pair( lp, le );
   }
 
