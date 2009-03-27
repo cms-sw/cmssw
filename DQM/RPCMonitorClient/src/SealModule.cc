@@ -18,35 +18,19 @@ DEFINE_ANOTHER_FWK_MODULE(RPCMonitorRaw);
 #include <DQM/RPCMonitorClient/interface/RPCDaqInfo.h>
 DEFINE_ANOTHER_FWK_MODULE(RPCDaqInfo);
 
-#include <DQM/RPCMonitorClient/interface/RPCOccupancyChipTest.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCOccupancyChipTest);
 
 //Used to read ME from ROOT files
 #include <DQM/RPCMonitorClient/interface/ReadMeFromFile.h>
 DEFINE_ANOTHER_FWK_MODULE(ReadMeFromFile);
-<<<<<<< SealModule.cc
 
 //General Client
 #include <DQM/RPCMonitorClient/interface/RPCDqmClient.h>
 DEFINE_ANOTHER_FWK_MODULE(RPCDqmClient);
 
 
-=======
->>>>>>> 1.21
 #include <DQM/RPCMonitorClient/interface/RPCChamberQuality.h>
 DEFINE_ANOTHER_FWK_MODULE(RPCChamberQuality);
-<<<<<<< SealModule.cc
 
 // #include <DQM/RPCMonitorClient/interface/RPCDCSDataSimulator.h>
 // DEFINE_ANOTHER_FWK_MODULE(RPCDCSDataSimulator);
 
-=======
-// #include <DQM/RPCMonitorClient/interface/RPCDCSDataSimulator.h>
-// DEFINE_ANOTHER_FWK_MODULE(RPCDCSDataSimulator);
-#include <DQM/RPCMonitorClient/interface/RPCMultiplicityTest.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCMultiplicityTest);
-#include <DQM/RPCMonitorClient/interface/RPCOccupancyChipTest.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCOccupancyChipTest);
-#include <DQM/RPCMonitorClient/interface/RPCNoisyStripTest.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCNoisyStripTest);
->>>>>>> 1.21

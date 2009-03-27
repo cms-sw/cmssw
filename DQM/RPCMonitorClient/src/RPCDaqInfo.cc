@@ -23,6 +23,7 @@ void RPCDaqInfo::beginLuminosityBlock(const LuminosityBlock& lumiBlock, const  E
 
 
   if(0 != iSetup.find( recordKey ) ) {
+
     //get fed summary information
     ESHandle<RunInfo> sumFED;
     iSetup.get<RunInfoRcd>().get(sumFED);    

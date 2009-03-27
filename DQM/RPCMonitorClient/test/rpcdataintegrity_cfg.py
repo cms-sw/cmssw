@@ -48,10 +48,6 @@ process.rpcEventSummary.PrescaleFactor = 1
 
 
 
-<<<<<<< rpcdataintegrity_cfg.py
-=======
-process.rpcOccupancyTest = cms.EDAnalyzer("RPCOccupancyChipTest")
->>>>>>> 1.7
 
 #process.rpcMultiplicityTest = cms.EDAnalyzer("RPCMultiplicityTest")
 process.rpcOccupancyTest = cms.EDAnalyzer("RPCOccupancyChipTest")
@@ -74,7 +70,6 @@ process.MessageLogger = cms.Service("MessageLogger",
      cout = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
 )
 
-<<<<<<< rpcdataintegrity_cfg.py
 
 ################# DQM Read ME ROOT File ####################
 process.readME = cms.EDAnalyzer("ReadMeFromFile",
@@ -88,25 +83,10 @@ process.rpcquality = cms.EDAnalyzer("RPCChamberQuality")
 
 
 
-=======
-
-################# DQM Read ME ROOT File ####################
-process.readME = cms.EDAnalyzer("ReadMeFromFile",
-      InputFile = cms.untracked.string('DQM_V0_MERGED_R70664.root')
-)
-
-
->>>>>>> 1.7
 ################# Path ###########################
 process.rpcDigi = cms.Sequence(process.rpcunpacker*process.rpcRecHits*process.rpcdigidqm*process.rpcAfterPulse)
-<<<<<<< rpcdataintegrity_cfg.py
 process.rpcClient = cms.Sequence(process.readME*process.qTesterRPC*process.rpcClientModule*process.rpcClusterSize*process.rpcOccupancyTest*process.dqmEnv*process.rpcquality*process.dqmSaver)
 
 process.p = cms.Path(process.rpcClient)
-=======
-process.rpcClient = cms.Sequence(process.readME*process.qTesterRPC*process.RPCDeadChannelTest*process.rpcOccupancyTest*process.dqmEnv*process.rpcEventSummary*process.dqmSaver)
-
-process.p = cms.Path(process.rpcClient)
->>>>>>> 1.7
 
 

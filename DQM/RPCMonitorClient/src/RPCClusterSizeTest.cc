@@ -98,14 +98,9 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c,vector<Monit
     if ( me = dbe_->get(globalFolder_+ histoName.str()) ) {
       dbe_->removeElement(me->getName());
     }
-<<<<<<< RPCClusterSizeTest.cc
     CLSDDisk[w+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  20, 0.0, 1.0);
-=======
-    me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  20, 0.02, 1.02);
->>>>>>> 1.5
     
     
-<<<<<<< RPCClusterSizeTest.cc
     histoName.str("");
     histoName<<"ClusterSizeMean_Roll_vs_Sector_Disk"<<w;       // Avarage ClusterSize (2D Roll vs Sector)   
     if ( me = dbe_->get(globalFolder_ + histoName.str()) ) {
@@ -140,27 +135,6 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c,vector<Monit
    
      tagItr++;
    }
-=======
-  //   histoName.str("");
-//     histoName<<"ClusterSizeMean_Roll_vs_Sector_Wheel"<<w;       // Avarage ClusterSize (2D Roll vs Sector)   
-//     if ( me = dbe_->get(prefixDir_ + histoName.str()) ) {
-//       dbe_->removeElement(me->getName());
-//     }
-//     me = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
-//     for(int bin =1; bin<13;bin++) {
-//       histoName.str("");
-//       histoName<<"Sec"<<bin;
-//       me->setBinLabel(bin,histoName.str().c_str(),1);
-//     }
-    
-    
-//     histoName.str("");
-//     histoName<<"ClusterSizeMean_Distribution_Wheel"<<w;       //  Avarage ClusterSize Distribution
-//     if ( me = dbe_->get(prefixDir_ + histoName.str()) ) {
-//       dbe_->removeElement(me->getName());
-//     }
-//     me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.5, 10.5);
->>>>>>> 1.5
    
    if(flag){
      myClusterMe_.push_back(meVector[i]);
@@ -226,7 +200,6 @@ void RPCClusterSizeTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
       
       if(((detId.station() * detId.region() ) + numberOfDisks_) >= 0 ){
 	
-<<<<<<< RPCClusterSizeTest.cc
 	if(detId.region()<0){
 	  CLS=CLSDisk[(detId.station() * detId.region() ) + numberOfDisks_];
 	  CLSD = CLSDDisk[(detId.station() * detId.region() ) + numberOfDisks_];
@@ -239,79 +212,6 @@ void RPCClusterSizeTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	  MEAND= MEANDDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
 	}
       }
-=======
-	
-	//Loop on rolls in given chamber
-	for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	  RPCDetId detId = (*r)->id();
-	  rpcdqm::utils prova;
-	  
-	  
-	  int nr = prova.detId2RollNr(detId);
-	  if(detId.region() !=0) continue;
-	  
-	  //Get Occupancy ME for roll
-	  RPCGeomServ RPCname(detId);
-	  
-	  if (detId.region()==0){
-	    
-	    string YLabel = RPCname.shortname();
-	    
-	    RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
-	    MonitorElement * myMe = dbe_->get("RPC/RecHits/"+ folderStr->folderStructure(detId)+"/ClusterSize_"+RPCname.name()); 
-	    if (!myMe)continue;
-	    
-	    
-	    float NormCLS = myMe->getBinContent(1)/myMe->getEntries(); // Normalization -> # of Entries in first Bin normalaized by total Entries
-	    float meanCLS = myMe->getMean();
-	    
-	    meName.str("");
-	    meName<<prefixDir_<<"ClusterSizeIn1Bin_Roll_vs_Sector_Wheel"<<detId.ring();
-	    CLS = dbe_->get(meName.str());
-	    if (CLS) {
-	      CLS -> setBinContent(detId.sector(), nr, NormCLS);
-	      CLS->setBinLabel(nr, YLabel, 2);
-	    }
-	    
-	    
-	    meName.str("");
-	    meName<<prefixDir_<<"ClusterSizeIn1Bin_Distribution_Wheel"<<detId.ring();
-	    CLSD = dbe_->get(meName.str());
-	    CLSD->Fill(NormCLS);
-	    	    	    
-	  //   meName.str("");
-// 	    meName<<prefixDir_<<"ClusterSizeMean_Roll_vs_Sector_Wheel"<<detId.ring();  
-// 	    MEAN= dbe_->get(meName.str());
-// 	    if(MEAN) {
-// 	      MEAN -> setBinContent(detId.sector(), nr, meanCLS);
-// 	      MEAN -> setBinLabel(nr, YLabel, 2);
-// 	    }
-	    
-	    
-	   //  meName.str("");
-// 	    meName<<prefixDir_<<"ClusterSizeMean_Distribution_Wheel"<<detId.ring();
-// 	    MEAND = dbe_->get(meName.str());
-// 	    MEAND->Reset();
-// 	    if (MEAND) {
-// 	      for(int x=1; x<13; x++) {
-// 		int roll;
-// 		if(x==4) roll=22;
-// 		else if(x==9 || x==11) roll=16;
-// 		else roll=18;
-// 		for(int y=1; y<roll; y++) {
-// 		  MEAND->Fill( MEAN->getBinContent(x,y));
-// 		  if (CLSD) CLSD->Fill(CLS->getBinContent(x,y));
-// 		}
-// 	      }
-	      
-// 	    }
-	    
-	    
-	  }//End loop on Barrel
-	} // end loop on rolls in given chamber
-      }//End loop on chamber
-      
->>>>>>> 1.5
       
     }
 
