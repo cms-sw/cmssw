@@ -48,6 +48,7 @@
   <class name="std::vector<unsigned int>"/>
 
   <class name="SiStripModuleHV" class_version="0"/>
+  <class name="SiStripDetVOff" class_version="0"/>
   <class name="std::vector<uint32_t>"/>
 
   <class name="SiStripRunSummary" class_version="0"/>
