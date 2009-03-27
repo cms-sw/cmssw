@@ -426,7 +426,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                  csc::L1Track   track(trackId);
                  track.setRank(singlesTrackPt&0x1F);
                  track.setBx(bx-shift);
-                 track.setPtPacked(singlesTrackPt);
+                 track.setPtPacked(singlesTrackPt&0x1F);
                  track.setQualityPacked((singlesTrackPt&0x60)>>5);
                  track.setChargeValidPacked((singlesTrackPt&0x80)>>7);
                  track.setPtLUTAddress(11<<16);
