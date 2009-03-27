@@ -24,13 +24,13 @@ matchMCTausInsideOut = cms.EDProducer("PFTauDecayModeTruthMatcher",
     matched = cms.InputTag("pfRecoTauProducerInsideOut")
 )
 
-matchMCTausHighEfficiency = cms.EDProducer("PFTauDecayModeTruthMatcher",
+matchMCTausShrinkingCone = cms.EDProducer("PFTauDecayModeTruthMatcher",
     tauTruthMatchingReqs,
     src = cms.InputTag("makeMCTauDecayModes"),
-    matched = cms.InputTag("pfRecoTauProducerHighEfficiency")
+    matched = cms.InputTag("shrinkingConePFTauProducer")
 )
 
-matchMCTaus = cms.Sequence(matchMCTausHighEfficiency)
+matchMCTaus = cms.Sequence(matchMCTausShrinkingCone)
 
 #########################
 #  QCD Truth matchers   #
@@ -42,11 +42,11 @@ matchMCQCDInsideOut = cms.EDProducer("PFTauDecayModeTruthMatcher",
     matched = cms.InputTag("pfRecoTauProducerInsideOut")
 )
 
-matchMCQCDHighEfficiency = cms.EDProducer("PFTauDecayModeTruthMatcher",
+matchMCQCDShrinkingCone = cms.EDProducer("PFTauDecayModeTruthMatcher",
     qcdTruthMatchingReqs,
     src = cms.InputTag("makeMCQCDTauDecayModes"),
-    matched = cms.InputTag("pfRecoTauProducerHighEfficiency")
+    matched = cms.InputTag("shrinkingConePFTauProducer")
 )
 
-matchMCQCD = cms.Sequence(matchMCQCDHighEfficiency)
+matchMCQCD = cms.Sequence(matchMCQCDShrinkingCone)
 

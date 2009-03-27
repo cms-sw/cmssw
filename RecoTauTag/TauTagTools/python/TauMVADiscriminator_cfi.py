@@ -7,9 +7,9 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.TauTagTools.TauMVAConfigurations_cfi import *
 
 
-pfRecoTauDiscriminationByMVAHighEfficiency = cms.EDProducer("TauMVADiscriminator",
-    pfTauDecayModeSrc = cms.InputTag("pfTauDecayModeHighEfficiency"),
-    preDiscriminants  = cms.VInputTag("pfRecoTauDiscriminationByLeadingPionPtCutHighEfficiency"),
+shrinkingConePFTauDiscriminationByMVA = cms.EDProducer("TauMVADiscriminator",
+    pfTauDecayModeSrc = cms.InputTag("shrinkingConePFTauDecayModeProducer"),
+    preDiscriminants  = cms.VInputTag("shrinkingConePFTauDiscriminationByLeadingPionPtCut"),
     computers         = TaNC,
     prefailValue      = cms.double(-2.0),    #specifies the value to set if one of the preDiscriminats fails (should be lower than minimum MVA output, -1)
     MakeBinaryDecision = cms.bool(False)     #If this is enabled, the discriminator will test whether the output satisifies the cut defined in the neural net configuration,

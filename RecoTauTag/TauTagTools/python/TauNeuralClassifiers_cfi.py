@@ -13,23 +13,23 @@ def UpdateCuts(TheProducer, TheCuts):
    for aComputer in TheProducer.computers:
       aComputer.cut = cms.double(TheCuts[aComputer.computerName.value()])
 
-tauNeuralClassifierOnePercent = copy.deepcopy(pfRecoTauDiscriminationByMVAHighEfficiency)
+tauNeuralClassifierOnePercent = copy.deepcopy(shrinkingConePFTauDiscriminationByMVA)
 tauNeuralClassifierOnePercent.MakeBinaryDecision = cms.bool(True)
 UpdateCuts(tauNeuralClassifierOnePercent, CutSet_TaNC_OnePercent)
 
-tauNeuralClassifierOnePercent = copy.deepcopy(pfRecoTauDiscriminationByMVAHighEfficiency)
+tauNeuralClassifierOnePercent = copy.deepcopy(shrinkingConePFTauDiscriminationByMVA)
 tauNeuralClassifierOnePercent.MakeBinaryDecision = cms.bool(True)
 UpdateCuts(tauNeuralClassifierOnePercent, CutSet_TaNC_OnePercent)
 
-tauNeuralClassifierHalfPercent = copy.deepcopy(pfRecoTauDiscriminationByMVAHighEfficiency)
+tauNeuralClassifierHalfPercent = copy.deepcopy(shrinkingConePFTauDiscriminationByMVA)
 tauNeuralClassifierHalfPercent.MakeBinaryDecision = cms.bool(True)
 UpdateCuts(tauNeuralClassifierHalfPercent, CutSet_TaNC_HalfPercent)
 
-tauNeuralClassifierQuarterPercent = copy.deepcopy(pfRecoTauDiscriminationByMVAHighEfficiency)
+tauNeuralClassifierQuarterPercent = copy.deepcopy(shrinkingConePFTauDiscriminationByMVA)
 tauNeuralClassifierQuarterPercent.MakeBinaryDecision = cms.bool(True)
 UpdateCuts(tauNeuralClassifierQuarterPercent, CutSet_TaNC_QuarterPercent)
 
-tauNeuralClassifierTenthPercent = copy.deepcopy(pfRecoTauDiscriminationByMVAHighEfficiency)
+tauNeuralClassifierTenthPercent = copy.deepcopy(shrinkingConePFTauDiscriminationByMVA)
 tauNeuralClassifierTenthPercent.MakeBinaryDecision = cms.bool(True)
 UpdateCuts(tauNeuralClassifierTenthPercent, CutSet_TaNC_TenthPercent)
 

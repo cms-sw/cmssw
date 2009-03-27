@@ -1,13 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 standardHighEffDecayModeSetupSignal = cms.PSet(
-     truthMatchSource = cms.InputTag("matchMCTausHighEfficiency"),
-     decayModeAssociationSource = cms.InputTag("pfTauDecayModeHighEfficiency")
+     truthMatchSource = cms.InputTag("matchMCTausShrinkingCone"),
+     decayModeAssociationSource = cms.InputTag("shrinkingConePFTauDecayModeProducer")
 )
 
 standardHighEffDecayModeSetupBackground = cms.PSet(
-     truthMatchSource = cms.InputTag("matchMCQCDHighEfficiency"),
-     decayModeAssociationSource = cms.InputTag("pfTauDecayModeHighEfficiency")
+     truthMatchSource = cms.InputTag("matchMCQCDShrinkingCone"),
+     decayModeAssociationSource = cms.InputTag("shrinkingConePFTauDecayModeProducer")
 )
 
 #### Future collections #####
