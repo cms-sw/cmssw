@@ -71,10 +71,7 @@
  <use name=CondFormats/AlignmentRecord>
  <use name=CondFormats/Alignment>
  <use name=DataFormats/TrackReco>
- <use name=FWCore/Framework>
  <use name=FWCore/MessageLogger>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/PluginManager>
  <use name=FWCore/ServiceRegistry>
  <use name=Geometry/CSCGeometry>
  <use name=Geometry/CSCGeometryBuilder>
