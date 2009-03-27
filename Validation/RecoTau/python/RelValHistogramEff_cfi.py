@@ -4,125 +4,125 @@ TauEfficiencies = cms.EDAnalyzer("DQMHistEffProducer",
     plots = cms.PSet(
 # REGULAR PFTAU EFFICIENCIES CALCULATION
       PFTauIDMatchingEfficiencies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducer_Matched/pfRecoTauProducerMatched_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducer_Matched/PFJetMatchingEff#PAR#'),
+        numerator = cms.string('RecoTauV/fixedConePFTauProducer_Matched/fixedConePFTauProducerMatched_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/fixedConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/fixedConePFTauProducer_Matched/PFJetMatchingEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
       PFTauIDLeadingTrackFindEfficiencies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationByLeadingTrackFinding/pfRecoTauDiscriminationByLeadingTrackFinding_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationByLeadingTrackFinding/LeadingTrackFindingEff#PAR#'),
+        numerator = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByLeadingTrackFinding/fixedConePFTauDiscriminationByLeadingTrackFinding_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/fixedConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByLeadingTrackFinding/LeadingTrackFindingEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
       PFTauIDLeadingTrackPtCutEfficiencies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationByLeadingTrackPtCut/pfRecoTauDiscriminationByLeadingTrackPtCut_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
+        numerator = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByLeadingTrackPtCut/fixedConePFTauDiscriminationByLeadingTrackPtCut_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/fixedConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
       PFTauIDTrackIsolationEfficienies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationByTrackIsolation/pfRecoTauDiscriminationByTrackIsolation_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationByTrackIsolation/TrackIsolationEff#PAR#'),
+        numerator = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByTrackIsolation/fixedConePFTauDiscriminationByTrackIsolation_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/fixedConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByTrackIsolation/TrackIsolationEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
       PFTauIDECALIsolationEfficienies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationByECALIsolation/pfRecoTauDiscriminationByECALIsolation_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationByECALIsolation/ECALIsolationEff#PAR#'),
+        numerator = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByECALIsolation/fixedConePFTauDiscriminationByECALIsolation_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/fixedConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationByECALIsolation/ECALIsolationEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
       PFTauIDMuonRejectionEfficiencies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationAgainstElectron/pfRecoTauDiscriminationAgainstElectron_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
+        numerator = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationAgainstElectron/fixedConePFTauDiscriminationAgainstElectron_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/fixedConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
       PFTauIDElectronRejectionEfficiencies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationAgainstMuon/pfRecoTauDiscriminationAgainstMuon_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducer_pfRecoTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'),
+        numerator = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationAgainstMuon/fixedConePFTauDiscriminationAgainstMuon_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/fixedConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/fixedConePFTauProducer_fixedConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
 # PFTAUHIGHEFFICIENCY EFFICIENCY CALCULATION
       PFTauHighEfficiencyIDMatchingEfficiencies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_Matched/pfRecoTauProducerHighEfficiencyMatched_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_Matched/PFJetMatchingEff#PAR#'),
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_Matched/shrinkingConePFTauProducerMatched_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_Matched/PFJetMatchingEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
       PFTauHighEfficiencyIDLeadingTrackFindEfficiencies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByLeadingTrackFindingHighEfficiency/pfRecoTauDiscriminationByLeadingTrackFindingHighEfficiency_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByLeadingTrackFindingHighEfficiency/LeadingTrackFindingEff#PAR#'),
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByLeadingTrackFinding/shrinkingConePFTauDiscriminationByLeadingTrackFinding_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByLeadingTrackFinding/LeadingTrackFindingEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
       PFTauHighEfficiencyIDLeadingTrackPtCutEfficiencies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency/pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency/LeadingTrackPtCutEff#PAR#'),
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByLeadingTrackPtCut/shrinkingConePFTauDiscriminationByLeadingTrackPtCut_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByLeadingTrackPtCut/LeadingTrackPtCutEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
       PFTauHighEfficiencyIDTrackIsolationEfficienies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByTrackIsolationHighEfficiency/pfRecoTauDiscriminationByTrackIsolationHighEfficiency_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByTrackIsolationHighEfficiency/TrackIsolationEff#PAR#'),
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByTrackIsolation/shrinkingConePFTauDiscriminationByTrackIsolation_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByTrackIsolation/TrackIsolationEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
       PFTauHighEfficiencyIDECALIsolationEfficienies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByECALIsolationHighEfficiency/pfRecoTauDiscriminationByECALIsolationHighEfficiency_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationByECALIsolationHighEfficiency/ECALIsolationEff#PAR#'),
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByECALIsolation/shrinkingConePFTauDiscriminationByECALIsolation_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationByECALIsolation/ECALIsolationEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
       PFTauHighEfficiencyIDMuonRejectionEfficiencies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationAgainstElectronHighEfficiency/pfRecoTauDiscriminationAgainstElectronHighEfficiency_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationAgainstElectronHighEfficiency/AgainstElectronEff#PAR#'),
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationAgainstElectron/shrinkingConePFTauDiscriminationAgainstElectron_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
       PFTauHighEfficiencyIDElectronRejectionEfficiencies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationAgainstMuonHighEfficiency/pfRecoTauDiscriminationAgainstMuonHighEfficiency_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducerHighEfficiency_pfRecoTauDiscriminationAgainstMuonHighEfficiency/AgainstMuonEff#PAR#'),
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationAgainstMuon/shrinkingConePFTauDiscriminationAgainstMuon_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducer_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducer_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
 # PFTAUHIGHEFFICIENCY_LEADING_PION EFFICIENCY CALCULATION
       PFTauHighEfficiencyLeadingPionIDMatchingEfficiencies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_Matched/pfRecoTauProducerHighEfficiencyMatched_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_Matched/PFJetMatchingEff#PAR#'),
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_Matched/shrinkingConePFTauProducerMatched_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_Matched/PFJetMatchingEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
       PFTauHighEfficiencyLeadingPionIDLeadingPionPtCutEfficiencies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationByLeadingPionPtCutHighEfficiency/pfRecoTauDiscriminationByLeadingPionPtCutHighEfficiency_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationByLeadingPionPtCutHighEfficiency/LeadingPionPtCutEff#PAR#'),
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByLeadingPionPtCut/shrinkingConePFTauDiscriminationByLeadingPionPtCut_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByLeadingPionPtCut/LeadingPionPtCutEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
       PFTauHighEfficiencyLeadingPionIDTrackIsolationEfficienies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationByTrackIsolationUsingLeadingPionHighEfficiency/pfRecoTauDiscriminationByTrackIsolationUsingLeadingPionHighEfficiency_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationByTrackIsolationUsingLeadingPionHighEfficiency/TrackIsolationEff#PAR#'),
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion/shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion/TrackIsolationEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
       PFTauHighEfficiencyLeadingPionIDECALIsolationEfficienies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationByECALIsolationUsingLeadingPionHighEfficiency/pfRecoTauDiscriminationByECALIsolationUsingLeadingPionHighEfficiency_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationByECALIsolationUsingLeadingPionHighEfficiency/ECALIsolationEff#PAR#'),
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion/shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion/ECALIsolationEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
       PFTauHighEfficiencyLeadingPionIDMuonRejectionEfficiencies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationAgainstElectronHighEfficiency/pfRecoTauDiscriminationAgainstElectronHighEfficiency_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationAgainstElectronHighEfficiency/AgainstElectronEff#PAR#'),
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstElectron/shrinkingConePFTauDiscriminationAgainstElectron_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),
       PFTauHighEfficiencyLeadingPionIDElectronRejectionEfficiencies = cms.PSet(
-        numerator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationAgainstMuonHighEfficiency/pfRecoTauDiscriminationAgainstMuonHighEfficiency_vs_#PAR#TauVisible'),
-        denominator = cms.string('RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
-        efficiency = cms.string('RecoTauV/pfRecoTauProducerHighEfficiencyLeadingPion_pfRecoTauDiscriminationAgainstMuonHighEfficiency/AgainstMuonEff#PAR#'),
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstMuon/shrinkingConePFTauDiscriminationAgainstMuon_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),      
 # CALOTAU EFFICIENCY CALCULATIONS      
