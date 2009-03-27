@@ -36,10 +36,10 @@ void CSCGeometryBuilder::build( boost::shared_ptr<CSCGeometry> theGeometry
 
   for ( size_t idt = 0; idt < detids.size(); ++idt) {
     CSCDetId detid = CSCDetId( detids[idt] );
-    int jendcap  = detid.endcap();
+    //    int jendcap  = detid.endcap();
     int jstation = detid.station();
     int jring    = detid.ring();
-    int jchamber = detid.chamber();
+    //    int jchamber = detid.chamber();
 
     endIt = rig.shapeEnd(idt);
     fpar.clear();
@@ -71,8 +71,8 @@ void CSCGeometryBuilder::build( boost::shared_ptr<CSCGeometry> theGeometry
     //       assert ( cs != cscpars.pCSCDetIds.size() );
     assert ( cs != cscpars.pChamberType.size() );
       
-    // check the existence of the specs for this type
-    const CSCChamberSpecs* aSpecs = theGeometry->findSpecs( chamberType );
+    // check the existence of the specs for this type WHY? Remove it...
+    //    const CSCChamberSpecs* aSpecs = theGeometry->findSpecs( chamberType );
     size_t fu, numfuPars;
     CSCWireGroupPackage wg;
     fu = cscpars.pUserParOffset[cs];
@@ -97,7 +97,7 @@ void CSCGeometryBuilder::build( boost::shared_ptr<CSCGeometry> theGeometry
     wg.narrowWidthOfWirePlane = cscpars.pfupars[fu++];
     wg.wideWidthOfWirePlane = cscpars.pfupars[fu++];
     wg.lengthOfWirePlane = cscpars.pfupars[fu++];
-    size_t numgrp = cscpars.pfupars[fu];
+    size_t numgrp = static_cast<size_t>(cscpars.pfupars[fu]);
     size_t maxFu = fu + 1 + numgrp;
     fu++;
     for ( ;fu < maxFu; ++fu ) {
