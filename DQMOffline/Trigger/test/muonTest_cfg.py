@@ -117,7 +117,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     debugModules   = cms.untracked.vstring('*'),
     cout           = cms.untracked.PSet(
 	# Be careful - this can print a lot of debug info
-            threshold = cms.untracked.string('WARNING')
+            threshold = cms.untracked.string('DEBUG')
     ),
     categories     = cms.untracked.vstring('HLTMuonVal'),
     destinations   = cms.untracked.vstring('cout', 'HLTMuonVal.log')
@@ -137,16 +137,19 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 # Path must contain all producers
-
-process.analyzerpath = cms.Path(
-	#	process.highPtMuonTracks*
-	#	process.externalMuonTracks*
-	process.barrelMuonTracks*
-	process.overlapMuonTracks*
-	process.endcapMuonTracks*
+# Don't use the other producers,
+# keep them out of the path for now
+process.analyzerpath = cms.Path(	
     process.offlineDQMMuonTrig*
     process.MEtoEDMConverter
 )
+
+
+#	process.highPtMuonTracks*
+	#	process.externalMuonTracks*
+	#   process.endcapMuonTracks*
+	#process.barrelMuonTracks*
+	#process.overlapMuonTracks*	
 
 # This is the simplified version
 # use in conjunction with  the
