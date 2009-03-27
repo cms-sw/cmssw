@@ -80,3 +80,9 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripNoisesDummyPrinter);
 typedef DummyCondObjPrinter<SiStripThreshold,SiStripThresholdRcd> SiStripThresholdDummyPrinter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripThresholdDummyPrinter);
 
+typedef DummyCondObjPrinter<SiStripLorentzAngle,SiStripLorentzAngleRcd> SiStripLorentzAngleDummyPrinter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripLorentzAngleDummyPrinter);
+
+typedef DummyCondObjPrinter<SiStripPedestals,SiStripPedestalsRcd> SiStripPedestalsDummyPrinter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripPedestalsDummyPrinter);
+
