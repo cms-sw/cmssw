@@ -92,8 +92,7 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
 	//FIXME: at present only for det units residuals are calculated and filled in the hitStruct
 	// But in principle this method should also be useable for for the gluedDets (2D modules in TIB, TID, TOB, TEC)
 	// In this case, only orientation should be taken into account for primeResiduals, but not the radial topology
-	if(!hit->detUnit()) continue;
-	const GeomDetUnit& detUnit = *(hit->detUnit());
+	
 	
 	
 	//first calculate residuals in cartesian coordinates in the local module coordinate system
@@ -129,87 +128,94 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
 	
 	
 	// now calculate residuals taking global orientation of modules and radial topology in TID/TEC into account
-	
-	float uOrientation(-999.F), vOrientation(-999.F);
-	float resXTopol(999.F), resYTopol(999.F);
+	float resXprime(999.F), resYprime(999.F);
 	float resXprimeErr(999.F), resYprimeErr(999.F);
 	
-	const Surface& surface = hit->detUnit()->surface();
-	LocalPoint lPModule(0.,0.,0.), lUDirection(1.,0.,0.), lVDirection(0.,1.,0.);
-	GlobalPoint gPModule    = surface.toGlobal(lPModule),
-	            gUDirection = surface.toGlobal(lUDirection),
-	            gVDirection = surface.toGlobal(lVDirection);
-	
-	if(IntSubDetID == PixelSubdetector::PixelBarrel || IntSubDetID == StripSubdetector::TIB || IntSubDetID == StripSubdetector::TOB) {
-	  uOrientation = deltaPhi(gUDirection.phi(),gPModule.phi()) >= 0. ? +1.F : -1.F;
-	  vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F;
-	  resXTopol = res.x();
-	  resYTopol = res.y();
-	  resXprimeErr = resXErr;
-	  resYprimeErr = resYErr;
-	} else if (IntSubDetID == PixelSubdetector::PixelEndcap) {
-	  uOrientation = gUDirection.perp() - gPModule.perp() >= 0 ? +1.F : -1.F;
-	  vOrientation = deltaPhi(gVDirection.phi(),gPModule.phi()) >= 0. ? +1.F : -1.F;
-	  resXTopol = res.x();
-	  resYTopol = res.y();
-	  resXprimeErr = resXErr;
-	  resYprimeErr = resYErr;
-	} else if (IntSubDetID == StripSubdetector::TID || IntSubDetID == StripSubdetector::TEC) {
-	  uOrientation = deltaPhi(gUDirection.phi(),gPModule.phi()) >= 0. ? +1.F : -1.F;
-	  vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F;
+	if(hit->detUnit()){ // is it a single physical module?
+	  const GeomDetUnit& detUnit = *(hit->detUnit());
 	  
-	  if(!dynamic_cast<const RadialStripTopology*>(&detUnit.topology()))continue;
-	  const RadialStripTopology& topol = dynamic_cast<const RadialStripTopology&>(detUnit.topology());
+	  float uOrientation(-999.F), vOrientation(-999.F);
+	  float resXTopol(999.F), resYTopol(999.F);
 	  
-	  MeasurementPoint measHitPos = topol.measurementPosition(lPHit);
-          MeasurementPoint measTrkPos = topol.measurementPosition(lPTrk);
+	  const Surface& surface = hit->detUnit()->surface();
+	  LocalPoint lPModule(0.,0.,0.), lUDirection(1.,0.,0.), lVDirection(0.,1.,0.);
+	  GlobalPoint gPModule    = surface.toGlobal(lPModule),
+	              gUDirection = surface.toGlobal(lUDirection),
+	              gVDirection = surface.toGlobal(lVDirection);
 	  
-	  MeasurementError measHitErr = topol.measurementError(lPHit,errHit);
-          MeasurementError measTrkErr = topol.measurementError(lPTrk,errTrk);
-	  
-	  if(measHitErr.uu()<0. || measHitErr.vv()<0. || measTrkErr.uu()<0. || measTrkErr.vv()<0.){
-	    edm::LogError("Negative error Value")<<"@SUB=TrackerValidationVariables::fillHitQuantities"
-	                                       <<"One of the squared error methods gives negative result"
-					       <<"\n\tmeasHitErr.uu()\tmeasHitErr.vv()\tmeasTrkErr.uu()\tmeasTrkErr.vv()"
-					       <<"\n\t"<<measHitErr.uu()<<"\t"<<measHitErr.vv()<<"\t"<<measTrkErr.uu()<<"\t"<<measTrkErr.vv();
+	  if(IntSubDetID == PixelSubdetector::PixelBarrel || IntSubDetID == StripSubdetector::TIB || IntSubDetID == StripSubdetector::TOB) {
+	    uOrientation = deltaPhi(gUDirection.phi(),gPModule.phi()) >= 0. ? +1.F : -1.F;
+	    vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F;
+	    resXTopol = res.x();
+	    resYTopol = res.y();
+	    resXprimeErr = resXErr;
+	    resYprimeErr = resYErr;
+	  } else if (IntSubDetID == PixelSubdetector::PixelEndcap) {
+	    uOrientation = gUDirection.perp() - gPModule.perp() >= 0 ? +1.F : -1.F;
+	    vOrientation = deltaPhi(gVDirection.phi(),gPModule.phi()) >= 0. ? +1.F : -1.F;
+	    resXTopol = res.x();
+	    resYTopol = res.y();
+	    resXprimeErr = resXErr;
+	    resYprimeErr = resYErr;
+	  } else if (IntSubDetID == StripSubdetector::TID || IntSubDetID == StripSubdetector::TEC) {
+	    uOrientation = deltaPhi(gUDirection.phi(),gPModule.phi()) >= 0. ? +1.F : -1.F;
+	    vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F;
+	    
+	    if(!dynamic_cast<const RadialStripTopology*>(&detUnit.topology()))continue;
+	    const RadialStripTopology& topol = dynamic_cast<const RadialStripTopology&>(detUnit.topology());
+	    
+	    MeasurementPoint measHitPos = topol.measurementPosition(lPHit);
+            MeasurementPoint measTrkPos = topol.measurementPosition(lPTrk);
+	    
+	    MeasurementError measHitErr = topol.measurementError(lPHit,errHit);
+            MeasurementError measTrkErr = topol.measurementError(lPTrk,errTrk);
+	    
+	    if(measHitErr.uu()<0. || measHitErr.vv()<0. || measTrkErr.uu()<0. || measTrkErr.vv()<0.){
+	      edm::LogError("Negative error Value")<<"@SUB=TrackerValidationVariables::fillHitQuantities"
+	                                           <<"One of the squared error methods gives negative result"
+		                                   <<"\n\tmeasHitErr.uu()\tmeasHitErr.vv()\tmeasTrkErr.uu()\tmeasTrkErr.vv()"
+					           <<"\n\t"<<measHitErr.uu()<<"\t"<<measHitErr.vv()<<"\t"<<measTrkErr.uu()<<"\t"<<measTrkErr.vv();
+	      continue;
+	    }
+	    
+	    float localStripLengthHit = topol.localStripLength(lPHit);
+	    float localStripLengthTrk = topol.localStripLength(lPTrk);
+            float phiHit = topol.stripAngle(measHitPos.x());
+	    float phiTrk = topol.stripAngle(measTrkPos.x());
+            float r_0 = topol.originToIntersection();
+	    
+	    
+	    resXTopol = (phiTrk-phiHit)*r_0;
+	    //resYTopol = measTrkPos.y()*localStripLengthTrk - measHitPos.y()*localStripLengthHit;
+	    float cosPhiHit(cos(phiHit)), cosPhiTrk(cos(phiTrk)),
+	          sinPhiHit(sin(phiHit)), sinPhiTrk(sin(phiTrk));
+	    float l_0 = r_0 - topol.detHeight()/2;
+	    resYTopol = measTrkPos.y()*localStripLengthTrk - measHitPos.y()*localStripLengthHit + l_0*(1/cosPhiTrk - 1/cosPhiHit);
+	    
+	    
+	    resXprimeErr = std::sqrt(measHitErr.uu()+measTrkErr.uu())*topol.angularWidth()*r_0;
+            //resYprimeErr = std::sqrt(measHitErr.vv()*localStripLengthHit*localStripLengthHit + measTrkErr.vv()*localStripLengthTrk*localStripLengthTrk);
+	    float helpSummand = l_0*l_0*topol.angularWidth()*topol.angularWidth()*(sinPhiHit*sinPhiHit/pow(cosPhiHit,4)*measHitErr.uu()
+	                                                                         + sinPhiTrk*sinPhiTrk/pow(cosPhiTrk,4)*measTrkErr.uu() );
+	    resYprimeErr = std::sqrt(measHitErr.vv()*localStripLengthHit*localStripLengthHit
+	                           + measTrkErr.vv()*localStripLengthTrk*localStripLengthTrk + helpSummand );
+	    
+	  } else {
+	    edm::LogWarning("TrackerValidationVariables") << "@SUB=TrackerValidationVariables::fillHitQuantities" 
+	                                                  << "No valid tracker subdetector " << IntSubDetID;
 	    continue;
 	  }
+	
+	  resXprime = resXTopol*uOrientation;
+	  resYprime = resYTopol*vOrientation;
 	  
-	  float localStripLengthHit = topol.localStripLength(lPHit);
-	  float localStripLengthTrk = topol.localStripLength(lPTrk);
-          float phiHit = topol.stripAngle(measHitPos.x());
-	  float phiTrk = topol.stripAngle(measTrkPos.x());
-          float r_0 = topol.originToIntersection();
-	  
-	  
-	  resXTopol = (phiTrk-phiHit)*r_0;
-	  //resYTopol = measTrkPos.y()*localStripLengthTrk - measHitPos.y()*localStripLengthHit;
-	  float cosPhiHit(cos(phiHit)), cosPhiTrk(cos(phiTrk)),
-	        sinPhiHit(sin(phiHit)), sinPhiTrk(sin(phiTrk));
-	  float l_0 = r_0 - topol.detHeight()/2;
-	  resYTopol = measTrkPos.y()*localStripLengthTrk - measHitPos.y()*localStripLengthHit + l_0*(1/cosPhiTrk - 1/cosPhiHit);
-	  
-	  
-	  resXprimeErr = std::sqrt(measHitErr.uu()+measTrkErr.uu())*topol.angularWidth()*r_0;
-          //resYprimeErr = std::sqrt(measHitErr.vv()*localStripLengthHit*localStripLengthHit + measTrkErr.vv()*localStripLengthTrk*localStripLengthTrk);
-	  float helpSummand = l_0*l_0*topol.angularWidth()*topol.angularWidth()*(sinPhiHit*sinPhiHit/pow(cosPhiHit,4)*measHitErr.uu()
-	                                                                       + sinPhiTrk*sinPhiTrk/pow(cosPhiTrk,4)*measTrkErr.uu() );
-	  resYprimeErr = std::sqrt(measHitErr.vv()*localStripLengthHit*localStripLengthHit
-	                         + measTrkErr.vv()*localStripLengthTrk*localStripLengthTrk + helpSummand );
-	  
-
-	  
-	} else {
-	  edm::LogWarning("TrackerValidationVariables") << "@SUB=TrackerValidationVariables::fillHitQuantities" 
-					                << "No valid tracker subdetector " << IntSubDetID;
-	  continue;
+	}else{ // not a detUnit, so must be a virtual 2D-Module
+	  //FIXME: at present only for det units residuals are calculated and filled in the hitStruct
+	  // But in principle this method should also be useable for for the gluedDets (2D modules in TIB, TID, TOB, TEC)
+	  // In this case, only orientation should be taken into account for primeResiduals, but not the radial topology
 	}
 	
-	
-	float resXprime(999.F), resYprime(999.F);
-	resXprime = resXTopol*uOrientation;
-	resYprime = resYTopol*vOrientation;
-		 
+	  
 	hitStruct.resXprime = resXprime;
 	hitStruct.resYprime = resYprime;
 	hitStruct.resXprimeErr = resXprimeErr;
