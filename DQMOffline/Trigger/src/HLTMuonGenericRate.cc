@@ -3,8 +3,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/02/27 13:11:32 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/03/26 09:39:56 $
+ *  $Revision: 1.2 $
  */
 
 
@@ -525,7 +525,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
                             
     iEvent.getByLabel("hltTriggerSummaryAOD", aodTriggerEvent);
     if ( !aodTriggerEvent.isValid() ) { 
-      LogError("HLTMuonVal") << "No AOD trigger summary found! Returning..."; 
+      LogInfo("HLTMuonVal") << "No AOD trigger summary found! Returning..."; 
       return; 
     }
 
@@ -1659,7 +1659,7 @@ MonitorElement* HLTMuonGenericRate::bookIt
     delete h;
 
   } else {
-    LogError ("HLTMuonVal") << "Directory" << dbe_->pwd() << " Name "
+    LogInfo ("HLTMuonVal") << "Directory" << dbe_->pwd() << " Name "
                             << name << " had an invalid number of paramters";
     return 0;
   }
