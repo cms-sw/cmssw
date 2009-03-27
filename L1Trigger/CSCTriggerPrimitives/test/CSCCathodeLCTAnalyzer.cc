@@ -4,8 +4,8 @@
  * Slava Valuev  May 26, 2004
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2008/07/30 08:40:57 $
- * $Revision: 1.12 $
+ * $Date: 2009/03/26 15:38:07 $
+ * $Revision: 1.13 $
  *
  */
 
@@ -71,7 +71,7 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
   // digis themselves.
   int hfstripDigis[CSCConstants::NUM_HALF_STRIPS];
   int distripDigis[CSCConstants::NUM_HALF_STRIPS];
-  int time[CSCConstants::MAX_NUM_STRIPS], triad[CSCConstants::MAX_NUM_STRIPS];
+  int time[CSCConstants::MAX_NUM_STRIPS], comp[CSCConstants::MAX_NUM_STRIPS];
   int digiNum[CSCConstants::MAX_NUM_STRIPS];
   int digiId = -999;
   CSCCathodeLayerInfo tempInfo;
@@ -116,7 +116,7 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
     }
     for (int i_strip = 0; i_strip < CSCConstants::MAX_NUM_STRIPS; i_strip++) {
       time[i_strip]    = -999;
-      triad[i_strip]   =    0;
+      comp[i_strip]    =    0;
       digiNum[i_strip] = -999;
     }
 
@@ -129,7 +129,7 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
     // Preselection of Digis: right layer and bx.
     digi_num += preselectDigis(clct_bx, layerId, compdc, digiMap,
 			       hfstripDigis, distripDigis,
-			       time, triad, digiNum);
+			       time, comp, digiNum);
 
     // In case of ME1/1, one can also look for digis in ME1/A.
     // Skip them for now since the resolution of CLCTs in ME1/A is
@@ -141,7 +141,7 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
 			      clctId.chamber(), i_layer+1);
 	digi_num += preselectDigis(clct_bx, layerId_me1a, compdc, digiMap,
 				   hfstripDigis, distripDigis,
-				   time, triad, digiNum);
+				   time, comp, digiNum);
       }
     }
 
@@ -203,7 +203,7 @@ int CSCCathodeLCTAnalyzer::preselectDigis(const int clct_bx,
       int hfstripDigis[CSCConstants::NUM_HALF_STRIPS],
       int distripDigis[CSCConstants::NUM_HALF_STRIPS],
       int time[CSCConstants::MAX_NUM_STRIPS],
-      int triad[CSCConstants::MAX_NUM_STRIPS],
+      int comp[CSCConstants::MAX_NUM_STRIPS],
       int digiNum[CSCConstants::MAX_NUM_STRIPS]) {
   // Preselection of Digis: right layer and bx.
   int digi_num = 0;
@@ -256,7 +256,7 @@ int CSCCathodeLCTAnalyzer::preselectDigis(const int clct_bx,
 	  hfstripDigis[i_hfstrip] = digi_num;
 
 	  // Arrays for distrip stagger
-	  triad[i_strip]   = (*digiIt).getComparator();
+	  comp[i_strip]    = (*digiIt).getComparator();
 	  time[i_strip]    = bx_time;
 	  digiNum[i_strip] = digi_num;
 
@@ -274,8 +274,8 @@ int CSCCathodeLCTAnalyzer::preselectDigis(const int clct_bx,
   for (int i_strip = 0; i_strip < CSCConstants::MAX_NUM_STRIPS; i_strip++) {
     if (time[i_strip] >= 0) {
       int i_distrip = i_strip/2;
-      if (i_strip%2 && triad[i_strip] == 1 && stagger == 1)
-	CSCCathodeLCTProcessor::distripStagger(triad, time, digiNum,
+      if (i_strip%2 && comp[i_strip] == 1 && stagger == 1)
+	CSCCathodeLCTProcessor::distripStagger(comp, time, digiNum,
 					       i_strip);
       distripDigis[i_distrip] = digiNum[i_strip];
     }

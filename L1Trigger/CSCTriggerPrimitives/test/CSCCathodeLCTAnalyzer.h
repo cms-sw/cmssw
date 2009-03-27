@@ -8,8 +8,8 @@
  * \author Slava Valuev  26 May 2004.
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2007/10/08 14:32:56 $
- * $Revision: 1.3 $
+ * $Date: 2009/03/26 15:38:07 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -70,7 +70,7 @@ class CSCCathodeLCTAnalyzer
 		     int hfstripDigis[CSCConstants::NUM_HALF_STRIPS],
 		     int distripDigis[CSCConstants::NUM_HALF_STRIPS],
 		     int time[CSCConstants::MAX_NUM_STRIPS],
-		     int triad[CSCConstants::MAX_NUM_STRIPS],
+		     int comp[CSCConstants::MAX_NUM_STRIPS],
 		     int digiNum[CSCConstants::MAX_NUM_STRIPS]);
 
   /* Find SimHits closest to each ComparatorDigi on CLCT. */
