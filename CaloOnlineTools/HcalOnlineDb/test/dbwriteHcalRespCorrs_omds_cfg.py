@@ -23,13 +23,16 @@ process.source = cms.Source("EmptyIOVSource",
 process.es_ascii = cms.ESSource("HcalOmdsCalibrations",
     input = cms.VPSet(cms.PSet(
         object = cms.string('RespCorrs'),
-        tag = cms.string('ZS_HB8_HEHO9_HF10'),
-        version = cms.string('GRuMM_test:1'),
+        tag = cms.string('DUMMY-TAG-TEST001'),
+        version = cms.string('TEST:1'),
         subversion = cms.int32(1),
         accessor = cms.string('occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44,LHWM_VERSION=22'),
         query = cms.string('''
-        SELECT zero_suppression, z*eta as ieta, phi, depth, detector_name as subdetector 
-          FROM CMS_HCL_HCAL_COND.V_HCAL_ZERO_SUPPRESSION 
+        SELECT OBJECTNAME, SUBDET, IETA, IPHI, DEPTH, TYPE, SECTION, ISPOSITIVEETA, SECTOR, MODULE, CHANNEL,
+               VALUE
+        FROM CMS_HCL_HCAL_COND.V_HCAL_RESPONSE_CORRECTIONS
+        --SELECT zero_suppression, z*eta as ieta, phi, depth, detector_name as subdetector 
+          --FROM CMS_HCL_HCAL_COND.V_HCAL_ZERO_SUPPRESSION 
         WHERE
           TAG_NAME=:1
         and

@@ -28,10 +28,11 @@ process.es_ascii = cms.ESSource("HcalOmdsCalibrations",
         subversion = cms.int32(1),
         accessor = cms.string('occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44,LHWM_VERSION=22'),
         query = cms.string('''
-        SELECT IS_ADC_COUNTS, 
+        SELECT OBJECTNAME, SUBDET, IETA, IPHI, DEPTH, TYPE, SECTION, ISPOSITIVEETA, SECTOR, MODULE, CHANNEL,
+               IS_ADC_COUNTS, 
                CAPACITOR_0_VALUE, CAPACITOR_1_VALUE, CAPACITOR_2_VALUE, CAPACITOR_3_VALUE, 
-               SIGMA_0_0, SIGMA_1_1, SIGMA_2_2, SIGMA_3_3, 
-               ieta, iphi, depth, subdet 
+               SIGMA_0_0, SIGMA_1_1, SIGMA_2_2, SIGMA_3_3 
+               --ieta, iphi, depth, subdet 
         FROM CMS_HCL_HCAL_COND.V_HCAL_PEDESTALS_V3
         WHERE
           TAG_NAME=:1

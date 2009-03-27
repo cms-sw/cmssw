@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbASCIIIO.cc,v 1.41
-// $Id: HcalDbOmds.cc,v 1.9 2009/03/26 18:57:40 kukartse Exp $
+// $Id: HcalDbOmds.cc,v 1.10 2009/03/27 09:02:14 kukartse Exp $
 //
 //
 #include <vector>
@@ -78,26 +78,36 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 
     ResultSet *rs = stmt->executeQuery();
 
+    // protection agains NULL values
+    for (int _i=1; _i!=12; _i++) rs->setMaxColumnSize(_i,128);
+
     RooGKCounter _row(1,100);
     _row.setMessage("HCAL channels processed: ");
     _row.setPrintCount(true);
     _row.setNewLine(true);
+    //
+    // The query result must be ordered in the following way
+    // 1.objectname, ( values: HcalDetId, HcalCalibDetId, HcalTrigTowerDetId, HcalZDCDetId or HcalCastorDetId)
+    // 2.subdet, 3.ieta, 4.iphi, 5.depth, 6.type, 7.section, 8.ispositiveeta, 9.sector, 10.module, 11.channel 
+    // 12. is_adc_counts, 13-16. cap0-3, 17-20. variance0-3
+    //
     while (rs->next()) {
       _row.count();
-      _unit = rs->getInt(1);
-      float cap0 = rs->getFloat(2);
-      float cap1 = rs->getFloat(3);
-      float cap2 = rs->getFloat(4);
-      float cap3 = rs->getFloat(5);
-      float variance0 = rs->getFloat(6);
-      float variance1 = rs->getFloat(7);
-      float variance2 = rs->getFloat(8);
-      float variance3 = rs->getFloat(9);
-      int ieta = rs->getInt(10);
-      int iphi = rs->getInt(11);
-      int depth = rs->getInt(12);
-      HcalSubdetector subdetector = get_subdetector(rs->getString(13));
-      HcalDetId id(subdetector,ieta,iphi,depth);
+      DetId id = getId(rs);
+      _unit = rs->getInt(12);
+      float cap0 = rs->getFloat(13);
+      float cap1 = rs->getFloat(14);
+      float cap2 = rs->getFloat(15);
+      float cap3 = rs->getFloat(16);
+      float variance0 = rs->getFloat(17);
+      float variance1 = rs->getFloat(18);
+      float variance2 = rs->getFloat(19);
+      float variance3 = rs->getFloat(20);
+      //int ieta = rs->getInt(21);
+      //int iphi = rs->getInt(22);
+      //int depth = rs->getInt(23);
+      //HcalSubdetector subdetector = get_subdetector(rs->getString(24));
+      //HcalDetId id(subdetector,ieta,iphi,depth);
       //cout << "DEBUG: " << id << " " << cap0 << " " << cap1 << " " << cap2 << " " << cap3 << endl;
       HcalPedestal * fCondObject = new HcalPedestal(id.rawId(), cap0, cap1, cap2, cap3, variance0, variance1, variance2, variance3);
       fObject->addValues(*fCondObject);
@@ -222,21 +232,31 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 
     ResultSet *rs = stmt->executeQuery();
 
+    // protection agains NULL values
+    for (int _i=1; _i!=12; _i++) rs->setMaxColumnSize(_i,128);
+
     RooGKCounter _row(1,100);
     _row.setMessage("HCAL channels processed: ");
     _row.setPrintCount(true);
     _row.setNewLine(true);
+    //
+    // The query result must be ordered in the following way
+    // 1.objectname, ( values: HcalDetId, HcalCalibDetId, HcalTrigTowerDetId, HcalZDCDetId or HcalCastorDetId)
+    // 2.subdet, 3.ieta, 4.iphi, 5.depth, 6.type, 7.section, 8.ispositiveeta, 9.sector, 10.module, 11.channel 
+    // 12-15. cap0-3
+    //
     while (rs->next()) {
       _row.count();
-      float cap0 = rs->getFloat(1);
-      float cap1 = rs->getFloat(2);
-      float cap2 = rs->getFloat(3);
-      float cap3 = rs->getFloat(4);
-      int ieta = rs->getInt(5);
-      int iphi = rs->getInt(6);
-      int depth = rs->getInt(7);
-      HcalSubdetector subdetector = get_subdetector(rs->getString(8));
-      HcalDetId id(subdetector,ieta,iphi,depth);
+      DetId id = getId(rs);
+      float cap0 = rs->getFloat(12);
+      float cap1 = rs->getFloat(13);
+      float cap2 = rs->getFloat(14);
+      float cap3 = rs->getFloat(15);
+      //int ieta = rs->getInt(5);
+      //int iphi = rs->getInt(6);
+      //int depth = rs->getInt(7);
+      //HcalSubdetector subdetector = get_subdetector(rs->getString(8));
+      //HcalDetId id(subdetector,ieta,iphi,depth);
       //cout << "DEBUG: " << id << " " << cap0 << " " << cap1 << " " << cap2 << " " << cap3 << endl;
       HcalGain * fCondObject = new HcalGain(id, cap0, cap1, cap2, cap3);
       fObject->addValues(*fCondObject);
@@ -267,21 +287,31 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 
     ResultSet *rs = stmt->executeQuery();
 
+    // protection agains NULL values
+    for (int _i=1; _i!=12; _i++) rs->setMaxColumnSize(_i,128);
+
     RooGKCounter _row(1,100);
     _row.setMessage("HCAL channels processed: ");
     _row.setPrintCount(true);
     _row.setNewLine(true);
+    //
+    // The query result must be ordered in the following way
+    // 1.objectname, ( values: HcalDetId, HcalCalibDetId, HcalTrigTowerDetId, HcalZDCDetId or HcalCastorDetId)
+    // 2.subdet, 3.ieta, 4.iphi, 5.depth, 6.type, 7.section, 8.ispositiveeta, 9.sector, 10.module, 11.channel 
+    // 12-15. cap0-3
+    //
     while (rs->next()) {
       _row.count();
-      float cap0 = rs->getFloat(1);
-      float cap1 = rs->getFloat(2);
-      float cap2 = rs->getFloat(3);
-      float cap3 = rs->getFloat(4);
-      int ieta = rs->getInt(5);
-      int iphi = rs->getInt(6);
-      int depth = rs->getInt(7);
-      HcalSubdetector subdetector = get_subdetector(rs->getString(8));
-      HcalDetId id(subdetector,ieta,iphi,depth);
+      DetId id = getId(rs);
+      float cap0 = rs->getFloat(12);
+      float cap1 = rs->getFloat(13);
+      float cap2 = rs->getFloat(14);
+      float cap3 = rs->getFloat(15);
+      //int ieta = rs->getInt(5);
+      //int iphi = rs->getInt(6);
+      //int depth = rs->getInt(7);
+      //HcalSubdetector subdetector = get_subdetector(rs->getString(8));
+      //HcalDetId id(subdetector,ieta,iphi,depth);
       //cout << "DEBUG: " << id << " " << cap0 << " " << cap1 << " " << cap2 << " " << cap3 << endl;
       HcalGainWidth * fCondObject = new HcalGainWidth(id, cap0, cap1, cap2, cap3);
       fObject->addValues(*fCondObject);
@@ -466,18 +496,28 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 
     ResultSet *rs = stmt->executeQuery();
 
+    // protection agains NULL values
+    for (int _i=1; _i!=12; _i++) rs->setMaxColumnSize(_i,128);
+
     RooGKCounter _row(1,100);
     _row.setMessage("HCAL channels processed: ");
     _row.setPrintCount(true);
     _row.setNewLine(true);
+    //
+    // The query result must be ordered in the following way
+    // 1.objectname, ( values: HcalDetId, HcalCalibDetId, HcalTrigTowerDetId, HcalZDCDetId or HcalCastorDetId)
+    // 2.subdet, 3.ieta, 4.iphi, 5.depth, 6.type, 7.section, 8.ispositiveeta, 9.sector, 10.module, 11.channel 
+    // 12. channel_status_word
+    //
     while (rs->next()) {
       _row.count();
-      int value = rs->getInt(1);
-      int ieta = rs->getInt(2);
-      int iphi = rs->getInt(3);
-      int depth = rs->getInt(4);
-      HcalSubdetector subdetector = get_subdetector(rs->getString(5));
-      HcalDetId id(subdetector,ieta,iphi,depth);
+      DetId id = getId(rs);
+      int value = rs->getInt(12);
+      //int ieta = rs->getInt(2);
+      //int iphi = rs->getInt(3);
+      //int depth = rs->getInt(4);
+      //HcalSubdetector subdetector = get_subdetector(rs->getString(5));
+      //HcalDetId id(subdetector,ieta,iphi,depth);
       //cout << "DEBUG: " << id << " " << zs << endl;
       HcalChannelStatus * fCondObject = new HcalChannelStatus(id, value);
       fObject->addValues(*fCondObject);
@@ -508,18 +548,28 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 
     ResultSet *rs = stmt->executeQuery();
 
+    // protection agains NULL values
+    for (int _i=1; _i!=12; _i++) rs->setMaxColumnSize(_i,128);
+
     RooGKCounter _row(1,100);
     _row.setMessage("HCAL channels processed: ");
     _row.setPrintCount(true);
     _row.setNewLine(true);
+    //
+    // The query result must be ordered in the following way
+    // 1.objectname, ( values: HcalDetId, HcalCalibDetId, HcalTrigTowerDetId, HcalZDCDetId or HcalCastorDetId)
+    // 2.subdet, 3.ieta, 4.iphi, 5.depth, 6.type, 7.section, 8.ispositiveeta, 9.sector, 10.module, 11.channel 
+    // 12. value
+    //
     while (rs->next()) {
       _row.count();
-      float value = rs->getFloat(1);
-      int ieta = rs->getInt(2);
-      int iphi = rs->getInt(3);
-      int depth = rs->getInt(4);
-      HcalSubdetector subdetector = get_subdetector(rs->getString(5));
-      HcalDetId id(subdetector,ieta,iphi,depth);
+      DetId id = getId(rs);
+      float value = rs->getFloat(12);
+      //int ieta = rs->getInt(2);
+      //int iphi = rs->getInt(3);
+      //int depth = rs->getInt(4);
+      //HcalSubdetector subdetector = get_subdetector(rs->getString(5));
+      //HcalDetId id(subdetector,ieta,iphi,depth);
       //cout << "DEBUG: " << id << " " << value << endl;
       HcalRespCorr * fCondObject = new HcalRespCorr(id, value);
       fObject->addValues(*fCondObject);
@@ -550,18 +600,28 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 
     ResultSet *rs = stmt->executeQuery();
 
+    // protection agains NULL values
+    for (int _i=1; _i!=12; _i++) rs->setMaxColumnSize(_i,128);
+
     RooGKCounter _row(1,100);
     _row.setMessage("HCAL channels processed: ");
     _row.setPrintCount(true);
     _row.setNewLine(true);
+    //
+    // The query result must be ordered in the following way
+    // 1.objectname, ( values: HcalDetId, HcalCalibDetId, HcalTrigTowerDetId, HcalZDCDetId or HcalCastorDetId)
+    // 2.subdet, 3.ieta, 4.iphi, 5.depth, 6.type, 7.section, 8.ispositiveeta, 9.sector, 10.module, 11.channel 
+    // 12. zs_threshold
+    //
     while (rs->next()) {
       _row.count();
-      int zs = rs->getInt(1);
-      int ieta = rs->getInt(2);
-      int iphi = rs->getInt(3);
-      int depth = rs->getInt(4);
-      HcalSubdetector subdetector = get_subdetector(rs->getString(5));
-      HcalDetId id(subdetector,ieta,iphi,depth);
+      DetId id = getId(rs);
+      int zs = rs->getInt(12);
+      //int ieta = rs->getInt(2);
+      //int iphi = rs->getInt(3);
+      //int depth = rs->getInt(4);
+      //HcalSubdetector subdetector = get_subdetector(rs->getString(5));
+      //HcalDetId id(subdetector,ieta,iphi,depth);
       //cout << "DEBUG: " << id << " " << zs << endl;
       HcalZSThreshold * fCondObject = new HcalZSThreshold(id, zs);
       fObject->addValues(*fCondObject);

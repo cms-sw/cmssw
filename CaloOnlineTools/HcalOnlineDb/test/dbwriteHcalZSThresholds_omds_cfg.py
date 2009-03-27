@@ -28,7 +28,10 @@ process.es_ascii = cms.ESSource("HcalOmdsCalibrations",
         subversion = cms.int32(1),
         accessor = cms.string('occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44,LHWM_VERSION=22'),
         query = cms.string('''
-        SELECT zero_suppression, z*eta as ieta, phi, depth, detector_name as subdetector 
+        SELECT 'HcalDetId' as OBJECTNAME, detector_name as SUBDET, z*eta as IETA, phi as IPHI, DEPTH,
+               1 as TYPE, 'HAD' as SECTION, 1 as ISPOSITIVEETA, 1 as SECTOR, 1 as MODULE, 1 as CHANNEL,
+               zero_suppression
+        --SELECT zero_suppression, z*eta as ieta, phi, depth, detector_name as subdetector 
           FROM CMS_HCL_HCAL_COND.V_HCAL_ZERO_SUPPRESSION 
         WHERE
           TAG_NAME=:1
