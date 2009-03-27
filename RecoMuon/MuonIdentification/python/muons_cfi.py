@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # -*-SH-*-
 from RecoMuon.MuonIdentification.isolation_cff import *
 from RecoMuon.MuonIdentification.caloCompatibility_cff import *
-from RecoMuon.TrackingTools.MuonTimingExtractor_cfi import *
+from RecoMuon.MuonIdentification.MuonTimingFiller_cfi import *
 from TrackingTools.TrackAssociator.default_cfi import *
 muons = cms.EDProducer("MuonIdProducer",
     # MuonCaloCompatibility
@@ -13,7 +13,7 @@ muons = cms.EDProducer("MuonIdProducer",
     # MuonIsolation
     MIdIsoExtractorPSetBlock,
     # MuonTiming
-    MuonTimingExtractorBlock,
+    TimingFillerBlock,
     fillEnergy = cms.bool(True),
     # OR
     maxAbsPullX = cms.double(4.0),

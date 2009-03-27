@@ -34,7 +34,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
-#include "RecoMuon/MuonIdentification/plugins/DTTimingExtractor.h"
+#include "RecoMuon/MuonIdentification/interface/MuonTimingFiller.h"
 
 
 //
@@ -45,19 +45,16 @@ class MuonTimingProducer : public edm::EDProducer {
    public:
       explicit MuonTimingProducer(const edm::ParameterSet&);
       ~MuonTimingProducer();
-      void fillTiming( reco::MuonRef muon, reco::MuonTimeExtra& dtTime, reco::MuonTimeExtra& cscTime, reco::MuonTimeExtra& combinedTime, edm::Event& iEvent, const edm::EventSetup& iSetup );
 
    private:
       virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      void fillTimeFromMeasurements( TimeMeasurementSequence tmSeq, reco::MuonTimeExtra &muTime );
-      void rawFit(double &a, double &da, double &b, double &db, const vector<double> hitsx, const vector<double> hitsy);
       
       // ----------member data ---------------------------
       edm::InputTag m_muonCollection;
 
-      DTTimingExtractor* theDTTimingExtractor_;
+      MuonTimingFiller* theTimingFiller_;
 
 };
 

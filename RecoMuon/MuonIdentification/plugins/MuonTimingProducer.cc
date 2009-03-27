@@ -12,7 +12,7 @@
 //
 // Original Author:  Piotr Traczyk, CERN
 //         Created:  Mon Mar 16 12:27:22 CET 2009
-// $Id: MuonTimingProducer.cc,v 1.1 2009/03/26 23:23:10 ptraczyk Exp $
+// $Id: MuonTimingProducer.cc,v 1.2 2009/03/26 23:56:44 ptraczyk Exp $
 //
 //
 
@@ -47,15 +47,15 @@ MuonTimingProducer::MuonTimingProducer(const edm::ParameterSet& iConfig)
 
    m_muonCollection = iConfig.getParameter<edm::InputTag>("MuonCollection");
 
-   // Load parameters for the TimingExtractor
-   edm::ParameterSet dtTimingParameters = iConfig.getParameter<edm::ParameterSet>("DTTimingParameters");
-   theDTTimingExtractor_ = new DTTimingExtractor(dtTimingParameters);
+   // Load parameters for the TimingFiller
+   edm::ParameterSet fillerParameters = iConfig.getParameter<edm::ParameterSet>("TimingFillerParameters");
+   theTimingFiller_ = new MuonTimingFiller(fillerParameters);
 }
 
 
 MuonTimingProducer::~MuonTimingProducer()
 {
-   if (theDTTimingExtractor_) delete theDTTimingExtractor_;
+   if (theTimingFiller_) delete theTimingFiller_;
 }
 
 
@@ -99,7 +99,7 @@ MuonTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     reco::MuonRef muonr(muons,i);
     
-    fillTiming(muonr, dtTime, cscTime, combinedTime, iEvent, iSetup);
+    theTimingFiller_->fillTiming(*muonr, dtTime, cscTime, combinedTime, iEvent, iSetup);
     
     dtTimeColl[i] = dtTime;
     cscTimeColl[i] = cscTime;
@@ -115,116 +115,6 @@ MuonTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 }
 
-
-void 
-MuonTimingProducer::fillTiming( reco::MuonRef muon, reco::MuonTimeExtra& dtTime, reco::MuonTimeExtra& cscTime, reco::MuonTimeExtra& combinedTime, edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
-  TimeMeasurementSequence dtTmSeq;
-     
-  if ( !(muon->standAloneMuon().isNull()) ) {
-    theDTTimingExtractor_->fillTiming(dtTmSeq, muon->standAloneMuon(), iEvent, iSetup);
-  }
-     
-  // Fill DT-specific timing information block     
-  if (dtTmSeq.totalWeight)
-    fillTimeFromMeasurements(dtTmSeq, dtTime);
-       
-  // TODO - combine the TimeMeasurementSequences from all subdetectors
-  TimeMeasurementSequence combinedTmSeq;
-          
-  // Fill the master timing block
-  // TEMPORARY! use DT only for now
-  // in the future there will be a CSCTimingExtractor
-  // and in the reco::Muon we will have ECAL and HCAL time stored
-  if (dtTime.nDof())
-    fillTimeFromMeasurements(dtTmSeq, combinedTime);
-     
-  LogTrace("MuonTime") << "Global 1/beta: " << combinedTime.inverseBeta() << " +/- " << combinedTime.inverseBetaErr()<<std::endl;
-  LogTrace("MuonTime") << "  Free 1/beta: " << combinedTime.freeInverseBeta() << " +/- " << combinedTime.freeInverseBetaErr()<<std::endl;
-  LogTrace("MuonTime") << "  Vertex time (in-out): " << combinedTime.timeAtIpInOut() << " +/- " << combinedTime.timeAtIpInOutErr()
-                       << "  # of points: " << combinedTime.nDof() <<std::endl;
-  LogTrace("MuonTime") << "  Vertex time (out-in): " << combinedTime.timeAtIpOutIn() << " +/- " << combinedTime.timeAtIpOutInErr()<<std::endl;
-  LogTrace("MuonTime") << "  direction: "   << combinedTime.direction() << std::endl;
-     
-}
-
-
-void 
-MuonTimingProducer::fillTimeFromMeasurements( TimeMeasurementSequence tmSeq, reco::MuonTimeExtra &muTime ) {
-
-  vector <double> x,y;
-  double invbeta=0, invbetaerr=0;
-  double vertexTime=0, vertexTimeErr=0, vertexTimeR=0, vertexTimeRErr=0;    
-  double freeBeta, freeBetaErr, freeTime, freeTimeErr;
-
-  for (unsigned int i=0;i<tmSeq.dstnc.size();i++) {
-    invbeta+=(1.+tmSeq.local_t0.at(i)/tmSeq.dstnc.at(i)*30.)*tmSeq.weight.at(i)/tmSeq.totalWeight;
-    x.push_back(tmSeq.dstnc.at(i)/30.);
-    y.push_back(tmSeq.local_t0.at(i)+tmSeq.dstnc.at(i)/30.);
-    vertexTime+=tmSeq.local_t0.at(i)*tmSeq.weight.at(i)/tmSeq.totalWeight;
-    vertexTimeR+=(tmSeq.local_t0.at(i)+2*tmSeq.dstnc.at(i)/30.)*tmSeq.weight.at(i)/tmSeq.totalWeight;
-  }
-
-  double diff;
-  for (unsigned int i=0;i<tmSeq.dstnc.size();i++) {
-    diff=(1.+tmSeq.local_t0.at(i)/tmSeq.dstnc.at(i)*30.)-invbeta;
-    invbetaerr+=diff*diff*tmSeq.weight.at(i);
-    diff=tmSeq.local_t0.at(i)-vertexTime;
-    vertexTimeErr+=diff*diff*tmSeq.weight.at(i);
-    diff=tmSeq.local_t0.at(i)+2*tmSeq.dstnc.at(i)/30.-vertexTimeR;
-    vertexTimeRErr+=diff*diff*tmSeq.weight.at(i);
-  }
-  
-  invbetaerr=sqrt(invbetaerr/tmSeq.totalWeight);
-  vertexTimeErr=sqrt(vertexTimeErr/tmSeq.totalWeight);
-  vertexTimeRErr=sqrt(vertexTimeRErr/tmSeq.totalWeight);
-
-  muTime.setInverseBeta(invbeta);
-  muTime.setInverseBetaErr(invbetaerr);
-  muTime.setTimeAtIpInOut(vertexTime);
-  muTime.setTimeAtIpInOutErr(vertexTimeErr);
-  muTime.setTimeAtIpOutIn(vertexTimeR);
-  muTime.setTimeAtIpOutInErr(vertexTimeRErr);
-      
-  rawFit(freeBeta, freeBetaErr, freeTime, freeTimeErr, x, y);
-
-  muTime.setFreeInverseBeta(freeBeta);
-  muTime.setFreeInverseBetaErr(freeBetaErr);
-    
-  muTime.setNDof((int)tmSeq.totalWeight);
-
-}
-
-
-
-void 
-MuonTimingProducer::rawFit(double &a, double &da, double &b, double &db, const vector<double> hitsx, const vector<double> hitsy) {
-
-  double s=0,sx=0,sy=0,x,y;
-  double sxx=0,sxy=0;
-
-  a=b=0;
-  if (hitsx.size()==0) return;
-  if (hitsx.size()==1) {
-    b=hitsy[0];
-  } else {
-    for (unsigned int i = 0; i != hitsx.size(); i++) {
-      x=hitsx[i];
-      y=hitsy[i];
-      sy += y;
-      sxy+= x*y;
-      s += 1.;
-      sx += x;
-      sxx += x*x;
-    }
-
-    double d = s*sxx - sx*sx;
-    b = (sxx*sy- sx*sxy)/ d;
-    a = (s*sxy - sx*sy) / d;
-    da = sqrt(sxx/d);
-    db = sqrt(s/d);
-  }
-}
 
 //define this as a plug-in
 //DEFINE_FWK_MODULE(MuonTimingProducer);

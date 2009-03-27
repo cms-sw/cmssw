@@ -10,6 +10,7 @@
 <use name="SimDataFormats/Track">
 <use name="SimDataFormats/TrackingHit">
 <use name="roothistmatrix">
+<use name="RecoMuon/TrackingTools">
 <export>
   <use name="DataFormats/DetId">
   <use name="DataFormats/MuonDetId">

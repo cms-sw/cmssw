@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.31 2009/01/15 16:03:14 ptraczyk Exp $
+// $Id: MuonIdProducer.cc,v 1.32 2009/01/16 04:26:00 slava77 Exp $
 //
 //
 
@@ -26,6 +26,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonTime.h"
+#include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
+#include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
@@ -50,6 +52,7 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig):
 muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 {
    produces<reco::MuonCollection>();
+   produces<reco::MuonTimeExtraMap>();
    
    minPt_                   = iConfig.getParameter<double>("minPt");
    minP_                    = iConfig.getParameter<double>("minP");
@@ -70,9 +73,9 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
    parameters_.loadParameters( parameters );
 
-   // Load parameters for the TimingExtractor
-   edm::ParameterSet timingParameters = iConfig.getParameter<edm::ParameterSet>("timingParameters");
-   theTimingExtractor_ = new MuonTimingExtractor(timingParameters);
+   // Load parameters for the TimingFiller
+   edm::ParameterSet timingParameters = iConfig.getParameter<edm::ParameterSet>("TimingFillerParameters");
+   theTimingFiller_ = new MuonTimingFiller(timingParameters);
    
    if (fillCaloCompatibility_){
       // Load MuonCaloCompatibility parameters
@@ -116,7 +119,7 @@ MuonIdProducer::~MuonIdProducer()
    if (muIsoExtractorCalo_) delete muIsoExtractorCalo_;
    if (muIsoExtractorTrack_) delete muIsoExtractorTrack_;
    if (muIsoExtractorJet_) delete muIsoExtractorJet_;
-   if (theTimingExtractor_) delete theTimingExtractor_;
+   if (theTimingFiller_) delete theTimingFiller_;
    // TimingReport::current()->dump(std::cout);
 }
 
@@ -292,6 +295,9 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::auto_ptr<reco::MuonCollection> outputMuons(new reco::MuonCollection);
    init(iEvent, iSetup);
 
+   std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMap(new reco::MuonTimeExtraMap());
+   reco::MuonTimeExtraMap::Filler filler(*muonTimeMap);
+
    // loop over input collections
    
    // muons first
@@ -431,7 +437,15 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    
    LogTrace("MuonIdentification") << "Dress up muons if it's necessary";
+
+   int nMuons=outputMuons->size();
+
+   vector<reco::MuonTimeExtra> dtTimeColl(nMuons);
+   vector<reco::MuonTimeExtra> cscTimeColl(nMuons);
+   vector<reco::MuonTimeExtra> combinedTimeColl(nMuons);
+
    // Fill various information
+   unsigned int i=0;
    for ( reco::MuonCollection::iterator muon = outputMuons->begin(); muon != outputMuons->end(); ++muon )
      {
 	// Fill muonID
@@ -462,148 +476,37 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
         // fill timing information
         reco::MuonTime muonTime;
+        reco::MuonTimeExtra dtTime;
+        reco::MuonTimeExtra cscTime;
+        reco::MuonTimeExtra combinedTime;
 
-        if ( ! muon->standAloneMuon().isNull() )	
-          muonTime = theTimingExtractor_->fillTiming(iEvent,iSetup,muon->standAloneMuon());
+        theTimingFiller_->fillTiming(*muon, dtTime, cscTime, combinedTime, iEvent, iSetup);
 
-        if (muonTime.nStations) {
-          LogTrace("MuonIdentification") << "Global 1/beta: " << muonTime.inverseBeta << " +/- " << muonTime.inverseBetaErr<<std::endl;
-          LogTrace("MuonIdentification") << "  Free 1/beta: " << muonTime.freeInverseBeta << " +/- " << muonTime.freeInverseBetaErr<<std::endl;
-          LogTrace("MuonIdentification") << "  Vertex time (in-out): " << muonTime.timeAtIpInOut << " +/- " << muonTime.timeAtIpInOutErr
-                                         << "  # of points: " << muonTime.nStations <<std::endl;
-          LogTrace("MuonIdentification") << "  Vertex time (out-in): " << muonTime.timeAtIpOutIn << " +/- " << muonTime.timeAtIpOutInErr<<std::endl;
-          LogTrace("MuonIdentification") << "  direction: "   << muonTime.direction() << std::endl;
+        muonTime.nDof=combinedTime.nDof();
+        muonTime.timeAtIpInOut=combinedTime.timeAtIpInOut();
+        muonTime.timeAtIpInOutErr=combinedTime.timeAtIpInOutErr();
+        muonTime.timeAtIpOutIn=combinedTime.timeAtIpOutIn();
+        muonTime.timeAtIpOutInErr=combinedTime.timeAtIpOutInErr();
+
+        muon->setTime(	muonTime);
+        dtTimeColl[i] = dtTime;
+        cscTimeColl[i] = cscTime;
+        combinedTimeColl[i] = combinedTime;
         
-          muon->setTime(muonTime);
-        }  
-
+        i++;
+     
      }
 	
    LogTrace("MuonIdentification") << "number of muons produced: " << outputMuons->size();
    // timers.push("MuonIdProducer::produce::fillArbitration");
    if ( fillMatching_ ) fillArbitrationInfo( outputMuons.get() );
    // timers.pop();
-   iEvent.put(outputMuons);
+   OrphanHandle<reco::MuonCollection> muonHandle = iEvent.put(outputMuons);
+   filler.insert(muonHandle, combinedTimeColl.begin(), combinedTimeColl.end());
+   filler.fill();
+   iEvent.put(muonTimeMap);
 }
 
-void MuonIdProducer::fillTime(edm::Event& iEvent, const edm::EventSetup& iSetup,
-			      reco::Muon& muon)
-{
-   using namespace edm;
-   
-   ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-
-   std::vector <double> distance;
-   std::vector <double> freeT0;
-
-   // loop over chambers to collect timing information assuming it was filled
-   // earlier
-   const std::vector<reco::MuonChamberMatch>& chambers = muon.matches();
-	
-   for( std::vector<reco::MuonChamberMatch>::const_iterator chamber=chambers.begin(); 
-	chamber!=chambers.end(); ++chamber ) {
-
-      const GeomDet* geomDet = theTrackingGeometry->idToDet(chamber->id());
-
-      // loop over segments
-      for( std::vector<reco::MuonSegmentMatch>::const_iterator segment=chamber->segmentMatches.begin(); 
-	   segment!=chamber->segmentMatches.end(); ++segment ) {
-
-	 // if we have no t0 measurement in this segment - leave
-	 if (fabs(segment->t0)<1e-6) {
-	    LogTrace("MuonIdentification") << "have no t0 measurement in this segment, leave";
-	    break;
-	 }
-	 
-	 LocalPoint segmInChamber(segment->x,segment->y,0);
-	 double dist = geomDet->toGlobal(segmInChamber).mag();
-	 
-	 distance.push_back(dist);
-	 // full time offset
-	 freeT0.push_back(segment->t0+dist/30.);
-	 LogTrace("MuonIdentification") << "Segment t0: " << segment->t0 << " local 1/beta: " << 1.+segment->t0/dist*30. << std::endl;
-	 
-	 break;
-      }
-          
-   }
-
-        reco::MuonTime muonTime;
-        double invBeta = 0.;
-        double invBeta2 = 0.;
-        double localInvBeta;
-        double inOutVertexTime = 0.;
-        double inOutVertexTime2 = 0;
-        double outInVertexTime = 0.;
-        double outInVertexTime2 = 0;
-        int npoints = freeT0.size();
-
-        muonTime.nStations=npoints;
-	
-	if (npoints) {
-	
-	   for (int i=0;i<npoints;i++) {
-	      localInvBeta = freeT0[i]/distance[i]*30.;
-	      invBeta     += localInvBeta;
-	      invBeta2    += localInvBeta*localInvBeta;
-	      inOutVertexTime  += freeT0[i] - distance[i]/30.;
-	      inOutVertexTime2 += (freeT0[i]-distance[i]/30.)*(freeT0[i]-distance[i]/30.);
-	      outInVertexTime  += freeT0[i] + distance[i]/30.;
-	      outInVertexTime2 += (freeT0[i]+distance[i]/30.)*(freeT0[i]+distance[i]/30.);
-	   }
-	
-	   invBeta/=npoints;
-	   muonTime.inverseBeta=invBeta;                        
-	   muonTime.inverseBetaErr=sqrt(invBeta2/npoints-invBeta*invBeta);  
-	  
-	   inOutVertexTime /= npoints;
-	   outInVertexTime /= npoints;
-	   inOutVertexTime2 /= npoints;
-	   outInVertexTime2 /= npoints;
-	   
-	   muonTime.timeAtIpInOut = inOutVertexTime;
-	   muonTime.timeAtIpInOutErr = sqrt(inOutVertexTime2 - inOutVertexTime*inOutVertexTime);
-	   
-	   muonTime.timeAtIpOutIn = outInVertexTime;
-	   muonTime.timeAtIpOutInErr = sqrt(outInVertexTime2 - outInVertexTime*outInVertexTime);
-	  
-	  // do the unconstrained caclucation, if we have at least two points
-	  if (npoints>1) {
-	    double s=0.,sx=0.,sy=0.,x,y;
-	    double sxx=0.,sxy=0.;
-            
-            for (int i=0; i<npoints; i++) {
-              x=distance[i]/30.;
-              y=freeT0[i];
-              sy+=y;
-              sxy+=x*y;
-              s+=1.;
-              sx+=x;
-              sxx+=x*x;
-//              LogTrace("MuonIdentification") << " FIT: x=" << x << " y= " << y << std::endl;
-            }
-
-            double d = s*sxx-sx*sx;
-            
-//            muonTime.freeTime = (sxx*sy- sx*sxy)/d;
-//            muonTime.freeTimeErr = sqrt(s/d);
-            muonTime.freeInverseBeta = (s*sxy - sx*sy)/d;	  
-            muonTime.freeInverseBetaErr = sqrt(sxx/d);	  
-	  }
-	} 
-
-        LogTrace("MuonIdentification") << "Global 1/beta: " << muonTime.inverseBeta << " +/- " << muonTime.inverseBetaErr
-                                       << "  # of points: " << muonTime.nStations <<std::endl;
-        LogTrace("MuonIdentification") << "  Free 1/beta: " << muonTime.freeInverseBeta << " +/- " << muonTime.freeInverseBetaErr<<std::endl;
-        LogTrace("MuonIdentification") << "  Vertex time (in-out): " << muonTime.timeAtIpInOut << " +/- " << muonTime.timeAtIpInOutErr<<std::endl;
-        LogTrace("MuonIdentification") << "  Vertex time (out-in): " << muonTime.timeAtIpOutIn << " +/- " << muonTime.timeAtIpOutInErr<<std::endl;
-        LogTrace("MuonIdentification") << "  direction: "   << muonTime.direction() << std::endl;
-                                       
-        muon.setTime(muonTime);                                       
-}
-
-// End Timing part	
 
 bool MuonIdProducer::isGoodTrackerMuon( const reco::Muon& muon )
 {
