@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="DQMSummary" >
+   <Class table="DQMSUMMARY" id_columns="ID" name="DQMSummary" mapping_version="DQMSummary_automatic_default" >
+     <Primitive column="DM_RUN" name="m_run" />
+     <Container table="DQMSUMM_M_SUMMARY" id_columns="ID_ID" name="m_summary" position_column="POS" >
+       <Object name="value_type" >
+         <Primitive column="DM_SUMMARY_CV_M_LUMISEC" name="m_lumisec" />
+         <Container table="DQMSUMM_M_SUMMARY_CV" id_columns="ID_POS ID_ID_ID" name="m_lumisummary" position_column="POS" >
+           <Object name="value_type" >
+             <Primitive column="DM_SUMMARY_CV_M_LUMISUMMARY_0" name="m_reportcontent" />
+             <Primitive column="DM_SUMMARY_CV_M_LUMISUMMARY_2" name="m_status" />
+             <Primitive column="DM_SUMMARY_CV_M_LUMISUMMARY_CV" name="m_subsystem" />
+             <Primitive column="DM_SUMMARY_CV_M_LUMISUMMARY_1" name="m_type" />
+           </Object >
+         </Container >
+       </Object >
+     </Container >
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
