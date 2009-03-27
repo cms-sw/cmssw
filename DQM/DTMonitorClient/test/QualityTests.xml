@@ -132,7 +132,7 @@
 
 
 <LINK name="*tTrigTest*">
-	<TestName activate="true">tTrigOffSet</TestName>
+	<TestName activate="false">tTrigOffSet</TestName>
 </LINK>
 
 <LINK name="*hResDist_*">
@@ -140,47 +140,47 @@
 </LINK>
 
 <LINK name="*MeanTest*">
-	<TestName activate="true">ResidualsMeanInRange</TestName>
+	<TestName activate="false">ResidualsMeanInRange</TestName>
 </LINK>
 
 <LINK name="*SigmaTest*">
-	<TestName activate="true">ResidualsSigmaInRange</TestName>
+	<TestName activate="false">ResidualsSigmaInRange</TestName>
 </LINK>
 
 <LINK name="*SlopeTest*">
-	<TestName activate="true">ResidualsSlopeInRange</TestName>
+	<TestName activate="false">ResidualsSlopeInRange</TestName>
 </LINK>
 
 <LINK name="*Efficiency_*">
-	<TestName activate="true">EfficiencyInRange</TestName>
+	<TestName activate="false">EfficiencyInRange</TestName>
 </LINK>
 
 <LINK name="*UnassEfficiency_*">
-	<TestName activate="true">UnassEfficiencyInRange</TestName>
+	<TestName activate="false">UnassEfficiencyInRange</TestName>
 </LINK>
 
 <LINK name="*OccupancyDiff*">
-	<TestName activate="true">OccupancyDiffInRange</TestName>
+	<TestName activate="false">OccupancyDiffInRange</TestName>
 </LINK>
 
 <LINK name="*xEfficiency_*">
-	<TestName activate="true">ChEfficiencyInRangeX</TestName>
+	<TestName activate="false">ChEfficiencyInRangeX</TestName>
 </LINK>
 
 <LINK name="*yEfficiency_*">
-	<TestName activate="true">ChEfficiencyInRangeY</TestName>
+	<TestName activate="false">ChEfficiencyInRangeY</TestName>
 </LINK>
 
 <LINK name="*MeanDigiPerEvent*">
-	<TestName activate="true">NoiseMeanInRange</TestName>
+	<TestName activate="false">NoiseMeanInRange</TestName>
 </LINK>
 
 <LINK name="*chi2BadSegmPercentual_*">
-	<TestName activate="true">BadSegmInRange</TestName>
+	<TestName activate="false">BadSegmInRange</TestName>
 </LINK>
 
 <LINK name="*residualsOnSegmRecHitNumber_*">
-	<TestName activate="true">segmRecHitInRange</TestName>
+	<TestName activate="false">segmRecHitInRange</TestName>
 </LINK>
 
 </TESTSCONFIGURATION>
