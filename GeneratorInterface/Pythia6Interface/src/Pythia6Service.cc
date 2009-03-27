@@ -144,6 +144,7 @@ void Pythia6Service::enter()
           "instace has done so yet, and Pythia service routines have been "
           "requested by a dummy instance." << std::endl;
 
+     call_pygive("MSTU(12)=12345");
      call_pyinit("NONE", "", "", 0.0);
 
      fPythia6Owner = this;
