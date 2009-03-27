@@ -10,7 +10,7 @@
 
 /** \class EcalDataFrame
       
-$Id: EcalDataFrame.h,v 1.6 2007/07/25 06:58:15 innocent Exp $
+$Id: EcalDataFrame.h,v 1.7 2007/08/10 06:42:10 innocent Exp $
 */
 class EcalDataFrame {
  public:
@@ -26,6 +26,15 @@ class EcalDataFrame {
 
   EcalMGPASample operator[](int i) const { return m_data[i];}
   EcalMGPASample sample(int i) const { return m_data[i]; }
+
+  // get the leading sample (the first non saturated sample)
+  // starting from the fourth sample
+  // (it relies on the fact that the unpaker will discard fixed gain0 DataFrame)
+  // .. sample numbering: [0, 9]
+  // .. return -1 in case of no saturation
+  int lastUnsaturatedSample() const;
+  // just the boolean method
+  bool isSaturated() const { return ( lastUnsaturatedSample() != -1 ); }
     
   // FIXME (shall we throw??)
   void setSize(int){}
