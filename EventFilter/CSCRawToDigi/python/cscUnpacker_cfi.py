@@ -11,15 +11,15 @@ muonCSCDigis = cms.EDFilter("CSCDCCUnpacker",
     # Define input to the unpacker
     #InputTag InputObjects = cscpacker:CSCRawData
     InputObjects = cms.InputTag("source"),
-    # This mask is needed by the examiner if it's used
+    # This mask is needed by the examiner 
     ExaminerMask = cms.untracked.uint32(0x1FEBF3F6),
-    #this flag disables unpacking of the Status Digis
+    # Unpack general status digis?
     UnpackStatusDigis = cms.untracked.bool(False),
+    # Unpack FormatStatus digi?
+    UseFormatStatus = cms.untracked.bool(True),                        
     # Use Examiner to unpack good chambers and skip only bad ones
     UseSelectiveUnpacking = cms.untracked.bool(True),
-    #set this to true if unpacking MTCC data from summer-fall MTCC2006 
-    isMTCCData = cms.untracked.bool(False),
-    # turn on lots of output                            
+    # Turn on lots of output                            
     Debug = cms.untracked.bool(False)
 )
 

@@ -78,7 +78,6 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   errorMask = pset.getUntrackedParameter<unsigned int>("ErrorMask",0xDFCFEFFF);
   unpackStatusDigis = pset.getUntrackedParameter<bool>("UnpackStatusDigis", false);
   inputObjectsTag = pset.getParameter<edm::InputTag>("InputObjects");
-  unpackMTCCData = pset.getUntrackedParameter<bool>("isMTCCData", false);
   
   // Visualization of raw data in FED-less events 
   visualFEDInspect=pset.getUntrackedParameter<bool>("VisualFEDInspect", false);
@@ -279,25 +278,6 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    int vmecrate = cscData[iCSC].dmbHeader()->crateID();
 	    int dmb = cscData[iCSC].dmbHeader()->dmbID();
 
-	    ///adjust crate numbers for MTCC data
-	    if (unpackMTCCData)
-	      switch (vmecrate) {
-	      case 0:
-		vmecrate=23;
-		break;
-	      case 1:
-		vmecrate=17;
-		break;
-	      case 2:
-		vmecrate=11;
-		break;
-	      case 3:
-		vmecrate=10;
-		break;
-	      default:
-		break;
-	      }
-		      
 	    int icfeb = 0;  /// default value for all digis not related to cfebs
 	    int ilayer = 0; /// layer=0 flags entire chamber
 
@@ -335,25 +315,6 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    if (goodALCT){
 	      std::vector <CSCALCTDigi>  alctDigis =
 		cscData[iCSC].alctHeader()->ALCTDigis();
-	      
-	      ///ugly kludge to fix wiregroup numbering in MTCC data
-	      if ( unpackMTCCData && (((layer.ring()==3)&&(layer.station()==1))||
-				      ((layer.ring()==1)&&(layer.station()==3))||
-				      ((layer.ring()==1)&&(layer.station()==4)))){
-		for (int unsigned i=0; i<alctDigis.size(); ++i) {
-		  if (alctDigis[i].isValid()) {
-		    int wiregroup = alctDigis[i].getKeyWG();
-		    if (wiregroup < 16) LogTrace("CSCDCCUnpacker|CSCRawToDigi")
-		      << "ALCT digi: wire group " << wiregroup
-		      << " is out of range!" << "vme ="
-		      << vmecrate <<"  dmb=" <<dmb <<" "<<layer;
-		    else {
-		      wiregroup -= 16; /// adjust by 16
-		      alctDigis[i].setWireGroup(wiregroup);
-		    }
-		  }
-		}
-	      }
 	      alctProduct->put(std::make_pair(alctDigis.begin(), alctDigis.end()),layer);
 	    }
 		    
@@ -380,27 +341,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	      std::vector <CSCCorrelatedLCTDigi>  correlatedlctDigis =
 		cscData[iCSC].tmbHeader()->CorrelatedLCTDigis(layer.rawId());
 	      
-	      ///ugly kludge to fix wiregroup numbering in MTCC data
-	      if ( unpackMTCCData && (((layer.ring()==3)&&(layer.station()==1))||
-				      ((layer.ring()==1)&&(layer.station()==3))||
-				      ((layer.ring()==1)&&(layer.station()==4)))){
-		for (int unsigned i=0; i<correlatedlctDigis.size(); ++i) {
-		  if (correlatedlctDigis[i].isValid()) {
-		    int wiregroup = correlatedlctDigis[i].getKeyWG();
-		    if (wiregroup < 16) LogTrace("CSCDCCUnpacker|CSCRawToDigi")
-		      << "CorrelatedLCT digi: wire group " << wiregroup
-		      << " is out of range!  vme ="<<vmecrate <<"  dmb=" <<dmb
-		      <<"  "<<layer;
-		    else {
-		      wiregroup -= 16; /// adjust by 16
-		      correlatedlctDigis[i].setWireGroup(wiregroup);
-		    }
-		  }
-		}
-	      }
 	      corrlctProduct->put(std::make_pair(correlatedlctDigis.begin(),
 						 correlatedlctDigis.end()),layer);
-
 		      
 	      std::vector <CSCCLCTDigi>  clctDigis =
 		cscData[iCSC].tmbHeader()->CLCTDigis(layer.rawId());
@@ -447,22 +389,6 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
 	      std::vector <CSCWireDigi> wireDigis =  cscData[iCSC].wireDigis(ilayer);
 	      
-	      ///ugly kludge to fix wire group numbers for ME3/1, ME4/1 and ME1/3 chambers in MTCC data
-	      if ( unpackMTCCData && (((layer.ring()==3)&&(layer.station()==1))||
-				      ((layer.ring()==1)&&(layer.station()==3))||
-				      ((layer.ring()==1)&&(layer.station()==4)))){
-		for (int unsigned i=0; i<wireDigis.size(); ++i) {
-		  int wiregroup = wireDigis[i].getWireGroup();
-		  if (wiregroup <= 16) LogTrace("CSCDCCUnpacker|CSCRawToDigi")
-		    << "Wire digi: wire group " << wiregroup
-		    << " is out of range!  vme ="<<vmecrate 
-		    <<"  dmb=" <<dmb <<"  "<<layer;
-		  else {
-		    wiregroup -= 16; /// adjust by 16
-		    wireDigis[i].setWireGroup(wiregroup);
-		  }
-		}
-	      }
 	      wireProduct->put(std::make_pair(wireDigis.begin(), wireDigis.end()),layer);
 	      
 	      for ( icfeb = 0; icfeb < 5; ++icfeb ) {
