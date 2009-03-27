@@ -3,7 +3,9 @@
  <PoolDatabase >
   <PoolContainer name="L1JetEtScaleRcd" >
    <Class table="L1JETETSCALE" id_columns="ID" name="L1CaloEtScale" mapping_version="L1JetEtScale_basic" >
+     <Primitive column="M_LINSCALEMAX" name="m_linScaleMax" />
      <Primitive column="M_LINEARLSB" name="m_linearLsb" />
+     <Primitive column="M_RANKSCALEMAX" name="m_rankScaleMax" />
      <Blob column="L1CALOETSCALE_M_TH_1_BLOB" name="m_thresholds" />
    </Class >
   </PoolContainer >
