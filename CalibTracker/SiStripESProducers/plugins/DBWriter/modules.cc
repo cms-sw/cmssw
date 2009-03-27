@@ -92,3 +92,11 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripLorentzAngleDummyPrinter);
 typedef DummyCondObjPrinter<SiStripPedestals,SiStripPedestalsRcd> SiStripPedestalsDummyPrinter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripPedestalsDummyPrinter);
 
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+typedef DummyCondObjPrinter<SiStripGain,SiStripGainRcd> SiStripGainDummyPrinter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripGainDummyPrinter);
+
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+typedef DummyCondObjPrinter<SiStripGain,SiStripGainSimRcd> SiStripGainSimDummyPrinter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripGainSimDummyPrinter);
+
