@@ -6,10 +6,6 @@
 #define UTILS_PHIMIN -0.5
 #define UTILS_PHIMAX 73.5
 
-// Set spacing of dashed lines in 2-D plots
-#define UTILS_VERTLINESPACE 5
-#define UTILS_HORIZLINESPACE 5
-
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TColor.h"
@@ -274,8 +270,7 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
   hist->Draw(hist->GetOption());// I think that Draw should automatically use the GetOption() value, but include it here to be sure.
 
   // Draw Grid Lines
-  //int vertlinespace=UTILS_VERTLINESPACE;
-  //int horizlinespace=UTILS_HORIZLINESPACE;
+
   if (histtype=="TH2F")
     {
       TAxis *xaxis = hist->GetXaxis();

@@ -65,8 +65,8 @@ class HcalBaseClient{
 
   bool validDetId(HcalSubdetector sd, int ies, int ip, int dp);
   
-  void getSJ6histos( char* dir, char* name, TH2F* h[6]);
-  void getSJ6histos( char* dir, char* name, TH1F* h[6]);
+  void getSJ6histos( char* dir, char* name, TH2F* h[6], char* units="");
+  void getSJ6histos( char* dir, char* name, TH1F* h[6], char* units="");
 
  protected:
 
