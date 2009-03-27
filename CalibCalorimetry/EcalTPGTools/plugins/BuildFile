@@ -1,5 +1,4 @@
 <use name=FWCore/Framework>
-<use name=Geometry/CaloEventSetup>
 <use name=Geometry/EcalMapping>
 <use name=OnlineDB/EcalCondDB>
 <use name=OnlineDB/Oracle>
