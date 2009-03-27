@@ -10,8 +10,8 @@ from HLTriggerOffline.HeavyFlavor.heavyFlavorValidationSequence_cff import *
 from HLTriggerOffline.JetMET.Validation.HLTJetMETValidation_cff import *
 
 hltvalidation = cms.Sequence(
-    HLTMuonVal
-    +HLTTauVal
+    #HLTMuonVal
+    HLTTauVal
     +EcalPi0Mon
     +EcalPhiSymMon
     +egammaValidationSequence
