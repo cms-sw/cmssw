@@ -1,6 +1,8 @@
 
 #include <iostream>
 
+#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
+
 #include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
 #include "GeneratorInterface/ExternalDecays/interface/TauolaWrapper.h"
 
@@ -16,6 +18,7 @@ using namespace std;
 
 TauolaInterface::TauolaInterface( const ParameterSet& pset )
 {
+   fPy6Service = new Pythia6Service;
 
    fPolarization = pset.getParameter<bool>("UseTauolaPolarization") ? 1 : 0 ;
 
@@ -36,6 +39,7 @@ TauolaInterface::TauolaInterface( const ParameterSet& pset )
 
 TauolaInterface::~TauolaInterface()
 {
+   delete fPy6Service;
 }
 
 void TauolaInterface::init( const edm::EventSetup& es )
@@ -93,7 +97,7 @@ HepMC::GenEvent* TauolaInterface::decay( const HepMC::GenEvent* evt )
    
    int mode = 0;
    // tauola_( &mode, &fPolarization );
-   tauola_srs_( &mode, &fPolarization );
+   fPy6Service->call( tauola_srs_, &mode, &fPolarization );
    
    int numPartAfterTauola = HepMC::HEPEVT_Wrapper::number_entries();
    // HepMC::HEPEVT_Wrapper::print_hepevt();

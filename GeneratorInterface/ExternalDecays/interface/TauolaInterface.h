@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
 namespace HepMC 
 {
 class GenEvent;
@@ -17,6 +16,8 @@ class GenEvent;
 
 
 namespace gen {
+
+   class Pythia6Service;
 
    class TauolaInterface
    {
@@ -38,8 +39,9 @@ namespace gen {
       int              fPolarization;
       
       edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
-      //CLHEP::HepRandomEngine*             fRandomEngine ;
-      //CLHEP::RandFlat*                    fRandomGenerator;
+      Pythia6Service*                          fPy6Service;
+      //CLHEP::HepRandomEngine*                  fRandomEngine;
+      //CLHEP::RandFlat*                         fRandomGenerator;
        
    };
 

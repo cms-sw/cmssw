@@ -17,6 +17,7 @@
 #include "CLHEP/Random/Random.h"
 
 #include "GeneratorInterface/ExternalDecays/interface/myEvtRandomEngine.h"
+#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/PythiaWrapper6_2.h"
@@ -93,15 +94,20 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
       forced_Evt.push_back(found);                      // forced_Evt is the list of EvtId's
       forced_Hep.push_back(EvtPDL::getStdHep(found));   // forced_Hep is the list of stdhep codes
     }
+
+  fPy6Service = new Pythia6Service;
 } 
 
 EvtGenInterface::~EvtGenInterface()
 {
   std::cout << " EvtGenProducer terminating ... " << std::endl; 
+  delete fPy6Service;
 }
 
 HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt )
 {
+  Pythia6Service::InstanceWrapper guard(fPy6Service);	// grab Py6 instance
+
   nevent++;
   npartial = 0;
   // std::cout << "nevent = " << nevent << std::endl ;

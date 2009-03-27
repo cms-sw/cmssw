@@ -43,6 +43,8 @@ namespace HepMC {
 
 namespace gen {
 
+   class Pythia6Service;
+
    class EvtGenInterface
    {
       public:
@@ -61,6 +63,7 @@ namespace gen {
 
       private:
       
+      Pythia6Service* fPy6Service;
       CLHEP::RandFlat* m_flat;   
       EvtGen *m_EvtGen;
       std::vector<EvtId> forced_Evt;     // EvtId's of particles with forced decay

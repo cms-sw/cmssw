@@ -42,7 +42,7 @@ HepMC::GenEvent* ExternalDecayDriver::decay( HepMC::GenEvent* evt )
 {
    if ( fEvtGenInterface )
    {  
-      //evt = fEvtGenInterface->decay( evt ); 
+      evt = fEvtGenInterface->decay( evt ); 
       if ( !evt ) return 0;
    }
 

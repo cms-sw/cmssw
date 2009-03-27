@@ -1,4 +1,5 @@
 <use name=FWCore/ParameterSet>
+<use name=GeneratorInterface/Pythia6Interface>
 <use name=GeneratorInterface/EvtGenInterface>
 <use name=hepmc> 
 <use name=heppdt>
@@ -10,15 +11,5 @@
 <use name=evtgenlhc>
 
 <export>
- <use name=FWCore/ParameterSet>
- <use name=GeneratorInterface/EvtGenInterface>
- <use name=hepmc> 
- <use name=heppdt>
- <use name=SimGeneral/HepPDTRecord>
- <use name=tauola>
- <use name=photos>
- <use name=pythia6>
- <use name=evtgenlhc>
- <use name=clhep>
- <lib name=GeneratorInterfaceExternalDecays>
+  <lib name=GeneratorInterfaceExternalDecays>
 </export>
