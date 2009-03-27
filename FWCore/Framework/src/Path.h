@@ -5,7 +5,7 @@
 
   Author: Jim Kowalkowski 28-01-06
 
-  $Id: Path.h,v 1.16 2007/11/12 23:57:57 wmtan Exp $
+  $Id: Path.h,v 1.17 2008/10/16 23:06:28 wmtan Exp $
 
   An object of this type represents one path in a job configuration.
   It holds the assigned bit position and the list of workers that are
@@ -30,7 +30,6 @@
 #include "FWCore/Framework/src/RunStopwatch.h"
 
 namespace edm {
-  class ParameterSet;
 
   class Path {
   public:
@@ -43,7 +42,6 @@ namespace edm {
     Path(int bitpos, std::string const& path_name,
 	 WorkersInPath const& workers,
 	 TrigResPtr trptr,
-	 ParameterSet const& proc_pset,
 	 ActionTable& actions,
 	 boost::shared_ptr<ActivityRegistry> reg,
 	 bool isEndPath);

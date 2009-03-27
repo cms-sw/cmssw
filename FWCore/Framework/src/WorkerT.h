@@ -5,7 +5,7 @@
   
 WorkerT: Code common to all workers.
 
-$Id: WorkerT.h,v 1.2 2008/01/15 06:52:00 wmtan Exp $
+$Id: WorkerT.h,v 1.3 2008/10/16 23:06:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,6 +18,8 @@ $Id: WorkerT.h,v 1.2 2008/01/15 06:52:00 wmtan Exp $
 #include "FWCore/Framework/src/WorkerParams.h"
 
 namespace edm {
+
+  class ProductRegistry;
 
   template <typename T>
   class WorkerT : public Worker {
@@ -44,6 +46,11 @@ namespace edm {
     T const& module() const {return *module_;}
 
   private:
+
+    virtual void registerAnyProducts_(ProductRegistry * productRegistry) {
+      module_->registerAnyProducts(module_, productRegistry);
+    }
+
     virtual bool implDoBegin(EventPrincipal& ep, EventSetup const& c,
                             CurrentProcessingContext const* cpc);
     virtual bool implDoEnd(EventPrincipal& ep, EventSetup const& c,
@@ -75,7 +82,6 @@ namespace edm {
     Worker(md, wp),
     module_(ed) {
     module_->setModuleDescription(md);
-    module_->registerAnyProducts(module_, wp.reg_);
   }
 
   template <typename T>

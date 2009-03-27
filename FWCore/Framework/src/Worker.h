@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.35 2008/10/16 23:06:28 wmtan Exp $
+$Id: Worker.h,v 1.36 2008/12/20 17:42:06 wmtan Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -46,6 +46,10 @@ namespace edm {
 
     Worker(ModuleDescription const& iMD, WorkerParams const& iWP);
     virtual ~Worker();
+
+    void registerAnyProducts(ProductRegistry * productRegistry) {
+      registerAnyProducts_(productRegistry);
+    }
 
     template <typename T>
     bool doWork(typename T::MyPrincipal&, EventSetup const& c,
@@ -100,6 +104,9 @@ namespace edm {
     virtual void implEndJob() = 0;
 
   private:
+
+    virtual void registerAnyProducts_(ProductRegistry * productRegistry) = 0;
+
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToOpenOutputFiles(FileBlock const& fb) = 0;

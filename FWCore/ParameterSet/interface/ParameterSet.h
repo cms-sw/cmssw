@@ -244,6 +244,18 @@ namespace edm {
     typedef std::map<std::string, VParameterSetEntry> vpsettable;
     vpsettable const& vpsetTable() const {return vpsetTable_;}
 
+    ParameterSet *
+    getPSetForUpdate(std::string const& name, bool & isTracked);
+
+    ParameterSet *
+    getPSetForUpdate(std::string const& name) {
+      bool isTracked = false;
+      return getPSetForUpdate(name, isTracked);
+    }
+
+    VParameterSetEntry *
+    getPSetVectorForUpdate(std::string const& name);
+
   private:
     // decode
     bool fromString(std::string const&);

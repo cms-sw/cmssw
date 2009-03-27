@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
@@ -16,7 +17,9 @@
 #include "DataFormats/Provenance/interface/PassID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include "boost/bind.hpp"
 #include "boost/ref.hpp"
@@ -25,6 +28,7 @@
 #include <cstdlib>
 #include <iomanip>
 #include <list>
+#include <cassert>
 
 namespace edm {
   namespace {
@@ -59,23 +63,24 @@ namespace edm {
     // probably be a utility in the WorkerRegistry or elsewhere.
 
     Schedule::WorkerPtr 
-    makeInserter(ParameterSet const& proc_pset,
-		 ParameterSet const& trig_pset,
-		 std::string const& proc_name,
-		 ProductRegistry& preg,
+    makeInserter(ParameterSet * proc_pset,
+                 std::string const& proc_name,
 		 ActionTable& actions,
 		 boost::shared_ptr<ActivityRegistry> areg,
 		 boost::shared_ptr<ProcessConfiguration> processConfiguration,
 		 Schedule::TrigResPtr trptr) {
 
-      WorkerParams work_args(proc_pset, trig_pset, preg, processConfiguration, actions);
-      ModuleDescription md(trig_pset.id(),
+      ParameterSet * trig_pset = proc_pset->getPSetForUpdate("@trigger_paths");
+      trig_pset->registerIt();
+
+      WorkerParams work_args(*proc_pset, trig_pset, processConfiguration, actions);
+      ModuleDescription md(trig_pset->id(),
 			   "TriggerResultInserter",
 			   "TriggerResults",
 			   processConfiguration);
 
       areg->preModuleConstructionSignal_(md);
-      std::auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,trptr));
+      std::auto_ptr<EDProducer> producer(new TriggerResultInserter(*trig_pset, trptr));
       areg->postModuleConstructionSignal_(md);
 
       Schedule::WorkerPtr ptr(new WorkerT<EDProducer>(producer, md, work_args));
@@ -91,13 +96,14 @@ namespace edm {
 
   // -----------------------------
 
-  Schedule::Schedule(ParameterSet const& proc_pset,
+  Schedule::Schedule(boost::shared_ptr<ParameterSet> proc_pset,
 		     edm::service::TriggerNamesService& tns,
 		     WorkerRegistry& wreg,
 		     ProductRegistry& preg,
 		     ActionTable& actions,
 		     boost::shared_ptr<ActivityRegistry> areg,
-		     boost::shared_ptr<ProcessConfiguration> processConfiguration):
+		     boost::shared_ptr<ProcessConfiguration> processConfiguration,
+                     boost::shared_ptr<InputSource> & inputSource):
     pset_(proc_pset),
     worker_reg_(&wreg),
     prod_reg_(&preg),
@@ -122,7 +128,7 @@ namespace edm {
     demandBranches_(),
     endpathsAreActive_(true)
   {
-    ParameterSet opts(pset_.getUntrackedParameter<ParameterSet>("options", ParameterSet()));
+    ParameterSet opts(pset_->getUntrackedParameter<ParameterSet>("options", ParameterSet()));
     bool hasPath = false;
 
     int trig_bitpos = 0;
@@ -137,9 +143,9 @@ namespace edm {
 
     if (hasPath) {
       // the results inserter stands alone
-      results_inserter_ = makeInserter(pset_, tns.getTriggerPSet(), 
-				       processName(),
-				       preg, actions, actReg_, processConfiguration_, results_);
+      results_inserter_ = makeInserter(pset_.get(),
+                                       processName(),
+				       actions, actReg_, processConfiguration_, results_);
       addToAllWorkers(results_inserter_.get());
     }
 
@@ -159,7 +165,7 @@ namespace edm {
 	++itWorker) {
       usedWorkerLabels.insert((*itWorker)->description().moduleLabel());
     }
-    std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string> >("@all_modules"));
+    std::vector<std::string> modulesInConfig(proc_pset->getParameter<std::vector<std::string> >("@all_modules"));
     std::set<std::string> modulesInConfigSet(modulesInConfig.begin(),modulesInConfig.end());
     std::vector<std::string> unusedLabels;
     set_difference(modulesInConfigSet.begin(),modulesInConfigSet.end(),
@@ -179,11 +185,13 @@ namespace edm {
 	  itLabel != itLabelEnd;
 	  ++itLabel) {
 	if (allowUnscheduled) {
-	  //Need to hold onto the parameters long enough to make the call to getWorker
-	  ParameterSet workersParams(proc_pset.getParameter<ParameterSet>(*itLabel));
-	  WorkerParams params(proc_pset, workersParams,
-			      *prod_reg_, processConfiguration_, *act_table_);
-	  Worker* newWorker(wreg.getWorker(params));
+          bool isTracked;
+	  ParameterSet * modulePSet(proc_pset->getPSetForUpdate(*itLabel, isTracked));
+          assert(isTracked);
+          assert(modulePSet != 0);
+	  WorkerParams params(*proc_pset, modulePSet,
+			      processConfiguration_, *act_table_);
+	  Worker* newWorker(wreg.getWorker(params, *itLabel));
 	  if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
               dynamic_cast<WorkerT<EDFilter>*>(newWorker) ) {
             unscheduledLabels.insert(*itLabel);
@@ -215,18 +223,28 @@ namespace edm {
       }
     }
 
-    // All the workers should be in all_workers_ by this point. Thus
-    // we can now fill all_output_workers_.  We provide a little
-    // sanity-check to make sure no code modifications alter the
-    // number of workers at a later date... Much better would be to
-    // refactor this huge constructor into a series of well-named
-    // private functions.
+    pset_->registerIt();
+    pset::Registry::instance()->extra().setID(pset_->id());
+    processConfiguration->setParameterSetID(pset_->id());
+
+    inputSource->registerProducts();
+  
+    // This is used for a little sanity-check to make sure no code
+    // modifications alter the number of workers at a later date.
     size_t all_workers_count = all_workers_.size();
+
+    // Loop over all modules and perform two unrelated tasks
     for (AllWorkers::iterator i = all_workers_.begin(), e = all_workers_.end();
 	 i != e;
 	 ++i)	{
+
+      // All the workers should be in all_workers_ by this point. Thus
+      // we can now fill all_output_workers_.
       OutputWorker* ow = dynamic_cast<OutputWorker*>(*i);
       if (ow) all_output_workers_.push_back(ow);
+
+      // Register products for all modules that might run
+      (*i)->registerAnyProducts(prod_reg_);
     }
 
     // Now that the output workers are filled in, set any output limits.
@@ -261,7 +279,7 @@ namespace edm {
   Schedule::limitOutput() {
     std::string const output("output");
 
-    ParameterSet maxEventsPSet(pset_.getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet()));
+    ParameterSet maxEventsPSet(pset_->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet()));
     int maxEventSpecs = 0; 
     int maxEventsOut = -1;
     ParameterSet vMaxEventsOut;
@@ -323,7 +341,7 @@ namespace edm {
   }
 
   void Schedule::fillWorkers(std::string const& name, PathWorkers& out) {
-    vstring modnames = pset_.getParameter<vstring>(name);
+    vstring modnames = pset_->getParameter<vstring>(name);
     vstring::iterator it(modnames.begin()),ie(modnames.end());
     PathWorkers tmpworkers;
 
@@ -333,24 +351,25 @@ namespace edm {
       if ((*it)[0] == '!')       filterAction = WorkerInPath::Veto;
       else if ((*it)[0] == '-')  filterAction = WorkerInPath::Ignore;
 
-      std::string realname = *it;
-      if (filterAction != WorkerInPath::Normal) realname.erase(0,1);
+      std::string moduleLabel = *it;
+      if (filterAction != WorkerInPath::Normal) moduleLabel.erase(0,1);
 
-      ParameterSet modpset;
-      try {
-	modpset = pset_.getParameter<ParameterSet>(realname);
-      } catch(cms::Exception&) {
+      bool isTracked;
+      ParameterSet * modpset = pset_->getPSetForUpdate(moduleLabel, isTracked);
+      if (modpset == 0) {
 	std::string pathType("endpath");
 	if(!search_all(end_path_name_list_, name)) {
 	  pathType = std::string("path");
 	}
 	throw edm::Exception(edm::errors::Configuration) <<
-	  "The unknown module label \"" << realname <<
+	  "The unknown module label \"" << moduleLabel <<
 	  "\" appears in " << pathType << " \"" << name <<
 	  "\"\n please check spelling or remove that label from the path.";
       }
-      WorkerParams params(pset_, modpset, *prod_reg_, processConfiguration_, *act_table_);
-      WorkerInPath w(worker_reg_->getWorker(params), filterAction);
+      assert(isTracked);
+
+      WorkerParams params(*pset_, modpset, processConfiguration_, *act_table_);
+      WorkerInPath w(worker_reg_->getWorker(params, moduleLabel), filterAction);
       tmpworkers.push_back(w);
     }
 
@@ -369,7 +388,7 @@ namespace edm {
 
     // an empty path will cause an extra bit that is not used
     if(!tmpworkers.empty()) {
-      Path p(bitpos,name,tmpworkers,trptr,pset_,*act_table_,actReg_,false);
+      Path p(bitpos,name,tmpworkers,trptr,*act_table_,actReg_,false);
       trig_paths_.push_back(p);
     }
     for_all(holder, boost::bind(&edm::Schedule::addToAllWorkers, this, _1));
@@ -386,7 +405,7 @@ namespace edm {
     }
 
     if (!tmpworkers.empty()) {
-      Path p(bitpos,name,tmpworkers,endpath_results_,pset_,*act_table_,actReg_,true);
+      Path p(bitpos,name,tmpworkers,endpath_results_,*act_table_,actReg_,true);
       end_paths_.push_back(p);
     }
     for_all(holder, boost::bind(&edm::Schedule::addToAllWorkers, this, _1));

@@ -21,8 +21,6 @@ namespace edm
   ProcessDesc::ProcessDesc(ParameterSet const& pset)
   : pset_(new ParameterSet(pset)), services_(new std::vector<ParameterSet>())
   {
-    pset_->registerIt();
-    pset::Registry::instance()->extra().setID(pset_->id());
   }
 
   ProcessDesc::~ProcessDesc() {

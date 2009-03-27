@@ -1,8 +1,10 @@
-#include <sstream>
-
-#include "FWCore/Utilities/interface/Digest.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "FWCore/Utilities/interface/Digest.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+
 #include <ostream>
+#include <cassert>
+#include <sstream>
 
 /*----------------------------------------------------------------------
 
@@ -23,6 +25,29 @@ namespace edm {
       releaseVersion_(relVersion),
       passID_(pass) { }
 
+  ProcessConfiguration::ProcessConfiguration(
+                        std::string const& procName,
+                        ReleaseVersion const& relVersion,
+                        PassID const& pass) :
+      processName_(procName),
+      parameterSetID_(),
+      releaseVersion_(relVersion),
+      passID_(pass) { }
+
+  ParameterSetID const&
+  ProcessConfiguration::parameterSetID() const {
+    if (parameterSetID_ == ParameterSetID()) {
+      throw edm::Exception(errors::LogicError)
+        << "Illegal attempt to access the process top level parameter set ID\n"
+        << "from the ProcessConfiguration before that parameter\n"
+        << "set has been frozen and registered.  The parameter set\n"
+        << "can be changed during module validation, which occurs\n"
+        << "concurrently with module construction.  The ID of the\n"
+        << "ProcessConfiguration itself also depends on that parameter\n"
+        << "set ID.  It is illegal to access either before they are frozen.\n";
+    }
+    return parameterSetID_;
+  }
 
   ProcessConfigurationID
   ProcessConfiguration::id() const {
@@ -37,6 +62,12 @@ namespace edm {
     ProcessConfigurationID tmp(md5alg.digest().toString());
     pcid().swap(tmp);
     return pcid();
+  }
+
+  void
+  ProcessConfiguration::setParameterSetID(ParameterSetID const& pSetID) {
+    assert(parameterSetID_ == ParameterSetID());
+    parameterSetID_ = pSetID;
   }
 
   bool operator<(ProcessConfiguration const& a, ProcessConfiguration const& b) {

@@ -209,48 +209,36 @@ namespace edm {
 
   // ---------------------------------------------------------------
   boost::shared_ptr<InputSource> 
-  makeInput(ParameterSet const& params,
+  makeInput(ParameterSet & params,
 	    EventProcessor::CommonParams const& common,
 	    ProductRegistry& preg,
             boost::shared_ptr<ActivityRegistry> areg,
 	    boost::shared_ptr<ProcessConfiguration> processConfiguration)
   {
-    // find single source
-    bool sourceSpecified = false;
-    try {
-      ParameterSet main_input =
-	params.getParameter<ParameterSet>("@main_input");
-      
-      // Fill in "ModuleDescription", in case the input source produces
-      // any EDproducts,which would be registered in the ProductRegistry.
-      // Also fill in the process history item for this process.
-      // There is no module label for the unnamed input source, so 
-      // just use "source".
-      // Only the tracked parameters belong in the process configuration.
-      ModuleDescription md(main_input.id(),
-			   main_input.getParameter<std::string>("@module_type"),
-			   "source",
-			   processConfiguration);
-
-      sourceSpecified = true;
-      InputSourceDescription isdesc(md, preg, areg, common.maxEventsInput_, common.maxLumisInput_);
-      areg->preSourceConstructionSignal_(md);
-      boost::shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(main_input, isdesc).release());
-      areg->postSourceConstructionSignal_(md);
-      
-      return input;
-    } 
-    catch(edm::Exception const& iException) {
- 	if(sourceSpecified == false && 
-	   errors::Configuration == iException.categoryCode()) {
- 	    throw edm::Exception(errors::Configuration, "FailedInputSource")
-	      << "Configuration of main input source has failed\n"
-	      << iException;
- 	} else {
- 	    throw;
- 	}
+    ParameterSet * main_input = params.getPSetForUpdate("@main_input");
+    if (main_input == 0) {
+      throw edm::Exception(errors::Configuration, "FailedInputSource")
+	<< "Configuration of main input source has failed\n";
     }
-    return boost::shared_ptr<InputSource>();
+    main_input->registerIt();
+ 
+    // Fill in "ModuleDescription", in case the input source produces
+    // any EDproducts,which would be registered in the ProductRegistry.
+    // Also fill in the process history item for this process.
+    // There is no module label for the unnamed input source, so 
+    // just use "source".
+    // Only the tracked parameters belong in the process configuration.
+    ModuleDescription md(main_input->id(),
+                         main_input->getParameter<std::string>("@module_type"),
+		         "source",
+		         processConfiguration);
+
+    InputSourceDescription isdesc(md, preg, areg, common.maxEventsInput_, common.maxLumisInput_);
+    areg->preSourceConstructionSignal_(md);
+    boost::shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
+    areg->postSourceConstructionSignal_(md);
+      
+    return input;
   }
   
   // ---------------------------------------------------------------
@@ -339,7 +327,7 @@ namespace edm {
   // ---------------------------------------------------------------
   void 
   fillEventSetupProvider(edm::eventsetup::EventSetupProvider& cp,
-			 ParameterSet const& params,
+			 ParameterSet & params,
 			 EventProcessor::CommonParams const& common)
   {
     using namespace edm::eventsetup;
@@ -349,9 +337,10 @@ namespace edm {
     for(std::vector<std::string>::iterator itName = providers.begin(), itNameEnd = providers.end();
 	itName != itNameEnd;
 	++itName) {
-      ParameterSet providerPSet = params.getParameter<ParameterSet>(*itName);
+      ParameterSet * providerPSet = params.getPSetForUpdate(*itName);
+      providerPSet->registerIt();
       ModuleFactory::get()->addTo(cp, 
-				    providerPSet, 
+				    *providerPSet, 
 				    common.processName_, 
 				    common.releaseVersion_, 
 				    common.passID_);
@@ -363,9 +352,10 @@ namespace edm {
     for(std::vector<std::string>::iterator itName = sources.begin(), itNameEnd = sources.end();
 	itName != itNameEnd;
 	++itName) {
-      ParameterSet providerPSet = params.getParameter<ParameterSet>(*itName);
+      ParameterSet * providerPSet = params.getPSetForUpdate(*itName);
+      providerPSet->registerIt();
       SourceFactory::get()->addTo(cp, 
-				    providerPSet, 
+				    *providerPSet, 
 				    common.processName_, 
 				    common.releaseVersion_, 
 				    common.passID_);
@@ -375,7 +365,7 @@ namespace edm {
   // ---------------------------------------------------------------
   boost::shared_ptr<edm::EDLooper> 
   fillLooper(edm::eventsetup::EventSetupProvider& cp,
-			 ParameterSet const& params,
+			 ParameterSet & params,
 			 EventProcessor::CommonParams const& common)
   {
     using namespace edm::eventsetup;
@@ -393,9 +383,11 @@ namespace edm {
     for(std::vector<std::string>::iterator itName = loopers.begin(), itNameEnd = loopers.end();
 	itName != itNameEnd;
 	++itName) {
-      ParameterSet providerPSet = params.getParameter<ParameterSet>(*itName);
+
+      ParameterSet * providerPSet = params.getPSetForUpdate(*itName);
+      providerPSet->registerIt();
       vLooper = LooperFactory::get()->addTo(cp, 
-				    providerPSet, 
+				    *providerPSet, 
 				    common.processName_, 
 				    common.releaseVersion_, 
 				    common.passID_);
@@ -632,16 +624,17 @@ namespace edm {
     looper_ = fillLooper(*esp_, *parameterSet, common);
     if (looper_) looper_->setActionTable(&act_table_);
     
-    processConfiguration_.reset(new ProcessConfiguration(processName, parameterSet->id(), getReleaseVersion(), getPassID()));
+    processConfiguration_.reset(new ProcessConfiguration(processName, getReleaseVersion(), getPassID()));
     input_= makeInput(*parameterSet, common, preg_, actReg_, processConfiguration_);
     schedule_ = std::auto_ptr<Schedule>
-      (new Schedule(*parameterSet,
+      (new Schedule(parameterSet,
 		    ServiceRegistry::instance().get<TNS>(),
 		    wreg_,
 		    preg_,
 		    act_table_,
 		    actReg_,
-		    processConfiguration_));
+		    processConfiguration_,
+                    input_));
 
     //   initialize(iToken,iLegacy);
     FDEBUG(2) << parameterSet << std::endl;

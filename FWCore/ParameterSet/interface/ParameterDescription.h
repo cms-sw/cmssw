@@ -7,134 +7,224 @@
 //
 /**\class ParameterDescription ParameterDescription.h FWCore/ParameterSet/interface/ParameterDescription.h
 
- Description: Base class for a description of one parameter in a ParameterSet
+ Description: <one line class summary>
 
  Usage:
     <usage>
 
- In addition to whatever you need to do to add a new type to the
- ParameterSet code, you need to do the following to add
- a new type to the ParameterSetDescription code:
- 1.  add a value to the enumeration ParameterTypes (ParameterDescription.h)
- 2.  add new TYPE_TO_NAME and TYPE_TO_ENUM macros (ParameterDescription.cc)
- 3.  add declaration of writeValueToCfi function to ParameterDescriptionTemplate.h
- (Two of them if a vector of the type is also allowed)
- 4.  define writeValueToCfi in ParameterDescriptionTemplate.cc
- 5.  Consider whether you need a specialization of writeSingleValue and
- writeValueInVector in ParameterDescriptionTemplate.cc. The first is needed
- if operator<< for the new type does not print the correct format for a cfi.
- The second is needed if the format in a vector is different from the format
- when a single value is not in a vector.
- 6.  add parameters of that type and vectors of that type to
- FWCore/Integration/test/ProducerWithPSetDesc.cc
- 7.  Check and update the reference file in
- FWCore/Integration/test/unit_test_outputs/testProducerWithPsetDesc_cfi.py
 */
 //
 // Original Author:  Chris Jones
-//         Created:  Thu Aug  2 15:33:46 EDT 2007
-// $Id: ParameterDescription.h,v 1.10 2009/01/12 20:10:07 ewv Exp $
+//         Created:  Thu Aug  2 15:33:51 EDT 2007
 //
 
+#include "FWCore/ParameterSet/interface/ParameterDescriptionBase.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/value_ptr.h"
+
+#include "boost/cstdint.hpp"
 
 #include <string>
 #include <vector>
+#include <iosfwd>
+#include <set>
 
 namespace edm {
 
-  class ParameterSet;
   class ParameterSetDescription;
 
-  // The values of this enumeration match the values
-  // defined in the ParameterSet Entry class, to make
-  // comparisons easier.
-  enum ParameterTypes {
-    k_int32 = 'I',
-    k_vint32 = 'i',
-    k_uint32 = 'U',
-    k_vuint32 = 'u',
-    k_int64 = 'L',
-    k_vint64 = 'l',
-    k_uint64 = 'X',
-    k_vuint64 = 'x',
-    k_double = 'D',
-    k_vdouble = 'd',
-    k_bool = 'B',
-    k_string = 'S',
-    k_vstring = 's',
-    k_EventID = 'E',
-    k_VEventID = 'e',
-    k_LuminosityBlockID = 'M',
-    k_VLuminosityBlockID = 'm',
-    k_InputTag = 't',
-    k_VInputTag = 'v',
-    k_FileInPath = 'F',
-    k_LuminosityBlockRange = 'A',
-    k_VLuminosityBlockRange = 'a',
-    k_EventRange = 'R',
-    k_VEventRange = 'r',
-    k_PSet = 'Q',
-    k_VPSet = 'q'
-  };
+  class EventID;
+  class LuminosityBlockID;
+  class LuminosityBlockRange;
+  class EventRange;
+  class InputTag;
+  class FileInPath;
+  class VParameterSetEntry;
 
-  std::string parameterTypeEnumToString(ParameterTypes iType);
+  namespace writeToCfi {
+    void writeValueToCfi(std::ostream & os, int indentation, int const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<int> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, unsigned const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<unsigned> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, boost::int64_t const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<boost::int64_t> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, boost::uint64_t const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<boost::uint64_t> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, double const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<double> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, bool const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::string const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<std::string> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, edm::EventID const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::EventID> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, edm::LuminosityBlockID const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::LuminosityBlockID> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, edm::LuminosityBlockRange const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::LuminosityBlockRange> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, edm::EventRange const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::EventRange> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, edm::InputTag const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, std::vector<edm::InputTag> const& value_);
+    void writeValueToCfi(std::ostream & os, int indentation, edm::FileInPath const& value_);
+  }
 
-  struct ParameterTypeToEnum {
-    template <class T>
-    static ParameterTypes toEnum();
-  };
-
-  class ParameterDescription
-  {
+  template<class T>
+  class ParameterDescription : public ParameterDescriptionBase {
   public:
-    virtual ~ParameterDescription();
 
-    virtual void validate(ParameterSet const& pset) const = 0;
-
-    std::string const& label() const { return label_; }
-    ParameterTypes type() const { return type_; }
-    bool isTracked() const { return isTracked_; }
-    bool isOptional() const { return isOptional_; }
-
-    virtual ParameterSetDescription const* parameterSetDescription() const { return 0; }
-    virtual ParameterSetDescription * parameterSetDescription() { return 0; }
-
-    virtual std::vector<ParameterSetDescription> const* parameterSetDescriptions() const { return 0; }
-    virtual std::vector<ParameterSetDescription> * parameterSetDescriptions() { return 0; }
-
-    void throwParameterNotDefined() const;
-
-    virtual ParameterDescription* clone() const = 0;
-
-    void writeCfi(std::ostream & os, int indentation) const;
-
-  protected:
     ParameterDescription(std::string const& iLabel,
-                         ParameterTypes iType,
-                         bool isTracked,
-                         bool isOptional
-                         );
+                         T const& value,
+                         bool isTracked
+                        ):
+      // WARNING: the toEnum function is intentionally undefined if the template
+      // parameter is ParameterSet or vector<ParameterSet>.  ParameterSetDescription
+      // or vector<ParameterSetDescription> should be used instead.  This template
+      // parameter is usually passed through from an add*<T> function of ParameterSetDescription.
+      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked),
+      value_(value) {
+    }
 
     ParameterDescription(char const* iLabel,
-                         ParameterTypes iType,
-                         bool isTracked,
-                         bool isOptional
-                         );
+                         T const& value,
+                         bool isTracked
+                        ):
+      // WARNING: the toEnum function is intentionally undefined if the template
+      // parameter is ParameterSet or vector<ParameterSet>.  ParameterSetDescription
+      // or vector<ParameterSetDescription> should be used instead.  This template
+      // parameter is usually passed through from an add*<T> function of ParameterSetDescription.
+      ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked),
+      value_(value) {
+    }
+
+    virtual ~ParameterDescription() { }
+
+    virtual ParameterDescriptionNode* clone() const {
+      return new ParameterDescription(*this);
+    }
+
+    T getDefaultValue() const { return value_; }
+
   private:
 
-    virtual void writeCfi_(std::ostream & os, int indentation) const = 0;
+    virtual void validate_(ParameterSet & pset,
+                           std::set<std::string> & validatedLabels,
+                           bool optional) const {
 
-    std::string label_;
-    ParameterTypes type_;
-    bool isTracked_;
-    bool isOptional_;
+      bool exists = pset.existsAs<T>(label(), isTracked());
+
+      if (exists) {
+        validatedLabels.insert(label());
+      }
+      else if (pset.existsAs<T>(label(), !isTracked())) {
+        throwParameterWrongTrackiness();
+      }
+      else if (pset.exists(label())) {
+        throwParameterWrongType();
+      }
+
+      if (!optional && !exists) {
+        if (isTracked()) {
+          pset.addParameter(label(), value_);
+        }
+        else {
+          pset.addUntrackedParameter(label(), value_);
+        }
+        validatedLabels.insert(label());
+      }
+    }
+
+    virtual bool exists_(ParameterSet const& pset) const {
+      return pset.existsAs<T>(label(), isTracked());
+    }
+
+    virtual void writeCfi_(std::ostream & os, int indentation) const {
+      writeToCfi::writeValueToCfi(os, indentation, value_);
+    }
+
+    T value_;
   };
 
-  template <>
-  struct value_ptr_traits<ParameterDescription>
-  {
-    static ParameterDescription * clone( ParameterDescription const * p ) { return p->clone(); }
+  template<>
+  class ParameterDescription<ParameterSetDescription> : public ParameterDescriptionBase {
+
+  public:
+
+    ParameterDescription(std::string const& iLabel,
+                         ParameterSetDescription const& value,
+                         bool isTracked
+                        );
+
+    ParameterDescription(char const* iLabel,
+                         ParameterSetDescription const& value,
+                         bool isTracked
+                        );
+
+    virtual ~ParameterDescription();
+
+    virtual ParameterSetDescription const* parameterSetDescription() const;
+    virtual ParameterSetDescription * parameterSetDescription();
+
+    virtual ParameterDescriptionNode* clone() const {
+      return new ParameterDescription(*this);
+    }
+
+  private:
+
+    virtual void validate_(ParameterSet & pset,
+                           std::set<std::string> & validatedLabels,
+                           bool optional) const;
+
+    virtual bool exists_(ParameterSet const& pset) const;
+
+    virtual void writeCfi_(std::ostream & os, int indentation) const;
+
+    value_ptr<ParameterSetDescription> psetDesc_;
+  };
+
+  template<>
+  class ParameterDescription<std::vector<ParameterSetDescription> > : public ParameterDescriptionBase {
+
+  public:
+
+    ParameterDescription(std::string const& iLabel,
+                         std::vector<ParameterSetDescription> const& vPsetDesc,
+                         bool isTracked
+                        );
+
+    ParameterDescription(char const* iLabel,
+                         std::vector<ParameterSetDescription> const& vPsetDesc,
+                         bool isTracked
+                        );
+
+    virtual ~ParameterDescription();
+
+    virtual std::vector<ParameterSetDescription> const* parameterSetDescriptions() const;
+    virtual std::vector<ParameterSetDescription> * parameterSetDescriptions();
+
+    virtual ParameterDescriptionNode* clone() const {
+      return new ParameterDescription(*this);
+    }
+
+  private:
+
+    virtual void validate_(ParameterSet & pset,
+                           std::set<std::string> & validatedLabels,
+                           bool optional) const;
+
+    virtual bool exists_(ParameterSet const& pset) const;
+
+    virtual void writeCfi_(std::ostream & os, int indentation) const;
+
+    static void writeOneDescriptionToCfi(ParameterSetDescription const& psetDesc,
+                                         std::ostream & os,
+                                         int indentation,
+                                         bool & nextOneStartsWithAComma);
+    void
+    validateDescription(ParameterSetDescription const& psetDescription,
+                        VParameterSetEntry * vpsetEntry,
+                        int & i) const;
+
+    value_ptr<std::vector<ParameterSetDescription> > vPsetDesc_;
   };
 }
 #endif

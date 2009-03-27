@@ -17,7 +17,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
+
+#include "boost/shared_ptr.hpp"
 
 // namespace edm {
 //   class EDProduct;
@@ -73,7 +76,13 @@ namespace {
         iConstReg.watchProductAdditions(this, &Responder::respond);
       }
       void respond(const edm::BranchDescription& iDesc){
-         edm::ModuleDescription module(iDesc.parameterSetID(), "", "");
+         edm::ParameterSet dummyProcessPset;
+         dummyProcessPset.registerIt();
+         boost::shared_ptr<edm::ProcessConfiguration> pc(
+           new edm::ProcessConfiguration());
+         pc->setParameterSetID(dummyProcessPset.id());
+
+         edm::ModuleDescription module(iDesc.parameterSetID(), "", "", pc);
          edm::BranchDescription prod(iDesc.branchType(),
 				     name_,
 				     iDesc.processName(),
@@ -97,14 +106,20 @@ testProductRegistry::testProductRegistry() :
 
 void testProductRegistry::setUp()
 {
+  edm::ParameterSet dummyProcessPset;
+  dummyProcessPset.registerIt();
+  boost::shared_ptr<edm::ProcessConfiguration> processConfiguration(
+    new edm::ProcessConfiguration());
+  processConfiguration->setParameterSetID(dummyProcessPset.id());
+
   edm::ParameterSet pset;
   pset.registerIt();
-  intModule_ = new edm::ModuleDescription(pset.id(), "", "");
+  intModule_ = new edm::ModuleDescription(pset.id(), "", "", processConfiguration);
   intBranch_ = new edm::BranchDescription(edm::InEvent, "label", "PROD",
 					  "int", "int", "int",
 					  *intModule_);
 
-  floatModule_ = new edm::ModuleDescription(intModule_->parameterSetID(), "", "");
+  floatModule_ = new edm::ModuleDescription(intModule_->parameterSetID(), "", "", processConfiguration);
   floatBranch_ = new edm::BranchDescription(edm::InEvent, "label", "PROD",
 					    "float", "float", "float",
 					    *floatModule_);

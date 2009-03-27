@@ -58,8 +58,6 @@ namespace edm {
 	  << "Try running EdmPluginDump to obtain a list of available Plugins.";
     }
 
-    wm->registerProducts();
-
     FDEBUG(1) << "InputSourceFactory: created input source "
 	      << modtype
 	      << std::endl;

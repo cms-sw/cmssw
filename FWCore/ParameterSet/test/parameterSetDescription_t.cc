@@ -3,7 +3,7 @@
 // classes.
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ParameterDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterDescriptionBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     edm::ParameterSetDescription psetDesc;
     assert(!psetDesc.anythingAllowed());
     assert(!psetDesc.isUnknown());
-    assert(psetDesc.parameter_begin() == psetDesc.parameter_end());
+    assert(psetDesc.begin() == psetDesc.end());
 
     edm::ParameterSet params;
     psetDesc.validate(params);
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
     // add an entry into a ParameterSet without FileInPath pointing
     // at a real file.
     edm::ParameterSetDescription psetDesc;
-    edm::ParameterDescription * par = psetDesc.add<edm::FileInPath>("fileInPath", edm::FileInPath());
+    edm::ParameterDescriptionBase * par = psetDesc.add<edm::FileInPath>("fileInPath", edm::FileInPath());
     assert(par->type() == edm::k_FileInPath);
     assert(edm::parameterTypeEnumToString(par->type()) == std::string("FileInPath"));
   }
@@ -77,17 +77,16 @@ int main(int argc, char* argv[]) {
   psetDesc.reserve(2);
 
   int a = 1;
-  edm::ParameterDescription * par = psetDesc.add<int>(std::string("ivalue"), a);
+  edm::ParameterDescriptionBase * par = psetDesc.add<int>(std::string("ivalue"), a);
   pset.addParameter<int>("ivalue", a);
-  assert(par != 0);
+  assert(par != 0); 
   assert(par->label() == std::string("ivalue"));
   assert(par->type() == edm::k_int32);
   assert(par->isTracked() == true);
-  assert(par->isOptional() == false);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("int32"));
 
-  edm::ParameterSetDescription::parameter_const_iterator parIter = psetDesc.parameter_begin();
-  assert(parIter->operator->() == par);
+  edm::ParameterSetDescription::const_iterator parIter = psetDesc.begin();
+  assert(parIter->node().operator->() == par);
 
 
   unsigned b = 2;
@@ -97,12 +96,11 @@ int main(int argc, char* argv[]) {
   assert(par->label() == std::string("uvalue"));
   assert(par->type() == edm::k_uint32);
   assert(par->isTracked() == true);
-  assert(par->isOptional() == false);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("uint32"));
 
-  parIter = psetDesc.parameter_begin();
+  parIter = psetDesc.begin();
   ++parIter;
-  assert(parIter->operator->() == par);
+  assert(parIter->node().operator->() == par);
 
   boost::int64_t c = 3;
   par = psetDesc.addUntracked<boost::int64_t>(std::string("i64value"), c);
@@ -111,7 +109,6 @@ int main(int argc, char* argv[]) {
   assert(par->label() == std::string("i64value"));
   assert(par->type() == edm::k_int64);
   assert(par->isTracked() == false);
-  assert(par->isOptional() == false);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("int64"));
 
   boost::uint64_t d = 4;
@@ -121,7 +118,6 @@ int main(int argc, char* argv[]) {
   assert(par->label() == std::string("u64value"));
   assert(par->type() == edm::k_uint64);
   assert(par->isTracked() == false);
-  assert(par->isOptional() == false);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("uint64"));
 
   double e = 5;
@@ -131,7 +127,6 @@ int main(int argc, char* argv[]) {
   assert(par->label() == std::string("dvalue"));
   assert(par->type() == edm::k_double);
   assert(par->isTracked() == true);
-  assert(par->isOptional() == true);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("double"));
 
   bool f = true;
@@ -141,7 +136,6 @@ int main(int argc, char* argv[]) {
   assert(par->label() == std::string("bvalue"));
   assert(par->type() == edm::k_bool);
   assert(par->isTracked() == true);
-  assert(par->isOptional() == true);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("bool"));
 
   std::string g;
@@ -151,7 +145,6 @@ int main(int argc, char* argv[]) {
   assert(par->label() == std::string("svalue"));
   assert(par->type() == edm::k_string);
   assert(par->isTracked() == false);
-  assert(par->isOptional() == true);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("string"));
 
   edm::EventID h;
@@ -161,7 +154,6 @@ int main(int argc, char* argv[]) {
   assert(par->label() == std::string("evalue"));
   assert(par->type() == edm::k_EventID);
   assert(par->isTracked() == false);
-  assert(par->isOptional() == true);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("EventID"));
 
   edm::LuminosityBlockID i;
@@ -285,7 +277,7 @@ int main(int argc, char* argv[]) {
 
     // For the last test add an extra required parameter in the
     // description that is not in the ParameterSet.
-    if (i == 2) par = nestLevel2.add<int>("intLevel2extra", 1);
+    if (i == 2) par = nestLevel2.add<int>("intLevel2extra", 11);
 
     par = nestLevel2.addUntracked<int>("intLevel2b", 1);
     par = nestLevel2.addOptional<int>("intLevel2c", 1);
@@ -316,14 +308,13 @@ int main(int argc, char* argv[]) {
   // This one should pass validation with no exception
   testDescriptions[1].validate(pset);
 
-  try {
-    testDescriptions[2].validate(pset);
-    assert(0);
-  }
-  catch(edm::Exception) {
-    // There should be an exception
-  }
-
+  // This validation should also pass and it should insert
+  // the missing parameter into the ParameterSet
+  testDescriptions[2].validate(pset);
+  std::vector<edm::ParameterSet> vpset = 
+    pset.getUntrackedParameter<std::vector<edm::ParameterSet> >("nestLevel0");
+  edm::ParameterSet psetInPset = vpset[1].getParameter<edm::ParameterSet>("nestLevel1b");
+  assert(psetInPset.getParameter<int>("intLevel2extra") ==  11);
 
   // One more iteration, this time the purpose is to
   // test the parameterSetDescription accessors.
@@ -331,7 +322,7 @@ int main(int argc, char* argv[]) {
   par = nestLevel2.add<int>("intLevel2a", 1);
   assert(par->parameterSetDescription() == 0);
   assert(par->parameterSetDescriptions() == 0);
-  edm::ParameterDescription const& constParRef = *par;
+  edm::ParameterDescriptionBase const& constParRef = *par;
   assert(constParRef.parameterSetDescription() == 0);
   assert(constParRef.parameterSetDescriptions() == 0);
 
@@ -347,7 +338,7 @@ int main(int argc, char* argv[]) {
   par = nestLevel1.add<edm::ParameterSetDescription>("nestLevel1b", nestLevel2);
   assert(par->parameterSetDescription() != 0);
   assert(par->parameterSetDescriptions() == 0);
-  edm::ParameterDescription const& constParRef2 = *par;
+  edm::ParameterDescriptionBase const& constParRef2 = *par;
   assert(constParRef2.parameterSetDescription() != 0);
   assert(constParRef2.parameterSetDescriptions() == 0);
 
@@ -361,7 +352,7 @@ int main(int argc, char* argv[]) {
   par = psetDesc.addUntracked<std::vector<edm::ParameterSetDescription> >("nestLevel0", vDescs);
   assert(par->parameterSetDescription() == 0);
   assert(par->parameterSetDescriptions() != 0);
-  edm::ParameterDescription const& constParRef3 = *par;
+  edm::ParameterDescriptionBase const& constParRef3 = *par;
   assert(constParRef3.parameterSetDescription() == 0);
   assert(constParRef3.parameterSetDescriptions() != 0);
 

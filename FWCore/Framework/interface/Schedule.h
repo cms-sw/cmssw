@@ -118,13 +118,14 @@ namespace edm {
 
     typedef std::vector<WorkerInPath> PathWorkers;
 
-    Schedule(ParameterSet const& processDesc,
+    Schedule(boost::shared_ptr<ParameterSet> proc_pset,
 	     edm::service::TriggerNamesService& tns,
 	     WorkerRegistry& wregistry,
 	     ProductRegistry& pregistry,
 	     ActionTable& actions,
 	     boost::shared_ptr<ActivityRegistry> areg,
-	     boost::shared_ptr<ProcessConfiguration> processConfiguration);
+	     boost::shared_ptr<ProcessConfiguration> processConfiguration,
+             boost::shared_ptr<InputSource> & inputSource);
 
     enum State { Ready=0, Running, Latched };
 
@@ -251,7 +252,7 @@ namespace edm {
 
     void addToAllWorkers(Worker* w);
 
-    ParameterSet        pset_;
+    boost::shared_ptr<ParameterSet> pset_;
     WorkerRegistry*     worker_reg_;
     ProductRegistry*    prod_reg_;
     ActionTable*        act_table_;

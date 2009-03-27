@@ -19,6 +19,21 @@ Maker::createModuleDescription(WorkerParams const &p) const
 }
 
 void 
+Maker::throwValidationException(WorkerParams const& p,
+                                cms::Exception const& iException) const 
+{
+  ParameterSet const& conf = *p.pset_;
+  std::string moduleName = conf.getParameter<std::string>("@module_type");
+  std::string moduleLabel = conf.getParameter<std::string>("@module_label");
+
+  edm::Exception toThrow(edm::errors::Configuration,
+                         "Error occured while validating and registering configuration\n");
+  toThrow << "for module of type \'" << moduleName << "\' with label \'" << moduleLabel << "\'\n";
+  toThrow.append(iException);
+  throw toThrow;
+}
+
+void 
 Maker::throwConfigurationException(ModuleDescription const &md, 
                                    sigc::signal<void, ModuleDescription const&>& post, 
                                    cms::Exception const& iException) const 

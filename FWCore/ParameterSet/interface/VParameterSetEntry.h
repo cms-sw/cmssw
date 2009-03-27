@@ -7,9 +7,12 @@
     when the value_ptr = 0;
   */
 
-#include <vector>
 #include "FWCore/Utilities/interface/value_ptr.h"
 #include "FWCore/ParameterSet/interface/ParameterSetEntry.h"
+
+#include <string>
+#include <vector>
+#include <iosfwd>
 
 namespace edm {
 
@@ -33,9 +36,11 @@ namespace edm {
     /// returns the VPSet, reconstituting it from the
     /// Registry, if necessary
     std::vector<ParameterSet> const& vpset() const;
+    ParameterSet & psetInVector(int i);
 
-    std::vector<ParameterSetEntry> const& psetEntries() const {return thePSetEntries;}
-    std::vector<ParameterSetEntry>& psetEntries() {return thePSetEntries;}
+    std::vector<ParameterSet>::size_type size() const { return vpset().size(); }
+
+    void registerPsetsAndUpdateIDs();
 
     friend std::ostream & operator<<(std::ostream & os, VParameterSetEntry const& vpsetEntry);
 
@@ -43,10 +48,7 @@ namespace edm {
 
     bool tracked;
     mutable value_ptr<std::vector<ParameterSet> > theVPSet;
-    mutable std::vector<ParameterSetEntry> thePSetEntries;
+    mutable value_ptr<std::vector<ParameterSetID> > theIDs;
   };
-
 }
-
 #endif
-

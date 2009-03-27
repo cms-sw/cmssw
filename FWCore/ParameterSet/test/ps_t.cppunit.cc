@@ -1,5 +1,5 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.22 2009/03/10 04:27:40 rpw Exp $
+ * $Id: ps_t.cppunit.cc,v 1.23 2009/03/10 21:59:06 wmtan Exp $
  */
 
 #include <algorithm>
@@ -414,6 +414,19 @@ void testps::testEmbeddedPSet()
   ps.addParameter<edm::ParameterSet>("psEmbedded", psEmbedded);
   ps.addParameter<double>("topLevel", 1.);
   ps.addUntrackedParameter<boost::uint64_t>("u64", 64);
+
+  std::vector<edm::ParameterSet> vpset;
+  edm::ParameterSet pset1;
+  pset1.addParameter<int>("int1", 1);
+  edm::ParameterSet pset2;
+  pset2.addParameter<int>("int2", 2);
+  edm::ParameterSet pset3;
+  pset3.addParameter<int>("int3", 3);
+  vpset.push_back(pset1);
+  vpset.push_back(pset2);
+  vpset.push_back(pset3);
+  ps.addParameter<std::vector<edm::ParameterSet> >("psVPset", vpset);
+
   ps.registerIt();
 
   std::string rep = ps.toString();
@@ -428,6 +441,10 @@ void testps::testEmbeddedPSet()
   CPPUNIT_ASSERT(trackedPart.getParameterSet("psEmbedded").getParameterSet("psDeeper").getParameter<int>("deepest") == 6);
   CPPUNIT_ASSERT(ps.getUntrackedParameter<boost::uint64_t>("u64") == 64);
   CPPUNIT_ASSERT(!trackedPart.exists("u64"));
+  std::vector<edm::ParameterSet> vpset1 = trackedPart.getParameter<std::vector<edm::ParameterSet> >("psVPset");
+  CPPUNIT_ASSERT(vpset1[0].getParameter<int>("int1") == 1);
+  CPPUNIT_ASSERT(vpset1[1].getParameter<int>("int2") == 2);
+  CPPUNIT_ASSERT(vpset1[2].getParameter<int>("int3") == 3);
 }
 
 void testps::testRegistration()

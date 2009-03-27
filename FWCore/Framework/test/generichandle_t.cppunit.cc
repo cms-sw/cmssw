@@ -130,9 +130,15 @@ void testGenericHandle::getbyLabelTest() {
   edm::TypeID dummytype(dp);
   std::string className = dummytype.friendlyClassName();
 
+  edm::ParameterSet dummyProcessPset;
+  dummyProcessPset.registerIt();
+  boost::shared_ptr<edm::ProcessConfiguration> processConfiguration(
+    new edm::ProcessConfiguration());
+  processConfiguration->setParameterSetID(dummyProcessPset.id());
+
   edm::ParameterSet pset;
   pset.registerIt();
-  edm::ModuleDescription modDesc(pset.id(), "Blah", "");
+  edm::ModuleDescription modDesc(pset.id(), "Blah", "", processConfiguration);
 
   edm::BranchDescription product(edm::InEvent,
 				 label,
@@ -157,7 +163,7 @@ void testGenericHandle::getbyLabelTest() {
   edm::EventID col(1L, 1L);
   edm::Timestamp fakeTime;
   std::string uuid = edm::createGlobalIdentifier();
-  edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
+  edm::ProcessConfiguration pc("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
   edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
@@ -178,9 +184,15 @@ void testGenericHandle::getbyLabelTest() {
   
   edm::GenericHandle h("edmtest::DummyProduct");
   try {
+    edm::ParameterSet dummyProcessPset;
+    dummyProcessPset.registerIt();
+    boost::shared_ptr<edm::ProcessConfiguration> processConfiguration(
+      new edm::ProcessConfiguration());
+    processConfiguration->setParameterSetID(dummyProcessPset.id());
+
     edm::ParameterSet pset;
     pset.registerIt();
-    edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs");
+    edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs", processConfiguration);
     edm::Event event(ep, modDesc);
 
     event.getByLabel(label, productInstanceName,h);

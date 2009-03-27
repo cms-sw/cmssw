@@ -21,6 +21,7 @@ Test of the EventPrincipal class.
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -103,9 +104,15 @@ void testEventGetRefBeforePut::getRefTest() {
   edm::TypeID dummytype(dp);
   std::string className = dummytype.friendlyClassName();
 
+  edm::ParameterSet dummyProcessPset;
+  dummyProcessPset.registerIt();
+  boost::shared_ptr<edm::ProcessConfiguration> processConfiguration(
+    new edm::ProcessConfiguration());
+  processConfiguration->setParameterSetID(dummyProcessPset.id());
+
   edm::ParameterSet pset;
   pset.registerIt();
-  edm::ModuleDescription modDesc(pset.id(), "Blah", "");
+  edm::ModuleDescription modDesc(pset.id(), "Blah", "", processConfiguration);
 
   edm::BranchDescription product(edm::InEvent,
 				 label,
@@ -125,7 +132,7 @@ void testEventGetRefBeforePut::getRefTest() {
   edm::EventID col(1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
-  boost::shared_ptr<edm::ProcessConfiguration> pcPtr(new edm::ProcessConfiguration(processName, edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
+  boost::shared_ptr<edm::ProcessConfiguration> pcPtr(new edm::ProcessConfiguration(processName, dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
   edm::ProcessConfiguration& pc = *pcPtr;
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
   edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);

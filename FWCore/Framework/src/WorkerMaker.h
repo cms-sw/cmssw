@@ -23,7 +23,13 @@ namespace edm {
                                              sigc::signal<void, ModuleDescription const&>& iPost) const = 0;
   protected:
     ModuleDescription createModuleDescription(WorkerParams const &p) const;
-    void throwConfigurationException(ModuleDescription const &md, sigc::signal<void, ModuleDescription const&>& post, cms::Exception const& iException) const;
+
+    void throwConfigurationException(ModuleDescription const &md,
+                                     sigc::signal<void, ModuleDescription const&>& post,
+                                     cms::Exception const& iException) const;
+
+    void throwValidationException(WorkerParams const& p,
+				  cms::Exception const& iException) const;
   };
 
   template <class T>
@@ -48,15 +54,22 @@ namespace edm {
     typedef typename UserType::ModuleType ModuleType;
     typedef typename UserType::WorkerType WorkerType;
 
+    try {
+      ConfigurationDescriptions descriptions;
+      UserType::fillDescriptions(descriptions);
+      descriptions.validate(*p.pset_, p.pset_->getParameter<std::string>("@module_label"));
+
+      p.pset_->registerIt();
+    }
+    catch (cms::Exception& iException) {
+      throwValidationException(p, iException);
+    }
+
     ModuleDescription md = createModuleDescription(p);
 
     std::auto_ptr<Worker> worker;
     try {
        pre(md);
-
-       ConfigurationDescriptions descriptions;
-       UserType::fillDescriptions(descriptions);
-       descriptions.validate(*p.pset_, md.moduleLabel());
 
        std::auto_ptr<ModuleType> module(WorkerType::template makeModule<UserType>(md, *p.pset_));
        worker=std::auto_ptr<Worker>(new WorkerType(module, md, p));

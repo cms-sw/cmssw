@@ -8,7 +8,6 @@
 //
 // Original Author:  W. David Dagenhart
 //         Created:  17 December 2008
-// $Id$
 //
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -62,7 +61,7 @@ namespace edm {
   }
 
   void
-  ConfigurationDescriptions::validate(ParameterSet const& pset,
+  ConfigurationDescriptions::validate(ParameterSet & pset,
                                       std::string const& moduleLabel) const {
     
     ParameterSetDescription const* psetDesc = 0;

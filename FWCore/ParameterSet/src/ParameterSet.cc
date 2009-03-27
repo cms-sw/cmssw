@@ -117,20 +117,13 @@ namespace edm {
     for(psettable::iterator i = psetTable_.begin(), e = psetTable_.end(); i != e; ++i) {
       if (!i->second.pset().isRegistered()) {
 	i->second.pset().registerIt();
-	i->second.updateID();
       }
+      i->second.updateID();
     }
 
     // make sure contained tracked vpsets are updated
     for(vpsettable::iterator i = vpsetTable_.begin(), e = vpsetTable_.end(); i != e; ++i) {
-      for (std::vector<ParameterSetEntry>::iterator
-	  it = i->second.psetEntries().begin(), et = i->second.psetEntries().end();
-	  it != et; ++it) {
-	if (!it->pset().isRegistered()) {
-          it->pset().registerIt();
-          it->updateID();
-	}
-      }
+      i->second.registerPsetsAndUpdateIDs();
     }
 
     std::string stringrep;
@@ -441,7 +434,6 @@ namespace edm {
     }
   }  // augment()
 
-
   void ParameterSet::copyFrom(ParameterSet const& from, std::string const& name) {
     invalidateRegistration(std::string());
     if(from.existsAs<ParameterSet>(name)) {
@@ -457,6 +449,24 @@ namespace edm {
       throw edm::Exception(errors::Configuration, "copyFrom")
        << "Cannot find parameter " << name  << " in " << from;
     }
+  }
+
+  ParameterSet *
+  ParameterSet::getPSetForUpdate(std::string const& name, bool & isTracked) {
+    assert(!isRegistered());
+    isTracked = false;
+    psettable::iterator it = psetTable_.find(name);
+    if (it == psetTable_.end()) return 0;
+    isTracked = it->second.isTracked();
+    return &it->second.pset();
+  }
+
+  VParameterSetEntry *
+  ParameterSet::getPSetVectorForUpdate(std::string const& name) {
+    assert(!isRegistered());
+    vpsettable::iterator it = vpsetTable_.find(name);
+    if (it == vpsetTable_.end()) return 0;
+    return &it->second;
   }
 
   // ----------------------------------------------------------------------
@@ -657,11 +667,11 @@ namespace edm {
     for(vpsettable::const_iterator vpsetItr = vpsetTable_.begin(); vpsetItr != vpsetTable_.end(); ++vpsetItr) {
       if(vpsetItr->second.isTracked()) {
 	VParameterSet vresult;
-	typedef std::vector<ParameterSetEntry> VPSE;
-	typedef VPSE::const_iterator Iter;
-	VPSE const& vpse = vpsetItr->second.psetEntries();
-	for (Iter i = vpse.begin(), e = vpse.end(); i != e; ++i) {
-	  vresult.push_back(i->pset().trackedPart());
+	std::vector<ParameterSet> const& this_vpset = vpsetItr->second.vpset();
+
+	typedef std::vector<ParameterSet>::const_iterator Iter;
+	for (Iter i = this_vpset.begin(), e = this_vpset.end(); i != e; ++i) {
+	  vresult.push_back(i->trackedPart());
 	}
         result.addParameter<VParameterSet>(vpsetItr->first, vresult);
       } else {
@@ -2234,6 +2244,7 @@ namespace edm {
   ParameterSet::getParameterSet(char const* name) const {
     return retrieveParameterSet(name).pset();
   }
+
   ParameterSet const&
   ParameterSet::getUntrackedParameterSet(std::string const& name, ParameterSet const& defaultValue) const {
     return getUntrackedParameterSet(name.c_str(), defaultValue);

@@ -16,7 +16,6 @@
 //
 // Original Author:  W. David Dagenhart
 //         Created:  17 December 2008
-// $Id$
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -38,7 +37,7 @@ namespace edm {
 
     void addUnknownLabel(ParameterSetDescription const& psetDescription);
 
-    void validate(ParameterSet const& pset, std::string const& moduleLabel) const;
+    void validate(ParameterSet & pset, std::string const& moduleLabel) const;
 
     void writeCfis(std::string const& baseType,
                    std::string const& pluginName) const;

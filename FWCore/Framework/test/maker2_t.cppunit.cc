@@ -8,7 +8,6 @@
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 
@@ -71,10 +70,9 @@ void testmaker2::maker2Test()
 
   edm::ActionTable table;
 
-  edm::ProductRegistry preg;
   boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID()));
-  edm::WorkerParams params1(p1, p1, preg, pc, table);
-  edm::WorkerParams params2(p2, p2, preg, pc, table);
+  edm::WorkerParams params1(p1, &p1, pc, table);
+  edm::WorkerParams params2(p2, &p2, pc, table);
 
   sigc::signal<void, const ModuleDescription&> aSignal;
   std::auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
