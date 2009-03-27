@@ -7,6 +7,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CondFormats/SiStripObjects/interface/SiStripModuleHV.h"
+#include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 #include "CondFormats/SiStripObjects/interface/SiStripRunSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPerformanceSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
