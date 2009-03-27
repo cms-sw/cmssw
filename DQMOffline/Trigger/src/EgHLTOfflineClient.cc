@@ -13,14 +13,14 @@
 
 #include <boost/algorithm/string.hpp>
 
-EgHLTOfflineClient::EgHLTOfflineClient(const edm::ParameterSet& iConfig)
+EgHLTOfflineClient::EgHLTOfflineClient(const edm::ParameterSet& iConfig):dbe_(NULL)
 {
   dbe_ = edm::Service<DQMStore>().operator->();
   if (!dbe_) {
-    edm::LogInfo("EgHLTOfflineClient") << "unable to get DQMStore service?";
+    edm::LogError("EgHLTOfflineClient") << "unable to get DQMStore service, upshot is no client histograms will be made";
   }
   if(iConfig.getUntrackedParameter<bool>("DQMStore", false)) {
-    dbe_->setVerbose(0);
+    if(dbe_) dbe_->setVerbose(0);
   }
  
 
@@ -87,8 +87,10 @@ void EgHLTOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
 void EgHLTOfflineClient::runClient_()
 {
-  if(dbe_) dbe_->setCurrentFolder(dirName_);
-  //edm::LogInfo("EgHLTOfflineClient") << "end lumi block called";
+  if(!dbe_) return; //we dont have the DQMStore so we cant do anything
+  dbe_->setCurrentFolder(dirName_);
+ 
+
   std::vector<std::string> regions;
   regions.push_back("eb");
   regions.push_back("ee");
@@ -154,13 +156,13 @@ void EgHLTOfflineClient::createTrigTagProbeEffHists(const std::string& filterNam
     std::string allName(dirName_+"/"+filterName+"_trigTagProbe_"+objName+"_all_"+vsVarNames[varNr]+"_"+region);
     MonitorElement* all = dbe_->get(allName); 
     if(all==NULL){
-      edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<allName;
+      //edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<allName;
       continue;
     }
     std::string passName(dirName_+"/"+filterName+"_trigTagProbe_"+objName+"_pass_"+vsVarNames[varNr]+"_"+region);
     MonitorElement* pass = dbe_->get(passName); 
     if(pass==NULL){
-      edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<passName;
+      //edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<passName;
       continue;
     }
     
@@ -181,13 +183,15 @@ void EgHLTOfflineClient::createLooseTightTrigEff(const std::vector<std::string>&
       const std::string& looseTrig = splitString[1];
       MonitorElement* fail = dbe_->get(dirName_+"/"+tightTrig+"_"+looseTrig+"_"+objName+"_failTrig_"+vsVarNames[varNr]+"_"+region); 
       if(fail==NULL){
-	edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<dirName_+"/"+tightTrig+"_"+looseTrig+"_"+objName+"_failTrig_"+vsVarNames[varNr]+"_"+region;
+	//edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<dirName_+"/"+tightTrig+"_"+looseTrig+"_"+objName+"_failTrig_"+vsVarNames[varNr]+"_"+region;
+
 	continue;
       }
 
       MonitorElement* pass = dbe_->get(dirName_+"/"+tightTrig+"_"+looseTrig+"_"+objName+"_passTrig_"+vsVarNames[varNr]+"_"+region); 
       if(pass==NULL){
-	edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<dirName_+"/"+tightTrig+"_"+looseTrig+"_"+objName+"_passTrig_"+vsVarNames[varNr]+"_"+region;
+
+	//edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<dirName_+"/"+tightTrig+"_"+looseTrig+"_"+objName+"_passTrig_"+vsVarNames[varNr]+"_"+region;
 	continue;
       } 
       const std::string newHistName(tightTrig+"_trigEffTo_"+looseTrig+"_"+objName+"_vs_"+vsVarNames[varNr]+"_"+region);

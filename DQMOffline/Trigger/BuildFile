@@ -13,7 +13,6 @@
 <use name=DataFormats/TauReco>
 <use name=DataFormats/METReco>
 <use name=DataFormats/JetReco>
-<use name=Geometry/CaloEventSetup>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=RecoEgamma/EgammaHLTAlgos>
 <use name=HLTrigger/HLTcore>
@@ -39,7 +38,6 @@
   <use name=DataFormats/TauReco>  
   <use name=DataFormats/METReco>
   <use name=DataFormats/JetReco>
-  <use name=Geometry/CaloEventSetup>
   <use name=RecoEcal/EgammaCoreTools>
   <use name=RecoEgamma/EgammaHLTAlgos>
   <use name=HLTrigger/HLTcore>
