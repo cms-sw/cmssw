@@ -15,8 +15,8 @@ class SiStripPedestalsSubtractor {
 
  public:
   
-  ~SiStripPedestalsSubtractor(){};
   void subtract(const edm::DetSet<SiStripRawDigi>&, std::vector<int16_t>&);
+  void subtract(const uint32_t&, const uint16_t &, std::vector<int16_t>&);
   void init(const edm::EventSetup& );
   
  private:
@@ -26,5 +26,9 @@ class SiStripPedestalsSubtractor {
   std::vector<int> pedestals;
   uint32_t peds_cache_id;
   
+  template <class input_t> void subtract_(const uint32_t&,const uint16_t&, const input_t&, std::vector<int16_t>&);
+  const int16_t& eval(const int16_t& in) { return in;}
+  const uint16_t& eval(const SiStripRawDigi& in) { return in.adc();}
+
 };
 #endif

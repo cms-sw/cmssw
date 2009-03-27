@@ -11,28 +11,28 @@ void SiStripPedestalsSubtractor::init(const edm::EventSetup& es){
   }
 }
 
+void SiStripPedestalsSubtractor::subtract(const uint32_t& id, const uint16_t& firstStrip, std::vector<int16_t>& digis) {subtract_(id, firstStrip, digis, digis);}
+void SiStripPedestalsSubtractor::subtract(const edm::DetSet<SiStripRawDigi>& input, std::vector<int16_t>& output) {subtract_(input.id, 0, input, output);}
 
-void SiStripPedestalsSubtractor::subtract(const edm::DetSet<SiStripRawDigi>& input, std::vector<int16_t>& output){
+template <class input_t>
+inline
+void SiStripPedestalsSubtractor::
+subtract_(const uint32_t& id, const uint16_t& firstStrip, const input_t& input, std::vector<int16_t>& output) {
   try {
 
-    pedestals.resize(input.size());
-    SiStripPedestals::Range pedestalsRange = pedestalsHandle->getRange(input.id);
+    pedestals.resize(firstStrip + input.size());
+    SiStripPedestals::Range pedestalsRange = pedestalsHandle->getRange(id);
     pedestalsHandle->allPeds(pedestals, pedestalsRange);
 
-    edm::DetSet<SiStripRawDigi>::const_iterator 
-      inDigi = input.begin();
-
-    std::vector<int>::const_iterator              
-      ped = pedestals.begin();  
-
-    std::vector<int16_t>::iterator            
-      outDigi = output.begin();
+    typename input_t::const_iterator inDigi = input.begin();
+    std::vector<int>::const_iterator ped = pedestals.begin() + firstStrip;  
+    std::vector<int16_t>::iterator   outDigi = output.begin();
 
     while( inDigi != input.end() ) {
 
       *outDigi = ( *ped > 895 ) 
-	? inDigi->adc() - *ped + 1024
-	: inDigi->adc() - *ped;
+	? eval(*inDigi) - *ped + 1024
+	: eval(*inDigi) - *ped;
 
       ++inDigi; 
       ++ped; 
@@ -42,7 +42,7 @@ void SiStripPedestalsSubtractor::subtract(const edm::DetSet<SiStripRawDigi>& inp
 
   } catch(cms::Exception& e){
     edm::LogError("SiStripPedestalsSubtractor")  
-      << "[SiStripPedestalsSubtractor::subtract] DetId " << input.id << " propagating error from SiStripPedestal" << e.what();
+      << "[SiStripPedestalsSubtractor::subtract] DetId " << id << " propagating error from SiStripPedestal" << e.what();
     output.clear();
   }
 
