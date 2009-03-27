@@ -16,7 +16,7 @@
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 
 class SiStripQualityESProducer : public edm::ESProducer {
  public:

@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityESProducer.cc,v 1.2 2008/07/25 16:13:56 giordano Exp $
+// $Id: SiStripQualityESProducer.cc,v 1.3 2008/08/08 17:10:54 giordano Exp $
 //
 //
 
@@ -45,7 +45,8 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
 
   edm::ESHandle<SiStripBadStrip> obj;
   edm::ESHandle<SiStripDetCabling> cabling;
-
+  edm::ESHandle<SiStripModuleHV> Voff;
+  
   std::string tagName;  
   std::string recordName;
   for(Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
@@ -66,6 +67,12 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
     } else if (recordName=="SiStripDetCablingRcd"){
       iRecord.getRecord<SiStripDetCablingRcd>().get(tagName,cabling);
       quality->add( cabling.product() );    
+    } else if (recordName=="SiStripModuleHVRcd"){
+      iRecord.getRecord<SiStripModuleHVRcd>().get(tagName,Voff);
+      quality->add( Voff.product() );    
+    } else if (recordName=="SiStripModuleLVRcd"){
+      iRecord.getRecord<SiStripModuleLVRcd>().get(tagName,Voff);
+      quality->add( Voff.product() );    
     } else {
       edm::LogError("SiStripQualityESProducer") << "[SiStripQualityESProducer::produce] Skipping the requested data for unexisting record " << recordName << " with tag " << tagName << std::endl;
       continue;
