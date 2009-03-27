@@ -3,8 +3,8 @@
 
 reco::SuperClusterCollection Multi5x5BremRecoveryClusterAlgo::makeSuperClusters(reco::CaloClusterPtrVector & clustersCollection)
 {
-  const float etaBorder = 1.479;
 
+  const float etaBorder = 1.479;
   superclusters_v.clear();
   
   // create vectors of references to clusters of a specific origin...
@@ -15,7 +15,7 @@ reco::SuperClusterCollection Multi5x5BremRecoveryClusterAlgo::makeSuperClusters(
   for (reco::CaloCluster_iterator it = clustersCollection.begin(); it != clustersCollection.end(); it++)
     {
       reco::CaloClusterPtr cluster_p = *it;
-      if (cluster_p->algo() == reco::CaloCluster::island) 
+      if (cluster_p->algo() == reco::CaloCluster::multi5x5) 
       {
 	  if (fabs(cluster_p->position().eta()) < etaBorder)
 	    {
@@ -42,11 +42,10 @@ void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterP
 						      double etaRoad, double phiRoad)
 {
 
-            std::cerr << "Multi5x5BremRecoveryClusterAlgo" << std::endl;
   //for (reco::CaloCluster_iterator currentSeed = clusters_v.begin(); !clusters_v.empty(); clusters_v.erase(currentSeed))
   for (reco::CaloCluster_iterator currentSeed = clusters_v.begin(); currentSeed != clusters_v.end(); ++currentSeed)
     {
-            std::cerr << "inside" << std::endl;
+      //      std::cerr << "inside" << std::endl;
       // Does our highest energy cluster have high enough energy?
       // changed this to continue from break (to be robust against the order of sorting of the seed clusters)
       if ((*currentSeed)->energy() * sin((*currentSeed)->position().theta()) < seedTransverseEnergyThreshold) continue;
