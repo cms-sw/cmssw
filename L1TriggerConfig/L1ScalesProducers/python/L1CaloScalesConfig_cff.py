@@ -13,4 +13,16 @@ jetrcdsrc = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
+htmrcdsrc = cms.ESSource("EmptyESSource",
+    recordName = cms.string('L1HtMissScaleRcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
+)
+
+hfrrcdsrc = cms.ESSource("EmptyESSource",
+    recordName = cms.string('L1HfRingEtScaleRcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
+)
+
 
