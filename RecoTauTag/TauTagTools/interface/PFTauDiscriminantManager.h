@@ -26,7 +26,7 @@ class PFTauDiscriminantManager {
       /// add a discriminant 
       void addDiscriminant(Discriminant* const aDiscriminant);
       /// add a set of branches ot the TTree 
-      bool branchTree(TTree* const treeToBranch);
+      bool branchTree(TTree* const treeToBranch, bool addTargetBranch = false, bool addWeightBranch = false);
       /// connect to an MVA computer
       void buildMVAComputerLink(std::vector<PhysicsTools::Variable::Value>&);
       /// set objects for this discriminant

@@ -294,17 +294,22 @@ PFTauDiscriminantManager::outlierObjectsSortedByDR()
 
 
 bool
-PFTauDiscriminantManager::branchTree(TTree* treeToBranch)
+PFTauDiscriminantManager::branchTree(TTree* treeToBranch, bool addTargetBranch, bool addWeightBranch)
 {
    if(!treeToBranch)
    {
       edm::LogError("PFTauDiscriminantManager") << "Error: trying to branch ttree - TTree pointer is null!";
       return false;
    }
+
    //add magic variables _TARGET_ (for sig/bkg) and _WEIGHT_, and ISNULL for non-existence
-   //treeToBranch->Branch("__TARGET__", &iAmSignal_,  "__TARGET__/O");  //needs bugfix in MVA framework code..
-   treeToBranch->Branch("__ISNULL__", &iAmNull_,    "__ISNULL__/O");
-   treeToBranch->Branch("__WEIGHT__", &eventWeight_,"__WEIGHT__/D");
+   if (addTargetBranch)
+      treeToBranch->Branch("__TARGET__", &iAmSignal_,  "__TARGET__/O");  //needs bugfix in MVA framework code..
+   if (addWeightBranch)
+      treeToBranch->Branch("__WEIGHT__", &eventWeight_,"__WEIGHT__/D");
+   // note: Target and Weight are normally added after the fact, in the training code.
+
+   treeToBranch->Branch("__ISNULL__",  &iAmNull_,"__ISNULL__/O");
    treeToBranch->Branch("__PREPASS__", &prePass_,"__PREPASS__/O");
    treeToBranch->Branch("__PREFAIL__", &preFail_,"__PREFAIL__/O");
 
