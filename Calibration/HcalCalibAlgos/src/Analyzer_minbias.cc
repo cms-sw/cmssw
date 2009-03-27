@@ -68,7 +68,7 @@ Analyzer_minbias::~Analyzer_minbias()
 
 void Analyzer_minbias::beginJob( const edm::EventSetup& iSetup)
 {
-   double phibound = 4.*atan(1.);
+   
    hOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ;
    
    myTree = new TTree("RecJet","RecJet Tree");
@@ -313,7 +313,7 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 //   edm::ESHandle<CaloGeometry> pG;
 //   iSetup.get<CaloGeometryRecord>().get(pG);
 
-  const HcalRespCorrs* myRecalib;
+  const HcalRespCorrs* myRecalib=0;
   if( theRecalib ) {
 // Radek:   
   edm::ESHandle <HcalRespCorrs> recalibCorrs;

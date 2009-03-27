@@ -65,7 +65,7 @@ void HcalConstantsXMLWriter::writeXML(string& newfile0, vector<int> detvec,vecto
    XMLString::transcode("Cell", tempStr, 99);
    vector<DOMElement*> theDOMVec;
 
-   for(int i=0; i<detvec.size();i++)
+   for(unsigned int i=0; i<detvec.size();i++)
    {
    theDOMVec.push_back(mDoc->createElement (tempStr));
    newCellLine(theDOMVec[i],detvec[i],etavec[i],phivec[i],depthvec[i],scalevec[i]);
@@ -104,22 +104,26 @@ void HcalConstantsXMLWriter::newCellLine(DOMElement* detelem, int det, int eta, 
    ostringstream ost1;
    ost1 <<eta;
    attreta->setValue(XMLString::transcode(ost1.str().c_str()));
-   DOMAttr* attr3 = detelem->setAttributeNode(attreta);
+   //DOMAttr* attr3 = detelem->setAttributeNode(attreta);
+   detelem->setAttributeNode(attreta);
 
    ostringstream ost2;
    ost2 <<phi;
    attrphi->setValue(XMLString::transcode(ost2.str().c_str()));
-   DOMAttr* attr4 = detelem->setAttributeNode(attrphi);
+   //DOMAttr* attr4 = detelem->setAttributeNode(attrphi);
+   detelem->setAttributeNode(attrphi);
 
    ostringstream ost3;
    ost3 <<depth;     
    attrdepth->setValue(XMLString::transcode(ost3.str().c_str()));
-   DOMAttr* attr5 = detelem->setAttributeNode(attrdepth);
+   //DOMAttr* attr5 = detelem->setAttributeNode(attrdepth);
+   detelem->setAttributeNode(attrdepth);
 
    ostringstream ost4;
    ost4 << scale;
    attrscale->setValue(XMLString::transcode(ost4.str().c_str()));
-   DOMAttr* attr6 = detelem->setAttributeNode(attrscale);
+   //DOMAttr* attr6 = detelem->setAttributeNode(attrscale);
+   detelem->setAttributeNode(attrscale);
 
 }
 

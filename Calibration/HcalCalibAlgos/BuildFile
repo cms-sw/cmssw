@@ -55,7 +55,6 @@
 
    <use name=Geometry/CaloTopology>
    <use name=Geometry/CaloGeometry>
-   <use name=Geometry/CaloEventSetup>
    <use name=CondTools/Hcal>
    <use name=TrackPropagation/SteppingHelixPropagator>
    <use name=TrackingTools/TrackAssociator>

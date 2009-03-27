@@ -92,7 +92,7 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
     map<HcalDetId,float> corrold;
     //map<HcalDetId,float> corrnew; 
     
-    int mydet,mysubd,depth,ieta,iphi;
+    int mysubd,depth,ieta,iphi;
     float coradd,corerr;
      
     vector<HcalDetId> theVector; 
@@ -124,8 +124,7 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
 
       if(!line.size() || line[0]=='#') continue;
       istringstream linestream(line);
-      double par;
-      int type;
+
       linestream>>mysubd>>depth>>ieta>>iphi>>coradd>>corerr;
 //      DetId mydid(DetId::Hcal,HcalSubdetector(mysubd));
 //      HcalDetId  hid(HcalSubdetector(mysubd),ieta,iphi,depth);
@@ -158,7 +157,7 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   // now make the basic object for one cell with HcalDetId myDetId containing the value myValue
       HcalRespCorr item ((*it).rawId(), cc);
-      bool rr = mycorrections->addValues(item);
+
    }   
 
     HcalRespCorrs mycc = *mycorrections;
