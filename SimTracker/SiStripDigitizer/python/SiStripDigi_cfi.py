@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from CalibTracker.SiStripESProducers.SiStripGainSimESProducer_cfi import *
+
 simSiStripDigis = cms.EDFilter("SiStripDigitizer",
                                #---SiLinearChargeDivider
                                DeltaProductionCut      = cms.double(0.120425),
@@ -60,8 +62,8 @@ simSiStripDigis = cms.EDFilter("SiStripDigitizer",
                                GeometryType               = cms.string('idealForDigi'),
                                TrackerConfigurationFromDB = cms.bool(False),
                                ZeroSuppression            = cms.bool(True),
-                               LorentzAngle               = cms.string('fake'),
-                               Gain                       = cms.string('fake'),
+                               LorentzAngle               = cms.string(''),
+                               Gain                       = cms.string(''),
                                #-----SiStripDigitizerAlgorithm
                                NoiseSigmaThreshold        = cms.double(2.0),
                                electronPerAdc             = cms.double(274.0),

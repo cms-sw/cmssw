@@ -42,17 +42,13 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 //Data Base infromations
-#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
-#include "CalibTracker/Records/interface/SiStripGainRcd.h"
-#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
-#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
-#include "CondFormats/DataRecord/interface/SiStripThresholdRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
+#include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 //Random Number
@@ -141,9 +137,9 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::ESHandle<SiStripThreshold> thresholdHandle;
   edm::ESHandle<SiStripPedestals> pedestalHandle;
   std::string LAname = conf_.getParameter<std::string>("LorentzAngle");
-  iSetup.get<SiStripLorentzAngleRcd>().get(LAname,lorentzAngleHandle);
+  iSetup.get<SiStripLorentzAngleSimRcd>().get(LAname,lorentzAngleHandle);
   std::string gainLabel = conf_.getParameter<std::string>("Gain");
-  iSetup.get<SiStripGainRcd>().get(gainLabel,gainHandle);
+  iSetup.get<SiStripGainSimRcd>().get(gainLabel,gainHandle);
   iSetup.get<SiStripNoisesRcd>().get(noiseHandle);
   iSetup.get<SiStripThresholdRcd>().get(thresholdHandle);
   iSetup.get<SiStripPedestalsRcd>().get(pedestalHandle);
