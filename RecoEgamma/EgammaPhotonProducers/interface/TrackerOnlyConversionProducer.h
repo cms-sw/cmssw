@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2009/02/06 15:45:55 $
- **  $Revision: 1.1 $
+ **  $Date: 2009/03/25 13:56:04 $
+ **  $Revision: 1.2 $
  **  \author H. Liu, UC of Riverside US
  **
  ***/
@@ -40,21 +40,80 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+//photon data format
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+using namespace edm;
+using namespace reco;
+using namespace std;
+
 class TrackerOnlyConversionProducer : public edm::EDProducer {
     public:
       explicit TrackerOnlyConversionProducer(const edm::ParameterSet&);
       ~TrackerOnlyConversionProducer();
 
-      void getCircleCenter(const reco::TrackRef& tk, const double r, double& x0, double& y0, bool muon = false);
-      void getCircleCenter(const edm::RefToBase<reco::Track>& tk, const double r, double& x0, double& y0, bool muon = false);
-   private:
+      void buildCollection( edm::Event& iEvent, const edm::EventSetup& iSetup,
+	      const reco::TrackRefVector& allTracks,
+	      const std::multimap<double, reco::CaloClusterPtr>& basicClusterPtrs,
+	      reco::ConversionCollection & outputConvPhotonCollection);
 
+      void buildCollection( edm::Event& iEvent, const edm::EventSetup& iSetup,
+	      const reco::TrackRefVector& allTracks,
+	      const reco::CaloClusterPtr& basicClusterPtrs,
+	      reco::ConversionCollection & outputConvPhotonCollection);
+
+      //track quality cut, returns pass or no
+      inline bool trackQualityFilter(const edm::Ref<reco::TrackCollection>&  ref, bool isLeft);
+      inline bool trackD0Cut(const edm::Ref<reco::TrackCollection>&  ref);
+
+      //track impact point at ECAL wall, returns validity to access position ew
+      bool getTrackImpactPosition(const TrackRef& tk_ref, 
+	      const TrackerGeometry* trackerGeom, const MagneticField* magField, 
+	      math::XYZPoint& ew);
+
+      //distance at min approaching point, returns distance
+      double getMinApproach(const TrackRef& ll, const TrackRef& rr, 
+	      const MagneticField* magField);
+
+      //cut-based selection, TODO remove global cut variables
+      bool checkTrackPair(const std::pair<reco::TrackRef, reco::CaloClusterPtr>& ll,
+	      const std::pair<reco::TrackRef, reco::CaloClusterPtr>& rr,
+	      const MagneticField* magField,
+	      double& appDist);
+
+      //check the closest BC, returns true for found a BC
+      bool getMatchedBC(const std::multimap<double, reco::CaloClusterPtr>& bcMap, 
+	      const math::XYZPoint& trackImpactPosition,
+	      reco::CaloClusterPtr& closestBC);
+
+      bool getMatchedBC(const reco::CaloClusterPtrVector& bcMap, 
+	      const math::XYZPoint& trackImpactPosition,
+	      reco::CaloClusterPtr& closestBC);
+
+   private:
+      virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       virtual void beginRun(const edm::Run&, const edm::EventSetup&);
       virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
+      inline void getCircleCenter(const reco::TrackRef& tk, 
+	      const double r, double& x0, double& y0, 
+	      bool muon = false);
+      inline void getCircleCenter(const edm::RefToBase<reco::Track>& tk, 
+	      const double r, double& x0, double& y0, 
+	      bool muon = false);
+
       // ----------member data ---------------------------
+      std::string algoName_;
+
       typedef math::XYZPointD Point;
       typedef std::vector<Point> PointCollection;
 
@@ -74,7 +133,7 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       double dEtaTkBC_, dPhiTkBC_;//0.06 0.6 for track and BC matching
 
       double maxChi2Left_, maxChi2Right_;//5. 5. for track chi2 quality
-      double maxHitsLeft_, maxHitsRight_;//5 2 for track hits quality 
+      double minHitsLeft_, minHitsRight_;//5 2 for track hits quality 
 
       double deltaCotTheta_, deltaPhi_, minApproach_;//0.02 0.2 for track pair open angle and > -0.1 cm
 
