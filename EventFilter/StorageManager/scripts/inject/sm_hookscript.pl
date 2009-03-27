@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: sm_hookscript.pl,v 1.11 2009/03/23 13:51:57 jserrano Exp $
+# $Id: sm_hookscript.pl,v 1.12 2009/03/23 14:12:08 jserrano Exp $
 ################################################################################
 
 use strict;
@@ -28,16 +28,6 @@ my $checksum    = $ENV{'SM_CHECKSUM'};
 my $producer    = 'StorageManager';
 my $retries     = 2;
 my $copydelay   = 3;
-
-
-## special treatment for calibration stream
-#my $doca = $ENV{'SM_CALIB_NFS'};
-#if (defined $doca) {
-#    if($fields[3] eq "Calibration") {
-#        my $COPYCOMMAND = '$SMT0_BASE_DIR/sm_nfscopy.sh $SM_CALIB_NFS $SM_PATHNAME/$SM_FILENAME $SM_CALIBAREA 5';
-#        system($COPYCOMMAND);
-#    }
-#}
 
 # special treatment for EcalCalibration
 my $doca = $ENV{'SM_CALIB_NFS'};
