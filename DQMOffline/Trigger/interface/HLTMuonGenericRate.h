@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/02/27 13:22:16 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/03/26 09:45:52 $
+ *  $Revision: 1.2 $
  *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
  *  \author  J. Slaunwhite (modified from above
  */
@@ -32,6 +32,9 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
+
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 
 #include <vector>
 #include "TFile.h"
@@ -62,14 +65,24 @@ private:
 
   // Struct and methods for matching
 
+  // Big Change from RelVal
+  // Now we store Muons and TriggerObjects
+  // instead of Tracks and 4-vectors
   struct MatchStruct {
+    
     //const reco::GenParticle*   genCand;
-    const reco::Track*         recCand;
-    LorentzVector              l1Cand;
-    LorentzVector              l1RawCand;
-    std::vector<LorentzVector> hltCands;
+    const reco::Muon*         recCand;
+    // Can't understsand how to use these references
+    //l1extra::L1MuonParticleRef   l1Cand;
+    //l1extra::L1MuonParticleRef   l1RawCand;
+
+    trigger::TriggerObject l1Cand;
+    LorentzVector l1RawCand;
+    std::vector<trigger::TriggerObject> hltCands;
+    // Can't handle the raw objects
+    // just use 4-vector
     std::vector<LorentzVector> hltRawCands;
-    std::vector<const reco::RecoChargedCandidate*> hltTracks;
+    //std::vector<const reco::RecoChargedCandidate*> hltTracks;
 
     // Do we really want to store just the lorentz vectors
     // for the trigger objects? No charge, d0 information
@@ -80,7 +93,7 @@ private:
   // to an HLT object and a bool to indicate whether or
   // not it is a fake
   struct HltFakeStruct {    
-    LorentzVector              myHltCand;
+    trigger::TriggerObject              myHltCand;
     bool                       isAFake;    
   };
   
@@ -136,7 +149,9 @@ private:
 
   // Resolution hisotgram parameters
   std::vector<double> theResParameters;
-  
+
+  // isolation parameters
+  std::vector<double> theIsolationParameters;
   
 
 
