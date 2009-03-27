@@ -21,7 +21,7 @@ cd %(workDir)s
 pwd
 df -h .
 #run configfile and post-proccess it
-%(commandLine)s &> cmsRunOut.log
+%(commandLine)s &> cmsRunOut.%(name)s.log
 
 echo "----"
 echo "List of files in $(pwd):"
@@ -41,7 +41,7 @@ do
 done
    
 #cleanup
-rm -rf %(workDir)s
+#rm -rf %(workDir)s
 echo "done."
 """
 

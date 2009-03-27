@@ -35,7 +35,9 @@ ALCARECOTkAlZMuMuTkAlDQM =  DQMOffline.Alignment.TkAlCaRecoMonitor_cfi.TkAlCaRec
     SumChargeBin = cms.uint32(11),
     SumChargeMin = cms.double(-5.5),
     SumChargeMax = cms.double(5.5),
-
+    TrackPtBin= cms.uint32(150),
+    TrackPtMin = cms.double(0.0),
+    TrackPtMax = cms.double(150.0)
 )
 ALCARECOTkAlZMuMuDQM = cms.Sequence( ALCARECOTkAlZMuMuTrackingDQM + ALCARECOTkAlZMuMuTkAlDQM )
 
@@ -49,8 +51,7 @@ ALCARECOTkAlJpsiMuMuTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = __selectionName,
 # margins and settings
-    MassMin = cms.double(2.5),
-    MassMax = cms.double(4.0)
+    TrackPtMax = cms.double(30)
 )
 ALCARECOTkAlJpsiMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
 #names and desigantions
@@ -58,6 +59,8 @@ ALCARECOTkAlJpsiMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = __selectionName,
 # margins and settings
+    MassMin = cms.double(2.5),
+    MassMax = cms.double(4.0),
     TrackPtMax = cms.double(30)
 )
 ALCARECOTkAlJpsiMuMuDQM = cms.Sequence( ALCARECOTkAlJpsiMuMuTrackingDQM + ALCARECOTkAlJpsiMuMuTkAlDQM )
@@ -79,8 +82,9 @@ ALCARECOTkAlUpsilonMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = __selectionName,
 # margins and settings
-    MassMin = cms.double(9.5),
-    MassMax = cms.double(10)
+    MassMin = cms.double(8.),
+    MassMax = cms.double(10),
+    TrackPtMax = cms.double(30)
 )
 ALCARECOTkAlUpsilonMuMuDQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuTrackingDQM + ALCARECOTkAlUpsilonMuMuTkAlDQM)
 
@@ -120,6 +124,7 @@ ALCARECOTkAlMinBiasTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
     FolderName = __selectionName,
 # margins and settings
     fillInvariantMass = cms.bool(False),
+    TrackPtMax = cms.double(30),
     SumChargeBin = cms.uint32(101),
     SumChargeMin = cms.double(-50.5),
     SumChargeMax = cms.double(50.5)
@@ -175,15 +180,12 @@ ALCARECOTkAlLASDQM = cms.Sequence( ALCARECOTkAlLASDigiDQM )
 ### TkAlCosmicsCTF0T ###
 ########################
 __selectionName = 'TkAlCosmicsCTF0T'
-ALCARECOTkAlCosmicsCTF0TTrackingDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone(
+ALCARECOTkAlCosmicsCTF0TTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = 'TkAlCosmics',
 # margins and settings
-    TkSizeBin = cms.int32(100),
-    TkSizeMin = cms.double(0),
-    TkSizeMax = cms.double(100),
     TrackPtBin = cms.int32(500),
     TrackPtMin = cms.double(0),
     TrackPtMax = cms.double(500)

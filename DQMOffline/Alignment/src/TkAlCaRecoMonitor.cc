@@ -90,11 +90,11 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
 
   histname = "TrackQuality_";
   TrackQuality_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, 
-				 reco::TrackBase::qualitySize-1, -0.5, reco::TrackBase::qualitySize-1.5);
+				 reco::TrackBase::qualitySize, -0.5, reco::TrackBase::qualitySize-0.5);
   TrackQuality_->setAxisTitle("quality");
-  for ( int i = 0; i<reco::TrackBase::qualitySize-1; ++i){
+  for ( int i = 0; i<reco::TrackBase::qualitySize; ++i){
     TrackQuality_->getTH1()->GetXaxis()->SetBinLabel(i+1,
-	            reco::TrackBase::qualityName( reco::TrackBase::TrackQuality(i) ).c_str());
+  	            reco::TrackBase::qualityName( reco::TrackBase::TrackQuality(i) ).c_str());
   } 
 
   unsigned int SumChargeBin = conf_.getParameter<unsigned int>("SumChargeBin");
@@ -251,6 +251,12 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	minTrackDeltaR = dR;
     }
 
+    for ( int i = 0; i<reco::TrackBase::qualitySize; ++i){
+      if( (*track).quality( reco::TrackBase::TrackQuality(i) ) ){
+	TrackQuality_->Fill( i );
+      }
+    }
+
     if( (*track).charge() > 0 )
       TrackPtPositive_->Fill( (*track).pt() );
     if( (*track).charge() < 0 )
@@ -261,7 +267,7 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
     double curv = -(*track).charge()*0.002998*B/(*track).pt();
     //std::cout << "curv: "<<curv<<std::endl;
     TrackCurvature_->Fill( curv );
-    TrackQuality_->Fill( (*track).qualityMask()  );
+
     minTrackDeltaR_->Fill( minTrackDeltaR );
     fillHitmaps( *track, *geometry );
     sumOfCharges += (*track).charge();
