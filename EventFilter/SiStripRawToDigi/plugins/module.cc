@@ -9,7 +9,7 @@ DEFINE_ANOTHER_FWK_MODULE(OldSiStripDigiToRawModule);
 DEFINE_ANOTHER_FWK_MODULE(OldSiStripRawToDigiModule);
 DEFINE_ANOTHER_FWK_MODULE(OldSiStripRawToClusters);
 
-typedef OldSiStripDigiToRawModule SiStripDigiToRawModule;
+typedef sistrip::DigiToRawModule SiStripDigiToRawModule;
 typedef sistrip::RawToDigiModule SiStripRawToDigiModule;
 typedef sistrip::RawToClusters SiStripRawToClusters;
 
