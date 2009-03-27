@@ -10,8 +10,10 @@ class EcalUncalibratedRecHit {
   
   typedef DetId key_type;
 
-  static const double kSATURATED;
-  static const float kPRECISION;
+  enum Flags {
+          kSaturated,       // saturated channel
+          kLeadingEdgeRecovered // saturated channel: energy estimated from the leading edge before saturation
+  };
 
   EcalUncalibratedRecHit();
   EcalUncalibratedRecHit(const DetId& detId, const double& ampl, const double& ped,

@@ -1,9 +1,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include <math.h>
 
-const float EcalUncalibratedRecHit::kPRECISION = 1e-06;
-const double EcalUncalibratedRecHit::kSATURATED = -999999.;
-
 EcalUncalibratedRecHit::EcalUncalibratedRecHit() :
      amplitude_(0.), pedestal_(0.), jitter_(0.), chi2_(10000.), flags_(0) { }
 
@@ -15,5 +12,5 @@ EcalUncalibratedRecHit::~EcalUncalibratedRecHit() {
 }
 
 bool EcalUncalibratedRecHit::isSaturated() const {
-  return fabs(chi2_ - kSATURATED) <= kPRECISION;
+  return ( flags_ == kSaturated );
 }
