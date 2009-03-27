@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/05 10:14:21 $
- *  $Revision: 1.25 $
+ *  $Date: 2009/03/02 17:04:48 $
+ *  $Revision: 1.26 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -42,12 +42,12 @@ using namespace edm;
 using namespace std;
 
 
-DTSegmentAnalysisTest::DTSegmentAnalysisTest(const edm::ParameterSet& ps){
+DTSegmentAnalysisTest::DTSegmentAnalysisTest(const ParameterSet& ps){
 
-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "[DTSegmentAnalysisTest]: Constructor";
+  LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "[DTSegmentAnalysisTest]: Constructor";
   parameters = ps;
 
-  dbe = edm::Service<DQMStore>().operator->();
+  dbe = Service<DQMStore>().operator->();
 
   // get the cfi parameters
   detailedAnalysis = parameters.getUntrackedParameter<bool>("detailedAnalysis","false");
@@ -57,13 +57,13 @@ DTSegmentAnalysisTest::DTSegmentAnalysisTest(const edm::ParameterSet& ps){
 
 DTSegmentAnalysisTest::~DTSegmentAnalysisTest(){
 
-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "DTSegmentAnalysisTest: analyzed " << nevents << " events";
+  LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "DTSegmentAnalysisTest: analyzed " << nevents << " events";
 }
 
 
-void DTSegmentAnalysisTest::beginJob(const edm::EventSetup& context){
+void DTSegmentAnalysisTest::beginJob(const EventSetup& context){
 
-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: BeginJob"; 
+  LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: BeginJob"; 
 
   nevents = 0;
   // Get the geometry
@@ -77,16 +77,16 @@ void DTSegmentAnalysisTest::beginJob(const edm::EventSetup& context){
 
 void DTSegmentAnalysisTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: Begin of LS transition";
+  LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: Begin of LS transition";
 
 }
 
 
-void DTSegmentAnalysisTest::analyze(const edm::Event& e, const edm::EventSetup& context){
+void DTSegmentAnalysisTest::analyze(const Event& e, const EventSetup& context){
  
   nevents++;
   if(nevents%1000 == 0)
-    LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "[DTSegmentAnalysisTest]: "<<nevents<<" events";
+    LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "[DTSegmentAnalysisTest]: "<<nevents<<" events";
 
 }
 
@@ -96,10 +96,11 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
  
-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest")
+  LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest")
     <<"[DTSegmentAnalysisTest]: End of LS " << nLumiSegs << ", perform DQM client operation";
 
   summaryHistos[3]->Reset();
+  summaryHistos[4]->Reset();
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
  
@@ -142,10 +143,16 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 	summaryHistos[chID.wheel()]->setBinContent(sector, chID.station(),2);
 	if(summary2_histo_root->GetBinContent(sector, chID.wheel()+3)<2)
 	  summaryHistos[3]->setBinContent(sector, chID.wheel()+3,2);
+      } else {
+	// Fill the percentage of segment occupancy
+	float weight = 1./4.;
+	if((sector == 4 || sector == 10) && chID.station() == 4) weight = 1./8.;
+	summaryHistos[4]->Fill(sector, chID.wheel(),weight);
       }
       
     } else {
-      LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "[DTSegmentAnalysisTest]: histos not found!!"; // FIXME
+      LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest")
+	<< "[DTSegmentAnalysisTest]: histos not found!!"; // FIXME
     }
 
     if(detailedAnalysis){ // switch on detailed analysis
@@ -170,8 +177,8 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 	  chi2Histos[make_pair(chID.wheel(),chID.sector())]->Fill(chID.station(),badSegmentsPercentual);
 	}
       } else {
-	edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: Histo: "
-									 << getMEName(chID, "h4DChi2") << " not found!" << endl;
+	LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest")
+	  <<"[DTSegmentAnalysisTest]: Histo: " << getMEName(chID, "h4DChi2") << " not found!" << endl;
       }
     } // end of switch for detailed analysis
     
@@ -190,7 +197,11 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 	vector<dqm::me_util::Channel> badChannels = theChi2QReport->getBadChannels();
 	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	     channel != badChannels.end(); channel++) {
-	  edm::LogError ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "Wheel: "<<(*histo).first.first<< " Sector: "<<(*histo).first.second<< " Bad stations: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
+	  // FIXME: log into a ME
+	  LogError ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "Wheel: "<<(*histo).first.first
+								   << " Sector: "<<(*histo).first.second
+								   << " Bad stations: "<<(*channel).getBin()
+								   <<"  Contents : "<<(*channel).getContents();
 	}
       }
     }
@@ -205,7 +216,13 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 	vector<dqm::me_util::Channel> badChannels = theSegmRecHitQReport->getBadChannels();
 	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	     channel != badChannels.end(); channel++) {
-	  edm::LogError ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "Wheel: "<<(*histo).first.first<< " Sector: "<<(*histo).first.second<< " Bad stations on recHit number: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
+	  // FIXME: log into a ME
+	  LogError ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "Wheel: "<<(*histo).first.first
+								   << " Sector: "<<(*histo).first.second
+								   << " Bad stations on recHit number: "
+								   <<(*channel).getBin()
+								   <<"  Contents : "
+								   <<(*channel).getContents();
 	}
       }
     }
@@ -283,6 +300,11 @@ void DTSegmentAnalysisTest::bookHistos() {
   summaryHistos[3]->setAxisTitle("Sector",1);
   summaryHistos[3]->setAxisTitle("Wheel",2); 
 
+  summaryHistos[4] = dbe->book2D("SegmentGlbSummary",histoName.c_str(),12,1,13,5,-2,3);
+  summaryHistos[4]->setAxisTitle("Sector",1);
+  summaryHistos[4]->setAxisTitle("Wheel",2); 
+
+
 }
   
 
@@ -296,7 +318,7 @@ void DTSegmentAnalysisTest::endRun(const Run& run, const EventSetup& eSetup) {
 
 
   if(normalizeHistoPlots) {
-    LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << " Performing time-histo normalization" << endl;
+    LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << " Performing time-histo normalization" << endl;
     MonitorElement* hNevtPerLS = dbe->get("DT/EventInfo/NevtPerLS");
     if(hNevtPerLS != 0) {
       for(int wheel = -2; wheel != 3; ++wheel) { // loop over wheels
@@ -312,7 +334,7 @@ void DTSegmentAnalysisTest::endRun(const Run& run, const EventSetup& eSetup) {
 	}
       }
     } else {
-      edm::LogError ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "Histo NevtPerLS not found!" << endl;
+      LogError ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "Histo NevtPerLS not found!" << endl;
     }
   }
 }
