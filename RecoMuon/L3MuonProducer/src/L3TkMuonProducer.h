@@ -13,8 +13,12 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -30,11 +34,46 @@ class L3TkMuonProducer : public edm::EDProducer {
   
   /// produce candidates
   virtual void produce(edm::Event&, const edm::EventSetup&);
+
+  typedef edm::Ref<L3MuonTrajectorySeedCollection> SeedRef;
   
  private:
   
   // L3/GLB Collection Label
   edm::InputTag theL3CollectionLabel; 
+
+  //psuedo ref is L2 or L1 ref.
+  typedef std::pair<uint,uint> pseudoRef;
+  typedef std::map<pseudoRef, std::pair<reco::TrackRef,SeedRef> > LXtoL3sMap;
+
+  pseudoRef makePseudoRef(const L3MuonTrajectorySeed& s){
+    reco::TrackRef l2ref = s.l2Track();
+    if (l2ref.isNull()){
+      l1extra::L1MuonParticleRef l1ref = s.l1Particle();
+      return std::make_pair(l1ref.id().id(),l1ref.key());
+    }else return std::make_pair(l2ref.id().id(),l2ref.key());
+  }
+
+  bool sharedSeed(const L3MuonTrajectorySeed& s1,const L3MuonTrajectorySeed& s2);
+
+
+  //ordering functions
+  static  bool seedRefBypT(const SeedRef & s1, const SeedRef & s2){
+    double pt1,pt2;
+    reco::TrackRef l2ref1 = s1->l2Track();
+    if (l2ref1.isNull()) pt1=s1->l1Particle()->pt();
+    else pt1=l2ref1->pt();
+    reco::TrackRef l2ref2 = s2->l2Track();
+    if (l2ref2.isNull()) pt2=s2->l1Particle()->pt();
+    else pt2=l2ref2->pt();
+    return (pt1>pt2);
+  }
+  
+  static bool trackRefBypT(const reco::TrackRef & t1,const reco::TrackRef & t2){
+    return (t1->pt()>t2->pt());
+  }
+
+
 
 };
 
