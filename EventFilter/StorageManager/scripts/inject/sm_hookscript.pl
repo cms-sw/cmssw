@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: sm_hookscript.pl,v 1.12 2009/03/23 14:12:08 jserrano Exp $
+# $Id: sm_hookscript.pl,v 1.13 2009/03/27 10:27:25 jserrano Exp $
 ################################################################################
 
 use strict;
@@ -41,7 +41,8 @@ if($fields[3] eq "EcalCalibration") {
            sleep($copydelay);
         }
     }
-    my $RMCOMMAND = 'rm -f $SM_PATHNAME/$SM_FILENAME';
+    $filename =~ s/.dat$/.*/;
+    my $RMCOMMAND = 'rm -f $SM_PATHNAME/'.$filename;
     system($RMCOMMAND);
     exit 0;
 }
