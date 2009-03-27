@@ -5,30 +5,26 @@
 
 class ParticlePropagator;
 class Pythia6jets;
-class Pythia6Random;
 class RawParticle;
 
 typedef std::vector<RawParticle> DaughterParticleList;
 typedef DaughterParticleList::const_iterator DaughterParticleIterator; 
 
+namespace gen { class Pythia6Service; }
+
 class Pythia6Decays 
 {
  public:
-  Pythia6Decays(int seed,double comE=14000.);
+  Pythia6Decays();
   ~Pythia6Decays();
 
   const DaughterParticleList&
     particleDaughters(ParticlePropagator& particle);
 
-  const void getRandom();
-  const void saveRandom();
-
  private:
 
-  double comE_;
-  bool initialized_;
+  gen::Pythia6Service *pyservice;
   Pythia6jets* pyjets;
-  Pythia6Random* pyrand;
   DaughterParticleList theList;
 
 };

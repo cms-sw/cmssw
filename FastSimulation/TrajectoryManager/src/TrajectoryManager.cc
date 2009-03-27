@@ -68,9 +68,10 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   
   // Initialize Bthe stable particle decay engine 
   if ( decays.getParameter<bool>("ActivateDecays") ) { 
-    int seed = (int) ( 900000000. * random->flatShoot() );
-    double comE = decays.getParameter<double>("comEnergy");
-    myDecayEngine = new Pythia6Decays(seed,comE);
+//    int seed = (int) ( 900000000. * random->flatShoot() );
+//    double comE = decays.getParameter<double>("comEnergy");
+//    myDecayEngine = new Pythia6Decays(seed,comE);
+    myDecayEngine = new Pythia6Decays();
     distCut = decays.getParameter<double>("DistCut");
   }
 
@@ -145,9 +146,6 @@ void
 TrajectoryManager::reconstruct()
 {
 
-  // Get pythia random state for decay (after saving current pythia state)
-  if ( myDecayEngine ) myDecayEngine->getRandom();
-  
   // Clear the hits of the previous event
   //  thePSimHits->clear();
   thePSimHits.clear();
@@ -357,9 +355,6 @@ TrajectoryManager::reconstruct()
   // Save the information from Nuclear Interaction Generation
   if ( theMaterialEffects ) theMaterialEffects->save();
 
-  // Save pythia random state for decay (and put pythia state for event generation back on the stack)
-  if ( myDecayEngine ) myDecayEngine->saveRandom();
-  
 }
 
 void 

@@ -1,11 +1,13 @@
 // HepMC Headers
 #include "HepMC/PythiaWrapper6_2.h"
 
+// Pythia6 framework integration service Headers
+#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
+
 // FAMOS Headers
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 #include "FastSimulation/ParticleDecay/interface/Pythia6Decays.h"
 #include "FastSimulation/ParticleDecay/interface/Pythia6jets.h"
-#include "FastSimulation/ParticleDecay/interface/Pythia6Random.h"
 
 #define PYTHIA6PYDECY pythia6pydecy_
 
@@ -13,47 +15,24 @@ extern "C" {
   void PYTHIA6PYDECY(int *ip);
 }
 
-Pythia6Decays::Pythia6Decays(int seed,double comE):comE_(comE),initialized_(false)
+Pythia6Decays::Pythia6Decays()
 {
   // Create a new Pythia6jets
   pyjets = new Pythia6jets();
-  // Create a new Pythia6Random steering
-  pyrand = new Pythia6Random(seed);
+  // Create a new Pythia6Service helper
+  pyservice = new gen::Pythia6Service();
   // The PYTHIA decay tables will be initialized later 
-
 }
 
 Pythia6Decays::~Pythia6Decays() {
   delete pyjets;
-  delete pyrand;
-}
-
-const void 
-Pythia6Decays::getRandom() {
-  pyrand->save(0);
-  pyrand->get(1);
-}
-
-const void 
-Pythia6Decays::saveRandom() {
-  pyrand->save(1);
-  pyrand->get(0);
+  delete pyservice;
 }
 
 const DaughterParticleList&
 Pythia6Decays::particleDaughters(ParticlePropagator& particle)
 {
-  if(!initialized_)
-    {
-      // Initialize PYTHIA decay tables...
-      if(pyint1.vint[289]==0)
-	{
-	  std::cout << " It seems that pythia has not been initialized. Since Pythia is needed";
-	  std::cout << " to simulate the particle decays. FAMOS will call PYINIT " << std::endl;
-	  std::cout << " Note that the centre-of-mass energy does not overwrite the generator settings " << std::endl;
-	  call_pyinit( "CMS", "p", "p", comE_ );
-	}
-    }
+  gen::Pythia6Service::InstanceWrapper guard(pyservice); // grab Py6 context
 
   //  Pythia6jets pyjets;
   int ip;
