@@ -44,9 +44,7 @@ namespace cms
     edm::InputTag metTypeInputTag_;
     edm::InputTag uncorMETInputTag_;
     edm::InputTag muonsInputTag_;
-    edm::InputTag muonValueMapFlagInputTag_;
-    edm::InputTag muonValueMapDeltaXInputTag_;
-    edm::InputTag muonValueMapDeltaYInputTag_;
+    edm::InputTag muonDepValueMap_;
     
   };
 }
