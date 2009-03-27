@@ -8,7 +8,7 @@ void ElectronIDAlgo::baseSetup(const edm::ParameterSet& conf) {
 }
 
 EcalClusterLazyTools ElectronIDAlgo::getClusterShape(const edm::Event& ev, 
-						     const edm::EventSetup& es) 
+                                                     const edm::EventSetup& es) 
 {
 
   edm::Handle< EcalRecHitCollection > pEBRecHits;

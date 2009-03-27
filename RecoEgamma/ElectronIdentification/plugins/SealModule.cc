@@ -18,15 +18,15 @@ typedef ElectronIDSelector<ElectronIDSelectorNeuralNet>  EleIdNeuralNetSel;
 typedef ElectronIDSelector<ElectronIDSelectorLikelihood> EleIdLikelihoodSel;
 typedef ObjectSelector<
           EleIdCutBasedSel, 
-          edm::RefVector<reco::PixelMatchGsfElectronCollection> 
+          edm::RefVector<reco::GsfElectronCollection> 
          > EleIdCutBasedRef ;
 typedef ObjectSelector<
           EleIdNeuralNetSel, 
-          edm::RefVector<reco::PixelMatchGsfElectronCollection> 
+          edm::RefVector<reco::GsfElectronCollection> 
          > EleIdNeuralNetRef ;
 typedef ObjectSelector<
           EleIdLikelihoodSel, 
-          edm::RefVector<reco::PixelMatchGsfElectronCollection> 
+          edm::RefVector<reco::GsfElectronCollection> 
          > EleIdLikelihoodRef ;
 DEFINE_FWK_MODULE(EleIdCutBasedRef);
 DEFINE_ANOTHER_FWK_MODULE(EleIdNeuralNetRef);

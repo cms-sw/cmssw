@@ -6,30 +6,35 @@ void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
   // Get all the parameters
   baseSetup(conf);
   
+  type_ = conf.getParameter<std::string>("electronIDType");
   quality_ = conf.getParameter<std::string>("electronQuality");
+  version_ = conf.getParameter<std::string>("electronVersion");
   
-  if (quality_ == "tight") {
-    cuts_ = conf.getParameter<edm::ParameterSet>("tightEleIDCuts");
-  } else if (quality_=="robust") {
-    cuts_ = conf.getParameter<edm::ParameterSet>("robustEleIDCuts");
-  } else if (quality_=="loose") {
-    cuts_ = conf.getParameter<edm::ParameterSet>("looseEleIDCuts");
-  } else {
-    edm::LogError("CutBasedElectronID") << "Invalid electronQuality parameter: must be tight, loose or robust." ;
+  if (type_ == "robust" || type_ == "classbased") {
+    if (quality_ == "loose" || quality_ == "tight" || quality_ == "highenergy" ) {
+       std::string stringCut = type_+quality_+"EleIDCuts"+version_;
+       cuts_ = conf.getParameter<edm::ParameterSet>(stringCut);
+    }
+    else {
+       edm::LogError("CutBasedElectronID") << "Invalid electronQuality parameter: must be loose, tight or highenergy." ;
+       exit (1);
+    }
+  } 
+  else {
+    edm::LogError("CutBasedElectronID") << "Invalid electronType parameter: must be robust or classbased." ;
     exit (1);
   }
 }
 
 int CutBasedElectronID::classify(const reco::GsfElectron* electron) {
   
-  double eta = electron->p4().Eta();
   double eOverP = electron->eSuperClusterOverP();
   double pin  = electron->trackMomentumAtVtx().R(); 
   double pout = electron->trackMomentumOut().R(); 
   double fBrem = (pin-pout)/pin;
   
   int cat;
-  if((fabs(eta)<1.479 && fBrem<0.06) || (fabs(eta)>1.479 && fBrem<0.1)) 
+  if((electron->isEB() && fBrem<0.06) || (electron->isEE() && fBrem<0.1)) 
     cat=1;
   else if (eOverP < 1.2 && eOverP > 0.8) 
     cat=0;
@@ -39,29 +44,27 @@ int CutBasedElectronID::classify(const reco::GsfElectron* electron) {
   return cat;
 }
 
-double CutBasedElectronID::result(const reco::GsfElectron* electron,
+double CutBasedElectronID::result(const reco::GsfElectron* electron ,
                                   const edm::Event& e ,
-				  const edm::EventSetup& es) { 
+                                  const edm::EventSetup& es) { 
   
-  double eta = fabs(electron->p4().Eta());
-  //EcalClusterTools shapeRef = getClusterShape(electron, e);
-  
+  double eta = electron->p4().Eta();
   double eOverP = electron->eSuperClusterOverP();
   double eSeed = electron->superCluster()->seed()->energy();
   double pin  = electron->trackMomentumAtVtx().R();   
-  double eSeedOverPin = eSeed/pin; 
   double pout = electron->trackMomentumOut().R(); 
+  double eSeedOverPin = eSeed/pin; 
   double fBrem = (pin-pout)/pin;
-  
   double hOverE = electron->hadronicOverEm();
   EcalClusterLazyTools lazyTools = getClusterShape(e,es);
-  std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
+  std::vector<float> vCov = lazyTools.localCovariances(*(electron->superCluster()->seed())) ;
+  //std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
   double sigmaee = sqrt(vCov[0]);
   double deltaPhiIn = electron->deltaPhiSuperClusterTrackAtVtx();
   double deltaEtaIn = electron->deltaEtaSuperClusterTrackAtVtx();
   
   int eb;
-  if (eta < 1.479) 
+  if (electron->isEB()) 
     eb = 0;
   else {
     eb = 1; 
@@ -71,10 +74,10 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron,
   std::vector<double> cut;
     
   // ROBUST Selection
-  if (quality_ == "robust") {
+  if (type_ == "robust") {
 
     // hoe, sigmaEtaEta, dPhiIn, dEtaIn
-    if (eta < 1.479)
+    if (electron->isEB())
       cut = cuts_.getParameter<std::vector<double> >("barrel");
     else
       cut = cuts_.getParameter<std::vector<double> >("endcap");
@@ -97,7 +100,7 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron,
   int cat = classify(electron);
 
   // LOOSE and TIGHT Selections
-  if (quality_ == "tight" || quality_ == "loose") {
+  if (type_ == "classbased") {
     
     if ((eOverP < 0.8) && (fBrem < 0.2)) 
       return 0.;

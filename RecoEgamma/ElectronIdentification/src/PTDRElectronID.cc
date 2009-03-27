@@ -38,40 +38,36 @@ void PTDRElectronID::setup(const edm::ParameterSet& conf) {
 
 double PTDRElectronID::result(const reco::GsfElectron* electron,
                               const edm::Event& e ,
-			      const edm::EventSetup& es) {
+                              const edm::EventSetup& es) {
 
-  //determine which element of the cut arrays in electronId.cfi to read
+  //determine which element of the cut arrays in cfi file to read
   //depending on the electron classification
   int icut=0;
-  switch (electron->classification()) {
-  case 0:   icut=0; break;
-  case 10:  icut=1; break;
-  case 20:  icut=2; break;
-  case 30:  icut=3; break;
-  case 31:  icut=3; break;
-  case 32:  icut=3; break;
-  case 33:  icut=3; break;
-  case 34:  icut=3; break;
-  case 40:  icut=8; break;
-  case 41:  icut=8; break;
-  case 42:  icut=8; break;
-  case 100: icut=4; break;
-  case 110: icut=5; break;
-  case 120: icut=6; break;
-  case 130: icut=7; break;
-  case 131: icut=7; break;
-  case 132: icut=7; break;
-  case 133: icut=7; break;
-  case 134: icut=7; break;
-  case 140: icut=8; break;
-  
-  default:
-    edm::LogError("CutBasedElectronID") << "Error: unrecognized electron classification ";
-    break;
-  }
+  int elClass = electron->classification() ;
+  if (electron->isEB()) //barrel
+     {
+       if (elClass == reco::GsfElectron::GOLDEN)    icut=0;
+       if (elClass == reco::GsfElectron::BIGBREM)   icut=1;
+       if (elClass == reco::GsfElectron::NARROW)    icut=2;
+       if (elClass == reco::GsfElectron::SHOWERING) icut=3;
+       if (elClass == reco::GsfElectron::GAP)       icut=8;
+     }
+  if (electron->isEE()) //endcap
+     {
+       if (elClass == reco::GsfElectron::GOLDEN)    icut=4;
+       if (elClass == reco::GsfElectron::BIGBREM)   icut=5;
+       if (elClass == reco::GsfElectron::NARROW)    icut=6;
+       if (elClass == reco::GsfElectron::SHOWERING) icut=7;
+       if (elClass == reco::GsfElectron::GAP)       icut=8;
+     }
+  if (elClass == reco::GsfElectron::UNKNOWN) 
+     {
+       edm::LogError("PTDRElectronID") << "Error: unrecognized electron classification ";
+       return 1.;
+     }
 
   if (acceptCracks_[variables_])
-    if (((electron->classification()%100)/10)==4) return 1.;
+    if (elClass == reco::GsfElectron::GAP) return 1.;
   
   if (useEoverPIn_[variables_]) {
     double value = electron->eSuperClusterOverP();
@@ -95,7 +91,7 @@ double PTDRElectronID::result(const reco::GsfElectron* electron,
   if (useHoverE_[variables_]) {
     double value = electron->hadronicOverEm();
     std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("HoverE");
-    if (fabs(value)>maxcut[icut]) return 0.;
+    if (value>maxcut[icut]) return 0.;
   }
 
   if (useEoverPOut_[variables_]) {

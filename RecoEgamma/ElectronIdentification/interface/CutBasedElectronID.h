@@ -17,7 +17,9 @@ public:
   
  private:
   
+  std::string type_;
   std::string quality_;
+  std::string version_;
   edm::ParameterSet cuts_;
   
 };
