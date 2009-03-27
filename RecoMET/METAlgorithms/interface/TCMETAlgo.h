@@ -57,7 +57,8 @@ class TCMETAlgo
   double sumEt;
 
   edm::Handle<reco::MuonCollection> MuonHandle;
-  edm::Handle<reco::PixelMatchGsfElectronCollection> ElectronHandle;
+  //  edm::Handle<reco::PixelMatchGsfElectronCollection> ElectronHandle;
+  edm::Handle<reco::GsfElectronCollection> ElectronHandle;
   edm::Handle<reco::CaloMETCollection> metHandle;
   edm::Handle<reco::TrackCollection> TrackHandle;
   edm::Handle<reco::BeamSpot> beamSpotHandle;
