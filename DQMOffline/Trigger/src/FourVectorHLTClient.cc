@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.9 2009/02/26 18:02:28 rekovic Exp $
+//$Id: FourVectorHLTClient.cc,v 1.10 2009/02/26 18:05:24 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -20,6 +20,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "TRandom.h"
 #include <TF1.h>
+#include <TGraphAsymmErrors.h>
+#include <TGraph.h>
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
@@ -178,14 +180,6 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
  TObjArray *hltPathNameColl = new TObjArray(100);
  hltPathNameColl->SetOwner();
  std::vector<std::string> fullPathHLTFolders;
- fullPathHLTFolders = dbe_->getSubdirs();
-
- LogDebug("FourVectorHLTClient")<<"[FourVectorHLTClient] endRun: begining pwd " << dbe_->pwd() << " has "  << fullPathHLTFolders.size() << " folders. " << endl;
- for(unsigned int i=0;i<fullPathHLTFolders.size();i++) {
-
-   LogDebug("FourVectorHLTClient")<<"[FourVectorHLTClient] endRun: begin pwd folder["<< i << "] = " << fullPathHLTFolders[i] << endl;
-
- }
 
  // get subdir of the sourceDir_ to get HLT path names
  //////////////////////////////////////////////////
@@ -217,10 +211,6 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
 
    hltMEs = dbe_->getContents(fullPathHLTFolders[i]);
    LogDebug("FourVectorHLTClient")<< "Number of MEs for this HLT path = " << hltMEs.size() << endl;
-
-   // For easier work, build vector<TString> to hold HLT ME names
-   for(unsigned int j=0;j<hltMEs.size();j++) {
-
  
  		// custom efficiencies
  
@@ -233,27 +223,24 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
  			TString denPathName=TString(custompathnamepair->second);
  
  
- 		 vector<TString> vObj;
-     vObj.push_back(TString("l1Phi"));
-     vObj.push_back(TString("l1Eta"));
-     vObj.push_back(TString("l1Et"));
-     vObj.push_back(TString("onPhi"));
-     vObj.push_back(TString("onEta"));
-     vObj.push_back(TString("onEt"));
-     vObj.push_back(TString("offPhi"));
-     vObj.push_back(TString("offEta"));
-     vObj.push_back(TString("offEt"));
-     vObj.push_back(TString("mcPhi"));
-     vObj.push_back(TString("mcEta"));
-     vObj.push_back(TString("mcEt"));
- 
- 		vector<TString> vStage;
+ 		 vector<TString> vStage;
      vStage.push_back(TString("L1"));
      vStage.push_back(TString("On"));
      vStage.push_back(TString("Off"));
      vStage.push_back(TString("Mc"));
+     vStage.push_back(TString("L1UM"));
+     vStage.push_back(TString("OnUM"));
+     vStage.push_back(TString("OffUM"));
+     vStage.push_back(TString("McUM"));
+ 
+ 		 vector<TString> vObj;
+     vObj.push_back(TString("l1Et"));
+     vObj.push_back(TString("onEt"));
+     vObj.push_back(TString("offEt"));
+     vObj.push_back(TString("mcEt"));
  
  
+		 // TH1Fs
      for (unsigned int k=0; k<vObj.size();k++) {
  
  
@@ -267,10 +254,14 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
        TString oldHistPathNumBck;  
        TString oldHistPathDen;
  
- 			// not the differeence b/w  Num and NumBck, as in OnOff vs OffOn
- 			oldHistPathNum    = sourceDir_+"/"+hltPath+"/"+numPathName+"_wrt_"+denPathName+"_"+vObj[k]+vStage[l]+vStage[m]; 
- 			oldHistPathNumBck = sourceDir_+"/"+hltPath+"/"+numPathName+"_wrt_"+denPathName+"_"+vObj[k]+vStage[m]+vStage[l]; 
- 			oldHistPathDen    = sourceDir_+"/"+hltPath+"/"+numPathName+"_wrt_"+denPathName+"_"+vObj[k]+vStage[l];
+ 			 // not the differeence b/w  Num and NumBck, as in OnOff vs OffOn
+ 			 oldHistPathNum    = sourceDir_+"/"+hltPath+"/"+numPathName+"_wrt_"+denPathName+"_"+vObj[k]+vStage[l]+vStage[m]; 
+ 			 oldHistPathNumBck = sourceDir_+"/"+hltPath+"/"+numPathName+"_wrt_"+denPathName+"_"+vObj[k]+vStage[m]+vStage[l]; 
+
+			 // In the deominator hist name, we don't have any "UM" substrings, so remove them
+			 TString tempDenString = vStage[l];
+			 tempDenString.ReplaceAll("UM","") ;
+ 			 oldHistPathDen    = sourceDir_+"/"+hltPath+"/"+numPathName+"_wrt_"+denPathName+"_"+vObj[k]+tempDenString;
    
        MonitorElement *numME    = dbe_->get(oldHistPathNum.Data());
        MonitorElement *numMEBck = dbe_->get(oldHistPathNumBck.Data());
@@ -315,13 +306,28 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
        }
  
  
-       TH1F* numHist = numME->getTH1F();
-       TH1F* denHist = denME->getTH1F();
- 
+			 // EtaPhi histos are TH2s, the rest are TH1s
+
+      TH1F * numHist = numME->getTH1F();
+      TH1F * denHist = denME->getTH1F();
+
  
  			// build names and title for efficiency histogram
+
         TString newHistName   = hltPath +"_wrt_" + denPathName +"_"+vObj[k]+"_Eff_"+vStage[m]+"To"+vStage[l];
+				// if there is "UM", remove it first,then append it to the end of the name
+				if(newHistName.Contains("UM")) {
+				  newHistName.ReplaceAll("UM","");
+				  newHistName.Append("_UM");
+				}
+
         TString newHistTitle  = numPathName+" given " + denPathName +"  "+vObj[k]+" Eff  "+vStage[m]+"To"+vStage[l];
+				// if there is "UM", remove it first,then append it to the end of the name
+				if(newHistTitle.Contains("UM")) {
+				  newHistTitle.ReplaceAll("UM","");
+				  newHistTitle.Append("_UM");
+				}
+
         TString newHistPath   = currEffFolder+newHistName;
  			 
         LogDebug("FourVectorHLTClient")<< "Will make efficiency histogram " << newHistPath << endl;
@@ -338,17 +344,158 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
        //}
        
        TH1F* effHist = (TH1F*) numHist->Clone(newHistName.Data());
+
        effHist->SetTitle(newHistTitle.Data());
-       effHist->Sumw2();
-       effHist->Divide(denHist);
+       effHist->Sumw2(); 
+			 //denHist->Sumw2();
+       effHist->Divide(numHist,denHist,1.,1.);
+       //effHist->Divide(numHist,denHist,1.,1.,"B");
+			// calculateRatio(effHist, denHist);
+
+			 //TGraph effTGraph;
+			 
+       LogDebug("FourVectorHLTClient")<< "Numerator   hist " << numHist->GetName() << endl;
+       LogDebug("FourVectorHLTClient")<< "Denominator hist " << denHist->GetName() << endl;
+			 //TGraphAsymmErrors effTGraph(numHist, denHist, "");
        
    
        //reportSummaryMap_ = dbe_->book1D(numHist->Divide(denHist));
        
        LogDebug("FourVectorHLTClient")<< "Booking efficiency histogram path " << newHistPath << endl;
        LogDebug("FourVectorHLTClient")<< "Booking efficiency histogram name " << newHistName << endl;
-       dbe_->book1D(newHistName.Data(), effHist);
+
+
+			 // book eff histos
+
+         dbe_->book1D(newHistName.Data(), effHist);
+       
  
+ 		 } // end for Stage m
+ 		 } // end for Stage l
+     } //end for obj k
+ 
+		 vObj.clear();
+     vObj.push_back(TString("l1Etal1Phi"));
+     vObj.push_back(TString("onEtaonPhi"));
+     vObj.push_back(TString("offEtaoffPhi"));
+     vObj.push_back(TString("mcEtamcPhi"));
+     for (unsigned int k=0; k<vObj.size();k++) {
+ 
+ 
+       //TString oldHistPathNum = sourceDir_+TString("/")+curHltPath->String()+" "+curHltPath->String()+TString("_")+vObj[k]+TString("L1On"); 
+       //TString oldHistPathDen = sourceDir_+TString("/")+curHltPath->String()+" "+curHltPath->String()+TString("_")+vObj[k]+TString("L1"); 
+      for (unsigned int l=0; l<vStage.size();l++) {
+       for (unsigned int m=0; m<vStage.size();m++) {
+ 
+ 
+       TString oldHistPathNum;
+       TString oldHistPathNumBck;  
+       TString oldHistPathDen;
+ 
+ 			 // not the differeence b/w  Num and NumBck, as in OnOff vs OffOn
+ 			 oldHistPathNum    = sourceDir_+"/"+hltPath+"/"+numPathName+"_wrt_"+denPathName+"_"+vObj[k]+vStage[l]+vStage[m]; 
+ 			 oldHistPathNumBck = sourceDir_+"/"+hltPath+"/"+numPathName+"_wrt_"+denPathName+"_"+vObj[k]+vStage[m]+vStage[l]; 
+
+			 // In the deominator hist name, we don't have any "UM" substrings, so remove them
+			 TString tempDenString = vStage[l];
+			 tempDenString.ReplaceAll("UM","") ;
+ 			 oldHistPathDen    = sourceDir_+"/"+hltPath+"/"+numPathName+"_wrt_"+denPathName+"_"+vObj[k]+tempDenString;
+   
+       MonitorElement *numME    = dbe_->get(oldHistPathNum.Data());
+       MonitorElement *numMEBck = dbe_->get(oldHistPathNumBck.Data());
+       MonitorElement *denME    = dbe_->get(oldHistPathDen.Data());
+ 
+       LogDebug("FourVectorHLTClient")<< " oldHistPathNum    = " << oldHistPathNum    << endl;
+       LogDebug("FourVectorHLTClient")<< " oldHistPathNumBck = " << oldHistPathNumBck << endl;
+       LogDebug("FourVectorHLTClient")<< " oldHistPathDen    = " << oldHistPathDen    << endl;
+   
+       //check if HLTOffline histogram exist
+       if ( numME &&  denME ) { 
+ 
+         LogDebug("FourVectorHLTClient")<< "DID find NUM and DEN histograms to derive eff " << vStage[m]<<"To"<<vStage[l]<<" using:" <<endl 
+ 				<< " NUM = " << oldHistPathNum  << endl
+ 				<< " DEN = " << oldHistPathDen  << endl;
+ 
+       }
+       else { 
+ 
+         LogDebug("FourVectorHLTClient")<< "Cannot find NUM and DEN histograms to derive eff " << vStage[m]<<"To"<<vStage[l]<<" using:" <<endl 
+ 				<< " NUM = " << oldHistPathNum  << endl
+ 				<< " DEN = " << oldHistPathDen  << endl;
+ 
+ 				if ( numMEBck &&  denME) { 
+ 
+           LogDebug("FourVectorHLTClient")<< "DID find NUM and DEN histograms to derive eff " << vStage[m]<<"To"<<vStage[l]<<" using:" <<endl 
+ 				  << " NUM = " << oldHistPathNumBck  << endl
+ 				  << " DEN = " << oldHistPathDen  << endl;
+ 
+ 					numME = numMEBck;
+ 
+ 				}
+ 				else {
+ 
+           LogDebug("FourVectorHLTClient")<< "Cannot find NUM and DEN histograms to derive eff " << vStage[m]<<"To"<<vStage[l]<<" using:" <<endl 
+ 				  << " NUM = " << oldHistPathNumBck  << endl
+ 				  << " DEN = " << oldHistPathDen  << endl;
+ 
+ 			    continue;
+ 				}
+ 
+       }
+ 
+
+     	TH2F* numHist = numME->getTH2F();
+     	TH2F* denHist = denME->getTH2F();
+
+ 
+ 			// build names and title for efficiency histogram
+
+        TString newHistName   = hltPath +"_wrt_" + denPathName +"_"+vObj[k]+"_Eff_"+vStage[m]+"To"+vStage[l];
+				// if there is "UM", remove it first,then append it to the end of the name
+				if(newHistName.Contains("UM")) {
+				  newHistName.ReplaceAll("UM","");
+				  newHistName.Append("_UM");
+				}
+
+        TString newHistTitle  = numPathName+" given " + denPathName +"  "+vObj[k]+" Eff  "+vStage[m]+"To"+vStage[l];
+				// if there is "UM", remove it first,then append it to the end of the name
+				if(newHistTitle.Contains("UM")) {
+				  newHistTitle.ReplaceAll("UM","");
+				  newHistTitle.Append("_UM");
+				}
+
+        TString newHistPath   = currEffFolder+newHistName;
+ 			 
+        LogDebug("FourVectorHLTClient")<< "Will make efficiency histogram " << newHistPath << endl;
+   
+			 // ****************************************************************
+			 //
+			 //  V. Rekovic:  WARNING:  This needs attention.  When running, the code complains to be removing non-existant MEs
+			 //
+			 // ****************************************************************
+       //check if booked HLTClient histogram exist
+       //if ( dbe_->get(newHistPath.Data()) ) {
+         //LogDebug("FourVectorHLTClient")<< "Will remove ME " << newHistPath.Data() << endl;
+         //dbe_->removeElement(newHistPath.Data());
+       //}
+       
+       TH2F* effHist = (TH2F*) numHist->Clone(newHistName.Data());
+
+       effHist->SetTitle(newHistTitle.Data());
+       //effHist->Sumw2(); 
+			 //denHist->Sumw2();
+       effHist->Divide(numHist,denHist,1.,1.,"B");
+       
+   
+       //reportSummaryMap_ = dbe_->book2D(numHist->Divide(denHist));
+       
+       LogDebug("FourVectorHLTClient")<< "Booking efficiency histogram path " << newHistPath << endl;
+       LogDebug("FourVectorHLTClient")<< "Booking efficiency histogram name " << newHistName << endl;
+
+
+			 // book eff histos
+
+       dbe_->book2D(newHistName.Data(), effHist);
        
  
  		 } // end for Stage m
@@ -356,8 +503,7 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
      } //end for obj k
     } // end for custompathpair
 
-   }
- }
+ } // end loop over folders for i
 
 
   hltPathNameColl->Delete();
@@ -430,10 +576,38 @@ TProfile *  FourVectorHLTClient::get1DProfile(string meName, DQMStore * dbi)
   return me_->getTProfile();
 }
 
+void FourVectorHLTClient::calculateRatio(TH1F* effHist, TH1F* denHist) {
+
+	//cout << " NUMERATOR histogram name = " << effHist->GetName() << endl;
+	int nBins= effHist->GetNbinsX();
+	for (int i=0;i<=nBins;i++) {
+    
+		float k = effHist->GetBinContent(i);   // number of pass
+		float N = denHist->GetBinContent(i);   // number of total
+
+		float ratio;
+		float err;;
+
+		if(k > N) k = N;    // pass must always be leq to N
+
+		if(N == 0) {      
+
+		  ratio = 0;;
+		  err = 0;
+
+		}
+		else {
+
+		  ratio = k/N;
+		  err = (1.0/N)*sqrt(k*(1-k/N));
+		
+		}
+
+		//cout << "bin " << i << " num = " << k << "  den = " << N << "  ratio = " << ratio << "  err = " << err << endl;
+		effHist->SetBinContent(i,ratio);
+		effHist->SetBinError(i,err);
+	
+	}
 
 
-
-
-
-
-
+}
