@@ -2,8 +2,8 @@
  *
  *  implementation of RPCMonitorSync class
  *
- *  $Date: 2008/01/22 19:11:45 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/03/01 00:40:15 $
+ *  $Revision: 1.4 $
  *
  * \author Piotr Traczyk
  */
@@ -77,7 +77,7 @@ RPCMonitorSync::RPCMonitorSync( const edm::ParameterSet& pset )
 }
 
 RPCMonitorSync::~RPCMonitorSync(){
-  cout << "Destruct RPCMonitorSync..." << endl;
+
 }
 
 
@@ -164,9 +164,7 @@ void RPCMonitorSync::endJob(void)
 
     RPCDetId *tempDetId=new RPCDetId(ci->first); 
         
-    cout << "id: " << ci->first << "    " << *tempDetId << "    offset: " << offset
-         << "    width: " << width << endl;	
-    
+      
     if( detId.region()==0 ) {
       // Fill barrel histogram
       xf=station_map[detId.station()*2+detId.layer()-3]+((float)(detId.roll()-0.5)/3.);
@@ -207,8 +205,6 @@ void RPCMonitorSync::endJob(void)
       }
     } // end histogram filling
 
-//    cout << "xf= "<<xf<<"   yf= "<<yf<<endl;  
-
   } // end loop over synchroMap
 
   if(saveRootFile) 
@@ -237,7 +233,7 @@ void RPCMonitorSync::readRPCDAQStrips(const edm::Event& iEvent) {
   iEvent.getByType(rpcDigis);
   RPCDigiCollection::DigiRangeIterator rpcDigiCI;
   for(rpcDigiCI = rpcDigis->begin();rpcDigiCI!=rpcDigis->end();rpcDigiCI++){
-    cout << (*rpcDigiCI).first << endl;
+
     RPCDetId detId=(*rpcDigiCI).first; 
     uint32_t id=detId(); 
 
@@ -275,12 +271,9 @@ void RPCMonitorSync::readRPCDAQStrips(const edm::Event& iEvent) {
 void RPCMonitorSync::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
   
    LogInfo (nameInLog) << "Beginning analyzing event " << counter++;
-   cout << "=== RPCMonitorSync" << endl;
-   cout << "--- Run: " << iEvent.id().run()
-	<< " Event: " << iEvent.id().event() 
-	<< " time: "<<iEvent.time().value();
+
    time_t aTime = iEvent.time().value();
-   cout<<" "<<ctime(&aTime)<<endl;
+
    
    readRPCDAQStrips(iEvent);
 

@@ -186,12 +186,10 @@ namespace rpcdqm{
       stringstream myLabel;
 
       for(int ring = 1 ; ring <=3; ring ++){
-	myLabel.str("");
-	myLabel<<"R"<<ring;
 	for(int ch = 1; ch<=6; ch++){
-	  myLabel<<"_C"<<ch;
 	  for(int r=0; r<3; r++){
-	    myLabel<<"_"<<rolls[r];
+	    myLabel.str("");
+	    myLabel<<"R"<<ring<<"_C"<<ch<<"_"<<rolls[r];
 	    endcapYLabels_.push_back(myLabel.str());
 	  }
 	}
@@ -225,22 +223,24 @@ namespace rpcdqm{
 
       //before do some checks
       if (!myMe) return;
-      
-      if(ring == -2 || ring == 2) ylabel[7]=ylabel[0];
 
       //set bin labels
       if(region == 0){
 
 	//initialize label vector
 	this->dolabeling();  
+	if(ring == -2 || ring == 2) ylabel[7]=ylabel[0];
 
 	for(int y = 1; y<= myMe->getNbinsY() && y<22; y++)	  
 	  myMe->setBinLabel(y, ylabel[y], 2);
 	
       }else{//Endcap
+
 	this->doEndcapLabeling();
+
   	for(int y = 1; y<= myMe->getNbinsY(); y++)	  
 	  myMe->setBinLabel(y, endcapYLabels_[y], 2);
+
       }
     }
 
