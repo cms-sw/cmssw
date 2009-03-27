@@ -53,6 +53,7 @@ from RecoParticleFlow.PFTracking.particleFlowTrack_cff import *
 from RecoParticleFlow.PFBlockProducer.particleFlowSimParticle_cff import *
 from RecoParticleFlow.PFBlockProducer.particleFlowBlock_cff import *
 from RecoParticleFlow.PFProducer.particleFlow_cff import *
+from RecoParticleFlow.PFProducer.pfElectronTranslator_cff import *
 from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff import *
 
 particleFlowSimParticle.sim = 'famosSimHits'
@@ -61,7 +62,8 @@ famosParticleFlowSequence = cms.Sequence(
     caloTowersRec+
     pfTrackElec+
     particleFlowBlock+
-    particleFlow
+    particleFlow+
+    pfElectronTranslator    
 )
 
 # Reco Jets and MET
