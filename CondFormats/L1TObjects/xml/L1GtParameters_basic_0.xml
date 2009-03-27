@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="L1GtParametersRcd" >
+   <Class table="L1GTPARAMETERS" id_columns="ID" name="L1GtParameters" mapping_version="L1GtParameters_basic" >
+     <Primitive column="M_BSTLENGTHBYTES" name="m_bstLengthBytes" />
+     <Primitive column="M_DAQACTIVEBOARDS" name="m_daqActiveBoards" />
+     <Blob column="L1GTPARAMETERS_M_D_1_BLOB" name="m_daqNrBxBoard" />
+     <Primitive column="M_EVMACTIVEBOARDS" name="m_evmActiveBoards" />
+     <Blob column="L1GTPARAMETERS_M_E_1_BLOB" name="m_evmNrBxBoard" />
+     <Primitive column="M_TOTALBXINEVENT" name="m_totalBxInEvent" />
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
