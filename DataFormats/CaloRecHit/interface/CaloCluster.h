@@ -7,7 +7,7 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: CaloCluster.h,v 1.15 2009/03/25 16:07:59 cbern Exp $
+ * \version $Id: CaloCluster.h,v 1.16 2009/03/25 16:27:50 ferriff Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -67,8 +67,10 @@ namespace reco {
                  const math::XYZPoint& position,
                  const CaloID& caloID,
                  const std::vector< std::pair< DetId, float > > &usedHitsAndFractions,
-                 const AlgoId algoId) :
-      energy_ (energy), position_ (position), caloID_(caloID), hitsAndFractions_(usedHitsAndFractions), algoID_(algoId) {}
+                 const AlgoId algoId,
+		 const DetId seedId = DetId(0)) :
+      energy_ (energy), position_ (position), caloID_(caloID), 
+	hitsAndFractions_(usedHitsAndFractions), algoID_(algoId), seedId_(seedId) {}
 
    //FIXME:
    /// temporary compatibility constructor
@@ -158,6 +160,9 @@ namespace reco {
     friend std::ostream& operator<<(std::ostream& out, 
 				    const CaloCluster& cluster);
 
+    /// return DetId of seed
+    DetId seed() const { return seedId_; }
+
   protected:
 
     /// cluster energy
@@ -174,6 +179,10 @@ namespace reco {
 
     // cluster algorithm Id
     AlgoID              algoID_;
+
+    /// DetId of seed
+    DetId		seedId_;
+
   };
 
 }
