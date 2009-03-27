@@ -280,7 +280,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
    // deweight all chambers but the reference
    std::vector<Alignable*> all_DT_chambers = alignableMuon->DTChambers();
    std::vector<Alignable*> all_CSC_chambers = alignableMuon->CSCChambers();
-   std::vector<Alignable*> deweight;
+   std::vector<Alignable*> intrackfit;
    std::map<Alignable*,bool> already_seen;
 
    for (std::vector<std::string>::const_iterator name = m_intrackfit.begin();  name != m_intrackfit.end();  ++name) {
@@ -363,7 +363,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
 	   if ((*ali)->geomDetId().rawId() == id.rawId()) {
 	     std::map<Alignable*,bool>::const_iterator trial = already_seen.find(*ali);
 	     if (trial == already_seen.end()) {
-	       deweight.push_back(*ali);
+	       intrackfit.push_back(*ali);
 	       already_seen[*ali] = true;
 	     }
 	   }
@@ -447,7 +447,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
 	   if ((*ali)->geomDetId().rawId() == id.rawId()) {
 	     std::map<Alignable*,bool>::const_iterator trial = already_seen.find(*ali);
 	     if (trial == already_seen.end()) {
-	       deweight.push_back(*ali);
+	       intrackfit.push_back(*ali);
 	       already_seen[*ali] = true;
 	     }
 	   }
@@ -460,9 +460,9 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
      }
    }
 
-   alignmentParameterStore->setAlignmentPositionError(all_DT_chambers, 0., 0.);
-   alignmentParameterStore->setAlignmentPositionError(all_CSC_chambers, 0., 0.);
-   alignmentParameterStore->setAlignmentPositionError(deweight, 1000., 0.);
+   alignmentParameterStore->setAlignmentPositionError(all_DT_chambers, 1000., 0.);
+   alignmentParameterStore->setAlignmentPositionError(all_CSC_chambers, 1000., 0.);
+   alignmentParameterStore->setAlignmentPositionError(intrackfit, 0., 0.);
 }
 
 void MuonAlignmentFromReference::startNewLoop() {}
