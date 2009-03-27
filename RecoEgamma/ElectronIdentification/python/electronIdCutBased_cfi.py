@@ -17,50 +17,51 @@ eidCutBased = cms.EDFilter("EleIdCutBasedRef",
     electronQuality = cms.string('loose'),
     electronVersion = cms.string(''),
 
+    # variables H/E sigmaietaieta deltaphiin deltaetain e2x5/e5X5 (barrel/endcap)
     #Robust Loose Cuts
     #V00 CMSSW16X optimization 
     #V01 CMSSW22X optimization 
     robustlooseEleIDCutsV00 = cms.PSet(
-        barrel = cms.vdouble(0.115, 0.014, 0.09, 0.009),
-        endcap = cms.vdouble(0.15, 0.0275, 0.092, 0.0105)
+        barrel = cms.vdouble(0.115, 0.014, 0.09, 0.009,-1),
+        endcap = cms.vdouble(0.15, 0.0275, 0.092, 0.0105,-1)
     ),
     robustlooseEleIDCutsV01 = cms.PSet(
-       barrel = cms.vdouble(0.075, 0.0132, 0.058, 0.077),
-       endcap = cms.vdouble(0.083, 0.027, 0.042, 0.01)
+       barrel = cms.vdouble(0.075, 0.0132, 0.058, 0.077,-1),
+       endcap = cms.vdouble(0.083, 0.027, 0.042, 0.01,-1)
     ),
     robustlooseEleIDCuts = cms.PSet(
-       barrel = cms.vdouble(0.075, 0.0132, 0.058, 0.077),
-       endcap = cms.vdouble(0.083, 0.027, 0.042, 0.01)
+       barrel = cms.vdouble(0.075, 0.0132, 0.058, 0.077,-1),
+       endcap = cms.vdouble(0.083, 0.027, 0.042, 0.01,-1)
     ),
     
     #Robust Tight Cuts
     #V00 CMSSW16X optimization 
     #V01 CMSSW22X optimization 
     robusttightEleIDCutsV00 = cms.PSet(
-        barrel = cms.vdouble(0.015, 0.0092, 0.020, 0.0025),
-        endcap = cms.vdouble(0.018, 0.025, 0.020, 0.0040)
+        barrel = cms.vdouble(0.015, 0.0092, 0.020, 0.0025,-1),
+        endcap = cms.vdouble(0.018, 0.025, 0.020, 0.0040,-1)
     ),
     robusttightEleIDCuts = cms.PSet(
-        barrel = cms.vdouble(0.015, 0.0092, 0.020, 0.0025),
-        endcap = cms.vdouble(0.018, 0.025, 0.020, 0.0040)
+        barrel = cms.vdouble(0.015, 0.0092, 0.020, 0.0025,-1),
+        endcap = cms.vdouble(0.018, 0.025, 0.020, 0.0040,-1)
     ),
    
     #Robust High Energy Cuts
     #V00 CMSSW16X optimization 
     #V01 CMSSW22X optimization 
     robusthighenergyEleIDCutsV00 = cms.PSet(
-        barrel = cms.vdouble(0.050, 0.011, 0.090, 0.005),
-        endcap = cms.vdouble(0.100, 0.0275, 0.090, 0.007)
+        barrel = cms.vdouble(0.050, 0.011, 0.090, 0.005,-1),
+        endcap = cms.vdouble(0.100, 0.0275, 0.090, 0.007,-1)
     ),
     robusthighenergyEleIDCutsV01 = cms.PSet(
-        barrel = cms.vdouble(0.050, 0.094, 0.090, 0.005),
-        endcap = cms.vdouble(0.050, 0.0275, 0.090, 0.007)
+        barrel = cms.vdouble(0.050, -1, 0.090, 0.005,0.094),
+        endcap = cms.vdouble(0.050, 0.0275, 0.090, 0.007,-1)
     ),
     robusthighenergyEleIDCuts = cms.PSet(
-        barrel = cms.vdouble(0.050, 0.094, 0.090, 0.005),
-        endcap = cms.vdouble(0.050, 0.0275, 0.090, 0.007)
+        barrel = cms.vdouble(0.050, -1, 0.090, 0.005,0.094),
+        endcap = cms.vdouble(0.050, 0.0275, 0.090, 0.007,-1)
     ),
-    
+
     #Class Based Loose Cuts
     #V00 CMSSW16X optimization 
     #V01 CMSSW22X optimization 

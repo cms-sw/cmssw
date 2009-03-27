@@ -88,11 +88,7 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
     if (hOverE > cut[0]) 
       return 0.;    
 
-    if (electron->isEB() && quality_ == "highenergy") {
-       if (e25Maxoe55 > cut[1])
-         return 0.;
-    }
-    else if (sigmaee > cut[1]) 
+    if (sigmaee > cut[1]) 
       return 0.;    
 
     if (fabs(deltaPhiIn) > cut[2]) 
@@ -100,6 +96,9 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
 
     if (fabs(deltaEtaIn) > cut[3]) 
       return 0.;    
+    
+    if (e25Maxoe55 > cut[4])
+         return 0.;
     
     return 1.;
   }
