@@ -57,34 +57,10 @@ L1GctTSCObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 	   physParamsKeyResults.fillVariable( physParamsKey ) ;
 	 }
 	 
-	 // get scales key
-         l1t::OMDSReader::QueryResults scalesKeyResults =
-	   m_omdsReader.basicQuery(
-				   "GCT_SCALES_KEY",
-				   "CMS_GCT",
-				   "GCT_PHYS_PARAMS",
-				   "GCT_PHYS_PARAMS.CONFIG_KEY",
-				   physParamsKeyResults );
-
-         std::string scalesKey ;
-	 
-         if( scalesKeyResults.queryFailed() ) {
-	   edm::LogError("L1-O2O")
-	     << "Problem with key for record L1GctJetFinderParamsRcd: query failed ";
-	 }
-         else if( scalesKeyResults.numberRows() != 1 ) {
-	   edm::LogError("L1-O2O")
-	     << "Problem with key for record L1GctJetFinderParamsRcd: "
-	     << (scalesKeyResults.numberRows()) << " rows were returned";
-	 }
-         else {
-	   scalesKeyResults.fillVariable( scalesKey ) ;
-	 }
-
          pL1TriggerKey->add( "L1GctJetFinderParamsRcd", "L1GctJetFinderParams", physParamsKey ) ;
-         pL1TriggerKey->add( "L1JetEtScaleRcd", "L1CaloEtScale", scalesKey ) ;
-         pL1TriggerKey->add( "L1HtMissScaleRcd", "L1CaloEtScale", scalesKey ) ;
-         pL1TriggerKey->add( "L1HfRingEtScaleRcd", "L1CaloEtScale", scalesKey ) ;
+         pL1TriggerKey->add( "L1JetEtScaleRcd", "L1CaloEtScale", physParamsKey ) ;
+         pL1TriggerKey->add( "L1HtMissScaleRcd", "L1CaloEtScale", physParamsKey ) ;
+         pL1TriggerKey->add( "L1HfRingEtScaleRcd", "L1CaloEtScale", physParamsKey ) ;
 	 
       }
 }
