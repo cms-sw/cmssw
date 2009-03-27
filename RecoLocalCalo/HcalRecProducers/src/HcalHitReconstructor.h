@@ -22,8 +22,8 @@
 
     /** \class HcalHitReconstructor
 	
-    $Date: 2009/02/20 17:26:40 $
-    $Revision: 1.2 $
+    $Date: 2009/03/27 14:47:13 $
+    $Revision: 1.3 $
     \author J. Temple & E. Yazgan
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -49,6 +49,8 @@
       bool setNoiseFlags_; // turn on/off basic noise flags
       bool setHSCPFlags_;  // turn on/off HSCP noise flags
       bool setSaturationFlags_; // turn on/off flag indicating ADC saturation
+
+      bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
     };
 
 #endif

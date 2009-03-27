@@ -9,7 +9,8 @@ hbhereco = cms.EDFilter(
     firstSample = cms.int32(4),
     correctForPhaseContainment = cms.bool(True),
     correctForTimeslew = cms.bool(True),
-    
+    dropZSmarkedPassed = cms.bool(True),
+
     # Tags for calculating status flags
     correctTiming      = cms.bool(True),
     setNoiseFlags      = cms.bool(True),

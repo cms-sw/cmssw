@@ -29,7 +29,8 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   correctTiming_(conf.getParameter<bool>("correctTiming")),
   setNoiseFlags_(conf.getParameter<bool>("setNoiseFlags")),
   setHSCPFlags_(conf.getParameter<bool>("setHSCPFlags")),
-  setSaturationFlags_(conf.getParameter<bool>("setSaturationFlags"))
+  setSaturationFlags_(conf.getParameter<bool>("setSaturationFlags")),
+  dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed"))
   
 {
   std::string subd=conf.getParameter<std::string>("Subdetector");
@@ -159,6 +160,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	// check on cells to be ignored and dropped: (rof,20.Feb.09)
 	const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
 	if (mySeverity->dropChannel(mydigistatus->getValue() ) ) continue;
+	if (dropZSmarkedPassed_)
+	  if (i->zsMarkAndPass()) continue;
 
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
@@ -217,6 +220,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	// check on cells to be ignored and dropped: (rof,20.Feb.09)
 	const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
 	if (mySeverity->dropChannel(mydigistatus->getValue() ) ) continue;
+	if (dropZSmarkedPassed_)
+	  if (i->zsMarkAndPass()) continue;
 
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
@@ -258,6 +263,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	// check on cells to be ignored and dropped: (rof,20.Feb.09)
 	const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
 	if (mySeverity->dropChannel(mydigistatus->getValue() ) ) continue;
+	if (dropZSmarkedPassed_)
+	  if (i->zsMarkAndPass()) continue;
 
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
@@ -290,6 +297,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	// check on cells to be ignored and dropped: (rof,20.Feb.09)
 	const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
 	if (mySeverity->dropChannel(mydigistatus->getValue() ) ) continue;
+	if (dropZSmarkedPassed_)
+	  if (i->zsMarkAndPass()) continue;
 
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
@@ -315,6 +324,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       // check on cells to be ignored and dropped: (rof,20.Feb.09)
       const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
       if (mySeverity->dropChannel(mydigistatus->getValue() ) ) continue;
+	if (dropZSmarkedPassed_)
+	  if (i->zsMarkAndPass()) continue;
 	    
       const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
       const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);

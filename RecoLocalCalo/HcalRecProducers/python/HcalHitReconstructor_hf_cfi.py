@@ -8,7 +8,8 @@ hfreco = cms.EDFilter("HcalHitReconstructor",
                       firstSample = cms.int32(3),
                       correctForPhaseContainment = cms.bool(False),
                       correctForTimeslew = cms.bool(False),
-                      
+                      dropZSmarkedPassed = cms.bool(True),
+
                       # Tags for calculating status flags
                       correctTiming = cms.bool(True),
                       setNoiseFlags = cms.bool(True),

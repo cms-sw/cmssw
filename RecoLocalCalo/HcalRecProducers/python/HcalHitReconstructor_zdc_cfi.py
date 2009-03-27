@@ -9,6 +9,7 @@ zdcreco = cms.EDFilter(
     firstSample = cms.int32(3),
     correctForPhaseContainment = cms.bool(False),
     correctForTimeslew = cms.bool(False),
+    dropZSmarkedPassed = cms.bool(True),
 
     #Tags for calculating status flags
     # None of the flag algorithms have been implemented for zdc, so these booleans do nothing
