@@ -105,8 +105,8 @@ L1HfRingEtScaleOnlineProd::newObject( const std::string& objectKey )
      }
      
 
-     // get jet scale key
-     l1t::OMDSReader::QueryResults jetScaleKeyResults =
+     // get ring scale key
+     l1t::OMDSReader::QueryResults hfRingScaleKeyResults =
        m_omdsReader.basicQuery(
 			       "SC_CENJET_ET_THRESHOLD_FK",
 			       "CMS_GT",
@@ -143,27 +143,31 @@ L1HfRingEtScaleOnlineProd::newObject( const std::string& objectKey )
      l1t::OMDSReader::QueryResults scaleResults =
        m_omdsReader.basicQuery( queryStrings,
                                 "CMS_GT",
-                                "L1T_SCALE_CALO_HF_ET_SUM",
-                                "L1T_SCALE_CALO_HF_ET_SUM.ID",
+                                "L1T_SCALE_HF_ET_SUM",
+                                "L1T_SCALE_HF_ET_SUM.ID",
 				hfRingScaleKeyResults
 				);
 
-     if( scaleResults.queryFailed() ||
-	 scaleResults.numberRows() != 1 ) // check query successful
-       {
-	 edm::LogError( "L1-O2O" ) << "Problem with L1HfRingEtScale key : when getting scales." ;
-	 return boost::shared_ptr< L1CaloEtScale >() ;
-       }
-
      std::vector<double> thresholds;
-     for( std::vector< std::string >::iterator thresh = queryStrings.begin();
-	  thresh != queryStrings.end(); ++thresh) {
-       float tempScale;
-       scaleResults.fillVariable(*thresh,tempScale);
-       thresholds.push_back(tempScale);
+
+     if( scaleResults.queryFailed() ) {
+	 edm::LogError( "L1-O2O" ) << "Problem with L1HfRingEtScale key : scale query failed." ;
+     }
+     else if ( scaleResults.numberRows() != 1 ) {
+	 edm::LogError( "L1-O2O" ) << "Problem with L1HfRingEtScale key : scale query failed." ;
+     }
+     else {
+       for( std::vector< std::string >::iterator thresh = queryStrings.begin();
+	    thresh != queryStrings.end(); ++thresh) {
+	 float tempScale;
+	 scaleResults.fillVariable(*thresh,tempScale);
+	 thresholds.push_back(tempScale);
+       }
      }
 
      // get region LSB
+     double rgnEtLsb=0.;
+     
      l1t::OMDSReader::QueryResults lsbResults =
        m_omdsReader.basicQuery( "GCT_RGN_ET_LSB",
 				"CMS_GCT",
@@ -171,16 +175,13 @@ L1HfRingEtScaleOnlineProd::newObject( const std::string& objectKey )
 				"GCT_PHYS_PARAMS.CONFIG_KEY",
 				m_omdsReader.singleAttribute( objectKey ) ) ;
      
-     if( lsbResults.queryFailed() ) // check if query was successful
-       {
-	 edm::LogError( "L1-O2O" ) << "Problem with L1GctJetEtScale key." ;
-	 return boost::shared_ptr< L1CaloEtScale >() ;
-       }
-     
-     double rgnEtLsb=0.;
-     lsbResults.fillVariable( "GCT_RGN_ET_LSB", rgnEtLsb );
-     
-     
+     if( lsbResults.queryFailed() ) {
+	 edm::LogError( "L1-O2O" ) << "Problem with L1JetEtScale key." ;
+     }
+     else {
+       lsbResults.fillVariable( "GCT_RGN_ET_LSB", rgnEtLsb );
+     }
+
      //~~~~~~~~~ Instantiate new L1HfRingEtScale object. ~~~~~~~~~
      return boost::shared_ptr< L1CaloEtScale >( new L1CaloEtScale(0xff, 0x7, rgnEtLsb, thresholds ) );
 }

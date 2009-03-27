@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1HtMissScaleOnlineProd.cc,v 1.1 2009/03/18 11:03:04 efron Exp $
+// $Id: L1HtMissScaleOnlineProd.cc,v 1.1 2009/03/26 15:48:09 jbrooke Exp $
 //
 //
 
@@ -79,6 +79,55 @@ boost::shared_ptr< L1CaloEtScale >
 L1HtMissScaleOnlineProd::newObject( const std::string& objectKey )
 {
   using namespace edm::es;
+  
+  // get scales keys
+  l1t::OMDSReader::QueryResults scalesKeyResults =
+    m_omdsReader.basicQuery(
+			    "GCT_SCALES_KEY",
+			    "CMS_GCT",
+			    "GCT_PHYS_PARAMS",
+			    "GCT_PHYS_PARAMS.CONFIG_KEY",
+			    m_omdsReader.singleAttribute( objectKey ) );
+  
+  std::string scalesKey ;
+  
+  if( scalesKeyResults.queryFailed() ) {
+    edm::LogError("L1-O2O")
+      << "Problem with key for L1JetEtScaleRcd : GCT scales key query failed ";
+  }
+  else if( scalesKeyResults.numberRows() != 1 ) {
+    edm::LogError("L1-O2O")
+      << "Problem with key for L1JetEtScaleRcd : "
+      << (scalesKeyResults.numberRows()) << " rows were returned when getting GCT scales key";
+  }
+  else {
+    scalesKeyResults.fillVariable( scalesKey );
+  }
+  
+  
+  // get ring scale key
+  l1t::OMDSReader::QueryResults htMissScaleKeyResults =
+    m_omdsReader.basicQuery(
+			    "SC_CENJET_ET_THRESHOLD_FK",
+			    "CMS_GT",
+			    "L1T_SCALES",
+			    "L1T_SCALES.ID",
+			    scalesKeyResults );
+  
+  std::string htMissScaleKey ;
+  
+  if( htMissScaleKeyResults.queryFailed() ) {
+    edm::LogError("L1-O2O")
+      << "Problem with key for L1HtMissScaleRcd : HF ring Et scale key query failed ";
+  }
+  else if( htMissScaleKeyResults.numberRows() != 1 ) {
+    edm::LogError("L1-O2O")
+      << "Problem with key for L1HtMissScaleRcd : "
+      << (htMissScaleKeyResults.numberRows()) << " rows were returned when getting HF ring Et scale key";
+  }
+  else {
+    htMissScaleKeyResults.fillVariable( htMissScaleKey ) ;
+  }
   
   // thresholds
   std::vector< std::string > queryStrings ;
@@ -147,9 +196,8 @@ L1HtMissScaleOnlineProd::newObject( const std::string& objectKey )
   queryStrings.push_back( "ET_GEV_BIN_LOW_62");
   queryStrings.push_back( "ET_GEV_BIN_LOW_63");
   
-  const l1t::OMDSReader::QueryResults scaleKeyResults =
-    m_omdsReader.singleAttribute( objectKey ) ;
-  
+  std::vector<double> thresholds;
+
   
 //   l1t::OMDSReader::QueryResults scaleResults =
 //     m_omdsReader.basicQuery( queryStrings,
@@ -168,7 +216,6 @@ L1HtMissScaleOnlineProd::newObject( const std::string& objectKey )
 //       return boost::shared_ptr< L1CaloEtScale >() ;
 //     }
   
-   std::vector<double> thresholds;
   
 //   for( std::vector< std::string >::iterator thresh = queryStrings.begin();
 //        thresh != queryStrings.end(); ++thresh) {

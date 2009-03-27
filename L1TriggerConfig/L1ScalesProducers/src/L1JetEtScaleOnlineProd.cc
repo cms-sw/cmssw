@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1JetEtScaleOnlineProd.cc,v 1.1 2009/03/26 15:48:09 jbrooke Exp $
+// $Id: L1JetEtScaleOnlineProd.cc,v 1.2 2009/03/27 12:51:34 jbrooke Exp $
 //
 //
 
@@ -203,7 +203,6 @@ L1JetEtScaleOnlineProd::newObject( const std::string& objectKey )
 				"L1T_SCALE_CALO_ET_THRESHOLD.ID",
 				jetScaleKeyResults
 				);
-
 
      if( scaleResults.queryFailed() ||
 	 scaleResults.numberRows() != 1 ) // check query successful
