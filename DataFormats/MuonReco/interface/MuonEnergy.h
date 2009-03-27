@@ -27,11 +27,14 @@ namespace reco {
        /// crossed tower (RecHits)
        float hoS9;
        
+       /// Time for the crossed ECAL crystall.
+       float ecal_time;
+       
        MuonEnergy():
        tower(0), towerS9(0),
        em(0), emS9(0),
        had(0), hadS9(0),
-       ho(0), hoS9(0){ }
+       ho(0), hoS9(0), ecal_time(0){ }
        
     };
 }
