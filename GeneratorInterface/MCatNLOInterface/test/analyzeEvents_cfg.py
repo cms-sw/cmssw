@@ -6,15 +6,11 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('file:/home/xv/fabstoec/mcnloscratch/mcatnloTTee.root')
-#                            fileNames = cms.untracked.vstring('file:/home/xv/fabstoec/mcnloscratch/mcatnloWWee.root')
-#                            fileNames = cms.untracked.vstring('file:/home/xv/fabstoec/mcnloscratch/mcatnloZee.root')
+                            fileNames = cms.untracked.vstring('file:mcatnloZee.root')
 )
 
-process.myanalysis = cms.EDAnalyzer("WWeeAnalyzer",
-                                    OutputFilename = cms.untracked.string('TTee_histos.root')
-#                                    OutputFilename = cms.untracked.string('WWee_histos.root')
-#                                    OutputFilename = cms.untracked.string('Zee_histos.root')
+process.myanalysis = cms.EDAnalyzer("ZeeAnalyzer",
+                                    OutputFilename = cms.untracked.string('Zee_histos.root')
 )
 
 process.p = cms.Path(process.myanalysis)

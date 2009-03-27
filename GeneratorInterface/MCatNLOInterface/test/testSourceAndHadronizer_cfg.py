@@ -6,12 +6,8 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 process.source = cms.Source("MCatNLOSource",
-#                            fileNames = cms.untracked.vstring('file:/home/xv/fabstoec/mcnloscratch/WW.events'),
-#                            processCode = cms.int32(-12850),
-                            fileNames = cms.untracked.vstring('file:/home/xv/fabstoec/mcnloscratch/TT.events'),
-                            processCode = cms.int32(-11706),
-#                            fileNames = cms.untracked.vstring('file:/home/xv/fabstoec/mcnloscratch/Z.events'),
-#                            processCode = cms.int32(-11361),
+                            fileNames = cms.untracked.vstring('file:Z.events'),
+                            processCode = cms.int32(-11361),
                             skipEvents=cms.untracked.uint32(0)
 
 )
@@ -60,9 +56,7 @@ process.ProductionFilterSequence = cms.Sequence(process.generator)
 process.generation_step = cms.Path(process.ProductionFilterSequence)
 
 process.output = cms.OutputModule("PoolOutputModule",
-                                  fileName = cms.untracked.string('/home/xv/fabstoec/mcnloscratch/mcatnloTTee.root'),
-#                                  fileName = cms.untracked.string('/home/xv/fabstoec/mcnloscratch/mcatnloWWee.root'),
-#                                  fileName = cms.untracked.string('/home/xv/fabstoec/mcnloscratch/mcatnloZee.root'),
+                                  fileName = cms.untracked.string('mcatnloZee.root'),
                                   SelectEvents = cms.untracked.PSet(
     SelectEvents = cms.vstring('generation_step')
     )
