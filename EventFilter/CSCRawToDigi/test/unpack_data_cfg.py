@@ -86,8 +86,8 @@ process.source = cms.Source("PoolSource",
    #/store/data/Commissioning08/Cosmics/RAW/v1/000/064/257/A6B9F13F-CC90-DD11-9BCA-001617E30CE8.root'
    #'/store/data/Commissioning08/BeamHalo/RAW/GRtoBeam_v1/000/062/096/863014FF-7C7F-DD11-8E83-0019DB29C614.root' #172
    #'/store/data/Commissioning08/Cosmics/RAW/v1/000/069/365/84E8B55A-EEAA-DD11-A18C-001617C3B65A.root'
-   'rfio:/castor/cern.ch/user/a/asakharo/scratch0/events/run_66740_FED_errors.root'
-   #'rfio:/afs/cern.ch/user/a/asakharo/scratch0/events/run_66740_FED_errors.root'
+   #'rfio:/castor/cern.ch/user/a/asakharo/scratch0/events/run_66740_FED_errors.root'
+   'rfio:/afs/cern.ch/user/a/asakharo/scratch0/events/run_66740_FED_errors.root'
    #'rfio:/castor/cern.ch/user/a/asakharo/CMSevents/run_66740_FED_errors.root'
     )
 )

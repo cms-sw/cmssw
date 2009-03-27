@@ -191,8 +191,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	if( examinerMask&0x40000 ) examiner->crcCFEB(1);
 	if( examinerMask&0x8000  ) examiner->crcTMB (1);
 	if( examinerMask&0x0400  ) examiner->crcALCT(1);
-	//examiner->output1().show();
-	//examiner->output2().show();
+	examiner->output1().show();
+	examiner->output2().show();
 	examiner->setMask(examinerMask);
 	const short unsigned int *data = (short unsigned int *)fedData.data();
 
