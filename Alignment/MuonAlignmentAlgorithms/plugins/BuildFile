@@ -1,33 +1,69 @@
-<library name=AlignmentMuonAlignmentAlgorithmsPlugins file=*.cc>
-  <use name=clhep>
-  <use name=root>
-  <use name=FWCore/Framework>
-  <use name=FWCore/MessageLogger>
-  <use name=FWCore/ParameterSet>
-  <use name=FWCore/ServiceRegistry>
-  <use name=FWCore/Utilities>
+# common to al libs:
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+
+# on lib for CSCOverlap Algorithm
+<library name=CSCOverlapsAlignmentAlgorithm file=CSCOverlapsAlignmentAlgorithm.cc,CSCOverlapsTrackPreparation.cc>
   <use name=Alignment/CommonAlignment>
   <use name=Alignment/CommonAlignmentAlgorithm>
   <use name=Alignment/MuonAlignment>
-  <use name=Alignment/MuonAlignmentAlgorithms>
+  <use name=CommonTools/UtilAlgos>
   <use name=CondFormats/Alignment>
   <use name=DataFormats/GeometrySurface>
   <use name=DataFormats/MuonDetId>
   <use name=DataFormats/TrackingRecHit>
   <use name=DataFormats/TrackReco>
-  <use name=Geometry/CSCGeometry>
-  <use name=Geometry/CSCGeometryBuilder>
-  <use name=Geometry/DTGeometryBuilder>
+  <use name=FWCore/ServiceRegistry>
   <use name=Geometry/CommonDetUnit>
+  <use name=Geometry/CSCGeometry>
   <use name=Geometry/Records>
   <use name=MagneticField/Engine>
   <use name=MagneticField/Records>
-  <use name=PhysicsTools/UtilAlgos>
   <use name=RecoMuon/TransientTrackingRecHit>
   <use name=TrackingTools/PatternTools>
   <use name=TrackingTools/TrackFitters>
   <use name=TrackingTools/TrajectoryState>
-  <use name=TrackingTools/TrackRefitter>
-  <use name=TrackingTools/TransientTrack>
+  <use name=clhep>
+  <use name=root>
+  <flags EDM_PLUGIN=1>
+</library>
+
+# on lib for MuonAlignmentFromReference Algorithm
+<library name=MuonAlignmentFromReference file=MuonAlignmentFromReference.cc>
+  <use name=Alignment/CommonAlignment>
+  <use name=Alignment/CommonAlignmentAlgorithm>
+  <use name=Alignment/MuonAlignment>
+  <use name=Alignment/MuonAlignmentAlgorithms>
+  <use name=CommonTools/UtilAlgos>
+  <use name=DataFormats/MuonDetId>
+  <use name=DataFormats/TrackReco>
+  <use name=FWCore/ServiceRegistry>
+  <use name=Geometry/CommonDetUnit>
+  <use name=Geometry/Records>
+  <use name=TrackingTools/PatternTools>
+  <use name=root>
+  <flags EDM_PLUGIN=1>
+</library>
+
+# on lib for MuonMillepede Algorithm
+<library name=MuonMillepedeAlgorithm file=MuonMillepedeAlgorithm.cc,MuonMillepedeTrackRefitter.cc>
+  <use name=Alignment/CommonAlignment>
+  <use name=Alignment/CommonAlignmentAlgorithm>
+  <use name=Alignment/MuonAlignment>
+  <use name=Alignment/MuonAlignmentAlgorithms>>
+  <use name=CommonTools/UtilAlgos>
+  <use name=DataFormats/GeometrySurface>
+  <use name=DataFormats/MuonDetId>
+  <use name=DataFormats/MuonReco>
+  <use name=DataFormats/TrackReco>
+  <use name=FWCore/ServiceRegistry>
+  <use name=Geometry/CommonDetUnit>
+  <use name=MagneticField/Engine>
+  <use name=MagneticField/Records>
+  <use name=RecoMuon/TransientTrackingRecHit>
+  <use name=TrackingTools/PatternTools>
+  <use name=TrackingTools/Records>
+  <use name=TrackingTools/TrackFitters>
   <flags EDM_PLUGIN=1>
 </library>
