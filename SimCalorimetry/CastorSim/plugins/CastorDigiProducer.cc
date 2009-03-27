@@ -84,15 +84,17 @@ void CastorDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetu
   theCoderFactory->setDbService(conditions.product());
   theParameterMap->setDbService(conditions.product());
 
+edm::LogInfo("CastorDigiProducer") << "checking the geometry...";
+
   // get the correct geometry
 checkGeometry(eventSetup);
   
 theCastorHits.clear();
 
   // Step A: Get Inputs
+//edm::Handle<edm::PCaloHitContainer> castorcf;
 edm::Handle<CrossingFrame<PCaloHit> > castorcf;
-//e.getByLabel("mix", "CastorHits", castorcf);
-e.getByLabel("mix", "CastorFI", castorcf);
+e.getByLabel("mix", "g4SimHitsCastorFI", castorcf);
 
   // test access to SimHits for HcalHits and ZDC hits
 std::auto_ptr<MixCollection<PCaloHit> > colcastor(new MixCollection<PCaloHit>(castorcf.product()));
