@@ -471,10 +471,11 @@ class Process(object):
         dependencies = {}
         for label,seq in self.sequences.iteritems():
             d = []
-            v = SequenceVisitor(d)
+            v = SequenceLabelVisitor(d)
             seq.visit(v)
-            dependencies[label]=(seq,d)
+            dependencies[label]=d
         resolvedDependencies=True
+        o = PrintOptions()
         #keep looping until we can no longer get rid of all dependencies
         # if that happens it means we have circular dependencies
         iterCount = 0
@@ -482,17 +483,17 @@ class Process(object):
             iterCount += 1
             resolvedDependencies = (0 != len(dependencies))
             oldDeps = dict(dependencies)
-            for label,(seq,deps) in oldDeps.iteritems():
+            for label,deps in oldDeps.iteritems():
                 # don't try too hard
                 if len(deps)==0 or iterCount > 100:
                     iterCount = 0
                     resolvedDependencies=True
-                    returnValue[label]=seq
+                    returnValue[label]=self.sequences[label]
                     #remove this as a dependency for all other sequences
                     del dependencies[label]
-                    for lb2,(seq2,deps2) in dependencies.iteritems():
-                        while deps2.count(seq):
-                            deps2.remove(seq)
+                    for lb2,deps2 in dependencies.iteritems():
+                        while deps2.count(label):
+                            deps2.remove(label)
         if len(dependencies):
             raise RuntimeError("circular sequence dependency discovered \n"+
                                ",".join([label for label,junk in dependencies.iteritems()]))
