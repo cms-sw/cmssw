@@ -60,6 +60,9 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
   std::vector<float> vCov = lazyTools.localCovariances(*(electron->superCluster()->seed())) ;
   //std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
   double sigmaee = sqrt(vCov[0]);
+  double e25Max = lazyTools.e2x5Max(*(electron->superCluster()->seed()))  ;
+  double e55 = lazyTools.e5x5(*(electron->superCluster()->seed())) ;
+  double e25Maxoe55 = e25Max/e55 ;
   double deltaPhiIn = electron->deltaPhiSuperClusterTrackAtVtx();
   double deltaEtaIn = electron->deltaEtaSuperClusterTrackAtVtx();
   
@@ -85,7 +88,11 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
     if (hOverE > cut[0]) 
       return 0.;    
 
-    if (sigmaee > cut[1]) 
+    if (electron->isEB() && quality_ == "highenergy") {
+       if (e25Maxoe55 > cut[1])
+         return 0.;
+    }
+    else if (sigmaee > cut[1]) 
       return 0.;    
 
     if (fabs(deltaPhiIn) > cut[2]) 
