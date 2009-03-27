@@ -1,5 +1,5 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.14 2009/02/04 17:05:26 syjun Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.15 2009/03/24 03:48:55 syjun Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 
@@ -139,8 +139,7 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 
   // @@@ dwjang, intial tuning by comparing 20-150GeV TB data
   // the width of energy response is not yet tuned.
-  G4double e25Scale = 1.03551;
-  z1 *= 9.76972e-01 - 3.85026e-01 * std::tanh(1.82790e+00*std::log(incomingEnergy) - 3.66237e+00);
+  G4double e25Scale = 1.007;
   p1 *= 0.96;
 
   // preparation of longitudinal integration
