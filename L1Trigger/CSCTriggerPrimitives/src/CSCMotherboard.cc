@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2009/03/16 17:51:14 $
-//   $Revision: 1.19 $
+//   $Date: 2009/03/25 15:22:30 $
+//   $Revision: 1.20 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -44,25 +44,6 @@
 // Default values of configuration parameters.
 const unsigned int CSCMotherboard::def_mpc_block_me1a = 1;
 
-CSCMotherboard::CSCMotherboard() :
-                   theEndcap(1), theStation(1), theSector(1),
-                   theSubsector(1), theTrigChamber(1) {
-  // Constructor used only for testing.  -JM
-  static bool config_dumped = false;
-
-  alct = new CSCAnodeLCTProcessor();
-  clct = new CSCCathodeLCTProcessor();
-  mpc_block_me1a = def_mpc_block_me1a;
-  infoV = 2;
-
-  // Check and print configuration parameters.
-  checkConfigParameters();
-  if (infoV > 0 && !config_dumped) {
-    dumpConfigParams();
-    config_dumped = true;
-  }
-}
-
 CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
 			       unsigned sector, unsigned subsector,
 			       unsigned chamber,
@@ -73,10 +54,10 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   // Pass ALCT, CLCT, and common parameters on to ALCT and CLCT processors.
   static bool config_dumped = false;
 
-  // Some congiguration parameters and some details of the emulator
+  // Some configuration parameters and some details of the emulator
   // algorithms depend on whether we want to emulate the trigger logic
-  // used in TB/MTCC or its future, hoped-for modification (the latter
-  // is used in MC studies).
+  // used in TB/MTCC or its idealized version (the latter was used in MC
+  // studies since early ORCA days until (and including) CMSSW_2_1_X).
   edm::ParameterSet commonParams =
     conf.getParameter<edm::ParameterSet>("commonParam");
   isMTCC = commonParams.getParameter<bool>("isMTCC");
@@ -85,15 +66,21 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   isTMB07 = commonParams.getParameter<bool>("isTMB07");
 
   // Choose the appropriate set of configuration parameters depending on
-  // isMTCC flag.
+  // isTMB07 and isMTCC flags.
+  // Starting with CMSSW_3_1_X, these settings are overwritten by the
+  // ones delivered by the EventSetup mechanism.
   edm::ParameterSet alctParams, clctParams;
-  if (!isMTCC) {
-    alctParams = conf.getParameter<edm::ParameterSet>("alctParamDef");
-    clctParams = conf.getParameter<edm::ParameterSet>("clctParamDef");
+  if (isTMB07) {
+    alctParams = conf.getParameter<edm::ParameterSet>("alctParam07");
+    clctParams = conf.getParameter<edm::ParameterSet>("clctParam07");
+  }
+  else if (isMTCC) {
+    alctParams = conf.getParameter<edm::ParameterSet>("alctParamMTCC");
+    clctParams = conf.getParameter<edm::ParameterSet>("clctParamMTCC");
   }
   else {
-    alctParams = conf.getParameter<edm::ParameterSet>("alctParamMTCC2");
-    clctParams = conf.getParameter<edm::ParameterSet>("clctParamMTCC2");
+    alctParams = conf.getParameter<edm::ParameterSet>("alctParamOldMC");
+    clctParams = conf.getParameter<edm::ParameterSet>("clctParamOldMC");
   }
   alct = new CSCAnodeLCTProcessor(endcap, station, sector, subsector,
 				  chamber, alctParams, commonParams);
@@ -118,6 +105,28 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   // testLCT();
 }
 
+CSCMotherboard::CSCMotherboard() :
+                   theEndcap(1), theStation(1), theSector(1),
+                   theSubsector(1), theTrigChamber(1) {
+  // Constructor used only for testing.  -JM
+  static bool config_dumped = false;
+
+  isMTCC  = true;
+  isTMB07 = true;
+
+  alct = new CSCAnodeLCTProcessor();
+  clct = new CSCCathodeLCTProcessor();
+  mpc_block_me1a = def_mpc_block_me1a;
+  infoV = 2;
+
+  // Check and print configuration parameters.
+  checkConfigParameters();
+  if (infoV > 0 && !config_dumped) {
+    dumpConfigParams();
+    config_dumped = true;
+  }
+}
+
 CSCMotherboard::~CSCMotherboard() {
   if (alct) delete alct;
   if (clct) delete clct;
@@ -134,7 +143,7 @@ void CSCMotherboard::clear() {
 void CSCMotherboard::setConfigParameters(const CSCL1TPParameters* conf) {
   alct->setConfigParameters(conf);
   clct->setConfigParameters(conf);
-  // No config. parameters for the TMB itself yet.
+  // No config. parameters in DB for the TMB itself yet.
 }
 
 void CSCMotherboard::checkConfigParameters() {
@@ -237,7 +246,8 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::getLCTs() {
     // Do not report LCTs found in ME1/A.
     bool me11 =
       (theStation == 1 &&
-       CSCTriggerNumbering::ringFromTriggerLabels(theStation,theTrigChamber)==1);
+       CSCTriggerNumbering::ringFromTriggerLabels(theStation,
+						  theTrigChamber) == 1);
     if (firstLCT.isValid())
       if (!me11 || firstLCT.getStrip() <= 127)
 	tmpV.push_back(firstLCT);
@@ -272,8 +282,9 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
   if (cathodeBestValid && !cathodeSecondValid) secondCLCT = bestCLCT;
   if (!cathodeBestValid && cathodeSecondValid) bestCLCT   = secondCLCT;
 
-  // TB/MTCC only, or always????
-  if (isMTCC && (bestCLCT.isValid() == false && secondCLCT.isValid() == false))
+  // There can never be any correlated LCTs without CLCTs?  Or is it
+  // a parameter?
+  if (bestCLCT.isValid() == false && secondCLCT.isValid() == false)
     return;
 
   firstLCT = constructLCTs(bestALCT, bestCLCT);
