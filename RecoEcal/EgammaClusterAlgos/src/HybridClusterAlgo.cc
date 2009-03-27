@@ -417,25 +417,15 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 	usedHits.push_back(std::make_pair<DetId, float>(recHits[blarg].id(), 1.0));
 	useddetids.insert(recHits[blarg].id());
       }
-<<<<<<< HybridClusterAlgo.cc
 
       //if (totE>0)
       //totChi2/=totE;
 
       // note that if this "basiccluster" is not the one that seeded the hybrid, the seed crystal is unset.
       thisseedClusters.push_back(reco::BasicCluster(LumpEnergy[i], pos, reco::CaloID(reco::CaloID::DET_ECAL_ENDCAP), usedHits, reco::CaloCluster::hybrid));
-=======
-      if (totE>0)
-	totChi2/=totE;
-      thisseedClusters.push_back(reco::BasicCluster(LumpEnergy[i],pos,totChi2,usedHits,reco::CaloCluster::hybrid));
->>>>>>> 1.52
       if (HasSeedCrystal)
-<<<<<<< HybridClusterAlgo.cc
         // note that this "basiccluster" has the seed crystal of the hyrbid, so record it
 	seedClus_.push_back(reco::BasicCluster(LumpEnergy[i], pos, reco::CaloID(reco::CaloID::DET_ECAL_ENDCAP), usedHits, reco::CaloCluster::hybrid, itID));
-=======
-	seedClus_.push_back(reco::BasicCluster(LumpEnergy[i],pos,totChi2,usedHits,reco::CaloCluster::hybrid));
->>>>>>> 1.52
     }
     // Make association so that superclusters can be made later.
     // but only if some BasicClusters have been found...

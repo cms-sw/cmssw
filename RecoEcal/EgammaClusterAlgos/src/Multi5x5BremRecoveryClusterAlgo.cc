@@ -14,13 +14,8 @@ reco::SuperClusterCollection Multi5x5BremRecoveryClusterAlgo::makeSuperClusters(
   // ...and populate them:
   for (reco::CaloCluster_iterator it = clustersCollection.begin(); it != clustersCollection.end(); it++)
     {
-<<<<<<< Multi5x5BremRecoveryClusterAlgo.cc
-      reco::BasicClusterRef cluster_p = *it;
-      if (cluster_p->algo() == reco::CaloCluster::island) 
-=======
       reco::CaloClusterPtr cluster_p = *it;
       if (cluster_p->algo() == reco::CaloCluster::island) 
->>>>>>> 1.3
       {
 	  if (fabs(cluster_p->position().eta()) < etaBorder)
 	    {

@@ -185,43 +185,26 @@ void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
 {
 
    double energy = 0;
-<<<<<<< Multi5x5ClusterAlgo.cc
    //double chi2   = 0;
-=======
    reco::CaloID caloID;
->>>>>>> 1.5
    Point position;
    position = posCalculator_.Calculate_Location(current_v, hits,geometry, geometryES);
   
-<<<<<<< Multi5x5ClusterAlgo.cc
    std::vector<std::pair<DetId, float> >::iterator it;
-=======
-   std::vector< std::pair<DetId, float> >::iterator it;
->>>>>>> 1.5
    for (it = current_v.begin(); it != current_v.end(); it++)
    {
-<<<<<<< Multi5x5ClusterAlgo.cc
-      EcalRecHitCollection::const_iterator itt = hits->find(it->first);
-=======
       EcalRecHitCollection::const_iterator itt = hits->find( (*it).first );
->>>>>>> 1.5
       EcalRecHit hit_p = *itt;
       energy += hit_p.energy();
-<<<<<<< Multi5x5ClusterAlgo.cc
       //chi2 += 0;
-=======
       if ( (*it).first.subdetId() == EcalBarrel ) {
               caloID = reco::CaloID::DET_ECAL_BARREL;
       } else {
               caloID = reco::CaloID::DET_ECAL_ENDCAP;
       }
 
->>>>>>> 1.5
    }
-<<<<<<< Multi5x5ClusterAlgo.cc
    //chi2 /= energy;
-=======
->>>>>>> 1.5
 
    if (verbosity < pINFO)
    { 
@@ -238,12 +221,8 @@ void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
    double seedEnergy = seedIt->energy();
    if (energy >= seedEnergy)
    {
-<<<<<<< Multi5x5ClusterAlgo.cc
       //clusters_v.push_back(reco::BasicCluster(energy, position, chi2, current_v, reco::CaloCluster::island));
       clusters_v.push_back(reco::BasicCluster(energy, position, reco::CaloID(detector_), current_v, reco::CaloCluster::multi5x5, seedIt->id()));
-=======
-      clusters_v.push_back(reco::BasicCluster(energy, position, caloID, current_v, reco::CaloCluster::island));
->>>>>>> 1.5
    }
 
 }
@@ -355,11 +334,7 @@ void Multi5x5ClusterAlgo::addCrystal(const DetId &det)
       if ((used_s.find(thisIt->id()) == used_s.end())) 
       {
 	 //std::cout << "   ... this is a good crystal and will be added" << std::endl;
-<<<<<<< Multi5x5ClusterAlgo.cc
-         current_v.push_back(std::pair<DetId, float>(det, 1.0));
-=======
          current_v.push_back( std::pair<DetId, float>(det, 1.) ); // by default hit energy fractions are set at 1.
->>>>>>> 1.5
          used_s.insert(det);
       }
    } 
