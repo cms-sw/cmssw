@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/10/16 09:33:40 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/11/03 14:20:32 $
+ *  $Revision: 1.6 $
  *  \author  G. Cerminara - University and INFN Torino
  *   
  */
@@ -70,7 +70,7 @@ private:
   std::string getMEName(std::string histoTag, const DTChamberId& chId);
 
   // Run the test on the occupancy histos
-  int runOccupancyTest(TH2F *histo, const DTChamberId& chId);
+  int runOccupancyTest(TH2F *histo, const DTChamberId& chId, float& chamberPercentage);
 
   std::string topFolder() const;
 
@@ -83,6 +83,7 @@ private:
   // wheel summary histograms  
   std::map< int, MonitorElement* > wheelHistos;  
   MonitorElement* summaryHisto;
+  MonitorElement* glbSummaryHisto;
 
   std::set<DTLayerId> monitoredLayers;
 

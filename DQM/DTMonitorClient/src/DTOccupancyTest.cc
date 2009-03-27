@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/24 09:23:27 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/02/27 08:49:58 $
+ *  $Revision: 1.13 $
  *  \author G. Cerminara - University and INFN Torino
  */
 
@@ -73,7 +73,8 @@ void DTOccupancyTest::beginJob(const EventSetup& context){
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
 
-  // Book the histos
+  // Book the summary histos
+  //   - one summary per wheel
   for(int wh = -2; wh <= 2; ++wh) { // loop over wheels
     bookHistos(wh, string("Occupancies"), "OccupancySummary");
   }
@@ -83,9 +84,16 @@ void DTOccupancyTest::beginJob(const EventSetup& context){
   if(tpMode) {
     title = "Test Pulse Occupancy Summary";
   }
-  summaryHisto = dbe->book2D("OccupancySummary","Occupancy Summary",12,1,13,5,-2,3);
+  //   - global summary with alarms
+  summaryHisto = dbe->book2D("OccupancySummary",title.c_str(),12,1,13,5,-2,3);
   summaryHisto->setAxisTitle("sector",1);
   summaryHisto->setAxisTitle("wheel",2);
+  
+  //   - global summary with percentages
+  glbSummaryHisto = dbe->book2D("OccupancyGlbSummary",title.c_str(),12,1,13,5,-2,3);
+  glbSummaryHisto->setAxisTitle("sector",1);
+  glbSummaryHisto->setAxisTitle("wheel",2);
+
 
   // assign the name of the input histogram
   if(runOnAllHitsOccupancies) {
@@ -128,7 +136,7 @@ void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
 
   // Reset the global summary
   summaryHisto->Reset();
-
+  glbSummaryHisto->Reset();
 
   // Get all the DT chambers
   vector<DTChamber*> chambers = muonGeom->chambers();
@@ -143,7 +151,8 @@ void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
     if(chamberOccupancyHisto != 0) {
       // Get the 2D histo
       TH2F* histo = chamberOccupancyHisto->getTH2F();
-      int result = runOccupancyTest(histo, chId);
+      float chamberPercentage = 1.;
+      int result = runOccupancyTest(histo, chId, chamberPercentage);
       int sector = chId.sector();
 
       if(sector == 13) {
@@ -159,10 +168,16 @@ void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
 	  result = (int)resultSect10;
 	}
       }
+      
+      // the 2 MB4 of Sect 4 and 10 count as half a chamber
+      if((sector == 4 || sector == 10) && chId.station() == 4) 
+	chamberPercentage = chamberPercentage/2.;
+
       wheelHistos[chId.wheel()]->setBinContent(sector, chId.station(),result);
       if(result > summaryHisto->getBinContent(sector, chId.wheel()+3)) {
 	summaryHisto->setBinContent(sector, chId.wheel()+3, result);
       }
+      glbSummaryHisto->Fill(sector, chId.wheel(), chamberPercentage*1./4.);
     } else {
       LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest] ME: "
 				      << getMEName(nameMonitoredHisto, chId) << " not found!" << endl;
@@ -256,7 +271,8 @@ string DTOccupancyTest::getMEName(string histoTag, const DTChamberId& chId) {
 // 2 -> dead layer
 // 3 -> dead SL
 // 4 -> dead chamber
-int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
+int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
+				      float& chamberPercentage) {
   int nBinsX = histo->GetNbinsX();
 
   // Reset the error flags
@@ -266,6 +282,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
 
   // Check that the chamber has digis
   if(histo->Integral() == 0) {
+    chamberPercentage = 0;
     return 4;
   }
 
@@ -314,6 +331,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
     int binYhigh = binYlow+3;
     double slInteg = histo->Integral(1,nBinsX,binYlow,binYhigh);
     if(slInteg == 0) {
+      chamberPercentage = 1.-1./(float)nSL;
       return 3;
     }
 
@@ -548,8 +566,12 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
   }
 
   // All the chamber is off
-  if(nFailingSLs == nSL) return 4;
-
+  if(nFailingSLs == nSL) {
+    chamberPercentage = 0;
+    return 4;
+  } else {
+    chamberPercentage = 1.-(float)nFailingSLs/(float)nSL;
+  }
 
   // FIXME add check on cells
   if(failSL) return 3;
