@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy
 //         Created:  Thu Mar 27 08:12:02 CET 2008
-// $Id$
+// $Id: HcalTimingMonitorModule.cc,v 1.2 2009/03/24 20:57:40 temple Exp $
 //
 //
 
@@ -208,23 +208,23 @@ string str;
    if (monitorName_ != "" ) monitorName_ =subsystemname+"/"+monitorName_+"/" ;
    counterEvt_=0;
    
-   // some curretly dummy things for compartability with GUI
+   // some currently dummy things for compartability with GUI
    dbe_->setCurrentFolder(subsystemname+"/EventInfo/");
    str="reportSummary";
-   dbe_->bookFloat(str)->Fill(1);     // Good statub by default
+   dbe_->bookFloat(str)->Fill(1);     // Unknown status by default
    str="reportSummaryMap";
-   MonitorElement* me=dbe_->book2D(str,str,5,0,5,1,0,1); // Good statub by default
+   MonitorElement* me=dbe_->book2D(str,str,5,0,5,1,0,1); // Unknown status by default
    TH2F* myhist=me->getTH2F();
    myhist->GetXaxis()->SetBinLabel(1,"HB");
    myhist->GetXaxis()->SetBinLabel(2,"HE");
    myhist->GetXaxis()->SetBinLabel(3,"HO");
    myhist->GetXaxis()->SetBinLabel(4,"HF");
    myhist->GetYaxis()->SetBinLabel(1,"Status");
-   // Good statub by default
-   myhist->SetBinContent(1,1,1);
-   myhist->SetBinContent(2,1,1);
-   myhist->SetBinContent(3,1,1);
-   myhist->SetBinContent(4,1,1);
+   // Unknown status by default
+   myhist->SetBinContent(1,1,-1);
+   myhist->SetBinContent(2,1,-1);
+   myhist->SetBinContent(3,1,-1);
+   myhist->SetBinContent(4,1,-1);
    // Add ZDC at some point
    myhist->GetXaxis()->SetBinLabel(5,"ZDC");
    myhist->SetBinContent(5,1,-1); // no ZDC info known

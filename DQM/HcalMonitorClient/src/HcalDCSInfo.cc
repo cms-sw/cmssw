@@ -84,5 +84,10 @@ void HcalDCSInfo::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm:
   edm::LogInfo ("HcalDCSInfo") <<"HcalDCSInfo:: Luminosity Block";
 }
 
+void HcalDCSInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
+{
+  edm::LogInfo ("HcalDCSInfo") <<"HcalDCSInfo:: Luminosity Block";
+}
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HcalDCSInfo);

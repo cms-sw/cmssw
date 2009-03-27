@@ -61,6 +61,10 @@ class HcalDCSInfo: public edm::EDAnalyzer {
                                                                                
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
 
+  /// End Luminosity Block
+  virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) ;
+
+
   /// Analyze
 
   void analyze(edm::Event const&, edm::EventSetup const&);
