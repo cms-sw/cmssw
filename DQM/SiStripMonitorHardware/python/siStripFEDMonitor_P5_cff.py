@@ -22,14 +22,14 @@ siStripFEDMonitor.InvalidBuffersHistogramConfig.Enabled = True
 siStripFEDMonitor.BadDAQCRCsHistogramConfig.Enabled = True
 siStripFEDMonitor.BadFEDCRCsHistogramConfig.Enabled = True
 #Detailed FED level expert histograms
-siStripFEDMonitor.FEOverflowsDetailedHistogramConfig.Enabled = True
-siStripFEDMonitor.FEMissingDetailedHistogramConfig.Enabled = True
-siStripFEDMonitor.BadMajorityAddressesDetailedHistogramConfig.Enabled = True
-siStripFEDMonitor.BadAPVStatusBitsDetailedHistogramConfig.Enabled = True
-siStripFEDMonitor.APVErrorBitsDetailedHistogramConfig.Enabled = True
-siStripFEDMonitor.APVAddressErrorBitsDetailedHistogramConfig.Enabled = True
-siStripFEDMonitor.UnlockedBitsDetailedHistogramConfig.Enabled = True
-siStripFEDMonitor.OOSBitsDetailedHistogramConfig.Enabled = True
+siStripFEDMonitor.FEOverflowsDetailedHistogramConfig.Enabled = False
+siStripFEDMonitor.FEMissingDetailedHistogramConfig.Enabled = False
+siStripFEDMonitor.BadMajorityAddressesDetailedHistogramConfig.Enabled = False
+siStripFEDMonitor.BadAPVStatusBitsDetailedHistogramConfig.Enabled = False
+siStripFEDMonitor.APVErrorBitsDetailedHistogramConfig.Enabled = False
+siStripFEDMonitor.APVAddressErrorBitsDetailedHistogramConfig.Enabled = False
+siStripFEDMonitor.UnlockedBitsDetailedHistogramConfig.Enabled = False
+siStripFEDMonitor.OOSBitsDetailedHistogramConfig.Enabled = False
 #Error counting histograms
 siStripFEDMonitor.nFEDErrorsHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),
