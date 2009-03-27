@@ -79,7 +79,12 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   unpackStatusDigis = pset.getUntrackedParameter<bool>("UnpackStatusDigis", false);
   inputObjectsTag = pset.getParameter<edm::InputTag>("InputObjects");
   unpackMTCCData = pset.getUntrackedParameter<bool>("isMTCCData", false);
-
+  
+  // Visualization of raw data in FED-less events 
+  visualFEDInspect=pset.getUntrackedParameter<bool>("VisualFEDInspect", false);
+  visualFEDShort=pset.getUntrackedParameter<bool>("VisualFEDShort", false);
+  //Visualization of raw data in FED-less events 
+  
   // Enable Format Status Digis
   useFormatStatus = pset.getUntrackedParameter<bool>("UseFormatStatus", false);
 
@@ -186,8 +191,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	if( examinerMask&0x40000 ) examiner->crcCFEB(1);
 	if( examinerMask&0x8000  ) examiner->crcTMB (1);
 	if( examinerMask&0x0400  ) examiner->crcALCT(1);
-	examiner->output1().show();
-	examiner->output2().show();
+	//examiner->output1().show();
+	//examiner->output2().show();
 	examiner->setMask(examinerMask);
 	const short unsigned int *data = (short unsigned int *)fedData.data();
 
@@ -220,9 +225,16 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 			examiner->errorsDetailed(),
 			examiner->payloadDetailed(),
 			examiner->statusDetailed()));
+	}	
+     
+      //Visualization of raw data in FED-less events 
+      if(visualFEDInspect){
+	if (!goodEvent){
+	  short unsigned * buf = (short unsigned int *)fedData.data();
+          visual_raw(length/2, id,(int)e.id().run(),(int)e.id().event(), visualFEDShort, buf);
+        }
       }
-	  
-      
+	          
       if (goodEvent) {
 	///get a pointer to data and pass it to constructor for unpacking
 
@@ -529,5 +541,639 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 }
 
 
+// *** Visualization of raw data in FED-less events (begin) ***
 
+void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,short unsigned int *buf) const {
 
+	LogTrace("badData") << std::endl << std::endl;
+	LogTrace("badData") << "Run: "<< run << " Event: " << event;
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << "Problem seems in FED-" << id << "  " << "(scroll down to see summary)";
+	LogTrace("badData") <<"********************************************************************************";
+	LogTrace("badData") <<hl<<" words of data:";
+	
+	//================================================
+	// FED codes in DCC
+	std::vector<int> dcc_id;
+	int dcc_h1_id=0;
+	for (int i=750;i<758;i++)
+	    dcc_id.push_back(i);
+	char dcc_common[]="DCC-";    
+
+	//================================================
+	// DDU codes per FED
+	std::vector<int> ddu_id;
+	int ddu_h1_12_13=0;
+	for (int i=1;i<37;i++)
+	    ddu_id.push_back(i);
+	// For DDU Headers and tarailers
+	char ddu_common[]="DDU-";
+	char ddu_header1[]="Header 1";
+	char ddu_header2[]="Header 2";
+	char ddu_header3[]="Header 3";
+	char ddu_trail1[]="Trailer 1", ddu_trail2[]="Trailer 2", ddu_trail3[]="Trailer 3";
+	// For Header 2
+	char ddu_header2_bit[]={'8','0','0','0','0','0','0','1','8','0','0','0','8','0','0','0'};
+	char ddu_trailer1_bit[]={'8','0','0','0','f','f','f','f','8','0','0','0','8','0','0','0'};
+	char ddu_trailer3_bit[]={'a'};
+	// Corrupted Trailers
+	char ddu_tr1_err_common[]="Incomplet";
+	//====================================================
+	
+	//DMB
+	char dmb_common[]="DMB", dmb_header1[]="Header 1", dmb_header2[]="Header 2";
+	char dmb_common_crate[]="crate:", dmb_common_slot[]="slot:"; 
+	char dmb_common_l1a[]="L1A:";
+	char dmb_header1_bit[]={'9','9','9','9'};
+	char dmb_header2_bit[]={'a','a','a','a'};
+	char dmb_tr1[]="Trailer 1", dmb_tr2[]="Trailer 2";
+	char dmb_tr1_bit[]={'f','f','f','f'}, dmb_tr2_bit[]={'e','e','e','e'};
+	
+	
+	//=====================================================
+	
+	// ALCT
+	char alct_common[]="ALCT", alct_header1[]="Header 1", alct_header2[]="Header 2";
+	char alct_common_bxn[]="BXN:";
+	char alct_common_wcnt2[]="| Actual word count:"; 
+	char alct_common_wcnt1[]="Expected word count:";
+	char alct_header1_bit[]={'d','d','d','d','b','0','a'};
+	char alct_header2_bit[]={'0','0','0','0'};
+	char alct_tr1[]="Trailer 1"; 
+	
+	//======================================================
+
+	//TMB
+	char tmb_common[]="TMB", tmb_header1[]="Header", tmb_tr1[]="Trailer";
+	char tmb_header1_bit[]={'d','d','d','d','b','0','c'};
+	char tmb_tr1_bit[]={'d','d','d','d','e','0','f'};
+	
+	//======================================================
+	
+	//CFEB 
+	char cfeb_common[]="CFEB", cfeb_tr1[]="Trailer", cfeb_b[]="B-word";
+	char cfeb_common_sample[]="sample:";
+	
+	//======================================================	
+	
+	//Auxiliary variables 
+	
+	// Bufers
+	int word_lines=hl/4;
+	char tempbuf[80];
+	char tempbuf1[80];
+	char tempbuf_short[17];
+	char sign1[]="  --->| ";
+	
+	// Counters
+	int word_numbering=0;
+	int ddu_inst_i=0, ddu_inst_n=0, ddu_inst_l1a=0;
+	int dmb_inst_crate=0, dmb_inst_slot=0, dmb_inst_l1a=0;
+	int cfeb_sample=0;
+	int alct_inst_l1a=0;
+	int alct_inst_bxn=0;
+	int alct_inst_wcnt1=0;
+	int alct_inst_wcnt2=0;
+	int alct_start=0;
+	int alct_stop=0;
+	int tmb_inst_l1a=0;
+	int tmb_inst_wcnt1=0;
+	int tmb_inst_wcnt2=0;
+	int tmb_start=0;
+	int tmb_stop=0;
+	int dcc_h1_check=0;
+	
+	//Flags
+	int ddu_h2_found=0;  //DDU Header 2 found
+	int w=0;
+	
+	//Logic variables
+	const int sz1=5;
+	bool ddu_h2_check[sz1];
+	bool ddu_h1_check=false;
+	bool dmb_h1_check[sz1];
+	bool dmb_h2_check[sz1];
+	bool ddu_h2_h1=false;
+	bool ddu_tr1_check[sz1];
+	bool alct_h1_check[sz1];
+	bool alct_h2_check[sz1];
+	bool alct_tr1_check[sz1];
+	bool dmb_tr1_check[sz1];
+	bool dmb_tr2_check[sz1];
+	bool tmb_h1_check[sz1];
+	bool tmb_tr1_check[sz1];
+	bool cfeb_tr1_check[sz1];
+	bool cfeb_b_check[sz1];
+	bool ddu_tr1_bad_check[sz1];
+	bool extraction=fedshort;
+	
+	//Summary vectors
+	//DDU
+	std::vector<int> ddu_h1_coll;
+	std::vector<int> ddu_h1_n_coll;
+	std::vector<int> ddu_h2_coll;
+	std::vector<int> ddu_h3_coll;
+	std::vector<int> ddu_t1_coll;
+	std::vector<int> ddu_t2_coll;
+	std::vector<int> ddu_t3_coll;
+	std::vector<int> ddu_l1a_coll;
+	//DMB
+	std::vector<int> dmb_h1_coll;
+	std::vector<int> dmb_h2_coll;
+	std::vector<int> dmb_t1_coll;
+	std::vector<int> dmb_t2_coll;
+	std::vector<int> dmb_crate_coll;
+	std::vector<int> dmb_slot_coll;
+	std::vector<int> dmb_l1a_coll;
+	//ALCT
+	std::vector<int> alct_h1_coll;
+	std::vector<int> alct_h2_coll;
+	std::vector<int> alct_t1_coll;
+	std::vector<int> alct_l1a_coll;
+	std::vector<int> alct_bxn_coll;
+	std::vector<int> alct_wcnt1_coll;
+	std::vector<int> alct_wcnt2_coll;
+	std::vector<int> alct_wcnt2_id_coll;
+	//TMB
+	std::vector<int> tmb_h1_coll;
+	std::vector<int> tmb_t1_coll;
+	std::vector<int> tmb_l1a_coll;
+	std::vector<int> tmb_wcnt1_coll;
+	std::vector<int> tmb_wcnt2_coll;
+	//CFEB
+	std::vector<int> cfeb_t1_coll;
+	
+	//========================================================
+	
+	// DCC Header and Ttrailer information
+	char dcc_header1[]="DCC Header 1";
+	char dcc_header2[]="DCC Header 2";
+	char dcc_trail1[]="DCC Trailer 1", dcc_trail1_bit[]={'e'};
+	char dcc_trail2[]="DCC Trailer 2", dcc_trail2_bit[]={'a'};
+	//=========================================================
+        
+	for (int i=0;i<hl;i++) {
+	// Auxiliary actions
+	++word_numbering;
+	  for(int j=-1; j<4; j++){
+	     if((word_numbering>2)&&(word_numbering<hl/4)){  
+	       sprintf(tempbuf_short,"%04x%04x%04x%04x",buf[i+4*(j-1)+3],buf[i+4*(j-1)+2],buf[i+4*(j-1)+1],buf[i+4*(j-1)]);
+	        
+		ddu_h2_check[j]=((tempbuf_short[0]==ddu_header2_bit[0])&&(tempbuf_short[1]==ddu_header2_bit[1])&&
+		                (tempbuf_short[2]==ddu_header2_bit[2])&&(tempbuf_short[3]==ddu_header2_bit[3])&&
+		                (tempbuf_short[4]==ddu_header2_bit[4])&&(tempbuf_short[15]==ddu_header2_bit[15])&&
+		                (tempbuf_short[5]==ddu_header2_bit[5])&&(tempbuf_short[6]==ddu_header2_bit[6])&&
+		                (tempbuf_short[7]==ddu_header2_bit[7])&&(tempbuf_short[8]==ddu_header2_bit[8])//&&
+		   //(tempbuf_short[9]==ddu_header2_bit[9])&&(tempbuf_short[10]==ddu_header2_bit[10])&&
+		   //(tempbuf_short[11]==ddu_header2_bit[11])&&(tempbuf_short[12]==ddu_header2_bit[12])&&
+		   //(tempbuf_short[13]==ddu_header2_bit[13])&&(tempbuf_short[14]==ddu_header2_bit[14])
+		 );
+		 
+		 ddu_tr1_check[j]=((tempbuf_short[0]==ddu_trailer1_bit[0])&&(tempbuf_short[1]==ddu_trailer1_bit[1])&&
+	                          (tempbuf_short[2]==ddu_trailer1_bit[2])&&(tempbuf_short[3]==ddu_trailer1_bit[3])&&
+		                  (tempbuf_short[4]==ddu_trailer1_bit[4])&&(tempbuf_short[5]==ddu_trailer1_bit[5])&&
+		                  (tempbuf_short[6]==ddu_trailer1_bit[6])&&(tempbuf_short[7]==ddu_trailer1_bit[7])&&
+				  (tempbuf_short[8]==ddu_trailer1_bit[8])&&(tempbuf_short[9]==ddu_trailer1_bit[9])&&
+		                  (tempbuf_short[10]==ddu_trailer1_bit[10])&&(tempbuf_short[11]==ddu_trailer1_bit[11])&&
+				  (tempbuf_short[12]==ddu_trailer1_bit[12])&&(tempbuf_short[13]==ddu_trailer1_bit[13])&&
+				  (tempbuf_short[14]==ddu_trailer1_bit[14])&&(tempbuf_short[15]==ddu_trailer1_bit[15]));
+		 
+		 dmb_h1_check[j]=((tempbuf_short[0]==dmb_header1_bit[0])&&(tempbuf_short[4]==dmb_header1_bit[1])&&
+		                 (tempbuf_short[8]==dmb_header1_bit[2])&&(tempbuf_short[12]==dmb_header1_bit[3]));
+		
+		 dmb_h2_check[j]=((tempbuf_short[0]==dmb_header2_bit[0])&&(tempbuf_short[4]==dmb_header2_bit[1])&&
+		                 (tempbuf_short[8]==dmb_header2_bit[2])&&(tempbuf_short[12]==dmb_header2_bit[3]));
+		 alct_h1_check[j]=((tempbuf_short[0]==alct_header1_bit[0])&&(tempbuf_short[4]==alct_header1_bit[1])&&
+		                 (tempbuf_short[8]==alct_header1_bit[2])&&(tempbuf_short[12]==alct_header1_bit[3])&&
+				 (tempbuf_short[13]==alct_header1_bit[4])&&(tempbuf_short[14]==alct_header1_bit[5])&&
+				 (tempbuf_short[15]==alct_header1_bit[6]));		 
+		 alct_h2_check[j]=(((tempbuf_short[0]==alct_header2_bit[0])&&(tempbuf_short[1]==alct_header2_bit[1])&&
+		                 (tempbuf_short[2]==alct_header2_bit[2])&&(tempbuf_short[3]==alct_header2_bit[3]))||
+				 ((tempbuf_short[4]==alct_header2_bit[0])&&(tempbuf_short[5]==alct_header2_bit[1])&&
+		                 (tempbuf_short[6]==alct_header2_bit[2])&&(tempbuf_short[7]==alct_header2_bit[3]))||
+				 ((tempbuf_short[8]==alct_header2_bit[0])&&(tempbuf_short[9]==alct_header2_bit[1])&&
+		                 (tempbuf_short[10]==alct_header2_bit[2])&&(tempbuf_short[11]==alct_header2_bit[3]))||
+				 ((tempbuf_short[12]==alct_header2_bit[0])&&(tempbuf_short[13]==alct_header2_bit[1])&&
+		                 (tempbuf_short[14]==alct_header2_bit[2])&&(tempbuf_short[15]==alct_header2_bit[3]))
+				 //(tempbuf_short[4]==alct_header2_bit[4])&&(tempbuf_short[5]==alct_header2_bit[5])
+				 );
+				 // ALCT Trailers
+		alct_tr1_check[j]=(((buf[i+4*(j-1)]&0xFFFF)==0xDE0D)&&((buf[i+4*(j-1)+1]&0xF800)==0xD000)&&
+		                 ((buf[i+4*(j-1)+2]&0xF800)==0xD000)&&((buf[i+4*(j-1)+3]&0xF000)==0xD000));
+				 // DMB Trailers
+		 dmb_tr1_check[j]=((tempbuf_short[0]==dmb_tr1_bit[0])&&(tempbuf_short[4]==dmb_tr1_bit[1])&&
+		                 (tempbuf_short[8]==dmb_tr1_bit[2])&&(tempbuf_short[12]==dmb_tr1_bit[3]));
+		 dmb_tr2_check[j]=((tempbuf_short[0]==dmb_tr2_bit[0])&&(tempbuf_short[4]==dmb_tr2_bit[1])&&
+		                 (tempbuf_short[8]==dmb_tr2_bit[2])&&(tempbuf_short[12]==dmb_tr2_bit[3]));
+				 // TMB
+		 tmb_h1_check[j]=((tempbuf_short[0]==tmb_header1_bit[0])&&(tempbuf_short[4]==tmb_header1_bit[1])&&
+		                 (tempbuf_short[8]==tmb_header1_bit[2])&&(tempbuf_short[12]==tmb_header1_bit[3])&&
+				 (tempbuf_short[13]==tmb_header1_bit[4])&&(tempbuf_short[14]==tmb_header1_bit[5])&&
+				 (tempbuf_short[15]==tmb_header1_bit[6]));
+		 tmb_tr1_check[j]=((tempbuf_short[0]==tmb_tr1_bit[0])&&(tempbuf_short[4]==tmb_tr1_bit[1])&&
+		                 (tempbuf_short[8]==tmb_tr1_bit[2])&&(tempbuf_short[12]==tmb_tr1_bit[3])&&
+				 (tempbuf_short[13]==tmb_tr1_bit[4])&&(tempbuf_short[14]==tmb_tr1_bit[5])&&
+				 (tempbuf_short[15]==tmb_tr1_bit[6]));
+		                 // CFEB
+		 cfeb_tr1_check[j]=(((buf[i+4*(j-1)+1]&0xF000)==0x7000) &&  
+		     ((buf[i+4*(j-1)+2]&0xF000)==0x7000) && 
+		     (( buf[i+4*(j-1)+1]!= 0x7FFF) || (buf[i+4*(j-1)+2] != 0x7FFF)) &&
+		     ((buf[i+4*(j-1)+3] == 0x7FFF) ||   
+		     ((buf[i+4*(j-1)+3]&buf[i+4*(j-1)]) == 0x0&&(buf[i+4*(j-1)+3] + buf[i+4*(j-1)] == 0x7FFF ))) );
+		 cfeb_b_check[j]=(((buf[i+4*(j-1)+3]&0xF000)==0xB000)&&((buf[i+4*(j-1)+2]&0xF000)==0xB000) && 
+		                 ((buf[i+4*(j-1)+1]&0xF000)==0xB000)&&((buf[i+4*(j-1)]=3&0xF000)==0xB000) );   
+		                 // DDU Trailers with errors
+		 ddu_tr1_bad_check[j]=((tempbuf_short[0]!=ddu_trailer1_bit[0])&&
+	                         //(tempbuf_short[1]!=ddu_trailer1_bit[1])&&(tempbuf_short[2]!=ddu_trailer1_bit[2])&&
+				 //(tempbuf_short[3]==ddu_trailer1_bit[3])&&
+		                 (tempbuf_short[4]!=ddu_trailer1_bit[4])&&
+				 //(tempbuf_short[5]==ddu_trailer1_bit[5])&&
+		                 //(tempbuf_short[6]==ddu_trailer1_bit[6])&&(tempbuf_short[7]==ddu_trailer1_bit[7])&&
+				 (tempbuf_short[8]==ddu_trailer1_bit[8])&&(tempbuf_short[9]==ddu_trailer1_bit[9])&&
+		                 (tempbuf_short[10]==ddu_trailer1_bit[10])&&(tempbuf_short[11]==ddu_trailer1_bit[11])&&
+				 (tempbuf_short[12]==ddu_trailer1_bit[12])&&(tempbuf_short[13]==ddu_trailer1_bit[13])&&
+		                 (tempbuf_short[14]==ddu_trailer1_bit[14])&&(tempbuf_short[15]==ddu_trailer1_bit[15]));	
+	  }
+	  }
+	  // DDU header2 next to header1
+	  ddu_h2_h1=ddu_h2_check[2];
+	  
+	  sprintf(tempbuf_short,"%04x%04x%04x%04x",buf[i+3],buf[i+2],buf[i+1],buf[i]);
+	  // Looking for DDU headers 1 per FED   char ddu_16[]="DDU-16", ddu_16_bits_13_14[]={'1','0'};
+	  ddu_h1_12_13=(buf[i]>>8);
+	  for (int kk=0; kk<36; kk++){	      
+	      if(((buf[i+3]&0xF000)==0x5000)&&(ddu_h1_12_13==ddu_id[kk])&&ddu_h2_h1){
+	        ddu_h1_coll.push_back(word_numbering); ddu_h1_n_coll.push_back(ddu_id[kk]);
+		ddu_inst_l1a=((buf[i+2]&0xFFFF)+((buf[i+3]&0x00FF)<<16));
+		ddu_l1a_coll.push_back(ddu_inst_l1a);
+	        sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s%s %s %i",
+		word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
+	        sign1,ddu_common,ddu_id[kk],ddu_header1,sign1,dmb_common_l1a,ddu_inst_l1a);
+		LogTrace("badData") << tempbuf1; w=0; ddu_h1_check=true; ddu_inst_l1a=0; 
+		cfeb_sample=0;
+	      }
+	  }
+	 // Looking for DCC headers and trailers
+	 
+	 if(((buf[i+3]&0xF000)==0x5000)&&((buf[i]&0x00FF)==0x005F)) {
+	     dcc_h1_id=(((buf[i+1]<<12)&0xF000)>>4)+(buf[i]>>8);
+	     for(int dcci=0;dcci<8;dcci++){
+	         if(dcc_id[dcci]==dcc_h1_id){
+	         sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s",word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
+	         sign1,dcc_common,dcc_h1_id,dcc_header1); dcc_h1_check=word_numbering; break;}
+		 else
+		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x",word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i]);
+		 } 
+		 LogTrace("badData") << tempbuf1; w=0;
+	     }      
+	  else if(((word_numbering-1)==dcc_h1_check)&&((buf[i+3]&0xFF00)==0xD900)) {
+	     sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s",word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
+	     sign1,dcc_header2);
+	     LogTrace("badData") << tempbuf1; w=0; 
+	     }
+	  else if((word_numbering==word_lines-1)&&(tempbuf_short[0]==dcc_trail1_bit[0])){
+	     sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s",word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
+	     sign1,dcc_trail1);
+	     LogTrace("badData") << tempbuf1; w=0;
+	       }
+	  else if((word_numbering==word_lines)&&(tempbuf_short[0]==dcc_trail2_bit[0])){
+	     sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s",word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
+	     sign1,dcc_trail2);
+	     LogTrace("badData") << tempbuf1; w=0;
+	       }
+	     // DDU Header 2
+	  else if(ddu_h2_check[1]){
+               ddu_inst_i = ddu_h1_n_coll.size(); ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];
+	       sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s",
+	       word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,ddu_common,
+	       ddu_inst_n, ddu_header2);
+	       ddu_h2_coll.push_back(word_numbering);
+	       LogTrace("badData") << tempbuf1; w=0;
+	       ddu_h2_found=1;
+	       }
+	     // DDU Header 3 (eather between DDU Header 2 DMB Header or DDU Header 2 DDU Trailer1)  
+	  else if((ddu_h2_check[0]&&dmb_h1_check[2])||(ddu_h2_check[0]&&ddu_tr1_check[2])){
+	     ddu_inst_i = ddu_h1_n_coll.size(); ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];
+	     sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s",word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
+	     sign1,ddu_common,ddu_inst_n,ddu_header3);
+	     ddu_h3_coll.push_back(word_numbering);
+	     LogTrace("badData") << tempbuf1; w=0;
+	     ddu_h2_found=0;
+	     }
+	     // DMB Header 1,2
+	     
+	    else if(dmb_h1_check[1]){
+	         dmb_inst_crate=0; dmb_inst_slot=0; dmb_inst_l1a=0;
+		 dmb_inst_l1a=((buf[i]&0x0FFF)+((buf[i+1]&0xFFF)<<12));
+		 dmb_l1a_coll.push_back(dmb_inst_l1a);
+	       if(dmb_h2_check[2]){
+	         dmb_inst_crate=((buf[i+4+1]>>4)&0xFF); dmb_inst_slot=(buf[i+4+1]&0xF);
+	         dmb_crate_coll.push_back(dmb_inst_crate); dmb_slot_coll.push_back(dmb_inst_slot);
+	       }
+	       sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s %s%s%s %i %s %i %s %i",
+	       word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
+	       sign1,dmb_common,dmb_header1,sign1,dmb_common_crate,dmb_inst_crate,
+	       dmb_common_slot,dmb_inst_slot,dmb_common_l1a,dmb_inst_l1a);
+	       dmb_h1_coll.push_back(word_numbering);
+	       LogTrace("badData") << tempbuf1; w=0;
+	       ddu_h2_found=1;
+	       }
+	       
+	    else if(dmb_h2_check[1]){		 
+	       dmb_inst_crate=((buf[i+1]>>4)&0xFF); dmb_inst_slot=(buf[i+1]&0xF);
+	       dmb_h2_coll.push_back(word_numbering);
+	       if(dmb_h1_check[0])
+	          dmb_inst_l1a=((buf[i-4]&0x0FFF)+((buf[i-4+1]&0xFFF)<<12));
+	       sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s %s%s%s %i %s %i %s %i",
+	       word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
+	       sign1,dmb_common,dmb_header2,sign1,dmb_common_crate,dmb_inst_crate,
+	       dmb_common_slot,dmb_inst_slot,dmb_common_l1a,dmb_inst_l1a);
+	       LogTrace("badData") << tempbuf1; w=0;
+	       ddu_h2_found=1;
+	       }
+	       
+	     //DDU Trailer 1
+	   else if(ddu_tr1_check[1]){
+	         ddu_inst_i = ddu_h1_n_coll.size(); ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];
+		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s",
+	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,ddu_common,ddu_inst_n,ddu_trail1);
+		 ddu_t1_coll.push_back(word_numbering);
+	         LogTrace("badData") << tempbuf1; w=0;
+		 }
+
+		 //ALCT Header 1,2		
+          else if(alct_h1_check[1]){
+	         alct_start=word_numbering;
+	         alct_inst_l1a=(buf[i+2]&0x0FFF);
+		 alct_l1a_coll.push_back(alct_inst_l1a);
+		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s %s%s %s %i",
+	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
+		 sign1,alct_common,alct_header1,sign1,dmb_common_l1a,alct_inst_l1a);
+		 alct_h1_coll.push_back(word_numbering);
+	         LogTrace("badData") << tempbuf1; w=0; alct_inst_l1a=0;
+		 }
+		 
+	  else if((alct_h1_check[0])&&(alct_h2_check[2])) {
+	         alct_inst_bxn=(buf[i]&0x0FFF);
+		 alct_bxn_coll.push_back(alct_inst_bxn);
+		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s %s%s%s %i",
+	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
+		 sign1,alct_common,alct_header2,sign1,alct_common_bxn,alct_inst_bxn);
+		 alct_h2_coll.push_back(word_numbering);
+	         LogTrace("badData") << tempbuf1; w=0; alct_inst_bxn=0;
+		 } 
+	         
+		 //ALCT Trailer 1
+	  else if(alct_tr1_check[1]){
+	         alct_stop=word_numbering;
+	         if((alct_start!=0)&&(alct_stop!=0)&&(alct_stop>alct_start)) {
+		        alct_inst_wcnt2=4*(alct_stop-alct_start+1);
+		        alct_wcnt2_coll.push_back(alct_inst_wcnt2);
+			alct_wcnt2_id_coll.push_back(alct_start);
+			}
+	         alct_inst_wcnt1=(buf[i+3]&0x7FF);
+		 alct_wcnt1_coll.push_back(alct_inst_wcnt1);
+		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s %s%s%s %i %s %i",
+	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
+		 sign1,alct_common,alct_tr1,sign1,alct_common_wcnt1,alct_inst_wcnt1,
+		 alct_common_wcnt2,alct_inst_wcnt2);
+		 alct_t1_coll.push_back(word_numbering);
+	         LogTrace("badData") << tempbuf1; w=0; alct_inst_wcnt1=0;
+		 alct_inst_wcnt2=0;  
+		 }
+		 
+		 //DDU Trailer 3
+	  else if((ddu_tr1_check[-1])&&(tempbuf_short[0]==ddu_trailer3_bit[0])){
+	  //&&(tempbuf_short[0]==ddu_trailer3_bit[0])){
+                 ddu_inst_i = ddu_h1_n_coll.size(); ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];         
+		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s",
+	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,ddu_common,ddu_inst_n,ddu_trail3);
+		 ddu_t3_coll.push_back(word_numbering);
+	         LogTrace("badData") << tempbuf1; w=0;
+		 }
+		 //DDU Trailer 2
+	  else if((ddu_tr1_check[0])&&(tempbuf_short[0]!=ddu_trailer3_bit[0])){
+	  //&&(tempbuf_short[0]==ddu_trailer3_bit[0])){
+	         ddu_inst_i = ddu_h1_n_coll.size(); ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];
+		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s",
+	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,ddu_common,ddu_inst_n,ddu_trail2);
+		 ddu_t2_coll.push_back(word_numbering);
+	         LogTrace("badData") << tempbuf1; w=0;
+		 } 
+	         //DMB Trailer 1,2
+         else if(dmb_tr1_check[1]){
+		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s %s",
+	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,dmb_common,dmb_tr1);
+		 dmb_t1_coll.push_back(word_numbering);
+	         LogTrace("badData") << tempbuf1; w=0;
+		 cfeb_sample=0;
+		 }
+		 
+         else if(dmb_tr2_check[1]){
+		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s %s",
+	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,dmb_common,dmb_tr2);
+		 dmb_t2_coll.push_back(word_numbering);
+	         LogTrace("badData") << tempbuf1; w=0;
+		 }	 
+	 // TMB	 
+         else if(tmb_h1_check[1]){
+	         tmb_start=word_numbering;
+	         tmb_inst_l1a=(buf[i+2]&0x000F);
+		 tmb_l1a_coll.push_back(tmb_inst_l1a);
+		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s %s%s%s %i",
+	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,tmb_common,tmb_header1,
+		 sign1,dmb_common_l1a,tmb_inst_l1a);
+		 tmb_h1_coll.push_back(word_numbering);
+	         LogTrace("badData") << tempbuf1; w=0; tmb_inst_l1a=0; 
+		 }
+	 else if(tmb_tr1_check[1]){
+	         tmb_stop=word_numbering;
+	         if((tmb_start!=0)&&(tmb_stop!=0)&&(tmb_stop>tmb_start)) {
+		        tmb_inst_wcnt2=4*(tmb_stop-tmb_start+1);
+		        tmb_wcnt2_coll.push_back(tmb_inst_wcnt2);
+			}
+		 tmb_inst_wcnt1=(buf[i+3]&0x7FF);
+		 tmb_wcnt1_coll.push_back(tmb_inst_wcnt1);
+		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s %s%s%s %i %s %i",
+	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
+		 sign1,tmb_common,tmb_tr1,sign1,alct_common_wcnt1,tmb_inst_wcnt1,
+		 alct_common_wcnt2,tmb_inst_wcnt2);
+		 tmb_t1_coll.push_back(word_numbering);
+	         LogTrace("badData") << tempbuf1; w=0;
+		 tmb_inst_wcnt2=0;
+		 }
+	 // CFEB
+	 else if(cfeb_tr1_check[1]){
+	         ++cfeb_sample;
+		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s %s%s %s %i",
+	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
+		 sign1,cfeb_common,cfeb_tr1,sign1,cfeb_common_sample,cfeb_sample);
+		 cfeb_t1_coll.push_back(word_numbering); w=0;
+	         LogTrace("badData") << tempbuf1; w=0;
+		 }
+	else if(cfeb_b_check[1]){
+		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s %s",
+	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,cfeb_common,cfeb_b);
+	         LogTrace("badData") << tempbuf1; w=0;
+		 }	 	  
+	//ERRORS ddu_tr1_bad_check	 
+	else if(ddu_tr1_bad_check[1]){
+	         ddu_inst_i = ddu_h1_n_coll.size(); ddu_inst_n=ddu_h1_n_coll[ddu_inst_i-1];
+		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s %s",
+	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,ddu_common,ddu_inst_n,
+		 ddu_trail1,ddu_tr1_err_common);
+	         LogTrace("badData") << tempbuf1; w=0;
+		 }	  
+	
+	 else if(extraction&&(!ddu_h1_check)){
+	      if(w<3){
+	      sprintf(tempbuf,"%6i    %04x %04x %04x %04x",word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i]);
+	      LogTrace("badData") << tempbuf; w++;}
+	      if(w==3){
+	      LogTrace("badData") << "..................................................."; w++;}
+	  }	  
+	  	  
+	  else if((!ddu_h1_check)){   
+	  sprintf(tempbuf,"%6i    %04x %04x %04x %04x",word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i]);
+	  LogTrace("badData") << tempbuf;
+	  }
+	  
+	  i+=3; ddu_h1_check=false; 
+      }
+      
+        char sign[30]; 
+	LogTrace("badData") <<"********************************************************************************" <<
+	 std::endl;
+	if(fedshort)
+	LogTrace("badData") << "For complete output turn off VisualFEDShort in muonCSCDigis configuration file.";
+	LogTrace("badData") <<"********************************************************************************" <<
+	 std::endl;
+	LogTrace("badData") << std::endl; 
+	LogTrace("badData") <<"            Summary                ";
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << ddu_h1_coll.size() <<"  "<< ddu_common << "  "<<ddu_header1 << "  "<< "found";
+	for(unsigned int k=0; k<ddu_h1_coll.size();++k){
+	   sprintf(sign,"%s%6i%5s %s%i %s %i","Line: ",
+	   ddu_h1_coll[k],sign1,ddu_common,ddu_h1_n_coll[k],dmb_common_l1a,ddu_l1a_coll[k]);
+	   LogTrace("badData") << sign;
+	}		       
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << "||||||||||||||||||||";
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << ddu_h2_coll.size() <<"  "<< ddu_common << "  "<<ddu_header2 << "  "<< "found";
+	for(unsigned int k=0; k<ddu_h2_coll.size();++k)
+	   LogTrace("badData") << "Line:  " << ddu_h2_coll[k];
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << "||||||||||||||||||||";
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << ddu_h3_coll.size() <<"  "<< ddu_common << "  "<<ddu_header3 << "  "<< "found";
+	for(unsigned int k=0; k<ddu_h3_coll.size();++k)
+	   LogTrace("badData") << "Line:  " << ddu_h3_coll[k];
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << "||||||||||||||||||||";
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << ddu_t1_coll.size() <<"  "<< ddu_common << "  "<<ddu_trail1 << "  "<< "found";
+	for(unsigned int k=0; k<ddu_t1_coll.size();++k)
+	   LogTrace("badData") << "Line:  " << ddu_t1_coll[k];
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << "||||||||||||||||||||";
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << ddu_t2_coll.size() <<"  "<< ddu_common << "  "<<ddu_trail2 << "  "<< "found";
+	for(unsigned int k=0; k<ddu_t2_coll.size();++k)
+	   LogTrace("badData") << "Line:  " << ddu_t2_coll[k];
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << "||||||||||||||||||||";
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << ddu_t3_coll.size() <<"  "<< ddu_common << "  "<<ddu_trail3 << "  "<< "found";
+	for(unsigned int k=0; k<ddu_t3_coll.size();++k)
+	   LogTrace("badData") << "Line:  " << ddu_t3_coll[k];
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << "||||||||||||||||||||";
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << dmb_h1_coll.size() <<"  "<< dmb_common << "  "<<dmb_header1 << "  "<< "found";
+	for(unsigned int k=0; k<dmb_h1_coll.size();++k){
+	   sprintf(sign,"%s%6i%5s %s %s %i %s %i %s %i","Line: ",
+	   dmb_h1_coll[k],sign1,dmb_common,dmb_common_crate,dmb_crate_coll[k],dmb_common_slot,
+	   dmb_slot_coll[k],dmb_common_l1a,dmb_l1a_coll[k]);
+	   LogTrace("badData") << sign;
+	   }
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << "||||||||||||||||||||";
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << dmb_h2_coll.size() <<"  "<< dmb_common << "  "<<dmb_header2 << "  "<< "found";
+	for(unsigned int k=0; k<dmb_h2_coll.size();++k)
+	   LogTrace("badData") << "Line:  " << dmb_h2_coll[k];
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << "||||||||||||||||||||";
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << dmb_t1_coll.size() <<"  "<< dmb_common << "  "<<dmb_tr1 << "  "<< "found";
+	for(unsigned int k=0; k<dmb_t1_coll.size();++k)
+	   LogTrace("badData") << "Line:  " << dmb_t1_coll[k];
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << "||||||||||||||||||||";
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << dmb_t2_coll.size() <<"  "<< dmb_common << "  "<<dmb_tr2 << "  "<< "found";
+	for(unsigned int k=0; k<dmb_t2_coll.size();++k)
+	   LogTrace("badData") << "Line:  " << dmb_t2_coll[k];
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << "||||||||||||||||||||";
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << alct_h1_coll.size() <<"  "<< alct_common << "  "<<alct_header1 << "  "<< "found";
+	for(unsigned int k=0; k<alct_h1_coll.size();++k){
+	   sprintf(sign,"%s%6i%5s %s %s %i","Line: ",
+	   alct_h1_coll[k],sign1,alct_common,
+	   dmb_common_l1a,alct_l1a_coll[k]);
+	   LogTrace("badData") << sign;
+	   }
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << "||||||||||||||||||||";
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << alct_h2_coll.size() <<"  "<< alct_common << "  "<<alct_header2 << "  "<< "found";
+	for(unsigned int k=0; k<alct_h2_coll.size();++k){
+	   sprintf(sign,"%s%6i%5s %s %s %i","Line: ",
+	   alct_h1_coll[k],sign1,alct_common,
+	   alct_common_bxn,alct_bxn_coll[k]);
+	   LogTrace("badData") << sign;
+	   }
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << "||||||||||||||||||||";
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << alct_t1_coll.size() <<"  "<< alct_common << "  "<<alct_tr1 << "  "<< "found";
+	for(unsigned int k=0; k<alct_t1_coll.size();++k){
+	        sprintf(sign,"%s%6i%5s %s %s %i %s %i","Line: ",
+	        alct_t1_coll[k],sign1,alct_common,
+	        alct_common_wcnt1,alct_wcnt1_coll[k],alct_common_wcnt2,alct_wcnt2_coll[k]);
+	                        
+	   LogTrace("badData") << sign;
+	   }
+	   
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << "||||||||||||||||||||";
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << tmb_h1_coll.size() <<"  "<< tmb_common << "  "<<tmb_header1 << "  "<< "found";
+	for(unsigned int k=0; k<tmb_h1_coll.size();++k){
+	   sprintf(sign,"%s%6i%5s %s %s %i","Line: ",
+	   tmb_h1_coll[k],sign1,tmb_common,
+	   dmb_common_l1a,tmb_l1a_coll[k]);
+	   LogTrace("badData") << sign;
+	}   
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << "||||||||||||||||||||";
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << tmb_t1_coll.size() <<"  "<< tmb_common << "  "<<tmb_tr1 << "  "<< "found";
+	for(unsigned int k=0; k<tmb_t1_coll.size();++k){
+	        sprintf(sign,"%s%6i%5s %s %s %i %s %i","Line: ",
+	        tmb_t1_coll[k],sign1,tmb_common,
+	        alct_common_wcnt1,tmb_wcnt1_coll[k],alct_common_wcnt2,tmb_wcnt2_coll[k]);
+	                        
+	   LogTrace("badData") << sign;
+	   }
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << "||||||||||||||||||||";
+	LogTrace("badData") << std::endl;
+	LogTrace("badData") << cfeb_t1_coll.size() <<"  "<< cfeb_common << "  "<<cfeb_tr1 << "  "<< "found";
+	for(unsigned int k=0; k<cfeb_t1_coll.size();++k)
+	   LogTrace("badData") << "Line:  " << cfeb_t1_coll[k];
+	 LogTrace("badData") <<"********************************************************************************";
+	
+}

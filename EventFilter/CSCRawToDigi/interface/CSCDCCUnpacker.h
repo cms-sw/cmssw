@@ -4,8 +4,8 @@
 /** \class CSCDCCUnpacker
  * 
  *
- *  $Date: 2008/06/24 15:51:49 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/03/25 16:02:23 $
+ *  $Revision: 1.18 $
  * \author Alex Tumanov 
  */
 
@@ -26,14 +26,19 @@ class CSCDCCUnpacker: public edm::EDProducer {
   
   /// Produce digis out of raw data
   void produce(edm::Event & e, const edm::EventSetup& c);
-
-
+  
+  /// Visualization of raw data in FED-less events
+  void visual_raw(int hl,int id, int run, int event, bool fedshort, short unsigned int* buf) const; 
+  // Visualization of raw data in FED-less events
 
   
  private:
 
   bool debug, printEventNumber, goodEvent, useExaminer, unpackStatusDigis, unpackMTCCData;
-  bool useSelectiveUnpacking, useFormatStatus; 
+  bool useSelectiveUnpacking, useFormatStatus;
+  // Visualization of raw data in FED-less events
+  bool  visualFEDInspect, visualFEDShort;
+  // Visualization of raw data in FED-less events
   int numOfEvents;
   unsigned int errorMask, examinerMask;
   bool instatiateDQM;
