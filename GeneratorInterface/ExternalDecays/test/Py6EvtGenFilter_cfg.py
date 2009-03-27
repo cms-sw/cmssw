@@ -32,9 +32,11 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     ExternalDecays = cms.PSet(
         EvtGen = cms.untracked.PSet(
 	     use_default_decay = cms.untracked.bool(False),
-             decay_table = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/DECAY_NOLONGLIFE.DEC'),
+#             decay_table = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/DECAY_NOLONGLIFE.DEC'),
+decay_table = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/DECAY.DEC'),
              particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt.pdl'),
-             user_decay_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/Validation.dec'),
+#             user_decay_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/Validation.dec'),
+user_decay_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/incl_BtoJpsi_mumu.dec'),
              list_forced_decays = cms.vstring('MyB0','Myanti-B0','MyB_s0','Myanti-B_s0'),
              processParameters = cms.vstring('MDCY(134,1) = 0', 
                    'MDCY(137,1) = 0', 
