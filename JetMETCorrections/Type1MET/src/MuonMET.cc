@@ -36,6 +36,8 @@ Implementation:
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
+#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
+
 //using namespace std;
 
 namespace cms 
@@ -46,9 +48,7 @@ namespace cms
     metTypeInputTag_             = iConfig.getParameter<edm::InputTag>("metTypeInputTag");
     uncorMETInputTag_            = iConfig.getParameter<edm::InputTag>("uncorMETInputTag");
     muonsInputTag_               = iConfig.getParameter<edm::InputTag>("muonsInputTag");
-    muonValueMapFlagInputTag_    = iConfig.getParameter<edm::InputTag>("muonValueMapFlagInputTag");
-    muonValueMapDeltaXInputTag_  = iConfig.getParameter<edm::InputTag>("muonValueMapDeltaXInputTag");;
-    muonValueMapDeltaYInputTag_  = iConfig.getParameter<edm::InputTag>("muonValueMapDeltaYInputTag");;
+    muonDepValueMap_             = iConfig.getParameter<edm::InputTag>("muonMETDepositValueMapInputTag");
 
     if( metTypeInputTag_.label() == "CaloMET" ) {
       produces<CaloMETCollection>();
@@ -69,23 +69,17 @@ namespace cms
     Handle<View<reco::Muon> > inputMuons;
     iEvent.getByLabel( muonsInputTag_, inputMuons );
 
-    Handle<ValueMap<int> > vm_flag_h;
-    Handle<ValueMap<double> > vm_deltax_h;
-    Handle<ValueMap<double> > vm_deltay_h;
+    Handle<ValueMap<reco::MuonMETCorrectionData> > vm_muCorrData_h;
     
-    iEvent.getByLabel( muonValueMapFlagInputTag_, vm_flag_h);
-    iEvent.getByLabel( muonValueMapDeltaXInputTag_, vm_deltax_h);
-    iEvent.getByLabel( muonValueMapDeltaYInputTag_, vm_deltay_h);
-
+    iEvent.getByLabel( muonDepValueMap_, vm_muCorrData_h);
+    
     if( metTypeInputTag_.label() == "CaloMET")
       {
 	Handle<View<reco::CaloMET> > inputUncorMet;
 	iEvent.getByLabel( uncorMETInputTag_, inputUncorMet  );     //Get Inputs
 	std::auto_ptr<CaloMETCollection> output( new CaloMETCollection() );  //Create empty output
 	
-	//new MET cor
-	alg_.run(*(inputMuons.product()), *(vm_flag_h.product()),
-		 *(vm_deltax_h.product()), *(vm_deltay_h.product()),
+	alg_.run(*(inputMuons.product()), *(vm_muCorrData_h.product()),
 		 *(inputUncorMet.product()), &*output);
 	
 	iEvent.put(output);                                        //Put output into Event
@@ -97,10 +91,8 @@ namespace cms
 	std::auto_ptr<METCollection> output( new METCollection() );  //Create empty output
 	
 
-	alg_.run(*(inputMuons.product()), *(vm_flag_h.product()),
-		 *(vm_deltax_h.product()), *(vm_deltay_h.product()),
-		 *(inputUncorMet.product()), &*output);	
-	iEvent.put( output );                                        //Put output into Event
+	alg_.run(*(inputMuons.product()), *(vm_muCorrData_h.product()),*(inputUncorMet.product()), &*output);
+	iEvent.put(output);                                        //Put output into Event
       }
   }
 }//end namespace cms

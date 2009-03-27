@@ -27,6 +27,8 @@
 #include "DataFormats/Common/interface/ValueMap.h" 
 #include "JetMETCorrections/Type1MET/interface/MuonMETInfo.h"
 
+
+#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 class MuonMETAlgo 
 {
  public:
@@ -41,16 +43,12 @@ class MuonMETAlgo
 			const MET::LorentzVector& fP4);
   
   virtual void run(const edm::View<reco::Muon>& inputMuons,
-		   const edm::ValueMap<int>& vm_flags,
-		   const edm::ValueMap<double>& vm_deltax,
-		   const edm::ValueMap<double>& vm_deltay,
+		   const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
 		   const edm::View<reco::MET>& uncorMET,
 		   METCollection *corMET);
 		   
   virtual void run(const edm::View<reco::Muon>& inputMuons,
-		   const edm::ValueMap<int>& vm_flags,
-		   const edm::ValueMap<double>& vm_deltax,
-		   const edm::ValueMap<double>& vm_deltay,
+		   const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
 		   const edm::View<reco::CaloMET>& uncorMET,
 		   CaloMETCollection *corMET);
 		     
@@ -64,9 +62,7 @@ class MuonMETAlgo
 		      double& deltax, double& deltay, double Bfield);
   
   template <class T> void MuonMETAlgo_run(const edm::View<reco::Muon>& inputMuons,
-					  const edm::ValueMap<int>& vm_flags,
-					  const edm::ValueMap<double>& vm_deltax,
-					  const edm::ValueMap<double>& vm_deltay,
+					  const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
 					  const edm::View<T>& v_uncorMET,
 					  vector<T>* v_corMET);
 					  
