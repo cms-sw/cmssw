@@ -20,13 +20,11 @@ void DoCompare( char *Current, char *Reference=0 ){
  int iHisto = 0; char title[50];
  while (object) {
    // find histo objects
-   cout << " before the if condition" << endl;
    TH1F * h1 = dynamic_cast<TH1F*>( refDir->Get(object->GetName()));
    TH1F * h2 = dynamic_cast<TH1F*>( curDir->Get(object->GetName()));
    bool isHisto = (refDir->Get(object->GetName()))->InheritsFrom("TH1F");
    if (isHisto && h1 && h2 && *h1->GetName()== *h2->GetName()) {
      iHisto++;
-     cout << " in the if condition" << endl;
       char title[50];
       // draw and  compare
    TCanvas c1;
@@ -51,7 +49,6 @@ void DoCompare( char *Current, char *Reference=0 ){
    // go to next object
    object = list->After(object);
    }
-  cout << " ### END" << endl;
 }
 
 
