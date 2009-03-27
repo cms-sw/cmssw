@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2008/11/25 06:43:27 $
- *  $Revision: 1.59 $
+ *  $Date: 2008/12/04 00:27:02 $
+ *  $Revision: 1.60 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.59 2008/11/25 06:43:27 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.60 2008/12/04 00:27:02 slava77 Exp $
 //
 //
 
@@ -2067,6 +2067,7 @@ SteppingHelixPropagator::refToMatVolume(const SteppingHelixPropagator::StateInfo
 bool SteppingHelixPropagator::isYokeVolume(const MagVolume* vol) const {
   static const std::string metname = "SteppingHelixPropagator";
   if (vol == 0) return false;
+  /*
   const MFGrid* mGrid = reinterpret_cast<const MFGrid*>(vol->provider());
   std::vector<int> dims(mGrid->dimensions());
   
@@ -2082,6 +2083,14 @@ bool SteppingHelixPropagator::isYokeVolume(const MagVolume* vol) const {
   if (mag2VCen > 0.6 && mag2VZLeft > 0.6 && mag2VZRight > 0.6){
     if (debug_) LogTrace(metname)<<"Volume is magnetic, located at "<<vol->position()<<std::endl;    
     result = true;
+  } else {
+    if (debug_) LogTrace(metname)<<"Volume is not magnetic, located at "<<vol->position()<<std::endl;
+  }
+
+  */
+  bool result = vol->isIron();
+  if (result){
+    if (debug_) LogTrace(metname)<<"Volume is magnetic, located at "<<vol->position()<<std::endl;
   } else {
     if (debug_) LogTrace(metname)<<"Volume is not magnetic, located at "<<vol->position()<<std::endl;
   }
