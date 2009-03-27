@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="L1HtMissScaleRcd" >
+   <Class table="L1HTMISSSCALE" id_columns="ID" name="L1CaloEtScale" mapping_version="L1HtMissScale_basic" >
+     <Primitive column="M_LINSCALEMAX" name="m_linScaleMax" />
+     <Primitive column="M_LINEARLSB" name="m_linearLsb" />
+     <Primitive column="M_RANKSCALEMAX" name="m_rankScaleMax" />
+     <Blob column="L1CALOETSCALE_M_TH_1_BLOB" name="m_thresholds" />
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
