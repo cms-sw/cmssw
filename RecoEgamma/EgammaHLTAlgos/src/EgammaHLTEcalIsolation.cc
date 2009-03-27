@@ -8,7 +8,7 @@
 //
 // Original Author:  Monica Vazquez Acosta
 //         Created:  Tue Jun 13 12:16:00 CEST 2006
-// $Id: EgammaHLTEcalIsolation.cc,v 1.3 2008/05/12 08:55:45 ghezzi Exp $
+// $Id: EgammaHLTEcalIsolation.cc,v 1.4 2009/02/04 19:22:02 ghezzi Exp $
 //
 
 // system include files
@@ -85,7 +85,7 @@ float EgammaHLTEcalIsolation::isolPtSum(const reco::RecoCandidate* recocandidate
 	if(MATCHEDSC){
 	  bool inSuperCluster = false;
 
-	  reco::basicCluster_iterator theEclust = matchedsupercluster->clustersBegin();
+	  reco::CaloCluster_iterator theEclust = matchedsupercluster->clustersBegin();
 	  // loop over the basic clusters of the matched supercluster
 	  for(;theEclust != matchedsupercluster->clustersEnd();
 	      theEclust++) {
