@@ -19,8 +19,8 @@ IsoProd = cms.EDProducer("AlCaIsoTracksProducer",
     ECALInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE")),
     MaxTrackEta = cms.double(2.0),
     SkipNeutralIsoCheck = cms.untracked.bool(False),
-    MinTrackP = cms.double(15.0),
-    CheckHLTMatch=cms.bool(True),
+    MinTrackP = cms.double(10.0),
+    CheckHLTMatch=cms.bool(False),
     hltTriggerEventLabel = cms.InputTag("hltTriggerSummaryAOD"),
     hltL3FilterLabel = cms.InputTag("hltIsolPixelTrackFilter::HLT")
 )
