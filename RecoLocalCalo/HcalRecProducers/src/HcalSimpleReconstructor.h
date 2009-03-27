@@ -14,8 +14,8 @@
 
     /** \class HcalSimpleReconstructor
 	
-    $Date: 2007/03/07 19:29:02 $
-    $Revision: 1.1 $
+    $Date: 2007/07/25 20:28:42 $
+    $Revision: 1.2 $
     \author J. Mans - Minnesota
     */
     class HcalSimpleReconstructor : public edm::EDProducer {
@@ -29,6 +29,8 @@
       int subdet_;
       HcalOtherSubdetector subdetOther_;
       edm::InputTag inputLabel_;
+
+      bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
     };
 
 #endif

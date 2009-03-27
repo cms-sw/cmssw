@@ -7,7 +7,8 @@ hfreco = cms.EDFilter("HcalSimpleReconstructor",
     Subdetector = cms.string('HF'),
     firstSample = cms.int32(3),
     correctForPhaseContainment = cms.bool(False),
-    correctForTimeslew = cms.bool(False)
+    correctForTimeslew = cms.bool(False),
+    dropZSmarkedPassed = cms.bool(True)
 )
 
 

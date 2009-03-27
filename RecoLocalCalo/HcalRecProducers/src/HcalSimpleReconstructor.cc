@@ -19,7 +19,8 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
   reco_(conf.getParameter<int>("firstSample"),conf.getParameter<int>("samplesToAdd"),conf.getParameter<bool>("correctForTimeslew"),
 	conf.getParameter<bool>("correctForPhaseContainment"),conf.getParameter<double>("correctionPhaseNS")),
   det_(DetId::Hcal),
-  inputLabel_(conf.getParameter<edm::InputTag>("digiLabel"))	
+  inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
+  dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed"))
 {
   std::string subd=conf.getParameter<std::string>("Subdetector");
   if (!strcasecmp(subd.c_str(),"HBHE")) {
@@ -69,6 +70,10 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       HBHEDigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
+	// rof 27.03.09: drop ZS marked and passed digis:
+	if (dropZSmarkedPassed_)
+	  if (i->zsMarkAndPass()) continue;
+
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
@@ -87,6 +92,10 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       HODigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
+	// rof 27.03.09: drop ZS marked and passed digis:
+	if (dropZSmarkedPassed_)
+	  if (i->zsMarkAndPass()) continue;
+
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
@@ -104,7 +113,11 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       // run the algorithm
       HFDigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
-	HcalDetId cell = i->id();	  
+	HcalDetId cell = i->id();	 
+	// rof 27.03.09: drop ZS marked and passed digis:
+	if (dropZSmarkedPassed_)
+	  if (i->zsMarkAndPass()) continue;
+ 
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
@@ -123,6 +136,10 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       HcalCalibDigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalCalibDetId cell = i->id();	  
+	// rof 27.03.09: drop ZS marked and passed digis:
+	if (dropZSmarkedPassed_)
+	  if (i->zsMarkAndPass()) continue;
+
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
@@ -142,6 +159,10 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
     ZDCDigiCollection::const_iterator i;
     for (i=digi->begin(); i!=digi->end(); i++) {
       HcalZDCDetId cell = i->id();	  
+	// rof 27.03.09: drop ZS marked and passed digis:
+	if (dropZSmarkedPassed_)
+	  if (i->zsMarkAndPass()) continue;
+
       const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
       const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
       HcalCoderDb coder (*channelCoder, *shape);

@@ -7,7 +7,8 @@ horeco = cms.EDFilter("HcalSimpleReconstructor",
     Subdetector = cms.string('HO'),
     firstSample = cms.int32(4),
     correctForPhaseContainment = cms.bool(True),
-    correctForTimeslew = cms.bool(True)
+    correctForTimeslew = cms.bool(True),
+    dropZSmarkedPassed = cms.bool(True)
 )
 
 

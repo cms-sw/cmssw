@@ -7,7 +7,8 @@ zdcreco = cms.EDFilter("HcalSimpleReconstructor",
     Subdetector = cms.string('ZDC'),
     firstSample = cms.int32(3),
     correctForPhaseContainment = cms.bool(False),
-    correctForTimeslew = cms.bool(False)
+    correctForTimeslew = cms.bool(False),
+    dropZSmarkedPassed = cms.bool(True)
 )
 
 
