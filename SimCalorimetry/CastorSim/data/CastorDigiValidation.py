@@ -70,7 +70,7 @@ process.digiDumper = cms.EDFilter("HcalDigiDump")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
-        castorDigis = cms.untracked.uint32(1)
+        simCastorDigis = cms.untracked.uint32(1)
     )
 )
 
@@ -84,6 +84,6 @@ process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('./digiout.root')
 )
 
-process.p = cms.Path(process.mix*process.castorDigis*process.castorreco*process.hitAnalyzer*process.hitDumper*process.digiAnalyzer)
+process.p = cms.Path(process.mix*process.simCastorDigis*process.castorreco*process.hitAnalyzer*process.hitDumper*process.digiAnalyzer)
 process.outpath = cms.EndPath(process.o1)
 
