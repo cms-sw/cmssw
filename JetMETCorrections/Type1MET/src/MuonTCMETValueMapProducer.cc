@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Frank Golf
 //         Created:  Sun Mar 15 11:33:20 CDT 2009
-// $Id$
+// $Id: MuonTCMETValueMapProducer.cc,v 1.1 2009/03/27 01:36:44 fgolf Exp $
 //
 //
 
@@ -28,6 +28,7 @@ Implementation:
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h" 
+#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TH2D.h"
@@ -49,9 +50,7 @@ typedef math::XYZPoint Point;
 namespace cms {
   MuonTCMETValueMapProducer::MuonTCMETValueMapProducer(const edm::ParameterSet& iConfig) {
   
-    produces<edm::ValueMap<int> >   ("muCorrFlag");
-    produces<edm::ValueMap<double> >("muCorrDelX");
-    produces<edm::ValueMap<double> >("muCorrDelY");
+    produces<edm::ValueMap<reco::MuonMETCorrectionData> > ("muCorrData");
 
     // get configuration parameters
     minpt_   = iConfig.getParameter<double>("pt_min"   );
@@ -102,83 +101,71 @@ namespace cms {
     iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
     bField = theMagField.product();
 
-    //make ValueMaps
-    std::auto_ptr<edm::ValueMap<int> >    vm_flag( new edm::ValueMap<int>    () );
-    std::auto_ptr<edm::ValueMap<double> > vm_delx( new edm::ValueMap<double> () );
-    std::auto_ptr<edm::ValueMap<double> > vm_dely( new edm::ValueMap<double> () );
+    //make a ValueMap of ints => flags for 
+    //met correction. The values and meanings of the flags are :
+    // flag==0 --->    The muon is not used to correct the MET by default
+    // flag==1 --->    The muon is used to correct the MET. The Global pt is used.
+    // flag==2 --->    The muon is used to correct the MET. The tracker pt is used.
+    // flag==3 --->    The muon is used to correct the MET. The standalone pt is used.
+    // flag==4 --->    The muon is used to correct the MET as pion using the tcMET ZSP RF.
+    // In general, the flag should never be 3. You do not want to correct the MET using
+    // the pt measurement from the standalone system (unless you really know what you're 
+    // doing
 
-    std::vector<int>     v_flag;
-    std::vector<double>  v_delx;
-    std::vector<double>  v_dely;
+    std::auto_ptr<edm::ValueMap<reco::MuonMETCorrectionData> > vm_muCorrData(new edm::ValueMap<reco::MuonMETCorrectionData>());
+
+    std::vector<reco::MuonMETCorrectionData> v_muCorrData;
 
     unsigned int nMuons = muon_h->size();
 
     for (unsigned int iMu = 0; iMu < nMuons; iMu++) {
 
       const reco::Muon* mu = &(*muon_h)[iMu];
-    
-      //      std::cout << "Before (x,y) = (" << deltax << "," << deltay << ")" << std::endl;
+      double deltax = 0.0;
+      double deltay = 0.0;
+
+      reco::MuonMETCorrectionData muMETCorrData(reco::MuonMETCorrectionData::NotUsed, deltax, deltay);
     
       reco::TrackRef mu_track;
       if( mu->isGlobalMuon() ) mu_track = mu->globalTrack(); 
       else if( mu->isTrackerMuon() ) mu_track = mu->innerTrack();
       else {
-	v_flag.push_back( 0 );
-	v_delx.push_back( 0 );
-	v_dely.push_back( 0 );
+	v_muCorrData.push_back( muMETCorrData );
 	continue;
-      }    
+      }
 
+      // figure out depositions muons would make if they were treated as pions
       if( isGoodTrack( mu ) ) {
-	int bin_index   = response_function->FindBin( mu_track->eta(), mu_track->pt() );
-	double response = response_function->GetBinContent( bin_index );
+	if( mu_track->pt() < minpt_ ) muMETCorrData = reco::MuonMETCorrectionData(reco::MuonMETCorrectionData::TreatedAsPion, deltax, deltay);
 
-	TVector3 outerTrkPosition = propagateTrack( mu );
+	else {
+	  int bin_index   = response_function->FindBin( mu_track->eta(), mu_track->pt() );
+	  double response = response_function->GetBinContent( bin_index );
 
-	v_delx.push_back( response * mu_track->p() * sin( outerTrkPosition.Theta() ) * cos( outerTrkPosition.Phi() ) );
-	v_dely.push_back( response * mu_track->p() * sin( outerTrkPosition.Theta() ) * sin( outerTrkPosition.Phi() ) );
+	  TVector3 outerTrkPosition = propagateTrack( mu );
+	  
+	  deltax = response * mu_track->p() * sin( outerTrkPosition.Theta() ) * cos( outerTrkPosition.Phi() );
+	  deltay = response * mu_track->p() * sin( outerTrkPosition.Theta() ) * sin( outerTrkPosition.Phi() );
+
+	  muMETCorrData = reco::MuonMETCorrectionData(reco::MuonMETCorrectionData::TreatedAsPion, deltax, deltay);
+	}
       }
-      else {
-	v_delx.push_back( 0 );
-	v_dely.push_back( 0 );
-      }
 
+      // figure out muon flag
       if( isGoodMuon( mu ) ) {
-	if( isGoodGlobalMuon( mu ) ) v_flag.push_back( 1 );
-	else v_flag.push_back( 2 );
+	if( isGoodGlobalMuon( mu ) ) v_muCorrData.push_back( reco::MuonMETCorrectionData(reco::MuonMETCorrectionData::GlobalTrackUsed, deltax, deltay) );
+	else v_muCorrData.push_back( reco::MuonMETCorrectionData(reco::MuonMETCorrectionData::TrackUsed, deltax, deltay) );
       }
-      else v_flag.push_back( 0 );
+      else v_muCorrData.push_back( muMETCorrData );
 
-      //      std::cout << "After (x,y) = (" << v_delx[iMu] << "," << v_dely[iMu] << ")" << " with flag " << v_flag[iMu] << std::endl;
     }
     
-    edm::ValueMap<int>::Filler    flagFiller(*vm_flag);
-    edm::ValueMap<double>::Filler delXFiller(*vm_delx);
-    edm::ValueMap<double>::Filler delYFiller(*vm_dely);
- 
-    flagFiller.insert(muon_h, v_flag.begin(), v_flag.end() );
-    delXFiller.insert(muon_h, v_delx.begin(), v_delx.end() );
-    delYFiller.insert(muon_h, v_dely.begin(), v_dely.end() );
+    edm::ValueMap<reco::MuonMETCorrectionData>::Filler dataFiller(*vm_muCorrData);
 
-    flagFiller.fill();
-    delXFiller.fill();
-    delYFiller.fill();
-
-    // print out flag from vector and from value map to make sure things are getting filled properly
-    /*
-    edm::Handle<reco::MuonCollection> tempmuH;
-    iEvent.getByLabel(muonInputTag_, tempmuH);
-    const edm::ValueMap<int>& tempmap = *vm_flag;
-    for(unsigned int iMu = 0; iMu < nMuons; iMu++) {
-      //      const reco::Muon* mu = &(*tempmuH)[iMu];
-      MuonRef muref(tempmuH,iMu);
-      cout << "Flag from vector: " << v_flag[iMu] 
-	   << ", flag from map: " <<  tempmap[muref] << endl;
-	   }*/
-  
-    iEvent.put(vm_flag, "muCorrFlag");
-    iEvent.put(vm_delx, "muCorrDelX");
-    iEvent.put(vm_dely, "muCorrDelY");    
+    dataFiller.insert( muon_h, v_muCorrData.begin(), v_muCorrData.end());
+    dataFiller.fill();
+    
+    iEvent.put(vm_muCorrData, "muCorrData");    
   }
   
   // ------------ method called once each job just before starting event loop  ------------
@@ -259,7 +246,6 @@ namespace cms {
 
     TVector3 outerTrkPosition = propagateTrack( muon );
 
-    if( pt < minpt_ )           return false;
     if( pt > maxpt_ )           return false;
     if( fabs( eta ) > maxeta_ ) return false;
     if( chi2 > maxchi2_ )       return false;

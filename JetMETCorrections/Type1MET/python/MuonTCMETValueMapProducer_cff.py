@@ -16,6 +16,6 @@ muonTCMETValueMapProducer = cms.EDProducer("MuonTCMETValueMapProducer",
      nhits_muon       = cms.double(11),
      global_muon      = cms.bool(True),
      tracker_muon     = cms.bool(True),
-     qoverpError_muon = cms.double(999999.9), 
-     deltaPt_muon     = cms.double(999999.9)
+     qoverpError_muon = cms.double(999999.9),
+     deltaPt_muon     = cms.double(0.2)
 )
