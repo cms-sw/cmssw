@@ -97,6 +97,9 @@ class JetMatching;
      
      // and final touch - conversion of Py6 PID's into PDG convension 
      bool fConvertToPDG;
+     
+     // tmp stuff, to deal with EvtGen corrupting pyjets
+     int NPartsBeforeDecays;
                
   };
 }

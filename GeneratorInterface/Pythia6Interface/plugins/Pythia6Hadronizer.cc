@@ -146,6 +146,9 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
           <<" Pythia did not accept MSTU(12)=12345";
    }
    
+   // tmp stuff to deal with EvtGen corrupting pyjets
+   NPartsBeforeDecays = 0;
+   
 }
 
 Pythia6Hadronizer::~Pythia6Hadronizer()
@@ -252,6 +255,9 @@ bool Pythia6Hadronizer::generatePartonsAndHadronize()
    call_pyhepc(1);
    event().reset( conv.read_next_event() );
    
+   // tmp stuff to deal with EvtGen confusing pyjets
+   NPartsBeforeDecays = event()->particles_size();
+   
    return true;
 }
 
@@ -302,6 +308,9 @@ bool Pythia6Hadronizer::hadronize()
 
    call_pyhepc(1);
    event().reset( conv.read_next_event() );
+
+   // tmp stuff to deal with EvtGen confusing pyjets
+   NPartsBeforeDecays = event()->particles_size();
    
    return true;
 }
@@ -320,7 +329,9 @@ bool Pythia6Hadronizer::residualDecay()
    // because the counter in HEPEVT might have been reset already, 
    // get the Npart directly from pyjets
    
-   int NPartsBeforeDecays = pyjets.n ;
+   // this is currently done (tmp) via setting it as data member,
+   // at the end of py6 evfent generation
+   //int NPartsBeforeDecays = pyjets.n ;
    int NPartsAfterDecays = event()->particles_size();
    
    std::vector<int> part_idx_to_decay;
@@ -350,7 +361,11 @@ bool Pythia6Hadronizer::residualDecay()
       int py6id = pycomp_( pdgid );
       pyjets.k[1][ipart-1] = pdgid;
       HepMC::GenVertex* prod_vtx = part->production_vertex();
-      assert ( prod_vtx->particles_in_size() == 1 );
+      // in principle, this should never happen but...
+      if ( ! prod_vtx ) continue;
+      // in principle, it should always be 1 but...EvtGen confuses things sometimes
+      //assert ( prod_vtx->particles_in_size() == 1 );
+      if ( prod_vtx->particles_in_size() != 1 ) continue;
       HepMC::GenParticle* mother = (*prod_vtx->particles_in_const_begin());      
       int mother_id = mother->barcode();
       pyjets.k[2][ipart-1] = mother_id;
