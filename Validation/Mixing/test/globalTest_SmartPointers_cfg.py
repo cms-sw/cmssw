@@ -14,8 +14,6 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.source = cms.Source("PoolSource",
-#old    fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/RelVal/2007/7/11/RelVal-RelVal160pre4SingleEPt35-1184176348/0000/5EF3794C-7530-DC11-833F-000423D6C8EE.root')
-
    fileNames = cms.untracked.vstring(
    	'/store/relval/CMSSW_3_0_0_pre6/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0005/28116A15-E9DD-DD11-9BA6-001617E30F4C.root',
 	'/store/relval/CMSSW_3_0_0_pre6/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0005/28116A15-E9DD-DD11-9BA6-001617E30F4C.root',
@@ -23,19 +21,6 @@ process.source = cms.Source("PoolSource",
         '/store/relval/CMSSW_3_0_0_pre6/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0005/6CD0AB7B-EDDD-DD11-A19A-000423D98B6C.root',
         '/store/relval/CMSSW_3_0_0_pre6/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0005/D83A1B28-ECDD-DD11-A6D2-000423D9853C.root')
 )
-
-#readFiles = cms.untracked.vstring()
-#secFiles = cms.untracked.vstring() 
-#source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
-#readFiles.extend( [
-#       '/store/relval/CMSSW_3_0_0_pre6/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0005/28116A15-E9DD-DD11-9BA6-001617E30F4C.root',
-#       '/store/relval/CMSSW_3_0_0_pre6/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0005/341262AD-41DE-DD11-B261-000423D94990.root',
-#       '/store/relval/CMSSW_3_0_0_pre6/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0005/6CD0AB7B-EDDD-DD11-A19A-000423D98B6C.root',
-#       '/store/relval/CMSSW_3_0_0_pre6/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0005/D83A1B28-ECDD-DD11-A6D2-000423D9853C.root' ] );
-
-
-#secFiles.extend( [
-#               ] )
 
 
 process.maxEvents = cms.untracked.PSet(
