@@ -15,8 +15,13 @@ reco::SuperClusterCollection BremRecoveryClusterAlgo::makeSuperClusters(reco::Ca
   // ...and populate them:
   for (reco::CaloCluster_iterator it = clustersCollection.begin(); it != clustersCollection.end(); it++)
     {
+<<<<<<< BremRecoveryClusterAlgo.cc
+      reco::BasicClusterRef cluster_p = *it;
+      if (cluster_p->algo() == reco::CaloCluster::island) 
+=======
       reco::CaloClusterPtr cluster_p = *it;
       if (cluster_p->algo() == reco::CaloCluster::island) 
+>>>>>>> 1.11
       {
 	  if (fabs(cluster_p->position().eta()) < etaBorder)
 	    {

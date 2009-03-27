@@ -302,5 +302,9 @@ void IslandClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
       std::cout << "     Eta        = " << position.eta() << std::endl;
       std::cout << "*****************************" << std::endl;
     }
+<<<<<<< IslandClusterAlgo.cc
+  clusters_v.push_back(reco::BasicCluster(energy, position, chi2, current_v, reco::CaloCluster::island));
+=======
   clusters_v.push_back(reco::BasicCluster(energy, position, caloID, current_v, reco::CaloCluster::island));
+>>>>>>> 1.25
 }

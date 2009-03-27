@@ -7,6 +7,7 @@
 #include <vector>
 #include <set>
 #include "RecoEcal/EgammaCoreTools/interface/ClusterEtLess.h"
+
 //The real constructor
 HybridClusterAlgo::HybridClusterAlgo(double eb_str, 
 				     int step, 
@@ -407,20 +408,34 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
       //Get Calorimeter position
       Point pos = posCalculator_.Calculate_Location(dets,hits,geometry);
  
-      double totChi2=0;
-      double totE=0;
-      std::vector<DetId> usedHits;
+      //double totChi2=0;
+      //double totE=0;
+      std::vector<std::pair<DetId, float> > usedHits;
       for (int blarg=0;blarg<int(recHits.size());++blarg){
-	totChi2 +=0;
-	totE+=recHits[blarg].energy();
-	usedHits.push_back(recHits[blarg].id());
+	//totChi2 +=0;
+	//totE+=recHits[blarg].energy();
+	usedHits.push_back(std::make_pair<DetId, float>(recHits[blarg].id(), 1.0));
 	useddetids.insert(recHits[blarg].id());
       }
+<<<<<<< HybridClusterAlgo.cc
+
+      //if (totE>0)
+      //totChi2/=totE;
+
+      // note that if this "basiccluster" is not the one that seeded the hybrid, the seed crystal is unset.
+      thisseedClusters.push_back(reco::BasicCluster(LumpEnergy[i], pos, reco::CaloID(reco::CaloID::DET_ECAL_ENDCAP), usedHits, reco::CaloCluster::hybrid));
+=======
       if (totE>0)
 	totChi2/=totE;
       thisseedClusters.push_back(reco::BasicCluster(LumpEnergy[i],pos,totChi2,usedHits,reco::CaloCluster::hybrid));
+>>>>>>> 1.52
       if (HasSeedCrystal)
+<<<<<<< HybridClusterAlgo.cc
+        // note that this "basiccluster" has the seed crystal of the hyrbid, so record it
+	seedClus_.push_back(reco::BasicCluster(LumpEnergy[i], pos, reco::CaloID(reco::CaloID::DET_ECAL_ENDCAP), usedHits, reco::CaloCluster::hybrid, itID));
+=======
 	seedClus_.push_back(reco::BasicCluster(LumpEnergy[i],pos,totChi2,usedHits,reco::CaloCluster::hybrid));
+>>>>>>> 1.52
     }
     // Make association so that superclusters can be made later.
     // but only if some BasicClusters have been found...
