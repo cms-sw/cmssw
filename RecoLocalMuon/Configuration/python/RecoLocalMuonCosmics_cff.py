@@ -41,7 +41,7 @@ dtlocalreco = cms.Sequence(dt1DRecHits*dt4DSegments)
 # DT sequence with the 2D segment reconstruction
 dtlocalreco_with_2DSegments = cms.Sequence(dt1DRecHits*dt2DSegments*dt4DSegments)
 # DT sequence with T0seg correction
-dtlocalrecoT0Seg = cms.Sequence(dt1DRecHits*dt4DSegments*dt4DSegmentsT0Corr)
+dtlocalrecoT0Seg = cms.Sequence(dt1DRecHits*dt4DSegments*dt4DSegmentsT0Seg)
 # DT sequence with no-drift  algo
 dtlocalrecoNoDrift = cms.Sequence(dt1DRecHitsNoDrift*dt4DSegmentsNoDrift)
 # CSC sequence

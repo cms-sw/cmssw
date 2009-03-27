@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2009/03/24 14:29:33 $
- * $Revision: 1.36 $
+ * $Date: 2009/03/25 10:05:43 $
+ * $Revision: 1.37 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -350,9 +350,9 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg, GlobalPoint &gpos,
       const double vminf = seg->vDrift();   //  vdrift correction are recorded in the segment    
       const double cminf = - seg->t0()*0.00543;
 
-      cout << "In updateHits: t0 = " << seg->t0() << endl;
-      cout << "In updateHits: vminf = " << vminf << endl;
-      cout << "In updateHits: cminf = " << cminf << endl;
+      //cout << "In updateHits: t0 = " << seg->t0() << endl;
+      //cout << "In updateHits: vminf = " << vminf << endl;
+      //cout << "In updateHits: cminf = " << cminf << endl;
 
       const float xwire = layer->specificTopology().wirePosition(hit->wireId().wire());
       const float distance = fabs(hit->localPosition().x() - xwire);
@@ -437,10 +437,10 @@ void DTSegmentUpdator::calculateT0corr(DTRecSegment2D* seg) const {
 
     const double t0cor = - cminf/0.00543 ; // in ns
 
-    cout << "In calculateT0corr: t0 = " << t0cor << endl;
-    cout << "In calculateT0corr: vminf = " << vminf << endl;
-    cout << "In calculateT0corr: cminf = " << cminf << endl;
-    cout << "In calculateT0corr: chi2 = " << chi2fit << endl;
+    //cout << "In calculateT0corr: t0 = " << t0cor << endl;
+    //cout << "In calculateT0corr: vminf = " << vminf << endl;
+    //cout << "In calculateT0corr: cminf = " << cminf << endl;
+    //cout << "In calculateT0corr: chi2 = " << chi2fit << endl;
 
     seg->setT0(t0cor);          // time  and
     seg->setVdrift(vminf);   //  vdrift correction are recorded in the segment    
