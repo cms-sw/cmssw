@@ -471,11 +471,10 @@ class Process(object):
         dependencies = {}
         for label,seq in self.sequences.iteritems():
             d = []
-            v = SequenceLabelVisitor(d)
+            v = SequenceVisitor(d)
             seq.visit(v)
-            dependencies[label]=d
+            dependencies[label]=[dep.label_() for dep in d if dep.label_() != None]
         resolvedDependencies=True
-        o = PrintOptions()
         #keep looping until we can no longer get rid of all dependencies
         # if that happens it means we have circular dependencies
         iterCount = 0
