@@ -7,7 +7,6 @@ using namespace reco;
 Muon::Muon(  Charge q, const LorentzVector & p4, const Point & vtx ) :
   RecoCandidate( q, p4, vtx, -13 * q ) {
      energyValid_  = false;
-     timeValid_  = false;
      matchesValid_ = false;
      isolationValid_ = false;
      caloCompatibility_ = -9999.;
@@ -16,7 +15,6 @@ Muon::Muon(  Charge q, const LorentzVector & p4, const Point & vtx ) :
 
 Muon::Muon() {
    energyValid_  = false;
-   timeValid_  = false;
    matchesValid_ = false;
    isolationValid_ = false;
    caloCompatibility_ = -9999.;

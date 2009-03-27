@@ -17,8 +17,14 @@
   <class name="edm::RefVector<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks> > >"/>
   
-  <class name="reco::MuonEnergy"/>
   <class name="reco::MuonTime"/>
+  <class name="reco::MuonTimeExtra"/>
+  <class name="std::vector<reco::MuonTimeExtra>"/>
+  <class name="reco::MuonTimeExtraMap"/>
+  <class name="edm::Wrapper<std::vector<reco::MuonTimeExtra> >"/>
+  <class name="edm::Wrapper<reco::MuonTimeExtraMap>"/>
+
+  <class name="reco::MuonEnergy"/>
   <class name="reco::MuonChamberMatch"/>
   <class name="reco::MuonSegmentMatch"/>
   <class name="std::vector<reco::MuonChamberMatch>"/>
@@ -42,17 +48,5 @@
   <class name="edm::Wrapper<edm::RefToBaseVector<reco::Muon> >" />
   <class name="edm::reftobase::BaseVectorHolder<reco::Muon>" />
   
-  <class name="reco::MuonMETCorrectionData"/>
-  <class name="std::vector<reco::MuonMETCorrectionData>"/>
-  <class name="std::vector<reco::MuonMETCorrectionData>::const_iterator"/>
-  <class name="edm::Wrapper<std::vector<reco::MuonMETCorrectionData> >"/>
-  <class name="edm::ValueMap<reco::MuonMETCorrectionData>"/>
-  <class name="edm::ValueMap<reco::MuonMETCorrectionData>::const_iterator">
-    <field name="values_" transient="true"/>
-    <field name="i_" transient="true"/>
-    <field name="end_" transient="true"/>
-  </class>
-  <class name="edm::Wrapper<edm::ValueMap<reco::MuonMETCorrectionData> >"/>
-
 </lcgdict>
 

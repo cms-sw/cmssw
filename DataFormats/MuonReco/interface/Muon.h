@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.48 2009/03/15 00:55:32 dmytro Exp $
+ * \version $Id: Muon.h,v 1.49 2009/03/15 03:33:32 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -66,11 +66,11 @@ namespace reco {
     /// ====================== TIMING BLOCK ===========================
     ///
     /// timing information
-    bool isTimeValid() const { return timeValid_; }
+    bool isTimeValid() const { return (time_.nDof>0); }
     /// get timing information
     MuonTime time() const { return time_; }
     /// set timing information
-    void setTime( const MuonTime& time ) { time_ = time; timeValid_ = true; }
+    void setTime( const MuonTime& time ) { time_ = time; }
      
     ///
     /// ====================== MUON MATCH BLOCK ===========================
@@ -179,7 +179,6 @@ namespace reco {
     MuonTime time_;
      
     bool energyValid_;
-    bool timeValid_;
     bool matchesValid_;
     bool isolationValid_;
     /// muon hypothesis compatibility with observer calorimeter energy
