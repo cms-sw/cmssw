@@ -120,8 +120,9 @@ double PTDRElectronID::result(const reco::GsfElectron* electron,
   }
 
   EcalClusterLazyTools lazyTools = getClusterShape(e,es);
-  std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
-  
+  std::vector<float> vCov = lazyTools.localCovariances(*(electron->superCluster()->seed())) ;
+  //std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
+    
   if (useE9overE25_[variables_]) {
     double value = lazyTools.e3x3(*(electron->superCluster()->seed()))/lazyTools.e5x5(*(electron->superCluster()->seed()));
     std::vector<double> mincut = cuts_.getParameter<std::vector<double> >("E9overE25");
