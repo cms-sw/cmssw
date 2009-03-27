@@ -12,7 +12,7 @@
 SiStripZeroSuppression::
 SiStripZeroSuppression(edm::ParameterSet const& conf)
   : inputTags(conf.getParameter<std::vector<edm::InputTag> >("RawDigiProducersList")),
-    algorithms(SiStripRawProcessingFactory::create(conf)) {
+    algorithms(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))) {
 
   for(tag_iterator_t inputTag = inputTags.begin(); inputTag != inputTags.end(); ++inputTag )
     produces< edm::DetSetVector<SiStripDigi> > (inputTag->instance());
