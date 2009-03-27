@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/Multi5x5ClusterAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
@@ -91,7 +92,7 @@ class EgammaHLTMulti5x5ClusterProducer : public edm::EDProducer
 			      const std::string& clusterShapeAssociation,
                               const Multi5x5ClusterAlgo::EcalPart& ecalPart);
       */
-      void outputValidationInfo(reco::BasicClusterRefVector &clusterRefVector);
+      void outputValidationInfo(reco::CaloClusterPtrVector &clusterPtrVector);
 
 };
 

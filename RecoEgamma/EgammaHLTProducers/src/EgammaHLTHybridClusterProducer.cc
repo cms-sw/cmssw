@@ -263,9 +263,9 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   //if (debugL == HybridClusterAlgo::pDEBUG)
   //std::cout << "Got the BasicClusterCollection" << std::endl;
 
-  reco::BasicClusterRefVector clusterRefVector;
+  reco::CaloClusterPtrVector clusterRefVector;
   for (unsigned int i = 0; i < clusterCollection.size(); i++){
-    clusterRefVector.push_back(reco::BasicClusterRef(bccHandle, i));
+    clusterRefVector.push_back(reco::CaloClusterPtr(bccHandle, i));
   }
 
   reco::SuperClusterCollection superClusters = hybrid_p->makeSuperClusters(clusterRefVector);
