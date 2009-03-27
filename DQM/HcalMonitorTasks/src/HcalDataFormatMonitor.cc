@@ -1467,6 +1467,7 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
 	  meChann_DataIntegrityCheck_[f]->Fill(x,y,Chann_DataIntegrityCheck_ [f][x][y]);
 
   uint64_t probfrac=0;
+  uint64_t totalfrac=0;
   int ieta=0;
   int iphi=0;
 
@@ -1474,6 +1475,7 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
     ieta=eta-(int)ceil((etaBins_-2)/2);
     for (int phi=0;phi<PHIBINS;++phi) {
       iphi=phi+1;
+      totalfrac=0;
       for (int depth=0;depth<DEPTHBINS;++depth) {// this is one unit less "true" depth (for indexing purposes)
 	if (0 == problemcount[eta][phi][depth]) 
 	  continue;
@@ -1484,16 +1486,23 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
 	  else                         ieta=eta-int((etaBins_-2)/2)-1;
 	} // else Not HcalForward
 	probfrac = ((uint64_t) problemcount[eta][phi][depth] ); // / (uint64_t) ievt_);   
+	if (probfrac==0) continue;
+	totalfrac+=probfrac;
 	//Select HcalEndcap d1,2 while sidestepping HcalForward
 	if ( ( (depth==0) || (depth==1) )               &&
 	     ( abs(eta-(int)ceil((etaBins_-2)/2)) <=29) &&  
 	     ( abs(eta-(int)ceil((etaBins_-2)/2)) >=17)    ) {
 	  //Bump apart HEd1,2 for the StJ6
 	  HWProblemsByDepth_[depth+4]->setBinContent(ieta+((etaBins_-2)/2)+2, iphi+1, probfrac);
+	  HWProblemsByDepth_[depth+4]->setBinContent(0,0,ievt_);
 	} else{
 	  HWProblemsByDepth_[depth  ]->setBinContent(ieta+((etaBins_-2)/2)+2, iphi+1, probfrac);
+	  HWProblemsByDepth_[depth  ]->setBinContent(0,0,ievt_);
 	}
       } //depth
+      if (totalfrac>0)
+	HWProblems_->setBinContent(ieta+((etaBins_-2)/2)+2, iphi+1, totalfrac);
+      HWProblems_->setBinContent(0,0,ievt_);
     } //phi
   } //eta
 } //UpdateMEs
