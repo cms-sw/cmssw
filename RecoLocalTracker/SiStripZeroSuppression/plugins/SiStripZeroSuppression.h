@@ -6,14 +6,10 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
-#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripPedestalsSubtractor.h"
-#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripCommonModeNoiseSubtractor.h"
-#include <memory>
+#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripRawProcessingAlgorithms.h"
 
 class SiStripDigi;
 class SiStripRawDigi;
-
 
 class SiStripZeroSuppression : public edm::EDProducer
 {
@@ -29,9 +25,7 @@ class SiStripZeroSuppression : public edm::EDProducer
   std::vector<edm::InputTag> inputTags;
   typedef std::vector<edm::InputTag>::const_iterator tag_iterator_t;
 
-  std::auto_ptr<SiStripFedZeroSuppression> suppressor;
-  std::auto_ptr<SiStripCommonModeNoiseSubtractor> subtractorCMN;
-  std::auto_ptr<SiStripPedestalsSubtractor> subtractorPed;
+  std::auto_ptr<SiStripRawProcessingAlgorithms> algorithms;
 
 };
 #endif

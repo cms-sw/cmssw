@@ -12,9 +12,7 @@
 SiStripZeroSuppression::
 SiStripZeroSuppression(edm::ParameterSet const& conf)
   : inputTags(conf.getParameter<std::vector<edm::InputTag> >("RawDigiProducersList")),
-    suppressor(SiStripRawProcessingFactory::create_Suppressor(conf)),
-    subtractorCMN(SiStripRawProcessingFactory::create_SubtractorCMN(conf)),
-    subtractorPed(SiStripRawProcessingFactory::create_SubtractorPed(conf))  {
+    algorithms(SiStripRawProcessingFactory::create(conf)) {
 
   for(tag_iterator_t inputTag = inputTags.begin(); inputTag != inputTags.end(); ++inputTag )
     produces< edm::DetSetVector<SiStripDigi> > (inputTag->instance());
@@ -23,9 +21,7 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
 void SiStripZeroSuppression::
 produce(edm::Event& e, const edm::EventSetup& es) {
 
-  subtractorPed->init(es);
-  subtractorCMN->init(es);
-  suppressor->init(es);
+  algorithms->initialize(es);
 
   for(tag_iterator_t inputTag = inputTags.begin(); inputTag != inputTags.end(); ++inputTag ) {
 
@@ -53,14 +49,13 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
     edm::DetSet<SiStripDigi> suppressedDigis(rawDigis->id);
 
     if ( "ProcessedRaw" == inputTag.instance()) 
-      suppressor->suppress( *rawDigis, suppressedDigis ); else 
+      algorithms->suppressor->suppress( *rawDigis, suppressedDigis ); else 
 
     if ( "VirginRaw" == inputTag.instance()) {
       std::vector<int16_t> processedRawDigis(rawDigis->size());
-      subtractorPed->subtract( *rawDigis, processedRawDigis);
-      subtractorCMN->subtract( rawDigis->id, processedRawDigis);
-      
-      suppressor->suppress( processedRawDigis, suppressedDigis );
+      algorithms->subtractorPed->subtract( *rawDigis, processedRawDigis);
+      algorithms->subtractorCMN->subtract( rawDigis->id, processedRawDigis);
+      algorithms->suppressor->suppress( processedRawDigis, suppressedDigis );
     }
 
     else throw cms::Exception("Unknown input type") 

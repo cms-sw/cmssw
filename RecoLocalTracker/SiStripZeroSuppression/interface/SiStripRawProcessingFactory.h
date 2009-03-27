@@ -2,6 +2,7 @@
 #define RecoLocalTracker_SiStripRawProcessingFactory_h
 
 namespace edm {class ParameterSet;}
+class SiStripRawProcessingAlgorithms;
 class SiStripFedZeroSuppression;
 class SiStripPedestalsSubtractor;
 class SiStripCommonModeNoiseSubtractor;
@@ -10,6 +11,8 @@ class SiStripCommonModeNoiseSubtractor;
 class SiStripRawProcessingFactory {
 
  public:
+
+  static std::auto_ptr<SiStripRawProcessingAlgorithms> create(const edm::ParameterSet&);
 
   static std::auto_ptr<SiStripFedZeroSuppression> create_Suppressor(const edm::ParameterSet&);
   static std::auto_ptr<SiStripPedestalsSubtractor> create_SubtractorPed(const edm::ParameterSet&);
