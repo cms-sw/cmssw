@@ -71,9 +71,8 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
 				   debugL,
 			           ps.getParameter<bool>("dynamicEThresh"),
                                    ps.getParameter<double>("eThreshA"),
-                                   ps.getParameter<double>("eThreshB")
+                                   ps.getParameter<double>("eThreshB"));
                                    //bremRecoveryPset,
-				   );
 
   // get brem recovery parameters
   bool dynamicPhiRoad = ps.getParameter<bool>("dynamicPhiRoad");
