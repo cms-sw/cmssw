@@ -54,7 +54,7 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiStripLorentzAngleRcd'),
 #        tag = cms.string('SiStripNoise_CRAFT_21X_v4_offline')
-        tag = cms.string('SiStripLorentzAngle_Fake_30X')
+        tag = cms.string('SiStripLorentzAngle_Ideal_31X')
     ))
 )
 

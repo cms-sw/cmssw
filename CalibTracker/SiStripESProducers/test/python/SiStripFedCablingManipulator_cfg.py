@@ -34,10 +34,10 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('oracle://cms_orcoff_int/CMS_COND_30X_STRIP'),
+    connect = cms.string('oracle://cms_orcoff_int/CMS_COND_31X_STRIP'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiStripFedCablingRcd'),
-        tag = cms.string('SiStripFedCabling_30X')
+        tag = cms.string('SiStripFedCabling_31X')
     ))
 )
 
@@ -54,7 +54,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     connect = cms.string('sqlite_file:dbfile.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripFedCablingRcd'),
-        tag = cms.string('SiStripFedCabling_Fake_30X')
+        tag = cms.string('SiStripFedCabling_Ideal_31X')
     ))
 )
 

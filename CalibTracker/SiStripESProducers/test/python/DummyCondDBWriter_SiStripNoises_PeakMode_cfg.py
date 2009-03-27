@@ -43,7 +43,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     connect = cms.string('sqlite_file:dbfile.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripNoisesRcd'),
-        tag = cms.string('SiStripNoises_Fake_PeakMode_21X')
+        tag = cms.string('SiStripNoises_Ideal_PeakMode_31X')
     ))
 )
 
