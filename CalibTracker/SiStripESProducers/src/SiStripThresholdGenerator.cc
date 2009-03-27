@@ -23,6 +23,7 @@ void SiStripThresholdGenerator::createObject(){
   edm::FileInPath fp_ = _pset.getParameter<edm::FileInPath>("file");
   float lTh_ = _pset.getParameter<double>("LowTh");
   float hTh_ = _pset.getParameter<double>("HighTh");
+  float cTh_ = _pset.getParameter<double>("ClusTh");
 
   SiStripDetInfoFileReader reader(fp_.fullPath());
  
@@ -32,14 +33,12 @@ void SiStripThresholdGenerator::createObject(){
     //Generate Thresholds for det detid
     SiStripThreshold::Container theSiStripVector;   
     uint16_t strip=0;
-    float lTh = lTh_;
-    float hTh = hTh_;
 
-    obj_->setData(strip,lTh,hTh,theSiStripVector);
+    obj_->setData(strip,lTh_,hTh_,cTh_,theSiStripVector);
     LogDebug("SiStripThresholdFakeESSource::produce") <<"detid: "  << it->first << " \t"
 						      << "firstStrip: " << strip << " \t" << theSiStripVector.back().getFirstStrip() << " \t"
-						      << "lTh: " << lTh       << " \t" << theSiStripVector.back().getLth() << " \t"
-						      << "hTh: " << hTh       << " \t" << theSiStripVector.back().getHth() << " \t"
+						      << "lTh: " << lTh_       << " \t" << theSiStripVector.back().getLth() << " \t"
+						      << "hTh: " << hTh_       << " \t" << theSiStripVector.back().getHth() << " \t"
 						      << "FirstStrip_and_Hth: " << theSiStripVector.back().FirstStrip_and_Hth << " \t"
 						      << std::endl; 	    
     
@@ -47,4 +46,8 @@ void SiStripThresholdGenerator::createObject(){
       edm::LogError("SiStripThresholdFakeESSource::produce ")<<" detid already exists"<<std::endl;
   }
   
+  std::stringstream ss;
+  obj_->printDebug(ss);
+  LogDebug("SiStripThresholdFakeESSource::produce") <<"printDebug\n" << ss.str() << std::endl;
+
 }
