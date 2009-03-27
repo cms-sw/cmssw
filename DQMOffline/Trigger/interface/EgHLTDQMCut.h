@@ -15,7 +15,7 @@
 #include "DQMOffline/Trigger/interface/EgHLTOffEvt.h"
 #include "DQMOffline/Trigger/interface/EgHLTTrigCodes.h"
 
-#include "CommonTools/Utils/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 //this is a pure virtual struct which defines the interface to the cut objects
 //it is also currently uncopyable

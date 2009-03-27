@@ -4,7 +4,7 @@
 #include "DQMOffline/Trigger/interface/EgHLTTrigCodes.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "CommonTools/Utils/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 namespace egHLT {
   

@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTOffline.h,v 1.7 2009/02/26 21:59:00 berryhil Exp $
+// $Id: FourVectorHLTOffline.h,v 1.10 2009/03/27 01:31:26 berryhil Exp $
 //
 //
 
@@ -45,7 +45,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-
 
 class FourVectorHLTOffline : public edm::EDAnalyzer {
    public:
@@ -81,18 +80,25 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       
       double electronEtaMax_;
       double electronEtMin_;
+      double electronDRMatch_;
       double muonEtaMax_;
       double muonEtMin_;
+      double muonDRMatch_;
       double tauEtaMax_;
       double tauEtMin_;
+      double tauDRMatch_;
       double jetEtaMax_;
       double jetEtMin_;
+      double jetDRMatch_;
       double bjetEtaMax_;
       double bjetEtMin_;
+      double bjetDRMatch_;
       double photonEtaMax_;
       double photonEtMin_;
+      double photonDRMatch_;
       double trackEtaMax_;
       double trackEtMin_;
+      double trackDRMatch_;
       double metMin_;
       double htMin_;
       double sumEtMin_;
@@ -134,7 +140,17 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 		       MonitorElement* const offEtavsoffPhiL1Off,
                        MonitorElement* const NOnOff, 
                        MonitorElement* const offEtOnOff, 
-		       MonitorElement* const offEtavsoffPhiOnOff) {
+		       MonitorElement* const offEtavsoffPhiOnOff,
+                       MonitorElement* const NL1OnUM, 
+                       MonitorElement* const l1EtL1OnUM, 
+		       MonitorElement* const l1Etavsl1PhiL1OnUM,
+                       MonitorElement* const NL1OffUM,   
+                       MonitorElement* const offEtL1OffUM, 
+		       MonitorElement* const offEtavsoffPhiL1OffUM,
+                       MonitorElement* const NOnOffUM, 
+                       MonitorElement* const offEtOnOffUM, 
+		       MonitorElement* const offEtavsoffPhiOnOffUM) 
+          {
           NOn_ = NOn;
 	  onEtOn_ = onEtOn;
 	  onEtavsonPhiOn_ = onEtavsonPhiOn;
@@ -153,6 +169,15 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
           NOnOff_ = NOnOff;
 	  offEtOnOff_ = offEtOnOff;
 	  offEtavsoffPhiOnOff_ = offEtavsoffPhiOnOff;
+          NL1OnUM_ = NL1OnUM;
+	  l1EtL1OnUM_ = l1EtL1OnUM;
+	  l1Etavsl1PhiL1OnUM_ = l1Etavsl1PhiL1OnUM;
+          NL1OffUM_ = NL1OffUM;
+	  offEtL1OffUM_ = offEtL1OffUM;
+	  offEtavsoffPhiL1OffUM_ = offEtavsoffPhiL1OffUM;
+          NOnOffUM_ = NOnOffUM;
+	  offEtOnOffUM_ = offEtOnOffUM;
+	  offEtavsoffPhiOnOffUM_ = offEtavsoffPhiOnOffUM;
 	}
 	MonitorElement * getNOnHisto() {
 	  return NOn_;
@@ -208,6 +233,33 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	MonitorElement * getOffEtaVsOffPhiOnOffHisto() {
 	  return offEtavsoffPhiOnOff_;
 	}
+	MonitorElement * getNL1OnUMHisto() {
+	  return NL1OnUM_;
+	}
+	MonitorElement * getL1EtL1OnUMHisto() {
+	  return l1EtL1OnUM_;
+	}
+	MonitorElement * getL1EtaVsL1PhiL1OnUMHisto() {
+	  return l1Etavsl1PhiL1OnUM_;
+	}
+	MonitorElement * getNL1OffUMHisto() {
+	  return NL1OffUM_;
+	}
+	MonitorElement * getOffEtL1OffUMHisto() {
+	  return offEtL1OffUM_;
+	}
+	MonitorElement * getOffEtaVsOffPhiL1OffUMHisto() {
+	  return offEtavsoffPhiL1OffUM_;
+	}
+	MonitorElement * getNOnOffUMHisto() {
+	  return NOnOffUM_;
+	}
+	MonitorElement * getOffEtOnOffUMHisto() {
+	  return offEtOnOffUM_;
+	}
+	MonitorElement * getOffEtaVsOffPhiOnOffUMHisto() {
+	  return offEtavsoffPhiOnOffUM_;
+	}
 	const std::string getLabel(void ) const {
 	  return filterName_;
 	}
@@ -245,6 +297,9 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
           NL1On_(0), l1EtL1On_(0), l1Etavsl1PhiL1On_(0),
 	  NL1Off_(0), offEtL1Off_(0), offEtavsoffPhiL1Off_(0),
 	  NOnOff_(0), offEtOnOff_(0), offEtavsoffPhiOnOff_(0),
+          NL1OnUM_(0), l1EtL1OnUM_(0), l1Etavsl1PhiL1OnUM_(0),
+	  NL1OffUM_(0), offEtL1OffUM_(0), offEtavsoffPhiL1OffUM_(0),
+	  NOnOffUM_(0), offEtOnOffUM_(0), offEtavsoffPhiOnOffUM_(0),
 	  ptmin_(ptmin), ptmax_(ptmax)
 	  {
 	  };
@@ -267,6 +322,15 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 		   MonitorElement *NOnOff,
 		   MonitorElement *offEtOnOff,
 		   MonitorElement *offEtavsoffPhiOnOff,
+		   MonitorElement *NL1OnUM,
+		   MonitorElement *l1EtL1OnUM,
+		   MonitorElement *l1Etavsl1PhiL1OnUM,
+		   MonitorElement *NL1OffUM,
+		   MonitorElement *offEtL1OffUM,
+		   MonitorElement *offEtavsoffPhiL1OffUM,
+		   MonitorElement *NOnOffUM,
+		   MonitorElement *offEtOnOffUM,
+		   MonitorElement *offEtavsoffPhiOnOffUM,
 		   float ptmin, float ptmax
 		   ):
 	    denomPathName_(denomPathName), pathName_(pathName), l1pathName_(l1pathName), filterName_(filterName), processName_(processName), objectType_(type),
@@ -276,6 +340,9 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
             NL1On_(NL1On), l1EtL1On_(l1EtL1On), l1Etavsl1PhiL1On_(l1Etavsl1PhiL1On),
 	    NL1Off_(NL1Off), offEtL1Off_(offEtL1Off), offEtavsoffPhiL1Off_(offEtavsoffPhiL1Off),
 	    NOnOff_(NOnOff), offEtOnOff_(offEtOnOff), offEtavsoffPhiOnOff_(offEtavsoffPhiOnOff),
+            NL1OnUM_(NL1OnUM), l1EtL1OnUM_(l1EtL1OnUM), l1Etavsl1PhiL1OnUM_(l1Etavsl1PhiL1OnUM),
+	    NL1OffUM_(NL1OffUM), offEtL1OffUM_(offEtL1OffUM), offEtavsoffPhiL1OffUM_(offEtavsoffPhiL1OffUM),
+	    NOnOffUM_(NOnOffUM), offEtOnOffUM_(offEtOnOffUM), offEtavsoffPhiOnOffUM_(offEtavsoffPhiOnOffUM),
 	    ptmin_(ptmin), ptmax_(ptmax)
 	    {};
 	    bool operator==(const std::string v) 
@@ -298,6 +365,9 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	  MonitorElement *NL1On_, *l1EtL1On_, *l1Etavsl1PhiL1On_;
 	  MonitorElement *NL1Off_, *offEtL1Off_, *offEtavsoffPhiL1Off_;
 	  MonitorElement *NOnOff_, *offEtOnOff_, *offEtavsoffPhiOnOff_;
+	  MonitorElement *NL1OnUM_, *l1EtL1OnUM_, *l1Etavsl1PhiL1OnUM_;
+	  MonitorElement *NL1OffUM_, *offEtL1OffUM_, *offEtavsoffPhiL1OffUM_;
+	  MonitorElement *NOnOffUM_, *offEtOnOffUM_, *offEtavsoffPhiOnOffUM_;
 
 	  float ptmin_, ptmax_;
 
