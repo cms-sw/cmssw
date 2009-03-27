@@ -3,8 +3,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/03/26 09:39:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/03/27 15:11:29 $
+ *  $Revision: 1.4 $
  */
 
 
@@ -1506,7 +1506,7 @@ void HLTMuonGenericRate::begin()
 
     // JMS Old way of doing things
     //newFolder = "HLT/Muon/Distributions/" + theTriggerName;
-    newFolder = "HLT/Muon/Distributions/" + theTriggerName + "/" + theRecoLabel;
+     newFolder = "HLT/Muon/Distributions/" + theTriggerName + "/" + theRecoLabel;
 
     
     
