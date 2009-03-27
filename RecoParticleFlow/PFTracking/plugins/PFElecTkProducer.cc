@@ -27,6 +27,8 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "TMath.h"
 using namespace std;
 using namespace edm;
@@ -199,29 +201,30 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
 
 
   if (&(*gsftk.seedRef())==0) return -1;
-
-  reco::PFRecTrackCollection::const_iterator pft=PfRTkColl.begin();
-  reco::PFRecTrackCollection::const_iterator pftend=PfRTkColl.end();
-  uint i_pf=0;
-  int ibest=-1;
-  uint ish_max=0;
-  float dr_min=1000;
-
-  for(;pft!=pftend;++pft){
-    uint ish=0;
-    if ((pft->algoType()==reco::PFRecTrack::KF_ELCAND) || otherColl){
-
+  ElectronSeedRef ElSeedRef=gsftk.extra()->seedRef().castTo<ElectronSeedRef>();
+  //CASE 1 ELECTRONSEED DOES NOT HAVE A REF TO THE CKFTRACK
+  if (ElSeedRef->ctfTrack().isNull()){
+    reco::PFRecTrackCollection::const_iterator pft=PfRTkColl.begin();
+    reco::PFRecTrackCollection::const_iterator pftend=PfRTkColl.end();
+    uint i_pf=0;
+    int ibest=-1;
+    uint ish_max=0;
+    float dr_min=1000;
+    //SEARCH THE PFRECTRACK THAT SHARES HITS WITH THE ELECTRON SEED
+    for(;pft!=pftend;++pft){
+      uint ish=0;
+      
       float dph= fabs(pft->trackRef()->phi()-gsftk.phi()); 
       if (dph>TMath::TwoPi()) dph-= TMath::TwoPi();
       float det=fabs(pft->trackRef()->eta()-gsftk.eta());
       float dr =sqrt(dph*dph+det*det);  
-
+      
       trackingRecHit_iterator  hhit=
 	pft->trackRef()->recHitsBegin();
       trackingRecHit_iterator  hhit_end=
 	pft->trackRef()->recHitsEnd();
       
-      
+    
       
       for(;hhit!=hhit_end;++hhit){
 	if (!(*hhit)->isValid()) continue;
@@ -232,13 +235,13 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
  	for(;hit!=hit_end;++hit){
 	  if (!(hit->isValid())) continue;
 
-
+	  
       if((hit->geographicalId()==(*hhit)->geographicalId())&&
          (((*hhit)->localPosition()-hit->localPosition()).mag()<0.01)) ish++;
  	}	
  
-     }
-
+      }
+      
 
       if ((ish>ish_max)||
 	  ((ish==ish_max)&&(dr<dr_min))){
@@ -247,15 +250,32 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
 	ibest=i_pf;
       }
       
-    }
+   
     
-    i_pf++;
+      i_pf++;
+    }
+    if (ibest<0) return -1;
+    
+    if((ish_max==0) &&(dr_min>0.05))return -1;
+    if(otherColl && (ish_max==0)) return -1;
+    return ibest;
   }
-  if (ibest<0) return -1;
-
-  if((ish_max==0) &&(dr_min>0.05))return -1;
-  if(otherColl && (ish_max==0)) return -1;
-  return ibest;
+  else{
+    //ELECTRON SEED HAS A REFERENCE
+   
+    reco::PFRecTrackCollection::const_iterator pft=PfRTkColl.begin();
+    reco::PFRecTrackCollection::const_iterator pftend=PfRTkColl.end();
+    uint i_pf=0;
+    
+    for(;pft!=pftend;++pft){
+      //REF COMPARISON
+      if (pft->trackRef()==ElSeedRef->ctfTrack()){
+	return i_pf;
+      }
+      i_pf++;
+    }
+  }
+  return -1;
 }
 
 bool 
