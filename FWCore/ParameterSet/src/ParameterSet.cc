@@ -35,12 +35,14 @@ namespace edm {
     // We have added a new parameter.  Invalidate the ID.
     if(isRegistered()) {
       id_ = ParameterSetID();
-      // Give a warning (informational for now).
-      LogInfo("ParameterSet")    << "Warning: You have added a new tracked parameter\n"
+      if (!nameOfTracked.empty()) {
+        // Give a warning (informational for now).
+        LogInfo("ParameterSet")  << "Warning: You have added a new tracked parameter\n"
 				 <<  "'" << nameOfTracked << "' to a previously registered parameter set.\n"
 				 << "This is a bad idea because the new parameter(s) will not be recorded.\n"
 				 << "Use the forthcoming ParameterSetDescription facility instead.\n"
 				 << "A warning is given only for the first such parameter in a pset.\n";
+      }
     }
     assert(!isRegistered());
   }
