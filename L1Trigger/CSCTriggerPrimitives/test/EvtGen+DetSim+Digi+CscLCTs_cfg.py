@@ -7,7 +7,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string("$Revision: 1.3 $"),
+    version = cms.untracked.string("$Revision: 1.4 $"),
     name = cms.untracked.string("$Source: /cvs_server/repositories/CMSSW/CMSSW/L1Trigger/CSCTriggerPrimitives/test/EvtGen+DetSim+Digi+CscLCTs_cfg.py,v $"),
     annotation = cms.untracked.string("SV: single particle gun mu- 50 GeV")
 )
@@ -79,8 +79,8 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 #- CSC TP Emulator
 process.load("L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesConfig_cff")
 process.load("L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi")
-process.cscTriggerPrimitiveDigis.alctParamMTCC2.verbosity = 2
-process.cscTriggerPrimitiveDigis.clctParamMTCC2.verbosity = 2
+process.cscTriggerPrimitiveDigis.alctParam07.verbosity = 2
+process.cscTriggerPrimitiveDigis.clctParam07.verbosity = 2
 process.cscTriggerPrimitiveDigis.tmbParam.verbosity = 2
 
 #- CSC digi->raw

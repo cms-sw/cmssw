@@ -106,8 +106,8 @@ process.cscunpacker = cms.EDFilter("CSCDCCUnpacker",
 # CSC Trigger Primitives emulator
 # ===============================
 process.load("L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi")
-process.cscTriggerPrimitiveDigis.alctParamMTCC2.verbosity = 2
-process.cscTriggerPrimitiveDigis.clctParamMTCC2.verbosity = 2
+process.cscTriggerPrimitiveDigis.alctParam07.verbosity = 2
+process.cscTriggerPrimitiveDigis.clctParam07.verbosity = 2
 process.cscTriggerPrimitiveDigis.tmbParam.verbosity = 2
 process.cscTriggerPrimitiveDigis.CSCComparatorDigiProducer = "cscunpacker:MuonCSCComparatorDigi"
 process.cscTriggerPrimitiveDigis.CSCWireDigiProducer = "cscunpacker:MuonCSCWireDigi"

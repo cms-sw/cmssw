@@ -64,11 +64,9 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 # CSC Trigger Primitives
 # ======================
 process.load("L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi")
-process.cscTriggerPrimitiveDigis.alctParamDef.verbosity = 2
-process.cscTriggerPrimitiveDigis.clctParamDef.verbosity = 2
+process.cscTriggerPrimitiveDigis.alctParam07.verbosity = 2
+process.cscTriggerPrimitiveDigis.clctParam07.verbosity = 2
 process.cscTriggerPrimitiveDigis.tmbParam.verbosity = 2
-process.cscTriggerPrimitiveDigis.alctParamMTCC2.verbosity = 2
-process.cscTriggerPrimitiveDigis.clctParamMTCC2.verbosity = 2
 
 #- For cosmic data
 # process.cscTriggerPrimitiveDigis.CSCComparatorDigiProducer = "cscunpacker:MuonCSCComparatorDigi"
