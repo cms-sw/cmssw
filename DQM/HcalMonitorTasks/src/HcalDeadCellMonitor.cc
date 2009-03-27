@@ -1649,29 +1649,24 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
 	      if (deadmon_test_occupancy_)
 		{
 		  problemvalue+=UnoccupiedDeadCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
-		  sumproblemvalue+=UnoccupiedDeadCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
 		}
 	      if (deadmon_test_rechit_occupancy_)
 		{
 		  problemvalue+=UnoccupiedRecHitsByDepth[mydepth]->getBinContent(eta+2,phi+2);
-		  sumproblemvalue+=UnoccupiedRecHitsByDepth[mydepth]->getBinContent(eta+2,phi+2);
 		}
 	      if (deadmon_test_pedestal_)
 		{
 		  problemvalue+=BelowPedestalDeadCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
-		  sumproblemvalue+=BelowPedestalDeadCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
 		}
 	      if (deadmon_test_neighbor_)
 		{
 		  problemvalue+=BelowNeighborsDeadCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
-		  sumproblemvalue+=BelowNeighborsDeadCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
 		}
 	      if (deadmon_test_energy_)
 		{
 		  problemvalue+=BelowEnergyThresholdCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
-		  sumproblemvalue+=BelowEnergyThresholdCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
 		}
-
+	      sumproblemvalue+=problemvalue;
 	      problemvalue = min((double)ievt_,problemvalue);
 	      ProblemDeadCellsByDepth[mydepth]->setBinContent(eta+2,phi+2,problemvalue);
 	      ProblemDeadCellsByDepth[mydepth]->setBinContent(0,0,ievt_);

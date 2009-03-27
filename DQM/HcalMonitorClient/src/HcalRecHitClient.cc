@@ -297,12 +297,12 @@ void HcalRecHitClient::getHistograms()
     ProblemRecHits->Scale(1./ievt_);
 
   getSJ6histos("RecHitMonitor_Hcal/problem_rechits/", " Problem RecHit Rate", ProblemRecHitsByDepth);
-  getSJ6histos("RecHitMonitor_Hcal/rechit_occupancy/","Rec Hit Average Occupancy", OccupancyByDepth);
-  getSJ6histos("RecHitMonitor_Hcal/rechit_occupancy/","Rec Hit Average Occupancy Above Threshold", OccupancyThreshByDepth);
-  getSJ6histos("RecHitMonitor_Hcal/rechit_energy/","Rec Hit Average Energy", EnergyByDepth);
-  getSJ6histos("RecHitMonitor_Hcal/rechit_energy/","Rec Hit Average Energy Above Threshold", EnergyThreshByDepth);
-  getSJ6histos("RecHitMonitor_Hcal/rechit_time/","Rec Hit Average Time", TimeByDepth);
-  getSJ6histos("RecHitMonitor_Hcal/rechit_time/","Rec Hit Average Time Above Threshold", TimeThreshByDepth);
+  getSJ6histos("RecHitMonitor_Hcal/rechit_info/","Rec Hit Occupancy", OccupancyByDepth);
+  getSJ6histos("RecHitMonitor_Hcal/rechit_info_threshold/","Above Threshold Rec Hit Occupancy", OccupancyThreshByDepth);
+  getSJ6histos("RecHitMonitor_Hcal/rechit_info/","Rec Hit Average Energy", EnergyByDepth, "GeV");
+  getSJ6histos("RecHitMonitor_Hcal/rechit_info_threshold/","Above Threshold Rec Hit Average Energy", EnergyThreshByDepth, "GeV");
+  getSJ6histos("RecHitMonitor_Hcal/rechit_info/","Rec Hit Average Time", TimeByDepth, "nS");
+  getSJ6histos("RecHitMonitor_Hcal/rechit_info_threshold/","Above Threshold Rec Hit Average Time", TimeThreshByDepth, "nS");
   if (ievt_>0)
     {
       for (int i=0;i<6;++i)
@@ -483,22 +483,22 @@ void HcalRecHitClient::resetAllME()
       name<<process_.c_str()<<"RecHitMonitor_Hcal/problem_rechits/"<<subdets_[i]<<" Problem RecHit Rate";
       resetME(name.str().c_str(),dbe_);
       name.str("");
-      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_occupancy/"<<subdets_[i]<<"Rec Hit Average Occupancy";
+      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info/"<<subdets_[i]<<"Rec Hit Occupancy";
       resetME(name.str().c_str(),dbe_);
       name.str("");
-      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_occupancy/"<<subdets_[i]<<"Rec Hit Average Occupancy Above Threshold";
+      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info_threshold/"<<subdets_[i]<<"Above Threshold Rec Hit Occupancy";
       resetME(name.str().c_str(),dbe_);
       name.str("");
-      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_energy/"<<subdets_[i]<<"Rec Hit Average Energy";
+      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info/"<<subdets_[i]<<"Rec Hit Average Energy";
       resetME(name.str().c_str(),dbe_);
       name.str("");
-      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_energy/"<<subdets_[i]<<"Rec Hit Average Energy Above Threshold";
+      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info_threshold/"<<subdets_[i]<<"Above Threshold Rec Hit Average Energy GeV";
       resetME(name.str().c_str(),dbe_);
       name.str("");
-      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_time/"<<subdets_[i]<<"Rec Hit Average Time";
+      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info/"<<subdets_[i]<<"Rec Hit Average Time";
       resetME(name.str().c_str(),dbe_);
       name.str("");
-      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_time/"<<subdets_[i]<<"Rec Hit Average Time Above Threshold";
+      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info_threshold/"<<subdets_[i]<<"Above Threshold Rec Hit Average Time nS";
       resetME(name.str().c_str(),dbe_);
       name.str("");
     } // for (int i=0;i<6;++i)
@@ -812,7 +812,7 @@ void HcalRecHitClient::htmlExpertOutput(int runNo, string htmlDir, string htmlNa
   
   // Occupancy Plots
   htmlFile << "<h2><strong><a name=\"OCC_PLOTS\">Occupancy Plots</strong></h2>"<<std::endl;
-  htmlFile <<"This shows average rechit occupancy of each cell per event<br>"<<std::endl;
+  htmlFile <<"This shows rechit occupancy of each cell (future version will show average occupancy/per event?)<br>"<<std::endl;
   htmlFile <<"<a href= \"#EXPERT_RECHIT_TOP\" > Back to Top</a><br>"<<std::endl;
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
   htmlFile << "cellpadding=\"10\"> " << std::endl;
@@ -972,23 +972,23 @@ void HcalRecHitClient::loadHistograms(TFile* infile)
       ProblemRecHitsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
       OccupancyByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
-      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_occupancy/"<<subdets_[i]<<"Rec Hit Average Occupancy";
+      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info/"<<subdets_[i]<<"Rec Hit Occupancy";
       name.str("");
-      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_occupancy/"<<subdets_[i]<<"Rec Hit Average Occupancy Above Threshold";
+      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info_threshold/"<<subdets_[i]<<"Above Threshold Rec Hit Occupancy";
       OccupancyThreshByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
       
-      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_energy/"<<subdets_[i]<<"Rec Hit Average Energy";
+      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info/"<<subdets_[i]<<"Rec Hit Average Energy";
       EnergyByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
-      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_energy/"<<subdets_[i]<<"Rec Hit Average Energy Above Threshold";
+      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info_threshold/"<<subdets_[i]<<"Above Threshold Rec Hit Average Energy GeV";
       EnergyThreshByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
       
-      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_time/"<<subdets_[i]<<"Rec Hit Average Time";
+      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info/"<<subdets_[i]<<"Rec Hit Average Time";
       TimeByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
-      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_time/"<<subdets_[i]<<"Rec Hit Average Time Above Threshold";
+      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info_threshold/"<<subdets_[i]<<"Above Threshold Rec Hit Average nS";
       TimeThreshByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
     } //for (int i=0;i<6;++i)

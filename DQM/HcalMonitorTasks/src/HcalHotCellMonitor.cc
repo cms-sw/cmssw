@@ -237,7 +237,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
 	      d_HOrechitenergy=m_dbe->book1D("HO_rechitenergy","HO rechit energy",1500,-10,140);
 	      d_HFrechitenergy=m_dbe->book1D("HF_rechitenergy","HF rechit energy",1500,-10,140);
 	      setupDepthHists2D(d_avgrechitenergymap,
-				"Average rec hit energy per cell","");
+				"Rec hit energy per cell","");
 	      setupDepthHists2D(d_avgrechitoccupancymap,"Rec hit occupancy per cell","");
 	    }
 	  if (hotmon_test_neighbor_)
@@ -1365,7 +1365,8 @@ void HcalHotCellMonitor::fillNevents_persistentenergy(void)
 		  continue;  		
 		}
 	      if (fVerbosity>0) std::cout <<"HOT CELL; PERSISTENT ENERGY at eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<(depth<5 ? depth+1 : depth -3)<<std::endl;
-	      AbovePersistentThresholdCellsByDepth[depth]->Fill(ieta,iphi,abovepersistent[eta][phi][depth]);		      
+	      AbovePersistentThresholdCellsByDepth[depth]->Fill(ieta,iphi,abovepersistent[eta][phi][depth]);
+	      AbovePersistentThresholdCellsByDepth[depth]->setBinContent(0,0,ievt_);
 	      //ProblemHotCellsByDepth[depth]->Fill(ieta,iphi,abovepersistent[eta][phi][depth]);
 	      abovepersistent[eta][phi][depth]=0; // reset counter
 	    } // for (int depth=0;depth<6;++depth)
@@ -1437,6 +1438,7 @@ void HcalHotCellMonitor::fillNevents_pedestal(void)
 		std::cout <<"HOT CELL; ABOVE PEDESTAL THRESHOLD at eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<(depth<5 ? depth+1 : depth -3)<<std::endl;
 
 	      AbovePedestalHotCellsByDepth[depth]->Fill(ieta,iphi,abovepedestal[eta][phi][depth]);
+	      AbovePedestalHotCellsByDepth[depth]->setBinContent(0,0,ievt_);
 	      //ProblemHotCellsByDepth[depth]->Fill(ieta,iphi,abovepedestal[eta][phi][depth]);
 	      abovepedestal[eta][phi][depth]=0;
 	  	  
@@ -1486,6 +1488,7 @@ void HcalHotCellMonitor::fillNevents_energy(void)
 		  if (fVerbosity>2) 
 		    std::cout <<"HOT CELL; ABOVE ENERGY THRESHOLD at eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<(depth>4 ? depth -1 : depth -3)<<std::endl;
 		  AboveEnergyThresholdCellsByDepth[depth]->Fill(ieta,iphi, aboveenergy[eta][phi][depth]);
+		  AboveEnergyThresholdCellsByDepth[depth]->setBinContent(0,0,ievt_);
 		  //ProblemHotCellsByDepth[depth]->Fill(ieta,iphi,aboveenergy[eta][phi][depth]);
 		  aboveenergy[eta][phi][depth]=0;
 		} // if (aboveenergy[eta][phi][depth])
@@ -1534,6 +1537,7 @@ void HcalHotCellMonitor::fillNevents_neighbor(void)
 		{
 		  if (fVerbosity>2) std::cout <<"HOT CELL; ABOVE NEIGHBORS at eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<(depth>4 ? depth+1 : depth-3)<<std::endl;
 		      AboveNeighborsHotCellsByDepth[depth]->Fill(ieta,iphi,aboveneighbors[eta][phi][depth]);
+		      AboveNeighborsHotCellsByDepth[depth]->setBinContent(0,0,ievt_);
 		      //ProblemHotCellsByDepth[depth]->Fill(ieta,iphi,aboveneighbors[eta][phi][depth]);
 		      //reset counter
 		      aboveneighbors[eta][phi][depth]=0;

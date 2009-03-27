@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2009/01/08 19:31:00 $
-  * $Revision: 1.35 $
+  * $Date: 2009/03/24 20:58:43 $
+  * $Revision: 1.36 $
   * \author W. Fisher - FNAL
   * \author J. Temple - Univ. of Maryland
   */
@@ -96,7 +96,6 @@ private:
   std::vector<MonitorElement*> DigiErrorsBadCapID;
   std::vector<MonitorElement*> DigiErrorsBadDigiSize;
   std::vector<MonitorElement*> DigiErrorsBadADCSum;
-  std::vector<MonitorElement*> DigiErrorsNoDigi;
   std::vector<MonitorElement*> DigiErrorsDVErr;
   MonitorElement* DigiSize;
   int problemdigis[87][72][6];

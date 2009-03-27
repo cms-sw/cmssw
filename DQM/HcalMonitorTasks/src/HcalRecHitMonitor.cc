@@ -83,29 +83,29 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
                                      phiBins_,phiMin_,phiMax_);
       ProblemRecHits->setAxisTitle("i#eta",1);
       ProblemRecHits->setAxisTitle("i#phi",2);
-      // Only show problem cells that are above problem threshold
-      (ProblemRecHits->getTH2F())->SetMinimum(rechit_minErrorFlag_);
-      (ProblemRecHits->getTH2F())->SetMaximum(1.);
       
       // Overall Problem plot appears in main directory; plots by depth appear \in subdirectory
       m_dbe->setCurrentFolder(baseFolder_+"/problem_rechits");
       setupDepthHists2D(ProblemRecHitsByDepth, " Problem RecHit Rate","");
-      setMinMaxHists2D(ProblemRecHitsByDepth,rechit_minErrorFlag_,1.);
 
-      m_dbe->setCurrentFolder(baseFolder_+"/rechit_energy");
-      setupDepthHists2D(EnergyByDepth,"Rec Hit Average Energy","");
-      setupDepthHists2D(EnergyThreshByDepth,"Rec Hit Average Energy Above Threshold","");
+      m_dbe->setCurrentFolder(baseFolder_+"/rechit_info");
+      setupDepthHists2D(EnergyByDepth,"Rec Hit Average Energy","GeV");
+      setupDepthHists2D(OccupancyByDepth,"Rec Hit Occupancy","");
+      setupDepthHists2D(TimeByDepth,"Rec Hit Average Time","nS");
+
+      m_dbe->setCurrentFolder(baseFolder_+"/rechit_energy/sumplots");
+      setupDepthHists2D(SumEnergyByDepth,"Rec Hit Summed Energy","GeV");
+      setupDepthHists2D(SumTimeByDepth,"Rec Hit Summed Time","nS");
       
-      m_dbe->setCurrentFolder(baseFolder_+"/rechit_occupancy");
-      setupDepthHists2D(OccupancyByDepth,"Rec Hit Average Occupancy","");
-      setMinMaxHists2D(OccupancyByDepth,0,1);
-      setupDepthHists2D(OccupancyThreshByDepth,"Rec Hit Average Occupancy Above Threshold","");
-      setMinMaxHists2D(OccupancyThreshByDepth,0,1);
-      
-      m_dbe->setCurrentFolder(baseFolder_+"/rechit_time");
-      setupDepthHists2D(TimeByDepth,"Rec Hit Average Time","");
-      setupDepthHists2D(TimeThreshByDepth,"Rec Hit Average Time Above Threshold","");
-      
+      m_dbe->setCurrentFolder(baseFolder_+"/rechit_info_threshold");
+      setupDepthHists2D(EnergyThreshByDepth,"Above Threshold Rec Hit Average Energy","GeV");
+      setupDepthHists2D(OccupancyThreshByDepth,"Above Threshold Rec Hit Occupancy","");
+      setupDepthHists2D(TimeThreshByDepth,"Above Threshold Rec Hit Average Time","nS");
+
+      m_dbe->setCurrentFolder(baseFolder_+"/rechit_info_threshold/sumplots");
+      setupDepthHists2D(SumEnergyThreshByDepth,"Above Threshold Rec Hit Summed Energy","GeV");
+      setupDepthHists2D(SumTimeThreshByDepth,"Above Threshold Rec Hit Summed Time","nS");
+
       if (rechit_makeDiagnostics_)
 	{
 	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/hb");
@@ -552,14 +552,29 @@ void HcalRecHitMonitor::fillNevents(void)
 		  mydepth=depth;
 		  OccupancyByDepth[mydepth]->Fill(ieta,iphi,occupancy_[eta][phi][mydepth]);
 		  OccupancyThreshByDepth[mydepth]->Fill(ieta,iphi,occupancy_thresh_[eta][phi][mydepth]);
-		  EnergyByDepth[mydepth]->Fill(ieta,iphi,energy_[eta][phi][mydepth]);
-		  EnergyThreshByDepth[mydepth]->Fill(ieta,iphi,energy_thresh_[eta][phi][mydepth]);
-		  TimeByDepth[mydepth]->Fill(ieta,iphi,time_[eta][phi][mydepth]);
-		  TimeThreshByDepth[mydepth]->Fill(ieta,iphi,time_thresh_[eta][phi][mydepth]);
+		  OccupancyByDepth[mydepth]->setBinContent(0,0,ievt_);
+		  OccupancyThreshByDepth[mydepth]->setBinContent(0,0,ievt_);
+		  SumEnergyByDepth[mydepth]->Fill(ieta,iphi,energy_[eta][phi][mydepth]);
+		  SumEnergyThreshByDepth[mydepth]->Fill(ieta,iphi,energy_thresh_[eta][phi][mydepth]);
+		  SumTimeByDepth[mydepth]->Fill(ieta,iphi,time_[eta][phi][mydepth]);
+		  SumTimeThreshByDepth[mydepth]->Fill(ieta,iphi,time_thresh_[eta][phi][mydepth]);
+
+		  // This won't work with offline DQM, since tasks get split
+		  if (occupancy_[eta][phi][mydepth]>0)
+		    {
+		      EnergyByDepth[mydepth]->setBinContent(eta+2, phi+2, energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
+		      TimeByDepth[mydepth]->setBinContent(eta+2, phi+2, time_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
+		    }
+		  if (occupancy_thresh_[eta][phi][mydepth]>0)
+		    {
+		      EnergyThreshByDepth[mydepth]->setBinContent(eta+2, phi+2, energy_thresh_[eta][phi][mydepth]/occupancy_thresh_[eta][phi][mydepth]);
+		      TimeThreshByDepth[mydepth]->setBinContent(eta+2, phi+2, time_thresh_[eta][phi][mydepth]/occupancy_thresh_[eta][phi][mydepth]);
+		    }
 
 		} // for (int depth=0;depth<6;++depth)
 	    } // for (int phi=0;phi<72;++phi)
 	} // for (int eta=0;eta<(etaBins_-2);++eta)
+
 
       FillUnphysicalHEHFBins(OccupancyByDepth);
       FillUnphysicalHEHFBins(OccupancyThreshByDepth);
@@ -567,6 +582,10 @@ void HcalRecHitMonitor::fillNevents(void)
       FillUnphysicalHEHFBins(EnergyThreshByDepth);
       FillUnphysicalHEHFBins(TimeByDepth);
       FillUnphysicalHEHFBins(TimeThreshByDepth);
+      FillUnphysicalHEHFBins(SumEnergyByDepth);
+      FillUnphysicalHEHFBins(SumEnergyThreshByDepth);
+      FillUnphysicalHEHFBins(SumTimeByDepth);
+      FillUnphysicalHEHFBins(SumTimeThreshByDepth);
     } // if (ievt_>0)
 
   // Fill subdet plots

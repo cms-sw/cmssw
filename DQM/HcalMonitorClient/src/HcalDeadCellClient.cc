@@ -16,7 +16,7 @@ void HcalDeadCellClient::init(const ParameterSet& ps, DQMStore* dbe,string clien
   deadclient_test_occupancy_         = ps.getUntrackedParameter<bool>("DeadCellClient_test_occupancy",true);
   deadclient_test_rechit_occupancy_  = ps.getUntrackedParameter<bool>("DeadCellClient_test_occupancy",true);
   deadclient_test_pedestal_          = ps.getUntrackedParameter<bool>("DeadCellClient_test_pedestal",true);
-  deadclient_test_neighbor_          = ps.getUntrackedParameter<bool>("DeadCellClient_test_neighbor",true);
+  deadclient_test_neighbor_          = ps.getUntrackedParameter<bool>("DeadCellClient_test_neighbor",false);
   deadclient_test_energy_            = ps.getUntrackedParameter<bool>("DeadCellClient_test_energy",true);
 
   deadclient_checkNevents_ = ps.getUntrackedParameter<int>("DeadCellClient_checkNevents",100);
@@ -31,10 +31,11 @@ void HcalDeadCellClient::init(const ParameterSet& ps, DQMStore* dbe,string clien
     {
       // Set each array's pointers to NULL
       ProblemDeadCellsByDepth[i]=0;
-      UnoccupiedDeadCellsByDepth[i]=0;
-      BelowPedestalDeadCellsByDepth[i]=0;
-      BelowNeighborsDeadCellsByDepth[i]=0;
-      BelowEnergyThresholdCellsByDepth[i]=0;
+      if (deadclient_test_occupancy_) UnoccupiedDeadCellsByDepth[i]=0;
+      if (deadclient_test_rechit_occupancy_) UnoccupiedRecHitsByDepth[i]=0;
+      if (deadclient_test_pedestal_) BelowPedestalDeadCellsByDepth[i]=0;
+      if (deadclient_test_neighbor_) BelowNeighborsDeadCellsByDepth[i]=0;
+      if (deadclient_test_energy_) BelowEnergyThresholdCellsByDepth[i]=0;
     }  
 
   if (deadclient_makeDiagnostics_)
@@ -122,12 +123,13 @@ void HcalDeadCellClient::cleanup(void)
     {
       // delete individual histogram pointers
       if (ProblemDeadCells) delete ProblemDeadCells;
-      
+
       for (int i=0;i<6;++i)
 	{
 	  // delete pointers within arrays of histograms
 	  if (ProblemDeadCellsByDepth[i])           delete ProblemDeadCellsByDepth[i];
 	  if (UnoccupiedDeadCellsByDepth[i])        delete UnoccupiedDeadCellsByDepth[i];
+	  if (UnoccupiedRecHitsByDepth[i])          delete UnoccupiedRecHitsByDepth[i];
 	  if (BelowPedestalDeadCellsByDepth[i])     delete BelowPedestalDeadCellsByDepth[i];
 	  if (BelowNeighborsDeadCellsByDepth[i])    delete BelowNeighborsDeadCellsByDepth[i];
 	  if (BelowEnergyThresholdCellsByDepth[i])  delete BelowEnergyThresholdCellsByDepth[i];
@@ -160,6 +162,7 @@ void HcalDeadCellClient::cleanup(void)
       // Set each array's pointers to NULL
       ProblemDeadCellsByDepth[i]=0;
       UnoccupiedDeadCellsByDepth[i]=0;
+      UnoccupiedRecHitsByDepth[i]=0;
       BelowPedestalDeadCellsByDepth[i]=0;
       BelowNeighborsDeadCellsByDepth[i]=0;
       BelowEnergyThresholdCellsByDepth[i]=0;
@@ -228,16 +231,10 @@ void HcalDeadCellClient::getHistograms()
 
 
   // Grab individual histograms
+  name.str("");
   name<<process_.c_str()<<"DeadCellMonitor_Hcal/ ProblemDeadCells";
   ProblemDeadCells = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
   name.str("");
-
-  if (ProblemDeadCells && ievt_>0)
-    {
-      ProblemDeadCells->Scale(1./ievt_);
-      ProblemDeadCells->SetMaximum(1);
-      ProblemDeadCells->SetMinimum(0);
-    }
 
   getSJ6histos("DeadCellMonitor_Hcal/problem_deadcells/", " Problem Dead Cell Rate", ProblemDeadCellsByDepth);
   if (deadclient_test_occupancy_) getSJ6histos("DeadCellMonitor_Hcal/dead_unoccupied_digi/",   "Dead Cells with No Digis", UnoccupiedDeadCellsByDepth);
@@ -266,24 +263,24 @@ void HcalDeadCellClient::getHistograms()
   // Scale rate histograms
   if (ievt_>0)
     {
-      ProblemDeadCells->Scale(1./ievt_);
-      for (int i=0;i<6;++i)
-	ProblemDeadCellsByDepth[i]->Scale(1./ievt_);
-      // scale other histograms here as well?
-    }
-
-
-  // Force min/max on problemcells
-  for (int i=0;i<6;++i)
-    {
-      if (ievt_>0 && ProblemDeadCellsByDepth[i])
+      if (ProblemDeadCells && ievt_>0)
 	{
-	  ProblemDeadCellsByDepth[i]->Scale(1./ievt_);
-	  ProblemDeadCellsByDepth[i]->SetMaximum(1);
-	  ProblemDeadCellsByDepth[i]->SetMinimum(0);
+	  cout <<"ievt = "<<ievt_<<endl;
+	  ProblemDeadCells->Scale(1./ievt_);
+	  ProblemDeadCells->SetMaximum(1);
+	  ProblemDeadCells->SetMinimum(0);
 	}
-      name.str("");
 
+      // Force min/max on problemcells
+      for (int i=0;i<6;++i)
+	{
+	  if (ievt_>0 && ProblemDeadCellsByDepth[i])
+	    {
+	      ProblemDeadCellsByDepth[i]->Scale(1./ievt_);
+	      ProblemDeadCellsByDepth[i]->SetMaximum(1);
+	      ProblemDeadCellsByDepth[i]->SetMinimum(0);
+	    }
+	}
     } // for (int i=0;i<6;++i)
 
   return;

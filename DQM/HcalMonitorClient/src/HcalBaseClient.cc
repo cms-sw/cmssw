@@ -181,59 +181,84 @@ bool HcalBaseClient::validDetId(HcalSubdetector sd, int ies, int ip, int dp)
 
 
 
-void HcalBaseClient::getSJ6histos(char* dir, char* name, TH2F* h[6])
+void HcalBaseClient::getSJ6histos(char* dir, char* name, TH2F* h[6], char* units)
 {
   if (debug_>2) cout <<"HcalBaseClient::getting SJ6histos (2D)"<<endl;
   TH2F* dummy = new TH2F();
   ostringstream hname;
+
   hname <<process_.c_str()<<dir<<"HB HF Depth 1 "<<name;
+  if (units!="") hname<<" "<<units;
   if (debug_>3) cout <<"name = "<<hname.str()<<endl;
   h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   hname.str("");
+
   hname <<process_.c_str()<<dir<<"HB HF Depth 2 "<<name;
+  if (units!="") hname<<" "<<units;
   h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   if (debug_>3) cout <<"name = "<<hname.str()<<endl;
   hname.str("");
+
   hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
+  if (units!="") hname<<" "<<units;
   h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   if (debug_>3) cout <<"name = "<<hname.str()<<endl;
   hname.str("");
+
   hname <<process_.c_str()<<dir<<"HO ZDC "<<name;
+  if (units!="") hname<<" "<<units;
   h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   if (debug_>3) cout <<"name = "<<hname.str()<<endl;
   hname.str("");
+
   hname <<process_.c_str()<<dir<<"HE Depth 1 "<<name;
+  if (units!="") hname<<" "<<units;
   h[4]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   if (debug_>3) cout <<"name = "<<hname.str()<<endl;
   hname.str("");
+
   hname <<process_.c_str()<<dir<<"HE Depth 2 "<<name;
+  if (units!="") hname<<" "<<units;
   h[5]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   if (debug_>3) cout <<"name = "<<hname.str()<<endl;
   hname.str("");
+
   if (debug_>2) cout <<"Finished with getSJ6histos(2D)"<<endl;
   return;
 } // void HcalBaseClient::getSJ6histos(2D)
 
-void HcalBaseClient::getSJ6histos(char* dir, char* name, TH1F* h[6])
+void HcalBaseClient::getSJ6histos(char* dir, char* name, TH1F* h[6], char* units)
 {
   TH1F* dummy = new TH1F();
   ostringstream hname;
+
   hname <<process_.c_str()<<dir<<"HB HF Depth 1 "<<name;
+  if (units!="") hname << " "<<units;
   h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   hname.str("");
+
   hname <<process_.c_str()<<dir<<"HB HF Depth 2 "<<name;
+  if (units!="") hname << " "<<units;
   h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   hname.str("");
+
   hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
+  if (units!="") hname << " "<<units;
   h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   hname.str("");
+
   hname <<process_.c_str()<<dir<<"HO ZDC "<<name;
+  if (units!="") hname << " "<<units;
   h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   hname.str("");
+
   hname <<process_.c_str()<<dir<<"HE Depth 1 "<<name;
+  if (units!="") hname << " "<<units;
   h[4]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   hname.str("");
+
   hname <<process_.c_str()<<dir<<"HE Depth 2 "<<name;
+  if (units!="") hname << " "<<units;
   h[5]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   hname.str("");
   return;

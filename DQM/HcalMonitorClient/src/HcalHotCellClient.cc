@@ -462,10 +462,13 @@ void HcalHotCellClient::getHistograms()
 
   if (hotclient_makeDiagnostics_)
     {
-      getSJ6histos("HotCellMonitor_Hcal/diagnostics/rechitenergy/","Average rec hit energy per cell",d_avgrechitenergymap);
+      getSJ6histos("HotCellMonitor_Hcal/diagnostics/rechitenergy/","Rec hit energy per cell",d_avgrechitenergymap);
       getSJ6histos("HotCellMonitor_Hcal/diagnostics/rechitenergy/","Rec hit occupancy per cell",d_avgrechitoccupancymap);
+      /*
+	// Doing the division here doesn't affect the ME's!
       for (int i=0;i<6;++i)
 	d_avgrechitenergymap[i]->Divide(d_avgrechitoccupancymap[i]);
+      */
       // At some point, clean these up so that histograms are only retrieved if corresponding process ran in Task
       d_HBnormped=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HB_normped").c_str(), process_, dbe_, debug_, cloneME_);
       d_HBrechitenergy=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/rechitenergy/HB_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
@@ -1021,14 +1024,17 @@ void HcalHotCellClient::loadHistograms(TFile* infile)
     {
       for (int i=0;i<6;++i)
 	{
-	  name<<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/rechitenergy/Average rec hit energy per cell";
+	  name<<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/rechitenergy/Rec hit energy per cell";
 	  d_avgrechitenergymap[i] = (TH2F*)infile->Get(name.str().c_str());
 	  name.str("");
 	  name<<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/rechitenergy/Rec hit occupancy per cell";
 	  d_avgrechitoccupancymap[i] = (TH2F*)infile->Get(name.str().c_str());
 	  name.str("");
+	  /*
+	    // Doing the division here doesn't affect the ME's!
 	  if (d_avgrechitoccupancymap[i]->GetMaximum()>0)
 	    d_avgrechitenergymap[i]->Divide(d_avgrechitoccupancymap[i]);
+	  */
 	}
       
       name <<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/pedestal/HB_normped";

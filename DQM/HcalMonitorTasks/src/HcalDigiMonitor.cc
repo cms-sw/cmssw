@@ -139,18 +139,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 	  DigiErrorsBadADCSum[i]->setTitle(static_cast<const string>(name.str().c_str()));
 	  name.str("");
 	}
-      // These are no longer filled here -- taken care of in dead cell monitor 
-      m_dbe->setCurrentFolder(baseFolder_+"/problem_digis/nodigis");
-      name<<" Digis Missing for a Number of Consecutive Events";
-      // setup requires char*; .c_str() returns const char*; recast
-      setupDepthHists2D(DigiErrorsNoDigi," Digis Missing for a Number of Consecutive Events", "");
-      name.str("");
-      for (int i=0;i<6;++i)
-	{
-	  name<<DigiErrorsNoDigi[i]->getTitle()<<"("<<digi_checkNevents_<<" events)";
-	  DigiErrorsNoDigi[i]->setTitle(static_cast<const string>(name.str().c_str()));
-	  name.str("");
-	}
+
       m_dbe->setCurrentFolder(baseFolder_+"/problem_digis/data_invalid_error");
       setupDepthHists2D(DigiErrorsDVErr," Digis with Data Invalid or Error Bit Set", "");
 
@@ -202,7 +191,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       DigiErrorSpigot -> setAxisTitle("Spigot",1);  
       DigiErrorSpigot -> setAxisTitle("DCC Id",2);
       
-      DigiBQ = m_dbe->book1D("# Bad Qual Digis","# Bad Qual Digis",DIGI_NUM,-0.5,DIGI_NUM-0.5);
+      DigiBQ = m_dbe->book1D("# Bad Qual Digis","# Bad Qual Digis",DIGI_NUM+500,-0.5,DIGI_NUM+500-0.5);
       DigiBQ -> setAxisTitle("# Bad Quality Digis",1);  
       DigiBQ -> setAxisTitle("# of Events",2);
       
@@ -212,7 +201,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 
 
       m_dbe->setCurrentFolder(baseFolder_+"/digi_info");
-      DigiNum = m_dbe->book1D("# of Digis","# of Digis",DIGI_NUM,-0.5,DIGI_NUM-0.5);
+      DigiNum = m_dbe->book1D("# of Digis","# of Digis",DIGI_NUM+500,-0.5,DIGI_NUM+500-0.5);
       DigiNum -> setAxisTitle("# of Digis",1);  
       DigiNum -> setAxisTitle("# of Events",2);
       
@@ -1228,7 +1217,6 @@ void HcalDigiMonitor::fill_Nevents()
   FillUnphysicalHEHFBins(DigiErrorsDVErr);
   FillUnphysicalHEHFBins(DigiErrorsBadDigiSize);
   FillUnphysicalHEHFBins(DigiErrorsBadADCSum);
-  FillUnphysicalHEHFBins(DigiErrorsNoDigi);
   FillUnphysicalHEHFBins(DigiOccupancyByDepth);
 
   zeroCounters();

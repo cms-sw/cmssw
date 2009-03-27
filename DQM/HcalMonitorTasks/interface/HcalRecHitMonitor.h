@@ -13,8 +13,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2008/11/27 16:52:29 $
-  * $Revision: 1.20 $
+  * $Date: 2009/03/24 20:58:43 $
+  * $Revision: 1.21 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -75,7 +75,12 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   std::vector<MonitorElement*> TimeByDepth;
   std::vector<MonitorElement*> TimeThreshByDepth;
   
-
+  //std::vector<MonitorElement*> SumOccupancyByDepth;
+  //std::vector<MonitorElement*> SumOccupancyThreshByDepth;
+  std::vector<MonitorElement*> SumEnergyByDepth;
+  std::vector<MonitorElement*> SumEnergyThreshByDepth;
+  std::vector<MonitorElement*> SumTimeByDepth;
+  std::vector<MonitorElement*> SumTimeThreshByDepth;
 
 
   unsigned int occupancy_[ETABINS][PHIBINS][6]; // will get filled when rechit found
