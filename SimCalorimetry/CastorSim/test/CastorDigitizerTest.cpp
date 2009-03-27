@@ -131,16 +131,26 @@ int main() {
   for(vector<DetId>::const_iterator detItr = allDetIds.begin(); 
       detItr != allDetIds.end(); ++detItr) 
   {
-      pedestals.addValue(*detItr, CastorDbHardcode::makePedestal(*detItr).getValues ());
+/* check CastorCondObjectContainer!
+      pedestals.addValues(*detItr, CastorDbHardcode::makePedestal(*detItr).getValues ());
       *pedestalWidths.setWidth(*detItr) = CastorDbHardcode::makePedestalWidth(*detItr);
-      gains.addValue(*detItr, CastorDbHardcode::makeGain(*detItr).getValues ());
-      gainWidths.addValue(*detItr, CastorDbHardcode::makeGainWidth(*detItr).getValues ());
+      gains.addValues(*detItr, CastorDbHardcode::makeGain(*detItr).getValues ());
+      gainWidths.addValues(*detItr, CastorDbHardcode::makeGainWidth(*detItr).getValues ());
+*/
+      pedestals.addValues(CastorDbHardcode::makePedestal(*detItr));
+      pedestalWidths.addValues(CastorDbHardcode::makePedestalWidth(*detItr));
+      gains.addValues(CastorDbHardcode::makeGain(*detItr));
+      gainWidths.addValues(CastorDbHardcode::makeGainWidth(*detItr));
+
   }
-  
+
+/* obsolete stuff 
+
   pedestals.sort();
   pedestalWidths.sort();
   gains.sort();
   gainWidths.sort();
+
 
 //  std::cout << "TEST Pedestal " << pedestals.getValue(barrelDetId,  1) << std::endl;
   std::cout << "Castor pedestals " << pedestals.getValue(castorDetId,  1) << std::endl;
@@ -148,8 +158,12 @@ int main() {
   std::cout << "Castor gains " << gains.getValue(castorDetId,  1) << std::endl;
   std::cout << "Castor gain widths " << gainWidths.getValue(castorDetId,  1) << std::endl;
 
-  CastorDbService calibratorHandle;
-  //HcalDbService calibratorHandle;
+*/
+
+edm::ParameterSet emptyPSet;
+CastorDbService calibratorHandle(emptyPSet);
+
+//  CastorDbService calibratorHandle;
   calibratorHandle.setData(&pedestals);
   calibratorHandle.setData(&pedestalWidths);
   calibratorHandle.setData(&gains);
