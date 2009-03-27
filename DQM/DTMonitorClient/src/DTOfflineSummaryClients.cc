@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/02/04 10:02:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/03/02 16:55:19 $
+ *  $Revision: 1.5 $
  *  \author M. Pelliccioni - INFN Torino
  */
 
@@ -109,7 +109,6 @@ void DTOfflineSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg,
     theSummaryContents[ii]->Reset();
   }
 
-  double totalStatus = 0.;
   // protection 
   bool efficiencyFound = true;
 
