@@ -2,6 +2,8 @@
 
 #include "Validation/EcalClusters/interface/ContainmentCorrectionAnalyzer.h"
 
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+
 using namespace cms;
 using namespace edm;
 using namespace std;
@@ -166,7 +168,7 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
 	superClusterEt[nRECOphotons-1]=nearSC->rawEnergy()/std::cosh(nearSC->position().eta());
 	iMC[nRECOphotons-1]=nMCphotons-1;
 
-	reco::BasicClusterRef theSeed = nearSC->seed();
+	reco::CaloClusterPtr theSeed = nearSC->seed();
 	seedXtal[nRECOphotons-1] = EcalClusterTools::getMaximum(*theSeed, ebRecHits).first;
 	e1[nRECOphotons-1]       = EcalClusterTools::eMax(*theSeed, ebRecHits);
 	e9[nRECOphotons-1]       = EcalClusterTools::e3x3(*theSeed, ebRecHits, topology ); 
@@ -206,7 +208,7 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
 	superClusterEt[nRECOphotons-1]=(nearSC->rawEnergy() + psEnergy)/std::cosh(nearSC->position().eta());
 	iMC[nRECOphotons-1]=nMCphotons-1;
 
-	reco::BasicClusterRef theSeed = nearSC->seed();
+	reco::CaloClusterPtr theSeed = nearSC->seed();
 	seedXtal[nRECOphotons-1] = EcalClusterTools::getMaximum(*theSeed, eeRecHits).first;
 	e1[nRECOphotons-1]       = EcalClusterTools::eMax(*theSeed, eeRecHits) + psEnergy;
 	e9[nRECOphotons-1]       = EcalClusterTools::e3x3(*theSeed, eeRecHits, topology ) + psEnergy; 

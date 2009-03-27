@@ -340,7 +340,7 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
 		hist_EB_RawSC_Phi_->Fill(aClus->position().phi());
 
 		// cluster shape
-                const reco::BasicClusterRef seed = aClus->seed();
+                const reco::CaloClusterPtr seed = aClus->seed();
 		hist_EB_RawSC_S1toS9_->Fill( lazyTool.eMax( *seed ) / lazyTool.e3x3( *seed ) );
 		hist_EB_RawSC_S25toE_->Fill( lazyTool.e5x5( *seed ) / aClus->energy() );
 
@@ -369,7 +369,7 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
                 hist_EB_CorSC_Phi_->Fill(aClus->position().phi());
 
                 // cluster shape
-                const reco::BasicClusterRef seed = aClus->seed();
+                const reco::CaloClusterPtr seed = aClus->seed();
                 hist_EB_CorSC_S1toS9_->Fill( lazyTool.eMax( *seed ) / lazyTool.e3x3( *seed ) );
                 hist_EB_CorSC_S25toE_->Fill( lazyTool.e5x5( *seed ) / aClus->energy() );
 
@@ -434,7 +434,7 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
 		hist_EE_RawSC_Eta_->Fill(aClus->position().eta());
 		hist_EE_RawSC_Phi_->Fill(aClus->position().phi());
 
-                const reco::BasicClusterRef seed = aClus->seed();
+                const reco::CaloClusterPtr seed = aClus->seed();
 		hist_EE_RawSC_S1toS9_->Fill( lazyTool.eMax( *seed ) / lazyTool.e3x3( *seed ) );
 		hist_EE_RawSC_S25toE_->Fill( lazyTool.e5x5( *seed ) / aClus->energy() );
 
@@ -461,7 +461,7 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
                 hist_EE_PreSC_Phi_->Fill(aClus->position().phi());
 		hist_EE_PreSC_preshowerE_->Fill(aClus->preshowerEnergy());
 
-                const reco::BasicClusterRef seed = aClus->seed();
+                const reco::CaloClusterPtr seed = aClus->seed();
                 hist_EE_PreSC_S1toS9_->Fill( lazyTool.eMax( *seed ) / lazyTool.e3x3( *seed ) );
                 hist_EE_PreSC_S25toE_->Fill( lazyTool.e5x5( *seed ) / aClus->energy() );
 
@@ -492,7 +492,7 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
                 hist_EE_CorSC_phiWidth_->Fill(aClus->phiWidth());
                 hist_EE_CorSC_etaWidth_->Fill(aClus->etaWidth());
 
-                const reco::BasicClusterRef seed = aClus->seed();
+                const reco::CaloClusterPtr seed = aClus->seed();
                 hist_EE_CorSC_S1toS9_->Fill( lazyTool.eMax( *seed ) / lazyTool.e3x3( *seed ) );
                 hist_EE_CorSC_S25toE_->Fill( lazyTool.e5x5( *seed ) / aClus->energy() );
 

@@ -8,7 +8,7 @@
      \\\author: Keti Kaadze, June 2007
 */
 //
-// $Id: EnergyScaleAnalyzer.h,v 1.1 2008/04/02 12:35:58 kkaadze Exp $
+// $Id: EnergyScaleAnalyzer.h,v 1.3 2009/01/09 10:23:25 saout Exp $
 //
 
 
@@ -27,6 +27,7 @@
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
