@@ -115,6 +115,10 @@ public:
 
   std::vector< hfTowerSumsType > getAllOutputHfSums() const { return m_hfSumsPipe.contents; }
    
+  /// get the Et sums in internal component format
+  std::vector< L1GctInternEtSum  > getInternalEtSums() const;
+  std::vector< L1GctInternHtMiss > getInternalHtMiss() const;
+
  protected:
 
   /// Separate reset methods for the processor itself and any data stored in pipelines

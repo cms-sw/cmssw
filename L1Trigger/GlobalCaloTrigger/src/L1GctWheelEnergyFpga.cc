@@ -21,7 +21,8 @@ L1GctWheelEnergyFpga::L1GctWheelEnergyFpga(int id, vector<L1GctJetLeafCard*> lea
   m_inputEt(MAX_LEAF_CARDS),
   m_inputHt(MAX_LEAF_CARDS),
   m_outputEx(0), m_outputEy(0), m_outputEt(0), m_outputHt(0),
-  m_setupOk(true)
+  m_setupOk(true),
+  m_outputExPipe(), m_outputEyPipe(), m_outputEtPipe(), m_outputHtPipe()
 {
   //Check wheelEnergyFpga setup
   if(m_id != 0 && m_id != 1)
@@ -117,6 +118,14 @@ void L1GctWheelEnergyFpga::resetProcessor()
   m_outputHt.reset();
 }
 
+void L1GctWheelEnergyFpga::resetPipelines()
+{
+  m_outputExPipe.reset(numOfBx());
+  m_outputEyPipe.reset(numOfBx());
+  m_outputEtPipe.reset(numOfBx());
+  m_outputHtPipe.reset(numOfBx());
+}
+
 void L1GctWheelEnergyFpga::fetchInput()
 {
   if (m_setupOk) {
@@ -138,6 +147,10 @@ void L1GctWheelEnergyFpga::process()
     m_outputEt = m_inputEt.at(0) + m_inputEt.at(1) + m_inputEt.at(2);
     m_outputHt = m_inputHt.at(0) + m_inputHt.at(1) + m_inputHt.at(2);
 
+    m_outputExPipe.store( m_outputEx, bxRel());
+    m_outputEyPipe.store( m_outputEy, bxRel());
+    m_outputEtPipe.store( m_outputEt, bxRel());
+    m_outputHtPipe.store( m_outputHt, bxRel());
   }
 }
 
@@ -156,3 +169,24 @@ void L1GctWheelEnergyFpga::setInputEnergy(unsigned i, int ex, int ey, unsigned e
 
 }
 
+/// get the Et sums in internal component format
+std::vector< L1GctInternEtSum  > L1GctWheelEnergyFpga::getInternalEtSums() const
+{
+
+  std::vector< L1GctInternEtSum > result;
+  for (int bx=0; bx<numOfBx(); bx++) {
+    result.push_back( L1GctInternEtSum::fromEmulatorMissEtxOrEty( m_outputExPipe.contents.at(bx).value(),
+								  m_outputExPipe.contents.at(bx).overFlow(),
+								  static_cast<int16_t> (bx-bxMin()) ) );
+    result.push_back( L1GctInternEtSum::fromEmulatorMissEtxOrEty( m_outputEyPipe.contents.at(bx).value(),
+								  m_outputEyPipe.contents.at(bx).overFlow(),
+								  static_cast<int16_t> (bx-bxMin()) ) );
+    result.push_back( L1GctInternEtSum::fromEmulatorTotalEtOrHt( m_outputEtPipe.contents.at(bx).value(),
+								 m_outputEtPipe.contents.at(bx).overFlow(),
+								 static_cast<int16_t> (bx-bxMin()) ) );
+    result.push_back( L1GctInternEtSum::fromEmulatorTotalEtOrHt( m_outputHtPipe.contents.at(bx).value(),
+								 m_outputHtPipe.contents.at(bx).overFlow(),
+								 static_cast<int16_t> (bx-bxMin()) ) );
+  }
+  return result;
+}

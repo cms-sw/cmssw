@@ -164,6 +164,10 @@ public:
   /// Htmiss output to GT
   L1GctHtMissCollection  getHtMissCollection() const;
 
+  /// Et sums and components in internal format
+  L1GctInternEtSumCollection getInternalEtSums() const;
+  L1GctInternHtMissCollection getInternalHtMiss() const;
+
   // Hf sums output to GT
   L1GctHFBitCountsCollection  getHFBitCountsCollection()  const;
   L1GctHFRingEtSumsCollection getHFRingEtSumsCollection() const;

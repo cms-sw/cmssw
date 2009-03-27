@@ -167,6 +167,10 @@ public:
   /// get output jets in raw format - to be stored in the event
   std::vector< L1GctInternJetData > getInternalJets() const;
 
+  /// get et sums in raw format - to be stored in the event
+  std::vector< L1GctInternEtSum  > getInternalEtSums() const;
+  std::vector< L1GctInternHtMiss > getInternalHtMiss() const;
+
   /// Return pointers to calibration LUTs
   const lutPtrVector getJetEtCalLuts() const { return m_jetEtCalLuts; }
 
@@ -328,6 +332,14 @@ public:
 
   /// Output jets "pipeline memory" for checking
   RawJetPipeline m_outputJetsPipe;
+
+  /// "Pipeline memories" for energy sums
+  Pipeline< etTotalType        > m_outputEtSumPipe;
+  Pipeline< etCompInternJfType > m_outputExSumPipe;
+  Pipeline< etCompInternJfType > m_outputEySumPipe;
+  Pipeline< etHadType          > m_outputHtSumPipe;
+  Pipeline< htCompInternJfType > m_outputHxSumPipe;
+  Pipeline< htCompInternJfType > m_outputHySumPipe;
 
   /// Private method for calculating MEt and MHt components
   template <int kBitsInput, int kBitsOutput>

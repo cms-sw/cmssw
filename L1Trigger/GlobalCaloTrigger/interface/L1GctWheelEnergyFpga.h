@@ -76,6 +76,9 @@ public:
 	/// get the output Ht
 	inline etHadType getOutputHt() const { return m_outputHt; }
 
+	/// get the Et sums in internal component format
+	std::vector< L1GctInternEtSum  > getInternalEtSums() const;
+
 	/// check the setup
 	bool setupOk() const { return m_setupOk; }
 
@@ -83,7 +86,7 @@ public:
 
 	/// Separate reset methods for the processor itself and any data stored in pipelines
 	virtual void resetProcessor();
-	virtual void resetPipelines() {}
+	virtual void resetPipelines();
 
 	/// Initialise inputs with null objects for the correct bunch crossing if required
 	virtual void setupObjects() {}
@@ -111,7 +114,12 @@ public:
 	
 	/// check the setup
 	bool m_setupOk;
-	
+
+	/// record the output data history
+	Pipeline< etComponentType > m_outputExPipe;
+	Pipeline< etComponentType > m_outputEyPipe;
+	Pipeline< etTotalType     > m_outputEtPipe;	
+	Pipeline< etHadType       > m_outputHtPipe;	
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctWheelEnergyFpga& fpga);

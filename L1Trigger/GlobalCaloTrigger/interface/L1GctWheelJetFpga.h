@@ -90,11 +90,14 @@ public:
   /// Public access to setup check
   bool setupOk() const { return checkSetup(); }
 
+  /// get the Et sums in internal component format
+  std::vector< L1GctInternHtMiss > getInternalHtMiss() const;
+
  protected:
 
   /// Separate reset methods for the processor itself and any data stored in pipelines
   virtual void resetProcessor();
-  virtual void resetPipelines() {}
+  virtual void resetPipelines();
 
   /// Initialise inputs with null objects for the correct bunch crossing if required
   virtual void setupObjects();
@@ -139,6 +142,9 @@ private:
   htComponentType m_outputHy;
   hfTowerSumsType m_outputHfSums;
       
+  Pipeline< htComponentType > m_outputHxPipe;
+  Pipeline< htComponentType > m_outputHyPipe;
+
   //PRIVATE METHODS
   /// Check the setup, independently of how we have been constructed
   bool checkSetup() const;

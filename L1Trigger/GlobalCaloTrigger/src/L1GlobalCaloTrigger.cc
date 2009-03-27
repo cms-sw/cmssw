@@ -655,6 +655,59 @@ L1GctHtMissCollection  L1GlobalCaloTrigger::getHtMissCollection() const {
   return result;
 }
 
+L1GctInternEtSumCollection L1GlobalCaloTrigger::getInternalEtSums() const
+{
+  L1GctInternEtSumCollection allSums, procSums;
+
+  // Go through all the processor types that process et sums
+  // JetFinders
+  for (unsigned jf=0; jf<theJetFinders.size(); jf++) {
+    procSums = theJetFinders.at(jf)->getInternalEtSums();
+    allSums.insert(allSums.end(), procSums.begin(), procSums.end());
+  }
+
+  // Jet Leaf cards
+  for (int i=0; i<N_JET_LEAF_CARDS; i++) {
+    procSums = theJetLeafCards.at(i)->getInternalEtSums();
+    allSums.insert(allSums.end(), procSums.begin(), procSums.end());
+  }
+
+  // Wheel Cards
+  for (int i=0; i<N_WHEEL_CARDS; i++) {
+    procSums = theWheelEnergyFpgas.at(i)->getInternalEtSums();
+    allSums.insert(allSums.end(), procSums.begin(), procSums.end());
+  }
+
+  return allSums;
+}
+
+L1GctInternHtMissCollection L1GlobalCaloTrigger::getInternalHtMiss() const
+{
+  L1GctInternHtMissCollection allSums, procSums;
+
+  // Go through all the processor types that process et sums
+  // JetFinders
+  for (unsigned jf=0; jf<theJetFinders.size(); jf++) {
+    procSums = theJetFinders.at(jf)->getInternalHtMiss();
+    allSums.insert(allSums.end(), procSums.begin(), procSums.end());
+  }
+
+  // Jet Leaf cards
+  for (int i=0; i<N_JET_LEAF_CARDS; i++) {
+    procSums = theJetLeafCards.at(i)->getInternalHtMiss();
+    allSums.insert(allSums.end(), procSums.begin(), procSums.end());
+  }
+
+  // Wheel Cards
+  for (int i=0; i<N_WHEEL_CARDS; i++) {
+    procSums = theWheelJetFpgas.at(i)->getInternalHtMiss();
+    allSums.insert(allSums.end(), procSums.begin(), procSums.end());
+  }
+
+  return allSums;
+}
+
+
 L1GctHFBitCountsCollection L1GlobalCaloTrigger::getHFBitCountsCollection() const {
   L1GctHFBitCountsCollection result(m_numOfBx);
   if (getHfSumProcessor() != 0) {

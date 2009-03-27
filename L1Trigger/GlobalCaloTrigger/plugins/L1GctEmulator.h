@@ -11,7 +11,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu May 18 15:04:56 CEST 2006
-// $Id: L1GctEmulator.h,v 1.5 2008/10/29 11:28:35 heath Exp $
+// $Id: L1GctEmulator.h,v 1.7 2009/03/17 08:12:58 heath Exp $
 //
 //
 
@@ -55,6 +55,9 @@ class L1GctEmulator : public edm::EDProducer {
 
   // pointers to the jet Et LUTs
   lutPtrVector m_jetEtCalibLuts;
+
+  // data output switch
+  bool m_writeInternalData;
 
   // untracked parameters
   bool m_verbose;

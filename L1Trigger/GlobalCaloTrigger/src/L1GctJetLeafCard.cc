@@ -255,3 +255,38 @@ L1GctJetLeafCard::getOutputJetsB() const { return m_jetFinderB->getJets(); }  //
 L1GctJetFinderBase::JetVector
 L1GctJetLeafCard::getOutputJetsC() const { return m_jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
 
+/// get the Et sums in internal component format
+std::vector< L1GctInternEtSum  > L1GctJetLeafCard::getInternalEtSums() const
+{
+
+  std::vector< L1GctInternEtSum > result;
+  for (int bx=0; bx<numOfBx(); bx++) {
+    result.push_back( L1GctInternEtSum::fromEmulatorJetTotEt ( m_etSumPipe.contents.at(bx).value(),
+							       m_etSumPipe.contents.at(bx).overFlow(),
+							       static_cast<int16_t> (bx-bxMin()) ) );
+    result.push_back( L1GctInternEtSum::fromEmulatorJetMissEt( m_exSumPipe.contents.at(bx).value(),
+							       m_exSumPipe.contents.at(bx).overFlow(),
+							       static_cast<int16_t> (bx-bxMin()) ) );
+    result.push_back( L1GctInternEtSum::fromEmulatorJetMissEt( m_eySumPipe.contents.at(bx).value(),
+							       m_eySumPipe.contents.at(bx).overFlow(),
+							       static_cast<int16_t> (bx-bxMin()) ) );
+    result.push_back( L1GctInternEtSum::fromEmulatorJetTotHt ( m_htSumPipe.contents.at(bx).value(),
+							       m_htSumPipe.contents.at(bx).overFlow(),
+							       static_cast<int16_t> (bx-bxMin()) ) );
+  }
+  return result;
+}
+
+std::vector< L1GctInternHtMiss > L1GctJetLeafCard::getInternalHtMiss() const
+{
+
+  std::vector< L1GctInternHtMiss > result;
+  for (int bx=0; bx<numOfBx(); bx++) {
+    result.push_back( L1GctInternHtMiss::emulatorMissHtxHty( m_hxSumPipe.contents.at(bx).value(),
+							     m_hySumPipe.contents.at(bx).value(),
+							     m_hxSumPipe.contents.at(bx).overFlow(),
+							     static_cast<int16_t> (bx-bxMin()) ) );
+  }
+  return result;
+
+}

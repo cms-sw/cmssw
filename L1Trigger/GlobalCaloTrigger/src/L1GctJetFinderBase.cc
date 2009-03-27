@@ -36,7 +36,9 @@ L1GctJetFinderBase::L1GctJetFinderBase(int id):
   m_outputEtStrip0(0), m_outputEtStrip1(0),
   m_outputHtStrip0(0), m_outputHtStrip1(0),
   m_outputHfSums(),
-  m_outputJetsPipe(MAX_JETS_OUT)
+  m_outputJetsPipe(MAX_JETS_OUT),
+  m_outputEtSumPipe(), m_outputExSumPipe(), m_outputEySumPipe(), 
+  m_outputHtSumPipe(), m_outputHxSumPipe(), m_outputHySumPipe()
 {
   // Call reset to initialise vectors for input and output
   this->reset();
@@ -166,6 +168,12 @@ void L1GctJetFinderBase::resetProcessor()
 void L1GctJetFinderBase::resetPipelines()
 {
   m_outputJetsPipe.reset(numOfBx());
+  m_outputEtSumPipe.reset(numOfBx());
+  m_outputExSumPipe.reset(numOfBx());
+  m_outputEySumPipe.reset(numOfBx());
+  m_outputHtSumPipe.reset(numOfBx());
+  m_outputHxSumPipe.reset(numOfBx());
+  m_outputHySumPipe.reset(numOfBx());
 }
 
 /// Initialise inputs with null objects for the correct bunch crossing
@@ -237,6 +245,41 @@ std::vector< L1GctInternJetData > L1GctJetFinderBase::getInternalJets() const {
   return result;
 
 }
+
+/// get et sums in raw format - to be stored in the event
+std::vector< L1GctInternEtSum > L1GctJetFinderBase::getInternalEtSums() const {
+
+  std::vector< L1GctInternEtSum > result;
+  for (int bx=0; bx<numOfBx(); bx++) {
+    result.push_back( L1GctInternEtSum::fromEmulatorJetTotEt ( m_outputEtSumPipe.contents.at(bx).value(),
+							       m_outputEtSumPipe.contents.at(bx).overFlow(),
+							       static_cast<int16_t> (bx-bxMin()) ) );
+    result.push_back( L1GctInternEtSum::fromEmulatorJetMissEt( m_outputExSumPipe.contents.at(bx).value(),
+							       m_outputExSumPipe.contents.at(bx).overFlow(),
+							       static_cast<int16_t> (bx-bxMin()) ) );
+    result.push_back( L1GctInternEtSum::fromEmulatorJetMissEt( m_outputEySumPipe.contents.at(bx).value(),
+							       m_outputEySumPipe.contents.at(bx).overFlow(),
+							       static_cast<int16_t> (bx-bxMin()) ) );
+    result.push_back( L1GctInternEtSum::fromEmulatorJetTotHt ( m_outputHtSumPipe.contents.at(bx).value(),
+							       m_outputHtSumPipe.contents.at(bx).overFlow(),
+							       static_cast<int16_t> (bx-bxMin()) ) );
+  }
+  return result;
+}
+
+std::vector< L1GctInternHtMiss > L1GctJetFinderBase::getInternalHtMiss() const {
+
+  std::vector< L1GctInternHtMiss > result;
+  for (int bx=0; bx<numOfBx(); bx++) {
+    result.push_back( L1GctInternHtMiss::emulatorJetMissHt( m_outputHxSumPipe.contents.at(bx).value(),
+							    m_outputHySumPipe.contents.at(bx).value(),
+							    m_outputHxSumPipe.contents.at(bx).overFlow(),
+							    static_cast<int16_t> (bx-bxMin()) ) );
+  }
+  return result;
+
+}
+
 
 // PROTECTED METHODS BELOW
 /// fetch the protoJets from neighbour jetFinder
@@ -389,6 +432,10 @@ void L1GctJetFinderBase::doEtSums() {
     (etStrip0, xfact0, etStrip1, xfact1);
   m_outputEySum = etComponentForJetFinder<L1GctInternEtSum::kTotEtOrHtNBits,L1GctInternEtSum::kJetMissEtNBits>
     (etStrip0, yfact0, etStrip1, yfact1);
+
+  m_outputEtSumPipe.store(m_outputEtSum, bxRel());
+  m_outputExSumPipe.store(m_outputExSum, bxRel());
+  m_outputEySumPipe.store(m_outputEySum, bxRel());
 }
 
 
@@ -444,6 +491,9 @@ void L1GctJetFinderBase::doHtSums() {
   m_outputHxSum.setOverFlow(htmOverFlow);
   m_outputHySum.setOverFlow(htmOverFlow);
 
+  m_outputHtSumPipe.store(m_outputHtSum, bxRel());
+  m_outputHxSumPipe.store(m_outputHxSum, bxRel());
+  m_outputHySumPipe.store(m_outputHySum, bxRel());
 }
 
 

@@ -30,7 +30,8 @@ L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
   m_centralJets(MAX_JETS_OUT),
   m_forwardJets(MAX_JETS_OUT),
   m_tauJets(MAX_JETS_OUT),
-  m_outputHx(0), m_outputHy(0), m_outputHfSums()
+  m_outputHx(0), m_outputHy(0), m_outputHfSums(),
+  m_outputHxPipe(), m_outputHyPipe()
 {
   if (checkSetup()) {
 
@@ -158,6 +159,12 @@ void L1GctWheelJetFpga::setupObjects()
   setupJetsVectors(static_cast<int16_t>(bxAbs()));
 }
 
+void L1GctWheelJetFpga::resetPipelines()
+{
+  m_outputHxPipe.reset(numOfBx());
+  m_outputHyPipe.reset(numOfBx());
+}
+
 void L1GctWheelJetFpga::fetchInput()
 {
   if (checkSetup()) {
@@ -208,6 +215,8 @@ void L1GctWheelJetFpga::process()
     //Hf tower sums processing
     m_outputHfSums = m_inputHfSums.at(0) + m_inputHfSums.at(1) + m_inputHfSums.at(2);
 
+    m_outputHxPipe.store( m_outputHx, bxRel());
+    m_outputHyPipe.store( m_outputHy, bxRel());
   }
     
 }
@@ -226,6 +235,22 @@ void L1GctWheelJetFpga::setInputJet(int i, L1GctJetCand jet)
 	  << i << " is outside input index range of 0 to " << (MAX_JETS_IN-1) << "\n";
       }
     }
+}
+
+/// get the Et sums in internal component format
+std::vector< L1GctInternHtMiss > L1GctWheelJetFpga::getInternalHtMiss() const
+{
+
+  std::vector< L1GctInternHtMiss > result;
+  for (int bx=0; bx<numOfBx(); bx++) {
+    result.push_back( L1GctInternHtMiss::emulatorMissHtx( m_outputHxPipe.contents.at(bx).value(),
+							  m_outputHxPipe.contents.at(bx).overFlow(),
+							  static_cast<int16_t> (bx-bxMin()) ) );
+    result.push_back( L1GctInternHtMiss::emulatorMissHty( m_outputHyPipe.contents.at(bx).value(),
+							  m_outputHyPipe.contents.at(bx).overFlow(),
+							  static_cast<int16_t> (bx-bxMin()) ) );
+  }
+  return result;
 }
 
 void L1GctWheelJetFpga::storeJets(JetVector jets, unsigned short iLeaf, unsigned short offset)
