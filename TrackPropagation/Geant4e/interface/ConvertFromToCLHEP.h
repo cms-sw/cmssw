@@ -39,12 +39,14 @@ namespace TrackPropagation {
 
 
   /** Convert a CMS GlobalVector to a CLHEP HepNormal3D
+      CMS uses GeV while G4 uses MeV
    */
   HepNormal3D globalVectorToHepNormal3D(const GlobalVector& p) {
     return HepNormal3D(p.x(), p.y(), p.z());
   }
 
   /** Convert a CLHEP HepNormal3D to a CMS GlobalVector 
+      CMS uses GeV while G4 uses MeV
    */
   GlobalVector hepNormal3DToGlobalVector(const HepNormal3D& p) {
     return GlobalVector(p.x(), p.y(), p.z());
@@ -73,7 +75,7 @@ namespace TrackPropagation {
       conversion.
    */
   Hep3Vector globalPointToHep3Vector(const GlobalPoint& r) {
-    return Hep3Vector(r.x()*cm, r.y()*cm, r.z()*cm);
+     return Hep3Vector(r.x()*cm, r.y()*cm, r.z()*cm);
   }
 
   /** Convert a CLHEP Hep3Vector to a CMS GlobalPoint 
@@ -109,17 +111,39 @@ namespace TrackPropagation {
   }
 
   /** Convert a G4 Trajectory Error Matrix to the CMS Algebraic Sym Matrix
+      CMS uses q/p as first parameter, G4 uses 1/p
    */
+
+
+
   AlgebraicSymMatrix55
-   g4ErrorTrajErrToAlgebraicSymMatrix55(const G4ErrorTrajErr& e) {
+   g4ErrorTrajErrToAlgebraicSymMatrix55(const G4ErrorTrajErr& e, const int q) {
     //From DataFormats/CLHEP/interface/Migration.h
     //typedef ROOT::Math::SMatrix<double,5,5,ROOT::Math::MatRepSym<double,5> > AlgebraicSymMatrix55;
     AlgebraicSymMatrix55 m55;
     for (unsigned int i = 0; i < 5; i++)
-      for (unsigned int j = 0; j < 5; j++)
-	m55(i,j) = e(i+1, j+1);
+      for (unsigned int j = 0; j < 5; j++) {
+	m55(i, j) = e(i+1,j+1);
+	if(i==0) m55(i,j) = q*m55(i,j);
+	if(j==0) m55(i,j) = q*m55(i,j);
+      }
     return m55;
   }
+
+  /** Convert a CMS Algebraic Sym Matrix (for curv error) to a G4 Trajectory Error Matrix
+   */
+  G4ErrorTrajErr
+    algebraicSymMatrix55ToG4ErrorTrajErr(const AlgebraicSymMatrix55& e, const int q) {
+    G4ErrorTrajErr g4err(5,1);
+    for (unsigned int i = 0; i < 5; i++)
+      for (unsigned int j = 0; j < 5; j++) {
+	g4err(i+1, j+1) = e(i,j);
+	if(i==0) g4err(i+1,j+1) = q*g4err(i+1,j+1);
+	if(j==0) g4err(i+1,j+1) = q*g4err(i+1,j+1);
+      }
+    return g4err;
+  }
+
 }
 
 

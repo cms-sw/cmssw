@@ -1,8 +1,30 @@
 <use name=root>
 <use name=geant4>
+<use name=boost>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
 <use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/PatternTools>
+<use name=TrackingTools/Records>
+<use name=TrackingTools/TrajectoryState>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
+<use name=DataFormats/CLHEP>
+<use name=CLHEP>
 <export>
+   <use name=root>
+   <use name=geant4>
+   <use name=boost>
+   <use name=FWCore/ParameterSet>
+   <use name=FWCore/Utilities>
+   <use name=TrackingTools/GeomPropagators>
+   <use name=TrackingTools/PatternTools>
+   <use name=TrackingTools/Records>
+   <use name=TrackingTools/TrajectoryState>
+   <use name=FWCore/Framework>
+   <use name=FWCore/MessageLogger>
+   <use name=DataFormats/CLHEP>
+   <use name=CLHEP>
    <lib name=TrackPropagationGeant4e>
 </export>
+

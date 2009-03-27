@@ -37,36 +37,20 @@ class Geant4ePropagator: public Propagator {
    *  in global cartesian coordinates) to a surface.
    */
 
-  /** Only use the generic method if the surface type (plane or cylinder)
-   *  is not known at the calling point.
-   */
-/*   virtual TrajectoryStateOnSurface  */
-/*   propagate (const FreeTrajectoryState&, const Surface&) const; */
+  virtual TrajectoryStateOnSurface 
+  propagate (const FreeTrajectoryState& ftsStart, const Plane& pDest) const;
 
   virtual TrajectoryStateOnSurface 
-  propagate (const FreeTrajectoryState&, const Plane&) const;
+  propagate (const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const;
 
-  virtual TrajectoryStateOnSurface 
-  propagate (const FreeTrajectoryState&, const Cylinder&) const;
-
-  /** The following three methods are equivalent to the corresponding
-   *  methods above,
-   *  but if the starting state is a TrajectoryStateOnSurface, it's better 
-   *  to use it as such rather than use just the FreeTrajectoryState
-   *  part. It may help some concrete propagators.
+  /** Propagate from a state on surface (e.g. position and momentum in 
+   *  in global cartesian coordinates associated with a layer) to a surface.
    */
-
-  /** Only use the generic method if the surface type (plane or cylinder)
-   *  is not known at the calling point.
-   */
-/*   virtual TrajectoryStateOnSurface  */
-/*   propagate (const TrajectoryStateOnSurface&, const Surface&) const; */
-
-/*   virtual TrajectoryStateOnSurface  */
-/*   propagate (const TrajectoryStateOnSurface&, const Plane&) const; */
-
-/*   virtual TrajectoryStateOnSurface  */
-/*   propagate (const TrajectoryStateOnSurface&, const Cylinder&) const; */
+  virtual TrajectoryStateOnSurface
+    propagate (const TrajectoryStateOnSurface& tsos, const Plane& plane) const;
+  
+  virtual TrajectoryStateOnSurface
+    propagate (const TrajectoryStateOnSurface& tsos, const Cylinder& cyl) const; 
 
   /** The methods propagateWithPath() are identical to the corresponding
    *  methods propagate() in what concerns the resulting 
@@ -74,36 +58,18 @@ class Geant4ePropagator: public Propagator {
    *  exact path length along the trajectory.
    */
 
-  /** Only use the generic method if the surface type (plane or cylinder)
-   *  is not known at the calling point.
-   */
-/*   virtual std::pair< TrajectoryStateOnSurface, double>  */
-/*   propagateWithPath (const FreeTrajectoryState&, const Surface&) const; */
-
   virtual std::pair< TrajectoryStateOnSurface, double> 
   propagateWithPath (const FreeTrajectoryState&, const Plane&) const;
 
   virtual std::pair< TrajectoryStateOnSurface, double> 
   propagateWithPath (const FreeTrajectoryState&, const Cylinder&) const;
 
-  /** The following three methods are equivalent to the corresponding
-   *  methods above,
-   *  but if the starting state is a TrajectoryStateOnSurface, it's better 
-   *  to use it as such rather than use just the FreeTrajectoryState
-   *  part. It may help some concrete propagators.
-   */
 
-  /** Only use the generic method if the surface type (plane or cylinder)
-   *  is not known at the calling point.
-   */
-/*   virtual std::pair< TrajectoryStateOnSurface, double>  */
-/*   propagateWithPath (const TrajectoryStateOnSurface&, const Surface&) const; */
+   virtual std::pair< TrajectoryStateOnSurface, double>  
+   propagateWithPath (const TrajectoryStateOnSurface&, const Plane&) const; 
 
-/*   virtual std::pair< TrajectoryStateOnSurface, double>  */
-/*   propagateWithPath (const TrajectoryStateOnSurface&, const Plane&) const; */
-
-/*   virtual std::pair< TrajectoryStateOnSurface, double>  */
-/*   propagateWithPath (const TrajectoryStateOnSurface&, const Cylinder&) const; */
+   virtual std::pair< TrajectoryStateOnSurface, double>  
+   propagateWithPath (const TrajectoryStateOnSurface&, const Cylinder&) const; 
 
 
   virtual Geant4ePropagator* clone() const {return new Geant4ePropagator(*this);}

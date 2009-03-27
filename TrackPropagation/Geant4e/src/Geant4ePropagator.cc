@@ -16,6 +16,9 @@
 #include "G4ErrorFreeTrajState.hh"
 #include "G4ErrorPlaneSurfaceTarget.hh"
 #include "G4ErrorCylSurfaceTarget.hh"
+#include "G4ErrorPropagatorData.hh"
+#include "G4EventManager.hh"
+#include "G4SteppingControl.hh"
 
 //CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -31,12 +34,13 @@ Geant4ePropagator::Geant4ePropagator(const MagneticField* field,
   theParticleName(particleName),
   theG4eManager(G4ErrorPropagatorManager::GetErrorPropagatorManager()),
   theSteppingAction(0) {
+
+  G4ErrorPropagatorData::SetVerbose(0);
 }
 
 /** Destructor. 
  */
 Geant4ePropagator::~Geant4ePropagator() {
-  delete theSteppingAction;
 }
 
 //
@@ -51,8 +55,10 @@ TrajectoryStateOnSurface
 Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart, 
 			      const Plane& pDest) const {
 
-  if (!theSteppingAction) {
+  if(theG4eManager->PrintG4ErrorState() == "G4ErrorState_PreInit")
     theG4eManager->InitGeant4e();
+
+  if (!theSteppingAction) {
     theSteppingAction = new Geant4eSteppingAction;
     theG4eManager->SetUserAction(theSteppingAction);
   }
@@ -93,8 +99,8 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   //* Set the target surface
   G4ErrorSurfaceTarget* g4eTarget = new G4ErrorPlaneSurfaceTarget(surfNorm,
 								  surfPos);
-  // theG4eManager->SetTarget(g4eTarget); // Not needed ??
-  g4eTarget->Dump("G4e - ");
+
+  //g4eTarget->Dump("G4e - ");
   //
   ///////////////////////////////
 
@@ -137,10 +143,12 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   //
   int charge = ftsStart.charge();
   std::string particleName  = theParticleName;
-  if (charge > 0)
-    particleName += "+";
-  else
-    particleName += "-";
+
+  if (charge > 0) {
+      particleName += "+";
+  } else {
+      particleName += "-";
+  }
 
   LogDebug("Geant4e") << "G4e -  Particle name: " << particleName;
 
@@ -150,7 +158,11 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   ///////////////////////////////
   //Set the error and trajectories, and finally propagate
   //
-  G4ErrorTrajErr g4error( 5, 1 ); //The error matrix
+  G4ErrorTrajErr g4error( 5, 1 );
+  if(ftsStart.hasError()) {
+    const CurvilinearTrajectoryError initErr = ftsStart.curvilinearError();
+    g4error = TrackPropagation::algebraicSymMatrix55ToG4ErrorTrajErr( initErr , charge); //The error matrix
+  }
   LogDebug("Geant4e") << "G4e -  Error matrix: " << g4error;
 
   G4ErrorFreeTrajState* g4eTrajState = 
@@ -159,21 +171,48 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 
   //Set the mode of propagation according to the propagation direction
   G4ErrorMode mode = G4ErrorMode_PropForwards;
+
   if (propagationDirection() == oppositeToMomentum) {
     mode = G4ErrorMode_PropBackwards;
     LogDebug("Geant4e") << "G4e -  Propagator mode is \'backwards\'";
-  }
-  else
+  } else if(propagationDirection() == alongMomentum) {
     LogDebug("Geant4e") << "G4e -  Propagator mode is \'forwards\'";
+  } else {   //Mode must be anyDirection then - need to figure out for Geant which it is
+    std::cout << "Determining actual direction";
+    if(pDest.localZ(cmsInitPos)*pDest.localZ(cmsInitMom) < 0) {
+      LogDebug("Geant4e") << "G4e -  Propagator mode is \'forwards\'";
+      std::cout << ", got forwards" << std::endl;
+    } else {
+      mode = G4ErrorMode_PropBackwards;
+      LogDebug("Geant4e") << "G4e -  Propagator mode is \'backwards\'";
+      std::cout << ", got backwards" << std::endl;
+    }
+  }
+
   //
   //////////////////////////////
 
   //////////////////////////////
   // Propagate
 
-  int ierr =
-    theG4eManager->Propagate( g4eTrajState, g4eTarget, mode);
+  int ierr;
+  if(mode == G4ErrorMode_PropBackwards) {
+    //To make geant transport the particle correctly need to give it the opposite momentum
+    //because geant flips the B field bending and adds energy instead of subtracting it
+    //but still wants the momentum "backwards"
+    g4eTrajState->SetMomentum( -g4eTrajState->GetMomentum());
+    ierr = theG4eManager->Propagate( g4eTrajState, g4eTarget, mode);
+    g4eTrajState->SetMomentum( -g4eTrajState->GetMomentum());
+  } else {
+    ierr = theG4eManager->Propagate( g4eTrajState, g4eTarget, mode);
+  }
   LogDebug("Geant4e") << "G4e -  Return error from propagation: " << ierr;
+
+  if(ierr!=0) {
+    LogDebug("Geant4e") << "G4e - Error is not 0, returning invalid trajectory";
+    return TrajectoryStateOnSurface();
+  }
+
   //
   //////////////////////////////
 
@@ -212,13 +251,11 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   // coordinates so use the appropiate CMS class  
   G4ErrorTrajErr g4errorEnd = g4eTrajState->GetError();
   CurvilinearTrajectoryError 
-    curvError(TrackPropagation::g4ErrorTrajErrToAlgebraicSymMatrix55(g4errorEnd));
-
+    curvError(TrackPropagation::g4ErrorTrajErrToAlgebraicSymMatrix55(g4errorEnd, charge));
+  LogDebug("Geant4e") << "G4e -  Error matrix after propagation: " << g4errorEnd;
 
   ////////////////////////////////////////////////////////////////////////
-  // WARNING: Since this propagator is not supposed to be used in the   //
-  // tracker where special treatment need to be used when arriving to   //
-  // a surface, we set the SurfaceSide to atCenterOfSurface.            //
+  // We set the SurfaceSide to atCenterOfSurface.                       //
   ////////////////////////////////////////////////////////////////////////
   LogDebug("Geant4e") << "G4e -  SurfaceSide is always atCenterOfSurface after propagation";
   SurfaceSide side = atCenterOfSurface;
@@ -228,6 +265,14 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   return TrajectoryStateOnSurface(tParsDest, curvError, pDest, side);
 }
 
+//Require method with input TrajectoryStateOnSurface to be used in track fitting
+//Don't need extra info about starting surface; use regular propagation method
+TrajectoryStateOnSurface
+Geant4ePropagator::propagate (const TrajectoryStateOnSurface& tsos, const Plane& plane) const {
+  const FreeTrajectoryState ftsStart = *tsos.freeState();
+  return propagate(ftsStart,plane);
+}
+
 
 /** Propagate from a free state (e.g. position and momentum in 
  *  in global cartesian coordinates) to a cylinder.
@@ -235,6 +280,14 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 TrajectoryStateOnSurface 
 Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart, 
 			      const Cylinder& cDest) const {
+
+  if(theG4eManager->PrintG4ErrorState() == "G4ErrorState_PreInit")
+    theG4eManager->InitGeant4e();
+  if (!theSteppingAction) {
+    theSteppingAction = new Geant4eSteppingAction;
+    theG4eManager->SetUserAction(theSteppingAction);
+  }
+
   //Get Cylinder parameters.
   //CMS uses cm and GeV while Geant4 uses mm and MeV.
   // - Radius
@@ -246,7 +299,7 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   G4RotationMatrix rotCyl = 
     TrackPropagation::tkRotationFToHepRotation(cDest.rotation());
 
-  //DEBUG --- Remove at some point
+  //DEBUG
   TkRotation<float>  rotation = cDest.rotation();
   LogDebug("Geant4e") << "G4e -  TkRotation" << rotation;
   LogDebug("Geant4e") << "G4e -  G4Rotation" << rotCyl << "mm";
@@ -255,14 +308,39 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   //Set the target surface
   G4ErrorSurfaceTarget* g4eTarget = new G4ErrorCylSurfaceTarget(radCyl,	posCyl,
 								rotCyl);
-  //  theG4eManager->SetTarget(g4eTarget); // Not needed?
+
+  //DEBUG
+  LogDebug("Geant4e") << "G4e -  Destination CMS cylinder position:" << cDest.position() << "cm\n"
+		      << "G4e -  Destination CMS cylinder radius:" << cDest.radius() << "cm\n"
+		      << "G4e -  Destination CMS cylinder rotation:" << cDest.rotation() << "\n";
+  LogDebug("Geant4e") << "G4e -  Destination G4  cylinder position: " << posCyl << "mm\n"
+	              << "G4e -  Destination G4  cylinder radius:" << radCyl << "mm\n"
+		      << "G4e -  Destination G4  cylinder rotation:" << rotCyl << "\n";
+
 
   //Get the starting point and direction and convert them to Hep3Vector for G4
   //CMS uses cm and GeV while Geant4 uses mm and MeV
+  GlobalPoint  cmsInitPos = ftsStart.position();
+  GlobalVector cmsInitMom = ftsStart.momentum();
+
   Hep3Vector g4InitMom = 
-    TrackPropagation::globalVectorToHep3Vector(ftsStart.momentum()*GeV);
+    TrackPropagation::globalVectorToHep3Vector(cmsInitMom*GeV);
   Hep3Vector g4InitPos = 
-    TrackPropagation::globalPointToHep3Vector(ftsStart.position());
+    TrackPropagation::globalPointToHep3Vector(cmsInitPos);
+
+  //DEBUG
+  LogDebug("Geant4e") << "G4e -  Initial CMS point position:" << cmsInitPos 
+		      << "cm\n"
+		      << "G4e -              (Ro, eta, phi): (" 
+		      << cmsInitPos.perp() << " cm, " 
+		      << cmsInitPos.eta() << ", " 
+		      << cmsInitPos.phi().degrees() << " deg)\n"
+		      << "G4e -  Initial G4  point position: " << g4InitPos 
+		      << " mm, Ro = " << g4InitPos.perp() << " mm";
+  LogDebug("Geant4e") << "G4e -  Initial CMS momentum      :" << cmsInitMom 
+		      << "GeV\n"
+		      << "G4e -  Initial G4  momentum      : " << g4InitMom 
+		      << " MeV";
 
   //Set particle name
   int charge = ftsStart.charge();
@@ -271,21 +349,64 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
     particleName += "+";
   else
     particleName += "-";
+  LogDebug("Geant4e") << "G4e -  Particle name: " << particleName;
 
   //Set the error and trajectories, and finally propagate
-  G4ErrorTrajErr g4error( 5, 0 ); //The error matrix
+  G4ErrorTrajErr g4error( 5, 1 );
+  if(ftsStart.hasError()) {
+    const CurvilinearTrajectoryError initErr = ftsStart.curvilinearError();
+    g4error = TrackPropagation::algebraicSymMatrix55ToG4ErrorTrajErr( initErr , charge); //The error matrix
+  }
+  LogDebug("Geant4e") << "G4e -  Error matrix: " << g4error;
+
   G4ErrorFreeTrajState* g4eTrajState = 
     new G4ErrorFreeTrajState(particleName, g4InitPos, g4InitMom, g4error);
+  LogDebug("Geant4e") << "G4e -  Traj. State: " << (*g4eTrajState);
 
   //Set the mode of propagation according to the propagation direction
   G4ErrorMode mode = G4ErrorMode_PropForwards;
-  if (propagationDirection() == oppositeToMomentum)
+
+  if (propagationDirection() == oppositeToMomentum) {
     mode = G4ErrorMode_PropBackwards;
-    
+    LogDebug("Geant4e") << "G4e -  Propagator mode is \'backwards\'";
+  } else if(propagationDirection() == alongMomentum) {
+    LogDebug("Geant4e") << "G4e -  Propagator mode is \'forwards\'";
+  } else {
+    //------------------------------------
+    //For cylinder assume outside is backwards, inside is along
+    //General use for particles from collisions
+    LocalVector lmom = cDest.toLocal(cmsInitMom);
+    LocalPoint lpos = cDest.toLocal(cmsInitPos);
+    Surface::Side theSide = cDest.side(lpos,0);
+    if(theSide==SurfaceOrientation::positiveSide){  //outside cylinder
+      mode = G4ErrorMode_PropBackwards;
+      LogDebug("Geant4e") << "G4e -  Propagator mode is \'backwards\'";
+    } else { //inside cylinder
+      LogDebug("Geant4e") << "G4e -  Propagator mode is \'forwards\'";
+    }
 
-  //int ierr =
-  theG4eManager->Propagate( g4eTrajState, g4eTarget, mode);
+  }
 
+  //////////////////////////////
+  // Propagate
+
+  int ierr;
+  if(mode == G4ErrorMode_PropBackwards) {
+    //To make geant transport the particle correctly need to give it the opposite momentum
+    //because geant flips the B field bending and adds energy instead of subtracting it
+    //but still wants the momentum "backwards"
+    g4eTrajState->SetMomentum( -g4eTrajState->GetMomentum());
+    ierr = theG4eManager->Propagate( g4eTrajState, g4eTarget, mode);
+    g4eTrajState->SetMomentum( -g4eTrajState->GetMomentum());
+  } else {
+    ierr = theG4eManager->Propagate( g4eTrajState, g4eTarget, mode);
+  }
+  LogDebug("Geant4e") << "G4e -  Return error from propagation: " << ierr;
+
+  if(ierr!=0) {
+    LogDebug("Geant4e") << "G4e - Error is not 0, returning invalid trajectory";
+    return TrajectoryStateOnSurface();
+  }
 
   // Retrieve the state in the end from Geant4e, converte them to CMS vectors
   // and points, and build global trajectory parameters
@@ -296,6 +417,21 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   GlobalPoint  posEndGV = TrackPropagation::hepPoint3DToGlobalPoint(posEnd);
   GlobalVector momEndGV = TrackPropagation::hep3VectorToGlobalVector(momEnd)/GeV;
 
+
+  //DEBUG
+  LogDebug("Geant4e") << "G4e -  Final CMS point position:" << posEndGV 
+		      << "cm\n"
+		      << "G4e -            (Ro, eta, phi): (" 
+		      << posEndGV.perp() << " cm, " 
+		      << posEndGV.eta() << ", " 
+		      << posEndGV.phi().degrees() << " deg)\n"
+		      << "G4e -  Final G4  point position: " << posEnd 
+		      << " mm,\tRo =" << posEnd.perp()  << " mm";
+  LogDebug("Geant4e") << "G4e -  Final CMS momentum      :" << momEndGV
+		      << "GeV\n"
+		      << "G4e -  Final G4  momentum      : " << momEnd 
+		      << " MeV";
+
   GlobalTrajectoryParameters tParsDest(posEndGV, momEndGV, charge, theField);
 
 
@@ -303,18 +439,27 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   // coordinates so use the appropiate CMS class  
   G4ErrorTrajErr g4errorEnd = g4eTrajState->GetError();
   CurvilinearTrajectoryError 
-    curvError(TrackPropagation::g4ErrorTrajErrToAlgebraicSymMatrix55(g4errorEnd));
-
+    curvError(TrackPropagation::g4ErrorTrajErrToAlgebraicSymMatrix55(g4errorEnd, charge));
+  LogDebug("Geant4e") << "G4e -  Error matrix after propagation: " << g4errorEnd;
 
   ////////////////////////////////////////////////////////////////////////
-  // WARNING: Since this propagator is not supposed to be used in the 
-  // tracker where special treatment need to be used when arriving to
-  // a surface, we set the SurfaceSide to atCenterOfSurface.
+  // We set the SurfaceSide to atCenterOfSurface.                       //
   ////////////////////////////////////////////////////////////////////////
+
   SurfaceSide side = atCenterOfSurface;
 
   return TrajectoryStateOnSurface(tParsDest, curvError, cDest, side);
 }
+
+
+//Require method with input TrajectoryStateOnSurface to be used in track fitting
+//Don't need extra info about starting surface; use regular propagation method
+TrajectoryStateOnSurface
+Geant4ePropagator::propagate (const TrajectoryStateOnSurface& tsos, const Cylinder& cyl) const {
+  const FreeTrajectoryState ftsStart = *tsos.freeState();
+  return propagate(ftsStart,cyl);
+}
+
 
 //
 ////////////////////////////////////////////////////////////////////////////
@@ -347,4 +492,27 @@ Geant4ePropagator::propagateWithPath (const FreeTrajectoryState& ftsStart,
   //parameter is the exact path length. Currently calculated with a stepping
   //action that adds up the length of every step
   return TsosPP(propagate(ftsStart,cDest), theSteppingAction->trackLength());
+}
+
+std::pair< TrajectoryStateOnSurface, double> 
+Geant4ePropagator::propagateWithPath (const TrajectoryStateOnSurface& tsosStart, 
+				      const Plane& pDest) const {
+
+  theSteppingAction->reset();
+
+  //Finally build the pair<...> that needs to be returned where the second
+  //parameter is the exact path length. Currently calculated with a stepping
+  //action that adds up the length of every step
+  return TsosPP(propagate(tsosStart,pDest), theSteppingAction->trackLength());
+}
+
+std::pair< TrajectoryStateOnSurface, double> 
+Geant4ePropagator::propagateWithPath (const TrajectoryStateOnSurface& tsosStart,
+				      const Cylinder& cDest) const {
+  theSteppingAction->reset();
+
+  //Finally build the pair<...> that needs to be returned where the second
+  //parameter is the exact path length. Currently calculated with a stepping
+  //action that adds up the length of every step
+  return TsosPP(propagate(tsosStart,cDest), theSteppingAction->trackLength());
 }
