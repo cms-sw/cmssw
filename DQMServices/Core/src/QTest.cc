@@ -69,8 +69,8 @@ float Comp2RefEqualH::runTest(const MonitorElement*me)
 
  if (!me) return -1;
  if (!me->getRootObject() || !me->getRefRootObject()) return -1;
- TH1* h=0;
- TH1* ref_=0;
+ h=0;//initialize histogram pointer
+ ref_=0;
  
  int nbins=0;
  int nbinsref=0;
@@ -155,8 +155,8 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
 {
    if (!me) return -1;
    if (!me->getRootObject() || !me->getRefRootObject()) return -1;
-   TH1*h =0;
-   TH1*ref_=0;
+   h=0;
+   ref_=0;
  
    //-- TH1F
    if (me->kind()==MonitorElement::DQM_KIND_TH1F){ 
@@ -255,8 +255,8 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
 {
    if (!me) return -1;
    if (!me->getRootObject() || !me->getRefRootObject()) return -1;
-   TH1*h =0;
-   TH1*ref_=0;
+   h=0;
+   ref_=0;
 
    //-- TH1F
    if (me->kind()==MonitorElement::DQM_KIND_TH1F){ 
@@ -395,7 +395,7 @@ float ContentsXRange::runTest(const MonitorElement*me)
 
  if (!me) return -1;
  if (!me->getRootObject()) return -1;
- TH1* h=0;
+ TH1* h=0; 
 
  if (me->kind()==MonitorElement::DQM_KIND_TH1F ) {
    h = me->getTH1F();
@@ -447,7 +447,7 @@ float ContentsYRange::runTest(const MonitorElement*me)
 
  if (!me) return -1;
  if (!me->getRootObject()) return -1;
- TH1* h=0;
+ TH1* h=0; 
 
  if (me->kind()==MonitorElement::DQM_KIND_TH1F) { 
   h = me->getTH1F(); //access Test histo
@@ -509,8 +509,8 @@ float DeadChannel::runTest(const MonitorElement*me)
  badChannels_.clear();
  if (!me) return -1;
  if (!me->getRootObject()) return -1;
- TH1* h1=0;
- TH2* h2=0;
+ h1=0;
+ h2=0;//initialize histogram pointers
 
  //TH1F
  if (me->kind()==MonitorElement::DQM_KIND_TH1F) { 
@@ -606,7 +606,7 @@ float NoisyChannel::runTest(const MonitorElement *me)
  badChannels_.clear();
  if (!me) return -1;
  if (!me->getRootObject()) return -1; 
- TH1* h=0;
+ h=0;//initialize histogram pointer
 
  int nbins=0;
  //-- TH1F
@@ -708,7 +708,7 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
   badChannels_.clear();
   if (!me) return -1;
   if (!me->getRootObject()) return -1;
-  TH1* h=0;
+  h=0;//initialize histogram pointer
 
   int ncx;
   int ncy;
@@ -728,7 +728,6 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
     ncy = me->getTH2S()->GetYaxis()->GetNbins(); 
     h  = me->getTH2S(); // access Test histo
   }
-
 
   //-- TProfile
   else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE){
@@ -927,7 +926,7 @@ float MeanWithinExpected::runTest(const MonitorElement *me )
   if (!me) return -1;
   if (!me->getRootObject()) return -1;
   TH1* h=0;
-  
+   
   if (me->kind()==MonitorElement::DQM_KIND_TH1F) { 
     h = me->getTH1F(); //access Test histo
   }
