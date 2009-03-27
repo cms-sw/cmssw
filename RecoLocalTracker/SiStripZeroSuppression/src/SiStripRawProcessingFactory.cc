@@ -10,11 +10,12 @@
 
 std::auto_ptr<SiStripRawProcessingAlgorithms> SiStripRawProcessingFactory::
 create(const edm::ParameterSet& conf) {
+  edm::ParameterSet algoConf = conf.getParameter<edm::ParameterSet>("Algorithm");
   return std::auto_ptr<SiStripRawProcessingAlgorithms>(
 	           new SiStripRawProcessingAlgorithms(
-						      create_SubtractorPed(conf),
-						      create_SubtractorCMN(conf),
-						      create_Suppressor(conf)     ));
+						      create_SubtractorPed(algoConf),
+						      create_SubtractorCMN(algoConf),
+						      create_Suppressor(algoConf)     ));
 }
 
 std::auto_ptr<SiStripPedestalsSubtractor> SiStripRawProcessingFactory::

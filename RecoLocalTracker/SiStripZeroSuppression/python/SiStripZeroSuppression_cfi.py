@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoLocalTracker.SiStripZeroSuppression.DefaultAlgorithms import *
+from RecoLocalTracker.SiStripZeroSuppression.DefaultAlgorithms_cff import *
 
 siStripZeroSuppression = cms.EDFilter("SiStripZeroSuppression",
                                       Algorithms = DefaultAlgorithms,
