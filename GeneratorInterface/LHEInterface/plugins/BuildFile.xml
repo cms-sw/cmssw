@@ -24,26 +24,26 @@
 	<use name="PhysicsTools/UtilAlgos"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
-<library name="GeneratorInterfacePythia6Hadronisation" file="Pythia6Hadronisation.cc PythiaFortranGlue.F">
-	<use name="SimDataFormats/GeneratorProducts"/>
-	<use name="GeneratorInterface/CommonInterface"/>
-	<use name="pythia6"/>
-	<use name="lhapdf"/>
-	<flags EDM_PLUGIN="1"/>
-</library>
+#<library name="GeneratorInterfacePythia6Hadronisation" file="Pythia6Hadronisation.cc PythiaFortranGlue.F">
+#	<use name="SimDataFormats/GeneratorProducts"/>
+#	<use name="GeneratorInterface/CommonInterface"/>
+#	<use name="pythia6"/>
+#	<use name="lhapdf"/>
+#	<flags EDM_PLUGIN="1"/>
+#</library>
 <library name="GeneratorInterfacePythia8Hadronisation" file="Pythia8Hadronisation.cc">
 	<use name="pythia8"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
-<library name="GeneratorInterfaceHerwig6Hadronisation" file="Herwig6Hadronisation.cc hwudat.F hwmsct_dummy.F pathhelper.F cms_hwwarn.F">
-	<use name="SimDataFormats/GeneratorProducts"/>
-	<use name="f77compiler"/>
-        <use name="herwig"/>
-        <use name="jimmy"/>
-	<flags EDM_PLUGIN="1"/>
-</library>
-<library name="GeneratorInterfaceMadGraphMatching" file="JetMatchingMadgraph.cc ME2pythia.f getjet.f ktclusdble.f">
-	<use name="pythia6"/>
-	<flags FFLAGS="-w"/>
-	<flags EDM_PLUGIN="1"/>
-</library>
+#<library name="GeneratorInterfaceHerwig6Hadronisation" file="Herwig6Hadronisation.cc hwudat.F hwmsct_dummy.F pathhelper.F cms_hwwarn.F">
+#	<use name="SimDataFormats/GeneratorProducts"/>
+#	<use name="f77compiler"/>
+#        <use name="herwig"/>
+#        <use name="jimmy"/>
+#	<flags EDM_PLUGIN="1"/>
+#</library>
+#<library name="GeneratorInterfaceMadGraphMatching" file="JetMatchingMadgraph.cc ME2pythia.f getjet.f ktclusdble.f">
+#	<use name="pythia6"/>
+#	<flags FFLAGS="-w"/>
+#	<flags EDM_PLUGIN="1"/>
+#</library>
