@@ -23,8 +23,11 @@ class FortranInstance {
 	{ InstanceWrapper wrapper(this); fn(a); }
 	template<typename T, typename A> T call(T(&fn)(A), A a)
 	{ InstanceWrapper wrapper(this); return fn(a); }
+	template<typename A1, typename A2> void call(void(&fn)(A1, A2), A1 a1, A2 a2)
+	{ InstanceWrapper wrapper(this); fn(a1, a2); }
+	template<typename T, typename A1, typename A2> T call(T(&fn)(A1, A2), A1 a1, A2 a2)
+	{ InstanceWrapper wrapper(this); return fn(a1, a2); }
 
-    protected:
 	// if a member is instantiated at the beginning of a method,
 	// it makes sure this FortranInstance instance is kept as
 	// current instance during the execution of the method
@@ -41,11 +44,11 @@ class FortranInstance {
 
 	// set this instance to be the current one
 	// will throw exception when trying to reenter Herwig twice
-	void enter();
+	virtual void enter();
 
 	// leave instance
 	// will throw if the currently running instance does not match
-	void leave();
+	virtual void leave();
 
 	// get the currently running instance (from enterInstance)
 	// intended for callbacks from Fortran
