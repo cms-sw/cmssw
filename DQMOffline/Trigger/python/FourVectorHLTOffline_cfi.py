@@ -1,25 +1,29 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOffline_cfi.py,v 1.7 2009/02/26 21:59:00 berryhil Exp $
+# $Id: FourVectorHLTOffline_cfi.py,v 1.19 2009/02/26 22:30:17 berryhil Exp $
 hltResults = cms.EDFilter("FourVectorHLTOffline",
     dirname = cms.untracked.string("HLT/FourVector/source"),
     plotAll = cms.untracked.bool(False),
     ptMax = cms.untracked.double(100.0),
     ptMin = cms.untracked.double(0.0),
     paths = cms.VPSet(
+             cms.PSet(
+              pathname = cms.string("HLT_Mu11"),
+              denompathname = cms.string("HLT_L1Jet15"),  
+             ),
+             cms.PSet(
+              pathname = cms.string("HLT_Jet30"),
+              denompathname = cms.string("HLT_Mu3"),  
+             ),
 # single jet triggers
-             cms.PSet(
-              pathname = cms.string("HLT_Jet50"),
-              denompathname = cms.string("HLT_Jet30"),  
-             ),
-             cms.PSet(
-              pathname = cms.string("HLT_Jet110"),
-              denompathname = cms.string("HLT_Jet50"),  
-             ),
-             cms.PSet(
-              pathname = cms.string("HLT_L2Mu3"),
-              denompathname = cms.string("HLT_L1Mu"),
-             )
+#             cms.PSet(
+#              pathname = cms.string("HLT_Jet50"),
+#              denompathname = cms.string("HLT_Jet30"),  
+#             ),
+#             cms.PSet(
+#              pathname = cms.string("HLT_Jet110"),
+#              denompathname = cms.string("HLT_Jet50"),  
+#             )
             ),
                           
      # this is I think MC and CRUZET4
