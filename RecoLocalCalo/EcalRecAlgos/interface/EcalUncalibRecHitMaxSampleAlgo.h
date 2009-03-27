@@ -41,14 +41,14 @@ EcalUncalibRecHitMaxSampleAlgo<C>::makeRecHit(const C& dataFrame, const double* 
   jitter_    = -1;
   chi2_      = -1;
   bool isSaturated = 0;
+  uint32_t flags = 0;
   for(int16_t iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
     
     gainId_ = dataFrame.sample(iSample).gainId(); 
 
     if (gainId_ == 0 )
       {
-	isSaturated = 1;	
-	chi2_ = EcalUncalibratedRecHit::kSATURATED;
+        flags = EcalUncalibratedRecHit::kSaturated;
       }
 
     // ampli gain 12
@@ -76,7 +76,7 @@ EcalUncalibRecHitMaxSampleAlgo<C>::makeRecHit(const C& dataFrame, const double* 
   }// loop on samples
       
       
-  return EcalUncalibratedRecHit( dataFrame.id(), static_cast<double>(amplitude_-pedestal_) , static_cast<double>(pedestal_), static_cast<double>(jitter_ - 5), chi2_);
+  return EcalUncalibratedRecHit( dataFrame.id(), static_cast<double>(amplitude_-pedestal_) , static_cast<double>(pedestal_), static_cast<double>(jitter_ - 5), chi2_, flags );
 }
 
 #endif

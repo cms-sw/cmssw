@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using an analytical fit
   *
-  *  $Id: EcalUncalibRecHitRecAnalFitAlgo.h,v 1.9 2008/01/09 12:04:16 franzoni Exp $
-  *  $Date: 2008/01/09 12:04:16 $
-  *  $Revision: 1.9 $
+  *  $Id: EcalUncalibRecHitRecAnalFitAlgo.h,v 1.10 2008/10/17 10:16:55 meridian Exp $
+  *  $Date: 2008/10/17 10:16:55 $
+  *  $Revision: 1.10 $
   *  \author A. Palma, Sh. Rahatlou Roma1
   */
 
@@ -67,9 +67,10 @@ template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecH
     double maxsample(-1);
     int imax(-1);
     bool isSaturated = 0;
+    uint32_t flag = 0;
     for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
       int gainId = dataFrame.sample(iSample).gainId(); 
-      if ( gainId == 0 ) 
+      if ( dataFrame.isSaturated() != -1 ) 
 	{
 	  gainId = 3;
 	  isSaturated = 1;
@@ -147,8 +148,7 @@ template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecH
       pedestal_  = pedestal_value;
       jitter_    = pulseShape.GetParameter(3);
       chi2_ = 1.; // successful fit
-      if (isSaturated)
-	chi2_ = EcalUncalibratedRecHit::kSATURATED;
+      if (isSaturated) flag = EcalUncalibratedRecHit::kSaturated;
       /*
       std::cout << "separate fits\nA: " <<  amplitude_value << ", Ped: " << pedestal_value
                 << ", t0: " << jitter_ << ", tp: " << pulseShape.GetParameter(1)
@@ -158,7 +158,7 @@ template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecH
 
     }
 
-    return EcalUncalibratedRecHit( dataFrame.id(), amplitude_, pedestal_, jitter_ - 6, chi2_);
+    return EcalUncalibratedRecHit( dataFrame.id(), amplitude_, pedestal_, jitter_ - 6, chi2_, flag);
   }
 };
 #endif

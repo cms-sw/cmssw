@@ -4,9 +4,9 @@
 /** \class EcalRecHitSimpleAlgo
   *  Simple algoritm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitSimpleAlgo.h,v 1.2 2008/10/17 10:16:55 meridian Exp $
-  *  $Date: 2008/10/17 10:16:55 $
-  *  $Revision: 1.2 $
+  *  $Id: EcalRecHitSimpleAlgo.h,v 1.3 2009/03/27 17:04:12 ferriff Exp $
+  *  $Date: 2009/03/27 17:04:12 $
+  *  $Revision: 1.3 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -43,10 +43,10 @@ class EcalRecHitSimpleAlgo : public EcalRecHitAbsAlgo {
     float clockToNsConstant = 25;
     float energy = uncalibRH.amplitude()*adcToGeVConstant_*intercalibConstant;
     float time   = uncalibRH.jitter() * clockToNsConstant + timeIntercalib;
-    if (uncalibRH.isSaturated())
-      time = EcalRecHit::kSATURATED;
+    uint32_t flag = 0;
+    if (uncalibRH.isSaturated()) flag = EcalUncalibratedRecHit::kSaturated;
 
-    return EcalRecHit( uncalibRH.id(), energy, time );
+    return EcalRecHit( uncalibRH.id(), energy, time, flag );
   }
 
 private:
