@@ -39,7 +39,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TFile.h"
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsFromTrack.h"

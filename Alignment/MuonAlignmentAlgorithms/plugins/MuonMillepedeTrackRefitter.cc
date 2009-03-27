@@ -1,7 +1,7 @@
 /** \class MuonMillepedeTrackRefitter
  *  
  *
- *  $Date: 2008/12/12 10:23:59 $
+ *  $Date: 2008/12/12 18:02:14 $
  *  $Revision: 1.1 $
  *  \author P. Martinez Ruiz del Arbol, IFCA (CSIC-UC)  <Pablo.Martinez@cern.ch>
  */
@@ -9,6 +9,8 @@
 #include "Alignment/MuonAlignmentAlgorithms/plugins/MuonMillepedeTrackRefitter.h"
 
 // Collaborating Class Header
+#include "Alignment/MuonAlignmentAlgorithms/interface/SegmentToTrackAssociator.h"
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -18,40 +20,25 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-
-#include "DataFormats/TrackingRecHit/interface/RecSegment.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
-#include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "TrackingTools/GeomPropagators/interface/SmartPropagator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-
-
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Cone.h"
-
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"

@@ -20,9 +20,10 @@
 	#include "Alignment/CommonAlignment/interface/SurveyResidual.h"
 	#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 	#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
+        #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 	#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-	#include <DataFormats/GeometrySurface/interface/LocalError.h> 
 	#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+	#include <DataFormats/GeometrySurface/interface/LocalError.h> 
 	#include "DataFormats/TrackReco/interface/Track.h"
 
 	#include "Alignment/MuonAlignmentAlgorithms/plugins/MuonMillepedeAlgorithm.h"
@@ -72,12 +73,7 @@
 	  edm::LogWarning("Alignment") << "[MuonMillepedeAlgorithm] Initializing...";
 
 	  // accessor Det->AlignableDet
-	  if ( !muon )
-	    theAlignableDetAccessor = new AlignableNavigator(tracker);
-	  else if ( !tracker )
-	    theAlignableDetAccessor = new AlignableNavigator(muon);
-	  else 
-	    theAlignableDetAccessor = new AlignableNavigator(tracker,muon);
+	  theAlignableDetAccessor = new AlignableNavigator(tracker, muon);
 
 	  // set alignmentParameterStore
 	  theAlignmentParameterStore=store;
