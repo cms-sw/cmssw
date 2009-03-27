@@ -46,9 +46,7 @@ MET MuonMETAlgo::makeMET (const MET& fMet,
  
 
 template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::View<reco::Muon>& inputMuons,
-						     const edm::ValueMap<int>& vm_flags,
-						     const edm::ValueMap<double>& vm_deltax,
-						     const edm::ValueMap<double>& vm_deltay,
+						     const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
 						     const edm::View<T>& v_uncorMET,
 						     vector<T>* v_corMET) {
   T uncorMETObj = v_uncorMET.front();
@@ -68,9 +66,11 @@ template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::View<reco::Muon>
   unsigned int nMuons = inputMuons.size();
   for(unsigned int iMu = 0; iMu<nMuons; iMu++) {
     const reco::Muon *mu = &inputMuons[iMu]; //new
-    int flag = (vm_flags)[inputMuons.refAt(iMu)];      
-    double deltax = (vm_deltax)[inputMuons.refAt(iMu)];      
-    double deltay = (vm_deltay)[inputMuons.refAt(iMu)];      
+    reco::MuonMETCorrectionData muCorrData = (vm_muCorrData)[inputMuons.refAt(iMu)];
+    int flag   = muCorrData.type();      
+    float deltax = muCorrData.corrX();      
+    float deltay = muCorrData.corrY();      
+    
         
     //new
     LorentzVector mup4;
@@ -441,24 +441,20 @@ void MuonMETAlgo::correctMETforMuon(double& deltax, double& deltay, double bfiel
 }
 //----------------------------------------------------------------------------
 void MuonMETAlgo::run(const edm::View<reco::Muon>& inputMuons,
-		      const edm::ValueMap<int>& vm_flags,
-		      const edm::ValueMap<double>& vm_deltax,
-		      const edm::ValueMap<double>& vm_deltay,
+		      const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
 		      const edm::View<reco::MET>& uncorMET,
 		      METCollection *corMET) {
 
-  MuonMETAlgo_run(inputMuons, vm_flags, vm_deltax, vm_deltay, uncorMET, corMET);
+  MuonMETAlgo_run(inputMuons, vm_muCorrData, uncorMET, corMET);
 }
 
 //----------------------------------------------------------------------------
 void MuonMETAlgo::run(const edm::View<reco::Muon>& inputMuons,
-		      const edm::ValueMap<int>& vm_flags,
-		      const edm::ValueMap<double>& vm_deltax,
-		      const edm::ValueMap<double>& vm_deltay,
+		      const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
 		      const edm::View<reco::CaloMET>& uncorMET,
 		      CaloMETCollection *corMET) {
   
-  MuonMETAlgo_run(inputMuons, vm_flags, vm_deltax, vm_deltay, uncorMET, corMET);
+  MuonMETAlgo_run(inputMuons, vm_muCorrData, uncorMET, corMET);
   
 }
 

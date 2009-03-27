@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Puneeth Kalavase
 //         Created:  Sun Mar 15 11:33:20 CDT 2009
-// $Id$
+// $Id: MuonMETValueMapProducer.cc,v 1.1 2009/03/26 21:40:27 kalavase Exp $
 //
 //
 
@@ -33,6 +33,10 @@ Implementation:
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+
+#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
+
+
 typedef math::XYZTLorentzVector LorentzVector;
 typedef math::XYZPoint Point;
 
@@ -42,10 +46,8 @@ namespace cms {
 
     using namespace edm;
   
-    produces<ValueMap<int> >   ("muCorrFlag");
-    produces<ValueMap<double> >("muCorrDepX");
-    produces<ValueMap<double> >("muCorrDepY");
-  
+    produces<ValueMap<reco::MuonMETCorrectionData> >   ("muCorrData");
+
     //get configuration parameters
     minPt_       = iConfig.getParameter<double>("minPt"       );
     maxEta_      = iConfig.getParameter<double>("maxEta"      );
@@ -120,14 +122,11 @@ namespace cms {
     // the pt measurement from the standalone system (unless you really know what you're 
     // doing
     
-    std::auto_ptr<ValueMap<int> >    vm_flag( new ValueMap<int> ());
-    std::auto_ptr<ValueMap<double> > vm_delx( new ValueMap<double> ());
-    std::auto_ptr<ValueMap<double> > vm_dely( new ValueMap<double> ());
+    std::auto_ptr<ValueMap<MuonMETCorrectionData> > vm_muCorrData(new ValueMap<MuonMETCorrectionData>());
+    
     uint nMuons = muons->size();
-    std::vector<int>     v_flag;
-    std::vector<double>  v_delx;
-    std::vector<double>  v_dely;
-
+    
+    std::vector<MuonMETCorrectionData> v_muCorrData;
     for (unsigned int iMu=0; iMu<nMuons; iMu++) {
 
       const reco::Muon* mu = &(*muons)[iMu];
@@ -151,21 +150,19 @@ namespace cms {
 			  useHO_, towerEtThreshold_, 
 			  deltax, deltay, bfield);
 
-      v_delx.push_back(deltax);
-      v_dely.push_back(deltay);
     
       //now we have to figure out the flags
-      int flag = 0;
+      MuonMETCorrectionData muMETCorrData(MuonMETCorrectionData::NotUsed, deltax, deltay);
       //have to be a global muon!
       if(!mu->isGlobalMuon()) {
-	v_flag.push_back(flag);
+        v_muCorrData.push_back(muMETCorrData);
 	continue;
       }
     
       //if we require that the muon be both a global muon and tkmuon
       //but the muon fails the tkmuon requirement, we fail it
       if(!mu->isTrackerMuon() && isAlsoTkMu_) {
-	v_flag.push_back(flag);
+        v_muCorrData.push_back(muMETCorrData);
 	continue;
       }
 
@@ -175,19 +172,19 @@ namespace cms {
       TrackRef siTk   = mu->innerTrack();
         
       if(globTk->pt() < minPt_ || fabs(globTk->eta()) > maxEta_) {
-	v_flag.push_back(flag);
+        v_muCorrData.push_back(muMETCorrData);
 	continue;
       }
       if(globTk->chi2()/globTk->ndof() > maxNormChi2_) {
-	v_flag.push_back(flag);
+        v_muCorrData.push_back(muMETCorrData);
 	continue;
       }
       if(fabs(globTk->dxy(beamSpotH->position())) > fabs(maxd0_) ) {
-	v_flag.push_back(flag);
+        v_muCorrData.push_back(muMETCorrData);
 	continue;
       }
       if(siTk->numberOfValidHits() < minnHits_) {
-	v_flag.push_back(flag);
+        v_muCorrData.push_back(muMETCorrData);
 	continue;
       }
 
@@ -195,25 +192,17 @@ namespace cms {
       //all that remains is to see which pt we need to use to correct the MET
       double delpt = fabs(globTk->pt() - siTk->pt());
       if(delpt/(siTk->pt()) < delPtOverPt_ && globTk->qoverpError() < qOverPErr_)
-	v_flag.push_back(1);
+        v_muCorrData.push_back(MuonMETCorrectionData(MuonMETCorrectionData::GlobalTrackUsed, deltax, deltay));
       else 
-	v_flag.push_back(2);
+        v_muCorrData.push_back(MuonMETCorrectionData(MuonMETCorrectionData::TrackUsed, deltax, deltay));
     }
     
-    ValueMap<int>::Filler flagFiller(*vm_flag);
-    ValueMap<double>::Filler delXFiller(*vm_delx);
-    ValueMap<double>::Filler delYFiller(*vm_dely);
-   
-    flagFiller.insert(muons, v_flag.begin(), v_flag.end());
-    delXFiller.insert(muons, v_delx.begin(), v_delx.end());
-    delYFiller.insert(muons, v_dely.begin(), v_dely.end());
-    flagFiller.fill();
-    delXFiller.fill();
-    delYFiller.fill();
+    ValueMap<MuonMETCorrectionData>::Filler dataFiller(*vm_muCorrData);
+     
+    dataFiller.insert(muons, v_muCorrData.begin(), v_muCorrData.end());
+    dataFiller.fill();
 
-    iEvent.put(vm_flag, "muCorrFlag");
-    iEvent.put(vm_delx, "muCorrDepX");
-    iEvent.put(vm_dely, "muCorrDepY");
+    iEvent.put(vm_muCorrData, "muCorrData");
     
   }
   
