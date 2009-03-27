@@ -20,18 +20,19 @@ process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
     ),
-    destinations = cms.untracked.vstring('NoisesReaderSummary', 'NoisesReaderDebug')
+    destinations = cms.untracked.vstring('PedestalsReaderSummary', 'PedestalsReaderDebug')
 )
 
+# Use this instead to see only the summary
 #process.MessageLogger = cms.Service("MessageLogger",
 #    debugModules = cms.untracked.vstring(''),
-#    NoisesReader = cms.untracked.PSet(
+#    PedestalsReaderSummary = cms.untracked.PSet(
 #        threshold = cms.untracked.string('INFO')
 #    ),
 #    cout = cms.untracked.PSet(
 #        threshold = cms.untracked.string('INFO')
 #    ),
-#    destinations = cms.untracked.vstring('NoisesReader.log')
+#    destinations = cms.untracked.vstring('PedestalsReaderSummary')
 #)
 
 process.maxEvents = cms.untracked.PSet(
@@ -52,13 +53,13 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
     connect = cms.string('sqlite_file:dbfile.db'),
 #    connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_21X_STRIP'),
     toGet = cms.VPSet(cms.PSet(
-        record = cms.string('SiStripNoisesRcd'),
+        record = cms.string('SiStripPedestalsRcd'),
 #        tag = cms.string('SiStripNoise_CRAFT_21X_v4_offline')
-        tag = cms.string('SiStripNoises_Fake_30X')
+        tag = cms.string('SiStripPedestals_Fake_30X')
     ))
 )
 
-process.reader = cms.EDFilter("SiStripNoisesDummyPrinter")
+process.reader = cms.EDFilter("SiStripPedestalsDummyPrinter")
                               
 process.p1 = cms.Path(process.reader)
 
