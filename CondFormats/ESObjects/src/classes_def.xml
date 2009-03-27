@@ -1,0 +1,24 @@
+<lcgdict>
+
+<class name="ESPedestals"/>
+
+<class name="ESWeightSet"/>
+
+<class name="ESWeightStripGroups"/>
+<class name="ESStripGroupId"/>
+<class name="ESTBWeights"/>
+<class name="std::map< ESStripGroupId ,ESWeightSet >"/>
+<class name="std::pair< ESStripGroupId, ESWeightSet >"/>
+
+<class name="ESADCToGeVConstant"/>
+
+<class name="ESIntercalibConstants"/>
+
+<class name="ESChannelStatus"/>
+<class name="ESChannelStatusCode"/>
+
+
+<class pattern="*EcalContainer*"/>
+
+
+</lcgdict>

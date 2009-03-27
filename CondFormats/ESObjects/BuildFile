@@ -1,0 +1,16 @@
+<use name=FWCore/Framework>
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/Math>
+<use name=boost>
+<use name=rootmath>
+<use name=rootrflx>
+<export>
+  <use name=CondFormats/Common>
+  <use name=DataFormats/Math>
+ <use name=DataFormats/EcalDetId>
+  <use name=boost>
+  <use name=rootmath>
+  <use name=rootrflx>
+  <lib name=CondFormatsESObjects>
+</export>
+
