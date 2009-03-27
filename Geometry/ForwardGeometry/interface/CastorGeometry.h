@@ -21,7 +21,7 @@ class CastorGeometry : public CaloSubdetectorGeometry
 
       enum { k_NumberOfCellsForCorners = HcalCastorDetId::kSizeForDenseIndexing } ;
 
-      enum { k_NumberOfShapes = 2 } ;
+      enum { k_NumberOfShapes = 4 } ;
 
       enum { k_NumberOfParametersPerShape = 6 } ;
 
