@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-AlignmentMonitorMuonSystemMap = cms.PSet(
-    monitors = cms.untracked.vstring("AlignmentMonitorMuonSystemMap"),
-    AlignmentMonitorMuonSystemMap = cms.untracked.PSet(
+AlignmentMonitorMuonSystemMap = cms.untracked.PSet(
     residualsModel = cms.string("powerLawTails"),
     minTrackPt = cms.double(20.),
     maxTrackPt = cms.double(100.),
@@ -27,4 +25,4 @@ AlignmentMonitorMuonSystemMap = cms.PSet(
     CSCfitScattering = cms.bool(True),
     CSCfitZpos = cms.bool(False),
     CSCfitPhiz = cms.bool(True),
-    ))
+    )
