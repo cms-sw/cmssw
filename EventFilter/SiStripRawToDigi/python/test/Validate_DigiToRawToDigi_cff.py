@@ -13,27 +13,41 @@ Tracer = cms.Service(
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 GlobalTag.globaltag = "IDEAL_30X::All" 
 
-# Digi Source (old and new)
+# Digi Source (common)
 from EventFilter.SiStripRawToDigi.test.SiStripTrivialDigiSource_cfi import *
 DigiSource.FedRawDataMode = False
 DigiSource.UseFedKey = False
 
-# DigiToRaw (old and new) 
+# DigiToRaw (dummy, not used, for timing purposes only)
 from EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi import *
-SiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
-SiStripDigiToRaw.InputModuleLabel = 'DigiSource'
-SiStripDigiToRaw.InputDigiLabel = ''
-SiStripDigiToRaw.UseFedKey = False
+dummySiStripDigiToRaw = SiStripDigiToRaw.clone()
+
+# DigiToRaw (old) ### WARNING: default for cfi should be migrated to new once validated!!!
+from EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi import *
+oldSiStripDigiToRaw = SiStripDigiToRaw.clone()
+oldSiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
+oldSiStripDigiToRaw.InputModuleLabel = 'DigiSource'
+oldSiStripDigiToRaw.InputDigiLabel = ''
+oldSiStripDigiToRaw.UseFedKey = False
+
+# DigiToRaw (new) ### WARNING: default for cfi should be migrated to new once validated!!!
+newSiStripDigiToRaw = cms.EDProducer(
+    "SiStripDigiToRawModule",
+    InputModuleLabel = cms.string('simSiStripDigis'),
+    InputDigiLabel = cms.string('ZeroSuppressed'),
+    FedReadoutMode = cms.untracked.string('ZERO_SUPPRESSED'),
+    UseFedKey = cms.untracked.bool(False)
+    )
 
 # RawToDigi (new)
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
-siStripDigis.ProductLabel = 'SiStripDigiToRaw'
+siStripDigis.ProductLabel = 'newSiStripDigiToRaw'
 siStripDigis.UseFedKey = False
 
 # RawToDigi (old)
 oldSiStripDigis = cms.EDProducer(
     "OldSiStripRawToDigiModule",
-    ProductLabel =  cms.untracked.string('SiStripDigiToRaw'),
+    ProductLabel =  cms.untracked.string('oldSiStripDigiToRaw'),
     UseFedKey = cms.untracked.bool(False),
     )
 
@@ -71,11 +85,13 @@ output = cms.OutputModule(
 
 # Sequences and Paths
 new = cms.Sequence(
+    newSiStripDigiToRaw *
     siStripDigis *
     DigiValidator
     )
 
 old = cms.Sequence(
+    oldSiStripDigiToRaw *
     oldSiStripDigis *
     oldDigiValidator
     )
@@ -84,5 +100,5 @@ test = cms.Sequence(
     testDigiValidator
     )
 
-s = cms.Sequence( SiStripDigiToRaw * old * new * test )
-e = cms.EndPath( output )
+s = cms.Sequence( dummySiStripDigiToRaw * old * new * test )
+

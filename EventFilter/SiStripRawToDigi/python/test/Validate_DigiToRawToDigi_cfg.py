@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 # The VR, PR and FK modes can only be used with the TRIV source
 Source = str("SIM") # Options: "TRIV", "SIM"
-Mode = str("ZS") # Options: "ZS", "VR", "PR", "FK"
+Mode = str("ZS")    # Options: "ZS", "VR", "PR", "FK"
+Write = bool(False) # Write output to disk
 
 if Source == str("SIM") and Mode != str("ZS") :
     print "The VR, PR and FK modes can only be used with the TRIV source!"
@@ -15,6 +16,14 @@ process.load("EventFilter.SiStripRawToDigi.test.Validate_DigiToRawToDigi_cff")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
+# ----- WriteToDisk -----
+
+
+if Write == bool(True) :
+    process.e = cms.EndPath( process.output )
+else :
+    print "Event content not written to disk!"
+
 
 # ----- InputSource -----
 
@@ -26,12 +35,18 @@ if Source == str("TRIV") :
         firstRun = cms.untracked.uint32(999999)
         )
 
-    process.SiStripDigiToRaw.InputModuleLabel = 'DigiSource'
-    process.SiStripDigiToRaw.InputDigiLabel = ''
+    process.dummySiStripDigiToRaw.InputModuleLabel = 'DigiSource'
+    process.dummySiStripDigiToRaw.InputDigiLabel = ''
 
+    process.oldSiStripDigiToRaw.InputModuleLabel = 'DigiSource'
+    process.oldSiStripDigiToRaw.InputDigiLabel = ''
+
+    process.newSiStripDigiToRaw.InputModuleLabel = 'DigiSource'
+    process.newSiStripDigiToRaw.InputDigiLabel = ''
+    
     process.DigiValidator.TagCollection1 = "DigiSource"
     process.oldDigiValidator.TagCollection1 = "DigiSource"
-
+    
     process.p = cms.Path( process.DigiSource * process.s )
 
 elif Source == str("SIM") :
@@ -43,8 +58,14 @@ elif Source == str("SIM") :
         )
         )
     
-    process.SiStripDigiToRaw.InputModuleLabel = 'simSiStripDigis'
-    process.SiStripDigiToRaw.InputDigiLabel = 'ZeroSuppressed'
+    process.dummySiStripDigiToRaw.InputModuleLabel = 'simSiStripDigis'
+    process.dummySiStripDigiToRaw.InputDigiLabel = 'ZeroSuppressed'
+
+    process.oldSiStripDigiToRaw.InputModuleLabel = 'simSiStripDigis'
+    process.oldSiStripDigiToRaw.InputDigiLabel = 'ZeroSuppressed'
+
+    process.newSiStripDigiToRaw.InputModuleLabel = 'simSiStripDigis'
+    process.newSiStripDigiToRaw.InputDigiLabel = 'ZeroSuppressed'
 
     process.DigiValidator.TagCollection1 = "simSiStripDigis:ZeroSuppressed"
     process.oldDigiValidator.TagCollection1 = "simSiStripDigis:ZeroSuppressed"
@@ -78,7 +99,9 @@ if Mode == str("ZS") :
     process.DigiSource.FedRawDataMode = False
     process.DigiSource.UseFedKey = False
     
-    process.SiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
+    process.dummySiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
+    process.oldSiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
+    process.newSiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
 
     process.oldSiStripDigis.UseFedKey = False
     process.siStripDigis.UseFedKey = False
@@ -111,7 +134,9 @@ elif Mode == str("VR") :
     process.DigiSource.FedRawDataMode = True
     process.DigiSource.UseFedKey = False
     
-    process.SiStripDigiToRaw.FedReadoutMode = 'VIRGIN_RAW'
+    process.dummySiStripDigiToRaw.FedReadoutMode = 'VIRGIN_RAW'
+    process.oldSiStripDigiToRaw.FedReadoutMode = 'VIRGIN_RAW'
+    process.newSiStripDigiToRaw.FedReadoutMode = 'VIRGIN_RAW'
 
     process.oldSiStripDigis.UseFedKey = False
     process.siStripDigis.UseFedKey = False
@@ -144,7 +169,9 @@ elif Mode == str("PR") :
     process.DigiSource.FedRawDataMode = True
     process.DigiSource.UseFedKey = False
     
-    process.SiStripDigiToRaw.FedReadoutMode = 'PROCESSED_RAW'
+    process.dummySiStripDigiToRaw.FedReadoutMode = 'PROCESSED_RAW'
+    process.oldSiStripDigiToRaw.FedReadoutMode = 'PROCESSED_RAW'
+    process.newSiStripDigiToRaw.FedReadoutMode = 'PROCESSED_RAW'
 
     process.oldSiStripDigis.UseFedKey = False
     process.siStripDigis.UseFedKey = False
@@ -177,8 +204,12 @@ elif Mode == str("FK") :
     process.DigiSource.FedRawDataMode = True
     process.DigiSource.UseFedKey = True
     
-    process.SiStripDigiToRaw.FedReadoutMode = 'VIRGIN_RAW'
-    process.SiStripDigiToRaw.UseFedKey = True
+    process.dummySiStripDigiToRaw.FedReadoutMode = 'VIRGIN_RAW'
+    process.dummySiStripDigiToRaw.UseFedKey = True
+    process.oldSiStripDigiToRaw.FedReadoutMode = 'VIRGIN_RAW'
+    process.oldSiStripDigiToRaw.UseFedKey = True
+    process.newSiStripDigiToRaw.FedReadoutMode = 'VIRGIN_RAW'
+    process.newSiStripDigiToRaw.UseFedKey = True
 
     process.oldSiStripDigis.UseFedKey = True
     process.siStripDigis.UseFedKey = True

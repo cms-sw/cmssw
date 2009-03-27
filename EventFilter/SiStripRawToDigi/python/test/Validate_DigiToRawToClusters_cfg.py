@@ -25,9 +25,21 @@ if Source == str("TRIV") :
         firstRun = cms.untracked.uint32(999999)
         )
 
+    process.dummySiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
+    process.dummySiStripDigiToRaw.InputModuleLabel = 'DigiSource'
+    process.dummySiStripDigiToRaw.InputDigiLabel = ''
+
     process.SiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
     process.SiStripDigiToRaw.InputModuleLabel = 'DigiSource'
     process.SiStripDigiToRaw.InputDigiLabel = ''
+
+    process.oldSiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
+    process.oldSiStripDigiToRaw.InputModuleLabel = 'DigiSource'
+    process.oldSiStripDigiToRaw.InputDigiLabel = ''
+
+    process.newSiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
+    process.newSiStripDigiToRaw.InputModuleLabel = 'DigiSource'
+    process.newSiStripDigiToRaw.InputDigiLabel = ''
 
     process.p = cms.Path( process.DigiSource * process.s )
 
@@ -40,9 +52,21 @@ elif Source == str("SIM") :
         )
         )
 
+    process.dummySiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
+    process.dummySiStripDigiToRaw.InputModuleLabel = 'simSiStripDigis'
+    process.dummySiStripDigiToRaw.InputDigiLabel = 'ZeroSuppressed'
+
     process.SiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
     process.SiStripDigiToRaw.InputModuleLabel = 'simSiStripDigis'
     process.SiStripDigiToRaw.InputDigiLabel = 'ZeroSuppressed'
+
+    process.oldSiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
+    process.oldSiStripDigiToRaw.InputModuleLabel = 'simSiStripDigis'
+    process.oldSiStripDigiToRaw.InputDigiLabel = 'ZeroSuppressed'
+
+    process.newSiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
+    process.newSiStripDigiToRaw.InputModuleLabel = 'simSiStripDigis'
+    process.newSiStripDigiToRaw.InputDigiLabel = 'ZeroSuppressed'
 
     process.p = cms.Path( process.s )
 

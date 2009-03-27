@@ -18,22 +18,23 @@ from Configuration.StandardSequences.Geometry_cff import *
 from Configuration.StandardSequences.MagneticField_cff import *
 from CalibTracker.SiStripESProducers.SiStripRegionConnectivity_cfi import *
 
-
-# ----- Common components -----
-
-
-# Digi Source (orig, old and new)
+# Digi Source (common)
 from EventFilter.SiStripRawToDigi.test.SiStripTrivialDigiSource_cfi import *
 DigiSource.FedRawDataMode = False
 DigiSource.UseFedKey = False
 
-# DigiToRaw (orig, old and new) 
+# DigiToRaw (dummy, not used, for timing purposes only)
 from EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi import *
-SiStripDigiToRaw.UseFedKey = False
-
+dummySiStripDigiToRaw = SiStripDigiToRaw.clone()
 
 # ----- Original RawToDigiToClusters chain -----
 
+# DigiToRaw (orig) ### WARNING: default for cfi should be migrated to new once validated!!!
+from EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi import *
+SiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
+SiStripDigiToRaw.InputModuleLabel = 'DigiSource'
+SiStripDigiToRaw.InputDigiLabel = ''
+SiStripDigiToRaw.UseFedKey = False
 
 # RawToDigi (orig)
 siStripDigis = cms.EDProducer(
@@ -60,9 +61,18 @@ siStripClusterProducer.DetSetVectorNew = True
 # ----- New RawToClusters chain -----
 
 
+# DigiToRaw (new) ### WARNING: default for cfi should be migrated to new once validated!!!
+newSiStripDigiToRaw = cms.EDProducer(
+    "SiStripDigiToRawModule",
+    InputModuleLabel = cms.string('simSiStripDigis'),
+    InputDigiLabel = cms.string('ZeroSuppressed'),
+    FedReadoutMode = cms.untracked.string('ZERO_SUPPRESSED'),
+    UseFedKey = cms.untracked.bool(False)
+    )
+
 # RawToClusters (new)
 from EventFilter.SiStripRawToDigi.SiStripRawToClusters_cfi import *
-SiStripRawToClustersFacility.ProductLabel = cms.InputTag("SiStripDigiToRaw")
+SiStripRawToClustersFacility.ProductLabel = cms.InputTag("newSiStripDigiToRaw")
 
 # Regions Of Interest (new)
 from EventFilter.SiStripRawToDigi.SiStripRawToClustersRoI_cfi import *
@@ -78,11 +88,19 @@ siStripClustersDSV.DetSetVectorNew = True
 # ----- Old RawToClusters chain -----
 
 
+# DigiToRaw (old) ### WARNING: default for cfi should be migrated to new once validated!!!
+from EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi import *
+oldSiStripDigiToRaw = SiStripDigiToRaw.clone()
+oldSiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
+oldSiStripDigiToRaw.InputModuleLabel = 'DigiSource'
+oldSiStripDigiToRaw.InputDigiLabel = ''
+oldSiStripDigiToRaw.UseFedKey = False
+
 # RawToClusters (old)
 oldSiStripRawToClustersFacility = cms.EDProducer(
     "OldSiStripRawToClusters",
     SiStripClusterization,
-    ProductLabel = cms.InputTag('SiStripDigiToRaw')
+    ProductLabel = cms.InputTag('oldSiStripDigiToRaw')
     )
 
 # Regions Of Interest (old)
@@ -134,11 +152,13 @@ output = cms.OutputModule(
     )
 
 orig = cms.Sequence(
+    SiStripDigiToRaw *
     siStripDigis *
     siStripClusterProducer
     )
 
 old = cms.Sequence(
+    oldSiStripDigiToRaw *
     oldSiStripRawToClustersFacility *
     oldSiStripRoI *
     oldSiStripClustersDSV *
@@ -146,6 +166,7 @@ old = cms.Sequence(
     )
 
 new = cms.Sequence(
+    newSiStripDigiToRaw *
     SiStripRawToClustersFacility *
     SiStripRoI *
     siStripClustersDSV *
@@ -157,4 +178,4 @@ test = cms.Sequence(
     )
 
 e = cms.EndPath( output )
-s = cms.Sequence( SiStripDigiToRaw * orig * old * new * test )
+s = cms.Sequence( dummySiStripDigiToRaw * orig * old * new * test )
