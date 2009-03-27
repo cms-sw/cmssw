@@ -171,6 +171,7 @@ HLTTauRefProducer::doElectrons(edm::Event& iEvent,const edm::EventSetup& iES)
     
     if (!pEleID.isValid()){
       edm::LogInfo("")<< "Error! Can't get electronIDAssocProducer by label. ";
+      e_doID_ = false;
     }
   }
   edm::Handle<reco::TrackCollection> pCtfTracks;

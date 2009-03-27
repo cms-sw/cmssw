@@ -47,13 +47,16 @@ void HLTMuonOverlap::analyze(const edm::Event & event ) {
   ++Nevents;
   
   Handle<TriggerResults> trigRes;
-  try {
-    event.getByLabel(TrigResLabel_, trigRes);
-  } catch (...) {
+  event.getByLabel(TrigResLabel_, trigRes);
+  if (!trigRes.isValid()){
+  edm::InputTag triggerResultsLabelFU(TrigResLabel_.label(),TrigResLabel_.instance(), "FU");
+  event.getByLabel(triggerResultsLabelFU,trigRes);
+  if(!trigRes.isValid()) {
     LogWarning("HLTMuonVal")<< "No trigger Results";
     TrigResultsIn=false;
     // Do nothing
     return;
+   }
   }
   size=trigRes->size();
   LogTrace("HLTMuonVal")<< "Ntp="<<Ntp<<" Size of trigger results="<<size;
