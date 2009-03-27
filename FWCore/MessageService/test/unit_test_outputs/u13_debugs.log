@@ -3,7 +3,7 @@ LogTrace was used to send this message
 LogDebug was used to send this other message
 %MSG
 LogVerbatim was used to send this message
-%MSG-i cat_B:   UnitTestClient_H:sendSomeMessages  Run: 1 Event: 1
+%MSG-i cat_B:  UnitTestClient_H:sendSomeMessages Run: 1 Event: 1
 LogInfo was used to send this other message
 %MSG
 LogTrace was used to send this message
@@ -11,6 +11,6 @@ LogTrace was used to send this message
 LogDebug was used to send this other message
 %MSG
 LogVerbatim was used to send this message
-%MSG-i cat_B:   UnitTestClient_H:sendSomeMessages  Run: 1 Event: 2
+%MSG-i cat_B:  UnitTestClient_H:sendSomeMessages Run: 1 Event: 2
 LogInfo was used to send this other message
 %MSG

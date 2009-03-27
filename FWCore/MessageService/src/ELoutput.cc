@@ -61,6 +61,9 @@
 //
 //  4 6/11/07  mf	In log():  After the message, add a %MSG on its own line 
 //
+//  5 3/27/09  mf	Properly treat charsOnLine, which had been fouled due to
+//			change 3.  In log() and emit().
+//
 // ----------------------------------------------------------------------
 
 
@@ -352,6 +355,7 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   preambleMode = true;
 
   if  ( !msg.is_verbatim()  ) {
+    charsOnLine = 0; 						// Change log 5
     emit( preamble );
     emit( xid.severity.getSymbol() );
     emit( " " );
@@ -578,6 +582,8 @@ void ELoutput::emit( const ELstring & s, bool nl )  {
       // Change log 3: Removed this code 6/11/07 mf
       (*os) << newline << indent;
       charsOnLine = indent.length();
+      #else
+      charsOnLine = 0;   					// Change log 5   
       #endif
       if (second != ' ')  {
 	(*os) << ' ';
