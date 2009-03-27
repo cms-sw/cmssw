@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/1E31_V245/V2 (CMSSW_3_1_X_2009-03-24-1100_HLT3)
+# /dev/CMSSW_3_1_0/pre2/1E31_V246/V2 (CMSSW_3_1_X_2009-03-24-1100_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/1E31_V245/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/1E31_V246/V2')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -988,9 +988,6 @@ PrescaleService = cms.Service( "PrescaleService",
     ),
     cms.PSet(  pathName = cms.string( "HLT_L1Mu14_L1ETM40" ),
       prescales = cms.vuint32( 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLTOutput" ),
-      prescales = cms.vuint32( 2, 4 )
     )
   )
 )
@@ -3796,9 +3793,7 @@ hltL25TauCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    SeedLabel = cms.string( "" ),
-    SeedProducer = cms.string( "hltL25TauPixelSeeds" )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltL25TauCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -3890,9 +3885,7 @@ hltL3TauCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    SeedLabel = cms.string( "" ),
-    SeedProducer = cms.string( "hltL25TauPixelSeeds" )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltL3TauCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -4083,9 +4076,7 @@ hltBLifetimeRegionalCkfTrackCandidatesStartup = cms.EDProducer( "CkfTrackCandida
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    SeedLabel = cms.string( "" ),
-    SeedProducer = cms.string( "hltL25TauPixelSeeds" )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltBLifetimeRegionalCtfWithMaterialTracksStartup = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -4532,9 +4523,7 @@ hltHITCkfTrackCandidates1E31 = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    SeedLabel = cms.string( "" ),
-    SeedProducer = cms.string( "hltHITSeedCombiner1E31" )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltHITCtfWithMaterialTracks1E31 = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
