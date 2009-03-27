@@ -205,21 +205,13 @@ class SimpleTest : public QCriterion
 class Comp2RefEqualH : public SimpleTest
 {
 public:
-  Comp2RefEqualH(const std::string &name) : SimpleTest(name)
+  Comp2RefEqualH(const std::string &name) : SimpleTest(name,true)
   { setAlgoName( getAlgoName() ); }
 
   static std::string getAlgoName(void)
   { return "Comp2RefEqualH"; }
 
-public:
-
   float runTest(const MonitorElement*me);
-
-protected:
-    TH1*h    ; //define test histogram
-    TH1*ref_ ; // define ref histogram
-  /// # of bins for test & reference histograms
-  Int_t ncx1; Int_t ncx2;
 };
 
 //===================== Comp2RefChi2 ===================//
@@ -247,13 +239,8 @@ protected:
       message_ = message.str();
     }
 
-  TH1*h    ; //define test histogram
-  TH1*ref_ ; // define ref histogram
-
   // # of degrees of freedom and chi^2 for test
   int Ndof_; float chi2_;
-  // # of bins for test & reference histogram
-  Int_t ncx1; Int_t ncx2;
 };
 
 //===================== Comp2RefKolmogorov ===================//
@@ -269,19 +256,7 @@ public:
   static std::string getAlgoName(void)
   { return "Comp2RefKolmogorov"; }
 
-protected:
-  
-   TH1*h    ; //define test histogram
-   TH1*ref_ ; // define ref histogram
-
-  /// # of bins for test & reference histograms
-  Int_t ncx1; Int_t ncx2;
-  static const Double_t difprec;
 };
-
-
-
-
 
 //==================== ContentsXRange =========================//
 //== Check that histogram contents are between [Xmin, Xmax] ==//
@@ -378,7 +353,6 @@ class DeadChannel : public SimpleTest
   void setThreshold(float ymin)
   { ymin_ = ymin;  rangeInitialized_ = true; } /// ymin - threshold
 
-
 protected:
   void setMessage(void) {
       std::ostringstream message;
@@ -386,8 +360,6 @@ protected:
 	      << "): Alive channel fraction = " << prob_;
       message_ = message.str();
     }
-  TH1*h1;
-  TH2*h2;
   float ymin_;
   bool rangeInitialized_;
 };
@@ -433,17 +405,14 @@ public:
       }
     }
 
-
 protected:
  
-   void setMessage(void) {
-      std::ostringstream message;
-      message << " Test " << qtname_ << " (" << algoName_
-	      << "): Fraction of non-noisy channels = " << prob_;
-      message_ = message.str();
-    }
-
-    TH1*h    ; //define test histogram
+  void setMessage(void) {
+     std::ostringstream message;
+     message << " Test " << qtname_ << " (" << algoName_
+	     << "): Fraction of non-noisy channels = " << prob_;
+     message_ = message.str();
+  }
 
   /// get average for bin under consideration
   /// (see description of method setNumNeighbors)
@@ -454,9 +423,6 @@ protected:
 			     for comparison with channel under consideration */
   bool rangeInitialized_;  /*< init-flag for tolerance */
 };
-
-
-
 
 //==================== ContentsWithinExpected  =========================//
 // Check that every TH2 channel has mean, RMS within allowed range.
@@ -475,7 +441,6 @@ public:
   float runTest(const MonitorElement *me);
 
   void setUseEmptyBins(unsigned int useEmptyBins) { useEmptyBins_ = useEmptyBins; }
-
 
   static std::string getAlgoName(void)
   { return "ContentsWithinExpected"; }
@@ -508,12 +473,7 @@ public:
       }
     }
 
-
-
 protected:
-
-
-  TH1*h    ; //define test histogram
 
   void setMessage(void) {
       std::ostringstream message;
@@ -581,8 +541,6 @@ public:
     checkRange();
    }
 
-
-  
   /** run the test;
       (a) if useRange is called: 1 if mean within allowed range, 0 otherwise
 
@@ -629,8 +587,6 @@ protected:
   /// test assuming mean value is quantity with gaussian errors
   float doGaussTest(const TH1 *h, float sigma);
 
-
-  TH1F*h;              //define Test histo
   bool useRMS_;       //< if true, will use RMS of distribution
   bool useSigma_;     //< if true, will use expected_sigma
   bool useRange_;     //< if true, will use allowed range
@@ -892,7 +848,6 @@ public:
   float runTest(const MonitorElement*me);
 
 protected:
-  TH1F *histogram; //define Test histogram
   double *ExclusionMask;
   double epsilon_min, epsilon_max;
   double S_fail, S_pass;
@@ -938,7 +893,6 @@ public:
   float runTest(const MonitorElement*me);
 
 protected:
-  TH1F *histogram;
   double b;
   double *ExclusionMask;
   double epsilon_min, epsilon_max;
@@ -969,7 +923,6 @@ public:
   float runTest(const MonitorElement*me);
 
 protected:
-  TH1F *histogram;
   double epsilon_max;
   double S_fail, S_pass;
   double epsilon_obs;
@@ -1001,7 +954,6 @@ public:
   float runTest(const MonitorElement*me); 
 
 protected:
-  TH2F *histogram;
   double epsilon_max;
   double S_fail, S_pass;
   double epsilon_obs;

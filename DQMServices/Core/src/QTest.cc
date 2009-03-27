@@ -69,8 +69,8 @@ float Comp2RefEqualH::runTest(const MonitorElement*me)
 
  if (!me) return -1;
  if (!me->getRootObject() || !me->getRefRootObject()) return -1;
- h=0;//initialize histogram pointer
- ref_=0;
+ TH1* h=0;//initialize histogram pointer
+ TH1* ref_=0;
  
  int nbins=0;
  int nbinsref=0;
@@ -155,8 +155,8 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
 {
    if (!me) return -1;
    if (!me->getRootObject() || !me->getRefRootObject()) return -1;
-   h=0;
-   ref_=0;
+   TH1* h=0;
+   TH1* ref_=0;
  
    //-- TH1F
    if (me->kind()==MonitorElement::DQM_KIND_TH1F){ 
@@ -180,8 +180,8 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
    } 
 
    //-- isInvalid ? - Check consistency in number of channels
-  ncx1  = h->GetXaxis()->GetNbins(); 
-  ncx2   = ref_->GetXaxis()->GetNbins();
+  Int_t ncx1  = h->GetXaxis()->GetNbins(); 
+  Int_t ncx2  = ref_->GetXaxis()->GetNbins();
   if ( ncx1 !=  ncx2){
    std::cout<<"Comp2RefChi2 ERROR: different number of channels! ("
             << ncx1 << ", " << ncx2 << ") " << std::endl;
@@ -249,14 +249,14 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
 //-----------------  Comp2RefKolmogorov    --------------//
 //-------------------------------------------------------//
 
-const Double_t Comp2RefKolmogorov::difprec = 1e-5;
-
 float Comp2RefKolmogorov::runTest(const MonitorElement *me)
 {
+   const Double_t difprec = 1e-5;
+   
    if (!me) return -1;
    if (!me->getRootObject() || !me->getRefRootObject()) return -1;
-   h=0;
-   ref_=0;
+   TH1* h=0;
+   TH1* ref_=0;
 
    //-- TH1F
    if (me->kind()==MonitorElement::DQM_KIND_TH1F){ 
@@ -279,8 +279,8 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
    } 
    
    //-- isInvalid ? - Check consistency in number of channels
-  ncx1  = h->GetXaxis()->GetNbins(); 
-  ncx2   = ref_->GetXaxis()->GetNbins();
+  Int_t ncx1  = h->GetXaxis()->GetNbins(); 
+  Int_t ncx2  = ref_->GetXaxis()->GetNbins();
   if ( ncx1 !=  ncx2){
   std::cout<<"Comp2RefKolmogorov ERROR: different number of channels! ("
   << ncx1 << ", " << ncx2 << ") " << std::endl;
@@ -509,8 +509,8 @@ float DeadChannel::runTest(const MonitorElement*me)
  badChannels_.clear();
  if (!me) return -1;
  if (!me->getRootObject()) return -1;
- h1=0;
- h2=0;//initialize histogram pointers
+ TH1* h1=0;
+ TH2* h2=0;//initialize histogram pointers
 
  //TH1F
  if (me->kind()==MonitorElement::DQM_KIND_TH1F) { 
@@ -606,7 +606,7 @@ float NoisyChannel::runTest(const MonitorElement *me)
  badChannels_.clear();
  if (!me) return -1;
  if (!me->getRootObject()) return -1; 
- h=0;//initialize histogram pointer
+ TH1* h=0;//initialize histogram pointer
 
  int nbins=0;
  //-- TH1F
@@ -708,7 +708,7 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
   badChannels_.clear();
   if (!me) return -1;
   if (!me->getRootObject()) return -1;
-  h=0;//initialize histogram pointer
+  TH1* h=0;//initialize histogram pointer
 
   int ncx;
   int ncy;
