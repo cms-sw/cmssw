@@ -27,29 +27,33 @@ void HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef,
 					      const std::string& mybit)
 {
   // HB, HE ++++++++++++++++++++
-  if (mybit == "HBHEHpdHitMultiplicity")
-    setBit(HcalCaloFlagLabels::HBHEHpdHitMultiplicity, mydef.HBHEFlagMask);
-  else if (mybit == "HBHEPulseShape")
-    setBit(HcalCaloFlagLabels::HBHEPulseShape, mydef.HBHEFlagMask);
+  if (mybit == "HBHEHpdHitMultiplicity") setBit(HcalCaloFlagLabels::HBHEHpdHitMultiplicity, mydef.HBHEFlagMask);
+  else if (mybit == "HBHEPulseShape")    setBit(HcalCaloFlagLabels::HBHEPulseShape, mydef.HBHEFlagMask);
+  else if (mybit == "HSCP_R1R2")         setBit(HcalCaloFlagLabels::HSCP_R1R2, mydef.HBHEFlagMask);
+  else if (mybit == "HSCP_FracLeader")   setBit(HcalCaloFlagLabels::HSCP_FracLeader, mydef.HBHEFlagMask);
+  else if (mybit == "HSCP_OuterEnergy")  setBit(HcalCaloFlagLabels::HSCP_OuterEnergy, mydef.HBHEFlagMask);
+  else if (mybit == "HSCP_ExpFit")       setBit(HcalCaloFlagLabels::HSCP_ExpFit, mydef.HBHEFlagMask);
 
   // HO ++++++++++++++++++++
-  else if (mybit == "HOBit")
-    setBit(HcalCaloFlagLabels::HOBit, mydef.HOFlagMask);
+  else if (mybit == "HOBit")    setBit(HcalCaloFlagLabels::HOBit, mydef.HOFlagMask);
   
   // HF ++++++++++++++++++++
-  else if (mybit == "HFDigiTime")
-    setBit(HcalCaloFlagLabels::HFDigiTime, mydef.HFFlagMask);
-  else if (mybit == "HFLongShort")
-    setBit(HcalCaloFlagLabels::HFLongShort, mydef.HFFlagMask);
+  else if (mybit == "HFLongShort")    setBit(HcalCaloFlagLabels::HFLongShort, mydef.HFFlagMask);
+  else if (mybit == "HFDigiTime")    setBit(HcalCaloFlagLabels::HFDigiTime, mydef.HFFlagMask);
   
   // ZDC ++++++++++++++++++++
-  else if (mybit == "ZDCBit")
-    setBit(HcalCaloFlagLabels::ZDCBit, mydef.ZDCFlagMask);
+  else if (mybit == "ZDCBit")     setBit(HcalCaloFlagLabels::ZDCBit, mydef.ZDCFlagMask);
   
   // Calib ++++++++++++++++++++
-  else if (mybit == "CalibrationBit")
-    setBit(HcalCaloFlagLabels::CalibrationBit, mydef.CalibFlagMask);
+  else if (mybit == "CalibrationBit")     setBit(HcalCaloFlagLabels::CalibrationBit, mydef.CalibFlagMask);
 
+  // Common subdetector bits ++++++++++++++++++++++
+  else if (mybit == "TimingSubtractedBit")  setBit(HcalCaloFlagLabels::TimingSubtractedBit, mydef.CalibFlagMask);
+  else if (mybit == "TimingAddedBit")       setBit(HcalCaloFlagLabels::TimingAddedBit, mydef.CalibFlagMask);
+  else if (mybit == "TimingErrorBit")       setBit(HcalCaloFlagLabels::TimingErrorBit, mydef.CalibFlagMask);
+  else if (mybit == "ADCSaturationBit")     setBit(HcalCaloFlagLabels::ADCSaturationBit, mydef.CalibFlagMask);
+
+  // unknown -------------------
   else
     {
       // error: unrecognized flag name

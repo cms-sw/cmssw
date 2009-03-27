@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 hbhereco = cms.EDFilter(
     "HcalHitReconstructor",
     correctionPhaseNS = cms.double(13.0),
-    digiLabel = cms.InputTag("hcalDigis"),
+    digiLabel = cms.InputTag("hcalZeroSuppressedDigis"),
     samplesToAdd = cms.int32(4),
     Subdetector = cms.string('HBHE'),
     firstSample = cms.int32(4),
@@ -36,4 +36,4 @@ hbhereco = cms.EDFilter(
                                     outerMin      = cms.double(0.9),
                                     outerMax      = cms.double(1.0),
                                     TimingEnergyThreshold = cms.double(30.))
-    )
+    ) # hbhereco

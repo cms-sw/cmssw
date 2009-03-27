@@ -26,36 +26,68 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 	conf.getParameter<double>("correctionPhaseNS")),
   det_(DetId::Hcal),
   inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
-  channelStatusToDrop_(conf.getUntrackedParameter<std::vector<std::string> >("channelStatusesToDrop",std::vector<std::string>()))
+  correctTiming_(conf.getParameter<bool>("correctTiming")),
+  setNoiseFlags_(conf.getParameter<bool>("setNoiseFlags")),
+  setHSCPFlags_(conf.getParameter<bool>("setHSCPFlags")),
+  setSaturationFlags_(conf.getParameter<bool>("setSaturationFlags"))
+  
 {
   std::string subd=conf.getParameter<std::string>("Subdetector");
   hbheFlagSetter_=0;
+  hbheHSCPFlagSetter_=0;
   hfdigibit_=0;
   hfrechitbit_=0;
+  saturationFlagSetter_=0;
+
+  if (setSaturationFlags_)
+    {
+      const edm::ParameterSet& pssat      = conf.getParameter<edm::ParameterSet>("saturationParameters");
+      saturationFlagSetter_ = new HcalADCSaturationFlag(pssat.getParameter<int>("maxADCvalue"));
+    }
 
   if (!strcasecmp(subd.c_str(),"HBHE")) {
     subdet_=HcalBarrel;
-    const edm::ParameterSet& psdigi  =conf.getParameter<edm::ParameterSet>("flagParameters");
-    hbheFlagSetter_=new HBHEStatusBitSetter(psdigi.getParameter<double>("nominalPedestal"),
-					    psdigi.getParameter<double>("hitEnergyMinimum"),
-					    psdigi.getParameter<int>("hitMultiplicityThreshold"),
-					    psdigi.getParameter<std::vector<edm::ParameterSet> >("pulseShapeParameterSets"));
+    if (setNoiseFlags_)
+      {
+	const edm::ParameterSet& psdigi    =conf.getParameter<edm::ParameterSet>("flagParameters");
+	hbheFlagSetter_=new HBHEStatusBitSetter(psdigi.getParameter<double>("nominalPedestal"),
+						psdigi.getParameter<double>("hitEnergyMinimum"),
+						psdigi.getParameter<int>("hitMultiplicityThreshold"),
+						psdigi.getParameter<std::vector<edm::ParameterSet> >("pulseShapeParameterSets"));
+      } // if (setNoiseFlags_)
+    if (setHSCPFlags_)
+      {
+	const edm::ParameterSet& psHSCP = conf.getParameter<edm::ParameterSet>("hscpParameters");
+	hbheHSCPFlagSetter_ = new HBHETimeProfileStatusBitSetter(psHSCP.getParameter<double>("r1Min"),
+								 psHSCP.getParameter<double>("r1Max"),
+								 psHSCP.getParameter<double>("r2Min"),
+								 psHSCP.getParameter<double>("r2Max"),
+								 psHSCP.getParameter<double>("fracLeaderMin"),
+								 psHSCP.getParameter<double>("fracLeaderMax"),
+								 psHSCP.getParameter<double>("slopeMin"),
+								 psHSCP.getParameter<double>("slopeMax"),
+								 psHSCP.getParameter<double>("outerMin"),
+								 psHSCP.getParameter<double>("outerMax"),
+								 psHSCP.getParameter<double>("TimingEnergyThreshold"));
+      } // if (setHSCPFlags_) 
     produces<HBHERecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"HO")) {
     subdet_=HcalOuter;
     produces<HORecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"HF")) {
     subdet_=HcalForward;
-    // eventually move these outside if loop, when all cases contain such parameter sets?
-    const edm::ParameterSet& psdigi  =conf.getParameter<edm::ParameterSet>("digistat");
-    const edm::ParameterSet& psrechit=conf.getParameter<edm::ParameterSet>("rechitstat");
-    hfdigibit_=new HcalHFStatusBitFromDigis(psdigi.getParameter<int>("HFpulsetimemin"),
-					    psdigi.getParameter<int>("HFpulsetimemax"),
-					    psdigi.getParameter<double>("HFratio_beforepeak"),
-					    psdigi.getParameter<double>("HFratio_afterpeak"),
-					    HcalCaloFlagLabels::HFDigiTime);
-    hfrechitbit_=new HcalHFStatusBitFromRecHits(psrechit.getParameter<double>("HFlongshortratio"),
-						HcalCaloFlagLabels::HFLongShort);
+    if (setNoiseFlags_)
+      {
+	const edm::ParameterSet& psdigi    =conf.getParameter<edm::ParameterSet>("digistat");
+	const edm::ParameterSet& psrechit  =conf.getParameter<edm::ParameterSet>("rechitstat");
+	hfdigibit_=new HcalHFStatusBitFromDigis(psdigi.getParameter<int>("HFpulsetimemin"),
+						psdigi.getParameter<int>("HFpulsetimemax"),
+						psdigi.getParameter<double>("HFratio_beforepeak"),
+						psdigi.getParameter<double>("HFratio_afterpeak"),
+						HcalCaloFlagLabels::HFDigiTime);
+	hfrechitbit_=new HcalHFStatusBitFromRecHits(psrechit.getParameter<double>("HFlongshortratio"),
+						    HcalCaloFlagLabels::HFLongShort);
+      }
     produces<HFRecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"ZDC")) {
     det_=DetId::Calo;
@@ -72,9 +104,10 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 }
 
 HcalHitReconstructor::~HcalHitReconstructor() {
-  if (hbheFlagSetter_)  delete hbheFlagSetter_;
-  if (hfdigibit_)       delete hfdigibit_;
-  if (hfrechitbit_)     delete hfrechitbit_;
+  if (hbheFlagSetter_)        delete hbheFlagSetter_;
+  if (hfdigibit_)             delete hfdigibit_;
+  if (hfrechitbit_)           delete hfrechitbit_;
+  if (hbheHSCPFlagSetter_)    delete hbheHSCPFlagSetter_;
 }
 
 void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
@@ -91,7 +124,6 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
   edm::ESHandle<HcalSeverityLevelComputer> mycomputer;
   eventSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
   const HcalSeverityLevelComputer* mySeverity = mycomputer.product();
-
   
   if (det_==DetId::Hcal) {
     if (subdet_==HcalBarrel || subdet_==HcalEndcap) {
@@ -103,11 +135,27 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       std::auto_ptr<HBHERecHitCollection> rec(new HBHERecHitCollection);
       rec->reserve(digi->size());
       // run the algorithm
-      hbheFlagSetter_->Clear();
+      if (setNoiseFlags_) hbheFlagSetter_->Clear();
       HBHEDigiCollection::const_iterator i;
+      std::vector<HBHEDataFrame> HBDigis;
+      std::vector<int> RecHitIndex;
+
+      // Vote on majority TS0 CapId
+      int favorite_capid = 0; 
+      if (correctTiming_) {
+        long capid_votes[4] = {0,0,0,0};
+        for (i=digi->begin(); i!=digi->end(); i++) {
+          capid_votes[(*i)[0].capid()]++;
+        }
+        for (int k = 0; k < 4; k++)
+          if (capid_votes[k] > capid_votes[favorite_capid])
+            favorite_capid = k;
+      }
+
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
 	DetId detcell=(DetId)cell;
+
 	// check on cells to be ignored and dropped: (rof,20.Feb.09)
 	const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
 	if (mySeverity->dropChannel(mydigistatus->getValue() ) ) continue;
@@ -117,9 +165,28 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	HcalCoderDb coder (*channelCoder, *shape);
 	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
 	(rec->back()).setFlags(0);
-	hbheFlagSetter_->SetFlagsFromDigi(rec->back(),*i);
-      }
-      hbheFlagSetter_->SetFlagsFromRecHits(*rec);
+	if (setNoiseFlags_)
+	  hbheFlagSetter_->SetFlagsFromDigi(rec->back(),*i);
+	if (setSaturationFlags_)
+	  saturationFlagSetter_->setSaturationFlag(rec->back(),*i);
+	if (correctTiming_)
+	  HcalTimingCorrector::Correct(rec->back(), *i, favorite_capid);
+	if (setHSCPFlags_ && i->id().ietaAbs()<16)
+	  {
+	    double DigiEnergy=0;
+            for(int j=0; j!=i->size(); DigiEnergy += i->sample(j++).nominal_fC());
+            if(DigiEnergy > hbheHSCPFlagSetter_->EnergyThreshold())
+              {
+                HBDigis.push_back(*i);
+                RecHitIndex.push_back(rec->size()-1);
+              }
+	    
+	  } // if (set HSCPFlags_ && |ieta|<16)
+      } // loop over HBHE digis
+
+
+      if (setNoiseFlags_) hbheFlagSetter_->SetFlagsFromRecHits(*rec);
+      if (setHSCPFlags_)  hbheHSCPFlagSetter_->hbheSetTimeFlagsFromDigi(rec.get(), HBDigis, RecHitIndex);
       // return result
       e.put(rec);
     } else if (subdet_==HcalOuter) {
@@ -131,6 +198,19 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       rec->reserve(digi->size());
       // run the algorithm
       HODigiCollection::const_iterator i;
+
+      // Vote on majority TS0 CapId
+      int favorite_capid = 0; 
+      if (correctTiming_) {
+        long capid_votes[4] = {0,0,0,0};
+        for (i=digi->begin(); i!=digi->end(); i++) {
+          capid_votes[(*i)[0].capid()]++;
+        }
+        for (int k = 0; k < 4; k++)
+          if (capid_votes[k] > capid_votes[favorite_capid])
+            favorite_capid = k;
+      }
+
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
 	DetId detcell=(DetId)cell;
@@ -143,6 +223,10 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	HcalCoderDb coder (*channelCoder, *shape);
 	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
 	(rec->back()).setFlags(0);
+	if (setSaturationFlags_)
+	  saturationFlagSetter_->setSaturationFlag(rec->back(),*i);
+	if (correctTiming_)
+	  HcalTimingCorrector::Correct(rec->back(), *i, favorite_capid);
       }
       // return result
       e.put(rec);    
@@ -156,6 +240,18 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       // run the algorithm
       HFDigiCollection::const_iterator i;
 
+      // Vote on majority TS0 CapId
+      int favorite_capid = 0; 
+      if (correctTiming_) {
+        long capid_votes[4] = {0,0,0,0};
+        for (i=digi->begin(); i!=digi->end(); i++) {
+          capid_votes[(*i)[0].capid()]++;
+        }
+        for (int k = 0; k < 4; k++)
+          if (capid_votes[k] > capid_votes[favorite_capid])
+            favorite_capid = k;
+      }
+
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
 	DetId detcell=(DetId)cell;
@@ -168,12 +264,15 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	HcalCoderDb coder (*channelCoder, *shape);
 	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
 	(rec->back()).setFlags(0);
-	// This calls the code for setting the low HF flag bit (bit 0)
-	hfdigibit_->hfSetFlagFromDigi(rec->back(),*i);
+	// This calls the code for setting the HF noise bit determined from digi shape
+	if (setNoiseFlags_) hfdigibit_->hfSetFlagFromDigi(rec->back(),*i);
+	if (setSaturationFlags_)
+	  saturationFlagSetter_->setSaturationFlag(rec->back(),*i);
+	if (correctTiming_)
+	  HcalTimingCorrector::Correct(rec->back(), *i, favorite_capid);
       }
-      // This sets HF flag bit 1
-      hfrechitbit_->hfSetFlagFromRecHits(*rec);
-
+      // This sets HF noise bit determined from L/S rechit energy comparison
+      if (setNoiseFlags_) hfrechitbit_->hfSetFlagFromRecHits(*rec);
       // return result
       e.put(rec);     
     } else if (subdet_==HcalOther && subdetOther_==HcalCalibration) {
@@ -216,7 +315,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       // check on cells to be ignored and dropped: (rof,20.Feb.09)
       const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
       if (mySeverity->dropChannel(mydigistatus->getValue() ) ) continue;
-
+	    
       const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
       const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
       HcalCoderDb coder (*channelCoder, *shape);

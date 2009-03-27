@@ -30,16 +30,22 @@ hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
                   RecHitFlags = cms.vstring(''),
                   ChannelStatus = cms.vstring('')
                 ),
+        cms.PSet( Level = cms.int32(5),
+                  RecHitFlags = cms.vstring('HSCP_R1R2','HSCP_FracLeader','HSCP_OuterEnergy',
+                                            'HSCP_ExpFit','ADCSaturationBit'),
+                  ChannelStatus = cms.vstring('')
+                ),
         cms.PSet( Level = cms.int32(10),
                   RecHitFlags = cms.vstring(''),
                   ChannelStatus = cms.vstring('HcalCellHot')
                 ),
         cms.PSet( Level = cms.int32(20),
                   RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity', 'HBHEPulseShape', 'HOBit',
-                                            'HFDigiTime', 'HFLongShort', 'ZDCBit', 'CalibrationBit'),
+                                            'HFDigiTime', 'HFLongShort', 'ZDCBit', 'CalibrationBit',
+                                            'TimingErrorBit'),
                   ChannelStatus = cms.vstring('HcalCellOff', 'HcalCellDead')
                 )
         ),
-    RecoveredRecHitBits = cms.vstring(''),
+    RecoveredRecHitBits = cms.vstring('TimingAddedBit','TimingSubtractedBit'),
     DropChannelStatusBits = cms.vstring('HcalCellOff', 'HcalCellDead')
 )

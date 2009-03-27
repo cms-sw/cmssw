@@ -9,13 +9,29 @@
 // Use the HcalCaloFlagTool (below) for full interpretation
 namespace HcalCaloFlagLabels
 {
+  //subdetector-specific bits defined here (bits 0-15)
   enum HBHEStatusFlag{HBHEHpdHitMultiplicity=0,
-                      HBHEPulseShape=1};
+                      HBHEPulseShape=1,
+		      HSCP_R1R2=2,
+		      HSCP_FracLeader=3,
+		      HSCP_OuterEnergy=4,
+		      HSCP_ExpFit=5};
+
   enum HOStatusFlag{HOBit=0};
-  enum HFStatusFlag{HFDigiTime=0,
-		    HFLongShort=1};
+
+  enum HFStatusFlag{HFLongShort=0,
+		    HFDigiTime=1};
+
   enum ZDCStatusFlag{ZDCBit=0};
+
   enum CalibrationFlag{CalibrationBit=0};
+
+  // Bit definitions that apply to all subdetectors (bits 16-31)
+  enum CommonFlag {TimingSubtractedBit=16, // latency shift correction, recovered
+		   TimingAddedBit=17,      // latency shift correction, recovered
+		   TimingErrorBit=18,      // latency shift error, unrecovered
+		   ADCSaturationBit=19}; 
+  
 }
 
 /** \brief Provides interpretation of flag bits with understanding of 

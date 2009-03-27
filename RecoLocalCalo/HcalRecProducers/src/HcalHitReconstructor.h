@@ -1,4 +1,4 @@
-#ifndef HCALHITRECONSTRUCTOR_H
+#ifndef HCALHITRECONSTRUCTOR_H 
 #define HCALHITRECONSTRUCTOR_H 1
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -16,11 +16,14 @@
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEStatusBitSetter.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalTimingCorrector.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimeProfileStatusBitSetter.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalADCSaturationFlag.h"
 
     /** \class HcalHitReconstructor
 	
-    $Date: 2009/02/10 14:56:16 $
-    $Revision: 1.1 $
+    $Date: 2009/02/20 17:26:40 $
+    $Revision: 1.2 $
     \author J. Temple & E. Yazgan
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -31,14 +34,21 @@
       virtual void produce(edm::Event& e, const edm::EventSetup& c);
     private:      
       HcalSimpleRecAlgo reco_;
+      HcalADCSaturationFlag* saturationFlagSetter_;
       HBHEStatusBitSetter* hbheFlagSetter_;
+      HBHETimeProfileStatusBitSetter* hbheHSCPFlagSetter_;
       HcalHFStatusBitFromRecHits* hfrechitbit_;
       HcalHFStatusBitFromDigis*   hfdigibit_;
+ 
       DetId::Detector det_;
       int subdet_;
       HcalOtherSubdetector subdetOther_;
       edm::InputTag inputLabel_;
-      std::vector<std::string> channelStatusToDrop_;
+      //std::vector<std::string> channelStatusToDrop_;
+      bool correctTiming_; // turn on/off Ken Rossato's algorithm to fix timing
+      bool setNoiseFlags_; // turn on/off basic noise flags
+      bool setHSCPFlags_;  // turn on/off HSCP noise flags
+      bool setSaturationFlags_; // turn on/off flag indicating ADC saturation
     };
 
 #endif
