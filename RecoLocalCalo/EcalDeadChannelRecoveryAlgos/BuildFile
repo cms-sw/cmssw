@@ -1,6 +1,5 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalRecHit>
-<use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/Records>
@@ -9,7 +8,6 @@
 <export>
   <use name=DataFormats/EcalDetId>
   <use name=DataFormats/EcalRecHit>
-  <use name=Geometry/CaloEventSetup>
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloTopology>
   <use name=Geometry/Records>

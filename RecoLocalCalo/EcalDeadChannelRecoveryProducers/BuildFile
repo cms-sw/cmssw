@@ -2,7 +2,6 @@
 <use name=DataFormats/EcalRecHit>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=RecoLocalCalo/EcalDeadChannelRecoveryAlgos>
