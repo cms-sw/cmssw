@@ -245,7 +245,7 @@ bool TCMETAlgo::isMuon( unsigned int trk_idx ) {
 //determines if track is matched to an "electron-like" object
 bool TCMETAlgo::isElectron( unsigned int trk_idx ) {
 
-  for(reco::PixelMatchGsfElectronCollection::const_iterator electron_it = ElectronHandle->begin(); electron_it != ElectronHandle->end(); ++electron_it) {
+  for(reco::GsfElectronCollection::const_iterator electron_it = ElectronHandle->begin(); electron_it != ElectronHandle->end(); ++electron_it) {
 
     unsigned int ele_idx = electron_it->track().isNonnull() ? electron_it->track().index() : 999999;
 
