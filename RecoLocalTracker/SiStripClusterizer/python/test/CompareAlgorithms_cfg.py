@@ -25,33 +25,29 @@ process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
 
 # Configuration which varies depending on what to compare
 process.OldClusterizer = cms.EDProducer("SiStripClusterizer",
-                                        Algorithm = cms.string("OldThreeThresholdAlgorithm"),
-                                        ChannelThreshold = cms.double(2),
-                                        SeedThreshold    = cms.double(3),
-                                        ClusterThreshold = cms.double(5),
-                                        MaxSequentialHoles = cms.uint32(0),
-                                        QualityLabel = cms.string(""),
-                                        DigiProducersList = cms.VInputTag(
-    cms.InputTag('siStripDigis','ZeroSuppressed'),
-    cms.InputTag('siStripZeroSuppression','VirginRaw'),
-    cms.InputTag('siStripZeroSuppression','ProcessedRaw'),
-    cms.InputTag('siStripZeroSuppression','ScopeMode'))
-                                        )
+                                        Clusterizer = cms.PSet( Algorithm = cms.string("OldThreeThresholdAlgorithm"),
+                                                                ChannelThreshold = cms.double(2),
+                                                                SeedThreshold    = cms.double(3),
+                                                                ClusterThreshold = cms.double(5),
+                                                                MaxSequentialHoles = cms.uint32(0),
+                                                                QualityLabel = cms.string("")),
+                                        DigiProducersList = cms.VInputTag( cms.InputTag('siStripDigis','ZeroSuppressed'),
+                                                                           cms.InputTag('siStripZeroSuppression','VirginRaw'),
+                                                                           cms.InputTag('siStripZeroSuppression','ProcessedRaw'),
+                                                                           cms.InputTag('siStripZeroSuppression','ScopeMode')))
 process.NewClusterizer = cms.EDProducer("SiStripClusterizer",
-                                        Algorithm = cms.string("ThreeThresholdAlgorithm"),
-                                        ChannelThreshold = cms.double(2),
-                                        SeedThreshold    = cms.double(3),
-                                        ClusterThreshold = cms.double(5),
-                                        MaxSequentialHoles = cms.uint32(0),
-                                        MaxSequentialBad   = cms.uint32(0),
-                                        MaxAdjacentBad     = cms.uint32(1),
-                                        QualityLabel = cms.string(""),
-                                        DigiProducersList = cms.VInputTag(
-    cms.InputTag('siStripDigis','ZeroSuppressed'),
-    cms.InputTag('siStripZeroSuppression','VirginRaw'),
-    cms.InputTag('siStripZeroSuppression','ProcessedRaw'),
-    cms.InputTag('siStripZeroSuppression','ScopeMode'))
-                                        )
+                                        Clusterizer = cms.PSet( Algorithm = cms.string("ThreeThresholdAlgorithm"),
+                                                                ChannelThreshold = cms.double(2),
+                                                                SeedThreshold    = cms.double(3),
+                                                                ClusterThreshold = cms.double(5),
+                                                                MaxSequentialHoles = cms.uint32(0),
+                                                                MaxSequentialBad   = cms.uint32(0),
+                                                                MaxAdjacentBad     = cms.uint32(1),
+                                                                QualityLabel = cms.string("")),
+                                        DigiProducersList = cms.VInputTag( cms.InputTag('siStripDigis','ZeroSuppressed'),
+                                                                           cms.InputTag('siStripZeroSuppression','VirginRaw'),
+                                                                           cms.InputTag('siStripZeroSuppression','ProcessedRaw'),
+                                                                           cms.InputTag('siStripZeroSuppression','ScopeMode')))
 process.NewStripByStrip = cms.EDProducer("StripByStripTestDriver",
                                          Algorithm = cms.string("ThreeThresholdAlgorithm"),
                                          ChannelThreshold = cms.double(2),
@@ -61,7 +57,6 @@ process.NewStripByStrip = cms.EDProducer("StripByStripTestDriver",
                                          MaxSequentialBad   = cms.uint32(0),
                                          MaxAdjacentBad     = cms.uint32(1),
                                          QualityLabel = cms.string(""),
-
                                          DigiProducer = cms.InputTag('siStripDigis','ZeroSuppressed'),
                                          HLT = cms.bool(False)
                                          )

@@ -1,17 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoLocalTracker.SiStripClusterizer.DefaultClusterizer_cff import *
+
 siStripClusters = cms.EDFilter("SiStripClusterizer",
+                               Clusterizer = DefaultClusterizer,
                                DigiProducersList = cms.VInputTag(
     cms.InputTag('simSiStripDigis','ZeroSuppressed'),
     cms.InputTag('siStripZeroSuppression','VirginRaw'),
     cms.InputTag('siStripZeroSuppression','ProcessedRaw'),
-    cms.InputTag('siStripZeroSuppression','ScopeMode')),
-                               Algorithm = cms.string('ThreeThresholdAlgorithm'),
-                               ChannelThreshold = cms.double(2.0),
-                               SeedThreshold = cms.double(3.0),
-                               ClusterThreshold = cms.double(5.0),
-                               MaxSequentialHoles = cms.uint32(0),
-                               MaxSequentialBad = cms.uint32(1),
-                               MaxAdjacentBad = cms.uint32(0),
-                               QualityLabel = cms.string("")
+    cms.InputTag('siStripZeroSuppression','ScopeMode'))
                                )
