@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 Source = str("SIM") # Options: "TRIV", "SIM"
+Write = bool(False) # Write output to disk
 
 process = cms.Process("DigiToRawToClusters")
 
@@ -17,6 +18,11 @@ process.MessageLogger.destinations = cms.untracked.vstring(
     )
 
 process.output.fileName = "DigiToRawToClusters.root"
+
+if Write == bool(True) :
+    process.e = cms.EndPath( process.output )
+else :
+    print "Event content not written to disk!"
 
 if Source == str("TRIV") :
 
