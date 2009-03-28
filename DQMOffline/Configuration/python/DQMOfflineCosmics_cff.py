@@ -14,6 +14,3 @@ from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 
 DQMOfflineCosmics = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline*muonCosmicMonitors*jetMETAnalyzer*hcalOfflineDQMSource*triggerOfflineDQMSource*siPixelOfflineDQM_cosmics_source*egammaCosmicPhotonMonitors*dtSources*cscSources*rpcTier0Source)
 
-# this is a TEMPORARY HUGLY hack until the L1TGMT gets fixed
-#DQMOfflineCosmics.remove(l1tgmt)
-

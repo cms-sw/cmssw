@@ -6,9 +6,10 @@ from DQM.RPCMonitorClient.RPCDaqInfo_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBDaqInfoTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EEDaqInfoTask_cfi import *
 siStripDaqInfo = cms.EDFilter("SiStripDaqInfo")
-cscDaqInfo = cms.EDFilter("CSCDaqInfo")
+from DQM.CSCMonitorModule.test.csc_daq_info_cfi import *
 siPixelDaqInfo  = cms.EDFilter("SiPixelDaqInfo")
 from DQM.HcalMonitorClient.HcalDAQInfo_cfi import *
+from DQM.RPCMonitorClient.RPCDaqInfo_cfi import *
 
-daq_dqmoffline = cms.Sequence(dqmDaqInfo*dtDAQInfo*rpcDaqInfo*ecalBarrelDaqInfoTask*ecalEndcapDaqInfoTask*siStripDaqInfo*cscDaqInfo*siPixelDaqInfo*hcalDAQInfo)
+daq_dqmoffline = cms.Sequence(dqmDaqInfo*dtDAQInfo*rpcDaqInfo*ecalBarrelDaqInfoTask*ecalEndcapDaqInfoTask*siStripDaqInfo*cscDaqInfo*siPixelDaqInfo*hcalDAQInfo*rpcDaqInfo)
 
