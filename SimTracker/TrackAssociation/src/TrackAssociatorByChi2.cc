@@ -4,8 +4,7 @@
 #include "DataFormats/GeometrySurface/interface/Line.h"
 #include "DataFormats/GeometryVector/interface/Pi.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
-
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 using namespace edm;
 using namespace reco;
 using namespace std;
@@ -141,7 +140,7 @@ TrackAssociatorByChi2::parametersAtClosestApproach(Basic3DVector<double> vertex,
 					GlobalVector(momAtVtx.x(),momAtVtx.y(),momAtVtx.z()),
 					TrackCharge(charge),
 					theMF.product());
-    TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+    TSCBLBuilderNoMaterial tscblBuilder;
     TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction,bs);//as in TrackProducerAlgorithm
     
     GlobalPoint v = tsAtClosestApproach.trackStateAtPCA().position();
