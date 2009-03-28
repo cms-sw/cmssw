@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronProducer.cc,v 1.15 2009/03/28 11:11:46 charlot Exp $
+// $Id: GsfElectronProducer.cc,v 1.16 2009/03/28 12:58:08 charlot Exp $
 //
 //
 
@@ -70,6 +70,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& iConfig)
 		    iConfig.getParameter<bool>("applyPreselection"),
 		    iConfig.getParameter<bool>("applyEtaCorrection"),
 		    iConfig.getParameter<bool>("applyAmbResolution"),
+		    iConfig.getParameter<bool>("addPflowElectrons"),
 		    iConfig.getParameter<double>("extRadiusTkSmall"),
 		    iConfig.getParameter<double>("extRadiusTkLarge"),
 		    iConfig.getParameter<double>("intRadiusTk"),

@@ -13,11 +13,13 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     hcalTowers = cms.InputTag("towerMaker"),
     reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+    pfMVA =  cms.InputTag("pfElectronTranslator:pf"),
     
     # steering
     applyPreselection = cms.bool(True),
     applyEtaCorrection = cms.bool(False),
     applyAmbResolution = cms.bool(True),
+    addPflowElectrons = cms.bool(False),
     
     # preselection parameters
     minSCEtBarrel = cms.double(4.0),
@@ -64,7 +66,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     eMinBarrel = cms.double(0.08),
     etMinEndcaps = cms.double(0.1),
     eMinEndcaps = cms.double(-9999.),      
- 
+    
     # nested parameter set for TransientInitialStateEstimator
     TransientInitialStateEstimatorParameters = cms.PSet(
         propagatorAlongTISE = cms.string('PropagatorWithMaterial'),

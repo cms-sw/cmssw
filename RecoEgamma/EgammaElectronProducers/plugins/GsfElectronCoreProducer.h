@@ -25,6 +25,7 @@ class GsfElectronCoreProducer : public edm::EDProducer
   private:
 	edm::InputTag gsfTracksTag_ ;
 	edm::InputTag pfSuperClustersTag_ ;
+	edm::InputTag pfSuperClusterTrackMapTag_ ;
  } ;
 
 

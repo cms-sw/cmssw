@@ -3,8 +3,11 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include <map>
 
 using namespace reco ;
 
@@ -13,6 +16,7 @@ GsfElectronCoreProducer::GsfElectronCoreProducer( const edm::ParameterSet & conf
   produces<GsfElectronCoreCollection>() ;
   gsfTracksTag_ = config.getParameter<edm::InputTag>("gsfTracks") ;
   pfSuperClustersTag_ = config.getParameter<edm::InputTag>("pfSuperClusters") ;
+  pfSuperClusterTrackMapTag_ = config.getParameter<edm::InputTag>("pfSuperClusterTrackMap") ;
  }
 
 void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup & setup )
@@ -23,10 +27,10 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
   // input
   edm::Handle<GsfTrackCollection> gsfTracksH ;
   event.getByLabel(gsfTracksTag_,gsfTracksH) ;
-//  edm::Handle<SuperClusterCollection> pfSuperClustersH ;
-//  event.getByLabel(pfSuperClustersTag_,pfSuperClustersH) ;
-//  edm::Handle<???> pfSuperClustersTracksAssocH ;
-//  event.getByLabel(pfSuperClustersTag_,pfSuperClustersTracksAssocH) ;
+  edm::Handle<SuperClusterCollection> pfClustersH;
+  event.getByLabel(pfSuperClustersTag_,pfClustersH);
+  edm::Handle<edm::ValueMap<reco::SuperClusterRef> > pfClusterTracksH;
+  event.getByLabel(pfSuperClusterTrackMapTag_,pfClusterTracksH);
 
   // loop
   const GsfTrackCollection * gsfTrackCollection = gsfTracksH.product() ;
@@ -49,8 +53,8 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
     if (ele->isTrackerDriven())
      {
       // eventual pflow super cluster.
-      //...
-      //ele->setPflowSuperCluster(??) ;
+      SuperClusterRef pfscRef = (*pfClusterTracksH)[gsfTrackRef]; 
+      ele->setPflowSuperCluster(pfscRef) ;
      }
     electrons->push_back(*ele) ;
    }

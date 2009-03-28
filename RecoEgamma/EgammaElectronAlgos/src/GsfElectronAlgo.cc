@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.49 2009/03/28 11:11:52 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.50 2009/03/28 20:42:00 charlot Exp $
 //
 //
 
@@ -48,7 +48,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
-
+ 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
@@ -84,12 +84,13 @@ GsfElectronAlgo::GsfElectronAlgo
    double maxDeltaPhiBarrel,double maxDeltaPhiEndcaps,
    double hOverEConeSize, double hOverEPtMin,
    double maxHOverEDepth1Barrel, double maxHOverEDepth1Endcaps,
-   double maxHOverEDepth2,
+   double maxHOverEDepth2, 
    double maxSigmaIetaIetaBarrel, double maxSigmaIetaIetaEndcaps,
    double maxFbremBarrel, double maxFbremEndcaps,
    bool isBarrel, bool isEndcaps, bool isFiducial,
    bool seedFromTEC,
-   bool applyPreselection, bool applyEtaCorrection, bool applyAmbResolution,
+   bool applyPreselection, bool applyEtaCorrection, bool applyAmbResolution, 
+   bool addPflowElectrons,
    double extRadiusTkSmall, double extRadiusTkLarge, double intRadiusTk,
    double ptMinTk, double maxVtxDistTk, double maxDrbTk,
    double extRadiusHcalSmall, double extRadiusHcalLarge, double intRadiusHcal,
@@ -108,6 +109,7 @@ GsfElectronAlgo::GsfElectronAlgo
    isBarrel_(isBarrel), isEndcaps_(isEndcaps), isFiducial_(isFiducial),
    seedFromTEC_(seedFromTEC),
    applyPreselection_(applyPreselection), applyEtaCorrection_(applyEtaCorrection), applyAmbResolution_(applyAmbResolution),
+   addPflowElectrons_(addPflowElectrons),
    extRadiusTkSmall_(extRadiusTkSmall),  extRadiusTkLarge_(extRadiusTkLarge),  intRadiusTk_(intRadiusTk),
    ptMinTk_(ptMinTk),  maxVtxDistTk_(maxVtxDistTk),  maxDrbTk_(maxDrbTk),
    extRadiusHcalSmall_(extRadiusHcalSmall),  extRadiusHcalLarge_(extRadiusHcalLarge),  intRadiusHcal_(intRadiusHcal),
@@ -119,8 +121,8 @@ GsfElectronAlgo::GsfElectronAlgo
   // this is the new version allowing to configurate the algo
   // interfaces still need improvement!!
   mtsTransform_ = 0 ;
-  constraintAtVtx_ = 0 ;
-
+  constraintAtVtx_ = 0;
+  
   // get nested parameter set for the TransientInitialStateEstimator
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
 
@@ -131,6 +133,7 @@ GsfElectronAlgo::GsfElectronAlgo
   ctfTracks_ = conf.getParameter<edm::InputTag>("ctfTracks");
   reducedBarrelRecHitCollection_ = conf.getParameter<edm::InputTag>("reducedBarrelRecHitCollection") ;
   reducedEndcapRecHitCollection_ = conf.getParameter<edm::InputTag>("reducedEndcapRecHitCollection") ;
+  pfMVA_ = conf.getParameter<edm::InputTag>("pfMVA") ;
 }
 
 GsfElectronAlgo::~GsfElectronAlgo() {
@@ -192,7 +195,8 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   e.getByLabel( reducedEndcapRecHitCollection_, pEERecHits ) ;
   edm::Handle<CaloTowerCollection> towersH;
   e.getByLabel(hcalTowers_, towersH);
-  //towers_ = towersHandle.product();
+  edm::Handle<edm::ValueMap<float> > pfMVAH;
+  e.getByLabel(pfMVA_,pfMVAH); 
 
   // get the beamspot from the Event:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -203,7 +207,7 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   GsfElectronPtrCollection tempEle, tempEle1;
 
   // create electrons
-  process(tracksH,coresH,ctfTracksH,towersH,pEBRecHits,pEERecHits,bs,tempEle);
+  process(tracksH,coresH,ctfTracksH,pfMVAH,towersH,pEBRecHits,pEERecHits,bs,tempEle);
 
   std::ostringstream str;
 
@@ -273,12 +277,15 @@ void GsfElectronAlgo::process(
   edm::Handle<GsfTrackCollection> gsfTracksH,
   edm::Handle<GsfElectronCoreCollection> coresH,
   edm::Handle<TrackCollection> ctfTracksH,
+  edm::Handle<edm::ValueMap<float> > pfMVAH,
   edm::Handle<CaloTowerCollection> towersH,
   edm::Handle<EcalRecHitCollection> reducedEBRecHits,
   edm::Handle<EcalRecHitCollection> reducedEERecHits,
   const BeamSpot & bs,
   GsfElectronPtrCollection & outEle )
  {
+
+  const edm::ValueMap<float> & pfmvas = *pfMVAH.product() ;
 
   // Isolation algos
 
@@ -313,18 +320,39 @@ void GsfElectronAlgo::process(
   const GsfElectronCoreCollection * coreCollection = coresH.product() ;
   for (unsigned int i=0;i<coreCollection->size();++i) {
 
-    // track -scl association
-
-    //const GsfTrack & t=(*gsfTrackCollection)[i];
+    // retreive core, track and scl
     const GsfElectronCoreRef coreRef = edm::Ref<GsfElectronCoreCollection>(coresH,i);
     const GsfTrackRef gsfTrackRef = coreRef->gsfTrack() ; //edm::Ref<GsfTrackCollection>(gsfTracksH,i);
-
-    // Get the super cluster. If none, ignore the current track.
+   
+    // Get the super cluster
     SuperClusterRef scRef = coreRef->superCluster() ;
-    if (scRef.isNull()) continue ;
-    const SuperCluster theClus = *scRef ;
+    if (!scRef.isNull()) std::cout << "[GsfElectronAlgo] e/g super cluster found with energy " << scRef->energy() << std::endl;
 
-    CaloClusterPtr elbcRef = getEleBasicCluster(gsfTrackRef,scRef) ;
+   // don't add pflow only electrons one so wish
+    if (!coreRef->isEcalDriven() && !addPflowElectrons_) continue;
+
+    // Get the pflow super cluster
+    SuperClusterRef pfscRef = coreRef->pflowSuperCluster() ;
+    if (!pfscRef.isNull()) std::cout << "[GsfElectronAlgo] pflow super cluster found with energy " << pfscRef->energy() << std::endl;
+
+    if (scRef.isNull()&&pfscRef.isNull()) continue ;
+
+    // affect main electron cluster according to provenance
+    SuperCluster theClus;
+    if (coreRef->isEcalDriven()) {
+      std::cout << "[GsfElectronAlgo] found by e/g " << std::endl;
+      theClus = *scRef ;
+    } else {
+      std::cout << "[GsfElectronAlgo] NOT found by e/g " << std::endl;      
+      theClus = *pfscRef ;
+    }
+     
+    // mva
+    float mva=0.;
+    if (coreRef->isTrackerDriven()) mva = pfmvas[gsfTrackRef];
+
+    // electron basic cluster
+    CaloClusterPtr elbcRef = getEleBasicCluster(gsfTrackRef,&theClus) ;
 
     // calculate Trajectory StatesOnSurface....
     if (!calculateTSOS(*gsfTrackRef,theClus, bs)) continue ;
@@ -341,9 +369,10 @@ void GsfElectronAlgo::process(
 
     createElectron(coreRef,elbcRef,ctfTrackRef,fracShHits,HoE1,HoE2,tkIsolation03,tkIsolation04,
      hadDepth1Isolation03,hadDepth2Isolation03,hadDepth1Isolation04,hadDepth2Isolation04,
-     ecalBarrelIsol03,ecalBarrelIsol04,ecalEndcapIsol03,ecalEndcapIsol04,reducedEBRecHits,reducedEERecHits,outEle) ;
+     ecalBarrelIsol03,ecalBarrelIsol04,ecalEndcapIsol03,ecalEndcapIsol04,reducedEBRecHits,
+     reducedEERecHits,mva,outEle) ;
 
-    LogInfo("")<<"Constructed new electron with energy  "<< scRef->energy();
+     LogInfo("")<<"Constructed new electron with energy  "<< theClus.energy();
 
   } // loop over tracks
 }
@@ -355,7 +384,15 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
    {
 
     LogDebug("")<< "========== preSelection ==========";
- 
+    
+    
+    // pflow only case
+    if ((*e1)->core()->isTrackerDriven() && !(*e1)->core()->isEcalDriven()) {
+    
+    outEle.push_back(*e1) ;
+   
+    } else {
+        
     // Et cut
     LogDebug("") << "Et : " << (*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta());
     if ((*e1)->isEB() && ((*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta()) < minSCEtBarrel_)) continue;
@@ -417,6 +454,8 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
     outEle.push_back(*e1) ;
    
    }
+   
+   }
  }
  
 // utilities for constructor
@@ -444,11 +483,18 @@ void GsfElectronAlgo::createElectron
    EgammaRecHitIsolation & ecalBarrelIso03,EgammaRecHitIsolation & ecalEndcapsIso03,
    EgammaRecHitIsolation & ecalBarrelIso04,EgammaRecHitIsolation & ecalEndcapsIso04,
    edm::Handle<EcalRecHitCollection> reducedEBRecHits,edm::Handle<EcalRecHitCollection> reducedEERecHits,
-   GsfElectronPtrCollection & outEle )
+   float mva, GsfElectronPtrCollection & outEle )
 
  {
-  SuperClusterRef scRef = coreRef->superCluster() ;
+  SuperClusterRef egscRef = coreRef->superCluster() ;
+  SuperClusterRef pfscRef = coreRef->pflowSuperCluster() ;
   GsfTrackRef trackRef = coreRef->gsfTrack() ;
+
+  SuperClusterRef scRef;
+  if (egscRef.isNull()&&pfscRef.isNull()) return ;
+
+  if (coreRef->isEcalDriven()) scRef = egscRef ;  // electron wwill be built from e/g sc
+  else scRef=pfscRef ;                            // electron wwill be built from pflow sc 
 
   // Seed info
   const reco::BasicCluster & seedCluster = *(scRef->seed()) ;
@@ -471,8 +517,8 @@ void GsfElectronAlgo::createElectron
   GlobalVector vtxMomWithConstraint;
   bool success = mtsMode_->momentumFromModeCartesian(constrainedVtxTSOS_,vtxMomWithConstraint);
 //    if ( success )
-//      std::cout << " pt = " << vtxMomWithConstraint.perp() << std::endl;
-//     else
+//      std::cout << " pt = " << momentum.perp() << std::endl;
+//    else
 //      std::cout << " FAILURE!!!" << std::endl;
 
 
@@ -515,7 +561,7 @@ void GsfElectronAlgo::createElectron
   tkExtra.momentumAtCalo = convert(sclMom) ;
   tkExtra.momentumOut = convert(seedMom) ;
   tkExtra.momentumAtEleClus = convert(eleMom) ;
-
+  tkExtra.momentumAtVtxWithConstraint = convert(vtxMomWithConstraint);
 
   //=======================================================
   // Closest Ctf Track
@@ -538,7 +584,7 @@ void GsfElectronAlgo::createElectron
 	fiducialFlags.isEB = true ;
 	if (EBDetId::isNextToEtaBoundary(EBDetId(seedXtalId)))
 	 {
-	  if (fabs(feta-1.479)<.1)
+	  if (fabs(feta-1.479)<.1) 
 	   { fiducialFlags.isEBEEGap = true ; }
 	  else
 	   { fiducialFlags.isEBEtaGap = true ; }
@@ -551,7 +597,7 @@ void GsfElectronAlgo::createElectron
 	fiducialFlags.isEE = true ;
 	if (EEDetId::isNextToRingBoundary(EEDetId(seedXtalId)))
 	 {
-	  if (fabs(feta-1.479)<.1)
+	  if (fabs(feta-1.479)<.1) 
 	   { fiducialFlags.isEBEEGap = true ; }
 	  else
 	   { fiducialFlags.isEERingGap = true ; }
@@ -562,7 +608,7 @@ void GsfElectronAlgo::createElectron
   else
    { edm::LogWarning("")<<"GsfElectronAlgo::createElectron(): do not know if it is a barrel or endcap seed cluster !!!!" ; }
 
-
+  
   //====================================================
   // ShowerShape
   //====================================================
@@ -602,18 +648,23 @@ void GsfElectronAlgo::createElectron
 	 ( momentum,coreRef,
 	   tcMatching, tkExtra, ctfInfo,
 	   fiducialFlags,showerShape,
-	   fbrem,0) ;
+	   fbrem,mva) ;
 
   // set corrections + classification
-  ElectronClassification theClassifier;
-  theClassifier.correct(*ele);
-  ElectronEnergyCorrector theEnCorrector;
-  theEnCorrector.correct(*ele, applyEtaCorrection_);
-  ElectronMomentumCorrector theMomCorrector;
-  theMomCorrector.correct(*ele,vtxTSOS_);
-
+  // temporary, only if ecalDriven
+  if (ele->core()->isEcalDriven()) {
+    ElectronClassification theClassifier;
+    theClassifier.correct(*ele);
+    ElectronEnergyCorrector theEnCorrector;
+    theEnCorrector.correct(*ele, applyEtaCorrection_);
+    ElectronMomentumCorrector theMomCorrector;
+    theMomCorrector.correct(*ele,vtxTSOS_);
+  }
+  
   // now isolation variables
   reco::GsfElectron::IsolationVariables dr03, dr04 ;
+  // temporary, only if ecalDriven
+  if (ele->core()->isEcalDriven()) {
   dr03.tkSumPt = tkIso03.getPtTracks(ele);
   dr03.hcalDepth1TowerSumEt = had1Iso03.getTowerEtSum(ele);
   dr03.hcalDepth2TowerSumEt = had2Iso03.getTowerEtSum(ele);
@@ -622,14 +673,14 @@ void GsfElectronAlgo::createElectron
   dr04.hcalDepth1TowerSumEt = had1Iso04.getTowerEtSum(ele);
   dr04.hcalDepth2TowerSumEt = had2Iso04.getTowerEtSum(ele);
   dr04.ecalRecHitSumEt = ecalBarrelIso04.getEtSum(ele)+ecalEndcapsIso04.getEtSum(ele);
+  }
   ele->setIsolation03(dr03);
   ele->setIsolation04(dr04);
-
   outEle.push_back(ele) ;
  }
 
 
-const CaloClusterPtr GsfElectronAlgo::getEleBasicCluster(const GsfTrackRef &t, const SuperClusterRef & scRef) {
+const CaloClusterPtr GsfElectronAlgo::getEleBasicCluster(const GsfTrackRef &t, const SuperCluster *scRef) {
 
     CaloClusterPtr eleRef;
     TrajectoryStateOnSurface tempTSOS;
@@ -661,7 +712,7 @@ bool  GsfElectronAlgo::calculateTSOS(const GsfTrack &t,const SuperCluster & theC
     //at vertex
     // innermost state propagation to the beam spot position
     vtxTSOS_ = mtsTransform_->extrapolatedState(innTSOS_,
-						GlobalPoint(bs.position().x(),bs.position().y(),bs.position().z()));
+	GlobalPoint(bs.position().x(),bs.position().y(),bs.position().z()));
     if (!vtxTSOS_.isValid()) vtxTSOS_=innTSOS_;
 
     //at seed
@@ -697,19 +748,26 @@ void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::
  {
   GsfElectronPtrCollection::iterator e1, e2 ;
   inEle.sort(better_electron) ;
+
+  // resolve when e/g SC is found
   for( e1 = inEle.begin() ;  e1 != inEle.end() ; ++e1 )
    {
+    SuperClusterRef scRef1 = (*e1)->superCluster();
+    if (scRef1.isNull()) scRef1 = (*e1)->pflowSuperCluster();
     LogDebug("GsfElectronAlgo")
       << "Blessing electron with E/P " << (*e1)->eSuperClusterOverP()
-      << ", cluster " << (*e1)->superCluster().get()
+      << ", cluster " << scRef1.get()
       << " & track " << (*e1)->gsfTrack().get() ;
+    
     for( e2 = e1, ++e2 ;  e2 != inEle.end() ; )
      {
-      if ((*e1)->superCluster()==(*e2)->superCluster())
+      SuperClusterRef scRef2 = (*e2)->superCluster();
+      if (scRef2.isNull()) scRef2 = (*e2)->pflowSuperCluster();
+      if (scRef1==scRef2)
        {
         LogDebug("GsfElectronAlgo")
           << "Discarding electron with E/P " << (*e2)->eSuperClusterOverP()
-          << ", cluster " << (*e2)->superCluster().get()
+          << ", cluster " << scRef2.get()
           << " and track " << (*e2)->gsfTrack().get() ;
         (*e1)->addAmbiguousGsfTrack((*e2)->gsfTrack()) ;
         e2 = inEle.erase(e2) ;
@@ -718,7 +776,7 @@ void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::
        {
         LogDebug("GsfElectronAlgo")
           << "Forgetting electron with E/P " << (*e2)->eSuperClusterOverP()
-          << ", cluster " << (*e2)->superCluster().get()
+          << ", cluster " << scRef2.get()
           << " and track " << (*e2)->gsfTrack().get() ;
         e2 = inEle.erase(e2) ;
        }
@@ -727,6 +785,46 @@ void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::
      }
     outEle.push_back(**e1) ;
    }
+   
+//   // nex resolve when pflow only SC is found
+//   for( e1 = inEle.begin() ;  e1 != inEle.end() ; ++e1 )
+//    {
+//     SuperClusterRef scRef1 = (*e1)->superCluster();
+//     SuperClusterRef pfscRef1 = (*e1)->pflowSuperCluster();
+//     if (!scRef1.isNull() || pfscRef1.isNull()) continue;
+//    
+//     LogDebug("GsfElectronAlgo")
+//       << "Blessing electron with E/P " << (*e1)->eSuperClusterOverP()
+//       << ", cluster " << pfscRef1.get()
+//       << " & track " << (*e1)->gsfTrack().get() ;
+//     
+//     for( e2 = e1, ++e2 ;  e2 != inEle.end() ; )
+//      {
+//       SuperClusterRef scRef2 = (*e2)->superCluster();
+//       SuperClusterRef pfscRef2 = (*e2)->pflowSuperCluster();
+//       if (!scRef2.isNull() || pfscRef2.isNull()) continue;
+//       if (pfscRef1==pfscRef2)
+//        {
+//         LogDebug("GsfElectronAlgo")
+//           << "Discarding electron with E/P " << (*e2)->eSuperClusterOverP()
+//           << ", cluster " << pfscRef2.get()
+//           << " and track " << (*e2)->gsfTrack().get() ;
+//         (*e1)->addAmbiguousGsfTrack((*e2)->gsfTrack()) ;
+//         e2 = inEle.erase(e2) ;
+//        }
+//       else if ((*e1)->gsfTrack()==(*e2)->gsfTrack())
+//        {
+//         LogDebug("GsfElectronAlgo")
+//           << "Forgetting electron with E/P " << (*e2)->eSuperClusterOverP()
+//           << ", cluster " << pfscRef2.get()
+//           << " and track " << (*e2)->gsfTrack().get() ;
+//         e2 = inEle.erase(e2) ;
+//        }
+//       else
+//        { ++e2 ; }
+//      }
+//     outEle.push_back(**e1) ;
+//    }
  }
 
 

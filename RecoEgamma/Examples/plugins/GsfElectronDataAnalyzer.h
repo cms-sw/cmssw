@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.h,v 1.6 2009/03/06 12:42:16 chamont Exp $
+// $Id: GsfElectronDataAnalyzer.h,v 1.7 2009/03/25 10:07:27 charlot Exp $
 //
 //
 
@@ -255,6 +255,9 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TH1F *histSclEoEmatchingObjectShowering1234_barrel;
   TH1F *histSclEoEmatchingObjectShowering1234_endcaps;
   
+  TH1F *h_ele_mva; 
+  TH1F *h_ele_provenance; 
+
   TH1F *h_ele_tkSumPt_dr03; 
   TH1F *h_ele_ecalRecHitSumEt_dr03;
   TH1F *h_ele_hcalDepth1TowerSumEt_dr03;

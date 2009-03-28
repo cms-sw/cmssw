@@ -19,9 +19,13 @@ process.source = cms.Source("PoolSource",
     debugVerbosity = cms.untracked.uint32(1),
     debugFlag = cms.untracked.bool(True),
     fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_3_1_0_pre3/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0001/3CF82EA9-7C0A-DE11-9363-001617C3B6FE.root',
-        '/store/relval/CMSSW_3_1_0_pre3/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0001/7CC0E195-520A-DE11-A8FD-000423D6B444.root',
-        '/store/relval/CMSSW_3_1_0_pre3/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0001/92187C68-180A-DE11-AA7A-001617E30F48.root'
+        '/store/relval/CMSSW_3_1_0_pre4/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/101B765E-2816-DE11-9BB2-000423D98950.root',
+        '/store/relval/CMSSW_3_1_0_pre4/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/241942EA-2716-DE11-84E3-000423D94494.root',
+        '/store/relval/CMSSW_3_1_0_pre4/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/4C380471-2916-DE11-ABBE-000423D99264.root',
+        '/store/relval/CMSSW_3_1_0_pre4/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/564B8E33-AB16-DE11-9F51-001617DC1F70.root'
+#       '/store/relval/CMSSW_3_1_0_pre4/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0002/5802C6BB-BA15-DE11-9823-001617C3B6C6.root',
+#       '/store/relval/CMSSW_3_1_0_pre4/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0002/7615B82E-BB15-DE11-B718-001617E30D06.root',
+#       '/store/relval/CMSSW_3_1_0_pre4/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/06603C2F-AB16-DE11-9F8B-000423D9870C.root'
     )
 )
 
@@ -31,7 +35,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *', 
-        'keep recoSuperClusters*_*_*_*', 
+#        'keep recoSuperClusters*_*_*_*', 
         'keep *_iterativeCone5CaloJets_*_*', 
         'keep *_*_*_electrons', 
         'keep *HepMCProduct_*_*_*'),
@@ -42,7 +46,17 @@ process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronMCAnalyzer",
     #electronCollection = cms.InputTag("pixelMatchGsfElectrons"),
     electronCollection = cms.InputTag("gsfElectrons"),
     mcTruthCollection = cms.InputTag("generator"),
-    outputFile = cms.string("gsfElectronHistos_RelVal310pre3SingleElectronPt35_newElectronProto.root"),
+    #outputFile = cms.string("gsfElectronHistos_RelVal310pre3SingleElectronPt35_ecalDriven_or_trackerDriven.root"),
+    #outputFile = cms.string("gsfElectronHistos_RelVal310pre3SingleElectronPt35_ecalDriven_or_trackerDriven_nopresel.root"),
+    outputFile = cms.string("gsfElectronHistos_RelVal310pre3SingleElectronPt35_ecalDriven_or_trackerDriven_test.root"),
+    #outputFile = cms.string("gsfElectronHistos_RelVal310pre3SingleElectronPt35_ecalDriven_or_trackerDriven_noTEC.root"),
+    #outputFile = cms.string("gsfElectronHistos_RelVal310pre3SingleElectronPt35_ecalDriven_or_trackerDriven.root"),
+    #outputFile = cms.string("gsfElectronHistos_RelVal310pre3SingleElectronPt35_ecalDriven_1000evts.root"),
+    #outputFile = cms.string("gsfElectronHistos_RelVal310pre3SingleElectronPt35_trackerDriven_1000evts.root"),
+    #outputFile = cms.string("gsfElectronHistos_RelVal310pre3SingleElectronPt35_ecalDriven_or_trackerDriven_test.root"),
+    #outputFile = cms.string("gsfElectronHistos_RelVal310pre3SingleElectronPt10_ecalDriven_or_trackerDriven.root"),
+    #outputFile = cms.string("gsfElectronHistos_RelVal310pre3SingleElectronPt10_ecalDriven_1000evts.root"),
+    #outputFile = cms.string("gsfElectronHistos_RelVal310pre3SingleElectronPt10_trackerDriven_1000evts.root"),
     MaxPt = cms.double(100.0),
     DeltaR = cms.double(0.05),
     MaxAbsEta = cms.double(2.5),
@@ -88,9 +102,31 @@ process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronMCAnalyzer",
 
 #process.Timing = cms.Service("Timing")
 
-process.mylocalreco =  cms.Sequence(process.trackerlocalreco*process.calolocalreco+process.particleFlowCluster)
-process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*electronGsfTracking*process.gsfElectronSequence) 
-process.p = cms.Path(process.RawToDigi*process.mylocalreco*process.myglobalreco*process.gsfElectronAnalysis)
+#process.mylocalreco =  cms.Sequence(process.trackerlocalreco*process.calolocalreco+process.particleFlowCluster)
+#process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*electronGsfTracking*process.gsfElectronSequence) 
+#process.p = cms.Path(process.RawToDigi*process.mylocalreco*process.myglobalreco*process.gsfElectronAnalysis)
+
+process.load("RecoParticleFlow.PFProducer.pfElectronTranslator_cff")
+process.load("RecoEgamma.EgammaElectronProducers.gsfElectronCkfTrackCandidateMaker_cff")
+process.load("RecoEgamma.EgammaElectronProducers.gsfElectronGsfFit_cff")
+process.mylocalreco =  cms.Sequence(process.trackerlocalreco*process.calolocalreco)
+#process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*process.pixelMatchGsfElectrons)
+process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*process.particleFlowCluster)
+process.myelectronseeding = cms.Sequence(process.trackerDrivenElectronSeeds*process.ecalDrivenElectronSeeds*process.electronMergedSeeds)
+process.myelectrontracking = cms.Sequence(process.electronCkfTrackCandidates*process.electronGsfTracks)
+#process.p = cms.Path(process.RawToDigi*process.mylocalreco*process.myglobalreco*process.myelectronseeding*process.myelectrontracking*process.particleFlowReco*process.pfElectronTranslator*process.gsfElectronSequence)
+process.p = cms.Path(process.RawToDigi*process.mylocalreco*process.myglobalreco*process.myelectronseeding*process.myelectrontracking*process.particleFlowReco*process.pfElectronTranslator*process.gsfElectronSequence*process.gsfElectronAnalysis)
+
+# to switch on only one seeding mode
+#process.electronCkfTrackCandidates.src = cms.InputTag('ecalDrivenElectronSeeds')
+#process.electronCkfTrackCandidates.src = cms.InputTag('trackerDrivenElectronSeeds:SeedsForGsf')
+
+# to add pflow electrons or not
+#process.gsfElectrons.addPflowElectrons = cms.bool(True)
+process.gsfElectrons.addPflowElectrons = cms.bool(True)
+process.gsfElectrons.applyAmbResolution = cms.bool(True)
+#process.gsfElectrons.seedFromTEC = cms.bool(False)
+process.gsfElectrons.applyPreselection = cms.bool(False)
 
 process.outpath = cms.EndPath(process.out)
 process.GlobalTag.globaltag = 'IDEAL_30X::All'

@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronFakeAnalyzer.cc,v 1.11 2009/03/06 12:42:16 chamont Exp $
+// $Id: GsfElectronFakeAnalyzer.cc,v 1.12 2009/03/25 10:07:27 charlot Exp $
 //
 //
 
@@ -329,20 +329,24 @@ void GsfElectronFakeAnalyzer::beginJob(){
   histSclEoEmatchingObjectShowering1234_endcaps = new TH1F("h_scl_EoEmatchingObject showering1234, endcaps","ele SC over matchingObject energy, showering1234, endcaps",100,0.2,1.2);
 
   // isolation  
-  h_ele_tkSumPt_dr03 = new TH1F("h_tkSumPt, dR=0.3","tk isolation deposit, dR=0.3",100,0.0,20.);
-  h_ele_ecalRecHitSumEt_dr03= new TH1F("h_ecalRecHitSumEt, dR=0.3","ecal isolation deposit, dR=0.3",100,0.0,20.);
-  h_ele_hcalDepth1TowerSumEt_dr03= new TH1F("h_hcalDepth1SumEt, dR=0.3","hcal depth1 isolation deposit, dR=0.3",100,0.0,20.);
-  h_ele_hcalDepth2TowerSumEt_dr03= new TH1F("h_hcalDepth1SumEt, dR=0.3","hcal depth2 isolation deposit, dR=0.3",100,0.0,20.);
-  h_ele_tkSumPt_dr04= new TH1F("h_tkSumPt, dR=0.4","hcal isolation deposit, dR=0.4",100,0.0,20.);
-  h_ele_ecalRecHitSumEt_dr04= new TH1F("h_ecalRecHitSumEt, dR=0.4","ecal isolation deposit, dR=0.4",100,0.0,20.);
-  h_ele_hcalDepth1TowerSumEt_dr04= new TH1F("h_hcalDepth1SumEt, dR=0.4","hcal depth1 isolation deposit, dR=0.4",100,0.0,20.);
-  h_ele_hcalDepth2TowerSumEt_dr04= new TH1F("h_hcalDepth1SumEt, dR=0.4","hcal depth2 isolation deposit, dR=0.4",100,0.0,20.);
+  h_ele_tkSumPt_dr03 = new TH1F("h_ele_tkSumPt, dR=0.3","tk isolation deposit, dR=0.3",100,0.0,20.);
+  h_ele_ecalRecHitSumEt_dr03= new TH1F("h_ele_ecalRecHitSumEt, dR=0.3","ecal isolation deposit, dR=0.3",100,0.0,20.);
+  h_ele_hcalDepth1TowerSumEt_dr03= new TH1F("h_ele_hcalDepth1SumEt, dR=0.3","hcal depth1 isolation deposit, dR=0.3",100,0.0,20.);
+  h_ele_hcalDepth2TowerSumEt_dr03= new TH1F("h_ele_hcalDepth1SumEt, dR=0.3","hcal depth2 isolation deposit, dR=0.3",100,0.0,20.);
+  h_ele_tkSumPt_dr04= new TH1F("h_ele_tkSumPt, dR=0.4","hcal isolation deposit, dR=0.4",100,0.0,20.);
+  h_ele_ecalRecHitSumEt_dr04= new TH1F("h_ele_ecalRecHitSumEt, dR=0.4","ecal isolation deposit, dR=0.4",100,0.0,20.);
+  h_ele_hcalDepth1TowerSumEt_dr04= new TH1F("h_ele_hcalDepth1SumEt, dR=0.4","hcal depth1 isolation deposit, dR=0.4",100,0.0,20.);
+  h_ele_hcalDepth2TowerSumEt_dr04= new TH1F("h_ele_hcalDepth1SumEt, dR=0.4","hcal depth2 isolation deposit, dR=0.4",100,0.0,20.);
   
   // fbrem
   h_ele_fbrem = new TH1F( "h_ele_fbrem","fbrem, mode",50,0.,1.);
   h_ele_fbremVsEta_mode = new TProfile( "h_ele_fbremvsEtamode","mean fbrem vs eta, mode",nbineta2D,etamin,etamax,0.,1.);
   h_ele_fbremVsEta_mean = new TProfile( "h_ele_fbremvsEtamean","mean fbrem vs eta, mean",nbineta2D,etamin,etamax,0.,1.);
 
+  // e/g et pflow electrons 
+  h_ele_mva = new TH1F( "h_ele_mva","mva",50,-1.,1.);
+  h_ele_provenance = new TH1F( "h_ele_provenance","provenance",5,-2.,3.);
+  
   // histos titles
   h_matchingObjectNum              -> GetXaxis()-> SetTitle("# reco jets");
   h_matchingObjectEta             -> GetXaxis()-> SetTitle("jet #eta");
@@ -718,6 +722,20 @@ GsfElectronFakeAnalyzer::endJob(){
   h_ele_eta_showerFrac->Write();
   h_ele_xOverX0VsEta->Write();
 
+  // e/g et pflow electrons 
+  h_ele_mva->Write();
+  h_ele_provenance->Write();
+
+  // isolation
+  h_ele_tkSumPt_dr03->Write();
+  h_ele_ecalRecHitSumEt_dr03->Write();
+  h_ele_hcalDepth1TowerSumEt_dr03->Write();
+  h_ele_hcalDepth2TowerSumEt_dr03->Write();
+  h_ele_tkSumPt_dr04->Write();
+  h_ele_ecalRecHitSumEt_dr04->Write();
+  h_ele_hcalDepth1TowerSumEt_dr04->Write();
+  h_ele_hcalDepth2TowerSumEt_dr04->Write();
+
 }
 
 void
@@ -854,6 +872,7 @@ GsfElectronFakeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 	// supercluster related distributions
 	reco::SuperClusterRef sclRef = bestGsfElectron.superCluster();
+	if (!bestGsfElectron.isEcalDriven()&&bestGsfElectron.isTrackerDriven()) sclRef = bestGsfElectron.pflowSuperCluster();
         histSclEn_->Fill(sclRef->energy());
         double R=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y() +sclRef->z()*sclRef->z());
         double Rt=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y());
@@ -1008,7 +1027,16 @@ GsfElectronFakeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
         if (eleClass == 31 || eleClass == 32  || eleClass == 33 || eleClass == 34 )
 	 h_ele_PtinVsPtoutShowering1234_mean ->  Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
 
-        h_ele_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt());
+        h_ele_mva->Fill(bestGsfElectron.mva());
+        float provenance = 0;
+	if (bestGsfElectron.isEcalDriven()) provenance=1.;
+	if (bestGsfElectron.isTrackerDriven()) provenance=-1.;
+	if (bestGsfElectron.isTrackerDriven()||bestGsfElectron.isEcalDriven()) provenance=0.;
+	if (bestGsfElectron.isTrackerDriven()&&!bestGsfElectron.isEcalDriven()) provenance=-2.;
+	if (!bestGsfElectron.isTrackerDriven()&&bestGsfElectron.isEcalDriven()) provenance=2.;
+	h_ele_provenance->Fill(provenance);
+
+         h_ele_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt());
         h_ele_ecalRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
         h_ele_hcalDepth1TowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalDepth1TowerSumEt());
         h_ele_hcalDepth2TowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalDepth2TowerSumEt());

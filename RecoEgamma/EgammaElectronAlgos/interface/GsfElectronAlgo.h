@@ -35,6 +35,7 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
@@ -63,7 +64,8 @@ class GsfElectronAlgo {
       double maxFbremBarrel, double maxFbremEndcaps,
       bool isBarrel, bool isEndcaps, bool isFiducial,
       bool seedFromTEC,
-      bool applyPreselection, bool applyEtaCorrection, bool applyAmbResolution, 
+      bool applyPreselection, bool applyEtaCorrection, bool applyAmbResolution,
+      bool addPflowElectrons,
       double extRadiusTkSmall, double extRadiusTkLarge, double intRadiusTk,
       double ptMinTk, double maxVtxDistTk, double maxDrbTk,
       double extRadiusHcalSmall, double extRadiusHcalLarge, double intRadiusHcal,
@@ -84,8 +86,9 @@ class GsfElectronAlgo {
     // create electrons from superclusters, tracks and Hcal rechits
     void process
      ( edm::Handle<reco::GsfTrackCollection> tracksH,
-	   edm::Handle<reco::GsfElectronCoreCollection> tracksH,
-	   edm::Handle<reco::TrackCollection> ctfTracksH,
+       edm::Handle<reco::GsfElectronCoreCollection> tracksH,
+       edm::Handle<reco::TrackCollection> ctfTracksH,
+       edm::Handle<edm::ValueMap<float> > pfMVAH,
        edm::Handle<CaloTowerCollection> towersH,
        edm::Handle<EcalRecHitCollection> reducedEBRecHits,
        edm::Handle<EcalRecHitCollection> reducedEERecHits,
@@ -104,7 +107,7 @@ class GsfElectronAlgo {
        EgammaRecHitIsolation & ecalBarrelIso03,EgammaRecHitIsolation & ecalEndcapsIso03,
        EgammaRecHitIsolation & ecalBarrelIso04,EgammaRecHitIsolation & ecalEndcapsIso04,
        edm::Handle<EcalRecHitCollection> reducedEBRecHits,edm::Handle<EcalRecHitCollection> reducedEERecHits,
-       GsfElectronPtrCollection & outEle ) ;
+       float mva, GsfElectronPtrCollection & outEle ) ;
 
     void preselectElectrons( GsfElectronPtrCollection &, GsfElectronPtrCollection & outEle ) ;
 
@@ -117,7 +120,7 @@ class GsfElectronAlgo {
     const reco::SuperClusterRef getTrSuperCluster(const reco::GsfTrackRef & trackRef);
 
     const reco::CaloClusterPtr getEleBasicCluster(const reco::GsfTrackRef &
-     trackRef, const reco::SuperClusterRef & scRef);
+     trackRef, const reco::SuperCluster *scRef);
 
     // From Puneeth Kalavase : returns the CTF track that has the highest fraction
     // of shared hits in Pixels and the inner strip tracker with the electron Track
@@ -180,6 +183,9 @@ class GsfElectronAlgo {
     // if this parameter is true, "double" electrons are resolved
     bool applyAmbResolution_;
 
+    // if this parameter is true, trackerDriven electrons are added 
+    bool addPflowElectrons_;
+    
     // isolation variables parameters
     double extRadiusTkSmall_;
     double extRadiusTkLarge_;
@@ -200,7 +206,7 @@ class GsfElectronAlgo {
     double eMinBarrel_;
     double etMinEndcaps_;
     double eMinEndcaps_;    
-
+    
     // input configuration
     edm::InputTag barrelSuperClusters_;
     edm::InputTag endcapSuperClusters_;
@@ -210,6 +216,7 @@ class GsfElectronAlgo {
     edm::InputTag hcalTowers_;
     edm::InputTag reducedBarrelRecHitCollection_ ;
     edm::InputTag reducedEndcapRecHitCollection_ ;
+    edm::InputTag pfMVA_;
 
 
     edm::ESHandle<MagneticField>                theMagField;
