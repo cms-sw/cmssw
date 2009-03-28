@@ -15,7 +15,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 #include <TF1.h>
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
@@ -229,7 +229,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
       int at=0;
       int rT=0;
       TrajectoryStateTransform tsTransform;
-      TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+      TSCBLBuilderNoMaterial tscblBuilder;
       PerigeeConversions tspConverter;
       for(TrajectorySeedCollection::size_type i=0; i<seedCollection->size(); ++i){
 	edm::RefToBase<TrajectorySeed> seed(seedCollection, i);

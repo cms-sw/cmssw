@@ -14,7 +14,7 @@
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 
 
 #include "TMath.h"
@@ -578,7 +578,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 			    GlobalVector(assocTrack->momentum().x(),assocTrack->momentum().y(),assocTrack->momentum().z()),
 			    TrackCharge(tpr->charge()),
 			    theMF.product());
-	  TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+	  TSCBLBuilderNoMaterial tscblBuilder;
 	  TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction,bs);//as in TrackProducerAlgorithm
 	  GlobalPoint v1 = tsAtClosestApproach.trackStateAtPCA().position();
 	  GlobalVector p = tsAtClosestApproach.trackStateAtPCA().momentum();
