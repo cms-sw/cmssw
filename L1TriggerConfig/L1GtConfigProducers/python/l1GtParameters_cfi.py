@@ -14,8 +14,18 @@ l1GtParameters = cms.ESProducer("L1GtParametersTrivialProducer",
     # default: all active 0xFFFF
     EvmActiveBoards = cms.uint32(0xFFFF),
     
+    # number of Bx per board in the DAQ record
+    DaqNrBxBoard = cms.vint32(3,
+                              3, 3, 3, 3, 3, 3, 3,
+                              3),
+
+    # number of Bx per board in the EVM record
+    EvmNrBxBoard = cms.vint32(1, 3),
+    
     # length of BST record (in bytes) for L1 GT EVM record
     BstLengthBytes = cms.uint32(30)
+    
+    
 )
 
 

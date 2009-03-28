@@ -1,14 +1,14 @@
 /**
  * \class L1GtParametersTrivialProducer
- * 
- * 
- * Description: ESProducer for L1 GT parameters.  
+ *
+ *
+ * Description: ESProducer for L1 GT parameters.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -29,7 +29,6 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -71,13 +70,17 @@ L1GtParametersTrivialProducer::L1GtParametersTrivialProducer(const edm::Paramete
 
     }
 
-    m_daqActiveBoards =
-        static_cast<boost::uint16_t>(parSet.getParameter<unsigned int>("DaqActiveBoards"));
+    m_daqActiveBoards = static_cast<boost::uint16_t> (parSet.getParameter<unsigned int> (
+            "DaqActiveBoards"));
 
-    m_evmActiveBoards = 
-        static_cast<boost::uint16_t>(parSet.getParameter<unsigned int>("EvmActiveBoards"));
+    m_evmActiveBoards = static_cast<boost::uint16_t> (parSet.getParameter<unsigned int> (
+            "EvmActiveBoards"));
 
-    m_bstLengthBytes = parSet.getParameter<unsigned int>("BstLengthBytes");
+    m_daqNrBxBoard = parSet.getParameter<std::vector<int> > ("DaqNrBxBoard");
+
+    m_evmNrBxBoard = parSet.getParameter<std::vector<int> > ("EvmNrBxBoard");
+
+    m_bstLengthBytes = parSet.getParameter<unsigned int> ("BstLengthBytes");
 
 }
 
@@ -112,6 +115,12 @@ boost::shared_ptr<L1GtParameters> L1GtParametersTrivialProducer::produceGtParame
 
     // set the active boards for L1 GT EVM record
     pL1GtParameters->setGtEvmActiveBoards(m_evmActiveBoards);
+
+    // set the number of Bx per board for L1 GT DAQ record
+    pL1GtParameters->setGtDaqNrBxBoard(m_daqNrBxBoard);
+
+    // set the number of Bx per board for L1 GT EVM record
+    pL1GtParameters->setGtEvmNrBxBoard(m_evmNrBxBoard);
 
     // set length of BST record (in bytes) for L1 GT EVM record
     pL1GtParameters->setGtBstLengthBytes(m_bstLengthBytes);

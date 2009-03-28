@@ -1998,19 +1998,30 @@ bool L1GtTriggerMenuXmlParser::parseEnergySum(
         //<< std::hex << objParameter[i].etThreshold << std::dec
         //<< std::endl;
 
-        // for ETM read phi value
-        // phi is larger than 64 bits -it needs two 64bits words
+        // for ETM and HTM read phi value
+        // phi is larger than 64 bits for ETM - it needs two 64bits words
+        // phi is less than 64 bits for HTM   - it needs one 64bits word
         if (energySumObjType == ETM) {
 
-            if ( !getXMLHexTextValue128(findXMLChild(node->getFirstChild(), m_xmlTagPhi),
-                tmpValues[0], tmpValues[1])) {
+            if (!getXMLHexTextValue128(
+                    findXMLChild(node->getFirstChild(), m_xmlTagPhi), tmpValues[0], tmpValues[1])) {
                 edm::LogError("L1GtTriggerMenuXmlParser")
-                    << "    Could not get phi for ETM condition (" << name << ")" << std::endl;
+                        << "    Could not get phi for ETM condition (" << name << ")" << std::endl;
                 return false;
             }
 
             objParameter[i].phiRange0Word = tmpValues[0];
             objParameter[i].phiRange1Word = tmpValues[1];
+
+        } else if (energySumObjType == HTM) {
+
+            if (!getXMLHexTextValue(findXMLChild(node->getFirstChild(), m_xmlTagPhi), tmpValues[0])) {
+                edm::LogError("L1GtTriggerMenuXmlParser")
+                        << "    Could not get phi for HTM condition (" << name << ")" << std::endl;
+                return false;
+            }
+
+            objParameter[i].phiRange0Word = tmpValues[0];
 
         }
 

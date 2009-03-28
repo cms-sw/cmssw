@@ -1,16 +1,16 @@
 /**
  * \class L1GtParametersTester
- * 
- * 
- * Description: test analyzer for L1 GT parameters.  
+ *
+ *
+ * Description: test analyzer for L1 GT parameters.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
- * $Date:$
- * $Revision:$
+ *
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -32,6 +32,9 @@
 
 #include "CondFormats/L1TObjects/interface/L1GtParameters.h"
 #include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageDrop.h"
 
 // forward declarations
 
@@ -55,6 +58,6 @@ void L1GtParametersTester::analyze(
     edm::ESHandle< L1GtParameters > l1GtPar ;
     evSetup.get< L1GtParametersRcd >().get( l1GtPar ) ;
 
-    l1GtPar->print(std::cout);
+    LogDebug("L1GtParametersTester") << (*l1GtPar) << std::endl;
 
 }
