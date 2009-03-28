@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 TauRefCombiner = cms.EDFilter("HLTTauRefProducer",
     PFTaus = cms.untracked.PSet(
-        PFTauDiscriminator = cms.untracked.InputTag("pfRecoTauDiscriminationByIsolation"),
+        PFTauDiscriminator = cms.untracked.InputTag("shrinkingConePFTauDiscriminationByIsolation"),
         doPFTaus = cms.untracked.bool(True),
         ptMin = cms.untracked.double(15.0),
-        PFTauProducer = cms.untracked.InputTag("pfRecoTauProducer")
+        PFTauProducer = cms.untracked.InputTag("fixedConePFTauProducer")
     ),
     MC = cms.untracked.PSet(
         GenParticles = cms.untracked.InputTag("source"),
