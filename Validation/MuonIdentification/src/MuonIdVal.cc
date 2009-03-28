@@ -245,18 +245,18 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          }
 
          hCaloCompat[i]->Fill(muon->caloCompatibility());
-         hSegmentCompat[i]->Fill(muon->segmentCompatibility());
+         hSegmentCompat[i]->Fill(muon::segmentCompatibility(*muon));
          if (make2DPlots_)
-            hCaloSegmentCompat[i]->Fill(muon->caloCompatibility(), muon->segmentCompatibility());
-         hGlobalMuonPromptTightBool[i]->Fill(muon->isGood(Muon::GlobalMuonPromptTight));
-         hTMLastStationLooseBool[i]->Fill(muon->isGood(Muon::TMLastStationLoose));
-         hTMLastStationTightBool[i]->Fill(muon->isGood(Muon::TMLastStationTight));
-         hTM2DCompatibilityLooseBool[i]->Fill(muon->isGood(Muon::TM2DCompatibilityLoose));
-         hTM2DCompatibilityTightBool[i]->Fill(muon->isGood(Muon::TM2DCompatibilityTight));
-         hTMOneStationLooseBool[i]->Fill(muon->isGood(Muon::TMOneStationLoose));
-         hTMOneStationTightBool[i]->Fill(muon->isGood(Muon::TMOneStationTight));
-         hTMLastStationOptimizedLowPtLooseBool[i]->Fill(muon->isGood(Muon::TMLastStationOptimizedLowPtLoose));
-         hTMLastStationOptimizedLowPtTightBool[i]->Fill(muon->isGood(Muon::TMLastStationOptimizedLowPtTight));
+            hCaloSegmentCompat[i]->Fill(muon->caloCompatibility(), muon::segmentCompatibility(*muon));
+         hGlobalMuonPromptTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::GlobalMuonPromptTight));
+         hTMLastStationLooseBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationLoose));
+         hTMLastStationTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationTight));
+         hTM2DCompatibilityLooseBool[i]->Fill(muon::isGoodMuon(*muon, muon::TM2DCompatibilityLoose));
+         hTM2DCompatibilityTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::TM2DCompatibilityTight));
+         hTMOneStationLooseBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMOneStationLoose));
+         hTMOneStationTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMOneStationTight));
+         hTMLastStationOptimizedLowPtLooseBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtLoose));
+         hTMLastStationOptimizedLowPtTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtTight));
 
          // by station
          for(int station = 0; station < 4; ++station)
