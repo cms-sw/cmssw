@@ -38,7 +38,11 @@ calotoweroptmaker = cms.EDProducer(
     HOThresholdPlus2 = cms.double(0.5),
     HOThresholdMinus2 = cms.double(0.5),
     
+
+    #Old HO Parameter ( To be discontinued in 31X )
     HOThreshold = cms.double(0.5), 
+
+
 
     HcalAcceptSeverityLevel = cms.uint32(999),
     EcalAcceptSeverityLevel = cms.uint32(1),
