@@ -22,10 +22,11 @@ RPCEventSummary::RPCEventSummary(const ParameterSet& ps ){
   enableReportSummary_ = ps.getUntrackedParameter<bool>("EnableSummaryReport",true);
   prescaleFactor_ =  ps.getUntrackedParameter<int>("PrescaleFactor", 1);
   eventInfoPath_ = ps.getUntrackedParameter<string>("EventInfoPath", "RPC/EventInfo");
-  summaryFolder_ = ps.getUntrackedParameter<string>("RPCSummaryFolder", "RPC/RecHits/SummaryHistograms");
+  globalFolder_ = ps.getUntrackedParameter<string>("RPCSummaryFolder", "RPC/RecHits/SummaryHistograms");
   verbose_=ps.getUntrackedParameter<bool>("VerboseLevel", 0);
+  minimumEvents_= ps.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
  
-  tier0_=ps.getUntrackedParameter<bool>("Tier0", false);
+   tier0_=ps.getUntrackedParameter<bool>("Tier0", false);
 
 }
 
@@ -42,6 +43,8 @@ void RPCEventSummary::beginJob(const EventSetup& iSetup){
 
 void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
  LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Begin run";
+
+ init_=false;
 
  MonitorElement* me;
  dbe_->setCurrentFolder(eventInfoPath_);
@@ -143,79 +146,85 @@ void RPCEventSummary::analyze(const Event& iEvent, const EventSetup& c) {}
 void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {  
   LogVerbatim ("rpceventsummary") <<"[RPCEventSummary]: End of LS transition, performing DQM client operation";
 
-  // counts number of lumiSegs 
-   nLumiSegs_ = lumiSeg.id().luminosityBlock();
-   stringstream meName;
+   
+  MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
+  float   rpcevents = RPCEvents -> getEntries();
 
-  //check some statements and prescale Factor
-  if(!enableReportSummary_  ||  (nLumiSegs_%prescaleFactor_ != 0)) return;
-
-  MonitorElement * myMe;
-
-  meName.str("");
-  meName<<eventInfoPath_ + "/reportSummaryMap";
-  MonitorElement * reportMe = dbe_->get(meName.str());
-  
-  MonitorElement * globalMe;
-
-  //BARREL
-  float barrelFactor =0;
-  for(int w = -2 ; w<3; w++){
- 
-    meName.str("");
-    meName<<summaryFolder_<<"/RPCChamberQuality_Roll_vs_Sector_Wheel"<<w;
-    myMe = dbe_->get(meName.str());
-  
-    if(myMe){      
-      float wheelFactor = 0;
-
-      for(int s = 1; s<=myMe->getNbinsX() ; s++){
-	float sectorFactor = 0;
-	int rollInSector = 0;
-
+   if(!init_ && rpcevents < minimumEvents_) return;
+   else if(!init_) {
+     init_=true;
+     nLumiSegs_ = prescaleFactor_;
+   }else nLumiSegs_++;
+   
+   if (nLumiSegs_ % prescaleFactor_ != 0 ) return;
+   
+    stringstream meName;
+   MonitorElement * myMe;
+   
+   meName.str("");
+   meName<<eventInfoPath_ + "/reportSummaryMap";
+   MonitorElement * reportMe = dbe_->get(meName.str());
+   
+   MonitorElement * globalMe;
+   
+   //BARREL
+   float barrelFactor =0;
+   for(int w = -2 ; w<3; w++){
      
-	for(int r = 1;r<=myMe->getNbinsY(); r++){
-	  if((s!=4 && r > 17 ) || ((s ==9 ||s ==10)  && r >15 ) )  continue;
-	  rollInSector++;
-
-
-	  if(myMe->getBinContent(s,r) == PARTIALLY_DEAD) sectorFactor+=0.8;
-	  else if(myMe->getBinContent(s,r) == DEAD )sectorFactor+=0;
-	  else sectorFactor+=1;	
-
-	}
-	if(rollInSector!=0)
+     meName.str("");
+     meName<<globalFolder_<<"/RPCChamberQuality_Roll_vs_Sector_Wheel"<<w;
+     myMe = dbe_->get(meName.str());
+     
+     if(myMe){      
+       float wheelFactor = 0;
+       
+       for(int s = 1; s<=myMe->getNbinsX() ; s++){
+	 float sectorFactor = 0;
+	 int rollInSector = 0;
+	 
+	 
+	 for(int r = 1;r<=myMe->getNbinsY(); r++){
+	   if((s!=4 && r > 17 ) || ((s ==9 ||s ==10)  && r >15 ) )  continue;
+	   rollInSector++;
+	   
+	   
+	   if(myMe->getBinContent(s,r) == PARTIALLY_DEAD) sectorFactor+=0.8;
+	   else if(myMe->getBinContent(s,r) == DEAD )sectorFactor+=0;
+	   else sectorFactor+=1;	
+	   
+	 }
+	 if(rollInSector!=0)
 	  sectorFactor = sectorFactor/rollInSector;
-
+	 
 	 if(reportMe)	reportMe->setBinContent(w+8, s, sectorFactor);
-	wheelFactor += sectorFactor;
-
-      }//end loop on sectors
-
-      wheelFactor = wheelFactor/myMe->getNbinsX();
-
-      meName.str("");
-      meName<<eventInfoPath_ + "/reportSummaryContents/RPC_Wheel"<<w; 
-      globalMe=dbe_->get(meName.str());
-      if(globalMe) globalMe->Fill(wheelFactor);
-
-      barrelFactor += wheelFactor;
-    }//
-
-  
-  }//end loop on wheel
-
-
-  barrelFactor=barrelFactor/5;
-
-
-  //ENDCAPS
-
-
-
+	 wheelFactor += sectorFactor;
+	 
+       }//end loop on sectors
+       
+       wheelFactor = wheelFactor/myMe->getNbinsX();
+       
+       meName.str("");
+       meName<<eventInfoPath_ + "/reportSummaryContents/RPC_Wheel"<<w; 
+       globalMe=dbe_->get(meName.str());
+       if(globalMe) globalMe->Fill(wheelFactor);
+       
+       barrelFactor += wheelFactor;
+     }//
+     
+     
+   }//end loop on wheel
+   
+   
+   barrelFactor=barrelFactor/5;
+   
+   
+   //ENDCAPS
+   
+   
+   
   //Fill repor summary
-  globalMe = dbe_->get(eventInfoPath_ +"/reportSummary"); 
-  if(globalMe) globalMe->Fill(barrelFactor);
-
-
+   globalMe = dbe_->get(eventInfoPath_ +"/reportSummary"); 
+   if(globalMe) globalMe->Fill(barrelFactor);
+   
+   
 }

@@ -138,10 +138,10 @@ void RPCDqmClient::analyze(const Event& iEvent, const EventSetup& iSetup)
 void RPCDqmClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c){
 
   edm::LogVerbatim ("rpcdqmclient") <<"[RPCDqmClient]: End of LS ";
-
-   MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
-   float   rpcevents = RPCEvents -> getEntries();
-
+ 
+  MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
+  float   rpcevents = RPCEvents -> getEntries();
+  
   if(!init_ && rpcevents < minimumEvents_) return;
   else if(!init_) {
     init_=true;
@@ -149,8 +149,8 @@ void RPCDqmClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::
   }else numLumBlock_++;
    
   if (!enableDQMClients_ || numLumBlock_ % prescaleGlobalFactor_ != 0 ) return;
-
-
+  
+  
   for (vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
     (*it)->endLuminosityBlock( lumiSeg, c);
 }

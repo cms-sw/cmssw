@@ -44,9 +44,8 @@ process.load("DQM.RPCMonitorClient.RPCDataCertification_cfi")
 ################# DQM Client Modules ####################
 process.load("DQM.RPCMonitorClient.RPCDqmClient_cfi")
 process.rpcdqmclient.RPCDqmClientList = cms.untracked.vstring("RPCNoisyStripTest","RPCOccupancyTest","RPCClusterSizeTest","RPCDeadChannelTest","RPCMultiplicityTest ")
-process.rpcdqmclient.DiagnosticPrescale = cms.untracked.int32(1)
+process.rpcdqmclient.DiagnosticGlobalPrescale = cms.untracked.int32(5)
 process.rpcdqmclient.NumberOfEndcapDisks  = cms.untracked.int32(3)
-
 
 ################### FED ##################################
 process.load("DQM.RPCMonitorClient.RPCMonitorRaw_cfi")

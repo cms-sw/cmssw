@@ -6,8 +6,8 @@
  * *
  *  DQM Event Summary module for RPCs
  *
- *  $Date: 2008/12/15 16:28:30 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/03/27 16:24:59 $
+ *  $Revision: 1.10 $
  *  \author Anna Cimmino
  *   
  */
@@ -61,12 +61,12 @@ public:
 
   bool tier0_;  
   bool enableReportSummary_;
-  int prescaleFactor_;
-  bool verbose_;
+  int prescaleFactor_, minimumEvents_;
+  bool verbose_, init_;
   DQMStore* dbe_;
  
   int nLumiSegs_;
-  std::string summaryFolder_;
+  std::string globalFolder_;
   
   int numberDisk_;
 
