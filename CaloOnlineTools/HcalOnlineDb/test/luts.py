@@ -14,7 +14,8 @@ process.es_prefer_GlobalTag = cms.ESPrefer("PoolDBESSource","GlobalTag")
 #process.GlobalTag.globaltag = 'CRUZET4_V1::All'
 #process.GlobalTag.globaltag = 'CRUZET4_V6P::All'
 #process.GlobalTag.globaltag = 'CRAFT_V2P::All'
-process.GlobalTag.globaltag = 'CRAFT_V3P::All'
+#process.GlobalTag.globaltag = 'CRAFT_V3P::All'
+process.GlobalTag.globaltag = 'IDEAL_30X::All'
 
 process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
 
