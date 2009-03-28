@@ -23,6 +23,7 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -289,7 +290,7 @@ EcalCosmicsHists::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      numberofBCinSC_->Fill(clus->clustersSize());
      numberofBCinSCphi_->Fill(phi,clus->clustersSize());     
      
-     for (reco::basicCluster_iterator bclus = (clus->clustersBegin()); bclus != (clus->clustersEnd()); ++bclus) 
+     for (reco::CaloCluster_iterator bclus = (clus->clustersBegin()); bclus != (clus->clustersEnd()); ++bclus) 
        {
 	 double cphi = (*bclus)->phi();
 	 double ceta = (*bclus)->eta();     
@@ -297,13 +298,13 @@ EcalCosmicsHists::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 TrueBCOccupancyCoarse_->Fill(cphi,ceta);
        }
      
-     std::vector<DetId> clusterDetIds = clus->getHitsByDetId();//get these from the cluster
-     for(std::vector<DetId>::const_iterator detitr = clusterDetIds.begin(); detitr != clusterDetIds.end(); ++detitr) 
+     std::vector< std::pair<DetId, float> > clusterDetIds = clus->hitsAndFractions();//get these from the cluster
+     for(std::vector<std::pair<DetId, float> >::const_iterator detitr = clusterDetIds.begin(); detitr != clusterDetIds.end(); ++detitr) 
        {
 	 //Here I use the "find" on a digi collection... I have been warned...
-	 if ((*detitr).det() != DetId::Ecal) { std::cout << " det is " <<(*detitr).det() << std::endl;continue;}
-	 if ((*detitr).subdetId() != EcalBarrel) {std::cout << " subdet is " <<(*detitr).subdetId() << std::endl; continue; }
-	 EcalRecHitCollection::const_iterator thishit = hits->find((*detitr));
+	 if ((*detitr).first.det() != DetId::Ecal) { std::cout << " det is " <<(*detitr).first.det() << std::endl;continue;}
+	 if ((*detitr).first.subdetId() != EcalBarrel) {std::cout << " subdet is " <<(*detitr).first.subdetId() << std::endl; continue; }
+	 EcalRecHitCollection::const_iterator thishit = hits->find((*detitr).first);
 	 if (thishit == hits->end()) continue;
 	 //The checking above should no longer be needed...... as only those in the cluster would already have rechits..
 	 
@@ -311,7 +312,7 @@ EcalCosmicsHists::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 
 	 double thisamp = myhit.energy();
 	 if (thisamp > minRecHitAmpEB_) {numXtalsinCluster++; }
-	 if (thisamp > secondMin) {secondMin = thisamp; secondTime = myhit.time(); secDet = (EBDetId)(*detitr);}
+	 if (thisamp > secondMin) {secondMin = thisamp; secondTime = myhit.time(); secDet = (EBDetId)(*detitr).first;}
 	 if (secondMin > ampli) {std::swap(ampli,secondMin); std::swap(time,secondTime); std::swap(maxDet,secDet);}
        }
      
@@ -605,20 +606,20 @@ EcalCosmicsHists::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 //         //TrueBCOccupancyCoarse_->Fill(cphi,ceta);
 //       }
       
-      std::vector<DetId> clusterDetIds = clus->getHitsByDetId();//get these from the cluster
-      for(std::vector<DetId>::const_iterator detitr = clusterDetIds.begin(); detitr != clusterDetIds.end(); ++detitr) {
+      std::vector<std::pair<DetId, float> > clusterDetIds = clus->hitsAndFractions();//get these from the cluster
+      for(std::vector<std::pair<DetId, float> >::const_iterator detitr = clusterDetIds.begin(); detitr != clusterDetIds.end(); ++detitr) {
 	
 	//LogInfo("EcalCosmicsHists") << " Here is the DetId inside the cluster: " << (EEDetId)(*detitr);
 	//Here I use the "find" on a digi collection... I have been warned...
 	
-	if ((*detitr).det() != DetId::Ecal) {
-	  LogError("EcalCosmicsHists") << " det is " <<(*detitr).det(); continue;
+	if ((*detitr).first.det() != DetId::Ecal) {
+	  LogError("EcalCosmicsHists") << " det is " <<(*detitr).first.det(); continue;
 	}
-        if ((*detitr).subdetId() != EcalEndcap) {
-	  LogError("EcalCosmicsHists") << " subdet is " <<(*detitr).subdetId(); continue; 
+        if ((*detitr).first.subdetId() != EcalEndcap) {
+	  LogError("EcalCosmicsHists") << " subdet is " <<(*detitr).first.subdetId(); continue; 
 	}
 
-        EcalRecHitCollection::const_iterator thishit = hitsEE->find((*detitr));
+        EcalRecHitCollection::const_iterator thishit = hitsEE->find((*detitr).first);
 	
         if (thishit == hitsEE->end()) {
           LogInfo("EcalCosmicsHists") << " WARNING: EEDetId not found in the RecHit collection!";
@@ -632,7 +633,7 @@ EcalCosmicsHists::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         //LogInfo("EcalCosmicsHists") << " Found hit for DetId: " << (EEDetId)(*detitr);
         double thisamp = myhit.energy();
         if (thisamp > minRecHitAmpEE_) {numXtalsinCluster++; }
-        if (thisamp > secondMin) {secondMin = thisamp; secondTime = myhit.time(); secDet = (EEDetId)(*detitr);}
+        if (thisamp > secondMin) {secondMin = thisamp; secondTime = myhit.time(); secDet = (EEDetId)(*detitr).first;}
         if (secondMin > ampli) {std::swap(ampli,secondMin); std::swap(time,secondTime); std::swap(maxDet,secDet);}
 	
         //LogInfo("EcalCosmicsHists") << "maxDetId is now: " << (EEDetId)(maxDet);
@@ -1198,23 +1199,23 @@ EcalCosmicsHists::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if (recoTracksBarrel->size()==1) HighEnergy_1tracks_occu3D->Fill(phi,eta,energy);
       if (recoTracksBarrel->size()==2) HighEnergy_2tracks_occu3D->Fill(phi,eta,energy);
       
-      std::vector<DetId> clusterDetIds = clus->getHitsByDetId();//get these from the cluster
-      for(std::vector<DetId>::const_iterator detitr = clusterDetIds.begin(); detitr != clusterDetIds.end(); ++detitr)
+      std::vector<std::pair<DetId, float> > clusterDetIds = clus->hitsAndFractions();//get these from the cluster
+      for(std::vector< std::pair<DetId, float> >::const_iterator detitr = clusterDetIds.begin(); detitr != clusterDetIds.end(); ++detitr)
 	{
-	  if ((*detitr).det() != DetId::Ecal) {continue;}
-	  if ((*detitr).subdetId() != EcalBarrel) {continue; }
-	  EcalRecHitCollection::const_iterator thishit = hits->find((*detitr));
+	  if ((*detitr).first.det() != DetId::Ecal) {continue;}
+	  if ((*detitr).first.subdetId() != EcalBarrel) {continue; }
+	  EcalRecHitCollection::const_iterator thishit = hits->find((*detitr).first);
 	  if (thishit == hits->end()) {continue;}
 	  
 	  double rechitenergy = thishit->energy();
-	  int ieta = ((EBDetId)(*detitr)).ieta();
-	  int iphi = ((EBDetId)(*detitr)).iphi();
+	  int ieta = ((EBDetId)(*detitr).first).ieta();
+	  int iphi = ((EBDetId)(*detitr).first).iphi();
 	  if (rechitenergy > minRecHitAmpEB_) {
 	    if (recoTracksBarrel->size()==0) HighEnergy_0tracks_occu3DXtal->Fill(iphi,ieta,rechitenergy);
 	    if (recoTracksBarrel->size()==1) HighEnergy_1tracks_occu3DXtal->Fill(iphi,ieta,rechitenergy);
 	    if (recoTracksBarrel->size()==2) HighEnergy_2tracks_occu3DXtal->Fill(iphi,ieta,rechitenergy);
 	    
-	    if (rechitenergy > 10 ) edm::LogWarning("EcalCosmicsHists") << "!!!!! Crystal with energy " << rechitenergy << " at (ieta,iphi) (" << ieta << " ," << iphi << "); Id: " << (*detitr).det();
+	    if (rechitenergy > 10 ) edm::LogWarning("EcalCosmicsHists") << "!!!!! Crystal with energy " << rechitenergy << " at (ieta,iphi) (" << ieta << " ," << iphi << "); Id: " << (*detitr).first.det();
 	  }
 	}
     }

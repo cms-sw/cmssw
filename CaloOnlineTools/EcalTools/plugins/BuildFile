@@ -12,7 +12,6 @@
 <use name=DataFormats/L1GlobalTrigger>
 <use name=Geometry/EcalMapping>
 <use name=Geometry/CaloTopology>
-<use name=Geometry/CaloEventSetup>
 <use name=HLTrigger/HLTcore>
 <use name=PhysicsTools/UtilAlgos>
 <use name=TrackingTools/TrackAssociator>

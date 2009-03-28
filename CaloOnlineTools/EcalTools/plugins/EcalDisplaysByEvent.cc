@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Aug 28 5:46:22 CEST 2007
-// $Id: EcalDisplaysByEvent.cc,v 1.12 2008/09/26 07:45:09 scooper Exp $
+// $Id: EcalDisplaysByEvent.cc,v 1.1 2008/12/12 02:34:36 scooper Exp $
 //
 //
 
@@ -21,6 +21,7 @@
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 #include "TLatex.h"
 #include "TLine.h"
+#include "TProfile2D.h"
 
 using namespace edm;
 using namespace std;
