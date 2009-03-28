@@ -13,15 +13,16 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 ##----## Reco:
 ##process.load("Configuration.StandardSequences.Reconstruction_cff")
+process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 process.siPixelDigis.InputLabel = 'source'
 process.siPixelDigis.IncludeErrors = True
 
-process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
+#process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
 
-process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
-process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff")
+#process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
+#process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff")
 
 #process.load("EventFilter.SiStripRawToDigi.SiStripRawToDigis_standard_cff")
 #process.siStripDigis.ProductLabel = 'source'
@@ -35,7 +36,9 @@ process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff")
 #process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 #process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
 #process.load("RecoTracker.Configuration.RecoTrackerP5_cff")
-  
+
+
+
 ##----## Central DQM:
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
@@ -59,6 +62,13 @@ process.load("DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff")
 process.load("DQM.SiPixelCommon.SiPixelOfflineDQM_client_cff")
 #process.load("DQM.SiPixelCommon.SiPixelP5DQM_source_cff")
 #process.load("DQM.SiPixelCommon.SiPixelP5DQM_client_cff")
+## the following sequences are declared therein:
+## siPixelOfflineDQM_source, siPixelOfflineDQM_cosmics_source, siPixelOfflineDQM_source_woTrack
+## PixelOfflineDQMClient, PixelOfflineDQMClientWithDataCertification
+## siPixelP5DQM_source, siPixelP5DQM_cosmics_source, siPixelP5DQM_source_woTrack
+## PixelP5DQMClient, PixelP5DQMClientWithDataCertification
+
+
 
 ##----## Other stuff:
 process.MessageLogger = cms.Service("MessageLogger",
@@ -97,7 +107,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(100)
 )
 
 ##----## Sequences and Paths:
@@ -116,7 +126,9 @@ process.CERTmodules = cms.Sequence(process.sipixelDaqInfo*process.sipixelDcsInfo
 #process.monitorTrack = cms.Sequence(process.SiPixelTrackResidualSource)
 #process.monitors = cms.Sequence(process.SiPixelRawDataErrorSource*process.SiPixelDigiSource*process.SiPixelClusterSource*process.SiPixelRecHitSource*process.SiPixelTrackResidualSource)
 
-#process.p = cms.Path(process.Reco*process.dqmEnv*process.siPixelP5DQM_source_woTrack*process.PixelP5DQMClientWithDataCertification*process.dqmSaver)
-process.p = cms.Path(process.Reco*process.dqmEnv*process.siPixelOfflineDQM_source_woTrack*process.PixelOfflineDQMClientWithDataCertification*process.dqmSaver)
+#process.p = cms.Path(process.Reco*process.dqmEnv*process.siPixelP5DQM_source_woTrack*process.qTester*process.PixelP5DQMClientWithDataCertification*process.dqmSaver)
 #process.pathTrack = cms.Path(process.trackReconstruction*process.DQMmodules*process.monitors*process.sipixelEDAClient) 
+#process.p = cms.Path(process.Reco*process.dqmEnv*process.siPixelOfflineDQM_source_woTrack*process.PixelOfflineDQMClientWithDataCertification*process.dqmSaver)
+#process.p = cms.Path(process.Reco*process.dqmEnv*process.siPixelOfflineDQM_source_woTrack*process.qTester*process.PixelOfflineDQMClientWithDataCertification*process.dqmSaver)
+process.p = cms.Path(process.Reco*process.dqmEnv*process.siPixelOfflineDQM_cosmics_source*process.qTester*process.PixelOfflineDQMClientWithDataCertification*process.dqmSaver)
 
