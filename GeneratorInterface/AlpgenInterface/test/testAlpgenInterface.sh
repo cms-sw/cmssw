@@ -16,23 +16,30 @@ ls $ALPGEN_BIN_PATH
 echo ""
 
 # Parameters for the ALPGEN input file.
-IMODE=1
+# Also, the exclusive / inclusive option.
+# Must be either True or False
 LABEL=w1j
-IH2=1
-ENERGY=5000.0
-MATCHING=1
+IH2=-1
+ENERGY=980.0
+ICKKW=1
 NJETS=1
 ETMIN=20.0
 DRMIN=0.7
-
-# Also, the INCLUSIVE / EXCLUSIVE parameter you have to setup.
-# Options are True or False (Python syntax).
 EXCLUSIVE=True
 
-# Setup derived parameters.
+# Create an empty input file.
+if ls input.skel &> /dev/null
+  then \rm input.skel
+fi
+touch input.skel
+
+# A function to create the input file using a here document.
+create_input_file ()
+{
+# First, setup derived parameters.
 INPUTFILENAME=$LABEL.input
 STDOUTFILENAME=$LABEL.stdout
-if [[ "$MATCHING" -eq 1 ]]
+if [[ "$ICKKW" -eq 1 ]]
 then 
   MATCHINGPYTHON=True
 else
@@ -47,15 +54,7 @@ if(var1 <= var2) var2
 CalculationLimitString
 )
 
-# Create an empty input file.
-if ls input.skel &> /dev/null
-  then \rm input.skel
-fi
-touch input.skel
-
-# A function to create the input file using a here document.
-create_input_file ()
-{
+# Now, write the file proper.
 cat > input.skel <<EOF
 $IMODE         ! imode
 $LABEL       ! label for files
@@ -69,7 +68,7 @@ $LABEL       ! label for files
 *** input 'print 1' (to display on the screen) or 'print 2' to write to file
 ih2 $IH2                ! nature of collisions: pp (1) or ppbar (-1)
 ebeam $ENERGY           ! beam energy in GeV
-ickkw $MATCHING              ! matching on (1) or off (0)
+ickkw $ICKKW              ! matching on (1) or off (0)
 etajmax 5            ! full rap range for jets
 njets   $NJETS            ! total number of jets
 ptjmin  $ETMIN         ! ptmin for jets
@@ -78,28 +77,37 @@ EOF
 mv input.skel $INPUTFILENAME
 }
 
+# Function to run a test.
+run_test()
+{
 # Create the ALPGEN input file (default: W+1j at the Tevatron).
+IMODE=1
 create_input_file
 # Run it.
 echo "Testing: $ALPGEN_BIN_PATH/$ALPGEN_EXECUTABLE < $INPUTFILENAME (imode 1)..."
-#$ALPGEN_BIN_PATH/$ALPGEN_EXECUTABLE < $INPUTFILENAME > $STDOUTFILENAME
+$ALPGEN_BIN_PATH/$ALPGEN_EXECUTABLE < $INPUTFILENAME > $STDOUTFILENAME
 
 # Also for imode = 2.
 IMODE=2
 create_input_file
 echo "Testing: $ALPGEN_BIN_PATH/$ALPGEN_EXECUTABLE < $INPUTFILENAME (imode 2)..."
 echo "++++++++++" >> $STDOUTFILENAME
-#$ALPGEN_BIN_PATH/$ALPGEN_EXECUTABLE < $INPUTFILENAME >> $STDOUTFILENAME
+$ALPGEN_BIN_PATH/$ALPGEN_EXECUTABLE < $INPUTFILENAME >> $STDOUTFILENAME
 
 # Create the cmsRun cfg.py file.
 cat test_TEMPLATE_cfg.py | sed "s/FILENAME/$LABEL/" | sed "s/MATCHING/$MATCHINGPYTHON/" \
 | sed "s/EXCLUSIVE/$EXCLUSIVE/" | sed "s/ETMIN/$ETCLUS/" | sed "s/DRMIN/$DRMIN/" > test_cfg.py
 # Run it.
 echo "Testing: cmsRun test_cfg.py (running both AlpgenSource and AlpgenProducer)..."
-#cmsRun test_cfg.py > cmsRun.stdout
+cmsRun test_cfg.py > cmsRun.stdout 2> cmsRun.stderr
+}
 
-# Check if cmsRun got the right parameters.
-echo -e "\n++++++ Test results ++++++"
+# Function to display the test results.
+display_test_results()
+{
+# The input file.
+echo -e "\nINPUT FILE: $INPUTFILENAME"
+cat $INPUTFILENAME
 # Beam content.
 if [[ "$IH2" -eq 1 ]]
 then BEAMCONTENT="proton proton" 
@@ -107,7 +115,7 @@ elif [[ "$IH2" -eq -1  ]]
 then BEAMCONTENT="proton antiproton"
 else BEAMCONTENT="unkwown"
 fi
-echo "Beam content given as input: $BEAMCONTENT"
+echo -e "\nBeam content given as input: $BEAMCONTENT"
 echo "Beam content seem by CMSSW: "
 grep "PYTHIA will be initialized" cmsRun.stdout
 # Beam energy.
@@ -122,4 +130,36 @@ echo "                DRMIN = $DRMIN"
 echo "Seen by CMSSW:"
 grep IEXC cmsRun.stdout
 grep ETACLUS cmsRun.stdout
+echo "===================="
+echo
+}
 
+# Run test and display test results
+run_test
+display_test_results
+
+# Now you just change the values and run new tests.
+ALPGEN_EXECUTABLE=zjetgen
+LABEL=z0j
+IH2=1
+ENERGY=7000.0
+ICKKW=0
+NJETS=0
+ETMIN=20.0
+DRMIN=0.7
+EXCLUSIVE=False
+run_test
+display_test_results
+
+
+ALPGEN_EXECUTABLE=2Qgen
+LABEL=ttbar1j
+IH2=1
+ENERGY=5000.0
+ICKKW=1
+NJETS=1
+ETMIN=40.0
+DRMIN=0.7
+EXCLUSIVE=True
+run_test
+display_test_results
