@@ -85,8 +85,8 @@ void PFSuperClusterReader::analyze(const edm::Event & iEvent,const edm::EventSet
       std::cout << " Preshower contribution " << mySuperCluster.preshowerEnergy() << std::endl;
       std::cout << " MVA value " << mva << std::endl;
       std::cout << " List of basic clusters " << std::endl;
-      reco::basicCluster_iterator it=mySuperCluster.clustersBegin();
-      reco::basicCluster_iterator it_end=mySuperCluster.clustersEnd();
+      reco::CaloCluster_iterator it=mySuperCluster.clustersBegin();
+      reco::CaloCluster_iterator it_end=mySuperCluster.clustersEnd();
       for(;it!=it_end;++it)
 	{
 	  std::cout << " Basic cluster " << (*it)->energy() << std::endl ;
