@@ -5,5 +5,8 @@ import FWCore.ParameterSet.Config as cms
 from DQM.RPCMonitorClient.RPCEventSummary_cfi import *
 rpcEventSummary.Tier0 = False
 
+from DQM.RPCMonitorClient.RPCDqmClient_cfi import *
 
-rpcTier0Client = cms.Sequence(rpcEventSummary)
+from  DQM.RPCMonitorClient.RPCChamberQuality_cfi import *
+
+rpcTier0Client = cms.Sequence(rpcdqmclient*rpcEventSummary*rpcChamberQuality)

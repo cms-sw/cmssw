@@ -182,7 +182,7 @@ namespace rpcdqm{
       rolls[1]="B";
       rolls[2]="C";
 
-
+      endcapYLabels_.clear();
       stringstream myLabel;
 
       for(int ring = 1 ; ring <=3; ring ++){
@@ -220,27 +220,27 @@ namespace rpcdqm{
 
     //use only with RollvsSector MEs
     void labelYAxisRoll(MonitorElement * myMe, int region, int ring){
-
+  
       //before do some checks
       if (!myMe) return;
-
+  
       //set bin labels
       if(region == 0){
-
+  
 	//initialize label vector
 	this->dolabeling();  
 	if(ring == -2 || ring == 2) ylabel[7]=ylabel[0];
-
+  
 	for(int y = 1; y<= myMe->getNbinsY() && y<22; y++)	  
 	  myMe->setBinLabel(y, ylabel[y], 2);
 	
       }else{//Endcap
-
+   
 	this->doEndcapLabeling();
-
-  	for(int y = 1; y<= myMe->getNbinsY(); y++)	  
+   
+  	for(int y = 1; y<= myMe->getNbinsY() && y<(int)endcapYLabels_.size(); y++)	  
 	  myMe->setBinLabel(y, endcapYLabels_[y], 2);
-
+   
       }
     }
 

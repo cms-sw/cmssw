@@ -2,8 +2,8 @@
  *
  *  implementation of RPCMonitorSync class
  *
- *  $Date: 2008/03/01 00:40:15 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/03/27 17:37:18 $
+ *  $Revision: 1.5 $
  *
  * \author Piotr Traczyk
  */
@@ -162,7 +162,7 @@ void RPCMonitorSync::endJob(void)
     offset = ci->second.offset();
     width = ci->second.width();
 
-    RPCDetId *tempDetId=new RPCDetId(ci->first); 
+    //    RPCDetId *tempDetId=new RPCDetId(ci->first); 
         
       
     if( detId.region()==0 ) {
@@ -272,7 +272,7 @@ void RPCMonitorSync::analyze( const edm::Event& iEvent, const edm::EventSetup& i
   
    LogInfo (nameInLog) << "Beginning analyzing event " << counter++;
 
-   time_t aTime = iEvent.time().value();
+   //   time_t aTime = iEvent.time().value();
 
    
    readRPCDAQStrips(iEvent);
