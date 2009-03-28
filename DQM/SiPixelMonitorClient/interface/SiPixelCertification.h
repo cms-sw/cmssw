@@ -39,15 +39,7 @@ private:
   
   MonitorElement * CertificationPixel;
   MonitorElement * CertificationBarrel;
-  MonitorElement * CertificationShellmI;
-  MonitorElement * CertificationShellmO;
-  MonitorElement * CertificationShellpI;
-  MonitorElement * CertificationShellpO;
   MonitorElement * CertificationEndcap;
-  MonitorElement * CertificationHalfCylindermI;
-  MonitorElement * CertificationHalfCylindermO;
-  MonitorElement * CertificationHalfCylinderpI;
-  MonitorElement * CertificationHalfCylinderpO;
 
 };
 

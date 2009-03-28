@@ -19,6 +19,7 @@ class DQMStore;
 class SiPixelWebInterface;
 class SiPixelTrackerMapCreator;
 class SiPixelInformationExtractor;
+class SiPixelDataQuality;
 class SiPixelActionExecutor;
  
 class SiPixelEDAClient: public edm::EDAnalyzer, public evf::ModuleWeb{
@@ -57,6 +58,7 @@ private:
 
   SiPixelWebInterface* sipixelWebInterface_;
   SiPixelInformationExtractor* sipixelInformationExtractor_;
+  SiPixelDataQuality* sipixelDataQuality_;
   SiPixelActionExecutor* sipixelActionExecutor_;
   SiPixelTrackerMapCreator* trackerMapCreator_;
 

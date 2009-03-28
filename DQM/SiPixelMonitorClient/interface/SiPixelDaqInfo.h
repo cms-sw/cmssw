@@ -40,14 +40,6 @@ private:
   MonitorElement*  DaqFraction_;
   MonitorElement*  DaqFractionBarrel_;
   MonitorElement*  DaqFractionEndcap_;
-  MonitorElement*  DaqFractionShellmI_;
-  MonitorElement*  DaqFractionShellmO_;
-  MonitorElement*  DaqFractionShellpI_;
-  MonitorElement*  DaqFractionShellpO_;
-  MonitorElement*  DaqFractionHalfCylindermI_;
-  MonitorElement*  DaqFractionHalfCylindermO_;
-  MonitorElement*  DaqFractionHalfCylinderpI_;
-  MonitorElement*  DaqFractionHalfCylinderpO_;
 
   std::pair<int,int> FEDRange_;
 

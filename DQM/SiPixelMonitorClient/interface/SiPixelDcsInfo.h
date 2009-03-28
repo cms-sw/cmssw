@@ -40,14 +40,6 @@ private:
   MonitorElement*  DcsFraction_;
   MonitorElement*  DcsFractionBarrel_;
   MonitorElement*  DcsFractionEndcap_;
-  MonitorElement*  DcsFractionShellmI_;
-  MonitorElement*  DcsFractionShellmO_;
-  MonitorElement*  DcsFractionShellpI_;
-  MonitorElement*  DcsFractionShellpO_;
-  MonitorElement*  DcsFractionHalfCylindermI_;
-  MonitorElement*  DcsFractionHalfCylindermO_;
-  MonitorElement*  DcsFractionHalfCylinderpI_;
-  MonitorElement*  DcsFractionHalfCylinderpO_;
 
   std::pair<int,int> DCSPixelRange_;
 

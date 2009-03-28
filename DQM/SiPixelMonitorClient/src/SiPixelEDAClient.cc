@@ -32,6 +32,7 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelWebInterface.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelInformationExtractor.h"
+#include "DQM/SiPixelMonitorClient/interface/SiPixelDataQuality.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 
 #include "xgi/Method.h"
@@ -94,9 +95,10 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   
   // instantiate web interface
   sipixelWebInterface_ = new SiPixelWebInterface(bei_,offlineXMLfile_,Tier0Flag_);
-  //instantiate the two work horses of the client:
+  //instantiate the three work horses of the client:
   sipixelInformationExtractor_ = new SiPixelInformationExtractor(offlineXMLfile_);
   sipixelActionExecutor_ = new SiPixelActionExecutor(offlineXMLfile_, Tier0Flag_);
+  sipixelDataQuality_ = new SiPixelDataQuality(offlineXMLfile_);
   
 // cout<<"...leaving  SiPixelEDAClient::SiPixelEDAClient. "<<endl;
 }
@@ -143,8 +145,10 @@ void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
   sipixelActionExecutor_->createSummary(bei_);
   // Creating occupancy plots:
   sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
+  // Booking noisy pixel ME's:
+  sipixelInformationExtractor_->bookNoisyPixels(bei_, noiseRate_, Tier0Flag_);
   // Booking summary report ME's:
-  sipixelInformationExtractor_->bookGlobalQualityFlag(bei_, noiseRate_,Tier0Flag_);
+  sipixelDataQuality_->bookGlobalQualityFlag(bei_, Tier0Flag_);
   if(!Tier0Flag_) nFEDs_ = 40;
 
 //  cout<<"...leaving SiPixelEDAClient::beginJob. "<<endl;
@@ -217,12 +221,12 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     //cout  << " Checking Pixel quality flags " << endl;;
     bei_->cd();
     bool init=true;
-    sipixelInformationExtractor_->computeGlobalQualityFlag(bei_,init,nFEDs_,Tier0Flag_);
-    init=true;
-    sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_,Tier0Flag_);
+//    sipixelDataQuality_->computeGlobalQualityFlag(bei_,init,nFEDs_,Tier0Flag_);
+//    init=true;
+//    sipixelDataQuality_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_,Tier0Flag_);
     //cout << " Checking for new noisy pixels " << endl;
-    init=true;
-    if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);
+//    init=true;
+//    if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);
   }   
          
   // -- Create TrackerMap  according to the frequency
@@ -265,9 +269,9 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     //cout  << " Checking Pixel quality flags " << endl;;
     bei_->cd();
     bool init=true;
-    sipixelInformationExtractor_->computeGlobalQualityFlag(bei_,init,nFEDs_,Tier0Flag_);
+    sipixelDataQuality_->computeGlobalQualityFlag(bei_,init,nFEDs_,Tier0Flag_);
     init=true;
-    sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_,Tier0Flag_);
+    sipixelDataQuality_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_,Tier0Flag_);
     //cout << " Checking for new noisy pixels " << endl;
     init=true;
     if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);
