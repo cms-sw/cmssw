@@ -13,31 +13,31 @@ def UpdateCuts(TheProducer, TheCuts):
    for aComputer in TheProducer.computers:
       aComputer.cut = cms.double(TheCuts[aComputer.computerName.value()])
 
-tauNeuralClassifierOnePercent = copy.deepcopy(shrinkingConePFTauDiscriminationByMVA)
-tauNeuralClassifierOnePercent.MakeBinaryDecision = cms.bool(True)
-UpdateCuts(tauNeuralClassifierOnePercent, CutSet_TaNC_OnePercent)
+shrinkingConePFTauDiscriminationByTaNCfrOnePercent = copy.deepcopy(shrinkingConePFTauDiscriminationByTaNC)
+shrinkingConePFTauDiscriminationByTaNCfrOnePercent.MakeBinaryDecision = cms.bool(True)
+UpdateCuts(shrinkingConePFTauDiscriminationByTaNCfrOnePercent, CutSet_TaNC_OnePercent)
 
-tauNeuralClassifierOnePercent = copy.deepcopy(shrinkingConePFTauDiscriminationByMVA)
-tauNeuralClassifierOnePercent.MakeBinaryDecision = cms.bool(True)
-UpdateCuts(tauNeuralClassifierOnePercent, CutSet_TaNC_OnePercent)
+shrinkingConePFTauDiscriminationByTaNCfrOnePercent = copy.deepcopy(shrinkingConePFTauDiscriminationByTaNC)
+shrinkingConePFTauDiscriminationByTaNCfrOnePercent.MakeBinaryDecision = cms.bool(True)
+UpdateCuts(shrinkingConePFTauDiscriminationByTaNCfrOnePercent, CutSet_TaNC_OnePercent)
 
-tauNeuralClassifierHalfPercent = copy.deepcopy(shrinkingConePFTauDiscriminationByMVA)
-tauNeuralClassifierHalfPercent.MakeBinaryDecision = cms.bool(True)
-UpdateCuts(tauNeuralClassifierHalfPercent, CutSet_TaNC_HalfPercent)
+shrinkingConePFTauDiscriminationByTaNCfrHalfPercent = copy.deepcopy(shrinkingConePFTauDiscriminationByTaNC)
+shrinkingConePFTauDiscriminationByTaNCfrHalfPercent.MakeBinaryDecision = cms.bool(True)
+UpdateCuts(shrinkingConePFTauDiscriminationByTaNCfrHalfPercent, CutSet_TaNC_HalfPercent)
 
-tauNeuralClassifierQuarterPercent = copy.deepcopy(shrinkingConePFTauDiscriminationByMVA)
-tauNeuralClassifierQuarterPercent.MakeBinaryDecision = cms.bool(True)
-UpdateCuts(tauNeuralClassifierQuarterPercent, CutSet_TaNC_QuarterPercent)
+shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent = copy.deepcopy(shrinkingConePFTauDiscriminationByTaNC)
+shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent.MakeBinaryDecision = cms.bool(True)
+UpdateCuts(shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent, CutSet_TaNC_QuarterPercent)
 
-tauNeuralClassifierTenthPercent = copy.deepcopy(shrinkingConePFTauDiscriminationByMVA)
-tauNeuralClassifierTenthPercent.MakeBinaryDecision = cms.bool(True)
-UpdateCuts(tauNeuralClassifierTenthPercent, CutSet_TaNC_TenthPercent)
+shrinkingConePFTauDiscriminationByTaNCfrTenthPercent = copy.deepcopy(shrinkingConePFTauDiscriminationByTaNC)
+shrinkingConePFTauDiscriminationByTaNCfrTenthPercent.MakeBinaryDecision = cms.bool(True)
+UpdateCuts(shrinkingConePFTauDiscriminationByTaNCfrTenthPercent, CutSet_TaNC_TenthPercent)
 
 RunTanc = cms.Sequence(
-      tauNeuralClassifierOnePercent+
-      tauNeuralClassifierHalfPercent+
-      tauNeuralClassifierQuarterPercent+
-      tauNeuralClassifierTenthPercent
+      shrinkingConePFTauDiscriminationByTaNCfrOnePercent+
+      shrinkingConePFTauDiscriminationByTaNCfrHalfPercent+
+      shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent+
+      shrinkingConePFTauDiscriminationByTaNCfrTenthPercent
       )
 
 

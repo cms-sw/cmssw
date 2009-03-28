@@ -13,7 +13,7 @@
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id: TauMVADiscriminator.cc,v 1.8 2009/01/27 23:18:35 friis Exp $
+// $Id: TauMVADiscriminator.cc,v 1.9 2009/02/28 01:04:38 friis Exp $
 //
 //
 
@@ -73,6 +73,7 @@ class TauMVADiscriminator : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob();
       InputTag                  pfTauDecayModeSrc_;
+      bool                      remapOutput_;      // TMVA defaults output to (-1, 1).  Option to remap to (0, 1)
       bool                      applyCut_;         //Specify whether to output the MVA value, or whether to use 
                                                    // the cuts specified in the DecayMode VPSet specified in the cfg file 
       std::vector<InputTag>     preDiscriminants_; //These must pass for the MVA value to be computed
@@ -87,6 +88,7 @@ class TauMVADiscriminator : public edm::EDProducer {
 
 TauMVADiscriminator::TauMVADiscriminator(const edm::ParameterSet& iConfig):
                    pfTauDecayModeSrc_(iConfig.getParameter<InputTag>("pfTauDecayModeSrc")),
+                   remapOutput_(iConfig.getParameter<bool>("RemapOutput")),
                    applyCut_(iConfig.getParameter<bool>("MakeBinaryDecision")),
                    preDiscriminants_(iConfig.getParameter<std::vector<InputTag> >("preDiscriminants")),
                    failValue_(iConfig.getParameter<double>("prefailValue"))
@@ -217,6 +219,15 @@ TauMVADiscriminator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             //applies associated discriminants (see ctor) and constructs the appropriate MVA framework input
             discriminantManager_.buildMVAComputerLink(mvaComputerInput_);
             output = mvaComputer->eval(mvaComputerInput_);
+            if (remapOutput_) // TMVA maps output to [-1, 1].  Remap, if desired, to [0, 1]
+            {
+               if      (output >  1) output = 1.;
+               else if (output < -1) output = 0.;
+               else { 
+                  output += 1.;
+                  output /= 2.;
+               }
+            }
             if (applyCut_)
             {
                //If the user desires a yes or no decision, 
