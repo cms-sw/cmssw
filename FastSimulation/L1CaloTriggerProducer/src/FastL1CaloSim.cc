@@ -14,7 +14,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1CaloSim.cc,v 1.3 2008/07/24 17:06:20 chinhan Exp $
+// $Id: FastL1CaloSim.cc,v 1.12 2009/03/23 11:41:28 chinhan Exp $
 //
 //
 
@@ -37,7 +37,7 @@ FastL1CaloSim::FastL1CaloSim(const edm::ParameterSet& iConfig)
   */
 
   //produces<l1extra::L1EtMissParticle>();
-  produces<l1extra::L1EtMissParticleCollection>();
+  produces<l1extra::L1EtMissParticleCollection>("MET");
   produces<l1extra::L1JetParticleCollection>("Tau");
   produces<l1extra::L1JetParticleCollection>("Central");
   produces<l1extra::L1JetParticleCollection>("Forward");

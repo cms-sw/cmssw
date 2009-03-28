@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.7 2009/02/09 17:01:38 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.40 2009/03/23 11:41:28 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -455,7 +455,7 @@ FastL1GlobalAlgo::FillMET(edm::Event const& e) {
 
   reco::Particle::LorentzVector rp4(-sum_ex,-sum_ey,0.,std::sqrt(sum_ex*sum_ex + sum_ey*sum_ey));
   //m_MET = l1extra::L1EtMissParticle(rp4,sum_et,0.);  
-  m_METs.push_back(l1extra::L1EtMissParticle(rp4,sum_et,0.));  
+  m_METs.push_back(l1extra::L1EtMissParticle(rp4,l1extra::L1EtMissParticle::kMET,sum_et));  
 }
 
 // ------------ Fill MET 2: loop over regions ------------
@@ -503,8 +503,8 @@ FastL1GlobalAlgo::FillMET() {
   reco::Particle::LorentzVector rp4(-sum_ex,-sum_ey,0.,std::sqrt(sum_ex*sum_ex + sum_ey*sum_ey));
   //edm::LogInfo("********** FastL1GlobalAlgo::FillMET()")<<rp4.mass()<<std::endl; 
   //m_MET = l1extra::L1EtMissParticle(rp4,sum_et,0.);  
-  m_METs.push_back(l1extra::L1EtMissParticle(rp4,sum_et,0.));  
- 
+  m_METs.push_back(l1extra::L1EtMissParticle(rp4,l1extra::L1EtMissParticle::kMET,sum_et));  
+
 }
 
 void 

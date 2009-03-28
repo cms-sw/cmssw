@@ -7,6 +7,9 @@ fastL1extraParticleMap.nonIsolatedEmSource = cms.InputTag("fastL1CaloSim","NonIs
 fastL1extraParticleMap.centralJetSource = cms.InputTag("fastL1CaloSim","Central")
 fastL1extraParticleMap.forwardJetSource = cms.InputTag("fastL1CaloSim","Forward")
 fastL1extraParticleMap.tauJetSource = cms.InputTag("fastL1CaloSim","Tau")
-fastL1extraParticleMap.muonSource = 'fastL1CaloSim'
-fastL1extraParticleMap.etMissSource = 'fastL1CaloSim'
+fastL1extraParticleMap.muonSource = cms.InputTag("fastL1CaloSim")
+fastL1extraParticleMap.etMissSource = cms.InputTag("fastL1CaloSim","MET")
+fastL1extraParticleMap.htMissSource = cms.InputTag("fastL1CaloSim","MET") # MHT not supported yet!
+#fastL1extraParticleMap.etMissSource = cms.InputTag("fastL1CaloSim","MET")
+#fastL1extraParticleMap.htMissSource = cms.InputTag("fastL1CaloSim","MHT")
 
