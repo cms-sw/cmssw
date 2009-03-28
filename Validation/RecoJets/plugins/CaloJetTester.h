@@ -4,7 +4,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.h,v 1.8 2008/10/29 09:52:02 jueugste Exp $
+// $Id: CaloJetTester.h,v 1.9 2008/12/30 22:21:40 chlebana Exp $
 
 #include <string>
 
@@ -153,6 +153,17 @@ private:
   MonitorElement* mEScale_pt10;  //new
   MonitorElement* mEScaleFineBin;  //new
 
+  MonitorElement* mpTScaleB;
+  MonitorElement* mpTScaleE;
+  MonitorElement* mpTScaleF;
+  MonitorElement* mpTScale_60_120;
+  MonitorElement* mpTScale_2700_3500;
+  MonitorElement* mpTScale1DB;
+  MonitorElement* mpTScale1DE;
+  MonitorElement* mpTScale1DF;
+  MonitorElement* mpTScale1D_60_120;
+  MonitorElement* mpTScale1D_2700_3500;
+
   MonitorElement* mDelEta;
   MonitorElement* mDelPhi;
   MonitorElement* mDelPt;
@@ -162,6 +173,9 @@ private:
   double mGenEnergyFractionThreshold;
   double mReverseEnergyFractionThreshold;
   double mRThreshold;
+
+  // Switch on/off unimportant histogram
+  std::string  mTurnOnEverything;
 
   // Energy Profiles
   MonitorElement* mHadEnergyProfile;
