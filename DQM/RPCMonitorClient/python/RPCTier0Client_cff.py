@@ -7,7 +7,7 @@ rpcEventSummary.Tier0 = False
 
 from DQM.RPCMonitorClient.RPCDqmClient_cfi import *
 
-#from  DQM.RPCMonitorClient.RPCChamberQuality_cfi import *
-rpcChamberQuality = cms.EDAnalyzer("RPCChamberQuality")
+from  DQM.RPCMonitorClient.RPCChamberQuality_cfi import *
+###rpcChamberQuality = cms.EDAnalyzer("RPCChamberQuality")
 
 rpcTier0Client = cms.Sequence(rpcdqmclient*rpcEventSummary*rpcChamberQuality)
