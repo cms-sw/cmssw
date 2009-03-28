@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2009/03/26 17:43:31 $ by $Author: flucke $
+# last update: $Date: 2009/03/27 15:55:57 $ by $Author: argiro $
 
 # AlCaReco sequence definitions:
 
@@ -51,6 +51,9 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHO_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHOCosmics_cff import *
 # HCAL isotrack
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_cff import *
+# HCAL noise
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalNoise_cff import *
+
 ###############################################################
 # Muon alignment
 ###############################################################
@@ -98,6 +101,7 @@ pathALCARECOHcalCalGammaJet = cms.Path(seqALCARECOHcalCalGammaJet)
 pathALCARECOHcalCalHO = cms.Path(seqALCARECOHcalCalHO*ALCARECOHcalCalHODQM)
 pathALCARECOHcalCalHOCosmics = cms.Path(seqALCARECOHcalCalHOCosmics)
 pathALCARECOHcalCalIsoTrk = cms.Path(seqALCARECOHcalCalIsoTrk*ALCARECOHcalCalIsoTrackDQM)
+pathALCARECOHcalCalNoise = cms.Path(seqALCARECOHcalCalNoise)
 pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu*ALCARECOMuAlCalIsolatedMuDQM*ALCARECODTCalibrationDQM)
 pathALCARECOMuAlZMuMu = cms.Path(seqALCARECOMuAlZMuMu*ALCARECOMuAlZMuMuDQM)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps*ALCARECOMuAlOverlapsDQM)
@@ -250,6 +254,15 @@ ALCARECOStreamHcalCalIsoTrk = cms.FilteredStream(
 	paths  = (pathALCARECOHcalCalIsoTrk),
 	content = OutALCARECOHcalCalIsoTrk.outputCommands,
 	selectEvents = OutALCARECOHcalCalIsoTrk.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamHcalCalNoise = cms.FilteredStream(
+	responsible = 'Grigory Safronov',
+	name = 'ALCARECOHcalCalNoise',
+	paths  = (pathALCARECOHcalCalNoise),
+	content = OutALCARECOHcalCalNoise.outputCommands,
+	selectEvents = OutALCARECOHcalCalNoise.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 

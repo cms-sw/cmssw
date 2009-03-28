@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-# last update: $Date: 2009/03/24 17:39:56 $ by $Author: flucke $
+# last update: $Date: 2009/03/26 15:35:07 $ by $Author: argiro $
 ###############################################################
 # Tracker Alignment
 ###############################################################
@@ -62,6 +62,7 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_Output_cff import 
 #  include "Calibration/HcalAlCaRecoProducers/data/ALCARECOHcalCalZMuMu_Output.cff"
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHO_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHOCosmics_Output_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalNoise_Output_cff import *
 ###############################################################
 # Muon Alignment (incl. stream for calibration)
 ###############################################################
