@@ -8,9 +8,9 @@
 using namespace std;
 
 HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(bool pf, const std::vector<double>& w,
-						   int latency, uint32_t FG_threshold)
+						   int latency, uint32_t FG_threshold, uint32_t ZS_threshold, int firstTPSample, int TPSize)
   : incoder_(0), outcoder_(0), theThreshold(0),
-    peakfind_(pf), weights_(w), latency_(latency), FG_threshold_(FG_threshold)
+    peakfind_(pf), weights_(w), latency_(latency), FG_threshold_(FG_threshold), ZS_threshold_(ZS_threshold), firstTPSample_(firstTPSample), TPSize_(TPSize)
 {
 }
 
@@ -64,6 +64,8 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder * incoder,
 
 
 void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
+   //Hack for 300_pre10, should be removed.
+   if (frame.id().depth()==5) return;
 
   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry.towerIds(frame.id());
   assert(ids.size() == 1 || ids.size() == 2);
@@ -157,7 +159,8 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples,
   int shrink = weights_.size()-1; //REAL LINE
   int outlength=samples.size() - shrink;
   int newprelength = ((samples.presamples()+1)-weights_.size())+latency_;
-  std::vector<bool> finegrain(outlength,false);
+  //std::vector<bool> finegrain(outlength,false);
+  std::vector<bool> finegrain(TPSize_,false);
   IntegerCaloSamples sum(samples.id(), outlength);
   
   bool SOI_pegged =  false;
@@ -191,40 +194,44 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples,
 
   if(peakfind_)
     {
-      IntegerCaloSamples output(samples.id(),outlength-2);
-      output.setPresamples(newprelength-1);
-      for(int ibin2 = 1; ibin2 < (sum.size())-1; ++ibin2) 
+      //IntegerCaloSamples output(samples.id(),outlength-2);
+      IntegerCaloSamples output(samples.id(),TPSize_);
+      //output.setPresamples(newprelength-1);
+      output.setPresamples(newprelength - firstTPSample_);
+      //for(int ibin2 = 1; ibin2 < (sum.size())-1; ++ibin2) 
+      for(int ibin2 = 0; ibin2 < TPSize_; ++ibin2) 
 	{
 	  //use if peak finding true
-	  //Old equalities
-	  // if ( sum[ibin2] > sum[ibin2-1] && 
-	  //    sum[ibin2] >= sum[ibin2+1] && 
-	  //    sum[ibin2] > theThreshold)
-	  if ( sum[ibin2] >= sum[ibin2-1] && 
-	              sum[ibin2] > sum[ibin2+1] && 
-	       sum[ibin2] > theThreshold)
+        int idx = firstTPSample_ + ibin2;
+        //if ( samples[ibin2] >= samples[ibin2-1] && samples[ibin2] > samples[ibin2+1] && samples[ibin2] > theThreshold)
+        if ( samples[idx] >= samples[idx-1] && samples[idx] > samples[idx+1] && samples[idx] > theThreshold)
 	    {
-	      output[ibin2-1]=sum[ibin2];//if peak found
+	      //output[ibin2-1]=sum[ibin2];//if peak found
+	      output[ibin2]=sum[idx];//if peak found
 	    }
-	  else{output[ibin2-1]=0;}//if no peak
+	  //else{output[ibin2-1]=0;}//if no peak
+	  else{output[ibin2]=0;}//if no peak
 	}
       if(SOI_pegged == true)
 	{
 	  output[output.presamples()] = 0x3FF;
 	}
       outcoder_->compress(output, finegrain, result);//send to transcoder
-      //      outcoder_->loadhcalUncompress();
     }
   
   else//No peak finding
     {
-      IntegerCaloSamples output(samples.id(),outlength);
-      output.setPresamples(newprelength);
-      for(int ibin2 = 0; ibin2<sum.size(); ++ibin2) 
+      //IntegerCaloSamples output(samples.id(),outlength);
+      //output.setPresamples(newprelength);
+      IntegerCaloSamples output(samples.id(),TPSize_);
+      output.setPresamples(newprelength - firstTPSample_ +1);
+      //for(int ibin2 = 0; ibin2<sum.size(); ++ibin2) 
+      for(int ibin2 = 0; ibin2 < TPSize_; ++ibin2) 
 	{
-	  output[ibin2]=sum[ibin2];//just pass value
+	  output[ibin2]=sum[ibin2+firstTPSample_];//just pass value
 	}
       outcoder_->compress(output, finegrain, result);
+      runZS(result);
     }   
 }
 
@@ -232,7 +239,8 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples,
 void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, 
 					 HcalTriggerPrimitiveDigi & result)
 {
-  std::vector<bool> finegrain(samples.size(),false);
+  //std::vector<bool> finegrain(samples.size(),false);
+  std::vector<bool> finegrain(TPSize_,false);
   // IntegerCaloSamples sum(samples.id(), samples.size());
   HcalTrigTowerDetId detId_(samples.id()); 
    
@@ -242,23 +250,42 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples,
 
       HcalTrigTowerDetId detId(mapItr->first);
       if (detId == detId_) {
-	for (int i=0; i < samples.size(); ++i) {
+	//for (int i=0; i < samples.size(); ++i) {
+	for (int i=firstTPSample_; i < firstTPSample_+TPSize_; ++i) {
 	  bool set_fg = false;
 	  mapItr->second[i] >= FG_threshold_ ? set_fg = true : false;
-	  finegrain[i] = (finegrain[i] || set_fg);
+	  finegrain[i - firstTPSample_] = (finegrain[i - firstTPSample_] || set_fg);
 	}
       }
     }  
-  IntegerCaloSamples output(samples.id(),samples.size());
-  output.setPresamples(samples.presamples());
+  //IntegerCaloSamples output(samples.id(),samples.size());
+  IntegerCaloSamples output(samples.id(),TPSize_);
+  //output.setPresamples(samples.presamples());
+  output.setPresamples(samples.presamples() - firstTPSample_);
   //cout<<"Presamples = "<<samples.presamples()<<endl;
-  for(int ibin2 = 0; ibin2 < samples.size(); ++ibin2) 
+ // for(int ibin2 = 0; ibin2 < samples.size(); ++ibin2) 
+     for(int ibin2 = 0; ibin2 < TPSize_; ++ibin2) 
     {//output[ibin2]=sum[ibin2];
-      samples[ibin2] /= 4;  // for 0.25 GeV ET RCT LSB
+      //samples[ibin2] /= 4;  // for 0.25 GeV ET RCT LSB
       //cout << "samples: " << samples[i] << endl;
-      if (samples[ibin2] > 0x3FF) samples[ibin2] = 0x3FF;  //Compression is 1 to 1 with saturation at 8 bits
-      output[ibin2]=samples[ibin2];
+      //if (samples[ibin2] > 0x3FF) samples[ibin2] = 0x3FF;  //Compression is 1 to 1 with saturation at 8 bits
+      output[ibin2]=samples[ibin2+firstTPSample_]/4;
+      if (output[ibin2] > 0x3FF) output[ibin2] = 0x3FF;  //Compression is 1 to 1 with saturation at 8 bits
+
     }
   //cout<<endl;
   outcoder_->compress(output, finegrain, result);
+  runZS(result);
+}
+
+void HcalTriggerPrimitiveAlgo::runZS(HcalTriggerPrimitiveDigi & tp){
+   bool ZS = true;
+   for (int i=0; i<tp.size(); ++i){
+      if (tp[i].compressedEt()  > ZS_threshold_) {
+         ZS=false;
+         break;
+      }
+   }
+   if (ZS) tp.setZSInfo(false,true);
+   else tp.setZSInfo(true,false);
 }

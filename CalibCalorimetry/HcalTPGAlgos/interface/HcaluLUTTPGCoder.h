@@ -23,15 +23,15 @@ class HcalDbService;
   * [LUT 1(127)] [LUT 2(127)] ...
   * </pre>
   *
-  * $Date: 2008/01/30 08:43:18 $
-  * $Revision: 1.14 $
+  * $Date: 2008/05/01 20:43:29 $
+  * $Revision: 1.15 $
   * \author M. Weinberger -- TAMU
   * \author Tulika Bose and Greg Landsberg -- Brown
   */
 class HcaluLUTTPGCoder : public HcalTPGCoder {
 public:
  
-  HcaluLUTTPGCoder(const char* ifilename, bool read_Ascii_LUTs);
+  HcaluLUTTPGCoder(const char* ifilename, bool read_Ascii_LUTs=false, bool read_XML_LUTs=false);
   virtual ~HcaluLUTTPGCoder();
   virtual void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const;
   virtual void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const;
@@ -42,13 +42,20 @@ public:
 
   void update(const HcalDbService& conditions);
   void update(const char* filename);
+  void updateXML(const char* filename);
   void PrintTPGMap();
+  void SetLUTGenerationMode(bool b){ LUTGenerationMode = b; };
+  void SetLUTInfo(const std::string& tag, const std::string& algo){
+	  TagName = tag;
+	  AlgoName = algo;
+  };
 private:
   void loadILUTs(const char* filename);
   typedef std::vector<int> LUTType;
   std::vector<LUTType> inputluts_;
   static const int nluts = 46007, INPUT_LUT_SIZE = 128;
   int GetLUTID(HcalSubdetector id, int ieta, int iphi, int depth) const;
+  int GetLUTID(uint32_t rawid) const;
   void AllocateLUTs();
   void getRecHitCalib(const char* filename);
   float Rcalib[87];
@@ -57,6 +64,9 @@ private:
   float *_gain;
   float *_ped;
   static const float nominal_gain;              // Nominal HB/HE gain in GeV/fC
+  bool LUTGenerationMode;
+  std::string TagName;
+  std::string AlgoName;
 };
 
 #endif

@@ -24,8 +24,11 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   theAlgo(ps.getParameter<bool>("peakFilter"),
 	  ps.getParameter<std::vector<double> >("weights"),
 	  ps.getParameter<int>("latency"),
-	  ps.getParameter<uint32_t>("FG_threshold")),
-  inputLabel_(ps.getParameter<std::vector<edm::InputTag> >("inputLabel"))
+	  ps.getParameter<uint32_t>("FG_threshold"),
+        ps.getParameter<uint32_t>("ZS_threshold"),
+	  ps.getParameter<int>("firstTPSample"),
+	  ps.getParameter<int>("TPSize")),
+  inputLabel_(ps.getParameter<edm::InputTag>("inputLabel"))
 {
    produces<HcalTrigPrimDigiCollection>();
 }
@@ -35,8 +38,8 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& e, const edm::EventSetup& eve
   edm::Handle<HBHEDigiCollection> hbheDigis;
   edm::Handle<HFDigiCollection>   hfDigis;
 
-  e.getByLabel(inputLabel_[0],hbheDigis);
-  e.getByLabel(inputLabel_[1],hfDigis);
+  e.getByLabel(inputLabel_,hbheDigis);
+  e.getByLabel(inputLabel_,hfDigis);
 
   // get the conditions, for the decoding
   edm::ESHandle<HcalTPGCoder> inputCoder;

@@ -19,14 +19,23 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
+#include "CondFormats/HcalObjects/interface/HcalL1TriggerObjects.h"
+#include "CondFormats/HcalObjects/interface/HcalL1TriggerObject.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/LutXml.h"
+
 
 const float HcaluLUTTPGCoder::nominal_gain = 0.177; 
 
-HcaluLUTTPGCoder::HcaluLUTTPGCoder(const char* filename, bool read_Ascii_LUTs) {
+HcaluLUTTPGCoder::HcaluLUTTPGCoder(const char* filename, bool read_Ascii_LUTs, bool read_XML_LUTs) {
   AllocateLUTs();
   // std::cout << " filename:" << filename << " read_Ascii_LUTs " << read_Ascii_LUTs << std::endl;
-  if (read_Ascii_LUTs == true) {
+  if (read_Ascii_LUTs) {
     update(filename);
+  }
+  else if (read_XML_LUTs) {
+     updateXML(filename);
   }
   else {
     getRecHitCalib(filename);
@@ -34,6 +43,9 @@ HcaluLUTTPGCoder::HcaluLUTTPGCoder(const char* filename, bool read_Ascii_LUTs) {
 //  CaloTPGTranscoderULUT("CalibCalorimetry/CaloTPG/data/outputLUTtranscoder_CRUZET_part3_v2.dat","CalibCalorimetry/CaloTPG/data/TPGcalcDecompress_CRUZET4_v2.txt");
 //  CaloTPGTranscoderULUT("CalibCalorimetry/CaloTPG/data/outputLUTtranscoder_CRUZET_part3_v2.dat","");
 //  CaloTPGTranscoderULUT();
+	LUTGenerationMode = false;
+	TagName = "";
+	AlgoName = "";
 }
 
 void HcaluLUTTPGCoder::PrintTPGMap() {
@@ -261,6 +273,11 @@ int HcaluLUTTPGCoder::GetLUTID(HcalSubdetector id, int ieta, int iphi, int depth
   return iphi + 72 * ((ieta + 41) + 83 * (depth + 3 * detid)) - 7777;
 }
 
+int HcaluLUTTPGCoder::GetLUTID(uint32_t rawid) const {
+   HcalDetId detid(rawid);
+   return GetLUTID(detid.subdet(), detid.ieta(), detid.iphi(), detid.depth());
+}
+
 void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
 
    std::ifstream userfile;
@@ -287,7 +304,7 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
 void HcaluLUTTPGCoder::update(const char* filename) {
   HcalTopology theTopo;
   int tool;
-  std::string HCAL[3] = {"HB", "HE", "HF"};  
+  //std::string HCAL[3] = {"HB", "HE", "HF"};  
   std::ifstream userfile;
   userfile.open(filename);
   //std::cout << filename << std::endl;
@@ -396,13 +413,43 @@ void HcaluLUTTPGCoder::update(const char* filename) {
   } 
 }
 
+void HcaluLUTTPGCoder::updateXML(const char* filename) {
+   HcalTopology theTopo;
+   LutXml * _xml = new LutXml(filename);
+   _xml->create_lut_map();
+   HcalSubdetector subdet[3] = {HcalBarrel, HcalEndcap, HcalForward};
+   for (int ieta=-41; ieta<=41; ++ieta){
+      for (int iphi=1; iphi<=72; ++iphi){
+         for (int depth=1; depth<=3; ++depth){
+            for (int isub=0; isub<3; ++isub){
+               HcalDetId detid(subdet[isub], ieta, iphi, depth);
+               if (!theTopo.valid(detid)) continue;
+               int id = GetLUTID(subdet[isub], ieta, iphi, depth);
+               std::vector<unsigned int>* lut = _xml->getLutFast(detid);
+               if (lut==0) throw cms::Exception("PROBLEM: No inputLUT in xml file for ") << detid << std::endl;
+               if (lut->size()!=128) throw cms::Exception ("PROBLEM: Wrong inputLUT size in xml file for ") << detid << std::endl;
+               for (int i=0; i<128; ++i) inputLUT[id][i] = (LUT)lut->at(i);
+            }
+         }
+      }
+   }
+   delete _xml;
+   XMLProcessor::getInstance()->terminate();
+}
+
 void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
+	HcalL1TriggerObjects *HcalL1TrigObjCol = new HcalL1TriggerObjects();
    const HcalQIEShape* shape = conditions.getHcalShape();
    HcalCalibrations calibrations;
    int id;
    float divide;
    HcalTopology theTopo;
 
+	//debug
+	//std::ofstream ofdebug("debug_LUTGeneration.txt");
+	//ofdebug.setf(std::ios::fixed,std::ios::floatfield);
+	//ofdebug.precision(6);
+	
    float cosheta_[41], lsb_ = 1./16.;
    for (int i = 0; i < 13; i++) cosheta_[i+29] = cosh((theHFEtaBounds[i+1] + theHFEtaBounds[i])/2.);
     
@@ -415,17 +462,35 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	   id = GetLUTID(HcalBarrel,ieta,iphi,depth);
 	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HB, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
 	   //conditions.makeHcalCalibration (cell, &calibrations);
-	   HcalCalibrations calibrations = conditions.getHcalCalibrations(cell);
-
-	   const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
-	   HcalCoderDb coder (*channelCoder, *shape);
-	   float ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
-	   float gain_= (calibrations.respcorrgain(0)+calibrations.respcorrgain(1)+calibrations.respcorrgain(2)+calibrations.respcorrgain(3))/4;          
-	   HBHEDataFrame frame(cell);
+		//
+		const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
+		HcalCoderDb coder (*channelCoder, *shape);
+		HBHEDataFrame frame(cell);
 	   frame.setSize(1);
 	   CaloSamples samples(cell, 1);
-	   _ped[id] = ped_;
-           _gain[id] = gain_;
+		float ped_ = 0;
+		float gain_ = 0;
+
+		if (LUTGenerationMode){
+			HcalCalibrations calibrations = conditions.getHcalCalibrations(cell);
+	   	ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
+	   	gain_= (calibrations.respcorrgain(0)+calibrations.respcorrgain(1)+calibrations.respcorrgain(2)+calibrations.respcorrgain(3))/4;          
+
+			//Add HcalL1TriggerObject to its container
+			HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_);
+			HcalL1TrigObjCol->addValues(HcalL1TrigObj);
+		}
+		else{
+			const HcalL1TriggerObject* myL1TObj = conditions.getHcalL1TriggerObject(cell);
+			ped_ = myL1TObj->getPedestal();
+			gain_ = myL1TObj->getRespGain();
+			//debug
+			//ofdebug << cell.rawId() << '\t' << ped_ << '\t' << gain_ << '\n';
+		}
+		
+		_ped[id] = ped_;
+		_gain[id] = gain_;
+
 	   for (int j = 0; j <= 0x7F; j++) {
 	     HcalQIESample adc(j);
 	     frame.setSample(0,adc);
@@ -445,16 +510,35 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	   id = GetLUTID(HcalEndcap,ieta,iphi,depth);
 	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HE, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
 	   //conditions.makeHcalCalibration (cell, &calibrations);
-	   HcalCalibrations calibrations = conditions.getHcalCalibrations(cell);
-	   const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
-	   HcalCoderDb coder (*channelCoder, *shape);
-	   float ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
-	   float gain_= (calibrations.respcorrgain(0)+calibrations.respcorrgain(1)+calibrations.respcorrgain(2)+calibrations.respcorrgain(3))/4;          
-	   HBHEDataFrame frame(cell);
+		//
+		const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
+		HcalCoderDb coder (*channelCoder, *shape);
+		HBHEDataFrame frame(cell);
 	   frame.setSize(1);
 	   CaloSamples samples(cell, 1);
-	   _ped[id] = ped_;
-           _gain[id] = gain_;
+		float ped_ = 0;
+		float gain_ = 0;
+
+		if (LUTGenerationMode){
+			HcalCalibrations calibrations = conditions.getHcalCalibrations(cell);
+	   	ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
+	   	gain_= (calibrations.respcorrgain(0)+calibrations.respcorrgain(1)+calibrations.respcorrgain(2)+calibrations.respcorrgain(3))/4;          
+
+			//Add HcalL1TriggerObject to its container
+			HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_);
+			HcalL1TrigObjCol->addValues(HcalL1TrigObj);
+		}
+		else{
+			const HcalL1TriggerObject* myL1TObj = conditions.getHcalL1TriggerObject(cell);
+			ped_ = myL1TObj->getPedestal();
+			gain_ = myL1TObj->getRespGain();
+			//debug
+			//ofdebug << cell.rawId() << '\t' << ped_ << '\t' << gain_ << '\n';
+		}
+		
+		_ped[id] = ped_;
+		_gain[id] = gain_;
+
 	   for (int j = 0; j <= 0x7F; j++) {
 	     HcalQIESample adc(j);
 	     frame.setSample(0,adc);
@@ -471,17 +555,36 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 			id = GetLUTID(HcalForward,ieta,iphi,depth);
 			if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HF, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
 	   //conditions.makeHcalCalibration (cell, &calibrations);
-			HcalCalibrations calibrations = conditions.getHcalCalibrations(cell);
-			const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
-			HcalCoderDb coder (*channelCoder, *shape);
-			float ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
-			float gain_= (calibrations.respcorrgain(0)+calibrations.respcorrgain(1)+calibrations.respcorrgain(2)+calibrations.respcorrgain(3))/4;          
+		//
+		const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
+		HcalCoderDb coder (*channelCoder, *shape);
+		HBHEDataFrame frame(cell);
+	   frame.setSize(1);
+	   CaloSamples samples(cell, 1);
+		float ped_ = 0;
+		float gain_ = 0;
 
-			HFDataFrame frame(cell);
-			frame.setSize(1);
-			CaloSamples samples(cell, 1);
-			_ped[id] = ped_;
-			_gain[id] = gain_;
+		if (LUTGenerationMode){
+			HcalCalibrations calibrations = conditions.getHcalCalibrations(cell);
+	   	ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
+	   	gain_= (calibrations.respcorrgain(0)+calibrations.respcorrgain(1)+calibrations.respcorrgain(2)+calibrations.respcorrgain(3))/4;          
+
+			//Add HcalL1TriggerObject to its container
+			HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_);
+			HcalL1TrigObjCol->addValues(HcalL1TrigObj);
+		}
+		else{
+			const HcalL1TriggerObject* myL1TObj = conditions.getHcalL1TriggerObject(cell);
+			ped_ = myL1TObj->getPedestal();
+			gain_ = myL1TObj->getRespGain();
+			//debug
+			//ofdebug << cell.rawId() << '\t' << ped_ << '\t' << gain_ << '\n';
+		}
+		
+		_ped[id] = ped_;
+		_gain[id] = gain_;
+
+				
 			int offset = (abs(ieta) >= 33 && abs(ieta) <= 36) ? 1 : 0; // Lumi offset of 1 for the four rings used to measure lumi
 			for (int j = 0; j <= 0x7F; j++) {
 				HcalQIESample adc(j);
@@ -495,7 +598,27 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
        }
      }
    }
- }
+
+	if(LUTGenerationMode){
+		//Test Dump HcalL1TriggerObjects
+		HcalL1TrigObjCol->setTagString(TagName);
+		HcalL1TrigObjCol->setAlgoString(AlgoName);
+		std::string outfilename = "Dump_L1TriggerObjects_";
+		outfilename += TagName;
+		outfilename += ".txt";
+		std::ofstream of(outfilename.c_str());
+		HcalDbASCIIIO::dumpObject(of, *HcalL1TrigObjCol);
+	}
+
+	//debug
+//	for (int i=0;i<nluts;++i){
+//		if (inputLUT[i] != 0){
+//			ofdebug  << i << ":\t";
+//			for (int j=0;j<INPUT_LUT_SIZE;++j) ofdebug << (LUT) inputLUT[i][j] << ' ';
+//			ofdebug  << std::endl;
+//		}
+//	}
+}
 
  void HcaluLUTTPGCoder::adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const {
    int id = GetLUTID(df.id().subdet(), df.id().ieta(), df.id().iphi(), df.id().depth());

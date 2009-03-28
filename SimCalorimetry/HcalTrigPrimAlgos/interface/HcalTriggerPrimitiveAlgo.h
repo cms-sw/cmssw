@@ -17,7 +17,7 @@ class IntegerCaloSamples;
 class HcalTriggerPrimitiveAlgo {
 public:
   HcalTriggerPrimitiveAlgo(bool pf, 
-			   const std::vector<double>& w, int latency, uint32_t FG_threshold);
+			   const std::vector<double>& w, int latency, uint32_t FG_threshold, uint32_t ZS_threshold, int firstTPSample, int TPSize);
   ~HcalTriggerPrimitiveAlgo();
 
   void run(const HcalTPGCoder * incoder,
@@ -35,6 +35,7 @@ public:
   /// adds the actual RecHits
   void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
   void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
+  void runZS(HcalTriggerPrimitiveDigi & tp);
  
   std::vector<HcalTrigTowerDetId> towerIds(const HcalDetId & id) const;
 
@@ -57,6 +58,9 @@ public:
   std::vector<double> weights_;
   int latency_;
   uint32_t FG_threshold_;
+  uint32_t ZS_threshold_;
+  int firstTPSample_;
+  int TPSize_;
 };
 
 

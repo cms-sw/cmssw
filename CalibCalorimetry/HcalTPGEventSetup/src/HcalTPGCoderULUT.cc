@@ -13,13 +13,14 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Fri Sep 15 11:49:44 CDT 2006
-// $Id: HcalTPGCoderULUT.cc,v 1.4 2007/07/11 22:11:24 mansj Exp $
+// $Id: HcalTPGCoderULUT.cc,v 1.6 2008/01/30 08:44:17 tulika Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <string>
 #include "boost/shared_ptr.hpp"
 
 // user include files
@@ -53,6 +54,11 @@ private:
   ReturnType coder_;  
   HcaluLUTTPGCoder* theCoder;
   bool read_Ascii;
+  bool read_XML;
+  bool LUTGenerationMode;
+  std::string TagName;
+  std::string AlgoName;
+
 };
 
 //
@@ -79,26 +85,33 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig)
   */
   read_Ascii=false;
   read_Ascii=iConfig.getParameter<bool>("read_Ascii_LUTs");
-  if (read_Ascii==true) ifilename_=new edm::FileInPath(iConfig.getParameter<edm::FileInPath>("inputLUTs"));
+  read_XML=false;
+  read_XML=iConfig.getParameter<bool>("read_XML_LUTs");
+  if (read_Ascii || read_XML) ifilename_=new edm::FileInPath(iConfig.getParameter<edm::FileInPath>("inputLUTs"));
   else ifilename_=new edm::FileInPath(iConfig.getParameter<edm::FileInPath>("filename"));
 
+  LUTGenerationMode = iConfig.getParameter<bool>("LUTGenerationMode");
+  TagName = iConfig.getParameter<std::string>("TagName");
+  AlgoName = iConfig.getParameter<std::string>("AlgoName");
 
    //the following line is needed to tell the framework what
    // data is being produced
-   if (read_Ascii==false) setWhatProduced(this,(dependsOn(&HcalTPGCoderULUT::dbRecordCallback)));
+   if (!(read_Ascii || read_XML)) setWhatProduced(this,(dependsOn(&HcalTPGCoderULUT::dbRecordCallback)));
    else setWhatProduced(this);
 
   
   //now do what ever other initialization is needed
    using namespace edm::es;
-   if (read_Ascii==true){
-     edm::LogInfo("HCAL") << "Using ASCII LUTs" << ifilename_->fullPath() << " for HcalTPGCoderULUT initialization";
-     theCoder=new HcaluLUTTPGCoder(ifilename_->fullPath().c_str(),read_Ascii);
+   if (read_Ascii || read_XML){
+     edm::LogInfo("HCAL") << "Using ASCII/XML LUTs" << ifilename_->fullPath() << " for HcalTPGCoderULUT initialization";
+     theCoder=new HcaluLUTTPGCoder(ifilename_->fullPath().c_str(),read_Ascii,read_XML);
      coder_=ReturnType(theCoder);
    } 
    else {
      edm::LogInfo("HCAL") << "Using " << ifilename_->fullPath() << " for HcalTPGCoderULUT initialization";
-     theCoder=new HcaluLUTTPGCoder(ifilename_->fullPath().c_str(),read_Ascii);
+     theCoder=new HcaluLUTTPGCoder(ifilename_->fullPath().c_str());
+	  theCoder->SetLUTGenerationMode(LUTGenerationMode);
+	  theCoder->SetLUTInfo(TagName,AlgoName);
      coder_=ReturnType(theCoder);
    }  
 }
