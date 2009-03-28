@@ -11,7 +11,7 @@ process.load("CondTools.L1Trigger.L1TriggerKeyListDummy_cff")
 
 # Get configuration data from OMDS.  This is the subclass of L1ConfigOnlineProdBase.
 process.load("L1TriggerConfig.RCTConfigProducers.L1RCTParametersOnline_cfi")
-process.load("L1TriggerConfig.RCTConfigProducers.L1EmEtScaleConfigOnline_cfi")
+process.load("L1TriggerConfig.L1ScaleProducers.L1EmEtScaleConfigOnline_cfi")
 
 
 process.maxEvents = cms.untracked.PSet(

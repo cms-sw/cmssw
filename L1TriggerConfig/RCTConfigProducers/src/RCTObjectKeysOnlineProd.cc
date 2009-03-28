@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Fri Aug 22 19:51:36 CEST 2008
-// $Id: RCTObjectKeysOnlineProd.cc,v 1.3 2009/01/17 19:14:15 wsun Exp $
+// $Id: RCTObjectKeysOnlineProd.cc,v 1.4 2009/03/17 09:14:00 efron Exp $
 //
 //
 
@@ -108,7 +108,7 @@ RCTObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 			  "L1RCTParameters",
 			  paremKey ) ;
       pL1TriggerKey->add( "L1EmEtScaleRcd",
-			  "L1CaloEtScal",
+			  "L1CaloEtScale",
 			  scaleKey ) ;
     }
 }
