@@ -1,4 +1,5 @@
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/CaloMuon.h"
 #include "Rtypes.h" 
@@ -13,6 +14,8 @@
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraFwd.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
+#include "DataFormats/MuonReco/interface/MuonTime.h"
+#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 #include "DataFormats/TrackReco/interface/Track.h" 
 #include "DataFormats/Common/interface/AssociationMap.h"
 
@@ -65,6 +68,14 @@ namespace {
     edm::RefToBaseVector<reco::Muon> rtbvm;
     edm::Wrapper<edm::RefToBaseVector<reco::Muon> > rtbvm_w;
     edm::reftobase::BaseVectorHolder<reco::Muon> *bvhm_p;
+
+    reco::MuonMETCorrectionData rmcd;
+    std::vector<reco::MuonMETCorrectionData> rmcd_v;
+    std::vector<reco::MuonMETCorrectionData>::const_iterator rmcd_vci;
+    edm::Wrapper<std::vector<reco::MuonMETCorrectionData> > rmcd_wv;
+    edm::ValueMap<reco::MuonMETCorrectionData> rmcd_vm;
+    edm::ValueMap<reco::MuonMETCorrectionData>::const_iterator rmcd_vmci;
+    edm::Wrapper<edm::ValueMap<reco::MuonMETCorrectionData> > rmcd_wvm;
     
   };
 }
