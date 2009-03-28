@@ -105,7 +105,136 @@ double makeGifHists (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::str
   return pv;
 }
 
+double makeGifHists2 (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::string& fPrefix = "", const std::string& events="", double scalebyevents=0) {
+  double pv = fHist->KolmogorovTest (fRefHist, "OU");
+  // set style
+  TPad pad ("pad", "pad", 0, 0, 1, 0.9, 0);
+  pad.SetLogy ();
+  pad.Draw();
 
+  char buf [1024];
+  sprintf (buf, "%s: Kolmogorov Test PV = %5.3f", fPrefix.c_str(), pv);
+  TPaveText title (0.3,0.85,0.95, 0.99, buf);
+  title.SetFillColor(pv > 0.01 ? 3 : 2);
+  TText* t1 = title.AddText (fPrefix.c_str());
+  sprintf (buf, "Kolmogorov Test PV = %6.4f", pv);
+  TText* t2 = title.AddText (buf);
+  // t2->SetTextSize(0.3);
+  title.Draw();
+
+  pad.cd();
+
+  if ( events == 'y') {
+    fHist->Scale (scalebyevents);
+  }
+  else {
+    fHist->Sumw2 ();
+    fHist->Scale (fRefHist->GetSumOfWeights () / fHist->GetSumOfWeights ());
+  }
+
+  fHist->SetMarkerStyle (21);
+  fHist->SetMarkerSize (0.7);
+  fRefHist->SetLineColor (2);
+  std::string name = fRefHist->GetTitle ();
+  int blank = name.rfind (' ');
+  if (blank >= 0) name.erase (0, blank+1);
+  fHist->SetXTitle (name.c_str());
+  fHist->SetTitle ("");
+
+  fRefHist->Draw ();
+  fHist->Draw ("e1p,same");
+  std::string filename = name + "_logy.gif";
+  fCanvas->Print (filename.c_str());
+  fCanvas->Update ();
+  return pv;
+}
+
+double makeGifHists3 (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::string& fPrefix = "", const std::string& events="", double scalebyevents=0) {
+  double pv = fHist->KolmogorovTest (fRefHist, "OU");
+  // set style
+  TPad pad ("pad", "pad", 0, 0, 1, 0.9, 0);
+  pad.SetLogx ();
+  pad.Draw();
+
+  char buf [1024];
+  sprintf (buf, "%s: Kolmogorov Test PV = %5.3f", fPrefix.c_str(), pv);
+  TPaveText title (0.3,0.85,0.95, 0.99, buf);
+  title.SetFillColor(pv > 0.01 ? 3 : 2);
+  TText* t1 = title.AddText (fPrefix.c_str());
+  sprintf (buf, "Kolmogorov Test PV = %6.4f", pv);
+  TText* t2 = title.AddText (buf);
+  // t2->SetTextSize(0.3);
+  title.Draw();
+
+  pad.cd();
+
+  if ( events == 'y') {
+    fHist->Scale (scalebyevents);
+  }
+  else {
+    fHist->Sumw2 ();
+    fHist->Scale (fRefHist->GetSumOfWeights () / fHist->GetSumOfWeights ());
+  }
+
+  fHist->SetMarkerStyle (21);
+  fHist->SetMarkerSize (0.7);
+  fRefHist->SetLineColor (2);
+  std::string name = fRefHist->GetTitle ();
+  int blank = name.rfind (' ');
+  if (blank >= 0) name.erase (0, blank+1);
+  fHist->SetXTitle (name.c_str());
+  fHist->SetTitle ("");
+
+  fRefHist->Draw ();
+  fHist->Draw ("e1p,same");
+  std::string filename = name + "_logx.gif";
+  fCanvas->Print (filename.c_str());
+  fCanvas->Update ();
+  return pv;
+}
+
+double makeGifHists4 (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::string& fPrefix = "", const std::string& events="", double scalebyevents=0) {
+  double pv = fHist->KolmogorovTest (fRefHist, "OU");
+  // set style
+  TPad pad ("pad", "pad", 0, 0, 1, 0.9, 0);
+  pad.Draw();
+
+  char buf [1024];
+  sprintf (buf, "%s: Kolmogorov Test PV = %5.3f", fPrefix.c_str(), pv);
+  TPaveText title (0.3,0.85,0.95, 0.99, buf);
+  title.SetFillColor(pv > 0.01 ? 3 : 2);
+  TText* t1 = title.AddText (fPrefix.c_str());
+  sprintf (buf, "Kolmogorov Test PV = %6.4f", pv);
+  TText* t2 = title.AddText (buf);
+  // t2->SetTextSize(0.3);
+  title.Draw();
+
+  pad.cd();
+
+  if ( events == 'y') {
+    fHist->Scale (scalebyevents);
+  }
+  else {
+    fHist->Sumw2 ();
+    fHist->Scale (fRefHist->GetSumOfWeights () / fHist->GetSumOfWeights ());
+  }
+
+  fHist->SetMarkerStyle (21);
+  fHist->SetMarkerSize (0.7);
+  fRefHist->SetLineColor (2);
+  std::string name = fRefHist->GetTitle ();
+  int blank = name.rfind (' ');
+  if (blank >= 0) name.erase (0, blank+1);
+  fHist->SetXTitle (name.c_str());
+  fHist->SetTitle ("");
+
+  fRefHist->Draw ();
+  fHist->Draw ("e1p,same");
+  std::string filename = name + "_logy.gif";
+  fCanvas->Print (filename.c_str());
+  fCanvas->Update ();
+  return pv;
+}
 
 int main (int argn, char* argv []) {
   int result = 0; // OK
@@ -170,7 +299,10 @@ int main (int argn, char* argv []) {
     }
   }
   
-  std::vector<std::string> histKeys = getAllKeys (dirIn, "TH1F");
+  std::vector<std::string> histKeys  = getAllKeys (dirIn, "TH1F");
+  std::vector<std::string> histKeys2 = getAllKeys (dirIn, "TProfile");
+  std::vector<std::string> histKeys3 = getAllKeys (dirIn, "TProfile");
+  std::vector<std::string> histKeys4 = getAllKeys (dirIn, "TProfile");
   // output
   gStyle->SetOptStat (kFALSE);
   TCanvas canvas ("Jets","Jets",800,600);
@@ -212,5 +344,114 @@ int main (int argn, char* argv []) {
       std::cerr << "Can not get histogram " << histKeys[ihist] << std::endl;
     }
   }
+
+  for (unsigned ihist = 0; ihist < histKeys2.size (); ++ihist) {
+    TH1* histforcheck = 0;
+    dirIn->GetObject (histKeys2[ihist].c_str(), histforcheck);
+    std::string nameforcheck = histforcheck->GetTitle ();
+    if ( nameforcheck == "numberofevents") {
+      TH1* refhistforcheck = 0;
+      dirRef->GetObject (histKeys2[ihist].c_str(), refhistforcheck);
+      std::cout << "hist=numberofevnets" << std::endl;
+      histforcheck->Sumw2 ();
+      refhistforcheck->Sumw2 ();
+      double scaleforcheck=histforcheck->GetSumOfWeights ();
+      double refscaleforcheck=refhistforcheck->GetSumOfWeights ();
+      scaleforevents = refscaleforcheck/scaleforcheck;
+    }
+  }
+
+  for (unsigned ihist = 0; ihist < histKeys2.size (); ++ihist) {
+    TH1* hist = 0;
+    dirIn->GetObject (histKeys2[ihist].c_str(), hist);
+    if (hist) {
+      TH1* refhist = 0;
+      dirRef->GetObject (histKeys2[ihist].c_str(), refhist);
+      if (refhist) {
+	std::string title = globalTitle;
+	double pv = makeGifHists2 (hist, refhist, &canvas, title, normalization, scaleforevents);
+	std::cout << "pv for hist " << histKeys2[ihist] << " is " << pv << std::endl; 
+      }
+      else {
+	std::cerr << "Can not get reference histogram " << histKeys2[ihist] << std::endl;
+      }
+    }
+    else {
+      std::cerr << "Can not get histogram " << histKeys2[ihist] << std::endl;
+    }
+  }
+
+  for (unsigned ihist = 0; ihist < histKeys3.size (); ++ihist) {
+    TH1* histforcheck = 0;
+    dirIn->GetObject (histKeys3[ihist].c_str(), histforcheck);
+    std::string nameforcheck = histforcheck->GetTitle ();
+    if ( nameforcheck == "numberofevents") {
+      TH1* refhistforcheck = 0;
+      dirRef->GetObject (histKeys3[ihist].c_str(), refhistforcheck);
+      std::cout << "hist=numberofevnets" << std::endl;
+      histforcheck->Sumw2 ();
+      refhistforcheck->Sumw2 ();
+      double scaleforcheck=histforcheck->GetSumOfWeights ();
+      double refscaleforcheck=refhistforcheck->GetSumOfWeights ();
+      scaleforevents = refscaleforcheck/scaleforcheck;
+    }
+  }
+
+  for (unsigned ihist = 0; ihist < histKeys3.size (); ++ihist) {
+    TH1* hist = 0;
+    dirIn->GetObject (histKeys3[ihist].c_str(), hist);
+    if (hist) {
+      TH1* refhist = 0;
+      dirRef->GetObject (histKeys3[ihist].c_str(), refhist);
+      if (refhist) {
+	std::string title = globalTitle;
+	double pv = makeGifHists3 (hist, refhist, &canvas, title, normalization, scaleforevents);
+	std::cout << "pv for hist " << histKeys3[ihist] << " is " << pv << std::endl; 
+      }
+      else {
+	std::cerr << "Can not get reference histogram " << histKeys3[ihist] << std::endl;
+      }
+    }
+    else {
+      std::cerr << "Can not get histogram " << histKeys3[ihist] << std::endl;
+    }
+  }
+
+  for (unsigned ihist = 0; ihist < histKeys4.size (); ++ihist) {
+    TH1* histforcheck = 0;
+    dirIn->GetObject (histKeys4[ihist].c_str(), histforcheck);
+    std::string nameforcheck = histforcheck->GetTitle ();
+    if ( nameforcheck == "numberofevents") {
+      TH1* refhistforcheck = 0;
+      dirRef->GetObject (histKeys4[ihist].c_str(), refhistforcheck);
+      std::cout << "hist=numberofevnets" << std::endl;
+      histforcheck->Sumw2 ();
+      refhistforcheck->Sumw2 ();
+      double scaleforcheck=histforcheck->GetSumOfWeights ();
+      double refscaleforcheck=refhistforcheck->GetSumOfWeights ();
+      scaleforevents = refscaleforcheck/scaleforcheck;
+    }
+  }
+
+  for (unsigned ihist = 0; ihist < histKeys4.size (); ++ihist) {
+    TH1* hist = 0;
+    dirIn->GetObject (histKeys4[ihist].c_str(), hist);
+    if (hist) {
+      TH1* refhist = 0;
+      dirRef->GetObject (histKeys4[ihist].c_str(), refhist);
+      if (refhist) {
+	std::string title = globalTitle;
+	double pv = makeGifHists4 (hist, refhist, &canvas, title, normalization, scaleforevents);
+	std::cout << "pv for hist " << histKeys4[ihist] << " is " << pv << std::endl; 
+      }
+      else {
+	std::cerr << "Can not get reference histogram " << histKeys4[ihist] << std::endl;
+      }
+    }
+    else {
+      std::cerr << "Can not get histogram " << histKeys4[ihist] << std::endl;
+    }
+  }
+
   return 0;
 }
