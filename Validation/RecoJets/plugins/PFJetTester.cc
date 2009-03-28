@@ -34,7 +34,8 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     mMatchGenPtThreshold (iConfig.getParameter<double>("genPtThreshold")),
     mGenEnergyFractionThreshold (iConfig.getParameter<double>("genEnergyFractionThreshold")),
     mReverseEnergyFractionThreshold (iConfig.getParameter<double>("reverseEnergyFractionThreshold")),
-    mRThreshold (iConfig.getParameter<double>("RThreshold"))
+    mRThreshold (iConfig.getParameter<double>("RThreshold")),
+    mTurnOnEverything (iConfig.getUntrackedParameter<string>("TurnOnEverything",""))
 {
 
   //**** @@@
@@ -136,6 +137,7 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
 				 log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax);
     mMatchedGenJetsEta = dbe->book2D("MatchedGenJetEta", "MatchedGenJet Eta vs LOG(pT_gen)", 
 				     log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax);
+    if (mTurnOnEverything.compare("yes")==0) {
     mGenJetMatchEnergyFraction  = dbe->book3D("GenJetMatchEnergyFraction", "GenJetMatchEnergyFraction vs LOG(pT_gen) vs eta", 
 					      log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 101, 0, 1.01);
     mReverseMatchEnergyFraction  = dbe->book3D("ReverseMatchEnergyFraction", "ReverseMatchEnergyFraction vs LOG(pT_gen) vs eta", 
@@ -160,14 +162,14 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
 
     //__________________________________________________
 
-    mNeutralFraction = dbe->book1D("NeutralFraction","Neutral Fraction",100,0,1);
     mEEffNeutralFraction = dbe->book1D("EEffNeutralFraction","E Efficiency vs Neutral Fraction",100,0,1);    //_________________(*)
     mEEffChargedFraction = dbe->book1D("EEffChargedFraction","E Efficiency vs Charged Fraction",100,0,1); 
     mEResNeutralFraction = dbe->book1D("EResNeutralFraction","E Resolution vs Neutral Fraction",100,0,1);
     mEResChargedFraction = dbe->book1D("EResChargedFraction","E Resolution vs Charged Fraction",100,0,1); 
     nEEff = dbe->book1D("nEEff","EEff",100,0,1);
+    }
+    mNeutralFraction = dbe->book1D("NeutralFraction","Neutral Fraction",100,0,1);
     mNeutralFraction2 = dbe->book1D("NeutralFraction2","Neutral Fraction 2",100,0,1);
-    
   }
   if (mOutputFile.empty ()) {
     LogInfo("OutputInfo") << " PFJet histograms will NOT be saved";
@@ -257,6 +259,7 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
     if (mChargedHadronEnergy_3000) mChargedHadronEnergy_3000->Fill (jet->chargedHadronEnergy());
 
     //_______________________________________________________
+
     if (mNeutralFraction) mNeutralFraction->Fill (jet->neutralMultiplicity()/jet->nConstituents());
   } 
 
@@ -292,7 +295,9 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
 	    deltaRBest = dR;
 	  }
 	}
-	mRMatch->Fill (logPtGen, genJet.eta(), deltaRBest);
+	if (mTurnOnEverything.compare("yes")==0) {
+	  mRMatch->Fill (logPtGen, genJet.eta(), deltaRBest);
+	}
 	if (deltaRBest < mRThreshold) { // Matched
 	  fillMatchHists (genJet, (*pfJets) [iPFJetBest]);
 	}
@@ -309,11 +314,15 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
 	    energyFractionBest = energyFraction;
 	  }
 	}
+        if (mTurnOnEverything.compare("yes")==0) {
 	mGenJetMatchEnergyFraction->Fill (logPtGen, genJet.eta(), energyFractionBest);
+        }
 	if (energyFractionBest > mGenEnergyFractionThreshold) { // good enough
 	  double reverseEnergyFraction = jetMatching.overlapEnergyFraction (pfJetConstituents [iPFJetBest], 
 									    genJetConstituents [iGenJet]);
+          if (mTurnOnEverything.compare("yes")==0) {
 	  mReverseMatchEnergyFraction->Fill (logPtGen, genJet.eta(), reverseEnergyFraction);
+          }
 	  if (reverseEnergyFraction > mReverseEnergyFractionThreshold) { // Matched
 	    fillMatchHists (genJet, (*pfJets) [iPFJetBest]);
 	  }
@@ -331,27 +340,29 @@ void PFJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::PFJet
   std::cout << "Filling matchingn" << std::cout;
   mMatchedGenJetsPt->Fill (logPtGen);
   mMatchedGenJetsEta->Fill (logPtGen, fGenJet.eta());
-  mDeltaEta->Fill (logPtGen, fGenJet.eta(), fPFJet.eta()-fGenJet.eta());
-  mDeltaPhi->Fill (logPtGen, fGenJet.eta(), fPFJet.phi()-fGenJet.phi());
-  mEScale->Fill (logPtGen, fGenJet.eta(), fPFJet.energy()/fGenJet.energy());
-  mlinEScale->Fill (fGenJet.pt(), fGenJet.eta(), fPFJet.energy()/fGenJet.energy());
-  mDeltaE->Fill (logPtGen, fGenJet.eta(), fPFJet.energy()-fGenJet.energy());
+  if (mTurnOnEverything.compare("yes")==0) {
+    mDeltaEta->Fill (logPtGen, fGenJet.eta(), fPFJet.eta()-fGenJet.eta());
+    mDeltaPhi->Fill (logPtGen, fGenJet.eta(), fPFJet.phi()-fGenJet.phi());
+    mEScale->Fill (logPtGen, fGenJet.eta(), fPFJet.energy()/fGenJet.energy());
+    mlinEScale->Fill (fGenJet.pt(), fGenJet.eta(), fPFJet.energy()/fGenJet.energy());
+    mDeltaE->Fill (logPtGen, fGenJet.eta(), fPFJet.energy()-fGenJet.energy());
   //
-  mEScaleFineBin->Fill (logPtGen, fGenJet.eta(), fPFJet.energy()/fGenJet.energy());
+    mEScaleFineBin->Fill (logPtGen, fGenJet.eta(), fPFJet.energy()/fGenJet.energy());
   
-  if (fGenJet.pt()>10) {
-    mEScale_pt10->Fill (logPtGen, fGenJet.eta(), fPFJet.energy()/fGenJet.energy());
+    if (fGenJet.pt()>10) {
+      mEScale_pt10->Fill (logPtGen, fGenJet.eta(), fPFJet.energy()/fGenJet.energy());
+    }
+
+
+
+    //_______________________________________________________________________________________________________________
+
+    //mEEffNeutralFraction->Fill (fPFJet.energy()/fGenJet.energy());
+    mEEffNeutralFraction->Fill (fPFJet.neutralMultiplicity()/fPFJet.nConstituents(), fPFJet.energy()/fGenJet.energy());
+    nEEff->Fill(fPFJet.energy()/fGenJet.energy());
+    mEEffChargedFraction->Fill (fPFJet.chargedMultiplicity()/fPFJet.nConstituents(), fPFJet.energy()/fGenJet.energy());
+    mEResNeutralFraction->Fill (fPFJet.neutralMultiplicity()/fPFJet.nConstituents(), (fPFJet.energy()-fGenJet.energy())/fGenJet.energy());
+    mEResChargedFraction->Fill (fPFJet.chargedMultiplicity()/fPFJet.nConstituents(), (fPFJet.energy()-fGenJet.energy())/fGenJet.energy());
   }
-
-
-
-  //_______________________________________________________________________________________________________________
-
-  //mEEffNeutralFraction->Fill (fPFJet.energy()/fGenJet.energy());
-  mEEffNeutralFraction->Fill (fPFJet.neutralMultiplicity()/fPFJet.nConstituents(), fPFJet.energy()/fGenJet.energy());
-  nEEff->Fill(fPFJet.energy()/fGenJet.energy());
   mNeutralFraction2->Fill (fPFJet.neutralMultiplicity()/fPFJet.nConstituents());
-  mEEffChargedFraction->Fill (fPFJet.chargedMultiplicity()/fPFJet.nConstituents(), fPFJet.energy()/fGenJet.energy());
-  mEResNeutralFraction->Fill (fPFJet.neutralMultiplicity()/fPFJet.nConstituents(), (fPFJet.energy()-fGenJet.energy())/fGenJet.energy());
-  mEResChargedFraction->Fill (fPFJet.chargedMultiplicity()/fPFJet.nConstituents(), (fPFJet.energy()-fGenJet.energy())/fGenJet.energy());
 }
