@@ -17,3 +17,7 @@ dataCertificationJetMET = cms.EDAnalyzer('DataCertificationJetMET',
                               Verbose        = cms.untracked.int32(0),
                               TestType       = cms.untracked.int32(0)
 )
+
+#################
+certificationJetMET = cms.Sequence(qTesterJetMET+dataCertificationJetMET)
+
