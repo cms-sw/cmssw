@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.102 2009/03/25 19:21:24 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.103 2009/03/25 20:42:54 amraktad Exp $
 //
 
 // system include files
@@ -1081,6 +1081,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
    // assert(0!=viewArea);
   
    m_viewPrimPack->GetGUIFrame()->Layout();
+   m_cmsShowMainFrame->MapWindow();
 
 
    //handle controllers

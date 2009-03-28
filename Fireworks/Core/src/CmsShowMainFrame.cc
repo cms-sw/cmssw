@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.41 2009/01/23 21:35:42 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.42 2009/03/11 21:16:20 amraktad Exp $
 //
 // hacks
 #define private public
@@ -200,8 +200,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    m_statBar = new TGStatusBar(this, this->GetWidth(), 12);
    AddFrame(m_statBar, new TGLayoutHints(kLHintsBottom | kLHintsExpandX));
    MapSubwindows();
-   Layout();
-   MapWindow();
 
 
    /**************************************************************************/
@@ -383,8 +381,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    //   printf("Default main frame size: %d, %d\n", this->GetDefaultSize().fWidth, this->GetDefaultSize().fHeight);
    //   printf("Main frame size: %d, %d\n", this->GetWidth(), this->GetHeight());
    //   Resize(this->GetDefaultSize());
-   Layout();
-   MapWindow();
 
    m_delaySliderListener =  new FWIntValueListener();
    TQObject::Connect(m_delaySlider, "PositionChanged(Int_t)", "FWIntValueListenerBase",  m_delaySliderListener, "setValue(Int_t)");
