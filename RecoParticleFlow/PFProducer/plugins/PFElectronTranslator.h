@@ -48,11 +48,11 @@ class PFElectronTranslator : public edm::EDProducer
   void createSuperClusters(const reco::PFCandidateCollection &,
 			  reco::SuperClusterCollection &superClusters) const;
 
-  // create the basic cluster Refs
-  void createBasicClusterRefs(const edm::OrphanHandle<reco::BasicClusterCollection> & basicClustersHandle );
+  // create the basic cluster Ptr
+  void createBasicClusterPtrs(const edm::OrphanHandle<reco::BasicClusterCollection> & basicClustersHandle );
 
   // create the preshower cluster Refs
-  void createPreshowerClusterRefs(const edm::OrphanHandle<reco::PreshowerClusterCollection> & preshowerClustersHandle );
+  void createPreshowerClusterPtrs(const edm::OrphanHandle<reco::PreshowerClusterCollection> & preshowerClustersHandle );
 
   // create the super cluster Refs
   void createSuperClusterGsfMapRefs(const edm::OrphanHandle<reco::SuperClusterCollection> & superClustersHandle );
@@ -86,7 +86,7 @@ class PFElectronTranslator : public edm::EDProducer
   // the references to the basic clusters associated to a GSF track
   std::vector<reco::CaloClusterPtrVector> basicClusterPtr_;
   // the references to the basic clusters associated to a GSF track
-  std::vector<reco::PreshowerClusterRefVector> preshowerClusterRefs_;
+  std::vector<reco::CaloClusterPtrVector> preshowerClusterPtr_;
   // keep track of the index of the PF Candidate
   std::vector<int> gsfPFCandidateIndex_;
   // maps to ease the creation of the Value Maps 

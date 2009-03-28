@@ -69,7 +69,7 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
   preshowerClusters_.clear();
   superClusters_.clear();
   basicClusterPtr_.clear();
-  preshowerClusterRefs_.clear();
+  preshowerClusterPtr_.clear();
   gsfPFCandidateIndex_.clear();
   scMap_.clear();
   gsfMvaMap_.clear();
@@ -149,7 +149,9 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
     iEvent.put(psClusters_p,PFPreshowerClusterCollection_);
 
   // now that the Basic clusters are in the event, the Ref can be created
-  createBasicClusterRefs(bcRefProd);
+  createBasicClusterPtrs(bcRefProd);
+  // now that the preshower clusters are in the event, the Ref can be created
+  createPreshowerClusterPtrs(psRefProd);
   
   // and now the Super cluster can be created with valid references  
   createSuperClusters(*pfCandidates,*superClusters_p);
@@ -230,7 +232,7 @@ void PFElectronTranslator::createPreshowerCluster(const reco::PFBlockElement & P
 					       myPFClusterRef->hitsAndFractions(),plane));
 }
 
-void PFElectronTranslator::createBasicClusterRefs(const edm::OrphanHandle<reco::BasicClusterCollection> & basicClustersHandle )
+void PFElectronTranslator::createBasicClusterPtrs(const edm::OrphanHandle<reco::BasicClusterCollection> & basicClustersHandle )
 {
   unsigned size=GsfTrackRef_.size();
   unsigned basicClusterCounter=0;
@@ -249,11 +251,11 @@ void PFElectronTranslator::createBasicClusterRefs(const edm::OrphanHandle<reco::
     }
 }
 
-void PFElectronTranslator::createPreshowerClusterRefs(const edm::OrphanHandle<reco::PreshowerClusterCollection> & preshowerClustersHandle )
+void PFElectronTranslator::createPreshowerClusterPtrs(const edm::OrphanHandle<reco::PreshowerClusterCollection> & preshowerClustersHandle )
 {
   unsigned size=GsfTrackRef_.size();
   unsigned psClusterCounter=0;
-  preshowerClusterRefs_.resize(size);
+  preshowerClusterPtr_.resize(size);
 
   for(unsigned iGSF=0;iGSF<size;++iGSF) // loop on tracks
     {
@@ -261,8 +263,8 @@ void PFElectronTranslator::createPreshowerClusterRefs(const edm::OrphanHandle<re
       for(unsigned ibc=0;ibc<nbc;++ibc) // loop on basic clusters
 	{
 	  //	  std::cout <<  "Track "<< iGSF << " ref " << basicClusterCounter << std::endl;
-	  edm::Ref<reco::PreshowerClusterCollection> psRef(preshowerClustersHandle,psClusterCounter);
-	  preshowerClusterRefs_[iGSF].push_back(psRef);
+	  reco::CaloClusterPtr psPtr(preshowerClustersHandle,psClusterCounter);
+	  preshowerClusterPtr_[iGSF].push_back(psPtr);
 	  ++psClusterCounter;
 	}
     }
@@ -400,9 +402,17 @@ void PFElectronTranslator::createSuperClusters(const reco::PFCandidateCollection
 	    mySuperCluster.addHitAndFraction(diIt->first,diIt->second);
 	  } // loop over rechits      
 	}      
+
+      unsigned nps=preshowerClusterPtr_[iGSF].size();
+      for(unsigned ips=0;ips<nps;++ips)
+	{
+	  mySuperCluster.addPreshowerCluster(preshowerClusterPtr_[iGSF][ips]);
+	}
+      
+
       // Commented until the new DataFormat allows it
-      //      mySuperCluster.setPreshowerEnergy(pfCand[gsfPFCandidateIndex_[iGSF]].pS1Energy()+
-      //                                        pfCand[gsfPFCandidateIndex_[iGSF]].pS2Energy());
+      mySuperCluster.setPreshowerEnergy(pfCand[gsfPFCandidateIndex_[iGSF]].pS1Energy()+
+					pfCand[gsfPFCandidateIndex_[iGSF]].pS2Energy());
 
       superClusters.push_back(mySuperCluster);
    }
