@@ -7,7 +7,7 @@
 **  Class RPCClusterSizeTest           **
 **  DQM Event Summary module for RPCs  **
 **                                     **
-**  $Date: 2009/01/26 11:03:36 $       **
+**  $Date: 2009/03/04 18:29:18 $       **
 **  $Revision: 1.1 $                   **
 **  David Lomidze                      **
 **  INFN di Napoli                     **
@@ -67,9 +67,13 @@ public:
   
   int prescaleFactor_;
   bool verbose_;
+  bool init_;
   DQMStore* dbe_;
   int nLumiSegs_;
-  
+  int minEvents;
+  int numLumBlock_;
+  int nLumBlock_;
+
   edm::ESHandle<RPCGeometry> muonGeom;
   
   std::vector<std::string> segmentNames; 

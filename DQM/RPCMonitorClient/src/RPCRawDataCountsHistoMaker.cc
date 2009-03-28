@@ -17,8 +17,8 @@ typedef std::map< std::pair<int,int>, int >::const_iterator IT;
 TH1F * RPCRawDataCountsHistoMaker::emptyReadoutErrorHisto(int fedId) {
   ostringstream str;
   str <<"readoutErrors_"<<fedId;
-  TH1F * result = new TH1F(str.str().c_str(),str.str().c_str(),8, 0.5,8.5);
-  for (unsigned int i=1; i<=8; ++i) {
+  TH1F * result = new TH1F(str.str().c_str(),str.str().c_str(),9, 0.5,9.5);
+  for (unsigned int i=1; i<=9; ++i) {
     ReadoutError::ReadoutErrorType code =  static_cast<ReadoutError::ReadoutErrorType>(i);
     result->GetXaxis()->SetBinLabel(i,ReadoutError::name(code).c_str());
   }

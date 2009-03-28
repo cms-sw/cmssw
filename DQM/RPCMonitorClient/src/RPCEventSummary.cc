@@ -61,7 +61,7 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
      dbe_->removeElement(me->getName());
   }
   me = dbe_->book2D("reportSummaryMap", "RPC Report Summary Map", 15, -7.5, 7.5, 12, 0.5 ,12.5);
-   cout<<__LINE__<<endl;
+ 
   //customize the 2d histo
   stringstream BinLabel;
   for (int i= 1 ; i<=15; i++){

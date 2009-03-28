@@ -216,11 +216,9 @@ void RPCDqmClient::makeClientMap() {
 
   //take only user specified clients and associate its source histograms to it
   for(unsigned int i = 0; i<clientNames.size(); i++){
-    cout<< clientNames[i]<<endl;
 
     if(find(clientList_.begin(),clientList_.end(),clientNames[i])!=clientList_.end()) {
 
-      cout<< clientNames[i]<<endl;
       clientHisto_.push_back(clientHisto[i]);
       clientTag_.push_back(clientTag[i]);
       clientNames_.push_back(clientNames[i]);

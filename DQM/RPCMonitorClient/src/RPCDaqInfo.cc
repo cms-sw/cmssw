@@ -13,6 +13,7 @@ RPCDaqInfo::RPCDaqInfo(const edm::ParameterSet& ps) {
   
   NumberOfFeds_ =FEDRange_.second -  FEDRange_.first +1;
 
+  numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
 }
 
 RPCDaqInfo::~RPCDaqInfo(){}
@@ -58,9 +59,60 @@ void RPCDaqInfo::beginJob(const edm::EventSetup& iSetup){
   dbe_ = 0;
   dbe_ = Service<DQMStore>().operator->();
   
- 
+  //fraction of alive FEDs
   dbe_->setCurrentFolder("RPC/EventInfo/DAQContents");
-  DaqFraction_= dbe_->bookFloat("RPCDaqFraction");  
+ 
+  int limit = numberOfDisks_;
+  if(numberOfDisks_ < 2) limit = 2;
+  
+  for (int i = -1 * limit; i<= limit;i++ ){//loop on wheels and disks
+    if (i>-3 && i<3){//wheels
+      stringstream streams;
+      streams << "RPC_Wheel" << i;
+      daqWheelFractions[i+2] = dbe_->bookFloat(streams.str());
+      daqWheelFractions[i+2]->Fill(-1);
+    }
+    
+    if (i == 0  || i > numberOfDisks_ || i< (-1 * numberOfDisks_))continue;
+    
+    int offset = numberOfDisks_;
+    if (i>0) offset --; //used to skip case equale to zero
+    
+    stringstream streams;
+    streams << "RPC_Disk" << i;
+    daqDiskFractions[i+2] = dbe_->bookFloat(streams.str());
+    daqDiskFractions[i+2]->Fill(-1);
+  }
+
+
+  //daq summary for RPCs
+  dbe_->setCurrentFolder("RPC/EventInfo");
+    
+  DaqFraction_ = dbe_->bookFloat("DAQSummary");
+
+  DaqMap_ = dbe_->book2D( "DAQSummaryMap","RPC DAQ Summary Map",15, -7.5, 7.5, 12, 0.5 ,12.5);
+
+ //customize the 2d histo
+  stringstream BinLabel;
+  for (int i= 1 ; i<=15; i++){
+    BinLabel.str("");
+    if(i<13){
+      BinLabel<<"Sec"<<i;
+      DaqMap_->setBinLabel(i,BinLabel.str(),2);
+    } 
+
+    BinLabel.str("");
+    if(i<5)
+      BinLabel<<"Disk"<<i-5;
+    else if(i>11)
+      BinLabel<<"Disk"<<i-11;
+    else if(i==11 || i==5)
+      BinLabel.str("");
+    else
+      BinLabel<<"Wheel"<<i-8;
+ 
+     DaqMap_->setBinLabel(i,BinLabel.str(),1);
+  }
 }
 
 

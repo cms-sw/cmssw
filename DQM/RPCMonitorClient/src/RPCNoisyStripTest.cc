@@ -10,11 +10,6 @@
 //DQM Services
 #include "DQMServices/Core/interface/DQMStore.h"
 
-// //Geometry
-// #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
-// #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-// #include "Geometry/Records/interface/MuonGeometryRecord.h"
-
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -190,13 +185,13 @@ void  RPCNoisyStripTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe,Ev
       DEVD = DEVDWheel[detId.ring()+2];
       NOISED= NOISEDWheel[detId.ring()+2];
     }else if(detId.region()<0 && ((detId.station() * detId.region() ) + numberOfDisks_) >= 0 ){//ENDCAP-
-      NOISE = NOISEDisk[detId.ring()+2];
-      DEVD = DEVDDisk[detId.ring()+2];
-      NOISED= NOISEDDisk[detId.ring()+2];
+      NOISE = NOISEDisk[(detId.station() * detId.region() ) + numberOfDisks_];
+      DEVD = DEVDDisk[(detId.station() * detId.region() ) + numberOfDisks_];
+      NOISED= NOISEDDisk[(detId.station() * detId.region() ) + numberOfDisks_];
     }else if(((detId.station() * detId.region() ) + numberOfDisks_-1) >= 0 ){//ENDCAP +
-      NOISE = NOISEDisk[detId.ring()+2];
-      DEVD = DEVDDisk[detId.ring()+2];
-      NOISED= NOISEDDisk[detId.ring()+2];
+      NOISE = NOISEDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
+      DEVD = DEVDDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
+      NOISED= NOISEDDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
     }
     
  //    RPCGeomServ RPCserv(detId);

@@ -38,10 +38,13 @@ private:
   DQMStore *dbe_;  
   
   MonitorElement*  DaqFraction_;
+  MonitorElement * DaqMap_;
+  MonitorElement* daqWheelFractions[5];
+  MonitorElement* daqDiskFractions[10];
 
   std::pair<int,int> FEDRange_;
 
-  int  NumberOfFeds_;
+  int  numberOfDisks_,NumberOfFeds_;
  
 };
 

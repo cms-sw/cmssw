@@ -36,17 +36,17 @@ void RPCDeadChannelTest::beginJob(DQMStore *  dbe ){
 void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
 
  edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Begin run";
- cout<<__LINE__<<endl;
+
  MonitorElement* me;
  dbe_->setCurrentFolder( globalFolder_);
- cout<<__LINE__<<endl;
+
  stringstream histoName;
- cout<<__LINE__<<endl;
+
  rpcdqm::utils rpcUtils;
- cout<<__LINE__<<endl;
+  
  int limit = numberOfDisks_;
  if(numberOfDisks_ < 2) limit = 2;
- cout<<__LINE__<<endl;
+  
  for (int i = -1 * limit; i<= limit;i++ ){//loop on wheels and disks
    if (i>-3 && i<3){//wheels
      histoName.str("");
@@ -55,30 +55,38 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup,vector<
        dbe_->removeElement(me->getName());
      }
      DEADWheel[i+2] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
+
+     for (int x = 1; x<=12; x++)
+       for(int y=1; y<=21; y++)
+	 DEADWheel[i+2]->setBinContent(x,y,-1);
+
      rpcUtils.labelXAxisSector( DEADWheel[i+2]);
      rpcUtils.labelYAxisRoll( DEADWheel[i+2], 0, i);
    }//end wheels
-    cout<<__LINE__<<endl;
+     
    if (i == 0  || i > numberOfDisks_ || i< (-1 * numberOfDisks_))continue;
- cout<<__LINE__<<endl;
+  
    int offset = numberOfDisks_;
    if (i>0) offset --; //used to skip case equale to zero
- cout<<__LINE__<<endl;
+  
    histoName.str("");
    histoName<<"DeadChannelFraction_Roll_vs_Sector_Disk"<<i;
    if ( me = dbe_->get(globalFolder_ +"/"+ histoName.str()) ) {
      dbe_->removeElement(me->getName());
    }
- cout<<__LINE__<<endl;
+  
    DEADDisk[i+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 6, 0.5, 6.5, 54, 0.5, 54.5);
- cout<<__LINE__<<endl;
+   
+   for (int x = 1; x<=6; x++)
+     for(int y=1; y<=54; y++)
+       DEADDisk[i+offset]->setBinContent(x,y,-1);
    rpcUtils.labelXAxisSector( DEADDisk[i+offset]);
    rpcUtils.labelYAxisRoll( DEADDisk[i+offset], 1, i);
- cout<<__LINE__<<endl;
+  
  }//end loop on wheels and disks
 
  //Get Occuoancy ME for each roll
- cout<<__LINE__<<endl;
+  
  for (unsigned int i = 0 ; i<meVector.size(); i++){
 
    bool flag= false;
@@ -98,7 +106,7 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup,vector<
       myOccupancyMe_.push_back(meVector[i]);
       myDetIds_.push_back(detIdVector[i]);
    }
- } cout<<__LINE__<<endl;
+ }  
 }
 
 void RPCDeadChannelTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {}

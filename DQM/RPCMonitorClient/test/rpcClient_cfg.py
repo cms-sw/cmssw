@@ -6,7 +6,7 @@ process = cms.Process("rpcDqmClient")
 ################# Input ########################
 process.source = cms.Source("EmptySource")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2))
 
 ################# Geometry  ######################
 process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
@@ -37,11 +37,21 @@ process.rpcEventSummary.PrescaleFactor = 1
 
 #process.rpcOccupancyTest = cms.EDAnalyzer("RPCOccupancyTest")
 
+process.load("DQM.RPCMonitorClient.RPCDCSSummary_cfi")
+process.load("DQM.RPCMonitorClient.RPCDaqInfo_cfi")
+process.load("DQM.RPCMonitorClient.RPCDataCertification_cfi")
 
 ################# DQM Client Modules ####################
 process.load("DQM.RPCMonitorClient.RPCDqmClient_cfi")
 process.rpcdqmclient.RPCDqmClientList = cms.untracked.vstring("RPCNoisyStripTest","RPCOccupancyTest","RPCClusterSizeTest","RPCDeadChannelTest","RPCMultiplicityTest ")
 process.rpcdqmclient.DiagnosticPrescale = cms.untracked.int32(1)
+process.rpcdqmclient.NumberOfEndcapDisks  = cms.untracked.int32(3)
+
+
+################### FED ##################################
+process.load("DQM.RPCMonitorClient.RPCMonitorRaw_cfi")
+process.load("DQM.RPCMonitorClient.RPCFEDIntegrity_cfi")
+process.load("DQM.RPCMonitorClient.RPCMonitorLinkSynchro_cfi")
 
 
  ################# Quality Tests #########################
@@ -52,7 +62,6 @@ process.qTesterRPC = cms.EDAnalyzer("QualityTester",
 
 ################ Chamber Quality ##################
 process.rpcChamberQuality = cms.EDAnalyzer("RPCChamberQuality")
-process.rpcNoise = cms.EDAnalyzer("RPCNoisyStripTest")
 
 ############# Message Logger ####################
 process.MessageLogger = cms.Service("MessageLogger",
@@ -72,7 +81,7 @@ process.options = cms.untracked.PSet(
 #process.rpcClientSequence = cms.Sequence(process.dqmEnv*process.readMeFromFile*process.qTesterRPC*process.rpcdqmclient*process.rpcOccupancyTest*process.rpcNoise*process.rpcChamberQuality*process.rpcEventSummary*process.dqmSaver)
 
 
-process.p = cms.Path(process.readMeFromFile*process.qTesterRPC*process.rpcdqmclient*process.dqmSaver)
+process.p = cms.Path(process.readMeFromFile*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.rpcEventSummary*process.rpcDCSSummary*process.rpcDaqInfo*process.rpcDataCertification*process.rpcMonitorRaw*process.rpcFEDIntegrity*process.rpcMonitorLinkSynchro*process.dqmSaver)
 
 
 

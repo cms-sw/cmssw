@@ -15,9 +15,17 @@ DEFINE_ANOTHER_FWK_MODULE(RPCFEDIntegrity);
 #include <DQM/RPCMonitorClient/interface/RPCMonitorRaw.h>
 DEFINE_ANOTHER_FWK_MODULE(RPCMonitorRaw);
 
+#include <DQM/RPCMonitorClient/interface/RPCMonitorLinkSynchro.h>
+DEFINE_ANOTHER_FWK_MODULE(RPCMonitorLinkSynchro);
+
 #include <DQM/RPCMonitorClient/interface/RPCDaqInfo.h>
 DEFINE_ANOTHER_FWK_MODULE(RPCDaqInfo);
 
+#include <DQM/RPCMonitorClient/interface/RPCDCSSummary.h>
+DEFINE_ANOTHER_FWK_MODULE(RPCDCSSummary);
+
+#include <DQM/RPCMonitorClient/interface/RPCDataCertification.h>
+DEFINE_ANOTHER_FWK_MODULE(RPCDataCertification);
 
 //Used to read ME from ROOT files
 #include <DQM/RPCMonitorClient/interface/ReadMeFromFile.h>
