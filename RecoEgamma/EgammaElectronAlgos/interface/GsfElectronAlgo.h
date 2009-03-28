@@ -36,10 +36,14 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 #include <list>
 
 class MultiTrajectoryStateTransform;
 class MultiTrajectoryStateMode;
+//class GsfConstraintAtVertex;
+#include "TrackingTools/GsfTracking/interface/GsfConstraintAtVertex.h"
 
 class GsfElectronAlgo {
 
@@ -85,7 +89,7 @@ class GsfElectronAlgo {
        edm::Handle<CaloTowerCollection> towersH,
        edm::Handle<EcalRecHitCollection> reducedEBRecHits,
        edm::Handle<EcalRecHitCollection> reducedEERecHits,
-       const math::XYZPoint &bs,
+       const reco::BeamSpot &bs,
        GsfElectronPtrCollection & outEle);
 
     // interface to be improved...
@@ -121,7 +125,8 @@ class GsfElectronAlgo {
      ( const reco::GsfTrackRef &, edm::Handle<reco::TrackCollection> ctfTracksH ) ;
 
     // intermediate calculations
-    bool calculateTSOS(const reco::GsfTrack &t,const reco::SuperCluster & theClus, const math::XYZPoint & bs);
+    bool calculateTSOS(const reco::GsfTrack &t,const reco::SuperCluster & theClus, const
+     reco::BeamSpot& bs);
 
     // preselection parameters
     // minimum SC Et 
@@ -214,6 +219,7 @@ class GsfElectronAlgo {
 
     const MultiTrajectoryStateTransform *mtsTransform_;
     const MultiTrajectoryStateMode *mtsMode_;
+    GsfConstraintAtVertex *constraintAtVtx_;
 
     // internal variables
     int subdet_; //subdetector for this cluster
@@ -225,6 +231,7 @@ class GsfElectronAlgo {
     TrajectoryStateOnSurface sclTSOS_;
     TrajectoryStateOnSurface seedTSOS_;
     TrajectoryStateOnSurface eleTSOS_;
+    TrajectoryStateOnSurface constrainedVtxTSOS_;
 
     unsigned long long cacheIDGeom_;
     unsigned long long cacheIDTopo_;

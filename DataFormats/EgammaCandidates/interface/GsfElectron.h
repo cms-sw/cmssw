@@ -31,13 +31,16 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.24 2009/03/26 11:20:20 charlot Exp $
+ * \version $Id: GsfElectron.h,v 1.25 2009/03/27 13:09:08 charlot Exp $
  *
  ****************************************************************************/
 
 //*****************************************************************************
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.25  2009/03/27 13:09:08  charlot
+// added setter for the core
+//
 // Revision 1.24  2009/03/26 11:20:20  charlot
 // updated for new supercluster dataformat
 //
@@ -186,6 +189,7 @@ class GsfElectron : public RecoCandidate
       math::XYZVector momentumAtCalo ;    // the track momentum extrapolated at the supercluster position from the innermost track state
       math::XYZVector momentumOut ;       // the track momentum extrapolated at the seed cluster position from the outermost track state
       math::XYZVector momentumAtEleClus ; // the track momentum extrapolated at the ele cluster position from the outermost track state
+      math::XYZVector momentumAtVtxWithConstraint ;     // the track momentum at the PCA to the beam spot using bs constraint
      } ;
 
     // accessors
@@ -195,6 +199,7 @@ class GsfElectron : public RecoCandidate
     math::XYZVector trackMomentumAtCalo() const { return trackExtrapolations_.momentumAtCalo ; }
     math::XYZVector trackMomentumOut() const { return trackExtrapolations_.momentumOut ; }
     math::XYZVector trackMomentumAtEleClus() const { return trackExtrapolations_.momentumAtEleClus ; }
+    math::XYZVector trackMomentumAtVtxWithConstraint() const { return trackExtrapolations_.momentumAtVtxWithConstraint ; }
 
     // for backward compatibility
     math::XYZPoint TrackPositionAtVtx() const { return trackPositionAtVtx() ; }

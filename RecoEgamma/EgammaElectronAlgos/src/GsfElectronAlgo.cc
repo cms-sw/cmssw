@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.48 2009/03/26 11:02:31 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.49 2009/03/28 11:11:52 charlot Exp $
 //
 //
 
@@ -59,7 +59,6 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -120,6 +119,7 @@ GsfElectronAlgo::GsfElectronAlgo
   // this is the new version allowing to configurate the algo
   // interfaces still need improvement!!
   mtsTransform_ = 0 ;
+  constraintAtVtx_ = 0 ;
 
   // get nested parameter set for the TransientInitialStateEstimator
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
@@ -159,6 +159,11 @@ void GsfElectronAlgo::setupES(const edm::EventSetup& es) {
     mtsTransform_ = new MultiTrajectoryStateTransform(trackerHandle_.product(),theMagField.product());
   }
 
+  if ( updateField || updateGeometry ) {
+    delete constraintAtVtx_;
+    constraintAtVtx_ = new GsfConstraintAtVertex(es);
+  }
+
   if (cacheIDGeom_!=es.get<CaloGeometryRecord>().cacheIdentifier()){
     cacheIDGeom_=es.get<CaloGeometryRecord>().cacheIdentifier();
     es.get<CaloGeometryRecord>().get(theCaloGeom);
@@ -192,13 +197,13 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   // get the beamspot from the Event:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   e.getByType(recoBeamSpotHandle);
-  const math::XYZPoint bsPosition = recoBeamSpotHandle->position();
+  const BeamSpot bs = *recoBeamSpotHandle;
 
   // temporay array for electrons before preselection and before amb. solving
   GsfElectronPtrCollection tempEle, tempEle1;
 
   // create electrons
-  process(tracksH,coresH,ctfTracksH,towersH,pEBRecHits,pEERecHits,bsPosition,tempEle);
+  process(tracksH,coresH,ctfTracksH,towersH,pEBRecHits,pEERecHits,bs,tempEle);
 
   std::ostringstream str;
 
@@ -271,7 +276,7 @@ void GsfElectronAlgo::process(
   edm::Handle<CaloTowerCollection> towersH,
   edm::Handle<EcalRecHitCollection> reducedEBRecHits,
   edm::Handle<EcalRecHitCollection> reducedEERecHits,
-  const math::XYZPoint & bsPosition,
+  const BeamSpot & bs,
   GsfElectronPtrCollection & outEle )
  {
 
@@ -279,8 +284,8 @@ void GsfElectronAlgo::process(
 
   float extRadiusSmall=extRadiusTkSmall_, extRadiusLarge=extRadiusTkLarge_, intRadius=intRadiusTk_;
   float ptMin=ptMinTk_, maxVtxDist=maxVtxDistTk_, drb=maxDrbTk_; 
-  ElectronTkIsolation tkIsolation03(extRadiusSmall,intRadius,ptMin,maxVtxDist,drb,ctfTracksH.product(),bsPosition) ;
-  ElectronTkIsolation tkIsolation04(extRadiusLarge,intRadius,ptMin,maxVtxDist,drb,ctfTracksH.product(),bsPosition) ;
+  ElectronTkIsolation tkIsolation03(extRadiusSmall,intRadius,ptMin,maxVtxDist,drb,ctfTracksH.product(),bs.position()) ;
+  ElectronTkIsolation tkIsolation04(extRadiusLarge,intRadius,ptMin,maxVtxDist,drb,ctfTracksH.product(),bs.position()) ;
   
   float egHcalIsoConeSizeOutSmall=extRadiusHcalSmall_, egHcalIsoConeSizeOutLarge=extRadiusHcalLarge_;
   float egHcalIsoConeSizeIn=intRadiusHcal_,egHcalIsoPtMin=etMinHcal_;
@@ -322,7 +327,7 @@ void GsfElectronAlgo::process(
     CaloClusterPtr elbcRef = getEleBasicCluster(gsfTrackRef,scRef) ;
 
     // calculate Trajectory StatesOnSurface....
-    if (!calculateTSOS(*gsfTrackRef,theClus, bsPosition)) continue ;
+    if (!calculateTSOS(*gsfTrackRef,theClus, bs)) continue ;
     mtsMode_->momentumFromModeCartesian(vtxTSOS_,vtxMom_) ;
     sclPos_=sclTSOS_.globalPosition() ;
     
@@ -463,6 +468,12 @@ void GsfElectronAlgo::createElectron
   GlobalPoint vtxPos=vtxTSOS_.globalPosition() ;
   mtsMode_->momentumFromModeCartesian(outTSOS_,outMom);
   GlobalPoint outPos=outTSOS_.globalPosition() ;
+  GlobalVector vtxMomWithConstraint;
+  bool success = mtsMode_->momentumFromModeCartesian(constrainedVtxTSOS_,vtxMomWithConstraint);
+//    if ( success )
+//      std::cout << " pt = " << vtxMomWithConstraint.perp() << std::endl;
+//     else
+//      std::cout << " FAILURE!!!" << std::endl;
 
 
   //====================================================
@@ -641,8 +652,7 @@ const CaloClusterPtr GsfElectronAlgo::getEleBasicCluster(const GsfTrackRef &t, c
 
 }
 
-bool  GsfElectronAlgo::calculateTSOS(const GsfTrack &t,const SuperCluster & theClus, const math::XYZPoint &
- bsPosition){
+bool  GsfElectronAlgo::calculateTSOS(const GsfTrack &t,const SuperCluster & theClus, const BeamSpot & bs){
 
     //at innermost point
     innTSOS_ = mtsTransform_->innerStateOnSurface(t);
@@ -651,7 +661,7 @@ bool  GsfElectronAlgo::calculateTSOS(const GsfTrack &t,const SuperCluster & theC
     //at vertex
     // innermost state propagation to the beam spot position
     vtxTSOS_ = mtsTransform_->extrapolatedState(innTSOS_,
-						GlobalPoint(bsPosition.x(),bsPosition.y(),bsPosition.z()));
+						GlobalPoint(bs.position().x(),bs.position().y(),bs.position().z()));
     if (!vtxTSOS_.isValid()) vtxTSOS_=innTSOS_;
 
     //at seed
@@ -668,6 +678,10 @@ bool  GsfElectronAlgo::calculateTSOS(const GsfTrack &t,const SuperCluster & theC
     //at scl
     sclTSOS_ = mtsTransform_->extrapolatedState(innTSOS_,GlobalPoint(theClus.x(),theClus.y(),theClus.z()));
     if (!sclTSOS_.isValid()) sclTSOS_=outTSOS_;
+
+    // constrained momentum
+    constrainedVtxTSOS_ = constraintAtVtx_->constrainAtBeamSpot(t,bs);    
+
     return true;
 }
 
