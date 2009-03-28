@@ -47,7 +47,7 @@ cscConditions = cms.ESSource("PoolDBESSource",
 
 l1tcsctpgpath = cms.Path(muonCSCDigis*l1tcsctpg)
 muonCSCDigis.UnpackStatusDigis = True
-muonCSCDigis.isMTCCData = False
+#muonCSCDigis.isMTCCData = False
 muonCSCDigis.ErrorMask = 0x0
 muonCSCDigis.ExaminerMask = 0x16CBF3F6
 muonCSCDigis.UseExaminer = True
