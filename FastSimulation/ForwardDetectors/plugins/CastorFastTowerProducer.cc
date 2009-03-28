@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet
 //         Created:  Thu Mar 13 12:00:56 CET 2008
-// $Id: CastorFastTowerProducer.cc,v 1.1 2008/11/30 15:57:20 beaudett Exp $
+// $Id: CastorFastTowerProducer.cc,v 1.1 2009/03/27 21:59:06 hvanhaev Exp $
 //
 //
 
@@ -183,11 +183,12 @@ CastorFastTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	    	// add hadEnergy leakage
 		hadEnergy = leakage;
 		
-		
 		// calculate EM depth from parametrization
 		double d0 = 0.2338 * pow(p.energy(),-0.1634);
 		double d1 = 5.4336 * pow(p.energy(),0.2410) + 14408.1025;
 		double d2 = 1.4692 * pow(p.energy(),0.1307) - 0.5216; 
+		if (d0 < 0.) d0 = abs(d0);
+		
 		TF1 *fdepth = new TF1("fdepth","[0] * TMath::Exp(-0.5*( (x-[1])/[2] + TMath::Exp(-(x-[1])/[2])))",14400.,14460.); 
 		fdepth->SetParameters(d0,d1,d2);
 		depth = fdepth->GetRandom();
@@ -215,6 +216,8 @@ CastorFastTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 		double d0 = -0.000012 * p.energy() + 0.0661;
 		double d1 = 785.7524 * pow(p.energy(),0.0262) + 13663.4262;
 		double d2 = 9.8748 * pow(p.energy(),0.1720) + 37.0187; 
+		if (d0 < 0.) d0 = abs(d0);
+		
 		TF1 *fdepth = new TF1("fdepth","[0] * TMath::Exp(-0.5*( (x-[1])/[2] + TMath::Exp(-(x-[1])/[2]) ))",14400.,15500.);
 		fdepth->SetParameters(d0,d1,d2);
    		depth = fdepth->GetRandom();
