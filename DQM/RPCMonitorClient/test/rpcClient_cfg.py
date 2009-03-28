@@ -60,7 +60,7 @@ process.qTesterRPC = cms.EDAnalyzer("QualityTester",
 )
 
 ################ Chamber Quality ##################
-process.rpcChamberQuality = cms.EDAnalyzer("RPCChamberQuality")
+process.load("DQM.RPCMonitorClient.RPCChamberQuality_cfi")
 
 ############# Message Logger ####################
 process.MessageLogger = cms.Service("MessageLogger",
