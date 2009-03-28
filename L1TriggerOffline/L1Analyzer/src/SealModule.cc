@@ -37,7 +37,7 @@ DEFINE_FWK_MODULE(L1EmParticleShallowCloneProducer);
 DEFINE_FWK_MODULE(L1JetParticleShallowCloneProducer);
 DEFINE_FWK_MODULE(L1MuonParticleShallowCloneProducer);
 DEFINE_FWK_MODULE(L1EtMissParticleShallowCloneProducer);
-DEFINE_FWK_MODULE(L1PromptAnalysis);
+//DEFINE_FWK_MODULE(L1PromptAnalysis);
 
 
 
