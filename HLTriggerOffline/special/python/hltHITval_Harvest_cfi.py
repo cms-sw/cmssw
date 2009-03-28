@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 hltHITval_Harvest = cms.EDFilter("PostProcessor",
-    outputFileName = cms.untracked.string('HcalIsoTrackPostProcessor.root'),
+    outputFileName = cms.untracked.string(''),
+    verbose        = cms.untracked.uint32(0),
     commands       = cms.vstring(),
     resolution     = cms.vstring(),                                    
     subDirs         = cms.untracked.vstring('HLT/HcalIsoTrack/'),
