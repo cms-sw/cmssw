@@ -9,7 +9,7 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     # Input digi label (_must_ be without zero-suppression!)
     firstTPSample = cms.int32(2),
     TPSize = cms.int32(4),
-    inputLabel = cms.InputTag("simHcalUnsuppressedDigis"),
+    inputLabel = cms.VInputTag(cms.InputTag('simHcalUnsuppressedDigis'),cms.InputTag('simHcalUnsuppressedDigis')),
     FG_threshold = cms.uint32(12), ## threshold for setting fine grain bit
     ZS_threshold = cms.uint32(1) ## threshold for setting fine grain bit
 )
