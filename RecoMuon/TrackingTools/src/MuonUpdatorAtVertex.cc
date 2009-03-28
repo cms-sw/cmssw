@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2009/02/18 18:23:30 $
- *  $Revision: 1.37 $
+ *  $Date: 2009/03/05 18:21:13 $
+ *  $Revision: 1.38 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -15,7 +15,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
 #include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -82,7 +82,7 @@ MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos, const reco:
   if(TrackerBounds::isInside(tsos.globalPosition())){
     LogTrace(metname) << "Trajectory inside the Tracker";
 
-    TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+    TSCBLBuilderNoMaterial tscblBuilder;
     TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(tsos.freeState()),
 							  beamSpot);
 

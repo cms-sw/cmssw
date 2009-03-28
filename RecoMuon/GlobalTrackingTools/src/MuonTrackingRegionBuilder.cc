@@ -3,8 +3,8 @@
  *
  *  Build a TrackingRegion around a standalone muon 
  *
- *  $Date: 2008/11/26 11:35:39 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/12/02 12:08:35 $
+ *  $Revision: 1.13 $
  *
  *  \author A. Everett - Purdue University
  *  \author A. Grelli -  Purdue University, Pavia University
@@ -30,7 +30,7 @@
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
@@ -159,7 +159,7 @@ MuonTrackingRegionBuilder::region(const reco::Track& staTrack) const {
 
   const reco::BeamSpot& bs =  *bsHandle;
 
-  TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+  TSCBLBuilderNoMaterial tscblBuilder;
   TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(muFTS,bs);
 
  

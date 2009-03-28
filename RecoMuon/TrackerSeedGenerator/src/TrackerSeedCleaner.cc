@@ -2,8 +2,8 @@
  * \class TrackerSeedCleaner
  *  Reference class for seeds cleaning
  *  Seeds Cleaner based on sharedHits cleaning, direction cleaning and pt cleaning
- *  $Date: 2008/05/08 18:59:34 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/11/21 13:47:19 $
+ *  $Revision: 1.7 $
     \author A. Grelli -  Purdue University, Pavia University
  */
 
@@ -25,7 +25,7 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
@@ -79,7 +79,7 @@ void TrackerSeedCleaner::clean( const reco::TrackRef& muR, const RectangularEtaP
  std::vector<TrajectorySeed > result;
 
  TrajectoryStateTransform tsTransform;
- TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+ TSCBLBuilderNoMaterial tscblBuilder;
  // PerigeeConversions tspConverter;
  for(TrajectorySeedCollection::iterator seed = seeds.begin(); seed<seeds.end(); ++seed){
         if(seed->nHits() < 2) continue; 
