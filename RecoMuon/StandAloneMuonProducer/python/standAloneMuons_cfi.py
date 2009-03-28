@@ -71,3 +71,23 @@ standAloneMuons = cms.EDProducer("StandAloneMuonProducer",
 
 
 
+standAloneSETMuons = cms.EDProducer("StandAloneMuonProducer",
+                                    MuonTrackLoaderForSTA,
+                                    MuonServiceProxy,
+                                    InputObjects = cms.InputTag("SETMuonSeed"),
+                                    MuonTrajectoryBuilder = cms.string("DirectMuonTrajectoryBuilder"),
+                                    STATrajBuilderParameters = cms.PSet(
+    SeedTransformerParameters = cms.PSet(
+      Fitter = cms.string('KFFitterSmootherSTA'),
+      RescaleError = cms.double(1.0),
+      MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
+      Propagator = cms.string('SteppingHelixPropagatorAny'),
+      NMinRecHits = cms.uint32(2),
+      # careful - used with UseSegmentsInTrajectory in SETMuonSeed_cfi.py
+      #         UseSubRecHits = cms.bool(True)
+      UseSubRecHits = cms.bool(False)
+    )
+   )
+                                    )
+
+
