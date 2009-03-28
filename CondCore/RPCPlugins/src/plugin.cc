@@ -30,26 +30,10 @@
 #include "CondFormats/DataRecord/interface/RPCObPVSSmapRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCObPVSSmap.h"
 
-#include "CondFormats/DataRecord/interface/RPCObFebmapRcd.h"
-#include "CondFormats/RPCObjects/interface/RPCObFebmap.h"
-
-#include "CondFormats/DataRecord/interface/RPCObGasmapRcd.h"
-#include "CondFormats/RPCObjects/interface/RPCObGasmap.h"
-
 #include "CondFormats/DataRecord/interface/RBCBoardSpecsRcd.h"
 #include "CondFormats/DataRecord/interface/TTUBoardSpecsRcd.h"
 #include "CondFormats/RPCObjects/interface/RBCBoardSpecs.h"
 #include "CondFormats/RPCObjects/interface/TTUBoardSpecs.h"
-
-#include "CondFormats/DataRecord/interface/RPCObAlignmentRcd.h"
-#include "CondFormats/RPCObjects/interface/RPCObAlignment.h"
-
-#include "CondFormats/DataRecord/interface/RPCObFebAssmapRcd.h"
-#include "CondFormats/RPCObjects/interface/RPCObFebAssmap.h"
-
-#include "CondFormats/DataRecord/interface/RPCRunIOVRcd.h"
-#include "CondFormats/RPCObjects/interface/RPCRunIOV.h"
-
 
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(RPCReadOutMappingRcd,RPCReadOutMapping);
@@ -64,11 +48,6 @@ REGISTER_PLUGIN(RPCObTempRcd,RPCObTemp);
 REGISTER_PLUGIN(RPCObPVSSmapRcd,RPCObPVSSmap);
 REGISTER_PLUGIN(RPCMaskedStripsRcd, RPCMaskedStrips);
 REGISTER_PLUGIN(RPCDeadStripsRcd, RPCDeadStrips);
-REGISTER_PLUGIN(RPCObFebmapRcd, RPCObFebmap);
-REGISTER_PLUGIN(RPCObGasmapRcd, RPCObGasmap);
-REGISTER_PLUGIN(RPCObAlignmentRcd, RPCObAlignment);
-REGISTER_PLUGIN(RPCObFebAssmapRcd, RPCObFebAssmap);
-REGISTER_PLUGIN(RPCRunIOVRcd, RPCRunIOV);
 
 REGISTER_PLUGIN(RBCBoardSpecsRcd,RBCBoardSpecs);
 REGISTER_PLUGIN(TTUBoardSpecsRcd,TTUBoardSpecs);
