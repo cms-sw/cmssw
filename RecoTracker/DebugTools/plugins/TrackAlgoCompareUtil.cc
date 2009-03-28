@@ -274,7 +274,7 @@ void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(TrackingParticleRef tp, const
     TrackCharge trackingParticleCharge(tp->charge());
   
     FreeTrajectoryState ftsAtProduction( trackingParticleVertex, trackingParticleP3, trackingParticleCharge, bf );
-    TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+    TSCBLBuilderNoMaterial tscblBuilder;
     TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction, bs);  //as in TrackProducerAlgorithm
   
     if(tsAtClosestApproach.isValid())
@@ -302,7 +302,7 @@ void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(TrackingParticleRef tp, const
     TrackCharge trackingParticleCharge(tp->charge());
 
     FreeTrajectoryState ftsAtProduction( trackingParticleVertex, trackingParticleP3, trackingParticleCharge, bf );
-    TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+    TSCBLBuilderNoMaterial tscblBuilder;
     TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction, bs);  //as in TrackProducerAlgorithm
 
     if(tsAtClosestApproach.isValid())
