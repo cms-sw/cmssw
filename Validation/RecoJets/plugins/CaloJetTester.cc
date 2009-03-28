@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.8 2008/10/29 09:52:02 jueugste Exp $
+// $Id: CaloJetTester.cc,v 1.9 2008/12/30 22:21:40 chlebana Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -38,8 +38,8 @@ using namespace reco;
 using namespace std;
 
 namespace {
-  bool is_B (const reco::Jet& fJet) {return fabs (fJet.eta()) < 1.4;}
-  bool is_E (const reco::Jet& fJet) {return fabs (fJet.eta()) >= 1.4 && fabs (fJet.eta()) < 3.;}
+  bool is_B (const reco::Jet& fJet) {return fabs (fJet.eta()) < 1.3;}
+  bool is_E (const reco::Jet& fJet) {return fabs (fJet.eta()) >= 1.3 && fabs (fJet.eta()) < 3.;}
   bool is_F (const reco::Jet& fJet) {return fabs (fJet.eta()) >= 3.;}
 }
 
@@ -50,7 +50,8 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mMatchGenPtThreshold (iConfig.getParameter<double>("genPtThreshold")),
     mGenEnergyFractionThreshold (iConfig.getParameter<double>("genEnergyFractionThreshold")),
     mReverseEnergyFractionThreshold (iConfig.getParameter<double>("reverseEnergyFractionThreshold")),
-    mRThreshold (iConfig.getParameter<double>("RThreshold"))
+    mRThreshold (iConfig.getParameter<double>("RThreshold")),
+    mTurnOnEverything (iConfig.getUntrackedParameter<string>("TurnOnEverything",""))
 {
     numberofevents
     = mEta = mEtaFineBin = mPhi = mPhiFineBin = mE = mE_80 = mE_3000
@@ -77,6 +78,10 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     = mDeltaEta = mDeltaPhi = mEScale = mlinEScale = mDeltaE
     = mHadEnergyProfile = mEmEnergyProfile = mJetEnergyProfile = mHadJetEnergyProfile = mEMJetEnergyProfile
     = mEScale_pt10 = mEScaleFineBin
+    = mpTScaleB = mpTScaleE = mpTScaleF
+    = mpTScale_60_120 = mpTScale_2700_3500
+    = mpTScale1DB = mpTScale1DE = mpTScale1DF
+    = mpTScale1D_60_120 = mpTScale1D_2700_3500
     = mHBEne = mHBTime = mHEEne = mHETime = mHFEne = mHFTime = mHOEne = mHOTime
     = mEBEne = mEBTime = mEEEne = mEETime 
     = 0;
@@ -206,9 +211,9 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mEEEne     = dbe->book1D( "EEEne",  "EEEne", 1000, -20, 100 );
     mEETime    = dbe->book1D( "EETime", "EETime", 200, -200, 200 );
 
-    double log10PtMin = 0.5; //=3.16
-    double log10PtMax = 4.; ///=10000
-    int log10PtBins = 14; 
+    double log10PtMin = 0.5; //=3.1622766
+    double log10PtMax = 3.75; //=5623.41325
+    int log10PtBins = 13; 
     double etaMin = -5.;
     double etaMax = 5.;
     int etaBins = 50;
@@ -228,12 +233,15 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mMatchedGenJetsEta = dbe->book2D("MatchedGenJetEta", "MatchedGenJet Eta vs LOG(pT_gen)", 
 				     log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax);
     //
-    mHadEnergyProfile = dbe->bookProfile2D("HadEnergyProfile", "HadEnergyProfile", 82, -41, 41, 73, 0, 73, 100, 0, 10000, "s");
-    mEmEnergyProfile = dbe->bookProfile2D("EmEnergyProfile", "EmEnergyProfile", 82, -41, 41, 73, 0, 73, 100, 0, 10000, "s");
-    mJetEnergyProfile = dbe->bookProfile2D("JetEnergyProfile", "JetEnergyProfile", 200, -5, 5, 200, -3.1415987, 3.1415987, 100, 0, 10000, "s");
-    mHadJetEnergyProfile = dbe->bookProfile2D("HadJetEnergyProfile", "HadJetEnergyProfile", 200, -5, 5, 200, -3.1415987, 3.1415987, 100, 0, 10000, "s");
-    mEMJetEnergyProfile = dbe->bookProfile2D("EMJetEnergyProfile", "EMJetEnergyProfile", 200, -5, 5, 200, -3.1415987, 3.1415987, 100, 0, 10000, "s");
+    if (mTurnOnEverything.compare("yes")==0) {
+      mHadEnergyProfile = dbe->bookProfile2D("HadEnergyProfile", "HadEnergyProfile", 82, -41, 41, 73, 0, 73, 100, 0, 10000, "s");
+      mEmEnergyProfile = dbe->bookProfile2D("EmEnergyProfile", "EmEnergyProfile", 82, -41, 41, 73, 0, 73, 100, 0, 10000, "s");
+    }
+    mJetEnergyProfile = dbe->bookProfile2D("JetEnergyProfile", "JetEnergyProfile", 50, -5, 5, 36, -3.1415987, 3.1415987, 100, 0, 10000, "s");
+    mHadJetEnergyProfile = dbe->bookProfile2D("HadJetEnergyProfile", "HadJetEnergyProfile", 50, -5, 5, 36, -3.1415987, 3.1415987, 100, 0, 10000, "s");
+    mEMJetEnergyProfile = dbe->bookProfile2D("EMJetEnergyProfile", "EMJetEnergyProfile", 50, -5, 5, 36, -3.1415987, 3.1415987, 100, 0, 10000, "s");
     //
+    if (mTurnOnEverything.compare("yes")==0) {
     mGenJetMatchEnergyFraction  = dbe->book3D("GenJetMatchEnergyFraction", "GenJetMatchEnergyFraction vs LOG(pT_gen) vs eta", 
 					      log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 101, 0, 1.01);
     mReverseMatchEnergyFraction  = dbe->book3D("ReverseMatchEnergyFraction", "ReverseMatchEnergyFraction vs LOG(pT_gen) vs eta", 
@@ -255,7 +263,29 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
 			    log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, 0, 2);
     mEScaleFineBin = dbe->book3D("EScaleFineBins", "EnergyScale vs LOG(pT_gen) vs eta", 
 			    log10PtFineBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, 0, 2);
+    }
 
+
+    mpTScaleB = dbe->bookProfile("pTScaleB", "pTScale_0<|eta|<1.3",
+				 log10PtBins, log10PtMin, log10PtMax, 100, 0, 2, "s");
+    mpTScaleE = dbe->bookProfile("pTScaleE", "pTScale_1.3<|eta|<3.0",
+				 log10PtBins, log10PtMin, log10PtMax, 100, 0, 2, "s");
+    mpTScaleF = dbe->bookProfile("pTScaleF", "pTScale_3.0<|eta|<5.0",
+				 log10PtBins, log10PtMin, log10PtMax, 100, 0, 2, "s");
+    mpTScale_60_120    = dbe->bookProfile("pTScale_60_120", "pTScale_60<pT<120",
+					  etaBins, etaMin, etaMax, log10PtBins, log10PtMin, log10PtMax, "s");
+    mpTScale_2700_3500 = dbe->bookProfile("pTScale_2700_3500", "pTScale_2700<pt<3500",
+                                          etaBins, etaMin, etaMax, log10PtBins, log10PtMin, log10PtMax, "s");
+    mpTScale1DB = dbe->book1D("pTScale1DB", "pTScale_distribution_for_0<|eta|<1.3",
+				   100, 0, 2);
+    mpTScale1DE = dbe->book1D("pTScale1DE", "pTScale_distribution_for_1.3<|eta|<3.0",
+				   100, 0, 2);
+    mpTScale1DF = dbe->book1D("pTScale1DF", "pTScale_distribution_for_3.0<|eta|<5.0",
+				   100, 0, 2);
+    mpTScale1D_60_120    = dbe->book1D("pTScale1D_60_120", "pTScale_distribution_for_60<pT<120",
+					    100, 0, 2);
+    mpTScale1D_2700_3500 = dbe->book1D("pTScale1D_2700_3500", "pTScale_distribution_for_2700<pt<3500",
+					    100, 0, 2);
 
   }
 
@@ -333,10 +363,12 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
     // std::cout << "zide = " << cal->zside() << std::endl;
 
     //To compensate for the index
-    if (cal->ieta() >> 0 ){mHadEnergyProfile->Fill (cal->ieta()-1, cal->iphi(), cal->hadEnergy());
-    mEmEnergyProfile->Fill (cal->ieta()-1, cal->iphi(), cal->emEnergy());}
-    mHadEnergyProfile->Fill (cal->ieta(), cal->iphi(), cal->hadEnergy());
-    mEmEnergyProfile->Fill (cal->ieta(), cal->iphi(), cal->emEnergy());
+    if (mTurnOnEverything.compare("yes")==0) {
+      if (cal->ieta() >> 0 ){mHadEnergyProfile->Fill (cal->ieta()-1, cal->iphi(), cal->hadEnergy());
+      mEmEnergyProfile->Fill (cal->ieta()-1, cal->iphi(), cal->emEnergy());}
+      mHadEnergyProfile->Fill (cal->ieta(), cal->iphi(), cal->hadEnergy());
+      mEmEnergyProfile->Fill (cal->ieta(), cal->iphi(), cal->emEnergy());
+    }
 
     mHadTiming->Fill (cal->hcalTime());
     mEmTiming->Fill (cal->ecalTime());    
@@ -640,7 +672,9 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
 	    deltaRBest = dR;
 	  }
 	}
-	mRMatch->Fill (logPtGen, genJet.eta(), deltaRBest);
+	if (mTurnOnEverything.compare("yes")==0) {
+	  mRMatch->Fill (logPtGen, genJet.eta(), deltaRBest);
+	}
 	if (deltaRBest < mRThreshold) { // Matched
 	  fillMatchHists (genJet, (*caloJets) [iCaloJetBest]);
 	}
@@ -656,11 +690,15 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
 	    energyFractionBest = energyFraction;
 	  }
 	}
-	mGenJetMatchEnergyFraction->Fill (logPtGen, genJet.eta(), energyFractionBest);
+	if (mTurnOnEverything.compare("yes")==0) {
+	  mGenJetMatchEnergyFraction->Fill (logPtGen, genJet.eta(), energyFractionBest);
+	}
 	if (energyFractionBest > mGenEnergyFractionThreshold) { // good enough
 	  double reverseEnergyFraction = jetMatching.overlapEnergyFraction (caloJetConstituents [iCaloJetBest], 
 									    genJetConstituents [iGenJet]);
-	  mReverseMatchEnergyFraction->Fill (logPtGen, genJet.eta(), reverseEnergyFraction);
+	  if (mTurnOnEverything.compare("yes")==0) {
+	    mReverseMatchEnergyFraction->Fill (logPtGen, genJet.eta(), reverseEnergyFraction);
+	  }
 	  if (reverseEnergyFraction > mReverseEnergyFractionThreshold) { // Matched
 	    fillMatchHists (genJet, (*caloJets) [iCaloJetBest]);
 	  }
@@ -673,24 +711,60 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
 
 void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::CaloJet& fCaloJet) {
   double logPtGen = log10 (fGenJet.pt());
+  double PtGen = fGenJet.pt();
+  double PtCalo = fCaloJet.pt();
   mMatchedGenJetsPt->Fill (logPtGen);
   mMatchedGenJetsEta->Fill (logPtGen, fGenJet.eta());
-  mDeltaEta->Fill (logPtGen, fGenJet.eta(), fCaloJet.eta()-fGenJet.eta());
-  mDeltaPhi->Fill (logPtGen, fGenJet.eta(), fCaloJet.phi()-fGenJet.phi());
-  mEScale->Fill (logPtGen, fGenJet.eta(), fCaloJet.energy()/fGenJet.energy());
-  mlinEScale->Fill (fGenJet.pt(), fGenJet.eta(), fCaloJet.energy()/fGenJet.energy());
-  mDeltaE->Fill (logPtGen, fGenJet.eta(), fCaloJet.energy()-fGenJet.energy());
 
-  mEScaleFineBin->Fill (logPtGen, fGenJet.eta(), fCaloJet.energy()/fGenJet.energy());
+
+
+
+  if (mTurnOnEverything.compare("yes")==0) {
+    mDeltaEta->Fill (logPtGen, fGenJet.eta(), fCaloJet.eta()-fGenJet.eta());
+    mDeltaPhi->Fill (logPtGen, fGenJet.eta(), fCaloJet.phi()-fGenJet.phi());
+    mEScale->Fill (logPtGen, fGenJet.eta(), fCaloJet.energy()/fGenJet.energy());
+    mlinEScale->Fill (fGenJet.pt(), fGenJet.eta(), fCaloJet.energy()/fGenJet.energy());
+    mDeltaE->Fill (logPtGen, fGenJet.eta(), fCaloJet.energy()-fGenJet.energy());
+
+    mEScaleFineBin->Fill (logPtGen, fGenJet.eta(), fCaloJet.energy()/fGenJet.energy());
   
-  if (fGenJet.pt()>10) {
-    mEScale_pt10->Fill (logPtGen, fGenJet.eta(), fCaloJet.energy()/fGenJet.energy());
-  }
+    if (fGenJet.pt()>10) {
+      mEScale_pt10->Fill (logPtGen, fGenJet.eta(), fCaloJet.energy()/fGenJet.energy());
 
+    }
+
+  }
   if (fCaloJet.pt() > 10) {
     mDelEta->Fill (fGenJet.eta()-fCaloJet.eta());
     mDelPhi->Fill (fGenJet.phi()-fCaloJet.phi());
     mDelPt->Fill  ((fGenJet.pt()-fCaloJet.pt())/fGenJet.pt());
   }
+
+  if (fabs(fGenJet.eta())<1.3) {
+    mpTScaleB->Fill (logPtGen, PtGen/PtCalo);
+    mpTScale1DB->Fill (fCaloJet.pt()/fGenJet.pt());
+  }
+
+  if (fabs(fGenJet.eta())>1.3 && fabs(fGenJet.eta())<3.0) {
+    mpTScaleE->Fill (logPtGen,fCaloJet.pt()/fGenJet.pt());
+    mpTScale1DE->Fill (fCaloJet.pt()/fGenJet.pt());
+  }
+
+  if (fabs(fGenJet.eta())>3.0 && fabs(fGenJet.eta())<5.0) {
+    mpTScaleF->Fill (logPtGen,fCaloJet.pt()/fGenJet.pt());
+    mpTScale1DF->Fill (fCaloJet.pt()/fGenJet.pt());
+  }
+
+  if (fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
+    mpTScale_60_120->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
+    mpTScale1D_60_120->Fill (fCaloJet.pt()/fGenJet.pt());
+  }
+
+  if (fGenJet.pt()>2700.0 && fGenJet.pt()<3500.0) {
+    mpTScale_2700_3500->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
+    mpTScale1D_2700_3500->Fill (fCaloJet.pt()/fGenJet.pt());
+  }
+
+
 
 }
