@@ -256,7 +256,6 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         m_numberDaqPartitions = 8; // FIXME add it to stable parameters
 
         // number of objects of each type
-        //    { Mu, NoIsoEG, IsoEG, CenJet, ForJet, TauJet, ETM, ETT, HTT, JetCounts };
         m_nrL1Mu = static_cast<int> (m_l1GtStablePar->gtNumberL1Mu());
 
         m_nrL1NoIsoEG = static_cast<int> (m_l1GtStablePar->gtNumberL1NoIsoEG());
@@ -477,11 +476,13 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     bool receiveETM = false;
     bool receiveETT = false;
     bool receiveHTT = false;
+    bool receiveHTM = false;
     bool receiveJetCounts = false;
     bool receiveHfBitCounts = false;
     bool receiveHfRingEtSums = false;
 
     bool receiveCastor = false;
+    bool receiveBptx = false;
 
     bool receiveTechTr = false;
 
@@ -560,6 +561,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                                             receiveETM = true;
                                             receiveETT = true;
                                             receiveHTT = true;
+                                            receiveHTM = true;
                                         }
 
                                         break;
@@ -570,6 +572,11 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                                         break;
                                     case CastorQ: {
                                             receiveCastor = true;
+                                        }
+
+                                        break;
+                                    case BptxQ: {
+                                            receiveBptx = true;
                                         }
 
                                         break;
@@ -903,7 +910,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
             receiveCenJet, m_nrL1CenJet,
             receiveForJet, m_nrL1ForJet,
             receiveTauJet, m_nrL1TauJet,
-            receiveETM, receiveETT, receiveHTT,
+            receiveETM, receiveETT, receiveHTT, receiveHTM,
             receiveJetCounts,
             receiveHfBitCounts,
             receiveHfRingEtSums);
@@ -944,9 +951,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
             m_nrL1TauJet,
             m_nrL1JetCounts,
             m_ifMuEtaNumberBits,
-            m_ifCaloEtaNumberBits,
-            receiveCastor,
-            m_castorInputTag);
+            m_ifCaloEtaNumberBits);
 
         //LogDebug("L1GlobalTrigger")
         //<< "\n AlgorithmOR\n" << m_gtGTL->getAlgorithmOR() << "\n"

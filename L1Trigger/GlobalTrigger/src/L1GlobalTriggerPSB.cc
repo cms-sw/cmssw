@@ -58,6 +58,7 @@ L1GlobalTriggerPSB::L1GlobalTriggerPSB()
         m_candETM(0),
         m_candETT(0),
         m_candHTT(0),
+        m_candHTM(0),
         m_candJetCounts(0),
         m_candHfBitCounts(0),
         m_candHfRingEtSums(0),
@@ -111,7 +112,7 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
     const bool receiveCenJet, const int nrL1CenJet,
     const bool receiveForJet, const int nrL1ForJet,
     const bool receiveTauJet, const int nrL1TauJet,
-    const bool receiveETM, const bool receiveETT, const bool receiveHTT,
+    const bool receiveETM, const bool receiveETT, const bool receiveHTT, const bool receiveHTM,
     const bool receiveJetCounts,
     const bool receiveHfBitCounts,
     const bool receiveHfRingEtSums)
@@ -375,6 +376,36 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
 
     }
 
+    // get GCT HTM
+    if (receiveHTM) {
+
+        edm::Handle<L1GctHtMissCollection> missHtColl;
+        iEvent.getByLabel(caloGctInputTag, missHtColl) ;
+
+        if (!missHtColl.isValid()) {
+            if (warningEnabled) {
+                warningsStream
+                << "\nWarning: L1GctHtMissCollection with input tag " << caloGctInputTag
+                << "\nrequested in configuration, but not found in the event.\n"
+                << std::endl;
+            }
+        }
+        else {
+
+            for (L1GctHtMissCollection::const_iterator it = missHtColl->begin(); it
+                    != missHtColl->end(); it++) {
+
+                if ((*it).bx() == iBxInEvent) {
+
+                    m_candHTM = &(*it);
+                    //LogTrace("L1GlobalTriggerPSB") << "HTM      " << (*it) << std::endl;
+
+                }
+            }
+        }
+
+    }
+
     // get GCT JetCounts
     if (receiveJetCounts) {
 
@@ -483,6 +514,58 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
 
         printGctObjectData(iBxInEvent);
     }
+
+
+}
+
+// receive CASTOR objects
+void L1GlobalTriggerPSB::receiveCastorData(
+        edm::Event& iEvent, const edm::InputTag& castorInputTag, const int iBxInEvent,
+        const bool receiveCastor, const bool readFromPsb) {
+
+    // get the CASTOR record
+
+    //bool castorConditionFlag = true;
+    // FIXME remove the following line and uncomment the line above
+    //       when the L1CastorRecord is available
+    //       until then, all CASTOR conditions are set to false
+    //bool castorConditionFlag = false;
+
+    //edm::Handle<L1CastorRecord > castorData;
+    //iEvent.getByLabel(castorInputTag, castorData);
+
+    //if (receiveCastor) {
+    //
+    //    if (!castorData.isValid()) {
+    //        edm::LogWarning("L1GlobalTriggerGTL")
+    //        << "\nWarning: CASTOR record with input tag " << castorInputTag
+    //        << "\nrequested in configuration, but not found in the event.\n"
+    //        << std::endl;
+    //
+    //        castorConditionFlag = false;
+    //    } else {
+    //            LogTrace("L1GlobalTriggerGTL") << *(castorData.product()) << std::endl;
+    //
+    //    }
+    //
+    //} else {
+    //
+    //    // channel for CASTOR blocked - set all CASTOR to false
+    //    // MUST NEVER BLOCK CASTOR CHANNEL AND USE OPERATOR "NOT" WITH CASTOR CONDITION
+    //    //     ==> FALSE RESULTS!
+    //    castorConditionResult = false;
+    //
+    //}
+
+
+}
+
+// receive BPTX objects
+//   from a GT record with bptxInputTag - if readFromPsb is true
+//   otherwise, generate them from randomly
+void L1GlobalTriggerPSB::receiveBptxData(
+        edm::Event& iEvent, const edm::InputTag& bptxInputTag, const int iBxInEvent,
+        const bool receiveBptx, const bool readFromPsb) {
 
 
 }
@@ -986,6 +1069,8 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                             }
                             psbWordValue.setBData(bDataVal, iAB + iPair);
 
+                            // FIXME add HTM
+
                             //LogTrace("L1GlobalTriggerPSB")
                             //        << "\n aDataVal[" << (iAB + iPair)
                             //        << "] = 0x" << std::hex << aDataVal << std::dec
@@ -1272,6 +1357,7 @@ void L1GlobalTriggerPSB::reset() {
     m_candETM = 0;
     m_candETT = 0;
     m_candHTT = 0;
+    m_candHTM = 0;
 
     m_candJetCounts = 0;
 
@@ -1376,6 +1462,21 @@ void L1GlobalTriggerPSB::printGctObjectData(const int iBxInEvent) const
         LogTrace("L1GlobalTriggerPSB")
         << std::hex
         <<  "ET  = " << m_candHTT->et()
+        << std::dec
+        << std::endl;
+    }
+
+    LogTrace("L1GlobalTriggerPSB") << "   GCT HTM " << std::endl;
+    if ( m_candHTM ) {
+        LogTrace("L1GlobalTriggerPSB")
+        << std::hex
+        << "ET  = " << m_candHTM->et()
+        << std::dec
+        << std::endl;
+
+        LogTrace("L1GlobalTriggerPSB")
+        << std::hex
+        << "phi = " << m_candHTM->phi()
         << std::dec
         << std::endl;
     }

@@ -133,10 +133,11 @@ const bool L1GtEnergySumCondition::evaluateCondition() const {
     // clear the indices in the combination
     objectsInComb.clear();
 
-    // get energy and phi (ETM only) for the trigger object
+    // get energy, phi (ETM and HTM) and overflow for the trigger object
 
     unsigned int candEt = 0;
     unsigned int candPhi = 0;
+    bool candOverflow = false;
 
     switch ((m_gtEnergySumTemplate->objectType())[0]) {
         case ETT: {
@@ -147,6 +148,7 @@ const bool L1GtEnergySumCondition::evaluateCondition() const {
             }
 
             candEt = cand1->et();
+            candOverflow = cand1->overFlow();
 
             break;
         }
@@ -159,6 +161,7 @@ const bool L1GtEnergySumCondition::evaluateCondition() const {
 
             candEt = cand2->et();
             candPhi = cand2->phi();
+            candOverflow = cand2->overFlow();
 
             break;
         }
@@ -170,6 +173,20 @@ const bool L1GtEnergySumCondition::evaluateCondition() const {
             }
 
             candEt = cand3->et();
+            candOverflow = cand3->overFlow();
+
+            break;
+        }
+        case HTM: {
+            const L1GctHtMiss* cand4 = m_gtPSB->getCandL1HTM();
+
+            if (cand4 == 0) {
+                return false;
+            }
+
+            candEt = cand4->et();
+            candPhi = cand4->phi();
+            candOverflow = cand4->overFlow();
 
             break;
         }
@@ -184,31 +201,71 @@ const bool L1GtEnergySumCondition::evaluateCondition() const {
     const L1GtEnergySumTemplate::ObjectParameter objPar =
         ( *(m_gtEnergySumTemplate->objectParameter()) )[iCondition];
 
-    // check energy threshold
-    if ( !checkThreshold(objPar.etThreshold, candEt,
-        m_gtEnergySumTemplate->condGEq()) ) {
+    // check energy threshold and overflow
+    // overflow evaluation:
+    //     for condGEq >=
+    //         candidate overflow true -> condition true
+    //         candidate overflow false -> evaluate threshold
+    //     for condGEq =
+    //         candidate overflow true -> condition false
+    //         candidate overflow false -> evaluate threshold
+    //
 
-        return false;
-    }
+    bool condGEqVal = m_gtEnergySumTemplate->condGEq();
 
-    /// for ETM check phi also
-    if ((m_gtEnergySumTemplate->objectType())[0] == ETM) {
-
-        // phi bitmask is saved in two u_int64_t (see parser)
-        if (candPhi < 64) {
-            if (!checkBit(objPar.phiRange0Word, candPhi) ) {
-
+    if (condGEqVal) {
+        if (!candOverflow) {
+            if (!checkThreshold(objPar.etThreshold, candEt, condGEqVal)) {
                 return false;
             }
         }
-        else {
-            if (!checkBit(objPar.phiRange1Word, candPhi - 64)) {
-
+    } else {
+        if (candOverflow) {
+            return false;
+        } else {
+            if (!checkThreshold(objPar.etThreshold, candEt, condGEqVal)) {
                 return false;
             }
         }
 
     }
+
+    // for ETM and HTM check phi also
+    // for overflow, the phi requirements are ignored
+
+    if (!candOverflow) {
+        if ( ( m_gtEnergySumTemplate->objectType() )[0] == ETM) {
+
+            // phi bitmask is saved in two uint64_t (see parser)
+            if (candPhi < 64) {
+                if (!checkBit(objPar.phiRange0Word, candPhi)) {
+
+                    return false;
+                }
+            } else {
+                if (!checkBit(objPar.phiRange1Word, candPhi - 64)) {
+
+                    return false;
+                }
+            }
+
+        } else if ( ( m_gtEnergySumTemplate->objectType() )[0] == HTM) {
+
+            // phi bitmask is in the first word for HTM
+            if (candPhi < 64) {
+                if (!checkBit(objPar.phiRange0Word, candPhi)) {
+
+                    return false;
+                }
+            } else {
+                if (!checkBit(objPar.phiRange1Word, candPhi - 64)) {
+
+                    return false;
+                }
+            }
+        }
+    }
+
 
     // index is always zero, as they are global quantities (there is only one object)
     int indexObj = 0;

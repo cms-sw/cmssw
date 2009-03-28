@@ -78,9 +78,7 @@ public:
         const int nrL1TauJet,
         const int nrL1JetCounts,
         const int ifMuEtaNumberBits,
-        const int ifCaloEtaNumberBits,
-        const bool receiveCastor,
-        const edm::InputTag castorInputTag);
+        const int ifCaloEtaNumberBits);
 
     /// clear GTL
     void reset();

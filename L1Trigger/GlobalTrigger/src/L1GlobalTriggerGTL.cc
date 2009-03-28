@@ -39,6 +39,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtHfBitCountsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCastorTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtBptxTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
 
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
@@ -58,6 +59,7 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GtHfBitCountsCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtHfRingEtSumsCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtCastorCondition.h"
+#include "L1Trigger/GlobalTrigger/interface/L1GtBptxCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtCorrelationCondition.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GtEtaPhiConversions.h"
@@ -166,21 +168,18 @@ void L1GlobalTriggerGTL::receiveGmtObjectData(edm::Event& iEvent,
 }
 
 // run GTL
-void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
-    const L1GlobalTriggerPSB* ptrGtPSB, const bool produceL1GtObjectMapRecord,
-    const int iBxInEvent, std::auto_ptr<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord,
-    const unsigned int numberPhysTriggers,
-    const int nrL1Mu,
-    const int nrL1NoIsoEG,
-    const int nrL1IsoEG,
-    const int nrL1CenJet,
-    const int nrL1ForJet,
-    const int nrL1TauJet,
-    const int nrL1JetCounts,
-    const int ifMuEtaNumberBits,
-    const int ifCaloEtaNumberBits,
-    const bool receiveCastor,
-    const edm::InputTag castorInputTag) {
+void L1GlobalTriggerGTL::run(
+        edm::Event& iEvent, const edm::EventSetup& evSetup,
+        const L1GlobalTriggerPSB* ptrGtPSB,
+        const bool produceL1GtObjectMapRecord,
+        const int iBxInEvent,
+        std::auto_ptr<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord,
+        const unsigned int numberPhysTriggers,
+        const int nrL1Mu,
+        const int nrL1NoIsoEG, const int nrL1IsoEG,
+        const int nrL1CenJet, const int nrL1ForJet, const int nrL1TauJet,
+        const int nrL1JetCounts,
+        const int ifMuEtaNumberBits, const int ifCaloEtaNumberBits) {
 
 
 	// get / update the trigger menu from the EventSetup
@@ -252,41 +251,6 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
         m_gtEtaPhiConversions->convert(m_l1CaloGeometry, m_l1MuTriggerScales,
                 ifCaloEtaNumberBits, ifMuEtaNumberBits);
     }
-
-    // get the CASTOR record
-
-    //bool castorConditionFlag = true;
-    // FIXME remove the following line and uncomment the line above
-    //       when the L1CastorRecord is available
-    //       until then, all CASTOR conditions are set to false
-    //bool castorConditionFlag = false;
-
-    //edm::Handle<L1CastorRecord > castorData;
-    //iEvent.getByLabel(castorInputTag, castorData);
-
-    //if (receiveCastor) {
-    //
-    //    if (!castorData.isValid()) {
-    //        edm::LogWarning("L1GlobalTriggerGTL")
-    //        << "\nWarning: CASTOR record with input tag " << castorInputTag
-    //        << "\nrequested in configuration, but not found in the event.\n"
-    //        << std::endl;
-    //
-    //        castorConditionFlag = false;
-    //    } else {
-    //            LogTrace("L1GlobalTriggerGTL") << *(castorData.product()) << std::endl;
-    //
-    //    }
-    //
-    //} else {
-    //
-    //    // channel for CASTOR blocked - set all CASTOR to false
-    //    // MUST NEVER BLOCK CASTOR CHANNEL AND USE OPERATOR "NOT" WITH CASTOR CONDITION
-    //    //     ==> FALSE RESULTS!
-    //    castorConditionResult = false;
-    //
-    //}
-
 
 
     // loop over condition maps (one map per condition chip)
@@ -440,7 +404,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                 case CondCastor: {
                     bool castorCondResult = false;
 
-                    // FIXME un-comment when CASTOR record available
+                    // FIXME need a solution to read CASTOR
                     //if (castorConditionFlag) {
                     //    castorCondResult = castorData->conditionResult(itCond->first);
                     //}
@@ -461,6 +425,30 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                     }
 
                     //                  delete castorCondition;
+
+                }
+                    break;
+                case CondBptx: {
+                    bool bptxCondResult = false;
+
+                    // FIXME need a solution to read BPTX
+
+                    L1GtBptxCondition* bptxCondition = new L1GtBptxCondition(
+                            itCond->second, bptxCondResult);
+
+                    bptxCondition->setVerbosity(m_verbosity);
+                    bptxCondition->evaluateConditionStoreResult();
+
+                    cMapResults[itCond->first] = bptxCondition;
+
+                    if (m_verbosity && m_isDebugEnabled) {
+                        std::ostringstream myCout;
+                        bptxCondition->print(myCout);
+
+                        LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
+                    }
+
+                    //                  delete bptxCondition;
 
                 }
                     break;

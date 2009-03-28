@@ -48,6 +48,7 @@ class L1GctJetCand;
 class L1GctEtMiss;
 class L1GctEtTotal;
 class L1GctEtHad;
+class L1GctHtMiss;
 
 class L1GctJetCounts;
 class L1GctHFBitCounts;
@@ -83,10 +84,20 @@ public:
         const bool receiveCenJet, const int nrL1CenJet,
         const bool receiveForJet, const int nrL1ForJet,
         const bool receiveTauJet, const int nrL1TauJet,
-        const bool receiveETM, const bool receiveETT, const bool receiveHTT,
+        const bool receiveETM, const bool receiveETT, const bool receiveHTT, const bool receiveHTM,
         const bool receiveJetCounts,
         const bool receiveHfBitCounts,
         const bool receiveHfRingEtSums);
+
+    /// receive CASTOR objects
+    void receiveCastorData(
+            edm::Event& iEvent, const edm::InputTag& castorInputTag, const int iBxInEvent,
+            const bool receiveCastor, const bool readFromPsb);
+
+    /// receive BPTX objects
+    void receiveBptxData(
+            edm::Event& iEvent, const edm::InputTag& bptxInputTag, const int iBxInEvent,
+            const bool receiveBptx, const bool readFromPsb);
 
     /// receive technical trigger
     void receiveTechnicalTriggers(edm::Event& iEvent,
@@ -156,6 +167,12 @@ public:
         return m_candHTT;
     }
 
+    /// pointer to HTM data list
+    inline const L1GctHtMiss* getCandL1HTM() const
+    {
+        return m_candHTM;
+    }
+
     /// pointer to JetCounts data list
     inline const L1GctJetCounts* getCandL1JetCounts() const
     {
@@ -197,6 +214,7 @@ private:
     const L1GctEtMiss*  m_candETM;
     const L1GctEtTotal* m_candETT;
     const L1GctEtHad*   m_candHTT;
+    const L1GctHtMiss*  m_candHTM;
 
     const L1GctJetCounts* m_candJetCounts;
 
