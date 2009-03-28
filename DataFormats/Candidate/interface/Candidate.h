@@ -6,7 +6,7 @@
  *
  * \author Luca Lista (INFN), Benedikt Hegner (CERN)
  *
- * \version $Id: Particle.h,v 1.27 2008/02/21 09:04:06 llista Exp $
+ * \version $Id: Candidate.h,v 1.47 2008/12/05 12:15:18 hegner Exp $
  *
  */
 #include "DataFormats/Candidate/interface/component.h"
@@ -137,6 +137,10 @@ namespace reco {
     virtual void setLongLived()  = 0;
     /// is long lived?
     virtual bool longLived() const  = 0;
+    /// set mass constraint flag
+    virtual void setMassConstraint() = 0;
+    /// do mass constraint?
+    virtual bool massConstraint() const = 0;
     /// returns a clone of the Candidate object
     virtual Candidate * clone() const = 0;
     /// first daughter const_iterator

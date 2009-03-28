@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: LeafCandidate.h,v 1.18 2008/12/05 12:15:18 hegner Exp $
+ * \version $Id: LeafCandidate.h,v 1.19 2008/12/16 01:32:04 hegner Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -201,6 +201,12 @@ namespace reco {
     virtual void setLongLived() { status_ |= longLivedTag; }
     /// is long lived?                                                                    
     virtual bool longLived() const { return status_ & longLivedTag; }
+    /// do mass constraint flag
+    static const unsigned int massConstraintTag;
+    /// set mass constraint flag
+    virtual void setMassConstraint() { status_ |= massConstraintTag;}
+    /// do mass constraint?
+    virtual bool massConstraint() const { return status_ & massConstraintTag; }
     /// returns a clone of the Candidate object                                           
     virtual LeafCandidate * clone() const {
       return new LeafCandidate( *this );
