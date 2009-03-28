@@ -59,7 +59,13 @@ class GsfElectronAlgo {
       double maxFbremBarrel, double maxFbremEndcaps,
       bool isBarrel, bool isEndcaps, bool isFiducial,
       bool seedFromTEC,
-      bool applyPreselection, bool applyEtaCorrection, bool applyAmbResolution) ;
+      bool applyPreselection, bool applyEtaCorrection, bool applyAmbResolution, 
+      double extRadiusTkSmall, double extRadiusTkLarge, double intRadiusTk,
+      double ptMinTk, double maxVtxDistTk, double maxDrbTk,
+      double extRadiusHcalSmall, double extRadiusHcalLarge, double intRadiusHcal,
+      double etMinHcal, double extRadiusEcalSmall, double extRadiusEcalLarge,
+      double intRadiusEcalBarrel, double intRadiusEcalEndcaps, double jurassicWidth,
+      double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps) ;    
 
     ~GsfElectronAlgo() ;
 
@@ -168,6 +174,27 @@ class GsfElectronAlgo {
 
     // if this parameter is true, "double" electrons are resolved
     bool applyAmbResolution_;
+
+    // isolation variables parameters
+    double extRadiusTkSmall_;
+    double extRadiusTkLarge_;
+    double intRadiusTk_;
+    double ptMinTk_;
+    double maxVtxDistTk_;
+    double maxDrbTk_;
+    double extRadiusHcalSmall_;
+    double extRadiusHcalLarge_;
+    double intRadiusHcal_;
+    double etMinHcal_;
+    double extRadiusEcalSmall_;
+    double extRadiusEcalLarge_;
+    double intRadiusEcalBarrel_;
+    double intRadiusEcalEndcaps_;
+    double jurassicWidth_;
+    double etMinBarrel_;
+    double eMinBarrel_;
+    double etMinEndcaps_;
+    double eMinEndcaps_;    
 
     // input configuration
     edm::InputTag barrelSuperClusters_;

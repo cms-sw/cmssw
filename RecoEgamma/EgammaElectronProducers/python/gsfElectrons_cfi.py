@@ -44,6 +44,29 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     isFiducial = cms.bool(False),
     seedFromTEC = cms.bool(True),
     
+    # Isolation algos configuration
+    IsolationVariables = cms.PSet(
+      extRadiusTkSmall = cms.double(0.3),
+      extRadiusTkLarge = cms.double(0.4),
+      intRadiusTk = cms.double(0.015),
+      ptMinTk = cms.double(1.0),
+      maxVtxDistTk = cms.double(0.2),
+      maxDrbTk = cms.double(0.1),
+      extRadiusHcalSmall = cms.double(0.3),
+      extRadiusHcalLarge = cms.double(0.4),
+      intRadiusHcal = cms.double(0.15),
+      etMinHcal = cms.double(0.0),
+      extRadiusEcalSmall = cms.double(0.3),
+      extRadiusEcalLarge = cms.double(0.4),
+      intRadiusEcalBarrel = cms.double(0.045),
+      intRadiusEcalEndcaps = cms.double(0.07),
+      jurassicWidth = cms.double(0.02),
+      etMinBarrel = cms.double(-9999.),
+      eMinBarrel = cms.double(0.08),
+      etMinEndcaps = cms.double(0.1),
+      eMinEndcaps = cms.double(-9999.),      
+    ),
+
     # nested parameter set for TransientInitialStateEstimator
     TransientInitialStateEstimatorParameters = cms.PSet(
         propagatorAlongTISE = cms.string('PropagatorWithMaterial'),

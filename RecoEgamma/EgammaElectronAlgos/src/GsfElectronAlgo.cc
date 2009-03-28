@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.47 2009/03/25 13:59:59 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.48 2009/03/26 11:02:31 charlot Exp $
 //
 //
 
@@ -90,7 +90,13 @@ GsfElectronAlgo::GsfElectronAlgo
    double maxFbremBarrel, double maxFbremEndcaps,
    bool isBarrel, bool isEndcaps, bool isFiducial,
    bool seedFromTEC,
-   bool applyPreselection, bool applyEtaCorrection, bool applyAmbResolution )
+   bool applyPreselection, bool applyEtaCorrection, bool applyAmbResolution,
+   double extRadiusTkSmall, double extRadiusTkLarge, double intRadiusTk,
+   double ptMinTk, double maxVtxDistTk, double maxDrbTk,
+   double extRadiusHcalSmall, double extRadiusHcalLarge, double intRadiusHcal,
+   double etMinHcal, double extRadiusEcalSmall, double extRadiusEcalLarge,
+   double intRadiusEcalBarrel, double intRadiusEcalEndcaps, double jurassicWidth,
+   double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps)    
  : minSCEtBarrel_(minSCEtBarrel), minSCEtEndcaps_(minSCEtEndcaps), maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps),
    minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps),
    maxDeltaEtaBarrel_(maxDeltaEtaBarrel), maxDeltaEtaEndcaps_(maxDeltaEtaEndcaps),
@@ -103,6 +109,12 @@ GsfElectronAlgo::GsfElectronAlgo
    isBarrel_(isBarrel), isEndcaps_(isEndcaps), isFiducial_(isFiducial),
    seedFromTEC_(seedFromTEC),
    applyPreselection_(applyPreselection), applyEtaCorrection_(applyEtaCorrection), applyAmbResolution_(applyAmbResolution),
+   extRadiusTkSmall_(extRadiusTkSmall),  extRadiusTkLarge_(extRadiusTkLarge),  intRadiusTk_(intRadiusTk),
+   ptMinTk_(ptMinTk),  maxVtxDistTk_(maxVtxDistTk),  maxDrbTk_(maxDrbTk),
+   extRadiusHcalSmall_(extRadiusHcalSmall),  extRadiusHcalLarge_(extRadiusHcalLarge),  intRadiusHcal_(intRadiusHcal),
+   etMinHcal_(etMinHcal),  extRadiusEcalSmall_(extRadiusEcalSmall),  extRadiusEcalLarge_(extRadiusEcalLarge),
+   intRadiusEcalBarrel_(),  intRadiusEcalEndcaps_(),  jurassicWidth_(),
+   etMinBarrel_(etMinBarrel),  eMinBarrel_(eMinBarrel),  etMinEndcaps_(etMinEndcaps),  eMinEndcaps_(eMinEndcaps),    
    cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0)
  {
   // this is the new version allowing to configurate the algo
@@ -265,20 +277,22 @@ void GsfElectronAlgo::process(
 
   // Isolation algos
 
-  float extRadiusSmall=0.3, extRadiusLarge=0.4, intRadius=0.015, ptMin=1.0, maxVtxDist=0.2, drb=0.1; 
+  float extRadiusSmall=extRadiusTkSmall_, extRadiusLarge=extRadiusTkLarge_, intRadius=intRadiusTk_;
+  float ptMin=ptMinTk_, maxVtxDist=maxVtxDistTk_, drb=maxDrbTk_; 
   ElectronTkIsolation tkIsolation03(extRadiusSmall,intRadius,ptMin,maxVtxDist,drb,ctfTracksH.product(),bsPosition) ;
   ElectronTkIsolation tkIsolation04(extRadiusLarge,intRadius,ptMin,maxVtxDist,drb,ctfTracksH.product(),bsPosition) ;
   
-  float egHcalIsoConeSizeOutSmall=0.3, egHcalIsoConeSizeOutLarge=0.4, egHcalIsoConeSizeIn=0.15,egHcalIsoPtMin=0.0;
+  float egHcalIsoConeSizeOutSmall=extRadiusHcalSmall_, egHcalIsoConeSizeOutLarge=extRadiusHcalLarge_;
+  float egHcalIsoConeSizeIn=intRadiusHcal_,egHcalIsoPtMin=etMinHcal_;
   int egHcalDepth1=1, egHcalDepth2=2;  
   EgammaTowerIsolation hadDepth1Isolation03(egHcalIsoConeSizeOutSmall,egHcalIsoConeSizeIn,egHcalIsoPtMin,egHcalDepth1,towersH.product()) ;
   EgammaTowerIsolation hadDepth2Isolation03(egHcalIsoConeSizeOutSmall,egHcalIsoConeSizeIn,egHcalIsoPtMin,egHcalDepth2,towersH.product()) ;
   EgammaTowerIsolation hadDepth1Isolation04(egHcalIsoConeSizeOutLarge,egHcalIsoConeSizeIn,egHcalIsoPtMin,egHcalDepth1,towersH.product()) ;
   EgammaTowerIsolation hadDepth2Isolation04(egHcalIsoConeSizeOutLarge,egHcalIsoConeSizeIn,egHcalIsoPtMin,egHcalDepth2,towersH.product()) ;
   
-  float egIsoConeSizeOutSmall=0.3, egIsoConeSizeOutLarge=0.4, egIsoJurassicWidth=0.02;
-  float egIsoPtMinBarrel=-9999.,egIsoEMinBarrel=0.08, egIsoConeSizeInBarrel=0.045;
-  float egIsoPtMinEndcap=0.1,egIsoEMinEndcap=-9999., egIsoConeSizeInEndcap=0.07;
+  float egIsoConeSizeOutSmall=extRadiusEcalSmall_, egIsoConeSizeOutLarge=extRadiusEcalLarge_, egIsoJurassicWidth=jurassicWidth_;
+  float egIsoPtMinBarrel=etMinBarrel_,egIsoEMinBarrel=eMinBarrel_, egIsoConeSizeInBarrel=intRadiusEcalBarrel_;
+  float egIsoPtMinEndcap=etMinEndcaps_,egIsoEMinEndcap=eMinEndcaps_, egIsoConeSizeInEndcap=intRadiusEcalEndcaps_;
   EcalRecHitMetaCollection ecalBarrelHits(*reducedEBRecHits);
   EcalRecHitMetaCollection ecalEndcapHits(*reducedEERecHits);
   EgammaRecHitIsolation ecalBarrelIsol03(egIsoConeSizeOutSmall,egIsoConeSizeInBarrel,egIsoJurassicWidth,egIsoPtMinBarrel,egIsoEMinBarrel,theCaloGeom,&ecalBarrelHits,DetId::Ecal);

@@ -26,7 +26,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(10)
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
@@ -35,14 +35,14 @@ process.out = cms.OutputModule("PoolOutputModule",
         'keep *_iterativeCone5CaloJets_*_*', 
         'keep *_*_*_electrons', 
         'keep *HepMCProduct_*_*_*'),
-    fileName = cms.untracked.string('/tmp/charlot/Relval310pre3SingleElectronPt35_newElectronProto_100evts_newpresel.root')
+    fileName = cms.untracked.string('/tmp/charlot/Relval310pre3SingleElectronPt35_newElectronProto.root')
 )
 
 process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronMCAnalyzer",
     #electronCollection = cms.InputTag("pixelMatchGsfElectrons"),
     electronCollection = cms.InputTag("gsfElectrons"),
     mcTruthCollection = cms.InputTag("generator"),
-    outputFile = cms.string("gsfElectronHistos_RelVal310pre3SingleElectronPt35_newElectronProto_100evts_newpresel.root"),
+    outputFile = cms.string("gsfElectronHistos_RelVal310pre3SingleElectronPt35_newElectronProto.root"),
     MaxPt = cms.double(100.0),
     DeltaR = cms.double(0.05),
     MaxAbsEta = cms.double(2.5),
