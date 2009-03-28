@@ -3,15 +3,15 @@
 
 /**
  * \class L1GtFdlWord
- * 
- * 
- * Description: L1 Global Trigger - FDL block in the readout record.  
+ *
+ *
+ * Description: L1 Global Trigger - FDL block in the readout record.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -223,8 +223,30 @@ public:
 
 
 
+
+
+    /// get/set "physics declared" bit
+    inline const boost::uint16_t physicsDeclared() const
+    {
+        return m_physicsDeclared;
+    }
+
+    void setPhysicsDeclared(const boost::uint16_t& physicsDeclaredValue)
+    {
+        m_physicsDeclared = physicsDeclaredValue;
+    }
+
+    /// set the "physics declared" bit from a 64-bits word
+    void setPhysicsDeclared(const boost::uint64_t& word64);
+
+    /// set the "physics declared" bit bits in a 64-bits word, having the index iWord
+    /// in the GTFE raw record
+    void setPhysicsDeclaredWord64(boost::uint64_t& word64, const int iWord);
+
+
+
     /// get/set index of the set of prescale factors
-    
+
     inline const boost::uint16_t gtPrescaleFactorIndexTech() const
     {
         return m_gtPrescaleFactorIndexTech;
@@ -242,7 +264,7 @@ public:
     /// in the GTFE raw record
     void setGtPrescaleFactorIndexTechWord64(boost::uint64_t& word64, const int iWord);
 
-    
+
 
     inline const boost::uint16_t gtPrescaleFactorIndexAlgo() const
     {
@@ -260,9 +282,8 @@ public:
     /// set the GtPrescaleFactorIndexAlgo bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
     void setGtPrescaleFactorIndexAlgoWord64(boost::uint64_t& word64, const int iWord);
-    
 
-    
+
     /// get/set NoAlgo
     inline const boost::uint16_t noAlgo() const
     {
@@ -327,8 +348,8 @@ public:
     /// in the GTFE raw record
     void setOrbitNrWord64(boost::uint64_t& word64, const int iWord);
 
-    
-    
+
+
     /// get/set luminosity segment number of the actual bx
     inline const boost::uint16_t lumiSegmentNr() const
     {
@@ -346,9 +367,9 @@ public:
     /// set the luminosity segment number bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
     void setLumiSegmentNrWord64(boost::uint64_t& word64, const int iWord);
-    
- 
-    
+
+
+
     /// get/set local bunch cross number of the actual bx
     inline const boost::uint16_t localBxNr() const
     {
@@ -388,7 +409,7 @@ public:
     /// unpack FDL
     /// fdlPtr pointer to the beginning of the FDL block in the raw data
     void unpack(const unsigned char* fdlPtr);
-    
+
 private:
 
     // block description in the raw GT record
@@ -441,17 +462,20 @@ private:
     static const int GtDecisionWordExtendedShift;
 
     // word 5
-    static const int GtPrescaleFactorIndexTechWord;    
+    static const int PhysicsDeclaredWord;
+    static const int GtPrescaleFactorIndexTechWord;
     static const int GtPrescaleFactorIndexAlgoWord;
     static const int NoAlgoWord;
     static const int FinalORWord;
 
-    static const boost::uint64_t GtPrescaleFactorIndexTechMask;    
+    static const boost::uint64_t PhysicsDeclaredMask;
+    static const boost::uint64_t GtPrescaleFactorIndexTechMask;
     static const boost::uint64_t GtPrescaleFactorIndexAlgoMask;
     static const boost::uint64_t NoAlgoMask;
     static const boost::uint64_t FinalORMask;
 
-    static const int GtPrescaleFactorIndexTechShift;    
+    static const int PhysicsDeclaredShift;
+    static const int GtPrescaleFactorIndexTechShift;
     static const int GtPrescaleFactorIndexAlgoShift;
     static const int NoAlgoShift;
     static const int FinalORShift;
@@ -496,6 +520,9 @@ private:
     DecisionWordExtended m_gtDecisionWordExtended;
 
     //
+    /// set to true when physics declared
+    boost::uint16_t m_physicsDeclared;
+
     /// index of the set of prescale factors in the DB/EventSetup
     /// for algorithm triggers and technical triggers
     boost::uint16_t m_gtPrescaleFactorIndexTech;
@@ -507,9 +534,9 @@ private:
     /// FINOR (7:0) Final OR bits.
     /// FINOR(i) is connected to Partition (i);
     boost::uint16_t m_finalOR;
-        
+
     //
-    
+
     /// orbit number
     boost::uint32_t m_orbitNr;
 
@@ -519,7 +546,7 @@ private:
     /// local bunch cross number of the actual bx
     /// bx number at which the data were written into the ringbuffer
     boost::uint16_t m_localBxNr;
-    
+
 
 
 };

@@ -1,14 +1,14 @@
 /**
  * \class L1GtFdlWord
- * 
- * 
- * Description: see header file.  
+ *
+ *
+ * Description: see header file.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -57,13 +57,14 @@ L1GtFdlWord::L1GtFdlWord()
     m_gtDecisionWordExtended.assign(
         L1GlobalTriggerReadoutSetup::NumberPhysTriggersExtended, false);
 
+    m_physicsDeclared = 0;
     m_gtPrescaleFactorIndexTech = 0;
     m_gtPrescaleFactorIndexAlgo = 0;
-    
+
     m_noAlgo = 0;
 
     m_finalOR = 0;
-    
+
 
     m_orbitNr = 0;
     m_lumiSegmentNr = 0;
@@ -94,7 +95,9 @@ L1GtFdlWord::L1GtFdlWord(boost::uint16_t boardIdValue, int bxInEventValue,
             m_localBxNr(localBxNrValue)
 
 {
-    // done in initialization list 
+    m_physicsDeclared = 0;
+
+    // the rest done in initialization list
 }
 
 // destructor
@@ -135,10 +138,14 @@ bool L1GtFdlWord::operator==(const L1GtFdlWord& result) const
         return false;
     }
 
+    if (m_physicsDeclared != result.m_physicsDeclared) {
+        return false;
+    }
+
     if (m_gtPrescaleFactorIndexTech != result.m_gtPrescaleFactorIndexTech) {
         return false;
     }
-    
+
     if (m_gtPrescaleFactorIndexAlgo != result.m_gtPrescaleFactorIndexAlgo) {
         return false;
     }
@@ -568,6 +575,25 @@ void L1GtFdlWord::setGtDecisionWordExtendedWord64(boost::uint64_t& word64, const
 }
 
 
+// set the "physics declared" bit value from a 64-bits word
+void L1GtFdlWord::setPhysicsDeclared(const boost::uint64_t& word64)
+{
+    m_physicsDeclared = (word64 & PhysicsDeclaredMask) >> PhysicsDeclaredShift;
+}
+
+// set the "physics declared" bit value in a 64-bits word, having the index iWord
+// in the GTFE raw record
+void L1GtFdlWord::setPhysicsDeclaredWord64(boost::uint64_t& word64, const int iWord)
+{
+
+    if (iWord == PhysicsDeclaredWord) {
+        word64 = word64 | (static_cast<boost::uint64_t> (m_physicsDeclared)
+                           << PhysicsDeclaredShift);
+    }
+
+}
+
+
 // set the GtPrescaleFactorIndexTech from a 64-bits word
 void L1GtFdlWord::setGtPrescaleFactorIndexTech(const boost::uint64_t& word64) {
     m_gtPrescaleFactorIndexTech = (word64 & GtPrescaleFactorIndexTechMask)
@@ -606,7 +632,6 @@ void L1GtFdlWord::setGtPrescaleFactorIndexAlgoWord64(boost::uint64_t& word64,
     }
 
 }
-
 
 // set the NoAlgo value from a 64-bits word
 void L1GtFdlWord::setNoAlgo(const boost::uint64_t& word64)
@@ -726,9 +751,10 @@ void L1GtFdlWord::reset()
     m_gtDecisionWordExtended.assign(
         L1GlobalTriggerReadoutSetup::NumberPhysTriggersExtended, false);
 
+    m_physicsDeclared = 0;
     m_gtPrescaleFactorIndexTech = 0;
     m_gtPrescaleFactorIndexAlgo = 0;
-    
+
     m_noAlgo = 0;
     m_finalOR = 0;
 
@@ -806,15 +832,22 @@ void L1GtFdlWord::print(std::ostream& myCout) const
     iWord++;
     myCout << "\n Word " << iWord << std::endl;
 
+    myCout << "  PhysicsDeclared: "
+    << std::hex << " hex: "  << "    " << std::setw(4) << std::setfill('0')
+    << m_physicsDeclared
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_physicsDeclared
+    << std::endl;
+
     myCout << "  GtPrescaleFactorIndexTech: "
-    << std::hex << " hex: "  << "    " << std::setw(4) << std::setfill('0') 
+    << std::hex << " hex: "  << "    " << std::setw(4) << std::setfill('0')
     << m_gtPrescaleFactorIndexTech
     << std::setfill(' ')
     << std::dec << " dec: " << m_gtPrescaleFactorIndexTech
     << std::endl;
 
     myCout << "  GtPrescaleFactorIndexAlgo: "
-    << std::hex << " hex: "  << "    " << std::setw(4) << std::setfill('0') 
+    << std::hex << " hex: "  << "    " << std::setw(4) << std::setfill('0')
     << m_gtPrescaleFactorIndexAlgo
     << std::setfill(' ')
     << std::dec << " dec: " << m_gtPrescaleFactorIndexAlgo
@@ -878,9 +911,10 @@ void L1GtFdlWord::unpack(const unsigned char* fdlPtr)
     setGtDecisionWordB(payload[GtDecisionWordBWord]);
 
     setGtDecisionWordExtended(payload[GtDecisionWordExtendedWord]);
-    
+
+    setPhysicsDeclared(payload[PhysicsDeclaredWord]);
     setGtPrescaleFactorIndexTech(payload[GtPrescaleFactorIndexTechWord]);
-    setGtPrescaleFactorIndexAlgo(payload[GtPrescaleFactorIndexAlgoWord]);   
+    setGtPrescaleFactorIndexAlgo(payload[GtPrescaleFactorIndexAlgoWord]);
     setNoAlgo(payload[NoAlgoWord]);
     setFinalOR(payload[FinalORWord]);
 
@@ -956,16 +990,19 @@ const boost::uint64_t L1GtFdlWord::GtDecisionWordExtendedMask = 0xFFFFFFFFFFFFFF
 const int L1GtFdlWord::GtDecisionWordExtendedShift = 0;
 
 // word 5
+const int L1GtFdlWord::PhysicsDeclaredWord = 5;
 const int L1GtFdlWord::GtPrescaleFactorIndexTechWord = 5;
 const int L1GtFdlWord::GtPrescaleFactorIndexAlgoWord = 5;
 const int L1GtFdlWord::NoAlgoWord = 5;
 const int L1GtFdlWord::FinalORWord = 5;
 
-const boost::uint64_t L1GtFdlWord::GtPrescaleFactorIndexTechMask = 0xFFFF000000000000ULL;
-const boost::uint64_t L1GtFdlWord::GtPrescaleFactorIndexAlgoMask = 0x0000FFFF00000000ULL;
+const boost::uint64_t L1GtFdlWord::PhysicsDeclaredMask =           0x8000000000000000ULL;
+const boost::uint64_t L1GtFdlWord::GtPrescaleFactorIndexTechMask = 0x00FF000000000000ULL;
+const boost::uint64_t L1GtFdlWord::GtPrescaleFactorIndexAlgoMask = 0x000000FF00000000ULL;
 const boost::uint64_t L1GtFdlWord::NoAlgoMask =  0x0000000000000100ULL;
 const boost::uint64_t L1GtFdlWord::FinalORMask = 0x00000000000000FFULL;
 
+const int L1GtFdlWord::PhysicsDeclaredShift = 63;
 const int L1GtFdlWord::GtPrescaleFactorIndexTechShift = 48;
 const int L1GtFdlWord::GtPrescaleFactorIndexAlgoShift = 32;
 const int L1GtFdlWord::NoAlgoShift = 8;
