@@ -3,6 +3,7 @@ import copy
 
 from RecoTauTag.RecoTau.PFRecoTauProducer_cfi import *
 
+from RecoTauTag.TauTagTools.TauNeuralClassifiers_cfi import *
 
 """
         Defines producers and discriminants for the "shrinkingCone" PFTau
@@ -122,4 +123,13 @@ produceAndDiscriminateShrinkingConePFTaus = cms.Sequence(
       shrinkingConePFTauDiscriminationAgainstElectron*
       shrinkingConePFTauDiscriminationAgainstMuon
       )
+
+produceShrinkingConeDiscriminationByTauNeuralClassifier = cms.Sequence(
+      shrinkingConePFTauDiscriminationByTaNC*
+      shrinkingConePFTauDiscriminationByTaNCfrOnePercent*
+      shrinkingConePFTauDiscriminationByTaNCfrHalfPercent*
+      shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent*
+      shrinkingConePFTauDiscriminationByTaNCfrTenthPercent
+      )
+
 
