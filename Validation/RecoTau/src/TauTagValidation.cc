@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.7 2009/01/23 17:38:41 vasquez Exp $
+// $Id: TauTagValidation.cc,v 1.9 2009/03/23 13:08:01 vasquez Exp $
 //
 //
 // user include files
@@ -138,11 +138,11 @@ void TauTagValidation::beginJob(const edm::EventSetup& iConfig)
 	phiTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,phiTemp));
 	energyTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,energyTemp));
 
-	//	if ( TauProducer_.find("pfRecoTau") != string::npos) 
+	//	if ( TauProducer_.find("PFTau") != string::npos) 
 	// {
 	
 	if ( DiscriminatorLabel.find("LeadingTrackPtCut") != string::npos){
-	  if ( TauProducer_.find("pfRecoTau") != string::npos)
+	  if ( TauProducer_.find("PFTau") != string::npos)
 	    {
 	      nPFJet_LeadingChargedHadron_ChargedHadronsSignal_	        =dbeTau->book1D(DiscriminatorLabel + "_ChargedHadronsSignal",DiscriminatorLabel + "_ChargedHadronsSignal", 21, -0.5, 20.5);		 
 	      nPFJet_LeadingChargedHadron_ChargedHadronsIsolAnnulus_    =dbeTau->book1D(DiscriminatorLabel + "_ChargedHadronsIsolAnnulus",DiscriminatorLabel + "_ChargedHadronsIsolAnnulus", 21, -0.5, 20.5);	 
@@ -161,7 +161,7 @@ void TauTagValidation::beginJob(const edm::EventSetup& iConfig)
 	}
 	
 	if ( DiscriminatorLabel.find("ByIsolationLater") != string::npos ){
-	  if ( TauProducer_.find("pfRecoTau") != string::npos)
+	  if ( TauProducer_.find("PFTau") != string::npos)
 	    {
 	      nIsolated_NoChargedHadrons_ChargedHadronsSignal_	      =dbeTau->book1D(DiscriminatorLabel + "_ChargedHadronsSignal",DiscriminatorLabel + "_ChargedHadronsSignal", 21, -0.5, 20.5);	 	      
 	      nIsolated_NoChargedHadrons_GammasSignal_		      =dbeTau->book1D(DiscriminatorLabel + "_GammasSignal",DiscriminatorLabel + "_GammasSignal",21, -0.5, 20.5);			   
@@ -178,7 +178,7 @@ void TauTagValidation::beginJob(const edm::EventSetup& iConfig)
 	}
 
 	if ( DiscriminatorLabel.find("ByIsolation") != string::npos ){
-	  if ( TauProducer_.find("pfRecoTau") != string::npos)
+	  if ( TauProducer_.find("PFTau") != string::npos)
 	    {
 	      nIsolated_NoChargedNoGammas_ChargedHadronsSignal_        =dbeTau->book1D(DiscriminatorLabel + "_ChargedHadronsSignal",DiscriminatorLabel + "_ChargedHadronsSignal", 21, -0.5, 20.5);	  
 	      nIsolated_NoChargedNoGammas_GammasSignal_                =dbeTau->book1D(DiscriminatorLabel + "_GammasSignal",DiscriminatorLabel + "_GammasSignal",21, -0.5, 20.5);	 
@@ -239,7 +239,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   // ------------------------------ PFTauCollection Matched and other discriminators ---------------------------------------------------------
 
-  if ( TauProducer_.find("pfRecoTau") != string::npos)
+  if ( TauProducer_.find("PFTau") != string::npos)
     {
       Handle<PFTauCollection> thePFTauHandle;
       iEvent.getByLabel(TauProducer_,thePFTauHandle);
