@@ -13,8 +13,7 @@ siPixelDigis.InputLabel = 'source'
 
 # Local Reco Cosmic ####    
 from RecoLocalTracker.Configuration.RecoLocalTracker_Cosmics_cff import *
-siStripClusters.QualityLabel = ''
-
+#DefaultClusterizer.QualityLabel = ''   #not needed to specify it is used as default
 
 # Track Reconstruction Cosmic ########
 from RecoTracker.Configuration.RecoTrackerP5_cff import *
