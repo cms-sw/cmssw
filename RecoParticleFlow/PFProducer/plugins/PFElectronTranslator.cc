@@ -68,7 +68,7 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
   basicClusters_.clear();
   preshowerClusters_.clear();
   superClusters_.clear();
-  basicClusterRefs_.clear();
+  basicClusterPtr_.clear();
   preshowerClusterRefs_.clear();
   gsfPFCandidateIndex_.clear();
   scMap_.clear();
@@ -234,7 +234,7 @@ void PFElectronTranslator::createBasicClusterRefs(const edm::OrphanHandle<reco::
 {
   unsigned size=GsfTrackRef_.size();
   unsigned basicClusterCounter=0;
-  basicClusterRefs_.resize(size);
+  basicClusterPtr_.resize(size);
 
   for(unsigned iGSF=0;iGSF<size;++iGSF) // loop on tracks
     {
@@ -242,8 +242,8 @@ void PFElectronTranslator::createBasicClusterRefs(const edm::OrphanHandle<reco::
       for(unsigned ibc=0;ibc<nbc;++ibc) // loop on basic clusters
 	{
 	  //	  std::cout <<  "Track "<< iGSF << " ref " << basicClusterCounter << std::endl;
-	  edm::Ref<reco::BasicClusterCollection> bcRef(basicClustersHandle,basicClusterCounter);
-	  basicClusterRefs_[iGSF].push_back(bcRef);
+	  reco::CaloClusterPtr bcPtr(basicClustersHandle,basicClusterCounter);
+	  basicClusterPtr_[iGSF].push_back(bcPtr);
 	  ++basicClusterCounter;
 	}
     }
@@ -374,7 +374,7 @@ void PFElectronTranslator::createSuperClusters(const reco::PFCandidateCollection
 //	  std::cout << "SuperCluster creation; energy " << pfCand[gsfPFCandidateIndex_[iGSF]].ecalEnergy();
 //	  std::cout << " " <<   pfCand[gsfPFCandidateIndex_[iGSF]].rawEcalEnergy() << std::endl;
 //	  std::cout << "Seed energy from basic " << basicClusters_[iGSF][0].energy() << std::endl;
-	  mySuperCluster.setSeed(basicClusterRefs_[iGSF][0]);
+	  mySuperCluster.setSeed(basicClusterPtr_[iGSF][0]);
 	}
       else
 	{
@@ -383,14 +383,14 @@ void PFElectronTranslator::createSuperClusters(const reco::PFCandidateCollection
 //	  std::cout << " " <<   pfCand[gsfPFCandidateIndex_[iGSF]].rawEcalEnergy() << std::endl;
 //	  std::cout << " No seed found " << 0 << std::endl;	  
 //	  std::cout << " MVA " << pfCand[gsfPFCandidateIndex_[iGSF]].mva_e_pi() << std::endl;
-	  mySuperCluster.setSeed(reco::BasicClusterRef());
+	  mySuperCluster.setSeed(reco::CaloClusterPtr());
 	}
       // the seed should be the first basic cluster
 
       for(unsigned ibc=0;ibc<nbasics;++ibc)
 	{
-	  mySuperCluster.add(basicClusterRefs_[iGSF][ibc]);
-	  //	  std::cout <<"Adding Ref to SC " << basicClusterRefs_[iGSF][ibc].index() << std::endl;
+	  mySuperCluster.addCluster(basicClusterPtr_[iGSF][ibc]);
+	  //	  std::cout <<"Adding Ref to SC " << basicClusterPtr_[iGSF][ibc].index() << std::endl;
 	  const std::vector< std::pair<DetId, float> > & v1 = basicClusters_[iGSF][ibc].hitsAndFractions();
 	  //	  std::cout << " Number of cells " << v1.size() << std::endl;
 	  for( std::vector< std::pair<DetId, float> >::const_iterator diIt = v1.begin();

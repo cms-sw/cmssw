@@ -9,6 +9,7 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include <iostream>
 #include <string>
@@ -83,7 +84,7 @@ class PFElectronTranslator : public edm::EDProducer
   // the super cluster collection (actually only one) associated to a GSF trck
   std::vector<reco::SuperClusterCollection> superClusters_;
   // the references to the basic clusters associated to a GSF track
-  std::vector<reco::BasicClusterRefVector> basicClusterRefs_;
+  std::vector<reco::CaloClusterPtrVector> basicClusterPtr_;
   // the references to the basic clusters associated to a GSF track
   std::vector<reco::PreshowerClusterRefVector> preshowerClusterRefs_;
   // keep track of the index of the PF Candidate
