@@ -14,7 +14,7 @@
 #include "TrackingTools/GsfTools/interface/MultiGaussianState1D.h"
 #include "TrackingTools/GsfTools/interface/GaussianSumUtilities1D.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -44,8 +44,8 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
 //   edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
 //   std::map<unsigned int, unsigned int> tjTkMap;
 
-  TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
-
+  TSCBLBuilderNoMaterial tscblBuilder;
+  
   for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
     Trajectory * theTraj = (*i).first;
     if(trajectoryInEvent_) {

@@ -19,8 +19,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
 
-//#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "Utilities/General/interface/CMSexception.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit2DPosConstraint.h"
@@ -72,7 +71,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
     if (theTSOS.magneticField()->inTesla(GlobalPoint(0,0,0)).mag2()<DBL_MIN) ndof = ndof - 4;
     else ndof = ndof - 5;
     
-    TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+    TSCBLBuilderNoMaterial tscblBuilder;
     //    const FreeTrajectoryState & stateForProjectionToBeamLine=*innertsos.freeState();
     const FreeTrajectoryState & stateForProjectionToBeamLine=*theTraj->closestMeasurement(GlobalPoint(bs.x0(),bs.y0(),bs.z0())).updatedState().freeState();
 
@@ -174,7 +173,7 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
     if (theTSOS.magneticField()->inTesla(GlobalPoint(0,0,0)).mag2()<DBL_MIN) ndof = ndof - 4;
     else ndof = ndof - 5;
    
-    TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+    TSCBLBuilderNoMaterial tscblBuilder;
     //    const FreeTrajectoryState & stateForProjectionToBeamLine=*innertsos.freeState();
     const FreeTrajectoryState & stateForProjectionToBeamLine=*theTraj->closestMeasurement(GlobalPoint(bs.x0(),bs.y0(),bs.z0())).updatedState().freeState();
 
