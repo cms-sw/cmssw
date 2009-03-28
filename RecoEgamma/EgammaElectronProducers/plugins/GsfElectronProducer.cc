@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronProducer.cc,v 1.14 2009/03/25 02:16:48 charlot Exp $
+// $Id: GsfElectronProducer.cc,v 1.15 2009/03/28 11:11:46 charlot Exp $
 //
 //
 
@@ -84,7 +84,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& iConfig)
 		    iConfig.getParameter<double>("extRadiusEcalLarge"),
 		    iConfig.getParameter<double>("intRadiusEcalBarrel"),
 		    iConfig.getParameter<double>("intRadiusEcalEndcaps"),
-		    iConfig.getParameter<double>("jurrasicWidth"),
+		    iConfig.getParameter<double>("jurassicWidth"),
 		    iConfig.getParameter<double>("etMinBarrel"),
 		    iConfig.getParameter<double>("eMinBarrel"),
 		    iConfig.getParameter<double>("etMinEndcaps"),
