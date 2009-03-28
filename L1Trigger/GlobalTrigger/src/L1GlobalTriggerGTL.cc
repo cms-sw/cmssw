@@ -429,9 +429,9 @@ void L1GlobalTriggerGTL::run(
                 }
                     break;
                 case CondBptx: {
-                    bool bptxCondResult = false;
+                    bool bptxCondResult = true;
 
-                    // FIXME need a solution to read BPTX
+                    // FIXME need a solution to read BPTX with real value
 
                     L1GtBptxCondition* bptxCondition = new L1GtBptxCondition(
                             itCond->second, bptxCondResult);
