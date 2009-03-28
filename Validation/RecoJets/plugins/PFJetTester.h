@@ -3,7 +3,7 @@
 
 // Producer for validation histograms for PFlowJet objects
 // F. Ratnikov, Sept. 7, 2006
-// $Id: PFJetTester.h,v 1.1 2008/06/10 21:03:41 rwolf Exp $
+// $Id: PFJetTester.h,v 1.3 2008/10/31 11:43:14 jueugste Exp $
 
 #include <string>
 
@@ -123,6 +123,9 @@ public:
   double mGenEnergyFractionThreshold;
   double mReverseEnergyFractionThreshold;
   double mRThreshold;
+
+  // Switch on/off unimportant histogram
+  std::string  mTurnOnEverything;
 };
 
 #endif
