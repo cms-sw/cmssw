@@ -13,7 +13,7 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.22 2008/12/08 04:31:45 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.23 2008/12/08 11:42:28 hatake Exp $
 //
 //
 
@@ -39,7 +39,6 @@
 // Some switches
 #define NJetAlgo 4
 #define NL3Flags 3
-#define METFIT   0
 
 //
 // class decleration
@@ -60,11 +59,6 @@ class DataCertificationJetMET : public edm::EDAnalyzer {
 
       virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
       virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-
-      virtual int data_certificate_met(double, double, double, double);
-      virtual int data_certificate_metfit(double, double, double, double);
-      virtual void fitd(TH1F*, TF1*, TF1*, TF1*, int);
-      virtual void fitdd(TH1D*, TF1*, TF1*, TF1*, int);
 
    // ----------member data ---------------------------
 
@@ -178,6 +172,21 @@ DataCertificationJetMET::endLuminosityBlock(const edm::LuminosityBlock& lumiBloc
   if (verbose) std::cout << ">>> run       = " << lumiBlock.id().run()             << std::endl;
   if (verbose) std::cout << ">>> lumiBlock = " << lumiBlock.id().luminosityBlock() << std::endl;
 
+  dbe = edm::Service<DQMStore>().operator->();    
+  dbe->setCurrentFolder("JetMET");
+
+  //
+  //-----
+  MonitorElement * meMETPhi=0;
+  meMETPhi = new MonitorElement(*(dbe->get("JetMET/CaloMETAnalyzer/METTask_CaloMETPhi")));
+  const QReport * myQReport = meMETPhi->getQReport("phiQTest"); //get QReport associated to your ME  
+  if(myQReport) {
+    float qtresult = myQReport->getQTresult(); // get QT result value
+    int qtstatus   = myQReport->getStatus() ;  // get QT status value (see table below)
+    std::string qtmessage = myQReport->getMessage() ; // get the whole QT result message
+    if (verbose) std::cout << "test" << qtmessage << " qtresult = " << qtresult << " qtstatus = " << qtstatus << std::endl;    
+  }
+
 }
 
 // ------------ method called just before starting a new run  ------------
@@ -229,7 +238,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     //----------------------------------------------------------------
 
     dbe = edm::Service<DQMStore>().operator->();
-    dbe->showDirStructure();
+    //dbe->showDirStructure();
     
     mes = dbe->getAllContents("");
     if (verbose) std::cout << "1 >>> found " <<  mes.size() << " monitoring elements!" << std::endl;
@@ -246,13 +255,6 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     RefRunDir = "";
 
     RunNumber = run.id().run();
-
-    // test---
-    //std::string reffilename;
-    //reffilename = conf_.getUntrackedParameter<std::string>("refFileName");
-    //if (verbose) std::cout << "Reference FileName = " << reffilename << std::endl;
-    //dbe->open(reffilename);
-    //
 
   } else {
     //----------------------------------------------------------------
@@ -796,13 +798,25 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   // MET DQM Data Certification
   //-----------------------------
 
+  //
+  //-----
+//   std::cout << "aaa " << std::endl;
+//   MonitorElement * meMETPhi=0;
+//   meMETPhi = new MonitorElement(*(dbe->get("JetMET/CaloMETAnalyzer/METTask_CaloMETPhi")));
+//   const QReport * myQReport = meMETPhi->getQReport("phiQTest"); //get QReport associated to your ME  
+//   std::cout << "aaa " << myQReport << std::endl;    
+//   if(myQReport) {
+//     float qtresult = myQReport->getQTresult(); // get QT result value
+//     int qtstatus   = myQReport->getStatus() ;  // get QT status value (see table below)
+//     std::string qtmessage = myQReport->getMessage() ; // get the whole QT result message
+//     std::cout << "aaa" << qtmessage << " " << qtresult << " " << qtstatus << std::endl;    
+//   }
+
+  //
   // Prepare test histograms
-  TH1F *hMExy[6];
-  TH1F *hMETPhi[3];
-  TH2F *hCaloMEx_LS;
-  TH2F *hCaloMEy_LS;
-  TH2F *hCaloMExNoHF_LS;
-  TH2F *hCaloMEyNoHF_LS;
+  //
+  MonitorElement *meMExy[6];
+  MonitorElement *meMETPhi[3];
 
   if (RunDir == "") {
     newHistoName = "JetMET/CaloMETAnalyzer/METTask_";
@@ -810,665 +824,89 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     newHistoName = RunDir+"/JetMET/Run summary/CaloMETAnalyzer/METTask_";
   }
 
-  meNew = dbe->get(newHistoName+"CaloMEx");         if (meNew) hMExy[0] = meNew->getTH1F();
-  meNew = dbe->get(newHistoName+"CaloMEy");         if (meNew) hMExy[1] = meNew->getTH1F();
-  meNew = dbe->get(newHistoName+"CaloMExNoHF");     if (meNew) hMExy[2] = meNew->getTH1F();
-  meNew = dbe->get(newHistoName+"CaloMEyNoHF");     if (meNew) hMExy[3] = meNew->getTH1F();
-  meNew = dbe->get(newHistoName+"CaloMETPhi");      if (meNew) hMETPhi[0] = meNew->getTH1F();
-  meNew = dbe->get(newHistoName+"CaloMETPhiNoHF");  if (meNew) hMETPhi[1] = meNew->getTH1F();
-
-  meNew = dbe->get(newHistoName+"CaloMEx_LS");      if (meNew) hCaloMEx_LS     = meNew->getTH2F();
-  meNew = dbe->get(newHistoName+"CaloMEy_LS");      if (meNew) hCaloMEy_LS     = meNew->getTH2F();
-  meNew = dbe->get(newHistoName+"CaloMExNoHF_LS");  if (meNew) hCaloMExNoHF_LS = meNew->getTH2F();
-  meNew = dbe->get(newHistoName+"CaloMEyNoHF_LS");  if (meNew) hCaloMEyNoHF_LS = meNew->getTH2F();
-
-  if (meNew) {
-    if (verbose > 0) std::cout << ">>> meNew Found!!!" << std::endl;    
-  } else {
-    if (verbose > 0) std::cout << ">>> meNew Not Found!!!" << std::endl;    
-    return;
-  }
-
-  // Prepare reference histograms
-  TH1F *hRefMExy[6];
-  TH1F *hRefMETPhi[2];
-
-  if (RefRunDir == "") {
-    refHistoName = "JetMET/CaloMETAnalyzer/METTask_";
-  } else {
-    refHistoName = RefRunDir+"/JetMET/Run summary/CaloMETAnalyzer/METTask_";
-  }
-
-  if (testType>=1){
-    meRef = dbe->get(refHistoName+"CaloMEx");         if (meRef) hRefMExy[0] = meRef->getTH1F();
-    meRef = dbe->get(refHistoName+"CaloMEy");         if (meRef) hRefMExy[1] = meRef->getTH1F();
-    meRef = dbe->get(refHistoName+"CaloMExNoHF");     if (meRef) hRefMExy[2] = meRef->getTH1F();
-    meRef = dbe->get(refHistoName+"CaloMEyNoHF");     if (meRef) hRefMExy[3] = meRef->getTH1F();
-    meRef = dbe->get(refHistoName+"CaloMETPhi");      if (meRef) hRefMETPhi[0] = meRef->getTH1F();
-    meRef = dbe->get(refHistoName+"CaloMETPhiNoHF");  if (meRef) hRefMETPhi[1] = meRef->getTH1F();
-  }
-
-  // 
-  // Test 1D histograms
-  //-------------------
-  //
-  // Prepare functions for fittings
-  TF1 *g1    = new TF1("g1","gaus",-50,50);
-  TF1 *g2    = new TF1("g2","gaus",-500,500);
-  TF1 *dgaus = new TF1("dgaus","gaus(0)+gaus(3)",-500,500);
-
-  TF1  *fitfun[6];
-  TF1  *fitfun1[6];
-  TF1  *fitfun2[6];
-
-  if (METFIT){
-    for (int i=0;i<4;i++) {
-      if (hMExy[i]->GetSum()>0.){
-	fitd(hMExy[i],dgaus,g1,g2,verbose);
-	fitfun[i]  = hMExy[i]->GetFunction("dgaus");
-	fitfun1[i] = (TF1*)g1->Clone();
-	fitfun2[i] = (TF1*)g2->Clone();
-      }
-    }
-  }
-
-  // Chi2 test for 1D histograms
-  //-----------------------------
-
-  TH1F *h_ref;
-  double fracErrorRef=0.3; // assign 30% error on reference histograms
-
-  double test_METPhi=1.; // METPhi test values
-
-  for (int i=0;i<4;i++) {
-
-    h_ref = hRefMExy[i];
-    // --- Adjust the reference histogram errors ---
-    if (testType>=1){
-      h_ref->Scale(hRefMExy[i]->GetEntries()/hRefMExy[i]->GetEntries());
-      for (int ibin=0; ibin<h_ref->GetNbinsX(); ibin++){
-	if (h_ref->GetBinContent(ibin+1)==0.){
-	  h_ref->SetBinContent(ibin+1,1.);
-	  h_ref->SetBinError(ibin+1,1.);
-	} else if (h_ref->GetBinError(ibin+1)/h_ref->GetBinContent(ibin+1)<fracErrorRef) {	
-	  h_ref->SetBinError(ibin+1,h_ref->GetBinContent(ibin+1)*fracErrorRef);
-	}
-      }
-    } // testType>=1
-
-    switch (testType) {
-    case 1 :
-      if (verbose) test_METPhi = hMExy[i]->KolmogorovTest(hRefMExy[i],"D");
-      else         test_METPhi = hMExy[i]->KolmogorovTest(hRefMExy[i]);
-      break;
-    case 2 :
-      if (verbose) test_METPhi = hMExy[i]->Chi2Test(h_ref,"UW,CHI2/NDF,P");
-      else         test_METPhi = hMExy[i]->Chi2Test(h_ref,"UW,CHI2/NDF");
-      break;
-    }
-    if (verbose > 0) std::cout << ">>> Test (" << testType 
-			       << ") Result = " << test_METPhi << std::endl;    
-  }
-
-  for (int i=0;i<2;i++) {
-    
-    h_ref = hRefMETPhi[i];
-    // --- Adjust the reference histogram errors ---
-    if (testType>=1){
-      h_ref->Scale(hMETPhi[i]->GetEntries()/hRefMETPhi[i]->GetEntries());
-      for (int ibin=0; ibin<h_ref->GetNbinsX(); ibin++){
-	if (h_ref->GetBinContent(ibin+1)==0.){
-	  h_ref->SetBinContent(ibin+1,1.);
-	  h_ref->SetBinError(ibin+1,1.);
-	} else if (h_ref->GetBinError(ibin+1)/h_ref->GetBinContent(ibin+1)<fracErrorRef) {	
-	  h_ref->SetBinError(ibin+1,h_ref->GetBinContent(ibin+1)*fracErrorRef);
-	}
-      }
-    } // testType>=1
-
-    switch (testType) {
-    case 1 :
-      if (verbose) test_METPhi = hMETPhi[i]->KolmogorovTest(hRefMETPhi[i],"D");
-      else         test_METPhi = hMETPhi[i]->KolmogorovTest(hRefMETPhi[i]);
-      break;
-    case 2 :
-      if (verbose) test_METPhi = hMETPhi[i]->Chi2Test(h_ref,"UW,CHI2/NDF,P");
-      else         test_METPhi = hMETPhi[i]->Chi2Test(h_ref,"UW,CHI2/NDF");      
-      break;
-    }
-    if (verbose > 0) std::cout << ">>> Test (" << testType 
-			       << ") Result = " << test_METPhi << std::endl;    
-  }
-
-  // 
-  // Test 2D histograms
-  //-------------------
-
-  // Slice *_LS histograms
-  TH1D *CaloMEx_LS[nLSBins];
-  TH1D *CaloMEy_LS[nLSBins];
-  TH1D *CaloMExNoHF_LS[nLSBins];
-  TH1D *CaloMEyNoHF_LS[nLSBins];
-  TF1 *fitfun_CaloMEx_LS[nLSBins];
-  TF1 *fitfun_CaloMEy_LS[nLSBins];
-  TF1 *fitfun_CaloMExNoHF_LS[nLSBins];
-  TF1 *fitfun_CaloMEyNoHF_LS[nLSBins];
-  TF1 *fitfun1_CaloMEx_LS[nLSBins];
-  TF1 *fitfun1_CaloMEy_LS[nLSBins];
-  TF1 *fitfun1_CaloMExNoHF_LS[nLSBins];
-  TF1 *fitfun1_CaloMEyNoHF_LS[nLSBins];
-  TF1 *fitfun2_CaloMEx_LS[nLSBins];
-  TF1 *fitfun2_CaloMEy_LS[nLSBins];
-  TF1 *fitfun2_CaloMExNoHF_LS[nLSBins];
-  TF1 *fitfun2_CaloMEyNoHF_LS[nLSBins];
-  int JetMET_MET[nLSBins];
-  int JetMET_MET_All[nLSBins];
-  int JetMET_MEx_All[nLSBins];
-  int JetMET_MEy_All[nLSBins];
-  int JetMET_MET_NoHF[nLSBins];
-  int JetMET_MEx_NoHF[nLSBins];
-  int JetMET_MEy_NoHF[nLSBins];
-  for (int i=0;i<nLSBins;i++){
-    JetMET_MET[i]     =-1;
-    JetMET_MET_All[i] =-1;
-    JetMET_MEx_All[i] =-1;
-    JetMET_MEy_All[i] =-1;
-    JetMET_MET_NoHF[i]=-1;
-    JetMET_MEx_NoHF[i]=-1;
-    JetMET_MEy_NoHF[i]=-1;
-  }
-  char ctitle[100];
-
-  // (LS=0 assigned to the entire run)
-  for (int LS=1; LS<nLSBins; LS++){
-
-    // Projection returns a 
-
-    sprintf(ctitle,"CaloMEx_%04d",LS);     
-    if (verbose > 0) std::cout << ">>> ProjectX " << ctitle
-			       << std::endl;    
-    CaloMEx_LS[LS]=hCaloMEx_LS->ProjectionX(ctitle,LS+1,LS+1);
-    sprintf(ctitle,"CaloMEy_%04d",LS);     
-    if (verbose > 0) std::cout << ">>> ProjectX " << ctitle
-			       << std::endl;    
-    CaloMEy_LS[LS]=hCaloMEy_LS->ProjectionX(ctitle,LS+1,LS+1);
-    sprintf(ctitle,"CaloMExNoHF_%04d",LS); 
-    if (verbose > 0) std::cout << ">>> ProjectX " << ctitle
-			       << std::endl;    
-    CaloMExNoHF_LS[LS]=hCaloMExNoHF_LS->ProjectionX(ctitle,LS+1,LS+1);
-    sprintf(ctitle,"CaloMEyNoHF_%04d",LS); 
-    if (verbose > 0) std::cout << ">>> ProjectX " << ctitle
-			       << std::endl;    
-    CaloMEyNoHF_LS[LS]=hCaloMEyNoHF_LS->ProjectionX(ctitle,LS+1,LS+1);
-
-    if (METFIT){
-      if (CaloMEx_LS[LS]->GetSum()>0.) {
-	fitdd(CaloMEx_LS[LS],dgaus,g1,g2,verbose);
-        fitfun_CaloMEx_LS[LS]=CaloMEx_LS[LS]->GetFunction("dgaus");
-        fitfun1_CaloMEx_LS[LS]=(TF1*)g1->Clone();
-        fitfun2_CaloMEx_LS[LS]=(TF1*)g2->Clone();
-      }
-      if (CaloMEy_LS[LS]->GetSum()>0.) {
-	fitdd(CaloMEy_LS[LS],dgaus,g1,g2,verbose);
-        fitfun_CaloMEy_LS[LS]=CaloMEy_LS[LS]->GetFunction("dgaus");
-        fitfun1_CaloMEy_LS[LS]=(TF1*)g1->Clone();
-        fitfun2_CaloMEy_LS[LS]=(TF1*)g2->Clone();
-      }
-      if (CaloMExNoHF_LS[LS]->GetSum()>0.) {
-	fitdd(CaloMExNoHF_LS[LS],dgaus,g1,g2,verbose);
-        fitfun_CaloMExNoHF_LS[LS]=CaloMExNoHF_LS[LS]->GetFunction("dgaus");
-        fitfun1_CaloMExNoHF_LS[LS]=(TF1*)g1->Clone();
-        fitfun2_CaloMExNoHF_LS[LS]=(TF1*)g2->Clone();
-      }
-      if (CaloMEyNoHF_LS[LS]->GetSum()>0.) {
-	fitdd(CaloMEyNoHF_LS[LS],dgaus,g1,g2,verbose);
-        fitfun_CaloMEyNoHF_LS[LS]=CaloMEyNoHF_LS[LS]->GetFunction("dgaus");
-        fitfun1_CaloMEyNoHF_LS[LS]=(TF1*)g1->Clone();
-        fitfun2_CaloMEyNoHF_LS[LS]=(TF1*)g2->Clone();
-      }
-    } // METFIT
-
-  }   // loop over LS
-
+  meMExy[0]   = new MonitorElement(*(dbe->get((newHistoName+"CaloMEx"))));
+  meMExy[1]   = new MonitorElement(*(dbe->get((newHistoName+"CaloMEy"))));
+  meMExy[2]   = new MonitorElement(*(dbe->get((newHistoName+"CaloMExNoHF"))));
+  meMExy[3]   = new MonitorElement(*(dbe->get((newHistoName+"CaloMEyNoHF"))));
+  meMETPhi[0] = new MonitorElement(*(dbe->get((newHistoName+"CaloMETPhi"))));
+  meMETPhi[1] = new MonitorElement(*(dbe->get((newHistoName+"CaloMETPhiNoHF"))));
+				   
   //----------------------------------------------------------------
-  //--- Apply data certification algorithm
+  //--- Extract quality test results and fill data certification results
   //----------------------------------------------------------------
 
-  double chisq_threshold_run     = 500.;
-  double chisq_threshold_lumisec = 20.;
-  double MEx_threshold   = 10.;
-  double MEy_threshold   = 10.;
-  double MExNoHF_threshold   = 100.;
-  double MEyNoHF_threshold   = 100.;
-  double MExRMS_threshold   = 10.;
-  double MEyRMS_threshold   = 10.;
-  double MExNoHFRMS_threshold   = 500.;
-  double MEyNoHFRMS_threshold   = 500.;
-  int    minEntry        = 5; // min entry for each lumi section
+  const QReport * QReport_MExy[6];
+  const QReport * QReport_METPhi[3];
+  float qr_JetMET_MExy[6];
+  float qr_JetMET_METPhi[3];
+  float dc_JetMET[3];
 
-  if (verbose) {
-    std::cout << std::endl;
-    if (METFIT)
-      printf("| Variable                       |   Reduced chi^2              | Mean               | Width      |\n");
-    else 
-      printf("| Variable                       |   Mean   | RMS   |\n");
-  }
-  //
-  // Entire run
-  //-----------------------------------
-  for (int i=0;i<4;i++){
-    if (METFIT) { //---------- MET fits ----------
-      int nmean=1;
-      if (fitfun[i]->GetNumberFreeParameters()==3) nmean=4;
-      if (verbose)
-	printf("| %-30s | %8.3f/%8.3f = %8.3f | %8.3f+-%8.3f | %8.3f+-%8.3f |\n",
-	       hMExy[i]->GetName(),
-	       fitfun[i]->GetChisquare(),double(fitfun[i]->GetNDF()),
-	       fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
-	       fitfun[i]->GetParameter(nmean),  fitfun[i]->GetParError(nmean+1),
-	       fitfun[i]->GetParameter(nmean+1),fitfun[i]->GetParError(nmean+1));
-      if (i==0)
-	JetMET_MEx_All[0]=data_certificate_metfit(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
-					       fitfun[i]->GetParameter(nmean),
-					       chisq_threshold_run,MEx_threshold);
-      if (i==1)
-	JetMET_MEy_All[0]=data_certificate_metfit(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
-					       fitfun[i]->GetParameter(nmean),
-					       chisq_threshold_run,MEy_threshold);
-      if (i==2)
-	JetMET_MEx_NoHF[0]=data_certificate_metfit(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
-						fitfun[i]->GetParameter(nmean),
-						chisq_threshold_run,MExNoHF_threshold);
-      if (i==3)
-	JetMET_MEy_NoHF[0]=data_certificate_metfit(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
-						fitfun[i]->GetParameter(nmean),
-						chisq_threshold_run,MEyNoHF_threshold);
-    } else { //----------- no MET fits ----------
-      if (verbose)
-	printf("| %-30s | %8.3f | %8.3f |\n",hMExy[i]->GetName(),hMExy[i]->GetMean(),hMExy[i]->GetRMS());
-      if (i==0)
-	JetMET_MEx_All[0]=data_certificate_met(hMExy[i]->GetMean(),hMExy[i]->GetRMS(),
-					       MEx_threshold,MExRMS_threshold);
-      if (i==1)
-	JetMET_MEy_All[0]=data_certificate_met(hMExy[i]->GetMean(),hMExy[i]->GetRMS(),
-					       MEy_threshold,MEyRMS_threshold);
-      if (i==2)
-	JetMET_MEx_NoHF[0]=data_certificate_met(hMExy[i]->GetMean(),hMExy[i]->GetRMS(),
-						MExNoHF_threshold,MExNoHFRMS_threshold);
-      if (i==3)
-	JetMET_MEy_NoHF[0]=data_certificate_met(hMExy[i]->GetMean(),hMExy[i]->GetRMS(),
-						MEyNoHF_threshold,MEyNoHFRMS_threshold);      
-    }
+  QReport_METPhi[0] = meMETPhi[0]->getQReport("phiQTest"); //get QReport associated to this ME  
+  QReport_METPhi[1] = meMETPhi[1]->getQReport("phiQTest"); //get QReport associated to this ME
+
+  QReport_MExy[0] = meMExy[0]->getQReport("meanQTest"); //get QReport associated to this ME  
+  QReport_MExy[1] = meMExy[1]->getQReport("meanQTest"); //get QReport associated to this ME
+  QReport_MExy[2] = meMExy[2]->getQReport("meanQTest"); //get QReport associated to this ME  
+  QReport_MExy[3] = meMExy[3]->getQReport("meanQTest"); //get QReport associated to this ME
+
+  if (QReport_MExy[0]){
+    if (QReport_MExy[0]->getStatus()==100) 
+      qr_JetMET_MExy[0] = QReport_MExy[0]->getQTresult();
+    if (verbose) std::cout << QReport_MExy[0]->getMessage() << std::endl;
   }
 
-  //
-  // Each lumi section
-  // (LS=0 assigned to the entire run)
-  //-----------------------------------
-  for (int LS=1; LS<500; LS++){
-
-    //----- CaloMEx ------------------------------
-    if (CaloMEx_LS[LS]->GetSum()>0.) {
-
-      if (METFIT) { //---------- MET fits ----------
-	int nmean=1;
-	if (fitfun_CaloMEx_LS[LS]->GetNumberFreeParameters()==3) nmean=4;
-	if (verbose)
-	  printf("\n| %-30s | %8.3f/%8.3f = %8.3f | %8.3f+-%8.3f | %8.3f+-%8.3f |\n",
-		 CaloMEx_LS[LS]->GetName(),
-		 fitfun_CaloMEx_LS[LS]->GetChisquare(),double(fitfun_CaloMEx_LS[LS]->GetNDF()),
-		 fitfun_CaloMEx_LS[LS]->GetChisquare()/double(fitfun_CaloMEx_LS[LS]->GetNDF()),
-		 fitfun_CaloMEx_LS[LS]->GetParameter(nmean),  fitfun_CaloMEx_LS[LS]->GetParError(nmean),
-		 fitfun_CaloMEx_LS[LS]->GetParameter(nmean+1),fitfun_CaloMEx_LS[LS]->GetParError(nmean+1));
-	JetMET_MEx_All[LS]=data_certificate_metfit(fitfun_CaloMEx_LS[LS]->GetChisquare()/double(fitfun_CaloMEx_LS[LS]->GetNDF()),
-						   fitfun_CaloMEx_LS[LS]->GetParameter(nmean),
-						   chisq_threshold_lumisec,MEx_threshold);
-      } else { //----------- no MET fits ----------
-	if (verbose)
-	printf("| %-30s | %8.3f | %8.3f |\n",CaloMEx_LS[LS]->GetName(),CaloMEx_LS[LS]->GetMean(),CaloMEx_LS[LS]->GetRMS());
-	JetMET_MEx_All[LS]=data_certificate_met(CaloMEx_LS[LS]->GetMean(),CaloMEx_LS[LS]->GetRMS(),MEx_threshold,MExRMS_threshold);
-      }
-
-    }
-    //----- CaloMEy ------------------------------
-    if (CaloMEy_LS[LS]->GetSum()>0.) {
-
-      if (METFIT) {
-      int nmean=1;
-      if (fitfun_CaloMEy_LS[LS]->GetNumberFreeParameters()==3) nmean=4;
-      if (verbose)
-      printf("| %-30s | %8.3f/%8.3f = %8.3f | %8.3f+-%8.3f | %8.3f+-%8.3f |\n",
-             CaloMEy_LS[LS]->GetName(),
-             fitfun_CaloMEy_LS[LS]->GetChisquare(),double(fitfun_CaloMEy_LS[LS]->GetNDF()),
-             fitfun_CaloMEy_LS[LS]->GetChisquare()/double(fitfun_CaloMEy_LS[LS]->GetNDF()),
-             fitfun_CaloMEy_LS[LS]->GetParameter(nmean),  fitfun_CaloMEy_LS[LS]->GetParError(nmean),
-             fitfun_CaloMEy_LS[LS]->GetParameter(nmean+1),fitfun_CaloMEy_LS[LS]->GetParError(nmean+1));
-      JetMET_MEy_All[LS]=data_certificate_metfit(fitfun_CaloMEy_LS[LS]->GetChisquare()/double(fitfun_CaloMEy_LS[LS]->GetNDF()),
-                                          fitfun_CaloMEy_LS[LS]->GetParameter(nmean),
-                                          chisq_threshold_lumisec,MEy_threshold);
-      } else { //----------- no MET fits ----------
-	if (verbose)
-	printf("| %-30s | %8.3f | %8.3f |\n",CaloMEy_LS[LS]->GetName(),CaloMEy_LS[LS]->GetMean(),CaloMEy_LS[LS]->GetRMS());
-	JetMET_MEy_All[LS]=data_certificate_met(CaloMEy_LS[LS]->GetMean(),CaloMEy_LS[LS]->GetRMS(),MEy_threshold,MEyRMS_threshold);
-      }
-      
-    }
-
-    //----- CaloMExNoHF ------------------------------
-    if (CaloMExNoHF_LS[LS]->GetSum()>0.) {
-
-      if (METFIT) {
-	int nmean=1;
-	if (fitfun_CaloMExNoHF_LS[LS]->GetNumberFreeParameters()==3) nmean=4;
-	if (verbose)
-	  printf("| %-30s | %8.3f/%8.3f = %8.3f | %8.3f+-%8.3f | %8.3f+-%8.3f |\n",
-		 CaloMExNoHF_LS[LS]->GetName(),
-		 fitfun_CaloMExNoHF_LS[LS]->GetChisquare(),double(fitfun_CaloMExNoHF_LS[LS]->GetNDF()),
-		 fitfun_CaloMExNoHF_LS[LS]->GetChisquare()/double(fitfun_CaloMExNoHF_LS[LS]->GetNDF()),
-		 fitfun_CaloMExNoHF_LS[LS]->GetParameter(nmean),  fitfun_CaloMExNoHF_LS[LS]->GetParError(nmean),
-		 fitfun_CaloMExNoHF_LS[LS]->GetParameter(nmean+1),fitfun_CaloMExNoHF_LS[LS]->GetParError(nmean+1));
-	JetMET_MEx_NoHF[LS]=data_certificate_metfit(fitfun_CaloMExNoHF_LS[LS]->GetChisquare()/double(fitfun_CaloMExNoHF_LS[LS]->GetNDF()),
-						    fitfun_CaloMExNoHF_LS[LS]->GetParameter(nmean),
-						    chisq_threshold_lumisec,MExNoHF_threshold);
-      } else { //----------- no MET fits ----------
-	if (verbose)
-	printf("| %-30s | %8.3f | %8.3f |\n",CaloMExNoHF_LS[LS]->GetName(),CaloMExNoHF_LS[LS]->GetMean(),CaloMExNoHF_LS[LS]->GetRMS());
-	JetMET_MEx_NoHF[LS]=data_certificate_met(CaloMExNoHF_LS[LS]->GetMean(),CaloMExNoHF_LS[LS]->GetRMS(),
-						 MExNoHF_threshold,MExNoHFRMS_threshold);
-      }
-      
-    }
-
-    //----- CaloMEyNoHF ------------------------------
-    if (CaloMEyNoHF_LS[LS]->GetSum()>0.) {
-
-      if (METFIT) {
-	int nmean=1;
-	if (fitfun_CaloMEyNoHF_LS[LS]->GetNumberFreeParameters()==3) nmean=4;
-	if (verbose)
-	  printf("| %-30s | %8.3f/%8.3f = %8.3f | %8.3f+-%8.3f | %8.3f+-%8.3f |\n",
-		 CaloMEyNoHF_LS[LS]->GetName(),
-		 fitfun_CaloMEyNoHF_LS[LS]->GetChisquare(),double(fitfun_CaloMEyNoHF_LS[LS]->GetNDF()),
-		 fitfun_CaloMEyNoHF_LS[LS]->GetChisquare()/double(fitfun_CaloMEyNoHF_LS[LS]->GetNDF()),
-		 fitfun_CaloMEyNoHF_LS[LS]->GetParameter(nmean),  fitfun_CaloMEyNoHF_LS[LS]->GetParError(nmean),
-		 fitfun_CaloMEyNoHF_LS[LS]->GetParameter(nmean+1),fitfun_CaloMEyNoHF_LS[LS]->GetParError(nmean+1));
-	JetMET_MEy_NoHF[LS]=data_certificate_metfit(fitfun_CaloMEyNoHF_LS[LS]->GetChisquare()/double(fitfun_CaloMEyNoHF_LS[LS]->GetNDF()),
-						    fitfun_CaloMEyNoHF_LS[LS]->GetParameter(nmean),
-						    chisq_threshold_lumisec,MEyNoHF_threshold);
-      }  else { //----------- no MET fits ----------
-	if (verbose)
-	printf("| %-30s | %8.3f | %8.3f |\n",CaloMEyNoHF_LS[LS]->GetName(),CaloMEyNoHF_LS[LS]->GetMean(),CaloMEyNoHF_LS[LS]->GetRMS());
-	JetMET_MEy_NoHF[LS]=data_certificate_met(CaloMEyNoHF_LS[LS]->GetMean(),CaloMEyNoHF_LS[LS]->GetRMS(),
-						 MEyNoHF_threshold,MEyNoHFRMS_threshold);
-      }      
-
-    }
-  } // loop over LS
-
-  //
-  // Final MET data certification algorithm
-  //----------------------------------------
-  for (int LS=0; LS<nLSBins; LS++){
-    JetMET_MET_All[LS] = JetMET_MEx_All[LS] * JetMET_MEy_All[LS];
-    JetMET_MET_NoHF[LS]= JetMET_MEx_NoHF[LS]* JetMET_MEy_NoHF[LS];
-    JetMET_MET[LS]     = JetMET_MET_All[LS] * JetMET_MET_NoHF[LS];
-
-    // -- Fill the DC Result Histograms (entire run)
-    if (LS==0){
-    mMETDCFL1->Fill(double(JetMET_MET[LS]));
-    mMETDCFL3[0]->Fill(double(JetMET_MET_All[LS]));
-    mMETDCFL3[1]->Fill(double(JetMET_MET_NoHF[LS]));
-    }
-
+  if (QReport_MExy[1]){
+    if (QReport_MExy[1]->getStatus()==100) 
+      qr_JetMET_MExy[1] = QReport_MExy[1]->getQTresult();
+    if (verbose) std::cout << QReport_MExy[1]->getMessage() << std::endl;
   }
 
-  //
-  // Final MET data certification algorithm
-  //----------------------------------------
-  if (verbose) {
-  std::cout << std::endl;
-  printf("   run,       lumi-sec, tag name,                                   output\n");
-  int LS_LAST=-1;
-  for (int LS=0; LS<nLSBins; LS++){
-
-    if (LS==0){                                                                              // For entire run,
-      printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET",     JetMET_MET[LS]);         // always print out.
-      printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_All", JetMET_MET_All[LS]);
-      printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_NoHF",JetMET_MET_NoHF[LS]);
-    } else {
-      if (CaloMEx_LS[LS]->GetSum()>minEntry) {                                               // Lumi Section with data
-	if (LS_LAST==-1){                                                                    // For first lumi section,
-	  printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET",     JetMET_MET[LS]);     // always print out.
-	  printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_All", JetMET_MET_All[LS]);
-	  printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_NoHF",JetMET_MET_NoHF[LS]);
-	}
-	else {
-	  if ( (JetMET_MET[LS]!=JetMET_MET[LS_LAST]) ||                                      // If changed from the previous lumi section
-	       (JetMET_MET_All[LS]!=JetMET_MET_All[LS_LAST]) ||
-	       (JetMET_MET_NoHF[LS]!=JetMET_MET_NoHF[LS_LAST]) ){
-	    printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET",     JetMET_MET[LS]);
-	    printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_All", JetMET_MET_All[LS]);
-	    printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_NoHF",JetMET_MET_NoHF[LS]);
-	  }
-	}
-	LS_LAST=LS;
-      }    
-    }      // LS==0
-  }        // for LS
-  std::cout << std::endl;
+  if (QReport_MExy[2]){
+    if (QReport_MExy[2]->getStatus()==100) 
+      qr_JetMET_MExy[2] = QReport_MExy[2]->getQTresult();
+    if (verbose) std::cout << QReport_MExy[2]->getMessage() << std::endl;
   }
 
-  // -- 
-  //dbe->rmdir(RefRunDir); // Delete reference plots from DQMStore
-  // --
-
-}
-
-// ------------------------------------------------------------
-int 
-DataCertificationJetMET::data_certificate_metfit(double chi2, double mean, double chi2_tolerance, double mean_tolerance){
-  int value=0;
-  if (chi2<chi2_tolerance && fabs(mean)<mean_tolerance) value=1;
-  return value;
-}
-
-// ------------------------------------------------------------
-int 
-DataCertificationJetMET::data_certificate_met(double mean, double rms, double mean_tolerance, double rms_tolerance){
-  int value=0;
-  if (rms<rms_tolerance && fabs(mean)<mean_tolerance) value=1;
-  return value;
-}
-
-// ------------------------------------------------------------
-void
-DataCertificationJetMET::fitd(TH1F* hist, TF1* fn, TF1* f1, TF1* f2, int verbose){
-  //
-  Option_t *fit_option;
-  fit_option = "QR0";
-  if      (verbose==0) fit_option = "R0";
-  else if (verbose==1) fit_option = "VR0";
-  //
-  Double_t par[6];
-  Double_t pare[6];
-  for (int i=0;i<6;i++){
-    par[i] =0.;
-    pare[i]=1.;
+  if (QReport_MExy[3]){
+    if (QReport_MExy[3]->getStatus()==100) 
+      qr_JetMET_MExy[3] = QReport_MExy[3]->getQTresult();
+    if (verbose) std::cout << QReport_MExy[3]->getMessage() << std::endl;
   }
-  //
-  //hist->GetXaxis()->SetRange(201,300);
-  //
-  //
-  // First, single Gaussian fit
-//   hist->Fit(f2,"RV")
-//   f2->GetParameters(&par[3]);
-//   fn->SetParameters(par);
-//   fn->FixParameter(0,0.);
-//   fn->FixParameter(1,0.);
-//   fn->FixParameter(2,0.);
-//   fn->SetParLimits(5,0.,1000.);
-//   fn->SetParName(3,"Constant");
-//   fn->SetParName(4,"Mean");
-//   fn->SetParName(5,"Sigma");
-//   hist->Fit(fn,"RV");  
-  //
-  //
-  // Second, double Gaussian fit
-  double chi2=4.;
-  //if (fn->GetNDF()>0.) chi2=fn->GetChisquare()/fn->GetNDF();
-  if (chi2>3.){
-    hist->Fit(f1,fit_option);
-    f1->GetParameters(&par[0]);
-    fn->SetParameters(par);
-    fn->ReleaseParameter(0);
-    fn->ReleaseParameter(1);
-    fn->ReleaseParameter(2);
-    fn->SetParLimits(2,0.,1000.);
-    fn->SetParName(0,"Constant");
-    fn->SetParName(1,"Mean");
-    fn->SetParName(2,"Sigma");
-    fn->SetParName(3,"Constant2");
-    fn->SetParName(4,"Mean2");
-    fn->SetParName(5,"Sigma2");
-    fn->SetParameter(5,par[2]*10.);
-    hist->Fit(fn,fit_option);
-    fn->GetParameters(&par[0]);
-    pare[2]=fn->GetParError(2);
-    pare[5]=fn->GetParError(5);
-    f1->SetParameter(0,par[0]);
-    f1->SetParameter(1,par[1]);
-    f1->SetParameter(2,par[2]);
-    f2->SetParameter(0,par[3]);
-    f2->SetParameter(1,par[4]);
-    f2->SetParameter(2,par[5]);   
-  } 
-  //
-  //
-  // Third, if two Gaussians have very similar widths,
-  // set the initial value for the 2nd one to ~ x10 larger
-//   if ( fabs(par[2]-par[5])<sqrt(pow(pare[2],2)+pow(pare[5],2)) ){
-//     fn->SetParameter(5,par[2]*10.);
-//     hist->Fit(fn,fit_option);
-//     fn->GetParameters(&par[0]);
-//     f1->SetParameter(0,par[0]);
-//     f1->SetParameter(1,par[1]);
-//     f1->SetParameter(2,par[2]);
-//     f2->SetParameter(0,par[3]);
-//     f2->SetParameter(1,par[4]);
-//     f2->SetParameter(2,par[5]);   
-//   } 
-  //
-  //
-  // Fourth, if two Gaussians still have very similar widths,
-  // set the initial value for the 2nd one to ~ x100 larger
-  if ( fabs(par[2]-par[5])<sqrt(pow(pare[2],2)+pow(pare[5],2)) ){
-    fn->SetParameter(5,par[2]*100.);
-    hist->Fit(fn,fit_option);
-    fn->GetParameters(&par[0]);
-    f1->SetParameter(0,par[0]);
-    f1->SetParameter(1,par[1]);
-    f1->SetParameter(2,par[2]);
-    f2->SetParameter(0,par[3]);
-    f2->SetParameter(1,par[4]);
-    f2->SetParameter(2,par[5]);   
-  } 
-  //
-}
 
-// ------------------------------------------------------------
-void
-DataCertificationJetMET::fitdd(TH1D* hist, TF1* fn, TF1* f1, TF1* f2, int verbose){
-  //
-  Option_t *fit_option;
-  fit_option = "QR0";
-  if      (verbose==0) fit_option = "R0";
-  else if (verbose==1) fit_option = "VR0";
-  //
-  Double_t par[6];
-  Double_t pare[6];
-  for (int i=0;i<6;i++){
-    par[i] =0.;
-    pare[i]=1.;
+  if (QReport_METPhi[0]){
+    if (QReport_METPhi[0]->getStatus()==100) 
+      qr_JetMET_METPhi[0] = QReport_METPhi[0]->getQTresult();
+    if (verbose) std::cout << QReport_METPhi[0]->getMessage() << std::endl;
   }
-  //
-  //hist->GetXaxis()->SetRange(201,300);
-  //
-  //
-  // First, single Gaussian fit
-//   hist->Fit(f2,fit_option)
-//   f2->GetParameters(&par[3]);
-//   fn->SetParameters(par);
-//   fn->FixParameter(0,0.);
-//   fn->FixParameter(1,0.);
-//   fn->FixParameter(2,0.);
-//   fn->SetParLimits(5,0.,1000.);
-//   fn->SetParName(3,"Constant");
-//   fn->SetParName(4,"Mean");
-//   fn->SetParName(5,"Sigma");
-//   hist->Fit(fn,"RV");  
-  //
-  //
-  // Second, double Gaussian fit
-  double chi2=4.;
-  //if (fn->GetNDF()>0.) chi2=fn->GetChisquare()/fn->GetNDF();
-  if (chi2>3.){
-    hist->Fit(f1,fit_option);
-    f1->GetParameters(&par[0]);
-    fn->SetParameters(par);
-    fn->ReleaseParameter(0);
-    fn->ReleaseParameter(1);
-    fn->ReleaseParameter(2);
-    fn->SetParLimits(2,0.,1000.);
-    fn->SetParName(0,"Constant");
-    fn->SetParName(1,"Mean");
-    fn->SetParName(2,"Sigma");
-    fn->SetParName(3,"Constant2");
-    fn->SetParName(4,"Mean2");
-    fn->SetParName(5,"Sigma2");
-    fn->SetParameter(5,par[2]*10.);
-    hist->Fit(fn,fit_option);
-    fn->GetParameters(&par[0]);
-    pare[2]=fn->GetParError(2);
-    pare[5]=fn->GetParError(5);
-    f1->SetParameter(0,par[0]);
-    f1->SetParameter(1,par[1]);
-    f1->SetParameter(2,par[2]);
-    f2->SetParameter(0,par[3]);
-    f2->SetParameter(1,par[4]);
-    f2->SetParameter(2,par[5]);   
-  } 
-  //
-  //
-  // Third, if two Gaussians have very similar widths,
-  // set the initial value for the 2nd one to ~ x10 larger
-//   if ( fabs(par[2]-par[5])<sqrt(pow(pare[2],2)+pow(pare[5],2)) ){
-//     fn->SetParameter(5,par[2]*10.);
-//     std::cout << "aaa3" << std::endl;
-//     hist->Fit(fn,fit_option);
-//     fn->GetParameters(&par[0]);
-//     f1->SetParameter(0,par[0]);
-//     f1->SetParameter(1,par[1]);
-//     f1->SetParameter(2,par[2]);
-//     f2->SetParameter(0,par[3]);
-//     f2->SetParameter(1,par[4]);
-//     f2->SetParameter(2,par[5]);   
-//   } 
-  //
-  //
-  // Fourth, if two Gaussians still have very similar widths,
-  // set the initial value for the 2nd one to ~ x100 larger
-  if ( fabs(par[2]-par[5])<sqrt(pow(pare[2],2)+pow(pare[5],2)) ){
-    fn->SetParameter(5,par[2]*100.);
-    hist->Fit(fn,fit_option);
-    fn->GetParameters(&par[0]);
-    f1->SetParameter(0,par[0]);
-    f1->SetParameter(1,par[1]);
-    f1->SetParameter(2,par[2]);
-    f2->SetParameter(0,par[3]);
-    f2->SetParameter(1,par[4]);
-    f2->SetParameter(2,par[5]);   
-  } 
-  //
+
+  if (QReport_METPhi[1]){
+    if (QReport_METPhi[1]->getStatus()==100) 
+      qr_JetMET_METPhi[1] = QReport_METPhi[1]->getQTresult();
+    if (verbose) std::cout << QReport_METPhi[1]->getMessage() << std::endl;
+  }
+
+  dc_JetMET[0]=0.;
+//   if (qr_JetMET_MExy[0]*qr_JetMET_MExy[1]*qr_JetMET_METPhi[0] > 0.5 )
+  if (qr_JetMET_MExy[0]*qr_JetMET_MExy[1] > 0.5 )
+    dc_JetMET[0]=1.;
+
+  dc_JetMET[1]=0.;
+//   if (qr_JetMET_MExy[2]*qr_JetMET_MExy[3]*qr_JetMET_METPhi[1] > 0.5 )
+  if (qr_JetMET_MExy[2]*qr_JetMET_MExy[3] > 0.5 )
+    dc_JetMET[1]=1.;
+
+//   std::cout << qr_JetMET_MExy[0] << " " 
+// 	    << qr_JetMET_MExy[1] << " " 
+// 	    << qr_JetMET_METPhi[0] << std::endl;
+//   std::cout << qr_JetMET_MExy[2] << " " 
+// 	    << qr_JetMET_MExy[3] << " " 
+// 	    << qr_JetMET_METPhi[1] << std::endl;
+//   std::cout << dc_JetMET[0] << " " << dc_JetMET[1] << std::endl;
+
+  mMETDCFL1->Fill(dc_JetMET[0]*dc_JetMET[1]);
+  mMETDCFL3[0]->Fill(dc_JetMET[0]);
+  mMETDCFL3[1]->Fill(dc_JetMET[1]);
+
 }
 
 //define this as a plug-in
