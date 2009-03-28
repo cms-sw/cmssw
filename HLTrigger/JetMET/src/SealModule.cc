@@ -10,6 +10,7 @@
 #include "HLTrigger/JetMET/interface/HLT2jetGapFilter.h"
 #include "HLTrigger/JetMET/interface/HLTHPDFilter.h"
 #include "HLTrigger/JetMET/interface/HLTMhtHtFilter.h"
+#include "HLTrigger/JetMET/interface/HLTHcalMETNoiseFilter.h"
 
 
 DEFINE_SEAL_MODULE();
@@ -22,3 +23,4 @@ DEFINE_ANOTHER_FWK_MODULE(HLTRapGapFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLT2jetGapFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTHPDFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTMhtHtFilter);
+DEFINE_ANOTHER_FWK_MODULE(HLTHcalMETNoiseFilter);
