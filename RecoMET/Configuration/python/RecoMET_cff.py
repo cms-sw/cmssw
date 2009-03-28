@@ -26,7 +26,7 @@ from JetMETCorrections.Type1MET.MetMuonCorrections_cff import *
 metreco = cms.Sequence(
         met+metNoHF+metHO+metNoHFHO+
             calotoweroptmaker+metOpt+metOptNoHF+calotoweroptmakerWithHO+metOptHO+metOptNoHFHO+
-            htMetSC5+htMetSC7+htMetKT4+htMetKT6+htMetIC5+muonMETValueMapProduer+corMetGlobalMuons+muonTCMETValueMapProducer+tcMet+
+            htMetSC5+htMetSC7+htMetKT4+htMetKT6+htMetIC5+muonMETValueMapProducer+corMetGlobalMuons+muonTCMETValueMapProducer+tcMet+
             hcalnoise
             )
 
