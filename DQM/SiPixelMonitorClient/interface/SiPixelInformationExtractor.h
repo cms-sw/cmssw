@@ -105,21 +105,10 @@ class SiPixelInformationExtractor {
 				 std::map<std::string,std::map<std::string,std::string> >                & qtestsMap,
 				 std::map<std::string,std::vector<std::string> >    & meQTestsMap);
 
-  void bookGlobalQualityFlag    (DQMStore                               * bei,
+  void bookNoisyPixels(          DQMStore                               * bei,
                                  float                                    noiseRate,
 				 bool                                     Tier0Flag);
 
-  void computeGlobalQualityFlag (DQMStore                               * bei,
-                                 bool                                     init,
-				 int                                      nFEDs,
-				 bool                                     Tier0Flag);
-  
-  void fillGlobalQualityPlot    (DQMStore                               * bei,
-                                 bool                                     init,
-                                 edm::EventSetup const                  & eSetup,
-				 int                                      nFEDs,
-				 bool                                     Tier0Flag);
-  
   void findNoisyPixels (         DQMStore                               * bei,
                                  bool                                     init,
 				 float                                    noiseRate,
@@ -186,22 +175,6 @@ class SiPixelInformationExtractor {
   bool  flagHotModule_;
   bool  offlineXMLfile_;
   
-  float qflag_, bpix_flag_, shellmI_flag_, shellmO_flag_, shellpI_flag_;
-  float shellpO_flag_, fpix_flag_, hcylmI_flag_, hcylmO_flag_;
-  float hcylpI_flag_, hcylpO_flag_;
-  int allMods_, bpix_mods_, shellmI_mods_, shellmO_mods_, shellpI_mods_;
-  int shellpO_mods_, fpix_mods_, hcylmI_mods_, hcylmO_mods_;
-  int hcylpI_mods_, hcylpO_mods_;
-  int errorMods_, err_bpix_mods_, err_shellmI_mods_, err_shellmO_mods_;
-  int err_shellpI_mods_, err_shellpO_mods_, err_fpix_mods_, err_hcylmI_mods_;
-  int err_hcylmO_mods_, err_hcylpI_mods_, err_hcylpO_mods_; 
-  
-  TH2F * allmodsEtaPhi;
-  TH2F * errmodsEtaPhi;
-  TH2F * goodmodsEtaPhi;
-//  TH2F * allmodsMap;
-//  TH2F * errmodsMap;
-//  TH2F * goodmodsMap;
   int count;
   int errcount;
   bool gotDigis;
@@ -213,20 +186,6 @@ class SiPixelInformationExtractor {
   edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
   MonitorElement * EventRateBarrelPixels;
   MonitorElement * EventRateEndcapPixels;
-  
-  MonitorElement * SummaryReport;
-  MonitorElement * SummaryReportMap;
-  MonitorElement * SummaryPixel;
-  MonitorElement * SummaryBarrel;
-  MonitorElement * SummaryShellmI;
-  MonitorElement * SummaryShellmO;
-  MonitorElement * SummaryShellpI;
-  MonitorElement * SummaryShellpO;
-  MonitorElement * SummaryEndcap;
-  MonitorElement * SummaryHCmI;
-  MonitorElement * SummaryHCmO;
-  MonitorElement * SummaryHCpI;
-  MonitorElement * SummaryHCpO;
   
   MonitorElement * EndcapNdigisFREQProjection;
   MonitorElement * BarrelNdigisFREQProjection;
