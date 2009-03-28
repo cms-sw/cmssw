@@ -17,6 +17,7 @@ EcalClusterCrackCorrectionBaseClass::init( const edm::EventSetup& es )
 {
         es.get<EcalClusterCrackCorrParametersRcd>().get( esParams_ );
         params_ = esParams_.product();
+	es_ = &es; //needed to access the ECAL geometry
 
         //// check if parameters are retrieved correctly
         //EcalClusterCrackCorrParameters::const_iterator it;

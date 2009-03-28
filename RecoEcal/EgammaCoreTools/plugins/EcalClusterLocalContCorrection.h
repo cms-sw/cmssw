@@ -2,7 +2,7 @@
 #define RecoEcal_EgammaCoreTools_EcalClusterLocalContCorrection_h
 
 /** \class EcalClusterLocalContCorrection
-  *  Function to correct cluster for cracks in the calorimeter
+  *  Function to correct em object energy for energy not contained in a 5x5 crystal area in the calorimeter
   *
   *  $Id: EcalClusterLocalContCorrection.h
   *  $Date:
@@ -17,7 +17,7 @@ class EcalClusterLocalContCorrection : public EcalClusterLocalContCorrectionBase
                 EcalClusterLocalContCorrection( const edm::ParameterSet &) {};
                 // compute the correction
                 virtual float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const;
-                virtual float getValue( const reco::SuperCluster &, const int mode ) const {return 0;}
+                virtual float getValue( const reco::SuperCluster &, const int mode ) const;
 };
 
 #endif

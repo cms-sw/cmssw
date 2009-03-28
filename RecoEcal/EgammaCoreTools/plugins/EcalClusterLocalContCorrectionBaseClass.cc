@@ -16,6 +16,7 @@ EcalClusterLocalContCorrectionBaseClass::init( const edm::EventSetup& es )
 {
         es.get<EcalClusterLocalContCorrParametersRcd>().get( esParams_ );
         params_ = esParams_.product();
+	es_ = &es; //needed to access the ECAL geometry
 }
 
 void

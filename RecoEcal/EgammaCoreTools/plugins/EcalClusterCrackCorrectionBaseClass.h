@@ -38,6 +38,8 @@ class EcalClusterCrackCorrectionBaseClass : public EcalClusterFunctionBaseClass 
         protected:
                 edm::ESHandle<EcalClusterCrackCorrParameters> esParams_;
                 const EcalClusterCrackCorrParameters * params_;
+		const edm::EventSetup * es_; //needed to access the ECAL geometry
+
 };
 
 #endif

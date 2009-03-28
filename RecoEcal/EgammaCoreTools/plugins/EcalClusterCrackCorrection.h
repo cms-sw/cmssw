@@ -17,7 +17,7 @@ class EcalClusterCrackCorrection : public EcalClusterCrackCorrectionBaseClass {
                 EcalClusterCrackCorrection( const edm::ParameterSet &) {};
                 // compute the correction
                 virtual float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const;
-                virtual float getValue( const reco::SuperCluster &, const int mode ) const { return 0; };
+                virtual float getValue( const reco::SuperCluster &, const int mode ) const;
 };
 
 #endif
