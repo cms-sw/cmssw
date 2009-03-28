@@ -31,7 +31,7 @@ GsfElectron::GsfElectron
   setP4(p4) ;
   setVertex(te.positionAtVtx) ;
   setPdgId(-11*charge()) ;
-  corrections_.ecalEnergy = superCluster()->energy() ;
+  if (isEcalDriven()) corrections_.ecalEnergy = superCluster()->energy() ;
 }
 
 void GsfElectron::correctEcalEnergy( float newEnergy, float newEnergyError )
