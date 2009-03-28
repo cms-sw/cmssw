@@ -310,7 +310,9 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 			15, 15, //mindphip, mindetap
 
 			//Change #3 
-			4, 16, 128, 4, 16, 128, //mindeta_acc0p, maxdeta_acc0p, maxdphi_acc0p, mindeta_acc1p, maxdeta_acc1p, maxdphi_acc1p
+			7, 16, 128, 13, 27, 128,  //mindeta_halo12p, maxdeta_halo12p, maxdphi_halo12p, mindeta_halo13p, maxdeta_halo13p, maxdphi_halo13p
+			18, 30, 128, 28, 40, 128, //mindeta_halo112p, maxdeta_halo112p, maxdphi_halo112p, mindeta_halo113p, maxdeta_halo113p, maxdphi_halo113p
+
 			//Change #4
 	 		mindphip, mindeta_accp,// maxdeta_accp, maxdphi_accp,  these two commented out in favor of change 2 variables
 	 		//70, 4, 16, 128,
