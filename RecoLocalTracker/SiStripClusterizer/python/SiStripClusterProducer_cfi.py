@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.SiStripClusterization.SiStripClusterization_cfi import *
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterization_cfi import *
 
 siStripClusterProducer = cms.EDProducer(
     "SiStripClusterProducer",
