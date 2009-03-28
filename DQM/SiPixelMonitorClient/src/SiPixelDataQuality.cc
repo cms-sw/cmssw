@@ -413,7 +413,6 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   } 
   
   if(DONE_ && currDir=="Pixel/EventInfo/reportSummaryContents"){ 
-    cout<<"****************** now I'm done with looping and can start calculating!"<<endl;
   // Fill the FED Error flags:
   if(barrelMods_>0) barrel_error_flag_ = (float(barrelMods_)-float(n_errors_barrel_))/float(barrelMods_);
   if(endcapMods_>0) endcap_error_flag_ = (float(endcapMods_)-float(n_errors_endcap_))/float(endcapMods_);
@@ -741,7 +740,6 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   float f_temp[1]; int i_temp[13]; 
   float combinedCuts = 1.; int numerator = 0, denominator = 0;
 
-cout<<"&&&&&&&& Starting to calculate the final flags: "<<endl;  
   me = bei->get("Pixel/EventInfo/reportSummaryContents/FEDErrorsCut/BarrelNErrorsCut");
   if(me) f_temp[0] = me->getFloatValue();
   me = bei->get("Pixel/EventInfo/reportSummaryContents/NDigisCut/BarrelNDigisCut");
@@ -774,14 +772,14 @@ cout<<"&&&&&&&& Starting to calculate the final flags: "<<endl;
     if(i_temp[k]>=0){
       numerator = numerator + i_temp[k];
       denominator++;
-      cout<<"cut flag, Barrel: "<<k<<","<<i_temp[k]<<","<<numerator<<","<<denominator<<endl;
+      //cout<<"cut flag, Barrel: "<<k<<","<<i_temp[k]<<","<<numerator<<","<<denominator<<endl;
     }
   } 
   if(denominator!=0) combinedCuts = float(numerator)/float(denominator);  
   barrelFlag = f_temp[0] * combinedCuts;
   
   
-  cout<<" the resulting barrel flag is: "<<f_temp[0]<<"*"<<combinedCuts<<"="<<barrelFlag<<endl;
+  //cout<<" the resulting barrel flag is: "<<f_temp[0]<<"*"<<combinedCuts<<"="<<barrelFlag<<endl;
   
   combinedCuts = 1.; numerator = 0; denominator = 0;
   me = bei->get("Pixel/EventInfo/reportSummaryContents/FEDErrorsCut/EndcapNErrorsCut");
@@ -816,20 +814,18 @@ cout<<"&&&&&&&& Starting to calculate the final flags: "<<endl;
     if(i_temp[k]>=0){
       numerator = numerator + i_temp[k];
       denominator++;
-      cout<<"cut flag, Endcap: "<<k<<","<<i_temp[k]<<","<<numerator<<","<<denominator<<endl;
+      //cout<<"cut flag, Endcap: "<<k<<","<<i_temp[k]<<","<<numerator<<","<<denominator<<endl;
     }
   } 
   if(denominator!=0) combinedCuts = float(numerator)/float(denominator);  
   endcapFlag = f_temp[0] * combinedCuts;
-  cout<<" the resulting endcap flag is: "<<f_temp[0]<<"*"<<combinedCuts<<"="<<endcapFlag<<endl;
+  //cout<<" the resulting endcap flag is: "<<f_temp[0]<<"*"<<combinedCuts<<"="<<endcapFlag<<endl;
   
   pixelFlag = barrelFlag * endcapFlag;
   
   
-//cout<<"Finished to calculate the final flags! "<<pixelFlag<<endl;  
   
-  
-  cout<<"barrel, endcap, pixel flags: "<<barrelFlag<<","<<endcapFlag<<","<<pixelFlag<<endl;
+  //cout<<"barrel, endcap, pixel flags: "<<barrelFlag<<","<<endcapFlag<<","<<pixelFlag<<endl;
   SummaryReport = bei->get("Pixel/EventInfo/reportSummary");
   if(SummaryReport) SummaryReport->Fill(pixelFlag);
   SummaryPixel = bei->get("Pixel/EventInfo/reportSummaryContents/PixelDqmFraction");
