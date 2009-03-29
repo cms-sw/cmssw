@@ -23,7 +23,7 @@ process.maxEvents = cms.untracked.PSet(
 
 
 process.load("Validation.RecoParticleFlow.tauBenchmarkElecRejection_cff")
-process.pfTauBenchmarkElecRejection.GenMatchObjectLabel = cms.string('e') #  'tau' or "e"
+process.pfTauBenchmarkElecRejection.GenMatchObjectLabel = cms.string('tau') #  'tau' or "e"
 process.pfTauBenchmarkElecRejection.OutputFile = cms.untracked.string('tauBenchmarkElecRejection_ztt.root')
 
 process.p =cms.Path(

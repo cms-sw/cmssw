@@ -9,9 +9,9 @@ pfTauBenchmarkElecRejection = cms.EDAnalyzer("PFTauElecRejectionBenchmarkAnalyze
     minMCPt = cms.double(10.0),
     maxMCAbsEta = cms.double(2.5),
     maxDeltaR = cms.double(0.3),
-    PFTauProducer = cms.InputTag('pfRecoTauProducerHighEfficiency'), 
-    PFTauDiscriminatorByIsolationProducer = cms.InputTag('pfRecoTauDiscriminationByIsolationHighEfficiency'),
-    PFTauDiscriminatorAgainstElectronProducer = cms.InputTag('pfRecoTauDiscriminationAgainstElectronHighEfficiency'),
+    PFTauProducer = cms.InputTag('shrinkingConePFTauProducer'), 
+    PFTauDiscriminatorByIsolationProducer = cms.InputTag('shrinkingConePFTauDiscriminationByIsolationHighEfficiency'),
+    PFTauDiscriminatorAgainstElectronProducer = cms.InputTag('shrinkingConePFTauDiscriminationAgainstElectron'),
     ApplyEcalCrackCut = cms.bool(True),
     GenMatchObjectLabel = cms.string('tau') #  match with hadronic 'tau' or electron "e"
 )
