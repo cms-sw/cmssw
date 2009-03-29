@@ -350,7 +350,7 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
     met    = L1ExtMet->begin()->energy();
     metphi = L1ExtMet->begin()->phi();
     mettot = L1ExtMet->begin()->etTotal();
-    methad = L1ExtMet->begin()->etHad();
+    //    methad = L1ExtMet->begin()->etHad();
   }
   else {
     if (_Debug) std::cout << "%HLTInfo -- No L1 MET object" << std::endl;

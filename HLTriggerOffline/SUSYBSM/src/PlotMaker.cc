@@ -2014,7 +2014,7 @@ void PlotMaker::handleObjects(const edm::Event& iEvent)
 
   //Get the MET
   Handle<l1extra::L1EtMissParticleCollection> theL1METHandle;
-  iEvent.getByLabel(m_l1extra,theL1METHandle);
+  iEvent.getByLabel(m_l1extra,"MET",theL1METHandle);
   theL1METCollection = *theL1METHandle;
   std::sort(theL1METCollection.begin(), theL1METCollection.end(),PtSorter());
 

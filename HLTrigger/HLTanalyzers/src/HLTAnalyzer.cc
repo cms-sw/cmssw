@@ -57,7 +57,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   m_l1extrajetc     = edm::InputTag(l1extramc_, "Central");
   m_l1extrajetf     = edm::InputTag(l1extramc_, "Forward");
   m_l1extrataujet   = edm::InputTag(l1extramc_, "Tau");
-  m_l1extramet      = edm::InputTag(l1extramc_, "");
+  m_l1extramet      = edm::InputTag(l1extramc_, "MET");
 
   hltresults_       = conf.getParameter<edm::InputTag> ("hltresults");
   gtReadoutRecord_  = conf.getParameter<edm::InputTag> ("l1GtReadoutRecord");

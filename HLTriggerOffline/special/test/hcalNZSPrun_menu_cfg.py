@@ -393,7 +393,11 @@ process.hltL1extraParticles = cms.EDProducer( "L1ExtraParticlesProd",
     etTotalSource = cms.InputTag( "hltGctDigis" ),
     etHadSource = cms.InputTag( "hltGctDigis" ),
     etMissSource = cms.InputTag( "hltGctDigis" ),
-    centralBxOnly = cms.bool( True )
+    centralBxOnly = cms.bool( True ),
+    htMissSource = cms.InputTag("hltGctDigis"),
+    hfRingEtSumsSource = cms.InputTag("hltGctDigis"),
+    hfRingBitCountsSource = cms.InputTag("hltGctDigis"),
+    ignoreHtMiss = cms.bool(False)                                          
 )
 process.hltOfflineBeamSpot = cms.EDProducer( "BeamSpotProducer" )
 process.hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
