@@ -118,11 +118,11 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 << detid.rawId()
                                 << "! something wrong with EcalTimeCalibConstants in your DB? ";
                 }
-                float clockToNsConstant = 25.;
+                // float clockToNsConstant = 25.;
                 // reconstruct the rechit
                 if (detid.subdetId()==EcalEndcap) {
                         leadingEdgeMethod_endcap_.setPulseShape( eePulseShape_ );
-                        float mult = (float)eePulseShape_.size() / (float)(*itdg).size();
+                        // float mult = (float)eePulseShape_.size() / (float)(*itdg).size();
                         // bin (or some analogous mapping) will be used instead of the leadingSample
                         //int bin  = (int)(( (mult * leadingSample + mult/2) * clockToNsConstant + itimeconst ) / clockToNsConstant);
                         // bin is not uset for the moment
@@ -131,7 +131,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                         leadingEdgeMethod_endcap_.setLeadingEdgeSample( -1 );
                 } else {
                         leadingEdgeMethod_barrel_.setPulseShape( ebPulseShape_ );
-                        float mult = (float)ebPulseShape_.size() / (float)(*itdg).size();
+                        // float mult = (float)ebPulseShape_.size() / (float)(*itdg).size();
                         // bin (or some analogous mapping) will be used instead of the leadingSample
                         //int bin  = (int)(( (mult * leadingSample + mult/2) * clockToNsConstant + itimeconst ) / clockToNsConstant);
                         // bin is not uset for the moment
@@ -182,18 +182,18 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                         // FIXME: set the error?
                         // it time too different from 5, reconstruct the amplitude 
                         // with the ratioMethod and store it in the RecHit flags
-                        if ( fabs(crh.timeMax - 5) > 0.25 ) { // FIXME define threshold
+                        if ( fabs(crh.timeMax) > 0.25 ) { // FIXME define threshold
                                 //uncalibRecHit.setFlags( chr.amplitudeMax );
                         }
                 } else {
-                        ratioMethod_endcap_.init( *itdg, pedVec, gainRatios );
-                        ratioMethod_endcap_.computeTime( EBtimeFitParameters_, EBtimeFitLimits_ );
+                        ratioMethod_barrel_.init( *itdg, pedVec, gainRatios );
+                        ratioMethod_barrel_.computeTime( EBtimeFitParameters_, EBtimeFitLimits_ );
                         EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = ratioMethod_barrel_.getCalculatedRecHit();
                         uncalibRecHit.setJitter( crh.timeMax - 5 );
                         // FIXME: set the error?
                         // it time too different from 5, reconstruct the amplitude 
                         // with the ratioMethod and store it in the RecHit flags
-                        if ( fabs(crh.timeMax - 5) > 0.25 ) { // FIXME define threshold
+                        if ( fabs(crh.timeMax) > 0.25 ) { // FIXME define threshold
                                 //uncalibRecHit.setFlags( chr.amplitudeMax );
                         }
                 }
