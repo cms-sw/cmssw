@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWPhotonDetailView.cc,v 1.2 2009/01/23 21:35:46 amraktad Exp $
+// $Id: FWPhotonDetailView.cc,v 1.3 2009/03/25 22:14:09 amraktad Exp $
 //
 
 // system include files
@@ -29,7 +29,7 @@
 #include "TEveTrackPropagator.h"
 #include "TEveViewer.h"
 #include "TGLViewer.h"
-#include "TGTextView.h"
+#include "TLatex.h"
 #include "TEveBoxSet.h"
 
 // user include files
@@ -504,12 +504,12 @@ TEveElementList *FWPhotonDetailView::makeLabels (const reco::Photon &photon)
            "ET", photon.energy() / cosh(photon.eta()),
            "eta", photon.eta(),
            "phi", photon.phi());
-   textView()->AddLine(summary);
+   latex()->DrawLatex(0.02, 0.9, summary);
    // E/p, H/E
    char hoe[128];
    sprintf(hoe, "%13s = %.3f",
            "H/E", photon.hadronicOverEm());
-   textView()->AddLine(hoe);
+   latex()->DrawLatex(0.02, 0.9, hoe);
    // delta phi/eta in
 //      char din[128];
 //      sprintf(din, "delta eta in = %.3f %16s = %.3f",
@@ -523,13 +523,13 @@ TEveElementList *FWPhotonDetailView::makeLabels (const reco::Photon &photon)
 //           "delta phi out", photon.deltaPhiSeedClusterTrackAtCalo());
 //      textView()->AddLine(dout);
    // legend
-   textView()->AddLine("");
-//      textView()->AddLine("      red cross: track outer helix extrapolation");
-//      textView()->AddLine("     blue cross: track inner helix extrapolation");
-   textView()->AddLine("      red point: seed cluster centroid");
-   textView()->AddLine("     blue point: supercluster centroid");
-   textView()->AddLine("   red crystals: seed cluster");
-   textView()->AddLine("yellow crystals: other clusters");
+   latex()->DrawLatex(0.02, 0.9, "");
+//      latex()->DrawLatex(0.02, 0.9, "      red cross: track outer helix extrapolation");
+//      latex()->DrawLatex(0.02, 0.9, "     blue cross: track inner helix extrapolation");
+   latex()->DrawLatex(0.02, 0.9, "      red point: seed cluster centroid");
+   latex()->DrawLatex(0.02, 0.9, "     blue point: supercluster centroid");
+   latex()->DrawLatex(0.02, 0.9, "   red crystals: seed cluster");
+   latex()->DrawLatex(0.02, 0.9, "yellow crystals: other clusters");
 #else
    // title
    TEveText* t = new TEveText("Photon detailed view");

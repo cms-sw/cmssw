@@ -8,11 +8,11 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.13 2009/03/23 15:54:12 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.14 2009/03/25 22:14:09 amraktad Exp $
 //
 
 // system include files
-#include "TGTextView.h"
+#include "TLatex.h"
 #include "TAxis.h"
 #include "TGeoBBox.h"
 
@@ -392,43 +392,67 @@ void FWElectronDetailView::fillData (const std::vector<DetId> &detids,
      
 TEveElementList *FWElectronDetailView::makeLabels (const reco::GsfElectron &electron)
 {
+   float_t x = 0.02;
+   float   y = 0.83;
+   float fontsize = latex()->GetTextSize()*0.5;
+ 
    TEveElementList *ret = new TEveElementList("electron labels");
    // summary
    if (electron.charge() > 0)
-      textView()->AddLine("charge = +1");
-   else textView()->AddLine("charge = -1");
+      latex()->DrawLatex(x, y, "charge = +1");
+   else latex()->DrawLatex(x, y, "charge = -1");
+   y -= fontsize;
+
    char summary[128];
-   sprintf(summary, "%s = %.1f GeV %10s = %.2f %10s = %.2f",
-           "ET", electron.caloEnergy() / cosh(electron.eta()),
-           "eta", electron.eta(),
-           "phi", electron.phi());
-   textView()->AddLine(summary);
+   sprintf(summary, "%s = %.1f",
+           "E_{T}", electron.caloEnergy() / cosh(electron.eta()));
+   latex()->DrawLatex(x, y, summary);
+   y -= fontsize;
+
    // E/p, H/E
    char hoe[128];
-   sprintf(hoe, "E/p = %.2f %13s = %.3f",
-           electron.eSuperClusterOverP(),
-           "H/E", electron.hadronicOverEm());
-   textView()->AddLine(hoe);
+   sprintf(hoe, "E/p = %.2f",
+           electron.eSuperClusterOverP());
+   latex()->DrawLatex(x, y, hoe);
+   y -= fontsize;
+   sprintf(hoe, "H/E = %.3f", electron.hadronicOverEm());
+   latex()->DrawLatex(x, y, hoe);
+   y -= fontsize;
+  
+   // phi eta
+   char ephi[30];
+   sprintf(ephi, " #eta = %.2f #varphi=  %.2f", electron.eta(), electron.phi());
+   latex()->DrawLatex(x, y, ephi);
+   y -= fontsize;
+ 
    // delta phi/eta in
    char din[128];
-   sprintf(din, "delta eta in = %.3f %16s = %.3f",
+   sprintf(din, "#Delta#eta_{in} = %.3f %16s = %.3f",
            electron.deltaEtaSuperClusterTrackAtVtx(),
-           "delta phi in", electron.deltaPhiSuperClusterTrackAtVtx());
-   textView()->AddLine(din);
+           "#Delta#varphi_{in}", electron.deltaPhiSuperClusterTrackAtVtx());
+   latex()->DrawLatex(x, y, din);
+   y -= fontsize;
+
    // delta phi/eta out
    char dout[128];
-   sprintf(dout, "delta eta out = %.3f %16s = %.3f",
+   sprintf(dout, "#Delta#eta_{out} = %.3f %16s = %.3f",
            electron.deltaEtaSeedClusterTrackAtCalo(),
-           "delta phi out", electron.deltaPhiSeedClusterTrackAtCalo());
-   textView()->AddLine(dout);
+           "#Delta#varphi_{out}", electron.deltaPhiSeedClusterTrackAtCalo());
+   latex()->DrawLatex(x, y, dout);
+   y -= 2*fontsize;
    // legend
-   textView()->AddLine("");
-   textView()->AddLine("      red cross: track outer helix extrapolation");
-   textView()->AddLine("     blue cross: track inner helix extrapolation");
-   textView()->AddLine("      red point: seed cluster centroid");
-   textView()->AddLine("     blue point: supercluster centroid");
-   textView()->AddLine("   red crystals: seed cluster");
-   textView()->AddLine("yellow crystals: other clusters");
+
+   latex()->DrawLatex(x, y, "#color[2]{+} track outer helix extrapolation");
+   y -= fontsize;
+   latex()->DrawLatex(x, y, "#color[4]{+} track inner helix extrapolation");
+   y -= fontsize;
+   latex()->DrawLatex(x, y, "#color[5]{#bullet} seed cluster centroid");
+   y -= fontsize;
+   latex()->DrawLatex(x, y, "#color[4]{#bullet} supercluster centroid");
+   y -= fontsize;
+   latex()->DrawLatex(x, y, "#color[2]{#Box} seed cluster");
+   y -= fontsize;
+   latex()->DrawLatex(x, y, "#color[5]{#Box} other clusters");
    // eta, phi axis or x, y axis?
    assert(electron.superCluster().isNonnull());
    bool is_endcap = false;
@@ -436,7 +460,6 @@ TEveElementList *FWElectronDetailView::makeLabels (const reco::GsfElectron &elec
        electron.superCluster()->getHitsByDetId().begin()->subdetId() == EcalEndcap)
       is_endcap = true;
 
-   textView()->SetWidth(textView()->ReturnLongestLineWidth());
    return ret;
 }
 

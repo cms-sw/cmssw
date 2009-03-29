@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:52 EST 2009
-// $Id: FWDetailViewBase.h,v 1.1 2009/01/09 20:58:49 chrjones Exp $
+// $Id: FWDetailViewBase.h,v 1.2 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -27,7 +27,7 @@
 
 // forward declarations
 class TEveElement;
-class TGTextView;
+class TLatex;
 class TGLViewer;
 class FWModelId;
 
@@ -39,8 +39,8 @@ public:
    ///the calling code takes ownership of the returned object
    TEveElement* build (const FWModelId &);
 
-   void         setTextView (TGTextView *v) {
-      m_textView = v;
+   void         setLatex (TLatex *v) {
+      m_latex = v;
    }
    void         setViewer (TGLViewer *v) {
       m_viewer = v;
@@ -48,8 +48,8 @@ public:
 
 protected:
    FWDetailViewBase(const std::type_info&);
-   TGTextView*      textView() const {
-      return m_textView;
+   TLatex*      latex() const {
+      return m_latex;
    }
 
    TGLViewer*       viewer () const {
@@ -82,7 +82,7 @@ private:
 
    virtual TEveElement* build(const FWModelId&, const void*) = 0;
 
-   TGTextView   *m_textView;
+   TLatex       *m_latex;
    TGLViewer    *m_viewer;
    Double_t m_rotationCenter[3];
 

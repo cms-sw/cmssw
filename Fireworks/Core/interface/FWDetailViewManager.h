@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.10 2009/01/13 18:44:57 chrjones Exp $
+// $Id: FWDetailViewManager.h,v 1.11 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -29,12 +29,11 @@ class FWModelId;
 class TEveScene;
 class TEveViewer;
 class TGMainFrame;
-class TGTextView;
+class TLatex;
 class FWDetailViewBase;
 
 class FWDetailViewManager
 {
-
 public:
    FWDetailViewManager();
    virtual ~FWDetailViewManager();
@@ -57,10 +56,10 @@ private:
    std::string findViewerFor(const std::string&) const;
 protected:
    // ---------- member data --------------------------------
-   TEveScene          *ns;
-   TEveViewer         *nv;
-   TGMainFrame        *frame;
-   TGTextView         *text_view;
+   TEveScene          *m_scene;
+   TEveViewer         *m_viewer;
+   TGMainFrame        *m_frame;
+   TLatex             *m_latex;
 
    std::map<std::string, FWDetailViewBase *>  m_viewers;
    mutable std::map<std::string, std::string> m_typeToViewers;
