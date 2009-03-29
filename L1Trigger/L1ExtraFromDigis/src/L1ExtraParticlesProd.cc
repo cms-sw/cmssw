@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.26 2009/03/27 23:22:12 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.27 2009/03/27 23:30:49 wsun Exp $
 //
 //
 
@@ -32,8 +32,8 @@
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
-// #include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
-// #include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 
@@ -544,222 +544,222 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	 }
       }
 
-//       // ~~~~~~~~~~~~~~~~~~~~ HT Sums ~~~~~~~~~~~~~~~~~~~~
+      // ~~~~~~~~~~~~~~~~~~~~ HT Sums ~~~~~~~~~~~~~~~~~~~~
 
-//       Handle< L1GctEtHadCollection > hwEtHadColl ;
-//       iEvent.getByLabel( etHadSource_, hwEtHadColl ) ;
+      Handle< L1GctEtHadCollection > hwEtHadColl ;
+      iEvent.getByLabel( etHadSource_, hwEtHadColl ) ;
 
-//       Handle< L1GctHtMissCollection > hwHtMissColl ;
-//       if( !ignoreHtMiss_ )
-// 	{
-// 	  iEvent.getByLabel( htMissSource_, hwHtMissColl ) ;
-// 	}
+      Handle< L1GctHtMissCollection > hwHtMissColl ;
+      if( !ignoreHtMiss_ )
+	{
+	  iEvent.getByLabel( htMissSource_, hwHtMissColl ) ;
+	}
 
-//       ESHandle< L1GctJetFinderParams > jetFinderParams ;
-//       iSetup.get< L1GctJetFinderParamsRcd >().get( jetFinderParams ) ;
-//       double htSumLSB = jetFinderParams->getHtLsbGeV();
+      ESHandle< L1GctJetFinderParams > jetFinderParams ;
+      iSetup.get< L1GctJetFinderParamsRcd >().get( jetFinderParams ) ;
+      double htSumLSB = jetFinderParams->getHtLsbGeV();
 
-//       ESHandle< L1CaloEtScale > htMissScale ;
-//       if( !ignoreHtMiss_ )
-// 	{
-// 	  iSetup.get< L1HtMissScaleRcd >().get( htMissScale ) ;
-// 	}
+      ESHandle< L1CaloEtScale > htMissScale ;
+      if( !ignoreHtMiss_ )
+	{
+	  iSetup.get< L1HtMissScaleRcd >().get( htMissScale ) ;
+	}
 
-//       L1GctEtHadCollection::const_iterator hwEtHadItr =
-// 	hwEtHadColl->begin() ;
-//       L1GctEtHadCollection::const_iterator hwEtHadEnd =
-// 	hwEtHadColl->end() ;
+      L1GctEtHadCollection::const_iterator hwEtHadItr =
+	hwEtHadColl->begin() ;
+      L1GctEtHadCollection::const_iterator hwEtHadEnd =
+	hwEtHadColl->end() ;
 
-//       int iHad = 0 ;
-//       for( ; hwEtHadItr != hwEtHadEnd ; ++hwEtHadItr, ++iHad )
-//       {
-// 	 int bx = hwEtHadItr->bx() ;
+      int iHad = 0 ;
+      for( ; hwEtHadItr != hwEtHadEnd ; ++hwEtHadItr, ++iHad )
+      {
+	 int bx = hwEtHadItr->bx() ;
 
-// 	 if( !centralBxOnly_ || bx == 0 )
-// 	 {
-// 	   if( !ignoreHtMiss_ )
-// 	     {
-// 	       L1GctHtMissCollection::const_iterator hwHtMissItr =
-// 		 hwHtMissColl->begin() ;
-// 	       L1GctHtMissCollection::const_iterator hwHtMissEnd =
-// 		 hwHtMissColl->end() ;
+	 if( !centralBxOnly_ || bx == 0 )
+	 {
+	   if( !ignoreHtMiss_ )
+	     {
+	       L1GctHtMissCollection::const_iterator hwHtMissItr =
+		 hwHtMissColl->begin() ;
+	       L1GctHtMissCollection::const_iterator hwHtMissEnd =
+		 hwHtMissColl->end() ;
 
-// 	       int iMiss = 0 ;
-// 	       for( ; hwHtMissItr != hwHtMissEnd ; ++hwHtMissItr, ++iMiss )
-// 		 {
-// 		   if( hwHtMissItr->bx() == bx )
-// 		     {
-// 		       break ;
-// 		     }
-// 		 }
+	       int iMiss = 0 ;
+	       for( ; hwHtMissItr != hwHtMissEnd ; ++hwHtMissItr, ++iMiss )
+		 {
+		   if( hwHtMissItr->bx() == bx )
+		     {
+		       break ;
+		     }
+		 }
 
-// 	       // If a L1GctHtMiss with the right bx is not found, itr == end.
-// 	       if( hwHtMissItr != hwHtMissEnd )
-// 		 {
-// 		   // Construct L1EtMissParticle only if both energy
-// 		   // sums are present.
+	       // If a L1GctHtMiss with the right bx is not found, itr == end.
+	       if( hwHtMissItr != hwHtMissEnd )
+		 {
+		   // Construct L1EtMissParticle only if both energy
+		   // sums are present.
 
-// 		   // HT bin low edge
-// 		   double htTot =
-// 		     ( hwEtHadItr->overFlow() ?
-// 		       ( double ) L1GctEtHad::kEtHadMaxValue :
-// 		       ( double ) hwEtHadItr->et() ) * htSumLSB + 1.e-6 ;
-// 		   double htMiss =
-// 		     htMissScale->et( hwHtMissItr->overFlow() ?
-// 				      htMissScale->rankScaleMax() :
-// 				      hwHtMissItr->et() ) + 1.e-6 ;
-// 		   // keep x and y components non-zero and
-// 		   // protect against roundoff.
+		   // HT bin low edge
+		   double htTot =
+		     ( hwEtHadItr->overFlow() ?
+		       ( double ) L1GctEtHad::kEtHadMaxValue :
+		       ( double ) hwEtHadItr->et() ) * htSumLSB + 1.e-6 ;
+		   double htMiss =
+		     htMissScale->et( hwHtMissItr->overFlow() ?
+				      htMissScale->rankScaleMax() :
+				      hwHtMissItr->et() ) + 1.e-6 ;
+		   // keep x and y components non-zero and
+		   // protect against roundoff.
 
-// 		   double phi =
-// 		     caloGeom->etSumPhiBinCenter( hwHtMissItr->phi() ) ;
+		   double phi =
+		     caloGeom->etSumPhiBinCenter( hwHtMissItr->phi() ) ;
 
-// 		   // cout << "HW HT Sums " << endl
-// 		   // 	   << "MHT: phi " << hwHtMissItr->phi() << " = " << phi
-// 		   // 	   << " ht " << hwHtMissItr->et() << " = " << htMiss
-// 		   // 	   << " HtTot " << hwEtHadItr->et() << " = " << htTot
-// 		   // 	   << " bx " << bx
-// 		   // 	   << endl ;
+		   // cout << "HW HT Sums " << endl
+		   // 	   << "MHT: phi " << hwHtMissItr->phi() << " = " << phi
+		   // 	   << " ht " << hwHtMissItr->et() << " = " << htMiss
+		   // 	   << " HtTot " << hwEtHadItr->et() << " = " << htTot
+		   // 	   << " bx " << bx
+		   // 	   << endl ;
 
-// 		   math::PtEtaPhiMLorentzVector p4( htMiss,
-// 						    0.,
-// 						    phi,
-// 						    0. ) ;
+		   math::PtEtaPhiMLorentzVector p4( htMiss,
+						    0.,
+						    phi,
+						    0. ) ;
 
-// 		   htMissColl->push_back(
-// 		     L1EtMissParticle(
-// 		     p4,
-// 		     L1EtMissParticle::kMHT,
-// 		     htTot,
-// 		     Ref< L1GctEtMissCollection >(),
-// 		     Ref< L1GctEtTotalCollection >(),
-// 		     Ref< L1GctHtMissCollection >( hwHtMissColl, iMiss ),
-// 		     Ref< L1GctEtHadCollection >( hwEtHadColl, iHad ),
-// 		     bx
-// 		     ) ) ;
-// 		 }
-// 	     }
-// 	   else // No L1GctHtMiss object available; just fill HT.
-// 	     {
-// 	       // HT bin low edge
-// 	       double htTot =
-// 		 ( hwEtHadItr->overFlow() ?
-// 		   ( double ) L1GctEtHad::kEtHadMaxValue :
-// 		   ( double ) hwEtHadItr->et() ) * htSumLSB + 1.e-6 ;
+		   htMissColl->push_back(
+		     L1EtMissParticle(
+		     p4,
+		     L1EtMissParticle::kMHT,
+		     htTot,
+		     Ref< L1GctEtMissCollection >(),
+		     Ref< L1GctEtTotalCollection >(),
+		     Ref< L1GctHtMissCollection >( hwHtMissColl, iMiss ),
+		     Ref< L1GctEtHadCollection >( hwEtHadColl, iHad ),
+		     bx
+		     ) ) ;
+		 }
+	     }
+	   else // No L1GctHtMiss object available; just fill HT.
+	     {
+	       // HT bin low edge
+	       double htTot =
+		 ( hwEtHadItr->overFlow() ?
+		   ( double ) L1GctEtHad::kEtHadMaxValue :
+		   ( double ) hwEtHadItr->et() ) * htSumLSB + 1.e-6 ;
 
-// 	       htMissColl->push_back(
-// 		 L1EtMissParticle(
-// 		   math::PtEtaPhiMLorentzVector(),
-// 		   L1EtMissParticle::kMHT,
-// 		   htTot,
-// 		   Ref< L1GctEtMissCollection >(),
-// 		   Ref< L1GctEtTotalCollection >(),
-// 		   Ref< L1GctHtMissCollection >(),
-// 		   Ref< L1GctEtHadCollection >(),
-// 		   bx
-// 		   ) ) ;
-// 	     }
-// 	 }
-//       }
+	       htMissColl->push_back(
+		 L1EtMissParticle(
+		   math::PtEtaPhiMLorentzVector(),
+		   L1EtMissParticle::kMHT,
+		   htTot,
+		   Ref< L1GctEtMissCollection >(),
+		   Ref< L1GctEtTotalCollection >(),
+		   Ref< L1GctHtMissCollection >(),
+		   Ref< L1GctEtHadCollection >(),
+		   bx
+		   ) ) ;
+	     }
+	 }
+      }
 
-//       // ~~~~~~~~~~~~~~~~~~~~ HF Rings ~~~~~~~~~~~~~~~~~~~~
+      // ~~~~~~~~~~~~~~~~~~~~ HF Rings ~~~~~~~~~~~~~~~~~~~~
 
-//       Handle< L1GctHFRingEtSumsCollection > hwHFEtSumsColl ;
-//       iEvent.getByLabel( hfRingEtSumsSource_, hwHFEtSumsColl ) ;
+      Handle< L1GctHFRingEtSumsCollection > hwHFEtSumsColl ;
+      iEvent.getByLabel( hfRingEtSumsSource_, hwHFEtSumsColl ) ;
 
-//       Handle< L1GctHFBitCountsCollection > hwHFBitCountsColl ;
-//       iEvent.getByLabel( hfRingBitCountsSource_, hwHFBitCountsColl ) ;
+      Handle< L1GctHFBitCountsCollection > hwHFBitCountsColl ;
+      iEvent.getByLabel( hfRingBitCountsSource_, hwHFBitCountsColl ) ;
 
-//       ESHandle< L1CaloEtScale > hfRingEtScale ;
-//       iSetup.get< L1HfRingEtScaleRcd >().get( hfRingEtScale ) ;
+      ESHandle< L1CaloEtScale > hfRingEtScale ;
+      iSetup.get< L1HfRingEtScaleRcd >().get( hfRingEtScale ) ;
 
-//       L1GctHFRingEtSumsCollection::const_iterator hwHFEtSumsItr =
-// 	hwHFEtSumsColl->begin() ;
-//       L1GctHFRingEtSumsCollection::const_iterator hwHFEtSumsEnd =
-// 	hwHFEtSumsColl->end() ;
+      L1GctHFRingEtSumsCollection::const_iterator hwHFEtSumsItr =
+	hwHFEtSumsColl->begin() ;
+      L1GctHFRingEtSumsCollection::const_iterator hwHFEtSumsEnd =
+	hwHFEtSumsColl->end() ;
 
-//       int iEtSums = 0 ;
-//       for( ; hwHFEtSumsItr != hwHFEtSumsEnd ; ++hwHFEtSumsItr, ++iEtSums )
-//       {
-// 	 int bx = hwHFEtSumsItr->bx() ;
+      int iEtSums = 0 ;
+      for( ; hwHFEtSumsItr != hwHFEtSumsEnd ; ++hwHFEtSumsItr, ++iEtSums )
+      {
+	 int bx = hwHFEtSumsItr->bx() ;
 
-// 	 if( !centralBxOnly_ || bx == 0 )
-// 	 {
-// 	   L1GctHFBitCountsCollection::const_iterator hwHFBitCountsItr =
-// 	     hwHFBitCountsColl->begin() ;
-// 	   L1GctHFBitCountsCollection::const_iterator hwHFBitCountsEnd =
-// 	     hwHFBitCountsColl->end() ;
+	 if( !centralBxOnly_ || bx == 0 )
+	 {
+	   L1GctHFBitCountsCollection::const_iterator hwHFBitCountsItr =
+	     hwHFBitCountsColl->begin() ;
+	   L1GctHFBitCountsCollection::const_iterator hwHFBitCountsEnd =
+	     hwHFBitCountsColl->end() ;
 
-// 	   int iBitCounts = 0 ;
-// 	   for( ; hwHFBitCountsItr != hwHFBitCountsEnd ;
-// 		++hwHFBitCountsItr, ++iBitCounts )
-// 	     {
-// 	       if( hwHFBitCountsItr->bx() == bx )
-// 		 {
-// 		   break ;
-// 		 }
-// 	     }
+	   int iBitCounts = 0 ;
+	   for( ; hwHFBitCountsItr != hwHFBitCountsEnd ;
+		++hwHFBitCountsItr, ++iBitCounts )
+	     {
+	       if( hwHFBitCountsItr->bx() == bx )
+		 {
+		   break ;
+		 }
+	     }
 
-// 	   // If a L1GctHFBitCounts with the right bx is not found, itr == end.
-// 	   if( hwHFBitCountsItr != hwHFBitCountsEnd )
-// 	     {
-// 	       // Construct L1HFRings only if both HW objects are present.
+	   // If a L1GctHFBitCounts with the right bx is not found, itr == end.
+	   if( hwHFBitCountsItr != hwHFBitCountsEnd )
+	     {
+	       // Construct L1HFRings only if both HW objects are present.
 
-// 	       // cout << "HF Rings " << endl
+	       // cout << "HF Rings " << endl
 
-// 	       // HF Et sums
-// 	       double etSums[ L1HFRings::kNumRings ] ;
-// 	       etSums[ L1HFRings::kRing1PosEta ] =
-// 		 hfRingEtScale->et( hwHFEtSumsItr->etSum( 0 ) ) + 1.e-6 ;
-// 	       etSums[ L1HFRings::kRing1NegEta ] =
-// 		 hfRingEtScale->et( hwHFEtSumsItr->etSum( 1 ) ) + 1.e-6 ;
-// 	       etSums[ L1HFRings::kRing2PosEta ] =
-// 		 hfRingEtScale->et( hwHFEtSumsItr->etSum( 2 ) ) + 1.e-6 ;
-// 	       etSums[ L1HFRings::kRing2NegEta ] =
-// 		 hfRingEtScale->et( hwHFEtSumsItr->etSum( 3 ) ) + 1.e-6 ;
-//  	       // protect against roundoff.
+	       // HF Et sums
+	       double etSums[ L1HFRings::kNumRings ] ;
+	       etSums[ L1HFRings::kRing1PosEta ] =
+		 hfRingEtScale->et( hwHFEtSumsItr->etSum( 0 ) ) + 1.e-6 ;
+	       etSums[ L1HFRings::kRing1NegEta ] =
+		 hfRingEtScale->et( hwHFEtSumsItr->etSum( 1 ) ) + 1.e-6 ;
+	       etSums[ L1HFRings::kRing2PosEta ] =
+		 hfRingEtScale->et( hwHFEtSumsItr->etSum( 2 ) ) + 1.e-6 ;
+	       etSums[ L1HFRings::kRing2NegEta ] =
+		 hfRingEtScale->et( hwHFEtSumsItr->etSum( 3 ) ) + 1.e-6 ;
+ 	       // protect against roundoff.
 
-// // 	       cout << "HF Et Sums "
-// // 		    << hwHFEtSumsItr->etSum( 0 ) << " = "
-// // 		    << etSums[ L1HFRings::kRing1PosEta ] << " "
-// // 		    << hwHFEtSumsItr->etSum( 1 ) << " = "
-// // 		    << etSums[ L1HFRings::kRing1NegEta ] << " "
-// // 		    << hwHFEtSumsItr->etSum( 2 ) << " = "
-// // 		    << etSums[ L1HFRings::kRing2PosEta ] << " "
-// // 		    << hwHFEtSumsItr->etSum( 3 ) << " = "
-// // 		    << etSums[ L1HFRings::kRing2NegEta ]
-// // 		    << endl ;
+// 	       cout << "HF Et Sums "
+// 		    << hwHFEtSumsItr->etSum( 0 ) << " = "
+// 		    << etSums[ L1HFRings::kRing1PosEta ] << " "
+// 		    << hwHFEtSumsItr->etSum( 1 ) << " = "
+// 		    << etSums[ L1HFRings::kRing1NegEta ] << " "
+// 		    << hwHFEtSumsItr->etSum( 2 ) << " = "
+// 		    << etSums[ L1HFRings::kRing2PosEta ] << " "
+// 		    << hwHFEtSumsItr->etSum( 3 ) << " = "
+// 		    << etSums[ L1HFRings::kRing2NegEta ]
+// 		    << endl ;
 
-// 	       // HF bit counts
-// 	       int bitCounts[ L1HFRings::kNumRings ] ;
-// 	       bitCounts[ L1HFRings::kRing1PosEta ] =
-// 		 hwHFBitCountsItr->bitCount( 0 ) ;
-// 	       bitCounts[ L1HFRings::kRing1NegEta ] =
-// 		 hwHFBitCountsItr->bitCount( 1 ) ;
-// 	       bitCounts[ L1HFRings::kRing2PosEta ] =
-// 		 hwHFBitCountsItr->bitCount( 2 ) ;
-// 	       bitCounts[ L1HFRings::kRing2NegEta ] =
-// 		 hwHFBitCountsItr->bitCount( 3 ) ;
+	       // HF bit counts
+	       int bitCounts[ L1HFRings::kNumRings ] ;
+	       bitCounts[ L1HFRings::kRing1PosEta ] =
+		 hwHFBitCountsItr->bitCount( 0 ) ;
+	       bitCounts[ L1HFRings::kRing1NegEta ] =
+		 hwHFBitCountsItr->bitCount( 1 ) ;
+	       bitCounts[ L1HFRings::kRing2PosEta ] =
+		 hwHFBitCountsItr->bitCount( 2 ) ;
+	       bitCounts[ L1HFRings::kRing2NegEta ] =
+		 hwHFBitCountsItr->bitCount( 3 ) ;
 
-// // 	       cout << "HF bit counts "
-// // 		    << hwHFBitCountsItr->bitCount( 0 ) << " "
-// // 		    << hwHFBitCountsItr->bitCount( 1 ) << " "
-// // 		    << hwHFBitCountsItr->bitCount( 2 ) << " "
-// // 		    << hwHFBitCountsItr->bitCount( 3 ) << " "
-// // 		    << endl ;
+// 	       cout << "HF bit counts "
+// 		    << hwHFBitCountsItr->bitCount( 0 ) << " "
+// 		    << hwHFBitCountsItr->bitCount( 1 ) << " "
+// 		    << hwHFBitCountsItr->bitCount( 2 ) << " "
+// 		    << hwHFBitCountsItr->bitCount( 3 ) << " "
+// 		    << endl ;
 
-// 	       hfRingsColl->push_back(
-// 		 L1HFRings( etSums,
-// 			    bitCounts,
-// 			    Ref< L1GctHFRingEtSumsCollection >( hwHFEtSumsColl,
-// 								iEtSums ),
-// 			    Ref< L1GctHFBitCountsCollection >( hwHFBitCountsColl,
-// 							       iBitCounts ),
-// 			    bx
-// 			    ) ) ;
-// 	     }
-// 	 }
-//       }
+	       hfRingsColl->push_back(
+		 L1HFRings( etSums,
+			    bitCounts,
+			    Ref< L1GctHFRingEtSumsCollection >( hwHFEtSumsColl,
+								iEtSums ),
+			    Ref< L1GctHFBitCountsCollection >( hwHFBitCountsColl,
+							       iBitCounts ),
+			    bx
+			    ) ) ;
+	     }
+	 }
+      }
    }
 
    OrphanHandle< L1EmParticleCollection > isoEmHandle =
