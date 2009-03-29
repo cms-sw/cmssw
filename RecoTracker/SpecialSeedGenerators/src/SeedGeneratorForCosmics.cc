@@ -112,9 +112,9 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 
     // TransientTrackingRecHit::ConstRecHitPointer outrhit=TTTRHBuilder->build(HitPairs[is].outer())
 
-    TransientTrackingRecHit::ConstRecHitPointer outrhit= TTTRHBuilder->build(HitTriplets[it].outer());
+    TransientTrackingRecHit::ConstRecHitPointer outrhit= TTTRHBuilder->build(HitTriplets[it].outer()->hit());
     //***top-bottom
-    TransientTrackingRecHit::ConstRecHitPointer innrhit = TTTRHBuilder->build(HitTriplets[it].inner());
+    TransientTrackingRecHit::ConstRecHitPointer innrhit = TTTRHBuilder->build(HitTriplets[it].inner()->hit());
     if (positiveYOnly && (outrhit->globalPosition().y()<0 || innrhit->globalPosition().y()<0
 			  || outrhit->globalPosition().y() < innrhit->globalPosition().y()
 			  ) ) continue;
@@ -124,7 +124,7 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
     //***
 
     edm::OwnVector<TrackingRecHit> hits;
-    hits.push_back((*(HitTriplets[it].outer())).clone());
+    hits.push_back(HitTriplets[it].outer()->hit()->clone());
     FastHelix helix(inner, middle, outer,iSetup);
     GlobalVector gv=helix.stateAtVertex().parameters().momentum();
     float ch=helix.stateAtVertex().parameters().charge();
@@ -198,9 +198,9 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
     
     LogDebug("CosmicSeedFinder") <<"inner point of the seed "<<inner <<" outer point of the seed "<<outer; 
     //RC const TransientTrackingRecHit* outrhit=TTTRHBuilder->build(HitPairs[is].outer().RecHit());  
-    TransientTrackingRecHit::ConstRecHitPointer outrhit = TTTRHBuilder->build((HitPairs[is].outer()));
+    TransientTrackingRecHit::ConstRecHitPointer outrhit = TTTRHBuilder->build(HitPairs[is].outer()->hit());
     //***top-bottom
-    TransientTrackingRecHit::ConstRecHitPointer innrhit = TTTRHBuilder->build((HitPairs[is].inner()));
+    TransientTrackingRecHit::ConstRecHitPointer innrhit = TTTRHBuilder->build(HitPairs[is].inner()->hit());
     if (positiveYOnly && (outrhit->globalPosition().y()<0 || innrhit->globalPosition().y()<0
 			  || outrhit->globalPosition().y() < innrhit->globalPosition().y()
 			  ) ) continue;
@@ -210,7 +210,7 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
     //***
 
     edm::OwnVector<TrackingRecHit> hits;
-    hits.push_back((*(HitPairs[is].outer())).clone());
+    hits.push_back(HitPairs[is].outer()->hit()->clone());
     //    hits.push_back(HitPairs[is].inner()->clone());
 
     for (int i=0;i<2;i++){

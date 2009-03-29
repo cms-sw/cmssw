@@ -26,7 +26,7 @@ std::vector<TrajectorySeed*> SeedFromGenericPairOrTriplet::seed(const SeedingHit
                                                    		const NavigationDirection&  seedDir,
                                                    		const edm::EventSetup& iSetup){
 	std::vector<TrajectorySeed*> seeds;
-	if (hits.hits().size() == 3) {
+	if (hits.size() == 3) {
 		if(!theSetMomentum){
 			TrajectorySeed* seed = seedFromTriplet(hits, dir, seedDir, iSetup);
 			if (seed) seeds.push_back(seed);
@@ -37,7 +37,7 @@ std::vector<TrajectorySeed*> SeedFromGenericPairOrTriplet::seed(const SeedingHit
 			}
 		} 
 		
-	} else if (hits.hits().size() == 2){
+	} else if (hits.size() == 2){
 		if(!theSetMomentum){
 			TrajectorySeed* seed = seedFromPair(hits, dir, seedDir);
                         if (seed) seeds.push_back(seed);
@@ -49,7 +49,7 @@ std::vector<TrajectorySeed*> SeedFromGenericPairOrTriplet::seed(const SeedingHit
                 }
 	} else {
 		throw cms::Exception("CombinatorialSeedGeneratorForCosmics") << " Wrong number of hits in Set: "
-                                                        << hits.hits().size() << ", should be 2 or 3 ";	
+                                                        << hits.size() << ", should be 2 or 3 ";	
 	}
 	return seeds;
 }
@@ -58,14 +58,14 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
 							      const PropagationDirection& dir,
 							      const NavigationDirection&  seedDir,
 							      const edm::EventSetup& iSetup, int charge) const{
-	if (hits.hits().size() != 3) {
+	if (hits.size() != 3) {
 		throw cms::Exception("CombinatorialSeedGeneratorForCosmics") <<
-			"call to SeedFromGenericPairOrTriplet::seedFromTriplet with " << hits.hits().size() << " hits ";
+			"call to SeedFromGenericPairOrTriplet::seedFromTriplet with " << hits.size() << " hits ";
 	}
 
-        const TrackingRecHit* innerHit  = &(*(hits.hits())[0]);
-        const TrackingRecHit* middleHit = &(*(hits.hits())[1]);
-        const TrackingRecHit* outerHit  = &(*(hits.hits())[2]);
+        const TrackingRecHit* innerHit  = hits[0]->hit();
+        const TrackingRecHit* middleHit = hits[1]->hit();
+        const TrackingRecHit* outerHit  = hits[2]->hit();
         GlobalPoint inner  = theTracker->idToDet(innerHit->geographicalId() )->surface().toGlobal(innerHit->localPosition() );
         GlobalPoint middle = theTracker->idToDet(middleHit->geographicalId())->surface().toGlobal(middleHit->localPosition());
         GlobalPoint outer  = theTracker->idToDet(outerHit->geographicalId() )->surface().toGlobal(outerHit->localPosition() );
@@ -91,11 +91,11 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
                         << middle.z() << ")";
 		SeedingHitSet newSet;
 		if (seedDir == outsideIn){
-			newSet.add((hits.hits())[1]);
-			newSet.add((hits.hits())[2]);
+			newSet.add(hits[1]);
+			newSet.add(hits[2]);
 		} else {
-			newSet.add((hits.hits())[0]);
-                        newSet.add((hits.hits())[1]);
+			newSet.add(hits[0]);
+                        newSet.add(hits[1]);
 		}
 		if (!qualityFilter(hits)) return 0;
 		TrajectorySeed* seed = seedFromPair(newSet, dir, seedDir, charge);
@@ -157,12 +157,12 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
 TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromPair(const SeedingHitSet& hits,
                                                            const PropagationDirection& dir,
 							   const NavigationDirection&  seedDir, int charge) const{
-	if (hits.hits().size() != 2) {
+	if (hits.size() != 2) {
                 throw cms::Exception("CombinatorialSeedGeneratorForCosmics") <<
-                        "call to SeedFromGenericPairOrTriplet::seedFromPair with " << hits.hits().size() << " hits ";
+                        "call to SeedFromGenericPairOrTriplet::seedFromPair with " << hits.size() << " hits ";
         }
-	const TrackingRecHit* innerHit = &(*(hits.hits())[0]);
-        const TrackingRecHit* outerHit = &(*(hits.hits())[1]);
+	const TrackingRecHit* innerHit = hits[0]->hit();
+        const TrackingRecHit* outerHit = hits[1]->hit();
         GlobalPoint inner  = theTracker->idToDet(innerHit->geographicalId() )->surface().toGlobal(innerHit->localPosition() );
         GlobalPoint outer  = theTracker->idToDet(outerHit->geographicalId() )->surface().toGlobal(outerHit->localPosition() );
 	LogDebug("SeedFromGenericPairOrTriplet") <<
@@ -309,13 +309,11 @@ CurvilinearTrajectoryError SeedFromGenericPairOrTriplet::initialError(const Trac
 bool SeedFromGenericPairOrTriplet::qualityFilter(const SeedingHitSet& hits) const{
 	//if we are setting the momentum with the PSet we look for aligned hits
         if (theSetMomentum){
-                if (hits.hits().size()==3){
+                if (hits.size()==3){
                         std::vector<GlobalPoint> gPoints;
-                        SeedingHitSet::Hits::const_iterator iHit;
-                        for (iHit = hits.hits().begin(); iHit != hits.hits().end(); iHit++){
-                                gPoints.push_back(theTracker->idToDet((**iHit).geographicalId() )->surface().toGlobal((**iHit).localPosition() ));
-                        }
-                        unsigned int subid=(*(hits.hits().front())).geographicalId().subdetId();
+                        unsigned int nHits = hits.size();
+                        for (unsigned int iHit = 0; iHit < nHits; ++iHit) gPoints.push_back(hits[iHit]->globalPosition());
+                        unsigned int subid=(*hits[0]).geographicalId().subdetId();
 			if(subid == StripSubdetector::TEC || subid == StripSubdetector::TID){
                                 LogDebug("SeedFromGenericPairOrTriplet") 
 					<< "In the endcaps we cannot decide if hits are aligned with only phi and z";

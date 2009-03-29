@@ -221,8 +221,6 @@ bool CtfSpecialSeedGenerator::buildSeeds(const edm::EventSetup& iSetup,
 }
 //checks the hits are on diffrent layers
 bool CtfSpecialSeedGenerator::preliminaryCheck(const SeedingHitSet& shs){
-	std::vector<ctfseeding::SeedingHit> hits = shs.hits();
-	std::vector<ctfseeding::SeedingHit>::const_iterator iHits;
 	std::vector<std::pair<unsigned int, unsigned int> > vSubdetLayer;
 	//std::vector<std::string> vSeedLayerNames;
 	bool checkHitsAtPositiveY       = conf_.getParameter<bool>("SeedsFromPositiveY");
@@ -230,9 +228,11 @@ bool CtfSpecialSeedGenerator::preliminaryCheck(const SeedingHitSet& shs){
 	bool checkHitsAtNegativeY       = conf_.getParameter<bool>("SeedsFromNegativeY");
 	//***
 	bool checkHitsOnDifferentLayers = conf_.getParameter<bool>("CheckHitsAreOnDifferentLayers");
-	for (iHits = hits.begin(); iHits != hits.end(); iHits++){
+      unsigned int nHits = shs.size();
+      for (unsigned int iHit=0; iHit < nHits; ++iHit) {
 		//hits for the seeds must be at positive y
-		TransientTrackingRecHit::RecHitPointer recHit = theBuilder->build(*iHits);
+            const TrackingRecHit * trh = shs[iHit]->hit();
+		TransientTrackingRecHit::RecHitPointer recHit = theBuilder->build(trh);
     		GlobalPoint hitPos = recHit->globalPosition();
 		//GlobalPoint point = 
 		//  theTracker->idToDet(iHits->geographicalId() )->surface().toGlobal(iHits->localPosition());
@@ -242,19 +242,19 @@ bool CtfSpecialSeedGenerator::preliminaryCheck(const SeedingHitSet& shs){
 		//***
 		//std::string name = iHits->seedinglayer().name(); 
 		//hits for the seeds must be in different layers
-		unsigned int subid=(**iHits).geographicalId().subdetId();
+		unsigned int subid=(*trh).geographicalId().subdetId();
 		unsigned int layer = 0;
 		if (subid == StripSubdetector::TIB){
-			TIBDetId tibId((**iHits).geographicalId());
+			TIBDetId tibId((*trh).geographicalId());
 			layer = tibId.layer();
 		} else if (subid == StripSubdetector::TID){
-			TIDDetId tidId((**iHits).geographicalId());
+			TIDDetId tidId((*trh).geographicalId());
 			layer = tidId.wheel();
 		} else if (subid == StripSubdetector::TOB){
-			TOBDetId tobId((**iHits).geographicalId());
+			TOBDetId tobId((*trh).geographicalId());
 			layer = tobId.layer();
 		} else if (subid == StripSubdetector::TEC){
-			TECDetId tecId((**iHits).geographicalId());
+			TECDetId tecId((*trh).geographicalId());
 			layer = tecId.wheel();
 		}
 		std::vector<std::pair<unsigned int, unsigned int> >::const_iterator iter;

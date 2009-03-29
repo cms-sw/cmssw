@@ -8,20 +8,20 @@ class SeedingHitSet {
 public:
 
   typedef std::vector<ctfseeding::SeedingHit> Hits;
+  typedef TransientTrackingRecHit::ConstRecHitContainer RecHits;
 
   SeedingHitSet(const Hits & hits=Hits());
   virtual ~SeedingHitSet(){}
 
+  unsigned int size() const { return theRecHits.size(); }
   void add(const ctfseeding::SeedingHit & aHit);
+  void add(TransientTrackingRecHit::ConstRecHitPointer pHit) { theRecHits.push_back(pHit); }
+  TransientTrackingRecHit::ConstRecHitPointer operator[](unsigned int i) const { return theRecHits[i]; }
 
-  const Hits & hits() const { return theHits; }
-
-  unsigned int size() const { return theHits.size(); }
-
-  virtual const ctfseeding::SeedingHit & operator[](unsigned int i) const { return theHits[i]; }
+  const RecHits & container() const  { return theRecHits; }
 
 protected:
-  Hits theHits;
+  RecHits theRecHits;
 };
 
 

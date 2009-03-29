@@ -27,7 +27,7 @@ public:
 protected:
 
   virtual GlobalTrajectoryParameters initialKinematic(
-      const SeedingHitSet::Hits & hits, 
+      const SeedingHitSet & hits, 
       const TrackingRegion & region, 
       const edm::EventSetup& es) const;
 
@@ -37,7 +37,7 @@ protected:
 
   virtual const TrajectorySeed * buildSeed(
       TrajectorySeedCollection & seedCollection,
-	const SeedingHitSet::Hits & hits,
+	const SeedingHitSet & hits,
 	const FreeTrajectoryState & fts,
 	const edm::EventSetup& es) const;
 

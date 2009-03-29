@@ -3,13 +3,11 @@
 using namespace ctfseeding;
 
 SeedingHitSet::SeedingHitSet(const Hits & hits)
-  : theHits(hits)
 { 
-// FIXME sort
+  for (Hits::const_iterator it=hits.begin(); it != hits.end(); ++it) theRecHits.push_back(*it);
 }
 
 void SeedingHitSet::add(const SeedingHit & aHit)
 {
-  // FIXME - put in correct place 
-  theHits.push_back(aHit); 
+  theRecHits.push_back(aHit);
 }

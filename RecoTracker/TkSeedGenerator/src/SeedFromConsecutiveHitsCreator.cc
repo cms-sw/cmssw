@@ -21,11 +21,10 @@ template <class T> T sqr( T t) {return t*t;}
 
 const TrajectorySeed * SeedFromConsecutiveHitsCreator::trajectorySeed(
     TrajectorySeedCollection & seedCollection,
-    const SeedingHitSet & ordered,
+    const SeedingHitSet & hits,
     const TrackingRegion & region,
     const edm::EventSetup& es)
 {
-  const SeedingHitSet::Hits & hits = ordered.hits(); 
   if ( hits.size() < 2) return 0;
 
   GlobalTrajectoryParameters kine = initialKinematic(hits, region, es);
@@ -39,14 +38,14 @@ const TrajectorySeed * SeedFromConsecutiveHitsCreator::trajectorySeed(
 
 
 GlobalTrajectoryParameters SeedFromConsecutiveHitsCreator::initialKinematic(
-      const SeedingHitSet::Hits & hits, 
+      const SeedingHitSet & hits, 
       const TrackingRegion & region, 
       const edm::EventSetup& es) const
 {
   GlobalTrajectoryParameters kine;
 
-  const TransientTrackingRecHit::ConstRecHitPointer& tth1 = hits[0];
-  const TransientTrackingRecHit::ConstRecHitPointer& tth2 = hits[1];
+  TransientTrackingRecHit::ConstRecHitPointer tth1 = hits[0];
+  TransientTrackingRecHit::ConstRecHitPointer tth2 = hits[1];
 
   const GlobalPoint& vertexPos = region.origin();
   FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, es);
@@ -95,7 +94,7 @@ CurvilinearTrajectoryError SeedFromConsecutiveHitsCreator::
 
 const TrajectorySeed * SeedFromConsecutiveHitsCreator::buildSeed(
     TrajectorySeedCollection & seedCollection,
-    const SeedingHitSet::Hits & hits,
+    const SeedingHitSet & hits,
     const FreeTrajectoryState & fts,
     const edm::EventSetup& es) const
 {
@@ -118,13 +117,13 @@ const TrajectorySeed * SeedFromConsecutiveHitsCreator::buildSeed(
   
   const TrackingRecHit* hit = 0;
   for ( unsigned int iHit = 0; iHit < hits.size(); iHit++) {
-    hit = hits[iHit];
+    hit = hits[iHit]->hit();
     TrajectoryStateOnSurface state = (iHit==0) ? 
       propagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface())
       : propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
     if (!state.isValid()) return 0;
     
-    const TransientTrackingRecHit::ConstRecHitPointer& tth = hits[iHit]; 
+    TransientTrackingRecHit::ConstRecHitPointer tth = hits[iHit]; 
     
     TransientTrackingRecHit::RecHitPointer newtth = refitHit( tth, state);
 

@@ -101,9 +101,9 @@ void SimpleCosmicBONSeeder::produce(edm::Event& ev, const edm::EventSetup& es)
 
              if (writeTriplets_) {
                  for (OrderedHitTriplets::const_iterator it = hitTriplets.begin(); it != hitTriplets.end(); ++it) {
-                     const TrackingRecHit * hit1 = it->inner();    
-                     const TrackingRecHit * hit2 = it->middle();
-                     const TrackingRecHit * hit3 = it->outer();
+                     const TrackingRecHit * hit1 = it->inner()->hit();    
+                     const TrackingRecHit * hit2 = it->middle()->hit();
+                     const TrackingRecHit * hit3 = it->outer()->hit();
                      outtriplets->push_back(hit1->clone());
                      outtriplets->push_back(hit2->clone());
                      outtriplets->push_back(hit3->clone());
@@ -454,8 +454,11 @@ bool SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::E
 
         if ( (outer.y()-inner.y())*outer.y() < 0 ) {
             std::swap(inner,outer);
-            std::swap(const_cast<ctfseeding::SeedingHit &>(trip.inner()), 
-                      const_cast<ctfseeding::SeedingHit &>(trip.outer()) );
+            std::swap(const_cast<TransientTrackingRecHit::ConstRecHitPointer &>(trip.inner()),
+                      const_cast<TransientTrackingRecHit::ConstRecHitPointer &>(trip.outer()) );
+
+//            std::swap(const_cast<ctfseeding::SeedingHit &>(trip.inner()), 
+//                      const_cast<ctfseeding::SeedingHit &>(trip.outer()) );
             if (seedVerbosity_ > 1) {
                 std::cout << "The seed was going away from CMS! swapped in <-> out" << std::endl;
                 std::cout << "Processing swapped triplet " << it << ": " << inner << " + " << middle << " + " << outer << std::endl;
@@ -511,10 +514,11 @@ bool SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::E
         }
        
         edm::OwnVector<TrackingRecHit> hits;
-        OrderedHitTriplet::Hits seedHits;
-        seedHits.push_back(trip.outer()); 
-        seedHits.push_back(trip.middle()); 
-        seedHits.push_back(trip.inner()); 
+//      OrderedHitTriplet::Hits seedHits;
+        OrderedHitTriplet::RecHits seedHits;
+        seedHits.push_back(trip.outer());
+        seedHits.push_back(trip.middle());
+        seedHits.push_back(trip.inner());
         TSOS propagated, updated;
         bool fail = false;
         for (size_t ih = 0; ih < 3; ++ih) {

@@ -11,16 +11,25 @@ public:
   typedef ctfseeding::SeedingHit OuterHit;
   typedef ctfseeding::SeedingHit InnerHit;
 
+  typedef TransientTrackingRecHit::ConstRecHitPointer OuterRecHit; 
+  typedef TransientTrackingRecHit::ConstRecHitPointer InnerRecHit; 
+
+  OrderedHitPair( const InnerRecHit & ih, const OuterRecHit & oh) 
+  {
+    theRecHits.push_back(ih);
+    theRecHits.push_back(oh);
+  }
+
   OrderedHitPair( const InnerHit & ih, const OuterHit & oh)
   {
-    theHits.push_back(ih);
-    theHits.push_back(oh);
+    add(ih);
+    add(oh);
   }
 
   virtual ~OrderedHitPair() {}
 
-  const InnerHit & inner() const { return theHits.front(); }
-  const OuterHit & outer() const { return theHits.back(); } 
+  const InnerRecHit & inner() const { return theRecHits.front(); }
+  const OuterRecHit & outer() const { return theRecHits.back(); } 
 };
 
 #endif

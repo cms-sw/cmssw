@@ -70,11 +70,11 @@ void SeedGeneratorForCRack::seeds(TrajectorySeedCollection &output,
     GlobalPoint outer = tracker->idToDet((*(HitPairs[is].outer())).geographicalId())->surface().toGlobal((*(HitPairs[is].outer())).localPosition());
     
     LogDebug("CosmicSeedFinder") <<"inner point of the seed "<<inner <<" outer point of the seed "<<outer; 
-    TransientTrackingRecHit::ConstRecHitPointer inrhit=TTTRHBuilder->build(HitPairs[is].inner());
-    TransientTrackingRecHit::ConstRecHitPointer outrhit = TTTRHBuilder->build((HitPairs[is].outer()));
+    TransientTrackingRecHit::ConstRecHitPointer inrhit=TTTRHBuilder->build(HitPairs[is].inner()->hit());
+    TransientTrackingRecHit::ConstRecHitPointer outrhit = TTTRHBuilder->build(HitPairs[is].outer()->hit());
 
     edm::OwnVector<TrackingRecHit> hits;
-    hits.push_back((*(HitPairs[is].outer())).clone());
+    hits.push_back(HitPairs[is].outer()->hit()->clone());
 
     for (int i=0;i<2;i++){
       //FIRST STATE IS CALCULATED CONSIDERING THAT THE CHARGE CAN BE POSITIVE OR NEGATIVE
@@ -87,7 +87,7 @@ void SeedGeneratorForCRack::seeds(TrajectorySeedCollection &output,
 				       predsign, 
 				       &(*magfield));
 	AlgebraicSymMatrix errMatrix = AlgebraicSymMatrix(5,1);
-	TSOS innerState = TSOS(Gtp, CurvilinearTrajectoryError(errMatrix), tracker->idToDet(((const TrackingRecHit *)HitPairs[is].inner())->geographicalId())->surface());
+	TSOS innerState = TSOS(Gtp, CurvilinearTrajectoryError(errMatrix), tracker->idToDet((HitPairs[is].inner()->hit())->geographicalId())->surface());
 	const TSOS innerUpdated = theUpdator->update(innerState, *inrhit);
 	//Cosmic Seed update inner...
 	LogDebug("CosmicSeedFinder") << " FirstTSOS " << innerUpdated;
@@ -122,7 +122,7 @@ void SeedGeneratorForCRack::seeds(TrajectorySeedCollection &output,
 				       predsign, 
 				       &(*magfield));
 	AlgebraicSymMatrix errMatrix = AlgebraicSymMatrix(5,1);
-	TSOS innerState = TSOS(Gtp, CurvilinearTrajectoryError(errMatrix), tracker->idToDet(((const TrackingRecHit *)HitPairs[is].inner())->geographicalId())->surface());
+	TSOS innerState = TSOS(Gtp, CurvilinearTrajectoryError(errMatrix), tracker->idToDet((HitPairs[is].inner()->hit())->geographicalId())->surface());
 	const TSOS innerUpdated = theUpdator->update(innerState, *inrhit);
 	LogDebug("CosmicSeedFinder") << " FirstTSOS "<< innerState;
 	
