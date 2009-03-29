@@ -63,7 +63,7 @@ float EcalClusterLocalContCorrection::getValue( const reco::SuperCluster & super
   //Beware: The user should make sure it only uses this correction factor for unconverted photons (or not breming electrons)
 
 
-  const reco::BasicClusterRef & seedbclus =  superCluster.seed();
+  const reco::CaloClusterPtr & seedbclus =  superCluster.seed();
   
   //If not barrel, return 1:
   if (TMath::Abs(seedbclus->eta()) >1.4442 ) return 1.;
