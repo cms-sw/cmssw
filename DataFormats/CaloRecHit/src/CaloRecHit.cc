@@ -4,7 +4,7 @@
 CaloRecHit::CaloRecHit() : energy_(0), time_(0), flags_(0) {
 }
 
-CaloRecHit::CaloRecHit(const DetId& id, float energy, float time) : id_(id),energy_(energy), time_(time), flags_(0) {
+CaloRecHit::CaloRecHit(const DetId& id, float energy, float time, uint32_t flags) : id_(id),energy_(energy), time_(time), flags_(flags) {
 }
 
 CaloRecHit::~CaloRecHit() {
