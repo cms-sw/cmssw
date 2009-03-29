@@ -78,7 +78,7 @@ void SiStripLAProfileBooker::beginJob(const edm::EventSetup& c){
   tracker=&(*estracker); 
 
   std::vector<uint32_t> activeDets;
-  edm::ESHandle<SiStripDetCabling> tkmechstruct=0;
+  edm::ESHandle<SiStripDetCabling> tkmechstruct(0);
   if (conf_.getParameter<bool>("UseStripCablingDB")){ 
     c.get<SiStripDetCablingRcd>().get(tkmechstruct);
     activeDets.clear();
