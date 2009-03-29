@@ -121,54 +121,52 @@ float EcalClusterEnergyCorrection::fEtEta(float et, float eta, int algorithm) co
 
 float EcalClusterEnergyCorrection::getValue( const reco::SuperCluster & superCluster, const int mode ) const
 {
-  // mode = 0; apply all corrections
-  // mode = 1; apply only f(brem)+f(eta) corrections
-
-        checkInit();
-
-	int algorithm = -1; // -1: not defined, 0 -- EB, 1 -- EE+ES
-
-	float eta = fabs(superCluster.eta()); 
-	float brem = superCluster.phiWidth()/superCluster.etaWidth(); 
-
-	float correctedEnergy = 0;
-
-	if ( superCluster.algoID() == reco::CaloCluster::hybrid || superCluster.algoID() == reco::CaloCluster::dynamicHybrid ) {
-	  // algorithm: Barrel
-	  algorithm = 0;
-
-	  float energy = superCluster.rawEnergy(); 
-
-	  // first apply shower leakage corrections
-	  correctedEnergy = fEta(energy, eta, algorithm);
-
-	  // now apply F(brem)
-	  correctedEnergy = fBrem(correctedEnergy, brem, algorithm);
-
-	  if ( mode == 0 ) {
-	    float correctedEt = correctedEnergy/cosh(eta);
-	    correctedEt = fEtEta(correctedEt, eta, algorithm);
-	    correctedEnergy = correctedEt*cosh(eta);
-	  }
-	} else if ( superCluster.algoID() == reco::CaloCluster::multi5x5 ) {
-	  algorithm = 1;
-
-	  float energy = superCluster.rawEnergy() + superCluster.preshowerEnergy(); 
-
-	  correctedEnergy = fBrem(energy, brem, algorithm);
-
-	  if ( mode == 0 ) {
-	    float correctedEt = correctedEnergy/cosh(eta);
-	    correctedEt = fEtEta(correctedEt, eta, algorithm);
-	    correctedEnergy = correctedEt*cosh(eta);
-	  }
-	} else {
-
-	  // perform no correction
-	  correctedEnergy = superCluster.energy();
-	}
-	
-	return correctedEnergy;
+  // mode = 0; hybrid
+  // mode = 1; multi5x5
+  
+  checkInit();
+  
+  int algorithm = -1; // -1: not defined, 0 -- EB, 1 -- EE+ES
+  
+  float eta = fabs(superCluster.eta()); 
+  float brem = superCluster.phiWidth()/superCluster.etaWidth(); 
+  
+  float correctedEnergy = 0;
+  
+  if ( mode == 0 ) {
+    // algorithm: hybrid
+    algorithm = 0;
+    
+    float energy = superCluster.rawEnergy(); 
+    
+    // first apply shower leakage corrections
+    correctedEnergy = fEta(energy, eta, algorithm);
+    
+    // now apply F(brem)
+    correctedEnergy = fBrem(correctedEnergy, brem, algorithm);
+    
+    float correctedEt = correctedEnergy/cosh(eta);
+    correctedEt = fEtEta(correctedEt, eta, algorithm);
+    correctedEnergy = correctedEt*cosh(eta);
+    
+  } else if ( mode == 1 ) {
+    algorithm = 1;
+    
+    float energy = superCluster.rawEnergy() + superCluster.preshowerEnergy(); 
+    
+    correctedEnergy = fBrem(energy, brem, algorithm);
+    
+    float correctedEt = correctedEnergy/cosh(eta);
+    correctedEt = fEtEta(correctedEt, eta, algorithm);
+    correctedEnergy = correctedEt*cosh(eta);
+    
+  } else {
+    
+    // perform no correction
+    correctedEnergy = superCluster.energy();
+  }
+  
+  return correctedEnergy;
 }
 
 
