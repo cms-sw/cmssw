@@ -1,7 +1,8 @@
 def initCondDBSource( process,
                       inputDBConnect = 'frontier://FrontierPrep/CMS_COND_L1T',
                       inputDBAuth = '.',
-                      tagBase = 'CRAFT_hlt' ):
+                      tagBase = 'CRAFT_hlt',
+                      use30XTagList = False ):
     import FWCore.ParameterSet.Config as cms
     from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
 
@@ -20,7 +21,10 @@ def initCondDBSource( process,
                             )
     process.l1conddb.DBParameters.authenticationPath = inputDBAuth
 
-    from CondTools.L1Trigger.L1SubsystemParams_cfi import initL1Subsystems
+    if use30XTagList == True:
+        from CondTools.L1Trigger.L1SubsystemParams30X_cfi import initL1Subsystems
+    else:
+        from CondTools.L1Trigger.L1SubsystemParams_cfi import initL1Subsystems
     initL1Subsystems( tagBase = tagBase )
     process.l1conddb.toGet.extend(initL1Subsystems.params.recordInfo)
 
