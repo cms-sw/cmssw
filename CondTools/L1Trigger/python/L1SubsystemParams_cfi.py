@@ -1,5 +1,5 @@
 def initL1Subsystems( tagBase = 'IDEAL',
-                           objectKey = 'dummy' ):
+                      objectKey = 'dummy' ):
 
     import FWCore.ParameterSet.Config as cms
 
@@ -17,18 +17,18 @@ def initL1Subsystems( tagBase = 'IDEAL',
             type = cms.string('L1CaloEtScale'),
             key = cms.string(objectKey)
         ), 
-#        cms.PSet(
-#            record = cms.string('L1HtMissScaleRcd'),
-#            tag = cms.string('L1HtMissScale_' + tagBase),
-#            type = cms.string('L1CaloEtScale'),
-#            key = cms.string(objectKey)
-#        ), 
-#        cms.PSet(
-#            record = cms.string('L1HfRingEtScaleRcd'),
-#            tag = cms.string('L1HfRingEtScale_' + tagBase),
-#            type = cms.string('L1CaloEtScale'),
-#            key = cms.string(objectKey)
-#        ), 
+        cms.PSet(
+            record = cms.string('L1HtMissScaleRcd'),
+            tag = cms.string('L1HtMissScale_' + tagBase),
+            type = cms.string('L1CaloEtScale'),
+            key = cms.string(objectKey)
+        ), 
+        cms.PSet(
+            record = cms.string('L1HfRingEtScaleRcd'),
+            tag = cms.string('L1HfRingEtScale_' + tagBase),
+            type = cms.string('L1CaloEtScale'),
+            key = cms.string(objectKey)
+        ), 
         cms.PSet(
             record = cms.string('L1MuTriggerScalesRcd'),
             tag = cms.string('L1MuTriggerScales_' + tagBase),
@@ -107,12 +107,12 @@ def initL1Subsystems( tagBase = 'IDEAL',
             type = cms.string('L1RPCConfig'),
             key = cms.string(objectKey)
         ), 
-#        cms.PSet(
-#            record = cms.string('L1RPCConeDefinitionRcd'),
-#            tag = cms.string('L1RPCConeDefinition_' + tagBase),
-#            type = cms.string('L1RPCConeDefinition'),
-#            key = cms.string(objectKey)
-#        ),
+        cms.PSet(
+            record = cms.string('L1RPCConeDefinitionRcd'),
+            tag = cms.string('L1RPCConeDefinition_' + tagBase),
+            type = cms.string('L1RPCConeDefinition'),
+            key = cms.string(objectKey)
+        ),
         cms.PSet(
             record = cms.string('L1MuGMTParametersRcd'),
             tag = cms.string('L1MuGMTParameters_' + tagBase),
