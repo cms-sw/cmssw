@@ -30,9 +30,13 @@ EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
     adcToGeVEEConstant = cms.untracked.double(0.06),
     # cluster functions/corrections -- by default no parameters are passed
     producedEcalClusterLocalContCorrParameters = cms.untracked.bool(True),
-    localContCorrParameters = cms.untracked.vdouble( ),
+    localContCorrParameters = cms.untracked.vdouble( 
+            1.00365, 0.0007179, -0.008303, 0.01116, -0.1057, 1.00362, 0.0006617, -0.005505, -0.01044, -0.1770, 1.0035),
     producedEcalClusterCrackCorrParameters = cms.untracked.bool(True),
-    crackCorrParameters = cms.untracked.vdouble( ),
+    crackCorrParameters = cms.untracked.vdouble( 
+            0.9933, -0.01813, -0.03359, -0.09972, -0.2889, 0.9909, 0.04019, 
+            -0.1095, 0.2401, -0.3412, 0.9942, -0.01245, -0.03002, -0.1098, 
+            -0.2777, 0.9981, 0.01087, -0.01359, 0.06212, -0.354),
     mappingFile = cms.untracked.string('Geometry/EcalMapping/data/EEMap.txt'),
     producedEcalMappingElectronics = cms.untracked.bool(True)
     energyUncertaintyParameters = cms.untracked.vdouble(
