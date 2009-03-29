@@ -41,7 +41,7 @@ ifeq ($(shell uname), Linux)
 else 
    ifeq ($(shell uname), Darwin)
       MAKESHAREDLIB := -dynamiclib
-      ExecLibs = -lEve -lRint -lRGL -lCore -lGUI -lRIO -lNet -L./ -l$(LibProject) -l$(LibCore) -lCore
+      ExecLibs = -lEve -lRGL -lCore -lGUI -lRIO -lNet -L./ -l$(LibProject) -l$(LibCore) -lCore
       ExtraProjectLibs = -lEve -lGeom -lGeomPainter -lGraf3d \
 		 -lGui -lGpad -lGraf -lHist -lPhysics -lGed -lEG -lTree \
 		-lTreePlayer -lRGL -lFTGL -lNet -lRIO -lRint -lRGL -lGui -lCore \
@@ -107,8 +107,8 @@ lib$(LibProject).$(SO_EXT): $(ProjectObjects) $(ProjectRootDicObjects) $(Project
 
 include common.mk
 
-#project.mk: extractCMSDataFormats.pl $(ProjectBuildFiles)
-	#$(QUIET) ./extractCMSDataFormats.pl --mode project --dir ./
+project.mk: extractCMSDataFormats.pl $(ProjectBuildFiles)
+	$(QUIET) ./extractCMSDataFormats.pl --mode project --dir ./
 
 # # check dependencies
 # tmp/%.d:  %.cc check_dependencies.pl
