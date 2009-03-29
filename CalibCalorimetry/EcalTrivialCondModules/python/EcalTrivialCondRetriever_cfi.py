@@ -38,7 +38,7 @@ EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
             -0.1095, 0.2401, -0.3412, 0.9942, -0.01245, -0.03002, -0.1098, 
             -0.2777, 0.9981, 0.01087, -0.01359, 0.06212, -0.354),
     mappingFile = cms.untracked.string('Geometry/EcalMapping/data/EEMap.txt'),
-    producedEcalMappingElectronics = cms.untracked.bool(True)
+    producedEcalMappingElectronics = cms.untracked.bool(True),
     energyUncertaintyParameters = cms.untracked.vdouble(
             0.002793, 0.000908,  0.23592,   0.04446,
             0.02463, -0.001782, -0.343492, -0.017968,
