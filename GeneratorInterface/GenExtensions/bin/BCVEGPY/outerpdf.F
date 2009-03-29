@@ -130,29 +130,41 @@ c                             ********************
       subroutine setctq6 (iset)
       implicit double precision (a-h,o-z)
       parameter (isetmax0=5)
-      character flnm(isetmax0)*6, nn*3, tablefile*40
+      character flnm(isetmax0)*6, nn*3, tablefile*120
       data (flnm(i), i=1,isetmax0)
      > / 'cteq6m', 'cteq6d', 'cteq6l', 'cteq6l','ctq61.'/
       data isetold, isetmin0, isetmin1, isetmax1 /-987,1,100,140/
       data isetmin2,isetmax2 /200,240/
       save
 c             if data file not initialized, do so.
+      character cmsdir*82
+      call getenv('CMSSW_BASE',cmsdir)
+      kspace=index(cmsdir,' ')
       if(iset.ne.isetold) then
          iu= nextun()
          if (iset.ge.isetmin0 .and. iset.le.3) then
-            tablefile='../data/'//flnm(iset)//'.tbl'
+            tablefile=cmsdir(1:kspace-1)
+     $           //'/src/GeneratorInterface/GenExtensions/data/'
+     $           //flnm(iset)//'.tbl'
          elseif (iset.eq.4) then
-            tablefile='../data/'//flnm(iset)//'1.tbl'
+            tablefile=cmsdir(1:kspace-1)
+     $           //'/src/GeneratorInterface/GenExtensions/data/'
+     $           //flnm(iset)//'1.tbl'
          elseif (iset.ge.isetmin1 .and. iset.le.isetmax1) then
             write(nn,'(i3)') iset
-            tablefile='../data/'//flnm(1)//nn//'.tbl'
+            tablefile=cmsdir(1:kspace-1)
+     $           //'/src/GeneratorInterface/GenExtensions/data/'
+     $           //flnm(1)//nn//'.tbl'
          elseif (iset.ge.isetmin2 .and. iset.le.isetmax2) then
             write(nn,'(i3)') iset
-            tablefile='../data/'//flnm(5)//nn(2:3)//'.tbl'
+            tablefile=cmsdir(1:kspace-1)
+     $           //'/src/GeneratorInterface/GenExtensions/data/'
+     $           //flnm(5)//nn(2:3)//'.tbl'
          else
             print *, 'invalid iset number in setctq6 :', iset
             stop
          endif
+c        print *, 'pdf file ', tablefile	 
          open(iu, file=tablefile, status='old', err=100)
  21      call readtbl (iu)
          close (iu)
