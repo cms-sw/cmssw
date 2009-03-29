@@ -16,6 +16,9 @@
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h" 
+
 #include <string>
 
 EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
@@ -66,6 +69,9 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
 
   // instanciate the correction algo object
   energyCorrector_ = new EgammaSCEnergyCorrectionAlgo(sigmaElectronicNoise_, sCAlgo_, fCorrPset, verbosity_);
+
+  // energy correction class
+  EnergyCorrection_ = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps);
 }
 
 EgammaSCCorrectionMaker::~EgammaSCCorrectionMaker()
@@ -77,6 +83,9 @@ void
 EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   using namespace edm;
+
+  // initialize energy correction class
+  EnergyCorrection_->init(es);
 
   // get the collection geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
@@ -129,7 +138,7 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
     {
       reco::SuperCluster newClus;
       if(applyEnergyCorrection_) {
-        newClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_, geometry_p);
+        newClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_, geometry_p, EnergyCorrection_);
       }
 
       if(newClus.energy()*sin(newClus.position().theta())>etThresh_) {

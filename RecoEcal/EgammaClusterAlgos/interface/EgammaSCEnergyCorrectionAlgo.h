@@ -11,6 +11,8 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h" 
 
 #include <map>
 #include <string>
@@ -30,7 +32,11 @@ class EgammaSCEnergyCorrectionAlgo
     ~EgammaSCEnergyCorrectionAlgo();
 
     // take a SuperCluster and return a corrected SuperCluster
-    reco::SuperCluster applyCorrection(const reco::SuperCluster &cl, const EcalRecHitCollection &rhc, reco::CaloCluster::AlgoId theAlgo, const CaloSubdetectorGeometry* geometry);
+    reco::SuperCluster applyCorrection(const reco::SuperCluster &cl, 
+				       const EcalRecHitCollection &rhc, 
+				       reco::CaloCluster::AlgoId theAlgo, 
+				       const CaloSubdetectorGeometry* geometry,
+				       EcalClusterFunctionBaseClass* EnergyCorrectionClass);
  
     // function to set the verbosity level
     void setVerbosity(VerbosityLevel verbosity)
@@ -39,12 +45,6 @@ class EgammaSCEnergyCorrectionAlgo
     }
  
   private:
-    // shower leakage corrections
-    double fEta(double e, double eta);
-    // F(brem) correction with brem = phiWidth/etaWidth
-    double fBrem(double e, double brem);
-    // F(et, eta) correction
-    double fEtEta(double et, double eta);
 
     // correction factor as a function of number of crystals,
     // BasicCluster algo and location in the detector    
@@ -62,12 +62,6 @@ class EgammaSCEnergyCorrectionAlgo
     VerbosityLevel verbosity_;
 
     reco::CaloCluster::AlgoId theAlgo_;
-
-    //Paramete sets for corrections functions
-    std::vector<double> fBrem_; 
-    std::vector<double> fEtEta_; 
-    double brLinearLowThr_;
-    double brLinearHighThr_;
 
 };
 

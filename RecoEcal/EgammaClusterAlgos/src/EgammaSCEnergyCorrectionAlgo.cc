@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.35 2009/03/18 13:17:45 ymaravin Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.36 2009/03/25 17:31:16 ferriff Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -19,11 +19,6 @@ EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(double noise,
   verbosity_ = verbosity;
   recHits_m = new std::map<DetId, EcalRecHit>();
   
-  fBrem_ = pset.getParameter<std::vector<double> >("fBremVec");  
-  fEtEta_ = pset.getParameter<std::vector<double> >("fEtEtaVec");
-  brLinearLowThr_ = pset.getParameter<double>("brLinearLowThr");
-  brLinearHighThr_ = pset.getParameter<double>("brLinearHighThr");
-
 }
 
 EgammaSCEnergyCorrectionAlgo::~EgammaSCEnergyCorrectionAlgo()
@@ -33,7 +28,8 @@ EgammaSCEnergyCorrectionAlgo::~EgammaSCEnergyCorrectionAlgo()
 }
 
 reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl, 
-								 const EcalRecHitCollection &rhc, reco::CaloCluster::AlgoId theAlgo, const CaloSubdetectorGeometry* geometry)
+								 const EcalRecHitCollection &rhc, reco::CaloCluster::AlgoId theAlgo, const CaloSubdetectorGeometry* geometry,
+								 EcalClusterFunctionBaseClass* EnergyCorrection)
 {	
 
   // Insert the recHits into map	
@@ -118,33 +114,28 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   //as a function of number of crystals in the seed basiccluster for Endcap 
   //or apply new Enegry SCale correction
   float newEnergy = 0;
-  
+
+  reco::SuperCluster tmp = cl;
+  tmp.setPhiWidth(phiWidth); 
+  tmp.setEtaWidth(etaWidth); 
+    
   if ( theAlgo == reco::CaloCluster::hybrid || theAlgo == reco::CaloCluster::dynamicHybrid ) {
-    // first apply shower lekeage corrections
-    newEnergy = fEta(cl.energy(), cl.eta());
-    // now apply F(brem)
-    newEnergy = fBrem(newEnergy, phiWidth/etaWidth);
-    // now apply F(Et, eta)
-    double eT = newEnergy/cosh(cl.eta());
-    eT = fEtEta(eT, cl.eta());
-    newEnergy = eT*cosh(cl.eta());
+    newEnergy = EnergyCorrection->getValue(tmp, 0);
+
   } else if  ( theAlgo == reco::CaloCluster::multi5x5 ) {     
-    newEnergy = fBrem(cl.energy(), phiWidth/etaWidth);
-    double eT = newEnergy/cosh(cl.eta());
-    eT = fEtEta(eT, cl.eta());
-    newEnergy = eT*cosh(cl.eta());
+    newEnergy = EnergyCorrection->getValue(tmp, 1);
+
   } else {  
     //Apply f(nCry) correction on island algo and fixedMatrix algo 
     newEnergy = seedC->energy()/fNCrystals(nCryGT2Sigma, theAlgo, theBase)+bremsEnergy;
   } 
-    
 
   // Create a new supercluster with the corrected energy 
   if (verbosity_ <= pINFO)
-  {
-  std::cout << "   UNCORRECTED SC has energy... " << cl.energy() << std::endl;
-  std::cout << "   CORRECTED SC has energy... " << newEnergy << std::endl;
-  }
+    {
+      std::cout << "   UNCORRECTED SC has energy... " << cl.energy() << std::endl;
+      std::cout << "   CORRECTED SC has energy... " << newEnergy << std::endl;
+    }
 
   reco::SuperCluster corrCl(newEnergy, 
     math::XYZPoint(cl.position().X(), cl.position().Y(), cl.position().Z()),
@@ -158,92 +149,6 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
  
   delete SCShape;
   return corrCl;
-}
-
-//Energy Correction functions
-//
-double EgammaSCEnergyCorrectionAlgo::fBrem(double e, double brLinear) 
-{
-  // brLinear == phiWidth/etaWidth of the SuperCluster
-  // e  == energy of the SuperCluster
-    // first parabola (for br > threshold)
-    // p0 + p1*x + p2*x^2
-    // second parabola (for br <= threshold)
-    // ax^2 + bx + c, make y and y' the same in threshold
-    // y = p0 + p1*threshold + p2*threshold^2 
-    // yprime = p1 + 2*p2*threshold
-    // a = p3
-    // b = yprime - 2*a*threshold
-    // c = y - a*threshold^2 - b*threshold
-    
-  //Make No Corrections if brLinear is invalid!
-  if ( brLinear == 0 ) return e;
-
-  //Make flat corection if brLinear is too small or big 
-  if ( brLinear < brLinearLowThr_ ) brLinear = brLinearLowThr_;  
-  if ( brLinear > brLinearHighThr_ ) brLinear = brLinearHighThr_; 
-
-  //Parameters provided in cfg file
-  double p0 = fBrem_[0]; 
-  double p1 = fBrem_[1]; 
-  double p2 = fBrem_[2]; 
-  double p3 = fBrem_[3]; 
-  double p4 = fBrem_[4]; 
-  //
-  double threshold = p4; 
-  
-  double y = p0*threshold*threshold + p1*threshold + p2;
-  double yprime = 2*p0*threshold + p1;
-  double a = p3;
-  double b = yprime - 2*a*threshold;
-  double c = y - a*threshold*threshold - b*threshold;
-  
-  double fCorr = 1;
-  if ( brLinear < threshold ) 
-    fCorr = p0*brLinear*brLinear + p1*brLinear + p2;
-  else 
-    fCorr = a*brLinear*brLinear + b*brLinear + c;
-
-  return e/fCorr;
-}  
-
-double EgammaSCEnergyCorrectionAlgo::fEtEta(double et, double eta)
-{
-  // et -- Et of the SuperCluster (with respect to (0,0,0))
-  // eta -- eta of the SuperCluster
-
-  double fCorr = 0.;
-
-  // Barrel
-  if (fEtEta_[0] == 0 ) {
-    double p0 = fEtEta_[1]  + fEtEta_[2]/ (et + fEtEta_[3]) + fEtEta_[4]/(et*et); 
-    double p1 = fEtEta_[5]  + fEtEta_[6]/ (et + fEtEta_[7]) + fEtEta_[8]/(et*et); 
-
-    fCorr = p0 +  p1 * atan(fEtEta_[9]*(fEtEta_[10]-fabs(eta))) + fEtEta_[11] * fabs(eta);
-
-  } else { // Endcap
-    double p0 = fEtEta_[1] + fEtEta_[2]/sqrt(et);
-    double p1 = fEtEta_[3] + fEtEta_[4]/sqrt(et);
-    double p2 = fEtEta_[5] + fEtEta_[6]/sqrt(et);
-    double p3 = fEtEta_[7] + fEtEta_[8]/sqrt(et);
- 
-    fCorr = p0 + p1*fabs(eta) + p2*eta*eta + p3/fabs(eta);
-  }
-
-  if ( fCorr < 0.5 ) fCorr = 0.5; 
-  if ( fCorr > 1.5 ) fCorr = 1.5;  
-
-  return et/fCorr;
-}
-
-double EgammaSCEnergyCorrectionAlgo::fEta( double e, double eta )
-{
-  double ieta = fabs(eta)*(5/0.087);
-  double p0 = 40.2198;
-  double p1 = -3.03103e-6;
-
-  if ( ieta < p0 ) return e/1.0;
-  else return e/(1 + p1*(ieta - p0)*(ieta - p0));
 }
 
 float EgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase)

@@ -14,7 +14,7 @@
 //
 // Original Author:  Dave Evans
 //         Created:  Thu Apr 13 15:50:17 CEST 2006
-// $Id: EgammaSCCorrectionMaker.h,v 1.8 2008/03/18 12:38:34 dlevans Exp $
+// $Id: EgammaSCCorrectionMaker.h,v 1.9 2009/03/25 17:50:24 ferriff Exp $
 //
 //
 
@@ -29,6 +29,8 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h" 
 
 class EgammaSCCorrectionMaker : public edm::EDProducer {
 	
@@ -38,6 +40,8 @@ class EgammaSCCorrectionMaker : public edm::EDProducer {
      virtual void produce(edm::Event&, const edm::EventSetup&);
 
    private:
+
+     EcalClusterFunctionBaseClass* EnergyCorrection_;
 
      // the debug level
      EgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity_;
