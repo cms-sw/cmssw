@@ -101,12 +101,9 @@ void PixelTripletLargeTipGenerator::hitTriplets(
 
   for(OrderedHitPairs::const_iterator ip = pairs.begin();
       ip != pairs.end(); ++ip) {
-    const TrackingRecHit *h1 = ip->inner();
-    const TrackingRecHit *h2 = ip->outer();
-    GlobalPoint gp1 = tracker->idToDet( 
-        h1->geographicalId())->surface().toGlobal(h1->localPosition());
-    GlobalPoint gp2 = tracker->idToDet( 
-        h2->geographicalId())->surface().toGlobal(h2->localPosition());
+
+    GlobalPoint gp1 = ip->inner()->globalPosition();
+    GlobalPoint gp2 = ip->inner()->globalPosition();
 
     PixelRecoLineRZ line(gp1, gp2);
     PixelRecoPointRZ point2(gp2.perp(), gp2.z());
@@ -186,7 +183,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(
 
       Range phiRange;
       if (useFixedPreFiltering) { 
-        float phi0 = ip->outer().phi();
+        float phi0 = ip->outer()->globalPosition().phi();
         phiRange = Range(phi0 - dphi, phi0 + dphi);
       } else {
         Range radius;

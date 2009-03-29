@@ -97,8 +97,8 @@ void TripletGenerator::hitTriplets(
     vector<const TrackingRecHit*> recHits(3);
     vector<GlobalPoint> points(3);
 
-    recHits[0] = (*ip).inner();
-    recHits[1] = (*ip).outer();
+    recHits[0] = (*ip).inner()->hit();
+    recHits[1] = (*ip).outer()->hit();
 
 #ifdef Debug
     cerr << " RecHits " + HitInfo::getInfo(*recHits[0]) +

@@ -7,7 +7,6 @@
  */
 
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPair.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingHit.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 
 class OrderedHitTriplet : public SeedingHitSet {
@@ -17,15 +16,22 @@ public:
   typedef OrderedHitPair::OuterHit OuterHit;
   typedef ctfseeding::SeedingHit MiddleHit;
 
+  typedef OrderedHitPair::InnerRecHit InnerRecHit;
+  typedef OrderedHitPair::OuterRecHit OuterRecHit;
+  typedef TransientTrackingRecHit::ConstRecHitPointer MiddleRecHit;
+
+
   OrderedHitTriplet( const InnerHit & ih, const MiddleHit & mh, const OuterHit & oh) {
-    theHits.push_back(ih);
-    theHits.push_back(mh);
-    theHits.push_back(oh);
+    add(ih); add(mh); add(oh);
   } 
 
-  const InnerHit  &  inner() const { return theHits[0]; }
-  const MiddleHit & middle() const { return theHits[1]; }
-  const OuterHit  &  outer() const { return theHits[2]; }
+  OrderedHitTriplet( const InnerRecHit & ih, const MiddleRecHit & mh, const OuterRecHit & oh) {
+    add(ih); add(mh); add(oh);
+  }
+
+  const InnerRecHit  &  inner() const { return theRecHits[0]; }
+  const MiddleRecHit & middle() const { return theRecHits[1]; }
+  const OuterRecHit  &  outer() const { return theRecHits[2]; }
 
 };
 

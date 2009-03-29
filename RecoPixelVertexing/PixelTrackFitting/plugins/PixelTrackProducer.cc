@@ -103,7 +103,7 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 
       std::vector<const TrackingRecHit *> hits;
       for (unsigned int iHit = 0, nHits = triplet.size(); iHit < nHits; ++iHit) {
-        hits.push_back( triplet[iHit] );
+        hits.push_back( triplet[iHit]->hit() );
       }
 
       // fitting

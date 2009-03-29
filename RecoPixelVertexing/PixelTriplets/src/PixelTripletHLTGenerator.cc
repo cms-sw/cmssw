@@ -73,6 +73,7 @@ void PixelTripletHLTGenerator::hitTriplets(
 
   for (ip = pairs.begin(); ip != pairs.end(); ip++) {
   
+/*
     const TrackingRecHit * h1 = (*ip).inner();
     const TrackingRecHit * h2 = (*ip).outer();
 
@@ -80,6 +81,9 @@ void PixelTripletHLTGenerator::hitTriplets(
         h1->geographicalId())->surface().toGlobal(h1->localPosition());
     GlobalPoint gp2tmp = tracker->idToDet( 
         h2->geographicalId())->surface().toGlobal(h2->localPosition());
+*/
+    GlobalPoint gp1tmp = (*ip).inner()->globalPosition();
+    GlobalPoint gp2tmp = (*ip).outer()->globalPosition();
     GlobalPoint gp1(gp1tmp.x()-region.origin().x(), gp1tmp.y()-region.origin().y(), gp1tmp.z());
     GlobalPoint gp2(gp2tmp.x()-region.origin().x(), gp2tmp.y()-region.origin().y(), gp2tmp.z());
 
@@ -103,7 +107,7 @@ void PixelTripletHLTGenerator::hitTriplets(
       correction.correctRZRange(rzRange);
       Range phiRange;
       if (useFixedPreFiltering) { 
-        float phi0 = (*ip).outer().phi();
+        float phi0 = (*ip).outer()->globalPosition().phi();
         phiRange = Range(phi0-dphi,phi0+dphi);
       }
       else {

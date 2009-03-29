@@ -153,7 +153,7 @@ void PixelTrackProducerWithZPos::produce
   
       vector<const TrackingRecHit *> hits;
       for (unsigned int iHit = 0, nHits = triplet.size(); iHit < nHits; ++iHit)
-        hits.push_back( triplet[iHit] );
+        hits.push_back( triplet[iHit]->hit() );
   
       // Fitter
       reco::Track* track = theFitter->run(es, hits, region);
