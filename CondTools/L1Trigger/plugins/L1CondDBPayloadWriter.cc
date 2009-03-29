@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 07:05:15 CET 2008
-// $Id: L1CondDBPayloadWriter.cc,v 1.10 2008/12/15 21:07:42 wsun Exp $
+// $Id: L1CondDBPayloadWriter.cc,v 1.11 2009/03/18 18:23:48 wsun Exp $
 //
 //
 
@@ -106,6 +106,9 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 
    if( triggerKeyOK && m_writeL1TriggerKey )
      {
+       edm::LogVerbatim( "L1-O2O" )
+         << "Object key for L1TriggerKeyRcd@L1TriggerKey: "
+         << key->tscKey() ;
        token = m_writer.writePayload( iSetup,
 				      "L1TriggerKeyRcd@L1TriggerKey" ) ;
      }
@@ -151,6 +154,19 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 		      m_overwriteKeys )
 		    {
 		      // Write data to ORCON with no IOV
+		      if( oldKeyList->token( it->first, it->second ) != "" )
+			{
+			  edm::LogVerbatim( "L1-O2O" )
+			    << "*** Overwriting payload: object key for "
+			    << it->first << ": " << it->second ;
+			}
+		      else
+			{
+			  edm::LogVerbatim( "L1-O2O" )
+			    << "object key for "
+			    << it->first << ": " << it->second ;
+			}
+
 		      token = m_writer.writePayload( iSetup, it->first ) ;
 
 		      if( !token.empty() )

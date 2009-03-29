@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import FWCore.ParameterSet.VarParsing as VarParsing
 
 process = cms.Process("L1ConfigWriteIOVOnline")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -10,6 +9,7 @@ process.MessageLogger.debugModules = cms.untracked.vstring('*')
 # Get L1TriggerKeyList from DB
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
+import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing()
 options.register('tscKey',
                  '', #default value
@@ -39,8 +39,12 @@ options.register('outputDBAuth',
 options.parseArguments()
 
 # writer modules
-process.load("CondTools.L1Trigger.L1CondDBIOVWriter_cff")
-process.L1CondDBIOVWriter.tscKey = cms.string( options.tscKey )
+from CondTools.L1Trigger.L1CondDBIOVWriter_cff import initIOVWriter
+initIOVWriter( process,
+               outputDBConnect = options.outputDBConnect,
+               outputDBAuth = options.outputDBAuth,
+               tagBase = options.tagBase,
+               tscKey = options.tscKey )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

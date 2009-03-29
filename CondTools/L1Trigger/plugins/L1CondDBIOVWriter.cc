@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 20:09:46 CET 2008
-// $Id: L1CondDBIOVWriter.cc,v 1.9 2008/12/15 21:41:37 wsun Exp $
+// $Id: L1CondDBIOVWriter.cc,v 1.10 2009/03/18 18:23:48 wsun Exp $
 //
 //
 
@@ -92,6 +92,10 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
      {
        if( !m_tscKey.empty() )
 	 {
+           edm::LogVerbatim( "L1-O2O" )
+             << "Object key for L1TriggerKey@L1TriggerKeyRcd: "
+             << m_tscKey ;
+
 	   // Use TSC key and L1TriggerKeyList to find next run's
 	   // L1TriggerKey token
 	   std::string keyToken = keyList->token( m_tscKey ) ;
@@ -156,6 +160,10 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	   else
 	     {
 	       // Find payload token
+               edm::LogVerbatim( "L1-O2O" )
+                 << "Object key for "
+                 << recordType << ": " << objectKey ;
+
 	       std::string payloadToken = keyList->token( recordType,
 							  objectKey ) ;
 	       if( payloadToken.empty() )

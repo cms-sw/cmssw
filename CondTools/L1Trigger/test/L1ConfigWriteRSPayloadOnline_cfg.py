@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import FWCore.ParameterSet.VarParsing as VarParsing
 
 process = cms.Process("L1ConfigWriteRSPayloadOnline")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -7,6 +6,7 @@ process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
+import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing()
 options.register('tagBase',
                  'CRAFT_hlt', #default value
@@ -44,11 +44,12 @@ process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
 process.load("L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMaskAlgoTrigOnline_cfi")
 
 # writer modules
-process.load("CondTools.L1Trigger.L1CondDBPayloadWriter_cfi")
+from CondTools.L1Trigger.L1CondDBPayloadWriter_cff import initPayloadWriter
+initPayloadWriter( process,
+                   outputDBConnect = options.outputDBConnect,
+                   outputDBAuth = options.outputDBAuth,
+                   tagBase = options.tagBase )
 process.L1CondDBPayloadWriter.writeL1TriggerKey = cms.bool(False)
-process.L1CondDBPayloadWriter.offlineDB = options.outputDBConnect
-process.L1CondDBPayloadWriter.offlineAuthentication = options.outputDBAuth
-process.L1CondDBPayloadWriter.L1TriggerKeyListTag = cms.string( 'L1TriggerKeyList_' + options.tagBase )
 
 # Use highest possible run number so we always get the latest version
 # of L1TriggerKeyList.

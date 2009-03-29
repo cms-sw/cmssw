@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from CondTools.L1Trigger.L1SubsystemParams_cfi import *
 L1TriggerKeyDummy = cms.ESProducer("L1TriggerKeyDummyProd",
     objectKeys = cms.VPSet(),
     tscKey = cms.string('dummy'),
@@ -15,5 +14,6 @@ L1TriggerKeyDummy = cms.ESProducer("L1TriggerKeyDummyProd",
     label = cms.string('')
 )
 
-L1TriggerKeyDummy.objectKeys.extend(L1SubsystemParams.recordInfo)
-
+from CondTools.L1Trigger.L1SubsystemParams_cfi import initL1Subsystems
+initL1Subsystems( tagBase = 'IDEAL', objectKey = 'dummy' )
+L1TriggerKeyDummy.objectKeys.extend(initL1Subsystems.params.recordInfo)

@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import FWCore.ParameterSet.VarParsing as VarParsing
 
 process = cms.Process("L1ConfigWritePayloadOnline")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -9,6 +8,7 @@ process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
+import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing()
 options.register('tscKey',
                  '', #default value
@@ -64,7 +64,11 @@ process.load("L1TriggerConfig.RCTConfigProducers.L1RCTParametersOnline_cfi")
 process.load("L1TriggerConfig.L1GtConfigProducers.l1GtParametersOnline_cfi")
 
 # writer modules
-process.load("CondTools.L1Trigger.L1CondDBPayloadWriter_cff")
+from CondTools.L1Trigger.L1CondDBPayloadWriter_cff import initPayloadWriter
+initPayloadWriter( process,
+                   outputDBConnect = options.outputDBConnect,
+                   outputDBAuth = options.outputDBAuth,
+                   tagBase = options.tagBase )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

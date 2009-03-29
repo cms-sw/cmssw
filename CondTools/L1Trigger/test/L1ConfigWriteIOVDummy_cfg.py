@@ -8,6 +8,16 @@ process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing()
+options.register('tscKey',
+                 'dummy', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "TSC key")
+options.register('runNumber',
+                 1000, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Run number")
 options.register('tagBase',
                  'IDEAL', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -29,15 +39,20 @@ options.parseArguments()
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 # writer modules
-process.load("CondTools.L1Trigger.L1CondDBIOVWriter_cff")
+from CondTools.L1Trigger.L1CondDBIOVWriter_cff import initIOVWriter
+initIOVWriter( process,
+               outputDBConnect = options.outputDBConnect,
+               outputDBAuth = options.outputDBAuth,
+               tagBase = options.tagBase,
+               tscKey = options.tscKey )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(1000),
-    lastValue = cms.uint64(1000),
+    firstValue = cms.uint64(options.runNumber),
+    lastValue = cms.uint64(options.runNumber),
     interval = cms.uint64(1)
 )
 
@@ -52,5 +67,3 @@ process.outputDB = cms.ESSource("PoolDBESSource",
 process.p = cms.Path(process.L1CondDBIOVWriter)
 process.outputDB.connect = cms.string(options.outputDBConnect)
 process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
-
-

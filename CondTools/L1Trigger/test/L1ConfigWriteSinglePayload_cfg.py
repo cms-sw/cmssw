@@ -1,3 +1,5 @@
+# Example using L1RCTParameters
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("L1ConfigWritePayloadDummy")
@@ -6,33 +8,71 @@ process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing()
+options.register('objectKey',
+                 'dummy', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "object key")
+options.register('objectType',
+                 'L1RCTParameters', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "object C++ type")
+options.register('recordName',
+                 'L1RCTParametersRcd', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Name of EventSetup record")
+options.register('tagBase',
+                 'IDEAL', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "IOV tags = object_{tagBase}")
+options.register('outputDBConnect',
+                 'sqlite_file:l1config.db', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Connection string for output DB")
+options.register('outputDBAuth',
+                 '.', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Authentication path for outputDB")
+options.parseArguments()
+
 # Generate L1TriggerKey
 process.load("CondTools.L1Trigger.L1TriggerKeyDummy_cff")
 process.L1TriggerKeyDummy.objectKeys = cms.VPSet(cms.PSet(
-    record = cms.string('L1RCTParametersRcd'),
-    type = cms.string('L1RCTParameters'),
-    key = cms.string('dummy')
+    record = cms.string(options.recordName),
+    type = cms.string(options.objectType),
+    key = cms.string(options.objectKey)
 ))
 
 # Get L1TriggerKeyList from DB
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.orcon = cms.ESSource("PoolDBESSource",
+process.outputDB = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('L1TriggerKeyListRcd'),
-        tag = cms.string('L1TriggerKeyList_IDEAL')
+        tag = cms.string('L1TriggerKeyList_' + options.tagBase)
     ))
 )
-process.es_prefer_orcon = cms.ESPrefer("PoolDBESSource","orcon")
-process.orcon.connect = cms.string('sqlite_file:l1config.db')
-process.orcon.DBParameters.authenticationPath = cms.untracked.string('.')
+process.es_prefer_outputDB = cms.ESPrefer("PoolDBESSource","outputDB")
+process.outputDB.connect = cms.string(options.outputDBConnect)
+process.outputDB.DBParameters.authenticationPath = cms.untracked.string(options.outputDBAuth)
 
 # Generate dummy configuration data
 process.load("L1Trigger.Configuration.L1DummyConfig_cff")
 process.l1CSCTFConfig.ptLUT_path = '/afs/cern.ch/cms/MUON/csc/fast1/track_finder/luts/PtLUT.dat'
 
 # writer modules
-process.load("CondTools.L1Trigger.L1CondDBPayloadWriter_cff")
+from CondTools.L1Trigger.L1CondDBPayloadWriter_cff import initPayloadWriter
+initPayloadWriter( process,
+                   outputDBConnect = options.outputDBConnect,
+                   outputDBAuth = options.outputDBAuth,
+                   tagBase = options.tagBase )
 process.L1CondDBPayloadWriter.writeL1TriggerKey = cms.bool(False)
 
 # Use highest possible run number so we always get the latest version
@@ -48,5 +88,3 @@ process.source = cms.Source("EmptyIOVSource",
 )
 
 process.p = cms.Path(process.L1CondDBPayloadWriter)
-
-

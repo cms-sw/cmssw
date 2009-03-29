@@ -29,8 +29,8 @@ if [ ${xflag} -eq 0 ]
     cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadOnline_cfg.py tscKey=${tsckey} tagBase=${tagbase}_hlt outputDBConnect=sqlite_file:l1config.db outputDBAuth=. print
 else
     echo "Writing to cms_orcoff_prep."
-    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadOnline_cfg.py tscKey=${tsckey} tagBase=${tagbase} orconConnect=oracle://cms_orcoff_prep/CMS_COND_L1T orconAuth=/nfshome0/l1emulator/o2o/conddb print
-#    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadOnline_cfg.py tscKey=${tsckey} tagBase=${tagbase} orconConnect=oracle://cms_orcon_prod/CMS_COND_21X_L1T orconAuth=/nfshome0/xiezhen/conddb print
+    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadOnline_cfg.py tscKey=${tsckey} tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcoff_prep/CMS_COND_L1T outputDBAuth=/nfshome0/l1emulator/o2o/conddb print
+#    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadOnline_cfg.py tscKey=${tsckey} tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcon_prod/CMS_COND_21X_L1T outputDBAuth=/nfshome0/xiezhen/conddb print
 fi
 
 exit

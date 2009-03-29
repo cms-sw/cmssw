@@ -1,15 +1,24 @@
-from CondTools.L1Trigger.L1CondDBIOVWriter_cfi import *
+def initIOVWriter( process,
+                   outputDBConnect = 'sqlite_file:l1config.db',
+                   outputDBAuth = '.',
+                   tagBase = 'IDEAL',
+                   tscKey = 'dummy' ):
+    import FWCore.ParameterSet.Config as cms
+    process.load('CondTools.L1Trigger.L1CondDBIOVWriter_cfi')
+    process.L1CondDBIOVWriter.tscKey = cms.string( tscKey )
 
-from CondCore.DBCommon.CondDBSetup_cfi import *
-outputDB = cms.Service("PoolDBOutputService",
-                       CondDBSetup,
-                       BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-                       connect = cms.string('sqlite_file:l1config.db'),
-                       toPut = cms.VPSet(cms.PSet(
-    record = cms.string("L1TriggerKeyRcd"),
-    tag = cms.string("L1TriggerKey_IDEAL"))
-                                         ))
-outputDB.DBParameters.authenticationPath = '.'
+    from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
+    outputDB = cms.Service("PoolDBOutputService",
+                           CondDBSetup,
+                           BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+                           connect = cms.string(outputDBConnect),
+                           toPut = cms.VPSet(cms.PSet(
+        record = cms.string("L1TriggerKeyRcd"),
+        tag = cms.string("L1TriggerKey_" + tagBase))
+                                             ))
+    outputDB.DBParameters.authenticationPath = outputDBAuth
 
-from CondTools.L1Trigger.L1SubsystemParams_cfi import *
-outputDB.toPut.extend(L1SubsystemParams.recordInfo)
+    from CondTools.L1Trigger.L1SubsystemParams_cfi import initL1Subsystems
+    initL1Subsystems( tagBase = tagBase )
+    outputDB.toPut.extend(initL1Subsystems.params.recordInfo)
+    process.add_(outputDB)
