@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/10/14 09:12:38 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/12/04 16:13:44 $
+ *  $Revision: 1.9 $
  *  \author M. Maggi -- INFN Bari
 */
 
@@ -65,15 +65,12 @@ RPCRecHitProducer::RPCRecHitProducer(const ParameterSet& config){
       std::cerr << "Masked Strips File cannot not be opened" << std::endl;
       exit(1);
     }
-    std::cout << "Getting Masked Strips Map from File : ";
-    std::cout  << fp.fullPath().c_str() << std::endl;
     while ( inputFile.good() ) {
       RPCMaskedStrips::MaskItem Item;
       inputFile >> Item.rawId >> Item.strip;
       if ( inputFile.good() ) MaskVec.push_back(Item);
     }
     inputFile.close();
-    std::cout << "Masked Strips File read successfully" << std::endl;
   }
 
   deadSource = config.getParameter<std::string>("deadSource");
@@ -85,15 +82,12 @@ RPCRecHitProducer::RPCRecHitProducer(const ParameterSet& config){
       std::cerr << "Dead Strips File cannot not be opened" << std::endl;
       exit(1);
     }
-    std::cout << "Getting Dead Strips Map from File : ";
-    std::cout  << fp.fullPath().c_str() << std::endl;
     while ( inputFile.good() ) {
       RPCDeadStrips::DeadItem Item;
       inputFile >> Item.rawId >> Item.strip;
       if ( inputFile.good() ) DeadVec.push_back(Item);
     }
     inputFile.close();
-    std::cout << "Dead Strips File read successfully" << std::endl;
   }
 
 }
