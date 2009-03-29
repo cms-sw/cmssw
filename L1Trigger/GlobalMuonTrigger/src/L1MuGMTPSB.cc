@@ -5,8 +5,8 @@
 //   Description: Pipelined Synchronising Buffer module 
 //
 //
-//   $Date: 2008/11/05 17:24:58 $
-//   $Revision: 1.13 $
+//   $Date: 2009/03/06 18:30:12 $
+//   $Revision: 1.14 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -99,7 +99,7 @@ void L1MuGMTPSB::receiveData(edm::Event& e, int bx) {
     if(rc_handle.isValid()) {
       getDTBX(rc_handle.product(),bx);
     } else {
-      edm::LogWarning("GlobalMuonTrigger")
+      LogDebug("GlobalMuonTrigger")
       << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getDTInputTag()
       << "\nrequested, but not found in the event." << std::endl;      
     }
@@ -109,7 +109,7 @@ void L1MuGMTPSB::receiveData(edm::Event& e, int bx) {
     if(rc_handle.isValid()) {
       getCSC(rc_handle.product(),bx);
     } else {
-      edm::LogWarning("GlobalMuonTrigger")
+      LogDebug("GlobalMuonTrigger")
       << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getCSCInputTag()
       << "\nrequested, but not found in the event." << std::endl;      
     }
@@ -119,7 +119,7 @@ void L1MuGMTPSB::receiveData(edm::Event& e, int bx) {
     if(rc_handle.isValid()) {
       getRPCb(rc_handle.product(),bx);
     } else {
-      edm::LogWarning("GlobalMuonTrigger")
+      LogDebug("GlobalMuonTrigger")
       << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getRPCbInputTag()
       << "\nrequested, but not found in the event." << std::endl;      
     }
@@ -129,7 +129,7 @@ void L1MuGMTPSB::receiveData(edm::Event& e, int bx) {
     if(rc_handle.isValid()) {
       getRPCf(rc_handle.product(),bx);
     } else {
-      edm::LogWarning("GlobalMuonTrigger")
+      LogDebug("GlobalMuonTrigger")
       << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getRPCfInputTag()
       << "\nrequested, but not found in the event." << std::endl;      
     }
@@ -471,7 +471,7 @@ void L1MuGMTPSB::getCalo(edm::Event& e) {
       //                                     << (*iter).mip();
     }
   } else {
-    edm::LogWarning("GlobalMuonTrigger")
+    LogDebug("GlobalMuonTrigger")
     << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getMipIsoInputTag()
     << "\nrequested, but not found in the event." << std::endl;
   }
