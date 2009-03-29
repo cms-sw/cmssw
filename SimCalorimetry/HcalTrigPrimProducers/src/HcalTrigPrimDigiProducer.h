@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <vector>
 
 class HcalTrigPrimDigiProducer : public edm::EDProducer
 {
@@ -18,7 +19,7 @@ public:
 
 private:
   HcalTriggerPrimitiveAlgo theAlgo;
-  edm::InputTag inputLabel_;
+  std::vector<edm::InputTag> inputLabel_;
 };
 
 #endif

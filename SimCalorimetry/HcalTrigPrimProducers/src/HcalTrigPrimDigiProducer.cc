@@ -28,7 +28,7 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
         ps.getParameter<uint32_t>("ZS_threshold"),
 	  ps.getParameter<int>("firstTPSample"),
 	  ps.getParameter<int>("TPSize")),
-  inputLabel_(ps.getParameter<edm::InputTag>("inputLabel"))
+  inputLabel_(ps.getParameter<std::vector<edm::InputTag> >("inputLabel"))
 {
    produces<HcalTrigPrimDigiCollection>();
 }
@@ -38,8 +38,8 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& e, const edm::EventSetup& eve
   edm::Handle<HBHEDigiCollection> hbheDigis;
   edm::Handle<HFDigiCollection>   hfDigis;
 
-  e.getByLabel(inputLabel_,hbheDigis);
-  e.getByLabel(inputLabel_,hfDigis);
+  e.getByLabel(inputLabel_[0],hbheDigis);
+  e.getByLabel(inputLabel_[1],hfDigis);
 
   // get the conditions, for the decoding
   edm::ESHandle<HcalTPGCoder> inputCoder;
