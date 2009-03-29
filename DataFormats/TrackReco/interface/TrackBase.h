@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.71 2008/11/14 17:51:44 tomalini Exp $
+ * \version $Id: TrackBase.h,v 1.72 2008/12/10 12:21:57 vlimant Exp $
  *
  */
 
@@ -84,7 +84,8 @@ namespace reco {
 			  nuclInter=17,
 			  standAloneMuon=18,globalMuon=19,cosmicStandAloneMuon=20,cosmicGlobalMuon=21,
                           iter1LargeD0=22,iter2LargeD0=23,iter3LargeD0=24,iter4LargeD0=25,iter5LargeD0=26,
-			  algoSize=27 };
+			  bTagGhostTracks=27,
+			  algoSize=28 };
     static const std::string algoNames[];
 
     /// track quality
@@ -305,6 +306,7 @@ namespace reco {
       case iter3LargeD0: return "iter3LargeD0";
       case iter4LargeD0: return "iter4LargeD0";
       case iter5LargeD0: return "iter5LargeD0";
+      case bTagGhostTracks: return "bTagGhostTracks";
       }
     return "undefAlgorithm";
   }

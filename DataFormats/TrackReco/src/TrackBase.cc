@@ -10,7 +10,8 @@ std::string const TrackBase::algoNames[] = { "undefAlgorithm", "ctf", "rs", "cos
 					     "outInEcalSeededConv","inOutEcalSeededConv",
 					     "nuclInter",
 					     "standAloneMuon","globalMuon","cosmicStandAloneMuon","cosmicGlobalMuon",
-                                             "iter1LargeD0","iter2LargeD0","iter3LargeD0","iter4LargeD0","iter5LargeD0"};
+                                             "iter1LargeD0","iter2LargeD0","iter3LargeD0","iter4LargeD0","iter5LargeD0",
+					     "bTagGhostTracks"};
 
 std::string const TrackBase::qualityNames[] = { "loose", "tight", "highPurity", "confirmed", "goodIterative"};
 
