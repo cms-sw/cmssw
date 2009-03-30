@@ -72,4 +72,8 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripModuleHVFakeESSource);
 typedef SiStripTemplateEmptyFakeESSource<SiStripModuleHV,SiStripModuleLVRcd> SiStripModuleLVFakeESSource;
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripModuleLVFakeESSource);
 
+#include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
+typedef SiStripTemplateEmptyFakeESSource<SiStripDetVOff,SiStripDetVOffRcd> SiStripDetVOffFakeESSource;
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripDetVOffFakeESSource);
+
 //------------------------------------//

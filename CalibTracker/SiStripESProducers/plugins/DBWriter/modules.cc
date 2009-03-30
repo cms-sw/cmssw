@@ -74,6 +74,11 @@ struct ModuleHVRcdName{ static const char* name(){return "SiStripModuleHVRcd";}}
 typedef DummyCondDBWriter<SiStripModuleHV,SiStripModuleHV,SiStripModuleHVRcd,ModuleHVRcdName> SiStripModuleHVDummyDBWriter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripModuleHVDummyDBWriter);
 
+#include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
+struct DetVOffRcdName{ static const char* name(){return "SiStripDetVOffRcd";}};
+typedef DummyCondDBWriter<SiStripDetVOff,SiStripDetVOff,SiStripDetVOffRcd,DetVOffRcdName> SiStripDetVOffDummyDBWriter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripDetVOffDummyDBWriter);
+
 
 //---------------------------------------------------------------------------------------------------------------
 // Dummy printers
@@ -100,3 +105,5 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripGainDummyPrinter);
 typedef DummyCondObjPrinter<SiStripGain,SiStripGainSimRcd> SiStripGainSimDummyPrinter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripGainSimDummyPrinter);
 
+typedef DummyCondObjPrinter<SiStripDetVOff,SiStripDetVOffRcd> SiStripDetVOffDummyPrinter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripDetVOffDummyPrinter);
