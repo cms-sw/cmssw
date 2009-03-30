@@ -2,8 +2,8 @@
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
   <PoolContainer name="SiStripDetVOffRcd" >
-   <Class table="SISTRIPMODULEHV" id_columns="IOV_VALUE_ID" name="SiStripDetVOff" mapping_version="SiStripDetVOff_basic" >
-     <Blob column="MODULEHV" name="v_hvoff"/>
+   <Class table="SISTRIPDETVOFF" id_columns="IOV_VALUE_ID" name="SiStripDetVOff" mapping_version="SiStripDetVOff_basic" >
+     <Blob column="DETVOFF" name="v_Voff"/>
    </Class >
   </PoolContainer >
  </PoolDatabase >
