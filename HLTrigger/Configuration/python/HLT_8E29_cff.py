@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/8E29_V246/V2 (CMSSW_3_1_X_2009-03-24-1100_HLT3)
+# /dev/CMSSW_3_1_0/pre2/8E29_V247/V2 (CMSSW_3_1_X_2009-03-24-1100_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/8E29_V246/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/8E29_V247/V2')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -3864,8 +3864,8 @@ hltIconeCentral4Regional = cms.EDProducer( "IterativeConeJetProducer",
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltL2TauJets = cms.EDProducer( "L2TauJetsMerger",
-    JetSrc = cms.VInputTag( 'hltIconeTau1Regional','hltIconeTau2Regional','hltIconeTau3Regional','hltIconeTau4Regional','hltIconeCentral1Regional','hltIconeCentral2Regional','hltIconeCentral3Regional','hltIconeCentral4Regional' ),
-    EtMin = cms.double( 15.0 )
+    EtMin = cms.double( 15.0 ),
+    JetSrc = cms.VInputTag( 'hltIconeTau1Regional','hltIconeTau2Regional','hltIconeTau3Regional','hltIconeTau4Regional','hltIconeCentral1Regional','hltIconeCentral2Regional','hltIconeCentral3Regional','hltIconeCentral4Regional' )
 )
 hltFilterL2EtCutSingleLooseIsoTau20 = cms.EDFilter( "HLT1Tau",
     inputTag = cms.InputTag( "hltL2TauJets" ),
@@ -4381,13 +4381,16 @@ hltIsolPixelTrackProd8E29 = cms.EDProducer( "IsolatedPixelTrackCandidateProducer
     L1GTSeedLabel = cms.InputTag( "hltL1sIsoTrack8E29" ),
     MaxVtxDXYSeed = cms.double( 0.05 ),
     MaxVtxDXYIsol = cms.double( 10.0 ),
-    VertexLabel = cms.InputTag( "hltPixelVertices" )
+    VertexLabel = cms.InputTag( "hltPixelVertices" ),
+    minPtTrack = cms.double( 2.0 ),
+    maxPtTrackForIsolation = cms.double( 5.0 )
 )
 hltIsolPixelTrackL2Filter8E29 = cms.EDFilter( "HLTPixelIsolTrackFilter",
     candTag = cms.InputTag( "hltIsolPixelTrackProd8E29" ),
     MinPtTrack = cms.double( 3.5 ),
     MaxPtNearby = cms.double( 0.9 ),
     MaxEtaTrack = cms.double( 2.0 ),
+    MinEtaTrack = cms.double( 0.0 ),
     filterTrackEnergy = cms.bool( False ),
     MinEnergyTrack = cms.double( 15.0 )
 )
@@ -4513,6 +4516,7 @@ hltIsolPixelTrackL3Filter8E29 = cms.EDFilter( "HLTPixelIsolTrackFilter",
     MinPtTrack = cms.double( 20.0 ),
     MaxPtNearby = cms.double( 2.0 ),
     MaxEtaTrack = cms.double( 2.0 ),
+    MinEtaTrack = cms.double( 0.0 ),
     filterTrackEnergy = cms.bool( True ),
     MinEnergyTrack = cms.double( 10.0 )
 )
