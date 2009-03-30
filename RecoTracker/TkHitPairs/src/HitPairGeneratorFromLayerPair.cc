@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingHit.h"
 
 using namespace GeomDetEnumerators;
 using namespace ctfseeding;
@@ -50,13 +49,14 @@ void HitPairGeneratorFromLayerPair::hitPairs(
     return;
   }
 
-  typedef OrderedHitPair::InnerHit InnerHit;
-  typedef OrderedHitPair::OuterHit OuterHit;
+  typedef OrderedHitPair::InnerRecHit InnerHit;
+  typedef OrderedHitPair::OuterRecHit OuterHit;
+  typedef RecHitsSortedInPhi::Hit Hit;
 
-  const LayerHitMap & innerHitsMap = theLayerCache(&theInnerLayer, region, iEvent, iSetup);
+  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(&theInnerLayer, region, iEvent, iSetup);
   if (innerHitsMap.empty()) return;
  
-  const LayerHitMap & outerHitsMap = theLayerCache(&theOuterLayer, region, iEvent, iSetup);
+  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(&theOuterLayer, region, iEvent, iSetup);
   if (outerHitsMap.empty()) return;
 
   const DetLayer * innerlay = theInnerLayer.detLayer();
@@ -86,25 +86,28 @@ void HitPairGeneratorFromLayerPair::hitPairs(
     rzLayer2 = zLayer+halfThickness;
   }
 
-  const SeedingHit * oh;
-  LayerHitMapLoop outerHits = outerHitsMap.loop();
+  vector<Hit> outerHits = outerHitsMap.hits();
+  typedef vector<Hit>::const_iterator IT;
 
-  while ( (oh=outerHits.getHit()) ) {
-    
-    PixelRecoRange<float> phiRange = deltaPhi( oh->r(), oh->phi(), oh->z(), outerHitErrorRPhi);    
+  for (IT oh = outerHits.begin(), oeh = outerHits.end(); oh < oeh; ++oh) { 
+   
+    GlobalPoint oPos = (*oh)->globalPosition();  
+    PixelRecoRange<float> phiRange = deltaPhi( oPos.perp(), oPos.phi(), oPos.z(), outerHitErrorRPhi);    
+
     if (phiRange.empty()) continue;
 
-    const HitRZCompatibility *checkRZ = region.checkRZ(&(*innerlay), *oh, iSetup);
+    const HitRZCompatibility *checkRZ = region.checkRZ(&(*innerlay), (*oh)->hit(), iSetup);
     if(!checkRZ) continue;
 
-    LayerHitMapLoop innerHits = innerHitsMap.loop(phiRange, Range(-100.,100.));
-    const SeedingHit * ih;
-    while ( (ih=innerHits.getHit()) ) {
-      float ih_x = ih->r() * cos(ih->phi());
-      float ih_y = ih->r() * sin(ih->phi());
+    vector<Hit> innerHits;
+    innerHitsMap.hits(phiRange.min(), phiRange.max(), innerHits);
+    for (IT ih=innerHits.begin(), ieh = innerHits.end(); ih < ieh; ++ih) {  
+      GlobalPoint iPos = (*ih)->globalPosition(); 
+      float ih_x = iPos.x();
+      float ih_y = iPos.y();
       float r_reduced = sqrt( sqr(ih_x-region.origin().x())+sqr(ih_y-region.origin().y()));
 
-      if ( (*checkRZ)( r_reduced, ih->z()) ) {
+      if ( (*checkRZ)( r_reduced, iPos.z()) ) {
             result.push_back( OrderedHitPair( *ih, *oh) ); 
         }
     }
@@ -125,34 +128,28 @@ void HitPairGeneratorFromLayerPair::
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
   trackerGeometry = tracker.product();
 
-  typedef OrderedHitPair::InnerHit InnerHit;
-  typedef OrderedHitPair::OuterHit OuterHit;
+  typedef OrderedHitPair::InnerRecHit InnerHit;
+  typedef OrderedHitPair::OuterRecHit OuterHit;
+  typedef TransientTrackingRecHit::ConstRecHitPointer Hit;
 
-   vector<SeedingHit> oSHits(region.hits(iEvent,iSetup,&theOuterLayer));
-   vector<const TrackingRecHit*> outerHits;
-   typedef vector<SeedingHit>::const_iterator ISH;
-   for (ISH it=oSHits.begin(); it != oSHits.end(); ++it) outerHits.push_back( *it);
-   vector<SeedingHit> iSHits(theInnerLayer.hits(iEvent,iSetup));
-   vector<const TrackingRecHit*> innerHits;
-   for (ISH it=iSHits.begin(); it != iSHits.end(); ++it) innerHits.push_back( *it);
-   RecHitsSortedInPhi innerSortedHits(innerHits,trackerGeometry);
+   vector<Hit> outerHits( region.hits(iEvent,iSetup,&theOuterLayer));
+   vector<Hit> innerHits( region.hits(iEvent,iSetup,&theInnerLayer));
+   RecHitsSortedInPhi innerSortedHits(innerHits);
    
-				   
   InnerDeltaPhi deltaPhi(
       *(theInnerLayer.detLayer()), region, iSetup);
 
-  typedef vector<const TrackingRecHit*>::const_iterator  HI;
+  typedef vector<Hit>::const_iterator  HI;
   float nSigmaRZ = sqrt(12.);
   float nSigmaPhi = 3.;
   for (HI oh=outerHits.begin(); oh!= outerHits.end(); oh++) {
-    TransientTrackingRecHit::RecHitPointer recHit = theOuterLayer.hitBuilder()->build(*oh);
+    TransientTrackingRecHit::RecHitPointer recHit = theOuterLayer.hitBuilder()->build((*oh)->hit());
     GlobalPoint hitPos = recHit->globalPosition();
     float phiErr = nSigmaPhi * sqrt(recHit->globalPositionError().phierr(hitPos)); 
     float dphi = deltaPhi( hitPos.perp(), hitPos.z(), hitPos.perp()*phiErr);   
     float phiHit = hitPos.phi();
-    //std::cout<<"hit pairs generator dphi:"<<dphi<<std::endl;
-    vector<const TrackingRecHit*> innerCandid = innerSortedHits.hits(phiHit-dphi,phiHit+dphi);
-    const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), *oh,iSetup);
+    vector<Hit> innerCandid = innerSortedHits.hits(phiHit-dphi,phiHit+dphi);
+    const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), (*oh)->hit(),iSetup);
     if(!checkRZ) continue;
 
     for (HI ih = innerCandid.begin(); ih != innerCandid.end(); ih++) {
@@ -171,7 +168,7 @@ void HitPairGeneratorFromLayerPair::
       }
       Range crossRange = allowed.intersection(hitRZ);
       if (! crossRange.empty() ) {
-        result.push_back( OrderedHitPair( SeedingHit(*ih,theInnerLayer,iSetup), SeedingHit(*oh,theOuterLayer, iSetup) ) );
+        result.push_back( OrderedHitPair( *ih, *oh) );
       }
     } 
     delete checkRZ;

@@ -6,7 +6,7 @@
  */
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
-#include "RecoTracker/TkHitPairs/interface/LayerHitMap.h"
+#include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -44,9 +44,8 @@ private:
   };
 
 private:
-  //typedef std::pair<const DetLayer *, const TrackingRegion *> LayerRegionKey;
   typedef const DetLayer * LayerRegionKey;
-  typedef SimpleCache<LayerRegionKey, LayerHitMap> Cache;
+  typedef SimpleCache<LayerRegionKey, RecHitsSortedInPhi> Cache;
  public:
   LayerHitMapCache(int initSize=50) { theCache = new Cache(initSize); }
 
@@ -54,14 +53,13 @@ private:
 
   void clear() { theCache->clear(); }
 
-  const LayerHitMap & operator()(
+  const RecHitsSortedInPhi & operator()(
       const ctfseeding::SeedingLayer * layer, const TrackingRegion & region, 
       const edm::Event & iEvent, const edm::EventSetup & iSetup) {
-//  LayerRegionKey key(layer->detLayer(),&region);
     LayerRegionKey key(layer->detLayer());
-    const LayerHitMap * lhm = theCache->get(key);
+    const RecHitsSortedInPhi * lhm = theCache->get(key);
     if (lhm==0) {
-      lhm=new LayerHitMap( layer->detLayer(), region.hits(iEvent,iSetup,layer));
+      lhm=new RecHitsSortedInPhi (region.hits(iEvent,iSetup,layer));
       theCache->add( key, lhm); 
     }
     return *lhm;

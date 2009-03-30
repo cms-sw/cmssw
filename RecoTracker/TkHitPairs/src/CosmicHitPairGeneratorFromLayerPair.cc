@@ -1,13 +1,14 @@
 #include "RecoTracker/TkHitPairs/interface/CosmicHitPairGeneratorFromLayerPair.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "RecoTracker/TkHitPairs/interface/OrderedHitPair.h"
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
 using namespace std;
-typedef ctfseeding::SeedingHit TkHitPairsCachedHit;
+typedef TransientTrackingRecHit::ConstRecHitPointer TkHitPairsCachedHit;
 
 CosmicHitPairGeneratorFromLayerPair::CosmicHitPairGeneratorFromLayerPair(const LayerWithHits* inner, 
 							     const LayerWithHits* outer, 
@@ -29,8 +30,8 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
 //  static int NSee = 0; static int Ntry = 0; static int Nacc = 0;
 
 
-  typedef OrderedHitPair::InnerHit InnerHit;
-  typedef OrderedHitPair::OuterHit OuterHit;
+  typedef OrderedHitPair::InnerRecHit InnerHit;
+  typedef OrderedHitPair::OuterRecHit OuterHit;
 
 
   if (theInnerLayer->recHits().empty()) return;
@@ -65,7 +66,8 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
  
   vector<OrderedHitPair> allthepairs;
   
-
+// FIXME - TEMPORARY
+/*
 
   std::vector<const TrackingRecHit*>::const_iterator ohh;
   for(ohh=theOuterLayer->recHits().begin();ohh!=theOuterLayer->recHits().end();ohh++){
@@ -111,6 +113,7 @@ delete ih;
 delete oh;
   }
 
+*/
  
 //   stable_sort(allthepairs.begin(),allthepairs.end(),CompareHitPairsY(iSetup));
 //   //Seed from overlaps are saved only if 
@@ -122,6 +125,7 @@ delete oh;
 //     }
 //     else result.push_back(allthepairs[0]);
 //   }
+
 
 }
 
