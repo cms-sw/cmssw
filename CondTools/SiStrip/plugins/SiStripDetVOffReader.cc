@@ -33,26 +33,26 @@ void SiStripDetVOffReader::analyze( const edm::Event& e, const edm::EventSetup& 
   if (printdebug_){
     for (uint32_t  id=0;id<=detid.size();id++)
       {
-	bool hvflag=SiStripDetVOff_->IsModuleLVOff(detid[id]);
-	bool lvflag=SiStripDetVOff_->IsModuleHVOff(detid[id]);
+	bool hvflag=SiStripDetVOff_->IsModuleHVOff(detid[id]);
+	bool lvflag=SiStripDetVOff_->IsModuleLVOff(detid[id]);
         bool vflag =SiStripDetVOff_->IsModuleVOff(detid[id]);
 	if(hvflag==true) {
-          edm::LogInfo("SiStripDetVOffReader") << "detid: " << detid[id] << " HV\t ON\n";
-        }
-	if(hvflag==false) {
           edm::LogInfo("SiStripDetVOffReader") << "detid: " << detid[id] << " HV\t OFF\n";
         }
-	if(lvflag==true) {
-          edm::LogInfo("SiStripDetVOffReader") << "detid: " << detid[id] << " LV\t ON\n";
+	else {
+          edm::LogInfo("SiStripDetVOffReader") << "detid: " << detid[id] << " HV\t ON\n";
         }
-	if(lvflag==false) {
+	if(lvflag==true) {
           edm::LogInfo("SiStripDetVOffReader") << "detid: " << detid[id] << " LV\t OFF\n";
         }
-	if(vflag==true) {
-          edm::LogInfo("SiStripDetVOffReader") << "detid: " << detid[id] << " V\t ON\n";
+	else {
+          edm::LogInfo("SiStripDetVOffReader") << "detid: " << detid[id] << " LV\t ON\n";
         }
-	if(vflag==false) {
+	if(vflag==true) {
           edm::LogInfo("SiStripDetVOffReader") << "detid: " << detid[id] << " V\t OFF\n";
+        }
+	else {
+          edm::LogInfo("SiStripDetVOffReader") << "detid: " << detid[id] << " V\t ON\n";
         }
       } 
   }

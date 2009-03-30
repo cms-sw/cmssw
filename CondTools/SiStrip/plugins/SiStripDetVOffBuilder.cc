@@ -67,17 +67,17 @@ void SiStripDetVOffBuilder::analyze(const edm::Event& evt, const edm::EventSetup
     int hv=rand() % 20;
     int lv=rand() % 20;
     if( hv<=2 ) {
-      edm::LogInfo("SiStripDetVOffBuilder") << "detid with HV off: " <<  *it << std::endl;
-      SiStripDetVOff_->put( *it, false, true );
-      // TheDetIdHVVector.push_back(*it);
-    }
-    if( lv<=2 ) {
+      edm::LogInfo("SiStripDetVOffBuilder") << "detid: " <<  *it << " HV\t OFF" << std::endl;
       SiStripDetVOff_->put( *it, true, false );
       // TheDetIdHVVector.push_back(*it);
     }
+    if( lv<=2 ) {
+      edm::LogInfo("SiStripDetVOffBuilder") << "detid: " <<  *it << " LV\t OFF" << std::endl;
+      SiStripDetVOff_->put( *it, false, true );
+      // TheDetIdHVVector.push_back(*it);
+    }
+    if( lv<=2 || hv<=2 ) edm::LogInfo("SiStripDetVOffBuilder") << "detid: " <<  *it << " V\t OFF" << std::endl;
   }
-
-
 
   // SiStripDetVOff_->put(TheDetIdHVVector);
 
