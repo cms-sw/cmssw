@@ -19,6 +19,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
@@ -43,7 +44,7 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
 
 
   trackInputTag_ = conf.getParameter<edm::InputTag>("trackProducer");
-
+  beamSpotProducerTag_ = conf.getParameter<edm::InputTag>("beamSpotProducer");
   barrelecalCollection_ = conf.getParameter<std::string>("barrelEcalRecHitCollection");
   barrelecalProducer_ = conf.getParameter<std::string>("barrelEcalRecHitProducer");
   endcapecalCollection_ = conf.getParameter<std::string>("endcapEcalRecHitCollection");
@@ -457,9 +458,12 @@ void PhotonIsolationCalculator::calculateTrackIso(const reco::Photon* photon,
   }
   const reco::TrackCollection* trackCollection = tracks.product();
   //Photon Eta and Phi.  Hope these are correct.
-
+  reco::BeamSpot vertexBeamSpot;
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  e.getByLabel(beamSpotProducerTag_,recoBeamSpotHandle);
+  vertexBeamSpot = *recoBeamSpotHandle;
   
-  PhotonTkIsolation phoIso(RCone, RinnerCone, pTThresh, lip , d0, trackCollection, math::XYZPoint(0,0,0));
+  PhotonTkIsolation phoIso(RCone, RinnerCone, pTThresh, lip , d0, trackCollection, math::XYZPoint(vertexBeamSpot.x0(),vertexBeamSpot.y0(),vertexBeamSpot.z0()));
   counter = phoIso.getNumberTracks(photon);
   ptSum = phoIso.getPtTracks(photon);
   //delete phoIso;

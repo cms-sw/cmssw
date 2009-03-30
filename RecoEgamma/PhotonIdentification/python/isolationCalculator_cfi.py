@@ -22,6 +22,8 @@ isolationSumsCalculator = cms.PSet(
     moduleEtaBoundary = cms.vdouble(0.0, 0.02, 0.43, 0.46, 0.78, 0.81, 1.13, 1.15, 1.45, 1.58),
     #What collection of tracks do I use for Track Isolation?
     trackProducer = cms.InputTag("generalTracks"),
+    #use beam spot for track isolation
+    beamSpotProducer = cms.InputTag("offlineBeamSpot"),
     #switches, turn on quality cuts for various quantities.
     RequireFiducial = cms.bool(False),
     #configuration of parameters for isolation

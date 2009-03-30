@@ -72,7 +72,7 @@ public:
 
   edm::InputTag trackInputTag_;
   //  edm::InputTag gsfRecoInputTag_;
-
+  edm::InputTag beamSpotProducerTag_;
   double modulePhiBoundary_;
   std::vector<double> moduleEtaBoundary_;
 
