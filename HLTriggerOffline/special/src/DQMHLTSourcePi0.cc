@@ -32,7 +32,6 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 /// EgammaCoreTools
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 
 #include "TVector3.h"
@@ -137,6 +136,15 @@ eventCounter_(0)
   ParameterT0_endcPresh_ = ps.getParameter<double> ("ParameterT0_endcPresh");
   ParameterW0_ = ps.getParameter<double> ("ParameterW0");
 
+  std::map<std::string,double> providedParameters;  
+  providedParameters.insert(std::make_pair("LogWeighted",ParameterLogWeighted_));
+  providedParameters.insert(std::make_pair("X0",ParameterX0_));
+  providedParameters.insert(std::make_pair("T0_barl",ParameterT0_barl_));
+  providedParameters.insert(std::make_pair("T0_endc",ParameterT0_endc_));
+  providedParameters.insert(std::make_pair("T0_endcPresh",ParameterT0_endcPresh_));
+  providedParameters.insert(std::make_pair("W0",ParameterW0_));
+  
+  posCalculator_ = PositionCalc(providedParameters);
 
 
 }
@@ -397,15 +405,6 @@ void DQMHLTSourcePi0::analyze(const Event& iEvent,
   topology_p = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
   topology_ee = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap);
   
-  std::map<std::string,double> providedParameters;  
-  providedParameters.insert(std::make_pair("LogWeighted",ParameterLogWeighted_));
-  providedParameters.insert(std::make_pair("X0",ParameterX0_));
-  providedParameters.insert(std::make_pair("T0_barl",ParameterT0_barl_));
-  providedParameters.insert(std::make_pair("T0_endc",ParameterT0_endc_));
-  providedParameters.insert(std::make_pair("T0_endcPresh",ParameterT0_endcPresh_));
-  providedParameters.insert(std::make_pair("W0",ParameterW0_));
-  
-  PositionCalc posCalculator_ = PositionCalc(providedParameters);
   
   
   EcalRecHitCollection::const_iterator itb;
@@ -484,7 +483,7 @@ void DQMHLTSourcePi0::analyze(const Event& iEvent,
 	}
 	if(seedAlreadyUsed)continue;
 	std::vector<DetId> clus_v = topology_p->getWindow(seed_id,clusEtaSize_,clusPhiSize_);       
-	std::vector<DetId> clus_used;
+	std::vector< std::pair<DetId, float> > clus_used;
 	//Reject the seed if not able to build the cluster around it correctly
 	//if(clus_v.size() < clusEtaSize_*clusPhiSize_){cout<<" Not enough RecHits "<<endl; continue;}
 	vector<EcalRecHit> RecHitsInWindow;
@@ -511,7 +510,7 @@ void DQMHLTSourcePi0::analyze(const Event& iEvent,
 	  int nn = int(itdet - detIdEBRecHits.begin());
 	  usedXtals.push_back(*det);
 	  RecHitsInWindow.push_back(EBRecHits[nn]);
-	  clus_used.push_back(*det);
+	  clus_used.push_back(std::pair<DetId, float>(*det, 1) );
 	  simple_energy = simple_energy + EBRecHits[nn].energy();
 
 
@@ -780,7 +779,7 @@ void DQMHLTSourcePi0::analyze(const Event& iEvent,
 	}
 	if(seedAlreadyUsed)continue;
 	std::vector<DetId> clus_v = topology_p->getWindow(seed_id,clusEtaSize_,clusPhiSize_);       
-	std::vector<DetId> clus_used;
+	std::vector< std::pair<DetId, float> > clus_used;
 	//Reject the seed if not able to build the cluster around it correctly
 	//if(clus_v.size() < clusEtaSize_*clusPhiSize_){cout<<" Not enough RecHits "<<endl; continue;}
 	vector<EcalRecHit> RecHitsInWindow;
@@ -807,7 +806,7 @@ void DQMHLTSourcePi0::analyze(const Event& iEvent,
 	  int nn = int(itdet - detIdEBRecHits.begin());
 	  usedXtals.push_back(*det);
 	  RecHitsInWindow.push_back(EBRecHits[nn]);
-	  clus_used.push_back(*det);
+	  clus_used.push_back(std::pair<DetId, float>(*det, 1));
 	  simple_energy = simple_energy + EBRecHits[nn].energy();
 
 
@@ -1091,8 +1090,7 @@ void DQMHLTSourcePi0::analyze(const Event& iEvent,
 
 	if(seedAlreadyUsed)continue;
 	std::vector<DetId> clus_v = topology_ee->getWindow(seed_id,clusEtaSize_,clusPhiSize_);      
-	std::vector<DetId> clus_used;
-    
+	std::vector< std::pair<DetId, float> > clus_used;   
 
 	vector<EcalRecHit> RecHitsInWindow;
 	vector<EcalRecHit> RecHitsInWindow5x5;
@@ -1119,7 +1117,7 @@ void DQMHLTSourcePi0::analyze(const Event& iEvent,
 	  int nn = int(itdet - detIdEERecHits.begin());
 	  usedXtalsEndCap.push_back(*det);
 	  RecHitsInWindow.push_back(EERecHits[nn]);
-	  clus_used.push_back(*det);
+	  clus_used.push_back(std::pair<DetId, float>(*det, 1));
 	  simple_energy = simple_energy + EERecHits[nn].energy();
       
       
@@ -1345,8 +1343,7 @@ void DQMHLTSourcePi0::analyze(const Event& iEvent,
 
 	if(seedAlreadyUsed)continue;
 	std::vector<DetId> clus_v = topology_ee->getWindow(seed_id,clusEtaSize_,clusPhiSize_);      
-	std::vector<DetId> clus_used;
-    
+	std::vector< std::pair<DetId, float> > clus_used;
 
 	vector<EcalRecHit> RecHitsInWindow;
 	vector<EcalRecHit> RecHitsInWindow5x5;
@@ -1373,7 +1370,7 @@ void DQMHLTSourcePi0::analyze(const Event& iEvent,
 	  int nn = int(itdet - detIdEERecHits.begin());
 	  usedXtalsEndCap.push_back(*det);
 	  RecHitsInWindow.push_back(EERecHits[nn]);
-	  clus_used.push_back(*det);
+	  clus_used.push_back(std::pair<DetId, float>(*det, 1));
 	  simple_energy = simple_energy + EERecHits[nn].energy();
       
       
