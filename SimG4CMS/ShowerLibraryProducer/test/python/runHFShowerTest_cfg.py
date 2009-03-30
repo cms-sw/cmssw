@@ -18,28 +18,28 @@ process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG'),
         INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         ),
         G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         ),
         FlatThetaGun = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         ),
         HFShower = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         ),
         FiberSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         ),
         HcalForwardLib = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         )
     )
 )
@@ -58,18 +58,20 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.Timing = cms.Service("Timing")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(2)
 )
 
 process.source = cms.Source("FlatRandomEThetaGunSource",
     PGunParameters = cms.untracked.PSet(
         PartID   = cms.untracked.vint32(11),
-        MinTheta = cms.untracked.double(0.0),
-        MaxTheta = cms.untracked.double(0.0),
+        #MinTheta = cms.untracked.double(-1.145762838),
+        #MaxTheta = cms.untracked.double(1.145762838),
+        MinTheta = cms.untracked.double(-0.019997),
+        MaxTheta = cms.untracked.double(0.019997),
         MinPhi   = cms.untracked.double(-3.1415926),
         MaxPhi   = cms.untracked.double(3.1415926),
-        MinE     = cms.untracked.double(10.0),
-        MaxE     = cms.untracked.double(10.0)
+        MinE     = cms.untracked.double(100.0),
+        MaxE     = cms.untracked.double(100.0)
     ),
     Verbosity = cms.untracked.int32(2),
     AddAntiParticle = cms.untracked.bool(False),
@@ -89,7 +91,7 @@ process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.Generator.ApplyPCuts   = False
 process.g4SimHits.Generator.ApplyEtaCuts = False
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/LHEP_EMV'
 process.g4SimHits.Physics.DefaultCutValue = 0.1
 process.g4SimHits.G4Commands = ['/tracking/verbose 1']
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
