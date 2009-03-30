@@ -206,7 +206,7 @@ namespace cond {
 
 
    IOVSequence::const_iterator p = m_iov->find(sinceTime);
-   if (p!=m_iov->iovs().end() &&  (*(p-1)).sinceTime()==sinceTime)
+   if (p!=m_iov->iovs().end() &&  (*p).sinceTime()==sinceTime)
      throw cond::Exception("cond::IOVEditorImpl::freeInsert sinceTime already existing");
 
 
