@@ -1,5 +1,5 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepJetComb.h"
+#include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepJetComb.h"
 
 
 TtSemiLepJetComb::TtSemiLepJetComb()

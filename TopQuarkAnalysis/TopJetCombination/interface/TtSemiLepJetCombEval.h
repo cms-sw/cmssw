@@ -3,7 +3,7 @@
 
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputerCache.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepJetComb.h"
+#include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepJetComb.h"
 
 // ----------------------------------------------------------------------
 // common interface for the evaluation of multivariate analysis variables

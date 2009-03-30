@@ -3,7 +3,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepJetCombEval.h"
+#include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepJetCombEval.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVAComputer.h"
 
 
@@ -133,4 +133,3 @@ TtSemiLepJetCombMVAComputer::endJob()
 // -> register TtSemiLepJetCombMVARcd
 // -> define TtSemiLepJetCombMVAFileSource
 MVA_COMPUTER_CONTAINER_IMPLEMENT(TtSemiLepJetCombMVA);
-

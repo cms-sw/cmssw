@@ -5,7 +5,7 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepJetCombEval.h"
+#include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepJetCombEval.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVATrainer.h"
 
 #include "PhysicsTools/JetMCUtils/interface/combination.h"
