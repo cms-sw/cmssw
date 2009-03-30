@@ -1,9 +1,10 @@
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
+#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 
 //#define debug_TkHistoMap
 
-TkHistoMap::TkHistoMap(std::string path, std::string MapName,float baseline): 
-  HistoNumber(23),
+TkHistoMap::TkHistoMap(std::string path, std::string MapName,float baseline, bool mechanicalView): 
+  HistoNumber(35),
   MapName_(MapName)
 {
   if(!edm::Service<DQMStore>().isAvailable()){
@@ -14,7 +15,7 @@ TkHistoMap::TkHistoMap(std::string path, std::string MapName,float baseline):
       "\n------------------------------------------";
   }
   dqmStore_=edm::Service<DQMStore>().operator->();
-  if(!edm::Service<TkHistoMap>().isAvailable()){
+  if(!edm::Service<TkDetMap>().isAvailable()){
     edm::LogError("TkHistoMap") << 
       "\n------------------------------------------"
       "\nUnAvailable Service TkHistoMap: please insert in the configuration file an instance like"
@@ -23,14 +24,14 @@ TkHistoMap::TkHistoMap(std::string path, std::string MapName,float baseline):
   }
   tkdetmap_=edm::Service<TkDetMap>().operator->();
   LogTrace("TkHistoMap") <<"TkHistoMap::constructor "; 
-  createTkHistoMap(path,MapName, baseline);
+  createTkHistoMap(path,MapName, baseline, mechanicalView);
 }
 
 void TkHistoMap::save(std::string filename){
   dqmStore_->save(filename);
 }
 
-void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName, float& baseline){
+void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName, float& baseline, bool mechanicalView){
   
   std::string folder=path;
   dqmStore_->setCurrentFolder(folder);
@@ -42,9 +43,23 @@ void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName, float
   double lowX,highX;
   double lowY, highY;
 
+  SiStripFolderOrganizer folderOrg;
+
   tkHistoMap_.resize(HistoNumber);  
   for(int layer=1;layer<HistoNumber;++layer){
     fullName=name+tkdetmap_->getLayerName(layer);
+    if(mechanicalView){
+      std::stringstream ss;
+      
+      SiStripDetId::SubDetector subDet;
+      uint32_t subdetlayer, side;
+      tkdetmap_->getSubDetLayerSide(layer,subDet,subdetlayer,side);
+      folderOrg.getSubDetLayerFolderName(ss,subDet,subdetlayer,side);
+
+      folder = ss.str();
+      //folder=path+tkdetmap_->getLayerName(layer); //***FIXME with the mechanical view real code
+      dqmStore_->setCurrentFolder(folder);
+    }
     tkdetmap_->getComponents(layer,nchX,lowX,highX,nchY,lowY,highY);
     TProfile2D* h=new TProfile2D(fullName.c_str(),fullName.c_str(),
 				 nchX,lowX,highX,
@@ -73,8 +88,8 @@ void TkHistoMap::fill(uint32_t& detid,float value){
 #ifdef debug_TkHistoMap
   LogTrace("TkHistoMap") << "[TkHistoMap::fill] " << tkHistoMap_[layer]->getTProfile2D()->GetBinContent(xybin.ix,xybin.iy);
   for(size_t ii=0;ii<4;ii++)
-  for(size_t jj=0;jj<11;jj++)
-    LogTrace("TkHistoMap") << "[TkHistoMap::fill] " << ii << " " << jj << " " << tkHistoMap_[layer]->getTProfile2D()->GetBinContent(ii,jj);
+    for(size_t jj=0;jj<11;jj++)
+      LogTrace("TkHistoMap") << "[TkHistoMap::fill] " << ii << " " << jj << " " << tkHistoMap_[layer]->getTProfile2D()->GetBinContent(ii,jj);
 #endif
 }
 
@@ -109,38 +124,72 @@ void TkHistoMap::saveAsCanvas(std::string filename,std::string options,std::stri
   //  TCanvas C(MapName_,MapName_,200,10,900,700);
   TCanvas* CTIB=new TCanvas(std::string("Canvas_"+MapName_+"TIB").c_str(),std::string("Canvas_"+MapName_+"TIB").c_str());
   TCanvas* CTOB=new TCanvas(std::string("Canvas_"+MapName_+"TOB").c_str(),std::string("Canvas_"+MapName_+"TOB").c_str());
-  TCanvas* CTID=new TCanvas(std::string("Canvas_"+MapName_+"TID").c_str(),std::string("Canvas_"+MapName_+"TID").c_str());
-  TCanvas* CTEC=new TCanvas(std::string("Canvas_"+MapName_+"TEC").c_str(),std::string("Canvas_"+MapName_+"TEC").c_str());
+  TCanvas* CTIDP=new TCanvas(std::string("Canvas_"+MapName_+"TIDP").c_str(),std::string("Canvas_"+MapName_+"TIDP").c_str());
+  TCanvas* CTIDM=new TCanvas(std::string("Canvas_"+MapName_+"TIDM").c_str(),std::string("Canvas_"+MapName_+"TIDM").c_str());
+  TCanvas* CTECP=new TCanvas(std::string("Canvas_"+MapName_+"TECP").c_str(),std::string("Canvas_"+MapName_+"TECP").c_str());
+  TCanvas* CTECM=new TCanvas(std::string("Canvas_"+MapName_+"TECM").c_str(),std::string("Canvas_"+MapName_+"TECM").c_str());
   CTIB->Divide(2,2);
   CTOB->Divide(2,3);
-  CTID->Divide(1,3);
-  CTEC->Divide(3,3);
+  CTIDP->Divide(1,3);
+  CTIDM->Divide(1,3);
+  CTECP->Divide(3,3);
+  CTECM->Divide(3,3);
 
-  for(int i=1;i<=4;++i){
-    CTIB->cd(i);
-    tkHistoMap_[i]->getTProfile2D()->Draw(options.c_str());
-  }
 
-  for(int i=1;i<=3;++i){
-    CTID->cd(i);
-    tkHistoMap_[4+i]->getTProfile2D()->Draw(options.c_str());
-  }
+  int i;
+  i=0;
+  CTIB->cd(++i);tkHistoMap_[TkLayerMap::TIB_L1]->getTProfile2D()->Draw(options.c_str());
+  CTIB->cd(++i);tkHistoMap_[TkLayerMap::TIB_L2]->getTProfile2D()->Draw(options.c_str());
+  CTIB->cd(++i);tkHistoMap_[TkLayerMap::TIB_L3]->getTProfile2D()->Draw(options.c_str());
+  CTIB->cd(++i);tkHistoMap_[TkLayerMap::TIB_L4]->getTProfile2D()->Draw(options.c_str());
+  
+  i=0;
+  CTIDP->cd(++i);tkHistoMap_[TkLayerMap::TIDP_D1]->getTProfile2D()->Draw(options.c_str());
+  CTIDP->cd(++i);tkHistoMap_[TkLayerMap::TIDP_D2]->getTProfile2D()->Draw(options.c_str());
+  CTIDP->cd(++i);tkHistoMap_[TkLayerMap::TIDP_D3]->getTProfile2D()->Draw(options.c_str());
 
-  for(int i=1;i<=6;++i){
-    CTOB->cd(i);
-    tkHistoMap_[7+i]->getTProfile2D()->Draw(options.c_str());
-  }
+  i=0;
+  CTIDM->cd(++i);tkHistoMap_[TkLayerMap::TIDM_D1]->getTProfile2D()->Draw(options.c_str());
+  CTIDM->cd(++i);tkHistoMap_[TkLayerMap::TIDM_D2]->getTProfile2D()->Draw(options.c_str());
+  CTIDM->cd(++i);tkHistoMap_[TkLayerMap::TIDM_D3]->getTProfile2D()->Draw(options.c_str());
+ 
+  i=0;
+  CTOB->cd(++i);tkHistoMap_[TkLayerMap::TOB_L1]->getTProfile2D()->Draw(options.c_str());
+  CTOB->cd(++i);tkHistoMap_[TkLayerMap::TOB_L2]->getTProfile2D()->Draw(options.c_str());
+  CTOB->cd(++i);tkHistoMap_[TkLayerMap::TOB_L3]->getTProfile2D()->Draw(options.c_str());
+  CTOB->cd(++i);tkHistoMap_[TkLayerMap::TOB_L4]->getTProfile2D()->Draw(options.c_str());
+  CTOB->cd(++i);tkHistoMap_[TkLayerMap::TOB_L5]->getTProfile2D()->Draw(options.c_str());
+  CTOB->cd(++i);tkHistoMap_[TkLayerMap::TOB_L6]->getTProfile2D()->Draw(options.c_str());
 
-  for(int i=1;i<=9;++i){
-    CTEC->cd(i);
-    tkHistoMap_[13+i]->getTProfile2D()->Draw(options.c_str());
-  }
+  i=0;
+  CTECP->cd(++i);tkHistoMap_[TkLayerMap::TECP_W1]->getTProfile2D()->Draw(options.c_str());
+  CTECP->cd(++i);tkHistoMap_[TkLayerMap::TECP_W2]->getTProfile2D()->Draw(options.c_str());
+  CTECP->cd(++i);tkHistoMap_[TkLayerMap::TECP_W3]->getTProfile2D()->Draw(options.c_str());
+  CTECP->cd(++i);tkHistoMap_[TkLayerMap::TECP_W4]->getTProfile2D()->Draw(options.c_str());
+  CTECP->cd(++i);tkHistoMap_[TkLayerMap::TECP_W5]->getTProfile2D()->Draw(options.c_str());
+  CTECP->cd(++i);tkHistoMap_[TkLayerMap::TECP_W6]->getTProfile2D()->Draw(options.c_str());
+  CTECP->cd(++i);tkHistoMap_[TkLayerMap::TECP_W7]->getTProfile2D()->Draw(options.c_str());
+  CTECP->cd(++i);tkHistoMap_[TkLayerMap::TECP_W8]->getTProfile2D()->Draw(options.c_str());
+  CTECP->cd(++i);tkHistoMap_[TkLayerMap::TECP_W9]->getTProfile2D()->Draw(options.c_str());
 
+  i=0;
+  CTECM->cd(++i);tkHistoMap_[TkLayerMap::TECM_W1]->getTProfile2D()->Draw(options.c_str());
+  CTECM->cd(++i);tkHistoMap_[TkLayerMap::TECM_W2]->getTProfile2D()->Draw(options.c_str());
+  CTECM->cd(++i);tkHistoMap_[TkLayerMap::TECM_W3]->getTProfile2D()->Draw(options.c_str());
+  CTECM->cd(++i);tkHistoMap_[TkLayerMap::TECM_W4]->getTProfile2D()->Draw(options.c_str());
+  CTECM->cd(++i);tkHistoMap_[TkLayerMap::TECM_W5]->getTProfile2D()->Draw(options.c_str());
+  CTECM->cd(++i);tkHistoMap_[TkLayerMap::TECM_W6]->getTProfile2D()->Draw(options.c_str());
+  CTECM->cd(++i);tkHistoMap_[TkLayerMap::TECM_W7]->getTProfile2D()->Draw(options.c_str());
+  CTECM->cd(++i);tkHistoMap_[TkLayerMap::TECM_W8]->getTProfile2D()->Draw(options.c_str());
+  CTECM->cd(++i);tkHistoMap_[TkLayerMap::TECM_W9]->getTProfile2D()->Draw(options.c_str());
+ 
   TFile *f = new TFile(filename.c_str(),mode.c_str());
   CTIB->Write();
-  CTID->Write();
+  CTIDP->Write();
+  CTIDM->Write();
   CTOB->Write();
-  CTEC->Write();
+  CTECP->Write();
+  CTECM->Write();
   f->Close();
   delete f;
 }

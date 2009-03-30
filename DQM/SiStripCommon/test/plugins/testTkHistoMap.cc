@@ -51,13 +51,14 @@ public:
 
 private:
     
-  TkHistoMap *tkhisto, *tkhistoZ, *tkhistoPhi, *tkhistoR, *tkhistoCheck;
+  TkHistoMap *tkhisto, *tkhistoBis, *tkhistoZ, *tkhistoPhi, *tkhistoR, *tkhistoCheck;
      
 };
 //
 testTkHistoMap::testTkHistoMap ( const edm::ParameterSet& iConfig )
 {
-  tkhisto   =new TkHistoMap("detId","detId",-1.); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
+  tkhisto   =new TkHistoMap("detId","detId",-1); 
+  tkhistoBis   =new TkHistoMap("detIdBis","detIdBis",0,1); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
   tkhistoZ  =new TkHistoMap("Zmap","Zmap");
   tkhistoPhi=new TkHistoMap("Phi","Phi");
   tkhistoR  =new TkHistoMap("Rmap","Rmap",-99.); //here the baseline (the value of the empty,not assigned bins) is put to -99 (default is zero)
@@ -80,7 +81,7 @@ void testTkHistoMap::endJob(void)
   C.Update(); 
   TPostScript ps("test.ps",121);
   ps.NewPage();
-  for(size_t ilayer=1;ilayer<23;++ilayer){
+  for(size_t ilayer=1;ilayer<34;++ilayer){
     C.cd(1);
     tkhisto->getMap   (ilayer)->getTProfile2D()->Draw("TEXT");
     C.cd(2);
@@ -99,6 +100,7 @@ void testTkHistoMap::endJob(void)
   edm::Service<DQMStore>().operator->()->save("test.root");  
 
   tkhisto->saveAsCanvas("test_canvas.root","LEGO","RECREATE");
+  tkhistoBis->saveAsCanvas("test_canvas.root","LEGO","RECREATE");
   tkhistoZ->saveAsCanvas("test_canvas.root","LEGO","UPDATE");
   tkhistoPhi->saveAsCanvas("test_canvas.root","LEGO","UPDATE");
   tkhistoR->saveAsCanvas("test_canvas.root","LEGO","UPDATE");
@@ -144,6 +146,7 @@ void testTkHistoMap::analyze(const edm::Event& iEvent,
 
     
     tkhisto->fill(TkDetIdList[i],value);
+    tkhistoBis->fill(TkDetIdList[i],value);
     tkhistoZ->fill(TkDetIdList[i],globalPos.z());
     tkhistoPhi->fill(TkDetIdList[i],globalPos.phi());
     tkhistoR->fill(TkDetIdList[i],globalPos.perp());
