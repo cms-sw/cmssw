@@ -17,6 +17,25 @@ namespace cond {
     delete m_sorted;
   }
   
+  IOVSequence::IOVSequence(IOVSequence const & rh) : 
+    m_iovs(rh.m_iovs),  
+    m_timetype(rh.m_timetype),
+    m_lastTill(rh.m_lastTill),
+    m_notOrdered(rh.m_notOrdered),
+    m_metadata(rh.m_metadata),
+    m_sorted(0) {}
+  
+  IOVSequence & IOVSequence::operator=(IOVSequence cost & rh) {
+    delete m_sorted;  m_sorted=0;
+
+    m_iovs = rh.m_iovs;  
+    m_timetype = rh.m_timetype;
+    m_lastTill=rh.m_lastTill;
+    m_notOrdered=rh.m_notOrdered;
+    m_metadata = rh.m_metadata;
+    return rh;
+  }
+
   
   IOVSequence::Container const & IOVSequence::iovs() const {
     if (m_sorted) return *m_sorted;
