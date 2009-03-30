@@ -38,7 +38,7 @@ ElectronSqPtTkIsolationProducer::~ElectronSqPtTkIsolationProducer(){}
 void ElectronSqPtTkIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // Get the  filtered objects
-  edm::Handle< reco::PixelMatchGsfElectronCollection> electronHandle;
+  edm::Handle< reco::GsfElectronCollection> electronHandle;
   iEvent.getByLabel(electronProducer_,electronHandle);
   
   //get the tracks
@@ -46,7 +46,7 @@ void ElectronSqPtTkIsolationProducer::produce(edm::Event& iEvent, const edm::Eve
   iEvent.getByLabel(trackProducer_,tracks);
   const reco::TrackCollection* trackCollection = tracks.product();
   
-  reco::CandViewDoubleAssociations* isoMap = new reco::CandViewDoubleAssociations(reco::PixelMatchGsfElectronRefProd( electronHandle ));
+  reco::CandViewDoubleAssociations* isoMap = new reco::CandViewDoubleAssociations(reco::GsfElectronRefProd( electronHandle ));
   
   ElectronSqPtTkIsolation myTkIsolation (extRadius_,intRadius_,ptMin_,maxVtxDist_,trackCollection) ;
   
