@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTaskExtras.cc
  *
- * $Date: 2009/03/24 15:08:34 $
- * $Revision: 1.3 $
+ * $Date: 2009/03/26 12:01:48 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -21,6 +21,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -692,8 +693,6 @@ void EEClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 	 e.getByLabel( EcalRecHitCollection_, pEERecHits );
 	 if ( pEERecHits.isValid() ) {
 	    const EcalRecHitCollection *eeRecHits = pEERecHits.product();
-
-	    BasicClusterRef theSeed = sCluster->seed();
 
 	    // Find the seed rec hit
 	    // <= CMSSW_3_0_X
