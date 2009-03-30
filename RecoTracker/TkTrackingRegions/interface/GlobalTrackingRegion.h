@@ -32,7 +32,7 @@ public:
       Range( -1/ptMin, 1/ptMin), originRadius, originHalfLength),
       thePrecise(precise) { }
 
-  virtual std::vector<ctfseeding::SeedingHit> hits(
+  virtual TrackingRegion::Hits hits(
       const edm::Event& ev,  
       const edm::EventSetup& es, 
       const ctfseeding::SeedingLayer* layer) const;

@@ -32,7 +32,7 @@ public:
 
   ~SeedingLayerImpl() { delete theHitExtractor; }
 
-  vector<SeedingHit> hits(const SeedingLayer &sl, const edm::Event& ev, 
+  SeedingLayer::Hits hits(const SeedingLayer &sl, const edm::Event& ev, 
       const edm::EventSetup& es) const { return theHitExtractor->hits(sl,ev,es); }
 
   std::string name() const { return theName; }
@@ -87,7 +87,7 @@ const TransientTrackingRecHitBuilder * SeedingLayer::hitBuilder() const
   return theImpl->hitBuilder();
 }
 
-std::vector<SeedingHit> SeedingLayer::hits(const edm::Event& ev, const edm::EventSetup& es) const
+SeedingLayer::Hits SeedingLayer::hits(const edm::Event& ev, const edm::EventSetup& es) const
 {
   return  theImpl->hits( *this,ev,es);
 }

@@ -40,10 +40,10 @@ bool HitExtractorSTRP::ringRange(int ring) const
   else return false;
 }
 
-vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Event& ev, const edm::EventSetup& es) const
+HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Event& ev, const edm::EventSetup& es) const
 {
   TrackerLayerIdAccessor accessor;
-  std::vector<SeedingHit> result;
+  HitExtractor::Hits result;
 
   //
   // TIB
@@ -84,7 +84,7 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
           for (SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
               int ring = TIDDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
               for (SiStripMatchedRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-                  result.push_back( SeedingHit(&(*hit), sl, es) );
+                  result.push_back( sl.hitBuilder()->build(hit) ); 
               }
           }
       }
@@ -97,7 +97,7 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
               int ring = TIDDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
               if ((SiStripDetId(it->detId()).partnerDetId() != 0) && hasSimpleRphiHitsCleaner) continue;  // this is a brutal "cleaning". Add something smarter in the future
               for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-                  result.push_back( SeedingHit(&(*hit), sl, es) );
+                  result.push_back( sl.hitBuilder()->build(hit) );
               }
           }
       }
@@ -109,7 +109,7 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
           for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
               int ring = TIDDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
               for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-                  result.push_back( SeedingHit(&(*hit), sl, es) );
+                  result.push_back( sl.hitBuilder()->build(hit) );
               }
           }
       }
@@ -153,7 +153,7 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
           for (SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
               int ring = TECDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
               for (SiStripMatchedRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-                  result.push_back( SeedingHit(&(*hit), sl, es) );
+                  result.push_back(  sl.hitBuilder()->build(hit) );
               }
           }
       }
@@ -166,7 +166,7 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
               int ring = TECDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
               if ((SiStripDetId(it->detId()).partnerDetId() != 0) && hasSimpleRphiHitsCleaner) continue;  // this is a brutal "cleaning". Add something smarter in the future
               for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-                  result.push_back( SeedingHit(&(*hit), sl, es) );
+                  result.push_back( sl.hitBuilder()->build(hit) );
               }
           }
 
@@ -179,7 +179,7 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
           for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
               int ring = TECDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
               for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-                  result.push_back( SeedingHit(&(*hit), sl, es) );
+                  result.push_back( sl.hitBuilder()->build(hit) );
               }
           }
       }

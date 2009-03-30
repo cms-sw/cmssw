@@ -17,7 +17,7 @@ public:
   HitExtractorSTRP( const DetLayer* detLayer,  SeedingLayer::Side & side, int idLayer);
   virtual ~HitExtractorSTRP(){}
 
-  virtual std::vector<SeedingHit> hits( const SeedingLayer & sl, const edm::Event& , const edm::EventSetup& ) const;
+  virtual HitExtractor::Hits hits( const SeedingLayer & sl, const edm::Event& , const edm::EventSetup& ) const;
   virtual HitExtractorSTRP * clone() const { return new HitExtractorSTRP(*this); }
 
   void useMatchedHits( const edm::InputTag & m) { hasMatchedHits = true; theMatchedHits = m; }

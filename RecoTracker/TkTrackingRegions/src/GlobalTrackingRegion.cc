@@ -24,7 +24,7 @@ std::string GlobalTrackingRegion::print() const {
   return str.str(); 
 }
 
-std::vector<ctfseeding::SeedingHit> GlobalTrackingRegion::hits(
+TrackingRegion::Hits GlobalTrackingRegion::hits(
       const edm::Event& ev,
       const edm::EventSetup& es,
       const ctfseeding::SeedingLayer* layer) const

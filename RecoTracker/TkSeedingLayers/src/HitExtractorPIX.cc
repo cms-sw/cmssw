@@ -18,10 +18,10 @@ HitExtractorPIX::HitExtractorPIX(
   : theSide(side), theIdLayer(idLayer), theHitProducer(hitProducer)
 { }
 
-vector<SeedingHit> HitExtractorPIX::hits(const SeedingLayer & sl,const edm::Event& ev, const edm::EventSetup& es) const
+HitExtractor::Hits HitExtractorPIX::hits(const SeedingLayer & sl,const edm::Event& ev, const edm::EventSetup& es) const
 {
   TrackerLayerIdAccessor accessor;
-  std::vector<SeedingHit> result;
+  HitExtractor::Hits result;
   edm::Handle<SiPixelRecHitCollection> pixelHits;
   ev.getByLabel( theHitProducer, pixelHits);
   if (theSide==SeedingLayer::Barrel) {

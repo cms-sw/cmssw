@@ -271,7 +271,7 @@ HitRZConstraint
                               pRight, sinh(theEtaRange.max()) );
 }
 
-std::vector< SeedingHit> RectangularEtaPhiTrackingRegion::hits(
+TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
       const edm::Event& ev,
       const edm::EventSetup& es,
       const  SeedingLayer* layer) const
@@ -280,7 +280,7 @@ std::vector< SeedingHit> RectangularEtaPhiTrackingRegion::hits(
 
 
   //ESTIMATOR
-  std::vector< SeedingHit> result;
+  TrackingRegion::Hits result;
   const DetLayer * detLayer = layer->detLayer();
   OuterEstimator * est = 0;
   if (detLayer->location() == GeomDetEnumerators::barrel) {
@@ -332,18 +332,15 @@ std::vector< SeedingHit> RectangularEtaPhiTrackingRegion::hits(
   typedef vector<TrajectoryMeasurement>::const_iterator IM;
   for (IM im = meas.begin(); im != meas.end(); im++) {
     TrajectoryMeasurement::ConstRecHitPointer ptrHit = im->recHit();
-    if (ptrHit->isValid()) { 
-      result.push_back(  SeedingHit( ptrHit, *layer));
-    }
+    if (ptrHit->isValid())  result.push_back( ptrHit );
   }
   } else {
   //
   // temporary solution 
   //
-  typedef  std::vector< SeedingHit> Hits;
-  Hits layerHits = layer->hits(ev,es);
-  for (Hits::const_iterator ih= layerHits.begin(); ih != layerHits.end(); ih++) {
-    const TrackingRecHit * hit = *ih;
+  TrackingRegion::Hits layerHits = layer->hits(ev,es);
+  for (TrackingRegion::Hits::const_iterator ih= layerHits.begin(); ih != layerHits.end(); ih++) {
+    const TrackingRecHit * hit = (*ih)->hit();
     if ( est->hitCompatibility()(hit,es) ) {
        result.push_back( *ih );
     }

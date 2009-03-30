@@ -17,8 +17,8 @@
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingHit.h"
-
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include <vector>
 
 class DetLayer;
 class TrackingRecHit;
@@ -29,6 +29,7 @@ class TrackingRegion{
 public:
 
   typedef PixelRecoRange<float> Range;
+  typedef std::vector<TransientTrackingRecHit::ConstRecHitPointer> Hits;
 
   /// the direction around which region is constructed 
   virtual GlobalVector direction() const = 0;
@@ -49,7 +50,7 @@ public:
   virtual float ptMin()  const = 0;
 
    /// get hits from layer compatible with region constraints 
-   virtual std::vector<ctfseeding::SeedingHit> hits(
+   virtual Hits hits(
        const edm::Event& ev, 
        const edm::EventSetup& es, 
        const ctfseeding::SeedingLayer* layer) const = 0; 

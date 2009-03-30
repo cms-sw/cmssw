@@ -5,7 +5,7 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
-#include "RecoTracker/TkSeedingLayers/interface/SeedingHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class DetLayer;
 class TransientTrackingRecHitBuilder;
@@ -19,6 +19,7 @@ class SeedingLayer {
 public:
   enum Side { Barrel = 0, NegEndcap =1,  PosEndcap = 2 }; 
 public:
+  typedef  std::vector<TransientTrackingRecHit::ConstRecHitPointer> Hits;
   
   SeedingLayer(){}
 
@@ -30,7 +31,7 @@ public:
 
   std::string name() const;
 
-  std::vector<SeedingHit> hits(const edm::Event& ev, const edm::EventSetup& es) const;
+  Hits hits(const edm::Event& ev, const edm::EventSetup& es) const;
 
   bool operator==(const SeedingLayer &s) const { return name()==s.name(); }
 
