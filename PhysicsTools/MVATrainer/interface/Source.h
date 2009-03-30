@@ -9,7 +9,6 @@
 namespace PhysicsTools {
 
 class MVATrainer;
-namespace { class TrainInterceptor; }
 
 class Source {
     public:
@@ -24,15 +23,14 @@ class Source {
 
 	inline bool isTrained() const { return trained; }
 
+	inline const SourceVariableSet &getInputs() const { return inputs; }
+	inline const SourceVariableSet &getOutputs() const { return outputs; }
+
     protected:
 	friend class MVATrainer;
-	friend class TrainInterceptor;
 
 	inline SourceVariableSet &getInputs() { return inputs; }
 	inline SourceVariableSet &getOutputs() { return outputs; }
-
-	inline const SourceVariableSet &getInputs() const { return inputs; }
-	inline const SourceVariableSet &getOutputs() const { return outputs; }
 
 	bool			trained;
 

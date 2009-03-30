@@ -211,12 +211,12 @@ std::vector<Variable::Flags>
 TrainInterceptor::configure(const MVAComputer *computer, unsigned int n,
                             const std::vector<Variable::Flags> &flags)
 {
-	SourceVariable *target =
-			proc->getInputs().find(SourceVariableSet::kTarget);
-	SourceVariable *weight =
-			proc->getInputs().find(SourceVariableSet::kWeight);
+	const SourceVariableSet &inputSet = 
+		const_cast<const TrainProcessor*>(proc)->getInputs();
+	SourceVariable *target = inputSet.find(SourceVariableSet::kTarget);
+	SourceVariable *weight = inputSet.find(SourceVariableSet::kWeight);
 
-	std::vector<SourceVariable*> inputs = proc->getInputs().get(true);
+	std::vector<SourceVariable*> inputs = inputSet.get(true);
 
 	std::vector<SourceVariable*>::const_iterator pos;
 	pos = std::find(inputs.begin(), inputs.end(), target);
