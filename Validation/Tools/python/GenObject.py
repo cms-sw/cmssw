@@ -39,6 +39,24 @@ class GenObject (object):
                             # a given GenObject
     _kitchenSinkDict   = {} # dictionary that holds everything else...
     
+    ####################
+    ## Compile Regexs ##
+    ####################
+    _singleColonRE = re.compile (r'(.+?):(.+)')
+    _doubleColonRE = re.compile (r'(.+?):(.+?):(.+)')
+    _parenRE       = re.compile (r'(.+)\((.*)\)')
+    _spacesRE      = re.compile (r'\s+')
+    _dotRE         = re.compile (r'\s*\.\s*')
+    _commaRE       = re.compile (r'\s*,\s*')
+    _singleQuoteRE = re.compile (r'^\'(.+)\'$')
+    _doubleQuoteRE = re.compile (r'^\"(.+)\"$')
+    _aliasRE       = re.compile (r'alias=(\S+)',   re.IGNORECASE)
+    _singletonRE   = re.compile (r'singleton',     re.IGNORECASE)
+    _typeRE        = re.compile (r'type=(\S+)',    re.IGNORECASE)
+    _defaultRE     = re.compile (r'default=(\S+)', re.IGNORECASE)
+    _precRE        = re.compile (r'prec=(\S+)',    re.IGNORECASE)
+    _formRE        = re.compile (r'form=(\S+)',    re.IGNORECASE)
+    
     #############################
     ## Static Member Functions ##
     #############################
@@ -230,10 +248,10 @@ class GenObject (object):
         config     = ConfigParser.SafeConfigParser()
         config.read (configFile)
         for section in config.sections():
-            pieces = re.split (r'\s+', section)
+            pieces = GenObject._spacesRE.split (section)
             if not len (pieces): continue
             objName, pieces = pieces[0], pieces[1:]
-            colonMatch = re.search (r'(.+?):(.+?):(.+)', objName)
+            colonMatch = GenObject._doubleColonRE.search (objName)
             mode = modeEnum.none
             if colonMatch:
                 ##########################
@@ -247,7 +265,7 @@ class GenObject (object):
                              setdefault (tupleName, {})
                 ntupleDict[objName] = tofillName
                 for word in pieces:
-                    aliasMatch = re.search (r'alias=(\S+)', word)
+                    aliasMatch = GenObject._aliasRE.search (word)
                     if aliasMatch:
                         myTuple = (tofillName, aliasMatch.group (1))
                         ntupleDict.setdefault ('_alias', {}).\
@@ -260,7 +278,7 @@ class GenObject (object):
                           % (word, section, mode)
                     raise RuntimeError, "Config file parsing error"
             else:
-                colonMatch = re.search (r'(.+?):(.+)', objName)
+                colonMatch = GenObject._singleColonRE.search (objName)
                 if colonMatch:
                     #######################
                     ## Ntuple Definition ##
@@ -269,13 +287,13 @@ class GenObject (object):
                     ntupleDict = GenObject._ntupleDict.\
                                 setdefault (colonMatch.group(1), {})
                     ntupleDict['_tree'] = colonMatch.group(2)
-            if not re.search (r':', section):
+            if not GenObject._singleColonRE.search (section):
                 ##########################
                 ## GenObject Definition ##
                 ##########################
                 mode = modeEnum.define
                 for word in pieces:
-                    if re.match (r'singleton', word, re.IGNORECASE):
+                    if GenObject._singletonRE.match (word):
                         #GenObject._singletonSet.add (objName)
                         objsDict = GenObject._objsDict.setdefault (objName, {})
                         objsDict['_singleton'] = True
@@ -292,7 +310,7 @@ class GenObject (object):
             for varName in config.options (section):
                 option = config.get (section, varName)
                 if option:
-                    pieces = re.split (r'\s+', option)
+                    pieces = GenObject._spacesRE.split (option)
                 else:
                     pieces = []
                 if modeEnum.define == mode:
@@ -325,21 +343,21 @@ class GenObject (object):
                     # If we're here, then this is a variable
                     optionsDict = {}
                     for word in pieces:
-                        typeMatch = re.search (r'type=(\S+)', word)
+                        typeMatch = GenObject._typeRE.search (word)
                         if typeMatch and \
                                GenObject.types.isValidKey (typeMatch.group(1)):
                             varType = typeMatch.group(1).lower()
                             optionsDict['varType'] = GenObject.types (varType)
                             continue
-                        defaultMatch = re.search (r'default=(\S+)', word)
+                        defaultMatch = GenObject._defaultRE.search (word)
                         if defaultMatch:
                             optionsDict['default'] = defaultMatch.group(1)
                             continue
-                        precMatch =  re.search (r'prec=(\S+)', word)
+                        precMatch = GenObject._precRE.search (word)
                         if precMatch:
                             optionsDict['prec'] = float (precMatch.group (1))
                             continue
-                        formMatch =  re.search (r'form=(\S+)', word)
+                        formMatch = GenObject._formRE.search (word)
                         if formMatch:
                             optionsDict['form'] = formMatch.group (1)
                             continue
@@ -357,15 +375,19 @@ class GenObject (object):
                     if len (pieces) < 1:
                         continue
                     fillname, pieces = pieces[0], pieces[1:]
-                    parts = re.split (r'\s*\.\s*', fillname)
+                    parts = GenObject._dotRE.split (fillname)
                     partsList = []
                     for part in parts:
-                        parenMatch = re.search (r'(.+)\(.*\)', part)
-                        mode = GenObject._objFunc.obj
+                        parenMatch = GenObject._parenRE.search (part)
+                        mode   = GenObject._objFunc.obj
+                        parens = []
                         if parenMatch:
-                            part = parenMatch.group (1)
-                            mode = GenObject._objFunc.func
-                        partsList.append(  (part, mode) )
+                            part   = parenMatch.group (1)
+                            mode   = GenObject._objFunc.func
+                            parens = \
+                                   GenObject._convertStringToParameters \
+                                   (parenMatch.group (2))
+                        partsList.append(  (part, mode, parens) )
                     # I don't yet have any options available here, but
                     # I'm keeping the code here for when I add them.
                     optionsDict = {}
@@ -399,16 +421,19 @@ class GenObject (object):
                         .get(objName, {})
         genObj = GenObject (objName)
         origObj = obj
-        #print "obj", objName
         for genVar, ntDict in tofillObjDict.iteritems():
+            # start off with the original object
+            obj = origObj
+            # lets work our way down the list
             partsList = ntDict[0]
             for part in partsList:
-                #print "  ", part
                 obj = getattr (obj, part[0])
-            if GenObject._objFunc.func == part[1]:                
-                obj = obj()
+                # if this is a function instead of a data member, make
+                # sure you call it with its arguments:
+                if GenObject._objFunc.func == part[1]:
+                    # Arguments are stored as a list in part[2]
+                    obj = obj (*part[2])
             setattr (genObj, genVar, obj)
-            obj = origObj
         # Do I need to store the index of this object?
         if index >= 0:
             setattr (genObj, 'index', index)
@@ -951,7 +976,40 @@ class GenObject (object):
         event = {}
         GenObject.compareTwoTrees (chain, chain, blur=True)
         return
-    
+
+
+    @staticmethod
+    def _convertStringToParameters (string):
+        """Convert comma-separated string into a python list of
+        parameters"""
+        retval = []        
+        words = GenObject._commaRE.split (string)
+        for word in words:
+            if not len (word):
+                continue
+            match = GenObject._singleQuoteRE.search (word)
+            if match:
+                retval.append (match.group (1))
+                continue
+            match = GenObject._doubleQuoteRE.search (word)
+            if match:
+                retval.append (match.group (1))
+                continue
+            try:
+                val = int (word)
+                retval.append (val)
+                continue
+            except:
+                pass
+            try:
+                val = float (word)
+                retval.append (val)
+                continue
+            except:
+                pass
+            # if we're still here, we've got a problem
+            raise RuntimeError, "Unknown parameter '%s'." % word
+        return retval
 
         
     ######################
