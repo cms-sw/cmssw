@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="SiStripLorentzAngleRcd" >
+  <PoolContainer name="SiStripLorentzAngle" >
    <Class table="SISTRIPLORENTZANGLE" id_columns="IOV_VALUE_ID" name="SiStripLorentzAngle" mapping_version="SiStripLorentzAngle_basic" >
      <Container table="SISTRIPLA_MAP" id_columns="ID_VALUE_ID" name="m_LA" position_column="POS" >
        <Primitive column="DETID" name="key_type" />

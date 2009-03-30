@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="SiStripApvGainRcd" >
+  <PoolContainer name="SiStripApvGain" >
    <Class table="SISTRIPAPVGAIN" id_columns="IOV_VALUE_ID" name="SiStripApvGain" mapping_version="SiStripApvGain_basic" >
      <Blob column="GAIN_DETIDS" name="v_detids" />
      <Blob column="GAIN_IBEGIN" name="v_ibegin" />

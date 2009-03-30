@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="SiStripThresholdRcd" >
+  <PoolContainer name="SiStripThreshold" >
    <Class table="SISTRIPTHRESHOLD" id_columns="IOV_VALUE_ID" name="SiStripThreshold" mapping_version="SiStripThreshold_basic" >
     <Blob column="DETREGISTRYINDEX_Threshold" name="indexes"/>
     <Blob column="THRESHOLDDATA" name="v_threshold"/>

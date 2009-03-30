@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="SiStripFedCablingRcd" >
+  <PoolContainer name="SiStripFedCabling" >
    <Class table="SISTRIPFEDCABLING" id_columns="IOV_VALUE_ID" name="SiStripFedCabling" mapping_version="SiStripFedCabling_basic" >
      <Blob column="SISTRIPFEDCABLING_CONN" name="connections_"/>
      <Blob column="SISTRIPFEDCABLING_DETEC" name="detected_"/>

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="SiStripNoisesRcd" >
+  <PoolContainer name="SiStripNoises" >
    <Class table="SISTRIPNOISES" id_columns="IOV_VALUE_ID" name="SiStripNoises" mapping_version="SiStripNoises_basic" >
      <Blob column="DETREGISTRYINDEX_NOISE" name="indexes"/>
      <Blob column="NOISEDATA" name="v_noises"/>

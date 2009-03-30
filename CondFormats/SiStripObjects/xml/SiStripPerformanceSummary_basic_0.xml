@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="SiStripPerformanceSummary_basic" >
+  <PoolContainer name="SiStripPerformanceSummary" >
    <Class table="SISTRIPPERFORMANCE_1" id_columns="IOV_VALUE_ID" name="SiStripPerformanceSummary" mapping_version="SiStripPerformance_basic" >
      <Primitive column="RUNNR" name="runNr_" />
      <Primitive column="TIMEVALUE" name="timeValue_" />

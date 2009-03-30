@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="SiStripModuleHVRcd" >
+  <PoolContainer name="SiStripModuleHV" >
    <Class table="SISTRIPMODULEHV" id_columns="IOV_VALUE_ID" name="SiStripModuleHV" mapping_version="SiStripModuleHV_basic" >
      <Blob column="MODULEHV" name="v_hvoff"/>
    </Class >
