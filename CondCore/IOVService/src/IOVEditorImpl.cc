@@ -188,7 +188,7 @@ namespace cond {
  IOVEditorImpl::freeInsert( cond::Time_t sinceTime ,
 			       const std::string& payloadToken
 			       ){
-    throw cond::Exception("cond::IOVEditorImpl::freeInsert not supported yet");
+    // throw cond::Exception("cond::IOVEditorImpl::freeInsert not supported yet");
 
     if( m_token.empty() ) {
       throw cond::Exception("cond::IOVEditorImpl::freeInsert cannot append to non-existing IOV index");
