@@ -28,8 +28,14 @@ using namespace std;
 class SiStripDetSummary
 {
 public:
-  void add(const DetId & detid, const float & value);
-  void print(stringstream& ss) const;
+  /// Used to compute the mean value of the value variable divided by subdetector, layer and mono/stereo
+  void add(const DetId & detid, const float & value = 0.);
+
+  /**
+   * Method used to write the output. By default mean == true and it writes the mean value. If mean == false
+   * it will write the count.
+   */
+  void print(stringstream& ss, const bool mean = true) const;
 
 protected:
   // Maps to store the LorentzAngle and the counts

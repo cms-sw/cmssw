@@ -1,5 +1,6 @@
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 
 bool SiStripDetVOff::put(const uint32_t DetId, const bool HVoff, const bool LVoff)
 {
@@ -84,4 +85,36 @@ bool SiStripDetVOff::IsModuleHVOff(const uint32_t DetId) const
   constVoffIterator p = std::lower_bound(v_Voff.begin(), v_Voff.end(), enDetId);
   if( p != v_Voff.end() && (*p >> bitShift) == DetId && (*p & HVmask) ) return true;
   return false;
+}
+
+void SiStripDetVOff::printDebug(std::stringstream & ss) const
+{
+  std::vector<uint32_t> detIds;
+  getDetIds(detIds);
+  constVoffIterator it = detIds.begin();
+  ss << "DetId    \t LV \t HV" << endl;
+  for( ; it!=detIds.end(); ++it ) {
+    ss << *it << "\t";
+    if( IsModuleHVOff(*it)) ss << "OFF\t";
+    else ss << "ON \t";
+    if( IsModuleLVOff(*it)) ss << "OFF" << endl;
+    else ss << "ON" << endl;
+  }
+}
+
+void SiStripDetVOff::printSummary(std::stringstream & ss) const
+{
+  SiStripDetSummary summaryHV;
+  SiStripDetSummary summaryLV;
+  std::vector<uint32_t> detIds;
+  getDetIds(detIds);
+  constVoffIterator it = detIds.begin();
+  for( ; it!=detIds.end(); ++it ) {
+    if( IsModuleHVOff(*it)) summaryHV.add(*it);
+    if( IsModuleLVOff(*it)) summaryLV.add(*it);
+  }
+  ss << "Summary of detectors with HV off:" << endl;
+  summaryHV.print(ss, false);
+  ss << "Summary of detectors with LV off:" << endl;
+  summaryLV.print(ss, false);
 }

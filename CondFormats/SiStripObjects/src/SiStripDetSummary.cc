@@ -50,7 +50,7 @@ void SiStripDetSummary::add(const DetId & detid, const float & value)
   countMap_[detNum] += 1;
 }
 
-void SiStripDetSummary::print(stringstream & ss) const
+void SiStripDetSummary::print(stringstream & ss, const bool mean) const
 {
   // Compute the mean for each detector and for each layer.
   // The maps have the same key and therefore are ordered in the same way.
@@ -58,7 +58,9 @@ void SiStripDetSummary::print(stringstream & ss) const
   map<int, double>::const_iterator meanIt = meanMap_.begin();
   map<int, double>::const_iterator rmsIt = rmsMap_.begin();
 
-  ss << "subDet" << setw(15) << "layer" << setw(16) << "mono/stereo" << setw(20) << "mean +- rms";
+  ss << "subDet" << setw(15) << "layer" << setw(16) << "mono/stereo" << setw(20);
+  if( mean ) ss << "mean +- rms" << endl;
+  else ss << "count" << endl;
 
   string detector;
   string oldDetector;
@@ -96,6 +98,8 @@ void SiStripDetSummary::print(stringstream & ss) const
     int layer = (countIt->first)/10 - (countIt->first)/1000*100;
     int stereo = countIt->first - layer*10 -(countIt->first)/1000*1000;
 
-    ss << setw(15) << layer << setw(13) << stereo << setw(18) << mean << " +- " << rms << endl;
+    ss << setw(15) << layer << setw(13) << stereo << setw(18);
+    if( mean ) ss << mean << " +- " << rms << endl;
+    else ss << countIt->second << endl;
   }
 }

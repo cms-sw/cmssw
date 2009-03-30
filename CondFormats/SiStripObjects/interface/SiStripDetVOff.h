@@ -22,18 +22,9 @@ class SiStripDetVOff
 {
  public:
 
-//   struct DetRegistry {
-//     uint32_t detid;
-//   };
-
-//   typedef std::vector<int>::const_iterator        ContainerIterator;  
-//   typedef std::pair<ContainerIterator, ContainerIterator>  Range;      
-//   typedef std::vector<DetRegistry>                         Registry;
-//   typedef Registry::const_iterator                         RegistryIterator;
-
-  typedef std::vector<uint32_t>::iterator            vOffIterator;
-  typedef std::vector<uint32_t>::const_iterator            constVoffIterator;
-  typedef std::vector<bool>::const_iterator            constVboolIterator;
+  typedef std::vector<uint32_t>::iterator       vOffIterator;
+  typedef std::vector<uint32_t>::const_iterator constVoffIterator;
+  typedef std::vector<bool>::const_iterator     constVboolIterator;
 
   // Bitmasks used to retrieve LV and HV information
   static const short LVmask = 0x1;  // <--- 01
@@ -60,6 +51,9 @@ class SiStripDetVOff
   bool IsModuleHVOff(const uint32_t DetID) const;
 
   bool IsModuleLVOff(const uint32_t DetID) const;
+
+  void printDebug(std::stringstream & ss) const;
+  void printSummary(std::stringstream & ss) const;
 
  private:
 
