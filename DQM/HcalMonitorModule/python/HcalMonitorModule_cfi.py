@@ -275,6 +275,12 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            LED_ADC_Thresh = cms.untracked.double(-1000.0),
                            LEDPerChannel = cms.untracked.bool(True),
 
+
+                           #LASER MONITOR
+                           LaserMonitor = cms.untracked.bool(False),
+                           Laser_ADC_Thresh = cms.untracked.double(-1000.0),
+                           LaserPerChannel = cms.untracked.bool(True),
+
                            # SPECIALIZED (EXPERT-USE) MONITORS
 
                             # EXPERT MONITOR (should generally be turned off)
