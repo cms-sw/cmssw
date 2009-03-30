@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.35 2009/02/26 19:32:31 vlimant Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.36 2009/03/15 04:22:17 dmytro Exp $
 //
 //
 
@@ -47,6 +47,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
