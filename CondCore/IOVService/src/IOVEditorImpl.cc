@@ -207,7 +207,7 @@ namespace cond {
 
    
    // we do not support multiple iov with identical since...
-   if (m_iov.exist(sinceTime))
+   if (m_iov->exist(sinceTime))
      throw cond::Exception("cond::IOVEditorImpl::freeInsert sinceTime already existing");
 
 

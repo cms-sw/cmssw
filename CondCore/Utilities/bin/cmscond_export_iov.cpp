@@ -56,6 +56,7 @@ int main( int argc, char** argv ){
     ("destTag,t",boost::program_options::value<std::string>(),"destination tag (required)")
     ("beginTime,b",boost::program_options::value<cond::Time_t>(),"begin time (first since) (optional)")
     ("endTime,e",boost::program_options::value<cond::Time_t>(),"end time (last till) (optional)")
+    ("outOfOrder,o","allow out of order merge (optional, default=false)")
     ("usertext,x",boost::program_options::value<std::string>(),"user text, to be included in usertext column (optional, must be enclosed in double quotes)")
     ("sql","dump the sql output (optional)")
     ;
@@ -76,6 +77,9 @@ int main( int argc, char** argv ){
   std::string sqlOutputFileName("sqlmonitoring.out");
   bool debug=false;
   std::string blobStreamerName("COND/Services/TBufferBlobStreamingService");
+
+  bool outOfOrder = false;
+
   boost::program_options::variables_map vm;
   try{
     boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(myopt.description()).run(), vm);
@@ -116,20 +120,20 @@ int main( int argc, char** argv ){
     }else{
       inputTag=destTag=vm["destTag"].as<std::string>();
     }
-
+    
     if(vm.count("inputTag"))
       inputTag = vm["inputTag"].as<std::string>();
-
+    
     if(vm.count("beginTime"))
       since = vm["beginTime"].as<cond::Time_t>();
     if(vm.count("endTime"))
       till = vm["endTime"].as<cond::Time_t>();
     
-   if(vm.count("logDB"))
+    if(vm.count("logDB"))
       logConnect = vm["logDB"].as<std::string>();
-
-
-
+    
+    outOfOrder = vm.count("outOfOrder");
+    
     if( vm.count("authPath") ){
       authPath=vm["authPath"].as<std::string>();
     }
@@ -294,7 +298,7 @@ int main( int argc, char** argv ){
     }
     cond::UserLogInfo a;
     a.provenance=sourceConnect+"/"+inputTag;
-    a.usertext="exportIOV V1.0;";
+    a.usertext="exportIOV V2.0;";
     {
       std::ostringstream ss; 
       ss << "since="<< since <<", till="<< till << ", " << usertext << ";";
@@ -306,7 +310,8 @@ int main( int argc, char** argv ){
     destiovtoken=iovmanager.exportIOVRangeWithPayload( destdb,
 						       sourceiovtoken,
 						       destiovtoken,
-						       since, till );
+						       since, till, 
+						       outOfOrder );
     sourcedb.commit();
     destdb.commit();
     if (newIOV) {

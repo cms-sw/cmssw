@@ -64,11 +64,13 @@ cond::IOVService::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
 					     const std::string& iovToken,
 					     const std::string& destToken,
 					     cond::Time_t since,
-					     cond::Time_t till){
+					     cond::Time_t till,
+					     bool outOfOrder){
   return  m_impl->exportIOVRangeWithPayload( destDB,
 					     iovToken,
 					     destToken,
 					     since,
-					     till); 
+					     till,
+					     outOfOrder); 
 }
 

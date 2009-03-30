@@ -41,7 +41,8 @@ namespace cond{
 					   const std::string& iovToken,
 					   const std::string& destToken,
 					   cond::Time_t since,
-					   cond::Time_t till );
+					   cond::Time_t till,
+					   bool outOfOrder);
   private:
 
     cond::IOVSequence const & iovSeq(const std::string& iovToken) const;

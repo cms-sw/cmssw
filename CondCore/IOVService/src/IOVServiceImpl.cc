@@ -134,7 +134,8 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
 						 const std::string& iovToken,
 						 const std::string& destToken,
 						 cond::Time_t since,
-						 cond::Time_t till){
+						 cond::Time_t till, 
+						 bool outOfOrder){
   
   
   {
@@ -172,7 +173,14 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
     dToken = newiovref.token();
   } else {
     newiovref = cond::TypedRef<cond::IOVSequence>(destDB,destToken);
-    if (!newiovref->iovs().empty() && since <= newiovref->iovs().back().sinceTime())
+
+    if (newiovref->iovs().empty()) ; // do not waist time
+    else if (outOfOrder) {
+        for( IOVSequence::const_iterator it=ifirstTill;
+	     it!=isecondTill; ++it)
+	  if (newiovref->exist(it->sinceTime()))
+	    throw cond::Exception("IOVServiceImpl::exportIOVRangeWithPayload Error: since time already exists");
+    } else if (since <= newiovref->iovs().back().sinceTime())
       throw cond::Exception("IOVServiceImpl::exportIOVRangeWithPayload Error: since time out of range, below last since");
     newiovref.markUpdate();    
   }
