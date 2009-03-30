@@ -9,6 +9,10 @@
 <use name=DataFormats/MuonReco>
 <use name=JetMETCorrections/Objects>
 <use name=CondFormats/JetMETObjects>
+<use name=RecoJets/JetAssociationAlgorithms>
+<use name=MagneticField/Records>
+<use name=TrackingTools/Records>
+
 <export>
    <lib name=JetMETCorrectionsAlgorithms>
    <use name=JetMETCorrections/Objects>

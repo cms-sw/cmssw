@@ -52,6 +52,11 @@ private:
   edm::InputTag m_JetTracksAtCalo;
   edm::InputTag m_muonsSrc;
 
+  // Used by "on-the-fly" jet-tracks association
+  edm::InputTag m_tracksSrc;
+  std::string thePropagator;
+  double coneSize;
+
   // responce algo (will be absolete)
   int theResponseAlgo;
   // add or not out of cone tracks (default: true)
