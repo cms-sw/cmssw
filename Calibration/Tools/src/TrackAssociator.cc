@@ -14,7 +14,7 @@
 // Original Author:  Dmytro Kovalskyi
 // Modified for ECAL+HCAL by:  Michal Szleper
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.4 2008/01/22 20:42:39 muzaffar Exp $
+// $Id: TrackAssociator.cc,v 1.5 2008/05/27 16:36:33 heltsley Exp $
 //
 //
 
@@ -26,6 +26,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 // calorimeter info
 #include "Geometry/Records/interface/CaloGeometryRecord.h"

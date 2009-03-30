@@ -175,10 +175,15 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 	float preshowerEnergy=eleIt->superCluster()->preshowerEnergy(); 
 #ifdef DEBUG
 	  std::cout << "preshowerEnergy"<< preshowerEnergy << std::endl;
-#endif  
-	  BasicClusterRefVector newBCRef;
-	  for (BasicClusterRefVector::const_iterator bcRefIt=nearestSCendcap->clustersBegin();bcRefIt!=nearestSCendcap->clustersEnd();++bcRefIt)
-	    newBCRef.push_back(*bcRefIt);
+#endif
+	  /// fixme : should have a vector of ptr of ref, to avoid copying
+	  CaloClusterPtrVector newBCRef;
+	  for (CaloCluster_iterator bcRefIt=nearestSCendcap->clustersBegin();bcRefIt!=nearestSCendcap->clustersEnd();++bcRefIt){
+	    CaloClusterPtr cPtr(*bcRefIt);
+	    newBCRef.push_back(cPtr);
+	  }
+	 
+
 	  reco::SuperCluster newSC(nearestSCendcap->energy() + preshowerEnergy, nearestSCendcap->position() , nearestSCendcap->seed(),newBCRef , preshowerEnergy );
 	  pOutNewEndcapSC->push_back(newSC);
 	  reco::SuperClusterRef scRef(reco::SuperClusterRef(rSC, idxSC ++));
@@ -216,9 +221,10 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 	else if(DeltaRMineleSCendcap<DeltaRMineleSCbarrel)
 	  {
 	    float preshowerEnergy=eleIt->superCluster()->preshowerEnergy(); 
-	    BasicClusterRefVector newBCRef;
-	    for (BasicClusterRefVector::const_iterator bcRefIt=nearestSCendcap->clustersBegin();bcRefIt!=nearestSCendcap->clustersEnd();++bcRefIt)
-	      newBCRef.push_back(*bcRefIt);
+	    CaloClusterPtrVector newBCRef;
+	    for (CaloCluster_iterator bcRefIt=nearestSCendcap->clustersBegin();bcRefIt!=nearestSCendcap->clustersEnd();++bcRefIt){
+	      CaloClusterPtr(*bcRefIt);
+	      newBCRef.push_back(*bcRefIt);}
 	    reco::SuperCluster newSC(nearestSCendcap->energy() + preshowerEnergy,  nearestSCendcap->position() , nearestSCendcap->seed(), newBCRef , preshowerEnergy );
 	    pOutNewEndcapSC->push_back(newSC);
 	    reco::SuperClusterRef scRef(reco::SuperClusterRef(rSC, idxSC ++));
