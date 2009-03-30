@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 10:10:57 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/10/21 13:47:34 $
+ *  $Revision: 1.8 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -36,10 +36,10 @@ JetAnalyzer::~JetAnalyzer() { }
 // ***********************************************************
 void JetAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 
-  metname = "jetAnalyzer";
+  jetname = "jetAnalyzer";
 
-  LogTrace(metname)<<"[JetAnalyzer] Parameters initialization";
-  dbe->setCurrentFolder("JetMET/"+_source);
+  LogTrace(jetname)<<"[JetAnalyzer] Parameters initialization";
+  dbe->setCurrentFolder("JetMET/Jet/"+_source);
 
   jetME = dbe->book1D("jetReco", "jetReco", 3, 1, 4);
   jetME->setBinLabel(1,"CaloJets",1);
@@ -181,7 +181,7 @@ void JetAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
 			  const reco::CaloJet& jet) {
 
-  LogTrace(metname)<<"[JetAnalyzer] Analyze Calo Jet";
+  LogTrace(jetname)<<"[JetAnalyzer] Analyze Calo Jet";
 
   if (jet.pt() < _ptThreshold) return;
 

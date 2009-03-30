@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2008/10/21 10:10:57 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/10/21 13:47:34 $
+ *  $Revision: 1.7 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -86,7 +86,7 @@ class JetAnalyzer : public JetAnalyzerBase {
   
   edm::ParameterSet parameters;
   // Switch for verbosity
-  std::string metname;
+  std::string jetname;
   std::string _source;
   // Calo Jet Label
   edm::InputTag theCaloJetCollectionLabel;
