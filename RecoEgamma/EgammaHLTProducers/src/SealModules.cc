@@ -21,8 +21,8 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPhotonTrackIsolationProducersRegional.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EcalListOfFEDSProducer.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EcalRecHitsMerger.h"
-//#include "RecoEgamma/EgammaHLTProducers/interface/ESListOfFEDSProducer.h"
-//#include "RecoEgamma/EgammaHLTProducers/interface/ESRecHitsMerger.h"
+#include "RecoEgamma/EgammaHLTProducers/interface/ESListOfFEDSProducer.h"
+#include "RecoEgamma/EgammaHLTProducers/interface/ESRecHitsMerger.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_FWK_MODULE(EgammaHLTElectronTrackIsolationProducers);
@@ -42,5 +42,5 @@ DEFINE_ANOTHER_FWK_MODULE(EgammaHLTPhotonTrackIsolationProducersRegional);
 DEFINE_ANOTHER_FWK_MODULE(EgammaHLTRemoveDuplicatedSC);
 DEFINE_ANOTHER_FWK_MODULE(EcalListOfFEDSProducer);
 DEFINE_ANOTHER_FWK_MODULE(EcalRecHitsMerger);
-//DEFINE_ANOTHER_FWK_MODULE(ESListOfFEDSProducer);
-//DEFINE_ANOTHER_FWK_MODULE(ESRecHitsMerger);
+DEFINE_ANOTHER_FWK_MODULE(ESListOfFEDSProducer);
+DEFINE_ANOTHER_FWK_MODULE(ESRecHitsMerger);
