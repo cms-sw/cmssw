@@ -664,38 +664,69 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }       
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SC15_SW_LooseTrackIso_L1R") == 0) {        
-    int elepassed = 0;
-    int scpassed = 0;
+    float Et = 15.;
+    int L1iso = 0; 
+    float Tiso = 0.12; 
+    float Hiso = 9999.;
+    int rc = 0;
+
     if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {         
-      if(OpenHlt1ElectronPassed(15.,0,0.12,9999.)>=1) {         
-	elepassed = 1;
-      }
-      for(int i = 0;i < NohPhot; i++) {
-	if(ohPhotEt[i] > 15.) {
-	  scpassed++; 
+      for (int i=0;i<NohEle;i++) { 
+	if ( ohEleEt[i] > Et) { 
+	  if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05) {
+	    if (ohEleNewSC[i]==1) {
+	      if (ohElePixelSeeds[i]>0) {
+		if ( ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.) {
+		  if ( ohEleL1iso[i] >= L1iso ) {  // L1iso is 0 or 1 
+		    for(int j=0;j<NohEle && j != i;j++) {
+		      if(ohEleEt[j] > 15.) {
+			rc++;       
+		      }
+		    }
+		  }
+		}
+	      }
+	    }
+	  }
 	}
       }
     }
-    if(elepassed > 0 && scpassed > 0) {
+    if(rc > 0) {
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
     }        
   }        
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele20_SC15_SW_L1R") == 0) {         
+    float Et = 20.; 
+    int L1iso = 0;  
+    float Tiso = 9999.;  
+    float Hiso = 9999.; 
     int rc = 0; 
+
     if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {          
-      if(OpenHlt1ElectronPassed(20.,0,9999.,9999.)>=1) {          
-	for(int i = 0;i < NohPhot; i++) { 
-	  if(ohPhotEt[i] > 15.) { 
-	    rc++; 
-	  } 
-	} 
-      } 
+      for (int i=0;i<NohEle;i++) {  
+        if ( ohEleEt[i] > Et) {  
+          if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05) { 
+            if (ohEleNewSC[i]==1) { 
+              if (ohElePixelSeeds[i]>0) { 
+                if ( ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.) { 
+                  if ( ohEleL1iso[i] >= L1iso ) {  // L1iso is 0 or 1  
+                    for(int j=0;j<NohEle && j != i;j++) { 
+                      if(ohEleEt[j] > 15.) { 
+                        rc++;        
+                      } 
+                    } 
+                  } 
+                } 
+              } 
+            } 
+          } 
+        } 
+      }
     }
     if(rc >= 1) { 
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }         
-    }         
-  }         
-
+    }
+  }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_JPsiUpsilonEE") == 0) {
     if ( map_BitOfStandardHLTPath.find("L1_DoubleEG5")->second == 1 ) {           
 
