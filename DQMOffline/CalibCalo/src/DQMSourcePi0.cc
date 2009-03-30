@@ -32,7 +32,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 /// EgammaCoreTools
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+//#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 
 #include "TVector3.h"
@@ -137,6 +137,16 @@ eventCounter_(0)
   ParameterT0_endcPresh_ = ps.getParameter<double> ("ParameterT0_endcPresh");
   ParameterW0_ = ps.getParameter<double> ("ParameterW0");
 
+  std::map<std::string,double> providedParameters;
+  providedParameters.insert(std::make_pair("LogWeighted",ParameterLogWeighted_));
+  providedParameters.insert(std::make_pair("X0",ParameterX0_));
+  providedParameters.insert(std::make_pair("T0_barl",ParameterT0_barl_));
+  providedParameters.insert(std::make_pair("T0_endc",ParameterT0_endc_));
+  providedParameters.insert(std::make_pair("T0_endcPresh",ParameterT0_endcPresh_));
+  providedParameters.insert(std::make_pair("W0",ParameterW0_));
+
+  posCalculator_ = PositionCalc(providedParameters);
+
 
 
 }
@@ -176,7 +186,7 @@ void DQMSourcePi0::beginJob(const EventSetup& context){
   hiEtaDistrEBpi0_->setAxisTitle("i#eta", 1);
   hiEtaDistrEBpi0_->setAxisTitle("#rechits", 2);
 
-  hiYDistrEEpi0_ = dbe_->book1D("iYDistributionEBpi0", "RechitEE pi0 iY", 100, 0, 100);
+  hiYDistrEEpi0_ = dbe_->book1D("iYDistributionEEpi0", "RechitEE pi0 iY", 100, 0, 100);
   hiYDistrEEpi0_->setAxisTitle("iy", 1);
   hiYDistrEEpi0_->setAxisTitle("#rechits", 2);
 
@@ -184,7 +194,7 @@ void DQMSourcePi0::beginJob(const EventSetup& context){
   hiEtaDistrEBeta_->setAxisTitle("i#eta", 1);
   hiEtaDistrEBeta_->setAxisTitle("#rechits", 2);
 
-  hiYDistrEEeta_ = dbe_->book1D("iYDistributionEBeta", "RechitEE eta iY", 100, 0, 100);
+  hiYDistrEEeta_ = dbe_->book1D("iYDistributionEEeta", "RechitEE eta iY", 100, 0, 100);
   hiYDistrEEeta_->setAxisTitle("iy", 1);
   hiYDistrEEeta_->setAxisTitle("#rechits", 2);
 
@@ -396,17 +406,6 @@ void DQMSourcePi0::analyze(const Event& iEvent,
   geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   topology_p = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
   topology_ee = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap);
-  
-  std::map<std::string,double> providedParameters;  
-  providedParameters.insert(std::make_pair("LogWeighted",ParameterLogWeighted_));
-  providedParameters.insert(std::make_pair("X0",ParameterX0_));
-  providedParameters.insert(std::make_pair("T0_barl",ParameterT0_barl_));
-  providedParameters.insert(std::make_pair("T0_endc",ParameterT0_endc_));
-  providedParameters.insert(std::make_pair("T0_endcPresh",ParameterT0_endcPresh_));
-  providedParameters.insert(std::make_pair("W0",ParameterW0_));
-  
-  PositionCalc posCalculator_ = PositionCalc(providedParameters);
-  
   
   EcalRecHitCollection::const_iterator itb;
   

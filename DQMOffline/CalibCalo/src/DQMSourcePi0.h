@@ -19,6 +19,8 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+
 
 typedef std::map<DetId, EcalRecHit> RecHitsMap;
 // Less than operator for sorting EcalRecHits according to energy.
@@ -73,7 +75,7 @@ private:
 
   DQMStore*   dbe_;  
   int eventCounter_;      
-                        
+  PositionCalc posCalculator_ ;                        
 
   /// Distribution of rechits in iPhi (pi0)   
   MonitorElement * hiPhiDistrEBpi0_;
