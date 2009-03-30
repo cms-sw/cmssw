@@ -28,7 +28,7 @@ namespace cond {
     ~IOVSequence();
 
     IOVSequence(IOVSequence const & rh);
-    IOVSequence & operator=(IOVSequence cost& rh);
+    IOVSequence & operator=(IOVSequence const & rh);
 
     // append a new item, return new size
     size_t add(cond::Time_t time, 

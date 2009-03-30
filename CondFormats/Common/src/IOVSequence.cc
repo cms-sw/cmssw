@@ -25,7 +25,7 @@ namespace cond {
     m_metadata(rh.m_metadata),
     m_sorted(0) {}
   
-  IOVSequence & IOVSequence::operator=(IOVSequence cost & rh) {
+  IOVSequence & IOVSequence::operator=(IOVSequence const & rh) {
     delete m_sorted;  m_sorted=0;
 
     m_iovs = rh.m_iovs;  
@@ -33,7 +33,7 @@ namespace cond {
     m_lastTill=rh.m_lastTill;
     m_notOrdered=rh.m_notOrdered;
     m_metadata = rh.m_metadata;
-    return rh;
+    return *this;
   }
 
   
