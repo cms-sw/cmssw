@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.16 2009/03/27 02:19:42 berryhil Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.17 2009/03/27 22:10:06 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -215,7 +215,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
     //  return;
    }
 
-  edm::Handle<reco::PixelMatchGsfElectronCollection> gsfElectrons;
+  edm::Handle<reco::GsfElectronCollection> gsfElectrons;
   iEvent.getByLabel("pixelMatchGsfElectrons",gsfElectrons); 
   if(!gsfElectrons.isValid()) { 
     edm::LogInfo("FourVectorHLTriggerOffline") << "gsfElectrons not found, ";
@@ -434,7 +434,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 
 	  //	  std::cout << "Electron trigger" << std::endl;
 	  if (gsfElectrons.isValid()){
-         for (reco::PixelMatchGsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin(); gsfIter!=gsfElectrons->end(); gsfIter++)
+         for (reco::GsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin(); gsfIter!=gsfElectrons->end(); gsfIter++)
          {
 	   if (fabs(gsfIter->eta()) <= electronEtaMax_ && gsfIter->pt() >= electronEtMin_ ){
 	  NOff++;
@@ -459,7 +459,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 
 	    if (gsfElectrons.isValid())
              {
-              for (reco::PixelMatchGsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin(); gsfIter!=gsfElectrons->end(); gsfIter++)
+              for (reco::GsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin(); gsfIter!=gsfElectrons->end(); gsfIter++)
                { 
 	        if (reco::deltaR((*gsfIter).eta(),(*gsfIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < electronDRMatch_ && fabs((*gsfIter).eta()) <= electronEtaMax_ && (*gsfIter).pt() >= electronEtMin_ )
                  {
@@ -1310,7 +1310,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	  //	  std::cout << "Electron trigger" << std::endl;
 
 	  if (gsfElectrons.isValid()){
-         for (reco::PixelMatchGsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin(); gsfIter!=gsfElectrons->end(); gsfIter++)
+         for (reco::GsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin(); gsfIter!=gsfElectrons->end(); gsfIter++)
          {
 	   if (reco::deltaR((*gsfIter).eta(),(*gsfIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < electronDRMatch_ && fabs((*gsfIter).eta()) <= electronEtaMax_ && (*gsfIter).pt() >= electronEtMin_ ){
 	  NOnOff++;
