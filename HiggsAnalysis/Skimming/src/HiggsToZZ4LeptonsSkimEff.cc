@@ -199,14 +199,14 @@ void HiggsToZZ4LeptonsSkimEff::analyze(const edm::Event& event, const edm::Event
   // Now look at electrons:
 
   // Get the electron track collection from the event
-  edm::Handle<reco::PixelMatchGsfElectronCollection> pTracks;
+  edm::Handle<reco::GsfElectronCollection> pTracks;
   event.getByLabel(thePixelGsfELabel.label(),pTracks);
 
   if ( pTracks.isValid() ) { 
 
-    const reco::PixelMatchGsfElectronCollection* eTracks = pTracks.product();
+    const reco::GsfElectronCollection* eTracks = pTracks.product();
 
-    reco::PixelMatchGsfElectronCollection::const_iterator electrons;
+    reco::GsfElectronCollection::const_iterator electrons;
 
     // Loop over electron collections and count how many muons there are, 
     // and how many are above threshold
