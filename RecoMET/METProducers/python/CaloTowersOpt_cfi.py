@@ -32,19 +32,13 @@ calotoweroptmaker = cms.EDProducer(
     ###### NEW PARAMETERS FOR 31X #########
     
     #Energy threshold for HO cell inclusion [GeV]
-    HOThreshold0 = cms.double(0.5),
-    HOThresholdPlus1 = cms.double(0.5),
-    HOThresholdMinus1 = cms.double(0.5),
-    HOThresholdPlus2 = cms.double(0.5),
-    HOThresholdMinus2 = cms.double(0.5),
-    
+    HOThreshold0 = cms.double(1.1),
+    HOThresholdPlus1 = cms.double(1.1),
+    HOThresholdMinus1 = cms.double(1.1),
+    HOThresholdPlus2 = cms.double(1.1),
+    HOThresholdMinus2 = cms.double(1.1),
 
-    #Old HO Parameter ( To be discontinued in 31X )
-    HOThreshold = cms.double(0.5), 
-
-
-
-    HcalAcceptSeverityLevel = cms.uint32(999),
+    HcalAcceptSeverityLevel = cms.uint32(9),
     EcalAcceptSeverityLevel = cms.uint32(1),
 
     # use of recovered hits
@@ -52,6 +46,9 @@ calotoweroptmaker = cms.EDProducer(
     UseEcalRecoveredHits = cms.bool(True),
 
     ##########################################
+
+    #Old HO Parameter ( To be discontinued in 31X )
+    HOThreshold = cms.double(0.5), 
 
     HBGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
     # Energy threshold for HB cell inclusion [GeV]
