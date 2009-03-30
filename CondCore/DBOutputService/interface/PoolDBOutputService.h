@@ -345,7 +345,9 @@ namespace cond{
       bool m_dbstarted;
       cond::Logger* m_logdb;
       bool m_logdbOn;
-      
+
+      bool m_freeInsert;
+
       bool m_withWrapper;
 
       std::map<size_t, cond::UserLogInfo> m_logheaders;

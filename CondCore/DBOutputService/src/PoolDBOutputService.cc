@@ -41,11 +41,16 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   m_dbstarted( false ),
   m_logdb( 0 ),
   m_logdbOn( false ),
+  m_freeInsert(false),
   m_withWrapper(false)
 {
 
   if( iConfig.exists("withWrapper") ){
      m_withWrapper=iConfig.getUntrackedParameter<bool>("withWrapper");
+  }  
+
+  if( iConfig.exists("outOfOrder") ){
+     m_freeInsert=iConfig.getUntrackedParameter<bool>("outOfOrder");
   }  
 
 
@@ -342,7 +347,11 @@ cond::service::PoolDBOutputService::appendIOV(cond::PoolTransaction& pooldb,
 
   cond::IOVService iovmanager(pooldb);
   cond::IOVEditor* editor=iovmanager.newIOVEditor(record.m_iovtoken);
-  unsigned int payloadIdx=editor->append(sinceTime,payloadToken);
+ 
+  unsigned int payloadIdx =  m_freeInsert ? 
+    editor->freeInsert(sinceTime,payloadToken) :
+    editor->append(sinceTime,payloadToken);
+
   delete editor;
   return payloadIdx;
 }
