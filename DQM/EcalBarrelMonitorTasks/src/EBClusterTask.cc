@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2009/02/26 19:51:36 $
- * $Revision: 1.74 $
+ * $Date: 2009/03/30 18:28:01 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -616,7 +616,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
           const CaloTopology *topology = pTopology.product();
 
           // <= CMSSW_3_0_X
-          BasicClusterRef theSeed = sCluster->seed();
+          //BasicClusterRef theSeed = sCluster->seed();
           // >= CMSSW_3_1_X
           CaloClusterPtr theSeed = sCluster->seed();
 
