@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.20 2009/03/23 13:33:16 saout Exp $
+// $Id: TrackIPProducer.cc,v 1.21 2009/03/30 17:30:56 arizzi Exp $
 //
 //
 
@@ -62,7 +62,7 @@ using boost::bind;
 // constructors and destructor
 //
 TrackIPProducer::TrackIPProducer(const edm::ParameterSet& iConfig) : 
-  m_config(iConfig),m_probabilityEstimator(0)
+  m_config(iConfig)
 {
   m_calibrationCacheId3D = 0;
   m_calibrationCacheId2D = 0;
@@ -82,7 +82,8 @@ TrackIPProducer::TrackIPProducer(const edm::ParameterSet& iConfig) :
   m_directionWithGhostTrack = m_config.getParameter<bool>("jetDirectionUsingGhostTrack");
   m_useTrackQuality         = m_config.getParameter<bool>("useTrackQuality");
 
-  produces<reco::TrackCollection>("ghostTracks");
+  if (m_computeGhostTrack)
+    produces<reco::TrackCollection>("ghostTracks");
   produces<reco::TrackIPTagInfoCollection>();
 }
 
@@ -114,10 +115,13 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // output collections 
    auto_ptr<reco::TrackIPTagInfoCollection> result(new reco::TrackIPTagInfoCollection);
-   auto_ptr<reco::TrackCollection> ghostTracks(new reco::TrackCollection);
 
-   TrackRefProd ghostTrackRefProd =
-              iEvent.getRefBeforePut<TrackCollection>("ghostTracks");
+   auto_ptr<reco::TrackCollection> ghostTracks;
+   TrackRefProd ghostTrackRefProd;
+   if (m_computeGhostTrack) {
+     ghostTracks.reset(new reco::TrackCollection);
+     ghostTrackRefProd = iEvent.getRefBeforePut<TrackCollection>("ghostTracks");
+   }
 
    // use first pv of the collection
    Vertex dummy;
@@ -129,9 +133,9 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      pvRef = edm::Ref<VertexCollection>(primaryVertex, 0);
    } else { // create a dummy PV
      Vertex::Error e;
-     e(0, 0) = 0.0015*0.0015;
-     e(1, 1) = 0.0015*0.0015;
-     e(2, 2) = 15.*15.;
+     e(0, 0) = 0.0015 * 0.0015;
+     e(1, 1) = 0.0015 * 0.0015;
+     e(2, 2) = 15. * 15.;
      Vertex::Point p(0, 0, 0);
      dummy = Vertex(p, e, 0, 0, 0);
    }
@@ -271,8 +275,9 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                             jtaRef, pvRef, direction, ghostTrackRef));
    }
  
+   if (m_computeGhostTrack)
+     iEvent.put(ghostTracks, "ghostTracks");
    iEvent.put(result);
-   iEvent.put(ghostTracks, "ghostTracks");
 }
 
 
@@ -305,8 +310,7 @@ void TrackIPProducer::checkEventSetup(const EventSetup & iSetup)
      const TrackProbabilityCalibration *  ca2D= calib2DHandle.product();
      const TrackProbabilityCalibration *  ca3D= calib3DHandle.product();
 
-     if(m_probabilityEstimator) delete m_probabilityEstimator;  
-     m_probabilityEstimator=new HistogramProbabilityEstimator(ca3D,ca2D);
+     m_probabilityEstimator.reset(new HistogramProbabilityEstimator(ca3D,ca2D));
 
    }
    m_calibrationCacheId3D=cacheId3D;

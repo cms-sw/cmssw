@@ -27,7 +27,7 @@ class TrackIPProducer : public edm::EDProducer {
     bool m_computeProbabilities;
     bool m_computeGhostTrack;
     double m_ghostTrackPriorDeltaR;
-    HistogramProbabilityEstimator * m_probabilityEstimator;
+    std::auto_ptr<HistogramProbabilityEstimator> m_probabilityEstimator;
     unsigned long long  m_calibrationCacheId2D; 
     unsigned long long  m_calibrationCacheId3D;
     bool m_useDB;
