@@ -10,6 +10,7 @@ RecoMETFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoCaloMETs_*_*_*', 
                                            'keep recoMETs_*_*_*',
                                            'keep recoPFMETs_*_*_*',
+                                           'keep recoMuonMETCorrectionDataedmValueMap_*_*_*',
                                            #'keep recoCaloMETSignifs_*_*_*'
                                            )
     )
@@ -26,6 +27,7 @@ RecoMETRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoCaloMETs_*_*_*',
                                            'keep recoMETs_*_*_*',
                                            'keep recoPFMETs_*_*_*',
+                                           'keep recoMuonMETCorrectionDataedmValueMap_*_*_*',
                                            #'keep recoCaloMETSignifs_*_*_*'
                                            )
     )
@@ -42,6 +44,7 @@ RecoMETAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoCaloMETs_*_*_*',
                                            'keep recoMETs_*_*_*',
                                            'keep recoPFMETs_*_*_*',
+                                           'keep recoMuonMETCorrectionDataedmValueMap_*_*_*',
                                            #'keep recoCaloMETSignifs_*_*_*'
                                            )
     )
