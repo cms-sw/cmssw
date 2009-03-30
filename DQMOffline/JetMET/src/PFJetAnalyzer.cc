@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 10:42:27 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/12/08 12:07:12 $
+ *  $Revision: 1.3 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -37,7 +37,7 @@ void PFJetAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   metname = "pFJetAnalyzer";
 
   LogTrace(metname)<<"[PFJetAnalyzer] Parameters initialization";
-  dbe->setCurrentFolder("JetMET/PFJets");
+  dbe->setCurrentFolder("JetMET/Jet/PFJets");
 
   jetME = dbe->book1D("jetReco", "jetReco", 3, 1, 4);
   jetME->setBinLabel(2,"PFJets",1);
@@ -148,7 +148,7 @@ void PFJetAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   mEFirst                  = dbe->book1D("EFirst", "EFirst", 100, 0, 1000);
   mPtFirst                 = dbe->book1D("PtFirst", "PtFirst", 100, 0, 500);
 
-//   //
+  //
   mChargedHadronEnergy = dbe->book1D("mChargedHadronEnergy", "mChargedHadronEnergy", 100, 0, 100);
   mNeutralHadronEnergy = dbe->book1D("mNeutralHadronEnergy", "mNeutralHadronEnergy", 100, 0, 100);
   mChargedEmEnergy= dbe->book1D("mChargedEmEnergy ", "mChargedEmEnergy ", 100, 0, 100);
