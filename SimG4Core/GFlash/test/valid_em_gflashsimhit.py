@@ -38,7 +38,8 @@ process.source = cms.Source("FlatRandomEGunSource",
         MinE = cms.untracked.double(20.0),
         MaxE = cms.untracked.double(20.0)
     ),
-    Verbosity = cms.untracked.int32(0)
+    Verbosity = cms.untracked.int32(0),
+    AddAntiParticle = cms.untracked.bool(False)                        
 )
 
 process.load("SimG4Core.GFlash.cmsGflashGeometryXML_cfi")

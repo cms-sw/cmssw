@@ -30,7 +30,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 
 process.source = cms.Source("FlatRandomEGunSource",
     PGunParameters = cms.untracked.PSet(
-        PartID = cms.untracked.vint32(211),
+        PartID = cms.untracked.vint32(-211),
         MaxEta = cms.untracked.double(1.0),
         MaxPhi = cms.untracked.double(3.14159265359),
         MinEta = cms.untracked.double(-1.0),
@@ -38,7 +38,8 @@ process.source = cms.Source("FlatRandomEGunSource",
         MinPhi = cms.untracked.double(-3.14159265359),
         MaxE = cms.untracked.double(20.01)
     ),
-    Verbosity = cms.untracked.int32(0)
+    Verbosity = cms.untracked.int32(0),
+    AddAntiParticle = cms.untracked.bool(False)                        
 )
 
 process.load("SimG4Core.GFlash.cmsGflashGeometryXML_cfi")
