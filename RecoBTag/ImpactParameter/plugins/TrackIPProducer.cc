@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.19 2009/03/23 09:21:40 saout Exp $
+// $Id: TrackIPProducer.cc,v 1.20 2009/03/23 13:33:16 saout Exp $
 //
 //
 
@@ -62,7 +62,7 @@ using boost::bind;
 // constructors and destructor
 //
 TrackIPProducer::TrackIPProducer(const edm::ParameterSet& iConfig) : 
-  m_config(iConfig)
+  m_config(iConfig),m_probabilityEstimator(0)
 {
   m_calibrationCacheId3D = 0;
   m_calibrationCacheId2D = 0;
