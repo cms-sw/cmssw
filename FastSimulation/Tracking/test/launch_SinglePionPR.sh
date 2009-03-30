@@ -1,7 +1,7 @@
 #!/bin/sh
 
-castorDir=/castor/cern.ch/user/a/azzi/CMSSW310pre2/
-cmsswDir=/afs/cern.ch/user/a/azzi/scratch0/CMSSW_3_1_0_pre2/src/
+castorDir=/castor/cern.ch/user/a/azzi/CMSSW310pre3PR/
+cmsswDir=/afs/cern.ch/user/a/azzi/scratch0/CMSSW_3_1_0_pre3/src/
 
 njobs=0
 nevt=0
@@ -193,7 +193,7 @@ rfcp fevt.root $castorDir$filename
 
 EOF
 chmod 755 job_${name}.sh
-###bsub -q cmst3 -R "mem>2000" -J $name $PWD/job_${name}.sh
+bsub -q cmst3 -R "mem>2000" -J $name $PWD/job_${name}.sh
 
 
   done
