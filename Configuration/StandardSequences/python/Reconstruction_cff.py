@@ -38,13 +38,13 @@ localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco+particleFl
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence
 #
-globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing*ckftracks+ecalClusters+caloTowersRec*vertexreco*recoJets+metreco+muonreco_plus_isolation+electronGsfTracking)
+globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing*ckftracks+ecalClusters+caloTowersRec*vertexreco*recoJets+muonreco_plus_isolation+electronGsfTracking)
 globalreco_plusRS = cms.Sequence(globalreco*rstracks)
 globalreco_plusGSF = cms.Sequence(globalreco*GsfGlobalElectronTestSequence)
 globalreco_plusRS_plusGSF = cms.Sequence(globalreco*rstracks*GsfGlobalElectronTestSequence)
-highlevelreco = cms.Sequence(recoJetAssociations*tautagging*particleFlowReco*egammarecoFull*reducedRecHitsSequence*btagging*recoPFJets*recoPFMET*PFTau)
+highlevelreco = cms.Sequence(recoJetAssociations*tautagging*particleFlowReco*egammarecoFull*metrecoPlusHCALNoise*reducedRecHitsSequence*btagging*recoPFJets*recoPFMET*PFTau)
 #emergency sequence wo conversions
-highlevelreco_woConv = cms.Sequence(recoJetAssociations*tautagging*particleFlowReco*egammareco_woConvPhotons*reducedRecHitsSequence*btagging*recoPFJets*recoPFMET*PFTau)
+highlevelreco_woConv = cms.Sequence(recoJetAssociations*tautagging*particleFlowReco*egammareco_woConvPhotons*metrecoPlusHCALNoise*reducedRecHitsSequence*btagging*recoPFJets*recoPFMET*PFTau)
 
 
 #
