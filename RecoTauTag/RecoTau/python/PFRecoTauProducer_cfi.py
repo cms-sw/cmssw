@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
+import copy
 
 pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
 
-      LeadPFCand_minPt     = cms.double(5.0),  #cut on lead object (can be track, or gamma)
+      LeadPFCand_minPt     = copy.deepcopy(5.0),  #cut on lead object (can be track, or gamma)
 
       #SignalCone parameters
       TrackerSignalConeMetric = cms.string('DR'), ## * 
@@ -76,10 +77,11 @@ pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
       # Intended only as a cross check, don't use them unles syou need them!
 
       # Track - PV filtering
-      LeadTrack_minPt               = cms.double(5.0),
+      LeadTrack_minPt               = cms.double(0.0), # This should be cut on at the discriminator level,
+                                                       #  to make things consistent in the case where the tau 
+                                                       #  has a leading PFGamma cand but no lead PFChargedCand
       TrackLeadTrack_maxDZ          = cms.double(0.2),
       UseTrackLeadTrackDZconstraint = cms.bool(True),
-      Track_minPt                   = cms.double(1.0),
       Track_IsolAnnulus_minNhits    = cms.uint32(3),
 
 )

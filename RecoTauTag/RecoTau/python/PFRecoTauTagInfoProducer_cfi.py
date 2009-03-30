@@ -2,32 +2,40 @@ import FWCore.ParameterSet.Config as cms
 import copy
 
 pfRecoTauTagInfoProducer = cms.EDProducer("PFRecoTauTagInfoProducer",
-    tkminTrackerHitsn = cms.int32(3),
-    PVProducer        = cms.InputTag('offlinePrimaryVertices'),
-    tkmaxChi2         = cms.double(100.0),
-    # parameters of the considered charged hadr. PFCandidates, based on their rec. Track properties :
+
+    # These values set the minimum pt quality requirements 
+    #  for the various constituent types
+    ChargedHadrCand_tkminPt    = cms.double(0.5),  # charged PF objects
+    tkminPt                    = cms.double(0.5),  # track (non-PF) objects
+    NeutrHadrCand_HcalclusminE = cms.double(1.0),  # PF neutral hadrons (HCAL)
+    GammaCand_EcalclusminE     = cms.double(0.5),  # PF gamma candidates (ECAL)
+
+    # The size of the delta R cone used to collect objects from the jet
     ChargedHadrCand_AssociationCone   = cms.double(0.8),
-    ChargedHadrCand_tkminTrackerHitsn = cms.int32(3),
-    ChargedHadrCand_tkmaxChi2         = cms.double(100.0),
-    tkPVmaxDZ                         = cms.double(0.2), ##considered if UsePVconstraint is true
-    tkminPixelHitsn                   = cms.int32(0),
-    # parameters of the considered rec. Tracks (these ones were catched through a JetTracksAssociation object, not through the charged hadr. PFCandidates inside the PFJet ; the motivation for considering them is the need for checking that a selection by the charged hadr. PFCandidates is equivalent to a selection by the rec. Tracks.) :
-    tkminPt                  = cms.double(1.0),
-    PFCandidateProducer      = cms.InputTag('particleFlow'),
-    ChargedHadrCand_tkminPt  = cms.double(0.5),
-    UsePVconstraint          = cms.bool(False),
-    ChargedHadrCand_tkmaxipt = cms.double(0.03),
-    # parameters of the considered neutral hadr. PFCandidates, based on their rec. HCAL cluster properties : 
-    NeutrHadrCand_HcalclusminE      = cms.double(1.0),
-    ChargedHadrCand_tkminPixelHitsn = cms.int32(0),
-    # parameters of the considered gamma PFCandidates, based on their rec. ECAL cluster properties :
-    GammaCand_EcalclusminE        = cms.double(0.5),
+
+    PVProducer                    = cms.InputTag('offlinePrimaryVertices'),
+    UsePVconstraint               = cms.bool(False),
+    PFCandidateProducer           = cms.InputTag('particleFlow'),
     PFJetTracksAssociatorProducer = cms.InputTag('ic5PFJetTracksAssociatorAtVertex'),
+
+    # Quality cuts for tracks (non-PF, from JetTracksAssociator)
+    tkminTrackerHitsn = cms.int32(3),
+    tkmaxChi2         = cms.double(100.0),
+    tkPVmaxDZ         = cms.double(0.2), ##considered if UsePVconstraint is true
+    tkminPixelHitsn   = cms.int32(0),
+    tkmaxipt          = cms.double(0.03),
+
+    # Quality cuts for PFCharged Hadron candidates (taken from their underlying recTrack)
+    ChargedHadrCand_tkminTrackerHitsn = cms.int32(3), 
+    ChargedHadrCand_tkmaxChi2         = cms.double(100.0),
+    ChargedHadrCand_tkmaxipt          = cms.double(0.03),
+    ChargedHadrCand_tkminPixelHitsn   = cms.int32(0),
+    ChargedHadrCand_tkPVmaxDZ         = cms.double(0.2), ##considered if UsePVconstraint is true
+
+    # Smear vertex
     smearedPVsigmaY               = cms.double(0.0015),
     smearedPVsigmaX               = cms.double(0.0015),
     smearedPVsigmaZ               = cms.double(0.005),
-    ChargedHadrCand_tkPVmaxDZ     = cms.double(0.2), ##considered if UsePVconstraint is true
-    tkmaxipt                      = cms.double(0.03)
 )
 
 # PF TauTag info seeded from the Inside-Out jet producer

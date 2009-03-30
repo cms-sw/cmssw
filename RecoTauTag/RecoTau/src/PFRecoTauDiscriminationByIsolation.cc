@@ -70,15 +70,12 @@ void PFRecoTauDiscriminationByIsolation::produce(Event& iEvent,const EventSetup&
     }
     
     // not optional selection : ask for a leading (Pt>minPt) PFCand / reco::Track in a matching cone around the PFJet axis
-    double theleadElementDiscriminator=1.;
-    if (ManipulateTracks_insteadofChargedHadrCands_)
-       if (!thePFTau.leadTrack()) 
-          theleadElementDiscriminator=0.;
-    else if (!thePFTau.leadPFChargedHadrCand()) 
-         theleadElementDiscriminator=0;
+    bool theleadElementDiscriminator = true;
+    if (ManipulateTracks_insteadofChargedHadrCands_) {
+       if (!thePFTau.leadTrack()) theleadElementDiscriminator = false;
+    } else if (!thePFTau.leadPFChargedHadrCand()) theleadElementDiscriminator = false;
 
-    if (theleadElementDiscriminator < 0.5) 
-       thePFTauDiscriminatorByIsolation->setValue(iPFTau,0);
+    if (!theleadElementDiscriminator) thePFTauDiscriminatorByIsolation->setValue(iPFTau,0);
     else thePFTauDiscriminatorByIsolation->setValue(iPFTau,1); //passes everything
   }    
   
