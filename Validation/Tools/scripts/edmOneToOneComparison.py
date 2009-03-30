@@ -16,6 +16,10 @@ if __name__ == "__main__":
     modeGroup.add_option ('--printTuple', dest='printTuple',
                           action='store_true',
                           help='Print out all events in tuple1')
+    modeGroup.add_option ('--interactive', dest='interactive',
+                          action='store_true',
+                          help='Loads files and prepares "event" '
+                          'for interactive mode')
     # tuple group
     tupleGroup.add_option ('--tuple1', dest='tuple1', type='string',
                            default='GenObject',
@@ -24,10 +28,10 @@ if __name__ == "__main__":
                            default='pat',
                            help="Tuple type of 2nd tuple")
     tupleGroup.add_option ('--file1', dest='file1', type='string',
-                           default="go1.root",
+                           default="",
                            help="1st tuple file")
     tupleGroup.add_option ('--file2', dest='file2', type='string',
-                           default="PatAnalyzerSkeletonSkim.root",
+                           default="",
                            help="2nd tuple file")
     # options group
     optionsGroup.add_option ('--config', dest='config', type='string',
@@ -90,6 +94,32 @@ if __name__ == "__main__":
         chain1 = GenObject.prepareTuple (options.tuple1, options.file1)
         GenObject.printTuple (chain1)
         #GenObject.saveTupleAs (chain1, options.saveAs)
+    if options.interactive:
+        chain1 = chain2 = 0
+        if len (options.file1):
+            chain1 = GenObject.prepareTuple (options.tuple1, options.file1)
+        if len (options.file2):
+            chain2 = GenObject.prepareTuple (options.tuple2, options.file2)
+        #############################################
+        ## Load and save command line history when ##
+        ## running interactively.                  ##
+        #############################################
+        import os, readline
+        import atexit
+        historyPath = os.path.expanduser("~/.pyhistory")
+
+        def save_history(historyPath=historyPath):
+            import readline
+            readline.write_history_file(historyPath)
+            if os.path.exists(historyPath):
+                readline.read_history_file(historyPath)
+
+        atexit.register(save_history)
+        readline.parse_and_bind("set show-all-if-ambiguous on")
+        readline.parse_and_bind("tab: complete")
+        if os.path.exists (historyPath) :
+            readline.read_history_file(historyPath)
+            readline.set_history_length(-1)
     if options.printStatic:
         GenObject.printStatic()
 
