@@ -61,6 +61,8 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
     histname = "InvariantMass_";
     invariantMass_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, MassBin, MassMin, MassMax);
     invariantMass_->setAxisTitle("invariant Mass / GeV");
+  }else{
+    invariantMass_ = 0;
   }
 
   unsigned int TrackPtPositiveBin = conf_.getParameter<unsigned int>("TrackPtBin");
@@ -79,15 +81,6 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
   TrackPtNegative_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackPtNegativeBin, TrackPtNegativeMin, TrackPtNegativeMax);
   TrackPtNegative_->setAxisTitle("p_{T} of tracks charge < 0");
 
-  unsigned int TrackCurvatureBin = conf_.getParameter<unsigned int>("TrackCurvatureBin");
-  double TrackCurvatureMin = conf_.getParameter<double>("TrackCurvatureMin");
-  double TrackCurvatureMax = conf_.getParameter<double>("TrackCurvatureMax");
-
-  histname = "TrackCurvature_";
-  TrackCurvature_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackCurvatureBin, TrackCurvatureMin, TrackCurvatureMax);
-  TrackCurvature_->setAxisTitle("#kappa track");
-
-
   histname = "TrackQuality_";
   TrackQuality_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, 
 				 reco::TrackBase::qualitySize, -0.5, reco::TrackBase::qualitySize-0.5);
@@ -105,21 +98,36 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
   sumCharge_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, SumChargeBin, SumChargeMin, SumChargeMax);
   sumCharge_->setAxisTitle("#SigmaCharge");
 
-  unsigned int    JetPtBin = conf_.getParameter<unsigned int>("JetPtBin");
-  double JetPtMin = conf_.getParameter<double>("JetPtMin");
-  double JetPtMax = conf_.getParameter<double>("JetPtMax");
+  if( runsOnReco_ ){
+    unsigned int TrackCurvatureBin = conf_.getParameter<unsigned int>("TrackCurvatureBin");
+    double TrackCurvatureMin = conf_.getParameter<double>("TrackCurvatureMin");
+    double TrackCurvatureMax = conf_.getParameter<double>("TrackCurvatureMax");
 
-  histname = "JetPt_";
-  jetPt_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, JetPtBin, JetPtMin, JetPtMax);
-  jetPt_->setAxisTitle("jet p_{T} / GeV");
+    histname = "TrackCurvature_";
+    TrackCurvature_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackCurvatureBin, TrackCurvatureMin, TrackCurvatureMax);
+    TrackCurvature_->setAxisTitle("#kappa track");
 
-  unsigned int    MinJetDeltaRBin = conf_.getParameter<unsigned int>("MinJetDeltaRBin");
-  double MinJetDeltaRMin = conf_.getParameter<double>("MinJetDeltaRMin");
-  double MinJetDeltaRMax = conf_.getParameter<double>("MinJetDeltaRMax");
 
-  histname = "MinJetDeltaR_";
-  minJetDeltaR_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, MinJetDeltaRBin, MinJetDeltaRMin, MinJetDeltaRMax);
-  minJetDeltaR_->setAxisTitle("minimal Jet #DeltaR / rad");
+    unsigned int    JetPtBin = conf_.getParameter<unsigned int>("JetPtBin");
+    double JetPtMin = conf_.getParameter<double>("JetPtMin");
+    double JetPtMax = conf_.getParameter<double>("JetPtMax");
+
+    histname = "JetPt_";
+    jetPt_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, JetPtBin, JetPtMin, JetPtMax);
+    jetPt_->setAxisTitle("jet p_{T} / GeV");
+
+    unsigned int    MinJetDeltaRBin = conf_.getParameter<unsigned int>("MinJetDeltaRBin");
+    double MinJetDeltaRMin = conf_.getParameter<double>("MinJetDeltaRMin");
+    double MinJetDeltaRMax = conf_.getParameter<double>("MinJetDeltaRMax");
+
+    histname = "MinJetDeltaR_";
+    minJetDeltaR_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, MinJetDeltaRBin, MinJetDeltaRMin, MinJetDeltaRMax);
+    minJetDeltaR_->setAxisTitle("minimal Jet #DeltaR / rad");
+  }else{
+    TrackCurvature_ = NULL;
+    jetPt_ = NULL;
+    minJetDeltaR_ = NULL;
+  }
 
   unsigned int    MinTrackDeltaRBin = conf_.getParameter<unsigned int>("MinTrackDeltaRBin");
   double MinTrackDeltaRMin = conf_.getParameter<double>("MinTrackDeltaRMin");
@@ -242,6 +250,12 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	//LogInfo("Alignment") <<">  isolated: "<< isolated << " jetPt "<< (*itJet).pt() <<" deltaR: "<< deltaR(*(*it),(*itJet)) ;
       }
       minJetDeltaR_->Fill( minJetDeltaR );
+
+      GlobalPoint gPoint((*track).vx(), (*track).vy(), (*track).vz());
+      double B = magneticField_->inTesla(gPoint).z();
+      double curv = -(*track).charge()*0.002998*B/(*track).pt();
+      //std::cout << "curv: "<<curv<<std::endl;
+      TrackCurvature_->Fill( curv );
     }
     
     double minTrackDeltaR = 10; // some number > 2pi
@@ -261,12 +275,6 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
       TrackPtPositive_->Fill( (*track).pt() );
     if( (*track).charge() < 0 )
       TrackPtNegative_->Fill( (*track).pt() );
-
-    GlobalPoint gPoint((*track).vx(), (*track).vy(), (*track).vz());
-    double B = magneticField_->inTesla(gPoint).z();
-    double curv = -(*track).charge()*0.002998*B/(*track).pt();
-    //std::cout << "curv: "<<curv<<std::endl;
-    TrackCurvature_->Fill( curv );
 
     minTrackDeltaR_->Fill( minTrackDeltaR );
     fillHitmaps( *track, *geometry );
