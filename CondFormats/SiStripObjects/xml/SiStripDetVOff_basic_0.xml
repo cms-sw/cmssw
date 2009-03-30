@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="SiStripDetVOffRcd" >
+   <Class table="SISTRIPMODULEHV" id_columns="IOV_VALUE_ID" name="SiStripDetVOff" mapping_version="SiStripDetVOff_basic" >
+     <Blob column="MODULEHV" name="v_hvoff"/>
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
