@@ -1,4 +1,13 @@
-# il file di iuput /tmp/noli/dimuons_allevt.root su lxplus204 
+###########################
+#                         #
+# author: Pasquale Noli   #
+# INFN Naples             #
+# Script to run radiative #
+# analysis                #   
+#                         #
+###########################
+
+
 
 import FWCore.ParameterSet.Config as cms
 import copy
@@ -8,11 +17,11 @@ process = cms.Process("Diegol")
 process.include("FWCore/MessageLogger/data/MessageLogger.cfi")
 
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True)
+    wantSummary = cms.untracked.bool(False)
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1000)
     )
 
 process.source = cms.Source(
@@ -34,63 +43,60 @@ process.source = cms.Source(
 
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("analisi_radiativi_155k.root")
+    fileName = cms.string("analisi_radiativi_true.root")
 )
 
 
 
-#ZMuMu: richiedo almeno 1 HLT trigger match
+#ZMuMu
 process.goodZToMuMuHLT = cms.EDFilter(
     "ZHLTMatchFilter",
     src = cms.InputTag("dimuonsGlobal"),
     condition =cms.string("atLeastOneMatched"),
     hltPath = cms.string("hltSingleMuNoIsoL3PreFiltered"),
-    filter = cms.bool(True) 
+    filter = cms.bool(False) 
 )
 
-
-
-
+#ZMuSta
 process.goodZToMuMuOneStandAloneMuon = cms.EDFilter(
     "ZMuMuOverlapExclusionSelector",
     src = cms.InputTag("dimuonsOneStandAloneMuon"),
-    overlap = cms.InputTag("goodZToMuMuHLT"),
-    filter = cms.bool(True)
+    overlap = cms.InputTag("dimuonsGlobal"),
+    filter = cms.bool(False)
 )
 
-#ZMuSta:richiedo che il muGlobal 'First' ha HLT match
-process.goodZToMuMuOneStandAloneMuonFirstHLT = cms.EDFilter(
+
+process.goodZToMuMuOneStandAloneMuonHLT = cms.EDFilter(
     "ZHLTMatchFilter",
     src = cms.InputTag("goodZToMuMuOneStandAloneMuon"),
-    condition =cms.string("firstMatched"),
+    condition =cms.string("globalisMatched"),
     hltPath = cms.string("hltSingleMuNoIsoL3PreFiltered"),
-    filter = cms.bool(True) 
+    filter = cms.bool(False) 
 )
 
 
-
+#ZMuTk
 process.zToMuGlobalMuOneTrack = cms.EDFilter(
     "CandViewRefSelector",
     cut = cms.string("daughter(0).isGlobalMuon = 1"),
     src = cms.InputTag("dimuonsOneTrack"),
-    filter = cms.bool(True)
+    filter = cms.bool(False)
 )
 
 process.goodZToMuMuOneTrack = cms.EDFilter(
    "ZMuMuOverlapExclusionSelector",
     src = cms.InputTag("zToMuGlobalMuOneTrack"),
-    overlap = cms.InputTag("goodZToMuMuHLT"),
-    filter = cms.bool(True)
+    overlap = cms.InputTag("dimuonsGlobal"),
+    filter = cms.bool(False)
 )
 
 
-#ZMuTk:richiedo che il muGlobal 'First' ha HLT match
 process.goodZToMuMuOneTrackFirstHLT = cms.EDFilter(
     "ZHLTMatchFilter",
     src = cms.InputTag("goodZToMuMuOneTrack"),
     condition =cms.string("firstMatched"),
     hltPath = cms.string("hltSingleMuNoIsoL3PreFiltered"),
-    filter = cms.bool(True) 
+    filter = cms.bool(False) 
 )
 
 
@@ -100,7 +106,7 @@ process.Analyzer = cms.EDAnalyzer(
     zMuMuMatchMap= cms.InputTag("allDimuonsMCMatch"),
     zMuTk = cms.InputTag("goodZToMuMuOneTrackFirstHLT"),
     zMuTkMatchMap= cms.InputTag("allDimuonsMCMatch"),
-    zMuSa = cms.InputTag("goodZToMuMuOneStandAloneMuonFirstHLT"),
+    zMuSa = cms.InputTag("goodZToMuMuOneStandAloneMuonHLT"),
     zMuSaMatchMap= cms.InputTag("allDimuonsMCMatch"),
     veto = cms.untracked.double(0.015),
     deltaRTrk = cms.untracked.double("0.3"),
@@ -115,16 +121,16 @@ process.eventInfo = cms.OutputModule (
 process.path = cms.Path (
     process.goodZToMuMuHLT +
     process.goodZToMuMuOneStandAloneMuon +
-    process.goodZToMuMuOneStandAloneMuonFirstHLT +
-    process.goodZToMuMuOneTrack +
+    process.goodZToMuMuOneStandAloneMuonHLT +
     process.zToMuGlobalMuOneTrack +
+    process.goodZToMuMuOneTrack +
     process.goodZToMuMuOneTrackFirstHLT +
     process.Analyzer
 )
 
 
   
-process.endPath = cms.EndPath( 
-    process.eventInfo 
-)
+#process.endPath = cms.EndPath( 
+#    process.eventInfo 
+#)
 
