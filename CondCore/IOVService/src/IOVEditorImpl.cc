@@ -90,7 +90,7 @@ namespace cond {
     if(tillTime<=lastTill() )
       throw cond::Exception("cond::IOVEditorImpl::insert IOV not in range");
     
-    cond::Time_t newSince=lastTill()+1
+    cond::Time_t newSince=lastTill()+1;
     m_iov.markUpdate();
     updateClosure(tillTime);
     return m_iov->add(newSince, payloadToken);

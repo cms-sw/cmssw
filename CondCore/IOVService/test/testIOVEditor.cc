@@ -78,6 +78,10 @@ int main(){
     std::cout<<"inserted 12 payload at position "<<pos<<std::endl;
     pos=editor->freeInsert(50,"pay050tok");
     std::cout<<"inserted 50 payload at position "<<pos<<std::endl;
+    pos=editor->freeInsert(51,"pay051tok");
+    std::cout<<"inserted 51 payload at position "<<pos<<std::endl;
+    pos=editor->freeInsert(52,"pay052tok");
+    std::cout<<"inserted 52 payload at position "<<pos<<std::endl;
     pos=editor->freeInsert(119,"pay119tok");
     std::cout<<"inserted 119 payload at position "<<pos<<std::endl;
     pos=editor->freeInsert(141,"pay141tok");
