@@ -271,7 +271,10 @@ int main( int argc, char** argv ){
     cond::PoolTransaction& sourcedb=conHandler.getConnection("mysourcedb")->poolTransaction();
     cond::PoolTransaction& destdb=conHandler.getConnection("mydestdb")->poolTransaction();
     cond::IOVService iovmanager(sourcedb);
+
+    sourcedb.start(true);
     std::string payloadContainer=iovmanager.payloadContainerName(sourceiovtoken);
+    sourcedb.commit();
 
 
     since = std::max(since, cond::timeTypeSpecs[sourceiovtype].beginValue);
