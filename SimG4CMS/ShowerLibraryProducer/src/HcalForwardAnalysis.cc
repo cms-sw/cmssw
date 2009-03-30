@@ -141,20 +141,21 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent * evt) {
 	<< " of ID " << idHC << " is obtained at " << theHC;
 	std::vector<HFShowerPhoton> ShortFiberPhotons;
 	std::vector<HFShowerPhoton> LongFiberPhotons;
+	LongFiberPhotons.clear();
+	ShortFiberPhotons.clear();
 	if (idHC >= 0 && theHC> 0) {
 		std::cout << "FiberhitSize " << theHC->entries() << std::endl;
 		for (j = 0; j < theHC->entries(); j++) {
 			FiberG4Hit* aHit = (*theHC)[j];
 			std::vector<HFShowerPhoton> thePhotonsFromHit = aHit->photon();
+		        std::cout << "Fiberhit " << j << " has " << thePhotonsFromHit.size() << " photons." << std::endl;
 			int fTowerId = -1;
 			int fCellId = -1;
 			int fFiberId = -1;
 			parseDetId(aHit->towerId(), fTowerId, fCellId, fFiberId);
-			if(aHit->depth() == 1) {
-				LongFiberPhotons = aHit->photon();
-			}
-			if(aHit->depth() == 2) {
-				ShortFiberPhotons = aHit->photon();
+			for(unsigned int iph = 0; iph < thePhotonsFromHit.size(); ++iph){
+			    if(aHit->depth() == 1)LongFiberPhotons.push_back(thePhotonsFromHit[iph]);
+			    if(aHit->depth() == 2)ShortFiberPhotons.push_back(thePhotonsFromHit[iph]);
 			}
 			LogDebug("HcalForwardLib") << "HcalForwardAnalysis::setPhotons() NbPhotons " << thePhotonsFromHit.size()
 			<< " towerId " << fTowerId << " cellId " << fCellId << " fiberId " << fFiberId << " depth " << aHit->depth();
