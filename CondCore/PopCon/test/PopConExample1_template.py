@@ -22,7 +22,7 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
-    withWrapper = cms.untracked.bool(True),
+    withWrapper = cms.untracked.bool(False),
     outOfOrder = cms.untracked.bool(False),
     timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(cms.PSet(
