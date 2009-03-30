@@ -188,6 +188,7 @@ namespace sistrip {
                                                                const FEDStripData::ChannelData& data,
                                                                const bool channelEnabled) const
   {
+    channelBuffer->reserve(50);
     //if channel is disabled then create empty channel header and return
     if (!channelEnabled) {
       //min length 7
@@ -269,7 +270,7 @@ namespace sistrip {
   }
   
   void FEDBufferPayloadCreator::writeClusterToBuffer(std::vector<uint8_t>* buffer, const uint8_t address,
-                                                           const std::list<uint8_t> adcCounts) const
+                                                     const std::list<uint8_t> adcCounts) const
   {
     if (adcCounts.size()) {
       buffer->push_back(address);
