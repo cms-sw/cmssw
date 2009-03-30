@@ -1,0 +1,55 @@
+# -*- sh -*- For Font lock mode
+
+###########################
+## GenObject Definitions ##
+###########################
+
+# GenObject 'event' definition
+[runevent singleton]
+run:   type=int
+event: type=int
+
+# GenObject 'muon' definition
+[jet]
+-equiv: eta,0.1 phi,0.1
+pt:   prec=0.1  form=%%7.2f
+eta:  prec=0.1  form=%%6.2f
+phi:  prec=0.1  form=%%6.2f
+
+####################
+## PAT Definition ##
+####################
+
+# Nickname and Tree
+[pat:Events]
+
+# 'pat'-tupe 'runevent' 'tofill' information
+[runevent:pat:EventAuxiliary]
+run:   id_.run()
+event: id_.event()
+
+# 'pat'-tuple 'jet' 'tofill' information
+[jet:pat:patJets alias=patJets_selectedLayer1JetsSC7__PAT.obj]
+#pt:  correctedJet("REL").pt()
+pt:  pt()
+eta: eta()
+phi: phi()
+
+#####################
+## RECO Definition ##
+#####################
+
+# Nickname and Tree
+[reco:Events]
+
+# 'reco'-tupe 'runevent' 'tofill' information
+[runevent:reco:EventAuxiliary]
+run:   id_.run()
+event: id_.event()
+
+# 'reco'-tuple 'jet' 'tofill' information
+[jet:reco:recoJets alias=recoCaloJets_L2L3CorJetSC7Calo__CorrJet.obj]
+pt:  pt()
+eta: eta()
+phi: phi()
+
