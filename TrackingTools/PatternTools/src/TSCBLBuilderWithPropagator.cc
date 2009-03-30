@@ -1,5 +1,6 @@
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderWithPropagator.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryExtrapolatorToLine.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
@@ -20,5 +21,21 @@ TSCBLBuilderWithPropagator::operator()
 	 const reco::BeamSpot& beamSpot) const
 {
 
-  return TrajectoryStateClosestToBeamLine();
+  GlobalPoint bspos(beamSpot.position().x(), beamSpot.position().y(), beamSpot.position().z());
+  GlobalVector bsvec(beamSpot.dxdz(), beamSpot.dydz(), 1.);
+  Line bsline(bspos,bsvec);
+
+  TrajectoryExtrapolatorToLine tetl;
+
+  TrajectoryStateOnSurface tsosfinal = tetl.extrapolate(originalFTS,bsline,*thePropagator);
+
+  //Compute point on beamline of closest approach
+  GlobalPoint tp = tsosfinal.globalPosition(); //position of trajectory closest approach
+  GlobalVector hyp(tp.x() - bspos.x(),tp.y() - bspos.y(),tp.z() - bspos.z()); //difference between traj and beamline reference
+  double l=bsline.direction().dot(hyp); //length along beamline away from reference point
+  GlobalPoint closepoint = bspos + l*bsvec;
+
+  //Get the free state and return the TSCBL
+  const FreeTrajectoryState theFTS = *tsosfinal.freeState();
+  return TrajectoryStateClosestToBeamLine(theFTS, closepoint, beamSpot);
 }
