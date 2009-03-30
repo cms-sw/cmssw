@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2009/02/26 18:44:11 $
- * $Revision: 1.62 $
+ * $Date: 2009/02/26 19:51:36 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -22,6 +22,7 @@
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -792,8 +793,11 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
         c.get<CaloTopologyRecord>().get(pTopology);
         if ( pTopology.isValid() ) {
           const CaloTopology *topology = pTopology.product();
-          
-          BasicClusterRef theSeed = sCluster->seed();
+
+          // <= CMSSW_3_0_X
+          //BasicClusterRef theSeed = sCluster->seed();
+          // >= CMSSW_3_1_X
+          CaloClusterPtr theSeed = sCluster->seed();
 
           // Find the seed rec hit
           // <= CMSSW_3_0_X
