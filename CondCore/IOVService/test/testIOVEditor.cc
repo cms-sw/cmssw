@@ -18,9 +18,9 @@ int main(){
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     pooldb.start(false);
     unsigned int pos=0;
-    editor->create(cond::timestamp,10);
+    editor->create(cond::timestamp,9);
     pos=editor->append(1,"pay01tok");
-    std::cout<<"inserted 20 payload at position "<<pos<<std::endl;
+    std::cout<<"insertd 1 payload at position "<<pos<<std::endl;
     pos=editor->insert(20,"pay010tok");
     std::cout<<"inserted 20 payload at position "<<pos<<std::endl;
     pos=editor->insert(40, "pay021tok");
@@ -90,35 +90,35 @@ int main(){
     std::cout<<"inserted 521 payload at position "<<pos<<std::endl;
     try {
       pos=editor->freeInsert(5, "payNOtok");
-      std::cout<<"shall not apped payload at position "<<pos<<std::endl;
+      std::cout<<"shall not insert 5 payload at position "<<pos<<std::endl;
     }
     catch(const cond::Exception& er){
       std::cout<<"expected error "<<er.what()<<std::endl;
     }
     try {
       pos=editor->freeInsert(10, "payNOtok");
-      std::cout<<"shall not apped payload at position "<<pos<<std::endl;
+      std::cout<<"shall not insert 10 payload at position "<<pos<<std::endl;
     }
     catch(const cond::Exception& er){
       std::cout<<"expected error "<<er.what()<<std::endl;
     }
     try {
       pos=editor->freeInsert(21, "payNOtok");
-      std::cout<<"shall not apped payload at position "<<pos<<std::endl;
+      std::cout<<"shall not insert 21 payload at position "<<pos<<std::endl;
     }
     catch(const cond::Exception& er){
       std::cout<<"expected error "<<er.what()<<std::endl;
     }
     try {
       pos=editor->freeInsert(120, "payNOtok");
-      std::cout<<"shall not apped payload at position "<<pos<<std::endl;
+      std::cout<<"shall not insert 121 payload at position "<<pos<<std::endl;
     }
     catch(const cond::Exception& er){
       std::cout<<"expected error "<<er.what()<<std::endl;
     }
     try {
       pos=editor->freeInsert(50, "payNOtok");
-      std::cout<<"shall not apped payload at position "<<pos<<std::endl;
+      std::cout<<"shall not inser 50 payload at position "<<pos<<std::endl;
     }
     catch(const cond::Exception& er){
       std::cout<<"expected error "<<er.what()<<std::endl;
