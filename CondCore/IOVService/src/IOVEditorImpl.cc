@@ -92,7 +92,7 @@ namespace cond {
     
     m_iov.markUpdate();
     updateClosure(tillTime);
-    return m_iov->add(lastTill(), payloadToken);
+    return m_iov->add(lastTill()+1, payloadToken);
     
   }
   
