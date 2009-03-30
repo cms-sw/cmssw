@@ -26,8 +26,9 @@ namespace cond {
 
   IOVSequence::Container const & IOVSequence::sortMe() const {
     delete m_sorted; // shall not be necessary;
-    m_sorted = new Container(m_iovs;);
-    std::sort(m_sorted->begin();m_sorted->end());
+    Container * local = new Container(m_iovs);
+    std::sort(local->begin(),local->end());
+    m_sorted = local;
     return *m_sorted;
   }
 
