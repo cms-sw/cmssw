@@ -10,28 +10,41 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
 
     #
     #
+    #
+    TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT"),
+    JetLo                      = cms.string("HLT_Jet30"),
+    JetHi                      = cms.string("HLT_Jet110"),
+
+    #
+    # Jet-related
     #                                                                   
     DoPFJetAnalysis            = cms.untracked.bool(True),
-    DoCaloMETAnalysis          = cms.untracked.bool(True),
     DoJPTJetAnalysis           = cms.untracked.bool(True),
     DoJetAnalysis              = cms.untracked.bool(True),
     PFJetsCollectionLabel      = cms.InputTag("iterativeCone5PFJets"),
     JPTJetsCollectionLabel     = cms.InputTag("JetPlusTrackZSPCorJetIcone5"),
     SCJetsCollectionLabel      = cms.InputTag("sisCone5CaloJets"),
     ICJetsCollectionLabel      = cms.InputTag("iterativeCone5CaloJets"),
-    CaloMETCollectionLabel     = cms.InputTag("met"),
-    CaloMETNoHFCollectionLabel = cms.InputTag("metNoHF"),
 
-    TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT"),
-    JetLo                      = cms.string("HLT_Jet30"),
-    JetHi                      = cms.string("HLT_Jet110"),
-
-                                
+    #
+    # MET-related
+    #                                                                   
+    DoCaloMETAnalysis            = cms.untracked.bool(True),
+    DoTcMETAnalysis              = cms.untracked.bool(True),
+    DoPfMETAnalysis              = cms.untracked.bool(True),
+    DoHTMHTAnalysis              = cms.untracked.bool(True),
+    CaloMETCollectionLabel       = cms.InputTag("met"),
+    CaloMETNoHFCollectionLabel   = cms.InputTag("metNoHF"),
+    CaloMETHOCollectionLabel     = cms.InputTag("metHO"),
+    CaloMETNoHFHOCollectionLabel = cms.InputTag("metNoHFHO"),
+    TcMETCollectionLabel         = cms.InputTag("tcMet"),
+    PfMETCollectionLabel         = cms.InputTag("pfMet"),
+    JetCollectionForHTMHTLabel   = cms.InputTag("iterativeCone5CaloJets"),
 
     #
     # For caloMETAnalysis
     #
-    caloMETAnalysis = cms.PSet(
+    caloMETAnalysisMain = cms.PSet(
     HLTPathsJetMB = cms.vstring(),
 #   When it is empty, it accepts all the triggers
 #    HLTPathsJetMB = cms.vstring("HLT_L1Jet15",
@@ -47,8 +60,43 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
 #                            "HLT_DiJetAve130",
 #                            "HLT_DiJetAve220",
 #                            "HLT_MinBias"),
+    etThreshold = cms.double(1.),
+    allHist     = cms.bool(True)
+    ),
+
+    #
+    # For caloMETAnalysis
+    #
+    caloMETAnalysis = cms.PSet(
+    HLTPathsJetMB = cms.vstring(),
+    etThreshold = cms.double(1.),
+    allHist     = cms.bool(False)
+    ),
+
+    #
+    # For tcMETAnalysis
+    #
+    tcMETAnalysis = cms.PSet(
+    HLTPathsJetMB = cms.vstring(),
     etThreshold = cms.double(1.)
     ),
+
+    #
+    # For pfMETAnalysis
+    #
+    pfMETAnalysis = cms.PSet(
+    HLTPathsJetMB = cms.vstring(),
+    etThreshold = cms.double(1.)
+    ),
+
+    #
+    # For HTMHTAnalysis
+    #
+    HTMHTAnalysis = cms.PSet(
+    HLTPathsJetMB = cms.vstring(),
+    ptThreshold = cms.double(30.)
+    ),
+
 
     #
     # For jetAnalysis

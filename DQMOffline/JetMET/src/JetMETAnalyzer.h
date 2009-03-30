@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2008/12/08 12:06:46 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/03/12 00:21:10 $
+ *  $Revision: 1.7 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -26,6 +26,9 @@
 #include "DQMOffline/JetMET/src/JetAnalyzer.h"
 #include "DQMOffline/JetMET/src/PFJetAnalyzer.h"
 #include "DQMOffline/JetMET/src/CaloMETAnalyzer.h"
+#include "DQMOffline/JetMET/src/METAnalyzer.h"
+#include "DQMOffline/JetMET/src/PFMETAnalyzer.h"
+#include "DQMOffline/JetMET/src/HTMHTAnalyzer.h"
 
 class JetMETAnalyzer : public edm::EDAnalyzer {
  public:
@@ -59,6 +62,11 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   edm::InputTag theJPTJetCollectionLabel;
   edm::InputTag theCaloMETCollectionLabel;
   edm::InputTag theCaloMETNoHFCollectionLabel;
+  edm::InputTag theCaloMETHOCollectionLabel;
+  edm::InputTag theCaloMETNoHFHOCollectionLabel;
+  edm::InputTag theTcMETCollectionLabel;
+  edm::InputTag thePfMETCollectionLabel;
+  edm::InputTag theJetCollectionForHTMHTLabel;
   edm::InputTag theTriggerResultsLabel;
   //
 
@@ -69,6 +77,9 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   bool thePFJetAnalyzerFlag;
   bool theJPTJetAnalyzerFlag;
   bool theCaloMETAnalyzerFlag;
+  bool theTcMETAnalyzerFlag;
+  bool thePfMETAnalyzerFlag;
+  bool theHTMHTAnalyzerFlag;
 
   // the jet analyzer
   JetAnalyzer       * theJetAnalyzer;
@@ -77,6 +88,12 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   JetAnalyzer       * theJPTJetAnalyzer;
   PFJetAnalyzer     * thePFJetAnalyzer;
   CaloMETAnalyzer   * theCaloMETAnalyzer;
+  CaloMETAnalyzer   * theCaloMETNoHFAnalyzer;
+  CaloMETAnalyzer   * theCaloMETHOAnalyzer;
+  CaloMETAnalyzer   * theCaloMETNoHFHOAnalyzer;
+  METAnalyzer       * theTcMETAnalyzer;
+  PFMETAnalyzer     * thePfMETAnalyzer;
+  HTMHTAnalyzer     * theHTMHTAnalyzer;
   
 };
 #endif  
