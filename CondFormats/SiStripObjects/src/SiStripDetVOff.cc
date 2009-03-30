@@ -70,7 +70,7 @@ bool SiStripDetVOff::IsModuleVOff(const uint32_t DetId) const
   return false;
 }
 
-bool SiStripDetVOff::IsModuleHVOff(const uint32_t DetId) const
+bool SiStripDetVOff::IsModuleLVOff(const uint32_t DetId) const
 {
   uint32_t enDetId = (DetId << bitShift) & eightBitMask;
   constVoffIterator p = std::lower_bound(v_Voff.begin(), v_Voff.end(), enDetId);
@@ -78,7 +78,7 @@ bool SiStripDetVOff::IsModuleHVOff(const uint32_t DetId) const
   return false;
 }
 
-bool SiStripDetVOff::IsModuleLVOff(const uint32_t DetId) const
+bool SiStripDetVOff::IsModuleHVOff(const uint32_t DetId) const
 {
   uint32_t enDetId = (DetId << bitShift) & eightBitMask;
   constVoffIterator p = std::lower_bound(v_Voff.begin(), v_Voff.end(), enDetId);
