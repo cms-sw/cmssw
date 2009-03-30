@@ -1,7 +1,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.cc,v 1.12 2008/08/21 11:10:17 giordano Exp $
+// $Id: SiStripQuality.cc,v 1.13 2009/03/27 14:19:50 giordano Exp $
 //
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
@@ -87,7 +87,7 @@ bool SiStripQuality::operator ==(const SiStripQuality& other) const{
 }
 bool SiStripQuality::operator !=(const SiStripQuality& other) const { return !(*this == other) ; }
 
-void SiStripQuality::add(const SiStripModuleHV *Voff){
+void SiStripQuality::add(const SiStripDetVOff *Voff){
   std::vector<unsigned int> vect;
   short firstStrip=0;
   short range=0;
