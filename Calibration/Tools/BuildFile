@@ -15,7 +15,6 @@
 
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CommonDetUnit>
-<use name=Geometry/CaloEventSetup>
 
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=DataFormats/GeometrySurface>
