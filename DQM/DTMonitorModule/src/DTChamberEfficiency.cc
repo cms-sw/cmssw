@@ -279,7 +279,7 @@ if(theNavigationType == "Standard"){
    }
  else if (theNavigationType == "Direct"){
 
-   DirectMuonNavigation navigation(&*theService->detLayerGeometry());
+   DirectMuonNavigation navigation(ESHandle<MuonDetLayerGeometry>(&*theService->detLayerGeometry()));
    detLayers = navigation.compatibleLayers(fts,propDir);
      }
  else
