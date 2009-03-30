@@ -13,7 +13,7 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.23 2008/12/08 11:42:28 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.24 2009/03/28 00:19:58 hatake Exp $
 //
 //
 
@@ -178,7 +178,7 @@ DataCertificationJetMET::endLuminosityBlock(const edm::LuminosityBlock& lumiBloc
   //
   //-----
   MonitorElement * meMETPhi=0;
-  meMETPhi = new MonitorElement(*(dbe->get("JetMET/CaloMETAnalyzer/METTask_CaloMETPhi")));
+  meMETPhi = new MonitorElement(*(dbe->get("JetMET/MET/CaloMET/METTask_CaloMETPhi")));
   const QReport * myQReport = meMETPhi->getQReport("phiQTest"); //get QReport associated to your ME  
   if(myQReport) {
     float qtresult = myQReport->getQTresult(); // get QT result value
@@ -441,50 +441,50 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     // *** Kludge to allow using root files written by stand alone job
     if (iAlgo == 0) {
       if (RefRunDir == "") {
-        refHistoName = "JetMET/IterativeConeJets/";
+        refHistoName = "JetMET/Jet/IterativeConeJets/";
       } else {
-        refHistoName = RefRunDir+"/JetMET/Run summary/IterativeConeJets/";
+        refHistoName = RefRunDir+"/JetMET/Run summary/Jet/IterativeConeJets/";
       }
       if (RunDir == "") {
-        newHistoName = "JetMET/IterativeConeJets/";
+        newHistoName = "JetMET/Jet/IterativeConeJets/";
       } else {
-        newHistoName = RunDir+"/JetMET/Run summary/IterativeConeJets/";
+        newHistoName = RunDir+"/JetMET/Run summary/Jet/IterativeConeJets/";
       }
     }
     if (iAlgo == 1) {
       if (RefRunDir == "") {
-        refHistoName = "JetMET/SISConeJets/";
+        refHistoName = "JetMET/Jet/SISConeJets/";
       } else {
-        refHistoName = RefRunDir+"/JetMET/Run summary/SISConeJets/";
+        refHistoName = RefRunDir+"/JetMET/Run summary/Jet/SISConeJets/";
       }
       if (RunDir == "") {
-        newHistoName = "JetMET/SISConeJets/";
+        newHistoName = "JetMET/Jet/SISConeJets/";
       } else {
-        newHistoName = RunDir+"/JetMET/Run summary/SISConeJets/";
+        newHistoName = RunDir+"/JetMET/Run summary/Jet/SISConeJets/";
       }
     }
     if (iAlgo == 2) {
       if (RefRunDir == "") {
-        refHistoName = "JetMET/PFJets/";
+        refHistoName = "JetMET/Jet/PFJets/";
       } else {
-        refHistoName = RefRunDir+"/JetMET/Run summary/PFJets/";
+        refHistoName = RefRunDir+"/JetMET/Run summary/Jet/PFJets/";
       }
       if (RunDir == "") {
-        newHistoName = "JetMET/PFJets/";
+        newHistoName = "JetMET/Jet/PFJets/";
       } else {
-        newHistoName = RunDir+"/JetMET/Run summary/PFJets/";
+        newHistoName = RunDir+"/JetMET/Run summary/Jet/PFJets/";
       }
     }
     if (iAlgo == 3) {
       if (RefRunDir == "") {
-        refHistoName = "JetMET/JPT/";
+        refHistoName = "JetMET/Jet/JPTJets/";
       } else {
-        refHistoName = RefRunDir+"/JetMET/Run summary/JPT/";
+        refHistoName = RefRunDir+"/JetMET/Run summary/Jet/JPTJets/";
       }
       if (RunDir == "") {
-        newHistoName = "JetMET/JPT/";
+        newHistoName = "JetMET/Jet/JPTJets/";
       } else {
-        newHistoName = RunDir+"/JetMET/Run summary/JPT/";
+        newHistoName = RunDir+"/JetMET/Run summary/Jet/JPTJets/";
       }
     }
 
@@ -819,17 +819,17 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   MonitorElement *meMETPhi[3];
 
   if (RunDir == "") {
-    newHistoName = "JetMET/CaloMETAnalyzer/METTask_";
+    newHistoName = "JetMET/MET/";
   } else {
-    newHistoName = RunDir+"/JetMET/Run summary/CaloMETAnalyzer/METTask_";
+    newHistoName = RunDir+"/JetMET/Run summary/MET/";
   }
 
-  meMExy[0]   = new MonitorElement(*(dbe->get((newHistoName+"CaloMEx"))));
-  meMExy[1]   = new MonitorElement(*(dbe->get((newHistoName+"CaloMEy"))));
-  meMExy[2]   = new MonitorElement(*(dbe->get((newHistoName+"CaloMExNoHF"))));
-  meMExy[3]   = new MonitorElement(*(dbe->get((newHistoName+"CaloMEyNoHF"))));
-  meMETPhi[0] = new MonitorElement(*(dbe->get((newHistoName+"CaloMETPhi"))));
-  meMETPhi[1] = new MonitorElement(*(dbe->get((newHistoName+"CaloMETPhiNoHF"))));
+  meMExy[0]   = new MonitorElement(*(dbe->get((newHistoName+"CaloMET/METTask_CaloMEx"))));
+  meMExy[1]   = new MonitorElement(*(dbe->get((newHistoName+"CaloMET/METTask_CaloMEy"))));
+  meMExy[2]   = new MonitorElement(*(dbe->get((newHistoName+"CaloMETNoHF/METTask_CaloMEx"))));
+  meMExy[3]   = new MonitorElement(*(dbe->get((newHistoName+"CaloMETNoHF/METTask_CaloMEy"))));
+  meMETPhi[0] = new MonitorElement(*(dbe->get((newHistoName+"CaloMET/METTask_CaloMETPhi"))));
+  meMETPhi[1] = new MonitorElement(*(dbe->get((newHistoName+"CaloMETNoHF/METTask_CaloMETPhi"))));
 				   
   //----------------------------------------------------------------
   //--- Extract quality test results and fill data certification results
