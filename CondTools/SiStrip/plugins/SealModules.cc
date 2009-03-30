@@ -36,6 +36,12 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripBadFiberBuilder);
 #include "CondTools/SiStrip/plugins/SiStripBadStripReader.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripBadStripReader);
 
+#include "CondTools/SiStrip/plugins/SiStripDetVOffBuilder.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripDetVOffBuilder);
+
+#include "CondTools/SiStrip/plugins/SiStripDetVOffReader.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripDetVOffReader);
+
 #include "CondTools/SiStrip/plugins/SiStripPerformanceSummaryBuilder.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripPerformanceSummaryBuilder);
 
