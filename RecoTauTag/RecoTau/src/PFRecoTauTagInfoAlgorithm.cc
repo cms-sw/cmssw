@@ -32,7 +32,7 @@ PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const PFJetRef& thePFJ
     double delta = ROOT::Math::VectorUtil::DeltaR((*thePFJet).p4().Vect(), (*iPFCand)->p4().Vect());
     if (delta < ChargedHadronsAssociationCone_)  thePFCands.push_back(*iPFCand);   
   }
-  
+  if(thePV.z() < -500.) UsePVconstraint_ = false;
   
   PFCandidateRefVector theFilteredPFChargedHadrCands;
   if (UsePVconstraint_) theFilteredPFChargedHadrCands=TauTagTools::filteredPFChargedHadrCands(thePFCands,ChargedHadrCand_tkminPt_,ChargedHadrCand_tkminPixelHitsn_,ChargedHadrCand_tkminTrackerHitsn_,ChargedHadrCand_tkmaxipt_,ChargedHadrCand_tkmaxChi2_,ChargedHadrCand_tkPVmaxDZ_, thePV, thePV.z());
