@@ -19,8 +19,31 @@ sed -i 's/yyy/1/g' tmp_PopConExample.py
 
 echo "populate pop_test1.db with 25"  
 cmsRun tmp_PopConExample.py
-
 rm tmp_PopConExample.py
+
+cat PopConExample1_template.py | sed 's/xxx/27/g' > tmp_PopConExample.py
+sed -i 's/pop_test.db/pop_test1.db/g' tmp_PopConExample.py
+sed -i 's/yyy/1/g' tmp_PopConExample.py      
+
+echo "populate pop_test1.db with 27"  
+cmsRun tmp_PopConExample.py
+rm tmp_PopConExample.py
+
+
+cat PopConExample1_template.py | sed 's/xxx/26/g' > tmp_PopConExample.py
+sed -i 's/pop_test.db/pop_test1.db/g' tmp_PopConExample.py
+sed -i 's/yyy/1/g' tmp_PopConExample.py      
+
+echo "error in populate pop_test1.db with 26"  
+cmsRun tmp_PopConExample.py
+
+sed -i 's/ outOfOrder = cms.untracked.bool(False)/ outOfOrder = cms.untracked.bool(True)/g' tmp_PopConExample.py
+
+echo "success in populate pop_test1.db with 26"  
+cmsRun tmp_PopConExample.py
+
+
+
 
 cat PopConExample1_template.py | sed 's/xxx/41/g' > tmp_PopConExample.py
 sed -i 's/pop_test.db/pop_test2.db/g' tmp_PopConExample.py
