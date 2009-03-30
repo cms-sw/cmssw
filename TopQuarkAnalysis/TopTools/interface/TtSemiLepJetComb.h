@@ -10,9 +10,6 @@
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-
 
 namespace JetComb{
   /// distinguish between hadronic and leptonic 
@@ -22,12 +19,16 @@ namespace JetComb{
   enum VarType   {kMass, kPt, kEta, kPhi, kTheta};
   /// supported comparison types 
   enum CompType  {kDeltaM, kDeltaR, kDeltaPhi, kDeltaTheta};
+  /// b-tagging algorithms
+  enum BTagAlgo  {kTrkCntHighEff, kTrkCntHighPur, kSoftMuon,
+		  kSimpSecondVtx, kCombSecondVtx, kImpactParaMVA};
+  /// operators for combining variables
+  enum Operator  {kAdd, kMult};
 }
 
 // ----------------------------------------------------------------------
-// common calculator class to keep likelihood
-// variables for jet combinations in the 
-// semi leptonic ttbar decays
+// common calculator class to keep multivariate analysis variables for
+// jet combinations in semi leptonic ttbar decays
 // ----------------------------------------------------------------------
 
 class TtSemiLepJetComb {
@@ -36,18 +37,18 @@ class TtSemiLepJetComb {
   
   /// emtpy constructor
   TtSemiLepJetComb();
-  /// default constructir
+  /// default constructor
   TtSemiLepJetComb(const std::vector<pat::Jet>&, const std::vector<int>, const math::XYZTLorentzVector&, const pat::MET&);
   /// default destructor
   ~TtSemiLepJetComb();
 
-  /// single top candidate variable
+  /// top quark candidate variable
   double topVar(JetComb::DecayType decay, JetComb::VarType var) const;
-  /// single W candidate variable
+  /// W boson candidate variable
   double wBosonVar(JetComb::DecayType decay, JetComb::VarType var) const;
-  /// single b candidate variable
+  /// b quark candidate variable
   double bQuarkVar(JetComb::DecayType decay, JetComb::VarType var) const;
-  /// ligh quark candidate variable
+  /// light quark candidate variable
   double lightQVar(bool qbar, JetComb::VarType var) const;
   /// lepton candidate variable
   double leptonVar(JetComb::VarType var) const;
@@ -55,25 +56,33 @@ class TtSemiLepJetComb {
   double neutrinoVar(JetComb::VarType var) const;
 
   /// comparison between the two top candidates
-  double compareTopTop(JetComb::DecayType dec1, JetComb::DecayType dec2, JetComb::CompType comp) const;
+  double compareHadTopLepTop(JetComb::CompType comp) const;
+  /// comparison between the two W candidates
+  double compareHadWLepW(JetComb::CompType comp) const;
+  /// comparison between the two b candidates
+  double compareHadBLepB(JetComb::CompType comp) const;
+  /// comparison between the lightQ and the lightQBar candidate  
+  double compareLightQuarks(JetComb::CompType comp) const;
+  /// comparison between the lepton and the neutrino candidate 
+  double compareLeptonNeutrino(JetComb::CompType comp) const;
   /// comparison between the top and the W candidate
   double compareTopW(JetComb::DecayType dec1, JetComb::DecayType dec2, JetComb::CompType comp) const;
   /// comparison between the top and the b candidate
   double compareTopB(JetComb::DecayType dec1, JetComb::DecayType dec2, JetComb::CompType comp) const;
   /// comparison between the W and the b candidate
   double compareWB(JetComb::DecayType dec1, JetComb::DecayType dec2, JetComb::CompType comp) const;
-  /// comparison between the lightQ and the lightQBar candidate  
-  double compareLightQuarks(JetComb::CompType comp) const;
   /// comparison between the top and the lepton candidate
   double compareTopLepton(JetComb::DecayType decay, JetComb::CompType comp) const;
   /// comparison between the top and the neutrino candidate
   double compareTopNeutrino(JetComb::DecayType decay, JetComb::CompType comp) const;
+  /// comparison between the W and the lepton candidate
+  double compareWLepton(JetComb::DecayType decay, JetComb::CompType comp) const;
+  /// comparison between the W and the neutrino candidate
+  double compareWNeutrino(JetComb::DecayType decay, JetComb::CompType comp) const;
   /// comparison between the b and the lepton candidate
   double compareBLepton(JetComb::DecayType decay, JetComb::CompType comp) const;
   /// comparison between the b and the neutrino candidate
   double compareBNeutrino(JetComb::DecayType decay, JetComb::CompType comp) const;
-  /// comparison between the lepton and the neutrino candidate 
-  double compareLeptonNeutrino(JetComb::CompType comp) const;
  
   /// pt of the hadronic top candidate relative to pt of the 
   /// sum of all other reconstruction possibilities (returns 
@@ -83,27 +92,20 @@ class TtSemiLepJetComb {
   /// scalar sum of the pt of the light quark candidates
   double bOverLightQPt() const;
 
-  /// summed btag for 'trackCountingHighEffBJetTags'
-  double summedTrackCountingHighEff() const { return summedBTag("trackCountingHighEffBJetTags"); };
-  /// summed btag for 'trackCountingHighPurBJetTags'
-  double summedTrackCountingHighPur() const { return summedBTag("trackCountingHighPurBJetTags"); };
-  /// summed btag for 'softMuonBJetTags'
-  double summedSoftMuon() const { return summedBTag("softMuonBJetTags"); };
-  /// summed btag for 'simpleSecondaryVertexBJetTags'
-  double summedSimpleSecondaryVertex() const { return summedBTag("simpleSecondaryVertexBJetTags"); };
-  /// summed btag for 'combinedSecondaryVertexBJetTags'
-  double summedCombinedSecondaryVertex() const { return summedBTag("combinedSecondaryVertexBJetTags"); };
-  /// summed btag for 'impactParameterMVABJetTags'
-  double summedImpactParameterMVA() const { return summedBTag("impactParameterMVABJetTags"); };
+  /// b-tag value of the b candidate
+  double bTag(JetComb::DecayType decay, JetComb::BTagAlgo algo) const;
+  /// combined b-tag values of the two b candidates
+  double combinedBTags(JetComb::BTagAlgo algo, JetComb::Operator op) const;
 
   /// add an arbitary user defined variable with given key and value
   double addUserVar(std::string key, double value) { return userVariables_[key]=value;};
   /// receive user defined variable value with given key
-  double userVar(const std::string& key) const { return (userVariables_.find(key)!=userVariables_.end() ? userVariables_.find(key)->second : -9999.);};
+  double userVar(const std::string& key) const {
+    return (userVariables_.find(key)!=userVariables_.end() ? userVariables_.find(key)->second : -9999.);};
 
  private:
 
-  /// reconstruct mother candidates from final state canddiates
+  /// reconstruct mother candidates from final state candidates
   void deduceMothers();
   /// sum of btag from leptonic and hadronic b candidate
   /// with corresponding btag label
@@ -217,35 +219,35 @@ inline double TtSemiLepJetComb::neutrinoVar(JetComb::VarType var) const
   return -9999.;
 }
 
-inline double TtSemiLepJetComb::compareTopTop(JetComb::DecayType dec1, JetComb::DecayType dec2, JetComb::CompType comp) const 
+inline double TtSemiLepJetComb::compareHadTopLepTop(JetComb::CompType comp) const 
 {
   switch(comp){
-  case JetComb::kDeltaM     : return top(dec1).mass()-top(dec2).mass();  
-  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (top(dec1), top(dec2));
-  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(top(dec1), top(dec2));
-  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (top(dec1), top(dec2));
+  case JetComb::kDeltaM     : return top(JetComb::kHad).mass() - top(JetComb::kLep).mass();  
+  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (top(JetComb::kHad), top(JetComb::kLep));
+  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(top(JetComb::kHad), top(JetComb::kLep));
+  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (top(JetComb::kHad), top(JetComb::kLep));
   };
   return -9999.;
 }
 
-inline double TtSemiLepJetComb::compareTopW(JetComb::DecayType dec1, JetComb::DecayType dec2, JetComb::CompType comp) const 
+inline double TtSemiLepJetComb::compareHadWLepW(JetComb::CompType comp) const 
 {
   switch(comp){
-  case JetComb::kDeltaM     : return -9999.;
-  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (top(dec1), wBoson(dec2));
-  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(top(dec1), wBoson(dec2));
-  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (top(dec1), wBoson(dec2));
+  case JetComb::kDeltaM     : return wBoson(JetComb::kHad).mass() - wBoson(JetComb::kLep).mass();
+  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (wBoson(JetComb::kHad), wBoson(JetComb::kLep));
+  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(wBoson(JetComb::kHad), wBoson(JetComb::kLep));
+  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (wBoson(JetComb::kHad), wBoson(JetComb::kLep));
   };
   return -9999.;
 }
 
-inline double TtSemiLepJetComb::compareWB(JetComb::DecayType dec1, JetComb::DecayType dec2, JetComb::CompType comp) const 
+inline double TtSemiLepJetComb::compareHadBLepB(JetComb::CompType comp) const 
 {
   switch(comp){
   case JetComb::kDeltaM     : return -9999.;
-  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (wBoson(dec1), bQuark(dec2).p4());
-  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(wBoson(dec1), bQuark(dec2).p4());
-  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (wBoson(dec1), bQuark(dec2).p4());
+  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (bQuark(JetComb::kHad).p4(), bQuark(JetComb::kLep).p4());
+  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(bQuark(JetComb::kHad).p4(), bQuark(JetComb::kLep).p4());
+  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (bQuark(JetComb::kHad).p4(), bQuark(JetComb::kLep).p4());
   };
   return -9999.;
 }
@@ -257,6 +259,50 @@ inline double TtSemiLepJetComb::compareLightQuarks(JetComb::CompType comp) const
   case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (lightQ().p4(), lightQ(true).p4());
   case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(lightQ().p4(), lightQ(true).p4());
   case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (lightQ().p4(), lightQ(true).p4());
+  };
+  return -9999.;
+}
+
+inline double TtSemiLepJetComb::compareLeptonNeutrino(JetComb::CompType comp) const 
+{
+  switch(comp){
+  case JetComb::kDeltaM     : return -9999.;
+  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (lepton_, neutrino_.p4());
+  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(lepton_, neutrino_.p4());
+  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (lepton_, neutrino_.p4());
+  };
+  return -9999.;
+}
+
+inline double TtSemiLepJetComb::compareTopW(JetComb::DecayType dec1, JetComb::DecayType dec2, JetComb::CompType comp) const 
+{
+  switch(comp){
+  case JetComb::kDeltaM     : return top(dec1).mass() - wBoson(dec2).mass();
+  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (top(dec1), wBoson(dec2));
+  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(top(dec1), wBoson(dec2));
+  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (top(dec1), wBoson(dec2));
+  };
+  return -9999.;
+}
+
+inline double TtSemiLepJetComb::compareTopB(JetComb::DecayType dec1, JetComb::DecayType dec2, JetComb::CompType comp) const 
+{
+  switch(comp){
+  case JetComb::kDeltaM     : return -9999.;
+  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (top(dec1), bQuark(dec2).p4());
+  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(top(dec1), bQuark(dec2).p4());
+  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (top(dec1), bQuark(dec2).p4());
+  };
+  return -9999.;
+}
+
+inline double TtSemiLepJetComb::compareWB(JetComb::DecayType dec1, JetComb::DecayType dec2, JetComb::CompType comp) const 
+{
+  switch(comp){
+  case JetComb::kDeltaM     : return -9999.;
+  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (wBoson(dec1), bQuark(dec2).p4());
+  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(wBoson(dec1), bQuark(dec2).p4());
+  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (wBoson(dec1), bQuark(dec2).p4());
   };
   return -9999.;
 }
@@ -283,6 +329,28 @@ inline double TtSemiLepJetComb::compareTopNeutrino(JetComb::DecayType decay, Jet
   return -9999.;
 }
 
+inline double TtSemiLepJetComb::compareWLepton(JetComb::DecayType decay, JetComb::CompType comp) const 
+{
+  switch(comp){
+  case JetComb::kDeltaM     : return -9999.;
+  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (wBoson(decay), lepton_);
+  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(wBoson(decay), lepton_);
+  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (wBoson(decay), lepton_);
+  };
+  return -9999.;
+}
+
+inline double TtSemiLepJetComb::compareWNeutrino(JetComb::DecayType decay, JetComb::CompType comp) const 
+{
+  switch(comp){
+  case JetComb::kDeltaM     : return -9999.;
+  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (wBoson(decay), neutrino_.p4());
+  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(wBoson(decay), neutrino_.p4());
+  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (wBoson(decay), neutrino_.p4());
+  };
+  return -9999.;
+}
+
 inline double TtSemiLepJetComb::compareBLepton(JetComb::DecayType decay, JetComb::CompType comp) const 
 {
   switch(comp){
@@ -305,17 +373,6 @@ inline double TtSemiLepJetComb::compareBNeutrino(JetComb::DecayType decay, JetCo
   return -9999.;
 }
 
-inline double TtSemiLepJetComb::compareLeptonNeutrino(JetComb::CompType comp) const 
-{
-  switch(comp){
-  case JetComb::kDeltaM     : return -9999.;
-  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (lepton_, neutrino_.p4());
-  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(lepton_, neutrino_.p4());
-  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (lepton_, neutrino_.p4());
-  };
-  return -9999.;
-}
-
 inline double TtSemiLepJetComb::relativePtHadronicTop() const
 {
   return top(JetComb::kHad).pt()/(top(JetComb::kHad).pt()                                               +
@@ -330,9 +387,26 @@ inline double TtSemiLepJetComb::bOverLightQPt() const
   return (bQuark(JetComb::kHad).p4().pt()+bQuark(JetComb::kLep).p4().pt())/(lightQ().p4().pt()+lightQ(true).p4().pt());  
 }
 
-inline double TtSemiLepJetComb::summedBTag(const std::string& label) const
+inline double TtSemiLepJetComb::bTag(JetComb::DecayType decay, JetComb::BTagAlgo algo) const
 {
-  return bQuark(JetComb::kHad).bDiscriminator(label.c_str())+bQuark(JetComb::kLep).bDiscriminator(label.c_str());
+  switch(algo){
+  case JetComb::kTrkCntHighEff : return bQuark(decay).bDiscriminator("trackCountingHighEffBJetTags"   );
+  case JetComb::kTrkCntHighPur : return bQuark(decay).bDiscriminator("trackCountingHighPurBJetTags"   );
+  case JetComb::kSoftMuon      : return bQuark(decay).bDiscriminator("softMuonBJetTags"               );
+  case JetComb::kSimpSecondVtx : return bQuark(decay).bDiscriminator("simpleSecondaryVertexBJetTags"  );
+  case JetComb::kCombSecondVtx : return bQuark(decay).bDiscriminator("combinedSecondaryVertexBJetTags");
+  case JetComb::kImpactParaMVA : return bQuark(decay).bDiscriminator("impactParameterMVABJetTags"     );
+  };
+  return -9999.;
+}
+
+inline double TtSemiLepJetComb::combinedBTags(JetComb::BTagAlgo algo, JetComb::Operator op) const
+{
+  switch(op){
+  case JetComb::kAdd  : return bTag(JetComb::kHad, algo) + bTag(JetComb::kLep, algo);
+  case JetComb::kMult : return bTag(JetComb::kHad, algo) * bTag(JetComb::kLep, algo);
+  };
+  return -9999.;
 }
 
 #endif
