@@ -26,8 +26,8 @@ public:
  private:
   
   //Which cuts to do?
+
   bool dophotonEcalRecHitIsolationCut_;
-  bool dophotonEcalIsoRelativeCut_;
   bool dophotonHcalTowerIsolationCut_;
   bool dophotonHCTrkIsolationCut_;
   bool dophotonSCTrkIsolationCut_;
@@ -38,10 +38,14 @@ public:
   bool dophotonsigmaeeCut_;
   bool dophotonR9Cut_;
 
-  double loosephotonEcalRecHitIsolationCutEB_;
-  double loosephotonEcalIsoRelativeCutEB_;
-  double loosephotonHcalTowerIsolationCutEB_;
-  double loosephotonHollowConeTrkIsolationCutEB_;
+  double loosephotonEcalIsoRelativeCutSlopeEB_;
+  double loosephotonEcalIsoRelativeCutOffsetEB_;
+  double loosephotonHcalTowerIsolationCutSlopeEB_;
+  double loosephotonHcalTowerIsolationCutOffsetEB_;
+  double loosephotonHollowConeTrkIsolationSlopeEB_;
+  double loosephotonHollowConeTrkIsolationOffsetEB_;
+  double loosephotonSolidConeTrkIsolationSlopeEB_;
+  double loosephotonSolidConeTrkIsolationOffsetEB_;
   double loosephotonSolidConeTrkIsolationCutEB_;
   int loosephotonSolidConeNTrkCutEB_;
   int loosephotonHollowConeNTrkCutEB_;
@@ -49,10 +53,14 @@ public:
   double loosephotonHadOverEMCutEB_;
   double loosephotonR9CutEB_;
 
-  double tightphotonEcalRecHitIsolationCutEB_;
-  double tightphotonEcalIsoRelativeCutEB_;
-  double tightphotonHcalTowerIsolationCutEB_;
-  double tightphotonHollowConeTrkIsolationCutEB_;
+  double tightphotonEcalIsoRelativeCutSlopeEB_;
+  double tightphotonEcalIsoRelativeCutOffsetEB_;
+  double tightphotonHcalTowerIsolationCutSlopeEB_;
+  double tightphotonHcalTowerIsolationCutOffsetEB_;
+  double tightphotonHollowConeTrkIsolationSlopeEB_;
+  double tightphotonHollowConeTrkIsolationOffsetEB_;
+  double tightphotonSolidConeTrkIsolationSlopeEB_;
+  double tightphotonSolidConeTrkIsolationOffsetEB_;
   double tightphotonSolidConeTrkIsolationCutEB_;
   int tightphotonSolidConeNTrkCutEB_;
   int tightphotonHollowConeNTrkCutEB_;
@@ -60,10 +68,14 @@ public:
   double tightphotonHadOverEMCutEB_;
   double tightphotonR9CutEB_;
 
-  double loosephotonEcalRecHitIsolationCutEE_;
-  double loosephotonEcalIsoRelativeCutEE_;
-  double loosephotonHcalTowerIsolationCutEE_;
-  double loosephotonHollowConeTrkIsolationCutEE_;
+  double loosephotonEcalIsoRelativeCutSlopeEE_;
+  double loosephotonEcalIsoRelativeCutOffsetEE_;
+  double loosephotonHcalTowerIsolationCutSlopeEE_;
+  double loosephotonHcalTowerIsolationCutOffsetEE_;
+  double loosephotonHollowConeTrkIsolationSlopeEE_;
+  double loosephotonHollowConeTrkIsolationOffsetEE_;
+  double loosephotonSolidConeTrkIsolationSlopeEE_;
+  double loosephotonSolidConeTrkIsolationOffsetEE_;
   double loosephotonSolidConeTrkIsolationCutEE_;
   int loosephotonSolidConeNTrkCutEE_;
   int loosephotonHollowConeNTrkCutEE_;
@@ -71,10 +83,14 @@ public:
   double loosephotonHadOverEMCutEE_;
   double loosephotonR9CutEE_;
 
-  double tightphotonEcalRecHitIsolationCutEE_;
-  double tightphotonEcalIsoRelativeCutEE_;
-  double tightphotonHcalTowerIsolationCutEE_;
-  double tightphotonHollowConeTrkIsolationCutEE_;
+  double tightphotonEcalIsoRelativeCutSlopeEE_;
+  double tightphotonEcalIsoRelativeCutOffsetEE_;
+  double tightphotonHcalTowerIsolationCutSlopeEE_;
+  double tightphotonHcalTowerIsolationCutOffsetEE_;
+  double tightphotonHollowConeTrkIsolationSlopeEE_;
+  double tightphotonHollowConeTrkIsolationOffsetEE_;
+  double tightphotonSolidConeTrkIsolationSlopeEE_;
+  double tightphotonSolidConeTrkIsolationOffsetEE_;
   double tightphotonSolidConeTrkIsolationCutEE_;
   int tightphotonSolidConeNTrkCutEE_;
   int tightphotonHollowConeNTrkCutEE_;

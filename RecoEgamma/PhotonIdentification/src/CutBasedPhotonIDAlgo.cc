@@ -9,7 +9,6 @@ void CutBasedPhotonIDAlgo::setup(const edm::ParameterSet& conf) {
 
   //Decision cuts
   dophotonEcalRecHitIsolationCut_ = conf.getParameter<bool>("DoEcalRecHitIsolationCut");
-  dophotonEcalIsoRelativeCut_ = conf.getParameter<bool>("DoEcalIsoRelativeCut");
   dophotonHcalTowerIsolationCut_ = conf.getParameter<bool>("DoHcalTowerIsolationCut");
   dophotonHCTrkIsolationCut_ = conf.getParameter<bool>("DoHollowConeTrackIsolationCut");
   dophotonSCTrkIsolationCut_ = conf.getParameter<bool>("DoSolidConeTrackIsolationCut");
@@ -20,10 +19,14 @@ void CutBasedPhotonIDAlgo::setup(const edm::ParameterSet& conf) {
   dophotonR9Cut_ = conf.getParameter<bool>("DoR9Cut");
   dorequireFiducial_ = conf.getParameter<bool>("RequireFiducial");
 
-  loosephotonEcalRecHitIsolationCutEB_ = conf.getParameter<double>("LoosePhotonEcalRecHitIsoEB");
-  loosephotonEcalIsoRelativeCutEB_ = conf.getParameter<double>("LoosePhotonEcalIsoRelativeCutEB");
-  loosephotonHcalTowerIsolationCutEB_ = conf.getParameter<double>("LoosePhotonHcalTowerIsoEB");
-  loosephotonHollowConeTrkIsolationCutEB_ = conf.getParameter<double>("LoosePhotonHollowTrkEB");
+  loosephotonEcalIsoRelativeCutSlopeEB_ = conf.getParameter<double>("LoosePhotonEcalIsoRelativeCutSlopeEB");
+  loosephotonEcalIsoRelativeCutOffsetEB_ = conf.getParameter<double>("LoosePhotonEcalIsoRelativeCutOffsetEB");
+  loosephotonHcalTowerIsolationCutSlopeEB_ = conf.getParameter<double>("LoosePhotonHcalTowerIsoSlopeEB");
+  loosephotonHcalTowerIsolationCutOffsetEB_ = conf.getParameter<double>("LoosePhotonHcalTowerIsoOffsetEB");
+  loosephotonHollowConeTrkIsolationSlopeEB_ = conf.getParameter<double>("LoosePhotonHollowTrkSlopeEB");
+  loosephotonHollowConeTrkIsolationOffsetEB_ = conf.getParameter<double>("LoosePhotonHollowTrkOffsetEB");
+  loosephotonSolidConeTrkIsolationSlopeEB_ = conf.getParameter<double>("LoosePhotonSolidTrkSlopeEB");
+  loosephotonSolidConeTrkIsolationOffsetEB_ = conf.getParameter<double>("LoosePhotonSolidTrkOffsetEB");
   loosephotonSolidConeTrkIsolationCutEB_ = conf.getParameter<double>("LoosePhotonSolidTrkEB");
   loosephotonSolidConeNTrkCutEB_ = conf.getParameter<int>("LoosePhotonSolidNTrkEB");
   loosephotonHollowConeNTrkCutEB_ = conf.getParameter<int>("LoosePhotonHollowNTrkEB");
@@ -31,11 +34,15 @@ void CutBasedPhotonIDAlgo::setup(const edm::ParameterSet& conf) {
   loosephotonHadOverEMCutEB_ = conf.getParameter<double>("LoosePhotonHadOverEMEB");
   loosephotonR9CutEB_ = conf.getParameter<double>("LoosePhotonR9CutEB");
 
-  tightphotonEcalRecHitIsolationCutEB_ = conf.getParameter<double>("TightPhotonEcalRecHitIsoEB");
-  tightphotonEcalIsoRelativeCutEB_ = conf.getParameter<double>("TightPhotonEcalIsoRelativeCutEB");
-  tightphotonHcalTowerIsolationCutEB_ = conf.getParameter<double>("TightPhotonHcalTowerIsoEB");
-  tightphotonHollowConeTrkIsolationCutEB_ = conf.getParameter<double>("TightPhotonHollowTrkEB");
-  tightphotonSolidConeTrkIsolationCutEB_ = conf.getParameter<double>("TightPhotonSolidTrkEB");
+
+  tightphotonEcalIsoRelativeCutSlopeEB_ = conf.getParameter<double>("TightPhotonEcalIsoRelativeCutSlopeEB");
+  tightphotonEcalIsoRelativeCutOffsetEB_ = conf.getParameter<double>("TightPhotonEcalIsoRelativeCutOffsetEB");
+  tightphotonHcalTowerIsolationCutSlopeEB_ = conf.getParameter<double>("TightPhotonHcalTowerIsoSlopeEB");
+  tightphotonHcalTowerIsolationCutOffsetEB_ = conf.getParameter<double>("TightPhotonHcalTowerIsoOffsetEB");
+  tightphotonHollowConeTrkIsolationSlopeEB_ = conf.getParameter<double>("TightPhotonHollowTrkSlopeEB");
+  tightphotonHollowConeTrkIsolationOffsetEB_ = conf.getParameter<double>("TightPhotonHollowTrkOffsetEB");
+  tightphotonSolidConeTrkIsolationSlopeEB_ = conf.getParameter<double>("TightPhotonSolidTrkSlopeEB");
+  tightphotonSolidConeTrkIsolationOffsetEB_ = conf.getParameter<double>("TightPhotonSolidTrkOffsetEB");
   tightphotonSolidConeNTrkCutEB_ = conf.getParameter<int>("TightPhotonSolidNTrkEB");
   tightphotonHollowConeNTrkCutEB_ = conf.getParameter<int>("TightPhotonHollowNTrkEB");
   tightphotonEtaWidthCutEB_ = conf.getParameter<double>("TightPhotonEtaWidthEB");
@@ -43,10 +50,14 @@ void CutBasedPhotonIDAlgo::setup(const edm::ParameterSet& conf) {
   tightphotonR9CutEB_ = conf.getParameter<double>("TightPhotonR9CutEB");
 
   //get cuts here EE
-  loosephotonEcalRecHitIsolationCutEE_ = conf.getParameter<double>("LoosePhotonEcalRecHitIsoEE");
-  loosephotonEcalIsoRelativeCutEE_ = conf.getParameter<double>("LoosePhotonEcalIsoRelativeCutEE");
-  loosephotonHcalTowerIsolationCutEE_ = conf.getParameter<double>("LoosePhotonHcalTowerIsoEE");
-  loosephotonHollowConeTrkIsolationCutEE_ = conf.getParameter<double>("LoosePhotonHollowTrkEE");
+  loosephotonEcalIsoRelativeCutSlopeEE_ = conf.getParameter<double>("LoosePhotonEcalIsoRelativeCutSlopeEE");
+  loosephotonEcalIsoRelativeCutOffsetEE_ = conf.getParameter<double>("LoosePhotonEcalIsoRelativeCutOffsetEE");
+  loosephotonHcalTowerIsolationCutSlopeEE_ = conf.getParameter<double>("LoosePhotonHcalTowerIsoSlopeEE");
+  loosephotonHcalTowerIsolationCutOffsetEE_ = conf.getParameter<double>("LoosePhotonHcalTowerIsoOffsetEE");
+  loosephotonHollowConeTrkIsolationSlopeEE_ = conf.getParameter<double>("LoosePhotonHollowTrkSlopeEE");
+  loosephotonHollowConeTrkIsolationOffsetEE_ = conf.getParameter<double>("LoosePhotonHollowTrkOffsetEE");
+  loosephotonSolidConeTrkIsolationSlopeEE_ = conf.getParameter<double>("LoosePhotonSolidTrkSlopeEE");
+  loosephotonSolidConeTrkIsolationOffsetEE_ = conf.getParameter<double>("LoosePhotonSolidTrkOffsetEE");
   loosephotonSolidConeTrkIsolationCutEE_ = conf.getParameter<double>("LoosePhotonSolidTrkEE");
   loosephotonSolidConeNTrkCutEE_ = conf.getParameter<int>("LoosePhotonSolidNTrkEE");
   loosephotonHollowConeNTrkCutEE_ = conf.getParameter<int>("LoosePhotonHollowNTrkEE");
@@ -54,11 +65,14 @@ void CutBasedPhotonIDAlgo::setup(const edm::ParameterSet& conf) {
   loosephotonHadOverEMCutEE_ = conf.getParameter<double>("LoosePhotonHadOverEMEE");
   loosephotonR9CutEE_ = conf.getParameter<double>("LoosePhotonR9CutEE");
 
-  tightphotonEcalRecHitIsolationCutEE_ = conf.getParameter<double>("TightPhotonEcalRecHitIsoEE");
-  tightphotonEcalIsoRelativeCutEE_ = conf.getParameter<double>("TightPhotonEcalIsoRelativeCutEE");
-  tightphotonHcalTowerIsolationCutEE_ = conf.getParameter<double>("TightPhotonHcalTowerIsoEE");
-  tightphotonHollowConeTrkIsolationCutEE_ = conf.getParameter<double>("TightPhotonHollowTrkEE");
-  tightphotonSolidConeTrkIsolationCutEE_ = conf.getParameter<double>("TightPhotonSolidTrkEE");
+  tightphotonEcalIsoRelativeCutSlopeEE_ = conf.getParameter<double>("TightPhotonEcalIsoRelativeCutSlopeEE");
+  tightphotonEcalIsoRelativeCutOffsetEE_ = conf.getParameter<double>("TightPhotonEcalIsoRelativeCutOffsetEE");
+  tightphotonHcalTowerIsolationCutSlopeEE_ = conf.getParameter<double>("TightPhotonHcalTowerIsoSlopeEE");
+  tightphotonHcalTowerIsolationCutOffsetEE_ = conf.getParameter<double>("TightPhotonHcalTowerIsoOffsetEE");
+  tightphotonHollowConeTrkIsolationSlopeEE_ = conf.getParameter<double>("TightPhotonHollowTrkSlopeEE");
+  tightphotonHollowConeTrkIsolationOffsetEE_ = conf.getParameter<double>("TightPhotonHollowTrkOffsetEE");
+  tightphotonSolidConeTrkIsolationSlopeEE_ = conf.getParameter<double>("TightPhotonSolidTrkSlopeEE");
+  tightphotonSolidConeTrkIsolationOffsetEE_ = conf.getParameter<double>("TightPhotonSolidTrkOffsetEE");
   tightphotonSolidConeNTrkCutEE_ = conf.getParameter<int>("TightPhotonSolidNTrkEE");
   tightphotonHollowConeNTrkCutEE_ = conf.getParameter<int>("TightPhotonHollowNTrkEE");
   tightphotonEtaWidthCutEE_ = conf.getParameter<double>("TightPhotonEtaWidthEE");
@@ -105,17 +119,8 @@ void CutBasedPhotonIDAlgo::decideEB(const reco::Photon* pho, bool &LoosePhoton, 
   //////////////
   //Cut on the sum of ecal rec hits in a cone
   if(dophotonEcalRecHitIsolationCut_){
-    if(pho->ecalRecHitSumEtConeDR04() > loosephotonEcalRecHitIsolationCutEB_){
-      LoosePhoton = false;
-      TightPhoton = false;
-      return;
-    }
-  }
-
-  //Cut on the sum of ecal rec hits in a cone, relative to photon ET
-  if(dophotonEcalIsoRelativeCut_){
-    double phoet= pho->pt();
-    if((pho->ecalRecHitSumEtConeDR04()/phoet) > loosephotonEcalIsoRelativeCutEB_){
+    double cutvalue = loosephotonEcalIsoRelativeCutSlopeEB_*pho->pt() + loosephotonEcalIsoRelativeCutOffsetEB_;
+    if(pho->ecalRecHitSumEtConeDR04() > cutvalue){
       LoosePhoton = false;
       TightPhoton = false;
       return;
@@ -124,7 +129,8 @@ void CutBasedPhotonIDAlgo::decideEB(const reco::Photon* pho, bool &LoosePhoton, 
   
   //Cut on the sum of hcal rec hits in a cone (HBHE)
   if(dophotonHcalTowerIsolationCut_){
-    if(pho->hcalTowerSumEtConeDR04() > loosephotonHcalTowerIsolationCutEB_){
+    double cutvalue = loosephotonHcalTowerIsolationCutSlopeEB_*pho->pt() + loosephotonHcalTowerIsolationCutOffsetEB_;
+    if(pho->hcalTowerSumEtConeDR04() > cutvalue){
       LoosePhoton = false;
       TightPhoton = false;
       return;
@@ -148,10 +154,11 @@ void CutBasedPhotonIDAlgo::decideEB(const reco::Photon* pho, bool &LoosePhoton, 
       return;
     }
   }
-  
+ 
   //Cut on the sum of tracks within a solid cone
   if (dophotonSCTrkIsolationCut_){
-    if (pho->trkSumPtSolidConeDR04() > loosephotonSolidConeTrkIsolationCutEB_){
+    double cutvalue = loosephotonSolidConeTrkIsolationSlopeEB_*pho->pt() + loosephotonSolidConeTrkIsolationOffsetEB_;
+    if (pho->trkSumPtSolidConeDR04() > cutvalue){
       LoosePhoton = false;
       TightPhoton = false;
       return;
@@ -160,7 +167,8 @@ void CutBasedPhotonIDAlgo::decideEB(const reco::Photon* pho, bool &LoosePhoton, 
 
   //Cut on the sum of tracks within a hollow cone
   if (dophotonHCTrkIsolationCut_){
-    if (pho->trkSumPtHollowConeDR04() > loosephotonHollowConeTrkIsolationCutEB_){
+    double cutvalue = loosephotonHollowConeTrkIsolationSlopeEB_*pho->pt() + loosephotonHollowConeTrkIsolationOffsetEB_;
+    if (pho->trkSumPtHollowConeDR04() > cutvalue){
       LoosePhoton = false;
       TightPhoton = false;
       return;
@@ -207,25 +215,18 @@ void CutBasedPhotonIDAlgo::decideEB(const reco::Photon* pho, bool &LoosePhoton, 
   //////////////
     //Cut on the sum of ecal rec hits in a cone
   if(dophotonEcalRecHitIsolationCut_){
-    if(pho->ecalRecHitSumEtConeDR04() > tightphotonEcalRecHitIsolationCutEB_){
+    double cutvalue = tightphotonEcalIsoRelativeCutSlopeEB_*pho->pt() + tightphotonEcalIsoRelativeCutOffsetEB_;
+    if(pho->ecalRecHitSumEtConeDR04() > cutvalue){
       LoosePhoton = true;
       TightPhoton = false;
       return;
     }
   }
 
-  if(dophotonEcalIsoRelativeCut_){
-    double phoet =pho->pt();
-    if( (pho->ecalRecHitSumEtConeDR04()/phoet) > tightphotonEcalIsoRelativeCutEB_){
-      LoosePhoton = true;
-      TightPhoton = false;
-      return;
-    }
-  }
-  
   //Cut on the sum of hcal rec hits in a cone (HBHE)
   if(dophotonHcalTowerIsolationCut_){
-    if(pho->hcalTowerSumEtConeDR04() > tightphotonHcalTowerIsolationCutEB_){
+    double cutvalue = tightphotonHcalTowerIsolationCutSlopeEB_*pho->pt() + tightphotonHcalTowerIsolationCutOffsetEB_;
+    if(pho->hcalTowerSumEtConeDR04() > cutvalue){
       LoosePhoton = true;
       TightPhoton = false;
       return;
@@ -252,7 +253,8 @@ void CutBasedPhotonIDAlgo::decideEB(const reco::Photon* pho, bool &LoosePhoton, 
   
   //Cut on the sum of tracks within a solid cone
   if (dophotonSCTrkIsolationCut_){
-    if (pho->trkSumPtSolidConeDR04() > tightphotonSolidConeTrkIsolationCutEB_){
+    double cutvalue = tightphotonSolidConeTrkIsolationSlopeEB_*pho->pt() + tightphotonSolidConeTrkIsolationOffsetEB_;
+    if (pho->trkSumPtSolidConeDR04() > cutvalue){
       LoosePhoton = true;
       TightPhoton = false;
       return;
@@ -261,7 +263,8 @@ void CutBasedPhotonIDAlgo::decideEB(const reco::Photon* pho, bool &LoosePhoton, 
 
   //Cut on the sum of tracks within a hollow cone
   if (dophotonHCTrkIsolationCut_){
-    if (pho->trkSumPtHollowConeDR04() > tightphotonHollowConeTrkIsolationCutEB_){
+    double cutvalue = tightphotonHollowConeTrkIsolationSlopeEB_*pho->pt() + tightphotonHollowConeTrkIsolationOffsetEB_;
+    if (pho->trkSumPtHollowConeDR04() > cutvalue){
       LoosePhoton = true;
       TightPhoton = false;
       return;
@@ -342,29 +345,22 @@ void CutBasedPhotonIDAlgo::decideEE(const reco::Photon* pho, bool &LoosePhoton, 
   //If an object is not LoosePhoton, it is also not
   //TightPhoton!
   //////////////
-  //Cut on the sum of ecal rec hits in a cone
-  if(dophotonEcalRecHitIsolationCut_){
-    if(pho->ecalRecHitSumEtConeDR04() > loosephotonEcalRecHitIsolationCutEE_){
-      LoosePhoton = false;
-      TightPhoton = false;  
-      return;
-    }
-  }
 
-  if(dophotonEcalIsoRelativeCut_){
-    double phoet=pho->pt();
-    if((pho->ecalRecHitSumEtConeDR04()/phoet) > loosephotonEcalIsoRelativeCutEE_){
+  if(dophotonEcalRecHitIsolationCut_){
+    double cutvalue = loosephotonEcalIsoRelativeCutSlopeEE_*pho->pt() + loosephotonEcalIsoRelativeCutOffsetEE_;
+    if(pho->ecalRecHitSumEtConeDR04() > cutvalue){
       LoosePhoton = false;
-      TightPhoton = false;  
+      TightPhoton = false;
       return;
     }
   }
   
   //Cut on the sum of hcal rec hits in a cone (HBHE)
   if(dophotonHcalTowerIsolationCut_){
-    if(pho->hcalTowerSumEtConeDR04() > loosephotonHcalTowerIsolationCutEE_){
+    double cutvalue = loosephotonHcalTowerIsolationCutSlopeEE_*pho->pt() + loosephotonHcalTowerIsolationCutOffsetEE_;
+    if(pho->hcalTowerSumEtConeDR04() > cutvalue){
       LoosePhoton = false;
-      TightPhoton = false;        
+      TightPhoton = false;
       return;
     }
   }
@@ -387,20 +383,23 @@ void CutBasedPhotonIDAlgo::decideEE(const reco::Photon* pho, bool &LoosePhoton, 
     }
   }
   
+
   //Cut on the sum of tracks within a solid cone
   if (dophotonSCTrkIsolationCut_){
-    if (pho->trkSumPtSolidConeDR04() > loosephotonSolidConeTrkIsolationCutEE_){
+    double cutvalue = loosephotonSolidConeTrkIsolationSlopeEE_*pho->pt() + loosephotonSolidConeTrkIsolationOffsetEE_;
+    if (pho->trkSumPtSolidConeDR04() > cutvalue){
       LoosePhoton = false;
-      TightPhoton = false;  
+      TightPhoton = false;
       return;
     }
   }
 
   //Cut on the sum of tracks within a hollow cone
   if (dophotonHCTrkIsolationCut_){
-    if (pho->trkSumPtHollowConeDR04() > loosephotonHollowConeTrkIsolationCutEE_){
+    double cutvalue = loosephotonHollowConeTrkIsolationSlopeEE_*pho->pt() + loosephotonHollowConeTrkIsolationOffsetEE_;
+    if (pho->trkSumPtHollowConeDR04() > cutvalue){
       LoosePhoton = false;
-      TightPhoton = false;  
+      TightPhoton = false;
       return;
     }  
   }
@@ -444,29 +443,21 @@ void CutBasedPhotonIDAlgo::decideEE(const reco::Photon* pho, bool &LoosePhoton, 
   //and once more one assumes that these criteria are
   //tighter than loose.
   //////////////
-    //Cut on the sum of ecal rec hits in a cone
   if(dophotonEcalRecHitIsolationCut_){
-    if(pho->ecalRecHitSumEtConeDR04() > tightphotonEcalRecHitIsolationCutEE_){
+    double cutvalue = tightphotonEcalIsoRelativeCutSlopeEE_*pho->pt() + tightphotonEcalIsoRelativeCutOffsetEE_;
+    if(pho->ecalRecHitSumEtConeDR04() > cutvalue){
       LoosePhoton = true;
-      TightPhoton = false;  
+      TightPhoton = false;
       return;
     }
   }
 
-  if(dophotonEcalIsoRelativeCut_){
-    double phoet= pho->pt();
-    if((pho->ecalRecHitSumEtConeDR04()/phoet) > tightphotonEcalIsoRelativeCutEE_){
-      LoosePhoton = true;
-      TightPhoton = false;  
-      return;
-    }
-  }
-  
   //Cut on the sum of hcal rec hits in a cone (HBHE)
   if(dophotonHcalTowerIsolationCut_){
-    if(pho->hcalTowerSumEtConeDR04() > tightphotonHcalTowerIsolationCutEE_){
+    double cutvalue = tightphotonHcalTowerIsolationCutSlopeEE_*pho->pt() + tightphotonHcalTowerIsolationCutOffsetEE_;
+    if(pho->hcalTowerSumEtConeDR04() > cutvalue){
       LoosePhoton = true;
-      TightPhoton = false;  
+      TightPhoton = false;
       return;
     }
   }
@@ -489,23 +480,27 @@ void CutBasedPhotonIDAlgo::decideEE(const reco::Photon* pho, bool &LoosePhoton, 
     }
   }
   
+
   //Cut on the sum of tracks within a solid cone
   if (dophotonSCTrkIsolationCut_){
-    if (pho->trkSumPtSolidConeDR04() > tightphotonSolidConeTrkIsolationCutEE_){
+    double cutvalue = tightphotonSolidConeTrkIsolationSlopeEE_*pho->pt() + tightphotonSolidConeTrkIsolationOffsetEE_;
+    if (pho->trkSumPtSolidConeDR04() > cutvalue){
       LoosePhoton = true;
-      TightPhoton = false;  
+      TightPhoton = false;
       return;
     }
   }
 
   //Cut on the sum of tracks within a hollow cone
   if (dophotonHCTrkIsolationCut_){
-    if (pho->trkSumPtHollowConeDR04() > tightphotonHollowConeTrkIsolationCutEE_){
+    double cutvalue = tightphotonHollowConeTrkIsolationSlopeEE_*pho->pt() + tightphotonHollowConeTrkIsolationOffsetEE_;
+    if (pho->trkSumPtHollowConeDR04() > cutvalue){
       LoosePhoton = true;
-      TightPhoton = false;  
+      TightPhoton = false;
       return;
     }  
   }
+
 
   //HadoverEM cut
   if (dophotonHadOverEMCut_){
