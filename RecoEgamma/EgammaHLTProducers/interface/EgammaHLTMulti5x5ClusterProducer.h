@@ -19,6 +19,8 @@
 
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 //
+#include "DataFormats/CaloRecHit/interface/CaloID.h"
+
 
 
 class EgammaHLTMulti5x5ClusterProducer : public edm::EDProducer 
@@ -83,7 +85,7 @@ class EgammaHLTMulti5x5ClusterProducer : public edm::EDProducer
                               const std::string& hitCollection,
                               const std::string& clusterCollection,
                               const std::vector<EcalEtaPhiRegion>& regions,
-                              const Multi5x5ClusterAlgo::EcalPart& ecalPart);
+                              const reco::CaloID::Detectors detector);
       /*
       void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
                               const std::string& hitProducer,

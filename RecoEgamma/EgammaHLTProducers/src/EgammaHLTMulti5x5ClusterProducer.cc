@@ -246,12 +246,12 @@ void EgammaHLTMulti5x5ClusterProducer::produce(edm::Event& evt, const edm::Event
       //&&endcapRegions.size()!=0
       ) {
 
-    clusterizeECALPart(evt, es, endcapHitProducer_.label(), endcapHitCollection_, endcapClusterCollection_, endcapRegions, Multi5x5ClusterAlgo::endcap);//old
+    clusterizeECALPart(evt, es, endcapHitProducer_.label(), endcapHitCollection_, endcapClusterCollection_, endcapRegions, reco::CaloID::DET_ECAL_ENDCAP);//old
    }
   if (doBarrel_ 
       //&& barrelRegions.size()!=0
       ) {
-    clusterizeECALPart(evt, es, barrelHitProducer_.label(), barrelHitCollection_, barrelClusterCollection_, barrelRegions, Multi5x5ClusterAlgo::barrel);//old
+    clusterizeECALPart(evt, es, barrelHitProducer_.label(), barrelHitCollection_, barrelClusterCollection_, barrelRegions, reco::CaloID::DET_ECAL_BARREL);//old
  
   }
   nEvt_++;
@@ -280,7 +280,7 @@ void EgammaHLTMulti5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const
                                                const std::string& hitCollection,
                                                const std::string& clusterCollection,
                                                const std::vector<EcalEtaPhiRegion>& regions,
-                                               const Multi5x5ClusterAlgo::EcalPart& ecalPart)
+                                                const reco::CaloID::Detectors detector)
 {
 
   // get the hit collection from the event:
@@ -293,7 +293,7 @@ void EgammaHLTMulti5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const
   const CaloSubdetectorGeometry *geometry_p;
   CaloSubdetectorTopology *topology_p;
 
-  if (ecalPart == Multi5x5ClusterAlgo::barrel) 
+  if (detector == reco::CaloID::DET_ECAL_BARREL) 
     {
       geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
       topology_p = new EcalBarrelTopology(geoHandle);
@@ -310,13 +310,13 @@ void EgammaHLTMulti5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const
 
   // Run the clusterization algorithm:
   reco::BasicClusterCollection clusters;
-  clusters = Multi5x5_p->makeClusters(hitCollection_p, geometry_p, topology_p, geometryES_p, ecalPart, true, regions);
+  clusters = Multi5x5_p->makeClusters(hitCollection_p, geometry_p, topology_p, geometryES_p, detector, true, regions);
 
   // create an auto_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
   std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
   clusters_p->assign(clusters.begin(), clusters.end());
   edm::OrphanHandle<reco::BasicClusterCollection> bccHandle;
-  if (ecalPart == Multi5x5ClusterAlgo::barrel) 
+  if (detector == reco::CaloID::DET_ECAL_BARREL) 
     bccHandle = evt.put(clusters_p, barrelClusterCollection_);
   else
     bccHandle = evt.put(clusters_p, endcapClusterCollection_);
