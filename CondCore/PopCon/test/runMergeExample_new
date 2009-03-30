@@ -44,6 +44,7 @@ cmsRun tmp_PopConExample.py
 
 
 
+rm tmp_PopConExample.py
 
 cat PopConExample1_template.py | sed 's/xxx/41/g' > tmp_PopConExample.py
 sed -i 's/pop_test.db/pop_test2.db/g' tmp_PopConExample.py
