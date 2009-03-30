@@ -29,6 +29,7 @@ process.gmtDigis.DTCandidates = "source:DT"
 process.gmtDigis.CSCCandidates = 'source:CSC'
 process.gmtDigis.RPCbCandidates = 'source:RPCb'
 process.gmtDigis.RPCfCandidates = 'source:RPCf'
+process.gmtDigis.MipIsoData = 'source'
 process.gmtDigis.Debug = 9
 process.gmtDigis.BX_min = -1
 process.gmtDigis.BX_max = 1
