@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:40 CDT 2008
-// $Id: MuonAlignmentInputXML.cc,v 1.9 2008/10/03 18:40:15 pivarski Exp $
+// $Id: MuonAlignmentInputXML.cc,v 1.10 2009/02/08 02:18:20 pivarski Exp $
 //
 
 // system include files
@@ -705,35 +705,92 @@ double MuonAlignmentInputXML::parseDouble(const XMLCh *str, const char *attribut
 }
 
 void MuonAlignmentInputXML::do_setposition(const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
-   DOMAttr *node_x = node->getAttributeNode(str_x);
-   DOMAttr *node_y = node->getAttributeNode(str_y);
-   DOMAttr *node_z = node->getAttributeNode(str_z);
-   if (node_x == NULL) throw cms::Exception("XMLException") << "<setposition> is missing required \"x\" attribute" << std::endl;
-   if (node_y == NULL) throw cms::Exception("XMLException") << "<setposition> is missing required \"y\" attribute" << std::endl;
-   if (node_z == NULL) throw cms::Exception("XMLException") << "<setposition> is missing required \"z\" attribute" << std::endl;
+  DOMAttr *node_relativeto = node->getAttributeNode(str_relativeto);
+  if (node_relativeto == NULL) throw cms::Exception("XMLException") << "<setposition> is missing required \"relativeto\" attribute" << std::endl;
 
-   double x = parseDouble(node_x->getValue(), "x");
-   double y = parseDouble(node_y->getValue(), "y");
-   double z = parseDouble(node_z->getValue(), "z");
-   align::PositionType pos(x, y, z);
+  int relativeto = 0;
+  if (XMLString::equals(node_relativeto->getValue(), str_none)) {
+    relativeto = 0;
+  }
+  else if (XMLString::equals(node_relativeto->getValue(), str_ideal)) {
+    relativeto = 1;
+  }
+  else if (XMLString::equals(node_relativeto->getValue(), str_container)) {
+    relativeto = 2;
+  }
+  else {
+    char *message = XMLString::transcode(node_relativeto->getValue());
+    throw cms::Exception("XMLException") << "relativeto must be \"none\", \"ideal\", or \"container\", not \"" << message << "\"" << std::endl;
+  }
 
-   DOMAttr *node_phix = node->getAttributeNode(str_phix);
-   DOMAttr *node_phiy = node->getAttributeNode(str_phiy);
-   DOMAttr *node_phiz = node->getAttributeNode(str_phiz);
-   DOMAttr *node_alpha = node->getAttributeNode(str_alpha);
-   DOMAttr *node_beta  = node->getAttributeNode(str_beta);
-   DOMAttr *node_gamma = node->getAttributeNode(str_gamma);
+  for (std::map<Alignable*, bool>::const_iterator aliiter = aliset.begin();  aliiter != aliset.end();  ++aliiter) {
+    // first reconstruct the old position: how it would look in this coordinate system
 
-   align::RotationType rot;
+    Alignable *ali = aliiter->first;
+    Alignable *ideal = alitoideal[ali];
 
-   if (node_phix != NULL  &&  node_phiy != NULL  &&  node_phiz != NULL) {
-      if (node_alpha != NULL  ||  node_beta != NULL  ||  node_gamma != NULL) {
-	 throw cms::Exception("XMLException") << "<setposition> must either have phix, phiy, and phiz or alpha, beta, and gamma, but not both" << std::endl;
-      }
+    align::PositionType oldpos = ali->globalPosition();
+    align::RotationType oldrot = ali->globalRotation();
 
-      double phix = parseDouble(node_phix->getValue(), "phix");
-      double phiy = parseDouble(node_phiy->getValue(), "phiy");
-      double phiz = parseDouble(node_phiz->getValue(), "phiz");
+    if (relativeto == 0) {}
+
+    else if (relativeto == 1) {
+      align::PositionType idealPosition = ideal->globalPosition();
+      align::RotationType idealRotation = ideal->globalRotation();
+
+      oldpos = align::PositionType(idealRotation * (oldpos.basicVector() - idealPosition.basicVector()));
+      oldrot = oldrot * idealRotation.transposed();
+    }
+
+    else if (relativeto == 2  &&  ali->mother() != NULL) {
+      align::PositionType globalPosition = ali->mother()->globalPosition();
+      align::RotationType globalRotation = ali->mother()->globalRotation();
+
+      oldpos = align::PositionType(globalRotation * (oldpos.basicVector() - globalPosition.basicVector()));
+      oldrot = oldrot * globalRotation.transposed();
+    }
+
+    double x = oldpos.x();
+    double y = oldpos.y();
+    double z = oldpos.z();
+
+    double phix = atan2(oldrot.yz(), oldrot.zz());
+    double phiy = asin(-oldrot.xz());
+    double phiz = atan2(oldrot.xy(), oldrot.xx());
+
+    align::EulerAngles oldEulerAngles = align::toAngles(oldrot);
+    double alpha = oldEulerAngles(1);
+    double beta = oldEulerAngles(2);
+    double gamma = oldEulerAngles(3);
+
+    // now get the new information; if it's incomplete, use the old position for those coordinates
+    
+    DOMAttr *node_x = node->getAttributeNode(str_x);
+    DOMAttr *node_y = node->getAttributeNode(str_y);
+    DOMAttr *node_z = node->getAttributeNode(str_z);
+
+    if (node_x != NULL) x = parseDouble(node_x->getValue(), "x");
+    if (node_y != NULL) y = parseDouble(node_y->getValue(), "y");
+    if (node_z != NULL) z = parseDouble(node_z->getValue(), "z");
+    align::PositionType pos(x, y, z);
+
+    DOMAttr *node_phix = node->getAttributeNode(str_phix);
+    DOMAttr *node_phiy = node->getAttributeNode(str_phiy);
+    DOMAttr *node_phiz = node->getAttributeNode(str_phiz);
+    DOMAttr *node_alpha = node->getAttributeNode(str_alpha);
+    DOMAttr *node_beta  = node->getAttributeNode(str_beta);
+    DOMAttr *node_gamma = node->getAttributeNode(str_gamma);
+    align::RotationType rot;
+
+    bool phixyz = (node_phix != NULL  ||  node_phiy != NULL  ||  node_phiz != NULL);
+    bool alphabetagamma = (node_alpha != NULL  ||  node_beta != NULL  ||  node_gamma != NULL);
+    if (phixyz && alphabetagamma) throw cms::Exception("XMLException") << "<setposition> must either have phix, phiy, and phiz or alpha, beta, and gamma, but not both" << std::endl;
+    if (!phixyz && !alphabetagamma) alphabetagamma = true;
+
+    if (phixyz) {
+      if (node_phix != NULL) phix = parseDouble(node_phix->getValue(), "phix");
+      if (node_phiy != NULL) phiy = parseDouble(node_phiy->getValue(), "phiy");
+      if (node_phiz != NULL) phiz = parseDouble(node_phiz->getValue(), "phiz");
 
       // the angle convention originally used in alignment, also known as "non-standard Euler angles with a Z-Y-X convention"
       // this also gets the sign convention right
@@ -748,73 +805,56 @@ void MuonAlignmentInputXML::do_setposition(const xercesc_2_7::DOMElement *node, 
 				0.,         0.,         1.);
             
       rot = rotX * rotY * rotZ;
-   }
+    }
 
-   else if (node_alpha != NULL  &&  node_beta != NULL  &&  node_gamma != NULL) {
-      if (node_phix != NULL  ||  node_phiy != NULL  ||  node_phiz != NULL) {
-	 throw cms::Exception("XMLException") << "<setposition> must either have phix, phiy, and phiz or alpha, beta, and gamma, but not both" << std::endl;
-      }
+    else if (alphabetagamma) {
+      if (node_alpha != NULL) alpha = parseDouble(node_alpha->getValue(), "alpha");
+      if (node_beta != NULL) beta = parseDouble(node_beta->getValue(), "beta");
+      if (node_gamma != NULL) gamma = parseDouble(node_gamma->getValue(), "gamma");
 
       // standard Euler angles (how they're internally stored in the database)
       align::EulerAngles eulerAngles(3);
-      eulerAngles(1) = parseDouble(node_alpha->getValue(), "alpha");
-      eulerAngles(2) = parseDouble(node_beta->getValue(), "beta");
-      eulerAngles(3) = parseDouble(node_gamma->getValue(), "gamma");
+      eulerAngles(1) = alpha;
+      eulerAngles(2) = beta;
+      eulerAngles(3) = gamma;
       rot = align::RotationType(align::toMatrix(eulerAngles));
-   }
+    }
 
-   else {
-      throw cms::Exception("XMLException") << "<setposition> must either have phix, phiy, and phiz or alpha, beta, and gamma" << std::endl;
-   }
+    else assert(false); // see above
 
-   DOMAttr *node_relativeto = node->getAttributeNode(str_relativeto);
-   if (node_relativeto == NULL) throw cms::Exception("XMLException") << "<setposition> is missing required \"relativeto\" attribute" << std::endl;
-   if (XMLString::equals(node_relativeto->getValue(), str_none)) {
-      for (std::map<Alignable*, bool>::const_iterator aliiter = aliset.begin();  aliiter != aliset.end();  ++aliiter) {
+    if (relativeto == 0) {
+      set_one_position(aliiter->first, pos, rot);
+    } // end relativeto="none"
 
-	 set_one_position(aliiter->first, pos, rot);
+    else if (relativeto == 1) {
+      Alignable *ali = aliiter->first;
+      Alignable *ideal = alitoideal[ali];
 
-      } // end loop over alignables
-   } // end relativeto="none"
+      align::PositionType idealPosition = ideal->globalPosition();
+      align::RotationType idealRotation = ideal->globalRotation();
+      align::PositionType newpos = align::PositionType(idealRotation.transposed() * pos.basicVector() + idealPosition.basicVector());
+      align::RotationType newrot = rot * idealRotation;
 
-   else if (XMLString::equals(node_relativeto->getValue(), str_ideal)) {
-      for (std::map<Alignable*, bool>::const_iterator aliiter = aliset.begin();  aliiter != aliset.end();  ++aliiter) {
-	 Alignable *ali = aliiter->first;
-	 Alignable *ideal = alitoideal[ali];
+      set_one_position(ali, newpos, newrot);
+    } // end relativeto="ideal"
 
-	 align::PositionType idealPosition = ideal->globalPosition();
-	 align::RotationType idealRotation = ideal->globalRotation();
-	 align::PositionType newpos = align::PositionType(idealRotation.transposed() * pos.basicVector() + idealPosition.basicVector());
-	 align::RotationType newrot = rot * idealRotation;
+    else if (relativeto == 2) {
+      Alignable *ali = aliiter->first;
+      Alignable *container = ali->mother();
 
-	 set_one_position(ali, newpos, newrot);
+      if (container != NULL) {
+	align::PositionType globalPosition = container->globalPosition();
+	align::RotationType globalRotation = container->globalRotation();
+	align::PositionType newpos = align::PositionType(globalRotation.transposed() * pos.basicVector() + globalPosition.basicVector());
+	align::RotationType newrot = rot * globalRotation;
+	set_one_position(ali, newpos, newrot);
+      }
+      else {
+	set_one_position(ali, pos, rot);
+      }
+    } // end relativeto="container"
 
-      } // end loop over alignables
-   } // end relativeto="ideal"
-
-   else if (XMLString::equals(node_relativeto->getValue(), str_container)) {
-      for (std::map<Alignable*, bool>::const_iterator aliiter = aliset.begin();  aliiter != aliset.end();  ++aliiter) {
-	 Alignable *ali = aliiter->first;
-	 Alignable *container = ali->mother();
-
-	 if (container != NULL) {
-	    align::PositionType globalPosition = container->globalPosition();
-	    align::RotationType globalRotation = container->globalRotation();
-	    align::PositionType newpos = align::PositionType(globalRotation.transposed() * pos.basicVector() + globalPosition.basicVector());
-	    align::RotationType newrot = rot * globalRotation;
-	    set_one_position(ali, newpos, newrot);
-	 }
-	 else {
-	    set_one_position(ali, pos, rot);
-	 }
-
-      } // end loop over alignables
-   } // end relativeto="container"
-
-   else {
-      char *message = XMLString::transcode(node_relativeto->getValue());
-      throw cms::Exception("XMLException") << "relativeto must be \"none\", \"ideal\", or \"container\", not \"" << message << "\"" << std::endl;
-   }
+  } // end loop over alignables
 }
 
 void MuonAlignmentInputXML::set_one_position(Alignable *ali, const align::PositionType &pos, const align::RotationType &rot) const {
