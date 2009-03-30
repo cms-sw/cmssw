@@ -6,9 +6,10 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2008/09/19 15:07:48 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/03/12 00:21:12 $
+ *  $Revision: 1.5 $
  *  \author F. Chlebana - Fermilab
+ *          K. Hatakeyama - Rockefeller University
  */
 
 
@@ -46,7 +47,11 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, 
                const edm::TriggerResults&,
-	       const reco::CaloMET& caloMET, const reco::CaloMET& caloMETNoHF);
+	       const reco::CaloMET& caloMET);
+
+  void setSource(std::string source) {
+    _source = source;
+  }
 
   int evtCounter;
 
@@ -56,9 +61,7 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   edm::ParameterSet parameters;
   // Switch for verbosity
   std::string metname;
-  // CaloMET Label
-  //edm::InputTag theCaloMETCollectionLabel;
-  //edm::InputTag theCaloMETNoHFCollectionLabel;
+  std::string _source;
 
   /// number of Jet or MB HLT trigger paths 
   unsigned int nHLTPathsJetMB_;
@@ -69,6 +72,9 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
 
   // Et threshold for MET plots
   double _etThreshold;
+
+  //
+  bool _allhist;
 
   //histo binning parameters
   int    etaBin;
@@ -111,16 +117,6 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   MonitorElement* hCaloEmEtInHF;
   MonitorElement* hCaloEmEtInEE;
   MonitorElement* hCaloEmEtInEB;
-
-  MonitorElement* hCaloMExNoHF;
-  MonitorElement* hCaloMEyNoHF;
-  MonitorElement* hCaloEzNoHF;
-  MonitorElement* hCaloMETSigNoHF;
-  MonitorElement* hCaloMETNoHF;
-  MonitorElement* hCaloMETPhiNoHF;
-  MonitorElement* hCaloSumETNoHF;
-  MonitorElement* hCaloMExNoHFLS;
-  MonitorElement* hCaloMEyNoHFLS;
 
 };
 #endif

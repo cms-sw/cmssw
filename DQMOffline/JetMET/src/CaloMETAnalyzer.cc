@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/25 21:27:24 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/03/12 00:21:11 $
+ *  $Revision: 1.9 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -42,15 +42,16 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   metname = "caloMETAnalyzer";
 
   LogTrace(metname)<<"[CaloMETAnalyzer] Parameters initialization";
-  dbe->setCurrentFolder("JetMET/CaloMETAnalyzer");
+  dbe->setCurrentFolder("JetMET/MET/"+_source);
 
   HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
   nHLTPathsJetMB_=HLTPathsJetMBByName_.size();
   HLTPathsJetMBByIndex_.resize(nHLTPathsJetMB_);
 
   _etThreshold = parameters.getParameter<double>("etThreshold");
+  _allhist     = parameters.getParameter<bool>("allHist");
 
-  jetME = dbe->book1D("caloMETReco", "caloMETReco", 3, 1, 4);
+  jetME = dbe->book1D("metReco", "metReco", 4, 1, 5);
   jetME->setBinLabel(1,"CaloMET",1);
 
   hNevents                = dbe->book1D("METTask_Nevents",   "METTask_Nevents"   ,1,0,1);
@@ -61,6 +62,8 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   hCaloMET                = dbe->book1D("METTask_CaloMET",   "METTask_CaloMET"   ,500,0,1000);
   hCaloMETPhi             = dbe->book1D("METTask_CaloMETPhi","METTask_CaloMETPhi",80,-4,4);
   hCaloSumET              = dbe->book1D("METTask_CaloSumET", "METTask_CaloSumET" ,1000,0,2000);
+
+  if (_allhist){
   hCaloMExLS              = dbe->book2D("METTask_CaloMEx_LS","METTask_CaloMEx_LS",200,-200,200,500,0.,500.);
   hCaloMEyLS              = dbe->book2D("METTask_CaloMEy_LS","METTask_CaloMEy_LS",200,-200,200,500,0.,500.);
 
@@ -73,28 +76,17 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   hCaloHadEtInHO          = dbe->book1D("METTask_CaloHadEtInHO","METTask_CaloHadEtInHO",1000,0,2000);
   hCaloHadEtInHE          = dbe->book1D("METTask_CaloHadEtInHE","METTask_CaloHadEtInHE",1000,0,2000);
   hCaloHadEtInHF          = dbe->book1D("METTask_CaloHadEtInHF","METTask_CaloHadEtInHF",1000,0,2000);
-//hCaloHadEtInEB          = dbe->book1D("METTask_CaloHadEtInEB","METTask_CaloHadEtInEB",1000,0,2000);
-//hCaloHadEtInEE          = dbe->book1D("METTask_CaloHadEtInEE","METTask_CaloHadEtInEE",1000,0,2000);
   hCaloEmEtInHF           = dbe->book1D("METTask_CaloEmEtInHF" ,"METTask_CaloEmEtInHF" ,1000,0,2000);
   hCaloEmEtInEE           = dbe->book1D("METTask_CaloEmEtInEE" ,"METTask_CaloEmEtInEE" ,1000,0,2000);
   hCaloEmEtInEB           = dbe->book1D("METTask_CaloEmEtInEB" ,"METTask_CaloEmEtInEB" ,1000,0,2000);
-
-  hCaloMExNoHF            = dbe->book1D("METTask_CaloMExNoHF",   "METTask_CaloMExNoHF"   ,500,-500,500);
-  hCaloMEyNoHF            = dbe->book1D("METTask_CaloMEyNoHF",   "METTask_CaloMEyNoHF"   ,500,-500,500);
-  hCaloEzNoHF             = dbe->book1D("METTask_CaloEzNoHF",    "METTask_CaloEzNoHF"    ,500,-500,500);
-  hCaloMETSigNoHF         = dbe->book1D("METTask_CaloMETSigNoHF","METTask_CaloMETSigNoHF",51,0,51);
-  hCaloMETNoHF            = dbe->book1D("METTask_CaloMETNoHF",   "METTask_CaloMETNoHF"   ,1000,0,1000);
-  hCaloMETPhiNoHF         = dbe->book1D("METTask_CaloMETPhiNoHF","METTask_CaloMETPhiNoHF",80,-4,4);
-  hCaloSumETNoHF          = dbe->book1D("METTask_CaloSumETNoHF", "METTask_CaloSumETNoHF" ,1000,0,2000);
-  hCaloMExNoHFLS          = dbe->book2D("METTask_CaloMExNoHF_LS","METTask_CaloMExNoHF_LS",200,-200,200,500,0.,500.);
-  hCaloMEyNoHFLS          = dbe->book2D("METTask_CaloMEyNoHF_LS","METTask_CaloMEyNoHF_LS",200,-200,200,500,0.,500.);
+  }
 
 }
 
 // ***********************************************************
 void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
 			      const edm::TriggerResults& triggerResults,
-			      const reco::CaloMET& calomet, const reco::CaloMET& calometNoHF) {
+			      const reco::CaloMET& calomet) {
 
   LogTrace(metname)<<"[CaloMETAnalyzer] Analyze CaloMET";
 
@@ -169,10 +161,13 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   double caloMEy    = calomet.py();
   double caloMETPhi = calomet.phi();
 
-  double caloMaxEtInEMTowers    = calomet.maxEtInEmTowers();
-  double caloMaxEtInHadTowers   = calomet.maxEtInHadTowers();
+  //std::cout << _source << " " << caloMET << std::endl;
+
   double caloEtFractionHadronic = calomet.etFractionHadronic();
   double caloEmEtFraction       = calomet.emEtFraction();
+
+  double caloMaxEtInEMTowers    = calomet.maxEtInEmTowers();
+  double caloMaxEtInHadTowers   = calomet.maxEtInHadTowers();
 
   double caloHadEtInHB = calomet.hadEtInHB();
   double caloHadEtInHO = calomet.hadEtInHO();
@@ -181,14 +176,6 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   double caloEmEtInEB  = calomet.emEtInEB();
   double caloEmEtInEE  = calomet.emEtInEE();
   double caloEmEtInHF  = calomet.emEtInHF();
-
-  double caloSumETNoHF  = calometNoHF.sumEt();
-  double caloMETSigNoHF = calometNoHF.mEtSig();
-  double caloEzNoHF     = calometNoHF.e_longitudinal();
-  double caloMETNoHF    = calometNoHF.pt();
-  double caloMExNoHF    = calometNoHF.px();
-  double caloMEyNoHF    = calometNoHF.py();
-  double caloMETPhiNoHF = calometNoHF.phi();
 
   //
   int myLuminosityBlock;
@@ -206,13 +193,16 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   hCaloSumET->Fill(caloSumET);
   hCaloMETSig->Fill(caloMETSig);
   hCaloEz->Fill(caloEz);
+
+  if (_allhist){
   hCaloMExLS->Fill(caloMEx,myLuminosityBlock);
   hCaloMEyLS->Fill(caloMEy,myLuminosityBlock);
 
-  hCaloMaxEtInEmTowers->Fill(caloMaxEtInEMTowers);
-  hCaloMaxEtInHadTowers->Fill(caloMaxEtInHadTowers);
   hCaloEtFractionHadronic->Fill(caloEtFractionHadronic);
   hCaloEmEtFraction->Fill(caloEmEtFraction);
+
+  hCaloMaxEtInEmTowers->Fill(caloMaxEtInEMTowers);
+  hCaloMaxEtInHadTowers->Fill(caloMaxEtInHadTowers);
 
   hCaloHadEtInHB->Fill(caloHadEtInHB);
   hCaloHadEtInHO->Fill(caloHadEtInHO);
@@ -221,21 +211,8 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   hCaloEmEtInEB->Fill(caloEmEtInEB);
   hCaloEmEtInEE->Fill(caloEmEtInEE);
   hCaloEmEtInHF->Fill(caloEmEtInHF);
+  } // _allhist
 
-  }
-
-  if (caloMETNoHF>_etThreshold){
-
-  hCaloMExNoHF->Fill(caloMExNoHF);
-  hCaloMEyNoHF->Fill(caloMEyNoHF);
-  hCaloMETNoHF->Fill(caloMETNoHF);
-  hCaloMETPhiNoHF->Fill(caloMETPhiNoHF);
-  hCaloSumETNoHF->Fill(caloSumETNoHF);
-  hCaloMETSigNoHF->Fill(caloMETSigNoHF);
-  hCaloEzNoHF->Fill(caloEzNoHF);
-  hCaloMExNoHFLS->Fill(caloMExNoHF,myLuminosityBlock);
-  hCaloMEyNoHFLS->Fill(caloMEyNoHF,myLuminosityBlock);
-
-  }
+  } // et threshold cut
 
 }
