@@ -69,7 +69,7 @@ int main(){
     }
     editor->updateClosure(400);
 
-    /*
+    
     // test freeInsert
     std::cout<<"\nfreeInsert "<<std::endl;
     pos=editor->freeInsert(5,"pay005tok");
@@ -126,7 +126,7 @@ int main(){
  
 
     editor->updateClosure(900);
-    */
+    
 
     std::cout<<"delete entry "<<std::endl;
 

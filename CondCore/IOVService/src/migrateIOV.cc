@@ -9,7 +9,7 @@ namespace cond {
 
   IOVSequence * migrateIOV(IOV const & iov) {
     IOVSequence * result = new IOVSequence(iov.timetype,iov.iov.back().first,"");
-    (*result).iovs().reserve(iov.iov.size());
+    // (*result).iovs().reserve(iov.iov.size());
     cond::Time_t since = iov.firstsince;
     for(IOV::const_iterator p=iov.iov.begin(); p!=iov.iov.end();p++) {
       (*result).add(since, (*p).second);

@@ -29,10 +29,10 @@ int main() {
 
   }
 
-  if(notOrdered()) std::cerr << "error notOrdered" << std::endl;
+  if(iov.notOrdered()) std::cerr << "error notOrdered" << std::endl;
 
   iov.add(35,"d");
-  if(!notOrdered()) std::cerr << "error not notOrdered" << std::endl;
+  if(!iov.notOrdered()) std::cerr << "error not notOrdered" << std::endl;
 
   { 
 
@@ -44,7 +44,7 @@ int main() {
     if (iov.find(36)!=(v.begin()+3)) std::cerr << "error find 36" << std::endl;
 
 
-    if(!notOrdered()) std::cerr << "error not notOrdered" << std::endl;
+    if(!iov.notOrdered()) std::cerr << "error not notOrdered" << std::endl;
 
 
   }
