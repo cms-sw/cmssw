@@ -38,16 +38,15 @@ namespace cond {
     cond::TimeType timeType() const { return cond::timeTypeSpecs[m_timetype].type;}
 
     // FIXME shall we cache it?
-    cond::Time_t firstSince() const { return  m_iovs.front().sinceTime();}
+    cond::Time_t firstSince() const { return  iovs().front().sinceTime();}
 
     cond::Time_t lastTill() const { return  m_lastTill;}
 
     void updateLastTill(cond::Time_t till) { m_lastTill=till;}
 
-
-    Container & iovs() { return m_iovs;}
     
-    Container const & iovs() const  { return m_iovs;}
+  public:
+    Container const & iovs() const;
 
     // if true the "sorted" sequence is not guaranted to be the same as in previous version
     bool notOrdered() const { return m_notOrdered;}
@@ -56,9 +55,15 @@ namespace cond {
 
   private:
     
+    // the real persistent container...
+    Container & piovs() { return m_iovs;}
+
     // iovs is not in order: take action!
     void disorder();
 
+    // sort the container in m_sorted
+    Container const & sortMe() const;
+    
   private:
 
     Container m_iovs;
@@ -68,6 +73,9 @@ namespace cond {
     bool m_notOrdered;
 
     std::string m_metadata; // FIXME change in Pool::Ptr???
+
+
+    mutable Container * m_sorted;
 
   };
 

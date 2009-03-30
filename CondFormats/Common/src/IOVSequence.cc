@@ -6,21 +6,37 @@
 namespace cond {
   
   
-  IOVSequence::IOVSequence(){}
+  IOVSequence::IOVSequence() : m_notOrdered(false), m_sorted(0) {}
   
   IOVSequence::IOVSequence(int type, cond::Time_t till, 
 			   std::string const& imetadata) :
     m_timetype(type), m_lastTill(till),m_notOrdered(false),
-    m_metadata(imetadata){}
+    m_metadata(imetadata),  m_sorted(0) {}
     
-  IOVSequence::~IOVSequence(){}
+  IOVSequence::~IOVSequence(){
+    delete m_sorted;
+  }
   
   
+  Container const & iovs() const {
+    if (m_sorted) return *m_sorted;
+    if (m_notOrdered) return sortMe();
+    return m_iovs;
+  }
+
+  Container const & IOVSequence::sortMe() const {
+    delete m_sorted; // shall not be necessary;
+    m_sorted = new Container(m_iovs;);
+    std::sort(m_sorted->begin();m_sorted->end());
+    return *m_sorted;
+  }
+
+
   size_t IOVSequence::add(cond::Time_t time, 
 			  std::string const & wrapperToken) {
-    if (!iovs().empty() && ( m_notOrdered || time<iovs().back().sinceTime())) disorder();
-    iovs().push_back(Item(time, wrapperToken));
-    return iovs().size()-1;
+    if (!piovs().empty() && ( m_notOrdered || time<piovs().back().sinceTime())) disorder();
+    piovs().push_back(Item(time, wrapperToken));
+    return piovs().size()-1;
   }
   
   
@@ -37,7 +53,7 @@ namespace cond {
 
   void  IOVSequence::disorder() {
     m_notOrdered=true;
-    // delete m_sorted;
+    delete m_sorted; m_sorted=0;
   }
 
 }
