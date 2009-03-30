@@ -9,19 +9,13 @@ import FWCore.ParameterSet.Config as cms
 from JetMETCorrections.Configuration.JetCorrectionsRecord_cfi import *
 from RecoJets.Configuration.RecoJetAssociations_cff import *
 
-JetPlusTrackZSPCorrectorIcone5 = cms.ESSource("JetPlusTrackCorrectionService",
-    JetTrackCollectionAtCalo = cms.InputTag("ZSPiterativeCone5JetTracksAssociatorAtCaloFace"),
-    respalgo = cms.int32(5),
-    JetTrackCollectionAtVertex = cms.InputTag("ZSPiterativeCone5JetTracksAssociatorAtVertex"),
-    muonSrc = cms.InputTag("muons"),
-    AddOutOfConeTracks = cms.bool(True),
-    NonEfficiencyFile = cms.string('CMSSW_167_TrackNonEff'),
-    NonEfficiencyFileResp = cms.string('CMSSW_167_TrackLeakage'),
-    ResponseFile = cms.string('CMSSW_167_response'),
+from JetMETCorrections.Configuration.JetPlusTrackCorrections_cfi import *
+
+JetPlusTrackZSPCorrectorIcone5 = cms.ESSource(
+    "JetPlusTrackCorrectionService",
+    JPTZSPCorrectorICone5,
     label = cms.string('JetPlusTrackZSPCorrectorIcone5'),
-    TrackQuality = cms.string('highPurity'),
-    UseQuality = cms.bool(True)
-)
+    )
 
 JetPlusTrackZSPCorJetIcone5 = cms.EDProducer("CaloJetCorrectionProducer",
     src = cms.InputTag("ZSPJetCorJetIcone5"),
