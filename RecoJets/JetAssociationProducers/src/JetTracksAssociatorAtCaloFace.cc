@@ -3,7 +3,7 @@
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
 // Accommodated for Jet Package by: Fedor Ratnikov Jul. 30, 2007
-// $Id: JetTracksAssociatorAtCaloFace.cc,v 1.2 2007/10/05 23:23:11 fedor Exp $
+// $Id: JetTracksAssociatorAtCaloFace.cc,v 1.3 2008/05/29 17:58:55 fedor Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -51,18 +51,28 @@ void JetTracksAssociatorAtCaloFace::produce(edm::Event& fEvent, const edm::Event
   
   std::auto_ptr<reco::JetTracksAssociation::Container> jetTracks (new reco::JetTracksAssociation::Container (reco::JetRefBaseProd(jets_h)));
 
-  // format inputs
-  std::vector <edm::RefToBase<reco::Jet> > allJets;
-  allJets.reserve (jets_h->size());
-  for (unsigned i = 0; i < jets_h->size(); ++i) allJets.push_back (jets_h->refAt(i));
-  std::vector <reco::TrackRef> allTracks;
-  allTracks.reserve (tracks_h->size());
-  reco::TrackBase::TrackQuality trackQuality = reco::TrackBase::TrackQuality (mTrackQuality); // convert back
-  for (unsigned i = 0; i < tracks_h->size(); ++i) {
-    if ((*tracks_h)[i].quality (trackQuality)) allTracks.push_back (reco::TrackRef (tracks_h, i));
+  if ( 1 ) { // original code 
+
+    // format inputs
+    std::vector <edm::RefToBase<reco::Jet> > allJets;
+    allJets.reserve (jets_h->size());
+    for (unsigned i = 0; i < jets_h->size(); ++i) allJets.push_back (jets_h->refAt(i));
+    std::vector <reco::TrackRef> allTracks;
+    allTracks.reserve (tracks_h->size());
+    reco::TrackBase::TrackQuality trackQuality = reco::TrackBase::TrackQuality (mTrackQuality); // convert back
+    for (unsigned i = 0; i < tracks_h->size(); ++i) {
+      if ((*tracks_h)[i].quality (trackQuality)) allTracks.push_back (reco::TrackRef (tracks_h, i));
+    }
+    // run algo
+    mAssociator.produce (&*jetTracks, allJets, allTracks, *field_h, *propagator_h);
+
+  } else { // new code
+    
+    reco::TrackBase::TrackQuality quality = static_cast<reco::TrackBase::TrackQuality>( mTrackQuality );
+    mAssociator.produce( &*jetTracks, jets_h, tracks_h, quality, *field_h, *propagator_h );
+    
   }
-  // run algo
-  mAssociator.produce (&*jetTracks, allJets, allTracks, *field_h, *propagator_h);
+
   // store output
   fEvent.put (jetTracks);
 }
