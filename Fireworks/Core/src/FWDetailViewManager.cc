@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.26 2009/03/27 15:23:01 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.27 2009/03/29 14:13:38 amraktad Exp $
 //
 
 // system include files
@@ -85,22 +85,25 @@ FWDetailViewManager::~FWDetailViewManager()
 //
 void FWDetailViewManager::close_wm ()
 {
-//      printf("mmmm, flaming death!\n");
+   // destroy scene elements
+   m_scene->Destroy();
+   m_scene = 0;
+   // embedded viewer is destroyed by closing main window
+   m_viewer = 0;
    m_frame = 0;
 }
 
 void FWDetailViewManager::close_button ()
 {
-//      printf("mmmm, flaming death!\n");
+   // this functions calls close_mw, since it emits signal
    m_frame->CloseWindow();
-   m_frame = 0;
 }
 
 void
 FWDetailViewManager::openDetailViewFor(const FWModelId &id)
 {
-   printf("opening detail view for event item %s (%x), index %d\n",
-          id.item()->name().c_str(), (unsigned int)id.item(), id.index());
+   // printf("opening detail view for event item %s (%x), index %d\n",
+   //       id.item()->name().c_str(), (unsigned int)id.item(), id.index());
 
    // make a frame
    if (m_frame != 0)
@@ -117,14 +120,14 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    m_frame->AddFrame(hf, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
    // text view 
-  TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", hf, 220);
-  hf->AddFrame(ec, new TGLayoutHints(kLHintsExpandY));
-  m_latex = new TLatex(0.02, 0.970, Form("%s detail view:",  id.item()->name().c_str()));
-  double fs = 0.07;
-  m_latex->SetTextSize(fs);
-  m_latex->Draw();
-  m_latex->DrawLatex(0.02, 0.97 -fs*0.5, Form("index[%d]", id.index()));
-  m_latex->DrawLatex(0.02, 0.97 -fs, Form("item[%d]",  (unsigned int)id.item()));
+   TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", hf, 220);
+   hf->AddFrame(ec, new TGLayoutHints(kLHintsExpandY));
+   m_latex = new TLatex(0.02, 0.970, Form("%s detail view:",  id.item()->name().c_str()));
+   double fs = 0.07;
+   m_latex->SetTextSize(fs);
+   m_latex->Draw();
+   m_latex->DrawLatex(0.02, 0.97 -fs*0.5, Form("index[%d]", id.index()));
+   m_latex->DrawLatex(0.02, 0.97 -fs, Form("item[%d]",  (unsigned int)id.item()));
 
    // viewer 
    TGLEmbeddedViewer* v = new TGLEmbeddedViewer(hf, 0, 0);
@@ -134,9 +137,6 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    if ( TGLOrthoCamera* oCamera = dynamic_cast<TGLOrthoCamera*>( &(m_viewer->GetGLViewer()->CurrentCamera()) ) )
       oCamera->SetEnableRotate(kTRUE);
 
-   m_viewer->GetGLViewer()->SetStyle(TGLRnrCtx::kOutline);
-   m_viewer->GetGLViewer()->SetClearColor(kBlack);
-   // gEve->AddElement(nv, gEve->GetViewers());
    m_scene = gEve->SpawnNewScene("Detailed view");
    m_viewer->AddScene(m_scene);
    hf->AddFrame(v->GetFrame(), new TGLayoutHints(kLHintsExpandX | kLHintsExpandY|kLHintsTop));
@@ -170,35 +170,25 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
       viewer =m_viewers.find(typeName);
    }
 
-   // get better lighting
-   //      TGLCapabilitySwitch sw(GL_LIGHTING, false);
-   TGLLightSet *light_set = m_viewer->GetGLViewer()->GetLightSet();
-   //      light_set->SetLight(TGLLightSet::kLightFront	, false);
-   //      light_set->SetLight(TGLLightSet::kLightTop	, true);
-   //      light_set->SetLight(TGLLightSet::kLightBottom	, false);
-   //      light_set->SetLight(TGLLightSet::kLightLeft	, false);
-   //      light_set->SetLight(TGLLightSet::kLightRight	, false);
-   //      light_set->SetLight(TGLLightSet::kLightMask	, false);
-   light_set->SetLight(TGLLightSet::kLightSpecular, false);
-   // run the viewer
+  // run the viewer
    viewer->second->setLatex(m_latex);
    viewer->second->setViewer(m_viewer->GetGLViewer());
    TEveElement *list = viewer->second->build(id);
-
-   ec->GetCanvas()->SetEditable(kFALSE);
-
-   if(0!=list) {
+   if(list) {
       gEve->AddElement(list, m_scene);
    }
 
-   double rotation_center[3] = { 0, 0, 0 };
-   //      m_viewer->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
-   m_viewer->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 1, 0, rotation_center, 0.5, 0 );
-   m_viewer->GetGLViewer()->CurrentCamera().Reset();
-   m_viewer->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraPerspXOY, 1, 0, rotation_center, 0.5, 0 );
+   // setup
+   ec->GetCanvas()->SetEditable(kFALSE);
+   m_viewer->GetGLViewer()->SetStyle(TGLRnrCtx::kOutline);
+   m_viewer->GetGLViewer()->SetClearColor(kBlack);
+   TGLLightSet *light_set = m_viewer->GetGLViewer()->GetLightSet();
+   light_set->SetLight(TGLLightSet::kLightSpecular, false);
+
    m_viewer->GetGLViewer()->CurrentCamera().Reset();
    m_viewer->GetGLViewer()->UpdateScene();
 
+   // map GUI
    m_frame->MapSubwindows();
    m_frame->Layout();
    m_frame->MapWindow();
