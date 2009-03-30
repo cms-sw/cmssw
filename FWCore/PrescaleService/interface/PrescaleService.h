@@ -27,7 +27,7 @@ namespace edm {
       //
       // construction/destruction
       //
-      PrescaleService(const ParameterSet&,ActivityRegistry&) throw (cms::Exception);
+      PrescaleService(ParameterSet const&, ActivityRegistry&);
       ~PrescaleService();
       
 
@@ -35,19 +35,19 @@ namespace edm {
       // member functions
       //
 
-      void reconfigure(const ParameterSet &);
+      void reconfigure();
 
       unsigned int getPrescale(unsigned int lvl1Index,
-			       const std::string&prescaledPath)throw(cms::Exception);
-      unsigned int getPrescale(const std::string&prescaledPath)throw(cms::Exception);
+			       std::string const& prescaledPath);
+      unsigned int getPrescale(std::string const& prescaledPath);
       
       
-      void postBeginJob() {;}
-      void postEndJob() {;}
-      void preEventProcessing(const edm::EventID&, const edm::Timestamp&) {;}
-      void postEventProcessing(const edm::Event&, const edm::EventSetup&) {;}
-      void preModule(const ModuleDescription&) {;}
-      void postModule(const ModuleDescription&) {;}
+      void postBeginJob();
+      void postEndJob() {}
+      void preEventProcessing(EventID const&, Timestamp const&) {}
+      void postEventProcessing(Event const&, EventSetup const&) {}
+      void preModule(ModuleDescription const&) {}
+      void postModule(ModuleDescription const&) {}
       
 
     private:
@@ -60,12 +60,14 @@ namespace edm {
       // member data
       //
       typedef std::vector<std::string>                         VString_t;
-      typedef std::map<std::string,std::vector<unsigned int> > PrescaleTable_t;
+      typedef std::map<std::string, std::vector<unsigned int> > PrescaleTable_t;
 
       boost::mutex    mutex_;
+      bool	      reconfigured_;
+      VString_t       lvl1Labels_; 
       unsigned int    nLvl1Index_;
       unsigned int    iLvl1IndexDefault_;
-      VString_t       lvl1Labels_; 
+      std::vector<ParameterSet> vpsetPrescales_;
       PrescaleTable_t prescaleTable_;
     };
   }
