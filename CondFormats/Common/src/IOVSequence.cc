@@ -73,6 +73,12 @@ namespace cond {
     return (p!=iovs().begin()) ? p-1 : iovs().end(); 
   }
   
+  bool IOVSequence::exist(cond::Time_t time) const {
+    IOVSequence::const_iterator p = find(time);
+    return p!=iovs().end() && (*p).sinceTime()==time;
+
+  }
+
 
   void  IOVSequence::disorder() {
     m_notOrdered=true;

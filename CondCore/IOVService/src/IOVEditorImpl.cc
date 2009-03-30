@@ -205,9 +205,9 @@ namespace cond {
    if(!validTime(sinceTime))
       throw cond::Exception("cond::IOVEditorImpl::freeInsert time not in global range");
 
-
-   IOVSequence::const_iterator p = m_iov->find(sinceTime);
-   if (p!=m_iov->iovs().end() &&  (*p).sinceTime()==sinceTime)
+   
+   // we do not support multiple iov with identical since...
+   if (m_iov.exist(sinceTime))
      throw cond::Exception("cond::IOVEditorImpl::freeInsert sinceTime already existing");
 
 

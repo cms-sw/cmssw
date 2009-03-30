@@ -37,6 +37,9 @@ namespace cond {
     // find IOV for which time is valid (this is not STANDARD std::find!)
     const_iterator find(cond::Time_t time) const;
 
+    // true if an iov with since==time already exists
+    bool exist(cond::Time_t time) const;
+
     cond::TimeType timeType() const { return cond::timeTypeSpecs[m_timetype].type;}
 
     // FIXME shall we cache it?
