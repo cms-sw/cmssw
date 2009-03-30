@@ -67,10 +67,14 @@ PrimaryVertexProducerAlgorithm::~PrimaryVertexProducerAlgorithm()
 vector<TransientVertex> 
 PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tracks) const
 {
-  std::cout<< "PrimaryVertexProducer::vertices> Obsolete function, using dummy beamspot " << std::endl;
+
+   throw VertexException("PrimaryVertexProducerAlgorithm: cannot make a Primary Vertex without a beam spot constraint " );
+
+  /*  std::cout<< "PrimaryVertexProducer::vertices> Obsolete function, using dummy beamspot " << std::endl;
     reco::BeamSpot dummyBeamSpot;
     dummyBeamSpot.dummy();
-    return vertices(tracks,dummyBeamSpot); 
+    return vertices(tracks,dummyBeamSpot); */
+   return vector<TransientVertex>();
 }
 
 

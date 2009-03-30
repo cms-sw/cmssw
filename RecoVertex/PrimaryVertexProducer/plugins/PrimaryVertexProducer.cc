@@ -73,10 +73,13 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       << " found BeamSpot"
       << *recoBeamSpotHandle << "\n";
   }else{
-    vertexBeamSpot.dummy();
+   throw VertexException("PrimaryVertexProducer: No beam spot available from EventSetup");
+
+/*     vertexBeamSpot.dummy();
     edm::LogInfo("RecoVertex/PrimaryVertexProducer")
       << "No beam spot available from EventSetup \n"
       << "continue using default BeamSpot\n" ;
+*/
   }
 
 
