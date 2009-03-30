@@ -28,16 +28,53 @@ TkLayerMap::TkLayerMap(int in):layerEnumNb_(in){
 
   std::vector<uint32_t> TkDetIdList=fr->getAllDetIds();
   
-  if(layerEnumNb_==0)
-    edm::LogError("TkLayerMap") <<" TkLayerMap::requested creation of a wrong layer Nb "<< layerEnumNb_; 
-  else if(layerEnumNb_<5)
-    createTIB(TkDetIdList,layerEnumNb_);
-  else if(layerEnumNb_<8)
-    createTID(TkDetIdList,layerEnumNb_); 
-  else if(layerEnumNb_<14)
-    createTOB(TkDetIdList,layerEnumNb_); 
-  else
-    createTEC(TkDetIdList,layerEnumNb_); 
+  switch (layerEnumNb_)
+    {
+    case TkLayerMap::TIB_L1:
+    case TkLayerMap::TIB_L2:
+    case TkLayerMap::TIB_L3:
+    case TkLayerMap::TIB_L4:         
+      createTIB(TkDetIdList,layerEnumNb_);
+      break;
+    case TkLayerMap::TIDP_D1:
+    case TkLayerMap::TIDP_D2:
+    case TkLayerMap::TIDP_D3:
+    case TkLayerMap::TIDM_D1:
+    case TkLayerMap::TIDM_D2:
+    case TkLayerMap::TIDM_D3:
+      createTID(TkDetIdList,layerEnumNb_); 
+      break;
+    case TkLayerMap::TOB_L1:
+    case TkLayerMap::TOB_L2:
+    case TkLayerMap::TOB_L3:
+    case TkLayerMap::TOB_L4:
+    case TkLayerMap::TOB_L5:
+    case TkLayerMap::TOB_L6:
+      createTOB(TkDetIdList,layerEnumNb_); 
+    break;
+    case TkLayerMap::TECP_W1:
+    case TkLayerMap::TECP_W2:
+    case TkLayerMap::TECP_W3:
+    case TkLayerMap::TECP_W4:
+    case TkLayerMap::TECP_W5: 
+    case TkLayerMap::TECP_W6:
+    case TkLayerMap::TECP_W7:
+    case TkLayerMap::TECP_W8:
+    case TkLayerMap::TECP_W9:
+    case TkLayerMap::TECM_W1:
+    case TkLayerMap::TECM_W2:
+    case TkLayerMap::TECM_W3:
+    case TkLayerMap::TECM_W4:
+    case TkLayerMap::TECM_W5: 
+    case TkLayerMap::TECM_W6:
+    case TkLayerMap::TECM_W7:
+    case TkLayerMap::TECM_W8:
+    case TkLayerMap::TECM_W9:
+      createTEC(TkDetIdList,layerEnumNb_); 
+      break;
+    default:
+      edm::LogError("TkLayerMap") <<" TkLayerMap::requested creation of a wrong layer Nb "<< layerEnumNb_; 
+    }
 }
 
 uint32_t TkLayerMap::getDetFromBin(int ix, int iy){
@@ -49,15 +86,20 @@ uint32_t TkLayerMap::getDetFromBin(int ix, int iy){
 }
 
 const int16_t TkLayerMap::layerSearch(uint32_t detid){
-  switch((detid>>25)&0x7){
-  case SiStripDetId::TIB:
-    return ((detid>>14)&0x7);
-  case SiStripDetId::TID:
-    return 4+((detid>>11)&0x3);
-  case SiStripDetId::TOB:
-    return 7+((detid>>14)&0x7);
-  case SiStripDetId::TEC:
-    return 13+((detid>>14)&0xF);
+  
+    //  switch((detid>>25)&0x7){
+  if(SiStripDetId(detid).subDetector()==SiStripDetId::TIB){
+    TIBDetId D(detid);
+    return TkLayerMap::TIB_L1  -1 +D.layerNumber();
+  } else if (SiStripDetId(detid).subDetector()==SiStripDetId::TID){
+    TIDDetId D(detid);
+    return TkLayerMap::TIDM_D1 -1 + (D.side() -1)*3 + D.wheel();
+  } else if (SiStripDetId(detid).subDetector()==SiStripDetId::TOB){
+    TOBDetId D(detid);
+    return TkLayerMap::TOB_L1  -1 +D.layerNumber();
+  } else if (SiStripDetId(detid).subDetector()==SiStripDetId::TEC){
+    TECDetId D(detid);
+    return TkLayerMap::TECM_W1 -1 + (D.side() -1)*9 + D.wheel();
   }
   return 0;
 }
@@ -65,7 +107,7 @@ const int16_t TkLayerMap::layerSearch(uint32_t detid){
 void TkLayerMap::initialize(int layer){
 
   switch (layer){
-  case 1: //TIBL1
+  case TkLayerMap::TIB_L1: //TIBL1
     
     Nstring_ext=30;
     SingleExtString.insert(SingleExtString.begin(),8,0);
@@ -80,7 +122,7 @@ void TkLayerMap::initialize(int layer){
     highY=(Nstring_ext+1);
     
     break;
-    case 2:
+    case TkLayerMap::TIB_L2:
     
     Nstring_ext=38;
     SingleExtString.insert(SingleExtString.begin(),10,0);
@@ -95,7 +137,7 @@ void TkLayerMap::initialize(int layer){
     highY=(Nstring_ext+1);
 
     break;
-  case 3:
+  case TkLayerMap::TIB_L3:
 
     Nstring_ext=46; 
     SingleExtString.insert(SingleExtString.begin(),23,0);
@@ -108,7 +150,7 @@ void TkLayerMap::initialize(int layer){
     highY=nchY;
 
     break;
-  case 4:
+  case TkLayerMap::TIB_L4:
 
     Nstring_ext=56;
     SingleExtString.insert(SingleExtString.begin(),14,0);
@@ -123,9 +165,12 @@ void TkLayerMap::initialize(int layer){
     highY=nchY;
 
     break;
-  case 5:  //TID
-  case 6:
-  case 7:
+  case TkLayerMap::TIDM_D1:  //TID
+  case TkLayerMap::TIDM_D2:  //TID
+  case TkLayerMap::TIDM_D3:  //TID
+  case TkLayerMap::TIDP_D1:  //TID
+  case TkLayerMap::TIDP_D2:  //TID
+  case TkLayerMap::TIDP_D3:  //TID
     
     nchX=16;
     lowX=-8.;
@@ -135,7 +180,7 @@ void TkLayerMap::initialize(int layer){
     highY=1.*nchY;
 
     break;
-  case 8:  //TOBL1
+  case TkLayerMap::TOB_L1:  //TOBL1
 
     Nrod=42;
     nchX=12;
@@ -146,7 +191,7 @@ void TkLayerMap::initialize(int layer){
     highY=(Nrod+1.);
 
     break;
-  case 9:
+  case TkLayerMap::TOB_L2:
     
     Nrod=48;
     nchX=12;
@@ -157,7 +202,7 @@ void TkLayerMap::initialize(int layer){
     highY=(Nrod+1.);
     
     break;
-  case 10: //TOBL3
+  case TkLayerMap::TOB_L3: //TOBL3
    
     Nrod=54;
     nchX=12;
@@ -168,7 +213,7 @@ void TkLayerMap::initialize(int layer){
     highY=1.*Nrod;
     
     break;
-  case 11:
+  case TkLayerMap::TOB_L4:
     
     Nrod=60;
     nchX=12;
@@ -179,7 +224,7 @@ void TkLayerMap::initialize(int layer){
     highY=1.*Nrod;
 
     break;
-  case 12:
+  case TkLayerMap::TOB_L5:
     
     Nrod=66;
     nchX=12;
@@ -190,7 +235,7 @@ void TkLayerMap::initialize(int layer){
     highY=1.*Nrod;
 
     break;
-  case 13:
+  case TkLayerMap::TOB_L6:
     
     Nrod=74;
     nchX=12;
@@ -266,9 +311,9 @@ void TkLayerMap::createTOB(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
   SiStripSubStructure siStripSubStructure;
   
   //extract  vector of module in the layer
-  siStripSubStructure.getTOBDetectors(TkDetIdList,LayerDetIdList,layerEnumNb-7,0,0);
+  siStripSubStructure.getTOBDetectors(TkDetIdList,LayerDetIdList,layerEnumNb-10,0,0);
 
-  LogTrace("TkLayerMap") << "[TkLayerMap::createTOB] layer " << layerEnumNb-7  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
+  LogTrace("TkLayerMap") << "[TkLayerMap::createTOB] layer " << layerEnumNb-10  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
 
   for(size_t j=0;j<LayerDetIdList.size();++j){
     xybin=getXY_TOB(LayerDetIdList[j],layerEnumNb);
@@ -283,10 +328,10 @@ void TkLayerMap::createTID(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
   SiStripSubStructure siStripSubStructure;
   
   //extract  vector of module in the layer
-  siStripSubStructure.getTIDDetectors(TkDetIdList,LayerDetIdList,0,layerEnumNb-4,0,0);
+  siStripSubStructure.getTIDDetectors(TkDetIdList,LayerDetIdList,((layerEnumNb-TkLayerMap::TIB_L4)-1)/3+1,((layerEnumNb-TkLayerMap::TIB_L4)-1)%3+1,0,0);
 
-  LogTrace("TkLayerMap") << "[TkLayerMap::createTID] layer " << layerEnumNb-4  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
-
+  LogTrace("TkLayerMap") << "[TkLayerMap::createTID] layer side " << ((layerEnumNb-TkLayerMap::TIB_L4)-1)/3+1 << " nb " << ((layerEnumNb-TkLayerMap::TIB_L4)-1)%3+1  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
+  
   for(size_t j=0;j<LayerDetIdList.size();++j){
     xybin=getXY_TID(LayerDetIdList[j],layerEnumNb);
     binToDet[(xybin.ix-1)+nchX*(xybin.iy-1)]=LayerDetIdList[j];
@@ -300,9 +345,9 @@ void TkLayerMap::createTEC(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
   SiStripSubStructure siStripSubStructure;
   
   //extract  vector of module in the layer
-  siStripSubStructure.getTECDetectors(TkDetIdList,LayerDetIdList,0,layerEnumNb-13,0,0);
+  siStripSubStructure.getTECDetectors(TkDetIdList,LayerDetIdList,((layerEnumNb-TkLayerMap::TOB_L6)-1)/9+1,((layerEnumNb-TkLayerMap::TOB_L6)-1)%9+1,0,0);
   
-  LogTrace("TkLayerMap") << "[TkLayerMap::createTEC] layer " << layerEnumNb-13  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
+LogTrace("TkLayerMap") << "[TkLayerMap::createTEC] layer side " << ((layerEnumNb-TkLayerMap::TOB_L6)-1)/9+1 << " " << ((layerEnumNb-TkLayerMap::TOB_L6)-1)%9+1  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
 
   for(size_t j=0;j<LayerDetIdList.size();++j){
     xybin=getXY_TEC(LayerDetIdList[j],layerEnumNb);
@@ -324,11 +369,12 @@ const TkLayerMap::XYbin TkLayerMap::getXY(uint32_t& detid, int layerEnumNb){
       << "[TkLayerMap::getXY] Fill of DetId " << detid << " layerEnumNb " << layerEnumNb << " are requested to wrong TkLayerMap " << layerEnumNb_ << " \nPlease check the TkDetMap code"; 
  
 
-  if(layerEnumNb<5)  
+  if(layerEnumNb<TkLayerMap::TIDM_D1)  
     return getXY_TIB(detid,layerEnumNb);
-  else if(layerEnumNb<8)  
+  else if(layerEnumNb<TkLayerMap::TOB_L1)  
     return getXY_TID(detid,layerEnumNb); 
-  else if(layerEnumNb<14)  
+  else if(layerEnumNb<TkLayerMap
+::TECM_W1)  
     return getXY_TOB(detid,layerEnumNb); 
   else 
     return getXY_TEC(detid,layerEnumNb); 
@@ -425,9 +471,9 @@ TkDetMap::TkDetMap()
 void TkDetMap::doMe(){
   LogTrace("TkDetMap") <<"TkDetMap::constructor ";
 
-  TkMap.resize(23);
+  TkMap.resize(34);
   //Create TkLayerMap for each layer declared in the TkLayerEnum
-  for(int layer=1;layer<23;++layer){
+  for(int layer=1;layer<35;++layer){
     TkMap[layer]=new TkLayerMap(layer);
   }
 }
@@ -495,12 +541,18 @@ std::string TkDetMap::getLayerName(int& in){
       return "TIB_L3";
     case TkLayerMap::TIB_L4:         
       return "TIB_L4";         
-    case TkLayerMap::TID_D1:
-      return "TID_D1";
-    case TkLayerMap::TID_D2:
-      return "TID_D2";
-    case TkLayerMap::TID_D3:
-      return "TID_D3";
+    case TkLayerMap::TIDP_D1:
+      return "TIDP_D1";
+    case TkLayerMap::TIDP_D2:
+      return "TIDP_D2";
+    case TkLayerMap::TIDP_D3:
+      return "TIDP_D3";
+    case TkLayerMap::TIDM_D1:
+      return "TIDM_D1";
+    case TkLayerMap::TIDM_D2:
+      return "TIDM_D2";
+    case TkLayerMap::TIDM_D3:
+      return "TIDM_D3";
     case TkLayerMap::TOB_L1:
       return "TOB_L1";
     case TkLayerMap::TOB_L2:
@@ -513,24 +565,208 @@ std::string TkDetMap::getLayerName(int& in){
       return "TOB_L5";
     case TkLayerMap::TOB_L6:
       return "TOB_L6";
-    case TkLayerMap::TEC_W1:
-      return "TEC_W1";
-    case TkLayerMap::TEC_W2:
-      return "TEC_W2";
-    case TkLayerMap::TEC_W3:
-      return "TEC_W3";
-    case TkLayerMap::TEC_W4:
-      return "TEC_W4";
-    case TkLayerMap::TEC_W5: 
-      return "TEC_W5";
-    case TkLayerMap::TEC_W6:
-      return "TEC_W6";
-    case TkLayerMap::TEC_W7:
-      return "TEC_W7";
-    case TkLayerMap::TEC_W8:
-      return "TEC_W8";
-    case TkLayerMap::TEC_W9:
-      return "TEC_W9";
+    case TkLayerMap::TECP_W1:
+      return "TECP_W1";
+    case TkLayerMap::TECP_W2:
+      return "TECP_W2";
+    case TkLayerMap::TECP_W3:
+      return "TECP_W3";
+    case TkLayerMap::TECP_W4:
+      return "TECP_W4";
+    case TkLayerMap::TECP_W5: 
+      return "TECP_W5";
+    case TkLayerMap::TECP_W6:
+      return "TECP_W6";
+    case TkLayerMap::TECP_W7:
+      return "TECP_W7";
+    case TkLayerMap::TECP_W8:
+      return "TECP_W8";
+    case TkLayerMap::TECP_W9:
+      return "TECP_W9";
+    case TkLayerMap::TECM_W1:
+      return "TECM_W1";
+    case TkLayerMap::TECM_W2:
+      return "TECM_W2";
+    case TkLayerMap::TECM_W3:
+      return "TECM_W3";
+    case TkLayerMap::TECM_W4:
+      return "TECM_W4";
+    case TkLayerMap::TECM_W5: 
+      return "TECM_W5";
+    case TkLayerMap::TECM_W6:
+      return "TECM_W6";
+    case TkLayerMap::TECM_W7:
+      return "TECM_W7";
+    case TkLayerMap::TECM_W8:
+      return "TECM_W8";
+    case TkLayerMap::TECM_W9:
+      return "TECM_W9";
     }
   return "Invalid";
+}
+
+void TkDetMap::getSubDetLayerSide(int& in,SiStripDetId::SubDetector& subDet,uint32_t& layer,uint32_t& side){
+  switch (in)
+    {
+    case TkLayerMap::TIB_L1:
+      subDet = SiStripDetId::TIB;
+      layer = 1;
+      break;
+    case TkLayerMap::TIB_L2:
+      subDet = SiStripDetId::TIB;
+      layer = 2;
+      break;
+    case TkLayerMap::TIB_L3:
+      subDet = SiStripDetId::TIB;
+      layer = 3;
+      break;
+    case TkLayerMap::TIB_L4:
+      subDet = SiStripDetId::TIB;
+      layer = 4;
+      break;
+    case TkLayerMap::TIDP_D1:
+      subDet = SiStripDetId::TID;
+      layer = 1;
+      side=2;
+      break;
+    case TkLayerMap::TIDP_D2:
+      subDet = SiStripDetId::TID;
+      layer = 2;
+      side=2;
+      break;
+    case TkLayerMap::TIDP_D3:
+      subDet = SiStripDetId::TID;
+      layer = 3;
+      side=2;
+      break;
+    case TkLayerMap::TIDM_D1:
+      subDet = SiStripDetId::TID;
+      layer = 1;
+      side=1;
+      break;
+    case TkLayerMap::TIDM_D2:
+      subDet = SiStripDetId::TID;
+      layer = 2;
+      side=1;
+      break;
+    case TkLayerMap::TIDM_D3:
+      subDet = SiStripDetId::TID;
+      layer = 3;
+      side=1;
+      break;
+    case TkLayerMap::TOB_L1:
+      subDet = SiStripDetId::TOB;
+      layer = 1;
+      break;
+    case TkLayerMap::TOB_L2:
+      subDet = SiStripDetId::TOB;
+      layer = 2;
+      break;
+    case TkLayerMap::TOB_L3:
+      subDet = SiStripDetId::TOB;
+      layer = 3;
+      break;
+    case TkLayerMap::TOB_L4:
+      subDet = SiStripDetId::TOB;
+      layer = 4;
+      break;
+    case TkLayerMap::TOB_L5:
+      subDet = SiStripDetId::TOB;
+      layer = 5;
+      break;
+    case TkLayerMap::TOB_L6:
+      subDet = SiStripDetId::TOB;
+      layer = 6;
+      break;
+    case TkLayerMap::TECP_W1:
+      subDet = SiStripDetId::TEC;
+      layer = 1;
+      side=2;
+      break;
+    case TkLayerMap::TECP_W2:
+      subDet = SiStripDetId::TEC;
+      layer = 2;
+      side=2;
+      break;
+    case TkLayerMap::TECP_W3:
+      subDet = SiStripDetId::TEC;
+      layer = 3;
+      side=2;
+      break;
+    case TkLayerMap::TECP_W4:
+      subDet = SiStripDetId::TEC;
+      layer = 4;
+      side=2;
+      break;
+    case TkLayerMap::TECP_W5: 
+      subDet = SiStripDetId::TEC;
+      layer = 5;
+      side=2;
+      break;
+    case TkLayerMap::TECP_W6:
+      subDet = SiStripDetId::TEC;
+      layer = 6;
+      side=2;
+      break;
+    case TkLayerMap::TECP_W7:
+      subDet = SiStripDetId::TEC;
+      layer = 7;
+      side=2;
+      break;
+    case TkLayerMap::TECP_W8:
+      subDet = SiStripDetId::TEC;
+      layer = 8;
+      side=2;
+      break;
+    case TkLayerMap::TECP_W9:
+      subDet = SiStripDetId::TEC;
+      layer = 9;
+      side=2;
+      break;
+    case TkLayerMap::TECM_W1:
+      subDet = SiStripDetId::TEC;
+      layer = 1;
+      side=1;
+      break;
+    case TkLayerMap::TECM_W2:
+      subDet = SiStripDetId::TEC;
+      layer = 2;
+      side=1;
+      break;
+    case TkLayerMap::TECM_W3:
+      subDet = SiStripDetId::TEC;
+      layer = 3;
+      side=1;
+      break;
+    case TkLayerMap::TECM_W4:
+      subDet = SiStripDetId::TEC;
+      layer = 4;
+      side=1;
+      break;
+    case TkLayerMap::TECM_W5: 
+      subDet = SiStripDetId::TEC;
+      layer = 5;
+      side=1;
+      break;
+    case TkLayerMap::TECM_W6:
+      subDet = SiStripDetId::TEC;
+      layer = 6;
+      side=1;
+      break;
+    case TkLayerMap::TECM_W7:
+      subDet = SiStripDetId::TEC;
+      layer = 7;
+      side=1;
+      break;
+    case TkLayerMap::TECM_W8:
+      subDet = SiStripDetId::TEC;
+      layer = 8;
+      side=1;
+      break;
+    case TkLayerMap::TECM_W9:
+      subDet = SiStripDetId::TEC;
+      layer = 9;
+      side=1;
+      break;
+    }
 }

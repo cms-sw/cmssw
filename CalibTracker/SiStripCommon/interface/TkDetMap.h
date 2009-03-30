@@ -24,24 +24,36 @@ class TkLayerMap{
 		      TIB_L2,
 		      TIB_L3,
 		      TIB_L4,         
-		      TID_D1, //5
-		      TID_D2,
-		      TID_D3,
-		      TOB_L1, //8
+		      TIDM_D1, //5
+		      TIDM_D2,
+		      TIDM_D3,
+		      TIDP_D1, //8
+		      TIDP_D2,
+		      TIDP_D3,
+		      TOB_L1, //11
 		      TOB_L2,
-		      TOB_L3, //10
+		      TOB_L3, 
 		      TOB_L4,
 		      TOB_L5,
 		      TOB_L6,
-		      TEC_W1, //14
-		      TEC_W2,
-		      TEC_W3,
-		      TEC_W4,
-		      TEC_W5,
-		      TEC_W6,
-		      TEC_W7,
-		      TEC_W8,
-		      TEC_W9
+		      TECM_W1, //17
+		      TECM_W2,
+		      TECM_W3,
+		      TECM_W4,
+		      TECM_W5,
+		      TECM_W6,
+		      TECM_W7,
+		      TECM_W8,
+		      TECM_W9,
+		      TECP_W1, //26
+		      TECP_W2,
+		      TECP_W3,
+		      TECP_W4,
+		      TECP_W5,
+		      TECP_W6,
+		      TECP_W7,
+		      TECP_W8,
+		      TECP_W9 //34
   };
 
   
@@ -99,6 +111,8 @@ class TkDetMap{
 
   const TkLayerMap::XYbin& getXY(uint32_t&);
   std::string getLayerName(int& in);
+  void getSubDetLayerSide(int& in,SiStripDetId::SubDetector&,uint32_t& layer,uint32_t& side);
+
   int16_t FindLayer(uint32_t& detid);
 
   void getComponents(int& layer,
