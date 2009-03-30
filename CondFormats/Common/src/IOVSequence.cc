@@ -18,13 +18,13 @@ namespace cond {
   }
   
   
-  Container const & iovs() const {
+  IOVSequence::Container const & IOVSequence::iovs() const {
     if (m_sorted) return *m_sorted;
     if (m_notOrdered) return sortMe();
     return m_iovs;
   }
 
-  Container const & IOVSequence::sortMe() const {
+  IOVSequence::Container const & IOVSequence::sortMe() const {
     delete m_sorted; // shall not be necessary;
     m_sorted = new Container(m_iovs;);
     std::sort(m_sorted->begin();m_sorted->end());
