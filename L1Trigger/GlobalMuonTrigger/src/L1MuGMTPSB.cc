@@ -5,8 +5,8 @@
 //   Description: Pipelined Synchronising Buffer module 
 //
 //
-//   $Date: 2009/03/06 18:30:12 $
-//   $Revision: 1.14 $
+//   $Date: 2009/03/29 19:52:24 $
+//   $Revision: 1.15 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -99,9 +99,11 @@ void L1MuGMTPSB::receiveData(edm::Event& e, int bx) {
     if(rc_handle.isValid()) {
       getDTBX(rc_handle.product(),bx);
     } else {
-      LogDebug("GlobalMuonTrigger")
-      << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getDTInputTag()
-      << "\nrequested, but not found in the event." << std::endl;      
+      if( L1MuGMTConfig::Debug(1) ) {
+        edm::LogWarning("GlobalMuonTrigger")
+        << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getDTInputTag()
+        << "\nrequested, but not found in the event." << std::endl;      
+      }
     }
   }
   if((L1MuGMTConfig::getCSCInputTag()).label() != "none" && !(mask&4) ) {
@@ -109,9 +111,11 @@ void L1MuGMTPSB::receiveData(edm::Event& e, int bx) {
     if(rc_handle.isValid()) {
       getCSC(rc_handle.product(),bx);
     } else {
-      LogDebug("GlobalMuonTrigger")
-      << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getCSCInputTag()
-      << "\nrequested, but not found in the event." << std::endl;      
+      if( L1MuGMTConfig::Debug(1) ) {
+        edm::LogWarning("GlobalMuonTrigger")
+        << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getCSCInputTag()
+        << "\nrequested, but not found in the event." << std::endl;      
+      }
     }
   }
   if((L1MuGMTConfig::getRPCbInputTag()).label() != "none" && !(mask&2) ) {
@@ -119,9 +123,11 @@ void L1MuGMTPSB::receiveData(edm::Event& e, int bx) {
     if(rc_handle.isValid()) {
       getRPCb(rc_handle.product(),bx);
     } else {
-      LogDebug("GlobalMuonTrigger")
-      << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getRPCbInputTag()
-      << "\nrequested, but not found in the event." << std::endl;      
+      if( L1MuGMTConfig::Debug(1) ) {
+        edm::LogWarning("GlobalMuonTrigger")
+        << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getRPCbInputTag()
+        << "\nrequested, but not found in the event." << std::endl;      
+      }
     }
   }
   if((L1MuGMTConfig::getRPCfInputTag()).label() != "none" && !(mask&8) ) {
@@ -129,9 +135,11 @@ void L1MuGMTPSB::receiveData(edm::Event& e, int bx) {
     if(rc_handle.isValid()) {
       getRPCf(rc_handle.product(),bx);
     } else {
-      LogDebug("GlobalMuonTrigger")
-      << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getRPCfInputTag()
-      << "\nrequested, but not found in the event." << std::endl;      
+      if( L1MuGMTConfig::Debug(1) ) {
+        edm::LogWarning("GlobalMuonTrigger")
+        << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getRPCfInputTag()
+        << "\nrequested, but not found in the event." << std::endl;      
+      }
     }
   }
 
@@ -471,9 +479,11 @@ void L1MuGMTPSB::getCalo(edm::Event& e) {
       //                                     << (*iter).mip();
     }
   } else {
-    LogDebug("GlobalMuonTrigger")
-    << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getMipIsoInputTag()
-    << "\nrequested, but not found in the event." << std::endl;
+    if( L1MuGMTConfig::Debug(1) ) {
+      edm::LogWarning("GlobalMuonTrigger")
+      << "\nWarning: GlobalMuonTrigger: input tag " << L1MuGMTConfig::getMipIsoInputTag()
+      << "\nrequested, but not found in the event." << std::endl;
+    }
   }
-  
+
 }
