@@ -23,8 +23,6 @@ class SiStripLorentzAngleSimRcd : public edm::eventsetup::EventSetupRecordImplem
 /*Record associated to SiStripModuleHV object*/
 class SiStripModuleHVRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripModuleHVRcd> {};
 class SiStripModuleLVRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripModuleLVRcd> {};
-
-/*Record associated to SiStripDetVOff object*/
 class SiStripDetVOffRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripDetVOffRcd> {};
 
 class SiStripNoisesRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripNoisesRcd> {};
