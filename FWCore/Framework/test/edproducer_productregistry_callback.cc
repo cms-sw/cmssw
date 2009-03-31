@@ -155,8 +155,8 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
    dummyProcessPset.registerIt();
    boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
 
-   edm::WorkerParams params1(p1, &p1, pc, table);
-   edm::WorkerParams params2(p2, &p2, pc, table);
+   edm::WorkerParams params1(p1, &p1, preg, pc, table);
+   edm::WorkerParams params2(p2, &p2, preg, pc, table);
    
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
@@ -169,8 +169,8 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
    l2.addParameter("@module_label",std::string("l2") );
    l2.registerIt();
 
-   edm::WorkerParams paramsl1(l1, &l1, pc, table);
-   edm::WorkerParams paramsl2(l2, &l2, pc, table);
+   edm::WorkerParams paramsl1(l1, &l1, preg, pc, table);
+   edm::WorkerParams paramsl2(l2, &l2, preg, pc, table);
 
    sigc::signal<void, const ModuleDescription&> aSignal;
 
@@ -178,11 +178,6 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
    std::auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
    std::auto_ptr<Worker> wl2 = lM->makeWorker(paramsl2,aSignal,aSignal);
    std::auto_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
-
-   w1->registerAnyProducts(&preg);
-   wl1->registerAnyProducts(&preg);
-   wl2->registerAnyProducts(&preg);
-   w2->registerAnyProducts(&preg);
 
    //Should be 5 products
    // 1 from the module 't1'
@@ -227,8 +222,8 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
    dummyProcessPset.registerIt();
    boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
 
-   edm::WorkerParams params1(p1, &p1, pc, table);
-   edm::WorkerParams params2(p2, &p2, pc, table);
+   edm::WorkerParams params1(p1, &p1, preg, pc, table);
+   edm::WorkerParams params2(p2, &p2, preg, pc, table);
    
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
@@ -241,8 +236,8 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
    l2.addParameter("@module_label",std::string("l2") );
    l2.registerIt();
    
-   edm::WorkerParams paramsl1(l1, &l1, pc, table);
-   edm::WorkerParams paramsl2(l2, &l2, pc, table);
+   edm::WorkerParams paramsl1(l1, &l1, preg, pc, table);
+   edm::WorkerParams paramsl2(l2, &l2, preg, pc, table);
    
    sigc::signal<void, const ModuleDescription&> aSignal;
    std::auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
@@ -250,11 +245,6 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
    std::auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
    std::auto_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
    
-   wl1->registerAnyProducts(&preg);
-   wl2->registerAnyProducts(&preg);
-   w1->registerAnyProducts(&preg);
-   w2->registerAnyProducts(&preg);
-
    //Would be 10 products
    // 1 from the module 't1'
    //    1 from 'l1' in response
@@ -298,8 +288,8 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    dummyProcessPset.registerIt();
    boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
 
-   edm::WorkerParams params1(p1, &p1, pc, table);
-   edm::WorkerParams params2(p2, &p2, pc, table);
+   edm::WorkerParams params1(p1, &p1, preg, pc, table);
+   edm::WorkerParams params2(p2, &p2, preg, pc, table);
    
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
@@ -313,8 +303,8 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    l2.addParameter("@module_label",std::string("l2") );
    l2.registerIt();
    
-   edm::WorkerParams paramsl1(l1, &l1, pc, table);
-   edm::WorkerParams paramsl2(l2, &l2, pc, table);
+   edm::WorkerParams paramsl1(l1, &l1, preg, pc, table);
+   edm::WorkerParams paramsl2(l2, &l2, preg, pc, table);
    
    
    sigc::signal<void, const ModuleDescription&> aSignal;
@@ -322,11 +312,6 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    std::auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
    std::auto_ptr<Worker> wl2 = lFM->makeWorker(paramsl2,aSignal,aSignal);
    std::auto_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
-   
-   w1->registerAnyProducts(&preg);
-   wl1->registerAnyProducts(&preg);
-   wl2->registerAnyProducts(&preg);
-   w2->registerAnyProducts(&preg);
 
    //Should be 8 products
    // 1 from the module 't1'

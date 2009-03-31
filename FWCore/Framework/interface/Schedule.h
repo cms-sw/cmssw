@@ -124,8 +124,7 @@ namespace edm {
 	     ProductRegistry& pregistry,
 	     ActionTable& actions,
 	     boost::shared_ptr<ActivityRegistry> areg,
-	     boost::shared_ptr<ProcessConfiguration> processConfiguration,
-             boost::shared_ptr<InputSource> & inputSource);
+	     boost::shared_ptr<ProcessConfiguration> processConfiguration);
 
     enum State { Ready=0, Running, Latched };
 

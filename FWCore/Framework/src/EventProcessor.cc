@@ -633,8 +633,7 @@ namespace edm {
 		    preg_,
 		    act_table_,
 		    actReg_,
-		    processConfiguration_,
-                    input_));
+		    processConfiguration_));
 
     //   initialize(iToken,iLegacy);
     FDEBUG(2) << parameterSet << std::endl;

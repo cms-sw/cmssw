@@ -5,7 +5,6 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
@@ -65,6 +64,7 @@ namespace edm {
     Schedule::WorkerPtr 
     makeInserter(ParameterSet * proc_pset,
                  std::string const& proc_name,
+                 ProductRegistry& preg,
 		 ActionTable& actions,
 		 boost::shared_ptr<ActivityRegistry> areg,
 		 boost::shared_ptr<ProcessConfiguration> processConfiguration,
@@ -73,7 +73,7 @@ namespace edm {
       ParameterSet * trig_pset = proc_pset->getPSetForUpdate("@trigger_paths");
       trig_pset->registerIt();
 
-      WorkerParams work_args(*proc_pset, trig_pset, processConfiguration, actions);
+      WorkerParams work_args(*proc_pset, trig_pset, preg, processConfiguration, actions);
       ModuleDescription md(trig_pset->id(),
 			   "TriggerResultInserter",
 			   "TriggerResults",
@@ -102,8 +102,7 @@ namespace edm {
 		     ProductRegistry& preg,
 		     ActionTable& actions,
 		     boost::shared_ptr<ActivityRegistry> areg,
-		     boost::shared_ptr<ProcessConfiguration> processConfiguration,
-                     boost::shared_ptr<InputSource> & inputSource):
+		     boost::shared_ptr<ProcessConfiguration> processConfiguration):
     pset_(proc_pset),
     worker_reg_(&wreg),
     prod_reg_(&preg),
@@ -144,7 +143,7 @@ namespace edm {
     if (hasPath) {
       // the results inserter stands alone
       results_inserter_ = makeInserter(pset_.get(),
-                                       processName(),
+                                       processName(), preg,
 				       actions, actReg_, processConfiguration_, results_);
       addToAllWorkers(results_inserter_.get());
     }
@@ -189,7 +188,7 @@ namespace edm {
 	  ParameterSet * modulePSet(proc_pset->getPSetForUpdate(*itLabel, isTracked));
           assert(isTracked);
           assert(modulePSet != 0);
-	  WorkerParams params(*proc_pset, modulePSet,
+	  WorkerParams params(*proc_pset, modulePSet, preg,
 			      processConfiguration_, *act_table_);
 	  Worker* newWorker(wreg.getWorker(params, *itLabel));
 	  if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
@@ -227,13 +226,10 @@ namespace edm {
     pset::Registry::instance()->extra().setID(pset_->id());
     processConfiguration->setParameterSetID(pset_->id());
 
-    inputSource->registerProducts();
-  
     // This is used for a little sanity-check to make sure no code
     // modifications alter the number of workers at a later date.
     size_t all_workers_count = all_workers_.size();
 
-    // Loop over all modules and perform two unrelated tasks
     for (AllWorkers::iterator i = all_workers_.begin(), e = all_workers_.end();
 	 i != e;
 	 ++i)	{
@@ -242,9 +238,6 @@ namespace edm {
       // we can now fill all_output_workers_.
       OutputWorker* ow = dynamic_cast<OutputWorker*>(*i);
       if (ow) all_output_workers_.push_back(ow);
-
-      // Register products for all modules that might run
-      (*i)->registerAnyProducts(prod_reg_);
     }
 
     // Now that the output workers are filled in, set any output limits.
@@ -368,7 +361,7 @@ namespace edm {
       }
       assert(isTracked);
 
-      WorkerParams params(*pset_, modpset, processConfiguration_, *act_table_);
+      WorkerParams params(*pset_, modpset, *prod_reg_, processConfiguration_, *act_table_);
       WorkerInPath w(worker_reg_->getWorker(params, moduleLabel), filterAction);
       tmpworkers.push_back(w);
     }
