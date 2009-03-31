@@ -6,9 +6,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+
 #include <cmath>
 
-typedef ctfseeding::SeedingHit TkHitPairsCachedHit;
+typedef TransientTrackingRecHit::ConstRecHitPointer TkHitPairsCachedHit;
 
 CosmicHitTripletGeneratorFromLayerTriplet::CosmicHitTripletGeneratorFromLayerTriplet
 (const LayerWithHits* inner, 
@@ -29,7 +32,6 @@ void CosmicHitTripletGeneratorFromLayerTriplet::hitTriplets(
   const edm::EventSetup& iSetup)
 {
   
-
   if (theInnerLayer->recHits().empty()) return;
   if (theMiddleLayer->recHits().empty()) return;
   if (theOuterLayer->recHits().empty()) return;
@@ -41,65 +43,63 @@ void CosmicHitTripletGeneratorFromLayerTriplet::hitTriplets(
   std::vector<const TrackingRecHit*>::const_iterator mhh;
   std::vector<const TrackingRecHit*>::const_iterator ihh;
 
+  std::string builderName = "WithTrackAngle";
+  edm::ESHandle<TransientTrackingRecHitBuilder> builder;
+  iSetup.get<TransientRecHitRecord>().get(builderName, builder);
+
   if(!seedfromoverlaps){
     for(ohh=theOuterLayer->recHits().begin();ohh!=theOuterLayer->recHits().end();ohh++){
-      const TkHitPairsCachedHit * oh=new TkHitPairsCachedHit(*ohh,iSetup);
+      TkHitPairsCachedHit oh= builder->build(*ohh);
       for(mhh=theMiddleLayer->recHits().begin();mhh!=theMiddleLayer->recHits().end();mhh++){
-	const TkHitPairsCachedHit * mh=new TkHitPairsCachedHit(*mhh,iSetup);
-	float z_diff =mh->z()-oh->z();
-	float midy=mh->r()*sin(mh->phi());
-	float outy=oh->r()*sin(oh->phi());
-	float midx=mh->r()*cos(mh->phi());
-	float outx=oh->r()*cos(oh->phi());
+	TkHitPairsCachedHit mh=  builder->build(*mhh);
+	float z_diff =mh->globalPosition().z()-oh->globalPosition().z();
+	float midy=mh->globalPosition().y();
+	float outy=oh->globalPosition().y();
+	float midx=mh->globalPosition().x();
+	float outx=oh->globalPosition().x();
 	float dxdy=std::abs((outx-midx)/(outy-midy));
 	if((std::abs(z_diff)<30) && (outy*midy>0) &&(dxdy<2))	  
 	  {
 	    for(ihh=theInnerLayer->recHits().begin();ihh!=theInnerLayer->recHits().end();ihh++){
-	      const TkHitPairsCachedHit * ih=new TkHitPairsCachedHit(*ihh,iSetup);
-	      float z_diff =mh->z()-ih->z();
-	      float inny=ih->r()*sin(ih->phi());
-	      float innx=ih->r()*cos(ih->phi());
+	      TkHitPairsCachedHit ih= builder->build(*ihh);
+	      float z_diff =mh->globalPosition().z()-ih->globalPosition().z();
+	      float inny=ih->globalPosition().y();
+	      float innx=ih->globalPosition().x();
 	      float dxdy=std::abs((innx-midx)/(inny-midy));
 	      if ((std::abs(z_diff)<30) && (inny*midy>0) &&(dxdy<2)&&(!seedfromoverlaps))
 		{
-		  result.push_back( OrderedHitTriplet(*ih,*mh, *oh) );
+		  result.push_back( OrderedHitTriplet(ih,mh,oh) );
 		}
-	      delete ih;
 	    } 
 	  }
-	delete  mh;
       }
-      delete oh;
     }
   } else {
     for(ohh=theOuterLayer->recHits().begin();ohh!=theOuterLayer->recHits().end();ohh++){
-      const TkHitPairsCachedHit * oh=new TkHitPairsCachedHit(*ohh,iSetup);
+      TkHitPairsCachedHit oh= builder->build(*ohh);
       for(mhh=theMiddleLayer->recHits().begin();mhh!=theMiddleLayer->recHits().end();mhh++){
-	const TkHitPairsCachedHit * mh=new TkHitPairsCachedHit(*mhh,iSetup);
- 	float z_diff =mh->z()-oh->z();
-	float midy=mh->r()*sin(mh->phi());
-	float outy=oh->r()*sin(oh->phi());
-	float midx=mh->r()*cos(mh->phi());
-	float outx=oh->r()*cos(oh->phi());
+	TkHitPairsCachedHit mh= builder->build(*mhh);
+ 	float z_diff =mh->globalPosition().z()-oh->globalPosition().z();
+	float midy=mh->globalPosition().y();
+	float outy=oh->globalPosition().y();
+	float midx=mh->globalPosition().x();
+	float outx=oh->globalPosition().x();
 	float dxdy=std::abs((outx-midx)/(outy-midy));
-	float DeltaR=oh->r()-mh->r();
-	if((std::abs(z_diff)<18) && (std::abs(oh->phi()-mh->phi())<0.05) &&(DeltaR<0)&&(dxdy<2)){
+	float DeltaR=oh->globalPosition().perp()-mh->globalPosition().perp();
+	if((std::abs(z_diff)<18) && (std::abs(oh->globalPosition().phi()-mh->globalPosition().phi())<0.05) &&(DeltaR<0)&&(dxdy<2)){
 	  for(ihh=theInnerLayer->recHits().begin();ihh!=theInnerLayer->recHits().end();ihh++){
-	    const TkHitPairsCachedHit * ih=new TkHitPairsCachedHit(*ihh,iSetup);
-	    float z_diff =mh->z()-ih->z();
-	    float inny=ih->r()*sin(ih->phi());
-	    float innx=ih->r()*cos(ih->phi());
+	    TkHitPairsCachedHit ih= builder->build(*ihh);
+	    float z_diff =mh->globalPosition().z()-ih->globalPosition().z();
+	    float inny=ih->globalPosition().y();
+	    float innx=ih->globalPosition().x();
 	    float dxdy=std::abs((innx-midx)/(inny-midy));
 	    if ((std::abs(z_diff)<30) && (inny*midy>0) &&(dxdy<2))
 	      {
-		result.push_back( OrderedHitTriplet(*ih,*mh,*oh));
+		result.push_back( OrderedHitTriplet(ih,mh,oh));
 	      }
-	    delete ih;
 	  }
 	}
-	delete mh;
       }
-      delete oh;
     }
   }
 }

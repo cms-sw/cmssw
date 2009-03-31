@@ -3,9 +3,6 @@
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/TripletFilter.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/HitInfo.h"
 
-#include "RecoTracker/TkHitPairs/interface/LayerHitMap.h"
-#include "RecoTracker/TkHitPairs/interface/LayerHitMapLoop.h"
-
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoPointRZ.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -82,7 +79,7 @@ void TripletGenerator::hitTriplets(
   int size = theLayers.size(); 
 
   // Set aliases
-  const LayerHitMap **thirdHitMap = new const LayerHitMap* [size];
+  const RecHitsSortedInPhi **thirdHitMap = new const RecHitsSortedInPhi*[size]; 
   for(int il=0; il<size; il++)
     thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
 
@@ -133,12 +130,14 @@ void TripletGenerator::hitTriplets(
       PixelRecoRange<float>  rzRange( rz[0] - rzTolerance, rz[1] + rzTolerance);
 
       // Get third hit candidates from cache
-      LayerHitMapLoop thirdHits = thirdHitMap[il]->loop(phiRange, rzRange);
-      const SeedingHit * th;
-      while( (th = thirdHits.getHit()) )
+      typedef RecHitsSortedInPhi::Hit Hit;
+      vector<Hit> thirdHits = thirdHitMap[il]->hits(phiRange.min(),phiRange.max());
+      typedef vector<Hit>::const_iterator IH;
+
+      for (IH th=thirdHits.begin(), eh=thirdHits.end(); th < eh; ++th) 
       {
         // Fill rechit and point
-        recHits[2] = *th;
+        recHits[2] = (*th)->hit();
         points[2]  = getGlobalPosition(recHits[2]);
 
 #ifdef Debug

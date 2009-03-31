@@ -1,5 +1,6 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/BeamHaloPairGenerator.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
+typedef TransientTrackingRecHit::ConstRecHitPointer SeedingHit;
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace ctfseeding;
