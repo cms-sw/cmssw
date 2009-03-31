@@ -610,7 +610,7 @@ void HistoPhoton::fill( const Photon * photon, uint iE, double weight )
      }
 
    ////////////////// plot quantitied related to conversions
-    std::vector<reco::ConversionRef> conversions = (*photon).conversions();
+    reco::ConversionRefVector conversions = (*photon).conversions();
  
     for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
 
