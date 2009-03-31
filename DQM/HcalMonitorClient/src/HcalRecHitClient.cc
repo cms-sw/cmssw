@@ -19,6 +19,11 @@ void HcalRecHitClient::init(const ParameterSet& ps, DQMStore* dbe,string clientN
 
   // Set histograms to NULL
   ProblemRecHits=0;
+  h_HBEnergy_1D=0;
+  h_HEEnergy_1D=0;
+  h_HOEnergy_1D=0;
+  h_HFEnergy_1D=0;
+
   for (int i=0;i<6;++i)
     {
       // Set each array's pointers to NULL
@@ -29,6 +34,10 @@ void HcalRecHitClient::init(const ParameterSet& ps, DQMStore* dbe,string clientN
       EnergyThreshByDepth[i]      =0;
       TimeByDepth[i]              =0;
       TimeThreshByDepth[i]        =0;
+      SumEnergyByDepth[i]            =0;
+      SumEnergyThreshByDepth[i]      =0;
+      SumTimeByDepth[i]              =0;
+      SumTimeThreshByDepth[i]        =0;
     }  
 
   if (rechitclient_makeDiagnostics_)
@@ -135,11 +144,16 @@ void HcalRecHitClient::setup(void)
 
 void HcalRecHitClient::cleanup(void) 
 {
-  if(cloneME_)
+  // leave deletions to framework
+  if(1<0 && cloneME_)
     {
       // delete individual histogram pointers
       if (ProblemRecHits) delete ProblemRecHits;
-      
+      if (h_HBEnergy_1D) delete h_HBEnergy_1D;
+      if (h_HEEnergy_1D) delete h_HEEnergy_1D;
+      if (h_HOEnergy_1D) delete h_HOEnergy_1D;
+      if (h_HFEnergy_1D) delete h_HFEnergy_1D;
+
       for (int i=0;i<6;++i)
 	{
 	  // delete pointers within arrays of histograms
@@ -150,6 +164,11 @@ void HcalRecHitClient::cleanup(void)
 	  if (EnergyThreshByDepth[i])             delete EnergyThreshByDepth[i];
 	  if (TimeByDepth[i])                     delete TimeByDepth[i];
 	  if (TimeThreshByDepth[i])               delete TimeThreshByDepth[i];
+	  if (SumEnergyByDepth[i])                   delete EnergyByDepth[i];
+	  if (SumEnergyThreshByDepth[i])             delete EnergyThreshByDepth[i];
+	  if (SumTimeByDepth[i])                     delete TimeByDepth[i];
+	  if (SumTimeThreshByDepth[i])               delete TimeThreshByDepth[i];
+
 	}
       
       if (rechitclient_makeDiagnostics_)
@@ -194,8 +213,13 @@ void HcalRecHitClient::cleanup(void)
       
     } // if (cloneME_)
 
+  /*
   // Set individual pointers to NULL
   ProblemRecHits = 0;
+  h_HBEnergy_1D=0;
+  h_HEEnergy_1D=0;
+  h_HOEnergy_1D=0;
+  h_HFEnergy_1D=0;
 
   for (int i=0;i<6;++i)
     {
@@ -206,6 +230,10 @@ void HcalRecHitClient::cleanup(void)
       EnergyThreshByDepth[i]      =0;
       TimeByDepth[i]              =0;
       TimeThreshByDepth[i]        =0;
+      SumEnergyByDepth[i]            =0;
+      SumEnergyThreshByDepth[i]      =0;
+      SumTimeByDepth[i]              =0;
+      SumTimeThreshByDepth[i]        =0;
     }
   
   if (rechitclient_makeDiagnostics_)
@@ -246,6 +274,7 @@ void HcalRecHitClient::cleanup(void)
       d_HFThreshTime              =0;
       d_HFThreshOccupancy         =0;
     } // if (rechitclient_makeDiagnostics_)
+  */
 
   dqmReportMapErr_.clear(); 
   dqmReportMapWarn_.clear(); 
@@ -296,6 +325,18 @@ void HcalRecHitClient::getHistograms()
   if (ievt_>0)
     ProblemRecHits->Scale(1./ievt_);
 
+  name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HB_energy_1D";
+  h_HBEnergy_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
+  name.str("");
+  name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HE_energy_1D";
+  h_HEEnergy_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
+  name.str("");
+name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HO_energy_1D";
+  h_HOEnergy_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
+  name.str("");
+name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HF_energy_1D";
+  h_HFEnergy_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
+  name.str("");
   getSJ6histos("RecHitMonitor_Hcal/problem_rechits/", " Problem RecHit Rate", ProblemRecHitsByDepth);
   getSJ6histos("RecHitMonitor_Hcal/rechit_info/","Rec Hit Occupancy", OccupancyByDepth);
   getSJ6histos("RecHitMonitor_Hcal/rechit_info_threshold/","Above Threshold Rec Hit Occupancy", OccupancyThreshByDepth);
@@ -315,6 +356,11 @@ void HcalRecHitClient::getHistograms()
 	  TimeThreshByDepth[i]->Scale(1./ievt_);
 	}
     }
+  getSJ6histos("RecHitMonitor_Hcal/rechit_info/sumplots/","Rec Hit Summed Energy", SumEnergyByDepth, "GeV");
+  getSJ6histos("RecHitMonitor_Hcal/rechit_info_threshold/sumplots/","Above Threshold Rec Hit Summed Energy", SumEnergyThreshByDepth, "GeV");
+  getSJ6histos("RecHitMonitor_Hcal/rechit_info/sumplots/","Rec Hit Summed Time", SumTimeByDepth, "nS");
+  getSJ6histos("RecHitMonitor_Hcal/rechit_info_threshold/sumplots/","Above Threshold Rec Hit Summed Time", SumTimeThreshByDepth, "nS");
+
   if (rechitclient_makeDiagnostics_)
     {
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hb/HB_energy";
@@ -965,6 +1011,19 @@ void HcalRecHitClient::loadHistograms(TFile* infile)
   ProblemRecHits = (TH2F*)infile->Get(name.str().c_str());
   name.str("");
   
+  name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HB_energy_1D";
+  h_HBEnergy_1D=(TH1F*)infile->Get(name.str().c_str());
+  name.str("");
+  name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HE_energy_1D";
+  h_HEEnergy_1D=(TH1F*)infile->Get(name.str().c_str());
+  name.str("");
+  name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HO_energy_1D";
+  h_HOEnergy_1D=(TH1F*)infile->Get(name.str().c_str());
+  name.str("");
+  name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HF_energy_1D";
+  h_HFEnergy_1D=(TH1F*)infile->Get(name.str().c_str());
+  name.str("");
+
   for (int i=0;i<6;++i)
     {
       // Grab arrays of histograms
@@ -990,6 +1049,20 @@ void HcalRecHitClient::loadHistograms(TFile* infile)
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info_threshold/"<<subdets_[i]<<"Above Threshold Rec Hit Average nS";
       TimeThreshByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
+      name.str("");
+
+      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info/sumplots/"<<subdets_[i]<<"Rec Hit Summed Energy";
+      SumEnergyByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
+      name.str("");
+      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info_threshold/sumplots/"<<subdets_[i]<<"Above Threshold Rec Hit Summed Energy GeV";
+      SumEnergyThreshByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
+      name.str("");
+      
+      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info/sumplots/"<<subdets_[i]<<"Rec Hit Summed Time";
+      SumTimeByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
+      name.str("");
+      name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info_threshold/sumplots/"<<subdets_[i]<<"Above Threshold Rec Hit Summed nS";
+      SumTimeThreshByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
     } //for (int i=0;i<6;++i)
 

@@ -222,7 +222,8 @@ void HcalDeadCellClient::setup(void)
 
 void HcalDeadCellClient::cleanup(void) 
 {
-  if(cloneME_)
+  // leave deletions to framework
+  if(1<0 && cloneME_)
     {
       // delete individual histogram pointers
       if (ProblemDeadCells) delete ProblemDeadCells;
@@ -258,6 +259,7 @@ void HcalDeadCellClient::cleanup(void)
     }
 
   // Set individual pointers to NULL
+  /*
   ProblemDeadCells = 0;
 
   for (int i=0;i<6;++i)
@@ -286,6 +288,7 @@ void HcalDeadCellClient::cleanup(void)
       d_HFrechitenergy=0;
       d_HFenergyVsNeighbor=0;
     } // if (deadclient_makeDiagnostics_)
+  */
 
   dqmReportMapErr_.clear(); 
   dqmReportMapWarn_.clear(); 
@@ -322,7 +325,7 @@ void HcalDeadCellClient::getHistograms()
     string s = me->valueString();
     ievt_ = -1;
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-    if ( debug_>1 ) cout << "Found '" << name.str().c_str() << "'" << endl;
+    if ( debug_>1 ) std::cout << "Found '" << name.str().c_str() << "'" << std::endl;
   }
 
 
@@ -368,7 +371,6 @@ void HcalDeadCellClient::getHistograms()
     {
       if (ProblemDeadCells && ievt_>0)
 	{
-	  cout <<"ievt = "<<ievt_<<endl;
 	  ProblemDeadCells->Scale(1./ievt_);
 	  ProblemDeadCells->SetMaximum(1);
 	  ProblemDeadCells->SetMinimum(0);

@@ -17,7 +17,7 @@ void HcalDigiClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
     }
 
   if (debug_>0)
-    cout <<"<HcalDigiClient> init(const ParameterSet& ps, QMStore* dbe, string clientName)"<<std::endl;
+    std::cout <<"<HcalDigiClient> init(const ParameterSet& ps, QMStore* dbe, string clientName)"<<std::endl;
 
   //errorFrac_=ps.getUntrackedParameter<double>("digiErrorFrac",0.05);
 
@@ -111,7 +111,7 @@ void HcalDigiClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
 } // void HcalDigiClient::init(...)
 
 HcalDigiClient::~HcalDigiClient(){
-  cleanup();
+  //cleanup();
 }
 
 void HcalDigiClient::beginJob(void){
@@ -162,7 +162,8 @@ void HcalDigiClient::setup(void) {
 
 void HcalDigiClient::cleanup(void) 
 {
-  if ( cloneME_ ) 
+  // let framework deal with deleting pointers
+  if ( 1<0 && cloneME_ ) 
     {
       if (hbHists.shape) delete hbHists.shape;
       if (heHists.shape) delete heHists.shape;
@@ -239,6 +240,7 @@ void HcalDigiClient::cleanup(void)
 	}
     } // if (cloneME_)
 
+  /*
   hbHists.shape   =0;
   heHists.shape   =0;
   hoHists.shape   =0;
@@ -313,7 +315,7 @@ void HcalDigiClient::cleanup(void)
       hfHists.TS_sum_plus[i]=0;
       hfHists.TS_sum_minus[i]=0;
     }
-
+  */
   dqmReportMapErr_.clear(); 
   dqmReportMapWarn_.clear(); 
   dqmReportMapOther_.clear();

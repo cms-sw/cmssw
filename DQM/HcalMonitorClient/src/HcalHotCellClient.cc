@@ -270,7 +270,8 @@ void HcalHotCellClient::cleanup(void)
       cpu_timer.reset(); cpu_timer.start();
     }
 
-  if(cloneME_)
+  // leave deletes to framework
+  if(1<0 && cloneME_)
     {
       // delete individual histogram pointers
       if (ProblemHotCells) delete ProblemHotCells;
@@ -312,6 +313,7 @@ void HcalHotCellClient::cleanup(void)
     }
 
   // Set individual pointers to NULL
+  /*
   ProblemHotCells = 0;
 
   for (int i=0;i<6;++i)
@@ -345,7 +347,7 @@ void HcalHotCellClient::cleanup(void)
       d_ZDCenergyVsNeighbor=0;
 
     } // if (hotclient_makeDiagnostics_)
-
+  */
   dqmReportMapErr_.clear(); 
   dqmReportMapWarn_.clear(); 
   dqmReportMapOther_.clear();

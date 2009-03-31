@@ -5,8 +5,8 @@
  * \file HcalSummaryClient.h
  *
  * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2009/01/21 15:04:11 $
- * $Revision: 1.15 $
+ * $Date: 2009/03/28 14:03:24 $
+ * $Revision: 1.15.2.2 $
  * \author Jeff Temple
  *
 */

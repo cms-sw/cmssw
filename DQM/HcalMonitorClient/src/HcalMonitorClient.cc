@@ -15,6 +15,8 @@ HcalMonitorClient::HcalMonitorClient(){}
 HcalMonitorClient::~HcalMonitorClient(){
 
   if (debug_>0) cout << "HcalMonitorClient: Exit ..." << endl;
+  /*
+    // leave deletions to code framework?
   if( summary_client_ )    delete summary_client_;
   if( dataformat_client_ ) delete dataformat_client_;
   if( digi_client_ )       delete digi_client_;
@@ -30,7 +32,7 @@ HcalMonitorClient::~HcalMonitorClient(){
   if (dqm_db_)             delete dqm_db_;
   //if( dbe_ )               delete dbe_;
   if( mui_ )               delete mui_;
- 
+  */
   if (debug_>1) std::cout <<"HcalMonitorClient: Finished destructor..."<<endl;
 }
 

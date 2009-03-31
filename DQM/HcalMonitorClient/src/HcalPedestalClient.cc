@@ -88,7 +88,7 @@ HcalPedestalClient::~HcalPedestalClient()
 
 void HcalPedestalClient::beginJob(const EventSetup& eventSetup){
 
-  if ( debug_ ) cout << "HcalPedestalClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "HcalPedestalClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -99,7 +99,7 @@ void HcalPedestalClient::beginJob(const EventSetup& eventSetup){
 
 void HcalPedestalClient::beginRun(void)
 {
-  if ( debug_ ) cout << "HcalPedestalClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "HcalPedestalClient: beginRun" << std::endl;
 
   jevt_ = 0;
   this->setup();
@@ -110,7 +110,7 @@ void HcalPedestalClient::beginRun(void)
 
 void HcalPedestalClient::endJob(void) 
 {
-  if ( debug_ ) cout << "HcalPedestalClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "HcalPedestalClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
   return;
@@ -119,7 +119,7 @@ void HcalPedestalClient::endJob(void)
 
 void HcalPedestalClient::endRun(void) 
 {
-  if ( debug_ ) cout << "HcalPedestalClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "HcalPedestalClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
   return;
@@ -236,7 +236,7 @@ void HcalPedestalClient::cleanup(void)
 void HcalPedestalClient::report()
 {
   if(!dbe_) return;
-  if ( debug_ ) cout << "HcalPedestalClient: report" << endl;
+  if ( debug_ ) std::cout << "HcalPedestalClient: report" << std::endl;
   this->setup();
 
   getHistograms();
@@ -257,7 +257,7 @@ void HcalPedestalClient::getHistograms()
     string s = me->valueString();
     ievt_ = -1;
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-    if ( debug_ ) cout << "Found '" << name.str().c_str() << "'" << endl;
+    if ( debug_ ) std::cout << "Found '" << name.str().c_str() << "'" << std::endl;
   }
   name.str("");
 
@@ -337,7 +337,7 @@ void HcalPedestalClient::analyze(void)
   jevt_++;
   if ( jevt_ % 10 == 0 ) 
     {
-      if ( debug_ ) cout << "<HcalPedestalClient::analyze>  Running analyze "<<endl;
+      if ( debug_ ) std::cout << "<HcalPedestalClient::analyze>  Running analyze "<<std::endl;
     }
   getHistograms();
   return;
@@ -465,7 +465,7 @@ void HcalPedestalClient::htmlOutput(int runNo, string htmlDir, string htmlName)
       cpu_timer.reset(); cpu_timer.start();
     }
 
-  if (debug_) cout << "Preparing HcalPedestalClient html output ..." << endl;
+  if (debug_) std::cout << "Preparing HcalPedestalClient html output ..." << std::endl;
 
   string client = "PedestalMonitor";
 
@@ -473,58 +473,58 @@ void HcalPedestalClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   htmlFile.open((htmlDir + htmlName).c_str());
 
   // html page header
-  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
-  htmlFile << "<html>  " << endl;
-  htmlFile << "<head>  " << endl;
-  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
-  htmlFile << " http-equiv=\"content-type\">  " << endl;
-  htmlFile << "  <title>Monitor: Hcal Pedestal Task output</title> " << endl;
-  htmlFile << "</head>  " << endl;
-  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
-  htmlFile << "<body>  " << endl;
-  htmlFile << "<br>  " << endl;
-  htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << endl;
-  htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal Pedestals</span></h2> " << endl;
+  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << std::endl;
+  htmlFile << "<html>  " << std::endl;
+  htmlFile << "<head>  " << std::endl;
+  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << std::endl;
+  htmlFile << " http-equiv=\"content-type\">  " << std::endl;
+  htmlFile << "  <title>Monitor: Hcal Pedestal Task output</title> " << std::endl;
+  htmlFile << "</head>  " << std::endl;
+  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << std::endl;
+  htmlFile << "<body>  " << std::endl;
+  htmlFile << "<br>  " << std::endl;
+  htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << std::endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << std::endl;
+  htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal Pedestals</span></h2> " << std::endl;
 
-  htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
-  htmlFile << "<hr>" << endl;
+  htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << std::endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << std::endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << std::endl;
+  htmlFile << "<hr>" << std::endl;
 
-  htmlFile << "<h2><strong>Hcal Pedestal Status</strong></h2>" << endl;
-  htmlFile << "<h3>" << endl;
-  htmlFile << "</h3>" << endl;
+  htmlFile << "<h2><strong>Hcal Pedestal Status</strong></h2>" << std::endl;
+  htmlFile << "<h3>" << std::endl;
+  htmlFile << "</h3>" << std::endl;
 
-  htmlFile << "<table align=\"center\" border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile << "<table align=\"center\" border=\"0\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
+  htmlFile << "<tr align=\"center\">" << std::endl;
   gStyle->SetPalette(20,pcol_error_); // set palette to standard error color scheme
   htmlAnyHisto(runNo,ProblemPedestals,"i#eta","i#phi", 92, htmlFile, htmlDir);
-  htmlFile<<"</tr>"<<endl;
+  htmlFile<<"</tr>"<<std::endl;
   htmlFile<<"<tr align=\"center\"><td> A pedestal is considered problematic if its mean differs from the nominal mean value of "<<nominalPedMeanInADC_<<" by more than "<<maxPedMeanDiffADC_<<" ADC counts.<br>";
-  htmlFile<<"It is also considered problematic if its RMS differs from the nominal RMS of "<<nominalPedWidthInADC_<<" by more than "<<maxPedWidthDiffADC_<<" ADC counts.<br>"<<endl;
-  htmlFile<<"</tr></table>"<<endl;
-  htmlFile<<"<hr><table align=\"center\" border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-  htmlFile<<"<tr><td align=center><a href=\"Expert_"<< htmlName<<"\"><h2>Detailed Pedestal Plots</h2> </a></br></td>"<<endl;
-  htmlFile<<"</tr></table><br><hr>"<<endl;
+  htmlFile<<"It is also considered problematic if its RMS differs from the nominal RMS of "<<nominalPedWidthInADC_<<" by more than "<<maxPedWidthDiffADC_<<" ADC counts.<br>"<<std::endl;
+  htmlFile<<"</tr></table>"<<std::endl;
+  htmlFile<<"<hr><table align=\"center\" border=\"0\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
+  htmlFile << "<tr align=\"center\">" << std::endl;
+  htmlFile<<"<tr><td align=center><a href=\"Expert_"<< htmlName<<"\"><h2>Detailed Pedestal Plots</h2> </a></br></td>"<<std::endl;
+  htmlFile<<"</tr></table><br><hr>"<<std::endl;
   
   // Now print out problem cells
-  htmlFile <<"<br>"<<endl;
-  htmlFile << "<h2><strong>Hcal Problem Cells</strong></h2>" << endl;
-  htmlFile << "(A problem cell is listed below if its failure rate exceeds "<<(100.*minErrorFlag_)<<"%).<br><br>"<<endl;
-  htmlFile << "<table align=\"center\" border=\"1\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-  htmlFile <<"<td> Problem Cells<br>(ieta, iphi, depth)</td><td align=\"center\"> Fraction of Events <br>in which cells are bad (%)</td><td align=\"center\"> Mean (ADC)</td><td align=\"center\"> RMS (ADC)</td></tr>"<<endl;
+  htmlFile <<"<br>"<<std::endl;
+  htmlFile << "<h2><strong>Hcal Problem Cells</strong></h2>" << std::endl;
+  htmlFile << "(A problem cell is listed below if its failure rate exceeds "<<(100.*minErrorFlag_)<<"%).<br><br>"<<std::endl;
+  htmlFile << "<table align=\"center\" border=\"1\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
+  htmlFile << "<tr align=\"center\">" << std::endl;
+  htmlFile <<"<td> Problem Cells<br>(ieta, iphi, depth)</td><td align=\"center\"> Fraction of Events <br>in which cells are bad (%)</td><td align=\"center\"> Mean (ADC)</td><td align=\"center\"> RMS (ADC)</td></tr>"<<std::endl;
 
   if (ProblemPedestals==0)
     {
-      cout <<"<HcalPedestalClient::htmlOutput>  ERROR: can't find ProblemPedestal plot!"<<endl;
+      std::cout <<"<HcalPedestalClient::htmlOutput>  ERROR: can't find ProblemPedestal plot!"<<std::endl;
       return;
     }
   int etabins  = ProblemPedestals->GetNbinsX();
@@ -557,7 +557,7 @@ void HcalPedestalClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 		    (fabs(eta)<42) ? name<<"HO" : name<<"ZDC";
 		  else name <<"HE";
 		  if (MeanMapByDepth[depth]!=0 && RMSMapByDepth[depth]!=0)
-		    htmlFile<<"<td>"<<name.str().c_str()<<" ("<<eta<<", "<<phi<<", "<<mydepth<<")</td><td align=\"center\">"<<ProblemPedestalsByDepth[depth]->GetBinContent(ieta,iphi)*100.<<"</td><td align=\"center\"> "<<MeanMapByDepth[depth]->GetBinContent(ieta,iphi)<<" </td>  <td align=\"center\">"<<RMSMapByDepth[depth]->GetBinContent(ieta,iphi)<<"</td></tr>"<<endl;
+		    htmlFile<<"<td>"<<name.str().c_str()<<" ("<<eta<<", "<<phi<<", "<<mydepth<<")</td><td align=\"center\">"<<ProblemPedestalsByDepth[depth]->GetBinContent(ieta,iphi)*100.<<"</td><td align=\"center\"> "<<MeanMapByDepth[depth]->GetBinContent(ieta,iphi)<<" </td>  <td align=\"center\">"<<RMSMapByDepth[depth]->GetBinContent(ieta,iphi)<<"</td></tr>"<<std::endl;
 		  name.str("");
 		}
 	    } // for (int iphi=1;...)
@@ -566,16 +566,16 @@ void HcalPedestalClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   
   
   // html page footer
-  htmlFile <<"</table> " << endl;
-  htmlFile << "</body> " << endl;
-  htmlFile << "</html> " << endl;
+  htmlFile <<"</table> " << std::endl;
+  htmlFile << "</body> " << std::endl;
+  htmlFile << "</html> " << std::endl;
 
   htmlFile.close();
   htmlExpertOutput(runNo, htmlDir, htmlName);
 
   if (showTiming_)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalPedestalClient HTMLOUTPUT  -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalPedestalClient HTMLOUTPUT  -> "<<cpu_timer.cpuTime()<<std::endl;
     }
 
   return;
@@ -592,7 +592,7 @@ void HcalPedestalClient::htmlExpertOutput(int runNo, string htmlDir, string html
     }
 
   if (debug_) 
-    cout <<" <HcalPedestalClient::htmlExpertOutput>  Preparing Expert html output ..." <<endl;
+    std::cout <<" <HcalPedestalClient::htmlExpertOutput>  Preparing Expert html output ..." <<std::endl;
   
   string client = "PedestalMonitor";
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_); // does this do anything?
@@ -601,214 +601,214 @@ ofstream htmlFile;
   htmlFile.open((htmlDir +"Expert_"+ htmlName).c_str());
 
   // html page header
-  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
-  htmlFile << "<html>  " << endl;
-  htmlFile << "<head>  " << endl;
-  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
-  htmlFile << " http-equiv=\"content-type\">  " << endl;
-  htmlFile << "  <title>Monitor: Hcal Pedestal Task output</title> " << endl;
-  htmlFile << "</head>  " << endl;
-  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
-  htmlFile << "<body>  " << endl;
-  htmlFile <<"<a name=\"EXPERT_PEDESTAL_TOP\" href = \".\"> Back to Main HCAL DQM Page </a><br>"<<endl;
-  htmlFile <<"<a href= \""<<htmlName.c_str()<<"\" > Back to Pedestal Status Page </a><br>"<<endl;
-  htmlFile << "<br>  " << endl;
-  htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << endl;
-  htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal Pedestals</span></h2> " << endl;
-  htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
-  htmlFile << "<hr>" << endl;
+  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << std::endl;
+  htmlFile << "<html>  " << std::endl;
+  htmlFile << "<head>  " << std::endl;
+  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << std::endl;
+  htmlFile << " http-equiv=\"content-type\">  " << std::endl;
+  htmlFile << "  <title>Monitor: Hcal Pedestal Task output</title> " << std::endl;
+  htmlFile << "</head>  " << std::endl;
+  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << std::endl;
+  htmlFile << "<body>  " << std::endl;
+  htmlFile <<"<a name=\"EXPERT_PEDESTAL_TOP\" href = \".\"> Back to Main HCAL DQM Page </a><br>"<<std::endl;
+  htmlFile <<"<a href= \""<<htmlName.c_str()<<"\" > Back to Pedestal Status Page </a><br>"<<std::endl;
+  htmlFile << "<br>  " << std::endl;
+  htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << std::endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << std::endl;
+  htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal Pedestals</span></h2> " << std::endl;
+  htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << std::endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << std::endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << std::endl;
+  htmlFile << "<hr>" << std::endl;
 
-  htmlFile << "<table width=100%  border = 1>"<<endl;
-  htmlFile << "<tr><td align=\"center\" colspan=2><a href=\"#OVERALL_PEDS\">Pedestal Mean and RMS Maps </a></td></tr>"<<endl;
-  htmlFile << "<tr><td align=\"center\"><a href=\"#RAW_ADC\">Pedestals in ADC counts</a></td>"<<endl;
-  htmlFile << "<td align=\"center\"><a href=\"#RAW_fC\">Pedestals in femtoCoulombs</a></td></tr>"<<endl;
-  htmlFile << "<tr><td align=\"center\" colspan=2><a href=\"#PROBLEM_PEDS\">Problem Pedestals</a></td></tr>"<<endl;
-  htmlFile <<"</table>"<<endl;
-  htmlFile <<"<br><br>"<<endl;
+  htmlFile << "<table width=100%  border = 1>"<<std::endl;
+  htmlFile << "<tr><td align=\"center\" colspan=2><a href=\"#OVERALL_PEDS\">Pedestal Mean and RMS Maps </a></td></tr>"<<std::endl;
+  htmlFile << "<tr><td align=\"center\"><a href=\"#RAW_ADC\">Pedestals in ADC counts</a></td>"<<std::endl;
+  htmlFile << "<td align=\"center\"><a href=\"#RAW_fC\">Pedestals in femtoCoulombs</a></td></tr>"<<std::endl;
+  htmlFile << "<tr><td align=\"center\" colspan=2><a href=\"#PROBLEM_PEDS\">Problem Pedestals</a></td></tr>"<<std::endl;
+  htmlFile <<"</table>"<<std::endl;
+  htmlFile <<"<br><br>"<<std::endl;
 
 
-  htmlFile << "<h2><strong><a name=\"OVERALL_PEDS\">2D Maps of Pedestal Means and RMS Values</strong></h2>"<<endl;
-  htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<endl;
-  htmlFile <<"These plots show the calculated Mean and RMS of each cell in eta-phi space.<br>"<<endl;
-  htmlFile <<"These plots are used for determining problem pedestals."<<endl;
-  htmlFile <<"A pedestal is considered to be a problem if its mean is outside the range "<<nominalPedMeanInADC_<<" +/- "<<maxPedMeanDiffADC_<<" ADC counts, <br>"<<endl;
-  htmlFile <<"or if its RMS value is outside the range "<<nominalPedWidthInADC_<<" +/- "<<maxPedWidthDiffADC_<<" ADC counts.<br>"<<endl;
+  htmlFile << "<h2><strong><a name=\"OVERALL_PEDS\">2D Maps of Pedestal Means and RMS Values</strong></h2>"<<std::endl;
+  htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<std::endl;
+  htmlFile <<"These plots show the calculated Mean and RMS of each cell in eta-phi space.<br>"<<std::endl;
+  htmlFile <<"These plots are used for determining problem pedestals."<<std::endl;
+  htmlFile <<"A pedestal is considered to be a problem if its mean is outside the range "<<nominalPedMeanInADC_<<" +/- "<<maxPedMeanDiffADC_<<" ADC counts, <br>"<<std::endl;
+  htmlFile <<"or if its RMS value is outside the range "<<nominalPedWidthInADC_<<" +/- "<<maxPedWidthDiffADC_<<" ADC counts.<br>"<<std::endl;
   // Depths are stored as:  0:  HB/HF depth 1, 1:  HB/HF 2, 2:  HE 3, 3:  HO/ZDC, 4: HE 1, 5:  HE2
   // remap so that HE depths are plotted consecutively
   int mydepth[6]={0,1,4,5,2,3};
 
-  htmlFile << "<table \align=\"center\" border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
-  htmlFile <<"<tr><td> Pedestal Mean </td><td> Pedestal RMS </td></tr>"<<endl;
+  htmlFile << "<table \align=\"center\" border=\"0\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
+  htmlFile <<"<tr><td> Pedestal Mean </td><td> Pedestal RMS </td></tr>"<<std::endl;
   gStyle->SetPalette(1);
   for (int i=0;i<6;++i)
     {
-      htmlFile << "<tr align=\"left\">" << endl;
+      htmlFile << "<tr align=\"left\">" << std::endl;
       MeanMapByDepth[mydepth[i]]->SetMinimum(0);
       MeanMapByDepth[mydepth[i]]->SetMaximum(2*nominalPedMeanInADC_);
       htmlAnyHisto(runNo,MeanMapByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       RMSMapByDepth[mydepth[i]]->SetMinimum(0);
       RMSMapByDepth[mydepth[i]]->SetMaximum(2*nominalPedMeanInADC_);
       htmlAnyHisto(runNo,RMSMapByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
     }
-  htmlFile <<"</table>"<<endl;
-  htmlFile <<"<br><hr><br>"<<endl;
+  htmlFile <<"</table>"<<std::endl;
+  htmlFile <<"<br><hr><br>"<<std::endl;
   
   // Plot Pedestal Mean and RMS values
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
   gStyle->SetPalette(1); // set back to normal rainbow color
   
   // Pedestals (ADC)
-  htmlFile << "<h2><strong><a name=\"RAW_ADC\">Pedestals in ADC</strong></h2>"<<endl;
-  htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<endl;
-  htmlFile <<" Measured Pedestal means come directly from ADC values in cell digis.<br>"<<endl;
-  htmlFile <<" Reference pedestal values from the database are converted from fC.<br>"<<endl;
-  htmlFile <<" The conversion of database widths from fC to ADC is still being checked, and may not be correct.<br><br>"<<endl;
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" style = \"width: 100%\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile << "<h2><strong><a name=\"RAW_ADC\">Pedestals in ADC</strong></h2>"<<std::endl;
+  htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<std::endl;
+  htmlFile <<" Measured Pedestal means come directly from ADC values in cell digis.<br>"<<std::endl;
+  htmlFile <<" Reference pedestal values from the database are converted from fC.<br>"<<std::endl;
+  htmlFile <<" The conversion of database widths from fC to ADC is still being checked, and may not be correct.<br><br>"<<std::endl;
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" style = \"width: 100%\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
 
   gStyle->SetPalette(1); //set back to normal rainbow color
-  htmlFile <<"<tr align=\"center\"><td>Calculated Pedestal Mean</td><td>Mean from Database</td>"<<endl;
-  htmlFile<<"<td>Subtracted (Calculated-Database)</td></tr>"<<endl;
+  htmlFile <<"<tr align=\"center\"><td>Calculated Pedestal Mean</td><td>Mean from Database</td>"<<std::endl;
+  htmlFile<<"<td>Subtracted (Calculated-Database)</td></tr>"<<std::endl;
   for (int i=0;i<6;++i)
     {
-      htmlFile << "<tr align=\"left\">" << endl;
+      htmlFile << "<tr align=\"left\">" << std::endl;
       htmlAnyHisto(runNo,rawADCPedestalMean[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,ADC_PedestalFromDBByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,subADCPedestalMean[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
     }
-  htmlFile <<"<tr align=\"center\"><td>Calculated Pedestal Width</td><td>Width from Database</td>"<<endl;
-  htmlFile<<"<td>Subtracted (Calculated-Database)</td></tr>"<<endl;
+  htmlFile <<"<tr align=\"center\"><td>Calculated Pedestal Width</td><td>Width from Database</td>"<<std::endl;
+  htmlFile<<"<td>Subtracted (Calculated-Database)</td></tr>"<<std::endl;
   for (int i=0;i<6;++i)
     {
-      htmlFile << "<tr align=\"left\">" << endl;
+      htmlFile << "<tr align=\"left\">" << std::endl;
       htmlAnyHisto(runNo,rawADCPedestalRMS[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,ADC_WidthFromDBByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,subADCPedestalRMS[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
     }
 
   // Draw 1-D histograms
-  htmlFile <<"</table><br>"<<endl;
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
-  htmlFile <<"<tr align=\"center\"><td>1D Pedestal Means (calculated)</td><td>1D Pedestal Means (from Database)</td>"<<endl;
-  htmlFile <<"<td>Subtracted Means (Calculated - Database)</td></tr>"<<endl;
+  htmlFile <<"</table><br>"<<std::endl;
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
+  htmlFile <<"<tr align=\"center\"><td>1D Pedestal Means (calculated)</td><td>1D Pedestal Means (from Database)</td>"<<std::endl;
+  htmlFile <<"<td>Subtracted Means (Calculated - Database)</td></tr>"<<std::endl;
   for (int i=0;i<6;++i)
     {
-      htmlFile << "<tr align=\"left\">" << endl;
+      htmlFile << "<tr align=\"left\">" << std::endl;
       htmlAnyHisto(runNo,rawADCPedestalMean_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,ADC_PedestalFromDBByDepth_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,subADCPedestalMean_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
     }
-  htmlFile <<"<tr align=\"center\"><td>1D Pedestal Widths (calculated)</td><td>1D Pedestal Widths (from Database)</td>"<<endl;
-  htmlFile <<"<td>Subtracted Widths (Calculated - Database)</td></tr>"<<endl;
+  htmlFile <<"<tr align=\"center\"><td>1D Pedestal Widths (calculated)</td><td>1D Pedestal Widths (from Database)</td>"<<std::endl;
+  htmlFile <<"<td>Subtracted Widths (Calculated - Database)</td></tr>"<<std::endl;
   for (int i=0;i<6;++i)
     {
-      htmlFile << "<tr align=\"left\">" << endl;
+      htmlFile << "<tr align=\"left\">" << std::endl;
       htmlAnyHisto(runNo,rawADCPedestalRMS_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,ADC_WidthFromDBByDepth_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,subADCPedestalRMS_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
     }
-  htmlFile <<"</table>"<<endl;
-  htmlFile <<"<br><hr><br>"<<endl;
+  htmlFile <<"</table>"<<std::endl;
+  htmlFile <<"<br><hr><br>"<<std::endl;
 
    // Raw Pedestals (fC)
-  htmlFile << "<h2><strong><a name=\"RAW_fC\">Pedestals in femtoCoulombs (fC)</strong></h2>"<<endl;
-  htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<endl;
-  htmlFile <<" Measured Pedestal means and widths are calculated from fC values converted from the ADC counts stored in cell digis.<br>"<<endl;
-  htmlFile <<" Reference pedestal values are read directly from the database values (in fC).<br>"<<endl;
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile << "<h2><strong><a name=\"RAW_fC\">Pedestals in femtoCoulombs (fC)</strong></h2>"<<std::endl;
+  htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<std::endl;
+  htmlFile <<" Measured Pedestal means and widths are calculated from fC values converted from the ADC counts stored in cell digis.<br>"<<std::endl;
+  htmlFile <<" Reference pedestal values are read directly from the database values (in fC).<br>"<<std::endl;
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
   gStyle->SetPalette(1); //set back to normal rainbow color
-  htmlFile <<"<tr align=\"center\"><td>Calculated Pedestal Mean</td><td>Mean from Database</td>"<<endl;
-  htmlFile<<"<td>Subtracted (Calculated-Database)</td></tr>"<<endl;
+  htmlFile <<"<tr align=\"center\"><td>Calculated Pedestal Mean</td><td>Mean from Database</td>"<<std::endl;
+  htmlFile<<"<td>Subtracted (Calculated-Database)</td></tr>"<<std::endl;
   for (int i=0;i<6;++i)
     {
-      htmlFile << "<tr align=\"left\">" << endl;
+      htmlFile << "<tr align=\"left\">" << std::endl;
       htmlAnyHisto(runNo,rawfCPedestalMean[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,fC_PedestalFromDBByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,subfCPedestalMean[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
     }
-  htmlFile <<"<tr align=\"center\"><td>Calculated Pedestal Width</td><td>Width from Database</td>"<<endl;
-  htmlFile<<"<td>Subtracted (Calculated-Database)</td></tr>"<<endl;
+  htmlFile <<"<tr align=\"center\"><td>Calculated Pedestal Width</td><td>Width from Database</td>"<<std::endl;
+  htmlFile<<"<td>Subtracted (Calculated-Database)</td></tr>"<<std::endl;
   for (int i=0;i<6;++i)
     {
-      htmlFile << "<tr align=\"left\">" << endl;
+      htmlFile << "<tr align=\"left\">" << std::endl;
       htmlAnyHisto(runNo,rawfCPedestalRMS[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,fC_WidthFromDBByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,subfCPedestalRMS[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
     }
 
   // Draw 1-D histograms
-  htmlFile <<"</table><br>"<<endl;
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
-  htmlFile <<"<tr align=\"center\"><td>1D Pedestal Means (calculated)</td><td>1D Pedestal Means (from Database)</td>"<<endl;
-  htmlFile <<"<td>Subtracted Means (Calculated - Database)</td></tr>"<<endl;
+  htmlFile <<"</table><br>"<<std::endl;
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
+  htmlFile <<"<tr align=\"center\"><td>1D Pedestal Means (calculated)</td><td>1D Pedestal Means (from Database)</td>"<<std::endl;
+  htmlFile <<"<td>Subtracted Means (Calculated - Database)</td></tr>"<<std::endl;
   for (int i=0;i<6;++i)
     {
-      htmlFile << "<tr align=\"left\">" << endl;
+      htmlFile << "<tr align=\"left\">" << std::endl;
       htmlAnyHisto(runNo,rawfCPedestalMean_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,fC_PedestalFromDBByDepth_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,subfCPedestalMean_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
     }
-  htmlFile <<"<tr align=\"center\"><td>1D Pedestal Widths (calculated)</td><td>1D Pedestal Widths (from Database)</td>"<<endl;
-  htmlFile <<"<td>Subtracted Widths (Calculated - Database)</td></tr>"<<endl;
+  htmlFile <<"<tr align=\"center\"><td>1D Pedestal Widths (calculated)</td><td>1D Pedestal Widths (from Database)</td>"<<std::endl;
+  htmlFile <<"<td>Subtracted Widths (Calculated - Database)</td></tr>"<<std::endl;
   for (int i=0;i<6;++i)
     {
-      htmlFile << "<tr align=\"left\">" << endl;
+      htmlFile << "<tr align=\"left\">" << std::endl;
       htmlAnyHisto(runNo,rawfCPedestalRMS_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,fC_WidthFromDBByDepth_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,subfCPedestalRMS_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
     }
-  htmlFile <<"</table>"<<endl;
-  htmlFile <<"<br><hr><br>"<<endl;
+  htmlFile <<"</table>"<<std::endl;
+  htmlFile <<"<br><hr><br>"<<std::endl;
 
 
   // Plot Pedestal Plot Errors 
-  htmlFile << "<h2><strong><a name=\"PROBLEM_PEDS\">Problem Pedestals</strong></h2>"<<endl;
-  htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<endl;
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile << "<h2><strong><a name=\"PROBLEM_PEDS\">Problem Pedestals</strong></h2>"<<std::endl;
+  htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<std::endl;
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
   gStyle->SetPalette(20,pcol_error_); //set back to normal rainbow color
   for (int i=0;i<3;++i)
     {
-      htmlFile << "<tr align=\"left\">" << endl;
+      htmlFile << "<tr align=\"left\">" << std::endl;
       htmlAnyHisto(runNo,ProblemPedestalsByDepth[2*i],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlAnyHisto(runNo,ProblemPedestalsByDepth[2*i+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlFile <<"</tr>"<<endl;
+      htmlFile <<"</tr>"<<std::endl;
     }
-  htmlFile <<"</table>"<<endl;
-  htmlFile <<"<br><hr><br>"<<endl;
+  htmlFile <<"</table>"<<std::endl;
+  htmlFile <<"<br><hr><br>"<<std::endl;
 
   // html file footer
-  htmlFile <<"<br><hr><br><a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top of Page </a><br>"<<endl;
-  htmlFile <<"<a href = \".\"> Back to Main HCAL DQM Page </a><br>"<<endl;
-  htmlFile <<"<a href= \""<<htmlName.c_str()<<"\" > Back to Pedestal Status Page </a><br>"<<endl;
+  htmlFile <<"<br><hr><br><a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top of Page </a><br>"<<std::endl;
+  htmlFile <<"<a href = \".\"> Back to Main HCAL DQM Page </a><br>"<<std::endl;
+  htmlFile <<"<a href= \""<<htmlName.c_str()<<"\" > Back to Pedestal Status Page </a><br>"<<std::endl;
 
-  htmlFile << "</body> " << endl;
-  htmlFile << "</html> " << endl;
+  htmlFile << "</body> " << std::endl;
+  htmlFile << "</html> " << std::endl;
   
   htmlFile.close();
 
   if (showTiming_)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalPedestalClient  HTMLEXPERTOUTPUT ->"<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalPedestalClient  HTMLEXPERTOUTPUT ->"<<cpu_timer.cpuTime()<<std::endl;
     }
   return;
 } // void HcalPedestalClient::htmlExpertOutput(...)

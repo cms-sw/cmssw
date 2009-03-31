@@ -15,7 +15,7 @@ void HcalTrigPrimClient::init(const ParameterSet& ps, DQMStore* dbe, string clie
       cpu_timer.reset(); cpu_timer.start();
     }
 
-  if (debug_>0) cout <<"<HcalTrigPrimClient> init(const ParameterSet& ps, DQMStore* dbe, string clientName)"<<endl;
+  if (debug_>0) std::cout <<"<HcalTrigPrimClient> init(const ParameterSet& ps, DQMStore* dbe, string clientName)"<<std::endl;
 
   for(int i=0; i<10; i++) tpSpectrum_[i] = 0;
 
@@ -49,7 +49,7 @@ void HcalTrigPrimClient::init(const ParameterSet& ps, DQMStore* dbe, string clie
   
  if (showTiming_)
    {
-     cpu_timer.stop();  cout <<"TIMER:: HcalTrigPrimClient INIT  -> "<<cpu_timer.cpuTime()<<endl;
+     cpu_timer.stop();  std::cout <<"TIMER:: HcalTrigPrimClient INIT  -> "<<cpu_timer.cpuTime()<<std::endl;
     }
   return;
 } // void HcalTrigPrimClient::init(...)
@@ -59,14 +59,14 @@ HcalTrigPrimClient::~HcalTrigPrimClient(){
 }
 
 void HcalTrigPrimClient::beginJob(void){
-  if ( debug_ >0) cout << "HcalTrigPrimClient: beginJob" << endl;
+  if ( debug_ >0) std::cout << "HcalTrigPrimClient: beginJob" << std::endl;
 
   ievt_ = 0; jevt_ = 0;
   return;
 }
 
 void HcalTrigPrimClient::beginRun(void){
-  if ( debug_ >0) cout << "HcalTrigPrimClient: beginRun" << endl;
+  if ( debug_ >0) std::cout << "HcalTrigPrimClient: beginRun" << std::endl;
 
   jevt_ = 0;
   this->resetAllME();
@@ -74,7 +74,7 @@ void HcalTrigPrimClient::beginRun(void){
 }
 
 void HcalTrigPrimClient::endJob(void) {
-  if ( debug_ >0) cout << "HcalTrigPrimClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ >0) std::cout << "HcalTrigPrimClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -83,7 +83,7 @@ void HcalTrigPrimClient::endJob(void) {
 
 void HcalTrigPrimClient::endRun(void) {
 
-  if ( debug_ >0) cout << "HcalTrigPrimClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ >0) std::cout << "HcalTrigPrimClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -166,7 +166,7 @@ void HcalTrigPrimClient::analyze(void){
 
   int updates = 0;
   if ( updates % 10 == 0 ) {
-    if ( debug_ >0) cout << "HcalTrigPrimClient: " << updates << " updates" << endl;
+    if ( debug_ >0) std::cout << "HcalTrigPrimClient: " << updates << " updates" << std::endl;
   }
 
   return;
@@ -182,7 +182,7 @@ void HcalTrigPrimClient::getHistograms()
       cpu_timer.reset(); cpu_timer.start();
     }
 
-  if (debug_>0) cout <<"<HcalTrigPrimClient> getHistograms()"<<endl;
+  if (debug_>0) std::cout <<"<HcalTrigPrimClient> getHistograms()"<<std::endl;
 
 
   tpCount_ = getHisto("TrigPrimMonitor/Energy Plots/# TP Digis", process_, dbe_, debug_,cloneME_);
@@ -222,7 +222,7 @@ void HcalTrigPrimClient::getHistograms()
 
   if (showTiming_)
    {
-     cpu_timer.stop();  cout <<"TIMER:: HcalTrigPrimClient GET HISTOGRAMS  -> "<<cpu_timer.cpuTime()<<endl;
+     cpu_timer.stop();  std::cout <<"TIMER:: HcalTrigPrimClient GET HISTOGRAMS  -> "<<cpu_timer.cpuTime()<<std::endl;
     }
   return;
 } //void HcalTrigPrimClient::getHistograms()
@@ -237,7 +237,7 @@ void HcalTrigPrimClient::report()
       cpu_timer.reset(); cpu_timer.start();
     }
 
-  if ( debug_ >0) cout << "<HcalTrigPrimClient> report()" << endl;
+  if ( debug_ >0) std::cout << "<HcalTrigPrimClient> report()" << std::endl;
   
   char name[256];
   
@@ -247,13 +247,13 @@ void HcalTrigPrimClient::report()
     string s = me->valueString();
     ievt_ = -1;
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-    if ( debug_ >0) cout << "Found '" << name << "'" << endl;
+    if ( debug_ >0) std::cout << "Found '" << name << "'" << std::endl;
   }
   else printf("Didn't find %s\n",name);
   getHistograms();
   if (showTiming_)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalTrigPrimClient REPORT -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalTrigPrimClient REPORT -> "<<cpu_timer.cpuTime()<<std::endl;
     }
   return;
 } //void HcalTrigPrimClient::report()
@@ -267,7 +267,7 @@ void HcalTrigPrimClient::resetAllME()
     }
 
   if(!dbe_) return;
-  if ( debug_ >0) cout << "<HcalTrigPrimClient> resetAllME()" << endl;
+  if ( debug_ >0) std::cout << "<HcalTrigPrimClient> resetAllME()" << std::endl;
   
   char name[150];     
   sprintf(name,"%sHcal/TrigPrimMonitor/Energy Plots/# TP Digis",process_.c_str());
@@ -329,7 +329,7 @@ void HcalTrigPrimClient::resetAllME()
 
   if (showTiming_)
    {
-     cpu_timer.stop();  cout <<"TIMER:: HcalTrigPrimClient RESETALLME  -> "<<cpu_timer.cpuTime()<<endl;
+     cpu_timer.stop();  std::cout <<"TIMER:: HcalTrigPrimClient RESETALLME  -> "<<cpu_timer.cpuTime()<<std::endl;
     }
   return;
 } //void HcalTrigPrimClient::resetAllME()
@@ -341,7 +341,7 @@ void HcalTrigPrimClient::htmlOutput(int runNo, string htmlDir, string htmlName)
     {
       cpu_timer.reset(); cpu_timer.start();
     }
-  if (debug_>0) cout << "<HcalTrigPrimClient::htmlOutput> Preparing  html output ..." << endl;
+  if (debug_>0) std::cout << "<HcalTrigPrimClient::htmlOutput> Preparing  html output ..." << std::endl;
   string client = "TrigPrimMonitor";
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
 
@@ -349,120 +349,120 @@ void HcalTrigPrimClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   htmlFile.open((htmlDir + htmlName).c_str());
 
   // html page header
-  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
-  htmlFile << "<html>  " << endl;
-  htmlFile << "<head>  " << endl;
-  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
-  htmlFile << " http-equiv=\"content-type\">  " << endl;
-  htmlFile << "  <title>Monitor: Data Format Task output</title> " << endl;
-  htmlFile << "</head>  " << endl;
-  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
-  htmlFile << "<body>  " << endl;
-  htmlFile << "<br>  " << endl;
-  htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << endl;
-  htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">Data Format</span></h2> " << endl;
-  htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
-  htmlFile << "<hr>" << endl;
-  htmlFile << "<table width=100% border=1><tr>" << endl;
-  if(hasErrors())htmlFile << "<td bgcolor=red><a href=\"TrigPrimMonitorErrors.html\">Errors in this task</a></td>" << endl;
-  else htmlFile << "<td bgcolor=lime>No Errors</td>" << endl;
-  if(hasWarnings()) htmlFile << "<td bgcolor=yellow><a href=\"TrigPrimMonitorWarnings.html\">Warnings in this task</a></td>" << endl;
-  else htmlFile << "<td bgcolor=lime>No Warnings</td>" << endl;
-  if(hasOther()) htmlFile << "<td bgcolor=aqua><a href=\"TrigPrimMonitorMessages.html\">Messages in this task</a></td>" << endl;
-  else htmlFile << "<td bgcolor=lime>No Messages</td>" << endl;
-  htmlFile << "</tr></table>" << endl;
-  htmlFile << "<hr>" << endl;
+  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << std::endl;
+  htmlFile << "<html>  " << std::endl;
+  htmlFile << "<head>  " << std::endl;
+  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << std::endl;
+  htmlFile << " http-equiv=\"content-type\">  " << std::endl;
+  htmlFile << "  <title>Monitor: Data Format Task output</title> " << std::endl;
+  htmlFile << "</head>  " << std::endl;
+  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << std::endl;
+  htmlFile << "<body>  " << std::endl;
+  htmlFile << "<br>  " << std::endl;
+  htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << std::endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << std::endl;
+  htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">Data Format</span></h2> " << std::endl;
+  htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << std::endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << std::endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << std::endl;
+  htmlFile << "<hr>" << std::endl;
+  htmlFile << "<table width=100% border=1><tr>" << std::endl;
+  if(hasErrors())htmlFile << "<td bgcolor=red><a href=\"TrigPrimMonitorErrors.html\">Errors in this task</a></td>" << std::endl;
+  else htmlFile << "<td bgcolor=lime>No Errors</td>" << std::endl;
+  if(hasWarnings()) htmlFile << "<td bgcolor=yellow><a href=\"TrigPrimMonitorWarnings.html\">Warnings in this task</a></td>" << std::endl;
+  else htmlFile << "<td bgcolor=lime>No Warnings</td>" << std::endl;
+  if(hasOther()) htmlFile << "<td bgcolor=aqua><a href=\"TrigPrimMonitorMessages.html\">Messages in this task</a></td>" << std::endl;
+  else htmlFile << "<td bgcolor=lime>No Messages</td>" << std::endl;
+  htmlFile << "</tr></table>" << std::endl;
+  htmlFile << "<hr>" << std::endl;
 
 //Timing Plots
 //Energy Plots
 //Electronics Plots
 //Geometry Plots
 //ZZ Expert Plots
-  htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << std::endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   htmlAnyHisto(runNo,tpCount_,"# TP Digis"," ", 92, htmlFile,htmlDir);
   htmlAnyHisto(runNo,tpCountThr_,"# TP Digis"," ", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  htmlFile << "</tr>" << std::endl;
 
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   htmlAnyHisto(runNo,tpSpectrumAll_ ,"TP Energy"," ", 92, htmlFile,htmlDir);
   htmlAnyHisto(runNo,tpETSumAll_,"TP ET Sum"," ", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  htmlFile << "</tr>" << std::endl;
   
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   htmlAnyHisto(runNo,tpSOI_ET_,"TP Energy"," ", 92, htmlFile,htmlDir);
   htmlAnyHisto(runNo,tpSize_,"# Samples"," ", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  htmlFile << "</tr>" << std::endl;
   
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   htmlAnyHisto(runNo,OCC_MAP_GEO_,"iEta","iPhi", 92, htmlFile,htmlDir);
   htmlAnyHisto(runNo,EN_MAP_GEO_,"iEta","iPhi", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  htmlFile << "</tr>" << std::endl;
 
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   htmlAnyHisto(runNo,OCC_ETA_,"iEta"," ", 92, htmlFile,htmlDir);
   htmlAnyHisto(runNo,EN_ETA_,"iEta"," ", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  htmlFile << "</tr>" << std::endl;
 
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   htmlAnyHisto(runNo,OCC_PHI_,"iPhi"," ", 92, htmlFile,htmlDir);
   htmlAnyHisto(runNo,EN_PHI_,"iPhi"," ", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  htmlFile << "</tr>" << std::endl;
 
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   htmlAnyHisto(runNo,OCC_ELEC_VME_,"Slot","Crate Id", 92, htmlFile,htmlDir);
   htmlAnyHisto(runNo,EN_ELEC_VME_,"Slot","Crate Id", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  htmlFile << "</tr>" << std::endl;
   
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   htmlAnyHisto(runNo,OCC_ELEC_DCC_,"Spigot","DCC Id", 92, htmlFile,htmlDir);
   htmlAnyHisto(runNo,EN_ELEC_DCC_,"Spigot","DCC Id", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  htmlFile << "</tr>" << std::endl;
 
 
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   htmlAnyHisto(runNo,TPTiming_,"","time", 92, htmlFile,htmlDir);
   htmlAnyHisto(runNo,TP_ADC_,"","raw ADC", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  htmlFile << "</tr>" << std::endl;
 
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   htmlAnyHisto(runNo,MAX_ADC_,"","raw ADC", 92, htmlFile,htmlDir);
   htmlAnyHisto(runNo,TS_MAX_,"TS","num at TS", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  htmlFile << "</tr>" << std::endl;
   
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   htmlAnyHisto(runNo,TPTimingTop_,"","time", 92, htmlFile,htmlDir);
   htmlAnyHisto(runNo,TPTimingBot_,"","time", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  htmlFile << "</tr>" << std::endl;
 
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   htmlAnyHisto(runNo,TPOcc_,"iEta","iPhi", 92, htmlFile,htmlDir);  
   htmlAnyHisto(runNo,TPvsDigi_,"Digi","TP", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  htmlFile << "</tr>" << std::endl;
 
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
  
   htmlAnyHisto(runNo,OCC_MAP_THR_,"iEta","iPhi", 92, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  htmlFile << "</tr>" << std::endl;
 
 
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;   
+  htmlFile << "</table>" << std::endl;
+  htmlFile << "<br>" << std::endl;   
   
   // html page footer
-  htmlFile << "</body> " << endl;
-  htmlFile << "</html> " << endl;
+  htmlFile << "</body> " << std::endl;
+  htmlFile << "</html> " << std::endl;
 
   htmlFile.close();
 
   if (showTiming_)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalTrigPrimClient HTML OUTPUT -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalTrigPrimClient HTML OUTPUT -> "<<cpu_timer.cpuTime()<<std::endl;
     }
   return;
 } // void HcalTrigPrimClient::htmlOutput(...)
@@ -470,7 +470,7 @@ void HcalTrigPrimClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 
 void HcalTrigPrimClient::createTests(){
 
-  if(debug_>0) cout << "HcalTrigPrimClient: creating tests" << endl;
+  if(debug_>0) std::cout << "HcalTrigPrimClient: creating tests" << std::endl;
 
   if(!dbe_) return;
 
