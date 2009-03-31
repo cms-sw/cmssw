@@ -683,7 +683,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(seedAlreadyUsed)continue;
 
     std::vector<DetId> clus_v = topology_eb->getWindow(seed_id,clusEtaSize_,clusPhiSize_);	
-    std::vector<DetId> clus_used;
+    std::vector<std::pair<DetId, float> > clus_used;
     
 
     vector<EcalRecHit> RecHitsInWindow;
@@ -717,7 +717,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       int nn = int(itdet - detIdEBRecHits.begin());
       usedXtals.push_back(*det);
       RecHitsInWindow.push_back(EBRecHits[nn]);
-      clus_used.push_back(*det);
+      clus_used.push_back(std::pair<DetId, float>(*det, 1) );
       simple_energy = simple_energy + EBRecHits[nn].energy();
       
             
@@ -1222,7 +1222,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(seedAlreadyUsed)continue;
 
     std::vector<DetId> clus_v = topology_ee->getWindow(seed_id,clusEtaSize_,clusPhiSize_);	
-    std::vector<DetId> clus_used;
+    std::vector<std::pair<DetId, float> > clus_used;
     
     
 
@@ -1259,7 +1259,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       int nn = int(itdet - detIdEERecHits.begin());
       usedXtalsEndCap.push_back(*det);
       RecHitsInWindow.push_back(EERecHits[nn]);
-      clus_used.push_back(*det);
+      clus_used.push_back(std::pair<DetId, float>(*det, 1) );
       simple_energy = simple_energy + EERecHits[nn].energy();
         
     }
