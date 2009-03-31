@@ -21,12 +21,11 @@
 
 CSCHitFromStripOnly::CSCHitFromStripOnly( const edm::ParameterSet& ps ) : recoConditions_(0), calcped_(0) {
   
-  useCalib                   = ps.getUntrackedParameter<bool>("CSCUseCalibrations");
+  useCalib                   = ps.getParameter<bool>("CSCUseCalibrations");
   bool useStaticPedestals    = ps.getParameter<bool>("CSCUseStaticPedestals");
   int noOfTimeBinsForDynamicPed = ps.getParameter<int>("CSCNoOfTimeBinsForDynamicPedestal");
-  //theClusterSize             = ps.getUntrackedParameter<int>("CSCStripClusterSize");
-  theThresholdForAPeak       = ps.getUntrackedParameter<double>("CSCStripPeakThreshold");
-  theThresholdForCluster     = ps.getUntrackedParameter<double>("CSCStripClusterChargeCut");
+  theThresholdForAPeak       = ps.getParameter<double>("CSCStripPeakThreshold");
+  theThresholdForCluster     = ps.getParameter<double>("CSCStripClusterChargeCut");
 
   LogTrace("CSCRecHit")  << "[CSCHitFromStripOnly] CSCUseStaticPedestals = " << useStaticPedestals;
   if ( !useStaticPedestals ) LogTrace("CSCRecHit")  << "[CSCHitFromStripOnly] CSCNoOfTimeBinsForDynamicPedestal = " 

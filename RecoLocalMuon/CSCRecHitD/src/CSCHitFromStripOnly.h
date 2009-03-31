@@ -1,7 +1,7 @@
 #ifndef CSCRecHitD_CSCHitFromStripOnly_h
 #define CSCRecHitD_CSCHitFromStripOnly_h
 
-/** \class CSCHitFromStripOnly
+/** \class CSCHitFromStripOnly (old comment below)
  *
  * Search for strip with ADC output exceeding theThresholdForAPeak.  For each of these strips,
  * build a cluster of strip of size theClusterSize (typically 5 strips).  Finally, make

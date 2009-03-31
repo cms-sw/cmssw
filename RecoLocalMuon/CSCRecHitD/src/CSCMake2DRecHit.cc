@@ -24,8 +24,8 @@
 
 CSCMake2DRecHit::CSCMake2DRecHit(const edm::ParameterSet& ps){
     
-  useCalib            = ps.getUntrackedParameter<bool>("CSCUseCalibrations");
-  stripWireDeltaTime  = ps.getUntrackedParameter<int>("CSCstripWireDeltaTime"); //@@ Non-standard  CSC*s*trip...
+  useCalib            = ps.getParameter<bool>("CSCUseCalibrations");
+  stripWireDeltaTime  = ps.getParameter<int>("CSCstripWireDeltaTime"); //@@ Non-standard  CSC*s*trip...
 
   xMatchGatti_        = new CSCXonStrip_MatchGatti( ps );
 

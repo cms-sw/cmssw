@@ -31,8 +31,8 @@ CSCRecHitDBuilder::CSCRecHitDBuilder( const edm::ParameterSet& ps ) : geom_(0) {
   
   // Receives ParameterSet percolated down from EDProducer	
 
-  useCalib               = ps.getUntrackedParameter<bool>("CSCUseCalibrations");  
-  stripWireDeltaT        = ps.getUntrackedParameter<int>("CSCstripWireDeltaTime");
+  useCalib               = ps.getParameter<bool>("CSCUseCalibrations");  
+  stripWireDeltaT        = ps.getParameter<int>("CSCstripWireDeltaTime");
   
   hitsFromStripOnly_     = new CSCHitFromStripOnly( ps ); 
   hitsFromWireOnly_      = new CSCHitFromWireOnly( ps );  

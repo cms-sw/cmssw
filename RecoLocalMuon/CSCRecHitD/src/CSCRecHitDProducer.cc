@@ -21,7 +21,7 @@
 
 CSCRecHitDProducer::CSCRecHitDProducer( const edm::ParameterSet& ps ) : 
   iRun( 0 ),   
-  useCalib( ps.getUntrackedParameter<bool>("CSCUseCalibrations") ),
+  useCalib( ps.getParameter<bool>("CSCUseCalibrations") ),
   stripDigiTag_( ps.getParameter<edm::InputTag>("stripDigiTag") ),
   wireDigiTag_(  ps.getParameter<edm::InputTag>("wireDigiTag") )
 

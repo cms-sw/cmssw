@@ -6,23 +6,21 @@ csc2DRecHits = cms.EDProducer("CSCRecHitDProducer",
     #
     #    Parameters for coordinate and uncertainty calculations
     #    Data and MC parameters are (still) different
-    #    Use cscRecHitD_data.cff if you run on data  
+    #    Needs tuning
     #
     cscRecHitDParameters,
-    CSCStripClusterSize = cms.untracked.int32(3),
     #
     #    Parameters for strip hits
     #
-    CSCStripPeakThreshold = cms.untracked.double(10.0),
+    CSCStripPeakThreshold = cms.double(10.0),
+    CSCStripClusterChargeCut = cms.double(25.0),
+    CSCStripxtalksOffset = cms.double(0.03),
     #
     #    Parameters for wire hits
-    CSCWireClusterDeltaT = cms.untracked.int32(1),
-    CSCStripxtalksOffset = cms.untracked.double(0.03),
-    #  To be set once wire digis have timing info:
-    CSCstripWireDeltaTime = cms.untracked.int32(8),
+    CSCWireClusterDeltaT = cms.int32(1),
     #
     #    Calibration info:
-    CSCUseCalibrations = cms.untracked.bool(True),
+    CSCUseCalibrations = cms.bool(True),
     #    Pedestal treatment
     CSCUseStaticPedestals = cms.bool(False),
     CSCNoOfTimeBinsForDynamicPedestal = cms.int32(2),
@@ -37,12 +35,15 @@ csc2DRecHits = cms.EDProducer("CSCRecHitDProducer",
     #    stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
                               
     #
-    #    Parameters for 2-D hits (not used currently)
+    #    Parameters which are not used currently
     #
     CSCDebug = cms.untracked.bool(False),
     readBadChannels = cms.bool(False),
     readBadChambers = cms.bool(False),
-    CSCStripClusterChargeCut = cms.untracked.double(25.0)
+    #  To be set once wire digis have proper timing info:
+    CSCstripWireDeltaTime = cms.int32(8),
+    # to be deleted
+    CSCStripClusterSize = cms.untracked.int32(3)
 )
 
 
