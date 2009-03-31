@@ -26,24 +26,8 @@ Prescales = cms.VPSet(
 #    )
 ))
 
-from Configuration.StandardSequences.RawToDigi_cff import *
+from Calibration.HcalAlCaRecoProducers.alcahcalnoise_cfi import *
 
-from Configuration.StandardSequences.Reconstruction_cff import *
-
-from Calibration.HcalAlCaRecoProducers.alcahcalnoise_cfi import * 
-
-kt4CaloJets.correctInputToSignalVertex = False
-kt6CaloJets.correctInputToSignalVertex = False
-iterativeCone5CaloJets.correctInputToSignalVertex = False
-sisCone5CaloJets.correctInputToSignalVertex = False
-sisCone7CaloJets.correctInputToSignalVertex = False
-
-doNoiseDigi=cms.Sequence(ecalDigis+ecalPreshowerDigis+hcalDigis)
-
-doNoiseLocalReco=cms.Sequence(calolocalreco)
-
-doNoiseGlobalReco=cms.Sequence(caloTowersRec*recoJets + metreco)
-
-seqALCARECOHcalCalNoise = cms.Sequence(noiseHLT*prescaler*doNoiseDigi*doNoiseLocalReco*doNoiseGlobalReco*HcalNoiseProd)
+seqALCARECOHcalCalNoise = cms.Sequence(noiseHLT*prescaler*HcalNoiseProd)
 
 
