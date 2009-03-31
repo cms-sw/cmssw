@@ -39,11 +39,12 @@ void cond::ObjectRelationalMappingUtility::removeMapping(const std::string& vers
 
 bool 
 cond::ObjectRelationalMappingUtility::exportMapping(coral::ISessionProxy* session, 
-						    std::string const & contName, std::string const & classVersion, 
-						    bool allVersions=false) {
+						    std::string const & contName, 
+						    std::string const & classVersion, 
+						    bool allVersions) {
   m_mappingutil->loadMappingInformation( contName, classVersion, allVersions);
   m_mappingutil->setSession(session);
   bool okStore = m_mappingutil->storeMappingInformation();
   m_mappingutil->setSession(m_coralsessionHandle);
-  retun okStore;
+  return okStore;
 }
