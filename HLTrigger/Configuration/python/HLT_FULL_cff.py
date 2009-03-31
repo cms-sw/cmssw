@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/HLT/V248 (CMSSW_3_1_X_2009-03-31-0100_HLT1)
+# /dev/CMSSW_3_1_0/pre2/HLT/V250 (CMSSW_3_1_X_2009-03-31-0100_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/HLT/V248')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/HLT/V250')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -4243,57 +4243,33 @@ hltL1sRelaxedSingleEgammaEt8 = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreL1SingleEG8 = cms.EDFilter( "HLTPrescaler" )
 hltPreEle10LWL1R = cms.EDFilter( "HLTPrescaler" )
-hltEcalRegionalEgammaFEDs = cms.EDProducer( "EcalListOfFEDSProducer",
-    debug = cms.untracked.bool( False ),
-    Pi0ListToIgnore = cms.InputTag( "hltEcalRegionalPi0FEDs" ),
-    EGamma = cms.untracked.bool( True ),
-    EM_l1TagIsolated = cms.untracked.InputTag( 'hltL1extraParticles','Isolated' ),
-    EM_l1TagNonIsolated = cms.untracked.InputTag( 'hltL1extraParticles','NonIsolated' ),
-    Ptmin_iso = cms.untracked.double( 5.0 ),
-    Ptmin_noniso = cms.untracked.double( 5.0 ),
-    OutputLabel = cms.untracked.string( "" )
+hltEcalRegionalEgammaFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
+    sourceTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),
+    type = cms.string( "egamma" ),
+    MuJobPSet = cms.PSet(  ),
+    JetJobPSet = cms.VPSet( 
+    ),
+    EmJobPSet = cms.VPSet( 
+      cms.PSet(  regionEtaMargin = cms.double( 0.25 ),
+        regionPhiMargin = cms.double( 0.4 ),
+        Ptmin = cms.double( 5.0 ),
+        Source = cms.InputTag( 'hltL1extraParticles','Isolated' )
+      ),
+      cms.PSet(  regionEtaMargin = cms.double( 0.25 ),
+        regionPhiMargin = cms.double( 0.4 ),
+        Ptmin = cms.double( 5.0 ),
+        Source = cms.InputTag( 'hltL1extraParticles','NonIsolated' )
+      )
+    ),
+    CandJobPSet = cms.VPSet( 
+    )
 )
-hltEcalRegionalEgammaDigis = cms.EDProducer( "EcalRawToDigi",
-    syncCheck = cms.untracked.bool( False ),
-    eventPut = cms.untracked.bool( True ),
-    InputLabel = cms.untracked.string( "rawDataCollector" ),
-    DoRegional = cms.untracked.bool( True ),
-    FedLabel = cms.untracked.InputTag( "hltEcalRegionalEgammaFEDs" ),
-    silentMode = cms.untracked.bool( True ),
-    orderedFedList = cms.untracked.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
-    orderedDCCIdList = cms.untracked.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 )
-)
-hltEcalRegionalEgammaWeightUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
-    EBdigiCollection = cms.InputTag( 'hltEcalRegionalEgammaDigis','ebDigis' ),
-    EEdigiCollection = cms.InputTag( 'hltEcalRegionalEgammaDigis','eeDigis' ),
-    EBhitCollection = cms.string( "EcalUncalibRecHitsEB" ),
-    EEhitCollection = cms.string( "EcalUncalibRecHitsEE" ),
-    algo = cms.string( "EcalUncalibRecHitWorkerWeights" )
-)
-hltEcalRegionalEgammaRecHitTmp = cms.EDProducer( "EcalRecHitProducer",
-    EBuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalEgammaWeightUncalibRecHit','EcalUncalibRecHitsEB' ),
-    EEuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalEgammaWeightUncalibRecHit','EcalUncalibRecHitsEE' ),
+hltEcalRegionalEgammaRecHit = cms.EDProducer( "EcalRawToRecHitProducer",
+    lazyGetterTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),
+    sourceTag = cms.InputTag( "hltEcalRegionalEgammaFEDs" ),
+    splitOutput = cms.bool( True ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
-    EErechitCollection = cms.string( "EcalRecHitsEE" ),
-    algo = cms.string( "EcalRecHitWorkerSimple" ),
-    ChannelStatusToBeExcluded = cms.vint32(  )
-)
-hltEcalRegionalEgammaRecHit = cms.EDProducer( "EcalRecHitsMerger",
-    debug = cms.untracked.bool( False ),
-    EgammaSource_EB = cms.untracked.InputTag( 'hltEcalRegionalEgammaRecHitTmp','EcalRecHitsEB' ),
-    MuonsSource_EB = cms.untracked.InputTag( 'hltEcalRegionalMuonsRecHitTmp','EcalRecHitsEB' ),
-    TausSource_EB = cms.untracked.InputTag( 'hltEcalRegionalTausRecHitTmp','EcalRecHitsEB' ),
-    JetsSource_EB = cms.untracked.InputTag( 'hltEcalRegionalJetsRecHitTmp','EcalRecHitsEB' ),
-    RestSource_EB = cms.untracked.InputTag( 'hltEcalRegionalRestRecHitTmp','EcalRecHitsEB' ),
-    EgammaSource_EE = cms.untracked.InputTag( 'hltEcalRegionalEgammaRecHitTmp','EcalRecHitsEE' ),
-    MuonsSource_EE = cms.untracked.InputTag( 'hltEcalRegionalMuonsRecHitTmp','EcalRecHitsEE' ),
-    TausSource_EE = cms.untracked.InputTag( 'hltEcalRegionalTausRecHitTmp','EcalRecHitsEE' ),
-    JetsSource_EE = cms.untracked.InputTag( 'hltEcalRegionalJetsRecHitTmp','EcalRecHitsEE' ),
-    RestSource_EE = cms.untracked.InputTag( 'hltEcalRegionalRestRecHitTmp','EcalRecHitsEE' ),
-    OutputLabel_EB = cms.untracked.string( "EcalRecHitsEB" ),
-    OutputLabel_EE = cms.untracked.string( "EcalRecHitsEE" ),
-    EcalRecHitCollectionEB = cms.untracked.string( "EcalRecHitsEB" ),
-    EcalRecHitCollectionEE = cms.untracked.string( "EcalRecHitsEE" )
+    EErechitCollection = cms.string( "EcalRecHitsEE" )
 )
 hltHybridSuperClustersL1Isolated = cms.EDProducer( "EgammaHLTHybridClusterProducer",
     debugLevel = cms.string( "INFO" ),
@@ -5520,6 +5496,8 @@ hltBLifetimeL25TagInfos = cms.EDProducer( "TrackIPProducer",
     jetTracks = cms.InputTag( "hltBLifetimeL25Associator" ),
     primaryVertex = cms.InputTag( "hltPixelVertices" ),
     computeProbabilities = cms.bool( False ),
+    computeGhostTrack = cms.bool( False ),
+    ghostTrackPriorDeltaR = cms.double( 0.03 ),
     minimumNumberOfPixelHits = cms.int32( 2 ),
     minimumNumberOfHits = cms.int32( 3 ),
     maximumTransverseImpactParameter = cms.double( 0.2 ),
@@ -5527,6 +5505,7 @@ hltBLifetimeL25TagInfos = cms.EDProducer( "TrackIPProducer",
     maximumChiSquared = cms.double( 5.0 ),
     maximumLongitudinalImpactParameter = cms.double( 17.0 ),
     jetDirectionUsingTracks = cms.bool( False ),
+    jetDirectionUsingGhostTrack = cms.bool( False ),
     useTrackQuality = cms.bool( False )
 )
 hltBLifetimeL25BJetTags = cms.EDProducer( "JetTagProducer",
@@ -5604,6 +5583,8 @@ hltBLifetimeL3TagInfos = cms.EDProducer( "TrackIPProducer",
     jetTracks = cms.InputTag( "hltBLifetimeL3Associator" ),
     primaryVertex = cms.InputTag( "hltPixelVertices" ),
     computeProbabilities = cms.bool( False ),
+    computeGhostTrack = cms.bool( False ),
+    ghostTrackPriorDeltaR = cms.double( 0.03 ),
     minimumNumberOfPixelHits = cms.int32( 2 ),
     minimumNumberOfHits = cms.int32( 8 ),
     maximumTransverseImpactParameter = cms.double( 0.2 ),
@@ -5611,6 +5592,7 @@ hltBLifetimeL3TagInfos = cms.EDProducer( "TrackIPProducer",
     maximumChiSquared = cms.double( 5.0 ),
     maximumLongitudinalImpactParameter = cms.double( 17.0 ),
     jetDirectionUsingTracks = cms.bool( False ),
+    jetDirectionUsingGhostTrack = cms.bool( False ),
     useTrackQuality = cms.bool( False )
 )
 hltBLifetimeL3BJetTags = cms.EDProducer( "JetTagProducer",
@@ -5654,6 +5636,8 @@ hltBLifetimeL25TagInfosRelaxed = cms.EDProducer( "TrackIPProducer",
     jetTracks = cms.InputTag( "hltBLifetimeL25AssociatorRelaxed" ),
     primaryVertex = cms.InputTag( "hltPixelVertices" ),
     computeProbabilities = cms.bool( False ),
+    computeGhostTrack = cms.bool( False ),
+    ghostTrackPriorDeltaR = cms.double( 0.03 ),
     minimumNumberOfPixelHits = cms.int32( 2 ),
     minimumNumberOfHits = cms.int32( 3 ),
     maximumTransverseImpactParameter = cms.double( 0.2 ),
@@ -5661,6 +5645,7 @@ hltBLifetimeL25TagInfosRelaxed = cms.EDProducer( "TrackIPProducer",
     maximumChiSquared = cms.double( 5.0 ),
     maximumLongitudinalImpactParameter = cms.double( 17.0 ),
     jetDirectionUsingTracks = cms.bool( False ),
+    jetDirectionUsingGhostTrack = cms.bool( False ),
     useTrackQuality = cms.bool( False )
 )
 hltBLifetimeL25BJetTagsRelaxed = cms.EDProducer( "JetTagProducer",
@@ -5738,6 +5723,8 @@ hltBLifetimeL3TagInfosRelaxed = cms.EDProducer( "TrackIPProducer",
     jetTracks = cms.InputTag( "hltBLifetimeL3AssociatorRelaxed" ),
     primaryVertex = cms.InputTag( "hltPixelVertices" ),
     computeProbabilities = cms.bool( False ),
+    computeGhostTrack = cms.bool( False ),
+    ghostTrackPriorDeltaR = cms.double( 0.03 ),
     minimumNumberOfPixelHits = cms.int32( 2 ),
     minimumNumberOfHits = cms.int32( 8 ),
     maximumTransverseImpactParameter = cms.double( 0.2 ),
@@ -5745,6 +5732,7 @@ hltBLifetimeL3TagInfosRelaxed = cms.EDProducer( "TrackIPProducer",
     maximumChiSquared = cms.double( 20.0 ),
     maximumLongitudinalImpactParameter = cms.double( 17.0 ),
     jetDirectionUsingTracks = cms.bool( False ),
+    jetDirectionUsingGhostTrack = cms.bool( False ),
     useTrackQuality = cms.bool( False )
 )
 hltBLifetimeL3BJetTagsRelaxed = cms.EDProducer( "JetTagProducer",
@@ -7585,6 +7573,8 @@ hltBLifetimeL25TagInfosStartupU = cms.EDProducer( "TrackIPProducer",
     jetTracks = cms.InputTag( "hltBLifetimeL25AssociatorStartupU" ),
     primaryVertex = cms.InputTag( "hltPixelVertices" ),
     computeProbabilities = cms.bool( False ),
+    computeGhostTrack = cms.bool( False ),
+    ghostTrackPriorDeltaR = cms.double( 0.03 ),
     minimumNumberOfPixelHits = cms.int32( 2 ),
     minimumNumberOfHits = cms.int32( 3 ),
     maximumTransverseImpactParameter = cms.double( 0.2 ),
@@ -7592,6 +7582,7 @@ hltBLifetimeL25TagInfosStartupU = cms.EDProducer( "TrackIPProducer",
     maximumChiSquared = cms.double( 5.0 ),
     maximumLongitudinalImpactParameter = cms.double( 17.0 ),
     jetDirectionUsingTracks = cms.bool( False ),
+    jetDirectionUsingGhostTrack = cms.bool( False ),
     useTrackQuality = cms.bool( False )
 )
 hltBLifetimeL25BJetTagsStartupU = cms.EDProducer( "JetTagProducer",
@@ -7669,6 +7660,8 @@ hltBLifetimeL3TagInfosStartupU = cms.EDProducer( "TrackIPProducer",
     jetTracks = cms.InputTag( "hltBLifetimeL3AssociatorStartupU" ),
     primaryVertex = cms.InputTag( "hltPixelVertices" ),
     computeProbabilities = cms.bool( False ),
+    computeGhostTrack = cms.bool( False ),
+    ghostTrackPriorDeltaR = cms.double( 0.03 ),
     minimumNumberOfPixelHits = cms.int32( 2 ),
     minimumNumberOfHits = cms.int32( 8 ),
     maximumTransverseImpactParameter = cms.double( 0.2 ),
@@ -7676,6 +7669,7 @@ hltBLifetimeL3TagInfosStartupU = cms.EDProducer( "TrackIPProducer",
     maximumChiSquared = cms.double( 20.0 ),
     maximumLongitudinalImpactParameter = cms.double( 17.0 ),
     jetDirectionUsingTracks = cms.bool( False ),
+    jetDirectionUsingGhostTrack = cms.bool( False ),
     useTrackQuality = cms.bool( False )
 )
 hltBLifetimeL3BJetTagsStartupU = cms.EDProducer( "JetTagProducer",
@@ -7725,6 +7719,8 @@ hltBLifetimeL25TagInfosStartup = cms.EDProducer( "TrackIPProducer",
     jetTracks = cms.InputTag( "hltBLifetimeL25AssociatorStartup" ),
     primaryVertex = cms.InputTag( "hltPixelVertices" ),
     computeProbabilities = cms.bool( False ),
+    computeGhostTrack = cms.bool( False ),
+    ghostTrackPriorDeltaR = cms.double( 0.03 ),
     minimumNumberOfPixelHits = cms.int32( 2 ),
     minimumNumberOfHits = cms.int32( 3 ),
     maximumTransverseImpactParameter = cms.double( 0.2 ),
@@ -7732,6 +7728,7 @@ hltBLifetimeL25TagInfosStartup = cms.EDProducer( "TrackIPProducer",
     maximumChiSquared = cms.double( 5.0 ),
     maximumLongitudinalImpactParameter = cms.double( 17.0 ),
     jetDirectionUsingTracks = cms.bool( False ),
+    jetDirectionUsingGhostTrack = cms.bool( False ),
     useTrackQuality = cms.bool( False )
 )
 hltBLifetimeL25BJetTagsStartup = cms.EDProducer( "JetTagProducer",
@@ -7809,6 +7806,8 @@ hltBLifetimeL3TagInfosStartup = cms.EDProducer( "TrackIPProducer",
     jetTracks = cms.InputTag( "hltBLifetimeL3AssociatorStartup" ),
     primaryVertex = cms.InputTag( "hltPixelVertices" ),
     computeProbabilities = cms.bool( False ),
+    computeGhostTrack = cms.bool( False ),
+    ghostTrackPriorDeltaR = cms.double( 0.03 ),
     minimumNumberOfPixelHits = cms.int32( 2 ),
     minimumNumberOfHits = cms.int32( 8 ),
     maximumTransverseImpactParameter = cms.double( 0.2 ),
@@ -7816,6 +7815,7 @@ hltBLifetimeL3TagInfosStartup = cms.EDProducer( "TrackIPProducer",
     maximumChiSquared = cms.double( 20.0 ),
     maximumLongitudinalImpactParameter = cms.double( 17.0 ),
     jetDirectionUsingTracks = cms.bool( False ),
+    jetDirectionUsingGhostTrack = cms.bool( False ),
     useTrackQuality = cms.bool( False )
 )
 hltBLifetimeL3BJetTagsStartup = cms.EDProducer( "JetTagProducer",
@@ -9497,7 +9497,7 @@ HLTL3muonTkCandidateSequence = cms.Sequence( HLTDoLocalPixelSequence + HLTDoLoca
 HLTL3muonrecoNocandSequence = cms.Sequence( HLTL3muonTkCandidateSequence + hltL3TkTracksFromL2 + hltL3Muons )
 HLTL3muonrecoSequence = cms.Sequence( HLTL3muonrecoNocandSequence + hltL3MuonCandidates )
 HLTL3muonisorecoSequence = cms.Sequence( hltPixelTracks + hltL3MuonIsolations )
-HLTDoRegionalEgammaEcalSequence = cms.Sequence( hltEcalPreshowerDigis + hltEcalRegionalEgammaFEDs + hltEcalRegionalEgammaDigis + hltEcalRegionalEgammaWeightUncalibRecHit + hltEcalRegionalEgammaRecHitTmp + hltEcalRegionalEgammaRecHit + hltEcalPreshowerRecHit )
+HLTDoRegionalEgammaEcalSequence = cms.Sequence( hltEcalPreshowerDigis + hltEcalRawToRecHitFacility + hltEcalRegionalEgammaFEDs + hltEcalRegionalEgammaRecHit + hltEcalPreshowerRecHit )
 HLTMulti5x5SuperClusterL1Isolated = cms.Sequence( hltMulti5x5BasicClustersL1Isolated + hltMulti5x5SuperClustersL1Isolated + hltMulti5x5EndcapSuperClustersWithPreshowerL1Isolated + hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1Isolated )
 HLTL1IsolatedEcalClustersSequence = cms.Sequence( hltHybridSuperClustersL1Isolated + hltCorrectedHybridSuperClustersL1Isolated + HLTMulti5x5SuperClusterL1Isolated )
 HLTMulti5x5SuperClusterL1NonIsolated = cms.Sequence( hltMulti5x5BasicClustersL1NonIsolated + hltMulti5x5SuperClustersL1NonIsolated + hltMulti5x5EndcapSuperClustersWithPreshowerL1NonIsolated + hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1NonIsolatedTemp + hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1NonIsolated )
