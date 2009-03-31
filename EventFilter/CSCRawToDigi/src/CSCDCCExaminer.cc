@@ -207,7 +207,7 @@ CSCDCCExaminer::CSCDCCExaminer(ExaminerMaskType mask):nERRORS(29),nWARNINGS(5),n
 }
 
 int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
-  if( length<=0 ) return -10;
+  if( length<=0 ) return -1;
 
   // 'buffer' is a sliding pointer; keep track of the true buffer
   buffer_start = buffer;
