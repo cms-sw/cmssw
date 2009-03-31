@@ -22,17 +22,6 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('LorentzAngleReaderSummary', 'LorentzAngleReaderDebug')
 )
 
-# Use this instead to see only the summary
-#process.MessageLogger = cms.Service("MessageLogger",
-#    debugModules = cms.untracked.vstring(''),
-#    LorentzAngleReaderSummary = cms.untracked.PSet(
-#        threshold = cms.untracked.string('INFO')
-#    ),
-#    cout = cms.untracked.PSet(
-#        threshold = cms.untracked.string('INFO')
-#    ),
-#    destinations = cms.untracked.vstring('LorentzAngleReaderSummary')
-#)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -50,10 +39,8 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
     ),
     timetype = cms.untracked.string('runnumber'),
     connect = cms.string('sqlite_file:dbfile.db'),
-#    connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_21X_STRIP'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiStripLorentzAngleRcd'),
-#        tag = cms.string('SiStripNoise_CRAFT_21X_v4_offline')
         tag = cms.string('SiStripLorentzAngle_Ideal_31X')
     ))
 )
