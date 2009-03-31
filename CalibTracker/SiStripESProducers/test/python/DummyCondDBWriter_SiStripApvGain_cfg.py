@@ -29,6 +29,8 @@ process.source = cms.Source("EmptySource",
 
 process.load("CalibTracker.SiStripESProducers.fake.SiStripApvGainFakeESSource_cfi")
 process.load("CalibTracker.SiStripESProducers.DBWriter.SiStripApvGainDummyDBWriter_cfi")
+process.SiStripApvGainGenerator.MeanGain = 1.0
+process.SiStripApvGainGenerator.SigmaGain = 0.0
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
