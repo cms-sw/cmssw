@@ -82,22 +82,7 @@ public:
     return SiPixelRecHitQuality::thePacking.probabilityY( qualWord_ );
   }
 
-  // Add estimates of cot(alpha) and cot(beta) from the
-  // cluster length.  This can be used by:
-  // a) the seed cleaning
-  // b) any possible crude "quality" flag based on (dis)agreement between
-  //    W_pred and W (from charge lenght)
-  // c) an alternative 2nd pass CPE which reads charge per unit length (k_3D) from
-  //    the DB but then needs angle estimates to switch to
-  //--- cot(alpha) obtained from the sizes along X and Y (= thickness/(size-1))
-  inline float cotAlphaFromCluster() const     {
-    return SiPixelRecHitQuality::thePacking.cotAlphaFromCluster( qualWord_ );
-  }
-  inline float cotBetaFromCluster() const     {
-    return SiPixelRecHitQuality::thePacking.cotBetaFromCluster( qualWord_ );
-  }
-
-  //--- Charge `bin' (values 0, 1, 2, 3) according to Morris's template
+	//--- Charge `bin' (values 0, 1, 2, 3) according to Morris's template
   //--- code. qBin==4 is unphysical, qBin=5,6,7 are yet unused)
   //
   inline int qBin() const     {
@@ -119,15 +104,13 @@ public:
     return SiPixelRecHitQuality::thePacking.spansTwoROCs( qualWord_ );
   }
 
+	//--- Quality flag for whether the probability is filled
+	inline bool hasFilledProb() const {
+		return SiPixelRecHitQuality::thePacking.hasFilledProb( qualWord_ );
+	}
   
   //--- Setters for the above
-  inline void setCotAlphaFromCluster( float cotalpha ) {
-    SiPixelRecHitQuality::thePacking.setCotAlphaFromCluster( cotalpha, qualWord_ );
-  }
-  inline void setCotBetaFromCluster ( float cotbeta ) {
-    SiPixelRecHitQuality::thePacking.setCotBetaFromCluster( cotbeta, qualWord_ );
-  }
-  inline void setProbabilityX( float prob ) {
+	inline void setProbabilityX( float prob ) {
     SiPixelRecHitQuality::thePacking.setProbabilityX( prob, qualWord_ );
   }
   inline void setProbabilityY( float prob ) {
@@ -145,7 +128,9 @@ public:
   inline void setSpansTwoROCs( bool flag ) {
     SiPixelRecHitQuality::thePacking.setSpansTwoROCs( flag, qualWord_ );
   }
-
+	inline void setHasFilledProb( bool flag ) {
+		SiPixelRecHitQuality::thePacking.setHasFilledProb( flag, qualWord_ );
+	}
 
 private:
 

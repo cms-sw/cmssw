@@ -25,15 +25,30 @@ bool SiPixelRecHit::sharesInput( const TrackingRecHit* other,
 //--- our own concrete implementation of clusterProbability() uses to direct
 //--- the computation based on the information stored in the quality word
 //--- (and which was computed by the CPE).  The default of flags==0 returns
-//--- probabilityY() only (as that's the safest thing to do).
+//--- probX*probY*(1-log(probX*probY)) because of Morris' note.
 //--- Flags are static and kept in the transient rec hit.
 float SiPixelRecHit::clusterProbability(unsigned int flags) const
 {
-  if (flags == 0) {
-    return probabilityY();
+	if (!hasFilledProb()) {
+		return 1;
+	}
+	else if (flags == 0) {
+		if(probabilityX() != 0 && probabilityY() != 0) {
+			return probabilityX()*probabilityY() * (1 - log(probabilityX()*probabilityY()));
+		}
+		else {
+			return 0;
+		}
+	}
+	else if (flags == 1) {
+    return probabilityX();
+	}
+	else if (flags == 2) {
+		return probabilityY();
   }
-  else {
-    return probabilityX()*probabilityY();
-  }
+	else {
+		return 0;
+	}
+	
 }
 
