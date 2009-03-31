@@ -75,6 +75,9 @@ namespace edm {
 
   ParameterSetID
   Provenance::psetID() const {
+    if (product().parameterSetID().isValid()) {
+      return product().parameterSetID();
+    }
     if (parameterSetIDs().size() == 1) {
       return parameterSetIDs().begin()->second;
     }
@@ -88,6 +91,9 @@ namespace edm {
 
   std::string 
   Provenance::moduleName() const {
+    if (!product().moduleName().empty()) {
+      return product().moduleName();
+    }
     if (moduleNames().size() == 1) {
       return moduleNames().begin()->second;
     }

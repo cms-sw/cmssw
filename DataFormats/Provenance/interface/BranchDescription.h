@@ -73,6 +73,8 @@ namespace edm {
     int & basketSize() const {return transients_.get().basketSize_;}
 
     ParameterSetID const& parameterSetID() const {return transients_.get().parameterSetID_;}
+    std::string const& moduleName() const {return transients_.get().moduleName_;}
+
     std::map<ProcessConfigurationID, ParameterSetID>& parameterSetIDs() const {
       return transients_.get().parameterSetIDs_;
     }
@@ -94,10 +96,12 @@ namespace edm {
       Transients();
 
       // The parameter set id of the producer.
-      // This is only valid if produced_ is true.
-      // This is just used as a cache, and is not logically
-      // part of the branch description.
+      // This is initialized if and only if produced_ is true.
       ParameterSetID parameterSetID_;
+
+      // The module name of the producer.
+      // This is initialized if and only if produced_ is true.
+      std::string moduleName_;
 
       // The branch name, which is currently derivable fron the other attributes.
       std::string branchName_;
@@ -130,10 +134,12 @@ namespace edm {
 
       // ID's of process configurations for products on this branch
       //  with corresponding parameter set IDs,
+      // This is initialized if and only if produced_ is false.
       mutable std::map<ProcessConfigurationID, ParameterSetID> parameterSetIDs_;
 
       // ID's of process configurations for products on this branch
       //  with corresponding module names
+      // This is initialized if and only if produced_ is false.
       mutable std::map<ProcessConfigurationID, std::string> moduleNames_;
     };
 

@@ -65,8 +65,7 @@ namespace edm {
     present() = true;
     produced() = true;
     transients_.get().parameterSetID_ = modDesc.parameterSetID();
-    parameterSetIDs().insert(std::make_pair(modDesc.processConfigurationID(),modDesc.parameterSetID()));
-    moduleNames().insert(std::make_pair(modDesc.processConfigurationID(),modDesc.moduleName()));
+    transients_.get().moduleName_ = modDesc.moduleName();
     init();
   }
 
