@@ -45,7 +45,7 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
 					   const SiPixelTemplateDBObject * templateDBobject) 
   : PixelCPEBase(conf, mag, lorentzAngle, 0, templateDBobject)
 {
-  //cout << "From PixelCPETemplateReco::PixelCPETemplateReco(...)" << endl;
+  cout << "From PixelCPETemplateReco::PixelCPETemplateReco(...)" << endl;
 
   // &&& initialize the templates, etc.
   
@@ -85,10 +85,10 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
 	}
     }
   
-  //cout << "(int)DoCosmics_ = " << (int)DoCosmics_ << endl;
-  //cout << "(int)LoadTemplatesFromDB_ = " << (int)LoadTemplatesFromDB_ << endl;
-  //cout << "field_magnitude = " << field_magnitude << endl;
-  //cout << "--------------------------------------------- templID_ = " << templID_ << endl;
+  cout << "(int)DoCosmics_ = " << (int)DoCosmics_ << endl;
+  cout << "(int)LoadTemplatesFromDB_ = " << (int)LoadTemplatesFromDB_ << endl;
+  cout << "field_magnitude = " << field_magnitude << endl;
+  cout << "--------------------------------------------- templID_ = " << templID_ << endl;
 
   // ggiurgiu@fnal.gov, 12/17/2008: use configuration parameter to decide between DB or text file template access
   if ( LoadTemplatesFromDB_ )
