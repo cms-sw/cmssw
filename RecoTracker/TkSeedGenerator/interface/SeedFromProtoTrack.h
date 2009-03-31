@@ -4,7 +4,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingHit.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 #include <boost/shared_ptr.hpp>
 
 namespace reco { class Track; }
@@ -15,7 +15,7 @@ public:
 
 
   SeedFromProtoTrack(const reco::Track & proto, const edm::EventSetup& ); 
-  SeedFromProtoTrack(const reco::Track & proto,const std::vector<ctfseeding::SeedingHit> & hits,
+  SeedFromProtoTrack(const reco::Track & proto,const SeedingHitSet & hits,
     const edm::EventSetup& es);
 
   ~SeedFromProtoTrack() {}

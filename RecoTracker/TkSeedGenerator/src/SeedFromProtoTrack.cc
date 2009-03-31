@@ -17,11 +17,11 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 SeedFromProtoTrack::SeedFromProtoTrack(const reco::Track & proto,  
-  const std::vector<ctfseeding::SeedingHit> & hits, const edm::EventSetup& es)
+  const SeedingHitSet & hits, const edm::EventSetup& es)
   : theValid(true)
 {
   for (unsigned int i= 0, n = hits.size(); i< n; ++i) {
-    const TrackingRecHit * trh = hits[i];
+    const TrackingRecHit * trh = hits[i]->hit();
    theHits.push_back( trh->clone() ); 
   }
   init(proto, es);

@@ -10,7 +10,7 @@
 
 
 GlobalTrajectoryParameters SeedFromConsecutiveHitsTripletOnlyCreator::initialKinematic(
-      const SeedingHitSet::Hits & hits, 
+      const SeedingHitSet& hits, 
       const TrackingRegion & region, 
       const edm::EventSetup& es) const
 {

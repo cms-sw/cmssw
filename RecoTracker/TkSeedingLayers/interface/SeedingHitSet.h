@@ -1,13 +1,11 @@
 #ifndef TkSeedingLayers_SeedingHitSet_H
 #define TkSeedingLayers_SeedingHitSet_H
 
-#include "RecoTracker/TkSeedingLayers/interface/SeedingHit.h"
-#include <vector>
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class SeedingHitSet {
 public:
 
-  typedef std::vector<ctfseeding::SeedingHit> Hits;
   typedef TransientTrackingRecHit::ConstRecHitContainer RecHits;
 
   SeedingHitSet(const RecHits & hits=RecHits()) : theRecHits(hits) {}
