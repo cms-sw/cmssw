@@ -26,7 +26,7 @@ namespace edm {
     //______________________________________________________________________________
     PrescaleService::PrescaleService(ParameterSet const& iPS, ActivityRegistry& iReg)
       : mutex_()
-      , reconfigured_(false)
+      , configured_(false)
       , lvl1Labels_(iPS.getParameter<std::vector<std::string> >("lvl1Labels"))
       , nLvl1Index_(lvl1Labels_.size())
       , iLvl1IndexDefault_(0)
@@ -35,8 +35,8 @@ namespace edm {
     {
       std::string lvl1DefaultLabel=
 	iPS.getUntrackedParameter<std::string>("lvl1DefaultLabel","");
-      for (unsigned int i=0; i<lvl1Labels_.size(); ++i) {
-	if (lvl1Labels_[i] == lvl1DefaultLabel) iLvl1IndexDefault_=i;
+      for (unsigned int i = 0; i < lvl1Labels_.size(); ++i) {
+	if (lvl1Labels_[i] == lvl1DefaultLabel) iLvl1IndexDefault_ = i;
       }
 
       iReg.watchPostBeginJob(this, &PrescaleService::postBeginJob);
@@ -48,30 +48,40 @@ namespace edm {
       iReg.watchPreModule(this, &PrescaleService::preModule);
       iReg.watchPostModule(this, &PrescaleService::postModule);
     }
-
       
     //______________________________________________________________________________
-    PrescaleService::~PrescaleService()
-    {
-    
+    PrescaleService::~PrescaleService() {
     }
-
 
     ////////////////////////////////////////////////////////////////////////////////
     // implementation of member functions
     ////////////////////////////////////////////////////////////////////////////////
 
+    void PrescaleService::reconfigure(ParameterSet const& iPS) {
+      vpsetPrescales_.clear();
+      prescaleTable_.clear();
+      iLvl1IndexDefault_ = 0;
+      lvl1Labels_ = iPS.getParameter<std::vector<std::string> >("lvl1Labels");
+      nLvl1Index_ = lvl1Labels_.size();
+      vpsetPrescales_ = iPS.getParameter<std::vector<ParameterSet> >("prescaleTable");
+      std::string lvl1DefaultLabel=
+	iPS.getUntrackedParameter<std::string>("lvl1DefaultLabel","");
+      for (unsigned int i=0; i < lvl1Labels_.size(); ++i) {
+	if (lvl1Labels_[i] == lvl1DefaultLabel) iLvl1IndexDefault_ = i;
+      }
+      configure();
+    }
+
     void PrescaleService::postBeginJob() {
-      reconfigure();
+      if (!configured_) {
+        configure();
+      }
     }
 
     //______________________________________________________________________________
-    void PrescaleService::reconfigure()
+    void PrescaleService::configure()
     {
-      if (reconfigured_) {
-	return;
-      }
-      reconfigured_ = true;
+      configured_ = true;
 
       ParameterSet prcPS = getProcessParameterSet();
       
@@ -141,8 +151,8 @@ namespace edm {
 	  <<"lvl1Index '"<<lvl1Index<<"' exceeds number of prescale columns";
       }
 
-      if (!reconfigured_) {
-        reconfigure();
+      if (!configured_) {
+        configure();
       }
       
       boost::mutex::scoped_lock scoped_lock(mutex_);

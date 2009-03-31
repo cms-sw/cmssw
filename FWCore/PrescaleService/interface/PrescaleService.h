@@ -35,7 +35,7 @@ namespace edm {
       // member functions
       //
 
-      void reconfigure();
+      void reconfigure(ParameterSet const& ps);
 
       unsigned int getPrescale(unsigned int lvl1Index,
 			       std::string const& prescaledPath);
@@ -54,7 +54,7 @@ namespace edm {
       //
       // private member functions
       //
-      
+      void configure();
       
       //
       // member data
@@ -63,7 +63,7 @@ namespace edm {
       typedef std::map<std::string, std::vector<unsigned int> > PrescaleTable_t;
 
       boost::mutex    mutex_;
-      bool	      reconfigured_;
+      bool	      configured_;
       VString_t       lvl1Labels_; 
       unsigned int    nLvl1Index_;
       unsigned int    iLvl1IndexDefault_;
