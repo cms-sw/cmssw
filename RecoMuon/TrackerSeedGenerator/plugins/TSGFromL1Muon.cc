@@ -123,9 +123,9 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
       unsigned int nSets = candidates.size();
       for (unsigned int ic= 0; ic <nSets; ic++) {
 
-        const std::vector<ctfseeding::SeedingHit>& hits = candidates[ic].hits();
+        const SeedingHitSet & hits =  candidates[ic]; 
         std::vector<const TrackingRecHit *> trh;
-        for (unsigned int i= 0, nHits = hits.size(); i< nHits; ++i) trh.push_back( hits[i] );
+        for (unsigned int i= 0, nHits = hits.size(); i< nHits; ++i) trh.push_back( hits[i]->hit() );
 
         theFitter->setPxConstraint(hits);
         reco::Track* track = theFitter->run(es, trh, region);

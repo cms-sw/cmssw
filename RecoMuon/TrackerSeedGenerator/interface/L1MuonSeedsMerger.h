@@ -9,7 +9,7 @@ namespace edm {class ParameterSet;}
 
 class L1MuonSeedsMerger {
 public:
-  typedef std::pair<const reco::Track*, SeedingHitSet::Hits > TrackAndHits; 
+  typedef std::pair<const reco::Track*, SeedingHitSet > TrackAndHits; 
   typedef std::vector<TrackAndHits> TracksAndHits; 
   L1MuonSeedsMerger(const edm::ParameterSet& cfg);
   virtual ~L1MuonSeedsMerger(){}

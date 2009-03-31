@@ -8,6 +8,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 
 #include <math.h>
 
@@ -24,14 +25,10 @@ void L1MuonPixelTrackFitter::setL1Constraint(const L1MuGMTCand & muon)
   theChargeL1 = muon.charge();
 }
 
-void L1MuonPixelTrackFitter::setPxConstraint(const std::vector<ctfseeding::SeedingHit> & hits)
+void L1MuonPixelTrackFitter::setPxConstraint(const SeedingHitSet & hits)
 {
-  float r1 = hits[0].r(); 
-  float r2 = hits[1].r(); 
-  float phi1 = hits[0].phi();  
-  float phi2 = hits[1].phi();  
-  theHit1 = GlobalPoint(r1*cos(phi1), r1*sin(phi1), hits[0].z());
-  theHit2 = GlobalPoint(r2*cos(phi2), r2*sin(phi2), hits[1].z());
+  theHit1 = hits[0]->globalPosition();
+  theHit1 = hits[1]->globalPosition();
 }
 
 reco::Track* L1MuonPixelTrackFitter::run( const edm::EventSetup& es, 

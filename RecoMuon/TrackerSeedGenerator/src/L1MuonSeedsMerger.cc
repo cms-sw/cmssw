@@ -60,15 +60,15 @@ L1MuonSeedsMerger::Action
     L1MuonSeedsMerger::compare(const TrackAndHits* a, const TrackAndHits* b) const
 {
   int nshared = 0;
-  const SeedingHitSet::Hits & hitsA = a->second;
-  const SeedingHitSet::Hits & hitsB = b->second;
-  SeedingHitSet::Hits::const_iterator ihA, ihB;
-  for (ihA = hitsA.begin(); ihA != hitsA.end(); ihA++)
-    for (ihB = hitsB.begin(); ihB != hitsB.end(); ihB++) {
-      const TrackingRecHit* trha = *ihA;
-      const TrackingRecHit* trhb = *ihB;
-      if (trha==trhb) nshared++;
+  const SeedingHitSet & hitsA = a->second;
+  const SeedingHitSet & hitsB = b->second;
+  for (unsigned int iHitA=0, nHitsA=hitsA.size(); iHitA < nHitsA; ++iHitA) {
+    const TrackingRecHit* trhA = hitsA[iHitA]->hit();
+    for (unsigned int iHitB=0, nHitsB=hitsB.size(); iHitB < nHitsB; ++iHitB) {
+      const TrackingRecHit* trhB = hitsB[iHitB]->hit();
+      if (trhA==trhB) nshared++;
     }
+  }
 
   if (nshared >= 2) {
     if (hitsA.size() >= 3 && hitsB.size() >= 3 )

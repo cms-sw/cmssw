@@ -14,12 +14,12 @@
 
 namespace edm {class EventSetup;}
 namespace reco { class Track;}
-namespace ctfseeding { class SeedingHit;}
 
 class TrackingRegion;
 class TrackingRecHit;
 class L1MuGMTCand;
 class PixelRecoLineRZ;
+class SeedingHitSet;
 
 class L1MuonPixelTrackFitter : public PixelFitter {
 
@@ -52,7 +52,7 @@ public:
   virtual ~L1MuonPixelTrackFitter(){}
 
   void setL1Constraint(const L1MuGMTCand& muon);
-  void setPxConstraint(const std::vector<ctfseeding::SeedingHit> & hits);
+  void setPxConstraint(const SeedingHitSet & hits);
 
   virtual reco::Track* run( 
       const edm::EventSetup& es,
