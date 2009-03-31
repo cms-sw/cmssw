@@ -90,7 +90,7 @@ class PlotMaker {
   double def_jetPtMin     ; 
   double def_photonPtMin  ; 
   
-  reco::PixelMatchGsfElectronCollection theElectronCollection;
+  reco::GsfElectronCollection theElectronCollection;
   reco::MuonCollection                  theMuonCollection    ;
   reco::PhotonCollection                thePhotonCollection  ;
   reco::CaloJetCollection               theCaloJetCollection ;

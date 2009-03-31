@@ -59,7 +59,7 @@ class RecoSelector {
   double reco_ptMuonMin;
   double reco_ptPhotMin;
 
-  const reco::PixelMatchGsfElectronCollection* theElectronCollection;  
+  const reco::GsfElectronCollection* theElectronCollection;  
   const reco::MuonCollection*                  theMuonCollection    ;
   const reco::PhotonCollection*                thePhotonCollection  ;
   const reco::CaloJetCollection*               theCaloJetCollection ;

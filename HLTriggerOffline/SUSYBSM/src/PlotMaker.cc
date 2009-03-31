@@ -2024,7 +2024,7 @@ void PlotMaker::handleObjects(const edm::Event& iEvent)
 
 
   //Get the electrons
-  Handle<PixelMatchGsfElectronCollection> theElectronCollectionHandle; 
+  Handle<GsfElectronCollection> theElectronCollectionHandle; 
   iEvent.getByLabel(m_electronSrc, theElectronCollectionHandle);
   theElectronCollection = *theElectronCollectionHandle;
   std::sort(theElectronCollection.begin(), theElectronCollection.end(), PtSorter());
