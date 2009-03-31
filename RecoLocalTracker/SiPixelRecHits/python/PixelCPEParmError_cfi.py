@@ -9,7 +9,10 @@ PixelCPEParmErrorESProducer = cms.ESProducer("PixelCPEParmErrorESProducer",
     # if "UseSigma = false", then use RMS errors - not recommended 
     UseSigma = cms.bool(True),
     PixelErrorParametrization = cms.string('NOTcmsim'),
-    Alpha2Order = cms.bool(True)
+    Alpha2Order = cms.bool(True),
+
+    # petar, for clusterProbability() from TTRHs
+    ClusterProbComputationFlag = cms.int32(0)
 )
 
 

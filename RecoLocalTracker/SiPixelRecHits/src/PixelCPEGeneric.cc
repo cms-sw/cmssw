@@ -139,60 +139,9 @@ LocalPoint
 PixelCPEGeneric::localPosition(const SiPixelCluster& cluster, 
 			       const GeomDetUnit & det) const 
 {
-  setTheDet( det );  //!< Initialize this det unit
+  setTheDet( det, cluster );  //!< Initialize this det unit
   computeLorentzShifts();  //!< correctly compute lorentz shifts in X and Y
 
-  if ( UseErrorsFromTemplates_ )
-    {
-      bool fpix;  //!< barrel(false) or forward(true)
-      if ( thePart == GeomDetEnumerators::PixelBarrel )   
-	fpix = false;    // no, it's not forward -- it's barrel
-      else                                              
-	fpix = true;     // yes, it's forward
-      
-      float qclus = cluster.charge();	
-      
-      pixmx  = -999.9; // max pixel charge for truncation of 2-D cluster
-      sigmay = -999.9; // CPE Generic y-error for multi-pixel cluster
-      deltay = -999.9; // CPE Generic y-bias for multi-pixel cluster
-      sigmax = -999.9; // CPE Generic x-error for multi-pixel cluster
-      deltax = -999.9; // CPE Generic x-bias for multi-pixel cluster
-      sy1    = -999.9; // CPE Generic y-error for single single-pixel
-      dy1    = -999.9; // CPE Generic y-bias for single single-pixel cluster
-      sy2    = -999.9; // CPE Generic y-error for single double-pixel cluster
-      dy2    = -999.9; // CPE Generic y-bias for single double-pixel cluster
-      sx1    = -999.9; // CPE Generic x-error for single single-pixel cluster
-      dx1    = -999.9; // CPE Generic x-bias for single single-pixel cluster
-      sx2    = -999.9; // CPE Generic x-error for single double-pixel cluster
-      dx2    = -999.9; // CPE Generic x-bias for single double-pixel cluster
-      
-      qBin_ = templ_.qbin( templID_, fpix, cotalpha_, cotbeta_, qclus,  // inputs 
-			   pixmx,                                       // returned by reference
-			   sigmay, deltay, sigmax, deltax,              // returned by reference
-			   sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2 );    // returned by reference
-      
-      // These numbers come in microns from the qbin(...) call. Transform them to cm. 
-      const float micronsToCm = 1.0e-4;
-
-      deltax = deltax * micronsToCm;
-      dx1 = dx1 * micronsToCm;
-      dx2 = dx2 * micronsToCm;
-      
-      deltay = deltay * micronsToCm;
-      dy1 = dy1 * micronsToCm;
-      dy2 = dy2 * micronsToCm;
-
-      sigmax = sigmax * micronsToCm;
-      sx1 = sx1 * micronsToCm;
-      sx2 = sx2 * micronsToCm;
-      
-      sigmay = sigmay * micronsToCm;
-      sy1 = sy1 * micronsToCm;
-      sy2 = sy2 * micronsToCm;
-      
-    } // if ( UseErrorsFromTemplates_ )
-     
- 
   float Q_f_X = 0.0;        //!< Q of the first  pixel  in X 
   float Q_l_X = 0.0;        //!< Q of the last   pixel  in X
   float Q_m_X = 0.0;        //!< Q of the middle pixels in X
@@ -255,8 +204,7 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 			      theTopol->isItBigPixelInX( cluster.maxPixelRow() ),
 			      the_eff_charge_cut_lowX,
                               the_eff_charge_cut_highX,
-                              the_size_cutX,           // cut for eff charge width &&&
-			      cotAlphaFromCluster_ );  // returned to us
+                              the_size_cutX);           // cut for eff charge width &&&
 
 
   if (theVerboseLevel > 20) 
@@ -272,75 +220,72 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 			      theTopol->isItBigPixelInY( cluster.maxPixelCol() ),
 			      the_eff_charge_cut_lowY,
                               the_eff_charge_cut_highY,
-                              the_size_cutY,           // cut for eff charge width &&&
-			      cotBetaFromCluster_ );   // returned to us
-
-
+                              the_size_cutY);           // cut for eff charge width &&&
+			     
   // Apply irradiation corrections.
-  if ( IrradiationBiasCorrection_ )
+  // If IrradiationBiasCorrection is set to False in PixelCPEGeneric_cfi.py, these corrections are set to zero. 
+
+  if ( cluster.sizeX() == 1 )
     {
-      if ( cluster.sizeX() == 1 )
-	{
-	  // sanity chack
-	  if ( cluster.maxPixelRow() != cluster.minPixelRow() )
-	    throw cms::Exception("PixelCPEGeneric::localPosition") 
-	      << "\nERROR: cluster.maxPixelRow() != cluster.minPixelRow() although x-size = 1 !!!!! " << "\n\n";
-	  
-	  // Find if pixel is double (big). 
-	  bool bigInX = theTopol->isItBigPixelInX( cluster.maxPixelRow() );
-	  
-	  if ( !bigInX ) 
-	    {
-	      //cout << "Apply correction dx1 = " << dx1 << " to xPos = " << xPos << endl;
-	      xPos -= dx1;
-	    }
-	  else           
-	    {
-	      //cout << "Apply correction dx2 = " << dx2 << " to xPos = " << xPos << endl;
-	      xPos -= dx2;
-	    }
-	}
-      else if ( cluster.sizeX() > 1 )
-	{
-	  //cout << "Apply correction deltax = " << deltax << " to xPos = " << xPos << endl;
-	  xPos -= deltax;
-	}
-      else
+      // sanity chack
+      if ( cluster.maxPixelRow() != cluster.minPixelRow() )
 	throw cms::Exception("PixelCPEGeneric::localPosition") 
-	  << "\nERROR: Unphysical cluster x-size = " <<  (int)cluster.sizeX() << "\n\n";
+	  << "\nERROR: cluster.maxPixelRow() != cluster.minPixelRow() although x-size = 1 !!!!! " << "\n\n";
+
+      // Find if pixel is double (big). 
+      bool bigInX = theTopol->isItBigPixelInX( cluster.maxPixelRow() );
+    
+      if ( !bigInX ) 
+	{
+	  //cout << "Apply correction correction_deltax1 = " << correction_deltax1 << " to xPos = " << xPos << endl;
+	  xPos -= correction_deltax1;
+	}
+      else           
+	{
+	  //cout << "Apply correction correction_deltax2 = " << correction_deltax2 << " to xPos = " << xPos << endl;
+	  xPos -= correction_deltax2;
+	}
+    }
+  else if ( cluster.sizeX() > 1 )
+    {
+      //cout << "Apply correction correction_deltax = " << correction_deltax << " to xPos = " << xPos << endl;
+      xPos -= correction_deltax;
+    }
+  else
+    throw cms::Exception("PixelCPEGeneric::localPosition") 
+      << "\nERROR: Unphysical cluster x-size = " <<  (int)cluster.sizeX() << "\n\n";
+
+  if ( cluster.sizeY() == 1 )
+    {
+      // sanity chack
+      if ( cluster.maxPixelCol() != cluster.minPixelCol() )
+	throw cms::Exception("PixelCPEGeneric::localPosition") 
+	  << "\nERROR: cluster.maxPixelCol() != cluster.minPixelCol() although y-size = 1 !!!!! " << "\n\n";
       
-      if ( cluster.sizeY() == 1 )
+      // Find if pixel is double (big). 
+      bool bigInY = theTopol->isItBigPixelInY( cluster.maxPixelCol() );
+      
+      if ( !bigInY ) 
 	{
-	  // sanity chack
-	  if ( cluster.maxPixelCol() != cluster.minPixelCol() )
-	    throw cms::Exception("PixelCPEGeneric::localPosition") 
-	      << "\nERROR: cluster.maxPixelCol() != cluster.minPixelCol() although y-size = 1 !!!!! " << "\n\n";
-	  
-	  // Find if pixel is double (big). 
-	  bool bigInY = theTopol->isItBigPixelInY( cluster.maxPixelCol() );
-	  
-	  if ( !bigInY ) 
-	    {
-	      //cout << "Apply correction dy1 = " << dy1 << " to yPos = " << yPos  << endl;
-	      yPos -= dy1;
-	    }
-	  else           
-	    {
-	      //cout << "Apply correction dy2 = " << dy2  << " to yPos = " << yPos << endl;
-	      yPos -= dy2;
-	    }
+	  //cout << "Apply correction correction_deltay1 = " << correction_deltay1 << " to yPos = " << yPos  << endl;
+	  yPos -= correction_deltay1;
 	}
-      else if ( cluster.sizeY() > 1 )
+      else           
 	{
-	  //cout << "Apply correction deltay = " << deltay << " to yPos = " << yPos << endl;
-	  yPos -= deltay;
+	  //cout << "Apply correction correction_deltay2 = " << correction_deltay2  << " to yPos = " << yPos << endl;
+	  yPos -= correction_deltay2;
 	}
-      else
-	throw cms::Exception("PixelCPEGeneric::localPosition") 
+    }
+  else if ( cluster.sizeY() > 1 )
+    {
+      //cout << "Apply correction correction_deltay = " << correction_deltay << " to yPos = " << yPos << endl;
+      yPos -= correction_deltay;
+    }
+  else
+    throw cms::Exception("PixelCPEGeneric::localPosition") 
       << "\nERROR: Unphysical cluster y-size = " << (int)cluster.sizeY() << "\n\n";
-      
-    } // if ( IrradiationBiasCorrection_ )
-  
+
+
   //--- Now put the two together
   LocalPoint pos_in_local( xPos, yPos );
   return pos_in_local;
@@ -368,9 +313,8 @@ generic_position_formula( int size,                //!< Size of this projection.
 			  bool last_is_big,        //!< true if the last is big
 			  double eff_charge_cut_low, //!< Use edge if > W_eff  &&&
 			  double eff_charge_cut_high,//!< Use edge if < W_eff  &&&
-			  double size_cut,         //!< Use edge when size == cuts
-			  float & cot_angle_from_length  //!< Aux output: angle from len
-			  ) const
+			  double size_cut         //!< Use edge when size == cuts
+			 ) const
 {
   double geom_center = 0.5 * ( upper_edge_first_pix + lower_edge_last_pix );
 
@@ -430,19 +374,6 @@ generic_position_formula( int size,                //!< Size of this projection.
   double Qdiff = Q_l - Q_f;
   double Qsum  = Q_l + Q_f;
   double hit_pos = geom_center + 0.5*(Qdiff/Qsum) * W_eff + half_lorentz_shift;
-  
-
-
-  //--- At the end, also compute the *average* angle consistent
-  //--- with the cluster length in this dimension.  This variable will
-  //--- be copied to cotAlphaFromCluster_ and cotBetaFromCluster_.  It's
-  //--- basically inverting W_pred to get cot_angle, except this one is
-  //--- driven by the cluster length.
-  //--- (See the comment in PixelCPEBase header file for what these are for.)
-  double ave_path_length_projected =
-    pitch*0.5*sum_of_edge + W_inner - 2*half_lorentz_shift;
-  cot_angle_from_length = ave_path_length_projected / theThickness;
-
   
   //--- Debugging output
   if (theVerboseLevel > 20) {
@@ -526,7 +457,7 @@ collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
 
       // ggiurgiu@fnal.gov: add pixel charge truncation
       if ( UseErrorsFromTemplates_ && TruncatePixelCharge_ ) 
-	pix_adc = min( (float)(pixelsVec[i].adc), pixmx );
+	pix_adc = min( (float)(pixelsVec[i].adc), pix_maximum );
       else 
 	pix_adc = pixelsVec[i].adc;
 
@@ -561,7 +492,9 @@ LocalError
 PixelCPEGeneric::localError( const SiPixelCluster& cluster, 
 			     const GeomDetUnit & det) const 
 {
-  setTheDet( det );
+  setTheDet( det, cluster );
+
+  const float micronsToCm = 1.0e-4;
 
   // The squared errors
   float xerr_sq = -99999.9;
@@ -587,7 +520,6 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
   */
 
   // These are determined by looking at residuals for edge clusters
-  const float micronsToCm = 1.0e-4;
   float xerr = EdgeClusterErrorX_ * micronsToCm;
   float yerr = EdgeClusterErrorY_ * micronsToCm;
   
@@ -656,8 +588,40 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
       
       if ( UseErrorsFromTemplates_ )
 	{
-	  if ( qBin_ == 0 && inflate_errors )
+	  bool fpix;  //!< barrel(false) or forward(true)
+	  if ( thePart == GeomDetEnumerators::PixelBarrel )   
+	    fpix = false;    // no, it's not forward -- it's barrel
+	  else                                              
+	    fpix = true;     // yes, it's forward
+	  
+	  float qclus = cluster.charge();	
+	  
+	  float pixmx  = -999.9; // max pixel charge for truncation of 2-D cluster
+	  float sigmay = -999.9; // CPE Generic y-error for multi-pixel cluster
+	  float deltay = -999.9; // CPE Generic y-bias for multi-pixel cluster
+	  float sigmax = -999.9; // CPE Generic x-error for multi-pixel cluster
+	  float deltax = -999.9; // CPE Generic x-bias for multi-pixel cluster
+	  float sy1    = -999.9; // CPE Generic y-error for single single-pixel
+	  float dy1    = -999.9; // CPE Generic y-bias for single single-pixel cluster
+	  float sy2    = -999.9; // CPE Generic y-error for single double-pixel cluster
+	  float dy2    = -999.9; // CPE Generic y-bias for single double-pixel cluster
+	  float sx1    = -999.9; // CPE Generic x-error for single single-pixel cluster
+	  float dx1    = -999.9; // CPE Generic x-bias for single single-pixel cluster
+	  float sx2    = -999.9; // CPE Generic x-error for single double-pixel cluster
+	  float dx2    = -999.9; // CPE Generic x-bias for single double-pixel cluster
+	  
+	  int ID = templID_;
+
+	  int qbin = templ_.qbin( ID, fpix, cotalpha_, cotbeta_, qclus,  // inputs 
+			       pixmx,                                       // returned by reference
+			       sigmay, deltay, sigmax, deltax,              // returned by reference
+			       sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2 );    // returned by reference
+	  
+	  
+	  if ( qbin == 0 && inflate_errors )
 	    {
+	      cout << "inflated errors:" << endl;
+	      
 	      int n_bigx = 0;
 	      int n_bigy = 0;
 	      
@@ -684,17 +648,41 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 	    {
 	      // Delault errors
 
+	      // These variables are defined in PixelCPEBase.h
+	      // They will be used in PixelCPEGeneric::localPosition(...). This is not the most beautiful C++ness, but it works.  
+	      pix_maximum = pixmx;  
+	      
+	      correction_deltax  = 0.0;
+	      correction_deltax1 = 0.0;
+	      correction_deltax2 = 0.0;
+	      
+	      correction_deltay  = 0.0;
+	      correction_deltay1 = 0.0;
+	      correction_deltay2 = 0.0;
+	      
+	      // Get irradiation correction
+	      if ( UseErrorsFromTemplates_ && IrradiationBiasCorrection_ )
+		{
+		  correction_deltax  = deltax * micronsToCm;
+		  correction_deltax1 = dx1 * micronsToCm;
+		  correction_deltax2 = dx2 * micronsToCm;
+		  
+		  correction_deltay  = deltay * micronsToCm;
+		  correction_deltay1 = dy1 * micronsToCm;
+		  correction_deltay2 = dy2 * micronsToCm;
+		}
+	      
 	      if ( !edgex )
 		{
 		  if ( sizex == 1 )
 		    {
 		      if ( !bigInX ) 
-			xerr = sx1;
+			xerr = sx1 * micronsToCm;
 		      else           
-			xerr = sx2;
+			xerr = sx2 * micronsToCm;
 		    }
 		  else if ( sizex > 1 )
-		    xerr = sigmax;
+		    xerr = sigmax * micronsToCm;
 		  else
 		    throw cms::Exception("PixelCPEGeneric::localError") 
 		      << "\nERROR: Unphysical cluster x-size = " << sizex << "\n\n";
@@ -705,12 +693,12 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 		  if ( sizey == 1 )
 		    {
 		      if ( !bigInY )
-			yerr = sy1;
+			yerr = sy1 * micronsToCm;
 		      else
-			yerr = sy2;
+			yerr = sy2 * micronsToCm;
 		    }
 		  else if ( sizey > 1 )
-		    yerr = sigmay;
+		    yerr = sigmay * micronsToCm;
 		  else
 		    throw cms::Exception("PixelCPEGeneric::localError") 
 		      << "\nERROR: Unphysical cluster y-size = " << sizex << "\n\n";

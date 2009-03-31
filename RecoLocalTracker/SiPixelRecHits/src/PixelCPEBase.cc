@@ -43,9 +43,9 @@ const float degsPerRad = 57.29578;
 //-----------------------------------------------------------------------------
 PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const SiPixelLorentzAngle * lorentzAngle, const SiPixelCPEGenericErrorParm * genErrorParm, const SiPixelTemplateDBObject * templateDBobject)
   : theDet(0), nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
-    cotAlphaFromCluster_(-99999.0), cotBetaFromCluster_(-99999.0),
-    probabilityX_(-99999.0), probabilityY_(-99999.0), qBin_(-99999.0),
-    clusterProbComputationFlag_(0)
+		probabilityX_(0.0), probabilityY_(0.0), qBin_(0),
+		isOnEdge_(0), hasBadPixels_(0), spansTwoROCs_(0),
+		hasFilledProb_(0), clusterProbComputationFlag_(0)
 {
   //--- Lorentz angle tangent per Tesla
   //   theTanLorentzAnglePerTesla =
@@ -87,7 +87,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
 //  One function to cache the variables common for one DetUnit.
 //-----------------------------------------------------------------------------
 void
-PixelCPEBase::setTheDet( const GeomDetUnit & det ) const 
+PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster ) const 
 {
   if ( theDet == &det )
     return;       // we have already seen this det unit
@@ -97,8 +97,6 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det ) const
 
   if ( !theDet ) 
     {
-      // &&& Fatal error!  TO DO: throw an exception!
-      
       throw cms::Exception(" PixelCPEBase::setTheDet : ")
             << " Wrong pointer to PixelGeomDetUnit object !!!";
     }
@@ -163,7 +161,33 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det ) const
     theLShiftY=0.;
   }
 
-  if (theVerboseLevel > 1) 
+	//--- Geometric Quality Information
+	int minInX,minInY,maxInX,maxInY=0;
+	minInX = cluster.minPixelRow();
+	minInY = cluster.minPixelCol();
+	maxInX = cluster.maxPixelRow();
+	maxInY = cluster.maxPixelCol();
+
+	if(theTopol->isItEdgePixelInX(minInX) || theTopol->isItEdgePixelInX(maxInX) ||
+		 theTopol->isItEdgePixelInY(minInY) || theTopol->isItEdgePixelInY(maxInY) )  {
+		isOnEdge_ = true;
+	}
+	else isOnEdge_ = false;
+
+	// Bad Pixels have their charge set to 0 in the clusterizer
+	hasBadPixels_ = false;
+	for(unsigned int i=0; i<cluster.pixelADC().size(); ++i) {
+		if(cluster.pixelADC()[i] == 0) hasBadPixels_ = true;
+	}
+
+	if(theTopol->containsBigPixelInX(minInX,maxInX) ||
+		 theTopol->containsBigPixelInY(minInY,maxInY) )  {
+		spansTwoROCs_ = true;
+	}
+	else spansTwoROCs_ = false;
+	
+
+	if (theVerboseLevel > 1) 
     {
       LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" 
 			       << " thePart = " << thePart
@@ -313,7 +337,7 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
 LocalPoint
 PixelCPEBase::localPosition( const SiPixelCluster& cluster, 
 			     const GeomDetUnit & det) const {
-  setTheDet( det );
+  setTheDet( det, cluster );
   
   float lpx = xpos(cluster);
   float lpy = ypos(cluster);
@@ -608,31 +632,30 @@ PixelCPEBase::rawQualityWord() const
 {
   SiPixelRecHitQuality::QualWordType qualWord(0);
 
-  SiPixelRecHitQuality::thePacking.setCotAlphaFromCluster( cotAlphaFromCluster_ , 
-							   qualWord );
-
-  SiPixelRecHitQuality::thePacking.setCotBetaFromCluster ( cotBetaFromCluster_ ,
-							   qualWord );
-
-  SiPixelRecHitQuality::thePacking.setProbabilityX( probabilityX_ ,
+	SiPixelRecHitQuality::thePacking.setProbabilityX  ( probabilityX_ ,
 						    qualWord );
 
-  SiPixelRecHitQuality::thePacking.setProbabilityY( probabilityY_ , 
+  SiPixelRecHitQuality::thePacking.setProbabilityY  ( probabilityY_ , 
 						    qualWord );
 
-  SiPixelRecHitQuality::thePacking.setQBin         ( (int)qBin_, 
+  SiPixelRecHitQuality::thePacking.setQBin          ( (int)qBin_, 
 					             qualWord );
 
-  //--- &&& We're not computing these three yet...
-  //--- &&& But we should!
-  // SiPixelRecHitQuality::thePacking.setIsOnEdge     ( flag, 
-  //						        qualWord );
+	SiPixelRecHitQuality::thePacking.setIsOnEdge      ( isOnEdge_,
+  						        qualWord );
 
-  // SiPixelRecHitQuality::thePacking.setHasBadPixels ( flag, 
-  //					                qualWord );
+	SiPixelRecHitQuality::thePacking.setHasBadPixels  ( hasBadPixels_,
+  					                qualWord );
 
-  // SiPixelRecHitQuality::thePacking.setSpansTwoROCs ( flag, 
-  //   					                qualWord );
+	SiPixelRecHitQuality::thePacking.setSpansTwoROCs  ( spansTwoROCs_,
+     					                qualWord );
+
+	SiPixelRecHitQuality::thePacking.setHasFilledProb ( hasFilledProb_,
+  						        qualWord );
+
+	
+	
+
 
   return qualWord;
 }

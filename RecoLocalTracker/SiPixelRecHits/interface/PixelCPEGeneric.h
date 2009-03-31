@@ -94,8 +94,7 @@ class PixelCPEGeneric : public PixelCPEBase
 			      bool last_is_big,        //!< true if the last is big
 			      double eff_charge_cut_low, //!< Use edge if > W_eff (in pix) &&&
 			      double eff_charge_cut_high,//!< Use edge if < W_eff (in pix) &&&
-			      double size_cut,           //!< Use edge when size == cuts
-			      float & cot_angle_from_length  //!< Aux output: angle from len
+			      double size_cut           //!< Use edge when size == cuts
 			      ) const;
 
   void
@@ -126,7 +125,6 @@ class PixelCPEGeneric : public PixelCPEBase
 
   bool UseErrorsFromTemplates_;
   bool DoCosmics_;
-
   bool LoadTemplatesFromDB_;
   bool TruncatePixelCharge_;
   bool IrradiationBiasCorrection_;
@@ -139,29 +137,6 @@ class PixelCPEGeneric : public PixelCPEBase
 
   mutable SiPixelTemplate templ_;
   mutable int templID_; 
-  
-  // The truncation value pix_maximum is an angle-dependent cutoff on the
-  // individual pixel signals. It should be applied to all pixels in the
-  // cluster [signal_i = fminf(signal_i, pixmax)] before the column and row
-  // sums are made. Morris
-  mutable float pixmx; 
-  
-  // These are errors predicted by PIXELAV
-  mutable float sigmay; // CPE Generic y-error for multi-pixel cluster
-  mutable float sigmax; // CPE Generic x-error for multi-pixel cluster
-  mutable float sy1   ; // CPE Generic y-error for single single-pixel
-  mutable float sy2   ; // CPE Generic y-error for single double-pixel cluster
-  mutable float sx1   ; // CPE Generic x-error for single single-pixel cluster
-  mutable float sx2   ; // CPE Generic x-error for single double-pixel cluster
-  
-  // These are irradiation bias corrections
-  mutable float deltay; // CPE Generic y-bias for multi-pixel cluster
-  mutable float deltax; // CPE Generic x-bias for multi-pixel cluster
-  mutable float dy1   ; // CPE Generic y-bias for single single-pixel cluster
-  mutable float dy2   ; // CPE Generic y-bias for single double-pixel cluster
-  mutable float dx1   ; // CPE Generic x-bias for single single-pixel cluster
-  mutable float dx2   ; // CPE Generic x-bias for single double-pixel cluster
-    
 
  protected:
   //--- These functions are no longer needed, yet they are declared 

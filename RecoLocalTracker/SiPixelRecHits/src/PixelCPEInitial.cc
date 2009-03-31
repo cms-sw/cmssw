@@ -41,7 +41,7 @@ PixelCPEInitial::PixelCPEInitial(edm::ParameterSet const & conf, const MagneticF
 LocalError  
 PixelCPEInitial::localError( const SiPixelCluster& cluster, const GeomDetUnit & det)const 
 {
-  setTheDet( det );
+  setTheDet( det, cluster );
   int sizex = cluster.sizeX();
   int sizey = cluster.sizeY();
 
