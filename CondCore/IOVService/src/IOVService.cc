@@ -35,6 +35,11 @@ cond::IOVService::payloadContainerName( const std::string& token ){
   return m_impl->payloadContainerName(token);
 }
 
+void cond::IOVService::loadDicts( const std::string& iovToken) {
+  return m_impl->loadDicts(iovToken);
+}
+
+
 void 
 cond::IOVService::deleteAll( bool withPayload ){
   m_impl->deleteAll( withPayload );

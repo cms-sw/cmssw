@@ -27,6 +27,7 @@ namespace cond{
       validity( const std::string& iovToken, cond::Time_t currenttime );
 
     std::string payloadContainerName( const std::string& iovtoken );
+    void loadDicts( const std::string& iovToken);
 
     void deleteAll( bool withPayload=false );
 

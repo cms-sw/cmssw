@@ -128,6 +128,16 @@ cond::IOVServiceImpl::exportIOVWithPayload( cond::PoolTransaction& destDB,
 
 #include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 
+void cond::IOVServiceImpl::loadDicts( const std::string& iovToken) {
+    // loadlib
+    cond::TypedRef<cond::IOVSequence> iov(*m_pooldb,iovToken);
+    // FIXME use iov metadata
+    std::string ptok = iov->iovs().front().wrapperToken();
+    m_pooldb->commit();   
+    cond::reflexTypeByToken(ptok);
+    m_pooldb->start(true);
+}
+
 
 std::string 
 cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
@@ -136,18 +146,9 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
 						 cond::Time_t since,
 						 cond::Time_t till, 
 						 bool outOfOrder){
+ 
   
-  
-  {
-    cond::TypedRef<cond::IOVSequence> iov(*m_pooldb,iovToken);
-    // FIXME use iov metadata
-    std::string ptok = iov->iovs().front().wrapperToken();
-    m_pooldb->commit();   
-    cond::reflexTypeByToken(ptok);
-    m_pooldb->start(true);
-  }
-  
-
+  loadDicts(iovToken);
 
   cond::IOVSequence const & iov=iovSeq(iovToken);
   since = std::max(since, iov.firstSince());

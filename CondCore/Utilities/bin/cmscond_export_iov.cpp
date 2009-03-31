@@ -274,6 +274,7 @@ int main( int argc, char** argv ){
 
     sourcedb.start(true);
     std::string payloadContainer=iovmanager.payloadContainerName(sourceiovtoken);
+    iovmanager.loadDicts(sourceiovtoken);
     sourcedb.commit();
 
 
