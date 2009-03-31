@@ -31,13 +31,16 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.26 2009/03/28 20:42:11 charlot Exp $
+ * \version $Id: GsfElectron.h,v 1.27 2009/03/31 10:30:20 charlot Exp $
  *
  ****************************************************************************/
 
 //*****************************************************************************
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.27  2009/03/31 10:30:20  charlot
+// added getters for structs, removed setter for the core
+//
 // Revision 1.26  2009/03/28 20:42:11  charlot
 // added momentum at vertex with bs constraint
 //
@@ -388,6 +391,8 @@ class GsfElectron : public RecoCandidate
     float dr04HcalTowerSumEt() const { return dr04HcalDepth1TowerSumEt()+dr04HcalDepth2TowerSumEt() ; }
     IsolationVariables isolationVariables04() const { return dr04_ ; }
 
+    void setIsolation03(struct IsolationVariables dr03) { dr03_=dr03; }
+    void setIsolation04(struct IsolationVariables dr04) { dr04_=dr04; }
 
   private:
 
