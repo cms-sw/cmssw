@@ -63,12 +63,10 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
     setTheDet( det, cl );
     computeAnglesFromDetPosition(cl, det);
     
-    // localError( cl, det ) must be called first because in PixelCPEGeneric::localError(...) 
-    // pix_maximum and irradiation corrections are determined and then used in PixelCPEGeneric::localPosition   
+		// localPosition( cl, det ) must be called before localError( cl, det ) !!!
+		LocalPoint lp = localPosition( cl, det );
+		LocalError le = localError( cl, det );        
         
-    LocalError le = localError( cl, det );        
-    LocalPoint lp = localPosition( cl, det );
-    
     return std::make_pair( lp, le );
   }
 
@@ -83,11 +81,9 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
     setTheDet( det, cl );
     computeAnglesFromTrajectory(cl, det, ltp);
 
-    // localError( cl, det ) must be called first because in PixelCPEGeneric::localError(...) 
-    // pix_maximum and irradiation corrections are determined and then used in PixelCPEGeneric::localPosition 
-
-    LocalError le = localError( cl, det );
-    LocalPoint lp = localPosition( cl, det );
+    // localPosition( cl, det ) must be called before localError( cl, det ) !!!
+		LocalPoint lp = localPosition( cl, det ); 
+		LocalError le = localError( cl, det );        
 
     return std::make_pair( lp, le );
   } 
@@ -107,11 +103,9 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
     cotbeta_  = tan(HalfPi - beta_ );
     setTheDet( det, cl );
 
-    // localError( cl, det ) must be called first because in PixelCPEGeneric::localError(...) 
-    // pix_maximum and irradiation corrections are determined and then used in PixelCPEGeneric::localPosition 
-
-    LocalError le = localError( cl, det );
-    LocalPoint lp = localPosition( cl, det );
+		// localPosition( cl, det ) must be called before localError( cl, det ) !!!
+		LocalPoint lp = localPosition( cl, det ); 
+		LocalError le = localError( cl, det );        
 
     return std::make_pair( lp, le );
   }
@@ -202,20 +196,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
 
   // ggiurgiu@jhu.edu (10/18/2008)
   mutable bool with_track_angle; 
-
-  // ggiurgiu@jhu.edu, 01/31/09
-  // The truncation value pix_maximum is an angle-dependent cutoff on the
-  // individual pixel signals. It should be applied to all pixels in the
-  // cluster [signal_i = fminf(signal_i, pixmax)] before the column and row
-  // sums are made. Morris
-  mutable float pix_maximum; 
-  
-  mutable float correction_deltax ; // CPE Generic x-bias for multi-pixel cluster
-  mutable float correction_deltax1; // CPE Generic x-bias for single single-pixel cluster
-  mutable float correction_deltax2; // CPE Generic x-bias for single double-pixel cluster
-  mutable float correction_deltay ; // CPE Generic y-bias for multi-pixel cluster
-  mutable float correction_deltay1; // CPE Generic y-bias for single single-pixel cluster
-  mutable float correction_deltay2; // CPE Generic y-bias for single double-pixel cluster
 
   //--- Probability
   mutable float probabilityX_ ; 
