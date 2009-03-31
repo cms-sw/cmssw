@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/8E29_V247/V2 (CMSSW_3_1_X_2009-03-24-1100_HLT4)
+# /dev/CMSSW_3_1_0/pre2/8E29_V248/V2 (CMSSW_3_1_X_2009-03-31-0100_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/8E29_V247/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/8E29_V248/V2')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -1680,7 +1680,7 @@ hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     )
 )
 hltMuonRPCDigis = cms.EDProducer( "RPCUnpackingModule",
-    InputLabel = cms.untracked.InputTag( "rawDataCollector" ),
+    InputLabel = cms.InputTag( "rawDataCollector" ),
     doSynchro = cms.bool( False )
 )
 hltRpcRecHits = cms.EDProducer( "RPCRecHitProducer",
