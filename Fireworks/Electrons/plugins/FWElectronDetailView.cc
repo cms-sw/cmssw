@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.15 2009/03/29 14:13:38 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.17 2009/03/31 08:39:02 jmuelmen Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 #include "TGeoBBox.h"
 
 #include "TGLViewer.h"
+#include "TGLOverlayButton.h"
 
 #include "TEveManager.h"
 #include "TEveCalo.h"
@@ -82,6 +83,24 @@ TEveElement* FWElectronDetailView::build (const FWModelId &id, const reco::GsfEl
    return build_projected(id, iElectron);
 }
 
+// struct MyOverlayButton : public TGLOverlayButton {
+//      MyOverlayButton(TGLViewerBase *parent, const char *text, Float_t posx,
+// 		     Float_t posy, Float_t width, Float_t height) 
+// 	  : TGLOverlayButton(parent, text, posx, posy, width, height) { }
+//      virtual Bool_t Handle(TGLRnrCtx &rnrCtx, TGLOvlSelectRecord &, Event_t *event) 
+// 	  { 
+// 	       switch (event->fType) {
+// 	       case kButtonRelease:
+// 		    Clicked(rnrCtx.GetViewer());
+// 		    return kTRUE;
+// 		    break;
+// 	       default:
+// 		    break;
+// 	       }
+// 	       return kFALSE; 
+// 	  }
+// };
+
 TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
                                                     const reco::GsfElectron* iElectron)
 {
@@ -90,7 +109,11 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
    m_item = id.item();
 
    viewer()->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
-
+   TGLOverlayButton *tgo = 
+	new TGLOverlayButton(viewer(), "Show surrounding rec hits", 
+			     10, 10, 200, 16);
+   tgo->Connect("Clicked(TGLViewerBase* viewer)", "FWElectronDetailView", this, "showInterestingHits()");
+   
    TEveElementList* tList =  new TEveElementList(m_item->name().c_str(),"Supercluster RhoZ",true);
    tList->SetMainColor(m_item->defaultDisplayProperties().color());
    gEve->AddElement(tList);

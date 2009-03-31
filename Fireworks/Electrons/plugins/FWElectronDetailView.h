@@ -11,7 +11,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.h,v 1.3 2009/03/23 15:54:12 amraktad Exp $
+// $Id: FWElectronDetailView.h,v 1.4 2009/03/31 07:48:59 jmuelmen Exp $
 //
 
 
@@ -24,6 +24,9 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
+class TEveElement;
+class TEveCaloDataVec;
+class FWModelId;
 
 class FWElectronDetailView : public FWDetailView<reco::GsfElectron> {
 
@@ -32,6 +35,7 @@ public:
    virtual ~FWElectronDetailView();
 
    virtual TEveElement* build (const FWModelId &id, const reco::GsfElectron*);
+   void showInterestingHits () { printf("Interesting\n"); }
 
 protected:
    void setItem (const FWEventItem *iItem) {
@@ -39,7 +43,7 @@ protected:
    }
    TEveElement* build_projected (const FWModelId &id, const reco::GsfElectron*);
 
-   TEveElementList *makeLabels (const reco::GsfElectron &);
+   class TEveElementList *makeLabels (const reco::GsfElectron &);
    void getEcalCrystalsEndcap (std::vector<DetId> *, 
 			       int ix, int iy, int iz);
    void getEcalCrystalsBarrel (std::vector<DetId> *, 
@@ -76,7 +80,6 @@ private:
    const EcalRecHitCollection *m_endcap_hits;
    const EcalRecHitCollection *m_endcap_reduced_hits;
    std::vector<DetId> seed_detids;
-
 };
 
 #endif
