@@ -1,7 +1,7 @@
 offlineTemplate = """
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("OfflineValidator.oO[name]Oo.") 
+process = cms.Process("OfflineValidator") 
    
 process.load("Alignment.OfflineValidation..oO[dataset]Oo._cff")
 
@@ -17,7 +17,7 @@ process.maxEvents = cms.untracked.PSet(
  ##
 process.load("PhysicsTools.UtilAlgos.TFileService_cfi")
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('.oO[workdir]Oo./AlignmentValidation_.oO[name]Oo..root'),
+    fileName = cms.string('.oO[outputFile]Oo.'),
     closeFileFast = cms.untracked.bool(True)
  )
 #process.TFileService.closeFileFast = True
@@ -241,7 +241,7 @@ process.p = cms.Path(process.offlineBeamSpot*process.TrackHitFilter*process.Trac
 intoNTuplesTemplate="""
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process(".oO[name]Oo.IntoNTuples")
+process = cms.Process("ValidationIntoNTuples")
 
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
@@ -274,7 +274,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(0)
 )
 process.dump = cms.EDFilter("TrackerGeometryIntoNtuples",
-    outputFile = cms.untracked.string('.oO[workdir]Oo./.oO[name]Oo.ROOTGeometry.root'),
+    outputFile = cms.untracked.string('.oO[workdir]Oo./.oO[alignmentName]Oo.ROOTGeometry.root'),
     outputTreename = cms.untracked.string('alignTree')
 )
 
@@ -284,7 +284,7 @@ process.p = cms.Path(process.dump)
 compareTemplate="""
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("compareIdealTo.oO[name]Oo.Common.oO[common]Oo.")
+process = cms.Process("validation")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cff")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
@@ -307,9 +307,9 @@ process.maxEvents = cms.untracked.PSet(
 process.load("Alignment.OfflineValidation.TrackerGeometryCompare_cfi")
   # the input "IDEAL" is special indicating to use the ideal geometry of the release
 
-process.TrackerGeometryCompare.inputROOTFile1 = 'IDEAL'
-process.TrackerGeometryCompare.inputROOTFile2 = '.oO[workdir]Oo./.oO[name]Oo.ROOTGeometry.root'
-process.TrackerGeometryCompare.outputFile = ".oO[workdir]Oo./.oO[name]Oo.Comparison_common.oO[common]Oo..root"
+process.TrackerGeometryCompare.inputROOTFile1 = '.oO[referenceGeometry]Oo.'
+process.TrackerGeometryCompare.inputROOTFile2 = '.oO[comparedGeometry]Oo.'
+process.TrackerGeometryCompare.outputFile = ".oO[workdir]Oo./.oO[name]Oo..Comparison_common.oO[common]Oo..root"
 process.TrackerGeometryCompare.levels = [ .oO[levels]Oo. ]
 
   ##FIXME!!!!!!!!!
@@ -388,14 +388,13 @@ echo ""
 
 
 #retrive
-rfmkdir .oO[logdir]Oo.
+rfmkdir -p .oO[logdir]Oo.
 gzip LOGFILE_*_.oO[name]Oo..log
-find .oO[workdir]Oo. -maxdepth 1 -name "LOGFILE*.oO[name]Oo.*" -print | xargs -I {} bash -c "rfcp {} .oO[logdir]Oo."
-rfmkdir .oO[datadir]Oo.
-find .oO[workdir]Oo. -maxdepth 1 -name "*.oO[name]Oo.*.root" -print | xargs -I {} bash -c "rfcp {} .oO[datadir]Oo."
+find .oO[workdir]Oo. -maxdepth 1 -name "LOGFILE*.oO[alignmentName]Oo.*" -print | xargs -I {} bash -c "rfcp {} .oO[logdir]Oo."
+rfmkdir -p .oO[datadir]Oo.
+find .oO[workdir]Oo. -maxdepth 1 -name "*.oO[alignmentName]Oo.*.root" -print | xargs -I {} bash -c "rfcp {} .oO[datadir]Oo."
 #cleanup
-rm LOGFILE_*.log.gz
-rm .oO[workdir]Oo./*_.oO[name]Oo.*.root
+rm -rf .oO[workdir]Oo.
 echo "done."
 """
 
@@ -406,7 +405,7 @@ export STAGE_SVCCLASS=cmscaf
 source /afs/cern.ch/cms/sw/cmsset_default.sh
 cd .oO[CMSSW_BASE]Oo./src
 eval `scramv1 ru -sh`
-rfmkdir .oO[workdir]Oo.
+rfmkdir -p .oO[workdir]Oo.
 cd .oO[workdir]Oo.
 
 #run
@@ -414,4 +413,17 @@ cd .oO[workdir]Oo.
 .oO[CompareAllignments]Oo.
 
 find ./ -maxdepth 1 -name "*_result.root" -print | xargs -I {} bash -c "rfcp {} .oO[datadir]Oo."
+
+#zip stdout and stderr from the farm jobs
+gzip .oO[logdir]Oo./*.stderr
+gzip .oO[logdir]Oo./*.stdout
+
+"""
+
+
+mcValidateTemplate="""
+
+
+
+.oO[outputFile]Oo.
 """
