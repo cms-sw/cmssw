@@ -207,6 +207,9 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
     for( HBHEDigiCollection::const_iterator iter = hbhe.begin(); iter != hbhe.end(); iter++ ) {
       const HBHEDataFrame digi = (const HBHEDataFrame)(*iter);
       
+      // temporary fix to skip over calibrations channels not in DB
+      if (!digi.id().validDetId(digi.id().subdet(),digi.id().ieta(),digi.id().iphi(),digi.id().depth())) continue;
+
       calibs_= cond.getHcalCalibrations( digi.id() );
       const HcalQIECoder *qieCoder = cond.getHcalCoder( digi.id() );
       const HcalQIEShape *qieShape = cond.getHcalShape();
@@ -281,6 +284,8 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
     for( HODigiCollection::const_iterator iter = ho.begin(); iter != ho.end(); iter++ ) {
       const HODataFrame digi = (const HODataFrame)(*iter);
 
+      if (!digi.id().validDetId(HcalOuter,digi.id().ieta(),digi.id().iphi(),digi.id().depth())) continue;
+      
       calibs_ = cond.getHcalCalibrations( digi.id() );
       const HcalQIECoder *qieCoder = cond.getHcalCoder( digi.id() );
       const HcalQIEShape *qieShape = cond.getHcalShape();
@@ -335,6 +340,7 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
   try {
     for( HFDigiCollection::const_iterator iter = hf.begin(); iter != hf.end(); iter++ ) {
       const HFDataFrame digi = (const HFDataFrame)(*iter);
+      if (!digi.id().validDetId(HcalForward,digi.id().ieta(),digi.id().iphi(),digi.id().depth())) continue; 
 
       calibs_ = cond.getHcalCalibrations( digi.id() );
       const HcalQIECoder *qieCoder = cond.getHcalCoder( digi.id() );

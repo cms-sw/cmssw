@@ -132,88 +132,101 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
 
       // Set up plots for each failure mode of hot cells
       stringstream units; // We'll need to set the titles individually, rather than passing units to setupDepthHists2D (since this also would affect the name of the histograms)
-      
-      m_dbe->setCurrentFolder(baseFolder_+"/hot_rechit_above_threshold");
-      setupDepthHists2D(AboveEnergyThresholdCellsByDepth,
-			"Hot Cells Above Energy Threshold","");
-      //setMinMaxHists2D(AboveEnergyThresholdCellsByDepth,0.,1.);
 
-      // set more descriptive titles for plots
-      units.str("");
-      units<<"Hot Cells: Depth 1 -- HB > "<<HBenergyThreshold_<<" GeV, HF > "<<HFenergyThreshold_<<" GeV";
-      AboveEnergyThresholdCellsByDepth[0]->setTitle(units.str().c_str());
-      units.str("");
-      units<<"Hot Cells: Depth 2 -- HB > "<<HBenergyThreshold_<<" GeV, HF > "<<HFenergyThreshold_<<" GeV";
-      AboveEnergyThresholdCellsByDepth[1]->setTitle(units.str().c_str());
-      units.str("");
-      units<<"Hot Cells: Depth 3 -- HE > "<<HEenergyThreshold_<<" GeV";
-      AboveEnergyThresholdCellsByDepth[2]->setTitle(units.str().c_str());
-      units.str("");
-      units<<"Hot Cells: HO > "<<HOenergyThreshold_<<" GeV, ZDC TBD";
-      AboveEnergyThresholdCellsByDepth[3]->setTitle(units.str().c_str());
-      units.str("");
-      units<<"Hot Cells: Depth 1 -- HE > "<<HEenergyThreshold_<<" GeV";
-      AboveEnergyThresholdCellsByDepth[4]->setTitle(units.str().c_str());
-      units.str("");
-      units<<"Hot Cells: Depth 2 -- HE > "<<HEenergyThreshold_<<" GeV";
-      AboveEnergyThresholdCellsByDepth[5]->setTitle(units.str().c_str());
+      if (hotmon_test_energy_)
+	{
+	  m_dbe->setCurrentFolder(baseFolder_+"/hot_rechit_above_threshold");
+	  setupDepthHists2D(AboveEnergyThresholdCellsByDepth,
+			    "Hot Cells Above Energy Threshold","");
+	  //setMinMaxHists2D(AboveEnergyThresholdCellsByDepth,0.,1.);
+	  
+	  // set more descriptive titles for plots
+	  units.str("");
+	  units<<"Hot Cells: Depth 1 -- HB > "<<HBenergyThreshold_<<" GeV, HF > "<<HFenergyThreshold_<<" GeV";
+	  AboveEnergyThresholdCellsByDepth[0]->setTitle(units.str().c_str());
+	  units.str("");
+	  units<<"Hot Cells: Depth 2 -- HB > "<<HBenergyThreshold_<<" GeV, HF > "<<HFenergyThreshold_<<" GeV";
+	  AboveEnergyThresholdCellsByDepth[1]->setTitle(units.str().c_str());
+	  units.str("");
+	  units<<"Hot Cells: Depth 3 -- HE > "<<HEenergyThreshold_<<" GeV";
+	  AboveEnergyThresholdCellsByDepth[2]->setTitle(units.str().c_str());
+	  units.str("");
+	  units<<"Hot Cells: HO > "<<HOenergyThreshold_<<" GeV, ZDC TBD";
+	  AboveEnergyThresholdCellsByDepth[3]->setTitle(units.str().c_str());
+	  units.str("");
+	  units<<"Hot Cells: Depth 1 -- HE > "<<HEenergyThreshold_<<" GeV";
+	  AboveEnergyThresholdCellsByDepth[4]->setTitle(units.str().c_str());
+	  units.str("");
+	  units<<"Hot Cells: Depth 2 -- HE > "<<HEenergyThreshold_<<" GeV";
+	  AboveEnergyThresholdCellsByDepth[5]->setTitle(units.str().c_str());
+	}
 
-      m_dbe->setCurrentFolder(baseFolder_+"/hot_rechit_always_above_threshold");
-      setupDepthHists2D(AbovePersistentThresholdCellsByDepth,
-			"Hot Cells Persistently Above Energy Threshold","");
-      //setMinMaxHists2D(AbovePersistentThresholdCellsByDepth,0.,1.);
-
-      // set more descriptive titles for plots
-      units.str("");
-      units<<"Hot Cells: Depth 1 -- HB > "<<HBpersistentThreshold_<<" GeV, HF > "<<HFpersistentThreshold_<<" GeV for "<< hotmon_checkNevents_<<" consec. events";
-      AbovePersistentThresholdCellsByDepth[0]->setTitle(units.str().c_str());
-      units.str("");
-      units<<"Hot Cells: Depth 2 -- HB > "<<HBpersistentThreshold_<<" GeV, HF > "<<HFpersistentThreshold_<<" GeV for "<<hotmon_checkNevents_<<" consec. events";
-      AbovePersistentThresholdCellsByDepth[1]->setTitle(units.str().c_str());
-      units.str("");
-      units<<"Hot Cells: Depth 3 -- HE > "<<HEpersistentThreshold_<<" GeV for "<<hotmon_checkNevents_<<" consec. events";
-      AbovePersistentThresholdCellsByDepth[2]->setTitle(units.str().c_str());
-      units.str("");
-      units<<"Hot Cells:  HO > "<<HOpersistentThreshold_<<" GeV, ZDC TBD for "<<hotmon_checkNevents_<<" consec. events";
-      AbovePersistentThresholdCellsByDepth[3]->setTitle(units.str().c_str());
-      units.str("");
-      units<<"Hot Cells: Depth 1 -- HE > "<<HEpersistentThreshold_<<" GeV for "<<hotmon_checkNevents_<<" consec. events";
-      AbovePersistentThresholdCellsByDepth[4]->setTitle(units.str().c_str());
-      units.str("");
-      units<<"Hot Cells: Depth 2 -- HE > "<<HEpersistentThreshold_<<" GeV for "<<hotmon_checkNevents_<<" consec. events";
-      AbovePersistentThresholdCellsByDepth[5]->setTitle(units.str().c_str());
-      
-
-      m_dbe->setCurrentFolder(baseFolder_+"/hot_pedestaltest");
-      setupDepthHists2D(AbovePedestalHotCellsByDepth,"Hot Cells Above Pedestal","");
-      //setMinMaxHists2D(AbovePedestalHotCellsByDepth,0.,1.);
-
-      // set more descriptive titles for pedestal plots
-      units.str("");
-      units<<"Hot Cells Above Pedestal Depth 1 -- HB > ped + "<<HBnsigma_<<" #sigma, HF > ped + "<<HFnsigma_<<" #sigma";
-      AbovePedestalHotCellsByDepth[0]->setTitle(units.str().c_str());
-      units.str("");
-      units<<"Hot Cells Above Pedestal Depth 2 -- HB > ped + "<<HBnsigma_<<" #sigma, HF > ped + "<<HFnsigma_<<" #sigma";
-      AbovePedestalHotCellsByDepth[1]->setTitle(units.str().c_str());
-      units.str("");
-      units<<"Hot Cells Above Pedestal Depth 3 -- HE > ped + "<<HEnsigma_<<" #sigma";
-      AbovePedestalHotCellsByDepth[2]->setTitle(units.str().c_str());
-      units.str("");
-      units<<"Hot Cells Above Pedestal Depth 4 -- HO > ped + "<<HOnsigma_<<" #sigma, ZDC TBD";
-      AbovePedestalHotCellsByDepth[3]->setTitle(units.str().c_str());
-      units.str("");
-      units<<"Hot Cells Above Pedestal Depth 1 -- HE > ped + "<<HEnsigma_<<" #sigma";
-      AbovePedestalHotCellsByDepth[4]->setTitle(units.str().c_str());
-      units.str("");
-      units<<"Hot Cells Above Pedestal Depth 2 -- HE > ped + "<<HEnsigma_<<" #sigma";
-      AbovePedestalHotCellsByDepth[5]->setTitle(units.str().c_str());
-      units.str("");
-
-      m_dbe->setCurrentFolder(baseFolder_+"/hot_neighbortest");
-      setupDepthHists2D(AboveNeighborsHotCellsByDepth,"Hot Cells Failing Neighbor Test","");
-      //setMinMaxHists2D(AboveNeighborsHotCellsByDepth,0.,1.);
+      if (hotmon_test_persistent_)
+	{
+	  m_dbe->setCurrentFolder(baseFolder_+"/hot_rechit_always_above_threshold");
+	  setupDepthHists2D(AbovePersistentThresholdCellsByDepth,
+			    "Hot Cells Persistently Above Energy Threshold","");
+	  //setMinMaxHists2D(AbovePersistentThresholdCellsByDepth,0.,1.);
+	  
+	  // set more descriptive titles for plots
+	  units.str("");
+	  units<<"Hot Cells: Depth 1 -- HB > "<<HBpersistentThreshold_<<" GeV, HF > "<<HFpersistentThreshold_<<" GeV for "<< hotmon_checkNevents_<<" consec. events";
+	  AbovePersistentThresholdCellsByDepth[0]->setTitle(units.str().c_str());
+	  units.str("");
+	  units<<"Hot Cells: Depth 2 -- HB > "<<HBpersistentThreshold_<<" GeV, HF > "<<HFpersistentThreshold_<<" GeV for "<<hotmon_checkNevents_<<" consec. events";
+	  AbovePersistentThresholdCellsByDepth[1]->setTitle(units.str().c_str());
+	  units.str("");
+	  units<<"Hot Cells: Depth 3 -- HE > "<<HEpersistentThreshold_<<" GeV for "<<hotmon_checkNevents_<<" consec. events";
+	  AbovePersistentThresholdCellsByDepth[2]->setTitle(units.str().c_str());
+	  units.str("");
+	  units<<"Hot Cells:  HO > "<<HOpersistentThreshold_<<" GeV, ZDC TBD for "<<hotmon_checkNevents_<<" consec. events";
+	  AbovePersistentThresholdCellsByDepth[3]->setTitle(units.str().c_str());
+	  units.str("");
+	  units<<"Hot Cells: Depth 1 -- HE > "<<HEpersistentThreshold_<<" GeV for "<<hotmon_checkNevents_<<" consec. events";
+	  AbovePersistentThresholdCellsByDepth[4]->setTitle(units.str().c_str());
+	  units.str("");
+	  units<<"Hot Cells: Depth 2 -- HE > "<<HEpersistentThreshold_<<" GeV for "<<hotmon_checkNevents_<<" consec. events";
+	  AbovePersistentThresholdCellsByDepth[5]->setTitle(units.str().c_str());
+	}
 
       if (hotmon_test_pedestal_)
+	{
+	  m_dbe->setCurrentFolder(baseFolder_+"/hot_pedestaltest");
+	  setupDepthHists2D(AbovePedestalHotCellsByDepth,"Hot Cells Above Pedestal","");
+	  //setMinMaxHists2D(AbovePedestalHotCellsByDepth,0.,1.);
+
+	  // set more descriptive titles for pedestal plots
+	  units.str("");
+	  units<<"Hot Cells Above Pedestal Depth 1 -- HB > ped + "<<HBnsigma_<<" #sigma, HF > ped + "<<HFnsigma_<<" #sigma";
+	  AbovePedestalHotCellsByDepth[0]->setTitle(units.str().c_str());
+	  units.str("");
+	  units<<"Hot Cells Above Pedestal Depth 2 -- HB > ped + "<<HBnsigma_<<" #sigma, HF > ped + "<<HFnsigma_<<" #sigma";
+	  AbovePedestalHotCellsByDepth[1]->setTitle(units.str().c_str());
+	  units.str("");
+	  units<<"Hot Cells Above Pedestal Depth 3 -- HE > ped + "<<HEnsigma_<<" #sigma";
+	  AbovePedestalHotCellsByDepth[2]->setTitle(units.str().c_str());
+	  units.str("");
+	  units<<"Hot Cells Above Pedestal Depth 4 -- HO > ped + "<<HOnsigma_<<" #sigma, ZDC TBD";
+	  AbovePedestalHotCellsByDepth[3]->setTitle(units.str().c_str());
+	  units.str("");
+	  units<<"Hot Cells Above Pedestal Depth 1 -- HE > ped + "<<HEnsigma_<<" #sigma";
+	  AbovePedestalHotCellsByDepth[4]->setTitle(units.str().c_str());
+	  units.str("");
+	  units<<"Hot Cells Above Pedestal Depth 2 -- HE > ped + "<<HEnsigma_<<" #sigma";
+	  AbovePedestalHotCellsByDepth[5]->setTitle(units.str().c_str());
+	  units.str("");
+	}
+
+      if (hotmon_test_neighbor_)
+	{
+	  m_dbe->setCurrentFolder(baseFolder_+"/hot_neighbortest");
+	  setupDepthHists2D(AboveNeighborsHotCellsByDepth,"Hot Cells Failing Neighbor Test","");
+	  //setMinMaxHists2D(AboveNeighborsHotCellsByDepth,0.,1.);
+	}
+
+      if (hotmon_test_pedestal_
+	  &&  hotmon_makeDiagnostics_
+	  )
 	{
 	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/pedestal");
 	  d_HBnormped=m_dbe->book1D("HB_normped","HB Hot Cell pedestal diagnostic ",300,-10,20);
@@ -709,12 +722,12 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
  
  
  // Fill histograms 
-  if (ievt_%hotmon_checkNevents_==0)
+  if (ievt_%hotmon_checkNevents_==0 && hotmon_test_energy_)
     {
 	if (fVerbosity) std::cout <<"<HcalHotCellMonitor::processEvent_digi> Filling HotCell Energy plots"<<std::endl;
 	fillNevents_energy();
     }
-  if (ievt_%hotmon_checkNevents_==0)
+  if (ievt_%hotmon_checkNevents_==0 && hotmon_test_persistent_)
     {
 	if (fVerbosity) std::cout <<"<HcalHotCellMonitor::processEvent_digi> Filling HotCell Persistent Energy plots"<<std::endl;
 	fillNevents_persistentenergy();
@@ -1040,7 +1053,7 @@ void HcalHotCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollectio
   if (ievt_%hotmon_checkNevents_==0)
     {
 	if (fVerbosity) std::cout <<"<HcalHotCellMonitor::processEvent_digi> Filling HotCell Neighbor plots"<<std::endl;
-	fillNevents_neighbor();
+	if (hotmon_test_neighbor_) fillNevents_neighbor();
     }
 
  if (showTiming)
@@ -1096,6 +1109,8 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
       maxbin=0;
       ADCsum=0;
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
+      if (!digi.id().validDetId(digi.id().subdet(),digi.id().ieta(),digi.id().iphi(),digi.id().depth())) continue;
+
       if (!checkHB_ && digi.id().subdet()==HcalBarrel) continue;
       if (!checkHE_ && digi.id().subdet()==HcalEndcap) continue;
  
@@ -1105,8 +1120,8 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
       if ((HcalSubdetector)(digi.id().subdet())==HcalEndcap && depth<=2) // shift HE depths 1 and 2 up by 4
 	depth=depth+4;
       HcalDetId myid = digi.id();
-      cond.makeHcalCalibrationWidth(digi.id(),&widths);
-      //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id());
+      cond.makeHcalCalibrationWidth(digi.id(),&widths); // use in CMSSW_2_X
+      //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id()); // use in CMSSW_3_X
 
       calibs = cond.getHcalCalibrations(digi.id());
 
@@ -1176,14 +1191,15 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
 	  maxbin=0;
 	  ADCsum=0;
 	  const HODataFrame digi = (const HODataFrame)(*j);
-	  
+	  if (!digi.id().validDetId(digi.id().subdet(),digi.id().ieta(),digi.id().iphi(),digi.id().depth())) continue;
+
 	  ieta=digi.id().ieta();
 	  iphi=digi.id().iphi();
 	  depth=digi.id().depth();
 	  
 	  HcalDetId myid = digi.id();
 	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
-	  //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id());
+	  //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id()); // use in CMSSW_3_X
 
 	  calibs = cond.getHcalCalibrations(digi.id());
 	  
@@ -1248,6 +1264,7 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
 	  maxbin=0;
 	  ADCsum=0;
 	  const HFDataFrame digi = (const HFDataFrame)(*j);
+	  if (!digi.id().validDetId(digi.id().subdet(),digi.id().ieta(),digi.id().iphi(),digi.id().depth())) continue;
 
 	  ieta=digi.id().ieta();
 	  iphi=digi.id().iphi();
@@ -1255,7 +1272,7 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
 
 	  HcalDetId myid = digi.id();
 	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
-	  //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id());
+	  //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id()); // use in CMSSW_3_X
 
 	  calibs = cond.getHcalCalibrations(digi.id());
 
@@ -1311,7 +1328,7 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
   if (ievt_%hotmon_checkNevents_==0)
     {
       if (fVerbosity) std::cout <<"<HcalHotCellMonitor::processEvent_pedestal> Filling HotCell Pedestal plots"<<std::endl;
-      fillNevents_pedestal();
+      if (hotmon_test_pedestal_) fillNevents_pedestal();
     }
 
    if (showTiming)
@@ -1338,6 +1355,10 @@ void HcalHotCellMonitor::fillNevents_persistentenergy(void)
   if (fVerbosity>0)
     std::cout <<"<HcalHotCellMonitor::fillNevents_persistentenergy> FILLING PERSISTENT ENERGY PLOTS"<<std::endl;
   
+
+  for (unsigned int h=0;h<AbovePersistentThresholdCellsByDepth.size();++h)
+    AbovePersistentThresholdCellsByDepth[h]->setBinContent(0,0,ievt_);
+
   int ieta=0;
   int iphi=0;
   for (int eta=0;eta<(etaBins_-2);++eta)
@@ -1397,6 +1418,9 @@ void HcalHotCellMonitor::fillNevents_pedestal(void)
 
   if (fVerbosity>0)
     std::cout <<"<HcalHotCellMonitor::fillNevents_pedestal> FILLING HOT CELL PEDESTAL PLOTS"<<std::endl;
+
+  for (unsigned int h=0;h<AbovePedestalHotCellsByDepth.size();++h)
+    AbovePedestalHotCellsByDepth[h]->setBinContent(0,0,ievt_);
 
   if (hotmon_makeDiagnostics_)
     {
@@ -1473,6 +1497,9 @@ void HcalHotCellMonitor::fillNevents_energy(void)
   if (fVerbosity>0)
     std::cout <<"<HcalHotCellMonitor::fillNevents_energy> ABOVE-ENERGY-THRESHOLD PLOTS"<<std::endl;
 
+  for (unsigned int h=0;h<AboveEnergyThresholdCellsByDepth.size();++h)
+    AboveEnergyThresholdCellsByDepth[h]->setBinContent(0,0,ievt_);
+
   int ieta=0;
   int iphi=0;
   for (int eta=0;eta<(etaBins_-2);++eta)
@@ -1522,6 +1549,9 @@ void HcalHotCellMonitor::fillNevents_neighbor(void)
 
   if (fVerbosity>0)
     std::cout <<"<HcalHotCellMonitor::fillNevents_neighbor> FILLING ABOVE-NEIGHBOR-ENERGY PLOTS"<<std::endl;
+
+  for (unsigned int h=0;h<AboveNeighborsHotCellsByDepth.size();++h)
+    AboveNeighborsHotCellsByDepth[h]->setBinContent(0,0,ievt_);
 
   int ieta=0;
   int iphi=0;

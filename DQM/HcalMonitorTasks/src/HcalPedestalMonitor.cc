@@ -345,8 +345,10 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
       for (HBHEDigiCollection::const_iterator j=hbhe.begin(); 
 	   j!=hbhe.end(); ++j)
 	{
-      
+	  
 	  const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
+	  // Temporary fix to avoid channels not in calibration DB
+	  if (!digi.id().validDetId(digi.id().subdet(),digi.id().ieta(),digi.id().iphi(),digi.id().depth())) continue;
 	  if(!checkHB_ && (HcalSubdetector)(digi.id().subdet())==HcalBarrel) continue;
 	  if(!checkHE_ && (HcalSubdetector)(digi.id().subdet())==HcalEndcap) continue;
 
@@ -403,6 +405,8 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  if (!checkHO_) continue;
 	  const HODataFrame digi = (const HODataFrame)(*j);
 	  //const HcalPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
+	  // Temporary fix to avoid channels not in calibration DB
+	  if (!digi.id().validDetId(digi.id().subdet(),digi.id().ieta(),digi.id().iphi(),digi.id().depth())) continue;
 	  calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private.
 	  int iEta   = digi.id().ieta();
 	  int iPhi   = digi.id().iphi();
@@ -452,6 +456,8 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	{
 	  if (!checkHO_) continue;
 	  const HFDataFrame digi = (const HFDataFrame)(*j);
+	  // Temporary fix to avoid channels not in calibration DB
+	  if (!digi.id().validDetId(digi.id().subdet(),digi.id().ieta(),digi.id().iphi(),digi.id().depth())) continue;
 	  //const HcalPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
 	  calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private.
 	  int iEta   = digi.id().ieta();

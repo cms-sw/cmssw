@@ -93,7 +93,7 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
       setupDepthHists2D(OccupancyByDepth,"Rec Hit Occupancy","");
       setupDepthHists2D(TimeByDepth,"Rec Hit Average Time","nS");
 
-      m_dbe->setCurrentFolder(baseFolder_+"/rechit_energy/sumplots");
+      m_dbe->setCurrentFolder(baseFolder_+"/rechit_info/sumplots");
       setupDepthHists2D(SumEnergyByDepth,"Rec Hit Summed Energy","GeV");
       setupDepthHists2D(SumTimeByDepth,"Rec Hit Summed Time","nS");
       
@@ -105,6 +105,16 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
       m_dbe->setCurrentFolder(baseFolder_+"/rechit_info_threshold/sumplots");
       setupDepthHists2D(SumEnergyThreshByDepth,"Above Threshold Rec Hit Summed Energy","GeV");
       setupDepthHists2D(SumTimeThreshByDepth,"Above Threshold Rec Hit Summed Time","nS");
+
+      m_dbe->setCurrentFolder(baseFolder_+"/rechit_1D_plots");
+      h_HBEnergy_1D=m_dbe->book1D("HB_energy_1D","HB Average Energy Per Rec Hit",1000,-5,5);
+      h_HEEnergy_1D=m_dbe->book1D("HE_energy_1D","HE Average Energy Per Rec Hit",1000,-5,5);
+      h_HOEnergy_1D=m_dbe->book1D("HO_energy_1D","HO Average Energy Per Rec Hit",1000,-5,5);
+      h_HFEnergy_1D=m_dbe->book1D("HF_energy_1D","HF Average Energy Per Rec Hit",1000,-5,5);
+      h_HBEnergy_1D->setAxisTitle("Energy (GeV)", 1);
+      h_HEEnergy_1D->setAxisTitle("Energy (GeV)", 1);
+      h_HOEnergy_1D->setAxisTitle("Energy (GeV)", 1);
+      h_HFEnergy_1D->setAxisTitle("Energy (GeV)", 1);
 
       if (rechit_makeDiagnostics_)
 	{
@@ -303,7 +313,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 		h_HBTime->Fill(ti);
 	      else
 		++HBtime_[int(ti-TIME_MIN)];
-	      if (en<-5 || en>-5)
+	      if (en<5 || en>-5)
 		h_HBEnergy->Fill(en);
 	      else
 		++HBenergy_[20*int(en+5)];
@@ -315,7 +325,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 		    h_HBThreshTime->Fill(ti);
 		  else
 		    ++HBtime_thresh_[int(ti-TIME_MIN)];
-		  if (en<-5 || en>-5)
+		  if (en<5 || en>-5)
 		    h_HBThreshEnergy->Fill(en);
 		  else
 		    ++HBenergy_thresh_[20*int(en+5)];
@@ -347,7 +357,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 		h_HETime->Fill(ti);
 	      else
 		++HEtime_[int(ti+100)];
-	      if (en<-5 || en>-5)
+	      if (en<5 || en>-5)
 		h_HEEnergy->Fill(en);
 	      else
 		++HEenergy_[20*int(en+5)];
@@ -359,7 +369,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 		    h_HEThreshTime->Fill(ti);
 		  else
 		    ++HEtime_thresh_[int(ti+100)];
-		  if (en<-5 || en>-5)
+		  if (en<5 || en>-5)
 		    h_HEThreshEnergy->Fill(en);
 		  else
 		    ++HEenergy_thresh_[20*int(en+5)];
@@ -419,7 +429,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	       h_HOTime->Fill(ti);
 	     else
 	       ++HOtime_[int(ti+100)];
-	     if (en<-5 || en>-5)
+	     if (en<5 && en>-5)
 	       h_HOEnergy->Fill(en);
 	     else
 	       ++HOenergy_[20*int(en+5)];
@@ -431,7 +441,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 		   h_HOThreshTime->Fill(ti);
 		 else
 		   ++HOtime_thresh_[int(ti+100)];
-		 if (en<-5 || en>-5)
+		 if (en<5 && en>-5)
 		   h_HOThreshEnergy->Fill(en);
 		 else
 		   ++HOenergy_thresh_[20*int(en+5)];
@@ -483,7 +493,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	       h_HFTime->Fill(ti);
 	     else
 	       ++HFtime_[int(ti+100)];
-	     if (en<-5 || en>-5)
+	     if (en<5 && en>-5)
 	       h_HFEnergy->Fill(en);
 	     else
 	       ++HFenergy_[20*int(en+5)];
@@ -495,7 +505,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 		   h_HFThreshTime->Fill(ti);
 		 else
 		   ++HFtime_thresh_[int(ti+100)];
-		 if (en<-5 || en>-5)
+		 if (en<5 && en>-5)
 		   h_HFThreshEnergy->Fill(en);
 		 else
 		   ++HFenergy_thresh_[20*int(en+5)];
@@ -532,11 +542,26 @@ void HcalRecHitMonitor::fillNevents(void)
 
   int ieta=0;
   int iphi=0;
-  int mydepth=0;
+
 
   ProblemRecHits->setBinContent(0,0,ievt_);
   for (int i=0;i<6;++i)
     ProblemRecHitsByDepth[i]->setBinContent(0,0,ievt_);
+
+  // Clear contents of 1D plots
+  /*
+    for (int i=0;i<1000;++i)
+    {
+      h_HBEnergy_1D->setBinContent(i+1,0);
+      h_HEEnergy_1D->setBinContent(i+1,0);
+      h_HOEnergy_1D->setBinContent(i+1,0);
+      h_HFEnergy_1D->setBinContent(i+1,0);
+    }
+  */
+  h_HBEnergy_1D->Reset();
+  h_HEEnergy_1D->Reset();
+  h_HOEnergy_1D->Reset();
+  h_HFEnergy_1D->Reset();
 
   // Fill Occupancy & Average Energy,Time plots
   if (ievt_>0)
@@ -547,21 +572,32 @@ void HcalRecHitMonitor::fillNevents(void)
 	  for (int phi=0;phi<72;++phi)
 	    {
 	      iphi=phi+1;
-	      for (int depth=0;depth<6;++depth)
+	      for (int mydepth=0;mydepth<6;++mydepth)
 		{
-		  mydepth=depth;
-		  OccupancyByDepth[mydepth]->Fill(ieta,iphi,occupancy_[eta][phi][mydepth]);
-		  OccupancyThreshByDepth[mydepth]->Fill(ieta,iphi,occupancy_thresh_[eta][phi][mydepth]);
+		  OccupancyByDepth[mydepth]->setBinContent(ieta+2,iphi+2,occupancy_[eta][phi][mydepth]);
+		  OccupancyThreshByDepth[mydepth]->setBinContent(ieta+2,iphi+2,occupancy_thresh_[eta][phi][mydepth]);
 		  OccupancyByDepth[mydepth]->setBinContent(0,0,ievt_);
 		  OccupancyThreshByDepth[mydepth]->setBinContent(0,0,ievt_);
-		  SumEnergyByDepth[mydepth]->Fill(ieta,iphi,energy_[eta][phi][mydepth]);
-		  SumEnergyThreshByDepth[mydepth]->Fill(ieta,iphi,energy_thresh_[eta][phi][mydepth]);
-		  SumTimeByDepth[mydepth]->Fill(ieta,iphi,time_[eta][phi][mydepth]);
-		  SumTimeThreshByDepth[mydepth]->Fill(ieta,iphi,time_thresh_[eta][phi][mydepth]);
+		  SumEnergyByDepth[mydepth]->setBinContent(ieta+2,iphi+2,energy_[eta][phi][mydepth]);
+		  SumEnergyThreshByDepth[mydepth]->setBinContent(ieta+2,iphi+2,energy_thresh_[eta][phi][mydepth]);
+		  SumTimeByDepth[mydepth]->setBinContent(ieta+2,iphi+2,time_[eta][phi][mydepth]);
+		  SumTimeThreshByDepth[mydepth]->setBinContent(ieta+2,iphi+2,time_thresh_[eta][phi][mydepth]);
 
 		  // This won't work with offline DQM, since tasks get split
 		  if (occupancy_[eta][phi][mydepth]>0)
 		    {
+		      if (mydepth<2)
+			{
+			  if (abs(ieta)<17)
+			    h_HBEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
+			  else
+			    h_HFEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
+			}
+		      else if (mydepth==3)
+			h_HOEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
+		      else 
+			h_HEEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
+
 		      EnergyByDepth[mydepth]->setBinContent(eta+2, phi+2, energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
 		      TimeByDepth[mydepth]->setBinContent(eta+2, phi+2, time_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
 		    }
@@ -594,35 +630,35 @@ void HcalRecHitMonitor::fillNevents(void)
     {
       if (HBenergy_[i]!=0) 
 	{
-	  h_HBEnergy->Fill(i,HBenergy_[i]);
+	  h_HBEnergy->setBinContent(i+1,HBenergy_[i]);
 	}
       if (HBenergy_thresh_[i]!=0) 
 	{
-	  h_HBThreshEnergy->Fill(i,HBenergy_thresh_[i]);
+	  h_HBThreshEnergy->setBinContent(i+1,HBenergy_thresh_[i]);
 	}
       if (HEenergy_[i]!=0) 
 	{
-	  h_HEEnergy->Fill(i,HEenergy_[i]);
+	  h_HEEnergy->setBinContent(i+1,HEenergy_[i]);
 	}
       if (HEenergy_thresh_[i]!=0) 
 	{
-	  h_HEThreshEnergy->Fill(i,HEenergy_thresh_[i]);
+	  h_HEThreshEnergy->setBinContent(i+1,HEenergy_thresh_[i]);
 	}
       if (HOenergy_[i]!=0) 
 	{
-	  h_HOEnergy->Fill(i,HOenergy_[i]);
+	  h_HOEnergy->setBinContent(i+1,HOenergy_[i]);
 	}
       if (HOenergy_thresh_[i]!=0) 
 	{
-	  h_HOThreshEnergy->Fill(i,HOenergy_thresh_[i]);
+	  h_HOThreshEnergy->setBinContent(i+1,HOenergy_thresh_[i]);
 	}
       if (HFenergy_[i]!=0) 
 	{
-	  h_HFEnergy->Fill(i,HFenergy_[i]);
+	  h_HFEnergy->setBinContent(i+1,HFenergy_[i]);
 	}
       if (HFenergy_thresh_[i]!=0) 
 	{
-	  h_HFThreshEnergy->Fill(i,HFenergy_thresh_[i]);
+	  h_HFThreshEnergy->setBinContent(i+1,HFenergy_thresh_[i]);
 	}
     }// for (int i=0;i<200;++i) // Jeff
 
@@ -630,36 +666,36 @@ void HcalRecHitMonitor::fillNevents(void)
     {
       if (HBtime_[i]!=0)
 	{
-	  h_HBTime->Fill(i,HBtime_[i]);
+	  h_HBTime->setBinContent(i+1,HBtime_[i]);
 	}
       if (HBtime_thresh_[i]!=0)
 	{
-	  h_HBThreshTime->Fill(i,HBtime_thresh_[i]);
+	  h_HBThreshTime->setBinContent(i+1,HBtime_thresh_[i]);
 	}
       if (HEtime_[i]!=0)
 	{
 
-	  h_HETime->Fill(i,HEtime_[i]);
+	  h_HETime->setBinContent(i+1,HEtime_[i]);
 	}
       if (HEtime_thresh_[i]!=0)
 	{
-	  h_HEThreshTime->Fill(i,HEtime_thresh_[i]);
+	  h_HEThreshTime->setBinContent(i+1,HEtime_thresh_[i]);
 	}
       if (HOtime_[i]!=0)
 	{
-	  h_HOTime->Fill(i,HOtime_[i]);
+	  h_HOTime->setBinContent(i+1,HOtime_[i]);
 	}
       if (HOtime_thresh_[i]!=0)
 	{
-	  h_HOThreshTime->Fill(i,HOtime_thresh_[i]);
+	  h_HOThreshTime->setBinContent(i+1,HOtime_thresh_[i]);
 	}
       if (HFtime_[i]!=0)
 	{
-	  h_HFTime->Fill(i,HFtime_[i]);
+	  h_HFTime->setBinContent(i+1,HFtime_[i]);
 	}
       if (HFtime_thresh_[i]!=0)
 	{
-	  h_HFThreshTime->Fill(i,HFtime_thresh_[i]);
+	  h_HFThreshTime->setBinContent(i+1,HFtime_thresh_[i]);
 	}
     } // for (int  i=0;i<(TIME_MAX-TIME_MIN);++i)
 
@@ -667,19 +703,19 @@ void HcalRecHitMonitor::fillNevents(void)
     {
       if (HB_occupancy_[i]>0)
 	{
-	  h_HBOccupancy->Fill(i,HB_occupancy_[i]);
+	  h_HBOccupancy->setBinContent(i+1,HB_occupancy_[i]);
 	}
       if (HB_occupancy_thresh_[i]>0)
 	{
-	  h_HBThreshOccupancy->Fill(i,HB_occupancy_thresh_[i]);
+	  h_HBThreshOccupancy->setBinContent(i+1,HB_occupancy_thresh_[i]);
 	}
       if (HE_occupancy_[i]>0)
 	{
-	  h_HEOccupancy->Fill(i,HE_occupancy_[i]);
+	  h_HEOccupancy->setBinContent(i+1,HE_occupancy_[i]);
 	}
       if (HE_occupancy_thresh_[i]>0)
 	{
-	  h_HEThreshOccupancy->Fill(i,HE_occupancy_thresh_[i]);
+	  h_HEThreshOccupancy->setBinContent(i+1,HE_occupancy_thresh_[i]);
 	}
     }//for (int i=0;i<2593;++i)
 
@@ -687,11 +723,11 @@ void HcalRecHitMonitor::fillNevents(void)
     {
       if (HO_occupancy_[i]>0)
 	{
-	  h_HOOccupancy->Fill(i,HO_occupancy_[i]);
+	  h_HOOccupancy->setBinContent(i+1,HO_occupancy_[i]);
 	}
       if (HO_occupancy_thresh_[i]>0)
 	{
-	  h_HOThreshOccupancy->Fill(i,HO_occupancy_thresh_[i]);
+	  h_HOThreshOccupancy->setBinContent(i+1,HO_occupancy_thresh_[i]);
 	}
     }//  for (int i=0;i<2161;++i)
 
@@ -699,15 +735,15 @@ void HcalRecHitMonitor::fillNevents(void)
     {
       if (HF_occupancy_[i]>0)
 	{
-	  h_HFOccupancy->Fill(i,HF_occupancy_[i]);
+	  h_HFOccupancy->setBinContent(i+1,HF_occupancy_[i]);
 	}
       if (HF_occupancy_thresh_[i]>0)
 	{
-	  h_HFThreshOccupancy->Fill(i,HF_occupancy_thresh_[i]);
+	  h_HFThreshOccupancy->setBinContent(i+1,HF_occupancy_thresh_[i]);
 	}
     }//  for (int i=0;i<2161;++i)
 
-  zeroCounters();
+  //zeroCounters();
 
   if (fVerbosity>0)
     cout <<"<HcalRecHitMonitor::fillNevents_problemCells> FILLED REC HIT CELL PLOTS"<<endl;
