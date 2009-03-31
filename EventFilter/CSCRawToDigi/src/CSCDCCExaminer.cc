@@ -207,7 +207,7 @@ CSCDCCExaminer::CSCDCCExaminer(ExaminerMaskType mask):nERRORS(29),nWARNINGS(5),n
 }
 
 int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
-  if( length<=0 ) return -1;
+  if( length<=0 ) return -10;
 
   // 'buffer' is a sliding pointer; keep track of the true buffer
   buffer_start = buffer;
@@ -252,8 +252,13 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 
     if (!modeDDUonly) {
       // DCC Header 1 && DCC Header 2
-      if( (buf0[3]&0xF000) == 0x5000 && (buf0[0]&0x00FF) == 0x005F &&
-	  (buf1[3]&0xFF00) == 0xD900 ){
+      // =VB= Added support for Sep. 2008 CMS DAQ DCC format
+      if ( ( ( (buf0[3]&0xF000) == 0x5000 && (buf0[0]&0x00FF) == 0x005F )
+	||
+	   ( (buf0[3]&0xF000) == 0x5000 && (buf0[0]&0x000F) == 0x0008 ) )
+	 &&
+	  (buf1[3]&0xFF00) == 0xD900 ) 
+	{
 	if( fDCC_Header ){
 	  // == Another DCC Header before encountering DCC Trailer!
 	  fERROR[25]=true;
@@ -1133,8 +1138,11 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 
     if (!modeDDUonly) {
       // DCC Trailer 1 && DCC Trailer 2
+      // =VB= Added support for Sep. 2008 CMS DAQ DCC format
       if( (buf1[3]&0xFF00) == 0xEF00 &&
-	  (buf2[3]&0xFF00) == 0xAF00 ){
+	  ( ((buf2[3]&0xFF00) == 0xAF00 && (buf2[0]&0x0003) == 0x3) 
+	  || 
+     (( buf2[3]&0xFF00) == 0xA000 && (buf2[0]&0x0003) == 0x0) ) ){
 	if(fDCC_Trailer){
 	  fERROR[26] = true;
 	  bERROR|=0x4000000;
@@ -1170,7 +1178,18 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
   buf2  = &(tmpbuf[12]);
   memcpy((void*)tmpbuf,(void*)(buffer-16),sizeof(short)*16);
 
-  return -1;
+  if (!modeDDUonly && !fDCC_Trailer && !fDCC_Header) {
+	fERROR[26] = true;
+        bERROR|=0x4000000;
+	fERROR[25] = true;
+        bERROR|=0x2000000;
+	fERROR[0]=true;
+        bERROR|=0x1;
+	return length;
+       	
+  }
+ 
+  return -2;
 }
 
 

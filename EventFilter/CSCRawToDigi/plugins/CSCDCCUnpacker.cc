@@ -67,6 +67,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <iomanip>
 
 CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   numOfEvents(0) {
@@ -109,6 +110,9 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
     produces<CSCALCTStatusDigiCollection>("MuonCSCALCTStatusDigi");
     produces<CSCDDUStatusDigiCollection>("MuonCSCDDUStatusDigi");
     produces<CSCDCCStatusDigiCollection>("MuonCSCDCCStatusDigi");
+  }
+
+  if (useFormatStatus) {
     produces<CSCDCCFormatStatusDigiCollection>("MuonCSCDCCFormatStatusDigi");
   }
   //CSCAnodeData::setDebug(debug);
@@ -177,7 +181,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
     /// Take a reference to this FED's data
     const FEDRawData& fedData = rawdata->FEDData(id);
     unsigned long length =  fedData.size();
-    
+  
+
     if (length>=32){ ///if fed has data then unpack it
       CSCDCCExaminer* examiner = NULL;
       std::stringstream examiner_out, examiner_err;
@@ -195,6 +200,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	examiner->setMask(examinerMask);
 	const short unsigned int *data = (short unsigned int *)fedData.data();
 
+
+	// Event data hex dump
 	/*short unsigned * buf = (short unsigned int *)fedData.data();
 	  std::cout <<std::endl<<length/2<<" words of data:"<<std::endl;
 	  for (int i=0;i<length/2;i++) {
@@ -203,14 +210,19 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	  }*/
 
 
-
-	if( examiner->check(data,long(fedData.size()/2)) < 0 )	{
+        int res = examiner->check(data,long(fedData.size()/2));
+	if( res < 0 )	{
 	  goodEvent=false;
 	} 
 	else {	  
 	  if (useSelectiveUnpacking)  goodEvent=!(examiner->errors()&dccBinCheckMask);
 	  else goodEvent=!(examiner->errors()&examinerMask);
 	}
+
+	/*
+         std::cout << "FED" << id << " " << fedData.size() << " " << goodEvent << " " 
+	<< std::hex << examiner->errors() << std::dec << " " << status << std::endl;
+	*/
 
 	// Fill Format status digis per FED
 	// Remove examiner->errors() != 0 check if we need to put status digis for every event
@@ -236,6 +248,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	          
       if (goodEvent) {
 	///get a pointer to data and pass it to constructor for unpacking
+
 
 	CSCDCCExaminer * ptrExaminer = examiner;
 	if (!useSelectiveUnpacking) ptrExaminer = NULL;
@@ -270,7 +283,6 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	  
 	  ///get a reference to chamber data
 	  const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
-
 
 	  for (unsigned int iCSC=0; iCSC<cscData.size(); ++iCSC) { // loop over CSCs
 
