@@ -8,10 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:21 EST 2009
-// $Id: FWTabularWidget.cc,v 1.3 2009/03/04 16:13:21 chrjones Exp $
+// $Id: FWTabularWidget.cc,v 1.4 2009/03/23 19:08:16 amraktad Exp $
 //
 
 // system include files
+#include <assert.h>
 #include <iostream>
 #include "TGResourcePool.h"
 
