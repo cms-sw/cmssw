@@ -29,20 +29,9 @@ class L1RCTProducer : public edm::EDProducer
   L1RCT* rct;
   bool useEcal;
   bool useHcal;
-  edm::InputTag ecalDigisLabel;
-  edm::InputTag hcalDigisLabel;
-  //std::string ecalESLabel;
-  //std::string hcalESLabel;
+  std::vector<edm::InputTag> ecalDigis;
+  std::vector<edm::InputTag> hcalDigis;
+  std::vector<int> bunchCrossings; 
   bool useDebugTpgScales;
-  bool useHcalCosmicTiming;
-  bool useEcalCosmicTiming;
-  unsigned preSamples;
-  unsigned postSamples;
-//Kludge the SOI for real data
-  bool useMCAsInput;  
-  int hfShift;
-  int hbShift;
-
-  bool useCorrectionsLindsey;
 };
 #endif
