@@ -1,6 +1,7 @@
 #define DQM_ROOT_METHODS 1
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/QTest.h"
+#include "DQMServices/Core/src/DQMError.h"
 #include "TClass.h"
 #include "TMath.h"
 #include "TList.h"
@@ -11,24 +12,22 @@ static TH1 *
 checkRootObject(const std::string &name, TObject *tobj, const char *func, int reqdim)
 {
   if (! tobj)
-    throw cms::Exception("MonitorElement")
-      << "Method '" << func << "' cannot be invoked on monitor element '"
-      << name << "' because it is not a ROOT object.";
+    raiseDQMError("MonitorElement", "Method '%s' cannot be invoked on monitor"
+		  " element '%s' because it is not a ROOT object.",
+		  func, name.c_str());
 
   TH1 *h = dynamic_cast<TH1 *>(tobj);
   if (! h)
-    throw cms::Exception("MonitorElement")
-      << "Method '" << func << "' cannot be invoked on monitor element '"
-      << name << "' because it is not a ROOT histogram; it is of type '"
-      << typeid(*tobj).name() << "'";
+    raiseDQMError("MonitorElement", "Method '%s' cannot be invoked on monitor"
+		  " element '%s' because it is not a ROOT histogram; it is of"
+		  " type '%s'", func, name.c_str(), typeid(*tobj).name());
 
   int ndim = h->GetDimension();
   if (reqdim < 0 || reqdim > ndim)
-    throw cms::Exception("MonitorElement")
-      << "Method '" << func << "' cannot be invoked on monitor element '"
-      << name << "' because it requires " << reqdim
-      << " dimensions; this object of type '" << typeid(*h).name()
-      << "' has " << ndim << " dimensions";
+    raiseDQMError("MonitorElement", "Method '%s' cannot be invoked on monitor"
+		  " element '%s' because it requires %d dimensions; this"
+		  " object of type '%s' has %d dimensions",
+		  func, name.c_str(), reqdim, typeid(*h).name(), ndim);
 
   return h;
 }
@@ -71,9 +70,8 @@ MonitorElement::initialise(Kind kind, const std::string &path)
     break;
 
   default:
-    throw cms::Exception("MonitorElement")
-      << "cannot initialise monitor element '" << path
-      << "' to invalid type " << kind;
+    raiseDQMError("MonitorElement", "cannot initialise monitor element '%s'"
+		  " to invalid type %d", path.c_str(), (int) kind);
   }
 
   return this;
@@ -121,9 +119,8 @@ MonitorElement::initialise(Kind kind, const std::string &path, TH1 *rootobj)
     break;
 
   default:
-    throw cms::Exception("MonitorElement")
-      << "cannot initialise monitor element '" << path
-      << "' as a root object with type " << kind;
+    raiseDQMError("MonitorElement", "cannot initialise monitor element '%s'"
+		  " as a root object with type %d", path.c_str(), (int) kind);
   }
 
   return this;
@@ -140,9 +137,8 @@ MonitorElement::initialise(Kind kind, const std::string &path, const std::string
       ->SetString(tagString().c_str());
   }
   else
-    throw cms::Exception("MonitorElement")
-      << "cannot initialise monitor element '" << path
-      << "' as a string with type " << kind;
+    raiseDQMError("MonitorElement", "cannot initialise monitor element '%s'"
+		  " as a string with type %d", path.c_str(), (int) kind);
 
   return this;
 }
@@ -475,9 +471,8 @@ MonitorElement::runQTests(void)
 void
 MonitorElement::incompatible(const char *func) const
 {
-  throw cms::Exception("MonitorElement")
-    << "Method '" << func << "' cannot be invoked on monitor element '"
-    << data_.name << "'";
+  raiseDQMError("MonitorElement", "Method '%s' cannot be invoked on monitor"
+		" element '%s'", func, data_.name.c_str());
 }
 
 TH1 *
@@ -782,9 +777,9 @@ MonitorElement::getAxis(const char *func, int axis) const
     a = h->GetZaxis();
 
   if (! a)
-    throw cms::Exception("MonitorElement")
-      << "No such axis " << axis << " in monitor element '"
-      << data_.name << "' of type '" << typeid(*h).name() << "'";
+    raiseDQMError("MonitorElement", "No such axis %d in monitor element"
+		  " '%s' of type '%s'", axis, data_.name.c_str(),
+		  typeid(*h).name());
 
   return a;
 }
@@ -1104,11 +1099,9 @@ MonitorElement::copyFunctions(TH1 *from, TH1 *to)
     //else if (dynamic_cast<TPaveStats *>(obj))
     //  ; // FIXME? tof->Add(new TPaveStats(*stats));
     else
-      throw cms::Exception("MonitorElement")
-	<< "Cannot extract function '" << obj->GetName()
-	<< "' of type '" << obj->IsA()->GetName()
-	<< "' from monitor element '" << data_.name
-	<< "' for a copy";
+      raiseDQMError("MonitorElement", "Cannot extract function '%s' of type"
+		    " '%s' from monitor element '%s' for a copy",
+		    obj->GetName(), obj->IsA()->GetName(), data_.name.c_str());
   }
 }
 

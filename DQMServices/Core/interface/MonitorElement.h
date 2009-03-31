@@ -3,7 +3,6 @@
 
 # include "DQMServices/Core/interface/DQMNet.h"
 # include "DQMServices/Core/interface/QReport.h"
-# include "FWCore/Utilities/interface/EDMException.h"
 # include "TF1.h"
 # include "TH1F.h"
 # include "TH1S.h"

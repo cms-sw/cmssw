@@ -1,16 +1,17 @@
-#include "DQMServices/Core/src/DQMService.h"
-#include "DQMServices/Core/src/DQMRootBuffer.h"
-#include "DQMServices/Core/interface/DQMNet.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMScope.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "classlib/utils/Regexp.h"
-#include "classlib/utils/Error.h"
-#include <pthread.h>
-#include <iostream>
-#include <string>
-#include <memory>
+#if !WITHOUT_CMS_FRAMEWORK
+# include "DQMServices/Core/src/DQMService.h"
+# include "DQMServices/Core/src/DQMRootBuffer.h"
+# include "DQMServices/Core/interface/DQMNet.h"
+# include "DQMServices/Core/interface/DQMStore.h"
+# include "DQMServices/Core/interface/DQMScope.h"
+# include "DQMServices/Core/interface/MonitorElement.h"
+# include "FWCore/ServiceRegistry/interface/Service.h"
+# include "classlib/utils/Regexp.h"
+# include "classlib/utils/Error.h"
+# include <pthread.h>
+# include <iostream>
+# include <string>
+# include <memory>
 
 // -------------------------------------------------------------------
 static pthread_mutex_t s_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -187,3 +188,5 @@ DQMService::shutdown(void)
   if (net_)
     net_->shutdown();
 }
+
+#endif // !WITHOUT_CMS_FRAMEWORK

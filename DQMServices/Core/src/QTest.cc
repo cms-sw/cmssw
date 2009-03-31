@@ -1,14 +1,12 @@
 #include "DQMServices/Core/interface/QTest.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/src/QStatisticalTests.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "TMath.h"
 #include "TH1F.h"
 #include "TH1S.h"
 #include <iostream>
 #include <sstream>
 #include <math.h>
-
-#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace std;
 

@@ -1,7 +1,7 @@
 #include "DQMServices/Core/interface/DQMNet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/Utilities/interface/EDMException.h"
+#include "DQMServices/Core/src/DQMError.h"
 #include "classlib/sysapi/InetSocket.h" // for completing InetAddress
 #include "classlib/iobase/Filename.h"
 #include "classlib/utils/TimeInfo.h"
@@ -1146,10 +1146,8 @@ DQMNet::startLocalServer(int port)
       << "ERROR: Failed to start server at port " << port << ": "
       << e.explain() << std::endl;
 
-    // FIXME: Throw something simpler that removes the dependency?
-    throw cms::Exception("DQMNet::startLocalServer")
-      << "Failed to start server at port " << port << ": "
-      << e.explain();
+    raiseDQMError("DQMNet::startLocalServer", "Failed to start server at port"
+		  " %d: %s", port, e.explain().c_str());
   }
   
   logme() << "INFO: DQM server started at port " << port << std::endl;

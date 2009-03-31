@@ -1,10 +1,15 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/QReport.h"
 #include "DQMServices/Core/interface/QTest.h"
-#include "FWCore/Utilities/interface/GetReleaseVersion.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/JobReport.h"
+#include "DQMServices/Core/src/DQMError.h"
+#if WITHOUT_CMS_FRAMEWORK
+# include "DQMServices/Core/interface/Standalone.h"
+#else
+# include "FWCore/Utilities/interface/GetReleaseVersion.h"
+# include "FWCore/ParameterSet/interface/ParameterSet.h"
+# include "FWCore/ServiceRegistry/interface/Service.h"
+# include "FWCore/MessageLogger/interface/JobReport.h"
+#endif
 #include "classlib/utils/RegexpMatch.h"
 #include "classlib/utils/Regexp.h"
 #include "classlib/utils/StringOps.h"
@@ -115,10 +120,10 @@ DQMStore::instance(void)
       DQMStore *bei = new DQMStore(edm::ParameterSet());
       assert (s_instance == bei);
     }
-    catch(cms::Exception &e)
+    catch(DQMError &e)
     {
       std::cout << e.what() << std::endl;
-      exit (255);
+      exit(255);
     }
   }
 
@@ -211,8 +216,8 @@ DQMStore::cd(const std::string &subdir)
   cleanTrailingSlashes(subdir, clean, cleaned);
 
   if (! dirExists(*cleaned))
-    throw cms::Exception("DQMStore")
-      << "Cannot 'cd' into non-existent directory '" << *cleaned << "'";
+    raiseDQMError("DQMStore", "Cannot 'cd' into non-existent directory '%s'",
+		  cleaned->c_str());
   
   setCurrentFolder(*cleaned);
 }
@@ -253,9 +258,9 @@ DQMStore::makeDirectory(const std::string &path)
     // Create this subdirectory component.
     std::string subdir(path, 0, slash);
     if (data_.count(subdir))
-      throw cms::Exception("DQMStore")
-	<< "Attempt to create subdirectory '" << subdir
-	<< "' which already exists as a monitor element";
+      raiseDQMError("DQMStore", "Attempt to create subdirectory '%s'"
+	            " which already exists as a monitor element",
+		    subdir.c_str());
     if (! dirs_.count(subdir))
       dirs_.insert(subdir);
 
@@ -716,9 +721,8 @@ void
 DQMStore::tag(MonitorElement *me, unsigned int myTag)
 {
   if (! myTag)
-    throw cms::Exception("DQMStore")
-      << "Attempt to tag monitor element '" << me->getFullname()
-      << "' with a zero tag";
+    raiseDQMError("DQMStore", "Attempt to tag monitor element '%s'"
+		  " with a zero tag", me->getFullname().c_str());
 
   DQMNet::TagList::iterator pos
     = std::lower_bound(me->data_.tags.begin(), me->data_.tags.end(), myTag);
@@ -733,9 +737,8 @@ DQMStore::tag(const std::string &path, unsigned int myTag)
 {
   MEMap::iterator mepos = data_.find(path);
   if (mepos == data_.end())
-    throw cms::Exception("DQMStore")
-      << "Attempt to tag non-existent monitor element '" << path
-      << "' with tag " << myTag;
+    raiseDQMError("DQMStore", "Attempt to tag non-existent monitor element"
+		  " '%s' with tag %u", path.c_str(), myTag);
 
   tag(&mepos->second, myTag);
 }
@@ -967,9 +970,8 @@ DQMStore::findObject(const std::string &dir, const std::string &name, std::strin
   path += name;
 
   if (path.find_first_not_of(s_safe) != std::string::npos)
-    throw cms::Exception("DQMStore")
-      << "Monitor element path name '" << path
-      << "' uses unacceptable characters";
+    raiseDQMError("DQMStore", "Monitor element path name '%s' uses"
+		  " unacceptable characters", path.c_str());
 
   MEMap::const_iterator mepos = data_.find(path);
   return (mepos == data_.end() ? 0
@@ -1064,8 +1066,8 @@ DQMStore::getMatchingContents(const std::string &pattern) const
   }
   catch (lat::Error &e)
   {
-    throw cms::Exception("DQMStore")
-      << "Invalid regular expression '" << pattern << "': " << e.explain();
+    raiseDQMError("DQMStore", "Invalid regular expression '%s': %s",
+		  pattern.c_str(), e.explain().c_str());
   }
 
   std::vector<MonitorElement *> result;
@@ -1331,18 +1333,16 @@ DQMStore::cdInto(const std::string &path) const
     std::string part(path, start, end-start);
     TObject *o = gDirectory->Get(part.c_str());
     if (o && ! dynamic_cast<TDirectory *>(o))
-      throw cms::Exception("DQMStore")
-	<< "Attempt to create directory '" << path
-	<< "' in a file fails because the part '" << part
-	<< "' already exists and is not directory";
+      raiseDQMError("DQMStore", "Attempt to create directory '%s' in a file"
+		    " fails because the part '%s' already exists and is not"
+		    " directory", path.c_str(), part.c_str());
     else if (! o)
       gDirectory->mkdir(part.c_str());
 
     if (! gDirectory->cd(part.c_str()))
-      throw cms::Exception("DQMStore")
-	<< "Attempt to create directory '" << path
-	<< "' in a file fails because could not cd"
-	<< " into subdirectory '" << part << '\'';
+      raiseDQMError("DQMStore", "Attempt to create directory '%s' in a file"
+		    " fails because could not cd into subdirectory '%s'",
+		    path.c_str(), part.c_str());
 
     // Stop if we reached the end, ignoring any trailing '/'.
     if (end+1 >= path.size())
@@ -1389,8 +1389,7 @@ DQMStore::save(const std::string &filename,
   TObjString(edm::getReleaseVersion().c_str()).Write(); // Save CMSSW version
   TObjString(getDQMPatchVersion().c_str()).Write(); // Save DQM patch version
   if(f.IsZombie())
-    throw cms::Exception("DQMStore")
-      << "Failed to create file '" << filename << "'";
+    raiseDQMError("DQMStore", "Failed to create file '%s'", filename.c_str());
   f.cd();
 
   // Construct a regular expression from the pattern string.
@@ -1492,6 +1491,7 @@ DQMStore::save(const std::string &filename,
 
   f.Close();
 
+#if !WITHOUT_CMS_FRAMEWORK
   // Report the file to job report service.
   edm::Service<edm::JobReport> jr;
   if (jr.isAvailable())
@@ -1501,6 +1501,7 @@ DQMStore::save(const std::string &filename,
     info["FileClass"] = "DQM";
     jr->reportAnalysisFile(filename, info);
   }
+#endif
 
   // Maybe make some noise.
   if (verbose_)
@@ -1520,9 +1521,8 @@ DQMStore::readDirectory(TFile *file,
   unsigned int count = 0;
 
   if (! file->cd(curdir.c_str()))
-    throw cms::Exception("DQMStore")
-      << "Failed to process directory '" << curdir
-      << "' while reading file '" << file->GetName() << "'";
+    raiseDQMError("DQMStore", "Failed to process directory '%s' while"
+		  " reading file '%s'", curdir.c_str(), file->GetName());
 
   // Figure out current directory name, but strip out the top
   // directory into which we dump everything.
@@ -1637,8 +1637,7 @@ DQMStore::open(const std::string &filename,
 
   std::auto_ptr<TFile> f(TFile::Open(filename.c_str()));
   if (! f.get() || f->IsZombie())
-    throw cms::Exception("DQMStore")
-      << "Failed to open file '" << filename << "'";
+    raiseDQMError("DQMStore", "Failed to open file '%s'", filename.c_str());
 
   unsigned n = readDirectory(f.get(), overwrite, onlypath, prepend, "");
   f->Close();
@@ -1666,8 +1665,7 @@ DQMStore::getFileReleaseVersion(const std::string &filename)
 {
   TFile f(filename.c_str());
   if (f.IsZombie())
-    throw cms::Exception("DQMStore")
-      << "Failed to open file '" << filename << "'";
+    raiseDQMError("DQMStore", "Failed to open file '%s'", filename.c_str());
 
   // Loop over the contents of this directory in the file.
   TKey *key;
@@ -1691,8 +1689,7 @@ DQMStore::getFileDQMPatchVersion(const std::string &filename)
 {
   TFile f(filename.c_str());
   if (f.IsZombie())
-    throw cms::Exception("DQMStore")
-      << "Failed to open file '" << filename << "'";
+    raiseDQMError("DQMStore", "Failed to open file '%s'", filename.c_str());
 
   // Loop over the contents of this directory in the file.
   TKey *key;
@@ -1816,15 +1813,13 @@ QCriterion *
 DQMStore::createQTest(const std::string &algoname, const std::string &qtname)
 {
   if (qtests_.count(qtname))
-    throw cms::Exception("DQMStore")
-      << "Attempt to create duplicate quality test '"
-      << qtname << '\'';
+    raiseDQMError("DQMStore", "Attempt to create duplicate quality test '%s'",
+		  qtname.c_str());
 
   QAMap::iterator i = qalgos_.find(algoname);
   if (i == qalgos_.end())
-    throw cms::Exception("DQMStore")
-      << "Cannot create a quality test using unknown algorithm '"
-      << algoname << '\'';
+    raiseDQMError("DQMStore", "Cannot create a quality test using unknown"
+		  " algorithm '%s'", algoname.c_str());
 
   QCriterion *qc = i->second(qtname);
   qtests_[qtname] = qc;
@@ -1843,9 +1838,8 @@ DQMStore::useQTest(const std::string &dir, const std::string &qtname)
 
   // Validate the path.
   if (cleaned->find_first_not_of(s_safe) != std::string::npos)
-    throw cms::Exception("DQMStore")
-      << "Monitor element path name '" << *cleaned
-      << "' uses unacceptable characters";
+    raiseDQMError("DQMStore", "Monitor element path name '%s'"
+		  " uses unacceptable characters", cleaned->c_str());
 
   // Redirect to the pattern match version.
   useQTestByMatch(*cleaned + "/*", qtname);
@@ -1857,8 +1851,8 @@ DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname)
 {
   QCriterion *qc = getQCriterion(qtname);
   if (! qc)
-    throw cms::Exception("DQMStore")
-      << "Cannot apply non-existent quality test '" << qtname << '\'';
+    raiseDQMError("DQMStore", "Cannot apply non-existent quality test '%s'",
+                  qtname.c_str());
 
   // Clean the path
   lat::Regexp *rx = 0;
@@ -1870,9 +1864,8 @@ DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname)
   catch (lat::Error &e)
   {
     delete rx;
-    throw cms::Exception("DQMStore")
-      << "Invalid wildcard pattern '" << pattern
-      << "' in quality test specification";
+    raiseDQMError("DQMStore", "Invalid wildcard pattern '%s' in quality"
+		  " test specification", pattern.c_str());
   }
 
   // Record the test for future reference.
