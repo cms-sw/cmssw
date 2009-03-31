@@ -1,3 +1,4 @@
+// -*- C++ -*-
 #ifndef Fireworks_Electrons_FWElectronDetailView_h
 #define Fireworks_Electrons_FWElectronDetailView_h
 
@@ -10,7 +11,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.h,v 1.2 2009/03/18 12:45:36 amraktad Exp $
+// $Id: FWElectronDetailView.h,v 1.3 2009/03/23 15:54:12 amraktad Exp $
 //
 
 
@@ -39,20 +40,15 @@ protected:
    TEveElement* build_projected (const FWModelId &id, const reco::GsfElectron*);
 
    TEveElementList *makeLabels (const reco::GsfElectron &);
-   TEveElementList *getEcalCrystalsBarrel (const class DetIdToMatrix &,
-                                           const std::vector<class DetId> &);
-   TEveElementList *getEcalCrystalsBarrel (const class DetIdToMatrix &,
-                                           double eta, double phi,
-                                           int n_eta = 5, int n_phi = 10);
-   TEveElementList *getEcalCrystalsEndcap (const class DetIdToMatrix &,
-                                           const std::vector<class DetId> &);
-   TEveElementList *getEcalCrystalsEndcap (const class DetIdToMatrix &,
-                                           double x, double y, int iz,
-                                           int n_x = 5, int n_y = 5);
-
+   void getEcalCrystalsEndcap (std::vector<DetId> *, 
+			       int ix, int iy, int iz);
+   void getEcalCrystalsBarrel (std::vector<DetId> *, 
+			       int ieta, int iphi);
    void fillData (const std::vector<DetId> &detids,
                   TEveCaloDataVec *data, 
                   double phi_seed);
+   void fillReducedData (const std::vector<DetId> &detids,
+			 TEveCaloDataVec *data);
 
 private:
    FWElectronDetailView(const FWElectronDetailView&); // stop default
@@ -78,6 +74,7 @@ private:
 
    const EcalRecHitCollection *m_barrel_hits;
    const EcalRecHitCollection *m_endcap_hits;
+   const EcalRecHitCollection *m_endcap_reduced_hits;
    std::vector<DetId> seed_detids;
 
 };

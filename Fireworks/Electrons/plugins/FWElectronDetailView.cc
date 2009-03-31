@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.14 2009/03/25 22:14:09 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.15 2009/03/29 14:13:38 amraktad Exp $
 //
 
 // system include files
@@ -63,7 +63,8 @@ FWElectronDetailView::FWElectronDetailView():
    m_item(0),
    m_coordEtaPhi(true),
    m_barrel_hits(0),
-   m_endcap_hits(0)
+   m_endcap_hits(0),
+   m_endcap_reduced_hits(0)
 {
 
 }
@@ -105,7 +106,7 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
    catch (...) 
    {
       std::cout <<"no barrel ECAL rechits are available, "
-         "show only crystal location" << std::endl;
+         "showing crystal location but not energy" << std::endl;
    }
    fwlite::Handle<EcalRecHitCollection> handle_endcap_hits;
    m_endcap_hits = 0;
@@ -116,8 +117,19 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
    catch ( ...)
    {
       std::cout <<"no endcap ECAL rechits are available, "
-         "show only crystal location" << std::endl;
+         "showing crystal location but not energy" << std::endl;
    }
+//    fwlite::Handle<EcalRecHitCollection> handle_endcap_reduced_hits;
+//    m_endcap_reduced_hits = 0;
+//    try {
+//       handle_endcap_reduced_hits.getByLabel(*ev, "reducedEcalRecHitsEE");
+//       m_endcap_reduced_hits = handle_endcap_reduced_hits.ptr();
+//    }
+//    catch ( ...)
+//    {
+//       std::cout <<"no endcap ECAL reduced rechits are available, "
+//          "not showing surrounding hits" << std::endl;
+//    }
    if (const reco::GsfElectron *i = iElectron) {
       m_coordEtaPhi = true;
       assert(i->gsfTrack().isNonnull());
@@ -150,6 +162,8 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
 //       data->RefSliceInfo(2).Setup("unclustered crystals", 0.0, kYellow);
       // now fill
       fillData(detids, data, i->superCluster()->seed()->position().phi());
+      if (m_endcap_reduced_hits != 0)
+	   fillReducedData(detids, data);
       data->DataChanged();
       // printf("max val %f  %f \n", data->GetMaxVal(0), data->GetMaxVal(1));
          
@@ -274,21 +288,21 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
       }
       trackpositionAtCalo->SetLineColor(kBlue);
       tList->AddElement(trackpositionAtCalo);
-      TEveStraightLineSet *pinposition = new TEveStraightLineSet("pin position");
-      if (subdetId == EcalBarrel) {
-	   pinposition->AddLine((i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()),
-				ymin, 
-				0,
-				(i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()),
-				ymax,
-				0);
-	   pinposition->AddLine(xmin,
-				(i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()),
-				0,
-				xmax,
-				(i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()),
-				0);
-      } else if (subdetId == EcalEndcap) {
+//       TEveStraightLineSet *pinposition = new TEveStraightLineSet("pin position");
+//       if (subdetId == EcalBarrel) {
+// 	   pinposition->AddLine((i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()),
+// 				ymin, 
+// 				0,
+// 				(i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()),
+// 				ymax,
+// 				0);
+// 	   pinposition->AddLine(xmin,
+// 				(i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()),
+// 				0,
+// 				xmax,
+// 				(i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()),
+// 				0);
+//       } else if (subdetId == EcalEndcap) {
 // 	   pinposition->AddLine((i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
 // 				ymin, 
 // 				0,
@@ -301,14 +315,36 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
 // 				m_xmax,
 // 				(i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
 // 				0);
-      }
-      pinposition->SetLineColor(kYellow);
-      tList->AddElement(pinposition);
+//       }
+//       printf("TrackPositionAtCalo: %f %f\n", 
+// 	     i->TrackPositionAtCalo().eta(), i->TrackPositionAtCalo().phi());
+//       printf("TrackPositionInner: %f %f\n",       
+// 	     i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx(),
+// 	     i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx());
+//       printf("calo position %f, deltaEta %f, track position %f\n", 
+// 	     i->caloPosition().eta(),
+// 	     i->deltaEtaSuperClusterTrackAtVtx(),
+// 	     i->TrackPositionAtCalo().eta());
+//       pinposition->SetLineColor(kYellow);
+//       tList->AddElement(pinposition);
 
       gEve->Redraw3D(kTRUE);
       return tList;
    }
    return tList;
+}
+
+void FWElectronDetailView::fillReducedData (const std::vector<DetId> &detids,
+					    TEveCaloDataVec *data)
+{
+     if (detids.size() == 0)
+	  return;
+     DetId seed_crystal = *detids.begin();
+     if (seed_crystal.subdetId() == EcalBarrel) {
+	  
+     } else if (seed_crystal.subdetId() == EcalEndcap) {
+
+     }
 }
 
 void FWElectronDetailView::fillData (const std::vector<DetId> &detids,
@@ -362,8 +398,8 @@ void FWElectronDetailView::fillData (const std::vector<DetId> &detids,
       } else if (k->subdetId() == EcalEndcap) {
          // temproary workaround for calo lego TwoPi periodic behaviour 
          // switch from cm to m
-         data->AddTower((v.X() - 2.2 / 2)*0.01f, (v.X() + 2.2 / 2)*0.01f, 
-                        (v.Y() - 2.2 / 2)*0.01f, (v.Y() + 2.2 / 2)*0.01f);
+         data->AddTower((v.X() - 2.9 / 2)*0.01f, (v.X() + 2.9 / 2)*0.01f, 
+                        (v.Y() - 2.9 / 2)*0.01f, (v.Y() + 2.9 / 2)*0.01f);
          data->FillSlice(slice, size);
       }
    }
@@ -463,125 +499,39 @@ TEveElementList *FWElectronDetailView::makeLabels (const reco::GsfElectron &elec
    return ret;
 }
 
-TEveElementList *FWElectronDetailView::getEcalCrystalsBarrel (
-   const DetIdToMatrix &geo,
-   double eta, double phi,
-   int n_eta, int n_phi)
+void FWElectronDetailView::getEcalCrystalsBarrel (std::vector<DetId> *vv, 
+						  int ieta, int iphi)
 {
-   std::vector<DetId> v;
-   int ieta = (int)rint(eta / 1.74e-2);
-   // black magic for phi
-   int iphi = (int)rint(phi / 1.74e-2);
-   if (iphi < 0)
-      iphi = 360 + iphi;
-   iphi += 10;
-   for (int i = ieta - n_eta; i < ieta + n_eta; ++i) {
-      for (int j = iphi - n_phi; j < iphi + n_phi; ++j) {
+     std::vector<DetId> &v = *vv;
+     const int n_eta = 10;
+     const int n_phi = 20;
+     v.reserve((2 * n_eta + 1) * (2 * n_phi + 1));
+     for (int i = ieta - n_eta; i < ieta + n_eta; ++i) {
+	  for (int j = iphi - n_phi; j < iphi + n_phi; ++j) {
 //             printf("pushing back (%d, %d)\n", i, j % 360);
-         if (EBDetId::validDetId(i, j % 360)) {
-            v.push_back(EBDetId(i, j % 360));
+	       if (EBDetId::validDetId(i, j % 360)) {
+		    v.push_back(EBDetId(i, j % 360));
 //                  printf("pushing back (%d, %d)\n", i, j % 360);
-         }
-      }
-   }
-   return getEcalCrystalsBarrel(geo, v);
+	       }
+	  }
+     }
 }
 
-TEveElementList *FWElectronDetailView::getEcalCrystalsBarrel (
-   const DetIdToMatrix &geo,
-   const std::vector<DetId> &detids)
-{
-   TEveElementList *ret = new TEveElementList("Ecal barrel crystals");
-   for (std::vector<DetId>::const_iterator k = detids.begin();
-        k != detids.end(); ++k) {
-      const TGeoHMatrix *matrix = m_item->getGeom()->
-                                  getMatrix(k->rawId());
-      const TVector3 v(matrix->GetTranslation()[0],
-                       matrix->GetTranslation()[1],
-                       matrix->GetTranslation()[2]);
-//        printf("trying to add DetId %d... ", k->rawId());
-      if (k->subdetId() != EcalBarrel) {
-//             printf("not in barrel\n");
-         continue;
-      }
-//        printf("adding\n");
-      const double scale = 100;
-      float rgba[4] = { 1, 1, 0, 1 };
-      TGeoBBox *box = new TGeoBBox(0.48 * 0.0172 * scale,
-                                   0.48 * 0.0172 * scale,
-                                   0.01, 0);
-      TEveTrans t_box;
-      t_box.SetPos(v.Eta() * scale,
-                   v.Phi() * scale,
-                   -0.11);
-      TEveGeoShape *egs = new TEveGeoShape("EB crystal");
-      egs->SetShape(box);
-      egs->SetTransMatrix(t_box.Array());
-      egs->SetMainColorRGB(rgba[1], rgba[2], rgba[3]);
-      egs->SetMainTransparency(80);
-      ret->AddElement(egs);
-   }
-   return ret;
-}
 
-TEveElementList *FWElectronDetailView::getEcalCrystalsEndcap (
-   const DetIdToMatrix &geo,
-   double x, double y, int iz,
-   int n_x, int n_y)
+void FWElectronDetailView::getEcalCrystalsEndcap (std::vector<DetId> *vv, 
+						  int ix, int iy, int iz)
 {
-   std::vector<DetId> v(n_x * n_y);
-   int ix = (int)rint(x / 2.9) + 50;
-   int iy = (int)rint(y / 2.9) + 50;
-   for (int i = ix - n_x; i < ix + n_x; ++i) {
-      for (int j = iy - n_y; j < iy + n_y; ++j) {
-//             printf("pushing back (%d, %d)\n", i, j % 360);
-         if (EEDetId::validDetId(i, j, iz)) {
-            v.push_back(EEDetId(i, j, iz));
-//                  printf("pushing back (%d, %d)\n", i, j % 360);
-         }
-      }
-   }
-   return getEcalCrystalsEndcap(geo, v);
-}
-
-TEveElementList *FWElectronDetailView::getEcalCrystalsEndcap (
-   const DetIdToMatrix &geo,
-   const std::vector<DetId> &detids)
-{
-   TEveElementList *ret = new TEveElementList("Ecal endcap crystals");
-   for (std::vector<DetId>::const_iterator k = detids.begin();
-        k != detids.end(); ++k) {
-      const TGeoHMatrix *matrix = m_item->getGeom()->
-                                  getMatrix(k->rawId());
-      if (matrix == 0)
-         continue;
-      const TVector3 v(matrix->GetTranslation()[0],
-                       matrix->GetTranslation()[1],
-                       matrix->GetTranslation()[2]);
-//        printf("trying to add DetId %d... ", k->rawId());
-      if (k->subdetId() != EcalEndcap) {
-//             printf("not in barrel\n");
-         continue;
-      }
-//        printf("adding\n");
-      const double scale = 1;
-      float rgba[4] = { 1, 1, 0, 1 };
-      TGeoBBox *box = new TGeoBBox(0.48 * 2.9 * scale,
-                                   0.48 * 2.9 * scale,
-                                   0.01, 0);
-      TEveTrans t_box;
-      t_box.SetPos(v.X() * scale,
-                   v.Y() * scale,
-                   -0.11);
-      TEveGeoShape *egs = new TEveGeoShape("EEcrystal");
-      egs->SetShape(box);
-      egs->SetTransMatrix(t_box.Array());
-      egs->SetMainColorRGB(rgba[0], rgba[1], rgba[2]);
-      egs->SetMainTransparency(80);
-      ret->AddElement(egs);
-   }
-   return ret;
+     std::vector<DetId> &v = *vv;
+     const int n_x = 10;
+     const int n_y = 10;
+     v.reserve((2 * n_x + 1) * (2 * n_y + 1));
+     for (int i = ix - n_x; i < ix + n_x; ++i) {
+	  for (int j = iy - n_y; j < iy + n_y; ++j) {
+	       if (EEDetId::validDetId(i, j, iz)) {
+		    v.push_back(EEDetId(i, j, iz));
+	       }
+	  }
+     }
 }
 
 REGISTER_FWDETAILVIEW(FWElectronDetailView);
-
