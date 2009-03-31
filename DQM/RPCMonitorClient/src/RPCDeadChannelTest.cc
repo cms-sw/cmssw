@@ -164,11 +164,11 @@ void  RPCDeadChannelTest::CalculateDeadChannelPercentage(RPCDetId & detId, Monit
 	 }
        }
      }
-
+     
      if (DEAD){
        rpcdqm::utils rollNumber;
        int nr = rollNumber.detId2RollNr(detId);
-      DEAD->setBinContent(detId.sector(),nr, badChannels.size()/nstrips );       
+       DEAD->setBinContent(detId.sector(),nr, (float)badChannels.size()/nstrips );
      }
    }
 }
