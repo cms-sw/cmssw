@@ -158,8 +158,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 	newEleCore.setSuperCluster(scRef);
 	reco::GsfElectronCoreRef newEleCoreRef(reco::GsfElectronCoreRef(rEleCore, idxEleCore ++));
 	pOutEleCore->push_back(newEleCore);
-	reco::GsfElectron newEle(*eleIt);
-	newEle.setCore(newEleCoreRef);
+	reco::GsfElectron newEle(eleIt->p4()*(nearestSCbarrel->energy()/eleIt->ecalEnergy()),newEleCoreRef,eleIt->trackClusterMatching(),eleIt->trackExtrapolations(),eleIt->closestCtfTrack(),eleIt->fiducialFlags(),eleIt->showerShape(),eleIt->fbrem(),eleIt->mva());
 	pOutEle->push_back(newEle);
 #ifdef DEBUG
 	std::cout << "Association is with EB superCluster "<< std::endl;
@@ -193,8 +192,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 	  newEleCore.setSuperCluster(scRef);
 	  reco::GsfElectronCoreRef newEleCoreRef(reco::GsfElectronCoreRef(rEleCore, idxEleCore ++));
 	  pOutEleCore->push_back(newEleCore);
-	  reco::GsfElectron newEle(*eleIt);
-	  newEle.setCore(newEleCoreRef);
+	  reco::GsfElectron newEle(eleIt->p4()*(newSC.energy()/eleIt->ecalEnergy()),newEleCoreRef,eleIt->trackClusterMatching(),eleIt->trackExtrapolations(),eleIt->closestCtfTrack(),eleIt->fiducialFlags(),eleIt->showerShape(),eleIt->fbrem(),eleIt->mva());
 	  pOutEle->push_back(newEle);
 
 #ifdef DEBUG
@@ -211,7 +209,10 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 	  {
 	    reco::SuperClusterRef scRef(reco::SuperClusterRef(pSuperClusters, iscRef));
 	    newEleCore.setSuperCluster(scRef);
-
+	    reco::GsfElectronCoreRef newEleCoreRef(reco::GsfElectronCoreRef(rEleCore, idxEleCore ++));
+	    pOutEleCore->push_back(newEleCore);
+	    reco::GsfElectron newEle(eleIt->p4()*(nearestSCbarrel->energy()/eleIt->ecalEnergy()),newEleCoreRef,eleIt->trackClusterMatching(),eleIt->trackExtrapolations(),eleIt->closestCtfTrack(),eleIt->fiducialFlags(),eleIt->showerShape(),eleIt->fbrem(),eleIt->mva());
+	    pOutEle->push_back(newEle);
 
 
 #ifdef DEBUG
@@ -229,15 +230,15 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 	    pOutNewEndcapSC->push_back(newSC);
 	    reco::SuperClusterRef scRef(reco::SuperClusterRef(rSC, idxSC ++));
 	    newEleCore.setSuperCluster(scRef);
+	    reco::GsfElectronCoreRef newEleCoreRef(reco::GsfElectronCoreRef(rEleCore, idxEleCore ++));
+	    pOutEleCore->push_back(newEleCore);
+	    reco::GsfElectron newEle(eleIt->p4()*(newSC.energy()/eleIt->ecalEnergy()),newEleCoreRef,eleIt->trackClusterMatching(),eleIt->trackExtrapolations(),eleIt->closestCtfTrack(),eleIt->fiducialFlags(),eleIt->showerShape(),eleIt->fbrem(),eleIt->mva());
+	    pOutEle->push_back(newEle);
 #ifdef DEBUG
 	    std::cout << "Association is with EE superCluster, after quarrel "<< std::endl;
 #endif  
 	  }	
-	reco::GsfElectronCoreRef newEleCoreRef(reco::GsfElectronCoreRef(rEleCore, idxEleCore ++));
-	pOutEleCore->push_back(newEleCore);
-	reco::GsfElectron newEle(*eleIt);
-	newEle.setCore(newEleCoreRef);
-	pOutEle->push_back(newEle);
+
       }
       
 
