@@ -415,6 +415,27 @@ class GenObject (object):
 
 
     @staticmethod
+    def changeVariable (tupleName, objName, varName, fillname):
+        """Updates the definition used to go from a Root object to a
+        GenObject.  'tupleName' and 'objName' must already be defined."""
+        parts = GenObject._dotRE.split (fillname)
+        partsList = []
+        for part in parts:
+            parenMatch = GenObject._parenRE.search (part)
+            mode   = GenObject._objFunc.obj
+            parens = []
+            if parenMatch:
+                part   = parenMatch.group (1)
+                mode   = GenObject._objFunc.func
+                parens = \
+                       GenObject._convertStringToParameters \
+                       (parenMatch.group (2))
+            partsList.append(  (part, mode, parens) )
+        GenObject._tofillDict[tupleName][objName][varName] = [partsList, {}]
+
+
+
+    @staticmethod
     def _genObjectClone (objName, tupleName, obj, index = -1):
         """Creates a GenObject copy of Root object"""
         tofillObjDict = GenObject._tofillDict.get(tupleName, {})\
@@ -489,7 +510,6 @@ class GenObject (object):
                 vec = \
                     GenObject._rootObjectDict[objName] = \
                     ROOT.std.vector( rootObj )()
-                
                 branchName = objName + "s"
                 vecName = "vector<%s>" % classname
                 tree.Branch( branchName, vecName, vec)
@@ -808,6 +828,9 @@ class GenObject (object):
 
     @staticmethod
     def blurEvent (event, value, where = ""):
+        """For debugging purposes only.  Will deliberately change
+        values of first tree to verify that script is correctly
+        finding problems."""
         for objName in sorted (event.keys()):
             if "runevent" == objName:
                 # runevent is a special case.  We don't compare these
@@ -891,8 +914,7 @@ class GenObject (object):
                     if countDict.has_key (key):
                         countDict[key] += 1
                     else:
-                        countDict[key] = 1
-                                
+                        countDict[key] = 1                                
                 # o.k.  Now that we have them matched, let's compare
                 # the proper items:
                 for pair in matchedSet:
@@ -909,12 +931,6 @@ class GenObject (object):
                                 countDict[varName] += 1
                             else:
                                 countDict[varName] = 1
-                            
-            ## print "event 1"
-            ## GenObject.printEvent (event1)
-            ## print "event 2"
-            ## GenObject.printEvent (event2)
-            ## print
         return problemDict
 
 
@@ -962,26 +978,10 @@ class GenObject (object):
 
 
     @staticmethod
-    def try1 ():
-        """A temporary function for development"""
-        # Set a random seed for 'blurEvents'
-        if False:
-            tupleName = "pat"
-            chain = GenObject.prepareTuple (tupleName,
-                                            "PatAnalyzerSkeletonSkim.root")
-        else:
-            tupleName = "GenObject"
-            chain = GenObject.prepareTuple (tupleName,
-                                            "go1.root")
-        event = {}
-        GenObject.compareTwoTrees (chain, chain, blur=True)
-        return
-
-
-    @staticmethod
     def _convertStringToParameters (string):
         """Convert comma-separated string into a python list of
-        parameters"""
+        parameters.  Currently only understands strings, floats, and
+        integers."""
         retval = []        
         words = GenObject._commaRE.split (string)
         for word in words:

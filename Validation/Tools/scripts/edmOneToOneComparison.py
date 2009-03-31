@@ -4,7 +4,7 @@ from Validation.Tools.GenObject import *
     
 if __name__ == "__main__":
     import optparse
-    parser = optparse.OptionParser("usage: %prog [options]")
+    parser = optparse.OptionParser("usage: %prog [options]\nVisit https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsToolsEdmOneToOneComparison\nfor full documentation.")
     modeGroup    = optparse.OptionGroup (parser, "Mode Conrols")
     tupleGroup   = optparse.OptionGroup (parser, "Tuple Controls")
     optionsGroup = optparse.OptionGroup (parser, "Options") 
@@ -33,6 +33,13 @@ if __name__ == "__main__":
     tupleGroup.add_option ('--file2', dest='file2', type='string',
                            default="",
                            help="2nd tuple file")
+    tupleGroup.add_option ('--alias', dest='alias', type='string',
+                           action='append',
+                           help="Change alias ('tuple:object:alias')")
+    tupleGroup.add_option ('--changeVariable', dest='changeVar', type='string',
+                           action='append',
+                           help="Change variable filling "
+                           "('tuple:objName:varName:def')")
     # options group
     optionsGroup.add_option ('--config', dest='config', type='string',
                              default='config.txt',
@@ -62,16 +69,30 @@ if __name__ == "__main__":
     ROOT.gSystem.Load("libFWCoreFWLite.so")
     ROOT.AutoLibraryLoader.enable()
     # Let's parse any args
-    aliasRE = re.compile (r'alias:(.+):(.+):(.+)')
-    for arg in args:
-        aliasMatch = aliasRE.match (arg)
-        if aliasMatch:
-            GenObject.changeAlias (aliasMatch.group (1),
-                                   aliasMatch.group (2),
-                                   aliasMatch.group (3))
-            continue
-        # if we're here, then we have an argument that we don't understand
-        raise RuntimeError, "Unknown argument '%s'" % arg        
+    doubleColonRE = re.compile (r'(.+):(.+):(.+)')
+    if options.alias:
+        for arg in options.alias:
+            aliasMatch = doubleColonRE.match (arg)
+            if aliasMatch:
+                print "aM", aliasMatch
+                GenObject.changeAlias (aliasMatch.group (1),
+                                       aliasMatch.group (2),
+                                       aliasMatch.group (3))
+                continue
+            # if we're here, then we have an argument that we don't understand
+            raise RuntimeError, "Unknown alias format '%s'" % arg
+    tripleColonRE = re.compile (r'(.+):(.+):(.+):(.+)')
+    if options.changeVar:
+        for arg in options.changeVar:
+            changeMatch = tripleColonRE.match (arg)
+            if changeMatch:
+                GenObject.changeVariable (changeMatch.group (1),
+                                          changeMatch.group (2),
+                                          changeMatch.group (3),
+                                          changeMatch.group (4))
+                continue
+            # if we're here, then we have an argument that we don't understand
+            raise RuntimeError, "Unknown changeVar format '%s'" % arg        
     # We don't want to use options beyond the main code, so let thee
     # kitchen sink know what we want
     if options.printEvent:
