@@ -25,6 +25,8 @@ cat DummyCondDBWriter_SiStripLorentzAngle_cfg.py | sed -e "s@SiStripLorentzAngle
 cmsRun DummyCondDBWriter_tmp_cfg.py
 
 cmsRun DummyCondDBWriter_SiStripDetVOff_cfg.py
+cmsRun DummyCondDBWriter_SiStripModuleHV_cfg.py
+cmsRun DummyCondDBWriter_SiStripModuleLV_cfg.py
 
 cmsRun DummyCondDBWriter_SiStripNoises_cfg.py
 cmsRun DummyCondDBWriter_SiStripNoises_PeakMode_cfg.py
