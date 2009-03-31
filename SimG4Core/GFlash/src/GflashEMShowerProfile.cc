@@ -1,5 +1,5 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.15 2009/03/24 03:48:55 syjun Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.16 2009/03/27 21:50:38 dwjang Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 
@@ -139,8 +139,8 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 
   // @@@ dwjang, intial tuning by comparing 20-150GeV TB data
   // the width of energy response is not yet tuned.
-  G4double e25Scale = 1.007;
-  p1 *= 0.96;
+  G4double e25Scale = 1.006;
+  p1 *= 0.965;
 
   // preparation of longitudinal integration
   G4double stepLengthLeft = fastTrack.GetEnvelopeSolid()->DistanceToOut(fastTrack.GetPrimaryTrackLocalPosition(),
