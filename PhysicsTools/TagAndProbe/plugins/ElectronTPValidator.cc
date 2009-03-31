@@ -217,7 +217,7 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
       edm::LogError("")<< "Error! Can't get Island SC Collection by label. ";
     }
  //get electron collection
-  edm::Handle<reco::PixelMatchGsfElectronCollection> pElectrons;
+  edm::Handle<reco::GsfElectronCollection> pElectrons;
   try{
     evt.getByLabel(ElectronCollection_, pElectrons);
   }
