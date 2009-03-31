@@ -223,7 +223,7 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 	    float preshowerEnergy=eleIt->superCluster()->preshowerEnergy(); 
 	    CaloClusterPtrVector newBCRef;
 	    for (CaloCluster_iterator bcRefIt=nearestSCendcap->clustersBegin();bcRefIt!=nearestSCendcap->clustersEnd();++bcRefIt){
-	      CaloClusterPtr(*bcRefIt);
+	      CaloClusterPtr cPtr(*bcRefIt);
 	      newBCRef.push_back(*bcRefIt);}
 	    reco::SuperCluster newSC(nearestSCendcap->energy() + preshowerEnergy,  nearestSCendcap->position() , nearestSCendcap->seed(), newBCRef , preshowerEnergy );
 	    pOutNewEndcapSC->push_back(newSC);

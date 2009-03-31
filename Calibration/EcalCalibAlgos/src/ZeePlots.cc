@@ -258,13 +258,13 @@ void ZeePlots::bookEleHistograms(){
 
 //========================================================================
 
-void ZeePlots::fillEleInfo(const reco::PixelMatchGsfElectronCollection* electronCollection) {
+void ZeePlots::fillEleInfo(const reco::GsfElectronCollection* electronCollection) {
 
   file_->cd();
 
   h1_nEleReco_->Fill(electronCollection->size());
   
-  for(reco::PixelMatchGsfElectronCollection::const_iterator eleIt = electronCollection->begin();   eleIt != electronCollection->end(); eleIt++)
+  for(reco::GsfElectronCollection::const_iterator eleIt = electronCollection->begin();   eleIt != electronCollection->end(); eleIt++)
     {
       
   file_->cd();

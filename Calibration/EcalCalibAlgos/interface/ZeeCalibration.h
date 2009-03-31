@@ -14,7 +14,7 @@
      <Notes on implementation>
 */
 //
-// $Id: ZeeCalibration.h,v 1.8 2009/01/09 10:23:04 saout Exp $
+// $Id: ZeeCalibration.h,v 1.9 2009/02/06 09:02:33 argiro Exp $
 //
 //
 
@@ -113,13 +113,13 @@ class ZeeCalibration : public edm::ESProducerLooper {
   double fEtaEndcapGood(double scEta) const;
 
   int ringNumberCorrector(int k);
-  double getEtaCorrection(const reco::PixelMatchGsfElectron*);
+  double getEtaCorrection(const reco::GsfElectron*);
 
- 
-  void fillEleInfo(std::vector<HepMC::GenParticle*>& a, std::map<HepMC::GenParticle*,const reco::PixelMatchGsfElectron*>& b);
+ \
+  void fillEleInfo(std::vector<HepMC::GenParticle*>& a, std::map<HepMC::GenParticle*,const reco::GsfElectron*>& b);
   void fillMCInfo(HepMC::GenParticle* mcele);
 
-  void fillMCmap(const std::vector<const reco::PixelMatchGsfElectron*>* electronCollection, const std::vector<HepMC::GenParticle*>& mcEle,std::map<HepMC::GenParticle*,const reco::PixelMatchGsfElectron*>& myMCmap);
+  void fillMCmap(const std::vector<const reco::GsfElectron*>* electronCollection, const std::vector<HepMC::GenParticle*>& mcEle,std::map<HepMC::GenParticle*,const reco::GsfElectron*>& myMCmap);
   //  void fillMCmap(const reco::ElectronCollection* electronCollection, const std::vector<HepMC::GenParticle*>& mcEle,std::map<HepMC::GenParticle*,const reco::Electron*>& myMCmap);
   
   float EvalDPhi(float Phi,float Phi_ref);
