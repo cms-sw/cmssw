@@ -1,5 +1,5 @@
 #ifndef CASTOR_CALIBRATION_WIDTHS_H
-#define CASTOR_CALIBRATION_WIDTHs_H
+#define CASTOR_CALIBRATION_WIDTHS_H
 
 /** \class CastorCalibrationWidths
     
