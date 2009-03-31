@@ -104,18 +104,18 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 	      << "\nERROR: Templates not loaded correctly from text file. Reconstruction will fail.\n\n";
 	}
   
-      cout << "templID_                     = " << templID_                     << endl;
+      //cout << "templID_                     = " << templID_                     << endl;
   
     } // if ( UseErrorsFromTemplates_ )
   
-  cout << endl;
-  cout << "From PixelCPEGeneric::PixelCPEGeneric(...)" << endl;
-  cout << "(int)UseErrorsFromTemplates_ = " << (int)UseErrorsFromTemplates_    << endl;
-  cout << "TruncatePixelCharge_         = " << (int)TruncatePixelCharge_       << endl;      
-  cout << "IrradiationBiasCorrection_   = " << (int)IrradiationBiasCorrection_ << endl;
-  cout << "(int)DoCosmics_              = " << (int)DoCosmics_                 << endl;
-  cout << "(int)LoadTemplatesFromDB_    = " << (int)LoadTemplatesFromDB_       << endl;
-  cout << endl;
+  //cout << endl;
+  //cout << "From PixelCPEGeneric::PixelCPEGeneric(...)" << endl;
+  //cout << "(int)UseErrorsFromTemplates_ = " << (int)UseErrorsFromTemplates_    << endl;
+  //cout << "TruncatePixelCharge_         = " << (int)TruncatePixelCharge_       << endl;      
+  //cout << "IrradiationBiasCorrection_   = " << (int)IrradiationBiasCorrection_ << endl;
+  //cout << "(int)DoCosmics_              = " << (int)DoCosmics_                 << endl;
+  //cout << "(int)LoadTemplatesFromDB_    = " << (int)LoadTemplatesFromDB_       << endl;
+  //cout << endl;
 
 }
 
