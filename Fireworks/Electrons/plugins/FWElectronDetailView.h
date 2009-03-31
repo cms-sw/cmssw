@@ -11,25 +11,16 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.h,v 1.5 2009/03/31 15:27:01 jmuelmen Exp $
+// $Id: FWElectronDetailView.h,v 1.6 2009/03/31 20:46:49 jmuelmen Exp $
 //
 
 
 // user include files
-#include "Fireworks/Core/interface/FWDetailView.h"
-
-
-#include "DataFormats/FWLite/interface/Event.h"
-#include "DataFormats/FWLite/interface/Handle.h"
+#include "FWECALDetailView.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
-class TEveElement;
-class TEveCaloDataVec;
-class FWModelId;
-class TGLViewerBase;
-
-class FWElectronDetailView : public FWDetailView<reco::GsfElectron> {
+class FWElectronDetailView : public FWECALDetailView<reco::GsfElectron> {
 
 public:
    FWElectronDetailView();
@@ -39,48 +30,17 @@ public:
    void showInterestingHits(TGLViewerBase*);
 
 protected:
-   void setItem (const FWEventItem *iItem) {
-      m_item = iItem;
-   }
+   virtual bool	drawTrack () { return true; }
+   virtual math::XYZPoint trackPositionAtCalo (const reco::GsfElectron &);
    TEveElement* build_projected (const FWModelId &id, const reco::GsfElectron*);
-
    class TEveElementList *makeLabels (const reco::GsfElectron &);
-   void getEcalCrystalsEndcap (std::vector<DetId> *, 
-			       int ix, int iy, int iz);
-   void getEcalCrystalsBarrel (std::vector<DetId> *, 
-			       int ieta, int iphi);
-   void fillData (const std::vector<DetId> &detids,
-                  TEveCaloDataVec *data, 
-                  double phi_seed);
+
    void fillReducedData (const std::vector<DetId> &detids,
 			 TEveCaloDataVec *data);
 
 private:
    FWElectronDetailView(const FWElectronDetailView&); // stop default
    const FWElectronDetailView& operator=(const FWElectronDetailView&); // stop default
-
-   // ---------- member data --------------------------------
-   void resetCenter() {
-      rotationCenter()[0] = 0;
-      rotationCenter()[1] = 0;
-      rotationCenter()[2] = 0;
-   }
-
-   void getCenter( Double_t* vars )
-   {
-      vars[0] = rotationCenter()[0];
-      vars[1] = rotationCenter()[1];
-      vars[2] = rotationCenter()[2];
-   }
-
-   const FWEventItem* m_item;
-
-   bool  m_coordEtaPhi; // use XY coordinate if EndCap, else EtaPhi
-
-   const EcalRecHitCollection *m_barrel_hits;
-   const EcalRecHitCollection *m_endcap_hits;
-   const EcalRecHitCollection *m_endcap_reduced_hits;
-   std::vector<DetId> seed_detids;
 };
 
 #endif
