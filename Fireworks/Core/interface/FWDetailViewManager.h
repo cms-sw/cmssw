@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.11 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWDetailViewManager.h,v 1.12 2009/03/29 14:13:38 amraktad Exp $
 //
 
 // system include files
@@ -45,7 +45,7 @@ public:
 
    // ---------- member functions ---------------------------
    void openDetailViewFor(const FWModelId& );
-   void close_wm ();
+   void destroyed_wm ();
    void close_button ();
 
 private:

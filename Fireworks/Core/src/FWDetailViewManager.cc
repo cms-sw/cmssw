@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.28 2009/03/30 18:27:48 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.29 2009/03/31 08:43:34 jmuelmen Exp $
 //
 
 // system include files
@@ -83,8 +83,10 @@ FWDetailViewManager::~FWDetailViewManager()
 //
 // member functions
 //
-void FWDetailViewManager::close_wm ()
+void FWDetailViewManager::destroyed_wm()
 {
+   // printf("main frame destroyed \n");
+
    // destroy scene elements
    m_scene->Destroy();
    m_scene = 0;
@@ -95,10 +97,8 @@ void FWDetailViewManager::close_wm ()
 
 void FWDetailViewManager::close_button ()
 {
-   // this functions calls close_mw, since it emits signal
-   m_frame->CloseWindow();
-   // but for some reason, we still have to zero this out by hand 
-   m_frame = 0;
+   // this functions calls destroy_mw, since it emits signal
+   m_frame->DeleteWindow();
 }
 
 void
@@ -109,14 +109,14 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
 
    // make a frame
    if (m_frame != 0)
-      m_frame->CloseWindow();
+      m_frame->DestroyWindow();
 
    m_frame = new // TGTransientFrame(0, gEve->GetBrowser(), 400, 400);
       TGMainFrame(0, 800, 600);
    m_frame->SetCleanup(kDeepCleanup);
    m_frame->SetWindowName(Form("%s Detail View [%d]",id.item()->name().c_str(), id.index()));
    m_frame->SetIconName("Detail View Icon");
-   m_frame->Connect("CloseWindow()", "FWDetailViewManager", this, "close_wm()");
+   m_frame->Connect("Destroyed()", "FWDetailViewManager", this, "destroyed_wm()");
 
    TGHorizontalFrame* hf = new TGHorizontalFrame(m_frame);
    m_frame->AddFrame(hf, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
