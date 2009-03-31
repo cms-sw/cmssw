@@ -11,7 +11,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.h,v 1.4 2009/03/31 07:48:59 jmuelmen Exp $
+// $Id: FWElectronDetailView.h,v 1.5 2009/03/31 15:27:01 jmuelmen Exp $
 //
 
 
@@ -27,6 +27,7 @@
 class TEveElement;
 class TEveCaloDataVec;
 class FWModelId;
+class TGLViewerBase;
 
 class FWElectronDetailView : public FWDetailView<reco::GsfElectron> {
 
@@ -35,7 +36,7 @@ public:
    virtual ~FWElectronDetailView();
 
    virtual TEveElement* build (const FWModelId &id, const reco::GsfElectron*);
-   void showInterestingHits () { printf("Interesting\n"); }
+   void showInterestingHits(TGLViewerBase*);
 
 protected:
    void setItem (const FWEventItem *iItem) {

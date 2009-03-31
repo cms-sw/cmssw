@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.17 2009/03/31 08:39:02 jmuelmen Exp $
+// $Id: FWElectronDetailView.cc,v 1.18 2009/03/31 15:27:01 jmuelmen Exp $
 //
 
 // system include files
@@ -83,23 +83,10 @@ TEveElement* FWElectronDetailView::build (const FWModelId &id, const reco::GsfEl
    return build_projected(id, iElectron);
 }
 
-// struct MyOverlayButton : public TGLOverlayButton {
-//      MyOverlayButton(TGLViewerBase *parent, const char *text, Float_t posx,
-// 		     Float_t posy, Float_t width, Float_t height) 
-// 	  : TGLOverlayButton(parent, text, posx, posy, width, height) { }
-//      virtual Bool_t Handle(TGLRnrCtx &rnrCtx, TGLOvlSelectRecord &, Event_t *event) 
-// 	  { 
-// 	       switch (event->fType) {
-// 	       case kButtonRelease:
-// 		    Clicked(rnrCtx.GetViewer());
-// 		    return kTRUE;
-// 		    break;
-// 	       default:
-// 		    break;
-// 	       }
-// 	       return kFALSE; 
-// 	  }
-// };
+void FWElectronDetailView::showInterestingHits (TGLViewerBase *)
+{
+     printf("Interesting\n"); 
+}
 
 TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
                                                     const reco::GsfElectron* iElectron)
@@ -109,10 +96,11 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
    m_item = id.item();
 
    viewer()->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
-   TGLOverlayButton *tgo = 
-	new TGLOverlayButton(viewer(), "Show surrounding rec hits", 
-			     10, 10, 200, 16);
-   tgo->Connect("Clicked(TGLViewerBase* viewer)", "FWElectronDetailView", this, "showInterestingHits()");
+//    TGLOverlayButton *tgo = 
+// 	new TGLOverlayButton(viewer(), "Show surrounding rec hits", 
+// 			     10, 10, 200, 16);
+//    tgo->Connect("Clicked(TGLViewerBase*)", "FWElectronDetailView", 
+// 		this, "showInterestingHits(TGLViewerBase*)");
    
    TEveElementList* tList =  new TEveElementList(m_item->name().c_str(),"Supercluster RhoZ",true);
    tList->SetMainColor(m_item->defaultDisplayProperties().color());
@@ -173,6 +161,22 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
          rotationCenter()[1] = i->superCluster()->position().y()*0.01;
          rotationCenter()[2] = 0;
       }
+//       double min_eta = 10, max_eta = -10, min_phi = 10, max_phi = -10;
+//       for (std::vector<DetId>::const_iterator k = seed_detids.begin();
+// 	   k != seed_detids.end(); ++k) {
+// 	   const TGeoHMatrix *matrix = m_item->getGeom()->getMatrix(k->rawId());
+// 	   const TVector3 v(matrix->GetTranslation()[0], 
+// 			    matrix->GetTranslation()[1],
+// 			    matrix->GetTranslation()[2]);
+// 	   if (v.Eta() < min_eta)
+// 		min_eta = v.Eta();
+// 	   if (v.Eta() > max_eta)
+// 		max_eta = v.Eta();
+// 	   if (v.Phi() < min_phi)
+// 		min_phi = v.Phi();
+// 	   if (v.Phi() > max_phi)
+// 		max_phi = v.Phi();
+//       }
       //        rotationCenter()[0] = i->TrackPositionAtCalo().x();
       //        rotationCenter()[1] = i->TrackPositionAtCalo().y();
       //        rotationCenter()[2] = i->TrackPositionAtCalo().z();
@@ -185,8 +189,8 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
 //       data->RefSliceInfo(2).Setup("unclustered crystals", 0.0, kYellow);
       // now fill
       fillData(detids, data, i->superCluster()->seed()->position().phi());
-      if (m_endcap_reduced_hits != 0)
-	   fillReducedData(detids, data);
+//       if (m_endcap_reduced_hits != 0)
+// 	   fillReducedData(detids, data);
       data->DataChanged();
       // printf("max val %f  %f \n", data->GetMaxVal(0), data->GetMaxVal(1));
          
@@ -226,6 +230,28 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
          v->SetEventHandler(eh);
          eh->Rotate(0,10000,kFALSE, kFALSE);
       }
+//       double z_max = lego->GetMaxVal() * lego->GetValToHeight();
+//       double line_height = 0.01 * z_max;
+//       line_height *= legoScale;
+//       TEveStraightLineSet *seed_boundary = new TEveStraightLineSet("seed boundary");
+//       seed_boundary->SetDepthTest(kTRUE);
+//       min_eta -= 0.0171 / 2;
+//       max_eta += 0.0171 / 2;
+//       min_phi -= 0.0171 / 2;
+//       max_phi += 0.0171 / 2;
+//       if (subdetId == EcalBarrel) {
+// 	   seed_boundary->AddLine(min_eta, min_phi, line_height,
+// 				  max_eta, min_phi, line_height);
+// 	   seed_boundary->AddLine(min_eta, max_phi, line_height,
+// 				  max_eta, max_phi, line_height);
+// 	   seed_boundary->AddLine(min_eta, min_phi, line_height,
+// 				  min_eta, max_phi, line_height);
+// 	   seed_boundary->AddLine(max_eta, min_phi, line_height,
+// 				  max_eta, max_phi, line_height);
+//       } 
+//       seed_boundary->SetLineColor(kWhite);
+//       seed_boundary->SetLineWidth(2);
+//       tList->AddElement(seed_boundary);
 
       double ymax = lego->GetPhiMax();
       double ymin = lego->GetPhiMin();
