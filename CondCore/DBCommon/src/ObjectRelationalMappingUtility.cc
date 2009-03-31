@@ -1,10 +1,10 @@
 #include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
 #include "ObjectRelationalAccess/ObjectRelationalMappingUtilities.h"
 #include "ObjectRelationalAccess/ObjectRelationalMappingPersistency.h"
-#include "ObjectRelationalAccess/ObjectRelationalMappingPersistency.h"
-#include "ObjectRelationalAccess/ObjectRelationalMappingPersistency.h"
 #include "ObjectRelationalAccess/ObjectRelationalMappingSchema.h"
 #include "RelationalAccess/ISessionProxy.h"
+
+
 cond::ObjectRelationalMappingUtility::ObjectRelationalMappingUtility( coral::ISessionProxy* coralsessionHandle ):m_coralsessionHandle(coralsessionHandle){
   m_mappingutil=new pool::ObjectRelationalMappingUtilities( coralsessionHandle );
 }

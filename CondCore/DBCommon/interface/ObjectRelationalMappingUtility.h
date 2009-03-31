@@ -1,15 +1,19 @@
 #ifndef COND_DBCommon_ObjectRelationalMappingUtility_h
 #define COND_DBCommon_ObjectRelationalMappingUtility_h
 #include <string>
-#include <vector>
+
 namespace pool{
   class ObjectRelationalMappingUtilities;
 }
+
 namespace coral{
   class ISessionProxy;
 }
+
 namespace cond{
+
   class RelationalStorageManager;
+
   class ObjectRelationalMappingUtility{
   public:
     explicit ObjectRelationalMappingUtility( coral::ISessionProxy*  );
@@ -27,7 +31,7 @@ namespace cond{
 
     //copy mapping from default session to session for one container
     bool exportMapping(coral::ISessionProxy* session, 
-		       std::string const & contName, std::string const & classVersion, 
+		       std::string const & contName, std::string const & classVersion="", 
 		       bool allVersions=false);
 
   private:
