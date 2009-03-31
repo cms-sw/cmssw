@@ -7,7 +7,6 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/HcalDetId>
 <use name=DataFormats/CaloRecHit>
-<use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=SimDataFormats/GeneratorProducts>
@@ -24,7 +23,6 @@
   <use name=DataFormats/HcalDetId>
   <use name=DataFormats/CaloRecHit>
   <use name=DataFormats/Common>	 
-  <use name=Geometry/CaloEventSetup>
   <use name=SimDataFormats/GeneratorProducts>
   <use name=clhep>
   <use name=hepmc>
