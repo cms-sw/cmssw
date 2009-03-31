@@ -7,13 +7,13 @@
 #include<boost/cstdint.hpp>
 
 /**
- * This class stores the information if the HV or LV of a detId were off. </br>
+ * This class stores the information if the HV or LV of a detId were off. <br>
  * Internally it uses two bits to store the information about LV and HV. It saves a uint32_t
  * containing the detId number and these additional bits, which are stored in the first
  * position. This is realized by the put method using a bit shift so that the actual
- * number written in the database is: detId|HV|LV. </br>
+ * number written in the database is: detId|HV|LV. <br>
  * The getDetIds method builds and returns a vector with detIds, removing the additional bits.
- * It has three methods to extract the information: </br>
+ * It has three methods to extract the information: <br>
  * - IsModuleVOff returning the true if any of HV or LV is off
  * - IsModuleLVOff/IsModuleHVOff returning true if the corresponding value is off.
  */
