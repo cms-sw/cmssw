@@ -290,7 +290,9 @@ int main( int argc, char** argv ){
 	}
 	coralDBs.commit();
 	coralDBd.commit();
-    } catch(...){ } // throw if no db available...
+    } catch(...){ 
+      std::cout << "Something when wrong with mapping export" << std::endl;
+    } // throw if no db available...
 
 
     since = std::max(since, cond::timeTypeSpecs[sourceiovtype].beginValue);
