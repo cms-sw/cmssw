@@ -396,7 +396,7 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
    
       const reco::SuperClusterCollection * SCHybrid = pSCHybrid.product();
       const reco::SuperClusterCollection * SCIsland = pSCIsland.product();
-      const reco::PixelMatchGsfElectronCollection * electrons = pElectrons.product();
+      const reco::GsfElectronCollection * electrons = pElectrons.product();
       const reco::TrackCollection * ctfTracks = pCtfTracks.product();
       // this class has been removed from CMSSW_2_0_0
       //      const reco::HLTFilterObjectWithRefs * HLTObj;
@@ -425,20 +425,20 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 
       //   edm::LogError("") << "ELECTRON COLLECTION SIZE: "  << electrons->size();
       //      edm::LogInfo("") << "Electrons.size() = " << electrons->size();
-      std::vector<reco::PixelMatchGsfElectronRef> UniqueElectrons;
+      std::vector<reco::GsfElectronRef> UniqueElectrons;
       // edm::LogInfo("") << "Starting loop over electrons.";
       int index =0;
       // Loop to check whether there are tracks that share the same SC
       //  LOOP: COMMON SC ********************************************
       // this is the default old method ........................................
-      //for(reco::PixelMatchGsfElectronCollection::const_iterator 
+      //for(reco::GsfElectronCollection::const_iterator 
       //    elec1 = electrons->begin(); elec1 != electrons->end();++elec1)
       //{
-      //  const reco::PixelMatchGsfElectronRef electronRef(pElectrons, index);
+      //  const reco::GsfElectronRef electronRef(pElectrons, index);
       //  
       //  bool duplicate = false;
       //  
-      //  for(reco::PixelMatchGsfElectronCollection::const_iterator 
+      //  for(reco::GsfElectronCollection::const_iterator 
       //	elec2 = electrons->begin(); elec2 != electrons->end();++elec2)
       //    {
       //      if(elec1 != elec2)
@@ -468,7 +468,7 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
       //           we change detid matching to superCluster ref matching *******
       for(reco::GsfElectronCollection::const_iterator 
 	    elec = electrons->begin(); elec != electrons->end();++elec) {
-	const reco::PixelMatchGsfElectronRef  electronRef(pElectrons, index);
+	const reco::GsfElectronRef  electronRef(pElectrons, index);
 	//Remove duplicate electrons which share a supercluster
 	bool duplicate = false;
 	reco::GsfElectronCollection::const_iterator BestDuplicate = elec;
@@ -516,7 +516,7 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
       // *-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-**-*-*-**-*-***-*-**-
       // TAG finder ************************************************************
       //
-      // this loops over the     vector<reco::PixelMatchGsfElectronRef> 
+      // this loops over the     vector<reco::GsfElectronRef> 
       // that was defined / selected in the previous loop and finds the
       // tag through the following procedure:..........................
       // 1. find SC eta + transverse impact parameter (TIP) (this is d0)
@@ -524,19 +524,19 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
       // 3. it calculates the isolation variable and checks if passes...
       // 4. check single electron trigger 
       // 5. check electron id criteria are satisfied
-      // So finally we have the tags in  vector<reco::PixelMatchGsfElectronRef> TagElectrons;
+      // So finally we have the tags in  vector<reco::GsfElectronRef> TagElectrons;
       //
-      std::vector<reco::PixelMatchGsfElectronRef> TagElectrons;
+      std::vector<reco::GsfElectronRef> TagElectrons;
       //  edm::LogInfo("")<<"after define tag vector";
       int k =0;
       int IsolatedElectrons=0; int HLTElectrons=0, CutsBeforeIso=0;
       int EtCut =0, TIPCut =0, GeomCut =0;
       bool doTrackHistos = true;
-      for(std::vector<reco::PixelMatchGsfElectronRef>::const_iterator 
+      for(std::vector<reco::GsfElectronRef>::const_iterator 
 	    Relec = UniqueElectrons.begin(); Relec != UniqueElectrons.end(); ++Relec)
 	{
 	  //  edm::LogInfo("")<<"loop over unique eles to find tag"; 
-	  reco::PixelMatchGsfElectronRef elec;
+	  reco::GsfElectronRef elec;
 	  elec = *Relec;
 	  // edm::LogInfo("")<<"after accessing electron"; 
 	  double tagSCEta = elec->superCluster().get()->eta();
@@ -673,7 +673,7 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
       elec_0_tip_cut = TIPCut;
       //
       //... by this point we have the tag collection in the vector:.......
-      //... vector<reco::PixelMatchGsfElectronRef> TagElectrons ..........
+      //... vector<reco::GsfElectronRef> TagElectrons ..........
       //...
       //... Now: find  supercluster  probes in the event
       //... define the probe container: vector<reco::SuperClusterRef> ProbeSC
@@ -682,7 +682,7 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
       //...  barrel (hybrid) and the endcaps (island) and check the  inv m
       //...  if you find only one SC whose mass is in the limits keep it..
       //...2. run over the SC again only if the probes found were <= 1....
-      //...   check whether  there is  corresponding PixelMatchGsfElectron
+      //...   check whether  there is  corresponding GsfElectron
       //...   in the event and pass the. info in the tree.................
       //...  
 
@@ -695,11 +695,11 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
  
 
       std::vector<reco::SuperClusterRef> ProbeSC;
-      for(std::vector<reco::PixelMatchGsfElectronRef>::const_iterator 
+      for(std::vector<reco::GsfElectronRef>::const_iterator 
 	    Rtag = TagElectrons.begin(); Rtag != TagElectrons.end(); ++Rtag)
 	{
 	  // edm::LogInfo("")<<"entering loop over tags";
-	  reco::PixelMatchGsfElectronRef tag;
+	  reco::GsfElectronRef tag;
 	  tag = *Rtag;
 	  reco::SuperClusterRef probeCandRef;
 	  int indexSCH =0;
@@ -780,16 +780,16 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 		    <<"   ,  SC iterator: " << indexSCH_all 
 		    << "  , mass iterator: " << mass_iterator << std::endl;
 	  //... in this loop as far as I understand: takes the 
-	  //     collection of the UniqueElectrons (=collection of PixelMatchGsfElectronRef)
+	  //     collection of the UniqueElectrons (=collection of GsfElectronRef)
 	  //... and serches whether the supercluster energy of 
 	  //     any of them matches the SCHybrid one (outer for loop)
 	  //... if they match the tag_probe invariant mass is stored 
 	  //     ---??? it is the tag-sc invariant mass for All the SC in the event that
 	  //... can be matched to a GsfElectron ==> is it true???? -- why do you write tag_probe??
-	  for(std::vector<reco::PixelMatchGsfElectronRef>::const_iterator 
+	  for(std::vector<reco::GsfElectronRef>::const_iterator 
 		Relec = UniqueElectrons.begin(); Relec != UniqueElectrons.end(); ++Relec)
 	    {
-	      reco::PixelMatchGsfElectronRef elec;
+	      reco::GsfElectronRef elec;
 	      elec = *Relec;
 	      double denergy = sc->energy() - elec->superCluster().get()->energy();
 	      if(fabs(denergy) < ProbeRecoEleSCMaxDE){
@@ -826,10 +826,10 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  std::cout << "the mass of the tag - SC pair is: " << Mass 
 		    <<"   ,  island SC iterator: " << indexSCI_all 
 		    << "  , mass iterator: " << mass_iterator << std::endl;
-	  for(std::vector<reco::PixelMatchGsfElectronRef>::const_iterator 
+	  for(std::vector<reco::GsfElectronRef>::const_iterator 
 		Relec = UniqueElectrons.begin(); Relec != UniqueElectrons.end(); ++Relec)
 	    {
-	      reco::PixelMatchGsfElectronRef elec;
+	      reco::GsfElectronRef elec;
 	      elec = *Relec;
 	      double denergy = sc->energy() - elec->superCluster().get()->energy();
 	      if(fabs(denergy) < ProbeRecoEleSCMaxDE){
@@ -890,15 +890,15 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  // 2nd way: geometrical matching       TO BE IMPLEMENTED         *****
 	  // 3rd way (DEFAULT) : detid matching seed SC                    *****
 	  //********************************************************************
-	  reco::PixelMatchGsfElectronRef probeEle;
+	  reco::GsfElectronRef probeEle;
 	  unsigned int recoEle_int =0;
 	  //////////////////////////////////////////////////////////////////////
 	  if (ProbeSC2RecoElecMatchingMethod_ == "scEnergy") {
-	  for(std::vector<reco::PixelMatchGsfElectronRef>::const_iterator 
+	  for(std::vector<reco::GsfElectronRef>::const_iterator 
 		Relec = UniqueElectrons.begin(); Relec != UniqueElectrons.end()
 		; ++Relec)
 	    {
-	      reco::PixelMatchGsfElectronRef elec;
+	      reco::GsfElectronRef elec;
 	      elec = *Relec;
 	      double denergy = probe->energy() - 
 		elec->superCluster().get()->energy();
@@ -910,10 +910,10 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  }
 	  else if (ProbeSC2RecoElecMatchingMethod_ == "seedDetId") {
 	    DetId id_for_probe = probe->seed()->hitsAndFractions()[0].first;
-	    for(std::vector<reco::PixelMatchGsfElectronRef>::const_iterator 
+	    for(std::vector<reco::GsfElectronRef>::const_iterator 
 	       Relec = UniqueElectrons.begin(); Relec != UniqueElectrons.end();
 	       ++Relec) {
-	      reco::PixelMatchGsfElectronRef elec;
+	      reco::GsfElectronRef elec;
 	      elec = *Relec; edm::LogInfo("deb") << "Dereferencing successful!";
 	      DetId id1 = elec->superCluster()->seed()->hitsAndFractions()[0].first;
 	      if (id1 == id_for_probe) { ++recoEle_int;
@@ -922,10 +922,10 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 	    }
 	  }
 	  else if (ProbeSC2RecoElecMatchingMethod_ == "superCluster") {
-	    for(std::vector<reco::PixelMatchGsfElectronRef>::const_iterator 
+	    for(std::vector<reco::GsfElectronRef>::const_iterator 
 	       Relec = UniqueElectrons.begin(); Relec != UniqueElectrons.end();
 	       ++Relec) {
-	      reco::PixelMatchGsfElectronRef elec;
+	      reco::GsfElectronRef elec;
 	      elec = *Relec; 
 	      if (elec->superCluster() == probe) { ++recoEle_int;
 	      probeEle = elec;

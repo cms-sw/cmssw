@@ -62,7 +62,7 @@ void ElectronDuplicateRemover::produce(edm::Event &event, const edm::EventSetup 
    // NEW METHOD by David WARDROPE  *****************************************
    //************* DUPLICATE ******  REMOVAL ********************************
 
-   const reco::PixelMatchGsfElectronCollection * electrons = 
+   const reco::GsfElectronCollection * electrons = 
      eleCandidatesHandle.product();   
    int index =0;
    
@@ -86,7 +86,7 @@ void ElectronDuplicateRemover::produce(edm::Event &event, const edm::EventSetup 
 
 
 
-     const reco::PixelMatchGsfElectronRef  
+     const reco::GsfElectronRef  
        electronRef(eleCandidatesHandle, index);
 
 
