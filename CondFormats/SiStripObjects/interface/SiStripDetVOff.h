@@ -15,7 +15,7 @@
  * The getDetIds method builds and returns a vector with detIds, removing the additional bits.
  * It has three methods to extract the information: </br>
  * - IsModuleVOff returning the true if any of HV or LV is off
- * - IsModuleLVOff/IsModuleHVOff returning the corresponding value.
+ * - IsModuleLVOff/IsModuleHVOff returning true if the corresponding value is off.
  */
 
 class SiStripDetVOff
