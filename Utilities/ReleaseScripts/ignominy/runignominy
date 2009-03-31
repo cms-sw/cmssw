@@ -623,7 +623,7 @@ mkdeps() {
   # add the version dependency
   if [ -e $DEPDIR/versions-deps.conf ] ; then
     echo "" >> dependencies.txt
-    more $DEPDIR/versions-deps.conf >> dependencies.txt
+    cat $DEPDIR/versions-deps.conf >> dependencies.txt
   fi
   
   # Get all warnings but filter out symbol matches for "warning" :-)
