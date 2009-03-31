@@ -277,6 +277,22 @@ int main( int argc, char** argv ){
     sourcedb.commit();
 
 
+    // store payload mapping
+    try {
+        cond::CoralTransaction& coralDBs=conHandler.getConnection("mysourcedb")->coralTransaction();
+        cond::CoralTransaction& coralDBd=conHandler.getConnection("mydestdb")->coralTransaction();
+        coralDBs.start(true);
+	coralDBd.start(false);
+	cond::ObjectRelationalMappingUtility mappingUtil(&coralDBs.coralSessionProxy());
+	bool stored = mappingUtil.exportMapping(&coralDBd.coralSessionProxy(), payloadContainer);
+	if(debug){
+	  std::cout<< "payload mapping " << (stored ? "" : "not ") << "stored"<<std::endl;
+	}
+	coralDBs.commit();
+	coralDBd.commit();
+    } catch(...){ } // throw if no db available...
+
+
     since = std::max(since, cond::timeTypeSpecs[sourceiovtype].beginValue);
     till  = std::min(till,  cond::timeTypeSpecs[sourceiovtype].endValue);
 
