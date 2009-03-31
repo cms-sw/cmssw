@@ -20,7 +20,7 @@ raiseDQMError(const char *context, const char *fmt, ...)
   char *final = 0;
   asprintf(&final, "%s: %s", context, message ? message : FAILED);
   std::runtime_error err(final ? final : FAILED);
-  free(error);
+  free(final);
 #else
   cms::Exception err(context);
   if (message)
