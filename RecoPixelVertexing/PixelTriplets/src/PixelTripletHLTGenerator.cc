@@ -2,14 +2,13 @@
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromInvParabola.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitRZPrediction.h"
-#include "RecoTracker/TkHitPairs/interface/LayerHitMap.h"
-#include "RecoTracker/TkHitPairs/interface/LayerHitMapLoop.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoPixelVertexing/PixelTriplets/src/ThirdHitCorrection.h"
+#include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 #include <iostream>
 
 using pixelrecoutilities::LongitudinalBendingCorrection;
@@ -56,7 +55,8 @@ void PixelTripletHLTGenerator::hitTriplets(
   int size = theLayers.size();
 
   map<const DetLayer *, ThirdHitRZPrediction<PixelRecoLineRZ> > mapPred;
-  const LayerHitMap **thirdHitMap = new const LayerHitMap* [size];
+//  const LayerHitMap **thirdHitMap = new const LayerHitMap* [size];
+  const RecHitsSortedInPhi **thirdHitMap = new const RecHitsSortedInPhi*[size];
   for (int il=0; il <=size-1; il++) {
      thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
      ThirdHitRZPrediction<PixelRecoLineRZ> pred;
@@ -65,23 +65,12 @@ void PixelTripletHLTGenerator::hitTriplets(
      mapPred[theLayers[il].detLayer()] = pred;
   }
 
-  edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
 
   double imppar = region.originRBound();;
   double curv = PixelRecoUtilities::curvature(1/region.ptMin(), es);
 
   for (ip = pairs.begin(); ip != pairs.end(); ip++) {
   
-/*
-    const TrackingRecHit * h1 = (*ip).inner();
-    const TrackingRecHit * h2 = (*ip).outer();
-
-    GlobalPoint gp1tmp = tracker->idToDet( 
-        h1->geographicalId())->surface().toGlobal(h1->localPosition());
-    GlobalPoint gp2tmp = tracker->idToDet( 
-        h2->geographicalId())->surface().toGlobal(h2->localPosition());
-*/
     GlobalPoint gp1tmp = (*ip).inner()->globalPosition();
     GlobalPoint gp2tmp = (*ip).outer()->globalPosition();
     GlobalPoint gp1(gp1tmp.x()-region.origin().x(), gp1tmp.y()-region.origin().y(), gp1tmp.z());
@@ -135,17 +124,20 @@ void PixelTripletHLTGenerator::hitTriplets(
         phiRange = mergePhiRanges(rPhi1,rPhi2);
       }
       
-      LayerHitMapLoop thirdHits = 
-          pixelLayer ? thirdHitMap[il]->loop(phiRange, rzRange) : 
-          thirdHitMap[il]->loop();
+//      LayerHitMapLoop thirdHits = 
+//          pixelLayer ? thirdHitMap[il]->loop(phiRange, rzRange) : 
+//          thirdHitMap[il]->loop();
+
+      typedef RecHitsSortedInPhi::Hit Hit;
+      vector<Hit> thirdHits = thirdHitMap[il]->hits(phiRange.min(),phiRange.max());
   
-      const SeedingHit * th;
       static double nSigmaRZ = sqrt(12.);
       static double nSigmaPhi = 3.;
    
-      while ( (th = thirdHits.getHit()) ) {
+      typedef vector<Hit>::const_iterator IH;
+      for (IH th=thirdHits.begin(), eh=thirdHits.end(); th < eh; ++th) {
 
-        const TransientTrackingRecHit::ConstRecHitPointer& hit = (*th);
+        const Hit& hit = (*th);
         GlobalPoint point(hit->globalPosition().x()-region.origin().x(),
                           hit->globalPosition().y()-region.origin().y(),
                           hit->globalPosition().z() ); 

@@ -12,18 +12,11 @@
 class OrderedHitTriplet : public SeedingHitSet {
 
 public:
-  typedef OrderedHitPair::InnerHit InnerHit;
-  typedef OrderedHitPair::OuterHit OuterHit;
-  typedef ctfseeding::SeedingHit MiddleHit;
 
   typedef OrderedHitPair::InnerRecHit InnerRecHit;
   typedef OrderedHitPair::OuterRecHit OuterRecHit;
   typedef TransientTrackingRecHit::ConstRecHitPointer MiddleRecHit;
 
-
-  OrderedHitTriplet( const InnerHit & ih, const MiddleHit & mh, const OuterHit & oh) {
-    add(ih); add(mh); add(oh);
-  } 
 
   OrderedHitTriplet( const InnerRecHit & ih, const MiddleRecHit & mh, const OuterRecHit & oh) {
     add(ih); add(mh); add(oh);

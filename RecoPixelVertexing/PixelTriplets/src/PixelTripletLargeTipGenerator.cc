@@ -2,14 +2,14 @@
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitRZPrediction.h"
-#include "RecoTracker/TkHitPairs/interface/LayerHitMap.h"
-#include "RecoTracker/TkHitPairs/interface/LayerHitMapLoop.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoPixelVertexing/PixelTriplets/src/ThirdHitCorrection.h"
+#include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
+
 
 #include <algorithm>
 #include <iostream>
@@ -84,7 +84,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(
   int size = theLayers.size();
 
   map<const DetLayer*, LayerRZPredictions> mapPred;
-  const LayerHitMap **thirdHitMap = new const LayerHitMap*[size];
+  const RecHitsSortedInPhi **thirdHitMap = new const RecHitsSortedInPhi*[size];
   for(int il = 0; il < size; il++) {
      thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
      const DetLayer *layer = theLayers[il].detLayer();
@@ -209,15 +209,15 @@ void PixelTripletLargeTipGenerator::hitTriplets(
         phiRange = mergePhiRanges(rPhi1, rPhi2);
       }
 
-      LayerHitMapLoop thirdHits = 
-          pixelLayer ? thirdHitMap[il]->loop(phiRange, rzRange)
-                     : thirdHitMap[il]->loop();
+      typedef RecHitsSortedInPhi::Hit Hit;
+      vector<Hit> thirdHits = thirdHitMap[il]->hits(phiRange.min(),phiRange.max());
 
-      const SeedingHit *th;
-      while((th = thirdHits.getHit())) {
-         float p3_r = th->r();
-         float p3_z = th->z();
-         float p3_phi = th->phi();
+      typedef vector<Hit>::const_iterator IH;
+      for (IH th=thirdHits.begin(), eh=thirdHits.end(); th < eh; ++th) {
+
+         float p3_r = (*th)->globalPosition().perp();
+         float p3_z = (*th)->globalPosition().z();
+         float p3_phi = (*th)->globalPosition().phi();
 
          Range rangeRPhi = predictionRPhi(curvature, p3_r);
          correction.correctRPhiRange(rangeRPhi);
