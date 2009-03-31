@@ -429,8 +429,9 @@ void FWElectronDetailView::fillData (const std::vector<DetId> &detids,
 TEveElementList *FWElectronDetailView::makeLabels (const reco::GsfElectron &electron)
 {
    float_t x = 0.02;
+   float_t x2 = 0.52;
    float   y = 0.83;
-   float fontsize = latex()->GetTextSize()*0.5;
+   float fontsize = latex()->GetTextSize()*0.6;
  
    TEveElementList *ret = new TEveElementList("electron labels");
    // summary
@@ -457,28 +458,34 @@ TEveElementList *FWElectronDetailView::makeLabels (const reco::GsfElectron &elec
   
    // phi eta
    char ephi[30];
-   sprintf(ephi, " #eta = %.2f #varphi=  %.2f", electron.eta(), electron.phi());
+   sprintf(ephi, " #eta = %.2f", electron.eta());
    latex()->DrawLatex(x, y, ephi);
+   sprintf(ephi, " #varphi = %.2f", electron.phi());
+   latex()->DrawLatex(x2, y, ephi);
    y -= fontsize;
  
    // delta phi/eta in
    char din[128];
-   sprintf(din, "#Delta#eta_{in} = %.3f %16s = %.3f",
-           electron.deltaEtaSuperClusterTrackAtVtx(),
-           "#Delta#varphi_{in}", electron.deltaPhiSuperClusterTrackAtVtx());
+   sprintf(din, "#Delta#eta_{in} = %.3f",
+           electron.deltaEtaSuperClusterTrackAtVtx());
    latex()->DrawLatex(x, y, din);
+   sprintf(din, "#Delta#varphi_{in} = %.3f", 
+	   electron.deltaPhiSuperClusterTrackAtVtx());
+   latex()->DrawLatex(x2, y, din);
    y -= fontsize;
 
    // delta phi/eta out
    char dout[128];
-   sprintf(dout, "#Delta#eta_{out} = %.3f %16s = %.3f",
-           electron.deltaEtaSeedClusterTrackAtCalo(),
-           "#Delta#varphi_{out}", electron.deltaPhiSeedClusterTrackAtCalo());
+   sprintf(dout, "#Delta#eta_{out} = %.3f",
+           electron.deltaEtaSeedClusterTrackAtCalo());
    latex()->DrawLatex(x, y, dout);
+   sprintf(dout, "#Delta#varphi_{out} = %.3f",
+	   electron.deltaPhiSeedClusterTrackAtCalo());
+   latex()->DrawLatex(x2, y, dout);
    y -= 2*fontsize;
    // legend
 
-   latex()->DrawLatex(x, y, "#color[2]{+} track outer helix extrapolation");
+   latex()->DrawLatex(x, y, "#color[5]{+} track outer helix extrapolation");
    y -= fontsize;
    latex()->DrawLatex(x, y, "#color[4]{+} track inner helix extrapolation");
    y -= fontsize;
