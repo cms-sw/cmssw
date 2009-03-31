@@ -51,72 +51,72 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
  public:
   // PixelCPEBase( const DetUnit& det );
   PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, const SiPixelLorentzAngle * lorentzAngle = 0, const SiPixelCPEGenericErrorParm * genErrorParm = 0, const SiPixelTemplateDBObject * templateDBobject = 0);
-    
+  
   //--------------------------------------------------------------------------
   // Obtain the angles from the position of the DetUnit.
   // LocalValues is typedef for pair<LocalPoint,LocalError> 
   //--------------------------------------------------------------------------
   inline LocalValues localParameters( const SiPixelCluster & cl, 
 				      const GeomDetUnit    & det ) const 
-  {
-    nRecHitsTotal_++ ;
-    setTheDet( det );
-    computeAnglesFromDetPosition(cl, det);
-    
-    // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-    LocalPoint lp = localPosition( cl, det );
-    LocalError le = localError( cl, det );   
-    
-    return std::make_pair( lp, le );
-  }
-
+    {
+      nRecHitsTotal_++ ;
+      setTheDet( det );
+      computeAnglesFromDetPosition(cl, det);
+      
+      // localPosition( cl, det ) must be called before localError( cl, det ) !!!
+      LocalPoint lp = localPosition( cl, det );
+      LocalError le = localError( cl, det );   
+      
+      return std::make_pair( lp, le );
+    }
+  
   //--------------------------------------------------------------------------
   // In principle we could use the track too to obtain alpha and beta.
   //--------------------------------------------------------------------------
   inline LocalValues localParameters( const SiPixelCluster & cl,
 				      const GeomDetUnit    & det, 
 				      const LocalTrajectoryParameters & ltp) const 
-  {
-    nRecHitsTotal_++ ;
-    setTheDet( det );
-    computeAnglesFromTrajectory(cl, det, ltp);
-
-    // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-    LocalPoint lp = localPosition( cl, det );
-    LocalError le = localError( cl, det );   
-
-    return std::make_pair( lp, le );
-  } 
-
+    {
+      nRecHitsTotal_++ ;
+      setTheDet( det );
+      computeAnglesFromTrajectory(cl, det, ltp);
+      
+      // localPosition( cl, det ) must be called before localError( cl, det ) !!!
+      LocalPoint lp = localPosition( cl, det );
+      LocalError le = localError( cl, det );   
+      
+      return std::make_pair( lp, le );
+    } 
+  
   //--------------------------------------------------------------------------
   // The third one, with the user-supplied alpha and beta
   //--------------------------------------------------------------------------
   inline LocalValues localParameters( const SiPixelCluster & cl,
 				      const GeomDetUnit    & det, 
 				      float alpha, float beta) const 
-  {
-    nRecHitsTotal_++ ;
-    alpha_ = alpha;
-    beta_  = beta;
-    double HalfPi = 0.5*TMath::Pi();
-    cotalpha_ = tan(HalfPi - alpha_);
-    cotbeta_  = tan(HalfPi - beta_ );
-    setTheDet( det );
-
-    // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-    LocalPoint lp = localPosition( cl, det );
-    LocalError le = localError( cl, det );   
-    
-    return std::make_pair( lp, le );
-  }
-
-
-	//--------------------------------------------------------------------------
+    {
+      nRecHitsTotal_++ ;
+      alpha_ = alpha;
+      beta_  = beta;
+      double HalfPi = 0.5*TMath::Pi();
+      cotalpha_ = tan(HalfPi - alpha_);
+      cotbeta_  = tan(HalfPi - beta_ );
+      setTheDet( det );
+      
+      // localPosition( cl, det ) must be called before localError( cl, det ) !!!
+      LocalPoint lp = localPosition( cl, det );
+      LocalError le = localError( cl, det );   
+      
+      return std::make_pair( lp, le );
+    }
+  
+  
+  //--------------------------------------------------------------------------
   // Allow the magnetic field to be set/updated later.
   //--------------------------------------------------------------------------
   inline void setMagField(const MagneticField *mag) const { magfield_ = mag; }
-
-	//--------------------------------------------------------------------------
+  
+  //--------------------------------------------------------------------------
   // This is where the action happens.
   //--------------------------------------------------------------------------
   virtual LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const;  // = 0, take out dk 8/06
@@ -195,23 +195,8 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   // ggiurgiu@jhu.edu (10/18/2008)
   mutable bool with_track_angle; 
 
-  // ggiurgiu@jhu.edu, 01/31/09
-  // The truncation value pix_maximum is an angle-dependent cutoff on the
-  // individual pixel signals. It should be applied to all pixels in the
-  // cluster [signal_i = fminf(signal_i, pixmax)] before the column and row
-  // sums are made. Morris
-  mutable float pix_maximum; 
+ 
   
-  mutable float correction_deltax ; // CPE Generic x-bias for multi-pixel cluster
-  mutable float correction_deltax1; // CPE Generic x-bias for single single-pixel cluster
-  mutable float correction_deltax2; // CPE Generic x-bias for single double-pixel cluster
-  mutable float correction_deltay ; // CPE Generic y-bias for multi-pixel cluster
-  mutable float correction_deltay1; // CPE Generic y-bias for single single-pixel cluster
-  mutable float correction_deltay2; // CPE Generic y-bias for single double-pixel cluster
-
-  
-
-
 
   // [Petar, 5/18/07] 
   // Add estimates of cot(alpha) and cot(beta) from the
