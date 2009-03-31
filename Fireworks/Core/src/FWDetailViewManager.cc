@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.27 2009/03/29 14:13:38 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.28 2009/03/30 18:27:48 amraktad Exp $
 //
 
 // system include files
@@ -97,6 +97,8 @@ void FWDetailViewManager::close_button ()
 {
    // this functions calls close_mw, since it emits signal
    m_frame->CloseWindow();
+   // but for some reason, we still have to zero this out by hand 
+   m_frame = 0;
 }
 
 void
