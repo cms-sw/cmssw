@@ -29,8 +29,8 @@ process.source = cms.Source("EmptySource",
 
 process.load("CalibTracker.SiStripESProducers.fake.SiStripLorentzAngleFakeESSource_cfi")
 process.load("CalibTracker.SiStripESProducers.DBWriter.SiStripLorentzAngleDummyDBWriter_cfi")
-process.SiStripLorentzAngleGenerator.TIB_EstimatedValue = cms.double(0.0174)
-process.SiStripLorentzAngleGenerator.TOB_EstimatedValue = cms.double(0.0222)
+process.SiStripLorentzAngleGenerator.TIB_EstimatedValue = cms.double(0.01784)
+process.SiStripLorentzAngleGenerator.TOB_EstimatedValue = cms.double(0.02315)
 process.SiStripLorentzAngleGenerator.PerCent_Err=0.
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
