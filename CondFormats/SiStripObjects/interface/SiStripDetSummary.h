@@ -38,7 +38,7 @@ public:
   void print(stringstream& ss, const bool mean = true) const;
 
 protected:
-  // Maps to store the LorentzAngle and the counts
+  // Maps to store the value and the counts
   map<int, double> meanMap_;
   map<int, double> rmsMap_;
   map<int, int> countMap_;
