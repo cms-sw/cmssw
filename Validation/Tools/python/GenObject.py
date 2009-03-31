@@ -637,7 +637,7 @@ class GenObject (object):
 
 
     @staticmethod
-    def prepareTuple (tupleName, files):
+    def prepareTuple (tupleName, files, numEventsWanted = 0):
         """Given the tuple name and list of files, returns either a
         TChain or EventTree, and number of entries"""
         if "GenObject" == tupleName:
@@ -660,6 +660,8 @@ class GenObject (object):
             chain = cmstools.EventTree (chain)
             GenObject.setAliases (chain, tupleName)
         chainDict = GenObject._kitchenSinkDict.setdefault (chain, {})
+        if numEventsWanted and numEventsWanted < numEntries:
+            numEntries = numEventsWanted
         chainDict['numEntries'] = numEntries
         chainDict['tupleName' ] = tupleName
         return chain
@@ -974,7 +976,6 @@ class GenObject (object):
         for entryIndex in xrange (numEntries):
             event = GenObject.loadEventFromTree (chain, entryIndex)            
             GenObject.printEvent (event)
-            return
 
 
     @staticmethod

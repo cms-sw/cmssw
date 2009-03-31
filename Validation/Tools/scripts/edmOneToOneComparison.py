@@ -33,6 +33,9 @@ if __name__ == "__main__":
     tupleGroup.add_option ('--file2', dest='file2', type='string',
                            default="",
                            help="2nd tuple file")
+    tupleGroup.add_option ('--numEvents1', dest='numEvents1', type='int',
+                           default=0,
+                           help="number of events")
     tupleGroup.add_option ('--alias', dest='alias', type='string',
                            action='append',
                            help="Change alias ('tuple:object:alias')")
@@ -102,23 +105,27 @@ if __name__ == "__main__":
         GenObject.setGlobalFlag ('blurRate', options.blurRate)
     if options.compare:
         # Compare two files
-        chain1 = GenObject.prepareTuple (options.tuple1, options.file1)
+        chain1 = GenObject.prepareTuple (options.tuple1, options.file1,
+                                         options.numEvents1)
         chain2 = GenObject.prepareTuple (options.tuple2, options.file2)
         problems = GenObject.compareTwoTrees (chain1, chain2)
         print "problems"
         pprint.pprint (problems)
     if options.saveAs:
-        chain1 = GenObject.prepareTuple (options.tuple1, options.file1)
+        chain1 = GenObject.prepareTuple (options.tuple1, options.file1,
+                                         options.numEvents1)
         GenObject.saveTupleAs (chain1, options.saveAs)
     if options.printTuple:
         GenObject.setGlobalFlag ('printEvent', True)
-        chain1 = GenObject.prepareTuple (options.tuple1, options.file1)
+        chain1 = GenObject.prepareTuple (options.tuple1, options.file1,
+                                         options.numEvents1)
         GenObject.printTuple (chain1)
         #GenObject.saveTupleAs (chain1, options.saveAs)
     if options.interactive:
         chain1 = chain2 = 0
         if len (options.file1):
-            chain1 = GenObject.prepareTuple (options.tuple1, options.file1)
+            chain1 = GenObject.prepareTuple (options.tuple1, options.file1,
+                                             options.numEvents1)
         if len (options.file2):
             chain2 = GenObject.prepareTuple (options.tuple2, options.file2)
         #############################################
