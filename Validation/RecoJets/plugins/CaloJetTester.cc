@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.9 2008/12/30 22:21:40 chlebana Exp $
+// $Id: CaloJetTester.cc,v 1.10 2009/03/28 04:57:47 hatake Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -741,7 +741,7 @@ void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::Cal
   }
 
   if (fabs(fGenJet.eta())<1.3) {
-    mpTScaleB->Fill (logPtGen, PtGen/PtCalo);
+    mpTScaleB->Fill (logPtGen, PtCalo/PtGen);
     mpTScale1DB->Fill (fCaloJet.pt()/fGenJet.pt());
   }
 
