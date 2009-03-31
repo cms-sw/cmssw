@@ -28,7 +28,7 @@ namespace cond{
     //copy mapping from default session to session for one container
     bool exportMapping(coral::ISessionProxy* session, 
 		       std::string const & contName, std::string const & classVersion, 
-		       bool allVersions=false)
+		       bool allVersions=false);
 
   private:
     pool::ObjectRelationalMappingUtilities* m_mappingutil;
