@@ -878,7 +878,7 @@ void HistoPhoton::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iE
      }
 
    ////////////////// plot quantitied related to conversions
-    std::vector<reco::ConversionRef> conversions = (*photon).conversions();
+    reco::ConversionRefVector conversions = (*photon).conversions();
  
     for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
 
