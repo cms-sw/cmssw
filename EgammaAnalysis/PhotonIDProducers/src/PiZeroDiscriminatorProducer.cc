@@ -137,7 +137,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
           if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) cout << "SC centroind = " << pointSC << endl;
           double SC_seed_energy = it_super->seed()->energy();
 
-          const BasicClusterRef seed = it_super->seed();
+          const CaloClusterPtr seed = it_super->seed();
           double SC_seed_Shape_E1 = lazyTool.eMax( *seed );
           double SC_seed_Shape_E3x3 = lazyTool.e3x3( *seed );
           double SC_seed_Shape_E5x5 = lazyTool.e5x5( *seed );
@@ -219,7 +219,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 	 
       } else if((fabs(SC_eta) <= 1.4442) || (fabs(SC_eta) < 1.65 && fabs(SC_eta) >= 1.566) || fabs(SC_eta) >= 2.5) {
 
-         const BasicClusterRef seed = it_super->seed();
+         const CaloClusterPtr seed = it_super->seed();
 	  
          double SC_seed_Shape_E1 = lazyTool.eMax( *seed );
          double SC_seed_Shape_E3x3 = lazyTool.e3x3( *seed );
