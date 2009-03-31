@@ -66,6 +66,13 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripBadFiberFakeESSource);
 typedef SiStripTemplateEmptyFakeESSource<SiStripBadStrip,SiStripBadModuleRcd> SiStripBadModuleFakeESSource;
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripBadModuleFakeESSource);
 
+#include "CondFormats/SiStripObjects/interface/SiStripModuleHV.h"
+typedef SiStripTemplateEmptyFakeESSource<SiStripModuleHV,SiStripModuleHVRcd> SiStripModuleHVFakeESSource;  
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripModuleHVFakeESSource);  
+ 
+typedef SiStripTemplateEmptyFakeESSource<SiStripModuleHV,SiStripModuleLVRcd> SiStripModuleLVFakeESSource;  
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripModuleLVFakeESSource);
+
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 typedef SiStripTemplateEmptyFakeESSource<SiStripDetVOff,SiStripDetVOffRcd> SiStripDetVOffFakeESSource;
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripDetVOffFakeESSource);
