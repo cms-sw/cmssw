@@ -30,7 +30,7 @@
  *
  */
 CSCSegAlgoHitPruning::CSCSegAlgoHitPruning(const edm::ParameterSet& ps) {
-  BrutePruning           = ps.getUntrackedParameter<bool>("BrutePruning");
+  BrutePruning           = ps.getParameter<bool>("BrutePruning");
 
 }
 

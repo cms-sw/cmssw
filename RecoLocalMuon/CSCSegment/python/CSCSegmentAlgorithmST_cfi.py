@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 ST_ME1234 = cms.PSet(
 
     #Parameters for showering segments
-    useShowering = cms.untracked.bool(False),
+    useShowering = cms.bool(False),
     maxRatioResidualPrune = cms.double(3),
     dRPhiFineMax = cms.double(8.0),
     dPhiFineMax = cms.double(0.025),
@@ -17,28 +17,28 @@ ST_ME1234 = cms.PSet(
     maxDTheta = cms.double(999.),
 
 
-    curvePenaltyThreshold = cms.untracked.double(0.85),
-    minHitsPerSegment = cms.untracked.int32(3),
-    yweightPenaltyThreshold = cms.untracked.double(1.0),
-    curvePenalty = cms.untracked.double(2.0),
-    dXclusBoxMax = cms.untracked.double(4.0),
-    BrutePruning = cms.untracked.bool(True),
-    BPMinImprovement = cms.untracked.double(10000.),
-    yweightPenalty = cms.untracked.double(1.5),
-    hitDropLimit5Hits = cms.untracked.double(0.8),
-    preClustering = cms.untracked.bool(True),
-    hitDropLimit4Hits = cms.untracked.double(0.6),
-    hitDropLimit6Hits = cms.untracked.double(0.3333),
-    maxRecHitsInCluster = cms.untracked.int32(20),
+    curvePenaltyThreshold = cms.double(0.85),
+    minHitsPerSegment = cms.int32(3),
+    yweightPenaltyThreshold = cms.double(1.0),
+    curvePenalty = cms.double(2.0),
+    dXclusBoxMax = cms.double(4.0),
+    BrutePruning = cms.bool(True),
+    BPMinImprovement = cms.double(10000.),
+    yweightPenalty = cms.double(1.5),
+    hitDropLimit5Hits = cms.double(0.8),
+    preClustering = cms.bool(True),
+    hitDropLimit4Hits = cms.double(0.6),
+    hitDropLimit6Hits = cms.double(0.3333),
+    maxRecHitsInCluster = cms.int32(20),
     CSCDebug = cms.untracked.bool(False),
-    onlyBestSegment = cms.untracked.bool(False),
-    Pruning = cms.untracked.bool(True),
-    dYclusBoxMax = cms.untracked.double(8.0)
+    onlyBestSegment = cms.bool(False),
+    Pruning = cms.bool(True),
+    dYclusBoxMax = cms.double(8.0)
 )
 ST_ME1A = cms.PSet(
 
     #Parameters for showering segments
-    useShowering = cms.untracked.bool(False),
+    useShowering = cms.bool(False),
     maxRatioResidualPrune = cms.double(3),
     dRPhiFineMax = cms.double(8.0),
     dPhiFineMax = cms.double(0.025),
@@ -48,23 +48,23 @@ ST_ME1A = cms.PSet(
     maxDTheta = cms.double(999.),
 
 
-    curvePenaltyThreshold = cms.untracked.double(0.85),
-    minHitsPerSegment = cms.untracked.int32(3),
-    yweightPenaltyThreshold = cms.untracked.double(1.0),
-    curvePenalty = cms.untracked.double(2.0),
-    dXclusBoxMax = cms.untracked.double(4.0),
-    BrutePruning = cms.untracked.bool(True),
-    BPMinImprovement = cms.untracked.double(10000.),
-    yweightPenalty = cms.untracked.double(1.5),
-    hitDropLimit5Hits = cms.untracked.double(0.8),
-    preClustering = cms.untracked.bool(True),
-    hitDropLimit4Hits = cms.untracked.double(0.6),
-    hitDropLimit6Hits = cms.untracked.double(0.3333),
-    maxRecHitsInCluster = cms.untracked.int32(24),
+    curvePenaltyThreshold = cms.double(0.85),
+    minHitsPerSegment = cms.int32(3),
+    yweightPenaltyThreshold = cms.double(1.0),
+    curvePenalty = cms.double(2.0),
+    dXclusBoxMax = cms.double(4.0),
+    BrutePruning = cms.bool(True),
+    BPMinImprovement = cms.double(10000.),
+    yweightPenalty = cms.double(1.5),
+    hitDropLimit5Hits = cms.double(0.8),
+    preClustering = cms.bool(True),
+    hitDropLimit4Hits = cms.double(0.6),
+    hitDropLimit6Hits = cms.double(0.3333),
+    maxRecHitsInCluster = cms.int32(24),
     CSCDebug = cms.untracked.bool(False),
-    onlyBestSegment = cms.untracked.bool(False),
-    Pruning = cms.untracked.bool(True),
-    dYclusBoxMax = cms.untracked.double(8.0)
+    onlyBestSegment = cms.bool(False),
+    Pruning = cms.bool(True),
+    dYclusBoxMax = cms.double(8.0)
 )
 CSCSegAlgoST = cms.PSet(
     algo_name = cms.string('CSCSegAlgoST'),

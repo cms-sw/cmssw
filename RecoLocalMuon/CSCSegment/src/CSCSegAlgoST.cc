@@ -32,35 +32,35 @@
 CSCSegAlgoST::CSCSegAlgoST(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoST") {
 	
   debug                  = ps.getUntrackedParameter<bool>("CSCDebug");
-  //  minLayersApart         = ps.getUntrackedParameter<int>("minLayersApart");
-  //  nSigmaFromSegment      = ps.getUntrackedParameter<double>("nSigmaFromSegment");
-  minHitsPerSegment      = ps.getUntrackedParameter<int>("minHitsPerSegment");
-  //  muonsPerChamberMax     = ps.getUntrackedParameter<int>("CSCSegmentPerChamberMax");      
-  //  chi2Max                = ps.getUntrackedParameter<double>("chi2Max");
-  dXclusBoxMax           = ps.getUntrackedParameter<double>("dXclusBoxMax");
-  dYclusBoxMax           = ps.getUntrackedParameter<double>("dYclusBoxMax");
-  preClustering          = ps.getUntrackedParameter<bool>("preClustering");
-  Pruning                = ps.getUntrackedParameter<bool>("Pruning");
-  BrutePruning           = ps.getUntrackedParameter<bool>("BrutePruning");
-  BPMinImprovement        = ps.getUntrackedParameter<double>("BPMinImprovement");
+  //  minLayersApart         = ps.getParameter<int>("minLayersApart");
+  //  nSigmaFromSegment      = ps.getParameter<double>("nSigmaFromSegment");
+  minHitsPerSegment      = ps.getParameter<int>("minHitsPerSegment");
+  //  muonsPerChamberMax     = ps.getParameter<int>("CSCSegmentPerChamberMax");      
+  //  chi2Max                = ps.getParameter<double>("chi2Max");
+  dXclusBoxMax           = ps.getParameter<double>("dXclusBoxMax");
+  dYclusBoxMax           = ps.getParameter<double>("dYclusBoxMax");
+  preClustering          = ps.getParameter<bool>("preClustering");
+  Pruning                = ps.getParameter<bool>("Pruning");
+  BrutePruning           = ps.getParameter<bool>("BrutePruning");
+  BPMinImprovement        = ps.getParameter<double>("BPMinImprovement");
   // maxRecHitsInCluster is the maximal number of hits in a precluster that is being processed
   // This cut is intended to remove messy events. Currently nothing is returned if there are
   // more that maxRecHitsInCluster hits. It could be useful to return an estimate of the 
   // cluster position, which is available.
-  maxRecHitsInCluster    = ps.getUntrackedParameter<int>("maxRecHitsInCluster");
-  onlyBestSegment        = ps.getUntrackedParameter<bool>("onlyBestSegment");
+  maxRecHitsInCluster    = ps.getParameter<int>("maxRecHitsInCluster");
+  onlyBestSegment        = ps.getParameter<bool>("onlyBestSegment");
 
-  hitDropLimit4Hits      = ps.getUntrackedParameter<double>("hitDropLimit4Hits");
-  hitDropLimit5Hits      = ps.getUntrackedParameter<double>("hitDropLimit5Hits");
-  hitDropLimit6Hits      = ps.getUntrackedParameter<double>("hitDropLimit6Hits");
+  hitDropLimit4Hits      = ps.getParameter<double>("hitDropLimit4Hits");
+  hitDropLimit5Hits      = ps.getParameter<double>("hitDropLimit5Hits");
+  hitDropLimit6Hits      = ps.getParameter<double>("hitDropLimit6Hits");
   
-  yweightPenaltyThreshold      = ps.getUntrackedParameter<double>("yweightPenaltyThreshold");
-  yweightPenalty               = ps.getUntrackedParameter<double>("yweightPenalty");
+  yweightPenaltyThreshold      = ps.getParameter<double>("yweightPenaltyThreshold");
+  yweightPenalty               = ps.getParameter<double>("yweightPenalty");
   								   			 
-  curvePenaltyThreshold        = ps.getUntrackedParameter<double>("curvePenaltyThreshold");
-  curvePenalty                 = ps.getUntrackedParameter<double>("curvePenalty");
+  curvePenaltyThreshold        = ps.getParameter<double>("curvePenaltyThreshold");
+  curvePenalty                 = ps.getParameter<double>("curvePenalty");
 
-  useShowering = ps.getUntrackedParameter<bool>("useShowering");
+  useShowering = ps.getParameter<bool>("useShowering");
   showering_   = new CSCSegAlgoShowering( ps );
   // std::cout<<"Constructor called..."<<std::endl;
 
