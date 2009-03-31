@@ -12,7 +12,8 @@ CkfTrajectoryBuilder = cms.ESProducer("CkfTrajectoryBuilderESProducer",
     updator = cms.string('KFUpdator'),
     alwaysUseInvalidHits = cms.bool(True),
     propagatorOpposite = cms.string('PropagatorWithMaterialOpposite'),
-    lostHitPenalty = cms.double(30.0)
+    lostHitPenalty = cms.double(30.0),
+    SharedSeedCheck = cms.bool(False)
 )
 
 

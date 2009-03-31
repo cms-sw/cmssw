@@ -54,7 +54,8 @@ public:
 
   /// set Event for the internal MeasurementTracker data member
   virtual void setEvent(const edm::Event& event) const;
-  
+
+
 
  protected:
   int theMaxCand;               /**< Maximum number of trajectory candidates 
@@ -69,8 +70,16 @@ public:
   virtual void findCompatibleMeasurements( const TempTrajectory& traj, std::vector<TrajectoryMeasurement> & result) const;
 
   void limitedCandidates( TempTrajectory& startingTraj, TrajectoryContainer& result) const;
+  void limitedCandidates( TempTrajectoryContainer &candidates, TrajectoryContainer& result) const;
   
   void updateTrajectory( TempTrajectory& traj, const TM& tm) const;
+
+  bool theSharedSeedCheck;
+  std::string theUniqueName;
+  void rememberSeedAndTrajectories(const TrajectorySeed& seed,TrajectoryContainer &result) const;
+  bool seedAlreadyUsed(const TrajectorySeed& seed,TempTrajectoryContainer &candidates) const;
+  bool sharedSeed(const TrajectorySeed& seed1,const TrajectorySeed& seed2) const;
+  mutable TempTrajectoryContainer theCachedTrajectories;
 
 };
 
