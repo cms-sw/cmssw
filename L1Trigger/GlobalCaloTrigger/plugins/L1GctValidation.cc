@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
