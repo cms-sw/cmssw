@@ -373,10 +373,10 @@ double AdaptiveVertexFitter::getWeight ( float chi2 ) const
     weight=1.0;
   };
 
-  if ( weight < 0.0 )
+  if ( weight < 1e-20 )
   {
-    LogWarning("RecoVertex/AdaptiveVertexFitter") << "Weight " << weight << " < 0.0!";
-    weight=0.0;
+    // LogWarning("RecoVertex/AdaptiveVertexFitter") << "Weight " << weight << " < 0.0!";
+    weight=1e-20;
   };
   return weight;
 }
