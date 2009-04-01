@@ -1,8 +1,9 @@
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestHfEtSums.h"
 
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalHfSumAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
@@ -16,7 +17,18 @@ using namespace std;
 //
 /// Constructor and destructor
 
-gctTestHfEtSums::gctTestHfEtSums() {}
+gctTestHfEtSums::gctTestHfEtSums(const L1CaloEtScale* scale) :
+  m_etScale(scale),
+  m_expectedRing0EtSumPositiveEta(),
+  m_expectedRing0EtSumNegativeEta(),
+  m_expectedRing1EtSumPositiveEta(),
+  m_expectedRing1EtSumNegativeEta(),
+  m_expectedRing0BitCountPositiveEta(),
+  m_expectedRing0BitCountNegativeEta(),
+  m_expectedRing1BitCountPositiveEta(),
+  m_expectedRing1BitCountNegativeEta()
+{}
+
 gctTestHfEtSums::~gctTestHfEtSums() {}
 
 //=================================================================================================================
@@ -46,8 +58,8 @@ void gctTestHfEtSums::fillExpectedHfSums(const std::vector<RegionsVector>& input
   //static const unsigned MIN_ETA_COUNTS =NUMBER_OF_RINGS_PER_WHEEL - NUMBER_OF_FRWRD_RINGS;
   static const unsigned MIN_ETA_HF_SUMS=NUMBER_OF_RINGS_PER_WHEEL - NUMBER_OF_INNER_RINGS;
   // TODO - put these bit sizes somewhere
-  static const unsigned MAX_ETSUM_VALUE = 1<<8;
-  static const unsigned MAX_TOWER_COUNT = 1<<5;
+  static const unsigned MAX_ETSUM_VALUE = (1<<8)-1;
+  static const unsigned MAX_TOWER_COUNT = (1<<5)-1;
 
   unsigned numOfBx = inputRegions.size();
   m_expectedRing0EtSumPositiveEta.resize(numOfBx);
@@ -159,24 +171,17 @@ bool gctTestHfEtSums::checkHfEtSums(const L1GlobalCaloTrigger* gct, const int nu
 
 unsigned gctTestHfEtSums::etSumLut (const unsigned expectedValue) const
 {
-  // Note this assumes a particluar set of LUT thresholds and will
-  // have to be re-written if the LUT changes
-  // TODO - put these bit sizes somewhere
-  static const unsigned maxLut = 1<<3;
-  unsigned result = maxLut;
-  unsigned compressedEt = expectedValue >> 1;
-  if (compressedEt < maxLut) result = compressedEt;
-  return result;
+  // Get the rank from the relevant scale object
+  return m_etScale->rank( (uint16_t) expectedValue);
 }
 
 unsigned gctTestHfEtSums::countLut (const unsigned expectedValue) const
 {
-  // Note this assumes a particluar set of LUT thresholds and will
-  // have to be re-written if the LUT changes
+  // Bit count scale is hard coded with 1<->1 match between input and output
   // TODO - put these bit sizes somewhere
-  static const unsigned maxLut = 1<<3;
+  static const unsigned maxLut = (1<<3)-1;
   unsigned result = maxLut;
-  unsigned compressedEt = expectedValue;
-  if (compressedEt < maxLut) result = compressedEt;
+  unsigned bitCount = expectedValue;
+  if (bitCount < maxLut) result = bitCount;
   return result;
 }

@@ -16,6 +16,7 @@
 #include <vector>
 
 class L1CaloRegion;
+class L1CaloEtScale;
 class L1GlobalCaloTrigger;
 
 class gctTestHfEtSums
@@ -26,7 +27,7 @@ public:
   typedef std::vector<L1CaloRegion> RegionsVector;
 
   // Constructor and destructor
-  gctTestHfEtSums();
+  gctTestHfEtSums(const L1CaloEtScale* scale);
   ~gctTestHfEtSums();
 
   /// Reset stored sums
@@ -39,6 +40,8 @@ public:
   bool checkHfEtSums(const L1GlobalCaloTrigger* gct, const int numOfBx) const;
 
 private:
+
+  const L1CaloEtScale* m_etScale;
 
   std::vector<unsigned> m_expectedRing0EtSumPositiveEta;
   std::vector<unsigned> m_expectedRing0EtSumNegativeEta;
