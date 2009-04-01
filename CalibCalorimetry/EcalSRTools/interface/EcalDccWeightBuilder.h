@@ -1,5 +1,5 @@
 /*
- * $Id: EcalDccWeightBuilder.h,v 1.2 2009/03/09 13:58:58 pgras Exp $
+ * $Id: EcalDccWeightBuilder.h,v 1.3 2009/03/25 09:28:27 pgras Exp $
  */
 
 #ifndef ECALDCCWEIGHTBUILDER_CC
@@ -78,13 +78,6 @@ private:
    */
   double intercalib(const DetId& detId);
   
-  //double intercalibMax();
-
-  /** Computes intercalibration coefficient rescale factor
-   * @return rescale factor
-   */
-  //double intercalibRescale();
-
   void writeWeightToAsciiFile();
   void writeWeightToRootFile();   
   void writeWeightToDB();
@@ -92,13 +85,22 @@ private:
   //converts DetId to IDs used by DB:
   void dbId(const DetId& detId, int& fedId, int& smId, int& ruId,
            int& xtalId) const;
+
+  /** Vector index sorting.
+   * @param vector of values
+   * @param [out] sorted index of the vector
+   * @param decreasingOrder switch to use decreasing order instead of
+   * default increasing order
+   */
+  template<class T>
+  void sort(const std::vector<T>& a,
+	    std::vector<int>& s,
+	    bool decreasingOrder = false);
+
   
   //attribute(s)
 protected:
 private:
-  //double intercalibMax_;
-  //  double minIntercalibRescale_;
-  //double maxIntercalibRescale_;
   int dcc1stSample_;
   int sampleToSkip_;
   int nDccWeights_;
