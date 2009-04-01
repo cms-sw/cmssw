@@ -6,7 +6,7 @@
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 /** 
- * Consstraint to force the two tracks to be colinear (parallel)
+ * Consstraint to force the two tracks to be colinear (parallel), in 2D (phi) or 3D (phi-theta).
  *
  * Warning: Since this constraint makes only sense with two tracks, two and only 
  * two tracks should be used in the fit.
@@ -16,7 +16,10 @@
 class ColinearityKinematicConstraint : public MultiTrackKinematicConstraint{
 
 public:
- ColinearityKinematicConstraint() {}
+
+ enum ConstraintDim {Phi, PhiTheta};
+
+ ColinearityKinematicConstraint(ConstraintDim dim = Phi);
 
 
 /**
@@ -47,11 +50,14 @@ virtual AlgebraicMatrix positionDerivative(const vector<KinematicState> states,
 /**
  * Number of equations per track used for the fit
  */
-virtual int numberOfEquations() const {return 2;}
+virtual int numberOfEquations() const {return size;}
  
 virtual ColinearityKinematicConstraint * clone()const
-{return new ColinearityKinematicConstraint(*this);}
+  {return new ColinearityKinematicConstraint(*this);}
 
+private:
+  ConstraintDim dimension;
+  unsigned int size;
 
 };
 #endif
