@@ -115,7 +115,6 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   reco::PhotonCollection outputPhotonCollection;
   std::auto_ptr< reco::PhotonCollection > outputPhotonCollection_p(new reco::PhotonCollection);
 
-  std::cout << " PhotonProducer " << std::endl;
 
   // Get the PhotonCore collection
   bool validPhotonCoreHandle=true;
