@@ -19,7 +19,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     applyPreselection = cms.bool(True),
     applyEtaCorrection = cms.bool(False),
     applyAmbResolution = cms.bool(True),
-    addPflowElectrons = cms.bool(False),
+    addPflowElectrons = cms.bool(True),
     
     # preselection parameters
     minSCEtBarrel = cms.double(4.0),
