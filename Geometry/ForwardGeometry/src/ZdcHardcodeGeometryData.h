@@ -22,7 +22,7 @@
  Edmundo Garcia, August 2007.
 **/
 static const double X0 = 0.;
-static const double Z0 = 14000.0;
+static const double Z0 = 140000.0;
 static const double Y0 = 0.;
 static const double YLUM = 253.6;  
 static const double dYPlate = 62.5;
