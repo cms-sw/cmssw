@@ -72,7 +72,7 @@ KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   try {
 
   cout << "Reconstructing event number: " << iEvent.id() << "\n";
-  
+
   // get RECO tracks from the event
   // `tks` can be used as a ptr to a reco::TrackCollection
   edm::Handle<reco::TrackCollection> tks;
@@ -86,34 +86,34 @@ KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::LogInfo("RecoVertex/KineExample")
       << "Found: " << (*tks).size() << " reconstructed tracks" << "\n";
     cout << "got " << (*tks).size() << " tracks " << endl;
-    
+
     // Transform Track to TransientTrack
     //get the builder:
     edm::ESHandle<TransientTrackBuilder> theB;
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
     //do the conversion:
     vector<TransientTrack> t_tks = (*theB).build(tks);
-    
+
      cout  << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
-    
+
     // Do a KindFit, if >= 4 tracks.
     if (t_tks.size() > 3) {
-      
+
       // For a first test, suppose that the first four tracks are the 2 muons,
       // then the 2 kaons. Since this will not be true, the result of the fit
       // will not be meaningfull, but at least you will get the idea of how to
       // do such a fit.
-      
+
       //First, to get started, a simple vertex fit:
-      
-      vector<TransientTrack> ttv;  
+
+      vector<TransientTrack> ttv;
       ttv.push_back(t_tks[0]); ttv.push_back(t_tks[1]); ttv.push_back(t_tks[2]);ttv.push_back(t_tks[3]);
       KalmanVertexFitter kvf(false);
       TransientVertex tv = kvf.vertex(ttv);
-      
-      std::cout << "KVF fit Position: " << Vertex::Point(tv.position()) << "\n";
-      
-      
+      if (!tv.isValid()) cout << "KVF failed\n";
+      else std::cout << "KVF fit Position: " << Vertex::Point(tv.position()) << "\n";
+
+
       TransientTrack ttMuPlus = t_tks[0];
       TransientTrack ttMuMinus = t_tks[1];
       TransientTrack ttKPlus = t_tks[2];
@@ -132,7 +132,7 @@ KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       //initial chi2 and ndf before kinematic fits. The chi2 of the reconstruction is not considered
       float chi = 0.;
       float ndf = 0.;
-      
+
       //making particles
       vector<RefCountedKinematicParticle> muonParticles;
       vector<RefCountedKinematicParticle> phiParticles;
@@ -141,7 +141,7 @@ KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       muonParticles.push_back(pFactory.particle (ttMuMinus,muon_mass,chi,ndf,muon_sigma));
       allParticles.push_back(pFactory.particle (ttMuPlus,muon_mass,chi,ndf,muon_sigma));
       allParticles.push_back(pFactory.particle (ttMuMinus,muon_mass,chi,ndf,muon_sigma));
-      
+
       phiParticles.push_back(pFactory.particle (ttKPlus,kaon_mass,chi,ndf,kaon_sigma));
       phiParticles.push_back(pFactory.particle (ttKMinus,kaon_mass,chi,ndf,kaon_sigma));
       allParticles.push_back(pFactory.particle (ttKPlus,kaon_mass,chi,ndf,kaon_sigma));
@@ -155,57 +155,57 @@ KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       KinematicParticleVertexFitter fitter;
       cout <<"Simple vertex fit with KinematicParticleVertexFitter:\n";
       RefCountedKinematicTree vertexFitTree = fitter.fit(allParticles);
-     
+
       printout(vertexFitTree);
-      
+
       /////Example of global fit:
-	
+
 	//creating the constraint for the J/Psi mass
 	ParticleMass jpsi = 3.09687;
-	
+
 	//creating the two track mass constraint
 	MultiTrackKinematicConstraint *  j_psi_c = new  TwoTrackMassKinematicConstraint(jpsi);
-	
+
 	//creating the fitter
 	KinematicConstrainedVertexFitter kcvFitter;
-	
+
 	//obtaining the resulting tree
 	RefCountedKinematicTree myTree = kcvFitter.fit(allParticles, j_psi_c);
-	
+
 	cout << "\nGlobal fit done:\n";
 	printout(myTree);
-	
+
 	//creating the vertex fitter
 	KinematicParticleVertexFitter kpvFitter;
-	
+
 	//reconstructing a J/Psi decay
 	RefCountedKinematicTree jpTree = kpvFitter.fit(muonParticles);
-	
+
 	//creating the particle fitter
 	KinematicParticleFitter csFitter;
-	
+
 	// creating the constraint
 	float jp_m_sigma = 0.00004;
 	KinematicConstraint * jpsi_c2 = new MassKinematicConstraint(jpsi,jp_m_sigma);
-	
-	//the constrained fit:  
+
+	//the constrained fit:
 	jpTree = csFitter.fit(jpsi_c2,jpTree);
-	
+
 	//getting the J/Psi KinematicParticle and putting it together with the kaons.
-	//The J/Psi KinematicParticle has a pointer to the tree it belongs to  
+	//The J/Psi KinematicParticle has a pointer to the tree it belongs to
 	jpTree->movePointerToTheTop();
 	RefCountedKinematicParticle jpsi_part = jpTree->currentParticle();
 	phiParticles.push_back(jpsi_part);
-	
-	//making a vertex fit and thus reconstructing the Bs parameters  
+
+	//making a vertex fit and thus reconstructing the Bs parameters
 	// the resulting tree includes all the final state tracks, the J/Psi meson,
 	// its decay vertex, the Bs meson and its decay vertex.
-	RefCountedKinematicTree bsTree = kpvFitter.fit(phiParticles); 
+	RefCountedKinematicTree bsTree = kpvFitter.fit(phiParticles);
 	cout << "Sequential fit done:\n";
 	printout(bsTree);
-	
-	
-	
+
+
+
 //       // For the analysis: compare to your SimVertex
 //       TrackingVertex sv = getSimVertex(iEvent);
 //   edm::Handle<TrackingParticleCollection>  TPCollectionH ;
@@ -214,16 +214,16 @@ KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //       reco::RecoToSimCollection recSimColl=associatorForParamAtPca->associateRecoToSim(tks,
 // 									      TPCollectionH,
 // 									      &iEvent);
-// 
+//
 //       tree->fill(tv, &sv, &recSimColl);
 //     }
 
     }
-  }  
+  }
 
   }
   catch (std::exception & err) {
-    cout  << "Exception during event number: " << iEvent.id() 
+    cout  << "Exception during event number: " << iEvent.id()
       << "\n" << err.what() << "\n";
   }
 
@@ -231,7 +231,9 @@ KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 void KineExample::printout(const RefCountedKinematicVertex& myVertex) const
 {
-  cout << "Decay vertex: " << myVertex->position() <<endl;
+  if (myVertex->vertexIsValid()) {
+    cout << "Decay vertex: " << myVertex->position() <<myVertex->chiSquared()<< " "<<myVertex->degreesOfFreedom()<<endl;
+  } else cout << "Decay vertex Not valid\n";
 }
 
 void KineExample::printout(const RefCountedKinematicParticle& myParticle) const
@@ -248,6 +250,10 @@ void KineExample::printout(const RefCountedKinematicParticle& myParticle) const
 
 void KineExample::printout(const RefCountedKinematicTree& myTree) const
 {
+  if (!myTree->isValid()) {
+    cout <<"Tree is invalid. Fit failed.\n";
+    return;
+  }
 
 //accessing the tree components, move pointer to top
   myTree->movePointerToTheTop();
