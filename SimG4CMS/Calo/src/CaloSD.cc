@@ -44,9 +44,9 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   checkHits    = m_CaloSD.getUntrackedParameter<int>("CheckHits", 25);
   useMap       = m_CaloSD.getUntrackedParameter<bool>("UseMap", true);
   int verbn    = m_CaloSD.getUntrackedParameter<int>("Verbosity", 0);
-  bool on      = m_CaloSD.getUntrackedParameter<bool>("DetailedTiming");
-  corrTOFBeam  = m_CaloSD.getUntrackedParameter<bool>("CorrectTOFBeam", false);
-  double beamZ = m_CaloSD.getUntrackedParameter<double>("BeamPosition",0.0)*cm;
+  bool on      = m_CaloSD.getUntrackedParameter<bool>("DetailedTiming",false);
+  corrTOFBeam  = m_CaloSD.getParameter<bool>("CorrectTOFBeam");
+  double beamZ = m_CaloSD.getParameter<double>("BeamPosition")*cm;
   correctT     = beamZ/c_light/nanosecond;
 
   SetVerboseLevel(verbn);
