@@ -127,7 +127,7 @@ sub parse_project ()
   &printToFile ($verdep, "################################################################################");
   &printToFile ($verdep, "# Direct version dependencies");
   &printToFile ($verdep, "");
-  &printToFile ($vers, "<HTML><TITLE>$APP external tools versions</TITLE><BODY>");
+  &printToFile ($vers, "<HTML><HEAD><TITLE>$APP external tools versions</TITLE></HEAD><BODY>");
   &printToFile ($vers, "<CENTER><H1>$APP External Tools Versions Information</H1></CENTER>");
   &printToFile ($vers, "<BR><BR><CENTER><TABLE CELLPADDING=\"2\" CELLSPACING=\"2\" BORDER=\"1\"");
   &printToFile ($vers, "STYLE=\"WIDTH: 50%; TEXT-ALIGN: LEFT; MARGIN-LEFT: AUTO; MARGIN-RIGHT: AUTO; ");
@@ -183,7 +183,7 @@ sub parse_project ()
       else{print STDERR "ERROR: Missing ${uct}_BASE for tool $t.\n"; }
     }
     else{
-      &addToolInfo($t, $LOCALCACHE->{SCRAM_PROJECTS}{$self});
+      &addToolInfo($t, $LOCALCACHE->{SCRAM_PROJECTS}{$self},0,1);
       &printToFile ($verdep, $CACHE->{SUBSYSTEMS}{$t}."/${name}:");
     }
     &printToFile ($vers, "<TR><TD>$name</TD><TD>$vlink</TD></TR>");
@@ -791,6 +791,7 @@ sub addToolInfo ()
 	    if (!-e $libpath)
 	    {$missing{$lib}=1;next;}
 	    if(!$add_archive){next;}
+	    print "scan libs $libpath\n";
 	  }
 	  if (exists $missing{$lib}){delete $missing{$lib};}
 	  $libpath=&getActualPath ($libpath);
@@ -1109,6 +1110,12 @@ sub writesearchcache ()
 #sub process_qutexmlrpc ()
 #{&archive_lib_tool (shift, shift);}
 
+sub process_x11 ()
+{
+  print "match ^/usr/X11:'System/X11'\n";
+  &addToolInfo (shift, shift, 1, 1);
+}
+
 sub process_cxxcompiler ()
 {
   my $tool=shift || return;
@@ -1120,11 +1127,12 @@ sub process_cxxcompiler ()
   my $root=$1;
   my $dir=`$cxx -v 2>&1 | grep /specs | sed 's/.* //; s|/specs||'`; chomp $dir;
   my $v=`$cxx -dumpversion`; chomp $v;
+  my $rootq=quotemeta($root);
+  print "match ^$rootq\\/.+\$:'<Compiler>'\n";
   foreach my $item ("stdc++","g2c","gcc_s","supc++")
   {
     my $item1=$item;
     $item1=~s/\++//;
-    print "match ^$root/lib/lib${item1}:'<Compiler>'\n";
     print "match ^/usr/(local/|)lib/lib${item1}:'<Compiler>'\n";
     foreach my $d ("$root/lib", $dir)
     {
@@ -1153,10 +1161,6 @@ sub process_cxxcompiler ()
   print "search include .*:(.*):\"$root/include/c++/$v/backward/\$1\"\n"; # 3.x
   print "search include .*:(.*):\"$root/include/c++/$v/ext/\$1\"\n"; # 3.x
   print "search include .*:(.*):\"$root/include/g++/\$1\"\n"; # 2.x
-
-  print "match '$dir'/:\"<Compiler>\"\n";
-  print "match '$root'/include/c\\+\\+/:\"<Compiler>\"\n";
-  print "match '$root'/include/g\\+\\+/:\"<Compiler>\"\n";
 
   if ($v=~/^2\..*/)
   {
