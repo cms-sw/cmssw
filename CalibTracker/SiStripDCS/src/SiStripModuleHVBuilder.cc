@@ -19,6 +19,7 @@ SiStripModuleHVBuilder::SiStripModuleHVBuilder(const edm::ParameterSet& pset, co
   whichTable(pset.getUntrackedParameter<std::string>("queryType","STATUSCHANGE")),
   lastValueFileName(pset.getUntrackedParameter<std::string>("lastValueFile","")),
   fromFile(pset.getUntrackedParameter<bool>("lastValueFromFile",false)),
+  debug_(pset.getUntrackedParameter<bool>("debugModeOn",false)),
   tDefault(7,0)
 { 
   // set up vectors based on pset parameters (tDefault purely for initialization)
@@ -154,9 +155,10 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
   
   // use map info to build input for list of objects
   // no need to check for duplicates, as put method for SiStripModuleHV checks for you!
-  DetIdTimeStampVector detidHV, detidLV;
-  std::vector<bool> HVStatusGood, LVStatusGood;
-  //  std::vector<uint32_t> detidHV, detidLV;
+  DetIdTimeStampVector detidV;
+  std::vector<bool> StatusGood;
+  std::vector<unsigned int> isHV;
+
   std::stringstream ss1;
   unsigned int notMatched = 0, statusGood = 0, matched = 0;
   for (unsigned int dp = 0; dp < dpname.size(); dp++) {
@@ -172,16 +174,15 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
       if (!ids.empty()) {
 	matched++;
 	if (board == "channel000" || board == "channel001") {
-	  detidLV.push_back( std::make_pair(ids,changeDate[dp]) );
-	  if (actualStatus[dp] != 1) {LVStatusGood.push_back(false);}
-	  else {LVStatusGood.push_back(true);}
+	  detidV.push_back( std::make_pair(ids,changeDate[dp]) );
+	  if (actualStatus[dp] != 1) {StatusGood.push_back(false);}
+	  else {StatusGood.push_back(true);}
+	  isHV.push_back(0);
 	} else if (board == "channel002" || board == "channel003") {
-	  detidHV.push_back( std::make_pair(ids,changeDate[dp]) );
-	  if (actualStatus[dp] != 1) {
-	    HVStatusGood.push_back(false);
-	  } else {
-	    HVStatusGood.push_back(true);
-	  }
+	  detidV.push_back( std::make_pair(ids,changeDate[dp]) );
+	  if (actualStatus[dp] != 1) {StatusGood.push_back(false);}
+	  else {StatusGood.push_back(true);}
+	  isHV.push_back(1);
 	} else {
 	  LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "] channel name not recognised! " << board;
 	}
@@ -193,49 +194,184 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
       if (dpname[dp] != "UNKNOWN" && actualStatus[dp] == 1) {statusGood++;}
     }
   }
-  LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: Number of modules with bad HV channels is         " << detidHV.size();
-  LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: Number of modules with bad LV channels is         " << detidLV.size();
-  //  LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: Channels with no associated Det IDs";
-  //  LogTrace("SiStripModuleHVBuilder") << ss1.str();
-  
-  std::vector<bool> statusGoodHVVector, statusGoodLVVector;
-  DetIdCondTimeVector resultHVVector = mergeVectors(detidHV, HVStatusGood, statusGoodHVVector);
-  DetIdCondTimeVector resultLVVector = mergeVectors(detidLV, LVStatusGood, statusGoodLVVector);
+  LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: Number of modules with bad V channels is         " << detidV.size();
+  //  //  LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: Channels with no associated Det IDs";
+  //  //  LogTrace("SiStripModuleHVBuilder") << ss1.str();
 
-  std::vector< std::vector<unsigned int> > StatsHV, StatsLV;
-
-  std::vector< std::pair<SiStripModuleHV*,cond::Time_t> > HVStore = buildObjectVector(resultHVVector, statusGoodHVVector, StatsHV);
-  std::vector< std::pair<SiStripModuleHV*,cond::Time_t> > LVStore = buildObjectVector(resultLVVector, statusGoodLVVector, StatsLV);
+  if (debug_) {
+    std::cout << "Unprocessed data from DB..." << std::endl;
+    for (unsigned int pp = 0; pp < detidV.size(); pp++) {
+      std::cout << "Index = " << pp << " LV or HV = " << isHV[pp] << " Status = " << StatusGood[pp] << " Time = " << getIOVTime(detidV[pp].second) << std::endl;
+      std::vector<uint32_t> detids = detidV[pp].first;
+      for (unsigned int rr = 0; rr < detids.size(); rr++) {
+	std::cout << detids[rr] << std::endl;
+      }
+    }
+  }
   
-  // remove duplicate entries before storing in the final output data member
-  resultHV.push_back(HVStore[0]);
-  payloadStatsHV.push_back(StatsHV[0]);
-  unsigned int counter = 0;
-  for (unsigned int loop = 1; loop < HVStore.size(); loop++) {
-    std::vector<uint32_t> oldVec, newVec;
-    (resultHV[counter].first)->getDetIds(oldVec);
-    (HVStore[loop].first)->getDetIds(newVec);
-    if (oldVec != newVec) {
-      resultHV.push_back(HVStore[loop]);
-      payloadStatsHV.push_back(StatsHV[loop]);
-      counter++;
-    } 
+  // Convert to DetIdCondTimeVector
+  DetIdCondTimeVector resultVector;
+  for (unsigned int i = 0; i < detidV.size(); i++) {
+    std::vector<uint32_t> detids = detidV[i].first;
+    removeDuplicates(detids);
+    cond::Time_t iovtime = getIOVTime((detidV[i]).second);
+    resultVector.push_back( std::make_pair(detids,iovtime) );
   }
 
-  resultLV.push_back(LVStore[0]);
-  payloadStatsLV.push_back(StatsLV[0]);
-  counter = 0;
-  for (unsigned int loop = 1; loop < LVStore.size(); loop++) {
-    std::vector<uint32_t> oldVec, newVec;
-    (resultLV[counter].first)->getDetIds(oldVec);
-    (LVStore[loop].first)->getDetIds(newVec);
-    if (oldVec != newVec) {
-      resultLV.push_back(LVStore[loop]);
-      payloadStatsLV.push_back(StatsLV[loop]);
-      counter++;
-    } 
-  }
+  // storage vectors
+  DetIdCondTimeVector summedVector;
+  std::vector< std::vector< std::pair<bool,bool> > > flags;
+  std::vector<uint32_t> sumVector;
+  // first = LV, second = HV
+  std::vector< std::pair< bool, bool > > Vflag;
 
+  // saved copies for removing duplicates
+  std::vector<uint32_t> saveSumVector;
+  cond::Time_t saveTime = 0;
+  std::vector< std::pair< bool, bool > > saveVflag;
+
+  // Convert to summed vector
+  for (unsigned int i = 0; i < resultVector.size(); i++) {
+    std::vector<uint32_t> listOfDetIds = (resultVector[i]).first;
+    unsigned int numAdded = 0, numRemoved = 0;
+    
+    // check to see if detID is present in the list already, store details if it is
+    for (unsigned int j = 0; j < listOfDetIds.size(); j++) {
+      bool alreadyPresent = false;
+      unsigned int which = 0;
+      for (unsigned int k = 0; k < sumVector.size(); k++) {
+	if (listOfDetIds[j] == sumVector[k]) {
+	  alreadyPresent = true;
+	  which = k;
+	}
+      }
+
+      if (!StatusGood[i]) {  // status is bad
+	if (!alreadyPresent) {  // not in list, so store it
+	  numAdded++;
+	  sumVector.push_back(listOfDetIds[j]);
+	  if (isHV[i] == 0) {Vflag.push_back( std::make_pair(true,false) );}
+	  else if (isHV[i] == 1) {Vflag.push_back( std::make_pair(false,true) );}
+	} else {  // already in list, so decide what to do with it
+	  if (isHV[i] == 0) {Vflag[which].first = true;}
+	  else if (isHV[i] == 1) {Vflag[which].second = true;}
+	} 
+      } else { // status is good
+	if (alreadyPresent) {  // expect that these should already be present
+	  // If LV present in list as bad, remove it
+	  if ( isHV[i] == 0 && (Vflag[which].first) ) {Vflag[which].first = false;}
+	  // If HV present in list as bad, remove it
+	  if ( isHV[i] == 1 && (Vflag[which].second) ) {Vflag[which].second = false;}
+	  
+	  // If both flags are false, this entry should be removed from the list
+	  std::pair<bool,bool> testpair = std::make_pair(false,false);
+	  if ( !(Vflag[which].first) && !(Vflag[which].second) ) {
+	    // clean up detID vector
+	    std::vector<uint32_t>::iterator detIdToRemove = sumVector.end();
+	    detIdToRemove = find(sumVector.begin(),sumVector.end(),listOfDetIds[j]);
+	    if (detIdToRemove != sumVector.end()) {
+	      sumVector.erase(detIdToRemove);
+	      numRemoved++;
+	    }
+	    // clean up the flag vector
+	    std::vector<std::pair<bool, bool> >::iterator toRemove = Vflag.end();
+	    toRemove = find(Vflag.begin(),Vflag.end(),testpair);
+	    if (toRemove != Vflag.end()) {Vflag.erase(toRemove);}
+	  } // end of if for removal with both flags false
+	} // already present in list
+      } // end of status if
+
+    } // end of loop over list of det IDs
+
+    // duplicate removal
+    bool storeThis = true;
+    bool removePrevious = false;
+    // decide whether to store the information - time the same
+    if ( (resultVector[i].second) == saveTime) {
+      if (sumVector != saveSumVector) {std::cout << "Vectors are different sizes - this is bad!" << std::endl;}
+      else { // time and detID vectors the same
+	if (Vflag == saveVflag) {storeThis = false;}
+	else {
+	  // use number of true flags as an indication of what is going on 
+	  unsigned int old_count = 0, new_count = 0;
+	  for (unsigned int t = 0; t < saveVflag.size(); t++) {
+	    if (saveVflag[t].first) {old_count++;}
+	    if (saveVflag[t].second) {old_count++;}
+	  }
+	  for (unsigned int p = 0; p < Vflag.size(); p++) {
+	    if (Vflag[p].first) {new_count++;}
+	    if (Vflag[p].second) {new_count++;}
+	  }
+	  if (new_count > old_count) {
+	    removePrevious = true;
+	  } else {
+	    std::cout << "Time and detIDs are the same.  Vflag is different.  Saved vector has less true entries than current.  This is strange! " << old_count << " " << new_count << std::endl; 
+	    storeThis = false;
+	  }
+	}
+      }
+    } else {  // times are different
+      if (sumVector == saveSumVector && Vflag == saveVflag) {storeThis = false;}
+    }
+    
+    // if true, remove the last entry
+    if (removePrevious) {
+      summedVector.pop_back();
+      flags.pop_back();
+      payloadStats.pop_back();
+    }
+    // if true, store current entry
+    if (storeThis) {
+      summedVector.push_back( std::make_pair(sumVector,(resultVector[i].second)) );
+      flags.push_back(Vflag);
+
+      std::vector<uint32_t> stats(3,0);
+      stats[0] = sumVector.size();
+      stats[1] = numAdded;            // TODO - this number is not always correct on first vector entry.  Problem comes when first object from DB is not stored ...
+      stats[2] = numRemoved;
+      payloadStats.push_back(stats);
+    }
+    
+    // save what was just stored properly for comparison the next time around
+    if (storeThis) {
+      saveSumVector.clear();
+      saveSumVector = sumVector;
+      saveTime = 0;
+      saveTime = resultVector[i].second;
+      saveVflag.clear();
+      saveVflag = Vflag;
+    }
+    
+  } // end of main loop
+
+  // Store in the final object
+  for (unsigned int i = 0; i < summedVector.size(); i++) {
+    std::vector<uint32_t> ids = summedVector[i].first;
+    cond::Time_t stime = summedVector[i].second;
+    std::vector< std::pair<bool,bool> > sflags = flags[i];
+    std::vector<bool> lvOff, hvOff;
+    for (unsigned int j = 0; j < sflags.size(); j++) {
+      lvOff.push_back(sflags[j].first);
+      hvOff.push_back(sflags[j].second);
+    }
+    SiStripDetVOff * modV = new SiStripDetVOff();
+    modV->put(ids,hvOff,lvOff);
+    modulesOff.push_back( std::make_pair(modV,stime) );
+  }
+  
+  if (debug_) {
+    std::cout << "Final results of object building...  Number of entries in vector = "  << modulesOff.size() << std::endl;
+    for (unsigned int s = 0; s < modulesOff.size(); s++) {
+      std::cout << "Index = " << s << "Time = " << modulesOff[s].second << std::endl;
+      std::vector<uint32_t> ids;
+      std::vector< std::pair<bool,bool> > sflags = flags[s];
+      (modulesOff[s].first)->getDetIds(ids);
+      for (unsigned int v = 0; v < ids.size(); v++) {
+	std::cout << ids[v] << " LV = " << (modulesOff[s].first)->IsModuleLVOff(ids[v]) << " HV = " << (modulesOff[s].first)->IsModuleHVOff(ids[v]) << std::endl;
+      }
+    }
+  }
+ 
 }
 
 int SiStripModuleHVBuilder::findSetting(uint32_t id, coral::TimeStamp changeDate, std::vector<uint32_t> settingID, std::vector<coral::TimeStamp> settingDate) {
@@ -355,102 +491,8 @@ cond::Time_t SiStripModuleHVBuilder::getIOVTime(coral::TimeStamp coralTime) {
   return iovtime;
 }
 
-// compare to within a minute
-bool SiStripModuleHVBuilder::compareCoralTime(coral::TimeStamp timeA, coral::TimeStamp timeB) {
-  if (timeA.year() == timeB.year() && 
-      timeA.month() == timeB.month() &&
-      timeA.day() == timeB.day() &&
-      timeA.hour() == timeB.hour() &&
-      timeA.minute() == timeB.minute()) {return true;}
-  return false;
-}
-
-std::vector< std::pair< std::vector<uint32_t>, cond::Time_t> > SiStripModuleHVBuilder::mergeVectors(DetIdTimeStampVector inputVector, 
-												    std::vector<bool> inputStatus, std::vector<bool> & outputStatus) {
-  DetIdCondTimeVector resultVector;
-  
-  unsigned int vecSize = inputVector.size();
-  std::vector<bool> vecUsed(vecSize,false);
-  
-  for (unsigned int r = 0; r < (vecSize-1); r++) {
-    std::vector<uint32_t> detids;
-    cond::Time_t iovtime = 0;
-    bool goodStatus = false;
-    if (!vecUsed[r]) {
-      detids = (inputVector[r]).first;
-      iovtime = getIOVTime((inputVector[r]).second);
-      goodStatus = inputStatus[r];
-      vecUsed[r] = true;
-      for (unsigned int t = r+1; t < vecSize; t++) {
-	if (r != t) {
-	  if (!vecUsed[t]) {
-	    if (inputStatus[r] == inputStatus[t]) {
-	      if (compareCoralTime(((inputVector[r]).second), ((inputVector[t]).second))) {
-		detids.insert(detids.end(),((inputVector[t]).first).begin(),((inputVector[t]).first).end());
-		vecUsed[t] = true;
-	      }
-	    }
-	  }
-	}
-      }
-    }
-    if (!detids.empty()) {
-      resultVector.push_back( std::make_pair(detids,iovtime) );
-      outputStatus.push_back(goodStatus);
-    }
-  }
-  return resultVector;
-}
-
-std::vector< std::pair<SiStripModuleHV*,cond::Time_t> > SiStripModuleHVBuilder::buildObjectVector(DetIdCondTimeVector inputVector, std::vector<bool> statusVector, 
-												  std::vector< std::vector<unsigned int> > & statsVector) {
-  std::vector< std::pair<SiStripModuleHV*,cond::Time_t> > storeVector;
-  std::vector<uint32_t> sumVector;
-  statsVector.clear();
-  
-  for (unsigned int i = 0; i < inputVector.size(); i++) {
-    unsigned int numAdded = 0, numRemoved = 0;
-    if (!statusVector[i]) {
-      numAdded = sumVector.size();
-      // if status is bad, add to the list for O2O
-      sumVector.insert(sumVector.end(),((inputVector[i]).first).begin(),((inputVector[i]).first).end());
-    } else { 
-      // if status is good, find the entries in the list and remove them
-      std::vector<uint32_t>::iterator toRemove = sumVector.end();
-      for (unsigned int m = 0; m < ((inputVector[i]).first).size(); m++) {
-	toRemove = find(sumVector.begin(),sumVector.end(),((inputVector[i]).first)[m]);
-	if (toRemove != sumVector.end()) {
-	  sumVector.erase(toRemove);
-	  numRemoved++;
-	}
-      }
-    }
-    // remove duplicates from the summed list before storing
-    std::sort(sumVector.begin(),sumVector.end());
-    std::vector<uint32_t>::iterator it = std::unique(sumVector.begin(),sumVector.end());
-    sumVector.resize( it - sumVector.begin() );
-    
-    if (sumVector.size() >= numAdded) {numAdded = sumVector.size() - numAdded;}
-
-    std::vector<unsigned int> stats(3,0);
-    stats[0] = sumVector.size();
-    stats[1] = numAdded;
-    stats[2] = numRemoved;
-    
-    // And store!
-    SiStripModuleHV * modHV = new SiStripModuleHV();
-    modHV->put(sumVector);
-    storeVector.push_back( std::make_pair(modHV,(inputVector[i].second)) ); 
-    statsVector.push_back(stats);
-  }
-  return storeVector;
-}
-
-std::vector< std::vector<uint32_t> > SiStripModuleHVBuilder::getPayloadStats( std::string powerType ) {
-  if (powerType == "LV") {return payloadStatsLV;}
-  else if (powerType == "HV") {return payloadStatsHV;}
-  
-  std::vector< std::vector<uint32_t> > emptyVec;
-  LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: powerType "  << powerType << " no recognised!";
-  return emptyVec;
+void SiStripModuleHVBuilder::removeDuplicates( std::vector<uint32_t> & vec ) {
+  std::sort(vec.begin(),vec.end());
+  std::vector<uint32_t>::iterator it = std::unique(vec.begin(),vec.end());
+  vec.resize( it - vec.begin() );
 }

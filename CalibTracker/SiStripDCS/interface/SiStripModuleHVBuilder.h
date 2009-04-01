@@ -6,8 +6,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "CondFormats/SiStripObjects/interface/SiStripModuleHV.h"
-#include "CondFormats/DataRecord/interface/SiStripModuleHVRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "CoralBase/TimeStamp.h"
 #include "CondCore/DBCommon/interface/Time.h"
@@ -28,14 +28,10 @@ class SiStripModuleHVBuilder
   SiStripModuleHVBuilder(const edm::ParameterSet&,const edm::ActivityRegistry&);
   /** Build the SiStripModuleHV object for transfer. */
   void BuildModuleHVObj();
-  /** Return the HV channels object. */
-  //  SiStripModuleHV* getSiStripModuleHV() {return SiStripModuleHV_;}
-  std::vector< std::pair<SiStripModuleHV*,cond::Time_t> > getSiStripModuleHV() {return resultHV;}
-  /** Return the LV channels object. */
-  //  SiStripModuleHV* getSiStripModuleLV() {return SiStripModuleLV_;}
-  std::vector< std::pair<SiStripModuleHV*,cond::Time_t> > getSiStripModuleLV() {return resultLV;}
+  /** Return modules Off vector of objects. */
+  std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > getModulesVOff() {return modulesOff;}
   //
-  std::vector< std::vector<uint32_t> > getPayloadStats( std::string powerType );
+  std::vector< std::vector<uint32_t> > getPayloadStats() {return payloadStats;}
   
  private:
   // typedefs
@@ -48,20 +44,21 @@ class SiStripModuleHVBuilder
   int findSetting(std::string dpname, coral::TimeStamp changeDate, std::vector<std::string> settingDpname, std::vector<coral::TimeStamp> settingDate);
   /** Extract the lastValue values from file rather than from the PVSS cond DB. */
   void readLastValueFromFile(std::vector<uint32_t> &dpIDs, std::vector<float> &vmonValues, std::vector<coral::TimeStamp> &dateChange);
+  /** Utility code to convert a coral timestamp to the correct time format for O2O timestamp.*/
   cond::Time_t getIOVTime(coral::TimeStamp coralTime);
-  bool compareCoralTime(coral::TimeStamp timeA, coral::TimeStamp timeB);
-  DetIdCondTimeVector mergeVectors(DetIdTimeStampVector inputVector, std::vector<bool> inputStatus, std::vector<bool> & outputStatus);
-  std::vector< std::pair<SiStripModuleHV*,cond::Time_t> > buildObjectVector(DetIdCondTimeVector inputVector, std::vector<bool> statusVector, std::vector< std::vector<unsigned int> > & statsVector);
+  /** Utility code to remove all the duplicates from a vector of uint32_t. */
+  void removeDuplicates( std::vector<uint32_t> & vec );
   
   // member data
-  std::vector< std::pair<SiStripModuleHV*,cond::Time_t> > resultHV, resultLV;
-  std::vector< std::vector<uint32_t> > payloadStatsHV, payloadStatsLV;
+  std::vector< std::vector<uint32_t> > payloadStats;
+  std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > modulesOff;
   
   std::string onlineDbConnectionString;
   std::string authenticationPath;
   std::string whichTable;
   std::string lastValueFileName;
   bool fromFile;
+  bool debug_;
   coral::TimeStamp tmax, tmin;
   std::vector<int> tmax_par, tmin_par, tDefault;
 };
