@@ -44,7 +44,7 @@ cond::ObjectRelationalMappingUtility::exportMapping(coral::ISessionProxy* sessio
 						    bool allVersions) {
   m_mappingutil->loadMappingInformation( contName, classVersion, allVersions);
   m_mappingutil->setSession(session,false);
-  bool okStore = m_mappingutil->storeMappingInformation();
+  bool okStore = m_mappingutil->storeMappingInformation(true);
   m_mappingutil->setSession(m_coralsessionHandle,false);
   return okStore;
 }

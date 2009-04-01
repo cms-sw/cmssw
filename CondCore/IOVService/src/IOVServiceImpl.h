@@ -29,7 +29,6 @@ namespace cond{
     
     void loadDicts( const std::string& iovToken);
 
-
     void deleteAll(bool withPayload);
     
     cond::TimeType timeType() const;

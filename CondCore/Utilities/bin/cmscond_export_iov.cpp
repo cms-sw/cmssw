@@ -285,16 +285,16 @@ int main( int argc, char** argv ){
         coralDBs.start(true);
 	coralDBd.start(false);
 	cond::ObjectRelationalMappingUtility mappingUtil(&coralDBs.coralSessionProxy());
-	// bool stored = mappingUtil.exportMapping(&coralDBd.coralSessionProxy(), payloadContainer);
+	bool stored = mappingUtil.exportMapping(&coralDBd.coralSessionProxy(), payloadContainer);
 	if(debug){
-	  // std::cout<< "payload mapping " << (stored ? "" : "not ") << "stored"<<std::endl;
+	  std::cout<< "payload mapping " << (stored ? "" : "not ") << "stored"<<std::endl;
 	}
 	coralDBs.commit();
 	coralDBd.commit();
     } catch (std::exception const & e) {
       std::cout << "Something went wrong with mapping export: " << e.what() << std::endl;
     } catch(...){ 
-      std::cout << "Something went wrong with mapping export" << std::endl;
+      std::cout << "Something went VERY wrong with mapping export" << std::endl;
     } // throw if no db available...
 
 
