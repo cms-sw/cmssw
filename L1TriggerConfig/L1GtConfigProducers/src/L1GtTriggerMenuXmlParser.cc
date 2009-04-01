@@ -2771,7 +2771,7 @@ bool L1GtTriggerMenuXmlParser::parseCorrelation(
                 << type << ", name: " << conditionNameNodeName << "\n"
                 << std::endl;
 
-        // call the appropiate function for this condition
+        // call the appropriate function for this condition
         if (condition == m_xmlConditionAttrConditionMuon) {
             if (!parseMuon(conditionsNode, conditionNameNodeName, chipNr,
                     corrFlag)) {

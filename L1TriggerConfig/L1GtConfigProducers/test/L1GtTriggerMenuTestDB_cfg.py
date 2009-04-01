@@ -17,10 +17,12 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
 # L1 db
 from CondCore.DBCommon.CondDBCommon_cfi import *
-from CondTools.L1Trigger.L1SubsystemParams_cfi import *
+from CondTools.L1Trigger.L1SubsystemParams_cfi import initL1Subsystems
+initL1Subsystems()
+
 process.l1pooldb = cms.ESSource("PoolDBESSource",
     CondDBCommon,
-    toGet = L1SubsystemParams.recordInfo
+    toGet = initL1Subsystems.params.recordInfo
 )
 process.l1pooldb.connect = cms.string('sqlite_file:l1config.db')
 

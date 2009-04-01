@@ -19,8 +19,12 @@
 
 // system include files
 #include "boost/shared_ptr.hpp"
+#include "boost/lexical_cast.hpp"
+
 #include <string>
 #include <vector>
+#include <iomanip>
+#include <iostream>
 
 // user include files
 //   base class
@@ -28,6 +32,16 @@
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtMuonTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtCaloTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtEnergySumTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtCastorTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtHfBitCountsTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtBptxTemplate.h"
 
 // forward declarations
 
@@ -47,6 +61,10 @@ public:
     /// public methods
     virtual boost::shared_ptr<L1GtTriggerMenu> newObject(const std::string& objectKey);
 
+    /// initialize the class (mainly reserve/resize)
+    void init(const int numberConditionChips);
+
+
 private:
 
     /// define simple structures to get the tables from DB
@@ -60,7 +78,6 @@ private:
 
     struct TableMenuAlgo {
         short bitNumberSh;
-        int algChipNr;
         std::string algName;
         std::string algAlias;
         std::string logExpression;
@@ -78,7 +95,7 @@ private:
         std::string condType;
         std::string gtObject1;
         std::string gtObject2;
-        bool condGeq;
+        bool condGEq;
         float countIndex;
         float countThreshold;
         float chargeCorrelation;
@@ -125,6 +142,64 @@ private:
     /// retrieve table with object parameters from DB
     bool tableMenuObjectParametersFromDB(const std::string& gtSchema, const std::string& objKey);
 
+private:
+
+    /// return for an algorithm with bitNr the mapping between the integer index in logical expression
+    /// and the condition name (FK)
+    const std::map<int, std::string> condIndexNameMap(const short bitNr) const;
+
+    /// convert a logical expression with indices to a logical expression with names
+    std::string convertLogicalExpression(const std::string&, const std::map<int, std::string>&) const;
+
+    /// return the chip number for an algorithm with index bitNumberSh
+    int chipNumber(short) const;
+
+    /// build the algorithm map in the menu
+    void buildAlgorithmMap();
+
+    /// string to enum L1GtConditionCategory conversion
+    L1GtConditionCategory strToEnumCondCategory(const std::string& strCategory);
+
+    /// string to enum L1GtConditionType conversion
+    L1GtConditionType strToEnumCondType(const std::string& strType);
+
+    /// string to enum L1GtObject conversion
+    L1GtObject strToEnumL1GtObject(const std::string& strObject);
+
+    /// split a hex string in two 64-bit words returned as hex strings
+    void splitHexStringInTwo64bitWords(
+            const std::string& hexStr, std::string& hex0WordStr, std::string& hex1WordStr);
+
+    /// get a list of chip numbers from the m_tableMenuAlgoCond table for a condition
+    std::list<int> listChipNumber(const std::string&);
+
+    void fillMuonObjectParameter(const std::string& opFK, L1GtMuonTemplate::ObjectParameter&);
+    void addMuonCondition(const TableMenuCond&);
+
+    void fillCaloObjectParameter(const std::string& opFK, L1GtCaloTemplate::ObjectParameter&);
+    void addCaloCondition(const TableMenuCond&);
+
+    void fillEnergySumObjectParameter(
+            const std::string& opFK, L1GtEnergySumTemplate::ObjectParameter&, const L1GtObject&);
+    void addEnergySumCondition(const TableMenuCond&);
+
+    void addJetCountsCondition(const TableMenuCond&);
+    void addHfBitCountsCondition(const TableMenuCond&);
+    void addHfRingEtSumsCondition(const TableMenuCond&);
+    void addCastorCondition(const TableMenuCond&);
+    void addBptxCondition(const TableMenuCond&);
+    void addCorrelationCondition(const TableMenuCond&);
+
+    /// add the conditions from a menu to the corresponding list
+    void addConditions();
+
+
+private:
+    template<typename Result, typename Source>
+    Result lexical_cast_from_hex(Source & value) const;
+
+
+private:
 
     /// member to keep various tables retrieved from DB
 
@@ -134,7 +209,7 @@ private:
     std::vector<TableMenuCond> m_tableMenuCond;
     std::vector<TableMenuObjectParameters> m_tableMenuObjectParameters;
 
-
+private:
 
     /// menu representation
 
@@ -171,7 +246,28 @@ private:
     /// map containing the technical triggers
     AlgorithmMap m_technicalTriggerMap;
 
+private:
+
+    bool m_isDebugEnabled;
+
 
 };
+
+
+
+template<typename Result, typename Source>
+Result L1GtTriggerMenuConfigOnlineProd::lexical_cast_from_hex(Source & value) const {
+
+    std::stringstream convertor;
+    convertor << value;
+
+    Result result;
+    if (! ( convertor >> std::hex >> result ) || !convertor.eof()) {
+        throw boost::bad_lexical_cast();
+    }
+
+    return result;
+}
+
 
 #endif

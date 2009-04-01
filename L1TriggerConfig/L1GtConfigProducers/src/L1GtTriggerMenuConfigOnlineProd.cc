@@ -21,7 +21,9 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <list>
 #include <utility>
+#include <algorithm>
 
 #include "boost/lexical_cast.hpp"
 
@@ -29,16 +31,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtMuonTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtCaloTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtEnergySumTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtCastorTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtHfBitCountsTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtBptxTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtCondition.h"
@@ -47,7 +41,8 @@
 
 // constructor
 L1GtTriggerMenuConfigOnlineProd::L1GtTriggerMenuConfigOnlineProd(const edm::ParameterSet& parSet) :
-    L1ConfigOnlineProdBase<L1GtTriggerMenuRcd, L1GtTriggerMenu> (parSet) {
+    L1ConfigOnlineProdBase<L1GtTriggerMenuRcd, L1GtTriggerMenu> (parSet), m_isDebugEnabled(
+            edm::isDebugEnabled()) {
 
     // empty
 
@@ -62,12 +57,40 @@ L1GtTriggerMenuConfigOnlineProd::~L1GtTriggerMenuConfigOnlineProd() {
 
 // public methods
 
+// initialize the class (mainly reserve/resize)
+void L1GtTriggerMenuConfigOnlineProd::init(const int numberConditionChips) {
+
+    // resize the vectors of condition maps
+    // the number of condition chips should be correctly set
+
+    m_vecMuonTemplate.resize(numberConditionChips);
+    m_vecCaloTemplate.resize(numberConditionChips);
+    m_vecEnergySumTemplate.resize(numberConditionChips);
+    m_vecJetCountsTemplate.resize(numberConditionChips);
+    m_vecCastorTemplate.resize(numberConditionChips);
+    m_vecHfBitCountsTemplate.resize(numberConditionChips);
+    m_vecHfRingEtSumsTemplate.resize(numberConditionChips);
+    m_vecBptxTemplate.resize(numberConditionChips);
+
+    m_vecCorrelationTemplate.resize(numberConditionChips);
+    m_corMuonTemplate.resize(numberConditionChips);
+    m_corCaloTemplate.resize(numberConditionChips);
+    m_corEnergySumTemplate.resize(numberConditionChips);
+
+
+}
+
 boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuConfigOnlineProd::newObject(
         const std::string& objectKey) {
 
-    // shared pointer for L1GtTriggerMenu
-    boost::shared_ptr<L1GtTriggerMenu> pL1GtTriggerMenu = boost::shared_ptr<L1GtTriggerMenu>(
+    // shared pointer for L1GtTriggerMenu - empty menu
+    boost::shared_ptr<L1GtTriggerMenu> pL1GtTriggerMenuEmpty = boost::shared_ptr<L1GtTriggerMenu>(
             new L1GtTriggerMenu());
+
+    // FIXME get it from L1GtStableParameters?
+    //       initialize once, from outside
+    const unsigned int numberConditionChips = 2;
+    init(numberConditionChips);
 
     const std::string gtSchema = "CMS_GT";
 
@@ -78,7 +101,7 @@ boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuConfigOnlineProd::newObject(
 
     // retrieve table with general menu parameters from DB, view L1T_MENU_GENERAL_VIEW
     if (!tableMenuGeneralFromDB(gtSchema, objectKey)) {
-        return pL1GtTriggerMenu;
+        return pL1GtTriggerMenuEmpty;
 
     }
 
@@ -89,38 +112,53 @@ boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuConfigOnlineProd::newObject(
 
     // retrieve table with physics algorithms from DB, view L1T_MENU_ALGO_VIEW
     if (!tableMenuAlgoFromDB(gtSchema, objectKey)) {
-        return pL1GtTriggerMenu;
+        return pL1GtTriggerMenuEmpty;
 
     }
 
     // retrieve table with conditions associated to physics algorithms from DB
     if (!tableMenuAlgoCondFromDB(gtSchema, objectKey)) {
-        return pL1GtTriggerMenu;
+        return pL1GtTriggerMenuEmpty;
 
     }
 
     // retrieve table with list of conditions in the menu
     if (!tableMenuCondFromDB(gtSchema, objectKey)) {
-        return pL1GtTriggerMenu;
+        return pL1GtTriggerMenuEmpty;
 
     }
 
 
     // retrieve table with object parameters from DB, view CMS_GT.L1T_MENU_OP_VIEW
     if (!tableMenuObjectParametersFromDB(gtSchema, objectKey)) {
-        return pL1GtTriggerMenu;
+        return pL1GtTriggerMenuEmpty;
 
     }
 
 
+    // build the algorithm map in the menu
+    buildAlgorithmMap();
 
 
-
-
+    // add the conditions from a menu to the corresponding list
+    addConditions();
 
     // fill the record
+    boost::shared_ptr<L1GtTriggerMenu> pL1GtTriggerMenu = boost::shared_ptr<L1GtTriggerMenu>(
+                new L1GtTriggerMenu(menuName, numberConditionChips,
+                        m_vecMuonTemplate,
+                        m_vecCaloTemplate,
+                        m_vecEnergySumTemplate,
+                        m_vecJetCountsTemplate,
+                        m_vecCastorTemplate,
+                        m_vecHfBitCountsTemplate,
+                        m_vecHfRingEtSumsTemplate,
+                        m_vecBptxTemplate,
+                        m_vecCorrelationTemplate,
+                        m_corMuonTemplate,
+                        m_corCaloTemplate,
+                        m_corEnergySumTemplate) );
 
-    pL1GtTriggerMenu->setGtTriggerMenuName(menuName);
     pL1GtTriggerMenu->setGtTriggerMenuInterface(m_tableMenuGeneral.menuInterface);
     pL1GtTriggerMenu->setGtTriggerMenuImplementation(m_tableMenuGeneral.menuImplementation);
     pL1GtTriggerMenu->setGtScaleDbKey(m_tableMenuGeneral.scalesKey);
@@ -129,7 +167,8 @@ boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuConfigOnlineProd::newObject(
     pL1GtTriggerMenu->setGtAlgorithmAliasMap(m_algorithmAliasMap);
     pL1GtTriggerMenu->setGtTechnicalTriggerMap(m_technicalTriggerMap);
 
-    if (edm::isDebugEnabled()) {
+
+    if (m_isDebugEnabled) {
         LogTrace("L1GtTriggerMenuConfigOnlineProd")
             << "\nThe following L1GtTriggerMenu record was read from OMDS: \n"
             << std::endl;
@@ -158,7 +197,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuGeneralFromDB(
     const std::vector<std::string>& columns = m_omdsReader.columnNamesView(
             gtSchema, "L1T_MENU_GENERAL_VIEW");
 
-    if (edm::isDebugEnabled()) {
+    if (m_isDebugEnabled) {
         LogTrace("L1GtTriggerMenuConfigOnlineProd")
                 << "\n List of columns in L1T_MENU_GENERAL_VIEW:\n" << std::endl;
         for (std::vector<std::string>::const_iterator iter = columns.begin(); iter != columns.end(); iter++) {
@@ -232,7 +271,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuAlgoFromDB(
     const std::vector<std::string>& columnsMenuAlgo = m_omdsReader.columnNamesView(
             gtSchema, "L1T_MENU_ALGO_VIEW");
 
-    if (edm::isDebugEnabled()) {
+    if (m_isDebugEnabled) {
         LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n List of columns in L1T_MENU_ALGO_VIEW:\n"
             << std::endl;
         for (std::vector<std::string>::const_iterator iter = columnsMenuAlgo.begin(); iter != columnsMenuAlgo.end(); iter++) {
@@ -254,15 +293,6 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuAlgoFromDB(
         return false;
     }
 
-    // temporary values
-    int bitNumber = -1;
-
-    // FIXME get it from Event Setup
-     const unsigned numberConditionChips= 2;
-     const unsigned pinsOnConditionChip= 96;
-     std::vector<int> orderConditionChip;
-     orderConditionChip.push_back(2);
-     orderConditionChip.push_back(1);
 
     TableMenuAlgo menuAlgo;
     int resultsMenuAlgoRows = resultsMenuAlgo.numberRows();
@@ -274,7 +304,6 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuAlgoFromDB(
 
             if ( ( *constIt ) == "ALGO_INDEX") {
                 resultsMenuAlgo.fillVariableFromRow(*constIt, iRow, menuAlgo.bitNumberSh);
-                bitNumber = static_cast<int> (menuAlgo.bitNumberSh);
 
             } else if ( ( *constIt ) == "NAME") {
                 resultsMenuAlgo.fillVariableFromRow(*constIt, iRow, menuAlgo.algName);
@@ -293,32 +322,16 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuAlgoFromDB(
         }
 
         LogTrace("L1GtTriggerMenuConfigOnlineProd")
-            << "Row  " << iRow << ": index = " << bitNumber << " algName = " << menuAlgo.algName
+            << "Row  " << iRow << ": index = " << menuAlgo.bitNumberSh << " algName = " << menuAlgo.algName
             << " algAlias = " << menuAlgo.algAlias << " logExpression = '" << menuAlgo.logExpression << "'"
             << std::endl;
 
         m_tableMenuAlgo.push_back(menuAlgo);
 
-        // FIXME - move from here
-
-        // create a new algorithm and insert it into algorithm map
-        L1GtAlgorithm alg(menuAlgo.algName, menuAlgo.logExpression, bitNumber);
-        alg.setAlgoAlias(menuAlgo.algAlias);
-
-        // set algorithm chip number:
-        int algChipNr = alg.algoChipNumber(
-                numberConditionChips, pinsOnConditionChip, orderConditionChip);
-        alg.setAlgoChipNumber(algChipNr);
-
-        // insert algorithm
-        m_algorithmMap[menuAlgo.algName] = alg;
-        m_algorithmAliasMap[menuAlgo.algAlias] = alg;
-
-
 
     }
 
-    if (edm::isDebugEnabled()) {
+    if (m_isDebugEnabled) {
         LogTrace("L1GtTriggerMenuConfigOnlineProd")
             << "\n Number of rows read from L1T_MENU_ALGO_VIEW: " << resultsMenuAlgoRows
             << std::endl;
@@ -341,7 +354,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuAlgoCondFromDB(
     const std::vector<std::string>& columnsMenuAlgoCond = m_omdsReader.columnNamesView(
             gtSchema, "L1T_MENU_ALGO_COND_VIEW");
 
-    if (edm::isDebugEnabled()) {
+    if (m_isDebugEnabled) {
         LogTrace("L1GtTriggerMenuConfigOnlineProd")
                 << "\n List of columns in L1T_MENU_ALGO_COND_VIEW:\n" << std::endl;
         for (std::vector<std::string>::const_iterator iter = columnsMenuAlgoCond.begin(); iter
@@ -364,14 +377,6 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuAlgoCondFromDB(
         return false;
     }
 
-    // temporary values
-    int bitNumber = -1;
-    int condIndex = -1;
-
-    // define multimap (ALGO_INDEX, pair (COND_INDEX, COND_FK))
-    std::pair<int, std::string> condIndexName;
-    std::multimap<int, std::pair<int, std::string> > algoCondMap;
-
     //
     TableMenuAlgoCond menuAlgoCond;
     int resultsMenuAlgoCondRows = resultsMenuAlgoCond.numberRows();
@@ -384,12 +389,10 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuAlgoCondFromDB(
             if ( ( *constIt ) == "ALGO_INDEX") {
                 resultsMenuAlgoCond.fillVariableFromRow(
                         *constIt, iRow, menuAlgoCond.bitNumberSh);
-                bitNumber = static_cast<int> (menuAlgoCond.bitNumberSh);
 
             } else if ( ( *constIt ) == "COND_INDEX") {
                 resultsMenuAlgoCond.fillVariableFromRow(
                         *constIt, iRow, menuAlgoCond.condIndexF);
-                condIndex = static_cast<int> (menuAlgoCond.condIndexF);
 
             } else if ( ( *constIt ) == "COND_FK") {
                 resultsMenuAlgoCond.fillVariableFromRow(*constIt, iRow, menuAlgoCond.condFK);
@@ -402,39 +405,19 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuAlgoCondFromDB(
         }
 
         LogTrace("L1GtTriggerMenuConfigOnlineProd") << "Row  " << iRow << ": ALGO_INDEX = "
-                << bitNumber << " COND_INDEX = " << condIndex << " COND_FK = "
-                << menuAlgoCond.condFK << std::endl;
+                << menuAlgoCond.bitNumberSh << " COND_INDEX = " << menuAlgoCond.condIndexF
+                << " COND_FK = " << menuAlgoCond.condFK << std::endl;
 
         m_tableMenuAlgoCond.push_back(menuAlgoCond);
 
-        // FIXME move from here
-
-        // fill multimap (ALGO_INDEX, pair (COND_INDEX, COND_FK)
-        condIndexName = make_pair(condIndex, menuAlgoCond.condFK);
-        algoCondMap.insert(std::pair<int, std::pair<int, std::string> >(bitNumber, condIndexName));
-
     }
 
-    if (edm::isDebugEnabled()) {
+    if (m_isDebugEnabled) {
         LogTrace("L1GtTriggerMenuConfigOnlineProd")
                 << "\n Number of rows read from L1T_MENU_ALGO_COND_VIEW: "
                 << resultsMenuAlgoCondRows << std::endl;
     }
 
-    if (edm::isDebugEnabled()) {
-        for (std::multimap<int, std::pair<int, std::string> >::iterator it = algoCondMap.begin(); it
-                != algoCondMap.end(); ++it) {
-
-            LogTrace("L1GtTriggerMenuConfigOnlineProd") << " ALGO_INDEX: " << it->first
-                    << " COND_INDEX " << ( it->second ).first << " COND_FK "
-                    << ( it->second ).second << std::endl;
-        }
-    }
-
-    // for each algorithm, replace in the logical expression the condition index with
-    // the condition name
-
-    // FIXME replace index with key
 
     return true;
 
@@ -450,7 +433,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuCondFromDB(
     const std::vector<std::string>& columnsMenuCond = m_omdsReader.columnNamesView(
             gtSchema, "L1T_MENU_COND_VIEW");
 
-    if (edm::isDebugEnabled()) {
+    if (m_isDebugEnabled) {
         LogTrace("L1GtTriggerMenuConfigOnlineProd")
                 << "\n List of columns in L1T_MENU_COND_VIEW:\n" << std::endl;
         for (std::vector<std::string>::const_iterator iter = columnsMenuCond.begin(); iter
@@ -499,7 +482,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuCondFromDB(
                 resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.gtObject2);
 
             } else if ( ( *constIt ) == "COND_GEQ") {
-                resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.condGeq);
+                resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.condGEq);
 
             } else if ( ( *constIt ) == "COUNT_INDEX") {
                 resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.countIndex);
@@ -546,7 +529,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuCondFromDB(
             << " COND_TYPE " << menuCond.condType
             << " GT_OBJECT_1 " << menuCond.gtObject1
             << " GT_OBJECT_2 " << menuCond.gtObject2
-            << " COND_GEQ " << menuCond.condGeq << "\n"
+            << " COND_GEQ " << menuCond.condGEq << "\n"
             << " COUNT_INDEX " << menuCond.countIndex
             << " COUNT_THRESHOLD " << menuCond.countThreshold << "\n"
             << " CHARGE_CORRELATION " << menuCond.chargeCorrelation << "\n"
@@ -562,7 +545,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuCondFromDB(
 
     }
 
-    if (edm::isDebugEnabled()) {
+    if (m_isDebugEnabled) {
         LogTrace("L1GtTriggerMenuConfigOnlineProd")
             << "\n Number of rows read from L1T_MENU_COND_VIEW: " << resultsMenuCondRows
             << std::endl;
@@ -585,7 +568,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuObjectParametersFromDB(
     const std::vector<std::string>& columnsMenuOp = m_omdsReader.columnNamesView(
             gtSchema, "L1T_MENU_OP_VIEW");
 
-    if (edm::isDebugEnabled()) {
+    if (m_isDebugEnabled) {
         LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n List of columns in L1T_MENU_OP_VIEW:\n"
                 << std::endl;
         for (std::vector<std::string>::const_iterator iter = columnsMenuOp.begin(); iter
@@ -649,10 +632,10 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuObjectParametersFromDB(
                 resultsMenuOp.fillVariableFromRow(*constIt, iRow, menuObjectParameters.phiRange);
 
             } else if ( ( *constIt ) == "PHI_LOW") {
-                resultsMenuOp.fillVariableFromRow(*constIt, iRow, menuObjectParameters.phiHigh);
+                resultsMenuOp.fillVariableFromRow(*constIt, iRow, menuObjectParameters.phiLow);
 
             } else if ( ( *constIt ) == "PHI_HIGH") {
-                resultsMenuOp.fillVariableFromRow(*constIt, iRow, menuObjectParameters.phiLow);
+                resultsMenuOp.fillVariableFromRow(*constIt, iRow, menuObjectParameters.phiHigh);
 
             } else if ( ( *constIt ) == "QUALITY_RANGE") {
                 resultsMenuOp.fillVariableFromRow(*constIt, iRow, menuObjectParameters.qualityRange);
@@ -678,8 +661,8 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuObjectParametersFromDB(
             << " ET_THRESHOLD " << menuObjectParameters.etThreshold
             << " ETA_RANGE " << menuObjectParameters.etaRange
             << " PHI_RANGE " << menuObjectParameters.phiRange
-            << " PHI_LOW " << menuObjectParameters.phiHigh
-            << " PHI_HIGH " << menuObjectParameters.phiLow
+            << " PHI_LOW " << menuObjectParameters.phiLow
+            << " PHI_HIGH " << menuObjectParameters.phiHigh
             << " QUALITY_RANGE " << menuObjectParameters.qualityRange
             << " CHARGE " << menuObjectParameters.charge
             << std::endl;
@@ -687,7 +670,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuObjectParametersFromDB(
         m_tableMenuObjectParameters.push_back(menuObjectParameters);
     }
 
-    if (edm::isDebugEnabled()) {
+    if (m_isDebugEnabled) {
         LogTrace("L1GtTriggerMenuConfigOnlineProd")
                 << "\n Number of rows read from L1T_MENU_OP_VIEW: " << resultsMenuOpRows
                 << std::endl;
@@ -697,5 +680,1126 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuObjectParametersFromDB(
     return true;
 
 }
+
+// return for an algorithm with bitNr the mapping between the integer index in logical expression
+// and the condition name (FK)
+const std::map<int, std::string> L1GtTriggerMenuConfigOnlineProd::condIndexNameMap(
+        const short bitNr) const {
+
+    std::map<int, std::string> mapIndexName;
+
+    for (std::vector<TableMenuAlgoCond>::const_iterator constIt = m_tableMenuAlgoCond.begin(); constIt
+            != m_tableMenuAlgoCond.end(); ++constIt) {
+
+        if (bitNr == (*constIt).bitNumberSh) {
+            mapIndexName[static_cast<int>((*constIt).condIndexF)] = (*constIt).condFK;
+        }
+
+    }
+
+    if (m_isDebugEnabled) {
+
+        LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Bit number : " << bitNr << std::endl;
+
+        for (std::map<int, std::string>::const_iterator constIt = mapIndexName.begin(); constIt
+                != mapIndexName.end(); ++constIt) {
+
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << "  Condition index -> name: "
+                    << ( ( *constIt ).first ) << " " << ( ( *constIt ).second ) << std::endl;
+
+        }
+
+    }
+
+
+    return mapIndexName;
+
+}
+
+// convert a logical expression with indices to a logical expression with names
+std::string L1GtTriggerMenuConfigOnlineProd::convertLogicalExpression(
+        const std::string& expressionIndices, const std::map<int, std::string>& mapCondIndexName) const {
+
+    std::string expressionNames;
+
+    L1GtLogicParser parserIndices = L1GtLogicParser(expressionIndices);
+    parserIndices.convertIntToNameLogicalExpression(mapCondIndexName);
+    expressionNames = parserIndices.logicalExpression();
+
+    return expressionNames;
+
+}
+
+// return the chip number for an algorithm with index bitNumberSh
+int L1GtTriggerMenuConfigOnlineProd::chipNumber(short bitNumberSh) const {
+
+    // FIXME get it from Event Setup
+    const unsigned numberConditionChips = 2;
+    const unsigned pinsOnConditionChip = 96;
+    std::vector<int> orderConditionChip;
+    orderConditionChip.push_back(2);
+    orderConditionChip.push_back(1);
+
+    int posChip = ( static_cast<unsigned> (bitNumberSh) / pinsOnConditionChip ) + 1;
+    for (unsigned int iChip = 0; iChip < numberConditionChips; ++iChip) {
+        if (posChip == orderConditionChip[iChip]) {
+            return static_cast<int>(iChip);
+        }
+    }
+
+    // chip number not found
+    return -1;
+
+}
+
+// build the algorithm map in the menu
+void L1GtTriggerMenuConfigOnlineProd::buildAlgorithmMap() {
+
+
+     // temporary value
+    int bitNumber = -1;
+    std::string logicalExpression;
+
+    // loop over m_tableMenuAlgo
+    for (std::vector<TableMenuAlgo>::const_iterator constIt = m_tableMenuAlgo.begin(); constIt
+            != m_tableMenuAlgo.end(); constIt++) {
+
+        bitNumber = static_cast<int> ((*constIt).bitNumberSh);
+
+        const std::map<int, std::string>& condIndexName = condIndexNameMap((*constIt).bitNumberSh);
+        logicalExpression = convertLogicalExpression((*constIt).logExpression, condIndexName);
+
+        // create a new algorithm and insert it into algorithm map
+        L1GtAlgorithm alg((*constIt).algName, logicalExpression, bitNumber);
+        alg.setAlgoAlias((*constIt).algAlias);
+
+        // set algorithm chip number:
+        int algChipNr = chipNumber((*constIt).bitNumberSh);
+        alg.setAlgoChipNumber(algChipNr);
+
+        // insert algorithm
+        m_algorithmMap[(*constIt).algName] = alg;
+        m_algorithmAliasMap[(*constIt).algAlias] = alg;
+
+    }
+
+}
+
+L1GtConditionCategory L1GtTriggerMenuConfigOnlineProd::strToEnumCondCategory(
+        const std::string& strCategory) {
+
+    if (strCategory == "CondMuon") {
+        return CondMuon;
+    } else if (strCategory == "CondCalo") {
+        return CondCalo;
+    } else if (strCategory == "CondEnergySum") {
+        return CondEnergySum;
+    } else if (strCategory == "CondJetCounts") {
+        return CondJetCounts;
+    } else if (strCategory == "CondCorrelation") {
+        return CondCorrelation;
+    } else if (strCategory == "CondCastor") {
+        return CondCastor;
+    } else if (strCategory == "CondHfBitCounts") {
+        return CondHfBitCounts;
+    } else if (strCategory == "CondHfRingEtSums") {
+        return CondHfRingEtSums;
+    } else if (strCategory == "CondBptx") {
+        return CondBptx;
+    } else if (strCategory == "CondNull") {
+        return CondNull;
+    } else {
+        LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Warning: string " << strCategory
+                << " not defined. Returning CondNull.\n" << std::endl;
+        return CondNull;
+    }
+
+    return CondNull;
+
+}
+
+// string to enum L1GtConditionType conversion
+L1GtConditionType L1GtTriggerMenuConfigOnlineProd::strToEnumCondType(const std::string& strType) {
+
+    if (strType == "1s") {
+        return Type1s;
+    } else if (strType == "2s") {
+        return Type2s;
+    } else if (strType == "2wsc") {
+        return Type2wsc;
+    } else if (strType == "3s") {
+        return Type3s;
+    } else if (strType == "4s") {
+        return Type4s;
+    } else if (strType == "ETM") {
+        return TypeETM;
+    } else if (strType == "ETT") {
+        return TypeETT;
+    } else if (strType == "HTT") {
+        return TypeHTT;
+    } else if (strType == "HTM") {
+        return TypeHTM;
+    } else if (strType == "JetCounts") {
+        return TypeJetCounts;
+    } else if (strType == "Castor") {
+        return TypeCastor;
+    } else if (strType == "HfBitCounts") {
+        return TypeHfBitCounts;
+    } else if (strType == "HfRingEtSums") {
+        return TypeHfRingEtSums;
+    } else if (strType == "Bptx") {
+        return TypeBptx;
+    } else {
+        LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Warning: string " << strType
+                << " not associated to any L1GtConditionType. Returning TypeNull.\n" << std::endl;
+        return TypeNull;
+    }
+
+    return TypeNull;
+
+}
+
+// string to enum L1GtObject conversion
+L1GtObject L1GtTriggerMenuConfigOnlineProd::strToEnumL1GtObject(const std::string& strObject) {
+
+    if (strObject == "Mu") {
+        return Mu;
+    } else if (strObject == "NoIsoEG") {
+        return NoIsoEG;
+    } else if (strObject == "IsoEG") {
+        return IsoEG;
+    } else if (strObject == "CenJet") {
+        return CenJet;
+    } else if (strObject == "ForJet") {
+        return ForJet;
+    } else if (strObject == "TauJet") {
+        return TauJet;
+    } else if (strObject == "ETM") {
+        return ETM;
+    } else if (strObject == "ETT") {
+        return ETT;
+    } else if (strObject == "HTT") {
+        return HTT;
+    } else if (strObject == "HTM") {
+        return HTM;
+    } else if (strObject == "JetCounts") {
+        return JetCounts;
+    } else if (strObject == "HfBitCounts") {
+        return HfBitCounts;
+    } else if (strObject == "HfRingEtSums") {
+        return HfRingEtSums;
+    } else if (strObject == "TechTrig") {
+        return TechTrig;
+    } else if (strObject == "Castor") {
+        return Castor;
+    } else if (strObject == "BPTX") {
+        return BPTX;
+    } else {
+        LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Warning: string " << strObject
+                << " not associated to any L1GtObject. Returning Mu (no Null type).\n" << std::endl;
+        return Mu;
+    }
+
+    // no null type, so returning Mu - should never arrive here
+    return Mu;
+
+}
+
+void L1GtTriggerMenuConfigOnlineProd::splitHexStringInTwo64bitWords(
+        const std::string& hexStr, std::string& hex0WordStr, std::string& hex1WordStr) {
+
+    unsigned int lenHexStr = hexStr.length();
+
+    if (lenHexStr < 3) {
+        LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Warning: string " << hexStr
+                << " has length less than 3." << "\n Not possible to split it in two 64-bit words."
+                << "\n Return two zero strings." << std::endl;
+        hex0WordStr = "0x0";
+        hex1WordStr = "0x0";
+
+        return;
+    }
+
+    unsigned int lenHex = lenHexStr - 2;
+    unsigned int len0Word = lenHex > 16 ? 16 : lenHex;
+    unsigned int len1Word = lenHex - len0Word;
+
+    unsigned int pos0Word = lenHexStr - len0Word;
+    hex0WordStr = "0x" + hexStr.substr(pos0Word, len0Word);
+
+    if (len1Word > 0) {
+        unsigned int pos1Word = pos0Word - len1Word;
+        hex1WordStr = "0x" + hexStr.substr(pos1Word, len1Word);
+    } else {
+        hex1WordStr = "0x0";
+    }
+}
+
+// get a list of chip numbers from the m_tableMenuAlgoCond table for a condition
+std::list<int> L1GtTriggerMenuConfigOnlineProd::listChipNumber(const std::string& condFK) {
+
+    std::list<int> chipList;
+
+    // loop over m_tableMenuAlgoCond
+    for (std::vector<TableMenuAlgoCond>::const_iterator constIt = m_tableMenuAlgoCond.begin(); constIt
+            != m_tableMenuAlgoCond.end(); constIt++) {
+
+        if (condFK == ( *constIt ).condFK) {
+            int chipNr = chipNumber( ( *constIt ).bitNumberSh);
+            chipList.push_back(chipNr);
+        }
+    }
+
+    return chipList;
+
+}
+
+void L1GtTriggerMenuConfigOnlineProd::fillMuonObjectParameter(
+        const std::string& opFK, L1GtMuonTemplate::ObjectParameter& objPar) {
+
+    // loop over m_tableMenuCond
+    for (std::vector<TableMenuObjectParameters>::const_iterator constIt =
+            m_tableMenuObjectParameters.begin(); constIt != m_tableMenuObjectParameters.end(); constIt++) {
+
+        if (opFK == ( *constIt ).opId) {
+            objPar.ptHighThreshold = static_cast<unsigned int> ( ( *constIt ).ptHighThreshold);
+            objPar.ptLowThreshold = static_cast<unsigned int> ( ( *constIt ).ptLowThreshold);
+            objPar.enableMip = static_cast<bool> ( ( *constIt ).enableMip);
+            objPar.enableIso = static_cast<bool> ( ( *constIt ).enableIso);
+            objPar.requestIso = static_cast<bool> ( ( *constIt ).requestIso);
+            objPar.etaRange = lexical_cast_from_hex<unsigned long long>( ( *constIt ).etaRange);
+            objPar.phiHigh = static_cast<unsigned int> ( ( *constIt ).phiHigh);
+            objPar.phiLow = static_cast<unsigned int> ( ( *constIt ).phiLow);
+            objPar.qualityRange = lexical_cast_from_hex<unsigned int>( ( *constIt ).qualityRange);
+            //objPar.charge = static_cast<unsigned int> ( ( *constIt ).charge);
+
+            // can break after it is found - DB consistency
+            break;
+        }
+    }
+
+}
+
+void L1GtTriggerMenuConfigOnlineProd::addMuonCondition(const TableMenuCond& condDB) {
+
+
+    L1GtMuonTemplate muonCond(condDB.cond);
+    muonCond.setCondType(strToEnumCondType(condDB.condType));
+
+    // object types - all muons
+    int nrObj = muonCond.nrObjects();
+    std::vector<L1GtObject> objType(nrObj, Mu);
+    muonCond.setObjectType(objType);
+
+    muonCond.setCondGEq(condDB.condGEq);
+
+    // temporary storage of the parameters
+    std::vector<L1GtMuonTemplate::ObjectParameter> objParameter(nrObj);
+
+    for (int iObj = 0; iObj < nrObj; ++iObj) {
+        if (iObj == 0) {
+            fillMuonObjectParameter(condDB.objectParameter1FK, objParameter[iObj]);
+        } else if (iObj == 1) {
+            fillMuonObjectParameter(condDB.objectParameter2FK, objParameter[iObj]);
+        } else if (iObj == 2) {
+            fillMuonObjectParameter(condDB.objectParameter3FK, objParameter[iObj]);
+        } else if (iObj == 3) {
+            fillMuonObjectParameter(condDB.objectParameter4FK, objParameter[iObj]);
+        } else {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd")
+                    << "\n Warning: number of objects requested " << nrObj
+                    << " not available in DB." << "\n Maximum 4 object parameters implemented. \n"
+                    << std::endl;
+        }
+    }
+
+    L1GtMuonTemplate::CorrelationParameter corrParameter;
+    corrParameter.chargeCorrelation = static_cast<unsigned int> (condDB.chargeCorrelation);
+    if (muonCond.wsc()) {
+        corrParameter.deltaEtaRange = lexical_cast_from_hex<unsigned long long> (
+                condDB.deltaEtaRange);
+
+        std::string word0;
+        std::string word1;
+        splitHexStringInTwo64bitWords(condDB.deltaPhiRange, word0, word1);
+
+        corrParameter.deltaPhiRange0Word = lexical_cast_from_hex<unsigned long long> (word0);
+        corrParameter.deltaPhiRange1Word = lexical_cast_from_hex<unsigned long long> (word1);
+
+        corrParameter.deltaPhiMaxbits = 0; // FIXME check correlations
+    }
+
+    muonCond.setConditionParameter(objParameter, corrParameter);
+
+    // get chip number list
+    std::list<int> chipList = listChipNumber(condDB.cond);
+
+    // eliminate duplicates
+    chipList.sort();
+    chipList.unique();
+
+    // add the same condition once to every chip where required
+    for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+
+        muonCond.setCondChipNr(*itChip);
+
+        // no check for uniqueness - done by DB
+        ( m_vecMuonTemplate[*itChip] ).push_back(muonCond);
+
+        if (m_isDebugEnabled) {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Adding condition " << ( condDB.cond )
+                    << " on chip " << ( *itChip ) << "\n " << std::endl;
+
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << muonCond << "\n" << std::endl;
+        }
+    }
+
+}
+
+void L1GtTriggerMenuConfigOnlineProd::fillCaloObjectParameter(
+        const std::string& opFK, L1GtCaloTemplate::ObjectParameter& objPar) {
+
+    // loop over m_tableMenuCond
+    for (std::vector<TableMenuObjectParameters>::const_iterator constIt =
+            m_tableMenuObjectParameters.begin(); constIt != m_tableMenuObjectParameters.end(); constIt++) {
+
+        if (opFK == ( *constIt ).opId) {
+            objPar.etThreshold = static_cast<unsigned int> ( ( *constIt ).etThreshold);
+            objPar.etaRange = lexical_cast_from_hex<unsigned int> ( ( *constIt ).etaRange);
+            objPar.phiRange = lexical_cast_from_hex<unsigned int> ( ( *constIt ).phiRange);
+
+            // can break after it is found - DB consistency
+            break;
+        }
+    }
+
+}
+
+void L1GtTriggerMenuConfigOnlineProd::addCaloCondition(const TableMenuCond& condDB) {
+
+    L1GtCaloTemplate caloCond(condDB.cond);
+    caloCond.setCondType(strToEnumCondType(condDB.condType));
+
+    // object types - all have the same type, so reading it for first object is OK
+    int nrObj = caloCond.nrObjects();
+
+    L1GtObject obj = strToEnumL1GtObject(condDB.gtObject1);
+    std::vector<L1GtObject> objType(nrObj, obj);
+    caloCond.setObjectType(objType);
+
+    caloCond.setCondGEq(condDB.condGEq);
+
+    // temporary storage of the parameters
+    std::vector<L1GtCaloTemplate::ObjectParameter> objParameter(nrObj);
+
+    for (int iObj = 0; iObj < nrObj; ++iObj) {
+        if (iObj == 0) {
+            fillCaloObjectParameter(condDB.objectParameter1FK, objParameter[iObj]);
+        } else if (iObj == 1) {
+            fillCaloObjectParameter(condDB.objectParameter2FK, objParameter[iObj]);
+        } else if (iObj == 2) {
+            fillCaloObjectParameter(condDB.objectParameter3FK, objParameter[iObj]);
+        } else if (iObj == 3) {
+            fillCaloObjectParameter(condDB.objectParameter4FK, objParameter[iObj]);
+        } else {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd")
+                    << "\n Warning: number of objects requested " << nrObj
+                    << " not available in DB." << "\n Maximum 4 object parameters implemented. \n"
+                    << std::endl;
+        }
+    }
+
+    L1GtCaloTemplate::CorrelationParameter corrParameter;
+    if (caloCond.wsc()) {
+        corrParameter.deltaEtaRange = lexical_cast_from_hex<unsigned long long> (
+                condDB.deltaEtaRange);
+
+        corrParameter.deltaPhiRange = lexical_cast_from_hex<unsigned long long> (
+                condDB.deltaPhiRange);
+        corrParameter.deltaPhiMaxbits = 0; // FIXME check correlations
+    }
+
+    caloCond.setConditionParameter(objParameter, corrParameter);
+
+    // get chip number list
+    std::list<int> chipList = listChipNumber(condDB.cond);
+
+    // eliminate duplicates
+    chipList.sort();
+    chipList.unique();
+
+    // add the same condition once to every chip where required
+    for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+
+        caloCond.setCondChipNr(*itChip);
+
+        // no check for uniqueness - done by DB
+        ( m_vecCaloTemplate[*itChip] ).push_back(caloCond);
+
+        if (m_isDebugEnabled) {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Adding condition " << ( condDB.cond )
+                    << " on chip " << ( *itChip ) << "\n " << std::endl;
+
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << caloCond << "\n" << std::endl;
+        }
+    }
+
+}
+
+void L1GtTriggerMenuConfigOnlineProd::fillEnergySumObjectParameter(
+        const std::string& opFK, L1GtEnergySumTemplate::ObjectParameter& objPar,
+        const L1GtObject& obj) {
+
+    // loop over m_tableMenuCond
+    for (std::vector<TableMenuObjectParameters>::const_iterator constIt =
+            m_tableMenuObjectParameters.begin(); constIt != m_tableMenuObjectParameters.end(); constIt++) {
+
+        if (opFK == ( *constIt ).opId) {
+            objPar.etThreshold = static_cast<unsigned int> ( ( *constIt ).etThreshold);
+            objPar.energyOverflow = static_cast<bool> ( ( *constIt ).energyOverflow); // not used
+
+            std::string word0;
+            std::string word1;
+            splitHexStringInTwo64bitWords( ( *constIt ).phiRange, word0, word1);
+
+            if (obj == ETM) {
+                objPar.phiRange0Word = lexical_cast_from_hex<unsigned long long> (word0);
+                objPar.phiRange1Word = lexical_cast_from_hex<unsigned long long> (word1);
+
+            } else if (obj == HTM) {
+                objPar.phiRange0Word = lexical_cast_from_hex<unsigned long long> (word0);
+            }
+
+            // can break after it is found - DB consistency
+            break;
+        }
+    }
+
+}
+
+void L1GtTriggerMenuConfigOnlineProd::addEnergySumCondition(const TableMenuCond& condDB) {
+
+    L1GtEnergySumTemplate esumCond(condDB.cond);
+    esumCond.setCondType(strToEnumCondType(condDB.condType));
+
+    // object types - all energy sums are global - so 1 object
+    int nrObj = 1;
+
+    L1GtObject obj = strToEnumL1GtObject(condDB.gtObject1);
+    std::vector<L1GtObject> objType(nrObj, obj);
+    esumCond.setObjectType(objType);
+
+    esumCond.setCondGEq(condDB.condGEq);
+
+    // temporary storage of the parameters - no CorrelationParameter
+    std::vector<L1GtEnergySumTemplate::ObjectParameter> objParameter(nrObj);
+    fillEnergySumObjectParameter(condDB.objectParameter1FK, objParameter[0], objType[0]);
+
+    esumCond.setConditionParameter(objParameter);
+
+    // get chip number list
+    std::list<int> chipList = listChipNumber(condDB.cond);
+
+    // eliminate duplicates
+    chipList.sort();
+    chipList.unique();
+
+    // add the same condition once to every chip where required
+    for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+
+        esumCond.setCondChipNr(*itChip);
+
+        // no check for uniqueness - done by DB
+        ( m_vecEnergySumTemplate[*itChip] ).push_back(esumCond);
+
+        if (m_isDebugEnabled) {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Adding condition " << ( condDB.cond )
+                    << " on chip " << ( *itChip ) << "\n " << std::endl;
+
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << esumCond << "\n" << std::endl;
+        }
+    }
+
+}
+
+
+void L1GtTriggerMenuConfigOnlineProd::addJetCountsCondition(const TableMenuCond& condDB) {
+
+    L1GtJetCountsTemplate jcCond(condDB.cond);
+    jcCond.setCondType(strToEnumCondType(condDB.condType));
+
+    // object types - jet counts are "global"
+    int nrObj = 1;
+
+    L1GtObject obj = strToEnumL1GtObject(condDB.gtObject1);
+    std::vector<L1GtObject> objType(nrObj, obj);
+    jcCond.setObjectType(objType);
+
+    jcCond.setCondGEq(condDB.condGEq);
+
+    // temporary storage of the parameters - no CorrelationParameter
+    // for counts, the DB implementation is without OP, directly in TableMenuCond
+    std::vector<L1GtJetCountsTemplate::ObjectParameter> objParameter(nrObj);
+    objParameter.at(0).countIndex = static_cast<unsigned int>(condDB.countIndex);
+    objParameter.at(0).countThreshold = static_cast<unsigned int>(condDB.countThreshold);
+    objParameter.at(0).countOverflow = false ; // not used
+
+    jcCond.setConditionParameter(objParameter);
+
+    // get chip number list
+    std::list<int> chipList = listChipNumber(condDB.cond);
+
+    // eliminate duplicates
+    chipList.sort();
+    chipList.unique();
+
+    // add the same condition once to every chip where required
+    for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+
+        jcCond.setCondChipNr(*itChip);
+
+        // no check for uniqueness - done by DB
+        ( m_vecJetCountsTemplate[*itChip] ).push_back(jcCond);
+
+        if (m_isDebugEnabled) {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Adding condition " << ( condDB.cond )
+                    << " on chip " << ( *itChip ) << "\n " << std::endl;
+
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << jcCond << "\n" << std::endl;
+        }
+    }
+
+}
+
+void L1GtTriggerMenuConfigOnlineProd::addHfBitCountsCondition(const TableMenuCond& condDB) {
+
+    L1GtHfBitCountsTemplate countsCond(condDB.cond);
+    countsCond.setCondType(strToEnumCondType(condDB.condType));
+
+    // object types - HF bit counts are "global"
+    int nrObj = 1;
+
+    L1GtObject obj = strToEnumL1GtObject(condDB.gtObject1);
+    std::vector<L1GtObject> objType(nrObj, obj);
+    countsCond.setObjectType(objType);
+
+    countsCond.setCondGEq(condDB.condGEq);
+
+    // temporary storage of the parameters - no CorrelationParameter
+    // for counts, the DB implementation is without OP, directly in TableMenuCond
+    std::vector<L1GtHfBitCountsTemplate::ObjectParameter> objParameter(nrObj);
+    objParameter.at(0).countIndex = static_cast<unsigned int>(condDB.countIndex);
+    objParameter.at(0).countThreshold = static_cast<unsigned int>(condDB.countThreshold);
+
+    countsCond.setConditionParameter(objParameter);
+
+    // get chip number list
+    std::list<int> chipList = listChipNumber(condDB.cond);
+
+    // eliminate duplicates
+    chipList.sort();
+    chipList.unique();
+
+    // add the same condition once to every chip where required
+    for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+
+        countsCond.setCondChipNr(*itChip);
+
+        // no check for uniqueness - done by DB
+        ( m_vecHfBitCountsTemplate[*itChip] ).push_back(countsCond);
+
+        if (m_isDebugEnabled) {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Adding condition " << ( condDB.cond )
+                    << " on chip " << ( *itChip ) << "\n " << std::endl;
+
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << countsCond << "\n" << std::endl;
+        }
+    }
+
+}
+
+void L1GtTriggerMenuConfigOnlineProd::addHfRingEtSumsCondition(const TableMenuCond& condDB) {
+
+    L1GtHfRingEtSumsTemplate esumCond(condDB.cond);
+    esumCond.setCondType(strToEnumCondType(condDB.condType));
+
+    // object types - HF energy sums are "global"
+    int nrObj = 1;
+
+    L1GtObject obj = strToEnumL1GtObject(condDB.gtObject1);
+    std::vector<L1GtObject> objType(nrObj, obj);
+    esumCond.setObjectType(objType);
+
+    esumCond.setCondGEq(condDB.condGEq);
+
+    // temporary storage of the parameters - no CorrelationParameter
+    // for HF energy sums, the DB implementation is without OP, directly in TableMenuCond
+    std::vector<L1GtHfRingEtSumsTemplate::ObjectParameter> objParameter(nrObj);
+    objParameter.at(0).etSumIndex = static_cast<unsigned int>(condDB.countIndex);
+    objParameter.at(0).etSumThreshold = static_cast<unsigned int>(condDB.countThreshold);
+
+    esumCond.setConditionParameter(objParameter);
+
+    // get chip number list
+    std::list<int> chipList = listChipNumber(condDB.cond);
+
+    // eliminate duplicates
+    chipList.sort();
+    chipList.unique();
+
+    // add the same condition once to every chip where required
+    for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+
+        esumCond.setCondChipNr(*itChip);
+
+        // no check for uniqueness - done by DB
+        ( m_vecHfRingEtSumsTemplate[*itChip] ).push_back(esumCond);
+
+        if (m_isDebugEnabled) {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Adding condition " << ( condDB.cond )
+                    << " on chip " << ( *itChip ) << "\n " << std::endl;
+
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << esumCond << "\n" << std::endl;
+        }
+    }
+
+}
+
+void L1GtTriggerMenuConfigOnlineProd::addCastorCondition(const TableMenuCond& condDB) {
+
+    L1GtCastorTemplate castorCond(condDB.cond);
+    castorCond.setCondType(strToEnumCondType(condDB.condType));
+
+    // object types - logical conditions have no objects associated in GT
+    // one put however a "Castor" object type
+    int nrObj = 1;
+
+    L1GtObject obj = strToEnumL1GtObject(condDB.gtObject1);
+    std::vector<L1GtObject> objType(nrObj, obj);
+    castorCond.setObjectType(objType);
+
+    // irrelevant, set to false for completeness
+    castorCond.setCondGEq(false);
+
+    // logical conditions have no ObjectParameter, no CorrelationParameter
+
+    // get chip number list
+    std::list<int> chipList = listChipNumber(condDB.cond);
+
+    // eliminate duplicates
+    chipList.sort();
+    chipList.unique();
+
+    // add the same condition once to every chip where required
+    for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+
+        castorCond.setCondChipNr(*itChip);
+
+        // no check for uniqueness - done by DB
+        ( m_vecCastorTemplate[*itChip] ).push_back(castorCond);
+
+        if (m_isDebugEnabled) {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Adding condition " << ( condDB.cond )
+                    << " on chip " << ( *itChip ) << "\n " << std::endl;
+
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << castorCond << "\n" << std::endl;
+        }
+    }
+
+}
+
+void L1GtTriggerMenuConfigOnlineProd::addBptxCondition(const TableMenuCond& condDB) {
+
+    L1GtBptxTemplate bptxCond(condDB.cond);
+    bptxCond.setCondType(strToEnumCondType(condDB.condType));
+
+    // object types - logical conditions have no objects associated in GT
+    // one put however a "Bptx" object type
+    int nrObj = 1;
+
+    L1GtObject obj = strToEnumL1GtObject(condDB.gtObject1);
+    std::vector<L1GtObject> objType(nrObj, obj);
+    bptxCond.setObjectType(objType);
+
+    // irrelevant, set to false for completeness
+    bptxCond.setCondGEq(false);
+
+    // logical conditions have no ObjectParameter, no CorrelationParameter
+
+    // get chip number list
+    std::list<int> chipList = listChipNumber(condDB.cond);
+
+
+
+    // eliminate duplicates
+    chipList.sort();
+    chipList.unique();
+
+    // add the same condition once to every chip where required
+    for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+
+        bptxCond.setCondChipNr(*itChip);
+
+        // no check for uniqueness - done by DB
+        ( m_vecBptxTemplate[*itChip] ).push_back(bptxCond);
+
+        if (m_isDebugEnabled) {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Adding condition " << ( condDB.cond )
+                    << " on chip " << ( *itChip ) << "\n " << std::endl;
+
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << bptxCond << "\n" << std::endl;
+        }
+    }
+
+}
+
+
+void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCond& condDB) {
+
+    // create a new correlation condition
+    L1GtCorrelationTemplate correlationCond(condDB.cond);
+    correlationCond.setCondType(strToEnumCondType(condDB.condType));
+
+    // two objects (for sure) - type taken from DB
+    const int nrObj = 2;
+
+    std::vector<L1GtObject> objType(nrObj);
+    L1GtObject obj = strToEnumL1GtObject(condDB.gtObject1);
+    objType[0] = obj;
+
+    obj = strToEnumL1GtObject(condDB.gtObject2);
+    objType[1] = obj;
+
+    correlationCond.setObjectType(objType);
+
+    // get chip number list, eliminate duplicates
+    std::list<int> chipList = listChipNumber(condDB.cond);
+    chipList.sort();
+    chipList.unique();
+
+    // temporary vectors for sub-conditions
+    std::vector<L1GtConditionCategory> subcondCategory(nrObj);
+    std::vector<int> subcondIndex(nrObj);
+
+    bool wrongSubcondition = false;
+
+    for (int iObj = 0; iObj < nrObj; ++iObj) {
+
+        L1GtObject gtObj = objType[iObj];
+
+        // sub-conditions (all have the same condGEq as the correlation condition).
+        switch (gtObj) {
+            case Mu: {
+                subcondCategory.push_back(CondMuon);
+
+                // temporary storage of the parameters
+                std::vector<L1GtMuonTemplate::ObjectParameter> objParameter(1);
+
+                std::string subcondName;
+                if (iObj == 0) {
+                    fillMuonObjectParameter(condDB.objectParameter1FK, objParameter[0]);
+                    subcondName = condDB.objectParameter1FK;
+                } else if (iObj == 1) {
+                    subcondName = condDB.objectParameter2FK;
+                    fillMuonObjectParameter(condDB.objectParameter2FK, objParameter[0]);
+                }
+
+                L1GtMuonTemplate::CorrelationParameter corrPar; //  dummy
+
+                L1GtMuonTemplate subcond(subcondName, Type1s);
+                subcond.setCondGEq(condDB.condGEq);
+                subcond.setObjectType(std::vector<L1GtObject> (1, gtObj));
+                subcond.setConditionParameter(objParameter, corrPar);
+
+                // add the same sub-condition once to every chip where required
+                for (std::list<int>::const_iterator itChip = chipList.begin(); itChip
+                        != chipList.end(); ++itChip) {
+
+                    subcond.setCondChipNr(*itChip);
+
+                    // index
+                    subcondIndex[iObj] = ( m_corMuonTemplate[*itChip] ).size() - 1;
+
+                    // no check for uniqueness - done by DB
+                    ( m_corMuonTemplate[*itChip] ).push_back(subcond);
+
+                    if (m_isDebugEnabled) {
+                        LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Adding condition "
+                                << ( condDB.cond ) << " on chip " << ( *itChip ) << "\n "
+                                << std::endl;
+
+                        LogTrace("L1GtTriggerMenuConfigOnlineProd") << subcond << "\n" << std::endl;
+                    }
+                }
+
+            }
+                break;
+
+            case IsoEG:
+            case NoIsoEG:
+            case CenJet:
+            case ForJet:
+            case TauJet: {
+
+                subcondCategory.push_back(CondCalo);
+
+                // temporary storage of the parameters
+                std::vector<L1GtCaloTemplate::ObjectParameter> objParameter(1);
+
+                std::string subcondName;
+                if (iObj == 0) {
+                    fillCaloObjectParameter(condDB.objectParameter1FK, objParameter[0]);
+                    subcondName = condDB.objectParameter1FK;
+                } else if (iObj == 1) {
+                    subcondName = condDB.objectParameter2FK;
+                    fillCaloObjectParameter(condDB.objectParameter2FK, objParameter[0]);
+                }
+
+                L1GtCaloTemplate::CorrelationParameter corrPar; //  dummy
+
+                L1GtCaloTemplate subcond(subcondName, Type1s);
+                subcond.setCondGEq(condDB.condGEq);
+                subcond.setObjectType(std::vector<L1GtObject> (1, gtObj));
+                subcond.setConditionParameter(objParameter, corrPar);
+
+                // add the same sub-condition once to every chip where required
+                for (std::list<int>::const_iterator itChip = chipList.begin(); itChip
+                        != chipList.end(); ++itChip) {
+
+                    subcond.setCondChipNr(*itChip);
+
+                    // index
+                    subcondIndex[iObj] = ( m_corCaloTemplate[*itChip] ).size() - 1;
+
+                    // no check for uniqueness - done by DB
+                    ( m_corCaloTemplate[*itChip] ).push_back(subcond);
+
+                    if (m_isDebugEnabled) {
+                        LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Adding condition "
+                                << ( condDB.cond ) << " on chip " << ( *itChip ) << "\n "
+                                << std::endl;
+
+                        LogTrace("L1GtTriggerMenuConfigOnlineProd") << subcond << "\n" << std::endl;
+                    }
+                }
+            }
+                break;
+
+            case ETM:
+            case HTM: {
+
+                subcondCategory.push_back(CondEnergySum);
+
+                // temporary storage of the parameters
+                std::vector<L1GtEnergySumTemplate::ObjectParameter> objParameter(1);
+
+                std::string subcondName;
+                if (iObj == 0) {
+                    fillEnergySumObjectParameter(condDB.objectParameter1FK, objParameter[0], gtObj);
+                    subcondName = condDB.objectParameter1FK;
+                } else if (iObj == 1) {
+                    subcondName = condDB.objectParameter2FK;
+                    fillEnergySumObjectParameter(condDB.objectParameter2FK, objParameter[0], gtObj);
+                }
+
+                L1GtConditionType condType;
+
+                switch (gtObj) {
+                    case ETM: {
+                        condType = TypeETM;
+                    }
+                        break;
+                    case HTM: {
+                        condType = TypeHTM;
+                    }
+                        break;
+                    default: {
+                        LogTrace("L1GtTriggerMenuConfigOnlineProd")
+                                << "\n Warning: wrong L1GtConditionType " << gtObj << std::endl;
+
+                    }
+                        break;
+                }
+
+                L1GtEnergySumTemplate subcond(subcondName, condType);
+                subcond.setCondGEq(condDB.condGEq);
+                subcond.setObjectType(std::vector<L1GtObject> (1, gtObj));
+                subcond.setConditionParameter(objParameter);
+
+                // add the same sub-condition once to every chip where required
+                for (std::list<int>::const_iterator itChip = chipList.begin(); itChip
+                        != chipList.end(); ++itChip) {
+
+                    subcond.setCondChipNr(*itChip);
+
+                    // index
+                    subcondIndex[iObj] = ( m_corEnergySumTemplate[*itChip] ).size() - 1;
+
+                    // no check for uniqueness - done by DB
+                    ( m_corEnergySumTemplate[*itChip] ).push_back(subcond);
+
+                    if (m_isDebugEnabled) {
+                        LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Adding condition "
+                                << ( condDB.cond ) << " on chip " << ( *itChip ) << "\n "
+                                << std::endl;
+
+                        LogTrace("L1GtTriggerMenuConfigOnlineProd") << subcond << "\n" << std::endl;
+                    }
+                }
+            }
+                break;
+            case ETT:
+            case HTT:
+            case JetCounts:
+            case HfBitCounts:
+            case HfRingEtSums:
+            case Castor:
+            case BPTX:
+            case TechTrig: {
+                wrongSubcondition = true;
+                LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Warning: correlation condition "
+                        << ( condDB.cond ) << " with invalid sub-condition object type " << gtObj
+                        << "\n Condition ignored!" << std::endl;
+            }
+            default: {
+                wrongSubcondition = true;
+                LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Warning: correlation condition "
+                        << ( condDB.cond ) << " with invalid sub-condition object type " << gtObj
+                        << "\n Condition ignored!" << std::endl;
+
+                //
+
+            }
+                break;
+        }
+
+    }
+
+    if (wrongSubcondition) {
+        LogTrace("L1GtTriggerMenuConfigOnlineProd")
+                << "\n Warning: wrong sub-condition for correlation condition " << ( condDB.cond )
+                << "\n Condition not inserted in menu. \n A sub-condition may be left in the menu"
+                << std::endl;
+        return;
+
+    }
+
+    // get the correlation parameters for the correlation condition (std::string)
+    L1GtCorrelationTemplate::CorrelationParameter corrParameter;
+    corrParameter.deltaEtaRange = condDB.deltaEtaRange;
+    corrParameter.deltaPhiRange = condDB.deltaPhiRange;
+
+    // set condition categories
+    correlationCond.setCond0Category(subcondCategory[0]);
+    correlationCond.setCond1Category(subcondCategory[1]);
+
+    // set condition indices in correlation vector
+    correlationCond.setCond0Index(subcondIndex[0]);
+    correlationCond.setCond1Index(subcondIndex[1]);
+
+    // set correlation parameter
+    corrParameter.deltaPhiMaxbits = 0; //  TODO
+    correlationCond.setCorrelationParameter(corrParameter);
+
+
+    // add the same condition once to every chip where required
+    for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+
+        correlationCond.setCondChipNr(*itChip);
+
+        // no check for uniqueness - done by DB
+        ( m_vecCorrelationTemplate[*itChip] ).push_back(correlationCond);
+
+        if (m_isDebugEnabled) {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Adding condition " << ( condDB.cond )
+                    << " on chip " << ( *itChip ) << "\n " << std::endl;
+
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << correlationCond << "\n" << std::endl;
+        }
+    }
+
+}
+
+
+
+// add the conditions from a menu to the corresponding list
+void L1GtTriggerMenuConfigOnlineProd::addConditions() {
+
+    // loop over m_tableMenuCond
+    for (std::vector<TableMenuCond>::const_iterator constIt = m_tableMenuCond.begin(); constIt
+            != m_tableMenuCond.end(); constIt++) {
+
+        L1GtConditionCategory conCategory = strToEnumCondCategory((*constIt).condCategory);
+
+        switch (conCategory) {
+            case CondMuon: {
+
+                addMuonCondition(*constIt);
+
+            }
+                break;
+            case CondCalo: {
+
+                addCaloCondition(*constIt);
+
+            }
+                break;
+            case CondEnergySum: {
+
+                addEnergySumCondition(*constIt);
+
+            }
+                break;
+            case CondJetCounts: {
+                addJetCountsCondition(*constIt);
+
+            }
+                break;
+            case CondHfBitCounts: {
+                addHfBitCountsCondition(*constIt);
+
+            }
+                break;
+            case CondHfRingEtSums: {
+                addHfRingEtSumsCondition(*constIt);
+
+            }
+                break;
+            case CondCastor: {
+
+                addCastorCondition(*constIt);
+
+            }
+                break;
+            case CondBptx: {
+
+                addBptxCondition(*constIt);
+
+            }
+                break;
+            case CondCorrelation: {
+
+                addCorrelationCondition(*constIt);
+
+            }
+                break;
+            case CondNull: {
+
+                // do nothing
+
+            }
+                break;
+            default: {
+
+                // do nothing
+
+            }
+                break;
+        }
+
+    }
+
+}
+
 
 DEFINE_FWK_EVENTSETUP_MODULE( L1GtTriggerMenuConfigOnlineProd);
