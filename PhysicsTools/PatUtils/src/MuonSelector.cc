@@ -75,7 +75,7 @@ MuonSelector::muIdSelection_( const unsigned int&    index,
                               const edm::View<Muon>& muons ) const
 {
   // MuonID algorithm
-  if ( muons[index].isGood(config_.flag))
+  if ( muon::isGoodMuon((muons[index]),config_.flag) )
     {
       return BAD;
     }

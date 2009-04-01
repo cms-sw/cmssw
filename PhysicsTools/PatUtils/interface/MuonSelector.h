@@ -14,7 +14,7 @@
     (An adapter exists for use in CMSSW: reco::modules::ParameterAdapter< pat::MuonSelector >.)
 
     \author F.J. Ronga (ETH Zurich)
-    \version $Id: MuonSelector.h,v 1.6 2008/04/11 12:25:42 zeidler Exp $
+    \version $Id: MuonSelector.h,v 1.7 2008/10/10 13:59:06 lowette Exp $
 */
 
 #include <string>
@@ -22,7 +22,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 #include "PhysicsTools/PatUtils/interface/ParticleCode.h"
-
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 namespace pat {
 
@@ -39,7 +39,7 @@ namespace pat {
 	
 	/// @name Option for "muId" selection type:
     //@{
-    reco::Muon::SelectionType flag;
+    muon::SelectionType flag;
 	double minCaloCompatibility;
 	double minSegmentCompatibility;
     //@}
