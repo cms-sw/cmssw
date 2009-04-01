@@ -1,5 +1,5 @@
 #include "RecoVertex/KinematicFit/interface/KinematicConstrainedVertexUpdator.h"
-#include "RecoVertex/VertexPrimitives/interface/VertexException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 KinematicConstrainedVertexUpdator::KinematicConstrainedVertexUpdator()
 { 
@@ -101,8 +101,13 @@ KinematicConstrainedVertexUpdator::update(const AlgebraicVector& inPar,
 
   int ifl1 = 0;
   v_g_sym.invert(ifl1);
-  if(ifl1 !=0) throw VertexException("KinematicConstrainedVertexFitter::unable to invert SYM gain matrix");
-   
+  if(ifl1 !=0) {
+    LogDebug("KinematicConstrainedVertexFitter")
+	<< "Fit failed: unable to invert SYM gain matrix\n";
+    return pair<pair<vector<KinematicState>, AlgebraicMatrix>, RefCountedKinematicVertex >(
+	pair<vector<KinematicState>, AlgebraicMatrix>(vector<KinematicState>(), AlgebraicMatrix(1,0)),
+	RefCountedKinematicVertex());	
+  }
  
 // delta alpha is now valid!
 //full math case now!

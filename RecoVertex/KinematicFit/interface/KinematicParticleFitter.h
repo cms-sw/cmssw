@@ -46,6 +46,7 @@ public:
  * initial state of the particle and
  * constraint applyed are stored in
  * particle's corresponding data memebers
+ * In case of failure, an empty vector is returned.
  */ 
 
  vector<RefCountedKinematicTree> fit(KinematicConstraint * cs , 
@@ -56,6 +57,7 @@ public:
  * Method refitting a top particle of the single tree.
  * for backup compatibility and constraints not allowing
  * multiple track refits.
+ * In case of failure, an invalid tree is returned.
  */
  RefCountedKinematicTree fit(KinematicConstraint * cs , 
                     RefCountedKinematicTree tree)const;

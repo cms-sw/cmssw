@@ -3,7 +3,7 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicStatePropagator.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicState.h"
 //#include "Vertex/KinematicFitPrimitives/interface/KinematicLinearizedTrackState.h"
-#include "RecoVertex/VertexPrimitives/interface/VertexException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 FinalTreeBuilder::FinalTreeBuilder()
 {
@@ -51,10 +51,9 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex<6>& vtx,
  {
   par(6) = sqrt(differ); 
  }else{ 
-  cout<<"warning! current precision does not allow to calculate the mass"<<endl;
-  throw VertexException("warning! current precision does not allow to calculate the mass");
-  
-  par(6) = 0.;
+   LogDebug("FinalTreeBuilder")
+	<< "Fit failed: Current precision does not allow to calculate the mass\n";
+   return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
  }
 
 // covariance matrix calculation: momentum-momentum components part (4x4)

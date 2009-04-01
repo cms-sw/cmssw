@@ -34,13 +34,6 @@ public:
                                    const GlobalPoint& lPoint,MultiTrackKinematicConstraint * cs)const;
  
 private:
-//Method calculating all vertex constraint - related parameters
-//To be moved later to the specific constraint class		
-/*
- pair<pair<AlgebraicMatrix, AlgebraicMatrix>, AlgebraicVector> 
-                    derivativesAndValue(const vector<KinematicState> states,
-                                              const GlobalPoint& point)const;
-*/
 				       
  KinematicVertexFactory * vFactory;
  VertexKinematicConstraint * vConstraint;			       	
