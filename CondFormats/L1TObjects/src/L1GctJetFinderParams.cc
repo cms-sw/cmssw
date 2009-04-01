@@ -266,7 +266,7 @@ std::ostream& operator << (std::ostream& os, const L1GctJetFinderParams& fn)
 {
   os << "=== Level-1 GCT : Jet Et Calibration Function  ===" << std::endl;
   os << std::setprecision(2);
-  os << "LSB for Ht scale is " << std::fixed << fn.getHtLsbGeV();
+  os << "LSB for Ht scale is " << std::fixed << fn.getHtLsbGeV() << " --- ";
   if (fn.getCorrType() == 0) {
     os << "No jet energy corrections applied" << std::endl;
   } else { 
