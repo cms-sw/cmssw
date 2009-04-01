@@ -11,8 +11,12 @@
 #include "TProfile.h"
 #include "TCanvas.h"
 #include "TLegend.h"
+#include "TF1.h"
 
 #include <iostream>
+#include <sstream>
+
+// #include "boost/lexical_cast.hpp"
 
 using namespace std;
 
@@ -56,6 +60,49 @@ void saveHistograms( TH1F * histo1, TH1F * histo2 )
   leg->Draw("same");
 }
 
+#include "TPaveText.h"
+/// Helper class holding a TPaveText for better formatting and predefined options
+class PaveText
+{
+ public:
+  PaveText(const double & textX = 0.7, const double & textY = 0.4 )
+  {
+    paveText_ = new TPaveText(textX, textY, textX+0.2, textY+0.17, "NDC");
+  }
+  void AddText(const TString & text)
+  {
+    paveText_->AddText(text);
+  }
+  void Draw(const TString & option)
+  {
+    paveText_->SetFillColor(0); // text is black on white
+    paveText_->SetTextSize(0.02);
+    paveText_->SetBorderSize(0);
+    paveText_->SetTextAlign(12);
+    paveText_->Draw(option);
+  }
+ protected:
+  TPaveText * paveText_;
+};
+
+/// Helper function to extract and format the text for the fitted parameters
+void getParameters( const TF1 * func, TString & fit1, TString & fit2 )
+{
+  stringstream a;
+  a << func->GetParameter(0);
+  // fit1 += boost::lexical_cast<string>(1);
+  fit1 += a.str() + "+-";
+  a.str("");
+  a << func->GetParError(0);
+  fit1 += a.str();
+  a.str("");
+  a << func->GetParameter(1);
+  fit2 += a.str() + "+-";
+  a.str("");
+  a << func->GetParError(1);
+  fit2 += a.str();
+}
+
 void CompareRecoGenPt( const TString & fileName1 = "0_MuScleFit.root",
                        const TString & fileName2 = "1_MuScleFit.root" )
 {
@@ -77,18 +124,54 @@ void CompareRecoGenPt( const TString & fileName1 = "0_MuScleFit.root",
   TH1F * rmsHisto2 = makeHistogram(profile2, "rms");
   for( int iBin = 1; iBin <= xBins; ++iBin ) {
     meanHisto1->SetBinContent( iBin, profile1->GetBinContent(iBin) );
+    meanHisto1->SetBinError( iBin, profile1->GetBinError(iBin) );
     meanHisto2->SetBinContent( iBin, profile2->GetBinContent(iBin) );
+    meanHisto2->SetBinError( iBin, profile2->GetBinError(iBin) );
     rmsHisto1->SetBinContent( iBin, profile1->GetBinError(iBin) );
     rmsHisto2->SetBinContent( iBin, profile2->GetBinError(iBin) );
   }
 
+  meanHisto1->Fit("pol1", "", "", 5, 100);
+  TF1 * func1 = meanHisto1->GetFunction("pol1");
+  func1->SetLineWidth(1);
+  meanHisto2->Fit("pol1", "", "", 5, 100);
+  TF1 * func2 = meanHisto2->GetFunction("pol1");
+  func2->SetLineWidth(1);
+  func2->SetLineColor(kRed);
+
   TCanvas * canvas = new TCanvas("before", "before corrections", 1000, 800);
-  canvas->Divide(2);
-  canvas->cd(1);
+  // canvas->Divide(2);
+  canvas->cd();
+  // canvas->cd(1);
+  // canvas->cd(2);
+  // saveHistograms(rmsHisto1, rmsHisto2);
   saveHistograms(meanHisto1, meanHisto2);
-  canvas->cd(2);
-  saveHistograms(rmsHisto1, rmsHisto2);
+  func1->Draw("same");
+  func2->Draw("same");
 
+  TString fit11("a = ");
+  TString fit12("b = ");
+  getParameters(func1, fit11, fit12);
+  PaveText pt(0.45, 0.15);
+  pt.AddText("before:");
+  pt.AddText(fit11);
+  pt.AddText(fit12);
+  pt.Draw("same");
 
+  TString fit21("a = ");
+  TString fit22("b = ");
+  getParameters(func2, fit21, fit22);
+  PaveText pt(0.65, 0.15);
+  pt.AddText("after:");
+  pt.AddText(fit21);
+  pt.AddText(fit22);
+  pt.Draw("same");
+  gStyle->SetOptStat(0);
 
+//   TLegend *leg = new TLegend(0.2,0.4,0.4,0.6);
+//   leg->SetFillColor(0);
+//   leg->AddEntry(func1,"fit of before","L");
+//   leg->AddEntry(func2,"fit of after","L");
+//   leg->Draw("same");
 }
+
