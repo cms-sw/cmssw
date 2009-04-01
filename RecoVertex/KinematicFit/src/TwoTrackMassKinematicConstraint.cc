@@ -6,13 +6,8 @@ AlgebraicVector  TwoTrackMassKinematicConstraint::value(const vector<KinematicSt
                         const GlobalPoint& point) const
 { 
  if(states.size()<2) throw VertexException("TwoTrackMassKinematicConstraint::<2 states passed");
- if(states[0].particleCharge() ==0. || states[1].particleCharge()==0) 
-         throw VertexException("TwoTrackMassKinematicConstraint:: 0 charge states passed");
+
  AlgebraicVector res(1,0);
-//  vector<KinematicState>::const_iterator i_st  = states.begin();
-//  KinematicState p_1 = *i_st;
-//  i_st++;
-//  KinematicState p_2 = *i_st;
  TrackCharge ch1 = states[0].particleCharge();
  TrackCharge ch2 = states[1].particleCharge();
  
@@ -50,8 +45,7 @@ AlgebraicMatrix TwoTrackMassKinematicConstraint::parametersDerivative(const vect
 {
  int n_st = states.size();
  if(n_st<2) throw VertexException("TwoTrackMassKinematicConstraint::<2 states passed");
- if(states[0].particleCharge()==0. || states[1].particleCharge()==0) 
-         throw VertexException("TwoTrackMassKinematicConstraint:: 0 charge states passed");
+
  AlgebraicMatrix res(1,n_st*7,0);
  
  vector<KinematicState>::const_iterator i_st  = states.begin();
@@ -119,8 +113,7 @@ AlgebraicMatrix TwoTrackMassKinematicConstraint::positionDerivative(const vector
 {
  AlgebraicMatrix res(1,3,0);
  if(states.size()<2) throw VertexException("TwoTrackMassKinematicConstraint::<2 states passed");
- if(states[0].particleCharge() ==0. || states[1].particleCharge() ==0) 
-         throw VertexException("TwoTrackMassKinematicConstraint:: 0 charge states passed");
+
  vector<KinematicState>::const_iterator i_st  = states.begin();
  KinematicState p_1 = *i_st;
  i_st++;
