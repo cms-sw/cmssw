@@ -18,6 +18,13 @@ using namespace std;
 /// Constructor and destructor
 
 gctTestHt::gctTestHt() {}
+gctTestHt::gctTestHt(const L1GctJetFinderParams* jfPars) :
+  m_bxStart(), m_numOfBx(1),
+  minusWheelJetDta(),
+  plusWheelJetData(),
+  m_jfPars(jfPars)
+{}
+
 gctTestHt::~gctTestHt() {}
 
 //=================================================================================================================
@@ -320,11 +327,13 @@ gctTestHt::rawJetData gctTestHt::rawJetFinderOutput(const L1GctJetFinderBase* jf
        jetList.push_back(*jet);
        unsigned etaBin = jet->rctEta();
        unsigned htJet   = jet->calibratedEt(lutsFromJf.at(etaBin));
-       if (htJet >= jf->getHttSumJetThreshold()) {
+       // Add to total Ht sum
+       if (htJet >= m_jfPars->getHtJetEtThresholdGct()) {
 	 sumHtt += htJet;
 	 sumHttOvrFlo |= (jet->overFlow());
        }
-       if (htJet >= jf->getHtmSumJetThreshold()) {
+       // Add to missing Ht sum
+       if (htJet >= m_jfPars->getMHtJetEtThresholdGct()) {
 	 if (jet->rctPhi() == 0) {
 	   sumHtStrip0 += htJet;
 	 }

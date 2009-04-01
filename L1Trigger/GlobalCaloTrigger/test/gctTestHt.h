@@ -21,6 +21,7 @@
 #include <vector>
 
 class L1GlobalCaloTrigger;
+class L1GctJetFinderParams;
 class L1GctJetLeafCard;
 class L1GctJetFinderBase;
 
@@ -46,6 +47,7 @@ public:
 
   // Constructor and destructor
   gctTestHt();
+  gctTestHt(const L1GctJetFinderParams* jfPars);
   ~gctTestHt();
 
   /// Set array sizes for the number of bunch crossings
@@ -68,6 +70,8 @@ private:
 
   std::vector<rawJetData> minusWheelJetDta;
   std::vector<rawJetData> plusWheelJetData;
+
+  const L1GctJetFinderParams* m_jfPars;
 
   int htComponent(const unsigned Emag0, const unsigned fact0,
 		  const unsigned Emag1, const unsigned fact1) const;
