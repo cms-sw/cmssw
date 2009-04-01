@@ -80,7 +80,7 @@ process.options = cms.untracked.PSet(
 #process.rpcClientSequence = cms.Sequence(process.dqmEnv*process.readMeFromFile*process.qTesterRPC*process.rpcdqmclient*process.rpcOccupancyTest*process.rpcNoise*process.rpcChamberQuality*process.rpcEventSummary*process.dqmSaver)
 
 
-process.p = cms.Path(process.readMeFromFile*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.rpcEventSummary*process.rpcDCSSummary*process.rpcDaqInfo*process.rpcDataCertification*process.rpcMonitorRaw*process.rpcFEDIntegrity*process.rpcMonitorLinkSynchro*process.dqmSaver)
+process.p = cms.Path(process.readMeFromFile*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.rpcEventSummary*process.rpcDCSSummary*process.rpcDaqInfo*process.rpcDataCertification*process.dqmSaver)
 
 
 
