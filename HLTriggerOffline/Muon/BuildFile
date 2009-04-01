@@ -4,6 +4,5 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/RecoCandidate>
 <use name=HLTrigger/HLTcore>
-<use name=Validation/Tools>
 <use name=root>
 <flags EDM_PLUGIN=1>

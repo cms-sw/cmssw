@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-HLTTopPostVal = cms.EDFilter("PostProcessor",
+HLTTopPostVal = cms.EDFilter("DQMGenericClient",
     subDirs        = cms.untracked.vstring('HLT/Top/'),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     outputFileName = cms.untracked.string(''),
