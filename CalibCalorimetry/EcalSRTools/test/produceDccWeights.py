@@ -20,7 +20,10 @@ process.eegeom = cms.ESSource("EmptyESSource",
 # a) Getting hardcoded conditions the same used for standard digitization:
 #process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
 # b) Getting conditions through frontier interface:
-# process.load("RecoLocalCalo.EcalRecProducers.getEcalConditions_frontier_cff")
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
+process.EcalTrivialConditionRetriever.producedEcalIntercalibConstants = True
+process.GlobalTag.globaltag = "CRAFT_ALL_V9::All"
 # c) Getiing conditions through oracle interface:
 #process.load("RecoLocalCalo.EcalRecProducers.getEcalConditions_orcoffint2r_cff")
 
