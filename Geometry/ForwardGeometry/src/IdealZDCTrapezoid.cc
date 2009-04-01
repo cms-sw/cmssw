@@ -13,34 +13,19 @@ namespace calogeom {
       const double dx ( pv[1] ) ;
       const double dy ( pv[2] ) ;
       const double dz ( pv[3] ) ;
+      const double ta ( tan( an ) ) ;
+      const double dt ( dy*ta ) ;
 
-      std::vector<GlobalPoint> gc ( 8, GlobalPoint(0,0,0) ) ;
       std::vector<HepPoint3D>  lc ( 8, HepPoint3D( 0,0,0) ) ;
 
-      const float cdy  ( cos( an )*dy/2. ) ;
-      const float sdy  ( sin( an )*dy/2. ) ;
-      const float sign ( -1 ) ;
-      const float z1   (  sign*cdy ) ;
-      const float z2   ( -sign*cdy ) ;
-      const float z3   ( z1 + dz ) ;
-      const float z4   ( z2 + dz ) ;
-      const float x1   (  dx/2 );
-      const float x2   ( -dx/2 );
-      const float y1   ( +sdy ) ;
-      const float y2   ( -sdy ) ;
-      gc[ 0 ] = GlobalPoint( x1, y1, z1 ) ; 
-      gc[ 1 ] = GlobalPoint( x2, y1, z1 ) ;
-      gc[ 2 ] = GlobalPoint( x2, y2, z2 ) ;
-      gc[ 3 ] = GlobalPoint( x1, y2, z2 ) ;
-      gc[ 4 ] = GlobalPoint( x1, y1, z3 ) ;
-      gc[ 5 ] = GlobalPoint( x2, y1, z3 ) ;
-      gc[ 6 ] = GlobalPoint( x2, y2, z4 ) ;
-      gc[ 7 ] = GlobalPoint( x1, y2, z4 ) ;
-
-      for( unsigned int i ( 0 ) ; i != 8 ; ++i )
-      {
-	 lc[i] = HepPoint3D( gc[i].x(), gc[i].y(), gc[i].z() ) ;
-      }
+      lc[0] = HepPoint3D( -dx, -dy, +dz+dt ) ;
+      lc[1] = HepPoint3D( -dx, +dy, +dz-dt ) ;
+      lc[2] = HepPoint3D( +dx, +dy, +dz-dt ) ;
+      lc[3] = HepPoint3D( +dx, -dy, +dz+dt ) ;
+      lc[4] = HepPoint3D( -dx, -dy, -dz+dt ) ;
+      lc[5] = HepPoint3D( -dx, +dy, -dz-dt ) ;
+      lc[6] = HepPoint3D( +dx, +dy, -dz-dt ) ;
+      lc[7] = HepPoint3D( +dx, -dy, -dz+dt ) ;
 
       ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
       return lc ;
@@ -54,27 +39,28 @@ namespace calogeom {
       {
 	 CaloCellGeometry::CornersVec& corners ( setCorners() ) ;
 	 const GlobalPoint& p ( getPosition() ) ;
-	 const float zz   ( p.z() ) ;
-	 const float yy   ( p.y() ) ;
-	 const float cdy  ( cos( an() )*dy()/2. ) ;
-	 const float sdy  ( sin( an() )*dy()/2. ) ;
-	 const float sign ( zz<0 ? 1 : -1 ) ;
-	 const float z1   ( zz + sign*cdy ) ;
-	 const float z2   ( zz - sign*cdy ) ;
-	 const float z3   ( z1 + dz() ) ;
-	 const float z4   ( z2 + dz() ) ;
-	 const float x1   (  dx()/2 );
-	 const float x2   ( -dx()/2 );
-	 const float y1   ( yy + sdy ) ;
-	 const float y2   ( yy - sdy ) ;
-	 corners[ 0 ] = GlobalPoint( x1, y1, z1 ) ; 
-	 corners[ 1 ] = GlobalPoint( x2, y1, z1 ) ;
-	 corners[ 2 ] = GlobalPoint( x2, y2, z2 ) ;
-	 corners[ 3 ] = GlobalPoint( x1, y2, z2 ) ;
-	 corners[ 4 ] = GlobalPoint( x1, y1, z3 ) ;
-	 corners[ 5 ] = GlobalPoint( x2, y1, z3 ) ;
-	 corners[ 6 ] = GlobalPoint( x2, y2, z4 ) ;
-	 corners[ 7 ] = GlobalPoint( x1, y2, z4 ) ;
+	 const double zsign ( 0 < p.z() ? 1. : -1. ) ;
+	 const HepPoint3D gf ( p.x(), p.y(), p.z() ) ;
+
+	 HepPoint3D lf ;
+	 const std::vector<HepPoint3D> lc ( localCorners( param(), lf ) ) ;
+	 const HepPoint3D lb ( lf.x() , lf.y() , lf.z() - 2.*dz() ) ;
+	 const HepPoint3D ls ( lf.x() - dx(), lf.y(), lf.z() ) ;
+
+	 const HepPoint3D  gb ( gf.x() , gf.y() , gf.z() + 2.*zsign*dz() ) ;
+
+	 const HepPoint3D gs ( gf.x() - zsign*dx(),
+			       gf.y() ,
+			       gf.z()         ) ;
+
+	 const HepTransform3D tr ( lf, lb, ls,
+				   gf, gb, gs ) ;
+
+	 for( unsigned int i ( 0 ) ; i != 8 ; ++i )
+	 {
+	    const HepPoint3D gl ( tr*lc[i] ) ;
+	    corners[i] = GlobalPoint( gl.x(), gl.y(), gl.z() ) ;
+	 }
       }
       return co ;
    }
@@ -82,29 +68,29 @@ namespace calogeom {
    bool 
    IdealZDCTrapezoid::inside( const GlobalPoint& point ) const 
    {
-      bool is_inside ( false ) ;
+      const HepPoint3D p ( point.x(), point.y(), point.z() ) ;
+
+      bool ok ( false ) ;
 
       const GlobalPoint& face ( getPosition() ) ;
 
-      if( fabs( point.x() - face.x() ) <= dx()/2   &&
-	  fabs( point.y() - face.y() ) <= sin( an() )*dy()/2 )
+      if( fabs( p.x() - face.x() ) <= dx() &&
+	  fabs( p.y() - face.y() ) <= dy() &&
+	  fabs( p.z() - face.z() ) <= 2.*dz() + dt() )
       {
-	 const float sl   ( tan( an() ) ) ;
-	 const float blow ( face.y() - sl*face.z() ) ;
-
 	 const float sign ( 0 < point.z() ? 1 : -1 ) ;
-	 const float bhigh ( face.y() - sl*sign*( face.z() + sign*dz() ) ) ;
-
-	 is_inside = ( ( point.z() >  sign*( point.y() - blow  )/sl )  &&
-		       ( point.z() <= sign*( point.y() - bhigh )/sl )     ) ;
+	 const float sl   ( sign*tan( an() ) ) ;
+	 ok = ok && ( ( p.z() - face.z() )>= sl*p.y() ) ;
+	 ok = ok && ( ( p.z() - ( face.z() + sign*2.*dz() ) ) <= sl*p.y() ) ;
       }
-      return is_inside;
+      return ok ;
    }
 
    std::ostream& operator<<( std::ostream& s, const IdealZDCTrapezoid& cell ) 
    {
       s << "Center: " <<  cell.getPosition() << std::endl ;
-      s << "TiltAngle = " << cell.an() << ", dx = " << cell.dx() 
+      s << "TiltAngle = " << cell.an()*180./M_PI << " deg, dx = " 
+	<< cell.dx() 
 	<< ", dy = " << cell.dy() << ", dz = " << cell.dz() << std::endl ;
       return s;
    }

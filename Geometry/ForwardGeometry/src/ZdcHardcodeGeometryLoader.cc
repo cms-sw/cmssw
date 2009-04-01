@@ -2,7 +2,7 @@
 #include "Geometry/ForwardGeometry/interface/ZdcHardcodeGeometryLoader.h"
 #include "Geometry/ForwardGeometry/interface/IdealZDCTrapezoid.h"
 #include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
-#include "ZdcHardcodeGeometryData.h"
+#include "ZdcHardcodeGeometryData.h" // NO LONGER USED ANYWHERE
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
@@ -20,7 +20,9 @@ ZdcHardcodeGeometryLoader::ZdcHardcodeGeometryLoader(const ZdcTopology& ht) :
   init();
 }
 
-void ZdcHardcodeGeometryLoader::init() {
+void ZdcHardcodeGeometryLoader::init() 
+{
+   //**********************************NOTE THAT THESE ARE NO LONGER USED ANYWHERE
   theEMSectiondX = 2.*dXPlate;
   theEMSectiondY = 2.*dYPlate;
   theEMSectiondZ = 99.0;
@@ -89,64 +91,108 @@ CaloCellGeometry*
 ZdcHardcodeGeometryLoader::makeCell(const HcalZDCDetId& detId,
 				    ReturnType          geom) const 
 {
-  float zside = detId.zside();
-  HcalZDCDetId::Section section = detId.section();
-  int channel = detId.channel();
-  
-  float xMother = X0;
-  float yMother = Y0;
-  float zMother = Z0;
-  float dx = 0;
-  float dy = 0;
-  float dz = 0;
-  float theTiltAngle = 0;
-  float xfaceCenter = 0;
-  float yfaceCenter = 0;
-  float zfaceCenter = 0;
+   double zside ( detId.zside() ) ;
 
-  if(section==HcalZDCDetId::EM){
-    dx = theEMSectiondX;
-    dy = theEMSectiondY;
-    dz = theEMSectiondZ;
-    theTiltAngle = 0.0;
-    xfaceCenter = xMother + (theXChannelBoundaries[channel-1] + theEMSectiondX/2);
-    yfaceCenter = yMother; 
-    zfaceCenter = (zMother + theZSectionBoundaries[0])*zside;
-  }
+   const HcalZDCDetId::Section section ( detId.section() ) ;
 
-  if(section==HcalZDCDetId::LUM){
-    dx = theLUMSectiondX;
-    dy = theLUMSectiondY;
-    dz = theLUMSectiondZ;
-    theTiltAngle = 0.0;
-    xfaceCenter = xMother;
-    yfaceCenter = yMother + YLUM; 
-    zfaceCenter = (zMother + theZLUMChannelBoundaries[channel-1])*zside;
-  }
+   const int channel ( detId.channel() ) ;
 
-  if(section==HcalZDCDetId::HAD){
-    dx = theHADSectiondX;
-    dy = theHADSectiondY;
-    dz = theHADSectiondZ;
-    theTiltAngle = tiltangle;
-    xfaceCenter = xMother;
-    yfaceCenter = yMother; 
-    zfaceCenter = (zMother + theZLUMChannelBoundaries[channel-1])*zside;
-  }
-  GlobalPoint faceCenter(xfaceCenter, yfaceCenter, zfaceCenter);
+//******************** Here are all the hardcoded numbers you need to know, in **cm**
 
-  std::vector<double> zz ;
-  zz.reserve(4) ;
-  zz.push_back( theTiltAngle ) ;
-  zz.push_back( dx ) ;
-  zz.push_back( dy ) ;
-  zz.push_back( dz ) ;
-  return new calogeom::IdealZDCTrapezoid( 
-     faceCenter, 
-     geom->cornersMgr(),
-     CaloCellGeometry::getParmPtr( zz, 
-				   geom->parMgr(), 
-				   geom->parVecVec() ) );
+   static const double x0 ( 0 ) ;
+   static const double y0 ( 0 ) ;
+   static const double z0 ( 14000 ) ;
+
+   static const double angEM  ( 0 ) ;
+   static const double angLUM ( 0 ) ;
+   static const double angHAD ( atan( 1. ) ) ; // this is 45 deg
+
+   // all dimensions below are half-sizes
+
+   static const double dxHAD ( 4.8 ) ;
+   static const double dxEM  ( dxHAD/5. ) ;
+   static const double dxLUM ( 4.8 ) ;
+
+   static const double dhEM  ( 6.25 ) ;
+   static const double dhLUM ( 6.25 ) ;
+   static const double dhHAD ( 6.25 ) ;
+
+   static const double dzEM  ( 33.*0.15 ) ;
+   static const double dzLUM ( 47. ) ;
+   static const double dzHAD ( 0.82*6./cos(angHAD) ) ;
+
+   // these are not half-dimensions
+
+   static const double xOffEM  ( -4.*dxEM ) ; 
+   static const double xOffLUM ( 0 ) ; 
+   static const double xOffHAD ( 0 ) ; 
+
+   static const double yOffEM  ( 0 ) ; 
+   static const double yOffLUM ( 0 ) ; 
+   static const double yOffHAD ( 0 ) ; 
+
+   static const double zOffEM  ( -49.85  - 0.15 ) ; 
+   static const double zOffLUM ( -39.555        ) ; 
+   static const double zOffHAD ( -29.00         ) ; 
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+   double dx ( 0 ) ;
+   double dh ( 0 ) ;
+   double dz ( 0 ) ;
+   double  x ( 0 ) ;
+   double  y ( 0 ) ;
+   double  z ( 0 ) ;
+   double an ( 0 ) ;
+
+   if( section==HcalZDCDetId::EM )
+   {
+      dx = dxEM ;
+      dh = dhEM ;
+      dz = dzEM ;
+      an = angEM ;
+      x  = zside*( x0 + xOffEM + ( channel - 1.0 )*dxEM*2. ) ;
+      y  = y0 + yOffEM ;
+      z  = zside*( z0 + zOffEM ) ;
+   }
+   if( section==HcalZDCDetId::LUM )
+   {
+      dx = dxLUM ;
+      dh = dhLUM ;
+      dz = dzLUM ;
+      an = angLUM ;
+      x  = zside*( x0 + xOffLUM ) ;
+      y  = y0 + yOffLUM ;
+      z  = zside*( z0 + zOffLUM + ( channel - 1.0 )*dzLUM*2. ) ;
+   }
+   if( section==HcalZDCDetId::HAD )
+   {
+      dx = dxHAD ;
+      dh = dhHAD ;
+      dz = dzHAD ;
+      an = angHAD ;
+      x  = zside*( x0 + xOffHAD ) ;
+      y  = y0 + yOffHAD ;
+      z  = zside*( z0 + zOffHAD + ( channel - 1.0 )*dzHAD*2. ) ;
+   }
+
+   const GlobalPoint faceCenter ( x, y, z );
+
+   const double dy ( dh*cos( an ) ) ;
+
+   std::vector<double> zz ;
+   zz.reserve( 4 ) ;
+   zz.push_back( an ) ;
+   zz.push_back( dx ) ;
+   zz.push_back( dy ) ;
+   zz.push_back( dz ) ;
+
+   return new calogeom::IdealZDCTrapezoid( 
+      faceCenter, 
+      geom->cornersMgr(),
+      CaloCellGeometry::getParmPtr( zz, 
+				    geom->parMgr(), 
+				    geom->parVecVec() ) );
 }
 
 
