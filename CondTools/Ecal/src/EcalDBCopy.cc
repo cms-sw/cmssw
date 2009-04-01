@@ -13,6 +13,8 @@
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
+#include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
@@ -107,6 +109,8 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalTBWeightsRcd>().cacheIdentifier();
   } else if (container == "EcalChannelStatus") {
     cacheID = evtSetup.get<EcalChannelStatusRcd>().cacheIdentifier();
+  } else if (container == "EcalTimeCalibConstants") {
+    cacheID = evtSetup.get<EcalTimeCalibConstantsRcd>().cacheIdentifier();
   } 
 
   else {
@@ -148,6 +152,14 @@ void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container
 
    dbOutput->createNewIOV<const EcalADCToGeVConstant>( new EcalADCToGeVConstant(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
+
+  }  else if (container == "EcalTimeCalibConstants") {
+    edm::ESHandle<EcalTimeCalibConstants> handle;
+    evtSetup.get<EcalTimeCalibConstantsRcd>().get(handle);
+    const EcalTimeCalibConstants* obj = handle.product();
+    cout << "adc pointer is: "<< obj<< endl;
+
+   dbOutput->createNewIOV<const EcalTimeCalibConstants>( new EcalTimeCalibConstants(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
   }  else if (container == "EcalChannelStatus") {
     edm::ESHandle<EcalChannelStatus> handle;
