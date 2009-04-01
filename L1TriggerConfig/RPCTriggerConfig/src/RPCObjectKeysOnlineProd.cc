@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu Oct  2 19:35:26 CEST 2008
-// $Id: RPCObjectKeysOnlineProd.cc,v 1.1 2008/10/13 02:41:02 wsun Exp $
+// $Id: RPCObjectKeysOnlineProd.cc,v 1.2 2009/03/13 17:53:23 wsun Exp $
 //
 //
 
@@ -37,6 +37,8 @@ class RPCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
       virtual void fillObjectKeys( ReturnType pL1TriggerKey ) ;
    private:
       // ----------member data ---------------------------
+  bool m_enableL1RPCConfig ;
+  bool m_enableL1RPCConeDefinition ;
 };
 
 //
@@ -51,7 +53,9 @@ class RPCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
 // constructors and destructor
 //
 RPCObjectKeysOnlineProd::RPCObjectKeysOnlineProd(const edm::ParameterSet& iConfig)
-  : L1ObjectKeysOnlineProdBase( iConfig )
+  : L1ObjectKeysOnlineProdBase( iConfig ),
+    m_enableL1RPCConfig( iConfig.getParameter< bool >( "enableL1RPCConfig" ) ),
+    m_enableL1RPCConeDefinition( iConfig.getParameter< bool >( "enableL1RPCConeDefinition" ) )
 {}
 
 
@@ -76,9 +80,18 @@ RPCObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 
   if( !rpcKey.empty() )
     {
-      pL1TriggerKey->add( "L1RPCConfigRcd",
-			  "L1RPCConfig",
-			  rpcKey ) ;
+      if( m_enableL1RPCConfig )
+	{
+	  pL1TriggerKey->add( "L1RPCConfigRcd",
+			      "L1RPCConfig",
+			      rpcKey ) ;
+	}
+      if( m_enableL1RPCConeDefinition )
+	{
+	  pL1TriggerKey->add( "L1RPCConeDefinitionRcd",
+			      "L1RPCConeDefinition",
+			      rpcKey ) ;
+	}
     }
 }
 
