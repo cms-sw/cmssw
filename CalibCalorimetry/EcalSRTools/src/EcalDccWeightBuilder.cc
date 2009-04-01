@@ -1,6 +1,6 @@
-/* $Id: EcalDccWeightBuilder.cc,v 1.3 2009/03/25 09:28:27 pgras Exp $
+/* $Id: EcalDccWeightBuilder.cc,v 1.4 2009/03/26 20:35:52 pgras Exp $
  *
- * authors: Ph. Gras (CEA/Saclay), F. Cavallari
+ * authors: Ph. Gras (CEA/Saclay), F. Cavallari (INFN/Roma)
  *          some code copied from CalibCalorimetry/EcalTPGTools code
  *          written by P. Paganini and F. Cavallari
  */
@@ -43,9 +43,6 @@ const double EcalDccWeightBuilder::weightScale_ = 1024.;
 //TODO: handling case of weight encoding saturation: weights shall be downscaled to prevent saturation
 
 EcalDccWeightBuilder::EcalDccWeightBuilder(edm::ParameterSet const& ps):
-  //  intercalibMax_(numeric_limits<double>::min()),
-  //  minIntercalibRescale_(ps.getParameter<double>("minIntercalibRescale")),
-  //maxIntercalibRescale_(ps.getParameter<double>("maxIntercalibRescale")),
   dcc1stSample_(ps.getParameter<int>("dcc1stSample")),
   sampleToSkip_(ps.getParameter<int>("sampleToSkip")),
   nDccWeights_(ps.getParameter<int>("nDccWeights")),
@@ -181,8 +178,13 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib){
       }
       for(int i = 0; i < nw; ++i){
         w[i] = baseWeights[i];
-        if(withIntercalib) w[i]*= intercalib(*it);
-        //* intercalibRescale() ;
+	if(withIntercalib) w[i]*= intercalib(*it);
+	// 	static int dbgcnt = 0;
+	// 	if(dbgcnt<100){
+	// 	  cout << __FILE__ << ":" << __LINE__ << ": "
+	// 	       <<  "intercalib = " << intercalib(*it) << "\n";
+	// 	  ++dbgcnt;
+	// 	}
       }
       unbiasWeights(w, &W);
       encodedWeights_[*it] = W;
@@ -247,6 +249,45 @@ double EcalDccWeightBuilder::decodeWeight(int W){
   return ((double) W) / weightScale_;
 }
 
+
+template<class T>
+void EcalDccWeightBuilder::sort(const std::vector<T>& a,
+				std::vector<int>& s,
+				bool decreasingOrder){
+  //   cout << __FILE__ << ":" << __LINE__ << ": "
+  //        << "sort input array:" ;
+  //   for(unsigned i=0; i<a.size(); ++i){
+  //     cout << "\t" << a[i];
+  //   }
+  //   cout << "\n";
+  
+  //performs a bubble sort: adjacent elements are successively swapped 2 by 2
+  //until the list is finally sorted.
+  bool changed = false;
+  s.resize(a.size());
+  for(unsigned i=0; i<a.size(); ++i) s[i] = i;
+  if(a.size() == 0) return;
+  do {
+    changed = false;
+    for(unsigned i = 0; i < a.size()-1; ++i){
+      const int j = s[i];
+      const int nextj = s[i+1];
+      if((decreasingOrder && (a[j] < a[nextj]))
+	 || (!decreasingOrder && (a[j] > a[nextj]))){
+	std::swap(s[i], s[i+1]);
+	changed = true;
+      }
+    }
+  } while(changed);
+  
+  //   cout << __FILE__ << ":" << __LINE__ << ": "
+  //        << "sorted list of indices:" ;
+  //   for(unsigned i=0; i < s.size(); ++i){
+  //     cout << "\t" << s[i];
+  //   }
+  //   cout << "\n";
+}
+  
 void EcalDccWeightBuilder::unbiasWeights(std::vector<double>& weights,
                                          std::vector<int>* encodedWeights){
   const unsigned nw = weights.size();
@@ -261,12 +302,17 @@ void EcalDccWeightBuilder::unbiasWeights(std::vector<double>& weights,
     wsum += W[i];
   }
 
-  //sorts weight residuals by amplitude in increasing order:
+//   cout << __FILE__ << ":" << __LINE__ << ": "
+//        <<  "weights before bias correction: ";
+//   for(unsigned i=0; i<weights.size(); ++i){
+//     const double w = weights[i];
+//     cout << "\t" << encodeWeight(w) << "(" << w << ", dw = " << dw[i] << ")";
+//   }
+//   cout << "\t sum: " << wsum << "\n";
+  
+  //sorts weight residuals in decreasing order:
   vector<int> iw(nw);
-  for(unsigned i = 0; i < nw; ++i){
-    //TO FIX!!!!!
-    iw[i] = i;
-  }
+  sort(dw, iw, true);
 
   //compensates weight sum residual by adding or substracting 1 to weights
   //starting from:
@@ -275,13 +321,30 @@ void EcalDccWeightBuilder::unbiasWeights(std::vector<double>& weights,
   // 2) the weight with the maximal signed residual if the correction
   // is negative (wsum>0)
   int wsumSign = wsum>0?1:-1;
-  int i = wsum>0?0:nw;
+  int i = wsum>0?0:(nw-1);
   while(wsum!=0){
     W[iw[i]] -= wsumSign;
     wsum -= wsumSign;
     i += wsumSign;
+    if(i<0 || i>=(int)nw){ //recompute the residuals if a second iteration is
+      // needed (in principle, it is not expected with usual input weights), : 
+      for(unsigned i = 0; i < nw; ++i){
+	dw[i] = decodeWeight(W[i]) - weights[i];
+	sort(dw, iw, true);
+      }
+    }
+    if(i<0) i = nw-1;
+    if(i>=(int)nw) i = 0;
   }
 
+//   cout << __FILE__ << ":" << __LINE__ << ": "
+//        <<  "weights after bias correction: ";
+//   for(unsigned i=0; i<weights.size(); ++i){
+//     cout << "\t" << W[i] << "(" << decodeWeight(W[i]) << ", dw = "
+// 	 << (decodeWeight(W[i])-weights[i]) << ")";
+//   }
+//   cout << "\n";
+  
   //copy result
   if(encodedWeights!=0) encodedWeights->resize(nw);
   for(unsigned i = 0; i < nw; ++i){
