@@ -1,4 +1,4 @@
-/* $Id: EcalDccWeightBuilder.cc,v 1.4 2009/03/26 20:35:52 pgras Exp $
+/* $Id: EcalDccWeightBuilder.cc,v 1.5 2009/04/01 09:33:06 pgras Exp $
  *
  * authors: Ph. Gras (CEA/Saclay), F. Cavallari (INFN/Roma)
  *          some code copied from CalibCalorimetry/EcalTPGTools code
@@ -629,12 +629,13 @@ void EcalDccWeightBuilder::dbId(const DetId& detId, int& fedId, int& smId,
     = ecalElectronicsMap_->getElectronicsId(detId);
   
   fedId = 600 + elecId.dccId();
-  ruId =  ecalElectronicsMap_->getTriggerElectronicsId(detId).ttId();
+  ruId =  ecalElectronicsMap_->getElectronicsId(detId).towerId();
   
   if(detId.subdetId()==EcalBarrel) {
     smId=((EBDetId)detId).ism();
   } else{
-    smId = 0;
+    smId = 10000-fedId; //no SM in EE. Use some unique value to satisfy
+    //              current DB PK constraints.
   }
   const int stripLength = 5; //1 strip = 5 crystals in a row
   xtalId = (elecId.stripId()-1)*stripLength  + elecId.xtalId();
