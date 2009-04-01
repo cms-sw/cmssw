@@ -1,5 +1,6 @@
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestHt.h"
 
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
@@ -18,10 +19,11 @@ using namespace std;
 /// Constructor and destructor
 
 gctTestHt::gctTestHt() {}
-gctTestHt::gctTestHt(const L1GctJetFinderParams* jfPars) :
+gctTestHt::gctTestHt(const L1CaloEtScale* scale, const L1GctJetFinderParams* jfPars) :
   m_bxStart(), m_numOfBx(1),
   minusWheelJetDta(),
   plusWheelJetData(),
+  m_jetEtScale(scale),
   m_jfPars(jfPars)
 {}
 
@@ -287,7 +289,7 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
     unsigned htFromInternalJets = 0;
     for (L1GctInternJetDataCollection::const_iterator jet=internalJets.begin();
 	 jet != internalJets.end(); jet++) {
-      if ((jet->bx() == bx+m_bxStart) && (jet->et() >= gct->getJetFinderParams()->getHtJetEtThresholdGct())) {
+      if ((jet->bx() == bx+m_bxStart) && (jet->et() >= m_jfPars->getHtJetEtThresholdGct())) {
 	htFromInternalJets += jet->et();
       }
     }
@@ -309,7 +311,6 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
 gctTestHt::rawJetData gctTestHt::rawJetFinderOutput(const L1GctJetFinderBase* jf, const unsigned phiPos, const int bx) const
 {
   assert (phiPos<9);
-  lutPtrVector  lutsFromJf = jf->getJetEtCalLuts();
   RawJetsVector jetsFromJf = jf->getRawJets();
   RawJetsVector jetList;
   unsigned sumHtt = 0;
@@ -324,26 +325,29 @@ gctTestHt::rawJetData gctTestHt::rawJetFinderOutput(const L1GctJetFinderBase* jf
 //   	   << " phi " << jet->globalPhi()
 // 	    << (jet->overFlow() ? " overflow set " : " ") 
 // 	    << " bx " << jet->bx() << endl;
-       jetList.push_back(*jet);
-       unsigned etaBin = jet->rctEta();
-       unsigned htJet   = jet->calibratedEt(lutsFromJf.at(etaBin));
-       // Add to total Ht sum
-       if (htJet >= m_jfPars->getHtJetEtThresholdGct()) {
-	 sumHtt += htJet;
-	 sumHttOvrFlo |= (jet->overFlow());
-       }
-       // Add to missing Ht sum
-       if (htJet >= m_jfPars->getMHtJetEtThresholdGct()) {
-	 if (jet->rctPhi() == 0) {
-	   sumHtStrip0 += htJet;
-	 }
-	 if (jet->rctPhi() == 1) {
-	   sumHtStrip1 += htJet;
-	 }
-	 sumHtmOvrFlo |= (jet->overFlow());
-       }
+      jetList.push_back(*jet);
+      // Find jet ht using event setup information
+      double etJetGeV = jet->rawsum()*m_jetEtScale->linearLsb();
+      double htJetGeV = m_jfPars->correctedEtGeV(etJetGeV, jet->rctEta(), jet->tauVeto());
+      unsigned htJet  = ( jet->rawsum()==0x3ff ? 0x3ff : m_jfPars->correctedEtGct(htJetGeV));
+      // Add to total Ht sum
+      if (htJet >= m_jfPars->getHtJetEtThresholdGct()) {
+	sumHtt += htJet;
+	sumHttOvrFlo |= (jet->overFlow());
+      }
+      // Add to missing Ht sum
+      if (htJet >= m_jfPars->getMHtJetEtThresholdGct()) {
+	if (jet->rctPhi() == 0) {
+	  sumHtStrip0 += htJet;
+	}
+	if (jet->rctPhi() == 1) {
+	  sumHtStrip1 += htJet;
+	}
+	sumHtmOvrFlo |= (jet->overFlow());
+      }
     }
   }
+  // Find the x and y components
   unsigned xFact0 = (53-4*phiPos)%36;
   unsigned xFact1 = (59-4*phiPos)%36;
   unsigned yFact0 = (44-4*phiPos)%36;

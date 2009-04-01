@@ -36,15 +36,15 @@ gctTestFunctions::gctTestFunctions(const edm::EventSetup& c) :
   c.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
 //   edm::ESHandle< L1GctChannelMask > chanMask ;
 //   c.get< L1GctChannelMaskRcd >().get( chanMask ) ; // which record?
-//   edm::ESHandle< L1CaloEtScale > etScale ;
-//   c.get< L1JetEtScaleRcd >().get( etScale ) ; // which record?
+  edm::ESHandle< L1CaloEtScale > etScale ;
+  c.get< L1JetEtScaleRcd >().get( etScale ) ; // which record?
   edm::ESHandle< L1CaloEtScale > hfRingEtScale ;
   c.get< L1HfRingEtScaleRcd >().get( hfRingEtScale ) ; // which record?
 
   theElectronsTester      = new gctTestElectrons();
   theEnergyAlgosTester    = new gctTestEnergyAlgos();
   theFirmwareTester       = new gctTestFirmware();
-  theHtTester             = new gctTestHt(jfPars.product());
+  theHtTester             = new gctTestHt(etScale.product(), jfPars.product());
   theHfEtSumsTester       = new gctTestHfEtSums(hfRingEtScale.product());
 }
 
