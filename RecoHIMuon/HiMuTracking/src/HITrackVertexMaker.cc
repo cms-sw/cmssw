@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.cc,v 1.8 2009/01/11 15:15:38 hegner Exp $
+// $Id: HITrackVertexMaker.cc,v 1.9 2009/02/20 08:48:19 kodolova Exp $
 //
 //
  
@@ -54,7 +54,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
@@ -477,7 +477,7 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
       
     }
    //  cout<<" Position of the innermost point "<<innertsos.freeTrajectoryState()->position().perp()<<" "<<innertsos.freeTrajectoryState()->position().z()<<endl;
-    TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+    TSCBLBuilderNoMaterial tscblBuilder;
     TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
 
     if (tscbl.isValid()==false) {
