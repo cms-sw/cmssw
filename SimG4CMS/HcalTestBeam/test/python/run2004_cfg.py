@@ -60,6 +60,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876),
         VtxSmeared = cms.untracked.uint32(123456789)
     ),
@@ -71,39 +72,41 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.common_beam_direction_parameters = cms.PSet(
-    MinEta = cms.untracked.double(0.5655),
-    MaxEta = cms.untracked.double(0.5655),
-    MinPhi = cms.untracked.double(-0.1309),
-    MaxPhi = cms.untracked.double(-0.1309),
-    BeamPosition = cms.untracked.double(-521.5)
+    MinEta       = cms.double(0.5655),
+    MaxEta       = cms.double(0.5655),
+    MinPhi       = cms.double(-0.1309),
+    MaxPhi       = cms.double(-0.1309),
+    BeamPosition = cms.double(-521.5)
 )
 
 from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
 process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
     process.common_beam_direction_parameters,
     VtxSmearedCommon,
-    BeamMeanX = cms.untracked.double(0.0),
-    BeamMeanY = cms.untracked.double(0.0),
-    BeamSigmaX = cms.untracked.double(0.0001),
-    BeamSigmaY = cms.untracked.double(0.0001),
-    GaussianProfile = cms.untracked.bool(False),
-    BinX = cms.untracked.int32(50),
-    BinY = cms.untracked.int32(50),
-    File = cms.untracked.string('beam.profile'),
-    UseFile = cms.untracked.bool(False),
-    TimeOffset = cms.double(0.)
+    BeamMeanX       = cms.double(0.0),
+    BeamMeanY       = cms.double(0.0),
+    BeamSigmaX      = cms.double(0.0001),
+    BeamSigmaY      = cms.double(0.0001),
+    GaussianProfile = cms.bool(False),
+    BinX            = cms.int32(50),
+    BinY            = cms.int32(50),
+    File            = cms.string('beam.profile'),
+    UseFile         = cms.bool(False),
+    TimeOffset      = cms.double(0.)
 )
 
-process.source = cms.Source("FlatRandomEGunSource",
-    PGunParameters = cms.untracked.PSet(
+process.source = cms.Source("EmptySource")
+
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    PGunParameters = cms.PSet(
         process.common_beam_direction_parameters,
-        MinE = cms.untracked.double(9.99),
-        MaxE = cms.untracked.double(10.01),
-        PartID = cms.untracked.vint32(211)
+        MinE   = cms.double(9.99),
+        MaxE   = cms.double(10.01),
+        PartID = cms.vint32(211)
     ),
-    Verbosity = cms.untracked.int32(0),
-    AddAntiParticle = cms.untracked.bool(False),
-    firstRun = cms.untracked.uint32(1)
+    Verbosity       = cms.untracked.int32(0),
+    AddAntiParticle = cms.bool(False),
+    firstRun        = cms.untracked.uint32(1)
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
@@ -113,7 +116,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 
 process.Timing = cms.Service("Timing")
 
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
@@ -131,7 +134,7 @@ process.g4SimHits.CaloSD = cms.PSet(
     UseMap         = cms.untracked.bool(True),
     Verbosity      = cms.untracked.int32(0),
     DetailedTiming = cms.untracked.bool(False),
-    CorrectTOFBeam = cms.untracked.bool(False)
+    CorrectTOFBeam = cms.bool(False)
 )
 process.g4SimHits.ECalSD.UseBirkLaw = False
 process.g4SimHits.ECalSD.BirkC1 = 0.33333

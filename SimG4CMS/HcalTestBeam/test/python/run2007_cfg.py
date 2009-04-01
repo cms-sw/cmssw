@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-process.load("SimG4CMS.HcalTestBeam.TB2007GeometryXML_cfi")
+process.load("SimG4CMS.HcalTestBeam.TB2007GeometryNoESXML_cfi")
 
 process.load("Configuration.EventContent.EventContent_cff")
 
@@ -69,6 +69,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876),
         VtxSmeared = cms.untracked.uint32(123456789)
     ),
@@ -76,39 +77,41 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.common_beam_direction_parameters = cms.PSet(
-    MinEta = cms.untracked.double(1.562),
-    MaxEta = cms.untracked.double(1.562),
-    MinPhi = cms.untracked.double(0.0436),
-    MaxPhi = cms.untracked.double(0.0436),
-    BeamPosition = cms.untracked.double(-800.0)
+    MinEta       = cms.double(1.562),
+    MaxEta       = cms.double(1.562),
+    MinPhi       = cms.double(0.0436),
+    MaxPhi       = cms.double(0.0436),
+    BeamPosition = cms.double(-800.0)
 )
 
-process.source = cms.Source("FlatRandomEGunSource",
-    PGunParameters = cms.untracked.PSet(
+process.source = cms.Source("EmptySource")
+
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    PGunParameters = cms.PSet(
         process.common_beam_direction_parameters,
-        MinE = cms.untracked.double(9.99),
-        MaxE = cms.untracked.double(10.01),
-        PartID = cms.untracked.vint32(11)
+        MinE   = cms.double(9.99),
+        MaxE   = cms.double(10.01),
+        PartID = cms.vint32(11)
     ),
-    Verbosity = cms.untracked.int32(0),
-    AddAntiParticle = cms.untracked.bool(False),
-    firstRun = cms.untracked.uint32(1)
+    Verbosity       = cms.untracked.int32(0),
+    AddAntiParticle = cms.bool(False),
+    firstRun        = cms.untracked.uint32(1)
 )
 
 from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
 process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
     process.common_beam_direction_parameters,
     VtxSmearedCommon,
-    BeamMeanX = cms.untracked.double(0.0),
-    BeamMeanY = cms.untracked.double(0.0),
-    BeamSigmaX = cms.untracked.double(0.0001),
-    BeamSigmaY = cms.untracked.double(0.0001),
-    GaussianProfile = cms.untracked.bool(False),
-    BinX = cms.untracked.int32(50),
-    BinY = cms.untracked.int32(50),
-    File = cms.untracked.string('beam.profile'),
-    UseFile = cms.untracked.bool(False),
-    TimeOffset = cms.double(0.)
+    BeamMeanX       = cms.double(0.0),
+    BeamMeanY       = cms.double(0.0),
+    BeamSigmaX      = cms.double(0.0001),
+    BeamSigmaY      = cms.double(0.0001),
+    GaussianProfile = cms.bool(False),
+    BinX            = cms.int32(50),
+    BinY            = cms.int32(50),
+    File            = cms.string('beam.profile'),
+    UseFile         = cms.bool(False),
+    TimeOffset      = cms.double(0.)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -132,7 +135,7 @@ process.common_maximum_timex = cms.PSet(
     MaxTimeNames  = cms.vstring(),
     MaxTrackTimes = cms.vdouble()
 )
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
@@ -170,7 +173,7 @@ process.g4SimHits.CaloSD = cms.PSet(
     UseMap         = cms.untracked.bool(True),
     Verbosity      = cms.untracked.int32(0),
     DetailedTiming = cms.untracked.bool(False),
-    CorrectTOFBeam = cms.untracked.bool(False)
+    CorrectTOFBeam = cms.bool(False)
 )
 process.g4SimHits.ECalSD.UseBirkLaw = False
 process.g4SimHits.ECalSD.BirkC1 = 0.013
@@ -188,7 +191,7 @@ process.g4SimHits.CaloTrkProcessing.TestBeam = True
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     HcalTB06Analysis = cms.PSet(
         process.common_beam_direction_parameters,
-        Names    = cms.vstring('HcalHits', 'EcalHitsEB'),
+        Names    = cms.vstring('HcalHits', 'EcalHitsEE'),
         EHCalMax = cms.untracked.double(2.0),
         ETtotMax = cms.untracked.double(20.0),
         Verbose  = cms.untracked.bool(True)

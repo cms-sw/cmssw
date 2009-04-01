@@ -63,6 +63,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876),
         VtxSmeared = cms.untracked.uint32(123456789)
     ),
@@ -70,26 +71,29 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.common_beam_direction_parameters = cms.PSet(
-    MinEta = cms.untracked.double(0.7397),
-    MaxEta = cms.untracked.double(0.7397),
-    MinPhi = cms.untracked.double(6.23955),
-    MaxPhi = cms.untracked.double(6.23955)
+    MinEta       = cms.double(0.7397),
+    MaxEta       = cms.double(0.7397),
+    MinPhi       = cms.double(6.23955),
+    MaxPhi       = cms.double(6.23955),
+    BeamPosition = cms.double(0.0)
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
 
-process.source = cms.Source("FlatRandomEGunSource",
-    PGunParameters = cms.untracked.PSet(
+process.source = cms.Source("EmptySource")
+
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    PGunParameters = cms.PSet(
         process.common_beam_direction_parameters,
-        MinE = cms.untracked.double(19.99),
-        MaxE = cms.untracked.double(20.01),
-        PartID = cms.untracked.vint32(211)
+        MinE   = cms.double(19.99),
+        MaxE   = cms.double(20.01),
+        PartID = cms.vint32(211)
     ),
-    Verbosity = cms.untracked.int32(0),
-    AddAntiParticle = cms.untracked.bool(False),
-    firstRun = cms.untracked.uint32(1)
+    Verbosity       = cms.untracked.int32(0),
+    AddAntiParticle = cms.bool(False),
+    firstRun        = cms.untracked.uint32(1)
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
@@ -125,7 +129,7 @@ process.g4SimHits.CaloSD = cms.PSet(
     UseMap         = cms.untracked.bool(True),
     Verbosity      = cms.untracked.int32(0),
     DetailedTiming = cms.untracked.bool(False),
-    CorrectTOFBeam = cms.untracked.bool(False)
+    CorrectTOFBeam = cms.bool(False)
 )
 process.g4SimHits.HCalSD.ForTBH2 = True
 process.g4SimHits.CaloTrkProcessing.TestBeam = True

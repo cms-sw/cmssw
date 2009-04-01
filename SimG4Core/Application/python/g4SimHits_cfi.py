@@ -147,17 +147,17 @@ g4SimHits = cms.EDProducer("OscarProducer",
     CaloSD = cms.PSet(
         common_heavy_suppression,
         SuppressHeavy = cms.bool(False),
-        UseMap    = cms.untracked.bool(False),
         EminTrack = cms.double(1.0),
         TmaxHit   = cms.double(1000.0),
 	HCNames   = cms.vstring('EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits'),
         EminHits  = cms.vdouble(0.015,0.010,0.0,0.0),
         TmaxHits  = cms.vdouble(500.0,500.0,500.0,500.0),
+        BeamPosition   = cms.double(0.0),
+        CorrectTOFBeam = cms.bool(False),
         DetailedTiming = cms.untracked.bool(False),
-        Verbosity = cms.untracked.int32(0),
-        CheckHits = cms.untracked.int32(25),
-        BeamPosition = cms.untracked.double(0.0),
-        CorrectTOFBeam = cms.untracked.bool(False)
+        UseMap         = cms.untracked.bool(False),
+        Verbosity      = cms.untracked.int32(0),
+        CheckHits      = cms.untracked.int32(25)
     ),
     ECalSD = cms.PSet(
         UseBirkLaw = cms.bool(True),

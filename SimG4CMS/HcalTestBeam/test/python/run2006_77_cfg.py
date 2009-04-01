@@ -49,6 +49,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876),
         VtxSmeared = cms.untracked.uint32(123456789)
     ),
@@ -56,23 +57,25 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.common_beam_direction_parameters = cms.PSet(
-    MinEta = cms.untracked.double(0.5655),
-    MaxEta = cms.untracked.double(0.5655),
-    MinPhi = cms.untracked.double(0.15708),
-    MaxPhi = cms.untracked.double(0.15708),
-    BeamPosition = cms.untracked.double(-800.0)
+    MinEta       = cms.double(0.5655),
+    MaxEta       = cms.double(0.5655),
+    MinPhi       = cms.double(0.15708),
+    MaxPhi       = cms.double(0.15708),
+    BeamPosition = cms.double(-800.0)
 )
 
-process.source = cms.Source("FlatRandomEGunSource",
-    PGunParameters = cms.untracked.PSet(
+process.source = cms.Source("EmptySource")
+
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    PGunParameters = cms.PSet(
         process.common_beam_direction_parameters,
-        MinE = cms.untracked.double(49.99),
-        MaxE = cms.untracked.double(50.01),
-        PartID = cms.untracked.vint32(211)
+        MinE   = cms.double(49.99),
+        MaxE   = cms.double(50.01),
+        PartID = cms.vint32(211)
     ),
-    Verbosity = cms.untracked.int32(0),
-    AddAntiParticle = cms.untracked.bool(False),
-    firstRun = cms.untracked.uint32(1)
+    Verbosity       = cms.untracked.int32(0),
+    AddAntiParticle = cms.bool(False),
+    firstRun        = cms.untracked.uint32(1)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -96,19 +99,19 @@ from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
 process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
     process.common_beam_direction_parameters,
     VtxSmearedCommon,
-    BeamMeanX = cms.untracked.double(0.0),
-    BeamMeanY = cms.untracked.double(0.0),
-    BeamSigmaX = cms.untracked.double(0.0001),
-    BeamSigmaY = cms.untracked.double(0.0001),
-    GaussianProfile = cms.untracked.bool(False),
-    BinX = cms.untracked.int32(50),
-    BinY = cms.untracked.int32(50),
-    File = cms.untracked.string('beam.profile'),
-    UseFile = cms.untracked.bool(False),
-    TimeOffset = cms.double(0.)
+    BeamMeanX       = cms.double(0.0),
+    BeamMeanY       = cms.double(0.0),
+    BeamSigmaX      = cms.double(0.0001),
+    BeamSigmaY      = cms.double(0.0001),
+    GaussianProfile = cms.bool(False),
+    BinX            = cms.int32(50),
+    BinY            = cms.int32(50),
+    File            = cms.string('beam.profile'),
+    UseFile         = cms.bool(False),
+    TimeOffset      = cms.double(0.)
 )
 
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.common_maximum_timex = cms.PSet(
     MaxTrackTime  = cms.double(1000.0),
@@ -162,7 +165,7 @@ process.g4SimHits.CaloSD = cms.PSet(
     UseMap         = cms.untracked.bool(True),
     Verbosity      = cms.untracked.int32(0),
     DetailedTiming = cms.untracked.bool(False),
-    CorrectTOFBeam = cms.untracked.bool(False)
+    CorrectTOFBeam = cms.bool(False)
 )
 process.g4SimHits.CaloTrkProcessing.TestBeam = True
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(

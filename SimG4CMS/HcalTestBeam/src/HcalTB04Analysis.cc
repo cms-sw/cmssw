@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: HcalTB04Analysis.cc,v 1.7 2007/10/22 14:44:50 sunanda Exp $
+// $Id: HcalTB04Analysis.cc,v 1.8 2007/11/20 12:42:04 fabiocos Exp $
 //
   
 // system include files
@@ -67,11 +67,11 @@ HcalTB04Analysis::HcalTB04Analysis(const edm::ParameterSet &p): myQie(0),
   scaleHO        = m_Anal.getParameter<double>("ScaleHO");
   scaleHE0       = m_Anal.getParameter<double>("ScaleHE0");
   names          = m_Anal.getParameter<std::vector<std::string> >("Names");
-  beamOffset     =-m_Anal.getUntrackedParameter<double>("BeamPosition",0.0)*cm;
-  double fMinEta = m_Anal.getUntrackedParameter<double>("MinEta",-5.5);
-  double fMaxEta = m_Anal.getUntrackedParameter<double>("MaxEta",5.5);
-  double fMinPhi = m_Anal.getUntrackedParameter<double>("MinPhi",-3.14159265358979323846);
-  double fMaxPhi = m_Anal.getUntrackedParameter<double>("MaxPhi", 3.14159265358979323846);
+  beamOffset     =-m_Anal.getParameter<double>("BeamPosition")*cm;
+  double fMinEta = m_Anal.getParameter<double>("MinEta");
+  double fMaxEta = m_Anal.getParameter<double>("MaxEta");
+  double fMinPhi = m_Anal.getParameter<double>("MinPhi");
+  double fMaxPhi = m_Anal.getParameter<double>("MaxPhi");
   double beamEta = (fMaxEta+fMinEta)/2.;
   double beamPhi = (fMaxPhi+fMinPhi)/2.;
   double beamThet= 2*atan(exp(-beamEta));

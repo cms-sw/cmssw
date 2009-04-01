@@ -9,9 +9,7 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('G4cout', 
-        'G4cerr', 
-        'HCalGeom'),
+    categories   = cms.untracked.vstring('G4cout', 'G4cerr', 'HCalGeom'),
     debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG'),
@@ -34,6 +32,7 @@ process.Timing = cms.Service("Timing")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876),
         VtxSmeared = cms.untracked.uint32(12345)
     ),
@@ -41,22 +40,25 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.common_beam_direction_parameters = cms.PSet(
-    MaxEta = cms.untracked.double(0.5655),
-    MinEta = cms.untracked.double(0.5655),
-    MaxPhi = cms.untracked.double(-0.1309),
-    MinPhi = cms.untracked.double(-0.1309),
-    BeamPosition = cms.untracked.double(-800.0)
+    MaxEta       = cms.double(0.5655),
+    MinEta       = cms.double(0.5655),
+    MaxPhi       = cms.double(-0.1309),
+    MinPhi       = cms.double(-0.1309),
+    BeamPosition = cms.double(-800.0)
 )
-process.source = cms.Source("FlatRandomEGunSource",
-    PGunParameters = cms.untracked.PSet(
+
+process.source = cms.Source("EmptySource")
+
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    PGunParameters = cms.PSet(
         process.common_beam_direction_parameters,
-        MaxE = cms.untracked.double(10.01),
-        MinE = cms.untracked.double(9.99),
-        PartID = cms.untracked.vint32(211)
+        MinE   = cms.double(9.99),
+        MaxE   = cms.double(10.01),
+        PartID = cms.vint32(211)
     ),
-    Verbosity = cms.untracked.int32(0),
-    AddAntiParticle = cms.untracked.bool(False),
-    firstRun = cms.untracked.uint32(1)
+    Verbosity       = cms.untracked.int32(0),
+    AddAntiParticle = cms.bool(False),
+    firstRun        = cms.untracked.uint32(1)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -72,7 +74,7 @@ process.common_maximum_timex = cms.PSet(
     MaxTimeNames  = cms.vstring(),
     MaxTrackTimes = cms.vdouble()
 )
-process.p1 = cms.Path(process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.DefaultCutValue = 1.
 process.g4SimHits.Generator.HepMCProductLabel = 'source'
@@ -99,17 +101,17 @@ process.g4SimHits.SteppingAction = cms.PSet(
 process.g4SimHits.CaloSD = cms.PSet(
     process.common_beam_direction_parameters,
     process.common_heavy_suppression1,
-    SuppressHeavy = cms.bool(False),
+    SuppressHeavy  = cms.bool(False),
     DetailedTiming = cms.untracked.bool(False),
-    Verbosity = cms.untracked.int32(0),
-    CheckHits = cms.untracked.int32(25),
-    CorrectTOFBeam = cms.untracked.bool(False),
-    TmaxHit   = cms.double(1000.0),
-    HCNames   = cms.vstring(),
-    EminHits  = cms.vdouble(),
-    TmaxHits  = cms.vdouble(),
-    UseMap = cms.untracked.bool(True),
-    EminTrack = cms.double(1.0)
+    Verbosity      = cms.untracked.int32(0),
+    CheckHits      = cms.untracked.int32(25),
+    CorrectTOFBeam = cms.bool(False),
+    TmaxHit        = cms.double(1000.0),
+    HCNames        = cms.vstring(),
+    EminHits       = cms.vdouble(),
+    TmaxHits       = cms.vdouble(),
+    UseMap         = cms.untracked.bool(True),
+    EminTrack      = cms.double(1.0)
 )
 process.g4SimHits.HCalSD.UseShowerLibrary = False
 process.g4SimHits.HCalSD.TestNumberingScheme = True
