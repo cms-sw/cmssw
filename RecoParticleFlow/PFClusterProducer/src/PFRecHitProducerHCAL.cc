@@ -153,17 +153,10 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	// just wrong for the HF (in which em/had are artificially 
 	// separated. 
 	double energy = ct.hadEnergy();
-	// double energyEM = ct.emEnergy(); // For HF !
-// <<<<<<< PFRecHitProducerHCAL.cc
-
-// 	//---ab: store EM energy and had energy separatly for the HF
-// 	double energyemHF = ct.emEnergy();
-// 	double energyhadHF = ct.hadEnergy();
-
-// =======
-
-	if( energy < 1e-9 ) continue;  
-	  	  
+	//Auguste: Photons in HF have no hadEnergy in fastsim: -> all RecHit collections are empty with photons.
+	double energyEM = ct.emEnergy(); // For HF !
+	//so test the total energy to deal with the photons in  HF:
+	if( (energy+energyEM) < 1e-9 ) continue;
 	  
 	assert( ct.constituentsSize() );	  
 	//Mike: The DetId will be taken by the first Hadronic constituent
@@ -225,7 +218,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		//---ab: 2 rechits for HF:
 		double energyemHF = weight_HFem_*ct.emEnergy();
 		double energyhadHF = weight_HFhad_*ct.hadEnergy();
-		if(energy < thresh_HF_ ) continue;
+		if((energyemHF+energyhadHF) < thresh_HF_ ) continue;
 		if(energyemHF > thresh_HF_ ){
 		  pfrhHFEM = createHcalRecHit( detid, 
 					   energyemHF, 
