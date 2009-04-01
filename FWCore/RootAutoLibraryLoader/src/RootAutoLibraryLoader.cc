@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: RootAutoLibraryLoader.cc,v 1.16 2009/01/13 21:47:18 wmtan Exp $
+// $Id: RootAutoLibraryLoader.cc,v 1.17 2009/03/02 20:33:24 wmtan Exp $
 //
 
 // system include files
@@ -29,7 +29,10 @@
 
 #include "Reflex/Type.h"
 #include "Cintex/Cintex.h"
-#include "TClass.h" 
+#include "TClass.h"
+//#include "TClassTable.h"
+#include "TIsAProxy.h"
+
 //
 // constants, enums and typedefs
 //
@@ -99,7 +102,7 @@ addWrapperOfVectorOfBuiltin(std::map<std::string,std::string>& iMap, const char*
    static std::string sReflexPostfix("> >");
 
    //Wrapper<vector<float,allocator<float> > >
-   static std::string sCintPrefix("Wrapper<vector<");
+   static std::string sCintPrefix("edm::Wrapper<vector<");
    static std::string sCintMiddle(",allocator<");
    static std::string sCintPostfix("> > >");
 
@@ -250,6 +253,7 @@ void registerTypes() {
       classes.push_back(std::pair<std::string,std::string>(className, itInfo->loadable_.native_file_string()));
       std::map<std::string,std::string>::iterator itFound = specialsToLib.find(className);
       if(itFound !=specialsToLib.end()){
+        // std::cout << "Found " << lastClass << " : " << className << std::endl;
         itFound->second = itInfo->loadable_.native_file_string();
       }
     }
@@ -282,13 +286,13 @@ void registerTypes() {
   for(std::map<std::string,std::string>::const_iterator itSpecial = specials.begin();
       itSpecial != specials.end();
       ++itSpecial) {
-    //std::cout <<"registering special "<<itSpecial->first<<" "<<itSpecial->second<<" "<<specialsToLib[classNameForRoot(itSpecial->second)]<<std::endl;
+    //std::cout <<"registering special "<<itSpecial->first<<" "<<itSpecial->second<<" "<< std::endl << "    " << specialsToLib[classNameForRoot(itSpecial->second)]<<std::endl;
     //force loading of specials
     if(specialsToLib[classNameForRoot(itSpecial->second)].size()) {
       //std::cout <<"&&&&& found special case "<<itSpecial->first<<std::endl;
       std::string name=itSpecial->second;
       if(not edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix+name)) {
-        std::cout <<"failed to load plugin"<<std::endl;
+        std::cout <<"failed to load plugin for "<<cPrefix+name<<std::endl;
         continue;
       } else {
         //need to construct the Class ourselves
@@ -307,7 +311,33 @@ void registerTypes() {
         myNewlyNamedClass->SetName(itSpecial->first.c_str());
         gROOT->AddClass(myNewlyNamedClass);
 #else
-        reflexNamedClass->Clone(itSpecial->first.c_str());
+//      reflexNamedClass->Clone(itSpecial->first.c_str());
+//
+// TClass::Clone() in ROOT 5.22 (base release) tries to find a dictionary
+// for the new class type instead of cloning the dictionary from the
+// existing class.  This is fixed in the 5.22_patch branch, and should
+// also be fixed in subsequent releases.  In the meantime, the code below
+// is a workaround for the bug in 5.22.  Based loosely on Philippe's fix
+// for TClass::Clone()
+//
+// Unfortunately, this doesn't seem to work, and backporting the unit test
+// for this feature shows that it apparently never worked as intended.
+// -dan
+        TClass::RemoveClass(reflexNamedClass);
+        TClass* alias = new TClass(reflexNamedClass->GetName(), 
+                                   1,
+                                   t.TypeInfo(), new TIsAProxy(t.TypeInfo()),
+                                   0, 0, 0, 0, 0, 0);
+        if (0 != alias) {
+          TClass::RemoveClass(alias);
+          alias->SetName(itSpecial->first.c_str());
+          TClass::AddClass(alias);
+          // tried this, doesn't seem to help
+          //TClassTable::Add(alias->GetName(), alias->GetClassVersion(),
+          //  t.TypeInfo(), TClassTable::GetDict(t.TypeInfo()),
+          //  TClassTable::GetPragmaBits(reflexNamedClass->GetName()));
+        }
+        TClass::AddClass(reflexNamedClass);
 #endif
       }
     }
@@ -329,13 +359,15 @@ RootAutoLibraryLoader::RootAutoLibraryLoader() :
    if(specials.empty()) {
       addWrapperOfVectorOfBuiltin(specials,"char");
       addWrapperOfVectorOfBuiltin(specials,"unsigned char");
-      addWrapperOfVectorOfBuiltin(specials,"signed char");
+//      addWrapperOfVectorOfBuiltin(specials,"signed char");
       addWrapperOfVectorOfBuiltin(specials,"short");
       addWrapperOfVectorOfBuiltin(specials,"unsigned short");
       addWrapperOfVectorOfBuiltin(specials,"int");
       addWrapperOfVectorOfBuiltin(specials,"unsigned int");
-      addWrapperOfVectorOfBuiltin(specials,"long");
-      addWrapperOfVectorOfBuiltin(specials,"unsigned long");
+//      addWrapperOfVectorOfBuiltin(specials,"long");
+//      addWrapperOfVectorOfBuiltin(specials,"unsigned long");
+      addWrapperOfVectorOfBuiltin(specials,"long long");
+      addWrapperOfVectorOfBuiltin(specials,"unsigned long long");
 
       addWrapperOfVectorOfBuiltin(specials,"float");
       addWrapperOfVectorOfBuiltin(specials,"double");
