@@ -17,7 +17,7 @@ using namespace std;
 //
 /// Constructor and destructor
 
-gctTestEnergyAlgos::gctTestEnergyAlgos() : etStripSums(36) {}
+gctTestEnergyAlgos::gctTestEnergyAlgos() : m_bxStart(0), m_numOfBx(1), etStripSums(36) {}
 gctTestEnergyAlgos::~gctTestEnergyAlgos() {}
 
 //=================================================================================================================
@@ -446,7 +446,7 @@ L1CaloRegion gctTestEnergyAlgos::nextRegionFromFile(const unsigned ieta, const u
   // The file just contains lists of region energies
   unsigned et;
   regionEnergyMapInputFile >> et;
-  L1CaloRegion temp(et, false, true, false, false, ieta, iphi);
+  L1CaloRegion temp=L1CaloRegion::makeRegionFromGctIndices(et, false, true, false, false, ieta, iphi);
   temp.setBx(bx);
   return temp;
 }
