@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-btagMC_QCD_800-1000 = cms.EDFilter("BTagSkimMC",
+btagMC_QCD_800_1000 = cms.EDFilter("BTagSkimMC",
     mcProcess = cms.string('QCD'),
     pthat_min = cms.double(800.0),
     verbose = cms.untracked.bool(False),
