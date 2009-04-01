@@ -20,6 +20,8 @@
 #include <stdint.h>
 #include <string>
 
+#include "FWCore/Framework/interface/Event.h"
+
 class L1CaloEmCand;
 class L1CaloRegion;
 
@@ -27,7 +29,7 @@ class gctTestElectrons;
 class gctTestEnergyAlgos;
 class gctTestFirmware;
 class gctTestHt;
-//class gctTestHfEtSums;
+class gctTestHfEtSums;
 
 class L1GlobalCaloTrigger;
 
@@ -39,6 +41,7 @@ public:
 
   // Constructor and destructor
   gctTestFunctions();
+  gctTestFunctions(const edm::EventSetup& c);
   ~gctTestFunctions();
 
   /// Clear vectors of input data
@@ -70,8 +73,8 @@ public:
   /// Check the Ht summing algorithms
   bool checkHtSums(const L1GlobalCaloTrigger* gct) const;
 
-/*   /// Check the Hf Et sums */
-/*   bool checkHfEtSums(const L1GlobalCaloTrigger* gct) const; */
+  /// Check the Hf Et sums
+  bool checkHfEtSums(const L1GlobalCaloTrigger* gct) const;
 
   /// Analyse calculation of energy sums in firmware
   bool checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct, const std::string &fileName) const;
@@ -82,7 +85,7 @@ private:
   gctTestEnergyAlgos*    theEnergyAlgosTester;
   gctTestFirmware*       theFirmwareTester;
   gctTestHt*             theHtTester;
-  //  gctTestHfEtSums*       theHfEtSumsTester;
+  gctTestHfEtSums*       theHfEtSumsTester;
 
   std::vector< std::vector<L1CaloEmCand> > m_inputEmCands;
   std::vector< std::vector<L1CaloRegion> > m_inputRegions;

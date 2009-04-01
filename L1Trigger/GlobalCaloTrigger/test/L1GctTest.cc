@@ -53,20 +53,6 @@ L1GctTest::L1GctTest(const edm::ParameterSet& iConfig) :
     throw cms::Exception ("L1GctTestInitialisationError")
       << "no reference filename provided for firmware tests.\n"
       << "Specify non-blank parameter referenceFile in cmsRun configuration\n"; }
-
-  // instantiate the GCT
-  m_gct = new L1GlobalCaloTrigger(L1GctJetLeafCard::hardwareJetFinder);
-  m_tester = new gctTestFunctions();
-
-  // Fill the jetEtCalibLuts vector
-  lutPtr nextLut( new L1GctJetEtCalibrationLut() );
-
-  for (unsigned ieta=0; ieta<L1GctJetFinderBase::COL_OFFSET; ieta++) {
-    nextLut->setEtaBin(ieta);
-    m_jetEtCalibLuts.push_back(nextLut);
-    nextLut.reset ( new L1GctJetEtCalibrationLut() );
-  }
-
 }
 
 
@@ -134,7 +120,7 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      m_tester->fillRawJetData(m_gct);
      passAllTests &= m_tester->checkEnergySums(m_gct);
      passAllTests &= m_tester->checkHtSums(m_gct);
-     //     passAllTests &= m_tester->checkHfEtSums(m_gct);
+     passAllTests &= m_tester->checkHfEtSums(m_gct);
    }
 
    m_eventNo++;
@@ -158,6 +144,20 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 L1GctTest::beginJob(const edm::EventSetup& c)
 {
+
+  // instantiate the GCT
+  m_gct = new L1GlobalCaloTrigger(L1GctJetLeafCard::hardwareJetFinder);
+  m_tester = new gctTestFunctions(c);
+
+  // Fill the jetEtCalibLuts vector
+  lutPtr nextLut( new L1GctJetEtCalibrationLut() );
+
+  for (unsigned ieta=0; ieta<L1GctJetFinderBase::COL_OFFSET; ieta++) {
+    nextLut->setEtaBin(ieta);
+    m_jetEtCalibLuts.push_back(nextLut);
+    nextLut.reset ( new L1GctJetEtCalibrationLut() );
+  }
+
   configureGct(c);
 }
 

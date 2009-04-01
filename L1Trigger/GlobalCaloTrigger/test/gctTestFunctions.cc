@@ -1,10 +1,21 @@
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestFunctions.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+
+// Trigger configuration includes
+#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
+
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestElectrons.h"
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestFirmware.h"
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestHt.h"
-//#include "L1Trigger/GlobalCaloTrigger/test/gctTestHfEtSums.h"
+#include "L1Trigger/GlobalCaloTrigger/test/gctTestHfEtSums.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
@@ -12,15 +23,29 @@
 //
 /// Constructor and destructor
 
-gctTestFunctions::gctTestFunctions() :
-  theElectronsTester      ( new gctTestElectrons() ),
-  theEnergyAlgosTester    ( new gctTestEnergyAlgos() ),
-  theFirmwareTester       ( new gctTestFirmware() ),
-  theHtTester             ( new gctTestHt() ),
-  //  theHfEtSumsTester       ( new gctTestHfEtSums() ),
+gctTestFunctions::gctTestFunctions() {}
+
+gctTestFunctions::gctTestFunctions(const edm::EventSetup& c) :
   m_inputEmCands(), m_inputRegions(),
   m_bxStart(0), m_numOfBx(1)
 {
+  assert(&c!=0);
+
+  // get data from EventSetup
+  edm::ESHandle< L1GctJetFinderParams > jfPars ;
+  c.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
+//   edm::ESHandle< L1GctChannelMask > chanMask ;
+//   c.get< L1GctChannelMaskRcd >().get( chanMask ) ; // which record?
+//   edm::ESHandle< L1CaloEtScale > etScale ;
+//   c.get< L1JetEtScaleRcd >().get( etScale ) ; // which record?
+  edm::ESHandle< L1CaloEtScale > hfRingEtScale ;
+  c.get< L1HfRingEtScaleRcd >().get( hfRingEtScale ) ; // which record?
+
+  theElectronsTester      = new gctTestElectrons();
+  theEnergyAlgosTester    = new gctTestEnergyAlgos();
+  theFirmwareTester       = new gctTestFirmware();
+  theHtTester             = new gctTestHt(jfPars.product());
+  theHfEtSumsTester       = new gctTestHfEtSums(hfRingEtScale.product());
 }
 
 gctTestFunctions::~gctTestFunctions() {
@@ -28,7 +53,7 @@ gctTestFunctions::~gctTestFunctions() {
   delete theEnergyAlgosTester;
   delete theFirmwareTester;
   delete theHtTester;
-  //  delete theHfEtSumsTester;
+  delete theHfEtSumsTester;
 }
 
 //=================================================================================================================
@@ -160,15 +185,15 @@ bool gctTestFunctions::checkHtSums(const L1GlobalCaloTrigger* gct) const
   return theHtTester->checkHtSums(gct);
 }
 
-// //=================================================================================================================
-// //
-// /// Check the Hf Et sums
-// bool gctTestFunctions::checkHfEtSums(const L1GlobalCaloTrigger* gct) const
-// {
-//   theHfEtSumsTester->reset();
-//   theHfEtSumsTester->fillExpectedHfSums(m_inputRegions);
-//   return theHfEtSumsTester->checkHfEtSums(gct, m_numOfBx);
-// }
+//=================================================================================================================
+//
+/// Check the Hf Et sums
+bool gctTestFunctions::checkHfEtSums(const L1GlobalCaloTrigger* gct) const
+{
+  theHfEtSumsTester->reset();
+  theHfEtSumsTester->fillExpectedHfSums(m_inputRegions);
+  return theHfEtSumsTester->checkHfEtSums(gct, m_numOfBx);
+}
 
 
 //=================================================================================================================
