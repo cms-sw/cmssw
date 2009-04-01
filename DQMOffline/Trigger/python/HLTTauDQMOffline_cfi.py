@@ -20,7 +20,7 @@ TauRefProducer = cms.EDFilter("HLTTauRefProducer",
                             ),
 
                     Electrons = cms.untracked.PSet(
-                            ElectronCollection = cms.untracked.InputTag("pixelMatchGsfElectrons"),
+                            ElectronCollection = cms.untracked.InputTag("gsfElectrons"),
                             doID = cms.untracked.bool(False),
                             InnerConeDR = cms.untracked.double(0.02),
                             MaxIsoVar = cms.untracked.double(0.02),

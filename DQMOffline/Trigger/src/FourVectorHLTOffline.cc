@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.29 2009/03/27 03:14:00 berryhil Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.30 2009/03/30 21:19:51 berryhil Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -18,6 +18,7 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -187,7 +188,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    }
 
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
-  iEvent.getByLabel("pixelMatchGsfElectrons",gsfElectrons); 
+  iEvent.getByLabel("gsfElectrons",gsfElectrons); 
   if(!gsfElectrons.isValid()) { 
     edm::LogInfo("FourVectorHLTOffline") << "gsfElectrons not found, ";
       //"skipping event"; 
