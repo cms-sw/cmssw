@@ -1,5 +1,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalHfSumAlgos.h"
 
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHfBitCountsLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHfEtSumsLut.h"
@@ -212,6 +214,15 @@ std::vector<unsigned> L1GctGlobalHfSumAlgos::hfSumsWord() const {
 void L1GctGlobalHfSumAlgos::setupLuts(const L1CaloEtScale* scale)
 {
   // Replaces existing list of luts with a new one
+  while (!m_bitCountLuts.empty()) {
+    delete m_bitCountLuts.begin()->second;
+    m_bitCountLuts.erase(m_bitCountLuts.begin());
+  }
+  m_bitCountLuts[L1GctHfEtSumsLut::bitCountPosEtaRing1] = new L1GctHfBitCountsLut(L1GctHfEtSumsLut::bitCountPosEtaRing1);
+  m_bitCountLuts[L1GctHfEtSumsLut::bitCountPosEtaRing2] = new L1GctHfBitCountsLut(L1GctHfEtSumsLut::bitCountPosEtaRing2);
+  m_bitCountLuts[L1GctHfEtSumsLut::bitCountNegEtaRing1] = new L1GctHfBitCountsLut(L1GctHfEtSumsLut::bitCountNegEtaRing1);
+  m_bitCountLuts[L1GctHfEtSumsLut::bitCountNegEtaRing2] = new L1GctHfBitCountsLut(L1GctHfEtSumsLut::bitCountNegEtaRing2);
+
   while (!m_etSumLuts.empty()) {
     delete m_etSumLuts.begin()->second;
     m_etSumLuts.erase(m_etSumLuts.begin());
@@ -245,11 +256,11 @@ const L1GctHfEtSumsLut* L1GctGlobalHfSumAlgos::getESLut(const L1GctHfEtSumsLut::
 }
 
 /// Get thresholds
-std::vector<unsigned> L1GctGlobalHfSumAlgos::getThresholds(const L1GctHfEtSumsLut::hfLutType type) const
+std::vector<double> L1GctGlobalHfSumAlgos::getThresholds(const L1GctHfEtSumsLut::hfLutType type) const
 {
-  std::vector<unsigned> result;
+  std::vector<double> result;
   const L1GctHfEtSumsLut* ESLut = getESLut(type);
-  //  if (ESLut != 0) { result = ESLut->lutFunction()->getThresholds(type); }
+  if (ESLut != 0) { result = ESLut->lutFunction()->getThresholds(); }
   return result;
 } 
 

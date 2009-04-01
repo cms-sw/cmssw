@@ -62,6 +62,10 @@ public:
   /// Return the Lut function
   const L1CaloEtScale* lutFunction() const { return m_lutFunction; }
 
+  /// Get thresholds
+  std::vector<double>   getThresholdsGeV() const;
+  std::vector<unsigned> getThresholdsGct() const;
+
 protected:
   
 

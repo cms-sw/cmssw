@@ -17,7 +17,7 @@
  */
 
 
-class L1GctHfBitCountsLut : public L1GctLut<8,3>
+class L1GctHfBitCountsLut : public L1GctLut<5,3>
 
 {
 public:
@@ -42,6 +42,9 @@ public:
 
   /// Return the type of Lut
   L1GctHfEtSumsLut::hfLutType lutType() const { return m_lutType; }
+
+  /// Get thresholds
+  std::vector<unsigned> getThresholdsGct() const;
 
 protected:
   

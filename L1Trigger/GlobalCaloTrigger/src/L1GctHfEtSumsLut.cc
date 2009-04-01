@@ -39,6 +39,28 @@ L1GctHfEtSumsLut::~L1GctHfEtSumsLut()
 {
 }
 
+
+uint16_t L1GctHfEtSumsLut::value (const uint16_t lutAddress) const
+{
+  return m_lutFunction->rank(lutAddress) ;
+}
+
+std::vector<double>   L1GctHfEtSumsLut::getThresholdsGeV() const
+{
+  return m_lutFunction->getThresholds();
+}
+
+std::vector<unsigned> L1GctHfEtSumsLut::getThresholdsGct() const
+{
+ std::vector<unsigned> result;
+ std::vector<double> thresholdsGeV = m_lutFunction->getThresholds();
+ for (std::vector<double>::const_iterator thr=thresholdsGeV.begin();
+	thr != thresholdsGeV.end(); thr++) {
+   result.push_back(static_cast<unsigned>((*thr)/(m_lutFunction->linearLsb())));
+ }
+ return result;
+}
+
 L1GctHfEtSumsLut L1GctHfEtSumsLut::operator= (const L1GctHfEtSumsLut& lut)
 {
   L1GctHfEtSumsLut temp(lut);
@@ -63,9 +85,4 @@ std::ostream& operator << (std::ostream& os, const L1GctHfEtSumsLut& lut)
 
 template class L1GctLut<L1GctHfEtSumsLut::NAddress,L1GctHfEtSumsLut::NData>;
 
-
-uint16_t L1GctHfEtSumsLut::value (const uint16_t lutAddress) const
-{
-  return m_lutFunction->rank(lutAddress) ;
-}
 

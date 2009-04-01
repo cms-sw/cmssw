@@ -56,7 +56,7 @@ class L1GctGlobalHfSumAlgos : public L1GctProcessor
   const L1GctHfEtSumsLut* getESLut(const L1GctHfEtSumsLut::hfLutType type) const;
 
   /// Get thresholds
-  std::vector<unsigned> getThresholds(const L1GctHfEtSumsLut::hfLutType type) const;
+  std::vector<double> getThresholds(const L1GctHfEtSumsLut::hfLutType type) const;
 
   /// provide access to input pointer, Wheel Jet Fpga 1
   L1GctWheelJetFpga* getPlusWheelJetFpga() const { return m_plusWheelJetFpga; }
