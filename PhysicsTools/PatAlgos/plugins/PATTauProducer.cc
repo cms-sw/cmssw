@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.21 2009/03/26 05:02:42 hegner Exp $
+// $Id: PATTauProducer.cc,v 1.22 2009/03/26 22:38:58 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -27,7 +27,7 @@ using namespace pat;
 
 PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
   isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false) ,
-  userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData") )
+  useUserData_(iConfig.exists("userData"))
 {
   // initialize the configurables
   tauSrc_               = iConfig.getParameter<edm::InputTag>( "tauSource" );
@@ -112,9 +112,9 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
      efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
   }
 
-  useUserData_ = false;
-  if ( iConfig.exists("userData") ) {
-    useUserData_ = true;
+  // Check to see if the user wants to add user data
+  if ( useUserData_ ) {
+    userDataHelper_ = PATUserDataHelper<Tau>(iConfig.getParameter<edm::ParameterSet>("userData"));
   }
 
   // produces vector of taus

@@ -1,5 +1,5 @@
 //
-// $Id: PATUserDataMerger.h,v 1.4.4.1 2009/02/03 09:09:20 gpetrucc Exp $
+// $Id: PATUserDataMerger.h,v 1.5 2009/03/26 05:02:41 hegner Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATUserDataMerger_h
@@ -18,7 +18,7 @@
 		cases. 
 
   \author   Salvatore Rappoccio
-  \version  $Id: PATUserDataMerger.h,v 1.4.4.1 2009/02/03 09:09:20 gpetrucc Exp $
+  \version  $Id: PATUserDataMerger.h,v 1.5 2009/03/26 05:02:41 hegner Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -124,6 +124,7 @@ pat::PATUserDataMerger<ObjectType, Operation>::add(ObjectType & patObject,
     edm::Handle<typename Operation::product_type> userData;
 
     // Get the objects by label
+    if ( input_it->encode().size() == 0 ) continue;
     iEvent.getByLabel( *input_it, userData );
 
     edm::Ptr<reco::Candidate> recoObject = patObject.originalObjectRef();

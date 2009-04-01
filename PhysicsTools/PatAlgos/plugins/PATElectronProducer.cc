@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.22 2009/03/26 05:02:41 hegner Exp $
+// $Id: PATElectronProducer.cc,v 1.23 2009/03/26 05:34:29 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -27,7 +27,7 @@ using namespace pat;
 
 PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false) ,
-  userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData") )
+  useUserData_(iConfig.exists("userData"))
 {
 
   // general configurables
@@ -119,9 +119,8 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   }
 
   // Check to see if the user wants to add user data
-  useUserData_ = false;
-  if ( iConfig.exists("userData") ) {
-    useUserData_ = true;
+  if ( useUserData_ ) {
+    userDataHelper_ = PATUserDataHelper<Electron>(iConfig.getParameter<edm::ParameterSet>("userData"));
   }
 
   // electron ID configurables
@@ -336,7 +335,7 @@ void PATElectronProducer::FillElectron(Electron& anElectron,
         }
       }
     }
-    
+
     if (efficiencyLoader_.enabled()) {
       efficiencyLoader_.setEfficiencies( anElectron, elecsRef );
     }

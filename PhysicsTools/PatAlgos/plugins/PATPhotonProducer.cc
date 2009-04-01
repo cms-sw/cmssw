@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.19 2009/03/26 05:02:42 hegner Exp $
+// $Id: PATPhotonProducer.cc,v 1.20 2009/03/26 20:44:37 vadler Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -14,7 +14,7 @@ using namespace pat;
 
 PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
   isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false) ,
-  userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData") )
+  useUserData_(iConfig.exists("userData"))
 {
   // initialize the configurables
   photonSrc_         = iConfig.getParameter<edm::InputTag>("photonSource");
@@ -72,9 +72,8 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
 
 
   // Check to see if the user wants to add user data
-  useUserData_ = false;
-  if ( iConfig.exists("userData") ) {
-    useUserData_ = true;
+  if ( useUserData_ ) {
+    userDataHelper_ = PATUserDataHelper<Photon>(iConfig.getParameter<edm::ParameterSet>("userData"));
   }
 
  

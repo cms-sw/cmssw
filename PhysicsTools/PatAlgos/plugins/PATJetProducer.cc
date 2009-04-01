@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.32 2009/03/26 05:02:42 hegner Exp $
+// $Id: PATJetProducer.cc,v 1.33 2009/03/26 22:38:58 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -39,7 +39,7 @@ using namespace pat;
 
 
 PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
-  userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData") )
+  useUserData_(iConfig.exists("userData"))
 {
   // initialize the configurables
   jetsSrc_                 = iConfig.getParameter<edm::InputTag>	      ( "jetSource" );
@@ -103,9 +103,8 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   if (!addBTagInfo_) { addDiscriminators_ = false; addTagInfos_ = false; }
 
   // Check to see if the user wants to add user data
-  useUserData_ = false;
-  if ( iConfig.exists("userData") ) {
-    useUserData_ = true;
+  if ( useUserData_ ) {
+    userDataHelper_ = PATUserDataHelper<Jet>(iConfig.getParameter<edm::ParameterSet>("userData"));
   }
 
   // produces vector of jets

@@ -1,5 +1,5 @@
 //
-// $Id: PATMETProducer.cc,v 1.8 2008/11/28 22:05:56 lowette Exp $
+// $Id: PATMETProducer.cc,v 1.9 2009/03/26 05:02:42 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMETProducer.h"
@@ -14,7 +14,7 @@ using namespace pat;
 
 
 PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig):
-  userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData") )
+  useUserData_(iConfig.exists("userData"))
 {
   // initialize the configurables
   metSrc_         = iConfig.getParameter<edm::InputTag>("metSource");
@@ -31,9 +31,8 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig):
   }
 
   // Check to see if the user wants to add user data
-  useUserData_ = false;
-  if ( iConfig.exists("userData") ) {
-    useUserData_ = true;
+  if ( useUserData_ ) {
+    userDataHelper_ = PATUserDataHelper<MET>(iConfig.getParameter<edm::ParameterSet>("userData"));
   }
 
   
