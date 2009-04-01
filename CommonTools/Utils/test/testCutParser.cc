@@ -173,13 +173,4 @@ void testCutParser::checkAll() {
   checkHit( "!hasPositionAndError || (localPosition.x = 1)", true,  hitOk    );
   checkHit( "!hasPositionAndError || (localPosition.x = 1)", true, hitThrow );
 
-  reco::Muon emptyMu;
-  CPPUNIT_ASSERT(  emptyMu.isGood(reco::Muon::All) );
-  CPPUNIT_ASSERT( !emptyMu.isGood(reco::Muon::AllGlobalMuons) );
-  checkMuon("isGood('All')", true , emptyMu);
-  checkMuon("isGood('AllGlobalMuons')", false, emptyMu); 
-  // Check that 'magic values' are not allowed for enums
-  CPPUNIT_ASSERT_THROW( checkMuon( "isGood(0)", true , emptyMu), edm::Exception);
-  // Check that wrong enum names throw exception 
-  CPPUNIT_ASSERT_THROW( checkMuon( "isGood('ThisThingDoesNotExist_Or_At_Least_I_Hope_So')", true , emptyMu), edm::Exception);
 }
