@@ -50,7 +50,7 @@ class KinematicTree : public ReferenceCounted
  * Access methods
  */ 
  bool isEmpty() const;
- bool isValid() const  {return empt;}
+ bool isValid() const  {return !empt;}
 
 /**
  * This method checks if the tree
