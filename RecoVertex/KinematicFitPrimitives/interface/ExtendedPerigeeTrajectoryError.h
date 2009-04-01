@@ -2,6 +2,7 @@
 #define ExtendedPerigeeTrajectoryError_H
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class ExtendedPerigeeTrajectoryError
 { 
@@ -30,16 +31,13 @@ public:
  
  const AlgebraicSymMatrix66 & weightMatrix(int & error)const
  {
-  if(! weightIsAvailable())
-  {
-   int ifail;
-//   cout<<"weight is requested for covariance:"<<cov<<endl;
-   weight = cov.Inverse(ifail);
-   if(ifail != 0) throw VertexException("ExtendedPerigeeTrajectoryError::unable to invert covariance matrix"); 
+  error = 0;
+  if(! weightIsAvailable()) {
+    weight = cov.Inverse(error);
+   if(error != 0) LogDebug("RecoVertex/ExtendedPerigeeTrajectoryError") 
+       << "unable to invert covariance matrix\n";
    weightAvailable = true;
   }
-  
-//  cout<<"and the weight is: "<< weight<<endl;
   return weight;
  }
  
