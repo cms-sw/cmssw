@@ -3,6 +3,7 @@
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToCartesian.h"
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -44,8 +45,6 @@ TrackKinematicStatePropagator::planeCrossing(const FreeTrajectoryState& state,
    planeCrossing(HelixPlaneCrossing::PositionType(inPos.x(), inPos.y(), inPos.z()),
 		 HelixPlaneCrossing::DirectionType(inMom.x(), inMom.y(), inMom.z()), 
 		 kappa, direction);
- pair<bool,double> propResult = planeCrossing.pathLength(*plane);
- if ( !propResult.first ) throw VertexException("KinematicStatePropagator without material::propagation failed!");
  return pair<HelixBarrelPlaneCrossingByCircle,BoundPlane *>(planeCrossing,plane);
 }
 
@@ -76,6 +75,11 @@ TrackKinematicStatePropagator::propagateToTheTransversePCACharged
   HelixBarrelPlaneCrossingByCircle planeCrossing = cros.first; 
   BoundPlane * plane = cros.second;
   pair<bool,double> propResult = planeCrossing.pathLength(*plane);
+  if ( !propResult.first ) {
+    LogDebug("RecoVertex/TrackKinematicStatePropagator") 
+	 << "Propagation failed! State is invalid\n";
+    return  KinematicState();
+  }
   double s = propResult.second;
   
   HelixPlaneCrossing::PositionType xGen = planeCrossing.position(s);
