@@ -3,6 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=root>
 <use name=DataFormats/L1GlobalTrigger>
+<use name=DataFormats/L1GlobalCaloTrigger>
 #<use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/L1DTTrackFinder>
@@ -15,6 +16,7 @@
 <export>
    <lib name=L1TriggerOfflineL1Analyzer>
    <use name=DataFormats/L1GlobalTrigger>
+   <use name=DataFormats/L1GlobalCaloTrigger>
 #   <use name=SimDataFormats/HepMCProduct>
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>

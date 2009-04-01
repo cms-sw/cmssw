@@ -2,7 +2,7 @@
 
 // This is the analyzer
 #include "L1TriggerOffline/L1Analyzer/interface/L1Analyzer.h"
-#include "L1TriggerOffline/L1Analyzer/interface/L1PromptAnalysis.h"
+//#include "L1TriggerOffline/L1Analyzer/interface/L1PromptAnalysis.h"
 
 // These for L1 collections
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
@@ -13,6 +13,7 @@
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "L1TriggerOffline/L1Analyzer/interface/GtToGctCands.h"
 
 // This for RECO tau collection
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
@@ -37,6 +38,7 @@ DEFINE_FWK_MODULE(L1EmParticleShallowCloneProducer);
 DEFINE_FWK_MODULE(L1JetParticleShallowCloneProducer);
 DEFINE_FWK_MODULE(L1MuonParticleShallowCloneProducer);
 DEFINE_FWK_MODULE(L1EtMissParticleShallowCloneProducer);
+DEFINE_FWK_MODULE(GtToGctCands);
 //DEFINE_FWK_MODULE(L1PromptAnalysis);
 
 
