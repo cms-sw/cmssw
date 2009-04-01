@@ -130,7 +130,9 @@ void drawGFit(TH1 * h1, float min, float max, float minfit, float maxfit) {
   gPad->SetGrid(1,1);
   gStyle->SetGridColor(15);
   h1->GetXaxis()->SetRangeUser(min,max);
-  TF1* g1 = new TF1(TString("g")+i,"gaus",minfit,maxfit);
+  TString  fitName = "g";
+  fitName += i;
+    TF1* g1 = new TF1(fitName.Data(),"gaus",minfit,maxfit);
   g1->SetLineColor(2);
   g1->SetLineWidth(2);
   h1->Fit(g1,"R");
