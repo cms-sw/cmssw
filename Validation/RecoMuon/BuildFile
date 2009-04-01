@@ -17,6 +17,5 @@
 <use name=root>
 
 <use name=DQMServices/Core>
-<use name=Validation/Tools>
 
 <flags EDM_PLUGIN=1>
