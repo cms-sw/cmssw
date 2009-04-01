@@ -1,11 +1,10 @@
 #include "RecoVertex/KinematicFit/interface/LagrangeParentParticleFitter.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicVertexFactory.h"
-// #include "Utilities/UI/interface/SimpleConfigurable.h"
 #include "RecoVertex/KinematicFit/interface/InputSort.h"
-#include "RecoVertex/VertexPrimitives/interface/VertexException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 LagrangeParentParticleFitter::LagrangeParentParticleFitter()
-{readParameters();}
+{defaultParameters();}
 
 /*
 RefCountedKinematicTree LagrangeParentParticleFitter::fit(RefCountedKinematicTree tree, KinematicConstraint * cs) const
@@ -188,7 +187,11 @@ vector<RefCountedKinematicTree>  LagrangeParentParticleFitter::fit(vector<RefCou
    AlgebraicMatrix v_d = dr * cov * drt;
    int ifail = 0;
    v_d.invert(ifail);
-   if(ifail != 0) throw VertexException("ParentParticleFitter::error inverting covariance matrix");
+   if(ifail != 0) {
+     LogDebug("KinematicConstrainedVertexFitter")
+	<< "Fit failed: unable to invert covariance matrix\n";
+     return vector<RefCountedKinematicTree>();
+   }
   
 //lagrangian multipliers  
 //lambda = V_d * (D * delta_alpha + d)
@@ -270,17 +273,14 @@ vector<RefCountedKinematicTree>  LagrangeParentParticleFitter::fit(vector<RefCou
  return refTrees; 
 }     
 
-void LagrangeParentParticleFitter::readParameters()
+void LagrangeParentParticleFitter::setParameters(const edm::ParameterSet& pSet)
 {
-//FIXME
-//  static SimpleConfigurable<double>
-//    maxEquationValueConfigurable(0.01,"LagrangeParentParticleFitter:maximumValue");
-//  theMaxDiff = maxEquationValueConfigurable.value();
-// 
-//  static SimpleConfigurable<int>
-//    maxStepConfigurable(10,"LagrangeParentParticleFitter:maximumNumberOfIterations");
-//  theMaxStep = maxStepConfigurable.value();
+  theMaxDiff = pSet.getParameter<double>("maxDistance");
+  theMaxStep = pSet.getParameter<int>("maxNbrOfIterations");;
+}
 
-  theMaxDiff = 0.01;
-  theMaxStep = 10;
+void LagrangeParentParticleFitter::defaultParameters()
+{
+  theMaxDiff = 0.001;
+  theMaxStep = 100;
 }
