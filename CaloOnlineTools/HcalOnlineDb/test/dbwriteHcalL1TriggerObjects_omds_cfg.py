@@ -23,8 +23,8 @@ process.source = cms.Source("EmptyIOVSource",
 process.es_ascii = cms.ESSource("HcalOmdsCalibrations",
     input = cms.VPSet(cms.PSet(
         object = cms.string('L1TriggerObjects'),
-        tag = cms.string('DUMMY-TAG-TEST001'),
-        version = cms.string('TEST:1'),
+        tag = cms.string('hcal-l1trigger-test-v1'),
+        version = cms.string('hcal-l1trigger-test-v1'),
         subversion = cms.int32(1),
         accessor = cms.string('occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44,LHWM_VERSION=22'),
         query = cms.string('''
@@ -33,9 +33,19 @@ process.es_ascii = cms.ESSource("HcalOmdsCalibrations",
                m.TRIGGER_OBJECT_METADATA_VALUE as LUT_TAG_NAME, n.TRIGGER_OBJECT_METADATA_VALUE as ALGO_NAME
         FROM CMS_HCL_HCAL_COND.V_HCAL_L1_TRIGGER_OBJECTS o
         inner join CMS_HCL_HCAL_COND.V_HCAL_L1_TRIGGER_OBJECTS_MDA m
-        on o.tag_name=m.tag_name AND o.version=m.version AND m.TRIGGER_OBJECT_METADATA_NAME='lut tag'
+        on
+           --o.tag_name=m.tag_name
+        --AND
+           --o.version=m.version
+        --AND
+           m.TRIGGER_OBJECT_METADATA_NAME='lut tag'
         inner join CMS_HCL_HCAL_COND.V_HCAL_L1_TRIGGER_OBJECTS_MDA n
-        on o.tag_name=n.tag_name AND o.version=n.version AND n.TRIGGER_OBJECT_METADATA_NAME='lut tag'
+        on
+           --o.tag_name=n.tag_name
+        --AND 
+           --o.version=n.version
+        --AND
+           n.TRIGGER_OBJECT_METADATA_NAME='lut tag'
         WHERE
         o.TAG_NAME=:1
         and

@@ -23,8 +23,8 @@ process.source = cms.Source("EmptyIOVSource",
 process.es_ascii = cms.ESSource("HcalOmdsCalibrations",
     input = cms.VPSet(cms.PSet(
         object = cms.string('RespCorrs'),
-        tag = cms.string('DUMMY-TAG-TEST001'),
-        version = cms.string('TEST:1'),
+        tag = cms.string('hcal-respcorr-test-v1'),
+        version = cms.string('hcal-respcorr-test-v1'),
         subversion = cms.int32(1),
         accessor = cms.string('occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44,LHWM_VERSION=22'),
         query = cms.string('''
