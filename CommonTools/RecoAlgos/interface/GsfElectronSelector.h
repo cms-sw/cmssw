@@ -9,11 +9,12 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: GsfElectronSelector.h,v 1.1 2007/12/11 11:04:17 llista Exp $
+ * $Id: GsfElectronSelector.h,v 1.1 2009/03/04 13:11:28 llista Exp $
  *
  */
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
@@ -38,15 +39,17 @@ namespace helper {
       TrackExtraRefProd rTrackExtras = evt.template getRefBeforePut<TrackExtraCollection>();
       GsfTrackExtraRefProd rGsfTrackExtras = evt.template getRefBeforePut<GsfTrackExtraCollection>();
       GsfTrackRefProd rTracks = evt.template getRefBeforePut<GsfTrackCollection>();      
+      GsfElectronCoreRefProd rElectronCores = evt.template getRefBeforePut<GsfElectronCoreCollection>();      
       GsfElectronRefProd rElectrons = evt.template getRefBeforePut<GsfElectronCollection>();      
       SuperClusterRefProd rSuperClusters = evt.template getRefBeforePut<SuperClusterCollection>();      
       size_t idx = 0, tidx = 0, hidx = 0;
       for( I i = begin; i != end; ++ i ) {
 	const GsfElectron & ele = * * i;
-	selElectrons_->push_back( GsfElectron( ele ) );
-	selElectrons_->back().setGsfTrack( GsfTrackRef( rTracks, idx ) );
-	selElectrons_->back().setSuperCluster( SuperClusterRef( rSuperClusters, idx ++ ) );
+	selElectronCores_->push_back( GsfElectronCore( *(ele.core()) ) );
+	selElectronCores_->back().setGsfTrack( GsfTrackRef( rTracks, idx ) );
+	selElectronCores_->back().setSuperCluster( SuperClusterRef( rSuperClusters, idx ) );
 	selSuperClusters_->push_back( SuperCluster( * ( ele.superCluster() ) ) );
+	selElectrons_->push_back(GsfElectron(ele.p4(), GsfElectronCoreRef( rElectronCores, idx++ ), ele.trackClusterMatching(),ele.trackExtrapolations(),ele.closestCtfTrack(),ele.fiducialFlags(),ele.showerShape(),ele.fbrem(),ele.mva()));
 	GsfTrackRef trkRef = ele.gsfTrack();
 	if ( trkRef.isNonnull() ) {
 	  selTracks_->push_back( GsfTrack( * trkRef ) );
@@ -70,6 +73,7 @@ namespace helper {
 
     edm::OrphanHandle<reco::GsfElectronCollection> put( edm::Event & evt ) {
       edm::OrphanHandle<reco::GsfElectronCollection> h = evt.put( selElectrons_ );
+      evt.put( selElectronCores_ );
       evt.put( selSuperClusters_ );
       evt.put( selTracks_ );
       evt.put( selTrackExtras_ );
@@ -81,6 +85,7 @@ namespace helper {
     size_t size() const { return selElectrons_->size(); }
   private:
     std::auto_ptr<reco::GsfElectronCollection> selElectrons_;
+    std::auto_ptr<reco::GsfElectronCoreCollection> selElectronCores_;
     std::auto_ptr<reco::SuperClusterCollection> selSuperClusters_;
     std::auto_ptr<reco::GsfTrackCollection> selTracks_;
     std::auto_ptr<reco::TrackExtraCollection> selTrackExtras_;
@@ -93,6 +98,7 @@ namespace helper {
     GsfElectronSelectorBase( const edm::ParameterSet & cfg ) {
       std::string alias( cfg.getParameter<std::string>( "@module_label" ) );
       produces<reco::GsfElectronCollection>().setBranchAlias( alias + "GsfElectrons" );
+      produces<reco::GsfElectronCoreCollection>().setBranchAlias( alias + "GsfElectronCores" );
       produces<reco::SuperClusterCollection>().setBranchAlias( alias + "SuperClusters" );
       produces<reco::GsfTrackCollection>().setBranchAlias( alias + "GsfTracks" );
       produces<reco::GsfTrackExtraCollection>().setBranchAlias( alias + "GsfTrackExtras" );
