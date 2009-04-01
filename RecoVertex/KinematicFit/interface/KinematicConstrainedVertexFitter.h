@@ -7,6 +7,7 @@
 #include "RecoVertex/KinematicFit/interface/KinematicConstrainedVertexUpdator.h"
 #include "RecoVertex/KinematicFit/interface/VertexKinematicConstraint.h"
 #include "RecoVertex/KinematicFit/interface/ConstrainedTreeBuilder.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /**
  * Class fitting the veretx out of set of tracks via usual LMS
@@ -32,7 +33,14 @@ public:
  KinematicConstrainedVertexFitter(const LinearizationPointFinder& fnd);
   
  ~KinematicConstrainedVertexFitter();
-  
+
+  /**
+   * Configuration through PSet: number of iterations(maxDistance) and
+   * stopping condition (maxNbrOfIterations)
+   */
+
+ void setParameters(const edm::ParameterSet& pSet);
+
 /**
  * Without additional constraint, this will perform a simple
  * vertex fit using LMS with Lagrange multipliers method.
@@ -49,9 +57,8 @@ public:
 
 private:
 
-//method to deal with simple configurable parameters:
-//number of iterations and stopping condition
- void readParameters();
+ void defaultParameters();
+
  float theMaxDiff;
  int theMaxStep; 				       
  LinearizationPointFinder * finder;				       
