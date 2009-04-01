@@ -43,7 +43,7 @@ patTriggerEventContent = [
     'keep patTriggerObjects_patTrigger_*_*',
     'keep patTriggerFilters_patTrigger_*_*',
     'keep patTriggerPaths_patTrigger_*_*',
-    'keep *_patTriggerEvent_*_*'
+    'keep patTriggerEvent_patTriggerEvent_*_*'
 ]
 patTriggerStandAloneEventContent = [
     'keep patTriggerObjectStandAlones_patTrigger_*_*',

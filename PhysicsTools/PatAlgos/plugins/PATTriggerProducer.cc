@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.1.2.3 2009/03/27 21:31:06 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.1.2.4 2009/04/01 15:45:33 vadler Exp $
 //
 
 
@@ -14,6 +14,7 @@ PATTriggerProducer::PATTriggerProducer( const edm::ParameterSet & iConfig ) :
   nameProcess_( iConfig.getParameter< std::string >( "processName" ) ),
   tagTriggerResults_( iConfig.getParameter< edm::InputTag >( "triggerResults" ) ),
   tagTriggerEvent_( iConfig.getParameter< edm::InputTag >( "triggerEvent" ) ),
+  onlyStandAlone_( iConfig.getParameter< bool >( "onlyStandAlone" ) ),
   addPathModuleLabels_( iConfig.getParameter< bool >( "addPathModuleLabels" ) )
 {
   if ( tagTriggerResults_.process().empty() ) {
@@ -23,9 +24,11 @@ PATTriggerProducer::PATTriggerProducer( const edm::ParameterSet & iConfig ) :
     tagTriggerEvent_ = edm::InputTag( tagTriggerEvent_.label(), tagTriggerEvent_.instance(), nameProcess_ );
   }
 
-  produces< TriggerPathCollection >();
-  produces< TriggerFilterCollection >();
-  produces< TriggerObjectCollection >();
+  if ( ! onlyStandAlone_ ) {
+    produces< TriggerPathCollection >();
+    produces< TriggerFilterCollection >();
+    produces< TriggerObjectCollection >();
+  }
   produces< TriggerObjectStandAloneCollection >();
 }
 
@@ -65,103 +68,113 @@ void PATTriggerProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
   
   const unsigned sizePaths( hltConfig_.size() );
   const unsigned sizeFilters( handleTriggerEvent->sizeFilters() );
+  const unsigned sizeObjects( handleTriggerEvent->sizeObjects() );
     
   std::auto_ptr< TriggerPathCollection > triggerPaths( new TriggerPathCollection() );
-  triggerPaths->reserve( sizePaths );
-  
-  std::map< std::string, int >              moduleStates;
+  triggerPaths->reserve( onlyStandAlone_ ? 0 : sizePaths );
+  std::map< std::string, int > moduleStates;
   std::multimap< std::string, std::string > filterPaths;
   
   for ( unsigned iP = 0; iP < sizePaths; ++iP ) {
-    // initialize path
     const std::string namePath( hltConfig_.triggerName( iP ) );
     const unsigned indexPath( hltConfig_.triggerIndex( namePath ) );
-    const unsigned indexLastFilter( handleTriggerResults->index( indexPath ) );
-    TriggerPath triggerPath( namePath, indexPath, 0, handleTriggerResults->wasrun( indexPath ), handleTriggerResults->accept( indexPath ), handleTriggerResults->error( indexPath ), indexLastFilter );
-    // add module names to path and states' map
     const unsigned sizeModules( hltConfig_.size( namePath ) );
-    assert( indexLastFilter < sizeModules );
-    std::map< unsigned, std::string > indicesModules;
     for ( unsigned iM = 0; iM < sizeModules; ++iM ) {
       const std::string nameModule( hltConfig_.moduleLabel( indexPath, iM ) );
-      if ( addPathModuleLabels_ ) {
-        triggerPath.addModule( nameModule );
-      }
       const unsigned indexFilter( handleTriggerEvent->filterIndex( edm::InputTag( nameModule, "", nameProcess_ ) ) );
       if ( indexFilter < sizeFilters ) {
-        triggerPath.addFilterIndex( indexFilter );
         filterPaths.insert( std::pair< std::string, std::string >( nameModule, namePath ) );
       }
-      const unsigned slotModule( hltConfig_.moduleIndex( indexPath, nameModule ) ); 
-      indicesModules.insert( std::pair< unsigned, std::string >( slotModule, nameModule ) );
     }
-    // store path
-    triggerPaths->push_back( triggerPath );
-    // store module states to be used for the filters
-    for ( std::map< unsigned, std::string >::const_iterator iM = indicesModules.begin(); iM != indicesModules.end(); ++iM ) {
-      if ( iM->first < indexLastFilter ) {
-        moduleStates[ iM->second ] = 1;
-      } else if ( iM->first == indexLastFilter ) {
-        moduleStates[ iM->second ] = handleTriggerResults->accept( indexPath );
-      } else if ( moduleStates.find( iM->second ) == moduleStates.end() ) {
-        moduleStates[ iM->second ] = -1;
+    if ( ! onlyStandAlone_ ) {
+      const unsigned indexLastFilter( handleTriggerResults->index( indexPath ) );
+      TriggerPath triggerPath( namePath, indexPath, 0, handleTriggerResults->wasrun( indexPath ), handleTriggerResults->accept( indexPath ), handleTriggerResults->error( indexPath ), indexLastFilter );
+      // add module names to path and states' map
+      assert( indexLastFilter < sizeModules );
+      std::map< unsigned, std::string > indicesModules;
+      for ( unsigned iM = 0; iM < sizeModules; ++iM ) {
+        const std::string nameModule( hltConfig_.moduleLabel( indexPath, iM ) );
+        if ( addPathModuleLabels_ ) {
+          triggerPath.addModule( nameModule );
+        }
+        const unsigned indexFilter( handleTriggerEvent->filterIndex( edm::InputTag( nameModule, "", nameProcess_ ) ) );
+        if ( indexFilter < sizeFilters ) {
+          triggerPath.addFilterIndex( indexFilter );
+        }
+        const unsigned slotModule( hltConfig_.moduleIndex( indexPath, nameModule ) ); 
+        indicesModules.insert( std::pair< unsigned, std::string >( slotModule, nameModule ) );
+      }
+      // store path
+      triggerPaths->push_back( triggerPath );
+      // store module states to be used for the filters
+      for ( std::map< unsigned, std::string >::const_iterator iM = indicesModules.begin(); iM != indicesModules.end(); ++iM ) {
+        if ( iM->first < indexLastFilter ) {
+          moduleStates[ iM->second ] = 1;
+        } else if ( iM->first == indexLastFilter ) {
+          moduleStates[ iM->second ] = handleTriggerResults->accept( indexPath );
+        } else if ( moduleStates.find( iM->second ) == moduleStates.end() ) {
+          moduleStates[ iM->second ] = -1;
+        }
       }
     }
   }
   
-  iEvent.put( triggerPaths );
+  if ( ! onlyStandAlone_ ) {
+    iEvent.put( triggerPaths );
+  }
   
   // produce trigger filters and store used trigger object types
   // (only last active filter(s) available from trigger::TriggerEvent)
   
   std::auto_ptr< TriggerFilterCollection > triggerFilters( new TriggerFilterCollection() );
-  triggerFilters->reserve( sizeFilters );
-  
+  triggerFilters->reserve( onlyStandAlone_ ? 0 : sizeFilters );
   std::multimap< trigger::size_type, int >         filterIds;
   std::multimap< trigger::size_type, std::string > filterLabels;
   
   for ( unsigned iF = 0; iF < sizeFilters; ++iF ) {
     const std::string nameFilter( handleTriggerEvent->filterTag( iF ).label() );
-    TriggerFilter triggerFilter( nameFilter );
-    // set filter type
-    const std::string typeFilter( hltConfig_.moduleType( nameFilter ) );
-    triggerFilter.setType( typeFilter );
-    // set filter IDs of used objects
     const trigger::Keys & keys = handleTriggerEvent->filterKeys( iF );
     const trigger::Vids & ids  = handleTriggerEvent->filterIds( iF );   
-    for ( unsigned iK = 0; iK < keys.size(); ++iK ) {
-      triggerFilter.addObjectKey( keys[ iK ] );
-      filterLabels.insert( std::pair< trigger::size_type, std::string >( keys[ iK ], nameFilter ) ); // only for objects used in last active filter
-    }
-    for ( unsigned iI = 0; iI < ids.size(); ++iI ) {
-      triggerFilter.addObjectId( ids[ iI ] );
-    }
-    // set status from path info
-    std::map< std::string, int >::iterator iS( moduleStates.find( nameFilter ) );
-    if ( iS != moduleStates.end() ) {
-      if ( ! triggerFilter.setStatus( iS->second ) ) {
-        triggerFilter.setStatus( -1 ); // different code for "unvalid status determined" needed?
-      }
-    } else {
-      triggerFilter.setStatus( -1 ); // different code for "unknown" needed?
-    }
-    // store filter
-    triggerFilters->push_back( triggerFilter );
-    // store used trigger object types to be used with the objects
     assert( ids.size() == keys.size() );
     for ( unsigned iK = 0; iK < keys.size(); ++iK ) {
+      filterLabels.insert( std::pair< trigger::size_type, std::string >( keys[ iK ], nameFilter ) ); // only for objects used in last active filter
       filterIds.insert( std::pair< trigger::size_type, int >( keys[ iK ], ids[ iK ] ) );             // only for objects used in last active filter
     }
+    if ( ! onlyStandAlone_ ) {
+      TriggerFilter triggerFilter( nameFilter );
+      // set filter type
+      const std::string typeFilter( hltConfig_.moduleType( nameFilter ) );
+      triggerFilter.setType( typeFilter );
+      // set filter IDs of used objects
+      for ( unsigned iK = 0; iK < keys.size(); ++iK ) {
+        triggerFilter.addObjectKey( keys[ iK ] );
+      }
+      for ( unsigned iI = 0; iI < ids.size(); ++iI ) {
+        triggerFilter.addObjectId( ids[ iI ] );
+      }
+    // set status from path info
+      std::map< std::string, int >::iterator iS( moduleStates.find( nameFilter ) );
+      if ( iS != moduleStates.end() ) {
+        if ( ! triggerFilter.setStatus( iS->second ) ) {
+          triggerFilter.setStatus( -1 ); // different code for "unvalid status determined" needed?
+        }
+      } else {
+        triggerFilter.setStatus( -1 ); // different code for "unknown" needed?
+      }
+      // store filter
+      triggerFilters->push_back( triggerFilter );
+    }
+    // store used trigger object types to be used with the objects
   }
 
-  iEvent.put( triggerFilters );
+  if ( ! onlyStandAlone_ ) {
+    iEvent.put( triggerFilters );
+  }
   
   // produce trigger objects
   
-  const unsigned sizeObjects( handleTriggerEvent->sizeObjects() );
-  
   std::auto_ptr< TriggerObjectCollection > triggerObjects( new TriggerObjectCollection() );
-  triggerObjects->reserve( sizeObjects );
+  triggerObjects->reserve( onlyStandAlone_ ? 0 : sizeObjects );
   std::auto_ptr< TriggerObjectStandAloneCollection > triggerObjectsStandAlone( new TriggerObjectStandAloneCollection() );
   triggerObjectsStandAlone->reserve( sizeObjects );
   
@@ -179,7 +192,10 @@ void PATTriggerProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
         triggerObject.addFilterId( iM->second );
       }
     }
-    // add filter label and path name
+    if ( ! onlyStandAlone_ ) {
+      triggerObjects->push_back( triggerObject );
+    }
+    // stand-alone trigger object
     TriggerObjectStandAlone triggerObjectStandAlone( triggerObject );
     for ( std::multimap< trigger::size_type, std::string >::iterator iM = filterLabels.begin(); iM != filterLabels.end(); ++iM ) {
       if ( iM->first == iO ) {
@@ -194,11 +210,12 @@ void PATTriggerProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
       }
     }
     
-    triggerObjects->push_back( triggerObject );
     triggerObjectsStandAlone->push_back( triggerObjectStandAlone );
   }
   
-  iEvent.put( triggerObjects );
+  if ( ! onlyStandAlone_ ) {
+    iEvent.put( triggerObjects );
+  }
   iEvent.put( triggerObjectsStandAlone );
 }
 
