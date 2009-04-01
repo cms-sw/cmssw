@@ -45,10 +45,8 @@ void popcon::SiStripModuleHVHandler::getNewObjects()
   }
   edm::LogInfo   ("SiStripModuleHVHandler") << dbstr.str();
   
-
-  //  if (isTransferNeeded()) {
+  // Do the transfer!
   setForTransfer();
-  //  }
 }
 
 void popcon::SiStripModuleHVHandler::setForTransfer() { 
@@ -57,8 +55,8 @@ void popcon::SiStripModuleHVHandler::setForTransfer() {
   // build the object!
   resultVec.clear();
   modHVBuilder->BuildModuleHVObj();
-  resultVec = modHVBuilder->getSiStripModuleHV();
-  std::vector< std::vector<uint32_t> > payloadStatsHV = modHVBuilder->getPayloadStats("HV");
+  resultVec = modHVBuilder->getModulesVOff();
+  std::vector< std::vector<uint32_t> > payloadStats = modHVBuilder->getPayloadStats();
   
   if (!resultVec.empty()){
     // assume by default that transfer is needed
@@ -68,8 +66,8 @@ void popcon::SiStripModuleHVHandler::setForTransfer() {
     if (tagInfo().size > 0) {
       Ref payload = lastPayload();
       // resultVec does not contain duplicates, so only need to compare payload with resultVec[0]
-      SiStripModuleHV * modHV = resultVec[0].first;
-      if (*modHV == *payload) {
+      SiStripDetVOff * modV = resultVec[0].first;
+      if (*modV == *payload) {
 	is_transfer_needed = false;
 	LogTrace("SiStripModuleHVHandler") << "[SiStripModuleHVHandler::" << __func__ << "] Transfer of first element not required!";
       }
@@ -80,8 +78,8 @@ void popcon::SiStripModuleHVHandler::setForTransfer() {
     std::stringstream ss;
     ss << "@@@ Number of payloads transferred " << resultVec.size() << ". "
        << "PayloadNo/Badmodules/NoAdded/NoRemoved: ";
-    for (unsigned int j = 0; j < payloadStatsHV.size(); j++) {
-      ss << j << "/" << payloadStatsHV[j][0] << "/" << payloadStatsHV[j][1] << "/" << payloadStatsHV[j][2] << ". ";
+    for (unsigned int j = 0; j < payloadStats.size(); j++) {
+      ss << j << "/" << payloadStats[j][0] << "/" << payloadStats[j][1] << "/" << payloadStats[j][2] << ". ";
     }
     this->m_userTextLog = ss.str();
     

@@ -7,13 +7,13 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CondFormats/SiStripObjects/interface/SiStripModuleHV.h"
-#include "CondFormats/DataRecord/interface/SiStripModuleHVRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CalibTracker/SiStripDCS/interface/SiStripModuleHVBuilder.h"
 
 namespace popcon{
-  class SiStripModuleHVHandler : public popcon::PopConSourceHandler<SiStripModuleHV>
+  class SiStripModuleHVHandler : public popcon::PopConSourceHandler<SiStripDetVOff>
     {
     public:
       void getNewObjects();
@@ -24,8 +24,7 @@ namespace popcon{
     private:
       void setForTransfer();
       std::string m_name;
-      //      unsigned long long m_since;
-      std::vector< std::pair<SiStripModuleHV*,cond::Time_t> > resultVec;
+      std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > resultVec;
       edm::Service<SiStripModuleHVBuilder> modHVBuilder;
     };
 }
