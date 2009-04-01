@@ -557,14 +557,14 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_SW_L1R") == 0) {      
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {       
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG5")->second == 1 ) {       
       if(OpenHlt1ElectronPassed(10.,0,9999.,9999.)>=1) { 
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
     }      
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SW_L1R") == 0) {      
-    if ( map_BitOfStandardHLTPath.find("L1_SingleEG12")->second == 1 ) {       
+    if ( map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 ) {       
       if(OpenHlt1ElectronPassed(15.,0,9999.,9999.)>=1) { 
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }      
@@ -836,10 +836,21 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       }        
     }        
   }
+
+  // 1 Leg L3 isolation - prototype version from Chi-Nhan
+  //  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau15_Trk5") == 0) { 
+  //    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
+  //      if(OpenHlt2Tau1LegL3IsoPassed(15.,5.,0,0.)==1) { 
+  //	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
+  //      } 
+  //    } 
+  //  }
+
+  // No isolation version
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau15_Trk5") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
       if(OpenHltTauL2SCPassed(15.,5.,0,0.,0)>=2) { 
-	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
+  	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       } 
     } 
   }
@@ -1319,6 +1330,27 @@ int OHltTree::OpenHltTauL2SCPassed(float Et,float L25Tpt, int L25Tiso, float L3T
   return rc;
 }
 
+int OHltTree::OpenHlt2Tau1LegL3IsoPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt)
+{
+  int rc, l3iso = 0;
+
+  // Loop over all oh taus
+  for (int i=0;i<NohTau;i++) {
+    if (ohTauPt[i] >= Et) {
+      if (ohTauEiso[i] < (5 + 0.025*ohTauPt[i] + 0.0015*ohTauPt[i]*ohTauPt[i])) // sliding cut
+	if (ohTauL25Tpt[i] >= L25Tpt)
+	  if (ohTauL25Tiso[i] >= L25Tiso)
+	    if (ohTauL3Tpt[i] >= L3Tpt)
+	      rc++;
+    }
+    if (ohTauL3Tiso[i] >= 1) l3iso++;
+  }
+
+  if (rc>=2 && l3iso>=1)
+    return 1;
+  else
+    return 0;
+}
 
 // e-tau
 int OHltTree::OpenHltElecTauL2SCPassed(float elecEt, int elecL1iso, float elecTiso, float elecHiso,
@@ -1383,7 +1415,8 @@ int OHltTree::OpenHlt1ElectronPassed(float Et, int L1iso, float Tiso, float Hiso
 	  if (ohElePixelSeeds[i]>0)
 	    if ( ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.)
 	      if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1
-		rc++;      
+		if( ohEleL1Dupl[i] == false) // JH - remove double-counted L1 SCs  
+		  rc++;      
     }
   }
 
@@ -1401,10 +1434,11 @@ int OHltTree::OpenHlt1LWElectronPassed(float Et, int L1iso, float Tiso, float Hi
 	  if (ohElePixelSeedsLW[i]>0) 
 	    if ( ohEleTisoLW[i] < Tiso && ohEleTisoLW[i] != -999.) 
 	      if ( ohEleL1isoLW[i] >= L1iso )   // L1iso is 0 or 1 
-		rc++;       
+		if( ohEleLWL1Dupl[i] == false) // JH - remove double-counted L1 SCs
+		  rc++;       
     } 
   }
-
+  
   return rc; 
 } 
 
@@ -1421,13 +1455,15 @@ int  OHltTree::OpenHlt1PhotonLooseEcalIsoPassed(float Et, int L1iso, float Tiso,
 	    if( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohPhotHiso[i] < HisoBR )  ||
 		(1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohPhotHiso[i] < HisoEC ) || 
 		(ohPhotHiso[i]/ohPhotEt[i] < 0.05) ) {
-	      rc++;
+	      if( ohPhotL1Dupl[i] == false) // JH - remove double-counted L1 SCs 
+		rc++;
 	    }
 	  }
 	}
       }
     }
   }
+
   return rc;
 }
 
@@ -1443,13 +1479,15 @@ int  OHltTree::OpenHlt1PhotonVeryLooseEcalIsoPassed(float Et, int L1iso, float T
             if( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohPhotHiso[i] < HisoBR )  ||  
                 (1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohPhotHiso[i] < HisoEC ) ||   
                 (ohPhotHiso[i]/ohPhotEt[i] < 0.05) ) {  
-              rc++;  
+              if( ohPhotL1Dupl[i] == false) // JH - remove double-counted L1 SCs  
+		rc++;  
             }  
           }  
         }  
       }  
     }  
   }  
+
   return rc;  
 }  
 
@@ -1465,13 +1503,15 @@ int  OHltTree::OpenHlt1PhotonPassed(float Et, int L1iso, float Tiso, float Eiso,
 	    if( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohPhotHiso[i] < HisoBR )  ||
 		(1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohPhotHiso[i] < HisoEC ) || 
 		(ohPhotHiso[i]/ohPhotEt[i] < 0.05) ) {
-	      rc++;
+              if( ohPhotL1Dupl[i] == false) // JH - remove double-counted L1 SCs  
+		rc++;
 	    }
 	  }
 	}
       }
     }
   }
+
   return rc;
 }
 

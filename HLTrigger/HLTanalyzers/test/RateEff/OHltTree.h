@@ -267,6 +267,10 @@ public :
   Int_t           Run;
   Int_t           Event;
 
+  bool ohEleL1Dupl[8000];
+  bool ohEleLWL1Dupl[8000];
+  bool ohPhotL1Dupl[8000]; 
+
   //L1's
   /*
   Int_t           L1_DoubleEG10; 
@@ -1719,6 +1723,7 @@ public :
   inline void	   SetMapL1BitOfStandardHLTPath(OHltMenu *menu);
   inline void	   SetMapL1SeedsOfStandardHLTPath(OHltMenu *menu);
   inline void ApplyL1Prescales(OHltMenu *menu);
+  inline void RemoveEGOverlaps();
   inline void SetL1MuonQuality();
   inline void SetOpenL1Bits();
 
@@ -1728,6 +1733,7 @@ public :
   void PrintOhltVariables(int level, int type);
   int OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso,float L3Tpt, int L3Tiso);
   int OHltTree::OpenHltTauL2SCPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso);
+  int OpenHlt2Tau1LegL3IsoPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt);
   int OHltTree::OpenHltElecTauL2SCPassed(float elecEt, int elecL1iso, float elecTiso, float elecHiso,
 					 float tauEt,float tauL25Tpt, int tauL25Tiso, float tauL3Tpt, int tauL3Tiso);
   int OpenHlt1ElectronPassed(float Et,int L1iso,float Tiso,float Hiso);
@@ -1797,6 +1803,15 @@ OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
     previousBitsFired.push_back(false);
     allOtherBitsFired.push_back(false);
   }  
+
+  for(int i=0;i<8000 ;i++) 
+    { ohEleL1Dupl[i] = true;} 
+ 
+  for(int i=0;i<8000 ;i++)  
+    { ohPhotL1Dupl[i] = true;}  
+
+  for(int i=0;i<8000 ;i++)   
+    { ohEleLWL1Dupl[i] = true;}
 
   SetMapL1SeedsOfStandardHLTPath(menu);
 
@@ -3285,6 +3300,41 @@ void OHltTree::SetMapL1BitOfStandardHLTPath(OHltMenu *menu) {
     }
     map_L1BitOfStandardHLTPath[st] = tt;
   }
+}
+
+void OHltTree::RemoveEGOverlaps()
+{
+  //remove duplicated SC
+  for(int i=0;i<NohEle ;i++){
+    if (ohEleL1iso[i] == 1){ohEleL1Dupl[i]=false;}
+    else{
+      float  dist = 1000;
+      for(int j=0;j<NohEle ;j++){
+	if(ohEleL1iso[j]==1){
+	  float distTemp = fabs(ohEleEta[i]-ohEleEta[j])+fabs(ohEleE[i]-ohEleE[j]);
+	  if(distTemp < dist){dist=distTemp;}
+	}
+      }//loop over j
+      if (dist < 0.01){ohEleL1Dupl[i]=true;}
+      else {ohEleL1Dupl[i]=false;}
+    }
+  }
+
+  for(int i=0;i<NohPhot ;i++){ 
+    if (ohPhotL1iso[i] == 1){ohPhotL1Dupl[i]=false;} 
+    else{ 
+      float  dist = 1000; 
+      for(int j=0;j<NohPhot ;j++){ 
+        if(ohPhotL1iso[j]==1){ 
+          float distTemp = fabs(ohPhotEta[i]-ohPhotEta[j])+fabs(ohPhotEt[i]-ohPhotEt[j]); 
+          if(distTemp < dist){dist=distTemp;} 
+        } 
+      }//loop over j 
+      if (dist < 0.01){ohPhotL1Dupl[i]=true;} 
+      else {ohPhotL1Dupl[i]=false;} 
+    } 
+  } 
+
 }
 
 void OHltTree::SetL1MuonQuality()

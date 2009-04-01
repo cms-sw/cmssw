@@ -68,6 +68,8 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     if ( cfg->pdoecuts[procID] && MCel3!=0 ) continue;
  
     SetOpenL1Bits(); 
+
+    RemoveEGOverlaps();
    
     // 1. Loop to check which Bit fired
     // Triggernames are assigned to trigger cuts in unambigous way!
