@@ -21,8 +21,10 @@ testbuilding::~testbuilding() {}
 
 void testbuilding::beginRun( const edm::Run& run, const edm::EventSetup& setup ) {
   hvBuilder->BuildModuleHVObj();
-  std::vector< std::pair<SiStripModuleHV*,cond::Time_t> > resultVector = hvBuilder->getSiStripModuleHV();
-  std::vector< std::vector<uint32_t> > stats = hvBuilder->getPayloadStats("HV");
+  //  std::vector< std::pair<SiStripModuleHV*,cond::Time_t> > resultVector = hvBuilder->getSiStripModuleHV();
+  std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > resultVector = hvBuilder->getModulesVOff();
+  //  std::vector< std::vector<uint32_t> > stats = hvBuilder->getPayloadStats("HV");
+  std::vector< std::vector<uint32_t> > stats = hvBuilder->getPayloadStats();
   
   std::cout << "Size of resultHV = " << resultVector.size() << std::endl;
   std::cout << "Size of stats    = " << stats.size() << std::endl << std::endl;
@@ -35,10 +37,9 @@ void testbuilding::beginRun( const edm::Run& run, const edm::EventSetup& setup )
     (resultVector[i].first)->getDetIds(retVec);
     std::cout << "Number of detids = " << retVec.size() << std::endl;
     for (unsigned int j = 0; j < retVec.size(); j++) {
-      std::cout << "id = " << retVec[j] << std::endl;
+      std::cout << "id = " << retVec[j] << " LV = " << (resultVector[i].first)->IsModuleLVOff(retVec[j]) << " HV = " << (resultVector[i].first)->IsModuleHVOff(retVec[j]) << std::endl;
     }
   }
-
   
 }
 
