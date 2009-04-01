@@ -5,11 +5,11 @@ from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
 # default definition of common parameters
 
 common_beam_direction_parameters = cms.PSet(
-    BeamPosition = cms.untracked.double(0.),
-    MinEta = cms.untracked.double(0.),
-    MaxEta = cms.untracked.double(1.5),
-    MinPhi = cms.untracked.double(-3.14159265358979323846),
-    MaxPhi = cms.untracked.double(3.14159265358979323846)
+    BeamPosition = cms.double(0.),
+    MinEta = cms.double(0.),
+    MaxEta = cms.double(1.5),
+    MinPhi = cms.double(-3.14159265358979323846),
+    MaxPhi = cms.double(3.14159265358979323846)
 )
 
 #
@@ -19,15 +19,15 @@ common_beam_direction_parameters = cms.PSet(
 VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
     common_beam_direction_parameters,
     VtxSmearedCommon,
-    BeamMeanX = cms.untracked.double(0.0),
-    BeamMeanY = cms.untracked.double(0.0),
-    BeamSigmaX = cms.untracked.double(0.0001),
-    BeamSigmaY = cms.untracked.double(0.0001),
-    GaussianProfile = cms.untracked.bool(True),
-    BinX = cms.untracked.int32(50),
-    BinY = cms.untracked.int32(50),
-    File = cms.untracked.string('beam.profile'),
-    UseFile = cms.untracked.bool(False),
+    BeamMeanX       = cms.double(0.0),
+    BeamMeanY       = cms.double(0.0),
+    BeamSigmaX      = cms.double(0.0001),
+    BeamSigmaY      = cms.double(0.0001),
+    GaussianProfile = cms.bool(True),
+    BinX       = cms.int32(50),
+    BinY       = cms.int32(50),
+    File       = cms.string('beam.profile'),
+    UseFile    = cms.bool(False),
     TimeOffset = cms.double(0.)                      
 )
 

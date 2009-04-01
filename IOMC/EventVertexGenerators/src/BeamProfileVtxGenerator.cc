@@ -1,5 +1,5 @@
 
-// $Id: BeamProfileVtxGenerator.cc,v 1.6 2008/04/04 21:38:25 yumiceva Exp $
+// $Id: BeamProfileVtxGenerator.cc,v 1.7 2008/10/02 19:11:36 sunanda Exp $
 
 #include "IOMC/EventVertexGenerators/interface/BeamProfileVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -11,7 +11,6 @@
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
-//#include "CLHEP/Vector/ThreeVector.h"
 #include "HepMC/SimpleVector.h"
 
 #include<fstream>
@@ -20,24 +19,24 @@
 BeamProfileVtxGenerator::BeamProfileVtxGenerator(const edm::ParameterSet & p) :
   BaseEvtVtxGenerator(p), fRandom(0) {
   
-  meanX(p.getUntrackedParameter<double>("BeamMeanX",0.0)*cm);
-  meanY(p.getUntrackedParameter<double>("BeamMeanY",0.0)*cm);
-  beamPos(p.getUntrackedParameter<double>("BeamPosition",0.0)*cm);
-  sigmaX(p.getUntrackedParameter<double>("BeamSigmaX",0.0)*cm);
-  sigmaY(p.getUntrackedParameter<double>("BeamSigmaY",0.0)*cm);
-  double fMinEta = p.getUntrackedParameter<double>("MinEta",-5.5);
-  double fMaxEta = p.getUntrackedParameter<double>("MaxEta",5.5);
-  double fMinPhi = p.getUntrackedParameter<double>("MinPhi",-3.14159265358979323846);
-  double fMaxPhi = p.getUntrackedParameter<double>("MaxPhi", 3.14159265358979323846);
+  meanX(p.getParameter<double>("BeamMeanX")*cm);
+  meanY(p.getParameter<double>("BeamMeanY")*cm);
+  beamPos(p.getParameter<double>("BeamPosition")*cm);
+  sigmaX(p.getParameter<double>("BeamSigmaX")*cm);
+  sigmaY(p.getParameter<double>("BeamSigmaY")*cm);
+  double fMinEta = p.getParameter<double>("MinEta");
+  double fMaxEta = p.getParameter<double>("MaxEta");
+  double fMinPhi = p.getParameter<double>("MinPhi");
+  double fMaxPhi = p.getParameter<double>("MaxPhi");
   eta(0.5*(fMinEta+fMaxEta));
   phi(0.5*(fMinPhi+fMaxPhi));
-  nBinx = p.getUntrackedParameter<int>("BinX",50);
-  nBiny = p.getUntrackedParameter<int>("BinY",50);
-  ffile = p.getUntrackedParameter<bool>("UseFile",false);
+  nBinx = p.getParameter<int>("BinX");
+  nBiny = p.getParameter<int>("BinY");
+  ffile = p.getParameter<bool>("UseFile");
   fTimeOffset = p.getParameter<double>("TimeOffset")*ns*c_light;
   
   if (ffile) {
-    std::string file = p.getUntrackedParameter<std::string>("File","beam.profile");
+    std::string file = p.getParameter<std::string>("File");
     ifstream is(file.c_str(), std::ios::in);
     if (is) {
       double elem,sum=0;
@@ -62,7 +61,7 @@ BeamProfileVtxGenerator::BeamProfileVtxGenerator(const edm::ParameterSet & p) :
     }
   } 
   if (!ffile) {
-    setType(p.getUntrackedParameter<bool>("GaussianProfile",true));
+    setType(p.getParameter<bool>("GaussianProfile"));
   }
 
   edm::LogInfo("VertexGenerator") << "BeamProfileVtxGenerator: with "
