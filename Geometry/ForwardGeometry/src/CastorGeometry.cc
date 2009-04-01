@@ -48,7 +48,7 @@ CastorGeometry::getValidDetIds( DetId::Detector det,
 
    if( m_validIds.empty() ) 
    {
-      for( int i ( 0 ) ; i != baseIds.size() ; ++i ) 
+      for( unsigned int i ( 0 ) ; i != baseIds.size() ; ++i ) 
       {
 	 const DetId id ( baseIds[i] );
 	 if( id.det()      == det    &&
