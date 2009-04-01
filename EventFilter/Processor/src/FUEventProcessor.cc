@@ -824,6 +824,8 @@ void FUEventProcessor::initEventProcessor()
 		     "exception when trying to get service "
 		     <<"edm::service::PrescaleService");
     }
+    const edm::ParameterSet *prescaleSvcConfig = internal::findService(*pServiceSets,"PrescaleService");
+    if(prescaleSvc_ != 0 && prescaleSvcConfig !=0) prescaleSvc_->reconfigure(*prescaleSvcConfig);
   }
   catch(cms::Exception &e) {
     reasonForFailedState_ = e.explainSelf();
