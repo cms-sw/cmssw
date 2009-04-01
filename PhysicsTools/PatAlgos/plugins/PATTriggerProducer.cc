@@ -1,9 +1,11 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.1.2.2 2009/03/15 12:24:15 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.1.2.3 2009/03/27 21:31:06 vadler Exp $
 //
 
 
 #include "PhysicsTools/PatAlgos/plugins/PATTriggerProducer.h"
+
+#include <cassert>
 
 
 using namespace pat;
@@ -24,6 +26,7 @@ PATTriggerProducer::PATTriggerProducer( const edm::ParameterSet & iConfig ) :
   produces< TriggerPathCollection >();
   produces< TriggerFilterCollection >();
   produces< TriggerObjectCollection >();
+  produces< TriggerObjectStandAloneCollection >();
 }
 
 PATTriggerProducer::~PATTriggerProducer()
@@ -159,6 +162,8 @@ void PATTriggerProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
   
   std::auto_ptr< TriggerObjectCollection > triggerObjects( new TriggerObjectCollection() );
   triggerObjects->reserve( sizeObjects );
+  std::auto_ptr< TriggerObjectStandAloneCollection > triggerObjectsStandAlone( new TriggerObjectStandAloneCollection() );
+  triggerObjectsStandAlone->reserve( sizeObjects );
   
   const trigger::Keys & collectionKeys( handleTriggerEvent->collectionKeys() );
   for ( unsigned iO = 0, iC = 0; iO < sizeObjects && iC < handleTriggerEvent->sizeCollections(); ++iO ) {
@@ -174,24 +179,27 @@ void PATTriggerProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
         triggerObject.addFilterId( iM->second );
       }
     }
-    // add transient filter label and path name
+    // add filter label and path name
+    TriggerObjectStandAlone triggerObjectStandAlone( triggerObject );
     for ( std::multimap< trigger::size_type, std::string >::iterator iM = filterLabels.begin(); iM != filterLabels.end(); ++iM ) {
       if ( iM->first == iO ) {
         for ( std::multimap< std::string, std::string >::iterator iP = filterPaths.begin(); iP != filterPaths.end(); ++iP ) {
           if ( iP->first == iM->second ) {
-            triggerObject.addPathName( iP->second );
+            triggerObjectStandAlone.addPathName( iP->second );
             break;
           }
         }
-        triggerObject.addFilterLabel( iM->second );
+        triggerObjectStandAlone.addFilterLabel( iM->second );
         break;
       }
     }
     
     triggerObjects->push_back( triggerObject );
+    triggerObjectsStandAlone->push_back( triggerObjectStandAlone );
   }
   
   iEvent.put( triggerObjects );
+  iEvent.put( triggerObjectsStandAlone );
 }
 
 

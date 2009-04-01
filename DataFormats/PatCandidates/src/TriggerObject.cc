@@ -1,5 +1,5 @@
 //
-// $Id: TriggerObject.cc,v 1.1.2.9 2009/03/13 12:10:35 vadler Exp $
+// $Id: TriggerObject.cc,v 1.2 2009/03/26 21:49:08 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
@@ -37,28 +37,6 @@ bool TriggerObject::hasFilterId( unsigned filterId ) const
 {
   for ( unsigned iF = 0; iF < filterIds().size(); ++iF ) {
     if ( filterIds().at( iF ) == filterId ) {
-      return true;
-    }
-  }
-  return false;
-}
-
-/// transient methods
-
-bool TriggerObject::hasFilterLabel( const std::string & filterLabel ) const
-{
-  for ( unsigned iFilter = 0; iFilter < filterLabels().size(); ++iFilter ) {
-    if ( filterLabel == filterLabels().at( iFilter ) ) {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool TriggerObject::hasPathName( const std::string & pathName ) const
-{
-  for ( unsigned iPath = 0; iPath < pathNames().size(); ++iPath ) {
-    if ( pathName == pathNames().at( iPath ) ) {
       return true;
     }
   }

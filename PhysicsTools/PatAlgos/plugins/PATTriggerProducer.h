@@ -7,7 +7,7 @@
 // Package:    PatAlgos
 // Class:      pat::PATTriggerProducer
 //
-// $Id: PATTriggerProducer.h,v 1.1.2.2 2009/03/15 12:24:15 vadler Exp $
+// $Id: PATTriggerProducer.h,v 1.1.2.3 2009/03/27 21:31:07 vadler Exp $
 //
 /**
   \class    pat::PATTriggerProducer PATTriggerProducer.h "PhysicsTools/PatAlgos/plugins/PATTriggerProducer.h"
@@ -16,7 +16,7 @@
    [...]
 
   \author   Volker Adler
-  \version  $Id: PATTriggerProducer.h,v 1.1.2.2 2009/03/15 12:24:15 vadler Exp $
+  \version  $Id: PATTriggerProducer.h,v 1.1.2.3 2009/03/27 21:31:07 vadler Exp $
 */
 
 
@@ -26,12 +26,11 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <cassert>
 
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -41,6 +40,7 @@
 #include "DataFormats/PatCandidates/interface/TriggerPath.h"
 #include "DataFormats/PatCandidates/interface/TriggerFilter.h"
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
 
 namespace pat {

@@ -21,6 +21,7 @@
 #include "DataFormats/PatCandidates/interface/EventHypothesisLooper.h"
 #include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/TriggerFilter.h"
 #include "DataFormats/PatCandidates/interface/TriggerPath.h"
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
@@ -342,35 +343,55 @@ namespace {
   edm::reftobase::RefHolder<pat::TriggerPrimitiveRef>	                 rb_rh_p_tp;
 //   edm::reftobase::VectorHolder<reco::Candidate, pat::TriggerPrimitiveRefVector>	 rb_cand_vh_tp;
 //   edm::reftobase::RefVectorHolder<pat::TriggerPrimitiveRefVector>	         rb_rvh_p_tp;
-  
-  std::vector<pat::TriggerObject>::const_iterator v_p_to_ci;
-  edm::Wrapper<std::vector<pat::TriggerObject> > w_v_p_to;
-  pat::TriggerObjectRef p_r_to;
-  std::map<std::string, pat::TriggerObjectRef> m_p_r_to;
-//   std::map<std::string, pat::TriggerObjectRef>::const_iterator  m_p_r_to_ci;
-  edm::Wrapper<std::map<std::string, pat::TriggerObjectRef> > w_m_p_r_to;
-  pat::TriggerObjectRefProd p_rp_to;
-  edm::Wrapper<pat::TriggerObjectRefVector> w_p_rv_to;
+
+  pat::TriggerObjectCollection v_p_to;
+  pat::TriggerObjectCollection::const_iterator v_p_to_ci;
+  edm::Wrapper<pat::TriggerObjectCollection> w_v_p_to;
+  pat::TriggerObjectRef r_p_to;
+  pat::TriggerObjectMatchMap m_r_p_to;
+  pat::TriggerObjectRefProd rp_p_to;
+  edm::Wrapper<pat::TriggerObjectRefProd> w_rp_p_to;
+  pat::TriggerObjectRefVector rv_p_to;
+  pat::TriggerObjectMatch a_p_to;
+  edm::reftobase::Holder<reco::Candidate, pat::TriggerObjectRef> h_p_to;
+  edm::reftobase::RefHolder<pat::TriggerObjectRef> rh_p_to;
+//   edm::reftobase::VectorHolder<reco::Candidate, pat::TriggerObjectRefVector> vh_p_to;
+//   edm::reftobase::RefVectorHolder<pat::TriggerObjectRefVector> rvh_p_to;
   edm::Wrapper<pat::TriggerObjectMatch> w_a_p_to;
-  edm::reftobase::Holder<reco::Candidate, pat::TriggerObjectRef> rb_cand_h_p_to;
-  edm::reftobase::RefHolder<pat::TriggerObjectRef> rb_rh_p_to;
-//   edm::reftobase::VectorHolder<reco::Candidate, pat::TriggerObjectRefVector> rb_cand_vh_p_to;
-//   edm::reftobase::RefVectorHolder<pat::TriggerObjectRefVector> rb_rvh_p_to;
-  pat::TriggerObjectMatchRefProd a_p_rp_to;
-//   std::map<std::string, pat::TriggerObjectMatchRefProd>::const_iterator m_s_a_p_rp_to_ci;
-  edm::Wrapper<std::map<std::string, pat::TriggerObjectMatchRefProd> > w_m_s_a_p_rp_to;
-  
-  std::vector<pat::TriggerFilter>::const_iterator v_p_tf_ci;
-  edm::Wrapper<std::vector<pat::TriggerFilter> > w_v_p_tf;
-  pat::TriggerFilterRef p_r_tf;
-  pat::TriggerFilterRefProd p_rp_tf;
-  edm::Wrapper<pat::TriggerFilterRefVector> w_p_rv_tf;
-  
-  std::vector<pat::TriggerPath>::const_iterator v_p_tp_ci;
-  edm::Wrapper<std::vector<pat::TriggerPath> > w_v_p_tp;
-  pat::TriggerPathRef p_r_tp;
-  pat::TriggerPathRefProd p_rp_tp;
-  edm::Wrapper<pat::TriggerPathRefVector> w_p_rv_tp;
+  pat::TriggerObjectMatchRefProd rp_a_p_to;
+  pat::TriggerObjectMatchContainer m_rp_a_p_to;
+  pat::TriggerObjectMatchContainer::const_iterator m_rp_a_p_to_ci;
+  edm::Wrapper<pat::TriggerObjectMatchContainer> w_m_rp_a_p_to;
+
+  pat::TriggerObjectStandAloneCollection v_p_tosa;
+  pat::TriggerObjectStandAloneCollection::const_iterator v_p_tosa_ci;
+  edm::Wrapper<pat::TriggerObjectStandAloneCollection> w_v_p_tosa;
+  pat::TriggerObjectStandAloneRef r_p_tosa;
+  pat::TriggerObjectStandAloneRefProd rp_p_tosa;
+  edm::Wrapper<pat::TriggerObjectStandAloneRefProd> w_rp_p_tosa;
+  pat::TriggerObjectStandAloneRefVector rv_p_tosa;
+  pat::TriggerObjectStandAloneMatch a_p_tosa;
+  edm::reftobase::Holder<reco::Candidate, pat::TriggerObjectStandAloneRef> h_p_tosa;
+  edm::reftobase::RefHolder<pat::TriggerObjectStandAloneRef> rh_p_tosa;
+//   edm::reftobase::VectorHolder<reco::Candidate, pat::TriggerObjectStandAloneRefVector> vh_p_tosa;
+//   edm::reftobase::RefVectorHolder<pat::TriggerObjectStandAloneRefVector> rvh_p_tosa;
+  edm::Wrapper<pat::TriggerObjectStandAloneMatch> w_a_p_tosa;
+
+  pat::TriggerFilterCollection v_p_tf;
+  pat::TriggerFilterCollection::const_iterator v_p_tf_ci;
+  edm::Wrapper<pat::TriggerFilterCollection> w_v_p_tf;
+  pat::TriggerFilterRef r_p_tf;
+  pat::TriggerFilterRefProd rp_p_tf;
+  edm::Wrapper<pat::TriggerFilterRefProd> w_rp_p_tf;
+  pat::TriggerFilterRefVector rv_p_tf;
+
+  pat::TriggerPathCollection v_p_tp;
+  pat::TriggerPathCollection::const_iterator v_p_tp_ci;
+  edm::Wrapper<pat::TriggerPathCollection> w_v_p_tp;
+  pat::TriggerPathRef r_p_tp;
+  pat::TriggerPathRefProd rp_p_tp;
+  edm::Wrapper<pat::TriggerPathRefProd> w_rp_p_tp;
+  pat::TriggerPathRefVector rv_p_tp;
   
   edm::Wrapper<pat::TriggerEvent> w_p_te;
 

@@ -23,4 +23,4 @@ def switchOnTrigger( process ):
     # add trigger specific event content to PAT event content
     process.out.outputCommands += patTriggerEventContent
     for matchLabel in process.patTriggerEvent.patTriggerMatches:
-        process.out.outputCommands += [ 'keep patTriggerObjectsedmAssociation_' + matchLabel + '_*_*' ]
+        process.out.outputCommands += [ 'keep patTriggerObjectStandAlonesedmAssociation_' + matchLabel + '_*_*' ]
