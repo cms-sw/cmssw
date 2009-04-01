@@ -8,14 +8,14 @@
 
 /**
  * This class stores the information if the HV or LV of a detId were off. <br>
- * Internally it uses two bits to store the information about LV and HV. It saves a uint32_t
+ * Internally it uses two bits to store the information about HV and LV. It saves a uint32_t
  * containing the detId number and these additional bits, which are stored in the first
  * position. This is realized by the put method using a bit shift so that the actual
  * number written in the database is: detId|HV|LV. <br>
  * The getDetIds method builds and returns a vector with detIds, removing the additional bits.
  * It has three methods to extract the information: <br>
  * - IsModuleVOff returning the true if any of HV or LV is off
- * - IsModuleLVOff/IsModuleHVOff returning true if the corresponding value is off.
+ * - IsModuleHVOff/IsModuleLVOff returning true if the corresponding value is off.
  */
 
 class SiStripDetVOff
@@ -26,9 +26,9 @@ class SiStripDetVOff
   typedef std::vector<uint32_t>::const_iterator constVoffIterator;
   typedef std::vector<bool>::const_iterator     constVboolIterator;
 
-  // Bitmasks used to retrieve LV and HV information
-  static const short LVmask = 0x1;  // <--- 01
+  // Bitmasks used to retrieve HV and LV information
   static const short HVmask = 0x2;  // <--- 10
+  static const short LVmask = 0x1;  // <--- 01
   static const unsigned int eightBitMask = 0xFFFFFFFF;
   static const short bitShift = 2;
 
@@ -45,7 +45,7 @@ class SiStripDetVOff
 
   void getDetIds(std::vector<uint32_t>& DetIds_) const;
 
-  /// Returns true if either LV or HV are off
+  /// Returns true if either HV or LV are off
   bool IsModuleVOff(const uint32_t DetID) const;
 
   bool IsModuleHVOff(const uint32_t DetID) const;

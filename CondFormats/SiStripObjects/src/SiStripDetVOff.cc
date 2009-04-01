@@ -5,24 +5,20 @@
 bool SiStripDetVOff::put(const uint32_t DetId, const bool HVoff, const bool LVoff)
 {
   // Shift the DetId number of 2 bits to the left to have it in the final format with
-  // the two additional bits used for LV and HV.
+  // the two additional bits used for HV and LV.
   uint32_t enDetId = (DetId << bitShift) & eightBitMask;
-
-  std::cout << "DetId = " << DetId << ", LVmask = " << LVmask << ", enDetId = " << enDetId << std::endl;
 
   // Binary search to determine if the element is already in the vector
   vOffIterator p = std::lower_bound(v_Voff.begin(), v_Voff.end(), enDetId);
   if( p != v_Voff.end() && (*p >> bitShift) == DetId) {
     // Found a matching entry, insert the HV and LV information
-    if( LVoff ) *p |= LVmask;
     if( HVoff ) *p |= HVmask;
-     std::cout << "Inside if: *p = " << *p << std::endl;
+    if( LVoff ) *p |= LVmask;
   }
   else {
     // Not found, insert a new entry
-    if( LVoff ) enDetId |= LVmask;
     if( HVoff ) enDetId |= HVmask;
-    std::cout << "Inside else: enDetId = " << enDetId << std::endl;
+    if( LVoff ) enDetId |= LVmask;
     v_Voff.insert(p, enDetId);
     // The vector is already sorted
     // // Sort the vector (necessary for the next binary search to work)
@@ -36,10 +32,10 @@ bool SiStripDetVOff::put(std::vector<uint32_t>& DetId, std::vector<bool>& HVoff,
   if( DetId.size() == HVoff.size() && DetId.size() == LVoff.size() ) {
     constVoffIterator detIdIt = DetId.begin();
     constVoffIterator detIdItEnd = DetId.end();
-    constVboolIterator LVoffIt = LVoff.begin();
     constVboolIterator HVoffIt = HVoff.begin();
-    for( ; detIdIt != detIdItEnd; ++detIdIt, ++LVoffIt, ++HVoffIt ) {
-      put( *detIdIt, *LVoffIt, *HVoffIt );
+    constVboolIterator LVoffIt = LVoff.begin();
+    for( ; detIdIt != detIdItEnd; ++detIdIt, ++HVoffIt, ++LVoffIt ) {
+      put( *detIdIt, *HVoffIt, *LVoffIt );
     }
   }
   else {
@@ -92,7 +88,7 @@ void SiStripDetVOff::printDebug(std::stringstream & ss) const
   std::vector<uint32_t> detIds;
   getDetIds(detIds);
   constVoffIterator it = detIds.begin();
-  ss << "DetId    \t LV \t HV" << endl;
+  ss << "DetId    \t HV \t LV" << endl;
   for( ; it!=detIds.end(); ++it ) {
     ss << *it << "\t";
     if( IsModuleHVOff(*it)) ss << "OFF\t";
