@@ -19,6 +19,7 @@
 <use name=xerces-c>
 <use name=Calibration/Tools>
 <use name=CalibCalorimetry/CaloMiscalibTools>
+<use name=CondTools/Ecal>
 <use name=SimDataFormats/GeneratorProducts>
 <flags EDM_PLUGIN=1>
 <export>
@@ -42,6 +43,7 @@
    <use name=DataFormats/EgammaReco>
    <use name=DataFormats/TrackReco>
    <use name=DataFormats/EgammaCandidates>
+   <use name=CondTools/Ecal>
    <use name=root>
    <use name=xerces-c> 
    <use name=CalibCalorimetry/CaloMiscalibTools>

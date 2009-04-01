@@ -7,11 +7,15 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Conditions database
-
+#include "CondTools/Ecal/interface/EcalIntercalibConstantsXMLTranslator.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
+
+
 #include "Calibration/Tools/interface/calibXMLwriter.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalBarrel.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalEndcap.h"
@@ -547,6 +551,14 @@ void PhiSymmetryCalibration::endJob()
     calibXMLwriter barrelWriter(EcalBarrel);
     calibXMLwriter endcapWriter(EcalEndcap);
 
+    // records to be filled   
+    EcalIntercalibConstants intercalib_constants;
+    EcalIntercalibErrors    intercalib_errors;
+
+    std::string newcalibfile("EcalIntercalibConstants.xml");
+
+
+
     std::vector<TH1F*> miscal_resid_barl_histos(kBarlRings);
     std::vector<TH2F*> correl_barl_histos(kBarlRings);  
  
@@ -585,6 +597,10 @@ void PhiSymmetryCalibration::endJob()
                                  (1+epsilon_M_barl[ieta][iphi][sign]);
       ebhisto.Fill(newCalibs_barl[ieta][iphi][sign]);
       barrelWriter.writeLine(eb,newCalibs_barl[ieta][iphi][sign]);
+      // fill record
+      intercalib_constants[eb]=newCalibs_barl[ieta][iphi][sign];
+      intercalib_constants[eb]=1.;      
+
       miscal_resid_barl_histos[ieta]->Fill(newCalibs_barl[ieta][iphi][sign]);
       correl_barl_histos[ieta]->Fill(oldCalibs_barl[ieta][iphi][sign],1+epsilon_M_barl[ieta][iphi][sign]);
       if (iphi==1) {
@@ -608,6 +624,10 @@ void PhiSymmetryCalibration::endJob()
                                  (1+epsilon_M_endc[ix][iy][sign]);
       eehisto.Fill(newCalibs_endc[ix][iy][sign]);
       endcapWriter.writeLine(ee,newCalibs_endc[ix][iy][sign]);
+      // fill record
+      intercalib_constants[ee]=newCalibs_endc[ix][iy][sign];
+      intercalib_constants[ee]=1.;
+
       miscal_resid_endc_histos[endcapRing_[ix][iy]]->Fill(newCalibs_endc[ix][iy][sign]);
       correl_endc_histos[endcapRing_[ix][iy]]->Fill(oldCalibs_endc[ix][iy][sign],1+epsilon_M_endc[ix][iy][sign]);
       if (ix==50) {
@@ -617,6 +637,17 @@ void PhiSymmetryCalibration::endJob()
 		  << newCalibs_endc[ix][iy][sign] << std::endl;
       }
     }
+
+    // Write xml file
+    EcalCondHeader header;
+    header.method_="phi symmetry";
+    header.version_="0";
+    header.datasource_="testdata";
+    header.since_=1;
+    header.tag_="unknown";
+    header.date_="Mar 24 1973";
+
+    EcalIntercalibConstantsXMLTranslator::writeXML(newcalibfile,header,intercalib_constants, intercalib_errors );
 
     eehisto.Write();
     ebhisto.Write();
