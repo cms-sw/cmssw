@@ -17,9 +17,10 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:49:46 CET 2006
 
-// $Id: SiStripFolderOrganizer.h,v 1.9 2008/09/19 15:18:27 maborgia Exp $
+// $Id: SiStripFolderOrganizer.h,v 1.10 2009/03/30 17:00:46 giordano Exp $
 
 //
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 #include <string>
 
