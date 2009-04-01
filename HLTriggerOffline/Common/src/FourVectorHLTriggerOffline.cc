@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.17 2009/03/27 22:10:06 rekovic Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.18 2009/03/30 21:19:23 berryhil Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -18,6 +18,7 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -216,7 +217,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
    }
 
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
-  iEvent.getByLabel("pixelMatchGsfElectrons",gsfElectrons); 
+  iEvent.getByLabel("gsfElectrons",gsfElectrons); 
   if(!gsfElectrons.isValid()) { 
     edm::LogInfo("FourVectorHLTriggerOffline") << "gsfElectrons not found, ";
       //"skipping event"; 
