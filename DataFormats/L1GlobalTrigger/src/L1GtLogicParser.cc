@@ -1,14 +1,14 @@
 /**
  * \class L1GtLogicParser
- * 
- * 
- * Description: see header file.  
+ *
+ *
+ * Description: see header file.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -37,13 +37,13 @@
 
 //   default constructor
 L1GtLogicParser::L1GtLogicParser() {
-    
-    // empty, default C++ initialization for string and vector are enough 
+
+    // empty, default C++ initialization for string and vector are enough
 }
 
 
 //   from the RPN vector and the operand token vector
-//   no checks for consistency, empty logical and numerical expressions 
+//   no checks for consistency, empty logical and numerical expressions
 //   requires special care when used
 L1GtLogicParser::L1GtLogicParser(const RpnVector& rpnVec,
         const std::vector<OperandToken>& opTokenVector)
@@ -95,16 +95,16 @@ L1GtLogicParser::L1GtLogicParser(std::string& logicalExpressionVal)
 
     //LogDebug("L1GtLogicParser")
     //    << "\nInitial logical expression = '" << logicalExpressionVal << "'"
-    //    << "\nFinal   logical expression = '" << logicalExpressionBS << "'\n" 
+    //    << "\nFinal   logical expression = '" << logicalExpressionBS << "'\n"
     //    << std::endl;
 
     logicalExpressionVal = logicalExpressionBS;
     m_logicalExpression = logicalExpressionVal;
 
-    // build operand token vector 
+    // build operand token vector
     // dummy tokenNumber; tokenResult false
     buildOperandTokenVector();
-    
+
 }
 
 //   from a logical and a numerical expression
@@ -176,7 +176,7 @@ bool L1GtLogicParser::checkLogicalExpression(std::string& logicalExpressionVal) 
 
     LogDebug("L1GtLogicParser") << "\nL1GtLogicParser::checkLogicalExpression - "
         << "\nInitial logical expression = '" << logicalExpressionVal << "'"
-        << "\nFinal   logical expression = '" << logicalExpressionBS << "'\n" 
+        << "\nFinal   logical expression = '" << logicalExpressionBS << "'\n"
         << std::endl;
 
     logicalExpressionVal = logicalExpressionBS;
@@ -187,7 +187,7 @@ bool L1GtLogicParser::checkLogicalExpression(std::string& logicalExpressionVal) 
 }
 
 /**
- * buildRpnVector Build the postfix notation. 
+ * buildRpnVector Build the postfix notation.
  *
  * @param expression The expression to be parsed.
  *
@@ -443,9 +443,9 @@ void L1GtLogicParser::buildOperandTokenVector()
     // reserve memory
     size_t rpnVectorSize = m_rpnVector.size();
     m_operandTokenVector.reserve(rpnVectorSize);
-   
+
     int opNumber = 0;
-    
+
     for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
 
         //LogTrace("L1GtLogicParser")
@@ -460,9 +460,9 @@ void L1GtLogicParser::buildOperandTokenVector()
                     opToken.tokenName = it->operand;
                     opToken.tokenNumber = opNumber;
                     opToken.tokenResult = false;
-                    
+
                     m_operandTokenVector.push_back(opToken);
-                        
+
                 }
 
                 break;
@@ -672,10 +672,10 @@ bool L1GtLogicParser::operandResult(const int tokenNumberVal) const {
     }
 
     // return false - should not arrive here
-    edm::LogError("L1GtLogicParser") 
+    edm::LogError("L1GtLogicParser")
         << "\n  No operand with token number " << tokenNumberVal
-        << " found in the operand token vector" 
-        << "\n  Returned false by default." 
+        << " found in the operand token vector"
+        << "\n  Returned false by default."
         << std::endl;
 
     return false;
@@ -693,9 +693,9 @@ const bool L1GtLogicParser::expressionResult() const
 
     // return false if there is no RPN vector built
     if ( m_rpnVector.empty() ) {
-        edm::LogError("L1GtLogicParser") 
+        edm::LogError("L1GtLogicParser")
             << "\n  No built RPN vector exists."
-            << "\n  Returned false by default." 
+            << "\n  Returned false by default."
             << std::endl;
         return false;
     }
@@ -894,7 +894,7 @@ void L1GtLogicParser::buildOperandTokenVectorNumExp()
     m_operandTokenVector.reserve(rpnVectorSize);
 
     int opNumber = 0;
-    
+
     for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
 
         //LogTrace("L1GtLogicParser")
@@ -909,9 +909,9 @@ void L1GtLogicParser::buildOperandTokenVectorNumExp()
                     opToken.tokenName = it->operand;
                     opToken.tokenNumber = opNumber;
                     opToken.tokenResult = operandResultNumExp(it->operand);
-                    
+
                     m_operandTokenVector.push_back(opToken);
-                        
+
                 }
 
                 break;
@@ -954,9 +954,9 @@ const bool L1GtLogicParser::expressionResultNumExp() const
 
     // return false if there is no expression
     if ( m_rpnVector.empty() ) {
-        edm::LogError("L1GtLogicParser") 
+        edm::LogError("L1GtLogicParser")
             << "\n  No built RPN vector exists."
-            << "\n  Returned false by default." 
+            << "\n  Returned false by default."
             << std::endl;
         return false;
     }
@@ -1129,9 +1129,104 @@ void L1GtLogicParser::convertNameToIntLogicalExpression(
 
 }
 
+// convert a logical expression composed with integer numbers to
+// a logical expression composed with names using a map (int, string)
+
+void L1GtLogicParser::convertIntToNameLogicalExpression(
+        const std::map<int, std::string>& intToNameMap) {
+
+    if (m_logicalExpression.empty()) {
+
+        return;
+    }
+
+    // non-empty logical expression
+
+    OperationType actualOperation = OP_NULL;
+    OperationType lastOperation = OP_NULL;
+
+    std::string tokenString;
+    TokenRPN rpnToken; // token to be used by getOperation
+
+    // stringstream to separate all tokens
+    std::istringstream exprStringStream(m_logicalExpression);
+    std::string convertedLogicalExpression;
+
+    while (!exprStringStream.eof()) {
+
+        exprStringStream >> tokenString;
+
+        actualOperation = getOperation(tokenString, lastOperation, rpnToken);
+        if (actualOperation == OP_INVALID) {
+
+            // it should never be invalid
+            edm::LogError("L1GtLogicParser") << "\nLogical expression = '" << m_logicalExpression
+                    << "'" << "\n  Invalid operation/operand in logical expression."
+                    << "\n  Return empty logical expression." << std::endl;
+
+            m_logicalExpression.clear();
+            return;
+
+        }
+
+        if (actualOperation != OP_OPERAND) {
+
+            convertedLogicalExpression.append(getRuleFromType(actualOperation)->opString);
+
+        } else {
+
+            typedef std::map<int, std::string>::const_iterator CIter;
+
+            // convert string to int
+            int indexInt;
+            std::istringstream iss(rpnToken.operand);
+            iss >> std::dec >> indexInt;
+
+            CIter it = intToNameMap.find(indexInt);
+            if (it != intToNameMap.end()) {
+
+                convertedLogicalExpression.append(it->second);
+
+            } else {
+
+                // it should never be happen
+                edm::LogError("L1GtLogicParser") << "\nLogical expression = '"
+                        << m_logicalExpression << "'" << "\n  Could not convert "
+                        << rpnToken.operand << " to string!"
+                        << "\n  Return empty logical expression." << std::endl;
+
+                m_logicalExpression.clear();
+                return;
+            }
+
+        }
+
+        convertedLogicalExpression.append(" "); // one whitespace after each token
+        lastOperation = actualOperation;
+    }
+
+    // remove the last space
+    //convertedLogicalExpression.erase(convertedLogicalExpression.size() - 1);
+    boost::trim(convertedLogicalExpression);
+
+    //LogDebug("L1GtLogicParser")
+    //        << "\nL1GtLogicParser::convertIntToNameLogicalExpression - "
+    //        << "\nLogical expression (int) =    '" << m_logicalExpression << "'"
+    //        << "\nLogical expression (string) = '" << convertedLogicalExpression << "'\n"
+    //        << std::endl;
+
+    // replace now the logical expression with int with
+    // the converted logical expression
+
+    m_logicalExpression = convertedLogicalExpression;
+
+    return;
+
+}
+
 // return the list of operand tokens for the logical expression
 // which are to be used as seeds
-std::vector<L1GtLogicParser::OperandToken> 
+std::vector<L1GtLogicParser::OperandToken>
     L1GtLogicParser::expressionSeedsOperandList() {
 
     //LogDebug("L1GtLogicParser")
@@ -1157,12 +1252,12 @@ std::vector<L1GtLogicParser::OperandToken>
     bool operandOnly = true;
 
     int iOperand = -1;
-    
+
     OperandToken dummyToken;
     dummyToken.tokenName = "dummy";
     dummyToken.tokenNumber = -1;
     dummyToken.tokenResult = false;
-   
+
     for(RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
 
         //LogTrace("L1GtLogicParser")
@@ -1176,7 +1271,7 @@ std::vector<L1GtLogicParser::OperandToken>
             case OP_OPERAND: {
 
                     // more blocks with operations
-                    // push operands from previous block, if any in the tmpVector 
+                    // push operands from previous block, if any in the tmpVector
                     // (reverse order to compensate the stack push/top/pop)
                     if ( (!newOperandBlock) ) {
 
@@ -1203,7 +1298,7 @@ std::vector<L1GtLogicParser::OperandToken>
                     iOperand++;
 
                     //LogTrace("L1GtLogicParser")
-                    //<< "  Push operand " << (m_operandTokenVector.at(iOperand)).tokenName 
+                    //<< "  Push operand " << (m_operandTokenVector.at(iOperand)).tokenName
                     //<< " on the operand stack"
                     //<< std::endl;
 
@@ -1330,10 +1425,53 @@ std::vector<L1GtLogicParser::OperandToken>
 
         }
 
+    } else {
+
+        //LogTrace("L1GtLogicParser")
+        //        << "  More blocks:  push the last block on the seed operand list" << std::endl;
+
+        for (std::vector<OperandToken>::reverse_iterator itOp = tmpVector.rbegin();
+                itOp != tmpVector.rend(); itOp++) {
+
+            opVector.push_back(*itOp);
+
+            //LogTrace("L1GtLogicParser")
+            //<< "  Push operand:  " << (*itOp).tokenName
+            //<<" on the seed operand list"
+            //<< std::endl;
+
+        }
+
     }
 
 
-    return opVector;
+    // remove duplicates from the seed vector
+    // slow...
+    std::vector<OperandToken> opVectorU;
+    opVectorU.reserve(opVector.size());
+
+    for (std::vector<OperandToken>::const_iterator constIt = opVector.begin(); constIt
+            != opVector.end(); constIt++) {
+
+        bool tokenIncluded = false;
+
+        for (std::vector<OperandToken>::iterator itOpU = opVectorU.begin(); itOpU
+                != opVectorU.end(); itOpU++) {
+
+            if ( ( *itOpU ).tokenName == ( *constIt ).tokenName) {
+                tokenIncluded = true;
+                break;
+            }
+        }
+
+        if (!tokenIncluded) {
+            opVectorU.push_back(*constIt);
+        }
+
+    }
+
+
+    return opVectorU;
 
 }
 
@@ -1390,7 +1528,7 @@ L1GtLogicParser::OperationType L1GtLogicParser::getOperation(
 }
 
 /**
- * getRuleFromType Looks for the entry in the operation rules 
+ * getRuleFromType Looks for the entry in the operation rules
  *     and returns a reference if it was found
  *
  * @param oType The type of the operation.

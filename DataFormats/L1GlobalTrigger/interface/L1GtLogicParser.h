@@ -3,15 +3,15 @@
 
 /**
  * \class L1GtLogicParser
- * 
- * 
- * Description: parses a logical expression, with predefined operators.  
+ *
+ *
+ * Description: parses a logical expression, with predefined operators.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -67,9 +67,9 @@ public:
 
     ///   default constructor
     L1GtLogicParser();
- 
+
     ///   from the RPN vector and the operand token vector
-    ///   no checks for consistency, empty logical and numerical expressions 
+    ///   no checks for consistency, empty logical and numerical expressions
     ///   requires special care when used
     L1GtLogicParser(const RpnVector&, const std::vector<OperandToken>&);
 
@@ -166,6 +166,11 @@ public:
     void convertNameToIntLogicalExpression(
         const std::map<std::string, int>& nameToIntMap);
 
+    /// convert a logical expression composed with integer numbers to
+    /// a logical expression composed with names using a map (int, string)
+
+    void convertIntToNameLogicalExpression(const std::map<int, std::string>& intToNameMap);
+
     /// return the list of operand tokens for the logical expression
     /// which are to be used as seeds
     std::vector<L1GtLogicParser::OperandToken> expressionSeedsOperandList();
@@ -217,7 +222,7 @@ protected:
 
     /// vector of operand tokens
     std::vector<OperandToken> m_operandTokenVector;
-    
+
 
 };
 
