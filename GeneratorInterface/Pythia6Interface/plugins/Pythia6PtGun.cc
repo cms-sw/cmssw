@@ -10,8 +10,6 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include "GeneratorInterface/Pythia6Interface/interface/PYR.h"
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace edm;

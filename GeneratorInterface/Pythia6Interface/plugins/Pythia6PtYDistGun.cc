@@ -11,8 +11,6 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include "GeneratorInterface/Pythia6Interface/interface/PYR.h"
-
 #include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
