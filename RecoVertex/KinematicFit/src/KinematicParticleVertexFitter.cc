@@ -13,6 +13,18 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 KinematicParticleVertexFitter::KinematicParticleVertexFitter()
+{
+  edm::ParameterSet pSet = defaultParameters();
+  setup(pSet);
+}
+
+KinematicParticleVertexFitter::KinematicParticleVertexFitter(const edm::ParameterSet pSet)
+{
+  setup(pSet);
+}
+
+void
+KinematicParticleVertexFitter::setup(const edm::ParameterSet pSet)
 { 
 
   pointFinder =  new DefaultLinearizationPointFinder();
@@ -22,9 +34,6 @@ KinematicParticleVertexFitter::KinematicParticleVertexFitter()
   KalmanSmoothedVertexChi2Estimator<6> vse;
   KalmanTrackToTrackCovCalculator<6> covCalc;
   SequentialVertexSmoother<6> smoother(vtu, vse, covCalc);
-  edm::ParameterSet pSet;
-  pSet.addParameter<double>("maxDistance", 0.01);
-  pSet.addParameter<int>("maxNbrOfIterations", 10); //10
   fitter 
     = new SequentialVertexFitter<6>(pSet, *pointFinder, KalmanVertexUpdator<6>(),
 				 smoother, ParticleKinematicLinearizedTrackStateFactory());
@@ -35,6 +44,14 @@ KinematicParticleVertexFitter::~KinematicParticleVertexFitter()
  delete vFactory;
  delete pointFinder;
  delete fitter;
+}
+
+edm::ParameterSet KinematicParticleVertexFitter::defaultParameters() const 
+{
+  edm::ParameterSet pSet;
+  pSet.addParameter<double>("maxDistance", 0.01);
+  pSet.addParameter<int>("maxNbrOfIterations", 100); //10
+  return pSet;
 }
  
 RefCountedKinematicTree KinematicParticleVertexFitter::fit(vector<RefCountedKinematicParticle> particles) const
@@ -73,12 +90,11 @@ RefCountedKinematicTree KinematicParticleVertexFitter::fit(vector<RefCountedKine
 //  }
 
  CachingVertex<6> vtx = fitter->vertex(ttf); 
-
- if (!vtx.isValid())
+ if (!vtx.isValid()) {
      LogDebug("RecoVertex/KinematicParticleVertexFitter") 
        << "Fitted position is invalid. Returned Tree is invalid\n";
     return ReferenceCountingPointer<KinematicTree>(new KinematicTree()); // return invalid vertex
-
+ }
  FinalTreeBuilder tBuilder;
  return tBuilder.buildTree(vtx, newPart); 
 }

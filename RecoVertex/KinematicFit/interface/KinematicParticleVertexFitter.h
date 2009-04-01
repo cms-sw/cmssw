@@ -6,6 +6,7 @@
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
 #include "RecoVertex/KinematicFit/interface/InputSort.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexFitter.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /**
  * Class creating a kinematic particle out
@@ -32,6 +33,7 @@ public:
  */ 
  KinematicParticleVertexFitter();
  
+ KinematicParticleVertexFitter(const edm::ParameterSet pSet);
  
 /*
  * Constructor with the LinearizationPointFinder
@@ -53,9 +55,10 @@ public:
  RefCountedKinematicTree  fit(vector<RefCountedKinematicParticle> particles) const;
  
 private:
-		    
-//widely used common tools 
-  //SequentialKinematicVertexFitter * fitter; use the default KalmanFilter instead!
+
+  edm::ParameterSet defaultParameters() const;
+  void setup(const edm::ParameterSet pSet);
+
   VertexFitter<6> * fitter;
   LinearizationPointFinder * pointFinder; 
   VertexTrackFactory<6> * vFactory;
