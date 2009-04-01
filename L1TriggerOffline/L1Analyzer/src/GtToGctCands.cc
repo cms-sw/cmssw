@@ -11,7 +11,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Mon Mar 30 17:31:03 CEST 2009
-// $Id$
+// $Id: GtToGctCands.cc,v 1.1 2009/04/01 12:32:05 tapper Exp $
 //
 //
 
@@ -26,8 +26,8 @@ GtToGctCands::GtToGctCands(const edm::ParameterSet& iConfig) :
   // For now I am making one electron collection and one jet collection with all electrons and jets from all 3 BXs.
   // This is the easiest format to analyse for CRAFT data.
   // In the future I should make different collections and treat the mutiple BXs properly, and add energy sums.
-  produces<L1GctEmCandCollection>("GT");
-  produces<L1GctJetCandCollection>("GT");
+  produces<L1GctEmCandCollection>();
+  produces<L1GctJetCandCollection>();
 }
 
 GtToGctCands::~GtToGctCands(){}
@@ -72,5 +72,3 @@ void GtToGctCands::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(allJets);
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(GtToGctCands);

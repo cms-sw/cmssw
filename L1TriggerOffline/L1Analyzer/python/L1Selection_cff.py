@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from L1TriggerOffline.L1Analyzer.GtToGctCands_cff import *
+
 #Muons
 # Clone L1 muons
 CloneL1ExtraMuons = cms.EDProducer("L1MuonParticleShallowCloneProducer",
@@ -63,7 +65,7 @@ SelectL1ForJets = cms.EDFilter("PtMinCandSelector",
 # Tau Jets
 # Clone L1 tau jets
 CloneL1ExtraTauJets = cms.EDProducer("L1JetParticleShallowCloneProducer",
-    src = cms.InputTag("hltL1extraParticles","Tau")
+    src = cms.InputTag("l1extraParticles","Tau")
 )
 
 # Select L1 tau jets
@@ -74,7 +76,7 @@ SelectL1TauJets = cms.EDFilter("PtMinCandSelector",
 
 #Merge L1 tau jets and L1 central jets
 MergeL1ExtraJets = cms.EDProducer("CandViewMerger",
-    src = cms.VInputTag("CloneL1ExtraTauJets","CloneL1ExtraCenJets")
+    src = cms.VInputTag("CloneL1ExtraTauJets","CloneL1ExtraCenJets","CloneL1ExtraForJets")
 )
 
 SelectMergedL1ExtraJets = cms.EDFilter("PtMinCandSelector",
