@@ -284,11 +284,13 @@ int main( int argc, char** argv ){
         cond::CoralTransaction& coralDBd=conHandler.getConnection("mydestdb")->coralTransaction();
         coralDBs.start(true);
 	coralDBd.start(false);
+	bool stored=false;
+	try {
 	cond::ObjectRelationalMappingUtility mappingUtil(&coralDBs.coralSessionProxy());
 	bool stored = mappingUtil.exportMapping(&coralDBd.coralSessionProxy(), payloadContainer);
-	if(debug){
+	}  catch (std::exception const & e) { /* throw if already exists */}
+	if(debug)
 	  std::cout<< "payload mapping " << (stored ? "" : "not ") << "stored"<<std::endl;
-	}
 	coralDBs.commit();
 	coralDBd.commit();
     } catch (std::exception const & e) {
