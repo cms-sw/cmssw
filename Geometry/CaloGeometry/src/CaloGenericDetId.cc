@@ -84,7 +84,7 @@ CaloGenericDetId::validDetId() const
 	       {
 		  const HcalZDCDetId zdid ( rawId() ) ;
 		  returnValue = HcalZDCDetId::validDetId( zdid.section(),
-							  zdid.depth()    ) ;
+							  zdid.channel()    ) ;
 	       }
 	       else
 	       {
