@@ -43,7 +43,7 @@ if ($fake) {
 my @CFGs = map({$_ =~ /\.py$|\*$/ ? $_ : "*$_*"}   @ARGV);
 
 
-my @anyCFGs    = glob("pat*.cfg.py"); 
+my @anyCFGs    = glob("pat*[._]cfg.py");
 my @baseCFGs   = grep($_ =~ /fromAOD_(full|fast)|fromSummer08AODSIM|fromScratch_fast/, @anyCFGs);
 my @extraCFGs  = grep($_ !~ /fromAOD_(full|fast)|fromSummer08AODSIM|fromScratch_fast/, @anyCFGs);
 if ($one )  { push @CFGs, grep(m/fromAOD_full/, @anyCFGs);  }
@@ -82,7 +82,7 @@ my %info = ();
 
 my @txt = ("Jobs starting:");
 foreach my $f (@CFGs) {
-    my $o = $f; $o =~ s/\.cfg\.py$/.log/;
+    my $o = $f; $o =~ s/[\._]cfg\.py$/.log/;
 
     my $max = -1;
     open CFG, $f;
