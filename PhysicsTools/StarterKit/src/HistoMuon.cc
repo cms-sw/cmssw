@@ -4,7 +4,7 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 
 #include <iostream>
@@ -13,9 +13,14 @@
 using pat::HistoMuon;
 using namespace std;
 
+using muon::isGoodMuon;
+
+// fix for an unfortunate namespace choice
+namespace muonSel{
+  using namespace muon;
+}
+
 // Constructor:
-
-
 HistoMuon::HistoMuon(std::string dir, std::string group,std::string pre,
 		   double pt1, double pt2, double m1, double m2,
 		     TFileDirectory * parentDir)
@@ -446,7 +451,7 @@ void HistoMuon::fill( const Muon *muon, uint iMu, double weight )
   // fill relevant muon histograms
   h_trackIso_->fill( muon->trackIso(), iMu , weight);
   h_caloIso_ ->fill( muon->caloIso() , iMu , weight);
-  h_leptonID_->fill( muon->isGood(), iMu , weight);
+  h_leptonID_->fill( isGoodMuon(*muon, muonSel::AllArbitrated), iMu , weight);
 
   h_nChambers_->fill( muon->numberOfChambers(), iMu , weight);
 
@@ -767,7 +772,7 @@ void HistoMuon::fill( const reco::ShallowClonePtrCandidate *pshallow, uint iMu, 
   // fill relevant muon histograms from muon
   h_trackIso_->fill( muon->trackIso(), iMu , weight);
   h_caloIso_ ->fill( muon->caloIso() , iMu , weight);
-  h_leptonID_->fill( muon->isGood(), iMu , weight);
+  h_leptonID_->fill( isGoodMuon(*muon, muonSel::AllArbitrated), iMu , weight);
 
   h_nChambers_->fill( muon->numberOfChambers(), iMu , weight);
 
