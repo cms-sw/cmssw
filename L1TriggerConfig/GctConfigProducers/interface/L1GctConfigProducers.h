@@ -15,7 +15,7 @@
 //
 // Original Author:  Gregory Heath
 //         Created:  Thu Mar  1 15:10:47 CET 2007
-// $Id: L1GctConfigProducers.h,v 1.7 2008/09/17 17:03:57 heath Exp $
+// $Id: L1GctConfigProducers.h,v 1.8 2009/02/24 15:47:23 jbrooke Exp $
 //
 //
 
@@ -36,15 +36,12 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 class L1GctJfParamsConfigurer;
-class L1GctHfLutSetupConfigurer;
 
 class L1GctJetFinderParams;
 class L1GctChannelMask;
-class L1GctHfLutSetup;
 
 class L1GctJetFinderParamsRcd;
 class L1GctChannelMaskRcd;
-class L1GctHfLutSetupRcd;
 
 
 //
@@ -57,18 +54,15 @@ class L1GctConfigProducers : public edm::ESProducer {
       ~L1GctConfigProducers();
 
       typedef boost::shared_ptr<L1GctJetFinderParams>          JfParamsReturnType;
-      typedef boost::shared_ptr<L1GctHfLutSetup>               HfLSetupReturnType;
       typedef boost::shared_ptr<L1GctChannelMask>          ChanMaskReturnType;
 
       JfParamsReturnType produceJfParams(const L1GctJetFinderParamsRcd&);
-      HfLSetupReturnType produceHfLSetup(const L1GctHfLutSetupRcd&);
       ChanMaskReturnType produceChanMask(const L1GctChannelMaskRcd&);
 
    private:
       // ----------member data ---------------------------
 
      L1GctJfParamsConfigurer* m_JfParamsConf;
-     L1GctHfLutSetupConfigurer* m_HfLSetupConf;
 };
 
 #endif
