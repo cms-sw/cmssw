@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.26 2009/01/15 16:42:37 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.27 2009/01/30 01:57:18 fwyzard Exp $
 
 
 #include <memory>
@@ -44,6 +44,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -96,7 +97,7 @@ SoftLepton::SoftLepton(const edm::ParameterSet & iConfig) :
   m_deltaRCut(     iConfig.getParameter<double>( "leptonDeltaRCut" ) ),
   m_chi2Cut(       iConfig.getParameter<double>( "leptonChi2Cut" ) ),
   m_qualityCut(    iConfig.getParameter<double>( "leptonQualityCut" ) ),
-  m_muonSelection( (reco::Muon::SelectionType) iConfig.getParameter<unsigned int>( "muonSelection" ) )
+  m_muonSelection( (muon::SelectionType) iConfig.getParameter<unsigned int>( "muonSelection" ) )
 {
   produces<reco::SoftLeptonTagInfoCollection>();
   if (m_primaryVertex.label() == "nominal")
@@ -207,7 +208,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
     event.getByLabel(m_leptons, h_muons);
     if (h_muons.isValid()) {
       for (MuonView::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon) {
-        if (muon->isGood( m_muonSelection ))
+        if (muon::isGoodMuon( *muon, m_muonSelection ))
           if (not muon->globalTrack().isNull())
             leptons.push_back(edm::RefToBase<reco::Track>( muon->globalTrack() ));
           else 
