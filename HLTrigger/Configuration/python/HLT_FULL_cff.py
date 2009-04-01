@@ -1,12 +1,18 @@
-# /dev/CMSSW_3_1_0/pre2/HLT/V251 (CMSSW_3_1_X_2009-03-31-0100_HLT2)
+# /dev/CMSSW_3_1_0/pre2/HLT/V254 (CMSSW_3_1_X_2009-03-31-2300_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/HLT/V251')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/HLT/V254')
 )
 
+essourceSev = cms.ESSource( "EmptyESSource",
+  recordName = cms.string( "HcalSeverityLevelComputerRcd" ),
+  iovIsRunNotTime = cms.bool( True ),
+  appendToDataLabel = cms.string( "" ),
+  firstValid = cms.vuint32( 1 )
+)
 BTagRecord = cms.ESSource( "EmptyESSource",
   recordName = cms.string( "JetTagComputerRecord" ),
   iovIsRunNotTime = cms.bool( True ),
@@ -30,6 +36,17 @@ MCJetCorrectorIcone5 = cms.ESSource( "JetCorrectionServiceChain",
     'L3AbsoluteJetCorrector' )
 )
 
+hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
+  DropChannelStatusBits = cms.vstring( '' ),
+  appendToDataLabel = cms.string( "" ),
+  RecoveredRecHitBits = cms.vstring( '' ),
+  SeverityLevels = cms.VPSet( 
+    cms.PSet(  Level = cms.int32( 0 ),
+      RecHitFlags = cms.vstring( '' ),
+      ChannelStatus = cms.vstring( '' )
+    )
+  )
+)
 AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
   PropagationDirection = cms.string( "anyDirection" ),
@@ -1421,6 +1438,7 @@ hltHcalDigis = cms.EDProducer( "HcalRawToDigi",
 )
 hltHbhereco = cms.EDProducer( "HcalSimpleReconstructor",
     digiLabel = cms.InputTag( "hltHcalDigis" ),
+    dropZSmarkedPassed = cms.bool( True ),
     Subdetector = cms.string( "HBHE" ),
     firstSample = cms.int32( 4 ),
     samplesToAdd = cms.int32( 4 ),
@@ -1430,6 +1448,7 @@ hltHbhereco = cms.EDProducer( "HcalSimpleReconstructor",
 )
 hltHfreco = cms.EDProducer( "HcalSimpleReconstructor",
     digiLabel = cms.InputTag( "hltHcalDigis" ),
+    dropZSmarkedPassed = cms.bool( True ),
     Subdetector = cms.string( "HF" ),
     firstSample = cms.int32( 3 ),
     samplesToAdd = cms.int32( 1 ),
@@ -1439,6 +1458,7 @@ hltHfreco = cms.EDProducer( "HcalSimpleReconstructor",
 )
 hltHoreco = cms.EDProducer( "HcalSimpleReconstructor",
     digiLabel = cms.InputTag( "hltHcalDigis" ),
+    dropZSmarkedPassed = cms.bool( True ),
     Subdetector = cms.string( "HO" ),
     firstSample = cms.int32( 4 ),
     samplesToAdd = cms.int32( 4 ),
@@ -1453,7 +1473,11 @@ hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     HBThreshold = cms.double( 0.9 ),
     HESThreshold = cms.double( 1.4 ),
     HEDThreshold = cms.double( 1.4 ),
-    HOThreshold = cms.double( 1.1 ),
+    HOThreshold0 = cms.double( 1.1 ),
+    HOThresholdPlus1 = cms.double( 1.1 ),
+    HOThresholdMinus1 = cms.double( 1.1 ),
+    HOThresholdPlus2 = cms.double( 1.1 ),
+    HOThresholdMinus2 = cms.double( 1.1 ),
     HF1Threshold = cms.double( 1.2 ),
     HF2Threshold = cms.double( 1.8 ),
     EBWeight = cms.double( 1.0 ),
@@ -1476,6 +1500,10 @@ hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     hbheInput = cms.InputTag( "hltHbhereco" ),
     hoInput = cms.InputTag( "hltHoreco" ),
     hfInput = cms.InputTag( "hltHfreco" ),
+    HcalAcceptSeverityLevel = cms.uint32( 999 ),
+    EcalAcceptSeverityLevel = cms.uint32( 1 ),
+    UseHcalRecoveredHits = cms.bool( True ),
+    UseEcalRecoveredHits = cms.bool( True ),
     ecalInputs = cms.VInputTag( 'hltEcalRecHitAll:EcalRecHitsEB','hltEcalRecHitAll:EcalRecHitsEE' )
 )
 hltIterativeCone5CaloJets = cms.EDProducer( "IterativeConeJetProducer",
@@ -1490,7 +1518,13 @@ hltIterativeCone5CaloJets = cms.EDProducer( "IterativeConeJetProducer",
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
-    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 )
 )
 hltMCJetCorJetIcone5 = cms.EDProducer( "CaloJetCorrectionProducer",
     src = cms.InputTag( "hltIterativeCone5CaloJets" ),
@@ -1663,7 +1697,11 @@ hltTowerMakerForJets = cms.EDProducer( "CaloTowersCreator",
     HBThreshold = cms.double( 0.9 ),
     HESThreshold = cms.double( 1.4 ),
     HEDThreshold = cms.double( 1.4 ),
-    HOThreshold = cms.double( 1.1 ),
+    HOThreshold0 = cms.double( 1.1 ),
+    HOThresholdPlus1 = cms.double( 1.1 ),
+    HOThresholdMinus1 = cms.double( 1.1 ),
+    HOThresholdPlus2 = cms.double( 1.1 ),
+    HOThresholdMinus2 = cms.double( 1.1 ),
     HF1Threshold = cms.double( 1.2 ),
     HF2Threshold = cms.double( 1.8 ),
     EBWeight = cms.double( 1.0 ),
@@ -1686,6 +1724,10 @@ hltTowerMakerForJets = cms.EDProducer( "CaloTowersCreator",
     hbheInput = cms.InputTag( "hltHbhereco" ),
     hoInput = cms.InputTag( "hltHoreco" ),
     hfInput = cms.InputTag( "hltHfreco" ),
+    HcalAcceptSeverityLevel = cms.uint32( 999 ),
+    EcalAcceptSeverityLevel = cms.uint32( 1 ),
+    UseHcalRecoveredHits = cms.bool( True ),
+    UseEcalRecoveredHits = cms.bool( True ),
     ecalInputs = cms.VInputTag( 'hltEcalRegionalJetsRecHit:EcalRecHitsEB','hltEcalRegionalJetsRecHit:EcalRecHitsEE' )
 )
 hltIterativeCone5CaloJetsRegional = cms.EDProducer( "IterativeConeJetProducer",
@@ -1700,7 +1742,13 @@ hltIterativeCone5CaloJetsRegional = cms.EDProducer( "IterativeConeJetProducer",
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
-    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 )
 )
 hltMCJetCorJetIcone5Regional = cms.EDProducer( "CaloJetCorrectionProducer",
     src = cms.InputTag( "hltIterativeCone5CaloJetsRegional" ),
@@ -3005,7 +3053,11 @@ hltTowerMakerForMuons = cms.EDProducer( "CaloTowersCreator",
     HBThreshold = cms.double( 0.9 ),
     HESThreshold = cms.double( 1.4 ),
     HEDThreshold = cms.double( 1.4 ),
-    HOThreshold = cms.double( 1.1 ),
+    HOThreshold0 = cms.double( 1.1 ),
+    HOThresholdPlus1 = cms.double( 1.1 ),
+    HOThresholdMinus1 = cms.double( 1.1 ),
+    HOThresholdPlus2 = cms.double( 1.1 ),
+    HOThresholdMinus2 = cms.double( 1.1 ),
     HF1Threshold = cms.double( 1.2 ),
     HF2Threshold = cms.double( 1.8 ),
     EBWeight = cms.double( 1.0 ),
@@ -3028,6 +3080,10 @@ hltTowerMakerForMuons = cms.EDProducer( "CaloTowersCreator",
     hbheInput = cms.InputTag( "hltHbhereco" ),
     hoInput = cms.InputTag( "hltHoreco" ),
     hfInput = cms.InputTag( "hltHfreco" ),
+    HcalAcceptSeverityLevel = cms.uint32( 999 ),
+    EcalAcceptSeverityLevel = cms.uint32( 1 ),
+    UseHcalRecoveredHits = cms.bool( True ),
+    UseEcalRecoveredHits = cms.bool( True ),
     ecalInputs = cms.VInputTag( 'hltEcalRegionalMuonsRecHit:EcalRecHitsEB','hltEcalRegionalMuonsRecHit:EcalRecHitsEE' )
 )
 hltL2MuonIsolations = cms.EDProducer( "L2MuonIsolationProducer",
@@ -6205,7 +6261,13 @@ hltIconeTau1Regional = cms.EDProducer( "IterativeConeJetProducer",
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
-    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 )
 )
 hltCaloTowersTau2Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -6227,7 +6289,13 @@ hltIconeTau2Regional = cms.EDProducer( "IterativeConeJetProducer",
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
-    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 )
 )
 hltCaloTowersTau3Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -6249,7 +6317,13 @@ hltIconeTau3Regional = cms.EDProducer( "IterativeConeJetProducer",
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
-    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 )
 )
 hltCaloTowersTau4Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -6271,7 +6345,13 @@ hltIconeTau4Regional = cms.EDProducer( "IterativeConeJetProducer",
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
-    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 )
 )
 hltCaloTowersCentral1Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -6293,7 +6373,13 @@ hltIconeCentral1Regional = cms.EDProducer( "IterativeConeJetProducer",
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
-    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 )
 )
 hltCaloTowersCentral2Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -6315,7 +6401,13 @@ hltIconeCentral2Regional = cms.EDProducer( "IterativeConeJetProducer",
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
-    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 )
 )
 hltCaloTowersCentral3Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -6337,7 +6429,13 @@ hltIconeCentral3Regional = cms.EDProducer( "IterativeConeJetProducer",
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
-    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 )
 )
 hltCaloTowersCentral4Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -6359,7 +6457,13 @@ hltIconeCentral4Regional = cms.EDProducer( "IterativeConeJetProducer",
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
-    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 )
 )
 hltL2TauJets = cms.EDProducer( "L2TauJetsMerger",
     EtMin = cms.double( 15.0 ),
@@ -7072,7 +7176,13 @@ hltIcone5Tau1 = cms.EDProducer( "IterativeConeJetProducer",
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
-    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 )
 )
 hltCaloTowersTau2 = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForAll" ),
@@ -7094,7 +7204,13 @@ hltIcone5Tau2 = cms.EDProducer( "IterativeConeJetProducer",
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
-    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 )
 )
 hltCaloTowersTau3 = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForAll" ),
@@ -7116,7 +7232,13 @@ hltIcone5Tau3 = cms.EDProducer( "IterativeConeJetProducer",
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
-    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 )
 )
 hltCaloTowersTau4 = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForAll" ),
@@ -7138,7 +7260,13 @@ hltIcone5Tau4 = cms.EDProducer( "IterativeConeJetProducer",
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
-    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 )
 )
 hltCaloTowersCentral1 = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForAll" ),
@@ -7160,7 +7288,13 @@ hltIcone5Central1 = cms.EDProducer( "IterativeConeJetProducer",
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
-    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 )
 )
 hltCaloTowersCentral2 = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForAll" ),
@@ -7182,7 +7316,13 @@ hltIcone5Central2 = cms.EDProducer( "IterativeConeJetProducer",
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
-    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 )
 )
 hltCaloTowersCentral3 = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForAll" ),
@@ -7204,7 +7344,13 @@ hltIcone5Central3 = cms.EDProducer( "IterativeConeJetProducer",
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
-    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 )
 )
 hltCaloTowersCentral4 = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForAll" ),
@@ -7226,7 +7372,13 @@ hltIcone5Central4 = cms.EDProducer( "IterativeConeJetProducer",
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
-    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 )
 )
 hltL2TauIsolationProducer = cms.EDProducer( "L2TauIsolationProducer",
     L2TauJetCollection = cms.InputTag( "hltL2TauJets" ),
