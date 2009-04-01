@@ -4,6 +4,7 @@
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "CLHEP/Random/RandGauss.h"
 
 #include<cmath>
@@ -25,17 +26,18 @@ void SiStripLorentzAngleGenerator::createObject(){
   obj_ = new SiStripLorentzAngle();
 
 
-  edm::FileInPath fp_              = _pset.getParameter<edm::FileInPath>("file");
+  edm::FileInPath fp_                 = _pset.getParameter<edm::FileInPath>("file");
   double   TIB_EstimatedValue         = _pset.getParameter<double>("TIB_EstimatedValue");
   double   TOB_EstimatedValue         = _pset.getParameter<double>("TOB_EstimatedValue");
-  double   PerCent_Err		      = _pset.getParameter<double>("PerCent_Err");
+  double   TIB_PerCent_Err            = _pset.getParameter<double>("TIB_PerCent_Err");
+  double   TOB_PerCent_Err            = _pset.getParameter<double>("TOB_PerCent_Err");
   
 
   SiStripDetInfoFileReader reader(fp_.fullPath());
   
   const std::vector<uint32_t> DetIds = reader.getAllDetIds();
-  double StdDev_TIB = (PerCent_Err/100)*TIB_EstimatedValue;
-  double StdDev_TOB = (PerCent_Err/100)*TOB_EstimatedValue;
+  double StdDev_TIB = (TIB_PerCent_Err/100)*TIB_EstimatedValue;
+  double StdDev_TOB = (TOB_PerCent_Err/100)*TOB_EstimatedValue;
   
   
   for(std::vector<uint32_t>::const_iterator detit=DetIds.begin(); detit!=DetIds.end(); detit++){
@@ -50,7 +52,22 @@ void SiStripLorentzAngleGenerator::createObject(){
     if(subid.subdetId() == int (StripSubdetector::TOB)){
     if(StdDev_TOB>0)hallMobility=RandGauss::shoot(TOB_EstimatedValue,StdDev_TOB);
     else hallMobility = TOB_EstimatedValue;}
-       
+    
+    if(subid.subdetId() == int (StripSubdetector::TID)){
+    if(StdDev_TIB>0)hallMobility=RandGauss::shoot(TIB_EstimatedValue,StdDev_TIB);
+    else hallMobility = TIB_EstimatedValue;}
+    
+    if(subid.subdetId() == int (StripSubdetector::TEC)){
+    TECDetId TECid = TECDetId(*detit); 
+    if(TECid.ringNumber()<5){
+    if(StdDev_TIB>0)hallMobility=RandGauss::shoot(TIB_EstimatedValue,StdDev_TIB);
+    else hallMobility = TIB_EstimatedValue;
+    }else{
+    if(StdDev_TOB>0)hallMobility=RandGauss::shoot(TOB_EstimatedValue,StdDev_TOB);
+    else hallMobility = TOB_EstimatedValue;
+    }
+    }
+      
     if ( ! obj_->putLorentzAngle(*detit, hallMobility) )
       edm::LogError("SiStripLorentzAngleGenerator")<<" detid already exists"<<std::endl;
   }
