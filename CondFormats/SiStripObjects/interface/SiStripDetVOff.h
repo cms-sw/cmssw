@@ -36,7 +36,7 @@ class SiStripDetVOff
   ~SiStripDetVOff(){};
 
   /// Insert information for a single detId
-  bool put(const uint32_t DetId, const bool LVoff, const bool HVoff);
+  bool put(const uint32_t DetId, const bool HVoff, const bool LVoff);
 
   /// Insert information for a vector of detIds
   bool put(std::vector<uint32_t>& DetId, std::vector<bool>& HVoff, std::vector<bool>& LVoff);
