@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: RootAutoLibraryLoader.cc,v 1.17 2009/03/02 20:33:24 wmtan Exp $
+// $Id: RootAutoLibraryLoader.cc,v 1.18 2009/04/01 15:14:43 dsr Exp $
 //
 
 // system include files
@@ -311,33 +311,7 @@ void registerTypes() {
         myNewlyNamedClass->SetName(itSpecial->first.c_str());
         gROOT->AddClass(myNewlyNamedClass);
 #else
-//      reflexNamedClass->Clone(itSpecial->first.c_str());
-//
-// TClass::Clone() in ROOT 5.22 (base release) tries to find a dictionary
-// for the new class type instead of cloning the dictionary from the
-// existing class.  This is fixed in the 5.22_patch branch, and should
-// also be fixed in subsequent releases.  In the meantime, the code below
-// is a workaround for the bug in 5.22.  Based loosely on Philippe's fix
-// for TClass::Clone()
-//
-// Unfortunately, this doesn't seem to work, and backporting the unit test
-// for this feature shows that it apparently never worked as intended.
-// -dan
-        TClass::RemoveClass(reflexNamedClass);
-        TClass* alias = new TClass(reflexNamedClass->GetName(), 
-                                   1,
-                                   t.TypeInfo(), new TIsAProxy(t.TypeInfo()),
-                                   0, 0, 0, 0, 0, 0);
-        if (0 != alias) {
-          TClass::RemoveClass(alias);
-          alias->SetName(itSpecial->first.c_str());
-          TClass::AddClass(alias);
-          // tried this, doesn't seem to help
-          //TClassTable::Add(alias->GetName(), alias->GetClassVersion(),
-          //  t.TypeInfo(), TClassTable::GetDict(t.TypeInfo()),
-          //  TClassTable::GetPragmaBits(reflexNamedClass->GetName()));
-        }
-        TClass::AddClass(reflexNamedClass);
+        reflexNamedClass->Clone(itSpecial->first.c_str());
 #endif
       }
     }
