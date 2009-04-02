@@ -68,15 +68,10 @@ HcalLogicalMap HcalLogicalMapGenerator::createMap() {
   for (int iHcalib=0;iHcalib<CalibFull;iHcalib++) HxCalibHash2Entry.push_back(illegal_value);
   for (int iZdc=0;iZdc<2*ZdcHalf;iZdc++) ZdcHash2Entry.push_back(illegal_value);
 
-  std::cout<<"Building the HBHEHFHT map..."<<std::endl;
   buildHBEFTMap(HBHEHFEntries,HTEntries,LinearIndex2Entry,HbHash2Entry,HeHash2Entry,HfHash2Entry,HtHash2Entry);
-  std::cout<<"Building the HOHX map..."<<std::endl;
   buildHOXMap(HOHXEntries,LinearIndex2Entry,HoHash2Entry,HxCalibHash2Entry);
-  std::cout<<"Building the CALIB map..."<<std::endl;
   buildCALIBMap(CALIBEntries,LinearIndex2Entry,HxCalibHash2Entry);
-  std::cout<<"Building the ZDC map..."<<std::endl;
   buildZDCMap(ZDCEntries,LinearIndex2Entry,ZdcHash2Entry);
-  std::cout<<"Done with map creation!"<<std::endl;
 
   return HcalLogicalMap(HBHEHFEntries,HOHXEntries,CALIBEntries,ZDCEntries,HTEntries,
 			LinearIndex2Entry,HbHash2Entry,HeHash2Entry,HfHash2Entry,HtHash2Entry,

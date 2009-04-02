@@ -65,8 +65,6 @@ void HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef,
 
 HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& iConfig)
 {
-  std::cout << "HcalSeverityLevelComputer - initializing" << std::endl;
-
   // initialize: get the levels and masks from the cfg:
   typedef std::vector< edm::ParameterSet > myParameters;
   myParameters myLevels = iConfig.getParameter<myParameters>((std::string)"SeverityLevels");
