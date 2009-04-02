@@ -153,6 +153,13 @@ void RscBaseModel::buildPdf() {
 
     TH1F* model_histo = (TH1F*) modelfile.Get(dataName.getVal());
 
+    if(model_histo==0){
+       std::cout << "ERROR: did not find histogram '" << dataName.getVal() 
+                 << "' in the histogram file (" << fileName.getVal() 
+                 << "). Aborting..." << std::endl;
+       abort();
+       }
+
     RooArgSet* var_set=new RooArgSet(*x);
 
     RooDataHist* model_histo_roofit=new RooDataHist(_name+"_data",
