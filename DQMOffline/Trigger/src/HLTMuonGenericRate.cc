@@ -217,8 +217,12 @@ HLTMuonGenericRate::HLTMuonGenericRate
   theDRParameters.push_back(1.0);
 
   theChargeFlipParameters.push_back(2);
-  theChargeFlipParameters.push_back(0.0);
-  theChargeFlipParameters.push_back(1.0);
+  theChargeFlipParameters.push_back(-0.5);
+  theChargeFlipParameters.push_back(1.5);
+  theChargeFlipParameters.push_back(2);
+  theChargeFlipParameters.push_back(-0.5);
+  theChargeFlipParameters.push_back(1.5);
+
 
   theIsolationParameters.push_back(25);
   theIsolationParameters.push_back(0.0);
@@ -348,7 +352,8 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   
   std::vector<MatchStruct> recMatches;
   //std::vector<MatchStruct> highPtMatches;
-  reco::BeamSpot beamSpot;
+  
+  const reco::BeamSpot*  beamSpot;
   bool foundBeamSpot = false;
   
   if ( useMuonFromReco ) {
@@ -391,7 +396,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle);
     if (!recoBeamSpotHandle.failedToGet()) {
       
-      beamSpot = *recoBeamSpotHandle;
+      beamSpot = &(*recoBeamSpotHandle);
       foundBeamSpot = true;
 
       LogTrace ("HLTMuonVal") << "\n\n\nSUCESS finding beamspot\n\n\n" << endl;
@@ -829,6 +834,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       int match = findGenMatch( eta, phi, maxDeltaR, genMatches );
 
       // JMS why is this less than zero?
+      // less than zero means it is uninitialized
       if ( match != -1 && genMatches[match].l1Cand.pt() < 0 ) {
         genMatches[match].l1Cand = l1Cand;
         LogTrace ("HLTMuonVal") << "Found a generator match to L1 cand";                              
@@ -840,7 +846,9 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       int match = findRecMatch( eta, phi, maxDeltaR, recMatches );
       if ( match != -1 && recMatches[match].l1Cand.pt() < 0 ) {
         recMatches[match].l1Cand = l1Cand;
-        LogTrace ("HLTMuonVal") << "Found a rec match to L1 particle (aod)";          
+        LogTrace ("HLTMuonVal") << "Found a rec match to L1 particle (aod)  "
+                                << " rec pt = " << recMatches[match].recCand->pt()
+                                << ",  l1 pt  = " << recMatches[match].l1Cand.pt(); 
       } else {
         hNumOrphansRec->getTH1F()->AddBinContent( 1 );
       }
@@ -922,7 +930,6 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       
         if ( match != -1 && genMatches[match].hltCands[i].pt() < 0 ) {
           genMatches[match].hltCands[i] = hltCand;
-          LogTrace ("HLTMuonVal") << "Found a HLT cand match!";
           // if ( !useAod ) genMatches[match].hltTracks[i] = 
           //                            &*hltCands[i][candNum];
         }
@@ -940,6 +947,10 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
         // and if this candidate spot isn't filled
         if ( match != -1 && recMatches[match].hltCands[i].pt() < 0 ) {
           recMatches[match].hltCands[i] = hltCand;
+
+          LogTrace ("HLTMuonVal") << "Found a HLT cand match!   "
+                                  << " rec pt = " << recMatches[match].recCand->pt()
+                                  << ",   hlt pt = " << recMatches[match].hltCands[i].pt();
 
           // since this matched, it's not a fake, so
           // record it as "not a fake"
@@ -1188,6 +1199,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     double pt  = recMatches[i].recCand->pt();
     double eta = recMatches[i].recCand->eta();
     double phi = recMatches[i].recCand->phi();
+    int recPdgId = recMatches[i].recCand->pdgId();
 
     //allRecPts.push_back(pt);
 
@@ -1203,16 +1215,19 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     
     double d0 = theMuoGlobalTrack->d0();
     double z0 = theMuoGlobalTrack->dz();
-    double charge = theMuoGlobalTrack->charge();
-
+    // comment:
+    // does the charge function return the
+    // same value as the abs(pdgId) ?    
+    int charge = theMuoGlobalTrack->charge(); 
+    int plottedCharge = getCharge (recPdgId);
     double d0beam = -999;
     double z0beam = -999;
     
     if (foundBeamSpot) {
-      d0beam = theMuoGlobalTrack->dxy(beamSpot.position());
-      z0beam = theMuoGlobalTrack->dz(beamSpot.position());
+      d0beam = theMuoGlobalTrack->dxy(beamSpot->position());
+      z0beam = theMuoGlobalTrack->dz(beamSpot->position());
 
-      hBeamSpotZ0Rec[0]->Fill(beamSpot.z0());
+      hBeamSpotZ0Rec[0]->Fill(beamSpot->z0());
     }
     
     // For now, take out the cuts on the pt/eta,
@@ -1247,7 +1262,8 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     
 
     // if you found an L1 match, fill this histo
-    if ( recMatches[i].l1Cand.energy() > 0 ) {
+    // check for L1 match using pt, not energy
+    if ( recMatches[i].l1Cand.pt() > 0 ) {
       hPassEtaRec[1]->Fill(eta);
       hPassPhiRec[1]->Fill(phi);
       hPassPtRec[1]->Fill(pt);
@@ -1262,6 +1278,16 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       double l1eta = recMatches[i].l1Cand.eta();
       double l1phi = recMatches[i].l1Cand.phi();
       double l1pt  = recMatches[i].l1Cand.energy();
+
+      // Get the charges in terms of charge constants
+      // this reduces bins in histogram.
+      int l1plottedCharge = getCharge (recMatches[i].l1Cand.id());
+      LogTrace ("HLTMuonVal") << "The pdg id is (L1)   "
+                              << recMatches[i].l1Cand.id()
+                              << "  and the L1 plotted charge is "
+                              << l1plottedCharge;
+      
+      
       double deltaR = kinem::delta_R (l1eta, l1phi, eta, phi);
 
       
@@ -1283,7 +1309,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       hResoPhiAodRec[0]->Fill((phi - l1phi)/fabs(phi));
         
       
-      //hChargeFlipMatched[0]->Fill();
+      hChargeFlipMatched[0]->Fill(l1plottedCharge, plottedCharge);
       
       if (numRecMatches == 1) {
         hPassExaclyOneMuonMaxPtRec[1]->Fill(pt);
@@ -1301,6 +1327,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
         double hltCand_pt = recMatches[i].hltCands[j].pt();
         double hltCand_eta = recMatches[i].hltCands[j].eta();
         double hltCand_phi = recMatches[i].hltCands[j].phi();
+        int hltCand_plottedCharge = getCharge(recMatches[i].hltCands[j].id());
 
         // store this rec muon pt, not hlt cand pt
         if (theHltCollectionLabels.size() > j) {
@@ -1341,6 +1368,24 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
         hEtaMatchVsEtaRec[j+1]->Fill(hltCand_eta, eta);
         hPhiMatchVsPhiRec[j+1]->Fill(hltCand_phi, phi);
 
+
+        LogTrace ("HLTMuonVal") << "The pdg id is (hlt [" << j << "]) "
+                                << recMatches[i].hltCands[j].id()
+                                << "  and the plotted charge is "
+                                << hltCand_plottedCharge
+                                << ", w/ rec  charge "
+                                << charge
+                                << ", and plotted charge "
+                                << plottedCharge
+                                << "\n                "
+                                << "and rec pdg id = "
+                                << recPdgId;
+        
+
+        
+        hChargeFlipMatched[j+i]->Fill( hltCand_plottedCharge, plottedCharge);
+
+        
         // Resolution histos must have hlt matches
 
         hResoPtAodRec[j+1]->Fill((pt - hltCand_pt)/pt);
@@ -1506,7 +1551,7 @@ void HLTMuonGenericRate::begin()
 
     // JMS Old way of doing things
     //newFolder = "HLT/Muon/Distributions/" + theTriggerName;
-     newFolder = "HLT/Muon/Distributions/" + theTriggerName + "/" + theRecoLabel;
+    newFolder = "HLT/Muon/Distributions/" + theTriggerName + "/" + theRecoLabel;
 
     
     
@@ -1606,7 +1651,7 @@ void HLTMuonGenericRate::begin()
       hDeltaRMatched.push_back ( bookIt("recDeltaRMatched_" + myLabel, "#Delta R between matched HLTCand", theDRParameters));
 
       // hChargeFlipMatched.push_back ( bookIt("recChargeFlipMatched_All" , "Charge Flip from hlt to RECO;HLT;Reco", theChargeFlipParameters)); 
-      hChargeFlipMatched.push_back ( bookIt("recChargeFlipMatched_" + myLabel, "Charge Flip from hlt to RECO;HLT;Reco", theChargeFlipParameters)); 
+      hChargeFlipMatched.push_back ( bookIt("recChargeFlipMatched_" + myLabel, "Charge Flip from hlt to RECO;HLT Charge (-,+);Reco (-,+)", theChargeFlipParameters)); 
 
       hPassMatchPtRec.push_back( bookIt( "recPassMatchPt_" + myLabel, "Pt of Reco Muon that is matched to Trigger Muon " + myLabel, theMaxPtParameters) );
       hPtMatchVsPtRec.push_back (bookIt("recPtVsMatchPt" + myLabel, "Reco Pt vs Matched HLT Muon Pt" + myLabel ,  theMaxPtParameters2d) );
@@ -1691,7 +1736,7 @@ void HLTMuonGenericRate::begin()
         hResoPhiAodRec.push_back ( bookIt ("recResoPhi_" + myLabel, "TrigSumAOD to RECO #phi resolution", theResParameters));
 
         hDeltaRMatched.push_back ( bookIt("recDeltaRMatched_" + myLabel, "#Delta R between matched HLTCand", theDRParameters));
-        hChargeFlipMatched.push_back ( bookIt("recChargeFlipMatched_" + myLabel, "Charge Flip from hlt to RECO;HLT;Reco", theChargeFlipParameters)); 
+        hChargeFlipMatched.push_back ( bookIt("recChargeFlipMatched_" + myLabel, "Charge Flip from hlt to RECO;HLT (-,+);Reco (-,+)", theChargeFlipParameters)); 
         
         
         // these candidates are indexed by the number
@@ -1757,4 +1802,10 @@ MonitorElement* HLTMuonGenericRate::bookIt
   
 }
 
+int HLTMuonGenericRate::getCharge (int pdgId) {
 
+  int resultCharge =  (pdgId > 0) ? POS_CHARGE : NEG_CHARGE;
+  
+  return resultCharge;
+  
+}
