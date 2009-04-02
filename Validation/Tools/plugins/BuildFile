@@ -1,7 +1,0 @@
-<use name=root>                                                                                                                                                                                   
-<use name=DQMServices/Core>  
-<use name=Validation/Tools>  
-
-<library file="*.cc" name=ValidationToolsPlugins>
-	<flags EDM_PLUGIN=1>
-</library>
