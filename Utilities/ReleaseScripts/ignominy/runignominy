@@ -51,6 +51,7 @@
 ##u.                 postscripts files to A4 size
 ##u. -n, --noanalysis  To skip the ignominy-analysis part and just create new
 ##u.                 diagrams
+##u. --keep-ps       Do not delete generated ps files.
 ##u. -i, --ignominy  Only run ignominy and generate inc/lib 
 ##u. -t, --time      To print out the time it took for different steps
 ##u. -j, --jobs <n>  Run <n> jobs in parallel, default is 10
@@ -185,6 +186,7 @@ SETENV_SCRIPT=
 IGNOMINYCONF_SCRIPT=
 IGNOMINY_ONLY=
 EXTRA_OPTIONS=
+KEEP_PS=
 me=`ls -l $0 | sed 's|.* ||'`
 case $me in /* ) ;; * ) me=$PWD/$me ;; esac
 medir=`dirname $me`
@@ -205,6 +207,7 @@ parseargs() {
 	  -e | --external ) EXTERNALS_DIAGRAMS=yes ;;
 	  -p | --package  ) PACKAGES_DIAGRAMS=yes ;;
 	  -s | --subsys   ) SUBSYS_DIAGRAMS=yes ;;
+	  --keep-ps )       KEEP_PS=yes ;;
 	  -d | --diagrams | --diagrams=* )
 	    case $arg in 
 	      --diagrams=* )
@@ -1015,6 +1018,9 @@ mkgifs() {
   done
 
   wait
+  if [ X$KEEP_PS = X ] ; then
+    rm -f *.ps *.ps.gz
+  fi
   cat .scales.* > .scales
   rm .scales.* 
 }
