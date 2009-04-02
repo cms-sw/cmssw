@@ -174,10 +174,25 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
 	    heprup_.EBMUP != other.heprup_.EBMUP ||
 	    heprup_.PDFGUP != other.heprup_.PDFGUP ||
 	    heprup_.PDFSUP != other.heprup_.PDFSUP ||
-	    heprup_.IDWTUP != other.heprup_.IDWTUP)
-		throw cms::Exception("ProductsNotMergeable")
-			<< "Error in LHERunInfoProduct: LHE headers differ. "
-			   "Cannot merge products." << std::endl;
+	    heprup_.IDWTUP != other.heprup_.IDWTUP) {
+	  // okay, something is different. Let us check if it is the AlpgenInterface case.
+	  LHERunInfoProduct::Header::const_iterator theLines = headers_.begin()->begin();
+	  theLines++;
+	  std::string alpgenComment ("\tExtracted by AlpgenInterface\n");
+	  std::string initialComment (*theLines);
+
+	  if(alpgenComment == initialComment) {
+	    // okay, it is AlpgenInterface.Concatenate the headers and add them to this LHERunInfoProduct.
+	    for(std::vector<LHERunInfoProduct::Header>::const_iterator theOtherHeaders = other.headers_begin();
+		theOtherHeaders != other.headers_end();
+		++theOtherHeaders)
+	      this->addHeader(*theOtherHeaders);
+	  }
+	  else
+	    throw cms::Exception("ProductsNotMergeable")
+	      << "Error in LHERunInfoProduct: LHE headers differ. "
+	      "Cannot merge products." << std::endl;
+	} // first if
 
 	// it is exactly the same, so merge
 	if (heprup_ == other.heprup_)
