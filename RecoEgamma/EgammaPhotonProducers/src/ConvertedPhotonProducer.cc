@@ -101,7 +101,10 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   
 }
 
-ConvertedPhotonProducer::~ConvertedPhotonProducer() {}
+ConvertedPhotonProducer::~ConvertedPhotonProducer() {
+  delete theTrackPairFinder_;
+  delete theVertexFinder_;
+}
 
 
 
@@ -111,14 +114,9 @@ void  ConvertedPhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & th
     //get magnetic field
   edm::LogInfo("ConvertedPhotonProducer") << " get magnetic field" << "\n";
   theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);  
-
-  if ( ! theEcalImpactPositionFinder_) {
     
-     // instantiate the algorithm for finding the position of the track extrapolation at the Ecal front face
-    theEcalImpactPositionFinder_ = new   ConversionTrackEcalImpactPoint ( &(*theMF_) );
-  }  
-  theEcalImpactPositionFinder_->setMagneticField ( &(*theMF_) );
-
+  // instantiate the algorithm for finding the position of the track extrapolation at the Ecal front face
+  theEcalImpactPositionFinder_ = new   ConversionTrackEcalImpactPoint ( &(*theMF_) );
 
   // Transform Track into TransientTrack (needed by the Vertex fitter)
   theEventSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theTransientTrackBuilder_);
@@ -129,8 +127,6 @@ void  ConvertedPhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & th
 
 
 void  ConvertedPhotonProducer::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
-  delete theTrackPairFinder_;
-  delete theVertexFinder_;
   delete theEcalImpactPositionFinder_; 
 }
 
