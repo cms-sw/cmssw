@@ -58,7 +58,7 @@ OverlapBySuperClusterSeed::fillOverlapsForItem(const reco::Candidate &item, reco
     if (mySC.isNull() || !mySC.isAvailable()) {
         throw cms::Exception("Bad Reference") << "Input to OverlapBySuperClusterSeed has a null or dangling superCluster reference\n";
     }
-    const reco::BasicClusterRef & mySeed = mySC->seed();
+    const reco::CaloClusterPtr & mySeed = mySC->seed();
     if (mySeed.isNull()) {
         throw cms::Exception("Bad Reference") << "Input to OverlapBySuperClusterSeed has a null superCluster seed reference\n";
     }
