@@ -1,5 +1,5 @@
 #include "Validation/RecoTrack/interface/MultiTrackValidator.h"
-#include "Validation/Tools/interface/FitSlicesYTool.h"
+#include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

@@ -1,5 +1,5 @@
 #include "Validation/RecoTrack/interface/TrackerSeedValidator.h"
-#include "Validation/Tools/interface/FitSlicesYTool.h"
+#include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

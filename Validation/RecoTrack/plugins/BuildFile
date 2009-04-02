@@ -21,7 +21,8 @@
 <use name=root>
 <use name=SimTracker/TrackAssociation>
 <use name=SimTracker/TrackerHitAssociation>
-<use name=Validation/Tools>
+<use name=DQMServices/ClientConfig>
+
 <lib name=MathMore>
 
 <library file="*.cc" name=ValidationRecoTrackPlugins>
