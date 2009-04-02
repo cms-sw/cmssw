@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/01/08 09:57:26 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/01/23 08:45:34 $
+ *  $Revision: 1.3 $
  *  \author Jeremy Andrea
  */
 
@@ -83,7 +83,8 @@ void TrackEfficiencyMonitor::beginJob(edm::EventSetup const& iSetup)
   using namespace edm;
   std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
   std::string AlgoName     = conf_.getParameter<std::string>("AlgoName");
- 
+  
+  
   dqmStore_->setCurrentFolder(MEFolderName);
   
   //
@@ -262,7 +263,7 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
 {
    
   using namespace edm;
- 
+
   edm::Handle<reco::TrackCollection> tkTracks;
   iEvent.getByLabel(theTKTracksLabel_, tkTracks);
   edm::Handle<reco::TrackCollection> staTracks;
@@ -279,7 +280,6 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
   iSetup.get<IdealMagneticFieldRecord>().get(bField); 
   iSetup.get<TrackerRecoGeometryRecord>().get(theTracker);
   theNavigation = new DirectTrackerNavigation(theTracker);
-  
   
   
   if(trackEfficiency_){
@@ -322,7 +322,6 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
     (tkTracks->front()).hitPattern().numberOfValidHits() > 8)
      testSTATracks(tkTracks,staTracks);  
   }
-  
   
   
   delete theNavigation;
@@ -369,7 +368,7 @@ void TrackEfficiencyMonitor::testTrackerTracks(Handle<reco::TrackCollection> tkT
      }
   }
     
-  
+   
   if( nUpMuon == 1)
   {
     
@@ -395,18 +394,17 @@ void TrackEfficiencyMonitor::testTrackerTracks(Handle<reco::TrackCollection> tkT
     bool isInTrackerAcceptance = false;   
     isInTrackerAcceptance = trackerAcceptance( theTSOS, theRadius_ , theMaxZ_ );
     
-    //---------------------------------------------------
+    //---------------------------------------------------st
     //count the number of compatible layers
     //---------------------------------------------------       
     nCompatibleLayers = compatibleLayers(theTSOSCompLayers);
-    
     
     if(isInTrackerAcceptance && (*staTracks)[idxUpMuon].hitPattern().numberOfValidHits() > 28)
     {
       //---------------------------------------------------
       //count the number of good muon candidates
       //---------------------------------------------------   
-       
+        
       TrajectoryStateOnSurface staState;      
       LocalVector diffLocal;   
      
@@ -426,34 +424,35 @@ void TrackEfficiencyMonitor::testTrackerTracks(Handle<reco::TrackCollection> tkT
           TrajectoryStateOnSurface tkInner = tkTT.innermostMeasurementState();
           staState = thePropagator->propagate(staTT.outermostMeasurementState(),tkInner.surface());	 
 	  failedToPropagate = 1;
-           
+            
 	  if(staState.isValid())
 	  {
             failedToPropagate = 0;
             diffLocal = tkInner.localPosition() - staState.localPosition();
-               
 	    double DR2 = diffLocal.x()*diffLocal.x()+diffLocal.y()*diffLocal.y();
 	    if (DR2<DR2min) { DR2min = DR2; closestTrk = tkTrack;}
 	    if ( pow(DR2,0.5) < 100. ) isTrack = true;
             }
           }
+	 
 	  
 	  if (DR2min != 1000) 
 	  { 
-	   
+	    
 	    reco::TransientTrack tkTT = theTTrackBuilder->build(*closestTrk);
             TrajectoryStateOnSurface tkInner = tkTT.innermostMeasurementState();
-        
+	    staState = thePropagator->propagate(staTT.outermostMeasurementState(),tkInner.surface());
 	    deltaX->Fill(diffLocal.x());
             deltaY->Fill(diffLocal.y());
 	    signDeltaX->Fill(diffLocal.x()/(tkInner.localError().positionError().xx() + staState.localError().positionError().xx()));
 	    signDeltaY->Fill(diffLocal.y()/(tkInner.localError().positionError().yy() + staState.localError().positionError().yy()));
+	    	   
 	   } 
         }
       
       
       if(failedToPropagate == 0)
-      {         
+      {       
 	 muonX->Fill(ipX);
     	 muonY->Fill(ipY);
     	 muonZ->Fill(ipZ);
