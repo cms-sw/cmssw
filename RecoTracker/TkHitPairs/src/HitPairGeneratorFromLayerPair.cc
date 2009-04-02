@@ -132,20 +132,18 @@ void HitPairGeneratorFromLayerPair::
   typedef OrderedHitPair::OuterRecHit OuterHit;
   typedef TransientTrackingRecHit::ConstRecHitPointer Hit;
 
-   vector<Hit> outerHits( region.hits(iEvent,iSetup,&theOuterLayer));
-   vector<Hit> innerHits( region.hits(iEvent,iSetup,&theInnerLayer));
-   RecHitsSortedInPhi innerSortedHits(innerHits);
+  vector<Hit> outerHits( region.hits(iEvent,iSetup,&theOuterLayer));
+  vector<Hit> innerHits( region.hits(iEvent,iSetup,&theInnerLayer));
+  RecHitsSortedInPhi innerSortedHits(innerHits);
    
-  InnerDeltaPhi deltaPhi(
-      *(theInnerLayer.detLayer()), region, iSetup);
+  InnerDeltaPhi deltaPhi( *(theInnerLayer.detLayer()), region, iSetup);
 
   typedef vector<Hit>::const_iterator  HI;
   float nSigmaRZ = sqrt(12.);
   float nSigmaPhi = 3.;
   for (HI oh=outerHits.begin(); oh!= outerHits.end(); oh++) {
-    TransientTrackingRecHit::RecHitPointer recHit = theOuterLayer.hitBuilder()->build((*oh)->hit());
-    GlobalPoint hitPos = recHit->globalPosition();
-    float phiErr = nSigmaPhi * sqrt(recHit->globalPositionError().phierr(hitPos)); 
+    GlobalPoint hitPos = (*oh)->globalPosition();
+    float phiErr = nSigmaPhi * sqrt( (*oh)->globalPositionError().phierr(hitPos)); 
     float dphi = deltaPhi( hitPos.perp(), hitPos.z(), hitPos.perp()*phiErr);   
     float phiHit = hitPos.phi();
     vector<Hit> innerCandid = innerSortedHits.hits(phiHit-dphi,phiHit+dphi);
@@ -153,17 +151,16 @@ void HitPairGeneratorFromLayerPair::
     if(!checkRZ) continue;
 
     for (HI ih = innerCandid.begin(); ih != innerCandid.end(); ih++) {
-      TransientTrackingRecHit::RecHitPointer recHit = theInnerLayer.hitBuilder()->build(&(**ih));
-      GlobalPoint innPos = recHit->globalPosition();
+      GlobalPoint innPos = (*ih)->globalPosition();
       Range allowed;
       Range hitRZ;
       if (theInnerLayer.detLayer()->location() == barrel) {
 	allowed = checkRZ->range(innPos.perp());
-        float zErr = nSigmaRZ * sqrt(recHit->globalPositionError().czz());
+        float zErr = nSigmaRZ * sqrt( (*ih)->globalPositionError().czz());
         hitRZ = Range(innPos.z()-zErr, innPos.z()+zErr);
       } else {
 	allowed = checkRZ->range(innPos.z());
-        float rErr = nSigmaRZ * sqrt(recHit->globalPositionError().rerr(innPos));
+        float rErr = nSigmaRZ * sqrt( (*ih)->globalPositionError().rerr(innPos));
         hitRZ = Range(innPos.perp()-rErr, innPos.perp()+rErr);
       }
       Range crossRange = allowed.intersection(hitRZ);
