@@ -161,21 +161,21 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
   histname = "Hits_XvsY_";
   Hits_XvsY_ = dqmStore_->book2D(histname+AlgoName, histname+AlgoName, rBin, -rMax, rMax, rBin, -rMax, rMax);
 
-  edm::ESHandle<TrackerGeometry> tkGeom;
-  iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
-  TrackerGeometry tracker  = TrackerGeometry(*tkGeom);
-  std::vector<int> sortedRawIds;
-  for( std::vector<DetId>::const_iterator iDetId = tracker.detUnitIds().begin(); iDetId != tracker.detUnitIds().end(); ++iDetId){
-    sortedRawIds.push_back( (*iDetId).rawId() );
-  }
-  std::sort(sortedRawIds.begin(),sortedRawIds.end());
-
-  int i = 0;
-  for( std::vector<int>::iterator iRawId = sortedRawIds.begin(); iRawId != sortedRawIds.end(); ++iRawId){
-    binByRawId_[ (*iRawId) ] = i;
-    i++;
-  }
   if( fillRawIdMap_){
+    edm::ESHandle<TrackerGeometry> tkGeom;
+    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
+    TrackerGeometry tracker  = TrackerGeometry(*tkGeom);
+    std::vector<int> sortedRawIds;
+    for( std::vector<DetId>::const_iterator iDetId = tracker.detUnitIds().begin(); iDetId != tracker.detUnitIds().end(); ++iDetId){
+      sortedRawIds.push_back( (*iDetId).rawId() );
+    }
+    std::sort(sortedRawIds.begin(),sortedRawIds.end());
+    
+    int i = 0;
+    for( std::vector<int>::iterator iRawId = sortedRawIds.begin(); iRawId != sortedRawIds.end(); ++iRawId){
+      binByRawId_[ (*iRawId) ] = i;
+      i++;
+    }
     histname = "Hits_perDetId_";
     
     //leads to differences in axsis between samples??
@@ -191,12 +191,6 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
     //    binLabel << (*it).first;
     //    Hits_perDetId_->getTH1()->GetXaxis()->SetBinLabel( (*it).second +1, binLabel.str().c_str());
     //  }
-  }
-
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField_);
-  if (!magneticField_.isValid()){
-    LogError("Alignment")<<"invalid magnetic field configuration encountered!";
-    return;
   }
 }
 //
@@ -223,7 +217,14 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
   iSetup.get<TrackerDigiGeometryRecord>().get(geometry);
   if(! geometry.isValid()){
     LogError("Alignment")<<"invalid geometry found in event setup!";
-  } 
+  }
+
+  edm::ESHandle<MagneticField> magneticField;
+  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+  if (!magneticField.isValid()){
+    LogError("Alignment")<<"invalid magnetic field configuration encountered!";
+    return;
+  }
 
   InputTag jetCollection = conf_.getParameter<edm::InputTag>("CaloJetCollection");
   Handle<reco::CaloJetCollection> jets;
@@ -250,12 +251,6 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	//LogInfo("Alignment") <<">  isolated: "<< isolated << " jetPt "<< (*itJet).pt() <<" deltaR: "<< deltaR(*(*it),(*itJet)) ;
       }
       minJetDeltaR_->Fill( minJetDeltaR );
-
-      GlobalPoint gPoint((*track).vx(), (*track).vy(), (*track).vz());
-      double B = magneticField_->inTesla(gPoint).z();
-      double curv = -(*track).charge()*0.002998*B/(*track).pt();
-      //std::cout << "curv: "<<curv<<std::endl;
-      TrackCurvature_->Fill( curv );
     }
     
     double minTrackDeltaR = 10; // some number > 2pi
@@ -270,6 +265,11 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	TrackQuality_->Fill( i );
       }
     }
+    
+    GlobalPoint gPoint((*track).vx(), (*track).vy(), (*track).vz());
+    double B = magneticField->inTesla(gPoint).z();
+    double curv = -(*track).charge()*0.002998*B/(*track).pt();
+    TrackCurvature_->Fill( curv );
 
     if( (*track).charge() > 0 )
       TrackPtPositive_->Fill( (*track).pt() );
@@ -300,10 +300,7 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 void TkAlCaRecoMonitor::fillHitmaps(const reco::Track &track, const TrackerGeometry& geometry)
 {
-  for (trackingRecHit_iterator iHit = track.recHitsBegin(); iHit != track.recHitsEnd(); ++iHit) {
-    
-    //    TransientTrackingRecHit::ConstRecHitPointer tHit = 
-    //  recHitBuilderHandle->build( (*iHit).get() );
+  for (trackingRecHit_iterator iHit = track.recHitsBegin(); iHit != track.recHitsEnd(); ++iHit) {    
     if( (*iHit)->isValid() ){
       const TrackingRecHit *hit = (*iHit).get();
       const DetId geoId(hit->geographicalId());
@@ -315,12 +312,13 @@ void TkAlCaRecoMonitor::fillHitmaps(const reco::Track &track, const TrackerGeome
       double r = sqrt( globP.x()*globP.x() + globP.y()*globP.y() );
       if( useSignedR_ )
 	r*= globP.y() / fabs( globP.y() );
+
       Hits_ZvsR_->Fill( globP.z(), r );
       Hits_XvsY_->Fill( globP.x(), globP.y() );
+
       if( fillRawIdMap_)
 	 Hits_perDetId_->Fill( binByRawId_[ geoId.rawId() ]);  
     }
-    //me->Fill( tHit->globalPosition().z(), tHit->globalPosition().mag() );
   }
 }
 

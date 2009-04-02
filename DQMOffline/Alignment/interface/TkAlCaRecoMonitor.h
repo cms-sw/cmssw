@@ -44,8 +44,6 @@ class TkAlCaRecoMonitor : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
-  edm::ESHandle<MagneticField> magneticField_;
-
 
   double maxJetPt_;
   
