@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/HLT/V257 (CMSSW_3_1_X_2009-04-02-0600_HLT2)
+# /dev/CMSSW_3_1_0/pre2/HLT/V258 (CMSSW_3_1_X_2009-04-02-0600_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/HLT/V257')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/HLT/V258')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -3325,20 +3325,24 @@ hltL3Muons = cms.EDProducer( "L3MuonProducer",
       TrackRecHitBuilder = cms.string( "WithTrackAngle" ),
       MatcherOutPropagator = cms.string( "SmartPropagator" ),
       GlobalMuonTrackMatcher = cms.PSet( 
-        DeltaDCut_3 = cms.double( 30.0 ),
         MinP = cms.double( 2.5 ),
         MinPt = cms.double( 1.0 ),
-        Pt_threshold = cms.double( 35.0 ),
-        LocChi2Cut = cms.double( 0.0080 ),
-        Eta_threshold = cms.double( 1.0 ),
-        Chi2Cut_1 = cms.double( 30.0 ),
-        Chi2Cut_2 = cms.double( 80.0 ),
+        Pt_threshold1 = cms.double( 10.0 ),
+        Pt_threshold2 = cms.double( 35.0 ),
+        Eta_threshold = cms.double( 1.2 ),
+        Chi2Cut_1 = cms.double( 50.0 ),
+        Chi2Cut_2 = cms.double( 40.0 ),
         Chi2Cut_3 = cms.double( 200.0 ),
-        DeltaDCut_1 = cms.double( 20.0 ),
-        DeltaRCut_2 = cms.double( 0.15 ),
-        DeltaRCut_3 = cms.double( 0.2 ),
-        DeltaDCut_2 = cms.double( 15.0 ),
-        DeltaRCut_1 = cms.double( 0.1 )
+        LocChi2Cut = cms.double( 0.0010 ),
+        DeltaDCut_1 = cms.double( 40.0 ),
+        DeltaDCut_2 = cms.double( 20.0 ),
+        DeltaDCut_3 = cms.double( 15.0 ),
+        DeltaRCut_1 = cms.double( 0.1 ),
+        DeltaRCut_2 = cms.double( 0.2 ),
+        DeltaRCut_3 = cms.double( 1.0 ),
+        Quality_1 = cms.double( 20.0 ),
+        Quality_2 = cms.double( 15.0 ),
+        Quality_3 = cms.double( 7.0 )
       ),
       RPCRecSegmentLabel = cms.InputTag( "hltRpcRecHits" ),
       tkTrajLabel = cms.InputTag( "hltL3TkTracksFromL2" ),
