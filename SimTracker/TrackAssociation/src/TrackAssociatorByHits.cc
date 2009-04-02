@@ -116,7 +116,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
 	nshared = getShared(matchedIds, idcachev, t);
 
 	//if electron subtract double counting
-	if (abs(t->pdgId())==11){
+	if (abs(t->pdgId())==11&&(t->g4Track_end()-t->g4Track_begin())>1){
 	  nshared-=getDoubleCount<trackingRecHit_iterator>((*track)->recHitsBegin(), (*track)->recHitsEnd(), associate, t);
 	}
 
@@ -366,7 +366,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<edm::View<TrajectorySeed> 
 	nshared = getShared(matchedIds, idcachev, t);
 
 	//if electron subtract double counting
-	if (abs(t->pdgId())==11){
+	if (abs(t->pdgId())==11&&(t->g4Track_end()-t->g4Track_begin())>1){
 	  nshared-=getDoubleCount<edm::OwnVector<TrackingRecHit>::const_iterator>(seed->recHits().first, seed->recHits().second, associate, t);
 	}
 	
@@ -466,15 +466,16 @@ void TrackAssociatorByHits::getMatchedIds(std::vector<SimHitIdpr>& matchedIds,
     matchedIds.clear();
     ri=0;//valid rechits
     for (iter it = begin;  it != end; it++){
-      if (getHitPtr(it)->isValid()){
+      const TrackingRecHit *hit=getHitPtr(it);
+      if (hit->isValid()){
 	ri++;
-	uint32_t t_detID=  getHitPtr(it)->geographicalId().rawId();
+	uint32_t t_detID=  hit->geographicalId().rawId();
 	SimTrackIds.clear();	  
- 	SimTrackIds = associate->associateHitId(*getHitPtr(it));
+ 	associate->associateHitId(*hit, SimTrackIds);
 	//save all the id of matched simtracks
 	if(!SimTrackIds.empty()){
 	 for(size_t j=0; j<SimTrackIds.size(); j++){
-	   LogTrace("TrackAssociator") << " hit # " << ri << " valid=" << getHitPtr(it)->isValid() 
+	   LogTrace("TrackAssociator") << " hit # " << ri << " valid=" << hit->isValid() 
 				       << " det id = " << t_detID << " SimId " << SimTrackIds[j].first 
 				       << " evt=" << SimTrackIds[j].second.event() 
 				       << " bc=" << SimTrackIds[j].second.bunchCrossing();  
@@ -498,7 +499,7 @@ void TrackAssociatorByHits::getMatchedIds(std::vector<SimHitIdpr>& matchedIds,
 	//}
 	////******************
       }else{
-	LogTrace("TrackAssociator") <<"\t\t Invalid Hit On "<<getHitPtr(it)->geographicalId().rawId();
+	LogTrace("TrackAssociator") <<"\t\t Invalid Hit On "<<hit->geographicalId().rawId();
       }
     }//trackingRecHit loop
 }
@@ -544,10 +545,15 @@ int TrackAssociatorByHits::getDoubleCount(iter begin,
 					  TrackerHitAssociator* associate,
 					  TrackingParticleCollection::const_iterator t) const {
   int doublecount = 0 ;
+  std::vector<SimHitIdpr> SimTrackIdsDC;
+  //  cout<<begin-end<<endl;
   for (iter it = begin;  it != end; it++){
     int idcount = 0;
-    std::vector<SimHitIdpr> SimTrackIdsDC = associate->associateHitId(*getHitPtr(it));
+    SimTrackIdsDC.clear();
+    associate->associateHitId(*getHitPtr(it), SimTrackIdsDC);
+    //    cout<<SimTrackIdsDC.size()<<endl;
     if(SimTrackIdsDC.size()>1){
+      //     cout<<(t->g4Track_end()-t->g4Track_begin())<<endl;
       for (TrackingParticle::g4t_iterator g4T = t -> g4Track_begin(); g4T !=  t -> g4Track_end(); ++g4T) {
 	if(find(SimTrackIdsDC.begin(), SimTrackIdsDC.end(),SimHitIdpr((*g4T).trackId(), SimTrackIdsDC.begin()->second)) != SimTrackIdsDC.end() ){
 	  idcount++;
