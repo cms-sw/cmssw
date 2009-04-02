@@ -828,7 +828,12 @@ void DisplayManager::displayAll(bool noRedraw)
     int type=ident >> shiftId_;
     int view = p->second->getView();
     switch (type) {
-    case CLUSTERECALID: case CLUSTERHCALID: case  CLUSTERPSID: case CLUSTERIBID:
+    case CLUSTERECALID: 
+    case CLUSTERHCALID: 
+    case CLUSTERHFEMID: 
+    case CLUSTERHFHADID: 
+    case CLUSTERPSID: 
+    case CLUSTERIBID:
       {
         if (drawClus_)
           if (p->second->getEnergy() > clusEnMin_) {
@@ -837,7 +842,11 @@ void DisplayManager::displayAll(bool noRedraw)
           }        
       }
       break;
-    case RECHITECALID: case  RECHITHCALID: case RECHITPSID:
+    case RECHITECALID: 
+    case RECHITHCALID: 
+    case RECHITHFEMID: 
+    case RECHITHFHADID: 
+    case RECHITPSID:
       {
         if (!noRedraw) break; 
         if (drawHits_) 
@@ -1303,6 +1312,16 @@ void DisplayManager::loadGClusters()
     int clusId=(CLUSTERHCALID<<shiftId_) | i;
     createGCluster( (*(em_->clustersHCAL_))[i],clusId, phi0);
   }    
+  for(unsigned i=0; i<em_->clustersHFEM_->size(); i++) {
+    //int clusId=(i<<shiftId_) | CLUSTERHFEMID;
+    int clusId=(CLUSTERHFEMID<<shiftId_) | i;
+    createGCluster( (*(em_->clustersHFEM_))[i],clusId, phi0);
+  }    
+  for(unsigned i=0; i<em_->clustersHFHAD_->size(); i++) {
+    //int clusId=(i<<shiftId_) | CLUSTERHFHADID;
+    int clusId=(CLUSTERHFHADID<<shiftId_) | i;
+    createGCluster( (*(em_->clustersHFHAD_))[i],clusId, phi0);
+  }    
   for(unsigned i=0; i<em_->clustersPS_->size(); i++){ 
     //int clusId=(i<<shiftId_) | CLUSTERPSID;
     int clusId=(CLUSTERPSID<<shiftId_) | i;
@@ -1449,6 +1468,36 @@ void DisplayManager::loadGRecHits()
     //int recHitId=(i<<shiftId_) | RECHITHCALID;
     int recHitId=(RECHITHCALID <<shiftId_) | i;
     createGRecHit(em_->rechitsHCAL_[i],recHitId, maxe, phi0, rhcolor);
+  }
+        
+  for(unsigned i=0; i<em_->rechitsHFEM_.size(); i++) { 
+    int rhcolor = color;
+    if(unsigned col = em_->clusterAlgoHFEM_.color(i) ) {
+      switch(col) {
+      case PFClusterAlgo::SEED: rhcolor = seedcolor; break;
+      case PFClusterAlgo::SPECIAL: rhcolor = specialcolor; break;
+      default:
+        cerr<<"DisplayManager::loadGRecHits: unknown color"<<endl;
+      }
+    }
+    //int recHitId=(i<<shiftId_) | RECHITHFEMID;
+    int recHitId=(RECHITHFEMID <<shiftId_) | i;
+    createGRecHit(em_->rechitsHFEM_[i],recHitId, maxe, phi0, rhcolor);
+  }
+        
+  for(unsigned i=0; i<em_->rechitsHFHAD_.size(); i++) { 
+    int rhcolor = color;
+    if(unsigned col = em_->clusterAlgoHFHAD_.color(i) ) {
+      switch(col) {
+      case PFClusterAlgo::SEED: rhcolor = seedcolor; break;
+      case PFClusterAlgo::SPECIAL: rhcolor = specialcolor; break;
+      default:
+        cerr<<"DisplayManager::loadGRecHits: unknown color"<<endl;
+      }
+    }
+    //int recHitId=(i<<shiftId_) | RECHITHFHADID;
+    int recHitId=(RECHITHFHADID <<shiftId_) | i;
+    createGRecHit(em_->rechitsHFHAD_[i],recHitId, maxe, phi0, rhcolor);
   }
         
   for(unsigned i=0; i<em_->rechitsPS_.size(); i++) { 

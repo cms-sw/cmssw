@@ -1,5 +1,3 @@
-
-
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -394,7 +392,80 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoHCAL_.enableDebugging( clusteringDebug ); 
 
 
-  //COLIN set HF clustering parameters here
+  // clustering HF EM 
+
+  double threshHFEM = 0.;
+  options_->GetOpt("clustering", "thresh_HFEM", threshHFEM);
+  
+  double threshSeedHFEM = 0.001;
+  options_->GetOpt("clustering", "thresh_Seed_HFEM", 
+                   threshSeedHFEM);
+  
+  double showerSigmaHFEM    = 0.1;
+  options_->GetOpt("clustering", "shower_Sigma_HFEM",
+                   showerSigmaHFEM);
+ 
+  int nNeighboursHFEM = 4;
+  options_->GetOpt("clustering", "neighbours_HFEM", nNeighboursHFEM);
+
+  int posCalcNCrystalHFEM = -1;
+  options_->GetOpt("clustering", "posCalc_nCrystal_HFEM",
+                   posCalcNCrystalHFEM);
+
+  double posCalcP1HFEM = 0.;
+  options_->GetOpt("clustering", "posCalc_p1_HFEM", 
+                   posCalcP1HFEM);
+
+
+  clusterAlgoHFEM_.setThreshEndcap( threshHFEM );
+  clusterAlgoHFEM_.setThreshSeedEndcap( threshSeedHFEM );
+
+  clusterAlgoHFEM_.setNNeighbours( nNeighboursHFEM );
+  clusterAlgoHFEM_.setShowerSigma( showerSigmaHFEM );
+
+  clusterAlgoHFEM_.setPosCalcNCrystal( posCalcNCrystalHFEM );
+  clusterAlgoHFEM_.setPosCalcP1( posCalcP1HFEM );
+
+  clusterAlgoHFEM_.enableDebugging( clusteringDebug ); 
+
+  
+  // clustering HFHAD 
+
+  double threshHFHAD = 0.;
+  options_->GetOpt("clustering", "thresh_HFHAD", threshHFHAD);
+  
+  double threshSeedHFHAD = 0.001;
+  options_->GetOpt("clustering", "thresh_Seed_HFHAD", 
+                   threshSeedHFHAD);
+  
+  double showerSigmaHFHAD    = 0.1;
+  options_->GetOpt("clustering", "shower_Sigma_HFHAD",
+                   showerSigmaHFHAD);
+ 
+  int nNeighboursHFHAD = 4;
+  options_->GetOpt("clustering", "neighbours_HFHAD", nNeighboursHFHAD);
+
+  int posCalcNCrystalHFHAD = -1;
+  options_->GetOpt("clustering", "posCalc_nCrystal_HFHAD",
+                   posCalcNCrystalHFHAD);
+
+  double posCalcP1HFHAD = 0.;
+  options_->GetOpt("clustering", "posCalc_p1_HFHAD", 
+                   posCalcP1HFHAD);
+
+
+  clusterAlgoHFHAD_.setThreshEndcap( threshHFHAD );
+  clusterAlgoHFHAD_.setThreshSeedEndcap( threshSeedHFHAD );
+
+  clusterAlgoHFHAD_.setNNeighbours( nNeighboursHFHAD );
+  clusterAlgoHFHAD_.setShowerSigma( showerSigmaHFHAD );
+
+  clusterAlgoHFHAD_.setPosCalcNCrystal( posCalcNCrystalHFHAD );
+  clusterAlgoHFHAD_.setPosCalcP1( posCalcP1HFHAD );
+
+  clusterAlgoHFHAD_.enableDebugging( clusteringDebug ); 
+
+  
 
 
   // clustering preshower
@@ -1871,6 +1942,13 @@ void PFRootEventManager::clustering() {
   fillOutEventWithClusters( *clustersHCAL_ );
 
   //COLIN: do HF clustering here
+
+  clusterAlgoHFEM_.doClustering( rechitsHFEM_ );
+  clustersHFEM_ = clusterAlgoHFEM_.clusters();
+  
+  clusterAlgoHFHAD_.doClustering( rechitsHFHAD_ );
+  clustersHFHAD_ = clusterAlgoHFHAD_.clusters();
+  
 
   // PS clustering -------------------------------------------
 
