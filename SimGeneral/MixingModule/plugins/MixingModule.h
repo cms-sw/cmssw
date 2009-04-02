@@ -53,7 +53,7 @@ namespace edm
       virtual void beginJob(edm::EventSetup const&iSetup);
  
     private:
-      virtual bool verifyRegistry(std::string object, std::string subdet,InputTag &tag,std::string &label);
+      virtual void branchesActivate(std::string object, std::string subdet,InputTag &tag,std::string &label);
       virtual void put(edm::Event &e,const edm::EventSetup& es);
       virtual void createnewEDProduct();
       virtual void addSignals(const edm::Event &e, const edm::EventSetup& es); 

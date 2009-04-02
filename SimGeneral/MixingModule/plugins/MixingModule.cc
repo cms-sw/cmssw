@@ -14,6 +14,7 @@
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfo.h"
+#include "FWCore/Utilities/interface/FriendlyName.h"
 #include "MixingModule.h"
 #include "MixingWorker.h"
 
@@ -53,34 +54,34 @@ namespace edm
             InputTag tag;
 	    if (tags.size()>0) tag=tags[0];
             std::string label;
-            if (verifyRegistry(object,std::string(""),tag,label))
-	    {
-	      workers_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,maxNbSources_,tag,checktof_));  
-	      produces<CrossingFrame<SimTrack> >(label);
-	      LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
-	    }
+            branchesActivate(object,std::string(""),tag,label);
+	    
+	    workers_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,maxNbSources_,tag,checktof_));  
+	    produces<CrossingFrame<SimTrack> >(label);
+	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
+	    
 
           }else if (object=="SimVertex") {
             InputTag tag;
 	    if (tags.size()>0) tag=tags[0];
             std::string label;
-            if (verifyRegistry(object,std::string(""),tag,label))
-	    {
-	      workers_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,maxNbSources_,tag,checktof_));  
-	      produces<CrossingFrame<SimVertex> >(label);
-	      LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag "<<tag.encode()<<", label will be "<<label;
-	    }
+            branchesActivate(object,std::string(""),tag,label);
+	    
+	    workers_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,maxNbSources_,tag,checktof_));  
+	    produces<CrossingFrame<SimVertex> >(label);
+	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag "<<tag.encode()<<", label will be "<<label;
+	    
 	  }
 
 	    else if (object=="HepMCProduct") {
             InputTag tag;
 	    if (tags.size()>0) tag=tags[0];
             std::string label;
-            if (verifyRegistry(object,std::string(""),tag,label)){
+            branchesActivate(object,std::string(""),tag,label);
 	    workers_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,maxNbSources_,tag,checktof_));  
 	    produces<CrossingFrame<HepMCProduct> >(label);
-	    LogInfo("MixingModule") <<"Will mix"<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
-	    }
+	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
+	    
 
           }else if (object=="PCaloHit") {
             std::vector<std::string> subdets=pset.getParameter<std::vector<std::string> >("subdets");
@@ -89,11 +90,11 @@ namespace edm
 	      if (tags.size()==1) tag=tags[0];
               else if(tags.size()>1) tag=tags[ii]; //FIXME: verify sizes
 	      std::string label;
-	      if (verifyRegistry(object,subdets[ii],tag,label)){
+	      branchesActivate(object,subdets[ii],tag,label);
 	      workers_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,maxNbSources_,tag,checktof_));  
 	      produces<CrossingFrame<PCaloHit> > (label);
 	      LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
-	      }
+	      
 	    }
 
           }else if (object=="PSimHit") {
@@ -103,7 +104,7 @@ namespace edm
 	      if (tags.size()==1) tag=tags[0];
               else if(tags.size()>1) tag=tags[ii]; //FIXME: verify sizes
 	      std::string label;
-              if (!verifyRegistry(object,subdets[ii],tag,label)) continue;
+              branchesActivate(object,subdets[ii],tag,label);
 	      if ((subdets[ii].find("HighTof")==std::string::npos) && (subdets[ii].find("LowTof")==std::string::npos)) {
 		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,maxNbSources_,tag,checktof_));  
 		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
@@ -136,43 +137,19 @@ namespace edm
     produces<CrossingFramePlaybackInfo>();
   }
  
-  bool MixingModule::verifyRegistry(std::string object, std::string subdet, InputTag &tag,std::string &label) {
-    // verify that the given product exists in the product registry
-    // and create the label to be given to the CrossingFrame
-
-    edm::Service<edm::ConstProductRegistry> reg;
-    // Loop over provenance of products in registry.
-    std::string lookfor;
-    if (object=="HepMCProduct") lookfor="edm::"+object;//exception for HepMCProduct
-    else if (object=="edm::HepMCProduct") lookfor=object;
-    else  lookfor="std::vector<"+object+">";
-    bool found=false;
-    for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin();
-	 it != reg->productList().end(); ++it) {
-      // See FWCore/Framework/interface/BranchDescription.h
-      // BranchDescription contains all the information for the product.
-      edm::BranchDescription desc = it->second;
-      if (desc.className()==lookfor && desc.moduleLabel()==tag.label() && desc.productInstanceName()==tag.instance()) {
-	label=desc.moduleLabel()+desc.productInstanceName();
-	found=true;
-	wantedBranches_.push_back(desc.friendlyClassName() + '_' +
-				  desc.moduleLabel() + '_' +
-				  desc.productInstanceName());
-	break; 
-	}
-    }
-    if (!found) {
-      LogWarning("MixingModule")<<"!!!!!!!!!Could not find in registry requested object: "<<object<<" with "<<tag<<".\nWill NOT be considered for mixing!!!!!!!!!";
-      return false;
-    }
-
+  void MixingModule::branchesActivate(std::string object, std::string subdet, InputTag &tag,std::string &label) {
+       
+    label=tag.label()+tag.instance();
+    wantedBranches_.push_back(edm::friendlyname::friendlyName(object) + '_' +
+			      tag.label() + '_' +
+			      tag.instance());
+    
     //if useCurrentProcessOnly, we have to change the input tag
     if (useCurrentProcessOnly_) {
       const std::string processName = edm::Service<edm::service::TriggerNamesService>()->getProcessName();
-
       tag = InputTag(tag.label(),tag.instance(),processName);
     }    
-    return true;
+    
   }
 
   void MixingModule::beginJob(edm::EventSetup const&iSetup) {
