@@ -33,14 +33,15 @@ class TkAlCaRecoMonitor : public edm::EDAnalyzer {
  public:
   explicit TkAlCaRecoMonitor(const edm::ParameterSet&);
   ~TkAlCaRecoMonitor();
-  virtual void beginJob(edm::EventSetup const& iSetup);
+  virtual void beginJob(); // without eventsetup!
   virtual void endJob(void);
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   
  private:
   void fillHitmaps(const reco::Track &track, const TrackerGeometry& geometry);
-  //, edm::ESHandle<TransientTrackingRecHitBuilder>& recHitBuilderHandle,
+  void fillRawIdMap(const TrackerGeometry &geometry);
+
   // ----------member data ---------------------------
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;

@@ -31,7 +31,7 @@ TkAlCaRecoMonitor::TkAlCaRecoMonitor(const edm::ParameterSet& iConfig) {
 
 TkAlCaRecoMonitor::~TkAlCaRecoMonitor() { } 
 
-void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
+void TkAlCaRecoMonitor::beginJob() {
   using namespace edm;
 
   std::string histname;  //for naming the histograms according to algorithm used
@@ -161,20 +161,6 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
   Hits_XvsY_ = dqmStore_->book2D(histname+AlgoName, histname+AlgoName, rBin, -rMax, rMax, rBin, -rMax, rMax);
 
   if( fillRawIdMap_){
-    edm::ESHandle<TrackerGeometry> tkGeom;
-    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
-    TrackerGeometry tracker  = TrackerGeometry(*tkGeom);
-    std::vector<int> sortedRawIds;
-    for( std::vector<DetId>::const_iterator iDetId = tracker.detUnitIds().begin(); iDetId != tracker.detUnitIds().end(); ++iDetId){
-      sortedRawIds.push_back( (*iDetId).rawId() );
-    }
-    std::sort(sortedRawIds.begin(),sortedRawIds.end());
-    
-    int i = 0;
-    for( std::vector<int>::iterator iRawId = sortedRawIds.begin(); iRawId != sortedRawIds.end(); ++iRawId){
-      binByRawId_[ (*iRawId) ] = i;
-      i++;
-    }
     histname = "Hits_perDetId_";
     
     //leads to differences in axsis between samples??
@@ -197,7 +183,7 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
 //
 void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-  
+
   Handle<reco::TrackCollection> trackCollection;
   iEvent.getByLabel(trackProducer_, trackCollection);
   if (!trackCollection.isValid()){
@@ -225,14 +211,16 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
     return;
   }
 
-  InputTag jetCollection = conf_.getParameter<edm::InputTag>("CaloJetCollection");
   Handle<reco::CaloJetCollection> jets;
   if(runsOnReco_){
+    InputTag jetCollection = conf_.getParameter<edm::InputTag>("CaloJetCollection");
     iEvent.getByLabel(jetCollection, jets);
     if(! jets.isValid()){
       LogError("Alignment")<<"no jet collection found in event!";
     }
   }
+  // fill only once - not yet in beginJob since no access to geometry
+  if (fillRawIdMap_ && binByRawId_.empty()) this->fillRawIdMap(*geometry);
 
   AlCaRecoTrackEfficiency_->Fill( static_cast<double>((*trackCollection).size()) / (*referenceTrackCollection).size() );
   
@@ -321,6 +309,22 @@ void TkAlCaRecoMonitor::fillHitmaps(const reco::Track &track, const TrackerGeome
   }
 }
 
+void TkAlCaRecoMonitor::fillRawIdMap(const TrackerGeometry &geometry)
+{
+  std::vector<int> sortedRawIds;
+  for (std::vector<DetId>::const_iterator iDetId = geometry.detUnitIds().begin();
+       iDetId != geometry.detUnitIds().end(); ++iDetId) {
+    sortedRawIds.push_back((*iDetId).rawId());
+  }
+  std::sort(sortedRawIds.begin(), sortedRawIds.end());
+  
+  int i = 0;
+  for (std::vector<int>::iterator iRawId = sortedRawIds.begin();
+       iRawId != sortedRawIds.end(); ++iRawId){
+    binByRawId_[*iRawId] = i;
+    ++i;
+  }
+}
 
 
 void TkAlCaRecoMonitor::endJob(void) {
