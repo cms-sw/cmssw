@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.21 2008/08/21 09:04:04 nancy Exp $ 
- **  $Date: 2008/08/21 09:04:04 $ 
- **  $Revision: 1.21 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.25 2009/03/12 20:03:46 nancy Exp $ 
+ **  $Date: 2009/03/12 20:03:46 $ 
+ **  $Revision: 1.25 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -22,6 +22,7 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -37,19 +38,22 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   ConvertedPhotonProducer (const edm::ParameterSet& ps);
   ~ConvertedPhotonProducer();
 
-
-  //  virtual void beginJob (edm::EventSetup const & es);
   virtual void beginRun (edm::Run& r, edm::EventSetup const & es);
   virtual void endRun (edm::Run& r, edm::EventSetup const & es);
-  virtual void endJob ();
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+  virtual void endJob();
+
 
  private:
 
   void buildCollections ( const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
 			  const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
+			  const edm::Handle<reco::TrackCollection>  & trkHandle,
 			  std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>& allPairs,
 			  reco::ConversionCollection & outputConvPhotonCollection);
+
+  float calculateMinApproachDistance ( const reco::TrackRef& track1, const reco::TrackRef& track2);
+  void getCircleCenter(const reco::TrackRef& tk, double r, double& x0, double& y0);
     
   
   std::string conversionOITrackProducer_;
@@ -72,13 +76,17 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   edm::ParameterSet conf_;
 
   edm::ESHandle<MagneticField> theMF_;
+  edm::ESHandle<TransientTrackBuilder> theTransientTrackBuilder_;
 
   ConversionTrackPairFinder*      theTrackPairFinder_;
   ConversionVertexFinder*         theVertexFinder_;
   ConversionTrackEcalImpactPoint* theEcalImpactPositionFinder_;
 
   int nEvt_;
-
-
+  std::string algoName_;
+  bool  recoverOneTrackCase_;
+  double dRForConversionRecovery_;
+  double deltaCotCut_;
+  double minApproachDisCut_;
 };
 #endif
