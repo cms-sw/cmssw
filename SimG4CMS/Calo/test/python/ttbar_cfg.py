@@ -15,9 +15,12 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.load("SimG4CMS.Calo.CaloSimHitStudy_cfi")
 
+process.source = cms.Source("EmptySource")
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(50)
 )
+
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
         noTimeStamps = cms.untracked.bool(False),
@@ -63,6 +66,7 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876),
         VtxSmeared = cms.untracked.uint32(98765432)
     ),
@@ -83,10 +87,10 @@ process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('simevent_ttbar_QGSP_BERT_EMV.root')
 )
 
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits*process.caloSimHitStudy*process.rndmStore)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.caloSimHitStudy*process.rndmStore)
 process.outpath = cms.EndPath(process.o1)
-process.PythiaSource.pythiaHepMCVerbosity = False
-process.PythiaSource.pythiaPylistVerbosity = 0
+process.generator.pythiaHepMCVerbosity = False
+process.generator.pythiaPylistVerbosity = 0
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EMV'
 process.g4SimHits.StackingAction.TrackNeutrino = False
 process.g4SimHits.Generator.MinPhiCut = -5.5

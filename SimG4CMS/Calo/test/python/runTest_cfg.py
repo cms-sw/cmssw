@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
-process.load("Configuration.Generator.PythiaMinBias_cfi")
+process.load("SimG4CMS.Calo.PythiaMinBias_cfi")
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
@@ -53,6 +53,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876),
         VtxSmeared = cms.untracked.uint32(123456789)
     ),
@@ -61,9 +62,12 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 
 process.Timing = cms.Service("Timing")
 
+process.source = cms.Source("EmptySource")
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
+
 process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
 process.o1 = cms.OutputModule("PoolOutputModule",
@@ -71,7 +75,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('simevent.root')
 )
 
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(

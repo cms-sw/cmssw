@@ -1,8 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("PythiaSource",
+from GeneratorInterface.Pythia6Interface.pythiaDefault_cff import *
+generator = cms.EDProducer("PythiaProducer",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     pythiaPylistVerbosity = cms.untracked.int32(0),
+    pythiaFrame = cms.string('CMS'),
+    comEnergy   = cms.double(14000.0),
     PythiaParameters = cms.PSet(
         # User cards - name is "myParameters"
         # Pythia's random generator initialization 

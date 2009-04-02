@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("PythiaSource",
+generator = cms.EDProducer("PythiaProducer",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
-    maxEventsToPrint = cms.untracked.int32(0),
     pythiaPylistVerbosity = cms.untracked.int32(0),
+    pythiaFrame = cms.string('CMS'),
+    comEnergy   = cms.double(14000.0),
     PythiaParameters = cms.PSet(
         pythiaUESettings = cms.vstring('MSTJ(11)=3     ! Choice of the fragmentation function', 
             'MSTJ(22)=2     ! Decay those unstable particles', 

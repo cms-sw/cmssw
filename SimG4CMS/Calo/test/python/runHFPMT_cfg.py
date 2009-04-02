@@ -52,6 +52,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876),
         VtxSmeared = cms.untracked.uint32(123456789)
     ),
@@ -63,19 +64,22 @@ process.Timing = cms.Service("Timing")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
-process.source = cms.Source("FlatRandomEGunSource",
-    PGunParameters = cms.untracked.PSet(
-        PartID = cms.untracked.vint32(-211),
-        MinEta = cms.untracked.double(3.25),
-        MaxEta = cms.untracked.double(3.30),
-        MinPhi = cms.untracked.double(-3.1415926),
-        MaxPhi = cms.untracked.double(3.1415926),
-        MinE = cms.untracked.double(99.99),
-        MaxE = cms.untracked.double(100.01)
+
+process.source = cms.Source("EmptySource")
+
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    PGunParameters = cms.PSet(
+        PartID = cms.vint32(-211),
+        MinEta = cms.double(3.25),
+        MaxEta = cms.double(3.30),
+        MinPhi = cms.double(-3.1415926),
+        MaxPhi = cms.double(3.1415926),
+        MinE   = cms.double(99.99),
+        MaxE   = cms.double(100.01)
     ),
-    Verbosity = cms.untracked.int32(0),
-    AddAntiParticle = cms.untracked.bool(False),
-    firstRun = cms.untracked.uint32(1)
+    Verbosity       = cms.untracked.int32(0),
+    AddAntiParticle = cms.bool(False),
+    firstRun        = cms.untracked.uint32(1)
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
@@ -87,7 +91,7 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('HFPMT.root')
 )
 
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits*process.hfPMTHitAnalyzer)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.hfPMTHitAnalyzer)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
 process.g4SimHits.Physics.DefaultCutValue   = 0.1
@@ -98,14 +102,14 @@ process.g4SimHits.HFShower.UseShowerLibrary = True
 process.g4SimHits.HFShower.EminLibrary      = 0.0
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     CheckForHighEtPhotons = cms.untracked.bool(False),
-    TrackMin = cms.untracked.int32(0),
-    EventStep = cms.untracked.int32(1),
-    TrackMax = cms.untracked.int32(0),
-    TrackStep = cms.untracked.int32(1),
+    TrackMin     = cms.untracked.int32(0),
+    EventStep    = cms.untracked.int32(1),
+    TrackMax     = cms.untracked.int32(0),
+    TrackStep    = cms.untracked.int32(1),
     VerboseLevel = cms.untracked.int32(0),
-    EventMin = cms.untracked.int32(0),
-    DEBUG = cms.untracked.bool(False),
-    EventMax = cms.untracked.int32(0),
-    type = cms.string('TrackingVerboseAction')
+    EventMin     = cms.untracked.int32(0),
+    DEBUG        = cms.untracked.bool(False),
+    EventMax     = cms.untracked.int32(0),
+    type         = cms.string('TrackingVerboseAction')
 ))
 

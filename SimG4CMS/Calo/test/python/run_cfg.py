@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
-process.load("Configuration.Generator.PythiaMinBias_cfi")
+process.load("SimG4CMS.Calo.PythiaMinBias_cfi")
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
@@ -53,6 +53,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876),
         VtxSmeared = cms.untracked.uint32(123456789)
     ),
@@ -64,6 +65,9 @@ process.Timing = cms.Service("Timing")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
+
+process.source = cms.Source("EmptySource")
+
 process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
 process.o1 = cms.OutputModule("PoolOutputModule",
@@ -71,20 +75,20 @@ process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('simevent.root')
 )
 
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     CheckForHighEtPhotons = cms.untracked.bool(False),
-    TrackMin = cms.untracked.int32(0),
+    EventMin  = cms.untracked.int32(0),
+    EventMax  = cms.untracked.int32(0),
     EventStep = cms.untracked.int32(1),
-    TrackMax = cms.untracked.int32(0),
+    TrackMin  = cms.untracked.int32(0),
+    TrackMax  = cms.untracked.int32(0),
     TrackStep = cms.untracked.int32(1),
     VerboseLevel = cms.untracked.int32(0),
-    EventMin = cms.untracked.int32(0),
-    DEBUG = cms.untracked.bool(False),
-    EventMax = cms.untracked.int32(0),
-    type = cms.string('TrackingVerboseAction')
+    DEBUG     = cms.untracked.bool(False),
+    type      = cms.string('TrackingVerboseAction')
 ))
 

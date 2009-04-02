@@ -37,6 +37,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876),
         VtxSmeared = cms.untracked.uint32(123456789)
     ),
@@ -47,19 +48,21 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(5000)
 )
 
-process.source = cms.Source("FlatRandomEGunSource",
-    PGunParameters = cms.untracked.PSet(
-        PartID = cms.untracked.vint32(211),
-        MinEta = cms.untracked.double(1.0875),
-        MaxEta = cms.untracked.double(1.0875),
-        MinPhi = cms.untracked.double(-3.14159265359),
-        MaxPhi = cms.untracked.double(3.14159265359),
-        MinE = cms.untracked.double(30.0),
-        MaxE = cms.untracked.double(30.0)
+process.source = cms.Source("EmptySource")
+
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    PGunParameters = cms.PSet(
+        PartID = cms.vint32(211),
+        MinEta = cms.double(1.0875),
+        MaxEta = cms.double(1.0875),
+        MinPhi = cms.double(-3.14159265359),
+        MaxPhi = cms.double(3.14159265359),
+        MinE   = cms.double(30.0),
+        MaxE   = cms.double(30.0)
     ),
-    Verbosity = cms.untracked.int32(0),
-    AddAntiParticle = cms.untracked.bool(False),
-    firstRun = cms.untracked.uint32(1)
+    Verbosity       = cms.untracked.int32(0),
+    AddAntiParticle = cms.bool(False),
+    firstRun        = cms.untracked.uint32(1)
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
@@ -69,7 +72,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 
 process.Timing = cms.Service("Timing")
 
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EMV'
 #process.g4SimHits.G4Commands = ['/tracking/verbose 1']

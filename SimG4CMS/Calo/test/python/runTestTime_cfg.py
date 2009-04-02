@@ -49,6 +49,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
+        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876),
         VtxSmeared = cms.untracked.uint32(123456789)
     ),
@@ -58,19 +59,22 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(5)
 )
-process.source = cms.Source("FlatRandomEGunSource",
-    PGunParameters = cms.untracked.PSet(
-        PartID = cms.untracked.vint32(211),
-        MaxEta = cms.untracked.double(5.5),
-        MaxPhi = cms.untracked.double(3.14159265359),
-        MinEta = cms.untracked.double(-5.5),
-        MinE = cms.untracked.double(99.99),
-        MinPhi = cms.untracked.double(-3.14159265359),
-        MaxE = cms.untracked.double(100.01)
+
+process.source = cms.Source("EmptySource")
+
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    PGunParameters = cms.PSet(
+        PartID = cms.vint32(211),
+        MinEta = cms.double(-5.5),
+        MaxEta = cms.double(5.5),
+        MinPhi = cms.double(-3.14159265359),
+        MaxPhi = cms.double(3.14159265359),
+        MinE   = cms.double(99.99),
+        MaxE   = cms.double(100.01)
     ),
-    Verbosity = cms.untracked.int32(0),
-    AddAntiParticle = cms.untracked.bool(False),
-    firstRun = cms.untracked.uint32(1)
+    Verbosity       = cms.untracked.int32(0),
+    AddAntiParticle = cms.bool(False),
+    firstRun        = cms.untracked.uint32(1)
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
@@ -82,7 +86,7 @@ process.Timing = cms.Service("Timing")
 
 process.Tracer = cms.Service("Tracer")
 
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.common_maximum_timex = cms.PSet(
     MaxTrackTime  = cms.double(1000.0),
@@ -98,8 +102,8 @@ process.g4SimHits.StackingAction = cms.PSet(
     KillHeavy     = cms.bool(False),
     SaveFirstLevelSecondary = cms.untracked.bool(True),
     SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
-    SavePrimaryDecayProductsAndConversionsInCalo = cms.untracked.bool(True),
-    SavePrimaryDecayProductsAndConversionsInMuon = cms.untracked.bool(True)
+    SavePrimaryDecayProductsAndConversionsInCalo    = cms.untracked.bool(True),
+    SavePrimaryDecayProductsAndConversionsInMuon    = cms.untracked.bool(True)
 )
 process.g4SimHits.SteppingAction = cms.PSet(
     process.common_maximum_timex,
@@ -109,18 +113,18 @@ process.g4SimHits.SteppingAction = cms.PSet(
     EkinNames               = cms.vstring('FixedShield01','FixedShield02','FixedShield03','FixedShield04','FixedShield05','FixedShield06','FixedShield07','FixedShield08','FixedShield09','FixedShield10'),
     EkinThresholds          = cms.vdouble(0.1,0.1,10.0,10.0),
     EkinParticles           = cms.vstring('e+','e-','pi+','pi-'),
-    Verbosity = cms.untracked.int32(0)
+    Verbosity               = cms.untracked.int32(0)
 )
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     CheckForHighEtPhotons = cms.untracked.bool(False),
-    TrackMin = cms.untracked.int32(0),
+    EventMin  = cms.untracked.int32(0),
+    EventMax  = cms.untracked.int32(0),
     EventStep = cms.untracked.int32(1),
-    TrackMax = cms.untracked.int32(0),
+    TrackMin  = cms.untracked.int32(0),
+    TrackMax  = cms.untracked.int32(0),
     TrackStep = cms.untracked.int32(1),
     VerboseLevel = cms.untracked.int32(0),
-    EventMin = cms.untracked.int32(0),
-    DEBUG = cms.untracked.bool(False),
-    EventMax = cms.untracked.int32(0),
-    type = cms.string('TrackingVerboseAction')
+    DEBUG     = cms.untracked.bool(False),
+    type      = cms.string('TrackingVerboseAction')
 ))
 
