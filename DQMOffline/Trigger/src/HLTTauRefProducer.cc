@@ -2,7 +2,7 @@
 #include "TLorentzVector.h"
 // TAU includes
 #include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
 // ELECTRON includes
@@ -105,7 +105,7 @@ HLTTauRefProducer::doPFTaus(edm::Event& iEvent,const edm::EventSetup& iES)
       edm::Handle<PFTauCollection> pftaus;
       if(iEvent.getByLabel(PFTaus_,pftaus))
 	{
-	  edm::Handle<PFTauDiscriminatorByIsolation> pftaudis;
+	  edm::Handle<PFTauDiscriminator> pftaudis;
 	  if(iEvent.getByLabel(PFTauDis_,pftaudis))
 	    for(size_t i = 0 ;i<pftaus->size();++i)
 	      {
