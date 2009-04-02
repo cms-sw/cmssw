@@ -527,7 +527,7 @@ void PixelDACSettings::writeXML(pos::PixelConfigKey key, int version, std::strin
 
 //=============================================================================================
 void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
-					     PixelNameTranslation* trans) const{
+					     PixelNameTranslation* trans, bool HVon) const{
 
   bool bufferData=true; 
 
@@ -544,7 +544,7 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
     //Need to set readout speed (40MHz) and Vcal range (0-1800 mV) and enable the chip
 
     int controlreg=dacsettings_[i].getControlRegister();
-    //std::cout << "ROC control reg to be set to: " <<  controlreg <<std::endl;
+    //std::cout << "[PixelDACSettings::generateConfiguration] ROC control reg to be set to: " <<  controlreg <<std::endl;
 
     pixelFEC->progdac(theROC.mfec(),
 		      theROC.mfecchannel(),
@@ -555,6 +555,7 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 		      controlreg,
 		      bufferData);
 
+    if (!HVon)    dacs[11]=0; //set Vcthr DAC to 0 (Vcthr is DAC 12=11+1)
     pixelFEC->setAllDAC(theROC,dacs,bufferData);
 
     // start with no pixels on for calibration
@@ -576,13 +577,110 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 			   1,
 			   bufferData);
     }
+    if (!HVon) { //HV off
+      std::cout << "[PixelDACSettings::generateConfiguration] HV off! ROC control reg to be set to: " <<  (controlreg|0x2) <<std::endl;
+      pixelFEC->progdac(theROC.mfec(),
+			theROC.mfecchannel(),
+			theROC.hubaddress(),
+			theROC.portaddress(),
+			theROC.rocid(),
+			0xfd,
+			controlreg | 0x2, //=010 in binary. should disable the chip
+			bufferData);
+    }
   }
 
   if (bufferData) {
     pixelFEC->qbufsend();
   }
 
-} 
+}
+
+void PixelDACSettings::setVcthrDisable(PixelFECConfigInterface* pixelFEC, PixelNameTranslation* trans) const {
+  //the point here is to set Vcthr to 0
+  //then disable the ROCs
+
+  bool bufferData=true;
+
+  std::vector<unsigned int> dacs;
+
+  for(unsigned int i=0;i<dacsettings_.size();i++){ //loop over the ROCs
+
+    dacsettings_[i].getDACs(dacs);
+    int controlreg=dacsettings_[i].getControlRegister();
+    std::cout << "[PixelDACSettings::setVcthrDisable] ROC control reg to be set to: " <<  (controlreg|0x2) <<std::endl;
+
+    PixelHdwAddress theROC=*(trans->getHdwAddress(dacsettings_[i].getROCName()));
+
+    pixelFEC->progdac(theROC.mfec(),
+		      theROC.mfecchannel(),
+		      theROC.hubaddress(),
+		      theROC.portaddress(),
+		      theROC.rocid(),
+		      12, //12 == Vcthr // should this be 12 or 11?
+		      0, //set Vcthr to 0
+		      bufferData);
+
+    //this should disable the roc
+    pixelFEC->progdac(theROC.mfec(),
+		      theROC.mfecchannel(),
+		      theROC.hubaddress(),
+		      theROC.portaddress(),
+		      theROC.rocid(),
+		      0xfd,
+		      controlreg | 0x2,
+		      bufferData);
+
+  }
+
+  if (bufferData) { //just copying the way it was done in the existing method
+    pixelFEC->qbufsend();
+  }
+}
+
+void PixelDACSettings::setVcthrEnable(PixelFECConfigInterface* pixelFEC, PixelNameTranslation* trans) const {
+  //the point here is to set Vcthr to the nominal values
+  //then enable the ROCs
+
+  bool bufferData=true;
+
+  std::vector<unsigned int> dacs;
+
+  for(unsigned int i=0;i<dacsettings_.size();i++){ //loop over the ROCs
+
+    dacsettings_[i].getDACs(dacs);
+    int controlreg=dacsettings_[i].getControlRegister();
+    std::cout << "[PixelDACSettings::setVcthrEnable] ROC control reg to be set to: " <<  controlreg <<std::endl;
+
+    PixelHdwAddress theROC=*(trans->getHdwAddress(dacsettings_[i].getROCName()));
+
+    pixelFEC->progdac(theROC.mfec(),
+		      theROC.mfecchannel(),
+		      theROC.hubaddress(),
+		      theROC.portaddress(),
+		      theROC.rocid(),
+		      12, //12 == Vcthr //should this be 12 or 11?
+		      dacs[11], //need to be careful w/array indices.
+		      bufferData);
+
+    //enable the roc (assuming controlreg was set for the roc to be enabled)
+
+    pixelFEC->progdac(theROC.mfec(),
+		      theROC.mfecchannel(),
+		      theROC.hubaddress(),
+		      theROC.portaddress(),
+		      theROC.rocid(),
+		      0xfd,
+		      controlreg,
+		      bufferData);
+
+  }
+
+  if (bufferData) { //just copying the way it was done in the existing method
+    pixelFEC->qbufsend();
+  }
+
+}
 
 
 std::ostream& operator<<(std::ostream& s, const PixelDACSettings& dacs){
