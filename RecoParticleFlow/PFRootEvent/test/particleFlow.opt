@@ -19,6 +19,10 @@ root file ../../Configuration/test/display.root
 root rechits_ECAL_branch  recoPFRecHits_particleFlowRecHitECAL__PROD.obj
 // HCAL rechits branch
 root rechits_HCAL_branch  recoPFRecHits_particleFlowRecHitHCAL__PROD.obj
+// HFEM rechits branch
+root rechits_HFEM_branch  recoPFRecHits_particleFlowRecHitHCAL_HFEM_PROD.obj
+// HFHAD rechits branch
+root rechits_HFHAD_branch  recoPFRecHits_particleFlowRecHitHCAL_HFHAD_PROD.obj
 // PS rechits branch
 root rechits_PS_branch    recoPFRecHits_particleFlowRecHitPS__PROD.obj
 

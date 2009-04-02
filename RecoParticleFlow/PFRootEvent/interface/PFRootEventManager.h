@@ -395,6 +395,12 @@ class PFRootEventManager {
   /// HCAL rechits branch  
   TBranch*   rechitsHCALBranch_;          
   
+  /// HCAL rechits branch  
+  TBranch*   rechitsHFEMBranch_;          
+  
+  /// HCAL rechits branch  
+  TBranch*   rechitsHFHADBranch_;          
+  
   /// PS rechits branch  
   TBranch*   rechitsPSBranch_;          
 
@@ -472,6 +478,12 @@ class PFRootEventManager {
   /// rechits HCAL
   reco::PFRecHitCollection rechitsHCAL_;
 
+  /// rechits HCAL
+  reco::PFRecHitCollection rechitsHFEM_;
+
+  /// rechits HCAL
+  reco::PFRecHitCollection rechitsHFHAD_;
+
   /// rechits PS 
   reco::PFRecHitCollection rechitsPS_;
 
@@ -480,6 +492,12 @@ class PFRootEventManager {
 
   /// clusters HCAL
   std::auto_ptr< reco::PFClusterCollection > clustersHCAL_;
+
+  /// clusters HCAL
+  std::auto_ptr< reco::PFClusterCollection > clustersHFEM_;
+
+  /// clusters HCAL
+  std::auto_ptr< reco::PFClusterCollection > clustersHFHAD_;
 
   /// clusters PS
   std::auto_ptr< reco::PFClusterCollection > clustersPS_;
@@ -590,10 +608,16 @@ class PFRootEventManager {
   /// \todo try to make all the algorithms concrete. 
   PFClusterAlgo   clusterAlgoECAL_;
 
-  /// clustering algorithm for ECAL
+  /// clustering algorithm for HCAL
   PFClusterAlgo   clusterAlgoHCAL_;
 
-  /// clustering algorithm for ECAL
+  /// clustering algorithm for HF, electro-magnetic layer
+  PFClusterAlgo   clusterAlgoHFEM_;
+
+  /// clustering algorithm for HF, hadronic layer
+  PFClusterAlgo   clusterAlgoHFHAD_;
+
+  /// clustering algorithm for PS
   PFClusterAlgo   clusterAlgoPS_;
 
 

@@ -1129,9 +1129,13 @@ double DisplayManager::getMaxE(int layer) const
   case PFLayer::HCAL_ENDCAP:
   case PFLayer::HCAL_BARREL1:
   case PFLayer::HCAL_BARREL2:
-  case PFLayer::HF_EM: 
-  case PFLayer::HF_HAD: 
     vec = &(em_->rechitsHCAL_);
+    break;
+  case PFLayer::HF_EM: 
+    vec = &(em_->rechitsHFEM_);
+    break;
+  case PFLayer::HF_HAD: 
+    vec = &(em_->rechitsHFHAD_);
     break;
   case PFLayer::PS1:
   case PFLayer::PS2:
@@ -1157,8 +1161,8 @@ double DisplayManager::getMaxEEcal() {
     double maxeec = getMaxE( PFLayer::ECAL_ENDCAP );
     double maxeb =  getMaxE( PFLayer::ECAL_BARREL );
     double maxehf =  getMaxE( PFLayer::HF_EM );
-    maxERecHitHcal_ =  maxeec>maxeb  ?  maxeec:maxeb;
-    maxERecHitHcal_ = maxERecHitHcal_>maxehf ? maxERecHitHcal_:maxehf;
+    maxERecHitEcal_ =  maxeec>maxeb  ?  maxeec:maxeb;
+    maxERecHitEcal_ = maxERecHitEcal_>maxehf ? maxERecHitEcal_:maxehf;
     // max of both barrel and endcap
   }
   return  maxERecHitEcal_;

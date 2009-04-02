@@ -63,6 +63,8 @@ PFRootEventManager::PFRootEventManager(const char* file)
   //   clusters_(new reco::PFClusterCollection),
   clustersECAL_(new reco::PFClusterCollection),
   clustersHCAL_(new reco::PFClusterCollection),
+  clustersHFEM_(new reco::PFClusterCollection),
+  clustersHFHAD_(new reco::PFClusterCollection),
   clustersPS_(new reco::PFClusterCollection),
   pfBlocks_(new reco::PFBlockCollection),
   pfCandidates_(new reco::PFCandidateCollection),
@@ -390,6 +392,9 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoHCAL_.setPosCalcP1( posCalcP1Hcal );
 
   clusterAlgoHCAL_.enableDebugging( clusteringDebug ); 
+
+
+  //COLIN set HF clustering parameters here
 
 
   // clustering preshower
@@ -913,6 +918,24 @@ void PFRootEventManager::connect( const char* infilename ) {
         <<rechitsHCALbranchname<<endl;
   }
 
+  string rechitsHFEMbranchname;
+  options_->GetOpt("root","rechits_HFEM_branch", rechitsHFEMbranchname);
+  
+  rechitsHFEMBranch_ = tree_->GetBranch(rechitsHFEMbranchname.c_str());
+  if(!rechitsHFEMBranch_) {
+    cerr<<"PFRootEventManager::ReadOptions : rechits_HFEM_branch not found : "
+        <<rechitsHFEMbranchname<<endl;
+  }
+
+  string rechitsHFHADbranchname;
+  options_->GetOpt("root","rechits_HFHAD_branch", rechitsHFHADbranchname);
+  
+  rechitsHFHADBranch_ = tree_->GetBranch(rechitsHFHADbranchname.c_str());
+  if(!rechitsHFHADBranch_) {
+    cerr<<"PFRootEventManager::ReadOptions : rechits_HFHAD_branch not found : "
+        <<rechitsHFHADbranchname<<endl;
+  }
+
   string rechitsPSbranchname;
   options_->GetOpt("root","rechits_PS_branch", rechitsPSbranchname);
   
@@ -928,6 +951,8 @@ void PFRootEventManager::connect( const char* infilename ) {
   
   clustersECALBranch_ = 0;
   clustersHCALBranch_ = 0;
+  //COLIN not adding a branch to read HF clusters from the file. 
+  // we never use this functionality anyway for the other detectors
   clustersPSBranch_ = 0;
 
 
@@ -1185,6 +1210,8 @@ void PFRootEventManager::connect( const char* infilename ) {
 void PFRootEventManager::setAddresses() {
   if( rechitsECALBranch_ ) rechitsECALBranch_->SetAddress(&rechitsECAL_);
   if( rechitsHCALBranch_ ) rechitsHCALBranch_->SetAddress(&rechitsHCAL_);
+  if( rechitsHFEMBranch_ ) rechitsHFEMBranch_->SetAddress(&rechitsHFEM_);
+  if( rechitsHFHADBranch_ ) rechitsHFHADBranch_->SetAddress(&rechitsHFHAD_);
   if( rechitsPSBranch_ ) rechitsPSBranch_->SetAddress(&rechitsPS_);
   if( clustersECALBranch_ ) clustersECALBranch_->SetAddress( clustersECAL_.get() );
   if( clustersHCALBranch_ ) clustersHCALBranch_->SetAddress( clustersHCAL_.get() );
@@ -1276,6 +1303,8 @@ bool PFRootEventManager::processEntry(int entry) {
     cout<<"number of true particles : "<<trueParticles_.size()<<endl;
     cout<<"number of ECAL rechits   : "<<rechitsECAL_.size()<<endl;
     cout<<"number of HCAL rechits   : "<<rechitsHCAL_.size()<<endl;
+    cout<<"number of HFEM rechits   : "<<rechitsHFEM_.size()<<endl;
+    cout<<"number of HFHAD rechits   : "<<rechitsHFHAD_.size()<<endl;
     cout<<"number of PS rechits     : "<<rechitsPS_.size()<<endl;
   }  
 
@@ -1289,6 +1318,12 @@ bool PFRootEventManager::processEntry(int entry) {
     }
     if(clustersHCAL_.get() ) {
       cout<<"number of HCAL clusters : "<<clustersHCAL_->size()<<endl;
+    }
+    if(clustersHFEM_.get() ) {
+      cout<<"number of HFEM clusters : "<<clustersHFEM_->size()<<endl;
+    }
+    if(clustersHFHAD_.get() ) {
+      cout<<"number of HFHAD clusters : "<<clustersHFHAD_->size()<<endl;
     }
     if(clustersPS_.get() ) {
       cout<<"number of PS clusters : "<<clustersPS_->size()<<endl;
@@ -1428,6 +1463,12 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(rechitsHCALBranch_) {
     rechitsHCALBranch_->GetEntry(entry);
   }
+  if(rechitsHFEMBranch_) {
+    rechitsHFEMBranch_->GetEntry(entry);
+  }
+  if(rechitsHFHADBranch_) {
+    rechitsHFHADBranch_->GetEntry(entry);
+  }
   if(rechitsPSBranch_) {
     rechitsPSBranch_->GetEntry(entry);  
   }
@@ -1522,6 +1563,12 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   }
   if(rechitsHCALBranch_) {
     PreprocessRecHits( rechitsHCAL_ , findRecHitNeighbours_);
+  }
+  if(rechitsHFEMBranch_) {
+    PreprocessRecHits( rechitsHFEM_ , findRecHitNeighbours_);
+  }
+  if(rechitsHFHADBranch_) {
+    PreprocessRecHits( rechitsHFHAD_ , findRecHitNeighbours_);
   }
   if(rechitsPSBranch_) {
     PreprocessRecHits( rechitsPS_ , findRecHitNeighbours_);
@@ -1823,6 +1870,8 @@ void PFRootEventManager::clustering() {
 
   fillOutEventWithClusters( *clustersHCAL_ );
 
+  //COLIN: do HF clustering here
+
   // PS clustering -------------------------------------------
 
   fillRecHitMask( mask, rechitsPS_ );
@@ -2011,6 +2060,8 @@ void PFRootEventManager::particleFlow() {
   
   edm::OrphanHandle< reco::PFClusterCollection > hcalh( clustersHCAL_.get(), 
                                                         edm::ProductID(3) );  
+
+  //COLIN include HF clusters to particle flow here
 
   edm::OrphanHandle< reco::PFClusterCollection > psh( clustersPS_.get(), 
                                                       edm::ProductID(4) );   
@@ -2771,6 +2822,22 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
       printRecHit(rechitsHCAL_[i], seedstatus.c_str(), out);
     }
     out<<endl;
+    out<<"HFEM RecHits =============================================="<<endl;
+    for(unsigned i=0; i<rechitsHFEM_.size(); i++) {
+      string seedstatus = "    ";
+      if(clusterAlgoHFEM_.isSeed(i) ) 
+        seedstatus = "SEED";
+      printRecHit(rechitsHFEM_[i], seedstatus.c_str(), out);
+    }
+    out<<endl;
+    out<<"HFHAD RecHits =============================================="<<endl;
+    for(unsigned i=0; i<rechitsHFHAD_.size(); i++) {
+      string seedstatus = "    ";
+      if(clusterAlgoHFHAD_.isSeed(i) ) 
+        seedstatus = "SEED";
+      printRecHit(rechitsHFHAD_[i], seedstatus.c_str(), out);
+    }
+    out<<endl;
     out<<"PS RecHits ================================================"<<endl;
     for(unsigned i=0; i<rechitsPS_.size(); i++) {
       string seedstatus = "    ";
@@ -2789,6 +2856,16 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
     out<<"HCAL Clusters ============================================="<<endl;
     for(unsigned i=0; i<clustersHCAL_->size(); i++) {
       printCluster((*clustersHCAL_)[i], out);
+    }    
+    out<<endl;
+    out<<"HFEM Clusters ============================================="<<endl;
+    for(unsigned i=0; i<clustersHFEM_->size(); i++) {
+      printCluster((*clustersHFEM_)[i], out);
+    }    
+    out<<endl;
+    out<<"HFHAD Clusters ============================================="<<endl;
+    for(unsigned i=0; i<clustersHFHAD_->size(); i++) {
+      printCluster((*clustersHFHAD_)[i], out);
     }    
     out<<endl;
     out<<"PS Clusters   ============================================="<<endl;
