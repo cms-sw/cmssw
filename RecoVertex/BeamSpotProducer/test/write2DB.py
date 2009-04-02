@@ -10,7 +10,7 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 #################################
 # Produce a SQLITE FILE
 #
-process.CondDBCommon.connect = "sqlite_file:EarlyCollision_IDEAL.db"
+#process.CondDBCommon.connect = "sqlite_file:EarlyCollision_IDEAL.db"
 process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 #################################
 #
@@ -19,7 +19,7 @@ process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/cond
 #process.CondDBCommon.connect = "oracle://cms_orcon_prod/CMS_COND_21X_BEAMSPOT"
 #process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/xiezhen/conddb'
 
-#process.CondDBCommon.connect = "oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT"
+process.CondDBCommon.connect = "oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT"
 
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = 'IDEAL_30X::All'
