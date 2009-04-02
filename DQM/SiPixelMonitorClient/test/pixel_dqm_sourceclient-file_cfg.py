@@ -95,6 +95,10 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect ="sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRZT210_V1.db"
 #process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
 process.GlobalTag.globaltag = "CRAFT_30X::All"
+## this next line is needed for xdaq running outside P5 network:
+process.SiteLocalConfigService = cms.Service("SiteLocalConfigService")
+
+
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 process.source = cms.Source("PoolSource",
     debugFlag = cms.untracked.bool(True),
