@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/1E31_V256/V2 (CMSSW_3_1_X_2009-04-02-0600_HLT1)
+# /dev/CMSSW_3_1_0/pre2/1E31_V257/V2 (CMSSW_3_1_X_2009-04-02-0600_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/1E31_V256/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/1E31_V257/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -2284,11 +2284,20 @@ hltSiPixelRecHits = cms.EDProducer( "SiPixelRecHitConverter",
 )
 hltSiStripRawToClustersFacility = cms.EDProducer( "SiStripRawToClusters",
     ProductLabel = cms.InputTag( "rawDataCollector" ),
-    MaxHolesInCluster = cms.untracked.uint32( 0 ),
-    ClusterThreshold = cms.untracked.double( 5.0 ),
-    SeedThreshold = cms.untracked.double( 3.0 ),
-    ChannelThreshold = cms.untracked.double( 2.0 ),
-    ClusterizerAlgorithm = cms.untracked.string( "ThreeThreshold" )
+    Clusterizer = cms.PSet( 
+      Algorithm = cms.string( "ThreeThresholdAlgorithm" ),
+      ChannelThreshold = cms.double( 2.0 ),
+      SeedThreshold = cms.double( 3.0 ),
+      ClusterThreshold = cms.double( 5.0 ),
+      MaxSequentialHoles = cms.uint32( 0 ),
+      MaxSequentialBad = cms.uint32( 1 ),
+      MaxAdjacentBad = cms.uint32( 0 ),
+      QualityLabel = cms.string( "" )
+    ),
+    Algorithms = cms.PSet( 
+      SiStripFedZeroSuppressionMode = cms.uint32( 4 ),
+      CommonModeNoiseSubtractionMode = cms.string( "Median" )
+    )
 )
 hltSiStripClusters = cms.EDProducer( "MeasurementTrackerSiStripRefGetterProducer",
     InputModuleLabel = cms.InputTag( "hltSiStripRawToClustersFacility" ),
