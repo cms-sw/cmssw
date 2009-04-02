@@ -7,7 +7,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 
-process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(200) )
+process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(200))
 
 process.load("Configuration.EventContent.EventContentCosmics_cff")
 
@@ -31,7 +31,7 @@ process.source.inputCommands.append('keep *_eventAuxiliaryHistoryProducer_*_*')
 process.FEVT = cms.OutputModule("PoolOutputModule",
     process.FEVTEventContent,
     dataset = cms.untracked.PSet(dataTier = cms.untracked.string('RAW-RECO')),
-    fileName = cms.untracked.string('promptRerecoCosmics_newmap.root')
+    fileName = cms.untracked.string('promptRerecoCosmics_newmap_dqmfix.root')
 )
 
 process.FEVT.outputCommands.append('keep *_eventAuxiliaryHistoryProducer_*_*')
@@ -56,8 +56,8 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.10 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/rereco38T_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/rereco38T_ToscaMap_090216_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 3.8T')
 )
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) ## default is false
@@ -92,6 +92,10 @@ process.load("L1Trigger.Configuration.L1Config_cff")
 
 #Paths
 process.load("FWCore.Modules.eventAuxiliaryHistoryProducer_cfi")
+
+# cures the crashing DQM module in 2_2_7
+process.DQMOfflineCosmics.remove(process.MonitorTrackEfficiencySTACosmicMuons)
+
 process.allPath = cms.Path( process.RawToDigi * process.reconstructionCosmics * process.L1HardwareValidation_woGT * process.DQMOfflineCosmics * process.MEtoEDMConverter )
 
 process.outpath = cms.EndPath(process.FEVT)
