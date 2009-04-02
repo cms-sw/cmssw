@@ -21,7 +21,8 @@ process.load("DQMOffline.Trigger.muonSelector_cfi")
 #process.offlineDQMMuonTrig.BlahBlah
 
 process.maxEvents = cms.untracked.PSet(
-    #input = cms.untracked.int32(8000)
+    #input = cms.untracked.int32(1000)
+	#input = cms.untracked.int32(100)
 	input = cms.untracked.int32(5)
 )
 
@@ -117,7 +118,8 @@ process.MessageLogger = cms.Service("MessageLogger",
     debugModules   = cms.untracked.vstring('*'),
     cout           = cms.untracked.PSet(
 	# Be careful - this can print a lot of debug info
-            threshold = cms.untracked.string('DEBUG')
+    #        threshold = cms.untracked.string('DEBUG')
+	        threshold = cms.untracked.string('WARNING')
     ),
     categories     = cms.untracked.vstring('HLTMuonVal'),
     destinations   = cms.untracked.vstring('cout', 'HLTMuonVal.log')
@@ -133,13 +135,14 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.out = cms.OutputModule("PoolOutputModule",
 	 outputCommands = cms.untracked.vstring('drop *', 'keep *_MEtoEDMConverter_*_*'),
-	 fileName = cms.untracked.string('/afs/cern.ch/user/s/slaunwhj/scratch0/MuonTrigOffline_n10_useAodAndRAW_vMorePlots.root')
+	 fileName = cms.untracked.string('/afs/cern.ch/user/s/slaunwhj/scratch0/MuonTrigOffline_n10_vMorePlots.root')
 )
 
 # Path must contain all producers
 # Don't use the other producers,
 # keep them out of the path for now
-process.analyzerpath = cms.Path(	
+process.analyzerpath = cms.Path(
+	process.barrelMuons*
     process.offlineDQMMuonTrig*
     process.MEtoEDMConverter
 )

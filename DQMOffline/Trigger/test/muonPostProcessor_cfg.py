@@ -23,11 +23,12 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.source = cms.Source("PoolSource",
 							# must precede with file:
-    #fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/s/slaunwhj/scratch0/MuonTrigOffline_nALL_useAodAndRAW_vMorePlots_DRStudy.root')
-							fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/s/slaunwhj/scratch0/MuonTrigOffline_nALL_p1_vMorePlots.root')
+							#fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/s/slaunwhj/scratch0/MuonTrigOffline_nALL_useAodAndRAW_vMorePlots_DRStudy.root')
+							fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/s/slaunwhj/scratch0/MuonTrigOffline_n10_vMorePlots.root')
+							#fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/s/slaunwhj/scratch0/MuonTrigOffline_nALL_p1_vMorePlots.root')
 )
 
-process.HLTMuonPostVal.outputFileName = cms.untracked.string('/afs/cern.ch/user/s/slaunwhj/scratch0/MuonTrigPostProcessor_nALL_p1_histos_vMorePlots.root')
+process.HLTMuonPostVal.outputFileName = cms.untracked.string('/afs/cern.ch/user/s/slaunwhj/scratch0/MuonTrigPostProcessor_histos_n10_vMorePlots.root')
 
 process.path1 = cms.Path(process.EDMtoMEConverter*process.HLTMuonPostVal)
 process.DQMStore.referenceFileName = ''
