@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/HLT/V254 (CMSSW_3_1_X_2009-03-31-2300_HLT2)
+# /dev/CMSSW_3_1_0/pre2/HLT/V256 (CMSSW_3_1_X_2009-04-02-0600_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/HLT/V254')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/HLT/V256')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -37,9 +37,9 @@ MCJetCorrectorIcone5 = cms.ESSource( "JetCorrectionServiceChain",
 )
 
 hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
-  DropChannelStatusBits = cms.vstring( '' ),
-  appendToDataLabel = cms.string( "" ),
   RecoveredRecHitBits = cms.vstring( '' ),
+  appendToDataLabel = cms.string( "" ),
+  DropChannelStatusBits = cms.vstring( '' ),
   SeverityLevels = cms.VPSet( 
     cms.PSet(  Level = cms.int32( 0 ),
       RecHitFlags = cms.vstring( '' ),
@@ -3088,10 +3088,6 @@ hltTowerMakerForMuons = cms.EDProducer( "CaloTowersCreator",
 )
 hltL2MuonIsolations = cms.EDProducer( "L2MuonIsolationProducer",
     StandAloneCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' ),
-    OutputMuIsoDeposits = cms.bool( True ),
-    EtaBounds = cms.vdouble( 0.0435, 0.1305, 0.2175, 0.3045, 0.3915, 0.4785, 0.5655, 0.6525, 0.7395, 0.8265, 0.9135, 1.0005, 1.0875, 1.1745, 1.2615, 1.3485, 1.4355, 1.5225, 1.6095, 1.6965, 1.785, 1.88, 1.9865, 2.1075, 2.247, 2.411 ),
-    ConeSizes = cms.vdouble( 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24 ),
-    Thresholds = cms.vdouble( 4.0, 3.7, 4.0, 3.5, 3.4, 3.4, 3.2, 3.4, 3.1, 2.9, 2.9, 2.7, 3.1, 3.0, 2.4, 2.1, 2.0, 2.3, 2.2, 2.4, 2.5, 2.5, 2.6, 2.9, 3.1, 2.9 ),
     ExtractorPSet = cms.PSet( 
       ComponentName = cms.string( "CaloExtractor" ),
       CaloTowerCollectionLabel = cms.InputTag( "hltTowerMakerForMuons" ),
@@ -3105,13 +3101,20 @@ hltL2MuonIsolations = cms.EDProducer( "L2MuonIsolationProducer",
       DR_Max = cms.double( 0.24 ),
       Vertex_Constraint_XY = cms.bool( False ),
       Vertex_Constraint_Z = cms.bool( False )
+    ),
+    IsolatorPSet = cms.PSet( 
+      ComponentName = cms.string( "SimpleCutsIsolator" ),
+      ConeSizes = cms.vdouble( 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.24 ),
+      EtaBounds = cms.vdouble( 0.0435, 0.1305, 0.2175, 0.3045, 0.3915, 0.4785, 0.5655, 0.6525, 0.7395, 0.8265, 0.9135, 1.0005, 1.0875, 1.1745, 1.2615, 1.3485, 1.4355, 1.5225, 1.6095, 1.6965, 1.785, 1.88, 1.9865, 2.1075, 2.247, 2.411 ),
+      Thresholds = cms.vdouble( 4.0, 3.7, 4.0, 3.5, 3.4, 3.4, 3.2, 3.4, 3.1, 2.9, 2.9, 2.7, 3.1, 3.0, 2.4, 2.1, 2.0, 2.3, 2.2, 2.4, 2.5, 2.5, 2.6, 2.9, 3.1, 2.9 )
     )
 )
 hltSingleMuIsoL2IsoFiltered3 = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltSingleMuIsoL2PreFiltered3" ),
-    IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    DepTag = cms.VInputTag( 'hltL2MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
     IncludeErrors = cms.bool( False ),
@@ -3466,9 +3469,10 @@ hltL3MuonIsolations = cms.EDProducer( "L3MuonIsolationProducer",
 hltSingleMuIsoL3IsoFiltered3 = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltSingleMuIsoL3PreFiltered3" ),
-    IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
-    SaveTag = cms.untracked.bool( True )
+    SaveTag = cms.untracked.bool( True ),
+    DepTag = cms.VInputTag( 'hltL3MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltPreIsoMu9 = cms.EDFilter( "HLTPrescaler" )
 hltSingleMuIsoL1Filtered7 = cms.EDFilter( "HLTMuonL1Filter",
@@ -3494,8 +3498,9 @@ hltSingleMuIsoL2PreFiltered7 = cms.EDFilter( "HLTMuonL2PreFilter",
 hltSingleMuIsoL2IsoFiltered7 = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltSingleMuIsoL2PreFiltered7" ),
-    IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    DepTag = cms.VInputTag( 'hltL2MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltSingleMuIsoL3PreFiltered9 = cms.EDFilter( "HLTMuonL3PreFilter",
     BeamSpotTag = cms.InputTag( "hltOfflineBeamSpot" ),
@@ -3512,9 +3517,10 @@ hltSingleMuIsoL3PreFiltered9 = cms.EDFilter( "HLTMuonL3PreFilter",
 hltSingleMuIsoL3IsoFiltered9 = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltSingleMuIsoL3PreFiltered9" ),
-    IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
-    SaveTag = cms.untracked.bool( True )
+    SaveTag = cms.untracked.bool( True ),
+    DepTag = cms.VInputTag( 'hltL3MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltPreIsoMu11 = cms.EDFilter( "HLTPrescaler" )
 hltSingleMuIsoL2PreFiltered9 = cms.EDFilter( "HLTMuonL2PreFilter",
@@ -3532,8 +3538,9 @@ hltSingleMuIsoL2PreFiltered9 = cms.EDFilter( "HLTMuonL2PreFilter",
 hltSingleMuIsoL2IsoFiltered9 = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltSingleMuIsoL2PreFiltered9" ),
-    IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    DepTag = cms.VInputTag( 'hltL2MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltSingleMuIsoL3PreFiltered11 = cms.EDFilter( "HLTMuonL3PreFilter",
     BeamSpotTag = cms.InputTag( "hltOfflineBeamSpot" ),
@@ -3550,9 +3557,10 @@ hltSingleMuIsoL3PreFiltered11 = cms.EDFilter( "HLTMuonL3PreFilter",
 hltSingleMuIsoL3IsoFiltered11 = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltSingleMuIsoL3PreFiltered11" ),
-    IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
-    SaveTag = cms.untracked.bool( True )
+    SaveTag = cms.untracked.bool( True ),
+    DepTag = cms.VInputTag( 'hltL3MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltL1sL1SingleMu10 = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
@@ -3587,8 +3595,9 @@ hltSingleMuIsoL2PreFiltered11 = cms.EDFilter( "HLTMuonL2PreFilter",
 hltSingleMuIsoL2IsoFiltered11 = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltSingleMuIsoL2PreFiltered11" ),
-    IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    DepTag = cms.VInputTag( 'hltL2MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltSingleMuIsoL3PreFiltered13 = cms.EDFilter( "HLTMuonL3PreFilter",
     BeamSpotTag = cms.InputTag( "hltOfflineBeamSpot" ),
@@ -3605,9 +3614,10 @@ hltSingleMuIsoL3PreFiltered13 = cms.EDFilter( "HLTMuonL3PreFilter",
 hltSingleMuIsoL3IsoFiltered13 = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltSingleMuIsoL3PreFiltered13" ),
-    IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
-    SaveTag = cms.untracked.bool( True )
+    SaveTag = cms.untracked.bool( True ),
+    DepTag = cms.VInputTag( 'hltL3MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltPreIsoMu15 = cms.EDFilter( "HLTPrescaler" )
 hltSingleMuIsoL2PreFiltered12 = cms.EDFilter( "HLTMuonL2PreFilter",
@@ -3625,8 +3635,9 @@ hltSingleMuIsoL2PreFiltered12 = cms.EDFilter( "HLTMuonL2PreFilter",
 hltSingleMuIsoL2IsoFiltered12 = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltSingleMuIsoL2PreFiltered12" ),
-    IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    DepTag = cms.VInputTag( 'hltL2MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltSingleMuIsoL3PreFiltered15 = cms.EDFilter( "HLTMuonL3PreFilter",
     BeamSpotTag = cms.InputTag( "hltOfflineBeamSpot" ),
@@ -3643,9 +3654,10 @@ hltSingleMuIsoL3PreFiltered15 = cms.EDFilter( "HLTMuonL3PreFilter",
 hltSingleMuIsoL3IsoFiltered15 = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltSingleMuIsoL3PreFiltered15" ),
-    IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
-    SaveTag = cms.untracked.bool( True )
+    SaveTag = cms.untracked.bool( True ),
+    DepTag = cms.VInputTag( 'hltL3MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltPreMu3 = cms.EDFilter( "HLTPrescaler" )
 hltL1SingleMu3L1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
@@ -3922,8 +3934,9 @@ hltDiMuonIsoL2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
 hltDiMuonIsoL2IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltDiMuonIsoL2PreFiltered" ),
-    IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
-    MinN = cms.int32( 2 )
+    MinN = cms.int32( 2 ),
+    DepTag = cms.VInputTag( 'hltL2MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltDiMuonIsoL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
     BeamSpotTag = cms.InputTag( "hltOfflineBeamSpot" ),
@@ -3940,9 +3953,10 @@ hltDiMuonIsoL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
 hltDiMuonIsoL3IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltDiMuonIsoL3PreFiltered" ),
-    IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 2 ),
-    SaveTag = cms.untracked.bool( True )
+    SaveTag = cms.untracked.bool( True ),
+    DepTag = cms.VInputTag( 'hltL3MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltPreDoubleMu0 = cms.EDFilter( "HLTPrescaler" )
 hltDiMuonL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
@@ -6829,8 +6843,9 @@ hltMuBLifetimeIsoL2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
 hltMuBLifetimeIsoL2IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltMuBLifetimeIsoL2PreFiltered" ),
-    IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    DepTag = cms.VInputTag( 'hltL2MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltMuBLifetimeIsoL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
     BeamSpotTag = cms.InputTag( "hltOfflineBeamSpot" ),
@@ -6847,9 +6862,10 @@ hltMuBLifetimeIsoL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
 hltMuBLifetimeIsoL3IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltMuBLifetimeIsoL3PreFiltered" ),
-    IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
-    SaveTag = cms.untracked.bool( True )
+    SaveTag = cms.untracked.bool( True ),
+    DepTag = cms.VInputTag( 'hltL3MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltPreIsoMu7BTagMuJet20 = cms.EDFilter( "HLTPrescaler" )
 hltMuBSoftL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
@@ -6875,8 +6891,9 @@ hltMuBSoftIsoL2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
 hltMuBSoftIsoL2IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltMuBSoftIsoL2PreFiltered" ),
-    IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    DepTag = cms.VInputTag( 'hltL2MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltMuBSoftIsoL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
     BeamSpotTag = cms.InputTag( "hltOfflineBeamSpot" ),
@@ -6893,9 +6910,10 @@ hltMuBSoftIsoL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
 hltMuBSoftIsoL3IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltMuBSoftIsoL3PreFiltered" ),
-    IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
-    SaveTag = cms.untracked.bool( True )
+    SaveTag = cms.untracked.bool( True ),
+    DepTag = cms.VInputTag( 'hltL3MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltL1sMuJets = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
@@ -6930,8 +6948,9 @@ hltMuJetsL2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
 hltMuJetsL2IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltMuJetsL2PreFiltered" ),
-    IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    DepTag = cms.VInputTag( 'hltL2MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltMuJetsL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
     BeamSpotTag = cms.InputTag( "hltOfflineBeamSpot" ),
@@ -6948,9 +6967,10 @@ hltMuJetsL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
 hltMuJetsL3IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltMuJetsL3PreFiltered" ),
-    IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
-    SaveTag = cms.untracked.bool( True )
+    SaveTag = cms.untracked.bool( True ),
+    DepTag = cms.VInputTag( 'hltL3MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltMuJetsHLT1jet40 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
@@ -6992,8 +7012,9 @@ hltMuonTauIsoL2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
 hltMuonTauIsoL2IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltMuonTauIsoL2PreFiltered" ),
-    IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    DepTag = cms.VInputTag( 'hltL2MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltMuonTauIsoL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
     BeamSpotTag = cms.InputTag( "hltOfflineBeamSpot" ),
@@ -7010,9 +7031,10 @@ hltMuonTauIsoL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
 hltMuonTauIsoL3IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltMuonTauIsoL3PreFiltered" ),
-    IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
-    SaveTag = cms.untracked.bool( True )
+    SaveTag = cms.untracked.bool( True ),
+    DepTag = cms.VInputTag( 'hltL3MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltFilterL2EcalIsolationMuonTau = cms.EDFilter( "HLT1Tau",
     inputTag = cms.InputTag( 'hltL2TauRelaxingIsolationSelector','Isolated' ),
@@ -7106,8 +7128,9 @@ hltMuonTauIsoL2PreFilteredNoL1Tau = cms.EDFilter( "HLTMuonL2PreFilter",
 hltMuonTauIsoL2IsoFilteredNoL1Tau = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltMuonTauIsoL2PreFilteredNoL1Tau" ),
-    IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
-    MinN = cms.int32( 1 )
+    MinN = cms.int32( 1 ),
+    DepTag = cms.VInputTag( 'hltL2MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltMuonTauIsoL3PreFilteredNoL1Tau = cms.EDFilter( "HLTMuonL3PreFilter",
     BeamSpotTag = cms.InputTag( "hltOfflineBeamSpot" ),
@@ -7124,9 +7147,10 @@ hltMuonTauIsoL3PreFilteredNoL1Tau = cms.EDFilter( "HLTMuonL3PreFilter",
 hltMuonTauIsoL3IsoFilteredNoL1Tau = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltMuonTauIsoL3PreFilteredNoL1Tau" ),
-    IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
-    SaveTag = cms.untracked.bool( True )
+    SaveTag = cms.untracked.bool( True ),
+    DepTag = cms.VInputTag( 'hltL3MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltFilterL2EcalIsolationMuonTauNoL1Tau = cms.EDFilter( "HLT1Tau",
     inputTag = cms.InputTag( 'hltL2TauRelaxingIsolationSelector','Isolated' ),
@@ -7510,9 +7534,10 @@ hltMuNoL2IsoJetsL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
 hltMuNoL2IsoJetsL3IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltMuNoL2IsoJetsL3PreFiltered" ),
-    IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
-    SaveTag = cms.untracked.bool( True )
+    SaveTag = cms.untracked.bool( True ),
+    DepTag = cms.VInputTag( 'hltL2MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
 )
 hltMuNoL2IsoJetsHLT1jet40 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
