@@ -82,8 +82,14 @@ vector<TransientVertex>
 PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tracks,
 					 const reco::BeamSpot & beamSpot) const
 {
-  
+  bool validBS = true;
   VertexState beamVertexState(beamSpot);
+  if ( (beamVertexState.error().cxx() <= 0.) || 
+  	(beamVertexState.error().cyy() <= 0.) ||
+  	(beamVertexState.error().czz() <= 0.) ) {
+    validBS = false;
+    edm::LogError("UnusableBeamSpot") << "Beamspot with invalid errors "<<beamVertexState.error().matrix();
+  }
 
   if ( fapply_finder) {
         return theFinder.vertices( tracks );
@@ -121,7 +127,7 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
       std::cout << "cluster tracks " << std::endl;
     }
 
-    if( fUseBeamConstraint &&((*iclus).size()>1) ){
+    if( fUseBeamConstraint && validBS &&((*iclus).size()>1) ){
       if (fVerbose){cout <<  "constrained fit with "<< (*iclus).size() << " tracks"  << endl;}
       TransientVertex v = theFitter->vertex(*iclus, beamSpot);
       if (v.isValid()) pvCand.push_back(v);

@@ -73,7 +73,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       << " found BeamSpot"
       << *recoBeamSpotHandle << "\n";
   }else{
-   throw VertexException("PrimaryVertexProducer: No beam spot available from EventSetup");
+    edm::LogError("UnusableBeamSpot") << "No beam spot available from EventSetup";
 
 /*     vertexBeamSpot.dummy();
     edm::LogInfo("RecoVertex/PrimaryVertexProducer")
@@ -118,11 +118,25 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
   if (vColl.empty()) {
-    vColl.push_back(reco::Vertex(vertexBeamSpot.position(), 
+    GlobalError bse(vertexBeamSpot.rotatedCovariance3D());
+    if ( (bse.cxx() <= 0.) || 
+  	(bse.cyy() <= 0.) ||
+  	(bse.czz() <= 0.) ) {
+      AlgebraicSymMatrix33 we;
+      we(0,0)=10000; we(1,1)=10000; we(2,2)=10000;
+      vColl.push_back(reco::Vertex(vertexBeamSpot.position(), we,0.,0.,0));
+      if(fVerbose){
+	std::cout <<"RecoVertex/PrimaryVertexProducer: "
+		  << "Beamspot with invalid errors "<<bse.matrix()<<endl;
+	std::cout << "Will put Vertex derived from dummy-fake BeamSpot into Event.\n";
+      }
+    } else {
+      vColl.push_back(reco::Vertex(vertexBeamSpot.position(), 
 				 vertexBeamSpot.rotatedCovariance3D(),0.,0.,0));
-    if(fVerbose){
-      std::cout <<"RecoVertex/PrimaryVertexProducer: "
-		<< " will put Vertex derived from BeamSpot into Event.\n";
+      if(fVerbose){
+	std::cout <<"RecoVertex/PrimaryVertexProducer: "
+		  << " will put Vertex derived from BeamSpot into Event.\n";
+      }
     }
   }
 
