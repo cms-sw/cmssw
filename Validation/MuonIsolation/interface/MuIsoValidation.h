@@ -97,6 +97,7 @@ private:
   std::string rootfilename;
   // Directories within the rootfile
   std::string dirName;
+  std::string subDirName;
 
   //Histogram parameters
   static const int NUM_VARS = 11;
