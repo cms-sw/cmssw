@@ -680,7 +680,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
 		  if ( ohEleL1iso[i] >= L1iso ) {  // L1iso is 0 or 1 
 		    for(int j=0;j<NohEle && j != i;j++) {
 		      if(ohEleEt[j] > 15.) {
-			rc++;       
+			if( ohEleL1Dupl[i] == false && ohEleL1Dupl[j] == false) // JH - remove double-counted L1 SCs
+			  rc++;       
 		      }
 		    }
 		  }
@@ -712,7 +713,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
                   if ( ohEleL1iso[i] >= L1iso ) {  // L1iso is 0 or 1  
                     for(int j=0;j<NohEle && j != i;j++) { 
                       if(ohEleEt[j] > 15.) { 
-                        rc++;        
+                        if( ohEleL1Dupl[i] == false && ohEleL1Dupl[j] == false) // JH - remove double-counted L1 SCs 
+			  rc++;        
                       } 
                     } 
                   } 
