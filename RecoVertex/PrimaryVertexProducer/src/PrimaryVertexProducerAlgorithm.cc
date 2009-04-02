@@ -100,9 +100,13 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
   // select tracks
   vector<TransientTrack> seltks;
 
-  for (vector<reco::TransientTrack>::const_iterator itk = tracks.begin();
-       itk != tracks.end(); itk++) {
-    if (theTrackFilter(*itk)) seltks.push_back(*itk);
+  if (validBS){
+    for (vector<reco::TransientTrack>::const_iterator itk = tracks.begin();
+	 itk != tracks.end(); itk++) {
+      if (theTrackFilter(*itk)) seltks.push_back(*itk);
+    }
+  } else {
+    seltks = tracks;
   }
 
   if(fVerbose){
@@ -176,7 +180,7 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
       cout << "PrimaryVertexProducerAlgorithm::vertices cand " << npv++ << " sel=" <<
 	theVertexSelector(*ipv,beamVertexState) << "   z="  << ipv->position().z() << endl;
     }
-    if (theVertexSelector(*ipv,beamVertexState)) pvs.push_back(*ipv);
+    if (!validBS || theVertexSelector(*ipv,beamVertexState)) pvs.push_back(*ipv);
   }
 
   // sort vertices by pt**2  vertex (aka signal vertex tagging)
