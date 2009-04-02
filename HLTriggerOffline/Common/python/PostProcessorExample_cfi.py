@@ -4,15 +4,19 @@
 # new histograms are generated as the ratio of the specified input
 # defined thru 'efficiency = cms.vstring(arg)' where arg has the form
 # "ratio 'histo title; x-label; y-label; numerator denominator'"
-#the base code is: Validation/RecoMuon/src/PostProcessor.cc
+#the base code is in: DQMServices/ClientConfig/plugins/DQMGenericClient.cc
+#note: output and verbose must be disabled for integration,
 
 import FWCore.ParameterSet.Config as cms
 
-myMuonPostVal = cms.EDFilter("PostProcessor",
-    outputFileName = cms.untracked.string('MuonPostProcessor.root'),
+
+myMuonPostVal = cms.EDFilter("DQMGenericClient",
+    verbose        = cms.untracked.uint32(0), #set this to zero!
+    outputFileName = cms.untracked.string(''),# set this to empty!
+    #outputFileName= cms.untracked.string('MuonPostProcessor.root'),
     commands       = cms.vstring(),
     resolution     = cms.vstring(),                                    
-    subDir         = cms.untracked.string('HLT/Muon/Distributions/*'),
+    subDirs        = cms.untracked.vstring('HLT/Muon/Distributions/*'),
     efficiency     = cms.vstring(
         "EFF 'my title; my x-label; my y-label' genPassEta_L1Filtered genPassEta_All"
     )
@@ -20,20 +24,20 @@ myMuonPostVal = cms.EDFilter("PostProcessor",
 
 
 myEgammaPostVal = cms.EDFilter("PostProcessor",
-    outputFileName = cms.untracked.string('EgammaPostProcessor.root'),
+    #outputFileName= cms.untracked.string('EgammaPostProcessor.root'),
     commands       = cms.vstring(),
     resolution     = cms.vstring(),                                    
-    subDir         = cms.untracked.string('HLT/HLTEgammaValidation/*'),
+    subDirs        = cms.untracked.vstring('HLT/HLTEgammaValidation/*'),
     efficiency     = cms.vstring(
         "EFF 'my title; my x-label; my y-label' hltL1sDoubleEgammaeta hltL1sDoubleEgammaeta"
     )
 )
 
 myTauPostVal = cms.EDFilter("PostProcessor",
-    outputFileName = cms.untracked.string('TauPostProcessor.root'),
+    #outputFileName= cms.untracked.string('TauPostProcessor.root'),
     commands       = cms.vstring(),
     resolution     = cms.vstring(),                                    
-    subDir         = cms.untracked.string('HLT/HLTTAU/*'),
+    subDirs        = cms.untracked.vstring('HLT/HLTTAU/*'),
     efficiency     = cms.vstring(
         "EFF 'my title; my x-label; my y-label' L1Tau1Eta GenTauElecEta"
     )
@@ -41,17 +45,17 @@ myTauPostVal = cms.EDFilter("PostProcessor",
 
 
 myTopPostVal = cms.EDFilter("PostProcessor",
-    outputFileName = cms.untracked.string('TopPostProcessor.root'),
+    #outputFileName= cms.untracked.string('TopPostProcessor.root'),
     commands       = cms.vstring(),
     resolution     = cms.vstring(),                                    
-    subDir         = cms.untracked.string('HLT/Top/'),
+    subDirs        = cms.untracked.vstring('HLT/Top/'),
     efficiency     = cms.vstring(
     "TrigEFF 'my title; my x-label; my y-label' pt_trig_off_mu pt_off_mu"
     )
 )
 
 ExamplePostVal = cms.Sequence(
-    myMuonPostVal
+     myMuonPostVal
     +myEgammaPostVal
     +myTauPostVal
     +myTopPostVal
