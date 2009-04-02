@@ -1,7 +1,6 @@
 /*  \author Anna Cimmino*/
-#include <algorithm>
 #include <DQM/RPCMonitorClient/interface/RPCFEDIntegrity.h>
-#include <DQM/RPCMonitorClient/interface/RPCRawDataCountsHistoMaker.h>
+
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
@@ -14,116 +13,86 @@
 //EventFilter
 #include "EventFilter/RPCRawToDigi/interface/RPCRawDataCounts.h"
 #include "EventFilter/RPCRawToDigi/interface/DataRecord.h"
-#include "EventFilter/RPCRawToDigi/interface/ReadoutError.h"
-
 
 using namespace edm;
 using namespace std;
-
-typedef std::map<std::pair<int, int>, int >::const_iterator IT;
-
 RPCFEDIntegrity::RPCFEDIntegrity(const ParameterSet& ps ) {
-  LogVerbatim ("rpcfedintegrity") << "[RPCFEDIntegrity]: Constructor";
+  LogVerbatim ("rpceventsummary") << "[RPCFEDIntegrity]: Constructor";
 
   prefixDir_ = ps.getUntrackedParameter<string>("RPCPrefixDir", "RPC");
   merge_ = ps.getUntrackedParameter<bool>("MergeRuns", false);
+  numOfFED_ =  ps.getUntrackedParameter<int>("NumberOfFED", 3);
   minFEDNum_ =  ps.getUntrackedParameter<int>("MinimumFEDID", 790);
   maxFEDNum_ =  ps.getUntrackedParameter<int>("MaximumFEDID", 792);
 
-  init_ = false;
-  numOfFED_=   maxFEDNum_ -  minFEDNum_ + 1;
+  histoName_.push_back("FEDEntries");
+  histoName_.push_back("FEDFatal");
+  histoName_.push_back("FEDNonFatal");
+  
   FATAL_LIMIT = 5;
+
+  init_ = false;
 }
 
 RPCFEDIntegrity::~RPCFEDIntegrity(){
-  LogVerbatim ("rpcfedintegrity") << "[RPCFEDIntegrity]: Destructor ";
+  LogVerbatim ("rpceventsummary") << "[RPCFEDIntegrity]: Destructor ";
   //  dbe_=0;
 }
 
 void RPCFEDIntegrity::beginJob(const EventSetup& iSetup){
- LogVerbatim ("rpcfedintegrity") << "[RPCFEDIntegrity]: Begin job ";
+ LogVerbatim ("rpceventsummary") << "[RPCFEDIntegrity]: Begin job ";
  dbe_ = Service<DQMStore>().operator->();
 }
 
 void RPCFEDIntegrity::beginRun(const Run& r, const EventSetup& c){
- LogVerbatim ("rpcfedintegrity") << "[RPCFEDIntegrity]: Begin run ";
+ LogVerbatim ("rpceventsummary") << "[RPCFEDIntegrity]: Begin run ";
 
  if (!init_) this->bookFEDMe();
  else if (!merge_) this->reset();
-
- readoutErrors_.clear();
- recordTypes_.clear();
-
-
 }
 
 void RPCFEDIntegrity::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){} 
 
 void RPCFEDIntegrity::analyze(const Event& iEvent, const EventSetup& c) {
-  
+
   //get hold of raw data counts
   Handle<RPCRawDataCounts> rawCounts;
-  iEvent.getByType (rawCounts);
+  iEvent.getByType( rawCounts);
 
-  const RPCRawDataCounts  theCounts = (*rawCounts.product());
+  const RPCRawDataCounts * aCounts = rawCounts.product();
+  //  const RPCRawDataCounts * theCounts += *aCounts;
 
-  RPCRawDataCountsHistoMaker histoMaker(theCounts);
+  vector<double> v1;
+  map<int,double> fedOccupancy;
 
-  map< pair<int,int>, int > myReadoutErrors = histoMaker.readoutErrors();
-  map< pair<int,int>, int > myRecordTypes = histoMaker.recordTypes();
+  MonitorElement * me;
 
+  //loop  on all FEDS
+  for (int fedId=minFEDNum_ ;fedId<maxFEDNum_+1;fedId++) {
+    v1.clear();
+    aCounts->recordTypeVector(fedId,v1); 
 
-  vector<int> changedFEDs;
-  vector<int> fatalFEDs, nonfatalFEDs;
+    if(fedOccupancy.find(fedId)== fedOccupancy.end() || fedOccupancy.size()==0) fedOccupancy[fedId]=0;
+    
+    //loop on errors
+    for (unsigned int err = 1 ; err<v1.size(); err +=2){//get onlz even elements of the vector
+       fedOccupancy[fedId] += v1[err];
 
-  if ( myRecordTypes != recordTypes_ ){
-    map< pair<int,int>, int >::const_iterator itr;
-    map< pair<int,int>, int >::const_iterator  itr2;
-    for(itr = myRecordTypes.begin(); itr!= myRecordTypes.end(); itr++ ){
-      itr2= recordTypes_.find((*itr).first);
-      if( itr2 !=recordTypes_.end() ||  recordTypes_.size()!=0 || (*itr2).second !=(*itr).second) 
-	changedFEDs.push_back((*itr).first.first);
-	}
-  }
-  recordTypes_ = myRecordTypes;
-
- if ( myReadoutErrors != readoutErrors_ ){
-    map< pair<int,int>, int >::const_iterator itr;
-    map< pair<int,int>, int >::const_iterator  itr2;
-    for(itr = myReadoutErrors.begin(); itr!= myReadoutErrors.end(); itr++ ){
-      itr2= readoutErrors_.find((*itr).first);
-      if( itr2 !=readoutErrors_.end() ||  readoutErrors_.size()!=0 || (*itr2).second !=(*itr).second) {
-	if((*itr2).first.second > FATAL_LIMIT ) nonfatalFEDs.push_back((*itr2).first.first);
-	else fatalFEDs.push_back((*itr2).first.first);
+      if(err-1!=0 && err-1 <= FATAL_LIMIT){
+	me= dbe_->get(prefixDir_+"/FEDIntegrity/FEDFatal");
+	me ->Fill(fedId,v1[err]);
       }
-    }
- }
-  readoutErrors_ = myReadoutErrors;
- 
+      else if (err-1!=0){
+	me= dbe_->get(prefixDir_+"/FEDIntegrity/FEDNonFatal");
+	me ->Fill(fedId,v1[err]);
+      }
 
+    }//end loop o errors
 
-  sort(changedFEDs.begin(),changedFEDs.end() );
-  changedFEDs.resize(   unique(changedFEDs.begin(),changedFEDs.end()) - changedFEDs.begin() );
+      me = dbe_->get(prefixDir_+"/FEDIntegrity/FEDEntries");
 
-  for(unsigned int fed =  0 ; fed<changedFEDs.size(); fed++){
-      fedMe_[Entries] ->Fill(changedFEDs[fed]);
-  }
-
-  sort(fatalFEDs.begin(),fatalFEDs.end() );
- fatalFEDs.resize(  unique(fatalFEDs.begin(),fatalFEDs.end())-fatalFEDs.begin());
-  
-  for(unsigned int fed =  0 ; fed<fatalFEDs.size(); fed++){
-    fedMe_[Fatal] ->Fill(fatalFEDs[fed]);
-  }
-	
-  sort(nonfatalFEDs.begin(),nonfatalFEDs.end() );
-nonfatalFEDs.resize(  unique(nonfatalFEDs.begin(),nonfatalFEDs.end())-nonfatalFEDs.begin());
-  
-  for(unsigned int fed =  0 ; fed<nonfatalFEDs.size(); fed++){
-    fedMe_[NonFatal] ->Fill(nonfatalFEDs[fed]);
-  }
-  
-
+      if(me!=0) me->Fill(fedId, fedOccupancy[fedId] );
+  }//end loop on all FEDs
 }
 
 void RPCFEDIntegrity::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {}
@@ -139,11 +108,10 @@ void  RPCFEDIntegrity::bookFEDMe(void){
 
   if(dbe_){
     dbe_->setCurrentFolder(prefixDir_+"/FEDIntegrity/");
-
-    fedMe_[Entries] =  dbe_->book1D("FEDEntries","FEDEntries",numOfFED_, minFEDNum_, maxFEDNum_ +1);
-    fedMe_[Fatal] =  dbe_->book1D("FEDFatal","FEDEntries",numOfFED_, minFEDNum_, maxFEDNum_ +1);
-    fedMe_[NonFatal] =  dbe_->book1D("FEDNonFatal","FEDEntries",numOfFED_, minFEDNum_, maxFEDNum_ +1);
-
+   
+    for(unsigned int i = 0; i<histoName_.size(); i++){
+     dbe_->book1D(histoName_[i].c_str(),histoName_[i].c_str(),numOfFED_, minFEDNum_, maxFEDNum_ +1);
+    }
   }
 
   init_ = true;
