@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/03/26 09:45:52 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/03/27 15:12:16 $
+ *  $Revision: 1.3 $
  *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
  *  \author  J. Slaunwhite (modified from above
  */
@@ -127,6 +127,13 @@ private:
   bool         useAod;
   std::string  theAodL1Label;
   std::string  theAodL2Label;
+
+  // constants and a method
+  // to simplify charge plots
+
+  static const int POS_CHARGE = 1;
+  static const int NEG_CHARGE = 0;
+  int getCharge (int pdgId); 
 
   // 1-D histogram paramters
   std::vector<double> theMaxPtParameters;
