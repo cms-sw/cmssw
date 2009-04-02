@@ -31,8 +31,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2008/09/10 10:45:20 $
- * $Revision: 1.8 $
+ * $Date: 2009/03/25 15:22:30 $
+ * $Revision: 1.9 $
  *
  */
 
@@ -100,9 +100,12 @@ class CSCMotherboard
 
   /** Configuration parameters. */
   unsigned int mpc_block_me1a;
+  unsigned int alct_trig_enable, clct_trig_enable, match_trig_enable;
 
   /** Default values of configuration parameters. */
   static const unsigned int def_mpc_block_me1a;
+  static const unsigned int def_alct_trig_enable, def_clct_trig_enable;
+  static const unsigned int def_match_trig_enable;
 
   /** Container for first correlated LCT. */
   CSCCorrelatedLCTDigi firstLCT;

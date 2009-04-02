@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2009/03/25 15:22:30 $
-//   $Revision: 1.20 $
+//   $Date: 2009/03/27 17:11:11 $
+//   $Revision: 1.21 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -42,7 +42,10 @@
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 
 // Default values of configuration parameters.
-const unsigned int CSCMotherboard::def_mpc_block_me1a = 1;
+const unsigned int CSCMotherboard::def_mpc_block_me1a    = 1;
+const unsigned int CSCMotherboard::def_alct_trig_enable  = 0;
+const unsigned int CSCMotherboard::def_clct_trig_enable  = 0;
+const unsigned int CSCMotherboard::def_match_trig_enable = 1;
 
 CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
 			       unsigned sector, unsigned subsector,
@@ -90,7 +93,11 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   // Motherboard parameters: common for all configurations.
   edm::ParameterSet tmbParams  =
     conf.getParameter<edm::ParameterSet>("tmbParam");
-  mpc_block_me1a = tmbParams.getParameter<unsigned int>("mpcBlockMe1a");
+  mpc_block_me1a    = tmbParams.getParameter<unsigned int>("mpcBlockMe1a");
+  alct_trig_enable  = tmbParams.getParameter<unsigned int>("alctTrigEnable");
+  clct_trig_enable  = tmbParams.getParameter<unsigned int>("clctTrigEnable");
+  match_trig_enable = tmbParams.getParameter<unsigned int>("matchTrigEnable");
+
   infoV          = tmbParams.getUntrackedParameter<int>("verbosity", 0);
 
   // Check and print configuration parameters.
@@ -116,7 +123,11 @@ CSCMotherboard::CSCMotherboard() :
 
   alct = new CSCAnodeLCTProcessor();
   clct = new CSCCathodeLCTProcessor();
-  mpc_block_me1a = def_mpc_block_me1a;
+  mpc_block_me1a    = def_mpc_block_me1a;
+  alct_trig_enable  = def_alct_trig_enable;
+  clct_trig_enable  = def_clct_trig_enable;
+  match_trig_enable = def_match_trig_enable;
+
   infoV = 2;
 
   // Check and print configuration parameters.
@@ -150,7 +161,10 @@ void CSCMotherboard::checkConfigParameters() {
   // Make sure that the parameter values are within the allowed range.
 
   // Max expected values.
-  static const unsigned int max_mpc_block_me1a = 1 << 1;
+  static const unsigned int max_mpc_block_me1a    = 1 << 1;
+  static const unsigned int max_alct_trig_enable  = 1 << 1;
+  static const unsigned int max_clct_trig_enable  = 1 << 1;
+  static const unsigned int max_match_trig_enable = 1 << 1;
 
   // Checks.
   if (mpc_block_me1a >= max_mpc_block_me1a) {
@@ -160,6 +174,30 @@ void CSCMotherboard::checkConfigParameters() {
       << "+++ Try to proceed with the default value, mpc_block_me1a="
       << def_mpc_block_me1a << " +++\n";
     mpc_block_me1a = def_mpc_block_me1a;
+  }
+  if (alct_trig_enable >= max_alct_trig_enable) {
+    if (infoV > 0) edm::LogError("CSCMotherboard")
+      << "+++ Value of alct_trig_enable, " << alct_trig_enable
+      << ", exceeds max allowed, " << max_alct_trig_enable-1 << " +++\n"
+      << "+++ Try to proceed with the default value, alct_trig_enable="
+      << def_alct_trig_enable << " +++\n";
+    alct_trig_enable = def_alct_trig_enable;
+  }
+  if (clct_trig_enable >= max_clct_trig_enable) {
+    if (infoV > 0) edm::LogError("CSCMotherboard")
+      << "+++ Value of clct_trig_enable, " << clct_trig_enable
+      << ", exceeds max allowed, " << max_clct_trig_enable-1 << " +++\n"
+      << "+++ Try to proceed with the default value, clct_trig_enable="
+      << def_clct_trig_enable << " +++\n";
+    clct_trig_enable = def_clct_trig_enable;
+  }
+  if (match_trig_enable >= max_match_trig_enable) {
+    if (infoV > 0) edm::LogError("CSCMotherboard")
+      << "+++ Value of match_trig_enable, " << match_trig_enable
+      << ", exceeds max allowed, " << max_match_trig_enable-1 << " +++\n"
+      << "+++ Try to proceed with the default value, match_trig_enable="
+      << def_match_trig_enable << " +++\n";
+    match_trig_enable = def_match_trig_enable;
   }
 }
 
@@ -282,15 +320,19 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
   if (cathodeBestValid && !cathodeSecondValid) secondCLCT = bestCLCT;
   if (!cathodeBestValid && cathodeSecondValid) bestCLCT   = secondCLCT;
 
-  // There can never be any correlated LCTs without CLCTs?  Or is it
-  // a parameter?
-  if (bestCLCT.isValid() == false && secondCLCT.isValid() == false)
-    return;
+  // ALCT-CLCT matching conditions are defined by "trig_enable" configuration
+  // parameters.
+  if ((alct_trig_enable  && bestALCT.isValid()) ||
+      (clct_trig_enable  && bestCLCT.isValid()) ||
+      (match_trig_enable && bestALCT.isValid() && bestCLCT.isValid())) {
+    firstLCT = constructLCTs(bestALCT, bestCLCT);
+    firstLCT.setTrknmb(1);
+  }
 
-  firstLCT = constructLCTs(bestALCT, bestCLCT);
-  firstLCT.setTrknmb(1);
-
-  if ((secondALCT != bestALCT) || (secondCLCT != bestCLCT)) {
+  if (((secondALCT != bestALCT) || (secondCLCT != bestCLCT)) &&
+      ((alct_trig_enable  && secondALCT.isValid()) ||
+       (clct_trig_enable  && secondCLCT.isValid()) ||
+       (match_trig_enable && secondALCT.isValid() && secondCLCT.isValid()))) {
     secondLCT = constructLCTs(secondALCT, secondCLCT);
     secondLCT.setTrknmb(2);
   }
@@ -580,6 +622,12 @@ void CSCMotherboard::dumpConfigParams() const {
   strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   strm << " mpc_block_me1a [block/not block triggers which come from ME1/A] = "
        << mpc_block_me1a << "\n";
+  strm << " alct_trig_enable [allow ALCT-only triggers] = "
+       << alct_trig_enable << "\n";
+  strm << " clct_trig_enable [allow CLCT-only triggers] = "
+       << clct_trig_enable << "\n";
+  strm << " match_trig_enable [allow matched ALCT-CLCT triggers] = "
+       << match_trig_enable << "\n";
   strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   LogDebug("CSCMotherboard") << strm.str();
 }
