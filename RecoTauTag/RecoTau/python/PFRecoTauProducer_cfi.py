@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
-import copy
 
 pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
 
-      LeadPFCand_minPt     = copy.deepcopy(5.0),  #cut on lead object (can be track, or gamma)
+      LeadPFCand_minPt     = cms.double(5.0),  #cut on lead object (can be track, or gamma)
 
       #SignalCone parameters
       TrackerSignalConeMetric = cms.string('DR'), ## * 
