@@ -192,12 +192,9 @@ sub parse_project ()
   print "#Uniq Tool Libs\n";
   foreach my $libdir (keys %uniqToolLibdir)
   {
-    #if ($uniqToolLibdir{$libdir}{count} == 1)
-    #{
-      my $from=$uniqToolLibdir{$libdir}{from};
-      my $libdirq=quotemeta("${libdir}/lib");
-      print "match ^$libdirq.+[\\.\\-\\_].*(so|a).*\$:\'$from\'\n";
-    #}
+    my $from=$uniqToolLibdir{$libdir}{from};
+    my $libdirq=quotemeta("${libdir}/");
+    print "match ^$libdirq.+\$:'$from'\n";
   }
 }
 
@@ -777,12 +774,9 @@ sub addToolInfo ()
 	{$CACHE->{LIBMAP}{$lib}="${system}/${tool1}";}
 	elsif($CACHE->{LIBMAP}{$lib} ne "${system}/${tool1}")
         {print "#WARNING: $lib exported from ${system}/${tool1} has already been exported by ".$CACHE->{LIBMAP}{$lib}."\n";}
-        if ($libdir eq "")
-        {
-          my $libq=quotemeta($lib);
-	  print "match \\/lib".$libq."[\\.\\-\\_].*(so|a).*\$:\'${system}/${tool1}\'\n";
-        }
-        else
+        my $libq=quotemeta($lib);
+	print "match \\/lib".$libq."[\\.\\-\\_].*(so|a).*\$:\'${system}/${tool1}\'\n";
+        if ($libdir ne "")
 	{
 	  my $libpath="${libdir}/lib${lib}.so";
 	  if(!-e $libpath)

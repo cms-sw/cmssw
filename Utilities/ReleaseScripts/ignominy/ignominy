@@ -272,7 +272,9 @@ sub scan_config {
 	if (! $matched) {
           my $actual_file = &get_actual_path ($file);
 	  if ($actual_file eq $file)
-	  {print STDERR "$file: warning: no package matches\n";}
+	  {
+	    if ($file!~/^(\(|)0x[0-9a-fA-F]+(\)|)$/){print STDERR "$file: warning: no package matches\n";}
+	  }
 	  else{&scan_config ([$actual_file], $action,@args);}
 	}
     }
