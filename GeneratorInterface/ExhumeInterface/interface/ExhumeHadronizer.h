@@ -22,11 +22,6 @@ namespace HepMC
 class GenEvent;
 }
 
-namespace CLHEP {
-class HepRandomEngine;
-class RandFlat;
-}
-
 namespace Exhume{
 class Event;
 class CrossSection;
@@ -35,6 +30,7 @@ class CrossSection;
 namespace gen
 {
   //class Pythia6Hadronizer;
+  class Pythia6Service;
 
   class ExhumeHadronizer : public BaseHadronizer
   {
@@ -59,6 +55,8 @@ namespace gen
      const char* classname() const;
      
   private:
+     Pythia6Service* pythia6Service_;
+
      double comEnergy_;
                     
      //edm::ParameterSet processPSet_;

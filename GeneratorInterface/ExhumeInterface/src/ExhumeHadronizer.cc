@@ -1,23 +1,18 @@
 #include "GeneratorInterface/ExhumeInterface/interface/ExhumeHadronizer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "GeneratorInterface/Core/interface/FortranCallback.h"
+#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
+
+#include "HepPID/ParticleIDTranslations.hh"
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/PdfInfo.h"
 #include "HepMC/HEPEVT_Wrapper.h"
 #include "HepMC/IO_HEPEVT.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-
-#include "GeneratorInterface/Core/interface/FortranCallback.h"
-#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
-#include "GeneratorInterface/ExhumeInterface/interface/PYR.h"
-
-HepMC::IO_HEPEVT conv;
-
-#include "HepPID/ParticleIDTranslations.hh"
 
 //ExHuME headers
 #include "GeneratorInterface/ExhumeInterface/interface/Event.h"
@@ -27,6 +22,8 @@ HepMC::IO_HEPEVT conv;
 
 #include <string>
 #include <sstream>
+
+HepMC::IO_HEPEVT conv;
 
 namespace gen
 {
@@ -74,8 +71,9 @@ inline bool call_pygive(const std::string &line)
    return (pydat1.mstu[26] == numWarn)&&(pydat1.mstu[22] == numErr);
 } 
  
-ExhumeHadronizer::ExhumeHadronizer(edm::ParameterSet const& pset) 
-   : comEnergy_(pset.getParameter<double>("comEnergy")),
+ExhumeHadronizer::ExhumeHadronizer(edm::ParameterSet const& pset)
+   : pythia6Service_(new Pythia6Service(pset)),
+     comEnergy_(pset.getParameter<double>("comEnergy")),
      myPSet_(pset),
      hepMCVerbosity_(pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
      maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint", 0)),
@@ -94,15 +92,12 @@ ExhumeHadronizer::ExhumeHadronizer(edm::ParameterSet const& pset)
    runInfo().setExternalXSecLO(
       pset.getUntrackedParameter<double>("crossSection", -1.0));
 
-   // Initialize the random engine unconditionally
-   //
-   randomEngine = &getEngineReference();
-  
    //pythia6Hadronizer_ = new Pythia6Hadronizer(pset);  
 }
 
 ExhumeHadronizer::~ExhumeHadronizer(){
    //delete pythia6Hadronizer_;
+   delete pythia6Service_;
    delete exhumeEvent_;
    delete exhumeProcess_;
 }
@@ -146,6 +141,7 @@ void ExhumeHadronizer::finalizeEvent()
 
 bool ExhumeHadronizer::generatePartonsAndHadronize()
 {
+   Pythia6Service::InstanceWrapper guard(pythia6Service_);
 
    FortranCallback::getInstance()->resetIterationsPerEvent();
    
@@ -181,6 +177,10 @@ bool ExhumeHadronizer::initializeForExternalPartons()
 
 bool ExhumeHadronizer::initializeForInternalPartons()
 {
+   Pythia6Service::InstanceWrapper guard(pythia6Service_);
+
+   pythia6Service_->setGeneralParams();
+ 
    //Exhume Initialization
    edm::ParameterSet processPSet = myPSet_.getParameter<edm::ParameterSet>("ExhumeProcess");
    std::string processType = processPSet.getParameter<std::string>("ProcessType");
@@ -208,7 +208,8 @@ bool ExhumeHadronizer::initializeForInternalPartons()
    }
     
    pypars.msti[0] = sigID;
-   exhumeEvent_ = new Exhume::Event(*exhumeProcess_,randomEngine->getSeed());
+   int idummy = 0;
+   exhumeEvent_ = new Exhume::Event(*exhumeProcess_,pythia6Service_->call(pyr_,&idummy));
 
    double massRangeLow = processPSet.getParameter<double>("MassRangeLow");
    double massRangeHigh = processPSet.getParameter<double>("MassRangeHigh");

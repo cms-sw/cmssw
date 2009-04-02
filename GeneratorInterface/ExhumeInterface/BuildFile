@@ -8,6 +8,7 @@
 <use name=lhapdf>
 <use name=heppdt>
 <use name=GeneratorInterface/Core>
+<use name=GeneratorInterface/Pythia6Interface>
 <export>
  <lib name=GeneratorInterfaceExhumeInterface>
 </export>

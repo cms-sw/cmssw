@@ -1,4 +1,4 @@
-#include "GeneratorInterface/ExhumeInterface/interface/PYR.h"
+#include "PYR.h"
 #include "CLHEP/Random/RandomEngine.h"
 
 CLHEP::HepRandomEngine* randomEngine;

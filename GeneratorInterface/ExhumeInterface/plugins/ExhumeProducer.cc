@@ -1,5 +1,5 @@
 #include "ExhumeProducer.h"
-#include "GeneratorInterface/ExhumeInterface/interface/PYR.h"
+#include "PYR.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
