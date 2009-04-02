@@ -81,7 +81,7 @@ namespace edm {
     for (Base::const_iterator i = rp->begin(), iEnd = rp->end(); i != iEnd; ++i) {
 
       std::auto_ptr<Group> g(new Group());
-      g->swap(*i->second);
+      g->swap(**i);
 
       addOrReplaceGroup(g);
     }

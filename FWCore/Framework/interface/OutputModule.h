@@ -177,7 +177,9 @@ namespace edm {
     virtual bool shouldWeCloseFile() const {return false;}
 
     virtual void write(EventPrincipal const& e) = 0;
-    virtual void beginJob(EventSetup const&){}
+    //This interface is deprecated
+    virtual void beginJob(EventSetup const&){beginJob();}
+    virtual void beginJob(){}
     virtual void endJob(){}
     virtual void beginRun(RunPrincipal const& r){}
     virtual void endRun(RunPrincipal const& r){}

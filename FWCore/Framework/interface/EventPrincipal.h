@@ -106,6 +106,7 @@ namespace edm {
     void addOnDemandGroup(ConstBranchDescription const& desc);
 
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler);
+    boost::shared_ptr<UnscheduledHandler> unscheduledHandler() const;
 
     EventSelectionIDVector const& eventSelectionIDs() const;
 

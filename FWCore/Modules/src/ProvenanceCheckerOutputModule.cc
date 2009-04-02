@@ -110,21 +110,24 @@ namespace edm {
       for(EventPrincipal::const_iterator it = e.begin(), itEnd = e.end();
           it != itEnd;
           ++it) {
-         if(it->second && !it->second->productUnavailable()) {
-            //This call seems to have a side effect of filling the 'ProductProvenance' in the Group
-            OutputHandle const oh = e.getForOutput(it->first, false);
-
-            if(not it->second->productProvenancePtr().get() ) {
-               missingProductProvenance.insert(it->first);
-               continue;
+         if(*it) {
+            edm::BranchID branchID = (*it)->productDescription().branchID();
+            if((*it)->productUnavailable()) {
+               //This call seems to have a side effect of filling the 'ProductProvenance' in the Group
+               OutputHandle const oh = e.getForOutput(branchID, false);
+               
+               if(not (*it)->productProvenancePtr().get() ) {
+                  missingProductProvenance.insert(branchID);
+                  continue;
+               }
+               boost::shared_ptr<ProductProvenance> pInfo = mapperPtr->branchIDToProvenance(branchID);
+               if(!pInfo.get()) {
+                  missingFromMapper.insert(branchID);
+               }
+               markAncestors(*((*it)->productProvenancePtr()),*mapperPtr,seenParentInPrincipal, missingFromMapper);
             }
-            boost::shared_ptr<ProductProvenance> pInfo = mapperPtr->branchIDToProvenance(it->first);
-            if(!pInfo.get()) {
-               missingFromMapper.insert(it->first);
-            }
-            markAncestors(*(it->second->productProvenancePtr()),*mapperPtr,seenParentInPrincipal, missingFromMapper);
+            seenParentInPrincipal[branchID]=true;
          }
-         seenParentInPrincipal[it->first]=true;
       }
       
       //Determine what BranchIDs are in the product registry

@@ -211,6 +211,11 @@ namespace edm {
     unscheduledHandler_ = iHandler;
   }
 
+  boost::shared_ptr<UnscheduledHandler> 
+  EventPrincipal::unscheduledHandler() const {
+     return unscheduledHandler_;
+  }
+   
   EventSelectionIDVector const&
   EventPrincipal::eventSelectionIDs() const
   {
