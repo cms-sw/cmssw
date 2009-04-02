@@ -168,13 +168,22 @@ void TkLayerMap::initialize(int layer){
   case TkLayerMap::TIDM_D1:  //TID
   case TkLayerMap::TIDM_D2:  //TID
   case TkLayerMap::TIDM_D3:  //TID
+
+    nchX=7;
+    lowX=-7.;
+    highX=0.;
+    nchY=40;
+    lowY=0.0;
+    highY=1.*nchY;
+
+    break;
   case TkLayerMap::TIDP_D1:  //TID
   case TkLayerMap::TIDP_D2:  //TID
   case TkLayerMap::TIDP_D3:  //TID
     
-    nchX=16;
-    lowX=-8.;
-    highX=8.;
+    nchX=7;
+    lowX=0.;
+    highX=7.;
     nchY=40;
     lowY=0.0;
     highY=1.*nchY;
@@ -247,12 +256,154 @@ void TkLayerMap::initialize(int layer){
 
     break;
   default: //TEC
-    nchX=34;
-    lowX=-17.;
-    highX=17.;
-    nchY=80;
-    lowY=0.;
-    highY=1.*nchY;
+    switch (layer){
+    case TkLayerMap::TECM_W1:
+    case TkLayerMap::TECM_W2:
+    case TkLayerMap::TECM_W3:
+      nchX=16;
+      lowX=-16.;
+      highX=0.;
+      nchY=80;
+      lowY=0.;
+      highY=1.*nchY;
+
+      BinForRing.push_back(0); //null value for component 0
+      BinForRing.push_back(1);
+      BinForRing.push_back(4);
+      BinForRing.push_back(7);
+      BinForRing.push_back(9);
+      BinForRing.push_back(11);
+      BinForRing.push_back(14);
+      BinForRing.push_back(16);
+      break;
+    case TkLayerMap::TECM_W4:
+    case TkLayerMap::TECM_W5: 
+    case TkLayerMap::TECM_W6:
+      nchX=13;
+      lowX=-16.;
+      highX=-3.;
+      nchY=80;
+      lowY=0.;
+      highY=1.*nchY;
+
+      BinForRing.push_back(0); //null value for component 0
+      BinForRing.push_back(0);
+      BinForRing.push_back(1);
+      BinForRing.push_back(4);
+      BinForRing.push_back(6);
+      BinForRing.push_back(8);
+      BinForRing.push_back(11);
+      BinForRing.push_back(13);
+      break;
+    case TkLayerMap::TECM_W7:
+    case TkLayerMap::TECM_W8:
+      nchX=10;
+      lowX=-16.;
+      highX=-6.;
+      nchY=80;
+      lowY=0.;
+      highY=1.*nchY;
+
+      BinForRing.push_back(0); //null value for component 0
+      BinForRing.push_back(0);
+      BinForRing.push_back(0);
+      BinForRing.push_back(1);
+      BinForRing.push_back(3);
+      BinForRing.push_back(5);
+      BinForRing.push_back(8);
+      BinForRing.push_back(10);
+      break;
+    case TkLayerMap::TECM_W9:
+      nchX=8;
+      lowX=-16.;
+      highX=-8.;
+      nchY=80;
+      lowY=0.;
+      highY=1.*nchY;
+
+      BinForRing.push_back(0); //null value for component 0
+      BinForRing.push_back(0);
+      BinForRing.push_back(0);
+      BinForRing.push_back(0);
+      BinForRing.push_back(1);
+      BinForRing.push_back(3);
+      BinForRing.push_back(6);
+      BinForRing.push_back(8);
+      break;
+    case TkLayerMap::TECP_W1:
+    case TkLayerMap::TECP_W2:
+    case TkLayerMap::TECP_W3:
+      nchX=16;
+      lowX=0.;
+      highX=16.;
+      nchY=80;
+      lowY=0.;
+      highY=1.*nchY;
+
+      BinForRing.push_back(0); //null value for component 0
+      BinForRing.push_back(1);
+      BinForRing.push_back(4);
+      BinForRing.push_back(7);
+      BinForRing.push_back(9);
+      BinForRing.push_back(11);
+      BinForRing.push_back(14);
+      BinForRing.push_back(16);
+      break;
+    case TkLayerMap::TECP_W4:
+    case TkLayerMap::TECP_W5: 
+    case TkLayerMap::TECP_W6:
+      nchX=13;
+      lowX=3.;
+      highX=16.;
+      nchY=80;
+      lowY=0.;
+      highY=1.*nchY;
+
+      BinForRing.push_back(0); //null value for component 0
+      BinForRing.push_back(0);
+      BinForRing.push_back(1);
+      BinForRing.push_back(4);
+      BinForRing.push_back(6);
+      BinForRing.push_back(8);
+      BinForRing.push_back(11);
+      BinForRing.push_back(13);
+      break;
+    case TkLayerMap::TECP_W7:
+    case TkLayerMap::TECP_W8:
+      nchX=10;
+      lowX=6.;
+      highX=16.;
+      nchY=80;
+      lowY=0.;
+      highY=1.*nchY;
+
+      BinForRing.push_back(0); //null value for component 0
+      BinForRing.push_back(0);
+      BinForRing.push_back(0);
+      BinForRing.push_back(1);
+      BinForRing.push_back(3);
+      BinForRing.push_back(5);
+      BinForRing.push_back(8);
+      BinForRing.push_back(10);
+      break;
+    case TkLayerMap::TECP_W9:
+      nchX=8;
+      lowX=8.;
+      highX=16.;
+      nchY=80;
+      lowY=0.;
+      highY=1.*nchY;
+
+      BinForRing.push_back(0); //null value for component 0
+      BinForRing.push_back(0);
+      BinForRing.push_back(0);
+      BinForRing.push_back(0);
+      BinForRing.push_back(1);
+      BinForRing.push_back(3);
+      BinForRing.push_back(6);
+      BinForRing.push_back(8);
+    }
+
 
     ModulesInRingFront.push_back(0); //null value for component 0
     ModulesInRingFront.push_back(2);
@@ -271,21 +422,14 @@ void TkLayerMap::initialize(int layer){
     ModulesInRingBack.push_back(3);    
     ModulesInRingBack.push_back(3);    
     ModulesInRingBack.push_back(5);
-
-    BinForRing.push_back(0); //null value for component 0
-    BinForRing.push_back(2);
-    BinForRing.push_back(5);
-    BinForRing.push_back(8);
-    BinForRing.push_back(10);
-    BinForRing.push_back(12);
-    BinForRing.push_back(15);
-    BinForRing.push_back(17);
   }
   
   for (size_t i=0;i<SingleExtString.size();i++)
     LogTrace("TkLayerMap") << "[initialize SingleExtString["<<i<<"] " << SingleExtString[i];
 
   binToDet=(uint32_t*) malloc(nchX*nchY*sizeof(uint32_t));
+  for(size_t i=0;i<nchX*nchY;++i)
+    binToDet[i]=0;
 }
  
 void TkLayerMap::createTIB(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
@@ -328,9 +472,9 @@ void TkLayerMap::createTID(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
   SiStripSubStructure siStripSubStructure;
   
   //extract  vector of module in the layer
-  siStripSubStructure.getTIDDetectors(TkDetIdList,LayerDetIdList,((layerEnumNb-TkLayerMap::TIB_L4)-1)/3+1,((layerEnumNb-TkLayerMap::TIB_L4)-1)%3+1,0,0);
+  siStripSubStructure.getTIDDetectors(TkDetIdList,LayerDetIdList,(layerEnumNb-TkLayerMap::TIDM_D1)/3+1,(layerEnumNb-TkLayerMap::TIDM_D1)%3+1,0,0);
 
-  LogTrace("TkLayerMap") << "[TkLayerMap::createTID] layer side " << ((layerEnumNb-TkLayerMap::TIB_L4)-1)/3+1 << " nb " << ((layerEnumNb-TkLayerMap::TIB_L4)-1)%3+1  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
+  LogTrace("TkLayerMap") << "[TkLayerMap::createTID] layer side " << (layerEnumNb-TkLayerMap::TIDM_D1)/3+1 << " nb " << (layerEnumNb-TkLayerMap::TIDM_D1)%3+1  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
   
   for(size_t j=0;j<LayerDetIdList.size();++j){
     xybin=getXY_TID(LayerDetIdList[j],layerEnumNb);
@@ -345,9 +489,9 @@ void TkLayerMap::createTEC(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
   SiStripSubStructure siStripSubStructure;
   
   //extract  vector of module in the layer
-  siStripSubStructure.getTECDetectors(TkDetIdList,LayerDetIdList,((layerEnumNb-TkLayerMap::TOB_L6)-1)/9+1,((layerEnumNb-TkLayerMap::TOB_L6)-1)%9+1,0,0);
+  siStripSubStructure.getTECDetectors(TkDetIdList,LayerDetIdList,(layerEnumNb-TkLayerMap::TECM_W1)/9+1,(layerEnumNb-TkLayerMap::TECM_W1)%9+1,0,0);
   
-LogTrace("TkLayerMap") << "[TkLayerMap::createTEC] layer side " << ((layerEnumNb-TkLayerMap::TOB_L6)-1)/9+1 << " " << ((layerEnumNb-TkLayerMap::TOB_L6)-1)%9+1  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
+  LogTrace("TkLayerMap") << "[TkLayerMap::createTEC] layer side " << (layerEnumNb-TkLayerMap::TECM_W1)/9+1 << " " << (layerEnumNb-TkLayerMap::TECM_W1)%9+1  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
 
   for(size_t j=0;j<LayerDetIdList.size();++j){
     xybin=getXY_TEC(LayerDetIdList[j],layerEnumNb);
@@ -369,12 +513,11 @@ const TkLayerMap::XYbin TkLayerMap::getXY(uint32_t& detid, int layerEnumNb){
       << "[TkLayerMap::getXY] Fill of DetId " << detid << " layerEnumNb " << layerEnumNb << " are requested to wrong TkLayerMap " << layerEnumNb_ << " \nPlease check the TkDetMap code"; 
  
 
-  if(layerEnumNb<TkLayerMap::TIDM_D1)  
+  if(layerEnumNb>=TkLayerMap::TIB_L1 && layerEnumNb<=TkLayerMap::TIB_L4)  
     return getXY_TIB(detid,layerEnumNb);
-  else if(layerEnumNb<TkLayerMap::TOB_L1)  
+  else if(layerEnumNb>=TkLayerMap::TIDM_D1 && layerEnumNb<=TkLayerMap::TIDP_D3)  
     return getXY_TID(detid,layerEnumNb); 
-  else if(layerEnumNb<TkLayerMap
-::TECM_W1)  
+  else if(layerEnumNb>=TkLayerMap::TOB_L1 && layerEnumNb<=TkLayerMap::TOB_L6)  
     return getXY_TOB(detid,layerEnumNb); 
   else 
     return getXY_TEC(detid,layerEnumNb); 
@@ -420,7 +563,7 @@ TkLayerMap::XYbin TkLayerMap::getXY_TID(uint32_t& detid, int layerEnumNb){
     layerEnumNb=layerSearch(detid);
 
   TIDDetId D(detid);
-  xybin.ix=D.isZMinusSide()?-3*D.ring()+10:3*D.ring()+7;
+  xybin.ix=D.isZMinusSide()?-3*D.ring()+10:3*D.ring()-2;
   if(D.isStereo())
     xybin.ix+=(D.isZMinusSide()?-1:1);
   xybin.iy= int(2. * D.moduleNumber() - (D.isBackRing()?0.:1.));
@@ -435,7 +578,7 @@ TkLayerMap::XYbin TkLayerMap::getXY_TEC(uint32_t& detid, int layerEnumNb){
     layerEnumNb=layerSearch(detid);
 
   TECDetId D(detid);
-  xybin.ix=D.isZMinusSide()?18-BinForRing[D.ring()]:BinForRing[D.ring()]+17;
+  xybin.ix=D.isZMinusSide()?BinForRing[7]-BinForRing[D.ring()]+1:BinForRing[D.ring()]; //after the introduction of plus and minus histos, the BinForRing should have been changed. on the contrary we hack this part of the code 
   if(D.isStereo())
     xybin.ix+=(D.isZMinusSide()?-1:1);
 
