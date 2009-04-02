@@ -213,6 +213,10 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 					 ct.id().rawId() );
 	      }
 	      break;
+	    case HcalOuter:
+	      {
+	      }
+	      break;
 	    case HcalForward:
 	      {
 		//---ab: 2 rechits for HF:
