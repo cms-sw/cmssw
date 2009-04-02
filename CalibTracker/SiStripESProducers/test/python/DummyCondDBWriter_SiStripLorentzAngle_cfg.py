@@ -49,8 +49,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
 process.SiStripLorentzAngleGenerator.TIB_EstimatedValue = cms.double(0.01784)
 process.SiStripLorentzAngleGenerator.TOB_EstimatedValue = cms.double(0.02315)
-process.SiStripLorentzAngleGenerator.TIB_PerCent_Err=cms.double(20.)
-process.SiStripLorentzAngleGenerator.TOB_PerCent_Err=cms.double(10.)
+process.SiStripLorentzAngleGenerator.TIB_PerCent_Err=cms.double(0.)
+process.SiStripLorentzAngleGenerator.TOB_PerCent_Err=cms.double(0.)
 
 process.p1 = cms.Path(process.siStripLorentzAngleDummyDBWriter)
 

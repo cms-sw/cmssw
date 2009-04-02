@@ -19,9 +19,9 @@ cmsRun DummyCondDBWriter_SiStripClusterThreshold_cfg.py
 cmsRun DummyCondDBWriter_SiStripFedCabling_cfg.py
 
 cmsRun DummyCondDBWriter_SiStripLorentzAngle_cfg.py
-cat DummyCondDBWriter_SiStripLorentzAngle_cfg.py | sed -e "s@SiStripLorentzAngle_Ideal@SiStripLorentzAngle_IdealSim@" -e s"@PerCent_Err=0.@PerCent_Err=0.@"> DummyCondDBWriter_tmp_cfg.py
+cat DummyCondDBWriter_SiStripLorentzAngle_cfg.py | sed -e "s@SiStripLorentzAngle_Ideal@SiStripLorentzAngle_IdealSim@" -e s"@TIB_PerCent_Err=cms.double(0.)@TIB_PerCent_Err=cms.double(0.)@" -e s"@TOB_PerCent_Err=cms.double(0.)@TOB_PerCent_Err=cms.double(0.)@"> DummyCondDBWriter_tmp_cfg.py
 cmsRun DummyCondDBWriter_tmp_cfg.py
-cat DummyCondDBWriter_SiStripLorentzAngle_cfg.py | sed -e "s@SiStripLorentzAngle_Ideal@SiStripLorentzAngle_StartUp@" -e s"@PerCent_Err=0.@PerCent_Err=20.@"> DummyCondDBWriter_tmp_cfg.py
+cat DummyCondDBWriter_SiStripLorentzAngle_cfg.py | sed -e "s@SiStripLorentzAngle_Ideal@SiStripLorentzAngle_StartUp@" -e s"@TIB_PerCent_Err=cms.double(0.)@TIB_PerCent_Err=cms.double(20.)@" -e s"@TOB_PerCent_Err=cms.double(0.)@TOB_PerCent_Err=cms.double(20.)@"> DummyCondDBWriter_tmp_cfg.py
 cmsRun DummyCondDBWriter_tmp_cfg.py
 
 cmsRun DummyCondDBWriter_SiStripDetVOff_cfg.py
