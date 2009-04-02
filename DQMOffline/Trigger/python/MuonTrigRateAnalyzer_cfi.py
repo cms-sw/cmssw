@@ -30,7 +30,7 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 	# allCollectionNames = cms.vstring ("globalMuons"),
 
 
-	allCollectionNames = cms.vstring ("globalMuons"),
+	allCollectionNames = cms.vstring ("muons", "barrelMuons"),
 #									  "barrelMuonTracks",
 #									  "overlapMuonTracks"),
 									  
