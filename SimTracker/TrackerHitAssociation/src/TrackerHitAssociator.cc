@@ -80,12 +80,12 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::Param
   doStrip_( conf.getParameter<bool>("associateStrip") ),
   doTrackAssoc_( conf.getParameter<bool>("associateRecoTracks") ){
   
-  trackerContainers.clear();
-  trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
-
   //if track association there is no need to acces the CrossingFrame
   if(!doTrackAssoc_) {
     
+  trackerContainers.clear();
+  trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
+
     // Step A: Get Inputs
     //    edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
     //    std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
@@ -148,7 +148,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
       if(const SiStripRecHit2D * rechit = 
 	 dynamic_cast<const SiStripRecHit2D *>(&thit))
 	{	  
-	  simtrackid = associateSimpleRecHit(rechit);
+	  associateSimpleRecHit(rechit, simtrackid);
 	}
       //check if it is a matched SiStripMatchedRecHit2D
       if(const SiStripMatchedRecHit2D * rechit = 
@@ -172,7 +172,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
     {
       if(const SiPixelRecHit * rechit = dynamic_cast<const SiPixelRecHit *>(&thit))
 	{	  
-	  simtrackid = associatePixelRecHit(rechit);
+	  associatePixelRecHit(rechit,simtrackid );
 	}
     }
   //check if these are GSRecHits (from FastSim)
@@ -266,109 +266,114 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 //std::vector<unsigned int> TrackerHitAssociator::associateHitId(const TrackingRecHit & thit) 
 std::vector< SimHitIdpr > TrackerHitAssociator::associateHitId(const TrackingRecHit & thit) 
 {
+  std::vector< SimHitIdpr > simhitid;
+  associateHitId(thit, simhitid);
+  return simhitid;
+}
+
+void TrackerHitAssociator::associateHitId(const TrackingRecHit & thit, std::vector< SimHitIdpr > & simtkid) 
+{
   
   //check in case of TTRH
   if(const TransientTrackingRecHit * ttrh = dynamic_cast<const TransientTrackingRecHit *>(&thit)) {
-      return associateHitId(*ttrh->hit());
+    associateHitId(*ttrh->hit(), simtkid);
   }
-   
-  //vector with the associated SimTrackID 
-  simtrackid.clear();
-  //vector with the CF position of the associated simhits
-  simhitCFPos.clear();
-
+  else{
+    simtkid.clear();
+    simhitCFPos.clear();
+    //vector with the associated Simtkid 
+    //vector with the CF position of the associated simhits
+    
   //get the Detector type of the rechit
-  DetId detid=  thit.geographicalId();
-  //apparently not used
-  //  uint32_t detID = detid.rawId();
-  if (const SiTrackerMultiRecHit * rechit = dynamic_cast<const SiTrackerMultiRecHit *>(&thit)){
-        return associateMultiRecHitId(rechit);
-  }
-
+    DetId detid=  thit.geographicalId();
+    //apparently not used
+    //  uint32_t detID = detid.rawId();
+    if (const SiTrackerMultiRecHit * rechit = dynamic_cast<const SiTrackerMultiRecHit *>(&thit)){
+       simtkid=associateMultiRecHitId(rechit);
+    }
+    
   //cout << "Associator ---> get Detid " << detID << endl;
   //check we are in the strip tracker
-  if(detid.subdetId() == StripSubdetector::TIB ||
-     detid.subdetId() == StripSubdetector::TOB || 
-     detid.subdetId() == StripSubdetector::TID ||
-     detid.subdetId() == StripSubdetector::TEC) 
-    {
-      //check if it is a simple SiStripRecHit2D
-      if(const SiStripRecHit2D * rechit = 
-	 dynamic_cast<const SiStripRecHit2D *>(&thit))
-	{	  
-	  simtrackid = associateSimpleRecHit(rechit);
-	}
-      //check if it is a matched SiStripMatchedRecHit2D
+    if(detid.subdetId() == StripSubdetector::TIB ||
+       detid.subdetId() == StripSubdetector::TOB || 
+       detid.subdetId() == StripSubdetector::TID ||
+       detid.subdetId() == StripSubdetector::TEC) 
+      {
+	//check if it is a simple SiStripRecHit2D
+	if(const SiStripRecHit2D * rechit = 
+	   dynamic_cast<const SiStripRecHit2D *>(&thit))
+	  {	  
+	    associateSimpleRecHit(rechit, simtkid);
+	  }
+	//check if it is a matched SiStripMatchedRecHit2D
       else  if(const SiStripMatchedRecHit2D * rechit = 
-	 dynamic_cast<const SiStripMatchedRecHit2D *>(&thit))
+	       dynamic_cast<const SiStripMatchedRecHit2D *>(&thit))
 	{	  
-	  simtrackid = associateMatchedRecHit(rechit);
+	  simtkid = associateMatchedRecHit(rechit);
 	}
-      //check if it is a  ProjectedSiStripRecHit2D
+	//check if it is a  ProjectedSiStripRecHit2D
       else if(const ProjectedSiStripRecHit2D * rechit = 
-	 dynamic_cast<const ProjectedSiStripRecHit2D *>(&thit))
+	      dynamic_cast<const ProjectedSiStripRecHit2D *>(&thit))
 	{	  
-	  simtrackid = associateProjectedRecHit(rechit);
+	  simtkid = associateProjectedRecHit(rechit);
 	}
-    }
-  //check we are in the pixel tracker
-  else if( (unsigned int)(detid.subdetId()) == PixelSubdetector::PixelBarrel || 
-	   (unsigned int)(detid.subdetId()) == PixelSubdetector::PixelEndcap) 
-    {
+      }
+    //check we are in the pixel tracker
+    else if( (unsigned int)(detid.subdetId()) == PixelSubdetector::PixelBarrel || 
+	     (unsigned int)(detid.subdetId()) == PixelSubdetector::PixelEndcap) 
+      {
       if(const SiPixelRecHit * rechit = dynamic_cast<const SiPixelRecHit *>(&thit))
 	{	  
-	  simtrackid = associatePixelRecHit(rechit);
+	  associatePixelRecHit(rechit,simtkid );
 	}
-    }
-  //check if these are GSRecHits (from FastSim)
-  if(const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *>(&thit))
-    {
-      simtrackid = associateGSRecHit(rechit);
-    }  
-  if(const SiTrackerGSMatchedRecHit2D * rechit = dynamic_cast<const SiTrackerGSMatchedRecHit2D *>(&thit))
-    {
-      simtrackid = associateGSMatchedRecHit(rechit);
-    }
+      }
+    //check if these are GSRecHits (from FastSim)
+    if(const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *>(&thit))
+      {
+	simtkid = associateGSRecHit(rechit);
+      }  
+    if(const SiTrackerGSMatchedRecHit2D * rechit = dynamic_cast<const SiTrackerGSMatchedRecHit2D *>(&thit))
+      {
+	simtkid = associateGSMatchedRecHit(rechit);
+      }
 
- 
-  return simtrackid;  
+  }
 }
 
 
-std::vector<SimHitIdpr>  TrackerHitAssociator::associateSimpleRecHit(const SiStripRecHit2D * simplerechit)
+void TrackerHitAssociator::associateSimpleRecHit(const SiStripRecHit2D * simplerechit, std::vector<SimHitIdpr>& simtrackid)
 {
   //  std::cout <<"ASSOCIATE SIMPLE RECHIT" << std::endl;	    
   StripHits =true;	  
-
+  
   DetId detid=  simplerechit->geographicalId();
   uint32_t detID = detid.rawId();
-
+  
   //to store temporary charge information
   std::vector<SimHitIdpr> cache_simtrackid; 
   cache_simtrackid.clear();
-
+  
   std::map<SimHitIdpr, vector<float> > temp_simtrackid;
   temp_simtrackid.clear();
-
+  
   edm::DetSetVector<StripDigiSimLink>::const_iterator isearch = stripdigisimlink->find(detID); 
   if(isearch != stripdigisimlink->end()) {  //if it is not empty
     //link_detset is a structure, link_detset.data is a std::vector<StripDigiSimLink>
-    edm::DetSet<StripDigiSimLink> link_detset = (*stripdigisimlink)[detID];
+    //edm::DetSet<StripDigiSimLink> link_detset = (*stripdigisimlink)[detID];
+    edm::DetSet<StripDigiSimLink> link_detset = (*isearch);
     
     //Modification for regional clustering from Jean-Roch Vlimant
     const SiStripCluster* clust = 0; 
     if(simplerechit->cluster().isNonnull())
-    {
-      clust=&(*simplerechit->cluster());
-    }else if(simplerechit->cluster_regional().isNonnull())
-       {
-	 clust=&(*simplerechit->cluster_regional());
-       } 
-    else 
       {
-	edm::LogError("TrackerHitAssociator")<<"no cluster reference attached";
-	return simtrackid;
+	clust=&(*simplerechit->cluster());
       }
+    else if(simplerechit->cluster_regional().isNonnull())
+      {
+	clust=&(*simplerechit->cluster_regional());
+      } 
+    if(clust!=0){//the cluster is valid
+
   //    const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clust=simplerechit->cluster();
   
     //float chg;
@@ -382,20 +387,20 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateSimpleRecHit(const SiStr
     std::vector<SimHitIdpr> idcachev;
     std::vector<int> CFposcachev;
     for(edm::DetSet<StripDigiSimLink>::const_iterator linkiter = link_detset.data.begin(); linkiter != link_detset.data.end(); linkiter++){
-      StripDigiSimLink link = *linkiter;
+      //StripDigiSimLink link = *linkiter;
 
-      if( (int)(link.channel()) >= first  && (int)(link.channel()) < last ){
+      if( (int)(linkiter->channel()) >= first  && (int)(linkiter->channel()) < last ){
 	
 	//check this digisimlink
 	/*
-	std::cout << "CHECKING CHANNEL  = " << link.channel()   << std::endl;
-	std::cout << "TrackID  = " << link.SimTrackId()  << std::endl;
-	std::cout << "Position = " << link.CFposition()  << std::endl;
-    	std::cout << " POS -1 = " << TrackerHits.getObject(link.CFposition()-1).localPosition() << std::endl;
-  	std::cout << " Process = " << TrackerHits.getObject(link.CFposition()-1).processType() << std::endl;
+	std::cout << "CHECKING CHANNEL  = " << linkiter->channel()   << std::endl;
+	std::cout << "TrackID  = " << linkiter->SimTrackId()  << std::endl;
+	std::cout << "Position = " << linkiter->CFposition()  << std::endl;
+    	std::cout << " POS -1 = " << TrackerHits.getObject(linkiter->CFposition()-1).localPosition() << std::endl;
+  	std::cout << " Process = " << TrackerHits.getObject(linkiter->CFposition()-1).processType() << std::endl;
 	*/
 
-	SimHitIdpr currentId(link.SimTrackId(), link.eventId());
+	SimHitIdpr currentId(linkiter->SimTrackId(), linkiter->eventId());
 
 	//create a vector with the list of SimTrack ID's of the tracks that contributed to the RecHit
 	//write the id only once in the vector
@@ -413,11 +418,11 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateSimpleRecHit(const SiStr
 
 	//create a vector that contains all the position (in the MixCollection) of the SimHits that contributed to the RecHit
 	//write position only once
-	int currentCFPos = link.CFposition()-1;
+	int currentCFPos = linkiter->CFposition()-1;
 	if(find(CFposcachev.begin(),CFposcachev.end(),currentCFPos ) == CFposcachev.end()){
 	  /*
-	  std::cout << "CHECKING CHANNEL  = " << link.channel()   << std::endl;
-	  std::cout << "\tTrackID  = " << link.SimTrackId()  << "\tCFPos = " << currentCFPos  << std::endl;
+	  std::cout << "CHECKING CHANNEL  = " << linkiter->channel()   << std::endl;
+	  std::cout << "\tTrackID  = " << linkiter->SimTrackId()  << "\tCFPos = " << currentCFPos  << std::endl;
 	  std::cout << "\tLocal Pos = " << TrackerHits.getObject(currentCFPos).localPosition() 
 		    << "\tProcess = " << TrackerHits.getObject(currentCFPos).processType() << std::endl;
 	  */
@@ -428,8 +433,10 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateSimpleRecHit(const SiStr
       }
     }    
   }
-  return simtrackid;
-  
+    else {
+	edm::LogError("TrackerHitAssociator")<<"no cluster reference attached";
+    }
+  }
 }
 
 std::vector<SimHitIdpr>  TrackerHitAssociator::associateMatchedRecHit(const SiStripMatchedRecHit2D * matchedrechit)
@@ -446,8 +453,8 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateMatchedRecHit(const SiSt
   const SiStripRecHit2D *mono = matchedrechit->monoHit();
   const SiStripRecHit2D *st = matchedrechit->stereoHit();
   //associate the two simple hits separately
-  matched_mono = associateSimpleRecHit(mono);
-  matched_st   = associateSimpleRecHit(st);
+  associateSimpleRecHit(mono,matched_mono );
+  associateSimpleRecHit(st, matched_st );
   
   //save in a vector all the simtrack-id's that are common to mono and stereo hits
   if(!matched_mono.empty() && !matched_st.empty()){
@@ -482,12 +489,12 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateProjectedRecHit(const Pr
   matched_mono.clear();
  
   const SiStripRecHit2D mono = projectedrechit->originalHit();
-  matched_mono = associateSimpleRecHit(&mono);
+  associateSimpleRecHit(&mono, matched_mono);
   return matched_mono;
 }
 
 //std::vector<unsigned int>  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrechit)
-std::vector<SimHitIdpr>  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrechit)
+void  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrechit, std::vector<SimHitIdpr> & simtrackid)
 {
   StripHits = false;
 
@@ -498,52 +505,53 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associatePixelRecHit(const SiPixe
   uint32_t detID = detid.rawId();
   edm::DetSetVector<PixelDigiSimLink>::const_iterator isearch = pixeldigisimlink->find(detID); 
   if(isearch != pixeldigisimlink->end()) {  //if it is not empty
-    edm::DetSet<PixelDigiSimLink> link_detset = (*pixeldigisimlink)[detID];
+    //    edm::DetSet<PixelDigiSimLink> link_detset = (*pixeldigisimlink)[detID];
+    edm::DetSet<PixelDigiSimLink> link_detset = (*isearch);
     //    edm::Ref< edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& cluster = pixelrechit->cluster();
     SiPixelRecHit::ClusterRef const& cluster = pixelrechit->cluster();
-
-    //check the reference is valid
-
-    if(pixelrechit->cluster().isNull()){
-      edm::LogError("TrackerHitAssociator")<<"no Pixel cluster reference attached";
-      return simtrackid;
-    }
     
-
-
-    int minPixelRow = (*cluster).minPixelRow();
-    int maxPixelRow = (*cluster).maxPixelRow();
-    int minPixelCol = (*cluster).minPixelCol();
-    int maxPixelCol = (*cluster).maxPixelCol();    
-    //std::cout << "    Cluster minRow " << minPixelRow << " maxRow " << maxPixelRow << std::endl;
-    //std::cout << "    Cluster minCol " << minPixelCol << " maxCol " << maxPixelCol << std::endl;
-    edm::DetSet<PixelDigiSimLink>::const_iterator linkiter = link_detset.data.begin();
-    int dsl = 0;
-    //    std::vector<unsigned int> idcachev;
-    std::vector<SimHitIdpr> idcachev;
-    for( ; linkiter != link_detset.data.end(); linkiter++) {
-      dsl++;
-      std::pair<int,int> pixel_coord = PixelDigi::channelToPixel(linkiter->channel());
-      //std::cout << "    " << dsl << ") Digi link: row " << pixel_coord.first << " col " << pixel_coord.second << std::endl;      
-      if(  pixel_coord.first  <= maxPixelRow && 
-	   pixel_coord.first  >= minPixelRow &&
-	   pixel_coord.second <= maxPixelCol &&
-	   pixel_coord.second >= minPixelCol ) {
-	//std::cout << "      !-> trackid   " << linkiter->SimTrackId() << endl;
-	//std::cout << "          fraction  " << linkiter->fraction()   << endl;
-	SimHitIdpr currentId(linkiter->SimTrackId(), linkiter->eventId());
-	//	if(find(idcachev.begin(),idcachev.end(),linkiter->SimTrackId()) == idcachev.end()){
-	if(find(idcachev.begin(),idcachev.end(),currentId) == idcachev.end()){
-	  //	  simtrackid.push_back(linkiter->SimTrackId());
-	  //idcachev.push_back(linkiter->SimTrackId());
-	  simtrackid.push_back(currentId);
-	  idcachev.push_back(currentId);
-	}
-      } 
+    //check the reference is valid
+    
+    if(!(cluster.isNull())){//if the cluster is valid
+      
+      int minPixelRow = (*cluster).minPixelRow();
+      int maxPixelRow = (*cluster).maxPixelRow();
+      int minPixelCol = (*cluster).minPixelCol();
+      int maxPixelCol = (*cluster).maxPixelCol();    
+      //std::cout << "    Cluster minRow " << minPixelRow << " maxRow " << maxPixelRow << std::endl;
+      //std::cout << "    Cluster minCol " << minPixelCol << " maxCol " << maxPixelCol << std::endl;
+      edm::DetSet<PixelDigiSimLink>::const_iterator linkiter = link_detset.data.begin();
+      int dsl = 0;
+      //    std::vector<unsigned int> idcachev;
+      std::vector<SimHitIdpr> idcachev;
+      for( ; linkiter != link_detset.data.end(); linkiter++) {
+	dsl++;
+	std::pair<int,int> pixel_coord = PixelDigi::channelToPixel(linkiter->channel());
+	//std::cout << "    " << dsl << ") Digi link: row " << pixel_coord.first << " col " << pixel_coord.second << std::endl;      
+	if(  pixel_coord.first  <= maxPixelRow && 
+	     pixel_coord.first  >= minPixelRow &&
+	     pixel_coord.second <= maxPixelCol &&
+	     pixel_coord.second >= minPixelCol ) {
+	  //std::cout << "      !-> trackid   " << linkiter->SimTrackId() << endl;
+	  //std::cout << "          fraction  " << linkiter->fraction()   << endl;
+	  SimHitIdpr currentId(linkiter->SimTrackId(), linkiter->eventId());
+	  //	if(find(idcachev.begin(),idcachev.end(),linkiter->SimTrackId()) == idcachev.end()){
+	  if(find(idcachev.begin(),idcachev.end(),currentId) == idcachev.end()){
+	    //	  simtrackid.push_back(linkiter->SimTrackId());
+	    //idcachev.push_back(linkiter->SimTrackId());
+	    simtrackid.push_back(currentId);
+	    idcachev.push_back(currentId);
+	  }
+	} 
+      }
+    }
+    else{      
+      edm::LogError("TrackerHitAssociator")<<"no Pixel cluster reference attached";
+      
     }
   }
   
-  return simtrackid;
+
 }
 
 std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSRecHit(const SiTrackerGSRecHit2D * gsrechit)
