@@ -98,15 +98,15 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
   sumCharge_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, SumChargeBin, SumChargeMin, SumChargeMax);
   sumCharge_->setAxisTitle("#SigmaCharge");
 
+  unsigned int TrackCurvatureBin = conf_.getParameter<unsigned int>("TrackCurvatureBin");
+  double TrackCurvatureMin = conf_.getParameter<double>("TrackCurvatureMin");
+  double TrackCurvatureMax = conf_.getParameter<double>("TrackCurvatureMax");
+  
+  histname = "TrackCurvature_";
+  TrackCurvature_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackCurvatureBin, TrackCurvatureMin, TrackCurvatureMax);
+  TrackCurvature_->setAxisTitle("#kappa track");
+
   if( runsOnReco_ ){
-    unsigned int TrackCurvatureBin = conf_.getParameter<unsigned int>("TrackCurvatureBin");
-    double TrackCurvatureMin = conf_.getParameter<double>("TrackCurvatureMin");
-    double TrackCurvatureMax = conf_.getParameter<double>("TrackCurvatureMax");
-
-    histname = "TrackCurvature_";
-    TrackCurvature_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackCurvatureBin, TrackCurvatureMin, TrackCurvatureMax);
-    TrackCurvature_->setAxisTitle("#kappa track");
-
 
     unsigned int    JetPtBin = conf_.getParameter<unsigned int>("JetPtBin");
     double JetPtMin = conf_.getParameter<double>("JetPtMin");
@@ -124,7 +124,6 @@ void TkAlCaRecoMonitor::beginJob(edm::EventSetup const& iSetup) {
     minJetDeltaR_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, MinJetDeltaRBin, MinJetDeltaRMin, MinJetDeltaRMax);
     minJetDeltaR_->setAxisTitle("minimal Jet #DeltaR / rad");
   }else{
-    TrackCurvature_ = NULL;
     jetPt_ = NULL;
     minJetDeltaR_ = NULL;
   }
