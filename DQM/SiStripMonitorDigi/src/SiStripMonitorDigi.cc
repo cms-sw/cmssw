@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.40 2009/02/26 13:06:19 borrell Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.42 2009/03/25 15:54:52 borrell Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -136,7 +136,7 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
     SiStripFolderOrganizer folder_organizer;
 
     // Create TkHistoMap for Digi
-    if (digitkhistomapon) tkmapdigi = new TkHistoMap("SiStrip/TkHistoMap","Digi",0.);
+    if (digitkhistomapon) tkmapdigi = new TkHistoMap("SiStrip/TkHisto","Digi",0.,1);
     
     std::vector<uint32_t> tibDetIds;
     // loop over detectors and book MEs
