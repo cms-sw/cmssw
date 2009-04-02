@@ -12,6 +12,12 @@ void JetChargeProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
     typedef reco::JetTracksAssociationCollection::const_iterator IT;
     typedef edm::RefToBase<reco::Jet>  JetRef;
 
+    if (hJTAs->keyProduct().isNull()) {
+        // need to work around this bug someway, altough it's not stricly my fault
+        std::auto_ptr<JetChargeCollection> ret(new JetChargeCollection());
+        iEvent.put(ret);
+        return;
+    }
     std::auto_ptr<JetChargeCollection> ret(new JetChargeCollection(hJTAs->keyProduct()));
     for (IT it = hJTAs->begin(), ed = hJTAs->end(); it != ed; ++it) {
         const JetRef &jet = it->first;
