@@ -515,7 +515,15 @@ void SETSeedFinder::estimateMomentum(const MuonRecHitContainer & validSet,
       //---- estimate pT given two hits
       //std::cout<<"   hits for initial pT estimate: first -> dim = "<<firstHit->dimension()<<" pos = "<<firstHit->globalPosition()<<
       //" , second -> "<<" dim = "<<secondHit->dimension()<<" pos = "<<secondHit->globalPosition()<<std::endl;
-      momentum_estimate = thePtExtractor->pT_extract(firstHit, secondHit);
+     //---- pT throws exception if hits are MB4 
+     // (no coding for them - 2D hits in the outer station) 
+     if(2==firstHit->dimension() && 2==secondHit->dimension()){
+        momentum_estimate.push_back(999999999.);
+        momentum_estimate.push_back(999999999.);
+      }
+      else{
+        momentum_estimate = thePtExtractor->pT_extract(firstHit, secondHit);
+      } 
     }
     pT = fabs(momentum_estimate[0]);
     if(1 || pT>40.){ //it is skipped; we have to look at least into number of hits in the chamber actually...
