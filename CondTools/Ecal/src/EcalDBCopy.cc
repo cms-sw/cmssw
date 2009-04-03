@@ -34,6 +34,15 @@
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterEnergyUncertaintyParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
+
 
 #include <vector>
 
@@ -111,6 +120,14 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalChannelStatusRcd>().cacheIdentifier();
   } else if (container == "EcalTimeCalibConstants") {
     cacheID = evtSetup.get<EcalTimeCalibConstantsRcd>().cacheIdentifier();
+  } else if (container == "EcalClusterCrackCorrParameters") {
+    cacheID = evtSetup.get<EcalClusterCrackCorrParametersRcd>().cacheIdentifier();
+  } else if (container == "EcalClusterEnergyUncertaintyParameters") {
+    cacheID = evtSetup.get<EcalClusterEnergyUncertaintyParametersRcd>().cacheIdentifier();
+  } else if (container == "EcalClusterEnergyCorrectionParameters") {
+    cacheID = evtSetup.get<EcalClusterEnergyCorrectionParametersRcd>().cacheIdentifier();
+  } else if (container == "EcalClusterLocalContCorrParameters") {
+    cacheID = evtSetup.get<EcalClusterLocalContCorrParametersRcd>().cacheIdentifier();
   } 
 
   else {
@@ -226,6 +243,38 @@ else if (container == "EcalIntercalibConstants") {
     const EcalLaserAPDPNRatiosRef* obj = handle.product();
     cout << "tbweight pointer is: "<< obj<< endl;
    dbOutput->createNewIOV<const EcalLaserAPDPNRatiosRef>( new EcalLaserAPDPNRatiosRef(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
+
+
+  } else if (container == "EcalClusterCrackCorrParameters") {
+    edm::ESHandle<EcalClusterCrackCorrParameters> handle;
+    evtSetup.get<EcalClusterCrackCorrParametersRcd>().get(handle);
+    const EcalClusterCrackCorrParameters* obj = handle.product();
+    cout << "tbweight pointer is: "<< obj<< endl;
+   dbOutput->createNewIOV<const EcalClusterCrackCorrParameters>( new EcalClusterCrackCorrParameters(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
+
+
+  } else if (container == "EcalClusterEnergyUncertaintyParameters") {
+    edm::ESHandle<EcalClusterEnergyUncertaintyParameters> handle;
+    evtSetup.get<EcalClusterEnergyUncertaintyParametersRcd>().get(handle);
+    const EcalClusterEnergyUncertaintyParameters* obj = handle.product();
+    cout << "tbweight pointer is: "<< obj<< endl;
+   dbOutput->createNewIOV<const EcalClusterEnergyUncertaintyParameters>( new EcalClusterEnergyUncertaintyParameters(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
+
+
+  } else if (container == "EcalClusterEnergyCorrectionParameters") {
+    edm::ESHandle<EcalClusterEnergyCorrectionParameters> handle;
+    evtSetup.get<EcalClusterEnergyCorrectionParametersRcd>().get(handle);
+    const EcalClusterEnergyCorrectionParameters* obj = handle.product();
+    cout << "tbweight pointer is: "<< obj<< endl;
+   dbOutput->createNewIOV<const EcalClusterEnergyCorrectionParameters>( new EcalClusterEnergyCorrectionParameters(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
+
+
+  } else if (container == "EcalClusterLocalContCorrParameters") {
+    edm::ESHandle<EcalClusterLocalContCorrParameters> handle;
+    evtSetup.get<EcalClusterLocalContCorrParametersRcd>().get(handle);
+    const EcalClusterLocalContCorrParameters* obj = handle.product();
+    cout << "tbweight pointer is: "<< obj<< endl;
+   dbOutput->createNewIOV<const EcalClusterLocalContCorrParameters>( new EcalClusterLocalContCorrParameters(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
   } else {
     throw cms::Exception("Unknown container");

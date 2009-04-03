@@ -67,8 +67,28 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
             tag = cms.string('EcalLaserAPDPNRatiosRef_mc')
         ),
         cms.PSet(
-            record = cms.string('EcalTimeCalibConstantsRcd'),
-            tag = cms.string('EcalTimeCalibConstants_mc')
+            record = cms.string('EcalLaserAPDPNRatiosRefRcd'),
+            tag = cms.string('EcalLaserAPDPNRatiosRef_mc')
+        ),
+        cms.PSet(
+            record = cms.string('EcalClusterCrackCorrParametersRcd'),
+            tag = cms.string('EcalClusterCrackCorrParameters_mc')
+        ),
+        cms.PSet(
+            record = cms.string('EcalClusterEnergyUncertaintyParametersRcd'),
+            tag = cms.string('EcalClusterEnergyUncertaintyParameters_mc')
+        ),
+        cms.PSet(
+            record = cms.string('EcalClusterEnergyCorrectionParametersRcd'),
+            tag = cms.string('EcalClusterEnergyCorrectionParameters_mc')
+        ),
+        cms.PSet(
+             record = cms.string('EcalTimeCalibConstantsRcd'),
+             tag = cms.string('EcalTimeCalibConstants_mc')
+        ),
+        cms.PSet(
+            record = cms.string('EcalClusterLocalContCorrParametersRcd'),
+            tag = cms.string('EcalClusterLocalContCorrParameters_mc')
         ))
 )
 
@@ -117,6 +137,22 @@ process.dbCopy = cms.EDAnalyzer("EcalDBCopy",
         cms.PSet(
             record = cms.string('EcalLaserAPDPNRatiosRefRcd'),
             container = cms.string('EcalLaserAPDPNRatiosRef')
+        ),
+        cms.PSet(
+            record = cms.string('EcalClusterCrackCorrParametersRcd'),
+            container = cms.string('EcalClusterCrackCorrParameters')
+        ),
+        cms.PSet(
+            record = cms.string('EcalClusterEnergyUncertaintyParametersRcd'),
+            container = cms.string('EcalClusterEnergyUncertaintyParameters')
+        ),
+        cms.PSet(
+            record = cms.string('EcalClusterEnergyCorrectionParametersRcd'),
+            container = cms.string('EcalClusterEnergyCorrectionParameters')
+        ),
+        cms.PSet(
+            record = cms.string('EcalClusterLocalContCorrParametersRcd'),
+            container = cms.string('EcalClusterLocalContCorrParameters')
         ),
         cms.PSet(
             record = cms.string('EcalTimeCalibConstantsRcd'),
