@@ -21,6 +21,7 @@ SiStripPartitions = cms.PSet(
         FedVersion       = cms.untracked.vuint32(0,0),
         DcuDetIdsVersion = cms.untracked.vuint32(0,0),
         DcuPsuMapVersion = cms.untracked.vuint32(0,0),
+        MaskVersion      = cms.untracked.vuint32(0,0),
 
         # Null value means use (analysis) versions below ("calibration")
         GlobalAnalysisVersion = cms.untracked.uint32(0),

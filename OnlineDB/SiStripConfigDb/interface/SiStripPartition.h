@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.h,v 1.7 2008/05/29 13:11:05 bainbrid Exp $
+// Last commit: $Id: SiStripPartition.h,v 1.8 2008/06/06 14:45:23 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripPartition_h
 #define OnlineDB_SiStripConfigDb_SiStripPartition_h
@@ -76,6 +76,8 @@ class SiStripPartition {
 
   Versions psuVersion() const;
 
+  Versions maskVersion() const;
+
   uint32_t globalAnalysisVersion() const;
 
   Versions runTableVersion() const;
@@ -144,6 +146,8 @@ class SiStripPartition {
 
   Versions psuVersion_;
 
+  Versions maskVersion_;
+
   // analysis description versions
 
   uint32_t globalAnalysisV_;
@@ -191,6 +195,7 @@ inline SiStripPartition::Versions SiStripPartition::fedVersion() const { return 
 inline SiStripPartition::Versions SiStripPartition::fecVersion() const { return fecVersion_; }
 inline SiStripPartition::Versions SiStripPartition::dcuVersion() const { return dcuVersion_; }
 inline SiStripPartition::Versions SiStripPartition::psuVersion() const { return psuVersion_; }
+inline SiStripPartition::Versions SiStripPartition::maskVersion() const { return maskVersion_; }
 
 inline uint32_t SiStripPartition::globalAnalysisVersion() const { return globalAnalysisV_; } 
 inline SiStripPartition::Versions SiStripPartition::runTableVersion() const { return runTableVersion_; }

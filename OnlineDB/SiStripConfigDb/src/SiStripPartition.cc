@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.cc,v 1.13 2008/07/03 09:29:21 bainbrid Exp $
+// Last commit: $Id: SiStripPartition.cc,v 1.15 2008/10/31 09:20:27 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -26,6 +26,7 @@ SiStripPartition::SiStripPartition() :
   fecVersion_(0,0),
   dcuVersion_(0,0),
   psuVersion_(0,0),
+  maskVersion_(0,0),
   globalAnalysisV_(0),
   runTableVersion_(0,0),
   fastCablingV_(0,0),
@@ -55,6 +56,7 @@ SiStripPartition::SiStripPartition( std::string partition ) :
   fecVersion_(0,0),
   dcuVersion_(0,0),
   psuVersion_(0,0),
+  maskVersion_(0,0),
   globalAnalysisV_(0),
   runTableVersion_(0,0),
   fastCablingV_(0,0),
@@ -86,6 +88,7 @@ SiStripPartition::SiStripPartition( const SiStripPartition& input ) :
   fecVersion_( input.fecVersion() ),
   dcuVersion_( input.dcuVersion() ),
   psuVersion_( input.psuVersion() ),
+  maskVersion_( input.maskVersion() ),
   globalAnalysisV_( input.globalAnalysisVersion() ),
   runTableVersion_( input.runTableVersion() ),
   fastCablingV_( input.fastCablingVersion() ),
@@ -116,6 +119,7 @@ SiStripPartition& SiStripPartition::operator= ( const SiStripPartition& input ){
   fecVersion_ = input.fecVersion();
   dcuVersion_ = input.dcuVersion();
   psuVersion_ = input.psuVersion();
+  maskVersion_ = input.maskVersion();
   globalAnalysisV_ = input.globalAnalysisVersion();
   runTableVersion_ = input.runTableVersion();
   fastCablingV_ = input.fastCablingVersion();
@@ -146,6 +150,7 @@ bool SiStripPartition::operator== ( const SiStripPartition& input ) const {
 	   fecVersion_ == input.fecVersion() &&
 	   dcuVersion_ == input.dcuVersion() &&
 	   psuVersion_ == input.psuVersion() &&
+	   maskVersion_ == input.maskVersion() &&
 	   globalAnalysisV_ == input.globalAnalysisVersion() &&
 	   runTableVersion_ == input.runTableVersion() &&
 	   fastCablingV_ == input.fastCablingVersion() &&
@@ -189,6 +194,7 @@ void SiStripPartition::reset() {
   fecVersion_ = std::make_pair(0,0);
   dcuVersion_ = std::make_pair(0,0);
   psuVersion_ = std::make_pair(0,0);
+  maskVersion_ = std::make_pair(0,0);
   
   globalAnalysisV_ = 0;
   runTableVersion_ = std::make_pair(0,0);
@@ -222,6 +228,7 @@ void SiStripPartition::pset( const edm::ParameterSet& pset ) {
   fecVersion_ = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "FecVersion", tmp1 ) );
   dcuVersion_ = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "DcuDetIdsVersion", tmp1 ) );
   psuVersion_ = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "DcuPsuMapVersion", tmp1 ) );
+  maskVersion_ = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "MaskVersion", tmp1 ) );
 
   std::vector<uint32_t> tmp2(2,0);
   globalAnalysisV_ = pset.getUntrackedParameter<uint32_t>( "GlobalAnalysisVersion", 0 );
@@ -333,6 +340,14 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	     !psuVersion_.second ) { 
 	  psuVersion_.first = (*istate)->getDcuPsuMapVersionMajorId();
 	  psuVersion_.second = (*istate)->getDcuPsuMapVersionMinorId(); 
+	}
+#endif
+	
+#ifdef USING_NEW_DATABASE_MODEL
+	if ( !maskVersion_.first &&
+	     !maskVersion_.second ) { 
+	  maskVersion_.first = (*istate)->getMaskVersionMajorId();
+	  maskVersion_.second = (*istate)->getMaskVersionMinorId(); 
 	}
 #endif
 	
@@ -502,6 +517,11 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 #ifdef USING_NEW_DATABASE_MODEL
 	    psuVersion_.first = run->getDcuPsuMapVersionMajorId();
 	    psuVersion_.second = run->getDcuPsuMapVersionMinorId(); 
+#endif
+	    
+#ifdef USING_NEW_DATABASE_MODEL
+	    maskVersion_.first = run->getMaskVersionMajorId();
+	    maskVersion_.second = run->getMaskVersionMinorId(); 
 #endif
 	    
 	    // Check run type
@@ -727,7 +747,8 @@ void SiStripPartition::print( std::stringstream& ss, bool using_db ) const {
        << "  FEC major/minor vers       : " << fecVersion_.first << "." << fecVersion_.second << std::endl
        << "  FED major/minor vers       : " << fedVersion_.first << "." << fedVersion_.second << std::endl
        << "  DCU-DetId map maj/min vers : " << dcuVersion_.first << "." << dcuVersion_.second << std::endl
-       << "  DCU-PSU map maj/min vers   : " << psuVersion_.first << "." << psuVersion_.second << std::endl;
+       << "  DCU-PSU map maj/min vers   : " << psuVersion_.first << "." << psuVersion_.second << std::endl
+       << "  Mask maj/min vers          : " << maskVersion_.first << "." << maskVersion_.second << std::endl;
 
     ss << "  Global analysis version    : " << globalAnalysisV_ << std::endl;
 

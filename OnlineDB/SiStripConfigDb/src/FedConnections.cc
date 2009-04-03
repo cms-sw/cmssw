@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.29 2008/06/04 14:11:42 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.30 2008/06/06 14:48:53 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -42,6 +42,8 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
 								tmp1,
 								iter->second.cabVersion().first,
 								iter->second.cabVersion().second,
+							       iter->second.maskVersion().first,
+							       iter->second.maskVersion().second,
 								false ); //@@ do not get DISABLED connections
 	    
 	    // Make local copy 
