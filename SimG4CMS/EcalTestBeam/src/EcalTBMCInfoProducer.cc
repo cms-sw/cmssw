@@ -1,7 +1,7 @@
 /*
  * \file EcalTBMCInfoProducer.cc
  *
- * $Id: EcalTBMCInfoProducer.cc,v 1.10 2007/05/10 20:01:34 crovelli Exp $
+ * $Id: EcalTBMCInfoProducer.cc,v 1.11 2007/11/21 15:39:16 fabiocos Exp $
  *
 */
 
@@ -22,15 +22,15 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet& ps) : flatDi
 
   edm::FileInPath CrystalMapFile = ps.getParameter<edm::FileInPath>("CrystalMapFile");
   GenVtxLabel = ps.getUntrackedParameter<string>("moduleLabelVtx","source");
-  double fMinEta = ps.getUntrackedParameter<double>("MinEta");
-  double fMaxEta = ps.getUntrackedParameter<double>("MaxEta");
-  double fMinPhi = ps.getUntrackedParameter<double>("MinPhi");
-  double fMaxPhi = ps.getUntrackedParameter<double>("MaxPhi");
+  double fMinEta = ps.getParameter<double>("MinEta");
+  double fMaxEta = ps.getParameter<double>("MaxEta");
+  double fMinPhi = ps.getParameter<double>("MinPhi");
+  double fMaxPhi = ps.getParameter<double>("MaxPhi");
   beamEta = (fMaxEta+fMinEta)/2.;
   beamPhi = (fMaxPhi+fMinPhi)/2.;
   beamTheta = 2.0*atan(exp(-beamEta));
-  beamXoff = ps.getUntrackedParameter<double>("BeamMeanX",0.0);
-  beamYoff = ps.getUntrackedParameter<double>("BeamMeanX",0.0);
+  beamXoff = ps.getParameter<double>("BeamMeanX");
+  beamYoff = ps.getParameter<double>("BeamMeanX");
    
   string fullMapName = CrystalMapFile.fullPath();
   theTestMap = new EcalTBCrystalMap(fullMapName);
