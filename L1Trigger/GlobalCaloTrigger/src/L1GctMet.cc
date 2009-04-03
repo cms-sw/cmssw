@@ -1,19 +1,23 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctMet.h"
 
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctHtMissLut.h"
+
 #include <math.h>
 
 L1GctMet::L1GctMet(const unsigned ex, const unsigned ey, const L1GctMet::metAlgoType algo) :
   m_exComponent(ex),
   m_eyComponent(ey),
   m_algoType(algo),
-  m_bitShift(0)
+  m_bitShift(0),
+  m_htMissLut(new L1GctHtMissLut())
 { }
 
 L1GctMet::L1GctMet(const etComponentType& ex, const etComponentType& ey, const metAlgoType algo) :
   m_exComponent(ex),
   m_eyComponent(ey),
   m_algoType(algo),
-  m_bitShift(0)
+  m_bitShift(0),
+  m_htMissLut(new L1GctHtMissLut())
 { }
 
 L1GctMet::~L1GctMet() {}
@@ -30,6 +34,10 @@ L1GctMet::metVector () const
       algoResult = cordicTranslateAlgo (m_exComponent.value(), m_eyComponent.value());
       break;
 
+    case useHtMissLut:
+      algoResult = useHtMissLutAlgo    (m_exComponent.value(), m_eyComponent.value());
+      break;
+
     case oldGct:
       algoResult = oldGctAlgo          (m_exComponent.value(), m_eyComponent.value());
       break;
@@ -42,12 +50,9 @@ L1GctMet::metVector () const
       break;
     }
 
-  // Discard the least significant bits of the result
-  // NB One extra LSB is added during the conversion of strip sums
-  // to x and y components (in the JetLeafCard).
   // The parameter m_bitShift allows us to discard additional LSB
   // in order to change the output scale. 
-  result.mag.setValue(algoResult.mag>>(1+m_bitShift));
+  result.mag.setValue(algoResult.mag>>(m_bitShift));
   result.phi.setValue(algoResult.phi);
 
   result.mag.setOverFlow( result.mag.overFlow() || m_exComponent.overFlow() || m_eyComponent.overFlow() );
@@ -155,6 +160,41 @@ int L1GctMet::cordicShiftAndRoundBits (const int e, const unsigned nBits) const
 
 
 L1GctMet::etmiss_internal
+L1GctMet::useHtMissLutAlgo (const int ex, const int ey) const
+{
+  // The firmware discards the LSB of the input values, before forming
+  // the address for the LUT. We do the same here.
+  static const int maxComponent  = 1<<L1GctHtMissLut::kHxOrHyMissComponentNBits;
+  static const int componentMask = maxComponent-1;
+
+  static const unsigned resultMagMask = (1<<L1GctHtMissLut::kHtMissMagnitudeNBits) - 1;
+  static const unsigned resultPhiMask = (1<<L1GctHtMissLut::kHtMissAngleNBits)     - 1;
+
+  etmiss_internal result;
+
+  if (m_htMissLut == 0) {
+
+    result.mag = 0;
+    result.phi = 0;
+
+  } else {
+
+    int hxCompBits = (ex >> kExOrEyMissComponentShift) & componentMask;
+    int hyCompBits = (ey >> kExOrEyMissComponentShift) & componentMask;
+
+    uint16_t lutAddress = static_cast<uint16_t> ( hxCompBits | (hyCompBits << L1GctHtMissLut::kHxOrHyMissComponentNBits) );
+
+    uint16_t lutData = m_htMissLut->lutValue(lutAddress);
+
+    result.mag = static_cast<unsigned>(lutData) & resultMagMask;
+    result.phi = static_cast<unsigned>(lutData>>L1GctHtMissLut::kHtMissMagnitudeNBits) & resultPhiMask;
+
+  }
+
+  return result;
+}
+
+L1GctMet::etmiss_internal
 L1GctMet::oldGctAlgo (const int ex, const int ey) const
 {
   //---------------------------------------------------------------------------------
@@ -253,4 +293,25 @@ L1GctMet::floatingPointAlgo (const int ex, const int ey) const
   return result;
 
 }
+
+void L1GctMet::setEtScale(const L1CaloEtScale* const fn)
+{
+  m_htMissLut->setEtScale(fn);
+}
+
+void L1GctMet::setEtComponentLsb(const double lsb)
+{
+  m_htMissLut->setExEyLsb( lsb * static_cast<double>( 1<<kExOrEyMissComponentShift ) );
+}
+
+const L1CaloEtScale* L1GctMet::etScale() const
+{ 
+  return m_htMissLut->etScale();
+}
+
+const double L1GctMet::componentLsb() const
+{ 
+  return m_htMissLut->componentLsb();
+}
+
 

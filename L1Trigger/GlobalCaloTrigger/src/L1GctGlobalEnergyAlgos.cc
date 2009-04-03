@@ -1,5 +1,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 
+#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelEnergyFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalHfSumAlgos.h"
@@ -19,7 +21,7 @@ L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(vector<L1GctWheelEnergyFpga*> whe
   m_plusWheelJetFpga(wheelJetFpga.at(1)),
   m_minusWheelJetFpga(wheelJetFpga.at(0)),
   m_metComponents(0,0, L1GctMet::cordicTranslate),
-  m_mhtComponents(0,0, L1GctMet::floatingPoint),
+  m_mhtComponents(0,0, L1GctMet::useHtMissLut),
   m_exValPlusWheel(), m_eyValPlusWheel(),
   m_etValPlusWheel(), m_htValPlusWheel(),
   m_exVlMinusWheel(), m_eyVlMinusWheel(),
@@ -91,21 +93,22 @@ L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(vector<L1GctWheelEnergyFpga*> whe
       }
     }
 
-    // Set the scale for missing Ht
-    //+++!!! THIS SHOULD EVENTUALLY COME FROM CondFormats !!!+++
-    // A shift of 3 bits corresponds to a scale factor of 8
-    // (with respect to the Ht scale defined elsewhere)
-    //+++!!! THIS SHOULD EVENTUALLY COME FROM CondFormats !!!+++
-    m_mhtComponents.setBitShift(3);
+  // Set the scale for missing Et and missing Ht
+  // Missing Et has one extra bit of precision added in the (Ex, Ey) 
+  // conversion step, so we reverse this here.
+  m_metComponents.setBitShift(1);
+  // Missing Ht has its own bit shifting before the LUT, so we don't
+  // need any extra
+  m_mhtComponents.setBitShift(0);
 
-    // Setup to perform the Hf sums
-    m_hfSumProcessor = new L1GctGlobalHfSumAlgos(wheelJetFpga);
+  // Setup to perform the Hf sums
+  m_hfSumProcessor = new L1GctGlobalHfSumAlgos(wheelJetFpga);
 
-    m_setupOk &= m_hfSumProcessor->setupOk();
+  m_setupOk &= m_hfSumProcessor->setupOk();
 
-    if (!m_setupOk && m_verbose) {
-      edm::LogError("L1GctSetupError") << "L1GctGlobalEnergyAlgos has been incorrectly constructed";
-    }
+  if (!m_setupOk && m_verbose) {
+    edm::LogError("L1GctSetupError") << "L1GctGlobalEnergyAlgos has been incorrectly constructed";
+  }
 }
 
 L1GctGlobalEnergyAlgos::~L1GctGlobalEnergyAlgos()
@@ -263,14 +266,14 @@ void L1GctGlobalEnergyAlgos::process()
     HtMissing = m_mhtComponents.metVector();
 
     // Store 6 bits each of magnitude and phi angle.
-    // Note EtMissPhi is 7 bits so we keep the range (0-70)
+    // Note EtMissPhi is 7 bits so we keep the range (0-68)
     // and lose the LSB.
-    static const unsigned MAX_HT_VALUE = 0x3f;
-    static const unsigned PHI_HT_MASK  = 0x7e;
+    static const unsigned MAX_HT_VALUE = 0x7f;
+    static const unsigned PHI_HT_MASK  = 0x1f;
     if ( (HtMissing.mag.value() > MAX_HT_VALUE) || (HtMissing.mag.overFlow()) ) {
       HtMissing.mag.setValue(MAX_HT_VALUE);
     }
-    HtMissing.phi.setValue(HtMissing.phi.value() & PHI_HT_MASK);
+    HtMissing.phi.setValue((HtMissing.phi.value() & PHI_HT_MASK)<<2);
 
     m_outputHtMiss.store    (HtMissing.mag, bxRel());
     m_outputHtMissPhi.store (HtMissing.phi, bxRel());
@@ -283,6 +286,19 @@ void L1GctGlobalEnergyAlgos::process()
 
     m_hfSumProcessor->process();
   }
+}
+
+//----------------------------------------------------------------------------------------------
+// load setup info (for HtMiss calculation)
+//
+void L1GctGlobalEnergyAlgos::setJetFinderParams(const L1GctJetFinderParams* const jfpars)
+{
+  m_mhtComponents.setEtComponentLsb(jfpars->getHtLsbGeV());
+}
+
+void L1GctGlobalEnergyAlgos::setHtMissScale(const L1CaloEtScale* const scale)
+{
+  m_mhtComponents.setEtScale(scale);
 }
 
 //----------------------------------------------------------------------------------------------

@@ -12,17 +12,20 @@
  * Allows the implementation of alternative algorithms
  */
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelEnergyFpga.h"
+
+class L1CaloEtScale;
+class L1GctHtMissLut;
 
 class L1GctMet
 {
  public:
 
-  enum metAlgoType { cordicTranslate, oldGct, floatingPoint };
+  enum metAlgoType { cordicTranslate, useHtMissLut, oldGct, floatingPoint };
 
   typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissNBits    > etMissType;
   typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissPhiNBits > etMissPhiType;
-  typedef L1GctJetLeafCard::etComponentType etComponentType;
+  typedef L1GctWheelEnergyFpga::etComponentType etComponentType;
 
   struct etmiss_vec {
     etMissType    mag;
@@ -55,7 +58,18 @@ class L1GctMet
   void setBitShift(const unsigned nbits) { m_bitShift = nbits; }
   unsigned getBitShift() const { return m_bitShift; }
 
+  // get the LUT (used by L1GctPrintLuts)
+  const L1GctHtMissLut* getHtMissLut() const { return m_htMissLut; }
+
+  // set and get the LUT parameters
+  void setEtScale(const L1CaloEtScale* const fn);
+  void setEtComponentLsb(const double lsb);
+
+  const L1CaloEtScale* etScale() const;
+  const double componentLsb() const;
  private:
+
+  enum etComponentShift { kExOrEyMissComponentShift=3 };
 
   struct etmiss_internal {
     unsigned mag;
@@ -67,7 +81,10 @@ class L1GctMet
   metAlgoType     m_algoType;
   unsigned short  m_bitShift;
 
+  L1GctHtMissLut* m_htMissLut;
+
   etmiss_internal cordicTranslateAlgo (const int ex, const int ey) const;
+  etmiss_internal useHtMissLutAlgo    (const int ex, const int ey) const;
   etmiss_internal oldGctAlgo          (const int ex, const int ey) const;
   etmiss_internal floatingPointAlgo   (const int ex, const int ey) const;
 

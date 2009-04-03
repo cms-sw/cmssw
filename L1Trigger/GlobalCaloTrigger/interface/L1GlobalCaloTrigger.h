@@ -77,19 +77,22 @@ public:
   /// Configuration options for the GCT
   ///
   /// Setup the jet finder parameters
-  void setJetFinderParams(const L1GctJetFinderParams* jfpars);
+  void setJetFinderParams(const L1GctJetFinderParams* const jfpars);
 
   /// setup the Jet Calibration Luts
   void setJetEtCalibrationLuts(const lutPtrVector& jfluts);
 
-  /// Setup the tau algorithm parameters
+  /// setup the tau algorithm parameters
   void setupTauAlgo(const bool useImprovedAlgo, const bool ignoreVetoBitsForIsolation);
 
+  /// setup scale for missing Ht
+  void setHtMissScale(const L1CaloEtScale* const scale);
+
   /// setup Hf sum LUTs
-  void setupHfSumLuts(const L1CaloEtScale* scale);
+  void setupHfSumLuts(const L1CaloEtScale* const scale);
 
   /// setup the input channel mask
-  void setChannelMask(const L1GctChannelMask* mask); 
+  void setChannelMask(const L1GctChannelMask* const mask); 
 
   ///=================================================================================================
   /// Multiple bunch operation

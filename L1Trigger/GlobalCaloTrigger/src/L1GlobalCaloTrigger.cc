@@ -301,7 +301,7 @@ void L1GlobalCaloTrigger::bxProcess(const int bx) {
 /// Configuration options for the GCT
 ///
 /// setup the Jet Finder parameters
-void L1GlobalCaloTrigger::setJetFinderParams(const L1GctJetFinderParams* jfpars) {
+void L1GlobalCaloTrigger::setJetFinderParams(const L1GctJetFinderParams* const jfpars) {
 
   // Some parameters not (yet?) implemented
   if ((jfpars->getCenForJetEtaBoundary()==7) &&
@@ -314,6 +314,8 @@ void L1GlobalCaloTrigger::setJetFinderParams(const L1GctJetFinderParams* jfpars)
       theJetLeafCards.at(i)->getJetFinderB()->setJetFinderParams(jfpars);
       theJetLeafCards.at(i)->getJetFinderC()->setJetFinderParams(jfpars);
     }
+    // Also send to the final energy calculation (for missing Ht)
+    theEnergyFinalStage->setJetFinderParams(jfpars);
   }
 }
 
@@ -340,15 +342,22 @@ void L1GlobalCaloTrigger::setupTauAlgo(const bool useImprovedAlgo, const bool ig
   }
 }
 
+/// setup scale for missing Ht
+void L1GlobalCaloTrigger::setHtMissScale(const L1CaloEtScale* const scale) {
+  if (theEnergyFinalStage != 0) {
+    theEnergyFinalStage->setHtMissScale(scale);
+  } else { std::cout << "No energyFinalStage defined" << std::endl; }
+}
+
 /// setup Hf sum LUTs
-void L1GlobalCaloTrigger::setupHfSumLuts(const L1CaloEtScale* scale) {
+void L1GlobalCaloTrigger::setupHfSumLuts(const L1CaloEtScale* const scale) {
   if (getHfSumProcessor() != 0) {
     getHfSumProcessor()->setupLuts(scale);
   }
 }
 
 /// setup the input channel mask
-void L1GlobalCaloTrigger::setChannelMask(const L1GctChannelMask* mask) {
+void L1GlobalCaloTrigger::setChannelMask(const L1GctChannelMask* const mask) {
   m_inputChannelMask = mask;
 }
 

@@ -17,10 +17,11 @@
 
 // Trigger configuration includes
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
 
@@ -131,6 +132,8 @@ int L1GctEmulator::configureGct(const edm::EventSetup& c)
     c.get< L1GctChannelMaskRcd >().get( chanMask ) ; // which record?
     edm::ESHandle< L1CaloEtScale > etScale ;
     c.get< L1JetEtScaleRcd >().get( etScale ) ; // which record?
+    edm::ESHandle< L1CaloEtScale > htMissScale ;
+    c.get< L1HtMissScaleRcd >().get( htMissScale ) ; // which record?
     edm::ESHandle< L1CaloEtScale > hfRingEtScale ;
     c.get< L1HfRingEtScaleRcd >().get( hfRingEtScale ) ; // which record?
 
@@ -170,6 +173,7 @@ int L1GctEmulator::configureGct(const edm::EventSetup& c)
       // pass all the setup info to the gct
       m_gct->setJetEtCalibrationLuts(m_jetEtCalibLuts);
       m_gct->setJetFinderParams(jfPars.product());
+      m_gct->setHtMissScale(htMissScale.product());
       m_gct->setupHfSumLuts(hfRingEtScale.product());
       m_gct->setChannelMask(chanMask.product());
     }

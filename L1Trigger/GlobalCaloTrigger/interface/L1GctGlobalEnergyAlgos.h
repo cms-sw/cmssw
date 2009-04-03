@@ -40,7 +40,7 @@ public:
         typedef L1GctMet::etMissType     etMissType;
         typedef L1GctMet::etMissPhiType  etMissPhiType;
         typedef L1GctMet::etmiss_vec     etmiss_vec;
-        typedef L1GctJetLeafCard::etComponentType etComponentType;
+        typedef L1GctWheelEnergyFpga::etComponentType etComponentType;
 
         /// Constructor needs the Wheel card Fpgas set up first
 	 L1GctGlobalEnergyAlgos(std::vector<L1GctWheelEnergyFpga*> WheelFpga,
@@ -128,6 +128,12 @@ public:
 	inline std::vector< etMissType >    getHtMissColl()    const { return m_outputHtMiss.contents; }
 	/// return output missing Ht value
 	inline std::vector< etMissPhiType > getHtMissPhiColl() const { return m_outputHtMissPhi.contents; }
+
+	void setJetFinderParams(const L1GctJetFinderParams* const jfpars);
+	void setHtMissScale(const L1CaloEtScale* const scale);
+
+	// get the missing Ht LUT (used by L1GctPrintLuts)
+	const L1GctHtMissLut* getHtMissLut() const { return m_mhtComponents.getHtMissLut(); }
 
 	/// check setup
 	bool setupOk() const;
