@@ -24,6 +24,7 @@
 #include "CondCore/DBCommon/interface/UserLogInfo.h"
 //#include <iostream>
 #include <vector>
+#include <sstream>
 
 //static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
 
@@ -45,7 +46,10 @@ unsigned int cond::service::GetToken::sizeDSW() {
     if (hostname) {user_info<< "HOSTNAME=" << hostname <<";";} else { user_info<< "HOSTNAME="<< "??;";}
     if (pwd) {user_info<< "PWD=" << pwd <<";";} else  {user_info<< "PWD="<< "??;";}
     return user_info.str();
+  }
+
 }
+
 
 cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & iAR ): 
   m_currentTime( 0 ),
