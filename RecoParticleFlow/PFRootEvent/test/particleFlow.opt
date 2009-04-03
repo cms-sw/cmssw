@@ -273,8 +273,8 @@ PFAlgo debug 0
 
 // Track Quality Cut: Tracks are kept if DPt/Pt < Cut * sigma(Had) 
 // and if nHit >= nHitCut
-particle_flow DPtoverPt_Cut  1. 1. 0.8 0.5
-particle_flow NHit_Cut 3 3 3 6
+particle_flow DPtoverPt_Cut  1. 1. 0.8 0.5 0.0
+particle_flow NHit_Cut 3 3 3 6 100
 
 // chi2 maximum limit for ECAL/Track association
 particle_flow chi2_ECAL_Track  0
@@ -293,6 +293,19 @@ particle_flow chi2_PSH_PSV	0
 // if true, using special algorithm to process
 // multiple track associations to the same hcal cluster
 particle_flow multilink 1
+
+// Treatment of muons : 
+// Expected energy in ECAL and HCAL, and RMS
+particle_flow muon_HCAL 3.0 3.0
+particle_flow muon_ECAL 0.5 0.5
+
+// Treatment of potential fake tracks
+// Number of sigmas for fake track detection
+particle_flow   nsigma_TRACK  3.0
+// Absolute pt error to detect fake tracks in the first three iterations
+particle_flow   pt_error 1.0
+// Factors to be applied in the four and fifth steps to the pt error
+particle_flow   factors_45 1. 1.
 
 // number of sigmas for neutral energy detection
 particle_flow   nsigma_ECAL    0.0

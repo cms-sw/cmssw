@@ -718,6 +718,37 @@ void PFRootEventManager::readOptions(const char* file,
     exit(1);
   }
 
+  std::vector<double> muonHCAL;
+  std::vector<double> muonECAL;
+  options_->GetOpt("particle_flow", "muon_HCAL", muonHCAL);
+  options_->GetOpt("particle_flow", "muon_ECAL", muonECAL);
+  assert ( muonHCAL.size() == 2 && muonECAL.size() == 2 );
+
+  double nSigmaTRACK = 3.0;
+  options_->GetOpt("particle_flow", "nsigma_TRACK", nSigmaTRACK);
+
+  double ptError = 1.0;
+  options_->GetOpt("particle_flow", "pt_error", ptError);
+  
+  std::vector<double> factors45;
+  options_->GetOpt("particle_flow", "factors_45", factors45);
+  assert ( factors45.size() == 2 );
+  
+
+  try { 
+    pfAlgo_.setPFMuonAndFakeParameters(muonHCAL,
+				       muonECAL,
+				       nSigmaTRACK,
+				       ptError,
+				       factors45);
+  }
+  catch( std::exception& err ) {
+    cerr<<"exception setting PFAlgo Muon and Fake parameters: "
+        <<err.what()<<". terminating."<<endl;
+    delete this;
+    exit(1);
+  }
+  
 
 
   bool usePFElectrons = false;   // set true to use PFElectrons
@@ -2221,6 +2252,8 @@ void PFRootEventManager::reconstructGenJets() {
     //    if (reco::isNeutrino( genPart ) || reco::isMuon( genPart )) continue;
     //    remove all neutrinos for PFJet studies
     if (reco::isNeutrino( genPart )) continue;
+    // Work-around a bug in the pythia di-jet gun.
+    if (abs(genPart.pdgId())<7 || abs(genPart.pdgId())==21 ) continue;
 
     if (jetsDebug_ ) {
       cout << "      #" << i << "  PDG code:" << genPart.pdgId() 
