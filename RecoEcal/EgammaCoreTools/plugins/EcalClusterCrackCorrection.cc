@@ -37,10 +37,10 @@ float EcalClusterCrackCorrection::getValue( const reco::BasicCluster & basicClus
 
         // private member params_ = EcalClusterCrackCorrectionParameters
         // (see in CondFormats/EcalObjects/interface)
-        EcalClusterCrackCorrParameters::const_iterator it;
+        EcalFunctionParameters::const_iterator it;
         std::cout << "[[EcalClusterCrackCorrectionBaseClass::getValue]] " 
-                << params_->size() << " parameters:";
-        for ( it = params_->begin(); it != params_->end(); ++it ) {
+                << params_->params().size() << " parameters:";
+        for ( it = params_->params().begin(); it != params_->params().end(); ++it ) {
                 std::cout << " " << *it;
         }
         std::cout << "\n";
@@ -131,7 +131,7 @@ float EcalClusterCrackCorrection::getValue( const reco::SuperCluster & superClus
       int offset = iphimod20==0 ? 
 	10 //coefficients for one phi side of a SM
 	: 15; //coefficients for the other side
-      for (int k=0; k!=5; ++k) g[k] = (*params_)[k+offset];
+      for (int k=0; k!=5; ++k) g[k] = (params_->params())[k+offset];
       
       fphicor=0.;
       for (int k=0; k!=5; ++k) fphicor += g[k]*std::pow(PhiCry,k);
@@ -156,7 +156,7 @@ float EcalClusterCrackCorrection::getValue( const reco::SuperCluster & superClus
       int offset = TMath::Abs(ietamod20)==5 ? 
 	0 //coefficients for eta side of an intermodule gap closer to the interaction point
 	: 5; //coefficients for the other eta side
-      for (int k=0; k!=5; ++k) f[k] = (*params_)[k+offset];
+      for (int k=0; k!=5; ++k) f[k] = (params_->params())[k+offset];
      
       fetacor=0.;
       for (int k=0; k!=5; ++k) fetacor += f[k]*std::pow(EtaCry,k); 

@@ -32,20 +32,20 @@ float EcalClusterEnergyUncertainty::getValue( const reco::SuperCluster & superCl
 	  return 0;
 	}
 
-	float br0_0 = (*params_)[offset + 0]; 
-	float br0_1 = (*params_)[offset + 1]; 
-	float br0_2 = (*params_)[offset + 2]; 
-	float br0_3 = (*params_)[offset + 3]; 
+	float br0_0 = (params_->params())[offset + 0]; 
+	float br0_1 = (params_->params())[offset + 1]; 
+	float br0_2 = (params_->params())[offset + 2]; 
+	float br0_3 = (params_->params())[offset + 3]; 
 	
-	float br1_0 = (*params_)[offset + 4];  
-	float br1_1 = (*params_)[offset + 5];  
-	float br1_2 = (*params_)[offset + 6];  
-	float br1_3 = (*params_)[offset + 7];  
+	float br1_0 = (params_->params())[offset + 4];  
+	float br1_1 = (params_->params())[offset + 5];  
+	float br1_2 = (params_->params())[offset + 6];  
+	float br1_3 = (params_->params())[offset + 7];  
 	
-	float br2_0 = (*params_)[offset + 8];  
-	float br2_1 = (*params_)[offset + 9];  
-	float br2_2 = (*params_)[offset + 10];  
-	float br2_3 = (*params_)[offset + 11];  
+	float br2_0 = (params_->params())[offset + 8];  
+	float br2_1 = (params_->params())[offset + 9];  
+	float br2_2 = (params_->params())[offset + 10];  
+	float br2_3 = (params_->params())[offset + 11];  
 	
 	float p0 = (br0_0 + br0_1*brem) + (br0_2 + br0_3*brem)/et;  
 	float p1 = (br1_0 + br1_1*brem) + (br1_2 + br1_3*brem)/et;  

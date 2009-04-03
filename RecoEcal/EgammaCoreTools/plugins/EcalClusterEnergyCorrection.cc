@@ -9,8 +9,8 @@ float EcalClusterEnergyCorrection::fEta(float energy, float eta, int algorithm) 
   if ( algorithm != 0 ) return energy;
   
   float ieta = fabs(eta)*(5/0.087);
-  float p0 = (*params_)[0];  // should be 40.2198
-  float p1 = (*params_)[1];  // should be -3.03103e-6
+  float p0 = (params_->params())[0];  // should be 40.2198
+  float p1 = (params_->params())[1];  // should be -3.03103e-6
 
   float correctedEnergy = energy;
   if ( ieta < p0 ) correctedEnergy = energy;
@@ -44,17 +44,17 @@ float EcalClusterEnergyCorrection::fBrem(float e, float brem, int algorithm) con
   //Make No Corrections if brem is invalid! 
   if ( brem == 0 ) return e; 
 
-  float bremLowThr  = (*params_)[2 + offset];
-  float bremHighThr = (*params_)[3 + offset];
+  float bremLowThr  = (params_->params())[2 + offset];
+  float bremHighThr = (params_->params())[3 + offset];
   if ( brem < bremLowThr  ) brem = bremLowThr;
   if ( brem > bremHighThr ) brem = bremHighThr;
 
   // Parameters provided in cfg file
-  float p0 = (*params_)[4 + offset];
-  float p1 = (*params_)[5 + offset];
-  float p2 = (*params_)[6 + offset];
-  float p3 = (*params_)[7 + offset];
-  float p4 = (*params_)[8 + offset];
+  float p0 = (params_->params())[4 + offset];
+  float p1 = (params_->params())[5 + offset];
+  float p2 = (params_->params())[6 + offset];
+  float p3 = (params_->params())[7 + offset];
+  float p4 = (params_->params())[8 + offset];
   // 
   float threshold = p4;  
 
@@ -81,9 +81,9 @@ float EcalClusterEnergyCorrection::fEtEta(float et, float eta, int algorithm) co
   // eta -- eta of the SuperCluster 
 
   //std::cout << "fEtEta, mode = " << algorithm << std::endl;
-  //std::cout << "ECEC: p0    " << (*params_)[9]  << " " << (*params_)[10] << " " << (*params_)[11] << " " << (*params_)[12] << std::endl;
-  //std::cout << "ECEC: p1    " << (*params_)[13] << " " << (*params_)[14] << " " << (*params_)[15] << " " << (*params_)[16] << std::endl;
-  //std::cout << "ECEC: fcorr " << (*params_)[17] << " " << (*params_)[18] << " " << (*params_)[19] << std::endl;
+  //std::cout << "ECEC: p0    " << (params_->params())[9]  << " " << (params_->params())[10] << " " << (params_->params())[11] << " " << (params_->params())[12] << std::endl;
+  //std::cout << "ECEC: p1    " << (params_->params())[13] << " " << (params_->params())[14] << " " << (params_->params())[15] << " " << (params_->params())[16] << std::endl;
+  //std::cout << "ECEC: fcorr " << (params_->params())[17] << " " << (params_->params())[18] << " " << (params_->params())[19] << std::endl;
  
   float fCorr = 0.; 
   int offset;
@@ -96,16 +96,16 @@ float EcalClusterEnergyCorrection::fEtEta(float et, float eta, int algorithm) co
 
   // Barrel 
   if ( algorithm == 0 ) { 
-    float p0 = (*params_)[ 9]  + (*params_)[10]/ (et + (*params_)[11]) + (*params_)[12]/(et*et);  
-    float p1 = (*params_)[13]  + (*params_)[14]/ (et + (*params_)[15]) + (*params_)[16]/(et*et);  
+    float p0 = (params_->params())[ 9]  + (params_->params())[10]/ (et + (params_->params())[11]) + (params_->params())[12]/(et*et);  
+    float p1 = (params_->params())[13]  + (params_->params())[14]/ (et + (params_->params())[15]) + (params_->params())[16]/(et*et);  
  
-    fCorr = p0 +  p1 * atan((*params_)[17]*((*params_)[18]-fabs(eta))) + (*params_)[19] * fabs(eta); 
+    fCorr = p0 +  p1 * atan((params_->params())[17]*((params_->params())[18]-fabs(eta))) + (params_->params())[19] * fabs(eta); 
  
   } else if ( algorithm == 1 ) { // Endcap 
-    float p0 = (*params_)[ 9 + offset] + (*params_)[10 + offset]/sqrt(et); 
-    float p1 = (*params_)[11 + offset] + (*params_)[12 + offset]/sqrt(et); 
-    float p2 = (*params_)[13 + offset] + (*params_)[14 + offset]/sqrt(et); 
-    float p3 = (*params_)[15 + offset] + (*params_)[16 + offset]/sqrt(et); 
+    float p0 = (params_->params())[ 9 + offset] + (params_->params())[10 + offset]/sqrt(et); 
+    float p1 = (params_->params())[11 + offset] + (params_->params())[12 + offset]/sqrt(et); 
+    float p2 = (params_->params())[13 + offset] + (params_->params())[14 + offset]/sqrt(et); 
+    float p3 = (params_->params())[15 + offset] + (params_->params())[16 + offset]/sqrt(et); 
   
     fCorr = p0 + p1*fabs(eta) + p2*eta*eta + p3/fabs(eta); 
   } 

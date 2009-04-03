@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.36 2009/03/20 15:57:59 ferriff Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.37 2009/03/20 16:18:12 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -656,7 +656,7 @@ EcalTrivialConditionRetriever::produceEcalClusterLocalContCorrParameters( const 
 {
         std::auto_ptr<EcalClusterLocalContCorrParameters> ipar = std::auto_ptr<EcalClusterLocalContCorrParameters>( new EcalClusterLocalContCorrParameters() );
         for (size_t i = 0; i < localContCorrParameters_.size(); ++i ) {
-                ipar->push_back( localContCorrParameters_[i] );
+                ipar->params().push_back( localContCorrParameters_[i] );
         }
         return ipar;
 }
@@ -665,7 +665,7 @@ EcalTrivialConditionRetriever::produceEcalClusterCrackCorrParameters( const Ecal
 {
         std::auto_ptr<EcalClusterCrackCorrParameters> ipar = std::auto_ptr<EcalClusterCrackCorrParameters>( new EcalClusterCrackCorrParameters() );
         for (size_t i = 0; i < crackCorrParameters_.size(); ++i ) {
-                ipar->push_back( crackCorrParameters_[i] );
+                ipar->params().push_back( crackCorrParameters_[i] );
         }
         return ipar;
 }
@@ -674,7 +674,7 @@ EcalTrivialConditionRetriever::produceEcalClusterEnergyCorrectionParameters( con
 {
         std::auto_ptr<EcalClusterEnergyCorrectionParameters> ipar = std::auto_ptr<EcalClusterEnergyCorrectionParameters>( new EcalClusterEnergyCorrectionParameters() );
         for (size_t i = 0; i < energyCorrectionParameters_.size(); ++i ) {
-                ipar->push_back( energyCorrectionParameters_[i] );
+                ipar->params().push_back( energyCorrectionParameters_[i] );
         }
         return ipar;
 }
@@ -683,7 +683,7 @@ EcalTrivialConditionRetriever::produceEcalClusterEnergyUncertaintyParameters( co
 {
         std::auto_ptr<EcalClusterEnergyUncertaintyParameters> ipar = std::auto_ptr<EcalClusterEnergyUncertaintyParameters>( new EcalClusterEnergyUncertaintyParameters() );
         for (size_t i = 0; i < energyUncertaintyParameters_.size(); ++i ) {
-                ipar->push_back( energyUncertaintyParameters_[i] );
+                ipar->params().push_back( energyUncertaintyParameters_[i] );
         }
         return ipar;
 }

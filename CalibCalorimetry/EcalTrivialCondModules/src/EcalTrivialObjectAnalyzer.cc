@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.19 2009/02/18 18:55:26 ferriff Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.20 2009/03/20 16:18:29 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -275,7 +275,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
    context.get<EcalClusterLocalContCorrParametersRcd>().get(pLocalCont);
    const EcalClusterLocalContCorrParameters* paramLocalCont = pLocalCont.product();
    std::cout << "LocalContCorrParameters:";
-   for ( EcalClusterLocalContCorrParameters::const_iterator it = paramLocalCont->begin(); it != paramLocalCont->end(); ++it ) {
+   for ( EcalFunctionParameters::const_iterator it = paramLocalCont->params().begin(); it != paramLocalCont->params().end(); ++it ) {
            std::cout << " " << *it;
    }
    std::cout << "\n";
@@ -283,7 +283,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
    context.get<EcalClusterCrackCorrParametersRcd>().get(pCrack);
    const EcalClusterCrackCorrParameters* paramCrack = pCrack.product();
    std::cout << "CrackCorrParameters:";
-   for ( EcalClusterCrackCorrParameters::const_iterator it = paramCrack->begin(); it != paramCrack->end(); ++it ) {
+   for ( EcalFunctionParameters::const_iterator it = paramCrack->params().begin(); it != paramCrack->params().end(); ++it ) {
            std::cout << " " << *it;
    }
    std::cout << "\n";
@@ -291,7 +291,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
    context.get<EcalClusterEnergyCorrectionParametersRcd>().get(pEnergyCorrection);
    const EcalClusterEnergyCorrectionParameters* paramEnergyCorrection = pEnergyCorrection.product();
    std::cout << "EnergyCorrectionParameters:";
-   for ( EcalClusterEnergyCorrectionParameters::const_iterator it = paramEnergyCorrection->begin(); it != paramEnergyCorrection->end(); ++it ) {
+   for ( EcalFunctionParameters::const_iterator it = paramEnergyCorrection->params().begin(); it != paramEnergyCorrection->params().end(); ++it ) {
            std::cout << " " << *it;
    }
    std::cout << "\n";
@@ -299,7 +299,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
    context.get<EcalClusterEnergyUncertaintyParametersRcd>().get(pEnergyUncertainty);
    const EcalClusterEnergyUncertaintyParameters* paramEnergyUncertainty = pEnergyUncertainty.product();
    std::cout << "EnergyCorrectionParameters:";
-   for ( EcalClusterEnergyUncertaintyParameters::const_iterator it = paramEnergyUncertainty->begin(); it != paramEnergyUncertainty->end(); ++it ) {
+   for ( EcalFunctionParameters::const_iterator it = paramEnergyUncertainty->params().begin(); it != paramEnergyUncertainty->params().end(); ++it ) {
            std::cout << " " << *it;
    }
    std::cout << "\n";

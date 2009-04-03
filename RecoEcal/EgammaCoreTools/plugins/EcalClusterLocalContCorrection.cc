@@ -37,10 +37,10 @@ float EcalClusterLocalContCorrection::getValue( const reco::BasicCluster & basic
         checkInit();
         // private member params_ = EcalClusterLocalContCorrectionParameters
         // (see in CondFormats/EcalObjects/interface)
-        EcalClusterLocalContCorrParameters::const_iterator it;
+        EcalFunctionParameters::const_iterator it;
         std::cout << "[[EcalClusterLocalContCorrection::getValue]] " 
-                << params_->size() << " parameters:";
-        for ( it = params_->begin(); it != params_->end(); ++it ) {
+                << params_->params().size() << " parameters:";
+        for ( it = params_->params().begin(); it != params_->params().end(); ++it ) {
                 std::cout << " " << *it;
         }
         std::cout << "\n";
@@ -127,7 +127,7 @@ float EcalClusterLocalContCorrection::getValue( const reco::SuperCluster & super
       
       //Fetching parameters of the polynomial (see  CMS IN-2009/013)
       double g[5];
-      for (int k=0; k!=5; ++k) g[k] = (*params_)[k+5];
+      for (int k=0; k!=5; ++k) g[k] = (params_->params())[k+5];
       
       fphicor=0.;
       for (int k=0; k!=5; ++k) fphicor += g[k]*std::pow(PhiCry,k);
@@ -149,14 +149,14 @@ float EcalClusterLocalContCorrection::getValue( const reco::SuperCluster & super
       
       //Fetching parameters of the polynomial (see  CMS IN-2009/013)
       double f[5];
-      for (int k=0; k!=5; ++k) f[k] = (*params_)[k];
+      for (int k=0; k!=5; ++k) f[k] = (params_->params())[k];
      
       fetacor=0.;
       for (int k=0; k!=5; ++k) fetacor += f[k]*std::pow(EtaCry,k);
     }
   
 
-  correction_factor  = (*params_)[10]/(fetacor*fphicor);
+  correction_factor  = (params_->params())[10]/(fetacor*fphicor);
   
   //*********************************************************************************************************************//
   
