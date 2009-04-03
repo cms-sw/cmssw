@@ -201,9 +201,34 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 			      mvaEleCut,
 			      path_mvaWeightFileEleID,
 			      usePFElectrons_);
-
+  
   pfAlgo_->setPFConversionParameters(usePFConversions);
-
+  
+  // Muon parameters
+  std::vector<double> muonHCAL
+    = iConfig.getParameter<std::vector<double> >("muon_HCAL");  
+  std::vector<double> muonECAL
+    = iConfig.getParameter<std::vector<double> >("muon_ECAL");  
+  assert ( muonHCAL.size() == 2 && muonECAL.size() == 2 );
+  
+  // Fake track parameters
+  double nSigmaTRACK
+    = iConfig.getParameter<double>("nsigma_TRACK");  
+  
+  double ptError
+    = iConfig.getParameter<double>("pt_Error");  
+  
+  std::vector<double> factors45
+    = iConfig.getParameter<std::vector<double> >("factors_45");  
+  assert ( factors45.size() == 2 );
+  
+  // Set muon and fake track parameters
+  pfAlgo_->setPFMuonAndFakeParameters(muonHCAL,
+				      muonECAL,
+				      nSigmaTRACK,
+				      ptError,
+				      factors45);
+  
   
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);

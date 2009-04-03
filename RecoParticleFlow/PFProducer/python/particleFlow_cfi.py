@@ -28,6 +28,19 @@ particleFlow = cms.EDProducer("PFProducer",
     # Use photon conversion identification in PFAlgo
     usePFConversions = cms.bool(False),
 
+    # Treatment of muons : 
+    # Expected energy in ECAL and HCAL, and RMS
+    muon_HCAL = cms.vdouble(3.0,3.0),
+    muon_ECAL = cms.vdouble(0.5,0.5),
+
+    # Treatment of potential fake tracks
+    # Number of sigmas for fake track detection
+    nsigma_TRACK = cms.double(3.0),
+    # Absolute pt error to detect fake tracks in the first three iterations
+    pt_Error = cms.double(1.0),
+    # Factors to be applied in the four and fifth steps to the pt error
+    factors_45 = cms.vdouble(1.,1.),
+
     # Merged photons
     pf_mergedPhotons_PSCut = cms.double(0.001),
     pf_mergedPhotons_mvaCut = cms.double(0.5),
