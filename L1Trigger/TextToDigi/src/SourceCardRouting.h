@@ -17,6 +17,22 @@ class SourceCardRouting {
   SourceCardRouting();
   ~SourceCardRouting();
 
+  /// Struct of all data needed for running the emulator to SFP (sourcecard optical output) conversion.
+  struct EmuToSfpData
+  {
+    // Input data.
+    unsigned short eIsoRank[4];
+    unsigned short eIsoCardId[4];
+    unsigned short eIsoRegionId[4];
+    unsigned short eNonIsoRank[4];
+    unsigned short eNonIsoCardId[4];
+    unsigned short eNonIsoRegionId[4];
+    unsigned short mipBits[7][2];
+    unsigned short qBits[7][2];
+    // Output data.
+    unsigned short sfp[2][4]; // [ cycle ] [ output number ]
+  };
+
 //SFP arrays are SFP[cycle<2][sfp number<4]
 //electron arrays are eIsoRank[candidate number<4]
 //muon arrays are MIPbits[rec card number<7][region<2]
