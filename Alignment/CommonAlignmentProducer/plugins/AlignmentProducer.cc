@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.30 $
-///  last update: $Date: 2008/12/17 08:27:50 $
+///  Revision   : $Revision: 1.31 $
+///  last update: $Date: 2009/01/19 11:04:05 $
 ///  by         : $Author: flucke $
 
 #include "AlignmentProducer.h"
@@ -51,6 +51,7 @@
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 
 // Tracking 	 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 // Alignment
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
@@ -77,7 +78,9 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   saveApeToDB_(iConfig.getParameter<bool>("saveApeToDB")),
   doTracker_( iConfig.getUntrackedParameter<bool>("doTracker") ),
   doMuon_( iConfig.getUntrackedParameter<bool>("doMuon") ),
-  useSurvey_( iConfig.getParameter<bool>("useSurvey") ) 
+  useSurvey_( iConfig.getParameter<bool>("useSurvey") ),
+  tjTkAssociationMapTag_(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag")),
+  beamSpotTag_(iConfig.getParameter<edm::InputTag>("beamSpotTag"))
 {
 
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::AlignmentProducer";
@@ -369,8 +372,7 @@ AlignmentProducer::duringLoop( const edm::Event& event,
   nevent_++;
 
   // reading in survey records
-  readInSurveyRcds( setup );
-	
+  this->readInSurveyRcds(setup);
 	
   // Printout event number
   for ( int i=10; i<10000000; i*=10 )
@@ -380,25 +382,29 @@ AlignmentProducer::duringLoop( const edm::Event& event,
   
   // Retrieve trajectories and tracks from the event
   // -> merely skip if collection is empty
-  edm::InputTag tjTag = theParameterSet.getParameter<edm::InputTag>("tjTkAssociationMapTag");
   edm::Handle<TrajTrackAssociationCollection> m_TrajTracksMap;
-  if ( event.getByLabel( tjTag, m_TrajTracksMap ) ) {
+  if (event.getByLabel(tjTkAssociationMapTag_, m_TrajTracksMap)) {
     
     // Form pairs of trajectories and tracks
     ConstTrajTrackPairCollection trajTracks;
     for ( TrajTrackAssociationCollection::const_iterator iPair = m_TrajTracksMap->begin();
-          iPair != m_TrajTracksMap->end(); iPair++ )
+          iPair != m_TrajTracksMap->end(); ++iPair) {
       trajTracks.push_back( ConstTrajTrackPair( &(*(*iPair).key), &(*(*iPair).val) ) );
+    }
+    edm::Handle<reco::BeamSpot> beamSpot;
+    event.getByLabel(beamSpotTag_, beamSpot);
+
+    // Run the alignment algorithm with its input
+    const AlignmentAlgorithmBase::EventInfo eventInfo(event.id(), trajTracks, *beamSpot);
+    theAlignmentAlgo->run(setup, eventInfo);
     
-    // Run the alignment algorithm
-    theAlignmentAlgo->run(  setup, trajTracks );
-    
-    for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
-      (*monitor)->duringLoop(event, setup, trajTracks);
+    for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();
+	 monitor != theMonitors.end();  ++monitor) {
+      (*monitor)->duringLoop(event, setup, trajTracks); // forward eventInfo?
     }
   } else {
-    edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::duringLoop" 
-                              << "No track collection found: skipping event";
+    edm::LogError("Alignment") << "@SUB=AlignmentProducer::duringLoop" 
+			       << "No track collection found: skipping event";
   }
   
 

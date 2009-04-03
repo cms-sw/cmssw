@@ -32,8 +32,8 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   /// Called at start of new loop
   void startNewLoop(void);
 
-  /// Run the algorithm on trajectories and tracks
-  void run( const edm::EventSetup& setup, const ConstTrajTrackPairCollection& tracks );
+  /// Run the algorithm
+  void run(const edm::EventSetup& setup, const EventInfo &eventInfo);
 
  private:
 

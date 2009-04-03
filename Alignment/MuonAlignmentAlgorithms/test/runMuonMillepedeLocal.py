@@ -123,8 +123,8 @@ process.MuonMillepedeAlgorithm.outputCollName = cms.string("FinalResult.root")
 process.MuonMillepedeAlgorithm.ptCut = cms.double(10.0)
 process.MuonMillepedeAlgorithm.chi2nCut = cms.double(6.0)
 
-
-process.allPath = cms.Path( process.MuonMillepedeTrackRefitter )
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
+process.allPath = cms.Path( process.offlineBeamSpot * process.MuonMillepedeTrackRefitter )
 
 #process.outpath = cms.EndPath( process.myRECO )
 

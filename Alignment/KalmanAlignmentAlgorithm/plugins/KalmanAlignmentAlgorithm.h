@@ -51,8 +51,7 @@ public:
 
   virtual void terminate( void );
 
-  virtual void run( const edm::EventSetup& setup,
-		    const ConstTrajTrackPairCollection& tracks );
+  virtual void run( const edm::EventSetup& setup, const EventInfo &eventInfo );
 
   inline bool operator()( const Alignable* a1, const Alignable* a2 ) const { return ( a1->id() < a2->id() ); }
 

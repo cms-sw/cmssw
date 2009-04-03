@@ -37,10 +37,10 @@ looper = cms.Looper("AlignmentProducer",
                     # number of selected alignables to be kept fixed (deprecated!)
                     nFixAlignables = cms.int32(0), # i.e. removed from selection above...
 
-                    # input
+                    # event input
                     tjTkAssociationMapTag = cms.InputTag("TrackRefitter"),
+                    beamSpotTag           = cms.InputTag("offlineBeamSpot"),
                     
-
                     # Choose one algorithm with configuration, HIP is default
                     algoConfig = cms.PSet(HIPAlignmentAlgorithm), # why not by reference?
                     # choose monitors (default is none)

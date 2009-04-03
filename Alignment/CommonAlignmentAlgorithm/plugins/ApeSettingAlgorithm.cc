@@ -2,8 +2,8 @@
  * \file MillePedeAlignmentAlgorithm.cc
  *
  *  \author    : Gero Flucke/Ivan Reid
- *  date       : February 2009 *  $Revision: 1.3 $
- *  $Date: 2009/03/09 19:29:18 $
+ *  date       : February 2009 *  $Revision: 1.4 $
+ *  $Date: 2009/03/20 14:16:31 $
  *  (last update by $Author: ireid $)
  */
 
@@ -50,8 +50,8 @@ class ApeSettingAlgorithm : public AlignmentAlgorithmBase
   /// Call at end of job
   virtual void terminate();
 
-  /// Run the algorithm on trajectories and tracks
-  virtual void run(const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks);
+  /// Run the algorithm
+  virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo);
 
  private:
   edm::ParameterSet         theConfig;
@@ -178,8 +178,7 @@ void ApeSettingAlgorithm::terminate()
 
 // Run the algorithm on trajectories and tracks -------------------------------
 //____________________________________________________
-void ApeSettingAlgorithm::run(const edm::EventSetup &setup,
-				      const ConstTrajTrackPairCollection &tracks) 
+void ApeSettingAlgorithm::run(const edm::EventSetup &setup, const EventInfo &eventInfo)
 {
   // nothing to do here?
 }

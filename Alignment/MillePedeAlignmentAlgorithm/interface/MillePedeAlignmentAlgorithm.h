@@ -7,9 +7,9 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.18 $
-///  $Date: 2008/03/15 01:01:42 $
-///  (last update by $Author: flucke $)
+///  $Revision: 1.19 $
+///  $Date: 2008/11/10 14:48:42 $
+///  (last update by $Author: henderle $)
 
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
@@ -63,7 +63,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   virtual void terminate();
 
   /// Run the algorithm on trajectories and tracks
-  virtual void run(const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks);
+  virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo);
 
  private:
   enum MeasurementDirection {kLocalX = 0, kLocalY};

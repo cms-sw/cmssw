@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Tue Oct  7 14:56:49 CDT 2008
-// $Id: CSCOverlapsAlignmentAlgorithm.cc,v 1.3 2009/03/26 23:35:20 pivarski Exp $
+// $Id: CSCOverlapsAlignmentAlgorithm.cc,v 1.4 2009/03/27 09:20:48 flucke Exp $
 //
 //
 
@@ -55,7 +55,8 @@ class CSCOverlapsAlignmentAlgorithm : public AlignmentAlgorithmBase {
   
       void initialize(const edm::EventSetup& iSetup, AlignableTracker* alignableTracker, AlignableMuon* alignableMuon, AlignmentParameterStore* alignmentParameterStore);
       void startNewLoop();
-      void run(const edm::EventSetup& iSetup, const ConstTrajTrackPairCollection& trajtracks);
+      void run(const edm::EventSetup& iSetup, const EventInfo &eventInfo);
+
       void terminate();
   
    private:
@@ -378,9 +379,11 @@ void CSCOverlapsAlignmentAlgorithm::startNewLoop() {
   }
 }
 
-void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const ConstTrajTrackPairCollection& trajtracks) {
+void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const EventInfo &eventInfo)
+{
   iSetup.get<MuonGeometryRecord>().get(m_cscGeometry);
   
+  const ConstTrajTrackPairCollection &trajtracks = eventInfo.trajTrackPairs_;
   for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin();  trajtrack != trajtracks.end();  ++trajtrack) {
     // const Trajectory* traj = (*trajtrack).first;
     const reco::Track* track = (*trajtrack).second;

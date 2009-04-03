@@ -38,8 +38,8 @@ class MuonMillepedeAlgorithm : public AlignmentAlgorithmBase
 
 
 
-  /// Run the algorithm on trajectories and tracks
-  void run( const edm::EventSetup& setup, const ConstTrajTrackPairCollection& tracks );
+  /// Run the algorithm
+  void run(const edm::EventSetup& setup, const EventInfo &eventInfo);
 
   void updateInfo(AlgebraicMatrix, AlgebraicMatrix, AlgebraicMatrix, std::string);
  

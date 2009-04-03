@@ -58,7 +58,8 @@ public:
   
   void initialize(const edm::EventSetup& iSetup, AlignableTracker* alignableTracker, AlignableMuon* alignableMuon, AlignmentParameterStore* alignmentParameterStore);
   void startNewLoop();
-  void run(const edm::EventSetup& iSetup, const ConstTrajTrackPairCollection& trajtracks);
+  void run(const edm::EventSetup& iSetup, const EventInfo &eventInfo);
+
   void terminate();
 
 private:
@@ -467,10 +468,13 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
 
 void MuonAlignmentFromReference::startNewLoop() {}
 
-void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const ConstTrajTrackPairCollection& trajtracks) {
+void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventInfo &eventInfo)
+{
+
   edm::ESHandle<GlobalTrackingGeometry> globalGeometry;
   iSetup.get<GlobalTrackingGeometryRecord>().get(globalGeometry);
 
+  const ConstTrajTrackPairCollection &trajtracks = eventInfo.trajTrackPairs_;
   for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin();  trajtrack != trajtracks.end();  ++trajtrack) {
     const Trajectory* traj = (*trajtrack).first;
     const reco::Track* track = (*trajtrack).second;

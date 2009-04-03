@@ -7,9 +7,9 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.11 $
-///  last update: $Date: 2008/08/22 12:47:01 $
-///  by         : $Author: ntran $
+///  Revision   : $Revision: 1.12 $
+///  last update: $Date: 2008/12/17 08:27:50 $
+///  by         : $Author: flucke $
 
 #include <vector>
 
@@ -139,6 +139,10 @@ class AlignmentProducer : public edm::ESProducerLooper
   const bool applyDbAlignment_,doMisalignmentScenario_,saveToDB_, saveApeToDB_;
   const bool doTracker_,doMuon_;
   const bool useSurvey_; // true to read survey info from DB
+
+  // event input tags
+  const edm::InputTag tjTkAssociationMapTag_; // map with tracks/trajectories
+  const edm::InputTag beamSpotTag_;           // beam spot
 
   // ESWatcher
   edm::ESWatcher<TrackerSurveyRcd> watchTkSurveyRcd_;

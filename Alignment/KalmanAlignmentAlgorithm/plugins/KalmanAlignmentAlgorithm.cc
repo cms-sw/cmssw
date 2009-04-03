@@ -155,8 +155,7 @@ void KalmanAlignmentAlgorithm::terminate( void )
 }
 
 
-void KalmanAlignmentAlgorithm::run( const edm::EventSetup & setup,
-				    const ConstTrajTrackPairCollection & tracks )
+void KalmanAlignmentAlgorithm::run( const edm::EventSetup & setup, const EventInfo &eventInfo )
 {
   if ( theMergerFlag ) return; // only merging mode. nothing to do here.
 
@@ -173,10 +172,9 @@ void KalmanAlignmentAlgorithm::run( const edm::EventSetup & setup,
   try
   {
     // Run the refitter algorithm
-    reco::BeamSpot dummyBeamSpot;
-    //    dummyBeamSpot.dummy();
-
-    TrackletCollection refittedTracklets = theRefitter->refitTracks( setup, theAlignmentSetups, tracks, &dummyBeamSpot );
+    const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs_;
+    const reco::BeamSpot &beamSpot = eventInfo.beamSpot_;
+    TrackletCollection refittedTracklets = theRefitter->refitTracks( setup, theAlignmentSetups, tracks, &beamSpot );
 
     // Associate tracklets to alignment setups
     map< AlignmentSetup*, TrackletCollection > setupToTrackletMap;

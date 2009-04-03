@@ -231,11 +231,9 @@
 
 	// Run the algorithm on trajectories and tracks -------------------------------
 
-	void MuonMillepedeAlgorithm::run( const edm::EventSetup& setup,
-									   const ConstTrajTrackPairCollection& tracks )
-	{
-
-
+	void MuonMillepedeAlgorithm::run(const edm::EventSetup& setup, const EventInfo &eventInfo)
+        {
+	  
 	  if( isCollectionJob )
 	  {
 	    return;
@@ -244,7 +242,7 @@
 
 	  // loop over tracks  
 	  //int t_counter = 0;
-
+	  const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs_;
 	  for( ConstTrajTrackPairCollection::const_iterator it=tracks.begin();
 	       it!=tracks.end();it++) {
 

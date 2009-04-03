@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.41 $
- *  $Date: 2008/10/14 07:19:32 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.42 $
+ *  $Date: 2008/11/10 14:48:42 $
+ *  (last update by $Author: henderle $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -207,10 +207,10 @@ void MillePedeAlignmentAlgorithm::terminate()
 
 // Run the algorithm on trajectories and tracks -------------------------------
 //____________________________________________________
-void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
-				      const ConstTrajTrackPairCollection &tracks) 
+void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventInfo &eventInfo)
 {
   if (!this->isMode(myMilleBit)) return; // no theMille created...
+  const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs_;
 
   typedef TrajectoryFactoryBase::ReferenceTrajectoryCollection RefTrajColl;
   const RefTrajColl trajectories(theTrajectoryFactory->trajectories(setup, tracks));
