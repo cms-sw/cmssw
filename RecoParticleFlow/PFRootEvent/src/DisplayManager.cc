@@ -835,7 +835,7 @@ void DisplayManager::displayAll(bool noRedraw)
     case CLUSTERPSID: 
     case CLUSTERIBID:
       {
-	cout<<"displaying "<<type<<" "<<p->second->getEnergy()<<" "<<clusEnMin_<<" on view "<<view<<endl;
+	// cout<<"displaying "<<type<<" "<<p->second->getEnergy()<<" "<<clusEnMin_<<" on view "<<view<<endl;
         if (drawClus_)
           if (p->second->getEnergy() > clusEnMin_) {
             displayView_[view]->cd();
