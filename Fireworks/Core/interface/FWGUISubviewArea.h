@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.15 2009/03/20 16:11:36 amraktad Exp $
+// $Id: FWGUISubviewArea.h,v 1.16 2009/03/25 20:42:54 amraktad Exp $
 //
 
 #include "TGFrame.h"
@@ -56,7 +56,6 @@ public:
    void swapWithCurrentView();
    void destroy();
    void undock();
-   void undockTo(Int_t x, Int_t y, UInt_t width, UInt_t height);
 
    void selectButtonDown();
    void selectButtonUp();

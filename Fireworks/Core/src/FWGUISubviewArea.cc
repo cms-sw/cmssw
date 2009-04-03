@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.21 2009/03/20 16:11:36 amraktad Exp $
+// $Id: FWGUISubviewArea.cc,v 1.22 2009/03/25 20:42:54 amraktad Exp $
 //
 
 // system include files
@@ -140,16 +140,6 @@ void
 FWGUISubviewArea::undock()
 {
    TTimer::SingleShot(50, m_frame->GetEveWindow()->ClassName(), m_frame->GetEveWindow(), "UndockWindowDestroySlot()");
-}
-
-void
-FWGUISubviewArea::undockTo(Int_t x, Int_t y,
-                           UInt_t width, UInt_t height)
-{
-   //NOTE: this seems evil but I can do the exact same thing by calling 'GetId' on the MainFrame
-   // and then use gVirtualX to do the work
-   undock();
-   const_cast<TGWindow*>(GetMainFrame())->MoveResize(x,y,width,height);
 }
 
 //
