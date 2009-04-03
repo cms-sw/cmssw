@@ -14,7 +14,7 @@ TrackAssociatorByPosDeltaR = cms.ESProducer('TrackAssociatorByPositionESProducer
     QminCut = cms.double(120.0),
     MinIfNoMatch = cms.bool(False),
     ComponentName = cms.string('TrackAssociatorByDeltaR'),
-    propagator = cms.string('SteppingHelixPropagatorAny'),
+    propagator = cms.string('SteppingHelixPropagatorAlong'),
     # minimum distance from the origin to find a hit 
     # from a simulated particle and match it to reconstructed track
     positionMinimumDistance = cms.double(0.0),
