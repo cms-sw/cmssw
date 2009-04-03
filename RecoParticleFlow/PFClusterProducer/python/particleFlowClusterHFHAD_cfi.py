@@ -13,9 +13,9 @@ particleFlowClusterHFHAD = cms.EDProducer("PFClusterProducer",
     # cell threshold in HCAL barrel 
     thresh_Barrel = cms.double(0.8),
     # seed threshold in HCAL endcap 
-    thresh_Seed_Endcap = cms.double(0.0),
+    thresh_Seed_Endcap = cms.double(1.4),
     # cell threshold in HCAL endcap 
-    thresh_Endcap = cms.double(0.0),
+    thresh_Endcap = cms.double(0.8),
     #----HCAL options
     # n neighbours in HCAL 
     nNeighbours = cms.int32(8),
@@ -24,7 +24,7 @@ particleFlowClusterHFHAD = cms.EDProducer("PFClusterProducer",
     # n crystals for position calculation in HCAL
     posCalcNCrystal = cms.int32(5), 
     # p1 for position calculation in HCAL 
-    posCalcP1 = cms.double(1.0),
+    posCalcP1 = cms.double(0.8),
     #----depth correction
     # depth correction for ECAL clusters:
     #   0: no depth correction

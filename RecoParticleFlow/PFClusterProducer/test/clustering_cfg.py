@@ -17,9 +17,11 @@ process.load("RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff")
 process.particleFlowClusterECAL.verbose = True
 
 process.p1 = cms.Path(
-    process.particleFlowClusterECAL+
-    process.particleFlowClusterHCAL+
-    process.particleFlowClusterPS 
+#    process.particleFlowClusterECAL+
+#    process.particleFlowClusterHCAL+
+    process.particleFlowClusterHFEM
+#    process.particleFlowClusterHFHAD
+#    process.particleFlowClusterPS 
     )
 
 
