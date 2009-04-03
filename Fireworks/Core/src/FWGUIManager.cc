@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.103 2009/03/25 20:42:54 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.104 2009/03/28 22:53:29 amraktad Exp $
 //
 
 // system include files
@@ -232,6 +232,7 @@ FWGUIManager::parentForNextView()
       slot = m_viewPrimPack->NewSlot();
       getGUISubviewArea(slot)->configurePrimaryView();
       m_viewSecPack = m_viewPrimPack->NewSlot()->MakePack();
+      m_viewSecPack->SetElementName("VerticalPack");
       m_viewSecPack->SetVertical();
       m_viewSecPack->SetShowTitleBar(kFALSE);
    } else {
@@ -539,6 +540,9 @@ FWGUIManager::createViews(TGTab *tab)
    m_viewPrimPack->SetElementName("Views");
    m_viewPrimPack->SetShowTitleBar(kFALSE);
    m_viewSecPack = 0;
+
+   // debug
+   gEve->AddElement( m_viewPrimPack);
 }
 
 void
@@ -811,67 +815,6 @@ static const std::string kCollectionController("collection");
 static const std::string kViewController("view");
 static const std::string kObjectController("object");
 
-namespace {
-   template<class Op>
-   void recursivelyApplyToFrame(TGSplitFrame* iParent, Op& iOp) {
-      if(0==iParent) { return;}
-      //if it holds something OR is completely empty (because of undocking)
-      if(iParent->GetFrame() ||
-         (!iParent->GetFirst() && !iParent->GetSecond()) ) {
-         iOp(iParent);
-      } else {
-         recursivelyApplyToFrame(iParent->GetFirst(),iOp);
-         recursivelyApplyToFrame(iParent->GetSecond(),iOp);
-      }
-   }
-
-   struct FrameAddTo {
-      FWConfiguration* m_config;
-      bool m_isFirst;
-      FrameAddTo(FWConfiguration& iConfig) :
-         m_config(&iConfig),
-         m_isFirst(true) {
-      }
-
-      void operator()(TGFrame* iFrame) {
-         std::stringstream s;
-         if(m_isFirst) {
-            m_isFirst = false;
-            s<< static_cast<int>(iFrame->GetWidth());
-         } else {
-            s<< static_cast<int>(iFrame->GetHeight());
-         }
-         m_config->addValue(s.str());
-      }
-   };
-
-   struct FrameSetFrom {
-      const FWConfiguration* m_config;
-      int m_index;
-      FrameSetFrom(const FWConfiguration* iConfig) :
-         m_config(iConfig),
-         m_index(0) {
-      }
-
-      void operator()(TGFrame* iFrame) {
-         if(0==iFrame) {return;}
-         int width=0,height=0;
-         if(0==m_index) {
-            // top (main) split frame
-            width = iFrame->GetWidth();
-            std::stringstream s(m_config->value(m_index));
-            s >> width;
-         } else {
-            // bottom left split frame
-            height = iFrame->GetHeight();
-            std::stringstream s(m_config->value(m_index));
-            s >> height;
-         }
-         iFrame->Resize(width, height);
-         ++m_index;
-      }
-   };
-}
 
 static
 void
@@ -938,20 +881,20 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       s<<ay;
       mainWindow.addKeyValue("y",FWConfiguration(s.str()));
    }
-
    oTo.addKeyValue(kMainWindow,mainWindow,true);
 
 
-   // sort list of TEveWindows by layout
+   // sort list of TEveWindows reading frame list from TGCompositeFrame
+   // becuse TEveElement list is not ordered
    std::vector<TEveWindow*> wpacked;
    {
-      // read primary pack
+      // primary pack
       TGPack* pp = m_viewPrimPack->GetPack();
       TGFrameElement *pel = (TGFrameElement*) pp->GetList()->First();
       TEveCompositeFrame* pef = dynamic_cast<TEveCompositeFrame*>(pel->fFrame);
       if (pef)
       {
-         printf("eve window %s \n", pef->GetEveWindow()->GetElementName());
+         //  printf("eve window %s \n", pef->GetEveWindow()->GetElementName());
          wpacked.push_back( pef->GetEveWindow());
       }
 
@@ -965,26 +908,58 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
          TEveCompositeFrame *sef = dynamic_cast<TEveCompositeFrame*>(sel->fFrame);
          if (sef)
          {
-            printf("eve window %s \n", sef->GetEveWindow()->GetElementName());
+            // printf("eve window %s \n", sef->GetEveWindow()->GetElementName());
             wpacked.push_back( sef->GetEveWindow());
          }
       }
    }
 
+   // use sorted list to weite view area and FW-views configuration
    FWConfiguration views(1);
-   for(std::vector<TEveWindow*>::const_iterator it = m_viewWindows.begin(); it != m_viewWindows.end(); ++it)
+   FWConfiguration viewArea(1);
+   for(std::vector<TEveWindow*>::const_iterator it = wpacked.begin(); it != wpacked.end(); ++it)
    {
-      FWConfiguration temp(1);
+      // FW-view-base
+      FWConfiguration tempWiew(1);
       FWViewBase* wb = (FWViewBase*)((*it)->GetUserData());
-      wb->addTo(temp);
-      views.addKeyValue(wb->typeName(), temp, true);
-      
-   }
-   oTo.addKeyValue(kViews,views,true);
+      wb->addTo(tempWiew);
+      views.addKeyValue(wb->typeName(), tempWiew, true);
+      // printf("AddTo viewes @@@ wpacked view %s \n", wb->typeName().c_str());
 
-   // remember the sizes in the view area not implemented (empty) !!
-   // FWConfiguration viewArea(1);
-   // FrameAddTo frameAddTo(viewArea);
+      // view area
+      std::stringstream s;
+      TGFrame* frame = (*it)->GetGUIFrame();
+      int dim;
+      if (it ==  wpacked.begin())
+         dim = frame->GetWidth();
+      else
+         dim = frame->GetHeight();
+      s<< static_cast<int>(dim);
+      viewArea.addValue(s.str());
+      // printf("AddTo varea @@@ wpacked view %d \n", dim);
+   }
+   oTo.addKeyValue(kViews, views, true);
+   oTo.addKeyValue(kViewArea, viewArea, true);
+
+   //remember undocked
+   FWConfiguration undocked(1);
+   {
+      
+      for(std::vector<TEveWindow*>::const_iterator it = m_viewWindows.begin(); it != m_viewWindows.end(); ++it)
+      {
+         TEveWindow* ew = (*it);
+         TEveCompositeFrameInMainFrame* mainFrame = dynamic_cast<TEveCompositeFrameInMainFrame*>(ew->GetEveFrame());
+         if (mainFrame)
+         {
+            FWConfiguration tempFrame(1);
+            addWindowInfoTo(mainFrame,tempFrame);
+            undocked.addKeyValue(ew->GetName(), tempFrame, true);
+            // printf("AddTo @@@ undocked %s \n", ew->GetElementName());
+         }
+      }
+   }
+   oTo.addKeyValue(kUndocked,undocked,true);
+
 
    //Remember where controllers were placed if they are open
    FWConfiguration controllers(1);
@@ -1060,29 +1035,70 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
       m_cmsShowMainFrame->Move(x,y);
    }
 
-   //now configure the views
+   // !! when and position is clear map window
+   m_viewPrimPack->GetGUIFrame()->Layout();
+   m_cmsShowMainFrame->MapWindow();
+
+   // configure the views
    const FWConfiguration* views = iFrom.valueForKey(kViews);
    assert(0!=views);
    const FWConfiguration::KeyValues* keyVals = views->keyValues();
    assert(0!=keyVals);
-   for(FWConfiguration::KeyValues::const_iterator it = keyVals->begin(),
-                                                  itEnd = keyVals->end();
-       it!=itEnd;
-       ++it) {
+   for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it)
+   {
       size_t n = m_viewBases.size();
       createView(it->first);
-
+      // printf("SetFrom @@@  view %s \n", (it->first).c_str());
       assert(n+1 == m_viewBases.size());
       m_viewBases.back()->setFrom(it->second);
    }
 
-   // configure the view area not implemented (empty) !!
-   // const FWConfiguration* viewArea = iFrom.valueForKey(kViewArea);
-   // assert(0!=viewArea);
-  
-   m_viewPrimPack->GetGUIFrame()->Layout();
-   m_cmsShowMainFrame->MapWindow();
 
+   // view Area
+   // currently not supported, print info for debug
+   if (1)  {
+      const FWConfiguration* viewArea = iFrom.valueForKey(kViewArea);
+      // assert(0!=viewArea);
+      if (viewArea)
+      {
+         const FWConfiguration::StringValues* sVals = viewArea->stringValues();
+         int idx = 0;
+         int dim;
+         for(FWConfiguration::StringValuesIt it = sVals->begin(); it != sVals->end(); ++it)
+         { 
+            std::stringstream s(*it);
+            s >> dim;
+            // printf("setFrom [%d] dim %d \n", idx, dim);
+            idx ++;
+         }
+      }
+   }
+
+   // undocked windows
+   const FWConfiguration* undocked = iFrom.valueForKey(kUndocked);
+   if(0!=undocked) {
+      const FWConfiguration::KeyValues* keyVals = undocked->keyValues();
+      if(0!=keyVals) {
+         for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it != keyVals->end(); ++it)
+         {
+            int x = atoi(it->second.valueForKey("x")->value().c_str());
+            int y = atoi(it->second.valueForKey("y")->value().c_str());
+            int width = atoi(it->second.valueForKey("width")->value().c_str());
+            int height = atoi(it->second.valueForKey("height")->value().c_str());
+
+            createView(it->first);
+            TEveWindow* myw = m_viewWindows.back();
+            myw->UndockWindowDestroySlot();
+            TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(myw->GetEveFrame());
+            const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
+            TGMainFrame* mfp = (TGMainFrame*)mf;
+            mfp->MoveResize(x, y, width, height);
+
+            // printf("setFrom (%d, %d)  (%d, %d) \n", x, y, width, height);
+            // printf("SetFrom @@@ undock %s %p\n", myw->GetElementName(), mf);
+         }
+      }
+   }
 
    //handle controllers
    const FWConfiguration* controllers = iFrom.valueForKey(kControllers);
@@ -1090,10 +1106,8 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
       const FWConfiguration::KeyValues* keyVals = controllers->keyValues();
       if(0!=keyVals) {
          //we have open controllers
-         for(FWConfiguration::KeyValues::const_iterator it = keyVals->begin(),
-                                                        itEnd = keyVals->end();
-             it!=itEnd;
-             ++it) {
+         for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it != keyVals->end(); ++it)
+         {
             const std::string& controllerName = it->first;
             std::cout <<"found controller "<<controllerName<<std::endl;
             if(controllerName == kCollectionController) {
