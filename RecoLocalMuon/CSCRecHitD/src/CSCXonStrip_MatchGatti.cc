@@ -70,13 +70,15 @@ CSCXonStrip_MatchGatti::CSCXonStrip_MatchGatti(const edm::ParameterSet& ps) :
   noise_level_ME41                 = ps.getParameter<double>("NoiseLevel_ME41");
   xt_asymmetry_ME41                = ps.getParameter<double>("XTasymmetry_ME41");
   const_syst_ME41                   = ps.getParameter<double>("ConstSyst_ME41");
-  peakTimeFinder_            = new CSCFindPeakTime();
+ 
+  std::auto_ptr<CSCFindPeakTime> peakTimeFinder_( new CSCFindPeakTime( ps ) );
+ 
   getCorrectionValues("StringCurrentlyNotUsed");
 }
 
 
 CSCXonStrip_MatchGatti::~CSCXonStrip_MatchGatti(){
-  delete peakTimeFinder_;
+ 
 }
 
 
@@ -107,13 +109,18 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   float adc[4];
 
   if ( useCalib ) {
-    bool useFittedCharge = false;
+
     for ( int t = 0; t < 4; ++t ) {
       int k  = t + 4 * (centStrip-1);
       adc[t] = adcs[k];
     }
-    useFittedCharge = peakTimeFinder_->FindPeakTime( tmax, adc, t_zero, t_peak );  // Clumsy...  can remove t_peak ?
-    tpeak = t_peak+t_zero;
+
+    // t_peak is now 'absolute' i.e. in ns from start of sca time bin 0
+    t_peak = peakTimeFinder_->peakTime( tmax, adc, t_zero, t_peak );
+    // Just for completeness, the start time of the pulse is 133 ns earlier, according to Stan :)
+    t_zero = t_peak - 133.;
+    // and reset tpeak since that's the way it gets passed out of this function (Argh!)
+    tpeak = t_peak;
   }
       
   //---- fill the charge matrix (3x3)
@@ -136,7 +143,7 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   if ( useCalib ) {
     std::vector<float> xtalks;
     recoConditions_->crossTalk( id, centralStrip, xtalks );
-    float dt = 50. * tmax - (t_peak + t_zero);  // QUESTION:  should it be only - (t_peak) ???
+    float dt = 50. * tmax - t_peak;
     // XTalks; l,r are for left, right XTalk; lr0,1,2 are for what charge "remains" in the strip 
     for ( int t = 0; t < 3; ++t ) {
       xt_l[0][t] = xtalks[0] * (50.* (t-1) + dt) + xtalks[1] + xtalksOffset;
