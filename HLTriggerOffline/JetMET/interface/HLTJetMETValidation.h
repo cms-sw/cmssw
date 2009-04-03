@@ -110,6 +110,7 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
 
   int NRef;
   int NProbe;
+  int evtCnt;
 
 // store hlt information in a map
   std::vector<bool> hlttrigs;

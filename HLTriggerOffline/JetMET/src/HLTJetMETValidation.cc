@@ -37,7 +37,8 @@ HLTJetMETValidation::HLTJetMETValidation(const edm::ParameterSet& ps) :
 //initialize 
   NRef = 0;
   NProbe = 0;
-  
+  evtCnt=0;
+
   //Declare DQM Store
   DQMStore* store = &*edm::Service<DQMStore>();
 
@@ -147,6 +148,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   using namespace l1extra;
   using namespace trigger;
 
+  evtCnt++;
   if (writeFile_) test_histo->Fill(50.);
 
   //get The triggerEvent
@@ -180,7 +182,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByLabel(HLTriggerResults,hltresults);
   if (! hltresults.isValid() ) { 
     //cout << "  -- No HLTRESULTS"; 
-    edm::LogWarning("HLTJetMETValidation") << "  -- No HLTRESULTS";    
+    //if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  -- No HLTRESULTS";    
     gotHLT=false;
   }
 
@@ -190,7 +192,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     trig_iter=hltTriggerMap.find(_HLTPath.label());
     if (trig_iter==hltTriggerMap.end()){
       //cout << "Could not find trigger path with name: " << _probefilter.label() << endl;
-      edm::LogWarning("HLTJetMETValidation") << "Could not find trigger path with name: " << _probefilter.label(); 
+      //if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "Could not find trigger path with name: " << _probefilter.label(); 
     }else{
       myTrig=trig_iter->second;
     }
@@ -220,7 +222,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }else{
     //cout << "  -- No CaloJets" << endl;
-    edm::LogWarning("HLTJetMETValidation") << "  -- No CaloJets"; 
+    //if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  -- No CaloJets"; 
   }
 
   Handle<GenJetCollection> genJets,genJetsDummy;
@@ -247,7 +249,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }else{
     //cout << "  -- No GenJets" << endl;
-    edm::LogWarning("HLTJetMETValidation") << "  -- No GenJets"; 
+    //if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  -- No GenJets"; 
   }
 
   edm::Handle<CaloMETCollection> recmet, recmetDummy;
@@ -266,7 +268,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }else{
     //cout << "  -- No MET Collection with name: " << CaloMETColl << endl;
-    edm::LogWarning("HLTJetMETValidation") << "  -- No MET Collection with name: "<< CaloMETColl; 
+    //if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  -- No MET Collection with name: "<< CaloMETColl; 
   }
 
   edm::Handle<GenMETCollection> genmet, genmetDummy;
@@ -285,7 +287,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }else{
     //cout << "  -- No GenMET Collection with name: " << GenMETColl << endl;
-    edm::LogWarning("HLTJetMETValidation") << "  -- No GenMET Collection with name: "<< GenMETColl; 
+    //if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  -- No GenMET Collection with name: "<< GenMETColl; 
   }
 
   // get the reference and probe jets
