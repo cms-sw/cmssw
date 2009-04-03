@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/10/10 10:15:59 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/12/19 13:39:45 $
+ *  $Revision: 1.10 $
  *  \author  M. Zanetti - INFN Padova
  *  \revision FRC 060906
  */
@@ -288,11 +288,12 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 		leftword--;
 
 		DTLocalTriggerSectorCollectorSubHeaderWord scPrivateSubHeaderWord(word);
-
+		// read the event BX in the SC header (will be stored in SC digis)
+		int scEventBX = scPrivateSubHeaderWord.LocalBunchCounter();
 		if(debug) cout <<"[DTROS25Unpacker]: SC trigger delay = "
 				<< scPrivateSubHeaderWord.TriggerDelay() << endl
 				<<"[DTROS25Unpacker]: SC bunch counter = "
-				<< scPrivateSubHeaderWord.LocalBunchCounter() << endl;
+				<< scEventBX << endl;
 		
 
 
@@ -341,7 +342,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 			else                      SCstation = 3;
 
 			// construct localtrigger for first station of this "group" ...
-			DTLocalTrigger localtrigger(bx_counter,(scDataWord.SCData()) & 0xFF);
+			DTLocalTrigger localtrigger(scEventBX, bx_counter,(scDataWord.SCData()) & 0xFF);
 			// ... and commit it to the event
 			DTChamberId chamberId (SCwheel,SCstation,SCsector);
 			triggerProduct->insertDigi(chamberId,localtrigger);
@@ -356,7 +357,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 			else                      SCstation = 4;
 
 			// construct localtrigger for second station of this "group" ...
-			DTLocalTrigger localtrigger(bx_counter,(scDataWord.SCData()) >> 8);
+			DTLocalTrigger localtrigger(scEventBX, bx_counter,(scDataWord.SCData()) >> 8);
 			// ... and commit it to the event
 			DTChamberId chamberId (SCwheel,SCstation,SCsector);
 			triggerProduct->insertDigi(chamberId,localtrigger);

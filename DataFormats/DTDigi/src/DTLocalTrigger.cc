@@ -1,6 +1,6 @@
 /** \file
  * 
- *  $Date: 2006/10/17 20:58:29 $
+ *  $Date: 2008/01/22 18:45:04 $
  *
  * \author FRC
  */
@@ -12,15 +12,15 @@
 using namespace std;
 
 
-DTLocalTrigger::DTLocalTrigger (int bx, int data) : 
-
+DTLocalTrigger::DTLocalTrigger (int eventBx, int bx, int data) : 
+  theEventBX(eventBx),
   theBX (bx),
   theData(data)
 {}
 
 
 DTLocalTrigger::DTLocalTrigger () : 
-
+  theEventBX(0),
   theBX (0),
   theData(0)
 {}
@@ -71,3 +71,6 @@ DTLocalTrigger::print() const {
   cout << endl;
 }
 
+uint16_t DTLocalTrigger::eventBx() const {
+  return theEventBX;
+}
