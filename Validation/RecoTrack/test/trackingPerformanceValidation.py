@@ -13,21 +13,25 @@ import string
 
 RefRelease='CMSSW_3_1_0_pre2'
 
-# startup and ideal sample list
-startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
-#startupsamples= ['RelValTTbar']
+#Relval release (set if different from $CMSSW_VERSION)
+NewRelease='CMSSW_3_1_0_pre4'
 
-idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
+# startup and ideal sample list
+#startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
+startupsamples= []
+
+#idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
 
 #idealsamples= [ 'RelValSingleElectronPt35']
-#idealsamples= ['RelValTTbar']
+idealsamples= ['RelValTTbar']
 
 
 
 # track algorithm name and quality. Can be a list.
-Algos= ['ootb', 'ctf','iter2','iter3','iter4','iter5']
-#Qualities=['']
-Qualities=['', 'highPurity']
+Algos= ['ootb']
+#Algos= ['ootb', 'ctf','iter2','iter3','iter4','iter5']
+Qualities=['']
+#Qualities=['', 'highPurity']
 
 #Leave unchanged unless the track collection name changes
 Tracksname=''
@@ -41,7 +45,7 @@ Tracksname=''
 #   -digi2track_and_TP
 #   -harvesting
 
-#Sequence='only_validation_and_TP'
+#Sequence='only_validation'
 Sequence='harvesting'
 
 # Ideal and Statup tags
@@ -58,13 +62,13 @@ NewSelectionLabel=''
 
 #Reference and new repository
 RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
-NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
+NewRepository = '.'
 
 #Default Nevents
 defaultNevents ='-1'
 
 #Put here the number of event to be processed for specific samples (numbers must be strings) if not specified is -1:
-Events={ 'RelValQCD_Pt_3000_3500':'5000', 'RelValTTbar':'5000', 'RelValQCD_Pt_80_120':'5000', 'RelValBJets_Pt_50_120':'5000'}
+Events={ 'RelValQCD_Pt_3000_3500':'5000', 'RelValTTbar':'5', 'RelValQCD_Pt_80_120':'5000', 'RelValBJets_Pt_50_120':'5000'}
 
 # template file names. Usually should not be changed.
 cfg='trackingPerformanceValidation_cfg.py'
@@ -185,9 +189,16 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 					Nevents=defaultNevents
 				else:
 					Nevents=Events[sample]
-		
-				symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTag, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks}
-		
+                                thealgo=trackalgorithm
+                                thequality=trackquality
+                                if(trackalgorithm=='ootb'):
+                                    thealgo=''
+				if(thealgo!=''):
+                                    thealgo='\''+thealgo+'\''
+                                if(trackquality!=''):
+                                    thequality='\''+trackquality+'\''
+                                symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTag, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':thealgo, 'QUALITY':thequality, 'TRACKS':Tracks}
+                                
 		
 				cfgFile = open(cfgFileName+'.py' , 'a' )
 				replace(symbol_map, templatecfgFile, cfgFile)
@@ -253,15 +264,15 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 ##########################################################################
 #########################################################################
 ######## This is the main program
-            
-try:
-     #Get some environment variables to use
-     NewRelease     = os.environ["CMSSW_VERSION"]
-
-except KeyError:
-     print >>sys.stderr, 'Error: The environment variable CMSSW_VERSION is not available.'
-     print >>sys.stderr, '       Please run eval `scramv1 runtime -csh` to set your environment variables'
-     sys.exit()
+if(NewRelease==''): 
+    try:
+        #Get some environment variables to use
+        NewRelease     = os.environ["CMSSW_VERSION"]
+        
+    except KeyError:
+        print >>sys.stderr, 'Error: The environment variable CMSSW_VERSION is not available.'
+        print >>sys.stderr, '       Please run cmsenv or set the variable "NewRelease" '
+        sys.exit()
 
 
 #print 'Running validation on the following samples: ', samples

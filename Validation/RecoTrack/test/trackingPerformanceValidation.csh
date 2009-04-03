@@ -27,13 +27,13 @@
 #
 
 ### Configuration ############################################################
-set RefRelease="CMSSW_2_1_9"
+set RefRelease="CMSSW_3_1_0_pre4"
 set NewRelease="$CMSSW_VERSION"
 
 
 # you 
 #set samples=("RelValSingleMuPt1" "RelValSingleMuPt10" "RelValSingleMuPt100" "RelValSinglePiPt1" "RelValSinglePiPt10" "RelValSinglePiPt100")
-set samples=("RelValTTbar" )
+set samples=("RelValSingleMuPt10" )
 set Algo=""
 #set Quality=""
 set Quality="highPurity"
@@ -41,8 +41,8 @@ set Tracks="cutsRecoTracks"
 #set Sequence="re_tracking"
 #set Tracks="generalTracks"
 set Sequence="only_validation"
-set GlobalTag="IDEAL_V9"
-set RefSelection="IDEAL_V9_noPU_taula_highPurity"
+set GlobalTag="IDEAL_30X"
+set RefSelection="IDEAL_30X_noPU_ootb"
 set NewSelection="${GlobalTag}_noPU_taula_highPuritytest"
 set RefRepository="/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance"
 set NewRepository="/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance"
@@ -82,18 +82,34 @@ foreach sample($samples)
     endsw
       
     #cp $RefRepository/$RefRelease/$RefSelection/$sample/${sample}_cff.py .
-    cat ${sample}_cff.py | grep -v maxEvents >! $sample.py
+    cat ${sample}_cff.py | grep -v maxEvents >! tmp.py
     cat $cfg | sed \
       -e "s/NEVENT/$Events/g" \
       -e "s/GLOBALTAG/$GlobalTag/g" \
       -e "s/SEQUENCE/$Sequence/g" \
       -e "s/SAMPLE/$sample/g" \
-      -e "s/ALGORITHM/$Algo/g" \
-      -e "s/QUALITY/$Quality/g" \
       -e "s/TRACKS/$Tracks/g" \
       -e "s/[ ]\+source/source/g" \
-    >> $sample.py
-
+    >> tmp.py
+    if ($Algo != '') then
+       cat tmp.py | sed \
+       -e "s/ALGORITHM/'$Algo'/g" \
+       >! tmp2.py
+    else
+       cat tmp.py | sed \
+       -e "s/ALGORITHM//g" \
+       >! tmp2.py
+    endif
+    if ($Quality != '')then 
+	cat tmp2.py | sed \
+	-e "s/QUALITY/'$Quality'/g" \
+	>! $sample.py
+     else
+	cat tmp2.py | sed \
+	-e "s/QUALITY//g" \
+	>! $sample.py
+    endif
+rm tmp.py tmp2.py
 end
 
 ##############################################################################
