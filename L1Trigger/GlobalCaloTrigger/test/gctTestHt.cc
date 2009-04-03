@@ -19,11 +19,14 @@ using namespace std;
 /// Constructor and destructor
 
 gctTestHt::gctTestHt() {}
-gctTestHt::gctTestHt(const L1CaloEtScale* scale, const L1GctJetFinderParams* jfPars) :
+gctTestHt::gctTestHt(const L1CaloEtScale* jetScale,
+		     const L1CaloEtScale* mhtScale,
+		     const L1GctJetFinderParams* jfPars) :
   m_bxStart(), m_numOfBx(1),
   minusWheelJetDta(),
   plusWheelJetData(),
-  m_jetEtScale(scale),
+  m_jetEtScale(jetScale),
+  m_htMissScale(mhtScale),
   m_jfPars(jfPars)
 {}
 
@@ -265,16 +268,16 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
     }
 
     // Check the missing Ht calculation
-    double dhx = static_cast<double>(-hxTotal);
-    double dhy = static_cast<double>(-hyTotal);
+    double dhx = htComponentGeVForHtMiss(-hxTotal);
+    double dhy = htComponentGeVForHtMiss(-hyTotal);
     double dhm = sqrt(dhx*dhx + dhy*dhy);
     double phi = atan2(dhy, dhx);
     if (phi < 0) phi += 2.*M_PI;
 
-    unsigned htMiss = static_cast<unsigned>(dhm/16.);
-    unsigned htMPhi = static_cast<unsigned>(phi/M_PI*18.)*2;
+    unsigned htMiss = m_htMissScale->rank(dhm);
+    unsigned htMPhi = static_cast<unsigned>(phi/M_PI*9.)*4;
 
-    if (htMiss>63 || htmMinusOvrFlow || htmPlusOverFlow) htMiss = 63;
+    if (htmMinusOvrFlow || htmPlusOverFlow) htMiss = 127;
 
     if ((htMiss != myGlobalEnergy->getHtMissColl().at(bx).value()) ||
 	(htMPhi != myGlobalEnergy->getHtMissPhiColl().at(bx).value())) {
@@ -428,5 +431,12 @@ int gctTestHt::htComponent(const unsigned Emag0, const unsigned fact0,
   return result;
 }
 
+double gctTestHt::htComponentGeVForHtMiss(int inputComponent) const
+{
+  // Deal properly with the LSB truncation for 2s-complement numbers
+  // Input is 17 bits including sign bit but we use only 7 bits
+  int truncatedComponent = (((inputComponent + 0x200) >> 3) & 0x7f) - 0x40;
+  return ( (static_cast<double>(truncatedComponent) + 0.5) * 8.0 * m_jfPars->getHtLsbGeV() );
+}
 
 

@@ -8,6 +8,7 @@
 #include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
 
@@ -38,13 +39,15 @@ gctTestFunctions::gctTestFunctions(const edm::EventSetup& c) :
 //   c.get< L1GctChannelMaskRcd >().get( chanMask ) ; // which record?
   edm::ESHandle< L1CaloEtScale > etScale ;
   c.get< L1JetEtScaleRcd >().get( etScale ) ; // which record?
+  edm::ESHandle< L1CaloEtScale > htMissScale ;
+  c.get< L1HtMissScaleRcd >().get( htMissScale ) ; // which record?
   edm::ESHandle< L1CaloEtScale > hfRingEtScale ;
   c.get< L1HfRingEtScaleRcd >().get( hfRingEtScale ) ; // which record?
 
   theElectronsTester      = new gctTestElectrons();
   theEnergyAlgosTester    = new gctTestEnergyAlgos();
   theFirmwareTester       = new gctTestFirmware();
-  theHtTester             = new gctTestHt(etScale.product(), jfPars.product());
+  theHtTester             = new gctTestHt(etScale.product(), htMissScale.product(), jfPars.product());
   theHfEtSumsTester       = new gctTestHfEtSums(hfRingEtScale.product());
 }
 

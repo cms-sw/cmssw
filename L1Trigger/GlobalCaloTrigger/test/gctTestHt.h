@@ -48,7 +48,9 @@ public:
 
   // Constructor and destructor
   gctTestHt();
-  gctTestHt(const L1CaloEtScale* scale, const L1GctJetFinderParams* jfPars);
+  gctTestHt(const L1CaloEtScale* jetScale,
+	    const L1CaloEtScale* mhtScale,
+	    const L1GctJetFinderParams* jfPars);
   ~gctTestHt();
 
   /// Set array sizes for the number of bunch crossings
@@ -73,10 +75,13 @@ private:
   std::vector<rawJetData> plusWheelJetData;
 
   const L1CaloEtScale* m_jetEtScale;
+  const L1CaloEtScale* m_htMissScale;
   const L1GctJetFinderParams* m_jfPars;
 
   int htComponent(const unsigned Emag0, const unsigned fact0,
 		  const unsigned Emag1, const unsigned fact1) const;
+
+  double htComponentGeVForHtMiss(int inputComponent) const;
 };
 
 #endif /*GCTTEST_H_*/
