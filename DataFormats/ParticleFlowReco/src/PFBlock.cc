@@ -279,11 +279,12 @@ ostream& reco::operator<<(  ostream& out,
         break;
       case PFLayer::HF_EM:
         iHFEM++;
-        ss << "HFEM" << iHFEM;
+        ss << "FE" << iHFEM;
         break;
       case PFLayer::HF_HAD:
         iHFHAD++;
-        ss << "HFHAD" << iHFHAD;
+        ss << "FH" << iHFHAD;
+	break;
       default:
         iel++;   
         ss << "??" << iel;

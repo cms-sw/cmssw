@@ -30,15 +30,18 @@ namespace reco {
     static const unsigned nTypes_;
 
     /// possible types for the element
+    /// do not modify this enum if you don't know what you're doing!!!
     enum Type { 
       NONE=0,
-      TRACK, 
-      PS1, 
-      PS2, 
-      ECAL, 
-      HCAL,
-      GSF,
-      BREM
+      TRACK=1, 
+      PS1=2, 
+      PS2=3, 
+      ECAL=4, 
+      HCAL=5,
+      GSF=6,
+      BREM=7,
+      HFEM=8,
+      HFHAD=9
     };
 
     enum TrackType {
