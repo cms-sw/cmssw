@@ -2,9 +2,26 @@
  * \file MillePedeAlignmentAlgorithm.cc
  *
  *  \author    : Gero Flucke/Ivan Reid
- *  date       : February 2009 *  $Revision: 1.4 $
- *  $Date: 2009/03/20 14:16:31 $
- *  (last update by $Author: ireid $)
+ *  date       : February 2009 *  $Revision: 1.5 $
+ *  $Date: 2009/04/03 08:59:05 $
+ *  (last update by $Author: flucke $)
+ */
+/*
+ *# Parameters:
+ *#    saveApeToASCII -- Do we write out an APE text file?
+ *#    saveComposites -- Do we write APEs for composite detectors?
+ *#    saveLocalNotGlobal -- Do we write the APEs in the local or global coordinates?
+ *#    apeASCIISaveFile -- The name of the save-file.
+ *#    readApeFromASCII -- Do we read in APEs from a text file?
+ *#    readLocalNotGlobal -- Do we read APEs in the local or the global frame?
+ *#    readFullLocalMatrix -- Do we read the full local matrix or just the diagonal elements?
+ *# Full matrix format: DetID dxx dxy dyy dxz dyz dzz
+ *# Diagonal element format: DetID sqrt(dxx) sqrt(dyy) sqrt(dzz)
+ *#    setComposites -- Do we set the APEs for composite detectors or just ignore them?
+ *#    apeASCIIReadFile -- Input file name.
+ *# Also note:
+ *#    process.AlignmentProducer.saveApeToDB -- to save as an sqlite file
+ *# and associated entries in _cfg.py
  */
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
@@ -33,6 +50,7 @@
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 class ApeSettingAlgorithm : public AlignmentAlgorithmBase
 {
@@ -57,8 +75,8 @@ class ApeSettingAlgorithm : public AlignmentAlgorithmBase
   edm::ParameterSet         theConfig;
   AlignableNavigator       *theAlignableNavigator;
   AlignableTracker         *theTracker;
-  bool                     saveApeToAscii_,readApeFromAscii_;
-  bool                     readLocalNotGlobal_;
+  bool                     saveApeToAscii_,readApeFromAscii_,readFullLocalMatrix_;
+  bool                     readLocalNotGlobal_,saveLocalNotGlobal_;
   bool                     setComposites_,saveComposites_;
 };
 
@@ -77,8 +95,10 @@ ApeSettingAlgorithm::ApeSettingAlgorithm(const edm::ParameterSet &cfg) :
   edm::LogInfo("Alignment") << "@SUB=ApeSettingAlgorithm" << "Start.";
   saveApeToAscii_ = theConfig.getUntrackedParameter<bool>("saveApeToASCII");
   saveComposites_ = theConfig.getUntrackedParameter<bool>("saveComposites");
+  saveLocalNotGlobal_ = theConfig.getUntrackedParameter<bool>("saveLocalNotGlobal");
   readApeFromAscii_ = theConfig.getParameter<bool>("readApeFromASCII");
   readLocalNotGlobal_ = theConfig.getParameter<bool>("readLocalNotGlobal");
+  readFullLocalMatrix_ = theConfig.getParameter<bool>("readFullLocalMatrix");
   setComposites_ = theConfig.getParameter<bool>("setComposites");
   
 }
@@ -108,8 +128,10 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
    std::set<int> apeList; //To avoid duplicates
    while (!apeReadFile.eof())
      { int apeId=0; double x11,x21,x22,x31,x32,x33;
-     apeReadFile>>apeId>>x11>>x21>>x22>>std::ws;
-     if (!readLocalNotGlobal_) { apeReadFile>>x31>>x32>>x33>>std::ws;}
+     if (!readLocalNotGlobal_ || readFullLocalMatrix_) 
+       { apeReadFile>>apeId>>x11>>x21>>x22>>x31>>x32>>x33>>std::ws;}
+     else
+       { apeReadFile>>apeId>>x11>>x22>>x33>>std::ws;}
      //idr What sanity checks do we need to put here?
      if (apeId != 0) //read appears valid?
        if (apeList.find(apeId) == apeList.end()) //Not previously done
@@ -119,14 +141,19 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
 	   { if ((alidet->components().size()<1) || setComposites_) //the problem with glued dets...
 	     { if (readLocalNotGlobal_)
 	       { AlgebraicSymMatrix as(3,0); 
-	       as[0][0]=x11*x11; as[1][1]=x21*x21; as[2][2]=x22*x22; //local cov.
+	       if (readFullLocalMatrix_)
+		 { as[0][0]=x11; as[1][0]=x21; as[1][1]=x22;
+		   as[2][0]=x31; as[2][1]=x32; as[2][2]=x33;
+		 }
+	       else
+	         { as[0][0]=x11*x11; as[1][1]=x22*x22; as[2][2]=x33*x33;} //local cov.
 	       align::RotationType rt=alidet->globalRotation();
 	       AlgebraicMatrix am(3,3);
 	       am[0][0]=rt.xx(); am[0][1]=rt.xy(); am[0][2]=rt.xz();
 	       am[1][0]=rt.yx(); am[1][1]=rt.yy(); am[1][2]=rt.yz();
 	       am[2][0]=rt.zx(); am[2][1]=rt.zy(); am[2][2]=rt.zz();
 	       am=am.T()*as*am; //symmetric matrix
-	       alidet->setAlignmentPositionError(GlobalError(am[0][0],am[1][0],am[1][1],am[2][0],am[2][1],am[2][2]));
+	       alidet->setAlignmentPositionError(AlignmentPositionError(GlobalError(am[0][0],am[1][0],am[1][1],am[2][0],am[2][1],am[2][2])));
 	       }
 	     else
 	       { alidet->setAlignmentPositionError(GlobalError(x11,x21,x22,x31,x32,x33)); //set for global
@@ -162,9 +189,22 @@ void ApeSettingAlgorithm::terminate()
       if (alidet && ((alidet->components().size()<1) || saveComposites_))
 	{ apeSaveFile<<id;
 	CLHEP::HepSymMatrix sm= aliErr->m_alignError[i].matrix();
-	for (int j=0; j < 3; ++j)
-	  for (int k=0; k <= j; ++k)
-	    apeSaveFile<<"  "<<sm[j][k];
+	if (saveLocalNotGlobal_)
+	  { align::RotationType rt=alidet->globalRotation();
+	  AlgebraicMatrix am(3,3);
+	  am[0][0]=rt.xx(); am[0][1]=rt.xy(); am[0][2]=rt.xz();
+	  am[1][0]=rt.yx(); am[1][1]=rt.yy(); am[1][2]=rt.yz();
+	  am[2][0]=rt.zx(); am[2][1]=rt.zy(); am[2][2]=rt.zz();
+	  am=am*sm*am.T(); //symmetric matrix
+	  for (int j=0; j < 3; ++j)
+	    for (int k=0; k <= j; ++k)
+	      apeSaveFile<<"  "<<am[j][k]; //always write full matrix
+	  } //transform to local
+	else
+	{ for (int j=0; j < 3; ++j)
+	      for (int k=0; k <= j; ++k)
+		apeSaveFile<<"  "<<sm[j][k]; //always write full matrix
+	}
 	apeSaveFile<<std::endl;
 	}
       }
