@@ -1,7 +1,7 @@
 /** \class HcalGenericDetId
     \author F.Ratnikov, UMd
    Generic HCAL detector ID suitable for all Hcal subdetectors
-   $Id: HcalGenericDetId.cc,v 1.11 2009/02/19 17:05:33 rofierzy Exp $
+   $Id: HcalGenericDetId.cc,v 1.12 2009/03/24 16:05:59 rofierzy Exp $
 */
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
@@ -11,6 +11,7 @@
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
 #include <iostream>
+#include <cstdlib>
 
 HcalOtherSubdetector HcalGenericDetId::otherSubdet () const {
   if (HcalSubdetector(subdetId()) != HcalOther) return HcalOtherEmpty;
