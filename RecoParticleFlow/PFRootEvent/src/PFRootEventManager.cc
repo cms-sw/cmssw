@@ -1972,7 +1972,7 @@ void PFRootEventManager::clustering() {
 
   fillOutEventWithClusters( *clustersHCAL_ );
 
-  //COLIN: do HF clustering here
+  // HF clustering -------------------------------------------
 
   clusterAlgoHFEM_.doClustering( rechitsHFEM_ );
   clustersHFEM_ = clusterAlgoHFEM_.clusters();
@@ -2170,7 +2170,11 @@ void PFRootEventManager::particleFlow() {
   edm::OrphanHandle< reco::PFClusterCollection > hcalh( clustersHCAL_.get(), 
                                                         edm::ProductID(3) );  
 
-  //COLIN include HF clusters to particle flow here
+  edm::OrphanHandle< reco::PFClusterCollection > hfemh( clustersHFEM_.get(), 
+                                                        edm::ProductID(31) );  
+
+  edm::OrphanHandle< reco::PFClusterCollection > hfhadh( clustersHFHAD_.get(), 
+                                                        edm::ProductID(32) );  
 
   edm::OrphanHandle< reco::PFClusterCollection > psh( clustersPS_.get(), 
                                                       edm::ProductID(4) );   
@@ -2203,13 +2207,10 @@ void PFRootEventManager::particleFlow() {
   
   pfBlockAlgo_.setInput( trackh, gsftrackh, 
 			 muonh,nuclh,convh,v0,
-			 ecalh, hcalh, psh,
+			 ecalh, hcalh, hfemh, hfhadh, psh,
 			 trackMask,gsftrackMask,
 			 ecalMask, hcalMask, psMask );
-  //  pfBlockAlgo_.setInput( trackh, 
-  // 			 //			 gsftrackh, 
-  // 			 ecalh, hcalh, psh,
-  //                          trackMask, gsftrackMask,ecalMask, hcalMask, psMask ); 
+
   pfBlockAlgo_.findBlocks();
   
   if( debug_) cout<<pfBlockAlgo_<<endl;
@@ -2217,9 +2218,7 @@ void PFRootEventManager::particleFlow() {
   pfBlocks_ = pfBlockAlgo_.transferBlocks();
 
 
-  //   edm::OrphanHandle< reco::PFBlockCollection > blockh( pfBlocks_.get(), 
-  //                                                        edm::ProductID(5) );  
-  
+
   pfAlgo_.reconstructParticles( *pfBlocks_.get() );
   //   pfAlgoOther_.reconstructParticles( blockh );
   if( debug_) cout<< pfAlgo_<<endl;

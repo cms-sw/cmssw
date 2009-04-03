@@ -359,7 +359,7 @@ void DisplayManager::createGCluster(const reco::PFCluster& cluster,
       break;
     case EPE:
       {
-        if( cluster.layer()<0 ) {
+        if( cluster.layer()<0 || cluster.layer()==PFLayer::HF_EM) {
           if (clusType==0) {
             gc = new  GPFCluster(this,
                                  viewType,ident,
@@ -512,11 +512,11 @@ void DisplayManager::createGRecHit(reco::PFRecHit& rh,int ident, double maxe, do
     break;                     
   case PFLayer::HF_HAD: 
     // how to handle a different threshold for HF?
-    thresh = em_->clusterAlgoHCAL_.threshEndcap();
+    thresh = em_->clusterAlgoHFHAD_.threshEndcap();
     break;           
   case PFLayer::HF_EM: 
     // how to handle a different threshold for HF?
-    thresh = em_->clusterAlgoECAL_.threshEndcap();
+    thresh = em_->clusterAlgoHFEM_.threshEndcap();
     break;           
   case PFLayer::PS1:
   case PFLayer::PS2:
@@ -835,6 +835,7 @@ void DisplayManager::displayAll(bool noRedraw)
     case CLUSTERPSID: 
     case CLUSTERIBID:
       {
+	cout<<"displaying "<<type<<" "<<p->second->getEnergy()<<" "<<clusEnMin_<<" on view "<<view<<endl;
         if (drawClus_)
           if (p->second->getEnergy() > clusEnMin_) {
             displayView_[view]->cd();
@@ -1399,6 +1400,22 @@ void DisplayManager::loadGPFBlocks()
           assert( !clusref.isNull() );
           //std::cout<<"key "<<clusref.key()<<std::flush<<std::endl<<std::endl;
           ident=(CLUSTERHCALID <<shiftId_) |clusref.key();
+        }
+      break;
+      case reco::PFBlockElement::HFEM:
+        {
+          reco::PFClusterRef clusref=(*iter).clusterRef();
+          assert( !clusref.isNull() );
+          //std::cout<<"key "<<clusref.key()<<std::flush<<std::endl<<std::endl;
+          ident=(CLUSTERHFEMID <<shiftId_) |clusref.key();
+        }
+      break;
+      case reco::PFBlockElement::HFHAD:
+        {
+          reco::PFClusterRef clusref=(*iter).clusterRef();
+          assert( !clusref.isNull() );
+          //std::cout<<"key "<<clusref.key()<<std::flush<<std::endl<<std::endl;
+          ident=(CLUSTERHFHADID <<shiftId_) |clusref.key();
         }
       break;
       case reco::PFBlockElement::GSF:
