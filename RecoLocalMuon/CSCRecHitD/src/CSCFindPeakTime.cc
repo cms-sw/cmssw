@@ -43,13 +43,13 @@ float CSCFindPeakTime::averageTime( int tmax, const float* adc ) {
      sumt += adc[i] * ( tmax - 1 + i );
 
    }
-   return sumt/sum;
+   return sumt/sum * 50.; //@@ in ns. May be some bin width offset things to handle here?
 }
 
 float CSCFindPeakTime::parabolaFitTime( int tmax, const float* adc ) {
   // 3-point parabolic fit, courtesy Andy Kubik
  
-   float timing = tmax * 50.; // @@ Reasonable default?
+   float timing = tmax; // @@ Reasonable default?
  
    float x1 = tmax-1;
    float x2 = tmax;
@@ -61,7 +61,7 @@ float CSCFindPeakTime::parabolaFitTime( int tmax, const float* adc ) {
    float top = (x2*x2-x1*x1)*(y3-y1) - (x3*x3-x1*x1)*(y2-y1);
    float bottom = (x1-x3)*(y2-y1) - (y3-y1)*(x1-x2);
    if (bottom != 0) timing = top/(2*bottom);
-   return timing;
+   return timing * 50.; //@@ in ns. May be some bin width offset things to handle here?
 }
 
 bool CSCFindPeakTime::fourPoleFitTime( int tmax, const float* adc, float t_zero, float t_peak ) {
