@@ -17,7 +17,7 @@ namespace cond {
   int UpdateStamp::stamp(std::string const & icomment, bool append) {
     m_revision++;
     m_timestamp = cond::time::now();
-    if (append) m_comment += sep + icomment;
+    if (append && !icomment.empty()) m_comment += sep + icomment;
     else m_comment = icomment;
     return m_revision;
   }

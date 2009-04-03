@@ -12,6 +12,7 @@ namespace {
 
     struct Dummy {
       std::vector<int> vid;
+      std::vector<float> vfd;
       std::vector<double> vdd;
       cond::DataWrapper<std::vector<int> > dummyI;
       cond::DataWrapper<std::vector<double> >dummyD;

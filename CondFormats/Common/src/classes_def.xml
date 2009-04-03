@@ -17,6 +17,7 @@
 <class name="pool::PolyPtr<std::basic_string<char> >"/>
  
 <class name="std::vector<int>"/>
+<class name="std::vector<float>"/>
  <class name="std::vector<double>"/>
  <class name="pool::PolyPtr<std::vector<int> >"/>
  <class name="cond::DataWrapper<std::vector<int> >"/>
