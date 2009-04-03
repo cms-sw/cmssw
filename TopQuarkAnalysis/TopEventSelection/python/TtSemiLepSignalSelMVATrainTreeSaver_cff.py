@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #
 
 ## import MVA trainer cfi
-from TopQuarkAnalysis.TopEventSelection.TraintreeSaver_cfi import *
+from TopQuarkAnalysis.TopEventSelection.TtSemiLepSignalSelMVATrainer_cfi import *
 
 ## define path for mva save file
 traintreeSaverSaveFile = cms.EDAnalyzer("TtSemiLepSignalSelMVASaveFile",
@@ -26,7 +26,8 @@ looper = cms.Looper("TtSemiLepSignalSelMVATrainerLooper",
         loadState  = cms.untracked.bool(False),
         saveState  = cms.untracked.bool(True),
         calibrationRecord = cms.string('traintreeSaver'),
-        trainDescription = cms.untracked.string('TopQuarkAnalysis/TopEventSelection/data/TraintreeSaver.xml')
+        trainDescription = cms.untracked.string(
+    'TopQuarkAnalysis/TopEventSelection/data/TtSemiLepSignalSelMVATrainTreeSaver.xml')
     ))
 )
 

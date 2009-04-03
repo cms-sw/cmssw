@@ -1,5 +1,5 @@
-#ifndef TraintreeSaver_h
-#define TraintreeSaver_h
+#ifndef TtSemiLepSignalSelMVATrainer_h
+#define TtSemiLepSignalSelMVATrainer_h
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -21,12 +21,12 @@
 MVA_COMPUTER_CONTAINER_DEFINE(TtSemiLepSignalSelMVA);  // defines TtSemiLepSignalSelMVA
 #endif
 
-class TraintreeSaver : public edm::EDAnalyzer {
+class TtSemiLepSignalSelMVATrainer : public edm::EDAnalyzer {
   
  public:
   
-  explicit TraintreeSaver(const edm::ParameterSet&);
-  ~TraintreeSaver();
+  explicit TtSemiLepSignalSelMVATrainer(const edm::ParameterSet&);
+  ~TtSemiLepSignalSelMVATrainer();
   
  private:
   

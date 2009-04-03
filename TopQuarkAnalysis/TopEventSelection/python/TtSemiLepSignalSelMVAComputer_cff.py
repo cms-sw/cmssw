@@ -7,5 +7,5 @@ from TopQuarkAnalysis.TopEventSelection.TtSemiLepSignalSelMVAComputer_cfi import
 
 ## path for mva input file
 TtSemiLepSignalSelMVAFileSource = cms.ESSource("TtSemiLepSignalSelMVAFileSource",
-    ttSemiLepSignalSelMVA = cms.FileInPath('TopQuarkAnalysis/TopEventSelection/data/Trainer.mva')
+    ttSemiLepSignalSelMVA = cms.FileInPath('TopQuarkAnalysis/TopEventSelection/data/TtSemiLepSignalSel.mva')
 )

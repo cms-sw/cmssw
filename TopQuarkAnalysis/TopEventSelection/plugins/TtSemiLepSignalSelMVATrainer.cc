@@ -5,7 +5,7 @@
 #include "PhysicsTools/MVATrainer/interface/HelperMacros.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
-#include "TopQuarkAnalysis/TopEventSelection/plugins/TraintreeSaver.h"
+#include "TopQuarkAnalysis/TopEventSelection/plugins/TtSemiLepSignalSelMVATrainer.h"
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLepSignalSelEval.h"
 
 #include "DataFormats/PatCandidates/interface/MET.h"
@@ -16,7 +16,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 
-TraintreeSaver::TraintreeSaver(const edm::ParameterSet& cfg):
+TtSemiLepSignalSelMVATrainer::TtSemiLepSignalSelMVATrainer(const edm::ParameterSet& cfg):
   muons_     (cfg.getParameter<edm::InputTag>("muons")),
   electrons_ (cfg.getParameter<edm::InputTag>("electrons")),
   jets_      (cfg.getParameter<edm::InputTag>("jets")),
@@ -27,12 +27,12 @@ TraintreeSaver::TraintreeSaver(const edm::ParameterSet& cfg):
 {
 }
 
-TraintreeSaver::~TraintreeSaver()
+TtSemiLepSignalSelMVATrainer::~TtSemiLepSignalSelMVATrainer()
 {
 }
 
 void
-TraintreeSaver::analyze(const edm::Event& evt, const edm::EventSetup& setup)
+TtSemiLepSignalSelMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 {
   //communication with CMSSW CondDB
   mvaComputer.update<TtSemiLepSignalSelMVARcd>("trainer", setup, "traintreeSaver");
@@ -157,26 +157,26 @@ TraintreeSaver::analyze(const edm::Event& evt, const edm::EventSetup& setup)
       //std::cout<<"a Wjets event"<<std::endl;
       evaluateTtSemiLepSignalSel(mvaComputer, selection, weight, true, false);
     }
-    else std::cout<<"Config File Error!! Please check <whatData> in TraintreeSaver.cfi";
+    else std::cout<<"Config File Error!! Please check <whatData> in TtSemiLepSignalSelMVATrainer.cfi";
   }
 }
 
-void TraintreeSaver::beginJob(const edm::EventSetup&){
+void TtSemiLepSignalSelMVATrainer::beginJob(const edm::EventSetup&){
   selEv = 0;
   if(whatData_!=-1 && whatData_!=0 && whatData_!=1){
-    std::cout<<"Config File Error!! Please check <whatData> in TraintreeSaver.cfi"<<std::endl;;
+    std::cout<<"Config File Error!! Please check <whatData> in TtSemiLepSignalSelMVATrainer.cfi"<<std::endl;;
     return;
   }
 }
 
-double TraintreeSaver::DeltaPhi(math::XYZTLorentzVector v1, math::XYZTLorentzVector v2)
+double TtSemiLepSignalSelMVATrainer::DeltaPhi(math::XYZTLorentzVector v1, math::XYZTLorentzVector v2)
 {
   double dPhi = fabs(v1.Phi() - v2.Phi());
   if (dPhi > TMath::Pi()) dPhi =  2*TMath::Pi() - dPhi;
   return dPhi;
 }
 
-double TraintreeSaver::DeltaR(math::XYZTLorentzVector v1, math::XYZTLorentzVector v2)
+double TtSemiLepSignalSelMVATrainer::DeltaR(math::XYZTLorentzVector v1, math::XYZTLorentzVector v2)
 {
   double dPhi = DeltaPhi(v1,v2);
   double dR = TMath::Sqrt((v1.Eta()-v2.Eta())*(v1.Eta()-v2.Eta())+dPhi*dPhi);
@@ -184,7 +184,7 @@ double TraintreeSaver::DeltaR(math::XYZTLorentzVector v1, math::XYZTLorentzVecto
 }
 
 // implement the plugins for the trainer
-// -> defines TraintreeSaverContainerSaveCondDB
-// -> defines TraintreeSaverSaveFile
-// -> defines TraintreeSaverLooper
+// -> defines TtSemiLepSignalSelMVAContainerSaveCondDB
+// -> defines TtSemiLepSignalSelMVASaveFile
+// -> defines TtSemiLepSignalSelMVATrainerLooper
 MVA_TRAINER_IMPLEMENT(TtSemiLepSignalSelMVA);

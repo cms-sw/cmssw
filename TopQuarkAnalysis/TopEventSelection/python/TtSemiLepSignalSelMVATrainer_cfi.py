@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # module to make mvaTraining for jet parton associations
 #
-buildTraintree = cms.EDAnalyzer("TraintreeSaver",
+buildTraintree = cms.EDAnalyzer("TtSemiLepSignalSelMVATrainer",
     #input tags used in the example
     muons  = cms.InputTag("selectedLayer1Muons"),
     electrons  = cms.InputTag("selectedLayer1Electrons"),                         
