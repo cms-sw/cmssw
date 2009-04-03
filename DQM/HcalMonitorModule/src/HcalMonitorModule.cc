@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/03/24 21:54:12 $
- * $Revision: 1.109 $
+ * $Date: 2009/03/24 22:05:21 $
+ * $Revision: 1.110 $
  * \author W Fisher
  * \author J Temple
  *
@@ -585,10 +585,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   }
 
   edm::Handle<HcalUnpackerReport> report;  
-  if (!(e.getByLabel("hcalDigis",report)))
+  if (!(e.getByLabel(inputLabelDigi_,report)))
     {
       rawOK_=false;
-      LogWarning("HcalMonitorModule")<<" hcalDigis not available";
+      LogWarning("HcalMonitorModule")<<" Digi Collection "<<inputLabelDigi_<<" not available";
     }
   if (rawOK_&&!report.isValid()) {
     rawOK_=false;
