@@ -5,6 +5,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "GeneratorInterface/Core/interface/FortranCallback.h"
+#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 
 #include "HepPID/ParticleIDTranslations.hh"
@@ -209,7 +210,8 @@ bool ExhumeHadronizer::initializeForInternalPartons()
     
    pypars.msti[0] = sigID;
    int idummy = 0;
-   exhumeEvent_ = new Exhume::Event(*exhumeProcess_,pythia6Service_->call(pyr_,&idummy));
+   unsigned int seed = getEngineReference().getSeed();
+   exhumeEvent_ = new Exhume::Event(*exhumeProcess_,seed);
 
    double massRangeLow = processPSet.getParameter<double>("MassRangeLow");
    double massRangeHigh = processPSet.getParameter<double>("MassRangeHigh");
