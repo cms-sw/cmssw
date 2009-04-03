@@ -34,8 +34,10 @@ namespace {
 
 unsigned int cond::service::GetToken::sizeDSW() {
   return dsw.size();
+}
 
 
+namespace {
   std::string userInfo() {
     // this are really static stuff
     std::ostringstream user_info;

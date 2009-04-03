@@ -62,8 +62,7 @@ int main( int argc, char** argv ){
   bool listAll=true;
   bool debug=false;
 
-
-  bool details=vm.count("debug")
+  bool details=vm.count("debug");
   bool verbose=vm.count("verbose");
 
   std::string tag;
@@ -171,9 +170,9 @@ int main( int argc, char** argv ){
 	 unsigned int counter=0;
 	 std::string payloadContainer=iovservice.payloadContainerName(token);
 	 std::cout<<"Tag "<<tag;
-	 if (verbose) std::cout << "\nStamp: " << iov.iovs().comment()
-				<< "; time " << iov.iovs().timestamp()
-				<< "; revision " << iov.iovs().revision();
+	 if (verbose) std::cout << "\nStamp: " << iov.iov().comment()
+				<< "; time " << iov.iov().timestamp()
+				<< "; revision " << iov.iov().revision();
 	 std::cout <<"\nTimeType " << cond::timeTypeSpecs[iov.timetype()].name
 		   <<"\nPayloadContainerName "<<payloadContainer<<"\n"
 		   <<"since \t till \t payloadToken"<<std::endl;

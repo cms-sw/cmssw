@@ -1,6 +1,7 @@
 #ifndef CondCore_IOVService_IOVProxy_h
 #define CondCore_IOVService_IOVProxy_h
 
+#include "CondFormats/Common/interface/IOVSequence.h"
 #include <string>
 #include "CondCore/DBCommon/interface/Time.h"
 #include <boost/shared_ptr.hpp>

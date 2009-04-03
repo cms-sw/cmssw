@@ -143,12 +143,12 @@ namespace cond {
  }
   
 
-void 
-IOVEditorImpl::stamp(std::string const & icomment, bool append) {
+  void 
+  IOVEditorImpl::stamp(std::string const & icomment, bool append) {
     if(!m_isActive) this->init();
-    m_iov->iov.stamp(icomment, append);
+    m_iov->stamp(icomment, append);
     m_iov.markUpdate();
-}
+  }
 
 
   void 
