@@ -261,7 +261,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            DataIntegrityTask = cms.untracked.bool(False),
 
                            # TRIG PRIM MONITOR
-                           TrigPrimMonitor = cms.untracked.bool(True),
+                           TrigPrimMonitor = cms.untracked.bool(False),
                            TrigPrimMonitor_OccThresh                      = cms.untracked.double(1.),
                            TrigPrimMonitor_Threshold                      = cms.untracked.double(1.),
                            TrigPrimMonitor_TPdigiTS                       = cms.untracked.int32(1),
