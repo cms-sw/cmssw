@@ -29,6 +29,7 @@ RPCMon_SS_Dbx_Global::RPCMon_SS_Dbx_Global(const ParameterSet& iConfig ){
   saveRootFile_ =  iConfig.getUntrackedParameter<bool>("SaveRootFile", false);
   rootFileName_ = iConfig.getUntrackedParameter<string>("RootFileName","out.root");
   verbose_ =  iConfig.getUntrackedParameter<int>("VerboseLevel", 0);
+  digiLabel_ = iConfig.getUntrackedParameter<std::string>("DigiLabel","muonRPCDigis");
 }
 
 RPCMon_SS_Dbx_Global::~RPCMon_SS_Dbx_Global(){
@@ -59,15 +60,15 @@ void RPCMon_SS_Dbx_Global::beginRun(const Run& r, const EventSetup& c){
 void RPCMon_SS_Dbx_Global::analyze(const Event& iEvent, const EventSetup&  iSetup) {
 
  edm::Handle<RPCDigiCollection> rpcDigis;
- iEvent.getByType(rpcDigis);
- 
+  iEvent.getByType(rpcDigis);
+
  edm::ESHandle<RPCGeometry> pDD;
  iSetup.get<MuonGeometryRecord>().get( pDD );
  
  
  RPCDigiCollection::DigiRangeIterator detUnitIt;
  
-  dbe_->setCurrentFolder(globalFolder_);
+ dbe_->setCurrentFolder(globalFolder_);
 
  // Loop over DetUnit's
  for (detUnitIt=rpcDigis->begin();detUnitIt!=rpcDigis->end();++detUnitIt){      
@@ -139,7 +140,6 @@ void RPCMon_SS_Dbx_Global::analyze(const Event& iEvent, const EventSetup&  iSetu
 	     name << "Barrel, After Pulse, Diff. bx, Wheel # " << std::setw(2) << std::setfill('+') << id.ring();
 	     me = dbe_->get(globalFolder_ + "/"+tag.str());
 	     if (!me){
-	       std::cout <<tag.str()<<std::endl;
 	       me = dbe_->book2D (tag.str(),name.str(),12,0.5,13.5,21,1.0,21.0);
 	       for (int sector=1; sector<=12 ; sector++){
 		 name.str("");
@@ -149,20 +149,16 @@ void RPCMon_SS_Dbx_Global::analyze(const Event& iEvent, const EventSetup&  iSetu
 	     } 
 	     me->Fill(id.sector(),nr);
 	   }
-	   if (id.region()==0){ //fill barrel labels
-	     string Yaxis=RPCname.name();
-	     Yaxis.erase (1,1);
-	     Yaxis.erase(0,3);
-	     Yaxis.replace(Yaxis.find("S"),4,"");
-	     Yaxis.erase(Yaxis.find("_")+2,8);
-	     me->setBinLabel(nr, Yaxis, 2);
-	   }
+
+	   string YLabel = RPCname.shortname();
+	   me->setBinLabel(nr, YLabel, 2);
 	 }
        }
-     }	    
-   }
- }                   // for  digis in layer
-}              
+     }
+   }	    
+ }// for  digis in layer
+} 
+              
 
 
 
