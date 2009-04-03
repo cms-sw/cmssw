@@ -24,15 +24,16 @@ HistogramD2D v14;
 std::vector<HistogramD> v15;
 std::vector<HistogramF2D> v16;
 std::vector<HistogramD2D> v17;
+PhysicsTools::Calibration::VHistogramD2D v18;
 
 // MVAComputer
-std::vector<Variable> v18;
-std::vector<ProcCategory::BinLimits> v19;
-std::vector<ProcLikelihood::SigBkg> v20;
-std::pair<double, std::vector<double> > v21;
-std::pair<std::vector<ProcMLP::Neuron>, bool> v22;
-MVAComputerContainer::Entry v23;
-std::vector<MVAComputerContainer::Entry> v24;
+std::vector<Variable> v19;
+std::vector<ProcCategory::BinLimits> v20;
+std::vector<ProcLikelihood::SigBkg> v21;
+std::pair<double, std::vector<double> > v22;
+std::pair<std::vector<ProcMLP::Neuron>, bool> v23;
+MVAComputerContainer::Entry v24;
+std::vector<MVAComputerContainer::Entry> v25;
 
 };
 } // anonymous namespace

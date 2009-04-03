@@ -27,6 +27,7 @@
 		<field name="columnTotal" transient="true"/>
 	</class>
 	<class name="std::vector&lt;PhysicsTools::Calibration::HistogramD2D&gt;"/>
+	<class name="PhysicsTools::Calibration::VHistogramD2D" class_version="0"/>
 
 	<!-- MVAComputer -->
 	<class name="PhysicsTools::Calibration::BitSet"/>

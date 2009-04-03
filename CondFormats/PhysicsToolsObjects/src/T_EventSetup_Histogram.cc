@@ -6,3 +6,4 @@ EVENTSETUP_DATA_REG(PhysicsTools::Calibration::HistogramF);
 EVENTSETUP_DATA_REG(PhysicsTools::Calibration::HistogramD);
 EVENTSETUP_DATA_REG(PhysicsTools::Calibration::HistogramF2D);
 EVENTSETUP_DATA_REG(PhysicsTools::Calibration::HistogramD2D);
+EVENTSETUP_DATA_REG(PhysicsTools::Calibration::VHistogramD2D);
