@@ -52,7 +52,8 @@ public:
     //static RunManager * instance();
     //static RunManager * init(edm::ParameterSet const & p); 
     virtual ~RunManager();
-    void initG4(const edm::EventSetup & es);
+    void initG4Run(const edm::EventSetup & es);
+    void initG4Job(const edm::EventSetup & es);
     void initializeUserActions();
     void initializeRun();
     void terminateRun();

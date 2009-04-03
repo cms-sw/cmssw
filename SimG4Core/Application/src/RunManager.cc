@@ -152,7 +152,26 @@ RunManager::~RunManager()
     if (m_kernel!=0) delete m_kernel; 
 }
 
-void RunManager::initG4(const edm::EventSetup & es)
+void RunManager::initG4Run(const edm::EventSetup & es)
+{
+  if (m_pUseMagneticField)
+    {
+      // setup the magnetic field
+      edm::ESHandle<MagneticField> pMF;
+      es.get<IdealMagneticFieldRecord>().get(pMF);
+      const GlobalPoint g(0.,0.,0.);
+      
+      // m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), map_, m_pField));
+      m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), m_pField));
+      G4TransportationManager * tM = G4TransportationManager::GetTransportationManager();
+      m_fieldBuilder->build( tM->GetFieldManager(),tM->GetPropagatorInField() ) ;
+      // m_fieldBuilder->configure("MagneticFieldType",tM->GetFieldManager(),tM->GetPropagatorInField());
+    }
+
+    initializeRun();
+  
+}
+void RunManager::initG4Job(const edm::EventSetup & es)
 {
     if (m_managerInitialized) return;
 
@@ -164,20 +183,6 @@ void RunManager::initG4(const edm::EventSetup & es)
     SensitiveDetectorCatalog catalog_;
     const DDDWorld * world = new DDDWorld(&(*pDD), map_, catalog_, m_check);
     m_registry.dddWorldSignal_(world);
-
-    if (m_pUseMagneticField)
-    {
-	// setup the magnetic field
-	edm::ESHandle<MagneticField> pMF;
-	es.get<IdealMagneticFieldRecord>().get(pMF);
-	const GlobalPoint g(0.,0.,0.);
-
-	// m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), map_, m_pField));
-	m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), m_pField));
-	G4TransportationManager * tM = G4TransportationManager::GetTransportationManager();
-	m_fieldBuilder->build( tM->GetFieldManager(),tM->GetPropagatorInField() ) ;
-	// m_fieldBuilder->configure("MagneticFieldType",tM->GetFieldManager(),tM->GetPropagatorInField());
-    }
 
     // we need the track manager now
     m_trackManager = std::auto_ptr<SimTrackManager>(new SimTrackManager);
@@ -239,8 +244,6 @@ void RunManager::initG4(const edm::EventSetup & es)
 					   << m_G4Commands[it];
       G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
     }
-
-    initializeRun();
 
 }
 

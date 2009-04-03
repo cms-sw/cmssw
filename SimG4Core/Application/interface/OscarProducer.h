@@ -24,6 +24,7 @@ public:
 
     explicit OscarProducer(edm::ParameterSet const & p);
     virtual ~OscarProducer();
+    virtual void beginRun(const edm::EventSetup & c);
     virtual void beginJob(const edm::EventSetup & c);
     virtual void endJob();
     virtual void produce(edm::Event & e, const edm::EventSetup & c);
