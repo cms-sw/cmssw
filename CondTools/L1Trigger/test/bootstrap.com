@@ -1,4 +1,4 @@
-#!/bin/tcsh
+#!/bin/sh
 
 lflag=0
 while getopts 'lh' OPTION
