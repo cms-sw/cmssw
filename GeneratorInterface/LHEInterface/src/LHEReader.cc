@@ -77,6 +77,8 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 		kEvent
 	};
 
+	void reset() { headerOk = false; }
+
     protected:
 	void startElement(const XMLCh *const uri,
 	                  const XMLCh *const localname,
@@ -277,6 +279,7 @@ boost::shared_ptr<LHEEvent> LHEReader::next()
 	while(curDoc.get() || curIndex < fileURLs.size()) {
 		if (!curDoc.get()) {
 			curSource.reset(new FileSource(fileURLs[curIndex++]));
+			handler->reset();
 			curDoc.reset(curSource->createReader(*handler));
 			curRunInfo.reset();
 		}
