@@ -382,7 +382,7 @@ void DisplayManager::createGCluster(const reco::PFCluster& cluster,
       break;
     case EPH:
       {
-        if( cluster.layer()>0 ) {
+        if( cluster.layer()>0 && cluster.layer()!=PFLayer::HF_EM) {
           if (clusType==0) {
             gc = new  GPFCluster(this,
                                  viewType,ident,
