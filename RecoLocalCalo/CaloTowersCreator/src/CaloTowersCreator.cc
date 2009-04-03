@@ -127,7 +127,8 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   c.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
   const HcalSeverityLevelComputer* hcalSevLvlComputer = hcalSevLvlComputerHndl.product();
  
-  const EcalSeverityLevelAlgo* ecalSevLvlAlgo;
+  const EcalSeverityLevelAlgo* ecalSevLvlAlgo = new EcalSeverityLevelAlgo();
+
   
   algo_.setEBEScale(EBEScale);
   algo_.setEEEScale(EEEScale);
@@ -222,5 +223,10 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   // Step D: Put into the event
   if (EScales.instanceLabel=="") e.put(prod);
   else e.put(prod,EScales.instanceLabel);
+
+
+  if (ecalSevLvlAlgo) delete ecalSevLvlAlgo;
+
+
 }
 
