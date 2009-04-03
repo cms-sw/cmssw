@@ -163,6 +163,12 @@ expertSettings.add_option("--writeraw",
                           default=False,
                           dest="writeraw")
 
+expertSettings.add_option("--processName",
+                          help="set process name explicitly",
+                          default = None,
+                          dest="name" 
+                          )
+
 expertSettings.add_option("--scenario",
                           help="Select scenario overriding standard settings (available:"+str(defaultOptions.scenarioOptions)+")",
                           default='pp',
@@ -297,10 +303,18 @@ if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTI
 if addEndJob:    
     options.step=options.step+',ENDJOB'
 print options.step
-    
-# the process name is just the last step in the list of steps
-options.name = trimmedStep.split(',')[-1]
-    
+
+
+# Setting name of process
+# if not set explicitly it needs some thinking
+if not options.name:
+    if 'HLT' in trimmedStep:    
+        options.name = 'HLT'
+    elif 'RECO' in trimmedStep:
+        options.name = 'RECO'
+    else:
+        options.name = trimmedStep.split(',')[-1]
+
 # check to be sure that people run the harvesting as a separte step
 isHarvesting = False
 isOther = False
@@ -309,13 +323,6 @@ s_list=options.step.split(',')
 if "HARVESTING" in options.step and len(s_list) > 1:
     print "The Harvesting step must be run alone"
     sys.exit(1)
-
-# if we're dealing with HLT, the process name has to be 'HLT' only
-# and if there is RECO in there we better call it RECO 
-if 'HLT' in trimmedStep:
-    options.name = 'HLT'
-elif 'RECO' in trimmedStep:
-    options.name = 'RECO'
 
 # sanity check options specifying data or mc
 if options.isData and options.isMC:
