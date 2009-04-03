@@ -17,7 +17,7 @@ ALCARECOSiStripCalZeroBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLev
 # Include masking only from Cabling and O2O
 import CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi
 siStripQualityESProducerUnbiased = CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi.siStripQualityESProducer.clone()
-siStripQualityESProducerUnbiased.appendToDataLabel = cms.string('unbiased')
+siStripQualityESProducerUnbiased.appendToDataLabel = 'unbiased'
 siStripQualityESProducerUnbiased.ListOfRecordToMerge = cms.VPSet(
     cms.PSet(
         record = cms.string( 'SiStripDetCablingRcd' ), # bad components from cabling
@@ -32,8 +32,22 @@ siStripQualityESProducerUnbiased.ListOfRecordToMerge = cms.VPSet(
 
 # Clusterizer #
 import RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi 
+
+ZeroBiasClusterizer = cms.PSet(
+    Algorithm = cms.string('ThreeThresholdAlgorithm'),
+    ChannelThreshold = cms.double(2.0),
+    SeedThreshold = cms.double(3.0),
+    ClusterThreshold = cms.double(5.0),
+    MaxSequentialHoles = cms.uint32(0),
+    MaxSequentialBad = cms.uint32(1),
+    MaxAdjacentBad = cms.uint32(0),
+    QualityLabel = cms.string('unbiased')
+    )
+
+
 calZeroBiasClusters = RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi.siStripClusters.clone()
-calZeroBiasClusters.QualityLabel = 'unbiased'
+calZeroBiasClusters.Clusterizer = ZeroBiasClusterizer
+
 
 # SiStripQuality (only to test the different data labels)#
 qualityStatistics = cms.EDFilter("SiStripQualityStatistics",
