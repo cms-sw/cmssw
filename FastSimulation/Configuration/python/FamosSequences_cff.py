@@ -53,7 +53,7 @@ from RecoParticleFlow.PFTracking.particleFlowTrack_cff import *
 from RecoParticleFlow.PFBlockProducer.particleFlowSimParticle_cff import *
 from RecoParticleFlow.PFBlockProducer.particleFlowBlock_cff import *
 from RecoParticleFlow.PFProducer.particleFlow_cff import *
-#from RecoParticleFlow.PFProducer.pfElectronTranslator_cff import *
+from RecoParticleFlow.PFProducer.pfElectronTranslator_cff import *
 from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff import *
 
 particleFlowSimParticle.sim = 'famosSimHits'
@@ -62,8 +62,8 @@ famosParticleFlowSequence = cms.Sequence(
     caloTowersRec+
     pfTrackElec+
     particleFlowBlock+
-    particleFlow
- #   pfElectronTranslator    
+    particleFlow+
+    pfElectronTranslator    
 )
 
 # Reco Jets and MET
@@ -71,6 +71,10 @@ from RecoJets.Configuration.RecoJets_cff import *
 from RecoJets.Configuration.RecoPFJets_cff import *
 from RecoMET.Configuration.RecoMET_cff import *
 from RecoMET.Configuration.RecoPFMET_cff import *
+
+#temporary
+tcMet.electronInputTag=cms.InputTag("gsfElectrons")
+
 
 caloJetMet = cms.Sequence(
     recoJets+
@@ -176,7 +180,7 @@ famosMuonIdAndIsolationSequence = cms.Sequence(
 from FastSimulation.Tracking.globalCombinedSeeds_cfi import *
 from FastSimulation.EgammaElectronAlgos.ecalDrivenElectronSeeds_cfi import *
 from FastSimulation.EgammaElectronAlgos.electronGSGsfTrackCandidates_cff import *
-from RecoEgamma.EgammaElectronProducers.pixelMatchGsfElectrons_cff import *
+from RecoEgamma.EgammaElectronProducers.gsfElectronSequence_cff import *
 from TrackingTools.GsfTracking.GsfElectronFit_cff import *
 from TrackingTools.GsfTracking.CkfElectronCandidateMaker_cff import *
 from TrackingTools.GsfTracking.FwdElectronPropagator_cfi import *
@@ -186,28 +190,25 @@ electronGsfTracks = TrackingTools.GsfTracking.GsfElectronFit_cfi.GsfGlobalElectr
 electronGsfTracks.src = 'electronGSGsfTrackCandidates'
 electronGsfTracks.TTRHBuilder = 'WithoutRefit'
 electronGsfTracks.TrajectoryInEvent = True
-pixelMatchGsfElectrons.barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters","fastElectronSeeds")
-pixelMatchGsfElectrons.endcapSuperClusters = cms.InputTag("correctedEndcapSuperClustersWithPreshower","fastElectronSeeds")
 
 from RecoParticleFlow.PFTracking.mergedElectronSeeds_cfi import *
 from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
 
-famosElectronSequence = cms.Sequence(
+famosGsfTrackSequence = cms.Sequence(
     iterativeFirstSeeds+
     newCombinedSeeds+
+    particleFlowCluster+ 
     ecalDrivenElectronSeeds+
     trackerDrivenElectronSeeds+
     electronMergedSeeds+
     electronGSGsfTrackCandidates+
-    electronGsfTracks+
-    pixelMatchGsfElectrons+
-    eIdSequence
+    electronGsfTracks
 )
 
 # Photon reconstruction
 from RecoEgamma.EgammaPhotonProducers.photonSequence_cff import *
 photons.hbheInstance = ''
-photons.pixelSeedProducer = 'fastElectronSeeds'
+#photons.pixelSeedProducer = 'fastElectronSeeds'
 from RecoEgamma.PhotonIdentification.photonId_cff import *
 
 famosPhotonSequence = cms.Sequence(
@@ -319,7 +320,6 @@ famosWithParticleFlow = cms.Sequence(
     famosWithTracksAndEcalClusters+
     vertexreco+
     caloTowersRec+ 
-    famosElectronSequence+
     famosParticleFlowSequence+
     PFJetMet
 )
@@ -328,6 +328,13 @@ famosWithCaloTowers = cms.Sequence(
     famosWithCaloHits+
     caloTowersRec
 )
+
+famosElectronSequence = cms.Sequence(
+        famosGsfTrackSequence+
+        famosWithParticleFlow+
+        gsfElectronSequence+
+        eIdSequence
+        )
 
 famosWithTracksAndCaloTowers = cms.Sequence(
     famosWithTracksAndCaloHits+
@@ -364,11 +371,10 @@ famosWithMuonsAndIsolation = cms.Sequence(
 )
 
 famosWithElectrons = cms.Sequence(
-    famosWithTracks+
-    caloRecHits+
-    ecalClusters+
+    famosWithTracksAndEcalClusters+
     caloTowersRec+
-    particleFlowCluster+
+    famosGsfTrackSequence+
+    famosParticleFlowSequence+
     famosElectronSequence+
     interestingEleIsoDetIdEB+
     interestingEleIsoDetIdEE+
@@ -445,13 +451,15 @@ reconstructionWithFamos = cms.Sequence(
     caloTowersRec+
     ecalClusters+
     particleFlowCluster+
-    famosElectronSequence+
-    famosPhotonSequence+
-    egammaIsolationSequence+
-    interestingEgammaIsoDetIds+
+    famosGsfTrackSequence+
     famosMuonSequence+
     famosMuonIdAndIsolationSequence+
     famosParticleFlowSequence+
+    gsfElectronSequence+
+    eIdSequence+
+    famosPhotonSequence+
+    egammaIsolationSequence+
+    interestingEgammaIsoDetIds+
     caloJetMetGen+
     caloJetMet+
     PFJetMet+
