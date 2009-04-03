@@ -8,6 +8,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=DQMServices/Core>
+<use name=CondTools/Hcal>
 <use name=rootmath>
 <export>
   <lib name=DQMHcalMonitorTasks>
