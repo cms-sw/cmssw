@@ -45,6 +45,9 @@ class PFMET : public edm::EDProducer {
   /// Input PFCandidates
   edm::InputTag   inputTagPFCandidates_;
   
+  /// HF calibration factor (in 31X applied by PFProducer)
+  double hfCalibFactor_;
+
   /// verbose ?
   bool   verbose_;
 

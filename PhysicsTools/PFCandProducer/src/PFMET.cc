@@ -29,7 +29,8 @@ PFMET::PFMET(const edm::ParameterSet& iConfig) {
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
-
+  hfCalibFactor_ = 
+    iConfig.getParameter<double>("hfCalibFactor");
 
   produces<METCollection>();
   
@@ -75,6 +76,11 @@ void PFMET::produce(Event& iEvent,
     const reco::PFCandidate& cand = (*pfCandidates)[i];
     
     double E = cand.energy();
+
+    /// HF calibration factor (in 31X applied by PFProducer)
+    if( cand.particleId()==PFCandidate::h_HF || 
+	cand.particleId()==PFCandidate::egamma_HF ) 
+      E *= hfCalibFactor_;
 
     double phi = cand.phi();
     double cosphi = cos(phi);
