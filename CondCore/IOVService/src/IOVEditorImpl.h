@@ -28,6 +28,11 @@ namespace cond{
 
     virtual void updateClosure( cond::Time_t newtillTime );
 
+
+    // stamp iov
+    virtual void stamp(std::string const & icomment, bool append=false);
+
+
     /// Append a payload with known since time. The previous last payload's till time will be adjusted to the new payload since time. Returns the payload index in the iov sequence
     virtual unsigned int append(  cond::Time_t sinceTime,
 				  const std::string& payloadToken

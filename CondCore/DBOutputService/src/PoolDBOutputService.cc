@@ -33,6 +33,18 @@ namespace {
 
 unsigned int cond::service::GetToken::sizeDSW() {
   return dsw.size();
+
+
+  std::string userInfo() {
+    // this are really static stuff
+    std::ostringstream user_info;
+    char * user= ::getenv("USER");
+    char * hostname= ::getenv("HOSTNAME");
+    char * pwd = ::getenv("PWD");
+    if (user) { user_info<< "USER=" << user <<";" ;} else { user_info<< "USER="<< "??;";}
+    if (hostname) {user_info<< "HOSTNAME=" << hostname <<";";} else { user_info<< "HOSTNAME="<< "??;";}
+    if (pwd) {user_info<< "PWD=" << pwd <<";";} else  {user_info<< "PWD="<< "??;";}
+    return user_info.str();
 }
 
 cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & iAR ): 
@@ -233,6 +245,7 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
     objToken = payloadToken(pooldb,m_withWrapper);
     unsigned int payloadIdx=editor->append(firstSinceTime, objToken);
     iovToken=editor->token();
+    editor->stamp(userInfo(),false);
     delete editor;    
 
     pooldb.commit();
@@ -296,7 +309,6 @@ cond::service::PoolDBOutputService::add( bool sinceNotTill,
     payloadIdx= sinceNotTill ?
       this->appendIOV(pooldb,myrecord,objToken,time) :
       this->insertIOV(pooldb,myrecord,objToken,time);
-
     pooldb.commit();
     if(withlogging){
       if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
@@ -351,6 +363,7 @@ cond::service::PoolDBOutputService::appendIOV(cond::PoolTransaction& pooldb,
   unsigned int payloadIdx =  m_freeInsert ? 
     editor->freeInsert(sinceTime,payloadToken) :
     editor->append(sinceTime,payloadToken);
+    editor->stamp(userInfo(),false);
 
   delete editor;
   return payloadIdx;
@@ -369,6 +382,8 @@ cond::service::PoolDBOutputService::insertIOV( cond::PoolTransaction& pooldb,
   cond::IOVService iovmanager(pooldb);
   cond::IOVEditor* editor=iovmanager.newIOVEditor(record.m_iovtoken);
   unsigned int payloadIdx=editor->insert(tillTime,payloadToken);
+  editor->stamp(userInfo(),false);
+
   delete editor;    
   return payloadIdx;
 }

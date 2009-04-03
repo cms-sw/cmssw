@@ -46,6 +46,8 @@ namespace cond{
 
     virtual void bulkAppend(std::vector< cond::IOVElement >& values)=0;
     
+    //stamp iov
+    virtual void stamp(std::string const & icomment, bool append=false)=0;
 
     /// Update the closure of the iov sequence
     virtual void updateClosure( cond::Time_t newtillTime ) = 0;
