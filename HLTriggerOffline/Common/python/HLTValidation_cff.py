@@ -11,7 +11,7 @@ from HLTriggerOffline.special.hltAlCaVal_cff import *
 hltvalidation = cms.Sequence(
     HLTMuonVal
     +HLTTauVal
-    #+egammaValidationSequence
+    +egammaValidationSequence
     +HLTTopVal
     +HLTFourVector
     +heavyFlavorValidationSequence
@@ -23,7 +23,7 @@ hltvalidation = cms.Sequence(
 hltvalidation_fastsim = cms.Sequence(
     HLTMuonVal_FastSim
     +HLTTauVal
-    #+egammaValidationSequence
+    +egammaValidationSequence
     +HLTFourVector
     +HLTTopVal
     +heavyFlavorValidationSequence
@@ -31,7 +31,7 @@ hltvalidation_fastsim = cms.Sequence(
 
 hltvalidation_pu = cms.Sequence(
     HLTTauVal
-    #+egammaValidationSequence
+    +egammaValidationSequence
     +HLTTopVal
     +HLTFourVector
     +heavyFlavorValidationSequence
