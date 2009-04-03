@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.50 2009/03/28 20:42:00 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.51 2009/03/28 22:27:13 charlot Exp $
 //
 //
 
@@ -326,14 +326,12 @@ void GsfElectronAlgo::process(
    
     // Get the super cluster
     SuperClusterRef scRef = coreRef->superCluster() ;
-    if (!scRef.isNull()) std::cout << "[GsfElectronAlgo] e/g super cluster found with energy " << scRef->energy() << std::endl;
 
    // don't add pflow only electrons one so wish
     if (!coreRef->isEcalDriven() && !addPflowElectrons_) continue;
 
     // Get the pflow super cluster
     SuperClusterRef pfscRef = coreRef->pflowSuperCluster() ;
-    if (!pfscRef.isNull()) std::cout << "[GsfElectronAlgo] pflow super cluster found with energy " << pfscRef->energy() << std::endl;
 
     if (scRef.isNull()&&pfscRef.isNull()) continue ;
 
