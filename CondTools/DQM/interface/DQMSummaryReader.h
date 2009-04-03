@@ -2,10 +2,10 @@
 #define CondTools_DQM_DQMSummaryReader_h
 
 #include "CondFormats/DQMObjects/interface/DQMSummary.h"
-//#include "CondTools/DQM/interface/TestBase.h"
-#include "CondTools/DQM/interface/ReadBase.h"
+#include "CondTools/DQM/interface/TestBase.h"
+//#include "CondTools/DQM/interface/ReadBase.h"
 
-class DQMSummaryReader : virtual public /*TestBase*/ ReadBase {
+class DQMSummaryReader : virtual public TestBase /*ReadBase*/ {
  public:
   DQMSummaryReader(const std::string& connectionString,
 		   const std::string& user,

@@ -1,7 +1,7 @@
 #include "CondTools/DQM/interface/DQMSummaryReader.h"
 #include "FWCore/Utilities/interface/Exception.h"
-//#include "RelationalAccess/ISession.h"
-#include "RelationalAccess/ISessionProxy.h"
+#include "RelationalAccess/ISession.h"
+//#include "RelationalAccess/ISessionProxy.h"
 //#include "RelationalAccess/ITypeConverter.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ISchema.h"
@@ -21,7 +21,7 @@
 DQMSummaryReader::DQMSummaryReader(const std::string& connectionString,
 				   const std::string& user,
 				   const std::string& pass):
-  /*TestBase(),*/ ReadBase(),
+  TestBase(), /*ReadBase(),*/
   m_connectionString( connectionString ),
   m_user( user ),
   m_pass( pass ) {
@@ -38,10 +38,10 @@ DQMSummary::DQMSummary DQMSummaryReader::readData(const std::string & table, /*c
   DQMSummary::DQMSummary dqmSummary;
   dqmSummary.m_run = r_number;
   std::cout<< "Entering readData" << std::endl;
-  //coral::ISession* session = this->connect(m_connectionString,
-  //                                         m_user, m_pass);
-  coral::ISessionProxy* session = this->connect(m_connectionString,
-                                                m_user, m_pass);
+  coral::ISession* session = this->connect(m_connectionString,
+                                           m_user, m_pass);
+  //coral::ISessionProxy* session = this->connect(m_connectionString,
+  //                                              m_user, m_pass);
   try{
     //session->typeConverter().setCppTypeForSqlType(coral::AttributeSpecification::typeNameForId(typeid(std::string)), "VARCHAR2(20)");
     //session->typeConverter().setCppTypeForSqlType(coral::AttributeSpecification::typeNameForId(typeid(std::string)), "VARCHAR2(40)");

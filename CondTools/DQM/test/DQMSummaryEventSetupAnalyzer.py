@@ -4,7 +4,8 @@ process = cms.Process("Test")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 process.CondDBCommon.connect = 'sqlite_file:DQMSummaryTest.db'
-## process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
+#process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_30X_DQM_SUMMARY'
+#process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
 
 process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(-1)
