@@ -61,6 +61,12 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   inputTagPFClustersHCAL_ 
     = iConfig.getParameter<InputTag>("PFClustersHCAL");
 
+  inputTagPFClustersHFEM_ 
+    = iConfig.getParameter<InputTag>("PFClustersHFEM");
+
+  inputTagPFClustersHFHAD_ 
+    = iConfig.getParameter<InputTag>("PFClustersHFHAD");
+
   inputTagPFClustersPS_ 
     = iConfig.getParameter<InputTag>("PFClustersPS");
 
@@ -278,6 +284,20 @@ void PFBlockProducer::produce(Event& iEvent,
     LogError("PFBlockProducer")<<" cannot get HCAL clusters: "
 			       <<inputTagPFClustersHCAL_<<endl;
     
+  Handle< reco::PFClusterCollection > clustersHFEM;
+  found = iEvent.getByLabel(inputTagPFClustersHFEM_, 
+			    clustersHFEM);      
+  if(!found )
+    LogError("PFBlockProducer")<<" cannot get HFEM clusters: "
+			       <<inputTagPFClustersHFEM_<<endl;
+    
+  Handle< reco::PFClusterCollection > clustersHFHAD;
+  found = iEvent.getByLabel(inputTagPFClustersHFHAD_, 
+			    clustersHFHAD);      
+  if(!found )
+    LogError("PFBlockProducer")<<" cannot get HFHAD clusters: "
+			       <<inputTagPFClustersHFHAD_<<endl;
+    
 
   Handle< reco::PFClusterCollection > clustersPS;
   found = iEvent.getByLabel(inputTagPFClustersPS_, 
@@ -290,6 +310,8 @@ void PFBlockProducer::produce(Event& iEvent,
      pfBlockAlgo_.setInput( recTracks, 			   
 			   clustersECAL,
 			   clustersHCAL,
+			   clustersHFEM,
+			   clustersHFHAD,
 			   clustersPS );
   } else { 
     pfBlockAlgo_.setInput( recTracks, 
@@ -300,6 +322,8 @@ void PFBlockProducer::produce(Event& iEvent,
 			   pfV0,
 			   clustersECAL,
 			   clustersHCAL,
+			   clustersHFEM,
+			   clustersHFHAD,
 			   clustersPS );
   }
   pfBlockAlgo_.findBlocks();

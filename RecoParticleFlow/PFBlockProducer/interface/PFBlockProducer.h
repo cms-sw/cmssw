@@ -52,6 +52,8 @@ class PFBlockProducer : public edm::EDProducer {
   edm::InputTag   inputTagPFNuclear_;
   edm::InputTag   inputTagPFClustersECAL_;
   edm::InputTag   inputTagPFClustersHCAL_;
+  edm::InputTag   inputTagPFClustersHFEM_;
+  edm::InputTag   inputTagPFClustersHFHAD_;
   edm::InputTag   inputTagPFClustersPS_;
   edm::InputTag   inputTagPFConversions_;
   edm::InputTag   inputTagPFV0_;
