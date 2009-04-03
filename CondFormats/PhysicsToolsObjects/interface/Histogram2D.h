@@ -144,7 +144,8 @@ typedef Histogram2D<double> HistogramD2D;
 // wrap vectors of histograms so that CondDB can use them as top-level objects
 
 struct VHistogramD2D {
-	std::vector<PhysicsTools::Calibration::HistogramD2D>	vhist;
+  std::vector<PhysicsTools::Calibration::HistogramD2D>	vHist;
+  std::vector<double> vValues;
 };
 
 } // namespace Calibration

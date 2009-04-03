@@ -54,7 +54,9 @@ void SiStripDeDx2DBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
       }
     }
 
-    (obj->vhist).push_back(myhist); 
+    (obj->vHist).push_back(myhist);
+    (obj->vValues).push_back(ih); 
+
   }
 
 

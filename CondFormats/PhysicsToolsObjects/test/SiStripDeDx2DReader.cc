@@ -47,15 +47,18 @@ void SiStripDeDx2DReader::analyze( const edm::Event& e, const edm::EventSetup& i
   edm::LogInfo("SiStripDeDx2DReader") << "[SiStripDeDx2DReader::analyze] End Reading SiStripDeDxProton_2D" << std::endl;
 
   for (int ihisto=0; ihisto<3; ihisto++){
-    std::cout<< (SiStripDeDx2D_->vhist)[ihisto].numberOfBinsX() <<  "   "<< (SiStripDeDx2D_->vhist)[ihisto].numberOfBinsY() <<std::endl;
+    std::cout<< (SiStripDeDx2D_->vHist)[ihisto].numberOfBinsX() <<  "   "<< (SiStripDeDx2D_->vHist)[ihisto].numberOfBinsY() <<std::endl;
 
-   for(int ix=0; ix<300; ix++){
+    for(int ix=0; ix<300; ix++){
       for(int iy=0; iy<1000; iy++){
 
-	std::cout<< (SiStripDeDx2D_->vhist)[ihisto].binContent(ix, iy ) << " " << (SiStripDeDx2D_->vhist)[ihisto].value(ix/100., iy )<<std::endl;
-
+	std::cout<< (SiStripDeDx2D_->vHist)[ihisto].binContent(ix, iy ) << " " << (SiStripDeDx2D_->vHist)[ihisto].value(ix/100., iy )<<std::endl;
+	
       }
     }
+
+    std::cout << "Value = " << (SiStripDeDx2D_->vValues)[ihisto] << std::endl;
+
   }
 
 //   std::vector<uint32_t> detid;
