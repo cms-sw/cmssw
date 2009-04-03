@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.51 2009/03/28 22:27:13 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.52 2009/04/03 05:16:10 dlange Exp $
 //
 //
 
@@ -338,10 +338,8 @@ void GsfElectronAlgo::process(
     // affect main electron cluster according to provenance
     SuperCluster theClus;
     if (coreRef->isEcalDriven()) {
-      std::cout << "[GsfElectronAlgo] found by e/g " << std::endl;
       theClus = *scRef ;
     } else {
-      std::cout << "[GsfElectronAlgo] NOT found by e/g " << std::endl;      
       theClus = *pfscRef ;
     }
      
