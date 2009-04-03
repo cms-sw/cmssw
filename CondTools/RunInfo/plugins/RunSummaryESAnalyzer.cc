@@ -33,14 +33,14 @@ namespace edmtest
     virtual ~RunSummaryESAnalyzer() {  
       std::cout<<"~RunSummaryESAnalyzer "<<std::endl;
     }
-     virtual void beginJob(const edm::EventSetup& context);
-     virtual void beginRun(const edm::Run&, const edm::EventSetup& context);
+    // virtual void beginJob(const edm::EventSetup& context);
+    // virtual void beginRun(const edm::Run&, const edm::EventSetup& context);
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
   private:
   };
    
   
- void
+  /* void
   RunSummaryESAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& context){
     std::cout<<"###RunSummaryESAnalyzer::beginRun"<<std::endl;
     edm::ESHandle<RunSummary> RunSummary_lumiarray;
@@ -55,7 +55,7 @@ namespace edmtest
    
   }
  
- 
+  */
   void
    RunSummaryESAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context){
     using namespace edm::eventsetup;
