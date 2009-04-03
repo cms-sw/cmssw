@@ -69,9 +69,10 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
 
   // instanciate the correction algo object
   energyCorrector_ = new EgammaSCEnergyCorrectionAlgo(sigmaElectronicNoise_, sCAlgo_, fCorrPset, verbosity_);
-
+  
   // energy correction class
-  EnergyCorrection_ = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps);
+  if (applyEnergyCorrection_ )
+    EnergyCorrection_ = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps);
 }
 
 EgammaSCCorrectionMaker::~EgammaSCCorrectionMaker()
@@ -85,7 +86,8 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
   using namespace edm;
 
   // initialize energy correction class
-  EnergyCorrection_->init(es);
+  if(applyEnergyCorrection_) 
+    EnergyCorrection_->init(es);
 
   // get the collection geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
@@ -137,9 +139,10 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
   for(aClus = rawClusters->begin(); aClus != rawClusters->end(); aClus++)
     {
       reco::SuperCluster newClus;
-      if(applyEnergyCorrection_) {
+      if(applyEnergyCorrection_) 
         newClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_, geometry_p, EnergyCorrection_);
-      }
+      else
+	newClus=*aClus;
 
       if(newClus.energy()*sin(newClus.position().theta())>etThresh_) {
 	//and corrected energy of SC before placing SCs in collection
