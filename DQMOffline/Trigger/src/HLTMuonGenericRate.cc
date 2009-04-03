@@ -3,8 +3,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/03/27 15:11:29 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/04/02 16:33:18 $
+ *  $Revision: 1.6 $
  */
 
 
@@ -353,7 +353,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   std::vector<MatchStruct> recMatches;
   //std::vector<MatchStruct> highPtMatches;
   
-  const reco::BeamSpot*  beamSpot;
+  reco::BeamSpot  beamSpot;
   bool foundBeamSpot = false;
   
   if ( useMuonFromReco ) {
@@ -396,7 +396,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle);
     if (!recoBeamSpotHandle.failedToGet()) {
       
-      beamSpot = &(*recoBeamSpotHandle);
+      beamSpot = *recoBeamSpotHandle;
       foundBeamSpot = true;
 
       LogTrace ("HLTMuonVal") << "\n\n\nSUCESS finding beamspot\n\n\n" << endl;
@@ -1224,10 +1224,10 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     double z0beam = -999;
     
     if (foundBeamSpot) {
-      d0beam = theMuoGlobalTrack->dxy(beamSpot->position());
-      z0beam = theMuoGlobalTrack->dz(beamSpot->position());
+      d0beam = theMuoGlobalTrack->dxy(beamSpot.position());
+      z0beam = theMuoGlobalTrack->dz(beamSpot.position());
 
-      hBeamSpotZ0Rec[0]->Fill(beamSpot->z0());
+      hBeamSpotZ0Rec[0]->Fill(beamSpot.z0());
     }
     
     // For now, take out the cuts on the pt/eta,
@@ -1383,7 +1383,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
         
 
         
-        hChargeFlipMatched[j+i]->Fill( hltCand_plottedCharge, plottedCharge);
+        hChargeFlipMatched[j+1]->Fill( hltCand_plottedCharge, plottedCharge);
 
         
         // Resolution histos must have hlt matches
@@ -1403,6 +1403,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     //         Fill some RAW histograms
     /////////////////////////////////////////////////
 
+    LogTrace ("HLTMuonVal")  << "\n.... now Filling Raw Histos";
     if ( recMatches[i].l1RawCand.energy() > 0 ) {
       
       // you've found a L1 raw candidate
@@ -1428,10 +1429,16 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   // 
   /////////////////////////////////////////
 
-
+  LogTrace ("HLTMuonVal")  << "\n.... now looping over fake cands";
   for (unsigned int  iHltModule = 0;  iHltModule < numHltLabels; iHltModule++) {
     for(size_t iCand = 0; iCand < hltFakeCands[iHltModule].size() ; iCand ++){
-
+      LogTrace ("HLTMuonVal") << "Label number : " << iHltModule
+                              << "(max = " << numHltLabels << ")\n"
+                              << "Candidate number: " << iCand
+                              << "(max = " <<  hltFakeCands[iHltModule].size()
+                              << " )\n";
+        
+                              
       TriggerObject candVect = hltFakeCands[iHltModule][iCand].myHltCand;
       bool candIsFake = hltFakeCands[iHltModule][iCand].isAFake;
       
