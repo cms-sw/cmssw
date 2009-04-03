@@ -40,6 +40,8 @@ std::ostream& reco::operator<<( std::ostream& out,
       }
     case PFBlockElement::ECAL:
     case PFBlockElement::HCAL:
+    case PFBlockElement::HFEM:
+    case PFBlockElement::HFHAD:
     case PFBlockElement::PS1:
     case PFBlockElement::PS2:    
       {

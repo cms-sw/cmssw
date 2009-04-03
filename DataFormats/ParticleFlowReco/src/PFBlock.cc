@@ -359,6 +359,7 @@ ostream& reco::operator<<(  ostream& out,
 	if ( !toPrint[j] ) continue;
         double Dist = block.dist(i,j, block.linkData(),PFBlock::LINKTEST_ALL);
 
+	// out<<setw(width)<< Dist*1000.;
 	if (Dist > -0.5) out<<setw(width)<< Dist*1000.; 
         else  out <<setw(width)<< " ";
       }
