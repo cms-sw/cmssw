@@ -3,6 +3,6 @@
 
 #include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h"
 
-typedef EcalFunctionParameters EcalClusterEnergyCorrectionParameters;
+typedef EcalFunParams EcalClusterEnergyCorrectionParameters;
 
 #endif
