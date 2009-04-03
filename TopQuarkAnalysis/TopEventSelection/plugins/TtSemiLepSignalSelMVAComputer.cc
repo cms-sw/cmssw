@@ -1,8 +1,7 @@
 #include "PhysicsTools/JetMCUtils/interface/combination.h"
 
 #include "TopQuarkAnalysis/TopEventSelection/plugins/TtSemiLepSignalSelMVAComputer.h"
-//#include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepSignalSelEval.h"
+#include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLepSignalSelEval.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"

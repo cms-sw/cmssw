@@ -6,7 +6,7 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
 #include "TopQuarkAnalysis/TopEventSelection/plugins/TraintreeSaver.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepSignalSelEval.h"
+#include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLepSignalSelEval.h"
 
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
