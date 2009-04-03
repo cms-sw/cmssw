@@ -44,8 +44,8 @@ G4eFitter = cms.ESProducer("KFTrajectoryFitterESProducer",
                            )
 
 ## Different versions have different refitter cffs
-#from RecoTracker.TrackProducer.TrackRefitters_cff import *
-from RecoTracker.TrackProducer.RefitterWithMaterial_cff import *
+from RecoTracker.TrackProducer.TrackRefitters_cff import *
+#from RecoTracker.TrackProducer.RefitterWithMaterial_cff import *
 Geant4eRefitter = TrackRefitter.clone()
 Geant4eRefitter.Propagator=cms.string("Geant4ePropagator")
 Geant4eRefitter.Fitter=cms.string("G4eFitter")

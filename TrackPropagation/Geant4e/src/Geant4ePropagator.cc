@@ -1,3 +1,4 @@
+
 //Geant4e
 #include "TrackPropagation/Geant4e/interface/Geant4ePropagator.h"
 #include "TrackPropagation/Geant4e/interface/ConvertFromToCLHEP.h"
@@ -258,7 +259,7 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   // We set the SurfaceSide to atCenterOfSurface.                       //
   ////////////////////////////////////////////////////////////////////////
   LogDebug("Geant4e") << "G4e -  SurfaceSide is always atCenterOfSurface after propagation";
-  SurfaceSide side = atCenterOfSurface;
+  SurfaceSideDefinition::SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface;
   //
   ////////////////////////////////////////////////////////
 
@@ -446,7 +447,7 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   // We set the SurfaceSide to atCenterOfSurface.                       //
   ////////////////////////////////////////////////////////////////////////
 
-  SurfaceSide side = atCenterOfSurface;
+  SurfaceSideDefinition::SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface;
 
   return TrajectoryStateOnSurface(tParsDest, curvError, cDest, side);
 }
