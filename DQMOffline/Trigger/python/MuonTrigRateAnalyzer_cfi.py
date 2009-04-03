@@ -66,8 +66,8 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
    # L3DrCut            = cms.untracked.double(0.015),
 	# for testing								
 	L1DrCut   = cms.untracked.double(0.4),
-	L2DrCut   = cms.untracked.double(0.4),
-	L3DrCut   = cms.untracked.double(0.4),								
+	L2DrCut   = cms.untracked.double(0.25),
+	L3DrCut   = cms.untracked.double(0.015),								
 									
 	#L3DrCut            = cms.untracked.double(0.1),
     TriggerResultLabel = cms.InputTag("TriggerResults","","HLT"),
