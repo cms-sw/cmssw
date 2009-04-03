@@ -40,6 +40,7 @@ if __name__ == "__main__":
     if 2 == len(args):
         try:
             import PhysicsTools.PythonAnalysis as cmstools
+            sys.argv.append( '-b-' ) #to let ROOT understand we are in batch mode 
             import ROOT
             ROOT.gSystem.Load("libFWCoreFWLite.so")
             ROOT.AutoLibraryLoader.enable()
@@ -48,6 +49,6 @@ if __name__ == "__main__":
         except:
             "Could not read %s" %filename
     else:
-        print "Usage: EdmDumpEventContent filename.root"
+        print "Usage: edmDumpEventContent filename.root"
 
                                                     

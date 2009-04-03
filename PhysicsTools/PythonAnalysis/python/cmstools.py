@@ -8,7 +8,7 @@ import ROOT
 import exceptions
 ### define tab completion
 try:
-  import readline, cmscompleter
+  import readline #cmscompleter
   readline.parse_and_bind('tab: complete')
 except:
   print 'WARNING: Could not load tab completion'
