@@ -13,6 +13,7 @@
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
+#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
 
 // GCT include files
@@ -21,6 +22,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalHfSumAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHfBitCountsLut.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctHtMissLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHfEtSumsLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
@@ -30,8 +32,9 @@
 
 
 L1GctPrintLuts::L1GctPrintLuts(const edm::ParameterSet& iConfig) :
-  m_jetRanksOutFileName(iConfig.getUntrackedParameter<std::string>("jetRanksFilename","gctJetRanksContents.txt")),
-  m_hfSumLutOutFileName(iConfig.getUntrackedParameter<std::string>("hfSumLutFilename","gctHfSumLutContents.txt")),
+  m_jetRanksOutFileName (iConfig.getUntrackedParameter<std::string>("jetRanksFilename", "gctJetRanksContents.txt" )),
+  m_hfSumLutOutFileName (iConfig.getUntrackedParameter<std::string>("hfSumLutFilename", "gctHfSumLutContents.txt" )),
+  m_htMissLutOutFileName(iConfig.getUntrackedParameter<std::string>("htMissLutFilename","gctHtMissLutContents.txt")),
   m_gct(new L1GlobalCaloTrigger(L1GctJetLeafCard::hardwareJetFinder)),
   m_jetEtCalibLuts()
 {
@@ -129,6 +132,23 @@ L1GctPrintLuts::beginJob(const edm::EventSetup& c)
       }
       file.close();
     }
+
+    if ( !stat(  m_htMissLutOutFileName.c_str(), &buffer ) ) {
+      edm::LogWarning("LutFileExists") << "File " << m_htMissLutOutFileName << " already exists. It will not be overwritten." << std::endl; 
+    } else {
+
+      std::ofstream file;
+      file.open(  m_htMissLutOutFileName.c_str() );
+
+      if (file.good()) {
+	// Print the HtMiss luts
+	file << "\n\n missing Ht lut:" << std::endl;
+	file << *m_gct->getEnergyFinalStage()->getHtMissLut() << std::endl;
+      } else {
+	edm::LogWarning("LutFileError") << "Error opening file " << m_hfSumLutOutFileName << ". No lookup tables written." << std::endl;
+      }
+      file.close();
+    }
   }
 }
 
@@ -147,6 +167,8 @@ int L1GctPrintLuts::configureGct(const edm::EventSetup& c)
     c.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
     edm::ESHandle< L1CaloEtScale > hfRingEtScale ;
     c.get< L1HfRingEtScaleRcd >().get( hfRingEtScale ) ; // which record?
+    edm::ESHandle< L1CaloEtScale > htMissScale ;
+    c.get< L1HtMissScaleRcd >().get( htMissScale ) ; // which record?
     edm::ESHandle< L1GctChannelMask > chanMask ;
     c.get< L1GctChannelMaskRcd >().get( chanMask ) ; // which record?
     edm::ESHandle< L1CaloEtScale > etScale ;
@@ -161,7 +183,13 @@ int L1GctPrintLuts::configureGct(const edm::EventSetup& c)
     if (hfRingEtScale.product() == 0) {
       success = -1;
       edm::LogWarning("L1GctConfigFailure")
-	<< "Failed to find a L1GctHfLutSetupRcd:L1GctHfLutSetup in EventSetup!" << std::endl;
+	<< "Failed to find a L1HfRingEtScaleRcd:L1CaloEtScale in EventSetup!" << std::endl;
+    }
+
+    if (htMissScale.product() == 0) {
+      success = -1;
+      edm::LogWarning("L1GctConfigFailure")
+	<< "Failed to find a L1HtMissScaleRcd:L1CaloEtScale in EventSetup!" << std::endl;
     }
 
     if (chanMask.product() == 0) {
@@ -181,6 +209,7 @@ int L1GctPrintLuts::configureGct(const edm::EventSetup& c)
       // pass all the setup info to the gct
       m_gct->setJetEtCalibrationLuts(m_jetEtCalibLuts);
       m_gct->setJetFinderParams(jfPars.product());
+      m_gct->setHtMissScale(htMissScale.product());
       m_gct->setupHfSumLuts(hfRingEtScale.product());
       m_gct->setChannelMask(chanMask.product());
   

@@ -59,6 +59,7 @@ class L1GctPrintLuts : public edm::EDAnalyzer {
   // output file names
   std::string m_jetRanksOutFileName;
   std::string m_hfSumLutOutFileName;
+  std::string m_htMissLutOutFileName;
 
   // pointer to the actual emulator
   L1GlobalCaloTrigger* m_gct;
