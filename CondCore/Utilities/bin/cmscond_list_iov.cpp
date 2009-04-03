@@ -36,6 +36,7 @@ int main( int argc, char** argv ){
   myopt.addConnect();
   myopt.addAuthentication(true);
   myopt.visibles().add_options()
+    ("verbose,v","verbose")
     ("all,a","list all tags(default mode)")
     ("tag,t",boost::program_options::value<std::string>(),"list info of the specified tag")
     ("summary,s","print also the summary for each payload")
@@ -60,7 +61,10 @@ int main( int argc, char** argv ){
   std::string pass("");
   bool listAll=true;
   bool debug=false;
-  bool details=false;
+
+
+  bool details=vm.count("debug")
+  bool verbose=vm.count("verbose");
 
   std::string tag;
   if(!vm.count("connect")){
@@ -86,9 +90,7 @@ int main( int argc, char** argv ){
       details=true;
   }
   
-  if(vm.count("debug")){
-    debug=true;
-  }
+
 
   std::vector<edm::ParameterSet> psets;
 
@@ -168,10 +170,13 @@ int main( int argc, char** argv ){
 	 cond::IOVService iovservice(pooldb);
 	 unsigned int counter=0;
 	 std::string payloadContainer=iovservice.payloadContainerName(token);
-	 std::cout<<"Tag "<<tag
-		  <<"\nTimeType " << cond::timeTypeSpecs[iov.timetype()].name
-		  <<"\nPayloadContainerName "<<payloadContainer<<"\n"
-		  <<"since \t till \t payloadToken"<<std::endl;
+	 std::cout<<"Tag "<<tag;
+	 if (verbose) std::cout << "\nStamp: " << iov.iovs().comment()
+				<< "; time " << iov.iovs().timestamp()
+				<< "; revision " << iov.iovs().revision();
+	 std::cout <<"\nTimeType " << cond::timeTypeSpecs[iov.timetype()].name
+		   <<"\nPayloadContainerName "<<payloadContainer<<"\n"
+		   <<"since \t till \t payloadToken"<<std::endl;
 	 for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
 	   std::cout<<ioviterator->since() << " \t "<<ioviterator->till() <<" \t "<<ioviterator->wrapperToken();
 	   if (details) {
