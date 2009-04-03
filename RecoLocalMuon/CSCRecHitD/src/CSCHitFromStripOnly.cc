@@ -24,6 +24,7 @@ CSCHitFromStripOnly::CSCHitFromStripOnly( const edm::ParameterSet& ps ) : recoCo
   useCalib                   = ps.getParameter<bool>("CSCUseCalibrations");
   bool useStaticPedestals    = ps.getParameter<bool>("CSCUseStaticPedestals");
   int noOfTimeBinsForDynamicPed = ps.getParameter<int>("CSCNoOfTimeBinsForDynamicPedestal");
+
   theThresholdForAPeak       = ps.getParameter<double>("CSCStripPeakThreshold");
   theThresholdForCluster     = ps.getParameter<double>("CSCStripClusterChargeCut");
 
@@ -54,7 +55,7 @@ CSCHitFromStripOnly::~CSCHitFromStripOnly() {
 /* runStrip
  *
  * Search for strip with ADC output exceeding theThresholdForAPeak.  For each of these strips,
- * build a cluster of strip of size theClusterSize (typically 5 strips).  Finally, make
+ * build a cluster of strip of size theClusterSize (typically 3 strips).  Finally, make
  * a Strip Hit out of these clusters by finding the center-of-mass position of the hit
  */
 std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, const CSCLayer* layer,
@@ -89,8 +90,8 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
     strips_adc.clear();
     strips_adcRaw.clear();
 
-    // This is where centroid position is determined
-    // The strips_adc vector is also filled here
+    // makeCluster calls findHitOnStripPosition to determine the centroid position
+
     // Remember, the array starts at 0, but the stripId starts at 1...
     float strippos = makeCluster( theMaxima[imax]+1 );    
     
@@ -114,7 +115,8 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
     
     //---- Check if a neighbouring strip is a dead strip
     bool deadStrip = isNearDeadStrip(id, theMaxima.at(imax)); 
-    
+
+    // strips_adc et al are filled in findHitOnStripPosition (which is called from makeCluster above)    
     CSCStripHit striphit( id, strippos, tmax_cluster, theStrips, strips_adc, strips_adcRaw,
 			  theConsecutiveStrips.at(imax), theClosestMaximum.at(imax), deadStrip);
     hitsInLayer.push_back( striphit ); 
