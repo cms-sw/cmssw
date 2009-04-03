@@ -1,7 +1,6 @@
 <use name=Alignment/CommonAlignment>
 <use name=Alignment/CommonAlignmentAlgorithm>
 <use name=Alignment/TrackerAlignment>
-<use name=Alignment/MuonAlignment>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/PluginManager>
 <use name=FWCore/Utilities>
@@ -9,11 +8,10 @@
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/TrackFitters>
 <use name=rootcore>
-<use name=PhysicsTools/UtilAlgos>
-<use name=root>
 <flags EDM_PLUGIN=1>
 <export>
   <use name=Alignment/CommonAlignment>
   <use name=Alignment/CommonAlignmentAlgorithm>
   <lib name=AlignmentHIPAlignmentAlgorithm>
 </export>
+
