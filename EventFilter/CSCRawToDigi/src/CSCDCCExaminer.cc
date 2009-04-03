@@ -40,14 +40,14 @@ void CSCDCCExaminer::modeDDU(bool enable){
 }
 
 
-CSCDCCExaminer::CSCDCCExaminer(ExaminerMaskType mask):nERRORS(29),nWARNINGS(5),nPAYLOADS(12),nSTATUSES(23),sERROR(nERRORS),sWARNING(nWARNINGS),sERROR_(nERRORS),sWARNING_(nWARNINGS),sDMBExpectedPayload(nPAYLOADS),sDMBEventStaus(nSTATUSES),examinerMask(mask){
+CSCDCCExaminer::CSCDCCExaminer(unsigned long mask):nERRORS(29),nWARNINGS(5),nPAYLOADS(12),nSTATUSES(23),sERROR(nERRORS),sWARNING(nWARNINGS),sERROR_(nERRORS),sWARNING_(nWARNINGS),sDMBExpectedPayload(nPAYLOADS),sDMBEventStaus(nSTATUSES),examinerMask(mask){
   cout.redirect(std::cout); cerr.redirect(std::cerr);
 
   sERROR[0] = " Any errors                                       ";
   sERROR[1] = " DDU Trailer Missing                              ";
   sERROR[2] = " DDU Header Missing                               ";
-  sERROR[3] = " DDU CRC Error (not yet implemented)              ";
   sERROR[4] = " DDU Word Count Error                             ";
+  sERROR[3] = " DDU CRC Error (not yet implemented)              ";
   sERROR[5] = " DMB Trailer Missing                              ";
   sERROR[6] = " DMB Header Missing                               ";
   sERROR[7] = " ALCT Trailer Missing                             ";
@@ -126,8 +126,8 @@ CSCDCCExaminer::CSCDCCExaminer(ExaminerMaskType mask):nERRORS(29),nWARNINGS(5),n
   sERROR_[0] = " Any errors: 00";
   sERROR_[1] = " DDU Trailer Missing: 01";
   sERROR_[2] = " DDU Header Missing: 02";
-  sERROR_[3] = " DDU CRC Error (not yet implemented): 03";
   sERROR_[4] = " DDU Word Count Error: 04";
+  sERROR_[3] = " DDU CRC Error (not yet implemented): 03";
   sERROR_[5] = " DMB Trailer Missing: 05";
   sERROR_[6] = " DMB Header Missing: 06";
   sERROR_[7] = " ALCT Trailer Missing: 07";
@@ -203,10 +203,10 @@ CSCDCCExaminer::CSCDCCExaminer(ExaminerMaskType mask):nERRORS(29),nWARNINGS(5),n
   buf1  = &(tmpbuf[8]);
   buf2  = &(tmpbuf[12]);
 
-  bzero(tmpbuf, sizeof(uint16_t)*16);
+  bzero(tmpbuf, sizeof(short)*16);
 }
 
-int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
+long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
   if( length<=0 ) return -1;
 
   // 'buffer' is a sliding pointer; keep track of the true buffer
@@ -221,7 +221,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
     buf2  = buffer;
 
     // check for too long event
-    if(!fERROR[19] && DDU_WordsSinceLastHeader>100000 ){
+    if(!fERROR[19] && DDU_WordsSinceLastHeader>50000 ){
       fERROR[19] = true;
       bERROR    |= 0x80000;
     }
@@ -254,11 +254,11 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       // DCC Header 1 && DCC Header 2
       // =VB= Added support for Sep. 2008 CMS DAQ DCC format
       if ( ( ( (buf0[3]&0xF000) == 0x5000 && (buf0[0]&0x00FF) == 0x005F )
-	||
-	   ( (buf0[3]&0xF000) == 0x5000 && (buf0[0]&0x000F) == 0x0008 ) )
-	 &&
-	  (buf1[3]&0xFF00) == 0xD900 ) 
-	{
+           ||
+             ( (buf0[3]&0xF000) == 0x5000 && (buf0[0]&0x000F) == 0x0008 ) )
+           &&
+          (buf1[3]&0xFF00) == 0xD900 )
+        {
 	if( fDCC_Header ){
 	  // == Another DCC Header before encountering DCC Trailer!
 	  fERROR[25]=true;
@@ -275,7 +275,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	  buf0  = &(tmpbuf[4]);  // Just for safety
 	  buf1  = &(tmpbuf[8]);  // Just for safety
 	  buf2  = &(tmpbuf[12]); // Just for safety
-	  bzero(tmpbuf,sizeof(uint16_t)*16);
+	  bzero(tmpbuf,sizeof(unsigned short)*16);
 	  return length+12;
 	}
 
@@ -356,7 +356,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	buf0  = &(tmpbuf[4]);  // Just for safety
 	buf1  = &(tmpbuf[8]);  // Just for safety
 	buf2  = &(tmpbuf[12]); // Just for safety
-	bzero(tmpbuf,sizeof(uint16_t)*16);
+	bzero(tmpbuf,sizeof(unsigned short)*16);
 	return length+12;
       }
 
@@ -677,7 +677,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 
       // Check calculated CRC sum against reported
       if( checkCrcALCT ){
-    uint32_t crc = ( fALCT_Format2007 ? buf0[1] : buf0[0] ) & 0x7ff;
+    unsigned long crc = ( fALCT_Format2007 ? buf0[1] : buf0[0] ) & 0x7ff;
     crc |= ((uint32_t)( ( fALCT_Format2007 ? buf0[2] : buf0[1] ) & 0x7ff)) << 11;
 	if( ALCT_CRC != crc ){
 	  fERROR[10] = true;
@@ -700,10 +700,10 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 
     // Calculation of CRC sum ( algorithm is written by Madorsky )
     if( fALCT_Header && checkCrcALCT ){
-      for(uint16_t j=0, w=0; j<4; ++j){
+      for(unsigned short j=0, w=0; j<4; ++j){
 	///w = buf0[j] & 0x7fff;
 	w = buf0[j] & (fALCT_Format2007 ? 0xffff : 0x7fff);
-	for(uint32_t i=15, t=0, ncrc=0; i<16; i--){
+	for(unsigned long i=15, t=0, ncrc=0; i<16; i--){
 	  t = ((w >> i) & 1) ^ ((ALCT_CRC >> 21) & 1);
 	  ncrc = (ALCT_CRC << 1) & 0x3ffffc;
 	  ncrc |= (t ^ (ALCT_CRC & 1)) << 1;
@@ -715,7 +715,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 
     // == Find Correction for TMB_WordsExpected due to RPC raw hits,
     //    should it turn out to be the new RPC-aware format
-    if( fTMB_Header && ((buf0[2]&0xFFFF)==0x6E0B) )  {
+    if( fTMB_Header && ((buf0[2]&0xFFFF)==0x6E0B) ) {
       if (fTMB_Format2007) {
 	if (TMB_Firmware_Revision >= 0x50c3) { // TMB2007 rev.0x50c3
 	  // On/off * nRPCs * nTimebins * 2 words/RPC/bin
@@ -755,7 +755,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 
       // Check calculated CRC sum against reported
       if( checkCrcTMB ){
-    uint32_t crc = ( fTMB_Format2007 ? buf0[1]&0x7ff : buf0[0]&0x7ff );
+    unsigned long crc = ( fTMB_Format2007 ? buf0[1]&0x7ff : buf0[0]&0x7ff );
     crc |= ((uint32_t)( ( fTMB_Format2007 ? buf0[2]&0x7ff : buf0[1] & 0x7ff ) )) << 11;
 	if( TMB_CRC != crc ){
 	  fERROR[15] = true;
@@ -804,10 +804,10 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
     }
 
     if( fTMB_Header && checkCrcTMB ){
-      for(uint16_t j=0, w=0; j<4; ++j){
+      for(unsigned short j=0, w=0; j<4; ++j){
 	///w = buf0[j] & 0x7fff;
 	w = buf0[j] & (fTMB_Format2007 ? 0xffff : 0x7fff);
-	for(uint32_t i=15, t=0, ncrc=0; i<16; i--){
+	for(unsigned long i=15, t=0, ncrc=0; i<16; i--){
 	  t = ((w >> i) & 1) ^ ((TMB_CRC >> 21) & 1);
 	  ncrc = (TMB_CRC << 1) & 0x3ffffc;
 	  ncrc |= (t ^ (TMB_CRC & 1)) << 1;
@@ -1131,7 +1131,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	buf0  = &(tmpbuf[4]);  // Just for safety
 	buf1  = &(tmpbuf[8]);  // Just for safety
 	buf2  = &(tmpbuf[12]); // Just for safety
-	bzero(tmpbuf, sizeof(uint16_t)*16);
+	bzero(tmpbuf, sizeof(short)*16);
 	return length-4;
       }
     }
@@ -1140,9 +1140,9 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       // DCC Trailer 1 && DCC Trailer 2
       // =VB= Added support for Sep. 2008 CMS DAQ DCC format
       if( (buf1[3]&0xFF00) == 0xEF00 &&
-	  ( ((buf2[3]&0xFF00) == 0xAF00 && (buf2[0]&0x0003) == 0x3) 
-	  || 
-     (( buf2[3]&0xFF00) == 0xA000 && (buf2[0]&0x0003) == 0x0) ) ){
+          ( ( (buf2[3]&0xFF00) == 0xAF00 && (buf2[0]&0x0003) == 0x3)
+          || 
+     	    ( (buf2[3]&0xFF00) == 0xA000 && (buf2[0]&0x0003) == 0x0) ) ) {	
 	if(fDCC_Trailer){
 	  fERROR[26] = true;
 	  bERROR|=0x4000000;
@@ -1163,7 +1163,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	buf0  = &(tmpbuf[4]);  // Just for safety
 	buf1  = &(tmpbuf[8]);  // Just for safety
 	buf2  = &(tmpbuf[12]); // Just for safety
-	bzero(tmpbuf, sizeof(uint16_t)*16);
+	bzero(tmpbuf, sizeof(short)*16);
 	return length-4;
       }
     }
@@ -1178,18 +1178,18 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
   buf2  = &(tmpbuf[12]);
   memcpy((void*)tmpbuf,(void*)(buffer-16),sizeof(short)*16);
 
+  
   if (!modeDDUonly && !fDCC_Trailer && !fDCC_Header) {
-	fERROR[26] = true;
+        fERROR[26] = true;
         bERROR|=0x4000000;
-	fERROR[25] = true;
+        fERROR[25] = true;
         bERROR|=0x2000000;
-	fERROR[0]=true;
+        fERROR[0]=true;
         bERROR|=0x1;
-	return length;
-       	
+        return length;
   }
- 
-  return -2;
+
+  return -1;
 }
 
 
