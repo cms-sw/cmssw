@@ -6,7 +6,6 @@
 
 <library file=tracking/*.cc name=DQMSiStripCommissioningSourcesTracking>
   <use name=FWCore/Framework>
-  <use name=Foundation/PluginManager>
   <use name=FWCore/ParameterSet>
   <use name=clhep>
   <use name=root>
