@@ -93,6 +93,11 @@
 		<Name>FEDNonFatal</Name>
 	</Histogram>
 
+	<Histogram ref="FEDIntegrityMap">
+		<Title>CSC FED Format Fatal Errors</Title>
+		<Name>FEDFormatFatal</Name>
+	</Histogram>
+
 	<!-- Shifter Stats Histograms -->
 	
 	<Histogram ref="chamberMap">

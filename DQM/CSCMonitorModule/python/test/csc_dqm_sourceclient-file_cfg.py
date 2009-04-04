@@ -25,11 +25,11 @@ process.csc2DRecHits.readBadChambers = cms.bool(False)
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.source = cms.Source("PoolSource",
     fileNames  = cms.untracked.vstring(
-     #'/store/data/Commissioning08/BeamHalo/RAW/GRtoBeam_v1/000/062/096/56077B20-7B7F-DD11-B9D5-00161757BF42.root',
-      '/store/data/Commissioning08/BeamHalo/RAW/GRtoBeam_v1/000/062/096/863014FF-7C7F-DD11-8E83-0019DB29C614.root',
-      '/store/data/Commissioning08/BeamHalo/RAW/GRtoBeam_v1/000/062/096/96DAA256-787F-DD11-A060-000423D6C8E6.root',
-      '/store/data/Commissioning08/BeamHalo/RAW/GRtoBeam_v1/000/062/096/DA5006AF-757F-DD11-9127-000423D94700.root'
-     #'/store/data/Commissioning08/Cosmics/RAW/v1/000/066/910/8CA64FCF-259F-DD11-B86D-000423D99BF2.root'
+      #'/store/data/Commissioning09/Cosmics/RAW/v1/000/079/035/422F78CA-7019-DE11-A599-001617E30CD4.root',
+      #'/store/data/Commissioning09/Cosmics/RAW/v1/000/079/035/764D08CA-7019-DE11-813F-001617C3B69C.root',
+      #'/store/data/Commissioning09/Cosmics/RAW/v1/000/079/035/963C5DCA-7019-DE11-9ABF-001617DBD316.root',
+      #'/store/data/Commissioning09/Cosmics/RAW/v1/000/079/035/C882B9D5-7219-DE11-8B69-000423D6BA18.root'
+      '/store/data/Commissioning08/Cosmics/RAW/v1/000/066/910/8CA64FCF-259F-DD11-B86D-000423D99BF2.root'
     ),
     #skipEvents = cms.untracked.uint32(1129)
 )

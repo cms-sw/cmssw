@@ -78,7 +78,7 @@ namespace cscdqm {
 
     private:
       
-      void processExaminer(const uint16_t *data, const uint32_t dataSize, bool& eventDenied); 
+      bool processExaminer(); 
       void processDDU(const CSCDDUEventData& data);
       void processCSC(const CSCEventData& data, const int dduID);
 

@@ -56,10 +56,21 @@ namespace cscdqm {
     }
 
     const uint16_t *tmp = reinterpret_cast<const uint16_t *>(data);
+    const uint16_t  tmpSize = dataSize / sizeof(short);
     
-    processExaminer(tmp, dataSize / sizeof(short), eventDenied);
+    binChecker.setMask(config->getBINCHECK_MASK());
+    
+    if (binChecker.check(tmp, tmpSize) < 0) {
 
-    if (!eventDenied) {
+      /** No ddu trailer found - force checker to summarize errors by adding artificial trailer */
+      const uint16_t dduTrailer[4] = { 0x8000, 0x8000, 0xFFFF, 0x8000 };
+      const uint16_t *tmp = dduTrailer;
+      binChecker.check(tmp, uint32_t(4));
+
+    }
+
+    if (processExaminer()) {
+
       config->incNEventsGood();
 
       if (config->getPROCESS_DDU()) {
@@ -117,30 +128,37 @@ namespace cscdqm {
         if (getEMUHisto(h::EMU_FED_ENTRIES, mo)) mo->Fill(id); 
 
         const uint16_t *data = (uint16_t *) fedData.data();
-        bool eventDenied = false;
+        const uint16_t  dataSize = long(fedData.size() / 2);
         
-        // Move into Examiner stuff
-        processExaminer(data, long(fedData.size() / 2), eventDenied);
+        binChecker.setMask(config->getBINCHECK_MASK());
+    
+        if (binChecker.check(data, dataSize) < 0) {
 
-        if (!eventDenied) {
-
-          config->incNEventsGood();
-
-          if (binChecker.warnings() != 0) {
-            if (getEMUHisto(h::EMU_FED_NONFATAL, mo)) mo->Fill(id);
-          } 
-
-          if (config->getPROCESS_DDU()) {
-            CSCDCCEventData dccData((short unsigned int*) data);
-            const std::vector<CSCDDUEventData> & dduData = dccData.dduData();
-            for (int ddu = 0; ddu < (int)dduData.size(); ddu++) {
-              processDDU(dduData[ddu]);
-            }
-          }
+          if (getEMUHisto(h::EMU_FED_FATAL, mo)) mo->Fill(id);
 
         } else {
 
-          if (getEMUHisto(h::EMU_FED_FATAL, mo)) mo->Fill(id);
+          if (processExaminer()) {
+
+            config->incNEventsGood();
+
+            if (binChecker.warnings() != 0) {
+              if (getEMUHisto(h::EMU_FED_NONFATAL, mo)) mo->Fill(id);
+            } 
+
+            if (config->getPROCESS_DDU()) {
+              CSCDCCEventData dccData((short unsigned int*) data);
+              const std::vector<CSCDDUEventData> & dduData = dccData.dduData();
+              for (int ddu = 0; ddu < (int)dduData.size(); ddu++) {
+                processDDU(dduData[ddu]);
+              }
+            }
+
+          } else {
+
+            if (getEMUHisto(h::EMU_FED_FORMAT_FATAL, mo)) mo->Fill(id);
+
+          }
 
         }
 

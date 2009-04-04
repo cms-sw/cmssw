@@ -22,28 +22,16 @@ namespace cscdqm {
 
   /**
    * @brief  Execute Examiner on Data buffer and collect output results.
-   * @param  data Data buffer
-   * @param  dataSize Data buffer size
-   * @param  eventDenied Return flag if this buffer (event) was denied by Examiner or not
-   * @return 
+   * @return true if this buffer (event) was accepted by Examiner else otherwise
    */
-  void EventProcessor::processExaminer(const uint16_t *data, const uint32_t dataSize, bool& eventDenied) {
+  bool EventProcessor::processExaminer() {
     
-    binChecker.setMask(config->getBINCHECK_MASK());
-    
-    if (binChecker.check(data, dataSize) < 0) {
-
-      /** No ddu trailer found - force checker to summarize errors by adding artificial trailer */
-
-      const uint16_t dduTrailer[4] = { 0x8000, 0x8000, 0xFFFF, 0x8000 };
-      const uint16_t *tmp = dduTrailer;
-      binChecker.check(tmp, uint32_t(4));
-    }
+    bool eventAccepted = true;
+    MonitorObject* mo = 0;
 
     uint32_t binErrorStatus = binChecker.errors();
     uint32_t binWarningStatus = binChecker.warnings();
 
-    MonitorObject* mo = 0;
     if (getEMUHisto(h::EMU_ALL_DDUS_FORMAT_ERRORS, mo)) {
 
       DDUExaminerVectorType DDUs = binChecker.listOfDDUs();
@@ -71,7 +59,7 @@ namespace cscdqm {
     }
   	
     if ((binErrorStatus & config->getDDU_BINCHECK_MASK()) > 0) {
-      eventDenied = true;
+      eventAccepted = false;
     }
 
     if ( (binErrorStatus != 0) || (binWarningStatus != 0) ) {
@@ -79,7 +67,7 @@ namespace cscdqm {
     }
 
     CSCExaminerMapType payloads = binChecker.payloadDetailed();
-    for(CSCExaminerMapType::const_iterator chamber=payloads.begin(); chamber!=payloads.end(); chamber++) {
+    for(CSCExaminerMapType::const_iterator chamber = payloads.begin(); chamber != payloads.end(); chamber++) {
 
       int chamberID = chamber->first;
       int crateID = (chamberID >> 4) & 0xFF;
@@ -360,7 +348,7 @@ namespace cscdqm {
 	  mo->Fill(crateID, dmbSlot);
 	}
 
-	if (!eventDenied  && getEMUHisto(h::EMU_DMB_UNPACKED_WITH_ERRORS, mo)) {
+	if (eventAccepted && getEMUHisto(h::EMU_DMB_UNPACKED_WITH_ERRORS, mo)) {
 	  mo->Fill(crateID, dmbSlot);
 	}
 
@@ -372,12 +360,14 @@ namespace cscdqm {
 	  mo->Fill(cscPosition, cscType);
 	}
 
-	if (!eventDenied  && cscType && cscPosition && getEMUHisto(h::EMU_CSC_UNPACKED_WITH_ERRORS, mo)) {
+	if (eventAccepted  && cscType && cscPosition && getEMUHisto(h::EMU_CSC_UNPACKED_WITH_ERRORS, mo)) {
 	  mo->Fill(cscPosition, cscType);
 	}
       }
 
     }
+
+    return eventAccepted;
 
   }
 

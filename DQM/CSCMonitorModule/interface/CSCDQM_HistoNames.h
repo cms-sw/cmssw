@@ -251,6 +251,7 @@ namespace h {
   (( EMU_DMB_WO_CLCT_FRACT, "DMB_wo_CLCT_Fract" )) \
   (( EMU_FED_ENTRIES, "FEDEntries" )) \
   (( EMU_FED_FATAL, "FEDFatal" )) \
+  (( EMU_FED_FORMAT_FATAL, "FEDFormatFatal" )) \
   (( EMU_FED_NONFATAL, "FEDNonFatal" )) \
   (( EMU_PHYSICS_EMU, "Physics_EMU" )) \
   (( EMU_PHYSICS_ME1, "Physics_ME1" )) \
