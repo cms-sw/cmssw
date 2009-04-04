@@ -43,6 +43,13 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           #CapIdMEAN_ErrThresh       = cms.untracked.double(1.5),
                           #CapIdRMS_ErrThresh        = cms.untracked.double(0.25),
 
+                          # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+                          # Detector diagnostic Monitors  
+                          DetDiagPedestalClient     = cms.untracked.bool(False),
+                          DetDiagLEDClient          = cms.untracked.bool(False),
+                          DetDiagLaserClient        = cms.untracked.bool(False),
+                          # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+
                           # Dead Cell Client
                           DeadCellClient                                = cms.untracked.bool(True),
                           DeadCellClient_test_occupancy                 = cms.untracked.bool(True),

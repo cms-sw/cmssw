@@ -288,6 +288,30 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
 
                            # Empty Event/Unsuppressed data monitor
                            EEUSMonitor = cms.untracked.bool(False),
+			   
+			   # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+                           # Detector diagnostic Monitors  
+                           DetDiagPedestalMonitor = cms.untracked.bool(False),
+                           DetDiagLEDMonitor      = cms.untracked.bool(False),
+                           DetDiagLaserMonitor    = cms.untracked.bool(False),
+                           UseDB                  = cms.untracked.bool(False),
+                           LEDReferenceData       = cms.untracked.string("./"),
+                           PedReferenceData       = cms.untracked.string("./"),
+                           OutputFilePath         = cms.untracked.string("./"),
+                           
+                           LEDDeltaTreshold       = cms.untracked.double(7.0),
+                           LEDRmsTreshold         = cms.untracked.double(5.0),
+
+                           HBMeanPedestalTreshold = cms.untracked.double(0.1),
+                           HBRmsPedestalTreshold  = cms.untracked.double(0.1),
+                           HEMeanPedestalTreshold = cms.untracked.double(0.1),
+                           HERmsPedestalTreshold  = cms.untracked.double(0.1),
+                           HOMeanPedestalTreshold = cms.untracked.double(0.1),
+                           HORmsPedestalTreshold  = cms.untracked.double(0.1),
+                           HFMeanPedestalTreshold = cms.untracked.double(0.1),
+                           HFRmsPedestalTreshold  = cms.untracked.double(0.1),
+                           # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+			   
                            # ------------- DEPRECATED/UNUSED MONITORS ----------------------- #
                                                       
                            # CALO TOWER MONITOR
