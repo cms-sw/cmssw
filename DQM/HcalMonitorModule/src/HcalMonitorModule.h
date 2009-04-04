@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2009/02/11 18:36:29 $
- * $Revision: 1.41 $
+ * $Date: 2009/03/24 15:26:08 $
+ * $Revision: 1.42 $
  * \author W. Fisher
  *
 */
@@ -55,6 +55,12 @@
 #include "DQM/HcalMonitorTasks/interface/HcalTemplateAnalysis.h"
 #include "DQM/HcalMonitorTasks/interface/HcalEEUSMonitor.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBRunData.h"
+
+////////////////////////////////////////////////////////////////
+#include "DQM/HcalMonitorTasks/interface/HcalDetDiagPedestalMonitor.h"
+#include "DQM/HcalMonitorTasks/interface/HcalDetDiagLEDMonitor.h"
+#include "DQM/HcalMonitorTasks/interface/HcalDetDiagLaserMonitor.h"
+////////////////////////////////////////////////////////////////
 
 // Use to hold/get channel status
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
@@ -212,6 +218,11 @@ public:
   HcalTrigPrimMonitor*    tpMon_;
   HcalTemplateAnalysis*   tempAnalysis_;
   HcalEEUSMonitor*        eeusMon_;
+  ////////////////////////////////////////////
+  HcalDetDiagPedestalMonitor   *detDiagPed_;
+  HcalDetDiagLEDMonitor        *detDiagLed_;
+  HcalDetDiagLaserMonitor      *detDiagLas_;
+  ////////////////////////////////////////////
 
   edm::ESHandle<HcalDbService> conditions_;
   const HcalElectronicsMap*    readoutMap_;

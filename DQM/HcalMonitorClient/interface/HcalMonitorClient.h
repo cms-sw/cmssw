@@ -33,6 +33,12 @@
 #include <DQM/HcalMonitorClient/interface/HcalCaloTowerClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalBeamClient.h>
 
+/////////////////////////////////////////////////////////////////
+#include "DQM/HcalMonitorClient/interface/HcalDetDiagPedestalClient.h"
+#include "DQM/HcalMonitorClient/interface/HcalDetDiagLEDClient.h"
+#include "DQM/HcalMonitorClient/interface/HcalDetDiagLaserClient.h"
+/////////////////////////////////////////////////////////////////
+
 //#include <DQM/HcalMonitorModule/interface/HcalMonitorSelector.h>
 
 #include <DQM/HcalMonitorClient/interface/HcalDQMDbInterface.h>
@@ -189,6 +195,11 @@ public:
   HcalCaloTowerClient*       ct_client_;
   HcalBeamClient*            beam_client_;
   HcalHotCellDbInterface*    dqm_db_;
+  ///////////////////////////////////////////////////////////
+  HcalDetDiagPedestalClient* detdiagped_client_; 
+  HcalDetDiagLEDClient*      detdiagled_client_; 
+  HcalDetDiagLaserClient*    detdiaglas_client_; 
+  //////////////////////////////////////////////////
 
   // myquality_ will store status values for each det ID I find
   bool dump2database_;
