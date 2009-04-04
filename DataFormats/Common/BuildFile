@@ -1,11 +1,13 @@
 <use name=DataFormats/Provenance>
 <use name=DataFormats/StdDictionaries>
+<use name=FWCore/MessageLogger>
 <use name=FWCore/Utilities>
 <use name=boost>
 <use name=rootrflx>
 <export>
   <use name=DataFormats/Provenance>
   <use name=DataFormats/StdDictionaries>
+  <use name=FWCore/MessageLogger>
   <use name=FWCore/Utilities>
   <use name=boost>
   <use name=rootrflx>

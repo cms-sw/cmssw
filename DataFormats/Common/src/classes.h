@@ -22,6 +22,7 @@
 #include "DataFormats/Common/interface/PtrVectorBase.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 
 #include <vector>
 
@@ -68,6 +69,6 @@ namespace {
     edm::Wrapper<edm::ValueMap<double> > wvm5;
     std::vector<edm::EventAuxiliary> dummyVectorEventAuxiliary;
     edm::Wrapper<std::vector<edm::EventAuxiliary> > wvea;
-
+    edm::Wrapper<std::vector<edm::ErrorSummaryEntry> > wves;
   };
 }
