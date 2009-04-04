@@ -50,7 +50,15 @@ RecoMuonRECO = cms.PSet(
                                            'keep TrackingRecHitsOwned_globalMuons_*_*', 
                                            'keep TrackingRecHitsOwned_tevMuons_*_*',
                                            # Cosmics
-                                           'keep *_CosmicMuonSeed_*_*')
+                                           'keep *_CosmicMuonSeed_*_*',
+                                           # SET muons
+                                           'keep *_SETMuonSeed_*_*',
+                                           'keep recoTracks_standAloneSETMuons_*_*',
+                                           'keep recoTrackExtras_standAloneSETMuons_*_*',
+                                           'keep TrackingRecHitsOwned_standAloneMuons_*_*',
+                                           'keep recoTracks_globalSETMuons_*_*',
+                                           'keep recoTrackExtras_globalSETMuons_*_*',
+                                           'keep recoMuons_muonsWithSET_*_*')
 )
 # Full Event content 
 RecoMuonFEVT = cms.PSet(
