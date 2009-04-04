@@ -126,6 +126,7 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
   RegionsVector inputRegions;  //Size?
   RawJetsVector    trueJets;      //Size?
   ULong trueHt;
+  ULong outputEt;
   ULong stripSum0, stripSum1;
   
   // Vectors for receiving the output from the object under test.
@@ -152,7 +153,7 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
   
   //Get the outputted data and store locally
   outputJets = myJetFinder->getRawJets();
-  outputHt = myJetFinder->getHtStrip0().value() + myJetFinder->getHtStrip1().value();
+  outputHt = myJetFinder->getHtSum().value();
 
   sumOfJetHt = 0;
   for (RawJetsVector::const_iterator it=outputJets.begin(); it!=outputJets.end(); ++it) {
@@ -183,11 +184,10 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
   }
 
   //Test the Et strip sums against known results
-  if ((stripSum0 != myJetFinder->getEtStrip0().value()) ||
-      (stripSum1 != myJetFinder->getEtStrip1().value())) {     
-    cout << "strip sum 0 comparison: expected " << stripSum0 << " found " << myJetFinder->getEtStrip0() << endl;
-    cout << "strip sum 1 comparison: expected " << stripSum1 << " found " << myJetFinder->getEtStrip1() << endl;
-    cout << "\nTest class has FAILED Et strip sum comparison!" << endl;
+  if ((stripSum0+stripSum1) != myJetFinder->getEtSum().value()) {     
+    cout << "Et sum 0 comparison: expected strips " << stripSum0 << " and " 
+	 << stripSum1 << " found " << myJetFinder->getEtSum() << endl;
+    cout << "\nTest class has FAILED Et sum comparison!" << endl;
     testPass = false;
   }
   else
@@ -215,9 +215,8 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
   //get all the data again - should all be empty
   outputRegions = myJetFinder->getInputRegions();
   outputJets = myJetFinder->getRawJets();
-  outputHt = myJetFinder->getHtStrip0().value() + myJetFinder->getHtStrip1().value();
-  stripSum0 = myJetFinder->getEtStrip0().value();
-  stripSum1 = myJetFinder->getEtStrip1().value();
+  outputHt = myJetFinder->getHtSum().value();
+  outputEt = myJetFinder->getEtSum().value();
   
   //an empty regions vector for reset comparison
   vector<L1GctRegion> blankRegionsVec(numInputRegions);
@@ -226,7 +225,7 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
   //Test that all the vectors/values are empty/zero
   if(compareRegionsVectors(outputRegions, blankRegionsVec, "input regions reset") &&
      compareJetsVectors(outputJets, blankJetsVec, "output jets reset") &&
-     outputHt == 0 && stripSum0 == 0 && stripSum1 == 0)
+     outputHt == 0 && outputEt == 0)
   { 
     cout << "\nTest class has passed reset method testing." << endl;
   }
