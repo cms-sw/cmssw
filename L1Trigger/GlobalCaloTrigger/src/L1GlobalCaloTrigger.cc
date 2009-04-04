@@ -346,7 +346,7 @@ void L1GlobalCaloTrigger::setupTauAlgo(const bool useImprovedAlgo, const bool ig
 void L1GlobalCaloTrigger::setHtMissScale(const L1CaloEtScale* const scale) {
   if (theEnergyFinalStage != 0) {
     theEnergyFinalStage->setHtMissScale(scale);
-  } else { std::cout << "No energyFinalStage defined" << std::endl; }
+  }
 }
 
 /// setup Hf sum LUTs
