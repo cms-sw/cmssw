@@ -38,35 +38,42 @@ L1GctHtMissLut::~L1GctHtMissLut()
 
 uint16_t L1GctHtMissLut::value (const uint16_t lutAddress) const
 {
-  static const int maxComponent  = 1<<kHxOrHyMissComponentNBits;
-  static const int componentMask = maxComponent-1;
+  uint16_t result=0;
 
-  static const int magnitudeMask = (1<<kHtMissMagnitudeNBits) - 1;
-  static const int angleMask     = (1<<kHtMissAngleNBits)     - 1;
+  if (lutAddress!=0) {
+    static const int maxComponent  = 1<<kHxOrHyMissComponentNBits;
+    static const int componentMask = maxComponent-1;
 
-  // Extract the bits corresponding to hx and hy components
-  int hxCompGct = static_cast<int>(lutAddress) & componentMask;
-  int hyCompGct = static_cast<int>(lutAddress>>kHxOrHyMissComponentNBits) & componentMask;
+    static const int magnitudeMask = (1<<kHtMissMagnitudeNBits) - 1;
+    static const int angleMask     = (1<<kHtMissAngleNBits)     - 1;
 
-  // These are twos-complement integers - if the MSB is set, the value is negative
-  if (hxCompGct >= maxComponent/2) hxCompGct -= maxComponent;
-  if (hyCompGct >= maxComponent/2) hyCompGct -= maxComponent;
+    // Extract the bits corresponding to hx and hy components
+    int hxCompGct = static_cast<int>(lutAddress) & componentMask;
+    int hyCompGct = static_cast<int>(lutAddress>>kHxOrHyMissComponentNBits) & componentMask;
 
-  // Convert to GeV. Add 0.5 to each component to compensate for truncation errors.
-  double hxCompGeV = m_componentLsb * (static_cast<double>(hxCompGct) + 0.5);
-  double hyCompGeV = m_componentLsb * (static_cast<double>(hyCompGct) + 0.5);
+    // These are twos-complement integers - if the MSB is set, the value is negative
+    if (hxCompGct >= maxComponent/2) hxCompGct -= maxComponent;
+    if (hyCompGct >= maxComponent/2) hyCompGct -= maxComponent;
 
-  // Convert to magnitude and angle
-  double htMissMag = sqrt(hxCompGeV * hxCompGeV + hyCompGeV * hyCompGeV);
-  double htMissAng = atan2(hyCompGeV, hxCompGeV);
-  if (htMissAng < 0.0) htMissAng += 2.0*M_PI;
+    // Convert to GeV. Add 0.5 to each component to compensate for truncation errors.
+    double hxCompGeV = m_componentLsb * (static_cast<double>(hxCompGct) + 0.5);
+    double hyCompGeV = m_componentLsb * (static_cast<double>(hyCompGct) + 0.5);
 
-  // Convert back to integer
-  int htMissMagBits = static_cast<int>(m_etScale->rank(htMissMag)) & magnitudeMask;
-  int htMissAngBits = static_cast<int>(htMissAng*9.0/M_PI) & angleMask;
+    // Convert to magnitude and angle
+    double htMissMag = sqrt(hxCompGeV * hxCompGeV + hyCompGeV * hyCompGeV);
+    double htMissAng = atan2(hyCompGeV, hxCompGeV);
+    if (htMissAng < 0.0) htMissAng += 2.0*M_PI;
 
-  // Form the lut output
-  return htMissMagBits | (htMissAngBits << kHtMissMagnitudeNBits) ;
+    // Convert back to integer
+    int htMissMagBits = static_cast<int>(m_etScale->rank(htMissMag)) & magnitudeMask;
+    int htMissAngBits = static_cast<int>(htMissAng*9.0/M_PI) & angleMask;
+
+    // Form the lut output
+    result = htMissMagBits | (htMissAngBits << kHtMissMagnitudeNBits) ;
+  }
+
+  return result;
+
 }
 
 
