@@ -273,8 +273,7 @@ void L1GctGlobalEnergyAlgos::process()
     if ( (HtMissing.mag.value() > MAX_HT_VALUE) || (HtMissing.mag.overFlow()) ) {
       HtMissing.mag.setValue(MAX_HT_VALUE);
     }
-    HtMissing.phi.setValue((HtMissing.phi.value() & PHI_HT_MASK)<<2);
-
+    HtMissing.phi.setValue(HtMissing.phi.value() & PHI_HT_MASK);
     m_outputHtMiss.store    (HtMissing.mag, bxRel());
     m_outputHtMissPhi.store (HtMissing.phi, bxRel());
 
