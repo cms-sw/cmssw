@@ -2,19 +2,9 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 DEFINE_SEAL_MODULE();
 
-/*
-****** TO BE REMOVED *******
-#include "DQM/SiStripHistoricInfoClient/interface/HistoricOfflineClient.h"
-#include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricPlot.h"
-#include "DQM/SiStripHistoricInfoClient/interface/ReadFromFile.h"
-using cms::SiStripHistoricPlot;
-DEFINE_FWK_MODULE(HistoricOfflineClient);
-DEFINE_FWK_MODULE(SiStripHistoricPlot);
-DEFINE_FWK_MODULE(ReadFromFile);
-********************************
-*/
-
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+
+// //SiStrip private (and original) approach
 #include "DQM/SiStripHistoricInfoClient/plugins/SiStripHistoricDQMService.h"
 DEFINE_ANOTHER_FWK_SERVICE(SiStripHistoricDQMService);
 
@@ -23,3 +13,16 @@ DEFINE_ANOTHER_FWK_SERVICE(SiStripHistoricDQMService);
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 typedef popcon::PopConAnalyzer< popcon::SiStripPopConDbObjHandler< SiStripSummary, SiStripHistoricDQMService > > SiStripPopConHistoricDQM;
 DEFINE_ANOTHER_FWK_MODULE(SiStripPopConHistoricDQM);
+
+//---------------------------------------------------------------
+
+//New approach
+
+#include "DQM/SiStripHistoricInfoClient/plugins/SiStripNewHistoricDQMService.h"
+DEFINE_ANOTHER_FWK_SERVICE(SiStripNewHistoricDQMService);
+
+#include "CondCore/PopCon/interface/PopConAnalyzer.h"
+#include "DQMServices/Diagnostic/interface/DQMHistoryPopConHandler.h"
+#include "CondFormats/DQMObjects/interface/HDQMSummary.h"
+typedef popcon::PopConAnalyzer< popcon::DQMHistoryPopConHandler< HDQMSummary,SiStripNewHistoricDQMService > > SiStripHistoryPopConDQM;
+DEFINE_ANOTHER_FWK_MODULE(SiStripHistoryPopConDQM);

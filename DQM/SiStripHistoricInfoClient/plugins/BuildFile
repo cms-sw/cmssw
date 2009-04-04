@@ -11,12 +11,14 @@
 <use name=CondCore/PopCon>
 
 <use name=CondFormats/SiStripObjects>
+<use name=CondFormats/DQMObjects>
 <use name=CondFormats/DataRecord>
 
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
 
 <use name=DQMServices/Core>
+<use name=DQMServices/Diagnostic>
 
   <flags EDM_PLUGIN=1>
 </library>
