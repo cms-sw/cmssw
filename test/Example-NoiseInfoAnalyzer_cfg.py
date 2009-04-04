@@ -16,7 +16,7 @@ process.source = cms.Source ("PoolSource",
 # setup the analyzer
 process.hcalnoiseinfoanalyzer = cms.EDAnalyzer(
     'HcalNoiseInfoAnalyzer',
-    rbxCollName = cms.string('hcalnoiseinfoproducer'),
+    rbxCollName = cms.string('hcalnoise'),
     rootHistFilename = cms.string('plots.root'),
     noisetype = cms.int32(3)
     )
