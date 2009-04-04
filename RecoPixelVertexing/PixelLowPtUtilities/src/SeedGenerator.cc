@@ -34,7 +34,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoTracker/TkSeedingLayers/interface/SeedingHit.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 
 using namespace std;
