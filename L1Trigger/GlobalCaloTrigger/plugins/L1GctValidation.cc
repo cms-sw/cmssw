@@ -10,6 +10,10 @@
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
+
 #include <math.h>
 
 L1GctValidation::L1GctValidation(const edm::ParameterSet& iConfig) :
@@ -43,6 +47,14 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   double lsbForEt = jfPars.product()->getRgnEtLsbGeV();
   double lsbForHt = jfPars.product()->getHtLsbGeV();
+
+  double httJetThreshold = jfPars.product()->getHtJetEtThresholdGeV();
+  double htmJetThreshold = jfPars.product()->getMHtJetEtThresholdGeV();
+
+  ESHandle< L1CaloEtScale > htMissScale ;
+  iSetup.get< L1HtMissScaleRcd >().get( htMissScale ) ; // which record?
+  ESHandle< L1CaloEtScale > hfRingEtScale ;
+  iSetup.get< L1HfRingEtScaleRcd >().get( hfRingEtScale ) ; // which record?
 
   // Get the Gct energy sums from the event
   Handle< L1GctEtTotalCollection > sumEtColl ;
@@ -81,18 +93,17 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
 
-  double htMiss = 0.0;
-  double htMAng = 0.0;
+  double htMissGct = 0.0;
+  double htMissAng = 0.0;
+  double htMissGeV = 0.0;
   for (L1GctHtMissCollection::const_iterator jbx=missHtColl->begin(); jbx!=missHtColl->end(); jbx++) {
     if (jbx->bx()==0) {
-      htMiss = static_cast<double>(jbx->et());
+      htMissGct = static_cast<double>(jbx->et());
+      htMissGeV = htMissScale->et(jbx->et());
       int phibin = jbx->phi();
-      if (phibin>=36) phibin -= 72;
+      if (phibin>=9) phibin -= 18;
       double htMPhi = static_cast<double>(phibin);
-
-      // Ht phi is in 10 degree bins but numbered 0, 2, 4, ... etc.
-      // So to find the bin centre we add 1.0 here not 0.5 as elsewhere.
-      htMAng = (htMPhi+1.0)*M_PI/36.;
+      htMissAng = (htMPhi+0.5)*M_PI/9.;
     }
   }
 
@@ -106,36 +117,40 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       if (phibin>=9) phibin -= 18;
       // The phi bin centres are at 0, 20, 40, ... degrees
       double jetAng = (static_cast<double>(phibin))*M_PI/9.;
-      htFromJets += jetEt;
-      hxFromJets += jetEt*cos(jetAng);
-      hyFromJets += jetEt*sin(jetAng);
+      if (jetEt>httJetThreshold) {
+	htFromJets += jetEt;
+      }
+      if (jetEt>htmJetThreshold) {
+	hxFromJets += jetEt*cos(jetAng);
+	hyFromJets += jetEt*sin(jetAng);
+      }
     }
   }
 
   theSumEtInLsb->Fill(etTot);
   theSumHtInLsb->Fill(etHad);
   theMissEtInLsb->Fill(etMiss);
-  theMissHtInLsb->Fill(htMiss);
+  theMissHtInLsb->Fill(htMissGct);
   theSumEtInGeV->Fill(etTot*lsbForEt);
   theSumHtInGeV->Fill(etHad*lsbForHt);
   theMissEtInGeV->Fill(etMiss*lsbForEt);
   theMissEtAngle->Fill(etMAng);
   theMissEtVector->Fill(etMiss*lsbForEt*cos(etMAng),etMiss*lsbForEt*sin(etMAng));
-  if (htMiss<62.5) {
-    theMissHtInGeV->Fill(htMiss*lsbForHt*8.);
-    theMissHtAngle->Fill(htMAng);
-    theMissHtVector->Fill(htMiss*lsbForHt*cos(htMAng)*8.,htMiss*lsbForHt*sin(htMAng)*8.);
+  if (htMissGct<126.5) {
+    theMissHtInGeV->Fill(htMissGeV);
+    theMissHtAngle->Fill(htMissAng);
+    theMissHtVector->Fill(htMissGeV*cos(htMissAng),htMissGeV*sin(htMissAng));
   }
 
-  theMissEtVsMissHt->Fill(etMiss*lsbForEt, htMiss*lsbForHt*8);
-  theMissEtVsMissHtAngle->Fill(etMAng, htMAng);
+  theMissEtVsMissHt->Fill(etMiss*lsbForEt, htMissGeV);
+  theMissEtVsMissHtAngle->Fill(etMAng, htMissAng);
 
   theHtVsInternalJetsSum->Fill(etHad*lsbForHt, htFromJets*lsbForHt);
-  if (htMiss<62.5) {
-    theMissHtVsInternalJetsSum->Fill(htMiss*lsbForHt*8, sqrt(hxFromJets*hxFromJets + hyFromJets*hyFromJets)*lsbForHt);
-    theMissHtPhiVsInternalJetsSum->Fill(htMAng, atan2(-hyFromJets, -hxFromJets));
-    theMissHxVsInternalJetsSum->Fill(htMiss*lsbForHt*cos(htMAng)*8, hxFromJets*lsbForHt);
-    theMissHyVsInternalJetsSum->Fill(htMiss*lsbForHt*sin(htMAng)*8, hyFromJets*lsbForHt);
+  if (htMissGct<126.5) {
+    theMissHtVsInternalJetsSum->Fill(htMissGeV, sqrt(hxFromJets*hxFromJets + hyFromJets*hyFromJets)*lsbForHt);
+    theMissHtPhiVsInternalJetsSum->Fill(htMissAng, atan2(-hyFromJets, -hxFromJets));
+    theMissHxVsInternalJetsSum->Fill(htMissGeV*cos(htMissAng), hxFromJets*lsbForHt);
+    theMissHyVsInternalJetsSum->Fill(htMissGeV*sin(htMissAng), hyFromJets*lsbForHt);
   }
 
   // Get minbias trigger quantities from HF
@@ -146,10 +161,10 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   for (L1GctHFRingEtSumsCollection::const_iterator es = HFEtSumsColl->begin(); es != HFEtSumsColl->end(); es++) {
     if (es->bx()==0) {
-      theHfRing0EtSumPositiveEta->Fill(es->etSum(0));  
-      theHfRing0EtSumNegativeEta->Fill(es->etSum(1));  
-      theHfRing1EtSumPositiveEta->Fill(es->etSum(2));  
-      theHfRing1EtSumNegativeEta->Fill(es->etSum(3));
+      theHfRing0EtSumPositiveEta->Fill(hfRingEtScale->et(es->etSum(0)));  
+      theHfRing0EtSumNegativeEta->Fill(hfRingEtScale->et(es->etSum(1)));  
+      theHfRing1EtSumPositiveEta->Fill(hfRingEtScale->et(es->etSum(2)));  
+      theHfRing1EtSumNegativeEta->Fill(hfRingEtScale->et(es->etSum(3)));
     }
   }  
 
@@ -179,7 +194,7 @@ L1GctValidation::beginJob(const edm::EventSetup&)
   theMissEtInLsb  = dir0.make<TH1F>("MissEtInLsb",  "Missing Et magnitude (GCT units)",
                                     128, 0., 1024.); 
   theMissHtInLsb  = dir0.make<TH1F>("MissHtInLsb",  "Missing Ht magnitude (GCT units)",
-                                    64, 0., 63.); 
+                                    128, 0., 127.); 
   theSumEtInGeV   = dir0.make<TH1F>("SumEtInGeV",   "Total Et (in GeV)",
                                     100, 0., 1000.); 
   theSumHtInGeV   = dir0.make<TH1F>("SumHtInGeV",   "Total Ht (in GeV)",
