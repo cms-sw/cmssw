@@ -22,8 +22,7 @@ class FineDelayTask : public CommissioningTask {
 		     const edm::DetSet<SiStripRawDigi>& );
   virtual void update();
   
-  static std::map<std::string, HistoSet> timingMap_;
-  HistoSet* timing_;
+  static HistoSet timing_;
 
   float fiberLengthCorrection_;
 

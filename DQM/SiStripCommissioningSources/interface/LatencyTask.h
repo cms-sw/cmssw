@@ -22,12 +22,10 @@ class LatencyTask : public CommissioningTask {
 		     const edm::DetSet<SiStripRawDigi>& );
   virtual void update();
   
-  static std::map<std::string, HistoSet> timingMap_;
-  static std::map<std::string, HistoSet> clusterMap_;
-  HistoSet* timing_;
-  HistoSet* timingPartition_;
-  HistoSet* cluster_;
-  HistoSet* clusterPartition_;
+  static HistoSet timing_;
+  static HistoSet cluster_;
+  HistoSet timingPartition_;
+  HistoSet clusterPartition_;
   int firstReading_;
 
 };

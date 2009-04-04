@@ -11,14 +11,14 @@
 
 // -----------------------------------------------------------------------------
 //
-std::map<std::string, CommissioningTask::HistoSet> FineDelayTask::timingMap_;
+CommissioningTask::HistoSet FineDelayTask::timing_;
 MonitorElement* FineDelayTask::mode_ = NULL;
 
 // -----------------------------------------------------------------------------
 //
 FineDelayTask::FineDelayTask( DQMStore* dqm,
 			      const FedChannelConnection& conn ) :
-  CommissioningTask( dqm, conn, "FineDelayTask" ), timing_(0)
+  CommissioningTask( dqm, conn, "FineDelayTask" )
 {
   LogDebug("Commissioning") << "[FineDelayTask::FineDelayTask] Constructing object...";
   // compute the fiber length correction
@@ -40,34 +40,36 @@ FineDelayTask::~FineDelayTask() {
 void FineDelayTask::book() {
   LogDebug("Commissioning") << "[FineDelayTask::book]";
 
-  // construct the histo title
-  // by setting the granularity to sistrip::TRACKER, the title will be identical for all detkeys.
-  // therefore, only one histo will be booked/analyzed
-  std::string title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-					 sistrip::FINE_DELAY, 
-  					 sistrip::DET_KEY, 
-					 0,
-					 sistrip::TRACKER, 
-					 0,
-					 sistrip::extrainfo::clusterCharge_ ).title(); 
-  // look if such an histogram is already booked
-  if(timingMap_.find(title)!=timingMap_.end()) {
+  std::string title, pwd, rootDir;
+  int nBins = NBINS;
+
+  // see if the global timing histogram is already booked
+  if (timing_.histo()) {
     // if already booked, use it
     LogDebug("Commissioning") << "[FineDelayTask::book] using existing histogram.";
   } else {
-    // if not, book it
-    int nBins = NBINS;
+    // make a new histo on the tracker level if not existing yet
     LogDebug("Commissioning") << "[LatencyTask::book] booking a new histogram.";
-    timingMap_[title].histo( dqm()->bookProfile( title, title,    // name and title
-						 nBins, LOWBIN, HIGHBIN,   // binning + range
-						 100, 0., -1., "s" ) );  // Y range : automatic
-
-    timingMap_[title].vNumOfEntries_.resize(nBins,0);
-    timingMap_[title].vSumOfContents_.resize(nBins,0);
-    timingMap_[title].vSumOfSquares_.resize(nBins,0);
+    // construct the histo title
+    title = SiStripHistoTitle( sistrip::EXPERT_HISTO,
+                                           sistrip::FINE_DELAY,
+                                           sistrip::DET_KEY,
+                                           0,
+                                           sistrip::TRACKER,
+                                           0,
+                                           sistrip::extrainfo::clusterCharge_ ).title();
+    pwd = dqm()->pwd();
+    rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/") + sizeof(sistrip::root_));
+    dqm()->setCurrentFolder( rootDir );
+    timing_.histo( dqm()->bookProfile( title, title,            // name and title
+                                       nBins, LOWBIN, HIGHBIN,  // binning + range
+                                       100, 0., -1., "s" ) );   // Y range : automatic
+    dqm()->setCurrentFolder( pwd );
+    timing_.vNumOfEntries_.resize(nBins,0);
+    timing_.vSumOfContents_.resize(nBins,0);
+    timing_.vSumOfSquares_.resize(nBins,0);
   }
-  timing_ = &(timingMap_[title]);
-  LogDebug("Commissioning") << "Binning is " << timing_->vNumOfEntries_.size();
+  LogDebug("Commissioning") << "Binning is " << timing_.vNumOfEntries_.size();
   LogDebug("Commissioning") << "[FineDelayTask::book] done";
   if(!mode_) {
     std::string pwd = dqm()->pwd();
@@ -108,7 +110,7 @@ void FineDelayTask::fill( const SiStripEventSummary& summary,
       LogDebug("Commissioning") << "[FineDelayTask::fill]; using a hit with value " << ( digis.data[strip].adc()&0xff )
                                 << " at corrected delay of " << correctedDelay
 				<< " in bin " << bin << "  (tof is " << tof << "( since adc = " << digis.data[strip].adc() << "))";
-      updateHistoSet( *timing_,bin,digis.data[strip].adc()&0xff);
+      updateHistoSet( timing_,bin,digis.data[strip].adc()&0xff);
       if(mode_) mode_->Fill(latencyCode);
     }
   }
@@ -118,6 +120,6 @@ void FineDelayTask::fill( const SiStripEventSummary& summary,
 //
 void FineDelayTask::update() {
   LogDebug("Commissioning") << "[FineDelayTask::update]";
-  updateHistoSet( *timing_ );
+  updateHistoSet( timing_ );
 }
 

@@ -9,15 +9,15 @@
 #define HIGHBIN (0)
 
 // -----------------------------------------------------------------------------
-//
-std::map<std::string, CommissioningTask::HistoSet> LatencyTask::timingMap_;
-std::map<std::string, CommissioningTask::HistoSet> LatencyTask::clusterMap_;
+// static initialization
+CommissioningTask::HistoSet LatencyTask::timing_;
+CommissioningTask::HistoSet LatencyTask::cluster_;
 
 // -----------------------------------------------------------------------------
 //
 LatencyTask::LatencyTask( DQMStore* dqm,
 			      const FedChannelConnection& conn ) :
-  CommissioningTask( dqm, conn, "LatencyTask" ),timing_(0),cluster_(0),firstReading_(-1)
+  CommissioningTask( dqm, conn, "LatencyTask" ),firstReading_(-1)
 {
   LogDebug("Commissioning") << "[LatencyTask::LatencyTask] Constructing object...";
 }
@@ -33,124 +33,104 @@ LatencyTask::~LatencyTask() {
 void LatencyTask::book() {
   LogDebug("Commissioning") << "[LatencyTask::book]";
 
-  // construct the histo title
-  // by setting the granularity to sistrip::TRACKER, the title will be identical for all detkeys.
-  // therefore, only one histo will be booked/analyzed
-  std::string title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-					 sistrip::APV_LATENCY, 
-  					 sistrip::DET_KEY, 
-					 0,
-					 sistrip::TRACKER, 
-					 0,
-					 sistrip::extrainfo::clusterCharge_).title(); 
-  // look if such an histogram is already booked
-  if(timingMap_.find(title)!=timingMap_.end()) {
+  std::string title, pwd, rootDir;
+  int nBins = NBINS;
+
+  // see if the global timing histogram is already booked
+  if (timing_.histo()) {
     // if already booked, use it
     LogDebug("Commissioning") << "[LatencyTask::book] using existing histogram.";
   } else {
-    // if not, book it
-    timingMap_[title] = HistoSet();
-    int nBins = NBINS;
-    std::string pwd = dqm()->pwd();
-    std::string rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/")+(sizeof(sistrip::root_) - 1));
-    rootDir += "/"; rootDir += sistrip::controlView_;
+    // make a new histo on the tracker level if not existing yet
+    LogDebug("Commissioning") << "[LatencyTask::book] booking a new histogram in " << dqm()->pwd();
+    // construct the histo title
+    title = SiStripHistoTitle( sistrip::EXPERT_HISTO,
+                               sistrip::APV_LATENCY,
+                               sistrip::DET_KEY,
+                               0,
+                               sistrip::TRACKER,
+                               0,
+                               sistrip::extrainfo::clusterCharge_ ).title();
+    pwd = dqm()->pwd();
+    rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/") + sizeof(sistrip::root_));
     dqm()->setCurrentFolder( rootDir );
-    LogDebug("Commissioning") << "[LatencyTask::book] booking a new histogram in " << dqm()->pwd();
-    timingMap_[title].histo( dqm()->bookProfile( title, title,    // name and title
-						 nBins, LOWBIN, HIGHBIN,   // binning + range
-						 100, 0., -1.,"s" ) );  // Y range : automatic
+    timing_.histo( dqm()->bookProfile( title, title,            // name and title
+                                       nBins, LOWBIN, HIGHBIN,  // binning + range
+                                       100, 0., -1.,"s" ) );    // Y range : automatic
     dqm()->setCurrentFolder( pwd );
-  
-    timingMap_[title].vNumOfEntries_.resize(nBins,0);
-    timingMap_[title].vSumOfContents_.resize(nBins,0);
-    timingMap_[title].vSumOfSquares_.resize(nBins,0);
+    timing_.vNumOfEntries_.resize(nBins,0);
+    timing_.vSumOfContents_.resize(nBins,0);
+    timing_.vSumOfSquares_.resize(nBins,0);
   }
-  timing_ = &(timingMap_[title]);
-  // same histo at the partition level
-  title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-					 sistrip::APV_LATENCY, 
-  					 sistrip::DET_KEY, 
-					 connection().fecCrate(),
-					 sistrip::PARTITION, 
-					 0,
-					 sistrip::extrainfo::clusterCharge_).title(); 
-  // look if such an histogram is already booked
-  if(timingMap_.find(title)!=timingMap_.end()) {
+  // make a new histo on the partition level if not existing yet
+  LogDebug("Commissioning") << "[LatencyTask::book] booking a new histogram in " << dqm()->pwd();
+  // histo title
+  title = SiStripHistoTitle( sistrip::EXPERT_HISTO,
+                             sistrip::APV_LATENCY,
+                             sistrip::DET_KEY,
+                             connection().fecCrate(),
+                             sistrip::PARTITION,
+                             0,
+                             sistrip::extrainfo::clusterCharge_ ).title();
+  pwd = dqm()->pwd();
+  rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/") + sizeof(sistrip::root_));
+  rootDir += "/"; rootDir += sistrip::detectorView_;
+  dqm()->setCurrentFolder( rootDir );
+  timingPartition_.histo( dqm()->bookProfile( title, title,            // name and title
+                                              nBins, LOWBIN, HIGHBIN,  // binning + range
+                                              100, 0., -1.,"s" ) );    // Y range : automatic
+  dqm()->setCurrentFolder( pwd );
+  timingPartition_.vNumOfEntries_.resize(nBins,0);
+  timingPartition_.vSumOfContents_.resize(nBins,0);
+  timingPartition_.vSumOfSquares_.resize(nBins,0);
+
+  // see if the global cluster histogram is already booked
+  if (cluster_.histo()) {
     // if already booked, use it
     LogDebug("Commissioning") << "[LatencyTask::book] using existing histogram.";
   } else {
-    // if not, book it
-    timingMap_[title] = HistoSet();
-    int nBins = NBINS;
+    // make a new histo on the tracker level if not existing yet
     LogDebug("Commissioning") << "[LatencyTask::book] booking a new histogram in " << dqm()->pwd();
-    timingMap_[title].histo( dqm()->bookProfile( title, title,    // name and title
-						 nBins, LOWBIN, HIGHBIN,   // binning + range
-						 100, 0., -1.,"s" ) );  // Y range : automatic
-  
-    timingMap_[title].vNumOfEntries_.resize(nBins,0);
-    timingMap_[title].vSumOfContents_.resize(nBins,0);
-    timingMap_[title].vSumOfSquares_.resize(nBins,0);
-  }
-  timingPartition_ = &(timingMap_[title]);
-  // construct the histo title
-  // by setting the granularity to sistrip::TRACKER, the title will be identical for all detkeys.
-  // therefore, only one histo will be booked/analyzed
-  title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-			     sistrip::APV_LATENCY, 
-                             sistrip::DET_KEY, 
-                             0,
-                             sistrip::TRACKER, 
-                             0,
-                             sistrip::extrainfo::occupancy_).title(); 
-  // look if such an histogram is already booked
-  if(clusterMap_.find(title)!=clusterMap_.end()) {
-    // if already booked, use it
-    LogDebug("Commissioning") << "[LatencyTask::book] using existing histogram.";
-  } else {
-    // if not, book it
-    clusterMap_[title] = HistoSet();
-    int nBins = NBINS;
-    std::string pwd = dqm()->pwd();
-    std::string rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/")+(sizeof(sistrip::root_) - 1));
-    rootDir += "/"; rootDir += sistrip::controlView_;
+    // construct the histo title
+    title = SiStripHistoTitle( sistrip::EXPERT_HISTO,
+                               sistrip::APV_LATENCY,
+                               sistrip::DET_KEY,
+                               0,
+                               sistrip::TRACKER,
+                               0,
+                               sistrip::extrainfo::occupancy_).title();
+    pwd = dqm()->pwd();
+    rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/") + sizeof(sistrip::root_));
     dqm()->setCurrentFolder( rootDir );
-    LogDebug("Commissioning") << "[LatencyTask::book] booking a new histogram in " << dqm()->pwd();
-    clusterMap_[title].histo( dqm()->book1D( title, title,    // name and title
-                                             nBins, LOWBIN, HIGHBIN ));  // binning + range
+    cluster_.histo( dqm()->book1D( title, title,               // name and title
+                                   nBins, LOWBIN, HIGHBIN ));  // binning + range
     dqm()->setCurrentFolder( pwd );
-  
-    clusterMap_[title].isProfile_=false;
-    clusterMap_[title].vNumOfEntries_.resize(nBins,0);
-    clusterMap_[title].vSumOfContents_.resize(nBins,0);
-    clusterMap_[title].vSumOfSquares_.resize(nBins,0);
+    cluster_.isProfile_ = false;
+    cluster_.vNumOfEntries_.resize(nBins,0);
+    cluster_.vSumOfContents_.resize(nBins,0);
+    cluster_.vSumOfSquares_.resize(nBins,0);
   }
-  cluster_ = &(clusterMap_[title]);
-  // same histo at the partition level
+  // make a new histo on the partition level if not existing yet
+  LogDebug("Commissioning") << "[LatencyTask::book] booking a new histogram in " << dqm()->pwd();
+  // histo title
   title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-			     sistrip::APV_LATENCY, 
+                             sistrip::APV_LATENCY, 
                              sistrip::DET_KEY, 
                              connection().fecCrate(),
                              sistrip::PARTITION,
                              0,
-                             sistrip::extrainfo::occupancy_).title(); 
-  // look if such an histogram is already booked
-  if(clusterMap_.find(title)!=clusterMap_.end()) {
-    // if already booked, use it
-    LogDebug("Commissioning") << "[LatencyTask::book] using existing histogram.";
-  } else {
-    // if not, book it
-    clusterMap_[title] = HistoSet();
-    int nBins = NBINS;
-    LogDebug("Commissioning") << "[LatencyTask::book] booking a new histogram in " << dqm()->pwd();
-    clusterMap_[title].histo( dqm()->book1D( title, title,    // name and title
-                                             nBins, LOWBIN, HIGHBIN ));  // binning + range
-  
-    clusterMap_[title].isProfile_=false;
-    clusterMap_[title].vNumOfEntries_.resize(nBins,0);
-    clusterMap_[title].vSumOfContents_.resize(nBins,0);
-    clusterMap_[title].vSumOfSquares_.resize(nBins,0);
-  }
-  clusterPartition_ = &(clusterMap_[title]);
+                             sistrip::extrainfo::occupancy_ ).title(); 
+  pwd = dqm()->pwd();
+  rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/") + sizeof(sistrip::root_));
+  rootDir += "/"; rootDir += sistrip::detectorView_;
+  dqm()->setCurrentFolder( rootDir );
+  clusterPartition_.histo( dqm()->book1D( title, title,                // name and title
+                                          nBins, LOWBIN, HIGHBIN ) );  // binning + range
+  dqm()->setCurrentFolder( pwd );
+  clusterPartition_.isProfile_ = false;
+  clusterPartition_.vNumOfEntries_.resize(nBins,0);
+  clusterPartition_.vSumOfContents_.resize(nBins,0);
+  clusterPartition_.vSumOfSquares_.resize(nBins,0);
 
   LogDebug("Commissioning") << "[LatencyTask::book] done";
 }
@@ -180,24 +160,26 @@ void LatencyTask::fill( const SiStripEventSummary& summary,
       LogDebug("Commissioning") << "[LatencyTask::fill]; using a hit with value " << ( digis.data[strip].adc()&0xff )
                                 << " at corrected delay of " << correctedDelay
 				<< " in bin " << bin ;
-      updateHistoSet( *timing_,bin,digis.data[strip].adc()&0xff);
-      updateHistoSet( *timingPartition_,bin,digis.data[strip].adc()&0xff);
+      updateHistoSet( timing_,bin,digis.data[strip].adc()&0xff);
+      LogDebug("Commissioning") << "HistoSet timing Updated " << strip << " " << digis.data.size();
+      updateHistoSet( timingPartition_,bin,digis.data[strip].adc()&0xff);
+      LogDebug("Commissioning") << "HistoSet timingPartition Updated " << strip << " " << digis.data.size();
     }
   }
   // set the occupancy
   int bin = int((delay*(-25.)-LOWBIN)/((HIGHBIN-LOWBIN)/NBINS));
   LogDebug("Commissioning") << "[LatencyTask::fill]; occupancy is " << nclusters;
-  updateHistoSet( *cluster_,bin,nclusters );
-  updateHistoSet( *clusterPartition_,bin,nclusters );
+  updateHistoSet( cluster_,bin,nclusters );
+  updateHistoSet( clusterPartition_,bin,nclusters );
 }
 
 // -----------------------------------------------------------------------------
 //
 void LatencyTask::update() {
   LogDebug("Commissioning") << "[LatencyTask::update]";
-  updateHistoSet( *timing_ );
-  updateHistoSet( *timingPartition_ );
-  updateHistoSet( *cluster_ );
-  updateHistoSet( *clusterPartition_ );
+  updateHistoSet( timing_ );
+  updateHistoSet( timingPartition_ );
+  updateHistoSet( cluster_ );
+  updateHistoSet( clusterPartition_ );
 }
 
