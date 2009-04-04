@@ -948,7 +948,9 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
     for ( ; ifed != fedCabling_->feds().end(); ifed++ ) {
 
       // Iterate through connected FED channels
-      const std::vector<FedChannelConnection>& conns = fedCabling_->connections(*ifed);
+      // S.L.: currently copy the vector, because it changes later when
+      // reading in peds for calibration run -> not understood memory corruption!
+      std::vector<FedChannelConnection> conns = fedCabling_->connections(*ifed);
       std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
       for ( ; iconn != conns.end(); iconn++ ) {
 
