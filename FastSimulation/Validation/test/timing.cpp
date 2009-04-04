@@ -6,6 +6,7 @@
 #include <cmath>
 #include <getopt.h>
 #include <sstream>
+#include <cstdlib>
 
 int main(int argc, char **argv) {
   // http://manpages.ubuntu.com/manpages/intrepid/fr/man3/getopt.html
