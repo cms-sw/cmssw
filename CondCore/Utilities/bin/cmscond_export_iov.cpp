@@ -286,8 +286,8 @@ int main( int argc, char** argv ){
 	coralDBd.start(false);
 	bool stored=false;
 	try {
-	cond::ObjectRelationalMappingUtility mappingUtil(&coralDBs.coralSessionProxy());
-	bool stored = mappingUtil.exportMapping(&coralDBd.coralSessionProxy(), payloadContainer);
+	  cond::ObjectRelationalMappingUtility mappingUtil(&coralDBs.coralSessionProxy());
+	  stored = mappingUtil.exportMapping(&coralDBd.coralSessionProxy(), payloadContainer);
 	}  catch (std::exception const & e) { /* throw if already exists */}
 	if(debug)
 	  std::cout<< "payload mapping " << (stored ? "" : "not ") << "stored"<<std::endl;
