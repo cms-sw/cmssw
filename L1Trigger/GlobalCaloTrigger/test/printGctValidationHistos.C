@@ -54,17 +54,17 @@ void printGctValidationHistos()
   c1->cd(8); Plot(f,"l1GctValidation/L1GctHfSumsAndJetCounts/HfRing1CountNegativeEta","Hf feature bits"); c1->Update();
   gStyle->SetOptLogy(0);
 
-  c1->Clear();
+//   c1->Clear();
 
-  c1->Divide(2,3);
+//   c1->Divide(2,3);
 
-  //gPad->SetLogy(1);
-  c1->cd(1); Plot(f,"l1GctValidation/L1GctHfSumsAndJetCounts/JetCount#0","Count"); c1->Update();
-  c1->cd(2); Plot(f,"l1GctValidation/L1GctHfSumsAndJetCounts/JetCount#1","Count"); c1->Update();
-  c1->cd(3); Plot(f,"l1GctValidation/L1GctHfSumsAndJetCounts/JetCount#2","Count"); c1->Update();
-  c1->cd(4); Plot(f,"l1GctValidation/L1GctHfSumsAndJetCounts/JetCount#3","Count"); c1->Update();
-  c1->cd(5); Plot(f,"l1GctValidation/L1GctHfSumsAndJetCounts/JetCount#4","Count"); c1->Update();
-  c1->cd(6); Plot(f,"l1GctValidation/L1GctHfSumsAndJetCounts/JetCount#5","Count"); c1->Update();
+//   //gPad->SetLogy(1);
+//   c1->cd(1); Plot(f,"l1GctValidation/L1GctHfSumsAndJetCounts/JetCount#0","Count"); c1->Update();
+//   c1->cd(2); Plot(f,"l1GctValidation/L1GctHfSumsAndJetCounts/JetCount#1","Count"); c1->Update();
+//   c1->cd(3); Plot(f,"l1GctValidation/L1GctHfSumsAndJetCounts/JetCount#2","Count"); c1->Update();
+//   c1->cd(4); Plot(f,"l1GctValidation/L1GctHfSumsAndJetCounts/JetCount#3","Count"); c1->Update();
+//   c1->cd(5); Plot(f,"l1GctValidation/L1GctHfSumsAndJetCounts/JetCount#4","Count"); c1->Update();
+//   c1->cd(6); Plot(f,"l1GctValidation/L1GctHfSumsAndJetCounts/JetCount#5","Count"); c1->Update();
 
   outf->Close();
 
