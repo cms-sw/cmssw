@@ -16,7 +16,13 @@
 #include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
 
+
+#include "CondCore/DBCommon/interface/IOVInfo.h"
+
+
 #include "CondCore/Utilities/interface/CommonOptions.h"
+
+
 //#include <boost/program_options.hpp>
 #include <iterator>
 #include <iostream>
@@ -186,6 +192,7 @@ int main( int argc, char** argv ){
     pooldb.start(false);
     editor->create(parser.timetype,parser.lastTill);
     editor->bulkAppend(parser.values);
+    editor->stamp(cond::userInfo(),false);
     iovtoken=editor->token();
     pooldb.commit();
     cond::CoralTransaction& coraldb=myconnection.coralTransaction();

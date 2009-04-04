@@ -8,6 +8,7 @@
 #include "POOLCore/Token.h"
 
 #include "CondFormats/Common/interface/PayloadWrapper.h"
+#include "CondCore/DBCommon/interface/IOVInfo.h"
 
 
 cond::IOVSequence const & cond::IOVServiceImpl::iovSeq(const std::string& iovToken) const {
@@ -205,7 +206,8 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
       destDB.start(false);
       newiovref = cond::TypedRef<cond::IOVSequence>(destDB,dToken);
       newiovref.markUpdate();
-   }
+    }
   }
+  newiovref->stamp(cond::userInfo(),false);
   return newiovref.token();
 }

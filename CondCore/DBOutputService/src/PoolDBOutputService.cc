@@ -22,9 +22,11 @@
 //#include "FileCatalog/IFileCatalog.h"
 #include "serviceCallbackToken.h"
 #include "CondCore/DBCommon/interface/UserLogInfo.h"
+#include "CondCore/DBCommon/interface/IOVInfo.h"
+
 //#include <iostream>
 #include <vector>
-#include <sstream>
+
 
 //static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
 
@@ -34,22 +36,6 @@ namespace {
 
 unsigned int cond::service::GetToken::sizeDSW() {
   return dsw.size();
-}
-
-
-namespace {
-  std::string userInfo() {
-    // this are really static stuff
-    std::ostringstream user_info;
-    char * user= ::getenv("USER");
-    char * hostname= ::getenv("HOSTNAME");
-    char * pwd = ::getenv("PWD");
-    if (user) { user_info<< "USER=" << user <<";" ;} else { user_info<< "USER="<< "??;";}
-    if (hostname) {user_info<< "HOSTNAME=" << hostname <<";";} else { user_info<< "HOSTNAME="<< "??;";}
-    if (pwd) {user_info<< "PWD=" << pwd <<";";} else  {user_info<< "PWD="<< "??;";}
-    return user_info.str();
-  }
-
 }
 
 
@@ -251,7 +237,7 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
     objToken = payloadToken(pooldb,m_withWrapper);
     unsigned int payloadIdx=editor->append(firstSinceTime, objToken);
     iovToken=editor->token();
-    editor->stamp(userInfo(),false);
+    editor->stamp(cond::userInfo(),false);
     delete editor;    
 
     pooldb.commit();
@@ -369,7 +355,7 @@ cond::service::PoolDBOutputService::appendIOV(cond::PoolTransaction& pooldb,
   unsigned int payloadIdx =  m_freeInsert ? 
     editor->freeInsert(sinceTime,payloadToken) :
     editor->append(sinceTime,payloadToken);
-    editor->stamp(userInfo(),false);
+  editor->stamp(cond::userInfo(),false);
 
   delete editor;
   return payloadIdx;
@@ -388,7 +374,7 @@ cond::service::PoolDBOutputService::insertIOV( cond::PoolTransaction& pooldb,
   cond::IOVService iovmanager(pooldb);
   cond::IOVEditor* editor=iovmanager.newIOVEditor(record.m_iovtoken);
   unsigned int payloadIdx=editor->insert(tillTime,payloadToken);
-  editor->stamp(userInfo(),false);
+  editor->stamp(cond::userInfo(),false);
 
   delete editor;    
   return payloadIdx;

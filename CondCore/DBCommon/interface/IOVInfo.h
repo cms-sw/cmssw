@@ -12,4 +12,4 @@ namespace cond {
 }
 
 
-#endif  COND_DBCommon_IOVInfo_H
+#endif // COND_DBCommon_IOVInfo_H
