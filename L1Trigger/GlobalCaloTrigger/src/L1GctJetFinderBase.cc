@@ -33,8 +33,6 @@ L1GctJetFinderBase::L1GctJetFinderBase(int id):
   m_sentProtoJets(MAX_JETS_OUT), m_rcvdProtoJets(MAX_JETS_OUT), m_keptProtoJets(MAX_JETS_OUT),
   m_outputJets(MAX_JETS_OUT), m_sortedJets(MAX_JETS_OUT),
   m_HttSumJetThreshold(0), m_HtmSumJetThreshold(0),
-  m_outputEtStrip0(0), m_outputEtStrip1(0),
-  m_outputHtStrip0(0), m_outputHtStrip1(0),
   m_outputHfSums(),
   m_outputJetsPipe(MAX_JETS_OUT),
   m_outputEtSumPipe(), m_outputExSumPipe(), m_outputEySumPipe(), 
@@ -131,10 +129,12 @@ std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo)
 //     {
 //       os << algo.m_outputJets.at(i); 
 //     }
-  os << "Output Et strip 0 " << algo.m_outputEtStrip0 << endl;
-  os << "Output Et strip 1 " << algo.m_outputEtStrip1 << endl;
-  os << "Output Ht strip 0 " << algo.m_outputHtStrip0 << endl;
-  os << "Output Ht strip 1 " << algo.m_outputHtStrip1 << endl;
+  os << "Output total scalar Et " << algo.m_outputEtSum << endl;
+  os << "Output vector Et x component " << algo.m_outputExSum << endl;
+  os << "Output vector Et y component " << algo.m_outputEySum << endl;
+  os << "Output total scalar Ht " << algo.m_outputHtSum << endl;
+  os << "Output vector Ht x component " << algo.m_outputHxSum << endl;
+  os << "Output vector Ht y component " << algo.m_outputHySum << endl;
   os << endl;
 
   return os;
@@ -157,10 +157,12 @@ void L1GctJetFinderBase::resetProcessor()
   m_keptProtoJets.clear();
   m_keptProtoJets.resize(MAX_JETS_OUT);
 
-  m_outputEtStrip0 = 0;
-  m_outputEtStrip1 = 0;
-  m_outputHtStrip0 = 0;
-  m_outputHtStrip1 = 0;
+  m_outputEtSum = 0;
+  m_outputExSum = 0;
+  m_outputEySum = 0;
+  m_outputHtSum = 0;
+  m_outputHxSum = 0;
+  m_outputHySum = 0;
 
   m_outputHfSums.reset();
 }
@@ -326,13 +328,6 @@ void L1GctJetFinderBase::sortJets()
 /// Fill the Et strip sums and Ht sum. All jetFinders should call this in process().
 void L1GctJetFinderBase::doEnergySums()
 {
-  //calculate the raw Et strip sums
-  m_outputEtStrip0 = calcEtStrip(0);
-  m_outputEtStrip1 = calcEtStrip(1);
-
-  //calculate the Ht
-  m_outputHtStrip0 = calcHtStrip(0);
-  m_outputHtStrip1 = calcHtStrip(1);
 
   // Refactored energy sums code - find scalar and vector sums
   // of Et and Ht instead of strip stums
@@ -343,59 +338,6 @@ void L1GctJetFinderBase::doEnergySums()
   m_outputHfSums = calcHfSums();
     
   return;
-}
-
-
-// Calculates total (raw) energy in a phi strip
-L1GctJetFinderBase::etTotalType L1GctJetFinderBase::calcEtStrip(const UShort strip) const
-{
-  unsigned et = 0;
-  bool of = false;
-
-  if (strip !=0 && strip != 1) {
-    if (m_verbose) {
-      edm::LogError("L1GctProcessingError")
-	<< "L1GctJetFinderBase::calcEtStrip() has been called with strip number "
-	<< strip << "; should be 0 or 1 \n";
-    } 
-  } else {
-    // Add the Et values from regions 13 to 23 for strip 0,
-    //     the Et values from regions 25 to 35 for strip 1.
-    unsigned offset = COL_OFFSET * (strip+centralCol0());
-    for (UShort i=1; i < COL_OFFSET; ++i) {
-      offset++;
-      et += m_inputRegions.at(offset).et();
-      of |= m_inputRegions.at(offset).overFlow();
-    }
-  }
-
-  etTotalType temp(et);
-  temp.setOverFlow(temp.overFlow() || of);
-  return temp;
-}
-
-// Calculates total calibrated energy in jets (Ht) sum
-L1GctJetFinderBase::etTotalType L1GctJetFinderBase::calcHtStrip(const UShort strip) const
-{    
-  unsigned ht = 0;
-  bool of = false;
-  for(UShort i=0; i < MAX_JETS_OUT; ++i)
-  {
-    // Only sum Ht for valid jets
-    if (!m_outputJets.at(i).isNullJet()) {
-      if (m_outputJets.at(i).rctPhi() == strip) {
-	unsigned ieta  = m_outputJets.at(i).rctEta();
-	unsigned htJet = m_outputJets.at(i).calibratedEt(m_jetEtCalLuts.at(ieta));
-	if (htJet >= m_HttSumJetThreshold) {
-	  ht += htJet;
-	} 
-	of |= m_outputJets.at(i).overFlow();
-      }
-    }
-  }
-  etHadType temp(ht);
-  temp.setOverFlow(temp.overFlow() || of);
-  return temp;
 }
 
 // Calculates scalar and vector sum of Et over input regions
@@ -437,8 +379,6 @@ void L1GctJetFinderBase::doEtSums() {
   m_outputExSumPipe.store(m_outputExSum, bxRel());
   m_outputEySumPipe.store(m_outputEySum, bxRel());
 }
-
-
 
 // Calculates scalar and vector sum of Ht over calibrated jets
 void L1GctJetFinderBase::doHtSums() {

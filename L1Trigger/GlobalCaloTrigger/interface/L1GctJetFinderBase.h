@@ -175,11 +175,7 @@ public:
   const lutPtrVector getJetEtCalLuts() const { return m_jetEtCalLuts; }
 
   // The hardware output quantities
-  JetVector getJets() const { return m_sortedJets; } ///< Get the located jets. 
-  etTotalType getEtStrip0() const { return m_outputEtStrip0; }  ///< Get transverse energy strip sum 0
-  etTotalType getEtStrip1() const { return m_outputEtStrip1; }  ///< Get transverse energy strip sum 1
-  etTotalType getHtStrip0() const { return m_outputHtStrip0; }  ///< Get the total calibrated energy in jets (Ht) in strip 0
-  etTotalType getHtStrip1() const { return m_outputHtStrip1; }  ///< Get the total calibrated energy in jets (Ht) in strip 1
+  JetVector getJets() const { return m_sortedJets; } ///< Get the located jets.
   // The hardware output quantities - refactored
   etTotalType        getEtSum() const { return m_outputEtSum; }  ///< Get the scalar sum of Et summed over the input regions
   etCompInternJfType getExSum() const { return m_outputExSum; }  ///< Get the x component of vector Et summed over the input regions
@@ -272,12 +268,6 @@ public:
 
   unsigned m_HttSumJetThreshold;
   unsigned m_HtmSumJetThreshold;
-
-  /// output Et strip sums and Ht
-  etTotalType m_outputEtStrip0;
-  etTotalType m_outputEtStrip1;
-  etTotalType m_outputHtStrip0;
-  etTotalType m_outputHtStrip1;
 
   /// output Et strip sums and Ht - refactored
   etTotalType        m_outputEtSum;
