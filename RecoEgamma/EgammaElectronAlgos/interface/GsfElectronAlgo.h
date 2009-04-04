@@ -85,8 +85,8 @@ class GsfElectronAlgo {
 
     // create electrons from superclusters, tracks and Hcal rechits
     void process
-     ( edm::Handle<reco::GsfTrackCollection> tracksH,
-       edm::Handle<reco::GsfElectronCoreCollection> tracksH,
+     ( edm::Handle<reco::GsfTrackCollection> gsfTracksH,
+       edm::Handle<reco::GsfElectronCoreCollection> coresH,
        edm::Handle<reco::TrackCollection> ctfTracksH,
        edm::Handle<edm::ValueMap<float> > pfMVAH,
        edm::Handle<CaloTowerCollection> towersH,
