@@ -53,7 +53,11 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   ct_client_=0;
   beam_client_=0;
   lastResetTime_=0;
-
+  //////////////////////////////////////////////////////////////////
+  detdiagped_client_=0; 
+  detdiagled_client_=0;
+  detdiaglas_client_=0; 
+  //////////////////////////////////////////////////////////////////
   debug_ = ps.getUntrackedParameter<int>("debug", 0);
   if (debug_>0)
     std::cout << endl<<" *** Hcal Monitor Client ***" << endl<<endl;
@@ -194,6 +198,24 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
     beam_client_          = new HcalBeamClient();
     beam_client_->init(ps, dbe_,"BeamClient");
   }
+  ///////////////////////////////////////////////////////////////
+  if( ps.getUntrackedParameter<bool>("DetDiagPedestalClient", false) ){
+    if(debug_>0)   cout << "===>DQM DetDiagPedestal Client is ON" << endl;
+    detdiagped_client_ = new HcalDetDiagPedestalClient();
+    detdiagped_client_->init(ps, dbe_,"DetDiagPedestalClient");
+  }
+  if( ps.getUntrackedParameter<bool>("DetDiagLEDClient", false) ){
+    if(debug_>0)   cout << "===>DQM DetDiagLED Client is ON" << endl;
+    detdiagled_client_ = new HcalDetDiagLEDClient();
+    detdiagled_client_->init(ps, dbe_,"DetDiagLEDClient");
+  }
+  if( ps.getUntrackedParameter<bool>("DetDiagLaserClient", false) ){
+    if(debug_>0)   cout << "===>DQM DetDiagLaser Client is ON" << endl;
+    detdiaglas_client_ = new HcalDetDiagLaserClient();
+    detdiaglas_client_->init(ps, dbe_,"DetDiagLaserClient");
+  }
+  ///////////////////////////////////////////////////////////////
+
   dqm_db_ = new HcalHotCellDbInterface();  // Is this even necessary?
 
   
@@ -265,6 +287,12 @@ void HcalMonitorClient::resetAllME() {
   if( tp_client_ )         tp_client_->resetAllME();
   if( ct_client_ )         ct_client_->resetAllME();
   if( beam_client_ )       beam_client_->resetAllME();
+  /////////////////////////////////////////////////////////
+  if( detdiagped_client_ ) detdiagped_client_->resetAllME();
+  if( detdiagled_client_ ) detdiagled_client_->resetAllME();
+  if( detdiaglas_client_ ) detdiaglas_client_->resetAllME();
+  /////////////////////////////////////////////////////////
+
   return;
 }
 
@@ -286,6 +314,11 @@ void HcalMonitorClient::beginJob(const EventSetup& c){
   if( tp_client_ )         tp_client_->beginJob();
   if( ct_client_ )         ct_client_->beginJob();
   if( beam_client_ )       beam_client_->beginJob();
+  /////////////////////////////////////////////////////////
+  if( detdiagped_client_ ) detdiagped_client_->beginJob();
+  if( detdiagled_client_ ) detdiagled_client_->beginJob();
+  if( detdiaglas_client_ ) detdiaglas_client_->beginJob();
+  /////////////////////////////////////////////////////////
   return;
 }
 
@@ -307,6 +340,11 @@ void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   if( tp_client_ )         tp_client_->beginRun();
   if( ct_client_ )         ct_client_->beginRun();
   if( beam_client_ )       beam_client_->beginRun();
+  /////////////////////////////////////////////////////////
+  if( detdiagped_client_ ) detdiagped_client_->beginRun();
+  if( detdiagled_client_ ) detdiagled_client_->beginRun();
+  if( detdiaglas_client_ ) detdiaglas_client_->beginRun();
+  /////////////////////////////////////////////////////////
   return;
 }
 
@@ -327,6 +365,11 @@ void HcalMonitorClient::endJob(void) {
   if( tp_client_ )             tp_client_->endJob();
   if( ct_client_ )             ct_client_->endJob();
   if( beam_client_ )           beam_client_->endJob();
+  /////////////////////////////////////////////////////////
+  if( detdiagped_client_ ) detdiagped_client_->endJob();
+  if( detdiagled_client_ ) detdiagled_client_->endJob();
+  if( detdiaglas_client_ ) detdiaglas_client_->endJob();
+  /////////////////////////////////////////////////////////
 
   /*
   ///Don't leave this here!!!  FIX ME!
@@ -473,6 +516,11 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
   if( tp_client_ )          tp_client_->endRun();
   if( ct_client_ )          ct_client_->endRun();
   if( beam_client_ )        beam_client_->endRun();
+  /////////////////////////////////////////////////////////
+  if( detdiagped_client_ ) detdiagped_client_->endRun();
+  if( detdiagled_client_ ) detdiagled_client_->endRun();
+  if( detdiaglas_client_ ) detdiaglas_client_->endRun();
+  /////////////////////////////////////////////////////////
 
   // this is an effective way to avoid ROOT memory leaks ...
   if( enableExit_ ) {
@@ -694,6 +742,11 @@ void HcalMonitorClient::createTests(void){
   if( tp_client_ )         tp_client_->createTests(); 
   if( ct_client_ )         ct_client_->createTests(); 
   if( beam_client_ )       beam_client_->createTests();
+  /////////////////////////////////////////////////////////
+  if( detdiagped_client_ ) detdiagped_client_->createTests();
+  if( detdiagled_client_ ) detdiagled_client_->createTests();
+  if( detdiaglas_client_ ) detdiaglas_client_->createTests();
+  /////////////////////////////////////////////////////////
   return;
 }
 
@@ -719,6 +772,11 @@ void HcalMonitorClient::report(bool doUpdate) {
   if( tp_client_ ) tp_client_->report();
   if( ct_client_ ) ct_client_->report();
   if( beam_client_ ) beam_client_->report();
+  /////////////////////////////////////////////////////////
+  if( detdiagped_client_ ) detdiagped_client_->report();
+  if( detdiagled_client_ ) detdiagled_client_->report();
+  if( detdiaglas_client_ ) detdiaglas_client_->report();
+  /////////////////////////////////////////////////////////
   errorSummary();
 
   //create html output if specified...
@@ -742,6 +800,11 @@ void HcalMonitorClient::errorSummary(){
   if( dataformat_client_ ) dataformat_client_->getTestResults(nTests,errE,errW,errO);
   if( ct_client_ )         ct_client_->getTestResults(nTests,errE,errW,errO);
   if( beam_client_ )       beam_client_->getTestResults(nTests,errE,errW,errO);
+  /////////////////////////////////////////////////////////
+  if( detdiagped_client_ ) detdiagped_client_->getTestResults(nTests,errE,errW,errO);
+  if( detdiagled_client_ ) detdiagled_client_->getTestResults(nTests,errE,errW,errO);
+  if( detdiaglas_client_ ) detdiaglas_client_->getTestResults(nTests,errE,errW,errO);
+  /////////////////////////////////////////////////////////
   //For now, report the fraction of good tests....
   float errorSummary = 1.0;
   if(nTests>0) errorSummary = 1.0 - (float(errE.size())+float(errW.size()))/float(nTests);
@@ -922,6 +985,50 @@ void HcalMonitorClient::htmlOutput(void){
     
     htmlFile << "</tr></table>" << endl;
   }
+  /////////////////////////////////////////////////////////
+  if( detdiagped_client_ )if(detdiagped_client_->haveOutput()){
+    htmlName = "HcalDetDiagPedestalClient.html";
+    detdiagped_client_->htmlOutput(irun_, htmlDir, htmlName);
+    htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
+    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Pedestal Diagnostic Monitor</a></td>" << endl;
+    int status=detdiagped_client_->SummaryStatus();
+    if(detdiagped_client_->hasErrors() || status==2) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
+    else 
+    if(detdiagped_client_->hasWarnings()||status==1) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
+    else if(detdiagped_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
+    else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
+    
+    htmlFile << "</tr></table>" << endl;
+  }
+  if( detdiagled_client_ )if(detdiagled_client_->haveOutput()){
+    htmlName = "HcalDetDiagLEDClient.html";
+    detdiagled_client_->htmlOutput(irun_, htmlDir, htmlName);
+    htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
+    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">LED Diagnostic Monitor</a></td>" << endl;
+    int status=detdiagled_client_->SummaryStatus();
+    if(detdiagled_client_->hasErrors() || status==2) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
+    else 
+    if(detdiagled_client_->hasWarnings()||status==1) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
+    else if(detdiagled_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
+    else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
+    
+    htmlFile << "</tr></table>" << endl;
+  }
+  if( detdiaglas_client_ )if(detdiaglas_client_->haveOutput()){
+    htmlName = "HcalDetDiagLaserClient.html";
+    detdiaglas_client_->htmlOutput(irun_, htmlDir, htmlName);
+    htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
+    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Laser Diagnostic Monitor</a></td>" << endl;
+    int status=detdiaglas_client_->SummaryStatus();
+    if(detdiaglas_client_->hasErrors() || status==2) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
+    else 
+    if(detdiaglas_client_->hasWarnings()||status==1) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
+    else if(detdiaglas_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
+    else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
+    
+    htmlFile << "</tr></table>" << endl;
+  }
+  /////////////////////////////////////////////////////////
   if( summary_client_) 
     {
       htmlName = "HcalSummaryCellClient.html";
