@@ -18,6 +18,8 @@
 
 #include "CondCore/DBCommon/interface/Time.h"
 
+#include "CondCore/DBCommon/interface/IOVInfo.h"
+
 
 #include <boost/bind.hpp>
 #include <algorithm>
@@ -131,18 +133,9 @@ namespace popcon {
     Container const & payloads = *ret.first;
     
     
-    // adding info about the popcon user
-    std::ostringstream user_info;
-    char * user= ::getenv("USER");
-    char * hostname= ::getenv("HOSTNAME");
-    char * pwd = ::getenv("PWD");
-    if (user) { user_info<< "\nUSER = " << user <<";" ;} else { user_info<< "\n USER = "<< "??;";}
-    if (hostname) {user_info<< "\nHOSTNAME= " << hostname <<";";} else { user_info<< "\n HOSTNAME = "<< "??;";}
-    if (pwd) {user_info<< "\nPWD= " << pwd <<";";} else  {user_info<< "\n PWD = "<< "??;";}
-    
-       
+   
 
-     m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v2.1; " + user_info.str() + displayIovHelper(payloads,m_since ) +  ret.second);
+    m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v2.1; " + cond::userInfo() + displayIovHelper(payloads,m_since ) +  ret.second);
      
      
      displayHelper(payloads,m_since);
