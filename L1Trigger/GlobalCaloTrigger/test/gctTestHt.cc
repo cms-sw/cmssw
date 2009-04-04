@@ -268,14 +268,21 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
     }
 
     // Check the missing Ht calculation
-    double dhx = htComponentGeVForHtMiss(-hxTotal);
-    double dhy = htComponentGeVForHtMiss(-hyTotal);
-    double dhm = sqrt(dhx*dhx + dhy*dhy);
-    double phi = atan2(dhy, dhx);
-    if (phi < 0) phi += 2.*M_PI;
+    unsigned htMiss = 0;
+    unsigned htMPhi = 0;
 
-    unsigned htMiss = m_htMissScale->rank(dhm);
-    unsigned htMPhi = static_cast<unsigned>(phi/M_PI*9.)*4;
+    if ((((-hxTotal) & 0x3f8) != 0) || (((-hyTotal) & 0x3f8) != 0)) {
+
+      double dhx = htComponentGeVForHtMiss(-hxTotal);
+      double dhy = htComponentGeVForHtMiss(-hyTotal);
+      double dhm = sqrt(dhx*dhx + dhy*dhy);
+      double phi = atan2(dhy, dhx);
+      if (phi < 0) phi += 2.*M_PI;
+
+      htMiss = m_htMissScale->rank(dhm);
+      htMPhi = static_cast<unsigned>(phi/M_PI*9.);
+
+    }
 
     if (htmMinusOvrFlow || htmPlusOverFlow) htMiss = 127;
 
