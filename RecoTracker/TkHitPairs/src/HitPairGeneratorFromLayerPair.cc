@@ -10,8 +10,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
 #include "RecoTracker/TkHitPairs/src/InnerDeltaPhi.h"
-#include "RecoTracker/TkHitPairs/interface/LayerHitMapLoop.h"
-#include "RecoTracker/TkHitPairs/src/RecHitsSortedInPhi.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
