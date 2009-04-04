@@ -1,45 +1,56 @@
-
-#include "FWCore/Modules/src/EventAuxiliaryHistoryProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include <deque>
 
-namespace edm
-{
-  EventAuxiliaryHistoryProducer::EventAuxiliaryHistoryProducer(edm::ParameterSet const& ps):
+namespace edm {
+
+  class EventAuxiliaryHistoryProducer : public EDProducer {
+  public:
+    explicit EventAuxiliaryHistoryProducer(ParameterSet const&);
+    virtual ~EventAuxiliaryHistoryProducer();
+
+    virtual void produce(Event& e, EventSetup const& c);
+    void endJob();
+
+  private:
+    unsigned int depth_;
+    std::deque<EventAuxiliary> history_; 
+  };
+
+  EventAuxiliaryHistoryProducer::EventAuxiliaryHistoryProducer(ParameterSet const& ps):
     depth_(ps.getParameter<unsigned int>("historyDepth")),
-    history_()
-  {
+    history_() {
       produces<std::vector<EventAuxiliary> > ();
   }
 
-  EventAuxiliaryHistoryProducer::~EventAuxiliaryHistoryProducer()
-  {
+  EventAuxiliaryHistoryProducer::~EventAuxiliaryHistoryProducer() {
   }
 
-  void EventAuxiliaryHistoryProducer::produce(edm::Event & e,edm::EventSetup const&)
-  {
-  EventAuxiliary aux( e.id(), "", e.time(), e.luminosityBlock(), e.isRealData(), e.experimentType(),
-                      e.bunchCrossing(), EventAuxiliary::invalidStoreNumber,  e.orbitNumber()); 
-  //const EventAuxiliary & aux = e.auxiliary(); // when available
-  if(history_.size() > 0)
-    {
-    if(history_.back().id().next() != aux.id())    history_.clear();
-    if(history_.size() >= depth_) history_.pop_front();
+  void EventAuxiliaryHistoryProducer::produce(Event & e, EventSetup const&) {
+    EventAuxiliary aux(e.id(), "", e.time(), e.luminosityBlock(), e.isRealData(), e.experimentType(),
+                       e.bunchCrossing(), EventAuxiliary::invalidStoreNumber, e.orbitNumber()); 
+  //EventAuxiliary const& aux = e.auxiliary(); // when available
+    if(history_.size() > 0) {
+      if(history_.back().id().next() != aux.id()) history_.clear();
+      if(history_.size() >= depth_) history_.pop_front();
     }
 
-   history_.push_back(aux);
+    history_.push_back(aux);
 
-   //Serialize into std::vector 
-   std::vector<EventAuxiliary> *  out = new   std::vector<EventAuxiliary>;
-   std::auto_ptr<std::vector<EventAuxiliary > > result(out);
-   for(size_t j = 0 ; j < history_.size(); j++)  
-   { 
-    out->push_back(history_[j]);
-   }
-   e.put(result);
-
+    //Serialize into std::vector 
+    std::vector<EventAuxiliary>* out = new std::vector<EventAuxiliary>;
+    std::auto_ptr<std::vector<EventAuxiliary > > result(out);
+    for(size_t j = 0; j < history_.size(); ++j) { 
+      out->push_back(history_[j]);
+    }
+    e.put(result);
   }
 
-  void EventAuxiliaryHistoryProducer::endJob()
-  {
+  void EventAuxiliaryHistoryProducer::endJob() {
   }
 }
+
+using edm::EventAuxiliaryHistoryProducer;
+DEFINE_FWK_MODULE(EventAuxiliaryHistoryProducer);

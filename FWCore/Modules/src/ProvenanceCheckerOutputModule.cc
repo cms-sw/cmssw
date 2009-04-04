@@ -52,7 +52,7 @@ namespace edm {
    {
    }
 
-// ProvenanceCheckerOutputModule::ProvenanceCheckerOutputModule(const ProvenanceCheckerOutputModule& rhs)
+// ProvenanceCheckerOutputModule::ProvenanceCheckerOutputModule(ProvenanceCheckerOutputModule const& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -64,7 +64,7 @@ namespace edm {
 //
 // assignment operators
 //
-// const ProvenanceCheckerOutputModule& ProvenanceCheckerOutputModule::operator=(const ProvenanceCheckerOutputModule& rhs)
+// ProvenanceCheckerOutputModule const& ProvenanceCheckerOutputModule::operator=(ProvenanceCheckerOutputModule const& rhs)
 // {
 //   //An exception safe implementation is
 //   ProvenanceCheckerOutputModule temp(rhs);
@@ -73,14 +73,12 @@ namespace edm {
 //   return *this;
 // }
 
-//
-// member functions
-//
-   static void markAncestors(const ProductProvenance& iInfo,
-                             const BranchMapper& iMapper,
-                             std::map<BranchID,bool>& oMap, 
+   namespace {
+     void markAncestors(ProductProvenance const& iInfo,
+                             BranchMapper const& iMapper,
+                             std::map<BranchID, bool>& oMap, 
                              std::set<BranchID>& oMapperMissing) {
-      for(std::vector<BranchID>::const_iterator it = iInfo.parentage().parents().begin(),
+       for(std::vector<BranchID>::const_iterator it = iInfo.parentage().parents().begin(),
           itEnd = iInfo.parentage().parents().end();
           it != itEnd;
           ++it) {
@@ -90,12 +88,13 @@ namespace edm {
             oMap[*it];
             boost::shared_ptr<ProductProvenance> pInfo = iMapper.branchIDToProvenance(*it);
             if(pInfo.get()) {
-               markAncestors(*pInfo,iMapper,oMap,oMapperMissing);
+               markAncestors(*pInfo, iMapper, oMap, oMapperMissing);
             } else {
                oMapperMissing.insert(*it);
             }
          }
-      }
+       }
+     }
    }
    
     void 
@@ -103,7 +102,7 @@ namespace edm {
       //check ProductProvenance's parents to see if they are in the ProductProvenance list
       boost::shared_ptr<BranchMapper> mapperPtr= e.branchMapperPtr();
                        
-      std::map<BranchID,bool> seenParentInPrincipal;
+      std::map<BranchID, bool> seenParentInPrincipal;
       std::set<BranchID> missingFromMapper;
       std::set<BranchID> missingProductProvenance;
 
@@ -116,7 +115,7 @@ namespace edm {
                //This call seems to have a side effect of filling the 'ProductProvenance' in the Group
                OutputHandle const oh = e.getForOutput(branchID, false);
                
-               if(not (*it)->productProvenancePtr().get() ) {
+               if(!(*it)->productProvenancePtr().get() ) {
                   missingProductProvenance.insert(branchID);
                   continue;
                }
@@ -124,15 +123,15 @@ namespace edm {
                if(!pInfo.get()) {
                   missingFromMapper.insert(branchID);
                }
-               markAncestors(*((*it)->productProvenancePtr()),*mapperPtr,seenParentInPrincipal, missingFromMapper);
+               markAncestors(*((*it)->productProvenancePtr()),*mapperPtr, seenParentInPrincipal, missingFromMapper);
             }
             seenParentInPrincipal[branchID]=true;
          }
       }
       
       //Determine what BranchIDs are in the product registry
-      const ProductRegistry& reg = e.productRegistry();
-      const ProductRegistry::ProductList prodList = reg.productList();
+      ProductRegistry const& reg = e.productRegistry();
+      ProductRegistry::ProductList const prodList = reg.productList();
       std::set<BranchID> branchesInReg;
       for(ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
           it != itEnd;
@@ -143,7 +142,7 @@ namespace edm {
       
       std::set<BranchID> missingFromPrincipal;
       std::set<BranchID> missingFromReg;
-      for(std::map<BranchID,bool>::iterator it=seenParentInPrincipal.begin(), itEnd = seenParentInPrincipal.end();
+      for(std::map<BranchID, bool>::iterator it=seenParentInPrincipal.begin(), itEnd = seenParentInPrincipal.end();
           it != itEnd;
           ++it) {
          if(!it->second) {

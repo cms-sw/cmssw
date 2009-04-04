@@ -1,19 +1,34 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.cc,v 1.12 2008/01/14 16:49:22 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
 #include <iterator>
 #include <ostream>
-#include "FWCore/Modules/src/AsciiOutputModule.h"
+#include <iostream>
+#include <string>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
-
 namespace edm {
+  class AsciiOutputModule : public OutputModule {
+  public:
+    // We do not take ownership of passed stream.
+    explicit AsciiOutputModule(ParameterSet const& pset);
+    virtual ~AsciiOutputModule();
+
+  private:
+    virtual void write(EventPrincipal const& e);
+    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&){}
+    virtual void writeRun(RunPrincipal const&){}
+    int prescale_;
+    int verbosity_;
+    int counter_;
+  };
 
   AsciiOutputModule::AsciiOutputModule(ParameterSet const& pset) :
     OutputModule(pset),
@@ -26,17 +41,17 @@ namespace edm {
     
 
   AsciiOutputModule::~AsciiOutputModule() {
-    edm::LogAbsolute("AsciiOut")<< ">>> processed " << counter_ << " events" << std::endl;
+    LogAbsolute("AsciiOut")<< ">>> processed " << counter_ << " events" << std::endl;
   }
 
   void
-  AsciiOutputModule::write(const EventPrincipal& e) {
+  AsciiOutputModule::write(EventPrincipal const& e) {
 
 
     if ((++counter_ % prescale_) != 0 || verbosity_ <= 0) return;
 
-    //  const Run & run = evt.getRun(); // this is still unused
-    edm::LogAbsolute("AsciiOut")<< ">>> processing event # " << e.id() <<" time " <<e.time().value()
+    // Run const& run = evt.getRun(); // this is still unused
+    LogAbsolute("AsciiOut")<< ">>> processing event # " << e.id() <<" time " <<e.time().value()
 				<< std::endl;
 
     if (verbosity_ <= 1) return;
@@ -46,25 +61,28 @@ namespace edm {
     // ... list of process-names
     for (ProcessHistory::const_iterator it = e.processHistory().begin(), itEnd = e.processHistory().end();
         it != itEnd; ++it) {
-      edm::LogAbsolute("AsciiOut")<< it->processName() << " ";
+      LogAbsolute("AsciiOut")<< it->processName() << " ";
     }
 
     // ... collision id
-    edm::LogAbsolute("AsciiOut")<< '\n' << e.id() << '\n';
+    LogAbsolute("AsciiOut")<< '\n' << e.id() << '\n';
    
     
     // Loop over products, and write some output for each...
 
-    std::vector<Provenance const *> provs;
+    std::vector<Provenance const*> provs;
     e.getAllProvenance(provs);
-    for(std::vector<Provenance const *>::const_iterator i = provs.begin(),
+    for(std::vector<Provenance const*>::const_iterator i = provs.begin(),
 	 iEnd = provs.end();
 	 i != iEnd;
 	 ++i) {
       BranchDescription const& desc = (*i)->product();
       if (selected(desc)) {
-	edm::LogAbsolute("AsciiOut")<< **i << '\n';
+	LogAbsolute("AsciiOut")<< **i << '\n';
       }
     }
   }
 }
+
+using edm::AsciiOutputModule;
+DEFINE_FWK_MODULE(AsciiOutputModule);
