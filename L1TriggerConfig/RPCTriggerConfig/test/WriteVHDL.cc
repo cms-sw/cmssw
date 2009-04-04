@@ -38,10 +38,14 @@
 #include "CondFormats/DataRecord/interface/L1RPCConeBuilderRcd.h"
 #include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
 
+#include "CondFormats/L1TObjects/interface/L1RPCConeDefinition.h"
+
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
+
+
 
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
