@@ -17,7 +17,6 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"    
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 //RecoTracker
-#include "RecoTracker/TkSeedingLayers/interface/SeedingHit.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
