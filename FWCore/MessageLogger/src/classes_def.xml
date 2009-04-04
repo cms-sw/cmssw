@@ -1,0 +1,5 @@
+<lcgdict>
+ <class name="edm::ErrorSummaryEntry"/>
+ <class name="std::vector<edm::ErrorSummaryEntry>"/>
+</lcgdict>
+ 
