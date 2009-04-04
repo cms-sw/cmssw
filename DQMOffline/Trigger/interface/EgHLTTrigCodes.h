@@ -6,12 +6,12 @@
 //aim: to define the trigger bits we are interested in
 //implimentation: likely to be more than 32 (or even 64 bits) so differs from CutCodes in the fact it stores the bit position, not the bit mask
 
-
 #include <cstring>
 #include <string>
 #include <iostream>
 #include <bitset>
 #include <vector>
+#include <algorithm>
 
 //unforunately hard coded limit of 64 bits which needs to be checked when setting it up
 //if this becomes a problem, will be replaced by boost::dynamic_bitset

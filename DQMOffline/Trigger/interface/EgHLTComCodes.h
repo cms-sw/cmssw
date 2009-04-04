@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-
+#include <algorithm>
 
 namespace egHLT {
 
