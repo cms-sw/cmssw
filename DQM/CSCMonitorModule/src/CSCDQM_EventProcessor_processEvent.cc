@@ -169,8 +169,10 @@ namespace cscdqm {
             } 
 
             if (config->getPROCESS_DDU()) {
-              CSCDCCEventData dccData((short unsigned int*) data);
+              
+              CSCDCCEventData dccData((short unsigned int*) data, &binChecker);
               const std::vector<CSCDDUEventData> & dduData = dccData.dduData();
+              
               for (int ddu = 0; ddu < (int)dduData.size(); ddu++) {
                 processDDU(dduData[ddu]);
               }

@@ -43,6 +43,8 @@ namespace cscdqm {
               mo->Fill(dduID, i + 1);
             }
           }
+        } else {
+          mo->Fill(dduID, 0);
         }
       }
 
