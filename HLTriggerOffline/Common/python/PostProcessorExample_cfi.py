@@ -23,7 +23,7 @@ myMuonPostVal = cms.EDFilter("DQMGenericClient",
 )
 
 
-myEgammaPostVal = cms.EDFilter("PostProcessor",
+myEgammaPostVal = cms.EDFilter("DQMGenericClient",
     #outputFileName= cms.untracked.string('EgammaPostProcessor.root'),
     commands       = cms.vstring(),
     resolution     = cms.vstring(),                                    
@@ -33,7 +33,7 @@ myEgammaPostVal = cms.EDFilter("PostProcessor",
     )
 )
 
-myTauPostVal = cms.EDFilter("PostProcessor",
+myTauPostVal = cms.EDFilter("DQMGenericClient",
     #outputFileName= cms.untracked.string('TauPostProcessor.root'),
     commands       = cms.vstring(),
     resolution     = cms.vstring(),                                    
@@ -44,7 +44,7 @@ myTauPostVal = cms.EDFilter("PostProcessor",
 )
 
 
-myTopPostVal = cms.EDFilter("PostProcessor",
+myTopPostVal = cms.EDFilter("DQMGenericClient",
     #outputFileName= cms.untracked.string('TopPostProcessor.root'),
     commands       = cms.vstring(),
     resolution     = cms.vstring(),                                    
