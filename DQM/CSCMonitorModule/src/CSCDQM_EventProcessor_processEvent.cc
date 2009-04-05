@@ -113,6 +113,7 @@ namespace cscdqm {
       return;
     }
 
+    /*
     const edm::InputTag formatStatusCollectionTag("MuonCSCDCCFormatStatusDigi");
     bool processFormatStatusDigi = true;
     edm::Handle<CSCDCCFormatStatusDigiCollection> formatStatusColl;
@@ -120,6 +121,7 @@ namespace cscdqm {
       LOG_WARN << "No product: " << formatStatusCollectionTag << " in stream";
       processFormatStatusDigi = false;
     }
+    */
 
     // run through the DCC's 
     for (int id = FEDNumbering::getCSCFEDIds().first; id <= FEDNumbering::getCSCFEDIds().second; ++id) {
@@ -143,6 +145,7 @@ namespace cscdqm {
 
         const uint16_t *data = (uint16_t *) fedData.data();
         const uint16_t  dataSize = long(fedData.size() / 2);
+        short unsigned int* udata = (short unsigned int*) data;
         
         binChecker.setMask(config->getBINCHECK_MASK());
     
@@ -169,8 +172,8 @@ namespace cscdqm {
             } 
 
             if (config->getPROCESS_DDU()) {
-              
-              CSCDCCEventData dccData((short unsigned int*) data, &binChecker);
+
+              CSCDCCEventData dccData(udata, &binChecker);
               const std::vector<CSCDDUEventData> & dduData = dccData.dduData();
               
               for (int ddu = 0; ddu < (int)dduData.size(); ddu++) {
