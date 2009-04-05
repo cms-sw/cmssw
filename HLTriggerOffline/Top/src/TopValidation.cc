@@ -13,7 +13,7 @@
 //
 // Original Author:  Patricia LOBELLE PARDO ()
 //         Created:  Tue Sep 23 11:06:32 CEST 2008
-// $Id: TopValidation.cc,v 1.1 2008/11/20 11:20:36 lobelle Exp $
+// $Id: TopValidation.cc,v 1.2 2008/12/03 17:16:06 lobelle Exp $
 //
 //
 
@@ -78,8 +78,9 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   // electron collection
   Handle<GsfElectronCollection> electronsH;
-  iEvent.getByLabel("pixelMatchGsfElectrons",electronsH);
-  
+  //  iEvent.getByLabel("pixelMatchGsfElectrons",electronsH);
+  iEvent.getByLabel("gsfElectrons",electronsH);
+
   // Trigger 
   Handle<TriggerResults> trh;
   try {iEvent.getByLabel(inputTag_,trh);} catch(...) {;}
