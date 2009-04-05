@@ -11,7 +11,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Mon Mar 30 17:31:03 CEST 2009
-// $Id: GtToGctCands.cc,v 1.4 2009/04/02 19:33:44 tapper Exp $
+// $Id: GtToGctCands.cc,v 1.5 2009/04/05 16:19:20 tapper Exp $
 //
 //
 
@@ -21,9 +21,9 @@
 GtToGctCands::GtToGctCands(const edm::ParameterSet& iConfig) :
   m_GTInputTag(iConfig.getParameter<edm::InputTag>("inputLabel"))
 {
-  // For now I am making one electron collection and one jet collection with all electrons and jets from all 3 BXs.
+  // For now I am making one collection from all 3 BXs.
   // This is the easiest format to analyse for CRAFT data.
-  // In the future I should make different collections and treat the mutiple BXs properly, and add energy sums.
+  // In the future I should treat the mutiple BXs properly, and add energy sums.
 
   // list of products
   produces<L1GctEmCandCollection>("isoEm");
@@ -66,29 +66,62 @@ void GtToGctCands::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   L1GlobalTriggerReadoutRecord const* gtrr = gtrr_handle.product();
 
   // Loop over 3BXs (shouldn't be hard coded really) and get GT cands
-  // For now only make non-iso electrons and tau jet collections to be fed into L1Extra
   for (int ibx=-1; ibx<=1; ibx++) {
-    const L1GtPsbWord psb = gtrr->gtPsbWord(0xbb0d, ibx);
+    const L1GtPsbWord psb1 = gtrr->gtPsbWord(0xbb0d, ibx); 
+    const L1GtPsbWord psb2 = gtrr->gtPsbWord(0xbb0e, ibx); 
     
-     std::vector<int> psbel;
-     psbel.push_back(psb.aData(4));
-     psbel.push_back(psb.aData(5));
-     psbel.push_back(psb.bData(4));
-     psbel.push_back(psb.bData(5));
-     for(std::vector<int>::const_iterator ipsbel=psbel.begin(); ipsbel!=psbel.end(); ipsbel++) {
-       nonIsoEm->push_back(L1GctEmCand((*ipsbel),false)); // set all to non-isolated
-     }
-    
-     std::vector<int> psbjet;
-     psbjet.push_back(psb.aData(2));
-     psbjet.push_back(psb.aData(3));
-     psbjet.push_back(psb.bData(2));
-     psbjet.push_back(psb.bData(3));
-     for(std::vector<int>::const_iterator ipsbjet=psbjet.begin(); ipsbjet!=psbjet.end(); ipsbjet++) {
-       tauJet->push_back(L1GctJetCand((*ipsbjet),true,false)); // set all to tau jets
-     }
-  }
+    // Isolated electrons
+    std::vector<int> psbisoel;
+    psbisoel.push_back(psb1.aData(6));
+    psbisoel.push_back(psb1.aData(7));
+    psbisoel.push_back(psb1.bData(6));
+    psbisoel.push_back(psb1.bData(7));
+    for(std::vector<int>::const_iterator ipsbisoel=psbisoel.begin(); ipsbisoel!=psbisoel.end(); ipsbisoel++) {
+      isoEm->push_back(L1GctEmCand((*ipsbisoel),true)); 
+    }
 
+    // Non-isolated electrons
+    std::vector<int> psbel;
+    psbel.push_back(psb1.aData(4));
+    psbel.push_back(psb1.aData(5));
+    psbel.push_back(psb1.bData(4));
+    psbel.push_back(psb1.bData(5));
+    for(std::vector<int>::const_iterator ipsbel=psbel.begin(); ipsbel!=psbel.end(); ipsbel++) {
+      nonIsoEm->push_back(L1GctEmCand((*ipsbel),false)); 
+    }
+
+    // Central jets
+    std::vector<int> psbjet;
+    psbjet.push_back(psb1.aData(2));
+    psbjet.push_back(psb1.aData(3));
+    psbjet.push_back(psb1.bData(2));
+    psbjet.push_back(psb1.bData(3));
+    for(std::vector<int>::const_iterator ipsbjet=psbjet.begin(); ipsbjet!=psbjet.end(); ipsbjet++) {
+      cenJet->push_back(L1GctJetCand((*ipsbjet),false,false));
+    }
+
+    // Forward jets
+    std::vector<int> psbfjet;
+    psbfjet.push_back(psb1.aData(6));
+    psbfjet.push_back(psb1.aData(7));
+    psbfjet.push_back(psb1.bData(6));
+    psbfjet.push_back(psb1.bData(7));
+    for(std::vector<int>::const_iterator ipsbfjet=psbfjet.begin(); ipsbfjet!=psbfjet.end(); ipsbfjet++) {
+      forJet->push_back(L1GctJetCand((*ipsbfjet),false,true));
+    }
+
+    // Tau jets
+    std::vector<int> psbtjet;
+    psbtjet.push_back(psb2.aData(6));
+    psbtjet.push_back(psb2.aData(7));
+    psbtjet.push_back(psb2.bData(6));
+    psbtjet.push_back(psb2.bData(7));
+    for(std::vector<int>::const_iterator ipsbtjet=psbtjet.begin(); ipsbtjet!=psbtjet.end(); ipsbtjet++) {
+      tauJet->push_back(L1GctJetCand((*ipsbtjet),true,false));
+    }
+
+  }
+  
   // put the collections into the event
   iEvent.put(isoEm,"isoEm");
   iEvent.put(nonIsoEm,"nonIsoEm");
