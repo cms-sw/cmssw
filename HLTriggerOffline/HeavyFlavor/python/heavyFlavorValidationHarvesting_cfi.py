@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-heavyFlavorValidationHarvesting = cms.EDAnalyzer("PostProcessor",
+heavyFlavorValidationHarvesting = cms.EDAnalyzer("DQMGenericClient",
   subDirs        = cms.untracked.vstring('HLT/HeavyFlavor/*'),
   verbose        = cms.untracked.uint32(0),
 #  outputFileName = cms.untracked.string('heavyFlavorValidationHarvesting.root'),
