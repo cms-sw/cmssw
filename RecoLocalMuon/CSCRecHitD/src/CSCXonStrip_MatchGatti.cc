@@ -244,6 +244,10 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
       break;
     }
   }
+  // we don't have the needed information (it's similar to the "edge" strip case)  
+  else if(stripHit.isNearDeadStrip()){
+    xWithinStrip = 0;
+  }
   else{
     //
     xWithinStrip = float(calculateXonStripPosition(stripWidth, ME1_1));
