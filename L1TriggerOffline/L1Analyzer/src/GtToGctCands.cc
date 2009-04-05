@@ -11,7 +11,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Mon Mar 30 17:31:03 CEST 2009
-// $Id: GtToGctCands.cc,v 1.3 2009/04/02 12:01:48 tapper Exp $
+// $Id: GtToGctCands.cc,v 1.4 2009/04/02 19:33:44 tapper Exp $
 //
 //
 
@@ -34,7 +34,7 @@ GtToGctCands::GtToGctCands(const edm::ParameterSet& iConfig) :
   produces<L1GctEtTotalCollection>();
   produces<L1GctEtHadCollection>();
   produces<L1GctEtMissCollection>();
-  produces<L1GctHtMissCollection>();
+  //  produces<L1GctHtMissCollection>();
   produces<L1GctHFBitCountsCollection>();
   produces<L1GctHFRingEtSumsCollection>();
 }
@@ -76,7 +76,7 @@ void GtToGctCands::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      psbel.push_back(psb.bData(4));
      psbel.push_back(psb.bData(5));
      for(std::vector<int>::const_iterator ipsbel=psbel.begin(); ipsbel!=psbel.end(); ipsbel++) {
-       nonIsoEm->push_back(L1GctEmCand((*ipsbel)&0x3f,((*ipsbel)>>10)&0x1f,(((*ipsbel)>>6)&7) * ( ((*ipsbel>>9)&1) ? -1 : 1 ),0));
+       nonIsoEm->push_back(L1GctEmCand((*ipsbel),false)); // set all to non-isolated
      }
     
      std::vector<int> psbjet;
@@ -85,7 +85,7 @@ void GtToGctCands::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      psbjet.push_back(psb.bData(2));
      psbjet.push_back(psb.bData(3));
      for(std::vector<int>::const_iterator ipsbjet=psbjet.begin(); ipsbjet!=psbjet.end(); ipsbjet++) {
-       tauJet->push_back(L1GctJetCand((*ipsbjet)&0x3f,((*ipsbjet)>>10)&0x1f,(((*ipsbjet)>>6)&7) * ( ((*ipsbjet>>9)&1) ? -1 : 1 ),1,0));
+       tauJet->push_back(L1GctJetCand((*ipsbjet),true,false)); // set all to tau jets
      }
   }
 
