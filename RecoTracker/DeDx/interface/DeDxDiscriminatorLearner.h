@@ -7,7 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
-#include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
+#include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -19,7 +19,7 @@
 #include "RecoTracker/DeDx/interface/DeDxDiscriminatorTools.h"
 
 #include "TFile.h"
-#include "TH2F.h"
+#include "TH3F.h"
 #include <ext/hash_map>
 
 using namespace edm;
@@ -28,7 +28,7 @@ using namespace std;
 using namespace __gnu_cxx;
 
 
-class DeDxDiscriminatorLearner : public ConditionDBWriter<PhysicsTools::Calibration::HistogramD2D> {
+class DeDxDiscriminatorLearner : public ConditionDBWriter<PhysicsTools::Calibration::HistogramD3D> {
 
 public:
 
@@ -42,7 +42,7 @@ private:
 
   void         Learn(const SiStripRecHit2D* sistripsimplehit, TrajectoryStateOnSurface trajState);
 
-  PhysicsTools::Calibration::HistogramD2D * getNewObject();
+  PhysicsTools::Calibration::HistogramD3D * getNewObject();
 
 
   // ----------member data ---------------------------
@@ -64,10 +64,22 @@ private:
   unsigned int MinTrackHits;
   double       MaxTrackChiOverNdf;
 
+
+  double P_Min;
+  double P_Max;
+  int    P_NBins; 
+  double Path_Min;
+  double Path_Max;
+  int    Path_NBins;
+  double Charge_Min;
+  double Charge_Max;
+  int    Charge_NBins;
+
+
   string       algoMode;
   string       HistoFile;
 
-  TH2F*        Charge_Vs_Path;
+  TH3F*        Charge_Vs_Path;
 
 private :
   struct stModInfo{int DetId; int SubDet; float Eta; float R; float Thickness; int NAPV; };

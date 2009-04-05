@@ -33,7 +33,7 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 
-DeDxDiscriminatorLearner::DeDxDiscriminatorLearner(const edm::ParameterSet& iConfig) : ConditionDBWriter<PhysicsTools::Calibration::HistogramD2D>::ConditionDBWriter<PhysicsTools::Calibration::HistogramD2D>(iConfig)
+DeDxDiscriminatorLearner::DeDxDiscriminatorLearner(const edm::ParameterSet& iConfig) : ConditionDBWriter<PhysicsTools::Calibration::HistogramD3D>::ConditionDBWriter<PhysicsTools::Calibration::HistogramD3D>(iConfig)
 {
    m_tracksTag                 = iConfig.getParameter<edm::InputTag>("tracks");
    m_trajTrackAssociationTag   = iConfig.getParameter<edm::InputTag>("trajectoryTrackAssociation");
@@ -42,6 +42,16 @@ DeDxDiscriminatorLearner::DeDxDiscriminatorLearner(const edm::ParameterSet& iCon
    useStrip = iConfig.getParameter<bool>("UseStrip");
    if(!usePixel && !useStrip)
    edm::LogWarning("DeDxDiscriminatorLearner") << "Pixel Hits AND Strip Hits will not be used to estimate dEdx --> BUG, Please Update the config file";
+
+   P_Min	       = iConfig.getParameter<double>  ("P_Min"  );
+   P_Max               = iConfig.getParameter<double>  ("P_Max"  );
+   P_NBins             = iConfig.getParameter<int>     ("P_NBins");
+   Path_Min            = iConfig.getParameter<double>  ("Path_Min"  );
+   Path_Max            = iConfig.getParameter<double>  ("Path_Max"  );
+   Path_NBins          = iConfig.getParameter<int>     ("Path_NBins");
+   Charge_Min          = iConfig.getParameter<double>  ("Charge_Min"  );
+   Charge_Max          = iConfig.getParameter<double>  ("Charge_Max"  );
+   Charge_NBins        = iConfig.getParameter<int>     ("Charge_NBins");
 
    MinTrackMomentum    = iConfig.getUntrackedParameter<double>  ("minTrackMomentum"   ,  3.0);
    MaxTrackMomentum    = iConfig.getUntrackedParameter<double>  ("maxTrackMomentum"   ,  99999.0); 
@@ -61,7 +71,9 @@ DeDxDiscriminatorLearner::~DeDxDiscriminatorLearner(){}
 
 void  DeDxDiscriminatorLearner::algoBeginJob(const edm::EventSetup& iSetup)
 {
-   Charge_Vs_Path = new TH2F ("Charge_Vs_Path"     , "Charge_Vs_Path" , 24, 0.2, 1.4, 250, 0, 5000);
+//   Charge_Vs_Path = new TH2F ("Charge_Vs_Path"     , "Charge_Vs_Path" , 24, 0.2, 1.4, 250, 0, 5000);
+   Charge_Vs_Path = new TH3F ("Charge_Vs_Path"     , "Charge_Vs_Path" , P_NBins, P_Min, P_Max, Path_NBins, Path_Min, Path_Max, Charge_NBins, Charge_Min, Charge_Max);
+
 
    edm::ESHandle<TrackerGeometry> tkGeom;
    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
@@ -109,7 +121,7 @@ void DeDxDiscriminatorLearner::algoEndJob()
 	Output->Close();
    }else if( strcmp(algoMode.c_str(),"WriteOnDB")==0){
         TFile* Input = new TFile(HistoFile.c_str() );
-	Charge_Vs_Path = (TH2F*)(Input->FindObjectAny("Charge_Vs_Path"))->Clone();  
+	Charge_Vs_Path = (TH3F*)(Input->FindObjectAny("Charge_Vs_Path"))->Clone();  
 	Input->Close();
    }
 }
@@ -176,23 +188,26 @@ void DeDxDiscriminatorLearner::Learn(const SiStripRecHit2D* sistripsimplehit,Tra
    // Fill Histo Path Vs Charge/Path
    double charge = DeDxDiscriminatorTools::charge(ampls);
    double path   = DeDxDiscriminatorTools::path(cosine,MOD->Thickness);
-   Charge_Vs_Path->Fill(path,charge/path);
+   Charge_Vs_Path->Fill(trackDirection.mag(),path,charge/path);
 }
 
 
-PhysicsTools::Calibration::HistogramD2D* DeDxDiscriminatorLearner::getNewObject()
+PhysicsTools::Calibration::HistogramD3D* DeDxDiscriminatorLearner::getNewObject()
 {
    if( strcmp(algoMode.c_str(),"MultiJob")==0)return NULL;
 
-   PhysicsTools::Calibration::HistogramD2D* obj;
-   obj = new PhysicsTools::Calibration::HistogramD2D(
+   PhysicsTools::Calibration::HistogramD3D* obj;
+   obj = new PhysicsTools::Calibration::HistogramD3D(
                 Charge_Vs_Path->GetNbinsX(), Charge_Vs_Path->GetXaxis()->GetXmin(),  Charge_Vs_Path->GetXaxis()->GetXmax(),
-                Charge_Vs_Path->GetNbinsY(), Charge_Vs_Path->GetYaxis()->GetXmin(),  Charge_Vs_Path->GetYaxis()->GetXmax());
+                Charge_Vs_Path->GetNbinsY(), Charge_Vs_Path->GetYaxis()->GetXmin(),  Charge_Vs_Path->GetYaxis()->GetXmax(),
+	        Charge_Vs_Path->GetNbinsZ(), Charge_Vs_Path->GetZaxis()->GetXmin(),  Charge_Vs_Path->GetZaxis()->GetXmax());
 
    for(int ix=0; ix<Charge_Vs_Path->GetNbinsX(); ix++){
       for(int iy=0; iy<Charge_Vs_Path->GetNbinsY(); iy++){
-         obj->setBinContent(ix, iy, Charge_Vs_Path->GetBinContent(ix,iy) );       
-//         if(Charge_Vs_Path->GetBinContent(ix,iy)!=0)printf("%i %i --> %f\n",ix,iy, Charge_Vs_Path->GetBinContent(ix,iy)); 
+         for(int iz=0; iz<Charge_Vs_Path->GetNbinsZ(); iz++){
+            obj->setBinContent(ix, iy, iz, Charge_Vs_Path->GetBinContent(ix,iy, iz) );       
+//          if(Charge_Vs_Path->GetBinContent(ix,iy)!=0)printf("%i %i %i --> %f\n",ix,iy, iz, Charge_Vs_Path->GetBinContent(ix,iy,iz)); 
+         }
       }
    }
 

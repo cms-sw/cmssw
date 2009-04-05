@@ -24,12 +24,12 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
+#include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.h"
 
 #include "RecoTracker/DeDx/interface/DeDxDiscriminatorTools.h"
 
 
-#include "TH2F.h"
+#include "TH3F.h"
 
 #include <ext/hash_map>
 
@@ -69,7 +69,7 @@ private:
 
   const TrackerGeometry* m_tracker;
 
-  PhysicsTools::Calibration::HistogramD2D DeDxMap_;
+  PhysicsTools::Calibration::HistogramD3D DeDxMap_;
 
   double       MinTrackMomentum;
   double       MaxTrackMomentum;
@@ -80,8 +80,10 @@ private:
   double       MaxTrackChiOverNdf;
 
   unsigned int Formula;
+  string       Reccord;
 
-  TH2D*        Prob_ChargePath;
+
+  TH3D*        Prob_ChargePath;
 
 
 

@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxDiscriminatorProducer.cc,v 1.7 2008/12/09 09:24:29 querten Exp $
+// $Id: DeDxDiscriminatorProducer.cc,v 1.8 2009/03/04 13:34:25 vlimant Exp $
 //
 //
 
@@ -25,7 +25,6 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 
-
 #include "RecoTracker/DeDx/interface/DeDxDiscriminatorProducer.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -34,13 +33,14 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-
-#include "CondFormats/DataRecord/interface/SiStripDeDxMipRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripDeDxMip_3D_Rcd.h"
+#include "CondFormats/DataRecord/interface/SiStripDeDxElectron_3D_Rcd.h"
+#include "CondFormats/DataRecord/interface/SiStripDeDxProton_3D_Rcd.h"
+#include "CondFormats/DataRecord/interface/SiStripDeDxPion_3D_Rcd.h"
+#include "CondFormats/DataRecord/interface/SiStripDeDxKaon_3D_Rcd.h"
 
 
 #include "TFile.h"
-
-
 
 using namespace reco;
 using namespace std;
@@ -60,6 +60,7 @@ DeDxDiscriminatorProducer::DeDxDiscriminatorProducer(const edm::ParameterSet& iC
    edm::LogWarning("DeDxHitsProducer") << "Pixel Hits AND Strip Hits will not be used to estimate dEdx --> BUG, Please Update the config file";
 
    Formula             = iConfig.getUntrackedParameter<unsigned>("Formula"            ,  0);
+   Reccord             = iConfig.getUntrackedParameter<string>  ("Reccord"            , "SiStripDeDxMip_3D_Rcd");
 
    MinTrackMomentum    = iConfig.getUntrackedParameter<double>  ("minTrackMomentum"   ,  3.0);
    MaxTrackMomentum    = iConfig.getUntrackedParameter<double>  ("maxTrackMomentum"   ,  99999.0); 
@@ -75,36 +76,52 @@ DeDxDiscriminatorProducer::~DeDxDiscriminatorProducer(){}
 // ------------ method called once each job just before starting event loop  ------------
 void  DeDxDiscriminatorProducer::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
 {
-   edm::ESHandle<PhysicsTools::Calibration::HistogramD2D> DeDxMapHandle_;    
-   iSetup.get<SiStripDeDxMipRcd>().get(DeDxMapHandle_);
+   edm::ESHandle<PhysicsTools::Calibration::HistogramD3D> DeDxMapHandle_;    
+   if(      strcmp(Reccord.c_str(),"SiStripDeDxMip_3D_Rcd")==0){
+      iSetup.get<SiStripDeDxMip_3D_Rcd>() .get(DeDxMapHandle_);
+   }else if(strcmp(Reccord.c_str(),"SiStripDeDxPion_3D_Rcd")==0){
+      iSetup.get<SiStripDeDxPion_3D_Rcd>().get(DeDxMapHandle_);
+   }else if(strcmp(Reccord.c_str(),"SiStripDeDxKaon_3D_Rcd")==0){
+      iSetup.get<SiStripDeDxKaon_3D_Rcd>().get(DeDxMapHandle_);
+   }else if(strcmp(Reccord.c_str(),"SiStripDeDxProton_3D_Rcd")==0){
+      iSetup.get<SiStripDeDxProton_3D_Rcd>().get(DeDxMapHandle_);
+   }else if(strcmp(Reccord.c_str(),"SiStripDeDxElectron_3D_Rcd")==0){
+      iSetup.get<SiStripDeDxElectron_3D_Rcd>().get(DeDxMapHandle_);
+   }else{
+      printf("The reccord %s is not known by the DeDxDiscriminatorProducer\n", Reccord.c_str());
+      printf("Program will exit now\n");
+      exit(0);
+   }
    DeDxMap_ = *DeDxMapHandle_.product();
 
    double xmin = DeDxMap_.rangeX().min;
    double xmax = DeDxMap_.rangeX().max;
    double ymin = DeDxMap_.rangeY().min;
    double ymax = DeDxMap_.rangeY().max;
+   double zmin = DeDxMap_.rangeZ().min;
+   double zmax = DeDxMap_.rangeZ().max;
 
-
-
-   Prob_ChargePath  = new TH2D ("Prob_ChargePath"     , "Prob_ChargePath" , DeDxMap_.numberOfBinsX(), xmin, xmax, DeDxMap_.numberOfBinsY() , ymin, ymax);
+   Prob_ChargePath  = new TH3D ("Prob_ChargePath"     , "Prob_ChargePath" , DeDxMap_.numberOfBinsX(), xmin, xmax, DeDxMap_.numberOfBinsY() , ymin, ymax, DeDxMap_.numberOfBinsZ(), zmin, zmax);
 
    
    for(int i=0;i<Prob_ChargePath->GetXaxis()->GetNbins();i++){
-      double Ni = 0;
-      for(int j=0;j<Prob_ChargePath->GetYaxis()->GetNbins();j++){ Ni+=DeDxMap_.binContent(i,j);} 
-
       for(int j=0;j<Prob_ChargePath->GetYaxis()->GetNbins();j++){
-         double tmp = 0;
-         for(int k=0;k<=j;k++){ tmp+=DeDxMap_.binContent(i,k);}
+         double Ni = 0;
+         for(int k=0;k<Prob_ChargePath->GetZaxis()->GetNbins();k++){ Ni+=DeDxMap_.binContent(i,j,k);} 
 
-	 if(Ni>0){
-            Prob_ChargePath->SetBinContent (i, j, tmp/Ni);
-	 }else{
-            Prob_ChargePath->SetBinContent (i, j, 0);
-	 }
+         for(int k=0;k<Prob_ChargePath->GetZaxis()->GetNbins();k++){
+            double tmp = 0;
+            for(int l=0;l<=k;l++){ tmp+=DeDxMap_.binContent(i,j,l);}
 
+   	    if(Ni>0){
+               Prob_ChargePath->SetBinContent (i, j, k, tmp/Ni);
+  	    }else{
+               Prob_ChargePath->SetBinContent (i, j, k, 0);
+	    }
+         }
       }
    }
+
 
 
 /*
@@ -246,10 +263,11 @@ double DeDxDiscriminatorProducer::GetProbability(const SiStripRecHit2D* sistrips
    double charge = DeDxDiscriminatorTools::charge(ampls);
    double path   = DeDxDiscriminatorTools::path(cosine,MOD->Thickness);
 
-   int    BinX   = Prob_ChargePath->GetXaxis()->FindBin(path);
-   int    BinY   = Prob_ChargePath->GetYaxis()->FindBin(charge/path);
+   int    BinX   = Prob_ChargePath->GetXaxis()->FindBin(trackDirection.mag());
+   int    BinY   = Prob_ChargePath->GetXaxis()->FindBin(path);
+   int    BinZ   = Prob_ChargePath->GetYaxis()->FindBin(charge/path);
    
-   return Prob_ChargePath->GetBinContent(BinX,BinY);
+   return Prob_ChargePath->GetBinContent(BinX,BinY,BinZ);
 }
 
 
