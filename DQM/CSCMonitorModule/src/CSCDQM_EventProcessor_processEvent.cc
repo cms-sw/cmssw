@@ -69,7 +69,15 @@ namespace cscdqm {
 
     }
 
-    if (processExaminer()) {
+    CSCDCCFormatStatusDigi formatStatusDigi(nodeNumber, config->getBINCHECK_MASK(),
+      binChecker.getMask(), 
+      binChecker.errors(),
+      binChecker.errorsDetailedDDU(),
+      binChecker.errorsDetailed(),
+      binChecker.payloadDetailed(),
+      binChecker.statusDetailed());
+
+    if (processExaminer(formatStatusDigi)) {
 
       config->incNEventsGood();
 
@@ -99,12 +107,18 @@ namespace cscdqm {
 
     bCSCEventCounted = false;
 
-    // get a handle to the FED data collection
-    // actualy the FED_EVENT_LABEL part of the event
     edm::Handle<FEDRawDataCollection> rawdata;
     if (!e.getByLabel(inputTag, rawdata)) {
-      LOG_WARN << "No product: " << inputTag << " in FEDRawDataCollection";
+      LOG_WARN << "No product: " << inputTag << " in stream";
       return;
+    }
+
+    const edm::InputTag formatStatusCollectionTag("MuonCSCDCCFormatStatusDigi");
+    bool processFormatStatusDigi = true;
+    edm::Handle<CSCDCCFormatStatusDigiCollection> formatStatusColl;
+    if (!e.getByLabel(formatStatusCollectionTag, formatStatusColl)) {
+      LOG_WARN << "No product: " << formatStatusCollectionTag << " in stream";
+      processFormatStatusDigi = false;
     }
 
     // run through the DCC's 
@@ -138,7 +152,15 @@ namespace cscdqm {
 
         } else {
 
-          if (processExaminer()) {
+          CSCDCCFormatStatusDigi formatStatusDigi(id, config->getBINCHECK_MASK(),
+              binChecker.getMask(), 
+              binChecker.errors(),
+              binChecker.errorsDetailedDDU(),
+              binChecker.errorsDetailed(),
+              binChecker.payloadDetailed(),
+              binChecker.statusDetailed());
+
+          if (processExaminer(formatStatusDigi)) {
 
             config->incNEventsGood();
 

@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  *
- *       Filename:  CSCDaqInfo.cc
+ *       Filename:  CSCDcsInfo.cc
  *
  *    Description:  CSC Daq Information Implementaion
  *
@@ -16,19 +16,19 @@
  * =====================================================================================
  */
 
-#include "DQM/CSCMonitorModule/interface/CSCDaqInfo.h"
+#include "DQM/CSCMonitorModule/interface/CSCDcsInfo.h"
 
 using namespace std;
 using namespace edm;
 
-CSCDaqInfo::CSCDaqInfo(const edm::ParameterSet& ps) {
+CSCDcsInfo::CSCDcsInfo(const edm::ParameterSet& ps) {
    
 }
 
-void CSCDaqInfo::beginJob(const edm::EventSetup& iSetup){
+void CSCDcsInfo::beginJob(const edm::EventSetup& iSetup){
 
   dbe = Service<DQMStore>().operator->();
-  dbe->setCurrentFolder("CSC/EventInfo/DAQContents");
+  dbe->setCurrentFolder("CSC/EventInfo/DCSContents");
 
   mos.insert(std::make_pair("CSC_SideMinus", dbe->bookFloat("CSC_SideMinus")));
   mos.insert(std::make_pair("CSC_SideMinus_Station01", dbe->bookFloat("CSC_SideMinus_Station01")));

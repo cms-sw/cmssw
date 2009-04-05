@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  *
- *       Filename:  CSCDaqInfo.cc
+ *       Filename:  CSCCertificationInfo.cc
  *
  *    Description:  CSC Daq Information Implementaion
  *
@@ -16,19 +16,19 @@
  * =====================================================================================
  */
 
-#include "DQM/CSCMonitorModule/interface/CSCDaqInfo.h"
+#include "DQM/CSCMonitorModule/interface/CSCCertificationInfo.h"
 
 using namespace std;
 using namespace edm;
 
-CSCDaqInfo::CSCDaqInfo(const edm::ParameterSet& ps) {
+CSCCertificationInfo::CSCCertificationInfo(const edm::ParameterSet& ps) {
    
 }
 
-void CSCDaqInfo::beginJob(const edm::EventSetup& iSetup){
+void CSCCertificationInfo::beginJob(const edm::EventSetup& iSetup){
 
   dbe = Service<DQMStore>().operator->();
-  dbe->setCurrentFolder("CSC/EventInfo/DAQContents");
+  dbe->setCurrentFolder("CSC/EventInfo/CertificationContents");
 
   mos.insert(std::make_pair("CSC_SideMinus", dbe->bookFloat("CSC_SideMinus")));
   mos.insert(std::make_pair("CSC_SideMinus_Station01", dbe->bookFloat("CSC_SideMinus_Station01")));

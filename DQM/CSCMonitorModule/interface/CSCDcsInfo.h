@@ -1,9 +1,9 @@
 /*
  * =====================================================================================
  *
- *       Filename:  CSCDaqInfo.h
+ *       Filename:  CSCDcsInfo.h
  *
- *    Description:  CSC DAQ Information
+ *    Description:  CSC DCS Information
  *
  *        Version:  1.0
  *        Created:  12/09/2008 10:53:27 AM
@@ -16,8 +16,8 @@
  * =====================================================================================
  */
 
-#ifndef CSCDaqInfo_H
-#define CSCDaqInfo_H
+#ifndef CSCDcsInfo_H
+#define CSCDcsInfo_H
 
 // system include files
 #include <memory>
@@ -39,25 +39,25 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-class CSCDaqInfo : public edm::EDAnalyzer {
+class CSCDcsInfo : public edm::EDAnalyzer {
 
   public:
 
-    explicit CSCDaqInfo(const edm::ParameterSet&);
-    ~CSCDaqInfo() { }
+    explicit CSCDcsInfo(const edm::ParameterSet&);
+    ~CSCDcsInfo() { }
 
   private:
 
-    virtual void beginJob(const edm::EventSetup&);
+    virtual void beginJob(const edm::EventSetup&) ;
 
     virtual void beginLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) { }
     virtual void analyze(const edm::Event&, const edm::EventSetup&) { }
     virtual void endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) { }
     virtual void endJob() { }
                     
-    std::map<std::string, MonitorElement*> mos;
     DQMStore *dbe;  
-                          
+    std::map<std::string, MonitorElement*> mos;
+
 };
 
 #endif

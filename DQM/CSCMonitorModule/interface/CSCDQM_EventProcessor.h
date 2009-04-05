@@ -46,6 +46,9 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 
+#include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigiCollection.h"
+
 namespace cscdqm {
 
   typedef std::map<CSCIdType, ExaminerStatusType> CSCExaminerMapType;
@@ -79,6 +82,7 @@ namespace cscdqm {
     private:
       
       bool processExaminer(); 
+      bool processExaminer(const CSCDCCFormatStatusDigi& digi);
       void processDDU(const CSCDDUEventData& data);
       void processCSC(const CSCEventData& data, const int dduID);
 

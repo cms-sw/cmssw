@@ -8,6 +8,8 @@ process = cms.Process("CSCDQM")
 
 process.load("DQM.CSCMonitorModule.test.csc_dqm_sourceclient_cfi")
 process.load("DQM.CSCMonitorModule.test.csc_daq_info_cfi")
+process.load("DQM.CSCMonitorModule.test.csc_dcs_info_cfi")
+process.load("DQM.CSCMonitorModule.test.csc_certification_info_cfi")
 
 #-------------------------------------------------
 # Offline DQM Module Configuration
@@ -126,7 +128,7 @@ MessageLogger = cms.Service("MessageLogger",
 # Sequences
 #--------------------------
 
-process.p = cms.Path(process.dqmCSCClient * process.cscDaqInfo + process.dqmEnv + process.dqmSaver)
+process.p = cms.Path(process.dqmCSCClient * process.cscDaqInfo + process.cscDcsInfo * process.cscCertificationInfo + process.dqmEnv + process.dqmSaver)
 #process.p = cms.Path(process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor * process.dqmCSCClient + process.dqmEnv + process.dqmSaver)
 
 
