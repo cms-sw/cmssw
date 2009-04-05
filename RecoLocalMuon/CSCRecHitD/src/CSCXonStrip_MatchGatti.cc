@@ -71,14 +71,16 @@ CSCXonStrip_MatchGatti::CSCXonStrip_MatchGatti(const edm::ParameterSet& ps) :
   xt_asymmetry_ME41                = ps.getParameter<double>("XTasymmetry_ME41");
   const_syst_ME41                   = ps.getParameter<double>("ConstSyst_ME41");
  
-  std::auto_ptr<CSCFindPeakTime> peakTimeFinder_( new CSCFindPeakTime( ps ) );
+  // it crashes (sometimes) - SS
+  //std::auto_ptr<CSCFindPeakTime> peakTimeFinder_( new CSCFindPeakTime( ps ) );
+  peakTimeFinder_            = new CSCFindPeakTime(ps);
  
   getCorrectionValues("StringCurrentlyNotUsed");
 }
 
 
 CSCXonStrip_MatchGatti::~CSCXonStrip_MatchGatti(){
- 
+  delete peakTimeFinder_; 
 }
 
 
