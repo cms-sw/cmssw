@@ -145,7 +145,7 @@ namespace cscdqm {
 
         const uint16_t *data = (uint16_t *) fedData.data();
         const uint16_t  dataSize = long(fedData.size() / 2);
-        short unsigned int* udata = (short unsigned int*) data;
+        const short unsigned int* udata = (short unsigned int*) fedData.data();
         
         binChecker.setMask(config->getBINCHECK_MASK());
     
@@ -173,7 +173,7 @@ namespace cscdqm {
 
             if (config->getPROCESS_DDU()) {
 
-              CSCDCCEventData dccData(udata, &binChecker);
+              CSCDCCEventData dccData(const_cast<short unsigned int*>(udata), &binChecker);
               const std::vector<CSCDDUEventData> & dduData = dccData.dduData();
               
               for (int ddu = 0; ddu < (int)dduData.size(); ddu++) {
