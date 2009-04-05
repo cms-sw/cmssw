@@ -41,7 +41,13 @@ process.outputDB.connect = options.outputDBConnect
 process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
 
 # Generate configuration data
+process.load("L1TriggerConfig.RCTConfigProducers.L1RCTChannelMaskOnline_cfi")
+process.load("L1TriggerConfig.GMTConfigProducers.L1MuGMTChannelMaskConfigOnline_cfi")
+process.load("L1TriggerConfig.L1GtConfigProducers.l1GtPrescaleFactorsAlgoTrigOnline_cfi")
+process.load("L1TriggerConfig.L1GtConfigProducers.l1GtPrescaleFactorsTechTrigOnline_cfi")
 process.load("L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMaskAlgoTrigOnline_cfi")
+process.load("L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMaskTechTrigOnline_cfi")
+process.load("L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMaskVetoTechTrigOnline_cfi")
 
 # writer modules
 from CondTools.L1Trigger.L1CondDBPayloadWriter_cff import initPayloadWriter

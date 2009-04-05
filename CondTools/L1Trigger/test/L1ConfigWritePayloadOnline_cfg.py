@@ -37,6 +37,7 @@ process.load("CondTools.L1Trigger.L1SubsystemKeysOnline_cfi")
 process.L1SubsystemKeysOnline.tscKey = cms.string( options.tscKey )
 
 process.load("L1TriggerConfig.CSCTFConfigProducers.CSCTFObjectKeysOnline_cfi")
+process.load("L1TriggerConfig.DTTrackFinder.L1DTTFObjectKeysOnline_cfi")
 process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCObjectKeysOnline_cfi")
 process.load("L1TriggerConfig.GMTConfigProducers.L1MuGMTParametersKeysOnlineProd_cfi")
 process.load("L1TriggerConfig/L1ScalesProducers.L1MuTriggerScaleKeysOnlineProd_cfi")
@@ -44,10 +45,11 @@ process.L1MuTriggerScaleKeysOnlineProd.subsystemLabel = 'GMTScales'
 process.load("L1TriggerConfig.RCTConfigProducers.L1RCTObjectKeysOnline_cfi")
 process.load("L1TriggerConfig.L1GtConfigProducers.l1GtTscObjectKeysOnline_cfi")
 process.l1GtTscObjectKeysOnline.EnableL1GtTriggerMenu = False
-process.l1GtTscObjectKeysOnline.EnableL1GtPsbSetup = False
+#process.l1GtTscObjectKeysOnline.EnableL1GtPsbSetup = False
 
 process.load("CondTools.L1Trigger.L1TriggerKeyOnline_cfi")
 process.L1TriggerKeyOnline.subsystemLabels = cms.vstring( 'CSCTF',
+                                                          'DTTF',
                                                           'RPC',
                                                           'GMT',
                                                           'GMTScales',
@@ -55,13 +57,21 @@ process.L1TriggerKeyOnline.subsystemLabels = cms.vstring( 'CSCTF',
                                                           'GT' )
 
 process.load("L1TriggerConfig.CSCTFConfigProducers.CSCTFConfigOnline_cfi")
+process.load("L1TriggerConfig.DTTrackFinder.L1MuDTEtaPatternLutOnline_cfi")
+process.load("L1TriggerConfig.DTTrackFinder.L1MuDTExtLutOnline_cfi")
+process.load("L1TriggerConfig.DTTrackFinder.L1MuDTPhiLutOnline_cfi")
+process.load("L1TriggerConfig.DTTrackFinder.L1MuDTPtaLutOnline_cfi")
+process.load("L1TriggerConfig.DTTrackFinder.L1MuDTQualPatternLutOnline_cfi")
+process.load("L1TriggerConfig.DTTrackFinder.L1MuDTTFParametersOnline_cfi")
 process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCConfigOnline_cfi")
 process.load("L1TriggerConfig.GMTConfigProducers.L1MuGMTParametersOnlineProducer_cfi")
 process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleOnlineProducer_cfi")
 process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesOnlineProducer_cfi")
 process.L1MuGMTParametersOnlineProducer.ignoreVersionMismatch = True
 process.load("L1TriggerConfig.RCTConfigProducers.L1RCTParametersOnline_cfi")
+process.load("L1TriggerConfig.L1ScalesProducers.L1EmEtScaleConfigOnline_cfi")
 process.load("L1TriggerConfig.L1GtConfigProducers.l1GtParametersOnline_cfi")
+process.load("L1TriggerConfig.L1GtConfigProducers.l1GtPsbSetupOnline_cfi")
 
 # writer modules
 from CondTools.L1Trigger.L1CondDBPayloadWriter_cff import initPayloadWriter
