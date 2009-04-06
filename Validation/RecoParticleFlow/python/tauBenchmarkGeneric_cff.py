@@ -6,7 +6,7 @@ from Validation.RecoParticleFlow.pfTauBenchmarkGeneric_cfi import pfTauBenchmark
 from Validation.RecoParticleFlow.caloTauBenchmarkGeneric_cfi import caloTauBenchmarkGeneric
 from PhysicsTools.JetMCAlgos.TauGenJets_cfi import tauGenJets
 from PhysicsTools.JetMCAlgos.TauGenJetsDecayModeSelectorAllHadrons_cfi import tauGenJetsSelectorAllHadrons
-from Validation.RecoParticleFlow.GenJetSelector_cfi import genJetSelector
+from Validation.RecoParticleFlow.GenJetClosestMatchSelector_cfi import genJetClosestMatchSelector
 
 # setting the sources
 
@@ -24,12 +24,12 @@ fromTaus = True
 # underlying event cancels
 pfsource = 'iterativeCone5PFJets'
 calosource = 'iterativeCone5CaloJets'
-gensource = 'genJetSelector'
+gensource = 'genJetClosestMatchSelector'
 trueTaus = cms.Sequence(
     goodGenJets +
     tauGenJets + 
     tauGenJetsSelectorAllHadrons + 
-    genJetSelector  
+    genJetClosestMatchSelector  
     )
 
 if( fromTaus==True):

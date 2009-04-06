@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_PFCandProducer_GenJetSelectorDefinition
-#define PhysicsTools_PFCandProducer_GenJetSelectorDefinition
+#ifndef PhysicsTools_PFCandProducer_GenJetClosestMatchSelectorDefinition
+#define PhysicsTools_PFCandProducer_GenJetClosestMatchSelectorDefinition
 
 #include "DataFormats/JetReco/interface/GenJet.h"
 
@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-struct GenJetSelectorDefinition {
+struct GenJetClosestMatchSelectorDefinition {
 
 
   typedef reco::GenJetCollection collection;
@@ -16,7 +16,7 @@ struct GenJetSelectorDefinition {
   typedef std::vector< reco::GenJet *> container;
   typedef container::const_iterator const_iterator;
 
-  GenJetSelectorDefinition ( const edm::ParameterSet & cfg ) {
+  GenJetClosestMatchSelectorDefinition ( const edm::ParameterSet & cfg ) {
 
     matchTo_ = cfg.getParameter< edm::InputTag >( "MatchTo" ); 
   }
