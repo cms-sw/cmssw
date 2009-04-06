@@ -1,8 +1,6 @@
 #ifndef L1GCTJETFINDERBASE_H_
 #define L1GCTJETFINDERBASE_H_
 
-#include "CondFormats/L1TObjects/interface/L1GctHfLutSetup.h"
-
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternEtSum.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternHtMiss.h"
@@ -73,8 +71,8 @@ public:
   struct hfTowerSumsType {
 
     enum numberOfBits {
-      kHfEtSumBits = L1GctHfLutSetup::kHfEtSumBits,
-      kHfCountBits = L1GctHfLutSetup::kHfCountBits
+      kHfEtSumBits = 8,
+      kHfCountBits = 5
     };
 
     L1GctJetCount< kHfEtSumBits > etSum0;
