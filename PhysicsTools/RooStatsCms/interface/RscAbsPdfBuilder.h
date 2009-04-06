@@ -128,11 +128,11 @@ To check it out type (bash users):
 \verbatim
 export CVSROOT=<yourusername>@cmscvs.cern.ch:/cvs_server/repositories/CMSSW
 export CVS_RSH=ssh
-cvs co -r V00-05-02 PhysicsTools/RooStatsCms
+cvs co -r V00-05-11_standalone PhysicsTools/RooStatsCms
 \endverbatim
 You can have the package as a tarball <a href="http://cmssw.cvs.cern.ch/
 cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/
-RooStatsCms.tar.gz?view=tar&pathrev=V00-05-02">here</a>.
+RooStatsCms.tar.gz?view=tar&pathrev=V00-05-11_standalone">here</a>.
 
 The head is available also as a tarball <a href="http://cmssw.cvs.cern.ch/
 cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/RooStatsCms.tar.gz?view=tar" 
