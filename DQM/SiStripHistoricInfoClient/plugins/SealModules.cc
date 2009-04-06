@@ -18,11 +18,11 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripPopConHistoricDQM);
 
 //New approach
 
-#include "DQM/SiStripHistoricInfoClient/plugins/SiStripNewHistoricDQMService.h"
-DEFINE_ANOTHER_FWK_SERVICE(SiStripNewHistoricDQMService);
+#include "DQM/SiStripHistoricInfoClient/plugins/SiStripHistoryDQMService.h"
+DEFINE_ANOTHER_FWK_SERVICE(SiStripHistoryDQMService);
 
 #include "CondCore/PopCon/interface/PopConAnalyzer.h"
 #include "DQMServices/Diagnostic/interface/DQMHistoryPopConHandler.h"
 #include "CondFormats/DQMObjects/interface/HDQMSummary.h"
-typedef popcon::PopConAnalyzer< popcon::DQMHistoryPopConHandler< HDQMSummary,SiStripNewHistoricDQMService > > SiStripHistoryPopConDQM;
-DEFINE_ANOTHER_FWK_MODULE(SiStripHistoryPopConDQM);
+typedef popcon::PopConAnalyzer< popcon::DQMHistoryPopConHandler< HDQMSummary,SiStripNewHistoricDQMService > > SiStripDQMHistoryPopCon;
+DEFINE_ANOTHER_FWK_MODULE(SiStripDQMHistoryPopCon);
