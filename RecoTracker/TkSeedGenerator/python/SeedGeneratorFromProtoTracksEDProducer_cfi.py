@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 seedsFromProtoTracks = cms.EDProducer("SeedGeneratorFromProtoTracksEDProducer",
-    TTRHBuilder = cms.string('WithTrackAngle'),
-    InputCollection = cms.InputTag("pixelTracks")
+  InputCollection = cms.InputTag("pixelTracks"),
+  useProtoTrackKinematics = cms.bool(False),
+  TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets') 
 )
 
 

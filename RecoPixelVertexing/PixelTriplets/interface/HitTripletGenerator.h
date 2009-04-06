@@ -29,7 +29,8 @@ public:
   virtual void hitTriplets( const TrackingRegion& reg, OrderedHitTriplets & prs,
       const edm::Event & ev,  const edm::EventSetup& es) = 0;
 
-  virtual void clear() { theTriplets.clear(); }
+  virtual void clear();
+
 private:
   OrderedHitTriplets theTriplets;
 

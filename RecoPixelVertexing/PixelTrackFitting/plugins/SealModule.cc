@@ -8,7 +8,7 @@ DEFINE_ANOTHER_FWK_MODULE(PixelTrackProducer);
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterByKinematics.h"
-DEFINE_EDM_PLUGIN(PixelTrackFilterFactory, PixelTrackFilterByKinematics, "PixelTrackFilterByKinematics");
+DEFINE_EDM_PLUGIN(PixelTrackFilterWithESFactory, PixelTrackFilterByKinematics, "PixelTrackFilterByKinematics");
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterFactory.h"

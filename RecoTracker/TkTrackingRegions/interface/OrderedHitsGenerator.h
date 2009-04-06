@@ -14,7 +14,7 @@ public:
   virtual const OrderedSeedingHits & run( 
       const TrackingRegion& reg, const edm::Event & ev, const edm::EventSetup& es ) = 0;
 
-  virtual void clear() {};  //fixme: should be purely virtual!
+  virtual void clear() { }  //fixme: should be purely virtual!
 
 };
 #endif

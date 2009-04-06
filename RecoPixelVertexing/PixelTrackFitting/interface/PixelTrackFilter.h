@@ -2,10 +2,16 @@
 #define PixelTrackFitting_PixelTrackFilter_H
 
 namespace reco { class Track; }
+class TrackingRecHit;
+
+#include <vector>
+
 
 class PixelTrackFilter {
 public:
   virtual ~PixelTrackFilter() {}
-  virtual bool operator()(const reco::Track*) const = 0;
+  typedef std::vector<const TrackingRecHit *> Hits;
+  virtual bool operator()(const reco::Track*) const {return false;}
+  virtual bool operator()(const reco::Track*, const Hits&) const {return false;} 
 };
 #endif
