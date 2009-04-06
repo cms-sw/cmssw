@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Feb 29 21:00:24 CET 2008
-// $Id: L1TriggerKeyList.cc,v 1.1 2008/03/03 07:31:07 wsun Exp $
+// $Id: L1TriggerKeyList.cc,v 1.2 2008/10/09 19:02:22 wsun Exp $
 //
 
 // system include files
@@ -158,6 +158,84 @@ L1TriggerKeyList::token( const std::string& recordType,
 	  return it2->second ;
 	}
     }
+}
+
+// std::string
+// L1TriggerKeyList::objectKey( const std::string& recordName,
+// 			     const std::string& dataType,
+// 			     const std::string& payloadToken ) const
+// {
+//   return objectKey( recordName + "@" + dataType,
+// 		    payloadToken ) ;
+// }
+
+// std::string
+// L1TriggerKeyList::objectKey( const std::string& recordType,// "record@type"
+// 			     const std::string& payloadToken ) const
+// {
+//   RecordToKeyToToken::const_iterator keyTokenMap =
+//     m_recordKeyToken.find( recordType ) ;
+
+//   if( keyTokenMap != m_recordKeyToken.end() )
+//     {
+//       // Find object key with matching payload token.
+//       KeyToToken::const_iterator iKey = keyTokenMap.second.begin();
+//       KeyToToken::const_iterator eKey = keyTokenMap.second.end() ;
+//       for( ; iKey != eKey ; ++iKey )
+// 	{
+// 	  if( iKey->second == payloadToken )
+// 	    {
+// 	      return iKey->first ;
+// 	    }
+// 	}
+//     }
+
+//   return std::string() ;
+// }
+
+std::string
+L1TriggerKeyList::objectKey( const std::string& recordName,
+			     const std::string& payloadToken ) const
+{
+  RecordToKeyToToken::const_iterator iRecordType = m_recordKeyToken.begin() ;
+  for( ; iRecordType != m_recordKeyToken.end() ; ++iRecordType )
+    {
+      // Extract record name from recordType
+      std::string recordInMap( iRecordType->first, 0,
+			       iRecordType->first.find_first_of("@") ) ;
+      if( recordInMap == recordName )
+	{
+	  // Find object key with matching payload token.
+	  KeyToToken::const_iterator iKey = iRecordType->second.begin();
+	  KeyToToken::const_iterator eKey = iRecordType->second.end() ;
+	  for( ; iKey != eKey ; ++iKey )
+	    {
+	      if( iKey->second == payloadToken )
+		{
+		  return iKey->first ;
+		}
+	    }
+	}
+    }
+
+  return std::string() ;
+}
+
+std::string
+L1TriggerKeyList::tscKey( const std::string& triggerKeyPayloadToken ) const
+{
+  // Find object key with matching payload token.
+  KeyToToken::const_iterator iKey = m_tscKeyToToken.begin();
+  KeyToToken::const_iterator eKey = m_tscKeyToToken.end() ;
+  for( ; iKey != eKey ; ++iKey )
+    {
+      if( iKey->second == triggerKeyPayloadToken )
+	{
+	  return iKey->first ;
+	}
+    }
+
+  return std::string() ;
 }
 
 //

@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Feb 29 20:44:53 CET 2008
-// $Id: L1TriggerKeyList.h,v 1.2 2008/10/09 19:02:22 wsun Exp $
+// $Id: L1TriggerKeyList.h,v 1.3 2008/11/06 23:13:00 wsun Exp $
 //
 
 // system include files
@@ -56,6 +56,15 @@ class L1TriggerKeyList
 
       const RecordToKeyToToken& recordTypeToKeyToTokenMap() const
 	{ return m_recordKeyToken ; }
+
+      // Get object key for a given payload token.  In practice, each
+      // record in the CondDB has only one object, so there is no need to
+      // specify the data type.
+      std::string objectKey( const std::string& recordName,
+			     const std::string& payloadToken ) const ;
+
+      // Get TSC key for a given L1TriggerKey payload token
+      std::string tscKey( const std::string& triggerKeyPayloadToken ) const ;
 
       // ---------- static member functions --------------------
 
