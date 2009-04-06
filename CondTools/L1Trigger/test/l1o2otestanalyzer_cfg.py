@@ -34,15 +34,20 @@ options.register('use30XTagList',
                  VarParsing.VarParsing.varType.int,
                  "Set to 1 for conditions written in 30X")
 options.register('printL1TriggerKeyList',
-                 1, #default value
+                 0, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
-                 "Self explanatory")
+                 "Print all object keys in CondDB")
 options.register('printL1TriggerKey',
-                 1, #default value
+                 0, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
-                 "Self explanatory")
+                 "Print TSC key, subsystem keys, and object keys")
+options.register('printRSKeys',
+                 0, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Print Run Settings keys")
 options.parseArguments()
 
 # Input DB
@@ -53,6 +58,24 @@ initCondDBSource( process,
                   tagBase = options.tagBase,
                   use30XTagList = options.use30XTagList )
 
+# PoolDBOutputService for printing out ESRecords
+if options.printRSKeys == 1:
+    from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
+    outputDB = cms.Service("PoolDBOutputService",
+                           CondDBSetup,
+                           BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+                           connect = cms.string(options.inputDBConnect),
+                           toPut = cms.VPSet(cms.PSet(
+        record = cms.string("L1TriggerKeyRcd"),
+        tag = cms.string("L1TriggerKey_" + options.tagBase))
+                                             ))
+    outputDB.DBParameters.authenticationPath = options.inputDBAuth
+
+    from CondTools.L1Trigger.L1SubsystemParams_cfi import initL1Subsystems
+    initL1Subsystems( tagBase = options.tagBase )
+    outputDB.toPut.extend(initL1Subsystems.params.recordInfo)
+    process.add_(outputDB)
+    
 # Source of events
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -77,5 +100,10 @@ if options.printL1TriggerKeyList == 1:
     process.L1O2OTestAnalyzer.printL1TriggerKeyList = True
 else:
     process.L1O2OTestAnalyzer.printL1TriggerKeyList = False
+
+if options.printRSKeys == 1:
+    process.L1O2OTestAnalyzer.printESRecords = True
+else:
+    process.L1O2OTestAnalyzer.printESRecords = False
 
 process.p = cms.Path(process.L1O2OTestAnalyzer)

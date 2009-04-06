@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu Nov  6 23:00:43 CET 2008
-// $Id: L1O2OTestAnalyzer.cc,v 1.2 2008/11/06 23:27:20 wsun Exp $
+// $Id: L1O2OTestAnalyzer.cc,v 1.3 2009/04/03 04:10:45 wsun Exp $
 //
 //
 
@@ -38,7 +38,7 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 
 #include "CondTools/L1Trigger/interface/Exception.h"
-
+#include "CondTools/L1Trigger/interface/DataWriter.h"
 
 //
 // class decleration
@@ -58,7 +58,9 @@ class L1O2OTestAnalyzer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
   bool m_printL1TriggerKey ;
   bool m_printL1TriggerKeyList ;
+  bool m_printESRecords ;
   bool m_printPayloadTokens ;
+  std::vector< std::string > m_recordsToPrint ;
 };
 
 //
@@ -75,7 +77,10 @@ class L1O2OTestAnalyzer : public edm::EDAnalyzer {
 L1O2OTestAnalyzer::L1O2OTestAnalyzer(const edm::ParameterSet& iConfig)
   : m_printL1TriggerKey( iConfig.getParameter<bool> ("printL1TriggerKey") ),
     m_printL1TriggerKeyList( iConfig.getParameter<bool> ("printL1TriggerKeyList") ),
-    m_printPayloadTokens( iConfig.getParameter<bool> ("printPayloadTokens") )
+    m_printESRecords( iConfig.getParameter<bool> ("printESRecords") ),
+    m_printPayloadTokens( iConfig.getParameter<bool> ("printPayloadTokens") ),
+    m_recordsToPrint( iConfig.getParameter< std::vector< std::string > >(
+       "recordsToPrint" ) )
 {
    //now do what ever initialization is needed
 }
@@ -155,7 +160,9 @@ L1O2OTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	   ESHandle< L1TriggerKey > pKey ;
 	   iSetup.get< L1TriggerKeyRcd >().get( pKey ) ;
 
-	   std::cout << "Current TSC key = " << pKey->tscKey() << std::endl ;
+	   std::cout << std::endl ;
+	   std::cout << "Current TSC key = " << pKey->tscKey()
+		     << std::endl << std::endl ;
 
 	   std::cout << "Current subsystem keys:" << std::endl ;
 	   std::cout << "CSCTF " << pKey->subsystemKey( L1TriggerKey::kCSCTF )
@@ -173,8 +180,9 @@ L1O2OTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	   std::cout << "GT " << pKey->subsystemKey( L1TriggerKey::kGT )
 		     << std::endl ;
 	   std::cout << "TSP0 " << pKey->subsystemKey( L1TriggerKey::kTSP0 )
-		     << std::endl ;
+		     << std::endl << std::endl ;
 
+	   std::cout << "Object keys:" << std::endl ;
 	   const L1TriggerKey::RecordToKey& recKeyMap = pKey->recordToKeyMap() ;
 	   L1TriggerKey::RecordToKey::const_iterator iRec = recKeyMap.begin() ;
 	   L1TriggerKey::RecordToKey::const_iterator eRec = recKeyMap.end() ;
@@ -186,6 +194,43 @@ L1O2OTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
        catch( cms::Exception& ex )
 	 {
 	   std::cout << "No L1TriggerKey found." << std::endl ;
+	 }
+     }
+
+   if( m_printESRecords )
+     {
+       ESHandle< L1TriggerKeyList > pList ;
+       iSetup.get< L1TriggerKeyListRcd >().get( pList ) ;
+
+       l1t::DataWriter writer ;
+
+       std::cout << std::endl << "Run Settings keys:" << std::endl ;
+
+       std::vector< std::string >::const_iterator iRec =
+	 m_recordsToPrint.begin() ;
+       std::vector< std::string >::const_iterator iEnd =
+	 m_recordsToPrint.end() ;
+       for( ; iRec != iEnd ; ++iRec )
+	 {
+	   std::string payloadToken = writer.payloadToken( *iRec,
+							   iEvent.id().run() );
+	   std::string key ;
+
+	   if( *iRec == "L1TriggerKeyRcd" )
+	     {
+	       key = pList->tscKey( payloadToken ) ;
+	     }
+	   else
+	     {
+	       key = pList->objectKey( *iRec, payloadToken ) ;
+	     }
+
+	   std::cout << *iRec << " " << key ;
+	   if( m_printPayloadTokens )
+	     {
+	       std::cout << " " << payloadToken ;
+	     }
+	   std::cout << std::endl ;
 	 }
      }
 }

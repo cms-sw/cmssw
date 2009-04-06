@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 20:09:46 CET 2008
-// $Id: L1CondDBIOVWriter.cc,v 1.10 2009/03/18 18:23:48 wsun Exp $
+// $Id: L1CondDBIOVWriter.cc,v 1.11 2009/03/29 00:33:57 wsun Exp $
 //
 //
 
@@ -106,7 +106,8 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 	   // Read current L1TriggerKey directly from ORCON using token
 	   L1TriggerKey key ;
-	   m_writer.readKey( keyToken, key ) ;
+	   // m_writer.readKey( keyToken, key ) ;
+	   m_writer.readObject( keyToken, key ) ;
 
 	   recordTypeToKeyMap = key.recordToKeyMap() ;
 	 }
