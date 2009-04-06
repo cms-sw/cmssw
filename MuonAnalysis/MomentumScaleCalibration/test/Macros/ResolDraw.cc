@@ -1,5 +1,13 @@
 /**
  * This macro draws the resolutions for single muons quantities: pt, cotgTheta and phi.
+ *
+ * It does a rebin(4) if NbinsX > 50 and in the case of PtGenVsMu_ResoVSPt also a rebin(8) in y. <br>
+ * It takes a new histogram (a TH1D) equal to the projection in X of the starting histogram (a TH2F) and it empties it
+ * (so as to have the binning and the axis already set and an empty histogram). <br>
+ * Takes also a profileX of the TH2F. <br>
+ * For the fit in eta it takes the events with eta < 0 on those with eta > 0. <br>
+ * In any case it takes the projection in y (ProjectionY) of the TH2F in each bin (from x to x, that is a single bin). <br>
+ * It extracts the mean and rms from the gaussian fit and writes them in the TH1D described above.
  */
 
 // Needed to use gROOT in a compiled macro
