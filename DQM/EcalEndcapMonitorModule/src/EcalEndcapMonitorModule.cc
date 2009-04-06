@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/11/04 22:36:08 $
- * $Revision: 1.61 $
+ * $Date: 2008/12/04 12:50:22 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -377,6 +377,8 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     int neec = 0;
 
+    int ndccs = dcchs->size();
+
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
       if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
@@ -397,7 +399,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
       }
 
       if ( evtType_ < 0 || evtType_ > 22 ) evtType_ = -1;
-      if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./18.);
+      if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./ndccs);
 
     }
 

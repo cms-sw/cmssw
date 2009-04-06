@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/11/04 22:36:07 $
- * $Revision: 1.184 $
+ * $Date: 2008/12/04 12:50:21 $
+ * $Revision: 1.185 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -377,6 +377,8 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     int nebc = 0;
 
+    int ndccs = dcchs->size();
+
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
       if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
@@ -397,7 +399,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       }
 
       if ( evtType_ < 0 || evtType_ > 22 ) evtType_ = -1;
-      if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./36.);
+      if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./ndccs);
 
     }
 
