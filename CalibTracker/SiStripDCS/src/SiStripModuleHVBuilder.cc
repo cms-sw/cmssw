@@ -195,8 +195,8 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
     }
   }
   LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: Number of modules with bad V channels is         " << detidV.size();
-  //  //  LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: Channels with no associated Det IDs";
-  //  //  LogTrace("SiStripModuleHVBuilder") << ss1.str();
+  //  LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: Channels with no associated Det IDs";
+  //  LogTrace("SiStripModuleHVBuilder") << ss1.str();
 
   if (debug_) {
     std::cout << "Unprocessed data from DB..." << std::endl;
@@ -349,11 +349,13 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
     std::vector<uint32_t> ids = summedVector[i].first;
     cond::Time_t stime = summedVector[i].second;
     std::vector< std::pair<bool,bool> > sflags = flags[i];
-    std::vector<bool> lvOff, hvOff;
+    //    std::vector<bool> lvOff, hvOff;
+    std::vector<int> lvOff, hvOff;
     for (unsigned int j = 0; j < sflags.size(); j++) {
       lvOff.push_back(sflags[j].first);
       hvOff.push_back(sflags[j].second);
     }
+    
     SiStripDetVOff * modV = new SiStripDetVOff();
     modV->put(ids,hvOff,lvOff);
     modulesOff.push_back( std::make_pair(modV,stime) );
@@ -363,15 +365,14 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
     std::cout << "Final results of object building...  Number of entries in vector = "  << modulesOff.size() << std::endl;
     for (unsigned int s = 0; s < modulesOff.size(); s++) {
       std::cout << "Index = " << s << "Time = " << modulesOff[s].second << std::endl;
-      std::vector<uint32_t> ids;
-      std::vector< std::pair<bool,bool> > sflags = flags[s];
-      (modulesOff[s].first)->getDetIds(ids);
-      for (unsigned int v = 0; v < ids.size(); v++) {
-	std::cout << ids[v] << " LV = " << (modulesOff[s].first)->IsModuleLVOff(ids[v]) << " HV = " << (modulesOff[s].first)->IsModuleHVOff(ids[v]) << std::endl;
+      std::vector<uint32_t> final_ids;
+      (modulesOff[s].first)->getDetIds(final_ids);
+      for (unsigned int v = 0; v < final_ids.size(); v++) {
+	std::cout << final_ids[v] << " LV = " << (modulesOff[s].first)->IsModuleLVOff(final_ids[v]) << " HV = " << (modulesOff[s].first)->IsModuleHVOff(final_ids[v]) << std::endl;
       }
     }
   }
- 
+  
 }
 
 int SiStripModuleHVBuilder::findSetting(uint32_t id, coral::TimeStamp changeDate, std::vector<uint32_t> settingID, std::vector<coral::TimeStamp> settingDate) {
