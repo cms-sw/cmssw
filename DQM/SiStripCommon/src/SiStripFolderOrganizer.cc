@@ -9,7 +9,7 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
 
-// $Id: SiStripFolderOrganizer.cc,v 1.21 2008/09/19 15:18:28 maborgia Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.22 2009/03/30 17:00:46 giordano Exp $
 //
 
 #include <iostream>
@@ -194,7 +194,7 @@ void SiStripFolderOrganizer::getFolderName(int32_t rawdetid, string& lokal_folde
   } else if(stripdet.subDetector() == SiStripDetId::TID){
   // ---------------------------  TID  --------------------------- //
     TIDDetId tid = TIDDetId(rawdetid);
-    getSubDetLayerFolderName(rest,stripdet.subDetector(),tid.wheel());
+    getSubDetLayerFolderName(rest,stripdet.subDetector(),tid.wheel(),tid.side());
     rest<< "ring_"  << tid.ring() << sep;
 
     if (tid.isStereo()) rest << "stereo_modules" << sep;
