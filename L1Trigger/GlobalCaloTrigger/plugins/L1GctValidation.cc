@@ -14,10 +14,13 @@
 #include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
 
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+
 #include <math.h>
 
 L1GctValidation::L1GctValidation(const edm::ParameterSet& iConfig) :
-  m_energy_tag(iConfig.getUntrackedParameter<edm::InputTag>("inputTag", edm::InputTag("gctDigis")))
+  m_gctinp_tag(iConfig.getUntrackedParameter<edm::InputTag>("rctInputTag", edm::InputTag("rctDigis"))),
+  m_energy_tag(iConfig.getUntrackedParameter<edm::InputTag>("gctInputTag", edm::InputTag("gctDigis")))
 {
 }
 
@@ -29,7 +32,6 @@ L1GctValidation::~L1GctValidation()
    // (e.g. close files, deallocate resources etc.)
 
 }
-
 
 //
 // member functions
@@ -66,6 +68,10 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   Handle< L1GctHtMissCollection >  missHtColl ;
   iEvent.getByLabel( m_energy_tag, missHtColl ) ;
 
+  // Get the input calo regions from the event (for checking MEt)
+  Handle < L1CaloRegionCollection > inputColl ;
+  iEvent.getByLabel( m_gctinp_tag, inputColl ) ;
+
   // Get the internal jet data from the event (for checking Ht)
   Handle < L1GctInternJetDataCollection > internalJetsColl;
   iEvent.getByLabel( m_energy_tag, internalJetsColl ) ;
@@ -91,7 +97,23 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
       etMAng = (etMPhi+0.5)*M_PI/36.;
     }
+  }  
+
+  double etTotFromRegions = 0.0;
+  double exTotFromRegions = 0.0;
+  double eyTotFromRegions = 0.0;
+  for (L1CaloRegionCollection::const_iterator jrg=inputColl->begin(); jrg!=inputColl->end(); jrg++) {
+    if (jrg->bx()==0) {
+      double rgEt = static_cast<double>(jrg->et()) * lsbForEt;
+      double rgPhibin = static_cast<double>(jrg->id().iphi());
+      double rgPh = (rgPhibin + 0.5)*M_PI/9.;
+
+      etTotFromRegions += rgEt;
+      exTotFromRegions += rgEt*cos(rgPh);
+      eyTotFromRegions += rgEt*sin(rgPh);
+    }
   }
+
 
   double htMissGct = 0.0;
   double htMissAng = 0.0;
@@ -141,6 +163,11 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     theMissHtAngle->Fill(htMissAng);
     theMissHtVector->Fill(htMissGeV*cos(htMissAng),htMissGeV*sin(htMissAng));
   }
+
+  theSumEtVsInputRegions->Fill(etTot*lsbForEt, etTotFromRegions);
+  theMissEtMagVsInputRegions->Fill(etMiss*lsbForEt, sqrt(exTotFromRegions*exTotFromRegions + eyTotFromRegions*eyTotFromRegions) );
+  theMissEtAngleVsInputRegions->Fill(etMAng, atan2(-eyTotFromRegions, -exTotFromRegions) );
+  theMissHtMagVsInputRegions->Fill(htMissGeV, sqrt(exTotFromRegions*exTotFromRegions + eyTotFromRegions*eyTotFromRegions) );
 
   theMissEtVsMissHt->Fill(etMiss*lsbForEt, htMissGeV);
   theMissEtVsMissHtAngle->Fill(etMAng, htMissAng);
@@ -211,6 +238,14 @@ L1GctValidation::beginJob(const edm::EventSetup&)
                                     72, -M_PI, M_PI);
   theMissHtVector = dir0.make<TH2F>("MissHtVector", "Missing Hx vs Missing Hy",
                                     100, -100., 100., 100, -100., 100.); 
+  theSumEtVsInputRegions = dir0.make<TH2F>("SumEtVsInputRegions", "Total Et vs sum of input regions",
+					   100, 0., 1000., 100, 0., 1000.);
+  theMissEtMagVsInputRegions = dir0.make<TH2F>("MissEtMagVsInputRegions", "Missing Et magnitude vs sum of input regions",
+					       100, 0., 500., 100, 0., 500.);
+  theMissEtAngleVsInputRegions = dir0.make<TH2F>("MissEtAngleVsInputRegions", "Missing Et angle vs sum of input regions",
+						72, -M_PI, M_PI, 72, -M_PI, M_PI);
+  theMissHtMagVsInputRegions = dir0.make<TH2F>("MissHtMagVsInputRegions", "Missing Ht magnitude vs sum of input regions",
+					       100, 0., 500., 100, 0., 500.);
   theMissEtVsMissHt = dir0.make<TH2F>("MissEtVsMissHt", "Missing Et vs Missing Ht",
 				      100, 0., 500., 100, 0., 500.);
   theMissEtVsMissHtAngle = dir0.make<TH2F>("MissEtVsMissHtAngle", "Angle correlation Missing Et vs Missing Ht",

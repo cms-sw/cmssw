@@ -48,8 +48,8 @@ class L1GctValidation : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 
+      edm::InputTag m_gctinp_tag;
       edm::InputTag m_energy_tag;
-      edm::InputTag m_missHt_tag;
 
       TH1F* theSumEtInLsb;
       TH1F* theSumHtInLsb;
@@ -63,6 +63,11 @@ class L1GctValidation : public edm::EDAnalyzer {
       TH1F* theMissHtInGeV;
       TH1F* theMissHtAngle;
       TH2F* theMissHtVector;
+
+      TH2F* theSumEtVsInputRegions;
+      TH2F* theMissEtMagVsInputRegions;
+      TH2F* theMissEtAngleVsInputRegions;
+      TH2F* theMissHtMagVsInputRegions;
 
       TH2F* theMissEtVsMissHt;
       TH2F* theMissEtVsMissHtAngle;

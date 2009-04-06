@@ -16,6 +16,14 @@ void printGctValidationHistos()
 
   c1->Clear();
 
+  c1->Divide(2,2);
+  c1->cd(1); Plot(f,"l1GctValidation/L1GctEtSums/SumEtVsInputRegions","Total Et (GeV)", "Total Et from input regions"); c1->Update();
+  c1->cd(2); Plot(f,"l1GctValidation/L1GctEtSums/MissEtMagVsInputRegions","Missing Et (GeV)", "Missing Et from input regions"); c1->Update();
+  c1->cd(3); Plot(f,"l1GctValidation/L1GctEtSums/MissEtAngleVsInputRegions","Mising Et phi", "Missing Et phi from input regions"); c1->Update();
+  c1->cd(4); Plot(f,"l1GctValidation/L1GctEtSums/MissHtMagVsInputRegions","Missing Ht", "Missing Et from input regions"); c1->Update();
+
+  c1->Clear();
+
   ((TH1*) f->Get("l1GctValidation/L1GctEtSums/MissEtAngle"))->SetMinimum(0);
 
   c1->Divide(3,4);
