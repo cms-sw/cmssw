@@ -68,9 +68,10 @@ initIOVWriter( process,
                outputDBAuth = options.outputDBAuth,
                tagBase = options.tagBase,
                tscKey = '' )
+initIOVWriter.outputDB.toPut.extend( cms.VPSet(cms.PSet(
+    record = cms.string("L1TriggerKeyListRcd"),
+    tag = cms.string("L1TriggerKeyList_" + options.tagBase))) )
 
-# Use highest possible run number so we always get the latest version
-# of L1TriggerKeyList.
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )

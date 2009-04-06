@@ -8,7 +8,7 @@ def initIOVWriter( process,
     process.L1CondDBIOVWriter.tscKey = cms.string( tscKey )
 
     from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
-    outputDB = cms.Service("PoolDBOutputService",
+    initIOVWriter.outputDB = cms.Service("PoolDBOutputService",
                            CondDBSetup,
                            BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
                            connect = cms.string(outputDBConnect),
@@ -16,9 +16,9 @@ def initIOVWriter( process,
         record = cms.string("L1TriggerKeyRcd"),
         tag = cms.string("L1TriggerKey_" + tagBase))
                                              ))
-    outputDB.DBParameters.authenticationPath = outputDBAuth
+    initIOVWriter.outputDB.DBParameters.authenticationPath = outputDBAuth
 
     from CondTools.L1Trigger.L1SubsystemParams_cfi import initL1Subsystems
     initL1Subsystems( tagBase = tagBase )
-    outputDB.toPut.extend(initL1Subsystems.params.recordInfo)
-    process.add_(outputDB)
+    initIOVWriter.outputDB.toPut.extend(initL1Subsystems.params.recordInfo)
+    process.add_(initIOVWriter.outputDB)
