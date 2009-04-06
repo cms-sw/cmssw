@@ -20,10 +20,9 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterFactory.h"
 
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackHitsFilter.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackHitsFilterFactory.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrackFilter.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ValidHitPairFilter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
+//#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ValidHitPairFilter.h"
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerFactory.h"
@@ -109,10 +108,10 @@ void PixelTrackProducerWithZPos::beginJob(const edm::EventSetup& es)
   ParameterSet filterPSet = ps.getParameter<ParameterSet>("FilterPSet");
   string filterName       = filterPSet.getParameter<string>("ComponentName");
   if(filterPSet.getParameter<bool>("useFilter"))
-    theFilter = TrackHitsFilterFactory::get()->create(filterName, filterPSet, es);
+    theFilter = PixelTrackFilterWithESFactory::get()->create(filterName, filterPSet, es);
 
   // Filter (ValidHitPairFilter)
-  theHitsFilter = TrackHitsFilterFactory::get()->create("ValidHitPairFilter", filterPSet, es);
+  theHitsFilter = PixelTrackFilterWithESFactory::get()->create("ValidHitPairFilter", filterPSet, es);
 
   // Cleaner
   ParameterSet cleanerPSet = ps.getParameter<ParameterSet>("CleanerPSet");

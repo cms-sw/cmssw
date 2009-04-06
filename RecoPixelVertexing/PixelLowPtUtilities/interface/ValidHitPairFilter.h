@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackHitsFilter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 
 namespace edm { class ParameterSet; class EventSetup; }
 class TrackingRecHit;
@@ -16,7 +16,7 @@ class Propagator;
 class DetLayer;
 class GeomDet;
 
-class ValidHitPairFilter : public TrackHitsFilter
+class ValidHitPairFilter : public PixelTrackFilter 
 {
 public:
   ValidHitPairFilter(const edm::ParameterSet& ps, const edm::EventSetup& es);

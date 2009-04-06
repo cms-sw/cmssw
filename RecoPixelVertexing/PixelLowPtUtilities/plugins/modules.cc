@@ -25,13 +25,13 @@ DEFINE_ANOTHER_FWK_MODULE(TrackListCombiner);
 DEFINE_EDM_PLUGIN(HitTripletGeneratorFromPairAndLayersFactory, TripletGenerator,"TripletGenerator");
 
 // Filters
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackHitsFilter.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackHitsFilterFactory.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrackFilter.h"
-DEFINE_EDM_PLUGIN(TrackHitsFilterFactory, ClusterShapeTrackFilter, "ClusterShapeTrackFilter");
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
+DEFINE_EDM_PLUGIN(PixelTrackFilterWithESFactory, ClusterShapeTrackFilter, "ClusterShapeTrackFilter");
 
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ValidHitPairFilter.h"
-DEFINE_EDM_PLUGIN(TrackHitsFilterFactory, ValidHitPairFilter, "ValidHitPairFilter");
+DEFINE_EDM_PLUGIN(PixelTrackFilterWithESFactory, ValidHitPairFilter, "ValidHitPairFilter");
 
 // Fitter
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"

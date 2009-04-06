@@ -18,7 +18,7 @@
 
 class PixelFitter;
 class PixelTrackCleaner;
-class TrackHitsFilter;
+class PixelTrackFilter;
 class HitsFilter;
 class OrderedHitsGenerator;
 class TrackingRegionProducer;
@@ -46,8 +46,8 @@ class PixelTrackProducerWithZPos :  public edm::EDProducer
     edm::ParameterSet ps;
 
     const PixelFitter       * theFitter;
-    const TrackHitsFilter   * theFilter;
-    const TrackHitsFilter   * theHitsFilter;
+    const PixelTrackFilter * theFilter;
+    const PixelTrackFilter * theHitsFilter;
           PixelTrackCleaner * theCleaner;  
           OrderedHitsGenerator * theGenerator;
           TrackingRegionProducer* theRegionProducer;

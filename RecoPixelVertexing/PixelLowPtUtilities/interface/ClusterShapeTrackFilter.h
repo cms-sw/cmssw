@@ -2,7 +2,7 @@
 #define _ClusterShapeTrackFilter_h_
 
 
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackHitsFilter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalTag.h"
 #include "DataFormats/GeometryVector/interface/Vector2DBase.h"
@@ -20,14 +20,14 @@ class TrackerGeometry;
 class TrackingRecHit;
 class ClusterShapeHitFilter;
 
-class ClusterShapeTrackFilter : public TrackHitsFilter 
+class ClusterShapeTrackFilter : public PixelTrackFilter 
 {
  public:
   ClusterShapeTrackFilter(const edm::ParameterSet& ps,
                           const edm::EventSetup& es);
   virtual ~ClusterShapeTrackFilter();
   virtual bool operator()
-    (const reco::Track*, std::vector<const TrackingRecHit *> hits) const;
+    (const reco::Track*, const std::vector<const TrackingRecHit *> &hits) const;
 
  private:
   float areaParallelogram(const Global2DVector & a,
@@ -35,7 +35,7 @@ class ClusterShapeTrackFilter : public TrackHitsFilter
   std::vector<GlobalVector>
     getGlobalDirs(const std::vector<GlobalPoint> & globalPoss) const;
   std::vector<GlobalPoint>
-    getGlobalPoss(std::vector<const TrackingRecHit *>& recHits) const;
+    getGlobalPoss(const std::vector<const TrackingRecHit *>& recHits) const;
  
   const TrackerGeometry * theTracker;
 

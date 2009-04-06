@@ -32,6 +32,7 @@ ClusterShapeTrackFilter::ClusterShapeTrackFilter
 
   // Get pointer to filter
   theFilter = ClusterShapeHitFilter::Instance(es, "ClusterShapeTrackFilter");
+
 }
 
 /*****************************************************************************/
@@ -100,7 +101,7 @@ vector<GlobalVector> ClusterShapeTrackFilter::getGlobalDirs
 
 /*****************************************************************************/
 vector<GlobalPoint> ClusterShapeTrackFilter::getGlobalPoss
-  (vector<const TrackingRecHit *> & recHits) const
+  (const vector<const TrackingRecHit *> & recHits) const
 {
   vector<GlobalPoint> globalPoss;
 
@@ -121,7 +122,7 @@ vector<GlobalPoint> ClusterShapeTrackFilter::getGlobalPoss
 
 /*****************************************************************************/
 bool ClusterShapeTrackFilter::operator()
-  (const reco::Track* track, vector<const TrackingRecHit *> recHits) const
+  (const reco::Track* track, const vector<const TrackingRecHit *> & recHits) const
 {
   // Get global positions
   vector<GlobalPoint>  globalPoss = getGlobalPoss(recHits);
