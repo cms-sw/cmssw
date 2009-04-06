@@ -15,8 +15,6 @@ CSCFindPeakTime::CSCFindPeakTime( const edm::ParameterSet& ps ):
 
 }
 
-//@@ Interface needs to match old fourPoleFitTime, for now
-
 float CSCFindPeakTime::peakTime( int tmax, const float* adc, float t_peak){
   if ( useAverageTime ) {
     return averageTime( tmax, adc );
