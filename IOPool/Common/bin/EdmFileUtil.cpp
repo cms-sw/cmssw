@@ -222,6 +222,7 @@ int main(int argc, char* argv[]) {
       if ( vm.count("events") ) {
 	edm::printEventLists(tfile);
       }
+      tfile->Close();
     }
   }
   
