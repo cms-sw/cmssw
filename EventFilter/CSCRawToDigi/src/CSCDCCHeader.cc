@@ -6,16 +6,16 @@
 
 CSCDCCHeader::CSCDCCHeader(int bx, int l1a, int sourceId)
 {
-  word[0] = 0x510000000000005FLL;
-  word[1] = 0xD900000000000003LL;
+  word[0] = 0x5100000000000008LL;
+  word[1] = 0xD900000000000000LL;
   FEDHeader::set(reinterpret_cast<unsigned char *>(data()), 1, l1a, bx, sourceId);
 }
 
 
 CSCDCCHeader::CSCDCCHeader() 
 {
-  word[0] = 0x510000000000005FLL;
-  word[1] = 0xD900000000000003LL;
+  word[0] = 0x5100000000000008LL;
+  word[1] = 0xD900000000000000LL;
 }
 
 CSCDCCHeader::CSCDCCHeader(const CSCDCCStatusDigi & digi)
