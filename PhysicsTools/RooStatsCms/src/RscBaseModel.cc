@@ -10,7 +10,7 @@
 #include "RooDataHist.h"
 #include "RooArgList.h"
 
-#include "PhysicsTools/RooStatsCms/interface/RscBaseModel.h"
+#include "RscBaseModel.h"
 
 #include "TH1F.h"
 #include "TFile.h"
