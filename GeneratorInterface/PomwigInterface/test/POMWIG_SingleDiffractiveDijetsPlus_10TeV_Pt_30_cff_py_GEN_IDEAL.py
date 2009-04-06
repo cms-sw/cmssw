@@ -23,7 +23,7 @@ process.MessageLogger.cerr.threshold = 'INFO'
 process.MessageLogger.cerr.INFO.limit = -1
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('POMWIG SD plus Di-jets ptmin 30 GeV at 10TeV'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/GeneratorInterface/PomwigInterface/test/POMWIG_SingleDiffractiveDijetsPlus_10TeV_Pt_30_cff_py_GEN_IDEAL.py,v $')
 )
@@ -70,7 +70,7 @@ process.generator = cms.EDFilter("PomwigGeneratorFilter",
     diffTopology = cms.int32(1),
     survivalProbability = cms.double(0.05),
     h1fit = cms.int32(2),
-    doPDGConvert cms.bool(False)
+    doPDGConvert = cms.bool(False)
 )
 
 # Output definition
