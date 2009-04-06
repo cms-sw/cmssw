@@ -37,6 +37,7 @@ bool operator==(B const& b, T const& t) {
 
 typedef edmNew::DetSetVector<T> DSTV;
 typedef edmNew::DetSet<T> DST;
+typedef edmNew::det_id_type det_id_type;
 typedef DSTV::FastFiller FF;
 
 
@@ -494,12 +495,12 @@ void TestDetSet::toRangeMap() {
     std::copy(sv.begin(),sv.begin()+4,ff.begin());
   }
 
-  typedef edm::RangeMap<DetId, edm::OwnVector<B> > RM;
-  edm::RangeMap<DetId, edm::OwnVector<B> > rm;
+  typedef edm::RangeMap<det_id_type, edm::OwnVector<B> > RM;
+  edm::RangeMap<det_id_type, edm::OwnVector<B> > rm;
   try {
     edmNew::copy(detsets,rm);
     rm.post_insert();
-    std::vector<DetId> ids = rm.ids();
+    std::vector<det_id_type> ids = rm.ids();
     CPPUNIT_ASSERT(ids.size()==detsets.size());
     CPPUNIT_ASSERT(rm.size()==detsets.dataSize());
     for (int i=0; i<int(ids.size()); i++) {

@@ -5,8 +5,6 @@
 #include "DataFormats/Common/interface/RangeMap.h"
 // #include "DataFormats/Common/interface/DetSetAlgorithm.h"
 
-#include "DataFormats/DetId/interface/DetId.h"
-
 #include <boost/ref.hpp>
 // #include <boost/bind.hpp>
 // #include <boost/function.hpp>
@@ -19,8 +17,8 @@ namespace edmNew {
     // copy from DS to RM
     template<typename B>
     struct ToRM {
-      ToRM(edm::RangeMap<DetId, edm::OwnVector<B> > & irm) : rm(&irm){}
-      edm::RangeMap<DetId, edm::OwnVector<B> > * rm;
+      ToRM(edm::RangeMap<det_id_type, edm::OwnVector<B> > & irm) : rm(&irm){}
+      edm::RangeMap<det_id_type, edm::OwnVector<B> > * rm;
       template<typename T>
       void operator()(edmNew::DetSet<T> const&  ds) {
 	// make it easy
@@ -34,7 +32,7 @@ namespace edmNew {
   // copy from DSTV to RangeMap
   template<typename T, typename B>
   void copy(DetSetVector<T> const&  dstv,
-       edm::RangeMap<DetId, edm::OwnVector<B> > & rm) {
+       edm::RangeMap<det_id_type, edm::OwnVector<B> > & rm) {
     dstvdetails::ToRM<B> torm(rm);
     std::for_each(dstv.begin(), dstv.end(), torm);
   }

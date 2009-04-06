@@ -18,6 +18,7 @@ namespace edm { namespace refhelper { template<typename T> struct FindForNewDetS
 
 //FIXME remove New when ready
 namespace edmNew {
+  typedef uint32_t det_id_type;
 
   namespace dslv {
     template< typename T> class LazyGetter;
