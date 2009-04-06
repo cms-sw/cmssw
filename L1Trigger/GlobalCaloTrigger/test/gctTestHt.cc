@@ -443,7 +443,7 @@ double gctTestHt::htComponentGeVForHtMiss(int inputComponent) const
   // Deal properly with the LSB truncation for 2s-complement numbers
   // Input is 17 bits including sign bit but we use only 7 bits
   int truncatedComponent = (((inputComponent + 0x200) >> 3) & 0x7f) - 0x40;
-  return ( (static_cast<double>(truncatedComponent) + 0.5) * 8.0 * m_jfPars->getHtLsbGeV() );
+  return ( (static_cast<double>(truncatedComponent) + 0.5) * 4.0 * m_jfPars->getHtLsbGeV() );
 }
 
 
