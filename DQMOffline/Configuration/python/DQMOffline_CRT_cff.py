@@ -8,6 +8,7 @@ from DQM.HcalMonitorClient.HcalDataCertification_cfi import *
 from DQM.DTMonitorClient.dtDQMOfflineCertification_cff import *
 from DQMOffline.JetMET.dataCertificationJetMET_cfi import *
 from DQM.RPCMonitorClient.RPCDataCertification_cfi import *
+from DQM.CSCMonitorModule.test.csc_certification_info_cfi import *
 
-crt_dqmoffline = cms.Sequence(siStripCertificationInfo*siPixelCertification*ecalEndcapDataCertificationTask*ecalBarrelDataCertificationTask*hcalDataCertification*dtCertificationSummary*certificationJetMET*rpcDataCertification)
+crt_dqmoffline = cms.Sequence(siStripCertificationInfo*siPixelCertification*ecalEndcapDataCertificationTask*ecalBarrelDataCertificationTask*hcalDataCertification*dtCertificationSummary*certificationJetMET*rpcDataCertification*cscCertificationInfo)
 
