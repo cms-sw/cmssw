@@ -99,24 +99,27 @@ namespace edm {
 
   void printEventLists(TFile *tfl) {
 
+    TTree *metaDataTree = dynamic_cast<TTree *>(tfl->Get(poolNames::metaDataTreeName().c_str()));
+
     FileFormatVersion fileFormatVersion;
     FileFormatVersion *fftPtr = &fileFormatVersion;
-
+    if (metaDataTree->FindBranch(poolNames::fileFormatVersionBranchName().c_str()) != 0) {
+      TBranch *fft = metaDataTree->GetBranch(poolNames::fileFormatVersionBranchName().c_str());
+      fft->SetAddress(&fftPtr);
+      fft->GetEntry(0);
+    }
     FileIndex fileIndex;
     FileIndex *findexPtr = &fileIndex;
-
-    TTree *metaDataTree = dynamic_cast<TTree *>(tfl->Get(poolNames::metaDataTreeName().c_str()));
-    metaDataTree->SetBranchAddress(poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
     if (metaDataTree->FindBranch(poolNames::fileIndexBranchName().c_str()) != 0) {
-      metaDataTree->SetBranchAddress(poolNames::fileIndexBranchName().c_str(), &findexPtr);
-    }
-    else {
+      TBranch *fndx = metaDataTree->GetBranch(poolNames::fileIndexBranchName().c_str());
+      fndx->SetAddress(&findexPtr);
+      fndx->GetEntry(0);
+    } else {
       std::cout << "FileIndex not found.  If this input file was created with release 1_8_0 or later\n"
                    "this indicates a problem with the file.  This condition should be expected with\n"
 	"files created with earlier releases and printout of the event list will fail.\n";
       return;
     }
-    metaDataTree->GetEntry(0);
 
     std::cout << "\n" << fileIndex;
 
