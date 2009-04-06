@@ -44,7 +44,6 @@ void HFClusterAlgo::setup(double minTowerEnergy, double seedThreshold) {
 void HFClusterAlgo::clusterize(const HFRecHitCollection& hf, 
 			       const CaloGeometry& geom,
 			       HFEMClusterShapeCollection& clusterShapes,
-			       BasicClusterCollection& BasicClusters,
 			       SuperClusterCollection& SuperClusters) {
   
   std::vector<HFCompleteHit> protoseeds, seeds;
@@ -54,7 +53,7 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
   int dP, dE, PWrap;
   bool isok=true;
   HFEMClusterShape clusShp;
-  BasicCluster Bclus;
+ 
   SuperCluster Sclus;
   bool doCluster=false;
   int seedCount=0;
@@ -114,10 +113,9 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
       }
       if (doCluster) { 
 	seeds.push_back(*i);
-	makeCluster( i->id(),hf, geom,clusShp,Bclus,Sclus);
+	makeCluster( i->id(),hf, geom,clusShp,Sclus);
 	  
 	clusterShapes.push_back(clusShp);
-	BasicClusters.push_back(Bclus);
 	SuperClusters.push_back(Sclus);
 	
       }
@@ -130,7 +128,6 @@ void HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 				const HFRecHitCollection& hf, 
 				const CaloGeometry& geom,
 				HFEMClusterShape& clusShp,
-				BasicCluster& Bclus,
 				SuperCluster& Sclus)  {
 			
 
@@ -223,7 +220,7 @@ void HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 	  while (d_p > M_PI)
 	    d_p-=2*M_PI;
 	  double d_e = p.eta()-sp.eta();
-	  if((de>-2)&&(de<2)&&(dp>-4)&&(dp<4)/*&&(ls==1)*/ && i->energy()>0) {//long only
+	  if((de>-2)&&(de<2)&&(dp>-4)&&(dp<4)&&(ls==1) && i->energy()>0) {//long only
 	    wgt=log((i->energy()));
 	    if (wgt>0){
 	      w+=wgt;
@@ -283,16 +280,12 @@ void HFClusterAlgo::makeCluster(const HcalDetId& seedid,
   
   double chi2=-1;
   reco::CaloCluster::AlgoId algoID = reco::CaloCluster::hybrid;
-  //return  HFEMClusterShape, BasicCluster, SuperCluster
+  //return  HFEMClusterShape, SuperCluster
   
   HFEMClusterShape myClusShp(l_1, s_1, l_3, s_3, l_5,s_5, l_1e,Ceta, Cphi,seedid);
   
   clusShp = myClusShp;
-  
-  BasicCluster MyBclus(l_3,xyzclus,chi2,usedHits,algoID);
-  Bclus=MyBclus;
-  
-  
+      
   SuperCluster MySclus(l_3,xyzclus);
   Sclus=MySclus;
   

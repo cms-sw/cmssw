@@ -31,24 +31,22 @@ void HFEMClusterProducer::produce(edm::Event & e, edm::EventSetup const& iSetup)
   
   // create return data
   std::auto_ptr<reco::HFEMClusterShapeCollection> retdata1(new HFEMClusterShapeCollection());
-  std::auto_ptr<reco::BasicClusterCollection> retdata2(new BasicClusterCollection());
-  std::auto_ptr<reco::SuperClusterCollection> retdata3(new SuperClusterCollection());
-  std::auto_ptr<reco::HFEMClusterShapeAssociationCollection> retdata4(new HFEMClusterShapeAssociationCollection());
+  std::auto_ptr<reco::SuperClusterCollection> retdata2(new SuperClusterCollection());
+  std::auto_ptr<reco::HFEMClusterShapeAssociationCollection> retdata3(new HFEMClusterShapeAssociationCollection());
  
  
-  algo_.clusterize(*hf_hits, *geometry, *retdata1, *retdata2, *retdata3);
+  algo_.clusterize(*hf_hits, *geometry, *retdata1, *retdata2);
   edm::OrphanHandle<reco::SuperClusterCollection> SupHandle;
   edm::OrphanHandle<reco::HFEMClusterShapeCollection> ShapeHandle;
 
   // put the results
   ShapeHandle=e.put(retdata1);
-  e.put(retdata2);
-  SupHandle=e.put(retdata3);
+  SupHandle=e.put(retdata2);
   for (unsigned int i=0; i < ShapeHandle->size();i++){
-    retdata4->insert(edm::Ref<reco::SuperClusterCollection>(SupHandle,i),edm::Ref<reco::HFEMClusterShapeCollection>(ShapeHandle,i));
+    retdata3->insert(edm::Ref<reco::SuperClusterCollection>(SupHandle,i),edm::Ref<reco::HFEMClusterShapeCollection>(ShapeHandle,i));
   }
 
 
-  e.put(retdata4);
+  e.put(retdata3);
 
 }

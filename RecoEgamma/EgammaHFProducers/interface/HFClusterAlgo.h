@@ -29,7 +29,6 @@ public:
   void clusterize(const HFRecHitCollection& hf, 
 		  const CaloGeometry& geom,
 		  reco::HFEMClusterShapeCollection& clusters,
-		  reco::BasicClusterCollection& BasicClusters,
 		  reco::SuperClusterCollection& SuperClusters);
 
 
@@ -48,7 +47,6 @@ private:
 		   const HFRecHitCollection& hf, 
 		   const CaloGeometry& geom,
 		   reco::HFEMClusterShape& clusShp,
-		   reco::BasicCluster& Bclus,
 		   reco::SuperCluster& SClus);
 };
 
