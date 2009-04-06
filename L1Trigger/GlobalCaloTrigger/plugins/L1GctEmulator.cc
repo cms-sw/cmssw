@@ -225,6 +225,16 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
     std::auto_ptr<L1GctHFBitCountsCollection>  hfBitCountResult (new L1GctHFBitCountsCollection (m_gct->getHFBitCountsCollection () ) );
     std::auto_ptr<L1GctHFRingEtSumsCollection> hfRingEtSumResult(new L1GctHFRingEtSumsCollection(m_gct->getHFRingEtSumsCollection() ) );
 
+    // create internal data collections if required - empty if not
+    std::auto_ptr<L1GctInternJetDataCollection> internalJetResult   (new L1GctInternJetDataCollection());
+    std::auto_ptr<L1GctInternEtSumCollection>   internalEtSumResult (new L1GctInternEtSumCollection  ());
+    std::auto_ptr<L1GctInternHtMissCollection>  internalHtMissResult(new L1GctInternHtMissCollection ());
+    if (m_writeInternalData) {
+      *internalJetResult    = m_gct->getInternalJets();
+      *internalEtSumResult  = m_gct->getInternalEtSums();
+      *internalHtMissResult = m_gct->getInternalHtMiss();
+    }
+
     // put the collections into the event
     e.put(isoEmResult,"isoEm");
     e.put(nonIsoEmResult,"nonIsoEm");
@@ -238,16 +248,9 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
     e.put(hfBitCountResult);
     e.put(hfRingEtSumResult);
 
-    // Get internal data collections if required
-    if (m_writeInternalData) {
-      std::auto_ptr<L1GctInternJetDataCollection> internalJetResult   (new L1GctInternJetDataCollection(m_gct->getInternalJets() ) );
-      std::auto_ptr<L1GctInternEtSumCollection>   internalEtSumResult (new L1GctInternEtSumCollection  (m_gct->getInternalEtSums() ) );
-      std::auto_ptr<L1GctInternHtMissCollection>  internalHtMissResult(new L1GctInternHtMissCollection (m_gct->getInternalHtMiss() ) );
-
-      e.put(internalJetResult);
-      e.put(internalEtSumResult);
-      e.put(internalHtMissResult);
-    }
+    e.put(internalJetResult);
+    e.put(internalEtSumResult);
+    e.put(internalHtMissResult);
 
   }
 }
