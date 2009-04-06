@@ -62,18 +62,18 @@ void SiStripDetVOffBuilder::analyze(const edm::Event& evt, const edm::EventSetup
    // std::vector<uint32_t> TheDetIdHVVector;
 
     for(std::vector<uint32_t>::const_iterator it = detids.begin(); it != detids.end(); it++){
-       
+
     //Generate HV and LV for each channel, if at least one of the two is off fill the value
     int hv=rand() % 20;
     int lv=rand() % 20;
     if( hv<=2 ) {
       edm::LogInfo("SiStripDetVOffBuilder") << "detid: " <<  *it << " HV\t OFF" << std::endl;
-      SiStripDetVOff_->put( *it, true, false );
+      SiStripDetVOff_->put( *it, 1, -1 );
       // TheDetIdHVVector.push_back(*it);
     }
     if( lv<=2 ) {
       edm::LogInfo("SiStripDetVOffBuilder") << "detid: " <<  *it << " LV\t OFF" << std::endl;
-      SiStripDetVOff_->put( *it, false, true );
+      SiStripDetVOff_->put( *it, -1, 1 );
       // TheDetIdHVVector.push_back(*it);
     }
     if( lv<=2 || hv<=2 ) edm::LogInfo("SiStripDetVOffBuilder") << "detid: " <<  *it << " V\t OFF" << std::endl;
@@ -89,7 +89,7 @@ void SiStripDetVOffBuilder::analyze(const edm::Event& evt, const edm::EventSetup
   if( mydbservice.isAvailable() ){
     try{
       if( mydbservice->isNewTagRequest("SiStripDetVOffRcd") ){
-	mydbservice->createNewIOV<SiStripDetVOff>(SiStripDetVOff_,mydbservice->endOfTime(),"SiStripDetVOffRcd");      
+	mydbservice->createNewIOV<SiStripDetVOff>(SiStripDetVOff_,mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripDetVOffRcd");      
       } else {
 	mydbservice->appendSinceTime<SiStripDetVOff>(SiStripDetVOff_,mydbservice->currentTime(),"SiStripDetVOffRcd");      
       }
