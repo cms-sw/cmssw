@@ -1,6 +1,7 @@
 #include "RecoVertex/KalmanVertexFit/interface/SingleTrackVertexConstraint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "MagneticField/Engine/interface/MagneticField.h" 
 
 #include <algorithm>
 using namespace std;
@@ -34,6 +35,13 @@ SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
 
   typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
   typedef VertexTrack<5>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
+
+  double field  = track.field()->inInverseGeV(track.impactPointState().globalPosition()).z();
+  if (field==0.) {
+      LogDebug("RecoVertex/SingleTrackVertexConstraint") 
+	 << "Initial state is very far, field is 0.\n";
+      return BTFtuple(false, TransientTrack(), 0.);
+  }
 
   RefCountedLinearizedTrackState lTrData 
       = theLTrackFactory.linearizedTrackState(priorVertexState.position(), track);
