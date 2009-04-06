@@ -6,7 +6,7 @@ import HLTrigger.HLTfilters.hltHighLevel_cfi
 from Calibration.EcalAlCaRecoProducers.electronFilter_cfi import *
 
 #
-# The current (as of $Date: 2009/03/19 17:31:40 $) ALCA stream for single and double electron
+# The current (as of $Date: 2009/03/26 09:01:54 $) ALCA stream for single and double electron
 # calibration
 #
 
@@ -19,7 +19,7 @@ isolElectronewkHLTFilter=HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clon
 
 goodElectrons = cms.EDFilter("CandViewRefSelector",
     filter = cms.bool(True),
-    src = cms.InputTag("pixelMatchGsfElectrons"),
+    src = cms.InputTag("gsfElectrons"),
     cut = cms.string('et > 15')
 )
 
@@ -30,7 +30,7 @@ goodElectronFilter = cms.EDFilter("CandViewCountFilter",
 
 goodElectrons2 = cms.EDFilter("CandViewRefSelector",
     filter = cms.bool(True),
-    src = cms.InputTag("pixelMatchGsfElectrons"),
+    src = cms.InputTag("gsfElectrons"),
     cut = cms.string('et > 1')
 )
 
