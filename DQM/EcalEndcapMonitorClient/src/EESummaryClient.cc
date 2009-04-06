@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/03/10 10:10:36 $
- * $Revision: 1.162 $
+ * $Date: 2009/03/10 10:14:36 $
+ * $Revision: 1.163 $
  * \author G. Della Ricca
  *
 */
@@ -1835,32 +1835,32 @@ void EESummaryClient::analyze(void) {
                 if ( ism == 17 && ix > 50 ) RtHalf = 1;
                 
                 //! Ampl / PN
-                // L1A
+                // Led1A
                 me = eeldc->meaopn01_[ism-1];
 
                 if( me && RtHalf == 0 ) {
-                  meLaserL1AmplOverPN_[side]->Fill( me->getBinContent( ic ) );
+                  meLedL1AmplOverPN_[side]->Fill( me->getBinContent( ic ) );
                 }
           
-                // L1B
+                // Led1B
                 me = eeldc->meaopn05_[ism-1];
                 if( me && RtHalf == 0 ) {
-                  meLaserL1AmplOverPN_[side]->Fill( me->getBinContent( ic ) );
+                  meLedL1AmplOverPN_[side]->Fill( me->getBinContent( ic ) );
                 }
                 
                 //! timing
-                // L1A
+                // Led1A
                 me = eeldc->met01_[ism-1];
             
                 if( me && RtHalf == 0 ) {
-                  meLaserL1Timing_[side]->Fill( me->getBinContent( ic ) );
+                  meLedL1Timing_[side]->Fill( me->getBinContent( ic ) );
                 }
             
-                // L1B (rectangular)
+                // Led1B (rectangular)
                 me = eeldc->met05_[ism-1];
                 
                 if ( me && RtHalf == 1 ) {
-                  meLaserL1Timing_[side]->Fill( me->getBinContent( ic ) );
+                  meLedL1Timing_[side]->Fill( me->getBinContent( ic ) );
                 }
               }
             }
