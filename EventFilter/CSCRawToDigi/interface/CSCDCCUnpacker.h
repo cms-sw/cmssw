@@ -4,8 +4,8 @@
 /** \class CSCDCCUnpacker
  * 
  *
- *  $Date: 2009/03/27 10:53:13 $
- *  $Revision: 1.19 $
+ *  $Date: 2009/03/27 15:49:11 $
+ *  $Revision: 1.20 $
  * \author Alex Tumanov 
  */
 
@@ -27,10 +27,8 @@ class CSCDCCUnpacker: public edm::EDProducer {
   /// Produce digis out of raw data
   void produce(edm::Event & e, const edm::EventSetup& c);
   
-  /// Visualization of raw data in FED-less events
+  /// Visualization of raw data in FED-less events (Robert Harr and Alexander Sakharov)
   void visual_raw(int hl,int id, int run, int event, bool fedshort, short unsigned int* buf) const; 
-  // Visualization of raw data in FED-less events
-
   
  private:
 

@@ -69,26 +69,27 @@ process.MessageLogger = cms.Service("MessageLogger",
 #        {string record = "CSCPedestalsRcd"
 #         string tag = "CSCPedestals_ideal"}
 #    }
-process.load("EventFilter.CSCRawToDigi.cscUnpacker_cfi")
+#process.load("EventFilter.CSCRawToDigi.cscUnpacker_cfi")
 #process.load("EventFilter.CSCRawToDigi.cscFrontierCablingUnpck_cff")
 
 process.GlobalTag.globaltag = 'CRAFT_V3P::All'
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
     debugFlag = cms.untracked.bool(True),
     #skipEvents = cms.untracked.uint32(18237),
-    skipEvents = cms.untracked.uint32(14),
-    debugVebosity = cms.untracked.uint32(10),
+    #skipEvents = cms.untracked.uint32(60),
+    skipEvents = cms.untracked.uint32(0),
+    #debugVebosity = cms.untracked.uint32(10),
     fileNames = cms.untracked.vstring(
    #'rfio:/afs/cern.ch/user/a/asakharo/scratch0/events/my_good_events.root'
-   #/store/data/Commissioning08/Cosmics/RAW/v1/000/064/257/A6B9F13F-CC90-DD11-9BCA-001617E30CE8.root'
-   #'/store/data/Commissioning08/BeamHalo/RAW/GRtoBeam_v1/000/062/096/863014FF-7C7F-DD11-8E83-0019DB29C614.root' #172
+   #'/store/data/Commissioning08/Cosmics/RAW/v1/000/064/257/A6B9F13F-CC90-DD11-9BCA-001617E30CE8.root'
+   #'/store/data/Commissioning08/BeamHalo/RAW/GRtoBeam_v1/000/062/096/863014FF-7C7F-DD11-8E83-0019DB29C614.root'
    #'/store/data/Commissioning08/Cosmics/RAW/v1/000/069/365/84E8B55A-EEAA-DD11-A18C-001617C3B65A.root'
-   #'rfio:/castor/cern.ch/user/a/asakharo/scratch0/events/run_66740_FED_errors.root'
-   'rfio:/afs/cern.ch/user/a/asakharo/scratch0/events/run_66740_FED_errors.root'
-   #'rfio:/castor/cern.ch/user/a/asakharo/CMSevents/run_66740_FED_errors.root'
+   #'rfio:/afs/cern.ch/user/a/asakharo/scratch0/events/run_66740_FED_errors.root'
+   'rfio:/castor/cern.ch/user/a/asakharo/CMSevents/run_66740_FED_errors.root'
+   #'/store/data/Commissioning09/Cosmics/RAW/v1/000/079/035/422F78CA-7019-DE11-A599-001617E30CD4.root'
     )
 )
 
@@ -102,8 +103,29 @@ process.dump = cms.EDFilter("CSCDigiDump",
     comparatorDigiTag = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi")
 )
 
-process.muonCSCDigis.VisualFEDInspect = cms.untracked.bool(True)
-process.muonCSCDigis.VisualFEDShort = cms.untracked.bool(True)
+process.muonCSCDigis = cms.EDFilter("CSCDCCUnpacker",
+    PrintEventNumber = cms.untracked.bool(False),
+    # Use CSC examiner for corrupt or semi-corrupt data to avoid unpacker crashes
+    UseExaminer = cms.untracked.bool(True),
+    # This mask simply reduces error reporting
+    ErrorMask = cms.untracked.uint32(0x0),
+    # Define input to the unpacker
+    #InputTag InputObjects = cscpacker:CSCRawData
+    InputObjects = cms.InputTag("source"),
+    # This mask is needed by the examiner if it's used
+    ExaminerMask = cms.untracked.uint32(0x1FEBF3F6),
+    #this flag disables unpacking of the Status Digis
+    UnpackStatusDigis = cms.untracked.bool(True),
+    # Use Examiner to unpack good chambers and skip only bad ones
+    UseSelectiveUnpacking = cms.untracked.bool(True),
+    #set this to true if unpacking MTCC data from summer-fall MTCC2006 
+    isMTCCData = cms.untracked.bool(False),
+    # turn on lots of output                            
+    Debug = cms.untracked.bool(False),
+    # Turn on the visual inspection of bad events
+    VisualFEDInspect=cms.untracked.bool(True),
+    VisualFEDShort=cms.untracked.bool(True)
+)
 
 process.out = cms.OutputModule("PoolOutputModule",
                       dataset = cms.untracked.PSet(dataTier = cms.untracked.string('DIGI')),
