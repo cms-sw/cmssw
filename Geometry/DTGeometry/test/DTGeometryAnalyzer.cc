@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/01/22 21:24:57 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/01/16 11:11:45 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN
  */
 
@@ -149,7 +149,7 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
         if (id!=ch->id()) cout << "ERROR: got wrong chamber: Cerco camera " << id << " e trovo " << ch->id() << endl;
 	// test idToDet for chamber
 	const GeomDet* gdetc=pDD->idToDet(id);
-	assert(((int)gdetc)==((int)ch));
+	assert(gdetc==ch);
 
         for (int sl=1; sl<= 3 ; ++sl) {
 	  if (sl==2 && st==4) continue;
@@ -159,7 +159,7 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
           if (slid!=sl->id()) cout << "ERROR: got wrong sl! Cerco sl " << slid << " e trovo " << sl->id() << endl;
 	  // test idToDet for superLayer
 	  const GeomDet* gdets=pDD->idToDet(slid);
-	  assert(((int)gdets)==((int)sl));
+	  assert(gdets==sl);
 
           for (int l=1; l<=4; ++l) {
             DTLayerId lid(slid,l);
@@ -168,7 +168,7 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
             if (lid!=lay->id()) cout << "ERROR: got wrong layer Cerco lay  " << lid << " e trovo " << lay->id() << endl;
 	    // test idToDet for layer
 	    const GeomDet* gdetl=pDD->idToDet(lid);
-	    assert(((int)gdetl)==((int)lay));
+	    assert(gdetl==lay);
           }
         }
       }
