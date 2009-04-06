@@ -52,6 +52,7 @@ void SimHitCaloHitDumper::analyze( const edm::Event& iEvent, const edm::EventSet
    Handle<PCaloHitContainer> ESHits;
    Handle<PCaloHitContainer> HcalHits;
    Handle<PCaloHitContainer> CaloTkHits;
+   Handle<PCaloHitContainer> ZDCHits;
 
    iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelLowTof", PixelBarrelHitsLowTof);
    iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelHighTof", PixelBarrelHitsHighTof);
@@ -75,6 +76,7 @@ void SimHitCaloHitDumper::analyze( const edm::Event& iEvent, const edm::EventSet
    iEvent.getByLabel("g4SimHits","EcalHitsES", ESHits );
    iEvent.getByLabel("g4SimHits","HcalHits", HcalHits );
    iEvent.getByLabel("g4SimHits","CaloHitsTk", CaloTkHits );
+   iEvent.getByLabel("g4SimHits","ZDCHITS", ZDCHits );
 
    int oldsize = 0;
 
@@ -201,6 +203,12 @@ void SimHitCaloHitDumper::analyze( const edm::Event& iEvent, const edm::EventSet
      std::pair<int,std::string> label20(theCaloHits.size()-oldsize,"CaloTkHits");
      oldsize = theCaloHits.size();
      theCaloComposition.push_back(label20);
+   } 
+   if ( ZDCHits.isValid() ) {
+     theCaloHits.insert(theCaloHits.end(), ZDCHits->begin(), ZDCHits->end() );
+     std::pair<int,std::string> label21(theCaloHits.size()-oldsize,"ZDCHITS");
+     oldsize = theCaloHits.size();
+     theCaloComposition.push_back(label21);
    } 
 
    std::cout << "\n SimHit / CaloHit structure dump \n" << std::endl;
