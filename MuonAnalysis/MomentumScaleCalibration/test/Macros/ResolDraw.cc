@@ -73,7 +73,7 @@ void Draw(const bool doHalfEta = false) {
 
   // ************************************************************
   // List of Files
-  FileList->Add( TFile::Open("0_MuScleFit_Y.root") );    // 1
+  FileList->Add( TFile::Open("0_MuScleFit.root") );    // 1
 
   draw( Target, FileList, doHalfEta );
 }
