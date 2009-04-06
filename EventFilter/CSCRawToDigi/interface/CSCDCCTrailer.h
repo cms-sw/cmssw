@@ -17,7 +17,7 @@ struct CSCDCCTrailer {
     bzero(this, sizeInWords()*2);
     dcc_trail1 = 0xEF;
     EOE_1 = 0XA;
-    XXXX_1 = 0XF;
+    XXXX_1 = 0X0; //@@ Actually a reserved bit. We should not test on it.
   }
   
   CSCDCCTrailer(const CSCDCCStatusDigi & digi)
@@ -45,7 +45,8 @@ struct CSCDCCTrailer {
   unsigned EOE_1        : 4;
 
   static unsigned sizeInWords() {return 8;}
-  bool check() const {return (dcc_trail1 == 0xEF) && (EOE_1 == 0XA) && (XXXX_1 == 0XF);}
+  //@@ The XXXX_1 is a reserved bit in CMS format - we really should not be testing it
+  bool check() const {return (dcc_trail1 == 0xEF) && (EOE_1 == 0XA) && (XXXX_1 == 0X0);}
   unsigned short * data() {return (unsigned short *) this;}
 
 };
