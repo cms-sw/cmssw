@@ -19,8 +19,8 @@ csc2DRecHits = cms.EDProducer("CSCRecHitDProducer",
     #    How to find SCA peak time?
     #                              
     UseAverageTime = cms.bool(False),
-    UseParabolaFit = cms.bool(True),
-    UseFourPoleFit = cms.bool(False),                       
+    UseParabolaFit = cms.bool(False),
+    UseFourPoleFit = cms.bool(True),                       
     #
     #    Parameters for wire hits
     CSCWireClusterDeltaT = cms.int32(1),
