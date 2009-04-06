@@ -53,7 +53,7 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
     if (ele->isTrackerDriven())
      {
       // eventual pflow super cluster.
-      SuperClusterRef pfscRef = (*pfClusterTracksH)[gsfTrackRef]; 
+      SuperClusterRef pfscRef = (*pfClusterTracksH)[gsfTrackRef];
       ele->setPflowSuperCluster(pfscRef) ;
      }
     electrons->push_back(*ele) ;

@@ -71,7 +71,7 @@ class GsfElectronAlgo {
       double extRadiusHcalSmall, double extRadiusHcalLarge, double intRadiusHcal,
       double etMinHcal, double extRadiusEcalSmall, double extRadiusEcalLarge,
       double intRadiusEcalBarrel, double intRadiusEcalEndcaps, double jurassicWidth,
-      double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps) ;    
+      double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps) ;
 
     ~GsfElectronAlgo() ;
 
@@ -85,7 +85,7 @@ class GsfElectronAlgo {
 
     // create electrons from superclusters, tracks and Hcal rechits
     void process
-     ( edm::Handle<reco::GsfTrackCollection> gsfTracksH,
+     ( //edm::Handle<reco::GsfTrackCollection> gsfTracksH,
        edm::Handle<reco::GsfElectronCoreCollection> coresH,
        edm::Handle<reco::TrackCollection> ctfTracksH,
        edm::Handle<edm::ValueMap<float> > pfMVAH,
@@ -100,10 +100,10 @@ class GsfElectronAlgo {
      ( const reco::GsfElectronCoreRef & coreRef,
        const reco::CaloClusterPtr & elbcRef,
        const reco::TrackRef & ctfTrackRef, const float shFracInnerHits,
-       double HoE1, double HoE2, 
+       double HoE1, double HoE2,
        ElectronTkIsolation & tkIso03, ElectronTkIsolation & tkIso04,
-       EgammaTowerIsolation & had1Iso03, EgammaTowerIsolation & had2Iso03, 
-       EgammaTowerIsolation & had1Iso04, EgammaTowerIsolation & had2Iso04, 
+       EgammaTowerIsolation & had1Iso03, EgammaTowerIsolation & had2Iso03,
+       EgammaTowerIsolation & had1Iso04, EgammaTowerIsolation & had2Iso04,
        EgammaRecHitIsolation & ecalBarrelIso03,EgammaRecHitIsolation & ecalEndcapsIso03,
        EgammaRecHitIsolation & ecalBarrelIso04,EgammaRecHitIsolation & ecalEndcapsIso04,
        edm::Handle<EcalRecHitCollection> reducedEBRecHits,edm::Handle<EcalRecHitCollection> reducedEERecHits,
@@ -132,7 +132,7 @@ class GsfElectronAlgo {
      reco::BeamSpot& bs);
 
     // preselection parameters
-    // minimum SC Et 
+    // minimum SC Et
     double minSCEtBarrel_;
     double minSCEtEndcaps_;
     // maximum E/p where E is the supercluster corrected energy and p the track momentum at innermost state
@@ -170,9 +170,9 @@ class GsfElectronAlgo {
     bool isFiducial_;
 
     // electron seed
-    // select or not electrons with seed having second hit in TEC layers 
+    // select or not electrons with seed having second hit in TEC layers
     bool seedFromTEC_;
-    
+
     // if this parameter is true, electron preselection is applied
     bool applyPreselection_;
 
@@ -183,9 +183,9 @@ class GsfElectronAlgo {
     // if this parameter is true, "double" electrons are resolved
     bool applyAmbResolution_;
 
-    // if this parameter is true, trackerDriven electrons are added 
+    // if this parameter is true, trackerDriven electrons are added
     bool addPflowElectrons_;
-    
+
     // isolation variables parameters
     double extRadiusTkSmall_;
     double extRadiusTkLarge_;
@@ -205,12 +205,12 @@ class GsfElectronAlgo {
     double etMinBarrel_;
     double eMinBarrel_;
     double etMinEndcaps_;
-    double eMinEndcaps_;    
-    
+    double eMinEndcaps_;
+
     // input configuration
     edm::InputTag barrelSuperClusters_;
     edm::InputTag endcapSuperClusters_;
-    edm::InputTag tracks_;
+    //edm::InputTag tracks_;
     edm::InputTag gsfElectronCores_ ;
     edm::InputTag ctfTracks_;
     edm::InputTag hcalTowers_;
@@ -244,7 +244,7 @@ class GsfElectronAlgo {
     unsigned long long cacheIDTopo_;
     unsigned long long cacheIDTDGeom_;
     unsigned long long cacheIDMagField_;
-    
+
  } ;
 
 #endif // GsfElectronAlgo_H

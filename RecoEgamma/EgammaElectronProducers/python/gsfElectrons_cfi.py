@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 gsfElectrons = cms.EDProducer("GsfElectronProducer",
 
     # input collections
-    tracks = cms.InputTag("electronGsfTracks"),
+    #tracks = cms.InputTag("electronGsfTracks"),
     gsfElectronCores = cms.InputTag("gsfElectronCores"),
     ctfTracks = cms.InputTag("generalTracks"),
     hcalTowers = cms.InputTag("towerMaker"),
