@@ -18,7 +18,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Sep  2 22:48:15 CEST 2008
-// $Id: L1ConfigOnlineProdBase.h,v 1.1 2008/09/19 19:22:58 wsun Exp $
+// $Id: L1ConfigOnlineProdBase.h,v 1.2 2008/09/30 20:33:39 wsun Exp $
 //
 
 // system include files
@@ -160,9 +160,9 @@ L1ConfigOnlineProdBase<TRcd, TData>::getObjectKey(
 
    objectKey = key->get( recordName, dataType ) ;
 
-   edm::LogVerbatim( "L1-O2O" )
-     << "L1ConfigOnlineProdBase record " << recordName
-     << " type " << dataType << " obj key " << objectKey ;
+/*    edm::LogVerbatim( "L1-O2O" ) */
+/*      << "L1ConfigOnlineProdBase record " << recordName */
+/*      << " type " << dataType << " obj key " << objectKey ; */
 
    // Get L1TriggerKeyList
    const L1TriggerKeyListRcd& keyListRcd =
