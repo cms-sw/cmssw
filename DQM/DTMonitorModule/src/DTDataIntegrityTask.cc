@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2008/11/06 16:01:13 $
- * $Revision: 1.50 $
+ * $Date: 2009/01/12 17:06:07 $
+ * $Revision: 1.51 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -40,7 +40,8 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
   reg.watchPostBeginJob(this,&DTDataIntegrityTask::postBeginJob);
   reg.watchPreProcessEvent(this,&DTDataIntegrityTask::preProcessEvent);
   
-  LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") << "[DTDataIntegrityTask]: Constructor" <<endl;
+  LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
+    << "[DTDataIntegrityTask]: Constructor" <<endl;
 
   neventsDDU = 0;
   neventsROS25 = 0;
@@ -401,38 +402,21 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
   // SC Histograms
   if ( folder == "SC" ) {
-    // Same numbering for SC as for ROS
-    dbe->setCurrentFolder(topFolder() + "FED" + dduID_s.str() + "/" + folder + rosID_s.str());
+    // The plots are per wheel
+    dbe->setCurrentFolder(topFolder() + "FED" + dduID_s.str());
+    // BXid
+    histoType = "SCSizeVsROSSize";
+    histoName = "FED" + dduID_s.str() + "_SCSizeVsROSSize";
+    string histoTitle = "SC size - ROS size vs SC (FED " + dduID_s.str() + ")";
+    rosHistos[histoType][code.getSCID()] = dbe->book2D(histoName,histoTitle,12,1,13,51,-1,50);
 
-    // the SC histos belong to the ROS map (pay attention) since the data come from the corresponding ROS
+    // SC data Size
+    histoType = "SCBxVsROSBx";
+    histoName = "FED" + dduID_s.str() + "_SCBxVsROSBx";
+    histoTitle = "SC bx - ROS bx vs SC (FED " + dduID_s.str() + ")";
+    rosHistos[histoType][code.getSCID()] = dbe->book2D(histoName,histoTitle,12,1,13,101,-1,100);
+      
 
-    histoType = "SCTriggerBX";
-    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_SCTriggerBX";
-    string histoTitle = histoName + " (station vs BX)";
-    (rosHistos[histoType])[code.getSCID()] = dbe->book2D(histoName,histoTitle,128,0,128,4,1,5);
-    ((rosHistos[histoType])[code.getSCID()]) ->setBinLabel(1,"MB1",2);
-    ((rosHistos[histoType])[code.getSCID()]) ->setBinLabel(2,"MB2",2);
-    ((rosHistos[histoType])[code.getSCID()]) ->setBinLabel(3,"MB3",2);
-    ((rosHistos[histoType])[code.getSCID()]) ->setBinLabel(4,"MB4",2);
-
-
-    histoType = "SCTriggerQuality";
-    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_SCTriggerQuality";
-    histoTitle = histoName + "(quality vs station)";
-    (rosHistos[histoType])[code.getSCID()] = dbe->book2D(histoName,histoTitle,4,1,5,8,0,8);
-    ((rosHistos[histoType])[code.getSCID()]) ->setBinLabel(1,"MB1",1);
-    ((rosHistos[histoType])[code.getSCID()]) ->setBinLabel(2,"MB2",1);
-    ((rosHistos[histoType])[code.getSCID()]) ->setBinLabel(3,"MB3",1);
-    ((rosHistos[histoType])[code.getSCID()]) ->setBinLabel(4,"MB4",1);
-    ((rosHistos[histoType])[code.getSCID()]) ->setBinLabel(1,"Li",2);
-    ((rosHistos[histoType])[code.getSCID()]) ->setBinLabel(2,"Lo",2);
-    ((rosHistos[histoType])[code.getSCID()]) ->setBinLabel(3,"Hi",2);
-    ((rosHistos[histoType])[code.getSCID()]) ->setBinLabel(4,"Ho",2);
-    ((rosHistos[histoType])[code.getSCID()]) ->setBinLabel(5,"LL",2);
-    ((rosHistos[histoType])[code.getSCID()]) ->setBinLabel(6,"HL",2);
-    ((rosHistos[histoType])[code.getSCID()]) ->setBinLabel(7,"HH",2);
-    ((rosHistos[histoType])[code.getSCID()]) ->setBinLabel(8,"Null",2);
-    
   }
 }
 
@@ -478,7 +462,8 @@ void DTDataIntegrityTask::bookHistosROS25(DTROChainCoding code) {
       code.setROB(robId);
       bookHistos( string("TDCError"), code);
     }
-    bookHistos( string("SC"), code);
+    if(getSCInfo)
+      bookHistos( string("SC"), code);
 }
 
 
@@ -698,36 +683,17 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   // Read SC data
   if (!hltMode && getSCInfo) {
     // SC Data
-    int stationGroup = 0 ; //= ((*sc_it).second)%2;
-    for (vector<DTSectorCollectorData>::const_iterator sc_it = data.getSCData().begin();
-	 sc_it != data.getSCData().end(); sc_it++) { // loop over SC data
+//     cout << "--- ROS: " << ros << " SC: " << code.getSCID() << endl;
+//     cout << "# words SC: " << data.getSCPrivHeader().NumberOf16bitWords() << endl;
+//     cout << "# words ROS: " << data.getSCTrailer().wordCount() << endl;
+//     cout << "# words SC data: " << data.getSCData().size() << endl;
+//     if(data.getSCPrivHeader().NumberOf16bitWords()+3-data.getSCTrailer().wordCount() == -1) 
+//       cout << " DEBUG: size diff. SC - ROS = -1 " << endl;
 
-      // SC Data words are devided into 2 parts each of 8 bits:
-      //  LSB refers to MB1 and MB3
-      //  MSB refers to MB2 and MB4
-
-      // fill only the information regarding SC words with trigger
-      bool hasTrigger_LSB = ((*sc_it).first).hasTrigger(0);
-      bool hasTrigger_MSB = ((*sc_it).first).hasTrigger(1);
-
-      // the quality
-      int quality_LSB = ((*sc_it).first).trackQuality(0);
-      int quality_MSB = ((*sc_it).first).trackQuality(1);
-
-      if (hasTrigger_LSB) {
-
-	rosHistos["SCTriggerBX"][code.getSCID()]->Fill((*sc_it).second, 1+stationGroup*2);
-	rosHistos["SCTriggerQuality"][code.getSCID()]->Fill(1+stationGroup*2,quality_LSB);
-
-      }
-
-      if (hasTrigger_MSB) {
-	rosHistos["SCTriggerBX"][code.getSCID()]->Fill((*sc_it).second, 2+stationGroup*2);
-	rosHistos["SCTriggerQuality"][code.getSCID()]->Fill(2+stationGroup*2,quality_MSB);
-
-      }
-      stationGroup = (stationGroup == 0 ? 1 : 0);  //switch between MB1-2 and MB3-4 data
-    }
+    // NumberOf16bitWords counts the # of words + 1 subheader
+    // the SC includes the SC "private header" and the ROS header and trailer (= NumberOf16bitWords +3)
+    rosHistos["SCSizeVsROSSize"][code.getSCID()]->Fill(ros,data.getSCPrivHeader().NumberOf16bitWords()+3-data.getSCTrailer().wordCount());
+    
   }
 }
 
