@@ -4,8 +4,8 @@
 /** \class DTROS25Data
  *  The collection containing DT ROS25 status data.
  *
- *  $Date: 2007/03/29 17:26:01 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/04/02 14:12:44 $
+ *  $Revision: 1.7 $
  *  \author M. Zanetti - INFN Padova
  *  \revision I. Josa - Ciemat Madrid
  */
@@ -34,7 +34,7 @@ public:
 
  /// Setters  ///////////////////////
  inline void setROSId(const int & ID) { theROSId = ID; }
-
+  
  inline void addROSHeader( const DTROSHeaderWord & word)  { theROSHeader = DTROSHeaderWord(word) ; }
  inline void addROSTrailer( const DTROSTrailerWord & word)  { theROSTrailer = DTROSTrailerWord(word) ; }
  inline void addROSError( const DTROSErrorWord & word)  { theROSErrors.push_back(word); }
@@ -45,6 +45,10 @@ public:
  inline void addTDCData( const DTTDCData & tdcData)  { theTDCData.push_back(tdcData); }
  inline void addTDCError( const DTTDCError & tdcError)  { theTDCError.push_back(tdcError); }
  inline void addSCData ( const DTSectorCollectorData & scData) { theSCData.push_back(scData); }
+ inline void addSCHeader( const DTLocalTriggerHeaderWord &scHeader) { theSCHeader = scHeader; }
+ inline void addSCPrivHeader( const DTLocalTriggerSectorCollectorHeaderWord& scPrivHeader) { theSCPrivateHeader = scPrivHeader; }
+  inline void addSCPrivSubHeader( const DTLocalTriggerSectorCollectorSubHeaderWord& scPrivSubHeader) { theSCPrivateSubHeader = scPrivSubHeader; }
+ inline void addSCTrailer( const DTLocalTriggerTrailerWord& scTrailer) { theSCTrailer = scTrailer; }
 
  /// Getters ////////////////////////
  inline int getROSID() const { return theROSId; }
@@ -59,6 +63,10 @@ public:
  inline const std::vector<DTTDCData>& getTDCData() const {return theTDCData;}
  inline const std::vector<DTTDCError>& getTDCError() const {return theTDCError;}
  inline const std::vector<DTSectorCollectorData>& getSCData() const {return theSCData;}
+ inline const DTLocalTriggerHeaderWord& getSCHeader() const {return theSCHeader;}
+ inline const DTLocalTriggerSectorCollectorHeaderWord& getSCPrivHeader() const {return theSCPrivateHeader;}
+ inline const DTLocalTriggerTrailerWord& getSCTrailer() const {return theSCTrailer;}
+ inline const DTLocalTriggerSectorCollectorSubHeaderWord& getSCPrivSubHeader() const { return theSCPrivateSubHeader;}
 
  inline void clean() {
    theROSHeader = 0; 
@@ -88,6 +96,12 @@ private:
  std::vector<DTTDCData> theTDCData;
  std::vector<DTTDCError> theTDCError;
  std::vector<DTSectorCollectorData> theSCData;
+ DTLocalTriggerHeaderWord theSCHeader;
+ DTLocalTriggerSectorCollectorHeaderWord theSCPrivateHeader;
+ DTLocalTriggerTrailerWord theSCTrailer;
+ DTLocalTriggerSectorCollectorSubHeaderWord theSCPrivateSubHeader;
+
+
 
 };
 
