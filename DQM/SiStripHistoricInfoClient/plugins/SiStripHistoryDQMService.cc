@@ -64,7 +64,7 @@ uint32_t SiStripHistoryDQMService::returnDetComponent(std::string& str){
     return TECDetId(side,layer,0,0,0,0,0).rawId();
   } 
   else 
-    return DetId::Tracker; //Full Tracker
+    return SiStripDetId(DetId::Tracker,0).rawId(); //Full Tracker
 }
 
 //Example on how to define an user function for the statistic estration
