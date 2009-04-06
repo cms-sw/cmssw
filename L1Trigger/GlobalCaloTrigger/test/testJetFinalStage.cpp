@@ -24,7 +24,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-#include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
 
 //Standard library headers
 #include <fstream>   //for file IO
