@@ -118,17 +118,15 @@ OscarProducer::~OscarProducer()
 
 }
 
-void OscarProducer::beginRun(const edm::EventSetup & es)
+void OscarProducer::beginRun(edm::Run & r, const edm::EventSetup & es)
 {
-  m_runManager->initG4Run(es);
+  m_runManager->initG4(es);
 }
 
 
-void OscarProducer::beginJob(const edm::EventSetup & es)
+void OscarProducer::beginJob()
 {
   StaticRandomEngineSetUnset random(m_engine);
-
-  m_runManager->initG4Job(es);
 }
  
 void OscarProducer::endJob() { }

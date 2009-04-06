@@ -109,8 +109,9 @@ RunManager::RunManager(edm::ParameterSet const & p)
   :   m_generator(0), m_nonBeam(p.getParameter<bool>("NonBeamEvent")), 
       m_primaryTransformer(0), 
       m_managerInitialized(false), 
-      m_geometryInitialized(true), m_physicsInitialized(true),
+      //m_geometryInitialized(true), m_physicsInitialized(true),
       m_runInitialized(false), m_runTerminated(false), m_runAborted(false),
+      firstRun(true),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_currentRun(0), m_currentEvent(0), m_simEvent(0), 
       m_PhysicsTablesDir(p.getParameter<std::string>("PhysicsTablesDirectory")),
@@ -152,15 +153,45 @@ RunManager::~RunManager()
     if (m_kernel!=0) delete m_kernel; 
 }
 
-void RunManager::initG4Run(const edm::EventSetup & es)
+
+
+
+void RunManager::initG4(const edm::EventSetup & es)
 {
+
+  if(!firstRun){
+    if(idealGeomRcdWatcher_.check(es)){
+      throw cms::Exception("BadConfig") 
+        << "[SimG4Core RunManager]\n"
+        << "The Geometry configuration is changed during the job execution\n"
+        << "this is not allowed, the geometry must stay unchanged\n";
+    }
+    if(idealMagRcdWatcher_.check(es)){
+      throw cms::Exception("BadConfig") 
+        << "[SimG4Core RunManager]\n"
+        << "The MagneticField configuration is changed during the job execution\n"
+        << "this is not allowed, the MagneticField must stay unchanged\n";
+    }
+  }
+
+  if (m_managerInitialized) return;
+  
+  // DDDWorld: get the DDCV from the ES and use it to build the World
+  edm::ESHandle<DDCompactView> pDD;
+  es.get<IdealGeometryRecord>().get(pDD);
+   
+  G4LogicalVolumeToDDLogicalPartMap map_;
+  SensitiveDetectorCatalog catalog_;
+  const DDDWorld * world = new DDDWorld(&(*pDD), map_, catalog_, m_check);
+  m_registry.dddWorldSignal_(world);
+
   if (m_pUseMagneticField)
     {
       // setup the magnetic field
       edm::ESHandle<MagneticField> pMF;
       es.get<IdealMagneticFieldRecord>().get(pMF);
       const GlobalPoint g(0.,0.,0.);
-      
+
       // m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), map_, m_pField));
       m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), m_pField));
       G4TransportationManager * tM = G4TransportationManager::GetTransportationManager();
@@ -168,82 +199,68 @@ void RunManager::initG4Run(const edm::EventSetup & es)
       // m_fieldBuilder->configure("MagneticFieldType",tM->GetFieldManager(),tM->GetPropagatorInField());
     }
 
-    initializeRun();
-  
-}
-void RunManager::initG4Job(const edm::EventSetup & es)
-{
-    if (m_managerInitialized) return;
+  // we need the track manager now
+  m_trackManager = std::auto_ptr<SimTrackManager>(new SimTrackManager);
 
-    // DDDWorld: get the DDCV from the ES and use it to build the World
-    edm::ESHandle<DDCompactView> pDD;
-    es.get<IdealGeometryRecord>().get(pDD);
-   
-    G4LogicalVolumeToDDLogicalPartMap map_;
-    SensitiveDetectorCatalog catalog_;
-    const DDDWorld * world = new DDDWorld(&(*pDD), map_, catalog_, m_check);
-    m_registry.dddWorldSignal_(world);
-
-    // we need the track manager now
-    m_trackManager = std::auto_ptr<SimTrackManager>(new SimTrackManager);
-
-    m_attach = new AttachSD;
-    {
-	std::pair< std::vector<SensitiveTkDetector*>,
-	           std::vector<SensitiveCaloDetector*> > sensDets = m_attach->create(*world,(*pDD),catalog_,m_p,m_trackManager.get(),m_registry);
+  m_attach = new AttachSD;
+  {
+    std::pair< std::vector<SensitiveTkDetector*>,
+      std::vector<SensitiveCaloDetector*> > sensDets = m_attach->create(*world,(*pDD),catalog_,m_p,m_trackManager.get(),m_registry);
       
-	m_sensTkDets.swap(sensDets.first);
-	m_sensCaloDets.swap(sensDets.second);
-    }
+    m_sensTkDets.swap(sensDets.first);
+    m_sensCaloDets.swap(sensDets.second);
+  }
 
     
-    edm::LogInfo("SimG4CoreApplication") << 
-       " RunManager: Sensitive Detector building finished; found " << m_sensTkDets.size()
-       << " Tk type Producers, and " << m_sensCaloDets.size() << " Calo type producers ";
+  edm::LogInfo("SimG4CoreApplication") << " RunManager: Sensitive Detector building finished; found " << m_sensTkDets.size()
+                                       << " Tk type Producers, and " << m_sensCaloDets.size() << " Calo type producers ";
     
 
-    m_generator = new Generator(m_pGenerator);
-    // m_InTag = m_pGenerator.getParameter<edm::InputTag>("HepMCProductLabel") ;
-    m_InTag = m_pGenerator.getParameter<std::string>("HepMCProductLabel") ;
-    m_primaryTransformer = new PrimaryTransformer();
+  m_generator = new Generator(m_pGenerator);
+  // m_InTag = m_pGenerator.getParameter<edm::InputTag>("HepMCProductLabel") ;
+  m_InTag = m_pGenerator.getParameter<std::string>("HepMCProductLabel") ;
+  m_primaryTransformer = new PrimaryTransformer();
     
-    std::auto_ptr<PhysicsListMakerBase> physicsMaker( 
-      PhysicsListFactory::get()->create
-      (m_pPhysics.getParameter<std::string> ("type")));
-    if (physicsMaker.get()==0) throw SimG4Exception("Unable to find the Physics list requested");
-    m_physicsList = physicsMaker->make(map_,m_pPhysics,m_registry);
-    if (m_physicsList.get()==0) throw SimG4Exception("Physics list construction failed!");
-    m_kernel->SetPhysics(m_physicsList.get());
-    m_kernel->InitializePhysics();
+  std::auto_ptr<PhysicsListMakerBase> physicsMaker( 
+                                                   PhysicsListFactory::get()->create
+                                                   (m_pPhysics.getParameter<std::string> ("type")));
+  if (physicsMaker.get()==0) throw SimG4Exception("Unable to find the Physics list requested");
+  m_physicsList = physicsMaker->make(map_,m_pPhysics,m_registry);
+  if (m_physicsList.get()==0) throw SimG4Exception("Physics list construction failed!");
+  m_kernel->SetPhysics(m_physicsList.get());
+  m_kernel->InitializePhysics();
 
-    m_physicsList->ResetStoredInAscii();
-    std::string tableDir = m_PhysicsTablesDir;
-    if (m_RestorePhysicsTables) m_physicsList->SetPhysicsTableRetrieved(tableDir);
+  m_physicsList->ResetStoredInAscii();
+  std::string tableDir = m_PhysicsTablesDir;
+  if (m_RestorePhysicsTables) m_physicsList->SetPhysicsTableRetrieved(tableDir);
  
-    if (m_kernel->RunInitialization()) m_managerInitialized = true;
-    else throw SimG4Exception("G4RunManagerKernel initialization failed!");
-     
-    if (m_StorePhysicsTables)
+  if (m_kernel->RunInitialization()) m_managerInitialized = true;
+  else throw SimG4Exception("G4RunManagerKernel initialization failed!");
+  
+  if (m_StorePhysicsTables)
     {
-	std::ostringstream dir;
-	dir << tableDir << '\0';
-	std::string cmd = std::string("/control/shell mkdir -p ")+tableDir;
-	if (!std::ifstream(dir.str().c_str(), std::ios::in))
-	    G4UImanager::GetUIpointer()->ApplyCommand(cmd);
-	m_physicsList->StorePhysicsTable(tableDir);
+      std::ostringstream dir;
+      dir << tableDir << '\0';
+      std::string cmd = std::string("/control/shell mkdir -p ")+tableDir;
+      if (!std::ifstream(dir.str().c_str(), std::ios::in))
+        G4UImanager::GetUIpointer()->ApplyCommand(cmd);
+      m_physicsList->StorePhysicsTable(tableDir);
     }
- 
-    //tell all interesting parties that we are beginning the job
-    BeginOfJob aBeginOfJob(&es);
-    m_registry.beginOfJobSignal_(&aBeginOfJob);
-
-    initializeUserActions();
-
-    for (unsigned it=0; it<m_G4Commands.size(); it++) {
-      edm::LogInfo("SimG4CoreApplication") << "RunManager:: Requests UI: "
-					   << m_G4Commands[it];
-      G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
-    }
+  
+  //tell all interesting parties that we are beginning the job
+  BeginOfJob aBeginOfJob(&es);
+  m_registry.beginOfJobSignal_(&aBeginOfJob);
+  
+  initializeUserActions();
+  
+  for (unsigned it=0; it<m_G4Commands.size(); it++) {
+    edm::LogInfo("SimG4CoreApplication") << "RunManager:: Requests UI: "
+                                         << m_G4Commands[it];
+    G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
+  }
+  
+  initializeRun();
+  firstRun= false;
 
 }
 

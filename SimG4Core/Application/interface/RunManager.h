@@ -19,6 +19,11 @@
 #include <memory>
 #include "boost/shared_ptr.hpp"
 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "FWCore/Framework/interface/ESWatcher.h"
+
 namespace CLHEP {
   class HepJamesRandom;
 }
@@ -52,8 +57,7 @@ public:
     //static RunManager * instance();
     //static RunManager * init(edm::ParameterSet const & p); 
     virtual ~RunManager();
-    void initG4Run(const edm::EventSetup & es);
-    void initG4Job(const edm::EventSetup & es);
+    void initG4(const edm::EventSetup & es);
     void initializeUserActions();
     void initializeRun();
     void terminateRun();
@@ -87,11 +91,12 @@ private:
     std::auto_ptr<PhysicsList> m_physicsList;
     PrimaryTransformer * m_primaryTransformer;
     bool m_managerInitialized;
-    bool m_geometryInitialized;
-    bool m_physicsInitialized;
+    //    bool m_geometryInitialized;
+    //    bool m_physicsInitialized;
     bool m_runInitialized;
     bool m_runTerminated;
     bool m_runAborted;
+    bool firstRun;
     bool m_pUseMagneticField;
     G4Run * m_currentRun;
     G4Event * m_currentEvent;
@@ -128,6 +133,10 @@ private:
     std::auto_ptr<SimTrackManager> m_trackManager;
     std::auto_ptr<sim::FieldBuilder> m_fieldBuilder;
     
+    edm::ESWatcher<IdealGeometryRecord> idealGeomRcdWatcher_;
+    edm::ESWatcher<IdealMagneticFieldRecord> idealMagRcdWatcher_;
+
+
 };
 
 #endif
