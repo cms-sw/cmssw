@@ -7,7 +7,7 @@
  * Takes also a profileX of the TH2F. <br>
  * For the fit in eta it takes the events with eta < 0 on those with eta > 0. <br>
  * In any case it takes the projection in y (ProjectionY) of the TH2F in each bin (from x to x, that is a single bin). <br>
- * It extracts the mean and rms from the gaussian fit and writes them in the TH1D described above.
+ * It extracts the rms and its error from the gaussian fit and writes them in the TH1D described above.
  */
 
 // Needed to use gROOT in a compiled macro
