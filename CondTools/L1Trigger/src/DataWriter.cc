@@ -1,8 +1,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondTools/L1Trigger/interface/DataWriter.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondCore/MetaDataService/interface/MetaData.h"
+#include "CondCore/IOVService/interface/IOVService.h"
 
 #include <utility>
 
@@ -130,9 +130,9 @@ DataWriter::updateIOV( const std::string& esRecordName,
   return iovUpdated ;
 }
 
-void
-DataWriter::readKey( const std::string& payloadToken,
-		     L1TriggerKey& outputKey )
+std::string
+DataWriter::payloadToken( const std::string& recordName,
+			  edm::RunNumber_t runNumber )
 {
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if( !poolDb.isAvailable() )
@@ -140,13 +140,32 @@ DataWriter::readKey( const std::string& payloadToken,
       throw cond::Exception( "DataWriter: PoolDBOutputService not available."
 			     ) ;
     }
+
+  // Get tag corresponding to EventSetup record name.
+  std::string iovTag = poolDb->tag( recordName ) ;
+
+  // Get IOV token for tag.
+  cond::CoralTransaction& coral = poolDb->connection().coralTransaction() ;
+  coral.start( false ) ;
+  cond::MetaData metadata( coral ) ;
+  std::string iovToken ;
+  if( metadata.hasTag( iovTag ) )
+    {
+      iovToken = metadata.getToken( iovTag ) ;
+    }
+  coral.commit() ;
+  if( iovToken.empty() )
+    {
+      return std::string() ;
+    }
+
+  // Get payload token for run number.
   cond::PoolTransaction& pool = poolDb->connection().poolTransaction() ;
   pool.start( false ) ;
-
-  // Get L1TriggerKey from POOL
-  cond::TypedRef< L1TriggerKey > key( pool, payloadToken ) ;
-  outputKey = *key ;
-  pool.commit ();
+  cond::IOVService iovService( pool ) ;
+  std::string payloadToken = iovService.payloadToken( iovToken, runNumber ) ;
+  pool.commit() ;
+  return payloadToken ;
 }
 
 } // ns

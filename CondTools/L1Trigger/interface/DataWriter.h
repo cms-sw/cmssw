@@ -6,6 +6,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/DataKey.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 
@@ -57,13 +59,36 @@ class DataWriter
   void writeKeyList( L1TriggerKeyList* keyList,
 		     edm::RunNumber_t sinceRun = 0 ) ;
 
-  // Read L1TriggerKey directly from Pool, not from EventSetup.
-  void readKey( const std::string& payloadToken,
-		L1TriggerKey& outputKey ) ;
+  // Read object directly from Pool, not from EventSetup.
+  template< class T >
+  void readObject( const std::string& payloadToken,
+		   T& outputObject ) ;
 
+  std::string payloadToken( const std::string& recordName,
+			    edm::RunNumber_t runNumber ) ;
 
  protected:
 };
+
+template< class T >
+  void DataWriter::readObject( const std::string& payloadToken,
+			       T& outputObject )
+{
+  edm::Service<cond::service::PoolDBOutputService> poolDb;
+  if( !poolDb.isAvailable() )
+    {
+      throw cond::Exception( "DataWriter: PoolDBOutputService not available."
+			     ) ;
+    }
+  cond::PoolTransaction& pool = poolDb->connection().poolTransaction() ;
+  pool.start( false ) ;
+
+  // Get object from POOL
+  cond::TypedRef< T > obj( pool, payloadToken ) ;
+  outputObject = *obj ;
+  pool.commit ();
+}
+
 
 } // ns
 
