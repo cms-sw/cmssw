@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.53 2009/03/08 18:08:17 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.54 2009/03/25 16:06:03 borrell Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -144,7 +144,7 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
     folder_organizer.setSiStripFolder();
 
     // Create TkHistoMap for Digi
-    if (clustertkhistomapon) tkmapcluster = new TkHistoMap("SiStrip/TkHistoMap","Cluster",0.);
+    if (clustertkhistomapon) tkmapcluster = new TkHistoMap("SiStrip/TkHistoMap","Cluster",0.,1);
 
     // loop over detectors and book MEs
     edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<"nr. of activeDets:  "<<activeDets.size();
