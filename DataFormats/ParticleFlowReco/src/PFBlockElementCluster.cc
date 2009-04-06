@@ -28,8 +28,9 @@ void PFBlockElementCluster::Dump(ostream& out,
   out << setiosflags(ios::fixed);
   out << setw(4) <<", ET =" << setw(7) << ET;
   out << setw(4) <<", E ="  << setw(7) << E;
-  out << " (eta,phi)= (";
+  out << " (eta,phi,z)= (";
   out << clusterRef_->position().Eta()<<",";
-  out << clusterRef_->position().Phi()<<")";
+  out << clusterRef_->position().Phi()<<",";
+  out << clusterRef_->position().Z()  <<")";
   out << resetiosflags(ios::right|ios::fixed);
 }
