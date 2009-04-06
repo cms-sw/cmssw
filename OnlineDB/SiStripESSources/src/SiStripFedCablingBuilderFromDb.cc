@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.55 2008/07/09 17:03:33 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.56 2009/02/27 08:30:04 alinn Exp $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -268,7 +268,6 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
       continue;
     }
     
-#ifdef USING_NEW_DATABASE_MODEL
     //uint16_t fec_id    = static_cast<uint16_t>( (*ifed)->getFecHardwareId() );
     uint16_t fec_crate = static_cast<uint16_t>( (*ifed)->getFecCrateId() + sistrip::FEC_CRATE_OFFSET ); //@@ temporary offset!
     uint16_t fec_slot  = static_cast<uint16_t>( (*ifed)->getFecSlot() );
@@ -283,21 +282,6 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
     uint16_t fed_id    = static_cast<uint16_t>( (*ifed)->getFedId() );
     uint16_t fed_ch    = static_cast<uint16_t>( (*ifed)->getFedChannel() );
     uint16_t length    = 0; //@@ static_cast<uint16_t>( (*ifed)->getFiberLength() );
-#else
-    uint16_t fec_crate = static_cast<uint16_t>( (*ifed)->getFecInstance() + sistrip::FEC_CRATE_OFFSET ); //@@ temporary offset!
-    uint16_t fec_slot  = static_cast<uint16_t>( (*ifed)->getSlot() );
-    uint16_t fec_ring  = static_cast<uint16_t>( (*ifed)->getRing() + sistrip::FEC_RING_OFFSET ); //@@ temporary offset!
-    uint16_t ccu_addr  = static_cast<uint16_t>( (*ifed)->getCcu() );
-    uint16_t ccu_chan  = static_cast<uint16_t>( (*ifed)->getI2c() );
-    uint16_t apv0      = static_cast<uint16_t>( (*ifed)->getApv() );
-    uint16_t apv1      = apv0 + 1; //@@ needs implementing!
-    uint32_t dcu_id    = static_cast<uint32_t>( (*ifed)->getDcuHardId() );
-    uint32_t det_id    = static_cast<uint32_t>( (*ifed)->getDetId() );
-    uint16_t npairs    = static_cast<uint16_t>( (*ifed)->getApvPairs() );
-    uint16_t fed_id    = static_cast<uint16_t>( (*ifed)->getFedId() );
-    uint16_t fed_ch    = static_cast<uint16_t>( (*ifed)->getFedChannel() ); // "internal" numbering scheme
-    uint16_t length    = static_cast<uint16_t>( (*ifed)->getFiberLength() );
-#endif
 
     FedChannelConnection conn( fec_crate, fec_slot, fec_ring, ccu_addr, ccu_chan,
 			       apv0, apv1,
@@ -307,14 +291,8 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
 
     uint16_t fed_crate = sistrip::invalid_; 
     uint16_t fed_slot  = sistrip::invalid_; 
-#ifdef USING_NEW_DATABASE_MODEL
     fed_crate = static_cast<uint16_t>( (*ifed)->getFedCrateId() );
     fed_slot  = static_cast<uint16_t>( (*ifed)->getFedSlot() );
-#else
-    uint16_t id = static_cast<uint16_t>( (*ifed)->getFedId() );
-    fed_crate = id / 16 + 1; // dummy numbering: FED crate starts from 1 (16 FEDs per crate)
-    fed_slot  = id % 16 + 2; // dummy numbering: FED slot starts from 2 (16 FEDs per crate)
-#endif
     conn.fedCrate( fed_crate );
     conn.fedSlot( fed_slot );
 
