@@ -25,13 +25,16 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectronCore.h,v 1.1 2009/03/20 22:59:16 chamont Exp $
+ * \version $Id: GsfElectronCore.h,v 1.2 2009/03/24 17:26:27 charlot Exp $
  *
  ****************************************************************************/
 
 //*****************************************************************************
 //
 // $Log: GsfElectronCore.h,v $
+// Revision 1.2  2009/03/24 17:26:27  charlot
+// updated provenance and added comments in headers
+//
 // Revision 1.1  2009/03/20 22:59:16  chamont
 // new class GsfElectronCore and new interface for GsfElectron
 //
@@ -52,16 +55,17 @@ class GsfElectronCore {
 
     // accessors
     const GsfTrackRef & gsfTrack() const { return gsfTrack_ ; }
-    const SuperClusterRef & superCluster() const { return superCluster_ ; }
-    const SuperClusterRef & pflowSuperCluster() const { return pflowSuperCluster_ ; }
-
-    // utilities
+    const SuperClusterRef & superCluster() const
+     { return (superCluster_.isNull()?pflowSuperCluster_:superCluster_) ; }
     bool isEcalDriven() const { return isEcalDriven_ ; }
     bool isTrackerDriven() const { return isTrackerDriven_ ; }
 
     // setters, still useful to GsfElectronSelector.h ??
     void setGsfTrack( const GsfTrackRef & gsfTrack ) { gsfTrack_ = gsfTrack ; }
     void setSuperCluster( const SuperClusterRef & scl ) { superCluster_ = scl ; }
+
+    // pflow eventual additionnal info
+    const SuperClusterRef & pflowSuperCluster() const { return pflowSuperCluster_ ; }
     void setPflowSuperCluster( const SuperClusterRef & scl ) { pflowSuperCluster_ = scl ; }
 
   private :

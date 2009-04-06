@@ -31,13 +31,16 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.27 2009/03/31 10:30:20 charlot Exp $
+ * \version $Id: GsfElectron.h,v 1.28 2009/03/31 10:54:09 charlot Exp $
  *
  ****************************************************************************/
 
 //*****************************************************************************
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.28  2009/03/31 10:54:09  charlot
+// readded isolation setters
+//
 // Revision 1.27  2009/03/31 10:30:20  charlot
 // added getters for structs, removed setter for the core
 //
@@ -123,9 +126,9 @@ class GsfElectron : public RecoCandidate
     // forward core methods
     SuperClusterRef superCluster() const { return core_->superCluster() ; }
     GsfTrackRef gsfTrack() const { return core_->gsfTrack() ; }
-    SuperClusterRef pflowSuperCluster() const { return core_->pflowSuperCluster() ; }
     bool isEcalDriven() const { return core_->isEcalDriven() ; }
     bool isTrackerDriven() const { return core_->isTrackerDriven() ; }
+    SuperClusterRef pflowSuperCluster() const { return core_->pflowSuperCluster() ; }
 
   private:
 
@@ -166,9 +169,9 @@ class GsfElectron : public RecoCandidate
     float deltaPhiSuperClusterTrackAtVtx() const { return trackClusterMatching_.deltaPhiSuperClusterAtVtx ; }
     float deltaPhiSeedClusterTrackAtCalo() const { return trackClusterMatching_.deltaPhiSeedClusterAtCalo ; }
     float deltaPhiEleClusterTrackAtCalo() const { return trackClusterMatching_.deltaPhiEleClusterAtCalo ; }
-    TrackClusterMatching trackClusterMatching() const { return trackClusterMatching_ ; }
+    const TrackClusterMatching & trackClusterMatching() const { return trackClusterMatching_ ; }
 
-    // for backward compatibility
+    // for backward compatibility, usefull ?
     void setDeltaEtaSuperClusterAtVtx( float de ) { trackClusterMatching_.deltaEtaSuperClusterAtVtx = de ; }
     void setDeltaPhiSuperClusterAtVtx( float dphi ) { trackClusterMatching_.deltaPhiSuperClusterAtVtx = dphi ; }
 
@@ -204,7 +207,7 @@ class GsfElectron : public RecoCandidate
     math::XYZVector trackMomentumOut() const { return trackExtrapolations_.momentumOut ; }
     math::XYZVector trackMomentumAtEleClus() const { return trackExtrapolations_.momentumAtEleClus ; }
     math::XYZVector trackMomentumAtVtxWithConstraint() const { return trackExtrapolations_.momentumAtVtxWithConstraint ; }
-    TrackExtrapolations trackExtrapolations() const { return trackExtrapolations_ ; }
+    const TrackExtrapolations & trackExtrapolations() const { return trackExtrapolations_ ; }
 
     // for backward compatibility
     math::XYZPoint TrackPositionAtVtx() const { return trackPositionAtVtx() ; }
@@ -249,10 +252,10 @@ class GsfElectron : public RecoCandidate
     // accessors
     TrackRef closestCtfTrackRef() const { return closestCtfTrack_.ctfTrack ; } // get the CTF track best matching the GTF associated to this electron
     float shFracInnerHits() const { return closestCtfTrack_.shFracInnerHits ; } // measure the fraction of common hits between the GSF and CTF tracks
+    const ClosestCtfTrack & closestCtfTrack() const { return closestCtfTrack_ ; }
     GsfTrackRefVector::size_type ambiguousGsfTracksSize() const { return ambiguousGsfTracks_.size() ; }
     GsfTrackRefVector::const_iterator ambiguousGsfTracksBegin() const { return ambiguousGsfTracks_.begin() ; }
     GsfTrackRefVector::const_iterator ambiguousGsfTracksEnd() const { return ambiguousGsfTracks_.end() ; }
-    ClosestCtfTrack closestCtfTrack() const { return closestCtfTrack_ ; }
 
     // setters
     void addAmbiguousGsfTrack( const reco::GsfTrackRef & t ) { ambiguousGsfTracks_.push_back(t) ; }
@@ -298,7 +301,7 @@ class GsfElectron : public RecoCandidate
     bool isEEGap() const { return (isEEDeeGap()||isEERingGap()) ; }
     bool isEEDeeGap() const { return fiducialFlags_.isEEDeeGap ; }
     bool isEERingGap() const { return fiducialFlags_.isEERingGap ; }
-    FiducialFlags fiducialFlags() const { return fiducialFlags_ ; }
+    const FiducialFlags & fiducialFlags() const { return fiducialFlags_ ; }
 
 
   private:
@@ -339,7 +342,7 @@ class GsfElectron : public RecoCandidate
     float hcalDepth1OverEcal() const { return showerShape_.hcalDepth1OverEcal ; }
     float hcalDepth2OverEcal() const { return showerShape_.hcalDepth2OverEcal ; }
     float hcalOverEcal() const { return hcalDepth1OverEcal() + hcalDepth2OverEcal() ; }
-    ShowerShape showerShape() const { return showerShape_ ; }
+    const ShowerShape & showerShape() const { return showerShape_ ; }
 
     // for backward compatibility
     float scSigmaEtaEta() const { return sigmaEtaEta() ; }
@@ -381,7 +384,7 @@ class GsfElectron : public RecoCandidate
     float dr03HcalDepth1TowerSumEt() const { return dr03_.hcalDepth1TowerSumEt ; }
     float dr03HcalDepth2TowerSumEt() const { return dr03_.hcalDepth2TowerSumEt ; }
     float dr03HcalTowerSumEt() const { return dr03HcalDepth1TowerSumEt()+dr03HcalDepth2TowerSumEt() ; }
-    IsolationVariables isolationVariables03() const { return dr03_ ; }
+    const IsolationVariables & dr03IsolationVariables() const { return dr03_ ; }
 
     // 04 accessors
     float dr04TkSumPt() const { return dr04_.tkSumPt ; }
@@ -389,10 +392,17 @@ class GsfElectron : public RecoCandidate
     float dr04HcalDepth1TowerSumEt() const { return dr04_.hcalDepth1TowerSumEt ; }
     float dr04HcalDepth2TowerSumEt() const { return dr04_.hcalDepth2TowerSumEt ; }
     float dr04HcalTowerSumEt() const { return dr04HcalDepth1TowerSumEt()+dr04HcalDepth2TowerSumEt() ; }
-    IsolationVariables isolationVariables04() const { return dr04_ ; }
+    const IsolationVariables & dr04IsolationVariables() const { return dr04_ ; }
 
-    void setIsolation03(struct IsolationVariables dr03) { dr03_=dr03; }
-    void setIsolation04(struct IsolationVariables dr04) { dr04_=dr04; }
+    // setters ?!?
+    void setDr03Isolation( const IsolationVariables & dr03 ) { dr03_ = dr03 ; }
+    void setDr04Isolation( const IsolationVariables & dr04 ) { dr04_ = dr04 ; }
+
+    // for backward compatibility
+    void setIsolation03( const IsolationVariables & dr03 ) { dr03_ = dr03 ; }
+    void setIsolation04( const IsolationVariables & dr04 ) { dr04_ = dr04 ; }
+    const IsolationVariables & isolationVariables03() const { return dr03_ ; }
+    const IsolationVariables & isolationVariables04() const { return dr04_ ; }
 
   private:
 
@@ -438,7 +448,7 @@ class GsfElectron : public RecoCandidate
 
     // attributes
     float fbrem_ ; // the brem fraction from gsf fit: (track momentum in - track momentum out) / track momentum in
-    Classification class_ ; // fbrem and number of clusters based electron classification 
+    Classification class_ ; // fbrem and number of clusters based electron classification
 
 
   //=======================================================
@@ -466,15 +476,15 @@ class GsfElectron : public RecoCandidate
 
     struct Corrections
      {
-      bool isEcalEnergyCorrected ;  // true if ecal energy has been corrected 
+      bool isEcalEnergyCorrected ;  // true if ecal energy has been corrected
       float ecalEnergy ;            // ecal corrected energy (if !isEcalEnergyCorrected this value is identical to the supercluster energy)
       float ecalEnergyError ;       // error on correctedCaloEnergy
       bool isMomentumCorrected ;    // true if E-p combination has been applied (if not the electron momentum is the ecal corrected energy)
-      float trackMomentumError ;    // track momentum error from gsf fit 
-      float electronMomentumError ; // the final electron momentum error  
+      float trackMomentumError ;    // track momentum error from gsf fit
+      float electronMomentumError ; // the final electron momentum error
       Corrections()
        : isEcalEnergyCorrected(false), ecalEnergy(0.), ecalEnergyError(999.),
-  	 isMomentumCorrected(false), trackMomentumError(999.), electronMomentumError(999.)
+  	     isMomentumCorrected(false), trackMomentumError(999.), electronMomentumError(999.)
        {}
      } ;
 
@@ -491,7 +501,7 @@ class GsfElectron : public RecoCandidate
     bool isMomentumCorrected() const { return corrections_.isMomentumCorrected ; }
     float trackMomentumError() const { return corrections_.trackMomentumError ; }
     float electronMomentumError() const { return corrections_.electronMomentumError ; }
-    Corrections corrections() const { return corrections_ ; }
+    const Corrections & corrections() const { return corrections_ ; }
 
     // for backward compatibility
     float caloEnergy() const { return ecalEnergy() ; }
