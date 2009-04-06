@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-electronFilter = cms.EDFilter("EtaPtMinPixelMatchGsfElectronFullCloneSelector",
+electronFilter = cms.EDFilter("EtaPtMinGsfElectronFullCloneSelector",
     filter = cms.bool(True),
     src = cms.InputTag("gsfElectrons"),
     etaMin = cms.double(-2.5),
