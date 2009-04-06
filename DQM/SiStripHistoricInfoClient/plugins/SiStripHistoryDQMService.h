@@ -1,5 +1,5 @@
-#ifndef DQM_SiStripHistoricInfoClient_SiStripNewHistoricDQMService_H
-#define DQM_SiStripHistoricInfoClient_SiStripNewHistoricDQMService_H
+#ifndef DQM_SiStripHistoricInfoClient_SiStripHistoryDQMService_H
+#define DQM_SiStripHistoricInfoClient_SiStripHistoryDQMService_H
 
 #include "DQMServices/Diagnostic/interface/DQMHistoryServiceBase.h" 
 
@@ -8,15 +8,15 @@
   @EDAnalyzer to read DQM root file & insert summary informations to DB 
 */
 
-class SiStripNewHistoricDQMService : public DQMHistoryServiceBase {
+class SiStripHistoryDQMService : public DQMHistoryServiceBase {
  public:
 
-  explicit SiStripNewHistoricDQMService(const edm::ParameterSet&,const edm::ActivityRegistry&);
-  ~SiStripNewHistoricDQMService();
+  explicit SiStripHistoryDQMService(const edm::ParameterSet&,const edm::ActivityRegistry&);
+  ~SiStripHistoryDQMService();
   
  //private:
    uint32_t returnDetComponent(std::string& histoName);
    edm::ParameterSet iConfig_;
 };
 
-#endif //DQM_SiStripHistoricInfoClient_SiStripNewHistoricDQMService_H
+#endif //DQM_SiStripHistoricInfoClient_SiStripHistoryDQMService_H

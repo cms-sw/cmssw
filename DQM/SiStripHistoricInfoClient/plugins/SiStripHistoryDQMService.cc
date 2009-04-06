@@ -1,4 +1,4 @@
-#include "DQM/SiStripHistoricInfoClient/plugins/SiStripNewHistoricDQMService.h"
+#include "DQM/SiStripHistoricInfoClient/plugins/SiStripHistoryDQMService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Diagnostic/interface/HDQMfitUtilities.h"
@@ -8,20 +8,20 @@
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
 
-SiStripNewHistoricDQMService::SiStripNewHistoricDQMService(const edm::ParameterSet& iConfig,const edm::ActivityRegistry& aReg)
+SiStripHistoryDQMService::SiStripHistoryDQMService(const edm::ParameterSet& iConfig,const edm::ActivityRegistry& aReg)
 : DQMHistoryServiceBase::DQMHistoryServiceBase(iConfig, aReg), iConfig_(iConfig)
 {
-  edm::LogInfo("SiStripNewHistoricDQMService") <<  "[SiStripNewHistoricDQMService::SiStripNewHistoricDQMService]";
+  edm::LogInfo("SiStripHistoryDQMService") <<  "[SiStripHistoryDQMService::SiStripHistoryDQMService]";
 }
 
 
-SiStripNewHistoricDQMService::~SiStripNewHistoricDQMService() { 
-  edm::LogInfo("SiStripNewHistoricDQMService") <<  "[SiStripNewHistoricDQMService::~SiStripNewHistoricDQMService]";
+SiStripHistoryDQMService::~SiStripHistoryDQMService() { 
+  edm::LogInfo("SiStripHistoryDQMService") <<  "[SiStripHistoryDQMService::~SiStripHistoryDQMService]";
 }
 
 
-uint32_t SiStripNewHistoricDQMService::returnDetComponent(std::string& str){
-  LogTrace("SiStripNewHistoricDQMService") <<  "[SiStripNewHistoricDQMService::returnDetComponent]";
+uint32_t SiStripHistoryDQMService::returnDetComponent(std::string& str){
+  LogTrace("SiStripHistoryDQMService") <<  "[SiStripHistoryDQMService::returnDetComponent]";
 
   size_t __key_length__=7;
   size_t __detid_length__=9;

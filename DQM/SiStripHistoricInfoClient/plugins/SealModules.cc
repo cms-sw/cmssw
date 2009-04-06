@@ -24,5 +24,5 @@ DEFINE_ANOTHER_FWK_SERVICE(SiStripHistoryDQMService);
 #include "CondCore/PopCon/interface/PopConAnalyzer.h"
 #include "DQMServices/Diagnostic/interface/DQMHistoryPopConHandler.h"
 #include "CondFormats/DQMObjects/interface/HDQMSummary.h"
-typedef popcon::PopConAnalyzer< popcon::DQMHistoryPopConHandler< HDQMSummary,SiStripNewHistoricDQMService > > SiStripDQMHistoryPopCon;
+typedef popcon::PopConAnalyzer< popcon::DQMHistoryPopConHandler< HDQMSummary,SiStripHistoryDQMService > > SiStripDQMHistoryPopCon;
 DEFINE_ANOTHER_FWK_MODULE(SiStripDQMHistoryPopCon);
