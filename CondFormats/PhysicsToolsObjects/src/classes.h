@@ -1,5 +1,6 @@
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
+#include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.h"
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 
 using namespace PhysicsTools::Calibration;
@@ -25,6 +26,13 @@ std::vector<HistogramD> v15;
 std::vector<HistogramF2D> v16;
 std::vector<HistogramD2D> v17;
 PhysicsTools::Calibration::VHistogramD2D v18;
+HistogramD3D v30;
+HistogramF3D v31;
+std::vector<HistogramF3D> v32;
+std::vector<HistogramD3D> v33;
+
+
+
 
 // MVAComputer
 std::vector<Variable> v19;

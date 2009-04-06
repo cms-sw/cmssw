@@ -12,16 +12,19 @@ DEFINE_SEAL_MODULE();
 
 
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
+#include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.h"
 #include "CondFormats/DataRecord/interface/SiStripDeDxMipRcd.h"
 REGISTER_PLUGIN(SiStripDeDxMipRcd, PhysicsTools::Calibration::HistogramD2D);
-#include "CondFormats/DataRecord/interface/SiStripDeDxProton_2D_Rcd.h"
-REGISTER_PLUGIN(SiStripDeDxProton_2D_Rcd, PhysicsTools::Calibration::VHistogramD2D);
-#include "CondFormats/DataRecord/interface/SiStripDeDxPion_2D_Rcd.h"
-REGISTER_PLUGIN(SiStripDeDxPion_2D_Rcd, PhysicsTools::Calibration::VHistogramD2D);
-#include "CondFormats/DataRecord/interface/SiStripDeDxKaon_2D_Rcd.h"
-REGISTER_PLUGIN(SiStripDeDxKaon_2D_Rcd, PhysicsTools::Calibration::VHistogramD2D);
-#include "CondFormats/DataRecord/interface/SiStripDeDxElectron_2D_Rcd.h"
-REGISTER_PLUGIN(SiStripDeDxElectron_2D_Rcd, PhysicsTools::Calibration::VHistogramD2D);
+#include "CondFormats/DataRecord/interface/SiStripDeDxMip_3D_Rcd.h"
+REGISTER_PLUGIN(SiStripDeDxMip_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
+#include "CondFormats/DataRecord/interface/SiStripDeDxProton_3D_Rcd.h"
+REGISTER_PLUGIN(SiStripDeDxProton_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
+#include "CondFormats/DataRecord/interface/SiStripDeDxPion_3D_Rcd.h"
+REGISTER_PLUGIN(SiStripDeDxPion_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
+#include "CondFormats/DataRecord/interface/SiStripDeDxKaon_3D_Rcd.h"
+REGISTER_PLUGIN(SiStripDeDxKaon_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
+#include "CondFormats/DataRecord/interface/SiStripDeDxElectron_3D_Rcd.h"
+REGISTER_PLUGIN(SiStripDeDxElectron_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
 
 
 
