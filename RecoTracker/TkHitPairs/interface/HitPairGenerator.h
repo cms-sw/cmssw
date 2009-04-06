@@ -33,6 +33,8 @@ public:
 
   virtual HitPairGenerator* clone() const = 0;
 
+  virtual void clear() { thePairs.clear(); } 
+
 private:
   OrderedHitPairs thePairs;
 
