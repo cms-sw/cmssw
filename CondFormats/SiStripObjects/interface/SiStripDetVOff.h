@@ -24,11 +24,12 @@ class SiStripDetVOff
 
   typedef std::vector<uint32_t>::iterator       vOffIterator;
   typedef std::vector<uint32_t>::const_iterator constVoffIterator;
-  typedef std::vector<bool>::const_iterator     constVboolIterator;
+  typedef std::vector<int>::const_iterator     constVboolIterator;
 
-  // Bitmasks used to retrieve HV and LV information
-  static const short HVmask = 0x2;  // <--- 10
-  static const short LVmask = 0x1;  // <--- 01
+  // Bitmasks used to retrieve LV and HV information
+  static const short LVmask = 0x1;    // <--- 01
+  static const short HVmask = 0x2;    // <--- 10
+  static const short allOnMask = 0x0; // <--- 00
   static const unsigned int eightBitMask = 0xFFFFFFFF;
   static const short bitShift = 2;
 
@@ -36,10 +37,10 @@ class SiStripDetVOff
   ~SiStripDetVOff(){};
 
   /// Insert information for a single detId
-  bool put(const uint32_t DetId, const bool HVoff, const bool LVoff);
+  bool put(const uint32_t DetId, const int HVoff, const int LVoff);
 
   /// Insert information for a vector of detIds
-  bool put(std::vector<uint32_t>& DetId, std::vector<bool>& HVoff, std::vector<bool>& LVoff);
+  bool put(std::vector<uint32_t>& DetId, std::vector<int>& HVoff, std::vector<int>& LVoff);
 
   bool operator == (const SiStripDetVOff& d) const { return d.v_Voff==v_Voff; } 
 
@@ -54,6 +55,9 @@ class SiStripDetVOff
 
   void printDebug(std::stringstream & ss) const;
   void printSummary(std::stringstream & ss) const;
+
+  /// Changes the bits in the stored value according to on/off voltages
+  void setBits( uint32_t & enDetId, const int HVoff, const int LVoff );
 
  private:
 

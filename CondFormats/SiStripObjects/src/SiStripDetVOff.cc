@@ -2,8 +2,23 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 
-bool SiStripDetVOff::put(const uint32_t DetId, const bool HVoff, const bool LVoff)
+void SiStripDetVOff::setBits( uint32_t & enDetId, const int HVoff, const int LVoff )
 {
+  if( LVoff != -1 ) {
+    if( LVoff == 0 ) enDetId &= HVmask; // HVmask = 10, the &= keeps the first bit as it was and switches the second to 0.
+    if( LVoff == 1 ) enDetId |= LVmask;
+  }
+  if( HVoff != -1 ) {
+    if( HVoff == 0 ) enDetId &= LVmask;
+    if( HVoff == 1 ) enDetId |= HVmask;
+  }
+}
+
+bool SiStripDetVOff::put(const uint32_t DetId, const int HVoff, const int LVoff)
+{
+  // Do not call this method if they are both on.
+  if( HVoff == 0 && LVoff == 0 ) return false;
+
   // Shift the DetId number of 2 bits to the left to have it in the final format with
   // the two additional bits used for HV and LV.
   uint32_t enDetId = (DetId << bitShift) & eightBitMask;
@@ -11,23 +26,20 @@ bool SiStripDetVOff::put(const uint32_t DetId, const bool HVoff, const bool LVof
   // Binary search to determine if the element is already in the vector
   vOffIterator p = std::lower_bound(v_Voff.begin(), v_Voff.end(), enDetId);
   if( p != v_Voff.end() && (*p >> bitShift) == DetId) {
-    // Found a matching entry, insert the HV and LV information
-    if( HVoff ) *p |= HVmask;
-    if( LVoff ) *p |= LVmask;
+    // Found a matching entry, insert the HV and LV information.
+    setBits(*p, HVoff, LVoff);
+    // Check if the detector has all on, in that case remove it from the list.
+    if( *p & allOnMask ) v_Voff.erase(p);
   }
   else {
     // Not found, insert a new entry
-    if( HVoff ) enDetId |= HVmask;
-    if( LVoff ) enDetId |= LVmask;
+    setBits(enDetId, HVoff, LVoff);
     v_Voff.insert(p, enDetId);
-    // The vector is already sorted
-    // // Sort the vector (necessary for the next binary search to work)
-    // // std::sort(v_Voff.begin(), v_Voff.end());
   }
   return true;
 }
 
-bool SiStripDetVOff::put(std::vector<uint32_t>& DetId, std::vector<bool>& HVoff, std::vector<bool>& LVoff)
+bool SiStripDetVOff::put(std::vector<uint32_t>& DetId, std::vector<int>& HVoff, std::vector<int>& LVoff)
 {
   if( DetId.size() == HVoff.size() && DetId.size() == LVoff.size() ) {
     constVoffIterator detIdIt = DetId.begin();
