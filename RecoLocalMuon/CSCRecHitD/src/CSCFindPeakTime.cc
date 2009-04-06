@@ -17,7 +17,7 @@ CSCFindPeakTime::CSCFindPeakTime( const edm::ParameterSet& ps ):
 
 //@@ Interface needs to match old fourPoleFitTime, for now
 
-float CSCFindPeakTime::peakTime( int tmax, const float* adc, float t_zero, float t_peak){
+float CSCFindPeakTime::peakTime( int tmax, const float* adc, float t_peak){
   if ( useAverageTime ) {
     return averageTime( tmax, adc );
   }
@@ -25,9 +25,7 @@ float CSCFindPeakTime::peakTime( int tmax, const float* adc, float t_zero, float
     return parabolaFitTime( tmax, adc );
   }
   else if ( useFourPoleFit ) {
-     bool ok = fourPoleFitTime( tmax, adc, t_zero, t_peak);
-     if ( ok ) return t_peak;
-     else return averageTime( tmax, adc );
+     return fourPoleFitTime( tmax, adc, t_peak);
   }
   else {
   // return something, anyway.. may as well be average
@@ -64,19 +62,29 @@ float CSCFindPeakTime::parabolaFitTime( int tmax, const float* adc ) {
    return timing * 50.; //@@ in ns. May be some bin width offset things to handle here?
 }
 
-bool CSCFindPeakTime::fourPoleFitTime( int tmax, const float* adc, float t_zero, float t_peak ) {
-  
-  // Initialize parameters to sensible values
+float CSCFindPeakTime::fourPoleFitTime( int tmax, const float* adc, float t_peak ) {
+
+  // Input is 
+  // tmax   = bin# 0-7 containing max SCA pulse height  
+  // adc    = 4-dim array containing SCA pulse heights in bins tmax-1 to tmax+2
+  // t_peak = input estimate for SCA peak time
+
+  // Returned value is improved (we hope) estimate for SCA peak time
+
+  // Algorithm is to fit four-pole function for start time of SCA pulse, t0
+  // (The SCA peak is assumed to be 133 ns from t0.)
+
+  // Initialize parameters to sensible (?) values
 
   float fpNorm   = adc[1]; // this is tmax bin
   float t0       = 0.;
-  float tpeak    = 133.;   // this is offset of peak from start time t0
-  float p0       = 4./tpeak;
+  float t0peak   = 133.;   // this is offset of peak from start time t0
+  float p0       = 4./t0peak;
 
   // Require that tmax is in range 2-6 of bins the eight SCA time bins 0-7
   // (Bins 0, 1 used for dynamic ped)
 
-  if ( tmax < 2 || tmax > 6 ) return false;
+  if ( tmax < 2 || tmax > 6 ) return t_peak; //@@ Just return the input value
 
   // Set up time bins to match adc[4] input
 
@@ -132,10 +140,7 @@ bool CSCFindPeakTime::fourPoleFitTime( int tmax, const float* adc, float t_zero,
     }
   }
 
-  t_zero = tt0;
-  t_peak = t_zero + tpeak;
-
-  return true;
+  return t0 + t0peak;
 }
 
 

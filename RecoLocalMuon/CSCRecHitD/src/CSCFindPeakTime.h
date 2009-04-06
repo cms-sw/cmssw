@@ -17,9 +17,9 @@ class CSCFindPeakTime
   ~CSCFindPeakTime(){}; 
   
   /// Basic result of this class
-  float peakTime( int tmax, const float* adc, float t_zero, float t_peak);
+  float peakTime( int tmax, const float* adc, float t_peak);
 
-  /// Weighted avergae of time bins
+  /// Weighted average of time bins
   float averageTime( int tmax, const float* adc );
 
   /// Parabolic fit to three time bins centered on maximum
@@ -38,10 +38,10 @@ class CSCFindPeakTime
    * between the function and the SCA pulse height as a least-squares fit over the 4 time bins
    * tmax -1, tmax, tmax+1, tmax+2
    *	
-   * Note: tpeak=4/p0 (nsec) and adc[0] is arbitrarily defined a time of 0.0 nsec. 
+   * Note: t0peak =4/p0 = 133 nsec, and adc[0] is arbitrarily defined a time of 0.0 nsec. 
    *
    */
-  bool fourPoleFitTime( int tmax, const float* adc, float t_zero, float t_peak ); 
+  float fourPoleFitTime( int tmax, const float* adc, float t_peak ); 
 
   /**
    * Integrated charge after fourPoleFitTime
