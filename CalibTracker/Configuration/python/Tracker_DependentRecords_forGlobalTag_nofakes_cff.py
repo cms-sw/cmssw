@@ -16,7 +16,8 @@ siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
      cms.PSet( record = cms.string("SiStripDetVOffRcd"),    tag    = cms.string("") ),
      cms.PSet( record = cms.string("SiStripDetCablingRcd"), tag    = cms.string("") ),
      cms.PSet( record = cms.string("SiStripBadChannelRcd"), tag    = cms.string("") ),
-     cms.PSet( record = cms.string("SiStripBadFiberRcd"),   tag    = cms.string("") )
+     cms.PSet( record = cms.string("SiStripBadFiberRcd"),   tag    = cms.string("") ),
+     cms.PSet( record = cms.string("SiStripBadModuleRcd"),   tag    = cms.string("") )
      )
 
 
