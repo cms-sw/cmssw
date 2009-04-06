@@ -137,7 +137,9 @@ MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          // by station
          for(int station = 0; station < 4; ++station)
          {
-            hDTNumSegments[i][station]->Fill(muon->numberOfSegments(station+1, MuonSubdetId::DT, Muon::NoArbitration));
+            // only fill num segments if we crossed (or nearly crossed) a chamber
+            if (muon->trackX(station+1, MuonSubdetId::DT, Muon::NoArbitration) < 900000)
+               hDTNumSegments[i][station]->Fill(muon->numberOfSegments(station+1, MuonSubdetId::DT, Muon::NoArbitration));
             Fill(hDTDx[i][station], muon->dX(station+1, MuonSubdetId::DT));
             Fill(hDTPullx[i][station], muon->pullX(station+1, MuonSubdetId::DT, Muon::SegmentArbitration, true));
             Fill(hDTDdXdZ[i][station], muon->dDxDz(station+1, MuonSubdetId::DT));
@@ -150,7 +152,9 @@ MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                Fill(hDTPulldYdZ[i][station], muon->pullDyDz(station+1, MuonSubdetId::DT, Muon::SegmentArbitration, true));
             }
 
-            hCSCNumSegments[i][station]->Fill(muon->numberOfSegments(station+1, MuonSubdetId::CSC, Muon::NoArbitration));
+            // only fill num segments if we crossed (or nearly crossed) a chamber
+            if (muon->trackX(station+1, MuonSubdetId::CSC, Muon::NoArbitration) < 900000)
+               hCSCNumSegments[i][station]->Fill(muon->numberOfSegments(station+1, MuonSubdetId::CSC, Muon::NoArbitration));
             Fill(hCSCDx[i][station], muon->dX(station+1, MuonSubdetId::CSC));
             Fill(hCSCPullx[i][station], muon->pullX(station+1, MuonSubdetId::CSC, Muon::SegmentArbitration, true));
             Fill(hCSCDdXdZ[i][station], muon->dDxDz(station+1, MuonSubdetId::CSC));
