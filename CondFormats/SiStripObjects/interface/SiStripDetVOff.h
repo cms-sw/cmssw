@@ -28,7 +28,9 @@ class SiStripDetVOff
 
   // Bitmasks used to retrieve LV and HV information
   static const short LVmask = 0x1;    // <--- 01
+  static const short LVonMask = 0xFFFFFFFE;    // <--- the last 4 bits are 1110. All the other bits are 1.
   static const short HVmask = 0x2;    // <--- 10
+  static const short HVonMask = 0xFFFFFFFD;    // <--- the last 4 bits are 1101. All the other bits are 1.
   static const short allOnMask = 0x0; // <--- 00
   static const unsigned int eightBitMask = 0xFFFFFFFF;
   static const short bitShift = 2;

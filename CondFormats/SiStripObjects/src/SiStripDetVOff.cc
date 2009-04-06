@@ -5,11 +5,13 @@
 void SiStripDetVOff::setBits( uint32_t & enDetId, const int HVoff, const int LVoff )
 {
   if( LVoff != -1 ) {
-    if( LVoff == 0 ) enDetId &= HVmask; // HVmask = 10, the &= keeps the first bit as it was and switches the second to 0.
+    // LVonMask has all bits equal to 1 apart from the last one.
+    if( LVoff == 0 ) enDetId &= LVonMask;
     if( LVoff == 1 ) enDetId |= LVmask;
   }
   if( HVoff != -1 ) {
-    if( HVoff == 0 ) enDetId &= LVmask;
+    // HVonMask has all bits equal to 1 apart from the next to last one.
+    if( HVoff == 0 ) enDetId &= HVonMask;
     if( HVoff == 1 ) enDetId |= HVmask;
   }
 }
