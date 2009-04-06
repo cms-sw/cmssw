@@ -81,51 +81,6 @@ void eTriggerCandProducer::produce(edm::Event &event,
       throw ex;
    }
 
-
-
-
-
-   // ############# Trigger Path Debug #################
-
-//    const edm::InputTag dTriggerResultTag("TriggerResults","","HLT");
-//    edm::Handle<TriggerResults> hltResults;
-//    bool b = event.getByLabel(dTriggerResultTag, hltResults);
-//    TriggerNames names(*hltResults);
-//    int q =0;
-//    for ( TriggerNames::Strings::const_iterator 
-//            j = names.triggerNames().begin();
-//          j !=names.triggerNames().end(); ++j ) {
-     
-//      std::cout << q << ": " << *j << std::endl;
-//      q++;
-//    }
- 
-
-   // ############# TriggerEvent Debug #################
-
-//    edm::ParameterSet ps;
-//    const std::string processName = "HLT";
-//    if (event.getProcessParameterSet(processName,ps))
-//      {
-//        cout << ps << endl;
-//        vector< std::string> paths;
-//        const std::string pathspar = "@paths";
-//        paths = ps.getParameter<vector< std::string> >(pathspar);
-//        for (std::vector<string>::const_iterator path = paths.begin(); path
-// 	      !=paths.end(); ++path ) {
-
-// 	 cout << *path << endl;
-// 	 vector< std::string> modules;
-// 	 modules = ps.getParameter<vector< std::string> >(*path);
-// 	 for (std::vector<string>::const_iterator module = modules.begin();
-// 	      module !=modules.end(); ++module ) {     
-// 	   cout << *module << endl;
-// 	 }
-//        }
-//      }
-
-
-
    // Trigger Info
    edm::Handle<trigger::TriggerEvent> trgEvent;
    event.getByLabel(triggerEventTag_,trgEvent);

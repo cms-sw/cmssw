@@ -690,8 +690,8 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
       tag_number_in_event = TagElectrons.size();
       int mass_iterator = 0;
       int mass_pass_iterator = 0;
-      if(TagElectrons.size()>2) std::cout 
-	<< "More than 2 tags in event!!!!!! - ignoring event? NO!" << std::endl;
+      if(TagElectrons.size()>2) edm::LogWarning("ElectronTPValidator") 
+	<< "More than 2 tags in event!!!!!! - ignoring event? NO!";
  
 
       std::vector<reco::SuperClusterRef> ProbeSC;
@@ -724,8 +724,6 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 				     , probeCandVect.Phi(), sc->energy()); 
 	      TLorentzVector  V = (tagLorentzVec + probeCand);
 	      double Mass = V.M();
-	      //   if(Mass_hybrid <0) cout << "WARNING!!: TAG - HYBRID PROBE INVARIANT MASS: " 
-	      //    << Mass_hybrid << "Probe_Iterator: " << probe_iterator << endl;
 	      if(Mass >TagProbeMassMin && Mass < TagProbeMassMax){
 		probeCandRef = sc;
 		++noProbesPerTag;
@@ -745,8 +743,6 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 				     , probeCandVect.Phi(), sc->energy()); 
 	      TLorentzVector  V = (tagLorentzVec + probeCand);
 	      double Mass = V.M();
-	      //   if(Mass_hybrid <0) cout << "WARNING!!: TAG - HYBRID PROBE INVARIANT MASS: " 
-	      //         << Mass_hybrid << "Probe_Iterator: " << probe_iterator << endl;
 	      if(Mass>TagProbeMassMin && Mass< TagProbeMassMax){
 		probeCandRef = sc;
 		++noProbesPerTag;
@@ -776,9 +772,9 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  tag_probe_invariant_mass_for_tree[mass_iterator] = Mass;
 	  sc_eta_for_tree[mass_iterator] = sc->eta();
 	  sc_et_for_tree[mass_iterator] = pt;
-	  std::cout << "the mass of the tag - SC pair is: " << Mass 
+	  edm::LogInfo("ElectronTPValidator") << "the mass of the tag - SC pair is: " << Mass 
 		    <<"   ,  SC iterator: " << indexSCH_all 
-		    << "  , mass iterator: " << mass_iterator << std::endl;
+		    << "  , mass iterator: " << mass_iterator;
 	  //... in this loop as far as I understand: takes the 
 	  //     collection of the UniqueElectrons (=collection of GsfElectronRef)
 	  //... and serches whether the supercluster energy of 
@@ -794,9 +790,9 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 	      double denergy = sc->energy() - elec->superCluster().get()->energy();
 	      if(fabs(denergy) < ProbeRecoEleSCMaxDE){
 		tag_probe_invariant_mass_pass_for_tree[mass_iterator] = Mass;
-		std::cout << "PASSING PRESEL:  the mass of the tag - ele pair is: " << Mass 
+		edm::LogInfo("ElectronTPValidator") << "PASSING PRESEL:  the mass of the tag - ele pair is: " << Mass 
 			  <<"   ,  SC iterator: " << indexSCH_all 
-			  << "  , mass iterator: " << mass_pass_iterator << std::endl;
+			  << "  , mass iterator: " << mass_pass_iterator;
 		++mass_pass_iterator;
 	      }
 	    }//end of loop over pixel match gsf electrons
@@ -823,9 +819,9 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  tag_probe_invariant_mass_for_tree[ mass_iterator] = Mass;
 	  sc_eta_for_tree[mass_iterator] = sc->eta();
 	  sc_et_for_tree[mass_iterator] = pt;
-	  std::cout << "the mass of the tag - SC pair is: " << Mass 
+	  edm::LogInfo("ElectronTPValidator") << "the mass of the tag - SC pair is: " << Mass 
 		    <<"   ,  island SC iterator: " << indexSCI_all 
-		    << "  , mass iterator: " << mass_iterator << std::endl;
+		    << "  , mass iterator: " << mass_iterator;
 	  for(std::vector<reco::GsfElectronRef>::const_iterator 
 		Relec = UniqueElectrons.begin(); Relec != UniqueElectrons.end(); ++Relec)
 	    {
@@ -834,9 +830,9 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 	      double denergy = sc->energy() - elec->superCluster().get()->energy();
 	      if(fabs(denergy) < ProbeRecoEleSCMaxDE){
 		tag_probe_invariant_mass_pass_for_tree[mass_iterator] = Mass;
-		 std::cout << "PASSING PRESEL: the mass of the tag - SC pair is: " << Mass 
+		 edm::LogInfo("ElectronTPValidator") << "PASSING PRESEL: the mass of the tag - SC pair is: " << Mass 
 			   <<"   ,  island SC iterator: " << indexSCI_all 
-			   << "  , mass iterator: " << mass_iterator << std::endl;
+			   << "  , mass iterator: " << mass_iterator;
 		++mass_pass_iterator;
 	      }
 	    }//end of loop over pixel match gsf electrons
@@ -978,8 +974,6 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 	    bool cutBasedIDRobust = false;
 	    cutBasedIDRobust = id_ele_robust->cutBasedDecision();
 	    if(cutBasedIDRobust == true) probe_pass_id_cut_robust[probeIt] =1;
-	    //   std::cout << "cutbased decision robust: " << cutBasedIDRobust << std::endl;
-	 
 	   
 	    // Find entry in loose electron ID map corresponding electron
 	    reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItrLoose;
@@ -988,7 +982,6 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 	    bool cutBasedIDLoose = false;
 	    cutBasedIDLoose = id_ele_loose->cutBasedDecision();
 	    if(cutBasedIDLoose == true) probe_pass_id_cut_loose[probeIt] =1;
-	    // std::cout << "cutbased decision loose: " << cutBasedIDLoose << std::endl;
 
 	    // Find entry in tight electron ID map corresponding electron
 	    reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItrTight;
@@ -997,7 +990,6 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 	    bool cutBasedIDTight = false;
 	    cutBasedIDTight = id_ele_tight->cutBasedDecision();
 	    if(cutBasedIDTight == true) probe_pass_id_cut_tight[probeIt] =1;
-	    // std::cout << "cutbased decision tight: " << cutBasedIDTight << std::endl;
 
 	    // Find entry in tight electron ID map corresponding electron
 	    reco::ElectronIDAssociationCollection::const_iterator 
@@ -1008,7 +1000,7 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 	    bool cutBasedIDTightRobust = false;
 	    cutBasedIDTightRobust = id_ele_tight_robust->cutBasedDecision();
 	    if(cutBasedIDTightRobust == true) probe_pass_id_cut_tight_robust[probeIt] =1;
-	    std::cout << "cutbased decision tight robust: " 
+	    edm::LogInfo("ElectronTPValidator") << "cutbased decision tight robust: " 
 		      << cutBasedIDTightRobust << std::endl;
 	    //const reco::ClusterShapeRef& shapeRef = getClusterShape(probeEle);
 	    double hOverE = probeEle->hadronicOverEm();
@@ -1016,7 +1008,7 @@ void ElectronTPValidator::analyze(const edm::Event& evt, const edm::EventSetup& 
 	    double deltaPhiIn = probeEle->deltaPhiSuperClusterTrackAtVtx();
 	    double deltaEtaIn = probeEle->deltaEtaSuperClusterTrackAtVtx();
 
-	    std::cout << "hoe, Dphiin, Detain: " <<  hOverE << deltaPhiIn 
+	    edm::LogInfo("ElectronTPValidator") << "hoe, Dphiin, Detain: " <<  hOverE << deltaPhiIn 
 		      <<  deltaEtaIn << std::endl;
 
 	    //no lets ask whether the probe passes the trigger
