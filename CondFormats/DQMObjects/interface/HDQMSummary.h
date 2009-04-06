@@ -12,25 +12,27 @@
  @author D. Giordano, A.-C. Le Bihan
  @class to hold historic DQM summary informations
 */
- 
+
+/* 
 namespace hdqmsummary {
-  enum TrackerRegion { TRACKER = 0, 
-		       TIB = 1, 
-		       TIB_1 = 11, TIB_2 = 12, TIB_3 = 13, TIB_4 = 14,
-		       TOB = 2, 
-		       TOB_1 = 21, TOB_2 = 22, TOB_3 = 23, TOB_4 = 24, TOB_5 = 25, TOB_6 = 26, 
-		       TID = 3, 
-		       TIDM = 31, 
-		       TIDP = 32, 
-		       TIDM_1 = 311, TIDM_2 = 312, TIDM_3 = 313,
-		       TIDP_1 = 321, TIDP_2 = 322, TIDP_3 = 323,
-		       TEC = 4, 
-		       TECM = 41, 
-		       TECP = 42, 
-		       TECM_1 = 411, TECM_2 = 412, TECM_3 = 413, TECM_4 = 414, TECM_5 = 415, TECM_6 = 416, TECM_7 = 417, TECM_8 = 418, TECM_9 = 419,
-		       TECP_1 = 421, TECP_2 = 422, TECP_3 = 423, TECP_4 = 424, TECP_5 = 425, TECP_6 = 426, TECP_7 = 427, TECP_8 = 428, TECP_9 = 429
+  enum CMSRegion { TRACKER = 0, 
+		   TIB = 1, 
+		   TIB_1 = 11, TIB_2 = 12, TIB_3 = 13, TIB_4 = 14,
+		   TOB = 2, 
+		   TOB_1 = 21, TOB_2 = 22, TOB_3 = 23, TOB_4 = 24, TOB_5 = 25, TOB_6 = 26, 
+		   TID = 3, 
+		   TIDM = 31, 
+		   TIDP = 32, 
+		   TIDM_1 = 311, TIDM_2 = 312, TIDM_3 = 313,
+		   TIDP_1 = 321, TIDP_2 = 322, TIDP_3 = 323,
+		   TEC = 4, 
+		   TECM = 41, 
+		   TECP = 42, 
+		   TECM_1 = 411, TECM_2 = 412, TECM_3 = 413, TECM_4 = 414, TECM_5 = 415, TECM_6 = 416, TECM_7 = 417, TECM_8 = 418, TECM_9 = 419,
+		   TECP_1 = 421, TECP_2 = 422, TECP_3 = 423, TECP_4 = 424, TECP_5 = 425, TECP_6 = 426, TECP_7 = 427, TECP_8 = 428, TECP_9 = 429
   };
 }
+*/
 
 class HDQMSummary {
 
@@ -80,7 +82,6 @@ class HDQMSummary {
 		// INSERT SUMMARY OBJECTS...
 		//
 		bool put(const uint32_t& detID, InputVector &input, std::vector<std::string>& userContent );
-		bool put(hdqmsummary::TrackerRegion region, InputVector &input, std::vector<std::string>& userContent );
 		void setObj(const uint32_t& detID, std::string elementName, float value);
 		
 		
@@ -89,7 +90,6 @@ class HDQMSummary {
 		
 		// returns a vector of selected infos related to a given detId 
 		std::vector<float> getSummaryObj(uint32_t& detID, std::vector<std::string> list) const; 
-		std::vector<float> getSummaryObj(hdqmsummary::TrackerRegion region, std::vector<std::string> list) const; 
 		 
 		// returns a vector filled with "info elementName" for each detId 
 		// The order is SORTED according to the one used in getDetIds() !

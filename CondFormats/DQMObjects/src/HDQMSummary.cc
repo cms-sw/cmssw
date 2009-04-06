@@ -56,13 +56,6 @@ bool HDQMSummary::put(const uint32_t& DetId, InputVector &input, std::vector<std
 }
 
 
-bool HDQMSummary::put(hdqmsummary::TrackerRegion region, InputVector &input, std::vector<std::string>& userContent ) {
-
-  uint32_t fakeDet = region;
-  return put(fakeDet, input, userContent);
-}
-
-
 const HDQMSummary::Range HDQMSummary::getRange(const uint32_t& DetId) const 
 {
 
@@ -140,13 +133,6 @@ std::vector<float> HDQMSummary::getSummaryObj(uint32_t& detID, std::vector<std::
    for (unsigned int i=0; i<list.size(); i++) SummaryObj.push_back(-99.); // no summary obj has ever been inserted for this detid, most likely all related histos were not available in DQM
   
   return SummaryObj;
-}
-
-std::vector<float> HDQMSummary::getSummaryObj(hdqmsummary::TrackerRegion region, std::vector<std::string> list) const
-{ 
- 
-  uint32_t fakeDet = region;
-  return getSummaryObj(fakeDet,list);
 }
 
 std::vector<float> HDQMSummary::getSummaryObj(uint32_t& detID) const
