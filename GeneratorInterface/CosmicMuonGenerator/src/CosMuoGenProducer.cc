@@ -116,10 +116,16 @@ void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
 								  CosMuoGen->OneMuoEvt.vy(),
 								  CosMuoGen->OneMuoEvt.vz(),
 								  CosMuoGen->OneMuoEvt.t0()));
+  HepMC::FourVector p_in(CosMuoGen->OneMuoEvt.px_in(),CosMuoGen->OneMuoEvt.py_in(),CosMuoGen->OneMuoEvt.pz_in(),CosMuoGen->OneMuoEvt.e_in());
+  HepMC::GenParticle* Part_in = 
+    new HepMC::GenParticle(p_in,CosMuoGen->OneMuoEvt.id_in(),3);//Comment mother particle
+  Vtx->add_particle_in(Part_in); 
+
   HepMC::FourVector p(CosMuoGen->OneMuoEvt.px(),CosMuoGen->OneMuoEvt.py(),CosMuoGen->OneMuoEvt.pz(),CosMuoGen->OneMuoEvt.e());
   HepMC::GenParticle* Part = 
-    new HepMC::GenParticle(p,CosMuoGen->OneMuoEvt.id(),1);
+    new HepMC::GenParticle(p,CosMuoGen->OneMuoEvt.id(),1); //Final state daughter particle
   Vtx->add_particle_out(Part); 
+
   fEvt->add_vertex(Vtx);
   fEvt->set_event_number(e.id().event());
   fEvt->set_signal_process_id(13);
