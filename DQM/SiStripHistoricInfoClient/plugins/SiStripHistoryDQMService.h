@@ -14,8 +14,12 @@ class SiStripHistoryDQMService : public DQMHistoryServiceBase {
   explicit SiStripHistoryDQMService(const edm::ParameterSet&,const edm::ActivityRegistry&);
   ~SiStripHistoryDQMService();
   
- //private:
-   uint32_t returnDetComponent(std::string& histoName);
+ private:
+  //Methods to be specified by each subdet
+  uint32_t returnDetComponent(std::string& histoName);
+  bool setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent);
+  bool setDBValuesForUser(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values  );
+   
    edm::ParameterSet iConfig_;
 };
 
