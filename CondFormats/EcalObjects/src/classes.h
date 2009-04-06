@@ -11,6 +11,7 @@
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibErrors.h"
@@ -63,10 +64,11 @@ namespace{
     EcalGainRatios gainratios;
  
     EcalIntercalibConstants intercalib;
+    EcalIntercalibConstantsMC intercalibMC;
     EcalIntercalibErrors intercalibErrors;
  
-    EcalIntercalibConstants timeCalib;
-    EcalIntercalibErrors timeCalibErrors;
+    EcalTimeCalibConstants timeCalib;
+    EcalTimeCalibErrors timeCalibErrors;
  
     EcalDCUTemperatures dcuTemperatures;
     std::map<uint32_t, float> dcuTempMap;

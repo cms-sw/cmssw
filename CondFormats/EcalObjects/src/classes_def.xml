@@ -18,6 +18,7 @@
 <class name="EcalMGPAGainRatio"/>
 <class name="EcalIntercalibConstants"/>
 <class name="EcalIntercalibErrors"/>
+<class name="EcalIntercalibConstantsMC"/>
 
 <class name="EcalTimeCalibConstants"/>
 <class name="EcalTimeCalibErrors"/>
