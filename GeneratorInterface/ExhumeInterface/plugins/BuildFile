@@ -6,7 +6,7 @@
   <flags FFLAGS=-w>
   <flags EDM_PLUGIN=1>
 </library>
-<library file="PYR.cc ExhumeProducer.cc" name=GeneratorInterfaceExhumeProducer>
-  <flags FFLAGS=-w>
-  <flags EDM_PLUGIN=1>
-</library>
+#<library file="PYR.cc ExhumeProducer.cc" name=GeneratorInterfaceExhumeProducer>
+#  <flags FFLAGS=-w>
+#  <flags EDM_PLUGIN=1>
+#</library>
