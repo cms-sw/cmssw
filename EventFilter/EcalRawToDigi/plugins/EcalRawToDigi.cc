@@ -14,48 +14,48 @@
 EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
   
   //define the list of FED to be unpacked
-  fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs", std::vector<int>())),
+  fedUnpackList_(conf.getParameter<std::vector<int> >("FEDs")),
 
   //define the ordered FED list
-  orderedFedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("orderedFedList", std::vector<int>())),
+  orderedFedUnpackList_(conf.getParameter<std::vector<int> >("orderedFedList")),
 
   //define the ordered DCCId list
-  orderedDCCIdList_(conf.getUntrackedParameter<std::vector<int> >("orderedDCCIdList", std::vector<int>())),
+  orderedDCCIdList_(conf.getParameter<std::vector<int> >("orderedDCCIdList")),
 
   //get number of Xtal Time Samples
-  numbXtalTSamples_(conf.getUntrackedParameter<uint>("numbXtalTSamples",10)),
+  numbXtalTSamples_(conf.getParameter<int>("numbXtalTSamples")),
 
   //Get number of Trigger Time Samples
-  numbTriggerTSamples_(conf.getUntrackedParameter<uint>("numbTriggerTSamples",1)),
+  numbTriggerTSamples_(conf.getParameter<int>("numbTriggerTSamples")),
   
   //See if header unpacking is enabled
-  headerUnpacking_(conf.getUntrackedParameter<bool>("headerUnpacking",true)),
+  headerUnpacking_(conf.getParameter<bool>("headerUnpacking")),
  
   //See if srp unpacking is enabled
-  srpUnpacking_(conf.getUntrackedParameter<bool>("srpUnpacking",true)),
+  srpUnpacking_(conf.getParameter<bool>("srpUnpacking")),
   
   //See if tcc unpacking is enabled
-  tccUnpacking_(conf.getUntrackedParameter<bool>("tccUnpacking",true)),
+  tccUnpacking_(conf.getParameter<bool>("tccUnpacking")),
   
   //See if fe unpacking is enabled
-  feUnpacking_(conf.getUntrackedParameter<bool>("feUnpacking",true)),
+  feUnpacking_(conf.getParameter<bool>("feUnpacking")),
   
   //See if fe unpacking is enabled for mem box
-  memUnpacking_(conf.getUntrackedParameter<bool>("memUnpacking",true)), 
+  memUnpacking_(conf.getParameter<bool>("memUnpacking")), 
 
   //See if syncCheck is enabled
-  syncCheck_(conf.getUntrackedParameter<bool>("syncCheck",true)), 
+  syncCheck_(conf.getParameter<bool>("syncCheck")), 
 
   //See if feIdCheck is enabled
-  feIdCheck_(conf.getUntrackedParameter<bool>("feIdCheck",true)),
+  feIdCheck_(conf.getParameter<bool>("feIdCheck")),
   
-  put_(conf.getUntrackedParameter<bool>("eventPut",false)),
+  put_(conf.getParameter<bool>("eventPut")),
   
-  dataLabel_(conf.getUntrackedParameter<std::string>("InputLabel","source")),
+  dataLabel_(conf.getParameter<std::string>("InputLabel")),
 
-  REGIONAL_(conf.getUntrackedParameter<bool>("DoRegional",false)),
+  REGIONAL_(conf.getParameter<bool>("DoRegional")),
 
-  fedsLabel_(conf.getUntrackedParameter<edm::InputTag>("FedLabel",edm::InputTag(":listfeds"))),
+  fedsLabel_(conf.getParameter<edm::InputTag>("FedLabel")),
 
   myMap_(0),
   
@@ -144,7 +144,7 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
   myMap_ = new EcalElectronicsMapper(numbXtalTSamples_,numbTriggerTSamples_);
 
   // in case of external  text file (deprecated by HLT environment) 
-  //  bool readResult = myMap_->readDCCMapFile(conf.getUntrackedParameter<std::string>("DCCMapFile",""));
+  //  bool readResult = myMap_->readDCCMapFile(conf.getParameter<std::string>("DCCMapFile",""));
 
   // use two arrays from cfg to establish DCCId:FedId. If they are empy, than use hard coded correspondence 
   bool readResult = myMap_->makeMapFromVectors(orderedFedUnpackList_, orderedDCCIdList_);
@@ -152,7 +152,7 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
 
   if(!readResult){
     edm::LogError("EcalRawToDigi")<<"\n unable to read file : "
-      <<conf.getUntrackedParameter<std::string>("DCCMapFile","");
+      <<conf.getParameter<std::string>("DCCMapFile");
   }
   
   // Build a new ECAL DCC data unpacker
