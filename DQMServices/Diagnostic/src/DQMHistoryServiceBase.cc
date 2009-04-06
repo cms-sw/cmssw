@@ -36,7 +36,6 @@ bool DQMHistoryServiceBase::checkForCompatibility(std::string ss){
   return previousRun<getRunNumber();
 }
 
-
 void DQMHistoryServiceBase::createSummary(){
     
   //LOOP OVER THE LIST OF SUMMARY OBJECTS TO INSERT IN DB
@@ -57,22 +56,14 @@ void DQMHistoryServiceBase::createSummary(){
     std::vector<std::string> Quantities = ithistoList->getUntrackedParameter<std::vector<std::string> >("quantitiesToExtract"); 
     for (size_t i=0;i<Quantities.size();++i){
       
-      if  ( Quantities[i] == "landau" ){ 
-	userDBContent.push_back(keyName+std::string("@")+std::string("landauPeak"));
-	userDBContent.push_back(keyName+std::string("@")+std::string("landauPeakErr"));
-	userDBContent.push_back(keyName+std::string("@")+std::string("landauSFWHM"));
-	userDBContent.push_back(keyName+std::string("@")+std::string("landauChi2NDF"));
-      }
-      else if  ( Quantities[i] == "gauss" ){ 
-	userDBContent.push_back(keyName+std::string("@")+std::string("gaussMean"));
-	userDBContent.push_back(keyName+std::string("@")+std::string("gaussSigma"));
-	userDBContent.push_back(keyName+std::string("@")+std::string("gaussChi2NDF"));
-      }	
-      else if  ( Quantities[i] == "stat" ){ 
-	userDBContent.push_back(keyName+std::string("@")+std::string("entries"));
-	userDBContent.push_back(keyName+std::string("@")+std::string("mean"));
-	userDBContent.push_back(keyName+std::string("@")+std::string("rms"));
-      }
+      if  ( Quantities[i] == "landau" )
+	setDBLabelsForLandau(keyName, userDBContent);
+      else if  ( Quantities[i] == "gauss" )
+	setDBLabelsForGauss(keyName, userDBContent);
+      else if  ( Quantities[i] == "stat" )
+	setDBLabelsForStat(keyName, userDBContent);
+      else if  ( Quantities[i] == "user" )
+	setDBLabelsForUser(keyName, userDBContent);
       else{
 	edm::LogError("DQMHistoryServiceBase") 
 	  << "Quantity " << Quantities[i] 
@@ -85,7 +76,7 @@ void DQMHistoryServiceBase::createSummary(){
     }
   }
   obj_->setUserDBContent(userDBContent);
-    
+  
   std::stringstream ss;
   ss << "[DQMHistoryServiceBase::scanTreeAndFillSummary] QUANTITIES TO BE INSERTED IN DB :" << std::endl;  
   std::vector<std::string> userDBContentA = obj_->getUserDBContent();
@@ -112,9 +103,6 @@ void DQMHistoryServiceBase::createSummary(){
 void DQMHistoryServiceBase::openRequestedFile() { 
 
   dqmStore_ = edm::Service<DQMStore>().operator->(); 
-
-  // ** FIXME ** // 
-  dqmStore_->setVerbose(0); //add config param
 
   if( iConfig_.getParameter<bool>("accessDQMFile") ){
     
@@ -152,38 +140,21 @@ void DQMHistoryServiceBase::scanTreeAndFillSummary(const std::vector<MonitorElem
       for(size_t i=0;i<Quantities.size();++i){
 	
 
-	if(Quantities[i]  == "landau"){  
-	  userDBContent.push_back(keyName+std::string("@landauPeak"));
-	  userDBContent.push_back(keyName+std::string("@landauPeakErr"));
-	  userDBContent.push_back(keyName+std::string("@landauSFWHM"));
-	  userDBContent.push_back(keyName+std::string("@landauChi2NDF"));
-
-	  fitME->doLanGaussFit(*iterMes);
-	  values.push_back( fitME->getLanGaussPar("mpv")    ); 
-	  values.push_back( fitME->getLanGaussParErr("mpv") ); 
-	  values.push_back( fitME->getLanGaussConv("fwhm")  );
-	  if (fitME->getFitnDof()!=0 ) values.push_back( fitME->getFitChi()/fitME->getFitnDof() );
-	  else                         values.push_back(-99.);
+	if(Quantities[i]  == "landau"){
+	  setDBLabelsForLandau(keyName, userDBContent);
+	  setDBValuesForLandau(iterMes,values);
 	}
-	else if(Quantities[i]  == "gauss"){  
-	  userDBContent.push_back(keyName+std::string("@gaussMean"));
-	  userDBContent.push_back(keyName+std::string("@gaussSigma"));
-          userDBContent.push_back(keyName+std::string("@gaussChi2NDF"));
-
-	  fitME->doGaussFit(*iterMes);
-	  values.push_back( fitME->getGaussPar("mean")  );
-	  values.push_back( fitME->getGaussPar("sigma") );
-	  if (fitME->getFitnDof()!=0 ) values.push_back( fitME->getFitChi()/fitME->getFitnDof() );
-	  else                         values.push_back(-99.);
+	else if(Quantities[i]  == "gauss"){
+	  setDBLabelsForGauss(keyName, userDBContent);
+	  setDBValuesForGauss(iterMes,values);
 	}
-	else if(Quantities[i]  == "stat"){  
-	  userDBContent.push_back(keyName+std::string("@entries"));
-	  userDBContent.push_back(keyName+std::string("@mean"));
-	  userDBContent.push_back(keyName+std::string("@rms"));
-	  
-	  values.push_back( (*iterMes)->getEntries());
-	  values.push_back( (*iterMes)->getMean());
-	  values.push_back( (*iterMes)->getRMS());
+	else if(Quantities[i]  == "stat"){
+	  setDBLabelsForStat(keyName, userDBContent);
+  	  setDBValuesForStat(iterMes,values);
+	}
+	else if  ( Quantities[i] == "user" ){
+	  setDBLabelsForUser(keyName, userDBContent);
+	  setDBValuesForUser(iterMes,values);
 	}
       }  
       
@@ -201,6 +172,54 @@ void DQMHistoryServiceBase::scanTreeAndFillSummary(const std::vector<MonitorElem
   edm::LogInfo("DQMHistoryServiceBase") <<  "[DQMHistoryServiceBase::scanTreeAndFillSummary] " << ss.str();
 }   
  
+
+bool DQMHistoryServiceBase::setDBLabelsForLandau(std::string& keyName, std::vector<std::string>& userDBContent){ 
+  userDBContent.push_back(keyName+std::string("@")+std::string("landauPeak"));
+  userDBContent.push_back(keyName+std::string("@")+std::string("landauPeakErr"));
+  userDBContent.push_back(keyName+std::string("@")+std::string("landauSFWHM"));
+  userDBContent.push_back(keyName+std::string("@")+std::string("landauChi2NDF"));
+  return true;
+}
+
+bool DQMHistoryServiceBase::setDBLabelsForGauss(std::string& keyName, std::vector<std::string>& userDBContent){ 
+  userDBContent.push_back(keyName+std::string("@")+std::string("gaussMean"));
+  userDBContent.push_back(keyName+std::string("@")+std::string("gaussSigma"));
+  userDBContent.push_back(keyName+std::string("@")+std::string("gaussChi2NDF"));
+  return true;
+}	
+bool DQMHistoryServiceBase::setDBLabelsForStat(std::string& keyName, std::vector<std::string>& userDBContent){ 
+  userDBContent.push_back(keyName+std::string("@")+std::string("entries"));
+  userDBContent.push_back(keyName+std::string("@")+std::string("mean"));
+  userDBContent.push_back(keyName+std::string("@")+std::string("rms"));
+  return true;
+}
+
+bool DQMHistoryServiceBase::setDBValuesForLandau(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values){
+  fitME->doLanGaussFit(*iterMes);
+  values.push_back( fitME->getLanGaussPar("mpv")    ); 
+  values.push_back( fitME->getLanGaussParErr("mpv") ); 
+  values.push_back( fitME->getLanGaussConv("fwhm")  );
+  if (fitME->getFitnDof()!=0 ) values.push_back( fitME->getFitChi()/fitME->getFitnDof() );
+  else                         values.push_back(-99.);
+  return true;
+}
+
+bool DQMHistoryServiceBase::setDBValuesForGauss(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values){  
+  fitME->doGaussFit(*iterMes);
+  values.push_back( fitME->getGaussPar("mean")  );
+  values.push_back( fitME->getGaussPar("sigma") );
+  if (fitME->getFitnDof()!=0 ) values.push_back( fitME->getFitChi()/fitME->getFitnDof() );
+  else                         values.push_back(-99.);
+  return true;
+}
+
+bool DQMHistoryServiceBase::setDBValuesForStat(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values){  
+  values.push_back( (*iterMes)->getEntries());
+  values.push_back( (*iterMes)->getMean());
+  values.push_back( (*iterMes)->getRMS());
+  return true;
+}
+
 uint32_t DQMHistoryServiceBase::getRunNumber() const {
   edm::LogInfo("DQMHistoryServiceBase") <<  "[DQMHistoryServiceBase::getRunNumber] " << iConfig_.getParameter<uint32_t>("RunNb");
   return iConfig_.getParameter<uint32_t>("RunNb");

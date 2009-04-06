@@ -35,7 +35,16 @@ class DQMHistoryServiceBase {
   virtual void scanTreeAndFillSummary(const std::vector<MonitorElement*>& MEs, HDQMSummary* summary,std::string& histoName, std::vector<std::string>& Quantities);
   virtual uint32_t getRunNumber() const;
   virtual uint32_t returnDetComponent(std::string& str){return 999999;}
+  
+  virtual bool setDBLabelsForLandau(std::string& keyName, std::vector<std::string>& userDBContent);
+  virtual bool setDBLabelsForGauss (std::string& keyName, std::vector<std::string>& userDBContent);
+  virtual bool setDBLabelsForStat  (std::string& keyName, std::vector<std::string>& userDBContent);
+  virtual bool setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent){return false;}
 
+  virtual bool setDBValuesForLandau(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values);
+  virtual bool setDBValuesForGauss(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values );
+  virtual bool setDBValuesForStat(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values  );
+  virtual bool setDBValuesForUser(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values  ){return false;}
   
   DQMStore* dqmStore_;
   edm::ParameterSet iConfig_;
