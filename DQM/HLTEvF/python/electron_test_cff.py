@@ -14,7 +14,7 @@ sourcePlots = cms.EDAnalyzer("HLTMonElectronSource",
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 10.0),
-            HLTCollectionLabels = cms.InputTag("hltL1NonHLTnonIsoIsoSingleElectronLWEt10HcalIsolFilter","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt10HcalIsolFilter","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsolatedElectronHcalIsol","","HLT"), cms.InputTag("hltL1NonIsolatedElectronHcalIsol","","HLT")),
             theHLTOutputTypes = cms.uint32(100)
         ), 
@@ -26,7 +26,7 @@ sourcePlots = cms.EDAnalyzer("HLTMonElectronSource",
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltL1NonIsoHLTnonIsoSingleElectronLWEt10HOneOEMinusOneOPFilter","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt10HOneOEMinusOneOPFilter","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(92)
         ), 
@@ -47,9 +47,9 @@ clientPlots = cms.EDAnalyzer("HLTMonElectronClient",
     DaqMonitorBEInterface = cms.untracked.bool(True),
     disableROOToutput = cms.untracked.bool(True),
     theHLTCollectionLabels = cms.VInputTag(
-        cms.InputTag("hltL1NonHLTnonIsoIsoSingleElectronLWEt10HcalIsolFilter"),
+        cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt10HcalIsolFilter"),
         cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt10PixelMatchFilter"),
-        cms.InputTag("hltL1NonIsoHLTnonIsoSingleElectronLWEt10HOneOEMinusOneOPFilter"),
+        cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt10HOneOEMinusOneOPFilter"),
         cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt10TrackIsolFilter")
     )
 )
