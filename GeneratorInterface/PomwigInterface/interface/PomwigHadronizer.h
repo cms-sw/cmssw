@@ -52,6 +52,8 @@ namespace gen
         bool                            doMPInteraction;
         int                             numTrials;
 
+        bool                            doPDGConvert;
+
         HepMC::IO_HERWIG		conv;
   };
 }
