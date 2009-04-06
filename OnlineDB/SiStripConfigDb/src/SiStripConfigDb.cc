@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.72 2008/07/03 09:29:21 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.75 2008/10/31 09:20:27 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -29,9 +29,7 @@ SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
   devices_(), 
   feds_(), 
   dcuDetIds_(), 
-#ifdef USING_NEW_DATABASE_MODEL
   analyses_(),
-#endif
   apvDevices_(),
   muxDevices_(),
   dcuDevices_(),
@@ -163,12 +161,10 @@ void SiStripConfigDb::closeDbConnection() {
   } catch (...) { handleException( __func__, "Attempting to delete DeviceFactory object..." ); }
   factory_ = 0; 
 
-#ifdef USING_NEW_DATABASE_MODEL
   try { 
     if ( dbCache_ ) { delete dbCache_; }
   } catch (...) { handleException( __func__, "Attempting to delete DbClient object..." ); }
   dbCache_ = 0; 
-#endif
   
   LogTrace(mlConfigDb_) 
     << "[SiStripConfigDb::" << __func__ << "]"
@@ -188,9 +184,7 @@ void SiStripConfigDb::clearLocalCache() {
   clearDeviceDescriptions();
   clearFedDescriptions();
   clearDcuDetIds();
-#ifdef USING_NEW_DATABASE_MODEL
   clearAnalysisDescriptions();
-#endif
 
   typedDevices_.clear();
   fedIds_.clear();
@@ -481,7 +475,6 @@ void SiStripConfigDb::usingDatabaseCache() {
   }
   
   // Create database cache object
-#ifdef USING_NEW_DATABASE_MODEL
   try { 
     LogTrace(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
@@ -497,7 +490,6 @@ void SiStripConfigDb::usingDatabaseCache() {
     handleException( __func__, ss.str() );
     return;
   }
-#endif
   
   // Check for valid pointer to DbClient object
   if ( databaseCache(__func__) ) { 
@@ -518,13 +510,11 @@ void SiStripConfigDb::usingDatabaseCache() {
   }
   
   // Try retrieve descriptions from Database Client
-#ifdef USING_NEW_DATABASE_MODEL
   try { 
     databaseCache(__func__)->parse(); 
   } catch (...) { 
     handleException( __func__, "Attempted to called DbClient::parse() method" );
   }
-#endif
   
 }
 
@@ -564,14 +554,6 @@ void SiStripConfigDb::usingXmlFiles() {
     handleException( __func__, "Attempted to 'setUsingDb'" );
   }
 
-  try { 
-#ifndef USING_NEW_DATABASE_MODEL
-    deviceFactory(__func__)->createInputFileAccess();
-#endif
-  } catch (...) { 
-    handleException( __func__, "Attempted to 'createInputFileAccess'" ); 
-  }
-
   // Iterate through partitions
   SiStripDbParams::SiStripPartitions::const_iterator ip = dbParams_.partitions().begin();
   SiStripDbParams::SiStripPartitions::const_iterator jp = dbParams_.partitions().end();
@@ -585,11 +567,7 @@ void SiStripConfigDb::usingXmlFiles() {
     } else {
       if ( checkFileExists( ip->second.inputModuleXml() ) ) { 
 	try { 
-#ifdef USING_NEW_DATABASE_MODEL
 	  deviceFactory(__func__)->addConnectionFileName( ip->second.inputModuleXml() ); 
-#else
-	  deviceFactory(__func__)->addFedFecConnectionFileName( ip->second.inputModuleXml() ); 
-#endif
 	} catch (...) { 
 	  handleException( __func__ ); 
 	}
@@ -700,11 +678,7 @@ void SiStripConfigDb::usingXmlFiles() {
     dbParams_.outputModuleXml() = "/tmp/module.xml"; 
   } else {
     try { 
-#ifdef USING_NEW_DATABASE_MODEL
       ConnectionFactory* factory = deviceFactory(__func__);
-#else
-      FedFecConnectionDeviceFactory* factory = deviceFactory(__func__);
-#endif
       factory->setOutputFileName( dbParams_.outputModuleXml() ); 
     } catch (...) { 
       handleException( __func__, "Problems setting output 'module.xml' file!" ); 
@@ -790,11 +764,7 @@ void SiStripConfigDb::handleException( const std::string& method_name,
   catch ( const FecExceptionHandler& e ) {
     ss << " Caught FecExceptionHandler exception in method "
        << method_name << " with message: " << std::endl 
-#ifdef USING_NEW_DATABASE_MODEL
        << const_cast<FecExceptionHandler&>(e).what();
-#else
-       << const_cast<FecExceptionHandler&>(e).getMessage();
-#endif
     if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
     //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
   }
@@ -862,11 +832,7 @@ void SiStripConfigDb::runs( SiStripConfigDb::Runs& runs ) const {
   
   // Retrieve runs
   tkRunVector all;
-#ifdef USING_NEW_DATABASE_MODEL  
   all = df->getAllRuns();
-#else
-  all = *(df->getAllRuns());
-#endif
 
   // Iterate through tkRunVector
   tkRunVector::const_iterator ii = all.begin();
@@ -1056,13 +1022,7 @@ void SiStripConfigDb::partitions( std::list<std::string>& partitions ) const {
     return;
   }
 
-#ifdef USING_NEW_DATABASE_MODEL
   partitions = df->getAllPartitionNames();
-#else
-  edm::LogWarning(mlConfigDb_)
-    << "[SiStripPartition::" << __func__ << "]"
-    << " No partitions returned for old model!";
-#endif
   
 }
 

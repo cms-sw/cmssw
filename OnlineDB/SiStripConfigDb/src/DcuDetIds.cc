@@ -1,4 +1,4 @@
-// Last commit: $Id: DcuDetIds.cc,v 1.5 2008/06/04 14:11:42 bainbrid Exp $
+// Last commit: $Id: DcuDetIds.cc,v 1.6 2008/06/06 14:48:53 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,13 +31,9 @@ SiStripConfigDb::DcuDetIdsRange SiStripConfigDb::getDcuDetIds( std::string parti
 	  DcuDetIdsRange range = dcuDetIds_.find( iter->second.partitionName() );
 	  if ( range == dcuDetIds_.emptyRange() ) {
 	    
-#ifdef USING_NEW_DATABASE_MODEL
 	    deviceFactory(__func__)->addDetIdPartition( iter->second.partitionName(),
 							iter->second.dcuVersion().first, 
 							iter->second.dcuVersion().second );
-#else
-	    deviceFactory(__func__)->addDetIdPartition( iter->second.partitionName() );
-#endif
 	    
 	    // Retrieve DCU-DetId map
 	    DcuDetIdMap src = deviceFactory(__func__)->getInfos(); 
@@ -57,8 +53,6 @@ SiStripConfigDb::DcuDetIdsRange SiStripConfigDb::getDcuDetIds( std::string parti
       
     } else { // Using database cache
       
-#ifdef USING_NEW_DATABASE_MODEL
-      
       // Retrieve DCU-DetId map
       DcuDetIdMap* src = databaseCache(__func__)->getInfos(); 
 
@@ -76,7 +70,6 @@ SiStripConfigDb::DcuDetIdsRange SiStripConfigDb::getDcuDetIds( std::string parti
 	  << "[SiStripConfigDb::" << __func__ << "]"
 	  << " NULL pointer to Dcu-DetId map!";
       }
-#endif
       
     }
     
@@ -158,11 +151,7 @@ void SiStripConfigDb::addDcuDetIds( std::string partition, DcuDetIdsV& dcus ) {
     
   //     // Make local copy 
   //     DcuDetIdsV dst;
-  // #ifdef USING_NEW_DATABASE_MODEL
   //     clone( dcus, dst );
-  // #else
-  //     dst = dcus;
-  // #endif
     
   //     // Add to local cache
   //     dcuDetIds_.loadNext( partition, dst );
@@ -329,13 +318,9 @@ void SiStripConfigDb::clearDcuDetIds( std::string partition ) {
   }
   
   if ( dcus != dcuDetIds_.emptyRange() ) {
-    
-#ifdef USING_NEW_DATABASE_MODEL	
     DcuDetIdsV::const_iterator ifed = dcus.begin();
     DcuDetIdsV::const_iterator jfed = dcus.end();
     for ( ; ifed != jfed; ++ifed ) { if ( ifed->second ) { delete ifed->second; } }
-#endif
-    
   } else {
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]";

@@ -1,4 +1,4 @@
-// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.8 2008/10/22 10:40:09 delaer Exp $
+// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.9 2009/02/10 21:45:55 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CalibrationHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/CalibrationAnalysis.h"
@@ -202,8 +202,6 @@ void CalibrationHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange&
 void CalibrationHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
 				       Analysis analysis) {
 
-#ifdef USING_NEW_DATABASE_MODEL
-
   CalibrationAnalysis* anal = dynamic_cast<CalibrationAnalysis*>( analysis->second );
   if ( !anal ) { return; }
 
@@ -275,8 +273,6 @@ void CalibrationHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& d
     desc.push_back( tmp );
   }
   ofile.close();
-  
-#endif
 
 }
 

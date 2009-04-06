@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.cc,v 1.16 2009/04/03 14:04:47 lowette Exp $
+// Last commit: $Id: SiStripPartition.cc,v 1.17 2009/04/03 16:11:53 lowette Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -307,11 +307,7 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
     
       // Find state for given partition
       tkStateVector states;
-#ifdef USING_NEW_DATABASE_MODEL
       states = df->getCurrentStates(); 
-#else
-      states = *( df->getCurrentStates() ); 
-#endif
       tkStateVector::const_iterator istate = states.begin();
       tkStateVector::const_iterator jstate = states.end();
       while ( istate != jstate ) {
@@ -322,14 +318,11 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
       // Set versions if state was found
       if ( istate != states.end() ) {
 	
-#ifdef USING_NEW_DATABASE_MODEL
 	if ( !cabVersion_.first &&
 	     !cabVersion_.second ) { 
 	  cabVersion_.first = (*istate)->getConnectionVersionMajorId(); 
 	  cabVersion_.second = (*istate)->getConnectionVersionMinorId(); 
 	}
-#endif
-    
 	if ( !fecVersion_.first &&
 	     !fecVersion_.second ) { 
 	  fecVersion_.first = (*istate)->getFecVersionMajorId(); 
@@ -340,24 +333,16 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	  fedVersion_.first = (*istate)->getFedVersionMajorId(); 
 	  fedVersion_.second = (*istate)->getFedVersionMinorId(); 
 	}
-	
-#ifdef USING_NEW_DATABASE_MODEL
 	if ( !dcuVersion_.first &&
 	     !dcuVersion_.second ) { 
 	  dcuVersion_.first = (*istate)->getDcuInfoVersionMajorId(); 
 	  dcuVersion_.second = (*istate)->getDcuInfoVersionMinorId(); 
 	}
-#endif
-	
-#ifdef USING_NEW_DATABASE_MODEL
 	if ( !psuVersion_.first &&
 	     !psuVersion_.second ) { 
 	  psuVersion_.first = (*istate)->getDcuPsuMapVersionMajorId();
 	  psuVersion_.second = (*istate)->getDcuPsuMapVersionMinorId(); 
 	}
-#endif
-	
-#ifdef USING_NEW_DATABASE_MODEL
 #ifdef USING_DATABASE_MASKING
 	if ( !maskVersion_.first &&
 	     !maskVersion_.second ) { 
@@ -365,9 +350,6 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	  maskVersion_.second = (*istate)->getMaskVersionMinorId(); 
 	}
 #endif
-#endif
-	
-#ifdef USING_NEW_DATABASE_MODEL
 	
 	// Retrieve global and local versions 
 	if ( forceCurrentState_ || globalAnalysisV_ ) { // use global version (or current state)
@@ -488,8 +470,6 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
       
 	}
 
-#endif
-      
       } else {
 	std::stringstream ss;
 	edm::LogError(mlConfigDb_)
@@ -514,10 +494,8 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	  
 	  if ( runNumber_ == run->getRunNumber() ) {
 	    
-#ifdef USING_NEW_DATABASE_MODEL
 	    cabVersion_.first = run->getConnectionVersionMajorId(); 
 	    cabVersion_.second = run->getConnectionVersionMinorId(); 
-#endif
 	    
 	    fecVersion_.first = run->getFecVersionMajorId(); 
 	    fecVersion_.second = run->getFecVersionMinorId(); 
@@ -525,21 +503,15 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	    fedVersion_.first = run->getFedVersionMajorId(); 
 	    fedVersion_.second = run->getFedVersionMinorId(); 
 	    
-#ifdef USING_NEW_DATABASE_MODEL
 	    dcuVersion_.first = run->getDcuInfoVersionMajorId(); 
 	    dcuVersion_.second = run->getDcuInfoVersionMinorId(); 
-#endif
 	    
-#ifdef USING_NEW_DATABASE_MODEL
 	    psuVersion_.first = run->getDcuPsuMapVersionMajorId();
 	    psuVersion_.second = run->getDcuPsuMapVersionMinorId(); 
-#endif
 	    
-#ifdef USING_NEW_DATABASE_MODEL
 #ifdef USING_DATABASE_MASKING
 	    maskVersion_.first = run->getMaskVersionMajorId();
 	    maskVersion_.second = run->getMaskVersionMinorId(); 
-#endif
 #endif
 	    
 	    // Check run type
@@ -574,9 +546,6 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 		<< " for partition \"" << partitionName_ << "\"";
 	    }
 
-
-#ifdef USING_NEW_DATABASE_MODEL
-	    
 	    // Retrieve global and local versions from state associated with given run
 	    globalAnalysisV_ = run->getAnalysisVersionMapPointerId(); 
 	    HashMapAnalysisVersions local_versions = df->getLocalAnalysisVersions( globalAnalysisV_ );
@@ -706,8 +675,6 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	      }
 
 	    }
-	    
-#endif
 	
 	  } else {
 	    edm::LogError(mlConfigDb_)

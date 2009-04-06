@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.21 2008/07/01 13:05:36 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.23 2008/07/09 16:25:07 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
@@ -395,8 +395,6 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
 void ApvTimingHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
 				     Analysis analysis ) {
 
-#ifdef USING_NEW_DATABASE_MODEL
-  
   ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>( analysis->second );
   if ( !anal ) { return; }
   
@@ -455,6 +453,4 @@ void ApvTimingHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& des
     
   }
 
-#endif
-  
 }

@@ -1,12 +1,10 @@
-// Last commit: $Id: AnalysisDescriptions.cc,v 1.11 2008/06/04 14:11:42 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: AnalysisDescriptions.cc,v 1.12 2008/06/06 14:48:53 bainbrid Exp $
+// Latest tag:  $Name: V05-00-04 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/AnalysisDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#ifdef USING_NEW_DATABASE_MODEL
 
 using namespace std;
 using namespace sistrip;
@@ -525,5 +523,3 @@ std::string SiStripConfigDb::analysisType( AnalysisType analysis_type ) const {
   else if ( analysis_type == AnalysisDescription::T_UNKNOWN )                 { return "UNKNOWN ANALYSIS TYPE"; }
   else { return "UNDEFINED ANALYSIS TYPE"; }
 }
-
-#endif // USING_NEW_DATABASE_MODEL

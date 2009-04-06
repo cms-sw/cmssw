@@ -1,10 +1,9 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.75 2009/03/26 09:34:05 jcole Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.76 2009/04/03 16:11:53 lowette Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 
 #define DATABASE // Needed by DeviceFactory API! Do not comment!
-#define USING_NEW_DATABASE_MODEL
 //#define USING_DATABASE_MASKING
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -28,23 +27,12 @@
 #include <list>
 #include <map>
 
-#ifdef USING_NEW_DATABASE_MODEL
 #include "DbClient.h"
-#else
-class DbClient;
-#endif
 
-#ifdef USING_NEW_DATABASE_MODEL
 namespace sistrip {
   static const uint16_t FEC_CRATE_OFFSET =  0; //@@ temporary
   static const uint16_t FEC_RING_OFFSET  =  0; //@@ temporary
 }
-#else
-namespace sistrip {
-  static const uint16_t FEC_CRATE_OFFSET =  1; //@@ temporary
-  static const uint16_t FEC_RING_OFFSET  =  1; //@@ temporary
-}
-#endif
 
 // Friend class
 namespace cms { class SiStripO2O; }
@@ -117,11 +105,7 @@ class SiStripConfigDb {
 
 
   // FED connections
-#ifdef USING_NEW_DATABASE_MODEL
   typedef ConnectionDescription FedConnection;
-#else
-  typedef FedChannelConnectionDescription FedConnection;
-#endif
   typedef edm::MapOfVectors<std::string,FedConnection*> FedConnections;
   typedef FedConnections::range FedConnectionsRange;
   typedef std::vector<FedConnection*> FedConnectionsV;
@@ -152,11 +136,7 @@ class SiStripConfigDb {
   
   
   // Analysis descriptions
-#ifdef USING_NEW_DATABASE_MODEL
   typedef CommissioningAnalysisDescription::commissioningType AnalysisType;
-#else
-  class CommissioningAnalysisDescription;
-#endif
   typedef CommissioningAnalysisDescription AnalysisDescription;
   typedef edm::MapOfVectors<std::string,AnalysisDescription*> AnalysisDescriptions;
   typedef AnalysisDescriptions::range AnalysisDescriptionsRange;
@@ -348,8 +328,6 @@ class SiStripConfigDb {
   // ---------- Commissioning analyses ---------- 
 
   
-#ifdef USING_NEW_DATABASE_MODEL
-  
   /** Returns local cache (just for given partition if specified). */
   AnalysisDescriptionsRange getAnalysisDescriptions( AnalysisType, std::string partition = "" );
   
@@ -370,8 +348,6 @@ class SiStripConfigDb {
   
   /** Returns string for given analysis type. */
   std::string analysisType( AnalysisType ) const;
-  
-#endif
   
 
  private:
@@ -436,13 +412,9 @@ class SiStripConfigDb {
  
   /** DcuId-DetId map (map of TkDcuInfo objects). */
   DcuDetIds dcuDetIds_;
-  
-#ifdef USING_NEW_DATABASE_MODEL
 
   /** Analysis descriptions for given commissioning run. */
   AnalysisDescriptions analyses_;
-
-#endif
 
   /** Cache for devices of given type. */
   DeviceDescriptionsV apvDevices_;

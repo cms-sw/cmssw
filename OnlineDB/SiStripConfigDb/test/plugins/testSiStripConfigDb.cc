@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripConfigDb.cc,v 1.15 2008/05/29 13:11:24 bainbrid Exp $
+// Last commit: $Id: testSiStripConfigDb.cc,v 1.16 2009/02/20 10:04:24 alinn Exp $
 
 #include "OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -245,11 +245,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 	if ( conns != connections.emptyRange() ) {
 	  std::vector<SiStripConfigDb::FedConnection*> tmp1( conns.begin(), conns.end() );
 	  std::vector<SiStripConfigDb::FedConnection*> tmp2;
-#ifdef USING_NEW_DATABASE_MODEL
 	  ConnectionFactory::vectorCopyI( tmp2, tmp1, true );
-#else
-	  tmp2 = tmp1;
-#endif
 	  connections.loadNext( ii->second.partitionName(), tmp2 );
 	}
       }
@@ -289,11 +285,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 	if ( devs != devices.emptyRange() ) {
 	  std::vector<SiStripConfigDb::DeviceDescription*> tmp1( devs.begin(), devs.end() );
 	  std::vector<SiStripConfigDb::DeviceDescription*> tmp2;
-#ifdef USING_NEW_DATABASE_MODEL
 	  FecFactory::vectorCopyI( tmp2, tmp1, true );
-#else
-	  tmp2 = tmp1;
-#endif
 	  devices.loadNext( ii->second.partitionName(), tmp2 );
 	}
       }
@@ -333,11 +325,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 	if ( range != feds.emptyRange() ) {
 	  std::vector<SiStripConfigDb::FedDescription*> tmp1( range.begin(), range.end() );
 	  std::vector<SiStripConfigDb::FedDescription*> tmp2;
-#ifdef USING_NEW_DATABASE_MODEL
 	  Fed9U::Fed9UDeviceFactory::vectorCopy( tmp2, tmp1 );
-#else
-	  tmp2 = tmp1;
-#endif
 	  feds.loadNext( ii->second.partitionName(), tmp2 );
 	}
       }
@@ -377,11 +365,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 	if ( range != feds.emptyRange() ) {
 	  std::vector<SiStripConfigDb::DcuDetId> tmp1( range.begin(), range.end() );
 	  std::vector<SiStripConfigDb::DcuDetId> tmp2;
-#ifdef USING_NEW_DATABASE_MODEL
 	  db_->clone( tmp1, tmp2 );
-#else
-	  tmp2 = tmp1;
-#endif
 	  feds.loadNext( ii->second.partitionName(), tmp2 );
 	}
       }
@@ -409,7 +393,6 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
     
     // ---------- Analyses ----------
 
-#ifdef USING_NEW_DATABASE_MODEL
     if ( anals_ ) {
 
       // build temporary cache and print, clear (local cache)
@@ -451,7 +434,6 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
       db_->printAnalysisDescriptions();
       
     }
-#endif  
     
   }
   
@@ -622,7 +604,6 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 
     // ---------- Analyses ----------
 
-#ifdef USING_NEW_DATABASE_MODEL
     if ( anals_ ) {
       
       // iterate through partitions and get, print, clear, print
@@ -683,7 +664,6 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
       else { edm::LogWarning("testSiStripConfigDb") << ss.str(); }
       
     }
-#endif
     
   }
   

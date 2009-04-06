@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.18 2008/11/10 14:32:50 delaer Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.19 2009/02/23 15:17:47 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
@@ -182,8 +182,6 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
 void PedestalsHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
 				     Analysis analysis ) {
 
-#ifdef USING_NEW_DATABASE_MODEL
-  
   PedestalsAnalysis* anal = dynamic_cast<PedestalsAnalysis*>( analysis->second );
   if ( !anal ) { return; }
   
@@ -234,8 +232,6 @@ void PedestalsHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& des
     desc.push_back( tmp );
       
   }
-
-#endif
 
 }
 

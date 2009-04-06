@@ -1,4 +1,4 @@
-// Last commit: $Id: NoiseHistosUsingDb.cc,v 1.1 2008/03/17 17:40:55 bainbrid Exp $
+// Last commit: $Id: NoiseHistosUsingDb.cc,v 1.2 2008/05/06 12:38:07 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/NoiseHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/NoiseAnalysis.h"
@@ -170,8 +170,6 @@ void NoiseHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds ) {
 void NoiseHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
 				 Analysis analysis ) {
 
-#ifdef USING_NEW_DATABASE_MODEL
-
   NoiseAnalysis* anal = dynamic_cast<NoiseAnalysis*>( analysis->second );
   if ( !anal ) { return; }
   
@@ -222,8 +220,6 @@ void NoiseHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
     desc.push_back( tmp );
       
   }
-
-#endif
 
 }
 

@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.34 2009/04/03 14:04:47 lowette Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.35 2009/04/03 16:11:53 lowette Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
@@ -46,11 +46,7 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
 	    
 	    // Make local copy 
 	    DeviceDescriptionsV tmp2;
-#ifdef USING_NEW_DATABASE_MODEL
 	    FecFactory::vectorCopyI( tmp2, tmp1, true );
-#else
-	    tmp2 = tmp1;
-#endif
 
 	    // Add to cache
 	    devices_.loadNext( iter->second.partitionName(), tmp2 );
@@ -74,8 +70,6 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
       }
       
     } else { // Using database cache
-      
-#ifdef USING_NEW_DATABASE_MODEL
 
       DeviceDescriptionsV* tmp1 = databaseCache(__func__)->getDevices();
 
@@ -93,8 +87,6 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
 	  << "[SiStripConfigDb::" << __func__ << "]"
 	  << " NULL pointer to DeviceDescriptions vector!";
       }
-
-#endif // USING_NEW_DATABASE_MODEL
       
     }
     
@@ -245,11 +237,7 @@ void SiStripConfigDb::addDeviceDescriptions( std::string partition, DeviceDescri
     
     // Make local copy 
     DeviceDescriptionsV tmp;
-#ifdef USING_NEW_DATABASE_MODEL
     FecFactory::vectorCopyI( tmp, devs, true );
-#else
-    tmp = devs;
-#endif
     
     // Add to local cache
     devices_.loadNext( partition, tmp );
@@ -402,13 +390,9 @@ void SiStripConfigDb::clearDeviceDescriptions( std::string partition ) {
   }
   
   if ( devs != devices_.emptyRange() ) {
-
-#ifdef USING_NEW_DATABASE_MODEL	
     DeviceDescriptionsV::const_iterator ifed = devs.begin();
     DeviceDescriptionsV::const_iterator jfed = devs.end();
     for ( ; ifed != jfed; ++ifed ) { if ( *ifed ) { delete *ifed; } }
-#endif
-    
   } else {
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]";
@@ -532,11 +516,7 @@ SiStripConfigDb::DeviceAddress SiStripConfigDb::deviceAddress( const deviceDescr
   
   DeviceAddress addr;
   try {
-#ifdef USING_NEW_DATABASE_MODEL
     addr.fecCrate_ = static_cast<uint16_t>( desc.getCrateId() + sistrip::FEC_CRATE_OFFSET ); //@@ temporary offset?
-#else
-    addr.fecCrate_ = static_cast<uint16_t>( 0 + sistrip::FEC_CRATE_OFFSET ); //@@ temporary offset?
-#endif
     addr.fecSlot_  = static_cast<uint16_t>( desc.getFecSlot() );
     addr.fecRing_  = static_cast<uint16_t>( desc.getRingSlot() + sistrip::FEC_RING_OFFSET ); //@@ temporary offset?
     addr.ccuAddr_  = static_cast<uint16_t>( desc.getCcuAddress() );

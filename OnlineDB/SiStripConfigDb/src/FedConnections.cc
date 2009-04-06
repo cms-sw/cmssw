@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.31 2009/04/03 14:04:47 lowette Exp $
+// Last commit: $Id: FedConnections.cc,v 1.32 2009/04/03 16:11:53 lowette Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -34,8 +34,6 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
 
 	    FedConnectionsV tmp2;
 	    
-#ifdef USING_NEW_DATABASE_MODEL
-	    
 	    // Retrieve connections
 	    FedConnectionsV tmp1;
 	    deviceFactory(__func__)->getConnectionDescriptions( iter->second.partitionName(), 
@@ -50,21 +48,6 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
 	    
 	    // Make local copy 
 	    ConnectionFactory::vectorCopyI( tmp2, tmp1, true );
-	    
-#else // USING_NEW_DATABASE_MODEL
-	    
-	    static bool once = true;
-	    if ( once ) { deviceFactory(__func__)->createInputDBAccess(); once = false; }
-	    
-	    deviceFactory(__func__)->setInputDBVersion( iter->second.partitionName(),
-							iter->second.cabVersion().first,
-							iter->second.cabVersion().second );
-	    
-	    for ( uint16_t iconn = 0; iconn < deviceFactory(__func__)->getNumberOfFedChannel(); iconn++ ) {
-	      tmp2.push_back( deviceFactory(__func__)->getFedChannelConnection( iconn ) ); 
-	    }
-	    
-#endif // USING_NEW_DATABASE_MODEL
 	    
 	    // Add to cache
 	    connections_.loadNext( iter->second.partitionName(), tmp2 );
@@ -89,8 +72,6 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
 
     } else { // Use database cache
 	
-#ifdef USING_NEW_DATABASE_MODEL
-	
       FedConnectionsV* tmp1 = databaseCache(__func__)->getConnections();
       
       if ( tmp1 ) { 
@@ -107,8 +88,6 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
 	  << "[SiStripConfigDb::" << __func__ << "]"
 	  << " NULL pointer to FedConnections vector!";
       }
-    
-#endif // USING_NEW_DATABASE_MODEL
       
     }
     
@@ -186,11 +165,7 @@ void SiStripConfigDb::addFedConnections( std::string partition, FedConnectionsV&
     
     // Make local copy 
     FedConnectionsV tmp;
-#ifdef USING_NEW_DATABASE_MODEL
     ConnectionFactory::vectorCopyI( tmp, conns, true );
-#else
-    tmp = conns;
-#endif
     
     // Add to local cache
     connections_.loadNext( partition, tmp );
@@ -254,20 +229,11 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
 
 	    FedConnectionsV conns( range.begin(), range.end() );
 	    
-#ifdef USING_NEW_DATABASE_MODEL
 	    deviceFactory(__func__)->setConnectionDescriptions( conns,
 								iter->second.partitionName(),
 								&(iter->second.cabVersion().first),
 								&(iter->second.cabVersion().second),
 								true ); // new major version
-#else 
-	    FedConnectionsV::iterator ifed = conns.begin();
-	    FedConnectionsV::iterator jfed = conns.end();
-	    for ( ; ifed != jfed; ++ifed ) {
-	      deviceFactory(__func__)->addFedChannelConnection( *ifed );
-	    }
-	    deviceFactory(__func__)->upload();
-#endif
 
 	    // Some debug
 	    std::stringstream ss;
@@ -301,33 +267,6 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
 
     } catch (...) { handleException( __func__ ); }
     
-  } else {
-    
-#ifndef USING_NEW_DATABASE_MODEL
-
-    ofstream out( dbParams_.outputModuleXml().c_str() );
-    out << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>" << endl
-	<< "<!DOCTYPE TrackerDescription SYSTEM \"http://cmsdoc.cern.ch/cms/cmt/System_aspects/Daq/dtd/trackerdescription.dtd\">" << endl
-	<< "<TrackerDescription>" << endl
-	<< "<FedChannelList>" << endl;
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
-    for ( ; iter != jter; ++iter ) {
-      if ( partition == "" || partition == iter->second.partitionName() ) {
-	FedConnectionsRange range = connections_.find( iter->second.partitionName() );
-	if ( range != connections_.emptyRange() ) {
-	  FedConnectionsV::const_iterator ifed = range.begin();
-	  FedConnectionsV::const_iterator jfed = range.end();
-	  for ( ; ifed != jfed; ++ifed ) { (*ifed)->toXML(out); out << endl; }
-	}
-      }
-    }
-    out << "</FedChannelList>" << endl
-	<< "</TrackerDescription>" << endl;
-    out.close();
-
-#endif
-
   }
 
   allowCalibUpload_ = true;
@@ -384,13 +323,9 @@ void SiStripConfigDb::clearFedConnections( std::string partition ) {
   }
   
   if ( conns != connections_.emptyRange() ) {
-
-#ifdef USING_NEW_DATABASE_MODEL	
     FedConnectionsV::const_iterator ifed = conns.begin();
     FedConnectionsV::const_iterator jfed = conns.end();
     for ( ; ifed != jfed; ++ifed ) { if ( *ifed ) { delete *ifed; } }
-#endif
-    
   } else {
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]";

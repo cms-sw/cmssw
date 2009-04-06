@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.30 2008/06/04 14:11:42 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.31 2008/06/06 14:48:53 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -51,11 +51,7 @@ SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions( std::
 	    
 	    // Make local copy 
 	    FedDescriptionsV tmp2;
-#ifdef USING_NEW_DATABASE_MODEL
 	    Fed9U::Fed9UDeviceFactory::vectorCopy( tmp2, tmp1 );
-#else
-	    tmp2 = tmp1;
-#endif
 	    
 	    // Add to cache
 	    feds_.loadNext( iter->second.partitionName(), tmp2 );
@@ -80,8 +76,6 @@ SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions( std::
 	    
     } else { // Using database cache
 
-#ifdef USING_NEW_DATABASE_MODEL
-
       FedDescriptionsV* tmp1 = databaseCache(__func__)->getFed9UDescriptions();
       
       if ( tmp1 ) { 
@@ -98,8 +92,6 @@ SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions( std::
 	  << "[SiStripConfigDb::" << __func__ << "]"
 	  << " NULL pointer to FED descriptions vector!";
       }
-
-#endif
 
     }
 
@@ -177,11 +169,7 @@ void SiStripConfigDb::addFedDescriptions( std::string partition, FedDescriptions
     
     // Make local copy 
     FedDescriptionsV tmp;
-#ifdef USING_NEW_DATABASE_MODEL
     Fed9U::Fed9UDeviceFactory::vectorCopy( tmp, feds );
-#else
-    tmp = feds;
-#endif
 
     // Add to local cache
     feds_.loadNext( partition, tmp );
@@ -338,13 +326,9 @@ void SiStripConfigDb::clearFedDescriptions( std::string partition ) {
   }
   
   if ( feds != feds_.emptyRange() ) {
-
-#ifdef USING_NEW_DATABASE_MODEL	
     FedDescriptionsV::const_iterator ifed = feds.begin();
     FedDescriptionsV::const_iterator jfed = feds.end();
     for ( ; ifed != jfed; ++ifed ) { if ( *ifed ) { delete *ifed; } }
-#endif
-    
   } else {
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]";

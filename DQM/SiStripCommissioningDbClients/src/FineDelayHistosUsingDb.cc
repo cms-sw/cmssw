@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.12 2008/05/28 14:56:12 delaer Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.13 2008/11/25 18:21:33 delaer Exp $
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -347,8 +347,6 @@ void FineDelayHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
 void FineDelayHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
 				     Analysis analysis ) {
 
-#ifdef USING_NEW_DATABASE_MODEL
-
   SamplingAnalysis* anal = dynamic_cast<SamplingAnalysis*>( analysis->second );
   if ( !anal ) { return; }
   
@@ -382,7 +380,5 @@ void FineDelayHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& des
     
   // Store description
   desc.push_back( tmp );
-    
-#endif
-  
+
 }

@@ -1,4 +1,4 @@
-// Last commit: $Id: PedsOnlyHistosUsingDb.cc,v 1.3 2008/11/10 14:32:50 delaer Exp $
+// Last commit: $Id: PedsOnlyHistosUsingDb.cc,v 1.4 2009/02/23 15:17:47 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedsOnlyHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedsOnlyAnalysis.h"
@@ -177,8 +177,6 @@ void PedsOnlyHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds )
 void PedsOnlyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
 				    Analysis analysis ) {
 
-#ifdef USING_NEW_DATABASE_MODEL
-
   PedsOnlyAnalysis* anal = dynamic_cast<PedsOnlyAnalysis*>( analysis->second );
   if ( !anal ) { return; }
   
@@ -229,8 +227,6 @@ void PedsOnlyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc
     desc.push_back( tmp );
       
   }
-
-#endif
 
 }
 
