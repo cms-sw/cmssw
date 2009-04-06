@@ -124,11 +124,12 @@ ExhumeProducer::ExhumeProducer( const ParameterSet & pset) :
   }
 
   edm::Service<RandomNumberGenerator> rng;
-  uint32_t seed = rng->mySeed();
+  //uint32_t seed = rng->mySeed();
   fRandomEngine = &(rng->getEngine());
   randomEngine = fRandomEngine;
   fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
-  exhumeEvent_ = new Exhume::Event(*exhumeProcess_,seed);
+  //exhumeEvent_ = new Exhume::Event(*exhumeProcess_,seed);
+  exhumeEvent_ = new Exhume::Event(*exhumeProcess_,randomEngine);
 
   double massRangeLow = process_pset.getParameter<double>("MassRangeLow");
   double massRangeHigh = process_pset.getParameter<double>("MassRangeHigh");

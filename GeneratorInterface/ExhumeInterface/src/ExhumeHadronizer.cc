@@ -209,9 +209,7 @@ bool ExhumeHadronizer::initializeForInternalPartons()
    }
     
    pypars.msti[0] = sigID;
-   int idummy = 0;
-   unsigned int seed = getEngineReference().getSeed();
-   exhumeEvent_ = new Exhume::Event(*exhumeProcess_,seed);
+   exhumeEvent_ = new Exhume::Event(*exhumeProcess_,&getEngineReference());
 
    double massRangeLow = processPSet.getParameter<double>("MassRangeLow");
    double massRangeHigh = processPSet.getParameter<double>("MassRangeHigh");
