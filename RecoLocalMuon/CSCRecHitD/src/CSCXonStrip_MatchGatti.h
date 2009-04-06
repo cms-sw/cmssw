@@ -12,6 +12,7 @@
  */
 
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCFindPeakTime.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
@@ -20,7 +21,6 @@
 
 class CSCLayer;
 class CSCChamberSpecs;
-class CSCFindPeakTime;
 
 class CSCXonStrip_MatchGatti
 {
@@ -51,6 +51,9 @@ class CSCXonStrip_MatchGatti
 
  private:
 
+  // No copying of this class
+  CSCXonStrip_MatchGatti( const CSCXonStrip_MatchGatti& );
+  CSCXonStrip_MatchGatti& operator=( const CSCXonStrip_MatchGatti& );
 
   double h;                                     // This is the distance between strip and wire planes
   float stripWidth;
@@ -87,8 +90,7 @@ class CSCXonStrip_MatchGatti
   // Cache pointer to conditions for current event
   const CSCRecoConditions* recoConditions_;
 
-  // other classes used
-  CSCFindPeakTime*         peakTimeFinder_;  
+  const std::auto_ptr<CSCFindPeakTime> peakTimeFinder_;
 
   // some variables and functions to use
 

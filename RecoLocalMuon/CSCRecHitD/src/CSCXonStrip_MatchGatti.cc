@@ -4,9 +4,6 @@
 //---- author: Stoyan Stoynev - NU
 
 #include <RecoLocalMuon/CSCRecHitD/src/CSCXonStrip_MatchGatti.h>
-//#include <RecoLocalMuon/CSCRecHitD/src/CSCStripCrosstalk.h>
-//#include <RecoLocalMuon/CSCRecHitD/src/CSCStripNoiseMatrix.h>
-#include <RecoLocalMuon/CSCRecHitD/src/CSCFindPeakTime.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
 
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
@@ -39,7 +36,7 @@
                                                                                                  
 
 CSCXonStrip_MatchGatti::CSCXonStrip_MatchGatti(const edm::ParameterSet& ps) :
-   recoConditions_( 0 ){
+  recoConditions_( 0 ),  peakTimeFinder_( new CSCFindPeakTime( ps ) ) {
 
   useCalib                   = ps.getParameter<bool>("CSCUseCalibrations");
   xtalksOffset               = ps.getParameter<double>("CSCStripxtalksOffset");
@@ -71,16 +68,11 @@ CSCXonStrip_MatchGatti::CSCXonStrip_MatchGatti(const edm::ParameterSet& ps) :
   xt_asymmetry_ME41                = ps.getParameter<double>("XTasymmetry_ME41");
   const_syst_ME41                   = ps.getParameter<double>("ConstSyst_ME41");
  
-  // it crashes (sometimes) - SS
-  //std::auto_ptr<CSCFindPeakTime> peakTimeFinder_( new CSCFindPeakTime( ps ) );
-  peakTimeFinder_            = new CSCFindPeakTime(ps);
- 
   getCorrectionValues("StringCurrentlyNotUsed");
 }
 
 
 CSCXonStrip_MatchGatti::~CSCXonStrip_MatchGatti(){
-  delete peakTimeFinder_; 
 }
 
 
@@ -117,12 +109,14 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
       adc[t] = adcs[k];
     }
 
-    // t_peak is now 'absolute' i.e. in ns from start of sca time bin 0
-    t_peak = peakTimeFinder_->peakTime( tmax, adc, t_zero, t_peak );
+    // t_peak from peak finder is now 'absolute' i.e. in ns from start of sca time bin 0
+    t_peak = peakTimeFinder_->peakTime( tmax, adc, t_peak );
     // Just for completeness, the start time of the pulse is 133 ns earlier, according to Stan :)
     t_zero = t_peak - 133.;
     // and reset tpeak since that's the way it gets passed out of this function (Argh!)
     tpeak = t_peak;
+    LogTrace("CSCRecHit|CSCXonStrip_MatchGatti") << "CSCXonStrip_MatchGatti: " << 
+       id << " strip=" << centralStrip << ", t_zero=" << t_zero << ", t_peak=" << t_peak;
   }
       
   //---- fill the charge matrix (3x3)
