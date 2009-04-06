@@ -123,6 +123,14 @@ void ExhumeHadronizer::finalizeEvent()
 
    event()->weights().push_back( pyint1.vint[96] );
 
+   // convert particle IDs Py6->PDG, if requested
+   if(convertToPDG_) {
+      for ( HepMC::GenEvent::particle_iterator part = event()->particles_begin(); 
+                                               part != event()->particles_end(); ++part) {
+         (*part)->set_pdg_id(HepPID::translatePythiatoPDT((*part)->pdg_id()));
+      }
+   }
+
    // service printouts, if requested
    //
    if (maxEventsToPrint_ > 0) 
