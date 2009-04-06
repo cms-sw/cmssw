@@ -292,7 +292,9 @@ void L1GctGlobalEnergyAlgos::process()
 //
 void L1GctGlobalEnergyAlgos::setJetFinderParams(const L1GctJetFinderParams* const jfpars)
 {
-  m_mhtComponents.setEtComponentLsb(jfpars->getHtLsbGeV());
+  // The jetFinders add an LSB when converting to x and y components,
+  // so the scale lsb for htx and hty is half the lsb for htt.
+  m_mhtComponents.setEtComponentLsb(jfpars->getHtLsbGeV()/2);
 }
 
 void L1GctGlobalEnergyAlgos::setHtMissScale(const L1CaloEtScale* const scale)
