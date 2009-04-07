@@ -87,6 +87,9 @@ namespace cond {
 					     IterHelp(*m_iov));
     }
     
+    // find in range...
+    const_iterator find(cond::Time_t time) const;
+
     // limit range
     void setRange(cond::Time_t since, cond::Time_t  till) const;
     // limit to the first n 
