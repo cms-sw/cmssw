@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowModelPopup.h,v 1.7 2008/11/06 22:05:22 amraktad Exp $
+// $Id: CmsShowModelPopup.h,v 1.8 2009/01/23 21:35:40 amraktad Exp $
 //
 
 // system include files
@@ -31,6 +31,7 @@
 // forward declarations
 class FWEventItem;
 class FWSelectionManager;
+class FWColorManager;
 //class FWModelId;
 class FWColorSelect;
 class TGLabel;
@@ -43,7 +44,7 @@ class CmsShowModelPopup : public TGTransientFrame
 {
 
 public:
-   CmsShowModelPopup(FWDetailViewManager*, FWSelectionManager*, const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1);
+   CmsShowModelPopup(FWDetailViewManager*, FWSelectionManager*, const FWColorManager*, const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1);
    virtual ~CmsShowModelPopup();
 
    // ---------- const member functions ---------------------

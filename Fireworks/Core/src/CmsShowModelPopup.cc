@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.13 2008/12/18 21:22:13 chrjones Exp $
+// $Id: CmsShowModelPopup.cc,v 1.14 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include file
@@ -33,6 +33,7 @@
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 //#include "Fireworks/Core/src/FWListModel.h"
 #include "Fireworks/Core/interface/FWModelId.h"
@@ -52,6 +53,7 @@
 //
 CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
                                      FWSelectionManager* iSelMgr,
+                                     const FWColorManager* iColorMgr,
                                      const TGWindow* p, UInt_t w, UInt_t h) :
    TGTransientFrame(gClient->GetDefaultRoot(),p,w,h),
    m_detailViewManager(iManager)
@@ -72,30 +74,11 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
    TGLabel* colorSelectLabel = new TGLabel(colorSelectFrame, "Color:");
    colorSelectFrame->AddFrame(colorSelectLabel, new TGLayoutHints(kLHintsNormal, 0, 50, 0, 0));
    TGString* graphicsLabel = new TGString(" ");
-   Pixel_t selection = gVirtualX->GetPixel(kRed);
    std::vector<Pixel_t> colors;
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(kRed));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(kBlue));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(kYellow));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(kGreen));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(kCyan));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(kMagenta));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(kOrange));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kRed)));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kBlue)));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kYellow)));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kGreen)));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kCyan)));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kMagenta)));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kOrange)));
-   bool haveColor = false;
-   for (std::vector<Pixel_t>::const_iterator iCol = colors.begin(); iCol != colors.end(); ++iCol) {
-      if (*iCol == selection) haveColor = true;
+   for(unsigned int index=0; index <iColorMgr->numberOfIndicies(); ++index) {
+      colors.push_back((Pixel_t)gVirtualX->GetPixel(iColorMgr->indexToColor(index)));
    }
-   if(!haveColor) {
-      printf("Error: Color is not present in palette!\n");
-      colors.push_back(selection);
-   }
+   Pixel_t selection = colors[0];
    m_colorSelectWidget = new FWColorSelect(colorSelectFrame, graphicsLabel, selection, colors, -1);
    m_colorSelectWidget->SetEnabled(kFALSE);
    colorSelectFrame->AddFrame(m_colorSelectWidget);

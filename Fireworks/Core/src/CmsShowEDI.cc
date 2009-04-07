@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.19 2009/01/23 21:35:42 amraktad Exp $
+// $Id: CmsShowEDI.cc,v 1.20 2009/03/04 17:03:47 chrjones Exp $
 //
 
 // system include files
@@ -42,6 +42,7 @@
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWExpressionException.h"
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
 #include "Fireworks/Core/src/FWExpressionValidator.h"
@@ -58,7 +59,7 @@
 //
 // constructors and destructor
 //
-CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager* selMgr) :
+CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager* selMgr, FWColorManager* colorMgr) :
    TGTransientFrame(gClient->GetDefaultRoot(),p, w, h),
    m_item(0),
    m_validator( new FWExpressionValidator)
@@ -79,32 +80,12 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    TGLabel* colorSelectLabel = new TGLabel(colorSelectFrame, "Color:");
    colorSelectFrame->AddFrame(colorSelectLabel, new TGLayoutHints(kLHintsNormal, 0, 50, 0, 0));
    TGString* graphicsLabel = new TGString(" ");
-   Pixel_t selection = gVirtualX->GetPixel(kRed);
    std::vector<Pixel_t> colors;
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(kRed));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(kBlue));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(kYellow));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(kGreen));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(kCyan));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(kMagenta));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(kOrange));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(kGray));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kRed)));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kBlue)));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kYellow)));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kGreen)));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kCyan)));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kMagenta)));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kOrange)));
-   colors.push_back((Pixel_t)gVirtualX->GetPixel(kGray+2));
-   bool haveColor = false;
-   for (std::vector<Pixel_t>::const_iterator iCol = colors.begin(); iCol != colors.end(); ++iCol) {
-      if (*iCol == selection) haveColor = true;
+   for(unsigned int index=0; index <colorMgr->numberOfIndicies(); ++index) {
+      colors.push_back((Pixel_t)gVirtualX->GetPixel(colorMgr->indexToColor(index)));
    }
-   if(!haveColor) {
-      printf("Error: Color is not present in palette!\n");
-      colors.push_back(selection);
-   }
+   Pixel_t selection = colors[0];
+   
    m_colorSelectWidget = new FWColorSelect(colorSelectFrame, graphicsLabel, selection, colors, -1);
    m_colorSelectWidget->SetEnabled(kFALSE);
    colorSelectFrame->AddFrame(m_colorSelectWidget);
