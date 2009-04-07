@@ -631,14 +631,16 @@ void MuonAlignmentFromReference::terminate() {
 	     << "        self.phixFit_status = \"UNKNOWN\"" << std::endl
 	     << "        self.zFit_status = \"UNKNOWN\"" << std::endl
 	     << "" << std::endl
-	     << "    def phiyFit(self, angle, sigma, gamma, redchi2):" << std::endl
+	     << "    def phiyFit(self, angle, sigma, gamma, redchi2, posNum, negNum):" << std::endl
 	     << "        self.phiyFit_status = \"PASS\"" << std::endl
 	     << "        self.phiyFit_angle = angle" << std::endl
 	     << "        self.phiyFit_sigma = sigma" << std::endl
 	     << "        self.phiyFit_gamma = gamma" << std::endl
 	     << "        self.phiyFit_redchi2 = redchi2" << std::endl
+	     << "        self.phiyFit_posNum = posNum" << std::endl
+	     << "        self.phiyFit_negNum = negNum" << std::endl
 	     << "" << std::endl
-	     << "    def rphiFit(self, position, zpos, phiz, scattering, sigma, gamma, redchi2):" << std::endl
+	     << "    def rphiFit(self, position, zpos, phiz, scattering, sigma, gamma, redchi2, posNum, negNum):" << std::endl
 	     << "        self.rphiFit_status = \"PASS\"" << std::endl
 	     << "        self.rphiFit_position = position" << std::endl
 	     << "        self.rphiFit_zpos = zpos" << std::endl
@@ -647,15 +649,19 @@ void MuonAlignmentFromReference::terminate() {
 	     << "        self.rphiFit_sigma = sigma" << std::endl
 	     << "        self.rphiFit_gamma = gamma" << std::endl
 	     << "        self.rphiFit_redchi2 = redchi2" << std::endl
+	     << "        self.rphiFit_posNum = posNum" << std::endl
+	     << "        self.rphiFit_negNum = negNum" << std::endl
 	     << "" << std::endl
-	     << "    def phixFit(self, angle, sigma, gamma, redchi2):" << std::endl
+	     << "    def phixFit(self, angle, sigma, gamma, redchi2, posNum, negNum):" << std::endl
 	     << "        self.phixFit_status = \"PASS\"" << std::endl
 	     << "        self.phixFit_angle = angle" << std::endl
 	     << "        self.phixFit_sigma = sigma" << std::endl
 	     << "        self.phixFit_gamma = gamma" << std::endl
 	     << "        self.phixFit_redchi2 = redchi2" << std::endl
+	     << "        self.phixFit_posNum = posNum" << std::endl
+	     << "        self.phixFit_negNum = negNum" << std::endl
 	     << "" << std::endl
-	     << "    def zFit(self, position, zpos, phiz, scattering, sigma, gamma, redchi2):" << std::endl
+	     << "    def zFit(self, position, zpos, phiz, scattering, sigma, gamma, redchi2, posNum, negNum):" << std::endl
 	     << "        self.zFit_status = \"PASS\"" << std::endl
 	     << "        self.zFit_position = position" << std::endl
 	     << "        self.zFit_zpos = zpos" << std::endl
@@ -664,6 +670,8 @@ void MuonAlignmentFromReference::terminate() {
 	     << "        self.zFit_sigma = sigma" << std::endl
 	     << "        self.zFit_gamma = gamma" << std::endl
 	     << "        self.zFit_redchi2 = redchi2" << std::endl
+	     << "        self.zFit_posNum = posNum" << std::endl
+	     << "        self.zFit_negNum = negNum" << std::endl
 	     << "" << std::endl
 	     << "    def parameters(self, deltax, deltay, deltaz, deltaphix, deltaphiy, deltaphiz):" << std::endl
 	     << "        self.deltax, self.deltay, self.deltaz, self.deltaphix, self.deltaphiy, self.deltaphiz = \\" << std::endl
@@ -768,6 +776,8 @@ void MuonAlignmentFromReference::terminate() {
 	  name2 << name.str() << "_phiyFit";
 	  phiyFitter->second->plot(0., name2.str(), &rootDirectory);
 	  double redchi2 = phiyFitter->second->redchi2(0., name2.str(), &rootDirectory);
+	  long posNum = phiyFitter->second->numResidualsPos();
+	  long negNum = phiyFitter->second->numResidualsNeg();
 
 	  double angle_value = phiyFitter->second->value(MuonResidualsAngleFitter::kAngle);
 	  double angle_error = phiyFitter->second->error(MuonResidualsAngleFitter::kAngle);
@@ -808,7 +818,7 @@ void MuonAlignmentFromReference::terminate() {
 	    else {
 	      report << "                    None, \\" << std::endl;
 	    }
-	    report << "                    " << redchi2 << ")" << std::endl;
+	    report << "                    " << redchi2 << ", " << posNum << ", " << negNum << ")" << std::endl;
 	  } // end if writeReport
 	}
 	else if (writeReport) {
@@ -826,6 +836,8 @@ void MuonAlignmentFromReference::terminate() {
 	  name2 << name.str() << "_rphiFit";
 	  rphiFitter->second->plot(phiyValue, name2.str(), &rootDirectory);
 	  double redchi2 = rphiFitter->second->redchi2(phiyValue, name2.str(), &rootDirectory);
+	  long posNum = rphiFitter->second->numResidualsPos();
+	  long negNum = rphiFitter->second->numResidualsNeg();
 
 	  double position_value = rphiFitter->second->value(MuonResidualsPositionFitter::kPosition);
 	  double position_error = rphiFitter->second->error(MuonResidualsPositionFitter::kPosition);
@@ -911,7 +923,7 @@ void MuonAlignmentFromReference::terminate() {
 	    else {
 	      report << "                    None, \\" << std::endl;
 	    }
-	    report << "                    " << redchi2 << ")" << std::endl;
+	    report << "                    " << redchi2 << ", " << posNum << ", " << negNum << ")" << std::endl;
 	  } // end if writeReport
 	}
 	else if (writeReport) {
@@ -931,6 +943,8 @@ void MuonAlignmentFromReference::terminate() {
 	  name2 << name.str() << "_phixFit";
 	  phixFitter->second->plot(0., name2.str(), &rootDirectory);
 	  double redchi2 = phixFitter->second->redchi2(0., name2.str(), &rootDirectory);
+	  long posNum = phixFitter->second->numResidualsPos();
+	  long negNum = phixFitter->second->numResidualsNeg();
 
 	  double angle_value = phixFitter->second->value(MuonResidualsAngleFitter::kAngle);
 	  double angle_error = phixFitter->second->error(MuonResidualsAngleFitter::kAngle);
@@ -965,7 +979,7 @@ void MuonAlignmentFromReference::terminate() {
 	    else {
 	      report << "                    None, \\" << std::endl;
 	    }
-	    report << "                    " << redchi2 << ")" << std::endl;
+	    report << "                    " << redchi2 << ", " << posNum << ", " << negNum << ")" << std::endl;
 	  } // end if writeReport
 	}
 	else if (writeReport) {
@@ -983,6 +997,8 @@ void MuonAlignmentFromReference::terminate() {
 	  name2 << name.str() << "_zFit";
 	  zFitter->second->plot(phixValue, name2.str(), &rootDirectory);
 	  double redchi2 = zFitter->second->redchi2(phixValue, name2.str(), &rootDirectory);
+	  long posNum = zFitter->second->numResidualsPos();
+	  long negNum = zFitter->second->numResidualsNeg();
 
 	  double position_value = zFitter->second->value(MuonResidualsPositionFitter::kPosition);
 	  double position_error = zFitter->second->error(MuonResidualsPositionFitter::kPosition);
@@ -1032,7 +1048,7 @@ void MuonAlignmentFromReference::terminate() {
 	    else {
 	      report << "                 None, \\" << std::endl;
 	    }
-	    report << "                 " << redchi2 << ")" << std::endl;
+	    report << "                 " << redchi2 << ", " << posNum << ", " << negNum << ")" << std::endl;
 	  } // end if writeReport
 	}
 	else if (writeReport) {
