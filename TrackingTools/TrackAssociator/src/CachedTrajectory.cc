@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.15.2.2 2008/08/07 00:45:13 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.18 2008/08/07 02:06:23 dmytro Exp $
 //
 //
 
@@ -43,11 +43,16 @@ void CachedTrajectory::propagateForward(SteppingHelixStateInfo& state, float dis
    Surface::RotationType rotation(r11, r12, r13,
 				  r21, r22, r23,
 				  r31, r32, r33);
-   Surface* target = new Plane(state.position()+vector*distance, rotation);
+   Plane::PlanePointer target = Plane::build(state.position()+vector*distance, rotation);
+   propagate(state, *target);
+}
+
+void CachedTrajectory::propagate(SteppingHelixStateInfo& state, const Plane& plane)
+{
    if( const SteppingHelixPropagator* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_) )
      {
 	try {
-	   state = shp->propagate(state, *target);
+	   state = shp->propagate(state, plane);
 	}
 	catch(cms::Exception &ex){
            edm::LogWarning("TrackAssociator") << 
@@ -61,15 +66,34 @@ void CachedTrajectory::propagateForward(SteppingHelixStateInfo& state, float dis
      {
 	FreeTrajectoryState fts;
 	state.getFreeState( fts );
-	TrajectoryStateOnSurface stateOnSurface = propagator_->propagate(fts, *target);
+	TrajectoryStateOnSurface stateOnSurface = propagator_->propagate(fts, plane);
 	state = SteppingHelixStateInfo( *(stateOnSurface.freeState()) );
      }
-   delete target;
-   // LogTrace("TrackAssociator")
-   // << state.position().mag() << " , "   << state.position().eta() << " , "
-   // << state.position().phi();
 }
 
+void CachedTrajectory::propagate(SteppingHelixStateInfo& state, const Cylinder& cylinder)
+{
+   if( const SteppingHelixPropagator* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_) )
+     {
+	try {
+	   state = shp->propagate(state, cylinder);
+	}
+	catch(cms::Exception &ex){
+           edm::LogWarning("TrackAssociator") << 
+                "Caught exception " << ex.category() << ": " << ex.explainSelf();
+	   edm::LogWarning("TrackAssociator") << "An exception is caught during the track propagation\n"
+	     << state.momentum().x() << ", " << state.momentum().y() << ", " << state.momentum().z();
+	   state = SteppingHelixStateInfo();
+	}
+     }
+   else
+     {
+	FreeTrajectoryState fts;
+	state.getFreeState( fts );
+	TrajectoryStateOnSurface stateOnSurface = propagator_->propagate(fts, cylinder);
+	state = SteppingHelixStateInfo( *(stateOnSurface.freeState()) );
+     }
+}
 
 bool CachedTrajectory::propagateAll(const SteppingHelixStateInfo& initialState)
 {
@@ -83,6 +107,7 @@ bool CachedTrajectory::propagateAll(const SteppingHelixStateInfo& initialState)
    reset_trajectory();
    if (propagator_==0) throw cms::Exception("FatalError") << "Track propagator is not defined\n";
    SteppingHelixStateInfo currentState(initialState);
+   fullTrajectory_.push_back(currentState);
 
    while (currentState.position().perp()<maxRho_ && fabs(currentState.position().z())<maxZ_ ){
       LogTrace("TrackAssociator") << "[propagateAll] Propagate outward from (rho, r, z, phi) (" << 
@@ -327,16 +352,24 @@ void CachedTrajectory::getTrajectory(std::vector<SteppingHelixStateInfo>& trajec
    //      of fast root search (Newton method)
    //   2) propagate from the closest point outside the region with the 
    //      requested step ignoring stored trajectory points.
+   double dZ(-1.);
+   double dR(-1.);
+   int firstPointInside(-1);
    for(uint i=0; i<fullTrajectory_.size(); i++) {
       // LogTrace("TrackAssociator") << "Trajectory info (i,perp,r1,r2,z,z1,z2): " << i << ", " << fullTrajectory_[i].position().perp() <<
       //	", " << volume.minR() << ", " << volume.maxR() << ", " << fullTrajectory_[i].position().z() << ", " << volume.minZ() << ", " << 
       //	volume.maxZ() << ", " << closestPointOnLeft;
-      if ( fullTrajectory_[i].position().perp()-volume.minR() > 0  || fabs(fullTrajectory_[i].position().z()) - volume.minZ() >0 )
+      dR = fullTrajectory_[i].position().perp()-volume.minR();
+      dZ = fabs(fullTrajectory_[i].position().z()) - volume.minZ();
+      if ( dR> 0  || dZ >0 )
 	{
-	   if (i>0) 
-	     closestPointOnLeft = i - 1;
-	   else
-	     closestPointOnLeft = 0;
+	   if (i>0) {
+	      firstPointInside = i;
+	      closestPointOnLeft = i - 1;
+	   } else {
+	      firstPointInside = 0;
+	      closestPointOnLeft = 0;
+	   }
 	   break;
 	}
    }
@@ -348,7 +381,25 @@ void CachedTrajectory::getTrajectory(std::vector<SteppingHelixStateInfo>& trajec
 	currentState.position().z()*currentState.momentum().z() < 0 )
      step = -step;
    
-   while (currentState.position().perp() < volume.maxR() && fabs(currentState.position().z()) < volume.maxZ() )
+   // propagate to the inner surface of the active volume
+
+   if (firstPointInside != closestPointOnLeft) {
+      if ( dR > 0 ) {
+	 Cylinder::CylinderPointer barrel = Cylinder::build( Cylinder::PositionType (0, 0, 0), Cylinder::RotationType (), volume.minR());
+	 propagate(currentState, *barrel);
+      } else {
+	 Plane::PlanePointer endcap = Plane::build( Plane::PositionType (0, 0, 
+									 currentState.position().z()>0?volume.minZ():-volume.minZ()), 
+						    Plane::RotationType () );
+	 propagate(currentState, *endcap);
+      }
+      if ( currentState.isValid() ) trajectory.push_back(currentState);
+   } else
+     LogTrace("TrackAssociator") << "Weird message\n";
+
+   while (currentState.isValid() &&
+	  currentState.position().perp()    < volume.maxR() && 
+	  fabs(currentState.position().z()) < volume.maxZ() )
      {
 	propagateForward(currentState,step);
 	if (! currentState.isValid() ) {

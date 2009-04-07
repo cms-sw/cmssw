@@ -18,7 +18,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CachedTrajectory.h,v 1.10.2.1 2008/05/22 23:21:53 dmytro Exp $
+// $Id: CachedTrajectory.h,v 1.11 2008/08/07 02:06:23 dmytro Exp $
 //
 //
 
@@ -43,10 +43,12 @@ class CachedTrajectory {
    bool propagateAll(const SteppingHelixStateInfo& initialState);
    
    void propagateForward(SteppingHelixStateInfo& state, float distance);
+   void propagate(SteppingHelixStateInfo& state, const Plane& plane);
+   void propagate(SteppingHelixStateInfo& state, const Cylinder& cylinder);
 
    /// get fast to a given DetId surface using cached trajectory
    TrajectoryStateOnSurface propagate(const Plane* plane);
- 
+   
    /// calculate trajectory change (Theta,Phi)
    /// delta = final - original
    std::pair<float,float> trajectoryDelta( TrajectorType );
