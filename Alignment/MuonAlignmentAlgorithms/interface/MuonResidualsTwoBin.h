@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsTwoBin_H
 
 /** \class MuonResidualsTwoBin
- *  $Date: 2009/03/24 12:40:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/03/24 17:17:43 $
+ *  $Revision: 1.3 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -73,7 +73,7 @@ public:
       std::string nameNeg = name + std::string("Neg");
       double chi2 = 0.;
       chi2 += m_pos->redchi2(v1, namePos, dir, write, bins, low, high);
-      chi2 += m_neg->redchi2(v1, namePos, dir, write, bins, low, high);
+      chi2 += m_neg->redchi2(v1, nameNeg, dir, write, bins, low, high);
       return chi2;
     }
     else return m_pos->redchi2(v1, name, dir, write, bins, low, high);
