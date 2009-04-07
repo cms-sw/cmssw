@@ -35,7 +35,7 @@ trueTaus = cms.Sequence(
 if( fromTaus==True):
     # taking the taus, reconstructed from the signal cone elements
     # and as a reference the tau genjets
-    pfsource = 'pfRecoTauProducerHighEfficiency'
+    pfsource = 'shrinkingConePFTauProducer'
     gensource = 'tauGenJetsSelectorAllHadrons'
     trueTaus = cms.Sequence(
         tauGenJets + 

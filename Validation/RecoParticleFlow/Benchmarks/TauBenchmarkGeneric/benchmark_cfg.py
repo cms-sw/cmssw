@@ -7,7 +7,7 @@ process = cms.Process("TEST")
 process.load("DQMServices.Core.DQM_cfg")
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/g/gennai/CMSSW_310_pre2/ZTT_fastsim.root' )
+                            fileNames = cms.untracked.vstring('file:aod.root' )
                             )
 
 process.maxEvents = cms.untracked.PSet(
