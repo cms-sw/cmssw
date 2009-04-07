@@ -5,6 +5,7 @@
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/L1CaloTrigger>
 <use name=DataFormats/L1GlobalCaloTrigger>
+<use name=DataFormats/L1Trigger>
 
 
 <library file=*.cc name=EventFilterGctRawToDigiPlugins>

@@ -2,6 +2,7 @@
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/L1CaloTrigger>
 <use name=DataFormats/L1GlobalCaloTrigger>
+<use name=DataFormats/L1Trigger>
 <use name=L1Trigger/TextToDigi>
 
 <export>
@@ -10,5 +11,6 @@
    <use name=DataFormats/FEDRawData>
    <use name=DataFormats/L1CaloTrigger>
    <use name=DataFormats/L1GlobalCaloTrigger>
+   <use name=DataFormats/L1Trigger>
    <use name=L1Trigger/TextToDigi>
 </export>

@@ -16,12 +16,14 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.25 2009/03/16 17:01:47 frazier Exp $
+// $Id: GctRawToDigi.h,v 1.5 2009/04/06 18:47:59 frazier Exp $
 //
 //
 
 // system include files
 #include <memory>
+#include <ostream>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -32,7 +34,8 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
-#include "EventFilter/GctRawToDigi/src/GctBlockUnpackerBase.h"
+#include "EventFilter/GctRawToDigi/src/GctUnpackCollections.h"
+#include "EventFilter/GctRawToDigi/src/GctFormatTranslateBase.h"
 
 
 // *******************************************************************
@@ -54,11 +57,11 @@ private: // methods
   
   /// Unpacks the raw data
   /*! \param invalidDataFlag - if true, then won't attempt unpack but just output empty collecions. */
-  void unpack(const FEDRawData& d, edm::Event& e, const bool invalidDataFlag=false);
+  void unpack(const FEDRawData& d, edm::Event& e, GctUnpackCollections * const colls);
 
-  /// Looks at the firmware version header in the S-Link packet and instantiates relevant unpacker + block lengths.
-  /*! Returns false on failure. */
-  void setupBlockUnpackerAndBlockLengths(const unsigned char * data);
+  /// Looks at the firmware version header in the S-Link packet and instantiates relevant format translator.
+  /*! Returns false if it fails to instantiate a Format Translator */
+  bool autoDetectRequiredFormatTranslator(const unsigned char * data);
 
   virtual void endJob();
 
@@ -72,13 +75,13 @@ private: // members
 
   // unpacking options
   const bool hltMode_;  ///< If true, only outputs the GT output data, and only BX = 0.
-  const unsigned unpackerVersion_;  ///< Defines unpacker verison to be used (0=auto-detect, or 1-3 for V1-V3 unpackers).
+  const unsigned formatVersion_;  ///< Defines unpacker verison to be used (e.g.: "Auto-detect", "MCLegacy", "V35", etc).
   const bool verbose_;  ///< If true, then debug print out for each event.
 
   // Block to Digi converter
-  GctBlockUnpackerBase * blockUnpacker_;
+  GctFormatTranslateBase * formatTranslator_;
 
-  unsigned unpackFailures_;  ///< To count the total number of GCT unpack failures.
+  unsigned unpackFailures_;  ///< To count the total number of GCT unpack failures.  
 };
 
 #endif
