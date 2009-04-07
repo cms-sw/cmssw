@@ -18,7 +18,7 @@
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.h,v 1.2 2007/09/28 11:10:50 chiorbo Exp $
+// $Id: TriggerValidator.h,v 1.7 2009/01/27 11:55:10 chiorbo Exp $
 //
 //
 
@@ -94,6 +94,7 @@ class TriggerValidator : public edm::EDAnalyzer {
       //Histo
       std::string HistoFileName;
       std::string StatFileName;
+      edm::InputTag l1Label;
       edm::InputTag hltLabel;
 
       //McFlag

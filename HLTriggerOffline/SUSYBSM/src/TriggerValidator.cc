@@ -15,7 +15,7 @@ Implementation:
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.cc,v 1.9 2009/01/28 10:16:19 chiorbo Exp $
+// $Id: TriggerValidator.cc,v 1.10 2009/01/29 18:40:31 chiorbo Exp $
 //
 //
 
@@ -89,6 +89,7 @@ TriggerValidator::TriggerValidator(const edm::ParameterSet& iConfig):
 					      std::string("SusyBsmTriggerValidation.root"))),
   StatFileName(iConfig.getUntrackedParameter("statFileName",
 					      std::string("SusyBsmTriggerValidation.stat"))),
+  l1Label(iConfig.getParameter<edm::InputTag>("L1Label")),
   hltLabel(iConfig.getParameter<edm::InputTag>("HltLabel")),
   mcFlag(iConfig.getUntrackedParameter<bool>("mc_flag",false)),
   userCut_params(iConfig.getParameter<ParameterSet>("UserCutParams")),
@@ -191,7 +192,8 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //we need to use L1GlobalTriggerObjectMapRecord
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
     //    iEvent.getByLabel("l1GtEmulDigis", gtObjectMapRecord);
-    iEvent.getByLabel("hltL1GtObjectMap", gtObjectMapRecord);
+    //    iEvent.getByLabel("hltL1GtObjectMap", gtObjectMapRecord);
+    iEvent.getByLabel(l1Label, gtObjectMapRecord);
     const std::vector<L1GlobalTriggerObjectMap>& objMapVec =
       gtObjectMapRecord->gtObjectMap();
     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin();

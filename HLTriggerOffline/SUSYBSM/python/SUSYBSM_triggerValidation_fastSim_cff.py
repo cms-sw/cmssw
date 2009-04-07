@@ -20,7 +20,7 @@ HLTSusyExoVal = cms.EDAnalyzer("TriggerValidator",
     ),
     statFileName = cms.untracked.string('MonElements_LM1_IDEAL_30x_v1_300pre7.stat'),
     dirname = cms.untracked.string('HLT/SusyExo'),
-    L1Label = cms.InputTag("hltL1GtObjectMap"),
+    L1Label = cms.InputTag("gtDigis"),
     HltLabel = cms.InputTag("TriggerResults","","HLT"),
     # if mc_flag = false the McSelection folder will contain empty histograms
     UserCutParams = cms.PSet(
