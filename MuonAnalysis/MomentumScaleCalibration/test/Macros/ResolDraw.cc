@@ -45,7 +45,7 @@ TList *FileList;
 TFile *Target;
 void draw( TDirectory *target, TList *sourcelist, const bool doHalfEta );
 
-void Draw(const bool doHalfEta = false) {
+void ResolDraw(const bool doHalfEta = false) {
   // in an interactive ROOT session, edit the file names
   // Target and FileList, then
   // root > .L hadd.C

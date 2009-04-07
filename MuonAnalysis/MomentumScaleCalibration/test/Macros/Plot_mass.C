@@ -37,10 +37,10 @@ void drawMasses(const double ResMass, const double ResHalfWidth, histos & h)
   // Set a consistent binning
   int massXbins = h.mass->GetNbinsX();
   int massProbXbins = h.massProb->GetNbinsX();
-  if( massXbins > massProbXbins && h.mass->GetNbinsX() % h.massProb->GetNbinsX() != 0 ) {
+  if( massXbins > massProbXbins && massXbins % massProbXbins != 0 ) {
     cout << "Warning: number of bins are not multiples: massXbins = " << massXbins << ", massProbXbins = " << massProbXbins << endl;
   }
-  else if( h.mass->GetNbinsX() % h.massProb->GetNbinsX() != 0 ) {
+  else if( massProbXbins % massXbins != 0 ) {
     cout << "Warning: number of bins are not multiples: massXbins = " << massXbins << ", massProbXbins = " << massProbXbins << endl;
   }
   if( massProbXbins > massXbins ) {
@@ -51,17 +51,26 @@ void drawMasses(const double ResMass, const double ResHalfWidth, histos & h)
     cout << "massXbins("<<massXbins<<") > " << "massProbXbins("<<massProbXbins<<")" << endl;
     h.mass->Rebin(massXbins/massProbXbins);
   }
+  h.mass->SetAxisRange(ResMass - ResHalfWidth, ResMass + ResHalfWidth);
   double normFactor = (h.mass->Integral())/(h.massProb->Integral());
-  h.massProb->SetNormFactor(normFactor);
   h.massProb->SetAxisRange(ResMass - ResHalfWidth, ResMass + ResHalfWidth);
   h.massProb->SetLineColor(kBlue);
+  h.massProb->SetNormFactor(normFactor);
   h.mass->SetMarkerColor(kRed);
   cout << (h.massProb->GetMaximum())*normFactor << endl;
   cout << h.mass->GetMaximum() << endl;
   // ATTENTION: put so that the maximum is correct
   // if( (h.massProb->GetMaximum())*normFactor > h.mass->GetMaximum() ) h.massProb->DrawCopy();
-  h.mass->DrawCopy("PE");
-  h.massProb->DrawCopy("SAMEHISTO");
+  cout << "(h.massProb->GetMaximum())*normFactor = " << (h.massProb->GetMaximum())*normFactor << endl;
+  cout << "h.mass->GetMaximum() = " << h.mass->GetMaximum() << endl;
+  if( (h.massProb->GetMaximum())*normFactor > h.mass->GetMaximum() ) {
+    h.massProb->DrawCopy("PE");
+    h.mass->DrawCopy("SAMEHISTO");
+  }
+  else {
+    h.mass->DrawCopy("PE");
+    h.massProb->DrawCopy("SAMEHISTO");
+  }
 }
 
 /// Helper function to draw likelihood histograms
