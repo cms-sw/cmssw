@@ -64,6 +64,7 @@ namespace cond {
   
   
   IOVSequence::const_iterator IOVSequence::find(cond::Time_t time) const {
+    if (time>=lastTill()) return iovs().end();
     IOVSequence::const_iterator p = std::upper_bound(iovs().begin(),iovs().end(),Item(time),
 			    boost::bind(std::less<cond::Time_t>(),
 					boost::bind(&Item::sinceTime,_1),
