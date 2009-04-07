@@ -1,8 +1,8 @@
 /** \class StandAloneMuonFilter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2008/04/23 16:56:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/10/14 17:39:29 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonFilter.h"
@@ -162,7 +162,7 @@ vector<const DetLayer*> StandAloneMuonFilter::compatibleLayers(const DetLayer *i
     detLayers.insert(detLayers.begin(),initialLayer);
   }
   else if (theNavigationType == "Direct"){
-    DirectMuonNavigation navigation(&*theService->detLayerGeometry());
+    DirectMuonNavigation navigation(theService->detLayerGeometry());
     detLayers = navigation.compatibleLayers(fts,propDir);
   }
   else
