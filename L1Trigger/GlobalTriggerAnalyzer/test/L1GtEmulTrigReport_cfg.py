@@ -4,6 +4,12 @@
 #
 # V M Ghete 2009-03-03
 
+import FWCore.ParameterSet.Config as cms
+
+# process
+process = cms.Process('TestL1Gt')
+
+
 ###################### user choices ######################
 
 
@@ -11,10 +17,12 @@
 useRelValSample = True 
 #useRelValSample=False 
 
-# choose the global tag type for RelVal; 
-#     actual GlobalTag must be replaced in the "if" below 
-useGlobalTag = 'IDEAL'
-#useGlobalTag='STARTUP'
+if useRelValSample == True :
+    useGlobalTag = 'IDEAL_30X'
+    #useGlobalTag='STARTUP_30X'
+else :
+    useGlobalTag = 'CRAFT_ALL_V11'
+
 
 # explicit choice of the L1 menu - available choices:
 #l1Menu = 'L1Menu_Commissioning2009_v0'
@@ -30,14 +38,9 @@ useLocalFiles = False
 ###################### end user choices ###################
 
 
-import FWCore.ParameterSet.Config as cms
-
-# process
-process = cms.Process('TestL1Gt')
-
 # number of events to be processed and source file
 process.maxEvents = cms.untracked.PSet(
-    input=cms.untracked.int32(200)
+    input=cms.untracked.int32(10)
 )
 
 readFiles = cms.untracked.vstring()
@@ -47,23 +50,33 @@ process.source = cms.Source ('PoolSource', fileNames=readFiles, secondaryFileNam
 # type of sample used (True for RelVal, False for data)
 
 if useRelValSample == True :
-    if useGlobalTag == 'IDEAL':
+    if useGlobalTag.count('IDEAL') :
+
+
+        # /RelValTTbar/CMSSW_3_1_0_pre4_IDEAL_30X_v1/GEN-SIM-DIGI-RAW-HLTDEBUG
+        dataset = cms.untracked.vstring('RelValTTbar_CMSSW_3_1_0_pre4_IDEAL_30X_v1')
+        readFiles.extend([
+            '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/3AA6EEA4-3B16-DE11-B35F-001617C3B654.root',
+            '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/4250F67F-4C16-DE11-95D4-000423D98DC4.root',
+            '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/44601F6F-4A16-DE11-B830-001617E30D00.root',
+            '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/52C2A955-3716-DE11-87D2-000423D99A8E.root'
+        ]);
 
         #/RelValTTbar/CMSSW_2_2_4_IDEAL_V11_v1/GEN-SIM-DIGI-RAW-HLTDEBUG
-        dataset = cms.untracked.vstring('RelValTTbar_CMSSW_2_2_4_IDEAL_V11_v1')
-        
-        readFiles.extend([
-            '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V11_v1/0000/02697009-5CF3-DD11-A862-001D09F2423B.root',
-            '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V11_v1/0000/064657A8-59F3-DD11-ACA5-000423D991F0.root',
-            '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V11_v1/0000/0817F6DE-5BF3-DD11-880D-0019DB29C5FC.root',
-            '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V11_v1/0000/0899697C-5AF3-DD11-9D21-001617DBD472.root'
-            ]);
+        #dataset = cms.untracked.vstring('RelValTTbar_CMSSW_2_2_4_IDEAL_V11_v1')
+
+        #readFiles.extend([
+        #    '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V11_v1/0000/02697009-5CF3-DD11-A862-001D09F2423B.root',
+        #    '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V11_v1/0000/064657A8-59F3-DD11-ACA5-000423D991F0.root',
+        #    '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V11_v1/0000/0817F6DE-5BF3-DD11-880D-0019DB29C5FC.root',
+        #    '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V11_v1/0000/0899697C-5AF3-DD11-9D21-001617DBD472.root'
+        #    ]);
 
 
         secFiles.extend([
             ])
 
-    elif useGlobalTag == 'STARTUP':
+    elif useGlobalTag.count('STARTUP') :
 
         #/RelValTTbar/CMSSW_2_2_4_STARTUP_V8_v1/GEN-SIM-DIGI-RAW-HLTDEBUG
         dataset = cms.untracked.vstring('RelValTTbar_CMSSW_2_2_4_STARTUP_V8_v1')
@@ -91,6 +104,7 @@ else :
 
     secFiles.extend([
         ])
+
 
 if useLocalFiles :
     readFiles = 'file:/afs/cern.ch/user/g/ghete/scratch0/CmsswTestFiles/testGt_L1GtTrigReport_source.root'
@@ -150,10 +164,26 @@ process.l1GtEmulDigis.TechnicalTriggersInputTags = cms.VInputTag(cms.InputTag('b
 # even numbers (except 0) "rounded" to the nearest lower odd number
 # negative value: emulate TotalBxInEvent as given in EventSetup  
 #process.l1GtEmulDigis.EmulateBxInEvent = 3
+ 
+# number of BXs in the event corresponding to alternative 0 and 1 in altNrBxBoard()
+# EmulateBxInEvent >= max(RecordLength[0], RecordLength[1])
+# negative values: take the numbers from event setup, from L1GtParameters
+process.l1GtEmulDigis.RecordLength = cms.vint32(3, 5)
+
+# alternative for number of BX per active board in GT DAQ record: 0 or 1
+# the position is identical with the active board bit
+process.l1GtEmulDigis.AlternativeNrBxBoardDaq = cms.uint32(0x000F)  
+
+# alternative for number of BX per active board in GT EVM record: 0 or 1
+# the position is identical with the active board bit
+#process.l1GtEmulDigis.AlternativeNrBxBoardEvm = cms.uint32(0x0000)  
 
 # length of BST record (in bytes) from parameter set
 # negative value: take the value from EventSetup      
 #process.l1GtEmulDigis.BstLengthBytes = 52
+
+# 
+process.l1GtEmulDigis.Verbosity = cms.untracked.int32(1)
 
 # load and configure modules via Global Tag
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
@@ -161,19 +191,14 @@ process.l1GtEmulDigis.TechnicalTriggersInputTags = cms.VInputTag(cms.InputTag('b
 process.load('Configuration.StandardSequences.Geometry_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-if useRelValSample == True :
-    if useGlobalTag == 'IDEAL':
-        process.GlobalTag.globaltag = 'IDEAL_V11::All'
+process.GlobalTag.globaltag = useGlobalTag+'::All'
 
-    elif useGlobalTag == 'STARTUP':
-        process.GlobalTag.globaltag = 'STARTUP_V8::All'
+# TEMPORARY remove it after GTag OK
 
-    else :
-        print 'Error: Global Tag ', useGlobalTag, ' not defined.'    
-
-else :
-    process.GlobalTag.globaltag = 'CRAFT_ALL_V8::All'
-
+from CondTools.L1Trigger.L1CondDBSource_cff import initCondDBSource
+initCondDBSource( process,
+    inputDBConnect = 'sqlite_file:/afs/cern.ch/user/w/wsun/public/conddb/l1config31XV2.db',
+    tagBase = 'IDEAL')
 
 # explicit choice of the L1 menu
 
@@ -230,10 +255,10 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtEmulDigis', 'l1GtTrigReport']
 process.MessageLogger.categories.append('L1GlobalTrigger')
 process.MessageLogger.destinations = ['L1GtEmulTrigReport']
-process.MessageLogger.cout = cms.untracked.PSet(
-    #threshold=cms.untracked.string('DEBUG'),
+process.MessageLogger.L1GtEmulTrigReport = cms.untracked.PSet(
+    threshold=cms.untracked.string('DEBUG'),
     #threshold = cms.untracked.string('INFO'),
-    threshold = cms.untracked.string('ERROR'),
+    #threshold = cms.untracked.string('ERROR'),
     DEBUG=cms.untracked.PSet(
         limit=cms.untracked.int32(-1)
     ),
@@ -247,7 +272,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
         limit=cms.untracked.int32(-1)
     ),
     default = cms.untracked.PSet( 
-        limit=cms.untracked.int32(0)  
+        limit=cms.untracked.int32(-1)  
     ),
     L1GlobalTrigger = cms.untracked.PSet( 
         limit=cms.untracked.int32(-1)  
