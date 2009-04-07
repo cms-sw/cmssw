@@ -52,19 +52,18 @@ void PixelTrackProducer::store(edm::Event& ev, const TracksWithRecHits & tracksW
   std::auto_ptr<reco::TrackCollection> tracks(new reco::TrackCollection);
   std::auto_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection);
   std::auto_ptr<reco::TrackExtraCollection> trackExtras(new reco::TrackExtraCollection);
-  typedef std::vector<const TrackingRecHit *> RecHits;
-
 
   int cc = 0, nTracks = tracksWithHits.size();
 
   for (int i = 0; i < nTracks; i++)
   {
     reco::Track* track =  tracksWithHits.at(i).first;
-    const RecHits & hits = tracksWithHits.at(i).second;
+    const SeedingHitSet& hits = tracksWithHits.at(i).second;
 
     for (unsigned int k = 0; k < hits.size(); k++)
     {
-      TrackingRecHit *hit = (hits.at(k))->clone();
+      TrackingRecHit *hit = hits[k]->hit()->clone();
+
       track->setHitPattern(*hit, k);
       recHits->push_back(hit);
     }

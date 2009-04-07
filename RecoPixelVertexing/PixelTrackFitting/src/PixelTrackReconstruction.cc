@@ -104,13 +104,13 @@ void PixelTrackReconstruction::run(TracksWithRecHits & tracks, edm::Event& ev, c
       }
 
       // add tracks
-      tracks.push_back(TrackWithRecHits(track, hits));
+      tracks.push_back(TrackWithRecHits(track, triplet));
     }
-//    theGenerator->clear();
+    theGenerator->clear();
   }
 
   // skip ovelrapped tracks
-  if(theCleaner) tracks = theCleaner->cleanTracks(tracks);
+  if(theCleaner) tracks = theCleaner->cleanTracks(tracks); 
 
   // clean memory
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) delete (*ir);

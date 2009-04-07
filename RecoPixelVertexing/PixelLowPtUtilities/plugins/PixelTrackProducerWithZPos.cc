@@ -173,7 +173,7 @@ void PixelTrackProducerWithZPos::produce
       }
 
       // Add tracks 
-      tracks.push_back(TrackWithRecHits(track, hits));
+      tracks.push_back(TrackWithRecHits(track, triplet));
     }
   }
 
@@ -190,24 +190,23 @@ void PixelTrackProducerWithZPos::produce
 
 /*****************************************************************************/
 void PixelTrackProducerWithZPos::store
-  (edm::Event& ev, const TracksWithRecHits & cleanedTracks)
+(edm::Event& ev, const TracksWithRecHits & tracksWithHits)
 {
-  auto_ptr<TrackCollection>           tracks(new          TrackCollection);
-  auto_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection);
-  auto_ptr<TrackExtraCollection> trackExtras(new     TrackExtraCollection);
+  std::auto_ptr<reco::TrackCollection> tracks(new reco::TrackCollection);
+  std::auto_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection);
+  std::auto_ptr<reco::TrackExtraCollection> trackExtras(new reco::TrackExtraCollection);
 
-  typedef vector<const TrackingRecHit *> RecHits;
-
-  int cc = 0, nTracks = cleanedTracks.size();
+  int cc = 0, nTracks = tracksWithHits.size();
 
   for (int i = 0; i < nTracks; i++)
   {
-    reco::Track* track =  cleanedTracks.at(i).first;
-    const RecHits & hits = cleanedTracks.at(i).second;
+    reco::Track* track =  tracksWithHits.at(i).first;
+    const SeedingHitSet& hits = tracksWithHits.at(i).second;
 
     for (unsigned int k = 0; k < hits.size(); k++)
     {
-      TrackingRecHit *hit = (hits.at(k))->clone();
+      TrackingRecHit *hit = hits[k]->hit()->clone();
+
       track->setHitPattern(*hit, k);
       recHits->push_back(hit);
     }
@@ -222,7 +221,7 @@ void PixelTrackProducerWithZPos::store
 
   for (int k = 0; k < nTracks; k++)
   {
-    TrackExtra* theTrackExtra = new TrackExtra();
+    reco::TrackExtra* theTrackExtra = new reco::TrackExtra();
 
     //fill the TrackExtra with TrackingRecHitRef
     unsigned int nHits = tracks->at(k).numberOfValidHits();
@@ -236,13 +235,15 @@ void PixelTrackProducerWithZPos::store
   }
 
   LogDebug("TrackProducer") << "put the collection of TrackExtra in the event" << "\n";
-  edm::OrphanHandle<TrackExtraCollection> ohTE = ev.put(trackExtras);
+  edm::OrphanHandle<reco::TrackExtraCollection> ohTE = ev.put(trackExtras);
 
   for (int k = 0; k < nTracks; k++)
   {
-    const TrackExtraRef theTrackExtraRef(ohTE,k);
+    const reco::TrackExtraRef theTrackExtraRef(ohTE,k);
     (tracks->at(k)).setExtra(theTrackExtraRef);
   }
 
   ev.put(tracks);
+
 }
+

@@ -28,6 +28,7 @@ class TrackCleaner : public PixelTrackCleaner
     bool hasCommonLayer (std::vector<const TrackingRecHit *> recHitsA,
                          std::vector<const TrackingRecHit *> recHitsB,
                          std::vector<int> detLayers);
+   std::vector<const TrackingRecHit*> ttrhs(const SeedingHitSet & h) const;
 };
 
 #endif
