@@ -192,7 +192,7 @@ void gamma_radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	if(zMuSaMatch.isNonnull()) {  // ZMuSa matched
 	  FSR_mu0 = false;
 	  FSR_mu1 = false;
-	  
+	  zmscounter++;
 	  //MonteCarlo Study
 	  const reco::GenParticle * muMc0 = mu0.genLepton();
 	  const reco::GenParticle * muMc1 = mu1.genLepton();
@@ -259,7 +259,7 @@ void gamma_radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	if(zMuTkMatch.isNonnull()) {  // ZMuTk matched
 	  FSR_mu = false;
 	  FSR_tk = false;
-	
+	  zmtcounter++;
 	  //MonteCarlo Study
 	  const reco::GenParticle * muMc0 = mu0.genLepton();
 	  const reco::GenParticle * muMc1 = mu1.genParticle() ;
@@ -309,7 +309,7 @@ void gamma_radiative_analyzer::endJob() {
   cout <<" 1)Numero di ZMuMu matched dopo i tagli cinematici = "<< zmmcounter << endl;
   cout <<" 2)Numero di ZMuSa matched dopo i tagli cinematici = "<< zmscounter << endl;
   cout <<" 3)Numero di ZMuTk matched dopo i tagli cinematici = "<< zmtcounter << endl;	
-   cout <<"4)Number of gamma = "<< numofGamma << endl;
+  cout <<" 4)Number of gamma = "<< numofGamma << endl;
   }
   
 #include "FWCore/Framework/interface/MakerMacros.h"
