@@ -432,9 +432,11 @@ namespace edm {
   void
   RootOutputFile::insertAncestors(ProductProvenance const& iGetParents,
                                   Principal const& principal,
+                                  bool produced,
                                   std::set<ProductProvenance>& oToFill) {
-    if(om_->dropMetaData() == PoolOutputModule::DropAll) return;
-    if(om_->dropMetaDataForDroppedData()) return;
+    assert(om_->dropMetaData() != PoolOutputModule::DropAll);
+    assert(produced || om_->dropMetaData() != PoolOutputModule::DropPrior);
+    if(om_->dropMetaData() == PoolOutputModule::DropDroppedPrior && !produced) return;
     BranchMapper const& iMapper = *principal.branchMapperPtr();
     std::vector<BranchID> const& parentIDs = iGetParents.parentage().parents();
     for(std::vector<BranchID>::const_iterator it=parentIDs.begin(), itEnd = parentIDs.end();
@@ -446,7 +448,7 @@ namespace edm {
 		 principal.getProvenance(info->branchID()).product().produced()) {
 	  if(oToFill.insert(*info).second) {
             //haven't seen this one yet
-            insertAncestors(*info, principal, oToFill);
+            insertAncestors(*info, principal, produced, oToFill);
 	  }
 	}
       }
@@ -474,6 +476,7 @@ namespace edm {
        
       bool produced = i->branchDescription_->produced();
       bool keepProvenance = om_->dropMetaData() == PoolOutputModule::DropNone ||
+			    om_->dropMetaData() == PoolOutputModule::DropDroppedPrior ||
 			   (om_->dropMetaData() == PoolOutputModule::DropPrior && produced);
       bool getProd = (produced || !fastCloning ||
 	 treePointers_[branchType]->uncloned(i->branchDescription_->branchName()));
@@ -497,7 +500,7 @@ namespace edm {
 	if (keepProvenance) {
 	  provenanceToKeep.insert(*oh.productProvenance());
 	  assert(principal.branchMapperPtr());
-	  insertAncestors(*oh.productProvenance(), principal, provenanceToKeep);
+	  insertAncestors(*oh.productProvenance(), principal, produced, provenanceToKeep);
 	  parentageIDs_.insert(oh.productProvenance()->parentageID());
 	}
       }

@@ -84,6 +84,7 @@ namespace edm {
 
      void insertAncestors(ProductProvenance const& iGetParents,
                           Principal const& principal,
+                          bool produced,
                           std::set<ProductProvenance>& oToFill);
         
     //-------------------------------
