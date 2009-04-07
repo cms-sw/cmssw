@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.31 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWEventItem.h,v 1.32 2009/03/04 16:53:22 chrjones Exp $
 //
 
 // system include files
@@ -124,6 +124,10 @@ public:
    }
    FWSelectionManager* selectionManager() const {
       return m_context->selectionManager();
+   }
+   
+   FWColorManager* colorManager() const {
+      return m_context->colorManager();
    }
 
    bool hasEvent() const {
