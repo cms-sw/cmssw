@@ -175,7 +175,7 @@ namespace cond {
   }
 
   IOVElementProxy CondDB::payLoad(std::string const & token) const {
-    return IOVElementProxy(0,0,token,&me);
+    return IOVElementProxy(0,0,token,me);
 
   }
 
