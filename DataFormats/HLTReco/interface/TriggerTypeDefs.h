@@ -5,8 +5,8 @@
  *
  *  Misc. common simple typedefs
  *
- *  $Date: 2008/09/26 08:40:34 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/02/09 19:44:39 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -30,31 +30,41 @@ namespace trigger
     /// L1 - using cases as defined in enum L1GtObject, file:
     /// DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
-    TriggerL1Mu        = 81,
-    TriggerL1NoIsoEG   = 82,
-    TriggerL1IsoEG     = 83,
-    TriggerL1CenJet    = 84,
-    TriggerL1ForJet    = 85,
-    TriggerL1TauJet    = 86,
-    TriggerL1ETM       = 87,
-    TriggerL1ETT       = 88,
-    TriggerL1HTT       = 89,
-    TriggerL1JetCounts = 90,
+    TriggerL1Mu           = -81,
+    TriggerL1NoIsoEG      = -82,
+    TriggerL1IsoEG        = -83,
+    TriggerL1CenJet       = -84,
+    TriggerL1ForJet       = -85,
+    TriggerL1TauJet       = -86,
+    TriggerL1ETM          = -87,
+    TriggerL1ETT          = -88,
+    TriggerL1HTT          = -89,
+    TriggerL1HTM          = -90,
+    TriggerL1JetCounts    = -91,
+    TriggerL1HfBitCounts  = -92,
+    TriggerL1HfRingEtSums = -93,
+    TriggerL1TechTrig     = -94,
+    TriggerL1Castor       = -95,
+    TriggerL1BPTX         = -96,
 
     /// HLT
 
-    TriggerPhoton      = 91,
-    TriggerElectron    = 92,
-    TriggerMuon        = 93,
-    TriggerTau         = 94,
-    TriggerJet         = 95,
-    TriggerBJet        = 96,
-    TriggerMET         = 97,
-    TriggerHT          = 98,
-    TriggerTrack       = 99,
-    TriggerCluster     =100,
-    TriggerMETSig      =101,
-    TriggerELongit     =102
+    TriggerPhoton         = +81,
+    TriggerElectron       = +82,
+    TriggerMuon           = +83,
+    TriggerTau            = +84,
+    TriggerJet            = +85,
+    TriggerBJet           = +86,
+    TriggerMET            = +87,
+    TriggerTET            = +88,
+    TriggerTHT            = +89,
+    TriggerMHT            = +90,
+    TriggerTrack          = +91,
+    TriggerCluster        = +92,
+    TriggerMETSig         = +93,
+    TriggerELongit        = +94,
+    TriggerMHTSig         = +95,
+    TriggerHLongit        = +96
 
   };
 
