@@ -98,7 +98,7 @@ int main(){
       print(*iov.find(23));
       print(*iov.find(43));
       print(*iov.find(63));
-      iov.range(1,90);
+      iov.setRange(1,90);
       print(*iov.find(63));
     }
     delete session;
