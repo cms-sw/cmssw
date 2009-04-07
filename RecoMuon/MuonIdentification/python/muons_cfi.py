@@ -42,7 +42,10 @@ muons = cms.EDProducer("MuonIdProducer",
     fillIsolation = cms.bool(True),
     minNumberOfMatches = cms.int32(1),
     fillMatching = cms.bool(True),
-    trackPtThresholdToFillCandidateP4WithGlobalFit = cms.double(0.0)
+    #
+    # global fit for candidate p4 requirements
+    ptThresholdToFillCandidateP4WithGlobalFit = cms.double(200.0),
+    sigmaThresholdToFillCandidateP4WithGlobalFit = cms.double(2.0)
 )
 
 

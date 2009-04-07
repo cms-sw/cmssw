@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.34 2009/03/27 16:19:36 jribnik Exp $
+// $Id: MuonIdProducer.cc,v 1.35 2009/04/07 16:34:29 dmytro Exp $
 //
 //
 
@@ -67,7 +67,8 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    fillEnergy_              = iConfig.getParameter<bool>("fillEnergy");
    fillMatching_            = iConfig.getParameter<bool>("fillMatching");
    fillIsolation_           = iConfig.getParameter<bool>("fillIsolation");
-   trackPtThresholdToFillCandidateP4WithGlobalFit_ = iConfig.getParameter<double>("trackPtThresholdToFillCandidateP4WithGlobalFit");
+   ptThresholdToFillCandidateP4WithGlobalFit_    = iConfig.getParameter<double>("ptThresholdToFillCandidateP4WithGlobalFit");
+   sigmaThresholdToFillCandidateP4WithGlobalFit_ = iConfig.getParameter<double>("sigmaThresholdToFillCandidateP4WithGlobalFit");
    
    // Load TrackDetectorAssociator parameters
    edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
@@ -196,7 +197,10 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
 {
    LogTrace("MuonIdentification") << "Creating a muon from a link to tracks object";
    reco::Muon aMuon;
-   if ( links.trackerTrack()->pt() > trackPtThresholdToFillCandidateP4WithGlobalFit_ )
+   if ( links.trackerTrack()->pt() > ptThresholdToFillCandidateP4WithGlobalFit_ &&
+	links.globalTrack()->pt()  > ptThresholdToFillCandidateP4WithGlobalFit_ &&
+	( fabs(links.trackerTrack()->qoverpError()-links.globalTrack()->qoverpError()) < 
+	  sigmaThresholdToFillCandidateP4WithGlobalFit_ * links.trackerTrack()->qoverpError() ) )
      aMuon = makeMuon( *(links.globalTrack()) );
    else
      aMuon = makeMuon( *(links.trackerTrack()) );
