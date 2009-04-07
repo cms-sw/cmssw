@@ -163,12 +163,10 @@ int main( int argc, char** argv ){
        coraldb.start(true);
        token=metadata_svc.getToken(tag);
        coraldb.commit();
-       cond::PoolTransaction& pooldb = myconnection.poolTransaction();
        {
 	 cond::IOVProxy iov( myconnection, token, !details, details);
-	 cond::IOVService iovservice(pooldb);
 	 unsigned int counter=0;
-	 std::string payloadContainer=iovservice.payloadContainerName(token);
+	 std::string payloadContainer=iov.payloadContainerName(token);
 	 std::cout<<"Tag "<<tag;
 	 if (verbose) std::cout << "\nStamp: " << iov.iov().comment()
 				<< "; time " << iov.iov().timestamp()

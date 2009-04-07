@@ -8,6 +8,7 @@
 
 #include "CondFormats/Common/interface/IOVSequence.h"
 
+#include "POOLCore/Token.h"
 
 
 
@@ -109,5 +110,18 @@ namespace cond {
   TimeType IOVProxy::timetype() const {
     return iov().timeType();     
   }
+
+
+  std::string 
+  IOVProxy::payloadContainerName() const{
+    // FIXME move to metadata
+    std::string payloadtokstr=iov().iovs().front().wrapperToken();
+    pool::Token theTok;
+    theTok.fromString(payloadtokstr);
+    return theTok.contID();
+  }
+
+}
+
 
 }
