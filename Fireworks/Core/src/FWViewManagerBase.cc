@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:56:17 EST 2008
-// $Id: FWViewManagerBase.cc,v 1.11 2009/01/23 21:35:44 amraktad Exp $
+// $Id: FWViewManagerBase.cc,v 1.12 2009/04/07 14:02:32 chrjones Exp $
 //
 
 // system include files
@@ -133,6 +133,8 @@ FWViewManagerBase::setColorManager(FWColorManager* iCM)
    assert(0!= iCM);
    m_colorManager = iCM;
    m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWViewManagerBase::colorsChanged,this));
+   //make sure to pickup any changes that occurred earlier
+   colorsChanged();
 }
 
 //
