@@ -57,7 +57,7 @@ namespace cond {
     ~IOVProxy();
     
     IOVProxy(cond::PoolTransaction& db,
-	     const std::string & token, bool nolib);
+	     const std::string & token, bool nolib, bool keepOpen);
     
     struct IterHelp {
       typedef IOVElementProxy result_type;
