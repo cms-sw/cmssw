@@ -19,7 +19,6 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 process.source = cms.Source("PoolSource",
-    dropMetaData = cms.untracked.bool(True),
     processingMode = cms.untracked.string("RunsAndLumis"),
     fileNames = cms.untracked.vstring('file:FastMergeTest_1.root', 
         'file:FastMergeTest_2.root')
