@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/15 10:38:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/03/27 14:46:12 $
+ *  $Revision: 1.4 $
  *  \author M. Pelliccioni - INFN Torino
  */
 
@@ -108,8 +108,8 @@ void DTChamberEfficiencyClient::endLuminosityBlock(LuminosityBlock const& lumiSe
     TH2F* hCountQual = MECountQual->getTH2F();
     TH2F* hExtrap = MEExtrap->getTH2F();
 
-    int nBinX = summaryHistos[wheel+2][0]->getNbinsX();
-    int nBinY = summaryHistos[wheel+2][0]->getNbinsY();
+    const int nBinX = summaryHistos[wheel+2][0]->getNbinsX();
+    const int nBinY = summaryHistos[wheel+2][0]->getNbinsY();
 
     for(int j=1;j<=nBinX;j++){
       for(int k=1;k<=nBinY;k++){
@@ -127,6 +127,8 @@ void DTChamberEfficiencyClient::endLuminosityBlock(LuminosityBlock const& lumiSe
 	  const float effQual= numerQual/denom;
 	  const float eff_error_Qual = sqrt((effQual+effQual*effQual)/denom);
 
+	  //if(wheel == 2 && k == 2 && j == 2) cout << "Eff ch " << effAll << " " << lumiSeg.id() << endl;
+
 	  summaryHistos[wheel+2][0]->setBinContent(j,k,effAll);
 	  summaryHistos[wheel+2][0]->setBinError(j,k,eff_error_All);
 
@@ -143,9 +145,9 @@ void DTChamberEfficiencyClient::endLuminosityBlock(LuminosityBlock const& lumiSe
     // retrieve the chamber efficiency summary
     MonitorElement * segmentWheelSummary = summaryHistos[wheel+2][0];
     if(segmentWheelSummary != 0) {
-      float nFailingChambers = 0.;
 
       for(int sector=1; sector<=12; sector++) { // loop over sectors
+        float nFailingChambers = 0.;
 
 	double meaneff = 0.;
 	double errorsum = 0.;
@@ -154,8 +156,10 @@ void DTChamberEfficiencyClient::endLuminosityBlock(LuminosityBlock const& lumiSe
 	  
 	  const double tmpefficiency = segmentWheelSummary->getBinContent(sector, station);
 	  const double tmpvariance = pow(segmentWheelSummary->getBinError(sector, station),2);
+
+	  //if(wheel == 2 && sector == 9) cout << "ch " << station << " " << tmpefficiency << " " << tmpvariance << " " << lumiSeg.id() << endl;
 	  
-	  if(tmpefficiency == 0 || tmpvariance == 0){
+	  if(tmpefficiency < 0.2 || tmpvariance == 0){
 	    nFailingChambers++;
 	    continue;
 	  }
@@ -163,19 +167,38 @@ void DTChamberEfficiencyClient::endLuminosityBlock(LuminosityBlock const& lumiSe
 	  meaneff += tmpefficiency/tmpvariance;
 	  errorsum += 1./tmpvariance;
 
-	  if(tmpefficiency < 0.2) nFailingChambers++;
-
 	  LogTrace("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
 	    << "Wheel: " << wheel << " Stat: " << station
 	    << " Sect: " << sector << " status: " << meaneff/errorsum << endl;
 	}
 
-	const double eff_result = meaneff/errorsum;
+	if(sector == 4 || sector == 10) {
+	  int whichSector = (sector == 4) ? 13 : 14;
+
+	  const double tmpefficiency = segmentWheelSummary->getBinContent(whichSector, 4);
+	  const double tmpvariance = pow(segmentWheelSummary->getBinError(whichSector, 4),2);
+
+	  if(tmpefficiency > 0.2 && tmpvariance != 0) {
+	    meaneff += tmpefficiency/tmpvariance;
+	    errorsum += 1./tmpvariance;
+	  }
+	  else nFailingChambers++;
+
+	}
+
+	double eff_result = meaneff/errorsum;
+	if(nFailingChambers != 0) {
+	  if(sector != 4 && sector != 10) eff_result = eff_result*(4.-nFailingChambers)/4.;
+	  else eff_result = eff_result*(5.-nFailingChambers)/5.;
+	}
 
 	if(eff_result > 0.7) globalEffSummary->Fill(sector,wheel,1.);
 	else if(eff_result < 0.7 && eff_result > 0.5) globalEffSummary->Fill(sector,wheel,0.6);
 	else if(eff_result < 0.5 && eff_result > 0.3) globalEffSummary->Fill(sector,wheel,0.4);
 	else if(eff_result < 0.3 && eff_result > 0.) globalEffSummary->Fill(sector,wheel,0.15);
+
+	//if(wheel == 2 && sector == 9) cout << "eff_result " << eff_result << endl;
+	//if(wheel == 2 && sector == 9) cout << "nfail " << nFailingChambers++ << endl;
 
       }
     }
