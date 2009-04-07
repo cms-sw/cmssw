@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/01/28 14:49:46 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/03/12 08:40:50 $
+ *  $Revision: 1.14 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -45,10 +45,18 @@ MuonTestSummary::MuonTestSummary(const edm::ParameterSet& ps){
   resChargeLimit_tkGlb = ps.getParameter<double>("resChargeLimit_tkGlb");
   resChargeLimit_glbSta = ps.getParameter<double>("resChargeLimit_glbSta");
   resChargeLimit_tkSta = ps.getParameter<double>("resChargeLimit_tkSta");
-  numMatchedExpected = ps.getParameter<double>("numMatchedExpected");
+  numMatchedExpected_min = ps.getParameter<double>("numMatchedExpected_min");
+  numMatchedExpected_max = ps.getParameter<double>("numMatchedExpected_max");
+  matchesFractionDt_min = ps.getParameter<double>("matchesFractionDt_min");
+  matchesFractionDt_max = ps.getParameter<double>("matchesFractionDt_max");
+  matchesFractionCsc_min = ps.getParameter<double>("matchesFractionCsc_min");
+  matchesFractionCsc_max = ps.getParameter<double>("matchesFractionCsc_max");
+  resSegmTrack_min = ps.getParameter<double>("resSegmTrack_min");
+  resSegmTrack_max = ps.getParameter<double>("resSegmTrack_max");
   expMolteplicityGlb = ps.getParameter<double>("expMolteplicityGlb");
   expMolteplicityTk = ps.getParameter<double>("expMolteplicityTk");
   expMolteplicitySta = ps.getParameter<double>("expMolteplicitySta");
+
 }
 
 MuonTestSummary::~MuonTestSummary(){}
@@ -87,11 +95,14 @@ void MuonTestSummary::beginJob(const edm::EventSetup& context){
   residualsSummaryMap->setBinLabel(4,"q",2);
 
   // muonId test report
-  muonIdSummaryMap = dbe->book1D("muonIdSummaryMap","muonId test summary",3,1,4);
-  muonIdSummaryMap->setAxisTitle("test");
-  muonIdSummaryMap->setBinLabel(1,"#matchCh");
-  muonIdSummaryMap->setBinLabel(2,"#assSegm");
-  muonIdSummaryMap->setBinLabel(3,"resTrackSegm");
+  muonIdSummaryMap = dbe->book2D("muonIdSummaryMap","muonId test summary",2,1,3,3,1,4);
+  muonIdSummaryMap->setAxisTitle("muons",1);
+  muonIdSummaryMap->setBinLabel(1,"GLB",1);
+  muonIdSummaryMap->setBinLabel(2,"TK",1);
+  muonIdSummaryMap->setAxisTitle("tests",2);
+  muonIdSummaryMap->setBinLabel(1,"#matchCh",2);
+  muonIdSummaryMap->setBinLabel(2,"#assSegm",2);
+  muonIdSummaryMap->setBinLabel(3,"resTrackSegm",2);
 
   // energy test report
   energySummaryMap = dbe->book2D("energySummaryMap","Energy deposits test summary",3,1,4,3,1,4);
@@ -157,8 +168,10 @@ void MuonTestSummary::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Event
       residualsSummaryMap->Fill(xBin,yBin,0);
     }
   }
-  for(int xBin=1; xBin<=3; xBin++){
-    muonIdSummaryMap->Fill(xBin,0);
+  for(int xBin=1; xBin<=2; xBin++){
+    for(int yBin=1; yBin<=3; yBin++){
+      muonIdSummaryMap->Fill(xBin,yBin,0);
+    }
   }
   for(int xBin=1; xBin<=3; xBin++){
     for(int yBin=1; yBin<=3; yBin++){
@@ -173,6 +186,7 @@ void MuonTestSummary::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Event
       summaryReportMap->Fill(xBin,yBin,0);
     }
   }
+
 }
 
 
@@ -229,7 +243,8 @@ void MuonTestSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
   summaryReportMap->setBinContent(2,4,-1.0/6.0);
   summaryReportMap->setBinContent(3,4,-1.0/6.0);
   summaryReportMap->setBinContent(1,5,-1.0/6.0);
-  summaryReportMap->setBinContent(2,5,double(muonIdSummaryMap->getBinContent(1)+muonIdSummaryMap->getBinContent(2)+muonIdSummaryMap->getBinContent(3))/3.0);
+  summaryReportMap->setBinContent(1,5,double(muonIdSummaryMap->getBinContent(1,1)+muonIdSummaryMap->getBinContent(1,2)+muonIdSummaryMap->getBinContent(1,3))/3.0);
+  summaryReportMap->setBinContent(2,5,double(muonIdSummaryMap->getBinContent(2,1)+muonIdSummaryMap->getBinContent(2,2)+muonIdSummaryMap->getBinContent(2,3))/3.0);
   summaryReportMap->setBinContent(3,5,-1.0/6.0);
   summaryReportMap->setBinContent(1,6,double(energySummaryMap->getBinContent(1,1)+energySummaryMap->getBinContent(1,2)+energySummaryMap->getBinContent(1,3))/3.0);
   summaryReportMap->setBinContent(2,6,double(energySummaryMap->getBinContent(2,1)+energySummaryMap->getBinContent(2,2)+energySummaryMap->getBinContent(2,3))/3.0);
@@ -244,7 +259,7 @@ void MuonTestSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
   theSummaryContents[1]->Fill(residuals_GLB);
   double kinematics_TK = double(summaryReportMap->getBinContent(2,1)+summaryReportMap->getBinContent(2,2)+summaryReportMap->getBinContent(2,3))/3.0;
   theSummaryContents[2]->Fill(kinematics_TK);
-  double muonId_TK = summaryReportMap->getBinContent(2,5);
+  double muonId_TK = double(summaryReportMap->getBinContent(1,5)+summaryReportMap->getBinContent(2,5))/2.0;
   theSummaryContents[3]->Fill(muonId_TK);
   double GLB = (kinematics_GLB+residuals_GLB)/2.0;
   theSummaryContents[4]->Fill(GLB);
@@ -438,144 +453,153 @@ void MuonTestSummary::doResidualsTests(string type, string parameter, int bin){
 
 void MuonTestSummary::doMuonIDTests(){
 
-  // num matches test
-  string path = "Muons/MuonIdDQM/TrackerMuons/hNumMatches";
-  MonitorElement * matchesHisto = dbe->get(path);
+  vector<string> muType;
+  muType.push_back("GlobalMuons");
+  muType.push_back("TrackerMuons");
 
-  if(matchesHisto){
-    TH1F * matchesHisto_root = matchesHisto->getTH1F();
-    if(matchesHisto_root->GetMaximumBin() == numMatchedExpected || matchesHisto_root->GetMaximumBin() == numMatchedExpected+1)
-      muonIdSummaryMap->setBinContent(1,1);
-    else
-      muonIdSummaryMap->setBinContent(1,0);
-  }
+  for(int i=0; i<=1; i++){
 
-  
-  // num of associated segments (limits computed from simulated data)
-  double numOneSegm_dt = 0;
-  MonitorElement * DT1Histo = dbe->get("Muons/MuonIdDQM/TrackerMuons/hDT1NumSegments");
-  if(DT1Histo) numOneSegm_dt+=DT1Histo->getBinContent(2);
-  MonitorElement * DT2Histo = dbe->get("Muons/MuonIdDQM/TrackerMuons/hDT2NumSegments");
-  if(DT2Histo) numOneSegm_dt+=DT2Histo->getBinContent(2);
-  MonitorElement * DT3Histo = dbe->get("Muons/MuonIdDQM/TrackerMuons/hDT3NumSegments");
-  if(DT3Histo) numOneSegm_dt+=DT3Histo->getBinContent(2);
-  MonitorElement * DT4Histo = dbe->get("Muons/MuonIdDQM/TrackerMuons/hDT4NumSegments"); 
-  if(DT4Histo) numOneSegm_dt+=DT4Histo->getBinContent(2);
-  LogTrace(metname)<<"numOneSegm_dt: "<<numOneSegm_dt<<endl;
-  double fraction_dt=0;
-  if(numOneSegm_dt!=0){
-    fraction_dt = double(DT1Histo->getEntries())/numOneSegm_dt;
-    LogTrace(metname)<<"fraction_dt: "<<fraction_dt<<endl;
-  }
-
-  double numOneSegm_csc = 0;
-  MonitorElement * CSC1Histo = dbe->get("Muons/MuonIdDQM/TrackerMuons/hCSC1NumSegments");
-  if(CSC1Histo) numOneSegm_csc+=CSC1Histo->getBinContent(2);
-  MonitorElement * CSC2Histo = dbe->get("Muons/MuonIdDQM/TrackerMuons/hCSC2NumSegments");
-  if(CSC2Histo) numOneSegm_csc+=CSC2Histo->getBinContent(2);
-  MonitorElement * CSC3Histo = dbe->get("Muons/MuonIdDQM/TrackerMuons/hCSC3NumSegments");
-  if(CSC3Histo) numOneSegm_csc+=CSC3Histo->getBinContent(2);
-  MonitorElement * CSC4Histo = dbe->get("Muons/MuonIdDQM/TrackerMuons/hCSC4NumSegments");
-  if(CSC4Histo) numOneSegm_csc+=CSC4Histo->getBinContent(2);
-  LogTrace(metname)<<"numOneSegm_csc: "<<numOneSegm_csc<<endl;
-  double fraction_csc=0;
-  if(numOneSegm_csc!=0){
-    fraction_csc = double(CSC1Histo->getEntries())/numOneSegm_csc;
-    LogTrace(metname)<<"fraction_csc: "<<fraction_csc<<endl;
-  }
-
-  if((fraction_dt>0.7 && fraction_dt<0.8) && (fraction_csc>0.57 && fraction_csc<0.67))
-    muonIdSummaryMap->setBinContent(2,1);
-  else{
-    if((fraction_dt>0.7 && fraction_dt<0.8) || (fraction_csc>0.57 && fraction_csc<0.67))
-      muonIdSummaryMap->setBinContent(2,1.0/2.0);
-    else
-      muonIdSummaryMap->setBinContent(2,0);
-  }
-
-  // residuals test
-  vector<string> resHistos;
-  resHistos.push_back("hDT1Pullx");
-  resHistos.push_back("hDT2Pullx");
-  resHistos.push_back("hDT3Pullx");
-  resHistos.push_back("hDT4Pullx");
-  resHistos.push_back("hDT1Pully");
-  resHistos.push_back("hDT2Pully");
-  resHistos.push_back("hDT3Pully");
-  resHistos.push_back("hCSC1Pullx");
-  resHistos.push_back("hCSC2Pullx");
-  resHistos.push_back("hCSC3Pullx");
-  resHistos.push_back("hCSC4Pullx");
-  resHistos.push_back("hCSC1Pully");
-  resHistos.push_back("hCSC2Pully");
-  resHistos.push_back("hCSC3Pully");
-  resHistos.push_back("hCSC4Pully");
-
-  double dtSigma=0; 
-  double cscSigma=0;
-  int numPlot_dt=0;
-  int numPlot_csc=0;
-  for(int name=0; name<=14; name++){   
-    MonitorElement * resHisto = dbe->get("Muons/MuonIdDQM/TrackerMuons/"+resHistos[name]);
-    if(resHisto){
- 
-      TH1F * resHisto_root = resHisto->getTH1F();
-      if(resHisto_root->GetEntries()>20){
-	TF1 *gfit = new TF1("Gaussian","gaus",-2,2);
-	try {
-	  resHisto_root->Fit(gfit, "Q0");
-	} catch (...) {
-	  edm::LogError (metname)<< "[MuonTestSummary]: Exception when fitting "<<resHistos[name];
-	}
-	if(gfit){
-	  double mean = gfit->GetParameter(1); 
-	  double sigma = gfit->GetParameter(2);
-	  LogTrace(metname)<<"meanRes: "<<mean<<" for "<<resHistos[name]<<endl;
-	  LogTrace(metname)<<"sigmaRes: "<<sigma<<" for "<<resHistos[name]<<endl;
-	  if(name<=6) {
-	    dtSigma+=sigma;
-	    numPlot_dt++;
-	  }
-	  else {
-	    cscSigma+=sigma;
-	    numPlot_csc++;
-	  }
-	}
-      }
-      else{
-      LogTrace(metname) << "[MuonTestSummary]: Test of "<<resHistos[name]<< " not performed because # entries < 20 ";
-    }
-
-    }
-  } // loop over residuals histos
-  
-  LogTrace(metname)<<"meanDtSigma: "<<dtSigma/double(numPlot_dt)<<endl;
-  LogTrace(metname)<<"meanCscSigma: "<<cscSigma/double(numPlot_csc)<<endl;
-  if(numPlot_dt!=0 && numPlot_csc!=0){
-    if(((dtSigma/double(numPlot_dt))>0.95 && (dtSigma/double(numPlot_dt))<1.05) 
-       && ((cscSigma/double(numPlot_csc))>0.95 && (cscSigma/double(numPlot_csc))<1.05))
-      muonIdSummaryMap->setBinContent(3,1);
-    else{
-      if(((dtSigma/double(numPlot_dt))>0.95 && (dtSigma/double(numPlot_dt))<1.05) 
-	 || ((cscSigma/double(numPlot_csc))>0.95 && (cscSigma/double(numPlot_csc))<1.05))
-	muonIdSummaryMap->setBinContent(3,1.0/2.0);
+    // num matches test
+    string path = "Muons/MuonIdDQM/" + muType[i] + "/hNumMatches";
+    MonitorElement * matchesHisto = dbe->get(path);
+    
+    if(matchesHisto){
+        TH1F * matchesHisto_root = matchesHisto->getTH1F();
+      if(matchesHisto_root->GetMaximumBin() >= numMatchedExpected_min && matchesHisto_root->GetMaximumBin() <= numMatchedExpected_max)
+	muonIdSummaryMap->setBinContent(i+1,1,1);
       else
-	muonIdSummaryMap->setBinContent(3,0);
+	muonIdSummaryMap->setBinContent(i+1,1,0);
+    }
+    
+    
+    // num of associated segments (limits computed from simulated data)
+    double numOneSegm_dt = 0;
+    MonitorElement * DT1Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hDT1NumSegments");
+    if(DT1Histo) numOneSegm_dt+=DT1Histo->getBinContent(2);
+    MonitorElement * DT2Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hDT2NumSegments");
+    if(DT2Histo) numOneSegm_dt+=DT2Histo->getBinContent(2);
+    MonitorElement * DT3Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hDT3NumSegments");
+    if(DT3Histo) numOneSegm_dt+=DT3Histo->getBinContent(2);
+    MonitorElement * DT4Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hDT4NumSegments"); 
+    if(DT4Histo) numOneSegm_dt+=DT4Histo->getBinContent(2);
+    LogTrace(metname)<<"numOneSegm_dt: "<<numOneSegm_dt<<endl;
+    double fraction_dt=0;
+    if(numOneSegm_dt!=0){
+      fraction_dt = double(DT1Histo->getEntries())/numOneSegm_dt;
+      LogTrace(metname)<<"fraction_dt: "<<fraction_dt<<endl;
+    }
+
+    double numOneSegm_csc = 0;
+    MonitorElement * CSC1Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hCSC1NumSegments");
+    if(CSC1Histo) numOneSegm_csc+=CSC1Histo->getBinContent(2);
+    MonitorElement * CSC2Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hCSC2NumSegments");
+    if(CSC2Histo) numOneSegm_csc+=CSC2Histo->getBinContent(2);
+    MonitorElement * CSC3Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hCSC3NumSegments");
+    if(CSC3Histo) numOneSegm_csc+=CSC3Histo->getBinContent(2);
+    MonitorElement * CSC4Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hCSC4NumSegments");
+    if(CSC4Histo) numOneSegm_csc+=CSC4Histo->getBinContent(2);
+    LogTrace(metname)<<"numOneSegm_csc: "<<numOneSegm_csc<<endl;
+    double fraction_csc=0;
+    if(numOneSegm_csc!=0){
+      fraction_csc = double(CSC1Histo->getEntries())/numOneSegm_csc;
+      LogTrace(metname)<<"fraction_csc: "<<fraction_csc<<endl;
+    }
+    
+    if((fraction_dt>matchesFractionDt_min && fraction_dt<matchesFractionDt_max) && 
+       (fraction_csc>matchesFractionCsc_min && fraction_csc<matchesFractionCsc_max))
+      muonIdSummaryMap->setBinContent(i+1,2,1);
+    else{
+      if((fraction_dt>matchesFractionDt_min && fraction_dt<matchesFractionDt_max) || 
+	 (fraction_csc>matchesFractionCsc_min && fraction_csc<matchesFractionCsc_max))
+	muonIdSummaryMap->setBinContent(i+1,2,1.0/2.0);
+      else
+	muonIdSummaryMap->setBinContent(i+1,2,0);
+    }
+    
+    // residuals test
+    vector<string> resHistos;
+    resHistos.push_back("hDT1Pullx");
+    resHistos.push_back("hDT2Pullx");
+    resHistos.push_back("hDT3Pullx");
+    resHistos.push_back("hDT4Pullx");
+    resHistos.push_back("hDT1Pully");
+    resHistos.push_back("hDT2Pully");
+    resHistos.push_back("hDT3Pully");
+    resHistos.push_back("hCSC1Pullx");
+    resHistos.push_back("hCSC2Pullx");
+    resHistos.push_back("hCSC3Pullx");
+    resHistos.push_back("hCSC4Pullx");
+    resHistos.push_back("hCSC1Pully");
+    resHistos.push_back("hCSC2Pully");
+    resHistos.push_back("hCSC3Pully");
+    resHistos.push_back("hCSC4Pully");
+    
+    double dtSigma=0; 
+    double cscSigma=0;
+    int numPlot_dt=0;
+    int numPlot_csc=0;
+    for(int name=0; name<=14; name++){   
+      MonitorElement * resHisto = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/"+resHistos[name]);
+      if(resHisto){
+
+	TH1F * resHisto_root = resHisto->getTH1F();
+	if(resHisto_root->GetEntries()>20){
+	  TF1 *gfit = new TF1("Gaussian","gaus",-2,2);
+	  try {
+	    resHisto_root->Fit(gfit, "Q0");
+	  } catch (...) {
+	    edm::LogError (metname)<< "[MuonTestSummary]: Exception when fitting "<<resHistos[name];
+	  }
+	  if(gfit){
+	    double mean = gfit->GetParameter(1); 
+	    double sigma = gfit->GetParameter(2);
+	    LogTrace(metname)<<"meanRes: "<<mean<<" for "<<resHistos[name]<<endl;
+	    LogTrace(metname)<<"sigmaRes: "<<sigma<<" for "<<resHistos[name]<<endl;
+	    if(name<=6) {
+	      dtSigma+=sigma;
+	      numPlot_dt++;
+	    }
+	    else {
+	      cscSigma+=sigma;
+	      numPlot_csc++;
+	    }
+	  }
+	}
+	else{
+	  LogTrace(metname) << "[MuonTestSummary]: Test of "<<resHistos[name]<< " not performed because # entries < 20 ";
+	}
+	
+      }
+    } // loop over residuals histos
+  
+    LogTrace(metname)<<"meanDtSigma: "<<dtSigma/double(numPlot_dt)<<endl;
+    LogTrace(metname)<<"meanCscSigma: "<<cscSigma/double(numPlot_csc)<<endl;
+    if(numPlot_dt!=0 && numPlot_csc!=0){
+      if(((dtSigma/double(numPlot_dt))>resSegmTrack_min && (dtSigma/double(numPlot_dt))<resSegmTrack_max) 
+	 && ((cscSigma/double(numPlot_csc))>resSegmTrack_min && (cscSigma/double(numPlot_csc))<resSegmTrack_max))
+	muonIdSummaryMap->setBinContent(i+1,3,1);
+      else{
+	if(((dtSigma/double(numPlot_dt))>resSegmTrack_min && (dtSigma/double(numPlot_dt))<resSegmTrack_max) 
+	   || ((cscSigma/double(numPlot_csc))>resSegmTrack_min && (cscSigma/double(numPlot_csc))<resSegmTrack_max))
+	  muonIdSummaryMap->setBinContent(i+1,3,1.0/2.0);
+	else
+	  muonIdSummaryMap->setBinContent(i+1,3,0);
+      }
+    }
+    if(numPlot_dt!=0 && numPlot_csc==0){
+      if((dtSigma/double(numPlot_dt))>resSegmTrack_min && (dtSigma/double(numPlot_dt))<resSegmTrack_max) 
+	muonIdSummaryMap->setBinContent(i+1,3,1.0/2.0);
+      else
+	muonIdSummaryMap->setBinContent(i+1,3,0);
+    }
+    if(numPlot_dt==0 && numPlot_csc!=0){
+      if((cscSigma/double(numPlot_csc))>resSegmTrack_min && (cscSigma/double(numPlot_csc))<resSegmTrack_max)
+	muonIdSummaryMap->setBinContent(i+1,3,1.0/2.0);
+      else
+	muonIdSummaryMap->setBinContent(i+1,3,0);
     }
   }
-  if(numPlot_dt!=0 && numPlot_csc!=0){
-    if((dtSigma/double(numPlot_dt))>0.95 && (dtSigma/double(numPlot_dt))<1.05) 
-      muonIdSummaryMap->setBinContent(3,1.0/2.0);
-    else
-      muonIdSummaryMap->setBinContent(3,0);
-  }
-  if(numPlot_dt==0 && numPlot_csc!=0){
-    if((cscSigma/double(numPlot_csc))>0.95 && (cscSigma/double(numPlot_csc))<1.05)
-      muonIdSummaryMap->setBinContent(3,1.0/2.0);
-    else
-      muonIdSummaryMap->setBinContent(3,0);
-  }
-  
+ 
 }
 
 
