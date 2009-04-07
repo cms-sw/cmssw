@@ -31,7 +31,7 @@ void cond::Connection::connect( cond::DBSession* session ){
 */
 cond::CoralTransaction&
 cond::Connection::coralTransaction(){
-  if (!m_coralConnection)  
+  if (!m_coralConnection.get())  
     m_coralConnection.reset(new cond::CoralConnectionProxy(m_connectionServiceHandle,m_con,m_connectionTimeOut,m_idleConnectionCleanupPeriod));
 
   return static_cast<cond::CoralTransaction&>(m_coralConnection->transaction());
@@ -41,11 +41,11 @@ cond::Connection::coralTransaction(){
 cond::PoolTransaction&
 cond::Connection::poolTransaction(){
 
-  if(!m_poolConnection)
+  if(!m_poolConnection.get())
     m_poolConnection.reset(new cond::PoolConnectionProxy(m_connectionServiceHandle,m_blobstreamingServiceHandle,m_con,m_connectionTimeOut,m_idleConnectionCleanupPeriod)); 
  
 
-  return static_cast<cond::PoolTransaction&>(me->transaction());
+  return static_cast<cond::PoolTransaction&>(m_poolConnection->transaction());
 }
 
 std::string 
