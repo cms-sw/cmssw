@@ -12,6 +12,7 @@ using std::cout;
 using std::endl;
 using std::pair;
 using std::make_pair;
+using std::vector;
 
 // INITIALISE STATIC VARIABLES
 GctFormatTranslateMCLegacy::BlockLengthMap GctFormatTranslateMCLegacy::m_blockLength = GctFormatTranslateMCLegacy::BlockLengthMap();
@@ -336,18 +337,18 @@ void GctFormatTranslateMCLegacy::writeRctEmCandBlocks(unsigned char * d, const L
   // Now run the conversion
   for(unsigned c = 0 ; c < 18 ; ++c)
   {
-    srcCardRouting_.EMUtoSFP(emuToSfpData[c].eIsoRank, emuToSfpData[c].eIsoCardId, emuToSfpData[c].eIsoRegionId,
-                             emuToSfpData[c].eNonIsoRank, emuToSfpData[c].eNonIsoCardId, emuToSfpData[c].eNonIsoRegionId,
-                             emuToSfpData[c].mipBits, emuToSfpData[c].qBits, emuToSfpData[c].sfp);
+    srcCardRouting().EMUtoSFP(emuToSfpData[c].eIsoRank, emuToSfpData[c].eIsoCardId, emuToSfpData[c].eIsoRegionId,
+                              emuToSfpData[c].eNonIsoRank, emuToSfpData[c].eNonIsoCardId, emuToSfpData[c].eNonIsoRegionId,
+                              emuToSfpData[c].mipBits, emuToSfpData[c].qBits, emuToSfpData[c].sfp);
   }
   
   // Now pack up the data into the RAW format.
-  RctCrateMap::iterator blockStartCrateIter;
+  BlkToRctCrateMap::iterator blockStartCrateIter;
   for(blockStartCrateIter = rctCrate_.begin() ; blockStartCrateIter != rctCrate_.end() ; ++blockStartCrateIter)
   {
     unsigned blockId = blockStartCrateIter->first;
     unsigned startCrate = blockStartCrateIter->second;
-    unsigned blockLength_32bit = GctBlockHeaderV2(blockId, 1, 0, 0).length();
+    unsigned blockLength_32bit = blockLengthMap()[blockId];
     
     writeRawHeader(d, blockId, 1);
     d+=4; // move past header.
