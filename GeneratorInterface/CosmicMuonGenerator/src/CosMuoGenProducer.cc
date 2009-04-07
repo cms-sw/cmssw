@@ -33,6 +33,7 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
   PlugVtz(pset.getParameter<double>("PlugVz")),
   MinEn(pset.getParameter<double>("MinEnu")),
   MaxEn(pset.getParameter<double>("MaxEnu")),
+  NuPrdAlt(pset.getParameter<double>("NuProdAlt")),
   AllMu(pset.getParameter<bool>("AcptAllMu")),
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
   extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
@@ -76,6 +77,7 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     CosMuoGen->setPlugVz(PlugVtz);    
     CosMuoGen->setMinEnu(MinEn);
     CosMuoGen->setMaxEnu(MaxEn);    
+    CosMuoGen->setNuProdAlt(NuPrdAlt);
     CosMuoGen->setAcptAllMu(AllMu);
     CosMuoGen->initialize(&rng->getEngine());
     produces<HepMCProduct>();

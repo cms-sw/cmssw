@@ -24,6 +24,7 @@ generator = cms.EDProducer("CosMuoGenProducer",
     PlugVz = cms.double(-14000.0),                
     MinEnu = cms.double(10.),                
     MaxEnu = cms.double(10000.),                
+    NuProdAlt = cms.double(7.5e6),                       
     AcptAllMu = cms.bool(False),                
     Verbosity = cms.bool(False)
 )

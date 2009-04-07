@@ -492,15 +492,16 @@ double CMSCGEN::flux()
 
 
 
-int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, double Enumin_in, double Enumax_in, double Phimin_in, double Phimax_in, CLHEP::HepRandomEngine *rnd)
+int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, double Enumin_in, double Enumax_in, double Phimin_in, double Phimax_in, double ProdAlt_in, CLHEP::HepRandomEngine *rnd)
 {
   if (delRanGen)
     delete RanGen2;
   RanGen2 = rnd;
   delRanGen = false;
-  
+
+  ProdAlt = ProdAlt_in;
+
   Rnunubar = 1.2;
-  ProdAlt = 7.5e6; //mm
 
   sigma = (0.72*Rnunubar+0.09)/(1+Rnunubar)*1.e-38; //cm^2GeV^-1
 
@@ -563,13 +564,13 @@ int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, 
 
 } 
 
-int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, double Enumin_in, double Enumax_in, double Phimin_in, double Phimax_in, int RanSeed)
+int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, double Enumin_in, double Enumax_in, double Phimin_in, double Phimax_in, double ProdAlt_in, int RanSeed)
 {
   CLHEP::HepRandomEngine *rnd = new CLHEP::HepJamesRandom;
   //set seed for Random Generator (seed can be controled by config-file), P.Biallass 2006
   rnd->setSeed(RanSeed, 0);
   delRanGen = true;
-  return initializeNuMu(pmin_in, pmax_in, thetamin_in, thetamax_in, Enumin_in, Enumax_in, Phimin_in, Phimax_in, rnd);
+  return initializeNuMu(pmin_in, pmax_in, thetamin_in, thetamax_in, Enumin_in, Enumax_in, Phimin_in, Phimax_in, ProdAlt_in, rnd);
 }
 
 

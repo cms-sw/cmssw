@@ -55,6 +55,7 @@ namespace edm
     //For upgoing muon generation: Neutrino energy limits
     double MinEn;
     double MaxEn;
+    double NuPrdAlt;
 
     bool AllMu; //Accepting All Muons regardeless of direction
 

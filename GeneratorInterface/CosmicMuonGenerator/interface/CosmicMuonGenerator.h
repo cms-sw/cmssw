@@ -72,6 +72,7 @@ private:
   //For upgoing muon generation: Neutrino energy limits
   double MinEnu;
   double MaxEnu;
+  double NuProdAlt;
 
   bool AcptAllMu; //Accepting All Muons regardeless of direction
 
@@ -113,6 +114,7 @@ public:
   void setPlugVz(double PlugVtz);
   void setMinEnu(double MinEn);
   void setMaxEnu(double MaxEn);
+  void setNuProdAlt(double NuPrdAlt);
   void setAcptAllMu(bool AllMu);
 
 

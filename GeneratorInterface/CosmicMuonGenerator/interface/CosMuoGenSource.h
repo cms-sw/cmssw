@@ -55,13 +55,14 @@ namespace edm
     //For upgoing muon generation: Neutrino energy limits
     double MinEn;
     double MaxEn;
+    double NuPrdAlt;
 
+    bool AllMu; //Accepting All Muons regardeless of direction
 
     // external cross section and filter efficiency
     double extCrossSect;
     double extFilterEff;
 
-    bool AllMu; //Accepting All Muons regardeless of direction
     
     CosmicMuonGenerator* CosMuoGen;
     // the event format itself

@@ -86,7 +86,6 @@ private:
   double enumin;
   double enumax;
 
-
 public:
 
   // constructor
@@ -109,8 +108,8 @@ public:
   double flux();
    
   //upward going muons from neutrinos
-  int initializeNuMu(double, double, double, double, double, double, double, double, CLHEP::HepRandomEngine*);
-  int initializeNuMu(double, double, double, double, double, double, double, double, int);
+  int initializeNuMu(double, double, double, double, double, double, double, double, double, CLHEP::HepRandomEngine*);
+  int initializeNuMu(double, double, double, double, double, double, double, double, double, int);
   int generateNuMu();
 
 

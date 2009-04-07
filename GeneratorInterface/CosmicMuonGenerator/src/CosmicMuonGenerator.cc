@@ -110,7 +110,7 @@ void CosmicMuonGenerator::initialize(CLHEP::HepRandomEngine *rng){
     //set energy and angle limits for CMSCGEN, give same seed as above 
     if (MinTheta >= 90.*Deg2Rad) //upgoing muons from neutrinos
       Cosmics->initializeNuMu(MinP, MaxP, MinTheta, MaxTheta, MinEnu, MaxEnu, 
-			      MinPhi, MaxPhi, RanGen);
+			      MinPhi, MaxPhi, NuProdAlt, RanGen);
     else 
       Cosmics->initialize(MinP, MaxP, MinTheta, MaxTheta, RanGen, TIFOnly_constant, TIFOnly_linear);
    
@@ -135,23 +135,23 @@ void CosmicMuonGenerator::nextEvent(){
   // generate cosmic (E,theta,phi)
   bool   notSelected = true;
   while (notSelected){
-	bool   badMomentumGenerated = true;
-	while (badMomentumGenerated){
-
-	  if (MinTheta > 90.*Deg2Rad) //upgoing muons from neutrinos
-	    Cosmics->generateNuMu();
-	  else
-	    Cosmics->generate(); //dice one event now
-	  
-	  E = sqrt(Cosmics->momentum_times_charge()*Cosmics->momentum_times_charge() + MuonMass*MuonMass);
-	  Theta = TMath::ACos( Cosmics->cos_theta() ) ; //angle has to be in RAD here
+    bool   badMomentumGenerated = true;
+    while (badMomentumGenerated){
+      
+      if (MinTheta > 90.*Deg2Rad) //upgoing muons from neutrinos
+	Cosmics->generateNuMu();
+      else
+	Cosmics->generate(); //dice one event now
+      
+      E = sqrt(Cosmics->momentum_times_charge()*Cosmics->momentum_times_charge() + MuonMass*MuonMass);
+      Theta = TMath::ACos( Cosmics->cos_theta() ) ; //angle has to be in RAD here
 	  Ngen+=1.;   //count number of initial cosmic events (in surface area), vertices will be added later
 	  badMomentumGenerated = false;
 	  Phi = RanGen->flat()*(MaxPhi-MinPhi) + MinPhi;
-	}
-	Norm->events_n100cos(E, Theta); //test if this muon is in normalization range
-	Ndiced += 1; //one more cosmic is diced
-	//std::cout << "diced: E=" << E << " Theta=" << Theta << " Phi=" << Phi << std::endl;
+    }
+    Norm->events_n100cos(E, Theta); //test if this muon is in normalization range
+    Ndiced += 1; //one more cosmic is diced
+    //std::cout << "diced: E=" << E << " Theta=" << Theta << " Phi=" << Phi << std::endl;
     // generate vertex
     double Nver = 0.;
     bool   badVertexGenerated = true;
@@ -162,7 +162,8 @@ void CosmicMuonGenerator::nextEvent(){
       double dPhi = Pi; if (RxzV > Target3dRadius) dPhi = asin(Target3dRadius/RxzV);
       double rotPhi = PhiV + Pi; if (rotPhi > TwoPi) rotPhi -= TwoPi;
       double disPhi = fabs(rotPhi - Phi); if (disPhi > Pi) disPhi = TwoPi - disPhi;
-      if (disPhi < dPhi) badVertexGenerated = false;
+      //if (disPhi < dPhi) badVertexGenerated = false;
+      if (disPhi < dPhi || AcptAllMu) badVertexGenerated = false;
       Nver+=1.;
     }
     Ngen += (Nver-1.); //add number of generated vertices to initial cosmic events
@@ -273,7 +274,8 @@ void CosmicMuonGenerator::terminate(){
 
       if (MinTheta > 90.*Deg2Rad) {//upgoing muons from neutrinos) 
 	double Omega = (cos(MinTheta)-cos(MaxTheta)) * (MaxPhi-MinPhi);
-	EventRate = (Ndiced * 3.e-13) * Omega * area*1.e4 * selEff;//area in cm, flux=3.e-13cm^-2s^-1sr^-1
+ 	//EventRate = (Ndiced * 3.e-13) * Omega * area*1.e4 * selEff;//area in cm, flux=3.e-13cm^-2s^-1sr^-1
+ 	EventRate = (Ndiced * 3.e-13) * Omega * 4.*RadiusOfTarget*ZDistOfTarget*1.e-2 * selEff;//area in cm, flux=3.e-13cm^-2s^-1sr^-1
 	rateErr_stat = EventRate/sqrt( (double) Ndiced);  // stat. rate error 
 	rateErr_syst = EventRate/3.e-13 * 1.0e-13;  // syst. rate error, from error of known flux 
       }
@@ -510,6 +512,7 @@ void CosmicMuonGenerator::setPlugVz(double PlugVtz){ if (NotInitialized) PlugVz 
 
 void CosmicMuonGenerator::setMinEnu(double MinEn){ if (NotInitialized) MinEnu = MinEn; }
 void CosmicMuonGenerator::setMaxEnu(double MaxEn){ if (NotInitialized) MaxEnu = MaxEn; }
+void CosmicMuonGenerator::setNuProdAlt(double NuPrdAlt){ if (NotInitialized) NuProdAlt = NuPrdAlt; }
 
 double CosmicMuonGenerator::getRate(){ return EventRate; }
 
