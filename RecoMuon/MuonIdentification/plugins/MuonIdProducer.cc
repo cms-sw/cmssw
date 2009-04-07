@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.33 2009/03/27 02:23:58 ptraczyk Exp $
+// $Id: MuonIdProducer.cc,v 1.34 2009/03/27 16:19:36 jribnik Exp $
 //
 //
 
@@ -536,12 +536,34 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    
    if ( fillEnergy_ ) {
       reco::MuonEnergy muonEnergy;
-      muonEnergy.em  = info.crossedEnergy(TrackDetMatchInfo::EcalRecHits);
-      muonEnergy.had = info.crossedEnergy(TrackDetMatchInfo::HcalRecHits);
-      muonEnergy.ho  = info.crossedEnergy(TrackDetMatchInfo::HORecHits);
-      muonEnergy.emS9  = info.nXnEnergy(TrackDetMatchInfo::EcalRecHits,1); // 3x3 energy
-      muonEnergy.hadS9 = info.nXnEnergy(TrackDetMatchInfo::HcalRecHits,1); // 3x3 energy
-      muonEnergy.hoS9  = info.nXnEnergy(TrackDetMatchInfo::HORecHits,1);   // 3x3 energy
+      muonEnergy.em      = info.crossedEnergy(TrackDetMatchInfo::EcalRecHits);
+      muonEnergy.had     = info.crossedEnergy(TrackDetMatchInfo::HcalRecHits);
+      muonEnergy.ho      = info.crossedEnergy(TrackDetMatchInfo::HORecHits);
+      muonEnergy.tower   = info.crossedEnergy(TrackDetMatchInfo::TowerTotal);
+      muonEnergy.emS9    = info.nXnEnergy(TrackDetMatchInfo::EcalRecHits,1); // 3x3 energy
+      muonEnergy.emS25   = info.nXnEnergy(TrackDetMatchInfo::EcalRecHits,2); // 5x5 energy
+      muonEnergy.hadS9   = info.nXnEnergy(TrackDetMatchInfo::HcalRecHits,1); // 3x3 energy
+      muonEnergy.hoS9    = info.nXnEnergy(TrackDetMatchInfo::HORecHits,1);   // 3x3 energy
+      muonEnergy.towerS9 = info.nXnEnergy(TrackDetMatchInfo::TowerTotal,1);  // 3x3 energy
+      muonEnergy.ecal_position = info.trkGlobPosAtEcal;
+      muonEnergy.hcal_position = info.trkGlobPosAtHcal;
+      if (! info.crossedEcalIds.empty() ) muonEnergy.ecal_id = info.crossedEcalIds.front();
+      if (! info.crossedHcalIds.empty() ) muonEnergy.hcal_id = info.crossedHcalIds.front();
+      // find maximal energy depositions and their time
+      DetId emMaxId      = info.findMaxDeposition(TrackDetMatchInfo::EcalRecHits,2); // max energy deposit in 5x5 shape
+      for(std::vector<const EcalRecHit*>::const_iterator hit=info.ecalRecHits.begin(); 
+	  hit!=info.ecalRecHits.end(); ++hit) {
+	 if ((*hit)->id() != emMaxId) continue;
+	 muonEnergy.emMax   = (*hit)->energy();
+	 muonEnergy.ecal_time = (*hit)->energy();
+      }
+      DetId hadMaxId     = info.findMaxDeposition(TrackDetMatchInfo::HcalRecHits,1); // max energy deposit in 3x3 shape
+      for(std::vector<const HBHERecHit*>::const_iterator hit=info.hcalRecHits.begin(); 
+	  hit!=info.hcalRecHits.end(); ++hit) {
+	 if ((*hit)->id() != hadMaxId) continue;
+	 muonEnergy.hadMax   = (*hit)->energy();
+	 muonEnergy.hcal_time = (*hit)->energy();
+      }
       aMuon.setCalEnergy( muonEnergy );
    }
    if ( ! fillMatching_ ) return;
