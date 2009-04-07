@@ -93,6 +93,11 @@ int main(){
 		<<", Time Type " << iov.timetype() << std::endl;
       iov.head(2);
       std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
+      std::cout << "range 3,23,43,63" << std::endl;
+      print(*iov.find(3));
+      print(*iov.find(23));
+      print(*iov.find(43));
+      print(*iov.find(63));
     }
     delete session;
   }catch(const cond::Exception& er){
