@@ -46,7 +46,7 @@ HLTSusyExoVal = cms.EDAnalyzer("TriggerValidator",
         mc_ptJetMin = cms.double(40.0),
         mc_ptMuonMin = cms.double(10.0),
         mc_metMin = cms.double(50.0),
-        electrons = cms.string('pixelMatchGsfElectrons')
+        electrons = cms.string('gsfElectrons')
     ),
     mc_flag = cms.untracked.bool(True), ## put mc_flag = false if you don't want to use the mc information.
 
@@ -57,7 +57,7 @@ HLTSusyExoVal = cms.EDAnalyzer("TriggerValidator",
         def_photonPtMin = cms.double(30.0),
         l1extramc = cms.string('hltL1extraParticles'),
         calomet = cms.string('met'),
-        electrons = cms.string('pixelMatchGsfElectrons'),
+        electrons = cms.string('gsfElectrons'),
         jets = cms.string('iterativeCone5CaloJets'),
         muons = cms.string('muons'),
         def_jetPtMin = cms.double(30.0),
