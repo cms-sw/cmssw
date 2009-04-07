@@ -16,8 +16,8 @@
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 #include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h" 
 #include "DataFormats/L1Trigger/interface/L1DataEmulRecord.h"
-#include "DataFormats/L1Trigger/interface/L1HFRings.h"
-#include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
+//#include "DataFormats/L1Trigger/interface/L1HFRings.h"
+//#include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
 #include "DataFormats/L1Trigger/interface/L1TriggerError.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefVector.h"
@@ -32,7 +32,7 @@ namespace {
      l1extra::L1EtMissParticle etMiss ;
      l1extra::L1EtMissParticleCollection etMissColl ;
      l1extra::L1ParticleMapCollection mapColl ;
-     l1extra::L1HFRingsCollection hfRingsColl ;
+    //     l1extra::L1HFRingsCollection hfRingsColl ;
 
      edm::Wrapper<l1extra::L1EmParticleCollection> w_emColl;
      edm::Wrapper<l1extra::L1JetParticleCollection> w_jetColl;
@@ -40,25 +40,25 @@ namespace {
      edm::Wrapper<l1extra::L1EtMissParticle> w_etMiss;
      edm::Wrapper<l1extra::L1EtMissParticleCollection> w_etMissColl;
      edm::Wrapper<l1extra::L1ParticleMapCollection> w_mapColl;
-     edm::Wrapper<l1extra::L1HFRingsCollection> w_hfRingsColl;
+    //     edm::Wrapper<l1extra::L1HFRingsCollection> w_hfRingsColl;
 
      l1extra::L1EmParticleRef refEm ;
      l1extra::L1JetParticleRef refJet ;
      l1extra::L1MuonParticleRef refMuon ;
      l1extra::L1EtMissParticleRef refEtMiss ;
-     l1extra::L1HFRingsRef refHFRings ;
+    //     l1extra::L1HFRingsRef refHFRings ;
 
      l1extra::L1EmParticleRefVector refVecEmColl ;
      l1extra::L1JetParticleRefVector refVecJetColl ;
      l1extra::L1MuonParticleRefVector refVecMuonColl ;
      l1extra::L1EtMissParticleRefVector refVecEtMiss ;
-     l1extra::L1HFRingsRefVector refVecHFRings ;
+    //     l1extra::L1HFRingsRefVector refVecHFRings ;
 
      l1extra::L1EmParticleVectorRef vecRefEmColl ;
      l1extra::L1JetParticleVectorRef vecRefJetColl ;
      l1extra::L1MuonParticleVectorRef vecRefMuonColl ;
      l1extra::L1EtMissParticleVectorRef vecRefEtMissColl ;
-     l1extra::L1HFRingsVectorRef vecRefHFRingsColl ;
+    //     l1extra::L1HFRingsVectorRef vecRefHFRingsColl ;
 
      l1extra::L1EtMissParticleRefProd refProdEtMiss ;
 
