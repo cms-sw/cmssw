@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre2/1E31_V280/V2 (CMSSW_3_1_X_2009-04-02-0600_HLT2)
+# /dev/CMSSW_3_1_0/pre2/1E31_V284/V2 (CMSSW_3_1_X_2009-04-02-0600_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/1E31_V280/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/1E31_V284/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -1795,12 +1795,11 @@ hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
 hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
     debug = cms.untracked.bool( False ),
     dtDigiLabel = cms.InputTag( "hltMuonDTDigis" ),
-    recAlgo = cms.string( "DTParametrizedDriftAlgo" ),
+    recAlgo = cms.string( "DTLinearDriftFromDBAlgo" ),
     recAlgoConfig = cms.PSet( 
       tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
       tTrigModeConfig = cms.PSet( 
         debug = cms.untracked.bool( False ),
-        kFactor = cms.double( -2.0 ),
         vPropWire = cms.double( 24.4 ),
         doT0Correction = cms.bool( True ),
         doTOFCorrection = cms.bool( True ),
@@ -1809,8 +1808,7 @@ hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
         wirePropCorrType = cms.int32( 1 )
       ),
       minTime = cms.double( -3.0 ),
-      maxTime = cms.double( 415.0 ),
-      interpolate = cms.bool( True ),
+      maxTime = cms.double( 420.0 ),
       debug = cms.untracked.bool( False )
     )
 )
