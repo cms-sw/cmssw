@@ -344,7 +344,7 @@ void GctFormatTranslateMCLegacy::writeRctEmCandBlocks(unsigned char * d, const L
   
   // Now pack up the data into the RAW format.
   BlkToRctCrateMap::iterator blockStartCrateIter;
-  for(blockStartCrateIter = rctCrate_.begin() ; blockStartCrateIter != rctCrate_.end() ; ++blockStartCrateIter)
+  for(blockStartCrateIter = rctEmCrateMap().begin() ; blockStartCrateIter != rctEmCrateMap().end() ; ++blockStartCrateIter)
   {
     unsigned blockId = blockStartCrateIter->first;
     unsigned startCrate = blockStartCrateIter->second;
