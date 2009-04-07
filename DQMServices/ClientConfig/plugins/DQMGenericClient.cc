@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2009/04/07 17:13:05 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/04/07 17:18:36 $
+ *  $Revision: 1.3 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -384,8 +384,8 @@ void DQMGenericClient::makeCumulativeDist(const std::string& startDir, const std
 {
   if ( ! theDQM->dirExists(startDir) ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
-      LogWarning("DQMGenericClient") << "normalizeToEntries() : "
-                                  << "Cannot find sub-directory " << startDir << endl;
+      LogWarning("DQMGenericClient") << "makeCumulativeDist() : "
+                                     << "Cannot find sub-directory " << startDir << endl;
     }
     return;
   }
@@ -396,8 +396,8 @@ void DQMGenericClient::makeCumulativeDist(const std::string& startDir, const std
 
   if ( !element_cd ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
-      LogWarning("DQMGenericClient") << "normalizeToEntries() : "
-                                  << "No such element '" << cdName << "' found\n";
+      LogWarning("DQMGenericClient") << "makeCumulativeDist() : "
+                                     << "No such element '" << cdName << "' found\n";
     }
     return;
   }
@@ -406,8 +406,8 @@ void DQMGenericClient::makeCumulativeDist(const std::string& startDir, const std
 
   if ( !cd ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
-      LogWarning("DQMGenericClient") << "normalizeToEntries() : "
-                                  << "Cannot create TH1F from ME\n";
+      LogWarning("DQMGenericClient") << "makeCumulativeDist() : "
+                                     << "Cannot create TH1F from ME\n";
     }
     return;
   }
