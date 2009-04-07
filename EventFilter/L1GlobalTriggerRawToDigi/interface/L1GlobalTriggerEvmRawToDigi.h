@@ -3,15 +3,15 @@
 
 /**
  * \class L1GlobalTriggerEvmRawToDigi
- * 
- * 
- * Description: unpack EVM raw data into digitized data.  
+ *
+ *
+ * Description: unpack EVM raw data into digitized data.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete - HEPHY Vienna 
- * 
+ *
+ * \author: Vasile Mihai Ghete - HEPHY Vienna
+ *
  * $Date$
  * $Revision$
  *
@@ -102,11 +102,27 @@ private:
     int m_uppSkipBxInEvent;
 
     /// total Bx's in the event, obtained from GTFE block
+    //
+    /// corresponding to alternative 0 in altNrBxBoard()
+    int m_recordLength0;
+
+    /// corresponding to alternative 1 in altNrBxBoard()
+    int m_recordLength1;
+
+    /// number of Bx for a board, obtained from GTFE block (record length & alternative)
     int m_totalBxInEvent;
-    
+
+
     /// length of BST record (in bytes)
     int m_bstLengthBytes;
-    
+
+private:
+
+    /// verbosity level
+    int m_verbosity;
+    bool m_isDebugEnabled;
+
+
 
 };
 

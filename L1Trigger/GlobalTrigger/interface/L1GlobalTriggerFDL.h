@@ -71,16 +71,18 @@ public:
         const int pfTechSetIndex);
 
     /// fill the FDL block in the L1 GT DAQ record for iBxInEvent
-    void fillDaqFdlBlock(
-        const boost::uint16_t& activeBoardsGtDaq,
-        const std::vector<L1GtBoard>& boardMaps,
-        std::auto_ptr<L1GlobalTriggerReadoutRecord>& gtDaqReadoutRecord);
+    void fillDaqFdlBlock(const int iBxInEvent,
+            const boost::uint16_t& activeBoardsGtDaq, const int recordLength0,
+            const int recordLength1, const unsigned int altNrBxBoardDaq,
+            const std::vector<L1GtBoard>& boardMaps,
+            std::auto_ptr<L1GlobalTriggerReadoutRecord>& gtDaqReadoutRecord);
 
     /// fill the FDL block in the L1 GT EVM record for iBxInEvent
-    void fillEvmFdlBlock(
-        const boost::uint16_t& activeBoardsGtEvm,
-        const std::vector<L1GtBoard>& boardMaps,
-        std::auto_ptr<L1GlobalTriggerEvmReadoutRecord>& gtEvmReadoutRecord);
+    void fillEvmFdlBlock(const int iBxInEvent,
+            const boost::uint16_t& activeBoardsGtEvm, const int recordLength0,
+            const int recordLength1, const unsigned int altNrBxBoardEvm,
+            const std::vector<L1GtBoard>& boardMaps,
+            std::auto_ptr<L1GlobalTriggerEvmReadoutRecord>& gtEvmReadoutRecord);
 
     /// clear FDL
     void reset();

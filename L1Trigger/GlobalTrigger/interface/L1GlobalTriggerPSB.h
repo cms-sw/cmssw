@@ -109,6 +109,9 @@ public:
     void fillPsbBlock(
         edm::Event& iEvent,
         const boost::uint16_t& activeBoardsGtDaq,
+        const int recordLength0,
+        const int recordLength1,
+        const unsigned int altNrBxBoardDaq,
         const std::vector<L1GtBoard>& boardMaps,
         const int iBxInEvent,
         std::auto_ptr<L1GlobalTriggerReadoutRecord>& gtDaqReadoutRecord);

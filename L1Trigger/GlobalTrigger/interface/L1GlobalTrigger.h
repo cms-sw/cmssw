@@ -206,6 +206,19 @@ private:
     /// even numbers (except 0) "rounded" to the nearest lower odd number
     int m_emulateBxInEvent;
 
+    /// number of BXs in the event corresponding to alternative 0 and 1 in altNrBxBoard()
+    /// EmulateBxInEvent >= max(RecordLength[0], RecordLength[1])
+    /// negative values: take the numbers from event setup, from L1GtParameters
+    std::vector<int> m_recordLength;
+
+    /// alternative for number of BX per active board in GT DAQ record: 0 or 1
+    /// the position is identical with the active board bit
+    unsigned int m_alternativeNrBxBoardDaq;
+
+    /// alternative for number of BX per active board in GT EVM record: 0 or 1
+    /// the position is identical with the active board bit
+    unsigned int m_alternativeNrBxBoardEvm;
+
     /// length of BST record (in bytes) from parameter set
     int m_psBstLengthBytes;
 

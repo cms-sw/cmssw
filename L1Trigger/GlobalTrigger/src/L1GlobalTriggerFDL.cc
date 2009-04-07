@@ -423,10 +423,11 @@ void L1GlobalTriggerFDL::run(
 }
 
 // fill the FDL block in the L1 GT DAQ record for iBxInEvent
-void L1GlobalTriggerFDL::fillDaqFdlBlock(
-    const boost::uint16_t& activeBoardsGtDaq,
-    const std::vector<L1GtBoard>& boardMaps,
-    std::auto_ptr<L1GlobalTriggerReadoutRecord>& gtDaqReadoutRecord)
+void L1GlobalTriggerFDL::fillDaqFdlBlock(const int iBxInEvent,
+        const boost::uint16_t& activeBoardsGtDaq, const int recordLength0,
+        const int recordLength1, const unsigned int altNrBxBoardDaq,
+        const std::vector<L1GtBoard>& boardMaps,
+        std::auto_ptr<L1GlobalTriggerReadoutRecord>& gtDaqReadoutRecord)
 {
 
     typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
@@ -439,12 +440,31 @@ void L1GlobalTriggerFDL::fillDaqFdlBlock(
 
             int iActiveBit = itBoard->gtBitDaqActiveBoards();
             bool activeBoard = false;
+            bool writeBoard = false;
+
+            int recLength = -1;
 
             if (iActiveBit >= 0) {
-                activeBoard = activeBoardsGtDaq & (1 << iActiveBit);
+                activeBoard = activeBoardsGtDaq & ( 1 << iActiveBit );
+
+                int altNrBxBoard = (altNrBxBoardDaq & ( 1 << iActiveBit )) >> iActiveBit;
+
+                if (altNrBxBoard == 1) {
+                    recLength = recordLength1;
+                } else {
+                    recLength = recordLength0;
+                }
+
+                int lowBxInEvent = (recLength + 1)/2 - recLength;
+                int uppBxInEvent = (recLength + 1)/2 - 1;
+
+                if ((iBxInEvent >= lowBxInEvent) && (iBxInEvent <= uppBxInEvent)) {
+                    writeBoard = true;
+                }
+
             }
 
-            if (activeBoard && (itBoard->gtBoardType() == FDL)) {
+            if (activeBoard && writeBoard && (itBoard->gtBoardType() == FDL)) {
 
                 gtDaqReadoutRecord->setGtFdlWord(*m_gtFdlWord);
 
@@ -459,10 +479,11 @@ void L1GlobalTriggerFDL::fillDaqFdlBlock(
 }
 
 // fill the FDL block in the L1 GT EVM record for iBxInEvent
-void L1GlobalTriggerFDL::fillEvmFdlBlock(
-    const boost::uint16_t& activeBoardsGtEvm,
-    const std::vector<L1GtBoard>& boardMaps,
-    std::auto_ptr<L1GlobalTriggerEvmReadoutRecord>& gtEvmReadoutRecord)
+void L1GlobalTriggerFDL::fillEvmFdlBlock(const int iBxInEvent,
+        const boost::uint16_t& activeBoardsGtEvm, const int recordLength0,
+        const int recordLength1, const unsigned int altNrBxBoardEvm,
+        const std::vector<L1GtBoard>& boardMaps,
+        std::auto_ptr<L1GlobalTriggerEvmReadoutRecord>& gtEvmReadoutRecord)
 {
 
     typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;

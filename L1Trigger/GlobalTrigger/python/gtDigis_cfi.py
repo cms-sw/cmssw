@@ -53,6 +53,19 @@ gtDigis = cms.EDProducer("L1GlobalTrigger",
     # negative value: emulate TotalBxInEvent as given in EventSetup  
     EmulateBxInEvent = cms.int32(3),   
     
+    # number of BXs in the event corresponding to alternative 0 and 1 in altNrBxBoard()
+    # EmulateBxInEvent >= max(RecordLength[0], RecordLength[1])
+    # negative values: take the numbers from event setup, from L1GtParameters - NOT AVAILABLE YET
+    RecordLength = cms.vint32(3, 0),
+
+    # alternative for number of BX per active board in GT DAQ record: 0 or 1
+    # the position is identical with the active board bit
+    AlternativeNrBxBoardDaq = cms.uint32(0x0000),  
+
+    # alternative for number of BX per active board in GT EVM record: 0 or 1
+    # the position is identical with the active board bit
+    AlternativeNrBxBoardEvm = cms.uint32(0x0000),  
+    
     # length of BST record (in bytes) from parameter set
     # negative value: take the value from EventSetup      
     BstLengthBytes = cms.int32(-1)

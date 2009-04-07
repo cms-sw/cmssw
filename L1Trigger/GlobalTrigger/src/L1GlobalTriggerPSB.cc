@@ -674,10 +674,31 @@ void L1GlobalTriggerPSB::receiveTechnicalTriggers(
 void L1GlobalTriggerPSB::fillPsbBlock(
     edm::Event& iEvent,
     const boost::uint16_t& activeBoardsGtDaq,
+    const int recordLength0,
+    const int recordLength1,
+    const unsigned int altNrBxBoardDaq,
     const std::vector<L1GtBoard>& boardMaps,
     const int iBxInEvent,
     std::auto_ptr<L1GlobalTriggerReadoutRecord>& gtDaqReadoutRecord)
 {
+
+    // fill in emulator the same bunch crossing (12 bits - hardwired number of bits...)
+    // and the same local bunch crossing for all boards
+    int bxCross = iEvent.bunchCrossing();
+    boost::uint16_t bxCrossHw = 0;
+    if ((bxCross & 0xFFF) == bxCross) {
+        bxCrossHw = static_cast<boost::uint16_t> (bxCross);
+    }
+    else {
+        bxCrossHw = 0; // Bx number too large, set to 0!
+        if (m_verbosity) {
+
+            LogDebug("L1GlobalTriggerPSB")
+                << "\nBunch cross number [hex] = " << std::hex << bxCross
+                << "\n  larger than 12 bits. Set to 0! \n" << std::dec
+                << std::endl;
+        }
+    }
 
     typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
 
@@ -693,12 +714,44 @@ void L1GlobalTriggerPSB::fillPsbBlock(
 
             int iActiveBit = itBoard->gtBitDaqActiveBoards();
             bool activeBoard = false;
+            bool writeBoard = false;
+
+            int recLength = -1;
 
             if (iActiveBit >= 0) {
                 activeBoard = activeBoardsGtDaq & (1 << iActiveBit);
+
+                int altNrBxBoard = (altNrBxBoardDaq & ( 1 << iActiveBit )) >> iActiveBit;
+
+                if (altNrBxBoard == 1) {
+                    recLength = recordLength1;
+                } else {
+                    recLength = recordLength0;
+                }
+
+                int lowBxInEvent = (recLength + 1)/2 - recLength;
+                int uppBxInEvent = (recLength + 1)/2 - 1;
+
+                if ((iBxInEvent >= lowBxInEvent) && (iBxInEvent <= uppBxInEvent)) {
+                    writeBoard = true;
+                }
+
+                LogDebug("L1GlobalTriggerPSB")
+                    << "\nBoard " << std::hex << (itBoard->gtBoardId()) << std::dec
+                    << "\naltNrBxBoard = " << altNrBxBoard << " recLength " << recLength
+                    << " lowBxInEvent " << lowBxInEvent
+                    << " uppBxInEvent " << uppBxInEvent
+                    << std::endl;
             }
 
-            if (activeBoard && (itBoard->gtBoardType() == PSB)) {
+            LogDebug("L1GlobalTriggerPSB")
+                << "\nBoard " << std::hex << (itBoard->gtBoardId()) << std::dec
+                << "\niBxInEvent = " << iBxInEvent << " iActiveBit " << iActiveBit
+                << " activeBoard " << activeBoard
+                << " writeBoard " << writeBoard
+                << std::endl;
+
+            if (activeBoard && writeBoard && (itBoard->gtBoardType() == PSB)) {
 
                 L1GtPsbWord psbWordValue;
 
@@ -709,7 +762,7 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                 psbWordValue.setBxInEvent(iBxInEvent);
 
                 // set bunch cross number of the actual bx
-                boost::uint16_t bxNrValue = 0; // FIXME
+                boost::uint16_t bxNrValue = bxCrossHw;
                 psbWordValue.setBxNr(bxNrValue);
 
 
@@ -718,7 +771,8 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                     static_cast<boost::uint32_t>(iEvent.id().event()) );
 
                 // set local bunch cross number of the actual bx
-                boost::uint16_t localBxNrValue = 0; // FIXME
+                // set identical to bxCrossHw - other solution?
+                boost::uint16_t localBxNrValue = bxCrossHw;
                 psbWordValue.setLocalBxNr(localBxNrValue);
 
                 // get the objects coming to this PSB and the quadruplet index
