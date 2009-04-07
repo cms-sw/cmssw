@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWViewManagerBase.h,v 1.14 2008/11/14 16:35:32 chrjones Exp $
+// $Id: FWViewManagerBase.h,v 1.15 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -36,6 +36,7 @@ class TClass;
 class DetIdToMatrix;
 class FWModelId;
 class FWModelChangeManager;
+class FWColorManager;
 class FWTypeToRepresentations;
 
 class FWViewManagerBase
@@ -59,10 +60,12 @@ public:
    }
 
    void setChangeManager(FWModelChangeManager* iCM);
+   void setColorManager(FWColorManager* iCM);
 
 
    void modelChangesComingSlot();
    void modelChangesDoneSlot();
+   void colorsChangedSlot();
 
 protected:
    FWViewManagerBase();
@@ -77,8 +80,10 @@ protected:
    /** called when models have changed and so the display must be updated*/
    virtual void modelChangesComing() = 0;
    virtual void modelChangesDone() = 0;
+   virtual void colorsChanged() = 0;
 
    FWModelChangeManager& changeManager() const;
+   FWColorManager& colorManager() const;
    const DetIdToMatrix* detIdToGeo() const;
 private:
    FWViewManagerBase(const FWViewManagerBase&);    // stop default
@@ -89,6 +94,7 @@ private:
    const DetIdToMatrix* m_detIdToGeo;
 
    FWModelChangeManager* m_changeManager;
+   FWColorManager* m_colorManager;
 
 };
 

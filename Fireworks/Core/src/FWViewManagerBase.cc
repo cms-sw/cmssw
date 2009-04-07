@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:56:17 EST 2008
-// $Id: FWViewManagerBase.cc,v 1.10 2008/11/06 22:05:26 amraktad Exp $
+// $Id: FWViewManagerBase.cc,v 1.11 2009/01/23 21:35:44 amraktad Exp $
 //
 
 // system include files
@@ -22,6 +22,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWViewManagerBase.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 
 
 //
@@ -37,7 +38,8 @@
 //
 FWViewManagerBase::FWViewManagerBase() :
    m_detIdToGeo(0),
-   m_changeManager(0)
+   m_changeManager(0),
+   m_colorManager(0)
 {
 }
 
@@ -109,6 +111,12 @@ FWViewManagerBase::modelChangesDoneSlot()
    //forward call to the virtual function
    this->modelChangesDone();
 }
+void
+FWViewManagerBase::colorsChangedSlot()
+{
+   this->colorsChanged();
+}
+
 
 void
 FWViewManagerBase::setChangeManager(FWModelChangeManager* iCM)
@@ -117,6 +125,14 @@ FWViewManagerBase::setChangeManager(FWModelChangeManager* iCM)
    m_changeManager = iCM;
    m_changeManager->changeSignalsAreComing_.connect(boost::bind(&FWViewManagerBase::modelChangesComing,this));
    m_changeManager->changeSignalsAreDone_.connect(boost::bind(&FWViewManagerBase::modelChangesDone,this));
+}
+
+void
+FWViewManagerBase::setColorManager(FWColorManager* iCM)
+{
+   assert(0!= iCM);
+   m_colorManager = iCM;
+   m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWViewManagerBase::colorsChanged,this));
 }
 
 //
@@ -128,6 +144,13 @@ FWViewManagerBase::changeManager() const
 {
    assert(m_changeManager != 0);
    return *m_changeManager;
+}
+
+FWColorManager&
+FWViewManagerBase::colorManager() const
+{
+   assert(m_colorManager !=0);
+   return *m_colorManager;
 }
 
 const DetIdToMatrix*
