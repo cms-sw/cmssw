@@ -488,7 +488,7 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
 
   vtmp.clear();
   vtmp.push_back("L1_SingleTauJet40"); vtmp.push_back("L1_SingleJet100");   
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleIsoTau20_Trk5", vtmp));
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_SingleIsoTau30_Trk5", vtmp));
 
   vtmp.clear();
   vtmp.push_back("L1_DoubleTauJet30"); vtmp.push_back("L1_DoubleJet70");

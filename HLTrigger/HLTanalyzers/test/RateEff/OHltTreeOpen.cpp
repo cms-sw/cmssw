@@ -831,31 +831,31 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       } 
     } 
   } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleIsoTau20_Trk5") == 0) {        
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleIsoTau30_Trk5") == 0) {        
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
-      if(OpenHltTauL2SCPassed(20.,5.,0,0.,1)>=1) { 
+      if(OpenHltTauL2SCPassed(30.,5.,0,0.,1)>=1) {
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
       }        
     }        
   }
 
   // 1 Leg L3 isolation - prototype version from Chi-Nhan
-  //  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau15_Trk5") == 0) { 
-  //    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
-  //      if(OpenHlt2Tau1LegL3IsoPassed(15.,5.,0,0.)==1) { 
-  //	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
-  //      } 
-  //    } 
-  //  }
-
-  // No isolation version
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau15_Trk5") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
-      if(OpenHltTauL2SCPassed(15.,5.,0,0.,0)>=2) { 
-  	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
+      if(OpenHlt2Tau1LegL3IsoPassed(15.,5.,0,0.)==1) { 
+  	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
       } 
     } 
   }
+
+  // No isolation version
+  //  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau15_Trk5") == 0) { 
+  //    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
+  //      if(OpenHltTauL2SCPassed(15.,5.,0,0.,0)>=2) { 
+  //  	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }      
+  //      } 
+  //    } 
+  //  }
   /* End: Taus */
 
 
@@ -899,6 +899,21 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }
 
   else if (menu->GetTriggerName(it).CompareTo("OpenAlCa_EcalPi0") == 0) { 
+
+    // JH: L1_SingleEG5 is prescaled by a factor of 5, but *only* for the AlCa_Pi0 path.
+    // So here we take the unprescaled decision, and apply a local prescale before OR'ing 
+    // with the other L1 bits(!?!?)
+    
+    int FakeL1_SingleEG5 = map_BitOfStandardHLTPath.find("L1_SingleEG5")->second;
+    if(FakeL1_SingleEG5 == 1) {
+      if(GetIntRandom() % 5 == 0) {
+	FakeL1_SingleEG5 = 1;
+      }
+      else {
+	FakeL1_SingleEG5 = 0;
+      }
+    }
+    
     if(map_BitOfStandardHLTPath.find("L1_SingleIsoEG5")->second == 1 || 
        map_BitOfStandardHLTPath.find("L1_SingleIsoEG8")->second == 1 || 
        map_BitOfStandardHLTPath.find("L1_SingleIsoEG10")->second == 1 || 
@@ -906,7 +921,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
        map_BitOfStandardHLTPath.find("L1_SingleIsoEG15")->second == 1 || 
        map_BitOfStandardHLTPath.find("L1_SingleEG1")->second == 1 || 
        map_BitOfStandardHLTPath.find("L1_SingleEG2")->second == 1 || 
-       map_BitOfStandardHLTPath.find("L1_SingleEG5")->second == 1 || 
+       //       map_BitOfStandardHLTPath.find("L1_SingleEG5")->second == 1 || 
+       FakeL1_SingleEG5 == 1 ||
        map_BitOfStandardHLTPath.find("L1_SingleEG8")->second == 1 || 
        map_BitOfStandardHLTPath.find("L1_SingleEG10")->second == 1 || 
        map_BitOfStandardHLTPath.find("L1_SingleEG12")->second == 1 || 
@@ -1334,19 +1350,25 @@ int OHltTree::OpenHltTauL2SCPassed(float Et,float L25Tpt, int L25Tiso, float L3T
 
 int OHltTree::OpenHlt2Tau1LegL3IsoPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt)
 {
-  int rc, l3iso = 0;
+  int rc = 0;
+  int l3iso = 0;
 
   // Loop over all oh taus
   for (int i=0;i<NohTau;i++) {
     if (ohTauPt[i] >= Et) {
-      if (ohTauEiso[i] < (5 + 0.025*ohTauPt[i] + 0.0015*ohTauPt[i]*ohTauPt[i])) // sliding cut
-	if (ohTauL25Tpt[i] >= L25Tpt)
-	  if (ohTauL25Tiso[i] >= L25Tiso)
-	    if (ohTauL3Tpt[i] >= L3Tpt)
+      if (ohTauEiso[i] < (5 + 0.025*ohTauPt[i] + 0.0015*ohTauPt[i]*ohTauPt[i])) { // sliding cut
+	if (ohTauL25Tpt[i] >= L25Tpt) {
+	  if (ohTauL25Tiso[i] >= L25Tiso) {
+	    if (ohTauL3Tpt[i] >= L3Tpt) {
 	      rc++;
-    }
+	    } 
+	  } 
+	} 
+      } 
+    } 
     if (ohTauL3Tiso[i] >= 1) l3iso++;
   }
+  
 
   if (rc>=2 && l3iso>=1)
     return 1;

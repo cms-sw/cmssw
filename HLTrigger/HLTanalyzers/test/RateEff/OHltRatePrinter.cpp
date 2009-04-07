@@ -156,7 +156,7 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
           << endl; 
  
   outFile << "| HLT "  
-          << " | " << cuPhysRate << "+-" << sqrt(cuPhysRate)  
+          << " | " << cuPhysRate << "+-" << sqrt(cuPhysRateErr)  
           << " | " << cuThru << "+-" << sqrt(cuThruErr)  
           << " | " << endl;   
   
