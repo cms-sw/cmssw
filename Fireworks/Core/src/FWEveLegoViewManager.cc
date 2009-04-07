@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.24 2009/03/11 21:16:20 amraktad Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.25 2009/04/07 14:06:23 chrjones Exp $
 //
 
 // system include files
@@ -69,6 +69,7 @@ FWEveLegoViewManager::FWEveLegoViewManager(FWGUIManager* iGUIMgr) :
    m_elements( new TEveElementList("Lego")),
    m_data(0),
    m_lego(),
+   m_boundaries(0),
    m_legoRebinFactor(1),
    m_eveSelection(0),
    m_selectionManager(0),
@@ -269,7 +270,6 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
 
                m_lego->SetPalette(pal);
                // m_lego->SetMainColor(Color_t(TColor::GetColor("#0A0A0A")));
-               m_lego->SetGridColor(Color_t(TColor::GetColor("#202020")));
                m_lego->Set2DMode(TEveCaloLego::kValSize);
                m_lego->SetPixelsPerBin(15);
                m_lego->SetTopViewUseMaxColor(kTRUE);
@@ -282,16 +282,16 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
                m_data->GetPhiBins()->SetTitle("f");
 
                // add calorimeter boundaries
-               TEveStraightLineSet* boundaries = new TEveStraightLineSet("boundaries");
-               boundaries->SetPickable(kFALSE);
-               boundaries->SetLineColor(Color_t(TColor::GetColor("#404040")));
-               // boundaries->SetLineWidth(2);
-               boundaries->AddLine(-1.479,-3.1416,0.001,-1.479,3.1416,0.001);
-               boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
-               boundaries->AddLine(-3.0,-3.1416,0.001,-3.0,3.1416,0.001);
-               boundaries->AddLine(3.0,-3.1416,0.001,3.0,3.1416,0.001);
-               m_lego->AddElement(boundaries);
+               m_boundaries = new TEveStraightLineSet("boundaries");
+               m_boundaries->SetPickable(kFALSE);
+               // m_boundaries->SetLineWidth(2);
+               m_boundaries->AddLine(-1.479,-3.1416,0.001,-1.479,3.1416,0.001);
+               m_boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
+               m_boundaries->AddLine(-3.0,-3.1416,0.001,-3.0,3.1416,0.001);
+               m_boundaries->AddLine(3.0,-3.1416,0.001,3.0,3.1416,0.001);
+               m_lego->AddElement(m_boundaries);
                m_elements->AddElement(m_lego.get());
+               setGridColors();
             }
             builder->attach(m_elements.get(),m_data);
             m_builders.push_back(pB);
@@ -342,12 +342,29 @@ FWEveLegoViewManager::modelChangesDone()
    gEve->EnableRedraw();
 }
 
+void 
+FWEveLegoViewManager::setGridColors()
+{
+   if(m_lego) {
+      if(colorManager().backgroundColorIndex()== FWColorManager::kBlackIndex) {
+         m_lego->SetGridColor(Color_t(TColor::GetColor("#202020")));
+         m_lego->SetFontColor(kWhite);
+         m_boundaries->SetLineColor(Color_t(TColor::GetColor("#404040")));
+      } else {
+         std::cout <<"changing to light grid"<<std::endl;
+         m_lego->SetGridColor(Color_t(TColor::GetColor("#E0E0E0")));
+         m_lego->SetFontColor(kBlack);
+         m_boundaries->SetLineColor(Color_t(TColor::GetColor("#A0A0A0")));
+      }
+   }
+}
+
 void
 FWEveLegoViewManager::colorsChanged()
 {
+   setGridColors();
    std::for_each(m_views.begin(), m_views.end(),
                  boost::bind(&FWEveLegoView::setBackgroundColor,_1,colorManager().background()) );
-
 }
 
 void

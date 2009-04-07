@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FWEveLegoViewManager.h,v 1.11 2009/03/11 21:16:21 amraktad Exp $
+// $Id: FWEveLegoViewManager.h,v 1.12 2009/04/07 14:06:23 chrjones Exp $
 //
 
 // system include files
@@ -42,6 +42,7 @@ class TEveSelection;
 class FWSelectionManager;
 class TEveCaloLego;
 class TEveWindowSlot;
+class TEveStraightLineSet;
 
 /*
    struct FWEveLegoModelProxy
@@ -94,6 +95,7 @@ private:
    //void itemChanged(const FWEventItem*);
    void initData();
 
+   void setGridColors();
    // ---------- member data --------------------------------
    typedef  std::map<std::string,std::vector<std::string> > TypeToBuilders;
    TypeToBuilders m_typeToBuilders;
@@ -103,6 +105,7 @@ private:
    FWEvePtr<TEveElementList> m_elements;
    TEveCaloDataHist* m_data;
    FWEvePtr<TEveCaloLego> m_lego;
+   TEveStraightLineSet* m_boundaries;
    int m_legoRebinFactor;
 
    //bool m_itemChanged;
