@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/03 12:58:02 $
- *  $Revision: 1.19 $
+ *  $Date: 2009/03/25 16:44:20 $
+ *  $Revision: 1.20 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -87,7 +87,7 @@ void MagGeoBuilderFromDDD::summary(handles & volumes){
   int iref_ass  = 0;
   int iref_nass = 0;
 
-  set<int> ptrs;
+  set<const void *> ptrs;
 
   handles::const_iterator first = volumes.begin();
   handles::const_iterator last = volumes.end();
@@ -98,7 +98,7 @@ void MagGeoBuilderFromDDD::summary(handles & volumes){
       int references = 	(*i)->references(side);
       if ((*i)->isPlaneMatched(side)) {
 	++iassigned;
-	bool firstOcc = (ptrs.insert((int) &((*i)->surface(side)))).second;
+	bool firstOcc = (ptrs.insert(&((*i)->surface(side)))).second;
 	if (firstOcc) iref_ass+=references;
 	if (references<2){  
 	  cout << "*** Only 1 ref, vol: " << (*i)->name << " # "

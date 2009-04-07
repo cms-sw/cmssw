@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/16 16:25:30 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/04/20 23:17:30 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -56,7 +56,7 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
     if (MagGeoBuilderFromDDD::debug) std::cout <<"      Sector is just one volume." << std::endl;
 
   } else if (size==12 || // In this case, each volume is a sector.
-      ((*secBegin)->shape()!=ddtrap) && (*secBegin)->shape()!=ddbox) {
+	     (((*secBegin)->shape()!=ddtrap) && (*secBegin)->shape()!=ddbox)) {
     secEnd = secBegin+size/12;
 
   }  else { // there are more than one volume per sector.
