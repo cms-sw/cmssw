@@ -138,8 +138,8 @@ reclusterize(const edm::ParameterSet& conf) const {
   algorithm->initialize(es);
 
   if( algorithm->stripByStripBegin( detId() )) {
-    for(unsigned strip = firstStrip(); strip < firstStrip()+charges.size(); strip++)
-      algorithm->stripByStripAdd( strip, charges.at(strip), clusters );
+    for(unsigned i = 0; i<width(); i++)
+      algorithm->stripByStripAdd( firstStrip()+i, charges[i], clusters );
     algorithm->stripByStripEnd( clusters );
   }
 
