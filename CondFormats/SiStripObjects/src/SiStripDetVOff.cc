@@ -31,7 +31,9 @@ bool SiStripDetVOff::put(const uint32_t DetId, const int HVoff, const int LVoff)
     // Found a matching entry, insert the HV and LV information.
     setBits(*p, HVoff, LVoff);
     // Check if the detector has all on, in that case remove it from the list.
-    if( *p & allOnMask ) v_Voff.erase(p);
+    // The allOnMask turns all the bits of *p to 0 but the last 2. If those two
+    // were already 0 (both on) the resulting number is 0.
+    if( (*p & allOnMask) == 0 ) v_Voff.erase(p);
   }
   else {
     // Not found, insert a new entry
