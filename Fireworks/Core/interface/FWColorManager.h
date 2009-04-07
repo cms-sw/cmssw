@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:07:58 CET 2009
-// $Id$
+// $Id: FWColorManager.h,v 1.1 2009/04/07 13:55:55 chrjones Exp $
 //
 
 // system include files
@@ -54,6 +54,8 @@ public:
 
    //help with backward compatibility with old config files
    unsigned int oldColorToIndex(Color_t) const;
+   
+   bool colorHasIndex(Color_t) const;
    
    Color_t geomColor(FWGeomColorIndex) const;
    

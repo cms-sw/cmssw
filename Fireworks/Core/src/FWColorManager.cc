@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id$
+// $Id: FWColorManager.cc,v 1.1 2009/04/07 13:55:55 chrjones Exp $
 //
 
 // system include files
@@ -240,6 +240,13 @@ FWColorManager::colorToIndex(Color_t iColor) const
    }
    return iColor - m_startColorIndex;
 }
+
+bool 
+FWColorManager::colorHasIndex(Color_t iColor) const
+{
+   return iColor >= static_cast<int>(m_startColorIndex);
+}
+
 
 Color_t 
 FWColorManager::geomColor(FWGeomColorIndex iIndex) const
