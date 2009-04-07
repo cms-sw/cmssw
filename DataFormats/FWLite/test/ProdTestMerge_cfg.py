@@ -17,7 +17,6 @@ process.OtherThing = cms.EDProducer("OtherThingProducer",
 
 process.source = cms.Source("PoolSource",
     # hack until metadata pruning is implemented
-    dropMetaData = cms.untracked.bool(True),
     fileNames = cms.untracked.vstring('file:prod1.root', 
         'file:prod2.root')
 )
