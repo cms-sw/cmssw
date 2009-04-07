@@ -44,7 +44,6 @@
 #include "DataFormats/Math/interface/Error.h" 
 #include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h" 
 #include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h" 
-#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
@@ -101,6 +100,7 @@ namespace reco { namespace modules {
 		bool stripFrontInvalidHits_;
 		bool stripBackInvalidHits_;
 		bool stripAllInvalidHits_;
+		bool excludePixelHits_;
 		
 		double dZcut_;
 		double dXYcut_;
@@ -123,6 +123,7 @@ namespace reco { namespace modules {
     stripFrontInvalidHits_(iConfig.getParameter<bool>("stripFrontInvalidHits")),
     stripBackInvalidHits_( iConfig.getParameter<bool>("stripBackInvalidHits") ),
     stripAllInvalidHits_(  iConfig.getParameter<bool>("stripAllInvalidHits")  ),
+	excludePixelHits_(  iConfig.getParameter<bool>("excludePixelHits")  ),
     dZcut_(iConfig.getParameter<double>("dzCut") ),
     dXYcut_(iConfig.getParameter<double>("dxyCut") ),
     detsToIgnore_( iConfig.getParameter<std::vector<uint32_t> >("detsToIgnore") )
@@ -285,7 +286,6 @@ namespace reco { namespace modules {
 						LogDebug("CosmicTrackSplitter") << "            valid, detid = " << hit->geographicalId().rawId();
 						DetId detid = hit->geographicalId();
 						
-						//if ((detid.det() == DetId::Tracker)&&((detid.subdetId() == 3)||(detid.subdetId() == 5))) {  // check for tracker hits
 						if (detid.det() == DetId::Tracker) {  // check for tracker hits
 							LogDebug("CosmicTrackSplitter") << "            valid, tracker ";
 							bool  verdict = false;
@@ -310,6 +310,13 @@ namespace reco { namespace modules {
 							// if the hit is good, check again at module level
 							if ( verdict  && std::binary_search(detsToIgnore_.begin(), detsToIgnore_.end(), detid.rawId())) {
 								verdict = false;
+							}
+							
+							// if hit is good check to make sure that we are keeping pixel hits
+							if ( excludePixelHits_){
+								if ((detid.det() == DetId::Tracker)&&((detid.subdetId() == 1)||(detid.subdetId() == 2))) {  // check for pixel hits
+								 	verdict = false;
+								}
 							}
 							
 							LogDebug("CosmicTrackSplitter") << "                   verdict after module list: " << (verdict ? "ok" : "no");
@@ -386,7 +393,8 @@ namespace reco { namespace modules {
 		PropagationDirection   pdir = tk.seedDirection();
 		PTrajectoryStateOnDet *state;
 		if ( pdir == anyDirection ) throw cms::Exception("UnimplementedFeature") << "Cannot work with tracks that have 'anyDirecton' \n";
-		if ( (pdir == alongMomentum) == ( tk.p() >= tk.outerP() ) ) {
+		//if ( (pdir == alongMomentum) == ( tk.p() >= tk.outerP() ) ) {
+		if ( (pdir == alongMomentum) == (  (tk.outerPosition()-tk.innerPosition()).Dot(tk.momentum()) >= 0    ) ) {
 			// use inner state
 			TrajectoryStateOnSurface originalTsosIn(transform.innerStateOnSurface(tk, *theGeometry, &*theMagField));
 			state = transform.persistentState( originalTsosIn, DetId(tk.innerDetId()) );
