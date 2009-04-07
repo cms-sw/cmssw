@@ -295,7 +295,7 @@ namespace sistrip {
 	  }
 	}
 
-	else if (mode_ = sistrip::READOUT_MODE_VIRGIN_RAW ) {
+	else if (mode_ == sistrip::READOUT_MODE_VIRGIN_RAW ) {
 
 	  // create unpacker
 	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffers_[iconn->fedId()]->channel(iconn->fedCh()));
@@ -318,7 +318,7 @@ namespace sistrip {
 	  }
 	}
 
-	else if (mode_ = sistrip::READOUT_MODE_PROC_RAW ) {
+	else if (mode_ == sistrip::READOUT_MODE_PROC_RAW ) {
 
 	  // create unpacker
 	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::procRawModeUnpacker(buffers_[iconn->fedId()]->channel(iconn->fedCh()));
@@ -339,7 +339,7 @@ namespace sistrip {
 	  }
 	}
 
-	else if (mode_ = sistrip::READOUT_MODE_SCOPE ) {
+	else if (mode_ == sistrip::READOUT_MODE_SCOPE ) {
 
 	  // create unpacker
 	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::scopeModeUnpacker(buffers_[iconn->fedId()]->channel(iconn->fedCh()));
