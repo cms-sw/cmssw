@@ -20,3 +20,4 @@
  <use name="boost_regex">
  <flags EDM_PLUGIN="1">
 </library>
+# <Flags CXXFLAGS="-g -O0">
