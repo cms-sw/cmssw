@@ -1,5 +1,7 @@
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include "DataSvc/Ref.h"
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
+
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 
