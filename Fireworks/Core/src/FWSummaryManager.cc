@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.8 2009/03/04 17:07:26 chrjones Exp $
+// $Id: FWSummaryManager.cc,v 1.9 2009/03/18 15:42:00 chrjones Exp $
 //
 
 // system include files
@@ -112,9 +112,12 @@ FWSummaryManager::newItem(FWEventItem* iItem)
 void 
 FWSummaryManager::itemDestroyed(const FWEventItem* iItem)
 {
+   m_pack->HideFrame(m_collectionWidgets[iItem->id()]);
    m_pack->RemoveFrame(m_collectionWidgets[iItem->id()]);
    delete m_collectionWidgets[iItem->id()];
    m_collectionWidgets[iItem->id()]=0;
+   m_pack->Layout();
+   gClient->NeedRedraw(m_pack);
 }
 
 void
