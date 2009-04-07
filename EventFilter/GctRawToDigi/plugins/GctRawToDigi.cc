@@ -45,7 +45,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   else if(formatVersion_ == 1)
   {
     edm::LogInfo("GCT") << "You have selected to use GctFormatTranslateMCLegacy";
-    formatTranslator_ = new GctFormatTranslateMCLegacy(htlMode_);
+    formatTranslator_ = new GctFormatTranslateMCLegacy(hltMode_);
   }
   else if(formatVersion_ == 2)
   {
@@ -213,7 +213,7 @@ bool GctRawToDigi::autoDetectRequiredFormatTranslator(const unsigned char * d)
   else if( firmwareHeader == 0x00000000 )
   {
     edm::LogInfo("GCT") << "Legacy Monte-Carlo data detected: GctFormatTranslateMCLegacy will be used to unpack.";
-    formatTranslator_ = new GctxFormatTranslateMCLegacy(hltMode_);
+    formatTranslator_ = new GctFormatTranslateMCLegacy(hltMode_);
     return true;
   }
   else if(firmwareHeader == 0xdeadffff) { /* Driver detected unknown firmware version. L1TriggerError code? */ }

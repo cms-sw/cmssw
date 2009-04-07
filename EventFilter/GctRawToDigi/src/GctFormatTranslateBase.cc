@@ -42,7 +42,7 @@ L1GctJetCandCollection * const GctFormatTranslateBase::gctJets(const unsigned ca
 void GctFormatTranslateBase::writeRawHeader(unsigned char * data, uint32_t blockId, uint32_t nSamples) const
 {
   uint32_t hdr = generateRawHeader(blockId, nSamples, packingBxId(), packingEventId());
-  uint32_t * p = reinterpret_cast<uint32_t*>(const_cast<unsigned char *>(d));
+  uint32_t * p = reinterpret_cast<uint32_t*>(const_cast<unsigned char *>(data));
   *p = hdr;
 }
 

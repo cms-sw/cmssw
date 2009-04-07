@@ -7,8 +7,8 @@
 * \brief Simple class for holding the basic attributes of an 32-bit block header.
 * * 
 * \author Robert Frazier
-* $Revision: 1.9 $
-* $Date: 2009/04/06 18:47:59 $
+* $Revision: 1.15 $
+* $Date: 2009/04/07 10:51:08 $
 */
 
 // C++ headers
@@ -34,19 +34,19 @@ public:
   ~GctBlockHeader() {};
   
   /// Get the block ID
-  uint32_t int blockId() const { return m_blockId; }
+  uint32_t blockId() const { return m_blockId; }
 
   /// Get the fundamental block length (for 1 time sample)
-  uint32_t int blockLength() const { return m_blockLength; }
+  uint32_t blockLength() const { return m_blockLength; }
 
   /// Get the number of time samples
-  uint32_t int nSamples() const { return m_nSamples; }
+  uint32_t nSamples() const { return m_nSamples; }
   
   /// Get the bunch crossing ID
-  uint32_t int bxId() const { return m_bxId; }
+  uint32_t bxId() const { return m_bxId; }
 
   /// Get the event ID
-  uint32_t int eventId() const { return m_eventId; }
+  uint32_t eventId() const { return m_eventId; }
 
   /// Returns true if it's valid block header - i.e. if the header is known and can be unpacked.
   bool valid() const { return m_valid; }
