@@ -25,6 +25,7 @@ my $incdir = undef;
 my $binary_search_processes=10;
 my $depfilefilter='(dependencies\.mk|.+?\.d)';
 my @libnameoptions=();
+my @pluginnameoptions=();
 my @bins = ();
 my @libs = ();
 my @srcs = ();
@@ -197,6 +198,8 @@ sub read_config {
 	    $depfilefilter = $1;
 	} elsif (/^option\s+define\s+library-name\s+(.*)$/) {
 	    push @libnameoptions,$1;
+	} elsif (/^option\s+define\s+plugin-name\s+(.*)$/) {
+	    push @pluginnameoptions,$1;
 	} else {
 	    print STDERR "$file:$.: unrecognised line ignored\n";
 	}
@@ -790,7 +793,7 @@ sub scan_binary_file {
     if (exists $cache->{LDD_DONE}{$filepath}) {return ;}
     my $is_archive = ($file =~ m/^lib.+\.a$/);
     my $is_library = 0;
-    foreach my $exp (@libnameoptions){
+    foreach my $exp (@libnameoptions, @pluginnameoptions){
         if($file =~ m/$exp/){
             $is_library=1;
 	    last;
@@ -951,12 +954,19 @@ sub convert_binary_symbol_definition {
     }
 
     # warn about symbol conflicts across package boundaries
+    my $libs=[];
     my %uniq = ();
-    map { $uniq{$binaries{$_}->{ORIGIN}} = 1; } @{$symbols{$sym}->{DEFS}};
+    foreach my $lib (@{$symbols{$sym}->{DEFS}})
+    {
+      foreach my $librx (@libnameoptions){if ($lib=~m/$librx/){push @$libs,$lib; last;}}
+      $uniq{$binaries{$lib}->{ORIGIN}} = 1;
+    }
+    
     if ((scalar keys %uniq > 1) && ($type!~/^[VW]$/)) {
 	print STDERR ("warning: $sym ($type): multiple defined:\n",
 		      map { "    in `$_' ($binaries{$_}->{ORIGIN})\n" } @{$symbols{$sym}->{DEFS}});
     }
+    $symbols{$sym}->{DEFS} = $libs;
 }
 
 # Convert symbol-level dependencies into package dependencies.
