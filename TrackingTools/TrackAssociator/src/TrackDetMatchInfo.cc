@@ -19,8 +19,7 @@ std::string TrackDetMatchInfo::dumpGeometry( const DetId& id )
    if ( ! caloGeometry.isValid() || 
 	! caloGeometry->getSubdetectorGeometry(id) ||
 	! caloGeometry->getSubdetectorGeometry(id)->getGeometry(id) ) {
-      edm::LogWarning("TrackAssociator")  << "Failed to access geometry for DetId: " << id.rawId();
-      return std::string("");
+      throw cms::Exception("FatalError")  << "Failed to access geometry for DetId: " << id.rawId();
    }
    std::ostringstream oss;
 
@@ -38,7 +37,7 @@ GlobalPoint TrackDetMatchInfo::getPosition( const DetId& id)
    if ( ! caloGeometry.isValid() || 
 	! caloGeometry->getSubdetectorGeometry(id) ||
 	! caloGeometry->getSubdetectorGeometry(id)->getGeometry(id) ) {
-      edm::LogWarning("TrackAssociator")  << "Failed to access geometry for DetId: " << id.rawId();
+      throw cms::Exception("FatalError") << "Failed to access geometry for DetId: " << id.rawId();
       return GlobalPoint(0,0,0);
    }
    return caloGeometry->getSubdetectorGeometry(id)->getGeometry(id)->getPosition();
@@ -92,7 +91,7 @@ double TrackDetMatchInfo::crossedEnergy( EnergyType type )
 	}
       break;
     default:
-	   edm::LogWarning("TrackAssociator") << "Unknown calo energy type: " << type;
+      throw cms::Exception("FatalError") << "Unknown calo energy type: " << type;
    }
    return energy;
 }
@@ -153,7 +152,7 @@ double TrackDetMatchInfo::coneEnergy( double dR, EnergyType type )
 	}
       break;
     default:
-	   edm::LogWarning("TrackAssociator") << "Unknown calo energy type: " << type;
+      throw cms::Exception("FatalError") << "Unknown calo energy type: " << type;
    }
    return energy;
 }
@@ -161,8 +160,9 @@ double TrackDetMatchInfo::coneEnergy( double dR, EnergyType type )
 
 //////////////////////////////////////////////////
 
-double TrackDetMatchInfo::nXnEnergy(const DetId& id, EnergyType type, int gridSize )
+double TrackDetMatchInfo::nXnEnergy(const DetId& id, EnergyType type, int gridSize)
 {
+   double energy(0);
    if ( id.rawId() == 0 ) return 0.;
    switch (type)  {
     case TowerTotal:
@@ -171,12 +171,10 @@ double TrackDetMatchInfo::nXnEnergy(const DetId& id, EnergyType type, int gridSi
     case TowerHO:
 	{
 	   if ( id.det() != DetId::Calo ) {
-	      edm::LogWarning("TrackAssociator") << "Wrong DetId. Expected CaloTower, but found:\n" <<
+	      throw cms::Exception("FatalError") << "Wrong DetId. Expected CaloTower, but found:\n" <<
 		DetIdInfo::info(id)<<"\n";
-	      return -99999;
 	   }
 	   CaloTowerDetId centerId(id);
-	   double energy(0);
 	   for(std::vector<const CaloTower*>::const_iterator hit=towers.begin(); hit!=towers.end(); hit++) {
 	      CaloTowerDetId neighborId((*hit)->id());
 	      int dEta = abs( (centerId.ieta()<0?centerId.ieta()+1:centerId.ieta() )
@@ -198,21 +196,18 @@ double TrackDetMatchInfo::nXnEnergy(const DetId& id, EnergyType type, int gridSi
 		    energy += (*hit)->outerEnergy();
 		    break;
 		  default:
-		    edm::LogWarning("TrackAssociator") << "Unknown calo tower energy type: " << type;
+		    throw cms::Exception("FatalError") << "Unknown calo tower energy type: " << type;
 		 }
 	      }
 	   }
-	   return energy;
 	}
       break;
     case EcalRecHits:
 	{
 	   if( id.det() != DetId::Ecal || (id.subdetId() != EcalBarrel && id.subdetId() != EcalEndcap) ) {
-	      edm::LogWarning("TrackAssociator") << "Wrong DetId. Expected EcalBarrel or EcalEndcap, but found:\n" <<
+	      throw cms::Exception("FatalError") << "Wrong DetId. Expected EcalBarrel or EcalEndcap, but found:\n" <<
 		DetIdInfo::info(id)<<"\n";
-	      return -99999;
 	   }
-	   double energy(0);
 	   // Since the ECAL granularity is small and the gap between EE and EB is significant,
 	   // energy is computed only within the system that contains the central element
 	   if( id.subdetId() == EcalBarrel ) {
@@ -224,70 +219,70 @@ double TrackDetMatchInfo::nXnEnergy(const DetId& id, EnergyType type, int gridSi
 				 -(neighborId.ieta()<0?neighborId.ieta()+1:neighborId.ieta() ) ) ;
 		 int dPhi = abs( centerId.iphi()-neighborId.iphi() );
 		 if ( abs(360-dPhi) < dPhi ) dPhi = 360-dPhi;
-		 if(  dEta <= gridSize && dPhi <= gridSize ) energy += (*hit)->energy();
+		 if(  dEta <= gridSize && dPhi <= gridSize ) {
+		    energy += (*hit)->energy();
+		 }
 	      }
-	      return energy;
+	   } else {
+	      // Endcap
+	      EEDetId centerId(id);
+	      for(std::vector<const EcalRecHit*>::const_iterator hit=ecalRecHits.begin(); hit!=ecalRecHits.end(); hit++) {
+		 if ((*hit)->id().subdetId() != EcalEndcap) continue;
+		 EEDetId neighborId((*hit)->id());
+		 if(  centerId.zside() == neighborId.zside() && 
+		      abs(centerId.ix()-neighborId.ix()) <= gridSize && 
+		      abs(centerId.iy()-neighborId.iy()) <= gridSize ) {
+		    energy += (*hit)->energy();
+		 }
+	      }
 	   }
-
-	   // Endcap
-	   EEDetId centerId(id);
-	   for(std::vector<const EcalRecHit*>::const_iterator hit=ecalRecHits.begin(); hit!=ecalRecHits.end(); hit++) {
-	      if ((*hit)->id().subdetId() != EcalEndcap) continue;
-	      EEDetId neighborId((*hit)->id());
-	      if(  centerId.zside() == neighborId.zside() && 
-		   abs(centerId.ix()-neighborId.ix()) <= gridSize && 
-		   abs(centerId.iy()-neighborId.iy()) <= gridSize ) energy += (*hit)->energy();
-	   }
-	   return energy;
 	}
       break;
     case HcalRecHits:
 	{
 	   if( id.det() != DetId::Hcal || (id.subdetId() != HcalBarrel && id.subdetId() != HcalEndcap) ) {
-	      edm::LogWarning("TrackAssociator") << "Wrong DetId. Expected HE or HB, but found:\n" <<
+	      throw cms::Exception("FatalError") << "Wrong DetId. Expected HE or HB, but found:\n" <<
 		DetIdInfo::info(id)<<"\n";
-	      return -99999;
 	   }
 	   HcalDetId centerId(id);
-	   double energy(0);
 	   for(std::vector<const HBHERecHit*>::const_iterator hit=hcalRecHits.begin(); hit!=hcalRecHits.end(); hit++) {
 	      HcalDetId neighborId((*hit)->id());
 	      int dEta = abs( (centerId.ieta()<0?centerId.ieta()+1:centerId.ieta() )
 			      -(neighborId.ieta()<0?neighborId.ieta()+1:neighborId.ieta() ) ) ;
 	      int dPhi = abs( centerId.iphi()-neighborId.iphi() );
 	      if ( abs(72-dPhi) < dPhi ) dPhi = 72-dPhi;
-	      if(  dEta <= gridSize && dPhi <= gridSize ) energy += (*hit)->energy();
+	      if(  dEta <= gridSize && dPhi <= gridSize ){
+		 energy += (*hit)->energy();
+	      }
 	   }
-	   return energy;
 	}
       break;
     case HORecHits:
 	{
 	   if( id.det() != DetId::Hcal || (id.subdetId() != HcalOuter) ) {
-	      edm::LogWarning("TrackAssociator") << "Wrong DetId. Expected HO, but found:\n" <<
+	      throw cms::Exception("FatalError") << "Wrong DetId. Expected HO, but found:\n" <<
 		DetIdInfo::info(id)<<"\n";
-	      return -99999;
 	   }
 	   HcalDetId centerId(id);
-	   double energy(0);
 	   for(std::vector<const HORecHit*>::const_iterator hit=hoRecHits.begin(); hit!=hoRecHits.end(); hit++) {
 	      HcalDetId neighborId((*hit)->id());
 	      int dEta = abs( (centerId.ieta()<0?centerId.ieta()+1:centerId.ieta() )
 			      -(neighborId.ieta()<0?neighborId.ieta()+1:neighborId.ieta() ) ) ;
 	      int dPhi = abs( centerId.iphi()-neighborId.iphi() );
 	      if ( abs(72-dPhi) < dPhi ) dPhi = 72-dPhi;
-	      if(  dEta <= gridSize && dPhi <= gridSize ) energy += (*hit)->energy();
+	      if(  dEta <= gridSize && dPhi <= gridSize ) {
+		 energy += (*hit)->energy();
+	      }
 	   }
-	   return energy;
 	}
       break;
     default:
-      edm::LogWarning("TrackAssociator") << "Unkown or not implemented energy type requested, type:" << type;
+      throw cms::Exception("FatalError") << "Unkown or not implemented energy type requested, type:" << type;
    }
-   return 0;
+   return energy;
 }
 
-double TrackDetMatchInfo::nXnEnergy(EnergyType type, int gridSize )
+double TrackDetMatchInfo::nXnEnergy(EnergyType type, int gridSize)
 {
    switch (type)  {
     case TowerTotal:
@@ -295,28 +290,24 @@ double TrackDetMatchInfo::nXnEnergy(EnergyType type, int gridSize )
     case TowerEcal:
     case TowerHO:
       if( crossedTowerIds.empty() ) return 0;
-      if( crossedTowers.empty() ) return nXnEnergy(crossedTowerIds.front(), type, gridSize);
-      return nXnEnergy(crossedTowers.front()->id(), type, gridSize);
+      return nXnEnergy(crossedTowerIds.front(), type, gridSize);
       break;
     case EcalRecHits:
       if( crossedEcalIds.empty() ) return 0;
-      if( crossedEcalRecHits.empty() )	return nXnEnergy(crossedEcalIds.front(), type, gridSize);
-      return nXnEnergy(crossedEcalRecHits.front()->id(), type, gridSize);
+      return nXnEnergy(crossedEcalIds.front(), type, gridSize);
       break;
     case HcalRecHits:
       if( crossedHcalIds.empty() ) return 0;
-      if( crossedHcalRecHits.empty() )	return nXnEnergy(crossedHcalIds.front(), type, gridSize);
-      return nXnEnergy(crossedHcalRecHits.front()->id(), type, gridSize);
+      return nXnEnergy(crossedHcalIds.front(), type, gridSize);
       break;
     case HORecHits:
       if( crossedHOIds.empty() ) return 0;
-      if( crossedHORecHits.empty() ) 	return nXnEnergy(crossedHOIds.front(), type, gridSize);
-      return nXnEnergy(crossedHORecHits.front()->id(), type, gridSize);
+      return nXnEnergy(crossedHOIds.front(), type, gridSize);
       break;
     default:
-      edm::LogWarning("TrackAssociator") << "Unkown or not implemented energy type requested, type:" << type;
+      throw cms::Exception("FatalError") << "Unkown or not implemented energy type requested, type:" << type;
    }
-   return 0;
+   return -999;
 }
 
 
@@ -379,7 +370,7 @@ DetId TrackDetMatchInfo::findMaxDeposition( EnergyType type )
 		   energy = (*hit)->energy();
 		   break;
 		 default:
-		   edm::LogWarning("TrackAssociator") << "Unknown calo tower energy type: " << type;
+		   throw cms::Exception("FatalError") << "Unknown calo tower energy type: " << type;
 		}
 		if ( energy > maxEnergy ) {
 		   maxEnergy = energy;
@@ -388,9 +379,185 @@ DetId TrackDetMatchInfo::findMaxDeposition( EnergyType type )
 	     }
 	}
     default:
-      edm::LogWarning("TrackAssociator") << "Maximal energy deposition: unkown or not implemented energy type requested, type:" << type;
+      throw cms::Exception("FatalError") << "Maximal energy deposition: unkown or not implemented energy type requested, type:" << type;
    }
    return id;
+}
+
+DetId TrackDetMatchInfo::findMaxDeposition(const DetId& id, EnergyType type, int gridSize)
+{
+   double energy_max(0);
+   DetId id_max;
+   if ( id.rawId() == 0 ) return id_max;
+   switch (type)  {
+    case TowerTotal:
+    case TowerHcal:
+    case TowerEcal:
+    case TowerHO:
+	{
+	   if ( id.det() != DetId::Calo ) {
+	      throw cms::Exception("FatalError") << "Wrong DetId. Expected CaloTower, but found:\n" <<
+		DetIdInfo::info(id)<<"\n";
+	   }
+	   CaloTowerDetId centerId(id);
+	   for(std::vector<const CaloTower*>::const_iterator hit=towers.begin(); hit!=towers.end(); hit++) {
+	      CaloTowerDetId neighborId((*hit)->id());
+	      int dEta = abs( (centerId.ieta()<0?centerId.ieta()+1:centerId.ieta() )
+			      -(neighborId.ieta()<0?neighborId.ieta()+1:neighborId.ieta() ) ) ;
+	      int dPhi = abs( centerId.iphi()-neighborId.iphi() );
+	      if ( abs(72-dPhi) < dPhi ) dPhi = 72-dPhi;
+	      if(  dEta <= gridSize && dPhi <= gridSize ) {
+		 switch (type) {
+		  case TowerTotal:
+		    if ( energy_max < (*hit)->energy() ){
+		       energy_max = (*hit)->energy();
+		       id_max = (*hit)->id();
+		    }
+		    break;
+		  case TowerEcal:
+		    if ( energy_max < (*hit)->emEnergy() ){
+		       energy_max = (*hit)->emEnergy();
+		       id_max = (*hit)->id();
+		    }
+		    break;
+		  case TowerHcal:
+		    if ( energy_max < (*hit)->hadEnergy() ){
+		       energy_max = (*hit)->hadEnergy();
+		       id_max = (*hit)->id();
+		    }
+		    break;
+		  case TowerHO:
+		    if ( energy_max < (*hit)->outerEnergy() ){
+		       energy_max = (*hit)->outerEnergy();
+		       id_max = (*hit)->id();
+		    }
+		    break;
+		  default:
+		    throw cms::Exception("FatalError") << "Unknown calo tower energy type: " << type;
+		 }
+	      }
+	   }
+	}
+      break;
+    case EcalRecHits:
+	{
+	   if( id.det() != DetId::Ecal || (id.subdetId() != EcalBarrel && id.subdetId() != EcalEndcap) ) {
+	      throw cms::Exception("FatalError") << "Wrong DetId. Expected EcalBarrel or EcalEndcap, but found:\n" <<
+		DetIdInfo::info(id)<<"\n";
+	   }
+	   // Since the ECAL granularity is small and the gap between EE and EB is significant,
+	   // energy is computed only within the system that contains the central element
+	   if( id.subdetId() == EcalBarrel ) {
+	      EBDetId centerId(id);
+	      for(std::vector<const EcalRecHit*>::const_iterator hit=ecalRecHits.begin(); hit!=ecalRecHits.end(); hit++) {
+		 if ((*hit)->id().subdetId() != EcalBarrel) continue;
+		 EBDetId neighborId((*hit)->id());
+		 int dEta = abs( (centerId.ieta()<0?centerId.ieta()+1:centerId.ieta() )
+				 -(neighborId.ieta()<0?neighborId.ieta()+1:neighborId.ieta() ) ) ;
+		 int dPhi = abs( centerId.iphi()-neighborId.iphi() );
+		 if ( abs(360-dPhi) < dPhi ) dPhi = 360-dPhi;
+		 if(  dEta <= gridSize && dPhi <= gridSize ) {
+		    if ( energy_max < (*hit)->energy() ){
+		       energy_max = (*hit)->energy();
+		       id_max = (*hit)->id();
+		    }
+		 }
+	      }
+	   } else {
+	      // Endcap
+	      EEDetId centerId(id);
+	      for(std::vector<const EcalRecHit*>::const_iterator hit=ecalRecHits.begin(); hit!=ecalRecHits.end(); hit++) {
+		 if ((*hit)->id().subdetId() != EcalEndcap) continue;
+		 EEDetId neighborId((*hit)->id());
+		 if(  centerId.zside() == neighborId.zside() && 
+		      abs(centerId.ix()-neighborId.ix()) <= gridSize && 
+		      abs(centerId.iy()-neighborId.iy()) <= gridSize ) {
+		    if ( energy_max < (*hit)->energy() ){
+		       energy_max = (*hit)->energy();
+		       id_max = (*hit)->id();
+		    }
+		 }
+	      }
+	   }
+	}
+      break;
+    case HcalRecHits:
+	{
+	   if( id.det() != DetId::Hcal || (id.subdetId() != HcalBarrel && id.subdetId() != HcalEndcap) ) {
+	      throw cms::Exception("FatalError") << "Wrong DetId. Expected HE or HB, but found:\n" <<
+		DetIdInfo::info(id)<<"\n";
+	   }
+	   HcalDetId centerId(id);
+	   for(std::vector<const HBHERecHit*>::const_iterator hit=hcalRecHits.begin(); hit!=hcalRecHits.end(); hit++) {
+	      HcalDetId neighborId((*hit)->id());
+	      int dEta = abs( (centerId.ieta()<0?centerId.ieta()+1:centerId.ieta() )
+			      -(neighborId.ieta()<0?neighborId.ieta()+1:neighborId.ieta() ) ) ;
+	      int dPhi = abs( centerId.iphi()-neighborId.iphi() );
+	      if ( abs(72-dPhi) < dPhi ) dPhi = 72-dPhi;
+	      if(  dEta <= gridSize && dPhi <= gridSize ){
+		 if ( energy_max < (*hit)->energy() ){
+		    energy_max = (*hit)->energy();
+		    id_max = (*hit)->id();
+		 }
+	      }
+	   }
+	}
+      break;
+    case HORecHits:
+	{
+	   if( id.det() != DetId::Hcal || (id.subdetId() != HcalOuter) ) {
+	      throw cms::Exception("FatalError") << "Wrong DetId. Expected HO, but found:\n" <<
+		DetIdInfo::info(id)<<"\n";
+	   }
+	   HcalDetId centerId(id);
+	   for(std::vector<const HORecHit*>::const_iterator hit=hoRecHits.begin(); hit!=hoRecHits.end(); hit++) {
+	      HcalDetId neighborId((*hit)->id());
+	      int dEta = abs( (centerId.ieta()<0?centerId.ieta()+1:centerId.ieta() )
+			      -(neighborId.ieta()<0?neighborId.ieta()+1:neighborId.ieta() ) ) ;
+	      int dPhi = abs( centerId.iphi()-neighborId.iphi() );
+	      if ( abs(72-dPhi) < dPhi ) dPhi = 72-dPhi;
+	      if(  dEta <= gridSize && dPhi <= gridSize ) {
+		 if ( energy_max < (*hit)->energy() ){
+		    energy_max = (*hit)->energy();
+		    id_max = (*hit)->id();
+		 }
+	      }
+	   }
+	}
+      break;
+    default:
+      throw cms::Exception("FatalError") << "Unkown or not implemented energy type requested, type:" << type;
+   }
+   return id_max;
+}
+
+DetId TrackDetMatchInfo::findMaxDeposition(EnergyType type, int gridSize)
+{
+   DetId id_max;
+   switch (type)  {
+    case TowerTotal:
+    case TowerHcal:
+    case TowerEcal:
+    case TowerHO:
+      if( crossedTowerIds.empty() ) return id_max;
+      return findMaxDeposition(crossedTowerIds.front(), type, gridSize);
+      break;
+    case EcalRecHits:
+      if( crossedEcalIds.empty() ) return id_max;
+      return findMaxDeposition(crossedEcalIds.front(), type, gridSize);
+      break;
+    case HcalRecHits:
+      if( crossedHcalIds.empty() ) return id_max;
+      return findMaxDeposition(crossedHcalIds.front(), type, gridSize);
+      break;
+    case HORecHits:
+      if( crossedHOIds.empty() ) return id_max;
+      return findMaxDeposition(crossedHOIds.front(), type, gridSize);
+      break;
+    default:
+      throw cms::Exception("FatalError") << "Unkown or not implemented energy type requested, type:" << type;
+   }
+   return id_max;
 }
 
 ////////////////////////////////////////////////////////////////////////

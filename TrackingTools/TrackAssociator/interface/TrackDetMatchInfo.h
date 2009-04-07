@@ -24,15 +24,17 @@ class TrackDetMatchInfo {
    /// ( not well defined for tracks originating away from IP)
    double coneEnergy( double dR, EnergyType );
    
-   /// Find detector elements with highest energy deposition
-   DetId findMaxDeposition( EnergyType );
-   
    /// get energy of the NxN shape (N = 2*gridSize + 1) around given detector element
    double nXnEnergy(const DetId&, EnergyType, int gridSize = 1);
    
    /// get energy of the NxN shape (N = 2*gridSize + 1) around track projection
    double nXnEnergy(EnergyType, int gridSize = 1);
 
+   /// Find detector elements with highest energy deposition
+   DetId findMaxDeposition( EnergyType );
+   DetId findMaxDeposition( EnergyType, int gridSize );
+   DetId findMaxDeposition( const DetId&, EnergyType, int gridSize );
+   
    /// Track position at different parts of the calorimeter
    math::XYZPoint trkGlobPosAtEcal;
    math::XYZPoint trkGlobPosAtHcal;
