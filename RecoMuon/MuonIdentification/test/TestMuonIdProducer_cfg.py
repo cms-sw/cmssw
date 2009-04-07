@@ -4,17 +4,9 @@ process = cms.Process("TEST")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_V9::All'
-# process.prefer("GlobalTag")
-# process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+process.GlobalTag.globaltag = 'IDEAL_30X::All'
 
-## process.load("Configuration.StandardSequences.Reconstruction_cff")
-#process.load("Configuration.StandardSequences.MagneticField_0T_cff")
-#process.load("Configuration.StandardSequences.Geometry_cff")
-#
-##process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
-
-process.load("RecoMuon.MuonIdentification.muonIdProducerSequence_cff")
 process.load("RecoMuon.MuonIdentification.links_cfi")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -46,22 +38,18 @@ options = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames =
-cms.untracked.vstring(
-         '/store/relval/CMSSW_2_1_9/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/2A00EECC-A185-DD11-93A9-000423D9517C.root',
-	 '/store/relval/CMSSW_2_1_9/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/6288513A-A785-DD11-A4C2-000423D94524.root',
-	 '/store/relval/CMSSW_2_1_9/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/7A8E1ED9-9F85-DD11-87C7-000423D98E30.root',
-	 '/store/relval/CMSSW_2_1_9/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0001/246688D2-0487-DD11-A11A-000423D94534.root'
-)
+    fileNames = cms.untracked.vstring(
+         'file:/tmp/dmytro/step2_a_b.root'
+    )
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('/tmp/mc-muonid.root'),
+    fileName = cms.untracked.string('/tmp/mc-muonid3.root'),
     outputCommands = cms.untracked.vstring("drop *",
         "keep *_genParticleCandidates_*_*",
 	"keep recoTracks_*_*_*",
 	"keep recoTrackExtras_*_*_*",
-	"keep recoMuons_*_*_*",
+#	"keep recoMuons_*_*_*",
 	"keep *_cscSegments_*_*",
 	"keep *_dt4DSegments_*_*",
 	"keep *_towerMaker_*_*",
