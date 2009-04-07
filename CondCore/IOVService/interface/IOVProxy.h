@@ -13,16 +13,17 @@ namespace cond {
   class IOVSequence;
   typedef  IOVSequence IOV;
   class PoolTransaction;
+  class Connection;
   
   class IOVElementProxy {
   public:
-    IOVElementProxy() : m_since(0), m_till(0), m_db(0){}
-    IOVElementProxy(PoolTransaction * idb) : m_since(0), m_till(0), m_db(idb){}
+    IOVElementProxy() : m_since(0), m_till(0), m_conn(0){}
+    IOVElementProxy(Connection * iconn) : m_since(0), m_till(0), m_conn(iconn){}
     IOVElementProxy(cond::Time_t is,
 	       cond::Time_t it,
 	       std::string const& itoken,
-	       PoolTransaction * idb) :
-      m_since(is), m_till(it), m_token(itoken), m_db(idb){}
+	       Connection * iconn) :
+      m_since(is), m_till(it), m_token(itoken), m_conn(iconn){}
     
     void set(cond::Time_t is,
 	     cond::Time_t it,
@@ -35,12 +36,13 @@ namespace cond {
     cond::Time_t since() const {return m_since;}
     cond::Time_t till() const {return m_till;}
     std::string const & wrapperToken() const {return m_token;}
-    PoolTransaction * db() const { return m_db;}
+    Connection * connection() const { return m_conn;}
+    PoolTransaction * db() const;
   private:
     cond::Time_t m_since;
     cond::Time_t m_till;
     std::string  m_token;
-    PoolTransaction * m_db;
+    Connection * m_conn;
   };
   
   
@@ -56,7 +58,7 @@ namespace cond {
     IOVProxy();
     ~IOVProxy();
     
-    IOVProxy(cond::PoolTransaction& db,
+    IOVProxy(cond::Connection& conn,
 	     const std::string & token, bool nolib, bool keepOpen);
     
     struct IterHelp {

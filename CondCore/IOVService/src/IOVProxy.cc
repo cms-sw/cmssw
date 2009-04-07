@@ -1,6 +1,7 @@
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include "DataSvc/Ref.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/Connection.h"
 
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/ClassInfoLoader.h"
@@ -14,39 +15,49 @@ namespace cond {
 
   namespace impl {
     struct IOVImpl {
-      IOVImpl(cond::PoolTransaction& db,
+      IOVImpl(cond::Connection& conn,
 	      const std::string & token,
 	      bool nolib,
 	      bool keepOpen) :
-	pooldb(db){
-	db.start(true);
-	iov = pool::Ref<cond::IOVSequence>(&(pooldb.poolDataSvc()),token);
-	if (iov->iovs().empty() || nolib) return;
-	// load dict (change: use IOV metadata....)
-	std::string ptok = iov->iovs().front().wrapperToken();
-	db.commit();   
-	cond::reflexTypeByToken(ptok);
-	db.start(true);
-	pool::Ref<cond::IOVSequence> temp(&(pooldb.poolDataSvc()),token);
+	connection(conn){
+	pooldb().start(true);
+	pool::Ref<cond::IOVSequence> temp(&(pooldb().poolDataSvc()),token);
 	iov.copyShallow(temp);
-	if (keepOpen) return;
-	pooldb.commit();
+	pooldb().commit();   
+	if (!iov->iovs().empty() && !nolib) {
+	  // load dict (change: use IOV metadata....)
+	  std::string ptok = iov->iovs().front().wrapperToken();
+	  cond::reflexTypeByToken(ptok);
+	}
+	if (keepOpen) pooldb().start(true);
       }
       ~IOVImpl(){
-	pooldb.commit();
+	pooldb().commit();
       }
-      cond::PoolTransaction & pooldb;
+      cond::PoolTransaction& pooldb() { return connection.poolTransaction();}
+
+
+      cond::Connection & connection;
       pool::Ref<cond::IOVSequence> iov;
     };
 
   }
 
 
+  PoolTransaction *  IOVElementProxy::db() const {
+    return connection() ? connection()->poolTransaction() : 0;
+  }
+
+
   IOVProxy::IterHelp::IterHelp(impl::IOVImpl & impl) :
-    iov(*impl.iov), elem(&impl.pooldb){}
+    iov(*impl.iov), elem(&impl.connection){}
   
 
   void IOVElementProxy::set(IOVSequence const & v, int i) {
+    if (i==v.iovs().size()) {
+      set(0,0,"");
+      return;
+    }
     m_since =  v.iovs()[i].sinceTime();
     m_till  =  (i+1==v.iovs().size()) ? v.lastTill() : v.iovs()[i+1].sinceTime()-1;
     m_token = v.iovs()[i].wrapperToken();
@@ -58,9 +69,9 @@ namespace cond {
  
   IOVProxy::~IOVProxy() {}
 
-  IOVProxy::IOVProxy(cond::PoolTransaction& db,
+  IOVProxy::IOVProxy(cond::Connection& conn,
 		     const std::string & token, bool nolib, bool keepOpen) :
-    m_iov(new impl::IOVImpl(db,token,nolib,keepOpen)), m_low(0), m_high(size()){}
+    m_iov(new impl::IOVImpl(conn,token,nolib,keepOpen)), m_low(0), m_high(size()){}
 
 
   void IOVProxy::setRange(cond::Time_t since, cond::Time_t  till) const {
@@ -77,6 +88,14 @@ namespace cond {
     m_low = std::max(m_high-n,m_low);
   }
 
+
+  const_iterator IOVProxy::find(cond::Time_t time) const {
+    int n = iov().find(time)-iov().begin();
+    return (n<m_low || m_high<n ) ? 
+      end() :  
+      boost::make_transform_iterator(boost::counting_iterator<int>(n),
+				     IterHelp(*m_iov));
+  }
 
 
   int IOVProxy::size() const {

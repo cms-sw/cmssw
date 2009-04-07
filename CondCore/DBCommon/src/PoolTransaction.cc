@@ -57,6 +57,7 @@ void
 cond::PoolTransaction::rollback(){
   if(!m_datasvc) throw cond::Exception("PoolTransaction::rollback: database not connected");
    m_datasvc->transaction().rollback();
+   m_count=0;
    this->NotifyEndOfTransaction();
 }
 bool 
