@@ -18,21 +18,26 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # Input source
-process.source = cms.Source("FlatRandomEGunSource",
-    PGunParameters = cms.untracked.PSet(
-        PartID = cms.untracked.vint32(2112),
-        MinEta = cms.untracked.double(7.0),
-        MaxEta = cms.untracked.double(7.0),
-        MinPhi = cms.untracked.double(-3.14159265359),
-        MaxPhi = cms.untracked.double(3.14159265359),
-        MinE = cms.untracked.double(99.99),
-        MaxE = cms.untracked.double(100.01)
+process.source = cms.Source("EmptySource")
+
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    PGunParameters = cms.PSet(
+        PartID = cms.vint32(2112),
+        MinEta = cms.double(7.0),
+        MaxEta = cms.double(7.0),
+        MinPhi = cms.double(-3.14159265359), ## in radians
+        MaxPhi = cms.double(3.14159265359),
+        MinE = cms.double(99.99),
+        MaxE = cms.double(100.01)
     ),
-    Verbosity = cms.untracked.int32(0),
+    Verbosity = cms.untracked.int32(0), ## set to 1 (or greater)  for printouts
+
     psethack = cms.string('single neutron E 100'),
-    AddAntiParticle = cms.untracked.bool(True),
+    AddAntiParticle = cms.bool(True),
     firstRun = cms.untracked.uint32(1)
 )
+
+process.ProductionFilterSequence = cms.Sequence(process.generator)
 
 # Output definition
 process.output = cms.OutputModule("PoolOutputModule",
@@ -67,7 +72,7 @@ process.g4SimHits.StackingAction.MaxTrackTime = cms.double(10000.)
 process.g4SimHits.CaloSD.TmaxHit = cms.double(10000.)
 
 # Path and EndPath definitions
-process.generation_step = cms.Path(process.pgen)
+process.generation_step = cms.Path(process.ProductionFilterSequence+process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.endjob_step = cms.Path(process.endOfProcess)
 process.out_step = cms.EndPath(process.output)
