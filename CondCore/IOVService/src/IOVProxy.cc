@@ -45,7 +45,7 @@ namespace cond {
 
 
   PoolTransaction *  IOVElementProxy::db() const {
-    return connection()!=0 ? connection()->poolTransaction() : (PoolTransaction *)(0);
+    return connection() ? &connection()->poolTransaction() : (PoolTransaction *)(0);
   }
 
 
