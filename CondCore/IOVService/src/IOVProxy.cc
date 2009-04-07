@@ -27,7 +27,7 @@ namespace cond {
 	db.commit();   
 	cond::reflexTypeByToken(ptok);
 	db.start(true);
-	iov = cond::TypedRef<cond::IOVSequence>(db,token);
+	iov =   pool::Ref<cond::IOVSequence>(&(pooldb.poolDataSvc()),token);
 	if (keepOpen) return;
 	*iov;
 	pooldb.commit();
