@@ -6,7 +6,7 @@
  *
  *  DQM histogram post processor
  *
- *  $Date: 2008/12/22 08:28:22 $
+ *  $Date: 2009/03/27 00:16:49 $
  *  $Revision: 1.1 $
  *
  *  \author Junghwan Goh - SungKyunKwan University
@@ -36,9 +36,11 @@ class DQMGenericClient : public edm::EDAnalyzer
   void computeEfficiency(const std::string& startDir, 
                          const std::string& efficMEName, const std::string& efficMETitle,
                          const std::string& recoMEName, const std::string& simMEName,const std::string& type="eff");
-  void computeResolution(const std::string &, 
+  void computeResolution(const std::string& startDir, 
                          const std::string& fitMEPrefix, const std::string& fitMETitlePrefix, 
                          const std::string& srcMEName);
+  void normalizeToEntries(const std::string& startDir, const std::string& histName);
+  void makeCumulativeDist(const std::string& startDir, const std::string& cdName);
 
   void limitedFit(MonitorElement * srcME, MonitorElement * meanME, MonitorElement * sigmaME);
 
@@ -49,7 +51,7 @@ class DQMGenericClient : public edm::EDAnalyzer
   DQMStore* theDQM;
   std::vector<std::string> subDirs_;
   std::string outputFileName_;
-  std::vector<std::string> effCmds_, resCmds_;
+  std::vector<std::string> effCmds_, resCmds_, normCmds_, cdCmds_;
   bool resLimitedFit_;
 };
 

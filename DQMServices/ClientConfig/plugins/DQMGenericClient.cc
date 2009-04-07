@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2009/01/16 13:21:49 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/03/27 00:16:50 $
+ *  $Revision: 1.1 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -26,10 +26,14 @@ typedef vector<string> vstring;
 
 DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
 {
+  vstring dummy;
+
   verbose_ = pset.getUntrackedParameter<unsigned int>("verbose", 0);
 
-  effCmds_ = pset.getParameter<vstring>("efficiency");
-  resCmds_ = pset.getParameter<vstring>("resolution");
+  effCmds_ = pset.getUntrackedParameter<vstring>("efficiency", dummy);
+  resCmds_ = pset.getUntrackedParameter<vstring>("resolution", dummy);
+  normCmds_ = pset.getUntrackedParameter<vstring>("normalization", dummy);
+  cdCmds_ = pset.getUntrackedParameter<vstring>("cumulativeDists", dummy);
 
   resLimitedFit_ = pset.getUntrackedParameter<bool>("resolutionLimitedFit",false);
 
@@ -129,6 +133,46 @@ void DQMGenericClient::endJob()
 
       computeResolution(dirName, args[0], args[1], args[2]);
     }
+
+    for(vstring::const_iterator iCmd = normCmds_.begin();
+        iCmd != normCmds_.end(); ++iCmd) {
+      if ( iCmd->empty() ) continue;
+      boost::tokenizer<elsc> tokens(*iCmd, elsc("\\", "\t", "\'"));
+
+      vector<string> args;
+      for(boost::tokenizer<elsc>::const_iterator iToken = tokens.begin();
+         iToken != tokens.end(); ++iToken) {
+        if ( iToken->empty() ) continue;
+        args.push_back(*iToken);
+      }
+
+      if ( args.size() != 1 ) {
+        LogError("DQMGenericClient") << "Wrong input to normCmds\n";
+        continue;
+      }
+
+      normalizeToEntries(dirName, args[0]);
+    }
+
+    for(vstring::const_iterator iCmd = cdCmds_.begin();
+       iCmd != cdCmds_.end(); ++ iCmd) {
+     if ( iCmd->empty() ) continue;
+     boost::tokenizer<elsc> tokens(*iCmd, elsc("\\", " \t", "\'"));
+
+     vector<string> args;
+     for(boost::tokenizer<elsc>::const_iterator iToken = tokens.begin();
+         iToken != tokens.end(); ++iToken) {
+       if ( iToken->empty() ) continue;
+       args.push_back(*iToken);
+     }
+
+     if ( args.size() != 1 ) {
+       LogError("DQMGenericClient") << "Wrong input to cdCmds\n";
+       continue;
+     }
+
+     makeCumulativeDist(dirName, args[0]);
+   }
   }
 
   if ( verbose_ > 0 ) theDQM->showDirStructure();
@@ -137,7 +181,7 @@ void DQMGenericClient::endJob()
 }
 
 void DQMGenericClient::computeEfficiency(const string& startDir, const string& efficMEName, const string& efficMETitle,
-                                      const string& recoMEName, const string& simMEName, const std::string & type)
+                                         const string& recoMEName, const string& simMEName, const std::string & type)
 {
   if ( ! theDQM->dirExists(startDir) ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
@@ -235,7 +279,7 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
 }
 
 void DQMGenericClient::computeResolution(const string& startDir, const string& namePrefix, const string& titlePrefix,
-                                      const std::string& srcName)
+                                         const std::string& srcName)
 {
   if ( ! theDQM->dirExists(startDir) ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
@@ -291,6 +335,90 @@ void DQMGenericClient::computeResolution(const string& startDir, const string& n
   } else {
     limitedFit(srcME,meanME,sigmaME);
   }
+}
+
+void DQMGenericClient::normalizeToEntries(const std::string& startDir, const std::string& histName) 
+{
+  if ( ! theDQM->dirExists(startDir) ) {
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogWarning("DQMGenericClient") << "normalizeToEntries() : "
+                                     << "Cannot find sub-directory " << startDir << endl;
+    }
+    return;
+  }
+
+  theDQM->cd();
+
+  ME* element = theDQM->get(startDir+"/"+histName);
+
+  if ( !element ) {
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogWarning("DQMGenericClient") << "normalizeToEntries() : "
+                                     << "No such element '" << histName << "' found\n";
+    }
+    return;
+  }
+
+  TH1F* hist  = element->getTH1F();
+  if ( !hist) {
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogWarning("DQMGenericClient") << "normalizeToEntries() : "
+                                     << "Cannot create TH1F from ME\n";
+    }
+    return;
+  }
+
+  const double entries = hist->GetEntries();
+  if ( entries != 0 ) {
+    hist->Scale(1./entries);
+  }
+  else {
+    LogWarning("DQMGenericClient") << "normalizeToEntries() : " 
+                                   << "Zero entries in histogram\n";
+  }
+
+  return;
+}
+
+void DQMGenericClient::makeCumulativeDist(const std::string& startDir, const std::string& cdName) 
+{
+  if ( ! theDQM->dirExists(startDir) ) {
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogWarning("DQMGenericClient") << "normalizeToEntries() : "
+                                  << "Cannot find sub-directory " << startDir << endl;
+    }
+    return;
+  }
+
+  theDQM->cd();
+
+  ME* element_cd = theDQM->get(startDir+"/"+cdName);
+
+  if ( !element_cd ) {
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogWarning("DQMGenericClient") << "normalizeToEntries() : "
+                                  << "No such element '" << cdName << "' found\n";
+    }
+    return;
+  }
+
+  TH1F* cd  = element_cd->getTH1F();
+
+  if ( !cd ) {
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogWarning("DQMGenericClient") << "normalizeToEntries() : "
+                                  << "Cannot create TH1F from ME\n";
+    }
+    return;
+  }
+
+  int n_bins = cd->GetNbinsX() + 1;
+
+  for (int i = 1; i <= n_bins; i++) {
+    cd->SetBinContent(i,cd->GetBinContent(i) + cd->GetBinContent(i-1));
+  }
+
+  return;
 }
 
 void DQMGenericClient::limitedFit(MonitorElement * srcME, MonitorElement * meanME, MonitorElement * sigmaME)
