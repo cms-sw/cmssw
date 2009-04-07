@@ -15,15 +15,13 @@ cond::Connection::Connection(const std::string& con,
   m_connectionTimeOut ( connectionTimeOut ),
   m_connectionServiceHandle(0),
   m_blobstreamingServiceHandle(0)
-{
-  m_coralConnectionPool.reserve(10);
-}
+{}
+
 cond::Connection::~Connection(){
   this->disconnect();
 }
 void cond::Connection::connect( cond::DBSession* session ){
   m_connectionServiceHandle=&(session->connectionService());
-  if(!m_connectionServiceHandle)throw cond::Exception("cond::Connection::connect: unable to load connection service");
   m_blobstreamingServiceHandle=&(session->blobStreamingService());
   m_idleConnectionCleanupPeriod=session->configuration().connectionConfiguration()->idleConnectionCleanupPeriod();
 }
@@ -33,58 +31,31 @@ void cond::Connection::connect( cond::DBSession* session ){
 */
 cond::CoralTransaction&
 cond::Connection::coralTransaction(){
-  if( !m_coralConnectionPool.empty() ){
-    std::vector<cond::CoralConnectionProxy*>::iterator it;
-    std::vector<cond::CoralConnectionProxy*>::iterator itEnd=m_coralConnectionPool.end();
-    for( it=m_coralConnectionPool.begin(); it!=itEnd; ++it ){
-      return static_cast<cond::CoralTransaction&>((*it)->transaction());
-    }
-  }
-  cond::CoralConnectionProxy* me=new cond::CoralConnectionProxy(
-	     m_connectionServiceHandle,m_con,m_connectionTimeOut,m_idleConnectionCleanupPeriod);
-  m_coralConnectionPool.push_back(me);
-  return static_cast<cond::CoralTransaction&>( me->transaction() );
+  if (!m_coralConnection)  
+    m_coralConnection.reset(new cond::CoralConnectionProxy(m_connectionServiceHandle,m_con,m_connectionTimeOut,m_idleConnectionCleanupPeriod));
+
+  return static_cast<cond::CoralTransaction&>(m_coralConnection->transaction());
+
 }
 //return transaction object(poolproxy, current transactionCounter, current time
 cond::PoolTransaction&
 cond::Connection::poolTransaction(){
-  if( !m_poolConnectionPool.empty() ){
-    std::vector<cond::PoolConnectionProxy*>::iterator it;
-    std::vector<cond::PoolConnectionProxy*>::iterator itEnd=m_poolConnectionPool.end();
-    for( it=m_poolConnectionPool.begin(); it!=itEnd; ++it ){
-      return static_cast<cond::PoolTransaction&>((*it)->transaction());
-    }
-  }
-  cond::PoolConnectionProxy* me=new cond::PoolConnectionProxy(m_connectionServiceHandle,m_blobstreamingServiceHandle,m_con,m_connectionTimeOut,m_idleConnectionCleanupPeriod); 
-  m_poolConnectionPool.push_back(me);
+
+  if(!m_poolConnection)
+    m_poolConnection.reset(new cond::PoolConnectionProxy(m_connectionServiceHandle,m_blobstreamingServiceHandle,m_con,m_connectionTimeOut,m_idleConnectionCleanupPeriod)); 
+ 
+
   return static_cast<cond::PoolTransaction&>(me->transaction());
 }
+
 std::string 
 cond::Connection::connectStr() const{
   return m_con;
 }
+
 void
 cond::Connection::disconnect(){
-  if(!m_coralConnectionPool.empty()){
-    std::vector<cond::CoralConnectionProxy*>::iterator it;
-    std::vector<cond::CoralConnectionProxy*>::iterator itEnd=m_coralConnectionPool.end();
-    for( it=m_coralConnectionPool.begin(); it!=itEnd; ++it){
-      if( *it!=0 ) {
-	delete *it;
-	*it=0;
-      } 
-    }
-    m_coralConnectionPool.clear();
-  }
-  if(!m_poolConnectionPool.empty()){
-    std::vector<cond::PoolConnectionProxy*>::iterator poolit;
-    std::vector<cond::PoolConnectionProxy*>::iterator poolitEnd=m_poolConnectionPool.end();
-    for( poolit=m_poolConnectionPool.begin(); poolit!=poolitEnd; ++poolit){
-      if( *poolit!=0 ) {
-	delete *poolit;
-	*poolit=0;
-      } 
-    }
-    m_poolConnectionPool.clear();
+    m_coralConnection.reset();
+    m_poolConnection.reset();
   }
 }

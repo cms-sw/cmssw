@@ -11,8 +11,10 @@
 //
 // Author:      Zhen Xie
 //
-#include <vector>
+
 #include <string>
+#include <memory>
+
 namespace pool{
   class IBlobStreamingService;
 }
@@ -49,8 +51,8 @@ namespace cond{
     std::string m_con;
     int m_connectionTimeOut;
     int m_idleConnectionCleanupPeriod;
-    std::vector<PoolConnectionProxy*> m_poolConnectionPool;
-    std::vector<CoralConnectionProxy*> m_coralConnectionPool;
+    std::auto_ptr<PoolConnectionProxy> m_poolConnection;
+    std::auto_ptr<CoralConnectionProxy> m_coralConnection;
     coral::IConnectionService* m_connectionServiceHandle;
     pool::IBlobStreamingService* m_blobstreamingServiceHandle;
   };// class Connection
