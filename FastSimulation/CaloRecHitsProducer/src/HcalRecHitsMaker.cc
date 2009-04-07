@@ -98,12 +98,15 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p, int det,
 	      hcalHotFraction_[inoise]=0.;
 	      continue;
 	    }
-	  if(noise_[inoise]==-1) {
+	  else if(noise_[inoise]==-1) {
 	    noiseFromDb_=true;
 	    continue;
 	  }
-	  hcalHotFraction_.push_back(0.5-0.5*myErf(threshold_[inoise]/noise_[inoise]/sqrt(2.)));
-	  myGaussianTailGenerators_[inoise]=new GaussianTail(random_,noise_[inoise],threshold_[inoise]);
+	  else
+	    {
+	      hcalHotFraction_.push_back(0.5-0.5*myErf(threshold_[inoise]/noise_[inoise]/sqrt(2.)));
+	      myGaussianTailGenerators_[inoise]=new GaussianTail(random_,noise_[inoise],threshold_[inoise]);
+	    }
 	}   
     }  
 }
@@ -134,7 +137,6 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
   es.get<HcalDbRecord>().get(conditions);
   const HcalDbService * theDbService=conditions.product();
 
-
   if(!initialized_) 
     {     
       theDetIds_.resize(9201);
@@ -158,6 +160,7 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
       CaloMiscalibMapHcal mapHcal;
       mapHcal.prefillMap();
       
+
       edm::FileInPath hcalfiletmp("CalibCalorimetry/CaloMiscalibTools/data/"+hcalfileinpath_);      
       std::string hcalfile=hcalfiletmp.fullPath();            
       MiscalibReaderFromXMLHcal hcalreader_(mapHcal);
@@ -222,7 +225,6 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 	  std::cout << " Unable to open CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat" << std::endl;
 	  std::cout <<	" Using a constant 1.2 factor " << std::endl;
 	}
-  
       //HB
       for(unsigned ic=0;ic<nhbcells_;++ic)
 	{
@@ -230,7 +232,8 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 	  float mgain=0.;
 	  for(unsigned ig=0;ig<4;++ig)
 	    mgain+=theDbService->getGain(theDetIds_[hbhi_[ic]])->getValue(ig);
-	  noisesigma_[hbhi_[ic]]=noiseInfCfromDB(theDbService,theDetIds_[hbhi_[ic]])*mgain*0.25;
+	  if(noiseFromDb_)
+	    noisesigma_[hbhi_[ic]]=noiseInfCfromDB(theDbService,theDetIds_[hbhi_[ic]])*mgain*0.25;
 	  //      std::cout << " NOISEHB " << theDetIds_[hbhi_[ic]].ieta() << " " << noisesigma_[hbhi_[ic]] << "  "<< std::endl;
 	    // 10000 (ADC scale) / 4. (to compute the mean) / 0.92  ADC/fC
   // *1.25 (only ~80% in 1ts Digi, while saturation applied to 4ts RecHit) 
@@ -245,6 +248,7 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 	  gains_[hbhi_[ic]]=gain;
 	}
       //HE
+
       for(unsigned ic=0;ic<nhecells_;++ic)
 	{
 	  float gain= theDbService->getGain(theDetIds_[hehi_[ic]])->getValue(0);
@@ -252,7 +256,8 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 	  float mgain=0.;
 	  for(unsigned ig=0;ig<4;++ig)
 	    mgain+=theDbService->getGain(theDetIds_[hehi_[ic]])->getValue(ig);
-	  noisesigma_[hehi_[ic]]=noiseInfCfromDB(theDbService,theDetIds_[hehi_[ic]])*mgain*0.25;
+	  if(noiseFromDb_)
+	    noisesigma_[hehi_[ic]]=noiseInfCfromDB(theDbService,theDetIds_[hehi_[ic]])*mgain*0.25;
       
 	  //      std::cout << " NOISEHE " << theDetIds_[hehi_[ic]].ieta() << " " << noisesigma_[hehi_[ic]] << "  "<< std::endl;
 	  float tpgfactor=TPGFactor_[(ieta>0)?ieta+44:-ieta+1];
@@ -264,6 +269,7 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 	  gains_[hehi_[ic]]=gain;
 	}
       //HO
+
       for(unsigned ic=0;ic<nhocells_;++ic)
 	{
 	  float ped=theDbService->getPedestal(theDetIds_[hohi_[ic]])->getValue(0);
@@ -271,7 +277,8 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 	  float mgain=0.;
 	  for(unsigned ig=0;ig<4;++ig)
 	    mgain+=theDbService->getGain(theDetIds_[hohi_[ic]])->getValue(ig);
-	  noisesigma_[hohi_[ic]]=noiseInfCfromDB(theDbService,theDetIds_[hohi_[ic]])*mgain*0.25;
+	  if(noiseFromDb_)
+	    noisesigma_[hohi_[ic]]=noiseInfCfromDB(theDbService,theDetIds_[hohi_[ic]])*mgain*0.25;
 	  //      std::cout << " NOISEHO " << theDetIds_[hohi_[ic]].ieta() << " " << noisesigma_[hohi_[ic]] << "  "<< std::endl;
 	  int ieta=HcalDetId(hohi_[ic]).ieta();
 	  float tpgfactor=TPGFactor_[(ieta>0)?ieta+43:-ieta];
@@ -283,6 +290,7 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 	  gains_[hohi_[ic]]=gain;
 	}
       //HF
+
       for(unsigned ic=0;ic<nhfcells_;++ic)
 	{
 	  float ped=theDbService->getPedestal(theDetIds_[hfhi_[ic]])->getValue(0);
@@ -291,7 +299,8 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 	  for(unsigned ig=0;ig<4;++ig)
 	    mgain+=theDbService->getGain(theDetIds_[hfhi_[ic]])->getValue(ig);
 	  // additional 1/2 factor for the HF (Salavat)
-	  noisesigma_[hfhi_[ic]]=noiseInfCfromDB(theDbService,theDetIds_[hfhi_[ic]])*mgain*0.25;
+	  if(noiseFromDb_)
+	    noisesigma_[hfhi_[ic]]=noiseInfCfromDB(theDbService,theDetIds_[hfhi_[ic]])*mgain*0.25;
 	  //      std::cout << " NOISEHF " << theDetIds_[hfhi_[ic]].ieta() << " " << noisesigma_[hfhi_[ic]] << "  "<< std::endl;
       
 	  mgain*=2500./0.36;
