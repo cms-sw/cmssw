@@ -57,5 +57,5 @@ void
 cond::Connection::disconnect(){
     m_coralConnection.reset();
     m_poolConnection.reset();
-  }
 }
+
