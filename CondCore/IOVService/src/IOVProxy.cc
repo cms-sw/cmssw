@@ -1,5 +1,5 @@
 #include "CondCore/IOVService/interface/IOVProxy.h"
-#include "CondCore/DBCommon/interface/TypedRef.h"
+#include "DataSvc/Ref.h"
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 
@@ -14,10 +14,11 @@ namespace cond {
     struct IOVImpl {
       IOVImpl(cond::PoolTransaction& db,
 	      const std::string & token,
-	      bool nolib) :
+	      bool nolib,
+	      bool keepOpen) :
 	pooldb(db){
 	db.start(true);
-	iov = cond::TypedRef<cond::IOVSequence>(db,token);
+	iov = pool::Ref<cond::IOVSequence>(&(pooldb.poolDataSvc()),token);
 	if (iov->iovs().empty() || nolib) return;
 	// load dict (change: use IOV metadata....)
 	std::string ptok = iov->iovs().front().wrapperToken();
@@ -25,12 +26,15 @@ namespace cond {
 	cond::reflexTypeByToken(ptok);
 	db.start(true);
 	iov = cond::TypedRef<cond::IOVSequence>(db,token);
+	if (keepOpen) return;
+	*iov;
+	pooldb.commit();
       }
       ~IOVImpl(){
 	pooldb.commit();
       }
       cond::PoolTransaction & pooldb;
-      cond::TypedRef<cond::IOVSequence> iov;
+      pool::Ref<cond::IOVSequence> iov;
     };
 
   }
@@ -53,8 +57,8 @@ namespace cond {
   IOVProxy::~IOVProxy() {}
 
   IOVProxy::IOVProxy(cond::PoolTransaction& db,
-		     const std::string & token, bool nolib) :
-    m_iov(new impl::IOVImpl(db,token,nolib)), m_low(0), m_high(size()){}
+		     const std::string & token, bool nolib, , bool keepOpen) :
+    m_iov(new impl::IOVImpl(db,token,nolib,keepOpen)), m_low(0), m_high(size()){}
 
 
   void IOVProxy::setRange(cond::Time_t since, cond::Time_t  till) const {
