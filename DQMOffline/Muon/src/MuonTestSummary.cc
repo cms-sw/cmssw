@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/12 08:40:50 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/04/07 10:58:14 $
+ *  $Revision: 1.15 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -472,36 +472,44 @@ void MuonTestSummary::doMuonIDTests(){
     }
     
     
-    // num of associated segments (limits computed from simulated data)
+    // num of 0 associated segments 
     double numOneSegm_dt = 0;
     MonitorElement * DT1Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hDT1NumSegments");
-    if(DT1Histo) numOneSegm_dt+=DT1Histo->getBinContent(2);
+    if(DT1Histo)
+      {if(DT1Histo->getEntries()!=0) numOneSegm_dt+=double(DT1Histo->getBinContent(2))/double(DT1Histo->getEntries());}
     MonitorElement * DT2Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hDT2NumSegments");
-    if(DT2Histo) numOneSegm_dt+=DT2Histo->getBinContent(2);
+    if(DT2Histo) 
+      {if(DT1Histo->getEntries()!=0) numOneSegm_dt+=double(DT2Histo->getBinContent(2))/double(DT2Histo->getEntries());}
     MonitorElement * DT3Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hDT3NumSegments");
-    if(DT3Histo) numOneSegm_dt+=DT3Histo->getBinContent(2);
+    if(DT3Histo) 
+      {if(DT3Histo->getEntries()!=0) numOneSegm_dt+=double(DT3Histo->getBinContent(2))/double(DT3Histo->getEntries());}
     MonitorElement * DT4Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hDT4NumSegments"); 
-    if(DT4Histo) numOneSegm_dt+=DT4Histo->getBinContent(2);
+    if(DT4Histo) 
+      {if(DT4Histo->getEntries()!=0) numOneSegm_dt+=double(DT4Histo->getBinContent(2))/double(DT3Histo->getEntries());}
     LogTrace(metname)<<"numOneSegm_dt: "<<numOneSegm_dt<<endl;
     double fraction_dt=0;
     if(numOneSegm_dt!=0){
-      fraction_dt = double(DT1Histo->getEntries())/numOneSegm_dt;
+      fraction_dt = numOneSegm_dt/4.0;
       LogTrace(metname)<<"fraction_dt: "<<fraction_dt<<endl;
     }
 
     double numOneSegm_csc = 0;
     MonitorElement * CSC1Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hCSC1NumSegments");
-    if(CSC1Histo) numOneSegm_csc+=CSC1Histo->getBinContent(2);
+    if(CSC1Histo) 
+      {if(CSC1Histo->getEntries()!=0) numOneSegm_csc+=double(CSC1Histo->getBinContent(2))/double(CSC1Histo->getEntries());}
     MonitorElement * CSC2Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hCSC2NumSegments");
-    if(CSC2Histo) numOneSegm_csc+=CSC2Histo->getBinContent(2);
+    if(CSC2Histo) 
+      {if(CSC2Histo->getEntries()!=0) numOneSegm_csc+=double(CSC2Histo->getBinContent(2))/double(CSC2Histo->getEntries());}
     MonitorElement * CSC3Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hCSC3NumSegments");
-    if(CSC3Histo) numOneSegm_csc+=CSC3Histo->getBinContent(2);
+    if(CSC3Histo) 
+      {if(CSC3Histo->getEntries()!=0) numOneSegm_csc+=double(CSC3Histo->getBinContent(2))/double(CSC3Histo->getEntries());}
     MonitorElement * CSC4Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hCSC4NumSegments");
-    if(CSC4Histo) numOneSegm_csc+=CSC4Histo->getBinContent(2);
+    if(CSC4Histo) 
+      {if(CSC4Histo->getEntries()!=0) numOneSegm_csc+=double(CSC4Histo->getBinContent(2))/double(CSC4Histo->getEntries());}
     LogTrace(metname)<<"numOneSegm_csc: "<<numOneSegm_csc<<endl;
     double fraction_csc=0;
     if(numOneSegm_csc!=0){
-      fraction_csc = double(CSC1Histo->getEntries())/numOneSegm_csc;
+      fraction_csc = numOneSegm_csc/6.0;
       LogTrace(metname)<<"fraction_csc: "<<fraction_csc<<endl;
     }
     
