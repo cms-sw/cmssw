@@ -45,7 +45,7 @@ namespace cond {
 
 
   PoolTransaction *  IOVElementProxy::db() const {
-    return connection() ? connection()->poolTransaction() : (PoolTransaction *)(0);
+    return connection()!=0 ? connection()->poolTransaction() : (PoolTransaction *)(0);
   }
 
 
@@ -90,7 +90,7 @@ namespace cond {
 
 
   IOVProxy::const_iterator IOVProxy::find(cond::Time_t time) const {
-    int n = iov().find(time)-iov().begin();
+    int n = iov().find(time)-iov().iovs().begin();
     return (n<m_low || m_high<n ) ? 
       end() :  
       boost::make_transform_iterator(boost::counting_iterator<int>(n),
