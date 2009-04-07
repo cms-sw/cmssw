@@ -166,7 +166,7 @@ int main( int argc, char** argv ){
        {
 	 cond::IOVProxy iov( myconnection, token, !details, details);
 	 unsigned int counter=0;
-	 std::string payloadContainer=iov.payloadContainerName(token);
+	 std::string payloadContainer=iov.payloadContainerName();
 	 std::cout<<"Tag "<<tag;
 	 if (verbose) std::cout << "\nStamp: " << iov.iov().comment()
 				<< "; time " << iov.iov().timestamp()
@@ -177,7 +177,7 @@ int main( int argc, char** argv ){
 	 for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
 	   std::cout<<ioviterator->since() << " \t "<<ioviterator->till() <<" \t "<<ioviterator->wrapperToken();
 	   if (details) {
-	     cond::TypedRef<cond::PayloadWrapper> wrapper(pooldb,ioviterator->wrapperToken());
+	     cond::TypedRef<cond::PayloadWrapper> wrapper(myconnection.poolTransaction(),ioviterator->wrapperToken());
 	     if (wrapper.ptr()) std::cout << " \t "<< wrapper->summary();
 	   }
 	   std::cout<<std::endl;	

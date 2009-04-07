@@ -122,6 +122,3 @@ namespace cond {
   }
 
 }
-
-
-}
