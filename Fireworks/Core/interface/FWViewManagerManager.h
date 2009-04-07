@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:26:23 EST 2008
-// $Id: FWViewManagerManager.h,v 1.9 2008/11/14 16:41:05 chrjones Exp $
+// $Id: FWViewManagerManager.h,v 1.10 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -32,13 +32,14 @@
 class FWViewManagerBase;
 class FWEventItem;
 class FWModelChangeManager;
+class FWColorManager;
 class FWTypeToRepresentations;
 
 class FWViewManagerManager
 {
 
 public:
-   FWViewManagerManager(FWModelChangeManager*);
+   FWViewManagerManager(FWModelChangeManager*, FWColorManager*);
    virtual ~FWViewManagerManager();
 
    // ---------- const member functions ---------------------
@@ -59,6 +60,7 @@ private:
    // ---------- member data --------------------------------
    std::vector<boost::shared_ptr<FWViewManagerBase> > m_viewManagers;
    FWModelChangeManager* m_changeManager;
+   FWColorManager* m_colorManager;
    std::map<std::string, const FWEventItem*> m_typeToItems;    //use this to tell view managers registered after the item
 
 };

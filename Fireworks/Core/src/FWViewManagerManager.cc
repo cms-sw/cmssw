@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:27:12 EST 2008
-// $Id: FWViewManagerManager.cc,v 1.12 2008/11/14 16:41:05 chrjones Exp $
+// $Id: FWViewManagerManager.cc,v 1.13 2009/01/23 21:35:44 amraktad Exp $
 //
 
 // system include files
@@ -34,8 +34,10 @@
 //
 // constructors and destructor
 //
-FWViewManagerManager::FWViewManagerManager(FWModelChangeManager* iCM) :
-   m_changeManager(iCM)
+FWViewManagerManager::FWViewManagerManager(FWModelChangeManager* iCM,
+                                           FWColorManager* iColorM) :
+   m_changeManager(iCM),
+   m_colorManager(iColorM)
 {
 }
 
@@ -68,6 +70,7 @@ FWViewManagerManager::add( boost::shared_ptr<FWViewManagerBase> iManager)
 {
    m_viewManagers.push_back(iManager);
    iManager->setChangeManager(m_changeManager);
+   iManager->setColorManager(m_colorManager);
 
    for(std::map<std::string,const FWEventItem*>::iterator it=m_typeToItems.begin(), itEnd=m_typeToItems.end();
        it != itEnd;
