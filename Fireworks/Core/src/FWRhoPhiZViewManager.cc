@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.48 2009/01/23 21:35:44 amraktad Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.49 2009/03/11 21:16:20 amraktad Exp $
 //
 
 // system include files
@@ -52,6 +52,7 @@
 #include "Fireworks/Core/interface/FWRhoPhiZView.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilderBaseFactory.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 
 #include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
@@ -65,6 +66,7 @@
 //
 const char* const kRhoPhiViewTypeName = "Rho Phi";
 const char* const kRhoZViewTypeName = "Rho Z";
+
 //
 // static data member definitions
 //
@@ -132,6 +134,7 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr) :
       //std::cout <<"purpose "<<purpose<<std::endl;
       m_typeToBuilder[purpose]=std::make_pair(*it,true);
    }
+   
 }
 
 // FWRhoPhiZViewManager::FWRhoPhiZViewManager(const FWRhoPhiZViewManager& rhs)
@@ -176,6 +179,8 @@ FWRhoPhiZViewManager::createRhoPhiView(TEveWindowSlot* iParent)
    boost::shared_ptr<FWRhoPhiZView>  pView(new FWRhoPhiZView(iParent,
                                                              kRhoPhiViewTypeName,
                                                              TEveProjection::kPT_RPhi) );
+   pView->setBackgroundColor(colorManager().background());
+
    pView->beingDestroyed_.connect(boost::bind(&FWRhoPhiZViewManager::beingDestroyed,this,_1));
    m_rhoPhiViews.push_back(pView);
    for(TEveElement::List_i it = m_rhoPhiGeomProjMgr->BeginChildren(), itEnd = m_rhoPhiGeomProjMgr->EndChildren();
@@ -205,6 +210,7 @@ FWRhoPhiZViewManager::createRhoZView(TEveWindowSlot* iParent)
    boost::shared_ptr<FWRhoPhiZView>  pView(new FWRhoPhiZView(iParent,
                                                              kRhoZViewTypeName,
                                                              TEveProjection::kPT_RhoZ) );
+   pView->setBackgroundColor(colorManager().background());
    pView->beingDestroyed_.connect(boost::bind(&FWRhoPhiZViewManager::beingDestroyed,this,_1));
    m_rhoZViews.push_back(pView);
    for(TEveElement::List_i it = m_rhoZGeomProjMgr->BeginChildren(),
@@ -275,6 +281,18 @@ FWRhoPhiZViewManager::modelChangesDone()
    gEve->EnableRedraw();
 }
 
+void 
+FWRhoPhiZViewManager::colorsChanged()
+{
+   for(std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator it =  m_rhoPhiViews.begin(), itEnd=m_rhoPhiViews.end();
+       it != itEnd; ++it) {
+      (*it)->setBackgroundColor(colorManager().background());
+   }
+   for(std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator it = m_rhoZViews.begin(), itEnd = m_rhoZViews.end();
+       it != itEnd; ++it) {
+      (*it)->setBackgroundColor(colorManager().background());
+   }
+}
 
 void
 FWRhoPhiZViewManager::selectionAdded(TEveElement* iElement)
@@ -386,9 +404,9 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
       TEveElementIter iter(rhoPhiDT.current());
       while ( TEveElement* element = iter.current() ) {
          element->SetMainTransparency(50);
-         element->SetMainColor(Color_t(TColor::GetColor("#3f0000")));
+         element->SetMainColor(colorManager().geomColor(kFWMuonBarrelMainColorIndex));
          if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
-            poly->SetLineColor(Color_t(TColor::GetColor("#7f0000")));
+            poly->SetLineColor(colorManager().geomColor(kFWMuonBarrelLineColorIndex));
          iter.next();
       }
    }
@@ -467,9 +485,9 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
       TEveElementIter iter(rhoZDT.current());
       while ( TEveElement* element = iter.current() ) {
          element->SetMainTransparency(50);
-         element->SetMainColor(Color_t(TColor::GetColor("#3f0000")));
+         element->SetMainColor(colorManager().geomColor(kFWMuonBarrelMainColorIndex));
          if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
-            poly->SetLineColor(Color_t(TColor::GetColor("#3f0000")));
+            poly->SetLineColor(colorManager().geomColor(kFWMuonBarrelMainColorIndex));
          iter.next();
       }
    }
@@ -480,9 +498,9 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
       TEveElementIter iter(rhoZCSC.current());
       while ( iter.current() ) {
          iter.current()->SetMainTransparency(50);
-         iter.current()->SetMainColor(Color_t(TColor::GetColor("#00003f")));
+         iter.current()->SetMainColor(colorManager().geomColor(kFWMuonEndCapMainColorIndex));
          if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(iter.current()) )
-            poly->SetLineColor(Color_t(TColor::GetColor("#00003f")));
+            poly->SetLineColor(colorManager().geomColor(kFWMuonEndCapLineColorIndex));
          iter.next();
       }
    }
@@ -572,9 +590,9 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
       TEveElementIter iter(rhoZDT.current());
       while ( TEveElement* element = iter.current() ) {
          element->SetMainTransparency(50);
-         element->SetMainColor(Color_t(TColor::GetColor("#3f0000")));
+         element->SetMainColor(colorManager().geomColor(kFWMuonBarrelMainColorIndex));
          if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
-            poly->SetLineColor(Color_t(TColor::GetColor("#7f0000")));
+            poly->SetLineColor(colorManager().geomColor(kFWMuonBarrelLineColorIndex));
          iter.next();
       }
    }
@@ -585,9 +603,9 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
       TEveElementIter iter(rhoZCSC.current());
       while ( iter.current() ) {
          iter.current()->SetMainTransparency(50);
-         iter.current()->SetMainColor(Color_t(TColor::GetColor("#00003f")));
+         iter.current()->SetMainColor(colorManager().geomColor(kFWMuonEndCapMainColorIndex));
          if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(iter.current()) )
-            poly->SetLineColor(Color_t(TColor::GetColor("#00007f")));
+            poly->SetLineColor(colorManager().geomColor(kFWMuonEndCapLineColorIndex));
          iter.next();
       }
    }
@@ -734,7 +752,7 @@ void FWRhoPhiZViewManager::makeTrackerGeometryRhoZ()
    TEveStraightLineSet* el = new TEveStraightLineSet( "outline" );
    el->SetPickable(kFALSE);
    list->AddElement(el);
-   el->SetLineColor(Color_t(TColor::GetColor("#007f00")));
+   el->SetLineColor(colorManager().geomColor(kFWTrackerColorIndex));
    el->AddLine(0, 123,-300, 0, 123, 300);
    el->AddLine(0, 123, 300, 0,-123, 300);
    el->AddLine(0,-123, 300, 0,-123,-300);
@@ -752,7 +770,7 @@ void FWRhoPhiZViewManager::makeTrackerGeometryRhoPhi()
 {
    TEveStraightLineSet* el = new TEveStraightLineSet( "TrackerRhoPhi" );
    el->SetPickable(kFALSE);
-   el->SetLineColor(Color_t(TColor::GetColor("#007f00")));
+   el->SetLineColor(colorManager().geomColor(kFWTrackerColorIndex));
    const unsigned int nSegments = 100;
    const double r = 123;
    for ( unsigned int i = 1; i <= nSegments; ++i )
