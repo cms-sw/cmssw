@@ -69,9 +69,9 @@ namespace sistrip {
   
   class RawToDigiUnpacker {
     
-    friend class OldSiStripRawToDigiUnpacker;
+    friend class ::OldSiStripRawToDigiUnpacker;
     friend class RawToClustersLazyUnpacker;
-    friend class OldSiStripRawToClustersLazyUnpacker;
+    friend class ::OldSiStripRawToClustersLazyUnpacker;
     
   public:
     
