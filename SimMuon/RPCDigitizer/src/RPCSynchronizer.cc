@@ -103,11 +103,11 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
 
     if(SimRoll->id().region() == 0){
       const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(SimRoll->topology()));
-      distanceFromEdge = top_->stripLength() - simHitPos.y();
+      distanceFromEdge = top_->stripLength()/2. - simHitPos.y();
       stripL = top_->stripLength();
     }else{
       const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&(SimRoll->topology()));
-      distanceFromEdge = top_->stripLength() - simHitPos.y();
+      distanceFromEdge = top_->stripLength()/2. - simHitPos.y();
       stripL = top_->stripLength();
     }
 
