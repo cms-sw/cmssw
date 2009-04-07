@@ -67,7 +67,7 @@ uint32_t SiStripHistoryDQMService::returnDetComponent(std::string& str){
     return SiStripDetId(DetId::Tracker,0).rawId(); //Full Tracker
 }
 
-//Example on how to define an user function for the statistic estration
+//Example on how to define an user function for the statistic extraction
 bool SiStripHistoryDQMService::setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent){
   userDBContent.push_back(keyName+std::string("@")+std::string("userExample_XMax"));
   userDBContent.push_back(keyName+std::string("@")+std::string("userExample_mean"));
