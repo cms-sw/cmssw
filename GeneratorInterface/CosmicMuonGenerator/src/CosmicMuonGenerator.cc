@@ -91,7 +91,7 @@ void CosmicMuonGenerator::initialize(CLHEP::HepRandomEngine *rng){
     // set up "surface geometry" dimensions
     double RadiusTargetEff = RadiusOfTarget; //get this from cfg-file
     double Z_DistTargetEff = ZDistOfTarget;  //get this from cfg-file
-    double Z_CentrTargetEff = ZCentrOfTarget;  //get this from cfg-file
+    //double Z_CentrTargetEff = ZCentrOfTarget;  //get this from cfg-file
     if(TrackerOnly==true){
     RadiusTargetEff = RadiusTracker;
     Z_DistTargetEff = Z_DistTracker;
@@ -203,7 +203,8 @@ void CosmicMuonGenerator::nextEvent(){
     //std::cout << " P(Mu)=" << sqrt(OneMuoEvt.e()*OneMuoEvt.e() - MuonMass*MuonMass)
     //      << " MinP_CMS=" << MinP_CMS << std::endl;
 
-    if (OneMuoEvt.hitTarget() && sqrt(OneMuoEvt.e()*OneMuoEvt.e() - MuonMass*MuonMass) > MinP_CMS){
+    if (OneMuoEvt.hitTarget() && sqrt(OneMuoEvt.e()*OneMuoEvt.e() - MuonMass*MuonMass) > MinP_CMS
+	|| AcptAllMu==true){
       Nsel+=1.; //count number of generated and accepted events  
       notSelected = false;
     }
@@ -511,3 +512,5 @@ void CosmicMuonGenerator::setMinEnu(double MinEn){ if (NotInitialized) MinEnu = 
 void CosmicMuonGenerator::setMaxEnu(double MaxEn){ if (NotInitialized) MaxEnu = MaxEn; }
 
 double CosmicMuonGenerator::getRate(){ return EventRate; }
+
+void CosmicMuonGenerator::setAcptAllMu(bool AllMu){ if (NotInitialized) AcptAllMu = AllMu; }

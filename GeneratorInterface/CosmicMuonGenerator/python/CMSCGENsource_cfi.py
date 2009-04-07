@@ -24,6 +24,7 @@ source = cms.Source("CosMuoGenSource",
     PlugVz = cms.double(-14000.0),                
     MinEnu = cms.double(10.),                
     MaxEnu = cms.double(10000.),                
+    AcptAllMu = cms.bool(False),                
     Verbosity = cms.bool(False)
 )
 

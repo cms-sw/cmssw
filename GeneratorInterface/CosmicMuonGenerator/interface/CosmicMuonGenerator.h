@@ -73,6 +73,9 @@ private:
   double MinEnu;
   double MaxEnu;
 
+  bool AcptAllMu; //Accepting All Muons regardeless of direction
+
+
   // random number generator
   CLHEP::HepRandomEngine *RanGen;
   bool delRanGen;
@@ -110,6 +113,8 @@ public:
   void setPlugVz(double PlugVtz);
   void setMinEnu(double MinEn);
   void setMaxEnu(double MaxEn);
+  void setAcptAllMu(bool AllMu);
+
 
   // initialize the generator
   void initialize(CLHEP::HepRandomEngine *rng = 0);

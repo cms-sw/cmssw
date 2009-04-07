@@ -56,6 +56,8 @@ namespace edm
     double MinEn;
     double MaxEn;
 
+    bool AllMu; //Accepting All Muons regardeless of direction
+
     // external cross section and filter efficiency
     double       extCrossSect;
     double       extFilterEff;

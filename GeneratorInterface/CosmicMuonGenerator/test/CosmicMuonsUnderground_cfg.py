@@ -29,4 +29,7 @@ process.generator.MaxTheta = 89.
 #process.generator.PlugVz = -33000.;
 
 # z-position of centre of target cylinder [mm] (default=0.)
-#process.CosMuoGenSource.ZCentrOfTarget = 0.;
+#process.generator.ZCentrOfTarget = 0.;
+
+# Accept all muons
+#process.generator.AcptAllMu = True

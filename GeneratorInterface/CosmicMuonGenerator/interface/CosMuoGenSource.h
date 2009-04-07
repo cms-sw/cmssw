@@ -61,6 +61,8 @@ namespace edm
     double extCrossSect;
     double extFilterEff;
 
+    bool AllMu; //Accepting All Muons regardeless of direction
+    
     CosmicMuonGenerator* CosMuoGen;
     // the event format itself
     HepMC::GenEvent* fEvt;
