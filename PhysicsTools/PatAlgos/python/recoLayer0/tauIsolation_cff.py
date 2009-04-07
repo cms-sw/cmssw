@@ -94,8 +94,8 @@ patLayer0PFTauIsolation = cms.EDFilter("CandManyValueMapsSkimmerIsoDeposits",
 )
 
 patPFTauIsolation = cms.Sequence( tauIsoDepositPFCandidates #* tauIsoFromDepsPFCandidates
-                                 * tauIsoDepositPFChargedHadrons #* tauIsoFromDepsPFChargedHadrons
-                                 * tauIsoDepositPFNeutralHadrons #* tauIsoFromDepsPFNeutralHadrons
-                                 * tauIsoDepositPFGammas #* tauIsoFromDepsPFGammas
+                                * tauIsoDepositPFChargedHadrons #* tauIsoFromDepsPFChargedHadrons
+                                * tauIsoDepositPFNeutralHadrons #* tauIsoFromDepsPFNeutralHadrons
+                                * tauIsoDepositPFGammas #* tauIsoFromDepsPFGammas
                                 )
 
