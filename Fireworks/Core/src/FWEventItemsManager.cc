@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.17 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWEventItemsManager.cc,v 1.18 2009/04/07 14:03:50 chrjones Exp $
 //
 
 // system include files
@@ -80,8 +80,14 @@ FWEventItemsManager::~FWEventItemsManager()
 const FWEventItem*
 FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
 {
-   m_items.push_back(new FWEventItem(m_context,m_items.size(),m_accessorFactory->accessorFor(iItem.type()),
-                                     iItem) );
+   FWPhysicsObjectDesc temp(iItem);
+   if(! m_context->colorManager()->colorHasIndex(temp.displayProperties().color())) {
+      FWDisplayProperties prop(temp.displayProperties());
+      prop.setColor( m_context->colorManager()->indexToColor(0));
+      temp.setDisplayProperties(prop);
+   }
+   m_items.push_back(new FWEventItem(m_context,m_items.size(),m_accessorFactory->accessorFor(temp.type()),
+                                     temp) );
    newItem_(m_items.back());
    m_items.back()->goingToBeDestroyed_.connect(boost::bind(&FWEventItemsManager::removeItem,this,_1));
    m_items.back()->setGeom(m_geom);
