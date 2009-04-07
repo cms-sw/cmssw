@@ -31,7 +31,7 @@ void  EcalCoder::setGainRatios(const EcalGainRatios * gainRatios) {
   theGainRatios = gainRatios; 
 }
 
-void EcalCoder::setIntercalibConstants(const EcalIntercalibConstants * ical) {
+void EcalCoder::setIntercalibConstants(const EcalIntercalibConstantsMC * ical) {
   theIntercalibConstants = ical;
 } 
 
@@ -271,10 +271,10 @@ void EcalCoder::findGains(const DetId & detId, double Gains[]) const
 
 void EcalCoder::findIntercalibConstant(const DetId & detId, double & icalconst) const
 {
-  EcalIntercalibConstant thisconst = 1.;
+  EcalIntercalibConstantMC thisconst = 1.;
   // find intercalib constant for this xtal
-  const EcalIntercalibConstantMap &icalMap = theIntercalibConstants->getMap();
-  EcalIntercalibConstantMap::const_iterator icalit = icalMap.find(detId);
+  const EcalIntercalibConstantMCMap &icalMap = theIntercalibConstants->getMap();
+  EcalIntercalibConstantMCMap::const_iterator icalit = icalMap.find(detId);
   if( icalit!=icalMap.end() ){
     thisconst = (*icalit);
     if ( icalconst == 0. ) { thisconst = 1.; }

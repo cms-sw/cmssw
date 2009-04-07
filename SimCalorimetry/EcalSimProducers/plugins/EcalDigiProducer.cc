@@ -11,8 +11,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
@@ -272,9 +272,9 @@ void  EcalDigiProducer::checkCalibrations(const edm::EventSetup & eventSetup)
   theCoder->setPedestals( thePedestals );
 
   // Ecal Intercalibration Constants
-  edm::ESHandle<EcalIntercalibConstants> pIcal;
-  eventSetup.get<EcalIntercalibConstantsRcd>().get(pIcal);
-  const EcalIntercalibConstants *ical = pIcal.product();
+  edm::ESHandle<EcalIntercalibConstantsMC> pIcal;
+  eventSetup.get<EcalIntercalibConstantsMCRcd>().get(pIcal);
+  const EcalIntercalibConstantsMC *ical = pIcal.product();
   
   theCoder->setIntercalibConstants( ical );
 

@@ -13,7 +13,7 @@
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 
@@ -54,7 +54,7 @@ class EcalCoder
 
   void setFullScaleEnergy(const double EBscale , const double EEscale) {m_maxEneEB = EBscale; m_maxEneEE = EEscale; }
 
-  void setIntercalibConstants(const EcalIntercalibConstants * ical); 
+  void setIntercalibConstants(const EcalIntercalibConstantsMC * ical); 
  
   /// from EBDataFrame to CaloSamples
   virtual void digitalToAnalog(const EBDataFrame& df, CaloSamples& lf) const;
@@ -93,8 +93,8 @@ class EcalCoder
   const EcalPedestals * thePedestals;
   /// the electronics gains
   const EcalGainRatios * theGainRatios;
-  /// the intercalibration constants
-  const EcalIntercalibConstants * theIntercalibConstants;
+  /// the intercalibration constants, record specific for simulation of gain variation in MC
+  const EcalIntercalibConstantsMC * theIntercalibConstants;
   /// max attainable energy in the ecal barrel
   double m_maxEneEB ;
   /// max attainable energy in the ecal endcap
