@@ -165,16 +165,17 @@ namespace cond {
     return token;
   }
   
+  // fix commit problem....
   IOVProxy CondDB::iov(std::string const & tag) const {
-    return IOVProxy(me->poolTransaction(),iovToken(tag),true);
+    return IOVProxy(*me,iovToken(tag),true,true);
   }
   
   IOVProxy CondDB::iovWithLib(std::string const & tag) const {
-    return IOVProxy(me->poolTransaction(),iovToken(tag),false);
+    return IOVProxy(*me,iovToken(tag),false,true);
   }
 
   IOVElementProxy CondDB::payLoad(std::string const & token) const {
-    return IOVElementProxy(0,0,token,&me->poolTransaction());
+    return IOVElementProxy(0,0,token,&me);
 
   }
 
