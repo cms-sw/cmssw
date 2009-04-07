@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.34 2009/03/04 17:01:29 chrjones Exp $
+// $Id: FWRhoPhiZView.cc,v 1.35 2009/03/11 21:16:20 amraktad Exp $
 //
 
 #define private public
@@ -250,6 +250,11 @@ FWRhoPhiZView::doCompression(bool flag)
    }
    }
  */
+void
+FWRhoPhiZView::setBackgroundColor(Color_t iColor)
+{
+   m_viewer->GetGLViewer()->SetClearColor(iColor);
+}
 
 void
 FWRhoPhiZView::resetCamera()

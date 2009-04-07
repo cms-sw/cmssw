@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.16 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWRhoPhiZView.h,v 1.17 2009/03/11 21:16:21 amraktad Exp $
 //
 
 // system include files
@@ -66,6 +66,7 @@ public:
    void replicateGeomElement(TEveElement*);
    void showProjectionAxes( );
    virtual void setFrom(const FWConfiguration&);
+   void setBackgroundColor(Color_t);
 
    //returns the new element created from this import
    TEveElement* importElements(TEveElement*, float iLayer);

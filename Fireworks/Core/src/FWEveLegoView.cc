@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.37 2009/03/16 10:25:17 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.38 2009/03/20 17:34:56 amraktad Exp $
 //
 
 // system include files
@@ -191,6 +191,12 @@ void
 FWEveLegoView::finishSetup()
 {
    if ( !m_cameraSet ) setCameras();
+}
+
+void
+FWEveLegoView::setBackgroundColor(Color_t iColor)
+{
+   m_viewer->GetGLViewer()->SetClearColor(iColor);
 }
 
 void

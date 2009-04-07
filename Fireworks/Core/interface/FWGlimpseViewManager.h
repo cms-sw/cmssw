@@ -1,7 +1,7 @@
 #ifndef Fireworks_Core_FWGlimpseViewManager_h
 #define Fireworks_Core_FWGlimpseViewManager_h
 // -*- C++ -*-
-// $Id: FWGlimpseViewManager.h,v 1.7 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWGlimpseViewManager.h,v 1.8 2009/03/11 21:16:21 amraktad Exp $
 
 // system include files
 #include <string>
@@ -51,6 +51,7 @@ public:
 protected:
    virtual void modelChangesComing();
    virtual void modelChangesDone();
+   virtual void colorsChanged();
 
 private:
    FWGlimpseViewManager(const FWGlimpseViewManager&);    // stop default

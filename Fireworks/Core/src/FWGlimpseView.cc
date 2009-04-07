@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.24 2009/03/04 16:58:14 chrjones Exp $
+// $Id: FWGlimpseView.cc,v 1.25 2009/03/11 21:16:20 amraktad Exp $
 //
 
 // system include files
@@ -260,6 +260,10 @@ FWGlimpseView::setFrom(const FWConfiguration& iFrom)
    m_viewer->GetGLViewer()->RequestDraw();
 }
 
+void
+FWGlimpseView::setBackgroundColor(Color_t iColor) {
+   m_viewer->GetGLViewer()->SetClearColor(iColor);
+}
 //
 // const member functions
 //

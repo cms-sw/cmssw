@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWGlimpseViewManager.cc,v 1.15 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWGlimpseViewManager.cc,v 1.16 2009/03/11 21:16:20 amraktad Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 #include "Fireworks/Core/interface/FWGlimpseDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 
 #include "TEveSelection.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
@@ -107,6 +108,7 @@ FWGlimpseViewManager::buildView(TEveWindowSlot* iParent)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
    boost::shared_ptr<FWGlimpseView> view( new FWGlimpseView(iParent, &m_elements,&m_scaler) );
+   view->setBackgroundColor(colorManager().background());
    m_views.push_back(view);
    //? pView->resetCamera();
    if(1 == m_views.size()) {
@@ -183,6 +185,16 @@ void
 FWGlimpseViewManager::modelChangesDone()
 {
    gEve->EnableRedraw();
+}
+void
+FWGlimpseViewManager::colorsChanged()
+{
+   for(std::vector<boost::shared_ptr<FWGlimpseView> >::iterator it=
+       m_views.begin(), itEnd = m_views.end();
+       it != itEnd;
+       ++it) {
+      (*it)->setBackgroundColor(colorManager().background());
+   }
 }
 
 

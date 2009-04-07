@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWEveLegoView.h,v 1.13 2009/02/20 21:51:45 chrjones Exp $
+// $Id: FWEveLegoView.h,v 1.14 2009/03/11 21:16:21 amraktad Exp $
 //
 
 // system include files
@@ -59,6 +59,8 @@ public:
    virtual void setFrom(const FWConfiguration&);
    // set energy thresholds from the parameters
    void setMinEnergy();
+   void setBackgroundColor(Color_t);
+
 
 private:
    FWEveLegoView(const FWEveLegoView&);    // stop default

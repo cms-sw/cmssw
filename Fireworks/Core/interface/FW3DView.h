@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DView.h,v 1.8 2009/01/23 21:35:40 amraktad Exp $
+// $Id: FW3DView.h,v 1.9 2009/03/11 21:16:21 amraktad Exp $
 //
 
 // system include files
@@ -61,6 +61,7 @@ public:
    // ---------- member functions ---------------------------
    virtual void setFrom(const FWConfiguration&);
    void makeGeometry( const DetIdToMatrix* geom );
+   void setBackgroundColor(Color_t);
 
 private:
    FW3DView(const FW3DView&);    // stop default

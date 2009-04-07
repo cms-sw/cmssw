@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWGlimpseView.h,v 1.10 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWGlimpseView.h,v 1.11 2009/03/11 21:16:21 amraktad Exp $
 //
 
 // system include files
@@ -60,6 +60,7 @@ public:
 
    // ---------- member functions ---------------------------
    virtual void setFrom(const FWConfiguration&);
+   void setBackgroundColor(Color_t);
 
 private:
    FWGlimpseView(const FWGlimpseView&);    // stop default

@@ -1,7 +1,7 @@
 #ifndef Fireworks_Core_FW3DViewManager_h
 #define Fireworks_Core_FW3DViewManager_h
 // -*- C++ -*-
-// $Id: FW3DViewManager.h,v 1.6 2009/01/23 21:35:40 amraktad Exp $
+// $Id: FW3DViewManager.h,v 1.7 2009/03/11 21:16:19 amraktad Exp $
 
 // system include files
 #include <string>
@@ -52,6 +52,7 @@ public:
 protected:
    virtual void modelChangesComing();
    virtual void modelChangesDone();
+   virtual void colorsChanged();
 
 private:
    FW3DViewManager(const FW3DViewManager&);    // stop default

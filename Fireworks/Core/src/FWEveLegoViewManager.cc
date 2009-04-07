@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.23 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.24 2009/03/11 21:16:20 amraktad Exp $
 //
 
 // system include files
@@ -40,6 +40,7 @@
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 
 #include "TEveSelection.h"
 #include "TEveCalo.h"
@@ -143,6 +144,7 @@ FWEveLegoViewManager::buildView(TEveWindowSlot* iParent)
 {
    initData();
    boost::shared_ptr<FWEveLegoView> view( new FWEveLegoView(iParent, m_elements.get()) );
+   view->setBackgroundColor(colorManager().background());
    view->beingDestroyed_.connect(boost::bind(&FWEveLegoViewManager::beingDestroyed,this,_1));
    m_views.push_back(view);
 
@@ -340,6 +342,13 @@ FWEveLegoViewManager::modelChangesDone()
    gEve->EnableRedraw();
 }
 
+void
+FWEveLegoViewManager::colorsChanged()
+{
+   std::for_each(m_views.begin(), m_views.end(),
+                 boost::bind(&FWEveLegoView::setBackgroundColor,_1,colorManager().background()) );
+
+}
 
 void
 FWEveLegoViewManager::selectionAdded(TEveElement* iElement)

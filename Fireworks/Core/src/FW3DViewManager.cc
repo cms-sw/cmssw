@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DViewManager.cc,v 1.7 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FW3DViewManager.cc,v 1.8 2009/03/11 21:16:20 amraktad Exp $
 //
 
 // system include files
@@ -35,6 +35,7 @@
 
 #include "TEveSelection.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 
 #include "Fireworks/Core/interface/FW3DDataProxyBuilderFactory.h"
 
@@ -113,6 +114,8 @@ FW3DViewManager::buildView(TEveWindowSlot* iParent)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
    boost::shared_ptr<FW3DView> view( new FW3DView(iParent, m_elements.get()) );
+   view->setBackgroundColor(colorManager().background());
+
    m_views.push_back(view);
    //? pView->resetCamera();
    if(1 == m_views.size()) {
@@ -191,7 +194,16 @@ FW3DViewManager::modelChangesDone()
 {
    gEve->EnableRedraw();
 }
-
+void
+FW3DViewManager::colorsChanged()
+{
+   for(std::vector<boost::shared_ptr<FW3DView> >::iterator it=
+       m_views.begin(), itEnd = m_views.end();
+       it != itEnd;
+       ++it) {
+      (*it)->setBackgroundColor(colorManager().background());
+   }
+}
 
 void
 FW3DViewManager::selectionAdded(TEveElement* iElement)

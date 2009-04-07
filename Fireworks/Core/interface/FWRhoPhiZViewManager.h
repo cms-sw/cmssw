@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.29 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.30 2009/03/11 21:16:21 amraktad Exp $
 //
 
 // system include files
@@ -76,6 +76,7 @@ public:
 protected:
    virtual void modelChangesComing() ;
    virtual void modelChangesDone() ;
+   virtual void colorsChanged();
 
 private:
    FWRhoPhiZViewManager(const FWRhoPhiZViewManager&);    // stop default

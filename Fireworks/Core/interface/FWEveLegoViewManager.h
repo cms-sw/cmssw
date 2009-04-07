@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FWEveLegoViewManager.h,v 1.10 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWEveLegoViewManager.h,v 1.11 2009/03/11 21:16:21 amraktad Exp $
 //
 
 // system include files
@@ -82,6 +82,7 @@ public:
 protected:
    virtual void modelChangesComing();
    virtual void modelChangesDone();
+   virtual void colorsChanged();
 
 private:
    FWEveLegoViewManager(const FWEveLegoViewManager&);    // stop default

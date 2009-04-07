@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.11 2009/03/04 17:00:46 chrjones Exp $
+// $Id: FW3DView.cc,v 1.12 2009/03/11 21:16:20 amraktad Exp $
 //
 
 // system include files
@@ -190,6 +190,10 @@ FW3DView::setFrom(const FWConfiguration& iFrom)
    m_viewer->GetGLViewer()->RequestDraw();
 }
 
+void
+FW3DView::setBackgroundColor(Color_t iColor) {
+   m_viewer->GetGLViewer()->SetClearColor(iColor);
+}
 //
 // const member functions
 //
