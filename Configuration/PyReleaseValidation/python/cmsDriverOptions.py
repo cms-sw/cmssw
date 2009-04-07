@@ -29,7 +29,7 @@ parser.add_option("-s", "--step",
 
 parser.add_option("--conditions",
                   help="What conditions to use. Default are frontier conditions 'STARTUP_V4::All' (FrontierConditions_GlobalTag,STARTUP_V4::All)",
-                  default=defaultOptions.conditions,
+                  default=None,
                   dest="conditions")
 
 parser.add_option("--eventcontent",
@@ -249,7 +249,11 @@ if options.pileup != "NoPileUp":
 if options.fileout=="" and not first_step in ("HARVESTING"):
     options.fileout = standardFileName+".root"
 
-
+# check whether conditions given
+if options.conditions == None:
+    print "ERROR: No conditions given!\nPlease specify conditions. E.g. via --conditions=FrontierConditions_GlobalTag,IDEAL_30X::All"
+    sys.exit(1)
+    
 # Prepare the name of the config file
 # (in addition list conditions in name)
 python_config_filename = standardFileName
