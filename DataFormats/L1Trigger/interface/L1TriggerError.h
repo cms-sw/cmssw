@@ -14,18 +14,15 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  
-// $Id: $
+// $Id: L1TriggerError.h,v 1.1 2008/11/27 14:50:03 jbrooke Exp $
 //
 
 
 class L1TriggerError {
  public:
   
-  /// default ctor
-  L1TriggerError();
-  
   /// construct from an error code
-  L1TriggerError(unsigned code);
+  explicit L1TriggerError(unsigned code=0);
 
   /// dtor
   ~L1TriggerError();
@@ -35,6 +32,12 @@ class L1TriggerError {
   
   /// get error
   unsigned code() { return code_; }
+
+  /// producer ID
+  unsigned prodID();
+
+  /// producer error
+  unsigned prodErr();
 
   private:
 
