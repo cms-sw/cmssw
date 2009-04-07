@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2009/03/27 00:16:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/04/07 17:13:05 $
+ *  $Revision: 1.2 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -30,8 +30,8 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
 
   verbose_ = pset.getUntrackedParameter<unsigned int>("verbose", 0);
 
-  effCmds_ = pset.getUntrackedParameter<vstring>("efficiency", dummy);
-  resCmds_ = pset.getUntrackedParameter<vstring>("resolution", dummy);
+  effCmds_ = pset.getParameter<vstring>("efficiency");
+  resCmds_ = pset.getParameter<vstring>("resolution");
   normCmds_ = pset.getUntrackedParameter<vstring>("normalization", dummy);
   cdCmds_ = pset.getUntrackedParameter<vstring>("cumulativeDists", dummy);
 
