@@ -41,9 +41,28 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   for(int index=0; index<8; index++) m_etamax[index] = -1;
 
   m_mindphip=-1;
-  m_mindeta_accp=-1;
-  m_maxdeta_accp=-1;
-  m_maxdphi_accp=-1;
+  m_mindetap=-1;
+
+  m_mindeta12_accp=-1;
+  m_maxdeta12_accp=-1;
+  m_maxdphi12_accp=-1;
+
+  m_mindeta13_accp=-1;
+  m_maxdeta13_accp=-1;
+  m_maxdphi13_accp=-1;
+
+  m_mindeta112_accp=-1;
+  m_maxdeta112_accp=-1;
+  m_maxdphi112_accp=-1;
+
+  m_mindeta113_accp=-1;
+  m_maxdeta113_accp=-1;
+  m_maxdphi113_accp=-1;
+  
+  m_widePhi=-1;
+  
+  m_straightp=-1;
+  m_curvedp=-1;
 
   kill_fiber = -1;
   QualityEnableME1a = -1;
@@ -114,19 +133,33 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
     readParameters(config.product()->parameters((m_endcap-1)*2+(m_sector-1)));
   }
   // Check if parameters were not initialized in both: constuctor (from .cf? file) and initialize method (from EventSetup)
-  if(m_bxa_depth    <0) throw cms::Exception("CSCTFSectorProcessor")<<"BXAdepth parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_bxa_depth<0) throw cms::Exception("CSCTFSectorProcessor")<<"BXAdepth parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   if(m_allowALCTonly<0) throw cms::Exception("CSCTFSectorProcessor")<<"AllowALCTonly parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   if(m_allowCLCTonly<0) throw cms::Exception("CSCTFSectorProcessor")<<"AllowCLCTonly parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_preTrigger   <0) throw cms::Exception("CSCTFSectorProcessor")<<"PreTrigger parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_mindphip    <0) throw cms::Exception("CSCTFSectorProcessor")<<"mindphip parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_mindeta_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindeta_accp parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_maxdeta_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdeta_accp parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_maxdphi_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdphi_accp parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_preTrigger<0) throw cms::Exception("CSCTFSectorProcessor")<<"PreTrigger parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_mindphip<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindphip parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_mindetap<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindeta parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_straightp<0) throw cms::Exception("CSCTFSectorProcessor")<<"straightp parameter left unitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_curvedp<0) throw cms::Exception("CSCTFSectorProcessor")<<"curvedp parameter left unitialized for endcap="<<m_endcap<<",sector="<<m_sector;
+  if(m_mindeta12_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindeta_accp12 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_maxdeta12_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdeta_accp12 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_maxdphi12_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdphi_accp12 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_mindeta13_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindeta_accp13 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_maxdeta13_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdeta_accp13 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_maxdphi13_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdphi_accp13 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_mindeta112_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindeta_accp112 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_maxdeta112_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdeta_accp112 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_maxdphi112_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdphi_accp112 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_mindeta113_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindeta_accp113 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_maxdeta113_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdeta_accp113 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_maxdphi113_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdphi_accp113 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_widePhi<0) throw cms::Exception("CSCTFSectorProcessor")<<"widePhi parameter left unitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  
   for(int index=0; index<8; index++) if(m_etamax[index]<0) throw cms::Exception("CSCTFSectorProcessor")<<"Some ("<<(8-index)<<") of EtaMax parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   for(int index=0; index<8; index++) if(m_etamin[index]<0) throw cms::Exception("CSCTFSectorProcessor")<<"Some ("<<(8-index)<<") of EtaMin parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   for(int index=0; index<6; index++) if(m_etawin[index]<0) throw cms::Exception("CSCTFSectorProcessor")<<"Some ("<<(6-index)<<") of EtaWindows parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(kill_fiber     <0) throw cms::Exception("CSCTFTrackBuilder")<<"kill_fiber parameter left uninitialized";
-  if(run_core       <0) throw cms::Exception("CSCTFTrackBuilder")<<"run_core parameter left uninitialized";
+  if(kill_fiber<0) throw cms::Exception("CSCTFTrackBuilder")<<"kill_fiber parameter left uninitialized";
+  if(run_core<0) throw cms::Exception("CSCTFTrackBuilder")<<"run_core parameter left uninitialized";
   if(trigger_on_ME1a<0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME1a parameter left uninitialized";
   if(trigger_on_ME1b<0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME1b parameter left uninitialized";
   if(trigger_on_ME2 <0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME2 parameter left uninitialized";
@@ -173,9 +206,22 @@ void CSCTFSectorProcessor::readParameters(const edm::ParameterSet& pset){
       for(iter=etamaxs.begin(),index=0; iter!=etamaxs.end()&&index<8; iter++,index++) m_etamax[index] = *iter;
 
 	  m_mindphip = pset.getParameter<unsigned>("mindphip");
-      m_mindeta_accp = pset.getParameter<unsigned>("mindeta_accp");
-      m_maxdeta_accp = pset.getParameter<unsigned>("maxdeta_accp");
-      m_maxdphi_accp = pset.getParameter<unsigned>("maxdphi_accp");
+	  m_mindetap = pset.getParameter<unsigned>("mindetap");
+	  m_straightp = pset.getParameter<unsigned>("straightp");
+	  m_curvedp = pset.getParameter<unsigned>("curvedp");
+	  m_widePhi = pset.getParameter<unsigned>("widePhi");
+      m_mindeta12_accp = pset.getParameter<unsigned>("mindeta12_accp");
+      m_maxdeta12_accp = pset.getParameter<unsigned>("maxdeta12_accp");
+      m_maxdphi12_accp = pset.getParameter<unsigned>("maxdphi12_accp");
+	  m_mindeta13_accp = pset.getParameter<unsigned>("mindeta13_accp");
+      m_maxdeta13_accp = pset.getParameter<unsigned>("maxdeta13_accp");
+      m_maxdphi13_accp = pset.getParameter<unsigned>("maxdphi13_accp");
+	  m_mindeta112_accp = pset.getParameter<unsigned>("mindeta112_accp");
+      m_maxdeta112_accp = pset.getParameter<unsigned>("maxdeta112_accp");
+      m_maxdphi112_accp = pset.getParameter<unsigned>("maxdphi112_accp");
+	  m_mindeta113_accp = pset.getParameter<unsigned>("mindeta113_accp");
+      m_maxdeta113_accp = pset.getParameter<unsigned>("maxdeta113_accp");
+      m_maxdphi113_accp = pset.getParameter<unsigned>("maxdphi113_accp");
       kill_fiber = pset.getParameter<unsigned>("kill_fiber");
       run_core = pset.getParameter<bool>("run_core");
       trigger_on_ME1a = pset.getParameter<bool>("trigger_on_ME1a");
@@ -347,8 +393,13 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                    m_etamax[4], m_etamax[5], m_etamax[6], m_etamax[7],
                    m_etawin[0], m_etawin[1], m_etawin[2],
                    m_etawin[3], m_etawin[4], m_etawin[5],
-                   m_mindphip,  m_mindeta_accp,  m_maxdeta_accp, m_maxdphi_accp,
-                   m_bxa_depth, m_allowALCTonly, m_allowCLCTonly, m_preTrigger,
+                   m_mindphip, m_mindetap,  
+				   m_mindeta12_accp,  m_maxdeta12_accp, m_maxdphi12_accp,
+				   m_mindeta13_accp,  m_maxdeta13_accp, m_maxdphi13_accp,
+				   m_mindeta112_accp,  m_maxdeta112_accp, m_maxdphi112_accp,
+				   m_mindeta113_accp,  m_maxdeta113_accp, m_maxdphi113_accp,
+				   m_straightp, m_curvedp,
+				   m_bxa_depth, m_allowALCTonly, m_allowCLCTonly, m_preTrigger, m_widePhi,
                    m_minBX, m_maxBX) )
       {
         l1_tracks = core_->tracks();

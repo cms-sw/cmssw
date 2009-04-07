@@ -237,17 +237,23 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 			   const unsigned& etamin1, const unsigned& etamin2, const unsigned& etamin3, const unsigned& etamin4,
 		  	   const unsigned& etamin5, const unsigned& etamin6, const unsigned& etamin7, const unsigned& etamin8,
 			   const unsigned& etamax1, const unsigned& etamax2, const unsigned& etamax3, const unsigned& etamax4,
-	  	           const unsigned& etamax5, const unsigned& etamax6, const unsigned& etamax7, const unsigned& etamax8,
+	  	       const unsigned& etamax5, const unsigned& etamax6, const unsigned& etamax7, const unsigned& etamax8,
 			   const unsigned& etawin1, const unsigned& etawin2, const unsigned& etawin3,
-			   const unsigned& etawin4, const unsigned& etawin5, const unsigned& etawin6,
-			   const unsigned& mindphip, const unsigned& mindeta_accp,
-			   const unsigned& maxdeta_accp, const unsigned& maxdphi_accp,
-
+			   const unsigned& etawin4, const unsigned& etawin5, const unsigned& etawin6, 
+			   const unsigned& mindphip, const unsigned& mindetap,
+			   const unsigned& mindeta12_accp,
+			   const unsigned& maxdeta12_accp, const unsigned& maxdphi12_accp, 
+			   const unsigned& mindeta13_accp,
+			   const unsigned& maxdeta13_accp, const unsigned& maxdphi13_accp, 
+			   const unsigned& mindeta112_accp,
+			   const unsigned& maxdeta112_accp, const unsigned& maxdphi112_accp, 
+			   const unsigned& mindeta113_accp,
+			   const unsigned& maxdeta113_accp, const unsigned& maxdphi113_accp,
+			   const unsigned& straightp, const unsigned& curvedp,
 			   const unsigned& m_extend_length,
 			   const unsigned& m_allowALCTonly, const unsigned& m_allowCLCTonly,
-			   const unsigned& m_preTrigger,
-
-                           const int& minBX, const int& maxBX)
+			   const unsigned& m_preTrigger, const unsigned& m_widePhi,
+			   const int& minBX, const int& maxBX)
 {
   mytracks.clear();
 
@@ -305,101 +311,21 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	 		//10, 0, 0, 0,                           // eta offsets - NOTE bug in first offset for June04 beam test
 	 		// ORCA settings:
 	 		//Change #1
-	 		etawin1, etawin2, etawin3, etawin4, etawin5, etawin6, 0, // eta windows, last 0 is etawn7p
+	 		etawin1, etawin2, etawin3, etawin4, etawin5, etawin6, 4, // eta windows, last 0 is etawn7p
 			//Change #2
-			15, 15, //mindphip, mindetap
-
+			mindphip, mindetap,
 			//Change #3 
-			7, 16, 128, 13, 27, 128,  //mindeta_halo12p, maxdeta_halo12p, maxdphi_halo12p, mindeta_halo13p, maxdeta_halo13p, maxdphi_halo13p
-			18, 30, 128, 28, 40, 128, //mindeta_halo112p, maxdeta_halo112p, maxdphi_halo112p, mindeta_halo113p, maxdeta_halo113p, maxdphi_halo113p
-
+			mindeta12_accp, maxdeta12_accp, maxdphi12_accp, 
+			mindeta13_accp, maxdeta13_accp, maxdphi13_accp, 
+			mindeta112_accp, maxdeta112_accp, maxdphi112_accp, 
+			mindeta113_accp, maxdeta113_accp, maxdphi113_accp,
 			//Change #4
-	 		mindphip, mindeta_accp,// maxdeta_accp, maxdphi_accp,  these two commented out in favor of change 2 variables
-	 		//70, 4, 16, 128,
+	 		mindphip, mindetap, // maxdeta_accp, maxdphi_accp,  these two commented out in favor of change 2 variables
 			//Change #5
-			0,0, //straightp, curvedp
-
-	 		//((extend << 1) & 0xe)|bxa_on // {reserved[11:0], extend[2:0],BXA_enable}
-	 		///0x144?:
-   		(m_preTrigger<<7)|(m_allowCLCTonly<<5)|(m_allowALCTonly<<4)|(m_extend_length<<1)
+			straightp, curvedp,  //0,0, 
+			//Control Word
+			(m_preTrigger<<7)|(m_allowCLCTonly<<5)|(m_allowALCTonly<<4)|(m_extend_length<<1)|(m_widePhi)
 	 	);
-      /* // Extremely verbose debug
-      LogDebug("CSCTFSPCoreLogic:run()") << std::hex
-					 << "Input:  F1/M1{bx, v, q, e, p, csc} " << std::dec << (int)(bx)<< std::hex << " " << io->me1aVp << " "
-					 << io->me1aQp << " "<< io->me1aEtap << " " << io->me1aPhip << " " << io->me1aCSCIdp << std::endl
-					 << "Input:  F1/M2{bx, v, q, e, p, csc} " << std::dec << (int)(bx)<< std::hex << " " << io->me1bVp << " "
-					 << io->me1bQp << " "<< io->me1bEtap << " " << io->me1bPhip << " " << io->me1bCSCIdp << std::endl
-					 << "Input:  F1/M3{bx, v, q, e, p, csc} " << std::dec << (int)(bx)<< std::hex << " " << io->me1cVp << " "
-					 << io->me1cQp << " "<< io->me1cEtap << " " << io->me1cPhip << " " << io->me1cCSCIdp << std::endl
-					 << "Input:  F2/M1{bx, v, q, e, p, csc} " << std::dec << (int)(bx)<< std::hex << " " << io->me1dVp << " "
-					 << io->me1dQp << " "<< io->me1dEtap << " " << io->me1dPhip << " " << io->me1dCSCIdp << std::endl
-					 << "Input:  F2/M2{bx, v, q, e, p, csc} " << std::dec << (int)(bx)<< std::hex << " " << io->me1eVp << " "
-					 << io->me1eQp << " "<< io->me1eEtap << " " << io->me1ePhip << " " << io->me1eCSCIdp << std::endl
-					 << "Input:  F2/M3{bx, v, q, e, p, csc} " << std::dec << (int)(bx)<< std::hex << " " << io->me1fVp << " "
-					 << io->me1fQp << " "<< io->me1fEtap << " " << io->me1fPhip << " " << io->me1fCSCIdp << std::endl
-					 << "Input:  F3/M1{bx, v, q, e, p}      " << std::dec << (int)(bx)<< std::hex << " " << io->me2aVp << " "
-					 << io->me2aQp << " "<< io->me2aEtap << " " << io->me2aPhip << " " << std::endl
-					 << "Input:  F3/M2{bx, v, q, e, p}      " << std::dec << (int)(bx)<< std::hex << " " << io->me2bVp << " "
-					 << io->me2bQp << " "<< io->me2bEtap << " " << io->me2bPhip << " " << std::endl
-					 << "Input:  F3/M3{bx, v, q, e, p}      " << std::dec << (int)(bx)<< std::hex << " " << io->me2cVp << " "
-					 << io->me2cQp << " "<< io->me2cEtap << " " << io->me2cPhip << " " << std::endl
-					 << "Input:  F4/M1{bx, v, q, e, p}      " << std::dec << (int)(bx)<< std::hex << " " << io->me3aVp << " "
-					 << io->me3aQp << " "<< io->me3aEtap << " " << io->me3aPhip << " " << std::endl
-					 << "Input:  F4/M2{bx, v, q, e, p}      " << std::dec << (int)(bx)<< std::hex << " " << io->me3bVp << " "
-					 << io->me3bQp << " "<< io->me3bEtap << " " << io->me3bPhip << " " << std::endl
-					 << "Input:  F4/M3{bx, v, q, e, p}      " << std::dec << (int)(bx)<< std::hex << " " << io->me3cVp << " "
-					 << io->me3cQp << " "<< io->me3cEtap << " " << io->me3cPhip << " " << std::endl
-					 << "Input:  F5/M1{bx, v, q, e, p}      " << std::dec << (int)(bx)<< std::hex << " " << io->me4aVp << " "
-					 << io->me4aQp << " "<< io->me4aEtap << " " << io->me4aPhip << " " << std::endl
-					 << "Input:  F5/M2{bx, v, q, e, p}      " << std::dec << (int)(bx)<< std::hex << " " << io->me4bVp << " "
-					 << io->me4bQp << " "<< io->me4bEtap << " " << io->me4bPhip << " " << std::endl
-					 << "Input:  F5/M3{bx, v, q, e, p}      " << std::dec << (int)(bx)<< std::hex << " " << io->me4cVp << " "
-					 << io->me4cQp << " "<< io->me4cEtap << " " << io->me4cPhip << " " << std::endl
-					 << "Input:  MB 1A{bx, v, q, p}         " << std::dec << (int)(bx) << std::hex << " " << io->mb1aVp << " "
-					 << io->mb1aQp << " "<< io->mb1aPhip << " " << std::endl
-					 << "Input:  MB 1B{bx, v, q, p}         " << std::dec << (int)(bx) << std::hex << " " << io->mb1bVp << " "
-					 << io->mb1bQp << " "<< io->mb1bPhip << " " << std::endl
-					 << "Input:  MB 1C{bx, v, q, p}         " << std::dec << (int)(bx) << std::hex << " " << io->mb1cVp << " "
-					 << io->mb1cQp << " "<< io->mb1cPhip << " " << std::endl
-					 << "Input:  MB 1D{bx, v, q, p}         " << std::dec << (int)(bx) << std::hex << " " << io->mb1dVp << " "
-					 << io->mb1dQp << " "<< io->mb1dPhip << " " << std::endl
-					 << "Input:  MB 2A{bx, v, q, p}         " << std::dec << (int)(bx) << std::hex << " " << io->mb2aVp << " "
-					 << io->mb2aQp << " "<< io->mb2aPhip << " " << std::endl
-					 << "Input:  MB 2B{bx, v, q, p}         " << std::dec << (int)(bx) << std::hex << " " << io->mb2bVp << " "
-					 << io->mb2bQp << " "<< io->mb2bPhip << " " << std::endl
-					 << "Input:  MB 2C{bx, v, q, p}         " << std::dec << (int)(bx) << std::hex << " " << io->mb2cVp << " "
-					 << io->mb2cQp << " "<< io->mb2cPhip << " " << std::endl
-					 << "Input:  MB 2D{bx, v, q, p}         " << std::dec << (int)(bx) << std::hex << " " << io->mb2dVp << " "
-					 << io->mb2dQp << " "<< io->mb2dPhip << " " << std::endl
-					 << std::dec << std::endl ;
-
-      if(io->ptHp !=0 || io->ptMp !=0 || io->ptLp !=0)
-	LogDebug("CSCTFSPCoreLogic:run()")<<"ENDCAP/SECTOR "<< endcap << "/" << sector << std::endl;
-      if(io->ptHp !=0)
-	{
-	  LogDebug("CSCTFSPCoreLogic:run()") << std::hex << "Output M1: " << std::dec << (int)(bx-latency)<< std::hex << " " << io->ptHp << "/" << io->signHp << "/"
-					     <<  io->modeMemHp << "/" <<  io->etaPTHp << "/" <<  io->FRHp << "/" <<  io->phiHp<<std::endl
-					     << "Stubs Used ME1/ME2/ME3/ME4/MB1/MB2 : "
-					     << io->me1idH <<'/'<< io->me2idH <<'/'<< io->me3idH <<'/'<< io->me4idH <<'/'
-					     << io->mb1idH <<'/'<< io->mb2idH << std::dec << std::endl;
-	}
-      if(io->ptMp !=0)
-	{
-	  LogDebug("CSCTFSPCoreLogic:run()") << std::hex << "Output M2: " << std::dec << (int)(bx-latency)<< std::hex << " " << io->ptMp << "/" << io->signMp << "/"
-					     <<  io->modeMemMp << "/" <<  io->etaPTMp << "/" <<  io->FRMp << "/" <<  io->phiMp << std::endl
-					     << "Stubs Used ME1/ME2/ME3/ME4/MB1/MB2 : "
-					     << io->me1idM <<'/'<< io->me2idM <<'/'<< io->me3idM <<'/'<< io->me4idM <<'/'
-					     << io->mb1idM <<'/'<< io->mb2idM << std::dec << std::endl;
-	}
-      if(io->ptLp !=0)
-	{
-	  LogDebug("CSCTFSPCoreLogic:run()") << std::hex << "Output M3: " << std::dec << (int)(bx-latency)<< std::hex << " " << io->ptLp << "/" << io->signLp << "/"
-					     <<  io->modeMemLp << "/" <<  io->etaPTLp << "/" <<  io->FRLp << "/" <<  io->phiLp << std::endl
-					     << "Stubs Used ME1/ME2/ME3/ME4/MB1/MB2 : "
-					     << io->me1idL <<'/'<< io->me2idL <<'/'<< io->me3idL <<'/'<< io->me4idL <<'/'
-					     << io->mb1idL <<'/'<< io->mb2idL << std::dec << std::endl;
-	}
-      */
       ++bx;
     }
 

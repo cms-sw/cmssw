@@ -64,7 +64,14 @@ public:
   int m_bxa_depth, m_allowALCTonly, m_allowCLCTonly, m_preTrigger;
   int m_minBX, m_maxBX;
   int m_etawin[6], m_etamin[8], m_etamax[8];
-  int m_mindphip, m_mindeta_accp, m_maxdeta_accp, m_maxdphi_accp;
+  int m_mindphip, m_mindetap;
+  int m_mindeta12_accp, m_maxdeta12_accp, m_maxdphi12_accp;
+  int m_mindeta13_accp, m_maxdeta13_accp, m_maxdphi13_accp;
+  int m_mindeta112_accp, m_maxdeta112_accp, m_maxdphi112_accp;
+  int m_mindeta113_accp, m_maxdeta113_accp, m_maxdphi113_accp;
+  int m_straightp, m_curvedp;
+  int m_widePhi;
+  
   //  following parameters were moved here from the CSCTFTrackBuilder because they naturally belong here
   int QualityEnableME1a, QualityEnableME1b, QualityEnableME1c, QualityEnableME1d, QualityEnableME1e, QualityEnableME1f;
   int QualityEnableME2a, QualityEnableME2b, QualityEnableME2c;

@@ -66,13 +66,19 @@ class CSCTFSPCoreLogic
 	   const unsigned& etamax5, const unsigned& etamax6, const unsigned& etamax7, const unsigned& etamax8,
 	   const unsigned& etawin1, const unsigned& etawin2, const unsigned& etawin3,
 	   const unsigned& etawin4, const unsigned& etawin5, const unsigned& etawin6,
-	   const unsigned& mindphip, const unsigned& mindeta_accp,
-	   const unsigned& maxdeta_accp, const unsigned& maxdphi_accp,
-
+	   const unsigned& mindphip, const unsigned& mindetap,
+	   const unsigned& mindeta12_accp,
+	   const unsigned& maxdeta12_accp, const unsigned& maxdphi12_accp,
+	   const unsigned& mindeta13_accp,
+	   const unsigned& maxdeta13_accp, const unsigned& maxdphi13_accp,
+	   const unsigned& mindeta112_accp,
+	   const unsigned& maxdeta112_accp, const unsigned& maxdphi112_accp,
+	   const unsigned& mindeta113_accp,
+	   const unsigned& maxdeta113_accp, const unsigned& maxdphi113_accp,
+	   const unsigned& straightp, const unsigned& curvedp,
 	   const unsigned& m_extend_length,
 	   const unsigned& m_allowALCTonly, const unsigned& m_allowCLCTonly,
-	   const unsigned& m_preTrigger,
-
+	   const unsigned& m_preTrigger, const unsigned& m_widePhi,
 	   const int& minBX, const int& maxBX);
 
   CSCTriggerContainer<csc::L1Track> tracks();
