@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.54 2009/03/16 20:19:34 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.55 2009/03/20 16:11:36 amraktad Exp $
 //
 
 // system include files
@@ -87,6 +87,7 @@ class CmsShowEDI;
 class CmsShowModelPopup;
 class CmsShowViewPopup;
 class FWViewManagerManager;
+class FWColorManager;
 class CmsShowHelpPopup;
 
 class FWGUIManager : public FWConfigurable
@@ -96,6 +97,7 @@ public:
    FWGUIManager(FWSelectionManager*,
                 FWEventItemsManager*,
                 FWModelChangeManager*,
+                FWColorManager*,
                 const FWViewManagerManager*,
                 bool iDebugInterface = false);
    virtual ~FWGUIManager();
@@ -221,6 +223,7 @@ private:
    FWSelectionManager* m_selectionManager;
    FWEventItemsManager* m_eiManager;
    FWModelChangeManager* m_changeManager;
+   FWColorManager* m_colorManager;
    const fwlite::Event* m_presentEvent;
    mutable bool m_continueProcessingEvents;
    mutable bool m_waitForUserAction;

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.104 2009/03/28 22:53:29 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.105 2009/04/03 18:35:13 amraktad Exp $
 //
 
 // system include files
@@ -108,12 +108,14 @@ FWGUIManager* FWGUIManager::m_guiManager = 0;
 FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
                            FWEventItemsManager* iEIMgr,
                            FWModelChangeManager* iCMgr,
+                           FWColorManager* iColorMgr,
                            const FWViewManagerManager* iVMMgr,
                            bool iDebugInterface
                            ) :
    m_selectionManager(iSelMgr),
    m_eiManager(iEIMgr),
    m_changeManager(iCMgr),
+   m_colorManager(iColorMgr),
    m_presentEvent(0),
    m_continueProcessingEvents(false),
    m_waitForUserAction(true),
@@ -548,7 +550,7 @@ FWGUIManager::createViews(TGTab *tab)
 void
 FWGUIManager::createEDIFrame() {
    if (m_ediFrame == 0) {
-      m_ediFrame = new CmsShowEDI(m_cmsShowMainFrame, 200, 200, m_selectionManager);
+      m_ediFrame = new CmsShowEDI(m_cmsShowMainFrame, 200, 200, m_selectionManager,m_colorManager);
       m_ediFrame->Connect("CloseWindow()", "FWGUIManager", this, "resetEDIFrame()");
       m_ediFrame->CenterOnParent(kTRUE,TGTransientFrame::kTopRight);
    }
@@ -580,7 +582,7 @@ FWGUIManager::showEDIFrame(int iToShow)
 void
 FWGUIManager::createModelPopup() {
    if (m_modelPopup == 0) {
-      m_modelPopup = new CmsShowModelPopup(m_detailViewManager,m_selectionManager, m_cmsShowMainFrame, 200, 200);
+      m_modelPopup = new CmsShowModelPopup(m_detailViewManager,m_selectionManager, m_colorManager, m_cmsShowMainFrame, 200, 200);
       m_modelPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetModelPopup()");
       m_modelPopup->CenterOnParent(kTRUE,TGTransientFrame::kRight);
    }
