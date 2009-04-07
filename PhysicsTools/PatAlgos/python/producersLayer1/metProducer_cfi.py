@@ -1,11 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 layer1METs = cms.EDProducer("PATMETProducer",
-    # General configurables
+    # input 
     metSource  = cms.InputTag("corMetType1Icone5Muons"),
 
-                               
-    # user data to add
+    # add user data
     userData = cms.PSet(
       # add custom classes here
       userClasses = cms.PSet(
@@ -24,25 +23,24 @@ layer1METs = cms.EDProducer("PATMETProducer",
       userFunctionLabels = cms.vstring()
     ),
 
-    # Resolution configurables
-    addResolutions   = cms.bool(False),
-
-    # Muon correction configurables
+    # muon correction
     addMuonCorrections = cms.bool(True),
-    muonSource         = cms.InputTag("muons"), ## muon input source for corrections
+    muonSource         = cms.InputTag("muons"),
 
-    # Trigger matching configurables
-    addTrigMatch  = cms.bool(True),
-    trigPrimMatch = cms.VInputTag(cms.InputTag("metTrigMatchHLT1MET65")),
+    # trigger matching
+    addTrigMatch  = cms.bool(False),
+    trigPrimMatch = cms.VInputTag(''),
 
-    # MC matching configurables
+    # mc matching configurables
     addGenMET    = cms.bool(True),
-    genMETSource = cms.InputTag("genMet"), ## GenMET source to be used for the matching
+    genMETSource = cms.InputTag("genMetCalo"),
 
-    # Efficiencies
+    # efficiencies
     addEfficiencies = cms.bool(False),
     efficiencies    = cms.PSet(),
 
+    # resolution
+    addResolutions  = cms.bool(False),
 )
 
 

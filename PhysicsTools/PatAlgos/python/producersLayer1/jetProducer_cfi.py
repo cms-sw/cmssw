@@ -1,11 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 allLayer1Jets = cms.EDProducer("PATJetProducer",
-    # General configurables
+    # input
     jetSource = cms.InputTag("iterativeCone5CaloJets"),
-
                                
-    # user data to add
+    # add user data
     userData = cms.PSet(
       # add custom classes here
       userClasses = cms.PSet(
@@ -24,20 +23,16 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
       userFunctionLabels = cms.vstring()
     ),
     
-    # Embedding of AOD items
+    # embedding of AOD items
     embedCaloTowers = cms.bool(False), ## switch on/off embedding of supercluster (externally stored in AOD)
 
-    # Jet Energy Corrections to appy and store
+    # jet energy corrections
     addJetCorrFactors    = cms.bool(True),
-    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("jetCorrFactors") ), ## source of the valuemap containing the jet correction factors
+    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("jetCorrFactors") ),
 
-    # resolution configurables
-    addResolutions = cms.bool(False),
-
-    # -- BTagging information ---
-    addBTagInfo = cms.bool(True), # master switch
-    # copy discriminators in the pat::Jet
-    addDiscriminators   = cms.bool(True),   ## switch on/off the addition of the btag discriminators
+    # btag information
+    addBTagInfo          = cms.bool(True),   ## master switch
+    addDiscriminators    = cms.bool(True),   ## addition btag discriminators
     discriminatorSources = cms.VInputTag(
         cms.InputTag("combinedSecondaryVertexBJetTags"),
         cms.InputTag("combinedSecondaryVertexMVABJetTags"),
@@ -51,10 +46,10 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
         cms.InputTag("trackCountingHighEffBJetTags"),
         cms.InputTag("trackCountingHighPurBJetTags"),
     ),
-    # clone tag infos in the pat::Jet
-    # watch out: these take lots of space!
-    # usually the discriminators from the default algos suffice
-    addTagInfos = cms.bool(True),
+    # clone tag infos ATTENTION: these take lots of space!
+    # usually the discriminators from the default algos
+    # are sufficient
+    addTagInfos     = cms.bool(True),
     tagInfoSources  = cms.VInputTag(
         cms.InputTag("secondaryVertexTagInfos"),
         cms.InputTag("softElectronTagInfos"), 
@@ -62,35 +57,37 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
         cms.InputTag("impactParameterTagInfos"),
     ),
 
-    # track association configurables
+    # track association
     addAssociatedTracks    = cms.bool(True),
-    trackAssociationSource = cms.InputTag("ic5JetTracksAssociatorAtVertex"), ## now a standard reco::JetTracksAssociation::Container
+    trackAssociationSource = cms.InputTag("ic5JetTracksAssociatorAtVertex"),
 
-    # Jet charge configurables
+    # jet charge
     addJetCharge    = cms.bool(True),
-    jetChargeSource = cms.InputTag("patJetCharge"), ## the jet charge values
+    jetChargeSource = cms.InputTag("patJetCharge"),
 
-    # Trigger matching configurables
-    addTrigMatch = cms.bool(True),
-    # trigger primitive sources to be used for the matching
-    trigPrimMatch = cms.VInputTag(cms.InputTag("jetTrigMatchHLT1ElectronRelaxed"), cms.InputTag("jetTrigMatchHLT2jet")),
+    # trigger matching
+    addTrigMatch    = cms.bool(False),
+    trigPrimMatch   = cms.VInputTag(''),
 
-    # MC matching configurables
-    addGenPartonMatch = cms.bool(True),                 ## switch on/off matching to quarks from hard scatterin
-    embedGenPartonMatch = cms.bool(False),              ## switch on/off embedding of the GenParticle parton for this jet
-    genPartonMatch    = cms.InputTag("jetPartonMatch"), ## particles source to be used for the matching
-    addGenJetMatch    = cms.bool(True),                 ## switch on/off matching to GenJet's
-    genJetMatch       = cms.InputTag("jetGenJetMatch"), ## GenJet source to be used for the matching
-    addPartonJetMatch = cms.bool(False),                ## switch on/off matching to PartonJet's (not implemented yet)
-    partonJetSource   = cms.InputTag("NOT_IMPLEMENTED"),## ParticleJet source to be used for the matching
+    # mc matching
+    addGenPartonMatch   = cms.bool(True),                 ## switch on/off matching to quarks from hard scatterin
+    embedGenPartonMatch = cms.bool(False),                ## switch on/off embedding of the GenParticle parton for this jet
+    genPartonMatch      = cms.InputTag("jetPartonMatch"), ## particles source to be used for the matching
+    addGenJetMatch      = cms.bool(True),                 ## switch on/off matching to GenJet's
+    genJetMatch         = cms.InputTag("jetGenJetMatch"), ## GenJet source to be used for the matching
+    addPartonJetMatch   = cms.bool(False),                ## switch on/off matching to PartonJet's (not implemented yet)
+    partonJetSource     = cms.InputTag("NOT_IMPLEMENTED"),## ParticleJet source to be used for the matching
 
-    # Jet flavour idetification configurables
+    # jet flavour idetification configurables
     getJetMCFlavour    = cms.bool(True),
-    JetPartonMapSource = cms.InputTag("jetFlavourAssociation"), ## the match-collection, produced by default from PATHighLevelReco.cff
+    JetPartonMapSource = cms.InputTag("jetFlavourAssociation"),
 
-    # Efficiencies
+    # efficiencies
     addEfficiencies = cms.bool(False),
     efficiencies    = cms.PSet(),
+
+    # resolution
+    addResolutions = cms.bool(False)
 )
 
 

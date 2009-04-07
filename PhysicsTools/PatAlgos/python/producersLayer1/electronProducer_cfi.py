@@ -1,8 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 allLayer1Electrons = cms.EDProducer("PATElectronProducer",
-    # general configurables
+    # input collection
     electronSource = cms.InputTag("electronsNoDuplicates"),
+
+    # use particle flow instead of std reco    
+    useParticleFlow  =  cms.bool( False ),
+    pfElectronSource = cms.InputTag("pfElectrons"),
                                     
     # user data to add
     userData = cms.PSet(
@@ -27,16 +31,9 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     embedTrack        = cms.bool(False), ## embed in AOD externally stored track (note: gsf electrons don't have a track)
     embedGsfTrack     = cms.bool(True),  ## embed in AOD externally stored gsf track
     embedSuperCluster = cms.bool(True),  ## embed in AOD externally stored supercluster
-
-    # resolution configurables
-    addResolutions   = cms.bool(False),
-
-    # pflow specific
-    pfElectronSource = cms.InputTag("pfElectrons"),
-    useParticleFlow =  cms.bool( False ),
-    embedPFCandidate = cms.bool(False),
-
-    # store isolation values
+    embedPFCandidate  = cms.bool(False), ## embed in AOD externally stored particle flow candidate
+                                    
+    # isolation
     isolation = cms.PSet(
         tracker = cms.PSet(
             src = cms.InputTag("eleIsoFromDepsTk"),
@@ -49,14 +46,19 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
         ),
         user = cms.VPSet(),
     ),
-    # store IsoDeposits
+    # embed IsoDeposits to recompute isolation
     isoDeposits = cms.PSet(
         tracker = cms.InputTag("eleIsoDepositTk"),
         ecal    = cms.InputTag("eleIsoDepositEcalFromHits"),
         hcal    = cms.InputTag("eleIsoDepositHcalFromTowers"),
     ),
 
-    # electron ID configurables
+    # electron cluster shape
+    addElectronShapes = cms.bool(True),
+    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
+    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
+
+    # electron ID
     addElectronID = cms.bool(True),
     electronIDSources = cms.PSet(
         # configure many IDs as InputTag <someName> = <someTag> you
@@ -68,25 +70,21 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
         eidRobustHighEnergy = cms.InputTag("eidRobustHighEnergy"),
     ),
 
-    # trigger matching configurables
-    addTrigMatch = cms.bool(False),
-    # trigger primitive sources to be used for the matching
-    trigPrimMatch = cms.VInputTag('')
-    ),
+    # trigger matching
+    addTrigMatch  = cms.bool(False),
+    trigPrimMatch = cms.VInputTag(''),
 
-    # mc matching configurables
+    # mc matching
     addGenMatch      = cms.bool(True),
     embedGenMatch    = cms.bool(False),
     genParticleMatch = cms.InputTag("electronMatch"), ## Association between electrons and generator particles
-
+    
     # efficiencies
     addEfficiencies = cms.bool(False),
     efficiencies    = cms.PSet(),
-    
-    # electron cluster shape configurables
-    addElectronShapes = cms.bool(True),
-    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
-    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
+
+    # resolution configurables
+    addResolutions   = cms.bool(False)
 )
 
 

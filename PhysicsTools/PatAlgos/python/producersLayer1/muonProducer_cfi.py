@@ -1,13 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
 allLayer1Muons = cms.EDProducer("PATMuonProducer",
+    # input
+    muonSource      = cms.InputTag("muons"),
 
-    # General configurables
-    muonSource = cms.InputTag("muons"),
-    pfMuonSource = cms.InputTag("pfMuons"),
+    # use particle flow instead of std reco                                
     useParticleFlow =  cms.bool( False ),
+    pfMuonSource    = cms.InputTag("pfMuons"),          
 
-    # user data to add
+    # add TeV refit tracks
+    addTeVRefits    = cms.bool(True),
+    pickySrc        = cms.InputTag("tevMuons", "picky"),
+    tpfmsSrc        = cms.InputTag("tevMuons", "firstHit"),
+
+    # add user data
     userData = cms.PSet(
       # add custom classes here
       userClasses = cms.PSet(
@@ -25,15 +31,16 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
       userFunctions = cms.vstring(),
       userFunctionLabels = cms.vstring()
     ),
-                                
-    embedTrack          = cms.bool(False), ## whether to embed in AOD externally stored tracker track
-    embedCombinedMuon   = cms.bool(True), ## whether to embed in AOD externally stored combined muon track
-    embedStandAloneMuon = cms.bool(True), ## whether to embed in AOD externally stored standalone muon track
-    embedPickyMuon      = cms.bool(True), ## whether to embed in AOD externally stored TeV-refit picky muon track
-    embedTpfmsMuon      = cms.bool(True), ## whether to embed in AOD externally stored TeV-refit TPFMS muon track
-    embedPFCandidate = cms.bool(False),
 
-    # isolation configurables
+    # embedding objects
+    embedTrack          = cms.bool(False), ## embed in AOD externally stored tracker track
+    embedCombinedMuon   = cms.bool(True),  ## embed in AOD externally stored combined muon track
+    embedStandAloneMuon = cms.bool(True),  ## embed in AOD externally stored standalone muon track
+    embedPickyMuon      = cms.bool(True),  ## embed in AOD externally stored TeV-refit picky muon track
+    embedTpfmsMuon      = cms.bool(True),  ## embed in AOD externally stored TeV-refit TPFMS muon track
+    embedPFCandidate    = cms.bool(False), ## embed in AOD externally stored particle flow candidate
+
+    # isolation
     isolation = cms.PSet(
         hcal = cms.PSet(
             src = cms.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
@@ -56,7 +63,7 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
             deltaR = cms.double(0.3)
         )
     ),
-    # embed IsoDeposits to recompute isolation easily
+    # embed IsoDeposits
     isoDeposits = cms.PSet(
         tracker = cms.InputTag("muIsoDepositTk"),
         ecal    = cms.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
@@ -67,26 +74,21 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
                   ),
     ),
 
-    # Resolution configurables
-    addResolutions = cms.bool(False),
+    # trigger matching
+    addTrigMatch  = cms.bool(False),
+    trigPrimMatch = cms.VInputTag(''),
 
-    # Trigger matching configurables
-    addTrigMatch = cms.bool(True),
-    trigPrimMatch = cms.VInputTag(cms.InputTag("muonTrigMatchHLT1MuonNonIso"), cms.InputTag("muonTrigMatchHLT1MET65")),
-
-    # MC matching configurables
-    addGenMatch = cms.bool(True),
+    # mc matching
+    addGenMatch   = cms.bool(True),
     embedGenMatch = cms.bool(False),
     genParticleMatch = cms.InputTag("muonMatch"), ## particles source to be used for the matching
 
-    # Efficiencies
+    # efficiencies
     addEfficiencies = cms.bool(False),
     efficiencies    = cms.PSet(),
 
-    # TeV refit tracks
-    addTeVRefits = cms.bool(True),
-    pickySrc = cms.InputTag("tevMuons", "picky"),
-    tpfmsSrc = cms.InputTag("tevMuons", "firstHit"),
+    # resolution configurables
+    addResolutions  = cms.bool(False)
 )
 
 

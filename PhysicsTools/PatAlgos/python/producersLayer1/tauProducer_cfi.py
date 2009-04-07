@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 allLayer1Taus = cms.EDProducer("PATTauProducer",
-    # General configurables
+    # input
     tauSource = cms.InputTag("pfRecoTauProducer"),
 
-    # user data to add
+    # add user data
     userData = cms.PSet(
       # add custom classes here
       userClasses = cms.PSet(
@@ -23,15 +23,12 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
       userFunctionLabels = cms.vstring()
     ),
 
-    embedLeadTrack       = cms.bool(False), ## whether to embed in AOD externally stored leading track
-    embedSignalTracks    = cms.bool(False), ## whether to embed in AOD externally stored signal tracks
-    embedIsolationTracks = cms.bool(False), ## whether to embed in AOD externally stored isolation tracks
+    # embedding objects
+    embedLeadTrack       = cms.bool(False), ## embed in AOD externally stored leading track
+    embedSignalTracks    = cms.bool(False), ## embed in AOD externally stored signal tracks
+    embedIsolationTracks = cms.bool(False), ## embed in AOD externally stored isolation tracks
 
-    # resolution configurables
-    addResolutions = cms.bool(False),
-
-    # isolation configurables
-    # Store isolation values
+    # isolation
     isolation = cms.PSet(
         pfAllParticles = cms.PSet(
             src = cms.InputTag("patLayer0PFTauIsolation", "tauIsoDepositPFCandidates"),
@@ -50,7 +47,7 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
             deltaR = cms.double(0.5)
         )
     ),                           
-    # Store IsoDeposits
+    # embed IsoDeposits
     isoDeposits = cms.PSet(
         pfAllParticles = cms.InputTag("patLayer0PFTauIsolation", "tauIsoDepositPFCandidates"),
         pfChargedHadron = cms.InputTag("patLayer0PFTauIsolation", "tauIsoDepositPFChargedHadrons"),
@@ -58,12 +55,12 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
         pfGamma = cms.InputTag("patLayer0PFTauIsolation", "tauIsoDepositPFGammas")
     ),
 
-    # tau ID configurables
-    # (for efficiency studies)
-    addTauID = cms.bool(True),
+    # tau ID (for efficiency studies)
+    addTauID     = cms.bool(True),
     tauIDSources = cms.PSet(
         # configure many IDs as InputTag <someName> = <someTag>
-        # you can comment out those you don't want to save some disk space
+        # you can comment out those you don't want to save some
+        # disk space
         leadingTrackFinding = cms.InputTag("pfRecoTauDiscriminationByLeadingTrackFinding"),
         leadingTrackPtCut = cms.InputTag("pfRecoTauDiscriminationByLeadingTrackPtCut"),
         trackIsolation = cms.InputTag("pfRecoTauDiscriminationByTrackIsolation"),
@@ -73,25 +70,24 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
         againstMuon = cms.InputTag("pfRecoTauDiscriminationAgainstMuon")
     ),
 
-    # Trigger matching configurables
-    addTrigMatch = cms.bool(True),
-    trigPrimMatch = cms.VInputTag(cms.InputTag("tauTrigMatchHLT1Tau")),
+    # trigger matching configurables
+    addTrigMatch  = cms.bool(False),
+    trigPrimMatch = cms.VInputTag(''),
 
-    # MC matching configurables
-    addGenMatch = cms.bool(True),
-    embedGenMatch = cms.bool(False),
-    genParticleMatch = cms.InputTag("tauMatch"), ## particles source to be used for the matching
+    # mc matching configurables
+    addGenMatch      = cms.bool(True),
+    embedGenMatch    = cms.bool(False),
+    genParticleMatch = cms.InputTag("tauMatch"),
+    addGenJetMatch   = cms.bool(True),
+    embedGenJetMatch = cms.bool(False),    
+    genJetMatch      = cms.InputTag("tauGenJetMatch"),
 
-    # MC jet matching configurables
-    addGenJetMatch = cms.bool(True),
-    # the following is not used. ?
-    embedGenJetMatch = cms.bool(False),
-    
-    genJetMatch = cms.InputTag("tauGenJetMatch"), ## particles source to be used for the matching
-
-    # Efficiencies
+    # efficiencies
     addEfficiencies = cms.bool(False),
-    efficiencies    = cms.PSet()
+    efficiencies    = cms.PSet(),
+
+    # resolution
+    addResolutions  = cms.bool(False)
 )
 
 
