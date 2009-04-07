@@ -87,7 +87,7 @@ void DCUIDarkPedDat::fetchData(std::map< EcalLogicID, DCUIDarkPedDat >* fillMap,
   try {
 
     m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-		 "d.capsule_temp "
+		 "d.ped "
 		 "FROM channelview cv JOIN dcu_idark_ped_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.iov_id = :iov_id");
