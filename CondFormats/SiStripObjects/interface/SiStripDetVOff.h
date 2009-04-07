@@ -37,6 +37,10 @@ class SiStripDetVOff
 
   SiStripDetVOff(){};
   ~SiStripDetVOff(){};
+  SiStripDetVOff( const SiStripDetVOff & toCopy ) { toCopy.getVoff(v_Voff); }
+
+  /// Needed by the copy constructor
+  void getVoff(std::vector<uint32_t>& vOff_) const { vOff_ = v_Voff; }
 
   /// Insert information for a single detId
   bool put(const uint32_t DetId, const int HVoff, const int LVoff);
