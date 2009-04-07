@@ -39,7 +39,6 @@ GctFormatTranslateV35::GctFormatTranslateV35(bool hltMode):
     // ConcJet FPGA
     m_blockLength.insert(make_pair(0x580,12));     // ConcJet: Input TrigPathA (Jet Cands)
     m_blockLength.insert(make_pair(0x581,2));      // ConcJet: Input TrigPathB (HF Rings)
-    m_blockLength.insert(make_pair(0x582,4));      // ConcJet: Input TrigPathC (MissHt)
     m_blockLength.insert(make_pair(0x583,8));      // ConcJet: Jet Cands and Counts Output to GT
     m_blockLength.insert(make_pair(0x587,4));      // ConcJet: BX & Orbit Info
     // ConcElec FPGA
@@ -64,9 +63,7 @@ GctFormatTranslateV35::GctFormatTranslateV35(bool hltMode):
     m_blockLength.insert(make_pair(0xc84,12));     // Leaf0ElecNegEtaU2: Raw Input
     // Wheel Pos-eta Jet FPGA
     m_blockLength.insert(make_pair(0x300,27));     // WheelPosEtaJet: Input TrigPathA (Jet Sort)
-    m_blockLength.insert(make_pair(0x301,3));      // WheelPosEtaJet: Input TrigPathB (MissHt)
     m_blockLength.insert(make_pair(0x303,6));      // WheelPosEtaJet: Output TrigPathA (Jet Sort)
-    m_blockLength.insert(make_pair(0x305,2));      // WheelPosEtaJet: Output TrigPathB (MissHt)
     m_blockLength.insert(make_pair(0x306,32));     // WheelPosEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
     m_blockLength.insert(make_pair(0x307,4));      // WheelPosEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
     // Wheel Pos-eta Energy FPGA
@@ -78,9 +75,7 @@ GctFormatTranslateV35::GctFormatTranslateV35(bool hltMode):
     m_blockLength.insert(make_pair(0x387,6));      // WheelPosEtaEnergy: BX & Orbit Info   (Potential data incompatibility between V24/V25 where block length=4, and V27.1 where block length=6)
     // Wheel Neg-eta Jet FPGA
     m_blockLength.insert(make_pair(0x700,27));     // WheelNegEtaJet: Input TrigPathA (Jet Sort)
-    m_blockLength.insert(make_pair(0x701,3));      // WheelNegEtaJet: Input TrigPathB (MissHt)
     m_blockLength.insert(make_pair(0x703,6));      // WheelNegEtaJet: Output TrigPathA (Jet Sort)
-    m_blockLength.insert(make_pair(0x705,2));      // WheelNegEtaJet: Output TrigPathB (MissHt)
     m_blockLength.insert(make_pair(0x706,32));     // WheelNegEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
     m_blockLength.insert(make_pair(0x707,4));      // WheelNegEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
     // Wheel Neg-eta Energy FPGA
@@ -202,7 +197,6 @@ GctFormatTranslateV35::GctFormatTranslateV35(bool hltMode):
     // ConcJet FPGA
     m_blockName.insert(make_pair(0x580,"ConcJet: Input TrigPathA (Jet Cands)"));
     m_blockName.insert(make_pair(0x581,"ConcJet: Input TrigPathB (HF Rings)"));
-    m_blockName.insert(make_pair(0x582,"ConcJet: Input TrigPathC (MissHt)"));
     m_blockName.insert(make_pair(0x583,"ConcJet: Jet Cands and Counts Output to GT"));
     m_blockName.insert(make_pair(0x587,"ConcJet: BX & Orbit Info"));
     // ConcElec FPGA
@@ -227,9 +221,7 @@ GctFormatTranslateV35::GctFormatTranslateV35(bool hltMode):
     m_blockName.insert(make_pair(0xc84,"Leaf0ElecNegEtaU2: Raw Input"));
     // Wheel Pos-eta Jet FPGA
     m_blockName.insert(make_pair(0x300,"WheelPosEtaJet: Input TrigPathA (Jet Sort)"));
-    m_blockName.insert(make_pair(0x301,"WheelPosEtaJet: Input TrigPathB (MissHt)"));  
     m_blockName.insert(make_pair(0x303,"WheelPosEtaJet: Output TrigPathA (Jet Sort)"));
-    m_blockName.insert(make_pair(0x305,"WheelPosEtaJet: Output TrigPathB (MissHt)"));
     m_blockName.insert(make_pair(0x306,"WheelPosEtaJet: Test (deprecated)"));  // (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
     m_blockName.insert(make_pair(0x307,"WheelPosEtaJet: Info (deprecated)"));  // (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
     // Wheel Pos-eta Energy FPGA
@@ -241,9 +233,7 @@ GctFormatTranslateV35::GctFormatTranslateV35(bool hltMode):
     m_blockName.insert(make_pair(0x387,"WheelPosEtaEnergy: BX & Orbit Info"));
     // Wheel Neg-eta Jet FPGA
     m_blockName.insert(make_pair(0x700,"WheelNegEtaJet: Input TrigPathA (Jet Sort)"));
-    m_blockName.insert(make_pair(0x701,"WheelNegEtaJet: Input TrigPathB (MissHt)"));
     m_blockName.insert(make_pair(0x703,"WheelNegEtaJet: Output TrigPathA (Jet Sort)"));
-    m_blockName.insert(make_pair(0x705,"WheelNegEtaJet: Output TrigPathB (MissHt)"));
     m_blockName.insert(make_pair(0x706,"WheelNegEtaJet: Test (deprecated)"));  // (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
     m_blockName.insert(make_pair(0x707,"WheelNegEtaJet: Info (deprecated)"));  // (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
     // Wheel Neg-eta Energy FPGA
