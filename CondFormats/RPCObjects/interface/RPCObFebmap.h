@@ -17,6 +17,7 @@ class RPCObFebmap {
         float vmon4;
         float temp1;
         float temp2;
+        int   day;
         int   time;
 	int   noise1;
         int   noise2;
