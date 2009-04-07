@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 15:04:58 EST 2008
-// $Id: FWPhysicsObjectDesc.h,v 1.5 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FWPhysicsObjectDesc.h,v 1.6 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -68,6 +68,7 @@ public:
                   const std::string& iProcess);
    void setName(const std::string& iName);
 
+   void setDisplayProperties( const FWDisplayProperties&);
 private:
    //FWPhysicsObjectDesc(const FWPhysicsObjectDesc&); // stop default
 

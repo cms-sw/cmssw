@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 15:05:02 EST 2008
-// $Id: FWPhysicsObjectDesc.cc,v 1.5 2008/11/06 22:05:26 amraktad Exp $
+// $Id: FWPhysicsObjectDesc.cc,v 1.6 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -87,6 +87,12 @@ void
 FWPhysicsObjectDesc::setName(const std::string& iName)
 {
    m_name = iName;
+}
+
+void 
+FWPhysicsObjectDesc::setDisplayProperties( const FWDisplayProperties& iProperties)
+{
+   m_displayProperties = iProperties;
 }
 
 //
