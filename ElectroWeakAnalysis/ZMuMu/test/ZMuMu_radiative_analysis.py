@@ -21,7 +21,7 @@ process.options = cms.untracked.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(-1)
     )
 
 process.source = cms.Source(
@@ -43,19 +43,11 @@ process.source = cms.Source(
 
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("analisi_radiativi_true.root")
+    fileName = cms.string("analysis_radiative_table.root")
 )
 
 
 
-#ZMuMu
-process.goodZToMuMuHLT = cms.EDFilter(
-    "ZHLTMatchFilter",
-    src = cms.InputTag("dimuonsGlobal"),
-    condition =cms.string("atLeastOneMatched"),
-    hltPath = cms.string("hltSingleMuNoIsoL3PreFiltered"),
-    filter = cms.bool(False) 
-)
 
 #ZMuSta
 process.goodZToMuMuOneStandAloneMuon = cms.EDFilter(
@@ -63,15 +55,6 @@ process.goodZToMuMuOneStandAloneMuon = cms.EDFilter(
     src = cms.InputTag("dimuonsOneStandAloneMuon"),
     overlap = cms.InputTag("dimuonsGlobal"),
     filter = cms.bool(False)
-)
-
-
-process.goodZToMuMuOneStandAloneMuonHLT = cms.EDFilter(
-    "ZHLTMatchFilter",
-    src = cms.InputTag("goodZToMuMuOneStandAloneMuon"),
-    condition =cms.string("globalisMatched"),
-    hltPath = cms.string("hltSingleMuNoIsoL3PreFiltered"),
-    filter = cms.bool(False) 
 )
 
 
@@ -102,11 +85,11 @@ process.goodZToMuMuOneTrackFirstHLT = cms.EDFilter(
 
 process.Analyzer = cms.EDAnalyzer(
     "ZMuMu_Radiative_analyzer",
-    zMuMu = cms.InputTag("goodZToMuMuHLT"),
+    zMuMu = cms.InputTag("dimuonsGlobal"),
     zMuMuMatchMap= cms.InputTag("allDimuonsMCMatch"),
     zMuTk = cms.InputTag("goodZToMuMuOneTrackFirstHLT"),
     zMuTkMatchMap= cms.InputTag("allDimuonsMCMatch"),
-    zMuSa = cms.InputTag("goodZToMuMuOneStandAloneMuonHLT"),
+    zMuSa = cms.InputTag("goodZToMuMuOneStandAloneMuon"),
     zMuSaMatchMap= cms.InputTag("allDimuonsMCMatch"),
     veto = cms.untracked.double(0.015),
     deltaRTrk = cms.untracked.double("0.3"),
@@ -119,9 +102,7 @@ process.eventInfo = cms.OutputModule (
 )
 
 process.path = cms.Path (
-    process.goodZToMuMuHLT +
-    process.goodZToMuMuOneStandAloneMuon +
-    process.goodZToMuMuOneStandAloneMuonHLT +
+    process.goodZToMuMuOneStandAloneMuon+
     process.zToMuGlobalMuOneTrack +
     process.goodZToMuMuOneTrack +
     process.goodZToMuMuOneTrackFirstHLT +
