@@ -1,14 +1,14 @@
 /**
  * \class L1GtfeExtWord
- * 
- * 
- * Description: L1 Global Trigger - GTFE words in the readout record.  
+ *
+ *
+ * Description: L1 Global Trigger - GTFE words in the readout record.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -50,13 +50,15 @@ L1GtfeExtWord::L1GtfeExtWord(int bstSizeBytes) :
 
 
 // constructor from unpacked values, m_bst size taken from bstValue
-L1GtfeExtWord::L1GtfeExtWord(boost::uint16_t boardIdValue,
+L1GtfeExtWord::L1GtfeExtWord(
+        boost::uint16_t boardIdValue, boost::uint16_t recordLength1Value,
         boost::uint16_t recordLengthValue, boost::uint16_t bxNrValue,
         boost::uint32_t setupVersionValue, boost::uint16_t activeBoardsValue,
-        boost::uint32_t totalTriggerNrValue, // end of L1GtfeWord
+        boost::uint16_t altNrBxBoardValue, boost::uint32_t totalTriggerNrValue, // end of L1GtfeWord
         std::vector<boost::uint16_t> bstValue, boost::uint16_t bstSourceValue) :
-    L1GtfeWord(boardIdValue, recordLengthValue, bxNrValue, setupVersionValue,
-            activeBoardsValue, totalTriggerNrValue), m_bst(bstValue),
+    L1GtfeWord(
+            boardIdValue, recordLength1Value, recordLengthValue, bxNrValue, setupVersionValue,
+            activeBoardsValue, altNrBxBoardValue, totalTriggerNrValue), m_bst(bstValue),
             m_bstSource(bstSourceValue)
 
 {
@@ -75,6 +77,8 @@ L1GtfeExtWord::~L1GtfeExtWord() {
 bool L1GtfeExtWord::operator==(const L1GtfeExtWord& result) const
 {
 
+    // base class
+
     const L1GtfeWord gtfeResult = result;
     const L1GtfeWord gtfeThis = *this;
 
@@ -82,6 +86,8 @@ bool L1GtfeExtWord::operator==(const L1GtfeExtWord& result) const
         return false;
     }
 
+
+    //
 
     for (unsigned int iB = 0; iB < m_bst.size(); ++iB) {
         if(m_bst[iB] != result.m_bst[iB]) {
@@ -112,7 +118,7 @@ const boost::uint64_t L1GtfeExtWord::gpsTime() const
 {
 
     boost::uint64_t gpst = 0ULL;
-    
+
     // return 0 if BST message too small
     int bstSize = m_bst.size();
     if (GpsTimeLastBlock >= bstSize) {
@@ -134,15 +140,15 @@ const boost::uint64_t L1GtfeExtWord::gpsTime() const
 }
 
 void L1GtfeExtWord::setGpsTime(const boost::uint64_t gpsTimeValue) {
-    
+
     // return if BST message too small
     int bstSize = m_bst.size();
     if (GpsTimeLastBlock >= bstSize) {
-        
-        edm::LogError("L1GtfeExtWord") << "Error: BST message length " 
+
+        edm::LogError("L1GtfeExtWord") << "Error: BST message length "
             << bstSize << " smaller than the required GpsTimeLastBlock "
             << GpsTimeLastBlock << "\n Cannot set GpsTime" << std::endl;
-            
+
         return;
     }
 
@@ -166,7 +172,7 @@ void L1GtfeExtWord::setGpsTime(const boost::uint64_t gpsTimeValue) {
         //<< std::endl;
 
     }
-    
+
 }
 
 const boost::uint16_t L1GtfeExtWord::bstMasterStatus() const
@@ -223,7 +229,7 @@ const boost::uint32_t L1GtfeExtWord::lhcFillNumber() const
 {
 
     boost::uint32_t lhcfn = 0;
- 
+
     // return 0 if BST message too small
     int bstSize = m_bst.size();
     if (LhcFillNumberLastBlock >= bstSize) {
@@ -397,7 +403,7 @@ const uint16_t L1GtfeExtWord::bst(int iB) const
 {
 
     int NumberBstBlocks = m_bst.size();
-    
+
     if (iB < 0 || iB >= NumberBstBlocks) {
         throw cms::Exception("BstIndexError")
         << "\nError: index for BST array out of range. Allowed range: [0, "
@@ -411,9 +417,9 @@ const uint16_t L1GtfeExtWord::bst(int iB) const
 
 void L1GtfeExtWord::setBst(const uint16_t bstVal, const int iB)
 {
-    
+
     int NumberBstBlocks = m_bst.size();
-    
+
     if (iB < 0 || iB >= NumberBstBlocks) {
         throw cms::Exception("BstIndexError")
         << "\nError: index for BST array out of range. Allowed range: [0, "
@@ -459,25 +465,25 @@ void L1GtfeExtWord::setBstWord64(boost::uint64_t& word64, int iB, int iWord)
 
 // set the hex message indicating the source of BST message from a 64-bits word
 void L1GtfeExtWord::setBstSource(const boost::uint64_t& word64) {
-    
+
     m_bstSource = (word64 & BstSourceMask) >> BstSourceShift;
-    
+
 }
 
-// set hex message indicating the source of BST message in a 64-bits word, 
+// set hex message indicating the source of BST message in a 64-bits word,
 // having the index iWord in the GTFE raw record
 void L1GtfeExtWord::setBstSourceWord64(boost::uint64_t& word64, const int iWord) {
- 
+
     // BST always in the last word of GTFE extended - size must be correct!
     int gtfeSize = this->getSize();
-    
+
     int BstSourceWord = gtfeSize/8 - 1; // counting starts at 0
-    
+
     if (iWord == BstSourceWord) {
         word64 = word64 | (static_cast<boost::uint64_t> (m_bstSource)
                            << BstSourceShift);
     }
-    
+
 }
 
 
@@ -493,9 +499,9 @@ const unsigned int L1GtfeExtWord::getSize() const {
     unsigned int bytesBstWriter = 2;
 
     // size of BST block, using rounded 64-bit words (8 bytes per 64-bit word)
-    
+
     unsigned int bstSize = m_bst.size();
-    
+
     if ( (bstSize +bytesBstWriter )%8 == 0) {
         gtfeExtSize = gtfeSize + bstSize + bytesBstWriter;
     }
@@ -510,9 +516,9 @@ const unsigned int L1GtfeExtWord::getSize() const {
 
 // resize the BST vector to get the right size of the block
 void L1GtfeExtWord::resize(int bstSizeBytes) {
-    
+
     m_bst.resize(bstSizeBytes);
-    
+
 }
 
 // reset the content of a L1GtfeExtWord
@@ -521,7 +527,7 @@ void L1GtfeExtWord::reset()
 
     L1GtfeWord::reset();
     m_bst.clear();
-    
+
 }
 
 // pretty print the content of a L1GtfeWord
@@ -543,11 +549,11 @@ void L1GtfeExtWord::print(std::ostream& myCout) const
         myCout << "\n" << std::hex << " hex: ";
 
         for (int jB = iB; jB < dataBlocksPerLine + iB; ++jB) {
-            
+
             if (jB >= NumberBstBlocks) {
                 break;
             }
-            
+
             myCout
             << std::setw(2) << std::setfill('0') << m_bst[jB]
             << "   " << std::setfill(' ');
@@ -560,7 +566,7 @@ void L1GtfeExtWord::print(std::ostream& myCout) const
             if (jB >= NumberBstBlocks) {
                 break;
             }
-            
+
             myCout
             << std::setw(3) << std::setfill('0') << m_bst[jB]
             << "  " << std::setfill(' ');
@@ -571,7 +577,7 @@ void L1GtfeExtWord::print(std::ostream& myCout) const
         iB += dataBlocksPerLine - 1;
     }
 
-    myCout << "\n  BST source [hex]: " << std::hex << std::setw(4) << std::setfill('0') 
+    myCout << "\n  BST source [hex]: " << std::hex << std::setw(4) << std::setfill('0')
         << m_bstSource << std::endl;
 
 }
@@ -671,7 +677,7 @@ const int L1GtfeExtWord::TotalIntensityBeam1LastBlock = 35;
 const int L1GtfeExtWord::TotalIntensityBeam2FirstBlock = 36;
 const int L1GtfeExtWord::TotalIntensityBeam2LastBlock = 39;
 
-// BST 
+// BST
 const boost::uint64_t L1GtfeExtWord::BstSourceMask = 0xFFFF000000000000ULL;
 const int L1GtfeExtWord::BstSourceShift = 48;
 

@@ -1,14 +1,14 @@
 /**
  * \class L1GlobalTriggerReadoutRecord
- * 
- * 
- * Description: see header file.  
+ *
+ *
+ * Description: see header file.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -32,22 +32,10 @@
 L1GlobalTriggerReadoutRecord::L1GlobalTriggerReadoutRecord()
 {
 
+    // empty GTFE
     m_gtfeWord = L1GtfeWord();
 
-    // reserve just one L1GtFdlWord, set bunch cross 0
-    m_gtFdlWord.reserve(1);
-    m_gtFdlWord.assign(1, L1GtFdlWord());
-
-    int iBx = 0; // not really necessary, default bxInEvent in L1GtFdlWord() is zero
-    m_gtFdlWord[iBx].setBxInEvent(iBx);
-
-    // reserve totalNumberPsb L1GtPsbWord, set bunch cross 0
-    int numberPsb = L1GlobalTriggerReadoutSetup::NumberPsbBoards;
-    int totalNumberPsb = numberPsb;
-
-    m_gtPsbWord.reserve(totalNumberPsb);
-    m_gtPsbWord.assign(totalNumberPsb, L1GtPsbWord());
-
+    // no FDL, no PSB
 }
 
 L1GlobalTriggerReadoutRecord::L1GlobalTriggerReadoutRecord(int numberBxInEvent)
@@ -286,7 +274,7 @@ L1GlobalTriggerReadoutRecord::decisionWord() const
 
 
 const TechnicalTriggerWord L1GlobalTriggerReadoutRecord::technicalTriggerWord(int bxInEventValue) const {
-    
+
     for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
             itBx != m_gtFdlWord.end(); ++itBx) {
 
@@ -310,10 +298,10 @@ const TechnicalTriggerWord L1GlobalTriggerReadoutRecord::technicalTriggerWord(in
 }
 
 const TechnicalTriggerWord L1GlobalTriggerReadoutRecord::technicalTriggerWord() const {
-    
+
     int bxInEventL1Accept = 0;
     return technicalTriggerWord(bxInEventL1Accept);
-    
+
 }
 
 
@@ -392,7 +380,7 @@ void L1GlobalTriggerReadoutRecord::setTechnicalTriggerWord(
         const TechnicalTriggerWord& ttWordValue, int bxInEventValue)
 {
 
-    for (std::vector<L1GtFdlWord>::iterator itBx = m_gtFdlWord.begin(); 
+    for (std::vector<L1GtFdlWord>::iterator itBx = m_gtFdlWord.begin();
             itBx != m_gtFdlWord.end(); ++itBx) {
 
         if ((*itBx).bxInEvent() == bxInEventValue) {

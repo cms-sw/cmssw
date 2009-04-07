@@ -832,7 +832,7 @@ void L1GtFdlWord::print(std::ostream& myCout) const
     iWord++;
     myCout << "\n Word " << iWord << std::endl;
 
-    myCout << "  PhysicsDeclared: "
+    myCout << "  PhysicsDeclared:           "
     << std::hex << " hex: "  << "    " << std::setw(4) << std::setfill('0')
     << m_physicsDeclared
     << std::setfill(' ')
@@ -853,13 +853,13 @@ void L1GtFdlWord::print(std::ostream& myCout) const
     << std::dec << " dec: " << m_gtPrescaleFactorIndexAlgo
     << std::endl;
 
-    myCout << "  NoAlgo:           "
+    myCout << "  NoAlgo:                    "
     << std::hex << " hex: "  << "       " << std::setw(1) << std::setfill('0') << m_noAlgo
     << std::setfill(' ')
     << std::dec << " dec: " << m_noAlgo
     << std::endl;
 
-    myCout << "  FinalOR:          "
+    myCout << "  FinalOR:                   "
     << std::hex << " hex: "  << "      " << std::setw(2) << std::setfill('0') << m_finalOR
     << std::setfill(' ')
     << std::dec << " dec: " << m_finalOR
