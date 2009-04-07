@@ -53,6 +53,10 @@ void SimHitCaloHitDumper::analyze( const edm::Event& iEvent, const edm::EventSet
    Handle<PCaloHitContainer> HcalHits;
    Handle<PCaloHitContainer> CaloTkHits;
    Handle<PCaloHitContainer> ZDCHits;
+   Handle<PCaloHitContainer> CastorTUHits;
+   Handle<PCaloHitContainer> CastorPLHits;
+   Handle<PCaloHitContainer> CastorFIHits;
+   Handle<PCaloHitContainer> CastorBUHits;
 
    iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelLowTof", PixelBarrelHitsLowTof);
    iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelHighTof", PixelBarrelHitsHighTof);
@@ -77,6 +81,10 @@ void SimHitCaloHitDumper::analyze( const edm::Event& iEvent, const edm::EventSet
    iEvent.getByLabel("g4SimHits","HcalHits", HcalHits );
    iEvent.getByLabel("g4SimHits","CaloHitsTk", CaloTkHits );
    iEvent.getByLabel("g4SimHits","ZDCHITS", ZDCHits );
+   iEvent.getByLabel("g4SimHits","CastorTU", CastorTUHits );
+   iEvent.getByLabel("g4SimHits","CastorPL", CastorPLHits );
+   iEvent.getByLabel("g4SimHits","CastorFI", CastorFIHits );
+   iEvent.getByLabel("g4SimHits","CastorBU", CastorBUHits );
 
    int oldsize = 0;
 
@@ -209,6 +217,30 @@ void SimHitCaloHitDumper::analyze( const edm::Event& iEvent, const edm::EventSet
      std::pair<int,std::string> label21(theCaloHits.size()-oldsize,"ZDCHITS");
      oldsize = theCaloHits.size();
      theCaloComposition.push_back(label21);
+   } 
+   if ( CastorTUHits.isValid() ) {
+     theCaloHits.insert(theCaloHits.end(), CastorTUHits->begin(), CastorTUHits->end() );
+     std::pair<int,std::string> label22(theCaloHits.size()-oldsize,"CastorTU");
+     oldsize = theCaloHits.size();
+     theCaloComposition.push_back(label22);
+   } 
+   if ( CastorPLHits.isValid() ) {
+     theCaloHits.insert(theCaloHits.end(), CastorPLHits->begin(), CastorPLHits->end() );
+     std::pair<int,std::string> label23(theCaloHits.size()-oldsize,"CastorPL");
+     oldsize = theCaloHits.size();
+     theCaloComposition.push_back(label23);
+   } 
+   if ( CastorFIHits.isValid() ) {
+     theCaloHits.insert(theCaloHits.end(), CastorFIHits->begin(), CastorFIHits->end() );
+     std::pair<int,std::string> label24(theCaloHits.size()-oldsize,"CastorFI");
+     oldsize = theCaloHits.size();
+     theCaloComposition.push_back(label24);
+   } 
+   if ( CastorBUHits.isValid() ) {
+     theCaloHits.insert(theCaloHits.end(), CastorBUHits->begin(), CastorBUHits->end() );
+     std::pair<int,std::string> label25(theCaloHits.size()-oldsize,"CastorBU");
+     oldsize = theCaloHits.size();
+     theCaloComposition.push_back(label25);
    } 
 
    std::cout << "\n SimHit / CaloHit structure dump \n" << std::endl;
