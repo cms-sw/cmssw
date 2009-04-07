@@ -232,7 +232,7 @@ int main( int argc, char** argv ){
     int size=0;
     {
       // to be streamlined
-      cond::IOVProxy iov(*conHandler.getConnection("destdb"),iovtoken,false,false);
+      cond::IOVProxy iov(*conHandler.getConnection("destdb"),iovtoken,false,true);
       size = iov.size();
       payload = iovmanager.payloadToken(iovtoken,from);
       if (payload.empty()) {
