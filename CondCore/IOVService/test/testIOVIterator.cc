@@ -98,6 +98,8 @@ int main(){
       print(*iov.find(23));
       print(*iov.find(43));
       print(*iov.find(63));
+      iov.head(iov.size());
+      print(*iov.find(63));
     }
     delete session;
   }catch(const cond::Exception& er){

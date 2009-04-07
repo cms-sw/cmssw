@@ -165,7 +165,7 @@ int main( int argc, char** argv ){
        coraldb.commit();
        cond::PoolTransaction& pooldb = myconnection.poolTransaction();
        {
-	 cond::IOVProxy iov( myconnection, token, !details, false);
+	 cond::IOVProxy iov( myconnection, token, !details, details);
 	 cond::IOVService iovservice(pooldb);
 	 unsigned int counter=0;
 	 std::string payloadContainer=iovservice.payloadContainerName(token);
