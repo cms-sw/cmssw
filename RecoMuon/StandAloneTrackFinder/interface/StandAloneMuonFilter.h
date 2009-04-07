@@ -4,9 +4,10 @@
 /** \class StandAloneMuonFilter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2008/04/23 16:56:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/04/07 15:43:02 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
+ *          D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
  */
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -112,6 +113,7 @@ private:
   
   /// Increment the DT,CSC,RPC counters
   void incrementChamberCounters(const DetLayer *layer);
+  void incrementCompatibleChamberCounters(const DetLayer *layer);
  
   /// Set the rigth Navigation
   std::vector<const DetLayer*> compatibleLayers(const DetLayer *initialLayer,

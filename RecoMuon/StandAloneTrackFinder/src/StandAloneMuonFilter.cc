@@ -1,9 +1,10 @@
 /** \class StandAloneMuonFilter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2008/10/14 17:39:29 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/04/07 10:07:03 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
+ *          D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
  */
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonFilter.h"
 
@@ -148,6 +149,18 @@ void StandAloneMuonFilter::incrementChamberCounters(const DetLayer *layer){
   totalChambers++;
 }
 
+void StandAloneMuonFilter::incrementCompatibleChamberCounters(const DetLayer *layer){
+
+  if(layer->subDetector()==GeomDetEnumerators::DT) dtCompatibleChambers++; 
+  else if(layer->subDetector()==GeomDetEnumerators::CSC) cscCompatibleChambers++; 
+  else if(layer->subDetector()==GeomDetEnumerators::RPCBarrel || layer->subDetector()==GeomDetEnumerators::RPCEndcap) rpcCompatibleChambers++; 
+  else 
+    LogError("Muon|RecoMuon|StandAloneMuonFilter")
+      << "Unrecognized module type in incrementCompatibleChamberCounters";
+  
+  totalCompatibleChambers++;
+}
+
 
 vector<const DetLayer*> StandAloneMuonFilter::compatibleLayers(const DetLayer *initialLayer,
 								 FreeTrajectoryState& fts,
@@ -239,6 +252,7 @@ void StandAloneMuonFilter::refit(const TrajectoryStateOnSurface& initialTSOS,
     // if(!bestMeasurement && firstTime) break;
 
     if(!bestMeasurements.empty()) {
+      incrementCompatibleChamberCounters(*layer);
       bool added = false;
       for(std::vector<TrajectoryMeasurement>::const_iterator tmItr = bestMeasurements.begin();
           tmItr != bestMeasurements.end(); ++tmItr){
