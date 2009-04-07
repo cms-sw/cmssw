@@ -89,12 +89,12 @@ int main(){
       // test "copy shallow"
       cond::IOVProxy iov(pooldb,iovtok, true, false);
       myconnection.disconnect();
-      delete session;
       std::cout << "size " << iov.size()
 		<<", Time Type " << iov.timetype() << std::endl;
       iov.head(2);
       std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
     }
+    delete session;
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
   }catch(const std::exception& er){
