@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.16 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWEventItemsManager.cc,v 1.17 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -20,6 +20,7 @@
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
@@ -146,11 +147,13 @@ static const std::string kPurpose("purpose");
 void
 FWEventItemsManager::addTo(FWConfiguration& iTo) const
 {
+   FWColorManager* cm = m_context->colorManager();
+   assert(0!=cm);
    for(std::vector<FWEventItem*>::const_iterator it = m_items.begin();
        it != m_items.end();
        ++it) {
       if(!*it) continue;
-      FWConfiguration conf(2);
+      FWConfiguration conf(3);
       ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*((*it)->type()->GetTypeInfo())));
       assert(dataType != ROOT::Reflex::Type() );
 
@@ -161,7 +164,7 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
       conf.addKeyValue(kFilterExpression, FWConfiguration((*it)->filterExpression()));
       {
          std::ostringstream os;
-         os << (*it)->defaultDisplayProperties().color();
+         os << cm->colorToIndex((*it)->defaultDisplayProperties().color());
          conf.addKeyValue(kColor, FWConfiguration(os.str()));
       }
       conf.addKeyValue(kIsVisible, FWConfiguration((*it)->defaultDisplayProperties().isVisible() ? kTrue : kFalse));
@@ -178,6 +181,9 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
 void
 FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
 {
+   FWColorManager* cm = m_context->colorManager();
+   assert(0!=cm);
+
    clearItems();
    const FWConfiguration::KeyValues* keyValues =  iFrom.keyValues();
    assert(0!=keyValues);
@@ -196,11 +202,18 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       const std::string& sColor = (*keyValues)[5].second.value();
       const bool isVisible = (*keyValues)[6].second.value() == kTrue;
 
-      std::istringstream is(sColor);
-      Color_t color;
-      is >> color;
+      unsigned int colorIndex;
+      if(conf.version()<3) {
+         std::istringstream is(sColor);
+         Color_t color;
+         is >> color;
+         colorIndex = cm->oldColorToIndex(color);
+      } else {
+         std::istringstream is(sColor);
+         is >> colorIndex;
+      }
 
-      FWDisplayProperties disp(color, isVisible);
+      FWDisplayProperties disp(cm->indexToColor(colorIndex), isVisible);
 
       unsigned int layer;
       const std::string& sLayer =(*keyValues)[7].second.value();
