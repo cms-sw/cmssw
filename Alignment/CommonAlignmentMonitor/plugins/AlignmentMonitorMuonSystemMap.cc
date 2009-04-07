@@ -872,8 +872,8 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
       else assert(false);
     
       if (offsetantisymBin != m_offsetantisymBin.end()) {
-	offsetBin->second.first->SetBinContent(offsetBin->second.second, offsetAntisym);
-	offsetBin->second.first->SetBinError(offsetBin->second.second, offsetError);
+	offsetantisymBin->second.first->SetBinContent(offsetantisymBin->second.second, offsetAntisym);
+	offsetantisymBin->second.first->SetBinError(offsetantisymBin->second.second, offsetError);
       }
       else assert(false);
     
