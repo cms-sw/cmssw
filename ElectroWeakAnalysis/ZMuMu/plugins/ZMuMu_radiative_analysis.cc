@@ -41,7 +41,7 @@
 #include <vector>
 #include "TH1.h"
 //#include "TH2.h"
-//#include "TH3.h"
+#include "TH3.h"
 
 
 using namespace edm;
@@ -63,10 +63,12 @@ private:
   TH1D *h_zMuSamass_FSR,*h_zMuSamass_no_FSR;
   TH1D *h_zMuTkmass_FSR,*h_zMuTkmass_no_FSR;
   TH1D *h_Iso_,*h_Iso_FSR_ ;
-
+  TH3D *h_Iso_3D_, *h_Iso_FSR_3D_; 
+  TH1D *h_trackProbe_eta_no_FSR, *h_trackProbe_pt_no_FSR, *h_staProbe_eta_no_FSR, *h_staProbe_pt_no_FSR, *h_ProbeOk_eta_no_FSR, *h_ProbeOk_pt_no_FSR;
+  TH1D *h_trackProbe_eta_FSR, *h_trackProbe_pt_FSR, *h_staProbe_eta_FSR, *h_staProbe_pt_FSR, *h_ProbeOk_eta_FSR, *h_ProbeOk_pt_FSR;
   //boolean 
-  bool  FSR_mu, FSR_tk, FSR_mu0, FSR_mu1;
-
+  bool FSR_mu, FSR_tk, FSR_mu0, FSR_mu1;
+  bool trig0found, trig1found;
   //counter
   int  zmmcounter , zmscounter, zmtcounter;
  };
@@ -98,7 +100,25 @@ ZMuMu_Radiative_analyzer::ZMuMu_Radiative_analyzer(const ParameterSet& pset) :
   h_zMuTkmass_FSR= fs->make<TH1D>("h_zMuTkmass_FRS","Invariant Z mass distribution",200,0,200);
   h_zMuTkmass_no_FSR= fs->make<TH1D>("h_zMuTkmass_no_FSR","Invariant Z mass distribution",200,0,200);
   h_Iso_= fs->make<TH1D>("h_iso","Isolation distribution of muons without FSR",100,0,20);
-  h_Iso_FSR_= fs->make<TH1D>("h_iso_FSR_","Isolation distribution of muons with FSR ",100,0,20);
+  h_Iso_FSR_= fs->make<TH1D>("h_iso_FSR","Isolation distribution of muons with FSR ",100,0,20);
+  h_Iso_3D_= fs->make<TH3D>("h_iso_3D","Isolation distribution of muons without FSR",100,20,100,100,-2.0,2.0,100,0,20);
+  h_Iso_FSR_3D_= fs->make<TH3D>("h_iso_FSR_3D","Isolation distribution of muons with FSR ",100,20,100,100,-2.0,2.0,100,0,20);
+  
+  h_trackProbe_eta_no_FSR = fs->make<TH1D>("trackProbeEta_no_FSR","Eta of tracks",100,-2.0,2.0);
+  h_trackProbe_pt_no_FSR = fs->make<TH1D>("trackProbePt_no_FSR","Pt of tracks",100,0,100);
+  h_staProbe_eta_no_FSR = fs->make<TH1D>("standAloneProbeEta_no_FSR","Eta of standAlone",100,-2.0,2.0);
+  h_staProbe_pt_no_FSR = fs->make<TH1D>("standAloneProbePt_no_FSR","Pt of standAlone",100,0,100);
+  h_ProbeOk_eta_no_FSR = fs->make<TH1D>("probeOkEta_no_FSR","Eta of probe Ok",100,-2.0,2.0);
+  h_ProbeOk_pt_no_FSR = fs->make<TH1D>("probeOkPt_no_FSR","Pt of probe ok",100,0,100);
+
+  h_trackProbe_eta_FSR = fs->make<TH1D>("trackProbeEta_FSR","Eta of tracks",100,-2.0,2.0);
+  h_trackProbe_pt_FSR  = fs->make<TH1D>("trackProbePt_FSR","Pt of tracks",100,0,100);
+  h_staProbe_eta_FSR  = fs->make<TH1D>("standAloneProbeEta_FSR","Eta of standAlone",100,-2.0,2.0);
+  h_staProbe_pt_FSR  = fs->make<TH1D>("standAloneProbePt_FSR","Pt of standAlone",100,0,100);
+  h_ProbeOk_eta_FSR  = fs->make<TH1D>("probeOkEta_FSR","Eta of probe Ok",100,-2.0,2.0);
+  h_ProbeOk_pt_FSR  = fs->make<TH1D>("probeOkPt_FSR","Pt of probe ok",100,0,100);
+
+
 
 }
 
@@ -156,13 +176,25 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	  
 	  double  Tracker_isovalue_mu0 = mu0TrackIso->sumWithin(dRTrk_,vetos_mu0);
 	  double  Tracker_isovalue_mu1 = mu1TrackIso->sumWithin(dRTrk_,vetos_mu1);
-
+	 
+	  //trigger study 
+	  trig0found = false;
+	  trig1found = false;
+	  const std::vector<pat::TriggerPrimitive> & trig0 =mu0.triggerMatches();//vector of triggerPrimitive
+	  const std::vector<pat::TriggerPrimitive> & trig1 =mu1.triggerMatches();
+	  for (unsigned int j=0; j<trig0.size();j++) {
+	    if (trig0[j].filterName()=="hltSingleMuNoIsoL3PreFiltered") trig0found = true;
+	  }
+	  for (unsigned int j=0; j<trig1.size();j++) {
+	    if (trig1[j].filterName()=="hltSingleMuNoIsoL3PreFiltered") trig1found = true;
+	  }
+      
 	  //MonteCarlo Study
 	  const reco::GenParticle * muMc0 = mu0.genLepton();
 	  const reco::GenParticle * muMc1 = mu1.genLepton();
 	  const Candidate * motherMu0 =  muMc0->mother();
-	  const Candidate * motherMu1 =  muMc1->mother();
 	  int num_dau_muon0 = motherMu0->numberOfDaughters();
+	  const Candidate * motherMu1 =  muMc1->mother();
 	  int num_dau_muon1 = motherMu1->numberOfDaughters();
 	  cout<<"         muone0"<<endl;
 	  cout<<"         num di daughters = "<< num_dau_muon0 <<endl;
@@ -173,8 +205,7 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	      if(id == 22) FSR_mu0=true;
 	    }
 	  }//end check of gamma
-	  if(FSR_mu0) h_Iso_FSR_->Fill(Tracker_isovalue_mu1);
-	  else h_Iso_->Fill(Tracker_isovalue_mu0);
+
 	  cout<<"         muone1"<<endl;
 	  cout<<"         num di daughters = "<< num_dau_muon1 <<endl;
 	  if( num_dau_muon1 > 1 ){
@@ -184,11 +215,65 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	      if(id == 22) FSR_mu1=true;
 	    }
 	  }//end check of gamma
-	  if(FSR_mu1) h_Iso_FSR_->Fill(Tracker_isovalue_mu1);
-	  else h_Iso_->Fill(Tracker_isovalue_mu1);
 	
 	  if(FSR_mu0 || FSR_mu1 )h_zmass_FSR->Fill(zmass);
 	  else h_zmass_no_FSR->Fill(zmass);
+
+	  if (!trig0found ) {       // check efficiency of muon0 not imposing the trigger on it 
+	    cout<<"muon 0 isn't triggered "<<endl;
+	    if(FSR_mu0){
+	      cout<< "end does FSR"<<endl;
+	      h_trackProbe_eta_FSR->Fill(eta0);
+	      h_trackProbe_pt_FSR->Fill(pt0);
+	      h_staProbe_eta_FSR->Fill(eta0);
+	      h_staProbe_pt_FSR->Fill(pt0);
+	      h_ProbeOk_eta_FSR->Fill(eta0);
+	      h_ProbeOk_pt_FSR->Fill(pt0);
+	    }else{
+	      cout<<"end doesn't FSR"<<endl;
+	      h_trackProbe_eta_no_FSR->Fill(eta0);
+	      h_trackProbe_pt_no_FSR->Fill(pt0);
+	      h_staProbe_eta_no_FSR->Fill(eta0);
+	      h_staProbe_pt_no_FSR->Fill(pt0);
+	      h_ProbeOk_eta_no_FSR->Fill(eta0);
+	      h_ProbeOk_pt_no_FSR->Fill(pt0);
+	    }
+	    if(FSR_mu0){
+	      h_Iso_FSR_->Fill(Tracker_isovalue_mu0);
+	      h_Iso_FSR_3D_->Fill(pt0,eta0,Tracker_isovalue_mu0);
+	    }
+	    else{
+	      h_Iso_->Fill(Tracker_isovalue_mu0);
+	      h_Iso_3D_->Fill(pt0,eta0,Tracker_isovalue_mu0);
+	    }
+	  }
+	  if (!trig1found) {         // check efficiency of muon1 not imposing the trigger on it 
+	    cout<<"muon 1 isn't triggered"<<endl;
+	    if(FSR_mu1){ 
+	      cout<<"and does FSR"<<endl;
+	      h_trackProbe_eta_FSR->Fill(eta1);
+	      h_staProbe_eta_FSR->Fill(eta1);
+	      h_trackProbe_pt_FSR->Fill(pt1);
+	      h_staProbe_pt_FSR->Fill(pt1);
+	      h_ProbeOk_eta_FSR->Fill(eta1);
+	      h_ProbeOk_pt_FSR->Fill(pt1);
+	    }else{
+	      cout<<"and doesn't FSR"<<endl;
+	      h_trackProbe_eta_no_FSR->Fill(eta1);
+	      h_staProbe_eta_no_FSR->Fill(eta1);
+	      h_trackProbe_pt_no_FSR->Fill(pt1);
+	      h_staProbe_pt_no_FSR->Fill(pt1);
+	      h_ProbeOk_eta_no_FSR->Fill(eta1);
+	      h_ProbeOk_pt_no_FSR->Fill(pt1);
+	    }
+	    if(FSR_mu1){
+	      h_Iso_FSR_->Fill(Tracker_isovalue_mu1);
+	      h_Iso_FSR_3D_->Fill(pt1,eta1,Tracker_isovalue_mu1);
+	    }else{ 
+	      h_Iso_->Fill(Tracker_isovalue_mu1);
+	      h_Iso_3D_->Fill(pt1,eta1,Tracker_isovalue_mu1);
+	    }
+	  }
 	}// end MC match
       }//end of cuts
      }// end loop on ZMuMu cand
@@ -201,10 +286,10 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
      
       const Candidate & zMuSaCand = (*zMuSa)[i]; //the candidate
       CandidateBaseRef zMuSaCandRef = zMuSa->refAt(i);
-
-       
-      CandidateBaseRef dau0 = zMuSaCand.daughter(0)->masterClone();
-      CandidateBaseRef dau1 = zMuSaCand.daughter(1)->masterClone();
+      const Candidate *  lep0 =zMuSaCand.daughter(0);  
+      const Candidate *  lep1 =zMuSaCand.daughter(1);  
+      CandidateBaseRef dau0 = lep0->masterClone();
+      CandidateBaseRef dau1 = lep1->masterClone();
       const pat::Muon& mu0 = dynamic_cast<const pat::Muon&>(*dau0);//cast in patMuon
       const pat::Muon& mu1 = dynamic_cast<const pat::Muon&>(*dau1);
             
@@ -216,10 +301,10 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
       if(pt0>20 && pt1 > 20 && abs(eta0)<2 && abs(eta1)<2 && zmass > 20 && zmass < 200){
 	GenParticleRef zMuSaMatch = (*zMuSaMatchMap)[zMuSaCandRef];
 	if(zMuSaMatch.isNonnull()) {  // ZMuSa matched
-	  cout<<"         Zmumu cuts && matched" <<endl;
+	  cout<<"         Zmusa cuts && matched" <<endl;
 	  FSR_mu0 = false;
 	  FSR_mu1 = false;
-	  
+	  zmscounter++;	  
 	  //Isodeposit
 	  const pat::IsoDeposit * mu0TrackIso =mu0.trackerIsoDeposit();
 	  const pat::IsoDeposit * mu1TrackIso =mu1.trackerIsoDeposit();
@@ -237,6 +322,19 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	  double  Tracker_isovalue_mu0 = mu0TrackIso->sumWithin(dRTrk_,vetos_mu0);
 	  double  Tracker_isovalue_mu1 = mu1TrackIso->sumWithin(dRTrk_,vetos_mu1);
 
+	  // HLT match (check just dau0 the global)
+	  const std::vector<pat::TriggerPrimitive> & trig0 =mu0.triggerMatches();//vector of triggerPrimitive
+	  const std::vector<pat::TriggerPrimitive> & trig1 =mu1.triggerMatches();
+	  trig0found = false;
+	  trig1found = false;
+	  for (unsigned int j=0; j<trig0.size();j++) {
+	    if (trig0[j].filterName()=="hltSingleMuNoIsoL3PreFiltered") trig0found = true;
+	  }
+	  for (unsigned int j=0; j<trig1.size();j++) {
+	    if (trig1[j].filterName()=="hltSingleMuNoIsoL3PreFiltered") trig1found = true;
+	  }
+
+
 	  //MonteCarlo Study
 	  const reco::GenParticle * muMc0 = mu0.genLepton();
 	  const reco::GenParticle * muMc1 = mu1.genLepton();
@@ -253,8 +351,7 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	      if(id == 22) FSR_mu0=true;
 	    }
 	  }//end check of gamma
-	  if(FSR_mu0) h_Iso_FSR_->Fill(Tracker_isovalue_mu1);
-	  else h_Iso_->Fill(Tracker_isovalue_mu0);
+
 	  cout<<"         muone1"<<endl;
 	  cout<<"         num di daughters = "<< num_dau_muon1 <<endl;
 	  if( num_dau_muon1 > 1 ){
@@ -264,17 +361,46 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	      if(id == 22) FSR_mu1=true;
 	    }
 	  }//end check of gamma
-	  if(FSR_mu1) h_Iso_FSR_->Fill(Tracker_isovalue_mu1);
-	  else h_Iso_->Fill(Tracker_isovalue_mu1);
-	
 	  if(FSR_mu0 || FSR_mu1 )h_zMuSamass_FSR->Fill(zmass);
 	  else h_zMuSamass_no_FSR->Fill(zmass);
+	  if(lep0->isGlobalMuon() && trig0found && !trig1found){ 
+	    if(FSR_mu1){
+	      h_staProbe_eta_FSR->Fill(eta1);
+	      h_staProbe_pt_FSR->Fill(pt1);
+	    }else{
+	      h_staProbe_eta_no_FSR->Fill(eta1);
+	      h_staProbe_pt_no_FSR->Fill(pt1);
+	    }
+	    if(FSR_mu1){
+	      h_Iso_FSR_->Fill(Tracker_isovalue_mu1);
+	      h_Iso_FSR_3D_->Fill(pt1,eta1,Tracker_isovalue_mu1);
+	    }
+	    else{ 
+	      h_Iso_->Fill(Tracker_isovalue_mu1);
+	      h_Iso_3D_->Fill(pt1,eta1,Tracker_isovalue_mu1);
+	    }
+	  }
+	  if(lep1->isGlobalMuon() && trig1found && !trig0found){ 
+	    if(FSR_mu0){
+	      h_staProbe_eta_FSR->Fill(eta0);
+	      h_staProbe_pt_FSR->Fill(pt0);
+	    }else{
+	      h_staProbe_eta_no_FSR->Fill(eta0);
+	      h_staProbe_pt_no_FSR->Fill(pt0);
+	    }
+	    if(FSR_mu0){
+	      h_Iso_FSR_->Fill(Tracker_isovalue_mu0);
+	      h_Iso_FSR_3D_->Fill(pt0,eta0,Tracker_isovalue_mu0);
+	    }
+	    else{ 
+	      h_Iso_->Fill(Tracker_isovalue_mu0);
+	      h_Iso_3D_->Fill(pt0,eta0,Tracker_isovalue_mu0);
+	    }
+	  }
 	}// end MC match
       }//end of cuts
      }// end loop on ZMuSa cand
   }// end if ZMuSa size > 0
-
-
 
   //ZMuTk  
   if (zMuTk->size() > 0 ) {
@@ -282,8 +408,6 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
     for(size_t i = 0; i < zMuTk->size(); ++i) { //loop on candidates
       const Candidate & zMuTkCand = (*zMuTk)[i]; //the candidate
       CandidateBaseRef zMuTkCandRef = zMuTk->refAt(i);
-      
-      
       CandidateBaseRef dau0 = zMuTkCand.daughter(0)->masterClone();
       CandidateBaseRef dau1 = zMuTkCand.daughter(1)->masterClone();
       const pat::Muon& mu0 = dynamic_cast<const pat::Muon&>(*dau0);//cast in patMuon
@@ -301,6 +425,7 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	  FSR_mu = false;
 	  FSR_tk = false;
 	  cout<<"          ZmuTk cuts && matched"<<endl;
+	  zmtcounter++;
 	  //Isodeposit
 	  const pat::IsoDeposit * muTrackIso =mu0.trackerIsoDeposit();
 	  const pat::IsoDeposit * tkTrackIso =mu1.trackerIsoDeposit();
@@ -319,7 +444,6 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	  double  Tracker_isovalue_tk = tkTrackIso->sumWithin(dRTrk_,vetos_tk);
 	  
 	  //MonteCarlo Study
-	
 	  const reco::GenParticle * muMc0 = mu0.genLepton();
 	  const reco::GenParticle * muMc1 = mu1.genParticle() ;
 	  const Candidate * motherMu0 =  muMc0->mother();
@@ -355,10 +479,27 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	  else cout<<"         dau[0] pdg ID = "<<motherMu1->daughter(0)->pdgId()<<endl;
 	  cout<<"Mu Isolation = "<< Tracker_isovalue_mu <<endl;
 	  cout<<"Track Isolation = "<< Tracker_isovalue_tk <<endl;
-	  if(FSR_mu)h_Iso_FSR_->Fill(Tracker_isovalue_mu);
-	  else h_Iso_->Fill( Tracker_isovalue_mu);
-	  if(FSR_tk)h_Iso_FSR_->Fill(Tracker_isovalue_tk);
-	  else h_Iso_->Fill( Tracker_isovalue_tk);
+	  if(FSR_mu){
+	    h_Iso_FSR_->Fill(Tracker_isovalue_mu);
+	    h_Iso_FSR_3D_->Fill(pt0,eta0,Tracker_isovalue_mu);
+	  }  
+	  else{ 
+	    h_Iso_->Fill( Tracker_isovalue_mu);
+	    h_Iso_3D_->Fill(pt0,eta0,Tracker_isovalue_mu);
+
+	  }
+	  if(FSR_tk){
+	    h_Iso_FSR_->Fill(Tracker_isovalue_tk);
+	    h_Iso_FSR_3D_->Fill(pt1,eta1,Tracker_isovalue_tk);
+	    h_trackProbe_eta_FSR->Fill(eta1);
+	    h_trackProbe_pt_FSR->Fill(pt1);
+ 	  }
+	  else{
+	    h_Iso_->Fill( Tracker_isovalue_tk);
+	    h_Iso_3D_->Fill(pt1,eta1,Tracker_isovalue_tk);
+	    h_trackProbe_eta_no_FSR->Fill(eta1);
+	    h_trackProbe_pt_no_FSR->Fill(pt1);
+	  }
 	}// end MC match
       }//end Kine-cuts
     }// end loop on ZMuTk cand
@@ -368,17 +509,19 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 
 
 void ZMuMu_Radiative_analyzer::endJob() {
-  cout <<" Numero di ZMuMu matched dopo i tagli cinematici = "<< zmmcounter << endl;
-  cout <<" Numero di ZMuSa matched dopo i tagli cinematici = "<< zmscounter << endl;
-  cout <<" Numero di ZMuTk matched dopo i tagli cinematici = "<< zmtcounter << endl;
-  int n1= h_Iso_FSR_->Integral();
-  int icut1= h_Iso_FSR_->Integral(0,15);
+  cout<<" ============= Summary =========="<<endl;
+  cout <<" 1)Numero di ZMuMu matched dopo i tagli cinematici = "<< zmmcounter << endl;
+  cout <<" 2)Numero di ZMuSa matched dopo i tagli cinematici = "<< zmscounter << endl;
+  cout <<" 3)Numero di ZMuTk matched dopo i tagli cinematici = "<< zmtcounter << endl;
+  double n1= h_Iso_FSR_->Integral();
+  double icut1= h_Iso_FSR_->Integral(0,15);
   double eff_iso_FSR = (double)icut1/(double)n1;
   double err_iso_FSR = sqrt(eff_iso_FSR*(1-eff_iso_FSR)/n1);
-  int n2= h_Iso_->Integral();
-  int icut2= h_Iso_->Integral(0,15);
+  double n2= h_Iso_->Integral();
+  double icut2= h_Iso_->Integral(0,15);
   double eff_iso= (double)icut2/(double)n2;
   double err_iso = sqrt(eff_iso*(1-eff_iso)/n2);
+  cout<<" ============= Isolation Efficiecy =========="<<endl;
   cout<<"Isolation Efficiency  = "<< eff_iso <<" +/- "<< err_iso <<endl;
   cout<<"Isolation Efficiency with FSR = "<< eff_iso_FSR <<" +/- "<< err_iso_FSR <<endl;
 
