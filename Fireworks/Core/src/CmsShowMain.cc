@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.68 2009/01/23 21:35:42 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.69 2009/03/05 22:01:51 chrjones Exp $
 //
 
 // system include files
@@ -56,6 +56,7 @@
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
 #include "Fireworks/Core/interface/FWTextView.h"
@@ -143,20 +144,23 @@ static char const* const kBrightnessCommandOpt = "brightness";
 CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_configurationManager(new FWConfigurationManager),
    m_changeManager(new FWModelChangeManager),
+   m_colorManager( new FWColorManager(m_changeManager.get())),
    m_selectionManager(new FWSelectionManager(m_changeManager.get())),
    m_eiManager(new FWEventItemsManager(m_changeManager.get(),
                                        m_selectionManager.get())),
-   m_viewManager( new FWViewManagerManager(m_changeManager.get())),
+   m_viewManager( new FWViewManagerManager(m_changeManager.get(), m_colorManager.get())),
    m_textView(0),
    m_context(new fireworks::Context(m_changeManager.get(),
                                     m_selectionManager.get(),
-                                    m_eiManager.get())),
+                                    m_eiManager.get(),
+                                    m_colorManager.get())),
    m_playTimer(0),
    m_playBackTimer(0),
    m_isPlaying(false),
    m_playDelay(3.f)
    //  m_configFileName(iConfigFileName)
 {
+   //m_colorManager->setBackgroundColorIndex(FWColorManager::kWhiteIndex);
    m_eiManager->setContext(m_context.get());
    try {
       std::string descString(argv[0]);
@@ -232,6 +236,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       m_guiManager = std::auto_ptr<FWGUIManager>(new FWGUIManager(m_selectionManager.get(),
                                                                   m_eiManager.get(),
                                                                   m_changeManager.get(),
+                                                                  m_colorManager.get(),
                                                                   m_viewManager.get(),
                                                                   false));
 

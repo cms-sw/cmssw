@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.63 2009/01/12 17:23:48 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.64 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -41,6 +41,7 @@
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
@@ -68,13 +69,15 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
                                bool iNewLego) :
    m_configurationManager(new FWConfigurationManager),
    m_changeManager(new FWModelChangeManager),
+   m_colorManager( new FWColorManager(m_changeManager.get())),
    m_selectionManager(new FWSelectionManager(m_changeManager.get())),
    m_eiManager(new FWEventItemsManager(m_changeManager.get(),
                                        m_selectionManager.get())),
-   m_viewManager( new FWViewManagerManager(m_changeManager.get())),
+   m_viewManager( new FWViewManagerManager(m_changeManager.get(),m_colorManager.get())),
    m_guiManager(new FWGUIManager(m_selectionManager.get(),
                                  m_eiManager.get(),
                                  m_changeManager.get(),
+                                 m_colorManager.get(),
                                  m_viewManager.get(),
                                  iEnableDebug)),
 //   m_textView(new FWTextView(this, &*m_selectionManager)),
