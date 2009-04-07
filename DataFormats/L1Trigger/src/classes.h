@@ -18,6 +18,7 @@
 #include "DataFormats/L1Trigger/interface/L1DataEmulRecord.h"
 #include "DataFormats/L1Trigger/interface/L1HFRings.h"
 #include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
+#include "DataFormats/L1Trigger/interface/L1TriggerError.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -72,5 +73,10 @@ namespace {
 
      L1DataEmulRecord der;
      edm::Wrapper<L1DataEmulRecord> w_der;
+
+     L1TriggerError l1tErr;
+     L1TriggerErrorCollection l1tErrColl;
+     edm::Wrapper<L1TriggerErrorCollection> w_l1terr;
+
   };
 }

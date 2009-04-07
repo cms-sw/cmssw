@@ -60,4 +60,9 @@
   <class name="L1DataEmulRecord"/>
   <class name="edm::Wrapper<L1DataEmulRecord>"/>
 
+  <class name="L1TriggerError"/>
+  <class name="std::vector<L1TriggerError>"/>
+  <class name="edm::Wrapper<std::vector<L1TriggerError> >"/>
+
+
 </lcgdict>
