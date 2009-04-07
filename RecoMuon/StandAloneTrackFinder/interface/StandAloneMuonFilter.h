@@ -4,8 +4,8 @@
 /** \class StandAloneMuonFilter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2007/12/19 15:44:15 $
- *  $Revision: 1.28 $
+ *  $Date: 2008/04/23 16:56:34 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -62,9 +62,18 @@ class StandAloneMuonFilter {
   int getCSCChamberUsed() const {return cscChambers;}
   int getRPCChamberUsed() const {return rpcChambers;}
 
+  int getTotalCompatibleChambers() const {return totalCompatibleChambers;}
+  int getDTCompatibleChambers() const {return dtCompatibleChambers;}
+  int getCSCCompatibleChambers() const {return cscCompatibleChambers;}
+  int getRPCCompatibleChambers() const {return rpcCompatibleChambers;}
+
   inline bool goodState() const {return totalChambers >= 2 && 
 				   ((dtChambers + cscChambers) >0 ||
 				    onlyRPC());}
+  
+  inline bool isCompatibilitySatisfied() const {return totalCompatibleChambers >= 2 && 
+						  ((dtCompatibleChambers + cscCompatibleChambers) >0 ||
+						   onlyRPC());}
   
   /// return the layer used for the refit
   std::vector<const DetLayer*> layers() const {return theDetLayers;}
@@ -163,6 +172,11 @@ private:
   int dtChambers;
   int cscChambers;
   int rpcChambers;
+
+  int totalCompatibleChambers;
+  int dtCompatibleChambers;
+  int cscCompatibleChambers;
+  int rpcCompatibleChambers;
 
   const MuonServiceProxy *theService;
   bool theOverlappingChambersFlag;
