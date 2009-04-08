@@ -9,7 +9,7 @@
 *
 * \author Robert Frazier
 * $Revision: 1.1 $
-* $Date: 2009/04/07 10:51:06 $
+* $Date: 2009/04/08 15:11:17 $
 */ 
 
 // ************************************************************************
@@ -155,10 +155,10 @@ private:
   void blockToGctWheelInputInternEtAndRingSums(const unsigned char * d, const GctBlockHeader& hdr);
 
   /// unpack GCT internal Missing Ht data that is being input to the wheels.
-  void blockToGctInternHtMissPreWheel(const unsigned char* d, const GctBlockHeaderBase& hdr); 
+  void blockToGctInternHtMissPreWheel(const unsigned char* d, const GctBlockHeader& hdr); 
 
   /// unpack GCT internal Missing Ht data that is either wheel output or concJet input (i.e. after wheel processing).
-  void blockToGctInternHtMissPostWheel(const unsigned char* d, const GctBlockHeaderBase& hdr);
+  void blockToGctInternHtMissPostWheel(const unsigned char* d, const GctBlockHeader& hdr);
 };
 
 #endif

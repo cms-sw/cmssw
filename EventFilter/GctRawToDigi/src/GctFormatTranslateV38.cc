@@ -1127,7 +1127,7 @@ void GctFormatTranslateV38::blockToGctWheelOutputInternEtAndRingSums(const unsig
   }
 }
 
-void GctFormatTranslateV38::blockToGctInternHtMissPreWheel(const unsigned char* d, const GctBlockHeaderBase& hdr)
+void GctFormatTranslateV38::blockToGctInternHtMissPreWheel(const unsigned char* d, const GctBlockHeader& hdr)
 {
   // Don't want to do this in HLT optimisation mode!
   if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of pre-wheel internal Missing Ht data"; return; }
@@ -1150,7 +1150,7 @@ void GctFormatTranslateV38::blockToGctInternHtMissPreWheel(const unsigned char* 
   }
 }
 
-void GctFormatTranslateV38::blockToGctInternHtMissPostWheel(const unsigned char* d, const GctBlockHeaderBase& hdr)
+void GctFormatTranslateV38::blockToGctInternHtMissPostWheel(const unsigned char* d, const GctBlockHeader& hdr)
 {
   // Don't want to do this in HLT optimisation mode!
   if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of post-wheel internal Missing Ht data"; return; }

@@ -15,6 +15,7 @@
 // GCT Format Translators
 #include "EventFilter/GctRawToDigi/src/GctFormatTranslateMCLegacy.h"
 #include "EventFilter/GctRawToDigi/src/GctFormatTranslateV35.h"
+#include "EventFilter/GctRawToDigi/src/GctFormatTranslateV38.h"
 
 // Unpack collections class
 #include "EventFilter/GctRawToDigi/src/GctUnpackCollections.h"
