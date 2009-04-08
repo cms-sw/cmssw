@@ -45,26 +45,28 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
   for ( edm::DetSetVector<SiStripRawDigi>::const_iterator 
 	  rawDigis = input.begin(); rawDigis != input.end(); rawDigis++) {
     
-
     edm::DetSet<SiStripDigi> suppressedDigis(rawDigis->id);
 
-    if ( "ProcessedRaw" == inputTag.instance()) 
-      algorithms->suppressor->suppress( *rawDigis, suppressedDigis ); else 
+    if ( "ProcessedRaw" == inputTag.instance()) {
+      std::vector<int16_t> processedRawDigis;
+      transform(rawDigis->begin(), rawDigis->end(), back_inserter(processedRawDigis), boost::bind(&SiStripRawDigi::adc , _1));
+      algorithms->subtractorCMN->subtract( rawDigis->id, processedRawDigis);
+      algorithms->suppressor->suppress( processedRawDigis, suppressedDigis );
+    } else
 
     if ( "VirginRaw" == inputTag.instance()) {
       std::vector<int16_t> processedRawDigis(rawDigis->size());
       algorithms->subtractorPed->subtract( *rawDigis, processedRawDigis);
       algorithms->subtractorCMN->subtract( rawDigis->id, processedRawDigis);
       algorithms->suppressor->suppress( processedRawDigis, suppressedDigis );
-    }
+    } else 
 
-    else throw cms::Exception("Unknown input type") 
+    throw cms::Exception("Unknown input type") 
       << inputTag.instance() << " unknown.  SiStripZeroZuppression can only process types \"VirginRaw\" and \"ProcessedRaw\" ";
     
-    
+
     if (suppressedDigis.size()) 
       output.push_back(suppressedDigis); 
-
 
   }
 }
