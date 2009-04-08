@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:20 CDT 2008
-// $Id: LutXml.cc,v 1.5 2008/06/03 10:35:18 kukartse Exp $
+// $Id: LutXml.cc,v 1.6 2009/03/02 23:42:25 kukartse Exp $
 //
 
 #include <iostream>
@@ -22,25 +22,27 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
 #include "FWCore/Utilities/interface/md5.h"
 
+//
+//_____ following removed as a xalan-c component_____________________
+//
 // xalan-c init
-#include <xalanc/Include/PlatformDefinitions.hpp>
-#include <xalanc/XPath/XPathEvaluator.hpp>
-#include <xercesc/framework/LocalFileInputSource.hpp>
-XALAN_USING_XERCES(XMLPlatformUtils)
-#include <xalanc/XSLT/XSLTInputSource.hpp>
-#include <xalanc/PlatformSupport/XSLException.hpp>
+//#include <xalanc/Include/PlatformDefinitions.hpp>
+//#include <xalanc/XPath/XPathEvaluator.hpp>
+//#include <xercesc/framework/LocalFileInputSource.hpp>
+//XALAN_USING_XERCES(XMLPlatformUtils)
+//#include <xalanc/XSLT/XSLTInputSource.hpp>
+//#include <xalanc/PlatformSupport/XSLException.hpp>
+//#include <xalanc/DOMSupport/XalanDocumentPrefixResolver.hpp>
+//#include <xalanc/XPath/XObject.hpp>
+//#include <xalanc/XalanSourceTree/XalanSourceTreeDOMSupport.hpp>
+//#include <xalanc/XalanSourceTree/XalanSourceTreeInit.hpp>
+//#include <xalanc/XalanSourceTree/XalanSourceTreeParserLiaison.hpp>  
+//using namespace xalanc;
 
-#include <xalanc/DOMSupport/XalanDocumentPrefixResolver.hpp>
-#include <xalanc/XPath/XObject.hpp>
-#include <xalanc/XalanSourceTree/XalanSourceTreeDOMSupport.hpp>
-#include <xalanc/XalanSourceTree/XalanSourceTreeInit.hpp>
-#include <xalanc/XalanSourceTree/XalanSourceTreeParserLiaison.hpp>  
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
-
-using namespace xalanc;
 
 using namespace std;
 
@@ -132,6 +134,10 @@ std::vector<unsigned int> * LutXml::getLutFast( uint32_t det_id ){
   }
 }
 
+//
+//_____ following removed as a xalan-c component_____________________
+//
+/*
 std::vector<unsigned int> LutXml::getLut( int lut_type, int crate, int slot, int topbottom, int fiber, int fiber_channel ){
   std::vector<unsigned int> _lut;
   //write();
@@ -192,7 +198,7 @@ std::vector<unsigned int> LutXml::getLut( int lut_type, int crate, int slot, int
 
   return _lut;
 }
-
+*/
 
 
 // checksums_xml is 0 by default
@@ -413,6 +419,10 @@ int LutXml::test_access( std::string filename ){
   return 0;
 }
 
+//
+//_____ following removed as a xalan-c component_____________________
+//
+/*
 int LutXml::test_xpath( std::string filename ){
   // http://svn.apache.org/repos/asf/xalan/c/tags/Xalan-C_1_10_0/samples/SimpleXPathAPI/SimpleXPathAPI.cpp
   
@@ -438,7 +448,7 @@ int LutXml::test_xpath( std::string filename ){
   }
   return 0;
 }
-
+*/
 
 HcalSubdetector LutXml::subdet_from_crate(int crate, int eta, int depth){
   HcalSubdetector result;

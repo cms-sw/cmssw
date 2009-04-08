@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:33 CDT 2008
-// $Id: LutXml.h,v 1.4 2008/06/03 10:35:18 kukartse Exp $
+// $Id: LutXml.h,v 1.5 2009/03/02 23:42:22 kukartse Exp $
 //
 
 #include <vector>
@@ -51,7 +51,10 @@ class LutXml : public XMLDOMBlock
   std::string & getCurrentBrick( void );
   
   std::vector<unsigned int> * getLutFast( uint32_t det_id );
-  std::vector<unsigned int> getLut( int lut_type, int crate, int slot, int topbottom, int fiber, int fiber_channel );
+  //
+  //_____ following removed as a xalan-c component_____________________
+  //
+  //std::vector<unsigned int> getLut( int lut_type, int crate, int slot, int topbottom, int fiber, int fiber_channel );
 
   HcalSubdetector subdet_from_crate(int crate, int eta, int depth);
   int a_to_i(char * inbuf);
@@ -59,7 +62,10 @@ class LutXml : public XMLDOMBlock
 
   static std::string get_checksum( std::vector<unsigned int> & lut );
 
-  int test_xpath( std::string filename );
+  //
+  //_____ following removed as a xalan-c component_____________________
+  //
+  //int test_xpath( std::string filename );
   int test_access( std::string filename );
 
   //LutXml & operator+=( const LutXml & other);

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Sep 21 15:56:27 CEST 2007
-// $Id: XMLProcessor.cc,v 1.4 2008/04/22 22:08:01 kukartse Exp $
+// $Id: XMLProcessor.cc,v 1.5 2009/03/02 23:42:25 kukartse Exp $
 //
 
 // system include files
@@ -28,13 +28,13 @@
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 
 // xalan-c init
-#include <xalanc/Include/PlatformDefinitions.hpp>
-#include <xalanc/XPath/XPathEvaluator.hpp>
+//#include <xalanc/Include/PlatformDefinitions.hpp>
+//#include <xalanc/XPath/XPathEvaluator.hpp>
 //#include <xalanc/XalanTransformer/XalanTransformer.hpp>
+//using namespace xalanc;
 
 using namespace std;
 XERCES_CPP_NAMESPACE_USE 
-using namespace xalanc;
 
 // user include files
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
@@ -298,10 +298,13 @@ XMLCh * XMLProcessor::serializeDOM(DOMNode* node, string target)
 
 int XMLProcessor::init( void )
 {
-  cout << "Intializing Xerces-c and Xalan-c...";
+  cout << "Intializing Xerces-c...";
   try {
     XMLPlatformUtils::Initialize();
-    XPathEvaluator::initialize();
+    //
+    //_____ following removed as a xalan-c component_____________________
+    //
+    //XPathEvaluator::initialize();
   }
   catch (const XMLException& toCatch) {
     cout << " FAILED! Exiting..." << endl;
@@ -314,9 +317,12 @@ int XMLProcessor::init( void )
 
 int XMLProcessor::terminate( void )
 {
-  cout << "Terminating Xalan-c...";
-  XPathEvaluator::terminate();
-  cout << " done" << endl;
+  //
+  //_____ following removed as a xalan-c component_____________________
+  //
+  //cout << "Terminating Xalan-c...";
+  //XPathEvaluator::terminate();
+  //cout << " done" << endl;
 
   cout << "Terminating Xerces-c...";
   XMLPlatformUtils::Terminate();

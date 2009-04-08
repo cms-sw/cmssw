@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:46:46 CEST 2007
-// $Id: XMLDOMBlock.h,v 1.7 2008/10/01 13:34:22 kukartse Exp $
+// $Id: XMLDOMBlock.h,v 1.8 2009/03/02 23:42:22 kukartse Exp $
 //
 
 
@@ -26,15 +26,17 @@
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/dom/DOM.hpp>
 
-#include <xalanc/DOMSupport/XalanDocumentPrefixResolver.hpp>
-//#include <xalanc/XPath/XObject.hpp>
-#include <xalanc/XalanSourceTree/XalanSourceTreeDOMSupport.hpp>
-#include <xalanc/XalanSourceTree/XalanSourceTreeInit.hpp>
-#include <xalanc/XalanSourceTree/XalanSourceTreeParserLiaison.hpp>  
-#include <xercesc/framework/LocalFileInputSource.hpp>
-#include <xalanc/XPath/XPathEvaluator.hpp>
-
-using namespace xalanc;
+//
+//_____ following removed as a xalan-c component_____________________
+//
+//#include <xalanc/DOMSupport/XalanDocumentPrefixResolver.hpp>
+////#include <xalanc/XPath/XObject.hpp>
+//#include <xalanc/XalanSourceTree/XalanSourceTreeDOMSupport.hpp>
+//#include <xalanc/XalanSourceTree/XalanSourceTreeInit.hpp>
+//#include <xalanc/XalanSourceTree/XalanSourceTreeParserLiaison.hpp>  
+//#include <xercesc/framework/LocalFileInputSource.hpp>
+//#include <xalanc/XPath/XPathEvaluator.hpp>
+//using namespace xalanc;
 
 XERCES_CPP_NAMESPACE_USE 
 using namespace std;
@@ -74,9 +76,12 @@ class XMLDOMBlock
 
   XMLDOMBlock & operator+=( const XMLDOMBlock & other);
 
+  //
+  //_____ following removed as a xalan-c component_____________________
+  //
   //===> Xalan-c (XPath) stuff
-  int read_xml_file_xalan( std::string filename );
-  const XObjectPtr eval_xpath( std::string context, std::string expression );
+  //int read_xml_file_xalan( std::string filename );
+  //const XObjectPtr eval_xpath( std::string context, std::string expression );
 
  protected:
 
@@ -89,14 +94,17 @@ class XMLDOMBlock
   string theFileName;
   std::string * the_string;
 
+  //
+  //_____ following removed as a xalan-c component_____________________
+  //
   // xalan objects for XPath
-  XalanSourceTreeInit * theSourceTreeInit;
-  XalanSourceTreeDOMSupport * theDOMSupport;
-  XalanSourceTreeParserLiaison * theLiaison;
-  const LocalFileInputSource * theInputSource;
-  XalanDocument * theDocument;
-  XalanDocumentPrefixResolver * thePrefixResolver;
-  XPathEvaluator * theEvaluator;
+  //XalanSourceTreeInit * theSourceTreeInit;
+  //XalanSourceTreeDOMSupport * theDOMSupport;
+  //XalanSourceTreeParserLiaison * theLiaison;
+  //const LocalFileInputSource * theInputSource;
+  //XalanDocument * theDocument;
+  //XalanDocumentPrefixResolver * thePrefixResolver;
+  //XPathEvaluator * theEvaluator;
 
 };
 

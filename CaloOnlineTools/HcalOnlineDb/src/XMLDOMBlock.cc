@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:43:42 CEST 2007
-// $Id: XMLDOMBlock.cc,v 1.7 2008/10/01 13:34:23 kukartse Exp $
+// $Id: XMLDOMBlock.cc,v 1.8 2009/03/02 23:42:25 kukartse Exp $
 //
 
 // system include files
@@ -18,7 +18,11 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/dom/DOM.hpp>
-#include <xalanc/XPath/XObject.hpp>
+
+//
+//_____ following removed as a xalan-c component_____________________
+//
+//#include <xalanc/XPath/XObject.hpp>
 
 XERCES_CPP_NAMESPACE_USE 
 using namespace std;
@@ -62,6 +66,10 @@ XMLDOMBlock::XMLDOMBlock( string _root, int rootElementName )
 
 XMLDOMBlock::XMLDOMBlock( InputSource & _source )
 {
+  //
+  //_____ following removed as a xalan-c component_____________________
+  //
+  /*
   // xalan objects initialization
   theSourceTreeInit = 0;
   theDOMSupport = 0;
@@ -70,6 +78,7 @@ XMLDOMBlock::XMLDOMBlock( InputSource & _source )
   theDocument = 0;
   thePrefixResolver = 0;
   theEvaluator = 0;
+  */
 
   theProcessor = XMLProcessor::getInstance();
 
@@ -181,6 +190,10 @@ int XMLDOMBlock::init( string _root )
 
   the_string = 0;
 
+  //
+  //_____ following removed as a xalan-c component_____________________
+  //
+  /*
   // xalan objects initialization
   theSourceTreeInit = 0;
   theDOMSupport = 0;
@@ -189,7 +202,7 @@ int XMLDOMBlock::init( string _root )
   theDocument = 0;
   thePrefixResolver = 0;
   theEvaluator = 0;
-
+  */
   return 0;
 }
 
@@ -197,6 +210,10 @@ int XMLDOMBlock::init( string _root )
 
 XMLDOMBlock::XMLDOMBlock( string xmlFileName )
 {
+  //
+  //_____ following removed as a xalan-c component_____________________
+  //
+  /*
   // xalan objects initialization
   theSourceTreeInit = 0;
   theDOMSupport = 0;
@@ -205,6 +222,7 @@ XMLDOMBlock::XMLDOMBlock( string xmlFileName )
   theDocument = 0;
   thePrefixResolver = 0;
   theEvaluator = 0;
+  */
 
   theProcessor = XMLProcessor::getInstance();
 
@@ -316,6 +334,10 @@ XMLDOMBlock::~XMLDOMBlock()
   delete errHandler;
   //if (the_string) delete the_string;
 
+  //
+  //_____ following removed as a xalan-c component_____________________
+  //
+  /*
   // delete xalan objects
   delete theSourceTreeInit;
   delete theDOMSupport;
@@ -324,6 +346,7 @@ XMLDOMBlock::~XMLDOMBlock()
   //delete theDocument; // noneed to delete - belongs to theLiaison
   delete thePrefixResolver;
   delete theEvaluator;
+  */
 }
 
 const char * XMLDOMBlock::getTagValue( const string & tagName, int _item, DOMDocument * _document )
@@ -400,7 +423,10 @@ std::string & XMLDOMBlock::getString( DOMNode * _node )
 }
 
 
-
+//
+//_____ following removed as a xalan-c component_____________________
+//
+/*
 int XMLDOMBlock::read_xml_file_xalan( std::string filename ){
   theSourceTreeInit = new XalanSourceTreeInit();
   theDOMSupport = new XalanSourceTreeDOMSupport();
@@ -411,10 +437,14 @@ int XMLDOMBlock::read_xml_file_xalan( std::string filename ){
   assert(theDocument != 0);
   thePrefixResolver = new XalanDocumentPrefixResolver(theDocument);
   theEvaluator = new XPathEvaluator;
-  
   return 0;
 }
+*/
 
+//
+//_____ following removed as a xalan-c component_____________________
+//
+/*
 const XObjectPtr XMLDOMBlock::eval_xpath( std::string context, std::string expression ){
   XalanNode* const theContextNode = theEvaluator->selectSingleNode(
 								   *theDOMSupport,
@@ -436,3 +466,4 @@ const XObjectPtr XMLDOMBlock::eval_xpath( std::string context, std::string expre
 						    *thePrefixResolver));
   return theResult;
 }
+*/
