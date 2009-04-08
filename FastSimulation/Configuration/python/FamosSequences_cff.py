@@ -281,6 +281,7 @@ famosWithTracksAndMuonHits = cms.Sequence(
     famosSimulationSequence+
     siTrackerGaussianSmearingRecHits+
     iterativeTracking+
+    vertexreco+
     famosMuonSequence
 )
 
@@ -288,6 +289,7 @@ famosWithTracksAndMuons = cms.Sequence(
     famosSimulationSequence+
     siTrackerGaussianSmearingRecHits+
     iterativeTracking+
+    vertexreco+
     famosMuonSequence+
     caloRecHits+
     caloTowersRec+
