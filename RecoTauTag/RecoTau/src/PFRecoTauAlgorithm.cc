@@ -149,9 +149,26 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     }
   }
 
+  bool BuildPFTauConstituents = false;
   if(myleadPFCand.isNonnull()){
+     // If we have found a charged or neutral pion that satisfies the lead object pt cut (usually 5.0 GeV), set it as such
+     //  It will then be used as the axis to define the signal cone.
     myPFTau.setleadPFCand(myleadPFCand);
+    BuildPFTauConstituents    = true;
+  } else {
+     // No object satisfies the lead object pt requirement.  In this case, leave the leadPFCand object as null, and instead
+     //  build the inital signal cone using the axis of the hardest pt charged object, provided it exists.  If no charged 
+     //  candidate exists, do not build anything!
+     if (myleadPFChargedCand.isNonnull())
+     {
+        myleadPFCand = myleadPFChargedCand;  // use the hardest charged object to build the cones
+                                             //  note that the PFTau member leadPFCand is not filled!  (leadPFCharged, leadPFNeutral will be filled however)
+        BuildPFTauConstituents = true;       
+     }
+  }
 
+  if (BuildPFTauConstituents)
+  {
     //Compute energy of the PFTau considering only inner constituents (inner == pfcandidates inside a cone which is equal to the maximum value of the signal cone)
     PFCandidateRefVector myTmpPFCandsInSignalCone = myPFTauElementsOperators.PFCandsInCone((*myleadPFCand).momentum(),TrackerSignalConeMetric_,TrackerSignalConeSize_max_,0.5);
     math::XYZTLorentzVector tmpLorentzVect(0.,0.,0.,0.);
