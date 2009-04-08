@@ -25,10 +25,17 @@ process.prefer("VolumeBasedMagneticFieldESProducer")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 #-------------------------------------------------
+# TkDetMap for TkHistoMap
+#-------------------------------------------------
+process.TkDetMap = cms.Service("TkDetMap")
+process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+
+#-------------------------------------------------
 # Calibration
 #-------------------------------------------------
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #-process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_30X_GLOBALTAG"
+#process.GlobalTag.globaltag = "CRAFT_ALL_V8::All"
 process.GlobalTag.globaltag = "CRAFT_30X::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 

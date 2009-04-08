@@ -27,6 +27,7 @@ SiStripMonitorTrack.OutputFileName      = cms.string('testReal.root')
 SiStripMonitorTrack.Cluster_src         = cms.string('siStripClusters')
 SiStripMonitorTrack.Mod_On              = cms.bool(False)
 SiStripMonitorTrack.OffHisto_On         = cms.bool(True)
+SiStripMonitorTrack.HistoFlag_On        = cms.bool(False)
 SiStripMonitorTrack.FolderName          = cms.string('SiStrip/Tracks')
 
 #-----------------------

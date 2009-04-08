@@ -32,6 +32,7 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
   Mod_On_(conf.getParameter<bool>("Mod_On")),
   Trend_On_(conf.getParameter<bool>("Trend_On")),
   OffHisto_On_(conf.getParameter<bool>("OffHisto_On")),
+  HistoFlag_On_(conf.getParameter<bool>("HistoFlag_On")),
   //  RawDigis_On_(conf.getParameter<bool>("RawDigis_On")),
   //  CCAnalysis_On_(conf.getParameter<bool>("CCAnalysis_On")),
   folder_organizer(), tracksCollection_in_EventTree(true),
@@ -163,6 +164,13 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
 //------------------------------------------------------------------------  
 void SiStripMonitorTrack::book() 
 {
+  
+  //******** TkHistoMaps
+  tkhisto_StoNCorrOnTrack = new TkHistoMap("testTkMap/StoNCorrOnTrack" ,"StoNCorrOnTrack",0.,1); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
+  tkhisto_NumOnTrack  = new TkHistoMap("testTkMap/NumOnTrack"  ,"NumOnTrack",0.,1);
+  tkhisto_NumOffTrack = new TkHistoMap("testTkMap/NumOffTrack","NumOffTrack",0.,1);
+ //******** TkHistoMaps
+
   std::vector<uint32_t> vdetId_;
   SiStripDetCabling_->addActiveDetectorsRawIds(vdetId_);
   //Histos for each detector, layer and module
@@ -248,11 +256,13 @@ void SiStripMonitorTrack::bookModMEs(TString name, uint32_t id)//Histograms at M
     theModMEs.ClusterCharge=bookME1D("TH1ClusterCharge", hidmanager.createHistoId("ClusterCharge_OnTrack",name.Data(),id).c_str());
     dbe->tag(theModMEs.ClusterCharge,id); 
     // Cluster StoN
-    theModMEs.ClusterStoN=bookME1D("TH1ClusterStoN", hidmanager.createHistoId("ClusterStoN_OnTrack",name.Data(),id).c_str());
-    dbe->tag(theModMEs.ClusterStoN,id); 
+    if(HistoFlag_On_){
+      theModMEs.ClusterStoN=bookME1D("TH1ClusterStoN", hidmanager.createHistoId("ClusterStoN_OnTrack",name.Data(),id).c_str());
+      dbe->tag(theModMEs.ClusterStoN,id); 
     // Cluster Charge Corrected
-    theModMEs.ClusterChargeCorr=bookME1D("TH1ClusterChargeCorr", hidmanager.createHistoId("ClusterChargeCorr_OnTrack",name.Data(),id).c_str());
-    dbe->tag(theModMEs.ClusterChargeCorr,id); 
+      theModMEs.ClusterChargeCorr=bookME1D("TH1ClusterChargeCorr", hidmanager.createHistoId("ClusterChargeCorr_OnTrack",name.Data(),id).c_str());
+      dbe->tag(theModMEs.ClusterChargeCorr,id); 
+    }
     // Cluster StoN Corrected
     theModMEs.ClusterStoNCorr=bookME1D("TH1ClusterStoNCorr", hidmanager.createHistoId("ClusterStoNCorr_OnTrack",name.Data(),id).c_str());
     dbe->tag(theModMEs.ClusterStoNCorr,id); 
@@ -705,6 +715,20 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
   name= hidmanager1.createHistoLayer("","layer",rest,flag);
   fillMEs(cluster,name,cosRZ,flag);
   
+  
+  //******** TkHistoMaps
+  uint32_t adet=cluster->detId();
+  if(flag=="OnTrack"){
+    tkhisto_NumOnTrack->add(adet,1.);
+    tkhisto_StoNCorrOnTrack->fill(adet,cluster->signalOverNoise()*cosRZ);
+  }
+  else if(flag=="OffTrack"){
+    tkhisto_NumOffTrack->add(adet,1.);
+    if(cluster->charge() > 250){
+      edm::LogInfo("SiStripMonitorTrack") << "Module firing " << detid << " in Event " << eventNb << std::endl;
+    }
+  }
+
   // Module plots filled only for onTrack Clusters
   if(Mod_On_){
     if(flag=="OnTrack"){
@@ -721,10 +745,13 @@ void SiStripMonitorTrack::fillModMEs(SiStripClusterInfo* cluster,TString name,fl
 {
   std::map<TString, ModMEs>::iterator iModME  = ModMEsMap.find(name);
   if(iModME!=ModMEsMap.end()){
-    fillME(iModME->second.ClusterStoN  ,cluster->signalOverNoise());
     fillME(iModME->second.ClusterStoNCorr ,cluster->signalOverNoise()*cos);
     fillME(iModME->second.ClusterCharge,cluster->charge());
-    fillME(iModME->second.ClusterChargeCorr,cluster->charge()*cos);
+
+    if(HistoFlag_On_){
+      fillME(iModME->second.ClusterStoN  ,cluster->signalOverNoise());
+      fillME(iModME->second.ClusterChargeCorr,cluster->charge()*cos);
+    }
     fillME(iModME->second.ClusterWidth ,cluster->width());
     fillME(iModME->second.ClusterPos   ,cluster->baryStrip());
     

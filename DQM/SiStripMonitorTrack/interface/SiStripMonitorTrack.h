@@ -43,6 +43,10 @@
 
 #include "TString.h"
 
+//******** Single include for the TkMap *************
+#include "DQM/SiStripCommon/interface/TkHistoMap.h" 
+//***************************************************
+
 //
 // class declaration
 //
@@ -93,6 +97,10 @@ private:
   LocalVector LV;
   float iOrbitSec;
   
+  //******* TkHistoMaps
+  TkHistoMap *tkhisto_StoNCorrOnTrack, *tkhisto_NumOnTrack, *tkhisto_NumOffTrack;  
+  //******** TkHistoMaps
+ 
   struct ModMEs{
     ModMEs():  
       ClusterStoN(0),
@@ -167,8 +175,7 @@ private:
   bool Mod_On_;
   bool Trend_On_;
   bool OffHisto_On_;
-  bool RawDigis_On_;
-  bool CCAnalysis_On_;
+  bool HistoFlag_On_;
   bool ring_flag;
 
   int off_Flag;
