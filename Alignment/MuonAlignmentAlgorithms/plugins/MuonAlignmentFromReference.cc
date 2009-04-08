@@ -966,7 +966,7 @@ void MuonAlignmentFromReference::terminate() {
 
 	  if (id.subdetId() == MuonSubdetId::DT) {
 	    if (align_phix) {
-	      params[paramIndex[3]] = angle_value;
+	       params[paramIndex[3]] = -angle_value;   // confirmed sign
 	    }
 	  } // end if DT
 
