@@ -3,7 +3,7 @@
    Test analyzer for ecal conditions
 
    \author Stefano ARGIRO
-   \version $Id: EcalTestConditionAnalyzer.cc,v 1.2 2008/11/11 19:52:33 argiro Exp $
+   \version $Id: EcalTestConditionAnalyzer.cc,v 1.1 2008/11/14 15:47:32 argiro Exp $
    \date 05 Nov 2008
 */
 
@@ -47,7 +47,7 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
 #include <string>
 
-static const char CVSId[] = "$Id: EcalTestConditionAnalyzer.cc,v 1.2 2008/11/11 19:52:33 argiro Exp $";
+static const char CVSId[] = "$Id: EcalTestConditionAnalyzer.cc,v 1.1 2008/11/14 15:47:32 argiro Exp $";
 
 /**
  *
@@ -107,12 +107,12 @@ void EcalTestConditionAnalyzer::analyze(const edm::Event& ev, const edm::EventSe
 
    std::cout << "Got all records " << std::endl;
    
-   string ADCfile      = "/tmp/sub/EcalADCToGeVConstant.xml";
-   string ChStatusfile = "/tmp/sub/EcalChannelStatus.xml";
-   string Grfile       = "/tmp/sub/EcalGainRatios.xml";
-   string InterFile    = "/tmp/sub/EcalIntercalibConstants.xml";
-   string WFile        = "/tmp/sub/EcalTBWeights.xml";
-   string WGFile       = "/tmp/sub/EcalWeightXtalGroups.xml";
+   string ADCfile      = "EcalADCToGeVConstant.xml";
+   string ChStatusfile = "EcalChannelStatus.xml";
+   string Grfile       = "EcalGainRatios.xml";
+   string InterFile    = "EcalIntercalibConstants.xml";
+   string WFile        = "EcalTBWeights.xml";
+   string WGFile       = "EcalWeightXtalGroups.xml";
 
    EcalADCToGeVXMLTranslator::writeXML(ADCfile,header,*adctogev); 
    EcalChannelStatusXMLTranslator::writeXML(ChStatusfile,header,*chstatus);
