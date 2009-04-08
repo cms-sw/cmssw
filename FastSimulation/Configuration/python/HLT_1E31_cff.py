@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_1_0/pre2/1E31_V258/V2 (CMSSW_3_1_X_2009-04-02-0600_HLT2)
+# /dev/CMSSW_3_1_0/pre4/1E31_V4/V2 (CMSSW_3_1_X_2009-04-07-0000_HLT1)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -28,7 +28,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre2/1E31_V258/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre4/1E31_V4/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -1036,12 +1036,11 @@ hltL1SingleMu7L1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
 hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
     debug = cms.untracked.bool( False ),
     dtDigiLabel = cms.InputTag( "simMuonDTDigis" ),
-    recAlgo = cms.string( "DTParametrizedDriftAlgo" ),
+    recAlgo = cms.string( "DTLinearDriftFromDBAlgo" ),
     recAlgoConfig = cms.PSet( 
       tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
       tTrigModeConfig = cms.PSet( 
         debug = cms.untracked.bool( False ),
-        kFactor = cms.double( -2.0 ),
         vPropWire = cms.double( 24.4 ),
         doT0Correction = cms.bool( True ),
         doTOFCorrection = cms.bool( True ),
@@ -1050,8 +1049,7 @@ hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
         wirePropCorrType = cms.int32( 1 )
       ),
       minTime = cms.double( -3.0 ),
-      maxTime = cms.double( 415.0 ),
-      interpolate = cms.bool( True ),
+      maxTime = cms.double( 420.0 ),
       debug = cms.untracked.bool( False )
     )
 )
@@ -1123,45 +1121,48 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
     )
 )
 hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
-    CSCUseCalibrations = cms.untracked.bool( True ),
+    CSCUseCalibrations = cms.bool( True ),
     stripDigiTag = cms.InputTag( 'simMuonCSCDigis','MuonCSCStripDigi' ),
     wireDigiTag = cms.InputTag( 'simMuonCSCDigis','MuonCSCWireDigi' ),
-    CSCstripWireDeltaTime = cms.untracked.int32( 8 ),
+    CSCstripWireDeltaTime = cms.int32( 8 ),
     CSCUseStaticPedestals = cms.bool( False ),
     CSCNoOfTimeBinsForDynamicPedestal = cms.int32( 2 ),
-    CSCStripPeakThreshold = cms.untracked.double( 10.0 ),
-    CSCStripClusterChargeCut = cms.untracked.double( 25.0 ),
-    CSCWireClusterDeltaT = cms.untracked.int32( 1 ),
-    CSCStripxtalksOffset = cms.untracked.double( 0.03 ),
-    NoiseLevel_ME1a = cms.untracked.double( 7.0 ),
-    XTasymmetry_ME1a = cms.untracked.double( 0.0 ),
-    ConstSyst_ME1a = cms.untracked.double( 0.022 ),
-    NoiseLevel_ME1b = cms.untracked.double( 8.0 ),
-    XTasymmetry_ME1b = cms.untracked.double( 0.0 ),
-    ConstSyst_ME1b = cms.untracked.double( 0.0070 ),
-    NoiseLevel_ME12 = cms.untracked.double( 9.0 ),
-    XTasymmetry_ME12 = cms.untracked.double( 0.0 ),
-    ConstSyst_ME12 = cms.untracked.double( 0.0 ),
-    NoiseLevel_ME13 = cms.untracked.double( 8.0 ),
-    XTasymmetry_ME13 = cms.untracked.double( 0.0 ),
-    ConstSyst_ME13 = cms.untracked.double( 0.0 ),
-    NoiseLevel_ME21 = cms.untracked.double( 9.0 ),
-    XTasymmetry_ME21 = cms.untracked.double( 0.0 ),
-    ConstSyst_ME21 = cms.untracked.double( 0.0 ),
-    NoiseLevel_ME22 = cms.untracked.double( 9.0 ),
-    XTasymmetry_ME22 = cms.untracked.double( 0.0 ),
-    ConstSyst_ME22 = cms.untracked.double( 0.0 ),
-    NoiseLevel_ME31 = cms.untracked.double( 9.0 ),
-    XTasymmetry_ME31 = cms.untracked.double( 0.0 ),
-    ConstSyst_ME31 = cms.untracked.double( 0.0 ),
-    NoiseLevel_ME32 = cms.untracked.double( 9.0 ),
-    XTasymmetry_ME32 = cms.untracked.double( 0.0 ),
-    ConstSyst_ME32 = cms.untracked.double( 0.0 ),
-    NoiseLevel_ME41 = cms.untracked.double( 9.0 ),
-    XTasymmetry_ME41 = cms.untracked.double( 0.0 ),
-    ConstSyst_ME41 = cms.untracked.double( 0.0 ),
+    CSCStripPeakThreshold = cms.double( 10.0 ),
+    CSCStripClusterChargeCut = cms.double( 25.0 ),
+    CSCWireClusterDeltaT = cms.int32( 1 ),
+    CSCStripxtalksOffset = cms.double( 0.03 ),
+    NoiseLevel_ME1a = cms.double( 7.0 ),
+    XTasymmetry_ME1a = cms.double( 0.0 ),
+    ConstSyst_ME1a = cms.double( 0.022 ),
+    NoiseLevel_ME1b = cms.double( 8.0 ),
+    XTasymmetry_ME1b = cms.double( 0.0 ),
+    ConstSyst_ME1b = cms.double( 0.0070 ),
+    NoiseLevel_ME12 = cms.double( 9.0 ),
+    XTasymmetry_ME12 = cms.double( 0.0 ),
+    ConstSyst_ME12 = cms.double( 0.0 ),
+    NoiseLevel_ME13 = cms.double( 8.0 ),
+    XTasymmetry_ME13 = cms.double( 0.0 ),
+    ConstSyst_ME13 = cms.double( 0.0 ),
+    NoiseLevel_ME21 = cms.double( 9.0 ),
+    XTasymmetry_ME21 = cms.double( 0.0 ),
+    ConstSyst_ME21 = cms.double( 0.0 ),
+    NoiseLevel_ME22 = cms.double( 9.0 ),
+    XTasymmetry_ME22 = cms.double( 0.0 ),
+    ConstSyst_ME22 = cms.double( 0.0 ),
+    NoiseLevel_ME31 = cms.double( 9.0 ),
+    XTasymmetry_ME31 = cms.double( 0.0 ),
+    ConstSyst_ME31 = cms.double( 0.0 ),
+    NoiseLevel_ME32 = cms.double( 9.0 ),
+    XTasymmetry_ME32 = cms.double( 0.0 ),
+    ConstSyst_ME32 = cms.double( 0.0 ),
+    NoiseLevel_ME41 = cms.double( 9.0 ),
+    XTasymmetry_ME41 = cms.double( 0.0 ),
+    ConstSyst_ME41 = cms.double( 0.0 ),
     readBadChannels = cms.bool( False ),
-    readBadChambers = cms.bool( False )
+    readBadChambers = cms.bool( False ),
+    UseAverageTime = cms.bool( False ),
+    UseParabolaFit = cms.bool( False ),
+    UseFourPoleFit = cms.bool( True )
 )
 hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     inputObjects = cms.InputTag( "hltCsc2DRecHits" ),
@@ -1178,61 +1179,61 @@ hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
   'ME4/1',
   'ME4/2' ),
         algo_name = cms.string( "CSCSegAlgoST" ),
+        parameters_per_chamber_type = cms.vint32( 2, 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
         algo_psets = cms.VPSet( 
           cms.PSet(  maxRatioResidualPrune = cms.double( 3.0 ),
-            yweightPenalty = cms.untracked.double( 1.5 ),
-            maxRecHitsInCluster = cms.untracked.int32( 20 ),
-            hitDropLimit6Hits = cms.untracked.double( 0.3333 ),
+            yweightPenalty = cms.double( 1.5 ),
+            maxRecHitsInCluster = cms.int32( 20 ),
+            hitDropLimit6Hits = cms.double( 0.3333 ),
+            BPMinImprovement = cms.double( 10000.0 ),
             tanPhiMax = cms.double( 0.5 ),
-            onlyBestSegment = cms.untracked.bool( False ),
+            onlyBestSegment = cms.bool( False ),
             dRPhiFineMax = cms.double( 8.0 ),
-            curvePenalty = cms.untracked.double( 2.0 ),
-            dXclusBoxMax = cms.untracked.double( 4.0 ),
-            BrutePruning = cms.untracked.bool( True ),
-            tanThetaMax = cms.double( 1.2 ),
-            hitDropLimit4Hits = cms.untracked.double( 0.6 ),
-            useShowering = cms.untracked.bool( False ),
+            curvePenalty = cms.double( 2.0 ),
+            dXclusBoxMax = cms.double( 4.0 ),
+            BrutePruning = cms.bool( True ),
+            curvePenaltyThreshold = cms.double( 0.85 ),
+            hitDropLimit4Hits = cms.double( 0.6 ),
+            useShowering = cms.bool( False ),
             CSCDebug = cms.untracked.bool( False ),
-            curvePenaltyThreshold = cms.untracked.double( 0.85 ),
-            minHitsPerSegment = cms.untracked.int32( 3 ),
+            tanThetaMax = cms.double( 1.2 ),
+            minHitsPerSegment = cms.int32( 3 ),
+            yweightPenaltyThreshold = cms.double( 1.0 ),
             dPhiFineMax = cms.double( 0.025 ),
-            yweightPenaltyThreshold = cms.untracked.double( 1.0 ),
-            hitDropLimit5Hits = cms.untracked.double( 0.8 ),
-            preClustering = cms.untracked.bool( True ),
+            hitDropLimit5Hits = cms.double( 0.8 ),
+            preClustering = cms.bool( True ),
             maxDPhi = cms.double( 999.0 ),
             maxDTheta = cms.double( 999.0 ),
-            Pruning = cms.untracked.bool( True ),
-            dYclusBoxMax = cms.untracked.double( 8.0 ),
-            BPMinImprovement = cms.untracked.double( 10000.0 )
+            Pruning = cms.bool( True ),
+            dYclusBoxMax = cms.double( 8.0 )
           ),
           cms.PSet(  maxRatioResidualPrune = cms.double( 3.0 ),
-            yweightPenalty = cms.untracked.double( 1.5 ),
-            maxRecHitsInCluster = cms.untracked.int32( 24 ),
-            hitDropLimit6Hits = cms.untracked.double( 0.3333 ),
+            yweightPenalty = cms.double( 1.5 ),
+            maxRecHitsInCluster = cms.int32( 24 ),
+            hitDropLimit6Hits = cms.double( 0.3333 ),
+            BPMinImprovement = cms.double( 10000.0 ),
             tanPhiMax = cms.double( 0.5 ),
-            onlyBestSegment = cms.untracked.bool( False ),
+            onlyBestSegment = cms.bool( False ),
             dRPhiFineMax = cms.double( 8.0 ),
-            curvePenalty = cms.untracked.double( 2.0 ),
-            dXclusBoxMax = cms.untracked.double( 4.0 ),
-            BrutePruning = cms.untracked.bool( True ),
-            tanThetaMax = cms.double( 1.2 ),
-            hitDropLimit4Hits = cms.untracked.double( 0.6 ),
-            useShowering = cms.untracked.bool( False ),
+            curvePenalty = cms.double( 2.0 ),
+            dXclusBoxMax = cms.double( 4.0 ),
+            BrutePruning = cms.bool( True ),
+            curvePenaltyThreshold = cms.double( 0.85 ),
+            hitDropLimit4Hits = cms.double( 0.6 ),
+            useShowering = cms.bool( False ),
             CSCDebug = cms.untracked.bool( False ),
-            curvePenaltyThreshold = cms.untracked.double( 0.85 ),
-            minHitsPerSegment = cms.untracked.int32( 3 ),
+            tanThetaMax = cms.double( 1.2 ),
+            minHitsPerSegment = cms.int32( 3 ),
+            yweightPenaltyThreshold = cms.double( 1.0 ),
             dPhiFineMax = cms.double( 0.025 ),
-            yweightPenaltyThreshold = cms.untracked.double( 1.0 ),
-            hitDropLimit5Hits = cms.untracked.double( 0.8 ),
-            preClustering = cms.untracked.bool( True ),
+            hitDropLimit5Hits = cms.double( 0.8 ),
+            preClustering = cms.bool( True ),
             maxDPhi = cms.double( 999.0 ),
             maxDTheta = cms.double( 999.0 ),
-            Pruning = cms.untracked.bool( True ),
-            dYclusBoxMax = cms.untracked.double( 8.0 ),
-            BPMinImprovement = cms.untracked.double( 10000.0 )
+            Pruning = cms.bool( True ),
+            dYclusBoxMax = cms.double( 8.0 )
           )
-        ),
-        parameters_per_chamber_type = cms.vint32( 2, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
+        )
       )
     )
 )
@@ -1595,10 +1596,18 @@ hltL1sL1SingleMu10 = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltPreMu11 = cms.EDFilter( "HLTPrescaler" )
+hltL1SingleMu10L1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
+    CandTag = cms.InputTag( "l1ParamMuons" ),
+    PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu10" ),
+    MaxEta = cms.double( 2.5 ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    SelectQualities = cms.vint32(  )
+)
 hltSingleMu11L2Filtered9 = cms.EDFilter( "HLTMuonL2PreFilter",
     BeamSpotTag = cms.InputTag( "offlineBeamSpot" ),
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
-    PreviousCandTag = cms.InputTag( "hltL1SingleMu7L1Filtered0" ),
+    PreviousCandTag = cms.InputTag( "hltL1SingleMu10L1Filtered0" ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
     MinNhits = cms.int32( 0 ),
@@ -3423,7 +3432,7 @@ HLT_L2Mu11 = cms.Path( HLTBeginSequence + hltL1sL1SingleMu7 + hltPreL2Mu11 + hlt
 HLT_IsoMu9 = cms.Path( HLTBeginSequence + hltL1sL1SingleMu7 + hltPreIsoMu9 + hltSingleMuIsoL1Filtered7 + HLTL2muonrecoSequence + hltSingleMuIsoL2PreFiltered7 + HLTL2muonisorecoSequence + hltSingleMuIsoL2IsoFiltered7 + HLTL3muonrecoSequence + hltSingleMuIsoL3PreFiltered9 + HLTL3muonisorecoSequence + hltSingleMuIsoL3IsoFiltered9 + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_Mu5 = cms.Path( HLTBeginSequence + hltL1sL1SingleMu3 + hltPreMu5 + hltL1SingleMu3L1Filtered0 + HLTL2muonrecoSequence + hltSingleMu5L2Filtered4 + HLTL3muonrecoSequence + hltSingleMu5L3Filtered5 + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_Mu9 = cms.Path( HLTBeginSequence + hltL1sL1SingleMu7 + hltPreMu9 + hltL1SingleMu7L1Filtered0 + HLTL2muonrecoSequence + hltSingleMu9L2Filtered7 + HLTL3muonrecoSequence + hltSingleMu9L3Filtered9 + cms.SequencePlaceholder("HLTEndSequence") )
-HLT_Mu11 = cms.Path( HLTBeginSequence + hltL1sL1SingleMu10 + hltPreMu11 + hltL1SingleMu7L1Filtered0 + HLTL2muonrecoSequence + hltSingleMu11L2Filtered9 + HLTL3muonrecoSequence + hltSingleMu11L3Filtered11 + cms.SequencePlaceholder("HLTEndSequence") )
+HLT_Mu11 = cms.Path( HLTBeginSequence + hltL1sL1SingleMu10 + hltPreMu11 + hltL1SingleMu10L1Filtered0 + HLTL2muonrecoSequence + hltSingleMu11L2Filtered9 + HLTL3muonrecoSequence + hltSingleMu11L3Filtered11 + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_Mu15 = cms.Path( HLTBeginSequence + hltL1sL1SingleMu10 + hltPreMu15 + hltSingleMu15L1Filtered0 + HLTL2muonrecoSequence + hltSingleMu15L2PreFiltered12 + HLTL3muonrecoSequence + hltSingleMu15L3PreFiltered15 + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_L1DoubleMuOpen = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpen + hltPreL1DoubleMuOpen + hltDoubleMuLevel1PathL1OpenFiltered + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_DoubleMu0 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpen + hltPreDoubleMu0 + hltDiMuonL1Filtered0 + HLTL2muonrecoSequence + hltDiMuonL2PreFiltered0 + HLTL3muonrecoSequence + hltDiMuonL3PreFiltered0 + cms.SequencePlaceholder("HLTEndSequence") )
@@ -3456,7 +3465,7 @@ AlCa_EcalPhiSym = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPhiSym + hltPreAlCa
 AlCa_EcalPi0 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0 + hltPreAlCaEcalPi0 + HLTDoRegionalPi0EcalSequence + hltAlCaPi0RegRecHits + cms.SequencePlaceholder("HLTEndSequence") )
 AlCa_EcalEta = cms.Path( HLTBeginSequence + hltL1sAlCaEcalEta + hltPreAlCaEcalEta + HLTDoRegionalEtaEcalSequence + hltAlCaEtaRegRecHits + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_L1Mu14_L1SingleEG10 = cms.Path( HLTBeginSequence + hltL1sL1Mu14L1SingleEG10 + hltPreL1Mu14L1SingleEG10 + cms.SequencePlaceholder("HLTEndSequence") )
-HLT_L1Mu14_L1SingleJet15 = cms.Path( hltL1sL1Mu14L1SingleJet15 + hltPreL1Mu14L1SingleJet15 + HLTBeginSequence + cms.SequencePlaceholder("HLTEndSequence") )
+HLT_L1Mu14_L1SingleJet15 = cms.Path( HLTBeginSequence + hltL1sL1Mu14L1SingleJet15 + hltPreL1Mu14L1SingleJet15 + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_L1Mu14_L1ETM40 = cms.Path( HLTBeginSequence + hltL1sL1Mu14L1ETM40 + hltPreL1Mu14L1ETM40 + cms.SequencePlaceholder("HLTEndSequence") )
 HLTriggerFinalPath = cms.Path( hltTriggerSummaryAOD + hltPreTriggerSummaryRAW + hltTriggerSummaryRAW + hltBoolFinalPath )
 HLTAnalyzerEndpath = cms.EndPath( hltL1gtTrigReport + hltTrigReport )
