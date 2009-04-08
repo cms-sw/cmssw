@@ -23,7 +23,7 @@ void MuonResidualsPositionFitter_FCN(int &npar, double *gin, double &fval, doubl
       center += par[MuonResidualsPositionFitter::kPosition];
       center += par[MuonResidualsPositionFitter::kZpos] * trackangle;
       center += par[MuonResidualsPositionFitter::kPhiz] * trackposition;
-      center += par[MuonResidualsPositionFitter::kScattering] * (angleerror - MuonResidualsPositionFitter_phiValue);
+      center += (par[MuonResidualsPositionFitter::kScattering] - MuonResidualsPositionFitter_phiValue) * angleerror;
 
       if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian) {
 	fval += -log(MuonResidualsFitter_pureGaussian(residual, center, par[MuonResidualsPositionFitter::kSigma]));
@@ -184,7 +184,7 @@ void MuonResidualsPositionFitter::plot(double phiValue, std::string name, TFileD
     const double trackangle = (*resiter)[kTrackAngle];
     const double trackposition = (*resiter)[kTrackPosition];
 
-    double angleerror_correction = value(kScattering) * (angleerror - phiValue);
+    double angleerror_correction = (value(kScattering) - phiValue) * angleerror;
     double trackangle_correction = value(kZpos) * trackangle;
     double trackposition_correction = value(kPhiz) * trackposition;
 
@@ -236,7 +236,7 @@ double MuonResidualsPositionFitter::redchi2(double phiValue, std::string name, T
     const double trackposition = (*resiter)[kTrackPosition];
 
     double correction = value(kPosition);
-    double angleerror_correction = value(kScattering) * (angleerror - phiValue);
+    double angleerror_correction = (value(kScattering) - phiValue) * angleerror;
     double trackangle_correction = value(kZpos) * trackangle;
     double trackposition_correction = value(kPhiz) * trackposition;
     double scale = value(kSigma);
