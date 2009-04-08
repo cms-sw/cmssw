@@ -84,8 +84,8 @@ applyGains() {
     if(*adc > 255) throw InvalidChargeException( SiStripDigi(strip,*adc) );
     if(*adc > 253) return; //saturated, do not scale
     uint16_t charge = static_cast<uint16_t>( *adc/gain(strip++) + 0.5 ); //adding 0.5 turns truncation into rounding
-    *adc = ( charge > 511 ? 255 : 
-           ( charge > 253 ? 254 : charge ));
+    *adc = ( charge > 1022 ? 255 : 
+           ( charge >  253 ? 254 : charge ));
   }
 }
 

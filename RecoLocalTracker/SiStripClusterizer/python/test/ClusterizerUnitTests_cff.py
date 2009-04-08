@@ -150,12 +150,16 @@ Pre31Tests =                                            [
              [ digi(  10, 110,  noise1, 0.82*gain1, good) ],
              [ cluster(  10, [134])
                ] ),
-    DetUnit( "Gain less than 1 pushes charge above 511",
-             [ digi(  10, 253,  noise1, 0.4*gain1, good) ],
+    DetUnit( "Gain less than 1 pushes charge above 1022",
+             [ digi(  10, 253,  noise1, 0.2*gain1, good) ],
              [ cluster(  10, [255])
                ] ),
-    DetUnit( "Gain less than 1 pushes charge above 255, but not above 511",
+    DetUnit( "Gain less than 1 pushes charge above 255, but not above 1022",
              [ digi(  10, 253,  noise1, 0.9*gain1, good) ],
+             [ cluster(  10, [254])
+               ] ),
+    DetUnit( "Gain less than 1 pushes charge above 511, but not above 1022",
+             [ digi(  10, 253,  noise1, 0.4*gain1, good) ],
              [ cluster(  10, [254])
                ] ),
     DetUnit( "Two gains (apv boundary)",
