@@ -6,6 +6,9 @@
 */
 
 #include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
+#include "RecoLuminosity/TCPReceiver/interface/TimeStamp.h"
+#include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
+
 #include <iostream>
 
 #include <unistd.h>

@@ -1,4 +1,5 @@
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileReader.h"
+#include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
 
 // C
 #include <cstring> // memset
@@ -126,14 +127,6 @@ void HCAL_HLX::ROOTFileReader::CreateTree(){
 
   }
 
-  // OTHER
-  if( !bEtSumOnly_ ){
-    mChain_->SetBranchAddress("Threshold.",        &Threshold_,       &b_Threshold);
-    mChain_->SetBranchAddress("Level1_Trigger.",   &L1Trigger_,       &b_L1Trigger);
-    mChain_->SetBranchAddress("HLT.",              &HLT_,             &b_HLT);
-    mChain_->SetBranchAddress("Trigger_Deadtime.", &TriggerDeadtime_, &b_TriggerDeadtime);
-    mChain_->SetBranchAddress("HF_Ring_Set.",      &RingSet_,         &b_RingSet);
-  }
 }
 
 unsigned int HCAL_HLX::ROOTFileReader::GetEntries(){
@@ -150,35 +143,5 @@ int HCAL_HLX::ROOTFileReader::GetEntry( int entry ){
 int HCAL_HLX::ROOTFileReader::GetLumiSection( HCAL_HLX::LUMI_SECTION& localSection){
 
   memcpy(&localSection, lumiSection_, sizeof(HCAL_HLX::LUMI_SECTION));
-  return 0;
-}
-
-int HCAL_HLX::ROOTFileReader::GetThreshold(HCAL_HLX::LUMI_THRESHOLD&  localThreshold){
-
-  memcpy(&localThreshold, Threshold_, sizeof(localThreshold));
-  return 0;
-}
-
-int HCAL_HLX::ROOTFileReader::GetHFRingSet(HCAL_HLX::LUMI_HF_RING_SET& localRingSet){
-
-  memcpy(&localRingSet, RingSet_, sizeof(localRingSet));
-  return 0;
-}
-
-int HCAL_HLX::ROOTFileReader::GetL1Trigger(HCAL_HLX::LEVEL1_TRIGGER& localL1Trigger){
-
-  memcpy(&localL1Trigger, L1Trigger_, sizeof(localL1Trigger));
-  return 0;
-}
-
-int HCAL_HLX::ROOTFileReader::GetHLT(HCAL_HLX::HLT& localHLT){
-
-  memcpy(&localHLT, HLT_, sizeof(localHLT));
-  return 0;
-}
-
-int HCAL_HLX::ROOTFileReader::GetTriggerDeadtime(HCAL_HLX::TRIGGER_DEADTIME& localTD){
-
-  memcpy(&localTD, TriggerDeadtime_, sizeof(localTD));
   return 0;
 }

@@ -13,6 +13,7 @@
 #include <cstdlib>
 
 #include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
+#include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
 
 int gContinue=1;
 bool Connected = false;

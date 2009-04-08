@@ -7,13 +7,21 @@ Adam Hunt - Princeton University
 ahunt@princeton.edu
 
 */
-#include "RecoLuminosity/TCPReceiver/interface/ICTypeDefs.hh"
-#include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
 
 #include <string>
 #include <sstream>
 
 namespace HCAL_HLX{
+
+  struct LUMI_SECTION;
+  
+  struct LUMI_SECTION_HEADER;
+  struct LUMI_SUMMARY;
+  struct LUMI_DETAIL;
+  
+  struct ET_SUM_SECTION;
+  struct OCCUPANCY_SECTION;
+  struct LHC_SECTION;
 
   class ROOTFileBase{
     
@@ -54,12 +62,6 @@ namespace HCAL_HLX{
     HCAL_HLX::OCCUPANCY_SECTION   *OccupancyPtr_[36];
     HCAL_HLX::LHC_SECTION         *LHCPtr_[36];
     
-    HCAL_HLX::LUMI_THRESHOLD      *Threshold_;
-    HCAL_HLX::LEVEL1_TRIGGER      *L1Trigger_;
-    HCAL_HLX::HLT                 *HLT_;
-    HCAL_HLX::TRIGGER_DEADTIME    *TriggerDeadtime_;
-    HCAL_HLX::LUMI_HF_RING_SET    *RingSet_;
-
     std::string filePrefix_;    
     std::string fileName_;
     std::string dirName_;        

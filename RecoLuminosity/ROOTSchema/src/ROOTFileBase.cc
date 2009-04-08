@@ -1,4 +1,5 @@
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileBase.h"
+#include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
 
 #include <sstream>
 #include <typeinfo>
@@ -29,23 +30,11 @@ HCAL_HLX::ROOTFileBase::~ROOTFileBase(){}
 void HCAL_HLX::ROOTFileBase::Init(){
 
   lumiSection_     = new HCAL_HLX::LUMI_SECTION;
-
-  Threshold_       = new HCAL_HLX::LUMI_THRESHOLD;
-  L1Trigger_       = new HCAL_HLX::LEVEL1_TRIGGER;
-  HLT_             = new HCAL_HLX::HLT;
-  TriggerDeadtime_ = new HCAL_HLX::TRIGGER_DEADTIME;
-  RingSet_         = new HCAL_HLX::LUMI_HF_RING_SET;
 }
 
 void HCAL_HLX::ROOTFileBase::CleanUp(){
 
   delete lumiSection_;
-  
-  delete Threshold_;
-  delete L1Trigger_;
-  delete HLT_;
-  delete TriggerDeadtime_; 
-  delete RingSet_;
 }
 
 void HCAL_HLX::ROOTFileBase::SetDir(const std::string& dirName){

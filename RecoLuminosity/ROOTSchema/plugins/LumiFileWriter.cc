@@ -14,7 +14,7 @@
 //
 // Original Author:  Adam Hunt
 //         Created:  Sun May 11 14:21:30 EDT 2008
-// $Id: LumiFileWriter.cc,v 1.8 2008/10/01 09:37:26 ahunt Exp $
+// $Id: LumiFileWriter.cc,v 1.9 2008/10/23 15:53:15 ahunt Exp $
 //
 //
 
@@ -22,7 +22,6 @@
 #include "RecoLuminosity/ROOTSchema/interface/ROOTSchema.h"
 #include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
 
-#include "RecoLuminosity/TCPReceiver/interface/ICTypeDefs.hh"
 #include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
 
 // CMSSW

@@ -1,6 +1,4 @@
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileBase.h"
-
-#include "RecoLuminosity/TCPReceiver/interface/ICTypeDefs.hh"
 #include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
 
 #ifdef __CINT__
@@ -18,17 +16,10 @@
 
 #pragma link C++ struct HCAL_HLX::LUMI_SUMMARY+;
 #pragma link C++ struct HCAL_HLX::LUMI_DETAIL+;
-#pragma link C++ struct HCAL_HLX::LUMI_THRESHOLD+;
-#pragma link C++ struct HCAL_HLX::LUMI_SECTION_SUB_HEADER+;
 #pragma link C++ struct HCAL_HLX::LUMI_SECTION_HEADER+;
 #pragma link C++ struct HCAL_HLX::ET_SUM_SECTION+;
 #pragma link C++ struct HCAL_HLX::OCCUPANCY_SECTION+;
 #pragma link C++ struct HCAL_HLX::LHC_SECTION+;
-#pragma link C++ struct HCAL_HLX::TRIGGER_DEADTIME+;
-#pragma link C++ struct HCAL_HLX::LEVEL1_TRIGGER+;
-#pragma link C++ struct HCAL_HLX::HLT+;
-#pragma link C++ struct HCAL_HLX::HLTPath+;
-#pragma link C++ struct HCAL_HLX::LUMI_HF_RING_SET+;
 #pragma link C++ struct HCAL_HLX::LUMI_SECTION+;
 
 #endif

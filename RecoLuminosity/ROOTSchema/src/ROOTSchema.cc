@@ -18,6 +18,8 @@ The worker layer does not do any error checking.  This is called by the user lay
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileMerger.h"
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileTransfer.h"
 
+#include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
+
 #include <iomanip>
 
 HCAL_HLX::ROOTSchema::ROOTSchema():RFMerger_(NULL), RFTransfer_(NULL),

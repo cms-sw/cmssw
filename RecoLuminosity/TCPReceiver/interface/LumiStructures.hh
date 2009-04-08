@@ -1,5 +1,3 @@
-
-
 /*
   LumiNibble structure definitions
 */
@@ -11,11 +9,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
-// Type definitions used by the HAL, etc...
-#ifndef ICTypeDefs_HH  // CMSSW compatible
-#include "ICTypeDefs.hh"
-#endif
 
 #define HCAL_HLX_MAX_BUNCHES 4096
 #define HCAL_HLX_MAX_HLXS 36
@@ -37,8 +30,6 @@ typedef unsigned int       uint32_t;
 // Namespace for the HCAL HLX
 namespace HCAL_HLX
 {
-  // We will be using the IC core utility library
-  using namespace ICCoreUtils;
 
   struct LUMI_SUMMARY {
     float DeadtimeNormalization; 
@@ -74,20 +65,6 @@ namespace HCAL_HLX
     float OccBXNormalization[2][HCAL_HLX_MAX_BUNCHES];
   };
 
-  struct LUMI_THRESHOLD {
-    float OccThreshold1Set1;  // Occupancy Threshold
-    float OccThreshold2Set1;
-    float OccThreshold1Set2;
-    float OccThreshold2Set2;
-    float ETSum;
-  };
-
-  struct LUMI_HF_RING_SET{
-    std::string Set1Rings;
-    std::string Set2Rings;
-    std::string EtSumRings;
-  };
-
   struct LEVEL1_TRIGGER {
     std::string GTLumiInfoFormat;
     uint32_t GTAlgoCounts[128];
@@ -114,69 +91,97 @@ namespace HCAL_HLX
     std::vector< HLTPath > HLTPaths;
   };
 
-  struct TRIGGER_DEADTIME {
-    int TriggerDeadtime;
-  };
-
   struct LUMI_RAW_HEADER { // Used in NibbleCollector 
-    u16 marker;
-    u8  hlxID;
-    u8  packetID;
-    u32 startOrbit;
-    u16 numOrbits;
-    u16 startBunch; // Starting bunch in this packet
-    u16 numBunches; // Total number of bunches in histogram
-    u8  histogramSet;
-    u8  histogramSequence;
-    u16 allA;
-    u16 allF;
+    uint16_t marker;
+    uint8_t  hlxID;
+    uint8_t  packetID;
+    uint32_t startOrbit;
+    uint16_t numOrbits;
+    uint16_t startBunch; // Starting bunch in this packet
+    uint16_t numBunches; // Total number of bunches in histogram
+    uint8_t  histogramSet;
+    uint8_t  histogramSequence;
+    uint16_t allA;
+    uint16_t allF;
   };
 
   struct LUMI_NIBBLE_HEADER {
-    u32  startOrbit;
-    u16  numOrbits;
-    u16  numBunches; // Number of bunches histogrammed
+    uint32_t  startOrbit;
+    uint16_t  numOrbits;
+    uint16_t  numBunches; // Number of bunches histogrammed
     bool bCMSLive;
     bool bOC0;
   };
   
   struct ET_SUM_NIBBLE {
     LUMI_NIBBLE_HEADER hdr;
-    u32 data[HCAL_HLX_MAX_BUNCHES];
+    uint32_t data[HCAL_HLX_MAX_BUNCHES];
   };
   
   struct OCCUPANCY_NIBBLE {
     LUMI_NIBBLE_HEADER hdr;
-    u16 data[6][HCAL_HLX_MAX_BUNCHES];
+    uint16_t data[6][HCAL_HLX_MAX_BUNCHES];
   };
 
   struct LHC_NIBBLE {
     LUMI_NIBBLE_HEADER hdr;
-    u16 data[HCAL_HLX_MAX_BUNCHES];
+    uint16_t data[HCAL_HLX_MAX_BUNCHES];
   };
 
-  struct LUMI_SECTION_HEADER {
-    u32 timestamp;
-    u32 timestamp_micros;
-    u32  runNumber;   // Run number
-    u32  sectionNumber; // Section number
-    u32  startOrbit;  // Start orbit of lumi section
-    u32  numOrbits;   // Total number of orbits recorded in lumi section
-    u16  numBunches;  // Total number of bunches (from start of orbit)
-    u16  numHLXs;     // Number of HLXs in lumi section
-    bool bCMSLive;    // Is CMS taking data?
-    bool bOC0;        // Was section initialised by an OC0?
-
+  struct RUN_SUMMARY{
     uint16_t LS_Quality; // 0-999
     char RunSequenceName[64];  // Cosmic, Pedestal, ....
     uint32_t RunSequenceNumber; // Number that identifies version of RunSequenceName;
+  };
 
-    char CMSSW_Tag[64];
-    char TriDAS_Tag[64];
+  struct RCMS_CONFIG {
+    std::string CMSSW_Tag;
+    std::string TriDAS_Tag;
+
+    bool UseConfigDB;
+    std::string CfgDBTag;
+    uint8_t FirmwareVersion;
+
+    uint8_t OCCMaskTop;
+    uint8_t OCCMaskBottom;
+
+    uint8_t LHCMaskLowBottom;
+    uint8_t LHCMaskLowTop;
+
+    uint8_t LHCMaskHighBottom;
+    uint8_t LHCMaskHighTop;
+
+    uint16_t SumETMaskLowBottom;
+    uint16_t SumETMaskLowTop;
+    uint16_t SumETMaskHighBottom;
+    uint16_t SumETMaskHighTop;
+
+    uint16_t OccThresholdLowBottom;
+    uint16_t OccThresholdLowTop;
+    uint16_t OccThresholdHighBottom;
+    uint16_t OccThresholdHighTop;
+
+    uint16_t LHCThresholdBottom;
+    uint16_t LHCThresholdTop;
+    uint16_t ETSumCutoffBottom;
+    uint16_t ETSumCutoffTop;
+  };
+
+  struct LUMI_SECTION_HEADER {
+    uint32_t timestamp;
+    uint32_t timestamp_micros;
+    uint32_t  runNumber;   // Run number
+    uint32_t  sectionNumber; // Section number
+    uint32_t  startOrbit;  // Start orbit of lumi section
+    uint32_t  numOrbits;   // Total number of orbits recorded in lumi section
+    uint16_t  numBunches;  // Total number of bunches (from start of orbit)
+    uint16_t  numHLXs;     // Number of HLXs in lumi section
+    bool bCMSLive;    // Is CMS taking data?
+    bool bOC0;        // Was section initialised by an OC0?
   };
 
   struct LUMI_SECTION_SUB_HEADER {
-    u32  numNibbles;  // Number of nibbles in this histogram
+    uint32_t  numNibbles;  // Number of nibbles in this histogram
     bool bIsComplete; // Is this histogram complete (i.e. no missing nibbles)
   };
 
@@ -187,12 +192,12 @@ namespace HCAL_HLX
 
   struct OCCUPANCY_SECTION {
     LUMI_SECTION_SUB_HEADER hdr;
-    u32 data[6][HCAL_HLX_MAX_BUNCHES];
+    uint32_t data[6][HCAL_HLX_MAX_BUNCHES];
   };
 
   struct LHC_SECTION {
     LUMI_SECTION_SUB_HEADER hdr;
-    u32 data[HCAL_HLX_MAX_BUNCHES];
+    uint32_t data[HCAL_HLX_MAX_BUNCHES];
   };
 
   struct LUMI_SECTION {

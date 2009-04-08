@@ -1,4 +1,5 @@
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileWriter.h"
+#include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
 
 #include <sstream>
 #include <typeinfo>
@@ -62,12 +63,6 @@ void HCAL_HLX::ROOTFileWriter::CreateTree(){
   if( !bEtSumOnly_ ){
     m_tree->Bronch("Summary.", "HCAL_HLX::LUMI_SUMMARY",        &Summary_, 1);
     m_tree->Bronch("Detail.",  "HCAL_HLX::LUMI_DETAIL",         &Detail_,  1);
-    
-    m_tree->Bronch("Threshold.",        "HCAL_HLX::LUMI_THRESHOLD",   &Threshold_, 1);
-    m_tree->Bronch("Level1_Trigger.",   "HCAL_HLX::LEVEL1_TRIGGER",   &L1Trigger_, 1);
-    m_tree->Bronch("HLT.",              "HCAL_HLX::HLT",              &HLT_,       1);
-    m_tree->Bronch("Trigger_Deadtime.", "HCAL_HLX::TRIGGER_DEADTIME", &TriggerDeadtime_, 1);
-    m_tree->Bronch("HF_Ring_Set.",      "HCAL_HLX::LUMI_HF_RING_SET", &RingSet_,1);
   }
 
   for( unsigned int iHLX = 0; iHLX < 36; ++iHLX ){
@@ -111,61 +106,7 @@ void HCAL_HLX::ROOTFileWriter::MakeBranch(const T &in, T **out, const int HLXNum
 void HCAL_HLX::ROOTFileWriter::FillTree(const HCAL_HLX::LUMI_SECTION& localSection){
 
   memcpy( lumiSection_, &localSection, sizeof(HCAL_HLX::LUMI_SECTION));
-
-  InsertInformation(); // To be modified later.
-
   m_tree->Fill();
-}
-
-void HCAL_HLX::ROOTFileWriter::InsertInformation(){
-  
-  Header_->LS_Quality = 100; // 0-999
-  strcpy(Header_->RunSequenceName,"Test Run Sequence Name");  // Cosmic, Pedestal, ....
-  Header_->RunSequenceNumber = 5; // Number that identifies version of RunSequenceName;
-  
-  strcpy(Header_->CMSSW_Tag, "V01-00-00");
-  strcpy(Header_->TriDAS_Tag,"V00-00-00");
-
-  // This information will eventually come from the lms cell
-  Threshold_->OccThreshold1Set1 = 51;
-  Threshold_->OccThreshold2Set1 = 52;
-  Threshold_->OccThreshold1Set2 = 53;
-  Threshold_->OccThreshold2Set2 = 54;
-  Threshold_->ETSum             = 55;
-  
-  std::string GTLumiInfoFormat;
-  
-  for( unsigned int iAlgo = 0; iAlgo < 128; ++iAlgo ){
-    L1Trigger_->GTAlgoCounts[iAlgo] = iAlgo;
-    L1Trigger_->GTAlgoPrescaling[iAlgo] = iAlgo*2;
-  }
-  for( unsigned int iTech = 0; iTech < 64; ++iTech ){
-    L1Trigger_->GTTechCounts[iTech] = iTech;
-    L1Trigger_->GTTechPrescaling[iTech] = iTech*2;
-  }
-  for( unsigned iPartZero = 0; iPartZero < 10; ++iPartZero ){
-    L1Trigger_->GTPartition0TriggerCounts[iPartZero];
-    L1Trigger_->GTPartition0DeadTime[iPartZero];
-  }
-
-  HLTPath newPath;
-  newPath.PathName = "Test Path Name";
-  newPath.L1Pass = 1;
-  newPath.PSPass = 2;
-  newPath.PAccept = 3;
-  newPath.PExcept = 4;
-  newPath.PReject = 5;
-  newPath.PrescalerModule = "Some prescaler module";
-  newPath.PSIndex = 2;
-
-  HLT_->HLT_Config_KEY = "Fake Lumi Key";
-  HLT_->HLTPaths.push_back(newPath);
-
-  TriggerDeadtime_->TriggerDeadtime = 91;
-
-  RingSet_->Set1Rings = "33L,34L";
-  RingSet_->Set2Rings = "35S,36S";
-  RingSet_->EtSumRings = "33L,34L,35S,36S";
 }
 
 bool HCAL_HLX::ROOTFileWriter::CloseFile(){

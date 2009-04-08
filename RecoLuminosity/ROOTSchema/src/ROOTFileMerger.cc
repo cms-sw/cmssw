@@ -1,6 +1,8 @@
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileMerger.h"
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileWriter.h"
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileReader.h"
+
+#include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
  
 #include <iomanip>
 #include <cstdio>
