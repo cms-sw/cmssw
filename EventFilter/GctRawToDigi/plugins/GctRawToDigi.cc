@@ -41,6 +41,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   LogDebug("GCT") << "GctRawToDigi will unpack FED Id " << fedId_;
 
   // If the GctFormatTranslate version has been forced from config file, instantiate the relevant one.
+  /***  THIS OBVIOUSLY STINKS - NEED TO REPLACE WITH SOMETHING BETTER THAN MASSIVE IF-ELSE SOON ***/
   if(formatVersion_ == 0) { edm::LogInfo("GCT") << "The required GCT Format Translator will be automatically determined from the first S-Link packet header."; }
   else if(formatVersion_ == 1)
   {
@@ -51,6 +52,11 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   {
     edm::LogInfo("GCT") << "You have selected to use GctFormatTranslateV35";
     formatTranslator_ = new GctFormatTranslateV35(hltMode_);
+  }
+  else if(formatVersion_ == 3)
+  {
+    edm::LogInfo("GCT") << "You have selected to use GctFormatTranslateV38";
+    formatTranslator_ = new GctFormatTranslateV38(hltMode_);    
   }
   else
   { 
@@ -203,11 +209,18 @@ bool GctRawToDigi::autoDetectRequiredFormatTranslator(const unsigned char * d)
     
   const uint32_t * p32 = reinterpret_cast<const uint32_t *>(d);
   unsigned firmwareHeader = p32[2];
-    
+
+  /***  THIS OBVIOUSLY STINKS - NEED TO REPLACE WITH SOMETHING BETTER THAN MASSIVE IF-ELSE SOON ***/
   if( firmwareHeader >= 25 && firmwareHeader <= 35 )
   {
-    edm::LogInfo("GCT") << "Firmware Version V" << firmwareHeader << " detected: GctFormatTranslateV35 will be used to unpack.";
+    edm::LogInfo("GCT") << "Firmware Version V" << firmwareHeader << " detected: GctFormatTranslateV" << firmwareHeader << " will be used to unpack.";
     formatTranslator_ = new GctFormatTranslateV35(hltMode_);
+    return true;
+  }
+  else if( firmwareHeader == 38 )
+  {
+    edm::LogInfo("GCT") << "Firmware Version V" << firmwareHeader << " detected: GctFormatTranslateV" << firmwareHeader << " will be used to unpack.";
+    formatTranslator_ = new GctFormatTranslateMCLegacy(hltMode_);
     return true;
   }
   else if( firmwareHeader == 0x00000000 )
