@@ -637,7 +637,7 @@ MuonErrorMatrixAnalyzer::endJob() {
     TListIter iter(theBookKeeping);
     //    std::cout<<"number of objects to write: "<<theBookKeeping->GetSize()<<std::endl;
     TObject * o=0;
-    while(o=iter.Next())
+    while( (o=iter.Next()) )
       {
 	//	std::cout<<"writing: "<<o->GetName()<<" in file: "<<thePlotFile->GetName()<<std::endl;
 	o->Write();
