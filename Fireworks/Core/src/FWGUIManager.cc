@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.105 2009/04/03 18:35:13 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.106 2009/04/07 14:01:34 chrjones Exp $
 //
 
 // system include files
@@ -188,22 +188,29 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    }
 }
 
-
+//
+// Destructor
+//
 FWGUIManager::~FWGUIManager()
 {
-   gEve->GetWindowManager()->Disconnect("WindowSelected(TEveWindow*)", this, "subviewCurrentChanged(TEveWindow*)");
-
-   for(std::vector<FWViewBase* >::iterator it = m_viewBases.begin(), itEnd = m_viewBases.end();
-       it != itEnd;
-       ++it) {
-      (*it)->destroy();
-   }
-
    delete m_summaryManager;
    delete m_detailViewManager;
    delete m_editableSelected;
    delete m_cmsShowMainFrame;
    delete m_ediFrame;
+}
+
+void
+FWGUIManager::evePreTerminate()
+{
+   //gDebug = 1;
+   gEve->GetWindowManager()->Disconnect("WindowSelected(TEveWindow*)", this, "subviewCurrentChanged(TEveWindow*)");
+
+   for(std::vector<FWViewBase* >::iterator it = m_viewBases.begin(), itEnd = m_viewBases.end();
+        it != itEnd;
+        ++it) {
+       (*it)->destroy();
+    }
 }
 
 //______________________________________________________________________________
@@ -883,6 +890,7 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       s<<ay;
       mainWindow.addKeyValue("y",FWConfiguration(s.str()));
    }
+   printf("Set main coordinates (%d %d) \n", ax, ay);
    oTo.addKeyValue(kMainWindow,mainWindow,true);
 
 
@@ -1034,6 +1042,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
             s >> y;
          }
       }
+      printf("set from (%d, %d)\n", x, y);
       m_cmsShowMainFrame->Move(x,y);
    }
 

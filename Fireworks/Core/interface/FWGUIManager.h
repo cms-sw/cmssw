@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.55 2009/03/20 16:11:36 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.56 2009/04/07 14:01:34 chrjones Exp $
 //
 
 // system include files
@@ -101,6 +101,7 @@ public:
                 const FWViewManagerManager*,
                 bool iDebugInterface = false);
    virtual ~FWGUIManager();
+   void     evePreTerminate();
 
    //configuration management interface
    void addTo(FWConfiguration&) const;

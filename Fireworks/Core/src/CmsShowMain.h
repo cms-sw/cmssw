@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.16 2009/01/23 21:35:42 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.17 2009/04/07 14:12:59 chrjones Exp $
 //
 
 // system include files
@@ -68,6 +68,7 @@ public:
    void draw(const fwlite::Event& event);
    void openData();
    void quit();
+   void doExit();
 
    // ---------- const member functions ---------------------
    const DetIdToMatrix& getIdToGeo() const {
@@ -103,6 +104,7 @@ public:
    void registerPhysicsObject(const FWPhysicsObjectDesc&);
 
    void notified(TSocket*);
+
 private:
    CmsShowMain(const CmsShowMain&); // stop default
 

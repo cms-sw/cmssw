@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.71 2009/04/08 14:55:53 jmuelmen Exp $
+// $Id: CmsShowMain.cc,v 1.72 2009/04/08 15:23:44 chrjones Exp $
 //
 
 // system include files
@@ -317,11 +317,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    }
 }
 
-// CmsShowMain::CmsShowMain(const CmsShowMain& rhs)
-// {
-//    // do actual copying here;
-// }
-
+//
+// Destruction
+//
 CmsShowMain::~CmsShowMain()
 {
    //avoids a seg fault from eve which happens if eve is terminated after the GUI is gone
@@ -331,6 +329,44 @@ CmsShowMain::~CmsShowMain()
    delete m_playTimer;
    delete m_playBackTimer;
 }
+
+
+class DieTimer : public TTimer
+{
+protected:
+  CmsShowMain* fApp;
+public:
+  DieTimer(CmsShowMain* app) : TTimer(), fApp(app)
+  {
+     Start(0, kTRUE);
+  }
+
+  virtual Bool_t Notify()
+  {
+     TurnOff();
+     fApp->doExit();
+     delete this;
+     return kFALSE;
+  }
+};
+
+void CmsShowMain::quit()
+{
+  new DieTimer(this);
+}
+
+void CmsShowMain::doExit()
+{
+  // fflush(stdout);
+  m_guiManager->evePreTerminate();
+  // sleep at least 150 ms 
+  // windows in ROOT GUI are destroyed in 150 ms timeout after 
+  gSystem->Sleep(151);
+  gSystem->ProcessEvents();
+
+  gSystem->ExitLoop();
+}
+
 
 //
 // assignment operators
@@ -390,13 +426,6 @@ void CmsShowMain::openData()
    if (fi.fFilename) m_navigator->loadFile(fi.fFilename);
    m_guiManager->clearStatus();
 }
-
-void CmsShowMain::quit()
-{
-   // m_configurationManager->writeToFile(m_configFileName);
-   gSystem->ExitLoop();
-}
-
 void CmsShowMain::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
 {
    m_eiManager->add(iItem);
