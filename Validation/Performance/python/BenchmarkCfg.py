@@ -24,5 +24,6 @@
 
 global listperfsuitekeywords
 #listperfsuitekeywords = [{"TimeSizeEvents":1,"TimeSizeCandles":"MinBias","cmsScimark":0,"cmsScimarkLarge": 0, "cpus":"All"}]
-listperfsuitekeywords = [{"TimeSizeEvents":2,"TimeSizeCandles":"MinBias","cmsScimark":1,"cmsScimarkLarge": 1, "cpus":"All"}]
+#listperfsuitekeywords = [{"TimeSizeEvents":1,"TimeSizeCandles":"MinBias,SingleElectronE1000,SingleMuMinusPt10,SinglePiMinusE1000,QCD_80_120,TTbar","cmsScimark":1,"cmsScimarkLarge": 1, "cmsdriverOptions":"--eventcontent FEVTDEBUGHLT --conditions=FrontierConditions_GlobalTag,IDEAL_V9::All","cpus":"All","stepOptions":"GEN-SIM,DIGI,RAW2DIGI-RECO"}]
+listperfsuitekeywords = [{"TimeSizeEvents":100,"TimeSizeCandles":"MinBias,SingleElectronE1000,SingleMuMinusPt10,SinglePiMinusE1000,QCD_80_120,TTbar","cmsScimark":10,"cmsScimarkLarge": 10, "cmsdriverOptions":"--eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,IDEAL_V12::All","cpus":"All","stepOptions":"GEN-SIM,DIGI,RAW2DIGI-RECO"}]
 #                         {"cores": [1,2]}, {"candles": ["MinBias"]}, {"TimeSizeEvents": 10}, {"IgProfEvents" :0}, {"ValgrindEvents":0},  {"runonspare": False}, {"cmsdriverOptions": "--contents FEVTDEBUGHLT --conditions=FrontierConditions_GlobalTag,IDEAL_V9::All"}]
