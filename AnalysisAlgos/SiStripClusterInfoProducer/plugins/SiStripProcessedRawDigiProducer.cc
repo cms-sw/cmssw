@@ -34,7 +34,6 @@ produce(edm::Event& e, const edm::EventSetup& es) {
   
   std::string label = findInput(inputRawdigis, e);
   if(      "VirginRaw"  == label )  vr_process(*inputRawdigis, *output); 
-  else if( "ScopeMode"   == label )  vr_process(*inputRawdigis, *output); 
   else if( "ProcessedRaw" == label )  pr_process(*inputRawdigis, *output); 
   else if( "ZeroSuppressed" == findInput(inputDigis,e) ) zs_process(*inputDigis, *output);
   else 
@@ -79,6 +78,7 @@ pr_process(const edm::DetSetVector<SiStripRawDigi> & input, edm::DetSetVector<Si
   for(edm::DetSetVector<SiStripRawDigi>::const_iterator detset=input.begin(); detset!=input.end(); detset++) {
     std::vector<float> digis;
     transform(detset->begin(), detset->end(), back_inserter(digis), boost::bind(&SiStripRawDigi::adc , _1));
+    subtractorCMN->subtract(detset->id, digis);
     common_process( detset->id, digis, output);
   }
 }
