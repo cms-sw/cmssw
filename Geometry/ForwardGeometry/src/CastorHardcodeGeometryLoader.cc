@@ -6,14 +6,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
-CastorHardcodeGeometryLoader::CastorHardcodeGeometryLoader() 
+CastorHardcodeGeometryLoader::CastorHardcodeGeometryLoader() :
+   theTopology ( new CastorTopology ) ,
+   extTopology ( theTopology )
 {
    init();
 }
 
-CastorHardcodeGeometryLoader::CastorHardcodeGeometryLoader( 
-   const CastorTopology& ht ) : 
-   theTopology( ht ) 
+CastorHardcodeGeometryLoader::CastorHardcodeGeometryLoader( const CastorTopology& ht ) : 
+   theTopology( 0 ) , 
+   extTopology ( &ht )
 {
    init();
 }
@@ -32,7 +34,7 @@ std::auto_ptr<CaloSubdetectorGeometry>
 CastorHardcodeGeometryLoader::load( DetId::Detector det, 
 				    int             subdet)
 {
-   std::auto_ptr<CaloSubdetectorGeometry> hg(new CastorGeometry(&theTopology));
+   std::auto_ptr<CaloSubdetectorGeometry> hg(new CastorGeometry( extTopology ));
    if( subdet == HcalCastorDetId::SubdetectorId )
    {
       fill( HcalCastorDetId::EM,  hg.get() ) ;
@@ -45,7 +47,7 @@ std::auto_ptr<CaloSubdetectorGeometry>
 CastorHardcodeGeometryLoader::load() 
 {
    std::auto_ptr<CaloSubdetectorGeometry> hg
-      ( new CastorGeometry( &theTopology ) ) ;
+      ( new CastorGeometry( extTopology ) ) ;
    fill( HcalCastorDetId::EM,  hg.get() ) ;
    fill( HcalCastorDetId::HAD, hg.get() ) ;
    return hg;
@@ -65,8 +67,8 @@ CastorHardcodeGeometryLoader::fill( HcalCastorDetId::Section section ,
    // start by making the new HcalDetIds
    std::vector<HcalCastorDetId> castorIds ;
 
-   const int firstCell ( theTopology.firstCell( section ) ) ;
-   const int lastCell  ( theTopology.lastCell(  section ) );
+   const int firstCell ( extTopology->firstCell( section ) ) ;
+   const int lastCell  ( extTopology->lastCell(  section ) );
 
    for( int imodule ( firstCell ) ; imodule <= lastCell ; ++imodule ) 
    {
@@ -74,7 +76,7 @@ CastorHardcodeGeometryLoader::fill( HcalCastorDetId::Section section ,
 	   isector <= HcalCastorDetId::kNumberSectorsPerEnd ; ++isector ) 
       {
 	 const HcalCastorDetId id ( section, false, isector, imodule ) ;
-	 if( theTopology.valid( id ) )  castorIds.push_back( id ) ;
+	 if( extTopology->valid( id ) )  castorIds.push_back( id ) ;
       }
    }
 //   edm::LogInfo("CastorHardcodeGeometry") 

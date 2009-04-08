@@ -27,17 +27,7 @@ CastorHardcodeGeometryEP::~CastorHardcodeGeometryEP()
 CastorHardcodeGeometryEP::ReturnType
 CastorHardcodeGeometryEP::produce(const CastorGeometryRecord& iRecord)
 {
-  //using namespace edm::es;
-  if (loader_==0) {
-    edm::ESHandle<CastorTopology> topo;
-    try {
-      iRecord.get(topo);
-      loader_=new CastorHardcodeGeometryLoader(*topo); 
-    } catch (...) {
-      loader_=new CastorHardcodeGeometryLoader();
-       edm::LogInfo("CASTOR") << "Using default Castor topology";
-         }
-        }
+   loader_=new CastorHardcodeGeometryLoader();
    std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry(loader_->load()) ;
 
    return pCaloSubdetectorGeometry ;

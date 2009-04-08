@@ -13,7 +13,7 @@ class CastorHardcodeGeometryLoader {
 public:
   CastorHardcodeGeometryLoader();
   explicit CastorHardcodeGeometryLoader(const CastorTopology& ht);
-  virtual ~CastorHardcodeGeometryLoader() {};
+  virtual ~CastorHardcodeGeometryLoader() { delete theTopology ; };
   
   virtual std::auto_ptr<CaloSubdetectorGeometry> load(DetId::Detector det, int subdet);
   std::auto_ptr<CaloSubdetectorGeometry> load();
@@ -24,7 +24,8 @@ private:
   CaloCellGeometry* makeCell( const HcalCastorDetId &  detId ,
 			      CaloSubdetectorGeometry* geom   ) const;
 
-  CastorTopology theTopology;
+      CastorTopology* theTopology;
+      const CastorTopology* extTopology;
 
 
   float theEMSectiondX;
