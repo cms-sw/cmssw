@@ -819,8 +819,8 @@ sub printBuildFile ()
 	    my ($n,$v1)=split /=/,$v,2;
 	    if($v=~/^$n=/)
 	    {
-	      if($v1=~/^\"(.*?)\"$/){print $outfile "$tab<flags ${f}='${n}=\\\"$1\\\"'";}
-	      else{print $outfile "$tab<flags ${f}='${n}=${v1}'";}
+	      if($v1=~/^\"(.*?)\"$/){print $outfile "$tab<flags ${f}=\"${n}=\\\"$1\\\"\"";}
+	      else{print $outfile "$tab<flags ${f}=\"${n}=${v1}\"";}
 	    }
 	    else{print $outfile "$tab<flags ${f}=\"${n}\"";}
 	  }
