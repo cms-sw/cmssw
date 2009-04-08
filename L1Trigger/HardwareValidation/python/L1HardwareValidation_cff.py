@@ -85,8 +85,8 @@ valEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
 valEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 valEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
 valHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(cms.InputTag('hcalDigis'),cms.InputTag('hcalDigis'))
-valRctDigis.ecalDigisLabel = 'ecalDigis:EcalTriggerPrimitives'
-valRctDigis.hcalDigisLabel = 'hcalDigis'
+valRctDigis.ecalDigis = 'ecalDigis:EcalTriggerPrimitives'
+valRctDigis.hcalDigis = 'hcalDigis'
 valGctDigis.inputLabel = 'gctDigis'
 #valDtTriggerPrimitiveDigis.inputLabel = 'muonDTDigis'
 valDttfDigis.DTDigi_Source = 'dttfDigis'
@@ -115,9 +115,6 @@ valHcalTriggerPrimitiveDigis.FG_threshold = cms.uint32(12)
 EcalTrigPrimESProducer.DatabaseFile = 'TPG_startup.txt.gz'
 HcalTPGCoderULUT.read_Ascii_LUTs = True
 HcalTPGCoderULUT.inputLUTs = 'L1Trigger/HardwareValidation/hwtest/globrun/HcalCRAFTPhysicsV2.dat'
-valRctDigis.UseMCAsInput = False
-valRctDigis.HFShift = -2
-valRctDigis.HBShift = 1
 
 # the comparator module
 # parameters are specified in cfi
