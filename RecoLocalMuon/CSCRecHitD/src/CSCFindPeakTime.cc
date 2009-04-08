@@ -46,18 +46,27 @@ float CSCFindPeakTime::parabolaFitTime( int tmax, const float* adc ) {
   // 3-point parabolic fit, courtesy Andy Kubik
  
    float timing = tmax; // @@ Reasonable default?
- 
-   float x1 = tmax-1;
-   float x2 = tmax;
-   float x3 = tmax+1;
+
    // By construction, input array adc is for bins tmax-1 to tmax+2
    float y1 = adc[0];
    float y2 = adc[1];
    float y3 = adc[2];
+
+ /* 
+   // Original code
+   float x1 = tmax-1;
+   float x2 = tmax;
+   float x3 = tmax+1;
    float top = (x2*x2-x1*x1)*(y3-y1) - (x3*x3-x1*x1)*(y2-y1);
    float bottom = (x1-x3)*(y2-y1) - (y3-y1)*(x1-x2);
-   if (bottom != 0) timing = top/(2*bottom);
-   return timing * 50.; //@@ in ns. May be some bin width offset things to handle here?
+   if (bottom != 0) timing = top/(2*bottom); 
+*/
+
+   // Checked and simplified... Tim Cox 08-Apr-2009
+   // Denominator is not zero unless we fed in nonsense values with y2 not the peak!
+   if ( (y1+y3) < 2.*y2 ) timing  = tmax + ( y1 - y3 ) / 2.*( y1 - 2.*y2 + y3 )
+
+   return timing * 50.; //@@ in ns.
 }
 
 float CSCFindPeakTime::fourPoleFitTime( int tmax, const float* adc, float t_peak ) {
