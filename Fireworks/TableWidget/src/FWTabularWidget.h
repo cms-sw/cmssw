@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:19 EST 2009
-// $Id: FWTabularWidget.h,v 1.1 2009/02/03 20:33:04 chrjones Exp $
+// $Id: FWTabularWidget.h,v 1.2 2009/03/04 16:13:05 chrjones Exp $
 //
 
 // system include files
@@ -61,7 +61,10 @@ class FWTabularWidget : public TGFrame
       void needToRedraw();
 
       ClassDef(FWTabularWidget,0);
-
+   
+      void setLineContext(GContext_t iContext);
+      void setBackgroundAreaContext(GContext_t iContext);
+   
    private:
       //FWTabularWidget(const FWTabularWidget&); // stop default
 
@@ -82,6 +85,7 @@ class FWTabularWidget : public TGFrame
       unsigned int m_hOffset;
 
       GContext_t m_normGC;
+      GContext_t m_backgroundGC;
 };
 
 

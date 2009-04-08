@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:21 EST 2009
-// $Id: FWTabularWidget.cc,v 1.4 2009/03/23 19:08:16 amraktad Exp $
+// $Id: FWTabularWidget.cc,v 1.5 2009/03/31 23:28:36 jmuelmen Exp $
 //
 
 // system include files
@@ -39,7 +39,8 @@ m_table(iTable),
 m_widthOfTextInColumns(m_table->numberOfColumns(),static_cast<unsigned int>(0)),
 m_vOffset(0),
 m_hOffset(0),
-m_normGC(context)
+m_normGC(context),
+m_backgroundGC(ULONG_MAX)
 {
 
    m_textHeight = iTable->cellHeight();
@@ -231,6 +232,10 @@ FWTabularWidget::DoRedraw()
    const int xOrigin = -m_hOffset;
    const int visibleWidth = m_tableWidth+xOrigin-kSeperatorWidth;
    int y=yOrigin;
+   if(m_backgroundGC != ULONG_MAX) {
+      gVirtualX->FillRectangle(fId,m_backgroundGC,xOrigin,y,visibleWidth,
+                               GetHeight());
+   }
    gVirtualX->DrawLine(fId, m_normGC, xOrigin, y, visibleWidth, y);
    //Draw data
    const  int numRows=m_table->numberOfRows();
@@ -287,6 +292,17 @@ FWTabularWidget::DoRedraw()
       gVirtualX->DrawLine(fId,m_normGC,x,0,x,y);
       x+=kSeperatorWidth;
    }
+}
+
+void 
+FWTabularWidget::setLineContext(GContext_t iContext)
+{
+   m_normGC = iContext;
+}
+void 
+FWTabularWidget::setBackgroundAreaContext(GContext_t iContext)
+{
+   m_backgroundGC = iContext;
 }
 
 //
