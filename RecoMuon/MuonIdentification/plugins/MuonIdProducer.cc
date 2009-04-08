@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.35 2009/04/07 16:34:29 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.36 2009/04/07 17:49:50 dmytro Exp $
 //
 //
 
@@ -199,7 +199,7 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
    reco::Muon aMuon;
    if ( links.trackerTrack()->pt() > ptThresholdToFillCandidateP4WithGlobalFit_ &&
 	links.globalTrack()->pt()  > ptThresholdToFillCandidateP4WithGlobalFit_ &&
-	( fabs(links.trackerTrack()->qoverpError()-links.globalTrack()->qoverpError()) < 
+	( fabs(links.trackerTrack()->qoverp()-links.globalTrack()->qoverp()) < 
 	  sigmaThresholdToFillCandidateP4WithGlobalFit_ * links.trackerTrack()->qoverpError() ) )
      aMuon = makeMuon( *(links.globalTrack()) );
    else
