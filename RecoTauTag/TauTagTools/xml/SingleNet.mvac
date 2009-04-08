@@ -30,7 +30,7 @@
            </input>
            <config>
               <method type="MLP" name="MLP">V:NCycles=800:HiddenLayers=21,41:TestRate=10</method>
-              <setup cuts="" options="NSigTrain=200000:NBkgTrain=200000"/>
+              <setup cuts="" options="NormMode=EqualNumEvents:NSigTrain=200000:NBkgTrain=200000"/>
            </config>
            <output>
               <var name="MVAOutput"/>

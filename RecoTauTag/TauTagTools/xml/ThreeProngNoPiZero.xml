@@ -337,7 +337,7 @@
            </input>
            <config>
               <method type="MLP" name="MLP">V:NCycles=700:HiddenLayers=19,37:TestRate=10</method>
-              <setup cuts="" options="NSigTrain=120000:NBkgTrain=120000"/>
+              <setup cuts="" options="NormMode=EqualNumEvents:NSigTrain=120000:NBkgTrain=120000"/>
            </config>
            <output>
               <var name="MVAOutput"/>

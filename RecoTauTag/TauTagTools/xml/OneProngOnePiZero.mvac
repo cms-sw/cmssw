@@ -22,7 +22,7 @@
            </input>
            <config>
               <method type="MLP" name="MLP">V:NCycles=700:HiddenLayers=15,31:TestRate=10</method>
-              <setup cuts="" options="NSigTrain=150000:NBkgTrain=150000:NSigTest=100000:NBkgTest=100000"/>
+              <setup cuts="" options="NormMode=EqualNumEvents:NSigTrain=150000:NBkgTrain=150000:NSigTest=100000:NBkgTest=100000"/>
            </config>
            <output>
               <var name="MVAOutput"/>

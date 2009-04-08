@@ -9,7 +9,7 @@ TauTagMVAComputerRecord = cms.ESSource("PoolDBESSource",
 		record = cms.string('TauTagMVAComputerRcd'),
 		tag = cms.string('TauNeuralClassifier')
 	)),
-	connect = cms.string('sqlite_file:/afs/cern.ch/user/f/friis/scratch0/TancLocal_31X.db'),
+        connect = cms.string('oracle://cms_cond_prep/CMS_COND_BTAU'),
 	BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
 )
 
