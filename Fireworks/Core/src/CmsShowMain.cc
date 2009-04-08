@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.70 2009/04/07 14:13:21 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.71 2009/04/08 14:55:53 jmuelmen Exp $
 //
 
 // system include files
@@ -262,7 +262,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       m_configurationManager->add("GUI",m_guiManager.get());
       m_guiManager->writeToConfigurationFile_.connect(boost::bind(&FWConfigurationManager::writeToFile,
                                                                   m_configurationManager.get(),_1));
-      //m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowMain::selectionChanged,this,_1));
       //figure out where to find macros
       //tell ROOT where to find our macros
       std::string macPath(cmspath);
@@ -285,69 +284,16 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       f=boost::bind(&CmsShowMain::loadGeometry,this);
       m_startupTasks->addTask(f);
 
-      //loadGeometry();
-      /*
-         // prepare geometry service
-         // ATTN: this should be made configurable
-         m_detIdToGeo.loadGeometry( m_geomFileName.c_str() );
-         m_detIdToGeo.loadMap( m_geomFileName.c_str() );
-       */
-
-      //setupViewManagers();
       f=boost::bind(&CmsShowMain::setupViewManagers,this);
       m_startupTasks->addTask(f);
-      /*
-         boost::shared_ptr<FWViewManagerBase> rpzViewManager( new FWRhoPhiZViewManager(m_guiManager.get()) );
-         rpzViewManager->setGeom(&m_detIdToGeo);
-         m_viewManager->add(rpzViewManager);
-
-         m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
-
-         m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWGlimpseViewManager(m_guiManager.get()) ) );
-       */
-
-      //setupConfiguration();
       f=boost::bind(&CmsShowMain::setupConfiguration,this);
       m_startupTasks->addTask(f);
-      //CDJ Old position
-      //gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_PableCompound);
-      //TEveTrackProjected::SetBreakTracks(kFALSE);
-
-      //setupDataHandling();
       f=boost::bind(&CmsShowMain::setupDataHandling,this);
       m_startupTasks->addTask(f);
-      /*
-         m_navigator = new CmsShowNavigator();
-         m_navigator->oldEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
-         m_navigator->newEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
-         m_navigator->newEvent.connect(sigc::mem_fun(*this, &CmsShowMain::draw));
-         m_navigator->newFileLoaded.connect(boost::bind(&CmsShowMain::resetInitialization,this));
-         m_navigator->newFileLoaded.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::newFile));
-         m_navigator->atBeginning.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disablePrevious));
-         m_navigator->atEnd.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disableNext));
-         if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
-         if (m_guiManager->getAction(cmsshow::sNextEvent) != 0) m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::nextEvent));
-         if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0) m_guiManager->getAction(cmsshow::sPreviousEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::previousEvent));
-         if (m_guiManager->getAction(cmsshow::sGotoFirstEvent) != 0) m_guiManager->getAction(cmsshow::sGotoFirstEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::firstEvent));
-         if (m_guiManager->getAction(cmsshow::sQuit) != 0) m_guiManager->getAction(cmsshow::sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::quit));
-         if (m_guiManager->getAction(cmsshow::sShowEventDisplayInsp) != 0) m_guiManager->getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createEDIFrame));
-         if (m_guiManager->getAction(cmsshow::sShowMainViewCtl) != 0) m_guiManager->getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createViewPopup));
-         if (m_guiManager->getRunEntry() != 0) m_guiManager->getRunEntry()->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::goToRun));
-         if (m_guiManager->getEventEntry() != 0) m_guiManager->getEventEntry()->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::goToEvent));
-         if (CSGAction* action = m_guiManager->getAction("Event Filter"))
-         action->activated.connect(boost::bind(&CmsShowNavigator::filterEvents,m_navigator,action));
-         else
-         printf("Why?\n\n\n\n\n\n");
-         if(m_inputFileName.size()) {
-         m_navigator->loadFile(m_inputFileName);
-         }
-       */
       gSystem->IgnoreSignal(kSigSegmentationViolation, true);
       if(eveMode) {
-         //setupDebugSupport();
          f=boost::bind(&CmsShowMain::setupDebugSupport,this);
          m_startupTasks->addTask(f);
-         //m_guiManager->openEveBrowserForDebugging();
       }
 
       if(vm.count(kPortCommandOpt)) {
@@ -459,32 +405,6 @@ void CmsShowMain::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
 //
 // const member functions
 //
-/*
-   int
-   CmsShowMain::draw(const fwlite::Event& iEvent)
-   {
-   const CmsShowMain* c = this;
-   return c->draw(iEvent);
-   }
-
-   int
-   CmsShowMain::draw(const fwlite::Event& iEvent) const
-   {
-   TStopwatch stopwatch;
-   m_eiManager->setGeom(&m_detIdToGeo);
-   m_eiManager->newEvent(&iEvent);
-   // m_textView->newEvent(iEvent);
-   stopwatch.Stop();
-   stopwatch.Print();
-   return m_guiManager->allowInteraction();
-   }
-
-   void
-   CmsShowMain::writeConfigurationFile(const std::string& iFileName) const
-   {
-   m_configurationManager->writeToFile(iFileName);
-   }
- */
 
 //STARTUP TASKS
 
@@ -742,8 +662,6 @@ CmsShowMain::setupDataHandling()
    m_navigator->newFileLoaded.connect(boost::bind(&CmsShowMain::resetInitialization,this));
    m_navigator->newFileLoaded.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::newFile));
    m_navigator->atBeginning.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disablePrevious));
-   // m_navigator->atBeginning.connect(sigc::mem_fun(*this, &CmsShowMain::reachedEnd));
-   // m_navigator->atEnd.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disableNext));
    m_navigator->atEnd.connect(sigc::mem_fun(*this, &CmsShowMain::reachedEnd));
    if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
    if (m_guiManager->getAction(cmsshow::sNextEvent) != 0) m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::nextEvent));
@@ -877,14 +795,6 @@ void
 CmsShowMain::reachedEnd()
 {
    if(!m_isPlaying) m_guiManager->disableNext();
-   /*
-      stopPlaying();
-      if(m_forward) {
-      m_guiManager->playEventsAction()->stop();
-      } else {
-      m_guiManager->playEventsBackwardsAction()->stop();
-      }
-    */
 }
 
 void
