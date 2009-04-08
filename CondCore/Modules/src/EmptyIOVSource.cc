@@ -32,19 +32,21 @@ namespace cond{
     return false;
   }  
   void EmptyIOVSource::setRunAndEventInfo(){
-    if( m_timeType=="runnumber" ){
-      setRunNumber(*m_current);
-    }else if( m_timeType=="timestamp" ){
-      setTime(*m_current);
-    }else if( m_timeType=="lumiid" ){
-      edm::LuminosityBlockID l(*m_current);
-      setRunNumber(l.run());
-      //std::cout<<"run "<<l.run()<<std::endl;
-      //std::cout<<"luminosityBlock "<<l.luminosityBlock()<<std::endl;
-      setLuminosityBlockNumber_t(l.luminosityBlock());
-    }else{
-      throw cond::Exception(std::string("EmptyIOVSource::setRunAndEventInfo: ")+m_timeType+std::string("is not one of the supported types: runnumber,timestamp,lumiid") );
+    if(*m_current<=m_lastValid){
+      if( m_timeType=="runnumber" ){
+	setRunNumber(*m_current);
+      }else if( m_timeType=="timestamp" ){
+	setTime(*m_current);
+      }else if( m_timeType=="lumiid" ){
+	edm::LuminosityBlockID l(*m_current);
+	setRunNumber(l.run());
+	//std::cout<<"run "<<l.run()<<std::endl;
+	//std::cout<<"luminosityBlock "<<l.luminosityBlock()<<std::endl;
+	setLuminosityBlockNumber_t(l.luminosityBlock());
+      }else{
+	throw cond::Exception(std::string("EmptyIOVSource::setRunAndEventInfo: ")+m_timeType+std::string("is not one of the supported types: runnumber,timestamp,lumiid") );
+      }
+      setEventNumber(1);
     }
-    setEventNumber(1);
   }
 }//ns cond
