@@ -125,6 +125,55 @@ TauEfficiencies = cms.EDAnalyzer("DQMHistEffProducer",
         efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerLeadingPion_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'),
         parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
       ),      
+# Tanc efficiency calculations
+      ShrinkingConeTancIDMatchingEfficiencies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_Matched/shrinkingConePFTauProducerMatched_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_Matched/PFJetMatchingEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+      ),
+      ShrinkingConeTancIDLeadingPionPtCutEfficiencies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByLeadingPionPtCut/shrinkingConePFTauDiscriminationByLeadingPionPtCut_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByLeadingPionPtCut/LeadingPionPtCutEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+      ),
+      ShrinkingConeTancIDOnePercentEfficienies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrOnePercent/shrinkingConePFTauDiscriminationByTaNCfrOnePercent_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrOnePercent/TaNCfrOnePercentEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+      ),
+      ShrinkingConeTancIDHalfPercentEfficienies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrHalfPercent/shrinkingConePFTauDiscriminationByTaNCfrHalfPercent_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrHalfPercent/TaNCfrHalfPercentEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+      ),
+      ShrinkingConeTancIDQuarterPercentEfficienies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent/shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent/TaNCfrQuarterPercentEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+      ),
+      ShrinkingConeTancIDTenthPercentEfficienies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrTenthPercent/shrinkingConePFTauDiscriminationByTaNCfrTenthPercent_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationByTaNCfrTenthPercent/TaNCfrTenthPercentEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+      ),
+      ShrinkingConeTancIDMuonRejectionEfficiencies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationAgainstElectron/shrinkingConePFTauDiscriminationAgainstElectron_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationAgainstElectron/AgainstElectronEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+      ),
+      ShrinkingConeTancIDElectronRejectionEfficiencies = cms.PSet(
+        numerator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationAgainstMuon/shrinkingConePFTauDiscriminationAgainstMuon_vs_#PAR#TauVisible'),
+        denominator = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_ReferenceCollection/nRef_Taus_vs_#PAR#TauVisible'),
+        efficiency = cms.string('RecoTauV/shrinkingConePFTauProducerTanc_shrinkingConePFTauDiscriminationAgainstMuon/AgainstMuonEff#PAR#'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'energy')
+      ),      
 # CALOTAU EFFICIENCY CALCULATIONS      
       CaloTauIDMatchingEfficiencies = cms.PSet(
         numerator = cms.string('RecoTauV/caloRecoTauProducer_Matched/caloRecoTauProducerMatched_vs_#PAR#TauVisible'),
