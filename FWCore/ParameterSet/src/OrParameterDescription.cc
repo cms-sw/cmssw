@@ -80,8 +80,9 @@ namespace edm {
       return;
     }
 
+    if (optional) return;
+
     node_left_->validate(pset, validatedLabels, false);
-    if (node_right_->exists(pset)) node_right_->validate(pset, validatedLabels, false);
   }
 
   void
@@ -157,7 +158,7 @@ namespace edm {
 	                                              iEnd = duplicateTypes.end();
              iter != iEnd;
              ++iter) {
-          ss << " \"" << *iter <<  "\"\n";
+          ss << " \"" << parameterTypeEnumToString(*iter) <<  "\"\n";
         }
         throw edm::Exception(errors::LogicError)
           << "Types used for wildcards in a node of a ParameterSetDescription\n"

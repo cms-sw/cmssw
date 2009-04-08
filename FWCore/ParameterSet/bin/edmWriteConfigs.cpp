@@ -18,7 +18,7 @@
 //
 // Original Author:  W. David Dagenhart
 //         Created:  10 December 2008
-// $Id$
+// $Id: edmWriteConfigs.cpp,v 1.1 2009/01/09 22:34:11 wdd Exp $
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
@@ -70,8 +70,28 @@ namespace {
     std::string baseType = filler->baseType();
  
     edm::ConfigurationDescriptions descriptions;
-    filler->fill(descriptions);
-    descriptions.writeCfis(baseType, pluginName);
+
+    try {
+      filler->fill(descriptions);
+    }
+    catch(cms::Exception& e) {
+      edm::Exception toThrow(edm::errors::LogicError,
+        "Error occured while creating ParameterSetDescriptions\n");
+        toThrow << "for module of base type \'" << baseType << "\' with plugin name \'" << pluginName << "\'\n";
+        toThrow.append(e);
+        throw toThrow;
+    }
+
+    try {
+      descriptions.writeCfis(baseType, pluginName);
+    }
+    catch(cms::Exception& e) {
+      edm::Exception toThrow(edm::errors::LogicError,
+        "Error occured while writing cfi files using ParameterSetDescriptions\n");
+        toThrow << "for module of base type \'" << baseType << "\' with plugin name \'" << pluginName << "\'\n";
+        toThrow.append(e);
+        throw toThrow;
+    }
   }
 }
 
@@ -108,9 +128,10 @@ int main (int argc, char **argv)
     return 0;
   }
 
+  std::string library;
+
   try {
 
-    std::string library;
     if (vm.count(kLibraryOpt)) {
       library = vm[kLibraryOpt].as<std::string>();
     }
@@ -147,11 +168,13 @@ int main (int argc, char **argv)
                                           _1,
                                           factory));
   } catch(cms::Exception& e) {
-    std::cerr << "The following problem occurred\n" 
+    std::cerr << "The executable \"edmWriteConfigs\" failed while processing library " << library << ".\n"
+              << "The following problem occurred:\n" 
               << e.what() << std::endl;
     return 1;
   } catch(const std::exception& e) {
-    std::cerr << "The following problem occurred\n"
+    std::cerr << "The executable \"edmWriteConfigs\" failed while processing library " << library << ".\n"
+              << "The following problem occurred:\n" 
               << e.what() << std::endl;
     return 1;
   }

@@ -40,18 +40,22 @@ namespace edm {
                         std::set<std::string> & validatedLabels,
                         bool optional) const {
     validatedLabels.insert(matchingNames.begin(), matchingNames.end());
-    if (optional || criteria_ == RequireZeroOrMore) return;
-    if (criteria_ == RequireAtLeastOne && matchingNames.size() < 1U) {
+    if (criteria_ == RequireZeroOrMore) return;
+    if (criteria_ == RequireAtLeastOne && matchingNames.size() < 1U && !optional) {
       throw edm::Exception(errors::Configuration)
-        << "Parameter wildcard of type \"" << parameterTypeEnumToString(type()) << "\" requires\n"
-        << "at least one match and there are no parameters in the configuration matching\n"
+        << "Parameter wildcard of type \"" << parameterTypeEnumToString(type()) << "\" requires "
+        << "at least one match\n"
+        << "and there are no parameters in the configuration matching\n"
         << "that type.\n";
     }
-    else if (criteria_ == RequireExactlyOne && matchingNames.size() != 1U) {
-      throw edm::Exception(errors::Configuration)
-        << "Parameter wildcard of type \"" << parameterTypeEnumToString(type()) << "\" requires\n"
-        << "exactly one match and there are " << matchingNames.size() << " matching parameters\n"
-        << "in the configuration.\n";
+    else if (criteria_ == RequireExactlyOne) {
+      if ( (matchingNames.size() < 1U && !optional) ||
+           matchingNames.size() > 1U) {
+        throw edm::Exception(errors::Configuration)
+          << "Parameter wildcard of type \"" << parameterTypeEnumToString(type()) << "\" requires\n"
+          << "exactly one match and there are " << matchingNames.size() << " matching parameters\n"
+          << "in the configuration.\n";
+      }
     }
   }
 

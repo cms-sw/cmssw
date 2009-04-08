@@ -98,7 +98,7 @@ namespace edm {
   bool
   AndParameterDescriptions::
   partiallyExists_(ParameterSet const& pset) const {
-    return node_left_->exists(pset) || node_right_->exists(pset);
+    return node_left_->partiallyExists(pset) || node_right_->partiallyExists(pset);
   }
 
   int
@@ -151,7 +151,7 @@ namespace edm {
 	                                              iEnd = duplicateTypes.end();
              iter != iEnd;
              ++iter) {
-          ss << " \"" << *iter <<  "\"\n";
+          ss << " \"" << parameterTypeEnumToString(*iter) <<  "\"\n";
         }
         throw edm::Exception(errors::LogicError)
           << "Types used for wildcards in different nodes of a ParameterSetDescription\n"

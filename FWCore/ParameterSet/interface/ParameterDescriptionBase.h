@@ -13,23 +13,6 @@
  Usage:
     <usage>
 
- In addition to whatever you need to do to add a new type to the
- ParameterSet code, you need to do the following to add
- a new type to the ParameterSetDescription code:
- 1.  add a value to the enumeration ParameterTypes (ParameterDescriptionBase.h)
- 2.  add new TYPE_TO_NAME and TYPE_TO_ENUM macros (ParameterDescriptionBase.cc)
- 3.  add declaration of writeValueToCfi function to ParameterDescription.h
- (Two of them if a vector of the type is also allowed)
- 4.  define writeValueToCfi in ParameterDescription.cc
- 5.  Consider whether you need a specialization of writeSingleValue and
- writeValueInVector in ParameterDescription.cc. The first is needed
- if operator<< for the new type does not print the correct format for a cfi.
- The second is needed if the format in a vector is different from the format
- when a single value is not in a vector.
- 6.  add parameters of that type and vectors of that type to
- FWCore/Integration/test/ProducerWithPSetDesc.cc
- 7.  Check and update the reference file in
- FWCore/Integration/test/unit_test_outputs/testProducerWithPsetDesc_cfi.py
 */
 //
 // Original Author:  Chris Jones

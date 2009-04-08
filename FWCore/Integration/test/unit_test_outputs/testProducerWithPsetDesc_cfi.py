@@ -185,7 +185,7 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
         bvalue2 = cms.double(101),
         iswitch = cms.int32(1),
         ivalue1 = cms.double(101),
-        ivalue2 = cms.double(101),
+        ivalue2 = cms.untracked.double(101),
         sswitch = cms.string('1'),
         svalue1 = cms.double(101),
         svalue2 = cms.double(101),
@@ -204,5 +204,42 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
       ouDrinks = cms.untracked.uint32(5)
     )
   ),
-  wildcardPset = cms.PSet()
+  wildcardPset = cms.PSet(),
+  switchPset = cms.PSet(
+    iswitch = cms.int32(1),
+    ivalue1 = cms.double(101),
+    ivalue2 = cms.double(101)
+  ),
+  xorPset = cms.PSet(
+    type = cms.string('11'),
+    type1 = cms.string('11')
+  ),
+  orPset = cms.PSet(
+    x1 = cms.string('11'),
+    y1 = cms.string('11')
+  ),
+  andPset = cms.PSet(
+    x1 = cms.string('11'),
+    x2 = cms.uint32(11),
+    y1 = cms.string('11'),
+    y2 = cms.uint32(11),
+    z1 = cms.string('11'),
+    z2 = cms.uint32(11),
+    b1 = cms.string('11'),
+    b2 = cms.uint32(11),
+    b3 = cms.uint32(11),
+    b4 = cms.uint32(11),
+    b5 = cms.uint32(11),
+    b6 = cms.uint32(11)
+  ),
+  ifExistsPset = cms.PSet(
+    x1 = cms.uint32(11),
+    x2 = cms.string('11'),
+    z1 = cms.uint32(11),
+    z2 = cms.string('11')
+  ),
+  allowedLabelsPset = cms.PSet(
+    allowedLabels = cms.vstring(),
+    allowedLabelsUntracked = cms.untracked.vstring()
+  )
 )

@@ -12,13 +12,13 @@ namespace edm {
 
   AllowedLabelsDescriptionBase::
   AllowedLabelsDescriptionBase(std::string const& label, bool isTracked):
-    parameterHoldingLabels_(label, std::vector<std::string>(), true),
+    parameterHoldingLabels_(label, std::vector<std::string>(), isTracked),
     isTracked_(isTracked) {
   }
 
   AllowedLabelsDescriptionBase::
   AllowedLabelsDescriptionBase(char const* label, bool isTracked):
-    parameterHoldingLabels_(label, std::vector<std::string>(), true),
+    parameterHoldingLabels_(label, std::vector<std::string>(), isTracked),
     isTracked_(isTracked) {
   }
 
@@ -40,7 +40,13 @@ namespace edm {
 
     parameterHoldingLabels_.validate(pset, validatedLabels, optional);
     if (parameterHoldingLabels_.exists(pset)) {
-      std::vector<std::string> allowedLabels = pset.getParameter<std::vector<std::string> >(parameterHoldingLabels_.label());
+      std::vector<std::string> allowedLabels;
+      if (isTracked()) {
+        allowedLabels = pset.getParameter<std::vector<std::string> >(parameterHoldingLabels_.label());
+      }
+      else {
+        allowedLabels = pset.getUntrackedParameter<std::vector<std::string> >(parameterHoldingLabels_.label());
+      }
       for_all(allowedLabels, boost::bind(&AllowedLabelsDescriptionBase::validateAllowedLabel_,
                                          boost::cref(this),
                                          _1,

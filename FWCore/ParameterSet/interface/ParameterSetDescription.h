@@ -149,7 +149,7 @@ namespace edm {
                           bool writeToCfi) {
       ifExists(node1, node2, true, writeToCfi);
     }
-    /*
+
     template<class T, class U>
     void
     labelsFrom(U const& iLabel) {
@@ -199,7 +199,7 @@ namespace edm {
     labelsFromOptionalUntracked(U const& iLabel, bool writeToCfi, T const& desc) {
       labelsFrom<T,U>(iLabel, false, true, writeToCfi, desc);
     }
-    */
+
     bool anythingAllowed() const { return anythingAllowed_; }
     bool isUnknown() const { return unknown_; }
 
@@ -242,7 +242,6 @@ namespace edm {
 		  ParameterDescriptionNode const& node2,
                   bool optional, bool writeToCfi);
 
-    /*
     template<class T, class U>
     void
     labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi);
@@ -250,7 +249,6 @@ namespace edm {
     template<class T, class U>
     void
     labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi, T const& desc);
-    */
 
     static
     void
@@ -324,7 +322,7 @@ namespace edm {
     std::auto_ptr<ParameterDescriptionNode> pdswitch(new ParameterSwitch<T>(switchParameter, cases));
     addNode(pdswitch, optional, writeToCfi);
   }
-  /*
+
   template<class T, class U>
   void
   ParameterSetDescription::
@@ -340,7 +338,6 @@ namespace edm {
     std::auto_ptr<ParameterDescriptionNode> pd(new AllowedLabelsDescription<T>(iLabel, desc, isTracked));
     addNode(pd, optional, writeToCfi);
   }
-  */
 }
 
 #endif

@@ -144,7 +144,7 @@ namespace edm {
       }
       throw edm::Exception(errors::LogicError)
         << "Labels used in a node of a ParameterSetDescription\n"
-        << "\"or\" expression must be not be the same as labels used\n"
+        << "\"ifExists\" expression must be not be the same as labels used\n"
         << "in other nodes of the expression.  The following duplicate\n"
         << "labels were detected:\n"
         << ss.str()
@@ -169,11 +169,11 @@ namespace edm {
 	                                              iEnd = duplicateTypes.end();
              iter != iEnd;
              ++iter) {
-          ss << " \"" << *iter <<  "\"\n";
+          ss << " \"" << parameterTypeEnumToString(*iter) <<  "\"\n";
         }
         throw edm::Exception(errors::LogicError)
           << "Types used for wildcards in a node of a ParameterSetDescription\n"
-          << "\"or\" expression must be different from types used for other parameters\n"
+          << "\"ifExists\" expression must be different from types used for other parameters\n"
           << "in other nodes.  The following duplicate types were detected:\n"
           << ss.str()
           << "\n";
