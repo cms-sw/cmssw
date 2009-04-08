@@ -25,6 +25,7 @@
 //#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ValidHitPairFilter.h"
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerWrapper.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerFactory.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -128,7 +129,7 @@ void PixelTrackProducerWithZPos::produce
             << ps.getParameter<string>("passLabel")
             << "]\033[22;0m";
   
-  TracksWithRecHits tracks;
+  TracksWithTTRHs tracks;
 
   typedef vector<TrackingRegion* > Regions;
   typedef Regions::const_iterator IR;
@@ -173,12 +174,12 @@ void PixelTrackProducerWithZPos::produce
       }
 
       // Add tracks 
-      tracks.push_back(TrackWithRecHits(track, triplet));
+      tracks.push_back(TrackWithTTRHs(track, triplet));
     }
   }
 
   // Cleaner
-  if(theCleaner) tracks = theCleaner->cleanTracks(tracks);
+  if(theCleaner) tracks = PixelTrackCleanerWrapper(theCleaner).clean(tracks);
 
   // store tracks
   store(ev, tracks);
@@ -190,7 +191,7 @@ void PixelTrackProducerWithZPos::produce
 
 /*****************************************************************************/
 void PixelTrackProducerWithZPos::store
-(edm::Event& ev, const TracksWithRecHits & tracksWithHits)
+(edm::Event& ev, const TracksWithTTRHs& tracksWithHits)
 {
   std::auto_ptr<reco::TrackCollection> tracks(new reco::TrackCollection);
   std::auto_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection);

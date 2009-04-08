@@ -13,15 +13,6 @@
 using namespace std;
 using namespace pixeltrackfitting;
 
-typedef std::vector<const TrackingRecHit*> TTRHS;
-TTRHS TrackCleaner::ttrhs(const SeedingHitSet & h) const
-{
-  TTRHS result;
-  for (unsigned int i=0, n=h.size(); i < n; ++i) result.push_back(h[i]->hit());
-  return result;
-}
-
-
 /*****************************************************************************/
 class HitComparator
 {
@@ -128,7 +119,7 @@ TracksWithRecHits TrackCleaner::cleanTracks
 
   for(unsigned int i = 0; i < tracks.size(); i++)
   LogTrace("MinBiasTracking")
-    << "   Track #" << i << " : " << HitInfo::getInfo(ttrhs(tracks[i].second));
+    << "   Track #" << i << " : " << HitInfo::getInfo(tracks[i].second);
 
   do
   {
@@ -140,9 +131,10 @@ TracksWithRecHits TrackCleaner::cleanTracks
   for(unsigned int i = 0; i < tracks.size(); i++)
   if(keep[i])
   {
-    TTRHS rh = ttrhs(tracks[i].second); 
-    //recHit = tracks[i].second.begin(); recHit!= tracks[i].second.end(); recHit++)
-    for(TTRHS::const_iterator recHit =rh.begin(); recHit!= rh.end();++recHit) recHitMap[*recHit].push_back(i);
+    for(vector<const TrackingRecHit *>::const_iterator
+        recHit = tracks[i].second.begin();
+        recHit!= tracks[i].second.end(); recHit++)
+      recHitMap[*recHit].push_back(i);
   }
 
   // Look at each track
@@ -158,12 +150,9 @@ TracksWithRecHits TrackCleaner::cleanTracks
     vector<int> detLayers;
 
     // Go trough all rechits of this track
-
-    TTRHS rh = ttrhs(tracks[i].second);
-    for(TTRHS::const_iterator recHit =rh.begin(); recHit!= rh.end();++recHit) 
-//    for(vector<const TrackingRecHit *>::const_iterator
-//        recHit = tracks[i].second.begin();
-//        recHit!= tracks[i].second.end(); recHit++)
+    for(vector<const TrackingRecHit *>::const_iterator
+        recHit = tracks[i].second.begin();
+        recHit!= tracks[i].second.end(); recHit++)
     {
       // Get tracks sharing this rechit
       vector<unsigned int> sharing = recHitMap[*recHit];
@@ -190,20 +179,15 @@ TracksWithRecHits TrackCleaner::cleanTracks
                                    tracks[j].second.size())/2)
         { // more than min(hits1,hits2)/2 rechits are shared
 
-          if(!hasCommonLayer(ttrhs(tracks[i].second),ttrhs(tracks[j].second),detLayers))
+          if(!hasCommonLayer(tracks[i].second,tracks[j].second,detLayers))
           { 
             // merge tracks, add separate hits of the second to the first one
-    for (unsigned int ik=0; ik < tracks[j].second.size(); ik++) {
-       const TrackingRecHit *recHit = tracks[j].second[ik]->hit();
-       TTRHS rh = ttrhs(tracks[i].second);
-       if(find(rh.begin(),rh.end(),recHit) == rh.end()) tracks[i].second.add(tracks[j].second[ik]);
-//            for(vector<const TrackingRecHit *>::const_iterator
-//                recHit = tracks[j].second.begin();
-//                recHit!= tracks[j].second.end(); recHit++)
-//              if(find(tracks[i].second.begin(),
-//                      tracks[i].second.end(),*recHit) == tracks[i].second.end())
-//                tracks[i].second.push_back(*recHit);
-}
+            for(vector<const TrackingRecHit *>::const_iterator
+                recHit = tracks[j].second.begin();
+                recHit!= tracks[j].second.end(); recHit++)
+              if(find(tracks[i].second.begin(),
+                      tracks[i].second.end(),*recHit) == tracks[i].second.end())
+                tracks[i].second.push_back(*recHit);
 
             LogTrace("MinBiasTracking") << "   Merge #" << i << " #" << j;
   
@@ -273,7 +257,7 @@ TracksWithRecHits TrackCleaner::cleanTracks
 
   for(unsigned int i = 0; i < cleaned.size(); i++)
   LogTrace("MinBiasTracking")
-    << "   Track #" << i << " : " << HitInfo::getInfo(ttrhs(cleaned[i].second));
+    << "   Track #" << i << " : " << HitInfo::getInfo(cleaned[i].second);
 
   return cleaned;
 }

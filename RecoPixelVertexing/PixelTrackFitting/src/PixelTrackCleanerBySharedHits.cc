@@ -18,6 +18,7 @@ PixelTrackCleanerBySharedHits::~PixelTrackCleanerBySharedHits()
 
 TracksWithRecHits PixelTrackCleanerBySharedHits::cleanTracks(const TracksWithRecHits & trackHitPairs)
 {
+  typedef std::vector<const TrackingRecHit *> RecHits;
   trackOk.clear();
 
   LogDebug("PixelTrackCleanerBySharedHits") << "Cleanering tracks" << "\n";
@@ -27,7 +28,7 @@ TracksWithRecHits PixelTrackCleanerBySharedHits::cleanTracks(const TracksWithRec
   for (iTrack1 = 0; iTrack1 < size; iTrack1++)
   {
     track1 = trackHitPairs.at(iTrack1).first;
-    SeedingHitSet recHits1 = trackHitPairs.at(iTrack1).second;
+    RecHits recHits1 = trackHitPairs.at(iTrack1).second;
 
     if (!trackOk.at(iTrack1)) continue;
 
@@ -36,21 +37,21 @@ TracksWithRecHits PixelTrackCleanerBySharedHits::cleanTracks(const TracksWithRec
       if (!trackOk.at(iTrack1) || !trackOk.at(iTrack2)) continue;
 
       track2 = trackHitPairs.at(iTrack2).first;
-      SeedingHitSet recHits2 = trackHitPairs.at(iTrack2).second;
+      RecHits recHits2 = trackHitPairs.at(iTrack2).second;
 
       int commonRecHits = 0;
-      for (unsigned int iRecHit1 = 0; iRecHit1 < recHits1.size(); iRecHit1++)
+      for (int iRecHit1 = 0; iRecHit1 < (int)recHits1.size(); iRecHit1++)
       {
-        for (unsigned int iRecHit2 = 0; iRecHit2 < recHits2.size(); iRecHit2++)
+        for (int iRecHit2 = 0; iRecHit2 < (int)recHits2.size(); iRecHit2++)
         {
-           if (recHitsAreEqual(recHits1[iRecHit1]->hit(), recHits2[iRecHit2]->hit())) commonRecHits++;
+          if (recHitsAreEqual(recHits1.at(iRecHit1), recHits2.at(iRecHit2))) commonRecHits++;
         }
       }
       if (commonRecHits > 1) cleanTrack();
     }
   }
 
-  TracksWithRecHits cleanedTracks;
+  vector<TrackWithRecHits> cleanedTracks;
 
   for (int i = 0; i < size; i++)
   {

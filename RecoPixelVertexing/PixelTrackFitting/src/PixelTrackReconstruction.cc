@@ -19,6 +19,7 @@
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerFactory.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerWrapper.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -73,7 +74,7 @@ void PixelTrackReconstruction::init(const edm::EventSetup& es)
 
 }
 
-void PixelTrackReconstruction::run(TracksWithRecHits & tracks, edm::Event& ev, const edm::EventSetup& es)
+void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, const edm::EventSetup& es)
 {
   typedef std::vector<TrackingRegion* > Regions;
   typedef Regions::const_iterator IR;
@@ -104,13 +105,13 @@ void PixelTrackReconstruction::run(TracksWithRecHits & tracks, edm::Event& ev, c
       }
 
       // add tracks
-      tracks.push_back(TrackWithRecHits(track, triplet));
+      tracks.push_back(TrackWithTTRHs(track, triplet));
     }
     theGenerator->clear();
   }
 
   // skip ovelrapped tracks
-  if(theCleaner) tracks = theCleaner->cleanTracks(tracks); 
+  if (theCleaner) tracks = PixelTrackCleanerWrapper(theCleaner).clean(tracks);
 
   // clean memory
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) delete (*ir);

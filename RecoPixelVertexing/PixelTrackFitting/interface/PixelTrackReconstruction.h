@@ -17,7 +17,7 @@ public:
   PixelTrackReconstruction( const edm::ParameterSet& conf);
   ~PixelTrackReconstruction(); 
 
-  void run(pixeltrackfitting::TracksWithRecHits & tah, edm::Event& ev, const edm::EventSetup& es);
+  void run(pixeltrackfitting::TracksWithTTRHs& tah, edm::Event& ev, const edm::EventSetup& es);
 
   void halt();
   void init(const edm::EventSetup& es);

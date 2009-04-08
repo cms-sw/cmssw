@@ -40,14 +40,14 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   LogDebug("PixelTrackProducer, produce")<<"event# :"<<ev.id();
 
-  TracksWithRecHits tracks;
+  TracksWithTTRHs tracks;
   theReconstruction.run(tracks,ev,es);
 
   // store tracks
   store(ev, tracks);
 }
 
-void PixelTrackProducer::store(edm::Event& ev, const TracksWithRecHits & tracksWithHits)
+void PixelTrackProducer::store(edm::Event& ev, const TracksWithTTRHs& tracksWithHits)
 {
   std::auto_ptr<reco::TrackCollection> tracks(new reco::TrackCollection);
   std::auto_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection);

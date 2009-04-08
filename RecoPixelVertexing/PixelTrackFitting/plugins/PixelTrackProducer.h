@@ -19,7 +19,7 @@ public:
   virtual void produce(edm::Event& ev, const edm::EventSetup& es);
 
 private:
-  void store(edm::Event& ev, const pixeltrackfitting::TracksWithRecHits & selectedTracks);
+  void store(edm::Event& ev, const pixeltrackfitting::TracksWithTTRHs& selectedTracks);
   PixelTrackReconstruction theReconstruction;
 };
 #endif

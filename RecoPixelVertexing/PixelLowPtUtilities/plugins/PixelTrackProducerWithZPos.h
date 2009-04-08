@@ -41,7 +41,7 @@ class PixelTrackProducerWithZPos :  public edm::EDProducer
                                        const reco::VertexCollection* vertices);
 */
     void store(edm::Event& ev,
-               const pixeltrackfitting::TracksWithRecHits & selectedTracks);
+               const pixeltrackfitting::TracksWithTTRHs& selectedTracks);
 
     edm::ParameterSet ps;
 
