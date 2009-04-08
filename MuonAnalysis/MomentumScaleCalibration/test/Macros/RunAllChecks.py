@@ -35,7 +35,7 @@ gROOT.ProcessLine( "macroPlot("+arguments("PhiPlus")+")" )
 # ----------
 gROOT.ProcessLine(".x "+macrosDir+"ResolDraw.cc+(\"0\")")
 gROOT.ProcessLine(".x "+macrosDir+"ResolDraw.cc+(\"3\")")
-gROOT.ProcessLine(".x "+macrosDir+"ResolCompare.cc")
+gROOT.ProcessLine(".x "+macrosDir+"ResolCompare.cc(\"0\", \"3\")")
 
 #os.system("root -l "+macrosDir+"ResolCompare.cc")
 

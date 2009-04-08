@@ -17,7 +17,10 @@ draw( const TString & resolName, TDirectory * resolDir,
 {
   TH1D * resolVSpt = (TH1D*) resolDir->Get(resolName);
   TH1D * resolVSptAfter = 0;
-  if( resolDirAfter != 0 ) resolVSptAfter = (TH1D*) resolDirAfter->Get(resolName);
+  if( resolDirAfter != 0 ) {
+    resolVSptAfter = (TH1D*) resolDirAfter->Get(resolName);
+    cout << "resolName = " << resolName << endl;
+  }
   TProfile * functionResolVSpt = (TProfile*) functionResolDir->Get(functionResolName);
   TProfile * functionResolVsptAfter = 0;
   if( functionResolDirAfter != 0 ) functionResolVSptAfter = (TProfile*) functionResolDirAfter->Get(functionResolName);
@@ -78,9 +81,9 @@ void ResolCompare(const TString & stringNumBefore = "0", const TString & stringN
 
   TFile * outputFile = new TFile("ComparedResol.root", "RECREATE");
 
-  TFile * resolFileBefore = new TFile(stringNumBefore+"_MuScleFit.root", "READ");
+  TFile * resolFileBefore = new TFile("redrawed_"+stringNumBefore+".root", "READ");
   TFile * resolFileAfter = 0;
-  resolFileAfter = new TFile(fileNameAfter, "READ");
+  resolFileAfter = new TFile("redrawed_"+stringNumAfter+".root", "READ");
   TFile * functionResolFileBefore = new TFile(stringNumBefore+"_MuScleFit.root", "READ");
   TFile * functionResolFileAfter = new TFile(stringNumAfter+"_MuScleFit.root", "READ");
 
@@ -114,7 +117,7 @@ void ResolCompare(const TString & stringNumBefore = "0", const TString & stringN
   // --------------
   resolDirBefore = (TDirectory*) resolFileBefore->Get("hResolCotgThetaGenVSMu");
   if( resolFileAfter == 0 ) resolDirAfter = 0;
-  else resolDirAfter = (TDirectory*) resolFileAfter->Get("hResolPtGenVSMu");
+  else resolDirAfter = (TDirectory*) resolFileAfter->Get("hResolCotgThetaGenVSMu");
   functionResolDirBefore = (TDirectory*) functionResolFileBefore->Get("hFunctionResolCotgTheta");
   functionResolDirAfter = (TDirectory*) functionResolFileAfter->Get("hFunctionResolCotgTheta");
   // VS Pt
@@ -135,7 +138,7 @@ void ResolCompare(const TString & stringNumBefore = "0", const TString & stringN
   // --------
   resolDirBefore = (TDirectory*) resolFileBefore->Get("hResolPhiGenVSMu");
   if( resolFileAfter == 0 ) resolDirAfter = 0;
-  else resolDirAfter = (TDirectory*) resolFileAfter->Get("hResolPtGenVSMu");
+  else resolDirAfter = (TDirectory*) resolFileAfter->Get("hResolPhiGenVSMu");
   functionResolDirBefore = (TDirectory*) functionResolFileBefore->Get("hFunctionResolPhi");
   functionResolDirAfter = (TDirectory*) functionResolFileAfter->Get("hFunctionResolPhi");
   // VS Pt
