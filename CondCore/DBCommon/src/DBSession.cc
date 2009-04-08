@@ -90,7 +90,8 @@ void cond::DBSession::open(){
     conserviceConfig.setConnectionRetrialPeriod( conConfig->connectionRetrialPeriod() );
     conserviceConfig.setConnectionRetrialTimeOut( conConfig->connectionRetrialTimeOut() );
     conserviceConfig.setConnectionTimeOut( conConfig->connectionTimeOut() );
-    conserviceConfig.setMonitoringLevel( conConfig->monitorLevel() ); 
+    conserviceConfig.setMonitoringLevel( conConfig->monitorLevel() );
+
     if( m_sessionConfig.hasBlobStreamService() ){
       std::string streamerName=m_sessionConfig.blobStreamerName();
       if(streamerName.empty()){

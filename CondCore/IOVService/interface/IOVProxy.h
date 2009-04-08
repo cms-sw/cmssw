@@ -3,7 +3,7 @@
 
 #include "CondFormats/Common/interface/IOVSequence.h"
 #include <string>
-#include "CondCore/DBCommon/interface/Time.h"
+#include "CondFormats/Common/interface/Time.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/counting_iterator.hpp>
@@ -17,8 +17,8 @@ namespace cond {
   
   class IOVElementProxy {
   public:
-    IOVElementProxy() : m_since(0), m_till(0), m_conn(0){}
-    IOVElementProxy(Connection * iconn) : m_since(0), m_till(0), m_conn(iconn){}
+    IOVElementProxy() : m_since(cond::invalidTime), m_till(cond::invalidTime), m_conn(0){}
+    IOVElementProxy(Connection * iconn) : m_since(cond::invalidTime), m_till(cond::invalidTime), m_conn(iconn){}
     IOVElementProxy(cond::Time_t is,
 	       cond::Time_t it,
 	       std::string const& itoken,

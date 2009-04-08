@@ -56,7 +56,7 @@ namespace cond {
 
   void IOVElementProxy::set(IOVSequence const & v, int i) {
     if (i==v.iovs().size()) {
-      set(0,0,"");
+      set(cond::invalidTime, cond::invalidTime,"");
       return;
     }
     m_since =  v.iovs()[i].sinceTime();
@@ -81,6 +81,8 @@ namespace cond {
     m_high=std::min(m_high+1,size());
   }
 
+
+  //FIXME cannot be done twice....
   void IOVProxy::head(int n) const {
     m_high = std::min(m_low+n,m_high);
   }

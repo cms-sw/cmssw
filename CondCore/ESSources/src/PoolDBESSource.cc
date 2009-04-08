@@ -9,7 +9,7 @@
 //
 // Author:      Zhen Xie
 
-// $Id: PoolDBESSource.cc,v 1.105.2.2 2008/12/04 15:49:45 xiezhen Exp $
+// $Id: PoolDBESSource.cc,v 1.107 2008/12/18 17:15:55 xiezhen Exp $
 //
 // system include files
 #include "boost/shared_ptr.hpp"
@@ -336,6 +336,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   }else{
     throw cond::Exception("invalid timetype");
   }
+
   //std::cout<<"setting validity "<<validity.first<<" "<<validity.second<<" for ibtime "<<abtime<< std::endl;
   oInterval = edm::ValidityInterval( start, stop );
   std::string payloadToken=service->payloadToken(leadingToken,abtime);
