@@ -34,10 +34,12 @@ fourthClusters = cms.EDFilter("TrackClusterRemover",
 # TRACKER HITS
 import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
 import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
-fourthPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone()
-fourthStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone()
-fourthPixelRecHits.src = 'fourthClusters'
-fourthStripRecHits.ClusterProducer = 'fourthClusters'
+fourthPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
+    src = 'fourthClusters'
+    )
+fourthStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
+    ClusterProducer = 'fourthClusters'
+    )
 
 
 # SEEDING LAYERS
@@ -79,39 +81,45 @@ fourthPLSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
 fourthPLSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.0
 
 # TRACKER DATA CONTROL
-fourthMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-fourthMeasurementTracker.ComponentName = 'fourthMeasurementTracker'
-fourthMeasurementTracker.pixelClusterProducer = 'fourthClusters'
-fourthMeasurementTracker.stripClusterProducer = 'fourthClusters'
+fourthMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
+    ComponentName = 'fourthMeasurementTracker',
+    pixelClusterProducer = 'fourthClusters',
+    stripClusterProducer = 'fourthClusters'
+    )
 
 # QUALITY CUTS DURING TRACK BUILDING
-fourthCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
-import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-fourthCkfTrajectoryFilter.ComponentName = 'fourthCkfTrajectoryFilter'
-fourthCkfTrajectoryFilter.filterPset.maxLostHits = 0
-fourthCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 7
-fourthCkfTrajectoryFilter.filterPset.minPt = 0.1
+import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
+fourthCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
+    ComponentName = 'fourthCkfTrajectoryFilter',
+    filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
+    maxLostHits = 0
+    minimumNumberOfHits = 7
+    minPt = 0.1
+    )
 
 # TRACK BUILDING
-fourthCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
-import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-fourthCkfTrajectoryBuilder.ComponentName = 'fourthCkfTrajectoryBuilder'
-fourthCkfTrajectoryBuilder.MeasurementTrackerName = 'fourthMeasurementTracker'
-fourthCkfTrajectoryBuilder.trajectoryFilterName = 'fourthCkfTrajectoryFilter'
-fourthCkfTrajectoryBuilder.minNrOfHitsForRebuild = 5
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
+fourthCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
+    ComponentName = 'fourthCkfTrajectoryBuilder',
+    MeasurementTrackerName = 'fourthMeasurementTracker',
+    trajectoryFilterName = 'fourthCkfTrajectoryFilter',
+    minNrOfHitsForRebuild = 5
+    )
 
 # MAKING OF TRACK CANDIDATES
-fourthTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-import RecoTracker.TrackProducer.TrackProducer_cfi
-fourthTrackCandidates.src = cms.InputTag('fourthPLSeeds')
-fourthTrackCandidates.TrajectoryBuilder = 'fourthCkfTrajectoryBuilder'
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+fourthTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+    src = cms.InputTag('fourthPLSeeds'),
+    TrajectoryBuilder = 'fourthCkfTrajectoryBuilder'
+    )
 
 # TRACK FITTING
-fourthWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
-fourthWithMaterialTracks.src = 'fourthTrackCandidates'
-fourthWithMaterialTracks.clusterRemovalInfo = 'fourthClusters'
-fourthWithMaterialTracks.AlgorithmName = cms.string('iter4') 
+import RecoTracker.TrackProducer.TrackProducer_cfi
+fourthWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    src = 'fourthTrackCandidates',
+    clusterRemovalInfo = 'fourthClusters',
+    AlgorithmName = cms.string('iter4')
+    )
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
 import RecoTracker.FinalTrackSelectors.selectLoose_cfi
@@ -119,50 +127,53 @@ import RecoTracker.FinalTrackSelectors.selectTight_cfi
 import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
 import RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi
 
-pixellessStepLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone()
-pixellessStepLoose.src = 'fourthWithMaterialTracks'
-pixellessStepLoose.keepAllTracks = False
-pixellessStepLoose.copyExtras = True
-pixellessStepLoose.copyTrajectories = True
-pixellessStepLoose.chi2n_par = 0.6
-pixellessStepLoose.res_par = ( 0.003, 0.001 )
-pixellessStepLoose.minNumberLayers = 5
-pixellessStepLoose.maxNumberLostLayers = 1
-pixellessStepLoose.minNumber3DLayers = 3
-pixellessStepLoose.d0_par1 = ( 1.5, 4.0 )
-pixellessStepLoose.dz_par1 = ( 1.5, 4.0 )
-pixellessStepLoose.d0_par2 = ( 1.5, 4.0 )
-pixellessStepLoose.dz_par2 = ( 1.5, 4.0 )
+pixellessStepLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
+    src = 'fourthWithMaterialTracks',
+    keepAllTracks = False,
+    copyExtras = True,
+    copyTrajectories = True,
+    chi2n_par = 0.6,
+    res_par = ( 0.003, 0.001 ),
+    minNumberLayers = 5,
+    maxNumberLostLayers = 1,
+    minNumber3DLayers = 3,
+    d0_par1 = ( 1.5, 4.0 ),
+    dz_par1 = ( 1.5, 4.0 ),
+    d0_par2 = ( 1.5, 4.0 ),
+    dz_par2 = ( 1.5, 4.0 )
+    )
 
-pixellessStepTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone()
-pixellessStepTight.src = 'pixellessStepLoose'
-pixellessStepTight.keepAllTracks = True
-pixellessStepTight.copyExtras = True
-pixellessStepTight.copyTrajectories = True
-pixellessStepTight.chi2n_par = 0.4
-pixellessStepTight.res_par = ( 0.003, 0.001 )
-pixellessStepTight.minNumberLayers = 5
-pixellessStepTight.maxNumberLostLayers = 0
-pixellessStepTight.minNumber3DLayers = 3
-pixellessStepTight.d0_par1 = ( 1.2, 4.0 )
-pixellessStepTight.dz_par1 = ( 1.2, 4.0 )
-pixellessStepTight.d0_par2 = ( 1.2, 4.0 )
-pixellessStepTight.dz_par2 = ( 1.2, 4.0 )
+pixellessStepTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone(
+    src = 'pixellessStepLoose',
+    keepAllTracks = True,
+    copyExtras = True,
+    copyTrajectories = True,
+    chi2n_par = 0.4,
+    res_par = ( 0.003, 0.001 ),
+    minNumberLayers = 5,
+    maxNumberLostLayers = 0,
+    minNumber3DLayers = 3,
+    d0_par1 = ( 1.2, 4.0 ),
+    dz_par1 = ( 1.2, 4.0 ),
+    d0_par2 = ( 1.2, 4.0 ),
+    dz_par2 = ( 1.2, 4.0 )
+    )
 
-pixellessStep = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
-pixellessStep.src = 'pixellessStepTight'
-pixellessStep.keepAllTracks = True
-pixellessStep.copyExtras = True
-pixellessStep.copyTrajectories = True
-pixellessStep.chi2n_par = 0.3
-pixellessStep.res_par = ( 0.003, 0.001 )
-pixellessStep.minNumberLayers = 6
-pixellessStep.maxNumberLostLayers = 0
-pixellessStep.minNumber3DLayers = 3
-pixellessStep.d0_par1 = ( 1.0, 4.0 )
-pixellessStep.dz_par1 = ( 1.0, 4.0 )
-pixellessStep.d0_par2 = ( 1.0, 4.0 )
-pixellessStep.dz_par2 = ( 1.0, 4.0 )
+pixellessStep = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
+    src = 'pixellessStepTight',
+    keepAllTracks = True,
+    copyExtras = True,
+    copyTrajectories = True,
+    chi2n_par = 0.3,
+    res_par = ( 0.003, 0.001 ),
+    minNumberLayers = 6,
+    maxNumberLostLayers = 0,
+    minNumber3DLayers = 3,
+    d0_par1 = ( 1.0, 4.0 ),
+    dz_par1 = ( 1.0, 4.0 ),
+    d0_par2 = ( 1.0, 4.0 ),
+    dz_par2 = ( 1.0, 4.0 )
+    )
 
 fourthStep = cms.Sequence(thfilter*fourthClusters*
                           fourthPixelRecHits*fourthStripRecHits*
