@@ -60,7 +60,7 @@ my %projects = ();
 
 my @pkgmatchrules = ();
 my $pkgbuilddir = '&concat_path($root, $build_root, $name, $relative)';
-push @libnameoptions,'^(lib|Py).+\.(a|so(\..*)?)$|\.so(\.\d+)*$';
+push @libnameoptions,'^(lib|Py).+\.(a|so(\..*)?)$';
 
 my @reject_binary = ();
 
@@ -958,13 +958,15 @@ sub convert_binary_symbol_definition {
     my %uniq = ();
     foreach my $lib (@{$symbols{$sym}->{DEFS}})
     {
-      foreach my $librx (@libnameoptions){if ($lib=~m/$librx/){push @$libs,$lib; last;}}
+      my $flib=$lib;
+      $flib=~s/^.*\/([^\/]+)$/$1/;
+      foreach my $librx (@libnameoptions){if ($flib=~m/$librx/){push @$libs,$lib; last;}}
       $uniq{$binaries{$lib}->{ORIGIN}} = 1;
     }
     
     if ((scalar keys %uniq > 1) && ($type!~/^[VW]$/)) {
 	print STDERR ("warning: $sym ($type): multiple defined:\n",
-		      map { "    in `$_' ($binaries{$_}->{ORIGIN})\n" } @{$symbols{$sym}->{DEFS}});
+		      map { "    warning:   in `$_' ($binaries{$_}->{ORIGIN})\n" } @{$symbols{$sym}->{DEFS}});
     }
     $symbols{$sym}->{DEFS} = $libs;
 }
