@@ -28,11 +28,6 @@ options.register('inputDBAuth',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Authentication path for input DB")
-options.register('use30XTagList',
-                 0, #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "Set to 1 for conditions written in 30X")
 options.register('printL1TriggerKeyList',
                  0, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -56,7 +51,7 @@ initCondDBSource( process,
                   inputDBConnect = options.inputDBConnect,
                   inputDBAuth = options.inputDBAuth,
                   tagBase = options.tagBase,
-                  use30XTagList = options.use30XTagList )
+                  includeRSTags = options.printRSKeys )
 
 # PoolDBOutputService for printing out ESRecords
 if options.printRSKeys == 1:
@@ -71,9 +66,9 @@ if options.printRSKeys == 1:
                                              ))
     outputDB.DBParameters.authenticationPath = options.inputDBAuth
 
-    from CondTools.L1Trigger.L1SubsystemParams_cfi import initL1Subsystems
-    initL1Subsystems( tagBase = options.tagBase )
-    outputDB.toPut.extend(initL1Subsystems.params.recordInfo)
+    from CondTools.L1Trigger.L1RSSubsystemParams_cfi import initL1RSSubsystems
+    initL1RSSubsystems( tagBase = options.tagBase )
+    outputDB.toPut.extend(initL1RSSubsystems.params.recordInfo)
     process.add_(outputDB)
     
 # Source of events
