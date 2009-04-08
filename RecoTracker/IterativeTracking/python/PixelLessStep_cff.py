@@ -92,9 +92,10 @@ import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 fourthCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
     ComponentName = 'fourthCkfTrajectoryFilter',
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
-    maxLostHits = 0
-    minimumNumberOfHits = 7
+    maxLostHits = 0,
+    minimumNumberOfHits = 7,
     minPt = 0.1
+    )
     )
 
 # TRACK BUILDING
