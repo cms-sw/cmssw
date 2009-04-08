@@ -36,7 +36,6 @@ class SiStripModuleHVBuilder
  private:
   // typedefs
   typedef std::vector< std::pair< std::vector<uint32_t>,coral::TimeStamp> > DetIdTimeStampVector ;
-  typedef std::vector< std::pair< std::vector<uint32_t>, cond::Time_t> > DetIdCondTimeVector ;
   
   /** Returns the PSU channel setting, based on date.  Works from DP ID. */
   int findSetting(uint32_t id, coral::TimeStamp changeDate, std::vector<uint32_t> settingID, std::vector<coral::TimeStamp> settingDate);

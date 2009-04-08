@@ -209,170 +209,72 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
     }
   }
   
-  // Convert to DetIdCondTimeVector
-  DetIdCondTimeVector resultVector;
+  // initialize variables
+  modulesOff.clear();
+  cond::Time_t saveIovTime = 0;
+
   for (unsigned int i = 0; i < detidV.size(); i++) {
     std::vector<uint32_t> detids = detidV[i].first;
     removeDuplicates(detids);
     cond::Time_t iovtime = getIOVTime((detidV[i]).second);
-    resultVector.push_back( std::make_pair(detids,iovtime) );
-  }
-
-  // storage vectors
-  DetIdCondTimeVector summedVector;
-  std::vector< std::vector< std::pair<bool,bool> > > flags;
-  std::vector<uint32_t> sumVector;
-  // first = LV, second = HV
-  std::vector< std::pair< bool, bool > > Vflag;
-
-  // saved copies for removing duplicates
-  std::vector<uint32_t> saveSumVector;
-  cond::Time_t saveTime = 0;
-  std::vector< std::pair< bool, bool > > saveVflag;
-
-  // Convert to summed vector
-  for (unsigned int i = 0; i < resultVector.size(); i++) {
-    std::vector<uint32_t> listOfDetIds = (resultVector[i]).first;
     unsigned int numAdded = 0, numRemoved = 0;
     
-    // check to see if detID is present in the list already, store details if it is
-    for (unsigned int j = 0; j < listOfDetIds.size(); j++) {
-      bool alreadyPresent = false;
-      unsigned int which = 0;
-      for (unsigned int k = 0; k < sumVector.size(); k++) {
-	if (listOfDetIds[j] == sumVector[k]) {
-	  alreadyPresent = true;
-	  which = k;
-	}
+    SiStripDetVOff *modV = 0;
+    if (iovtime != saveIovTime) { // time is different, so create new object
+      if (i == 0) {modV = new SiStripDetVOff();} // create completely new object
+      else {modV = new SiStripDetVOff( *(modulesOff.back().first) );} // start from copy of previous object
+    } else {
+      modV = (modulesOff.back()).first; // modify previous object
+    }
+    
+    std::vector<uint32_t> beforeV;
+    modV->getDetIds(beforeV);
+    
+    int lv_off = -1, hv_off = -1;
+    if (isHV[i] == 0) {lv_off = !StatusGood[i];}
+    if (isHV[i] == 1) {hv_off = !StatusGood[i];}
+    for (unsigned int j = 0; j < detids.size(); j++) {
+      modV->put(detids[j],hv_off,lv_off);
+    }
+
+    std::vector<uint32_t> afterV;
+    modV->getDetIds(afterV);
+    if (afterV.size() > beforeV.size()) {
+      numAdded = afterV.size() - beforeV.size();
+    } else if (afterV.size() < beforeV.size()) {
+      numRemoved = beforeV.size() - afterV.size();
+    }
+    
+    // store the object if it's a new object
+    if (iovtime != saveIovTime) {
+      if (i == 0 || !( *modV == *(modulesOff.back().first) )) {
+	modulesOff.push_back( std::make_pair(modV,iovtime) );
+	// save the time of the object
+	saveIovTime = iovtime;
+	// save stats
+	std::vector<uint32_t> stats(3,0);
+	stats[0] = afterV.size();
+	stats[1] = numAdded;
+	stats[2] = numRemoved;
+	payloadStats.push_back(stats);
       }
-
-      if (!StatusGood[i]) {  // status is bad
-	if (!alreadyPresent) {  // not in list, so store it
-	  numAdded++;
-	  sumVector.push_back(listOfDetIds[j]);
-	  if (isHV[i] == 0) {Vflag.push_back( std::make_pair(true,false) );}
-	  else if (isHV[i] == 1) {Vflag.push_back( std::make_pair(false,true) );}
-	} else {  // already in list, so decide what to do with it
-	  if (isHV[i] == 0) {Vflag[which].first = true;}
-	  else if (isHV[i] == 1) {Vflag[which].second = true;}
-	} 
-      } else { // status is good
-	if (alreadyPresent) {  // expect that these should already be present
-	  // If LV present in list as bad, remove it
-	  if ( isHV[i] == 0 && (Vflag[which].first) ) {Vflag[which].first = false;}
-	  // If HV present in list as bad, remove it
-	  if ( isHV[i] == 1 && (Vflag[which].second) ) {Vflag[which].second = false;}
-	  
-	  // If both flags are false, this entry should be removed from the list
-	  std::pair<bool,bool> testpair = std::make_pair(false,false);
-	  if ( !(Vflag[which].first) && !(Vflag[which].second) ) {
-	    // clean up detID vector
-	    std::vector<uint32_t>::iterator detIdToRemove = sumVector.end();
-	    detIdToRemove = find(sumVector.begin(),sumVector.end(),listOfDetIds[j]);
-	    if (detIdToRemove != sumVector.end()) {
-	      sumVector.erase(detIdToRemove);
-	      numRemoved++;
-	    }
-	    // clean up the flag vector
-	    std::vector<std::pair<bool, bool> >::iterator toRemove = Vflag.end();
-	    toRemove = find(Vflag.begin(),Vflag.end(),testpair);
-	    if (toRemove != Vflag.end()) {Vflag.erase(toRemove);}
-	  } // end of if for removal with both flags false
-	} // already present in list
-      } // end of status if
-
-    } // end of loop over list of det IDs
-
-    // duplicate removal
-    bool storeThis = true;
-    bool removePrevious = false;
-    // decide whether to store the information - time the same
-    if ( (resultVector[i].second) == saveTime) {
-      if (sumVector != saveSumVector) {std::cout << "Vectors are different sizes - this is bad!" << std::endl;}
-      else { // time and detID vectors the same
-	if (Vflag == saveVflag) {storeThis = false;}
-	else {
-	  // use number of true flags as an indication of what is going on 
-	  unsigned int old_count = 0, new_count = 0;
-	  for (unsigned int t = 0; t < saveVflag.size(); t++) {
-	    if (saveVflag[t].first) {old_count++;}
-	    if (saveVflag[t].second) {old_count++;}
-	  }
-	  for (unsigned int p = 0; p < Vflag.size(); p++) {
-	    if (Vflag[p].first) {new_count++;}
-	    if (Vflag[p].second) {new_count++;}
-	  }
-	  if (new_count > old_count) {
-	    removePrevious = true;
-	  } else {
-	    std::cout << "Time and detIDs are the same.  Vflag is different.  Saved vector has less true entries than current.  This is strange! " << old_count << " " << new_count << std::endl; 
-	    storeThis = false;
-	  }
-	}
-      }
-    } else {  // times are different
-      if (sumVector == saveSumVector && Vflag == saveVflag) {storeThis = false;}
     }
-    
-    // if true, remove the last entry
-    if (removePrevious) {
-      summedVector.pop_back();
-      flags.pop_back();
-      payloadStats.pop_back();
-    }
-    // if true, store current entry
-    if (storeThis) {
-      summedVector.push_back( std::make_pair(sumVector,(resultVector[i].second)) );
-      flags.push_back(Vflag);
-
-      std::vector<uint32_t> stats(3,0);
-      stats[0] = sumVector.size();
-      stats[1] = numAdded;            // TODO - this number is not always correct on first vector entry.  Problem comes when first object from DB is not stored ...
-      stats[2] = numRemoved;
-      payloadStats.push_back(stats);
-    }
-    
-    // save what was just stored properly for comparison the next time around
-    if (storeThis) {
-      saveSumVector.clear();
-      saveSumVector = sumVector;
-      saveTime = 0;
-      saveTime = resultVector[i].second;
-      saveVflag.clear();
-      saveVflag = Vflag;
-    }
-    
-  } // end of main loop
-
-  // Store in the final object
-  for (unsigned int i = 0; i < summedVector.size(); i++) {
-    std::vector<uint32_t> ids = summedVector[i].first;
-    cond::Time_t stime = summedVector[i].second;
-    std::vector< std::pair<bool,bool> > sflags = flags[i];
-    //    std::vector<bool> lvOff, hvOff;
-    std::vector<int> lvOff, hvOff;
-    for (unsigned int j = 0; j < sflags.size(); j++) {
-      lvOff.push_back(sflags[j].first);
-      hvOff.push_back(sflags[j].second);
-    }
-    
-    SiStripDetVOff * modV = new SiStripDetVOff();
-    modV->put(ids,hvOff,lvOff);
-    modulesOff.push_back( std::make_pair(modV,stime) );
   }
   
   if (debug_) {
-    std::cout << "Final results of object building...  Number of entries in vector = "  << modulesOff.size() << std::endl;
-    for (unsigned int s = 0; s < modulesOff.size(); s++) {
-      std::cout << "Index = " << s << "Time = " << modulesOff[s].second << std::endl;
-      std::vector<uint32_t> final_ids;
-      (modulesOff[s].first)->getDetIds(final_ids);
-      for (unsigned int v = 0; v < final_ids.size(); v++) {
-	std::cout << final_ids[v] << " LV = " << (modulesOff[s].first)->IsModuleLVOff(final_ids[v]) << " HV = " << (modulesOff[s].first)->IsModuleHVOff(final_ids[v]) << std::endl;
+    std::cout << std::endl;
+    std::cout << "Size of modulesOff = " << modulesOff.size() << std::endl;
+    for (unsigned int i = 0; i < modulesOff.size(); i++) {
+      std::vector<uint32_t> finalids;
+      (modulesOff[i].first)->getDetIds(finalids);
+      std::cout << "Index = " << i << " Size of DetIds vector = " << finalids.size() << std::endl;
+      std::cout << "Time = " << modulesOff[i].second << std::endl;
+      for (unsigned int j = 0; j < finalids.size(); j++) {
+	std::cout << "detid = " << finalids[j] << " LV off = " << (modulesOff[i].first)->IsModuleLVOff(finalids[j]) << " HV off = " 
+		  << (modulesOff[i].first)->IsModuleHVOff(finalids[j]) << std::endl;
       }
     }
   }
-  
 }
 
 int SiStripModuleHVBuilder::findSetting(uint32_t id, coral::TimeStamp changeDate, std::vector<uint32_t> settingID, std::vector<coral::TimeStamp> settingDate) {
