@@ -28,9 +28,12 @@ namespace cond {
     // load Element valid at time
     void loadFor(cond::Time_t time);
 
-    // load ad return interval
+    // find ad return interval
     cond::ValidityInterval setIntervalFor(cond::Time_t time);
     
+    // load element if interval is valid
+    void make();
+
     bool isValid() const;
 
   private:
@@ -66,7 +69,7 @@ namespace cond {
     }
 
   private:
-    virtual void load(pool::IDataSvc * svc, std::string & token) {
+    virtual bool load(pool::IDataSvc * svc, std::string & token) {
       old = false;
       invalidateCache();
       bool ok = false;

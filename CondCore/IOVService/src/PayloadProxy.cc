@@ -10,7 +10,7 @@ namespace cond {
 
   BasePayloadProxy::BasePayloadProxy(cond::Connection& conn,
 				     const std::string & token, bool errorPolicy) :
-    m_dothrow(errorPolicy), m_iov(conn,token,false,false) {
+    m_dothrow(errorPolicy), m_iov(conn,token,true,false) {
     
   }
 
@@ -18,9 +18,12 @@ namespace cond {
   BasePayloadProxy::~BasePayloadProxy(){}
 
   void BasePayloadProxy::loadFor(cond::Time_t time) {
-    bool ok = false;
-    //FIXME: shall handle truncation...
     m_element = *m_iov.find(time);
+    make();
+  }
+
+  void  BasePayloadProxy::make() {
+    bool ok = false;
     if ( isValid()) {
       cond::PoolTransaction & db = *m_element.db();
       db.start();
@@ -32,16 +35,18 @@ namespace cond {
       }
       db.commit();
     }
+
     if (!ok) {
       m_element.set(cond::invalidTime,cond::invalidTime,"");
       if (m_doThrow)
-	throw cond::Exception("Condition Payload loader: invalid data for given time");
+	throw cond::Exception("Condition Payload loader: invalid data");
     }
   }
 
 
   cond::ValidityInterval BasePayloadProxy::setIntervalFor(cond::Time_t time) {
-    loadFor(time);
+    //FIXME: shall handle truncation...
+    m_element = *m_iov.find(time);
     return cond::ValidityInterval(m_element.since(),m_element.till());
   }
     
