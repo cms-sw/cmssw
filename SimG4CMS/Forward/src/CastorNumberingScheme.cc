@@ -90,8 +90,8 @@ uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
     intindex = packIndex(zside, sector, module);
 
     bool true_for_positive_eta;
-    if(zside = 1)true_for_positive_eta = true;
-    if(zside = -1)true_for_positive_eta = false;
+    if(zside == 1)true_for_positive_eta = true;
+    if(zside == -1)true_for_positive_eta = false;
 
     HcalCastorDetId castorId = HcalCastorDetId(true_for_positive_eta, sector, module);
     index = castorId.rawId();

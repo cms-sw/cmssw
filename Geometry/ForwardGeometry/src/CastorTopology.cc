@@ -101,7 +101,7 @@ HcalCastorDetId::Section section2, int isec2, int imod2) {
   if (exed) return 0;
 
   bool isPositive = false;
-  if(zside = 1)isPositive = true;
+  if(zside == 1)isPositive = true;
 
   int n = 0;
   for (int isec = isec1; isec < isec2; isec++){

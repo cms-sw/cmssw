@@ -104,7 +104,7 @@ int ZdcTopology::exclude(int zside, HcalZDCDetId::Section section, int ich1, int
   if (exed) return 0;
 
   bool isPositive = false;
-  if(zside = 1)isPositive = true;
+  if(zside == 1)isPositive = true;
 
   int n = 0;
   for (int ich = ich1; ich < ich2; ich++){

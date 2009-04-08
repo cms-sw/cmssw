@@ -90,8 +90,8 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
     // intindex = myPacker.packZdcIndex (section, layer, fiber, channel, zside);
     intindex = packZdcIndex (section, layer, fiber, channel, zside);
     bool true_for_positive_eta;
-    if(zside = 1)true_for_positive_eta = true;
-    if(zside = 1)true_for_positive_eta = false;
+    if(zside == 1)true_for_positive_eta = true;
+    if(zside == 1)true_for_positive_eta = false;
 
     HcalZDCDetId zdcId = HcalZDCDetId(section, true_for_positive_eta, channel);
     index = zdcId.rawId();
