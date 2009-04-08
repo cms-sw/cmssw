@@ -69,7 +69,7 @@ class Pythia6ServiceWithCallback : public Pythia6Service {
     {
       FortranCallback::getInstance()->fillEvent(); 
       if ( Pythia6Hadronizer::getJetMatching() )
-        Pythia6Hadronizer::getJetMatching()->beforeHadronisationExec();
+        Pythia6Hadronizer::getJetMatching()->beforeHadronisationExec();    
     }
 
     bool upVeto()
@@ -146,6 +146,14 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
           <<" Pythia did not accept MSTU(12)=12345";
    }
    
+// silence printouts from PYGIVE
+//
+   if (!call_pygive("MSTU(13)=0")) 
+   {
+      throw edm::Exception(edm::errors::Configuration,"PythiaError") 
+          <<" Pythia did not accept MSTU(13)=0";
+   }
+
    // tmp stuff to deal with EvtGen corrupting pyjets
    NPartsBeforeDecays = 0;
    
@@ -247,8 +255,22 @@ bool Pythia6Hadronizer::generatePartonsAndHadronize()
       // call_pygive("MSTJ(1)=1");
       call_pygive("MSTJ(14)=1");
       int ierr=0;
-      if ( fStopHadronsEnabled ) pystfr_(ierr);
+      if ( fStopHadronsEnabled ) 
+      {
+         pystfr_(ierr);
+	 if ( ierr != 0 ) // skip failed events
+	 {
+	    event().reset();
+	    return false;
+	 }
+      }
       if ( fGluinoHadronsEnabled ) pyglfr_();
+   }
+   
+   if ( pyint1.mint[50] != 0 ) // skip event if py6 considers it bad
+   {
+      event().reset();
+      return false;
    }
    
    //formEvent();
@@ -282,7 +304,7 @@ bool Pythia6Hadronizer::hadronize()
    }
 
    call_pyevnt();
-
+   
    if ( FortranCallback::getInstance()->getIterationsPerEvent() > 1 || 
         hepeup_.nup <= 0 || pypars.msti[0] == 1 )
    {
@@ -302,10 +324,25 @@ bool Pythia6Hadronizer::hadronize()
       call_pygive("MSTJ(1)=1");
       call_pygive("MSTJ(14)=1");
       int ierr = 0;
-      if ( fStopHadronsEnabled ) pystfr_(ierr);
+      if ( fStopHadronsEnabled ) 
+      {
+         pystfr_(ierr);
+	 if ( ierr != 0 ) // skip failed events
+	 {
+	    event().reset();
+	    return false;
+	 }
+      }
+            
       if ( fGluinoHadronsEnabled ) pyglfr_();
    }
 
+   if ( pyint1.mint[50] != 0 ) // skip event if py6 considers it bad
+   {
+      event().reset();
+      return false;
+   }
+   
    call_pyhepc(1);
    event().reset( conv.read_next_event() );
 
