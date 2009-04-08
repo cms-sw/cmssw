@@ -468,15 +468,7 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
 
     HCAL_HLX::LUMI_SECTION L;
     GenerateFakeData(L);
-    int result;
-
-    result = memcmp(&L, &localSection, sizeof(L));
-
-    if(result = 0){
-      return true;
-    }else{
-      return false;
-    }
+    return !(memcmp(&L, &localSection, sizeof(L)));
   }
 
 }
