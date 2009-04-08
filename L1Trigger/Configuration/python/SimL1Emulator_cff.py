@@ -63,8 +63,9 @@ SimL1Emulator = cms.Sequence(
     *simGtDigis)
 
 # correct input tags for MC
-simRctDigis.ecalDigisLabel = cms.VInputTag(cms.InputTag("ecalTriggerPrimitiveDigis"))
-simRctDigis.hcalDigisLabel = cms.VInputTag(cms.InputTag("hcalTriggerPrimitiveDigis"))
+simRctDigis.ecalDigis = cms.VInputTag(cms.InputTag("simEcalTriggerPrimitiveDigis"))
+simRctDigis.hcalDigis = cms.VInputTag(cms.InputTag("simHcalTriggerPrimitiveDigis"))
+
 simGctDigis.inputLabel = 'simRctDigis'
 
 simDtTriggerPrimitiveDigis.digiTag = 'simMuonDTDigis'
