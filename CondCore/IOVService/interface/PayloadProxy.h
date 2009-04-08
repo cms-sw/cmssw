@@ -5,6 +5,9 @@
 #include "DataSvc/Ref.h"
 #include "CondFormats/Common/interface/PayloadWrapper.h"
 
+namespace pool{
+  class IDataSvc;
+}
 
 
 namespace cond {
@@ -28,8 +31,10 @@ namespace cond {
     // load ad return interval
     cond::ValidityInterval setIntervalFor(cond::Time_t time);
     
+    bool isValid() const;
+
   private:
-    virtual void load(bool doThrow) =0;   
+    virtual bool load(pool::IDataSvc * svc, std::string & token) =0;   
 
 
   protected:
@@ -45,6 +50,7 @@ namespace cond {
   template<typename DataT>
   class PayloadProxy : public BasePayloadProxy {
   public:
+    typedef cond::DataWrapper<DataT> DataWrapper;
 
     PayloadProxy() : old(false){}
 
@@ -53,12 +59,33 @@ namespace cond {
       return old ? *m_OldData : m_data->data(); 
     }
 
-    virtual void load(bool doThrow);
 
     virtual void invalidateCache() {
       m_data.clear();
       m_OldData.clear();
     }
+
+  private:
+    virtual void load(pool::IDataSvc * svc, std::string & token) {
+      old = false;
+      invalidateCache();
+      bool ok = false;
+      // try wrapper, if not try plain
+      pool::Ref<DataWrapper> ref(svc,token);
+      if (ref) {
+	m_data.copyShallow(ref);
+	ok= true;
+      } else {
+	pool::Ref<DataT> refo(svc,token);
+	if (refo) {
+	  old = true;
+	  m_OldData.copyShallow(refo);
+	  ok =  true;
+	}
+      }
+      return ok;
+    }
+
 
   private:
     bool old;

@@ -35,6 +35,7 @@ namespace cond {
     
     cond::Time_t since() const {return m_since;}
     cond::Time_t till() const {return m_till;}
+    std::string const & token() const {return m_token;}
     std::string const & wrapperToken() const {return m_token;}
     Connection * connection() const { return m_conn;}
     PoolTransaction * db() const;
