@@ -32,16 +32,16 @@ paths.Wenu = ['veryHighEtDQM',
               'ele15SWL1RDQM',
               'highEtDQM']
 
-paths.Zee = paths.Wenu + ['doubleElectronRelaxedDQM',
-                          'doubleElectronDQM',
-                          'doubleEle5SWL1RDQM']
+paths.Zee = paths.Wenu + [#'doubleElectronRelaxedDQM',
+                          'doubleElectronDQM']#,
+#                          'doubleEle5SWL1RDQM']
 
 paths.GammaJet = [#'singlePhotonRelaxedDQM',
                   'singlePhotonDQM']
 
 paths.DiGamma  = paths.GammaJet + ['veryHighEtDQM',
                                    'highEtDQM',
-                                   'doublePhotonRelaxedDQM',
+                            #       'doublePhotonRelaxedDQM',
                                    'doublePhotonDQM']
 
 
