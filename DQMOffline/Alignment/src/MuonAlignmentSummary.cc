@@ -1,8 +1,8 @@
 /*
  *  DQM client for muon alignment summary
  *
- *  $Date: 2009/01/06 20:00:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/03/04 10:57:49 $
+ *  $Revision: 1.3 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
@@ -85,10 +85,10 @@ void MuonAlignmentSummary::beginRun(edm::Run const& run,edm::EventSetup const& i
 	if (doCSC){
 	
         dbe->setCurrentFolder(topFolder.str()+"/CSC");
-        hLocalPositionCSC=dbe->book2D("hLocalPositionCSC","Local CSC position (cm) absolute MEAN residuals;Sector;;cm",36,1,37,36,0,36);
-        hLocalAngleCSC=dbe->book2D("hLocalAngleCSC","Local CSC angle (rad) absolute MEAN residuals;Sector;;rad", 36,1,37,36,0,36); 
-        hLocalPositionRmsCSC=dbe->book2D("hLocalPositionRmsCSC","Local CSC position (cm) RMS residuals;Sector;;cm", 36,1,37,36,0,36);
-        hLocalAngleRmsCSC=dbe->book2D("hLocalAngleRmsCSC","Local CSC angle (rad) RMS residuals;Sector;;rad", 36,1,37,36,0,36); 
+        hLocalPositionCSC=dbe->book2D("hLocalPositionCSC","Local CSC position (cm) absolute MEAN residuals;Sector;;cm",36,1,37,40,0,40);
+        hLocalAngleCSC=dbe->book2D("hLocalAngleCSC","Local CSC angle (rad) absolute MEAN residuals;Sector;;rad", 36,1,37,40,0,40); 
+        hLocalPositionRmsCSC=dbe->book2D("hLocalPositionRmsCSC","Local CSC position (cm) RMS residuals;Sector;;cm", 36,1,37,40,0,40);
+        hLocalAngleRmsCSC=dbe->book2D("hLocalAngleRmsCSC","Local CSC angle (rad) RMS residuals;Sector;;rad", 36,1,37,40,0,40); 
 	
         hLocalXMeanCSC=dbe->book1D("hLocalXMeanCSC","Distribution of absolute MEAN Local X (cm) residuals for CSC;<X> (cm);number of chambers",100,0,meanPositionRange);
         hLocalXRmsCSC=dbe->book1D("hLocalXRmsCSC","Distribution of RMS Local X (cm) residuals for CSC;X RMS (cm);number of chambers", 100,0,rmsPositionRange);
@@ -242,7 +242,7 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
                     for(int chamber=1;chamber<37;chamber++){
 				
                         if( !( ((abs(station)==2 || abs(station)==3 || abs(station)==4) && ring==1 && chamber>18) || 
-                               (abs(station)==4 && ring==2) || ((abs(station)==2 || abs(station)==3 || abs(station)==4) && ring>2)) ){
+                                ((abs(station)==2 || abs(station)==3 || abs(station)==4) && ring>2)) ){
                             stringstream Ring; Ring<<ring;
                             stringstream Station; Station<<station;
                             stringstream Chamber; Chamber<<chamber;
@@ -259,8 +259,8 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
 
                             Int_t ybin=abs(station)*2+ring; 
                             if(abs(station)==1) ybin=ring;
-                            if (station>0) ybin=ybin+9;
-                            else ybin = 10 -ybin;
+                            if (station>0) ybin=ybin+10;
+                            else ybin = 11 -ybin;
                             string histo = path +	nameOfHistoLocalX;			
                             MonitorElement * localX = dbe->get(histo);
                             if(localX){

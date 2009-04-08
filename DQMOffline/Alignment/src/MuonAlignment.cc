@@ -2,8 +2,8 @@
 /*
  *  DQM muon alignment analysis monitoring
  *
- *  $Date: 2008/12/13 15:31:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/03/04 10:57:49 $
+ *  $Revision: 1.2 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
@@ -96,10 +96,10 @@ void MuonAlignment::beginJob(edm::EventSetup const& iSetup) {
 	
         if (doCSC){
             dbe->setCurrentFolder(topFolder.str()+"/CSC");
-            hLocalPositionCSC=dbe->book2D("hLocalPositionCSC","Local CSC position (cm) absolute MEAN residuals;Sector;;cm",36,1,37,36,0,36);
-            hLocalAngleCSC=dbe->book2D("hLocalAngleCSC","Local CSC angle (rad) absolute MEAN residuals;Sector;;rad", 36,1,37,36,0,36); 
-            hLocalPositionRmsCSC=dbe->book2D("hLocalPositionRmsCSC","Local CSC position (cm) RMS residuals;Sector;;cm", 36,1,37,36,0,36);
-            hLocalAngleRmsCSC=dbe->book2D("hLocalAngleRmsCSC","Local CSC angle (rad) RMS residuals;Sector;;rad", 36,1,37,36,0,36); 
+            hLocalPositionCSC=dbe->book2D("hLocalPositionCSC","Local CSC position (cm) absolute MEAN residuals;Sector;;cm",36,1,37,40,0,40);
+            hLocalAngleCSC=dbe->book2D("hLocalAngleCSC","Local CSC angle (rad) absolute MEAN residuals;Sector;;rad", 36,1,37,40,0,40); 
+            hLocalPositionRmsCSC=dbe->book2D("hLocalPositionRmsCSC","Local CSC position (cm) RMS residuals;Sector;;cm", 36,1,37,40,0,40);
+            hLocalAngleRmsCSC=dbe->book2D("hLocalAngleRmsCSC","Local CSC angle (rad) RMS residuals;Sector;;rad", 36,1,37,40,0,40); 
 	
             hLocalXMeanCSC=dbe->book1D("hLocalXMeanCSC","Distribution of absolute MEAN Local X (cm) residuals for CSC;<X> (cm);number of chambers",100,0,meanPositionRange);
             hLocalXRmsCSC=dbe->book1D("hLocalXRmsCSC","Distribution of RMS Local X (cm) residuals for CSC;X RMS (cm);number of chambers", 100,0,rmsPositionRange);
@@ -187,7 +187,7 @@ void MuonAlignment::beginJob(edm::EventSetup const& iSetup) {
                     for(int chamber=1;chamber<37;chamber++){
 				
                         if( !( ((abs(station)==2 || abs(station)==3 || abs(station)==4) && ring==1 && chamber>18) || 
-                               (abs(station)==4 && ring==2) || ((abs(station)==2 || abs(station)==3 || abs(station)==4) && ring>2)) ){
+                               ((abs(station)==2 || abs(station)==3 || abs(station)==4) && ring>2)) ){
                             stringstream Ring; Ring<<ring;
                             stringstream Station; Station<<station;
                             stringstream Chamber; Chamber<<chamber;
@@ -653,8 +653,8 @@ void MuonAlignment::endJob(void) {
 
                     Int_t ybin=abs(station)*2+ring;
                     if(abs(station)==1) ybin=ring;
-                    if (station>0) ybin=ybin+9;
-                    else ybin = 10 -ybin;
+                    if (station>0) ybin=ybin+10;
+                    else ybin = 11 -ybin;
                     ybin=2*ybin-1;
                     hLocalPositionCSC->setBinContent(chamber,ybin,fabs(Mean));
                     sprintf(binLabel, "ME%d/%d_X", station,ring );
@@ -728,8 +728,8 @@ void MuonAlignment::endJob(void) {
 
                     Int_t ybin=abs(station)*2+ring;
                     if(abs(station)==1) ybin=ring;
-                    if (station>0) ybin=ybin+9;
-                    else ybin = 10 -ybin;
+                    if (station>0) ybin=ybin+10;
+                    else ybin = 11 -ybin;
                     ybin=2*ybin-1;
                     hLocalAngleCSC->setBinContent(chamber,ybin,fabs(Mean));
                     sprintf(binLabel, "ME%d/%d_#phi", station,ring );
@@ -753,8 +753,8 @@ void MuonAlignment::endJob(void) {
 
                     Int_t ybin=abs(station)*2+ring;
                     if(abs(station)==1) ybin=ring;
-                    if (station>0) ybin=ybin+9;
-                    else ybin = 10 -ybin;
+                    if (station>0) ybin=ybin+10;
+                    else ybin = 11 -ybin;
                     ybin=2*ybin;
                     hLocalAngleCSC->setBinContent(chamber,ybin,fabs(Mean));
                     sprintf(binLabel, "ME%d/%d_#theta", station,ring );
@@ -805,8 +805,8 @@ void MuonAlignment::endJob(void) {
 
                     Int_t ybin=abs(station)*2+ring;
                     if(abs(station)==1) ybin=ring;
-                    if (station>0) ybin=ybin+9;
-                    else ybin = 10 -ybin;
+                    if (station>0) ybin=ybin+10;
+                    else ybin = 11 -ybin;
                     ybin=2*ybin;
                     hLocalPositionCSC->setBinContent(chamber,ybin,fabs(Mean));
                     sprintf(binLabel, "ME%d/%d_Y", station,ring );
