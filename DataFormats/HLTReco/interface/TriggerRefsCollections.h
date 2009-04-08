@@ -12,8 +12,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2009/03/17 16:21:34 $
- *  $Revision: 1.11.2.1 $
+ *  $Date: 2009/03/17 16:22:58 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -33,6 +33,7 @@
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
+#include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
@@ -59,6 +60,7 @@ namespace trigger
   typedef std::vector<l1extra::L1MuonParticleRef>           VRl1muon;
   typedef std::vector<l1extra::L1JetParticleRef>            VRl1jet;
   typedef std::vector<l1extra::L1EtMissParticleRef>         VRl1etmiss;
+  typedef std::vector<l1extra::L1HFRingsRef>                VRl1hfrings;
 
   class TriggerRefsCollections {
 
@@ -90,6 +92,8 @@ namespace trigger
     VRl1jet     l1jetRefs_;
     Vids        l1etmissIds_;
     VRl1etmiss  l1etmissRefs_;
+    Vids        l1hfringsIds_;
+    VRl1hfrings l1hfringsRefs_;
     
   /// methods
   public:
@@ -106,7 +110,8 @@ namespace trigger
       l1emIds_(), l1emRefs_(),
       l1muonIds_(), l1muonRefs_(),
       l1jetIds_(), l1jetRefs_(),
-      l1etmissIds_(), l1etmissRefs_()
+      l1etmissIds_(), l1etmissRefs_(),
+      l1hfringsIds_(), l1hfringsRefs_()
       { }
 
     /// utility
@@ -136,6 +141,8 @@ namespace trigger
       std::swap(l1jetRefs_,     other.l1jetRefs_);
       std::swap(l1etmissIds_,   other.l1etmissIds_);
       std::swap(l1etmissRefs_,  other.l1etmissRefs_);
+      std::swap(l1hfringsIds_,  other.l1hfringsIds_);
+      std::swap(l1hfringsRefs_, other.l1hfringsRefs_);
     }
 
     /// setters for L3 collections: (id=physics type, and Ref<C>)
@@ -187,6 +194,10 @@ namespace trigger
     void addObject(int id, const l1extra::L1EtMissParticleRef& ref) {
       l1etmissIds_.push_back(id);
       l1etmissRefs_.push_back(ref);
+    }
+    void addObject(int id, const l1extra::L1HFRingsRef& ref) {
+      l1hfringsIds_.push_back(id);
+      l1hfringsRefs_.push_back(ref);
     }
 
 
@@ -263,6 +274,12 @@ namespace trigger
       l1etmissIds_.insert(l1etmissIds_.end(),ids.begin(),ids.end());
       l1etmissRefs_.insert(l1etmissRefs_.end(),refs.begin(),refs.end());
       return l1etmissIds_.size();
+    }
+    size_type addObjects (const Vids& ids, const VRl1hfrings& refs) {
+      assert(ids.size()==refs.size());
+      l1hfringsIds_.insert(l1hfringsIds_.end(),ids.begin(),ids.end());
+      l1hfringsRefs_.insert(l1hfringsRefs_.end(),refs.begin(),refs.end());
+      return l1hfringsIds_.size();
     }
 
 
@@ -651,6 +668,38 @@ namespace trigger
       return;
     }
 
+    void getObjects(Vids& ids, VRl1hfrings& refs) const {
+      getObjects(ids,refs,0,l1hfringsIds_.size());
+    }
+    void getObjects(Vids& ids, VRl1hfrings& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1hfringsIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=l1hfringsIds_[i];
+	refs[j]=l1hfringsRefs_[i];
+	++j;
+      }
+    }
+    void getObjects(int id, VRl1hfrings& refs) const {
+      getObjects(id,refs,0,l1hfringsIds_.size());
+    } 
+    void getObjects(int id, VRl1hfrings& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1hfringsIds_.size());
+      size_type n(0);
+      for (size_type i=begin; i!=end; ++i) {if (id==l1hfringsIds_[i]) {++n;}}
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	if (id==l1hfringsIds_[i]) {refs[j]=l1hfringsRefs_[i]; ++j;}
+      }
+      return;
+    }
+
     /// low-level getters for data members
     size_type          photonSize()    const {return photonIds_.size();}
     const Vids&        photonIds()     const {return photonIds_;}
@@ -699,6 +748,10 @@ namespace trigger
     size_type          l1etmissSize()  const {return l1etmissIds_.size();}
     const Vids&        l1etmissIds()   const {return l1etmissIds_;}
     const VRl1etmiss&  l1etmissRefs()  const {return l1etmissRefs_;}
+
+    size_type          l1hfringsSize() const {return l1hfringsIds_.size();}
+    const Vids&        l1hfringsIds()  const {return l1hfringsIds_;}
+    const VRl1hfrings& l1hfringsRefs() const {return l1hfringsRefs_;}
 
   };
 

@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for events (RAW case)
  *  describing the details of the (HLT) trigger table
  *
- *  $Date: 2008/09/18 15:13:23 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/10/11 13:13:57 $
+ *  $Revision: 1.20 $
  *
  *  \author Martin Grunewald
  *
@@ -50,17 +50,18 @@ namespace trigger
       size_type l1muon_;
       size_type l1jet_;
       size_type l1etmiss_;
+      size_type l1hfrings_;
 
       /// constructor
       TriggerFilterObject() :
 	filterTag_(),
-	photons_(0), electrons_(0), muons_(0), jets_(0), composites_(0), basemets_(0), calomets_(0), pixtracks_(0), l1em_(0), l1muon_(0), l1jet_(0), l1etmiss_(0) {
+	photons_(0), electrons_(0), muons_(0), jets_(0), composites_(0), basemets_(0), calomets_(0), pixtracks_(0), l1em_(0), l1muon_(0), l1jet_(0), l1etmiss_(0), l1hfrings_(0) {
       filterTag_=edm::InputTag().encode();
       }
       TriggerFilterObject(const edm::InputTag& filterTag,
-        size_type np, size_type ne, size_type nm, size_type nj, size_type nc, size_type nB, size_type nC, size_type nt, size_type l1em, size_type l1muon, size_type l1jet, size_type l1etmiss) :
+        size_type np, size_type ne, size_type nm, size_type nj, size_type nc, size_type nB, size_type nC, size_type nt, size_type l1em, size_type l1muon, size_type l1jet, size_type l1etmiss, size_type l1hfrings) :
 	filterTag_(filterTag.encode()),
-	photons_(np), electrons_(ne), muons_(nm), jets_(nj), composites_(nc), basemets_(nB), calomets_(nC), pixtracks_(nt), l1em_(l1em), l1muon_(l1muon), l1jet_(l1jet), l1etmiss_(l1etmiss) { }
+	photons_(np), electrons_(ne), muons_(nm), jets_(nj), composites_(nc), basemets_(nB), calomets_(nC), pixtracks_(nt), l1em_(l1em), l1muon_(l1muon), l1jet_(l1jet), l1etmiss_(l1etmiss), l1hfrings_(l1hfrings) { }
     };
 
   /// data members
@@ -97,7 +98,8 @@ namespace trigger
 			    addObjects(tfowr.l1emIds(),tfowr.l1emRefs()),
 			    addObjects(tfowr.l1muonIds(),tfowr.l1muonRefs()),
 			    addObjects(tfowr.l1jetIds(),tfowr.l1jetRefs()),
-			    addObjects(tfowr.l1etmissIds(),tfowr.l1etmissRefs())
+			    addObjects(tfowr.l1etmissIds(),tfowr.l1etmissRefs()),
+			    addObjects(tfowr.l1hfringsIds(),tfowr.l1hfringsRefs())
 			   )
 	);
     }
@@ -194,6 +196,12 @@ namespace trigger
     std::pair<size_type,size_type> l1etmissSlice(size_type filter) const {
       const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).l1etmiss_);
       const size_type end(filterObjects_.at(filter).l1etmiss_);
+      return std::pair<size_type,size_type>(begin,end);
+    }
+
+    std::pair<size_type,size_type> l1hfringsSlice(size_type filter) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).l1hfrings_);
+      const size_type end(filterObjects_.at(filter).l1hfrings_);
       return std::pair<size_type,size_type>(begin,end);
     }
 
@@ -330,6 +338,17 @@ namespace trigger
       const size_type begin(l1etmissSlice(filter).first);
       const size_type   end(l1etmissSlice(filter).second);
       TriggerRefsCollections::getObjects(id,l1etmiss,begin,end);
+    }
+
+    void getObjects(size_type filter, Vids& ids, VRl1hfrings& l1hfrings) const {
+      const size_type begin(l1hfringsSlice(filter).first);
+      const size_type   end(l1hfringsSlice(filter).second);
+      TriggerRefsCollections::getObjects(ids,l1hfrings,begin,end);
+    }
+    void getObjects(size_type filter, int id, VRl1hfrings& l1hfrings) const {
+      const size_type begin(l1hfringsSlice(filter).first);
+      const size_type   end(l1hfringsSlice(filter).second);
+      TriggerRefsCollections::getObjects(id,l1hfrings,begin,end);
     }
 
   };

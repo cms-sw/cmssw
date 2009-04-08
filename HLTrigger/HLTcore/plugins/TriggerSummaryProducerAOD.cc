@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/03/05 16:49:51 $
- *  $Revision: 1.32 $
+ *  $Date: 2009/04/08 14:24:26 $
+ *  $Revision: 1.33 $
  *
  *  \author Martin Grunewald
  *
@@ -33,11 +33,13 @@
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
+#include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
+#include "DataFormats/L1Trigger/interface/L1HFRings.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
@@ -193,6 +195,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    fillTriggerObjects<             L1MuonParticleCollection>(iEvent);
    fillTriggerObjects<              L1JetParticleCollection>(iEvent);
    fillTriggerObjects<           L1EtMissParticleCollection>(iEvent);
+   fillTriggerObjects<                  L1HFRingsCollection>(iEvent);
    ///
    const size_type nk(tags_.size());
    LogDebug("TriggerSummaryProducerAOD") << "Number of collections found: " << nk;
@@ -228,6 +231,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
        fillFilterObjects(iEvent,filterTag,fobs_[ifob]->l1muonIds()   ,fobs_[ifob]->l1muonRefs());
        fillFilterObjects(iEvent,filterTag,fobs_[ifob]->l1jetIds()    ,fobs_[ifob]->l1jetRefs());
        fillFilterObjects(iEvent,filterTag,fobs_[ifob]->l1etmissIds() ,fobs_[ifob]->l1etmissRefs());
+       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->l1hfringsIds(),fobs_[ifob]->l1hfringsRefs());
        product->addFilter(filterTag,ids_,keys_);
      }
    }
@@ -276,7 +280,25 @@ void TriggerSummaryProducerAOD::fillTriggerObjects(const edm::Event& iEvent) {
 	offset_[pid]=toc_.size();
 	const size_type n(collections[ic]->size());
 	for (size_type i=0; i!=n; ++i) {
-	  toc_.push_back(TriggerObject( (*collections[ic])[i] ));
+	  if (typeid(C)==typeid(L1HFRingsCollection) ) {
+	    /// very special treatment - L1HFRings are not Candidate-based classes
+	    const L1HFRings* l1hfrings(dynamic_cast<const L1HFRings*> ( &(*collections[ic])[i]) );
+	    toc_.push_back(TriggerObject(TriggerL1HfRingEtSums,
+                           l1hfrings->hfEtSum(L1HFRings::kRing1PosEta),
+			   l1hfrings->hfEtSum(L1HFRings::kRing1NegEta),
+			   l1hfrings->hfEtSum(L1HFRings::kRing2PosEta),
+			   l1hfrings->hfEtSum(L1HFRings::kRing2NegEta) ) );
+	    toc_.push_back(TriggerObject(TriggerL1HfBitCounts,
+                           l1hfrings->hfBitCount(L1HFRings::kRing1PosEta),
+			   l1hfrings->hfBitCount(L1HFRings::kRing1NegEta),
+			   l1hfrings->hfBitCount(L1HFRings::kRing2PosEta),
+			   l1hfrings->hfBitCount(L1HFRings::kRing2NegEta) ) );
+	  } else {
+	    /// standard treatment for Candidate-based classes
+	    const LeafCandidate* cand (dynamic_cast<const LeafCandidate*> (&(*collections[ic])[i]) );
+	    toc_.push_back(TriggerObject( *cand ) );
+	  }
+          /// special case of Candidate classes with additional scalar number(s)
 	  if (typeid(C)==typeid(L1EtMissParticleCollection) ) {
 	    // add scalar L1EtMissParticle quantity (MET or MHT)
 	    const L1EtMissParticle* l1met(dynamic_cast<const L1EtMissParticle*>( &(*collections[ic])[i]) );
@@ -348,8 +370,14 @@ void TriggerSummaryProducerAOD::fillFilterObjects(const edm::Event& iEvent, cons
 	   << endl;
     }
     assert(offset_.find(pid)!=offset_.end()); // else unknown pid
-    // handle scalar L1EtMissParticle and [Calo]MET quantities
-    if (typeid(C)==typeid(L1EtMissParticleCollection) ) {
+    // handle scalar L1HFRings, L1EtMissParticle and [Calo]MET quantities
+    if (typeid(C)==typeid(L1HFRingsCollection) ) {
+      if (ids[i]==TriggerL1HfBitCounts) {
+	keys_.push_back(offset_[pid]+2*refs[i].key()+1);
+      } else { // if (ids[i]==TriggerL1HfRingEtSums) {
+	keys_.push_back(offset_[pid]+2*refs[i].key()+0);
+      }
+    } else if (typeid(C)==typeid(L1EtMissParticleCollection) ) {
       if ( (ids[i]==TriggerL1ETT) || (ids[i]==TriggerL1HTT) ) {
 	keys_.push_back(offset_[pid]+2*refs[i].key()+1);
       } else {
