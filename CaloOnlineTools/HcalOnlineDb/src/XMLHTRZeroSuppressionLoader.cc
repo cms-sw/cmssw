@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: XMLHTRZeroSuppressionLoader.cc,v 1.1 2008/02/12 17:02:02 kukartse Exp $
+// $Id: XMLHTRZeroSuppressionLoader.cc,v 1.2 2008/04/16 13:31:25 kukartse Exp $
 //
 
 // system include files
@@ -52,7 +52,8 @@ XMLHTRZeroSuppressionLoader::loaderBaseConfig::_loaderBaseConfig()
 XMLHTRZeroSuppressionLoader::datasetDBConfig::_datasetDBConfig() : XMLProcessor::DBConfig()
 {
     comment_description = "Default ZS comment description";
-    extention_table_name = "HCAL_CHANNELS";
+    //extention_table_name = "HCAL_CHANNELS";
+    extention_table_name = "HCAL_CHANNELS_OLD_V01";
     eta = 1;
     phi = 1;
     depth = 1;

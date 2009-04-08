@@ -10,6 +10,7 @@
       <RUN_BEGIN_TIMESTAMP>2007-02-28 00:00:00.0</RUN_BEGIN_TIMESTAMP>
       <COMMENT_DESCRIPTION>zero suppression data taken</COMMENT_DESCRIPTION>
     </RUN>
+    <HINTS channelmap='HCAL_CHANNELS_OLD_V1'/>
   </HEADER>
   <!-- Tags secton -->
   <ELEMENTS>
