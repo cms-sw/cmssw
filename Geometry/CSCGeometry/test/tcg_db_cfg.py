@@ -1,6 +1,6 @@
 # Configuration file to run stubs/CSCGeometryAnalyser
 # to dump CSC geometry information
-# Tim Cox 11.06.2008/20.01.2009
+# Tim Cox 08.04.2009 to test geometry-in-db for 31X
 
 import FWCore.ParameterSet.Config as cms
 
@@ -14,10 +14,10 @@ process.PoolDBESSource = cms.ESSource(
    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
    toGet = cms.VPSet(
       cms.PSet(
-         record = cms.string('CSCRecoGeometryRcd'), tag = cms.string('XMLFILE_TEST_01')
+         record = cms.string('CSCRecoGeometryRcd'), tag = cms.string('CSCRECO_Geometry_Test01')
       ),
       cms.PSet(
-         record = cms.string('CSCRecoDigiParametersRcd'), tag = cms.string('XMLFILE_TEST_02')
+         record = cms.string('CSCRecoDigiParametersRcd'), tag = cms.string('CSCRECODIGI_Geometry_Test01')
       )
    ),
    DBParameters = cms.PSet(
