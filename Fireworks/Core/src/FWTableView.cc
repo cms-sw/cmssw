@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.2 2009/04/08 14:55:53 jmuelmen Exp $
+// $Id: FWTableView.cc,v 1.3 2009/04/08 15:07:52 jmuelmen Exp $
 //
 
 // system include files
@@ -40,6 +40,8 @@
 #define private public
 #include "TGLEmbeddedViewer.h"
 #undef private
+#include "TGComboBox.h"
+#include "TGLabel.h"
 #include "TGTextView.h"
 #include "TGTextEntry.h"
 #include "TEveViewer.h"
@@ -62,6 +64,8 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWTableView.h"
+#include "Fireworks/Core/interface/FWTableViewManager.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWEveValueScaler.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
@@ -79,16 +83,24 @@
 //
 // constructors and destructor
 //
-FWTableView::FWTableView(TEveWindowSlot* iParent)
-     : m_frame(0)
+FWTableView::FWTableView (TEveWindowSlot* iParent, const FWTableViewManager *manager)
+     : m_manager(manager)
 {
 //      TGLayoutHints *tFrameHints = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY);
      const int width = 100, height = 100;
 //      TGVerticalFrame *topframe = new TGVerticalFrame(iParent->GetEveFrame(), 100, 100);
      m_frame = iParent->MakeFrame(0);
      TGCompositeFrame *frame = m_frame->GetGUICompositeFrame();
-     TGTextView *text = new TGTextView(frame, width, height, "Blah blah blah blah blah");
-     frame->AddFrame(text, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+     TGHorizontalFrame *buttons = new TGHorizontalFrame(frame);
+     frame->AddFrame(buttons, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
+     TGLabel *label = new TGLabel(buttons, "Collection");
+     buttons->AddFrame(label, new TGLayoutHints(kLHintsLeft));
+     m_collection = new TGComboBox(buttons);
+     updateItems();
+     buttons->AddFrame(m_collection, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
+     
+//      TGTextView *text = new TGTextView(frame, width, height, "Blah blah blah blah blah");
+//      frame->AddFrame(text, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
      frame->MapSubwindows();
      frame->Layout();
      frame->MapWindow();
@@ -256,6 +268,16 @@ FWTableView::saveImageTo(const std::string& iName) const
 //    }
 }
 
+void FWTableView::updateItems ()
+{
+     m_collection->RemoveAll();
+     for (std::vector<const FWEventItem *>::const_iterator it = m_manager->items().begin(), 
+	       itEnd = m_manager->items().end();
+	  it != itEnd; ++it) {
+	  m_collection->AddEntry((*it)->name().c_str(), it - m_manager->items().begin());
+     }
+}
+
 //
 // static member functions
 //
@@ -265,4 +287,3 @@ FWTableView::staticTypeName()
    static std::string s_name("Table");
    return s_name;
 }
-

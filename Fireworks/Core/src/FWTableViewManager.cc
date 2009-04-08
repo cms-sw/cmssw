@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.17 2009/04/07 14:07:28 chrjones Exp $
+// $Id: FWTableViewManager.cc,v 1.1 2009/04/07 18:01:51 jmuelmen Exp $
 //
 
 // system include files
@@ -66,10 +66,11 @@ class FWViewBase*
 FWTableViewManager::buildView(TEveWindowSlot* iParent)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
-   boost::shared_ptr<FWTableView> view( new FWTableView(iParent) );
+   boost::shared_ptr<FWTableView> view( new FWTableView(iParent, this) );
    view->setBackgroundColor(colorManager().background());
    m_views.push_back(view);
-   view->beingDestroyed_.connect(boost::bind(&FWTableViewManager::beingDestroyed,this,_1));
+   view->beingDestroyed_.connect(boost::bind(&FWTableViewManager::beingDestroyed,
+					     this,_1));
    return view.get();
 }
 
@@ -90,7 +91,34 @@ FWTableViewManager::beingDestroyed(const FWViewBase* iView)
 void
 FWTableViewManager::newItem(const FWEventItem* iItem)
 {
+     m_items.push_back(iItem);
+     iItem->goingToBeDestroyed_.connect(boost::bind(&FWTableViewManager::destroyItem,
+						    this, _1));
+     // tell the views to update their item lists
+     for(std::vector<boost::shared_ptr<FWTableView> >::iterator it=
+	      m_views.begin(), itEnd = m_views.end();
+	 it != itEnd; ++it) {
+	  (*it)->updateItems();
+     }
+}
 
+void FWTableViewManager::destroyItem (const FWEventItem *item)
+{
+     // remove the item from the list
+     for (std::vector<const FWEventItem *>::iterator it = m_items.begin(), 
+	       itEnd = m_items.end();
+	  it != itEnd; ++it) {
+	  if (*it == item) {
+	       m_items.erase(it);
+	       break;
+	  }
+     }
+     // tell the views to update their item lists
+     for(std::vector<boost::shared_ptr<FWTableView> >::iterator it=
+	      m_views.begin(), itEnd = m_views.end();
+	 it != itEnd; ++it) {
+	  (*it)->updateItems();
+     }
 }
 
 void

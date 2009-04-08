@@ -10,13 +10,13 @@
    Description: <one line class summary>
 
    Usage:
-    <usage>
+   <usage>
 
- */
+*/
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWTableView.h,v 1.2 2009/04/08 14:55:53 jmuelmen Exp $
+// $Id: FWTableView.h,v 1.3 2009/04/08 15:07:53 jmuelmen Exp $
 //
 
 // system include files
@@ -29,6 +29,7 @@
 class TGFrame;
 class TGLEmbeddedViewer;
 class TGCompositeFrame;
+class TGComboBox;
 class TEvePad;
 class TEveViewer;
 class TEveScene;
@@ -39,33 +40,37 @@ class FWTableViewManager;
 class FWEveValueScaler;
 class TEveWindowFrame;
 class TEveWindowSlot;
+class FWTableViewManager;
 
 class FWTableView : public FWViewBase {
 
 public:
-   FWTableView(TEveWindowSlot*);
-   virtual ~FWTableView();
+     FWTableView(TEveWindowSlot *, const FWTableViewManager *);
+     virtual ~FWTableView();
 
-   // ---------- const member functions ---------------------
-   TGFrame* frame() const;
-   const std::string& typeName() const;
-   virtual void addTo(FWConfiguration&) const;
+     // ---------- const member functions ---------------------
+     TGFrame* frame() const;
+     const std::string& typeName() const;
+     virtual void addTo(FWConfiguration&) const;
 
-   virtual void saveImageTo(const std::string& iName) const;
+     virtual void saveImageTo(const std::string& iName) const;
 
-   // ---------- static member functions --------------------
-   static const std::string& staticTypeName();
+     // ---------- static member functions --------------------
+     static const std::string& staticTypeName();
 
-   // ---------- member functions ---------------------------
-   virtual void setFrom(const FWConfiguration&);
-   void setBackgroundColor(Color_t);
+     // ---------- member functions ---------------------------
+     virtual void setFrom(const FWConfiguration&);
+     void setBackgroundColor(Color_t);
+     void updateItems ();
 
 private:
-   FWTableView(const FWTableView&);    // stop default
-   const FWTableView& operator=(const FWTableView&);    // stop default
+     FWTableView(const FWTableView&);    // stop default
+     const FWTableView& operator=(const FWTableView&);    // stop default
 
-   // ---------- member data --------------------------------
-   TEveWindowFrame *m_frame;
+     // ---------- member data --------------------------------
+     TEveWindowFrame *m_frame;
+     TGComboBox *m_collection;
+     const FWTableViewManager *m_manager;
 };
 
 

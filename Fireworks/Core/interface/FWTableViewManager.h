@@ -10,13 +10,13 @@
    Description: Base class for a Manger for a specific type of View
 
    Usage:
-    <usage>
+   <usage>
 
- */
+*/
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWTableViewManager.h,v 1.16 2009/04/07 14:02:33 chrjones Exp $
+// $Id: FWTableViewManager.h,v 1.1 2009/04/07 18:01:50 jmuelmen Exp $
 //
 
 // system include files
@@ -39,32 +39,35 @@ class TEveWindowSlot;
 class FWTableViewManager : public FWViewManagerBase {
 
 public:
-   FWTableViewManager(FWGUIManager*);
-   virtual ~FWTableViewManager();
+     FWTableViewManager(FWGUIManager*);
+     virtual ~FWTableViewManager();
 
-   // ---------- const member functions ---------------------
-   virtual FWTypeToRepresentations supportedTypesAndRepresentations() const;
-   // ---------- static member functions --------------------
+     // ---------- const member functions ---------------------
+     virtual FWTypeToRepresentations supportedTypesAndRepresentations() const;
+     // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   virtual void newItem(const FWEventItem*);
-   FWViewBase *buildView (TEveWindowSlot *iParent);
+     // ---------- member functions ---------------------------
+     virtual void newItem(const FWEventItem*);
+     void destroyItem (const FWEventItem *item);
+     FWViewBase *buildView (TEveWindowSlot *iParent);
+     const std::vector<const FWEventItem *> &items () const { return m_items; }
 
 protected:
-   FWTableViewManager();
+     FWTableViewManager();
 
-   /** called when models have changed and so the display must be updated*/
-   virtual void modelChangesComing();
-   virtual void modelChangesDone();
-   virtual void colorsChanged();
+     /** called when models have changed and so the display must be updated*/
+     virtual void modelChangesComing();
+     virtual void modelChangesDone();
+     virtual void colorsChanged();
 
 private:
-   FWTableViewManager(const FWTableViewManager&);    // stop default
-   const FWTableViewManager& operator=(const FWTableViewManager&);    // stop default
+     FWTableViewManager(const FWTableViewManager&);    // stop default
+     const FWTableViewManager& operator=(const FWTableViewManager&);    // stop default
 
-   void beingDestroyed(const FWViewBase*);
+     void beingDestroyed(const FWViewBase*);
 
-   std::vector<boost::shared_ptr<FWTableView> > m_views;
+     std::vector<boost::shared_ptr<FWTableView> > m_views;
+     std::vector<const FWEventItem *> m_items;
 };
 
 #endif
