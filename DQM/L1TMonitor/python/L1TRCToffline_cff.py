@@ -32,17 +32,26 @@ from DQM.L1TMonitor.Rct_LUTconfiguration_cff import *
 
 #dqm
 rctEmulDigis = cms.EDProducer("L1RCTProducer",
-    hcalDigisLabel = cms.InputTag("hcalTriggerPrimitiveDigis"),
+    hcalDigis = cms.VInputTag(cms.InputTag("hcalTriggerPrimitiveDigis")),
     useDebugTpgScales = cms.bool(True),
-    useEcalCosmicTiming = cms.bool(False),
-    postSamples = cms.uint32(0),
-    preSamples = cms.uint32(0),
-    useHcalCosmicTiming = cms.bool(True),
     useEcal = cms.bool(True),
     useHcal = cms.bool(True),
-    ecalDigisLabel = cms.InputTag("ecalTriggerPrimitiveDigis"),
-    useCorrectionsLindsey = cms.bool(False)
+    ecalDigis = cms.VInputTag(cms.InputTag("ecalTriggerPrimitiveDigis")),
+    BunchCrossings = cms.vint32(0)                      
 )
+
+#rctEmulDigis = cms.EDProducer("L1RCTProducer",
+#    hcalDigisLabel = cms.InputTag("hcalTriggerPrimitiveDigis"),
+#    useDebugTpgScales = cms.bool(True),
+#    useEcalCosmicTiming = cms.bool(False),
+#    postSamples = cms.uint32(0),
+#    preSamples = cms.uint32(0),
+#    useHcalCosmicTiming = cms.bool(True),
+#    useEcal = cms.bool(True),
+#    useHcal = cms.bool(True),
+#    ecalDigisLabel = cms.InputTag("ecalTriggerPrimitiveDigis"),
+#    useCorrectionsLindsey = cms.bool(False)
+#)
 
 rctEmulDigis.hcalDigisLabel='hcalDigis'
 #rctEmulDigis.ecalDigisLabel='ecalEBunpacker'
