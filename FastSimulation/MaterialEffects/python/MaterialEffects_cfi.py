@@ -138,27 +138,17 @@ MaterialEffectsBlock = cms.PSet(
    )
 )
 
-MaterialEffectsForMuonsBlock = cms.PSet(
-    MaterialEffectsForMuons = cms.PSet(
 
-	# Material Properties (Iron - this is for muons)
-	# A
-        A = cms.double(55.8455),
-	# Z
-        Z = cms.double(26.0),
-	# Density in g/cm3
-        Density = cms.double(7.87),
-	# One radiation length in cm
-        RadiationLength = cms.double(1.76),
+CommonMaterialEffectsForMuonsBlock = cms.PSet(
+    	# GEneral switches
 
-	# GEneral switches
-	# Enable photon pair conversion 
-        PairProduction = cms.bool(False),
-	# Smallest photon energy allowed for conversion
+	# Enable photon pair conversion - Ignored 
+        PairProduction = cms.bool(True),
+	# Smallest photon energy allowed for conversion - Ignored
         photonEnergy = cms.double(0.1),
-	# Enable electron Bremsstrahlung
+	# Enable muon Bremsstrahlung - currently not implemented 
         Bremsstrahlung = cms.bool(False),
-	# Smallest bremstrahlung photon energy
+	# Smallest bremstrahlung photon energy 
         bremEnergy = cms.double(0.1),
 	# Smallest bremsstrahlung energy fraction (wrt to the electron energy)
         bremEnergyFraction = cms.double(0.005),
@@ -168,9 +158,58 @@ MaterialEffectsForMuonsBlock = cms.PSet(
         MultipleScattering = cms.bool(True),
 	# Smallest pT for the Mutliple Scattering 
         pTmin = cms.double(0.3),
-	# Enable Nuclear Interactions
+        # Nuclear Interaction - Ignored 
         NuclearInteraction = cms.bool(False)
+    )
 
+MaterialEffectsForMuonsBlock = cms.PSet(
+    MaterialEffectsForMuons = cms.PSet(
+
+        CommonMaterialEffectsForMuonsBlock,
+        
+	# Material Properties (Iron - this is for muons)
+	# A
+        A = cms.double(55.8455),
+	# Z
+        Z = cms.double(26.0),
+	# Density in g/cm3
+        Density = cms.double(7.87),
+	# One radiation length in cm
+        RadiationLength = cms.double(1.76),
+    )
+)
+
+MaterialEffectsForMuonsInECALBlock = cms.PSet(
+    MaterialEffectsForMuonsInECAL = cms.PSet(
+
+        CommonMaterialEffectsForMuonsBlock,
+
+	# Material Properties (PbW04 - this is for muons)
+	# A
+        A = cms.double(55.8455),
+	# Z
+        Z = cms.double(26.0),
+	# Density in g/cm3
+        Density = cms.double(8.280),
+	# One radiation length in cm
+        RadiationLength = cms.double(0.89),
+    )
+)
+
+MaterialEffectsForMuonsInHCALBlock = cms.PSet(
+    MaterialEffectsForMuonsInHCAL = cms.PSet(
+
+        CommonMaterialEffectsForMuonsBlock,
+
+	# Material Properties (BRASS - this is for muons)
+	# A
+        A = cms.double(64.0),
+	# Z
+        Z = cms.double(29.0),
+	# Density in g/cm3
+        Density = cms.double(8.5),
+	# One radiation length in cm
+        RadiationLength = cms.double(1.44),
     )
 )
 
