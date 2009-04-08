@@ -346,15 +346,15 @@ bool Pythia6Hadronizer::residualDecay()
       int status = part->status();
       int pdgid = part->pdg_id();
       // add part to pyjets, with proper links/pointers
-      if ( status == 1 )
+      if ( 1 == status )
       {
          pyjets.k[0][ipart-1] = 1;
       }
-      else if ( status = 2 )
+      else if ( 2 == status )
       {
          pyjets.k[0][ipart-1] = 11;
       }
-      else if ( status == 3 )
+      else if ( 3 == status )
       {
          pyjets.k[0][ipart-1] = 21;
       }
