@@ -157,7 +157,7 @@ void make(TDirectory & out, TObject * o) {
     TDirectory * outDir = out.mkdir(dir->GetName(), dir->GetTitle());
     TIter next(dir->GetListOfKeys());
     TKey *key;
-    while(key = dynamic_cast<TKey*>(next())) {
+    while( (key = dynamic_cast<TKey*>(next())) ) {
       string className(key->GetClassName());
       string name(key->GetName());
       TObject * obj = dir->Get(name.c_str());
@@ -205,7 +205,7 @@ void fill(TDirectory & out, TObject * o, double w) {
     }
     TIter next(dir->GetListOfKeys());
     TKey *key;
-    while(key = dynamic_cast<TKey*>(next())) {
+    while( (key = dynamic_cast<TKey*>(next())) ) {
       string className(key->GetClassName());
       string name(key->GetName());
       TObject * obj = dir->Get(name.c_str());
