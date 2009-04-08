@@ -75,7 +75,7 @@ int main(int argc,char** argv)
 	  TObjArray* coordinates=((TObjString*)newTokens->At(3))->String().Tokenize(","); 
 	  float x=((TObjString*)coordinates->At(0))->String().Atof();
 	  float y=((TObjString*)coordinates->At(1))->String().Atof();
-	  float z=((TObjString*)coordinates->At(2))->String().Atof();
+//	  float z=((TObjString*)coordinates->At(2))->String().Atof();
 	  char text[10];
 	  sprintf(text,"%d,%d",ix,iy);
 	  t->DrawText(x,y,text);

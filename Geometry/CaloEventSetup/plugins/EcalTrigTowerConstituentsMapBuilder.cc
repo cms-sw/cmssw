@@ -12,7 +12,7 @@
 */
 //
 // Original Author:  Paolo Meridiani
-// $Id: EcalTrigTowerConstituentsMapBuilder.cc,v 1.1 2007/04/15 23:16:28 wmtan Exp $
+// $Id: EcalTrigTowerConstituentsMapBuilder.cc,v 1.2 2007/05/29 17:44:01 meridian Exp $
 //
 //
 
@@ -70,7 +70,7 @@ void EcalTrigTowerConstituentsMapBuilder::parseTextMap(const std::string& filena
   if (!f.good())
     return; 
   
-  int mod,cry,ietaTower,iphiTower;
+  int ietaTower,iphiTower;
   int ix,iy,iz;
   char line[80];  // a buffer for the line to read
   char ch;        // a temporary for holding the end of line
@@ -79,6 +79,7 @@ void EcalTrigTowerConstituentsMapBuilder::parseTextMap(const std::string& filena
     f.get(ch);                      // eat out the '\n'
     // extract the numbers
 /*
+  int mod,cry;
     int nread = sscanf (line, " %d %d %d %d",&mod,&cry,&ietaTower,&iphiTower);
     if (nread == 4 )
       {
