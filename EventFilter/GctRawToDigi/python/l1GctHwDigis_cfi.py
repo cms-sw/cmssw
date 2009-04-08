@@ -4,8 +4,15 @@ l1GctHwDigis = cms.EDProducer("GctRawToDigi",
     inputLabel = cms.InputTag("source"),
     gctFedId = cms.int32(745),
     hltMode = cms.bool(False),
-    unpackerVersion = cms.uint32(0), # O=Auto-detect, or override with: 1=MCLegacy, 2=V35
+    unpackerVersion = cms.uint32(0), #  ** SEE BELOW FOR DETAILS OF THIS OPTION **
     verbose = cms.untracked.bool(False)
 )
 
-
+# Details of "unpackerVersion" option:
+# 
+#   value   |                        Unpacker/RAW Format Version 
+#-----------|---------------------------------------------------------------------------------
+#     0     |   Auto-detects RAW Format in use - the recommended option.
+#     1     |   Force usage of the Monte-Carlo Legacy unpacker (unpacks DigiToRaw events).
+#     2     |   Force usage of the RAW Format V35 unpacker.
+#     3     |   Force usage of the RAW Format V38 unpacker.
