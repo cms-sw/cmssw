@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.1 2009/03/04 16:40:50 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.2 2009/04/07 18:55:07 chrjones Exp $
 //
 
 // system include files
@@ -298,6 +298,7 @@ FWCollectionSummaryWidget::toggleShowHide()
          m_tableManager= new FWCollectionSummaryTableManager(m_collection,tableContext,hilightContext,this);
          m_tableWidget = new FWTableWidget(m_tableManager,this);
          m_tableWidget->SetBackgroundColor(kWidgetColor);
+         m_tableWidget->SetHeaderBackgroundColor(fClient->GetResourcePool()->GetFrameGC()->GetBackground());
          AddFrame(m_tableWidget, new TGLayoutHints(kLHintsBottom | kLHintsExpandX | kLHintsExpandY));
          m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t)","FWCollectionSummaryWidget",this,"modelSelected(Int_t,Int_t,Int_t)");
 
