@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.37 2009/03/20 16:18:12 ferriff Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.38 2009/04/03 09:51:11 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -28,6 +28,9 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   // initilize parameters used to produce cond DB objects
   adcToGeVEBConstant_ = ps.getUntrackedParameter<double>("adcToGeVEBConstant",0.035);
   adcToGeVEEConstant_ = ps.getUntrackedParameter<double>("adcToGeVEEConstant",0.060);
+
+  intercalibConstantMeanMC_ = ps.getUntrackedParameter<double>("intercalibConstantMeanMC",1.0);
+  intercalibConstantSigmaMC_ = ps.getUntrackedParameter<double>("intercalibConstantSigmaMC",0.0);
 
   intercalibConstantMean_ = ps.getUntrackedParameter<double>("intercalibConstantMean",1.0);
   intercalibConstantSigma_ = ps.getUntrackedParameter<double>("intercalibConstantSigma",0.0);
@@ -160,6 +163,13 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
         setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalIntercalibConstants ) ;
     }
     findingRecord<EcalIntercalibConstantsRcd> () ;
+  }
+  // MC intercalibrations
+  producedEcalIntercalibConstantsMC_ = ps.getUntrackedParameter<bool>("producedEcalIntercalibConstantsMC",true);
+
+  if (producedEcalIntercalibConstantsMC_) { // user asks to produce constants
+    setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalIntercalibConstantsMC ) ;
+    findingRecord<EcalIntercalibConstantsMCRcd> () ;
   }
 
   // intercalibration constants
@@ -400,6 +410,45 @@ EcalTrivialConditionRetriever::produceEcalIntercalibConstants( const EcalInterca
 	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
 	  EEDetId eedetidneg(iX,iY,-1);
 	  ical->setValue( eedetidneg.rawId(), intercalibConstantMean_ + r1*intercalibConstantSigma_ );
+	}
+    }
+  }
+  
+  return ical;
+}
+
+std::auto_ptr<EcalIntercalibConstantsMC>
+EcalTrivialConditionRetriever::produceEcalIntercalibConstantsMC( const EcalIntercalibConstantsMCRcd& )
+{
+  std::auto_ptr<EcalIntercalibConstantsMC>  ical = std::auto_ptr<EcalIntercalibConstantsMC>( new EcalIntercalibConstantsMC() );
+
+  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA ;++ieta) {
+    if(ieta==0) continue;
+    for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
+      // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
+      if (EBDetId::validDetId(ieta,iphi))
+	{
+	  EBDetId ebid(ieta,iphi);
+	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+	  ical->setValue( ebid.rawId(), intercalibConstantMeanMC_ + r*intercalibConstantSigmaMC_ );
+	}
+    }
+  }
+
+  for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+      // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+      if (EEDetId::validDetId(iX,iY,1))
+	{
+	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+	  EEDetId eedetidpos(iX,iY,1);
+	  ical->setValue( eedetidpos.rawId(), intercalibConstantMeanMC_ + r*intercalibConstantSigmaMC_ );
+	}
+      if(EEDetId::validDetId(iX,iY,-1))
+        {
+	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
+	  EEDetId eedetidneg(iX,iY,-1);
+	  ical->setValue( eedetidneg.rawId(), intercalibConstantMeanMC_ + r1*intercalibConstantSigmaMC_ );
 	}
     }
   }

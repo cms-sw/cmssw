@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.19 2009/02/18 18:55:25 ferriff Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.20 2009/03/20 15:58:00 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -27,6 +27,9 @@
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
@@ -88,6 +91,7 @@ public:
   virtual std::auto_ptr<EcalPedestals> produceEcalPedestals( const EcalPedestalsRcd& );
   virtual std::auto_ptr<EcalWeightXtalGroups> produceEcalWeightXtalGroups( const EcalWeightXtalGroupsRcd& );
   virtual std::auto_ptr<EcalIntercalibConstants> produceEcalIntercalibConstants( const EcalIntercalibConstantsRcd& );
+  virtual std::auto_ptr<EcalIntercalibConstantsMC> produceEcalIntercalibConstantsMC( const EcalIntercalibConstantsMCRcd& );
   virtual std::auto_ptr<EcalIntercalibErrors> produceEcalIntercalibErrors( const EcalIntercalibErrorsRcd& );
   virtual std::auto_ptr<EcalTimeCalibConstants> produceEcalTimeCalibConstants( const EcalTimeCalibConstantsRcd& );
   virtual std::auto_ptr<EcalTimeCalibErrors> produceEcalTimeCalibErrors( const EcalTimeCalibErrorsRcd& );
@@ -131,6 +135,9 @@ private:
 
   double intercalibConstantMean_;  // mean of intercalib constant. default: 1.0
   double intercalibConstantSigma_; // sigma of intercalib constant
+
+  double intercalibConstantMeanMC_;  // mean of intercalib constant. default: 1.0
+  double intercalibConstantSigmaMC_; // sigma of intercalib constant
                                   // Gaussian used to generate intercalib constants for
                                   // each channel. no smearing if sigma=0.0 (default)
   double intercalibErrorMean_;  // mean of intercalib constant error
@@ -204,6 +211,7 @@ private:
   bool producedEcalPedestals_;
   bool producedEcalWeights_;
   bool producedEcalIntercalibConstants_;
+  bool producedEcalIntercalibConstantsMC_;
   bool producedEcalIntercalibErrors_;
   bool producedEcalTimeCalibConstants_;
   bool producedEcalTimeCalibErrors_;
