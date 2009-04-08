@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWTableView.h,v 1.1 2009/04/07 18:01:50 jmuelmen Exp $
+// $Id: FWTableView.h,v 1.2 2009/04/08 14:55:53 jmuelmen Exp $
 //
 
 // system include files
@@ -65,7 +65,7 @@ private:
    const FWTableView& operator=(const FWTableView&);    // stop default
 
    // ---------- member data --------------------------------
-   TGCompositeFrame *m_frame;
+   TEveWindowFrame *m_frame;
 };
 
 

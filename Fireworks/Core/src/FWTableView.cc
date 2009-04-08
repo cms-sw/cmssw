@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.1 2009/04/07 18:01:51 jmuelmen Exp $
+// $Id: FWTableView.cc,v 1.2 2009/04/08 14:55:53 jmuelmen Exp $
 //
 
 // system include files
@@ -85,13 +85,14 @@ FWTableView::FWTableView(TEveWindowSlot* iParent)
 //      TGLayoutHints *tFrameHints = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY);
      const int width = 100, height = 100;
 //      TGVerticalFrame *topframe = new TGVerticalFrame(iParent->GetEveFrame(), 100, 100);
-     m_frame = iParent->MakeFrame(0)->GetGUICompositeFrame();
-     TGTextView *text = new TGTextView(m_frame, width, height, "Blah blah blah blah blah");
-     m_frame->AddFrame(text, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
-     m_frame->Layout();
-     m_frame->MapSubwindows();
-     m_frame->MapWindow();
-     m_frame->Resize(0,0);
+     m_frame = iParent->MakeFrame(0);
+     TGCompositeFrame *frame = m_frame->GetGUICompositeFrame();
+     TGTextView *text = new TGTextView(frame, width, height, "Blah blah blah blah blah");
+     frame->AddFrame(text, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+     frame->MapSubwindows();
+     frame->Layout();
+     frame->MapWindow();
+//      frame->Resize(0,0);
 
 //      iParent->GetEveFrame()->Layout();
 //      iParent->GetEveFrame()->MapSubwindows();
@@ -138,7 +139,7 @@ FWTableView::FWTableView(TEveWindowSlot* iParent)
 
 FWTableView::~FWTableView()
 {
-//      m_frame->DestroyWindowAndSlot();
+     m_frame->DestroyWindowAndSlot();
 }
 
 void
