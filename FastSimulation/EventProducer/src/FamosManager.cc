@@ -89,7 +89,9 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
   if ( m_Calorimetry) 
     myCalorimetry = 
       new CalorimetryManager(mySimEvent,
-			     p.getParameter<edm::ParameterSet>("Calorimetry"),
+			     p.getParameter<edm::ParameterSet>("Calorimetry"),			     
+			     p.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInECAL"),
+			     p.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInHCAL"),
 			     random);
 
 }

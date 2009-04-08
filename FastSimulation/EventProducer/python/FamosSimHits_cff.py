@@ -15,6 +15,10 @@ famosSimHits = cms.EDProducer("FamosProducer",
     TrackerSimHitsBlock,
     # Material effects to be simulated in the tracker material and associated cuts
     MaterialEffectsBlock,
+    # Material effects for muons in ECAL
+    MaterialEffectsForMuonsInECALBlock,
+    # Material effects for muons in HCAL
+    MaterialEffectsForMuonsInHCALBlock,
     # (De)activate decays of unstable particles (K0S, etc...)
     ActivateDecaysBlock,
     # Kinematic cuts for the particle filter in the SimEvent

@@ -157,6 +157,8 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
      calo->loadFromEcalEndcap(*p5);
      calo->loadFromPreshower(*p6);
      calo->loadFromHcal(*p7);
+     // update the muon SimTracks
+     calo->loadMuonSimTracks(*m1);
    }
 
    // Write muon first, to allow tracking particles to work... (pending MixingModule fix)
