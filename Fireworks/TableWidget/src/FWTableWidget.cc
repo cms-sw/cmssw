@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.6 2009/03/18 15:40:37 chrjones Exp $
+// $Id: FWTableWidget.cc,v 1.7 2009/04/08 19:04:15 chrjones Exp $
 //
 
 // system include files
@@ -114,6 +114,12 @@ TGCompositeFrame(p),
 
 FWTableWidget::~FWTableWidget()
 {
+   if(0!=m_headerBackground) {
+      gClient->GetResourcePool()->GetGCPool()->FreeGC(m_headerBackground->GetGC());
+   }
+   if(0!= m_headerForeground) {
+      gClient->GetResourcePool()->GetGCPool()->FreeGC(m_headerForeground->GetGC());
+   }
 }
 
 //
