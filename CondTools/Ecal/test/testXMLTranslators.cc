@@ -5,6 +5,7 @@
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 
 #include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
@@ -73,7 +74,8 @@ int main(){
   EcalIntercalibErrors    intercalib_errors;
 
   std::string intercalibfile("/tmp/EcalIntercalibConstants.xml");
-  
+  std::string intercalibfiledb("/tmp/EcalIntercalibConstantsDB.xml");
+
   for (int cellid = 0; 
 	     cellid < EBDetId::kSizeForDenseIndexing; 
 	     ++cellid){// loop on EB cells
@@ -112,6 +114,10 @@ int main(){
 			   intercalib_constants, 
 			   intercalib_errors);
   
+  transIntercalib.writeXML(intercalibfiledb,header,
+			   intercalib_constants, 
+			   intercalib_errors);
+
   EcalIntercalibConstants intercalib_constants2;
   EcalIntercalibErrors    intercalib_errors2;
 
