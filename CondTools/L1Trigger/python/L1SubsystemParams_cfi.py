@@ -120,21 +120,9 @@ def initL1Subsystems( tagBase = 'IDEAL',
             key = cms.string(objectKey)
         ), 
         cms.PSet(
-            record = cms.string('L1MuGMTChannelMaskRcd'),
-            tag = cms.string('L1MuGMTChannelMask_' + tagBase),
-            type = cms.string('L1MuGMTChannelMask'),
-            key = cms.string(objectKey)
-        ), 
-        cms.PSet(
             record = cms.string('L1RCTParametersRcd'),
             tag = cms.string('L1RCTParameters_' + tagBase),
             type = cms.string('L1RCTParameters'),
-            key = cms.string(objectKey)
-        ), 
-        cms.PSet(
-            record = cms.string('L1RCTChannelMaskRcd'),
-            tag = cms.string('L1RCTChannelMask_' + tagBase),
-            type = cms.string('L1RCTChannelMask'),
             key = cms.string(objectKey)
         ), 
         cms.PSet(
@@ -147,12 +135,6 @@ def initL1Subsystems( tagBase = 'IDEAL',
             record = cms.string('L1CaloHcalScaleRcd'),
             tag = cms.string('L1CaloHcalScale_' + tagBase),
             type = cms.string('L1CaloHcalScale'),
-            key = cms.string(objectKey)
-        ), 
-        cms.PSet(
-            record = cms.string('L1GctChannelMaskRcd'),
-            tag = cms.string('L1GctChannelMask_' + tagBase),
-            type = cms.string('L1GctChannelMask'),
             key = cms.string(objectKey)
         ), 
         cms.PSet(
@@ -180,44 +162,14 @@ def initL1Subsystems( tagBase = 'IDEAL',
             key = cms.string(objectKey)
         ), 
         cms.PSet(
-            record = cms.string('L1GtPrescaleFactorsAlgoTrigRcd'),
-            tag = cms.string('L1GtPrescaleFactorsAlgoTrig_' + tagBase),
-            type = cms.string('L1GtPrescaleFactors'),
-            key = cms.string(objectKey)
-        ), 
-        cms.PSet(
-            record = cms.string('L1GtPrescaleFactorsTechTrigRcd'),
-            tag = cms.string('L1GtPrescaleFactorsTechTrig_' + tagBase),
-            type = cms.string('L1GtPrescaleFactors'),
-            key = cms.string(objectKey)
-        ), 
-        cms.PSet(
             record = cms.string('L1GtStableParametersRcd'),
             tag = cms.string('L1GtStableParameters_' + tagBase),
             type = cms.string('L1GtStableParameters'),
             key = cms.string(objectKey)
         ), 
         cms.PSet(
-            record = cms.string('L1GtTriggerMaskAlgoTrigRcd'),
-            tag = cms.string('L1GtTriggerMaskAlgoTrig_' + tagBase),
-            type = cms.string('L1GtTriggerMask'),
-            key = cms.string(objectKey)
-        ), 
-        cms.PSet(
-            record = cms.string('L1GtTriggerMaskTechTrigRcd'),
-            tag = cms.string('L1GtTriggerMaskTechTrig_' + tagBase),
-            type = cms.string('L1GtTriggerMask'),
-            key = cms.string(objectKey)
-        ), 
-        cms.PSet(
             record = cms.string('L1GtTriggerMaskVetoAlgoTrigRcd'),
             tag = cms.string('L1GtTriggerMaskVetoAlgoTrig_' + tagBase),
-            type = cms.string('L1GtTriggerMask'),
-            key = cms.string(objectKey)
-        ), 
-        cms.PSet(
-            record = cms.string('L1GtTriggerMaskVetoTechTrigRcd'),
-            tag = cms.string('L1GtTriggerMaskVetoTechTrig_' + tagBase),
             type = cms.string('L1GtTriggerMask'),
             key = cms.string(objectKey)
         ), 
@@ -240,3 +192,7 @@ def initL1Subsystems( tagBase = 'IDEAL',
             key = cms.string(objectKey)
         ))
         )
+
+    from CondTools.L1Trigger.L1RSSubsystemParams_cfi import initL1RSSubsystems
+    initL1RSSubsystems( tagBase = tagBase, objectKey = objectKey )
+    initL1Subsystems.params.recordInfo.extend(initL1RSSubsystems.params.recordInfo)
