@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre4/1E31_V2/V2 (CMSSW_3_1_X_2009-04-07-0000_HLT1)
+# /dev/CMSSW_3_1_0/pre4/1E31_V4/V2 (CMSSW_3_1_X_2009-04-07-0000_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre4/1E31_V2/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre4/1E31_V4/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -1926,7 +1926,10 @@ hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     XTasymmetry_ME41 = cms.double( 0.0 ),
     ConstSyst_ME41 = cms.double( 0.0 ),
     readBadChannels = cms.bool( False ),
-    readBadChambers = cms.bool( False )
+    readBadChambers = cms.bool( False ),
+    UseAverageTime = cms.bool( False ),
+    UseParabolaFit = cms.bool( False ),
+    UseFourPoleFit = cms.bool( True )
 )
 hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     inputObjects = cms.InputTag( "hltCsc2DRecHits" ),
@@ -1943,61 +1946,61 @@ hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
   'ME4/1',
   'ME4/2' ),
         algo_name = cms.string( "CSCSegAlgoST" ),
+        parameters_per_chamber_type = cms.vint32( 2, 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
         algo_psets = cms.VPSet( 
           cms.PSet(  maxRatioResidualPrune = cms.double( 3.0 ),
-            yweightPenalty = cms.untracked.double( 1.5 ),
-            maxRecHitsInCluster = cms.untracked.int32( 20 ),
-            hitDropLimit6Hits = cms.untracked.double( 0.3333 ),
+            yweightPenalty = cms.double( 1.5 ),
+            maxRecHitsInCluster = cms.int32( 20 ),
+            hitDropLimit6Hits = cms.double( 0.3333 ),
+            BPMinImprovement = cms.double( 10000.0 ),
             tanPhiMax = cms.double( 0.5 ),
-            onlyBestSegment = cms.untracked.bool( False ),
+            onlyBestSegment = cms.bool( False ),
             dRPhiFineMax = cms.double( 8.0 ),
-            curvePenalty = cms.untracked.double( 2.0 ),
-            dXclusBoxMax = cms.untracked.double( 4.0 ),
-            BrutePruning = cms.untracked.bool( True ),
-            tanThetaMax = cms.double( 1.2 ),
-            hitDropLimit4Hits = cms.untracked.double( 0.6 ),
-            useShowering = cms.untracked.bool( False ),
+            curvePenalty = cms.double( 2.0 ),
+            dXclusBoxMax = cms.double( 4.0 ),
+            BrutePruning = cms.bool( True ),
+            curvePenaltyThreshold = cms.double( 0.85 ),
+            hitDropLimit4Hits = cms.double( 0.6 ),
+            useShowering = cms.bool( False ),
             CSCDebug = cms.untracked.bool( False ),
-            curvePenaltyThreshold = cms.untracked.double( 0.85 ),
-            minHitsPerSegment = cms.untracked.int32( 3 ),
+            tanThetaMax = cms.double( 1.2 ),
+            minHitsPerSegment = cms.int32( 3 ),
+            yweightPenaltyThreshold = cms.double( 1.0 ),
             dPhiFineMax = cms.double( 0.025 ),
-            yweightPenaltyThreshold = cms.untracked.double( 1.0 ),
-            hitDropLimit5Hits = cms.untracked.double( 0.8 ),
-            preClustering = cms.untracked.bool( True ),
+            hitDropLimit5Hits = cms.double( 0.8 ),
+            preClustering = cms.bool( True ),
             maxDPhi = cms.double( 999.0 ),
             maxDTheta = cms.double( 999.0 ),
-            Pruning = cms.untracked.bool( True ),
-            dYclusBoxMax = cms.untracked.double( 8.0 ),
-            BPMinImprovement = cms.untracked.double( 10000.0 )
+            Pruning = cms.bool( True ),
+            dYclusBoxMax = cms.double( 8.0 )
           ),
           cms.PSet(  maxRatioResidualPrune = cms.double( 3.0 ),
-            yweightPenalty = cms.untracked.double( 1.5 ),
-            maxRecHitsInCluster = cms.untracked.int32( 24 ),
-            hitDropLimit6Hits = cms.untracked.double( 0.3333 ),
+            yweightPenalty = cms.double( 1.5 ),
+            maxRecHitsInCluster = cms.int32( 24 ),
+            hitDropLimit6Hits = cms.double( 0.3333 ),
+            BPMinImprovement = cms.double( 10000.0 ),
             tanPhiMax = cms.double( 0.5 ),
-            onlyBestSegment = cms.untracked.bool( False ),
+            onlyBestSegment = cms.bool( False ),
             dRPhiFineMax = cms.double( 8.0 ),
-            curvePenalty = cms.untracked.double( 2.0 ),
-            dXclusBoxMax = cms.untracked.double( 4.0 ),
-            BrutePruning = cms.untracked.bool( True ),
-            tanThetaMax = cms.double( 1.2 ),
-            hitDropLimit4Hits = cms.untracked.double( 0.6 ),
-            useShowering = cms.untracked.bool( False ),
+            curvePenalty = cms.double( 2.0 ),
+            dXclusBoxMax = cms.double( 4.0 ),
+            BrutePruning = cms.bool( True ),
+            curvePenaltyThreshold = cms.double( 0.85 ),
+            hitDropLimit4Hits = cms.double( 0.6 ),
+            useShowering = cms.bool( False ),
             CSCDebug = cms.untracked.bool( False ),
-            curvePenaltyThreshold = cms.untracked.double( 0.85 ),
-            minHitsPerSegment = cms.untracked.int32( 3 ),
+            tanThetaMax = cms.double( 1.2 ),
+            minHitsPerSegment = cms.int32( 3 ),
+            yweightPenaltyThreshold = cms.double( 1.0 ),
             dPhiFineMax = cms.double( 0.025 ),
-            yweightPenaltyThreshold = cms.untracked.double( 1.0 ),
-            hitDropLimit5Hits = cms.untracked.double( 0.8 ),
-            preClustering = cms.untracked.bool( True ),
+            hitDropLimit5Hits = cms.double( 0.8 ),
+            preClustering = cms.bool( True ),
             maxDPhi = cms.double( 999.0 ),
             maxDTheta = cms.double( 999.0 ),
-            Pruning = cms.untracked.bool( True ),
-            dYclusBoxMax = cms.untracked.double( 8.0 ),
-            BPMinImprovement = cms.untracked.double( 10000.0 )
+            Pruning = cms.bool( True ),
+            dYclusBoxMax = cms.double( 8.0 )
           )
-        ),
-        parameters_per_chamber_type = cms.vint32( 2, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
+        )
       )
     )
 )
