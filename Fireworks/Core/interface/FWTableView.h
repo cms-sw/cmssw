@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWTableView.h,v 1.12 2009/04/07 14:10:54 chrjones Exp $
+// $Id: FWTableView.h,v 1.1 2009/04/07 18:01:50 jmuelmen Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 // forward declarations
 class TGFrame;
 class TGLEmbeddedViewer;
+class TGCompositeFrame;
 class TEvePad;
 class TEveViewer;
 class TEveScene;
@@ -64,7 +65,7 @@ private:
    const FWTableView& operator=(const FWTableView&);    // stop default
 
    // ---------- member data --------------------------------
-   TEveWindowFrame *m_frame;
+   TGCompositeFrame *m_frame;
 };
 
 

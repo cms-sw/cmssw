@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.69 2009/03/05 22:01:51 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.70 2009/04/07 14:13:21 chrjones Exp $
 //
 
 // system include files
@@ -51,6 +51,7 @@
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
 #include "Fireworks/Core/interface/FWEveLegoViewManager.h"
 #include "Fireworks/Core/interface/FWGlimpseViewManager.h"
+#include "Fireworks/Core/interface/FWTableViewManager.h"
 #include "Fireworks/Core/interface/FW3DViewManager.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
@@ -507,6 +508,7 @@ CmsShowMain::setupViewManagers()
    m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
 
    m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWGlimpseViewManager(m_guiManager.get()) ) );
+   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWTableViewManager(m_guiManager.get()) ) );
 
    boost::shared_ptr<FWViewManagerBase> plain3DViewManager( new FW3DViewManager(m_guiManager.get()) );
    plain3DViewManager->setGeom(&m_detIdToGeo);

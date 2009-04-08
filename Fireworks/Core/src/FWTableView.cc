@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.26 2009/04/07 14:10:54 chrjones Exp $
+// $Id: FWTableView.cc,v 1.1 2009/04/07 18:01:51 jmuelmen Exp $
 //
 
 // system include files
@@ -41,6 +41,7 @@
 #include "TGLEmbeddedViewer.h"
 #undef private
 #include "TGTextView.h"
+#include "TGTextEntry.h"
 #include "TEveViewer.h"
 #include "TEveManager.h"
 #include "TEveWindow.h"
@@ -81,11 +82,31 @@
 FWTableView::FWTableView(TEveWindowSlot* iParent)
      : m_frame(0)
 {
-     TGCompositeFrame *frame = new TGCompositeFrame(iParent->GetEveFrame(), 100, 100);
-     TGLayoutHints *tFrameHints =
-	  new TGLayoutHints(kLHintsExpandX | kLHintsExpandY);
-     m_frame = iParent->MakeFrame(frame);
+//      TGLayoutHints *tFrameHints = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY);
+     const int width = 100, height = 100;
+//      TGVerticalFrame *topframe = new TGVerticalFrame(iParent->GetEveFrame(), 100, 100);
+     m_frame = iParent->MakeFrame(0)->GetGUICompositeFrame();
+     TGTextView *text = new TGTextView(m_frame, width, height, "Blah blah blah blah blah");
+     m_frame->AddFrame(text, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+     m_frame->Layout();
+     m_frame->MapSubwindows();
+     m_frame->MapWindow();
+     m_frame->Resize(0,0);
 
+//      iParent->GetEveFrame()->Layout();
+//      iParent->GetEveFrame()->MapSubwindows();
+// #if 1
+//      TGHorizontalFrame *buttons = new TGHorizontalFrame(topframe, width, 25, kFixedHeight);
+//      topframe->AddFrame(buttons, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY));
+//      TGTextEntry *text = new TGTextEntry(buttons, "Collection");
+//      buttons->AddFrame(text, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY));
+// #else
+//      TGTextView *text = new TGTextView(topframe, width, height, "Blah blah blah blah blah");
+//      topframe->AddFrame(text, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY));
+//      topframe->Layout();
+//      topframe->MapSubwindows();
+// //      topframe->MapWindow();
+// #endif
 //      iParent->GetEveFrame()->AddFrame(frame,tFrameHints);
 // //      parent->HideFrame(frame);
 //      iParent->GetEveFrame()->Layout();
@@ -117,9 +138,7 @@ FWTableView::FWTableView(TEveWindowSlot* iParent)
 
 FWTableView::~FWTableView()
 {
-     m_frame->DestroyWindowAndSlot();
-//    m_scene->Destroy();
-//    m_viewer->DestroyWindowAndSlot();
+//      m_frame->DestroyWindowAndSlot();
 }
 
 void
