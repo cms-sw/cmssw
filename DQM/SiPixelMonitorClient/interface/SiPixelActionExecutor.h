@@ -59,7 +59,8 @@ private:
                                     std::string 	     	   me_name);
   MonitorElement* getFEDSummaryME(  DQMStore     		 * bei, 
                                     std::string 	     	   me_name);
-  void fillSummary(           	    DQMStore     		 * bei, 
+  void GetBladeSubdirs(DQMStore* bei, std::vector<std::string>& blade_subdirs); 
+   void fillSummary(           	    DQMStore     		 * bei, 
                                     std::string 	     	   dir_name,
                                     std::vector<std::string> 	 & me_names,
 				    bool isbarrel);

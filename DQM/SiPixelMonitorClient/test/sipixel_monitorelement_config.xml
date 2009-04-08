@@ -65,7 +65,7 @@
      <MonElement name="residualX_RMS"></MonElement>
      <MonElement name="residualY_RMS"></MonElement>
 </SubStructureGrandBarrelLevel> 
-<SubStructureEndcapLevel name="Panel_" update_frequency="300"> 
+<SubStructureEndcapLevel name="Blade_" update_frequency="300"> 
      <MonElement name="errorType">	</MonElement> 
      <MonElement name="NErrors">	</MonElement> 
      <MonElement name="TBMMessage">	</MonElement> 
@@ -93,7 +93,7 @@
      <MonElement name="residualX"></MonElement>
      <MonElement name="residualY"></MonElement>
 </SubStructureEndcapLevel> 
-<SubStructureGrandEndcapLevel name="Blade_" update_frequency="300"> 
+<SubStructureGrandEndcapLevel name="Disc_" update_frequency="300"> 
      <MonElement name="errorType">	</MonElement> 
      <MonElement name="NErrors">	</MonElement> 
      <MonElement name="TBMMessage">	</MonElement> 
