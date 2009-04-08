@@ -64,7 +64,7 @@ float CSCFindPeakTime::parabolaFitTime( int tmax, const float* adc ) {
 
    // Checked and simplified... Tim Cox 08-Apr-2009
    // Denominator is not zero unless we fed in nonsense values with y2 not the peak!
-   if ( (y1+y3) < 2.*y2 ) timing  = tmax + ( y1 - y3 ) / 2.*( y1 - 2.*y2 + y3 )
+   if ( (y1+y3) < 2.*y2 ) timing  = tmax + ( y1 - y3 ) / 2.*( y1 - 2.*y2 + y3 );
 
    return timing * 50.; //@@ in ns.
 }
