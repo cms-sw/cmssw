@@ -14,7 +14,7 @@
 // Original Author:  Dmytro Kovalskyi
 // Modified for ECAL+HCAL by:  Michal Szleper
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.4 2007/05/22 12:41:54 kodolova Exp $
+// $Id: DetIdAssociator.cc,v 1.5 2009/02/06 10:18:33 elmer Exp $
 //
 //
 
@@ -82,7 +82,7 @@ std::vector<GlobalPoint> HDetIdAssociator::getTrajectory( const FreeTrajectorySt
       if(! tSOSDest.isValid() )
       {
 // barrel
-       if(ibar = 0){ 
+       if(ibar == 0){ 
            if (tanTheta < 0 ) tSOSDest = ivProp_->propagate( ftsCurrent,*forwardEndcap);
            if (tanTheta >= 0 ) tSOSDest = ivProp_->propagate( ftsCurrent,*backwardEndcap);
        }

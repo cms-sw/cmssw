@@ -88,7 +88,7 @@ int main (int argc, char* argv[])
 //      int index = 
     
     }
-  else if (region = -1) //PG EB-
+  else if (region == -1) //PG EB-
     {}
   else //PG EB+ 
     {}    
