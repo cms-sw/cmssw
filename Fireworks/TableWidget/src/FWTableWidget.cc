@@ -8,12 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.5 2009/03/13 14:58:01 chrjones Exp $
+// $Id: FWTableWidget.cc,v 1.6 2009/03/18 15:40:37 chrjones Exp $
 //
 
 // system include files
 #include "TGScrollBar.h"
 #include "TGTableLayout.h"
+#include "TGResourcePool.h"
+
 
 // user include files
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
@@ -47,7 +49,9 @@ TGCompositeFrame(p),
    m_showingVSlider(true),
    m_showingHSlider(true),
    m_sortedColumn(-1),
-   m_descendingSort(true)
+   m_descendingSort(true),
+   m_headerBackground(0),
+   m_headerForeground(0)
 {
    SetLayoutManager( new TGTableLayout(this,3,3) );
    
@@ -57,7 +61,7 @@ TGCompositeFrame(p),
       m_header->Connect("buttonReleased(Int_t,Int_t,Event_t*,Int_t,Int_t)","FWTableWidget",this,"buttonReleasedInHeader(Int_t,Int_t,Event_t*,Int_t,Int_t)");
    }
    m_body = new FWTabularWidget(iManager,this,GetWhiteGC()());
-   m_body->SetBackgroundColor(kWidgetColor);
+   //m_body->SetBackgroundColor(kWidgetColor);
    AddFrame(m_body, new TGTableLayoutHints(1,2,1,2,kLHintsTop|kLHintsLeft|kRowOptions|kColOptions));
    m_body->Connect("buttonReleased(Int_t,Int_t,Event_t*,Int_t,Int_t)","FWTableWidget",this,"buttonReleasedInBody(Int_t,Int_t,Event_t*,Int_t,Int_t)");
 
@@ -79,7 +83,7 @@ TGCompositeFrame(p),
    m_body->setWidthOfTextInColumns(columnWidths);
    if(m_rowHeaderTable) {
       m_rowHeader = new FWTabularWidget(m_rowHeaderTable,this, GetWhiteGC()());
-      m_rowHeader->SetBackgroundColor(kWidgetColor);
+      //m_rowHeader->SetBackgroundColor(kWidgetColor);
 
       AddFrame(m_rowHeader, new TGTableLayoutHints(0,1,1,2,kLHintsTop|kLHintsLeft|kColOptions));
       m_rowHeader->Connect("buttonReleased(Int_t,Int_t,Event_t*,Int_t,Int_t)","FWTableWidget",this,"buttonReleasedInBody(Int_t,Int_t,Event_t*,Int_t,Int_t)");
@@ -140,6 +144,45 @@ FWTableWidget::sort(UInt_t iColumn, bool iDescendingSort)
    //fClient->NeedRedraw(m_header);
    //fClient->NeedRedraw(m_body);
 }
+
+void 
+FWTableWidget::SetBackgroundColor(Pixel_t iColor)
+{
+   TGFrame::SetBackgroundColor(iColor);
+   if(m_rowHeaderTable) {
+      m_rowHeader->SetBackgroundColor(iColor);
+   }
+   if(m_header) {
+      m_header->SetBackgroundColor(iColor);
+   }
+   m_body->SetBackgroundColor(iColor);
+}
+
+void 
+FWTableWidget::SetHeaderBackgroundColor(Pixel_t iColor)
+{
+   if(0==m_headerBackground) {
+      GCValues_t t = *(gClient->GetResourcePool()->GetFrameGC()->GetAttributes());
+      m_headerBackground = gClient->GetResourcePool()->GetGCPool()->GetGC(&t,kTRUE);
+   }
+   m_headerBackground->SetForeground(iColor);
+   if(0!=m_header) {
+      m_header->setBackgroundAreaContext((*m_headerBackground)());
+   }
+}
+void 
+FWTableWidget::SetHeaderForegroundColor(Pixel_t iColor)
+{
+   if(0==m_headerForeground) {
+      GCValues_t t = *(gClient->GetResourcePool()->GetFrameGC()->GetAttributes());
+      m_headerForeground = gClient->GetResourcePool()->GetGCPool()->GetGC(&t,kTRUE);
+   }
+   m_headerForeground->SetForeground(iColor);
+   if(0!=m_header) {
+      m_header->setLineContext((*m_headerForeground)());
+   }
+}
+
 
 void 
 FWTableWidget::Resize(UInt_t w, UInt_t h)

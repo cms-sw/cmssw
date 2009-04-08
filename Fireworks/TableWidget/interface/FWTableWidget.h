@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:47 EST 2009
-// $Id: FWTableWidget.h,v 1.3 2009/03/04 15:40:36 chrjones Exp $
+// $Id: FWTableWidget.h,v 1.4 2009/03/18 15:40:37 chrjones Exp $
 //
 
 // system include files
@@ -31,6 +31,7 @@ class FWTableManagerBase;
 class FWTabularWidget;
 class TGVScrollBar;
 class TGHScrollBar;
+class TGGC;
 
 class FWTableWidget : public TGCompositeFrame
 {
@@ -50,7 +51,10 @@ class FWTableWidget : public TGCompositeFrame
       void Resize(UInt_t w, UInt_t h);
       void SetSize(const TGDimension &s);
       virtual void    MoveResize(Int_t x, Int_t y, UInt_t w = 0, UInt_t h = 0);
-
+      void SetBackgroundColor(Pixel_t);
+      void SetHeaderBackgroundColor(Pixel_t);
+      void SetHeaderForegroundColor(Pixel_t);
+   
       virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
 
       /**Sorts the rows of data in the table based on values in column iColumn.
@@ -96,6 +100,9 @@ class FWTableWidget : public TGCompositeFrame
 
       int m_sortedColumn;
       bool m_descendingSort;
+   
+      TGGC* m_headerBackground;
+      TGGC* m_headerForeground;
 
 };
 
