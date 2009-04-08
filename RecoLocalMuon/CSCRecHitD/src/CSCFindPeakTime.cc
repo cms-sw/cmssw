@@ -1,10 +1,9 @@
 // This is CSCFindPeakTime
 
 #include <RecoLocalMuon/CSCRecHitD/src/CSCFindPeakTime.h>
-//#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <cmath>
-//#include <iostream>
 
 CSCFindPeakTime::CSCFindPeakTime( const edm::ParameterSet& ps ): 
   useAverageTime(false), useParabolaFit(false), useFourPoleFit(false) {
@@ -12,7 +11,8 @@ CSCFindPeakTime::CSCFindPeakTime( const edm::ParameterSet& ps ):
   useAverageTime = ps.getParameter<bool>("UseAverageTime");
   useParabolaFit = ps.getParameter<bool>("UseParabolaFit");
   useFourPoleFit = ps.getParameter<bool>("UseFourPoleFit");
-
+  LogTrace("CSCRecHit|CSCFindPeakTime") << "CSCFindPeakTime: useAverageTime=" << useAverageTime <<
+    ", useParabolaFit=" << useParabolaFit << ", useFourPoleFit=" << useFourPoleFit;
 }
 
 float CSCFindPeakTime::peakTime( int tmax, const float* adc, float t_peak){
@@ -45,28 +45,24 @@ float CSCFindPeakTime::averageTime( int tmax, const float* adc ) {
 float CSCFindPeakTime::parabolaFitTime( int tmax, const float* adc ) {
   // 3-point parabolic fit, courtesy Andy Kubik
  
-   float timing = tmax; // @@ Reasonable default?
+  // We calculate offset to tmax by finding the peak of a parabola through three points
+   float tpeak = tmax;
+   float tcorr = 0;
 
    // By construction, input array adc is for bins tmax-1 to tmax+2
    float y1 = adc[0];
    float y2 = adc[1];
    float y3 = adc[2];
 
- /* 
-   // Original code
-   float x1 = tmax-1;
-   float x2 = tmax;
-   float x3 = tmax+1;
-   float top = (x2*x2-x1*x1)*(y3-y1) - (x3*x3-x1*x1)*(y2-y1);
-   float bottom = (x1-x3)*(y2-y1) - (y3-y1)*(x1-x2);
-   if (bottom != 0) timing = top/(2*bottom); 
-*/
-
    // Checked and simplified... Tim Cox 08-Apr-2009
    // Denominator is not zero unless we fed in nonsense values with y2 not the peak!
-   if ( (y1+y3) < 2.*y2 ) timing  = tmax + ( y1 - y3 ) / 2.*( y1 - 2.*y2 + y3 );
+   if ( (y1+y3) < 2.*y2 ) tcorr =  0.5 * ( y1 - y3 ) / ( y1 - 2.*y2 + y3 );
+   tpeak += tcorr;
 
-   return timing * 50.; //@@ in ns.
+   LogTrace("CSCRecHit|CSCFindPeakTime") << "CSCFindPeakTime: tmax=" << tmax 
+     << ", parabolic peak time is tmax+" << tcorr <<" bins, or " << tpeak*50. << " ns";
+   
+   return tpeak * 50.; // convert to ns.
 }
 
 float CSCFindPeakTime::fourPoleFitTime( int tmax, const float* adc, float t_peak ) {
