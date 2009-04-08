@@ -8,6 +8,7 @@
 #include "FastSimulation/Calorimetry/interface/HCALResponse.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FastSimulation/Utilities/interface/FamosDebug.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 // For the uint32_t
 //#include <boost/cstdint.hpp>
@@ -22,6 +23,8 @@ class HSParameters;
 class RandomEngine;
 class LandauFluctuationGenerator;
 class GammaFunctionGenerator;
+class MaterialEffects;
+
 
 namespace edm { 
   class ParameterSet;
@@ -33,6 +36,8 @@ class CalorimetryManager{
   CalorimetryManager();
   CalorimetryManager(FSimEvent* aSimEvent, 
 		     const edm::ParameterSet& fastCalo,
+		     const edm::ParameterSet& MuonECALPars,
+		     const edm::ParameterSet& MuonHCALPars,
 		     const RandomEngine* engine);
   ~CalorimetryManager();
 
@@ -51,6 +56,8 @@ class CalorimetryManager{
 
   void loadFromPreshower(edm::PCaloHitContainer & c) const;
 
+  void loadMuonSimTracks(edm::SimTrackContainer & m) const;
+
  private:
   // Simulation of electromagnetic showers in PS, ECAL, HCAL
   void EMShowerSimulation(const FSimTrack& myTrack);
@@ -60,6 +67,8 @@ class CalorimetryManager{
 
   void reconstructHCAL(const FSimTrack& myTrack);
 
+  void MuonMipSimulation(const FSimTrack & myTrack);
+ 
   /// Hadronic Shower Simulation
   void HDShowerSimulation(const FSimTrack& myTrack);
 
@@ -136,6 +145,11 @@ class CalorimetryManager{
   std::vector<double> k_h;
   double ecorr;
   double hcorr;
+
+  std::vector<FSimTrack> muonSimTracks;
+  MaterialEffects* theMuonEcalEffects; // material effects for muons in ECAL
+  MaterialEffects* theMuonHcalEffects; // material effects for muons in HCAL
+
 
 };
 #endif

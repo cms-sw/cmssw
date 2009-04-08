@@ -27,9 +27,12 @@ class HcalHitMaker : public CaloHitMaker
   /// Set the spot energy
   inline void setSpotEnergy(double e) { spotEnergy=e;} 
   
-  /// add the hit in the HCAL
+  /// add the hit in the HCAL in local coordinates
   bool addHit(double r,double phi,unsigned layer=0);
   
+  /// add the hit in the HCAL in global coordinates
+  bool addHit(const XYZPoint & point ,unsigned layer=0);
+
   // get the hits
   const std::map<uint32_t,float>& getHits() { return hitMap_ ;} ;
 

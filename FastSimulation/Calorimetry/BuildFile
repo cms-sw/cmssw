@@ -9,6 +9,7 @@
 <use name=FastSimulation/ShowerDevelopment>
 <use name=FastSimulation/Utilities>
 <use name=SimDataFormats/CaloHit>
+<use name="FastSimulation/MaterialEffects">
 <export>
   <use name=FastSimulation/Particle>
   <use name=FastSimulation/Utilities>
