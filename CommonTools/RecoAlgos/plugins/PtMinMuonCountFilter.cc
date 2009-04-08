@@ -15,6 +15,6 @@
 typedef ObjectCountFilter<
           reco::MuonCollection, 
           PtMinSelector
-        > PtMinMuonCountFilter;
+        >::type PtMinMuonCountFilter;
 
 DEFINE_FWK_MODULE( PtMinMuonCountFilter );

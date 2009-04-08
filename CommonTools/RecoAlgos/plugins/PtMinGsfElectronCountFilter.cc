@@ -15,6 +15,6 @@
 typedef ObjectCountFilter<
           reco::GsfElectronCollection, 
           PtMinSelector
-        > PtMinGsfElectronCountFilter;
+        >::type PtMinGsfElectronCountFilter;
 
 DEFINE_FWK_MODULE( PtMinGsfElectronCountFilter );

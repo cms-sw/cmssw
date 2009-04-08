@@ -12,6 +12,6 @@
 
  typedef ObjectCountFilter<
            reco::MuonCollection
-         > MuonCountFilter;
+         >::type MuonCountFilter;
 
 DEFINE_FWK_MODULE( MuonCountFilter );

@@ -15,6 +15,6 @@
 typedef ObjectCountFilter<
           reco::ElectronCollection, 
           PtMinSelector
-        > PtMinElectronCountFilter;
+        >::type PtMinElectronCountFilter;
 
 DEFINE_FWK_MODULE( PtMinElectronCountFilter );

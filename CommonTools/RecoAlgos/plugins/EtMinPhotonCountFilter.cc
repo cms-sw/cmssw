@@ -15,6 +15,6 @@
 typedef ObjectCountFilter<
           reco::PhotonCollection, 
           EtMinSelector
-        > EtMinPhotonCountFilter;
+        >::type EtMinPhotonCountFilter;
 
 DEFINE_FWK_MODULE( EtMinPhotonCountFilter );

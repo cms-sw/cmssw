@@ -12,6 +12,6 @@
 
  typedef ObjectCountFilter<
            reco::TrackCollection
-         > TrackCountFilter;
+         >::type TrackCountFilter;
 
 DEFINE_FWK_MODULE( TrackCountFilter );

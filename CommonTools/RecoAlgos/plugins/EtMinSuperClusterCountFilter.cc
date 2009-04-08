@@ -10,6 +10,6 @@
 typedef ObjectCountFilter<
           reco::SuperClusterCollection, 
           reco::modules::EtMinSuperClusterSelector
-        > EtMinSuperClusterCountFilter;
+        >::type EtMinSuperClusterCountFilter;
 
 DEFINE_FWK_MODULE( EtMinSuperClusterCountFilter );

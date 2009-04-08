@@ -11,6 +11,6 @@
 
  typedef ObjectCountFilter<
            reco::CaloJetCollection
-         > CaloJetCountFilter;
+         >::type CaloJetCountFilter;
 
 DEFINE_FWK_MODULE( CaloJetCountFilter );

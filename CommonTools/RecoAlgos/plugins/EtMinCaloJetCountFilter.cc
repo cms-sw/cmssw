@@ -14,6 +14,6 @@
 typedef ObjectCountFilter<
           reco::CaloJetCollection, 
           EtMinSelector
-        > EtMinCaloJetCountFilter;
+        >::type EtMinCaloJetCountFilter;
 
 DEFINE_FWK_MODULE( EtMinCaloJetCountFilter );

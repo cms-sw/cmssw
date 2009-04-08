@@ -19,6 +19,6 @@
                EtMinSelector,
 	       EtaRangeSelector
            > 
-         > EtaEtMinCaloJetCountFilter;
+         >::type EtaEtMinCaloJetCountFilter;
 
 DEFINE_FWK_MODULE( EtaEtMinCaloJetCountFilter );

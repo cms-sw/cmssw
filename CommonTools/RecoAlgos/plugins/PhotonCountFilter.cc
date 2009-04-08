@@ -12,6 +12,6 @@
 
  typedef ObjectCountFilter<
            reco::PhotonCollection
-         > PhotonCountFilter;
+         >::type PhotonCountFilter;
 
 DEFINE_FWK_MODULE( PhotonCountFilter );
