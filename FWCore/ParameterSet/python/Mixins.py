@@ -21,6 +21,11 @@ class _ParameterTypeBase(object):
     def __init__(self):
         self.__dict__["_isFrozen"] = False
         self.__isTracked = True
+        self._isModified = False
+    def isModified(self):
+        return self._isModified
+    def resetModified(self):
+        self._isModified=False
     def configTypeName(self):
         if self.isTracked():
             return type(self).__name__
@@ -54,7 +59,9 @@ class _SimpleParameterTypeBase(_ParameterTypeBase):
     def setValue(self,value):
         if not self._isValid(value):
             raise ValueError(str(value)+" is not a valid "+str(type(self)))
-        self._value = value
+        if value!=self._value:
+            self._isModified=True
+            self._value=value
     def configValue(self, options=PrintOptions()):
         return str(self._value)
     def pythonValue(self, options=PrintOptions()):
@@ -463,6 +470,7 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
     def setValue(self,v):
         self[:] = []
         self.extend(v)
+        self._isModified=True
     def configValue(self, options=PrintOptions()):
         config = '{\n'
         first = True
@@ -581,4 +589,16 @@ if __name__ == "__main__":
             self.assertEqual(b.u.value(),2)
             self.assertEqual(b.v.value(),4)
             self.assertRaises(TypeError,a.clone,None,**{"v":1})
+        def testModified(self):
+            class __TestType(_SimpleParameterTypeBase):
+                def _isValid(self,value):
+                    return True
+            a = __TestType(1)
+            self.assertEqual(a.isModified(),False)
+            a.setValue(1)
+            self.assertEqual(a.isModified(),False)
+            a.setValue(2)
+            self.assertEqual(a.isModified(),True)
+            a.resetModified()
+            self.assertEqual(a.isModified(),False)
     unittest.main()

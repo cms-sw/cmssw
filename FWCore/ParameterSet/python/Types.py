@@ -332,17 +332,23 @@ class InputTag(_ParameterTypeBase):
     def getModuleLabel(self):
         return self.__moduleLabel
     def setModuleLabel(self,label):
-        self.__moduleLabel = label
+        if self.__moduleLabel != label:
+            self.__moduleLabel = label
+            self._isModified=True
     moduleLabel = property(getModuleLabel,setModuleLabel,"module label for the product")
     def getProductInstanceLabel(self):
         return self.__productInstance
     def setProductInstanceLabel(self,label):
-        self.__productInstance = label
+        if self.__productInstance != label:
+            self.__productInstance = label
+            self._isModified=True
     productInstanceLabel = property(getProductInstanceLabel,setProductInstanceLabel,"product instance label for the product")
     def getProcessName(self):
         return self.__processName
     def setProcessName(self,label):
-        self.__processName = label
+        if self.__processName != label:
+            self.__processName = label
+            self._isModified=True
     processName = property(getProcessName,setProcessName,"process name for the product")
     def configValue(self, options=PrintOptions()):
         result = self.__moduleLabel
@@ -383,6 +389,7 @@ class InputTag(_ParameterTypeBase):
         return InputTag(*parts)
     def setValue(self,v):
         self._setValues(v)
+        self._isModified=True
     def _setValues(self,moduleLabel,productInstanceLabel='',processName=''):
         self.__moduleLabel = moduleLabel
         self.__productInstance = productInstanceLabel
@@ -413,12 +420,16 @@ class ESInputTag(_ParameterTypeBase):
     def getModuleLabel(self):
         return self.__moduleLabel
     def setModuleLabel(self,label):
-        self.__moduleLabel = label
+        if self.__moduleLabel != label:
+            self.__moduleLabel = label
+            self._isModified=True
     moduleLabel = property(getModuleLabel,setModuleLabel,"module label for the product")
     def getDataLabel(self):
         return self.__data
     def setDataLabel(self,label):
-        self.__data = label
+        if self.__data != label:
+            self.__data = label
+            self._isModified=True
     dataLabel = property(getDataLabel,setDataLabel,"data label for the product")
     def configValue(self, options=PrintOptions()):
         result = self.__moduleLabel
@@ -455,6 +466,7 @@ class ESInputTag(_ParameterTypeBase):
         return ESInputTag(*parts)
     def setValue(self,v):
         self._setValues(v)
+        self._isModified=True
     def _setValues(self,moduleLabel='',dataLabel=''):
         self.__moduleLabel = moduleLabel
         self.__data = dataLabel
@@ -978,6 +990,22 @@ if __name__ == "__main__":
             self.assertEqual(repr(vit), "cms.VInputTag(cms.InputTag(\"label1\"), cms.InputTag(\"label2\"))")
             vit = VInputTag("label1", "label2:label3")
             self.assertEqual(repr(vit), "cms.VInputTag(\"label1\", \"label2:label3\")")
+        def testInputTagModified(self):
+            a=InputTag("a")
+            self.assertEqual(a.isModified(),False)
+            a.setModuleLabel("a")
+            self.assertEqual(a.isModified(),False)
+            a.setModuleLabel("b")
+            self.assertEqual(a.isModified(),True)
+            a.resetModified()
+            a.setProductInstanceLabel("b")
+            self.assertEqual(a.isModified(),True)
+            a.resetModified()
+            a.setProcessName("b")
+            self.assertEqual(a.isModified(),True)
+            a.resetModified()
+            a.setValue("b")
+            self.assertEqual(a.isModified(),True)
         def testESInputTag(self):
             it = ESInputTag._valueFromString("label:data")
             print it.pythonValue()
