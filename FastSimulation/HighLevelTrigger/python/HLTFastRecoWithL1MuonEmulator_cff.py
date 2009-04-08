@@ -28,18 +28,25 @@ hfreco.doDigis = True
 horeco.doDigis = True
 
 # L1 muons emulator
-from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import *
-cscTriggerPrimitiveDigis.CSCComparatorDigiProducer=cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi")
-cscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
+from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import *
+CSCCommonTrigger.MinBX = 0
+CSCCommonTrigger.MaxBX = 0
+#from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import *
 from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import *
 dtTriggerPrimitiveDigis.digiTag = cms.InputTag("simMuonDTDigis")
 from L1Trigger.RPCTrigger.rpcTriggerDigis_cfi import *
 rpcTriggerDigis.label = "simMuonRPCDigis"
 from L1Trigger.GlobalMuonTrigger.gmtDigis_cfi import *
+#gmtDigis.Debug = 9
+gmtDigis.BX_min = 0
+gmtDigis.BX_max = 0
+gmtDigis.BX_min_readout = 0
+gmtDigis.BX_max_readout = 0
 gmtDigis.DTCandidates = cms.InputTag("dttfDigis","DT")
 gmtDigis.CSCCandidates = cms.InputTag("csctfDigis","CSC")
 gmtDigis.RPCbCandidates = cms.InputTag("rpcTriggerDigis","RPCb")
 gmtDigis.RPCfCandidates = cms.InputTag("rpcTriggerDigis","RPCf")
+gmtDigis.MipIsoData = cms.InputTag("rctDigis")
 
 # GT emulator
 gtDigis.EmulateBxInEvent = 1
