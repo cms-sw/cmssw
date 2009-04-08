@@ -43,6 +43,10 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
             tag = cms.string('EcalIntercalibErrors_mc')
         ), 
         cms.PSet(
+            record = cms.string('EcalIntercalibConstantsMCRcd'),
+            tag = cms.string('EcalIntercalibConstantsMC_mc')
+        ), 
+        cms.PSet(
             record = cms.string('EcalGainRatiosRcd'),
             tag = cms.string('EcalGainRatios_mc')
         ), 
@@ -113,6 +117,10 @@ process.dbCopy = cms.EDAnalyzer("EcalDBCopy",
         cms.PSet(
             record = cms.string('EcalIntercalibErrorsRcd'),
             container = cms.string('EcalIntercalibErrors')
+        ), 
+        cms.PSet(
+            record = cms.string('EcalIntercalibConstantsMCRcd'),
+            container = cms.string('EcalIntercalibConstantsMC')
         ), 
         cms.PSet(
             record = cms.string('EcalGainRatiosRcd'),

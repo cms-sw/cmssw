@@ -19,6 +19,8 @@
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
@@ -102,6 +104,8 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalADCToGeVConstantRcd>().cacheIdentifier();
   } else if (container == "EcalIntercalibConstants") {
     cacheID = evtSetup.get<EcalIntercalibConstantsRcd>().cacheIdentifier();
+  } else if (container == "EcalIntercalibConstantsMC") {
+    cacheID = evtSetup.get<EcalIntercalibConstantsMCRcd>().cacheIdentifier();
   } else if (container == "EcalIntercalibErrors") {
     cacheID = evtSetup.get<EcalIntercalibErrorsRcd>().cacheIdentifier();
   } else if (container == "EcalGainRatios") {
@@ -194,6 +198,14 @@ else if (container == "EcalIntercalibConstants") {
     const EcalIntercalibConstants* obj = handle.product();
     cout << "inter pointer is: "<< obj<< endl;
    dbOutput->createNewIOV<const EcalIntercalibConstants>( new EcalIntercalibConstants(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
+
+  }
+else if (container == "EcalIntercalibConstantsMC") {
+    edm::ESHandle<EcalIntercalibConstantsMC> handle;
+    evtSetup.get<EcalIntercalibConstantsMCRcd>().get(handle);
+    const EcalIntercalibConstantsMC* obj = handle.product();
+    cout << "intercalib MC pointer is: "<< obj<< endl;
+   dbOutput->createNewIOV<const EcalIntercalibConstantsMC>( new EcalIntercalibConstantsMC(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
   } else if (container == "EcalIntercalibErrors") {
     edm::ESHandle<EcalIntercalibErrors> handle;
