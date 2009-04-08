@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/03/05 15:07:07 $
- *  $Revision: 1.31 $
+ *  $Date: 2009/03/05 16:49:51 $
+ *  $Revision: 1.32 $
  *
  *  \author Martin Grunewald
  *
@@ -269,7 +269,7 @@ void TriggerSummaryProducerAOD::fillTriggerObjects(const edm::Event& iEvent) {
       if (
           (label   ==tagLabel   ) &&
           (instance==tagInstance) &&
-          ((process ==tagProcess )||(tagProcess=="TriggerSummaryProducerAOD")||(pn_=="*"))
+          ((process ==tagProcess )||(tagProcess=="")||(pn_=="*"))
           ) {
 	const ProductID pid(collections[ic].provenance()->productID());
 	assert(offset_.find(pid)==offset_.end()); // else duplicate pid
@@ -278,21 +278,33 @@ void TriggerSummaryProducerAOD::fillTriggerObjects(const edm::Event& iEvent) {
 	for (size_type i=0; i!=n; ++i) {
 	  toc_.push_back(TriggerObject( (*collections[ic])[i] ));
 	  if (typeid(C)==typeid(L1EtMissParticleCollection) ) {
-	    // add scalar L1EtMissParticle quntities
+	    // add scalar L1EtMissParticle quantity (MET or MHT)
 	    const L1EtMissParticle* l1met(dynamic_cast<const L1EtMissParticle*>( &(*collections[ic])[i]) );
-	    // store each scalar L1EtMissParticle observable in the pt_
+	    // store the scalar L1EtMissParticle observable in the pt_
 	    // component of a new TriggerObject
-	    toc_.push_back(TriggerObject(TriggerL1ETT,l1met->etTotal(),0.0,0.0,0.0));
-	    toc_.push_back(TriggerObject(TriggerL1HTT,l1met->etHad()  ,0.0,0.0,0.0));
-	  } else if ( (typeid(C)==typeid(    METCollection)) ||
-		      (typeid(C)==typeid(CaloMETCollection)) ) {
-	    // add scalar [Calo]MET quantities
+	    if (l1met->type()==L1EtMissParticle::kMET) {
+	      toc_.push_back(TriggerObject(TriggerL1ETT,l1met->etTotal(),0.0,0.0,0.0));
+	    } else if (l1met->type()==L1EtMissParticle::kMHT) {
+	      toc_.push_back(TriggerObject(TriggerL1HTT,l1met->etTotal(),0.0,0.0,0.0));
+	    } else {
+	      toc_.push_back(TriggerObject(0,           l1met->etTotal(),0.0,0.0,0.0));
+	    }
+	  } else if (typeid(C)==typeid(CaloMETCollection)) {
+	    // add scalar CaloMET quantities from base MET class
 	    const MET* met(dynamic_cast<const MET*>( &(*collections[ic])[i]) );
-	    // store each scalar [Calo]MET observable in the pt_
+	    // store each scalar CaloMET observable in the pt_
 	    // component of a new TriggerObject
-	    toc_.push_back(TriggerObject(TriggerHT     ,met->sumEt()         ,0.0,0.0,0.0));
+	    toc_.push_back(TriggerObject(TriggerTET    ,met->sumEt()         ,0.0,0.0,0.0));
 	    toc_.push_back(TriggerObject(TriggerMETSig ,met->mEtSig()        ,0.0,0.0,0.0));
 	    toc_.push_back(TriggerObject(TriggerELongit,met->e_longitudinal(),0.0,0.0,0.0));
+	  } else if (typeid(C)==typeid(    METCollection)) {
+	    // add scalar MET quantities
+	    const MET* met(dynamic_cast<const MET*>( &(*collections[ic])[i]) );
+	    // store each scalar MET observable in the pt_
+	    // component of a new TriggerObject
+	    toc_.push_back(TriggerObject(TriggerTHT    ,met->sumEt()         ,0.0,0.0,0.0));
+	    toc_.push_back(TriggerObject(TriggerMHTSig ,met->mEtSig()        ,0.0,0.0,0.0));
+	    toc_.push_back(TriggerObject(TriggerHLongit,met->e_longitudinal(),0.0,0.0,0.0));
 	  }
 	}
 	tags_.push_back(collectionTag);
@@ -338,20 +350,18 @@ void TriggerSummaryProducerAOD::fillFilterObjects(const edm::Event& iEvent, cons
     assert(offset_.find(pid)!=offset_.end()); // else unknown pid
     // handle scalar L1EtMissParticle and [Calo]MET quantities
     if (typeid(C)==typeid(L1EtMissParticleCollection) ) {
-      if (ids[i]==TriggerL1ETT) {
-	keys_.push_back(offset_[pid]+3*refs[i].key()+1);
-      } else if (ids[i]==TriggerL1HTT) {
-	keys_.push_back(offset_[pid]+3*refs[i].key()+2);
+      if ( (ids[i]==TriggerL1ETT) || (ids[i]==TriggerL1HTT) ) {
+	keys_.push_back(offset_[pid]+2*refs[i].key()+1);
       } else {
-	keys_.push_back(offset_[pid]+3*refs[i].key()+0);
+	keys_.push_back(offset_[pid]+2*refs[i].key()+0);
       }
     } else if ( (typeid(C)==typeid(    METCollection)) ||
 		(typeid(C)==typeid(CaloMETCollection)) ) {
-      if (ids[i]==TriggerHT) {
+      if ( (ids[i]==TriggerTHT) || (ids[i]==TriggerTET) ) {
 	keys_.push_back(offset_[pid]+4*refs[i].key()+1);
-      } else if (ids[i]==TriggerMETSig) {
+      } else if ( (ids[i]==TriggerMETSig) || (ids[i]==TriggerMHTSig) ) {
 	keys_.push_back(offset_[pid]+4*refs[i].key()+2);
-      } else if (ids[i]==TriggerELongit) {
+      } else if ( (ids[i]==TriggerELongit) || (ids[i]==TriggerHLongit) ) {
 	keys_.push_back(offset_[pid]+4*refs[i].key()+3);
       } else {
 	keys_.push_back(offset_[pid]+4*refs[i].key()+0);

@@ -66,8 +66,8 @@ typedef HLTSmartSinglet<RecoEcalCandidate ,TriggerCluster> HLT1SmartCluster  ;
 #include "HLTrigger/HLTfilters/src/HLTGlobalSums.cc"
 
 //
-typedef HLTGlobalSums<CaloMET,0> HLTGlobalSumsCaloMET;
-typedef HLTGlobalSums<MET    ,0> HLTGlobalSumsMET    ;
+typedef HLTGlobalSums<CaloMET,TriggerTET> HLTGlobalSumsCaloMET;
+typedef HLTGlobalSums<MET    ,TriggerTHT> HLTGlobalSumsMET    ;
 
 //
 

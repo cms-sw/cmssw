@@ -875,7 +875,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
             LogTrace("HLTLevel1GTSeed")
                 << "L1HTT    " << "\t"
-                << "ET =   " << obj->etHad();
+                << "ET =   " << obj->etTotal();
         }
 
         LogTrace("HLTLevel1GTSeed") << " \n\n"

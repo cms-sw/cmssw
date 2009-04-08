@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/05/05 15:48:34 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/09/26 08:40:34 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -41,11 +41,23 @@ HLTGlobalSums<T,Tid>::HLTGlobalSums(const edm::ParameterSet& iConfig) :
      ;
 
    if (observable_=="sumEt") {
-     tid_=trigger::TriggerHT;
+     tid_=Tid;
    } else if (observable_=="mEtSig") {
-     tid_=trigger::TriggerMETSig;
+     if (Tid==trigger::TriggerTET) {
+       tid_=trigger::TriggerMETSig;
+     } else if (Tid==trigger::TriggerTHT) {
+       tid_=trigger::TriggerMHTSig;
+     } else {
+       tid_=Tid;
+     }
    } else if (observable_=="e_longitudinal") {
-     tid_=trigger::TriggerELongit;
+     if (Tid==trigger::TriggerTET) {
+       tid_=trigger::TriggerELongit;
+     } else if (Tid==trigger::TriggerTHT) {
+       tid_=trigger::TriggerHLongit;
+     } else {
+       tid_=Tid;
+     }
    } else {
      tid_=Tid;
    }
@@ -112,11 +124,11 @@ HLTGlobalSums<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (iter=ibegin; iter!=iend; iter++) {
 
      // get hold of value of observable to cut on
-     if (tid_==TriggerHT) {
+     if ( (tid_==TriggerTET) || (tid_==TriggerTHT) ) {
        value=iter->sumEt();
-     } else if (tid_==TriggerMETSig) {
+     } else if ( (tid_==TriggerMETSig) || (tid_==TriggerMHTSig) ) {
        value=iter->mEtSig();
-     } else if (tid_==TriggerELongit) {
+     } else if ( (tid_==TriggerELongit) || (tid_==TriggerHLongit) ) {
        value=iter->e_longitudinal();
      } else {
        value=0.0;

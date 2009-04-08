@@ -8,8 +8,8 @@
  *  HLT trigger acting on candidates, requiring a g/e/m/j tuple above
  *  pt cuts
  *
- *  $Date: 2007/12/04 16:41:36 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/05/05 15:48:33 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -35,7 +35,7 @@ class HLTFiltCand : public HLTFilter {
       edm::InputTag tausTag_;  // input tag identifying product containing taus
       edm::InputTag jetsTag_;  // input tag identifying product containing jets
       edm::InputTag metsTag_;  // input tag identifying product containing METs
-      edm::InputTag httsTag_;  // input tag identifying product containing HTs
+      edm::InputTag mhtsTag_;  // input tag identifying product containing HTs
       edm::InputTag trckTag_;  // input tag identifying product containing Tracks
       edm::InputTag ecalTag_;  // input tag identifying product containing SuperClusters
 

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/05/05 15:48:34 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/05/09 05:59:22 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -49,7 +49,7 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) :
   tausTag_ (iConfig.getParameter<edm::InputTag>("tausTag")),
   jetsTag_ (iConfig.getParameter<edm::InputTag>("jetsTag")),
   metsTag_ (iConfig.getParameter<edm::InputTag>("metsTag")),
-  httsTag_ (iConfig.getParameter<edm::InputTag>("httsTag")),
+  mhtsTag_ (iConfig.getParameter<edm::InputTag>("mhtsTag")),
   trckTag_ (iConfig.getParameter<edm::InputTag>("trckTag")),
   ecalTag_ (iConfig.getParameter<edm::InputTag>("ecalTag")),
   saveTags_(iConfig.getUntrackedParameter<bool>("saveTags",false)),
@@ -62,7 +62,7 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) :
    << " t: " << tausTag_.encode()
    << " j: " << jetsTag_.encode()
    << " M: " << metsTag_.encode()
-   << " H: " << httsTag_.encode()
+   << " H: " << mhtsTag_.encode()
    <<" TR: " << trckTag_.encode()
    <<" SC: " << ecalTag_.encode()
    ;
@@ -102,7 +102,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      filterobject->addCollectionTag(tausTag_);
      filterobject->addCollectionTag(jetsTag_);
      filterobject->addCollectionTag(metsTag_);
-     filterobject->addCollectionTag(httsTag_);
+     filterobject->addCollectionTag(mhtsTag_);
      filterobject->addCollectionTag(trckTag_);
      filterobject->addCollectionTag(ecalTag_);
    }
@@ -117,7 +117,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<CaloJetCollection>  taus;
    Handle<CaloJetCollection>  jets;
    Handle<CaloMETCollection>  mets;
-   Handle<METCollection>      htts;
+   Handle<METCollection>      mhts;
    Handle<RecoChargedCandidateCollection> trcks;
    Handle<RecoEcalCandidateCollection>    ecals;
 
@@ -127,7 +127,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(tausTag_,taus     );
    iEvent.getByLabel(jetsTag_,jets     );
    iEvent.getByLabel(metsTag_,mets     );
-   iEvent.getByLabel(httsTag_,htts     );
+   iEvent.getByLabel(mhtsTag_,mhts     );
    iEvent.getByLabel(trckTag_,trcks    );
    iEvent.getByLabel(ecalTag_,ecals    );
 
@@ -212,16 +212,16 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
-   // htts
-   int nhtts(0);
-   METCollection::const_iterator ahtts(htts->begin());
-   METCollection::const_iterator ohtts(htts->end());
-   METCollection::const_iterator ihtts;
-   for (ihtts=ahtts; ihtts!=ohtts; ihtts++) {
-     if (ihtts->pt() >= min_Pt_) {
-       nhtts++;
-       METRef ref(METRef(htts,distance(ahtts,ihtts)));
-       filterobject->addObject(TriggerHT,ref);
+   // mhts
+   int nmhts(0);
+   METCollection::const_iterator amhts(mhts->begin());
+   METCollection::const_iterator omhts(mhts->end());
+   METCollection::const_iterator imhts;
+   for (imhts=amhts; imhts!=omhts; imhts++) {
+     if (imhts->pt() >= min_Pt_) {
+       nmhts++;
+       METRef ref(METRef(mhts,distance(amhts,imhts)));
+       filterobject->addObject(TriggerMHT,ref);
      }
    }
 
@@ -256,7 +256,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // final filter decision:
    const bool accept ( (nphot>0) && (nelec>0) && (nmuon>0) && (ntaus>0) &&
-		       (njets>0) && (nmets>0) && (nhtts>=0) && (ntrck>0) && (necal>0) );
+		       (njets>0) && (nmets>0) && (nmhts>=0) && (ntrck>0) && (necal>0) );
 
    // All filters: put filter object into the Event
    iEvent.put(filterobject);
@@ -268,7 +268,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		<< " " << ntaus
 		<< " " << njets
 		<< " " << nmets
-		<< " " << nhtts
+		<< " " << nmhts
 		<< " " << ntrck
 		<< " " << necal
                 ;
