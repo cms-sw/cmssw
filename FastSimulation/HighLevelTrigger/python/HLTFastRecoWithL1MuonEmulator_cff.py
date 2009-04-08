@@ -28,7 +28,7 @@ hfreco.doDigis = True
 horeco.doDigis = True
 
 # L1 muons emulator
-from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import *
+from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
 CSCCommonTrigger.MinBX = 0
 CSCCommonTrigger.MaxBX = 0
 #from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import *
