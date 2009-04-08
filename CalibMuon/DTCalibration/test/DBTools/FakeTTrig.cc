@@ -1,8 +1,8 @@
  /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/13 13:52:57 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/12/09 22:44:11 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -23,7 +23,10 @@
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
+
+// Database
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
+#include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
 
 //Random generator
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -69,6 +72,10 @@ void FakeTTrig::beginJob(const edm::EventSetup& context){
   cout << "[FakeTTrig] entered into beginJob! " << endl;
   context.get<MuonGeometryRecord>().get(muonGeom);
 
+  // Get the tTrig reference map
+  if (ps.getUntrackedParameter<bool>("readDB", true)) 
+    context.get<DTTtrigRcd>().get(tTrigMapRef);
+  
 }
 
 
@@ -92,6 +99,11 @@ void FakeTTrig::endJob() {
     double gaussianSmearing = theGaussianDistribution->fire(0.,smearing);
     // get the fake tTrig pedestal
     double pedestral = ps.getUntrackedParameter<double>("fakeTTrigPedestal", 500);
+
+    if ( ps.getUntrackedParameter<bool>("readDB", true) ){
+      tTrigMapRef->get((*sl)->id(), tTrigRef, tTrigRMSRef, kFactorRef, DTTimeUnits::ns );
+      pedestral = tTrigRef;
+    }
 
     DTSuperLayerId slId = (*sl)->id();
     double fakeTTrig = pedestral + timeOfFly + timeOfWirePropagation + gaussianSmearing;

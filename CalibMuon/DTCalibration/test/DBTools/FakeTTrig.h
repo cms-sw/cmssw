@@ -8,7 +8,7 @@
  *    --- time of wire propagation
  *    --- time of fly
  *
- *  $Date: 2007/03/28 17:05:12 $
+ *  $Date: 2008/03/12 18:21:09 $
  *  $Revision: 1.1 $
  *  \author Giorgia Mila - INFN Torino
  */
@@ -25,6 +25,7 @@ namespace CLHEP {
 #include <string>
 class DTGeometry;
 class DTSuperLayer;
+class DTTtrig;
 
 class FakeTTrig : public edm::EDAnalyzer {
 public:
@@ -51,6 +52,14 @@ private:
   edm::ParameterSet ps;
 
   double smearing;
+
+  /// tTrig from the DB
+  float tTrigRef;
+  float tTrigRMSRef;
+  float kFactorRef;
+
+  // Get the tTrigMap
+  edm::ESHandle<DTTtrig> tTrigMapRef;
 
   // the random generator
   CLHEP::RandGaussQ* theGaussianDistribution;
