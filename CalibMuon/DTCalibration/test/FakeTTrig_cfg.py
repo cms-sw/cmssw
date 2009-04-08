@@ -22,6 +22,20 @@ process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
+
+process.DTMapping = cms.ESSource("PoolDBESSource",
+         DBParameters = cms.PSet(
+         messageLevel = cms.untracked.int32(0),
+         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+         ),
+         siteLocalConfig = cms.untracked.bool(False),
+         toGet = cms.VPSet(cms.PSet(
+         record = cms.string('DTTtrigRcd'),
+         tag = cms.string('DT_tTrig_IDEAL_V01_mc')
+             )),
+         connect = cms.string('frontier://FrontierPrep/CMS_COND_PRESH')
+)
+
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
         FaketTrig = cms.untracked.uint32(563)
@@ -43,9 +57,10 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 process.FaketTrig = cms.EDFilter("FakeTTrig",
     useTofCorrection = cms.untracked.bool(False),
     useWirePropCorrection = cms.untracked.bool(False),
-    fakeTTrigPedestal = cms.untracked.double(500.0),
     vPropWire = cms.untracked.double(24.4),
-    smearing = cms.untracked.double(5.0)
+    readDB = cms.untracked.bool(True),
+    fakeTTrigPedestal = cms.untracked.double(500.0),  
+    smearing = cms.untracked.double(12.0)
 )
  
 process.p = cms.Path(process.FaketTrig)
