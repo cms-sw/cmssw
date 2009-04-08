@@ -37,7 +37,7 @@ class SiStripFedZeroSuppression {
  private:
   
   inline uint16_t truncate(int16_t adc) const{
-    if(adc>253) return ((adc>511) ? 255 : 254);
+    if(adc>253) return ((adc==1023) ? 255 : 254);
     return adc;
   };
   
