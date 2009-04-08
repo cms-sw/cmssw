@@ -45,7 +45,7 @@ TList *FileList;
 TFile *Target;
 void draw( TDirectory *target, TList *sourcelist, const bool doHalfEta );
 
-void ResolDraw(const bool doHalfEta = false) {
+void ResolDraw(const TString numString = "0", const bool doHalfEta = false) {
   // in an interactive ROOT session, edit the file names
   // Target and FileList, then
   // root > .L hadd.C
@@ -75,13 +75,13 @@ void ResolDraw(const bool doHalfEta = false) {
 //   gStyle->SetTitleColor(kWhite);
 //   gStyle->SetOptStat("nemruoi");
 
-  Target = TFile::Open( "redrawed.root", "RECREATE" );
+  Target = TFile::Open( "redrawed_"+numString+".root", "RECREATE" );
 
   FileList = new TList();
 
   // ************************************************************
   // List of Files
-  FileList->Add( TFile::Open("0_MuScleFit.root") );    // 1
+  FileList->Add( TFile::Open(numString+"_MuScleFit.root") );    // 1
 
   draw( Target, FileList, doHalfEta );
 }

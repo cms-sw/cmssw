@@ -84,7 +84,7 @@ void drawLike(TProfile * likeHisto1, TProfile * likeHisto2)
 }
 
 /// Function drawing the histograms
-void Plot_mass() {
+void Plot_mass(const TString & fileNameBefore = "0_MuScleFit.root", const TString & fileNameAfter = "1_MuScleFit.root") {
 
   gStyle->SetOptStat ("111111");
   gStyle->SetOptFit (1);
@@ -92,10 +92,12 @@ void Plot_mass() {
   double ResHalfWidth[6] = {20., 0.5, 0.5, 0.5, 0.2, 0.2};
   double ResMass[6] = {90.986, 10.3552, 10.0233, 9.4603, 3.68609, 3.0969};
 
-  TFile * inputFile1 = new TFile("0_MuScleFit.root", "READ");
-  TFile * inputFile2 = new TFile("1_MuScleFit.root", "READ");
+  TFile * inputFile1 = new TFile(fileNameBefore, "READ");
+  TFile * inputFile2 = new TFile(fileNameAfter, "READ");
   histos histos1(inputFile1);
   histos histos2(inputFile2);
+
+  TFile * outputFile = new TFile("plotMassOutput.root", "RECREATE");
 
   TCanvas * Allres = new TCanvas ("Allres", "All resonances", 600, 600);
   Allres->Divide (2,3);
@@ -103,15 +105,15 @@ void Plot_mass() {
     Allres->cd(ires+1);
     drawMasses(ResMass[ires], ResHalfWidth[ires], histos1);
   }
+  Allres->Write();
 
   TCanvas * Allres2 = new TCanvas ("Allres2", "All resonances", 600, 600);
   Allres2->Divide (2,3);
-  
   for (int ires=0; ires<6; ires++) {
     Allres2->cd(ires+1);
     drawMasses(ResMass[ires], ResHalfWidth[ires], histos2);
   }
-
+  Allres2->Write();
 
   TCanvas * LR = new TCanvas ("LR", "Likelihood and resolution before and after corrections", 600, 600 );
   LR->Divide (2,3);
@@ -122,6 +124,8 @@ void Plot_mass() {
   drawLike(histos1.likeEta, histos2.likeEta);
   LR->cd(5);
   drawLike(histos1.likePhi, histos2.likePhi);
+
+  LR->Write();
 
   TCanvas * G = new TCanvas ("G", "Mass before and after corrections", 600, 600 );
   G->Divide (3,3);
@@ -172,6 +176,8 @@ void Plot_mass() {
   McZ->SetAxisRange (70., 110.);
   McZ->Fit ("gaus", "", "", 70., 110.);
   McZ->DrawCopy();
+
+  G->Write();
  
   TCanvas * Spectrum = new TCanvas ("Spectrum", "Mass before and after corrections", 600, 600 );
   Spectrum->cd(1);
@@ -182,4 +188,8 @@ void Plot_mass() {
   Spectrum->cd(2);
   MuZ->SetLineColor(kBlack);
   MuZ->DrawCopy("SAMEHISTO");
+
+  Spectrum->Write();
+
+  outputFile->Close();
 }
