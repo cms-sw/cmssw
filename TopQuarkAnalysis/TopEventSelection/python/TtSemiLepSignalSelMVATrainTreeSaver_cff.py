@@ -21,8 +21,8 @@ looper = cms.Looper("TtSemiLepSignalSelMVATrainerLooper",
         loadState  = cms.untracked.bool(False),
         saveState  = cms.untracked.bool(True),
         calibrationRecord = cms.string('traintreeSaver'),
-        trainDescription = cms.untracked.string(
-    'TopQuarkAnalysis/TopEventSelection/data/TtSemiLepSignalSelMVATrainTreeSaver.xml')
+        trainDescription = cms.untracked.FileInPath(
+            'TopQuarkAnalysis/TopEventSelection/data/TtSemiLepSignalSelMVATrainTreeSaver.xml')
     ))
 )
 
