@@ -332,30 +332,8 @@ namespace sistrip {
 
 	  //process raw
 	  uint32_t id = iconn->detId();
-	  edm::DetSet<SiStripDigi> zsdigis(id);
-	  rawAlgos_->suppressor->suppress( digis, zsdigis);
-	  for( edm::DetSet<SiStripDigi>::const_iterator it = zsdigis.begin(); it!=zsdigis.end(); it++) {
-	    clusterizer_->stripByStripAdd( it->strip(), it->adc(), record);
-	  }
-	}
-
-	else if (mode_ == sistrip::READOUT_MODE_SCOPE ) {
-
-	  // create unpacker
-	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::scopeModeUnpacker(buffers_[iconn->fedId()]->channel(iconn->fedCh()));
-
-	  // unpack
-	  std::vector<int16_t> digis;
-	  while (unpacker.hasData()) {
-	    digis.push_back(unpacker.adc());
-	    unpacker++;
-	  }
-
-	  //process raw
-	  uint32_t id = iconn->detId();
-	  rawAlgos_->subtractorPed->subtract( id, ipair*256, digis);
 	  rawAlgos_->subtractorCMN->subtract( id, digis);
-	  edm::DetSet<SiStripDigi> zsdigis;
+	  edm::DetSet<SiStripDigi> zsdigis(id);
 	  rawAlgos_->suppressor->suppress( digis, zsdigis);
 	  for( edm::DetSet<SiStripDigi>::const_iterator it = zsdigis.begin(); it!=zsdigis.end(); it++) {
 	    clusterizer_->stripByStripAdd( it->strip(), it->adc(), record);
