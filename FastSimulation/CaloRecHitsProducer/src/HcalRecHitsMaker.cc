@@ -585,6 +585,7 @@ void HcalRecHitsMaker::noisify()
 unsigned HcalRecHitsMaker::noisifySubdet(std::vector<float>& theMap, std::vector<int>& theHits, const std::vector<int>& thecells, unsigned ncells, double hcalHotFraction,const GaussianTail *myGT,double sigma,double threshold)
 {
  // If the fraction of "hot " is small, use an optimized method to inject noise only in noisy cells. The 30% has not been tuned
+  if(!noiseFromDb_ && hcalHotFraction==0.) return 0;
   if(hcalHotFraction<0.3 && !noiseFromDb_)
     {
       double mean = (double)(ncells-theHits.size())*hcalHotFraction;
