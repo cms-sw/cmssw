@@ -1,6 +1,6 @@
 2009-04-09  Emilio Meschi  <emilio.meschi@cern.ch>
 
-	* tag V00-06-24
+	* tag V00-06-25
 	* moved range checking of FEDids to configure to detect playback mode
 
 2009-01-09  Emilio Meschi  <emilio.meschi@cern.ch>
