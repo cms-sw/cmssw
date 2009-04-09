@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.21 2008/11/28 19:02:15 lowette Exp $
+// $Id: Tau.h,v 1.22 2009/03/26 10:54:35 veelken Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Tau.h,v 1.21 2008/11/28 19:02:15 lowette Exp $
+  \version  $Id: Tau.h,v 1.22 2009/03/26 10:54:35 veelken Exp $
 */
 
 
@@ -201,6 +201,11 @@ namespace pat {
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       bool  muonDecision() const { return pfSpecific().muonDecision_; }
 
+      /// reconstructed tau decay mode (specific to PFTau)
+      int decayMode() const { return pfSpecific().decayMode_; }
+      /// set decay mode
+      void setDecayMode(int);
+
       // ---- methods for tau ID ----
       /// Returns a specific tau ID associated to the pat::Tau given its name
       /// For cut-based IDs, the value is 1.0 for good, 0.0 for bad.
@@ -238,10 +243,7 @@ namespace pat {
       // ---- PFTau specific variables  ----
       /// holder for PFTau info, or empty vector if CaloTau
       std::vector<pat::tau::TauPFSpecific> pfSpecific_;
-
   };
-
-
 }
 
 #endif
