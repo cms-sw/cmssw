@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <boost/bind.hpp>
 
-#include "DataSvc/Ref.h"
+#include "CondCore/DBCommon/interface/TypedRef.h"
 
 
 namespace {
@@ -25,16 +25,16 @@ namespace {
 struct Add {
 
   Add( cond::PoolTransaction& db,  cond::IOVEditor & e) :
-    pooldb(db), editor(e)
+    pooldb(db), editor(e){}
 
 
   cond::PoolTransaction& pooldb;
   cond::IOVEditor & editor;
 
   void operator()(int i, std::string mess) {
-    pool::Ref<IOVElement> ref(&pooldb.poolDataSvc(),new IOVElement(i,mess));
+    cond::TypedRef<cond::IOVElement> ref(pooldb,new cond::IOVElement(i,mess));
     ref.markWrite("SomeWhere");
-    editor.append(i,ref.toString());
+    editor.append(i,ref.token());
   }
 
 };
