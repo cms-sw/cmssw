@@ -27,3 +27,4 @@ const std::string cmsshow::sShowMainViewCtl = "Show View Controller";
 const std::string cmsshow::sShowAddCollection ="Show Add Collection";
 const std::string cmsshow::sHelp = "cmsShow Help...";
 const std::string cmsshow::sKeyboardShort = "Keyboard Shortcuts...";
+const std::string cmsshow::sBackgroundColor = "Change Background Color";
