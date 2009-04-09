@@ -13,11 +13,9 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
         if ( it == recHits.end() ) {
                 // the channel is not in the recHit collection:
                 // dead or zero-suppressed?
-                // at the moment the DB is binary: 0 = good, 1 = bad
-                // FIXME: change 1 to the dead channel flag, when it will be defined
-                if ( dbStatus == 1 ) {
+                if ( dbStatus >= 10 ) { // originally dead
                         return kBad;
-                } else if ( dbStatus > 0 && dbStatus != 1 ) { // FIXME: at the moment useless because of binary DB
+                } else if ( dbStatus > 0 && dbStatus < 10 ) {
                         // zero-suppressed and originally problematic
                         return kProblematic;
                 } else if ( dbStatus == 0 ) {
@@ -44,14 +42,14 @@ int EcalSeverityLevelAlgo::severityLevel( const EcalRecHit &recHit,
 int EcalSeverityLevelAlgo::severityLevel( uint32_t rhFlag, uint16_t chStatus ) const
 {
         // DB info currently not used at this level
-        if ( rhFlag > 0 && rhFlag <= 4 ) {
+        if ( rhFlag > EcalRecHit::kGood && rhFlag <= EcalRecHit::kPoorCalib ) {
                 // problematic
                 return kProblematic;
-        } else if ( rhFlag > 4 && rhFlag <= 6 ) {
+        } else if ( rhFlag > EcalRecHit::kLeadingEdgeRecovered && rhFlag <= EcalRecHit::kTowerRecovered ) {
                 // recovered
                 return kRecovered;
-        } else if ( rhFlag == 7 ) {
-                // recovering failed
+        } else if ( rhFlag == EcalRecHit::kDead || rhFlag == EcalRecHit::kSaturated ) {
+                // recovering failed (or not tried)
                 return kBad;
         }
         // good
