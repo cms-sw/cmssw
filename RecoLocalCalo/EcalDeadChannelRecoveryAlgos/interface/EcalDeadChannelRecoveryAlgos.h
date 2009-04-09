@@ -3,8 +3,8 @@
  
 /** \class EcalDeadChannelRecoveryAlgos
   *
-  *  $Date: 2007/05/03 17:21:06 $
-  *  $Revision: 1.2 $
+  *  $Date: 2007/05/09 14:58:40 $
+  *  $Revision: 1.3 $
   */
  
 
@@ -41,6 +41,7 @@ class EcalDeadChannelRecoveryAlgos  {
   ~EcalDeadChannelRecoveryAlgos();
  
   EcalRecHit Correct(const EBDetId Id, const EcalRecHitCollection* hit_collection, string algo_, double Sum8Cut);
+  EcalRecHit correct(const EBDetId Id, const EcalRecHitCollection* hit_collection, string algo_, double Sum8Cut);
   
  private:
   

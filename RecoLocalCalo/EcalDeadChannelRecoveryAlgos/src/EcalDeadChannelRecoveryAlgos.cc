@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Thu Apr 12 17:02:06 CEST 2007
-// $Id: EcalDeadChannelRecoveryAlgos.cc,v 1.3 2007/05/09 14:29:12 gdaskal Exp $
+// $Id: EcalDeadChannelRecoveryAlgos.cc,v 1.4 2007/05/18 09:38:08 gdaskal Exp $
 //
 // May 4th 2007 S. Beauceron : modification of MakeNxNMatrice in order to use vectors
 //
@@ -70,7 +70,7 @@ EcalDeadChannelRecoveryAlgos::~EcalDeadChannelRecoveryAlgos()
 //
 
 // ------------ method called to for each event  ------------
-EcalRecHit EcalDeadChannelRecoveryAlgos::Correct(const EBDetId Id, const EcalRecHitCollection* hit_collection, string algo_, double Sum8Cut)
+EcalRecHit EcalDeadChannelRecoveryAlgos::correct(const EBDetId Id, const EcalRecHitCollection* hit_collection, string algo_, double Sum8Cut)
 {
   double NewEnergy=0.0;
   
@@ -94,6 +94,11 @@ EcalRecHit EcalDeadChannelRecoveryAlgos::Correct(const EBDetId Id, const EcalRec
 
 }
 
+// FIXME -- temporary backward compatibility
+EcalRecHit EcalDeadChannelRecoveryAlgos::Correct(const EBDetId Id, const EcalRecHitCollection* hit_collection, string algo_, double Sum8Cut)
+{
+        return correct(Id, hit_collection, algo_, Sum8Cut);
+}
 
 //==============================================================================================================
 //==============================================================================================================
