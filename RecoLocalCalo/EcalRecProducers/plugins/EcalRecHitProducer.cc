@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.1 2008/12/10 01:52:41 ferriff Exp $
- *  $Date: 2008/12/10 01:52:41 $
- *  $Revision: 1.1 $
+ *  $Id: EcalRecHitProducer.cc,v 1.2 2009/04/09 13:41:29 ferriff Exp $
+ *  $Date: 2009/04/09 13:41:29 $
+ *  $Revision: 1.2 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -94,7 +94,11 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         std::auto_ptr< EERecHitCollection > eeRecHits( new EERecHitCollection );
 
         worker_->set(es);
-        workerRecover_->set(es);
+
+        if ( recoverEBIsolatedChannels_ || recoverEEIsolatedChannels_ ||
+                recoverEBFE_ || recoverEEFE_ ) {
+                workerRecover_->set(es);
+        }
 
         if (ebUncalibRecHits)
         {
