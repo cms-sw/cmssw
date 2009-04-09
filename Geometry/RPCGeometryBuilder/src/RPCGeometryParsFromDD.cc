@@ -94,27 +94,27 @@ RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstan
     rota.GetComponents(x,y,z);
     std::vector<double> pars;    
     if (dpar.size()==3){
-      double width     = dpar[0]/cm;
-      double length    = dpar[1]/cm;
-      double thickness = dpar[2]/cm;
+      double width     = dpar[0];
+      double length    = dpar[1];
+      double thickness = dpar[2];
       pars.push_back(width);
       pars.push_back(length);
       pars.push_back(thickness);
       pars.push_back(numbOfStrips.doubles()[0]); 
     }else{
-      pars.push_back(dpar[4]/cm); //b/2;
-      pars.push_back(dpar[8]/cm); //B/2;
-      pars.push_back(dpar[0]/cm); //h/2;
-      pars.push_back(0.4/cm);
+      pars.push_back(dpar[4]); //b/2;
+      pars.push_back(dpar[8]); //B/2;
+      pars.push_back(dpar[0]); //h/2;
+      pars.push_back(0.4);
       pars.push_back(numbOfStrips.doubles()[0]); //h/2;
     }
 
     
     std::vector<double> vtra(3);
     std::vector<double> vrot(9);
-    vtra[0]=(float) 1.0 * (tran.x() / cm);
-    vtra[1]=(float) 1.0 * (tran.y() / cm);
-    vtra[2]=(float) 1.0 * (tran.z() / cm);
+    vtra[0]=(float) 1.0 * (tran.x());
+    vtra[1]=(float) 1.0 * (tran.y());
+    vtra[2]=(float) 1.0 * (tran.z());
     vrot[0]=(float) 1.0 * x.X();
     vrot[1]=(float) 1.0 * x.Y();
     vrot[2]=(float) 1.0 * x.Z();
