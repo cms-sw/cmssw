@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.h,v 1.14 2009/03/26 05:02:42 hegner Exp $
+// $Id: PATTauProducer.h,v 1.15 2009/03/26 20:44:37 vadler Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauProducer.h,v 1.14 2009/03/26 05:02:42 hegner Exp $
+  \version  $Id: PATTauProducer.h,v 1.15 2009/03/26 20:44:37 vadler Exp $
 */
 
 
@@ -89,6 +89,8 @@ namespace pat {
 
       template <typename TauCollectionType, typename TauDiscrType> float getTauIdDiscriminator(const edm::Handle<TauCollectionType>&, size_t, const edm::Handle<TauDiscrType>&);
 
+      bool          addDecayMode_;
+      edm::InputTag decayModeSrc_;
   };
 
 }
