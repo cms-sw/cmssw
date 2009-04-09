@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.23 2009/04/03 18:36:06 amraktad Exp $
+// $Id: FWGUISubviewArea.cc,v 1.24 2009/04/09 15:09:58 amraktad Exp $
 //
 
 // system include files
@@ -54,30 +54,30 @@ FWGUISubviewArea::FWGUISubviewArea(TEveCompositeFrame* ef, TGCompositeFrame* par
    //swap
    m_swapButton = new TGPictureButton(this, swapIcon());
    m_swapButton->SetDisabledPicture(swapDisabledIcon());
-   m_swapButton->SetToolTipText("Swap with current. Make current with mouse click on frame toolbar");
+   m_swapButton->SetToolTipText("Swap. Select window with click on frame toolbar");
    m_swapButton->ChangeOptions(kRaisedFrame);
    m_swapButton->SetHeight(height);
    AddFrame(m_swapButton, new TGLayoutHints(lh));
-   m_swapButton->Connect("Clicked()","FWGUISubviewArea",this,"swapWithCurrentView()");
+   m_swapButton->Connect("Clicked()","FWGUISubviewArea",this,"swap()");
 
-   // dock ? undock
+   // dock 
    if (dynamic_cast<const TGMainFrame*>(ef->GetParent()))
    {  
       m_dockButton = new TGPictureButton(this, dockIcon());
       m_dockButton->ChangeOptions(kRaisedFrame);
       m_dockButton->ChangeOptions(kRaisedFrame);
-      m_dockButton->SetDisabledPicture(undockDisabledIcon());
-      m_dockButton->SetToolTipText("Undock view to own window");
+      m_dockButton->SetToolTipText("Dock view");
       m_dockButton->SetHeight(height);
       AddFrame(m_dockButton, new TGLayoutHints(lh));
       m_dockButton->Connect("Clicked()", "FWGUISubviewArea",this,"dock()");
    }
    else
    {
+      // undock  
       m_undockButton = new TGPictureButton(this, undockIcon());
       m_undockButton->ChangeOptions(kRaisedFrame);
       m_undockButton->SetDisabledPicture(undockDisabledIcon());
-      m_undockButton->SetToolTipText("Dock view");
+      m_undockButton->SetToolTipText("Undock view to own window");
       m_undockButton->SetHeight(height);
       AddFrame(m_undockButton, new TGLayoutHints(lh));
       m_undockButton->Connect("Clicked()", "FWGUISubviewArea",this,"undock()");
@@ -96,7 +96,7 @@ FWGUISubviewArea::FWGUISubviewArea(TEveCompositeFrame* ef, TGCompositeFrame* par
    goingToBeDestroyed_.connect(boost::bind(&FWGUIManager::subviewIsBeingDestroyed,mng,_1));
    selected_.connect(boost::bind(&FWGUIManager::subviewSelected,mng,_1));
    unselected_.connect(boost::bind(&FWGUIManager::subviewUnselected,mng,_1));
-   swapWithCurrentView_.connect(boost::bind(&FWGUIManager::subviewSwapWithCurrent,mng,_1));
+   swap_.connect(boost::bind(&FWGUIManager::subviewSwapped,mng,_1));
 }
 
 FWGUISubviewArea::~FWGUISubviewArea()
@@ -137,9 +137,9 @@ FWGUISubviewArea::currentWindowChanged()
 }
 
 void
-FWGUISubviewArea::swapWithCurrentView()
+FWGUISubviewArea::swap()
 {
-   swapWithCurrentView_(this);
+   swap_(this);
 }
 
 void

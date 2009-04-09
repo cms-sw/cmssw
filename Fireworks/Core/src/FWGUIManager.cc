@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.106 2009/04/07 14:01:34 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.107 2009/04/08 17:11:16 amraktad Exp $
 //
 
 // system include files
@@ -460,10 +460,22 @@ FWGUIManager::subviewUnselected(FWGUISubviewArea* /*sva*/)
 }
 
 void
-FWGUIManager::subviewSwapWithCurrent(FWGUISubviewArea* sva)
+FWGUIManager::subviewSwapped(FWGUISubviewArea* sva)
 {
-   sva->getEveWindow()->SwapWindowWithCurrent();
-   subviewCurrentChanged(sva->getEveWindow());
+   // if current selected swap with current
+   if (gEve->GetWindowManager()->GetCurrentWindow())
+   {
+      sva->getEveWindow()->SwapWindowWithCurrent();
+      subviewCurrentChanged(sva->getEveWindow());
+   }
+   else
+   {
+      // swap with big view
+      TGPack* pp = m_viewPrimPack->GetPack();
+      TGFrameElement *pel = (TGFrameElement*) pp->GetList()->First();
+      TEveCompositeFrame* pef = dynamic_cast<TEveCompositeFrame*>(pel->fFrame);
+      TEveWindow::SwapWindows(sva->getEveWindow(), pef->GetEveWindow());
+   }
 }
 
 

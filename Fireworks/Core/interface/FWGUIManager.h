@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.56 2009/04/07 14:01:34 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.57 2009/04/08 17:11:16 amraktad Exp $
 //
 
 // system include files
@@ -200,7 +200,7 @@ public:
    void subviewDestroy(FWGUISubviewArea*); // timeout funct
    void subviewSelected(FWGUISubviewArea*);
    void subviewUnselected(FWGUISubviewArea*);
-   void subviewSwapWithCurrent(FWGUISubviewArea*);
+   void subviewSwapped(FWGUISubviewArea*);
 
    static  TGFrame* makeGUIsubview(TEveCompositeFrame* cp, TGCompositeFrame* parent, Int_t height);
 
