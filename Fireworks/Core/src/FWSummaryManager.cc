@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.9 2009/03/18 15:42:00 chrjones Exp $
+// $Id: FWSummaryManager.cc,v 1.10 2009/04/07 18:56:04 chrjones Exp $
 //
 
 // system include files
@@ -21,6 +21,7 @@
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
@@ -44,10 +45,14 @@ FWSummaryManager::FWSummaryManager(TGFrame* iParent,
                                    FWSelectionManager* sm,
                                    FWEventItemsManager* eim,
                                    FWGUIManager* gm,
-                                   FWModelChangeManager* cm) :
+                                   FWModelChangeManager* cm,
+                                   FWColorManager* colorm
+) :
    m_guiManager(gm),
+   m_colorManager(colorm),
 m_itemChanged(false)
 {
+   colorm->colorsHaveChanged_.connect(boost::bind(&FWSummaryManager::colorsChanged,this));
    sm->selectionChanged_.connect(boost::bind(&FWSummaryManager::selectionChanged,this,_1));
    eim->newItem_.connect(boost::bind(&FWSummaryManager::newItem,
                                      this, _1) );
@@ -58,10 +63,6 @@ m_itemChanged(false)
    m_pack->SetLayoutManager( new FWCompactVerticalLayout(m_pack));
    const unsigned int backgroundColor=0x2f2f2f;
    m_pack->SetBackgroundColor(backgroundColor);
-   /*m_eventObjects =  new TEveElementList("Physics Objects");
-      m_listTree->OpenItem(m_eventObjects->AddIntoListTree(m_listTree,
-                                                        reinterpret_cast<TGListTreeItem*>(0))
-                        );*/
    cm->changeSignalsAreDone_.connect(boost::bind(&FWSummaryManager::changesDone,this));
 }
 
@@ -92,21 +93,17 @@ FWSummaryManager::~FWSummaryManager()
 void
 FWSummaryManager::newItem(FWEventItem* iItem)
 {
-   //TEveElementList* lst = new TEveElementList(iItem->name().c_str(),"",kTRUE);
-   //lst->SetMainColor(iItem->defaultDisplayProperties().color());
    TGLayoutHints* hints = new TGLayoutHints(kLHintsExpandX);
    FWCollectionSummaryWidget* lst = new FWCollectionSummaryWidget(m_pack,*iItem,hints);
    m_pack->AddFrame(lst, hints);
    m_collectionWidgets.push_back(lst);
+   bool backgroundIsWhite = m_colorManager->backgroundColorIndex()==FWColorManager::kWhiteIndex;
+   lst->setBackgroundToWhite(backgroundIsWhite);
    iItem->goingToBeDestroyed_.connect(boost::bind(&FWSummaryManager::itemDestroyed,this,_1));
    iItem->itemChanged_.connect(boost::bind(&FWSummaryManager::itemChanged,this,_1));
    lst->Connect("requestForInfo(FWEventItem*)","FWSummaryManager",this,"requestForInfo(FWEventItem*)");
    lst->Connect("requestForFilter(FWEventItem*)","FWSummaryManager",this,"requestForFilter(FWEventItem*)");
    lst->Connect("requestForErrorInfo(FWEventItem*)","FWSummaryManager",this,"requestForError(FWEventItem*)");
-   //lst->AddIntoListTree(m_listTree,m_eventObjects);
-   //NOTE: Why didn't I call AddElement of m_eventObjects???  Because it will go in the wrong list tree?
-   //Need to hand this lst into some container so we can get rid of it, since it doesn't seem to go into
-   // m_eventObjects
 }
 
 void 
@@ -153,6 +150,28 @@ FWSummaryManager::changesDone()
    if(m_itemChanged) {
       m_pack->Layout();
       m_itemChanged=false;
+   }
+}
+
+void
+FWSummaryManager::colorsChanged()
+{
+   bool backgroundIsWhite = m_colorManager->backgroundColorIndex()==FWColorManager::kWhiteIndex;
+   
+   if(backgroundIsWhite) {
+      const unsigned int backgroundColor=0xdfdfdf;
+      m_pack->SetBackgroundColor(backgroundColor);
+   } else {
+      const unsigned int backgroundColor=0x2f2f2f;
+      m_pack->SetBackgroundColor(backgroundColor);
+   }
+   for(std::vector<FWCollectionSummaryWidget*>::iterator it = m_collectionWidgets.begin(), 
+       itEnd = m_collectionWidgets.end();
+       it != itEnd;
+       ++it) {
+      if(0!=*it) {
+         (*it)->setBackgroundToWhite(backgroundIsWhite);
+      }
    }
 }
 

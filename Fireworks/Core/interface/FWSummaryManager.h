@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:58 EST 2008
-// $Id: FWSummaryManager.h,v 1.6 2009/03/04 17:07:27 chrjones Exp $
+// $Id: FWSummaryManager.h,v 1.7 2009/03/18 15:42:00 chrjones Exp $
 //
 
 // system include files
@@ -36,6 +36,7 @@ class FWSelectionManager;
 class FWEventItemsManager;
 class FWGUIManager;
 class FWModelChangeManager;
+class FWColorManager;
 class FWCollectionSummaryWidget;
 
 class FWSummaryManager
@@ -46,7 +47,9 @@ public:
                     FWSelectionManager*,
                     FWEventItemsManager*,
                     FWGUIManager*,
-                    FWModelChangeManager*);
+                    FWModelChangeManager*,
+                    FWColorManager*
+   );
    virtual ~FWSummaryManager();
 
    // ---------- const member functions ---------------------
@@ -59,6 +62,7 @@ public:
    void requestForFilter(FWEventItem*);
    void requestForError(FWEventItem*);
 
+   void colorsChanged();
 private:
    FWSummaryManager(const FWSummaryManager&);    // stop default
 
@@ -77,6 +81,7 @@ private:
    TGCompositeFrame* m_pack;
    std::vector<FWCollectionSummaryWidget*> m_collectionWidgets;
    FWGUIManager* m_guiManager;
+   FWColorManager* m_colorManager;
    bool m_itemChanged;
 };
 
