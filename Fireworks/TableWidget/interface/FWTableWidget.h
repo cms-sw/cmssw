@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:47 EST 2009
-// $Id: FWTableWidget.h,v 1.4 2009/03/18 15:40:37 chrjones Exp $
+// $Id: FWTableWidget.h,v 1.5 2009/04/08 19:04:15 chrjones Exp $
 //
 
 // system include files
@@ -54,6 +54,7 @@ class FWTableWidget : public TGCompositeFrame
       void SetBackgroundColor(Pixel_t);
       void SetHeaderBackgroundColor(Pixel_t);
       void SetHeaderForegroundColor(Pixel_t);
+      void SetLineSeparatorColor(Pixel_t);
    
       virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
 
@@ -103,6 +104,7 @@ class FWTableWidget : public TGCompositeFrame
    
       TGGC* m_headerBackground;
       TGGC* m_headerForeground;
+      TGGC* m_lineSeparator;
 
 };
 

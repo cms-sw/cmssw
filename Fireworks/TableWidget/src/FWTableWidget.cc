@@ -8,10 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.7 2009/04/08 19:04:15 chrjones Exp $
+// $Id: FWTableWidget.cc,v 1.8 2009/04/08 19:19:42 chrjones Exp $
 //
 
 // system include files
+#include <iostream>
 #include "TGScrollBar.h"
 #include "TGTableLayout.h"
 #include "TGResourcePool.h"
@@ -51,7 +52,8 @@ TGCompositeFrame(p),
    m_sortedColumn(-1),
    m_descendingSort(true),
    m_headerBackground(0),
-   m_headerForeground(0)
+   m_headerForeground(0),
+   m_lineSeparator(0)
 {
    SetLayoutManager( new TGTableLayout(this,3,3) );
    
@@ -120,6 +122,11 @@ FWTableWidget::~FWTableWidget()
    if(0!= m_headerForeground) {
       gClient->GetResourcePool()->GetGCPool()->FreeGC(m_headerForeground->GetGC());
    }
+   
+   if(0!= m_lineSeparator) {
+      gClient->GetResourcePool()->GetGCPool()->FreeGC(m_lineSeparator->GetGC());
+   }
+      
 }
 
 //
@@ -157,11 +164,15 @@ FWTableWidget::SetBackgroundColor(Pixel_t iColor)
    TGFrame::SetBackgroundColor(iColor);
    if(m_rowHeaderTable) {
       m_rowHeader->SetBackgroundColor(iColor);
+      fClient->NeedRedraw(m_rowHeader);
    }
    if(m_header) {
       m_header->SetBackgroundColor(iColor);
+      fClient->NeedRedraw(m_header);
    }
    m_body->SetBackgroundColor(iColor);
+   fClient->NeedRedraw(m_body);
+   fClient->NeedRedraw(this);
 }
 
 void 
@@ -186,6 +197,20 @@ FWTableWidget::SetHeaderForegroundColor(Pixel_t iColor)
    m_headerForeground->SetForeground(iColor);
    if(0!=m_header) {
       m_header->setLineContext((*m_headerForeground)());
+   }
+}
+
+void 
+FWTableWidget::SetLineSeparatorColor(Pixel_t iColor)
+{
+   if(0==m_lineSeparator) {
+      GCValues_t t = *(gClient->GetResourcePool()->GetFrameGC()->GetAttributes());
+      m_lineSeparator = gClient->GetResourcePool()->GetGCPool()->GetGC(&t,kTRUE);
+   }
+   m_lineSeparator->SetForeground(iColor);
+   m_body->setLineContext( (*m_lineSeparator)());
+   if(m_rowHeader) {
+      m_rowHeader->setLineContext( (*m_lineSeparator)() );
    }
 }
 
