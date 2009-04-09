@@ -46,22 +46,9 @@ tauIsoDepositPFNeutralHadrons.ExtractorPSet.candidateSource = cms.InputTag("pfAl
 tauIsoDepositPFGammas = copy.deepcopy(tauIsoDepositPFCandidates)
 tauIsoDepositPFGammas.ExtractorPSet.candidateSource = cms.InputTag("pfAllPhotons")
 
-# read and convert to ValueMap<IsoDeposit> keyed to Candidate;
-# to be run on AOD before PAT
-pfTauIsolationValueMap = cms.EDFilter("MultipleIsoDepositsToValueMaps",
-    collection = cms.InputTag("pfRecoTauProducer"),
-    associations = cms.VInputTag(
-        cms.InputTag("tauIsoDepositPFCandidates"),
-        cms.InputTag("tauIsoDepositPFChargedHadrons"),
-        cms.InputTag("tauIsoDepositPFNeutralHadrons"),
-        cms.InputTag("tauIsoDepositPFGammas")
-    )
-)
-
 patPFTauIsolation = cms.Sequence( tauIsoDepositPFCandidates
                                  * tauIsoDepositPFChargedHadrons
                                  * tauIsoDepositPFNeutralHadrons
-                                 * tauIsoDepositPFGammas
-                                 * pfTauIsolationValueMap )
+                                 * tauIsoDepositPFGammas )
 
 
