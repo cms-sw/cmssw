@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/18 12:06:36 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/04/09 11:42:33 $
+ *  $Revision: 1.10 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -90,7 +90,7 @@ void DTLocalTriggerBaseTest::endJob(){
   if (!runOnline) {
     LogVerbatim(category()) << "[" << testName << "Test] Client called in offline mode, performing client operations";
 
-    if (dbe->dirExists(topFolder())) {
+    if (dbe->dirExists(topFolder(0)) || dbe->dirExists(topFolder(1))) {
       //dbe->showDirStructure();
       runClientDiagnostic();
     }
@@ -141,10 +141,10 @@ string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, cons
   stringstream station; station << chambid.station();
   stringstream sector; sector << chambid.sector();
 
-  string hwFolder = hwSource=="DCC" ? "DCC/" : ""; 
+  bool isDCC = hwSource=="DCC"; 
 
   string folderName = 
-    topFolder() + hwFolder + "Wheel" +  wheel.str() +
+    topFolder(isDCC) + "Wheel" +  wheel.str() +
     "/Sector" + sector.str() +
     "/Station" + station.str() + "/" + subfolder + "/";  
 
@@ -187,8 +187,8 @@ void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string folder
   stringstream wh; wh << wheel;
   stringstream sc; sc << sector;
   int sectorid = (wheel+3) + (sector-1)*5;
-  string hwFolder = hwSource=="DCC" ? "DCC/" : "";
-  string basedir = topFolder()+hwFolder+"Wheel"+wh.str()+"/Sector"+sc.str()+"/";
+  bool isDCC = hwSource=="DCC" ;
+  string basedir = topFolder(isDCC)+"Wheel"+wh.str()+"/Sector"+sc.str()+"/";
   if (folder!="") {
     basedir += folder +"/";
   }
@@ -246,9 +246,8 @@ void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string folder
 
 void DTLocalTriggerBaseTest::bookCmsHistos( string hTag ) {
 
-  string basedir = topFolder();
-   if(hwSource == "DCC") 
-      basedir += hwSource + "/";
+  bool isDCC = hwSource == "DCC"; 
+  string basedir = topFolder(isDCC);
   dbe->setCurrentFolder(basedir);
 
   string hname = fullName(hTag);
@@ -266,11 +265,11 @@ void DTLocalTriggerBaseTest::bookWheelHistos(int wheel, string folder, string hT
   
   stringstream wh; wh << wheel;
   string basedir;  
-  string hwFolder = hwSource=="DCC" ? "DCC/" : "" ;  
+  bool isDCC = hwSource=="DCC" ;  
   if (hTag.find("Summary") != string::npos ) {
-    basedir = topFolder() + hwFolder;   //Book summary histo outside wheel directories
+    basedir = topFolder(isDCC);   //Book summary histo outside wheel directories
   } else {
-    basedir = topFolder() + hwFolder + "Wheel" + wh.str() + "/" ;
+    basedir = topFolder(isDCC) + "Wheel" + wh.str() + "/" ;
     if (folder != "") {
       basedir += folder +"/" ;
     }

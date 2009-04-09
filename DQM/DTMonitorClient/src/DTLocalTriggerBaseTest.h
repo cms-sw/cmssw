@@ -6,8 +6,8 @@
  * *
  *  DQM Base for TriggerTests
  *
- *  $Date: 2008/10/07 14:26:43 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/11/05 11:39:46 $
+ *  $Revision: 1.4 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -97,7 +97,7 @@ protected:
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
   
   /// Get top folder name
-  inline std::string & topFolder() { return baseFolder; } ;
+  inline std::string & topFolder(bool isDCC) { return isDCC ? baseFolderDCC : baseFolderDDU; } ;
   
   /// Get message logger name
   inline std::string category() { return "DTDQM|DTMonitorClient|" + testName + "Test"; } ;
@@ -116,14 +116,14 @@ protected:
   std::string sourceFolder;
   edm::ParameterSet parameters;
   bool runOnline;
-  std::string baseFolder;
+  std::string baseFolderDCC;
+  std::string baseFolderDDU;
   std::string trigSource;
   std::string hwSource;
   edm::ESHandle<DTGeometry> muonGeom;
   std::map<int,std::map<std::string,MonitorElement*> > secME;
   std::map<int,std::map<std::string,MonitorElement*> > whME;
   std::map<std::string,MonitorElement*> cmsME;
-
 
 };
 

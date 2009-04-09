@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/07 14:26:43 $
- *  $Revision: 1.26 $
+ *  $Date: 2008/11/05 11:49:48 $
+ *  $Revision: 1.1 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -36,7 +36,8 @@ using namespace std;
 DTLocalTriggerTPTest::DTLocalTriggerTPTest(const edm::ParameterSet& ps){
 
   setConfig(ps,"DTLocalTriggerTP");
-  baseFolder = "DT/11-LocalTriggerTP/";
+  baseFolderDCC = "DT/11-LocalTriggerTP-DCC/";
+  baseFolderDDU = "DT/12-LocalTriggerTP-DDU/";
   
 
 }

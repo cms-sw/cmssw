@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/05 11:39:46 $
- *  $Revision: 1.27 $
+ *  $Date: 2009/04/09 11:42:33 $
+ *  $Revision: 1.28 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -36,7 +36,8 @@ using namespace std;
 DTLocalTriggerTest::DTLocalTriggerTest(const edm::ParameterSet& ps){
 
   setConfig(ps,"DTLocalTrigger");
-  baseFolder = "DT/03-LocalTrigger/";
+  baseFolderDCC = "DT/03-LocalTrigger-DCC/";
+  baseFolderDDU = "DT/04-LocalTrigger-DDU/";
 
 }
 

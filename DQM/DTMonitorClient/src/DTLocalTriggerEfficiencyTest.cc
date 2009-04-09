@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/07 14:26:43 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/11/05 11:39:46 $
+ *  $Revision: 1.6 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -36,7 +36,8 @@ using namespace std;
 DTLocalTriggerEfficiencyTest::DTLocalTriggerEfficiencyTest(const edm::ParameterSet& ps){
 
   setConfig(ps,"DTLocalTriggerEfficiency");
-  baseFolder = "DT/03-LocalTrigger/";
+  baseFolderDCC = "DT/03-LocalTrigger-DCC/";
+  baseFolderDDU = "DT/04-LocalTrigger-DDU/";
 
 }
 
@@ -292,14 +293,14 @@ void DTLocalTriggerEfficiencyTest::bookChambHistos(DTChamberId chambId, string h
   stringstream sector; sector << chambId.sector();
 
   string fullType  = fullName(htype);
-  string hwFolder = hwSource=="DCC" ? "DCC/" : "";
+  bool isDCC = hwSource=="DCC" ;
   string HistoName = fullType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
-  dbe->setCurrentFolder(topFolder() + hwFolder +"Wheel" + wheel.str() +
+  dbe->setCurrentFolder(topFolder(isDCC) + "Wheel" + wheel.str() +
 			"/Sector" + sector.str() +
 			"/Station" + station.str() + "/Segment");
 
-  LogTrace(category()) << "[" << testName << "Test]: booking " + topFolder() + hwFolder + "Wheel" << wheel.str() 
+  LogTrace(category()) << "[" << testName << "Test]: booking " + topFolder(isDCC) + "Wheel" << wheel.str() 
 		       <<"/Sector" << sector.str() << "/Station" << station.str() << "/Segment/" << HistoName;
 
   

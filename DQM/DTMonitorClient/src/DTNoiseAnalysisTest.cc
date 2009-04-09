@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/22 12:45:25 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/11/03 14:21:43 $
+ *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -198,7 +198,7 @@ string DTNoiseAnalysisTest::getMEName(const DTChamberId & chID) {
   stringstream sector; sector << chID.sector();	
   
   string folderName = 
-    "DT/04-Noise/Wheel" +  wheel.str() +
+    "DT/05-Noise/Wheel" +  wheel.str() +
 //     "/Station" + station.str() +
     "/Sector" + sector.str() + "/";
 
@@ -214,7 +214,7 @@ string DTNoiseAnalysisTest::getMEName(const DTChamberId & chID) {
 
 void DTNoiseAnalysisTest::bookHistos() {
   
-  dbe->setCurrentFolder("DT/04-Noise");
+  dbe->setCurrentFolder("DT/05-Noise");
   string histoName;
 
   for(int wh=-2; wh<=2; wh++){
@@ -248,7 +248,7 @@ void DTNoiseAnalysisTest::bookHistos() {
 
 
   if(doSynchNoise) {
-    dbe->setCurrentFolder("DT/04-Noise/SynchNoise/");
+    dbe->setCurrentFolder("DT/05-Noise/SynchNoise/");
     histoName =  "SynchNoiseSummary";
     summarySynchNoiseHisto = dbe->book2D(histoName.c_str(),"Summary Synch. Noise",12,1,13,5,-2,3);
     summarySynchNoiseHisto->setAxisTitle("Sector",1);
@@ -263,7 +263,7 @@ string DTNoiseAnalysisTest::getSynchNoiseMEName(int wheelId) const {
   
   stringstream wheel; wheel << wheelId;	
   string folderName = 
-    "DT/04-Noise/SynchNoise/";
+    "DT/05-Noise/SynchNoise/";
   string histoname = folderName + string("SyncNoiseEvents")  
     + "_W" + wheel.str();
 
