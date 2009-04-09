@@ -16,6 +16,8 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 SeedFromProtoTrack::SeedFromProtoTrack(const reco::Track & proto,  
   const SeedingHitSet & hits, const edm::EventSetup& es)
   : theValid(true)
@@ -67,6 +69,14 @@ void SeedFromProtoTrack::init(const reco::Track & proto, const edm::EventSetup& 
 
   TrajectoryStateOnSurface outerState =
       propagator->propagate(fts, tracker->idToDet(lastHit.geographicalId())->surface());
+
+  if (!outerState.isValid()){    
+    const Surface & surface = tracker->idToDet(lastHit.geographicalId())->surface();
+    edm::LogError("SeedFromProtoTrack")<<" was trying to create a seed from:\n"<<fts<<"\n propagating to: "<<lastHit.geographicalId()<<surface.position();
+    theValid = false;
+    return ;
+  }
+  theValid = true;
 
   TrajectoryStateTransform transformer;
   thePTraj = boost::shared_ptr<PTrajectoryStateOnDet>(
