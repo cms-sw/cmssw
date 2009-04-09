@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.3 2009/04/08 19:04:52 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.4 2009/04/09 21:17:52 chrjones Exp $
 //
 
 // system include files
@@ -427,11 +427,13 @@ FWCollectionSummaryWidget::setBackgroundToWhite(bool iToWhite)
       SetBackgroundColor(kWidgetColorLight);
       m_isVisibleButton->setNormCG(GetBlackGC()());
       m_colorSelectWidget->setNormCG(GetBlackGC()());
+      selectContext()->SetForeground(0xafafFF);
    } else {
       m_backgroundIsWhite=false;
       SetBackgroundColor(kWidgetColor);
       m_isVisibleButton->setNormCG(GetWhiteGC()());
       m_colorSelectWidget->setNormCG(GetWhiteGC()());
+      selectContext()->SetForeground(gClient->GetResourcePool()->GetSelectedGC()->GetBackground());
    }
    colorTable();
    m_holder->SetBackgroundColor(bc);
