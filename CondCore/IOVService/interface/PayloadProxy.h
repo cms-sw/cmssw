@@ -21,7 +21,8 @@ namespace cond {
     // errorPolicy=true will throw on load, false will set interval and token to invalid
     BasePayloadProxy(cond::Connection& conn,
 		     const std::string & token, bool errorPolicy);
-    ~BasePayloadProxy();
+    
+    virtual~BasePayloadProxy();
 
     virtual void invalidateCache()=0;
 
@@ -58,18 +59,18 @@ namespace cond {
     PayloadProxy() : old(false){}
 
     // dereference
-    const DataT & operator() const {
+    const DataT & operator()() const {
       return old ? *m_OldData : m_data->data(); 
     }
-
-
+    
+    
     virtual void invalidateCache() {
       m_data.clear();
       m_OldData.clear();
     }
 
   private:
-    virtual bool load(pool::IDataSvc * svc, std::string & token) {
+    virtual bool load(pool::IDataSvc * svc, std::string const & token) {
       old = false;
       invalidateCache();
       bool ok = false;
@@ -88,14 +89,13 @@ namespace cond {
       }
       return ok;
     }
-
-
+    
+    
   private:
     bool old;
     pool::Ref<DataWrapper> m_data;
-  // Backward compatibility
+    // Backward compatibility
     pool::Ref<DataT> m_OldData;
-}
   };
 
 }
