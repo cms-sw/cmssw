@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'oracle://devdb10/cms_xiezhen_dev'
+#process.CondDBCommon.connect = 'oracle://devdb10/cms_xiezhen_dev'
+process.CondDBCommon.connect = 'sqlite_file:blob.db'
 process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/user/x/xiezhen'
 
 process.source = cms.Source("EmptyIOVSource",

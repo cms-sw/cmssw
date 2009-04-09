@@ -11,7 +11,8 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
         record = cms.string('mySiStripNoisesRcd'),
         tag = cms.string('noise_tag')
     )),
-    connect = cms.string('oracle://devdb10/cms_xiezhen_dev')
+    #connect = cms.string('oracle://devdb10/cms_xiezhen_dev')
+    connect = cms.string('sqlite_file:blob.db')
 )
 
 process.source = cms.Source("EmptyIOVSource",
