@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactors.h,v 1.4 2009/02/19 15:39:29 rwolf Exp $
+// $Id: JetCorrFactors.h,v 1.5 2009/03/26 20:04:10 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_JetCorrFactors_h
@@ -15,7 +15,7 @@
    PAT Layer-1.
 
   \author   Giovanni Petrucciani
-  \version  $Id: JetCorrFactors.h,v 1.4 2009/02/19 15:39:29 rwolf Exp $
+  \version  $Id: JetCorrFactors.h,v 1.5 2009/03/26 20:04:10 rwolf Exp $
 */
 
 #include <vector>
@@ -46,7 +46,8 @@ namespace pat {
           enum CorrStep { Raw = 0x0,   L1    = 0x10, L2  = 0x20,  L3 = 0x30, L4 = 0x40,
                           L5g = 0x50,  L5uds = 0x51, L5c = 0x54, L5b = 0x55,
                           L6g = 0x60,  L6uds = 0x61, L6c = 0x64, L6b = 0x65,
-                          L7g = 0x70,  L7uds = 0x71, L7c = 0x74, L7b = 0x75 };
+                          L7g = 0x70,  L7uds = 0x71, L7c = 0x74, L7b = 0x75 
+	                };
 
    	  /// default Constructor
           JetCorrFactors();
@@ -54,7 +55,7 @@ namespace pat {
           JetCorrFactors(std::string &label, float l1, float l2, float l3, float l4, FlavourCorrections l5, FlavourCorrections l6, FlavourCorrections l7);
 
           /// default scale factor: Raw & L1 & L2 & L3
-          float scaleDefault() const { return fabs(correction(L3)); };
+          float scaleDefault() const { return correction(L3); };
           /// returns the correction for a jet up to a given step, starting from another step.
           float correction(CorrStep step, CorrStep begin=Raw) const ;           
           /// convert a string into a CorrStep
