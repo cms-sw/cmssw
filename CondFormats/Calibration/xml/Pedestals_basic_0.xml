@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="Pedestals_basic" >
+  <PoolContainer name="Pedestals" >
    <Class table="PEDESTALS" id_columns="ID" name="Pedestals" mapping_version="basic" >
      <Container table="PEDESTALS_M_PEDEST_1" id_columns="ID_ID" name="m_pedestals" position_column="POS" >
        <Object name="value_type" >

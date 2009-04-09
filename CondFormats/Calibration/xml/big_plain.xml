@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="bigRcd" >
+  <PoolContainer name="big" >
    <Class table="BIG" id_columns="ID" name="big" mapping_version="big_000" >
      <Primitive column="ABS_COTB" name="abs_cotb" />
      <Primitive column="COTA_CURRENT" name="cota_current" />
