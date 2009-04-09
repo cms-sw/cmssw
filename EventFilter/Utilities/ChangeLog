@@ -1,3 +1,10 @@
+2009-04-09  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-16-02 (16-00 and 16-01 contain various undocumented 
+	changes by Peter Elmer)
+	* adapt to changes in evtn interface
+	* set curl verbosity and disable signals
+
 2009-01-09  Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V00-15-05
