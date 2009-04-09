@@ -12,6 +12,14 @@
   <class name="std::vector<EcalTrigTowerDetId>"/>
   <class name="std::vector<EcalElectronicsId>"/>
   <class name="std::vector<EcalTriggerElectronicsId>"/>
+  <class name="std::set<EBDetId>"/>
+  <class name="std::set<EEDetId>"/>
+  <class name="std::set<EcalTrigTowerDetId>"/>
+  <class name="std::set<EcalScDetId>"/>
+  <class name="edm::Wrapper<std::set<EBDetId> > "/>
+  <class name="edm::Wrapper<std::set<EEDetId> > "/>
+  <class name="edm::Wrapper<std::set<EcalTrigTowerDetId> > "/>
+  <class name="edm::Wrapper<std::set<EcalScDetId> > "/>
   <class name="edm::EDCollection<EBDetId> "/>
   <class name="edm::EDCollection<EEDetId> "/>
   <class name="edm::EDCollection<EcalTrigTowerDetId> "/>

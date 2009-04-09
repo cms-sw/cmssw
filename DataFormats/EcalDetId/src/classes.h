@@ -38,6 +38,16 @@ namespace {
     edm::Wrapper< edm::EDCollection<EcalScDetIdCollection> > theESCDIw_;
     edm::Wrapper< edm::EDCollection<EcalElectronicsId> > theEELIw_;
     edm::Wrapper< edm::EDCollection<EcalTriggerElectronicsId> > theETELIw_;
+
+    // needed for channel recovery
+    std::set<EBDetId> _ebDetId;
+    std::set<EEDetId> _eeDetId;
+    std::set<EcalTrigTowerDetId> _TTId;
+    std::set<EcalScDetId> _SCId;
+    edm::Wrapper< std::set<EBDetId> > _ebDetIdw;
+    edm::Wrapper< std::set<EEDetId> > _eeDetIdw;
+    edm::Wrapper< std::set<EcalTrigTowerDetId> > _TTIdw;
+    edm::Wrapper< std::set<EcalScDetId> > _SCIdw;
  };
 }
 
