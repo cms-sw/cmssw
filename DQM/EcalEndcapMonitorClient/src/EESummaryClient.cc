@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/03/10 10:14:36 $
- * $Revision: 1.163 $
+ * $Date: 2009/04/06 13:39:44 $
+ * $Revision: 1.164 $
  * \author G. Della Ricca
  *
 */
@@ -1628,18 +1628,16 @@ void EESummaryClient::analyze(void) {
 
               float xval = 6;
 
-              if ( me->getBinContent( ix, iy ) == 6 ) xval = 2;
+              if ( me->getBinContent( ix, iy ) < 0 ) xval = 2;
               if ( me->getBinContent( ix, iy ) == 0 ) xval = 1;
               if ( me->getBinContent( ix, iy ) > 0 ) xval = 0;
 
-              if ( me->getEntries() != 0 ) {
               if ( ism >= 1 && ism <= 9 ) {
                 if ( Numbers::validEE(ism, 101 - jx, jy) ) meStatusFlags_[0]->setBinContent( 101 - jx, jy, xval );
               } else {
                 if ( Numbers::validEE(ism, jx, jy) ) meStatusFlags_[1]->setBinContent( jx, jy, xval );
               }
               if ( xval == 0 ) meStatusFlagsErr_->Fill( ism );
-              }
 
             }
 
