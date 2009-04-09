@@ -11,7 +11,10 @@ class EcalUncalibratedRecHit {
   typedef DetId key_type;
 
   enum Flags {
-          kSaturated,       // saturated channel
+          kGood,                // channel is good
+          kPoorReco,            // channel has been badly reconstructed (e.g. bad shape, bad chi2 etc.)
+          kSaturated,           // saturated channel
+          kOutOfTime,           // channel out of time
           kLeadingEdgeRecovered // saturated channel: energy estimated from the leading edge before saturation
   };
 
@@ -24,7 +27,8 @@ class EcalUncalibratedRecHit {
   double pedestal() const { return pedestal_; }
   double jitter() const { return jitter_; }
   double chi2() const { return chi2_; }
-  uint32_t flags() const { return flags_; }
+  uint32_t recoFlag() const { return 0xF & flags_; }
+  float  outOfTimeEnergy() const;
   DetId  id() const { return id_; }
 
   void setAmplitude( double amplitude ) { amplitude_ = amplitude; }
@@ -32,6 +36,8 @@ class EcalUncalibratedRecHit {
   void setJitter( double jitter ) { jitter_ = jitter; }
   void setChi2( double chi2 ) { chi2_ = chi2; }
   void setFlags( uint32_t flags ) { flags_ = flags; }
+  void setRecoFlag( uint32_t flags );
+  void setOutOfTimeEnergy( float energy );
   void setId( DetId id ) { id_ = id; }
   
   bool isSaturated() const;
