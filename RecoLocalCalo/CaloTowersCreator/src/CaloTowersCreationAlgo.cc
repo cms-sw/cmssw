@@ -864,42 +864,11 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
       }
 
     }
-    //--------------------------------------------------------------------------------------
 
-
-
-    if (numBadHcalChan > 3) {
-      if (id.ietaAbs()!=29) 
-	std::cout << "CaloTowersCreationAlgo: Number of bad HCAL channels > 3" << std::endl;
-      numBadHcalChan = 3;
-    }
-    if (numBadEcalChan > 25) {
-      std::cout << "CaloTowersCreationAlgo: Number of bad ECAL channels > 25" << std::endl;
-      numBadEcalChan = 25;
-    }
-    if (numRecHcalChan > 3) {
-      if (id.ietaAbs()!=29)
-	std::cout << "CaloTowersCreationAlgo: Number of recovered HCAL channels > 3" << std::endl;
-      numRecHcalChan = 3;
-    }
-    if (numRecEcalChan > 25) {
-      std::cout << "CaloTowersCreationAlgo: Number of recovered ECAL channels > 25" << std::endl;
-      numRecEcalChan = 25;
-    }
-    if (numProbHcalChan > 3) {
-      if (id.ietaAbs()!=29)
-	std::cout << "CaloTowersCreationAlgo: Number of problematic HCAL channels > 3" << std::endl;
-      numProbHcalChan = 3;
-    }
-    if (numProbEcalChan > 25) {
-      std::cout << "CaloTowersCreationAlgo: Number of problematic ECAL channels > 25" << std::endl;
-      numProbEcalChan = 25;
-    }
 
     retval.setCaloTowerStatus(numBadHcalChan, numBadEcalChan,	 
 			      numRecHcalChan, numRecEcalChan,	 
 			      numProbHcalChan, numProbEcalChan);
-  
 
     std::vector<DetId> contains;
     for (std::vector<std::pair<DetId,double> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) 
