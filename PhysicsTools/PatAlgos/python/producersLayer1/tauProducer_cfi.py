@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 allLayer1Taus = cms.EDProducer("PATTauProducer",
     # input
-    tauSource = cms.InputTag("pfRecoTauProducer"),
+    tauSource = cms.InputTag("fixedConePFTauProducer"),
 
     # add user data
     userData = cms.PSet(
@@ -61,13 +61,13 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
         # configure many IDs as InputTag <someName> = <someTag>
         # you can comment out those you don't want to save some
         # disk space
-        leadingTrackFinding = cms.InputTag("pfRecoTauDiscriminationByLeadingTrackFinding"),
-        leadingTrackPtCut = cms.InputTag("pfRecoTauDiscriminationByLeadingTrackPtCut"),
-        trackIsolation = cms.InputTag("pfRecoTauDiscriminationByTrackIsolation"),
-        ecalIsolation = cms.InputTag("pfRecoTauDiscriminationByECALIsolation"),
-        byIsolation = cms.InputTag("pfRecoTauDiscriminationByIsolation"),
-        againstElectron = cms.InputTag("pfRecoTauDiscriminationAgainstElectron"),
-        againstMuon = cms.InputTag("pfRecoTauDiscriminationAgainstMuon")
+        leadingTrackFinding = cms.InputTag("fixedConePFTauDiscriminationByLeadingTrackFinding"),
+        leadingTrackPtCut = cms.InputTag("fixedConePFTauDiscriminationByLeadingTrackPtCut"),
+        trackIsolation = cms.InputTag("fixedConePFTauDiscriminationByTrackIsolation"),
+        ecalIsolation = cms.InputTag("fixedConePFTauDiscriminationByECALIsolation"),
+        byIsolation = cms.InputTag("fixedConePFTauDiscriminationByIsolation"),
+        againstElectron = cms.InputTag("fixedConePFTauDiscriminationAgainstElectron"),
+        againstMuon = cms.InputTag("fixedConePFTauDiscriminationAgainstMuon")
     ),
 
     # tau decay mode configurables
