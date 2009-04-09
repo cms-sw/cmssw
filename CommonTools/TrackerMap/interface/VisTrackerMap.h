@@ -6,7 +6,7 @@
 
 #include <qwidget.h>
 #include <qdatetime.h>
-#include <qpointarray.h>
+#include <Qt3Support/q3pointarray.h>
 #include <qtooltip.h>
 #include <qlabel.h>
 #include <map>
@@ -21,7 +21,7 @@ class VisTrackerMap : public QWidget
     
     void paintEvent(QPaintEvent* );
     void mousePressEvent(QMouseEvent *e);
-    void visDrawModule(TmModule * mod, int key,int nlay, QPointArray a);
+    void visDrawModule(TmModule * mod, int key,int nlay, Q3PointArray a);
     void computeColor(TmModule * mod, bool print_total, QPainter* p);
     void setPaintOptions(bool vtk_print_total=true,float vtk_minval=0., float vtk_maxval=0.);
     
@@ -39,7 +39,7 @@ class VisTrackerMap : public QWidget
     bool posrel,horizontal_view;
     double xmin,xmax,ymin,ymax;
  
-    QPointArray *reg_mod;
+    Q3PointArray *reg_mod;
 };
 
 #endif 

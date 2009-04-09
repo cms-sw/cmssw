@@ -1,6 +1,6 @@
 #include "CommonTools/TrackerMap/interface/VisTrackerMapBox.h"
 #include <qlayout.h>
-#include <qscrollview.h>
+#include <Qt3Support/q3scrollview.h>
 
 VisTrackerMapBox::VisTrackerMapBox( QWidget *parent, const char *name )
   : QWidget( parent, name )
@@ -14,7 +14,7 @@ VisTrackerMapBox::VisTrackerMapBox( QWidget *parent, const char *name )
   labelinfo = new QLabel(this);
   labelinfo->setText( trUtf8( " " ) );
 
-  QScrollView* sv = new QScrollView(this);
+  Q3ScrollView* sv = new Q3ScrollView(this);
   sv->setGeometry( QRect( 0, 1, 600, 600 ) );
   v_tk = new VisTrackerMap(sv->viewport(),"Tracker Map",labelinfo);
   sv->addChild(v_tk);

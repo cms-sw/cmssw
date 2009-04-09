@@ -1,5 +1,7 @@
 #include "CommonTools/TrackerMap/interface/VisTrackerMap.h"
 #include <qpainter.h>
+#include <qevent.h>
+#include <qcolormap.h>
 #include <iostream>
 using namespace std;
 
@@ -17,7 +19,7 @@ VisTrackerMap::VisTrackerMap( QWidget *parent, const char *name, QLabel* labelin
   posrel= true;
   tk =new TrackerMap(name,340,200);
   int number_mod = tk->getNumMod();
-  reg_mod = new QPointArray[number_mod];
+  reg_mod = new Q3PointArray[number_mod];
   int count=0;
   
   for (int layer=1; layer < 44; layer++){
@@ -28,7 +30,7 @@ VisTrackerMap::VisTrackerMap( QWidget *parent, const char *name, QLabel* labelin
         int key=layer*100000+ring*1000+module;
         TmModule * mod = tk->smoduleMap[key];
         if(mod !=0 && !mod->notInUse()){
-	  reg_mod[count] =  QPointArray(4);
+	  reg_mod[count] =  Q3PointArray(4);
 	  mod->setQPointArray(count);
 	  visDrawModule(mod,mod->getKey(),mod->layer,reg_mod[count]);
 	  count++;
@@ -119,7 +121,7 @@ void VisTrackerMap::mousePressEvent(QMouseEvent *e)
 	if(q.contains(pt)){
 
 	  outs << mod->name<<" "<< mod->text<<" DetId="<<mod->idex<<" count="<<mod->count<<" value=" <<mod->value<< "mouse pos= "<< e->pos().x() <<" "<<e->pos().y();
-	  ql->setText(outs.str());
+	  //fixme	  ql->setText(outs.str());
 
 	  emit moduleSelected(mod->idex);
 	  break;
@@ -144,7 +146,7 @@ void VisTrackerMap::computeColor(TmModule * mod, bool print_total, QPainter* p)
       p->setPen(QColor(255,255-green,0));
     }
     else{
-      p->setBrush(QColor(white));
+      //      p->setBrush(QColor(white));
     }
 
   } else {//color defined with fillc
@@ -156,7 +158,7 @@ void VisTrackerMap::computeColor(TmModule * mod, bool print_total, QPainter* p)
   }
 }
 
-void VisTrackerMap::visDrawModule(TmModule * mod, int key,int nlay,QPointArray a )
+void VisTrackerMap::visDrawModule(TmModule * mod, int key,int nlay,Q3PointArray a )
 {
   int x,y;
   double phi,r,dx,dy, dy1;
