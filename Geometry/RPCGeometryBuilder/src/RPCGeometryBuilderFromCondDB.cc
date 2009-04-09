@@ -71,15 +71,27 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
       pars.push_back(length);
       pars.push_back(nstrip); 
 
+      if (!theComp11Flag) {
+	//Correction of the orientation to get the REAL geometry.
+        //Change of axes for the +z part only.
+        //Including the 0 whell
+        if (tran[2] >-1500. ){
+          Basic3DVector<float> newX(-1.,0.,0.);
+          Basic3DVector<float> newY(0.,-1.,0.);
+          Basic3DVector<float> newZ(0.,0.,1.);
+          rot.rotateAxes (newX, newY,newZ);
+        }
+      }
+
       
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCBarrel,name,pars);
       
       
     }else{
-      float be = dpar[0];
-      float te = dpar[1];
-      float ap = dpar[2];
-      float ti = dpar[3];
+      float be = dpar[0]/cm;
+      float te = dpar[1]/cm;
+      float ap = dpar[2]/cm;
+      float ti = dpar[3]/cm;
       float nstrip = dpar[4];
       //  TrapezoidalPlaneBounds* 
       bounds = 
