@@ -40,22 +40,9 @@ rctEmulDigis = cms.EDProducer("L1RCTProducer",
     BunchCrossings = cms.vint32(0)                      
 )
 
-#rctEmulDigis = cms.EDProducer("L1RCTProducer",
-#    hcalDigisLabel = cms.InputTag("hcalTriggerPrimitiveDigis"),
-#    useDebugTpgScales = cms.bool(True),
-#    useEcalCosmicTiming = cms.bool(False),
-#    postSamples = cms.uint32(0),
-#    preSamples = cms.uint32(0),
-#    useHcalCosmicTiming = cms.bool(True),
-#    useEcal = cms.bool(True),
-#    useHcal = cms.bool(True),
-#    ecalDigisLabel = cms.InputTag("ecalTriggerPrimitiveDigis"),
-#    useCorrectionsLindsey = cms.bool(False)
-#)
-
-rctEmulDigis.hcalDigisLabel='hcalDigis'
-#rctEmulDigis.ecalDigisLabel='ecalEBunpacker'
-rctEmulDigis.ecalDigisLabel='ecalDigis:EcalTriggerPrimitives'
+rctEmulDigis.hcalDigis = cms.VInputTag(cms.InputTag("hcalDigis"))
+#rctEmulDigis.ecalDigis=cms.VInputTag(cms.InputTag("ecalEBunpacker"))
+rctEmulDigis.ecalDigis = cms.VInputTag(cms.InputTag("ecalDigis:EcalTriggerPrimitives"))
 
 l1tderct = cms.EDFilter("L1TdeRCT",
     rctSourceData = cms.InputTag("l1GctHwDigis"),
