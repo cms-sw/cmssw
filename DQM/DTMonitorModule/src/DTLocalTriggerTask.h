@@ -4,8 +4,8 @@
 /*
  * \file DTLocalTriggerTask.h
  *
- * $Date: 2008/06/10 14:59:22 $
- * $Revision: 1.18 $
+ * $Date: 2008/11/05 11:37:55 $
+ * $Revision: 1.19 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -102,8 +102,8 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   /// Get the L1A source
   void triggerSource(const edm::Event& e);
 
-  /// Get the Top folder (different between Physics and TP)
-  std::string& topFolder() { return baseFolder; }
+  /// Get the Top folder (different between Physics and TP and DCC/DDU)
+  std::string& topFolder(bool isDCC) { return isDCC ? baseFolderDCC : baseFolderDDU; }
   
  private:
   
@@ -111,7 +111,8 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   std::string trigsrc;
   int nevents;
   bool tpMode;
-  std::string baseFolder;
+  std::string baseFolderDCC;
+  std::string baseFolderDDU;
   bool doDCCTheta;
   bool detailedAnalysis;
   

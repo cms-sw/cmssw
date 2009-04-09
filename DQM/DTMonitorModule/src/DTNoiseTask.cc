@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/03 09:45:02 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/12/13 10:02:29 $
+ *  $Revision: 1.13 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -172,7 +172,7 @@ void DTNoiseTask::bookHistos(DTChamberId chId) {
   stringstream wheel; wheel << chId.wheel();	
   stringstream station; station << chId.station();	
   stringstream sector; sector << chId.sector();	
-  dbe->setCurrentFolder("DT/04-Noise/Wheel" + wheel.str() +
+  dbe->setCurrentFolder("DT/05-Noise/Wheel" + wheel.str() +
 // 			"/Station" + station.str() +
 			"/Sector" + sector.str());
 
@@ -183,7 +183,7 @@ void DTNoiseTask::bookHistos(DTChamberId chId) {
     + "_Sec" + sector.str() ;
   
    LogVerbatim("DTNoiseTask") << "[DTNoiseTask]: booking chamber histo:"<<endl;
-   LogVerbatim("DTNoiseTask") << "              folder "<< "DT/04-Noise/Wheel" + wheel.str() +
+   LogVerbatim("DTNoiseTask") << "              folder "<< "DT/05-Noise/Wheel" + wheel.str() +
 //     "/Station" + station.str() +
     "/Sector" + sector.str() + "/"<<endl; 
    LogVerbatim("DTNoiseTask") << "              histoName "<<histoName<<endl;
@@ -229,7 +229,7 @@ void DTNoiseTask::bookHistos(DTSuperLayerId slId) {
   stringstream station; station << slId.chamberId().station();	
   stringstream sector; sector << slId.chamberId().sector();	
   stringstream superlayer; superlayer << slId.superlayer();
-  dbe->setCurrentFolder("DT/04-Noise/Wheel" + wheel.str() +
+  dbe->setCurrentFolder("DT/05-Noise/Wheel" + wheel.str() +
 			"/Station" + station.str() +
 			"/Sector" + sector.str());
 
@@ -241,7 +241,7 @@ void DTNoiseTask::bookHistos(DTSuperLayerId slId) {
     + "_SL" + superlayer.str();
   
    LogVerbatim("DTNoiseTask") <<"[DTNoiseTask]: booking SL histo:"<<endl;
-   LogVerbatim("DTNoiseTask") <<"              folder "<< "DT/04-Noise/Wheel" + wheel.str() +
+   LogVerbatim("DTNoiseTask") <<"              folder "<< "DT/05-Noise/Wheel" + wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/" << endl; 
    LogVerbatim("DTNoiseTask") <<"              histoName "<<histoName<<endl;

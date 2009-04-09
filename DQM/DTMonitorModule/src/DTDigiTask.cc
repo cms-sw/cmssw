@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2009/02/26 12:08:48 $
- * $Revision: 1.57 $
+ * $Date: 2009/03/02 14:40:04 $
+ * $Revision: 1.58 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -420,7 +420,7 @@ void DTDigiTask::bookHistos(const int wheelId, string folder, string histoTag) {
     (wheelHistos[histoTag])[wheelId]->setBinLabel(4,"MB4",2);
     (wheelHistos[histoTag])[wheelId]->setAxisTitle("sector",1);
   } else if(folder == "SynchNoise") {
-    dbe->setCurrentFolder("DT/04-Noise/SynchNoise");
+    dbe->setCurrentFolder("DT/05-Noise/SynchNoise");
     string histoTitle = "Event rate of Syncronous Noisy events WHEEL: "+wheel.str();
     (wheelHistos[histoTag])[wheelId] = dbe->book2D(histoName,histoTitle,12,1,13,4,1,5);
     (wheelHistos[histoTag])[wheelId]->setBinLabel(1,"MB1",2);
