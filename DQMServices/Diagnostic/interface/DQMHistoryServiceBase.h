@@ -34,7 +34,7 @@ class DQMHistoryServiceBase {
   virtual void openRequestedFile(); 
   virtual void scanTreeAndFillSummary(const std::vector<MonitorElement*>& MEs, HDQMSummary* summary,std::string& histoName, std::vector<std::string>& Quantities);
   virtual uint32_t getRunNumber() const;
-  virtual uint32_t returnDetComponent(std::string& str){return 999999;}
+  virtual uint32_t returnDetComponent(const MonitorElement* MEs){return 999999;}
   
   virtual bool setDBLabelsForLandau(std::string& keyName, std::vector<std::string>& userDBContent);
   virtual bool setDBLabelsForGauss (std::string& keyName, std::vector<std::string>& userDBContent);

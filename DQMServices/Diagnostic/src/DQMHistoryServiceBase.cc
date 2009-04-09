@@ -159,7 +159,7 @@ void DQMHistoryServiceBase::scanTreeAndFillSummary(const std::vector<MonitorElem
       }  
       
 
-      uint32_t detid=returnDetComponent(me_name);
+      uint32_t detid=returnDetComponent(*iterMes);
 
       ss << "detid " << detid << " \n";
       for(size_t i=0;i<values.size();++i)

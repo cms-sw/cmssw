@@ -8,6 +8,7 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondCore/DBCommon/interface/TagInfo.h"
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
+#include "CondFormats/DQMObjects/interface/HDQMSummary.h"
 
 #include <sstream>
 #include <vector>
@@ -17,8 +18,8 @@
 
 namespace popcon{
   
-  template <typename T, typename U>
-    class DQMHistoryPopConHandler : public popcon::PopConSourceHandler<T>{
+  template <typename U>
+    class DQMHistoryPopConHandler : public popcon::PopConSourceHandler<HDQMSummary>{
     public:
 
     DQMHistoryPopConHandler(const edm::ParameterSet& pset):
@@ -73,7 +74,7 @@ namespace popcon{
       
       if (isTransferNeeded())
 	setForTransfer();
-  
+
       edm::LogInfo   ("DQMHistoryPopConHandler") << "[DQMHistoryPopConHandler::getNewObjects] for PopCon application " << m_name << " Done\n--------------\n";
     }
 
@@ -84,10 +85,6 @@ namespace popcon{
 
     private:
     //methods
-    
-    std::string getDataType(){return typeid(T).name();}
-    
-
     
     //---------------------------------------
     //
@@ -139,7 +136,7 @@ namespace popcon{
     void setForTransfer(){
       edm::LogInfo   ("DQMHistoryPopConHandler") << "[DQMHistoryPopConHandler::setForTransfer] " << m_name << " getting data to be transferred "  << std::endl;
       
-      T *obj=0; 
+      HDQMSummary *obj=0; 
       condObjBuilder->getObj(obj);
  
       if(!this->tagInfo().size)
@@ -153,7 +150,7 @@ namespace popcon{
 	edm::LogInfo   ("DQMHistoryPopConHandler") <<"setting since = "<< m_since <<std::endl;
 	this->m_to_transfer.push_back(std::make_pair(obj,m_since));
       }else{
-	edm::LogError   ("DQMHistoryPopConHandler") <<"[DQMHistoryPopConHandler::setForTransfer] " << m_name << "  : NULL pointer of obj " << typeid(T).name() << " reported by SiStripCondObjBuilderFromDb\n Transfer aborted"<<std::endl;
+	edm::LogError   ("DQMHistoryPopConHandler") <<"[DQMHistoryPopConHandler::setForTransfer] " << m_name << "  : NULL pointer of obj HDQMSummary  reported by SiStripCondObjBuilderFromDb\n Transfer aborted"<<std::endl;
       }
     }
 

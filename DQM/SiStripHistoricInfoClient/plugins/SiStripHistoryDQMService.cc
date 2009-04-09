@@ -20,9 +20,9 @@ SiStripHistoryDQMService::~SiStripHistoryDQMService() {
 }
 
 
-uint32_t SiStripHistoryDQMService::returnDetComponent(std::string& str){
+uint32_t SiStripHistoryDQMService::returnDetComponent(const MonitorElement* ME){
   LogTrace("SiStripHistoryDQMService") <<  "[SiStripHistoryDQMService::returnDetComponent]";
-
+  std::string str=ME->getName();
   size_t __key_length__=7;
   size_t __detid_length__=9;
 
