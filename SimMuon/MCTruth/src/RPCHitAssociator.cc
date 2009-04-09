@@ -2,28 +2,46 @@
 
 using namespace std;
 
-typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
-
 // Constructor
 RPCHitAssociator::RPCHitAssociator(const edm::Event& e, const edm::EventSetup& eventSetup, const edm::ParameterSet& conf):
 
-  RPCsimhitsTag(conf.getParameter<edm::InputTag>("RPCsimhitsXFTag")),
-  RPCdigisimlinkTag(conf.getParameter<edm::InputTag>("RPCdigisimlinkTag"))
+  RPCdigisimlinkTag(conf.getParameter<edm::InputTag>("RPCdigisimlinkTag")),
+  // CrossingFrame used or not ?
+  crossingframe(conf.getParameter<bool>("crossingframe")),
+  RPCsimhitsTag(conf.getParameter<edm::InputTag>("RPCsimhitsTag")),
+  RPCsimhitsXFTag(conf.getParameter<edm::InputTag>("RPCsimhitsXFTag"))
 
 {
-  
-  edm::Handle<CrossingFrame<PSimHit> > cf;
-  LogTrace("RPCHitAssociator") <<"getting CrossingFrame<PSimHit> collection - "<<RPCsimhitsTag;
-  e.getByLabel(RPCsimhitsTag, cf);
-  
-  std::auto_ptr<MixCollection<PSimHit> > 
-    hits( new MixCollection<PSimHit>(cf.product()) );
-  MixCollection<PSimHit> & simHits = *hits;
+  if (crossingframe) {
+    
+    edm::Handle<CrossingFrame<PSimHit> > cf;
+    LogTrace("RPCHitAssociator") <<"getting CrossingFrame<PSimHit> collection - "<<RPCsimhitsXFTag;
+    e.getByLabel(RPCsimhitsXFTag, cf);
+    
+    std::auto_ptr<MixCollection<PSimHit> > 
+      RPCsimhits( new MixCollection<PSimHit>(cf.product()) );
+    LogTrace("RPCHitAssociator") <<"... size = "<<RPCsimhits->size();
 
-  for(MixCollection<PSimHit>::MixItr hitItr = simHits.begin();
-      hitItr != simHits.end(); ++hitItr) 
-  {
-    _SimHitMap[hitItr->detUnitId()].push_back(*hitItr);
+    //   MixCollection<PSimHit> & simHits = *hits;
+    
+    for(MixCollection<PSimHit>::MixItr hitItr = RPCsimhits->begin();
+	hitItr != RPCsimhits->end(); ++hitItr) 
+      {
+	_SimHitMap[hitItr->detUnitId()].push_back(*hitItr);
+      }
+    
+  } else {
+    edm::Handle<edm::PSimHitContainer> RPCsimhits;
+    LogTrace("RPCHitAssociator") <<"getting PSimHit collection - "<<RPCsimhitsTag;
+    e.getByLabel(RPCsimhitsTag, RPCsimhits);    
+    LogTrace("RPCHitAssociator") <<"... size = "<<RPCsimhits->size();
+    
+    // arrange the hits by detUnit
+    for(edm::PSimHitContainer::const_iterator hitItr = RPCsimhits->begin();
+	hitItr != RPCsimhits->end(); ++hitItr)
+      {
+	_SimHitMap[hitItr->detUnitId()].push_back(*hitItr);
+      }
   }
 
   edm::Handle< edm::DetSetVector<RPCDigiSimLink> > thelinkDigis;
@@ -33,28 +51,35 @@ RPCHitAssociator::RPCHitAssociator(const edm::Event& e, const edm::EventSetup& e
 }
 // end of constructor
 
-std::vector<SimHitIdpr> RPCHitAssociator::associateRecHit(const TrackingRecHit & hit) {
- 
+std::vector<RPCHitAssociator::SimHitIdpr> RPCHitAssociator::associateRecHit(const TrackingRecHit & hit) {
+  
   std::vector<SimHitIdpr> matched;
-  matched.clear();
 
   const TrackingRecHit * hitp = &hit;
   const RPCRecHit * rpcrechit = dynamic_cast<const RPCRecHit *>(hitp);
 
-  RPCDetId rpcDetId = rpcrechit->rpcId();
-  int fstrip = rpcrechit->firstClusterStrip();
-  int cls = rpcrechit->clusterSize();
-  int bx = rpcrechit->BunchX();
-
-  for(int i = fstrip; i < fstrip+cls; ++i) {
-    std::set<RPCDigiSimLink> links = findRPCDigiSimLink(rpcDetId.rawId(),i,bx);
-    for(std::set<RPCDigiSimLink>::iterator itlink = links.begin(); itlink != links.end(); ++itlink) {
-      SimHitIdpr currentId(itlink->getTrackId(),itlink->getEventId());
-      if(find(matched.begin(),matched.end(),currentId ) == matched.end())
-        matched.push_back(currentId);
+  if (rpcrechit) {
+    
+    RPCDetId rpcDetId = rpcrechit->rpcId();
+    int fstrip = rpcrechit->firstClusterStrip();
+    int cls = rpcrechit->clusterSize();
+    int bx = rpcrechit->BunchX();
+    
+    for(int i = fstrip; i < fstrip+cls; ++i) {
+      std::set<RPCDigiSimLink> links = findRPCDigiSimLink(rpcDetId.rawId(),i,bx);
+      
+      if (links.empty()) edm::LogWarning("RPCHitAssociator")
+	<<"WARNING in RPCHitAssociator: RPCRecHit "<<*rpcrechit<<", strip "<<i<<" has no associated RPCDigiSimLink !"<<endl;
+      
+      for(std::set<RPCDigiSimLink>::iterator itlink = links.begin(); itlink != links.end(); ++itlink) {
+	SimHitIdpr currentId(itlink->getTrackId(),itlink->getEventId());
+	if(find(matched.begin(),matched.end(),currentId ) == matched.end())
+	  matched.push_back(currentId);
+      }
     }
-  }
-
+    
+  } else edm::LogWarning("RPCHitAssociator")<<"WARNING in RPCHitAssociator::associateRecHit, null dynamic_cast !";
+  
   return  matched;
 }
   
