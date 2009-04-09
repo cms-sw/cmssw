@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.1 2009/04/07 13:55:55 chrjones Exp $
+// $Id: FWColorManager.cc,v 1.2 2009/04/07 15:58:07 chrjones Exp $
 //
 
 // system include files
@@ -205,6 +205,7 @@ FWColorManager::setBackgroundColorIndex(BackgroundColorIndex iIndex)
       }
       FWChangeSentry sentry(*m_changeManager);
       colorsHaveChanged_();
+      colorsHaveChangedFinished_();
    }
 }
 
