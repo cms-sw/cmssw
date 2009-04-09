@@ -846,9 +846,9 @@ void GctFormatTranslateV38::blockToRctCaloRegions(const unsigned char * d, const
   // Don't want to do this in HLT optimisation mode!
   if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of RCT Regions"; return; }
 
-  unsigned int id = hdr.id();
+  unsigned int id = hdr.blockId();
   unsigned int nSamples = hdr.nSamples();
-  unsigned int length = hdr.length();
+  unsigned int length = hdr.blockLength();
 
   // Debug assertion to prevent problems if definitions not up to date.
   assert(rctJetCrateMap().find(id) != rctJetCrateMap().end());  
