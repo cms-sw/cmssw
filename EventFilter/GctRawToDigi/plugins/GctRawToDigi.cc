@@ -221,7 +221,7 @@ bool GctRawToDigi::autoDetectRequiredFormatTranslator(const unsigned char * d)
   else if( firmwareHeader == 38 )
   {
     edm::LogInfo("GCT") << "Firmware Version V" << firmwareHeader << " detected: GctFormatTranslateV" << firmwareHeader << " will be used to unpack.";
-    formatTranslator_ = new GctFormatTranslateMCLegacy(hltMode_);
+    formatTranslator_ = new GctFormatTranslateV38(hltMode_);
     return true;
   }
   else if( firmwareHeader == 0x00000000 )
