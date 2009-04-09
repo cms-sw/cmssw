@@ -49,7 +49,8 @@ int main(){
     pooldb.start(false);
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
-    Add add(pooldb,editor);
+    editor->create(cond::timestamp,60);
+    Add add(pooldb,*editor);
     add(1,"pay1");
     add(21,"pay2");
     add(41,"pay3");
