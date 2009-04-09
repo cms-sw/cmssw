@@ -5,24 +5,17 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-MuonTruth::MuonTruth(const edm::ParameterSet& conf)
-: theDigiSimLinks(0),
+MuonTruth::MuonTruth(const edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& conf): 
+  theDigiSimLinks(0),
   theWireDigiSimLinks(0),
-  theSimHitMap(conf.getParameter<edm::InputTag>("CSCsimHitsXFTag")),
-  simTracksXFTag(conf.getParameter<edm::InputTag>("simtracksXFTag")),
   linksTag(conf.getParameter<edm::InputTag>("CSClinksTag")),
-  wireLinksTag(conf.getParameter<edm::InputTag>("CSCwireLinksTag"))
-{
-}
+  wireLinksTag(conf.getParameter<edm::InputTag>("CSCwireLinksTag")),
+  // CrossingFrame used or not ?
+  crossingframe(conf.getParameter<bool>("crossingframe")),
+  CSCsimHitsTag(conf.getParameter<edm::InputTag>("CSCsimHitsTag")),
+  CSCsimHitsXFTag(conf.getParameter<edm::InputTag>("CSCsimHitsXFTag"))
 
-void MuonTruth::eventSetup(const edm::Event & event, const edm::EventSetup & setup)
 {
-  edm::Handle<CrossingFrame<SimTrack> > xFrame;
-  LogTrace("MuonTruth") <<"getting CrossingFrame<SimTrack> collection - "<<simTracksXFTag;
-  event.getByLabel(simTracksXFTag,xFrame);
-  std::auto_ptr<MixCollection<SimTrack> > 
-    theSimTracks( new MixCollection<SimTrack>(xFrame.product()) );
-
   edm::Handle<DigiSimLinks> digiSimLinks;
   LogTrace("MuonTruth") <<"getting CSC Strip DigiSimLink collection - "<<linksTag;
   event.getByLabel(linksTag, digiSimLinks);
@@ -33,12 +26,42 @@ void MuonTruth::eventSetup(const edm::Event & event, const edm::EventSetup & set
   event.getByLabel(wireLinksTag, wireDigiSimLinks);
   theWireDigiSimLinks = wireDigiSimLinks.product();
 
-  theSimHitMap.fill(event);
-
   // get CSC Geometry to use CSCLayer methods
   edm::ESHandle<CSCGeometry> mugeom;
   setup.get<MuonGeometryRecord>().get( mugeom );
   cscgeom = &*mugeom;
+
+  theSimHitMap.clear();
+
+  if (crossingframe) {
+    
+    edm::Handle<CrossingFrame<PSimHit> > cf;
+    LogTrace("MuonTruth") <<"getting CrossingFrame<PSimHit> collection - "<<CSCsimHitsXFTag;
+    event.getByLabel(CSCsimHitsXFTag, cf);
+    
+    std::auto_ptr<MixCollection<PSimHit> > 
+      CSCsimhits( new MixCollection<PSimHit>(cf.product()) );
+    LogTrace("MuonTruth") <<"... size = "<<CSCsimhits->size();
+
+    for(MixCollection<PSimHit>::MixItr hitItr = CSCsimhits->begin();
+	hitItr != CSCsimhits->end(); ++hitItr) 
+      {
+	theSimHitMap[hitItr->detUnitId()].push_back(*hitItr);
+      }
+    
+  } else {
+
+    edm::Handle<edm::PSimHitContainer> CSCsimhits;
+    LogTrace("MuonTruth") <<"getting PSimHit collection - "<<CSCsimHitsTag;
+    event.getByLabel(CSCsimHitsTag, CSCsimhits);    
+    LogTrace("MuonTruth") <<"... size = "<<CSCsimhits->size();
+    
+    for(edm::PSimHitContainer::const_iterator hitItr = CSCsimhits->begin();
+	hitItr != CSCsimhits->end(); ++hitItr)
+      {
+	theSimHitMap[hitItr->detUnitId()].push_back(*hitItr);
+      }
+  }
 }
 
 float MuonTruth::muonFraction()
@@ -46,7 +69,7 @@ float MuonTruth::muonFraction()
   if(theChargeMap.size() == 0) return 0.;
 
   float muonCharge = 0.;
-  for(std::map<int, float>::const_iterator chargeMapItr = theChargeMap.begin();
+  for(std::map<SimHitIdpr, float>::const_iterator chargeMapItr = theChargeMap.begin();
       chargeMapItr != theChargeMap.end(); ++chargeMapItr)
   {
     if( abs(particleType(chargeMapItr->first)) == 13)
@@ -62,7 +85,7 @@ float MuonTruth::muonFraction()
 std::vector<PSimHit> MuonTruth::simHits()
 {
   std::vector<PSimHit> result;
-  for(std::map<int, float>::const_iterator chargeMapItr = theChargeMap.begin();
+  for(std::map<SimHitIdpr, float>::const_iterator chargeMapItr = theChargeMap.begin();
       chargeMapItr != theChargeMap.end(); ++chargeMapItr)
   {
     std::vector<PSimHit> trackHits = hitsFromSimTrack(chargeMapItr->first);
@@ -93,34 +116,60 @@ std::vector<PSimHit> MuonTruth::muonHits()
 std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateHitId(const TrackingRecHit & hit)
 {
   std::vector<SimHitIdpr> simtrackids;
-  simtrackids.clear();
+  
   const TrackingRecHit * hitp = &hit;
   const CSCRecHit2D * cscrechit = dynamic_cast<const CSCRecHit2D *>(hitp);
 
   if (cscrechit) {
-    analyze(*cscrechit);
-    std::vector<PSimHit> matchedSimHits = simHits();
-    for(std::vector<PSimHit>::const_iterator hIT=matchedSimHits.begin(); hIT != matchedSimHits.end(); hIT++) {
-      SimHitIdpr currentId(hIT->trackId(), hIT->eventId());
-      simtrackids.push_back(currentId);
-    }
-  } else {
-    edm::LogWarning("MuonTruth")<<"WARNING in MuonTruth::associateHitId, null dynamic_cast !";
-  }
+    
+    theDetId = cscrechit->geographicalId().rawId();
+    int nchannels = cscrechit->channels().size();
+    const CSCLayerGeometry * laygeom = cscgeom->layer(cscrechit->cscDetId())->geometry();
+
+    DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(theDetId);    
+
+    if (layerLinks != theDigiSimLinks->end()) {
+      
+      for(int idigi = 0; idigi < nchannels; ++idigi) {
+	// strip and readout channel numbers may differ in ME1/1A
+	int istrip = cscrechit->channels()[idigi];
+	int channel = laygeom->channel(istrip);
+	
+	for (LayerLinks::const_iterator link=layerLinks->begin(); link!=layerLinks->end(); ++link) {
+	  int ch = static_cast<int>(link->channel());
+	  if (ch == channel) {
+	    SimHitIdpr currentId(link->SimTrackId(), link->eventId());
+	    if (find(simtrackids.begin(), simtrackids.end(), currentId) == simtrackids.end())
+	      simtrackids.push_back(currentId);
+	  }
+	}
+      }
+      
+    } else edm::LogWarning("MuonTruth")
+      <<"WARNING in MuonTruth::associateHitId - CSC layer "<<theDetId<<" has no DigiSimLinks !"<<std::endl;   
+
+  } else edm::LogWarning("MuonTruth")<<"WARNING in MuonTruth::associateHitId, null dynamic_cast !";
+  
   return simtrackids;
 }
 
 
-std::vector<PSimHit> MuonTruth::hitsFromSimTrack(int index)
+std::vector<PSimHit> MuonTruth::hitsFromSimTrack(MuonTruth::SimHitIdpr truthId)
 {
   std::vector<PSimHit> result;
-  edm::PSimHitContainer hits = theSimHitMap.hits(theDetId);
+  edm::PSimHitContainer hits;
+  
+  if (theSimHitMap.find(theDetId) != theSimHitMap.end()) 
+    hits = theSimHitMap[theDetId];
+
   edm::PSimHitContainer::const_iterator hitItr = hits.begin(), lastHit = hits.end();
 
   for( ; hitItr != lastHit; ++hitItr)
   {
-    int hitTrack = hitItr->trackId();
-    if(hitTrack == index) 
+    unsigned int hitTrack = hitItr->trackId();
+    EncodedEventId hitEvId = hitItr->eventId();
+
+    if(hitTrack == truthId.first && hitEvId == truthId.second) 
     {
       result.push_back(*hitItr);
     }
@@ -129,10 +178,10 @@ std::vector<PSimHit> MuonTruth::hitsFromSimTrack(int index)
 }
 
 
-int MuonTruth::particleType(int simTrack)
+int MuonTruth::particleType(MuonTruth::SimHitIdpr truthId)
 {
   int result = 0;
-  std::vector<PSimHit> hits = hitsFromSimTrack(simTrack);
+  std::vector<PSimHit> hits = hitsFromSimTrack(truthId);
   if(!hits.empty())
   {
     result = hits[0].particleType();
@@ -213,15 +262,15 @@ void MuonTruth::addChannel(const LayerLinks &layerLinks, int channel, float weig
       float charge = linkItr->fraction() * weight;
       theTotalCharge += charge;
       // see if it's in the map
-      int simTrack = linkItr->SimTrackId();
-      std::map<int, float>::const_iterator chargeMapItr = theChargeMap.find( simTrack );
+      SimHitIdpr truthId(linkItr->SimTrackId(),linkItr->eventId());
+      std::map<SimHitIdpr, float>::const_iterator chargeMapItr = theChargeMap.find(truthId);
       if(chargeMapItr == theChargeMap.end())
       {
-	theChargeMap[simTrack] = charge;
+	theChargeMap[truthId] = charge;
       }
       else
       {
-	theChargeMap[simTrack] += charge;
+	theChargeMap[truthId] += charge;
       }
     }
   }
