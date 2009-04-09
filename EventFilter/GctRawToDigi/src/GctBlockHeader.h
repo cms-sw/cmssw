@@ -7,8 +7,8 @@
 * \brief Simple class for holding the basic attributes of an 32-bit block header.
 * * 
 * \author Robert Frazier
-* $Revision: 1.15 $
-* $Date: 2009/04/07 10:51:08 $
+* $Revision: 1.16 $
+* $Date: 2009/04/07 10:58:37 $
 */
 
 // C++ headers
@@ -73,6 +73,9 @@ private:
   bool m_valid; ///< Is this a valid block header
 
 };
+
+#include <vector>
+typedef std::vector<GctBlockHeader> GctBlockHeaderCollection;
 
 std::ostream& operator<<(std::ostream& os, const GctBlockHeader& h);
 
