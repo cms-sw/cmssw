@@ -1,11 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-dedxDiscrimProductProd = cms.EDProducer("DeDxDiscriminatorProducer",
+dedxDiscrimProd = cms.EDProducer("DeDxDiscriminatorProducer",
     tracks                     = cms.InputTag("generalTracks"),
     trajectoryTrackAssociation = cms.InputTag("generalTracks"),
 
-    DiscriminatorMode  = cms.untracked.bool(True),
-    MapFile            = cms.string("SingleMuon_DicrimMap.root"),
+    Reccord            = cms.untracked.string("SiStripDeDxMip_3D_Rcd"),
     Formula            = cms.untracked.uint32(0),
 
     UseStrip           = cms.bool(True),
@@ -14,47 +13,13 @@ dedxDiscrimProductProd = cms.EDProducer("DeDxDiscriminatorProducer",
     MeVperADCPixel     = cms.double(3.61e-06)
 )
 
-dedxDiscrimProductBTag = cms.EDProducer("DeDxDiscriminatorProducer",
-    tracks                     = cms.InputTag("generalTracks"),
-    trajectoryTrackAssociation = cms.InputTag("generalTracks"),
+dedxDiscrimBTag         = dedxDiscrimProd.clone()
+dedxDiscrimBTag.Formula = cms.untracked.uint32(1)
 
-    DiscriminatorMode  = cms.untracked.bool(True),
-    MapFile            = cms.string("SingleMuon_DicrimMap.root"),
-    Formula            = cms.untracked.uint32(1),
+dedxDiscrimSmi         = dedxDiscrimProd.clone()
+dedxDiscrimSmi.Formula = cms.untracked.uint32(2)
 
-    UseStrip           = cms.bool(True),
-    UsePixel           = cms.bool(True),
-    MeVperADCStrip     = cms.double(3.61e-06*250),
-    MeVperADCPixel     = cms.double(3.61e-06)
-)
+dedxDiscrimASmi         = dedxDiscrimProd.clone()
+dedxDiscrimASmi.Formula = cms.untracked.uint32(3)
 
-dedxDiscrimProductSmi = cms.EDProducer("DeDxDiscriminatorProducer",
-    tracks                     = cms.InputTag("generalTracks"),
-    trajectoryTrackAssociation = cms.InputTag("generalTracks"),
-
-    DiscriminatorMode  = cms.untracked.bool(True),
-    MapFile            = cms.string("SingleMuon_DicrimMap.root"),
-    Formula            = cms.untracked.uint32(2),
-
-    UseStrip           = cms.bool(True),
-    UsePixel           = cms.bool(True),
-    MeVperADCStrip     = cms.double(3.61e-06*250),
-    MeVperADCPixel     = cms.double(3.61e-06)
-)
-
-dedxDiscrimProductASmi = cms.EDProducer("DeDxDiscriminatorProducer",
-    tracks                     = cms.InputTag("generalTracks"),
-    trajectoryTrackAssociation = cms.InputTag("generalTracks"),
-
-    DiscriminatorMode  = cms.untracked.bool(True),
-    MapFile            = cms.string("SingleMuon_DicrimMap.root"),
-    Formula            = cms.untracked.uint32(3),
-
-    UseStrip           = cms.bool(True),
-    UsePixel           = cms.bool(True),
-    MeVperADCStrip     = cms.double(3.61e-06*250),
-    MeVperADCPixel     = cms.double(3.61e-06)
-)
-
-doAlldEdXDiscriminators = cms.Sequence(dedxDiscrimProductProd * dedxDiscrimProductBTag * dedxDiscrimProductSmi * dedxDiscrimProductASmi)
-
+doAlldEdXDiscriminators = cms.Sequence(dedxDiscrimProd * dedxDiscrimBTag * dedxDiscrimSmi * dedxDiscrimASmi)
