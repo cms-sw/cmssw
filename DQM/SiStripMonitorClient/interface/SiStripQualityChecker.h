@@ -13,6 +13,7 @@
 #include <string>
 
 class DQMStore;
+class MonitorElement;
 
 class SiStripQualityChecker {
 
@@ -40,6 +41,9 @@ class SiStripQualityChecker {
   void fillSubDetStatus(DQMStore* dqm_store,SubDetMEs& mes,
                                  unsigned int xbin,float& gflag);
   void getModuleStatus(DQMStore* dqm_store,int& ndet,int& errdet);
+  void getModuleStatus(MonitorElement* me, int& ndet, std::vector<DQMChannel>& bad_channels);
+
+  void fillStatusHistogram(MonitorElement*, int xbin, int ybin, float val);
 
   std::map<std::string, SubDetMEs> SubDetMEsMap;
   std::map<std::string, std::string> SubDetFolderMap;

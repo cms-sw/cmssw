@@ -147,6 +147,7 @@ void SiStripQualityChecker::fillStatus(DQMStore* dqm_store) {
   if (bookedStatus_) bookStatus(dqm_store);
 
   resetStatus(); 
+  fillDummyStatus();  
   unsigned int xbin = 0;
   float global_flag = 0;
   for (map<string, SubDetMEs>::const_iterator it = SubDetMEsMap.begin(); 
@@ -205,18 +206,23 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
   vector<string> subDirVec = dqm_store->getSubdirs();
 
   unsigned int ybin   = 0;
-  int   tot_ndet      = 0;
-  int   tot_errdet    = 0;
+  int tot_ndet      = 0;
+  int tot_errdet    = 0;
   float tot_ston_stat = 0;
 
   for (vector<string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
     vector<MonitorElement*> meVec;
     ybin++;
+    dqm_store->cd((*ic));
     meVec = dqm_store->getContents((*ic));
     int ndet = 0;
     int errdet = 0;       
+
     int ston_stat = 1;
+    vector<DQMChannel>  bad_channels;
+
+
     if (status_flag == 1) getModuleStatus(dqm_store, ndet, errdet);
     
     for (vector<MonitorElement*>::const_iterator it = meVec.begin();
@@ -224,35 +230,33 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
       MonitorElement * me = (*it);
       if (!me) continue;
       if (me->getQReports().size() == 0) continue;
-      string name = me->getName();     
-      if (name.find("Summary_ClusterStoNCorr__OnTrack") != string::npos) {
+      string name = me->getName();
+      vector<DQMChannel>  bad_channels_me;
+      
+      if( name.find("Summary_ClusterStoNCorr__OnTrack") != string::npos){
 	int istat =  SiStripUtility::getMEStatus((*it)); 
 	if (istat == dqm::qstatus::ERROR) ston_stat = 0;
-      } else if (name.find("NumberOfDigiProfile") != string::npos ||  
-		 name.find("NumberOfClusterProfile") != string::npos) {
-	if (status_flag == 2) {
-	  int nbin = me->getNbinsX();
-	  int istat, nbad;
-	  istat =  SiStripUtility::getMEStatus((*it), nbad);
-	  
-	  if (nbin > ndet) ndet = nbin;
-	  if (nbad > errdet) errdet = nbad;
-	  
+      } else {
+        if (status_flag == 2) {
+	  getModuleStatus(me, ndet, bad_channels); 
+	  errdet = bad_channels.size();
         }
       }
     }
+
     if (ndet > 0) {
       float eff_fac = 1 - (errdet*1.0/ndet);
-      if (SToNReportMap) SToNReportMap->Fill(xbin, ybin, ston_stat);
-      if (DetFractionReportMap) DetFractionReportMap->Fill(xbin,ybin, eff_fac);
-      if (SummaryReportMap) {
-        if (ston_stat > 0) SummaryReportMap->Fill(xbin,ybin,eff_fac);
-        else               SummaryReportMap->Fill(xbin,ybin,0.0);
-      }
+
+      fillStatusHistogram(SToNReportMap,        xbin, ybin, ston_stat);
+      fillStatusHistogram(DetFractionReportMap, xbin, ybin, eff_fac);
+      if (ston_stat > 0) fillStatusHistogram(SummaryReportMap, xbin, ybin, eff_fac);
+      else               fillStatusHistogram(SummaryReportMap, xbin, ybin, 0.0);
+
       tot_ndet      += ndet;
       tot_errdet    += errdet;
       tot_ston_stat += ston_stat;  
     }
+    dqm_store->cd((*ic));
   }
   if (tot_ndet > 0) { 
     float tot_eff_fac = 1 - (tot_errdet*1.0/tot_ndet);
@@ -295,3 +299,58 @@ void SiStripQualityChecker::printStatusReport() {
   }
   cout << det_summary_str.str() << endl;
 }
+//
+// -- Get Module Status from Layer Level Histograms
+//
+void SiStripQualityChecker::getModuleStatus(MonitorElement* me, int& ndet, 
+                                            vector<DQMChannel>& bad_channels){
+  int ndet_me = 0;
+  vector<DQMChannel> bad_channels_me;
+      std::vector<QReport *> qreports = me->getQReports();
+  if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
+    ndet_me = me->getNbinsX();
+    bad_channels_me = qreports[0]->getBadChannels();
+  } else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {
+    TProfile2D* h  = me->getTProfile2D();
+    float frac = me->getEntries() *1.0/ h->GetBinEntries(h->GetBin(1, 1));
+    ndet_me = static_cast<int> (frac);
+    bad_channels_me = qreports[0]->getBadChannels();
+  }
+  if (ndet_me > ndet)  ndet = ndet_me;
+  // Check Bad Channels 
+  if (bad_channels.size() == 0) bad_channels.insert(bad_channels.end(), bad_channels_me.begin(), bad_channels_me.end());
+  else {
+    size_t v1_size = bad_channels_me.size();
+    size_t v2_size = bad_channels.size();
+    for (size_t it = 0;  it != v1_size; it++){
+      
+      int xval = bad_channels_me[it].getBinX();
+      int yval = bad_channels_me[it].getBinY();
+      int zval = bad_channels_me[it].getBinZ();
+      bool already_exist = false;
+      for (size_t im = 0; im != v2_size; im++){
+	if (xval == bad_channels[im].getBinX() && 
+	    yval == bad_channels[im].getBinY() && 
+	    zval == bad_channels[im].getBinZ()) {
+	  already_exist = true;
+	  break;
+	} else {
+	  already_exist = false;
+	}
+      }
+      if (!already_exist) {
+	bad_channels.push_back(bad_channels_me[it]);
+      } 
+      
+    }
+  }
+}
+//
+// -- Fill Report Summary Map
+//
+ void SiStripQualityChecker::fillStatusHistogram(MonitorElement* me, int xbin, int ybin, float val){
+   if (me &&  me->kind() == MonitorElement::DQM_KIND_TH2F) {
+     TH2F*  th2d = me->getTH2F();
+     th2d->SetBinContent(xbin, ybin, val);
+   }
+ }
