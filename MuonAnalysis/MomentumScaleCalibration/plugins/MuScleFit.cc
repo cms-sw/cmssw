@@ -2,11 +2,11 @@
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
 // <<<<<<< MuScleFit.cc
-//  $Date: 2009/03/16 12:40:04 $
-//  $Revision: 1.31 $
+//  $Date: 2009/03/26 18:12:45 $
+//  $Revision: 1.32 $
 // =======
-//  $Date: 2009/03/16 12:40:04 $
-//  $Revision: 1.31 $
+//  $Date: 2009/03/26 18:12:45 $
+//  $Revision: 1.32 $
 // >>>>>>> 1.25
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
@@ -138,7 +138,10 @@
 
 // To use callgrind for code profiling uncomment also the following define.
 // #define USE_CALLGRIND
+
+#ifdef USE_CALLGRIND
 #include "valgrind/callgrind.h"
+#endif
 
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 
@@ -256,7 +259,7 @@ MuScleFit::MuScleFit (const ParameterSet& pset) : MuScleFitBase( pset )
     cout << "[MuScleFit-Constructor]: Generating random values for smearing" << endl;
     TF1 * G = new TF1 ("G", "[0]*exp(-0.5*pow(x,2))", -5., 5.);
     double norm = 1/sqrt(2*TMath::Pi());
-    G->SetParameter (0,norm);    
+    G->SetParameter (0,norm);
     for (int i=0; i<10000; i++) {
       for (int j=0; j<7; j++) {
 	MuScleFitUtils::x[j][i] = G->GetRandom();
@@ -571,18 +574,12 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     // Find weight and reference mass for this muon pair
     // -------------------------------------------------
     double weight = MuScleFitUtils::computeWeight ((recMu1+recMu2).mass());
-    
-    // Apply the correction (or bias) to the best 2 reconstructed muons
-    // NNBB work in progress - try to establish how to deal with multiple correction
-    // of the same scale if loop is made multiple times to fit resolution at step>3:
-    // uncomment debug_>0, take off loopCounter<3 condition below to restore.
-    // -----------------------------------------------------------------------------  
     if (debug_>0) {
       cout << "Loop #" << loopCounter << "Event #" << iev << ": before correction     Pt1 = " 
 	   << recMu1.Pt() << " Pt2 = " << recMu2.Pt() << endl;
     }
-    // If likelihood has been run already, we can correct and "unbias" muons with the latest fit results 
-    // -------------------------------------------------------------------------------------------------
+    // For successive iterations, correct the muons only if the previous iteration was a scale fit.
+    // --------------------------------------------------------------------------------------------
     if ( loopCounter>0 ) {
       if ( MuScleFitUtils::doScaleFit[loopCounter-1] ) {
         recMu1 = (MuScleFitUtils::applyScale (recMu1, MuScleFitUtils::parvalue[loopCounter-1], -1));
@@ -760,9 +757,9 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     // Compute f, g for each variable
     // ------------------------------
     if (!MuScleFitUtils::speedup) {
-      for (int i=0; i<6; i++) {
-	if (bestRecRes.mass()>minResMass_hwindow[i] && bestRecRes.mass()<maxResMass_hwindow[i]) {
-	  MuScleFitUtils::computeEstimator (recMu1, recMu2, bestRecRes.mass());
+      for( int i=0; i<6; ++i ) {
+	if( bestRecRes.mass() > minResMass_hwindow[i] && bestRecRes.mass() < maxResMass_hwindow[i] ) {
+	  MuScleFitUtils::computeEstimator( recMu1, recMu2, bestRecRes.mass() );
 	}
       }
     }

@@ -31,25 +31,27 @@
 
 using namespace std;
 
-// vector of names of the histograms to fit
-TString mainNamePt("hResolPtGenVSMu");
-TString mainNameCotgTheta("hResolCotgThetaGenVSMu");
-TString mainNamePhi("hResolPhiGenVSMu");
 // Use this with the ResolutionAnalyzer files
 // TString mainNamePt("PtResolutionGenVSMu");
 // TString mainNameCotgTheta("CotgThetaResolutionGenVSMu");
 // TString mainNamePhi("PhiResolutionGenVSMu");
-vector<TString> vecNames;
+TString mainNamePt("hResolPtGenVSMu");
+TString mainNameCotgTheta("hResolCotgThetaGenVSMu");
+TString mainNamePhi("hResolPhiGenVSMu");
 
-TList *FileList;
-TFile *Target;
-void draw( TDirectory *target, TList *sourcelist, const bool doHalfEta );
+void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNames, const bool doHalfEta );
 
 void ResolDraw(const TString numString = "0", const bool doHalfEta = false) {
   // in an interactive ROOT session, edit the file names
   // Target and FileList, then
   // root > .L hadd.C
   // root > hadd()
+
+  TList *FileList;
+  // vector of names of the histograms to fit
+  vector<TString> vecNames;
+
+  TFile *Target;
 
   vecNames.push_back(mainNamePt + "_ResoVSPt");
   vecNames.push_back(mainNamePt + "_ResoVSEta");
@@ -83,10 +85,12 @@ void ResolDraw(const TString numString = "0", const bool doHalfEta = false) {
   // List of Files
   FileList->Add( TFile::Open(numString+"_MuScleFit.root") );    // 1
 
-  draw( Target, FileList, doHalfEta );
+  draw( Target, FileList, vecNames, doHalfEta );
+
+  Target->Close();
 }
 
-void draw( TDirectory *target, TList *sourcelist, const bool doHalfEta ) {
+void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNames, const bool doHalfEta ) {
 
   //  cout << "Target path: " << target->GetPath() << endl;
   TString path( (char*)strstr( target->GetPath(), ":" ) );
@@ -230,7 +234,7 @@ void draw( TDirectory *target, TList *sourcelist, const bool doHalfEta ) {
       // newdir is now the starting point of another round of merging
       // newdir still knows its depth within the target file via
       // GetPath(), so we can still figure out where we are in the recursion
-      draw( newdir, sourcelist, doHalfEta );
+      draw( newdir, sourcelist, vecNames, doHalfEta );
     }
     else {
       // object is of no type that we know or can handle

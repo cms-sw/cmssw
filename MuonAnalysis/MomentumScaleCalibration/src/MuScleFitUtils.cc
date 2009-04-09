@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/03/16 12:43:04 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/03/26 18:12:46 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -179,7 +179,7 @@ double MuScleFitUtils::rightWindowFactor = 1.;
 // Find the best simulated resonance from a vector of simulated muons (SimTracks) 
 // and return its decay muons
 // ------------------------------------------------------------------------------
-pair<SimTrack,SimTrack> MuScleFitUtils::findBestSimuRes (vector<SimTrack>& simMuons) {
+pair<SimTrack,SimTrack> MuScleFitUtils::findBestSimuRes (const vector<SimTrack>& simMuons) {
 
   pair<SimTrack, SimTrack> simMuFromBestRes;
   double maxprob = -0.1;
@@ -216,7 +216,7 @@ pair<SimTrack,SimTrack> MuScleFitUtils::findBestSimuRes (vector<SimTrack>& simMu
 // Find the best reconstructed resonance from a collection of reconstructed muons 
 // (MuonCollection) and return its decay muons
 // ------------------------------------------------------------------------------
-pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes (vector<reco::LeafCandidate>& muons){
+pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const vector<reco::LeafCandidate>& muons ){
   // NB this routine returns the resonance, but it also sets the ResFound flag, which 
   // is used in MuScleFit to decide whether to use the event or not.
   // --------------------------------------------------------------------------------
@@ -289,7 +289,7 @@ pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes (vector<reco::
   return recMuFromBestRes;
 }
 
-pair <lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes(Handle<HepMCProduct> evtMC){
+pair <lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const Handle<HepMCProduct> & evtMC ){
   const HepMC::GenEvent* Evt = evtMC->GetEvent();
   pair<lorentzVector,lorentzVector> muFromRes; 
   //Loop on generated particles
@@ -317,7 +317,7 @@ pair <lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes(Handle<HepM
   return muFromRes;
 }
 
-pair <lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes(Handle<HepMCProduct> evtMC, Handle<SimTrackContainer> simTracks){
+pair <lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes( const Handle<HepMCProduct> & evtMC, const Handle<SimTrackContainer> & simTracks ){
   //Loop on simulated tracks
   pair<lorentzVector, lorentzVector> simMuFromRes;   
   for (SimTrackContainer::const_iterator simTrack=simTracks->begin(); simTrack!=simTracks->end(); ++simTrack) {
@@ -360,13 +360,13 @@ void MuScleFitUtils::cleanEstimator() {
 
 // Compute estimator h
 // -------------------
-void MuScleFitUtils::computeEstimator (lorentzVector& recMu1, 
- 					     lorentzVector& recMu2,
-					     double Mass) {
+void MuScleFitUtils::computeEstimator( const lorentzVector& recMu1, 
+ 				       const lorentzVector& recMu2,
+                                       const double & Mass) {
   mzsum += Mass;
   isum += 1.;
-  computeEstimator (recMu1,Mass);
-  computeEstimator (recMu2,Mass);
+  computeEstimator(recMu1,Mass);
+  computeEstimator(recMu2,Mass);
   int ibin;
 
   // f[3], g[3]: DM versus muon DPhi
@@ -429,7 +429,7 @@ void MuScleFitUtils::computeEstimator (lorentzVector& recMu1,
 
 // Fill array elements depending on single muon quantities
 // -------------------------------------------------------
-void MuScleFitUtils::computeEstimator (lorentzVector& recMu, double Mass) {
+void MuScleFitUtils::computeEstimator( const lorentzVector & recMu, const double & Mass) {
   // f[0], g[0]: DM versus muon Pt
   // ------------------------------
   int ibin = (int)recMu.pt();
@@ -473,9 +473,8 @@ void MuScleFitUtils::returnEstimator() {
 
 // Resolution smearing function called to worsen muon Pt resolution at start
 // -------------------------------------------------------------------------
-lorentzVector
-MuScleFitUtils::applySmearing (const lorentzVector& muon) {
-
+lorentzVector MuScleFitUtils::applySmearing (const lorentzVector& muon)
+{
   double pt = muon.Pt();
   double eta = muon.Eta();
   double phi = muon.Phi();
@@ -499,14 +498,13 @@ MuScleFitUtils::applySmearing (const lorentzVector& muon) {
   }
 
   double ptEtaPhiE[4] = {pt, eta, phi, E};
-  return (fromPtEtaPhiToPxPyPz(ptEtaPhiE));
+  return( fromPtEtaPhiToPxPyPz(ptEtaPhiE) );
 }
 
 // Biasing function called to modify muon Pt scale at the start.
 // -------------------------------------------------------------
-lorentzVector
-MuScleFitUtils::applyBias (const lorentzVector& muon, int chg) {
-
+lorentzVector MuScleFitUtils::applyBias( const lorentzVector& muon, const int chg )
+{
   double ptEtaPhiE[4] = {muon.Pt(),muon.Eta(),muon.Phi(),muon.E()};
 
   if (MuScleFitUtils::debug>1) cout << "pt before bias = " << ptEtaPhiE[0] << endl;
@@ -520,13 +518,14 @@ MuScleFitUtils::applyBias (const lorentzVector& muon, int chg) {
 
   if (MuScleFitUtils::debug>1) cout << "pt after bias = " << ptEtaPhiE[0] << endl;
 
-  return (fromPtEtaPhiToPxPyPz(ptEtaPhiE));
+  return( fromPtEtaPhiToPxPyPz(ptEtaPhiE) );
 }
 
 // Version of applyScale accepting a vector<double> of parameters
 // --------------------------------------------------------------
 lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
-                                          vector<double> parval, int chg) {
+                                          const vector<double> & parval, const int chg)
+{
   double * p = new double[(int)(parval.size())];
   // Replaced by auto_ptr, which handles delete at the end
   // std::auto_ptr<double> p(new double[(int)(parval.size())]);
@@ -544,9 +543,9 @@ lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
 
 // This is called by the likelihood to "taste" different values for additional corrections
 // ---------------------------------------------------------------------------------------
-lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon, 
-                                          double* parval, int chg) {
-
+lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
+                                          double* parval, const int chg)
+{
   double ptEtaPhiE[4] = {muon.Pt(),muon.Eta(),muon.Phi(),muon.E()};
   int shift = parResol.size();
 
@@ -563,14 +562,14 @@ lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
 
   if (MuScleFitUtils::debug>1) cout << "pt after scale = " << ptEtaPhiE[0] << endl;
 
-  return (fromPtEtaPhiToPxPyPz(ptEtaPhiE));
+  return( fromPtEtaPhiToPxPyPz(ptEtaPhiE) );
 }
 
 
 // Useful function to convert 4-vector coordinates
 // -----------------------------------------------
-lorentzVector MuScleFitUtils::fromPtEtaPhiToPxPyPz (double* ptEtaPhiE) {
-
+lorentzVector MuScleFitUtils::fromPtEtaPhiToPxPyPz( const double* ptEtaPhiE )
+{
   double px = ptEtaPhiE[0]*cos(ptEtaPhiE[2]);
   double py = ptEtaPhiE[0]*sin(ptEtaPhiE[2]);
   double tmp = 2*atan(exp(-ptEtaPhiE[1]));
@@ -582,21 +581,22 @@ lorentzVector MuScleFitUtils::fromPtEtaPhiToPxPyPz (double* ptEtaPhiE) {
   // std::auto_ptr<lorentzVector> corrMu(new lorentzVector(px, py, pz, E));
 
   return lorentzVector(px,py,pz,E);
-
 }
 
 // Dimuon mass
 // -----------
-double MuScleFitUtils::invDimuonMass (lorentzVector& mu1, 
-					    lorentzVector& mu2) {
+inline double MuScleFitUtils::invDimuonMass( const lorentzVector& mu1, 
+                                             const lorentzVector& mu2 )
+{
   return (mu1+mu2).mass();
 }
 
 // Mass resolution - version accepting a vector<double> parval
 // -----------------------------------------------------------
-double MuScleFitUtils::massResolution (const lorentzVector& mu1,
+double MuScleFitUtils::massResolution( const lorentzVector& mu1,
                                        const lorentzVector& mu2,
-                                       vector<double> parval) {
+                                       const vector<double> & parval )
+{
   // double * p = new double[(int)(parval.size())];
   // Replaced by auto_ptr, which handles delete at the end
   // --------- //
@@ -620,10 +620,10 @@ double MuScleFitUtils::massResolution (const lorentzVector& mu1,
   return massRes;
 }
 
-double MuScleFitUtils::massResolution (const lorentzVector& mu1,
+double MuScleFitUtils::massResolution( const lorentzVector& mu1,
                                        const lorentzVector& mu2,
-                                       double* parval) {
-
+                                       double* parval )
+{
   // We use the following formula:
   // 
   // M = sqrt ( (E1+E2)^2 - (P1+P2)^2 ) 
@@ -743,8 +743,8 @@ double MuScleFitUtils::massResolution (const lorentzVector& mu1,
 
 // Mass probability - version with linear background included, accepts vector<double> parval
 // -----------------------------------------------------------------------------------------
-double MuScleFitUtils::massProb (double mass, double rapidity, double massResol, vector<double> parval) {
-
+double MuScleFitUtils::massProb( const double & mass, const double & rapidity, const double & massResol, const vector<double> & parval )
+{
 #ifdef USE_CALLGRIND
   CALLGRIND_START_INSTRUMENTATION;
 #endif
@@ -774,7 +774,7 @@ double MuScleFitUtils::massProb (double mass, double rapidity, double massResol,
 
 // Mass probability - version with linear background included
 // ----------------------------------------------------------
-double MuScleFitUtils::massProb (double mass, double rapidity, double massResol, double * parval) {
+double MuScleFitUtils::massProb( const double & mass, const double & rapidity, const double & massResol, double * parval ) {
 
   // double MuScleFitUtils::massProb (double mass, double massResol,  std::auto_ptr<double> parval) {
 
@@ -1102,11 +1102,11 @@ double MuScleFitUtils::massProb (double mass, double rapidity, double massResol,
   if (debug>1) cout << "mass = " << mass << ", P = " << P << ", Pstot = " << PStot << ", Pb = " << PB << ", bgrp1 = " << Bgrp1 << endl;
 
   return P;
-  
 }
 
 // Method to check if the mass value is within the mass window of the i-th resonance.
-bool MuScleFitUtils::checkMassWindow( const double & mass, const int ires ) {
+bool MuScleFitUtils::checkMassWindow( const double & mass, const int ires )
+{
   // Special conditions for J/Psi and Upsilon: 3*Gamma on the left and Gamma on the right (so as to avoid the Psi1S and Upsilon1S).
   // Separated so that the correct mass window is checked for each resonance.
 //   if (ires == 3 && resfind[3]>0 && ( (mass-ResMass[3]>-leftWindowFactor*ResHalfWidth[3][MuonType]) && (mass-ResMass[3]<rightWindowFactor*ResHalfWidth[3][MuonType]) )) {
@@ -1125,8 +1125,8 @@ bool MuScleFitUtils::checkMassWindow( const double & mass, const int ires ) {
 
 // Function that returns the weight for a muon pair
 // ------------------------------------------------
-double MuScleFitUtils::computeWeight (double mass) {
-
+double MuScleFitUtils::computeWeight( const double & mass )
+{
   // Compute weight for this event
   // -----------------------------
   double weight = 0.;
@@ -1148,8 +1148,8 @@ double MuScleFitUtils::computeWeight (double mass) {
 
 // Likelihood minimization routine
 // -------------------------------
-void MuScleFitUtils::minimizeLikelihood () {
-
+void MuScleFitUtils::minimizeLikelihood()
+{
   // Output file with fit parameters resulting from minimization
   // -----------------------------------------------------------
   ofstream FitParametersFile;
@@ -1201,7 +1201,7 @@ void MuScleFitUtils::minimizeLikelihood () {
   arglis[0] = FitStrategy;      // Strategy 1 or 2
   // 1 standard
   // 2 try to improve minimum (slower)
-  rmin.mnexcm ("SET STR", arglis, 1, ierror); 
+  rmin.mnexcm ("SET STR", arglis, 1, ierror);
 
   // Set fit parameters
   // ------------------
@@ -1406,8 +1406,8 @@ extern "C" void likelihood (int& npar, double* grad, double& fval, double* xval,
 
   if (MuScleFitUtils::debug>19) cout << "[MuScleFitUtils-likelihood]: In likelihood function" << endl;
 
-   lorentzVector recMu1;
-   lorentzVector recMu2;
+   const lorentzVector * recMu1;
+   const lorentzVector * recMu2;
    lorentzVector corrMu1;
    lorentzVector corrMu2;
 
@@ -1425,24 +1425,30 @@ extern "C" void likelihood (int& npar, double* grad, double& fval, double* xval,
   // ----------------
   double flike = 0;
   double evtsinlik = 0;
-  for (unsigned int nev=0; nev<MuScleFitUtils::SavedPair.size(); nev++) {
+  for( unsigned int nev=0; nev<MuScleFitUtils::SavedPair.size(); ++nev ) {
 
-    recMu1 = (MuScleFitUtils::SavedPair[nev].first);
-    recMu2 = (MuScleFitUtils::SavedPair[nev].second);
+    recMu1 = &(MuScleFitUtils::SavedPair[nev].first);
+    recMu2 = &(MuScleFitUtils::SavedPair[nev].second);
 
     // Compute original mass
     // ---------------------
-    double mass = MuScleFitUtils::invDimuonMass (recMu1, recMu2);    
+    double mass = MuScleFitUtils::invDimuonMass (*recMu1, *recMu2);    
 
     // Compute weight and reference mass (from original mass)
     // ------------------------------------------------------
     double weight = MuScleFitUtils::computeWeight(mass);
     if (weight!=0.) {
-      // Compute corrected mass (from previous biases)
-      // ---------------------------------------------
-      corrMu1 = MuScleFitUtils::applyScale (recMu1, xval, -1);
-      corrMu2 = MuScleFitUtils::applyScale (recMu2, xval,  1);
-      double corrMass = MuScleFitUtils::invDimuonMass (corrMu1, corrMu2);
+      // Compute corrected mass (from previous biases) only if we are currently fitting the scale
+      // ----------------------------------------------------------------------------------------
+      if( MuScleFitUtils::doScaleFit[MuScleFitUtils::loopCounter] ) {
+        corrMu1 = MuScleFitUtils::applyScale(*recMu1, xval, -1);
+        corrMu2 = MuScleFitUtils::applyScale(*recMu2, xval,  1);
+      }
+      else {
+        corrMu1 = *recMu1;
+        corrMu2 = *recMu2;
+      }
+      double corrMass = MuScleFitUtils::invDimuonMass(corrMu1, corrMu2);
       double Y = (corrMu1+corrMu2).Rapidity();
       if (MuScleFitUtils::debug>19) {
 	cout << "[MuScleFitUtils-likelihood]: Original/Corrected resonance mass = " << mass
@@ -1451,14 +1457,14 @@ extern "C" void likelihood (int& npar, double* grad, double& fval, double* xval,
       
       // Compute mass resolution
       // -----------------------
-      double massResol = MuScleFitUtils::massResolution (corrMu1, corrMu2, xval);
+      double massResol = MuScleFitUtils::massResolution(corrMu1, corrMu2, xval);
       if (MuScleFitUtils::debug>19) 
 	cout << "[MuScleFitUtils-likelihood]: Resolution is " << massResol << endl;
 
       // Compute probability of this mass value including background modeling
       // --------------------------------------------------------------------
       if (MuScleFitUtils::debug>1) cout << "calling massProb inside likelihood function" << endl;
-      double prob = MuScleFitUtils::massProb (corrMass, Y, massResol, xval);
+      double prob = MuScleFitUtils::massProb( corrMass, Y, massResol, xval );
       if (MuScleFitUtils::debug>1) cout << "likelihood:massProb = " << prob << endl;
 
       // Compute likelihood
@@ -1724,7 +1730,7 @@ vector<TGraphErrors*> MuScleFitUtils::fitReso (TH2F* histo) {
 
 // Mass probability - this is a proper definition of probability (NOT USED YET)
 // ----------------------------------------------------------------------------
-double MuScleFitUtils::massProb2 (double mass, int ires, double massResol) {
+double MuScleFitUtils::massProb2( const double & mass, const int ires, const double & massResol ) {
 
   // This is a proper definition of the probability to observe a dimuon mass
   // as distant or more to the reference resonance (ResMass[ires],ResGamma[irs]) if the resolution
@@ -1777,8 +1783,8 @@ double MuScleFitUtils::massProb2 (double mass, int ires, double massResol) {
 
 // Mass probability for likelihood computation - no-background version (not used anymore)
 // --------------------------------------------------------------------------------------
-double MuScleFitUtils::massProb (double mass, double rapidity, int ires, double massResol) {
-  
+double MuScleFitUtils::massProb( const double & mass, const double & rapidity, const int ires, const double & massResol )
+{  
   // This routine computes the likelihood that a given measured mass "measMass" is
   // the result of resonance #ires if the resolution expected for the two muons is massResol
   // ---------------------------------------------------------------------------------------

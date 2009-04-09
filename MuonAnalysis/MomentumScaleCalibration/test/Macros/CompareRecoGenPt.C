@@ -103,11 +103,11 @@ void getParameters( const TF1 * func, TString & fit1, TString & fit2 )
   fit2 += a.str();
 }
 
-void CompareRecoGenPt( const TString & fileName1 = "0_MuScleFit.root",
-                       const TString & fileName2 = "1_MuScleFit.root" )
+void CompareRecoGenPt( const TString & fileNum1 = "0",
+                       const TString & fileNum2 = "1" )
 {
-  TProfile * profile1 = getHistogram( fileName1 );
-  TProfile * profile2 = getHistogram( fileName2 );
+  TProfile * profile1 = getHistogram( fileNum1+"_MuScleFit.root" );
+  TProfile * profile2 = getHistogram( fileNum2+"_MuScleFit.root" );
 
   int xBins = profile1->GetNbinsX();
   if( xBins != profile2->GetNbinsX() ) {

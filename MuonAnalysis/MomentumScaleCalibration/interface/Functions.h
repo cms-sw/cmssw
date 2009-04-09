@@ -14,26 +14,26 @@ using namespace std;
 
 /** The correct functor is selected at job start in the constructor.
  * The pt value is taken by reference and modified internally.
- * eta, phi and chg are taken by const reference.</br>
+ * eta, phi and chg are taken by const reference.<br>
  * Made into a template so that it can be used with arrays too
  * (parval for the scale fit is an array, because Lykelihood is an
- * extern C function, because TMinuit asks it).</br>
+ * extern C function, because TMinuit asks it).<br>
  * Note that in the array case it takes the pointer by const reference,
  * thus the elements of the array are modifiable.
  */
 template <class T>
 class scaleFunctionBase {
  public:
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) = 0;
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const = 0;
   virtual ~scaleFunctionBase() = 0;
   /// This method is used to differentiate parameters among the different functions
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) = 0;
-  virtual int parNum() { return parNum_; }
+  virtual int parNum() const { return parNum_; }
  protected:
   int parNum_;
   /// This method sets the parameters
   virtual void setPar(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
-               TString* parname, const T & parScale, const vector<int> & parScaleOrder,
+                      TString* parname, const T & parScale, const vector<int> & parScaleOrder,
                       double* thisStep, double* thisMini, double* thisMaxi, TString* thisParName ) {
     for( int iPar=0; iPar<this->parNum_; ++iPar ) {
       Start[iPar] = parScale[iPar];
@@ -56,7 +56,7 @@ public:
     // scaleFunctionBase<T>::parNum_ = 0;
     this->parNum_ = 0;
   }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) { return pt; }
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const { return pt; }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {}
 };
 // Linear in pt
@@ -65,7 +65,7 @@ template <class T>
 class scaleFunctionType1 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType1() { this->parNum_ = 2; }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return ( (parScale[0] + parScale[1]*pt)*pt );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
@@ -88,7 +88,7 @@ template <class T>
 class scaleFunctionType2 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType2() { this->parNum_ = 2; }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return ( (parScale[0] + parScale[1]*fabs(eta))*pt );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
@@ -111,7 +111,7 @@ template <class T>
 class scaleFunctionType3 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType3() { this->parNum_ = 2; }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( (parScale[0] + parScale[1]*sin(phi))*pt ); 
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
@@ -134,7 +134,7 @@ template <class T>
 class scaleFunctionType4 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType4() { this->parNum_ = 3; }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( (parScale[0] + parScale[1]*pt + 
              parScale[2]*fabs(eta))*pt );
   }
@@ -158,7 +158,7 @@ template <class T>
 class scaleFunctionType5 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType5() { this->parNum_ = 3; }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( (parScale[0] + parScale[1]*pt + 
              parScale[2]*sin(phi))*pt );
   }
@@ -182,7 +182,7 @@ template <class T>
 class scaleFunctionType6 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType6() { this->parNum_ = 3; }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( (parScale[0] + parScale[1]*fabs(eta) + 
              parScale[2]*sin(phi))*pt );
   }
@@ -207,7 +207,7 @@ template <class T>
 class scaleFunctionType7 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType7() { this->parNum_ = 4; }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( (parScale[0] + parScale[1]*pt + 
              parScale[2]*fabs(eta) + 
              parScale[3]*sin(phi))*pt );
@@ -233,7 +233,7 @@ template <class T>
 class scaleFunctionType8 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType8() { this->parNum_ = 4; }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( (parScale[0] + parScale[1]*pt + 
              parScale[2]*fabs(eta) +
              parScale[3]*eta*eta)*pt );
@@ -258,7 +258,7 @@ template <class T>
 class scaleFunctionType9 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType9() { this->parNum_ = 2; }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( (parScale[0] + exp(parScale[1]*pt))*pt );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
@@ -275,7 +275,7 @@ template <class T>
 class scaleFunctionType10 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType10() { this->parNum_ = 3; }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( (parScale[0] + parScale[1]*pt + 
              parScale[2]*pt*pt)*pt );
   }
@@ -293,7 +293,7 @@ template <class T>
 class scaleFunctionType11 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType11() { this->parNum_ = 4; }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( (parScale[0] + parScale[1]*pt + 
              (double)chg*parScale[2]*sin(phi+parScale[3]))*pt );
   }
@@ -311,7 +311,7 @@ template <class T>
 class scaleFunctionType12 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType12() { this->parNum_ = 6; }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( (parScale[0] + parScale[1]*pt + 
              parScale[2]*fabs(eta) +
              parScale[3]*eta*eta + 
@@ -331,7 +331,7 @@ template <class T>
 class scaleFunctionType13 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType13() { this->parNum_ = 8; }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     if (chg>0) {
       return( (parScale[0] + parScale[1]*pt + 
                parScale[2]*fabs(eta) +
@@ -360,12 +360,11 @@ template <class T>
 class scaleFunctionType14 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType14() { this->parNum_ = 10; }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( ( parScale[0] +
-              parScale[1]*pt + parScale[2]*pt*pt + parScale[3]*pt*pt*pt +
+              parScale[1]*pt + parScale[2]*pow(pt,2) + parScale[3]*pow(pt,3) +
               parScale[4]*fabs(eta) + parScale[5]*pow(eta,2) + parScale[6]*fabs(pow(eta,3)) +
-              parScale[7]*pow(eta,4) + parScale[8]*fabs(pow(eta,5)) + parScale[9]*pow(eta,6) +
-              parScale[10]*pow(eta,7) + parScale[11]*fabs(pow(eta,8)) + parScale[12]*pow(eta,9) )*pt );
+              parScale[7]*pow(eta,4) + parScale[8]*fabs(pow(eta,5)) + parScale[9]*pow(eta,6) )*pt );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
     double thisStep[] = {0.001,
@@ -400,7 +399,7 @@ template <class T>
 class scaleFunctionType15 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType15() { this->parNum_ = 5; }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     if( pt > parScale[0] ) {
       return( ( parScale[1] + parScale[3]*fabs(eta) + parScale[4]*pow(eta,2) )*pt );
     }
@@ -440,60 +439,6 @@ scaleFunctionBase<double * > * scaleFunctionService( const int identifier );
 
 /// Service to build the scale functor corresponding to the passed identifier when receiving a vector<double>
 scaleFunctionBase<vector<double> > * scaleFunctionVecService( const int identifier );
-
-// // Bias functions, they get vector<double>
-// static scaleFunctionBase<vector<double> > * biasFunctionArray[] = {
-//   new scaleFunctionType0<vector<double> >,
-//   new scaleFunctionType1<vector<double> >,
-//   new scaleFunctionType2<vector<double> >,
-//   new scaleFunctionType3<vector<double> >,
-//   new scaleFunctionType4<vector<double> >,
-//   new scaleFunctionType5<vector<double> >,
-//   new scaleFunctionType6<vector<double> >,
-//   new scaleFunctionType7<vector<double> >,
-//   new scaleFunctionType8<vector<double> >,
-//   new scaleFunctionType9<vector<double> >,
-//   new scaleFunctionType10<vector<double> >,
-//   new scaleFunctionType11<vector<double> >,
-//   new scaleFunctionType12<vector<double> >,
-//   new scaleFunctionType13<vector<double> >
-// };
-
-// // Scale functions, they get arrays of doubles
-// static scaleFunctionBase<double* > * scaleFunctionArray[] = {
-//   new scaleFunctionType0<double* >,
-//   new scaleFunctionType1<double* >,
-//   new scaleFunctionType2<double* >,
-//   new scaleFunctionType3<double* >,
-//   new scaleFunctionType4<double* >,
-//   new scaleFunctionType5<double* >,
-//   new scaleFunctionType6<double* >,
-//   new scaleFunctionType7<double* >,
-//   new scaleFunctionType8<double* >,
-//   new scaleFunctionType9<double* >,
-//   new scaleFunctionType10<double* >,
-//   new scaleFunctionType11<double* >,
-//   new scaleFunctionType12<double* >,
-//   new scaleFunctionType13<double* >
-// };
-
-// // Scale functions, they get vector<double>
-// static scaleFunctionBase<vector<double> > * scaleFunctionArrayForVec[] = {
-//   new scaleFunctionType0<vector<double> >,
-//   new scaleFunctionType1<vector<double> >,
-//   new scaleFunctionType2<vector<double> >,
-//   new scaleFunctionType3<vector<double> >,
-//   new scaleFunctionType4<vector<double> >,
-//   new scaleFunctionType5<vector<double> >,
-//   new scaleFunctionType6<vector<double> >,
-//   new scaleFunctionType7<vector<double> >,
-//   new scaleFunctionType8<vector<double> >,
-//   new scaleFunctionType9<vector<double> >,
-//   new scaleFunctionType10<vector<double> >,
-//   new scaleFunctionType11<vector<double> >,
-//   new scaleFunctionType12<vector<double> >,
-//   new scaleFunctionType13<vector<double> >
-// };
 
 // -------------- //
 // Smear functors //
@@ -598,7 +543,7 @@ smearFunctionBase * smearFunctionService( const int identifier );
 // };
 
 /**
- * Resolution functions. </br>
+ * Resolution functions. <br>
  * Need to use templates to make it work with both array and vector<double>.
  */
 template <class T>
@@ -611,7 +556,7 @@ class resolutionFunctionBase {
   virtual ~resolutionFunctionBase() = 0;
   /// This method is used to differentiate parameters among the different functions
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const vector<int> & parResolOrder, const int muonType) = 0;
-  virtual int parNum() { return parNum_; }
+  virtual int parNum() const { return parNum_; }
  protected:
   int parNum_;
   /// This method sets the parameters
@@ -762,8 +707,10 @@ class resolutionFunctionType8 : public resolutionFunctionBase<T> {
     TString thisParName[] = { "Pt res. sc.", "Pt res. Pt sc.", "Pt res. Eta sc.",
                               "Cth res. sc.", "Cth res. 1/Pt sc.", "Cth res. Eta sc.", "Cth res. Eta^2 sc.",
                               "Phi res. sc.", "Phi res. 1/Pt sc.", "Phi res. Eta sc.", "Phi res. Eta^2 sc." };
-//    double thisMini[] = {  -0.01, 0.000001, 0.5,
-    double thisMini[] = {  -0.01, 0.00000001, 0.5,
+//     double thisMini[] = {  -0.01, 0.00000001, 0.5,
+//                            -0.0004, 0.003, 0.000002, 0.0004,
+//                            0.0001, 0.001, -0.0000007, 0.00008 };
+    double thisMini[] = {  -0.1, 0.00000001, 0.5,
                            -0.0004, 0.003, 0.000002, 0.0004,
                            0.0001, 0.001, -0.0000007, 0.00008 };
 //     double thisMini[] = {  -0.006, 0.00005, 0.8,
@@ -775,8 +722,10 @@ class resolutionFunctionType8 : public resolutionFunctionBase<T> {
                             1., 1., 1., 1. };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
-//      double thisMaxi[] = { 0.0, 0.0004, 1.2,
-      double thisMaxi[] = { 0.1, 0.0004, 1.2,
+//      double thisMaxi[] = { 0.1, 0.0004, 1.2,
+//                            -0.0002, 0.005, 0.000004, 0.0007,
+//                            0.0003, 0.003, -0.0000011, 0.00012 };
+      double thisMaxi[] = { 0.1, 0.0004, 1.5,
                             -0.0002, 0.005, 0.000004, 0.0007,
                             0.0003, 0.003, -0.0000011, 0.00012 };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
@@ -864,7 +813,7 @@ class backgroundFunctionBase {
   virtual ~backgroundFunctionBase() {};
   virtual double operator()( const double * parval, const int resTotNum, const int nres, const bool * resConsidered,
                              const double * ResMass, const double ResHalfWidth[][3], const int MuonType, const double & mass, const int nbins ) = 0;
-  virtual int parNum() { return parNum_; }
+  virtual int parNum() const { return parNum_; }
   /// This method is used to differentiate parameters among the different functions
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const vector<double> & parBgr, const vector<int> & parBgrOrder, const int muonType) = 0;
   virtual void setLeftWindowFactor(const double & leftWindowFactor) { leftWindowFactor_ = leftWindowFactor; }

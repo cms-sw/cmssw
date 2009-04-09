@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2009/03/16 12:41:24 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/03/26 18:12:44 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -806,7 +806,7 @@ class HResolutionVSPart : public Histograms{
     hResoVSPtEta->Fill(pt, eta,resValue); 
     hResoVSPt->Fill(pt,resValue); 
     hResoVSEta->Fill(eta,resValue);
-    hResoVSTheta->Fill(p4.Theta(),resValue); 
+    hResoVSTheta->Fill(p4.Theta(),resValue);
     if(charge>0)
       hResoVSPhiPlus->Fill(p4.Phi(),resValue); 
     else if(charge<0)

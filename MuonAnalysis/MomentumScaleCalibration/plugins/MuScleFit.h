@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2009/03/16 12:39:02 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/03/26 18:12:45 $
+ *  $Revision: 1.13 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -55,35 +55,8 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
   virtual edm::EDLooper::Status endOfLoop (const edm::EventSetup& eventSetup, unsigned int iLoop);
   virtual edm::EDLooper::Status duringLoop (const edm::Event & event, const edm::EventSetup& eventSetup);
 
- template<typename T>
-  std::vector<reco::LeafCandidate> fillMuonCollection (const std::vector<T>& tracks){
-    std::vector<reco::LeafCandidate> muons;
-    typename std::vector<T>::const_iterator track;
-    for (track = tracks.begin(); track != tracks.end(); ++track){
-      reco::Particle::LorentzVector mu(track->px(),track->py(),track->pz(),
-				       sqrt(track->p()*track->p() + MuScleFitUtils::mMu2));
-	// Apply smearing if needed, and then bias
-	// ---------------------------------------
-	MuScleFitUtils::goodmuon++;
-	if (debug_>0) cout <<setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon 
-			  << ": initial value   Pt = " << mu.Pt() << endl;
-	if (MuScleFitUtils::SmearType>0) {
-	  mu = MuScleFitUtils::applySmearing (mu);
-	  if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon 
-			    << ": after smearing  Pt = " << mu.Pt() << endl;
-	} 
-	if (MuScleFitUtils::BiasType>0) {
-	  mu = MuScleFitUtils::applyBias (mu, track->charge());
-	  if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon 
-			    << ": after bias      Pt = " << mu.Pt() << endl;
-	}
-	reco::LeafCandidate muon(track->charge(),mu);
-	// Store modified muon
-	// -------------------
-	muons.push_back (muon);
-    }
-    return muons;
-  } 
+  template<typename T>
+  std::vector<reco::LeafCandidate> fillMuonCollection (const std::vector<T>& tracks); 
  private:
 
  protected:
@@ -138,6 +111,37 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
 
   bool compareToSimTracks_;
 };
-#endif
 
- 
+
+template<typename T>
+std::vector<reco::LeafCandidate> MuScleFit::fillMuonCollection (const std::vector<T>& tracks)
+{
+  std::vector<reco::LeafCandidate> muons;
+  typename std::vector<T>::const_iterator track;
+  for (track = tracks.begin(); track != tracks.end(); ++track){
+    reco::Particle::LorentzVector mu(track->px(),track->py(),track->pz(),
+                                     sqrt(track->p()*track->p() + MuScleFitUtils::mMu2));
+    // Apply smearing if needed, and then bias
+    // ---------------------------------------
+    MuScleFitUtils::goodmuon++;
+    if (debug_>0) cout <<setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon 
+                       << ": initial value   Pt = " << mu.Pt() << endl;
+    if (MuScleFitUtils::SmearType>0) {
+      mu = MuScleFitUtils::applySmearing (mu);
+      if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon 
+                         << ": after smearing  Pt = " << mu.Pt() << endl;
+    } 
+    if (MuScleFitUtils::BiasType>0) {
+      mu = MuScleFitUtils::applyBias (mu, track->charge());
+      if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon 
+                         << ": after bias      Pt = " << mu.Pt() << endl;
+    }
+    reco::LeafCandidate muon(track->charge(),mu);
+    // Store modified muon
+    // -------------------
+    muons.push_back (muon);
+  }
+  return muons;
+}
+
+#endif

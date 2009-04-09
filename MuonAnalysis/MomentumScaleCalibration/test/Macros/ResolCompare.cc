@@ -42,7 +42,7 @@ draw( const TString & resolName, TDirectory * resolDir,
   if( resolDirAfter != 0 ) {
     resolVSptAfter->SetLineColor(kGreen);
     legend->AddEntry(resolVSptAfter, resolVSptName + " after");
-    resolVSptAfter->Draw();
+    resolVSptAfter->Draw("SAME");
   }
 
   TString functionLegendName("from resolution function");
@@ -103,14 +103,14 @@ void ResolCompare(const TString & stringNumBefore = "0", const TString & stringN
        "hFunctionResolPt_ResoVSPt_prof", functionResolDirBefore,
        "resolPtVSpt", outputFile,
        "resolution on pt vs pt",
-       "pt(GeV)", "#sigmapt",0.05,
+       "pt(GeV)", "#sigmapt/pt",0.05,
        functionResolDirAfter, resolDirAfter );
   // VS Eta
   draw("hResolPtGenVSMu_ResoVSEta_resol", resolDirBefore,
        "hFunctionResolPt_ResoVSEta_prof", functionResolDirBefore,
        "resolPtVSeta", outputFile,
        "resolution on pt vs #eta",
-       "#eta", "#sigmapt",0.05,
+       "#eta", "#sigmapt/pt",0.05,
        functionResolDirAfter, resolDirAfter );
 
   // sigmaCotgTheta

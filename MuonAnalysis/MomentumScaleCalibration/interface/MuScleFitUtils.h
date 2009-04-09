@@ -5,8 +5,8 @@
  *  
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2009/03/05 15:14:07 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/03/16 12:42:07 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -51,56 +51,58 @@ public:
 
   // Operations
   // ----------
-  static std::pair<SimTrack,SimTrack> findBestSimuRes (std::vector<SimTrack>& simMuons);
-  static std::pair<lorentzVector,lorentzVector> findBestRecoRes (std::vector<reco::LeafCandidate>& muons);
-  static std::pair <lorentzVector, lorentzVector> findGenMuFromRes(edm::Handle<edm::HepMCProduct> evtMC);
-  static std::pair <lorentzVector, lorentzVector> findSimMuFromRes(edm::Handle<edm::HepMCProduct> evtMC, 
-								   edm::Handle<edm::SimTrackContainer> simTracks);
+  static std::pair<SimTrack, SimTrack> findBestSimuRes( const std::vector<SimTrack>& simMuons );
+  static std::pair<lorentzVector, lorentzVector> findBestRecoRes( const std::vector<reco::LeafCandidate>& muons );
+  static std::pair<lorentzVector, lorentzVector> findGenMuFromRes( const edm::Handle<edm::HepMCProduct> & evtMC );
+  static std::pair<lorentzVector, lorentzVector> findSimMuFromRes( const edm::Handle<edm::HepMCProduct> & evtMC,
+								   const edm::Handle<edm::SimTrackContainer> & simTracks);
 
   static std::vector<TGraphErrors*> fitMass (TH2F* histo);
   static std::vector<TGraphErrors*> fitReso (TH2F* histo);
 
   static void cleanEstimator();
-  static void computeEstimator (lorentzVector& recMu1, lorentzVector& recMu2, double Zmass);
-  static void computeEstimator (lorentzVector& recMu, double Zmass);
+  static void computeEstimator( const lorentzVector & recMu1, const lorentzVector & recMu2, const double & Zmass );
+  static void computeEstimator( const lorentzVector & recMu, const double & Zmass );
   static void returnEstimator();
-  
-  static lorentzVector applyScale (const lorentzVector &muon, std::vector<double> parval, int charge);
-  static lorentzVector applyScale (const lorentzVector &muon, std::auto_ptr<double> parval, int charge);
-  static lorentzVector applyScale (const lorentzVector &muon, double* parval, int charge);
-  static lorentzVector applyBias (const lorentzVector &muon, int charge);
-  static lorentzVector applySmearing (const lorentzVector &muon);
-  static lorentzVector fromPtEtaPhiToPxPyPz (double* ptEtaPhiE);
 
-  static void minimizeLikelihood ();
+  static lorentzVector applyScale( const lorentzVector & muon, const std::vector<double> & parval, const int charge );
+  static lorentzVector applyScale( const lorentzVector & muon, double* parval, const int charge );
+  static lorentzVector applyBias( const lorentzVector & muon, const int charge );
+  static lorentzVector applySmearing( const lorentzVector & muon );
+  static lorentzVector fromPtEtaPhiToPxPyPz( const double* ptEtaPhiE );
 
-  static double invDimuonMass (lorentzVector& mu1, lorentzVector& mu2);
-  static double massResolution (const lorentzVector& mu1, const lorentzVector& mu2);
-  static double massResolution (const lorentzVector& mu1, const lorentzVector& mu2, std::vector<double> parval);
-  static double massResolution (const lorentzVector& mu1, const lorentzVector& mu2, std::auto_ptr<double> parval);
-  static double massResolution (const lorentzVector& mu1, const lorentzVector& mu2, double* parval);
+  static void minimizeLikelihood();
 
-  static double massProb (double mass, double rapidity, int ires, double massResol);
-  static double massProb (double mass, double rapidity, double massResol, std::vector<double> parval);
-  static double massProb (double mass, double rapidity, double massResol, std::auto_ptr<double> parval);
-  static double massProb (double mass, double rapidity, double massResol, double* parval);
-  static double massProb2 (double mass, int ires, double massResol); // Not used yet
-  static double computeWeight (double mass);
+  static double invDimuonMass( const lorentzVector & mu1, const lorentzVector & mu2 );
+  static double massResolution( const lorentzVector & mu1, const lorentzVector & mu2 );
+  static double massResolution( const lorentzVector & mu1, const lorentzVector & mu2, const std::vector<double> & parval );
+  static double massResolution( const lorentzVector & mu1, const lorentzVector & mu2, std::auto_ptr<double> parval );
+  static double massResolution( const lorentzVector & mu1, const lorentzVector & mu2, double* parval );
 
-  static double deltaPhi(double phi1, double phi2) {
+  static double massProb( const double & mass, const double & rapidity, const int ires, const double & massResol );
+  static double massProb( const double & mass, const double & rapidity, const double & massResol, const std::vector<double> & parval );
+  // static double massProb( const double & mass, const double & rapidity, const double & massResol, std::auto_ptr<double> parval );
+  static double massProb( const double & mass, const double & rapidity, const double & massResol, double * parval );
+  static double massProb2( const double & mass, const int ires, const double & massResol ); // Not used yet
+  static double computeWeight( const double & mass );
+
+  static double deltaPhi( const double & phi1, const double & phi2 )
+  {
     double deltaPhi = phi1 - phi2;
     while(deltaPhi >= TMath::Pi()) deltaPhi -= 2*TMath::Pi();
     while(deltaPhi < -TMath::Pi()) deltaPhi += 2*TMath::Pi();
     return fabs(deltaPhi);
   }
   /// Without fabs at the end, used to have a symmetric distribution for the resolution fits and variance computations
-  static double deltaPhiNoFabs(double phi1, double phi2) {
+  static double deltaPhiNoFabs( const double & phi1, const double & phi2 )
+  {
     double deltaPhi = phi1 - phi2;
     while(deltaPhi >= TMath::Pi()) deltaPhi -= 2*TMath::Pi();
     while(deltaPhi < -TMath::Pi()) deltaPhi += 2*TMath::Pi();
     return deltaPhi;
   }
-  static double deltaR(const double & eta1, const double & eta2, const double & phi1, const double & phi2) {
+  static double deltaR(const double & eta1, const double & eta2, const double & phi1, const double & phi2)
+  {
     return sqrt( pow( eta1-eta2, 2 ) + pow( deltaPhi(phi1, phi2), 2 ) );
   }
 

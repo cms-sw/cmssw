@@ -84,7 +84,7 @@ void drawLike(TProfile * likeHisto1, TProfile * likeHisto2)
 }
 
 /// Function drawing the histograms
-void Plot_mass(const TString & fileNameBefore = "0_MuScleFit.root", const TString & fileNameAfter = "1_MuScleFit.root") {
+void Plot_mass(const TString & fileNameBefore = "0", const TString & fileNameAfter = "1") {
 
   gStyle->SetOptStat ("111111");
   gStyle->SetOptFit (1);
@@ -92,8 +92,8 @@ void Plot_mass(const TString & fileNameBefore = "0_MuScleFit.root", const TStrin
   double ResHalfWidth[6] = {20., 0.5, 0.5, 0.5, 0.2, 0.2};
   double ResMass[6] = {90.986, 10.3552, 10.0233, 9.4603, 3.68609, 3.0969};
 
-  TFile * inputFile1 = new TFile(fileNameBefore, "READ");
-  TFile * inputFile2 = new TFile(fileNameAfter, "READ");
+  TFile * inputFile1 = new TFile(fileNameBefore+"_MuScleFit.root", "READ");
+  TFile * inputFile2 = new TFile(fileNameAfter+"_MuScleFit.root", "READ");
   histos histos1(inputFile1);
   histos histos2(inputFile2);
 
