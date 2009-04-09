@@ -181,7 +181,6 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                 // ratio method
                 if (detid.subdetId()==EcalEndcap) {
                         if ( uncalibRecHit.amplitude() > amplitudeThreshEE_ ) {
-                                //std::cerr << "--> amplitude (EE): " << uncalibRecHit.amplitude() << std::endl;
                                 ratioMethod_endcap_.init( *itdg, pedVec, gainRatios );
                                 ratioMethod_endcap_.computeTime( EEtimeFitParameters_, EEtimeFitLimits_ );
                                 EcalUncalibRecHitRatioMethodAlgo<EEDataFrame>::CalculatedRecHit crh = ratioMethod_endcap_.getCalculatedRecHit();
@@ -196,7 +195,6 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                         }
                 } else {
                         if ( uncalibRecHit.amplitude() > amplitudeThreshEB_ ) {
-                                //std::cerr << "--> amplitude (EB): " << uncalibRecHit.amplitude() << std::endl;
                                 ratioMethod_barrel_.init( *itdg, pedVec, gainRatios );
                                 ratioMethod_barrel_.computeTime( EBtimeFitParameters_, EBtimeFitLimits_ );
                                 EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = ratioMethod_barrel_.getCalculatedRecHit();

@@ -100,7 +100,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                                         //error...
                                 }
                         } else if ( tp->id().subDet() == EcalEndcap ) {
-                                // FIXME -- too many incoherences with EE numbering schema
+                                // FIXME -- too many incoherences with EE numbering schema -- implementation will follow
                                 // Structure for recovery:
                                 // ** SC --> EEDetId constituents (eeC) --> associated Trigger Towers (aTT) --> EEDetId constituents (aTTC)
                                 // ** energy for a SC EEDetId = [ sum_aTT(energy) - sum_aTTC(energy) ] / N_eeC
