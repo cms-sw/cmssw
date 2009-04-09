@@ -9,6 +9,8 @@ from PhysicsTools.PatAlgos.recoLayer0.muonIsolation_cff import *
 from PhysicsTools.PatAlgos.recoLayer0.photonId_cff import *
 from PhysicsTools.PatAlgos.recoLayer0.photonIsolation_cff import *
 from PhysicsTools.PatAlgos.recoLayer0.tauDiscriminators_cff import *
+from PhysicsTools.PatAlgos.recoLayer0.pfCandidateIsoDepositSelection_cff import *
+from PhysicsTools.PatAlgos.recoLayer0.tauIsolation_cff import *
 
 # These two duplicate removals are here because they're AOD bugfixes
 from PhysicsTools.PatAlgos.recoLayer0.duplicatedElectrons_cfi import *
@@ -32,8 +34,10 @@ patAODExtraReco = cms.Sequence(
     patJetTracksCharge +
     #patMuonIsolation +   # Empty sequences not supported yet
     #patPhotonID +        # Empty sequences not supported yet
-    patPhotonIsolation 
-    #patTauDiscrimination # Empty sequences not supported yet
+    patPhotonIsolation +
+    #patTauDiscrimination + # Empty sequences not supported yet
+    patPFCandidateIsoDepositSelection +
+    patPFTauIsolation
 )
 
 # One module to count some AOD Objects that are usually input to PAT
