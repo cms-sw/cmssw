@@ -423,10 +423,10 @@ void FUResourceBroker::webPageRequest(xgi::Input *in,xgi::Output *out)
 void FUResourceBroker::actionPerformed(xdata::Event& e)
 {
   lock();
-
+  
   if (0!=resourceTable_) {
     
-    gui_->monInfoSpace()->lock();
+    //gui_->monInfoSpace()->lock();
     
     if (e.type()=="urn:xdata-event:ItemGroupRetrieveEvent") {
       nbClients_          =resourceTable_->nbClients();
@@ -453,7 +453,7 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
       if (item=="doDumpEvents") resourceTable_->setDoDumpEvents(doDumpEvents_);
     }
     
-    gui_->monInfoSpace()->unlock();
+    //gui_->monInfoSpace()->unlock();
   }
   else {
     nbClients_          =0;
@@ -470,7 +470,6 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
     nbCrcErrors_        =0;
     nbAllocateSent_     =0;
   }
-  
   unlock();
 }
 
@@ -500,8 +499,12 @@ void FUResourceBroker::startMonitoringWorkLoop() throw (evf::Exception)
 //______________________________________________________________________________
 bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
 {
+  unsigned int nbSent;
+  uint64_t     sumOfSquares;
+  unsigned int sumOfSizes;
+  uint64_t     deltaSumOfSquares;
+
   lock();
-  
   if (0==resourceTable_) {
     deltaT_.value_           =0.0;
     deltaN_.value_           =  0;
@@ -511,23 +514,22 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
     rate_                    =0.0;
     average_                 =0.0;
     rms_                     =0.0;
-    
-    unlock();
+    unlock();    
     return false;
   }
-
+  else {
+    nbSent      =resourceTable_->nbSent();
+    sumOfSquares=resourceTable_->sumOfSquares();
+    sumOfSizes  =resourceTable_->sumOfSizes();
+  }
+  unlock();
   
   struct timeval  monEndTime;
   struct timezone timezone;
   
   gettimeofday(&monEndTime,&timezone);
   
-  unsigned int nbSent      =resourceTable_->nbSent();
-  uint64_t     sumOfSquares=resourceTable_->sumOfSquares();
-  unsigned int sumOfSizes  =resourceTable_->sumOfSizes();
-  
-  uint64_t     deltaSumOfSquares;
-  
+  xdata::getInfoSpaceFactory()->lock();
   gui_->monInfoSpace()->lock();
   
   deltaT_.value_=deltaT(&monStartTime_,&monEndTime);
@@ -569,14 +571,13 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
   }
   
   gui_->monInfoSpace()->unlock();  
-  
-  unlock();
-  
+  xdata::getInfoSpaceFactory()->unlock();
+    
   ::sleep(monSleepSec_.value_);
   
   return true;
 }
-    
+
 
 //______________________________________________________________________________
 void FUResourceBroker::startWatchingWorkLoop() throw (evf::Exception)
