@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 19 19:04:10 CST 2009
-// $Id$
+// $Id: FWBoxIconButton.cc,v 1.1 2009/03/04 16:40:50 chrjones Exp $
 //
 
 // system include files
@@ -69,6 +69,11 @@ void
 FWBoxIconButton::DoRedraw()
 {
    m_iconBase->draw(fId,fNormGC,0,0);
+}
+
+void FWBoxIconButton::setNormCG(GContext_t iContext)
+{
+   fNormGC = iContext;
 }
 
 //

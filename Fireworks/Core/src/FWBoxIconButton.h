@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 19 19:04:08 CST 2009
-// $Id$
+// $Id: FWBoxIconButton.h,v 1.1 2009/03/04 16:40:51 chrjones Exp $
 //
 
 // system include files
@@ -42,6 +42,7 @@ public:
    // ---------- static member functions --------------------
    
    // ---------- member functions ---------------------------
+   void setNormCG(GContext_t);
 protected:
    virtual void DoRedraw();
 private:
