@@ -4,5 +4,5 @@ import FWCore.ParameterSet.Config as cms
 
 electronsNoDuplicates = cms.EDFilter("DuplicatedElectronCleaner",
     ## reco electron input source
-    electronSource = cms.InputTag("pixelMatchGsfElectrons"), 
+    electronSource = cms.InputTag("gsfElectrons"), 
 )
