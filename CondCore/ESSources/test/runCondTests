@@ -23,5 +23,15 @@ cd run
 cmsRun $runbasedir/src/CondCore/DBOutputService/test/python/testIOVPayloadAnalyzer_cfg.py
 echo "read back"
 cmsRun $runbasedir/src/CondCore/ESSources/test/python/print_ped_cfg.py
+
+echo "test blob"
+pool_setup_database -f $runbasedir/src/CondFormats/Calibration/xml/mySiStripNoises_basic_0.xml -d CondFormatsCalibration -c sqlite_file:blob.db
+pool_retrieve_object_relational_mapping -c sqlite_file:blob.db -n mySiStripNoises -d CondFormatsCalibration -o mapping1.xml
+cmsRun $runbasedir/src/CondCore/DBOutputService/test/python/writeBlob_cfg.py
+pool_retrieve_object_relational_mapping -c sqlite_file:blob.db -n mySiStripNoises -d CondFormatsCalibration -o mapping2.xml
+diff mapping1.xml mapping2.xml
+echo "read back blob"
+cmsRun $runbasedir/src/CondCore/ESSources/test/python/load_ped_strip_cfg.py
+
 cd ..
 exit 0
