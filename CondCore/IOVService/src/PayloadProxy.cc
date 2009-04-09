@@ -26,7 +26,7 @@ namespace cond {
     bool ok = false;
     if ( isValid()) {
       cond::PoolTransaction & db = *m_element.db();
-      db.start();
+      db.start(true);
       try {
 	ok = load(&db.poolDataSvc(),m_element.token());
       }	catch( const pool::Exception& e) {
