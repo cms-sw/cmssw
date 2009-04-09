@@ -16,6 +16,7 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps) :
 {
         rechitMaker_ = new EcalRecHitSimpleAlgo();
         v_chstatus_ = ps.getParameter<std::vector<int> >("ChannelStatusToBeExcluded");
+        v_DB_reco_flags_ = ps.getParameter<std::vector<int> >("flagsMapDBReco");
 }
 
 
@@ -52,6 +53,27 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
                 }
         }
 
+        // find the proper flag for the recHit
+        // from a configurable vector
+        // (see cfg file for the association)
+        uint32_t recoFlag = 0;
+        uint16_t statusCode = chStatusCode.getStatusCode();
+        if ( statusCode < v_DB_reco_flags_.size() ) {
+                // not very nice...
+                recoFlag = v_DB_reco_flags_[ statusCode ];
+        } else {
+                edm::LogError("EcalRecHitError") << "Flag " << statusCode 
+                        << " in DB exceed the allowed range of " << v_DB_reco_flags_.size();
+        }
+        uint32_t uflag = uncalibRH.recoFlag();
+        if ( uflag == EcalUncalibratedRecHit::kLeadingEdgeRecovered ) {
+                recoFlag = EcalRecHit::kLeadingEdgeRecovered;
+        } else if ( uflag == EcalUncalibratedRecHit::kSaturated ) {
+                // leading edge recovery failed
+                recoFlag = EcalRecHit::kDead;
+                // and at some point try the recovery with the neighbours
+        }
+
         const EcalIntercalibConstantMap& icalMap = ical->getMap();  
         if ( detid.subdetId() == EcalEndcap ) {
                 rechitMaker_->setADCToGeVConstant( float(agc->getEEValue()) );
@@ -86,7 +108,7 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
         }
 
         // make the rechit and put in the output collection
-        result.push_back(EcalRecHit( rechitMaker_->makeRecHit(uncalibRH, icalconst * lasercalib, itimeconst) ));
+        result.push_back(EcalRecHit( rechitMaker_->makeRecHit(uncalibRH, icalconst * lasercalib, itimeconst, recoFlag) ));
         return true;
 }
 

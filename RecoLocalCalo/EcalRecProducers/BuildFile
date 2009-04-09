@@ -1,13 +1,16 @@
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
 <use name=CalibCalorimetry/EcalLaserCorrection>
+<use name=CalibCalorimetry/EcalTPGTools>
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/EcalObjects>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalRecHit>
-<use name=CondFormats/EcalObjects>
-<use name=CondFormats/DataRecord>
-<use name=RecoLocalCalo/EcalRecAlgos>
+<use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/MessageService>
+<use name=FWCore/ParameterSet>
+<use name=Geometry/CaloEventSetup>
+<use name=RecoLocalCalo/EcalDeadChannelRecoveryAlgos>
+<use name=RecoLocalCalo/EcalRecAlgos>
 <use name=clhep>
 <export>
   <lib name=RecoLocalCaloEcalRecProducers>

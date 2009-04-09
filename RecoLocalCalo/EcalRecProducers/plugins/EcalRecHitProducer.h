@@ -4,9 +4,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.h,v 1.4 2008/02/20 09:36:52 ferriff Exp $
- *  $Date: 2008/02/20 09:36:52 $
- *  $Revision: 1.4 $
+ *  $Id: EcalRecHitProducer.h,v 1.1 2008/12/10 01:52:41 ferriff Exp $
+ *  $Date: 2008/12/10 01:52:41 $
+ *  $Revision: 1.1 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -34,7 +34,18 @@ class EcalRecHitProducer : public edm::EDProducer {
                 std::string ebRechitCollection_; // secondary name to be given to EB collection of hits
                 std::string eeRechitCollection_; // secondary name to be given to EE collection of hits
 
+                bool recoverEBIsolatedChannels_;
+                bool recoverEEIsolatedChannels_;
+                bool recoverEBFE_;
+                bool recoverEEFE_;
+
+                edm::InputTag ebDetIdToBeRecovered_;
+                edm::InputTag eeDetIdToBeRecovered_;
+                edm::InputTag ebFEToBeRecovered_;
+                edm::InputTag eeFEToBeRecovered_;
+
                 EcalRecHitWorkerBaseClass * worker_;
+                EcalRecHitWorkerBaseClass * workerRecover_;
 };
 
 #endif

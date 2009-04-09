@@ -4,9 +4,9 @@
 /** \class EcalRecHitSimpleAlgo
   *  Simple algoritm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitWorkerSimple.h,v 1.1 2008/12/10 01:52:41 ferriff Exp $
-  *  $Date: 2008/12/10 01:52:41 $
-  *  $Revision: 1.1 $
+  *  $Id: EcalRecHitWorkerSimple.h,v 1.2 2009/03/27 16:59:10 ferriff Exp $
+  *  $Date: 2009/03/27 16:59:10 $
+  *  $Revision: 1.2 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -38,6 +38,7 @@ class EcalRecHitWorkerSimple : public EcalRecHitWorkerBaseClass {
                 edm::ESHandle<EcalChannelStatus> chStatus;
                 std::vector<int> v_chstatus_;
                 edm::ESHandle<EcalLaserDbService> laser;
+                std::vector<int> v_DB_reco_flags_;
 
                 EcalRecHitSimpleAlgo * rechitMaker_;
 };
