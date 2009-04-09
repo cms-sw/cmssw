@@ -10,6 +10,9 @@
 #include <algorithm>
 #include <boost/bind.hpp>
 
+#include "DataSvc/Ref.h"
+
+
 namespace {
   void print(cond::IOVElementProxy const & e) {
     std::cout<<"payloadToken "<< e.wrapperToken()
@@ -18,6 +21,23 @@ namespace {
 	     << std::endl;
   }
 }
+
+struct Add {
+
+  Add( cond::PoolTransaction& db,  cond::IOVEditor & e) :
+    pooldb(db), editor(e)
+
+
+  cond::PoolTransaction& pooldb;
+  cond::IOVEditor & editor;
+
+  void operator()(int i, std::string mess) {
+    pool::Ref<IOVElement> ref(&pooldb.poolDataSvc(),new IOVElement(i,mess));
+    ref.markWrite("SomeWhere");
+    editor.append(i,ref.toString());
+  }
+
+};
 
 int main(){
   try{
@@ -29,10 +49,10 @@ int main(){
     pooldb.start(false);
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
-    editor->create(cond::timestamp,60);
-    editor->append(1,"pay1tok");
-    editor->append(21,"pay2tok");
-    editor->append(41,"pay3tok");
+    Add add(pooldb,editor);
+    add(1,"pay1");
+    add(21,"pay2");
+    add(41,"pay3");
     pooldb.commit();
     std::string iovtok=editor->token();
     ///test iterator
