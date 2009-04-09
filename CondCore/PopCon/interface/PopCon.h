@@ -106,14 +106,15 @@ namespace popcon {
   
   template<typename Container>
   const std::string displayIovHelper(Container const & payloads, bool sinceAppend) {
-    std::ostringstream s;
+    if (payloads.empty()) return "Nothing to transfer;";
+    std::ostringstream s;    
     // when only 1 payload is transferred; 
     if ( payloads.size()==1)  
       s <<(sinceAppend ? "Since " :" Till ") << (*payloads.begin()).time <<  "; " ;
     else{
       // when more than one payload are transferred;  
-      s <<   "first payload " << (sinceAppend ? "Since " :" Till ") <<  (*payloads.begin()).time <<  ";\n" ;
-      s<< "last payload " << (sinceAppend ? "Since " :" Till ") << (*payloads.rbegin()).time <<  ";\n" ;  
+      s <<   "first payload " << (sinceAppend ? "Since " :" Till ") <<  (*payloads.begin()).time <<  ","
+	<< "last payload " << (sinceAppend ? "Since " :" Till ") << (*payloads.rbegin()).time <<  ";" ;  
     }  
     return s.str();
   }
