@@ -44,6 +44,7 @@ MuonSeedPtExtractor::MuonSeedPtExtractor(const edm::ParameterSet& par)
   fillParametersForCombo("SME_31", par);
   fillParametersForCombo("SME_32", par);
   fillParametersForCombo("SME_41", par);
+  fillParametersForCombo("SME_42", par);
 
   // Single segments (DT)
   fillParametersForCombo("SMB_10", par);
