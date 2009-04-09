@@ -13,8 +13,8 @@
 
 /** \class CaloTower
     
-$Date: 2008/11/10 21:20:28 $
-$Revision: 1.13 $
+$Date: 2009/02/25 07:05:54 $
+$Revision: 1.14 $
 \author J. Mans - Minnesota
 */
 
@@ -149,9 +149,9 @@ public:
   uint numRecoveredEcalCells() const { return ((twrStatusWord_ >> 5) & 0x1F); }
   uint numProblematicEcalCells() const { return ((twrStatusWord_ >> 10) & 0x1F); }
 
-  uint numBadHcalCells() const { return ( (twrStatusWord_ >> 15)& 0x3); }
-  uint numRecoveredHcalCells() const { return ((twrStatusWord_ >> 17) & 0x3); }
-  uint numProblematicHcalCells() const { return ((twrStatusWord_ >> 19) & 0x3); }
+  uint numBadHcalCells() const { return ( (twrStatusWord_ >> 15)& 0x7); }
+  uint numRecoveredHcalCells() const { return ((twrStatusWord_ >> 18) & 0x7); }
+  uint numProblematicHcalCells() const { return ((twrStatusWord_ >> 21) & 0x7); }
 
   // the status word itself
   uint32_t towerStatusWord() const { return twrStatusWord_; }

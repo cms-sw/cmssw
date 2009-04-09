@@ -209,17 +209,14 @@ void CaloTower::setCaloTowerStatus(uint numBadHcalChan,uint numBadEcalChan,
 				   uint numRecHcalChan,uint numRecEcalChan,
 				   uint numProbHcalChan,uint numProbEcalChan) {
 
-  // The check that the number of bad channels does not exceed 3(25) for
-  // hcal (ecal) is performed before setting the status word in the producer.
-
   twrStatusWord_ = 0x0;
 
   twrStatusWord_ |= (  numBadEcalChan  & 0x1F);
   twrStatusWord_ |= ( (numRecEcalChan  & 0x1F) << 5);
   twrStatusWord_ |= ( (numProbEcalChan & 0x1F) << 10); 
-  twrStatusWord_ |= ( (numBadHcalChan  & 0x3)  << 15);
-  twrStatusWord_ |= ( (numRecHcalChan  & 0x3)  << 17);
-  twrStatusWord_ |= ( (numProbHcalChan & 0x3)  << 19);
+  twrStatusWord_ |= ( (numBadHcalChan  & 0x7)  << 15);
+  twrStatusWord_ |= ( (numRecHcalChan  & 0x7)  << 18);
+  twrStatusWord_ |= ( (numProbHcalChan & 0x7)  << 21);
 
   return;
 }
