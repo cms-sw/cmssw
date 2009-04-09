@@ -13,7 +13,7 @@ public:
 private:
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  MuonTruth theTruth;  
+  const edm::ParameterSet& conf_;
 
 };
 

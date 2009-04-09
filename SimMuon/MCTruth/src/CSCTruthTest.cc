@@ -5,8 +5,8 @@
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 
 
-CSCTruthTest::CSCTruthTest(const edm::ParameterSet& iConfig)
-  : theTruth(iConfig)
+CSCTruthTest::CSCTruthTest(const edm::ParameterSet& iConfig):
+  conf_(iConfig)
 {
 
 }
@@ -25,7 +25,7 @@ CSCTruthTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<CSCRecHit2DCollection> cscRecHits;
   iEvent.getByLabel("csc2DRecHits",cscRecHits);
 
-  theTruth.eventSetup(iEvent,iSetup);
+  MuonTruth theTruth(iEvent,iSetup,conf_);
 
   for(CSCRecHit2DCollection::const_iterator recHitItr = cscRecHits->begin();
       recHitItr != cscRecHits->end(); recHitItr++)

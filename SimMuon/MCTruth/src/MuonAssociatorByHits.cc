@@ -122,8 +122,7 @@ MuonAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
   // Tracker hit association  
   TrackerHitAssociator * trackertruth = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
   // CSC hit association
-  MuonTruth csctruth(conf_);
-  csctruth.eventSetup(*e,*setup);
+  MuonTruth csctruth(*e,*setup,conf_);
   // DT hit association
   printRtS = true;
   DTHitAssociator dttruth(*e,*setup,conf_,printRtS);
@@ -391,8 +390,7 @@ MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
   // Tracker hit association  
   TrackerHitAssociator * trackertruth = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
   // CSC hit association
-  MuonTruth csctruth(conf_);
-  csctruth.eventSetup(*e,*setup);
+  MuonTruth csctruth(*e,*setup,conf_);
   // DT hit association
   printRtS = false;
   DTHitAssociator dttruth(*e,*setup,conf_,printRtS);  
