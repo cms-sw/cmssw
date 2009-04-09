@@ -67,7 +67,7 @@ GctUnpackCollections::~GctUnpackCollections()
 std::ostream& operator<<(std::ostream& os, const GctUnpackCollections& rhs)
 {
      // GCT input collections
-  os << "Read " << rhs.gctFibres()->size() << " GCT raw fibre data"
+  os << "Read " << rhs.gctFibres()->size() << " GCT raw fibre data\n"
      << "Read " << rhs.rctEm()->size() << " RCT EM candidates\n"
      << "Read " << rhs.rctCalo()->size() << " RCT Calo Regions\n"
 
@@ -89,7 +89,7 @@ std::ostream& operator<<(std::ostream& os, const GctUnpackCollections& rhs)
      << "Read " << rhs.gctEtTot()->size() << " GCT total et\n"
      << "Read " << rhs.gctEtHad()->size() << " GCT ht\n"
      << "Read " << rhs.gctEtMiss()->size() << " GCT met\n"
-     << "Read " << rhs.gctHtMiss()->size() << " GCT mht\n";
+     << "Read " << rhs.gctHtMiss()->size() << " GCT mht";
      
      // Any point in putting in an m_errors()->size()? Not sure.
 
