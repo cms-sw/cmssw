@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:30 CST 2009
-// $Id$
+// $Id: FWCollectionSummaryWidget.h,v 1.1 2009/03/04 16:40:50 chrjones Exp $
 //
 
 // system include files
@@ -39,6 +39,7 @@ class FWColorPopup;
 class FWCollectionSummaryTableManager;
 class FWTableWidget;
 class TGGC;
+class TGLabel;
 
 namespace fireworks {
    class Context;
@@ -58,6 +59,9 @@ public:
    // ---------- member functions ---------------------------
    void displayChanged();
    void itemChanged();
+   
+   //pass true if white or false if black
+   void setBackgroundToWhite(bool);
    
    void colorChangeRequested(Pixel_t);
    void toggleItemVisible();
@@ -82,6 +86,7 @@ private:
    const FWCollectionSummaryWidget& operator=(const FWCollectionSummaryWidget&); // stop default
    
    void createColorPopup();
+   void colorTable();
    // ---------- member data --------------------------------
    FWEventItem* m_collection;
    TGLayoutHints* m_hints;
@@ -94,13 +99,17 @@ private:
    FWColorBoxIcon* m_colorSelectBox;
    FWCustomIconsButton* m_stateButton;
    FWCustomIconsButton* m_infoButton;
+   TGLabel* m_label;
+   TGFrame* m_holder;
    bool m_collectionShown;
    TGGC* m_graphicsContext;
+   TGGC* m_tableContext;
    int m_indexForColor;
    FWColorPopup* m_colorPopup;
    
    FWCollectionSummaryTableManager* m_tableManager;
    FWTableWidget* m_tableWidget;
+   bool m_backgroundIsWhite;
 };
 
 

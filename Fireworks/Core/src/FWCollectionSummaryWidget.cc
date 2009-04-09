@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.2 2009/04/07 18:55:07 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.3 2009/04/08 19:04:52 chrjones Exp $
 //
 
 // system include files
@@ -92,6 +92,7 @@ const TGPicture* unfiltered_over()
 }
 
 static const unsigned long kWidgetColor = 0x2f2f2f;
+static const unsigned long kWidgetColorLight = 0xdfdfdf;
 //
 // constructors and destructor
 //
@@ -101,15 +102,18 @@ m_collection(&iItem),
 m_hints(iHints),
 m_parent(iParent),
 m_collectionShown(false),
+m_tableContext(0),
 m_indexForColor(-1),
 m_colorPopup(0),
 m_tableManager(0),
-m_tableWidget(0)
+m_tableWidget(0),
+m_backgroundIsWhite(false)
 {
    SetBackgroundColor(kWidgetColor);
    const unsigned int backgroundColor=kBlack;
    
    TGCompositeFrame* hFrame = new TGHorizontalFrame(this, 10, 10, 0, backgroundColor);
+   m_holder = hFrame;
    this->AddFrame(hFrame, new TGLayoutHints(kLHintsTop | kLHintsExpandX) );
    
    m_showHideButton = new FWCustomIconsButton(this,
@@ -136,16 +140,16 @@ m_tableWidget(0)
    m_colorSelectWidget->Connect("Clicked()", "FWCollectionSummaryWidget",this,"colorClicked()");
    m_colorSelectWidget->SetBackgroundColor(backgroundColor);
    m_colorSelectWidget->SetToolTipText("set default color of items in collection");
-   GCValues_t t = *(GetWhiteGC().GetAttributes());
+   GCValues_t t = *(   GetWhiteGC().GetAttributes());
    m_graphicsContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&t,kTRUE);
    m_colorSelectBox->setColor(m_graphicsContext->GetGC());
    
    
-   TGLabel* label = new TGLabel(this,m_collection->name().c_str());
-   label->SetBackgroundColor(backgroundColor);
-   label->SetTextJustify(kTextLeft|kTextCenterY);
-   label->SetTextColor(static_cast<Pixel_t>(gVirtualX->GetPixel(kWhite)));
-   hFrame->AddFrame(label, new TGLayoutHints(kLHintsCenterY | kLHintsLeft | kLHintsExpandX,5,5));
+   m_label = new TGLabel(this,m_collection->name().c_str());
+   m_label->SetBackgroundColor(backgroundColor);
+   m_label->SetTextJustify(kTextLeft|kTextCenterY);
+   m_label->SetTextColor(static_cast<Pixel_t>(gVirtualX->GetPixel(kWhite)));
+   hFrame->AddFrame(m_label, new TGLayoutHints(kLHintsCenterY | kLHintsLeft | kLHintsExpandX,5,5));
    
    m_stateButton = new FWCustomIconsButton(this,unfiltered(),unfiltered_over(),unfiltered_over());
    hFrame->AddFrame(m_stateButton, new TGLayoutHints(kLHintsCenterY| kLHintsLeft));
@@ -292,13 +296,13 @@ FWCollectionSummaryWidget::toggleShowHide()
       if(0 == m_tableManager) {
          GCValues_t t = *(GetWhiteGC().GetAttributes());
          t.fFont = gClient->GetResourcePool()->GetIconFont()->GetFontHandle();
-         TGGC* tableContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&t,kTRUE);
+         m_tableContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&t,kTRUE);
          
          TGGC* hilightContext=selectContext();
-         m_tableManager= new FWCollectionSummaryTableManager(m_collection,tableContext,hilightContext,this);
+         m_tableManager= new FWCollectionSummaryTableManager(m_collection,m_tableContext,hilightContext,this);
          m_tableWidget = new FWTableWidget(m_tableManager,this);
-         m_tableWidget->SetBackgroundColor(kWidgetColor);
          m_tableWidget->SetHeaderBackgroundColor(fClient->GetResourcePool()->GetFrameGC()->GetBackground());
+         colorTable();
          AddFrame(m_tableWidget, new TGLayoutHints(kLHintsBottom | kLHintsExpandX | kLHintsExpandY));
          m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t)","FWCollectionSummaryWidget",this,"modelSelected(Int_t,Int_t,Int_t)");
 
@@ -408,6 +412,55 @@ FWCollectionSummaryWidget::stateClicked()
    requestForFilter(m_collection);
 }
 
+void 
+FWCollectionSummaryWidget::setBackgroundToWhite(bool iToWhite)
+{
+   if(iToWhite == m_backgroundIsWhite) {
+      return;
+   }
+   Pixel_t bc = 0x000000;
+   Pixel_t fg = 0xffffff;
+   if(iToWhite) {
+      bc = 0xffffff;
+      fg = 0x000000;
+      m_backgroundIsWhite=true;
+      SetBackgroundColor(kWidgetColorLight);
+      m_isVisibleButton->setNormCG(GetBlackGC()());
+      m_colorSelectWidget->setNormCG(GetBlackGC()());
+   } else {
+      m_backgroundIsWhite=false;
+      SetBackgroundColor(kWidgetColor);
+      m_isVisibleButton->setNormCG(GetWhiteGC()());
+      m_colorSelectWidget->setNormCG(GetWhiteGC()());
+   }
+   colorTable();
+   m_holder->SetBackgroundColor(bc);
+   m_label->SetBackgroundColor(bc);
+   m_label->SetTextColor(fg);
+   m_isVisibleButton->SetBackgroundColor(bc);
+   m_colorSelectWidget->SetBackgroundColor(bc);
+   fClient->NeedRedraw(m_isVisibleButton);
+   fClient->NeedRedraw(m_colorSelectWidget);
+   fClient->NeedRedraw(m_holder);
+   fClient->NeedRedraw(this);
+}
+
+void
+FWCollectionSummaryWidget::colorTable()
+{
+   if(0==m_tableWidget) {
+      return;
+   }
+   if(m_backgroundIsWhite) {
+      m_tableWidget->SetBackgroundColor(kWidgetColorLight);
+      m_tableWidget->SetLineSeparatorColor(0x000000);
+      m_tableContext->SetForeground(0x000000);
+   } else {
+      m_tableWidget->SetBackgroundColor(kWidgetColor);
+      m_tableWidget->SetLineSeparatorColor(0xffffff);
+      m_tableContext->SetForeground(0xffffff);
+   }
+}
 //
 // const member functions
 //
