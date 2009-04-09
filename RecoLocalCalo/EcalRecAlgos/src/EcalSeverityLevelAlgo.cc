@@ -36,7 +36,7 @@ int EcalSeverityLevelAlgo::severityLevel( const EcalRecHit &recHit,
 {
         // the channel is there, check its flags
         // and combine with DB (not needed at the moment)
-        uint32_t rhFlag = recHit.flags();
+        uint32_t rhFlag = recHit.recoFlag();
         uint16_t dbStatus = retrieveDBStatus( recHit.id(), chStatus );
         return severityLevel( rhFlag, dbStatus );
 }
