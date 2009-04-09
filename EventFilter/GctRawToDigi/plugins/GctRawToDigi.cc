@@ -232,7 +232,7 @@ bool GctRawToDigi::autoDetectRequiredFormatTranslator(const unsigned char * d)
   return false;
 }
 
-void GctRawToDigi::doVerboseOutput(const GctBlockHeaderCollection& bHdrs, GctUnpackCollections * const colls)
+void GctRawToDigi::doVerboseOutput(const GctBlockHeaderCollection& bHdrs, const GctUnpackCollections * const colls) const
 {
   std::ostringstream os;
   os << "Found " << bHdrs.size() << " GCT block headers" << endl;

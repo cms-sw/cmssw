@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.27 2009/04/07 10:51:08 frazier Exp $
+// $Id: GctRawToDigi.h,v 1.28 2009/04/09 11:10:39 frazier Exp $
 //
 //
 
@@ -64,7 +64,7 @@ private: // methods
   bool autoDetectRequiredFormatTranslator(const unsigned char * data);
 
   /// Prints out a list of blocks and the various numbers of trigger objects that have been unpacked from them.
-  void doVerboseOutput(const GctBlockHeaderCollection& bHdrs, GctUnpackCollections * const colls);
+  void doVerboseOutput(const GctBlockHeaderCollection& bHdrs, const GctUnpackCollections * const colls) const;
 
   virtual void endJob();
 
