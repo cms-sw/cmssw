@@ -16,7 +16,9 @@
 namespace {
 
   std::string oid(std::string token) {
-    return token.substr(token.rfind('[');)
+    int pos = token.rfind('[');
+    if (pos<0) return "[]";
+    return token.substr(pos);
   }
 
   void print(cond::IOVElementProxy const & e) {
