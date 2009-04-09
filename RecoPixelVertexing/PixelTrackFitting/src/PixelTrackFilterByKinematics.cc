@@ -16,6 +16,14 @@ PixelTrackFilterByKinematics::PixelTrackFilterByKinematics( const edm::Parameter
     theChi2Max( cfg.getParameter<double>("chi2") )
 { }
 
+PixelTrackFilterByKinematics::PixelTrackFilterByKinematics( const edm::ParameterSet& cfg)
+  : thePtMin( cfg.getParameter<double>("ptMin") ),
+    theNSigmaInvPtTolerance( cfg.getParameter<double>("nSigmaInvPtTolerance")),
+    theTIPMax( cfg.getParameter<double>("tipMax") ),
+    theNSigmaTipMaxTolerance( cfg.getParameter<double>("nSigmaTipMaxTolerance")),
+    theChi2Max( cfg.getParameter<double>("chi2") )
+{ }
+
 PixelTrackFilterByKinematics::PixelTrackFilterByKinematics(double ptmin, double tipmax, double chi2max)
   : thePtMin(ptmin), theNSigmaInvPtTolerance(0.),
     theTIPMax(tipmax), theNSigmaTipMaxTolerance(0.),
@@ -25,8 +33,10 @@ PixelTrackFilterByKinematics::PixelTrackFilterByKinematics(double ptmin, double 
 PixelTrackFilterByKinematics::~PixelTrackFilterByKinematics()
 { }
 
-bool PixelTrackFilterByKinematics::operator()(const reco::Track* track,
-const PixelTrackFilter::Hits & hits) const
+bool PixelTrackFilterByKinematics::operator()(const reco::Track* track, const PixelTrackFilter::Hits & hits) const
+{ return (*this)(track); }
+
+bool PixelTrackFilterByKinematics::operator()(const reco::Track* track) const
 {
   if (!track) return false;
   if (track->chi2() > theChi2Max) return false;

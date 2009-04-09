@@ -9,6 +9,7 @@ PixelTrackReconstructionBlock = cms.PSet (
     FitterPSet = cms.PSet(
         PixelFitterByHelixProjections
     ),
+    useFilterWithES = cms.bool(False),
     FilterPSet = cms.PSet(
         nSigmaInvPtTolerance = cms.double(0.0),
         nSigmaTipMaxTolerance = cms.double(0.0),

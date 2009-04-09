@@ -66,7 +66,11 @@ void PixelTrackReconstruction::init(const edm::EventSetup& es)
 
   ParameterSet filterPSet = theConfig.getParameter<ParameterSet>("FilterPSet");
   std::string  filterName = filterPSet.getParameter<std::string>("ComponentName");
-  if (filterName != "none") theFilter = PixelTrackFilterWithESFactory::get()->create( filterName, filterPSet, es);
+  if (filterName != "none") {
+    theFilter = theConfig.getParameter<bool>("useFilterWithES") ?
+      PixelTrackFilterWithESFactory::get()->create( filterName, filterPSet, es) :
+      PixelTrackFilterFactory::get()->create( filterName, filterPSet);
+  }
 
   ParameterSet cleanerPSet = theConfig.getParameter<ParameterSet>("CleanerPSet");
   std::string  cleanerName = cleanerPSet.getParameter<std::string>("ComponentName");
