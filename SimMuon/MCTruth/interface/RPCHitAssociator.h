@@ -46,11 +46,15 @@ class RPCHitAssociator {
 
 
  private:
-   std::map<int, edm::PSimHitContainer> _SimHitMap;
    edm::Handle< edm::DetSetVector<RPCDigiSimLink> > _thelinkDigis;
- 
-   edm::InputTag RPCsimhitsTag;
    edm::InputTag RPCdigisimlinkTag;
+ 
+   bool crossingframe;
+   edm::InputTag RPCsimhitsTag;
+   edm::InputTag RPCsimhitsXFTag;
+
+   std::map<unsigned int, edm::PSimHitContainer> _SimHitMap;
+
  };
 
 #endif

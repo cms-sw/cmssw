@@ -10,7 +10,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-#include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -26,9 +25,8 @@ public:
   typedef edm::DetSet<StripDigiSimLink> LayerLinks;
   typedef std::pair <uint32_t, EncodedEventId> SimHitIdpr;
 
-  MuonTruth(const edm::ParameterSet&);
-
-  void eventSetup(const edm::Event & event, const edm::EventSetup & setup);
+  MuonTruth(const edm::Event&, const edm::EventSetup&, const edm::ParameterSet&); 
+  std::vector<SimHitIdpr> associateHitId(const TrackingRecHit &);
 
   void analyze(const CSCRecHit2D & recHit);
   void analyze(const CSCStripDigi & stripDigi, int rawDetIdCorrespondingToCSCLayer);
@@ -41,33 +39,32 @@ public:
 
   std::vector<PSimHit> simHits();
 
-  std::vector<SimHitIdpr> associateHitId(const TrackingRecHit &);
-
 private:
 
-  std::vector<PSimHit> hitsFromSimTrack(int simTrack);
+  std::vector<PSimHit> hitsFromSimTrack(SimHitIdpr truthId);
   // goes to SimHits for information
-  int particleType(int simTrack);
+  int particleType(SimHitIdpr truthId);
 
   void addChannel(const LayerLinks &layerLinks, int channel, float weight=1.);
 
-  std::map<int, float> theChargeMap;
+  std::map<SimHitIdpr, float> theChargeMap;
   float theTotalCharge;
-  int theDetId;
 
-  const MixCollection<SimTrack> * theSimTracks;
+  unsigned int theDetId;
 
   const DigiSimLinks  * theDigiSimLinks;
   const DigiSimLinks  * theWireDigiSimLinks;
 
-  PSimHitMap theSimHitMap;
-
-  edm::InputTag simTracksXFTag;
   edm::InputTag linksTag;
   edm::InputTag wireLinksTag;
+
+  bool crossingframe;
+  edm::InputTag CSCsimHitsTag;
+  edm::InputTag CSCsimHitsXFTag;
+
+  std::map<unsigned int, edm::PSimHitContainer> theSimHitMap;
 
   const CSCGeometry* cscgeom;
 };
 
 #endif
-
