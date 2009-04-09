@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.109 2009/04/09 19:22:52 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.110 2009/04/09 21:20:50 chrjones Exp $
 //
 
 // system include files
@@ -793,7 +793,8 @@ static const std::string kControllers("controllers");
 static const std::string kCollectionController("collection");
 static const std::string kViewController("view");
 static const std::string kObjectController("object");
-
+static const std::string kBackgroundColor("background color");
+static const std::string kColorControl("color control");
 
 static
 void
@@ -961,6 +962,17 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       }
    }
    oTo.addKeyValue(kControllers,controllers,true);
+   
+   //Remember what color is the background
+   FWConfiguration colorControl(1);
+   {
+      if(FWColorManager::kBlackIndex==m_colorManager->backgroundColorIndex()) {
+         colorControl.addKeyValue(kBackgroundColor,FWConfiguration("black"));
+      } else {
+         colorControl.addKeyValue(kBackgroundColor,FWConfiguration("white"));
+      }
+   }
+   oTo.addKeyValue(kColorControl,colorControl,true);
 }
 
 static
@@ -1096,6 +1108,14 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
                setWindowInfoFrom(it->second, m_modelPopup);
             }
          }
+      }
+   }
+   const FWConfiguration* colorControl = iFrom.valueForKey(kColorControl);
+   if(0!=colorControl) {
+      if("black" == colorControl->valueForKey(kBackgroundColor)->value()) {
+         m_colorManager->setBackgroundColorIndex( FWColorManager::kBlackIndex);
+      } else {
+         m_colorManager->setBackgroundColorIndex( FWColorManager::kWhiteIndex);
       }
    }
 }
