@@ -1,5 +1,5 @@
 //
-// $Id: Tau.cc,v 1.12 2008/11/28 19:02:15 lowette Exp $
+// $Id: Tau.cc,v 1.13 2009/03/26 10:54:35 veelken Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -188,3 +188,10 @@ const pat::tau::TauCaloSpecific & Tau::caloSpecific() const {
   if (!isCaloTau()) throw cms::Exception("Type Error") << "Requesting a CaloTau-specific information from a pat::Tau which wasn't made from a CaloTau.\n";
   return caloSpecific_[0]; 
 }
+
+
+void Tau::setDecayMode(int decayMode)
+{
+  if (!isPFTau()) throw cms::Exception("Type Error") << "Requesting a PFTau-specific information from a pat::Tau which wasn't made from a PFTau.\n";
+  pfSpecific_[0].decayMode_ = decayMode;
+} 
