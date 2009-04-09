@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.42 2009/03/11 21:16:20 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.43 2009/03/28 22:53:28 amraktad Exp $
 //
 // hacks
 #define private public
@@ -102,6 +102,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *showAddCollection = new CSGAction(this, cmsshow::sShowAddCollection.c_str());
    CSGAction *help = new CSGAction(this, cmsshow::sHelp.c_str());
    CSGAction *keyboardShort = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
+   CSGAction *changeBackgroundColor = new CSGAction(this, cmsshow::sBackgroundColor.c_str());
    m_nextEvent = nextEvent;
    m_previousEvent = previousEvent;
    m_goToFirst = goToFirst;
@@ -160,6 +161,8 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    TGPopupMenu *viewMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("View", viewMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
+   changeBackgroundColor->createMenuEntry(viewMenu);
+   viewMenu->AddSeparator();
    nextEvent->createMenuEntry(viewMenu);
    nextEvent->createShortcut(kKey_Right, "CTRL");
    previousEvent->createMenuEntry(viewMenu);
