@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 L1GctConfigProducers = cms.ESProducer("L1GctConfigProducers",
     JetFinderCentralJetSeed = cms.double(0.5),
     JetFinderForwardJetSeed = cms.double(0.5),
-    L1CaloJetZeroSuppressionThresholdInGeV = cms.double(5.0),
     TauIsoEtThreshold = cms.double(1.0),
     HtJetEtThreshold = cms.double(20.0),
     MHtJetEtThreshold = cms.double(20.0),
