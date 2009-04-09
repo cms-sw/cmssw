@@ -1,8 +1,8 @@
 /** \file
  * 
  * 
- * $Date: 2008/11/04 14:43:22 $
- * $Revision: 1.2 $
+ * $Date: 2009/01/10 01:05:51 $
+ * $Revision: 1.3 $
  * \author N. Amapane - S. Argiro'
  *
 */
@@ -36,7 +36,9 @@ namespace test{
  
     void analyze(const Event & e, const EventSetup& c){
       cout << "--- Run: " << e.id().run()
-	   << " Event: " << e.id().event() << endl;
+	   << " LS: " << e.luminosityBlock() 
+	   << " Event: " << e.id().event() 
+	   << " Type: " << e.experimentType() << endl;
       Handle<FEDRawDataCollection> rawdata;
       e.getByType(rawdata);
       const FEDRawData& data = rawdata->FEDData(GTEVMId);
@@ -44,7 +46,7 @@ namespace test{
 
       if (size>0 ) {
 	  cout << "FED# " << setw(4) << GTEVMId << " " << setw(8) << size << " bytes " << endl;
-	  if(evf::evtn::evm_board_sense(data.data()))
+	  if(evf::evtn::evm_board_sense(data.data(),size))
 	    {
 	      cout << "FED# " << setw(4) << GTEVMId << " is the real GT EVM block " << endl;
 	      cout << "Event # " << evf::evtn::get(data.data(),true) << endl;
