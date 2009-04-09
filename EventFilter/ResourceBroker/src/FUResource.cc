@@ -667,7 +667,7 @@ void FUResource::findFEDs() throw (evf::Exception)
     if(fedId == gtpeId_)
       if(evf::evtn::gtpe_board_sense(fedHeaderAddr)) shmCell_->setEvtNumber(evf::evtn::gtpe_get(fedHeaderAddr));
     if(useEvmBoard_ && (fedId == gtpEvmId_))
-      if(evf::evtn::evm_board_sense(fedHeaderAddr)) shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, true));
+      if(evf::evtn::evm_board_sense(fedHeaderAddr,fedSize)) shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, true));
     if(!useEvmBoard_ && (fedId == gtpDaqId_))
       if(evf::evtn::daq_board_sense(fedHeaderAddr)) shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, false));
     // crc check
