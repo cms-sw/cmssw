@@ -170,8 +170,6 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                 chi2mat[0] = &mat3;
                 chi2mat[1] = &mat4;
 
-                //TMath::Prob(Double_t chi2,Int_t ndf)
-
                 // get uncalibrated recHit
                 if (detid.subdetId()==EcalEndcap) {
                         uncalibRecHit = weightsMethod_endcap_.makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat);
