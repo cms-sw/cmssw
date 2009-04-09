@@ -38,7 +38,7 @@ namespace cond {
     bool isValid() const;
 
   private:
-    virtual bool load(pool::IDataSvc * svc, std::string & token) =0;   
+    virtual bool load(pool::IDataSvc * svc, std::string const & token) =0;   
 
 
   protected:

@@ -10,7 +10,7 @@ namespace cond {
 
   BasePayloadProxy::BasePayloadProxy(cond::Connection& conn,
 				     const std::string & token, bool errorPolicy) :
-    m_dothrow(errorPolicy), m_iov(conn,token,true,false) {
+    m_doThrow(errorPolicy), m_iov(conn,token,true,false) {
     
   }
 
