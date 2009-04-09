@@ -17,8 +17,8 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 #process.MessageLogger.debugModules = cms.untracked.vstring("testanalyzer","muonAssociatorByHits")
 
 process.MessageLogger.categories = cms.untracked.vstring('testReader', 'MuonAssociatorEDProducer',
-    'MuonAssociatorByHits', 'DTHitAssociator', 'RPCHitAssociator', 'MuonTruth', 'PSimHitMap',
-    'MixingModule', 'FwkJob', 'FwkReport', 'FwkSummary', 'Root_NoDictionary')
+    'MuonAssociatorByHits', 'DTHitAssociator', 'RPCHitAssociator', 'MuonTruth',
+    'FwkJob', 'FwkReport', 'FwkSummary', 'Root_NoDictionary')
 
 process.MessageLogger.cerr = cms.untracked.PSet(
     noTimeStamps = cms.untracked.bool(True),
@@ -27,9 +27,6 @@ process.MessageLogger.cerr = cms.untracked.PSet(
 
     testReader = cms.untracked.PSet(
         limit = cms.untracked.int32(0)
-    ),
-    MixingModule = cms.untracked.PSet(
-        limit = cms.untracked.int32(20)
     )
 )
 
@@ -60,9 +57,6 @@ process.MessageLogger.cout = cms.untracked.PSet(
     MuonTruth = cms.untracked.PSet(
         limit = cms.untracked.int32(10000000)
     ),
-    PSimHitMap = cms.untracked.PSet(
-        limit = cms.untracked.int32(10000000)
-    ),
     FwkReport = cms.untracked.PSet(
         reportEvery = cms.untracked.int32(1),
         limit = cms.untracked.int32(10000000)
@@ -82,9 +76,6 @@ process.MessageLogger.cout = cms.untracked.PSet(
 #process.MessageLogger.statistics = cms.untracked.vstring('cout')
 
 #process.Tracer = cms.Service("Tracer")
-
-# Mixing Module
-process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 
 # Standard Sequences
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -115,9 +106,8 @@ process.MyOut = cms.OutputModule("PoolOutputModule",
 )
 
 # paths and schedule
-process.mixing = cms.Path(process.mix)
 process.muonAssociator = cms.Path(process.muonAssociatorByHits)
 process.test = cms.Path(process.testanalyzer)
 process.output = cms.EndPath(process.MyOut)
 
-process.schedule = cms.Schedule(process.mixing, process.muonAssociator, process.test, process.output)
+process.schedule = cms.Schedule(process.muonAssociator, process.test, process.output)
