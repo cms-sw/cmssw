@@ -841,7 +841,7 @@ void GctFormatTranslateV38::blockToRctEmCand(const unsigned char * d, const GctB
 }
 
 // Input RCT region unpacking
-void GctBlockUnpackerV3::blockToRctCaloRegions(const unsigned char * d, const GctBlockHeaderBase& hdr)
+void GctFormatTranslateV38::blockToRctCaloRegions(const unsigned char * d, const GctBlockHeader& hdr)
 {
   // Don't want to do this in HLT optimisation mode!
   if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of RCT Regions"; return; }
@@ -881,14 +881,14 @@ void GctBlockUnpackerV3::blockToRctCaloRegions(const unsigned char * d, const Gc
         }
         
         // First region is phi=0
-        rctCalo_->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, bx) );
+        colls()->rctCalo()->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, bx) );
         ++p;
 
         // Second region is phi=1
         if (iphi>0) { iphi-=1; }
         else { iphi = 17; }
 
-        rctCalo_->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, bx) );
+        colls()->rctCalo()->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, bx) );
         ++p;
       }
       else 
@@ -1132,9 +1132,9 @@ void GctFormatTranslateV38::blockToGctInternHtMissPreWheel(const unsigned char* 
   // Don't want to do this in HLT optimisation mode!
   if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of pre-wheel internal Missing Ht data"; return; }
 
-  unsigned int id = hdr.id();
+  unsigned int id = hdr.blockId();
   unsigned int nSamples = hdr.nSamples();
-  unsigned int length = hdr.length();
+  unsigned int length = hdr.blockLength();
 
   // Re-interpret pointer to 32 bits 
   uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
@@ -1144,7 +1144,7 @@ void GctFormatTranslateV38::blockToGctInternHtMissPreWheel(const unsigned char* 
     // Loop over timesamples (i.e. bunch crossings)
     for (unsigned int bx=0; bx<nSamples; ++bx) 
     {
-      gctInternHtMiss_->push_back(L1GctInternHtMiss::unpackerMissHtxHty(id, iLength, bx, *p));
+      colls()->gctInternHtMiss()->push_back(L1GctInternHtMiss::unpackerMissHtxHty(id, iLength, bx, *p));
       ++p;
     }
   }
@@ -1155,9 +1155,9 @@ void GctFormatTranslateV38::blockToGctInternHtMissPostWheel(const unsigned char*
   // Don't want to do this in HLT optimisation mode!
   if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of post-wheel internal Missing Ht data"; return; }
 
-  unsigned int id = hdr.id();
+  unsigned int id = hdr.blockId();
   unsigned int nSamples = hdr.nSamples();
-  unsigned int length = hdr.length();
+  unsigned int length = hdr.blockLength();
 
   // Re-interpret pointer to 32 bits 
   uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
@@ -1167,8 +1167,8 @@ void GctFormatTranslateV38::blockToGctInternHtMissPostWheel(const unsigned char*
     // Loop over timesamples (i.e. bunch crossings)
     for (unsigned int bx=0; bx<nSamples; ++bx) 
     {
-      if(iLength % 2) { gctInternHtMiss_->push_back(L1GctInternHtMiss::unpackerMissHty(id, iLength, bx, *p)); }  // Hty on odd numbers
-      else { gctInternHtMiss_->push_back(L1GctInternHtMiss::unpackerMissHtx(id, iLength, bx, *p)); } // Htx on even numbers
+      if(iLength % 2) { colls()->gctInternHtMiss()->push_back(L1GctInternHtMiss::unpackerMissHty(id, iLength, bx, *p)); }  // Hty on odd numbers
+      else { colls()->gctInternHtMiss()->push_back(L1GctInternHtMiss::unpackerMissHtx(id, iLength, bx, *p)); } // Htx on even numbers
       ++p;
     }
   }
