@@ -7,9 +7,9 @@ import FWCore.ParameterSet.Config as cms
 #ECAL conditions
 #  include "CalibCalorimetry/EcalTrivialCondModules/data/EcalTrivialCondRetriever.cfi"
 #ECAL reconstruction
-from RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi import *
+from RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalPreshowerRecHit_cfi import *
-ecalLocalRecoSequence = cms.Sequence(ecalWeightUncalibRecHit*ecalRecHit+ecalPreshowerRecHit)
-ecalLocalRecoSequence_nopreshower = cms.Sequence(ecalWeightUncalibRecHit*ecalRecHit)
-
+from RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi import *
+ecalLocalRecoSequence = cms.Sequence(ecalGlobalUncalibRecHit*ecalDetIdToBeRecovered*ecalRecHit+ecalPreshowerRecHit)
+ecalLocalRecoSequence_nopreshower = cms.Sequence(ecalGlobalUncalibRecHit*ecalRecHit)
