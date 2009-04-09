@@ -13,7 +13,7 @@
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id: TauMVADiscriminator.cc,v 1.9 2009/02/28 01:04:38 friis Exp $
+// $Id: TauMVADiscriminator.cc,v 1.10 2009/03/28 18:26:58 friis Exp $
 //
 //
 
@@ -42,6 +42,7 @@
 #include "RecoTauTag/TauTagTools/interface/TauMVADBConfiguration.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputerRecord.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputer.h"
+#include "PhysicsTools/MVAComputer/interface/MVAComputerCache.h"
 
 //
 // class decleration
@@ -56,9 +57,9 @@ class TauMVADiscriminator : public edm::EDProducer {
       ~TauMVADiscriminator();
 
       struct  MVAComputerFromDB {
-         string                     computerName;
-         PhysicsTools::MVAComputer* computer;
-         double                     userCut; 
+         string                                 computerName;
+         PhysicsTools::MVAComputerCache*        computer;
+         double                                 userCut;
       };
 
       typedef vector<MVAComputerFromDB>    MVAList;
@@ -83,6 +84,7 @@ class TauMVADiscriminator : public edm::EDProducer {
       DiscriminantList          myDiscriminants_;  // collection of functions to compute the discriminants
       PFTauDiscriminantManager  discriminantManager_;
 
+//      PhysicsTools::MVAComputerCache                    mvaComputerCache_;
       std::vector<PhysicsTools::Variable::Value>        mvaComputerInput_;
 };
 
@@ -105,7 +107,7 @@ TauMVADiscriminator::TauMVADiscriminator(const edm::ParameterSet& iConfig):
       MVAComputerFromDB toInsert;
       toInsert.computerName = iComputer->getParameter<string>("computerName");
       toInsert.userCut      = iComputer->getParameter<double>("cut");
-      toInsert.computer     = NULL;
+      toInsert.computer     = new PhysicsTools::MVAComputerCache();
       MVAList::iterator computerJustAdded = computers_.insert(computers_.end(), toInsert); //add this computer to the end of the list
 
       //populate the map
@@ -138,6 +140,12 @@ TauMVADiscriminator::TauMVADiscriminator(const edm::ParameterSet& iConfig):
 
 TauMVADiscriminator::~TauMVADiscriminator()
 {
+   for(MVAList::iterator iMVAComputer  = computers_.begin();
+                         iMVAComputer != computers_.end();
+                       ++iMVAComputer)
+   {
+      delete iMVAComputer->computer;
+   }
 }
 
 // ------------ method called to produce the data  ------------
@@ -156,20 +164,14 @@ TauMVADiscriminator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    //get appropriate MVA setup (specified in CFG file)
    //we do this on each produce as the crossing an IOV boundary could change the appropriate record
-   //TODO: move this to beginRun(...)?
-   ESHandle<PhysicsTools::Calibration::MVAComputerContainer> mvaHandle;
-   iSetup.get<TauMVAFrameworkDBRcd>().get(mvaHandle);
+   
    for(MVAList::iterator iMVAComputer  = computers_.begin();
                          iMVAComputer != computers_.end();
                        ++iMVAComputer)
    {
-      //refresh the MVA computers
-      if(iMVAComputer->computer) { //if is non-NULL
-         delete iMVAComputer->computer;
-      }
       string nameToGet = iMVAComputer->computerName;
-      iMVAComputer->computer = new PhysicsTools::MVAComputer(&mvaHandle.product()->find(nameToGet));
-   }
+      iMVAComputer->computer->update<TauMVAFrameworkDBRcd>(iSetup, nameToGet.c_str());
+   } 
 
    DiscriminantHandleList                    otherDiscriminants;
    for(std::vector<InputTag>::const_iterator iDiscriminant  = preDiscriminants_.begin();
@@ -212,13 +214,19 @@ TauMVADiscriminator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          DecayModeToMVAMap::iterator iterToComputer = computerMap_.find(decayMode);
          if(iterToComputer != computerMap_.end()) //if we don't have a MVA mapped to this decay mode, skip it.
          {
-            PhysicsTools::MVAComputer* mvaComputer = iterToComputer->second->computer;
+            const PhysicsTools::MVAComputerCache* mvaComputer = iterToComputer->second->computer;
+            if ( (*mvaComputer) ) {
+               //sets the current tau decay mode as the active object
+               discriminantManager_.setEventData(theTauDecayMode, iEvent);
+               //applies associated discriminants (see ctor) and constructs the appropriate MVA framework input
+               discriminantManager_.buildMVAComputerLink(mvaComputerInput_);
+               output = (*mvaComputer)->eval(mvaComputerInput_);
+            } else {
+               edm::LogWarning("TauMVADiscriminator") << "Warning: got a null pointer to MVA computer in conditions database"
+                                                      << " for decay mode: " << decayMode << ", expected MVA computer name: " 
+                                                      << iterToComputer->second->computerName;
+            }
 
-            //sets the current tau decay mode as the active object
-            discriminantManager_.setEventData(theTauDecayMode, iEvent);
-            //applies associated discriminants (see ctor) and constructs the appropriate MVA framework input
-            discriminantManager_.buildMVAComputerLink(mvaComputerInput_);
-            output = mvaComputer->eval(mvaComputerInput_);
             if (remapOutput_) // TMVA maps output to [-1, 1].  Remap, if desired, to [0, 1]
             {
                if      (output >  1) output = 1.;
