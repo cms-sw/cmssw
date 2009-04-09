@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactorsProducer.h,v 1.4 2009/02/19 16:18:08 rwolf Exp $
+// $Id: JetCorrFactorsProducer.h,v 1.5 2009/03/30 17:18:11 rwolf Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_JetCorrFactorsProducer_h
@@ -18,7 +18,7 @@
    created in the PAT Layer-1.
 
   \author   Steven Lowette
-  \version  $Id: JetCorrFactorsProducer.h,v 1.4 2009/02/19 16:18:08 rwolf Exp $
+  \version  $Id: JetCorrFactorsProducer.h,v 1.5 2009/03/30 17:18:11 rwolf Exp $
 */
 
 #include "FWCore/Framework/interface/Event.h"
@@ -41,7 +41,7 @@ namespace pat {
 
   class JetCorrFactorsProducer : public edm::EDProducer {
 
-    /// sample type for flavor dependen correction
+    /// sample type for flavor dependend correction
     enum SampleType {kNone, kDijet, kTtbar};
     /// correction type for flavor dependend corrections
     enum CorrType   {kPlain, kFlavor, kParton, kCombined};
@@ -57,6 +57,7 @@ namespace pat {
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
     private:
+
       /// configure the constructor strings for the CombinedJetCorrector
       void configure(std::string level, std::string tag);
       /// evaluate the jet correction foactor according to level and corrector type
