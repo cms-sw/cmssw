@@ -14,8 +14,13 @@
 
 
 namespace {
+
+  std::string oid(std::string token) {
+    return token.substr(token.rfind('[');)
+  }
+
   void print(cond::IOVElementProxy const & e) {
-    std::cout<<"payloadToken "<< e.wrapperToken()
+    std::cout<<"payloadToken "<< oid(e.wrapperToken())
 	     <<", since "<< e.since()
 	     <<", till "<< e.till()
 	     << std::endl;
@@ -64,7 +69,7 @@ int main(){
     std::cout << "size " << it->size()
 	      <<", Time Type " << it->timetype() << std::endl;
     while( it->next() ){
-      std::cout<<"payloadToken "<<it->payloadToken();
+      std::cout<<"payloadToken "<< oid(it->payloadToken());
       std::cout<<", since "<<it->validity().first;
       std::cout<<", till "<<it->validity().second<<std::endl;
     }
@@ -73,7 +78,7 @@ int main(){
     it=iovmanager.newIOVIterator(iovtok,cond::IOVService::backwardIter);
     std::cout<<"test reverse iterator "<<std::endl;
     while( it->next() ){
-      std::cout<<"payloadToken "<<it->payloadToken();
+      std::cout<<"payloadToken "<< oid(it->payloadToken());
       std::cout<<", since "<<it->validity().first;
       std::cout<<", till "<<it->validity().second<<std::endl;
     }
