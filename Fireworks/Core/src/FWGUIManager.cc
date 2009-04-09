@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.107 2009/04/08 17:11:16 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.108 2009/04/09 15:45:06 amraktad Exp $
 //
 
 // system include files
@@ -1020,45 +1020,39 @@ setWindowInfoFrom(const FWConfiguration& iFrom,
 void
 FWGUIManager::setFrom(const FWConfiguration& iFrom)
 {
-   //first is main window
-   const FWConfiguration* mw = iFrom.valueForKey(kMainWindow);
-   assert(mw != 0);
-   int width,height;
+   // main window
    {
-      const FWConfiguration* cWidth = mw->valueForKey("width");
-      assert(0 != cWidth);
-      std::stringstream s(cWidth->value());
-      s >> width;
-   }
-   {
-      const FWConfiguration* c = mw->valueForKey("height");
-      assert(0 != c);
-      std::stringstream s(c->value());
-      s >> height;
-   }
-   m_cmsShowMainFrame->Resize(width,height);
-   {
+      const FWConfiguration* mw = iFrom.valueForKey(kMainWindow);
+      assert(mw != 0);
+      int width,height;
       int x=0;
       int y=0;
-      {
-         const FWConfiguration* cX = mw->valueForKey("x");
-         if( 0!=cX ) {
-            std::stringstream s(cX->value());
-            s >> x;
-         }
+
+      const FWConfiguration* cWidth = mw->valueForKey("width");
+      assert(0 != cWidth);
+      std::stringstream sw(cWidth->value());
+      sw >> width;
+      const FWConfiguration* c = mw->valueForKey("height");
+      assert(0 != c);
+      std::stringstream sh(c->value());
+      sh >> height;
+
+      const FWConfiguration* cX = mw->valueForKey("x");
+      if( 0!=cX ) {
+         std::stringstream sx(cX->value());
+         sx >> x;
+      }  
+      const FWConfiguration* cY = mw->valueForKey("y");
+      if(0 != cY) {
+         std::stringstream sy(cY->value());
+         sy >> y;
       }
-      {
-         const FWConfiguration* cY = mw->valueForKey("y");
-         if(0 != cY) {
-            std::stringstream s(cY->value());
-            s >> y;
-         }
-      }
-      printf("set from (%d, %d)\n", x, y);
-      m_cmsShowMainFrame->Move(x,y);
+
+      m_cmsShowMainFrame->MoveResize(x, y, width, height);
+      m_cmsShowMainFrame->SetWMPosition(x, y);
    }
 
-   // !! when and position is clear map window
+   // !! when position and size is clear map window
    m_viewPrimPack->GetGUIFrame()->Layout();
    m_cmsShowMainFrame->MapWindow();
 
