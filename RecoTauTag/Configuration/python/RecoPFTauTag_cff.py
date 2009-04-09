@@ -53,6 +53,7 @@ PFTau = cms.Sequence(
       ic5PFJetTracksAssociatorAtVertex *
       pfRecoTauTagInfoProducer *
       produceAndDiscriminateShrinkingConePFTaus +
+      produceShrinkingConeDiscriminationByTauNeuralClassifier +
       produceAndDiscriminateFixedConeHighEffPFTaus + 
       produceAndDiscriminateFixedConePFTaus
       )
