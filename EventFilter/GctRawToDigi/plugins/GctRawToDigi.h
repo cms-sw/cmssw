@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.5 2009/04/06 18:47:59 frazier Exp $
+// $Id: GctRawToDigi.h,v 1.27 2009/04/07 10:51:08 frazier Exp $
 //
 //
 
@@ -62,6 +62,9 @@ private: // methods
   /// Looks at the firmware version header in the S-Link packet and instantiates relevant format translator.
   /*! Returns false if it fails to instantiate a Format Translator */
   bool autoDetectRequiredFormatTranslator(const unsigned char * data);
+
+  /// Prints out a list of blocks and the various numbers of trigger objects that have been unpacked from them.
+  void doVerboseOutput(const GctBlockHeaderCollection& bHdrs, GctUnpackCollections * const colls);
 
   virtual void endJob();
 

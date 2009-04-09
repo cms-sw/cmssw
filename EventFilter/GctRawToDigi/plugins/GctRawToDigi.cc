@@ -166,7 +166,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, GctUnpackCollectio
 
   const unsigned dEnd = d.size() - 8; // End of payload is at (packet size - final slink header)
 
-  std::vector<GctBlockHeader> bHdrs; // Vector for storing block headers for verbosity print-out.
+  GctBlockHeaderCollection bHdrs; // Vector for storing block headers for verbosity print-out.
 
   // read blocks
   for (unsigned nb=0; dPtr<dEnd; ++nb)
@@ -191,16 +191,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, GctUnpackCollectio
   }
 
   // dump summary in verbose mode
-  if (verbose_)
-  {
-    std::ostringstream os;
-    os << "Found " << bHdrs.size() << " GCT block headers" << endl;
-    for (unsigned i=0, size = bHdrs.size(); i < size; ++i)
-    {
-      os << "GCT Raw Data Block : " << formatTranslator_->getBlockDescription(bHdrs[i]) << " : " << bHdrs[i] << endl;
-    }
-    edm::LogVerbatim("GCT") << os.str();
-  }
+  if(verbose_) { doVerboseOutput(bHdrs, colls); }
 }
 
 
@@ -241,6 +232,17 @@ bool GctRawToDigi::autoDetectRequiredFormatTranslator(const unsigned char * d)
   return false;
 }
 
+void GctRawToDigi::doVerboseOutput(const GctBlockHeaderCollection& bHdrs, GctUnpackCollections * const colls)
+{
+  std::ostringstream os;
+  os << "Found " << bHdrs.size() << " GCT block headers" << endl;
+  for (unsigned i=0, size = bHdrs.size(); i < size; ++i)
+  {
+    os << "GCT Raw Data Block : " << formatTranslator_->getBlockDescription(bHdrs[i]) << " : " << bHdrs[i] << endl;
+  }
+  os << *colls << endl;
+  edm::LogVerbatim("GCT") << os.str();
+}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void GctRawToDigi::endJob()
