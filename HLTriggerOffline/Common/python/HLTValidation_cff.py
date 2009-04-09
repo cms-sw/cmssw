@@ -6,40 +6,40 @@ from HLTriggerOffline.Common.FourVectorHLTriggerOffline_cff import *
 from HLTriggerOffline.HeavyFlavor.heavyFlavorValidationSequence_cff import *
 from HLTriggerOffline.JetMET.Validation.HLTJetMETValidation_cff import *
 from HLTriggerOffline.special.hltAlCaVal_cff import *
-#from HLTriggerOffline.SUSYBSM.SUSYBSM_triggerValidation_cff import *
+#from HLTriggerOffline.SUSYBSM.SusyExoValidation_cff import *
 
 hltvalidation = cms.Sequence(
      HLTMuonVal
     +HLTTauVal
-    #+egammaValidationSequence
+    +egammaValidationSequence
     +HLTTopVal
     +HLTFourVector
     +heavyFlavorValidationSequence
     +HLTJetMETValSeq
     +HLTAlCaVal
-   #+HLTSusyExoVal
+   #+HLTSusyExoValSeq
     )
 
 hltvalidation_fastsim = cms.Sequence(
-    #HLTMuonVal_FastSim
+   # HLTMuonVal_FastSim
      HLTTauVal
-   #+egammaValidationSequence
+    +egammaValidationSequence
     +HLTTopVal
     +HLTFourVector
     +heavyFlavorValidationSequence
     +HLTJetMETValSeq
-    #+HLTAlCaVal
-    #+HLTSusyExoVal
+    +HLTAlCaVal_FastSim
+   #+HLTSusyExoValSeq_FastSim
     )
 
 hltvalidation_pu = cms.Sequence(
     #HLTMuonVal
      HLTTauVal
-   #+egammaValidationSequence
+    +egammaValidationSequence
     +HLTTopVal
     +HLTFourVector
     +heavyFlavorValidationSequence
     +HLTJetMETValSeq
     +HLTAlCaVal
-   #+HLTSusyExoVal
+   #+HLTSusyExoValSeq
     )
