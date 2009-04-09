@@ -43,7 +43,7 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     ThreeHitTracksAreSpecial = cms.bool(True),
     #
     # for DT Hit associator
-    crossingframe = cms.bool(True),
+    crossingframe = cms.bool(False),
     simtracksTag = cms.InputTag("g4SimHits"),
     simtracksXFTag = cms.InputTag("mix","g4SimHits"),
     #
@@ -58,11 +58,13 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     associatorByWire = cms.bool(False),
     #
     # for CSC Hit associator
+    CSCsimHitsTag = cms.InputTag("g4SimHits","MuonCSCHits"),
     CSCsimHitsXFTag = cms.InputTag("mix","g4SimHitsMuonCSCHits"),
     CSClinksTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigiSimLinks"),
     CSCwireLinksTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigiSimLinks"),
     #
     # for RPC Hit associator
+    RPCsimhitsTag = cms.InputTag("g4SimHits","MuonRPCHits"),
     RPCsimhitsXFTag = cms.InputTag("mix","g4SimHitsMuonRPCHits"),
     RPCdigisimlinkTag = cms.InputTag("simMuonRPCDigis","RPCDigiSimLink"),
     #
