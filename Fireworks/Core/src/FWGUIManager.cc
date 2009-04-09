@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.108 2009/04/09 15:45:06 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.109 2009/04/09 19:22:52 amraktad Exp $
 //
 
 // system include files
@@ -51,6 +51,7 @@
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWSummaryManager.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
@@ -136,6 +137,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    m_eiManager->newItem_.connect(boost::bind(&FWGUIManager::newItem,
                                              this, _1) );
 
+   m_colorManager->colorsHaveChangedFinished_.connect(boost::bind(&FWGUIManager::finishUpColorChange,this));
    // These are only needed temporarilty to work around a problem which
    // Matevz has patched in a later version of the code
    TApplication::NeedGraphicsLibs();
@@ -176,7 +178,8 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       getAction(cmsshow::sHelp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpPopup));
       assert(getAction(cmsshow::sKeyboardShort) != 0);
       getAction(cmsshow::sKeyboardShort)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createShortcutPopup));
-
+      getAction(cmsshow::sBackgroundColor)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::changeBackgroundColor));
+      
       // toolbar special widget with non-void actions
       m_cmsShowMainFrame->m_delaySliderListener->valueChanged_.connect(boost::bind(&FWGUIManager::delaySliderChanged,this,_1));
 
@@ -495,60 +498,20 @@ FWGUIManager::createList(TGSplitFrame *p)
                                                                 gClient->GetPicture(coreIcondir+"plus-sign.png"),
                                                                 gClient->GetPicture(coreIcondir+"plus-sign-over.png"),
                                                                 gClient->GetPicture(coreIcondir+"plus-sign-disabled.png"));
-   //TGTextButton* addDataButton = new TGTextButton(listFrame,"+");
    addDataButton->SetToolTipText("Show additional collections");
    addDataButton->Connect("Clicked()", "FWGUIManager", this, "addData()");
    addFrame->AddFrame(addDataButton, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,2,2,2,2));
    listFrame->AddFrame(addFrame, new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,2,2,2,2));
 
 
-   //  p->Resize(listFrame->GetWidth(), listFrame->GetHeight());
    m_summaryManager = new FWSummaryManager(listFrame,
                                            m_selectionManager,
                                            m_eiManager,
                                            this,
-                                           m_changeManager);
+                                           m_changeManager,
+                                           m_colorManager);
    
    listFrame->AddFrame(m_summaryManager->widget(), new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
-   //m_views =  new TEveElementList("Views");
-   //m_views->AddIntoListTree(m_listTree,reinterpret_cast<TGListTreeItem*>(0));
-   //m_editor = ltf->GetEditor();
-   //m_editor->DisplayElement(0);
-   /*
-   {
-      //m_listTree->Connect("mouseOver(TGListTreeItem*, UInt_t)", "FWGUIManager",
-      //                 this, "itemBelowMouse(TGListTreeItem*, UInt_t)");
-      m_listTree->Connect("Clicked(TGListTreeItem*, Int_t, UInt_t, Int_t, Int_t)", "FWGUIManager",
-                          this, "itemClicked(TGListTreeItem*, Int_t, UInt_t, Int_t, Int_t)");
-      m_listTree->Connect("DoubleClicked(TGListTreeItem*, Int_t)", "FWGUIManager",
-                          this, "itemDblClicked(TGListTreeItem*, Int_t)");
-      m_listTree->Connect("KeyPressed(TGListTreeItem*, ULong_t, ULong_t)", "FWGUIManager",
-                          this, "itemKeyPress(TGListTreeItem*, UInt_t, UInt_t)");
-   }
-    */
-   /*
-      TGGroupFrame* vf = new TGGroupFrame(listFrame,"Selection",kVerticalFrame);
-      {
-
-      TGGroupFrame* vf2 = new TGGroupFrame(vf,"Expression");
-      m_selectionItemsComboBox = new TGComboBox(vf2,200);
-      m_selectionItemsComboBox->Resize(200,20);
-      vf2->AddFrame(m_selectionItemsComboBox, new TGLayoutHints(kLHintsTop | kLHintsLeft,0,5,5,5));
-      m_selectionExpressionEntry = new TGTextEntry(vf2,"$.pt() > 10");
-      vf2->AddFrame(m_selectionExpressionEntry, new TGLayoutHints(kLHintsExpandX,0,5,5,5));
-      m_selectionRunExpressionButton = new TGTextButton(vf2,"Select by Expression");
-      vf2->AddFrame(m_selectionRunExpressionButton);
-      m_selectionRunExpressionButton->Connect("Clicked()","FWGUIManager",this,"selectByExpression()");
-      vf->AddFrame(vf2);
-
-      m_unselectAllButton = new TGTextButton(vf,"Unselect All");
-      m_unselectAllButton->Connect("Clicked()", "FWGUIManager",this,"unselectAll()");
-      vf->AddFrame(m_unselectAllButton);
-      m_unselectAllButton->SetEnabled(kFALSE);
-
-      }
-      listFrame->AddFrame(vf);
-    */
 
    return listFrame;
 }
@@ -617,12 +580,10 @@ FWGUIManager::showModelPopup()
 void
 FWGUIManager::updateModel(FWEventItem* iItem) {
    createModelPopup();
-   //  m_modelPopup->fillModelPopup(iItem);
 }
 
 void
 FWGUIManager::resetModelPopup() {
-   //  m_modelChangeConn.disconnect();
    m_modelPopup->DontCallClose();
    m_modelPopup->UnmapWindow();
 }
@@ -773,9 +734,6 @@ FWGUIManager::itemClicked(TGListTreeItem *item, Int_t btn,  UInt_t mask, Int_t x
          if(isCollection) {
             gEve->GetSelection()->UserPickedElement(el,mask&kKeyControlMask);
          }
-         //NOTE: editor should be decided by looking at FWSelectionManager and NOT directly from clicking
-         // in the list
-         //m_editor->DisplayElement(el);
       }
    }
 }
@@ -1178,6 +1136,22 @@ void FWGUIManager::eventIdChanged()
 void FWGUIManager::eventFilterChanged()
 {
    changedEventFilter_.emit(m_cmsShowMainFrame->m_filterEntry->GetText());
+}
+
+void 
+FWGUIManager::changeBackgroundColor()
+{
+   if(FWColorManager::kBlackIndex == m_colorManager->backgroundColorIndex()) {
+      m_colorManager->setBackgroundColorIndex(FWColorManager::kWhiteIndex);
+   } else {
+      m_colorManager->setBackgroundColorIndex(FWColorManager::kBlackIndex);
+   }
+}
+
+void 
+FWGUIManager::finishUpColorChange()
+{
+   gEve->FullRedraw3D();
 }
 
 //

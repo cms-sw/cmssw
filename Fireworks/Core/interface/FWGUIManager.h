@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.57 2009/04/08 17:11:16 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.58 2009/04/09 15:45:05 amraktad Exp $
 //
 
 // system include files
@@ -162,6 +162,7 @@ public:
    void loadEvent(const fwlite::Event& event);
    void newFile(const TFile*);
 
+   void changeBackgroundColor();
    CSGAction* getAction(const std::string name);
 
    void addData();
@@ -218,6 +219,7 @@ private:
 
    void delaySliderChanged(Int_t);
 
+   void finishUpColorChange();
    // ---------- member data --------------------------------
 
    static FWGUIManager* m_guiManager;
