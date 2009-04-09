@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.16 2009/03/25 20:42:54 amraktad Exp $
+// $Id: FWGUISubviewArea.h,v 1.17 2009/04/03 18:36:05 amraktad Exp $
 //
 
 #include "TGFrame.h"
@@ -44,6 +44,7 @@ public:
    static const TGPicture * swapIcon();
    static const TGPicture * swapDisabledIcon();
    static const TGPicture * undockIcon();
+   static const TGPicture * dockIcon();
    static const TGPicture * undockDisabledIcon();
    static const TGPicture * closeIcon();
    static const TGPicture * closeDisabledIcon();
@@ -56,6 +57,7 @@ public:
    void swapWithCurrentView();
    void destroy();
    void undock();
+   void dock();
 
    void selectButtonDown();
    void selectButtonUp();
@@ -79,6 +81,7 @@ private:
 
    TGPictureButton* m_swapButton;
    TGPictureButton* m_undockButton;
+   TGPictureButton* m_dockButton;
    TGPictureButton* m_closeButton;
    TGPictureButton* m_infoButton;
 };

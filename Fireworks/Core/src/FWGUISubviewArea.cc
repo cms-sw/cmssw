@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.22 2009/03/25 20:42:54 amraktad Exp $
+// $Id: FWGUISubviewArea.cc,v 1.23 2009/04/03 18:36:06 amraktad Exp $
 //
 
 // system include files
@@ -33,7 +33,11 @@
 //
 FWGUISubviewArea::FWGUISubviewArea(TEveCompositeFrame* ef, TGCompositeFrame* parent, Int_t height) :
    TGHorizontalFrame(parent, 20, height),
-   m_frame (ef)
+   m_frame (ef),
+   m_swapButton(0),
+   m_undockButton(0), m_dockButton(0),
+   m_closeButton(0),
+   m_infoButton(0)
 {
    UInt_t lh = kLHintsNormal | kLHintsExpandX | kLHintsExpandY;
 
@@ -50,26 +54,34 @@ FWGUISubviewArea::FWGUISubviewArea(TEveCompositeFrame* ef, TGCompositeFrame* par
    //swap
    m_swapButton = new TGPictureButton(this, swapIcon());
    m_swapButton->SetDisabledPicture(swapDisabledIcon());
-   m_swapButton->SetToolTipText("Swap with current. Current is selected with left mouse click on frame tollbar.");
+   m_swapButton->SetToolTipText("Swap with current. Make current with mouse click on frame toolbar");
    m_swapButton->ChangeOptions(kRaisedFrame);
    m_swapButton->SetHeight(height);
    AddFrame(m_swapButton, new TGLayoutHints(lh));
    m_swapButton->Connect("Clicked()","FWGUISubviewArea",this,"swapWithCurrentView()");
 
-   // undock
-   m_undockButton = new TGPictureButton(this, undockIcon());
-   m_undockButton->ChangeOptions(kRaisedFrame);
-   m_undockButton->SetDisabledPicture(undockDisabledIcon());
-   m_undockButton->SetToolTipText("Undock view to own window");
-   m_undockButton->SetHeight(height);
-   AddFrame(m_undockButton, new TGLayoutHints(lh));
-   m_undockButton->Connect("Clicked()", "FWGUISubviewArea",this,"undock()");
-   // disable undock on undocked window 
+   // dock ? undock
    if (dynamic_cast<const TGMainFrame*>(ef->GetParent()))
-   {
-     m_undockButton->SetState(kButtonDisabled, kFALSE);
+   {  
+      m_dockButton = new TGPictureButton(this, dockIcon());
+      m_dockButton->ChangeOptions(kRaisedFrame);
+      m_dockButton->ChangeOptions(kRaisedFrame);
+      m_dockButton->SetDisabledPicture(undockDisabledIcon());
+      m_dockButton->SetToolTipText("Undock view to own window");
+      m_dockButton->SetHeight(height);
+      AddFrame(m_dockButton, new TGLayoutHints(lh));
+      m_dockButton->Connect("Clicked()", "FWGUISubviewArea",this,"dock()");
    }
-
+   else
+   {
+      m_undockButton = new TGPictureButton(this, undockIcon());
+      m_undockButton->ChangeOptions(kRaisedFrame);
+      m_undockButton->SetDisabledPicture(undockDisabledIcon());
+      m_undockButton->SetToolTipText("Dock view");
+      m_undockButton->SetHeight(height);
+      AddFrame(m_undockButton, new TGLayoutHints(lh));
+      m_undockButton->Connect("Clicked()", "FWGUISubviewArea",this,"undock()");
+   }
    // destroy
    m_closeButton = new TGPictureButton(this,closeIcon());
    m_closeButton->ChangeOptions(kRaisedFrame);
@@ -140,6 +152,12 @@ void
 FWGUISubviewArea::undock()
 {
    TTimer::SingleShot(50, m_frame->GetEveWindow()->ClassName(), m_frame->GetEveWindow(), "UndockWindowDestroySlot()");
+}
+
+void
+FWGUISubviewArea::dock()
+{
+   TTimer::SingleShot(0, m_frame->ClassName(), m_frame, "MainFrameClosed()");
 }
 
 //
@@ -253,6 +271,21 @@ FWGUISubviewArea::undockIcon()
       }
       TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
       s_icon = gClient->GetPicture(coreIcondir+"expand.png");
+   }
+   return s_icon;
+}
+
+const TGPicture *
+FWGUISubviewArea::dockIcon()
+{
+   static const TGPicture* s_icon = 0;
+   if(0== s_icon) {
+      const char* cmspath = gSystem->Getenv("CMSSW_BASE");
+      if(0 == cmspath) {
+         throw std::runtime_error("CMSSW_BASE environment variable not set");
+      }
+      TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
+      s_icon = gClient->GetPicture(coreIcondir+"dock.png");
    }
    return s_icon;
 }
