@@ -63,7 +63,7 @@ std::vector<SourceVariable*> SourceVariableSet::get(bool withMagic) const
 	if (!withMagic) {
 		unsigned int pos = vars.size();
 		for(std::vector<PosVar>::const_iterator iter = vars.begin();
-		    iter != vars.end(); iter++, pos++)
+		    iter != vars.end(); iter++)
 			if (iter->magic != kRegular) {
 				result.erase(result.begin() +
 				             (iter->pos - (iter->pos >= pos)));
