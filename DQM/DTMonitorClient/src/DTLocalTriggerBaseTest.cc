@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/05 11:39:46 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/11/18 12:06:36 $
+ *  $Revision: 1.9 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -197,7 +197,32 @@ void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string folder
   string fullTag = fullName(hTag);
   string hname    = fullTag + "_W" + wh.str()+"_Sec" +sc.str();
   LogTrace(category()) << "[" << testName << "Test]: booking " << basedir << hname;
-  if (hTag.find("Phi") != string::npos || 
+  if (hTag.find("BXDistribPhi") != string::npos){    
+    MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),25,-4.5,20.5,4,0.5,4.5);
+    me->setBinLabel(1,"MB1",2);
+    me->setBinLabel(2,"MB2",2);
+    me->setBinLabel(3,"MB3",2);
+    me->setBinLabel(4,"MB4",2);
+    secME[sectorid][fullTag] = me;
+    return;
+  }
+  else if (hTag.find("QualDistribPhi") != string::npos){    
+    MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),7,-0.5,6.5,4,0.5,4.5);
+    me->setBinLabel(1,"MB1",2);
+    me->setBinLabel(2,"MB2",2);
+    me->setBinLabel(3,"MB3",2);
+    me->setBinLabel(4,"MB4",2);
+    me->setBinLabel(1,"LI",1);
+    me->setBinLabel(2,"LO",1);
+    me->setBinLabel(3,"HI",1);
+    me->setBinLabel(4,"HO",1);
+    me->setBinLabel(5,"LL",1);
+    me->setBinLabel(6,"HL",1);
+    me->setBinLabel(7,"HH",1);
+    secME[sectorid][fullTag] = me;
+    return;
+  }
+  else if (hTag.find("Phi") != string::npos || 
       hTag.find("TkvsTrig") != string::npos ){    
     MonitorElement* me = dbe->book1D(hname.c_str(),hname.c_str(),4,0.5,4.5);
     me->setBinLabel(1,"MB1",1);
