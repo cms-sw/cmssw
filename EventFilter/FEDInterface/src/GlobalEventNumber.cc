@@ -39,13 +39,19 @@ namespace evf{
     { 
       return (*(unsigned int*)( p+sizeof(fedh_t) + (EVM_GTFE_BLOCK*2 + EVM_TCS_ORBTNR_OFFSET) * SLINK_WORD_SIZE / 2));
     }
+    unsigned int getevtyp(const unsigned char *p)
+    { 
+      return (((*(unsigned int*)( p+sizeof(fedh_t) + (EVM_GTFE_BLOCK*2 + EVM_TCS_LSBLNR_OFFSET) * SLINK_WORD_SIZE / 2)) 
+	      & EVM_TCS_EVNTYP_MASK) >> EVM_TCS_EVNTYP_SHIFT);
+    }
     unsigned int gtpe_getorbit(const unsigned char *p)
     { 
       return (*(unsigned int*)( p + GTPE_ORBTNR_OFFSET * SLINK_HALFWORD_SIZE));
     }
     unsigned int getfdlbx(const unsigned char *p)
     { 
-      return (*(unsigned int*)( p+sizeof(fedh_t) + (EVM_GTFE_BLOCK + EVM_TCS_BLOCK + EVM_FDL_BLOCK) * SLINK_WORD_SIZE +
+      return (*(unsigned int*)( p+sizeof(fedh_t) + (EVM_GTFE_BLOCK + EVM_TCS_BLOCK 
+						    + EVM_FDL_BLOCK * (EVM_FDL_NOBX/2) ) * SLINK_WORD_SIZE +
 				EVM_FDL_BCNRIN_OFFSET * SLINK_HALFWORD_SIZE)) &  EVM_TCS_BCNRIN_MASK;
     }
     unsigned int gtpe_getbx(const unsigned char *p)
@@ -54,9 +60,27 @@ namespace evf{
     }
     unsigned int getfdlpsc(const unsigned char *p)
     { 
-      return (*(unsigned int*)( p+sizeof(fedh_t) + (EVM_GTFE_BLOCK + EVM_TCS_BLOCK + EVM_FDL_BLOCK) * SLINK_WORD_SIZE +
+      return (*(unsigned int*)( p+sizeof(fedh_t) + (EVM_GTFE_BLOCK + EVM_TCS_BLOCK 
+						    + EVM_FDL_BLOCK * (EVM_FDL_NOBX/2)) * SLINK_WORD_SIZE +
 				EVM_FDL_PSCVSN_OFFSET * SLINK_HALFWORD_SIZE));
     }
-
+    unsigned long long getfdlttr(const unsigned char *p)
+    {
+       return (*(unsigned long long*)( p+sizeof(fedh_t) + (EVM_GTFE_BLOCK + EVM_TCS_BLOCK 
+							   + EVM_FDL_BLOCK * (EVM_FDL_NOBX/2)) * SLINK_WORD_SIZE +
+				EVM_FDL_TECTRG_OFFSET * SLINK_HALFWORD_SIZE));
+    }
+    unsigned long long getfdlta1(const unsigned char *p)
+    {
+       return (*(unsigned long long*)( p+sizeof(fedh_t) + (EVM_GTFE_BLOCK + EVM_TCS_BLOCK 
+							   + EVM_FDL_BLOCK * (EVM_FDL_NOBX/2)) * SLINK_WORD_SIZE +
+				EVM_FDL_ALGOB1_OFFSET * SLINK_HALFWORD_SIZE));
+    }
+    unsigned long long getfdlta2(const unsigned char *p)
+    {
+       return (*(unsigned long long*)( p+sizeof(fedh_t) + (EVM_GTFE_BLOCK + EVM_TCS_BLOCK 
+							   + EVM_FDL_BLOCK * (EVM_FDL_NOBX/2)) * SLINK_WORD_SIZE +
+				EVM_FDL_ALGOB2_OFFSET * SLINK_HALFWORD_SIZE));
+    }
   }
 }
