@@ -56,7 +56,10 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
       SuperClusterRef pfscRef = (*pfClusterTracksH)[gsfTrackRef];
       ele->setPflowSuperCluster(pfscRef) ;
      }
-    electrons->push_back(*ele) ;
+    if (!(ele->superCluster().isNull()))
+     { electrons->push_back(*ele) ; }
+    else
+     { edm::LogWarning("GsfElectronCoreProducer")<<"GsfTrack with no associated CaloCluster." ; }
    }
   event.put(electrons) ;
  }
