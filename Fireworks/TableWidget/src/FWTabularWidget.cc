@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:21 EST 2009
-// $Id: FWTabularWidget.cc,v 1.6 2009/04/08 19:02:34 chrjones Exp $
+// $Id: FWTabularWidget.cc,v 1.7 2009/04/10 21:55:19 jmuelmen Exp $
 //
 
 // system include files
@@ -100,7 +100,7 @@ FWTabularWidget::needToRedraw()
 void 
 FWTabularWidget::setWidthOfTextInColumns(const std::vector<unsigned int>& iNew)
 {
-   assert(iNew.size() == m_table->numberOfColumns());
+   assert(iNew.size() == static_cast<unsigned int>(m_table->numberOfColumns()));
    m_widthOfTextInColumns=iNew;
    
    m_tableWidth=0;
@@ -233,7 +233,7 @@ FWTabularWidget::DoRedraw()
    const int visibleWidth = m_tableWidth+xOrigin-kSeperatorWidth;
    int y=yOrigin;
    if(m_backgroundGC != ULONG_MAX) {
-      gVirtualX->FillRectangle(fId,m_backgroundGC,xOrigin,y,visibleWidth,
+      gVirtualX->FillRectangle(fId,m_backgroundGC,xOrigin,y,m_tableWidth,
                                GetHeight());
    }
    gVirtualX->DrawLine(fId, m_normGC, xOrigin, y, visibleWidth, y);
