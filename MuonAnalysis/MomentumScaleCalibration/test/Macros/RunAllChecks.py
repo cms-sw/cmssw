@@ -9,7 +9,9 @@ def arguments(comp, resType = "Z", firstFile = "0", secondFile = "1") :
     elif( comp == "Eta" ) :
         name = "eta"
     elif( comp == "PhiPlus" ) :
-        name = "phi"
+        name = "phiPlus"
+    elif( comp == "PhiMinus" ) :
+        name = "phiMinus"
     else :
         print "Error"
         return ""
@@ -20,7 +22,7 @@ import os
 from ROOT import gROOT
 
 firstFile = "\"0\""
-secondFile = "\"1\""
+secondFile = "\"3\""
 resonanceType = "Z"
 
 macrosDir = os.popen("echo $CMSSW_BASE", "r").read().strip()
@@ -36,6 +38,7 @@ fileNum2 = secondFile.strip("\"")
 gROOT.ProcessLine( "macroPlot("+arguments("Pt", resonanceType, fileNum1, fileNum2)+")" )
 gROOT.ProcessLine( "macroPlot("+arguments("Eta", resonanceType, fileNum1, fileNum2)+")" )
 gROOT.ProcessLine( "macroPlot("+arguments("PhiPlus", resonanceType, fileNum1, fileNum2)+")" )
+gROOT.ProcessLine( "macroPlot("+arguments("PhiMinus", resonanceType, fileNum1, fileNum2)+")" )
 
 # Resolution
 # ----------
