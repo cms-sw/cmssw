@@ -48,7 +48,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //Other included files
-
+#include "DataFormats/PatCandidates/interface/Isolation.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 //Using declarations
@@ -73,11 +74,6 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& iConfig)
   
   //--------Initialize tags-------
   Muon_Tag = iConfig.getUntrackedParameter<edm::InputTag>("Global_Muon_Label");
-  tkIsoDeposit_Tag = iConfig.getUntrackedParameter<edm::InputTag>("tkIsoDeposit_Label");
-  hcalIsoDeposit_Tag = iConfig.getUntrackedParameter<edm::InputTag>("hcalIsoDeposit_Label");
-  ecalIsoDeposit_Tag = iConfig.getUntrackedParameter<edm::InputTag>("ecalIsoDeposit_Label");
-  hoIsoDeposit_Tag = iConfig.getUntrackedParameter<edm::InputTag>("hoIsoDeposit_Label");
-  
   
   //-------Initialize counters----------------
   nEvents = 0;
@@ -138,7 +134,7 @@ void MuIsoValidation::InitStatics(){
   title_cone = "";//" [in R=0.3 IsoDeposit Cone]";
   //The above two pieces of info will be printed on the title of the whole page,
   //not for each individual histogram
-  title_cd = "Cum Dist of ";
+  title_cd = "C.D. of ";
   
   //-------"Allocate" memory for vectors
   main_titles.resize(NUM_VARS);
@@ -153,39 +149,68 @@ void MuIsoValidation::InitStatics(){
   main_titles[2 ] = "Total Had Cal Energy";
   main_titles[3 ] = "Total HO Cal Energy";
   main_titles[4 ] = "Number of Tracker Tracks";
-  main_titles[5 ] = "Number of EM Cal Towers";
-  main_titles[6 ] = "Number of Had Cal Towers";
-  main_titles[7 ] = "Number of HO Cal Towers";
-  main_titles[8 ] = "Muon Momentum";
-  main_titles[9 ] = "Average Momentum per Track ";
-  main_titles[10] = "Weighted Energy";
-  
+  main_titles[5 ] = "Number of Jets around Muon";
+  main_titles[6 ] = "Tracker p_{T} within veto cone";
+  main_titles[7 ] = "EM E_{T} within veto cone";
+  main_titles[8 ] = "Had E_{T} within veto cone";
+  main_titles[9 ] = "HO E_{T} within veto cone";
+  main_titles[10] = "Muon Momentum";
+  main_titles[11] = "Average Momentum per Track ";
+  main_titles[12] = "Weighted Energy";
+  main_titles[13] = "PAT Tracker Momentum";
+  main_titles[14] = "PAT EM Cal Energy";
+  main_titles[15] = "PAT Had Cal Energy";
+  main_titles[16] = "PAT PFlow Energy";
+  main_titles[17] = "PAT Charged PFlow Energy";
+  main_titles[18] = "PAT Neutral PFlow Energy";
+  main_titles[19] = "PAT Gamma PFlow Energy";
+
   //------Titles on the X or Y axis------------
   axis_titles[0 ] = "#Sigma p_{T}   (GeV)";
   axis_titles[1 ] = "#Sigma E_{T}^{EM}   (GeV)";
   axis_titles[2 ] = "#Sigma E_{T}^{Had}   (GeV)";
   axis_titles[3 ] = "#Sigma E_{T}^{HO}   (GeV)";
   axis_titles[4 ] = "N_{Tracks}";
-  axis_titles[5 ] = "N_{EM Towers}";
-  axis_titles[6 ] = "N_{Had Towers}";
-  axis_titles[7 ] = "N_{HO Towers}";
-  axis_titles[8 ] = "p_{T}^{#mu}";
-  axis_titles[9 ] = "#Sigma p_{T} / N_{Tracks} (GeV)";
-  axis_titles[10] = "(1.5) X #Sigma E_{T}^{EM} + #Sigma E_{T}^{Had}";
-  
+  axis_titles[5 ] = "N_{Jets}";
+  axis_titles[6 ] = "#Sigma p_{T,veto} (GeV)";
+  axis_titles[7 ] = "#Sigma E_{T,veto}^{EM}   (GeV)";
+  axis_titles[8 ] = "#Sigma E_{T,veto}^{Had}   (GeV)";
+  axis_titles[9 ] = "#Sigma E_{T,veto}^{HO}   (GeV)";
+  axis_titles[10] = "p_{T}^{#mu}";
+  axis_titles[11] = "#Sigma p_{T} / N_{Tracks} (GeV)";
+  axis_titles[12] = "(1.5) X #Sigma E_{T}^{EM} + #Sigma E_{T}^{Had}";
+  axis_titles[13] = "#Sigma p_{T}   (GeV)";
+  axis_titles[14] = "#Sigma E_{T}^{EM}   (GeV)";
+  axis_titles[15] = "#Sigma E_{T}^{Had}   (GeV)";
+  axis_titles[16] = "PF Energy  (GeV)";
+  axis_titles[17] = "PF Charged Energy  (GeV)";
+  axis_titles[18] = "PF Neutral Energy  (GeV)";
+  axis_titles[19] = "PF Gamma Energy  (GeV)";
+
+
   //-----------Names given for the root file----------
   names[0 ] = "sumPt";
   names[1 ] = "emEt";
   names[2 ] = "hadEt";
   names[3 ] = "hoEt";
   names[4 ] = "nTracks";
-  names[5 ] = "nEMtowers";
-  names[6 ] = "nHADtowers";
-  names[7 ] = "nHOtowers";
-  names[8 ] = "muonPt";
-  names[9 ] = "avgPt";
-  names[10] = "weightedEt";
-  
+  names[5 ] = "nJets";
+  names[6 ] = "trackerVetoPt";
+  names[7 ] = "emVetoEt";
+  names[8 ] = "hadVetoEt";
+  names[9 ] = "hoVetoEt";
+  names[10] = "muonPt";
+  names[11] = "avgPt";
+  names[12] = "weightedEt";
+  names[13] = "pat_TrackerIso";
+  names[14] = "pat_EcalIso";
+  names[15] = "pat_HcalIso";
+  names[16] = "pat_ParticleIso";
+  names[17] = "pat_ChargedParticleIso";
+  names[18] = "pat_NeutralParticleIso";
+  names[19] = "pat_GammaParticleIso";
+
+
   //----------Parameters for binning of histograms---------
   //param[var][0] is the number of bins
   //param[var][1] is the low edge of the low bin
@@ -194,18 +219,27 @@ void MuIsoValidation::InitStatics(){
   // maximum value------,
   //                    |
   //                    V                  
-  param[0 ][0]= (int)( 70.0/L_BIN_WIDTH); param[0 ][1]=  0.0; param[0 ][2]= param[0 ][0]*L_BIN_WIDTH;
-  param[1 ][0]= (int)( 50.0/L_BIN_WIDTH); param[1 ][1]=  0.0; param[1 ][2]= param[1 ][0]*L_BIN_WIDTH;
-  param[2 ][0]= (int)( 40.0/L_BIN_WIDTH); param[2 ][1]=  0.0; param[2 ][2]= param[2 ][0]*L_BIN_WIDTH;
-  param[3 ][0]= (int)( 10.0/S_BIN_WIDTH); param[3 ][1]=  0.0; param[3 ][2]= param[3 ][0]*S_BIN_WIDTH;
-  param[4 ][0]= 						16; param[4 ][1]= -0.5; param[4 ][2]= param[4 ][0]-0.5;
-  param[5 ][0]= 						17; param[5 ][1]= -0.5; param[5 ][2]= param[5 ][0]-0.5;
-  param[6 ][0]= 						10; param[6 ][1]= -0.5; param[6 ][2]= param[6 ][0]-0.5;
-  param[7 ][0]=  						16; param[7 ][1]= -0.5; param[7 ][2]= param[7 ][0]-0.5;
-  param[8 ][0]= (int)( 40.0/S_BIN_WIDTH); param[8 ][1]=  0.0; param[8 ][2]= param[8 ][0]*S_BIN_WIDTH;
-  param[9 ][0]= (int)( 15.0/S_BIN_WIDTH); param[9 ][1]=  0.0; param[9 ][2]= param[9 ][0]*S_BIN_WIDTH;
-  param[10][0]= (int)(140.0/L_BIN_WIDTH); param[10][1]=  0.0; param[10][2]= param[10][0]*L_BIN_WIDTH;
-  
+  param[0 ][0]= (int)( 20.0/S_BIN_WIDTH); param[0 ][1]=  0.0; param[0 ][2]= param[0 ][0]*S_BIN_WIDTH;
+  param[1 ][0]= (int)( 20.0/S_BIN_WIDTH); param[1 ][1]=  0.0; param[1 ][2]= param[1 ][0]*S_BIN_WIDTH;
+  param[2 ][0]= (int)( 20.0/S_BIN_WIDTH); param[2 ][1]=  0.0; param[2 ][2]= param[2 ][0]*S_BIN_WIDTH;
+  param[3 ][0]=                       20; param[3 ][1]=  0.0; param[3 ][2]=                      2.0;
+  param[4 ][0]= 		      16; param[4 ][1]= -0.5; param[4 ][2]=         param[4 ][0]-0.5;
+  param[5 ][0]= 		       4; param[5 ][1]= -0.5; param[5 ][2]=         param[5 ][0]-0.5;
+  param[6 ][0]= (int)( 40.0/S_BIN_WIDTH); param[6 ][1]=  0.0; param[6 ][2]= param[6 ][0]*S_BIN_WIDTH;
+  param[7 ][0]=                       20; param[7 ][1]=  0.0; param[7 ][2]=                     10.0;
+  param[8 ][0]= (int)( 20.0/S_BIN_WIDTH); param[8 ][1]=  0.0; param[8 ][2]= param[8 ][0]*S_BIN_WIDTH;
+  param[9 ][0]=                       20; param[9 ][1]=  0.0; param[9 ][2]=                      5.0;
+  param[10][0]= (int)( 40.0/S_BIN_WIDTH); param[10][1]=  0.0; param[10][2]= param[10][0]*S_BIN_WIDTH;
+  param[11][0]= (int)( 15.0/S_BIN_WIDTH); param[11][1]=  0.0; param[11][2]= param[11][0]*S_BIN_WIDTH;
+  param[12][0]= (int)( 20.0/S_BIN_WIDTH); param[12][1]=  0.0; param[12][2]= param[12][0]*S_BIN_WIDTH;
+  param[13][0]= (int)( 20.0/S_BIN_WIDTH); param[13][1]=  0.0; param[13][2]= param[13][0]*S_BIN_WIDTH;
+  param[14][0]= (int)( 20.0/S_BIN_WIDTH); param[14][1]=  0.0; param[14][2]= param[14][0]*S_BIN_WIDTH;
+  param[15][0]= (int)( 20.0/S_BIN_WIDTH); param[15][1]=  0.0; param[15][2]= param[15][0]*S_BIN_WIDTH;
+  param[16][0]= (int)( 30.0/S_BIN_WIDTH); param[16][1]=  0.0; param[16][2]= param[16][0]*S_BIN_WIDTH;
+  param[17][0]= (int)( 20.0/S_BIN_WIDTH); param[17][1]=  0.0; param[17][2]=                     10.0;
+  param[18][0]= (int)( 20.0/S_BIN_WIDTH); param[18][1]=  0.0; param[18][2]=                     10.0;
+  param[19][0]= (int)( 20.0/S_BIN_WIDTH); param[19][1]=  0.0; param[19][2]=                     10.0;
+
   //--------------Is the variable continuous (i.e. non-integer)?-------------
   //---------(Log binning will only be used for continuous variables)--------
   isContinuous[0 ] = 1;
@@ -214,12 +248,21 @@ void MuIsoValidation::InitStatics(){
   isContinuous[3 ] = 1;
   isContinuous[4 ] = 0;
   isContinuous[5 ] = 0;
-  isContinuous[6 ] = 0;
-  isContinuous[7 ] = 0;
+  isContinuous[6 ] = 1;
+  isContinuous[7 ] = 1;
   isContinuous[8 ] = 1;
   isContinuous[9 ] = 1;
   isContinuous[10] = 1;
-  
+  isContinuous[11] = 1;
+  isContinuous[12] = 1;
+  isContinuous[13] = 1;
+  isContinuous[14] = 1;
+  isContinuous[15] = 1;
+  isContinuous[16] = 1;
+  isContinuous[17] = 1;
+  isContinuous[18] = 1;
+  isContinuous[19] = 1;
+
 }
 
 
@@ -232,16 +275,6 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // Get Muon Collection 
   edm::Handle<edm::View<reco::Muon> > muonsHandle; // 
   iEvent.getByLabel(Muon_Tag, muonsHandle);
-  
-  // Get IsoDeposit Collection 
-  MuIsoDepHandle tkIsoHandle;
-  MuIsoDepHandle ecalIsoHandle;
-  MuIsoDepHandle hcalIsoHandle;
-  MuIsoDepHandle hoIsoHandle;
-  iEvent.getByLabel(tkIsoDeposit_Tag, tkIsoHandle);
-  iEvent.getByLabel(ecalIsoDeposit_Tag, ecalIsoHandle);
-  iEvent.getByLabel(hcalIsoDeposit_Tag, hcalIsoHandle);
-  iEvent.getByLabel(hoIsoDeposit_Tag, hoIsoHandle);
   
   //Fill event entry in histogram of number of muons
   edm::LogInfo("Tutorial") << "Number of Muons: " << muonsHandle->size();
@@ -257,13 +290,22 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       if (muon->combinedMuon().isNull()) continue;
     }
     ++nCombinedMuons;
-    MuonBaseRef muRef = muonsHandle->refAt(iMuon);
-    MuIsoDepRef& tkDep  = ( *tkIsoHandle)[muRef];
-    MuIsoDepRef& ecalDep = (*ecalIsoHandle)[muRef];
-    MuIsoDepRef& hcalDep = (*hcalIsoHandle)[muRef];
-    MuIsoDepRef& hoDep   = (  *hoIsoHandle)[muRef];
-    
-    RecordData(muon,tkDep,ecalDep,hcalDep,hoDep);
+    RecordData(muon);
+    const pat::Muon* patMuon = dynamic_cast<const pat::Muon*>(&*muon);
+    if (patMuon!= 0){
+      theData[13] = patMuon->isolation(pat::TrackerIso);
+      theData[14] = patMuon->isolation(pat::ECalIso);
+      theData[15] = patMuon->isolation(pat::HCalIso);
+      theData[16] = patMuon->isolation(pat::ParticleIso);
+      theData[17] = patMuon->isolation(pat::ChargedParticleIso);
+      theData[18] = patMuon->isolation(pat::NeutralParticleIso);
+      theData[19] = patMuon->isolation(pat::GammaParticleIso);
+    }
+    else {
+      for (int i = 13; i < 20; i++) {
+	theData[i] = -99;
+      }
+    }
     FillHistos();
   }
   dbe->cd();
@@ -271,27 +313,27 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 }
 
 //---------------Record data for a signle muon's data---------------------
-void MuIsoValidation::RecordData(MuonIterator muon, 
-				 MuIsoDepRef& ctfDep, MuIsoDepRef& ecalDep, 
-				 MuIsoDepRef& hcalDep, MuIsoDepRef& hoDep){
+void MuIsoValidation::RecordData(MuonIterator muon){
   
   
-  theData[0] = ctfDep.depositWithin(0.3);
-  theData[1] = ecalDep.depositWithin(0.3);
-  theData[2] = hcalDep.depositWithin(0.3);
-  theData[3] = hoDep.depositWithin(0.3);
-  
-  theData[4] = ctfDep.depositAndCountWithin(0.3).second;
-  theData[5] = ecalDep.depositAndCountWithin(0.3).second;
-  theData[6] = hcalDep.depositAndCountWithin(0.3).second;
-  theData[7] = hoDep.depositAndCountWithin(0.3).second;
-  
-  theData[8] = muon->pt();
-  // make sure nTracks != 0 before filling this one
-  if (theData[4] != 0) theData[9] = (double)theData[0] / (double)theData[4];
-  else theData[9] = -99;
+  theData[0] = muon->isolationR03().sumPt;
+  theData[1] = muon->isolationR03().emEt;
+  theData[2] = muon->isolationR03().hadEt;
+  theData[3] = muon->isolationR03().hoEt;
 
-  theData[10] = 1.5 * theData[1] + theData[2];
+  theData[4] = muon->isolationR03().nTracks;
+  theData[5] = muon->isolationR03().nJets;
+  theData[6] = muon->isolationR03().trackerVetoPt;
+  theData[7] = muon->isolationR03().emVetoEt;
+  theData[8] = muon->isolationR03().hadVetoEt;
+  theData[9] = muon->isolationR03().hoVetoEt;
+  
+  theData[10] = muon->pt();
+  // make sure nTracks != 0 before filling this one
+  if (theData[4] != 0) theData[11] = (double)theData[0] / (double)theData[4];
+  else theData[11] = -99;
+
+  theData[12] = 1.5 * theData[1] + theData[2];
 
 }
 

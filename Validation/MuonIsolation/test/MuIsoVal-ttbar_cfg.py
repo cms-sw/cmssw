@@ -22,7 +22,7 @@ process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
 process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2000)
+    input = cms.untracked.int32(-1)
 )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('XXXX', 
@@ -35,21 +35,13 @@ process.DQMStore = cms.Service("DQMStore")
 process.analyzer_incMuon = cms.EDFilter("MuIsoValidation",
     Global_Muon_Label = cms.untracked.InputTag("muons"),
     requireCombinedMuon = cms.untracked.bool(False),
-    ecalIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
     rootfilename = cms.untracked.string('ttbar-validation.root'),
-    hcalIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
-    tkIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositTk"),
-    hoIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","ho")
 )
 
 process.analyzer_combinedMuon = cms.EDFilter("MuIsoValidation",
     Global_Muon_Label = cms.untracked.InputTag("muons"),
     requireCombinedMuon = cms.untracked.bool(True),
-    ecalIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
     rootfilename = cms.untracked.string('ttbar-validation.root'),
-    hcalIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
-    tkIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositTk"),
-    hoIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","ho")
 )
 
 process.p = cms.Path(process.analyzer_incMuon+process.analyzer_combinedMuon)

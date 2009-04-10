@@ -72,9 +72,7 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   void InitStatics();
-  void RecordData(MuonIterator muon, MuIsoDepRef& tkDep,  
-		  MuIsoDepRef& ecalDep, MuIsoDepRef& hcalDep, 
-		  MuIsoDepRef& hoDep);//Fills Histograms with info from single muon
+  void RecordData(MuonIterator muon);//Fills Histograms with info from single muon
   void InitHistos();//adds title, bin information to member histograms
   void MakeLogBinsForProfile(Double_t* bin_edges, const double min, const double max);
   void FillHistos();//Fills histograms with data
@@ -100,7 +98,7 @@ private:
   std::string subDirName;
 
   //Histogram parameters
-  static const int NUM_VARS = 11;
+  static const int NUM_VARS = 20;
   double L_BIN_WIDTH;//large bins
   double S_BIN_WIDTH;//small bins
   int LOG_BINNING_ENABLED;//pseudo log binning for profile plots

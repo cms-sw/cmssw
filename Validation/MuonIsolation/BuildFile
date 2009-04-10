@@ -5,6 +5,7 @@
 <use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/ServiceRegistry>
 <use name=DataFormats/TrackReco>   
+<use name=DataFormats/PatCandidates>
 <use name=FWCore/MessageLogger>
 <use name=DataFormats/MuonReco>
 <use name=DQMServices/Core>
@@ -20,6 +21,7 @@
 	<use name=PhysicsTools/UtilAlgos>
 	<use name=FWCore/ServiceRegistry>
 	<use name=DataFormats/TrackReco>   
+	<use name=DataFormats/PatCandidates>
 	<use name=FWCore/MessageLogger>
 	<use name=DataFormats/MuonReco>
 	<use name=DQMServices/Core>
