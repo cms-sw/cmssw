@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/12/16 15:04:05 $
- *  $Revision: 1.13.2.4 $
+ *  $Date: 2009/02/24 07:07:17 $
+ *  $Revision: 1.14 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -97,7 +97,7 @@ void L3MuonTrajectoryBuilder::setEvent(const edm::Event& event) {
       
   // get tracker TrackCollection from Event
   event.getByLabel(theTkCollName,allTrackerTracks);
-  LogInfo(category) 
+  LogDebug(category) 
       << "Found " << allTrackerTracks->size() 
       << " tracker Tracks with label "<< theTkCollName;  
   
@@ -119,19 +119,19 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
   vector<TrackCand> trackerTracks;
   
   vector<TrackCand> regionalTkTracks = makeTkCandCollection(staCand);
-  LogInfo(category) << "Found " << regionalTkTracks.size() << " tracks within region of interest";  
+  LogDebug(category) << "Found " << regionalTkTracks.size() << " tracks within region of interest";  
   
   // match tracker tracks to muon track
   trackerTracks = trackMatcher()->match(staCand, regionalTkTracks);
   
-  LogInfo(category) << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
+  LogDebug(category) << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
   if ( trackerTracks.empty() ) return CandidateContainer();
   
   // build a combined tracker-muon MuonCandidate
   //
   // turn tkMatchedTracks into MuonCandidates
   //
-  LogInfo(category) << "turn tkMatchedTracks into MuonCandidates";
+  LogDebug(category) << "turn tkMatchedTracks into MuonCandidates";
   CandidateContainer tkTrajs;
   for (vector<TrackCand>::const_iterator tkt = trackerTracks.begin(); tkt != trackerTracks.end(); tkt++) {
     if ((*tkt).first != 0 && (*tkt).first->isValid()) {
@@ -147,12 +147,12 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
   }
     
   if ( tkTrajs.empty() )  {
-    LogInfo(category) << "tkTrajs empty";
+    LogDebug(category) << "tkTrajs empty";
     return CandidateContainer();
   }
   
   CandidateContainer result = build(staCand, tkTrajs);  
-  LogInfo(category) << "Found "<< result.size() << " L3Muons from one L2Cand";
+  LogDebug(category) << "Found "<< result.size() << " L3Muons from one L2Cand";
 
   // free memory
   if ( staCandIn.first == 0) delete staCand.first;
