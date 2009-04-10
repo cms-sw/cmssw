@@ -46,7 +46,7 @@ namespace cond {
 
   cond::ValidityInterval BasePayloadProxy::setIntervalFor(cond::Time_t time) {
     //FIXME: shall handle truncation...
-    if (!time<m_element.till() || time<m_element.since() )
+    if ( (!time<m_element.till()) || time<m_element.since() )
       m_element = *m_iov.find(time);
     return cond::ValidityInterval(m_element.since(),m_element.till());
   }

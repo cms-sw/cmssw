@@ -32,8 +32,8 @@ namespace {
   void print(cond::PayloadProxy<cond::IOVElement> & data, cond::Time_t time) {
     cond::ValidityInterval iov = data.setIntervalFor(time);
     data.make();
-    std::cout
-	     <<"since "<< iov.first
+    std::cout << "for " << time
+	     <<": since "<< iov.first
 	     <<", till "<< iov.second;
     if (data.isValid()) 
       std::cout    <<". Message "<< data().wrapperToken()
