@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:21 EST 2009
-// $Id: FWTabularWidget.cc,v 1.5 2009/03/31 23:28:36 jmuelmen Exp $
+// $Id: FWTabularWidget.cc,v 1.6 2009/04/08 19:02:34 chrjones Exp $
 //
 
 // system include files
@@ -100,7 +100,7 @@ FWTabularWidget::needToRedraw()
 void 
 FWTabularWidget::setWidthOfTextInColumns(const std::vector<unsigned int>& iNew)
 {
-   assert(iNew.size()==m_widthOfTextInColumns.size());
+   assert(iNew.size() == m_table->numberOfColumns());
    m_widthOfTextInColumns=iNew;
    
    m_tableWidth=0;

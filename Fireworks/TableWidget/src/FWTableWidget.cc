@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.8 2009/04/08 19:19:42 chrjones Exp $
+// $Id: FWTableWidget.cc,v 1.9 2009/04/09 21:16:13 chrjones Exp $
 //
 
 // system include files
@@ -394,6 +394,8 @@ FWTableWidget::dataChanged()
    //set sizes
    std::vector<unsigned int> columnWidths = m_body->widthOfTextInColumns();
    if(m_header) {
+      // reset header back to its internal max rather than the last width
+      m_header->dataChanged();	
       std::vector<unsigned int> headerWidths = m_header->widthOfTextInColumns();
       for(std::vector<unsigned int>::iterator it = columnWidths.begin(), itEnd=columnWidths.end(), itHeader=headerWidths.begin();
           it != itEnd;
