@@ -8,7 +8,7 @@
 //
 // Original Author:  Tomasz Frueboes
 //         Created:  Fri Feb 22 12:26:49 CET 2008
-// $Id: L1RPCConeBuilder.cc,v 1.3 2008/06/05 14:45:48 mmaggi Exp $
+// $Id: L1RPCConeBuilder.cc,v 1.4 2008/12/12 13:57:14 fruboes Exp $
 //
 
 #include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
@@ -39,8 +39,8 @@ std::pair<L1RPCConeBuilder::TStripConVec::const_iterator, L1RPCConeBuilder::TStr
   L1RPCConeBuilder::TStripConVec::const_iterator itBeg = L1RPCConeBuilder::TStripConVec().end();
   L1RPCConeBuilder::TStripConVec::const_iterator itEnd = itBeg;
   
-  TConMap::const_iterator it1 = m_coneConnectionMap.find(det);
-  if (it1 != m_coneConnectionMap.end()){
+  TConMap::const_iterator it1 = m_coneConnectionMap->find(det);
+  if (it1 != m_coneConnectionMap->end()){
     TStrip2ConVec::const_iterator it2 = it1->second.find(strip);
     if (it2 != it1->second.end()){
       itBeg = it2->second.begin();

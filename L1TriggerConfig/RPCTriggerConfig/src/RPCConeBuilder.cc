@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Fri Feb 22 13:57:06 CET 2008
-// $Id: RPCConeBuilder.cc,v 1.4 2009/03/19 12:41:27 fruboes Exp $
+// $Id: RPCConeBuilder.cc,v 1.7 2009/03/20 10:28:30 fruboes Exp $
 //
 //
 
@@ -181,6 +181,10 @@ void RPCConeBuilder::buildCones(const edm::ESHandle<RPCGeometry> & rpcGeom ){
   //std::cout << "    ---> buildCones called " << std::endl; 
   
   // fetch geometricall data
+  boost::shared_ptr<L1RPCConeBuilder::TConMap > uncompressedCons
+        = boost::shared_ptr<L1RPCConeBuilder::TConMap >(new L1RPCConeBuilder::TConMap());
+  
+  
   int rolls = 0;
   for(TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin();
       it != rpcGeom->dets().end();
@@ -194,7 +198,7 @@ void RPCConeBuilder::buildCones(const edm::ESHandle<RPCGeometry> & rpcGeom ){
       
       int ringId = RPCStripsRing::getRingId(roll);
       if ( m_ringsMap.find(ringId)  == m_ringsMap.end() ) {
-         m_ringsMap[ringId]=RPCStripsRing(roll);
+        m_ringsMap[ringId]=RPCStripsRing(roll, uncompressedCons);
       } else {
          m_ringsMap[ringId].addRoll(roll);
       }

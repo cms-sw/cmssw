@@ -8,7 +8,7 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Tue Feb 26 15:13:10 CET 2008
-// $Id: RPCStripsRing.cc,v 1.2 2008/03/14 13:44:12 fruboes Exp $
+// $Id: RPCStripsRing.cc,v 1.3 2008/12/12 14:13:59 fruboes Exp $
 //
 
 // system include files
@@ -21,7 +21,10 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-L1RPCConeBuilder::TConMap RPCStripsRing::m_connectionsMap = L1RPCConeBuilder::TConMap();
+//boost::shared_ptr<L1RPCConeBuilder::TConMap > RPCStripsRing::m_connectionsMap 
+//        =  boost::shared_ptr<L1RPCConeBuilder::TConMap >();
+
+
 L1RPCConeBuilder::TCompressedConMap RPCStripsRing::m_compressedConnectionMap = L1RPCConeBuilder::TCompressedConMap();
 
 RPCStripsRing::RPCStripsRing() :
@@ -35,9 +38,11 @@ RPCStripsRing::RPCStripsRing() :
 
 }
 
-RPCStripsRing::RPCStripsRing(const RPCRoll * roll) :
+RPCStripsRing::RPCStripsRing(const RPCRoll * roll,
+                             boost::shared_ptr<L1RPCConeBuilder::TConMap > cmap) :
     m_didVirtuals(false),
-    m_didFiltering(false)
+    m_didFiltering(false),
+    m_connectionsMap(cmap)
 {
   
   RPCDetId detId = roll->id();
@@ -402,7 +407,7 @@ void RPCStripsRing::createRefConnections(TOtherConnStructVec & otherRings, int l
         newCon.m_logplane = logplane;
         newCon.m_logstrip=curStripNo-curBegStripNo;
         //std::cout << " Adding con for " << it->second.m_detRawId << std::endl;
-        m_connectionsMap[it->second.m_detRawId][it->second.m_strip].push_back(newCon);
+        (*m_connectionsMap)[it->second.m_detRawId][it->second.m_strip].push_back(newCon);
         //std::cout << " Adding ref connection " << std::endl;
       }
       ++curStripNo;
@@ -451,7 +456,7 @@ void RPCStripsRing::createOtherConnections(int tower, int PACno, int logplane, i
         newCon.m_PAC = PACno;
         newCon.m_logplane = logplane;
         newCon.m_logstrip= i;
-        m_connectionsMap[it->second.m_detRawId][it->second.m_strip].push_back(newCon);
+        (*m_connectionsMap)[it->second.m_detRawId][it->second.m_strip].push_back(newCon);
         //std::cout << " Adding other connection " << std::endl;
       }
   
@@ -514,14 +519,16 @@ int RPCStripsRing::getTowerForRefRing(){
 
 void RPCStripsRing::compressConnections(){
 
-  L1RPCConeBuilder::TConMap::iterator itChamber = m_connectionsMap.begin();
-  L1RPCConeBuilder::TConMap uncompressedConsLeft;
+  L1RPCConeBuilder::TConMap::iterator itChamber = m_connectionsMap->begin();
+  boost::shared_ptr<L1RPCConeBuilder::TConMap > uncompressedConsLeft
+  = boost::shared_ptr<L1RPCConeBuilder::TConMap >(new L1RPCConeBuilder::TConMap());
+  
   
   int compressedCons = 0, uncompressedConsBefore = 0, uncompressedConsAfter = 0;
   
 //   int offsetMin =0, offsetMax =0;
   
-  for( ;itChamber!=m_connectionsMap.end(); ++itChamber ){
+  for( ;itChamber!=m_connectionsMap->end(); ++itChamber ){
     
     uint32_t detId = itChamber->first;
     
@@ -554,7 +561,7 @@ void RPCStripsRing::compressConnections(){
               int logStrip = itCompConn->m_mul*itStrip->first+itCompConn->m_offset;
               if (logStrip != itConn->m_logstrip){
                 //copy the problematic connection to the "safe" map
-                uncompressedConsLeft[detId][itStrip->first].push_back(*itConn);
+                (*uncompressedConsLeft)[detId][itStrip->first].push_back(*itConn);
                 ++uncompressedConsAfter;
                 edm::LogWarning("RPCTriggerConfig") << " Compression failed for det " << detId 
                   << " strip " << (int)itStrip->first
