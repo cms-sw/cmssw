@@ -16,7 +16,10 @@ L1RCTElectronIsolationCard::L1RCTElectronIsolationCard(int crateNumber,
   regions.at(1) = new L1RCTRegion();
 }
 
-L1RCTElectronIsolationCard::~L1RCTElectronIsolationCard(){}
+L1RCTElectronIsolationCard::~L1RCTElectronIsolationCard(){
+  regions.clear();
+  
+}
 
 
 void L1RCTElectronIsolationCard::fillElectronCandidates(){
@@ -337,7 +340,7 @@ L1RCTElectronIsolationCard::calcMaxSum(unsigned short primaryEt,unsigned short n
     if(test > max)
       max = test;
   }
-  return max;
+   return max;
 }
 
 void L1RCTElectronIsolationCard::print() {
