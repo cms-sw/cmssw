@@ -11,6 +11,7 @@
 #include <boost/bind.hpp>
 
 #include "CondCore/DBCommon/interface/TypedRef.h"
+#include "CondCore/IOVService/interface/PayloadProxy.h"
 
 
 namespace {
@@ -22,11 +23,26 @@ namespace {
   }
 
   void print(cond::IOVElementProxy const & e) {
-    std::cout<<"payloadToken "<< oid(e.wrapperToken())
+    std::cout<<"oid "<< oid(e.wrapperToken())
 	     <<", since "<< e.since()
 	     <<", till "<< e.till()
 	     << std::endl;
   }
+  
+  void print(cond::PayloadProxy<cond::IOVElement> & data, cond::Time_t time) {
+    cond::ValidityInterval iov = data.setIntervalFor(time);
+    data.make();
+    std::cout
+	     <<"since "<< iov.first
+	     <<", till "<< iov.second;
+    if (data.isValid()) 
+      std::cout    <<". Message "<< data().wrapperToken()
+		   <<", since "<< data().sinceTime();
+    else 
+      std::cout << ". No data";
+    std::cout << std::endl;
+  }
+
 }
 
 struct Add {
@@ -128,6 +144,15 @@ int main(){
       print(*iov.find(63));
       iov.setRange(1,90);
       print(*iov.find(63));
+    }
+    {
+      // test PayloadProxy
+      PayloadProxy<cond::IOVElement> data(myconnection,iovtok,false);
+      print(data,3);
+      print(data,23);
+      print(data,33);
+      print(data,43);
+      print(data,63);
     }
     delete session;
   }catch(const cond::Exception& er){

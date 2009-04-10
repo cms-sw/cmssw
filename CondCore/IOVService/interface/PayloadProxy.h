@@ -29,7 +29,7 @@ namespace cond {
     // load Element valid at time
     void loadFor(cond::Time_t time);
 
-    // find ad return interval
+    // find ad return interval (does not load)
     cond::ValidityInterval setIntervalFor(cond::Time_t time);
     
     // load element if interval is valid
@@ -56,9 +56,13 @@ namespace cond {
   public:
     typedef cond::DataWrapper<DataT> DataWrapper;
 
-    PayloadProxy() : old(false){}
+    PayloadProxy(cond::Connection& conn,
+		 const std::string & token, bool errorPolicy) :
+      BasePayloadProxy(conn, token, errorPolicy), old(false){}
+    
+    virtual ~PayloadProxy(){}
 
-    // dereference
+    // dereference (does not load)
     const DataT & operator()() const {
       return old ? *m_OldData : m_data->data(); 
     }
