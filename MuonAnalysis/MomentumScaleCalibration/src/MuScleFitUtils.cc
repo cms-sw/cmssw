@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/03/26 18:12:46 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/04/09 15:42:03 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -1280,9 +1280,13 @@ void MuScleFitUtils::minimizeLikelihood()
     if (n_times<ind[i]) {
       cout << "n_times = " << n_times << ", ind["<<i<<"] = " << ind[i] << ", scaleParNum = " << scaleParNum << ", doScaleFit["<<loopCounter<<"] = " << doScaleFit[loopCounter] << endl;
       // Set the n_times only if we will do the fit
-      if ( i<resParNum && doResolFit[loopCounter] ) n_times = ind[i];
-      else if( i<resParNum+scaleParNum && doScaleFit[loopCounter]) n_times = ind[i];
-      else if( doBackgroundFit[loopCounter]) n_times = ind[i];
+      if ( i<resParNum ) {
+        if( doResolFit[loopCounter] ) n_times = ind[i];
+      }
+      else if( i<resParNum+scaleParNum ) {
+        if( doScaleFit[loopCounter] ) n_times = ind[i];
+      }
+      else if( doBackgroundFit[loopCounter] ) n_times = ind[i];
     }
   }
   for (int iorder=0; iorder<n_times+1; iorder++) { // Repeat fit n_times times

@@ -18,7 +18,7 @@ public:
     massProb = dynamic_cast<TProfile*> (inputFile->Get("Mass_P"));
     likePt   = dynamic_cast<TProfile*> (inputFile->Get("hLikeVSMu_LikelihoodVSPt_prof"));
     likePhi  = dynamic_cast<TProfile*> (inputFile->Get("hLikeVSMu_LikelihoodVSPhi_prof"));
-    likeEta  = dynamic_cast<TProfile*> (inputFile->Get("hLikeVSMu_LikelihoodVSEta_prof"));    
+    likeEta  = dynamic_cast<TProfile*> (inputFile->Get("hLikeVSMu_LikelihoodVSEta_prof"));
   }
   TH1F * mass;
   TProfile * massProb;
@@ -34,15 +34,31 @@ void drawMasses(const double ResMass, const double ResHalfWidth, histos & h)
   h.mass->SetLineColor(kRed);
   // h->mass->SetMarkerColor(kBlack);
 
+  // To get the correct integral for rescaling determine the borders
+  TAxis * xAxis = h.mass->GetXaxis();
+  double xMin = xAxis->GetXmin();
+  // The bins have all the same width, therefore we can use this
+  double binWidth = xAxis->GetBinWidth(1);
+  int xMinBin = int(((ResMass - ResHalfWidth) - xMin)/binWidth) + 1;
+  int xMaxBin = int(((ResMass + ResHalfWidth) - xMin)/binWidth) + 1;
+  cout << "xMinBin = " << xMinBin << endl;
+  cout << "xMaxBin = " << xMaxBin << endl;
+  cout << "binWidth = " << binWidth << endl;
+
   // Set a consistent binning
-  int massXbins = h.mass->GetNbinsX();
+  // int massXbins = h.mass->GetNbinsX();
+  int massXbins = xMaxBin - xMinBin;
   int massProbXbins = h.massProb->GetNbinsX();
-  if( massXbins > massProbXbins && massXbins % massProbXbins != 0 ) {
-    cout << "Warning: number of bins are not multiples: massXbins = " << massXbins << ", massProbXbins = " << massProbXbins << endl;
-  }
-  else if( massProbXbins % massXbins != 0 ) {
-    cout << "Warning: number of bins are not multiples: massXbins = " << massXbins << ", massProbXbins = " << massProbXbins << endl;
-  }
+//   if( massXbins > massProbXbins ) {
+//     if ( massXbins % massProbXbins != 0 ) {
+//       cout << "Warning: number of bins are not multiples: massXbins = " << massXbins << ", massProbXbins = " << massProbXbins << endl;
+//       cout << "massXbins % massProbXbins = " << massXbins % massProbXbins << endl;
+//     }
+//   }
+//   else if( massProbXbins % massXbins != 0 ) {
+//     cout << "Warning: number of bins are not multiples: massXbins = " << massXbins << ", massProbXbins = " << massProbXbins << endl;
+//     cout << "massProbXbins % massXbins = " << massProbXbins % massXbins << endl;
+//   }
   if( massProbXbins > massXbins ) {
     cout << "massProbXbins("<<massProbXbins<<") > " << "massXbins("<<massXbins<<")" << endl;
     h.massProb->Rebin(massProbXbins/massXbins);
@@ -51,9 +67,21 @@ void drawMasses(const double ResMass, const double ResHalfWidth, histos & h)
     cout << "massXbins("<<massXbins<<") > " << "massProbXbins("<<massProbXbins<<")" << endl;
     h.mass->Rebin(massXbins/massProbXbins);
   }
+
+//   double normFactorPlus = (h.mass->Integral(xMinBin, xMaxBin, "width"))/(h.massProb->Integral("width"));
+//   cout << "normFactorPlus = " << normFactorPlus << endl;
+//   cout << "scaled plus massProb integral = " << h.massProb->Integral("width")*normFactorPlus << endl;;
+
+
   h.mass->SetAxisRange(ResMass - ResHalfWidth, ResMass + ResHalfWidth);
-  double normFactor = (h.mass->Integral())/(h.massProb->Integral());
   h.massProb->SetAxisRange(ResMass - ResHalfWidth, ResMass + ResHalfWidth);
+  double normFactor = (h.mass->Integral("width"))/(h.massProb->Integral("width"));
+//   cout << "ResMass - ResHalfWidth = " << ResMass - ResHalfWidth << endl;
+//   cout << "ResMass + ResHalfWidth = " << ResMass + ResHalfWidth << endl;
+//   cout << "normFactor = " << normFactor << endl;
+//   cout << "mass integral = " << h.mass->Integral("width") << endl;
+//   cout << "massProb integral = " << h.massProb->Integral("width") << endl;
+//   cout << "scaled massProb integral = " << h.massProb->Integral("width")*normFactor << endl;;
   h.massProb->SetLineColor(kBlue);
   h.massProb->SetNormFactor(normFactor);
   h.mass->SetMarkerColor(kRed);

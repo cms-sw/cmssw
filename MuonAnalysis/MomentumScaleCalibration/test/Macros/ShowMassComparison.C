@@ -29,12 +29,21 @@ void ShowMassComparison()
 
   TCanvas * newCanvas = new TCanvas("newCanvas", "newCanvas", 1000, 800);
   histo4->SetLineColor(kGreen);
-  histo4->Draw();
+  histo4->SetMarkerColor(kGreen);
+  histo2->SetMarkerColor(kBlue);
+  if( histo2->GetMaximum() > histo4->GetMaximum() ) {
+    histo2->Draw();
+    histo4->Draw("SAME");
+  }
+  else {
+    histo4->Draw();
+    histo2->Draw("SAME");
+  }
   histo1->Draw("SAME");
-  histo2->Draw("SAME");
   histo3->SetLineColor(kBlack);
   histo3->Draw("SAME");
-  histo4->SetMarkerColor(kGreen);
+  histo2->Draw("SAME");
+  histo4->Draw("SAME");
 
   TLegend * legend = new TLegend(0.7,0.71,0.98,1.);
   legend->SetTextSize(0.02);
