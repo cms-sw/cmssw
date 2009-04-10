@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2009/03/26 15:32:49 $
-//   $Revision: 1.31 $
+//   $Date: 2009/03/27 17:04:52 $
+//   $Revision: 1.32 $
 //
 //   Modifications: 
 //
@@ -208,7 +208,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() :
   // ALCT parameters.
   setDefaultConfigParameters();
   infoV = 2;
-  isMTCC  = true;
+  isMTCC  = false;
   isTMB07 = true;
 
   // Check and print configuration parameters.

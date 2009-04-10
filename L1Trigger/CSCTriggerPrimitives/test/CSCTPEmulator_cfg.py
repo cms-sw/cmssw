@@ -25,7 +25,8 @@ sys.path.insert(0, os.path.join(os.environ['CMSSW_BASE'],
 #    }
 
 #process.source = cms.Source("PoolSource",
-#    fileNames = cms.untracked.vstring('file:/data0/slava/data/run58731/4C6067C2-B972-DD11-9672-000423D996B4.root')
+##    fileNames = cms.untracked.vstring('file:/data0/slava/data/run58731/4C6067C2-B972-DD11-9672-000423D996B4.root')
+#     fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/v1/000/069/912/007F93B1-18AD-DD11-AB6D-000423D991D4.root'),
 ##        untracked uint32 debugVebosity = 10
 ##        untracked bool   debugFlag     = false
 ###	untracked uint32 skipEvents    = 2370
@@ -116,7 +117,6 @@ process.cscTriggerPrimitiveDigis.CSCWireDigiProducer = "cscunpacker:MuonCSCWireD
 # =============================
 process.load("CSCTriggerPrimitivesReader_cfi")
 process.lctreader.debug = True
-process.lctreader.isMTCCData = False
 
 #process.myfilter = cms.EDFilter(
 #  'EventNumberFilter',
@@ -126,10 +126,8 @@ process.lctreader.isMTCCData = False
 # Output
 # ======
 process.out = cms.OutputModule("PoolOutputModule",
-    #fileName = cms.untracked.string("/data0/slava/test/lcts_run58731.root"),
-    #fileName = cms.untracked.string("/data0/slava/test/lcts_run59318.root"),
     fileName = cms.untracked.string("/data0/slava/test/lcts_run62232.root"),
-    #fileName = cms.untracked.string("/data0/slava/test/lcts_run65882.root"),
+    #fileName = cms.untracked.string("/data0/slava/test/lcts_run80733.root"),
     outputCommands = cms.untracked.vstring("keep *", 
         "drop *_DaqSource_*_*")
 )

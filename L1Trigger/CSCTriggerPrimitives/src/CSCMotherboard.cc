@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2009/03/27 17:11:11 $
-//   $Revision: 1.21 $
+//   $Date: 2009/04/02 14:59:12 $
+//   $Revision: 1.22 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -118,7 +118,7 @@ CSCMotherboard::CSCMotherboard() :
   // Constructor used only for testing.  -JM
   static bool config_dumped = false;
 
-  isMTCC  = true;
+  isMTCC  = false;
   isTMB07 = true;
 
   alct = new CSCAnodeLCTProcessor();

@@ -10,7 +10,7 @@ lctreader = cms.EDFilter("CSCTriggerPrimitivesReader",
     dataLctsIn = cms.bool(True),
     emulLctsIn = cms.bool(True),
     # Flag to indicate MTCC data (used only when dataLctsIn = true).
-    isMTCCData = cms.bool(True),
+    isMTCCData = cms.bool(False),
     # Labels to retrieve LCTs from the event (optional)
     #                                       produced by unpacker
     CSCLCTProducerData = cms.untracked.string("cscunpacker"),

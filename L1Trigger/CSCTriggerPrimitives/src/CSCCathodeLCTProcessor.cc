@@ -19,8 +19,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2009/03/26 15:32:51 $
-//   $Revision: 1.33 $
+//   $Date: 2009/03/27 17:10:12 $
+//   $Revision: 1.34 $
 //
 //   Modifications: 
 //
@@ -256,11 +256,11 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   // Not used yet.
   fifo_pretrig = conf.getParameter<unsigned int>("clctFifoPretrig");
 
-  // Defines "real" version of the algorithm as opposed to the idealized
-  // one used exclusively in old MC studies.
+  // Defines pre-2007 version of the CLCT algorithm used in test beams and
+  // MTCC.
   isMTCC       = comm.getParameter<bool>("isMTCC");
 
-  // TMB07 firmware: switch and config. parameters.
+  // TMB07 firmware used since 2007: switch and config. parameters.
   isTMB07      = comm.getParameter<bool>("isTMB07");
   if (isTMB07) {
     pid_thresh_pretrig =
@@ -310,7 +310,7 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor() :
   // CLCT configuration parameters.
   setDefaultConfigParameters();
   infoV =  2;
-  isMTCC  = true;
+  isMTCC  = false;
   isTMB07 = true;
 
   // Check and print configuration parameters.
@@ -337,7 +337,7 @@ void CSCCathodeLCTProcessor::setDefaultConfigParameters() {
   nplanes_hit_pretrig = def_nplanes_hit_pretrig;
   nplanes_hit_pattern = def_nplanes_hit_pattern;
 
-  isMTCC = true;
+  isMTCC = false;
 
   // New TMB07 parameters.
   isTMB07 = true;
@@ -726,13 +726,11 @@ void CSCCathodeLCTProcessor::run(int comp[CSCConstants::NUM_LAYERS][CSCConstants
   // candidates.  Subtract 1 to account for staggering.
   std::vector<CSCCLCTDigi> LCTlist;
 
-  if (isMTCC) {
-    if (!isTMB07) {
-      LCTlist = findLCTs(halfstrip, distrip);
-    }
-    else {
-      LCTlist = findLCTs2007(halfstrip);
-    }
+  if (isTMB07) { // TMB07 (latest) version of the CLCT algorithm.
+    LCTlist = findLCTs2007(halfstrip);
+  }
+  else if (isMTCC) { // MTCC version.
+    LCTlist = findLCTs(halfstrip, distrip);
   }
   else { // Idealized algorithm of many years ago.
     std::vector<CSCCLCTDigi> halfStripLCTs =
@@ -753,7 +751,7 @@ void CSCCathodeLCTProcessor::run(int comp[CSCConstants::NUM_LAYERS][CSCConstants
   if (LCTlist.size() > 0) bestCLCT   = LCTlist[0]; // take the best two 
   if (LCTlist.size() > 1) secondCLCT = LCTlist[1]; // candidates
 
-  if (!isMTCC) {
+  if (!isMTCC && !isTMB07) {
     // Irrelevant for test beam and MTCC implementation.
     if (bestCLCT == secondCLCT) { // if the second one is the same as the first
       secondCLCT.clear();         // (i.e. found the same track both half and
@@ -922,7 +920,7 @@ void CSCCathodeLCTProcessor::distripStagger(int stag_triad[CSCConstants::MAX_NUM
 // --------------------------------------------------------------------------
 // The code below is a description of the idealized CLCT algorithm which
 // was used in Monte Carlo studies since early ORCA days and until
-// CMSSW_2_2_0 (March 2008) but was never realized in the firmware.
+// CMSSW_2_0_0 (March 2008) but was never realized in the firmware.
 //
 // Starting with CMSSW_3_1_0, it may no longer give the same results as
 // before since old versions of overloaded < > == operators in CLCTDigi
@@ -1867,7 +1865,7 @@ void CSCCathodeLCTProcessor::getPattern(unsigned int pattern_num,
 // The code below is a description of the 2007 version of the CLCT
 // algorithm (half-strips only).  It was first used in 2008 CRUZET runs,
 // and later in CRAFT.  The algorithm became the default version for
-// Monte Carlo studies in March 2008 (CMSSW_2_2_0).
+// Monte Carlo studies in March 2008 (CMSSW_2_0_0).
 // --------------------------------------------------------------------------
 // TMB-07 version.
 std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs2007(const int halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]) {

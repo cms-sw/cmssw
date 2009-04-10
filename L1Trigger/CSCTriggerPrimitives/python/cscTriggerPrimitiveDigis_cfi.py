@@ -13,7 +13,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     # Parameters common for all boards
     commonParam = cms.PSet(
         isTMB07 = cms.bool(True),
-        isMTCC = cms.bool(True)
+        isMTCC = cms.bool(False)
     ),
 
     # Parameters for ALCT processors: old MC studies
