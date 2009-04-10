@@ -87,7 +87,10 @@ class RPCStripsRing : public std::map<float, TStrip >
       boost::shared_ptr<L1RPCConeBuilder::TConMap > getConnectionsMap() 
               { return m_connectionsMap;};
               
-      L1RPCConeBuilder::TCompressedConMap & getCompressedConnectionsMap() { return m_compressedConnectionMap;};
+      boost::shared_ptr<L1RPCConeBuilder::TCompressedConMap> getCompressedConnectionsMap() 
+      { 
+        return m_compressedConnectionMap;
+      };
       
   private:
     
@@ -101,7 +104,7 @@ class RPCStripsRing : public std::map<float, TStrip >
       bool m_didFiltering;    
       
       boost::shared_ptr<L1RPCConeBuilder::TConMap > m_connectionsMap;  
-      static L1RPCConeBuilder::TCompressedConMap m_compressedConnectionMap;
+      boost::shared_ptr<L1RPCConeBuilder::TCompressedConMap > m_compressedConnectionMap;
 };
 
 

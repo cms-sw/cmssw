@@ -137,13 +137,15 @@ RPCConeBuilder::produce(const L1RPCConeBuilderRcd& iRecord)
    //iRecord.get(m_L1RPCConeDefinition);
    buildCones(m_rpcGeometry);
 
-   // Compress all connections
+   // Compress all connections. Since members of this class are shared
+   // pointers this call will compress all data
    m_ringsMap.begin()->second.compressConnections();
-   // getConnectionsMap() returns reference to static class member, so we are getting all connections
-   //
-   // It would be better to work directly on pL1RPCConeBuilder (private) members
+      
    pL1RPCConeBuilder->setConeConnectionMap(m_ringsMap.begin()->second.getConnectionsMap());
-   pL1RPCConeBuilder->setCompressedConeConnectionMap(m_ringsMap.begin()->second.getCompressedConnectionsMap());
+   
+   pL1RPCConeBuilder->setCompressedConeConnectionMap(
+           m_ringsMap.begin()->second.getCompressedConnectionsMap());
+           
    m_ringsMap.clear(); // free mem
       
    return pL1RPCConeBuilder;
@@ -178,6 +180,13 @@ void RPCConeBuilder::coneDefCallback( const L1RPCConeDefinitionRcd& record ){
 void RPCConeBuilder::buildCones(const edm::ESHandle<RPCGeometry> & rpcGeom ){
   
 
+  static bool runOnce = false;
+  if (!runOnce){
+    runOnce = true;
+  } else {
+    throw cms::Exception("RPCInternal") << "buildCones called twice \n";
+  }
+  
   //std::cout << "    ---> buildCones called " << std::endl; 
   
   // fetch geometricall data

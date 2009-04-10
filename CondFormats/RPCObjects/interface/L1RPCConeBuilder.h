@@ -114,8 +114,11 @@ class L1RPCConeBuilder
       void setConeConnectionMap(const boost::shared_ptr< TConMap > connMap) 
                       { m_coneConnectionMap = connMap;};
                       
-      void setCompressedConeConnectionMap(const TCompressedConMap & cmpConnMap) 
-          {  m_compressedConeConnectionMap = cmpConnMap;};
+      void setCompressedConeConnectionMap(const boost::shared_ptr< TCompressedConMap >
+                                              cmpConnMap) 
+      {  
+            m_compressedConeConnectionMap = cmpConnMap;
+      };
       
       std::pair<TStripConVec::const_iterator, TStripConVec::const_iterator> 
           getConVec(uint32_t det, unsigned char strip) const ;
@@ -134,7 +137,7 @@ class L1RPCConeBuilder
      int m_lastTower;
 
      boost::shared_ptr< TConMap > m_coneConnectionMap; 
-     TCompressedConMap  m_compressedConeConnectionMap;
+     boost::shared_ptr< TCompressedConMap >  m_compressedConeConnectionMap;
 };
 
 

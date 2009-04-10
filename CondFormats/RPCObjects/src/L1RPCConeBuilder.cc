@@ -57,9 +57,9 @@ std::pair<L1RPCConeBuilder::TCompressedConVec::const_iterator, L1RPCConeBuilder:
   L1RPCConeBuilder::TCompressedConVec::const_iterator itBeg = L1RPCConeBuilder::TCompressedConVec().end();
   L1RPCConeBuilder::TCompressedConVec::const_iterator itEnd = itBeg;
   
-  if(m_compressedConeConnectionMap.find(det)!=m_compressedConeConnectionMap.end()){
-    itBeg =  m_compressedConeConnectionMap.find(det)->second.begin();
-    itEnd =  m_compressedConeConnectionMap.find(det)->second.end();
+  if(m_compressedConeConnectionMap->find(det)!=m_compressedConeConnectionMap->end()){
+    itBeg =  m_compressedConeConnectionMap->find(det)->second.begin();
+    itEnd =  m_compressedConeConnectionMap->find(det)->second.end();
   }
   
   return std::make_pair(itBeg,itEnd);

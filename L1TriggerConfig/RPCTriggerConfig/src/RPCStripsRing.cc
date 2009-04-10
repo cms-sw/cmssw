@@ -21,12 +21,6 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//boost::shared_ptr<L1RPCConeBuilder::TConMap > RPCStripsRing::m_connectionsMap 
-//        =  boost::shared_ptr<L1RPCConeBuilder::TConMap >();
-
-
-L1RPCConeBuilder::TCompressedConMap RPCStripsRing::m_compressedConnectionMap = L1RPCConeBuilder::TCompressedConMap();
-
 RPCStripsRing::RPCStripsRing() :
     m_hwPlane(-1),
     m_etaPartition(99),
@@ -519,9 +513,22 @@ int RPCStripsRing::getTowerForRefRing(){
 
 void RPCStripsRing::compressConnections(){
 
+  static bool runOnce = false;
+  if (!runOnce){
+    runOnce = true;
+  } else {
+    throw cms::Exception("RPCInternal") << "compressConnections called twice \n";
+  }
+  
+  
   L1RPCConeBuilder::TConMap::iterator itChamber = m_connectionsMap->begin();
+  
   boost::shared_ptr<L1RPCConeBuilder::TConMap > uncompressedConsLeft
   = boost::shared_ptr<L1RPCConeBuilder::TConMap >(new L1RPCConeBuilder::TConMap());
+  
+  m_compressedConnectionMap =        
+               boost::shared_ptr<L1RPCConeBuilder::TCompressedConMap >
+               (new L1RPCConeBuilder::TCompressedConMap());
   
   
   int compressedCons = 0, uncompressedConsBefore = 0, uncompressedConsAfter = 0;
@@ -545,11 +552,11 @@ void RPCStripsRing::compressConnections(){
         // Check if this connection isn't allready present in the compressed map 
         ++uncompressedConsBefore;
         bool alreadyDone=false; 
-        if (m_compressedConnectionMap.find(detId)!=m_compressedConnectionMap.end()){
+        if (m_compressedConnectionMap->find(detId)!=m_compressedConnectionMap->end()){
           
           // iterate over the vec, check element by element
-          for(L1RPCConeBuilder::TCompressedConVec::iterator itCompConn=m_compressedConnectionMap[detId].begin();
-              itCompConn!=m_compressedConnectionMap[detId].end();
+          for(L1RPCConeBuilder::TCompressedConVec::iterator itCompConn=(*m_compressedConnectionMap)[detId].begin();
+              itCompConn!=(*m_compressedConnectionMap)[detId].end();
               ++itCompConn)
           {
             if (itCompConn->m_tower ==  itConn->m_tower
@@ -631,7 +638,7 @@ void RPCStripsRing::compressConnections(){
             //  uncompressedConsLeft[detId][itStrip->first].push_back(*itConn);
             //  ++uncompressedConsAfter;
           }
-          m_compressedConnectionMap[detId].push_back(nCompConn);
+          (*m_compressedConnectionMap)[detId].push_back(nCompConn);
           ++compressedCons;
 
 
