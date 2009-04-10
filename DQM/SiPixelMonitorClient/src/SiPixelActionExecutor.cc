@@ -1224,7 +1224,7 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore* bei, bool isbarrel)
   //occupancyprinting cout<<"entering SiPixelActionExecutor::fillOccupancy..."<<std::endl;
   if(Tier0Flag_) return;
   string currDir = bei->pwd();
-  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  QString dname = QString::fromStdString(currDir.substr(currDir.find_last_of("/")+1));
   QRegExp rx("Module_");
   //occupancyprinting cout<<"currDir= "<<currDir<< " , dname= "<<dname<<std::endl;
 	
@@ -1517,7 +1517,7 @@ void SiPixelActionExecutor::dumpBarrelModIds(DQMStore * bei){
 	   im != contents.end(); im++) {
 	if(first_me) break;
 	QRegExp rx("(\\w+)_(\\w+)_(\\d+)") ;
-	QString mEName = (*im);
+	QString mEName = QString::fromStdString(*im);
 	if(rx.search(mEName) != -1 ) detId = rx.cap(3).toInt() ;
       }
       bei->goUp();
@@ -1554,7 +1554,7 @@ void SiPixelActionExecutor::dumpEndcapModIds(DQMStore * bei){
 	   im != contents.end(); im++) {
 	if(first_me) break;
 	QRegExp rx("(\\w+)_(\\w+)_(\\d+)") ;
-	QString mEName = (*im);
+	QString mEName = QString::fromStdString(*im);
 	if(rx.search(mEName) != -1 ) detId = rx.cap(3).toInt() ;
       }
       bei->goUp();

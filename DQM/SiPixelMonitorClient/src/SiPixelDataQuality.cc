@@ -95,7 +95,7 @@ SiPixelDataQuality::~SiPixelDataQuality() {
 int SiPixelDataQuality::getDetId(MonitorElement * mE) 
 {
  QRegExp rx("(\\w+)_(\\w+)_(\\d+)") ;
- QString mEName = mE->getName() ;
+ QString mEName = QString::fromStdString(mE->getName()) ;
 
  int detId = 0;
  
@@ -304,7 +304,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   if(nFEDs==0) return;  
   
   string currDir = bei->pwd();
-  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  QString dname = QString::fromStdString(currDir.substr(currDir.find_last_of("/")+1));
 
   QRegExp rx, rxb, rxe;
   if(!Tier0Flag) rx = QRegExp("Module_");
@@ -860,7 +860,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
   eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
   
   string currDir = bei->pwd();
-  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  QString dname = QString::fromStdString(currDir.substr(currDir.find_last_of("/")+1));
   
   QRegExp rx, rxb, rxe;
   if(!Tier0Flag) rx = QRegExp("Module_");

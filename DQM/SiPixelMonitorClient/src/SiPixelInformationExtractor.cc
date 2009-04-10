@@ -134,7 +134,7 @@ void SiPixelInformationExtractor::getSingleModuleHistos(DQMStore * bei,
 	 it!= all_mes.end(); it++) {
       MonitorElement * me = (*it);
       if (!me) continue;
-      theME = me->getName();
+      theME = QString::fromStdString(me->getName());
       string temp_s ; 
       if( rx.search(theME) != -1 ) { temp_s = rx.cap(1).latin1() ; }
       if (temp_s == (*ih)) {
@@ -232,7 +232,7 @@ void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei,
 //        	       << ACPlain << *ih << endl ; 
        continue;
       }
-      theME = me->getName();
+      theME = QString::fromStdString(me->getName());
       string temp_s ; 
       if( rx.search(theME) != -1 ) { temp_s = rx.cap(1).latin1() ; }
 //      cout << __LINE__ << ACCyan << ACBold 
@@ -427,7 +427,7 @@ void SiPixelInformationExtractor::printModuleHistoList(DQMStore * bei,
                                       it != meVec.end(); it++) {
     if ((*it).find("_siPixel")!=string::npos || 
         (*it).find("_ctfWithMaterialTracks")!=string::npos) {
-      QString qit = (*it) ;
+      QString qit = QString::fromStdString(*it) ;
       QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)") ;
       if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
       str_val << "    <li class=\"dhtmlgoodies_sheet.gif\">\n"
@@ -520,7 +520,7 @@ void SiPixelInformationExtractor::printSummaryHistoList(DQMStore * bei,
   for (vector<string>::const_iterator it = meVec.begin();
        it != meVec.end(); it++) {
     if ((*it).find("SUM") == 0) {
-      QString qit = (*it) ;
+      QString qit = QString::fromStdString(*it) ;
       QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)");
       if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
       str_val << "    <li class=\"dhtmlgoodies_sheet.gif\">\n"
@@ -533,7 +533,7 @@ void SiPixelInformationExtractor::printSummaryHistoList(DQMStore * bei,
 	      << "            onclick = \"javascript:IMGC.selectedIMGCItems()\" />\n"
 //              << "     <a href=\"javascript:IMGC.updateIMGC('" << currDir << "')\">\n       " 
               << "     <a href=\"javascript:IMGC.plotFromPath('" << currDir << "')\">\n       " 
-	      <<        qit << "\n"
+	      <<       (*it) << "\n"
 	      << "     </a>\n"
 	      << "    </li>" 
 	      << endl;
@@ -640,7 +640,7 @@ void SiPixelInformationExtractor::printAlarmList(DQMStore * bei,
       selectImage(image_name1,my_map);
       if(image_name1!="images/LI_green.gif") {
         alarmCounter_++;
-        QString qit = (*it) ;
+        QString qit = QString::fromStdString(*it) ;
         QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)") ;
         if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
         str_val << "	<li class=\"dhtmlgoodies_sheet.gif\">\n"
@@ -653,7 +653,7 @@ void SiPixelInformationExtractor::printAlarmList(DQMStore * bei,
         	<< "		onclick = \"javascript:IMGC.selectedIMGCItems()\" />\n"
 //        	<< "	 <a href=\"javascript:IMGC.updateIMGC('" << currDir << "')\">\n       " 
         	<< "	 <a href=\"javascript:IMGC.plotFromPath('" << currDir << "')\">\n       " 
-        	<<	  qit << "\n"
+        	<<	  (*it) << "\n"
         	<< "	 </a>\n"
 		<< "     <img src=\""
 		<<        image_name1 
@@ -922,7 +922,7 @@ void SiPixelInformationExtractor::computeStatus(MonitorElement      * theME,
   pair<double,double> normX ;
   pair<double,double> normY ;
 
-  QString theMEType = getMEType(theME) ;
+  QString theMEType = QString::fromStdString(getMEType(theME)) ;
 
 //   cout << ACRed << ACReverse
 //        << "[SiPixelInformationExtractor::computeStatus()]"
@@ -1049,7 +1049,7 @@ void SiPixelInformationExtractor::selectMEList(DQMStore   * bei,
        
     for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
     {
-      theME = *it ;
+      theME = QString::fromStdString(*it) ;
       if( rx.search(theME) == -1 ) {continue ;} // If the ME is not a siPixel or ctfWithMaterialTrack one, skip
       if (rx.cap(1).latin1() == theMEName)  
       {
@@ -1120,8 +1120,8 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DQMStore  * bei,
   stringstream jsSnippet ;
   for(vector<MonitorElement*>::iterator it=me_list.begin(); it!=me_list.end(); it++)
   {
-    QString meName    = (*it)->getName() ;
-    QString theMEType = getMEType(*it) ;
+    QString meName    = QString::fromStdString((*it)->getName()) ;
+    QString theMEType = QString::fromStdString(getMEType(*it)) ;
     if( rx.search(meName) != -1 ) 
     {
      detId = rx.cap(1).latin1() ;
@@ -1217,7 +1217,7 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DQMStore  * bei,
 int SiPixelInformationExtractor::getDetId(MonitorElement * mE) 
 {
  QRegExp rx("(\\w+)_(\\w+)_(\\d+)") ;
- QString mEName = mE->getName() ;
+ QString mEName = QString::fromStdString(mE->getName()) ;
 
  int detId = 0;
  
@@ -1264,12 +1264,12 @@ void SiPixelInformationExtractor::getMEList(DQMStore    * bei,
        
     for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
     {
-      theME = *it ;
+      theME = QString::fromStdString(*it) ;
 //       cout << ACRed << ACReverse
 //            << "[SiPixelInformationExtractor::getMEList()]"
 //            << ACPlain
 //            << " ME: " 
-//            << theME
+//            << (*it)
 //            << endl ;
       if( rx.search(theME) == -1 ) 
       {
@@ -1277,7 +1277,7 @@ void SiPixelInformationExtractor::getMEList(DQMStore    * bei,
             << "[SiPixelInformationExtractor::getMEList()]"
 	    << ACPlain
 	    << " ----> Skipping " 
-	    << theME
+	    << (*it)
 	    << endl ;
        continue ;
       } // If the ME is not a Pixel one, skip
@@ -1369,7 +1369,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
     myfile_ << "Noise summary, ran over " << nevents_ << " events, threshold was set to " << noiseRate_ <<  std::endl;
   }
   string currDir = bei->pwd();
-  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  QString dname = QString::fromStdString(currDir.substr(currDir.find_last_of("/")+1));
   QRegExp rx("Module_");
   if(rx.search(dname)!=-1){
     vector<string> meVec = bei->getMEs();
