@@ -147,7 +147,7 @@ int main(){
     }
     {
       // test PayloadProxy
-      PayloadProxy<cond::IOVElement> data(myconnection,iovtok,false);
+      cond::PayloadProxy<cond::IOVElement> data(myconnection,iovtok,false);
       print(data,3);
       print(data,23);
       print(data,33);
