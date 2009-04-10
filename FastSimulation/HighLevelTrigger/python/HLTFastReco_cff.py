@@ -22,8 +22,8 @@ paramMuons.MUONS.ProduceL3Muons = False
 
 # L1 emulator 
 from L1Trigger.Configuration.L1Emulator_cff import *
-rctDigis.ecalDigisLabel = 'simEcalTriggerPrimitiveDigis'
-rctDigis.hcalDigisLabel = 'simHcalTriggerPrimitiveDigis'
+rctDigis.ecalDigis = cms.VInputTag(cms.InputTag("simEcalTriggerPrimitiveDigis"))
+rctDigis.hcalDigis = cms.VInputTag(cms.InputTag("simHcalTriggerPrimitiveDigis"))
 
 # The calorimeter emulator requires doDigis=true)
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
