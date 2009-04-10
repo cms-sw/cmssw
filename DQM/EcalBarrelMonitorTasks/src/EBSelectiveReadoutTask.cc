@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2009/03/18 08:23:48 $
- * $Revision: 1.27 $
+ * $Date: 2009/03/18 10:58:49 $
+ * $Revision: 1.28 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -55,6 +55,10 @@ EBSelectiveReadoutTask::EBSelectiveReadoutTask(const ParameterSet& ps){
   FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
 
   // histograms...
+  for(int i = 0; i < 36; i++) {
+    EBTowerSize_[i] = 0;
+    EBTowerFullReadoutFrequency_[i] = 0;
+  }
   EBDccEventSize_ = 0;
   EBReadoutUnitForcedBitMap_ = 0;
   EBFullReadoutSRFlagMap_ = 0;
@@ -90,14 +94,29 @@ void EBSelectiveReadoutTask::setup(void) {
   char histo[200];
 
   if ( dqmStore_ ) {
+
     dqmStore_->setCurrentFolder(prefixME_ + "/EBSelectiveReadoutTask");
+
+    for (int i = 0; i < 36; i++) {
+
+      sprintf(histo, "EBSRT tower event size %s", Numbers::sEB(i+1).c_str());
+      EBTowerSize_[i] = dqmStore_->bookProfile(histo, histo, 68, 1., 69., 100, 0., 200, "s");
+      EBTowerSize_[i]->setAxisTitle("tower", 1);
+      EBTowerSize_[i]->setAxisTitle("tower average event size (bytes)", 2);
+      
+      sprintf(histo, "EBSRT full readout frequency %s", Numbers::sEB(i+1).c_str());
+      EBTowerFullReadoutFrequency_[i] = dqmStore_->book1D(histo, histo, 68, 1., 69.);
+      EBTowerFullReadoutFrequency_[i]->setAxisTitle("tower", 1);
+      EBTowerFullReadoutFrequency_[i]->setAxisTitle("fraction of events with full readout", 2);
+
+    }
 
     sprintf(histo, "EBSRT DCC event size");
     EBDccEventSize_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 200., "s");
     for (int i = 0; i < 36; i++) {
       EBDccEventSize_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
-
+    
     sprintf(histo, "EBSRT readout unit with SR forced");
     EBReadoutUnitForcedBitMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
     EBReadoutUnitForcedBitMap_->setAxisTitle("jphi", 1);
@@ -139,7 +158,17 @@ void EBSelectiveReadoutTask::cleanup(void){
   if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
+
     dqmStore_->setCurrentFolder(prefixME_ + "/EBSelectiveReadoutTask");
+
+    for (int i = 0; i < 36; i++) {
+
+      if ( EBTowerSize_[i] ) dqmStore_->removeElement( EBTowerSize_[i]->getName() );
+      EBTowerSize_[i] = 0;
+
+      if ( EBTowerFullReadoutFrequency_[i] ) dqmStore_->removeElement( EBTowerFullReadoutFrequency_[i]->getName() );
+      EBTowerFullReadoutFrequency_[i] = 0;
+    }
 
     if ( EBDccEventSize_ ) dqmStore_->removeElement( EBDccEventSize_->getName() );
     EBDccEventSize_ = 0;
@@ -183,6 +212,13 @@ void EBSelectiveReadoutTask::beginRun(const Run& r, const EventSetup& c) {
 
   if ( ! mergeRuns_ ) this->reset();
 
+  for(int ism=1; ism<=36; ism++) {
+    for(int itt=0; itt<68; itt++) {
+      nEvtFullReadout[itt][ism-1] = 0;
+      nEvtAnyReadout[itt][ism-1] = 0;
+    }
+  }
+
 }
 
 void EBSelectiveReadoutTask::endRun(const Run& r, const EventSetup& c) {
@@ -190,6 +226,12 @@ void EBSelectiveReadoutTask::endRun(const Run& r, const EventSetup& c) {
 }
 
 void EBSelectiveReadoutTask::reset(void) {
+
+  for (int i = 0; i < 36; i++) {
+    if ( EBTowerSize_[i] ) EBTowerSize_[i]->Reset();
+
+    if ( EBTowerFullReadoutFrequency_[i] ) EBTowerFullReadoutFrequency_[i]->Reset();
+  }
 
   if ( EBDccEventSize_ ) EBDccEventSize_->Reset();
 
@@ -242,19 +284,26 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EBSrFlagCollection::const_iterator it = ebSrFlags->begin(); it != ebSrFlags->end(); ++it ) {
 
-      int iet = it->id().ieta();
+      EcalTrigTowerDetId id = it->id();
+
+      int iet = id.ieta();
       // phi_tower: change the range from global to SM-local
       // phi==0 is in the middle of a SM
-      int ipt = it->id().iphi() + 2;
+      int ipt = id.iphi() + 2;
       if ( ipt > 72 ) ipt = ipt - 72;
 
       float xiet = (iet>0) ? iet-0.5 : iet+0.5 ;
       float xipt = ipt-0.5;
+      int itt = Numbers::iTT( id );
+      int ism = Numbers::iSM( id );
+
+      nEvtAnyReadout[itt][ism-1]++;
 
       int flag = it->value() & ~EcalSrFlag::SRF_FORCED_MASK;
-
+      
       if(flag == EcalSrFlag::SRF_FULL){
         EBFullReadoutSRFlagMap_->Fill(xipt,xiet);
+        nEvtFullReadout[itt][ism-1]++;
       } else {
 	EBFullReadoutSRFlagMap_->Fill(-1,-18);
       }
@@ -264,10 +313,21 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       } else {
 	EBReadoutUnitForcedBitMap_->Fill(-1,-18);
       }
-      
+
     }
   } else {
     LogWarning("EBSelectiveReadoutTask") << EBSRFlagCollection_ << " not available";
+  }
+
+  for(int ism = 1; ism <= 36; ism++ ) {
+    for(int itt = 0; itt < 68; itt++ ) {
+      if(nEvtAnyReadout[itt][ism-1]) {
+        float fraction = float(nEvtFullReadout[itt][ism-1]) / float(nEvtAnyReadout[itt][ism-1]);
+        float error = sqrt(fraction*(1-fraction)/float(nEvtAnyReadout[itt][ism-1]));
+        EBTowerFullReadoutFrequency_[ism-1]->setBinContent(itt+1, fraction);
+        EBTowerFullReadoutFrequency_[ism-1]->setBinError(itt+1, error);
+      }
+    }
   }
 
   integral01 = h01->GetEntries();
@@ -352,6 +412,13 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     aAnyInterest = getEbEventSize(nEb_)/kByte;
     EBEventSize_->Fill(aAnyInterest);
 
+    //event size by tower:
+    for (int ism = 1; ism <= 36; ism++) {
+      for(int itt = 0; itt < 68; itt++) {
+        double towerSize =  nCryTower[itt][ism-1] * bytesPerCrystal;
+        EBTowerSize_[ism-1]->Fill(itt+1,towerSize);
+      }
+    }
   } else {
     LogWarning("EBSelectiveReadoutTask") << EBDigiCollection_ << " not available";
   }
@@ -361,30 +428,42 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCollection& srFlagColl){
 
   EBDetId id = frame.id();
+  int ism = Numbers::iSM( id );
+
+  bool barrel = (id.subdetId()==EcalBarrel);
+
+  if(barrel){
+    ++nEb_;
+
+    int ieta = id.ieta();
+    int iphi = id.iphi();
+    
+    int iEta0 = iEta2cIndex(ieta);
+    int iPhi0 = iPhi2cIndex(iphi);
+    if(!ebRuActive_[iEta0/ebTtEdge][iPhi0/ebTtEdge]){
+      ++nRuPerDcc_[dccNum(id)-1];
+      ebRuActive_[iEta0/ebTtEdge][iPhi0/ebTtEdge] = true;
+    }
+    
+    int itt = Numbers::iTT(ism,EcalBarrel,abs(ieta),iphi);
+    nCryTower[itt][ism-1]++;
+
+  }
+
   EBSrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(id));
 
   if(srf == srFlagColl.end()){
-//    LogWarning("EBSelectiveReadoutTask") << "SR flag not found";
     return;
   }
 
   bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
                        == EcalSrFlag::SRF_FULL);
 
-  bool barrel = (id.subdetId()==EcalBarrel);
-
   if(barrel){
-    ++nEb_;
     if(highInterest){
       ++nEbHI_;
     } else{//low interest
       ++nEbLI_;
-    }
-    int iEta0 = iEta2cIndex(id.ieta());
-    int iPhi0 = iPhi2cIndex(id.iphi());
-    if(!ebRuActive_[iEta0/ebTtEdge][iPhi0/ebTtEdge]){
-      ++nRuPerDcc_[dccNum(id)-1];
-      ebRuActive_[iEta0/ebTtEdge][iPhi0/ebTtEdge] = true;
     }
   }
 
@@ -398,6 +477,13 @@ void EBSelectiveReadoutTask::anaDigiInit(){
   bzero(nPerDcc_, sizeof(nPerDcc_));
   bzero(nRuPerDcc_, sizeof(nRuPerDcc_));
   bzero(ebRuActive_, sizeof(ebRuActive_));
+
+  for(int ism=1; ism<=36; ism++) {
+    for(int itt=0; itt<68; itt++) {
+      nCryTower[itt][ism-1] = 0;
+    }
+  }
+
 }
 
 EcalTrigTowerDetId

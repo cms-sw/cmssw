@@ -4,8 +4,8 @@
 /*
  * \file EBSelectiveReadoutTask.h
  *
- * $Date: 2008/07/30 16:20:33 $
- * $Revision: 1.8 $
+ * $Date: 2008/12/01 09:29:26 $
+ * $Revision: 1.9 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -84,6 +84,15 @@ static const int nTtPhi = 72;
 
 ///Number of bytes per crystal
 static const int bytesPerCrystal = 24;
+
+///To store the readout crystals / tower
+int nCryTower[68][36];
+
+///To store the events with full readout 
+int nEvtFullReadout[68][36];
+
+///To store the events with any readout
+int nEvtAnyReadout[68][36];
 
 private:
 
@@ -246,6 +255,8 @@ edm::InputTag EcalTrigPrimDigiCollection_;
 edm::InputTag FEDRawDataCollection_;
 
 MonitorElement* EBDccEventSize_;
+MonitorElement* EBTowerSize_[36];
+MonitorElement* EBTowerFullReadoutFrequency_[36];
 MonitorElement* EBReadoutUnitForcedBitMap_;
 MonitorElement* EBFullReadoutSRFlagMap_;
 MonitorElement* EBHighInterestTriggerTowerFlagMap_;

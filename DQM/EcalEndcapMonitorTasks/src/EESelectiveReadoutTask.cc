@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2008/12/04 15:19:28 $
- * $Revision: 1.21 $
+ * $Date: 2008/12/08 08:09:21 $
+ * $Revision: 1.22 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -56,8 +56,11 @@ EESelectiveReadoutTask::EESelectiveReadoutTask(const ParameterSet& ps){
   FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
 
   // histograms...
+  for(int i = 0; i < 18; i++) {
+    EETowerSize_[i] = 0;
+    EETowerFullReadoutFrequency_[i] = 0;
+  }
   EEDccEventSize_ = 0;
-
   EEReadoutUnitForcedBitMap_[0] = 0;
   EEFullReadoutSRFlagMap_[0] = 0;
   EEHighInterestTriggerTowerFlagMap_[0] = 0;
@@ -101,6 +104,20 @@ void EESelectiveReadoutTask::setup(void) {
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EESelectiveReadoutTask");
+
+    for (int i = 0; i < 18; i++) {
+
+      sprintf(histo, "EESRT tower event size %s", Numbers::sEE(i+1).c_str());
+      EETowerSize_[i] = dqmStore_->bookProfile(histo, histo, 42, 1., 42., 100, 0., 200, "s");
+      EETowerSize_[i]->setAxisTitle("tower", 1);
+      EETowerSize_[i]->setAxisTitle("tower average event size (bytes)", 2);
+
+      sprintf(histo, "EESRT full readout frequency %s", Numbers::sEE(i+1).c_str());
+      EETowerFullReadoutFrequency_[i] = dqmStore_->book1D(histo, histo, 42, 1., 42.);
+      EETowerFullReadoutFrequency_[i]->setAxisTitle("tower", 1);
+      EETowerFullReadoutFrequency_[i]->setAxisTitle("fraction of events with full readout", 2);
+
+    }
 
     sprintf(histo, "EESRT DCC event size");
     EEDccEventSize_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 200., "s");
@@ -183,6 +200,15 @@ void EESelectiveReadoutTask::cleanup(void){
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EESelectiveReadoutTask");
 
+    for (int i = 0; i < 18; i++) {
+
+      if ( EETowerSize_[i] ) dqmStore_->removeElement( EETowerSize_[i]->getName() );
+      EETowerSize_[i] = 0;
+
+      if ( EETowerFullReadoutFrequency_[i] ) dqmStore_->removeElement( EETowerFullReadoutFrequency_[i]->getName() );
+      EETowerFullReadoutFrequency_[i] = 0;
+    }
+
     if ( EEDccEventSize_ ) dqmStore_->removeElement( EEDccEventSize_->getName() );
     EEDccEventSize_ = 0;
 
@@ -246,6 +272,13 @@ void EESelectiveReadoutTask::beginRun(const Run& r, const EventSetup& c) {
 
   if ( ! mergeRuns_ ) this->reset();
 
+  for(int ism=1; ism<=18; ism++) {
+    for(int itt=0; itt<42; itt++) {
+      nEvtFullReadout[itt][ism-1] = 0;
+      nEvtAnyReadout[itt][ism-1] = 0;
+    }
+  }
+
 }
 
 void EESelectiveReadoutTask::endRun(const Run& r, const EventSetup& c) {
@@ -253,6 +286,12 @@ void EESelectiveReadoutTask::endRun(const Run& r, const EventSetup& c) {
 }
 
 void EESelectiveReadoutTask::reset(void) {
+
+  for (int i = 0; i < 18; i++) {
+    if ( EETowerSize_[i] ) EETowerSize_[i]->Reset();
+
+    if ( EETowerFullReadoutFrequency_[i] ) EETowerFullReadoutFrequency_[i]->Reset();
+  }
 
   if ( EEDccEventSize_ ) EEDccEventSize_->Reset();
 
@@ -342,11 +381,19 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       float xix = ix-0.5;
       float xiy = iy-0.5;
 
+      EcalTrigTowerDetId id = it->id();
+
+      int itt = Numbers::iTT( id );
+      int ism = Numbers::iSM( id );
+
+      nEvtAnyReadout[itt][ism-1]++;
+
       int flag = it->value() & ~EcalSrFlag::SRF_FORCED_MASK;
 
       if(flag == EcalSrFlag::SRF_FULL){
 	if( zside < 0 ) {
 	  EEFullReadoutSRFlagMap_[0]->Fill(xix,xiy);
+          nEvtFullReadout[itt][ism-1]++;
 	}
 	else {
 	  EEFullReadoutSRFlagMap_[1]->Fill(xix,xiy);
@@ -384,6 +431,17 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
   for(int iside=0;iside<2;iside++) {
     if( integral01[iside] != 0 ) h01[iside]->Scale( 1.0/integral01[iside] );
     if( integral02[iside] != 0 ) h02[iside]->Scale( 1.0/integral02[iside] );  
+  }
+
+  for(int ism = 1; ism <= 18; ism++ ) {
+    for(int itt = 0; itt < 42; itt++ ) {
+      if(nEvtAnyReadout[itt][ism-1]) {
+        float fraction = float(nEvtFullReadout[itt][ism-1]) / float(nEvtAnyReadout[itt][ism-1]);
+        float error = sqrt(fraction*(1-fraction)/float(nEvtAnyReadout[itt][ism-1]));
+        EETowerFullReadoutFrequency_[ism-1]->setBinContent(itt+1, fraction);
+        EETowerFullReadoutFrequency_[ism-1]->setBinError(itt+1, error);
+      }
+    }
   }
 
   TH2F *h03[2];
@@ -513,6 +571,14 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     aAnyInterest[1] = getEeEventSize(nEe_[1])/kByte;
     EEEventSize_[1]->Fill(aAnyInterest[1]);
 
+    //event size by tower:
+    for (int ism = 1; ism <= 18; ism++) {
+      for(int itt = 0; itt < 42; itt++) {
+        double towerSize =  nCryTower[itt][ism-1] * bytesPerCrystal;
+        EETowerSize_[ism-1]->Fill(itt+1,towerSize);
+      }
+    }
+    
   } else {
     LogWarning("EESelectiveReadoutTask") << EEDigiCollection_ << " not available";
   }
@@ -522,43 +588,56 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCollection& srFlagColl){
 
   EEDetId id = frame.id();
+  int ism = Numbers::iSM( id );
+
+  bool endcap = (id.subdetId()==EcalEndcap);
+
+  if(endcap) {
+    if ( ism >= 1 && ism <= 9 ) {
+      ++nEe_[0];
+    } else {
+      ++nEe_[1];
+    }
+    
+    int ix = id.ix();
+    int iy = id.iy();
+    
+    int iX0 = iXY2cIndex(ix);
+    int iY0 = iXY2cIndex(iy);
+    int iZ0 = id.zside()>0?1:0;
+
+    if(!eeRuActive_[iZ0][iX0/scEdge][iY0/scEdge]){
+      ++nRuPerDcc_[dccNum(id)];
+      eeRuActive_[iZ0][iX0/scEdge][iY0/scEdge] = true;
+    }
+    
+    int itt = Numbers::iTT(ism,EcalEndcap,ix,iy);
+    nCryTower[itt][ism-1]++;
+
+  }
+
   EESrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(id));
 
   if(srf == srFlagColl.end()){
-//    LogWarning("EESelectiveReadoutTask") << "SR flag not found";
     return;
   }
 
   bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
                        == EcalSrFlag::SRF_FULL);
 
-  bool endcap = (id.subdetId()==EcalEndcap);
-
-  if(endcap){
-    int ism = Numbers::iSM( id );
+  if(endcap) {
     if ( ism >= 1 && ism <= 9 ) {
-      ++nEe_[0];
       if(highInterest){
 	++nEeHI_[0];
-      } else{//low interest
+      } else{ //low interest
 	++nEeLI_[0];
       }
     } else {
-      ++nEe_[1];
       if(highInterest){
 	++nEeHI_[1];
-      } else{//low interest
+      } else{ //low interest
 	++nEeLI_[1];
       }
-    }
-
-    int iX0 = iXY2cIndex(id.ix());
-    int iY0 = iXY2cIndex(id.iy());
-    int iZ0 = id.zside()>0?1:0;
-
-    if(!eeRuActive_[iZ0][iX0/scEdge][iY0/scEdge]){
-      ++nRuPerDcc_[dccNum(id)];
-      eeRuActive_[iZ0][iX0/scEdge][iY0/scEdge] = true;
     }
   }
 
@@ -575,6 +654,13 @@ void EESelectiveReadoutTask::anaDigiInit(){
   bzero(nPerDcc_, sizeof(nPerDcc_));
   bzero(nRuPerDcc_, sizeof(nRuPerDcc_));
   bzero(eeRuActive_, sizeof(eeRuActive_));
+  
+  for(int ism=1; ism<=18; ism++) {
+    for(int itt=0; itt<42; itt++) {
+      nCryTower[itt][ism-1] = 0;
+    }
+  }
+
 }
 
 EcalScDetId
