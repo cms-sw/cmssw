@@ -10,17 +10,20 @@ class CaloSubdetectorTopology;
 
 /** \class CaloTopology
       
-$Date: 2006/05/12 18:22:28 $
-$Revision: 1.2 $
+$Date: 2006/09/07 09:43:12 $
+$Revision: 1.3 $
 
 \author J. Mans and P. Meridiani
 */
 
 class CaloTopology {
 public:
+
+      typedef std::map<int, const CaloSubdetectorTopology*> TopMap ;
+
   CaloTopology();
 
-  ~CaloTopology() {};
+  ~CaloTopology();
   /// Register a subdetector Topology
   void setSubdetTopology(DetId::Detector det, int subdet, const CaloSubdetectorTopology* geom);
   /// access the subdetector Topology for the given subdetector directly
@@ -50,7 +53,7 @@ public:
   std::vector<DetId> getAllNeighbours(const DetId& id) const;
 
 private:
-  std::map<int, const CaloSubdetectorTopology*> theTopologies_;
+  TopMap theTopologies_;
   int makeIndex(DetId::Detector det, int subdet) const;
 };
 

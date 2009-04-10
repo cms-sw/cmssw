@@ -12,7 +12,7 @@
 */
 //
 // Original Author:  Paolo Meridiani
-// $Id: CaloTopologyBuilder.h,v 1.1 2007/04/15 23:16:28 wmtan Exp $
+// $Id: CaloTopologyBuilder.h,v 1.2 2008/04/21 22:14:19 heltsley Exp $
 //
 //
 
@@ -42,11 +42,8 @@ class CaloTopologyBuilder : public edm::ESProducer
       typedef boost::shared_ptr< CaloTopology > ReturnType;
 
       ReturnType produceCalo(  const CaloTopologyRecord&  );
-      ReturnType produceIdeal( const IdealGeometryRecord&  );
 
    private:
       // ----------member data ---------------------------
-      
-      ReturnType m_caloTopology ;
 };
 
