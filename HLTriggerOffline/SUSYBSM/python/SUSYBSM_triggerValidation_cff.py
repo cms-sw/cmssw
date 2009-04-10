@@ -50,19 +50,23 @@ HLTSusyExoVal = cms.EDAnalyzer("TriggerValidator",
         electrons = cms.string('gsfElectrons')
     ),
     mc_flag = cms.untracked.bool(True), ## put mc_flag = false if you don't want to use the mc information.
-
+    l1_flag = cms.untracked.bool(False), ## put l1_flag = false if you don't want the plots for the L1 objects. 
+                                         ## Put false for usage in the DQM framework (reduce the number of bins).
     histoFileName = cms.untracked.string('MonElements_LM1_IDEAL_30x_v1_300pre7.root'),
-    ObjectList = cms.PSet(
+    PlotMakerL1Input = cms.PSet(
+        l1extramc = cms.string('hltL1extraParticles')
+    ),
+    PlotMakerRecoInput = cms.PSet(
         def_electronPtMin = cms.double(10.0),
         def_muonPtMin = cms.double(7.0),
         def_photonPtMin = cms.double(30.0),
-        l1extramc = cms.string('hltL1extraParticles'),
         calomet = cms.string('met'),
         electrons = cms.string('gsfElectrons'),
         jets = cms.string('iterativeCone5CaloJets'),
         muons = cms.string('muons'),
         def_jetPtMin = cms.double(30.0),
         photons = cms.string(''),
-        photonProducer = cms.string('photons')
+        photonProducer = cms.string('photons'),
+        BinFactor = cms.int32(1) #put a number >1 to have a larger number of bins for eta and phi distributions. Put 1 for DQM.
     )
 )

@@ -15,7 +15,7 @@ Implementation:
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.cc,v 1.10 2009/01/29 18:40:31 chiorbo Exp $
+// $Id: TriggerValidator.cc,v 1.11 2009/04/07 16:36:46 chiorbo Exp $
 //
 //
 
@@ -92,9 +92,11 @@ TriggerValidator::TriggerValidator(const edm::ParameterSet& iConfig):
   l1Label(iConfig.getParameter<edm::InputTag>("L1Label")),
   hltLabel(iConfig.getParameter<edm::InputTag>("HltLabel")),
   mcFlag(iConfig.getUntrackedParameter<bool>("mc_flag",false)),
+  l1Flag(iConfig.getUntrackedParameter<bool>("l1_flag",false)),
   userCut_params(iConfig.getParameter<ParameterSet>("UserCutParams")),
   turnOn_params(iConfig.getParameter<ParameterSet>("TurnOnParams")),
-  objectList(iConfig.getParameter<ParameterSet>("ObjectList"))
+  plotMakerL1Input(iConfig.getParameter<ParameterSet>("PlotMakerL1Input")),
+  plotMakerRecoInput(iConfig.getParameter<ParameterSet>("PlotMakerRecoInput"))
 {
   //now do what ever initialization is needed
   theHistoFile = 0;
@@ -126,7 +128,8 @@ TriggerValidator::TriggerValidator(const edm::ParameterSet& iConfig):
   }
 
 
-  objectList.addParameter<std::string>("dirname",dirname_);
+  plotMakerL1Input.addParameter<std::string>("dirname",dirname_);
+  plotMakerRecoInput.addParameter<std::string>("dirname",dirname_);
 
 }
 
@@ -330,10 +333,12 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
   if(firstEvent) {
-    myPlotMaker->bookHistos(dbe_,&l1bits,&hltbits,&l1Names_,&hlNames_);
+    if(l1Flag) myPlotMakerL1->bookHistos(dbe_,&l1bits,&hltbits,&l1Names_,&hlNames_);
+    myPlotMakerReco->bookHistos(dbe_,&l1bits,&hltbits,&l1Names_,&hlNames_);
     //    myTurnOnMaker->bookHistos();
   }
-  myPlotMaker->fillPlots(iEvent);
+  if(l1Flag) myPlotMakerL1->fillPlots(iEvent);
+  myPlotMakerReco->fillPlots(iEvent);
   //  myTurnOnMaker->fillPlots(iEvent);
 
   firstEvent = false;
@@ -371,7 +376,8 @@ TriggerValidator::beginJob(const edm::EventSetup&)
 
   myRecoSelector = new RecoSelector(userCut_params);
   if(mcFlag) myMcSelector   = new McSelector(userCut_params);
-  myPlotMaker   = new PlotMaker(objectList);
+  if(l1Flag) myPlotMakerL1     = new PlotMakerL1(plotMakerL1Input);
+  myPlotMakerReco   = new PlotMakerReco(plotMakerRecoInput);
 //   myTurnOnMaker = new TurnOnMaker(turnOn_params);
   firstEvent = true;
 
@@ -713,7 +719,8 @@ TriggerValidator::endRun(const edm::Run& run, const edm::EventSetup& c)
 
   delete myRecoSelector;
   if(mcFlag) delete myMcSelector;
-  delete myPlotMaker;
+  if(l1Flag) delete myPlotMakerL1;
+  delete myPlotMakerReco;
 //   delete myTurnOnMaker;
   return;
 }

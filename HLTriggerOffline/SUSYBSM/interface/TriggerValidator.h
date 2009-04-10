@@ -18,7 +18,7 @@
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.h,v 1.7 2009/01/27 11:55:10 chiorbo Exp $
+// $Id: TriggerValidator.h,v 1.8 2009/04/07 16:36:46 chiorbo Exp $
 //
 //
 
@@ -38,7 +38,8 @@
 #include "HLTriggerOffline/SUSYBSM/interface/McSelector.h"
 
 //To be included in a second stage
-#include "HLTriggerOffline/SUSYBSM/interface/PlotMaker.h"
+#include "HLTriggerOffline/SUSYBSM/interface/PlotMakerL1.h"
+#include "HLTriggerOffline/SUSYBSM/interface/PlotMakerReco.h"
 //#include "HLTriggerOffline/SUSYBSM/interface/TurnOnMaker.h"
 
 //included for DQM
@@ -88,7 +89,8 @@ class TriggerValidator : public edm::EDAnalyzer {
       McSelector* myMcSelector;
 
       //For the moment I switch off the more complex plots
-       PlotMaker* myPlotMaker; 
+       PlotMakerL1* myPlotMakerL1; 
+       PlotMakerReco* myPlotMakerReco; 
 /*       TurnOnMaker* myTurnOnMaker; */
 
       //Histo
@@ -99,11 +101,13 @@ class TriggerValidator : public edm::EDAnalyzer {
 
       //McFlag
       bool mcFlag;
+      bool l1Flag;
 
       //Cut parameters decided by the user
       edm::ParameterSet userCut_params;
       edm::ParameterSet turnOn_params;
-      edm::ParameterSet objectList;
+      edm::ParameterSet plotMakerL1Input;
+      edm::ParameterSet plotMakerRecoInput;
 
       // name of each L1 algorithm
       std::vector<std::string> l1Names_;    
