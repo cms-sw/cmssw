@@ -376,9 +376,9 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
     x[0]=-3; x[1]=3;       //<------useful for reso VS eta
     xAxisTitle = "#eta";
   }
-  else if ( name.Contains("PhiPlus") ){
+  else if ( name.Contains("PhiPlus") || name.Contains("PhiMinus") ){
     x[0] = -3.2; x[1] = 3.2;
-    xAxisTitle = "phi(rad)";
+    xAxisTitle = "#phi(rad)";
   }
   else {
     x[0] = 0.; x[1] = 200;
@@ -411,16 +411,18 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
 
   /*****************PARABOLIC FIT (ETA)********************/
   if( name.Contains("Eta") ) {
-    TF1 *fit1 = new TF1("fit1",onlyParabolic,-3.2,3.2,3);
+    TF1 *fit1 = new TF1("fit1",onlyParabolic,-3.2,3.2,2);
     fit1->SetLineWidth(2);
     fit1->SetLineColor(1);
     grM_1->Fit("fit1","", "", -3, 3);
     setTPaveText(fit1, paveText1);
 
-    TF1 *fit2 = new TF1("fit2","pol0",-3.2,3.2);
+    // TF1 *fit2 = new TF1("fit2","pol0",-3.2,3.2);
+    TF1 *fit2 = new TF1("fit2",onlyParabolic,-3.2,3.2,2);
     fit2->SetLineWidth(2);
     fit2->SetLineColor(2);
-    grM_2->Fit("fit2","R");
+    grM_2->Fit("fit2","", "", -3, 3);
+    // grM_2->Fit("fit2","R");
     setTPaveText(fit2, paveText2);
   }
   /*****************SINUSOIDAL FIT (PHI)********************/
