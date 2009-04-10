@@ -17,7 +17,7 @@
 #include <vector>
 #include "TDirectory.h"
 #include "HepMC/GenParticle.h"
-#include "PhysicsTools/Utilities/interface/PtComparator.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
 
 class EmDQM : public edm::EDAnalyzer{
 public:
