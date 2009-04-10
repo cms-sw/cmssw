@@ -1,10 +1,9 @@
 #ifndef CSCCalibration_CSCConditions_h
 #define CSCCalibration_CSCConditions_h
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "CondFormats/CSCObjects/interface/CSCDBNoiseMatrix.h"
 #include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
@@ -81,14 +80,14 @@ public:
 
 private:
 
-  const CSCDBNoiseMatrix * theNoiseMatrix;
-  const CSCDBGains * theGains;
-  const CSCDBPedestals * thePedestals;
-  const CSCDBCrosstalk * theCrosstalk;
+  edm::ESHandle<CSCDBGains> theGains;
+  edm::ESHandle<CSCDBCrosstalk> theCrosstalk;
+  edm::ESHandle<CSCDBPedestals> thePedestals;
+  edm::ESHandle<CSCDBNoiseMatrix> theNoiseMatrix;
+  edm::ESHandle<CSCBadStrips> theBadStrips;
+  edm::ESHandle<CSCBadWires> theBadWires;
+  edm::ESHandle<CSCBadChambers> theBadChambers;
 
-  const CSCBadStrips* theBadStrips;
-  const CSCBadWires* theBadWires;
-  const CSCBadChambers* theBadChambers;
   bool readBadChannels_; // flag whether or not to even attempt reading bad channel info from db
   bool readBadChambers_; // flag whether or not to even attempt reading bad chamber info from db
 

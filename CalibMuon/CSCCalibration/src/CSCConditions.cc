@@ -1,5 +1,9 @@
 #include "CalibMuon/CSCCalibration/interface/CSCConditions.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
@@ -13,13 +17,13 @@
 #include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 
 CSCConditions::CSCConditions( const edm::ParameterSet& ps ) 
- :theNoiseMatrix(0),
-  theGains(0),
-  thePedestals(0),
-  theCrosstalk(0),
-  theBadStrips(0),
-  theBadWires(0),
-  theBadChambers(0),
+: theGains(),
+  theCrosstalk(),
+  thePedestals(),
+  theNoiseMatrix(),
+  theBadStrips(),
+  theBadWires(),
+  theBadChambers(),
   readBadChannels_(false), readBadChambers_(false),
   theAverageGain( -1.0 )
 {
@@ -38,31 +42,19 @@ CSCConditions::~CSCConditions()
 void CSCConditions::initializeEvent(const edm::EventSetup & es)
 {
   // Strip gains
-  edm::ESHandle<CSCDBGains> hGains;
-  es.get<CSCDBGainsRcd>().get( hGains );
-  theGains = hGains.product();
+  es.get<CSCDBGainsRcd>().get( theGains );
   // Strip X-talk
-  edm::ESHandle<CSCDBCrosstalk> hCrosstalk;
-  es.get<CSCDBCrosstalkRcd>().get( hCrosstalk );
-  theCrosstalk = hCrosstalk.product();
+  es.get<CSCDBCrosstalkRcd>().get( theCrosstalk );
   // Strip pedestals
-  edm::ESHandle<CSCDBPedestals> hPedestals;
-  es.get<CSCDBPedestalsRcd>().get( hPedestals );
-  thePedestals = hPedestals.product();
+  es.get<CSCDBPedestalsRcd>().get( thePedestals );
   // Strip autocorrelation noise matrix
-  edm::ESHandle<CSCDBNoiseMatrix> hNoiseMatrix;
-  es.get<CSCDBNoiseMatrixRcd>().get(hNoiseMatrix);
-  theNoiseMatrix = hNoiseMatrix.product();
+  es.get<CSCDBNoiseMatrixRcd>().get(theNoiseMatrix);
 
   if ( readBadChannels() ) {
   // Bad strip channels
-    edm::ESHandle<CSCBadStrips> hBadS;
-    es.get<CSCBadStripsRcd>().get( hBadS );
-    theBadStrips = hBadS.product();
+    es.get<CSCBadStripsRcd>().get( theBadStrips );
   // Bad wiregroup channels
-    edm::ESHandle<CSCBadWires> hBadW;
-    es.get<CSCBadWiresRcd>().get( hBadW );
-    theBadWires = hBadW.product();
+    es.get<CSCBadWiresRcd>().get( theBadWires );
 
     //@@    if( badStripsWatcher_.check( es ) ) { 
       fillBadStripWords();
@@ -80,9 +72,7 @@ void CSCConditions::initializeEvent(const edm::EventSetup & es)
  
   if ( readBadChambers() ) {
   // Entire bad chambers
-    edm::ESHandle<CSCBadChambers> hBadC;
-    es.get<CSCBadChambersRcd>().get( hBadC );
-    theBadChambers = hBadC.product();
+    es.get<CSCBadChambersRcd>().get( theBadChambers );
   }
 
 //  print();
@@ -212,28 +202,28 @@ void CSCConditions::print() const
 
 float CSCConditions::gain(const CSCDetId & detId, int channel) const
 {
-  assert(theGains != 0);
+  assert(theGains.isValid());
   return float( theGains->item(detId, channel).gain_slope )/theGains->factor_gain;
 }
 
 
 float CSCConditions::pedestal(const CSCDetId & detId, int channel) const
 {
-  assert(thePedestals != 0);
+  assert(thePedestals.isValid());
   return float ( thePedestals->item(detId, channel).ped )/thePedestals->factor_ped;
 }
 
 
 float CSCConditions::pedestalSigma(const CSCDetId&detId, int channel) const
 {
-  assert(thePedestals != 0);
+  assert(thePedestals.isValid());
   return float ( thePedestals->item(detId, channel).rms )/thePedestals->factor_rms;
 }
 
 
 float CSCConditions::crosstalkIntercept(const CSCDetId&detId, int channel, bool leftRight) const
 {
-  assert(theCrosstalk != 0);
+  assert(theCrosstalk.isValid());
   const CSCDBCrosstalk::Item & item = theCrosstalk->item(detId, channel);
 
   // resistive fraction is at the peak, where t=0
@@ -244,7 +234,7 @@ float CSCConditions::crosstalkIntercept(const CSCDetId&detId, int channel, bool 
 
 float CSCConditions::crosstalkSlope(const CSCDetId&detId, int channel, bool leftRight) const
 {
-  assert(theCrosstalk != 0);
+  assert(theCrosstalk.isValid());
   const CSCDBCrosstalk::Item & item = theCrosstalk->item(detId, channel);
 
   // resistive fraction is at the peak, where t=0
@@ -254,7 +244,7 @@ float CSCConditions::crosstalkSlope(const CSCDetId&detId, int channel, bool left
 
 const CSCDBNoiseMatrix::Item & CSCConditions::noiseMatrix(const CSCDetId& detId, int channel) const
 {
-  assert(theNoiseMatrix != 0);
+  assert(theNoiseMatrix.isValid());
   return theNoiseMatrix->item(detId, channel);
 }
 
@@ -276,7 +266,7 @@ void CSCConditions::noiseMatrixElements( const CSCDetId& id, int channel, std::v
 }
 
 void CSCConditions::crossTalk( const CSCDetId& id, int channel, std::vector<float>& ct ) const {
-  assert(theCrosstalk != 0);
+  assert(theCrosstalk.isValid());
   const CSCDBCrosstalk::Item & item = theCrosstalk->item(id, channel);
   ct[0] = float ( item.xtalk_slope_left )/theCrosstalk->factor_slope;
   ct[1] = float ( item.xtalk_intercept_left )/theCrosstalk->factor_intercept;
