@@ -104,7 +104,10 @@ public:
    *  the innermost one if direction() == oppositeToMomentum.
    */
   TrajectoryMeasurement const & lastMeasurement() const {
-    check(); return theData.back();
+    check(); 
+    if (theData.back().recHit()->hit()!=0) return theData.back();
+    else if (theData.size()>2) return *(theData.end()-2);
+    else throw cms::Exception("TrajectoryMeasurement::lastMeasurement - Too few measurements in trajectory");
   }
 
   /** Access to the first measurement.
@@ -114,9 +117,12 @@ public:
    *  the outermost one if direction() == oppositeToMomentum.
    */
   TrajectoryMeasurement const & firstMeasurement() const {
-    check(); return theData.front();
+    check(); 
+    if (theData.front().recHit()->hit()!=0) return theData.front();
+    else if (theData.size()>2) return *(theData.begin()+1);
+    else throw cms::Exception("TrajectoryMeasurement::firstMeasurement - Too few measurements in trajectory");
   }
-
+  
   /** Return all measurements in a container.
    */
   DataContainer const & measurements() const { return theData;}
@@ -191,7 +197,10 @@ public:
 
   /// Redundant method, returns the layer of lastMeasurement() .
   const DetLayer* lastLayer() const {
-    check(); return theData.back().layer();
+    check();
+    if (theData.back().recHit()->hit()!=0) return theData.back().layer();
+    else if (theData.size()>2) return (theData.end()-2)->layer();
+    else throw cms::Exception("TrajectoryMeasurement::lastMeasurement - Too few measurements in trajectory");
   }
 
   /**  return the Reference to the trajectory seed in the original
