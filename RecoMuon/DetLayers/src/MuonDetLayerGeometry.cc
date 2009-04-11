@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/19 13:36:32 $
- *  $Revision: 1.17 $
+ *  $Date: 2007/01/23 16:01:33 $
+ *  $Revision: 1.18 $
  *  \author N. Amapane - CERN
  */
 
@@ -23,7 +23,12 @@ using namespace geomsort;
 
 MuonDetLayerGeometry::MuonDetLayerGeometry() {}
 
-MuonDetLayerGeometry::~MuonDetLayerGeometry(){}
+MuonDetLayerGeometry::~MuonDetLayerGeometry(){
+  for(vector<DetLayer*>::const_iterator it = allDetLayers.begin(); it != allDetLayers.end(); ++it)
+  {
+    delete *it;
+  }
+}
 
 void MuonDetLayerGeometry::addCSCLayers(pair<vector<DetLayer*>, vector<DetLayer*> > csclayers) {
     

@@ -5,8 +5,8 @@
  *
  *  Provide access to the DetLayers of muon detectors.
  *
- *  $Date: 2006/10/13 13:26:46 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/10/19 13:36:32 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - CERN
  */
 
@@ -26,10 +26,6 @@ class MuonDetLayerGeometry {
 
   /// Destructor
   virtual ~MuonDetLayerGeometry();
-
-  /// Clone (needed when used via ESHandle)  
-  MuonDetLayerGeometry *clone() const 
-    {return new MuonDetLayerGeometry(*this);}  
 
   /// return the DT DetLayers (barrel), inside-out
   const std::vector<DetLayer*>& allDTLayers() const;
