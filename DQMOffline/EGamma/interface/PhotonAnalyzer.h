@@ -1,7 +1,6 @@
 #ifndef PhotonAnalyzer_H
 #define PhotonAnalyzer_H
 
-#include "PhysicsTools/Utilities/interface/deltaR.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 //
@@ -10,6 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 // DataFormats
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -74,7 +74,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/03/12 16:07:00 $ 
+ **  $Date: 2009/03/23 10:51:05 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
