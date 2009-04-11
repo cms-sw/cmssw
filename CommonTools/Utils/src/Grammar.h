@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
  */
 #include "boost/spirit/include/classic_core.hpp"
@@ -66,12 +66,12 @@ namespace reco {
       Grammar(SelectorPtr & sel, const Reflex::Type& iType) : 
    	sel_(& sel), expr_(& dummyExpr_) { 
    	typeStack.push_back(iType);
-         }
-         template<typename T>
-         Grammar(ExpressionPtr & expr, const Reflex::Type& iType) : 
+      }
+
+      Grammar(ExpressionPtr & expr, const Reflex::Type& iType) : 
    	sel_(& dummySel_), expr_(& expr) { 
    	typeStack.push_back(iType);
-         }
+      }
       template <typename ScannerT>
       struct definition : 
 	public boost::spirit::classic::grammar_def<boost::spirit::classic::rule<ScannerT>, 
