@@ -1,7 +1,7 @@
-#ifndef Alignment_MuonAlignmentAlgorithms_MuonResidualsAngleFitter_H
-#define Alignment_MuonAlignmentAlgorithms_MuonResidualsAngleFitter_H
+#ifndef Alignment_MuonAlignmentAlgorithms_MuonResidualsBfieldAngleFitter_H
+#define Alignment_MuonAlignmentAlgorithms_MuonResidualsBfieldAngleFitter_H
 
-/** \class MuonResidualsAngleFitter
+/** \class MuonResidualsBfieldAngleFitter
  *  $Date: 2009/03/24 00:04:31 $
  *  $Revision: 1.4 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
@@ -9,12 +9,13 @@
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsFitter.h"
 
-class MuonResidualsAngleFitter: public MuonResidualsFitter {
+class MuonResidualsBfieldAngleFitter: public MuonResidualsFitter {
 public:
   enum {
     kAngle = 0,
-    kXControl,
-    kYControl,
+    kBfrompt,
+    kBfrompz,
+    kdEdx,
     kSigma,
     kGamma,
     kNPar
@@ -22,12 +23,12 @@ public:
 
   enum {
     kResidual = 0,
-    kXPosition,
-    kYPosition,
+    kQoverPt,
+    kQoverPz,
     kNData
   };
 
-  MuonResidualsAngleFitter(int residualsModel, int minHitsPerRegion): MuonResidualsFitter(residualsModel, minHitsPerRegion) {};
+  MuonResidualsBfieldAngleFitter(int residualsModel, int minHitsPerRegion): MuonResidualsFitter(residualsModel, minHitsPerRegion) {};
 
   int npar() {
     if (residualsModel() == kPureGaussian) return kNPar - 1;
@@ -44,4 +45,4 @@ protected:
   void inform(TMinuit *tMinuit);
 };
 
-#endif // Alignment_MuonAlignmentAlgorithms_MuonResidualsAngleFitter_H
+#endif // Alignment_MuonAlignmentAlgorithms_MuonResidualsBfieldAngleFitter_H

@@ -203,31 +203,25 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
      bool align_phiz = selector[5];
 
      if ((*ali)->alignableObjectId() == align::AlignableDTChamber) {
-       m_rphiFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsPositionFitter(residualsModel, -1), new MuonResidualsPositionFitter(residualsModel, -1));
+       m_rphiFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsPositionFitter(residualsModel, 5), new MuonResidualsPositionFitter(residualsModel, 5));
        if (!m_DT13fitScattering) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kScattering);
        if (!m_DT13fitZpos) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
        if (!m_DT13fitPhiz) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kPhiz);
        m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 0);
        m_fitterOrder.push_back(m_rphiFitters[*ali]);
        
-       m_zFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsPositionFitter(residualsModel, -1), new MuonResidualsPositionFitter(residualsModel, -1));
+       m_zFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsPositionFitter(residualsModel, 5), new MuonResidualsPositionFitter(residualsModel, 5));
        if (!m_DT2fitScattering) m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kScattering);
        m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
        if (!m_DT2fitPhiz) m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kPhiz);
        m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 1);
        m_fitterOrder.push_back(m_zFitters[*ali]);
 
-       m_phixFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, -1), new MuonResidualsAngleFitter(residualsModel, -1));
-       m_phixFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompt);
-       m_phixFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompz);
-       m_phixFitters[*ali]->fix(MuonResidualsAngleFitter::kdEdx);
+       m_phixFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, 5), new MuonResidualsAngleFitter(residualsModel, 5));
        m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 2);
        m_fitterOrder.push_back(m_phixFitters[*ali]);
 
-       m_phiyFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, -1), new MuonResidualsAngleFitter(residualsModel, -1));
-       m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompt);
-       m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompz);
-       m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kdEdx);
+       m_phiyFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, 5), new MuonResidualsAngleFitter(residualsModel, 5));
        m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 3);
        m_fitterOrder.push_back(m_phiyFitters[*ali]);
      }
@@ -252,17 +246,14 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
 
        if (thisali == *ali) {
 
-	 m_rphiFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsPositionFitter(residualsModel, -1), new MuonResidualsPositionFitter(residualsModel, -1));
+	 m_rphiFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsPositionFitter(residualsModel, 5), new MuonResidualsPositionFitter(residualsModel, 5));
 	 if (!m_CSCfitScattering) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kScattering);
 	 if (!m_CSCfitZpos) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
 	 if (!m_CSCfitPhiz) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kPhiz);
 	 m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 0);
 	 m_fitterOrder.push_back(m_rphiFitters[*ali]);
 	 
-	 m_phiyFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, -1), new MuonResidualsAngleFitter(residualsModel, -1));
-	 m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompt);
-	 m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kBfrompz);
-	 m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kdEdx);
+	 m_phiyFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, 5), new MuonResidualsAngleFitter(residualsModel, 5));
 	 m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 1);
 	 m_fitterOrder.push_back(m_phiyFitters[*ali]);
 	 
@@ -481,8 +472,8 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
 
     if (m_minTrackPt < track->pt()  &&  track->pt() < m_maxTrackPt) {
       char charge = (track->charge() > 0 ? 1 : -1);
-      double qoverpt = track->charge() / track->pt();
-      double qoverpz = track->charge() / track->pz();
+      // double qoverpt = track->charge() / track->pt();
+      // double qoverpz = track->charge() / track->pz();
       MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, m_alignableNavigator, 1000.);
 
       if (muonResidualsFromTrack.trackerNumHits() >= m_minTrackerHits  &&  muonResidualsFromTrack.trackerRedChi2() < m_maxTrackerRedChi2  &&  (m_allowTIDTEC  ||  !muonResidualsFromTrack.contains_TIDTEC())) {
@@ -512,8 +503,8 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
 	      if (phiyFitter != m_phiyFitters.end()) {
 		double *residdata = new double[MuonResidualsAngleFitter::kNData];
 		residdata[MuonResidualsAngleFitter::kResidual] = chamberResidual->resslope();
-		residdata[MuonResidualsAngleFitter::kQoverPt] = qoverpt;
-		residdata[MuonResidualsAngleFitter::kQoverPz] = qoverpz;
+		residdata[MuonResidualsAngleFitter::kXPosition] = chamberResidual->trackx();
+		residdata[MuonResidualsAngleFitter::kYPosition] = chamberResidual->tracky();
 		phiyFitter->second->fill(charge, residdata);
 		// the MuonResidualsAngleFitter will delete the array when it is destroyed
 	      }
@@ -540,8 +531,8 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
 	      if (phixFitter != m_phixFitters.end()) {
 		double *residdata = new double[MuonResidualsAngleFitter::kNData];
 		residdata[MuonResidualsAngleFitter::kResidual] = chamberResidual->resslope();
-		residdata[MuonResidualsAngleFitter::kQoverPt] = qoverpt;
-		residdata[MuonResidualsAngleFitter::kQoverPz] = qoverpz;
+		residdata[MuonResidualsAngleFitter::kXPosition] = chamberResidual->trackx();
+		residdata[MuonResidualsAngleFitter::kYPosition] = chamberResidual->tracky();
 		phixFitter->second->fill(charge, residdata);
 		// the MuonResidualsAngleFitter will delete the array when it is destroyed
 	      }
@@ -575,8 +566,8 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
 	      if (phiyFitter != m_phiyFitters.end()) {
 		double *residdata = new double[MuonResidualsAngleFitter::kNData];
 		residdata[MuonResidualsAngleFitter::kResidual] = chamberResidual->resslope();
-		residdata[MuonResidualsAngleFitter::kQoverPt] = qoverpt;
-		residdata[MuonResidualsAngleFitter::kQoverPz] = qoverpz;
+		residdata[MuonResidualsAngleFitter::kXPosition] = chamberResidual->trackx();
+		residdata[MuonResidualsAngleFitter::kYPosition] = chamberResidual->tracky();
 		phiyFitter->second->fill(charge, residdata);
 		// the MuonResidualsAngleFitter will delete the array when it is destroyed
 	      }
@@ -966,7 +957,7 @@ void MuonAlignmentFromReference::terminate() {
 
 	  if (id.subdetId() == MuonSubdetId::DT) {
 	    if (align_phix) {
-	       params[paramIndex[3]] = -angle_value;   // confirmed sign
+	      params[paramIndex[3]] = -angle_value;   // confirmed sign
 	    }
 	  } // end if DT
 

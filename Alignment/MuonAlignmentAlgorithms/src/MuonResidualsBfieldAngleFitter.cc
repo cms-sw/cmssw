@@ -1,39 +1,40 @@
-#include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsAngleFitter.h"
+#include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsBfieldAngleFitter.h"
 
-static TMinuit *MuonResidualsAngleFitter_TMinuit;
+static TMinuit *MuonResidualsBfieldAngleFitter_TMinuit;
 
-void MuonResidualsAngleFitter::inform(TMinuit *tMinuit) {
-  MuonResidualsAngleFitter_TMinuit = tMinuit;
+void MuonResidualsBfieldAngleFitter::inform(TMinuit *tMinuit) {
+  MuonResidualsBfieldAngleFitter_TMinuit = tMinuit;
 }
 
-void MuonResidualsAngleFitter_FCN(int &npar, double *gin, double &fval, double *par, int iflag) {
-  MuonResidualsFitterFitInfo *fitinfo = (MuonResidualsFitterFitInfo*)(MuonResidualsAngleFitter_TMinuit->GetObjectFit());
+void MuonResidualsBfieldAngleFitter_FCN(int &npar, double *gin, double &fval, double *par, int iflag) {
+  MuonResidualsFitterFitInfo *fitinfo = (MuonResidualsFitterFitInfo*)(MuonResidualsBfieldAngleFitter_TMinuit->GetObjectFit());
   MuonResidualsFitter *fitter = fitinfo->fitter();
 
   fval = 0.;
   for (std::vector<double*>::const_iterator resiter = fitter->residuals_begin();  resiter != fitter->residuals_end();  ++resiter) {
-    const double residual = (*resiter)[MuonResidualsAngleFitter::kResidual];
+    const double residual = (*resiter)[MuonResidualsBfieldAngleFitter::kResidual];
     if (fitter->inRange(residual)) {
-      const double xposition = (*resiter)[MuonResidualsAngleFitter::kXPosition];
-      const double yposition = (*resiter)[MuonResidualsAngleFitter::kYPosition];
+      const double qoverpt = (*resiter)[MuonResidualsBfieldAngleFitter::kQoverPt];
+      const double qoverpz = (*resiter)[MuonResidualsBfieldAngleFitter::kQoverPz];
 
       double center = 0.;
-      center += par[MuonResidualsAngleFitter::kAngle];
-      center += par[MuonResidualsAngleFitter::kXControl] * xposition;
-      center += par[MuonResidualsAngleFitter::kYControl] * yposition;
+      center += par[MuonResidualsBfieldAngleFitter::kAngle];
+      center += par[MuonResidualsBfieldAngleFitter::kBfrompt] * qoverpt;
+      center += par[MuonResidualsBfieldAngleFitter::kBfrompz] * qoverpz;
+      center += par[MuonResidualsBfieldAngleFitter::kdEdx] * (1./qoverpt/qoverpt + 1./qoverpz/qoverpz) * (qoverpt > 0. ? 1. : -1.);
 
       if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian) {
-	fval += -log(MuonResidualsFitter_pureGaussian(residual, center, par[MuonResidualsAngleFitter::kSigma]));
+	fval += -log(MuonResidualsFitter_pureGaussian(residual, center, par[MuonResidualsBfieldAngleFitter::kSigma]));
       }
       else if (fitter->residualsModel() == MuonResidualsFitter::kPowerLawTails) {
-	fval += -log(MuonResidualsFitter_powerLawTails(residual, center, par[MuonResidualsAngleFitter::kSigma], par[MuonResidualsAngleFitter::kGamma]));
+	fval += -log(MuonResidualsFitter_powerLawTails(residual, center, par[MuonResidualsBfieldAngleFitter::kSigma], par[MuonResidualsBfieldAngleFitter::kGamma]));
       }
       else { assert(false); }
     }
   }
 }
 
-bool MuonResidualsAngleFitter::fit(double v1) {
+bool MuonResidualsBfieldAngleFitter::fit(double v1) {
   initialize_table();  // if not already initialized
   m_goodfit = false;
   m_minResidual = m_maxResidual = 0.;
@@ -41,13 +42,12 @@ bool MuonResidualsAngleFitter::fit(double v1) {
   double sum_x = 0.;
   double sum_xx = 0.;
   int N = 0;
-  int N_bin[4];
-  for (int i = 0;  i < 4;  i++) N_bin[i] = 0;
+  int N_bin[2];
+  for (int i = 0;  i < 2;  i++) N_bin[i] = 0;
 
   for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
     const double residual = (*resiter)[kResidual];
-    const double xposition = (*resiter)[kXPosition];
-    const double yposition = (*resiter)[kYPosition];
+    const double qoverpt = (*resiter)[kQoverPt];
 
     if (fabs(residual) < 0.1) {  // truncate at 100 mrad
       sum_x += residual;
@@ -56,13 +56,12 @@ bool MuonResidualsAngleFitter::fit(double v1) {
     }
 
     int index = 0;
-    if (xposition > 0.) index += 1;
-    if (yposition > 0.) index += 2;
+    if (qoverpt > 0.) index += 1;
     N_bin[index]++;
   }
 
   bool enough_in_every_bin = true;
-  for (int i = 0;  i < 4;  i++) {
+  for (int i = 0;  i < 2;  i++) {
     if (N_bin[i] < m_minHitsPerRegion) enough_in_every_bin = false;
   }
 
@@ -112,31 +111,35 @@ bool MuonResidualsAngleFitter::fit(double v1) {
   std::vector<double> high;
 
   parNum.push_back(kAngle);     parName.push_back(std::string("angle"));     start.push_back(m_mean);   step.push_back(0.1);               low.push_back(m_mean-m_stdev);      high.push_back(m_mean+m_stdev);
-  parNum.push_back(kXControl);  parName.push_back(std::string("xcontrol"));  start.push_back(0.);       step.push_back(0.1);               low.push_back(-2.*m_stdev);         high.push_back(2.*m_stdev);
-  parNum.push_back(kYControl);  parName.push_back(std::string("ycontrol"));  start.push_back(0.);       step.push_back(0.1);               low.push_back(-2.*m_stdev);         high.push_back(2.*m_stdev);
+  parNum.push_back(kBfrompt);   parName.push_back(std::string("bfrompt"));   start.push_back(0.);       step.push_back(0.1*m_stdev/0.05);  low.push_back(-2.*m_stdev/0.05);    high.push_back(2.*m_stdev/0.05);
+  parNum.push_back(kBfrompz);   parName.push_back(std::string("bfrompz"));   start.push_back(0.);       step.push_back(0.1*m_stdev/0.05);  low.push_back(-2.*m_stdev/0.05);    high.push_back(2.*m_stdev/0.05);
+  parNum.push_back(kdEdx);      parName.push_back(std::string("dEdx"));      start.push_back(0.);       step.push_back(0.1*m_stdev/0.05);  low.push_back(-2.*m_stdev/0.05);    high.push_back(2.*m_stdev/0.05);
   parNum.push_back(kSigma);     parName.push_back(std::string("sigma"));     start.push_back(m_stdev);  step.push_back(0.1*m_stdev);       low.push_back(0.00001);             high.push_back(3.*m_stdev);
   if (residualsModel() != kPureGaussian) {
   parNum.push_back(kGamma);     parName.push_back(std::string("gamma"));     start.push_back(m_stdev);  step.push_back(0.1*m_stdev);       low.push_back(0.00001);             high.push_back(3.*m_stdev);
   }
 
-  return dofit(&MuonResidualsAngleFitter_FCN, parNum, parName, start, step, low, high);
+  return dofit(&MuonResidualsBfieldAngleFitter_FCN, parNum, parName, start, step, low, high);
 }
 
-void MuonResidualsAngleFitter::plot(double v1, std::string name, TFileDirectory *dir) {
-  std::stringstream raw_name, narrowed_name, xcontrol_name, ycontrol_name;
+void MuonResidualsBfieldAngleFitter::plot(double v1, std::string name, TFileDirectory *dir) {
+  std::stringstream raw_name, narrowed_name, qoverpt_name, qoverpz_name, psquared_name;
   raw_name << name << "_raw";
   narrowed_name << name << "_narrowed";
-  xcontrol_name << name << "_xcontrol";
-  ycontrol_name << name << "_ycontrol";
+  qoverpt_name << name << "_qoverpt";
+  qoverpz_name << name << "_qoverpz";
+  psquared_name << name << "_psquared";
 
   TH1F *raw_hist = dir->make<TH1F>(raw_name.str().c_str(), (raw_name.str() + std::string(" (mrad)")).c_str(), 100, -100., 100.);
   TH1F *narrowed_hist = dir->make<TH1F>(narrowed_name.str().c_str(), (narrowed_name.str() + std::string(" (mrad)")).c_str(), 100, -100., 100.);
-  TProfile *xcontrol_hist = dir->make<TProfile>(xcontrol_name.str().c_str(), (xcontrol_name.str() + std::string(" (mrad)")).c_str(), 100, -0.05, 0.05);
-  TProfile *ycontrol_hist = dir->make<TProfile>(ycontrol_name.str().c_str(), (ycontrol_name.str() + std::string(" (mrad)")).c_str(), 100, -0.05, 0.05);
+  TProfile *qoverpt_hist = dir->make<TProfile>(qoverpt_name.str().c_str(), (qoverpt_name.str() + std::string(" (mrad)")).c_str(), 100, -0.05, 0.05);
+  TProfile *qoverpz_hist = dir->make<TProfile>(qoverpz_name.str().c_str(), (qoverpz_name.str() + std::string(" (mrad)")).c_str(), 100, -0.05, 0.05);
+  TProfile *psquared_hist = dir->make<TProfile>(psquared_name.str().c_str(), (psquared_name.str() + std::string(" (mrad)")).c_str(), 100, -0.05, 0.05);
 
   narrowed_name << "fit";
-  xcontrol_name << "fit";
-  ycontrol_name << "fit";
+  qoverpt_name << "fit";
+  qoverpz_name << "fit";
+  psquared_name << "fit";
 
   double scale_factor = double(numResiduals()) * (100. - -100.)/100;   // (max - min)/nbins
 
@@ -152,34 +155,41 @@ void MuonResidualsAngleFitter::plot(double v1, std::string name, TFileDirectory 
     narrowed_fit->Write();
   }
 
-  TF1 *xcontrol_fit = new TF1(xcontrol_name.str().c_str(), "[0]+x*[1]", -0.05, 0.05);
-  xcontrol_fit->SetParameters(value(kAngle) * 1000., value(kXControl) * 1000.);
-  xcontrol_fit->Write();
+  TF1 *qoverpt_fit = new TF1(qoverpt_name.str().c_str(), "[0]+x*[1]", -0.05, 0.05);
+  qoverpt_fit->SetParameters(value(kAngle) * 1000., value(kBfrompt) * 1000.);
+  qoverpt_fit->Write();
 
-  TF1 *ycontrol_fit = new TF1(ycontrol_name.str().c_str(), "[0]+x*[1]", -0.05, 0.05);
-  ycontrol_fit->SetParameters(value(kAngle) * 1000., value(kYControl) * 1000.);
-  ycontrol_fit->Write();
+  TF1 *qoverpz_fit = new TF1(qoverpz_name.str().c_str(), "[0]+x*[1]", -0.05, 0.05);
+  qoverpz_fit->SetParameters(value(kAngle) * 1000., value(kBfrompz) * 1000.);
+  qoverpz_fit->Write();
+
+  TF1 *psquared_fit = new TF1(psquared_name.str().c_str(), "[0]+[1]*x**2", -0.05, 0.05);
+  psquared_fit->SetParameters(value(kAngle) * 1000., value(kdEdx) * 1000.);
+  psquared_fit->Write();
 
   for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
     const double raw_residual = (*resiter)[kResidual];
-    const double xposition = (*resiter)[kXPosition];
-    const double yposition = (*resiter)[kYPosition];
+    const double qoverpt = (*resiter)[kQoverPt];
+    const double qoverpz = (*resiter)[kQoverPz];
+    const double psquared = (1./qoverpt/qoverpt + 1./qoverpz/qoverpz) * (qoverpt > 0. ? 1. : -1.);
 
-    double xposition_correction = value(kXControl) * xposition;
-    double yposition_correction = value(kYControl) * yposition;
-    double corrected_residual = raw_residual - xposition_correction - yposition_correction;
+    double qoverpt_correction = value(kBfrompt) * qoverpt;
+    double qoverpz_correction = value(kBfrompz) * qoverpz;
+    double dEdx_correction = value(kdEdx) * psquared;
+    double corrected_residual = raw_residual - qoverpt_correction - qoverpz_correction - dEdx_correction;
 
     raw_hist->Fill(raw_residual * 1000.);
     narrowed_hist->Fill(corrected_residual * 1000.);
 
     if (inRange(corrected_residual)) {
-      xcontrol_hist->Fill(xposition, (raw_residual - yposition_correction) * 1000.);
-      ycontrol_hist->Fill(yposition, (raw_residual - xposition_correction) * 1000.);
+      qoverpt_hist->Fill(qoverpt, (raw_residual - qoverpz_correction - dEdx_correction) * 1000.);
+      qoverpz_hist->Fill(qoverpz, (raw_residual - qoverpt_correction - dEdx_correction) * 1000.);
+      psquared_hist->Fill(psquared, (raw_residual - qoverpt_correction - qoverpz_correction) * 1000.);
     }
   }
 }
 
-double MuonResidualsAngleFitter::redchi2(double v1, std::string name, TFileDirectory *dir, bool write, int bins, double low, double high) {
+double MuonResidualsBfieldAngleFitter::redchi2(double v1, std::string name, TFileDirectory *dir, bool write, int bins, double low, double high) {
   std::stringstream histname;
   histname << name << "_norm";
 
@@ -209,15 +219,17 @@ double MuonResidualsAngleFitter::redchi2(double v1, std::string name, TFileDirec
 
   for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
     const double raw_residual = (*resiter)[kResidual];
-    const double xposition = (*resiter)[kXPosition];
-    const double yposition = (*resiter)[kYPosition];
+    const double qoverpt = (*resiter)[kQoverPt];
+    const double qoverpz = (*resiter)[kQoverPz];
+    const double psquared = (1./qoverpt/qoverpt + 1./qoverpz/qoverpz) * (qoverpt > 0. ? 1. : -1.);
 
     double correction = value(kAngle);
-    double xposition_correction = value(kXControl) * xposition;
-    double yposition_correction = value(kYControl) * yposition;
+    double qoverpt_correction = value(kBfrompt) * qoverpt;
+    double qoverpz_correction = value(kBfrompz) * qoverpz;
+    double dEdx_correction = value(kdEdx) * psquared;
     double scale = value(kSigma);
 
-    hist->Fill((raw_residual - correction - xposition_correction - yposition_correction)/scale);
+    hist->Fill((raw_residual - correction - qoverpt_correction - qoverpz_correction - dEdx_correction)/scale);
   } // end loop over residuals
 
   double chi2 = 0.;
