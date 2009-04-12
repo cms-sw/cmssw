@@ -136,7 +136,7 @@ private:
   std::map<MuonResidualsTwoBin*,TH1F*> m_offsethists;
   std::map<MuonResidualsTwoBin*,TH1F*> m_slopehists;
 
-  void book_and_link_up(std::string namestart, std::string titlestart, std::string *lastarray_name, std::string *lastarray_title, TH1F **hist, bool phiz,
+  void book_and_link_up(std::string namestart, std::string titlestart, std::string *lastarray_name, std::string *lastarray_title, TH1F **hist, bool phiz, bool vsphi,
 			double maxOffset, double maxZpos, double maxPhiz, double maxSlope,
 			int bins, double low, double high, std::string vsname, std::string vstitle);
   void book_vsz(std::string namestart, std::string titlestart, std::string *lastarray_name, std::string *lastarray_title, TH1F **hist, bool phiz, double maxOffset, double maxZpos, double maxPhiz, double maxSlope);
@@ -199,7 +199,7 @@ AlignmentMonitorMuonSystemMap::AlignmentMonitorMuonSystemMap(const edm::Paramete
   }
 }
 
-void AlignmentMonitorMuonSystemMap::book_and_link_up(std::string namestart, std::string titlestart, std::string *lastarray_name, std::string *lastarray_title, TH1F **hist, bool phiz,
+void AlignmentMonitorMuonSystemMap::book_and_link_up(std::string namestart, std::string titlestart, std::string *lastarray_name, std::string *lastarray_title, TH1F **hist, bool phiz, bool vsphi,
 						     double maxOffset, double maxZpos, double maxPhiz, double maxSlope,
 						     int bins, double low, double high, std::string vsname, std::string vstitle) {
   for (int lastarray = 0;  lastarray < 6;  lastarray++) {
@@ -261,6 +261,9 @@ void AlignmentMonitorMuonSystemMap::book_and_link_up(std::string namestart, std:
     if (phiz) positionFitter->fix(MuonResidualsPositionFitter::kZpos);
     else positionFitter->fix(MuonResidualsPositionFitter::kPhiz);
 
+    if (vsphi) angleFitter->fix(MuonResidualsAngleFitter::kXControl);
+    else angleFitter->fix(MuonResidualsAngleFitter::kYControl);
+
     std::pair<TH1F*,int> index0(hist[0], bin);
     std::pair<TH1F*,int> index1(hist[1], bin);
     std::pair<TH1F*,int> index2(hist[2], bin);
@@ -288,15 +291,15 @@ void AlignmentMonitorMuonSystemMap::book_and_link_up(std::string namestart, std:
 }
 
 void AlignmentMonitorMuonSystemMap::book_vsz(std::string namestart, std::string titlestart, std::string *lastarray_name, std::string *lastarray_title, TH1F **hist, bool phiz, double maxOffset, double maxZpos, double maxPhiz, double maxSlope) {
-  book_and_link_up(namestart, titlestart, lastarray_name, lastarray_title, hist, phiz, maxOffset, maxZpos, maxPhiz, maxSlope, 60, -660, 660, std::string("_vsz"), std::string(" vs global Z"));
+  book_and_link_up(namestart, titlestart, lastarray_name, lastarray_title, hist, phiz, false, maxOffset, maxZpos, maxPhiz, maxSlope, 60, -660, 660, std::string("_vsz"), std::string(" vs global Z"));
 }
 
 void AlignmentMonitorMuonSystemMap::book_vsr(std::string namestart, std::string titlestart, std::string *lastarray_name, std::string *lastarray_title, TH1F **hist, bool phiz, double maxOffset, double maxZpos, double maxPhiz, double maxSlope) {
-  book_and_link_up(namestart, titlestart, lastarray_name, lastarray_title, hist, phiz, maxOffset, maxZpos, maxPhiz, maxSlope, 60, 100, 700, std::string("_vsr"), std::string(" vs global R"));
+  book_and_link_up(namestart, titlestart, lastarray_name, lastarray_title, hist, phiz, false, maxOffset, maxZpos, maxPhiz, maxSlope, 60, 100, 700, std::string("_vsr"), std::string(" vs global R"));
 }
 
 void AlignmentMonitorMuonSystemMap::book_vsphi(std::string namestart, std::string titlestart, std::string *lastarray_name, std::string *lastarray_title, TH1F **hist, bool phiz, double maxOffset, double maxZpos, double maxPhiz, double maxSlope) {
-  book_and_link_up(namestart, titlestart, lastarray_name, lastarray_title, hist, phiz, maxOffset, maxZpos, maxPhiz, maxSlope, 180, -M_PI, M_PI, std::string("_vsphi"), std::string(" vs global phi"));
+  book_and_link_up(namestart, titlestart, lastarray_name, lastarray_title, hist, phiz, true, maxOffset, maxZpos, maxPhiz, maxSlope, 180, -M_PI, M_PI, std::string("_vsphi"), std::string(" vs global phi"));
 }
 
 void AlignmentMonitorMuonSystemMap::book() {
