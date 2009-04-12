@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWEveLegoView.h,v 1.14 2009/03/11 21:16:21 amraktad Exp $
+// $Id: FWEveLegoView.h,v 1.15 2009/04/07 14:10:54 chrjones Exp $
 //
 
 // system include files
@@ -34,6 +34,7 @@ class TEvePad;
 class TEveViewer;
 class TEveScene;
 class TEveElementList;
+class TEveCaloLegoOverlay;
 class TGLMatrix;
 class TEvwWindowSlot;
 
@@ -77,6 +78,7 @@ private:
    TGLEmbeddedViewer* m_embeddedViewer;
    FWEvePtr<TEveScene> m_scene;
    TEveCaloLego* m_lego;
+   TEveCaloLegoOverlay* m_overlay;
    // FWLongParameter m_range;
    //FWDoubleParameter m_minEcalEnergy;
    //FWDoubleParameter m_minHcalEnergy;

@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.38 2009/03/20 17:34:56 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.39 2009/04/07 14:10:54 chrjones Exp $
 //
 
 // system include files
@@ -78,6 +78,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    //m_ecalSlice(0),
    //m_hcalSlice(0),
    m_lego(0),
+   m_overlay(0),
    m_autoRebin(this,"Auto rebin on zoom",true),
    m_cameraMatrix(0),
    m_cameraMatrixBase(0),
@@ -107,7 +108,6 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    // take care of cameras
    //
    ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   //  ev->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
    TEveLegoEventHandler* eh = new TEveLegoEventHandler("Lego", ev->GetGLWidget(), ev);
    eh->fMode = TEveLegoEventHandler::kLocked;
    ev->SetEventHandler(eh);
@@ -122,38 +122,6 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
       m_orthoCameraMatrixRef = const_cast<TGLMatrix*>(&(camera->GetCamTrans()));
    }
 
-  
-   /*
-     TEveRGBAPalette* pal = new TEveRGBAPalette(0, 100);
-     // pal->SetLimits(0, data->GetMaxVal());
-     pal->SetLimits(0, 100);
-     pal->SetDefaultColor((Color_t)1000);
-
-     m_lego = new TEveCaloLego();
-     m_lego->InitMainTrans();
-     m_lego->RefMainTrans().SetScale(2*M_PI, 2*M_PI, M_PI);
-     m_lego->SetTopViewTowerColor(kWhite);
-
-     m_lego->SetPalette(pal);
-     // m_lego->SetMainColor(Color_t(TColor::GetColor("#0A0A0A")));
-     m_lego->SetGridColor(Color_t(TColor::GetColor("#202020")));
-     m_lego->Set2DMode(TEveCaloLego::kValSize);
-     m_lego->SetBinWidth(6);
-     // add calorimeter boundaries
-     TEveStraightLineSet* boundaries = new TEveStraightLineSet("boundaries");
-     boundaries->SetPickable(kFALSE);
-     boundaries->SetLineColor(Color_t(TColor::GetColor("#404040")));
-     // boundaries->SetLineWidth(2);
-     boundaries->AddLine(-1.479,-3.1416,0.001,-1.479,3.1416,0.001);
-     boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
-     boundaries->AddLine(-3.0,-3.1416,0.001,-3.0,3.1416,0.001);
-     boundaries->AddLine(3.0,-3.1416,0.001,3.0,3.1416,0.001);
-     gEve->AddElement(boundaries,m_lego);
-     // lego->SetEtaLimits(etaLimLow, etaLimHigh);
-     // lego->SetTitle("caloTower Et distribution");
-     gEve->AddElement(m_lego, ns);
-     gEve->AddToListTree(m_lego, kTRUE);
-   */
    gEve->AddElement(list,ns);
    gEve->AddToListTree(list, kTRUE);
    //CDJ This is done too early setCameras();
@@ -163,14 +131,14 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    {
       m_lego =  dynamic_cast<TEveCaloLego*>( list->FirstChild());
       if (m_lego) {
-         TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
-         overlay->SetShowPlane(kFALSE);
-         overlay->SetShowPerspective(kFALSE);
-         overlay->GetAttAxis()->SetLabelSize(0.02);
-         overlay->GetAttAxis()->SetLabelColor(kWhite);
-         ev->AddOverlayElement(overlay);
-         overlay->SetCaloLego(m_lego);
-         gEve->AddElement(overlay, ns);
+         m_overlay = new TEveCaloLegoOverlay();
+         m_overlay->SetShowPlane(kFALSE);
+         m_overlay->SetShowPerspective(kFALSE);
+         m_overlay->GetAttAxis()->SetLabelSize(0.02);
+         m_overlay->GetAttAxis()->SetLabelColor(kWhite);
+         ev->AddOverlayElement(m_overlay);
+         m_overlay->SetCaloLego(m_lego);
+         gEve->AddElement(m_overlay, ns);
       }
    }
    setCameras();
@@ -178,6 +146,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
 
 FWEveLegoView::~FWEveLegoView()
 {
+   m_viewer->GetGLViewer()->RemoveOverlayElement(m_overlay);
    m_scene->Destroy();
    m_viewer->DestroyWindowAndSlot();
 
