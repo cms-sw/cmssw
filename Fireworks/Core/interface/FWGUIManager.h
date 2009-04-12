@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.58 2009/04/09 15:45:05 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.59 2009/04/09 21:20:50 chrjones Exp $
 //
 
 // system include files
@@ -118,7 +118,6 @@ public:
    void showEDIFrame(int iInfoToShow=-1);
 
    void createModelPopup();
-   void updateModel(FWEventItem* iItem);
    void resetModelPopup();
    void showModelPopup();
 

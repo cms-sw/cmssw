@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.110 2009/04/09 21:20:50 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.111 2009/04/09 21:58:32 chrjones Exp $
 //
 
 // system include files
@@ -208,6 +208,7 @@ FWGUIManager::evePreTerminate()
 {
    //gDebug = 1;
    gEve->GetWindowManager()->Disconnect("WindowSelected(TEveWindow*)", this, "subviewCurrentChanged(TEveWindow*)");
+   m_cmsShowMainFrame->UnmapWindow();
 
    for(std::vector<FWViewBase* >::iterator it = m_viewBases.begin(), itEnd = m_viewBases.end();
         it != itEnd;
@@ -562,24 +563,18 @@ FWGUIManager::showEDIFrame(int iToShow)
 
 
 void
-FWGUIManager::createModelPopup() {
-   if (m_modelPopup == 0) {
-      m_modelPopup = new CmsShowModelPopup(m_detailViewManager,m_selectionManager, m_colorManager, m_cmsShowMainFrame, 200, 200);
-      m_modelPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetModelPopup()");
-      m_modelPopup->CenterOnParent(kTRUE,TGTransientFrame::kRight);
-   }
+FWGUIManager::createModelPopup()
+{
+   m_modelPopup = new CmsShowModelPopup(m_detailViewManager,m_selectionManager, m_colorManager, m_cmsShowMainFrame, 200, 200);
+   m_modelPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetModelPopup()");
+   m_modelPopup->CenterOnParent(kTRUE,TGTransientFrame::kRight);
 }
 
 void
 FWGUIManager::showModelPopup()
 {
+   if (!m_modelPopup) createModelPopup();
    m_modelPopup->MapWindow();
-}
-
-
-void
-FWGUIManager::updateModel(FWEventItem* iItem) {
-   createModelPopup();
 }
 
 void
