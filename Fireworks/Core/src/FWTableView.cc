@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.3 2009/04/08 15:07:52 jmuelmen Exp $
+// $Id: FWTableView.cc,v 1.4 2009/04/08 16:46:44 jmuelmen Exp $
 //
 
 // system include files
@@ -87,14 +87,16 @@ FWTableView::FWTableView (TEveWindowSlot* iParent, const FWTableViewManager *man
      : m_manager(manager)
 {
 //      TGLayoutHints *tFrameHints = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY);
-     const int width = 100, height = 100;
 //      TGVerticalFrame *topframe = new TGVerticalFrame(iParent->GetEveFrame(), 100, 100);
      m_frame = iParent->MakeFrame(0);
      TGCompositeFrame *frame = m_frame->GetGUICompositeFrame();
      TGHorizontalFrame *buttons = new TGHorizontalFrame(frame);
      frame->AddFrame(buttons, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
-     TGLabel *label = new TGLabel(buttons, "Collection");
-     buttons->AddFrame(label, new TGLayoutHints(kLHintsLeft));
+
+     TGCompositeFrame *labfr = new TGHorizontalFrame(buttons, 60, 20, kFixedSize);
+     TGLabel *label = new TGLabel(labfr, "Collection");
+     labfr->AddFrame(label,  new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 1,3,1,1));
+     buttons->AddFrame(labfr);
      m_collection = new TGComboBox(buttons);
      updateItems();
      buttons->AddFrame(m_collection, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
