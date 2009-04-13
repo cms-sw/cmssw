@@ -1,3 +1,10 @@
+2009-04-13  Kurt Biery <biery@fnal.gov>
+
+	* tag V01-08-09
+	* Added the requested HLT output module parameter to the event
+	  consumer registration request in preparation for the new
+	  storage manager code.
+
 2009-01-27  Kurt Biery <biery@fnal.gov>
 
 	* tag V01-08-08
