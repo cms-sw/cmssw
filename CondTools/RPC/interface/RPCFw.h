@@ -5,8 +5,8 @@
  * \class RPCFw
  *  Reads data from OMDS and creates conditioning objects
  *
- *  $Date: 2008/12/12 20:02:27 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/12/30 10:19:13 $
+ *  $Revision: 1.13 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -18,10 +18,10 @@
 #include "CondTools/RPC/interface/RPCVmonSH.h"
 #include "CondTools/RPC/interface/RPCStatusSH.h"
 #include "CondTools/RPC/interface/RPCTempSH.h"
-
+#include "CondFormats/RPCObjects/interface/RPCObCond.h"
 #include "CondTools/RPC/interface/RPCGasSH.h"
 #include "CondTools/RPC/interface/RPCIDMapSH.h"
-
+#include "CondFormats/RPCObjects/interface/RPCObFebmap.h"
 
 struct dbread{
     float alias;
@@ -48,6 +48,7 @@ public:
   std::vector<RPCObGas::Item> createGAS(int from);
   std::vector<RPCObTemp::T_Item> createT(int from);
   std::vector<RPCObPVSSmap::Item> createIDMAP();
+  std::vector<RPCObFebmap::Feb_Item> createFEB(int from);	
 
   
 private:
