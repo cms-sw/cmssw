@@ -4,6 +4,7 @@
 #include "TGLabel.h"
 #include "TGButton.h"
 #include "TGColorSelect.h"
+#include "Rtypes.h"
 
 enum FWCSelConstants
 {
@@ -37,6 +38,8 @@ public:
    virtual Bool_t  HandleButton(Event_t *event);
    virtual void DrawBorder() {
    };
+
+   void SetColor(Pixel_t);
 
    Int_t GetIndex() const {
       return fIndex;
@@ -73,6 +76,8 @@ public:
    virtual void SetActive(Int_t newat);
    virtual void AddColor(Pixel_t color);
 
+   void ResetColor(Int_t, Pixel_t);
+   
    //if it can't find the color it returns -1
    Int_t FindColorIndex(Pixel_t) const;
    Int_t GetRowIndex() {
@@ -96,7 +101,7 @@ class FWColorPopup : public TGCompositeFrame {
    RQ_OBJECT("FWColorPopup")
 
 private:
-   void SetColors(std::vector<Pixel_t> colors);
+   void SetColors(const std::vector<Pixel_t>& colors);
 
 protected:
    Pixel_t fSelectedColor;
@@ -110,8 +115,9 @@ public:
 
    virtual Bool_t HandleButton(Event_t *event);
 
-   void InitContent(TGString *name, std::vector<Pixel_t> colors);
+   void InitContent(TGString *name, const std::vector<Pixel_t>& colors);
    void SetName(const char* iName);
+   void ResetColors(const std::vector<Pixel_t>& colors);
    void SetSelection(Pixel_t);
    void PlacePopup(Int_t x, Int_t y, UInt_t w, UInt_t h);
    void EndPopup();
@@ -128,18 +134,22 @@ public:
 class FWColorSelect : public TGColorSelect {
 
 protected:
-   TGString *fLabel;
-   std::vector<Pixel_t> fPalette;
+   TGString fLabel;
+   UInt_t fIndex;
+   std::vector<Color_t> fPalette;
    FWColorPopup *fFireworksPopup;
 
 public:
-   FWColorSelect(const TGWindow *p, TGString *label, ULong_t color, std::vector<ULong_t> palette, Int_t id);
+   FWColorSelect(const TGWindow *p, TGString *label, UInt_t colorIndex, const std::vector<Color_t>& palette, Int_t id);
    ~FWColorSelect();
 
    virtual Bool_t HandleButton(Event_t *event);
 
    void CatchSignal(Pixel_t newcolor);
 
+   void SetColorByIndex(UInt_t iColor, Bool_t iSendSignal);
+   void UpdateColors();
+   
    ClassDef(FWColorSelect, 0);
 
 };

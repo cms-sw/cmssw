@@ -42,6 +42,14 @@ Bool_t FWColorFrame::HandleButton(Event_t *event)
    return kTRUE;
 }
 
+void
+FWColorFrame::SetColor(Pixel_t iColor)
+{
+   fPixel = iColor;
+   fColor = iColor;
+   SetBackgroundColor(iColor);
+}
+
 void FWColorFrame::ColorSelected(Int_t frameindex)
 {
    Emit("ColorSelected(Int_t)", frameindex);
@@ -103,6 +111,11 @@ void FWColorRow::AddColor(Pixel_t color)
    fCc.push_back(new FWColorFrame(this, color, pos));
    AddFrame(fCc.back(), new TGLayoutHints(kLHintsCenterX | kLHintsCenterY, kCFPadLeft, kCFPadRight, kCFPadAbove, kCFPadBelow));
    fCc.back()->Connect("ColorSelected(Int_t)","FWColorRow", this, "ColorChanged(Int_t)");
+}
+
+void FWColorRow::ResetColor(Int_t iIndex, Pixel_t iColor)
+{
+   fCc[iIndex]->SetColor(iColor);
 }
 
 Int_t 
@@ -170,7 +183,7 @@ Bool_t FWColorPopup::HandleButton(Event_t *event)
    return kTRUE;
 }
 
-void FWColorPopup::InitContent(TGString *name, std::vector<Pixel_t> colors)
+void FWColorPopup::InitContent(TGString *name, const std::vector<Pixel_t>& colors)
 {
    fLabel = new TGLabel(this, name);
    fLabel->SetBackgroundColor(GetBackground());
@@ -187,7 +200,7 @@ void FWColorPopup::InitContent(TGString *name, std::vector<Pixel_t> colors)
    fSecondRow->Resize(fSecondRow->GetDefaultSize());
 }
 
-void FWColorPopup::SetColors(std::vector<Pixel_t> colors)
+void FWColorPopup::SetColors(const std::vector<Pixel_t>& colors)
 {
    for (UInt_t i = 0; i < colors.size() / 2; i++)
    {
@@ -209,6 +222,19 @@ void FWColorPopup::SetColors(std::vector<Pixel_t> colors)
    }
    fSelectedRow->RowActive(kTRUE);
    fSelectedRow->SetActive(fSelectedIndex);
+}
+
+void FWColorPopup::ResetColors(const std::vector<Pixel_t>& colors)
+{
+   for (UInt_t i = 0; i < colors.size() / 2; i++)
+   {
+      fFirstRow->ResetColor(i,colors.at(i));
+   }
+   UInt_t index = 0;
+   for (UInt_t i = colors.size() / 2; i < colors.size(); i++, ++index)
+   {
+      fSecondRow->ResetColor(index,colors.at(i));
+   }
 }
 
 void FWColorPopup::PlacePopup(Int_t x, Int_t y, UInt_t w, UInt_t h)
@@ -292,13 +318,23 @@ void FWColorPopup::ColorBookkeeping(Int_t row)
 
 //------------------------------FWColorSelect------------------------------//
 FWColorSelect::FWColorSelect(const TGWindow *p, TGString
-                             *label, ULong_t color, std::vector<ULong_t> palette, Int_t id) :
-   TGColorSelect(p, color, id)
+                             *label, UInt_t index, const std::vector<Color_t>& palette, Int_t id) :
+TGColorSelect(p, static_cast<Pixel_t>(gVirtualX->GetPixel(palette[index])), id),
+fFireworksPopup(0)
 {
-   fLabel = label;
+   fIndex = index;
+   fLabel = *label;
    fPalette = palette;
+
+   std::vector<Pixel_t> colors;
+   colors.reserve(fPalette.size());
+   for(std::vector<Color_t>::const_iterator it=fPalette.begin(), itEnd = fPalette.end();
+       it!=itEnd; ++it) {
+      colors.push_back(static_cast<Pixel_t>(gVirtualX->GetPixel(*it)));
+   }
+   
    fFireworksPopup = new FWColorPopup(gClient->GetDefaultRoot(), fColor);
-   fFireworksPopup->InitContent(fLabel, fPalette);
+   fFireworksPopup->InitContent(&fLabel, colors);
    fFireworksPopup->Connect("ColorBookkeeping(Int_t)","FWColorSelect", this, "CatchSignal(Pixel_t)");
 }
 
@@ -340,6 +376,14 @@ Bool_t FWColorSelect::HandleButton(Event_t *event)
          Window_t wdummy;
          Int_t ax, ay;
 
+         std::vector<Pixel_t> colors;
+         colors.reserve(fPalette.size());
+         for(std::vector<Color_t>::const_iterator it=fPalette.begin(), itEnd = fPalette.end();
+             it!=itEnd; ++it) {
+            colors.push_back(static_cast<Pixel_t>(gVirtualX->GetPixel(*it)));
+         }
+         fFireworksPopup->ResetColors(colors);
+         
          gVirtualX->TranslateCoordinates(fId, gClient->GetDefaultRoot()->GetId(), 0, fHeight, ax, ay, wdummy);
          fFireworksPopup->PlacePopup(ax, ay, fFireworksPopup->GetDefaultWidth(), fFireworksPopup->GetDefaultHeight());
       }
@@ -347,7 +391,29 @@ Bool_t FWColorSelect::HandleButton(Event_t *event)
    return kTRUE;
 }
 
+void 
+FWColorSelect::SetColorByIndex(UInt_t iColor, Bool_t iSendSignal)
+{
+   fIndex=iColor;
+   SetColor(static_cast<Pixel_t>(gVirtualX->GetPixel(fPalette[fIndex])),iSendSignal);
+}
+
+void FWColorSelect::UpdateColors()
+{
+   SetColorByIndex(fIndex,kFALSE);
+}
+
 void FWColorSelect::CatchSignal(Pixel_t newcolor)
 {
-   SetColor(newcolor, kTRUE);
+   UInt_t index=0;
+   for(std::vector<Color_t>::const_iterator it=fPalette.begin(), itEnd = fPalette.end();
+       it!=itEnd; ++it,++index) {
+      if (newcolor == static_cast<Pixel_t>(gVirtualX->GetPixel(*it))) {
+         break;
+      }
+   }
+   if(index < fPalette.size()) {
+      fIndex=index;
+      SetColorByIndex(index, kTRUE);
+   }
 }
