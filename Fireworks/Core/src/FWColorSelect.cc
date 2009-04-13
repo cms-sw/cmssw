@@ -383,6 +383,7 @@ Bool_t FWColorSelect::HandleButton(Event_t *event)
             colors.push_back(static_cast<Pixel_t>(gVirtualX->GetPixel(*it)));
          }
          fFireworksPopup->ResetColors(colors);
+         fFireworksPopup->SetSelection(static_cast<Pixel_t>(gVirtualX->GetPixel(fPalette[fIndex])));
          
          gVirtualX->TranslateCoordinates(fId, gClient->GetDefaultRoot()->GetId(), 0, fHeight, ax, ay, wdummy);
          fFireworksPopup->PlacePopup(ax, ay, fFireworksPopup->GetDefaultWidth(), fFireworksPopup->GetDefaultHeight());
