@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.25 2008/11/21 22:10:17 biery Exp $
+// $Id: SMProxyServer.cc,v 1.26 2009/01/26 21:34:27 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -3089,6 +3089,7 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
     //             and not get events on push mode in work loop
     try {
       dpm_.reset(new stor::DataProcessManager());
+      dpm_->setHLTOutputModule(esSelectedHLTOutputModule_);
       
       boost::shared_ptr<EventServer>
         eventServer(new EventServer(maxESEventRate_, maxESDataRate_,

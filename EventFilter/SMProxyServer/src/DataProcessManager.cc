@@ -1,4 +1,4 @@
-// $Id: DataProcessManager.cc,v 1.15 2008/10/14 15:02:18 hcheung Exp $
+// $Id: DataProcessManager.cc,v 1.16 2009/01/26 21:34:27 biery Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -163,6 +163,11 @@ namespace stor
     // 26-Jan-2009, KAB: ugly hack to get ParameterSet to serialize
     // the parameters that we want.
     ps.addParameter<double>("TrackedMaxRate", (1.0 / minEventRequestInterval_));
+
+    // 13-Apr-2009, KAB: more ugliness - send the HLT output module along
+    // in the request
+    ps.addParameter<std::string>("TrackedHLTOutMod", hltOutputModule_);
+    ps.addUntrackedParameter<std::string>("SelectHLTOutput", hltOutputModule_);
 
     // TODO fixme: only request event types that are requested by connected consumers?
     consumerPSetString_ = ps.toString();

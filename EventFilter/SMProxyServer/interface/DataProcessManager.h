@@ -1,6 +1,6 @@
 #ifndef SMPS_DATA_PROCESS_MANAGER_HPP
 #define SMPS_DATA_PROCESS_MANAGER_HPP
-// $Id: DataProcessManager.h,v 1.9 2008/06/25 18:06:48 biery Exp $
+// $Id: DataProcessManager.h,v 1.10 2008/10/14 15:02:18 hcheung Exp $
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
@@ -98,6 +98,7 @@ namespace stor
 
     void setConsumerName(std::string s) { consumerName_ = s; }
     void setDQMConsumerName(std::string s) { DQMconsumerName_ = s; }
+    void setHLTOutputModule(std::string s) { hltOutputModule_ = s; }
 
     void addSM2Register(std::string smURL);
     void addDQMSM2Register(std::string DQMsmURL);
@@ -181,6 +182,7 @@ namespace stor
     std::string DQMconsumerName_;
     std::string DQMconsumerPriority_;
     std::string consumerTopFolderName_;
+    std::string hltOutputModule_;
 
     //std::auto_ptr<stor::DQMServiceManager> dqmServiceManager_;
     boost::shared_ptr<stor::DQMServiceManager> dqmServiceManager_;
