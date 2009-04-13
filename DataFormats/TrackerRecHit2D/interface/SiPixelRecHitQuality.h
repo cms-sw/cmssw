@@ -69,7 +69,7 @@ class SiPixelRecHitQuality {
       int raw = (qualWord >> probX_shift) & probX_mask;
 			assert(raw>=0 && raw <=2047);
 			float prob = 0;
-			if   (raw=2047) prob = 0;
+			if   (raw==2047) prob = 0;
       else             prob = pow( probX_units, (float)( -raw)) ;
       // cout << "Bits = " << raw << " --> Prob = " << prob << endl;
       return prob;
@@ -78,7 +78,7 @@ class SiPixelRecHitQuality {
       int raw = (qualWord >> probY_shift) & probY_mask;
 			assert(raw>=0 && raw <=2047);
 			float prob = 0;
-			if   (raw=2047) prob = 0;
+			if   (raw==2047) prob = 0;
       else             prob = pow( probY_units, (float)( -raw)) ;
       // cout << "Bits = " << raw << " --> Prob = " << prob << endl;
       return prob;
