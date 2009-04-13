@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.2 2009/04/07 15:58:07 chrjones Exp $
+// $Id: FWColorManager.cc,v 1.3 2009/04/09 21:13:58 chrjones Exp $
 //
 
 // system include files
@@ -34,6 +34,14 @@
 //static std::vector<Color_t>* s_forBlack=0;
 
 enum {
+   kFWRed =8,
+   kFWBlue = 5,
+   kFWCyan = 7,
+   kFWGreen = 9,
+   kFWMagenta = 1,
+   kFWOrange = 4,
+   kFWYellow = 0
+/*
    kFWRed =0,
    kFWBlue = 1,
    kFWCyan = 2,
@@ -42,9 +50,23 @@ enum {
    kFWOrange = 5,
    kFWYellow = 6,
    kFWGray = 7
+ */
 };
 
 static const float s_forWhite[][3] ={
+{1.00, 1.00, 0.20}, //yellow
+{0.53, 0.00, 0.69}, //purple
+{0.98, 0.74, 0.01}, //yellowish-orange
+{0.24, 0.00, 0.64}, //purplish-blue
+{0.98, 0.60, 0.01}, //orange
+{0.01, 0.28, 1.00}, //blue
+{0.99, 0.33, 0.03}, //dark orange
+{0.01, 0.57, 0.81}, //cyan
+{1.00, 0.09, 0.00}, //red
+{0.40, 0.69, 0.20}, //green
+{0.65, 0.10, 0.29}, //burgundy
+{0.82, 0.92, 0.17}, //lime
+/*
 {1.,0.,0.}, //red
 {0.,0.,1.}, //blue
 {0.,1.,1.},  //cyan
@@ -53,7 +75,20 @@ static const float s_forWhite[][3] ={
 {1.,0.5,0.0}, //orange
 {1.,1.,0.}, //yellow
 {0.5,0.5,0.5}, //gray
-
+*/
+{0.99, 1.00, 0.46},
+{0.89, 0.76, 0.93},
+{0.99, 0.90, 0.64},
+{0.82, 0.76, 0.92},
+{1.00, 0.85, 0.64},
+{0.75, 0.82, 0.99},
+{1.00, 0.83, 0.76},
+{0.75, 0.90, 0.96},
+{0.99, 0.78, 0.74},
+{0.80, 0.88, 0.70},
+{0.92, 0.78, 0.82},
+{0.91, 0.96, 0.58}
+/*
 {1.,0.3,0.3},
 {0.3,0.3,1.},
 {0.3,1.,1.},
@@ -62,9 +97,23 @@ static const float s_forWhite[][3] ={
 {1.,0.7,0.0},
 {1.,1.,0.3},
 {0.7,0.7,0.7}
+ */
 };
 
 static const float s_forBlack[][3] ={
+{1.00, 1.00, 0.20}, //yellow
+{0.53, 0.00, 0.69}, //purple
+{0.98, 0.74, 0.01}, //yellowish-orange
+{0.24, 0.00, 0.64}, //purplish-blue
+{0.98, 0.60, 0.01}, //orange
+{0.01, 0.28, 1.00}, //blue
+{0.99, 0.33, 0.03}, //dark orange
+{0.01, 0.57, 0.81}, //cyan
+{1.00, 0.09, 0.00}, //red
+{0.40, 0.69, 0.20}, //green
+{0.65, 0.10, 0.29}, //burgundy
+{0.82, 0.92, 0.17}, //lime
+/*
 {1.,0.,0.}, //red
 {0.,0.,1.}, //blue
 {0.,1.,1.}, //cyan
@@ -73,7 +122,20 @@ static const float s_forBlack[][3] ={
 {1.,0.5,0.0},  //orange
 {1.,1.,0.}, //yellow
 {0.5,0.5,0.5}, //gray
-
+*/
+{0.27, 0.27, 0.04},
+{0.19, 0.00, 0.24},
+{0.19, 0.15, 0.00},
+{0.14, 0.00, 0.38},
+{0.19, 0.11, 0.00},
+{0.01, 0.10, 0.33},
+{0.17, 0.05, 0.02},
+{0.00, 0.21, 0.29},
+{0.34, 0.03, 0.01},
+{0.15, 0.24, 0.06},
+{0.24, 0.02, 0.11},
+{0.28, 0.30, 0.07}
+/*
 {0.7,0.0,0.0},
 {0.0,0.0,0.7},
 {0.0,.7,0.7},
@@ -82,6 +144,7 @@ static const float s_forBlack[][3] ={
 {.7,0.4,0.0},
 {.7,.7,0.0},
 {0.3,0.3,0.3}
+ */
 };
 
 static const unsigned int s_size = sizeof(s_forBlack)/sizeof(s_forBlack[0]);
@@ -272,7 +335,7 @@ FWColorManager::oldColorToIndex(Color_t iColor) const
       (*m_oldColorToIndexMap)[kMagenta]=kFWMagenta;
       (*m_oldColorToIndexMap)[kViolet]=kFWMagenta;
       (*m_oldColorToIndexMap)[kOrange]=kFWOrange;
-      (*m_oldColorToIndexMap)[kGray]=kFWGray;
+      //(*m_oldColorToIndexMap)[kGray]=kFWGray;
       (*m_oldColorToIndexMap)[3]=kFWGreen;
       
    }
