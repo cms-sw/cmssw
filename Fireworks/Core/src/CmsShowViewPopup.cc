@@ -8,12 +8,13 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.7 2008/11/06 22:05:24 amraktad Exp $
+// $Id: CmsShowViewPopup.cc,v 1.8 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
 #include <iostream>
 #include <boost/checked_delete.hpp>
+#include <boost/bind.hpp>
 #include "TGFrame.h"
 #include "TGLabel.h"
 #include "TGButton.h"
@@ -23,6 +24,7 @@
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 
 //
 // constants, enums and typedefs
@@ -35,12 +37,14 @@
 //
 // constructors and destructor
 //
-CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWViewBase* v) :
-   TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
+CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColorManager* iCMgr, FWViewBase* v) :
+   TGTransientFrame(gClient->GetDefaultRoot(),p, w, h),
+   m_colorManager(iCMgr)
 {
    m_view = v;
    SetCleanup(kDeepCleanup);
-
+   m_colorManager->colorsHaveChanged_.connect(boost::bind(&CmsShowViewPopup::backgroundColorWasChanged,this));
+   
    TGHorizontalFrame* viewFrame = new TGHorizontalFrame(this);
    m_viewLabel = new TGLabel(viewFrame, v->typeName().c_str());
    TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_viewLabel->GetDefaultFontStruct());
@@ -56,6 +60,11 @@ CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWView
 #endif
    AddFrame(viewFrame, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
    AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
+   m_changeBackground = new TGTextButton(this,"Change Background Color");
+   //initializes the text
+   backgroundColorWasChanged();
+   AddFrame(m_changeBackground);
+   m_changeBackground->Connect("Clicked()","CmsShowViewPopup",this,"changeBackground()");
    m_saveImageButton= new TGTextButton(this,"Save Image ...");
    AddFrame(m_saveImageButton);
    if(!m_view) {
@@ -157,6 +166,23 @@ CmsShowViewPopup::saveImage()
    }
 }
 
+void 
+CmsShowViewPopup::changeBackground()
+{
+   m_colorManager->setBackgroundColorIndex( FWColorManager::kBlackIndex == m_colorManager->backgroundColorIndex()?
+                                            FWColorManager::kWhiteIndex: 
+                                            FWColorManager::kBlackIndex);
+}
+
+void
+CmsShowViewPopup::backgroundColorWasChanged()
+{
+   if(FWColorManager::kBlackIndex == m_colorManager->backgroundColorIndex()) {
+      m_changeBackground->SetText("Change Background Color to White");
+   } else {
+      m_changeBackground->SetText("Change Background Color to Black");
+   }
+}
 
 //
 // const member functions
