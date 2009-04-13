@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.111 2009/04/09 21:58:32 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.112 2009/04/12 19:55:21 amraktad Exp $
 //
 
 // system include files
@@ -586,7 +586,7 @@ FWGUIManager::resetModelPopup() {
 void
 FWGUIManager::createViewPopup() {
    if (m_viewPopup == 0) {
-      m_viewPopup = new CmsShowViewPopup(m_cmsShowMainFrame, 200, 200, m_viewBases[0]);
+      m_viewPopup = new CmsShowViewPopup(m_cmsShowMainFrame, 200, 200, m_colorManager, m_viewBases[0]);
       m_viewPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetViewPopup()");
       m_viewPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
    }
