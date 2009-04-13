@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_1_0/pre4/8E29_V4/V2 (CMSSW_3_1_X_2009-04-07-0000_HLT1)
+# /dev/CMSSW_3_1_0/pre4/8E29_V18/V2 (CMSSW_3_1_X_2009-04-09-0700_HLT3)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -28,7 +28,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre4/8E29_V4/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre4/8E29_V18/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -55,27 +55,10 @@ MCJetCorrectorIcone5 = cms.ESSource( "JetCorrectionServiceChain",
 )
 SiStripQualityFakeESSource = cms.ESSource( "SiStripQualityFakeESSource" )
 
-hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
-  RecoveredRecHitBits = cms.vstring( '' ),
-  appendToDataLabel = cms.string( "" ),
-  DropChannelStatusBits = cms.vstring( '' ),
-  SeverityLevels = cms.VPSet( 
-    cms.PSet(  Level = cms.int32( 0 ),
-      RecHitFlags = cms.vstring( '' ),
-      ChannelStatus = cms.vstring( '' )
-    )
-  )
-)
 AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
   PropagationDirection = cms.string( "anyDirection" ),
   MaxDPhi = cms.double( 1.6 ),
-  appendToDataLabel = cms.string( "" )
-)
-Chi2EstimatorForL2Refit = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
-  ComponentName = cms.string( "Chi2EstimatorForL2Refit" ),
-  MaxChi2 = cms.double( 1000.0 ),
-  nSigma = cms.double( 3.0 ),
   appendToDataLabel = cms.string( "" )
 )
 EcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingESProducer",
@@ -104,6 +87,48 @@ EcalUnpackerWorkerESProducer = cms.ESProducer( "EcalUnpackerWorkerESProducer",
     ChannelStatusToBeExcluded = cms.vint32(  )
   )
 )
+FastSteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer",
+  ComponentName = cms.string( "FastSteppingHelixPropagatorAny" ),
+  PropagationDirection = cms.string( "anyDirection" ),
+  useInTeslaFromMagField = cms.bool( False ),
+  SetVBFPointer = cms.bool( False ),
+  useMagVolumes = cms.bool( True ),
+  VBFName = cms.string( "VolumeBasedMagneticField" ),
+  ApplyRadX0Correction = cms.bool( True ),
+  AssumeNoMaterial = cms.bool( False ),
+  NoErrorPropagation = cms.bool( False ),
+  debug = cms.bool( False ),
+  useMatVolumes = cms.bool( True ),
+  useIsYokeFlag = cms.bool( True ),
+  returnTangentPlane = cms.bool( True ),
+  sendLogWarning = cms.bool( False ),
+  useTuningForL2Speed = cms.bool( True ),
+  useEndcapShiftsInZ = cms.bool( False ),
+  endcapShiftInZPos = cms.double( 0.0 ),
+  endcapShiftInZNeg = cms.double( 0.0 ),
+  appendToDataLabel = cms.string( "" )
+)
+FastSteppingHelixPropagatorOpposite = cms.ESProducer( "SteppingHelixPropagatorESProducer",
+  ComponentName = cms.string( "FastSteppingHelixPropagatorOpposite" ),
+  PropagationDirection = cms.string( "oppositeToMomentum" ),
+  useInTeslaFromMagField = cms.bool( False ),
+  SetVBFPointer = cms.bool( False ),
+  useMagVolumes = cms.bool( True ),
+  VBFName = cms.string( "VolumeBasedMagneticField" ),
+  ApplyRadX0Correction = cms.bool( True ),
+  AssumeNoMaterial = cms.bool( False ),
+  NoErrorPropagation = cms.bool( False ),
+  debug = cms.bool( False ),
+  useMatVolumes = cms.bool( True ),
+  useIsYokeFlag = cms.bool( True ),
+  returnTangentPlane = cms.bool( True ),
+  sendLogWarning = cms.bool( False ),
+  useTuningForL2Speed = cms.bool( True ),
+  useEndcapShiftsInZ = cms.bool( False ),
+  endcapShiftInZPos = cms.double( 0.0 ),
+  endcapShiftInZNeg = cms.double( 0.0 ),
+  appendToDataLabel = cms.string( "" )
+)
 KFFitterSmootherForL2Muon = cms.ESProducer( "KFFittingSmootherESProducer",
   ComponentName = cms.string( "KFFitterSmootherForL2Muon" ),
   Fitter = cms.string( "KFTrajectoryFitterForL2Muon" ),
@@ -117,17 +142,17 @@ KFFitterSmootherForL2Muon = cms.ESProducer( "KFFittingSmootherESProducer",
 )
 KFTrajectoryFitterForL2Muon = cms.ESProducer( "KFTrajectoryFitterESProducer",
   ComponentName = cms.string( "KFTrajectoryFitterForL2Muon" ),
-  Propagator = cms.string( "SteppingHelixPropagatorAny" ),
+  Propagator = cms.string( "FastSteppingHelixPropagatorAny" ),
   Updator = cms.string( "KFUpdator" ),
-  Estimator = cms.string( "Chi2EstimatorForL2Refit" ),
+  Estimator = cms.string( "Chi2" ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
 )
 KFTrajectorySmootherForL2Muon = cms.ESProducer( "KFTrajectorySmootherESProducer",
   ComponentName = cms.string( "KFTrajectorySmootherForL2Muon" ),
-  Propagator = cms.string( "SteppingHelixPropagatorOpposite" ),
+  Propagator = cms.string( "FastSteppingHelixPropagatorOpposite" ),
   Updator = cms.string( "KFUpdator" ),
-  Estimator = cms.string( "Chi2EstimatorForL2Refit" ),
+  Estimator = cms.string( "Chi2" ),
   errorRescaling = cms.double( 100.0 ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
@@ -196,6 +221,17 @@ bJetRegionalTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
     minimumNumberOfHits = cms.int32( 5 )
   )
 )
+hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
+  RecoveredRecHitBits = cms.vstring( '' ),
+  appendToDataLabel = cms.string( "" ),
+  DropChannelStatusBits = cms.vstring( '' ),
+  SeverityLevels = cms.VPSet( 
+    cms.PSet(  Level = cms.int32( 0 ),
+      RecHitFlags = cms.vstring( '' ),
+      ChannelStatus = cms.vstring( '' )
+    )
+  )
+)
 hltCkfTrajectoryBuilderMumu = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   ComponentName = cms.string( "hltCkfTrajectoryBuilderMumu" ),
   updator = cms.string( "KFUpdator" ),
@@ -211,38 +247,8 @@ hltCkfTrajectoryBuilderMumu = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   alwaysUseInvalidHits = cms.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
-hltCkfTrajectoryBuilderMumuk = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  ComponentName = cms.string( "hltCkfTrajectoryBuilderMumuk" ),
-  updator = cms.string( "KFUpdator" ),
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  estimator = cms.string( "Chi2" ),
-  TTRHBuilder = cms.string( "WithTrackAngle" ),
-  MeasurementTrackerName = cms.string( "" ),
-  trajectoryFilterName = cms.string( "hltCkfTrajectoryFilterMumuk" ),
-  maxCand = cms.int32( 3 ),
-  lostHitPenalty = cms.double( 30.0 ),
-  intermediateCleaning = cms.bool( True ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  appendToDataLabel = cms.string( "" )
-)
 hltCkfTrajectoryFilterMumu = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "hltCkfTrajectoryFilterMumu" ),
-  appendToDataLabel = cms.string( "" ),
-  filterPset = cms.PSet( 
-    chargeSignificance = cms.double( -1.0 ),
-    minPt = cms.double( 3.0 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( 5 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    minimumNumberOfHits = cms.int32( 5 )
-  )
-)
-hltCkfTrajectoryFilterMumuk = cms.ESProducer( "TrajectoryFilterESProducer",
-  ComponentName = cms.string( "hltCkfTrajectoryFilterMumuk" ),
   appendToDataLabel = cms.string( "" ),
   filterPset = cms.PSet( 
     chargeSignificance = cms.double( -1.0 ),
@@ -1007,17 +1013,7 @@ hltL2MuonSeeds = cms.EDProducer( "L2MuonSeedGenerator",
     L1MaxEta = cms.double( 2.5 ),
     L1MinQuality = cms.uint32( 1 ),
     ServiceParameters = cms.PSet( 
-      Propagators = cms.untracked.vstring( 'SteppingHelixPropagatorAny',
-        'SteppingHelixPropagatorAlong',
-        'SteppingHelixPropagatorOpposite',
-        'PropagatorWithMaterial',
-        'PropagatorWithMaterialOpposite',
-        'SmartPropagator',
-        'SmartPropagatorOpposite',
-        'SmartPropagatorAnyOpposite',
-        'SmartPropagatorAny',
-        'SmartPropagatorRK',
-        'SmartPropagatorAnyRK' ),
+      Propagators = cms.untracked.vstring( 'SteppingHelixPropagatorAny' ),
       RPCLayers = cms.bool( True ),
       UseMuonNavigation = cms.untracked.bool( True )
     )
@@ -1027,16 +1023,19 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
     L2TrajBuilderParameters = cms.PSet( 
       RefitterParameters = cms.PSet( 
         FitterName = cms.string( "KFFitterSmootherForL2Muon" ),
-        Option = cms.int32( 1 )
+        NumberOfIterations = cms.uint32( 3 ),
+        ForceAllIterations = cms.bool( False ),
+        MaxFractionOfLostHits = cms.double( 0.05 ),
+        RescaleError = cms.double( 100.0 )
       ),
-      DoRefit = cms.bool( False ),
-      SeedPropagator = cms.string( "SteppingHelixPropagatorAny" ),
+      DoRefit = cms.bool( True ),
+      SeedPropagator = cms.string( "FastSteppingHelixPropagatorAny" ),
       NavigationType = cms.string( "Standard" ),
       SeedTransformerParameters = cms.PSet( 
         Fitter = cms.string( "KFFitterSmootherForL2Muon" ),
         RescaleError = cms.double( 100.0 ),
         MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
-        Propagator = cms.string( "SteppingHelixPropagatorAny" ),
+        Propagator = cms.string( "FastSteppingHelixPropagatorAny" ),
         NMinRecHits = cms.uint32( 2 )
       ),
       DoBackwardFilter = cms.bool( True ),
@@ -1057,8 +1056,8 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
         BWSeedType = cms.string( "fromGenerator" ),
         EnableDTMeasurement = cms.bool( True ),
         RPCRecSegmentLabel = cms.InputTag( "hltRpcRecHits" ),
-        Propagator = cms.string( "SteppingHelixPropagatorAny" ),
-        EnableCSCMeasurement = cms.bool( True )
+        EnableCSCMeasurement = cms.bool( True ),
+        Propagator = cms.string( "FastSteppingHelixPropagatorAny" )
       ),
       DoSeedRefit = cms.bool( False ),
       FilterParameters = cms.PSet( 
@@ -1076,22 +1075,13 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
         CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
         EnableDTMeasurement = cms.bool( True ),
         RPCRecSegmentLabel = cms.InputTag( "hltRpcRecHits" ),
-        Propagator = cms.string( "SteppingHelixPropagatorAny" ),
-        EnableCSCMeasurement = cms.bool( True )
+        EnableCSCMeasurement = cms.bool( True ),
+        Propagator = cms.string( "FastSteppingHelixPropagatorAny" )
       )
     ),
     ServiceParameters = cms.PSet( 
-      Propagators = cms.untracked.vstring( 'SteppingHelixPropagatorAny',
-        'SteppingHelixPropagatorAlong',
-        'SteppingHelixPropagatorOpposite',
-        'PropagatorWithMaterial',
-        'PropagatorWithMaterialOpposite',
-        'SmartPropagator',
-        'SmartPropagatorOpposite',
-        'SmartPropagatorAnyOpposite',
-        'SmartPropagatorAny',
-        'SmartPropagatorRK',
-        'SmartPropagatorAnyRK' ),
+      Propagators = cms.untracked.vstring( 'FastSteppingHelixPropagatorAny',
+        'FastSteppingHelixPropagatorOpposite' ),
       RPCLayers = cms.bool( True ),
       UseMuonNavigation = cms.untracked.bool( True )
     ),
@@ -1101,7 +1091,7 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
       MuonUpdatorAtVertexParameters = cms.PSet( 
         MaxChi2 = cms.double( 1000000.0 ),
         BeamSpotPosition = cms.vdouble( 0.0, 0.0, 0.0 ),
-        Propagator = cms.string( "SteppingHelixPropagatorOpposite" ),
+        Propagator = cms.string( "FastSteppingHelixPropagatorOpposite" ),
         BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 )
       ),
       VertexConstraint = cms.bool( True )
