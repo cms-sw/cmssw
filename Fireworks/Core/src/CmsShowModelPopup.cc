@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.14 2009/01/23 21:35:42 amraktad Exp $
+// $Id: CmsShowModelPopup.cc,v 1.15 2009/04/07 14:12:59 chrjones Exp $
 //
 
 // system include file
@@ -56,7 +56,8 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
                                      const FWColorManager* iColorMgr,
                                      const TGWindow* p, UInt_t w, UInt_t h) :
    TGTransientFrame(gClient->GetDefaultRoot(),p,w,h),
-   m_detailViewManager(iManager)
+   m_detailViewManager(iManager),
+   m_colorManager(iColorMgr)
 {
    m_changes = iSelMgr->selectionChanged_.connect(boost::bind(&CmsShowModelPopup::fillModelPopup, this, _1));
 
@@ -74,13 +75,13 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
    TGLabel* colorSelectLabel = new TGLabel(colorSelectFrame, "Color:");
    colorSelectFrame->AddFrame(colorSelectLabel, new TGLayoutHints(kLHintsNormal, 0, 50, 0, 0));
    TGString* graphicsLabel = new TGString(" ");
-   std::vector<Pixel_t> colors;
+   std::vector<Color_t> colors;
    for(unsigned int index=0; index <iColorMgr->numberOfIndicies(); ++index) {
-      colors.push_back((Pixel_t)gVirtualX->GetPixel(iColorMgr->indexToColor(index)));
+      colors.push_back(iColorMgr->indexToColor(index));
    }
-   Pixel_t selection = colors[0];
-   m_colorSelectWidget = new FWColorSelect(colorSelectFrame, graphicsLabel, selection, colors, -1);
+   m_colorSelectWidget = new FWColorSelect(colorSelectFrame, graphicsLabel, 0, colors, -1);
    m_colorSelectWidget->SetEnabled(kFALSE);
+   m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWColorSelect::UpdateColors,m_colorSelectWidget));
    colorSelectFrame->AddFrame(m_colorSelectWidget);
    AddFrame(colorSelectFrame);
    TGHorizontal3DLine* colorVisSeperator = new TGHorizontal3DLine(this, 200, 5);
@@ -174,7 +175,7 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr) {
          m_modelLabel->SetText(item->modelName(id.index()).c_str());
          m_openDetailedViewButton->SetEnabled(m_detailViewManager->haveDetailViewFor(id));
       }
-      m_colorSelectWidget->SetColor(gVirtualX->GetPixel(item->modelInfo(id.index()).displayProperties().color()), kFALSE);
+      m_colorSelectWidget->SetColorByIndex(m_colorManager->colorToIndex(item->modelInfo(id.index()).displayProperties().color()), kFALSE);
       m_isVisibleButton->SetDisabledAndSelected(item->modelInfo(id.index()).displayProperties().isVisible());
       m_colorSelectWidget->SetEnabled(kTRUE);
       m_isVisibleButton->SetEnabled(kTRUE);

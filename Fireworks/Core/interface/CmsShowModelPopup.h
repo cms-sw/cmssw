@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowModelPopup.h,v 1.8 2009/01/23 21:35:40 amraktad Exp $
+// $Id: CmsShowModelPopup.h,v 1.9 2009/04/07 14:13:00 chrjones Exp $
 //
 
 // system include files
@@ -75,6 +75,7 @@ private:
    sigc::connection m_changes;
 
    FWDetailViewManager* m_detailViewManager;
+   const FWColorManager* m_colorManager;
 };
 
 

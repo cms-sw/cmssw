@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.20 2009/03/04 17:03:47 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.21 2009/04/07 14:12:59 chrjones Exp $
 //
 
 // system include files
@@ -62,7 +62,8 @@
 CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager* selMgr, FWColorManager* colorMgr) :
    TGTransientFrame(gClient->GetDefaultRoot(),p, w, h),
    m_item(0),
-   m_validator( new FWExpressionValidator)
+   m_validator( new FWExpressionValidator),
+   m_colorManager(colorMgr)
 {
    m_selectionManager = selMgr;
    SetCleanup(kDeepCleanup);
@@ -80,14 +81,14 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    TGLabel* colorSelectLabel = new TGLabel(colorSelectFrame, "Color:");
    colorSelectFrame->AddFrame(colorSelectLabel, new TGLayoutHints(kLHintsNormal, 0, 50, 0, 0));
    TGString* graphicsLabel = new TGString(" ");
-   std::vector<Pixel_t> colors;
+   std::vector<Color_t> colors;
    for(unsigned int index=0; index <colorMgr->numberOfIndicies(); ++index) {
-      colors.push_back((Pixel_t)gVirtualX->GetPixel(colorMgr->indexToColor(index)));
+      colors.push_back(colorMgr->indexToColor(index));
    }
-   Pixel_t selection = colors[0];
    
-   m_colorSelectWidget = new FWColorSelect(colorSelectFrame, graphicsLabel, selection, colors, -1);
+   m_colorSelectWidget = new FWColorSelect(colorSelectFrame, graphicsLabel, 0, colors, -1);
    m_colorSelectWidget->SetEnabled(kFALSE);
+   m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWColorSelect::UpdateColors,m_colorSelectWidget));
    colorSelectFrame->AddFrame(m_colorSelectWidget);
    graphicsFrame->AddFrame(colorSelectFrame);
    TGHorizontal3DLine* colorVisSeperator = new TGHorizontal3DLine(graphicsFrame, 200, 5);
@@ -274,7 +275,7 @@ CmsShowEDI::fillEDIFrame(FWEventItem* iItem) {
       m_item = iItem;
       if(0 != m_item) {
          m_objectLabel->SetText(iItem->name().c_str());
-         m_colorSelectWidget->SetColor(gVirtualX->GetPixel(iItem->defaultDisplayProperties().color()),kFALSE);
+         m_colorSelectWidget->SetColorByIndex(m_colorManager->colorToIndex(iItem->defaultDisplayProperties().color()),kFALSE);
          m_isVisibleButton->SetDisabledAndSelected(iItem->defaultDisplayProperties().isVisible());
          m_validator->setType(ROOT::Reflex::Type::ByTypeInfo(*(iItem->modelType()->GetTypeInfo())));
          m_filterExpressionEntry->SetText(iItem->filterExpression().c_str());
@@ -331,7 +332,7 @@ CmsShowEDI::removeItem() {
 void
 CmsShowEDI::updateDisplay() {
    //std::cout<<"Updating display"<<std::endl;
-   m_colorSelectWidget->SetColor(gVirtualX->GetPixel(m_item->defaultDisplayProperties().color()),kFALSE);
+   m_colorSelectWidget->SetColorByIndex(m_colorManager->colorToIndex(m_item->defaultDisplayProperties().color()),kFALSE);
    m_isVisibleButton->SetState(m_item->defaultDisplayProperties().isVisible() ? kButtonDown : kButtonUp, kFALSE);
 }
 
@@ -368,7 +369,7 @@ CmsShowEDI::disconnectAll() {
       m_destroyedConn.disconnect();
       m_item = 0;
       m_objectLabel->SetText("No collection selected");
-      m_colorSelectWidget->SetColor(gVirtualX->GetPixel(kRed),kFALSE);
+      m_colorSelectWidget->SetColorByIndex(0,kFALSE);
       m_isVisibleButton->SetDisabledAndSelected(kTRUE);
       m_filterExpressionEntry->SetText(0);
       m_selectExpressionEntry->SetText(0);

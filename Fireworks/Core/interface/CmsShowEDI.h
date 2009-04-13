@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id: CmsShowEDI.h,v 1.8 2009/03/04 17:03:46 chrjones Exp $
+// $Id: CmsShowEDI.h,v 1.9 2009/04/07 14:13:00 chrjones Exp $
 //
 
 // system include files
@@ -103,6 +103,7 @@ private:
    TGTextView* m_filterError;
    TGTextView* m_selectError;
    FWExpressionValidator* m_validator;
+   FWColorManager* m_colorManager;
 };
 
 
