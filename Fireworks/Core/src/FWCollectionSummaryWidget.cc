@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.5 2009/04/09 21:38:17 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.6 2009/04/13 15:34:53 chrjones Exp $
 //
 
 // system include files
@@ -452,6 +452,12 @@ FWCollectionSummaryWidget::colorClicked() {
                                    m_colorSelectWidget->GetHeight(), ax, ay, wdummy);
    m_indexForColor=-1;
    m_colorPopup->SetName(m_collection->name().c_str());
+   std::vector<Pixel_t> colors;
+   FWColorManager* cm = m_collection->colorManager();
+   for(unsigned int index=0; index <cm->numberOfIndicies(); ++index) {
+      colors.push_back((Pixel_t)gVirtualX->GetPixel(cm->indexToColor(index)));
+   }
+   m_colorPopup->ResetColors(colors);
    m_colorPopup->SetSelection(gVirtualX->GetPixel(m_collection->defaultDisplayProperties().color()));
    m_colorPopup->PlacePopup(ax, ay, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
 }
@@ -461,6 +467,12 @@ FWCollectionSummaryWidget::itemColorClicked(int iIndex, Int_t iRootX, Int_t iRoo
 {
    createColorPopup();
    m_indexForColor=iIndex;
+   std::vector<Pixel_t> colors;
+   FWColorManager* cm = m_collection->colorManager();
+   for(unsigned int index=0; index <cm->numberOfIndicies(); ++index) {
+      colors.push_back((Pixel_t)gVirtualX->GetPixel(cm->indexToColor(index)));
+   }
+   m_colorPopup->ResetColors(colors);
    m_colorPopup->SetName(m_collection->modelName(iIndex).c_str());
    m_colorPopup->SetSelection(gVirtualX->GetPixel(m_collection->modelInfo(iIndex).displayProperties().color()));
    m_colorPopup->PlacePopup(iRootX, iRootY, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
@@ -534,6 +546,7 @@ FWCollectionSummaryWidget::setBackgroundToWhite(bool iToWhite)
    }
    //this forces the icons to be changed to the correct background
    itemChanged();
+   m_graphicsContext->SetForeground(gVirtualX->GetPixel(m_collection->defaultDisplayProperties().color()));
    {
       const TGPicture* picture = info(!m_backgroundIsWhite);
       const TGPicture* over = info_over(!m_backgroundIsWhite);
