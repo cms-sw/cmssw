@@ -261,8 +261,8 @@ void AlignmentMonitorMuonSystemMap::book_and_link_up(std::string namestart, std:
     if (phiz) positionFitter->fix(MuonResidualsPositionFitter::kZpos);
     else positionFitter->fix(MuonResidualsPositionFitter::kPhiz);
 
-    if (vsphi) angleFitter->fix(MuonResidualsAngleFitter::kXControl);
-    else angleFitter->fix(MuonResidualsAngleFitter::kYControl);
+    angleFitter->fix(MuonResidualsAngleFitter::kXControl);
+    angleFitter->fix(MuonResidualsAngleFitter::kYControl);
 
     std::pair<TH1F*,int> index0(hist[0], bin);
     std::pair<TH1F*,int> index1(hist[1], bin);
@@ -616,8 +616,8 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	  double resslope = 0.;
 	  double trackangle = 0.;
 	  double trackposition = 0.;
-	  double trackx = 0.;
-	  double tracky = 0.;
+	  double trackdxdz = 0.;
+	  double trackdydz = 0.;
 	  double maxAngleError = 0.;
 	  if (chamberResidual->chamberId().subdetId() == MuonSubdetId::DT  &&  (*index) % 2 == 0) {
 	    if (chamberResidual->numHits() >= m_minDT13Hits) {
@@ -650,8 +650,8 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	      resslope = chamberResidual->resslope();
 	      trackangle = chamberResidual->trackdxdz();
 	      trackposition = chamberResidual->tracky();
-	      trackx = chamberResidual->trackx();
-	      tracky = chamberResidual->tracky();
+	      trackdxdz = chamberResidual->trackdxdz();
+	      trackdydz = chamberResidual->trackdydz();
 	    }
 	  } // end if DT13
 
@@ -682,8 +682,8 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	      resslope = chamberResidual->resslope();
 	      trackangle = chamberResidual->trackdydz();
 	      trackposition = chamberResidual->trackx();
-	      trackx = chamberResidual->trackx();
-	      tracky = chamberResidual->tracky();
+	      trackdxdz = chamberResidual->trackdxdz();
+	      trackdydz = chamberResidual->trackdydz();
 	    }
 	  } // end if DT2
 
@@ -738,8 +738,8 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	      resslope = chamberResidual->resslope();
 	      trackangle = chamberResidual->trackdxdz();
 	      trackposition = chamberResidual->tracky();
-	      trackx = chamberResidual->trackx();
-	      tracky = chamberResidual->tracky();
+	      trackdxdz = chamberResidual->trackdxdz();
+	      trackdydz = chamberResidual->trackdydz();
 	    }
 	  } // end if CSC
 
@@ -771,8 +771,8 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	      if (angleFitter_vsz != m_angleFitters.end()) {
 		double *residdata = new double[MuonResidualsAngleFitter::kNData];
 		residdata[MuonResidualsAngleFitter::kResidual] = resslope * signConvention;
-		residdata[MuonResidualsAngleFitter::kXPosition] = trackx;
-		residdata[MuonResidualsAngleFitter::kYPosition] = tracky;
+		residdata[MuonResidualsAngleFitter::kXAngle] = trackdxdz;
+		residdata[MuonResidualsAngleFitter::kYAngle] = trackdydz;
 		angleFitter_vsz->second->fill(charge, residdata);
 	      }
 	      else assert(false);
@@ -799,8 +799,8 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	      if (angleFitter_vsphi != m_angleFitters.end()) {
 		double *residdata = new double[MuonResidualsAngleFitter::kNData];
 		residdata[MuonResidualsAngleFitter::kResidual] = resslope * signConvention;
-		residdata[MuonResidualsAngleFitter::kXPosition] = trackx;
-		residdata[MuonResidualsAngleFitter::kYPosition] = tracky;
+		residdata[MuonResidualsAngleFitter::kXAngle] = trackdxdz;
+		residdata[MuonResidualsAngleFitter::kYAngle] = trackdydz;
 		angleFitter_vsphi->second->fill(charge, residdata);
 	      }
 	      else assert(false);

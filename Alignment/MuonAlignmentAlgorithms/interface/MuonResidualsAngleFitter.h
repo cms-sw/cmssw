@@ -22,8 +22,8 @@ public:
 
   enum {
     kResidual = 0,
-    kXPosition,
-    kYPosition,
+    kXAngle,
+    kYAngle,
     kNData
   };
 

@@ -14,13 +14,13 @@ void MuonResidualsAngleFitter_FCN(int &npar, double *gin, double &fval, double *
   for (std::vector<double*>::const_iterator resiter = fitter->residuals_begin();  resiter != fitter->residuals_end();  ++resiter) {
     const double residual = (*resiter)[MuonResidualsAngleFitter::kResidual];
     if (fitter->inRange(residual)) {
-      const double xposition = (*resiter)[MuonResidualsAngleFitter::kXPosition];
-      const double yposition = (*resiter)[MuonResidualsAngleFitter::kYPosition];
+      const double xangle = (*resiter)[MuonResidualsAngleFitter::kXAngle];
+      const double yangle = (*resiter)[MuonResidualsAngleFitter::kYAngle];
 
       double center = 0.;
       center += par[MuonResidualsAngleFitter::kAngle];
-      center += par[MuonResidualsAngleFitter::kXControl] * xposition;
-      center += par[MuonResidualsAngleFitter::kYControl] * yposition;
+      center += par[MuonResidualsAngleFitter::kXControl] * xangle;
+      center += par[MuonResidualsAngleFitter::kYControl] * yangle;
 
       if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian) {
 	fval += -log(MuonResidualsFitter_pureGaussian(residual, center, par[MuonResidualsAngleFitter::kSigma]));
@@ -46,8 +46,8 @@ bool MuonResidualsAngleFitter::fit(double v1) {
 
   for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
     const double residual = (*resiter)[kResidual];
-    const double xposition = (*resiter)[kXPosition];
-    const double yposition = (*resiter)[kYPosition];
+    const double xangle = (*resiter)[kXAngle];
+    const double yangle = (*resiter)[kYAngle];
 
     if (fabs(residual) < 0.1) {  // truncate at 100 mrad
       sum_x += residual;
@@ -56,8 +56,8 @@ bool MuonResidualsAngleFitter::fit(double v1) {
     }
 
     int index = 0;
-    if (xposition > 0.) index += 1;
-    if (yposition > 0.) index += 2;
+    if (xangle > 0.) index += 1;
+    if (yangle > 0.) index += 2;
     N_bin[index]++;
   }
 
@@ -131,8 +131,8 @@ void MuonResidualsAngleFitter::plot(double v1, std::string name, TFileDirectory 
 
   TH1F *raw_hist = dir->make<TH1F>(raw_name.str().c_str(), (raw_name.str() + std::string(" (mrad)")).c_str(), 100, -100., 100.);
   TH1F *narrowed_hist = dir->make<TH1F>(narrowed_name.str().c_str(), (narrowed_name.str() + std::string(" (mrad)")).c_str(), 100, -100., 100.);
-  TProfile *xcontrol_hist = dir->make<TProfile>(xcontrol_name.str().c_str(), (xcontrol_name.str() + std::string(" (mrad)")).c_str(), 100, -0.05, 0.05);
-  TProfile *ycontrol_hist = dir->make<TProfile>(ycontrol_name.str().c_str(), (ycontrol_name.str() + std::string(" (mrad)")).c_str(), 100, -0.05, 0.05);
+  TProfile *xcontrol_hist = dir->make<TProfile>(xcontrol_name.str().c_str(), (xcontrol_name.str() + std::string(" (mrad)")).c_str(), 100, -1., 1.);
+  TProfile *ycontrol_hist = dir->make<TProfile>(ycontrol_name.str().c_str(), (ycontrol_name.str() + std::string(" (mrad)")).c_str(), 100, -1., 1.);
 
   narrowed_name << "fit";
   xcontrol_name << "fit";
@@ -152,29 +152,29 @@ void MuonResidualsAngleFitter::plot(double v1, std::string name, TFileDirectory 
     narrowed_fit->Write();
   }
 
-  TF1 *xcontrol_fit = new TF1(xcontrol_name.str().c_str(), "[0]+x*[1]", -0.05, 0.05);
+  TF1 *xcontrol_fit = new TF1(xcontrol_name.str().c_str(), "[0]+x*[1]", -1., 1.);
   xcontrol_fit->SetParameters(value(kAngle) * 1000., value(kXControl) * 1000.);
   xcontrol_fit->Write();
 
-  TF1 *ycontrol_fit = new TF1(ycontrol_name.str().c_str(), "[0]+x*[1]", -0.05, 0.05);
+  TF1 *ycontrol_fit = new TF1(ycontrol_name.str().c_str(), "[0]+x*[1]", -1., 1.);
   ycontrol_fit->SetParameters(value(kAngle) * 1000., value(kYControl) * 1000.);
   ycontrol_fit->Write();
 
   for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
     const double raw_residual = (*resiter)[kResidual];
-    const double xposition = (*resiter)[kXPosition];
-    const double yposition = (*resiter)[kYPosition];
+    const double xangle = (*resiter)[kXAngle];
+    const double yangle = (*resiter)[kYAngle];
 
-    double xposition_correction = value(kXControl) * xposition;
-    double yposition_correction = value(kYControl) * yposition;
-    double corrected_residual = raw_residual - xposition_correction - yposition_correction;
+    double xangle_correction = value(kXControl) * xangle;
+    double yangle_correction = value(kYControl) * yangle;
+    double corrected_residual = raw_residual - xangle_correction - yangle_correction;
 
     raw_hist->Fill(raw_residual * 1000.);
     narrowed_hist->Fill(corrected_residual * 1000.);
 
     if (inRange(corrected_residual)) {
-      xcontrol_hist->Fill(xposition, (raw_residual - yposition_correction) * 1000.);
-      ycontrol_hist->Fill(yposition, (raw_residual - xposition_correction) * 1000.);
+      xcontrol_hist->Fill(xangle, (raw_residual - yangle_correction) * 1000.);
+      ycontrol_hist->Fill(yangle, (raw_residual - xangle_correction) * 1000.);
     }
   }
 }
@@ -209,21 +209,21 @@ double MuonResidualsAngleFitter::redchi2(double v1, std::string name, TFileDirec
 
   for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
     const double raw_residual = (*resiter)[kResidual];
-    const double xposition = (*resiter)[kXPosition];
-    const double yposition = (*resiter)[kYPosition];
+    const double xangle = (*resiter)[kXAngle];
+    const double yangle = (*resiter)[kYAngle];
 
     double correction = value(kAngle);
-    double xposition_correction = value(kXControl) * xposition;
-    double yposition_correction = value(kYControl) * yposition;
+    double xangle_correction = value(kXControl) * xangle;
+    double yangle_correction = value(kYControl) * yangle;
     double scale = value(kSigma);
 
-    hist->Fill((raw_residual - correction - xposition_correction - yposition_correction)/scale);
+    hist->Fill((raw_residual - correction - xangle_correction - yangle_correction)/scale);
   } // end loop over residuals
 
   double chi2 = 0.;
   int ndof = 0;
   for (int i = 1;  i <= bins;  i++) {
-    double position = hist->GetBinCenter(i);
+    double angle = hist->GetBinCenter(i);
     double histvalue = hist->GetBinContent(i);
     double histerror = hist->GetBinError(i);
     
@@ -231,11 +231,11 @@ double MuonResidualsAngleFitter::redchi2(double v1, std::string name, TFileDirec
       double fitvalue = 0.;
 
       if (residualsModel() == kPureGaussian) {
-	fitvalue = scale_factor * MuonResidualsFitter_pureGaussian(position, 0., 1.);
+	fitvalue = scale_factor * MuonResidualsFitter_pureGaussian(angle, 0., 1.);
 	ndof++;
       }
       else if (residualsModel() == kPowerLawTails) {
-	fitvalue = scale_factor * MuonResidualsFitter_powerLawTails(position, 0., 1., gamma/sigma);
+	fitvalue = scale_factor * MuonResidualsFitter_powerLawTails(angle, 0., 1., gamma/sigma);
 	ndof++;
       }
       else { assert(false); }

@@ -217,11 +217,14 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
        m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 1);
        m_fitterOrder.push_back(m_zFitters[*ali]);
 
-       m_phixFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, 5), new MuonResidualsAngleFitter(residualsModel, 5));
+       m_phixFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, -1), new MuonResidualsAngleFitter(residualsModel, -1));
+       m_phixFitters[*ali]->fix(MuonResidualsAngleFitter::kXControl);
+       m_phixFitters[*ali]->fix(MuonResidualsAngleFitter::kYControl);
        m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 2);
        m_fitterOrder.push_back(m_phixFitters[*ali]);
 
-       m_phiyFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, 5), new MuonResidualsAngleFitter(residualsModel, 5));
+       m_phiyFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, -1), new MuonResidualsAngleFitter(residualsModel, -1));
+       m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kXControl);
        m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 3);
        m_fitterOrder.push_back(m_phiyFitters[*ali]);
      }
@@ -253,7 +256,9 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
 	 m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 0);
 	 m_fitterOrder.push_back(m_rphiFitters[*ali]);
 	 
-	 m_phiyFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, 5), new MuonResidualsAngleFitter(residualsModel, 5));
+	 m_phiyFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, -1), new MuonResidualsAngleFitter(residualsModel, -1));
+	 m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kXControl);
+	 m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kYControl);
 	 m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 1);
 	 m_fitterOrder.push_back(m_phiyFitters[*ali]);
 	 
@@ -503,8 +508,8 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
 	      if (phiyFitter != m_phiyFitters.end()) {
 		double *residdata = new double[MuonResidualsAngleFitter::kNData];
 		residdata[MuonResidualsAngleFitter::kResidual] = chamberResidual->resslope();
-		residdata[MuonResidualsAngleFitter::kXPosition] = chamberResidual->trackx();
-		residdata[MuonResidualsAngleFitter::kYPosition] = chamberResidual->tracky();
+		residdata[MuonResidualsAngleFitter::kXAngle] = chamberResidual->trackdxdz();
+		residdata[MuonResidualsAngleFitter::kYAngle] = chamberResidual->trackdydz();
 		phiyFitter->second->fill(charge, residdata);
 		// the MuonResidualsAngleFitter will delete the array when it is destroyed
 	      }
@@ -531,8 +536,8 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
 	      if (phixFitter != m_phixFitters.end()) {
 		double *residdata = new double[MuonResidualsAngleFitter::kNData];
 		residdata[MuonResidualsAngleFitter::kResidual] = chamberResidual->resslope();
-		residdata[MuonResidualsAngleFitter::kXPosition] = chamberResidual->trackx();
-		residdata[MuonResidualsAngleFitter::kYPosition] = chamberResidual->tracky();
+		residdata[MuonResidualsAngleFitter::kXAngle] = chamberResidual->trackdxdz();
+		residdata[MuonResidualsAngleFitter::kYAngle] = chamberResidual->trackdydz();
 		phixFitter->second->fill(charge, residdata);
 		// the MuonResidualsAngleFitter will delete the array when it is destroyed
 	      }
@@ -566,8 +571,8 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
 	      if (phiyFitter != m_phiyFitters.end()) {
 		double *residdata = new double[MuonResidualsAngleFitter::kNData];
 		residdata[MuonResidualsAngleFitter::kResidual] = chamberResidual->resslope();
-		residdata[MuonResidualsAngleFitter::kXPosition] = chamberResidual->trackx();
-		residdata[MuonResidualsAngleFitter::kYPosition] = chamberResidual->tracky();
+		residdata[MuonResidualsAngleFitter::kXAngle] = chamberResidual->trackdxdz();
+		residdata[MuonResidualsAngleFitter::kYAngle] = chamberResidual->trackdydz();
 		phiyFitter->second->fill(charge, residdata);
 		// the MuonResidualsAngleFitter will delete the array when it is destroyed
 	      }
