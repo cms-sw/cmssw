@@ -5,7 +5,8 @@ from SimGeneral.TrackingAnalysis.trackingParticles_cfi import *
 mergedtruth.TrackerHitLabels = ['famosSimHitsTrackerHits']
 mergedtruth.simHitLabel = 'famosSimHits'
 
-from Validation.RecoMET.METRelValForDQM_cff import *
+#### - temporary exclusion, also from the sequence below 
+# from Validation.RecoMET.METRelValForDQM_cff import *
 
 from Validation.TrackingMCTruth.trackingTruthValidation_cfi import *
 from Validation.RecoTrack.TrackValidation_fastsim_cff import *
@@ -21,7 +22,7 @@ bTagValidation.etaRanges = cms.vdouble(0.0, 1.1, 2.4)
 
 globalValidation = cms.Sequence(trackingParticles+trackingTruthValid
                                 +tracksValidation
-                                +METRelValSequence
+###                                +METRelValSequence
                                 +recoMuonValidationFastSim
                                 +myPartons
                                 +iterativeCone5Flavour
