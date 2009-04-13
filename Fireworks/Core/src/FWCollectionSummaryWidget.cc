@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.4 2009/04/09 21:17:52 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.5 2009/04/09 21:38:17 chrjones Exp $
 //
 
 // system include files
@@ -50,16 +50,25 @@ static const TString& coreIcondir() {
 }
 
 static 
-const TGPicture* filtered()
+const TGPicture* filtered(bool iBackgroundIsBlack)
 {
-   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"filtered-blackbg.png");
+   if(iBackgroundIsBlack) {
+      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"filtered-blackbg.png");
+      return s;
+   }
+   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"filtered-whitebg.png");
    return s;
+   
 }
 
 static 
-const TGPicture* filtered_over()
+const TGPicture* filtered_over(bool iBackgroundIsBlack)
 {
-   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"filtered-blackbg-over.png");
+   if(iBackgroundIsBlack) {
+      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"filtered-whitebg-over.png");
+      return s;
+   }
+   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"filtered-whitebg-over.png");
    return s;
 }
 
@@ -79,17 +88,103 @@ const TGPicture* alert()
 }
 */
 static 
-const TGPicture* unfiltered()
+const TGPicture* unfiltered(bool iBackgroundIsBlack)
 {
-   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"unfiltered-blackbg.png");
+   if(iBackgroundIsBlack) {
+      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"unfiltered-blackbg.png");
+      return s;
+   }
+   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"unfiltered-whitebg.png");
    return s;
 }
 static 
-const TGPicture* unfiltered_over()
+const TGPicture* unfiltered_over(bool iBackgroundIsBlack)
 {
-   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"unfiltered-blackbg-over.png");
+   if(iBackgroundIsBlack) {
+      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"unfiltered-blackbg-over.png");
+      return s;
+   }
+   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"unfiltered-whitebg-over.png");
+   return s;   
+}
+
+static
+const TGPicture* info(bool iBackgroundIsBlack)
+{
+   if(iBackgroundIsBlack) {
+      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"info2-blackbg.png");
+      return s;
+   }
+   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"info2-whitebg.png");
+   return s;   
+}
+
+static
+const TGPicture* info_over(bool iBackgroundIsBlack)
+{
+   if(iBackgroundIsBlack) {
+      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"info2-blackbg-over.png");
+      return s;
+   }
+   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"info2-whitebg-over.png");
    return s;
 }
+
+static
+const TGPicture* info_disabled(bool iBackgroundIsBlack)
+{
+   if(iBackgroundIsBlack) {
+      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"info2-blackbg-disabled.png");
+      return s;
+   }
+   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"info2-whitebg-disabled.png");
+   return s;
+}
+
+static
+const TGPicture* arrow_right(bool iBackgroundIsBlack)
+{
+   if(iBackgroundIsBlack) {
+      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"arrow-white-right-blackbg.png");
+      return s;
+   }
+   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"arrow-black-right-whitebg.png");
+   return s;
+}
+
+static
+const TGPicture* arrow_right_disabled(bool iBackgroundIsBlack)
+{
+   if(iBackgroundIsBlack) {
+      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"arrow-white-right-disabled-blackbg.png");
+      return s;
+   }
+   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"arrow-black-right-disabled-whitebg.png");
+   return s;
+}
+
+static
+const TGPicture* arrow_down(bool iBackgroundIsBlack)
+{
+   if(iBackgroundIsBlack) {
+      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"arrow-white-down-blackbg.png");
+      return s;
+   }
+   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"arrow-black-down-whitebg.png");
+   return s;
+}
+
+static
+const TGPicture* arrow_down_disabled(bool iBackgroundIsBlack)
+{
+   if(iBackgroundIsBlack) {
+      static const TGPicture* s = gClient->GetPicture(coreIcondir()+"arrow-white-down-disabled-blackbg.png");
+      return s;
+   }
+   static const TGPicture* s = gClient->GetPicture(coreIcondir()+"arrow-black-down-disabled-whitebg.png");
+   return s;
+}
+
 
 static const unsigned long kWidgetColor = 0x2f2f2f;
 static const unsigned long kWidgetColorLight = 0xdfdfdf;
@@ -117,9 +212,9 @@ m_backgroundIsWhite(false)
    this->AddFrame(hFrame, new TGLayoutHints(kLHintsTop | kLHintsExpandX) );
    
    m_showHideButton = new FWCustomIconsButton(this,
-                                              fClient->GetPicture(coreIcondir()+"arrow-white-right-blackbg.png"),
-                                              fClient->GetPicture(coreIcondir()+"arrow-white-right-disabled-blackbg.png"),
-                                              fClient->GetPicture(coreIcondir()+"arrow-white-right-disabled-blackbg.png"));
+                                              arrow_right(!m_backgroundIsWhite),
+                                              arrow_right_disabled(!m_backgroundIsWhite),
+                                              arrow_right_disabled(!m_backgroundIsWhite));
    m_showHideButton->Connect("Clicked()","FWCollectionSummaryWidget",this,"toggleShowHide()");
    m_collectionShown = false;
    hFrame->AddFrame(m_showHideButton,new TGLayoutHints(kLHintsCenterY | kLHintsLeft,6,10));
@@ -151,7 +246,9 @@ m_backgroundIsWhite(false)
    m_label->SetTextColor(static_cast<Pixel_t>(gVirtualX->GetPixel(kWhite)));
    hFrame->AddFrame(m_label, new TGLayoutHints(kLHintsCenterY | kLHintsLeft | kLHintsExpandX,5,5));
    
-   m_stateButton = new FWCustomIconsButton(this,unfiltered(),unfiltered_over(),unfiltered_over());
+   m_stateButton = new FWCustomIconsButton(this,unfiltered(!m_backgroundIsWhite),
+                                           unfiltered_over(!m_backgroundIsWhite),
+                                           unfiltered_over(!m_backgroundIsWhite));
    hFrame->AddFrame(m_stateButton, new TGLayoutHints(kLHintsCenterY| kLHintsLeft));
    itemChanged();
    displayChanged();
@@ -159,9 +256,9 @@ m_backgroundIsWhite(false)
    m_stateButton->SetToolTipText("show collection filter");
    
    m_infoButton = new FWCustomIconsButton(this,
-                                          fClient->GetPicture(coreIcondir()+"info2-blackbg.png"),
-                                          fClient->GetPicture(coreIcondir()+"info2-blackbg-over.png"),
-                                          fClient->GetPicture(coreIcondir()+"info2-blackbg-disabled.png")
+                                          info(!m_backgroundIsWhite),
+                                          info_over(!m_backgroundIsWhite),
+                                          info_disabled(!m_backgroundIsWhite)
    );
    hFrame->AddFrame(m_infoButton, new TGLayoutHints(kLHintsCenterY| kLHintsRight,2,2));
    m_infoButton->Connect("Clicked()","FWCollectionSummaryWidget",this,"infoClicked()");
@@ -226,13 +323,13 @@ FWCollectionSummaryWidget::itemChanged()
    const TGPicture* down = 0;
    const TGPicture* disabled=0;
    if(m_collection->filterExpression().size()) {
-      picture = filtered();
-      down = filtered_over();
-      disabled = filtered_over();
+      picture = filtered(!m_backgroundIsWhite);
+      down = filtered_over(!m_backgroundIsWhite);
+      disabled = filtered_over(!m_backgroundIsWhite);
    } else {
-      picture = unfiltered();
-      down = unfiltered_over();
-      disabled = unfiltered_over();
+      picture = unfiltered(!m_backgroundIsWhite);
+      down = unfiltered_over(!m_backgroundIsWhite);
+      disabled = unfiltered_over(!m_backgroundIsWhite);
    }
    m_stateButton->swapIcons(picture,down,disabled);
 }
@@ -281,16 +378,16 @@ FWCollectionSummaryWidget::toggleShowHide()
    const TGPicture* disabled=0;
    
    if(m_collectionShown) {
-      picture = fClient->GetPicture(coreIcondir()+"arrow-white-right-blackbg.png");
-      down = fClient->GetPicture(coreIcondir()+"arrow-white-right-disabled-blackbg.png");
-      disabled = fClient->GetPicture(coreIcondir()+"arrow-white-right-disabled-blackbg.png");
+      picture = arrow_right(!m_backgroundIsWhite);
+      down = arrow_right_disabled(!m_backgroundIsWhite);
+      disabled = arrow_right_disabled(!m_backgroundIsWhite);
       m_collectionShown = false;
       HideFrame(m_tableWidget);
       m_hints->SetLayoutHints(kLHintsExpandX);
    } else {
-      picture = fClient->GetPicture(coreIcondir()+"arrow-white-down-blackbg.png");
-      down = fClient->GetPicture(coreIcondir()+"arrow-white-down-disabled-blackbg.png");
-      disabled = fClient->GetPicture(coreIcondir()+"arrow-white-down-blackbg.png");
+      picture = arrow_down(!m_backgroundIsWhite);
+      down = arrow_down_disabled(!m_backgroundIsWhite);
+      disabled = arrow_down_disabled(!m_backgroundIsWhite);
       m_collectionShown = true;
       
       if(0 == m_tableManager) {
@@ -435,6 +532,27 @@ FWCollectionSummaryWidget::setBackgroundToWhite(bool iToWhite)
       m_colorSelectWidget->setNormCG(GetWhiteGC()());
       selectContext()->SetForeground(gClient->GetResourcePool()->GetSelectedGC()->GetBackground());
    }
+   //this forces the icons to be changed to the correct background
+   itemChanged();
+   {
+      const TGPicture* picture = info(!m_backgroundIsWhite);
+      const TGPicture* over = info_over(!m_backgroundIsWhite);
+      const TGPicture* disabled = info_disabled(!m_backgroundIsWhite);
+      m_infoButton->swapIcons(picture,
+                              over,
+                              disabled);
+   }
+   if(m_collectionShown) {
+      const TGPicture* picture = arrow_down(!m_backgroundIsWhite);
+      const TGPicture* down = arrow_down_disabled(!m_backgroundIsWhite);
+      const TGPicture* disabled = arrow_down_disabled(!m_backgroundIsWhite);
+      m_showHideButton->swapIcons(picture,down,disabled);
+   } else {
+      const TGPicture* picture = arrow_right(!m_backgroundIsWhite);
+      const TGPicture* down = arrow_right_disabled(!m_backgroundIsWhite);
+      const TGPicture* disabled = arrow_right_disabled(!m_backgroundIsWhite);
+      m_showHideButton->swapIcons(picture,down,disabled);
+   }
    colorTable();
    m_holder->SetBackgroundColor(bc);
    m_label->SetBackgroundColor(bc);
@@ -472,3 +590,4 @@ FWCollectionSummaryWidget::colorTable()
 //
 
 ClassImp(FWCollectionSummaryWidget)
+
