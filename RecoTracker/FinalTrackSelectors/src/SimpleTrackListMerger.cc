@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2008/06/25 23:09:24 $
-// $Revision: 1.15 $
+// $Date: 2009/02/03 14:04:23 $
+// $Revision: 1.16 $
 //
 
 #include <memory>
@@ -381,12 +381,23 @@ namespace cms
               //std::cout << " removing L1 trk in pair " << std::endl;
             }else{
               //std::cout << " removing worst chisq in pair " << track->normalizedChi2() << " " << track2->normalizedChi2() << std::endl;
-              if (track->normalizedChi2() > track2->normalizedChi2()) {
+              const double almostSame = 1.001;
+              if (track->normalizedChi2() > almostSame * track2->normalizedChi2()) {
 		selected1[i]=0;
 		selected2[j]=10+newQualityMask; // add 10 to avoid the case where mask = 1
-	      }else{
+	      }else if (track2->normalizedChi2() > almostSame * track->normalizedChi2()) {
 		selected2[j]=0;
 		selected1[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
+              }else{
+		// If tracks from both iterations are virtually identical, choose the one from the first iteration.
+		//		std::cout<<"MERGE "<<track->algo()<<" "<<track2->algo()<<" "<<track->normalizedChi2()<<" "<<track2->normalizedChi2()<<" "<<(track->normalizedChi2()-track2->normalizedChi2())/track->normalizedChi2()<<std::endl;
+                if (track->algo() <= track2->algo()) {
+		  selected2[j]=0;
+		  selected1[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
+                }else{
+  		  selected1[i]=0;
+		  selected2[j]=10+newQualityMask; // add 10 to avoid the case where mask = 1
+                }
 	      }
             }//end fi > or = fj
           }//end fi < fj

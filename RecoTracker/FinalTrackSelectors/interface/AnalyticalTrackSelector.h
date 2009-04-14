@@ -6,9 +6,9 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.7 $
+ * \version $Revision: 1.8 $
  *
- * $Id: AnalyticalTrackSelector.h,v 1.7 2008/04/09 13:37:32 paoloa Exp $
+ * $Id: AnalyticalTrackSelector.h,v 1.8 2008/12/14 16:32:54 paoloa Exp $
  *
  */
 
@@ -69,17 +69,26 @@ namespace reco { namespace modules {
             int32_t vtxNumber_;
             size_t  vtxTracks_;
             double  vtxChi2Prob_;
-            /// paremeters for track cuts
+
+			//  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
 			std::vector<double> res_par_;
             double  chi2n_par_;
 			std::vector<double> d0_par1_;
 			std::vector<double> dz_par1_;
 			std::vector<double> d0_par2_;
 			std::vector<double> dz_par2_;
+			// Boolean indicating if adapted primary vertex compatibility cuts are to be applied.
+            bool applyAdaptedPVCuts_;
+			
+            /// Impact parameter absolute cuts
+            double max_d0_;
+            double max_z0_;
 
-	    /// Minimum number of hits
+            /// Cuts on numbers of layers with hits/3D hits/lost hits. 
 			uint32_t min_layers_;
-
+			uint32_t min_3Dlayers_;
+			uint32_t max_lostLayers_;
+			
             /// storage
             std::auto_ptr<reco::TrackCollection> selTracks_;
             std::auto_ptr<reco::TrackExtraCollection> selTrackExtras_;

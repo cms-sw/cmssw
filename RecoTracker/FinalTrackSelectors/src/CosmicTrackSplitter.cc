@@ -44,7 +44,6 @@
 #include "DataFormats/Math/interface/Error.h" 
 #include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h" 
 #include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h" 
-#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
@@ -101,6 +100,7 @@ namespace reco { namespace modules {
 		bool stripFrontInvalidHits_;
 		bool stripBackInvalidHits_;
 		bool stripAllInvalidHits_;
+		bool excludePixelHits_;
 		
 		double dZcut_;
 		double dXYcut_;
@@ -123,6 +123,7 @@ namespace reco { namespace modules {
     stripFrontInvalidHits_(iConfig.getParameter<bool>("stripFrontInvalidHits")),
     stripBackInvalidHits_( iConfig.getParameter<bool>("stripBackInvalidHits") ),
     stripAllInvalidHits_(  iConfig.getParameter<bool>("stripAllInvalidHits")  ),
+	excludePixelHits_(  iConfig.getParameter<bool>("excludePixelHits")  ),
     dZcut_(iConfig.getParameter<double>("dzCut") ),
     dXYcut_(iConfig.getParameter<double>("dxyCut") ),
     detsToIgnore_( iConfig.getParameter<std::vector<uint32_t> >("detsToIgnore") )
@@ -203,6 +204,42 @@ namespace reco { namespace modules {
 			trackingRecHit_iterator fIt = trackFromMap->recHitsEnd() - 1;
 			const TrackingRecHit* bHit = bIt->get();
 			const TrackingRecHit* fHit = fIt->get();
+			// hit type valid = 0, missing = 1, inactive = 2, bad = 3
+			if( bHit->type() != 0 || bHit->isValid() != 1){
+				//loop over hits forwards until first Valid hit is found
+				trackingRecHit_iterator ihit;
+				for( ihit =  trackFromMap->recHitsBegin(); 
+					ihit != trackFromMap->recHitsEnd(); ++ihit){
+					const TrackingRecHit* iHit = ihit->get();
+					if( iHit->type() == 0 && iHit->isValid() == 1){
+						bHit = iHit;
+						break;
+					}
+				}
+			}
+			DetId bdetid = bHit->geographicalId();
+			GlobalPoint bPosHit = theGeometry->idToDetUnit( bdetid)->surface().
+			toGlobal(bHit->localPosition());
+			if( fHit->type() != 0 || fHit->isValid() != 1){
+				//loop over hits backwards until first Valid hit is found
+				trackingRecHit_iterator ihitf;
+				for( ihitf =  trackFromMap->recHitsEnd()-1; 
+					ihitf != trackFromMap->recHitsBegin(); --ihitf){
+					const TrackingRecHit* iHit = ihitf->get();
+					if( iHit->type() == 0 && iHit->isValid() == 1){
+						fHit = iHit;
+						break;
+					}
+				}
+			}
+			DetId fdetid = fHit->geographicalId();
+			GlobalPoint fPosHit =  theGeometry->
+			idToDetUnit( fdetid )->surface().toGlobal(fHit->localPosition());
+			GlobalPoint bPosState = measurements[0].updatedState().globalPosition();
+			GlobalPoint fPosState = measurements[measurements.size()-1].
+			updatedState().globalPosition();
+			bool trajReversedFlag = false;
+			/*
 			DetId bdetid = bHit->geographicalId();
 			DetId fdetid = fHit->geographicalId();
 			GlobalPoint bPosHit =  theGeometry->idToDetUnit( bdetid )->surface().toGlobal(bHit->localPosition());
@@ -210,6 +247,7 @@ namespace reco { namespace modules {
 			GlobalPoint bPosState = measurements[0].updatedState().globalPosition();
 			GlobalPoint fPosState = measurements[measurements.size() - 1].updatedState().globalPosition();
 			bool trajReversedFlag = false;
+			*/
 			if (( (bPosHit - bPosState).mag() > (bPosHit - fPosState).mag() ) && ( (fPosHit - fPosState).mag() > (fPosHit - bPosState).mag() ) ){
 				trajReversedFlag = true;
 			}
@@ -248,7 +286,6 @@ namespace reco { namespace modules {
 						LogDebug("CosmicTrackSplitter") << "            valid, detid = " << hit->geographicalId().rawId();
 						DetId detid = hit->geographicalId();
 						
-						//if ((detid.det() == DetId::Tracker)&&((detid.subdetId() == 3)||(detid.subdetId() == 5))) {  // check for tracker hits
 						if (detid.det() == DetId::Tracker) {  // check for tracker hits
 							LogDebug("CosmicTrackSplitter") << "            valid, tracker ";
 							bool  verdict = false;
@@ -273,6 +310,13 @@ namespace reco { namespace modules {
 							// if the hit is good, check again at module level
 							if ( verdict  && std::binary_search(detsToIgnore_.begin(), detsToIgnore_.end(), detid.rawId())) {
 								verdict = false;
+							}
+							
+							// if hit is good check to make sure that we are keeping pixel hits
+							if ( excludePixelHits_){
+								if ((detid.det() == DetId::Tracker)&&((detid.subdetId() == 1)||(detid.subdetId() == 2))) {  // check for pixel hits
+								 	verdict = false;
+								}
 							}
 							
 							LogDebug("CosmicTrackSplitter") << "                   verdict after module list: " << (verdict ? "ok" : "no");
@@ -349,7 +393,8 @@ namespace reco { namespace modules {
 		PropagationDirection   pdir = tk.seedDirection();
 		PTrajectoryStateOnDet *state;
 		if ( pdir == anyDirection ) throw cms::Exception("UnimplementedFeature") << "Cannot work with tracks that have 'anyDirecton' \n";
-		if ( (pdir == alongMomentum) == ( tk.p() >= tk.outerP() ) ) {
+		//if ( (pdir == alongMomentum) == ( tk.p() >= tk.outerP() ) ) {
+		if ( (pdir == alongMomentum) == (  (tk.outerPosition()-tk.innerPosition()).Dot(tk.momentum()) >= 0    ) ) {
 			// use inner state
 			TrajectoryStateOnSurface originalTsosIn(transform.innerStateOnSurface(tk, *theGeometry, &*theMagField));
 			state = transform.persistentState( originalTsosIn, DetId(tk.innerDetId()) );
