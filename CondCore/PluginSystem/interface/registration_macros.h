@@ -22,6 +22,7 @@
 
 // user include files
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
+#include "CondCore/PluginSystem/interface/OldDataProxy.h"
 #include "CondCore/PluginSystem/interface/DataProxy.h"
 
 // forward declarations
