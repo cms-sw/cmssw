@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Jul 25 06:47:37 EDT 2005
-// $Id: registration_macros.h,v 1.6 2007/04/12 21:18:00 chrjones Exp $
+// $Id: registration_macros.h,v 1.7 2008/07/13 06:59:49 innocent Exp $
 //
 
 // system include files
@@ -32,7 +32,8 @@
 
 #define ONLY_REGISTER_PLUGIN(record_,type_)\
 typedef DataProxy<record_, type_> EDM_PLUGIN_SYM(Proxy , __LINE__ ); \
-DEFINE_EDM_PLUGIN( cond::ProxyFactory, EDM_PLUGIN_SYM(Proxy , __LINE__ ), #record_ "@" #type_ "@Proxy")
+DEFINE_EDM_PLUGIN( oldcond::ProxyFactory, EDM_PLUGIN_SYM(Proxy , __LINE__ ), #record_ "@" #type_ "@Proxy") \
+DEFINE_EDM_PLUGIN( cond::ProxyFactory, EDM_PLUGIN_SYM(Proxy , __LINE__ ), #record_ "@NewProxy")
 
 #define REGISTER_PLUGIN(record_, type_ ) \
 INSTANTIATE_PROXY(record_, type_ ) \
