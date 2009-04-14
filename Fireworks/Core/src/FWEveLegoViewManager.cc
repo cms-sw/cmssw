@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.25 2009/04/07 14:06:23 chrjones Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.26 2009/04/07 21:34:18 chrjones Exp $
 //
 
 // system include files
@@ -351,7 +351,7 @@ FWEveLegoViewManager::setGridColors()
          m_lego->SetFontColor(kWhite);
          m_boundaries->SetLineColor(Color_t(TColor::GetColor("#404040")));
       } else {
-         std::cout <<"changing to light grid"<<std::endl;
+         //std::cout <<"changing to light grid"<<std::endl;
          m_lego->SetGridColor(Color_t(TColor::GetColor("#E0E0E0")));
          m_lego->SetFontColor(kBlack);
          m_boundaries->SetLineColor(Color_t(TColor::GetColor("#A0A0A0")));
