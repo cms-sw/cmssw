@@ -30,7 +30,7 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 	# allCollectionNames = cms.vstring ("globalMuons"),
 
 
-	allCollectionNames = cms.vstring ("muons", "barrelMuons"),
+	allCollectionNames = cms.vstring ("muons"),
 #									  "barrelMuonTracks",
 #									  "overlapMuonTracks"),
 									  
@@ -53,7 +53,8 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 	PtParameters       = cms.vdouble(50,0.,80.),
     EtaParameters      = cms.vdouble(50, -3.5,3.5),
     PhiParameters      = cms.vdouble(50, -3.15,3.15),
-    ResParameters      = cms.vdouble(50, -0.15, 0.15),									
+    ResParameters      = cms.vdouble(50, -0.15, 0.15),
+	DrParameters       = cms.vdouble(50, 0.0, 0.05),			
 
     # Set cuts placed on the generated muons and matching criteria
     # Use pt cut just below 10 to allow through SingleMuPt10 muons
