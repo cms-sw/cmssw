@@ -75,10 +75,12 @@ SiStripGain* SiStripGainESProducerTemplate<TDependentRecord,TInputRecord>::SiStr
 
 
   if(typeid(TDependentRecord)==typeid(SiStripGainRcd) && typeid(TInputRecord)==typeid(SiStripApvGainRcd)){
-    dynamic_cast<const SiStripGainRcd&>(iRecord).getRecord<SiStripApvGainRcd>().get(apvgain_,pDD );
+    const SiStripGainRcd& a = dynamic_cast<const SiStripGainRcd&>(iRecord);
+    a.getRecord<SiStripApvGainRcd>().get(apvgain_,pDD );
     return new SiStripGain( *(pDD.product()), getNFactor());
   }else if(typeid(TDependentRecord)==typeid(SiStripGainSimRcd) && typeid(TInputRecord)==typeid(SiStripApvGainSimRcd)){
-    dynamic_cast<const SiStripGainSimRcd&>(iRecord).getRecord<SiStripApvGainSimRcd>().get(apvgain_,pDD );
+    const SiStripGainSimRcd& a = dynamic_cast<const SiStripGainSimRcd&>(iRecord);
+    a.getRecord<SiStripApvGainSimRcd>().get(apvgain_,pDD );
     return new SiStripGain( *(pDD.product()), getNFactor());
   }
     
