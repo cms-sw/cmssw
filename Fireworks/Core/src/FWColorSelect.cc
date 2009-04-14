@@ -183,7 +183,7 @@ Bool_t FWColorPopup::HandleButton(Event_t *event)
    return kTRUE;
 }
 
-void FWColorPopup::InitContent(TGString *name, const std::vector<Pixel_t>& colors)
+void FWColorPopup::InitContent(const char *name, const std::vector<Pixel_t>& colors)
 {
    fLabel = new TGLabel(this, name);
    fLabel->SetBackgroundColor(GetBackground());
@@ -317,12 +317,14 @@ void FWColorPopup::ColorBookkeeping(Int_t row)
 }
 
 //------------------------------FWColorSelect------------------------------//
-FWColorSelect::FWColorSelect(const TGWindow *p, TGString
-                             *label, UInt_t index, const std::vector<Color_t>& palette, Int_t id) :
+FWColorSelect::FWColorSelect(const TGWindow *p, 
+                             const char* label, 
+                             UInt_t index, 
+                             const std::vector<Color_t>& palette, Int_t id) :
 TGColorSelect(p, static_cast<Pixel_t>(gVirtualX->GetPixel(palette[index])), id),
+fLabel(label),
 fFireworksPopup(0)
 {
-   fIndex = index;
    fLabel = *label;
    fPalette = palette;
 
@@ -334,7 +336,7 @@ fFireworksPopup(0)
    }
    
    fFireworksPopup = new FWColorPopup(gClient->GetDefaultRoot(), fColor);
-   fFireworksPopup->InitContent(&fLabel, colors);
+   fFireworksPopup->InitContent(fLabel.c_str(), colors);
    fFireworksPopup->Connect("ColorBookkeeping(Int_t)","FWColorSelect", this, "CatchSignal(Pixel_t)");
 }
 

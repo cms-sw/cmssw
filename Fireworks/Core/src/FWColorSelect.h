@@ -115,7 +115,7 @@ public:
 
    virtual Bool_t HandleButton(Event_t *event);
 
-   void InitContent(TGString *name, const std::vector<Pixel_t>& colors);
+   void InitContent(const char *name, const std::vector<Pixel_t>& colors);
    void SetName(const char* iName);
    void ResetColors(const std::vector<Pixel_t>& colors);
    void SetSelection(Pixel_t);
@@ -134,13 +134,13 @@ public:
 class FWColorSelect : public TGColorSelect {
 
 protected:
-   TGString fLabel;
+   std::string fLabel;
    UInt_t fIndex;
    std::vector<Color_t> fPalette;
    FWColorPopup *fFireworksPopup;
 
 public:
-   FWColorSelect(const TGWindow *p, TGString *label, UInt_t colorIndex, const std::vector<Color_t>& palette, Int_t id);
+   FWColorSelect(const TGWindow *p, const char *label, UInt_t colorIndex, const std::vector<Color_t>& palette, Int_t id);
    ~FWColorSelect();
 
    virtual Bool_t HandleButton(Event_t *event);
