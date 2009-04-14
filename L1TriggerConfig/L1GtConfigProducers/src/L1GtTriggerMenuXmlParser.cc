@@ -38,10 +38,15 @@
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
 // constructor
-L1GtTriggerMenuXmlParser::L1GtTriggerMenuXmlParser() : L1GtXmlParserTags()
+L1GtTriggerMenuXmlParser::L1GtTriggerMenuXmlParser() :
+    L1GtXmlParserTags(), m_xmlErrHandler(0), m_triggerMenuInterface("NULL"),
+    m_triggerMenuName("NULL"), m_triggerMenuImplementation("NULL"), m_scaleDbKey("NULL")
+
 {
-    // error handler for xml-parser
-    m_xmlErrHandler = 0;
+
+    // menu names, scale key initialized to NULL due to ORACLE treatment of strings
+
+    // empty
 
 }
 
