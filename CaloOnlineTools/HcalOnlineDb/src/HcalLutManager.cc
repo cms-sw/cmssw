@@ -1111,8 +1111,12 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle( std
   cout << "Preparing to request the LUT CLOBs from the database..." << endl;
 
   //int crate = 0;
-
-  std::string query = ("SELECT TRIG_PRIM_LOOKUPTBL_DATA_CLOB, CRATE FROM CMS_HCL_HCAL_CONDITION_OWNER.V_HCAL_TRIG_LOOKUP_TABLES");
+  
+  //
+  // _____ query is different for the old validation DB _________________
+  //
+  //std::string query = ("SELECT TRIG_PRIM_LOOKUPTBL_DATA_CLOB, CRATE FROM CMS_HCL_HCAL_CONDITION_OWNER.V_HCAL_TRIG_LOOKUP_TABLES");
+  std::string query = ("SELECT TRIG_PRIM_LOOKUPTBL_DATA_CLOB, CRATE FROM CMS_HCL_HCAL_COND.V_HCAL_TRIG_LOOKUP_TABLES");
   //query+=toolbox::toString(" WHERE TAG_NAME='%s' AND CRATE=%d", tag.c_str(), crate);
   query+=toolbox::toString(" WHERE TAG_NAME='%s'", tag.c_str() );
 

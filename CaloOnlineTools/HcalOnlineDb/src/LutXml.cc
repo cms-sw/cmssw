@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:20 CDT 2008
-// $Id: LutXml.cc,v 1.6 2009/03/02 23:42:25 kukartse Exp $
+// $Id: LutXml.cc,v 1.7 2009/04/08 23:03:45 kukartse Exp $
 //
 
 #include <iostream>
@@ -376,7 +376,7 @@ int LutXml::test_access( std::string filename ){
   gettimeofday( &_t, NULL );
   double _time =(double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0;
 
-  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");
+  EMap _emap("./backup/official_emap_v6.04_080905.txt");
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
   cout << "EMap contains " << _map . size() << " entries" << endl;
 
