@@ -292,18 +292,21 @@ class Process(object):
     def _placeAnalyzer(self,name,mod):
         self._place(name, mod, self.__analyzers)
     def _placePath(self,name,mod):
+        self._validateSequence(mod, name)
         try:
             self._place(name, mod, self.__paths)
         except ModuleCloneError, msg:
             context = format_outerframe(4)
             raise Exception("%sThe module %s in path %s is unknown to the process %s." %(context, msg, name, self._Process__name))
     def _placeEndPath(self,name,mod):
+        self._validateSequence(mod, name)
         try: 
             self._place(name, mod, self.__endpaths)
         except ModuleCloneError, msg:
             context = format_outerframe(4)
             raise Exception("%sThe module %s in endpath %s is unknown to the process %s." %(context, msg, name, self._Process__name))
     def _placeSequence(self,name,mod):
+        self._validateSequence(mod, name)
         self._place(name, mod, self.__sequences)
     def _placeESProducer(self,name,mod):
         self._place(name, mod, self.__esproducers)
@@ -465,6 +468,14 @@ class Process(object):
         for name,item in d.iteritems():
             returnValue +='process.'+name+' = '+item.dumpPython(options)+'\n\n'
         return returnValue
+    def _validateSequence(self, sequence, label):
+        # See if every module has been inserted into the process
+        try:
+            l = set()
+            nameVisitor = NodeNameVisitor(l)
+            sequence.visit(nameVisitor)
+        except:
+            raise RuntimeError("An entry in sequence "+label + ' has no label')
     def _sequencesInDependencyOrder(self):
         #for each sequence, see what other sequences it depends upon
         returnValue=DictTypes.SortedKeysDict()
@@ -926,6 +937,10 @@ process.schedule = cms.Schedule(process.p2,process.p)
             self.assertEqual(p.s.label_(),'s')
             path = Path(p.c+p.s)
             self.assertEqual(str(path),'c+a*b')
+            p._validateSequence(path, 'p1')
+            notInProcess = EDAnalyzer('NotInProcess')
+            p2 = Path(p.c+p.s*notInProcess)
+            self.assertRaises(RuntimeError, p._validateSequence, p2, 'p2')
 
         def testPath(self):
             p = Process("test")
@@ -1031,6 +1046,7 @@ process.schedule = cms.Schedule(process.p2,process.p)
             b = EDProducer("A", a1=int32(3))
             b.a1 = 4
             #self.assertRaises(RuntimeError, setattr, *(p,'a',b))
+            
             
         def testExamples(self):
             p = Process("Test")
