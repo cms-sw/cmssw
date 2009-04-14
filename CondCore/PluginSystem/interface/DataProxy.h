@@ -15,7 +15,7 @@
 
 
 template< class RecordT, class DataT >
-  class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT>{
+  class OldDataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT>{
   public:
   typedef cond::DataWrapper<DataT> DataWrapper;
   /*  DataProxy( pool::IDataSvc* svc, std::map<std::string,std::string>::iterator& pProxyToToken ): m_svc(svc), m_pProxyToToken(pProxyToToken) { 
@@ -24,7 +24,7 @@ template< class RecordT, class DataT >
   edm::eventsetup::DataKey::makeTypeTag<DataT>(); 
   }
   */
-  DataProxy( cond::Connection* connection, std::map<std::string,std::string>::iterator& pDatumToToken ): m_connection(connection), m_pDatumToToken(pDatumToToken) { 
+  OldDataProxy( cond::Connection* connection, std::map<std::string,std::string>::iterator& pDatumToToken ): m_connection(connection), m_pDatumToToken(pDatumToToken) { 
     //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
     //std::cout<<"DataProxy constructor"<<std::endl;
@@ -76,7 +76,7 @@ template< class RecordT, class DataT >
   }
   private:
   //DataProxy(); // stop default
-  const DataProxy& operator=( const DataProxy& ); // stop default
+  const OldDataProxy& operator=( const OldDataProxy& ); // stop default
   // ---------- member data --------------------------------
   cond::Connection* m_connection;
   std::map<std::string,std::string>::iterator m_pDatumToToken;
