@@ -23,7 +23,9 @@ L1MuGMTParametersProducer::L1MuGMTParametersProducer(const edm::ParameterSet& ps
 }
 
 
-L1MuGMTParametersProducer::~L1MuGMTParametersProducer() {}
+L1MuGMTParametersProducer::~L1MuGMTParametersProducer() {
+  delete m_ps;
+}
 
 
 //
