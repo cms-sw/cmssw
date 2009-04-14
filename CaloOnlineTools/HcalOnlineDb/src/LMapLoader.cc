@@ -8,14 +8,14 @@
 //
 // Original Author:  Aram Avetisyan, avetisya@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: LMapLoader.cc,v 1.1 2007/11/14 23:32:18 avetisya Exp $
+// $Id: LMapLoader.cc,v 1.1 2008/02/12 17:02:01 kukartse Exp $
 //
 
 // system include files
 
 // user include files
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMapLoader.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 
 //
 // constants, enums and typedefs

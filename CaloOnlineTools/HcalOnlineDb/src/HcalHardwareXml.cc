@@ -8,12 +8,12 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Feb 25 14:30:20 CDT 2008
-// $Id: HcalHardwareXml.cc,v 1.2 2008/03/13 16:30:02 kukartse Exp $
+// $Id: HcalHardwareXml.cc,v 1.3 2008/04/10 21:12:09 kukartse Exp $
 
 #include <sstream>
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalHardwareXml.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 
 HcalHardwareXml::HcalHardwareXml() : XMLDOMBlock()
 {

@@ -8,14 +8,14 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: XMLHTRZeroSuppressionLoader.cc,v 1.2 2008/04/16 13:31:25 kukartse Exp $
+// $Id: XMLHTRZeroSuppressionLoader.cc,v 1.3 2009/04/08 22:23:34 kukartse Exp $
 //
 
 // system include files
 
 // user include files
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLHTRZeroSuppressionLoader.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
 
 

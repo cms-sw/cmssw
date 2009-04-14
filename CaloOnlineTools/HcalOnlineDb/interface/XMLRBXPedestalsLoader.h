@@ -16,14 +16,14 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Nov 06 14:30:33 CDT 2007
-// $Id: XMLRBXPedestalsLoader.h,v 1.2 2008/03/07 02:49:13 kukartse Exp $
+// $Id: XMLRBXPedestalsLoader.h,v 1.3 2009/01/30 21:46:00 kukartse Exp $
 //
 
 // system include files
 
 // user include files
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLDOMBlock.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 
 // forward declarations
 

@@ -1,7 +1,7 @@
 // for testing includes
 
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/LutXml.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
 
 class HcalTestClass{
 public:

@@ -16,14 +16,14 @@
 //
 // Original Author:  Aram Avetisyan avetisya@fnal.gov
 //         Created:  Tue Nov 14 15:05:33 CDT 2007
-// $Id: LMapLoader.h,v 1.1 2007/11/14 23:32:17 avetisya Exp $
+// $Id: LMapLoader.h,v 1.1 2008/02/12 17:01:59 kukartse Exp $
 //
 
 // system include files
 
 // user include files
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLDOMBlock.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 
 // forward declarations
 

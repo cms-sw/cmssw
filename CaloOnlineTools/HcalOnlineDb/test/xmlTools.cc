@@ -8,7 +8,7 @@
 //#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLLUTLoader.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLHTRPatterns.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLHTRPatternLoader.h"

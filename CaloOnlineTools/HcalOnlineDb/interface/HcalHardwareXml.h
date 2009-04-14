@@ -17,8 +17,8 @@
 
 #include <map>
 
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLDOMBlock.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 
 using namespace std;
 

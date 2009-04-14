@@ -14,7 +14,7 @@
 #include <vector>
 #include <map>
 #include <boost/shared_ptr.hpp>
-#include "CaloOnlineTools/HcalOnlineDb/interface/LutXml.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 //#include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseImpl.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HCALConfigDB.h"

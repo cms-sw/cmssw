@@ -11,7 +11,7 @@
 //
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalTriggerKey.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
 
 HcalTriggerKey::HcalTriggerKey( void )

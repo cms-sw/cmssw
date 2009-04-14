@@ -8,14 +8,14 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: XMLLUTLoader.cc,v 1.3 2007/12/06 02:26:37 kukartse Exp $
+// $Id: XMLLUTLoader.cc,v 1.1 2008/02/12 17:02:02 kukartse Exp $
 //
 
 // system include files
 
 // user include files
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLLUTLoader.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 
 
 //

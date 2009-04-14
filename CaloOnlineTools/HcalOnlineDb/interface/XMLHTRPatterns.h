@@ -16,15 +16,15 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:33 CDT 2007
-// $Id: XMLHTRPatterns.h,v 1.3 2007/12/06 02:26:09 kukartse Exp $
+// $Id: XMLHTRPatterns.h,v 1.1 2008/02/12 17:01:59 kukartse Exp $
 //
 
 // system include files
 #include<map>
 
 // user include files
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLDOMBlock.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 
 // forward declarations
 

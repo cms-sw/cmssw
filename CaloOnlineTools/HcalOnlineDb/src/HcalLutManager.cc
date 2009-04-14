@@ -13,8 +13,8 @@
 #include "occi.h"
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLDOMBlock.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalQIEManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLLUTLoader.h"

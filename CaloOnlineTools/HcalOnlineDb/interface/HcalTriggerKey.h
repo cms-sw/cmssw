@@ -16,13 +16,13 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Nov 06 14:30:33 CDT 2007
-// $Id: HcalTriggerKey.h,v 1.1 2008/08/31 20:40:21 kukartse Exp $
+// $Id: HcalTriggerKey.h,v 1.2 2008/09/01 17:14:23 kukartse Exp $
 //
 
 #include <map>
 
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLDOMBlock.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 
 class HcalTriggerKey : public XMLDOMBlock
 {

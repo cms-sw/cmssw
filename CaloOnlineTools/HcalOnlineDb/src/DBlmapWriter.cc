@@ -2,7 +2,7 @@
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMapLoader.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/DBlmapWriter.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 
 
 DBlmapWriter::DBlmapWriter(){

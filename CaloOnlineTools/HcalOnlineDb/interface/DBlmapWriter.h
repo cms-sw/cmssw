@@ -1,4 +1,4 @@
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLDOMBlock.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
 
 using namespace std;
 

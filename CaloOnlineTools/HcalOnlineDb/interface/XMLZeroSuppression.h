@@ -16,15 +16,15 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:33 CDT 2007
-// $Id: XMLZeroSuppression.h,v 1.2 2007/11/08 20:24:19 kukartse Exp $
+// $Id: XMLZeroSuppression.h,v 1.1 2008/02/12 17:02:00 kukartse Exp $
 //
 
 // system include files
 #include<map>
 
 // user include files
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLDOMBlock.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 
 // forward declarations
 
