@@ -64,11 +64,11 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
         'drop *', 
-        'keep recoSuperClusters*_*_*_*', 
+#        'keep recoSuperClusters*_*_*_*', 
         'keep *_iterativeCone5CaloJets_*_*', 
         'keep reco*_*_*_electrons', 
         'keep *HepMCProduct_*_*_*'),
-    fileName = cms.untracked.string('/tmp/charlot/RelValSingleElectronPt35_gensimreco.root')
+    fileName = cms.untracked.string('SingleElectronPt35.root')
 )
 
 process.Timing = cms.Service("Timing")
@@ -81,10 +81,10 @@ process.myelectrontracking = cms.Sequence(process.electronCkfTrackCandidates*pro
 process.p = cms.Path(process.generator*process.VertexSmearing*process.simulation*process.RawToDigi*process.mylocalreco*process.myglobalreco*process.myelectronseeding*process.myelectrontracking*process.particleFlowReco*process.pixelMatchGsfElectrons*process.gsfElectronAnalysis)
 
 # to switch on only one seeding mode
-process.electronCkfTrackCandidates.src = cms.InputTag('ecalDrivenElectronSeeds')
+#process.electronCkfTrackCandidates.src = cms.InputTag('ecalDrivenElectronSeeds')
 #process.electronCkfTrackCandidates.src = cms.InputTag('trackerDrivenElectronSeeds:SeedsForGsf')
 
-#process.outpath = cms.EndPath(process.out)
+process.outpath = cms.EndPath(process.out)
 process.GlobalTag.globaltag = 'IDEAL_30X::All'
 
 #to simulate simple gaussian beam spot with no offset
