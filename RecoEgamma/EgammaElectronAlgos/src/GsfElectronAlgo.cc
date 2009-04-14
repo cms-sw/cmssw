@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.53 2009/04/03 22:26:49 dlange Exp $
+// $Id: GsfElectronAlgo.cc,v 1.54 2009/04/06 11:23:33 chamont Exp $
 //
 //
 
@@ -325,29 +325,12 @@ void GsfElectronAlgo::process(
     const GsfElectronCoreRef coreRef = edm::Ref<GsfElectronCoreCollection>(coresH,i);
     const GsfTrackRef gsfTrackRef = coreRef->gsfTrack() ; //edm::Ref<GsfTrackCollection>(gsfTracksH,i);
 
-    // don't add pflow only electrons one so wish
+    // don't add pflow only electrons if one so wish
      if (!coreRef->isEcalDriven() && !addPflowElectrons_) continue;
 
     // Get the super cluster
     SuperClusterRef scRef = coreRef->superCluster() ;
     SuperCluster theClus = *scRef ;
-
-//    if (!scRef.isNull()) std::cout << "[GsfElectronAlgo] e/g super cluster found with energy " << scRef->energy() << std::endl;
-//
-//    // Get the pflow super cluster
-//    SuperClusterRef pfscRef = coreRef->pflowSuperCluster() ;
-//    if (!pfscRef.isNull()) std::cout << "[GsfElectronAlgo] pflow super cluster found with energy " << pfscRef->energy() << std::endl;
-//
-//    if (scRef.isNull()&&pfscRef.isNull()) continue ;
-//
-//    // affect main electron cluster according to provenance
-//    if (coreRef->isEcalDriven()) {
-//      std::cout << "[GsfElectronAlgo] found by e/g " << std::endl;
-//      theClus = *scRef ;
-//    } else {
-//      std::cout << "[GsfElectronAlgo] NOT found by e/g " << std::endl;
-//      theClus = *pfscRef ;
-//    }
 
     // mva
     float mva=0.;
@@ -492,14 +475,6 @@ void GsfElectronAlgo::createElectron
   SuperClusterRef scRef = coreRef->superCluster() ;
   if (scRef.isNull()) return ;
 
-//  SuperClusterRef egscRef = coreRef->superCluster() ;
-//  SuperClusterRef pfscRef = coreRef->pflowSuperCluster() ;
-//
-//  if (egscRef.isNull()&&pfscRef.isNull()) return ;
-//
-//  if (coreRef->isEcalDriven()) scRef = egscRef ;  // electron wwill be built from e/g sc
-//  else scRef=pfscRef ;                            // electron wwill be built from pflow sc
-
   // Seed info
   const reco::BasicCluster & seedCluster = *(scRef->seed()) ;
   DetId seedXtalId = seedCluster.hitsAndFractions()[0].first ;
@@ -519,11 +494,7 @@ void GsfElectronAlgo::createElectron
   mtsMode_->momentumFromModeCartesian(outTSOS_,outMom);
   GlobalPoint outPos=outTSOS_.globalPosition() ;
   GlobalVector vtxMomWithConstraint;
-  bool success = mtsMode_->momentumFromModeCartesian(constrainedVtxTSOS_,vtxMomWithConstraint);
-//    if ( success )
-//      std::cout << " pt = " << momentum.perp() << std::endl;
-//    else
-//      std::cout << " FAILURE!!!" << std::endl;
+  mtsMode_->momentumFromModeCartesian(constrainedVtxTSOS_,vtxMomWithConstraint);
 
 
   //====================================================
@@ -655,10 +626,10 @@ void GsfElectronAlgo::createElectron
 	   fbrem,mva) ;
 
   // set corrections + classification
-  // temporary, only if ecalDriven
+  ElectronClassification theClassifier;
+  theClassifier.correct(*ele);
+  // energy corrections only for ecalDriven electrons
   if (ele->core()->isEcalDriven()) {
-    ElectronClassification theClassifier;
-    theClassifier.correct(*ele);
     ElectronEnergyCorrector theEnCorrector;
     theEnCorrector.correct(*ele, applyEtaCorrection_);
     ElectronMomentumCorrector theMomCorrector;
@@ -667,8 +638,6 @@ void GsfElectronAlgo::createElectron
 
   // now isolation variables
   reco::GsfElectron::IsolationVariables dr03, dr04 ;
-  // temporary, only if ecalDriven
-  if (ele->core()->isEcalDriven()) {
   dr03.tkSumPt = tkIso03.getPtTracks(ele);
   dr03.hcalDepth1TowerSumEt = had1Iso03.getTowerEtSum(ele);
   dr03.hcalDepth2TowerSumEt = had2Iso03.getTowerEtSum(ele);
@@ -677,9 +646,9 @@ void GsfElectronAlgo::createElectron
   dr04.hcalDepth1TowerSumEt = had1Iso04.getTowerEtSum(ele);
   dr04.hcalDepth2TowerSumEt = had2Iso04.getTowerEtSum(ele);
   dr04.ecalRecHitSumEt = ecalBarrelIso04.getEtSum(ele)+ecalEndcapsIso04.getEtSum(ele);
-  }
   ele->setIsolation03(dr03);
   ele->setIsolation04(dr04);
+
   outEle.push_back(ele) ;
  }
 
@@ -757,7 +726,6 @@ void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::
   for( e1 = inEle.begin() ;  e1 != inEle.end() ; ++e1 )
    {
     SuperClusterRef scRef1 = (*e1)->superCluster();
-    //if (scRef1.isNull()) scRef1 = (*e1)->pflowSuperCluster();
     LogDebug("GsfElectronAlgo")
       << "Blessing electron with E/P " << (*e1)->eSuperClusterOverP()
       << ", cluster " << scRef1.get()
@@ -766,7 +734,6 @@ void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::
     for( e2 = e1, ++e2 ;  e2 != inEle.end() ; )
      {
       SuperClusterRef scRef2 = (*e2)->superCluster();
-      //if (scRef2.isNull()) scRef2 = (*e2)->pflowSuperCluster();
       if (scRef1==scRef2)
        {
         LogDebug("GsfElectronAlgo")
