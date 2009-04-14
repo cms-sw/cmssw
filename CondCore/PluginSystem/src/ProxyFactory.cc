@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 19:14:11 EDT 2005
-// $Id: ProxyFactory.cc,v 1.7 2007/08/23 11:33:08 xiezhen Exp $
 //
 
 // system include files

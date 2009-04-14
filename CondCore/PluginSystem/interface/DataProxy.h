@@ -51,7 +51,7 @@ template< class RecordT, class DataT >
   DatatP m_data;
 
 };
-namespace {
+namespace cond {
   class DataProxyWrapperBase {
   public:
     typedef boost::shared_ptr<cond::BasePayloadProxy> ProxyP;

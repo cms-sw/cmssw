@@ -9,7 +9,7 @@
 //
 // Author:      Zhen Xie
 
-// $Id: oldPoolDBESSource.cc,v 1.1 2009/04/14 09:02:28 innocent Exp $
+// $Id: oldPoolDBESSource.cc,v 1.2 2009/04/14 12:18:02 innocent Exp $
 //
 // system include files
 #include "boost/shared_ptr.hpp"
@@ -24,8 +24,8 @@
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "FWCore/Framework/interface/DataProxy.h"
+#include "CondCore/PluginSystem/interface/DataProxy.h"
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
-#include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

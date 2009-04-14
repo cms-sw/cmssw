@@ -19,16 +19,12 @@ Usage:
 //
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-namespace edm {
-  namespace eventsetup {
-    class DataProxy;
-  }
-}
 
 namespace cond {
+  class DataProxyWrapperBase;
   class Connection;
 
-typedef edmplugin::PluginFactory< edm::eventsetup::DataProxy* ( cond::Connection*, std::map<std::string,std::string>::iterator& ) > ProxyFactory;
+  typedef edmplugin::PluginFactory< cond::DataProxyWrapperBase* ( cond::Connection&, std::string const&, std::string const& ) > ProxyFactory;
 
    const char* pluginCategory();
 }
