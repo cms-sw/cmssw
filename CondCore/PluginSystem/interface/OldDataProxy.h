@@ -1,5 +1,5 @@
-#ifndef CondCore_PluginSystem_DataProxy_H
-#define CondCore_PluginSystem_DataProxy_H
+#ifndef CondCore_PluginSystem_OldDataProxy_H
+#define CondCore_PluginSystem_OldDataProxy_H
 //#include <iostream>
 #include <map>
 #include <string>
