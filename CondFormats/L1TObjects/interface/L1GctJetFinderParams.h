@@ -2,6 +2,8 @@
 #define L1GCTJETFINDERPARAMS_H_
 
 #include <vector>
+#include <stdint.h>
+#include <iosfwd>
 
 class L1GctJetFinderParams
 {
