@@ -323,7 +323,7 @@ TGColorSelect(p, static_cast<Pixel_t>(gVirtualX->GetPixel(palette[index])), id),
 fFireworksPopup(0)
 {
    fIndex = index;
-   //   fLabel ;
+   fLabel = *label;
    fPalette = palette;
 
    std::vector<Pixel_t> colors;
@@ -334,7 +334,7 @@ fFireworksPopup(0)
    }
    
    fFireworksPopup = new FWColorPopup(gClient->GetDefaultRoot(), fColor);
-   //   fFireworksPopup->InitContent(&fLabel, colors);
+   fFireworksPopup->InitContent(&fLabel, colors);
    fFireworksPopup->Connect("ColorBookkeeping(Int_t)","FWColorSelect", this, "CatchSignal(Pixel_t)");
 }
 
