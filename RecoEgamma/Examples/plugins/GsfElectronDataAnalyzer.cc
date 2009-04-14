@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.13 2009/03/25 10:07:27 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.14 2009/03/28 22:29:08 charlot Exp $
 //
 //
 
@@ -331,7 +331,7 @@ void GsfElectronDataAnalyzer::beginJob(){
   h_ele_tkSumPt_dr03 = new TH1F("h_ele_tkSumPt, dR=0.3","tk isolation deposit, dR=0.3",100,0.0,20.);
   h_ele_ecalRecHitSumEt_dr03= new TH1F("h_ele_ecalRecHitSumEt, dR=0.3","ecal isolation deposit, dR=0.3",100,0.0,20.);
   h_ele_hcalDepth1TowerSumEt_dr03= new TH1F("h_ele_hcalDepth1SumEt, dR=0.3","hcal depth1 isolation deposit, dR=0.3",100,0.0,20.);
-  h_ele_hcalDepth2TowerSumEt_dr03= new TH1F("h_ele_hcalDepth1SumEt, dR=0.3","hcal depth2 isolation deposit, dR=0.3",100,0.0,20.);
+  h_ele_hcalDepth2TowerSumEt_dr03= new TH1F("h_ele_hcalDepth2SumEt, dR=0.3","hcal depth2 isolation deposit, dR=0.3",100,0.0,20.);
   h_ele_tkSumPt_dr04= new TH1F("h_ele_tkSumPt, dR=0.4","hcal isolation deposit, dR=0.4",100,0.0,20.);
   h_ele_ecalRecHitSumEt_dr04= new TH1F("h_ele_ecalRecHitSumEt, dR=0.4","ecal isolation deposit, dR=0.4",100,0.0,20.);
   h_ele_hcalDepth1TowerSumEt_dr04= new TH1F("h_ele_hcalDepth1SumEt, dR=0.4","hcal depth1 isolation deposit, dR=0.4",100,0.0,20.);
@@ -1029,13 +1029,11 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	 h_ele_PtinVsPtoutShowering1234_mean ->  Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
 
         h_ele_mva->Fill(bestGsfElectron.mva());
-        float provenance = 0;
-	if (bestGsfElectron.isEcalDriven()) provenance=1.;
-	if (bestGsfElectron.isTrackerDriven()) provenance=-1.;
-	if (bestGsfElectron.isTrackerDriven()||bestGsfElectron.isEcalDriven()) provenance=0.;
-	if (bestGsfElectron.isTrackerDriven()&&!bestGsfElectron.isEcalDriven()) provenance=-2.;
-	if (!bestGsfElectron.isTrackerDriven()&&bestGsfElectron.isEcalDriven()) provenance=2.;
-	h_ele_provenance->Fill(provenance);
+	if (bestGsfElectron.isEcalDriven()) h_ele_provenance->Fill(1.);
+	if (bestGsfElectron.isTrackerDriven()) h_ele_provenance->Fill(-1.);
+	if (bestGsfElectron.isTrackerDriven()||bestGsfElectron.isEcalDriven()) h_ele_provenance->Fill(0.);
+	if (bestGsfElectron.isTrackerDriven()&&!bestGsfElectron.isEcalDriven()) h_ele_provenance->Fill(-2.);
+	if (!bestGsfElectron.isTrackerDriven()&&bestGsfElectron.isEcalDriven()) h_ele_provenance->Fill(2.);
 
         h_ele_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt());
         h_ele_ecalRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
