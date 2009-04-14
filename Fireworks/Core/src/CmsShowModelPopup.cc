@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.15 2009/04/07 14:12:59 chrjones Exp $
+// $Id: CmsShowModelPopup.cc,v 1.16 2009/04/13 21:21:11 chrjones Exp $
 //
 
 // system include file
@@ -74,7 +74,7 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
    TGHorizontalFrame* colorSelectFrame = new TGHorizontalFrame(this, 200, 100);
    TGLabel* colorSelectLabel = new TGLabel(colorSelectFrame, "Color:");
    colorSelectFrame->AddFrame(colorSelectLabel, new TGLayoutHints(kLHintsNormal, 0, 50, 0, 0));
-   TGString* graphicsLabel = new TGString(" ");
+   const char* graphicsLabel = " ";
    std::vector<Color_t> colors;
    for(unsigned int index=0; index <iColorMgr->numberOfIndicies(); ++index) {
       colors.push_back(iColorMgr->indexToColor(index));

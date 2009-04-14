@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.6 2009/04/13 15:34:53 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.7 2009/04/13 21:53:09 chrjones Exp $
 //
 
 // system include files
@@ -426,7 +426,6 @@ void
 FWCollectionSummaryWidget::createColorPopup()
 {
    if(0==m_colorPopup) {
-      TGString* graphicsLabel = new TGString(m_collection->name().c_str());
       
       FWColorManager* cm = m_collection->colorManager();
       
@@ -438,7 +437,7 @@ FWCollectionSummaryWidget::createColorPopup()
       Pixel_t selection = gVirtualX->GetPixel(m_collection->defaultDisplayProperties().color());
       
       m_colorPopup = new FWColorPopup(gClient->GetDefaultRoot(), selection);
-      m_colorPopup->InitContent(graphicsLabel, colors);
+      m_colorPopup->InitContent(m_collection->name().c_str(), colors);
       m_colorPopup->Connect("ColorBookkeeping(Int_t)","FWCollectionSummaryWidget", this, "colorChangeRequested(Pixel_t)");
    }   
 }

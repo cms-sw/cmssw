@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.21 2009/04/07 14:12:59 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.22 2009/04/13 21:19:58 chrjones Exp $
 //
 
 // system include files
@@ -80,7 +80,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    TGHorizontalFrame* colorSelectFrame = new TGHorizontalFrame(graphicsFrame, 200, 100);
    TGLabel* colorSelectLabel = new TGLabel(colorSelectFrame, "Color:");
    colorSelectFrame->AddFrame(colorSelectLabel, new TGLayoutHints(kLHintsNormal, 0, 50, 0, 0));
-   TGString* graphicsLabel = new TGString(" ");
+   const char* graphicsLabel = " ";
    std::vector<Color_t> colors;
    for(unsigned int index=0; index <colorMgr->numberOfIndicies(); ++index) {
       colors.push_back(colorMgr->indexToColor(index));
