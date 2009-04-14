@@ -27,22 +27,23 @@ camilo.carrilloATcern.ch
 #include "TAxis.h"
 #include "TString.h"
 
-int mySegment(RPCDetId rpcId){
-  int seg=0;
-  int nsec=36;
-  int nsub=6;
-  if (rpcId.ring()==1 && rpcId.station() > 1) {
-    nsub=3;
-    nsec=18;
-  }
-  seg =rpcId.subsector()+nsub*(rpcId.sector()-1);
-  if(seg==nsec+1)seg=1;
-  return seg;
-}
-
 void RPCEfficiency::beginJob(){
   
 }
+
+int distsector(int sector1,int sector2){
+
+  if(sector1==13) sector1=4;
+  if(sector1==14) sector1=10;
+  
+  if(sector2==13) sector2=4;
+  if(sector2==14) sector2=10;
+  
+  int distance = abs(sector1 - sector2);
+  if(distance>6) distance = 12-distance;
+  return distance;
+}
+
 
 RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
@@ -50,12 +51,12 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
   debug=iConfig.getUntrackedParameter<bool>("debug",false);
  
-  rangestrips = iConfig.getUntrackedParameter<double>("rangestrips",1.);
+  rangestrips = iConfig.getUntrackedParameter<double>("rangestrips",4.);
   rangestripsRB4=iConfig.getUntrackedParameter<double>("rangestripsRB4",4.);
   dupli = iConfig.getUntrackedParameter<int>("DuplicationCorrection",2); 
-  MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.9999);
-  MaxD=iConfig.getUntrackedParameter<double>("MaxD",20.);
-  MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",30.);
+  MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.96);
+  MaxD=iConfig.getUntrackedParameter<double>("MaxD",80.);
+  MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",150.);
   muonRPCDigis=iConfig.getUntrackedParameter<std::string>("muonRPCDigis","muonRPCDigis");
   cscSegments=iConfig.getUntrackedParameter<std::string>("cscSegments","cscSegments");
   dt4DSegments=iConfig.getUntrackedParameter<std::string>("dt4DSegments","dt4DSegments");
@@ -68,49 +69,13 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
 
   dbe = edm::Service<DQMStore>().operator->();
   
-  std::string folder = "Muons/MuonSegEff/";
+  std::string folder = "RPC/RPCEfficiency/MuonSegEff/";
   dbe->setCurrentFolder(folder);
   statistics = dbe->book1D("Statistics","All Statistics",33,0.5,33.5);
   
   if(debug) std::cout<<"booking Global histograms"<<std::endl;
-
-  statistics->setBinLabel(1,"Events ",1);
-  statistics->setBinLabel(2,"Events with DT segments",1);
-  statistics->setBinLabel(3,"Events with 1 DT segment",1);
-  statistics->setBinLabel(4,"Events with 2 DT segments",1);
-  statistics->setBinLabel(5,"Events with 3 DT segments",1);
-  statistics->setBinLabel(6,"Events with 4 DT segments",1);
-  statistics->setBinLabel(7,"Events with 5 DT segments",1);
-  statistics->setBinLabel(8,"Events with 6 DT segments",1);
-  statistics->setBinLabel(9,"Events with 7 DT segments",1);
-  statistics->setBinLabel(10,"Events with 8 DT segments",1);
-  statistics->setBinLabel(11,"Events with 9 DT segments",1);
-  statistics->setBinLabel(12,"Events with 10 DT segments",1);
-  statistics->setBinLabel(13,"Events with 11 DT segments",1);
-  statistics->setBinLabel(14,"Events with 12 DT segments",1);
-  statistics->setBinLabel(15,"Events with 13 DT segments",1);
-  statistics->setBinLabel(16,"Events with 14 DT segments",1);
-  statistics->setBinLabel(17,"Events with 15 DT segments",1);
-  statistics->setBinLabel(18,"Events with CSC segments",1);
-  statistics->setBinLabel(16+3,"Events with 1 CSC segment",1);
-  statistics->setBinLabel(16+4,"Events with 2 CSC segments",1);
-  statistics->setBinLabel(16+5,"Events with 3 CSC segments",1);
-  statistics->setBinLabel(16+6,"Events with 4 CSC segments",1);
-  statistics->setBinLabel(16+7,"Events with 5 CSC segments",1);
-  statistics->setBinLabel(16+8,"Events with 6 CSC segments",1);
-  statistics->setBinLabel(16+9,"Events with 7 CSC segments",1);
-  statistics->setBinLabel(16+10,"Events with 8 CSC segments",1);
-  statistics->setBinLabel(16+11,"Events with 9 CSC segments",1);
-  statistics->setBinLabel(16+12,"Events with 10 CSC segments",1);
-  statistics->setBinLabel(16+13,"Events with 11 CSC segments",1);
-  statistics->setBinLabel(16+14,"Events with 12 CSC segments",1);
-  statistics->setBinLabel(16+15,"Events with 13 CSC segments",1);
-  statistics->setBinLabel(16+16,"Events with 14 CSC segments",1);
-  statistics->setBinLabel(16+17,"Events with 15 CSC segments",1);
   
-  if(debug) std::cout<<"booking Global histograms Change statistics"<<std::endl;
-
-  folder = "Muons/MuonSegEff/Residuals/Barrel";
+  folder = "RPC/RPCEfficiency/MuonSegEff/Residuals/Barrel";
   dbe->setCurrentFolder(folder);
 
   //Barrel
@@ -136,7 +101,7 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   hGlobalResClu3La6 = dbe->book1D("GlobalResidualsClu3La6","RPC Residuals Layer 6 Cluster Size 3",101,-10.,10.);
 
   if(debug) std::cout<<"Booking Residuals for EndCap"<<std::endl;
-  folder = "Muons/MuonSegEff/Residuals/EndCap";
+  folder = "RPC/RPCEfficiency/MuonSegEff/Residuals/EndCap";
   dbe->setCurrentFolder(folder);
 
   //Endcap  
@@ -200,17 +165,15 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
 
 	}
 	if(region!=0 && inclcsc){
-	  //std::cout<<"--Filling the cscstore"<<rpcId<<std::endl;
 	  int region=rpcId.region();
           int station=rpcId.station();
           int ring=rpcId.ring();
           int cscring=ring;
           int cscstation=station;
 	  RPCGeomServ rpcsrv(rpcId);
-	  int rpcsegment = mySegment(rpcId); //This replace rpcsrv.segment();
-	  //std::cout<<"My segment="<<mySegment(rpcId)<<" GeomServ="<<rpcsrv.segment()<<std::endl;
-	  int cscchamber = rpcsegment;//FIX THIS ACCORDING TO RPCGeomServ::segment()Definition
-          if((station==2||station==3)&&ring==3){//Adding Ring 3 of RPC to the CSC Ring 2
+	  int rpcsegment = rpcsrv.segment();
+	  int cscchamber = rpcsegment;
+          if((station==2||station==3)&&ring==3){
             cscring = 2;
           }
 	  
@@ -221,8 +184,77 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
           }
           myrolls.insert(rpcId);
           rollstoreCSC[ind]=myrolls;
-
 	}
+      }
+    }
+  }
+   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
+    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+      
+      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+      std::vector< const RPCRoll*> roles = (ch->rolls());
+      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
+	RPCDetId rpcId = (*r)->id();
+	
+	int region=rpcId.region();
+	
+	/*if(region==0&&(incldt||incldtMB4)&&rpcId.ring()!=0&&rpcId.station()!=4){
+	  //std::cout<<"--Filling the dtstore for statistics"<<rpcId<<std::endl;
+	  
+	  int sidewheel = 0;
+	  
+	  if(rpcId.ring()==-2){
+	    sidewheel=-1;
+	  }
+	  else if(rpcId.ring()==-1){
+	    sidewheel=0;
+	  }
+	  else if(rpcId.ring()==1){
+	    sidewheel=0;
+	  }
+	  else if(rpcId.ring()==2){
+	    sidewheel=1;
+	  }
+	  int wheel= sidewheel;
+	  int sector=rpcId.sector();
+	  int station=rpcId.station();
+	  DTStationIndex ind(region,wheel,sector,station);
+	  std::set<RPCDetId> myrolls;
+	  if (rollstoreDT.find(ind)!=rollstoreDT.end()) myrolls=rollstoreDT[ind];
+	  myrolls.insert(rpcId);
+	  rollstoreDT[ind]=myrolls;
+	  }*/
+
+	if(region!=0 && inclcsc && (rpcId.ring()==2 || rpcId.ring()==3)){
+	  int region=rpcId.region();                                                                                         
+          int station=rpcId.station();                                                                                       
+          int ring=rpcId.ring();                                                                                             
+	  int cscring = ring;
+	    
+	  if((station==2||station==3)&&ring==3) cscring = 2; //CSC Ring 2 covers rpc ring 2 & 3                              
+
+
+          int cscstation=station;                                                                                            
+          RPCGeomServ rpcsrv(rpcId);                                                                                         
+          int rpcsegment = rpcsrv.segment();                                                                                 
+                                                                                                                             
+                                                                                                                                       
+          int cscchamber = rpcsegment+1;                                                                                     
+          if(cscchamber==37)cscchamber=1;                                                                                    
+          CSCStationIndex ind(region,cscstation,cscring,cscchamber);                                                         
+	  std::set<RPCDetId> myrolls;                                                                                        
+          if (rollstoreCSC.find(ind)!=rollstoreCSC.end())myrolls=rollstoreCSC[ind];                                          
+          myrolls.insert(rpcId);                                                                                             
+          rollstoreCSC[ind]=myrolls;                                                                                         
+                                                                                                                             
+          cscchamber = rpcsegment-1;                                                                                         
+          if(cscchamber==0)cscchamber=36;                                                                                    
+          CSCStationIndex indDos(region,cscstation,cscring,cscchamber);                                                      
+	  std::set<RPCDetId> myrollsDos;                                                                                     
+          if (rollstoreCSC.find(indDos)!=rollstoreCSC.end()) myrollsDos=rollstoreCSC[indDos];                                 
+          myrollsDos.insert(rpcId);                                                                                          
+          rollstoreCSC[indDos]=myrollsDos;                                                                                                                                 
+        }
       }
     }
   }
@@ -504,7 +536,9 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     
 	DTChamberId DTId = segment->chamberId();
 
-	if(debug) std::cout<<"MB4 \t \t \t Is the only one in the chamber? and is in the Station 4?"<<std::endl;
+	if(debug) std::cout<<"MB4 \t \t This Segment is in Chamber id: "<<DTId<<std::endl;
+	if(debug) std::cout<<"MB4 \t \t Number of segments in this DT = "<<DTSegmentCounter[DTId]<<std::endl;
+	if(debug) std::cout<<"MB4 \t \t \t Is the only one in this DT? and is in the Station 4?"<<std::endl;
 
 	if(DTSegmentCounter[DTId] == 1 && DTId.station()==4){
 
@@ -526,34 +560,49 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	    LocalPoint segmentPositionMB4=segmentPosition;
 	
 	    bool compatiblesegments=false;
-	    float dx=segmentDirectionMB4.x();
-	    float dz=segmentDirectionMB4.z();
 	    
 	    const BoundPlane& DTSurface4 = dtGeo->idToDet(DTId)->surface();
 	    
 	    DTRecSegment4DCollection::const_iterator segMB3;  
 	    
-	    if(debug) std::cout<<"MB4 \t \t \t \t Loop on segments in =sector && MB3 && adjacent Wheel && y dim=4"<<std::endl;
+	    if(debug) std::cout<<"MB4 \t \t \t \t Loop on segments in =sector && MB3 && adjacent sectors && y dim=4"<<std::endl;
 	    for(segMB3=all4DSegments->begin();segMB3!=all4DSegments->end();++segMB3){
 	      
 	      DTChamberId dtid3 = segMB3->chamberId();  
 	      
-	      if(dtid3.sector()==DTId.sector() 
+	      if(distsector(dtid3.sector(),DTId.sector())<=1 
 		 && dtid3.station()==3
-		 && abs(dtid3.wheel()-DTId.wheel())<2
+		 && dtid3.wheel()==DTId.wheel()
 		 && DTSegmentCounter[dtid3] == 1
 		 && segMB3->dimension()==4){
+
+		if(debug) std::cout<<"MB4  \t \t \t \t distsector ="<<distsector(dtid3.sector(),DTId.sector())<<std::endl;
 
 		const GeomDet* gdet3=dtGeo->idToDet(segMB3->geographicalId());
 		const BoundPlane & DTSurface3 = gdet3->surface();
 	      
-		float dx3=segMB3->localDirection().x();
-		float dy3=segMB3->localDirection().y();
-		float dz3=segMB3->localDirection().z();
-	    
-		LocalVector segDirMB4inMB3Frame=DTSurface3.toLocal(DTSurface4.toGlobal(segmentDirectionMB4));
+		LocalVector segmentDirectionMB3 =  segMB3->localDirection();
+		GlobalPoint segmentPositionMB3inGlobal = DTSurface3.toGlobal(segMB3->localPosition());
 		
-		double cosAng=fabs(dx*dx3+dz*dz3/sqrt((dx3*dx3+dz3*dz3)*(dx*dx+dz*dz)));
+		
+		LocalVector segDirMB4inMB3Frame=DTSurface3.toLocal(DTSurface4.toGlobal(segmentDirectionMB4));
+		LocalVector segDirMB3inMB4Frame=DTSurface4.toLocal(DTSurface3.toGlobal(segmentDirectionMB3));
+		
+		GlobalVector segDirMB4inGlobalFrame=DTSurface4.toGlobal(segmentDirectionMB4);
+		GlobalVector segDirMB3inGlobalFrame=DTSurface3.toGlobal(segmentDirectionMB3);
+		
+		float dx=segDirMB4inGlobalFrame.x();
+		float dy=segDirMB4inGlobalFrame.y();
+		float dz=segDirMB4inGlobalFrame.z();
+		
+		float dx3=segDirMB3inGlobalFrame.x();
+		float dy3=segDirMB3inGlobalFrame.y();
+		float dz3=segDirMB3inGlobalFrame.z();
+
+		double cosAng=fabs(dx*dx3+dy*dy3/sqrt((dx3*dx3+dy3*dy3)*(dx*dx+dy*dy)));
+		
+		if(debug) std::cout<<"MB4 \t \t \t \t cosAng"<<cosAng<<"Beetween "<<dtid3<<" and "<<DTId<<std::endl;
+		
 		if(fabs(cosAng)>1.){
 		  std::cout<<"dx="<<dx<<" dz="<<dz<<std::endl;
 		  std::cout<<"dx3="<<dx3<<" dz3="<<dz<<std::endl;
@@ -569,30 +618,49 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		    dtSector=10;
 		  }
 		  
-		  std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,4)]; //It should be always 4
-		  
+		  std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,dtStation)]; //It should be always 4
+
+		  if(debug) std::cout<<"MB4 \t \t Number of rolls for this DT = "<<rollsForThisDT.size()<<std::endl;
+		   
 		  assert(rollsForThisDT.size()>=1);
-     	      
+		  
+		  if(debug) std::cout<<"MB4  \t \t Loop over all the rolls asociated to this DT"<<std::endl;
+		  
 		  for (std::set<RPCDetId>::iterator iteraRoll=rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
 		    const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll); //roll asociado a MB4
+		    RPCDetId rpcId = rollasociated->id();
 		    const BoundPlane & RPCSurfaceRB4 = rollasociated->surface(); //surface MB4
-		    const GeomDet* gdet=dtGeo->idToDet(segMB3->geographicalId()); 
-		    const BoundPlane & DTSurfaceMB3 = gdet->surface(); // surface MB3
-		
+
+		    RPCGeomServ rpcsrv(rpcId);
+		    std::string nameRoll = rpcsrv.name();
+
+		    if(debug) std::cout<<"MB4  \t \t \t RollName: "<<nameRoll<<std::endl;
+		    if(debug) std::cout<<"MB4  \t \t \t Doing the extrapolation to this roll"<<std::endl;
+		    
 		    GlobalPoint CenterPointRollGlobal=RPCSurfaceRB4.toGlobal(LocalPoint(0,0,0));
-		
-		    LocalPoint CenterRollinMB3Frame = DTSurfaceMB3.toLocal(CenterPointRollGlobal);
+		    LocalPoint CenterRollinMB4Frame = DTSurface4.toLocal(CenterPointRollGlobal); //In MB4
+		    LocalPoint segmentPositionMB3inMB4Frame = DTSurface4.toLocal(segmentPositionMB3inGlobal); //In MB4
+		    LocalPoint segmentPositionMB3inRB4Frame = RPCSurfaceRB4.toLocal(segmentPositionMB3inGlobal); //In MB4
+		    LocalVector segmentDirectionMB3inMB4Frame = DTSurface4.toLocal(segDirMB3inGlobalFrame); //In MB4
+		    
+		    //The exptrapolation is done in MB4 frame. for local x and z is done from MB4,
+		    float Dxz=CenterRollinMB4Frame.z();
+		    float Xo4=segmentPositionMB4.x();
+		    float dxl=segmentDirectionMB4.x(); //dx local for MB4 segment in MB4 Frame
+		    float dzl=segmentDirectionMB4.z(); //dx local for MB4 segment in MB4 Frame
+		    
+		    float X=Xo4+dxl*Dxz/dzl; //In MB4 frame
+		    float Z=Dxz;//In MB4 frame
+		    
+		    //for local y is done from MB3
+		    float Yo34=segmentPositionMB3inMB4Frame.y();
+		    float dy34 = segmentDirectionMB3inMB4Frame.y();
+		    float dz34 = segmentDirectionMB3inMB4Frame.z();
+		    float Dy=Dxz-(segmentPositionMB3inMB4Frame.z()); //Distance beetween the segment in MB3 and the RB4 surface
 
-		    float D=CenterRollinMB3Frame.z();
-		
-		    float Xo3=segMB3->localPosition().x();
-		    float Yo3=segMB3->localPosition().y();
-		    float Zo3=segMB3->localPosition().z();
-
-		    float X=Xo3+dx3*D/dz3;
-		    float Y=Yo3+dy3*D/dz3;
-		    float Z=D;
-
+		    if(debug) std::cout<<"MB4 \t \t \t The distance to extrapolate in Y from MB3 is "<<Dy<<"cm"<<std::endl;
+		    
+		    float Y=Yo34+dy34*Dy/dz34;//In MB4 Frame
 		
 		    const RectangularStripTopology* top_
 		      =dynamic_cast<const RectangularStripTopology*>(&(rollasociated->topology())); //Topology roll asociated MB4
@@ -606,16 +674,27 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		    if(debug) std::cout<<"MB4 \t \t \t Strip Lenght "<<stripl<<"cm"<<std::endl;
 		    if(debug) std::cout<<"MB4 \t \t \t Strip Width "<<stripw<<"cm"<<std::endl;
 
-		    if(debug) std::cout<<"MB4 \t \t \t X Predicted in MB3Local= "<<X<<"cm"<<std::endl;
-		    if(debug) std::cout<<"MB4 \t \t \t Y Predicted in MB3DTLocal= "<<Y<<"cm"<<std::endl;
-		    if(debug) std::cout<<"MB4 \t \t \t Z Predicted in MB3DTLocal= "<<Z<<"cm"<<std::endl;
+		    if(debug) std::cout<<"MB4 \t \t \t X Predicted in MB4DTLocal= "<<X<<"cm"<<std::endl;
+		    if(debug) std::cout<<"MB4 \t \t \t Y Predicted in MB4DTLocal= "<<Y<<"cm"<<std::endl;
+		    if(debug) std::cout<<"MB4 \t \t \t Z Predicted in MB4DTLocal= "<<Z<<"cm"<<std::endl;
 
-		    float extrapolatedDistance = sqrt((X-Xo3)*(X-Xo3)+(Y-Yo3)*(Y-Yo3)+(Z-Zo3)*(Z-Zo3));
+		    float extrapolatedDistance = sqrt((Y-Yo34)*(Y-Yo34)+Dy*Dy);
+		    
+		    if(debug) std::cout<<"MB4 \t \t \t segmentPositionMB3inMB4Frame"<<segmentPositionMB3inMB4Frame<<std::endl;
+		    if(debug) std::cout<<"MB4 \t \t \t segmentPositionMB4inMB4Frame"<<segmentPosition<<std::endl;
+
+		    if(debug) std::cout<<"MB4 \t \t \t segmentDirMB3inMB4Frame"<<segDirMB3inMB4Frame<<std::endl;
+		    if(debug) std::cout<<"MB4 \t \t \t segmentDirMB4inMB4Frame"<<segmentDirectionMB4<<std::endl;
+		    
+		    if(debug) std::cout<<"MB4 \t \t \t CenterRB4PositioninMB4Frame"<<CenterRollinMB4Frame<<std::endl;
+		    
+		    if(debug) std::cout<<"MB4 \t \t \t Is the extrapolation distance ="<<extrapolatedDistance<<"less than "<<MaxDrb4<<std::endl;
+
 
 		    if(extrapolatedDistance<=MaxDrb4){ 
 		      if(debug) std::cout<<"MB4 \t \t \t yes"<<std::endl;
 
-		      GlobalPoint GlobalPointExtrapolated = DTSurfaceMB3.toGlobal(LocalPoint(X,Y,Z));
+		      GlobalPoint GlobalPointExtrapolated = DTSurface4.toGlobal(LocalPoint(X,Y,Z));
 		      
 		      if(debug) std::cout<<"MB4 \t \t \t Point ExtraPolated in Global"<<GlobalPointExtrapolated<< std::endl;
 		      
@@ -628,7 +707,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	
 		      if(debug) std::cout<<"MB4 \t \t \t Does the extrapolation go inside this roll?"<<std::endl;
 		
-		      if(fabs(PointExtrapolatedRPCFrame.z()) < 10.  &&
+		      if(fabs(PointExtrapolatedRPCFrame.z()) < 5.  &&
 			 fabs(PointExtrapolatedRPCFrame.x()) < rsize*0.5 &&
 			 fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){
 
@@ -786,15 +865,8 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  int rpcRing = cscRing;
 	  if(cscRing==4)rpcRing =1;
 	  int rpcStation = cscStation;
-	  int rpcSegment = 0;
+	  int rpcSegment = CSCId.chamber();
 	
-	  if(cscStation!=1&&cscRing==1){//las de 18 CSC
-	    rpcSegment = CSCId.chamber();
-	  }
-	  else{//las de 36 CSC
-	    rpcSegment = (CSCId.chamber()==1) ? 36 : CSCId.chamber()-1;
-	  }
-     
 	  LocalPoint segmentPosition= segment->localPosition();
 	  LocalVector segmentDirection=segment->localDirection();
 	  float dz=segmentDirection.z();
@@ -886,7 +958,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		      <<" cscphi="<<cscphi*180/3.14159265
 		      <<"\t RPC Station= "<<rpcId.station()
 		      <<" ring= "<<rpcId.ring()
-		      <<" segment =-> "<<mySegment(rpcId)
+		      <<" segment =-> "<<rpcsrv.name()
 		      <<" rollphi="<<rpcphi*180/3.14159265
 		      <<"\t dfg="<<dfg
 		      <<" dz="<<diffz

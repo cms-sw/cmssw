@@ -14,7 +14,7 @@ std::map<std::string, MonitorElement*> RPCEfficiency::bookDetUnitSeg(RPCDetId & 
   
   std::map<std::string, MonitorElement*> meMap;
    
-  std::string folder = "Muons/MuonSegEff/";
+  std::string folder = "RPC/RPCEfficiency/MuonSegEff/";
 
   dbe->setCurrentFolder(folder);
 

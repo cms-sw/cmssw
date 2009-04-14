@@ -66,7 +66,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   dbe = edm::Service<DQMStore>().operator->();
 
   if(debug) std::cout<<"Booking Residuals Barrel"<<std::endl;
-  dbe->setCurrentFolder("Muons/RPCEfficiency/ResidualsBarrel/");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/ResidualsBarrel/");
  
   //Barrel
   
@@ -92,7 +92,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   hGlobal2ResClu3La6 = dbe->book1D("GlobalResidualsClu3La6","RPC Residuals Layer 6 Cluster Size 3",101,-10.,10.);
 
   if(debug) std::cout<<"Booking Residuals EndCaps"<<std::endl;
-  dbe->setCurrentFolder("Muons/RPCEfficiency/ResidualsEndCaps/");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/ResidualsEndCaps/");
 
   //Endcap  
   hGlobal2ResClu1R3C = dbe->book1D("GlobalResidualsClu1R3C","RPC Residuals Ring 3 Roll C Cluster Size 1",101,-10.,10.);
@@ -117,15 +117,15 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   hGlobal2ResClu3R2A = dbe->book1D("GlobalResidualsClu3R2A","RPC Residuals Ring 2 Roll A Cluster Size 3",101,-10.,10.);
 
   if(debug) std::cout<<"Booking EffDistros"<<std::endl;
-  dbe->setCurrentFolder("Muons/RPCEfficiency/");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/");
 
   if(debug) std::cout<<"Booking statistcs2"<<std::endl;
-  dbe->setCurrentFolder("Muons/RPCEfficiency/");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/");
   statistics2 = dbe->book1D("AllStatistics","Analyzed Events DT and CSC Segments",33,0.5,33.5);
   
   //Barrel 
   
-  dbe->setCurrentFolder("Muons/RPCEfficiency/Wheel_-2");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Wheel_-2");
   EffDistroWm2=dbe->book1D("EffDistroWheel_-2near","Efficiency Distribution for Near Side Wheel -2 ",20,0.5,100.5);
   EffDistroWm2far=dbe->book1D("EffDistroWheel_-2far","Efficiency Distribution for Far Side Wheel -2 ",20,0.5,100.5);
   EffGlobWm2=dbe->book1D("GlobEfficiencyWheel_-2near","Efficiency Near Side Wheel -2 ",101,0.5,101.5);
@@ -139,7 +139,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   NoPredictionWm2=dbe->book1D("NoPredictionWheel_-2near","No Predictions Near Side Wheel -2 ",101,0.5,101.5);
   NoPredictionWm2far=dbe->book1D("NoPredictionWheel_-2far","No Predictions Efficiency Far Side Wheel -2 ",105,0.5,105.5);
   
-  dbe->setCurrentFolder("Muons/RPCEfficiency/Wheel_-1");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Wheel_-1");
   EffDistroWm1=dbe->book1D("EffDistroWheel_-1near","Efficiency Distribution for Near Side Wheel -1 ",20,0.5,100.5);
   EffDistroWm1far=dbe->book1D("EffDistroWheel_-1far","Efficiency Distribution for Far Side Wheel -1 ",20,0.5,100.5);
   EffGlobWm1= dbe->book1D("GlobEfficiencyWheel_-1near","Efficiency Near Side Wheel -1",101,0.5,101.5);
@@ -153,7 +153,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   NoPredictionWm1=dbe->book1D("NoPredictionWheel_-1near","No Predictions Near Side Wheel -1 ",101,0.5,101.5);
   NoPredictionWm1far=dbe->book1D("NoPredictionWheel_-1far","No Predictions Efficiency Far Side Wheel -1 ",105,0.5,105.5);
 
-  dbe->setCurrentFolder("Muons/RPCEfficiency/Wheel_0");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Wheel_0");
   EffDistroW0=dbe->book1D("EffDistroWheel_0near","Efficiency Distribution for Near Side Wheel 0 ",20,0.5,100.5);
   EffDistroW0far=dbe->book1D("EffDistroWheel_0far","Efficiency Distribution for Far Side Wheel 0 ",20,0.5,100.5);
   EffGlobW0 = dbe->book1D("GlobEfficiencyWheel_0near","Efficiency Near Side Wheel 0",101,0.5,101.5);
@@ -167,7 +167,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   NoPredictionW0=dbe->book1D("NoPredictionWheel_0near","No Predictions Near Side Wheel 0 ",101,0.5,101.5);
   NoPredictionW0far=dbe->book1D("NoPredictionWheel_0far","No Predictions Efficiency Far Side Wheel 0 ",105,0.5,105.5);
 
-  dbe->setCurrentFolder("Muons/RPCEfficiency/Wheel_1");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Wheel_1");
   EffDistroW1=dbe->book1D("EffDistroWheel_1near","Efficiency Distribution for Near Side Wheel 1 ",20,0.5,100.5);
   EffDistroW1far=dbe->book1D("EffDistroWheel_1far","Efficiency Distribution for Far Side Wheel 1 ",20,0.5,100.5);
   EffGlobW1 = dbe->book1D("GlobEfficiencyWheel_1near","Efficiency Near Side Wheel 1",101,0.5,101.5);
@@ -181,7 +181,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   NoPredictionW1=dbe->book1D("NoPredictionWheel_1near","No Predictions Near Side Wheel 1 ",101,0.5,101.5);
   NoPredictionW1far=dbe->book1D("NoPredictionWheel_1far","No Predictions Efficiency Far Side Wheel 1 ",105,0.5,105.5);
 
-  dbe->setCurrentFolder("Muons/RPCEfficiency/Wheel_2");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Wheel_2");
   EffDistroW2=dbe->book1D("EffDistroWheel_2near","Efficiency Distribution for Near Side Wheel 2 ",20,0.5,100.5);
   EffDistroW2far=dbe->book1D("EffDistroWheel_2far","Efficiency Distribution for Far Side Wheel 2 ",20,0.5,100.5);
   EffGlobW2 = dbe->book1D("GlobEfficiencyWheel_2near","Efficiency Near Side Wheel 2",101,0.5,101.5);
@@ -197,7 +197,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
 
   //EndCap
 
-  dbe->setCurrentFolder("Muons/RPCEfficiency/Disk_3");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Disk_3");
   EffDistroD3=dbe->book1D("EffDistroDisk_3near","Efficiency Distribution Near Side Disk 3 ",20,0.5,100.5);
   EffDistroD3far=dbe->book1D("EffDistroDisk_3far","Efficiency Distribution Far Side Disk 3 ",20,0.5,100.5);
   EffGlobD3 = dbe->book1D("GlobEfficiencyDisk_3near","Efficiency Near Side Disk 3",109,0.5,109.5);
@@ -211,7 +211,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   NoPredictionD3=dbe->book1D("NoPredictionDisk_3near","No Predictions Near Side Disk 3 ",109,0.5,109.5);
   NoPredictionD3far=dbe->book1D("NoPredictionDisk_3far","No Predictions Efficiency Far Side Disk 3 ",109,0.5,109.5);
 
-  dbe->setCurrentFolder("Muons/RPCEfficiency/Disk_2");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Disk_2");
   EffDistroD2=dbe->book1D("EffDistroDisk_2near","Efficiency Distribution Near Side Disk 2 ",20,0.5,100.5);
   EffDistroD2far=dbe->book1D("EffDistroDisk_2far","Efficiency Distribution Far Side Disk 2 ",20,0.5,100.5);
   EffGlobD2 = dbe->book1D("GlobEfficiencyDisk_2near","Efficiency Near Side Disk 2",109,0.5,109.5);
@@ -225,7 +225,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   NoPredictionD2=dbe->book1D("NoPredictionDisk_2near","No Predictions Near Side Disk 2 ",109,0.5,109.5);
   NoPredictionD2far=dbe->book1D("NoPredictionDisk_2far","No Predictions Efficiency Far Side Disk 2 ",109,0.5,109.5);
 
-  dbe->setCurrentFolder("Muons/RPCEfficiency/Disk_1");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Disk_1");
   EffDistroD1=dbe->book1D("EffDistroDisk_1near","Efficiency Distribution Near Side Disk 1 ",20,0.5,100.5);
   EffDistroD1far=dbe->book1D("EffDistroDisk_1far","Efficiency Distribution Far Side Disk 1 ",20,0.5,100.5);
   EffGlobD1 = dbe->book1D("GlobEfficiencyDisk_1near","Efficiency Near Side Disk 1",109,0.5,109.5);
@@ -239,7 +239,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   NoPredictionD1=dbe->book1D("NoPredictionDisk_1near","No Predictions Near Side Disk 1 ",109,0.5,109.5);
   NoPredictionD1far=dbe->book1D("NoPredictionDisk_1far","No Predictions Efficiency Far Side Disk 1 ",109,0.5,109.5);
 
-  dbe->setCurrentFolder("Muons/RPCEfficiency/Disk_-1");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Disk_-1");
   EffDistroDm1=dbe->book1D("EffDistroDisk_m1near","Efficiency Distribution Near Side Disk - 1 ",20,0.5,100.5);
   EffDistroDm1far=dbe->book1D("EffDistroDisk_m1far","Efficiency Distribution Far Side Disk - 1 ",20,0.5,100.5);
   EffGlobDm1 = dbe->book1D("GlobEfficiencyDisk_m1near","Efficiency Near Side Disk -1",109,0.5,109.5);
@@ -253,7 +253,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   NoPredictionDm1=dbe->book1D("NoPredictionDisk_m1near","No Predictions Near Side Disk -1 ",109,0.5,109.5);
   NoPredictionDm1far=dbe->book1D("NoPredictionDisk_m1far","No Predictions Efficiency Far Side Disk -1 ",109,0.5,109.5);
 
-  dbe->setCurrentFolder("Muons/RPCEfficiency/Disk_-2");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Disk_-2");
   EffDistroDm2=dbe->book1D("EffDistroDisk_m2near","Efficiency Distribution Near Side Disk - 2 ",20,0.5,100.5);
   EffDistroDm2far=dbe->book1D("EffDistroDisk_m2far","Efficiency Distribution Far Side Disk - 2 ",20,0.5,100.5);
   EffGlobDm2 = dbe->book1D("GlobEfficiencyDisk_m2near","Efficiency Near Side Disk -2",109,0.5,109.5);
@@ -267,7 +267,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   NoPredictionDm2=dbe->book1D("NoPredictionDisk_m2near","No Predictions Near Side Disk -2 ",109,0.5,109.5);
   NoPredictionDm2far=dbe->book1D("NoPredictionDisk_m2far","No Predictions Efficiency Far Side Disk -2 ",109,0.5,109.5);
 
-  dbe->setCurrentFolder("Muons/RPCEfficiency/Disk_-3");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Disk_-3");
   EffDistroDm3=dbe->book1D("EffDistroDisk_m3near","Efficiency Distribution Near Side Disk - 3 ",20,0.5,100.5);
   EffDistroDm3far=dbe->book1D("EffDistroDisk_m3far","Efficiency Distribution Far Side Disk - 3 ",20,0.5,100.5);
   EffGlobDm3 = dbe->book1D("GlobEfficiencyDisk_m3near","Efficiency Near Side Disk -3",109,0.5,109.5);
@@ -283,7 +283,8 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
 
   //Summary Histograms
   
-  dbe->setCurrentFolder("Muons/RPCEfficiency/");
+
+  dbe->setCurrentFolder("RPC/RPCEfficiency/");
   std::string os;
   os="Efficiency_Roll_vs_Sector_Wheel_-2";                                      
   Wheelm2Summary = dbe->book2D(os, os, 12, 0.5,12.5, 21, 0.5, 21.5);
@@ -295,6 +296,50 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   Wheel1Summary = dbe->book2D(os, os, 12, 0.5,12.5, 21, 0.5, 21.5);
   os="Efficiency_Roll_vs_Sector_Wheel_+2";                                      
   Wheel2Summary = dbe->book2D(os, os, 12, 0.5,12.5, 21, 0.5, 21.5);
+
+
+  //Azimutal Histograms
+
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Azimutal/");
+  sectorEffWm2= dbe->book1D("AzimutalDistroWm2","Efficiency per Sector Wheel -2",12,0.5,12.5);
+  sectorEffWm1= dbe->book1D("AzimutalDistroWm1","Efficiency per Sector Wheel -1",12,0.5,12.5);
+  sectorEffW0= dbe->book1D("AzimutalDistroW0","Efficiency per Sector Wheel 0",12,0.5,12.5);
+  sectorEffW1= dbe->book1D("AzimutalDistroW1","Efficiency per Sector Wheel 1",12,0.5,12.5);
+  sectorEffW2= dbe->book1D("AzimutalDistroW2","Efficiency per Sector Wheel 2",12,0.5,12.5);
+
+  OcsectorEffWm2= dbe->book1D("AzimutalDistroWm2","Occupancy per Sector Wheel -2",12,0.5,12.5);
+  OcsectorEffWm1= dbe->book1D("AzimutalDistroWm1","Occupancy per Sector Wheel -1",12,0.5,12.5);
+  OcsectorEffW0= dbe->book1D("AzimutalDistroW0","Ocuppancy per Sector Wheel 0",12,0.5,12.5);
+  OcsectorEffW1= dbe->book1D("AzimutalDistroW1","Ocuppancy per Sector Wheel 1",12,0.5,12.5);
+  OcsectorEffW2= dbe->book1D("AzimutalDistroW2","Ocupancy per Sector Wheel 2",12,0.5,12.5);
+
+
+  ExsectorEffWm2= dbe->book1D("AzimutalDistroWm2","Expected per Sector Wheel -2",12,0.5,12.5);
+  ExsectorEffWm1= dbe->book1D("AzimutalDistroWm1","Expected per Sector Wheel -1",12,0.5,12.5);
+  ExsectorEffW0= dbe->book1D("AzimutalDistroW0","Expected per Sector Wheel 0",12,0.5,12.5);
+  ExsectorEffW1= dbe->book1D("AzimutalDistroW1","Expected per Sector Wheel 1",12,0.5,12.5);
+  ExsectorEffW2= dbe->book1D("AzimutalDistroW2","Expected per Sector Wheel 2",12,0.5,12.5);
+  
+  GregD1R2= dbe->book1D("GregDistroD1R2","Efficiency for Station 1 Ring 2",36,0.5,36.5);
+  GregD1R3= dbe->book1D("GregDistroD1R3","Efficiency for Station 1 Ring 3",36,0.5,36.5);
+  GregD2R2= dbe->book1D("GregDistroD2R2","Efficiency for Station 2 Ring 2",36,0.5,36.5);
+  GregD2R3= dbe->book1D("GregDistroD2R3","Efficiency for Station 2 Ring 3",36,0.5,36.5);
+  GregD3R2= dbe->book1D("GregDistroD3R2","Efficiency for Station 3 Ring 2",36,0.5,36.5);
+  GregD3R3= dbe->book1D("GregDistroD3R3","Efficiency for Station 3 Ring 3",36,0.5,36.5);
+
+  OcGregD1R2= dbe->book1D("OcGregDistroD1R2","Occupancy Distribution for Station 1 Ring 2",36,0.5,36.5);
+  OcGregD1R3= dbe->book1D("OcGregDistroD1R3","Occupancy Distribution for Station 1 Ring 3",36,0.5,36.5);
+  OcGregD2R2= dbe->book1D("OcGregDistroD2R2","Occupancy Distribution for Station 2 Ring 2",36,0.5,36.5);
+  OcGregD2R3= dbe->book1D("OcGregDistroD2R3","Occupancy Distribution for Station 2 Ring 3",36,0.5,36.5);
+  OcGregD3R2= dbe->book1D("OcGregDistroD3R2","Occupancy Distribution for Station 3 Ring 2",36,0.5,36.5);
+  OcGregD3R3= dbe->book1D("OcGregDistroD3R3","Occupancy Distribution for Station 3 Ring 3",36,0.5,36.5);
+
+  ExGregD1R2= dbe->book1D("ExGregDistroD1R2","Expected Distribution for Station 1 Ring 2",36,0.5,36.5);
+  ExGregD1R3= dbe->book1D("ExGregDistroD1R3","Expected Distribution for Station 1 Ring 3",36,0.5,36.5);
+  ExGregD2R2= dbe->book1D("ExGregDistroD2R2","Expected Distribution for Station 2 Ring 2",36,0.5,36.5);
+  ExGregD2R3= dbe->book1D("ExGregDistroD2R3","Expected Distribution for Station 2 Ring 3",36,0.5,36.5);
+  ExGregD3R2= dbe->book1D("ExGregDistroD3R2","Expected Distribution for Station 3 Ring 2",36,0.5,36.5);
+  ExGregD3R3= dbe->book1D("ExGregDistroD3R3","Expected Distribution for Station 3 Ring 3",36,0.5,36.5);
 }
 
 void RPCEfficiencySecond::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){ }
@@ -306,7 +351,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   
   std::string label,folder;
-  folder = "Muons/MuonSegEff/";
+  folder = "RPC/RPCEfficiency/MuonSegEff/";
   label = folder + "Statistics";
   if(debug) std::cout<<"Getting statistcs="<<label<<std::endl;
   statistics = dbe->get(label);
@@ -357,7 +402,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   
   //Cloning Residuals.
 
-  folder = "Muons/MuonSegEff/Residuals/Barrel/";
+  folder = "RPC/RPCEfficiency/MuonSegEff/Residuals/Barrel/";
   
   label = folder + "GlobalResidualsClu1La1"; hGlobalResClu1La1 = dbe->get(label);
   label = folder + "GlobalResidualsClu1La2"; hGlobalResClu1La2 = dbe->get(label);
@@ -407,7 +452,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   }
 
   if(debug) std::cout<<"Clonning the EndCap"<<std::endl;
-  folder = "Muons/MuonSegEff/Residuals/EndCap/";
+  folder = "RPC/RPCEfficiency/MuonSegEff/Residuals/EndCap/";
 
   label = folder + "GlobalResidualsClu1R3C"; hGlobalResClu1R3C = dbe->get(label); 
   label = folder + "GlobalResidualsClu1R3B"; hGlobalResClu1R3B = dbe->get(label); 
@@ -606,7 +651,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  
 	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
 	  
-	  std::string folder = "Muons/MuonSegEff";
+	  std::string folder = "RPC/RPCEfficiency/MuonSegEff";
 
 	  if(debug) std::cout<<"Setting the folder "<<folder<<std::endl;
 
@@ -614,7 +659,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  meIdDT<<folder<<"/ExpectedOccupancyFromDT_"<<rpcId.rawId();
 	  bxDistroId<<folder<<"/BXDistribution_"<<rpcId.rawId();
       
-	  std::string folder2 = "Muons/RPCEfficiency/RollByRoll/" +  folderStr->folderStructure(rpcId); 
+	  std::string folder2 = "RPC/RPCEfficiency/RollByRoll/" +  folderStr->folderStructure(rpcId); 
 
 	  delete folderStr;
 
@@ -701,6 +746,23 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	    
 	  ef=ef*100;
 	  er=er*100;
+
+
+	   //Filling azimutal Wheel Histograms
+
+	  int wheel = rpcId.ring();
+	  int sector = rpcId.sector();
+	  int region = rpcId.region();
+	  
+	  
+	  if(region ==0){
+	    if(wheel==-2){ExsectorEffWm2->Fill(sector,p); OcsectorEffWm2->Fill(sector,o);}
+	    else if(wheel==-1){ExsectorEffWm1->Fill(sector,p); OcsectorEffWm1->Fill(sector,o);}
+	    else if(wheel==0){ExsectorEffW0->Fill(sector,p); OcsectorEffW0->Fill(sector,o);}
+	    else if(wheel==1){ExsectorEffW1->Fill(sector,p); OcsectorEffW1->Fill(sector,o);}
+	    else if(wheel==2){ExsectorEffW2->Fill(sector,p); OcsectorEffW2->Fill(sector,o);}
+	  }
+
 	    
 	  std::string camera = rpcsrv.name();
 	    
@@ -956,13 +1018,13 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  
 	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
 
-	  std::string folder = "Muons/MuonSegEff";
+	  std::string folder = "RPC/RPCEfficiency/MuonSegEff";
 	  
 	  meIdRPC<<folder<<"/RPCDataOccupancyFromCSC_"<<rpcId.rawId();
 	  meIdCSC<<folder<<"/ExpectedOccupancyFromCSC_"<<rpcId.rawId();
 	  bxDistroId<<folder<<"/BXDistribution_"<<rpcId.rawId();
 		
-	  std::string folder2 = "Muons/RPCEfficiency/RollByRoll/" +  folderStr->folderStructure(rpcId); 
+	  std::string folder2 = "RPC/RPCEfficiency/RollByRoll/" +  folderStr->folderStructure(rpcId); 
 	  
 	  delete folderStr;
 
@@ -1047,6 +1109,21 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	    
 	  ef=ef*100;
 	  er=er*100;
+
+	   //Filling azimutal GregHistograms
+	  
+	  if(rpcId.region()==1){
+	    if(rpcId.station()==1 && rpcId.ring()==2){ ExGregD1R2->Fill(rpcsrv.segment(),p);OcGregD1R2->Fill(rpcsrv.segment(),o);} 
+	    if(rpcId.station()==1 && rpcId.ring()==3){ ExGregD1R3->Fill(rpcsrv.segment(),p);OcGregD1R3->Fill(rpcsrv.segment(),o);}
+	    if(rpcId.station()==2 && rpcId.ring()==2){ ExGregD2R2->Fill(rpcsrv.segment(),p);OcGregD2R2->Fill(rpcsrv.segment(),o);}
+	    if(rpcId.station()==2 && rpcId.ring()==3){ ExGregD2R3->Fill(rpcsrv.segment(),p);OcGregD2R3->Fill(rpcsrv.segment(),o);}
+	    if(rpcId.station()==3 && rpcId.ring()==2){ ExGregD3R2->Fill(rpcsrv.segment(),p);OcGregD3R2->Fill(rpcsrv.segment(),o);}
+	    if(rpcId.station()==3 && rpcId.ring()==3){ ExGregD3R3->Fill(rpcsrv.segment(),p);OcGregD3R3->Fill(rpcsrv.segment(),o);}
+	  }
+
+
+
+
 	    
 	  std::string camera = rpcsrv.name();
 	    
@@ -1320,6 +1397,56 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
     }
   }
 
+ float eff,N,err;
+ int k;
+ for(k=1;k<=36;k++){
+   err=0; eff=0; N=ExGregD1R2->getBinContent(k);
+   if(N!=0.){ eff = OcGregD1R2->getBinContent(k)/N; err=sqrt(eff*(1-eff)/N);}
+   GregD1R2->setBinContent(k,eff); GregD1R2->setBinError(k,err);
+   
+   err=0; eff=0; N=ExGregD1R3->getBinContent(k);
+   if(N!=0.){eff = OcGregD1R3->getBinContent(k)/N;err=sqrt(eff*(1-eff)/N);}
+   GregD1R3->setBinContent(k,eff); GregD1R3->setBinError(k,err);
+   
+   err=0; eff=0; N=ExGregD2R2->getBinContent(k);
+   if(N!=0.){ eff = OcGregD2R2->getBinContent(k)/N;err=sqrt(eff*(1-eff)/N);}
+   GregD2R2->setBinContent(k,eff); GregD2R2->setBinError(k,err);
+   
+   err=0; eff=0; N=ExGregD2R3->getBinContent(k);
+   if(N!=0.){ eff = OcGregD2R3->getBinContent(k)/N;err=sqrt(eff*(1-eff)/N);}
+   GregD2R3->setBinContent(k,eff); GregD2R3->setBinError(k,err);
+   
+   err=0; eff=0; N=ExGregD3R2->getBinContent(k);
+   if(N!=0.){ eff = OcGregD3R2->getBinContent(k)/N;err=sqrt(eff*(1-eff)/N);}
+   GregD3R2->setBinContent(k,eff); GregD3R2->setBinError(k,err);
+   
+   err=0; eff=0; N=ExGregD3R3->getBinContent(k);
+   if(N!=0.){ eff = OcGregD3R3->getBinContent(k)/N;err=sqrt(eff*(1-eff)/N);}
+   GregD3R3->setBinContent(k,eff); GregD3R3->setBinError(k,err);
+ }
+
+  for(k=1;k<=12;k++){
+    err=0; eff=0; N=ExsectorEffWm2->getBinContent(k);
+    if(N!=0.){ eff = OcsectorEffWm2->getBinContent(k)/N;err=sqrt(eff*(1-eff)/N);}
+    sectorEffWm2->setBinContent(k,eff); sectorEffWm2->setBinError(k,err);
+
+    err=0; eff=0; N=ExsectorEffWm1->getBinContent(k);
+    if(N!=0.){ eff = OcsectorEffWm1->getBinContent(k)/N;err=sqrt(eff*(1-eff)/N);}
+    sectorEffWm1->setBinContent(k,eff); sectorEffWm1->setBinError(k,err);
+
+    err=0; eff=0; N=ExsectorEffW0->getBinContent(k);
+    if(N!=0.){ eff = OcsectorEffW0->getBinContent(k)/N;err=sqrt(eff*(1-eff)/N);}
+    sectorEffW0->setBinContent(k,eff); sectorEffW0->setBinError(k,err);
+
+    err=0; eff=0; N=ExsectorEffW1->getBinContent(k);
+    if(N!=0.){ eff = OcsectorEffW1->getBinContent(k)/N;err=sqrt(eff*(1-eff)/N);}
+    sectorEffW1->setBinContent(k,eff); sectorEffW1->setBinError(k,err);
+
+    err=0; eff=0; N=ExsectorEffW2->getBinContent(k);
+    if(N!=0.){ eff = OcsectorEffW2->getBinContent(k)/N;err=sqrt(eff*(1-eff)/N);}
+    sectorEffW2->setBinContent(k,eff); sectorEffW2->setBinError(k,err);
+  }
+
   //Ranges for Both
   //Barrel
 
@@ -1371,7 +1498,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
     NoPredictionW0far->setAxisRange(-4.,100.,2);
     NoPredictionW1far->setAxisRange(-4.,100.,2);
     NoPredictionW2far->setAxisRange(-4.,100.,2);
-  }  
+  }
   //EndCap
 
   if(endcap){

@@ -16,7 +16,7 @@ std::map<std::string, MonitorElement*> RPCEfficiencySecond::bookDetUnitSeg(RPCDe
   std::map<std::string, MonitorElement*> meMap;
    
   RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); //Anna
-  std::string folder = "Muons/RPCEfficiency/RollByRoll/" +  folderStr->folderStructure(detId);
+  std::string folder = "RPC/RPCEfficiency/RollByRoll/" +  folderStr->folderStructure(detId);
 
   delete folderStr;
 

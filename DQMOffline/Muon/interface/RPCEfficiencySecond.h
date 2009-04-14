@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2008/11/17 18:42:05 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/12/13 17:57:10 $
+ *  $Revision: 1.10 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -144,7 +144,6 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
   MonitorElement * histoPRO;
   MonitorElement * histoeffIdRPC_DT;
   MonitorElement * histoeffIdRPC_CSC;
-
 
   //For Duplication
   MonitorElement * histoRPC2;
@@ -330,6 +329,48 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
   MonitorElement * Wheel0Summary; 
   MonitorElement * Wheel1Summary; 
   MonitorElement * Wheel2Summary; 
+
+  //Azimultal Plots
+
+  MonitorElement *  sectorEffWm2;  
+  MonitorElement * sectorEffWm1;  
+  MonitorElement * sectorEffW0;  
+  MonitorElement * sectorEffW1;  
+  MonitorElement * sectorEffW2;  
+
+  MonitorElement *  OcsectorEffWm2;  
+  MonitorElement * OcsectorEffWm1;  
+  MonitorElement * OcsectorEffW0;  
+  MonitorElement * OcsectorEffW1;  
+  MonitorElement * OcsectorEffW2;  
+
+  MonitorElement * ExsectorEffWm2;  
+  MonitorElement * ExsectorEffWm1;  
+  MonitorElement * ExsectorEffW0;  
+  MonitorElement * ExsectorEffW1;  
+  MonitorElement * ExsectorEffW2;  
+
+  MonitorElement * GregD1R2;  
+  MonitorElement * GregD1R3;  
+  MonitorElement * GregD2R2;  
+  MonitorElement * GregD2R3;  
+  MonitorElement * GregD3R2;  
+  MonitorElement * GregD3R3;  
+
+  MonitorElement * OcGregD1R2;  
+  MonitorElement * OcGregD1R3;  
+  MonitorElement * OcGregD2R2;  
+  MonitorElement * OcGregD2R3;  
+  MonitorElement * OcGregD3R2;  
+  MonitorElement * OcGregD3R3;  
+
+  MonitorElement * ExGregD1R2;  
+  MonitorElement * ExGregD1R3;  
+  MonitorElement * ExGregD2R2;  
+  MonitorElement * ExGregD2R3;  
+  MonitorElement * ExGregD3R2;  
+  MonitorElement * ExGregD3R3;  
+
 
   
  private:
