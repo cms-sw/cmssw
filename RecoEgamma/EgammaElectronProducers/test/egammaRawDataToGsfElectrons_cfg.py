@@ -5,7 +5,7 @@ from TrackingTools.Configuration.TrackingTools_cff import *
 process = cms.Process("electrons")
 
 process.load("Configuration.StandardSequences.Services_cff")
-process.load("Configuration.StandardSequences.GeometryPilot2_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
