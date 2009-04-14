@@ -1,15 +1,27 @@
 # mapping with the available L1 tables supported by cmsDriver.py
 __triggerTable = {
-    # L1 conditions and trigger table for the 2009 startup/8E29 menu
+    # L1 conditions and trigger table for the 2009 startup/8E29 menu v0
     'L1Menu_Commissioning2009_v0:Unprescaled': (
         'L1Trigger/Configuration/SimL1Emulator_cff',
         'L1TriggerConfig/L1GtConfigProducers/Luminosity/startup/L1Menu_Commissioning2009_v0_L1T_Scales_20080926_startup_Imp0_Unprescaled_cff'
     ),
 
-    # L1 conditions and trigger table for the 2009 1E31 menu
+    # L1 conditions and trigger table for the 2009 startup/8E29 menu v1
+    'L1Menu_Commissioning2009_v1:Unprescaled': (
+        'L1Trigger/Configuration/SimL1Emulator_cff',
+        'L1TriggerConfig/L1GtConfigProducers/Luminosity/startup/L1Menu_Commissioning2009_v1_L1T_Scales_20080926_startup_Imp0_Unprescaled_cff'
+    ),
+
+    # L1 conditions and trigger table for the 2009 1E31 menu v0
     'L1Menu_MC2009_v0:Unprescaled': (
         'L1Trigger/Configuration/SimL1Emulator_cff',
         'L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1031/L1Menu_MC2009_v0_L1T_Scales_20080922_Imp0_Unprescaled_cff'
+    ),
+
+    # L1 conditions and trigger table for the 2009 1E31 menu v1
+    'L1Menu_MC2009_v1:Unprescaled': (
+        'L1Trigger/Configuration/SimL1Emulator_cff',
+        'L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1031/L1Menu_MC2009_v1_L1T_Scales_20080922_Imp0_Unprescaled_cff'
     ),
 
     # L1 conditions and trigger table for the 2008 1E30 menu
