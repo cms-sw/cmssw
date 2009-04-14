@@ -9,7 +9,7 @@
 //
 // Author:      Zhen Xie
 
-// $Id: PoolDBESSource.cc,v 1.108 2009/04/08 11:13:05 innocent Exp $
+// $Id: oldPoolDBESSource.cc,v 1.1 2009/04/14 09:02:28 innocent Exp $
 //
 // system include files
 #include "boost/shared_ptr.hpp"
@@ -33,7 +33,9 @@
 #include "TagCollectionRetriever.h"
 #include <exception>
 //#include <iostream>
-static
+
+namespace {
+
 std::string
 buildName( const std::string& iRecordName, const std::string& iTypeName ) {
   return iRecordName+"@"+iTypeName+"@Proxy";
@@ -49,6 +51,8 @@ deconstructName(const std::string& iProxyName) {
   std::string typeName(iProxyName,recordName.size()+1,iProxyName.size()-6-recordName.size()-1);
   //std::cout <<"Record \""<<recordName<<"\" type \""<<typeName<<"\""<<std::endl;
   return std::make_pair(recordName,typeName);
+}
+
 }
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
@@ -164,7 +168,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       DatumToToken::iterator pos=m_datumToToken.find(datumName);
       cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(m.pfn);
       cond::ConnectionHandler::Instance().connect(m_session);
-      boost::shared_ptr<edm::eventsetup::DataProxy> proxy(cond::ProxyFactory::get()->create(buildName(m.recordname, m.objectname), c, pos));
+      boost::shared_ptr<edm::eventsetup::DataProxy> proxy(oldcond::ProxyFactory::get()->create(buildName(m.recordname, m.objectname), c, pos));
       edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( m.recordname ) );
       if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag() ) {
 	throw cond::Exception("NoRecord")<<"The record \""<< m.recordname <<"\" does not exist ";
@@ -232,7 +236,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       //fill in dummy tokens now, change in setIntervalFor
       DatumToToken::iterator pos=m_datumToToken.find(datumName);
       cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(it->pfn); 
-      boost::shared_ptr<edm::eventsetup::DataProxy> proxy(cond::ProxyFactory::get()->create(buildName(it->recordname, it->objectname), c, pos));
+      boost::shared_ptr<edm::eventsetup::DataProxy> proxy(oldcond::ProxyFactory::get()->create(buildName(it->recordname, it->objectname), c, pos));
       edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( it->recordname ) );
       if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag() ) {
 	//record not found
@@ -408,7 +412,7 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
       }
       if( type != defaultType ) {
 	cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(it->pfn);
-	boost::shared_ptr<edm::eventsetup::DataProxy> proxy(cond::ProxyFactory::get()->create( proxyname ,c,pDatumToToken) );
+	boost::shared_ptr<edm::eventsetup::DataProxy> proxy(oldcond::ProxyFactory::get()->create( proxyname ,c,pDatumToToken) );
 	if(0 != proxy.get()) {
 	  edm::eventsetup::DataKey key( type, edm::eventsetup::IdTags(it->label.c_str()) );
 	  aProxyList.push_back(KeyedProxies::value_type(key,proxy));
