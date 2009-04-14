@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.112 2009/04/12 19:55:21 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.113 2009/04/13 16:13:04 chrjones Exp $
 //
 
 // system include files
@@ -209,6 +209,8 @@ FWGUIManager::evePreTerminate()
    //gDebug = 1;
    gEve->GetWindowManager()->Disconnect("WindowSelected(TEveWindow*)", this, "subviewCurrentChanged(TEveWindow*)");
    m_cmsShowMainFrame->UnmapWindow();
+
+   gEve->GetSelection()->RemoveElements();
 
    for(std::vector<FWViewBase* >::iterator it = m_viewBases.begin(), itEnd = m_viewBases.end();
         it != itEnd;
@@ -856,8 +858,9 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       s<<ay;
       mainWindow.addKeyValue("y",FWConfiguration(s.str()));
    }
-   printf("Set main coordinates (%d %d) \n", ax, ay);
-   oTo.addKeyValue(kMainWindow,mainWindow,true);
+
+   oTo.addKeyValue(kMainWindow,mainWindow,true);
+
 
 
    // sort list of TEveWindows reading frame list from TGCompositeFrame
