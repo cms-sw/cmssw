@@ -193,12 +193,6 @@ REGISTER_L1_WRITER(L1CaloHcalScaleRcd, L1CaloHcalScale);
 REGISTER_PLUGIN(L1GctChannelMaskRcd, L1GctChannelMask);
 REGISTER_L1_WRITER(L1GctChannelMaskRcd, L1GctChannelMask);
 
-#include "CondFormats/L1TObjects/interface/L1GctHfLutSetup.h"
-#include "CondFormats/DataRecord/interface/L1GctHfLutSetupRcd.h"
-
-REGISTER_PLUGIN(L1GctHfLutSetupRcd, L1GctHfLutSetup);
-REGISTER_L1_WRITER(L1GctHfLutSetupRcd, L1GctHfLutSetup);
-
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 

@@ -138,12 +138,6 @@ def initL1Subsystems( tagBase = 'IDEAL',
             key = cms.string(objectKey)
         ), 
         cms.PSet(
-            record = cms.string('L1GctHfLutSetupRcd'),
-            tag = cms.string('L1GctHfLutSetup_' + tagBase),
-            type = cms.string('L1GctHfLutSetup'),
-            key = cms.string(objectKey)
-        ), 
-        cms.PSet(
             record = cms.string('L1GctJetFinderParamsRcd'),
             tag = cms.string('L1GctJetFinderParams_' + tagBase),
             type = cms.string('L1GctJetFinderParams'),
