@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
- <PoolDatabase >
-  <PoolContainer name="L1GctHfLutSetupRcd" >
-   <Class table="L1GCTHFLUTSETUP" id_columns="ID" name="L1GctHfLutSetup" mapping_version="L1GctHfLutSetup_basic" >
-     <Blob column="L1GCTHFLUTSETUP_M__1_BLOB" name="m_thresholds" />
-   </Class >
-  </PoolContainer >
- </PoolDatabase >

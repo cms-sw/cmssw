@@ -6,10 +6,7 @@
 #include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
-#include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
-#include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
-#include "CondFormats/L1TObjects/interface/L1GctHfLutSetup.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTPhiLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTPtaLut.h"
@@ -59,12 +56,9 @@ namespace {
     std::vector<L1GtBptxTemplate> dummy8d ;
     std::map< std::string, L1GtAlgorithm > dummy9 ;
     std::pair< std::string, L1GtAlgorithm > dummy9a ;
-    std::pair<L1GctHfLutSetup::hfLutType,std::vector<uint16_t> > dummy10 ;
-    std::map<L1GctHfLutSetup::hfLutType,std::vector<uint16_t> > dummy10a ;
     std::pair<short,L1MuDTEtaPattern> dummy11 ;
     std::pair<std::pair<short,short>,std::pair<short,std::vector<short> > > dummy12 ;
     std::pair<int, std::vector<L1GtObject> > dummy13 ;
-    std::vector<L1GctJetCounterSetup::cutDescription> dummy14;
 //    std::vector<L1RPCConeDefinition::TLPSize> dummy15;
 //    std::vector<L1RPCConeDefinition::TRingToTower> dummy15a;
 //    std::vector<L1RPCConeDefinition::TRingToLP> dummy15b;
