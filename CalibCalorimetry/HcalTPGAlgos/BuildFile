@@ -7,7 +7,7 @@
 <use name=CondFormats/HcalObjects>
 <use name=CalibFormats/CaloObjects>
 <use name=CondFormats/DataRecord>
-<use name=CaloOnlineTools/HcalOnlineDb>
+<use name=xerces-c>
 <export>
   <lib name=CalibCalorimetryHcalTPGAlgos>
   <use name=DataFormats/HcalDigi>

@@ -22,8 +22,8 @@
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObjects.h"
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObject.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/LutXml.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
 
 
 const float HcaluLUTTPGCoder::nominal_gain = 0.177; 
