@@ -13,7 +13,6 @@
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
-#include "Fireworks/Core/interface/FW3DLegoView.h"
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/src/FWListEventItem.h"
 #include "Fireworks/Core/src/FWListEventItemEditor.h"
