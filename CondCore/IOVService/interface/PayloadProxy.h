@@ -37,6 +37,8 @@ namespace cond {
 
     bool isValid() const;
 
+    TimeType timetype() const { return m_iov.timetype();}
+
   private:
     virtual bool load(pool::IDataSvc * svc, std::string const & token) =0;   
 

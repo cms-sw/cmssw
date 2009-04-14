@@ -8,8 +8,6 @@
 //     <Notes on implementation>
 //
 // Author:      Zhen Xie
-
-// $Id: PoolDBESSource.cc,v 1.108 2009/04/08 11:13:05 innocent Exp $
 //
 // system include files
 #include "boost/shared_ptr.hpp"
@@ -17,7 +15,7 @@
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/Connection.h"
-#include "CondCore/DBCommon/interface/Time.h"
+#include "CondFormat/Common/interface/Time.h"
 #include "CondCore/DBCommon/interface/ConfigSessionFromParameterSet.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
@@ -107,7 +105,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     }
 
     coraldb.start(true);
-    this->fillTagCollectionFromDB(coraldb, globaltag,replacement);
+    fillTagCollectionFromDB(coraldb, globaltag,replacement);
     coraldb.commit();
 
     TagCollection::iterator it;
@@ -118,8 +116,14 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     }
     cond::ConnectionHandler::Instance().connect(m_session);
     for(it=itBeg;it!=itEnd;++it){
-      cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(it->pfn); 
-      ProxyP proxy(cond::ProxyFactory::get()->create(buildName(it->recordname), c, pos));
+      cond::Connection &  c= *cond::ConnectionHandler::Instance().getConnection(it->pfn);
+      cond::CoralTransaction& coraldb=c.coralTransaction();
+      cond::MetaData metadata(coraldb);
+      coraldb.start(true);
+      cond::MetaDataEntry result;
+      metadata.getEntryByTag(it->tag,result);
+      coraldb.commit();
+      ProxyP proxy(cond::ProxyFactory::get()->create(buildName(it->recordname), c, result.iovtoken, it->labelname);
       edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( it->recordname ) );
       if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag() ) {
 	//record not found
@@ -150,7 +154,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     return;
   }
 
-
+  TimeType timetype = (*p)->proxy()->timetype();
   cond::Time_t abtime;
   if( timetype == cond::timestamp ){
     abtime=(cond::Time_t)iTime.time().value();
@@ -165,7 +169,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   //std::cout<<"abtime "<<abtime<<std::endl;
 
  
-  cond::ValidityInterval validity = (*p)->setIntervalFor(abtime);
+  cond::ValidityInterval validity = (*p)->proxy()->setIntervalFor(abtime);
 
   edm::IOVSyncValue start,stop;
  
@@ -200,12 +204,9 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
     return;
   }
 
-	if(0 != proxy.get()) {
-	  edm::eventsetup::DataKey key( type, edm::eventsetup::IdTags(it->label.c_str()) );
-	  aProxyList.push_back(KeyedProxies::value_type(key,proxy));
-	}
-      }
-    }
+  if(0 != (*p).get()) {
+    edm::eventsetup::DataKey key( type, edm::eventsetup::IdTags((*p)->label.c_str()) );
+    aProxyList.push_back(KeyedProxies::value_type(key,(*p)->edmProxy()));
   }
 }
 

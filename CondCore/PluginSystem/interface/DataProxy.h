@@ -3,15 +3,12 @@
 //#include <iostream>
 #include <map>
 #include <string>
+#include "boost/shared_ptr.hpp"
+
 // user include files
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
-#include "CondCore/DBCommon/interface/Connection.h"
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
-#include "CondCore/DBCommon/interface/Exception.h"
-#include "DataSvc/Ref.h"
-#include "DataSvc/RefException.h"
 
-#include "CondFormats/Common/interface/PayloadWrapper.h"
+#include "CondCore/IOVService/interface/PayloadProxy.h"
 
 
 template< class RecordT, class DataT >
@@ -54,25 +51,39 @@ template< class RecordT, class DataT >
   DatatP m_data;
 
 };
+namespace {
+  class DataProxyWrapperBase {
+  public:
+    typedef boost::shared_ptr<cond::BasePayloadProxy> ProxyP;
+    typedef boost::shared_ptr<edm::eventsetup::DataProxy> edmProxyP;
+    
+    virtual ProxyP proxy() const=0;
+    virtual edmProxyP emdProxy() const=0;
 
-class DataProxyWrapperBase {
-public:
-  typedef boost::shared_ptr<cond::BasePayloadProxy> ProxyP;
-  typedef boost::shared_ptr<edm::eventsetup::DataProxy> edmProxyP;
 
-  virtual ProxyP proxy() const=0;
-  virtual edmProxyP emdProxy() const=0;
+    DataProxyWrapperBase(std::string const & il) : m_label(il){}
+    ~DataProxyWrapperBase(){}
+    std::string const & label() const { return m_label;}
+    
+  private:
+    std::string m_label;
 
-};
+  };
+}
 
 template< class RecordT, class DataT >
-class DataProxyWrapper : public  DataProxyWrapperBase {
-public:  
-  typedef  boost::shared_ptr<cond::PayloadProxy<DataT> > DataP;
+class DataProxyWrapper : public  cond::DataProxyWrapperBase {
+public:
+  typedef cond::PayloadProxy<DataT> PayProxy;
+  typedef  boost::shared_ptr<PayProxy> DataP;
 
   
   DataProxyWrapper(cond::Connection& conn,
-		   const std::string & token);
+		   const std::string & token, std::string const & il) :
+    cond::DataProxyWrapperBase(il)
+    m_proxy(new PayProxy(conn,token)),
+    m_edmProxy(m_proxy){}
+    
 
   virtual ProxyP proxy() const { return m_proxy;}
   virtual edmProxyP emdProxy() const { return m_edmProxy;}
