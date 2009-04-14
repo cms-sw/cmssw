@@ -1,62 +1,27 @@
 import FWCore.ParameterSet.Config as cms
 
 import RecoTracker.FinalTrackSelectors.selectLoose_cfi
-import RecoTracker.FinalTrackSelectors.selectTight_cfi
-import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
-
-zeroStepWithLooseQuality = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
-    src = 'preFilterZeroStepTracks',
-    keepAllTracks = False, ## we only keep those who pass the filter
-    copyExtras = True,
-    copyTrajectories = True
-)
-
-zeroStepWithTightQuality = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone(
-    src = 'zeroStepWithLooseQuality',
-    keepAllTracks = True,
-    copyExtras = True,
-    copyTrajectories = True
-    )
-
-zeroStepTracksWithQuality = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
-    src = 'zeroStepWithTightQuality',
-    keepAllTracks = True,
-    copyExtras = True,
-    copyTrajectories = True
-    )
-
-
-firstStepWithLooseQuality = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
-    src = 'preFilterStepOneTracks',
-    keepAllTracks = False, ## we only keep those who pass the filter
-    copyExtras = True,
-    copyTrajectories = True
-    )
-
-firstStepWithTightQuality = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone(
-    src = 'firstStepWithLooseQuality',
-    keepAllTracks = True,
-    copyExtras = True,
-    copyTrajectories = True
-    )
-preMergingFirstStepTracksWithQuality = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
-    src = 'firstStepWithTightQuality',
-    keepAllTracks = True,
-    copyExtras = True,
-    copyTrajectories = True
-    )
-
 # Track filtering and quality.
-#   input:    preFilterZeroStepTracks
-#   output:   zeroStepTracksWithQuality
-#   sequence: tracksWithQualityZeroStep
-tracksWithQualityZeroStep = cms.Sequence(zeroStepWithLooseQuality*zeroStepWithTightQuality*zeroStepTracksWithQuality)
-
-
-# Track filtering and quality.
-#   input:    preFilterStepOneTracks
-#   output:   firstStepTracksWithQuality
+#   input:    preFilterCmsTracks
+#   output:   generalTracks
 #   sequence: tracksWithQuality
-tracksWithQualityStepOne = cms.Sequence(firstStepWithLooseQuality*firstStepWithTightQuality*preMergingFirstStepTracksWithQuality)
+withLooseQuality = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone()
+import RecoTracker.FinalTrackSelectors.selectTight_cfi
+withTightQuality = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone()
+import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
+firstStepTracksWithQuality = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
+tracksWithQuality = cms.Sequence(withLooseQuality*withTightQuality*firstStepTracksWithQuality)
+withLooseQuality.src = 'preFilterFirstStepTracks'
+withLooseQuality.keepAllTracks = False ## we only keep hthose who pass the filter
 
+withLooseQuality.copyExtras = True
+withLooseQuality.copyTrajectories = True
+withTightQuality.src = 'withLooseQuality'
+withTightQuality.keepAllTracks = True
+withTightQuality.copyExtras = True
+withTightQuality.copyTrajectories = True
+firstStepTracksWithQuality.src = 'withTightQuality'
+firstStepTracksWithQuality.keepAllTracks = True
+firstStepTracksWithQuality.copyExtras = True
+firstStepTracksWithQuality.copyTrajectories = True
 

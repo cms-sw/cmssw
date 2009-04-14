@@ -381,23 +381,12 @@ namespace cms
               //std::cout << " removing L1 trk in pair " << std::endl;
             }else{
               //std::cout << " removing worst chisq in pair " << track->normalizedChi2() << " " << track2->normalizedChi2() << std::endl;
-              const double almostSame = 1.001;
-              if (track->normalizedChi2() > almostSame * track2->normalizedChi2()) {
+              if (track->normalizedChi2() > track2->normalizedChi2()) {
 		selected1[i]=0;
 		selected2[j]=10+newQualityMask; // add 10 to avoid the case where mask = 1
-	      }else if (track2->normalizedChi2() > almostSame * track->normalizedChi2()) {
+	      }else{
 		selected2[j]=0;
 		selected1[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
-              }else{
-		// If tracks from both iterations are virtually identical, choose the one from the first iteration.
-		//		std::cout<<"MERGE "<<track->algo()<<" "<<track2->algo()<<" "<<track->normalizedChi2()<<" "<<track2->normalizedChi2()<<" "<<(track->normalizedChi2()-track2->normalizedChi2())/track->normalizedChi2()<<std::endl;
-                if (track->algo() <= track2->algo()) {
-		  selected2[j]=0;
-		  selected1[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
-                }else{
-  		  selected1[i]=0;
-		  selected2[j]=10+newQualityMask; // add 10 to avoid the case where mask = 1
-                }
 	      }
             }//end fi > or = fj
           }//end fi < fj
