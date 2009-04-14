@@ -87,3 +87,6 @@ process.electronCkfTrackCandidates.src = cms.InputTag('ecalDrivenElectronSeeds')
 #process.outpath = cms.EndPath(process.out)
 process.GlobalTag.globaltag = 'IDEAL_30X::All'
 
+#to simulate simple gaussian beam spot with no offset
+#process.load("RecoVertex.BeamSpotProducer.BeamSpotFakeConditionsSimpleGaussian_cff")
+#process.es_prefer = cms.ESPrefer("BeamSpotFakeConditions")
