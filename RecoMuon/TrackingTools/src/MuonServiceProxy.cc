@@ -4,8 +4,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2009/02/05 17:39:58 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/04/07 09:56:50 $
+ *  $Revision: 1.17 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -47,7 +47,7 @@ MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeom
   propagatorNames = par.getUntrackedParameter<vector<string> >("Propagators", noPropagators);
   
   if(propagatorNames.empty())
-    LogError("Muon|RecoMuon|MuonServiceProxy") << "NO propagator(s) selected!";
+    LogDebug("Muon|RecoMuon|MuonServiceProxy") << "NO propagator(s) selected!";
   
   for(vector<string>::iterator propagatorName = propagatorNames.begin();
       propagatorName != propagatorNames.end(); ++propagatorName)
