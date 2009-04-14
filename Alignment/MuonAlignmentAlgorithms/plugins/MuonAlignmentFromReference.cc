@@ -708,14 +708,14 @@ void MuonAlignmentFromReference::terminate() {
       AlgebraicSymMatrix cov(numParams);
       for (int i = 0;  i < numParams;  i++) {
 	for (int j = 0;  j < numParams;  j++) {
-	  cov[i][j] = 0.;
+	  cov[i][j] = 1000.;
 	}
 	params[i] = 0.;
       }
-      // but the translational ones only, because that's all that's stored
-      cov[paramIndex[0]][paramIndex[0]] = 1000.;
-      cov[paramIndex[1]][paramIndex[1]] = 1000.;
-      cov[paramIndex[2]][paramIndex[2]] = 1000.;
+      // but the translational ones only, because that's all that's stored in the database
+      if (align_phix) cov[paramIndex[3]][paramIndex[3]] = 0.;
+      if (align_phiy) cov[paramIndex[4]][paramIndex[4]] = 0.;
+      if (align_phiz) cov[paramIndex[5]][paramIndex[5]] = 0.;
 
       DetId id = (*ali)->geomDetId();
 
@@ -867,7 +867,7 @@ void MuonAlignmentFromReference::terminate() {
 	    if (align_x) {
 	      params[paramIndex[0]] = position_value;
 	      cov[paramIndex[0]][paramIndex[0]] = 0.;   // local x-z is the global x-y plane; with an x alignment, this is now a good parameter
-	      cov[paramIndex[2]][paramIndex[2]] = 0.;
+	      if (align_z) cov[paramIndex[2]][paramIndex[2]] = 0.;
 	    }
 
 	    if (align_z) {
@@ -894,7 +894,7 @@ void MuonAlignmentFromReference::terminate() {
 	      params[paramIndex[5]] = phiz_correction;
 
 	      cov[paramIndex[0]][paramIndex[0]] = 0.;  // local x-y plane is the global x-y plane; with an rphi alignment, this is a now a good parameter
-	      cov[paramIndex[1]][paramIndex[1]] = 0.;
+	      if (align_y) cov[paramIndex[1]][paramIndex[1]] = 0.;
 	    }
 
 	    if (align_z) {
@@ -1025,7 +1025,7 @@ void MuonAlignmentFromReference::terminate() {
 	  }
 
 	  if (id.subdetId() == MuonSubdetId::DT) {
-	    if (align_x) {
+	    if (align_y) {
 	      params[paramIndex[1]] = position_value;
 	      cov[paramIndex[1]][paramIndex[1]] = 0.;   // local y is the global z direction: this is now a good parameter
 	    }
