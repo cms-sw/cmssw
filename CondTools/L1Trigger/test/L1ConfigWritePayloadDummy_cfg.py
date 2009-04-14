@@ -23,6 +23,11 @@ options.register('outputDBAuth',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Authentication path for output DB")
+options.register('startup',
+                 0, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Use L1StartupConfig_cff instead of L1DummyConfig_cff")
 options.parseArguments()
 
 # Generate dummy L1TriggerKey and L1TriggerKeyList
@@ -30,7 +35,10 @@ process.load("CondTools.L1Trigger.L1TriggerKeyDummy_cff")
 process.load("CondTools.L1Trigger.L1TriggerKeyListDummy_cff")
 
 # Generate dummy configuration data
-process.load("L1Trigger.Configuration.L1DummyConfig_cff")
+if options.startup == 0:
+    process.load("L1Trigger.Configuration.L1DummyConfig_cff")
+else:
+    process.load("L1Trigger.Configuration.L1StartupConfig_cff")
 
 # writer modules
 from CondTools.L1Trigger.L1CondDBPayloadWriter_cff import initPayloadWriter
