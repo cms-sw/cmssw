@@ -6,13 +6,14 @@ options = Options()
 
 
 ## imports
+import sys
 from Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase
 from Mixins import *
 from Types import * 
 from Modules import *
 from Modules import _Module
 from SequenceTypes import *
-from SequenceTypes import _ModuleSequenceType  #extend needs it
+from SequenceTypes import _ModuleSequenceType, _Sequenceable  #extend needs it
 from SequenceVisitors import PathValidator, EndPathValidator
 import DictTypes
 
@@ -59,7 +60,7 @@ class Process(object):
         self.__dict__['_Process__vpsets']={}
         self.__dict__['_cloneToObjectDict'] = {}
         # policy switch to avoid object overwriting during extend/load
-        self.__dict__['_Process__OverWriteCheck'] = False
+        self.__dict__['_Process__InExtendCall'] = False
         self.__dict__['_Process__partialschedules'] = {}
         self.__isStrict = False
 
@@ -210,6 +211,11 @@ class Process(object):
             raise ValueError(msg)
         # remove the old object of the name (if there is one) 
         if hasattr(self,name) and not (getattr(self,name)==newValue):
+            # Allow items in sequences from load() statements to have
+            # degeneratate names, but if the user overwrites a name in the
+            # main config, replace it everywhere
+            if not self.__InExtendCall and isinstance(newValue, _Sequenceable):
+                self._replaceInSequences(name, newValue)            
             self.__delattr__(name)
         self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
@@ -255,7 +261,7 @@ class Process(object):
         newValue._place('',self)
         
     def _okToPlace(self, name, mod, d):
-        if not self.__OverWriteCheck:  
+        if not self.__InExtendCall:  
             # if going     
             return True
         elif not self.__isStrict:
@@ -336,12 +342,11 @@ class Process(object):
         self.__dict__[typeName]=mod
     def load(self, moduleName):
         module = __import__(moduleName)
-        import sys
         self.extend(sys.modules[moduleName])
     def extend(self,other,items=()):
         """Look in other and find types which we can use"""
         # enable explicit check to avoid overwriting of existing objects
-        self.__dict__['_Process__OverWriteCheck'] = True
+        self.__dict__['_Process__InExtendCall'] = True
 
         seqs = dict()
         labelled = dict()
@@ -380,7 +385,7 @@ class Process(object):
                 newSeq.setLabel(name)
                 #now put in proper bucket
                 newSeq._place(name,self)
-        self.__dict__['_Process__OverWriteCheck'] = False
+        self.__dict__['_Process__InExtendCall'] = False
     def include(self,filename):
         """include the content of a configuration language file into the process
              this is identical to calling process.extend(include('filename'))
@@ -538,11 +543,7 @@ class Process(object):
             pathNames = ['process.'+p.label_() for p in self.schedule]
             result +='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
         return result
-
-    def globalReplace(self,label,new):
-        """ Replace the item with label 'label' by object 'new' in the process and all sequences/paths"""
-        if not hasattr(self,label):
-            raise LookupError("process has no item of label "+label)
+    def _replaceInSequences(self, label, new):
         old = getattr(self,label)
         #TODO - replace by iterator concatenation
         for sequenceable in self.sequences.itervalues():
@@ -551,7 +552,11 @@ class Process(object):
             sequenceable.replace(old,new)
         for sequenceable in self.endpaths.itervalues():
             sequenceable.replace(old,new)
-                
+    def globalReplace(self,label,new):
+        """ Replace the item with label 'label' by object 'new' in the process and all sequences/paths"""
+        if not hasattr(self,label):
+            raise LookupError("process has no item of label "+label)
+        self._replaceInSequences(label, new)
         setattr(self,label,new)    
     def _insertInto(self, parameterSet, itemDict):
         for name,value in itemDict.iteritems():
