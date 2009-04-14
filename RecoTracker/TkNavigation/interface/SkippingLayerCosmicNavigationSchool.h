@@ -18,7 +18,7 @@ public:
 				      const MagneticField* field,
 				      const CosmicNavigationSchoolConfiguration conf);
 
-  ~SkippingLayerCosmicNavigationSchool(){};
+  ~SkippingLayerCosmicNavigationSchool(){cleanMemory();};
 };
 
 #endif // SkippingLayerCosmicNavigationSchool_H

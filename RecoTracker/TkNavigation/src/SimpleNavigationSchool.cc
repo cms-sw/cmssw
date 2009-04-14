@@ -58,6 +58,18 @@ SimpleNavigationSchool::SimpleNavigationSchool(const GeometricSearchTracker* the
   establishInverseRelations();
 }
 
+void SimpleNavigationSchool::cleanMemory(){
+  // free the memory allocated to the SimpleNavigableLayers
+  for ( vector< SimpleBarrelNavigableLayer*>::const_iterator
+          ib = theBarrelNLC.begin(); ib != theBarrelNLC.end(); ib++) {
+    delete (*ib);
+  }
+  for ( vector< SimpleForwardNavigableLayer*>::const_iterator 
+	  ifl = theForwardNLC.begin(); ifl != theForwardNLC.end(); ifl++) {
+    delete (*ifl);
+  }
+}
+
 SimpleNavigationSchool::StateType 
 SimpleNavigationSchool::navigableLayers() const
 {

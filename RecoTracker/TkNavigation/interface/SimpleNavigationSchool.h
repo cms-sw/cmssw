@@ -23,11 +23,11 @@ public:
   SimpleNavigationSchool() : theField(0),theTracker(0){};
   SimpleNavigationSchool(const GeometricSearchTracker* theTracker,
 			 const MagneticField* field);
-  
+  ~SimpleNavigationSchool(){cleanMemory();}
+
   // from base class
   virtual StateType navigableLayers() const;
 
-//private:
 protected:
 
   typedef std::vector<const DetLayer*>              DLC;
@@ -77,6 +77,8 @@ protected:
 
   const MagneticField* theField;
   const GeometricSearchTracker* theTracker;
+
+  void cleanMemory();
 };
 
 #endif // SimpleNavigationSchool_H

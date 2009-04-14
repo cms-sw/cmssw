@@ -18,6 +18,7 @@ class CosmicNavigationSchool : public SimpleNavigationSchool {
 public:
   CosmicNavigationSchool(const GeometricSearchTracker* theTracker,
 			 const MagneticField* field);
+  ~CosmicNavigationSchool(){ cleanMemory();}
 
   class CosmicNavigationSchoolConfiguration{
   public:
@@ -38,7 +39,6 @@ public:
 	     const MagneticField* field,
 	     const CosmicNavigationSchoolConfiguration conf);
  
-  ~CosmicNavigationSchool(){};
 protected:
   CosmicNavigationSchool(){}
 private:
