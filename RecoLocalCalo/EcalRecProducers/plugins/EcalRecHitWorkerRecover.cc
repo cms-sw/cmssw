@@ -87,7 +87,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                                                 float theta = 0;
                                                 theta = ebGeom_->getGeometry(*dit)->getPosition().theta();
                                                 float tpEt  = ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() );
-                                                EcalRecHit hit( *dit, tpEt / (float)vid.size(), 0., EcalRecHit::kTowerRecovered );
+                                                EcalRecHit hit( *dit, tpEt / sin(theta) / (float)vid.size(), 0., EcalRecHit::kTowerRecovered );
                                                 // paranoic: verify the hit is not in the collection
                                                 if ( result.find( *dit ) == result.end() ) {
                                                         // insert the hit in the collection
