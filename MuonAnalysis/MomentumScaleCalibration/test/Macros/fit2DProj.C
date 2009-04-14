@@ -45,9 +45,9 @@ void setTPaveText(const TF1 * fit, TPaveText * paveText) {
 }
 
 TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, int rebinY, int fitType,
-                        TFile * outputFile, const TString & resonanceType = "Y", const double & xDisplace = 0., const TString & append = "");
+                        TFile * outputFile, const TString & resonanceType = "Upsilon", const double & xDisplace = 0., const TString & append = "");
 void macroPlot( TString name, const TString & nameFile1 = "0_MuScleFit.root", const TString & nameFile2 = "4_MuScleFit.root",
-                const TString & title = "", const TString & resonanceType = "Y", const int rebinX = 0, const int rebinY = 0, const int fitType = 1, const TString & outputFileName = "filegraph.root" );
+                const TString & title = "", const TString & resonanceType = "Upsilon", const int rebinX = 0, const int rebinY = 0, const int fitType = 1, const TString & outputFileName = "filegraph.root" );
 
 Double_t gaussian(Double_t *x, Double_t *par);
 Double_t lorentzian(Double_t *x, Double_t *par);
@@ -60,8 +60,8 @@ Double_t onlyParabolic(Double_t *x, Double_t *par);
 Double_t linear(Double_t *x, Double_t *par);
 Double_t overX(Double_t *x, Double_t *par);
 
-TF1* gaussianFit(TH1* histoY, const TString & resonanceType = "Y");
-TF1* lorentzianFit(TH1* histoY, const TString & resonanceType = "Y");
+TF1* gaussianFit(TH1* histoY, const TString & resonanceType = "Upsilon");
+TF1* lorentzianFit(TH1* histoY, const TString & resonanceType = "Upsilon");
 TF1* linLorentzianFit(TH1* histoY);
 
 void setTDRStyle();
@@ -282,7 +282,7 @@ TF1* gaussianFit(TH1* histoY, const TString & resonanceType){
     fit = new TF1(name,gaussian,2,4,3);
     fit->SetParLimits(2, 3.09, 3.15);
   }
-  if( resonanceType == "Y" ) {
+  if( resonanceType.Contains("Upsilon") ) {
     fit = new TF1(name,gaussian,8.5,10.5,3);
     // fit = new TF1(name,gaussian,9,11,3);
     fit->SetParLimits(2, 9.2, 9.6);
@@ -309,14 +309,14 @@ TF1* lorentzianFit(TH1* histoY, const TString & resonanceType){
 
   // Fit slices projected along Y from bins in X 
   TF1 *fit = 0;
-  if( resonanceType == "JPsi" ) {
+  if( resonanceType == "JPsi" || resonanceType == "Psi2S" ) {
     fit = new TF1(name, lorentzian, 3.09, 3.15, 3);
   }
-  if( resonanceType == "Y" ) {
+  if( resonanceType.Contains("Upsilon") ) {
     fit = new TF1(name, lorentzian, 9, 10, 3);
   }
   if( resonanceType == "Z" ) {
-    fit = new TF1(name, lorentzian, 85, 95, 3);
+    fit = new TF1(name, lorentzian, 80, 105, 3);
   }
   fit->SetParameters(histoY->GetMaximum(),histoY->GetRMS(),histoY->GetMean());
   fit->SetParNames("norm","width","mean");
@@ -384,8 +384,8 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
     x[0] = 0.; x[1] = 200;
     xAxisTitle = "pt(GeV)";
   }
-  if( resonanceType == "JPsi" ) y[0]=0.; y[1]=6.;
-  if( resonanceType == "Y" ) y[0]=8.; y[1]=12.;
+  if( resonanceType == "JPsi" || resonanceType == "Psi2S" ) y[0]=0.; y[1]=6.;
+  if( resonanceType.Contains("Upsilon") ) y[0]=8.; y[1]=12.;
   if( resonanceType == "Z" ) y[0]=80; y[1]=100;
 
   // This is used to have a canvas containing both histogram points
@@ -619,7 +619,7 @@ void setTDRStyle() {
   // tdrStyle->SetTitleYSize(Float_t size = 0.02);
   tdrStyle->SetTitleXOffset(0.9);
   tdrStyle->SetTitleYOffset(1.05);
-  // tdrStyle->SetTitleOffset(1.1, "Y"); // Another way to set the Offset
+  // tdrStyle->SetTitleOffset(1.1, "Upsilon"); // Another way to set the Offset
 
   // For the axis labels:
 

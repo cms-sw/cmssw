@@ -14,11 +14,11 @@ class histos
 public:
   histos(TFile * inputFile)
   {
-    mass     = dynamic_cast<TH1F*> (inputFile->Get("hRecBestRes_Mass")); 
-    massProb = dynamic_cast<TProfile*> (inputFile->Get("Mass_P"));
-    likePt   = dynamic_cast<TProfile*> (inputFile->Get("hLikeVSMu_LikelihoodVSPt_prof"));
-    likePhi  = dynamic_cast<TProfile*> (inputFile->Get("hLikeVSMu_LikelihoodVSPhi_prof"));
-    likeEta  = dynamic_cast<TProfile*> (inputFile->Get("hLikeVSMu_LikelihoodVSEta_prof"));
+    mass     = dynamic_cast<TH1F*>(inputFile->Get("hRecBestRes_Mass"));
+    massProb = dynamic_cast<TProfile*>(inputFile->Get("Mass_P"));
+    likePt   = dynamic_cast<TProfile*>(inputFile->Get("hLikeVSMu_LikelihoodVSPt_prof"));
+    likePhi  = dynamic_cast<TProfile*>(inputFile->Get("hLikeVSMu_LikelihoodVSPhi_prof"));
+    likeEta  = dynamic_cast<TProfile*>(inputFile->Get("hLikeVSMu_LikelihoodVSEta_prof"));
   }
   TH1F * mass;
   TProfile * massProb;
@@ -27,77 +27,66 @@ public:
   TProfile * likeEta;
 };
 
-/// Helper function to draw mass and mass probability histograms
-void drawMasses(const double ResMass, const double ResHalfWidth, histos & h)
+/// Helper function to compute the bins corresponding to an interval in the x axis
+int getXbins(const TH1 * h, const double & xMin, const double & xMax)
 {
-  h.mass->SetAxisRange(ResMass - ResHalfWidth, ResMass + ResHalfWidth);
-  h.mass->SetLineColor(kRed);
-  // h->mass->SetMarkerColor(kBlack);
-
   // To get the correct integral for rescaling determine the borders
-  TAxis * xAxis = h.mass->GetXaxis();
-  double xMin = xAxis->GetXmin();
+  TAxis * xAxis = h->GetXaxis();
+  double xAxisMin = xAxis->GetXmin();
   // The bins have all the same width, therefore we can use this
   double binWidth = xAxis->GetBinWidth(1);
-  int xMinBin = int(((ResMass - ResHalfWidth) - xMin)/binWidth) + 1;
-  int xMaxBin = int(((ResMass + ResHalfWidth) - xMin)/binWidth) + 1;
+  int xMinBin = int((xMin - xAxisMin)/binWidth) + 1;
+  int xMaxBin = int((xMax - xAxisMin)/binWidth) + 1;
   cout << "xMinBin = " << xMinBin << endl;
   cout << "xMaxBin = " << xMaxBin << endl;
   cout << "binWidth = " << binWidth << endl;
+  return( xMaxBin - xMinBin );
+}
+
+/// Helper function to draw mass and mass probability histograms
+void drawMasses(const double ResMass, const double ResHalfWidth, histos & h)
+{
+  TH1F * mass = (TH1F*)h.mass->Clone();
+  TProfile * massProb = (TProfile*)h.massProb->Clone();
+  mass->SetAxisRange(ResMass - ResHalfWidth, ResMass + ResHalfWidth);
+  mass->SetLineColor(kRed);
 
   // Set a consistent binning
-  // int massXbins = h.mass->GetNbinsX();
-  int massXbins = xMaxBin - xMinBin;
-  int massProbXbins = h.massProb->GetNbinsX();
-//   if( massXbins > massProbXbins ) {
-//     if ( massXbins % massProbXbins != 0 ) {
-//       cout << "Warning: number of bins are not multiples: massXbins = " << massXbins << ", massProbXbins = " << massProbXbins << endl;
-//       cout << "massXbins % massProbXbins = " << massXbins % massProbXbins << endl;
-//     }
-//   }
-//   else if( massProbXbins % massXbins != 0 ) {
-//     cout << "Warning: number of bins are not multiples: massXbins = " << massXbins << ", massProbXbins = " << massProbXbins << endl;
-//     cout << "massProbXbins % massXbins = " << massProbXbins % massXbins << endl;
-//   }
-  if( massProbXbins > massXbins ) {
-    cout << "massProbXbins("<<massProbXbins<<") > " << "massXbins("<<massXbins<<")" << endl;
-    h.massProb->Rebin(massProbXbins/massXbins);
+  int massXbins = getXbins( h.mass, (ResMass - ResHalfWidth), (ResMass + ResHalfWidth) );
+  int massProbXbins = getXbins( h.massProb, (ResMass - ResHalfWidth), (ResMass + ResHalfWidth) );
+
+  if( massProbXbins > massXbins && massXbins != 0 ) {
+//     cout << "massProbXbins("<<massProbXbins<<") > " << "massXbins("<<massXbins<<")" << endl;
+//     cout << "massProb = " << massProb << endl;
+//     cout << "mass = " << mass << endl;
+    massProb->Rebin(massProbXbins/massXbins);
   }
-  else if( massXbins > massProbXbins ) {
-    cout << "massXbins("<<massXbins<<") > " << "massProbXbins("<<massProbXbins<<")" << endl;
-    h.mass->Rebin(massXbins/massProbXbins);
+  else if( massXbins > massProbXbins && massProbXbins != 0 ) {
+//     cout << "massXbins("<<massXbins<<") > " << "massProbXbins("<<massProbXbins<<")" << endl;
+//     cout << "massProb = " << massProb << endl;
+//     cout << "mass = " << mass << endl;
+    mass->Rebin(massXbins/massProbXbins);
   }
 
-//   double normFactorPlus = (h.mass->Integral(xMinBin, xMaxBin, "width"))/(h.massProb->Integral("width"));
-//   cout << "normFactorPlus = " << normFactorPlus << endl;
-//   cout << "scaled plus massProb integral = " << h.massProb->Integral("width")*normFactorPlus << endl;;
+  mass->SetAxisRange(ResMass - ResHalfWidth, ResMass + ResHalfWidth);
+  massProb->SetAxisRange(ResMass - ResHalfWidth, ResMass + ResHalfWidth);
 
+  double massProbIntegral = massProb->Integral("width");
+  double normFactor = 1.;
+  if( massProbIntegral != 0 ) normFactor = (mass->Integral("width"))/massProbIntegral;
 
-  h.mass->SetAxisRange(ResMass - ResHalfWidth, ResMass + ResHalfWidth);
-  h.massProb->SetAxisRange(ResMass - ResHalfWidth, ResMass + ResHalfWidth);
-  double normFactor = (h.mass->Integral("width"))/(h.massProb->Integral("width"));
-//   cout << "ResMass - ResHalfWidth = " << ResMass - ResHalfWidth << endl;
-//   cout << "ResMass + ResHalfWidth = " << ResMass + ResHalfWidth << endl;
-//   cout << "normFactor = " << normFactor << endl;
-//   cout << "mass integral = " << h.mass->Integral("width") << endl;
-//   cout << "massProb integral = " << h.massProb->Integral("width") << endl;
-//   cout << "scaled massProb integral = " << h.massProb->Integral("width")*normFactor << endl;;
-  h.massProb->SetLineColor(kBlue);
-  h.massProb->SetNormFactor(normFactor);
-  h.mass->SetMarkerColor(kRed);
-  cout << (h.massProb->GetMaximum())*normFactor << endl;
-  cout << h.mass->GetMaximum() << endl;
+  massProb->SetLineColor(kBlue);
+  massProb->Scale(normFactor);
+
+  mass->SetMarkerColor(kRed);
   // ATTENTION: put so that the maximum is correct
-  // if( (h.massProb->GetMaximum())*normFactor > h.mass->GetMaximum() ) h.massProb->DrawCopy();
-  cout << "(h.massProb->GetMaximum())*normFactor = " << (h.massProb->GetMaximum())*normFactor << endl;
-  cout << "h.mass->GetMaximum() = " << h.mass->GetMaximum() << endl;
-  if( (h.massProb->GetMaximum())*normFactor > h.mass->GetMaximum() ) {
-    h.massProb->DrawCopy("PE");
-    h.mass->DrawCopy("SAMEHISTO");
+  if( (massProb->GetMaximum()) > mass->GetMaximum() ) {
+    massProb->DrawCopy("PE");
+    mass->DrawCopy("PESAMEHISTO");
   }
   else {
-    h.mass->DrawCopy("PE");
-    h.massProb->DrawCopy("SAMEHISTO");
+    mass->DrawCopy("PE");
+    massProb->DrawCopy("PESAMEHISTO");
   }
 }
 
@@ -221,3 +210,4 @@ void Plot_mass(const TString & fileNameBefore = "0", const TString & fileNameAft
 
   outputFile->Close();
 }
+

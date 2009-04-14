@@ -52,4 +52,5 @@ gROOT.ProcessLine(".x "+macrosDir+"CompareRecoGenPt.C("+firstFile+", "+secondFil
 
 # Mass vs mass probability
 gROOT.ProcessLine(".x "+macrosDir+"Plot_mass.C+("+firstFile+", "+secondFile+")")
-os.system("root -l "+macrosDir+"ShowMassComparison.C")
+gROOT.ProcessLine(".x "+macrosDir+"ShowMassComparison.C+(\""+resonanceType+"\")")
+# os.system("root -l "+macrosDir+"ShowMassComparison.C")
