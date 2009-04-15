@@ -161,12 +161,18 @@ class _Parameterizable(object):
         for name in self.parameterNames_():
                result[name]=copy.deepcopy(self.__dict__[name])
         return result
+
+    def __addParameter(self, name, value):
+        if not isinstance(value,_ParameterTypeBase):
+            self.__raiseBadSetAttr(name)
+        self.__dict__[name]=value
+        self.__parameterNames.append(name)
+        self._isModified = True
+
     def __setParameters(self,parameters):
         for name,value in parameters.iteritems():
-            if not isinstance(value,_ParameterTypeBase):
-                self.__raiseBadSetAttr(name)
-            self.__dict__[name]=value
-            self.__parameterNames.append(name)
+            self.__addParameter(name, value)
+
     def __setattr__(self,name,value):
         #since labels are not supposed to have underscores at the beginning
         # I will assume that if we have such then we are setting an internal variable
@@ -176,25 +182,20 @@ class _Parameterizable(object):
             message += "\nThe original parameters are:\n"
             message += self.dumpPython() + '\n'           
             raise ValueError(message)
-  
+        # underscored names bypass checking for _ParameterTypeBase
         if name[0]=='_':
             super(_Parameterizable,self).__setattr__(name,value)
-            # RICK test
-            return
-        if not name in self.__dict__:
-            if not isinstance(value,_ParameterTypeBase):
-                self.__raiseBadSetAttr(name)
-            self.__dict__[name]=value
-            self.__parameterNames.append(name)
-        param = self.__dict__[name]
-        if not isinstance(param,_ParameterTypeBase):
-            self.__dict__[name]=value
+        elif not name in self.__dict__:
+            self.__addParameter(name, value)
+            self._isModified = True
         else:
+            # handle the case where users just replace with a value, a = 12, rather than a = cms.int32(12)
             if isinstance(value,_ParameterTypeBase):
-                self.__dict__[name] =value
+                self.__dict__[name] = value
             else:
-                param.setValue(value)
-        self._isModified = True
+                self.__dict__[name].setValue(value)
+            self._isModified = True
+
     def isFrozen(self):
         return self._isFrozen
     def setIsFrozen(self):
