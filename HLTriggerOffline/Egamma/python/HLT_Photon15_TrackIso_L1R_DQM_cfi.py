@@ -8,17 +8,14 @@ import FWCore.ParameterSet.Config as cms
 #  HLT_Photon15_TrackIso_L1R 
 #    A single photon trigger, requiring at least one HLT photon with ET > 15 GeV.
 #    Track isolation is required, with 1 or 0 tracks in the isolation cone. 
-#
-#
-# This path contains 5 steps:
+
 #  HLT_Photon15_TrackIso_L1R = { HLTBeginSequence &
 #                                hltL1sRelaxedSingleEgammaEt10 &
 #                                hltPrePhoton15HTIL1R &
 #                                HLTSinglePhoton15L1NonIsolatedHLTHTISequence &
 #                                HLTEndSequence }
 #
-# And the sequence named in step 4 can be expanded into its 20 steps,
-# and notice it contains 5 filters (marked with *)
+# The sequence in step 4 has 17 steps, and 4 filters (marked with *)
 # HLTSinglePhoton15L1NonIsolatedHLTHTISequence = {
 #  1      HLTDoRegionalEgammaEcalSequence &
 #  2      HLTL1IsolatedEcalClustersSequence &
