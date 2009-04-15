@@ -19,6 +19,8 @@ CSCTFTrackBuilder::CSCTFTrackBuilder(const edm::ParameterSet& pset, bool TMB07,
 				     const L1MuTriggerScales* scales,
 				     const L1MuTriggerPtScale* ptScale ){
   my_dtrc = new CSCTFDTReceiver();
+  m_minBX = pset.getParameter<int>("MinBX");
+  m_maxBX = pset.getParameter<int>("MaxBX");
 
   for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
     {
@@ -112,11 +114,41 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
       std::vector<csctf::TrackStub> possible_stubs = my_SPs[titr->endcap()-1][titr->sector()-1]->filteredStubs();
       std::vector<csctf::TrackStub>::const_iterator tkstbs = possible_stubs.begin();
 
-      int me1ID = titr->me1ID();
-      int me2ID = titr->me2ID();
-      int me3ID = titr->me3ID();
-      int me4ID = titr->me4ID();
-      int mb1ID = titr->mb1ID();
+      int me1ID    = titr->me1ID()&0x7;
+      int me2ID    = titr->me2ID()&0x3;
+      int me3ID    = titr->me3ID()&0x3;
+      int me4ID    = titr->me4ID()&0x3;
+      int mb1ID    = titr->mb1ID()&0x3;
+      int me1delay = titr->me1ID()>>3;
+      int me2delay = titr->me2ID()>>2;
+      int me3delay = titr->me3ID()>>2;
+      int me4delay = titr->me4ID()>>2;
+      int mb1delay = titr->mb1ID()>>2;
+      // BX analyzer: some stub could be delayed by BXA so that all the stubs will run through the core at the same BX;
+      //  then there is a rule of "second earlies LCT": resulting track will be placed at BX of the "second earliest LCT";
+      //  in the end there are two parameters in place: the delay by BXA w.r.t to the last LCT and track tbin assignment
+      std::map< int, std::list<int> > timeline;
+      if( me1ID ) timeline[me1delay].push_back(1);
+      if( me2ID ) timeline[me2delay].push_back(2);
+      if( me3ID ) timeline[me3delay].push_back(3);
+      if( me4ID ) timeline[me4delay].push_back(4);
+      int earliest_tbin=0, second_earliest_tbin=0;
+      for(int bx=7; bx>=0; bx--){
+         std::list<int>::const_iterator iter = timeline[bx].begin();
+         while( iter != timeline[bx].end() ){
+            if( earliest_tbin==0 ) earliest_tbin=bx;
+            else if( second_earliest_tbin==0 ) second_earliest_tbin=bx;
+            iter++;
+         }
+      }
+      // Core's input was loaded in a relative time window BX=[0-7)
+      // To relate it to time window of tracks (centred at BX=0) we introduce a shift:
+      int shift   = (m_maxBX + m_minBX)/2 - m_minBX + m_minBX;
+      int me1Tbin = titr->bx() - me1delay + second_earliest_tbin + shift;
+      int me2Tbin = titr->bx() - me2delay + second_earliest_tbin + shift;
+      int me3Tbin = titr->bx() - me3delay + second_earliest_tbin + shift;
+      int me4Tbin = titr->bx() - me4delay + second_earliest_tbin + shift;
+      int mb1Tbin = titr->bx() - mb1delay + second_earliest_tbin + shift;
 
       for(; tkstbs != possible_stubs.end(); tkstbs++)
         {
@@ -124,31 +156,31 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
             {
             case 1:
               if((tkstbs->getMPCLink()
-                  +(3*(CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(tkstbs->getDetId().rawId())) - 1))) == me1ID && me1ID != 0)
+                  +(3*(CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(tkstbs->getDetId().rawId())) - 1))) == me1ID && me1ID != 0 && me1Tbin == tkstbs->BX() )
                 {
                   tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), *(tkstbs->getDigi()));
                 }
               break;
 	    case 2:
-              if(tkstbs->getMPCLink() == me2ID && me2ID != 0)
+              if(tkstbs->getMPCLink() == me2ID && me2ID != 0 && me2Tbin == tkstbs->BX() )
                 {
                   tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), *(tkstbs->getDigi()));
                 }
               break;
             case 3:
-              if(tkstbs->getMPCLink() == me3ID && me3ID != 0)
+              if(tkstbs->getMPCLink() == me3ID && me3ID != 0 && me3Tbin == tkstbs->BX() )
                 {
                   tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), *(tkstbs->getDigi()));
                 }
               break;
             case 4:
-              if(tkstbs->getMPCLink() == me4ID && me4ID != 0)
+              if(tkstbs->getMPCLink() == me4ID && me4ID != 0 && me4Tbin == tkstbs->BX() )
                 {
                   tcitr->second.insertDigi(CSCDetId(tkstbs->getDetId().rawId()), *(tkstbs->getDigi()));
                 }
               break;
 	    case 5:
-	      if(tkstbs->getMPCLink() == mb1ID && mb1ID != 0)
+	      if(tkstbs->getMPCLink() == mb1ID && mb1ID != 0 && mb1Tbin == tkstbs->BX() )
 	      {
 		/// Hmmm how should I implement this??? Maybe change the L1Track to use stubs not LCTs?
 	      }
