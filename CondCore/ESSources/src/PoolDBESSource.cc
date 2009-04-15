@@ -113,7 +113,9 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       metadata.getEntryByTag(it->tag,result);
       coraldb.commit();
 
-      ProxyP proxy(cond::ProxyFactory::get()->create(buildName(it->recordname), c, result.iovtoken, it->labelname));
+      cond::DataProxyWrapperBase * pb =  cond::ProxyFactory::get()->create(buildName(it->recordname), c, result.iovtoken, it->labelname);
+
+      ProxyP proxy(pb);
 
       edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( it->recordname ) );
       if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag() ) {
@@ -197,7 +199,7 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
 
   if(0 != (*p).second.get()) {
     edm::eventsetup::TypeTag type =  (*p).second->type(); 
-    edm::eventsetup::DataKey key( type, edm::eventsetup::IdTags((*p).second->label.c_str()) );
+    edm::eventsetup::DataKey key( type, edm::eventsetup::IdTags((*p).second->label().c_str()) );
     aProxyList.push_back(KeyedProxies::value_type(key,(*p).second->edmProxy()));
   }
 }

@@ -76,7 +76,7 @@ public:
   DataProxyWrapper(cond::Connection& conn,
 		   const std::string & token, std::string const & il) :
     cond::DataProxyWrapperBase(il),
-    m_proxy(new PayProxy(conn,token)),
+    m_proxy(new PayProxy(conn,token,false)),
     m_edmProxy(m_proxy){
    //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
