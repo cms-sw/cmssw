@@ -18,7 +18,7 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
 
     ClusterLabel = cms.string(''),
 
-    TkHistoMap_On = cms.bool(False),
+    TkHistoMap_On = cms.bool(True),
                                      
     CreateTrendMEs = cms.bool(False),
     Trending = cms.PSet(
@@ -107,7 +107,7 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
         Nbinx            = cms.int32(100),
         xmin             = cms.double(-0.5),
         xmax             = cms.double(499.5),
-        layerswitchon    = cms.bool(True),        
+        layerswitchon    = cms.bool(False),        
         moduleswitchon   = cms.bool(False)        
     ),
       
@@ -115,7 +115,7 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
         Nbinx            = cms.int32(100),
         xmin             = cms.double(-0.5),
         xmax             = cms.double(499.5),
-        layerswitchon    = cms.bool(True),        
+        layerswitchon    = cms.bool(False),        
         moduleswitchon   = cms.bool(False)        
     ),
                                      
