@@ -1,10 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import copy
 
-from PhysicsTools.PFCandProducer.pfAllChargedHadrons_cfi import *
-from PhysicsTools.PFCandProducer.pfAllNeutralHadrons_cfi import *
-from PhysicsTools.PFCandProducer.pfAllPhotons_cfi import *
-
 # compute IsoDeposits from all PFCandidates
 tauIsoDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
     src = cms.InputTag("fixedConePFTauProducer"),
@@ -50,10 +46,7 @@ tauIsoDepositPFNeutralHadrons.ExtractorPSet.candidateSource = cms.InputTag("pfAl
 tauIsoDepositPFGammas = copy.deepcopy(tauIsoDepositPFCandidates)
 tauIsoDepositPFGammas.ExtractorPSet.candidateSource = cms.InputTag("pfAllPhotons")
 
-selectPFCandidates = cms.Sequence( pfAllChargedHadrons * pfAllNeutralHadrons * pfAllPhotons )
-
-patPFTauIsolation = cms.Sequence( selectPFCandidates
-                                 * tauIsoDepositPFCandidates
+patPFTauIsolation = cms.Sequence( tauIsoDepositPFCandidates
                                  * tauIsoDepositPFChargedHadrons
                                  * tauIsoDepositPFNeutralHadrons
                                  * tauIsoDepositPFGammas )
