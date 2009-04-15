@@ -71,6 +71,7 @@ namespace cond {
 template< class RecordT, class DataT >
 class DataProxyWrapper : public  cond::DataProxyWrapperBase {
 public:
+  typedef ::DataProxy<RecordT,DataT> DataProxy;
   typedef cond::PayloadProxy<DataT> PayProxy;
   typedef boost::shared_ptr<PayProxy> DataP;
   
@@ -79,7 +80,7 @@ public:
 		   const std::string & token, std::string const & il) :
     cond::DataProxyWrapperBase(il),
     m_proxy(new PayProxy(conn,token,false)),
-    m_edmProxy(new ::DataProxy(m_proxy)){
+    m_edmProxy(new DataProxy(m_proxy)){
    //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
     //std::cout<<"DataProxy constructor"<<std::endl;
@@ -91,7 +92,7 @@ public:
 		   Args const & args) :
     cond::DataProxyWrapperBase(args.second),
     m_proxy(new PayProxy(conn,args.first,false)),
-    m_edmProxy(new ::DataProxy(m_proxy)){
+    m_edmProxy(new DataProxy(m_proxy)){
    //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
     //std::cout<<"DataProxy constructor"<<std::endl;
