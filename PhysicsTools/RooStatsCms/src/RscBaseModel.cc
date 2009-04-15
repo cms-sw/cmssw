@@ -22,7 +22,6 @@
 
 RscBaseModel::RscBaseModel(TString theName, RooRealVar& theVar, RooArgSet* discVars)
   : model("model","defines what model to use"),
-
     fileName(theName+"_fileName","Histogram file name",""),
     dataName(theName+"_dataName","Histogram name","")
 {

@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: RscConstrArrayFiller.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
+// @(#)root/hist:$Id: RscConstrArrayFiller.cc,v 1.4 2009/04/15 11:52:31 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -273,7 +273,7 @@ NLLPenalty* RscConstrArrayFiller::m_fill_single_block (TString block_name){
         }
 
     // Fill the correlation block
-    NLLPenalty* block=0http://www.physik.uni-karlsruhe.de/Personen.php?id=13;
+    NLLPenalty* block=0;
     // Fill the correlation block
     if (number_of_constraints==2){
         if (is_verbose())

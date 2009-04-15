@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: LimitPlot.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
+// @(#)root/hist:$Id: LimitPlot.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -17,9 +17,9 @@ LimitPlot::LimitPlot(const char* name,
                      float m2lnQ_data,
                      int n_bins,
                      bool verbosity):
-    m_b_histo_shaded(NULL),
+    StatisticalPlot(name,title,verbosity),
     m_sb_histo_shaded(NULL),
-    StatisticalPlot(name,title,verbosity){
+    m_b_histo_shaded(NULL){
 
     // Get the max and the min of the plots
     int n_toys=sb_vals.size();
