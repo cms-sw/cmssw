@@ -39,6 +39,10 @@ dqmInfoSiStrip = cms.EDFilter("DQMEventInfo",
     subSystemFolder = cms.untracked.string('SiStrip')
 )
 
+# Services needed for TkHistoMap
+TkDetMap = cms.Service("TkDetMap")
+SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
+
 # Sequence
 SiStripDQMTier0 = cms.Sequence(siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorTrack*MonitorTrackResiduals*TrackMon*dqmInfoSiStrip)
 

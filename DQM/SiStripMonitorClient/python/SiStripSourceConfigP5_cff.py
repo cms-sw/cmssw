@@ -134,3 +134,6 @@ TrackEffMon_bhmuon.TKTrackCollection               = 'ctfWithMaterialTracksBeamH
 TrackEffMon_bhmuon.AlgoName                        = 'BHMuonTk'
 TrackEffMon_bhmuon.FolderName                      = 'SiStrip/Tracks/Efficiencies'
 
+# Services needed for TkHistoMap
+TkDetMap = cms.Service("TkDetMap")
+SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")

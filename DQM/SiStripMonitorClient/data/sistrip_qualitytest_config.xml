@@ -10,6 +10,18 @@
       <PARAM name="xmin">0.0</PARAM>
       <PARAM name="xmax">0.4</PARAM>
 </QTEST>
+<QTEST name="ContentsWithinExpected:TkHistoDigi">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="minMean">0.0</PARAM>
+        <PARAM name="maxMean">0.4</PARAM>
+        <PARAM name="minRMS">0</PARAM>
+        <PARAM name="maxRMS">0</PARAM>
+        <PARAM name="toleranceMean">-1</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="minEntries">1000</PARAM>
+        <PARAM name="error">0.30</PARAM>
+        <PARAM name="warning">0.70</PARAM>
+</QTEST>
 <QTEST name="MeanWithinExpectedRange:Clusters" activate="true">
       <TYPE>MeanWithinExpected</TYPE>
       <PARAM name="error">0.05</PARAM>
@@ -21,27 +33,24 @@
       <PARAM name="xmin">0.0</PARAM>
       <PARAM name="xmax">0.1</PARAM>
 </QTEST>
+<QTEST name="ContentsWithinExpected:TkHistoCluster">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="minMean">0.0</PARAM>
+        <PARAM name="maxMean">0.1</PARAM>
+        <PARAM name="minRMS">0</PARAM>
+        <PARAM name="maxRMS">0</PARAM>
+        <PARAM name="toleranceMean">-1</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="minEntries">30</PARAM>
+        <PARAM name="error">0.30</PARAM>
+        <PARAM name="warning">0.70</PARAM>
+</QTEST>
 <QTEST name="XrangeWithin:0-10.0" activate="true"> 
      <TYPE>ContentsXRange</TYPE> 
      <PARAM name="error">0.2</PARAM> 
      <PARAM name="warning">0.4</PARAM> 
      <PARAM name="xmin">0</PARAM> 
      <PARAM name="xmax">10.0</PARAM> 
-</QTEST>
-<QTEST name="YrangeWithin:0-900.0" activate="true"> 
-     <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.2</PARAM> 
-     <PARAM name="warning">0.5</PARAM> 
-     <PARAM name="ymin">0</PARAM> 
-     <PARAM name="ymax">900.0</PARAM> 
-     <PARAM name="useEmptyBins">1</PARAM>
-</QTEST>
-<QTEST name="XrangeWithin:-0.5-0.5" activate="true">
-     <TYPE>ContentsXRange</TYPE>
-     <PARAM name="error">0.95</PARAM>
-     <PARAM name="warning">0.98</PARAM>
-     <PARAM name="xmin">-0.5</PARAM>
-     <PARAM name="xmax">0.5</PARAM>
 </QTEST>
 <QTEST name="XrangeWithin:TrkRecHit" activate="true">
      <TYPE>ContentsXRange</TYPE>
@@ -57,20 +66,17 @@
      <PARAM name="xmin">0.0</PARAM>
      <PARAM name="xmax">15.0</PARAM>
 </QTEST>
+<LINK name="*TkHMap_NumberOfDigi_*">
+  <TestName activate="true">ContentsWithinExpected:TkHistoDigi</TestName>
+</LINK>
 <LINK name="*NumberOfDigis__det__*"> 
   <TestName activate="true">MeanWithinExpectedRange:Digi</TestName> 
 </LINK>
+<LINK name="*TkHMap_NumberOfCluster_*">
+  <TestName activate="true">ContentsWithinExpected:TkHistoCluster</TestName>
+</LINK>
 <LINK name="*NumberOfClusters__det__*"> 
   <TestName activate="true">MeanWithinExpectedRange:Clusters</TestName> 
-</LINK>
-<LINK name="*ClusterWidth__det__*"> 
-  <TestName activate="true">XrangeWithin:0-10.0</TestName> 
-</LINK>
-<LINK name="*PedsPerStrip__det__*"> 
-  <TestName activate="true">YrangeWithin:0-900.0</TestName> 
-</LINK>
-<LINK name="*NoisyStripDistribution__det__*">
-  <TestName activate="true">XrangeWithin:-0.5-0.5</TestName>
 </LINK>
 <LINK name="*NumberOfRecHitsPerTrack_*">
   <TestName activate="true">XrangeWithin:TrkRecHit</TestName>

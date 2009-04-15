@@ -123,6 +123,11 @@ dqmInfoSiStrip = cms.EDFilter("DQMEventInfo",
      subSystemFolder = cms.untracked.string('SiStrip')
 )
 
+# Services needed for TkHistoMap
+TkDetMap = cms.Service("TkDetMap")
+SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
+
+
 # Sequences 
 SiStripDQMTier0_cosmicTk = cms.Sequence(SiStripMonitorTrack_cosmicTk*MonitorTrackResiduals_cosmicTk*TrackMon_cosmicTk*TrackEffMon_cosmicTk)
 

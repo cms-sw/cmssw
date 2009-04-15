@@ -21,19 +21,19 @@
       <PARAM name="xmin">0.0</PARAM>
       <PARAM name="xmax">3800.0</PARAM>
 </QTEST>
-<QTEST name="ContentsWithinExpected:Digi">
+<QTEST name="ContentsWithinExpected:TkHistoDigi">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="minMean">0.0</PARAM>
         <PARAM name="maxMean">0.4</PARAM>
         <PARAM name="minRMS">0</PARAM>
         <PARAM name="maxRMS">0</PARAM>
         <PARAM name="toleranceMean">-1</PARAM>
-        <PARAM name="minEntries">20</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="minEntries">1000</PARAM>
         <PARAM name="error">0.30</PARAM>
         <PARAM name="warning">0.70</PARAM>
 </QTEST>
-<QTEST name="ContentsWithinExpected:Cluster">
+<QTEST name="ContentsWithinExpected:TkHistoCluster">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="minMean">0.0</PARAM>
         <PARAM name="maxMean">0.1</PARAM>
@@ -112,11 +112,11 @@
 <LINK name="*nBadActiveChannelStatusBits*">
   <TestName activate="true">MeanWithinExpectedRange:nFEDBadChannels</TestName>
 </LINK>
-<LINK name="*NumberOfDigiProfile__*">
-  <TestName activate="true">ContentsWithinExpected:Digi</TestName>
+<LINK name="*TkHMap_NumberOfDigi_*">
+  <TestName activate="true">ContentsWithinExpected:TkHistoDigi</TestName>
 </LINK>
-<LINK name="*NumberOfClusterProfile__*">
-  <TestName activate="true">ContentsWithinExpected:Cluster</TestName>
+<LINK name="*TkHMap_NumberOfCluster_*">
+  <TestName activate="true">ContentsWithinExpected:TkHistoCluster</TestName>
 </LINK>
 <LINK name="*Summary_ClusterStoNCorr__OnTrack__TIB__layer__*">
   <TestName activate="true">MeanWithinExpectedRange:StoNTIB</TestName>
