@@ -26,8 +26,9 @@ cosmicMuons = cms.EDProducer("CosmicMuonProducer",
         BuildTraversingMuon = cms.untracked.bool(False),
         EnableDTMeasurement = cms.untracked.bool(True),
         MuonSmootherParameters = cms.PSet(
-            PropagatorAlong = cms.string('SteppingHelixPropagatorAlong'),
-            PropagatorOpposite = cms.string('SteppingHelixPropagatorOpposite')
+            PropagatorAlong = cms.string('SteppingHelixPropagatorAny'),
+            PropagatorOpposite = cms.string('SteppingHelixPropagatorAny'),
+            RescalingFactor = cms.double(5.0) 
         ),
         Propagator = cms.string('SteppingHelixPropagatorAny'),
         EnableCSCMeasurement = cms.untracked.bool(True),

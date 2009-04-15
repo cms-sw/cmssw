@@ -7,8 +7,8 @@
  *      within cylinders
  *
  *
- *  $Date: 2008/05/14 22:37:17 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/10/16 20:33:18 $
+ *  $Revision: 1.14 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -38,9 +38,9 @@ CosmicMuonSmoother::CosmicMuonSmoother(const ParameterSet& par, const MuonServic
   theEstimator   = new Chi2MeasurementEstimator(200.0);
   thePropagatorAlongName = par.getParameter<string>("PropagatorAlong");
   thePropagatorOppositeName = par.getParameter<string>("PropagatorOpposite");
+  theErrorRescaling = par.getParameter<double>("RescalingFactor");
 
   category_ = "Muon|RecoMuon|CosmicMuon|CosmicMuonSmoother";
-
 }
 
 //
@@ -76,7 +76,7 @@ vector<Trajectory> CosmicMuonSmoother::trajectories(const TrajectorySeed& seed,
   LogTrace(category_)<< "trajectory begin (seed hits tsos)";
 
   TrajectoryStateOnSurface firstTsos = firstPredTsos;
-//  firstTsos.rescaleError(20.);
+  firstTsos.rescaleError(theErrorRescaling);
 
   LogTrace(category_)<< "first TSOS: "<<firstTsos;
 
@@ -108,10 +108,15 @@ vector<Trajectory> CosmicMuonSmoother::fit(const Trajectory& t) const {
 
   ConstRecHitContainer hits = t.recHits();
   LogTrace(category_)<< "hits: "<<hits.size();
+  LogTrace(category_)<<"hit front" <<hits.front()->globalPosition()<< " hit back" 
+    <<hits.back()->globalPosition();
 
   sortHitsAlongMom(hits, firstTsos);
 
-  return fit(t.seed(), t.recHits(), firstTsos);
+  LogTrace(category_)<<"after sorting hit front" <<hits.front()->globalPosition()<< " hit back" 
+    <<hits.back()->globalPosition();
+
+  return fit(t.seed(), hits, firstTsos);
 
 }
 
@@ -133,6 +138,8 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
   Trajectory myTraj(seed, alongMomentum);
 
   TrajectoryStateOnSurface predTsos(firstPredTsos);
+  LogTrace(category_)<< "first pred TSOS: "<<predTsos;
+
   if ( !predTsos.isValid() ) {
     LogTrace(category_)<< "Error: firstTsos invalid.";
     return vector<Trajectory>();
@@ -142,10 +149,13 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
   if ( hits.front()->isValid() ) {
 
     TransientTrackingRecHit::RecHitPointer preciseHit = hits.front()->clone(predTsos);
+    LogTrace(category_)<<"first hit is at det "<< hits.front()->det()->surface().position();
 
     currTsos = theUpdator->update(predTsos, *preciseHit);
     myTraj.push(TrajectoryMeasurement(predTsos, currTsos, hits.front(),
                 theEstimator->estimate(predTsos, *hits.front()).second));
+    if ( currTsos.isValid() )  LogTrace(category_)<< "first curr TSOS: "<<currTsos;
+
 
   } else {
 
@@ -259,7 +269,7 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
   }
 
   TrajectoryStateOnSurface predTsos = avtm.back().forwardPredictedState();
- // predTsos.rescaleError(theErrorRescaling);
+  predTsos.rescaleError(theErrorRescaling);
 
   if ( !predTsos.isValid() ) {
     LogTrace(category_)<< "Error: smooth: first TSOS from back invalid. ";
