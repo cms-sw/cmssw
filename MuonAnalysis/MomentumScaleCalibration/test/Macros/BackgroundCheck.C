@@ -23,10 +23,9 @@ using namespace std;
 
 void BackgroundCheck()
 {
-
   TFile * allFile = new TFile("0_MuScleFit.root", "READ");
-  TFile * resonanceFile = new TFile("resonance/0_MuScleFit.root", "READ");
-  TFile * backgroundFile = new TFile("background/0_MuScleFit.root", "READ");
+  TFile * resonanceFile = new TFile("0_MuScleFit.root", "READ");
+  TFile * backgroundFile = new TFile("backgroundOnly/0_MuScleFit.root", "READ");
 
   TH1F * allHisto = (TH1F*)allFile->Get("hRecBestRes_Mass");
   TH1F * resonanceHisto = (TH1F*)resonanceFile->Get("hRecBestRes_Mass");
@@ -54,13 +53,15 @@ void BackgroundCheck()
   // IMPORTANT: parameters to change
   // -------------------------------
   int ires = 3;
-  double Bgrp1 = 0.0625942;
-  double a = 0.105663;
+  double Bgrp1 = 0.469693;
+  double a = 0.146067;
+  double leftWindowFactor = 10.;
+  double rightWindowFactor = 10.;
   // -------------------------------
 
   // For J/Psi exclude the Upsilon from the background normalization as the bin is not used by the fit.
-  double lowWindowValue = ResMass[ires]-ResHalfWidth[ires];
-  double upWindowValue = ResMass[ires]+ResHalfWidth[ires];
+  double lowWindowValue = ResMass[ires]-leftWindowFactor*ResHalfWidth[ires];
+  double upWindowValue = ResMass[ires]+rightWindowFactor*ResHalfWidth[ires];
 
   int lowBin = int((lowWindowValue)*xBins/deltaX);
   int upBin = int((upWindowValue)*xBins/deltaX);
