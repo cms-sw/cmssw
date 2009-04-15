@@ -29,8 +29,7 @@ paths.Wenu = ['HLT_Ele10_LW_L1RDQM']
 
 paths.Zee = paths.Wenu + ['HLT_DoubleEle5_SW_L1RDQM']
 
-paths.GammaJet = [#'singlePhotonRelaxedDQM',
-                  'singlePhotonDQM']
+paths.GammaJet = ['singlePhotonDQM','HLT_Photon15_TrackIso_L1R_DQM']
 
 paths.DiGamma  = paths.GammaJet + ['veryHighEtDQM',
                                    'highEtDQM',
