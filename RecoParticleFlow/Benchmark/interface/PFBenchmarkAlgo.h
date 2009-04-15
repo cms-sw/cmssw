@@ -32,33 +32,33 @@ public:
   template <typename T, typename U>
   static double deltaR(const T *, const U *);
 
-  // Match Candidate T to a Candidate U in the Collection based on minimum Delta-R
-  template <typename T, typename U, template <typename> class Collection>
-  static const U *matchByDeltaR(const T *, const Collection<U> *);
-
+  // Match Candidate T to a Candidate in the Collection based on minimum Delta-R
+  template <typename T, typename Collection>
+  static const typename Collection::value_type *matchByDeltaR(const T *, const Collection *);
+  
   // Match Candidate T to a Candidate U in the Collection based on minimum Delta-Et
-  template <typename T, typename U, template <typename> class Collection>
-  static const U *matchByDeltaEt(const T *, const Collection<U> *);
+  template <typename T, typename Collection>
+  static const typename Collection::value_type *matchByDeltaEt(const T *, const Collection *);
 
   // Copy the input Collection (useful when sorting)
-  template <typename U, template <typename> class Collection>
-  static Collection<U> copyCollection(const Collection<U> *);
+  template <typename T, typename Collection>
+  static Collection copyCollection(const Collection *);
 
   // Sort the U Candidates to the T Candidate based on minimum Delta-R
-  template <typename T, typename U, template <typename> class Collection>
-  static void sortByDeltaR(const T *, Collection<U> &);
+  template <typename T, typename Collection>
+  static void sortByDeltaR(const T *, Collection &);
 
   // Sort the U Candidates to the T Candidate based on minimum Delta-Et
-  template <typename T, typename U, template <typename> class Collection>
-  static void sortByDeltaEt(const T *, Collection<U> &);
+  template <typename T, typename Collection>
+  static void sortByDeltaEt(const T *, Collection &);
 
   // Constrain the U Candidates to the T Candidate based on Delta-R to T
-  template <typename T, typename U, template <typename> class Collection>
-  static Collection<U> findAllInCone(const T *, const Collection<U> *, double);
+  template <typename T, typename Collection>
+  static Collection findAllInCone(const T *, const Collection *, double);
 
   // Constrain the U Candidates to the T Candidate based on Delta-Et to T
-  template <typename T, typename U, template <typename> class Collection>
-  static Collection<U> findAllInEtWindow(const T *, const Collection<U> *, double);
+  template <typename T, typename Collection>
+  static Collection findAllInEtWindow(const T *, const Collection *, double);
 
 private:
 
@@ -179,9 +179,11 @@ double PFBenchmarkAlgo::deltaR(const T *c1, const U *c2) {
 
 }
 
-// Match Candidate T to a Candidate U in the Collection based on minimum Delta-R
-template <typename T, typename U, template <typename> class Collection>
-const U *PFBenchmarkAlgo::matchByDeltaR(const T *c1, const Collection<U> *candidates) { 
+// Match Candidate T to a Candidate in the Collection based on minimum Delta-R
+template <typename T, typename Collection>
+const typename Collection::value_type *PFBenchmarkAlgo::matchByDeltaR(const T *c1, const Collection *candidates) {
+
+  typedef typename Collection::value_type U;
 
   // Try to verify the validity of the Candidate and Collection
   if (!c1) throw cms::Exception("Invalid Arg") << "attempted to match invalid Candidate";
@@ -208,8 +210,10 @@ const U *PFBenchmarkAlgo::matchByDeltaR(const T *c1, const Collection<U> *candid
 }
 
 // Match Candidate T to a Candidate U in the Collection based on minimum Delta-Et
-template <typename T, typename U, template <typename> class Collection>
-const U *PFBenchmarkAlgo::matchByDeltaEt(const T *c1, const Collection<U> *candidates) {
+template <typename T, typename Collection>
+const typename Collection::value_type *PFBenchmarkAlgo::matchByDeltaEt(const T *c1, const Collection *candidates) {
+
+  typedef typename Collection::value_type U;
 
   // Try to verify the validity of the Candidate and Collection
   if (!c1) throw cms::Exception("Invalid Arg") << "attempted to match invalid Candidate";
@@ -236,13 +240,15 @@ const U *PFBenchmarkAlgo::matchByDeltaEt(const T *c1, const Collection<U> *candi
 }
 
 // Copy the Collection (useful when sorting)
-template <typename U, template <typename> class Collection>
-Collection<U> PFBenchmarkAlgo::copyCollection(const Collection<U> *candidates) {
+template <typename T, typename Collection>
+Collection PFBenchmarkAlgo::copyCollection(const Collection *candidates) {
+
+  typedef typename Collection::value_type U;
 
   // Try to verify the validity of the Collection
   if (!candidates) throw cms::Exception("Invalid Arg") << "attempted to copy invalid Collection";
 
-  Collection<U> copy;
+  Collection copy;
 
   for (unsigned int i = 0; i < candidates->size(); i++)
     vector_add(&(*candidates)[i],copy);
@@ -253,8 +259,10 @@ Collection<U> PFBenchmarkAlgo::copyCollection(const Collection<U> *candidates) {
 
 
 // Sort the U Candidates to the Candidate T based on minimum Delta-R
-template <typename T, typename U, template <typename> class Collection>
-void PFBenchmarkAlgo::sortByDeltaR(const T *c1, Collection<U> &candidates) {
+template <typename T, typename Collection>
+void PFBenchmarkAlgo::sortByDeltaR(const T *c1, Collection &candidates) {
+
+  typedef typename Collection::value_type U;
 
   // Try to verify the validity of Candidate and Collection
   if (!c1) throw cms::Exception("Invalid Arg") << "attempted to sort by invalid Candidate";
@@ -266,8 +274,10 @@ void PFBenchmarkAlgo::sortByDeltaR(const T *c1, Collection<U> &candidates) {
 }
 
 // Sort the U Candidates to the Candidate T based on minimum Delta-Et
-template <typename T, typename U, template <typename> class Collection>
-void PFBenchmarkAlgo::sortByDeltaEt(const T *c1, Collection<U> &candidates) {
+template <typename T, typename Collection>
+void PFBenchmarkAlgo::sortByDeltaEt(const T *c1, Collection &candidates) {
+
+  typedef typename Collection::value_type U;
 
   // Try to verify the validity of Candidate and Collection
   if (!c1) throw cms::Exception("Invalid Arg") << "attempted to sort by invalid Candidate";
@@ -279,15 +289,17 @@ void PFBenchmarkAlgo::sortByDeltaEt(const T *c1, Collection<U> &candidates) {
 }
 
 // Constrain the U Candidates to the T Candidate based on Delta-R to T
-template <typename T, typename U, template <typename> class Collection>
-Collection<U> PFBenchmarkAlgo::findAllInCone(const T *c1, const Collection<U> *candidates, double ConeSize) {
+template <typename T, typename Collection>
+Collection PFBenchmarkAlgo::findAllInCone(const T *c1, const Collection *candidates, double ConeSize) {
+
+  typedef typename Collection::value_type U;
 
   // Try to verify the validity of Candidate and the Collection
   if (!c1) throw cms::Exception("Invalid Arg") << "attempted to constrain to invalid Candidate";
   if (!candidates) throw cms::Exception("Invalid Arg") << "attempted to constrain invalid Collection";
   if (ConeSize <= 0) throw cms::Exception("Invalid Arg") << "zero or negative cone size specified";
 
-  Collection<U> constrained;
+  Collection constrained;
 
   for (unsigned int i = 0; i < candidates->size(); i++) {
 
@@ -306,15 +318,17 @@ Collection<U> PFBenchmarkAlgo::findAllInCone(const T *c1, const Collection<U> *c
 }
 
 // Constrain the U Candidates to the T Candidate based on Delta-Et to T
-template <typename T, typename U, template <typename> class Collection>
-Collection<U> PFBenchmarkAlgo::findAllInEtWindow(const T *c1, const Collection<U> *candidates, double EtWindow) {
+template <typename T, typename Collection>
+Collection PFBenchmarkAlgo::findAllInEtWindow(const T *c1, const Collection *candidates, double EtWindow) {
+
+  typedef typename Collection::value_type U;
 
   // Try to verify the validity of Candidate and the Collection
   if (!c1) throw cms::Exception("Invalid Arg") << "attempted to constrain to invalid Candidate";
   if (!candidates) throw cms::Exception("Invalid Arg") << "attempted to constrain invalid Collection";
   if (EtWindow <= 0) throw cms::Exception("Invalid Arg") << "zero or negative cone size specified";
 
-  Collection<U> constrained;
+  Collection constrained;
 
   //CandidateCollection::const_iterator candidate;
   //for (candidate = candidates->begin(); candidate != candidates->end(); candidate++) {

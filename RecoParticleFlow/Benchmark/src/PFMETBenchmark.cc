@@ -171,21 +171,18 @@ void PFMETBenchmark::calculateQuantities( const reco::PFMETCollection& pfMets, c
   true_set  = 0.0;;
 
   //  for( genParticle = genParticleList.begin(); genParticle != genParticleList.end(); genParticle++ )
-  for( unsigned i = 0; i < genParticleList.size(); i++ )
-    {
-      if( genParticleList[i].status() == 1 && fabs(genParticleList[i].eta()) < 5.0 )
-	if( abs(genParticleList[i].pdgId()) == 12 ||
-	    abs(genParticleList[i].pdgId()) == 14 ||
-	    abs(genParticleList[i].pdgId()) == 16 )
-	  {
-	    trueMEX += genParticleList[i].px();
-	    trueMEY += genParticleList[i].py();
-	  }
-	else
-	  {
-	    true_set += genParticleList[i].pt();
-	  }
+  for( unsigned i = 0; i < genParticleList.size(); i++ ) {
+    if( genParticleList[i].status() == 1 && fabs(genParticleList[i].eta()) < 5.0 ) { 
+      if( abs(genParticleList[i].pdgId()) == 12 ||
+	  abs(genParticleList[i].pdgId()) == 14 ||
+	  abs(genParticleList[i].pdgId()) == 16 ) {
+	trueMEX += genParticleList[i].px();
+	trueMEY += genParticleList[i].py();
+      } else {
+	true_set += genParticleList[i].pt();
+      }
     }
+  }
   true_met = sqrt( trueMEX*trueMEX + trueMEY*trueMEY );
   true_phi = atan2(trueMEY,trueMEX);
   rec_met  = pfm.pt();
