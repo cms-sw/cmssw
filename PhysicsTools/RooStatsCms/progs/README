@@ -1,4 +1,0 @@
-Put here (progs directory) the files that you would like to compile as executables in the bin directory, linking the RooStatsCms library!
-NOTE:
-The extension of the program should be .cpp
-
