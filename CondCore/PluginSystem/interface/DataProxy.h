@@ -13,10 +13,10 @@
 template< class RecordT, class DataT >
   class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT>{
   public:
-  typedef  boost::shared_ptr<cond::PayloadProxy<DataT> > DataP;
+  typedef DataProxy<RecordT,DataT> self;
+  typedef boost::shared_ptr<cond::PayloadProxy<DataT> > DataP;
 
-  */
-  explicit DataProxy(DatatP pdata) : m_data(pdata) { 
+  explicit DataProxy(boost::shared_ptr<cond::PayloadProxy<DataT> > pdata) : m_data(pdata) { 
     //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
     //std::cout<<"DataProxy constructor"<<std::endl;
@@ -34,22 +34,20 @@ template< class RecordT, class DataT >
   protected:
   virtual const DataT* make(const RecordT&, const edm::eventsetup::DataKey&) {
     m_data->make();
-    return (*m_data)();
+    return &(*m_data)();
   }
   virtual void invalidateCache() {
-    m_data.clear();
-    m_OldData.clear();
+    m_data->invalidateCache();
   }
   private:
   //DataProxy(); // stop default
   const DataProxy& operator=( const DataProxy& ); // stop default
   // ---------- member data --------------------------------
-  cond::Connection* m_connection;
-  std::map<std::string,std::string>::iterator m_pDatumToToken;
 
-  DatatP m_data;
+  boost::shared_ptr<cond::PayloadProxy<DataT> >  m_data;
 
 };
+
 namespace cond {
   class DataProxyWrapperBase {
   public:
@@ -61,7 +59,7 @@ namespace cond {
 
 
     DataProxyWrapperBase(std::string const & il) : m_label(il){}
-    ~DataProxyWrapperBase(){}
+    virtual ~DataProxyWrapperBase(){}
     std::string const & label() const { return m_label;}
     
   private:
@@ -74,12 +72,12 @@ template< class RecordT, class DataT >
 class DataProxyWrapper : public  cond::DataProxyWrapperBase {
 public:
   typedef cond::PayloadProxy<DataT> PayProxy;
-  typedef  boost::shared_ptr<PayProxy> DataP;
+  typedef boost::shared_ptr<PayProxy> DataP;
 
   
   DataProxyWrapper(cond::Connection& conn,
 		   const std::string & token, std::string const & il) :
-    cond::DataProxyWrapperBase(il)
+    cond::DataProxyWrapperBase(il),
     m_proxy(new PayProxy(conn,token)),
     m_edmProxy(m_proxy){}
     
@@ -89,7 +87,7 @@ public:
  
 private:
 
-  DataP m_proxy;
+  boost::shared_ptr<cond::PayloadProxy<DataT> >  m_proxy;
   edmProxyP m_edmProxy;
 
 };
