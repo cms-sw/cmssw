@@ -88,16 +88,19 @@ myHist* getAnyHisto(myHist* hist,
   */
 
   std::string histtype = hist->ClassName();
+
   /*
-  if (scale!=1.)
+    if (scale!=1.)
     me->scale(scale);
   */
+  
   // return TH1F from ME
   if (histtype=="TH1F")
     {
       TH1F* out;
       if (clone) out = dynamic_cast<TH1F*>(me->getTH1F()->Clone(clonehisto));
       else out = me->getTH1F();
+      if (verb) std::cout <<"Got histogram!  Max = "<<out->GetMaximum()<<std::endl;
       return dynamic_cast<myHist*>(out);
     }
 
@@ -107,6 +110,8 @@ myHist* getAnyHisto(myHist* hist,
       TH2F* out;
       if (clone) out = dynamic_cast<TH2F*>(me->getTH2F()->Clone(clonehisto));
       else out = me->getTH2F();
+
+      if (verb) std::cout <<"Got histogram!  Max = "<<out->GetMaximum()<<std::endl;
       return dynamic_cast<myHist*>(out);
     }
 
