@@ -25,20 +25,23 @@ static const uint16_t _NUM_SISTRIP_SUBDET_ = 4;
 static TString SubDet[_NUM_SISTRIP_SUBDET_]={"TIB","TID","TOB","TEC"};
 static std::string flags[2] = {"OnTrack","OffTrack"};
 
-SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
+SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf): 
   dbe(edm::Service<DQMStore>().operator->()),
   conf_(conf),
-  Cluster_src_( conf.getParameter<edm::InputTag>( "Cluster_src" ) ),
-  Mod_On_(conf.getParameter<bool>("Mod_On")),
-  Trend_On_(conf.getParameter<bool>("Trend_On")),
-  OffHisto_On_(conf.getParameter<bool>("OffHisto_On")),
-  HistoFlag_On_(conf.getParameter<bool>("HistoFlag_On")),
-  //  RawDigis_On_(conf.getParameter<bool>("RawDigis_On")),
-  //  CCAnalysis_On_(conf.getParameter<bool>("CCAnalysis_On")),
-  folder_organizer(), tracksCollection_in_EventTree(true),
-  flag_ring(conf.getParameter<bool>("RingFlag_On")),
+  folder_organizer(), 
+  tracksCollection_in_EventTree(true),
   firstEvent(-1)
 {
+  Cluster_src_   = conf.getParameter<edm::InputTag>("Cluster_src");
+  Mod_On_        = conf.getParameter<bool>("Mod_On");
+  Trend_On_      = conf.getParameter<bool>("Trend_On");
+  OffHisto_On_   = conf.getParameter<bool>("OffHisto_On");
+  HistoFlag_On_  = conf.getParameter<bool>("HistoFlag_On");
+  flag_ring      = conf.getParameter<bool>("RingFlag_On");
+  TkHistoMap_On_ = conf.getParameter<bool>("TkHistoMap_On");
+  //  RawDigis_On_   = conf.getParameter<bool>("RawDigis_On");
+  //  CCAnalysis_On_ = conf.getParameter<bool>("CCAnalysis_On");
+
   for(int i=0;i<4;++i) for(int j=0;j<2;++j) NClus[i][j]=0;
   if(OffHisto_On_){
     off_Flag = 2;
@@ -166,10 +169,12 @@ void SiStripMonitorTrack::book()
 {
   
   //******** TkHistoMaps
-  tkhisto_StoNCorrOnTrack = new TkHistoMap("testTkMap/StoNCorrOnTrack" ,"StoNCorrOnTrack",0.,1); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
-  tkhisto_NumOnTrack  = new TkHistoMap("testTkMap/NumOnTrack"  ,"NumOnTrack",0.,1);
-  tkhisto_NumOffTrack = new TkHistoMap("testTkMap/NumOffTrack","NumOffTrack",0.,1);
- //******** TkHistoMaps
+  if (TkHistoMap_On_) {
+    tkhisto_StoNCorrOnTrack = new TkHistoMap("SiStrip/TkHisto" ,"TkHMap_StoNCorrOnTrack",0.0,1); 
+    tkhisto_NumOnTrack  = new TkHistoMap("SiStrip/TkHisto", "TkHMap_NumberOfOnTrackCluster",0.0,1);
+    tkhisto_NumOffTrack = new TkHistoMap("SiStrip/TkHisto", "TkHMap_NumberOfOfffTrackCluster",0.0,1);
+  }
+  //******** TkHistoMaps
 
   std::vector<uint32_t> vdetId_;
   SiStripDetCabling_->addActiveDetectorsRawIds(vdetId_);
@@ -717,15 +722,17 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
   
   
   //******** TkHistoMaps
-  uint32_t adet=cluster->detId();
-  if(flag=="OnTrack"){
-    tkhisto_NumOnTrack->add(adet,1.);
-    tkhisto_StoNCorrOnTrack->fill(adet,cluster->signalOverNoise()*cosRZ);
-  }
-  else if(flag=="OffTrack"){
-    tkhisto_NumOffTrack->add(adet,1.);
-    if(cluster->charge() > 250){
-      edm::LogInfo("SiStripMonitorTrack") << "Module firing " << detid << " in Event " << eventNb << std::endl;
+  if (TkHistoMap_On_) {
+    uint32_t adet=cluster->detId();
+    if(flag=="OnTrack"){
+      tkhisto_NumOnTrack->add(adet,1.);
+      tkhisto_StoNCorrOnTrack->fill(adet,cluster->signalOverNoise()*cosRZ);
+    }
+    else if(flag=="OffTrack"){
+      tkhisto_NumOffTrack->add(adet,1.);
+      if(cluster->charge() > 250){
+	edm::LogInfo("SiStripMonitorTrack") << "Module firing " << detid << " in Event " << eventNb << std::endl;
+      }
     }
   }
 

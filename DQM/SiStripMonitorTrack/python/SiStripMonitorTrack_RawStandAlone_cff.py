@@ -14,7 +14,7 @@ SiStripMonitorTrack.Cluster_src = 'siStripClusters'
 SiStripMonitorTrack.Mod_On        = False
 SiStripMonitorTrack.OffHisto_On   = False
 SiStripMonitorTrack.Trend_On      = False
-SiStripMonitorTrack.CCAnalysis_On = True
+#SiStripMonitorTrack.CCAnalysis_On = True
 
 #### TrackInfo ####
 from RecoTracker.TrackProducer.TrackRefitters_cff import *

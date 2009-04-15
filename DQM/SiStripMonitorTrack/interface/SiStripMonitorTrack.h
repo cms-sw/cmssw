@@ -177,6 +177,7 @@ private:
   bool OffHisto_On_;
   bool HistoFlag_On_;
   bool ring_flag;
+  bool TkHistoMap_On_;
 
   int off_Flag;
   std::vector<uint32_t> ModulesToBeExcluded_;

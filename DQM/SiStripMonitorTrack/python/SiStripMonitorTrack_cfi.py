@@ -29,6 +29,7 @@ SiStripMonitorTrack = cms.EDFilter(
     HistoFlag_On  = cms.bool(False),
 #    CCAnalysis_On = cms.bool(False),
    RingFlag_On   = cms.bool(False),
+   TkHistoMap_On = cms.bool(False),   
     
     ClusterConditions = cms.PSet( On       = cms.bool(False),
                                   minStoN  = cms.double(0.0),
