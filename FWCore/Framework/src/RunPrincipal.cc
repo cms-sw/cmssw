@@ -44,7 +44,7 @@ namespace edm {
   }
 
   void
-  RunPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
+  RunPrincipal::addGroup(boost::shared_ptr<EDProduct> prod,
 	ConstBranchDescription const& bd,
 	std::auto_ptr<ProductProvenance> productProvenance) {
     std::auto_ptr<Group> g(new Group(prod, bd, ProductID(), productProvenance));
@@ -59,7 +59,7 @@ namespace edm {
   }
 
   void 
-  RunPrincipal::put(std::auto_ptr<EDProduct> edp,
+  RunPrincipal::put(boost::shared_ptr<EDProduct> edp,
 		ConstBranchDescription const& bd,
 		std::auto_ptr<ProductProvenance> productProvenance) {
 

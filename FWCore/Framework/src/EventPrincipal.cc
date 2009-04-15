@@ -88,7 +88,7 @@ namespace edm {
   }
 
   void
-  EventPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
+  EventPrincipal::addGroup(boost::shared_ptr<EDProduct> prod,
 	 ConstBranchDescription const& bd,
 	 std::auto_ptr<ProductProvenance> productProvenance) {
     std::auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID()), productProvenance));
@@ -103,7 +103,7 @@ namespace edm {
   }
 
   void
-  EventPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
+  EventPrincipal::addGroup(boost::shared_ptr<EDProduct> prod,
 	 ConstBranchDescription const& bd,
 	 boost::shared_ptr<ProductProvenance> productProvenance) {
     std::auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID()), productProvenance));
@@ -118,7 +118,7 @@ namespace edm {
   }
 
   void 
-  EventPrincipal::put(std::auto_ptr<EDProduct> edp,
+  EventPrincipal::put(boost::shared_ptr<EDProduct> edp,
 		ConstBranchDescription const& bd,
 		std::auto_ptr<ProductProvenance> productProvenance) {
 

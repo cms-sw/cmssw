@@ -8,9 +8,8 @@ EDProducts based on information in the associated Provenance.
 
 Developers who make their own Selectors should inherit from SelectorBase.
 
-$Id: SelectorBase.h,v 1.3.6.1 2008/05/12 15:33:08 wmtan Exp $
-
 ----------------------------------------------------------------------*/
+#include "FWCore/Utilities/interface/value_ptr.h"
 
 namespace edm 
 {
@@ -30,6 +29,11 @@ namespace edm
 
   private:
     virtual bool doMatch(ConstBranchDescription const& p) const = 0;
+  };
+
+  template <>
+  struct value_ptr_traits<SelectorBase> {
+    static SelectorBase* clone(SelectorBase const * p) { return p->clone(); }
   };
 }
 

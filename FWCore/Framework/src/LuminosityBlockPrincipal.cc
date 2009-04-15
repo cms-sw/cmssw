@@ -46,7 +46,7 @@ namespace edm {
   }
 
   void
-  LuminosityBlockPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
+  LuminosityBlockPrincipal::addGroup(boost::shared_ptr<EDProduct> prod,
 	ConstBranchDescription const& bd,
 	std::auto_ptr<ProductProvenance> productProvenance) {
     std::auto_ptr<Group> g(new Group(prod, bd, ProductID(), productProvenance));
@@ -61,7 +61,7 @@ namespace edm {
   }
 
   void 
-  LuminosityBlockPrincipal::put(std::auto_ptr<EDProduct> edp,
+  LuminosityBlockPrincipal::put(boost::shared_ptr<EDProduct> edp,
 		ConstBranchDescription const& bd,
 		std::auto_ptr<ProductProvenance> productProvenance) {
 

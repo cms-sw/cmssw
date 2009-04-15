@@ -5,17 +5,10 @@
 
 namespace edm {
 
-  namespace {
-    Run *
-    newRun(LuminosityBlockPrincipal& lbp, ModuleDescription const& md) {
-      return (lbp.runPrincipalSharedPtr() ? new Run(lbp.runPrincipal(), md) : 0);
-    }
-  }
-
   LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md) :
 	DataViewImpl(lbp, md, InLumi),
 	aux_(lbp.aux()),
-	run_(newRun(lbp, md)) {
+	run_(lbp.runPrincipalSharedPtr() ? new Run(lbp.runPrincipal(), md) : 0) {
   }
 
   LuminosityBlockPrincipal &
@@ -49,15 +42,11 @@ namespace edm {
     ProductPtrVec::iterator pie(putProducts().end());
 
     while(pit!=pie) {
-	std::auto_ptr<EDProduct> pr(pit->first);
-	// note: ownership has been passed - so clear the pointer!
-	pit->first = 0;
-
 	// set provenance
 	std::auto_ptr<ProductProvenance> lumiEntryInfoPtr(
 		new ProductProvenance(pit->second->branchID(),
 				    productstatus::present()));
-	lbp.put(pr, *pit->second, lumiEntryInfoPtr);
+	lbp.put(pit->first, *pit->second, lumiEntryInfoPtr);
 	++pit;
     }
 

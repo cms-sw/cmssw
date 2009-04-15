@@ -8,15 +8,10 @@
 
 namespace edm {
 
-  namespace {
-    LuminosityBlock * newLumi(EventPrincipal& ep, ModuleDescription const& md) {
-      return (ep.luminosityBlockPrincipalSharedPtr() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md) : 0);
-    }
-  }
     Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
 	DataViewImpl(ep, md, InEvent),
 	aux_(ep.aux()),
-	luminosityBlock_(newLumi(ep, md)),
+        luminosityBlock_(ep.luminosityBlockPrincipalSharedPtr() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md) : 0),
 	gotBranchIDs_(),
 	gotViews_() {
     }
@@ -61,38 +56,33 @@ namespace edm {
 
 
   Provenance
-  Event::getProvenance(BranchID const& bid) const
-  {
+  Event::getProvenance(BranchID const& bid) const {
     return principal().getProvenance(bid);
   }
 
   Provenance
-  Event::getProvenance(ProductID const& pid) const
-  {
+  Event::getProvenance(ProductID const& pid) const {
     return eventPrincipal().getProvenance(pid);
   }
 
   void
-  Event::getAllProvenance(std::vector<Provenance const*> & provenances) const
-  {
+  Event::getAllProvenance(std::vector<Provenance const*> & provenances) const {
     principal().getAllProvenance(provenances);
   }
 
   bool
   Event::getProcessParameterSet(std::string const& processName,
-				ParameterSet& ps) const
-  {
+				ParameterSet& ps) const {
     // Get the ProcessHistory for this event.
     ProcessHistoryRegistry* phr = ProcessHistoryRegistry::instance();
     ProcessHistory ph;
-    if (!phr->getMapped(processHistoryID(), ph))
-      {
-	throw Exception(errors::NotFound) 
-	  << "ProcessHistoryID " << processHistoryID()
-	  << " is claimed to describe " << id()
-	  << "\nbut is not found in the ProcessHistoryRegistry.\n"
-	  << "This file is malformed.\n";
-      }
+    if (!phr->getMapped(processHistoryID(), ph)) {
+      throw Exception(errors::NotFound) 
+	<< "ProcessHistoryID " << processHistoryID()
+	<< " is claimed to describe " << id()
+	<< "\nbut is not found in the ProcessHistoryRegistry.\n"
+	<< "This file is malformed.\n";
+    }
 
     ProcessConfiguration config;
     bool process_found = ph.getConfigurationForProcess(processName, config);
@@ -104,8 +94,7 @@ namespace edm {
   }
 
   BasicHandle
-  Event::getByProductID_(ProductID const& oid) const
-  {
+  Event::getByProductID_(ProductID const& oid) const {
     return eventPrincipal().getByProductID(oid);
   }
 
@@ -139,16 +128,12 @@ namespace edm {
     }
 
     while(pit!=pie) {
-	std::auto_ptr<EDProduct> pr(pit->first);
-	// note: ownership has been passed - so clear the pointer!
-	pit->first = 0;
-
 	// set provenance
 	std::auto_ptr<ProductProvenance> productProvenancePtr(
 		new ProductProvenance(pit->second->branchID(),
 				   productstatus::present(),
 				   gotBranchIDVector));
-	ep.put(pr, *pit->second, productProvenancePtr);
+	ep.put(pit->first, *pit->second, productProvenancePtr);
 	++pit;
     }
 

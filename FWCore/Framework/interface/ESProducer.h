@@ -66,7 +66,6 @@ Example: two algorithms each creating only one objects
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:08:14 CDT 2005
-// $Id: ESProducer.h,v 1.15 2006/10/21 02:48:59 wmtan Exp $
 //
 
 // system include files
@@ -208,21 +207,21 @@ class ESProducer : public ESProxyFactoryProducer
       
       template<typename T, typename TProduct, typename TRecord>
          void registerProduct(boost::shared_ptr<T> iCallback, const TProduct*, const TRecord*,const es::Label& iLabel) {
-            registerFactory(new eventsetup::ProxyArgumentFactoryTemplate<
-                            eventsetup::CallbackProxy<T, TRecord, TProduct>, boost::shared_ptr<T> >(iCallback),
-                            iLabel.default_);
+	    typedef eventsetup::CallbackProxy<T, TRecord, TProduct> ProxyType;
+	    typedef eventsetup::ProxyArgumentFactoryTemplate<ProxyType, boost::shared_ptr<T> > FactoryType;
+            registerFactory(std::auto_ptr<FactoryType>(new FactoryType(iCallback)), iLabel.default_);
          }
       
       template<typename T, typename TProduct, typename TRecord, int IIndex>
          void registerProduct(boost::shared_ptr<T> iCallback, const es::L<TProduct,IIndex>*, const TRecord*,const es::Label& iLabel) {
-            if(iLabel.labels_.size() <=IIndex ||
+            if(iLabel.labels_.size() <= IIndex ||
                iLabel.labels_[IIndex] == es::Label::def()) {
                throw edm::Exception(errors::Configuration, "Unnamed Label")
                <<"the index "<<IIndex<<" was never assigned a name in the 'setWhatProduced' method";
             }
-            registerFactory(new eventsetup::ProxyArgumentFactoryTemplate<
-                            eventsetup::CallbackProxy<T, TRecord, es::L<TProduct,IIndex> >, boost::shared_ptr<T> >(iCallback),
-                            iLabel.labels_[IIndex]);
+	    typedef eventsetup::CallbackProxy<T, TRecord, es::L<TProduct, IIndex> > ProxyType;
+	    typedef eventsetup::ProxyArgumentFactoryTemplate<ProxyType, boost::shared_ptr<T> > FactoryType;
+            registerFactory(std::auto_ptr<FactoryType>(new FactoryType(iCallback)), iLabel.labels_[IIndex]);
          }
       
       // ---------- member data --------------------------------

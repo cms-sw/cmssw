@@ -48,11 +48,11 @@ Test program for edm::Event.
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
+#include "boost/shared_ptr.hpp"
 using namespace edm;
 
 // This is a gross hack, to allow us to test the event
-namespace edm
-{
+namespace edm {
   class EDProducer
   {
   public:
@@ -120,10 +120,10 @@ class testEvent: public CppUnit::TestFixture
 		       std::string const& tag,
 		       std::string const& productLabel = std::string());
   
-  ProductRegistry*   availableProducts_;
-  EventPrincipal*    principal_;
-  Event*             currentEvent_;
-  ModuleDescription* currentModuleDescription_;
+  boost::shared_ptr<ProductRegistry>   availableProducts_;
+  boost::shared_ptr<EventPrincipal>    principal_;
+  boost::shared_ptr<Event>             currentEvent_;
+  boost::shared_ptr<ModuleDescription> currentModuleDescription_;
   typedef std::map<std::string, ModuleDescription> modCache_t;
   typedef modCache_t::iterator iterator_t;
 
@@ -132,11 +132,6 @@ class testEvent: public CppUnit::TestFixture
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testEvent);
-
-namespace
-{
-  template <class T> void kill_and_clear(T*& p) { delete p; p = 0; }
-}
 
 EventID   make_id() { return EventID(2112, 25); }
 Timestamp make_timestamp() { return Timestamp(1); }
@@ -150,7 +145,7 @@ testEvent::registerProduct(std::string const& tag,
 			   std::string const& productInstanceName)
 {
   if (!availableProducts_)
-    availableProducts_ = new ProductRegistry();
+    availableProducts_.reset(new ProductRegistry());
   
   ParameterSet moduleParams;
   moduleParams.template addParameter<std::string>("@module_type", moduleClassName);
@@ -205,9 +200,9 @@ testEvent::addProduct(std::auto_ptr<T> product,
 
 testEvent::testEvent() :
   availableProducts_(new ProductRegistry()),
-  principal_(0),
-  currentEvent_(0),
-  currentModuleDescription_(0),
+  principal_(),
+  currentEvent_(),
+  currentModuleDescription_(),
   moduleDescriptions_()
 {
   BranchIDListHelper::clearRegistries();
@@ -243,7 +238,7 @@ testEvent::testEvent() :
   TypeID product_type(typeid(prod_t));
 
   boost::shared_ptr<ProcessConfiguration> processX(new ProcessConfiguration(process));
-  currentModuleDescription_ = new ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX);
+  currentModuleDescription_.reset(new ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX));
 
   std::string productInstanceName("int1");
 
@@ -263,15 +258,10 @@ testEvent::testEvent() :
   BranchIDListHelper::updateRegistries(*availableProducts_);
 }
 
-testEvent::~testEvent()
-{
-  delete principal_;
-  delete currentEvent_;
-  delete currentModuleDescription_;
+testEvent::~testEvent() {
 }
 
-void testEvent::setUp() 
-{
+void testEvent::setUp() {
 
   // First build a fake process history, that says there
   // were previous processes named "EARLY" and "LATE".
@@ -307,7 +297,7 @@ void testEvent::setUp()
 
   ProcessConfiguration processLate("LATE", processParamsLate.id(), getReleaseVersion(), getPassID());
 
-  ProcessHistory* processHistory = new ProcessHistory;
+  std::auto_ptr<ProcessHistory> processHistory(new ProcessHistory);
   ProcessHistory& ph = *processHistory;
   processHistory->push_back(processEarly);
   processHistory->push_back(processLate);
@@ -344,22 +334,20 @@ void testEvent::setUp()
   EventAuxiliary eventAux(id, uuid, time, lbp->luminosityBlock(), true);
   boost::shared_ptr<History> history(new History);
   const_cast<ProcessHistoryID &>(history->processHistoryID()) = processHistoryID;
-  principal_  = new EventPrincipal(eventAux,
+  principal_.reset(new EventPrincipal(eventAux,
 				   preg,
                                    pc,
-                                   history);
+                                   history));
 
   principal_->setLuminosityBlockPrincipal(lbp);
-  currentEvent_ = new Event(*principal_, *currentModuleDescription_);
+  currentEvent_.reset(new Event(*principal_, *currentModuleDescription_));
 
-  delete processHistory;
 }
 
 void
-testEvent::tearDown()
-{
-  kill_and_clear(currentEvent_);
-  kill_and_clear(principal_);
+testEvent::tearDown() {
+  currentEvent_.reset();
+  principal_.reset();
 }
 
 void testEvent::emptyEvent()

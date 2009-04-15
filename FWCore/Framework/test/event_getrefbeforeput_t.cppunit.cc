@@ -58,14 +58,14 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEventGetRefBeforePut);
 void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
 
   edm::BranchIDListHelper::clearRegistries();
-  edm::ProductRegistry *preg = new edm::ProductRegistry;
+  std::auto_ptr<edm::ProductRegistry> preg(new edm::ProductRegistry);
   preg->setFrozen();
   edm::BranchIDListHelper::updateRegistries(*preg);
   edm::EventID col(1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
-  boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
+  boost::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
   edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
   edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
@@ -125,7 +125,7 @@ void testEventGetRefBeforePut::getRefTest() {
 
   product.init();
 
-  edm::ProductRegistry *preg = new edm::ProductRegistry;
+  std::auto_ptr<edm::ProductRegistry> preg(new edm::ProductRegistry);
   preg->addProduct(product);
   preg->setFrozen();
   edm::BranchIDListHelper::updateRegistries(*preg);
@@ -134,7 +134,7 @@ void testEventGetRefBeforePut::getRefTest() {
   edm::Timestamp fakeTime;
   boost::shared_ptr<edm::ProcessConfiguration> pcPtr(new edm::ProcessConfiguration(processName, dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
   edm::ProcessConfiguration& pc = *pcPtr;
-  boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
+  boost::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
   edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
   edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);

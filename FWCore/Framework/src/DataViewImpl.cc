@@ -10,7 +10,6 @@
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "FWCore/Framework/interface/Selector.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
 
 namespace edm {
 
@@ -23,14 +22,7 @@ namespace edm {
     branchType_(branchType)
   {  }
 
-  struct deleter {
-    void operator()(std::pair<EDProduct*, ConstBranchDescription const*> const p) const { delete p.first; }
-  };
-
   DataViewImpl::~DataViewImpl() {
-    // anything left here must be the result of a failure
-    // let's record them as failed attempts in the event principal
-    for_all(putProducts_, deleter());
   }
 
   size_t

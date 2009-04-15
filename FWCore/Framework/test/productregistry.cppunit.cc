@@ -48,10 +48,10 @@ public:
   void testProductRegistration();
 
  private:
-  edm::ModuleDescription* intModule_;
-  edm::ModuleDescription* floatModule_;
-  edm::BranchDescription* intBranch_;
-  edm::BranchDescription* floatBranch_;
+  boost::shared_ptr<edm::ModuleDescription> intModule_;
+  boost::shared_ptr<edm::ModuleDescription> floatModule_;
+  boost::shared_ptr<edm::BranchDescription> intBranch_;
+  boost::shared_ptr<edm::BranchDescription> floatBranch_;
 };
 
 ///registration of the test so that the runner can find it
@@ -97,10 +97,10 @@ namespace {
 }
 
 testProductRegistry::testProductRegistry() :
-  intModule_(0),
-  floatModule_(0),
-  intBranch_(0),
-  floatBranch_(0)
+  intModule_(),
+  floatModule_(),
+  intBranch_(),
+  floatBranch_()
 { }
 
 
@@ -114,21 +114,21 @@ void testProductRegistry::setUp()
 
   edm::ParameterSet pset;
   pset.registerIt();
-  intModule_ = new edm::ModuleDescription(pset.id(), "", "", processConfiguration);
-  intBranch_ = new edm::BranchDescription(edm::InEvent, "label", "PROD",
+  intModule_.reset(new edm::ModuleDescription(pset.id(), "", "", processConfiguration));
+  intBranch_.reset(new edm::BranchDescription(edm::InEvent, "label", "PROD",
 					  "int", "int", "int",
-					  *intModule_);
+					  *intModule_));
 
-  floatModule_ = new edm::ModuleDescription(intModule_->parameterSetID(), "", "", processConfiguration);
-  floatBranch_ = new edm::BranchDescription(edm::InEvent, "label", "PROD",
+  floatModule_.reset(new edm::ModuleDescription(intModule_->parameterSetID(), "", "", processConfiguration));
+  floatBranch_.reset(new edm::BranchDescription(edm::InEvent, "label", "PROD",
 					    "float", "float", "float",
-					    *floatModule_);
+					    *floatModule_));
 
 }
 
 namespace 
 {
-  template <class T> void kill_and_clear(T*& p) { delete p; p=0; }
+  template <class T> void kill_and_clear(boost::shared_ptr<T>& p) { p.reset(); }
 }
 
 void testProductRegistry::tearDown()

@@ -81,15 +81,11 @@ namespace edm {
     ProductPtrVec::iterator pie(putProducts().end());
 
     while(pit!=pie) {
-	std::auto_ptr<EDProduct> pr(pit->first);
-	// note: ownership has been passed - so clear the pointer!
-	pit->first = 0;
-
 	// set provenance
 	std::auto_ptr<ProductProvenance> runEntryInfoPtr(
 		new ProductProvenance(pit->second->branchID(),
 				    productstatus::present()));
-	rp.put(pr, *pit->second, runEntryInfoPtr);
+	rp.put(pit->first, *pit->second, runEntryInfoPtr);
 	++pit;
     }
 

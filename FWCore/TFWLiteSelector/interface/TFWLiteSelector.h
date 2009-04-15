@@ -40,13 +40,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 30 21:04:46 CDT 2006
-// $Id: TFWLiteSelector.h,v 1.4 2006/10/17 11:58:48 chrjones Exp $
 //
 
 // system include files
 class TList;
 
 // user include files
+
+#include "boost/shared_ptr.hpp"
+
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
 
 // forward declarations
@@ -55,10 +57,8 @@ class TFWLiteSelector : public TFWLiteSelectorBasic
 {
 
    public:
-      TFWLiteSelector() : worker_(0) {}
-      virtual ~TFWLiteSelector() {
-        delete worker_;
-      }
+      TFWLiteSelector() : worker_() {}
+      virtual ~TFWLiteSelector() {}
 
       // ---------- const member functions ---------------------
 
@@ -75,8 +75,7 @@ class TFWLiteSelector : public TFWLiteSelectorBasic
         //need to remove all output so that when we delete the worker
         // we are not left with a stale pointer
         out.Clear();
-        delete worker_;
-        worker_= new TWorker(in,out);
+        worker_.reset(new TWorker(in,out));
       }
       virtual void process(const edm::Event& iEvent) {
         worker_->process(iEvent);
@@ -86,7 +85,7 @@ class TFWLiteSelector : public TFWLiteSelectorBasic
       }
       
       // ---------- member data --------------------------------
-      TWorker* worker_;
+      boost::shared_ptr<TWorker> worker_;
 };
 
 #endif

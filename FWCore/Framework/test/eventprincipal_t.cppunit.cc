@@ -68,22 +68,22 @@ public:
 
 private:
 
-  edm::ProcessConfiguration* 
+  boost::shared_ptr<edm::ProcessConfiguration> 
   fake_single_module_process(std::string const& tag,
 			     std::string const& processName,
 			     edm::ParameterSet const& moduleParams,
 			     std::string const& release = edm::getReleaseVersion(),
 			     std::string const& pass = edm::getPassID() );
-  edm::BranchDescription*
+  boost::shared_ptr<edm::BranchDescription>
   fake_single_process_branch(std::string const& tag,
 			     std::string const& processName, 
 			     std::string const& productInstanceName = std::string() );
 
-  std::map<std::string, edm::BranchDescription*>    branchDescriptions_;
-  std::map<std::string, edm::ProcessConfiguration*> processConfigurations_;
+  std::map<std::string, boost::shared_ptr<edm::BranchDescription> >    branchDescriptions_;
+  std::map<std::string, boost::shared_ptr<edm::ProcessConfiguration> > processConfigurations_;
   
-  edm::ProductRegistry*      pProductRegistry_;
-  edm::EventPrincipal*       pEvent_;
+  boost::shared_ptr<edm::ProductRegistry>   pProductRegistry_;
+  boost::shared_ptr<edm::EventPrincipal>    pEvent_;
   std::vector<edm::ProductID> contained_products_;
   
   edm::EventID               eventID_;
@@ -97,7 +97,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(test_ep);
 
 //----------------------------------------------------------------------
 
-edm::ProcessConfiguration*
+boost::shared_ptr<edm::ProcessConfiguration>
 test_ep::fake_single_module_process(std::string const& tag,
 				    std::string const& processName,
 				    edm::ParameterSet const& moduleParams,
@@ -110,13 +110,13 @@ test_ep::fake_single_module_process(std::string const& tag,
 					  processName);
   
   processParams.registerIt();
-  edm::ProcessConfiguration* result = 
-    new edm::ProcessConfiguration(processName, processParams.id(), release, pass);
+  boost::shared_ptr<edm::ProcessConfiguration> result(
+    new edm::ProcessConfiguration(processName, processParams.id(), release, pass));
   processConfigurations_[tag] = result;
   return result;
 }
 
-edm::BranchDescription*
+boost::shared_ptr<edm::BranchDescription>
 test_ep::fake_single_process_branch(std::string const& tag, 
 				    std::string const& processName,
 				    std::string const& productInstanceName)
@@ -130,18 +130,18 @@ test_ep::fake_single_process_branch(std::string const& tag,
   modParams.addParameter<std::string>("@module_type", moduleClass);
   modParams.addParameter<std::string>("@module_label", moduleLabel);
   modParams.registerIt();
-  edm::ProcessConfiguration* process = fake_single_module_process(tag, processName, modParams);
+  boost::shared_ptr<edm::ProcessConfiguration> process(fake_single_module_process(tag, processName, modParams));
   boost::shared_ptr<edm::ProcessConfiguration> processX(new edm::ProcessConfiguration(*process));
   edm::ModuleDescription mod(modParams.id(), moduleClass, moduleLabel, processX);
 
-  edm::BranchDescription* result = 
+  boost::shared_ptr<edm::BranchDescription> result(
     new edm::BranchDescription(edm::InEvent, 
 			       moduleLabel, 
 			       processName,
 			       productClassName,
 			       friendlyProductClassName,
 			       productInstanceName,
-			       mod);
+			       mod));
   branchDescriptions_[tag] = result;
   return result;
 }
@@ -155,7 +155,7 @@ void test_ep::setUp()
   eventID_ = edm::EventID(101, 20);
 
   // We can only insert products registered in the ProductRegistry.
-  pProductRegistry_ = new edm::ProductRegistry;
+  pProductRegistry_.reset(new edm::ProductRegistry);
   pProductRegistry_->addProduct(*fake_single_process_branch("hlt",  "HLT"));
   pProductRegistry_->addProduct(*fake_single_process_branch("prod", "PROD"));
   pProductRegistry_->addProduct(*fake_single_process_branch("test", "TEST"));
@@ -188,18 +188,17 @@ void test_ep::setUp()
                                edm::productstatus::present(),
                                entryDescriptionPtr));
 
-    edm::ProcessConfiguration* process = processConfigurations_[tag];
+    boost::shared_ptr<edm::ProcessConfiguration> process(processConfigurations_[tag]);
     assert(process);
     std::string uuid = edm::createGlobalIdentifier();
     edm::Timestamp now(1234567UL);
-    boost::shared_ptr<edm::ProductRegistry const> preg(pProductRegistry_);
     edm::RunAuxiliary runAux(eventID_.run(), now, now);
-    boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, preg, *process));
+    boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pProductRegistry_, *process));
     edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, now, now);
-    boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, preg, *process));
+    boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pProductRegistry_, *process));
     lbp->setRunPrincipal(rp);
     edm::EventAuxiliary eventAux(eventID_, uuid, now, lbp->luminosityBlock(), true);
-    pEvent_ = new edm::EventPrincipal(eventAux, preg, *process);
+    pEvent_.reset(new edm::EventPrincipal(eventAux, pProductRegistry_, *process));
     pEvent_->setLuminosityBlockPrincipal(lbp);
     pEvent_->put(product, branchFromRegistry, branchEntryInfoPtr);
   }
@@ -211,7 +210,7 @@ template <class MAP>
 void clear_map(MAP& m)
 {
   for (typename MAP::iterator i = m.begin(), e = m.end(); i != e; ++i)
-    delete i->second;
+    i->second.reset();
 }
 
 void test_ep::tearDown()
@@ -220,10 +219,9 @@ void test_ep::tearDown()
   clear_map(branchDescriptions_);
   clear_map(processConfigurations_);
 
-  delete pEvent_;
-  pEvent_ = 0;
+  pEvent_.reset();
 
-  pProductRegistry_ = 0;
+  pProductRegistry_.reset();
 
 }
 

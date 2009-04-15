@@ -30,8 +30,6 @@ to use such a selector, it is best to initialize it directly upon
 construction of the module, rather than creating a new Selector instance
 for every event.
 
-$Id: Selector.h,v 1.17.6.1 2008/05/12 15:33:08 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include <string>
@@ -40,6 +38,7 @@ $Id: Selector.h,v 1.17.6.1 2008/05/12 15:33:08 wmtan Exp $
 #include "boost/utility/enable_if.hpp"
 
 #include "FWCore/Framework/interface/SelectorBase.h"
+#include "FWCore/Utilities/interface/value_ptr.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 
 namespace edm 
@@ -301,8 +300,6 @@ namespace edm
   {
   public:
     template <class T> Selector(T const& expression);
-    Selector(Selector const& other);
-    Selector& operator= (Selector const& other);
     void swap(Selector& other);
     virtual ~Selector();
     virtual Selector* clone() const;
@@ -310,7 +307,7 @@ namespace edm
     virtual bool doMatch(ConstBranchDescription const& p) const;
     
   private:
-    SelectorBase* sel_;
+    value_ptr<SelectorBase> sel_;
   };
 
   template <class T>

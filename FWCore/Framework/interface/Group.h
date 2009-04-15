@@ -28,7 +28,7 @@ namespace edm {
 
     Group(ConstBranchDescription const& bd, ProductID const& pid);
 
-    Group(std::auto_ptr<EDProduct> edp,
+    Group(boost::shared_ptr<EDProduct> edp,
 	  ConstBranchDescription const& bd,
 	  ProductID const& pid,
 	  std::auto_ptr<ProductProvenance> productProvenance);
@@ -37,7 +37,7 @@ namespace edm {
 	  ProductID const& pid,
 	  std::auto_ptr<ProductProvenance> productProvenance);
 
-    Group(std::auto_ptr<EDProduct> edp,
+    Group(boost::shared_ptr<EDProduct> edp,
 	  ConstBranchDescription const& bd,
 	  ProductID const& pid,
 	  boost::shared_ptr<ProductProvenance> productProvenance);

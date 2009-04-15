@@ -120,17 +120,17 @@ namespace edm {
     BasicHandle
     getByProductID(ProductID const& oid) const;
 
-    void put(std::auto_ptr<EDProduct> edp, ConstBranchDescription const& bd,
+    void put(boost::shared_ptr<EDProduct> edp, ConstBranchDescription const& bd,
 	 std::auto_ptr<ProductProvenance> productProvenance);
 
     void addGroup(ConstBranchDescription const& bd);
 
-    void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd,
+    void addGroup(boost::shared_ptr<EDProduct> prod, ConstBranchDescription const& bd,
 	 std::auto_ptr<ProductProvenance> productProvenance);
 
     void addGroup(ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
 
-    void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd,
+    void addGroup(boost::shared_ptr<EDProduct> prod, ConstBranchDescription const& bd,
 	 boost::shared_ptr<ProductProvenance> productProvenance);
 
     void addGroup(ConstBranchDescription const& bd, boost::shared_ptr<ProductProvenance> productProvenance);

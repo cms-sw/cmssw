@@ -19,9 +19,9 @@ namespace edm {
     dropped_(false),
     onDemand_(false) {}
 
-  Group::Group(std::auto_ptr<EDProduct> edp, ConstBranchDescription const& bd,
+  Group::Group(boost::shared_ptr<EDProduct> edp, ConstBranchDescription const& bd,
       ProductID const& pid,  std::auto_ptr<ProductProvenance> productProvenance) :
-    product_(edp.release()),
+    product_(edp),
     branchDescription_(new ConstBranchDescription(bd)),
     pid_(pid),
     prov_(new Provenance(*branchDescription_, pid_, boost::shared_ptr<ProductProvenance>(productProvenance.release()))),
@@ -39,9 +39,9 @@ namespace edm {
     onDemand_(false) {
   }
 
-  Group::Group(std::auto_ptr<EDProduct> edp, ConstBranchDescription const& bd,
+  Group::Group(boost::shared_ptr<EDProduct> edp, ConstBranchDescription const& bd,
          ProductID const& pid, boost::shared_ptr<ProductProvenance> productProvenance) :
-    product_(edp.release()),
+    product_(edp),
     branchDescription_(new ConstBranchDescription(bd)),
     pid_(pid),
     prov_(new Provenance(*branchDescription_, pid, productProvenance)),

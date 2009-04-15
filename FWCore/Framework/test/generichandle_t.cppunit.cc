@@ -5,6 +5,7 @@ Test of the EventPrincipal class.
 ----------------------------------------------------------------------*/  
 #include <string>
 #include <iostream>
+#include <memory>
 
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
@@ -151,7 +152,7 @@ void testGenericHandle::getbyLabelTest() {
 
   product.init();
 
-  edm::ProductRegistry *preg = new edm::ProductRegistry;
+  std::auto_ptr<edm::ProductRegistry> preg(new edm::ProductRegistry);
   preg->addProduct(product);
   preg->setFrozen();
   edm::BranchIDListHelper::updateRegistries(*preg);
@@ -164,7 +165,7 @@ void testGenericHandle::getbyLabelTest() {
   edm::Timestamp fakeTime;
   std::string uuid = edm::createGlobalIdentifier();
   edm::ProcessConfiguration pc("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
-  boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
+  boost::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
   edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
   edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);

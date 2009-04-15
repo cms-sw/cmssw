@@ -3,7 +3,7 @@
 
 // -*- C++ -*-
 //
-// Package:     Framework
+
 // Class  :     DataViewImpl
 // 
 /**\class DataViewImpl DataViewImpl.h FWCore/Framework/interface/DataViewImpl.h
@@ -161,7 +161,7 @@ namespace edm {
     DataViewImpl const&
     me() const {return *this;}
 
-    typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const *> >  ProductPtrVec;
+    typedef std::vector<std::pair<boost::shared_ptr<EDProduct>, ConstBranchDescription const*> >  ProductPtrVec;
   protected:
 
     Principal & principal() {return principal_;}
