@@ -2,8 +2,8 @@
 
 /**
 \class RatioFinder
-$Revision: 1.1.1.1 $
-$Date: 2009/04/15 08:40:01 $
+$Revision: 1.4 $
+$Date: 2009/04/15 11:10:45 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 Find the production cross section to exclude at a fixed confidence level.
@@ -84,20 +84,23 @@ class RatioFinder : public StatisticalMethod {
     /// The Array of the constraints
     ConstrBlockArray* m_c_array;
 
+    /// The flag to decide if it is a lumi study
+    bool m_is_lumi;
+
+    /// The maximum number of attempts in the Ratio finding
+    int m_max_attempts;
+
+    /// The number of bins in the -2lnQ plot
+    int m_nbins;
+
     /// The epsilon between the 2 ratios
     double m_delta_ratios_min;
 
     /// The ratio variable
     RooRealVar* m_ratio;
 
-    /// The maximum number of attempts in the Ratio finding
-    int m_max_attempts;
 
-    /// The flag to decide if it is a lumi study
-    bool m_is_lumi;
 
-    /// The number of bins in the -2lnQ plot
-    int m_nbins;
 
  };
 

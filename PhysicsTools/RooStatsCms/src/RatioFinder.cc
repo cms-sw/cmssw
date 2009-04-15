@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: RatioFinder.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
+// @(#)root/hist:$Id: RatioFinder.cc,v 1.4 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   07/10/2008
 
 #include "assert.h"
@@ -176,8 +176,10 @@ RatioFinderResults* RatioFinder::findRatio(unsigned int n_toys,
     double lower_ratio = init_lower_ratio;
     double upper_ratio = init_upper_ratio;
 
-    double temp_ratio,temp_CL;
-    double upper_weight,lower_weight;
+    double temp_ratio=0;
+    double temp_CL=0;
+    double upper_weight=0;
+    double lower_weight=0;
 
     int attempts=m_max_attempts;
 

@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: RscCombinedModel.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
+// @(#)root/hist:$Id: RscCombinedModel.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch, Gregory.Schott@cern.ch   05/04/2008
 
 #include <assert.h>
@@ -293,12 +293,15 @@ external to the class instance. Maybe an interaction with PdfCombiner objects.
 
 RooCategory* RscCombinedModel::getCategory(ComponentCode code){
 
-   if (code == kSIGBKG)
+    if (code == kSIGBKG)
         return m_pdf_combiner->getCategory();
     if (code == kSIG)
         return m_sigPdf_combiner->getCategory();
     if (code == kBKG)
         return m_bkgPdf_combiner->getCategory();
+
+    else return NULL;
+
 }
 
 /*----------------------------------------------------------------------------*/

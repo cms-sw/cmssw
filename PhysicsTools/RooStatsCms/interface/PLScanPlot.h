@@ -2,8 +2,8 @@
 
 /**
 \class PLScanPlot
-$Revision: 1.1.1.1 $
-$Date: 2009/04/15 08:40:01 $
+$Revision: 1.3 $
+$Date: 2009/04/15 11:10:45 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 **/
 
@@ -60,11 +60,26 @@ class PLScanPlot : public StatisticalPlot {
 
   private:
 
-    /// Name of the scanned var 
-    char m_scanned_var[100];
+    /// The number of the lines
+    int m_cl_lines_num;
+
+    /// The number of the line tags
+    int m_cl_lines_tags_num;
+
+    /// The number of FC graphs
+    int m_fc_graphs_num;
 
     /// The number of float digits to display
     int m_float_digits;
+
+    /// Value of the minimum
+    double m_val_at_min;
+
+    /// The tag for the minimum
+    TText* m_minimum_tag;
+
+    /// Name of the scanned var 
+    char m_scanned_var[100];
 
     /// The graph of the scanned points
     TGraph* m_scan_graph;
@@ -72,14 +87,8 @@ class PLScanPlot : public StatisticalPlot {
     /// The graph of the scanned points
     TGraph* m_min_point_graph;
 
-    /// Value of the minimum
-    double m_val_at_min;
-
     /// Build the minimum tag
     void m_build_minimum_tag();
-
-    /// The tag for the minimum
-    TText* m_minimum_tag;
 
     /// The orizzontal lines for the confidence levels
     TLine* m_cl_lines[MAX_CL_LINES];
@@ -95,14 +104,6 @@ class PLScanPlot : public StatisticalPlot {
 
     double m_getDeltaNLLfromCL(double CL);
 
-    /// The number of the lines
-    int m_cl_lines_num;
-
-    /// The number of the line tags
-    int m_cl_lines_tags_num;
-
-    /// The number of FC graphs
-    int m_fc_graphs_num;
 
 
  };

@@ -1,8 +1,8 @@
 /// RatioFinderResults: The results of the SM production cross sections.
 /**
 \class RatioFinderResults
-$Revision: 1.1.1.1 $
-$Date: 2009/04/15 08:40:01 $
+$Revision: 1.3 $
+$Date: 2009/04/15 11:10:45 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 Collect the info out of a RatioFinder instance.
@@ -72,6 +72,9 @@ class RatioFinderResults : public StatisticalMethod {
     /// The number of toys
     int m_n_toys;
 
+    /// The requested CL
+    double m_CL_level;
+
     /// The upper ratio
     double m_upper_ratio;
 
@@ -84,14 +87,13 @@ class RatioFinderResults : public StatisticalMethod {
     /// The lower CL
     double m_lower_CL;
 
-    /// The map of the points for the TGraph
-    std::map<double,double> m_points;
-
     /// The epsilon between the 2 ratios
     double m_delta_ratios_min;
 
-    /// The requested CL
-    double m_CL_level;
+    /// The map of the points for the TGraph
+    std::map<double,double> m_points;
+
+
 
  };
 

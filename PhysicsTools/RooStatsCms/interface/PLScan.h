@@ -2,8 +2,8 @@
 
 /**
 \class PLScan
-$Revision: 1.1.1.1 $
-$Date: 2009/04/15 08:40:01 $
+$Revision: 1.3 $
+$Date: 2009/04/15 11:10:45 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 Implements the scan of the likelihood with respect to one parameter.
@@ -76,20 +76,23 @@ class PLScan : public StatisticalMethod {
 
   private:
 
+    /// The stored nll
+    RooFormulaVar* m_nll;
+
+    /// The stored name of the scanned parameter
+    TString m_scanned_parameter_name;
+
+    /// The stored generated value
+    double m_generated_value;
+
     /// The grid points
     std::vector<double> m_points_grid;
 
     /// The NLL values at the points
     std::vector<double> m_NLL_values;
 
-    /// The stored generated value
-    double m_generated_value;
 
-    /// The stored name of the scanned parameter
-    TString m_scanned_parameter_name;
 
-    /// The stored nll
-    RooFormulaVar* m_nll;
 
  };
 

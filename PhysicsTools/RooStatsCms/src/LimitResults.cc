@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: LimitResults.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
+// @(#)root/hist:$Id: LimitResults.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -14,8 +14,8 @@ LimitResults::LimitResults(const char* name,
                            float m2lnq_data):
     StatisticalMethod(name,title,true),
     m_m2lnQ_data(m2lnq_data),
-    m_CLb(-100),
-    m_CLsb(-100){
+    m_CLsb(-100),
+    m_CLb(-100){
 
 
     int vector_size = m2lnq_b_vals.size();
@@ -36,8 +36,8 @@ LimitResults::LimitResults(const char* name,
 LimitResults::LimitResults():
     StatisticalMethod("Defaultname","Default title",true),
     m_m2lnQ_data(0),
-    m_CLb(-100),
-    m_CLsb(-100){
+    m_CLsb(-100),
+    m_CLb(-100){
     }
 
 /*----------------------------------------------------------------------------*/

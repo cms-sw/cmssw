@@ -2,8 +2,8 @@
 
 /**
 \class PLScanResults
-$Revision: 1.1.1.1 $
-$Date: 2009/04/15 08:40:01 $
+$Revision: 1.3 $
+$Date: 2009/04/15 11:10:45 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 The results of the likelihood scan.
@@ -96,6 +96,12 @@ class PLScanResults : public StatisticalMethod {
 
   private:
 
+    /// The stored name of the scanned parameter
+    TString m_scanned_parameter_name;
+
+    /// Generated value buffer:written at construction time
+    double m_generated_value;
+
     /// Find the scan extreme points
     void m_fill_scan_range_extremes();
 
@@ -105,8 +111,6 @@ class PLScanResults : public StatisticalMethod {
     /// Scan maximum value
     double m_scan_range_max;
 
-    /// Generated value buffer:written at construction time
-    double m_generated_value;
 
     /// Init values
     void m_add_scan_values(std::vector<double> points_grid,
@@ -150,8 +154,6 @@ class PLScanResults : public StatisticalMethod {
                      double range_min,
                      double range_max);
 
-    /// The stored name of the scanned parameter
-    TString m_scanned_parameter_name;
 
  };
 

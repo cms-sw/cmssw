@@ -1,12 +1,12 @@
-// @(#)root/hist:$Id: RscCombinedModel.h,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
+// @(#)root/hist:$Id: RscCombinedModel.h,v 1.3 2009/04/15 11:10:45 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch, Gregory.Schott@cern.ch   05/04/2008
 
 /// RscCombinedModel : a class to combine models described by RscTotModel instances.
 
 /**
 \class RscCombinedModel
-$Revision: 1.1.1.1 $
-$Date: 2009/04/15 08:40:01 $
+$Revision: 1.3 $
+$Date: 2009/04/15 11:10:45 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott (grgory.schott<at>cern.ch) - Universitaet Karlsruhe 
 
 This class is meant to represent the combination of models.
@@ -293,6 +293,19 @@ class RscCombinedModel : public TNamed  {
 
 
   private:
+
+    /// Number of models collected
+    int m_models_number;
+
+    /// The verbosity flag
+    bool m_verbose;
+
+    /// Flag for contents owning
+    bool m_own_contents;
+
+    /// RooArgList of the constraints
+    RooArgList* m_constraints;
+
     /// Expand the string of names of models in case combined models are there
     TString m_expand_components(TString combined_model_name_s);
 
@@ -301,9 +314,6 @@ class RscCombinedModel : public TNamed  {
 
     /// Method to add a model and its variable to the combination
     void m_add(RscTotModel* model);
-
-    /// Flag for contents owning
-    bool m_own_contents;
 
     /// The sig Pdf combiner
     PdfCombiner* m_sigPdf_combiner;
@@ -323,17 +333,8 @@ class RscCombinedModel : public TNamed  {
     /// The buffer for the background pdf
     RooAbsPdf* m_bkgPdf_buf;
 
-    /// The verbosity flag
-    bool m_verbose;
-
     /// The internal representation of the combined RscTotModels
     TList m_models_list;
-
-    /// Number of models collected
-    int m_models_number;
-
-    /// RooArgList of the constraints
-    RooArgList* m_constraints;
 
     /// Find variable by name in a RooArgSet
     RooRealVar* m_find_in_set(RooArgSet* set,TString name);
