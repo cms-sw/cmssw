@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2008/12/31 02:33:28 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/01/15 21:00:01 $
+ *  $Revision: 1.18 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -38,7 +38,7 @@ GlobalCosmicMuonTrajectoryBuilder::GlobalCosmicMuonTrajectoryBuilder(const edm::
   ParameterSet trackMatcherPSet = par.getParameter<ParameterSet>("GlobalMuonTrackMatcher");
   theTrackMatcher = new GlobalMuonTrackMatcher(trackMatcherPSet,theService);
 
-  theTkTrackLabel = par.getParameter<string>("TkTrackCollectionLabel");
+  theTkTrackLabel = par.getParameter<InputTag>("TkTrackCollectionLabel");
   theTrackerRecHitBuilderName = par.getParameter<string>("TrackerRecHitBuilder");
   theMuonRecHitBuilderName = par.getParameter<string>("MuonRecHitBuilder");
   thePropagatorName = par.getParameter<string>("Propagator");

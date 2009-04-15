@@ -4,8 +4,8 @@
 /** \file GlobalCosmicMuonTrajectoryBuilder
  *  class to build combined trajectory from cosmic tracks in tk and mu
  *
- *  $Date: 2008/12/15 16:37:05 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/01/15 20:59:40 $
+ *  $Revision: 1.14 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -83,7 +83,7 @@ private:
   GlobalMuonTrackMatcher* theTrackMatcher;
 
   std::string thePropagatorName;
-  std::string theTkTrackLabel;
+  edm::InputTag theTkTrackLabel;
 
   std::string theTrackerRecHitBuilderName;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
