@@ -18,7 +18,7 @@ Usage:
 //         Created:  Sat Jul 23 19:14:06 EDT 2005
 //
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-
+#include<string>
 
 namespace cond {
   class DataProxyWrapperBase;
@@ -30,8 +30,13 @@ namespace cond {
 }
 
 // compatibility mode
+#include<map>
+namespace edm {
+  namespace eventsetup {
+    class DataProxy;
+  }
+}
 namespace oldcond {
-  class Connection;
 
 typedef edmplugin::PluginFactory< edm::eventsetup::DataProxy* ( cond::Connection*, std::map<std::string,std::string>::iterator& ) > ProxyFactory;
 

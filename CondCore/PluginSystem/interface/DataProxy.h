@@ -1,7 +1,6 @@
 #ifndef CondCore_PluginSystem_DataProxy_H
 #define CondCore_PluginSystem_DataProxy_H
 //#include <iostream>
-#include <map>
 #include <string>
 #include "boost/shared_ptr.hpp"
 
@@ -17,7 +16,7 @@ template< class RecordT, class DataT >
   typedef  boost::shared_ptr<cond::PayloadProxy<DataT> > DataP;
 
   */
-  DataProxy(DatatP pdata) : m_data(pdata) { 
+  explicit DataProxy(DatatP pdata) : m_data(pdata) { 
     //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
     //std::cout<<"DataProxy constructor"<<std::endl;
