@@ -1051,7 +1051,10 @@ process.schedule = cms.Schedule(process.p2,process.p)
             b = EDProducer("A", a1=int32(3))
             b.a1 = 4
             #self.assertRaises(RuntimeError, setattr, *(p,'a',b))
-            
+            ps1 = PSet(a = int32(1))
+            ps2 = PSet(a = int32(2))
+            self.assertRaises(ValueError, EDProducer, 'C', ps1, ps2)
+            self.assertRaises(ValueError, EDProducer, 'C', ps1, a=int32(3))
             
         def testExamples(self):
             p = Process("Test")
