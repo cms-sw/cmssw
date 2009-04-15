@@ -18,7 +18,7 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 
 // Header needed to computer CRCs
-#include "EventFilter/Utilities/interface/Crc.h"
+#include "FWCore/Utilities/interface/CRC16.h"
 
 // GCT input data formats
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
@@ -52,7 +52,7 @@ GctDigiToRaw::GctDigiToRaw(const edm::ParameterSet& iConfig) :
   fedId_(iConfig.getParameter<int>("gctFedId")),
   verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
   counter_(0),
-  formatTranslator_()
+  blockPacker_()
 {
   LogDebug("GCT") << "GctDigiToRaw will pack FED Id " << fedId_;
 
@@ -83,8 +83,8 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   EventNumber_t eventNumber = iEvent.id().event();
   
   // Supply bx and EvID to the packer so it can make internal capture block headers.
-  formatTranslator_.setPackingBxId(bx);
-  formatTranslator_.setPackingEventId(eventNumber);
+  blockPacker_.setBcId(bx);
+  blockPacker_.setEvId(eventNumber);
  
   // The GCT and RCT input label strings
   const std::string gctInputLabelStr = gctInputLabel_.label();
@@ -162,36 +162,36 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   fedHeader.set(pHeader, 1, eventNumber, bx, fedId_);  // what should the bx_ID be?
  
   // Pack GCT jet output digis
-  formatTranslator_.writeGctOutJetBlock(pPayload, 
-                                   cenJets.product(),
-                                   forJets.product(),
+  blockPacker_.writeGctOutJetBlock(pPayload, 
+				   cenJets.product(),
+				   forJets.product(),
                                    tauJets.product(),
-                                   hfRingSums.product(), 
-                                   hfBitCounts.product());
+				   hfRingSums.product(), 
+				   hfBitCounts.product());
 
   pPayload += 36; //advance payload pointer
   
   // Pack GCT EM and energy sums digis.
-  formatTranslator_.writeGctOutEmAndEnergyBlock(pPayload,
-                                           isoEm.product(), 
-                                           nonIsoEm.product(),
+  blockPacker_.writeGctOutEmAndEnergyBlock(pPayload,
+					   isoEm.product(), 
+					   nonIsoEm.product(),
                                            etTotal.product(), 
-                                           etHad.product(), 
-                                           etMiss.product());
+					   etHad.product(), 
+					   etMiss.product());
 
   pPayload += 28; //advance payload pointer
 
   // Pack RCT EM Cands
   if(packRctEmThisEvent)
   {
-    formatTranslator_.writeRctEmCandBlocks(pPayload, rctEm.product());
+    blockPacker_.writeRctEmCandBlocks(pPayload, rctEm.product());
     pPayload+=232;  //advance payload pointer
   }
 
   // Pack RCT Calo Regions
   if(packRctCaloThisEvent)
   {
-    formatTranslator_.writeAllRctCaloRegionBlock(pPayload, rctCalo.product());
+    blockPacker_.writeRctCaloRegionBlock(pPayload, rctCalo.product());
   }
   
   // Write CDF footer (exactly as told by Marco Zanetti)
