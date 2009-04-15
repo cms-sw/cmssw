@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/03/17 15:24:41 $
- *  $Revision: 1.35 $
+ *  $Date: 2009/03/20 17:58:11 $
+ *  $Revision: 1.36 $
  *  \author A. Tumanov - Rice
  *  But long, long ago...
  */
@@ -13,18 +13,16 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include <boost/dynamic_bitset.hpp>
-#include <boost/foreach.hpp>
+#include "boost/dynamic_bitset.hpp"
+#include "boost/foreach.hpp"
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
-#include <DataFormats/FEDRawData/interface/FEDHeader.h>
-#include <DataFormats/FEDRawData/interface/FEDTrailer.h>
-#include "EventFilter/Utilities/interface/Crc.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "FWCore/Utilities/interface/CRC16.h"
 #include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <algorithm>
-
-
 
 using namespace edm;
 using namespace std;
