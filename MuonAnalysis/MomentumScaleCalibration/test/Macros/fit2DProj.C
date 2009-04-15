@@ -65,22 +65,16 @@ TF1* lorentzianFit(TH1* histoY, const TString & resonanceType = "Upsilon");
 TF1* linLorentzianFit(TH1* histoY);
 
 void setTDRStyle();
-//
 // Gaussian function    
-// -----------------------
 Double_t gaussian(Double_t *x, Double_t *par) {
   return par[0]*exp(-0.5*((x[0]-par[2])/par[1])*((x[0]-par[2])/par[1]));
 }
-//
 // Lorentzian function
-// -----------------------
 Double_t lorentzian(Double_t *x, Double_t *par) {
   return (0.5*par[0]*par[1]/3.14) /
     TMath::Max( 1.e-10,(x[0]-par[2])*(x[0]-par[2]) + .25*par[1]*par[1]);
 }
-//
 // Linear + Lorentzian function
-// -----------------------
 Double_t lorentzianPlusLinear(Double_t *x, Double_t *par) {
   return  ((0.5*par[0]*par[1]/3.14)/
     TMath::Max(1.e-10,((x[0]-par[2])*(x[0]-par[2])+.25*par[1]*par[1])))+par[3]+par[4]*x[0];
@@ -139,14 +133,10 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, 
 
       //Make the dirty work!
       TF1 *fit;
-      if(fitType == 1){
-	fit = gaussianFit(histoY, resonanceType);
-      }
-      else if(fitType == 2){
-	fit = lorentzianFit(histoY, resonanceType);
-      }
-      else if(fitType == 3)
-	fit = linLorentzianFit(histoY);
+      cout << "fitType = " << fitType << endl;
+      if(fitType == 1) fit = gaussianFit(histoY, resonanceType);
+      else if(fitType == 2) fit = lorentzianFit(histoY, resonanceType);
+      else if(fitType == 3) fit = linLorentzianFit(histoY);
       else {
 	cout<<"Wrong fit type: 1=gaussian, 2=lorentzian, 3=lorentzian+linear."<<endl;
 	abort();
@@ -168,7 +158,6 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, 
       fileOut->cd();
       c->Write();
 
-      // Skip nan
       if( par[0] == par[0] ) {
         //Store the fit results
         Ftop.push_back(par[0]);
@@ -186,9 +175,10 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, 
         Ex.push_back(ex); 
       }
       else {
-        //Store the fit results
+        // Skip nan
+        cout << "Skipping nan" << endl;
         Ftop.push_back(0);
-        Fwidth.push_back(0);//sometimes the gaussian has negative width (checked with Rene Brun)
+        Fwidth.push_back(0);
         Fmass.push_back(0);
         Etop.push_back(1);
         Ewidth.push_back(1);
@@ -251,22 +241,15 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, 
   c1->cd();
   grW->Draw("AP");
   c1->Write();
-  // grW->Write();
   TCanvas * c2 = new TCanvas(name+"_M",name+"_M");
   c2->cd();
   grM->Draw("AP");
   c2->Write();
-//  grM->Write();
   TCanvas * c3 = new TCanvas(name+"_C",name+"_C");
   c3->cd();
   grC->Draw("AP");
   c3->Write();
-//  grC->Write();
 
-//  file->Close();
-
-  //return grW;
-  // cout << "grM = " << grM << endl;
   return grM;
 }
 
@@ -356,8 +339,6 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
 
   setTDRStyle();
 
-//   TGraphErrors *grM_1 = fit2DProj(name,nameFile1,100,4,1, outputFile);
-//   TGraphErrors *grM_2 = fit2DProj(name,nameFile2,100,4,1, outputFile);
   TGraphErrors *grM_1 = fit2DProj(name, nameFile1, 100, rebinX, rebinY, fitType, outputFile, resonanceType, 0, "_1");
   TGraphErrors *grM_2 = fit2DProj(name, nameFile2, 100, rebinX, rebinY, fitType, outputFile, resonanceType, 0, "_2");
 
@@ -384,9 +365,9 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
     x[0] = 0.; x[1] = 200;
     xAxisTitle = "pt(GeV)";
   }
-  if( resonanceType == "JPsi" || resonanceType == "Psi2S" ) y[0]=0.; y[1]=6.;
-  if( resonanceType.Contains("Upsilon") ) y[0]=8.; y[1]=12.;
-  if( resonanceType == "Z" ) y[0]=80; y[1]=100;
+  if( resonanceType == "JPsi" || resonanceType == "Psi2S" ) { y[0]=0.; y[1]=6.; }
+  else if( resonanceType.Contains("Upsilon") ) { y[0]=8.; y[1]=12.; }
+  else if( resonanceType == "Z" ) { y[0]=80; y[1]=100; }
 
   // This is used to have a canvas containing both histogram points
   TGraph *gr = new TGraph(2,x,y);
@@ -411,29 +392,31 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
 
   /*****************PARABOLIC FIT (ETA)********************/
   if( name.Contains("Eta") ) {
+    cout << "Fitting eta" << endl;
     TF1 *fit1 = new TF1("fit1",onlyParabolic,-3.2,3.2,2);
     fit1->SetLineWidth(2);
     fit1->SetLineColor(1);
-    grM_1->Fit("fit1","", "", -3, 3);
+    if( grM_1->GetN() > 0 ) grM_1->Fit("fit1","", "", -3, 3);
     setTPaveText(fit1, paveText1);
 
     // TF1 *fit2 = new TF1("fit2","pol0",-3.2,3.2);
     TF1 *fit2 = new TF1("fit2",onlyParabolic,-3.2,3.2,2);
     fit2->SetLineWidth(2);
     fit2->SetLineColor(2);
-    grM_2->Fit("fit2","", "", -3, 3);
+    if( grM_2->GetN() > 0 ) grM_2->Fit("fit2","", "", -3, 3);
     // grM_2->Fit("fit2","R");
     setTPaveText(fit2, paveText2);
   }
   /*****************SINUSOIDAL FIT (PHI)********************/
   if( name.Contains("Phi") ) {
+    cout << "Fitting phi" << endl;
     TF1 *fit1 = new TF1("fit1",sinusoidal,-3.2,3.2,3);
     fit1->SetParameters(9.45,1,1);
     fit1->SetParNames("offset","amplitude","phase");
     fit1->SetLineWidth(2);
     fit1->SetLineColor(1);
     fit1->SetParLimits(2,-3.14,3.14);
-    grM_1->Fit("fit1","","",-3,3);
+    if( grM_1->GetN() > 0 ) grM_1->Fit("fit1","","",-3,3);
     setTPaveText(fit1, paveText1);
 
     TF1 *fit2 = new TF1("fit2",sinusoidal,-3.2,3.2,3);
@@ -442,19 +425,22 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
     fit2->SetLineWidth(2);
     fit2->SetLineColor(2);
     fit2->SetParLimits(2,-3.14,3.14);
-    grM_2->Fit("fit2","","",-3,3);
+    if( grM_2->GetN() > 0 ) grM_2->Fit("fit2","","",-3,3);
     setTPaveText(fit2, paveText2);
   }
   /*****************************************/ 
   if( name.Contains("Pt") ) {
+    cout << "Fitting pt" << endl;
     // TF1 * fit1 = new TF1("fit1", linear, 0., 150., 2);
     TF1 * fit1 = new TF1("fit1", "[0]", 0., 150.);
     fit1->SetParameters(0., 1.);
     fit1->SetParNames("scale","pt coefficient");
     fit1->SetLineWidth(2);
     fit1->SetLineColor(1);
-    if( name.Contains("Z") ) grM_1->Fit("fit1","","",0.,150.);
-    else grM_1->Fit("fit1","","",0.,27.);
+    if( grM_1->GetN() > 0 ) {
+      if( name.Contains("Z") ) grM_1->Fit("fit1","","",0.,150.);
+      else grM_1->Fit("fit1","","",0.,27.);
+    }
     setTPaveText(fit1, paveText1);
 
     // TF1 * fit2 = new TF1("fit2", linear, 0., 150., 2);
@@ -463,8 +449,10 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
     fit2->SetParNames("scale","pt coefficient");
     fit2->SetLineWidth(2);
     fit2->SetLineColor(2);
-    if( name.Contains("Z") ) grM_2->Fit("fit2","","",0.,150.);
-    grM_2->Fit("fit2","","",0.,27.);
+    if( grM_2->GetN() > 0 ) {
+      if( name.Contains("Z") ) grM_2->Fit("fit2","","",0.,150.);
+      grM_2->Fit("fit2","","",0.,27.);
+    }
     setTPaveText(fit2, paveText2);
   }
 
@@ -530,7 +518,6 @@ void setTDRStyle() {
 
   // For the Pad:
   tdrStyle->SetPadBorderMode(0);
-  // tdrStyle->SetPadBorderSize(Width_t size = 1);
   tdrStyle->SetPadColor(kWhite);
   tdrStyle->SetPadGridX(false);
   tdrStyle->SetPadGridY(false);
@@ -548,16 +535,11 @@ void setTDRStyle() {
   tdrStyle->SetFrameLineWidth(1);
 
   // For the histo:
-  // tdrStyle->SetHistFillColor(1);
-  // tdrStyle->SetHistFillStyle(0);
   tdrStyle->SetHistLineColor(1);
   tdrStyle->SetHistLineStyle(0);
   tdrStyle->SetHistLineWidth(1);
-  // tdrStyle->SetLegoInnerR(Float_t rad = 0.5);
-  // tdrStyle->SetNumberContours(Int_t number = 20);
 
   tdrStyle->SetEndErrorSize(2);
-  //tdrStyle->SetErrorMarker(20);
   tdrStyle->SetErrorX(0.);
   
   tdrStyle->SetMarkerStyle(20);
@@ -571,8 +553,6 @@ void setTDRStyle() {
 
   //For the date:
   tdrStyle->SetOptDate(0);
-  // tdrStyle->SetDateX(Float_t x = 0.01);
-  // tdrStyle->SetDateY(Float_t y = 0.01);
 
   // For the statistics box:
   tdrStyle->SetOptFile(0);
@@ -585,9 +565,6 @@ void setTDRStyle() {
   tdrStyle->SetStatBorderSize(1);
   tdrStyle->SetStatH(0.1);
   tdrStyle->SetStatW(0.15);
-  // tdrStyle->SetStatStyle(Style_t style = 1001);
-  // tdrStyle->SetStatX(Float_t x = 0);
-  // tdrStyle->SetStatY(Float_t y = 0);
 
   // Margins:
   tdrStyle->SetPadTopMargin(0.05);
@@ -596,40 +573,22 @@ void setTDRStyle() {
   tdrStyle->SetPadRightMargin(0.05);
 
   // For the Global title:
-
   tdrStyle->SetOptTitle(0);
-  /*tdrStyle->SetTitleFont(42);
-  tdrStyle->SetTitleColor(1);
-  tdrStyle->SetTitleTextColor(1);
-  tdrStyle->SetTitleFillColor(10);
-  tdrStyle->SetTitleFontSize(0.05);*/
-  // tdrStyle->SetTitleH(0); // Set the height of the title box
-  // tdrStyle->SetTitleW(0); // Set the width of the title box
-  // tdrStyle->SetTitleX(0); // Set the position of the title box
-  // tdrStyle->SetTitleY(0.985); // Set the position of the title box
-  // tdrStyle->SetTitleStyle(Style_t style = 1001);
-  // tdrStyle->SetTitleBorderSize(2);
 
   // For the axis titles:
-
   tdrStyle->SetTitleColor(1, "XYZ");
   tdrStyle->SetTitleFont(42, "XYZ");
   tdrStyle->SetTitleSize(0.06, "XYZ");
-  // tdrStyle->SetTitleXSize(Float_t size = 0.02); // Another way to set the size?
-  // tdrStyle->SetTitleYSize(Float_t size = 0.02);
   tdrStyle->SetTitleXOffset(0.9);
   tdrStyle->SetTitleYOffset(1.05);
-  // tdrStyle->SetTitleOffset(1.1, "Upsilon"); // Another way to set the Offset
 
   // For the axis labels:
-
   tdrStyle->SetLabelColor(1, "XYZ");
   tdrStyle->SetLabelFont(42, "XYZ");
   tdrStyle->SetLabelOffset(0.007, "XYZ");
   tdrStyle->SetLabelSize(0.05, "XYZ");
 
   // For the axis:
-
   tdrStyle->SetAxisColor(1, "XYZ");
   tdrStyle->SetStripDecimals(kTRUE);
   tdrStyle->SetTickLength(0.03, "XYZ");
@@ -641,20 +600,6 @@ void setTDRStyle() {
   tdrStyle->SetOptLogx(0);
   tdrStyle->SetOptLogy(0);
   tdrStyle->SetOptLogz(0);
-
-  // Postscript options:
-  // tdrStyle->SetPaperSize(15.,15.);
-  // tdrStyle->SetLineScalePS(Float_t scale = 3);
-  // tdrStyle->SetLineStyleString(Int_t i, const char* text);
-  // tdrStyle->SetHeaderPS(const char* header);
-  // tdrStyle->SetTitlePS(const char* pstitle);
-
-  // tdrStyle->SetBarOffset(Float_t baroff = 0.5);
-  // tdrStyle->SetBarWidth(Float_t barwidth = 0.5);
-  // tdrStyle->SetPaintTextFormat(const char* format = "g");
-  // tdrStyle->SetPalette(Int_t ncolors = 0, Int_t* colors = 0);
-  // tdrStyle->SetTimeOffset(Double_t toffset);
-  // tdrStyle->SetHistMinimumZero(kTRUE);
 
   //tdrStyle->SetOptFit(00000);
   tdrStyle->cd();

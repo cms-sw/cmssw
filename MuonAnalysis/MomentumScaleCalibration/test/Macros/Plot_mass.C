@@ -14,14 +14,16 @@ class histos
 public:
   histos(TFile * inputFile)
   {
-    mass     = dynamic_cast<TH1F*>(inputFile->Get("hRecBestRes_Mass"));
-    massProb = dynamic_cast<TProfile*>(inputFile->Get("Mass_P"));
-    likePt   = dynamic_cast<TProfile*>(inputFile->Get("hLikeVSMu_LikelihoodVSPt_prof"));
-    likePhi  = dynamic_cast<TProfile*>(inputFile->Get("hLikeVSMu_LikelihoodVSPhi_prof"));
-    likeEta  = dynamic_cast<TProfile*>(inputFile->Get("hLikeVSMu_LikelihoodVSEta_prof"));
+    mass         = dynamic_cast<TH1F*>(inputFile->Get("hRecBestRes_Mass"));
+    massProb     = dynamic_cast<TProfile*>(inputFile->Get("Mass_P"));
+    massFineProb = dynamic_cast<TProfile*>(inputFile->Get("Mass_fine_P"));
+    likePt       = dynamic_cast<TProfile*>(inputFile->Get("hLikeVSMu_LikelihoodVSPt_prof"));
+    likePhi      = dynamic_cast<TProfile*>(inputFile->Get("hLikeVSMu_LikelihoodVSPhi_prof"));
+    likeEta      = dynamic_cast<TProfile*>(inputFile->Get("hLikeVSMu_LikelihoodVSEta_prof"));
   }
   TH1F * mass;
   TProfile * massProb;
+  TProfile * massFineProb;
   TProfile * likePt;
   TProfile * likePhi;
   TProfile * likeEta;
@@ -44,27 +46,30 @@ int getXbins(const TH1 * h, const double & xMin, const double & xMax)
 }
 
 /// Helper function to draw mass and mass probability histograms
-void drawMasses(const double ResMass, const double ResHalfWidth, histos & h)
+void drawMasses(const double ResMass, const double ResHalfWidth, histos & h, const int ires)
 {
-  TH1F * mass = (TH1F*)h.mass->Clone();
-  TProfile * massProb = (TProfile*)h.massProb->Clone();
+  TH1F * mass = mass = (TH1F*)h.mass->Clone();
+  TProfile * massProb = 0;
+  // Use massProb for the Z and fineMass for the other resonances
+  if( ires == 0 ) massProb = (TProfile*)h.massProb->Clone();
+  else massProb = (TProfile*)h.massFineProb->Clone();
   mass->SetAxisRange(ResMass - ResHalfWidth, ResMass + ResHalfWidth);
   mass->SetLineColor(kRed);
 
   // Set a consistent binning
-  int massXbins = getXbins( h.mass, (ResMass - ResHalfWidth), (ResMass + ResHalfWidth) );
-  int massProbXbins = getXbins( h.massProb, (ResMass - ResHalfWidth), (ResMass + ResHalfWidth) );
+  int massXbins = getXbins( mass, (ResMass - ResHalfWidth), (ResMass + ResHalfWidth) );
+  int massProbXbins = getXbins( massProb, (ResMass - ResHalfWidth), (ResMass + ResHalfWidth) );
 
   if( massProbXbins > massXbins && massXbins != 0 ) {
-//     cout << "massProbXbins("<<massProbXbins<<") > " << "massXbins("<<massXbins<<")" << endl;
-//     cout << "massProb = " << massProb << endl;
-//     cout << "mass = " << mass << endl;
+    cout << "massProbXbins("<<massProbXbins<<") > " << "massXbins("<<massXbins<<")" << endl;
+    cout << "massProb = " << massProb << endl;
+    cout << "mass = " << mass << endl;
     massProb->Rebin(massProbXbins/massXbins);
   }
   else if( massXbins > massProbXbins && massProbXbins != 0 ) {
-//     cout << "massXbins("<<massXbins<<") > " << "massProbXbins("<<massProbXbins<<")" << endl;
-//     cout << "massProb = " << massProb << endl;
-//     cout << "mass = " << mass << endl;
+    cout << "massXbins("<<massXbins<<") > " << "massProbXbins("<<massProbXbins<<")" << endl;
+    cout << "massProb = " << massProb << endl;
+    cout << "mass = " << mass << endl;
     mass->Rebin(massXbins/massProbXbins);
   }
 
@@ -120,7 +125,7 @@ void Plot_mass(const TString & fileNameBefore = "0", const TString & fileNameAft
   Allres->Divide (2,3);
   for (int ires=0; ires<6; ires++) {
     Allres->cd(ires+1);
-    drawMasses(ResMass[ires], ResHalfWidth[ires], histos1);
+    drawMasses(ResMass[ires], ResHalfWidth[ires], histos1, ires);
   }
   Allres->Write();
 
@@ -128,7 +133,7 @@ void Plot_mass(const TString & fileNameBefore = "0", const TString & fileNameAft
   Allres2->Divide (2,3);
   for (int ires=0; ires<6; ires++) {
     Allres2->cd(ires+1);
-    drawMasses(ResMass[ires], ResHalfWidth[ires], histos2);
+    drawMasses(ResMass[ires], ResHalfWidth[ires], histos2, ires);
   }
   Allres2->Write();
 

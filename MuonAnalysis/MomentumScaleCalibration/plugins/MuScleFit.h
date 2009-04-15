@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2009/03/26 18:12:45 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/04/09 15:42:02 $
+ *  $Revision: 1.14 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -64,7 +64,7 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
   /// Check if two lorentzVector are near in deltaR
   bool checkDeltaR(reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu);
   /// Fill the reco vs gen and reco vs sim comparison histograms
-  void fillComparisonHistograms( const reco::Particle::LorentzVector & genMu, const reco::Particle::LorentzVector & recoMu, const string & inputName );
+  void fillComparisonHistograms( const reco::Particle::LorentzVector & genMu, const reco::Particle::LorentzVector & recoMu, const string & inputName, const int charge );
 
   /**
    * Simple method to check parameters consistency. It aborts the job if the parameters

@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/04/09 15:42:03 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/04/10 09:39:10 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -918,15 +918,16 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
     // ----------------------------------------------------------------------------------
     if (iSigmaLeft<0) { 
       cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaLeft=" 
-	   << iSigmaLeft << " -  iSigmaLeft set to 0" << endl;
+	   << iSigmaLeft << ", with massResol = " << massResol << " and ResMaxSigma[0]["<<MuonType<<"] = "
+           << ResMaxSigma[0][MuonType] << " -  iSigmaLeft set to 0" << endl;
       iSigmaLeft  = 0;
       iSigmaRight = 1;
     }
     if (iSigmaRight>nbins ) { 
       if (counter_resprob<100)
-	cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaRight=" 
-	     << iSigmaRight << "; sigma = " << massResol << " and bounds are 0:" 
-	     << ResMaxSigma[0][MuonType] << " - iSigmaRight set to " << nbins-1 << endl;
+        cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaRight=" 
+             << iSigmaRight << ", with massResol = " << massResol << " and ResMaxSigma[0]["<<MuonType<<"] = "
+             << ResMaxSigma[0][MuonType] << " -  iSigmaRight set to " << nbins-1 << endl;
       iSigmaLeft  = nbins-1;
       iSigmaRight = nbins;
     }
@@ -970,6 +971,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
     if( resfind[ires] > 0 ) {
       if( checkMassWindow(mass, ires) ) {
 
+        bool insideProbMassWindow = true;
         resConsidered[ires] = true;
         nres += 1; 
 
@@ -995,6 +997,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
                << ":" << ResMass[ires]+ResHalfWidth[ires][MuonType] << " - iMassLeft set to 0" << endl;
           iMassLeft  = 0;
           iMassRight = 1;
+          insideProbMassWindow = false;
         }
         if (iMassRight>nbins) {
           cout << "WARNING: fracMass=" << fracMass << ", iMassRight=" 
@@ -1002,6 +1005,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
                << ":" << ResMass[ires]+ResHalfWidth[ires][MuonType] << " - iMassRight set to " << nbins-1 << endl;
           iMassLeft  = nbins-1;
           iMassRight = nbins;
+          insideProbMassWindow = false;
         }
         double fracSigma = (massResol/ResMaxSigma[ires][MuonType]);
         int iSigmaLeft = (int)(fracSigma*(double)nbins);
@@ -1014,43 +1018,53 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
         // ----------------------------------------------------------------------------------
         if (iSigmaLeft<0) {
           cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaLeft=" 
-               << iSigmaLeft << " -  iSigmaLeft set to 0" << endl;
+               << iSigmaRight << ", with massResol = " << massResol << " and ResMaxSigma["<<ires<<"]["<<MuonType<<"] = "
+               << ResMaxSigma[ires][MuonType] << " -  iSigmaLeft set to 0" << endl;
           iSigmaLeft  = 0;
           iSigmaRight = 1;
         }
         if (iSigmaRight>nbins ) { 
           if (counter_resprob<100)
             cout << "WARNING: fracSigma = " << fracSigma << ", iSigmaRight=" 
-                 << iSigmaRight << "; sigma = " << massResol << " and bounds are 0:" 
-                 << ResMaxSigma[ires][MuonType] << " - iSigmaRight set to " << nbins-1 << endl;
+                 << iSigmaRight << ", with massResol = " << massResol << " and ResMaxSigma["<<ires<<"]["<<MuonType<<"] = "
+                 << ResMaxSigma[ires][MuonType] << " -  iSigmaRight set to " << nbins-1 << endl;
           iSigmaLeft  = nbins-1;
           iSigmaRight = nbins;
         }
-      
-        // If f11,f12,f21,f22 are the values at the four corners, one finds by linear interpolation the
-        // formula below for PS[]
-        // --------------------------------------------------------------------------------------------
-        double f11 = 0.;
-        if (GLNorm[ires][iSigmaLeft]>0) 
-          f11 = GLValue[ires][iMassLeft][iSigmaLeft] / GLNorm[ires][iSigmaLeft];
-        double f12 = 0.;
-        if (GLNorm[ires][iSigmaRight]>0) 
-          f12 = GLValue[ires][iMassLeft][iSigmaRight] / GLNorm[ires][iSigmaRight];
-        double f21 = 0.;
-        if (GLNorm[ires][iSigmaLeft]>0) 
-          f21 = GLValue[ires][iMassRight][iSigmaLeft] / GLNorm[ires][iSigmaLeft];
-        double f22 = 0.;
-        if (GLNorm[ires][iSigmaRight]>0) 
-          f22 = GLValue[ires][iMassRight][iSigmaRight] / GLNorm[ires][iSigmaRight];
-        PS[ires] = f11 + (f12-f11)*fracSigmaStep + (f21-f11)*fracMassStep + 
-          (f22-f21-f12+f11)*fracMassStep*fracSigmaStep;    
-        if (PS[ires]>0.1 || debug>1) cout << "ires=" << ires << " PS=" << PS[ires] << " f11,f12,f21,f22=" 
-                                          << f11 << " " << f12 << " " << f21 << " " << f22 << " " 
-                                          << " fSS=" << fracSigmaStep << " fMS=" << fracMassStep << " iSL, iSR=" 
-                                          << iSigmaLeft << " " << iSigmaRight << " GLV,GLN=" 
-                                          << GLValue[ires][iMassLeft][iSigmaLeft] 
-                                          << " " << GLNorm[ires][iSigmaLeft] << endl;
 
+        // Instead of using the border values outside the probability region, use 0.
+        // When using the probability values infact, the fit takes advantage of this worsening the resolution since the region
+        // outside the defined probability interval will add a constant value. This is not normalized and thus should not be used.
+        if( insideProbMassWindow ) {
+
+          // If f11,f12,f21,f22 are the values at the four corners, one finds by linear interpolation the
+          // formula below for PS[]
+          // --------------------------------------------------------------------------------------------
+          double f11 = 0.;
+          double f21 = 0.;
+          if (GLNorm[ires][iSigmaLeft]>0) {
+            f11 = GLValue[ires][iMassLeft][iSigmaLeft] / GLNorm[ires][iSigmaLeft];
+            f21 = GLValue[ires][iMassRight][iSigmaLeft] / GLNorm[ires][iSigmaLeft];
+          }
+          double f12 = 0.;
+          double f22 = 0.;
+          if (GLNorm[ires][iSigmaRight]>0) {
+            f12 = GLValue[ires][iMassLeft][iSigmaRight] / GLNorm[ires][iSigmaRight];
+            f22 = GLValue[ires][iMassRight][iSigmaRight] / GLNorm[ires][iSigmaRight];
+          }
+
+          PS[ires] = f11 + (f12-f11)*fracSigmaStep + (f21-f11)*fracMassStep + (f22-f21-f12+f11)*fracMassStep*fracSigmaStep;    
+          if (PS[ires]>0.1 || debug>1) cout << "ires=" << ires << " PS=" << PS[ires] << " f11,f12,f21,f22=" 
+                                            << f11 << " " << f12 << " " << f21 << " " << f22 << " " 
+                                            << " fSS=" << fracSigmaStep << " fMS=" << fracMassStep << " iSL, iSR=" 
+                                            << iSigmaLeft << " " << iSigmaRight << " GLV,GLN=" 
+                                            << GLValue[ires][iMassLeft][iSigmaLeft] 
+                                            << " " << GLNorm[ires][iSigmaLeft] << endl;
+        }
+        else {
+          cout << "outside mass probability window. Setting PS["<<ires<<"] = 0" << endl;
+          PS[ires] = 0;
+        }
         // We are inside the current resonance mass window, check if we are also inside any other resonance mass window.
         for( int otherRes = 0; otherRes < 6; ++otherRes ) {
           if( otherRes != ires ) {
@@ -1083,7 +1097,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
   Bgrp1 = parval[shift];
   
   double PStot = 0.;
-  for (int ires=0; ires<6; ires++) {
+  for (int ires=0; ires<6; ++ires) {
     if (resfind[ires]>0) {
       PStot += PS[ires];
       if(debug>1) cout<<"PS[ires] "<<PS[ires]<<endl;
@@ -1120,7 +1134,8 @@ bool MuScleFitUtils::checkMassWindow( const double & mass, const int ires )
 //     return true;
 //   }
 
-  return fabs(mass-ResMass[ires])<ResHalfWidth[ires][MuonType];
+  // return( fabs(mass-ResMass[ires]) < ResHalfWidth[ires][MuonType] );
+  return( mass-ResMass[ires] > -leftWindowFactor*ResHalfWidth[ires][MuonType] && mass-ResMass[ires] < rightWindowFactor*ResHalfWidth[ires][MuonType] );
 }
 
 // Function that returns the weight for a muon pair

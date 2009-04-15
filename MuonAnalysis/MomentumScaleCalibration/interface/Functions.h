@@ -686,38 +686,38 @@ class resolutionFunctionType7 : public resolutionFunctionBase<T> {
 template <class T>
 class resolutionFunctionType8 : public resolutionFunctionBase<T> {
  public:
-  resolutionFunctionType8() { this->parNum_ = 11; }
+  resolutionFunctionType8() { this->parNum_ = 12; }
   // linear in pt and by points in eta
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
-    return( parval[0]+parval[1]*pt + parval[2]*etaByPoints(eta) );
+    return( parval[0]+parval[1]*pt + parval[2]*etaByPoints(eta, parval[3]) );
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
-    return( parval[3]+parval[4]/pt + parval[5]*fabs(eta)+parval[6]*pow(eta,2) );
+    return( parval[4]+parval[5]/pt + parval[6]*fabs(eta)+parval[7]*eta*eta );
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
-    return( parval[7]+parval[8]/pt + parval[9]*fabs(eta)+parval[10]*pow(eta,2) );
+    return( parval[8]+parval[9]/pt + parval[10]*fabs(eta)+parval[11]*eta*eta );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const vector<int> & parResolOrder, const int muonType) {
 
-    double thisStep[] = { 0.0002, 0.000002, 0.02,
+    double thisStep[] = { 0.0002, 0.000002, 0.02, 0.02,
                           0.00002, 0.0002, 0.0000002, 0.00002,
                           0.00002, 0.0002, 0.00000002, 0.000002 };
-    TString thisParName[] = { "Pt res. sc.", "Pt res. Pt sc.", "Pt res. Eta sc.",
+    TString thisParName[] = { "Pt res. sc.", "Pt res. Pt sc.", "Pt res. Eta sc.", "Pt res. eta border",
                               "Cth res. sc.", "Cth res. 1/Pt sc.", "Cth res. Eta sc.", "Cth res. Eta^2 sc.",
                               "Phi res. sc.", "Phi res. 1/Pt sc.", "Phi res. Eta sc.", "Phi res. Eta^2 sc." };
 //     double thisMini[] = {  -0.01, 0.00000001, 0.5,
 //                            -0.0004, 0.003, 0.000002, 0.0004,
 //                            0.0001, 0.001, -0.0000007, 0.00008 };
-    double thisMini[] = {  -0.1, 0.00000001, 0.5,
-                           -0.0004, 0.002, 0.000001, 0.0001,
-                           0.00005, 0.005, -0.0000001, 0.00001 };
+    double thisMini[] = {  -0.1, -0.001, 0.4, 0.01,
+                           -0.001, 0.002, -0.0001, -0.0001,
+                           -0.0001, 0.0005, -0.0001, -0.00001 };
 //     double thisMini[] = {  -0.006, 0.00005, 0.8,
 //                            -0.0004, 0.003, 0.000002, 0.0004,
 //                            0.0001, 0.001, -0.0000007, 0.00008 };
     if( muonType == 1 ) {
-      double thisMaxi[] = { 1., 1., 1.,
+      double thisMaxi[] = { 1., 1., 1., 1.,
                             1., 1., 1., 0.1,
                             1., 1., 1., 1. };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
@@ -725,9 +725,9 @@ class resolutionFunctionType8 : public resolutionFunctionBase<T> {
 //      double thisMaxi[] = { 0.1, 0.0004, 1.2,
 //                            -0.0002, 0.005, 0.000004, 0.0007,
 //                            0.0003, 0.003, -0.0000011, 0.00012 };
-      double thisMaxi[] = { 0.1, 0.0004, 1.5,
-                            0.0002, 0.006, 0.000004, 0.0007,
-                            0.0003, 0.003, -0.0000015, 0.00012 };
+      double thisMaxi[] = { 0.1, 0.001, 1.5, 1.,
+                            0.001, 0.005, 0.00004, 0.0007,
+                            0.001, 0.01, -0.0000015, 0.0004 };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
@@ -736,7 +736,7 @@ protected:
    * This is the pt vs eta resolution by points. It uses fabs(eta) assuming symmetry.
    * The values are derived from 100k events of MuonGun with 5<pt<100 and |eta|<3.
    */
-  double etaByPoints(const double & inEta) {
+  double etaByPoints(const double & inEta, const double & border) {
     Double_t eta = fabs(inEta);
 //     if( 0. <= eta && eta <= 0.2 )      return 0.0120913;
 //     else if( 0.2 < eta && eta <= 0.4 ) return 0.0122204;
@@ -765,7 +765,8 @@ protected:
     else if( 2.0 < eta && eta <= 2.2 ) return 0.0250032;
     else if( 2.2 < eta && eta <= 2.4 ) return 0.0339477;
     // ATTENTION: This point has a big error and it is very displaced from the rest of the distribution.
-    else if( 2.4 < eta && eta <= 2.6 ) return 0.445473;
+    // else if( 2.4 < eta && eta <= 2.6 ) return 0.445473;
+    else if( 2.4 < eta && eta <= 2.6 ) return border;
     return ( 0. );
   }
 };

@@ -2,11 +2,11 @@
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
 // <<<<<<< MuScleFit.cc
-//  $Date: 2009/03/26 18:12:45 $
-//  $Revision: 1.32 $
+//  $Date: 2009/04/09 15:42:02 $
+//  $Revision: 1.33 $
 // =======
-//  $Date: 2009/03/26 18:12:45 $
-//  $Revision: 1.32 $
+//  $Date: 2009/04/09 15:42:02 $
+//  $Revision: 1.33 $
 // >>>>>>> 1.25
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
@@ -204,6 +204,11 @@ MuScleFit::MuScleFit (const ParameterSet& pset) : MuScleFitBase( pset )
   int smearType = pset.getParameter<int>("SmearType");
   MuScleFitUtils::SmearType = smearType;
   MuScleFitUtils::smearFunction = smearFunctionService( smearType );
+
+  int leftWindowFactor = pset.getParameter<double>("LeftWindowFactor");
+  MuScleFitUtils::leftWindowFactor = leftWindowFactor;
+  int rightWindowFactor = pset.getParameter<double>("RightWindowFactor");
+  MuScleFitUtils::leftWindowFactor = rightWindowFactor;
 
   // Fit types
   // ---------
@@ -650,7 +655,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
       double genmass = (genMu.first+genMu.second).mass();
       GM->Fill(genmass);
       if(checkDeltaR(genMu.first,recMu1)) {
-        fillComparisonHistograms( genMu.first, recMu1, "Gen" );
+        fillComparisonHistograms( genMu.first, recMu1, "Gen", -1 );
         // Fill also the resolution histogramsm using the resolution functions:
         // the parameters are those from the last iteration, as the muons up to this point have also the
         // corrections from the same iteration.
@@ -660,7 +665,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
         mapHisto_["hFunctionResolPhi"]->Fill( recMu1, MuScleFitUtils::resolutionFunctionForVec->sigmaPhi(recMu1.Pt(), recMu1.Eta(), *parval ), -1 );
       }
       if(checkDeltaR(genMu.second,recMu2)){
-        fillComparisonHistograms( genMu.second, recMu2, "Gen" );
+        fillComparisonHistograms( genMu.second, recMu2, "Gen", +1 );
         // Fill also the resolution histogramsm using the resolution functions
         mapHisto_["hFunctionResolPt"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaPt(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
         mapHisto_["hFunctionResolCotgTheta"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaCotgTh(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
@@ -675,10 +680,10 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
         GSM->Fill(genmass-simmass);
 
         if(checkDeltaR(simMu.first,recMu1)){
-          fillComparisonHistograms( simMu.first, recMu1, "Sim" );
+          fillComparisonHistograms( simMu.first, recMu1, "Sim", -1 );
         }
         if(checkDeltaR(simMu.second,recMu2)){
-          fillComparisonHistograms( simMu.second, recMu2, "Sim" );
+          fillComparisonHistograms( simMu.second, recMu2, "Sim", +1 );
         }
       }
     }
@@ -714,11 +719,11 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 	mapHisto_["hLikeVSMu"]->Fill (recMu2, deltalike);
 	mapHisto_["hLikeVSMuMinus"]->Fill (recMu1, deltalike);
 	mapHisto_["hLikeVSMuPlus"]->Fill (recMu2, deltalike);
-	mapHisto_["hResolMassVSMu"]->Fill (recMu1, massResol,-1);
-	mapHisto_["hResolMassVSMu"]->Fill (recMu2, massResol,+1);
-	YL->Fill(bestRecRes.Rapidity(),deltalike);
-	PL->Fill(bestRecRes.P(),deltalike);
-	PTL->Fill(bestRecRes.Pt(),deltalike);
+	mapHisto_["hResolMassVSMu"]->Fill (recMu1, massResol, -1);
+	mapHisto_["hResolMassVSMu"]->Fill (recMu2, massResol, +1);
+	YL->Fill(bestRecRes.Rapidity(), deltalike);
+	PL->Fill(bestRecRes.P(), deltalike);
+	PTL->Fill(bestRecRes.Pt(), deltalike);
 
         double recoMass = (recMu1+recMu2).mass();
         if( !MuScleFitUtils::speedup ) {
@@ -795,14 +800,14 @@ bool MuScleFit::checkDeltaR(reco::Particle::LorentzVector& genMu, reco::Particle
   return false;
 }
 
-void MuScleFit::fillComparisonHistograms( const reco::Particle::LorentzVector & genMu, const reco::Particle::LorentzVector & recMu, const string & inputName ) {
+void MuScleFit::fillComparisonHistograms( const reco::Particle::LorentzVector & genMu, const reco::Particle::LorentzVector & recMu, const string & inputName, const int charge ) {
   string name(inputName + "VSMu");
-  mapHisto_["hResolPt"+name]->Fill(recMu, (-genMu.Pt()+recMu.Pt())/genMu.Pt(),-1);
-  mapHisto_["hResolTheta"+name]->Fill(recMu, (-genMu.Theta()+recMu.Theta()),-1);
+  mapHisto_["hResolPt"+name]->Fill(recMu, (-genMu.Pt()+recMu.Pt())/genMu.Pt(), charge);
+  mapHisto_["hResolTheta"+name]->Fill(recMu, (-genMu.Theta()+recMu.Theta()), charge);
   mapHisto_["hResolCotgTheta"+name]->Fill(recMu,(-cos(genMu.Theta())/sin(genMu.Theta())
-                                                 +cos(recMu.Theta())/sin(recMu.Theta())),-1);
-  mapHisto_["hResolEta"+name]->Fill(recMu, (-genMu.Eta()+recMu.Eta()),-1);
-  mapHisto_["hResolPhi"+name]->Fill(recMu, MuScleFitUtils::deltaPhiNoFabs(recMu.Phi(), genMu.Phi()),-1);
+                                                 +cos(recMu.Theta())/sin(recMu.Theta())), charge);
+  mapHisto_["hResolEta"+name]->Fill(recMu, (-genMu.Eta()+recMu.Eta()),charge);
+  mapHisto_["hResolPhi"+name]->Fill(recMu, MuScleFitUtils::deltaPhiNoFabs(recMu.Phi(), genMu.Phi()), charge);
 
   mapHisto_["hPtRecoVsPt"+inputName]->Fill(genMu.Pt(), recMu.Pt());
 }
@@ -868,7 +873,7 @@ void MuScleFit::checkParameters() {
       (MuScleFitUtils::ResolFitType==5 && MuScleFitUtils::parResol.size()!=7) ||
       (MuScleFitUtils::ResolFitType==6 && MuScleFitUtils::parResol.size()!=15) ||
       (MuScleFitUtils::ResolFitType==7 && MuScleFitUtils::parResol.size()!=12) ||
-      (MuScleFitUtils::ResolFitType==8 && MuScleFitUtils::parResol.size()!=11) ||
+      (MuScleFitUtils::ResolFitType==8 && MuScleFitUtils::parResol.size()!=12) ||
       MuScleFitUtils::ResolFitType<1 || MuScleFitUtils::ResolFitType>8) {
     cout << "[MuScleFit-Constructor]: Wrong Resol fit type or number of parameters: aborting!" << endl;
     abort();
