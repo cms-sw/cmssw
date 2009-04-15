@@ -128,6 +128,10 @@ process.l1extraParticles.tauJetSource = cms.InputTag('hltGctDigis', 'tauJets')
 process.l1extraParticles.etTotalSource = cms.InputTag('hltGctDigis')
 process.l1extraParticles.etHadSource = cms.InputTag('hltGctDigis')
 process.l1extraParticles.etMissSource = cms.InputTag('hltGctDigis')
+process.l1extraParticles.htMissSource = cms.InputTag("hltGctDigis")
+process.l1extraParticles.hfRingEtSumsSource = cms.InputTag("hltGctDigis")
+process.l1extraParticles.hfRingBitCountsSource = cms.InputTag("hltGctDigis")
+process.l1extraParticles.ignoreHtMiss = cms.bool(True)
 
 # this module
 process.load('HLTrigger.HLTfilters.hltLevel1GTSeed_cfi')
@@ -193,6 +197,9 @@ elif logExpressionNumber == 13 :
     # for technical triggers, one specifies by bit number        
     process.hltLevel1GTSeed.L1SeedsLogicalExpression = \
         '1 AND 15 AND NOT (29 OR 55)'                        # 13
+elif logExpressionNumber == 14 :
+    process.hltLevel1GTSeed.L1SeedsLogicalExpression = \
+        '(L1_SingleEG15 OR L1_QuadJet6U) AND ((L1_HTT200 AND NOT L1_SingleMu7) OR NOT L1_SingleMu20)' # 14
 else :
     print 'Error: no logical expression defined'    
 
