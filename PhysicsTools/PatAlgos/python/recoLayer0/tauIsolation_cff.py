@@ -1,9 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 import copy
 
+from PhysicsTools.PFCandProducer.pfAllChargedHadrons_cfi import *
+from PhysicsTools.PFCandProducer.pfAllNeutralHadrons_cfi import *
+from PhysicsTools.PFCandProducer.pfAllPhotons_cfi import *
+
 # compute IsoDeposits from all PFCandidates
 tauIsoDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
-    src = cms.InputTag("pfRecoTauProducer"),
+    src = cms.InputTag("fixedConePFTauProducer"),
     MultipleDepositsFlag = cms.bool(False),
     trackType = cms.string('candidate'),
     ExtractorPSet = cms.PSet(
@@ -24,7 +28,7 @@ tauIsoDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
         Diff_r = cms.double(0.1),
 
         # collection of PFTaus, needed for excluding particles in tau signal cone from IsoDeposit
-        tauSource = cms.InputTag("pfRecoTauProducer"),
+        tauSource = cms.InputTag("fixedConePFTauProducer"),
         # maximum distance in eta-phi, needed to match PFTau to direction passed as function argument to Extractor
         dRmatchPFTau = cms.double(0.1),
         # size of cones around tau signal cone particles excluded from IsoDeposit computation
@@ -46,7 +50,10 @@ tauIsoDepositPFNeutralHadrons.ExtractorPSet.candidateSource = cms.InputTag("pfAl
 tauIsoDepositPFGammas = copy.deepcopy(tauIsoDepositPFCandidates)
 tauIsoDepositPFGammas.ExtractorPSet.candidateSource = cms.InputTag("pfAllPhotons")
 
-patPFTauIsolation = cms.Sequence( tauIsoDepositPFCandidates
+selectPFCandidates = cms.Sequence( pfAllChargedHadrons * pfAllNeutralHadrons * pfAllPhotons )
+
+patPFTauIsolation = cms.Sequence( selectPFCandidates
+                                 * tauIsoDepositPFCandidates
                                  * tauIsoDepositPFChargedHadrons
                                  * tauIsoDepositPFNeutralHadrons
                                  * tauIsoDepositPFGammas )
