@@ -59,7 +59,7 @@ namespace {
 
 
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
-  m_session(),m_serviceReg()
+  m_session()
 {		
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   /*parameter set parsing and pool environment setting
@@ -79,14 +79,14 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   m_session.open();
   
   if(!userconnect.empty())
-    cond::ConnectionHandler::Instance().registerConnection(userconnect,*m_session,0);
+    cond::ConnectionHandler::Instance().registerConnection(userconnect,m_session,0);
   
 
 
     std::string globaltag=iConfig.getParameter<std::string>("globaltag");
 
     cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(userconnect);
-    cond::ConnectionHandler::Instance().connect(m_session);
+    cond::ConnectionHandler::Instance().connect(&m_session);
     cond::CoralTransaction& coraldb=c->coralTransaction();
     
     std::map<std::string,cond::TagMetadata> replacement;
@@ -149,13 +149,13 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   std::string recordname=iKey.name();
   oInterval = edm::ValidityInterval::invalidInterval();
   
-  ProxyMap:: const_iterator p = m_proxies.find(recordname);
+  ProxyMap::const_iterator p = m_proxies.find(recordname);
   if ( p == m_proxies.end()) {
     LogDebug ("PoolDBESSource")<<"no DataProxy (Pluging) found for record "<<recordname;
     return;
   }
 
-  cond::TimeType timetype = (*p)->proxy()->timetype();
+  cond::TimeType timetype = (*p).second->proxy()->timetype();
   cond::Time_t abtime;
   if( timetype == cond::timestamp ){
     abtime=(cond::Time_t)iTime.time().value();
@@ -170,7 +170,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   //std::cout<<"abtime "<<abtime<<std::endl;
 
  
-  cond::ValidityInterval validity = (*p)->proxy()->setIntervalFor(abtime);
+  cond::ValidityInterval validity = (*p).second->proxy()->setIntervalFor(abtime);
 
   edm::IOVSyncValue start,stop;
  
@@ -205,9 +205,9 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
     return;
   }
 
-  if(0 != (*p).get()) {
-    edm::eventsetup::DataKey key( type, edm::eventsetup::IdTags((*p)->label.c_str()) );
-    aProxyList.push_back(KeyedProxies::value_type(key,(*p)->edmProxy()));
+  if(0 != (*p).second.get()) {
+    edm::eventsetup::DataKey key( type, edm::eventsetup::IdTags((*p).second->label.c_str()) );
+    aProxyList.push_back(KeyedProxies::value_type(key,(*p).second->edmProxy()));
   }
 }
 
