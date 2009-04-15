@@ -23,7 +23,7 @@
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
-#include "CondCore/IOVService/interface/IOVService.h"
+#include "CondCore/IOVService/interface/PayloadProxy.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

@@ -26,34 +26,11 @@ namespace edm{
   class ParameterSet;
 }
 namespace cond{
- class CoralTransaction;
+  class CoralTransaction;
   class Connection;
-
-
-  struct IOVInfo{
-    std::string tag; 
-    std::string token;
-    std::string label;
-    std::string pfn;
-    cond::TimeType timetype;
-    std::size_t hashvalue()const{
-      boost::hash<std::string> hasher;
-      std::size_t result=hasher(token+label+pfn);
-      return result;
-    }
-    bool  operator == (const IOVInfo& toCompare ) const {
-      if(this->hashvalue()==toCompare.hashvalue()&&this->timetype==toCompare.timetype) return true;
-     return false;
-    }
-    bool operator != (const IOVInfo& toCompare ) const {
-      return !(*this==toCompare);
-    }
-    bool operator<(const IOVInfo& toCompare ) const {
-      return this->hashvalue()<toCompare.hashvalue();
-    }
-  };
-
+  class BasePayloadProxy;
 }
+
 class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
 		       public edm::EventSetupRecordIntervalFinder{
  public:
@@ -73,7 +50,7 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
   // ----------member data ---------------------------
   cond::DBSession m_session;
  
-  typedef boost::shared_ptr<cond::BasePayloadProxy> ProxyP;
+  typedef boost::shared_ptr<cond::DataProxyWrapperBase > ProxyP;
   typedef std::map< std::string,  ProxyP> ProxyMap;
   ProxyMap m_proxies;
 
