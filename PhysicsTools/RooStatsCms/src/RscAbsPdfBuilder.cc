@@ -274,20 +274,19 @@ char* ConfigHandler(const char* init){
 }
 
 /*----------------------------------------------------------------------------*/
-/**
-Display on screen the logo of Rsc when the library is loaded.
-**/
-bool RscLogo(){
-    std::cout << "\n"
-              << "\033[1;2mRooStatsCms:\033[1;0m A CMS Modelling, combination and Statistics package \n" 
-              << "             www-ekp.physik.uni-karlsruhe.de/~RooStatsCms\n"
-              << "             Universitaet Karlsruhe (2008).\n"
-              << std::endl;
-    return true;
-}
-
-
-static bool RscLogo_flag=RscLogo();
+// Removed in CMSSW
+// Display on screen the logo of Rsc when the library is loaded.
+// bool RscLogo(){
+//     std::cout << "\n"
+//               << "\033[1;2mRooStatsCms:\033[1;0m A CMS Modelling, combination and Statistics package \n" 
+//               << "             www-ekp.physik.uni-karlsruhe.de/~RooStatsCms\n"
+//               << "             Universitaet Karlsruhe (2008).\n"
+//               << std::endl;
+//     return true;
+// }
+// 
+// 
+// static bool RscLogo_flag=RscLogo();
 
 /*----------------------------------------------------------------------------*/
 
