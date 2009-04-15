@@ -5,7 +5,7 @@
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
-#include "EventFilter/Utilities/interface/Crc.h"
+#include "FWCore/Utilities/interface/CRC16.h"
 #include "EventFilter/CastorRawToDigi/interface/CastorCollections.h"
 #include <iostream>
 
