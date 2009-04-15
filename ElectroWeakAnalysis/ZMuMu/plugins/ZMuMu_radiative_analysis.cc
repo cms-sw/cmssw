@@ -64,13 +64,14 @@ private:
   TH1D *h_zMuTkmass_FSR,*h_zMuTkmass_no_FSR;
   TH1D *h_Iso_,*h_Iso_FSR_ ;
   TH3D *h_Iso_3D_, *h_Iso_FSR_3D_; 
+  TH2D *h_staProbe_pt_eta_no_FSR_, *h_staProbe_pt_eta_FSR_, *h_ProbeOk_pt_eta_no_FSR_, *h_ProbeOk_pt_eta_FSR_;
   TH1D *h_trackProbe_eta_no_FSR, *h_trackProbe_pt_no_FSR, *h_staProbe_eta_no_FSR, *h_staProbe_pt_no_FSR, *h_ProbeOk_eta_no_FSR, *h_ProbeOk_pt_no_FSR;
   TH1D *h_trackProbe_eta_FSR, *h_trackProbe_pt_FSR, *h_staProbe_eta_FSR, *h_staProbe_pt_FSR, *h_ProbeOk_eta_FSR, *h_ProbeOk_pt_FSR;
   //boolean 
   bool FSR_mu, FSR_tk, FSR_mu0, FSR_mu1;
   bool trig0found, trig1found;
   //counter
-  int  zmmcounter , zmscounter, zmtcounter;
+  int  zmmcounter , zmscounter, zmtcounter, evntcounter;
  };
 
 
@@ -89,7 +90,7 @@ ZMuMu_Radiative_analyzer::ZMuMu_Radiative_analyzer(const ParameterSet& pset) :
   zmmcounter=0;
   zmscounter=0;
   zmtcounter=0;
-  
+  evntcounter=0;
   Service<TFileService> fs;
    
   // general histograms
@@ -103,6 +104,10 @@ ZMuMu_Radiative_analyzer::ZMuMu_Radiative_analyzer(const ParameterSet& pset) :
   h_Iso_FSR_= fs->make<TH1D>("h_iso_FSR","Isolation distribution of muons with FSR ",100,0,20);
   h_Iso_3D_= fs->make<TH3D>("h_iso_3D","Isolation distribution of muons without FSR",100,20,100,100,-2.0,2.0,100,0,20);
   h_Iso_FSR_3D_= fs->make<TH3D>("h_iso_FSR_3D","Isolation distribution of muons with FSR ",100,20,100,100,-2.0,2.0,100,0,20);
+  h_staProbe_pt_eta_no_FSR_= fs->make<TH2D>("h_staProbe_pt_eta_no_FSR","Pt vs Eta StandAlone without FSR ",100,20,100,100,-2.0,2.0);
+  h_staProbe_pt_eta_FSR_= fs->make<TH2D>("h_staProbe_pt_eta_FSR","Pt vs Eta StandAlone with FSR ",100,20,100,100,-2.0,2.0);
+  h_ProbeOk_pt_eta_no_FSR_= fs->make<TH2D>("h_ProbeOk_pt_eta_no_FSR","Pt vs Eta probeOk without FSR ",100,20,100,100,-2.0,2.0);
+  h_ProbeOk_pt_eta_FSR_= fs->make<TH2D>("h_ProbeOk_pt_eta_FSR","Pt vs Eta probeOk with FSR ",100,20,100,100,-2.0,2.0);
   
   h_trackProbe_eta_no_FSR = fs->make<TH1D>("trackProbeEta_no_FSR","Eta of tracks",100,-2.0,2.0);
   h_trackProbe_pt_no_FSR = fs->make<TH1D>("trackProbePt_no_FSR","Pt of tracks",100,0,100);
@@ -123,6 +128,7 @@ ZMuMu_Radiative_analyzer::ZMuMu_Radiative_analyzer(const ParameterSet& pset) :
 }
 
 void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& setup) {
+  evntcounter++;
   Handle<CandidateView> zMuMu;                //Collection of Z made by  Mu global + Mu global 
   Handle<GenParticleMatch> zMuMuMatchMap;     //Map of Z made by Mu global + Mu global with MC
   event.getByLabel(zMuMu_, zMuMu); 
@@ -219,24 +225,28 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	  if(FSR_mu0 || FSR_mu1 )h_zmass_FSR->Fill(zmass);
 	  else h_zmass_no_FSR->Fill(zmass);
 
-	  if (!trig0found ) {       // check efficiency of muon0 not imposing the trigger on it 
-	    cout<<"muon 0 isn't triggered "<<endl;
+	  if (trig1found) {       // check efficiency of muon0 not imposing the trigger on it 
+	    cout<<"muon 1 is triggered "<<endl;
 	    if(FSR_mu0){
-	      cout<< "end does FSR"<<endl;
+	      cout<< "and muon 0 does FSR"<<endl;
 	      h_trackProbe_eta_FSR->Fill(eta0);
 	      h_trackProbe_pt_FSR->Fill(pt0);
 	      h_staProbe_eta_FSR->Fill(eta0);
 	      h_staProbe_pt_FSR->Fill(pt0);
+	      h_staProbe_pt_eta_FSR_->Fill(pt0,eta0);
 	      h_ProbeOk_eta_FSR->Fill(eta0);
 	      h_ProbeOk_pt_FSR->Fill(pt0);
+	      h_ProbeOk_pt_eta_FSR_->Fill(pt0,eta0);
 	    }else{
-	      cout<<"end doesn't FSR"<<endl;
+	      cout<<"and muon 0 doesn't FSR"<<endl;
 	      h_trackProbe_eta_no_FSR->Fill(eta0);
 	      h_trackProbe_pt_no_FSR->Fill(pt0);
 	      h_staProbe_eta_no_FSR->Fill(eta0);
 	      h_staProbe_pt_no_FSR->Fill(pt0);
+	      h_staProbe_pt_eta_no_FSR_->Fill(pt0,eta0);
 	      h_ProbeOk_eta_no_FSR->Fill(eta0);
 	      h_ProbeOk_pt_no_FSR->Fill(pt0);
+	      h_ProbeOk_pt_eta_no_FSR_->Fill(pt0,eta0);
 	    }
 	    if(FSR_mu0){
 	      h_Iso_FSR_->Fill(Tracker_isovalue_mu0);
@@ -247,24 +257,31 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	      h_Iso_3D_->Fill(pt0,eta0,Tracker_isovalue_mu0);
 	    }
 	  }
-	  if (!trig1found) {         // check efficiency of muon1 not imposing the trigger on it 
-	    cout<<"muon 1 isn't triggered"<<endl;
+	  if (trig0found) {         // check efficiency of muon1 not imposing the trigger on it 
+	    cout<<"muon 0 is triggered"<<endl;
 	    if(FSR_mu1){ 
-	      cout<<"and does FSR"<<endl;
+	      cout<<"and muon 1  does FSR"<<endl;
 	      h_trackProbe_eta_FSR->Fill(eta1);
 	      h_staProbe_eta_FSR->Fill(eta1);
 	      h_trackProbe_pt_FSR->Fill(pt1);
 	      h_staProbe_pt_FSR->Fill(pt1);
 	      h_ProbeOk_eta_FSR->Fill(eta1);
 	      h_ProbeOk_pt_FSR->Fill(pt1);
+	      h_staProbe_pt_eta_FSR_->Fill(pt1,eta1);
+	      h_ProbeOk_pt_eta_FSR_->Fill(pt1,eta1);
+
 	    }else{
-	      cout<<"and doesn't FSR"<<endl;
+	      cout<<"and muon 1 doesn't FSR"<<endl;
 	      h_trackProbe_eta_no_FSR->Fill(eta1);
 	      h_staProbe_eta_no_FSR->Fill(eta1);
 	      h_trackProbe_pt_no_FSR->Fill(pt1);
 	      h_staProbe_pt_no_FSR->Fill(pt1);
 	      h_ProbeOk_eta_no_FSR->Fill(eta1);
 	      h_ProbeOk_pt_no_FSR->Fill(pt1);
+	      h_staProbe_pt_eta_no_FSR_->Fill(pt1,eta1);
+	      h_ProbeOk_pt_eta_no_FSR_->Fill(pt1,eta1);
+
+
 	    }
 	    if(FSR_mu1){
 	      h_Iso_FSR_->Fill(Tracker_isovalue_mu1);
@@ -363,13 +380,17 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	  }//end check of gamma
 	  if(FSR_mu0 || FSR_mu1 )h_zMuSamass_FSR->Fill(zmass);
 	  else h_zMuSamass_no_FSR->Fill(zmass);
-	  if(lep0->isGlobalMuon() && trig0found && !trig1found){ 
+	  if(lep0->isGlobalMuon() && trig0found){ 
 	    if(FSR_mu1){
 	      h_staProbe_eta_FSR->Fill(eta1);
 	      h_staProbe_pt_FSR->Fill(pt1);
+	      h_staProbe_pt_eta_FSR_->Fill(pt1,eta1);
+
 	    }else{
 	      h_staProbe_eta_no_FSR->Fill(eta1);
 	      h_staProbe_pt_no_FSR->Fill(pt1);
+	      h_staProbe_pt_eta_no_FSR_->Fill(pt1,eta1);
+
 	    }
 	    if(FSR_mu1){
 	      h_Iso_FSR_->Fill(Tracker_isovalue_mu1);
@@ -380,13 +401,17 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	      h_Iso_3D_->Fill(pt1,eta1,Tracker_isovalue_mu1);
 	    }
 	  }
-	  if(lep1->isGlobalMuon() && trig1found && !trig0found){ 
+	  if(lep1->isGlobalMuon() && trig1found){ 
 	    if(FSR_mu0){
 	      h_staProbe_eta_FSR->Fill(eta0);
 	      h_staProbe_pt_FSR->Fill(pt0);
+	      h_staProbe_pt_eta_FSR_->Fill(pt0,eta0);
+
 	    }else{
 	      h_staProbe_eta_no_FSR->Fill(eta0);
 	      h_staProbe_pt_no_FSR->Fill(pt0);
+	      h_staProbe_pt_eta_FSR_->Fill(pt0,eta0);
+
 	    }
 	    if(FSR_mu0){
 	      h_Iso_FSR_->Fill(Tracker_isovalue_mu0);
@@ -510,6 +535,7 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 
 void ZMuMu_Radiative_analyzer::endJob() {
   cout<<" ============= Summary =========="<<endl;
+  cout <<" Numero di eventi "<< evntcounter << endl; 
   cout <<" 1)Numero di ZMuMu matched dopo i tagli cinematici = "<< zmmcounter << endl;
   cout <<" 2)Numero di ZMuSa matched dopo i tagli cinematici = "<< zmscounter << endl;
   cout <<" 3)Numero di ZMuTk matched dopo i tagli cinematici = "<< zmtcounter << endl;
