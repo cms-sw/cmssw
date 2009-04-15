@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.7 2009/04/13 21:53:09 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.8 2009/04/14 13:44:30 chrjones Exp $
 //
 
 // system include files
@@ -456,7 +456,7 @@ FWCollectionSummaryWidget::colorClicked() {
    for(unsigned int index=0; index <cm->numberOfIndicies(); ++index) {
       colors.push_back((Pixel_t)gVirtualX->GetPixel(cm->indexToColor(index)));
    }
-   m_colorPopup->ResetColors(colors);
+   m_colorPopup->ResetColors(colors, cm->backgroundColorIndex()==FWColorManager::kBlackIndex);
    m_colorPopup->SetSelection(gVirtualX->GetPixel(m_collection->defaultDisplayProperties().color()));
    m_colorPopup->PlacePopup(ax, ay, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
 }
@@ -471,7 +471,7 @@ FWCollectionSummaryWidget::itemColorClicked(int iIndex, Int_t iRootX, Int_t iRoo
    for(unsigned int index=0; index <cm->numberOfIndicies(); ++index) {
       colors.push_back((Pixel_t)gVirtualX->GetPixel(cm->indexToColor(index)));
    }
-   m_colorPopup->ResetColors(colors);
+   m_colorPopup->ResetColors(colors, cm->backgroundColorIndex()==FWColorManager::kBlackIndex);
    m_colorPopup->SetName(m_collection->modelName(iIndex).c_str());
    m_colorPopup->SetSelection(gVirtualX->GetPixel(m_collection->modelInfo(iIndex).displayProperties().color()));
    m_colorPopup->PlacePopup(iRootX, iRootY, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
