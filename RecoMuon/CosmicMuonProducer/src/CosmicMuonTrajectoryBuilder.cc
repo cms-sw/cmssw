@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2009/04/15 09:39:55 $
- *  $Revision: 1.46 $
+ *  $Date: 2009/04/15 10:13:14 $
+ *  $Revision: 1.47 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -84,8 +84,7 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
 
   ParameterSet smootherPSet = par.getParameter<ParameterSet>("MuonSmootherParameters");
 
-  ParameterSet emptyPS;
-  theNavigationPSet = par.getUntrackedParameter<ParameterSet>("MuonNavigationParameters", emptyPS);
+  theNavigationPSet = par.getParameter<ParameterSet>("MuonNavigationParameters");
 
   theSmoother = new CosmicMuonSmoother(smootherPSet,theService);
 
