@@ -13,13 +13,14 @@ else
    echo "test code base $runbasedir"
 fi
 echo "populate test.db PedestalsRcd/Pedestals  mytest tag"
-if [ -d run ]
+if [ -d runCondTests ]
 then
-   rm -rf ./run
+   rm -rf ./runCondTests
 fi
 
-mkdir run
-cd run
+mkdir runCondTests
+cd runCondTests
+
 cmsRun $runbasedir/src/CondCore/DBOutputService/test/python/testIOVPayloadAnalyzer_cfg.py
 echo "read back"
 cmsRun $runbasedir/src/CondCore/ESSources/test/python/print_ped_cfg.py
