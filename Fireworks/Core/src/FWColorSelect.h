@@ -6,6 +6,8 @@
 #include "TGColorSelect.h"
 #include "Rtypes.h"
 
+class FWColorManager;
+
 enum FWCSelConstants
 {
    kCFWidth  = 15, kCFPadLeft =  4, kCFPadAbove = 8,
@@ -62,6 +64,7 @@ private:
 
 protected:
    Bool_t fIsActive;
+   Bool_t fBackgroundIsBlack;
    Int_t fSelectedIndex;
    Pixel_t fSelectedColor;
    std::vector<FWColorFrame *>  fCc;
@@ -77,6 +80,7 @@ public:
    virtual void AddColor(Pixel_t color);
 
    void ResetColor(Int_t, Pixel_t);
+   void SetBackgroundToBlack(Bool_t);
    
    //if it can't find the color it returns -1
    Int_t FindColorIndex(Pixel_t) const;
@@ -101,7 +105,7 @@ class FWColorPopup : public TGCompositeFrame {
    RQ_OBJECT("FWColorPopup")
 
 private:
-   void SetColors(const std::vector<Pixel_t>& colors);
+   void SetColors(const std::vector<Pixel_t>& colors, bool backgroundIsBlack);
 
 protected:
    Pixel_t fSelectedColor;
@@ -115,9 +119,9 @@ public:
 
    virtual Bool_t HandleButton(Event_t *event);
 
-   void InitContent(const char *name, const std::vector<Pixel_t>& colors);
+   void InitContent(const char *name, const std::vector<Pixel_t>& colors, bool backgroundIsBlack=true);
    void SetName(const char* iName);
-   void ResetColors(const std::vector<Pixel_t>& colors);
+   void ResetColors(const std::vector<Pixel_t>& colors, bool backgroundIsBlack=true);
    void SetSelection(Pixel_t);
    void PlacePopup(Int_t x, Int_t y, UInt_t w, UInt_t h);
    void EndPopup();
@@ -133,14 +137,15 @@ public:
 //------------------------------FWColorSelect------------------------------//
 class FWColorSelect : public TGColorSelect {
 
-protected:
+private:
    std::string fLabel;
    UInt_t fIndex;
    std::vector<Color_t> fPalette;
    FWColorPopup *fFireworksPopup;
+   const FWColorManager* fColorManager;
 
 public:
-   FWColorSelect(const TGWindow *p, const char *label, UInt_t colorIndex, const std::vector<Color_t>& palette, Int_t id);
+   FWColorSelect(const TGWindow *p, const char *label, UInt_t colorIndex, const FWColorManager*, Int_t id);
    ~FWColorSelect();
 
    virtual Bool_t HandleButton(Event_t *event);

@@ -10,7 +10,7 @@
     After creation, connect to signal method ColorSelected(Pixel_t) in
     FWColorSelect to receive colour changes.
  */
-
+#include <boost/bind.hpp>
 #include "TGColorSelect.h"
 #include "TGLayout.h"
 #include "TGClient.h"
@@ -24,6 +24,7 @@
 #include "Riostream.h"
 
 #include "Fireworks/Core/src/FWColorSelect.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 
 //------------------------------FWColorFrame------------------------------//
 FWColorFrame::FWColorFrame(const TGWindow *p, Pixel_t color, Int_t index) :
@@ -57,7 +58,8 @@ void FWColorFrame::ColorSelected(Int_t frameindex)
 
 //------------------------------FWColorRow------------------------------//
 FWColorRow::FWColorRow(const TGWindow *p, Int_t rowindex) :
-   TGCompositeFrame(p, 10, 10, kOwnBackground, TGFrame::GetBlackPixel())
+   TGCompositeFrame(p, 10, 10, kOwnBackground, TGFrame::GetBlackPixel()),
+fBackgroundIsBlack(kTRUE)
 {
    SetLayoutManager(new TGHorizontalLayout(this));
 
@@ -72,6 +74,16 @@ FWColorRow::~FWColorRow()
    Cleanup();
 }
 
+void FWColorRow::SetBackgroundToBlack(Bool_t toBlack)
+{
+   fBackgroundIsBlack= toBlack;
+   if(fBackgroundIsBlack) {
+      SetBackgroundColor(TGFrame::GetBlackPixel());
+   } else {
+      SetBackgroundColor(TGFrame::GetWhitePixel());
+   }
+}
+
 void FWColorRow::DoRedraw()
 {
    TGCompositeFrame::DoRedraw();
@@ -81,9 +93,15 @@ void FWColorRow::DoRedraw()
 void FWColorRow::DrawHighlight()
 {
    GContext_t gc;
-   if (fIsActive) gc = GetShadowGC() ();
-   else gc = GetBlackGC() ();
-
+   if (fIsActive) {
+      gc = GetShadowGC() ();
+   } else {
+      if(fBackgroundIsBlack) {
+         gc = GetBlackGC() ();
+      } else {
+         gc = GetWhiteGC()();
+      }
+   }
    Int_t x = fSelectedIndex * (fCc.at(fSelectedIndex)->GetWidth() + kCFPadLeft + kCFPadRight) + kCFPadLeft;
    Int_t y = kCFPadBelow;
    Int_t w = fCc.at(fSelectedIndex)->GetWidth();
@@ -183,11 +201,11 @@ Bool_t FWColorPopup::HandleButton(Event_t *event)
    return kTRUE;
 }
 
-void FWColorPopup::InitContent(const char *name, const std::vector<Pixel_t>& colors)
+void FWColorPopup::InitContent(const char *name, const std::vector<Pixel_t>& colors, bool backgroundIsBlack)
 {
    fLabel = new TGLabel(this, name);
    fLabel->SetBackgroundColor(GetBackground());
-   SetColors(colors);
+   SetColors(colors,backgroundIsBlack);
 
    AddFrame(fLabel, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY, kCROffsetX, kCROffsetY, kCRPadAbove + 1, kCRPadBelow - 1));
    AddFrame(fFirstRow, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY, kCROffsetX, kCROffsetY, kCRPadAbove, kCRPadBelow));
@@ -200,7 +218,7 @@ void FWColorPopup::InitContent(const char *name, const std::vector<Pixel_t>& col
    fSecondRow->Resize(fSecondRow->GetDefaultSize());
 }
 
-void FWColorPopup::SetColors(const std::vector<Pixel_t>& colors)
+void FWColorPopup::SetColors(const std::vector<Pixel_t>& colors, bool backgroundIsBlack)
 {
    for (UInt_t i = 0; i < colors.size() / 2; i++)
    {
@@ -211,6 +229,7 @@ void FWColorPopup::SetColors(const std::vector<Pixel_t>& colors)
          fSelectedIndex = i;
       }
    }
+   fFirstRow->SetBackgroundToBlack(backgroundIsBlack);
    for (UInt_t i = colors.size() / 2; i < colors.size(); i++)
    {
       fSecondRow->AddColor(colors.at(i));
@@ -220,21 +239,24 @@ void FWColorPopup::SetColors(const std::vector<Pixel_t>& colors)
          fSelectedIndex = i - colors.size();
       }
    }
+   fSecondRow->SetBackgroundToBlack(backgroundIsBlack);
    fSelectedRow->RowActive(kTRUE);
    fSelectedRow->SetActive(fSelectedIndex);
 }
 
-void FWColorPopup::ResetColors(const std::vector<Pixel_t>& colors)
+void FWColorPopup::ResetColors(const std::vector<Pixel_t>& colors, bool backgroundIsBlack)
 {
    for (UInt_t i = 0; i < colors.size() / 2; i++)
    {
       fFirstRow->ResetColor(i,colors.at(i));
    }
+   fFirstRow->SetBackgroundToBlack(backgroundIsBlack);
    UInt_t index = 0;
    for (UInt_t i = colors.size() / 2; i < colors.size(); i++, ++index)
    {
       fSecondRow->ResetColor(index,colors.at(i));
    }
+   fSecondRow->SetBackgroundToBlack(backgroundIsBlack);
 }
 
 void FWColorPopup::PlacePopup(Int_t x, Int_t y, UInt_t w, UInt_t h)
@@ -320,24 +342,28 @@ void FWColorPopup::ColorBookkeeping(Int_t row)
 FWColorSelect::FWColorSelect(const TGWindow *p, 
                              const char* label, 
                              UInt_t index, 
-                             const std::vector<Color_t>& palette, Int_t id) :
-TGColorSelect(p, static_cast<Pixel_t>(gVirtualX->GetPixel(palette[index])), id),
+                             const FWColorManager* iManager, Int_t id) :
+TGColorSelect(p, static_cast<Pixel_t>(gVirtualX->GetPixel(iManager->indexToColor(index))), id),
 fLabel(label),
-fFireworksPopup(0)
+fFireworksPopup(0),
+fColorManager(iManager)
 {
    fLabel = *label;
-   fPalette = palette;
+   fPalette.reserve(iManager->numberOfIndicies());
 
    std::vector<Pixel_t> colors;
-   colors.reserve(fPalette.size());
-   for(std::vector<Color_t>::const_iterator it=fPalette.begin(), itEnd = fPalette.end();
-       it!=itEnd; ++it) {
-      colors.push_back(static_cast<Pixel_t>(gVirtualX->GetPixel(*it)));
+   colors.reserve(iManager->numberOfIndicies());
+   for(unsigned int i = 0; i < iManager->numberOfIndicies(); ++i) {
+      Color_t color = iManager->indexToColor(i);
+      fPalette.push_back(color);
+      colors.push_back(static_cast<Pixel_t>(gVirtualX->GetPixel(color)));
    }
    
    fFireworksPopup = new FWColorPopup(gClient->GetDefaultRoot(), fColor);
    fFireworksPopup->InitContent(fLabel.c_str(), colors);
    fFireworksPopup->Connect("ColorBookkeeping(Int_t)","FWColorSelect", this, "CatchSignal(Pixel_t)");
+   fColorManager->colorsHaveChanged_.connect(boost::bind(&FWColorSelect::UpdateColors,this));
+
 }
 
 FWColorSelect::~FWColorSelect()
@@ -384,7 +410,7 @@ Bool_t FWColorSelect::HandleButton(Event_t *event)
              it!=itEnd; ++it) {
             colors.push_back(static_cast<Pixel_t>(gVirtualX->GetPixel(*it)));
          }
-         fFireworksPopup->ResetColors(colors);
+         fFireworksPopup->ResetColors(colors, fColorManager->backgroundColorIndex()==FWColorManager::kBlackIndex);
          fFireworksPopup->SetSelection(static_cast<Pixel_t>(gVirtualX->GetPixel(fPalette[fIndex])));
          
          gVirtualX->TranslateCoordinates(fId, gClient->GetDefaultRoot()->GetId(), 0, fHeight, ax, ay, wdummy);
