@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <def>
 <header>
-    <MenuInterface>L1Menu_Commissioning2009_v0</MenuInterface>
+    <MenuInterface>L1Menu_Commissioning2009_v1</MenuInterface>
     <MenuInterface_CreationDate>2009-02-24</MenuInterface_CreationDate>
     <MenuInterface_CreationAuthor>V. M. Ghete</MenuInterface_CreationAuthor>
     <MenuInterface_Description>L1 menu for trigger commissioning 2009</MenuInterface_Description>
