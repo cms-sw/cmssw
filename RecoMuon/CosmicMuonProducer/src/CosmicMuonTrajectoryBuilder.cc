@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2009/01/25 17:58:56 $
- *  $Revision: 1.44 $
+ *  $Date: 2009/01/26 15:30:17 $
+ *  $Revision: 1.45 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -192,9 +192,7 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   vector<TrajectoryMeasurement> measL;
 
   LogTrace(category_)<<"Begin forward fit "<<navLayers.size();
-  const DTRecSegment4D* firstDTseg = 0;
-  const DTRecSegment4D* lastDTseg = 0;
-  int nDTseg = 0;
+
   for ( vector<const DetLayer*>::const_iterator rnxtlayer = navLayers.begin(); rnxtlayer!= navLayers.end(); ++rnxtlayer) {
      LogTrace(category_)<<"new layer ";
      measL.clear();
@@ -218,14 +216,6 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
             if (result.first ) {
               LogTrace(category_)<<"update ok ";
               incrementChamberCounters((*rnxtlayer), DTChamberUsedBack, CSCChamberUsedBack, RPCChamberUsedBack, TotalChamberUsedBack);
-	      if ( theMeas->recHit()->geographicalId().subdetId() == MuonSubdetId::DT ) {
-                 nDTseg++;
-                 //this are the 4D segment for the CSC/DT and a point for the RPC
-                 TransientTrackingRecHit::ConstRecHitPointer muonRecHit = theMeas->recHit();
-                 if (firstDTseg == 0)   firstDTseg = dynamic_cast<const DTRecSegment4D*>((muonRecHit)->hit());
-                 lastDTseg = dynamic_cast<const DTRecSegment4D*>((muonRecHit)->hit());
-
-              }
               secondLast = lastTsos;
               if ( (!theTraj->empty()) && result.second.isValid() ) {
                 lastTsos = result.second;
@@ -240,15 +230,12 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     theTraj->pop();
   }
 
-
   if (!theTraj->isValid() || TotalChamberUsedBack < 2 || (DTChamberUsedBack+CSCChamberUsedBack) == 0 || !lastTsos.isValid()) {
     delete theTraj;
     return trajL;
   }
   delete theTraj;
 
-
-//    LogTrace(category_)<<"checkDirectionByT0 "<<checkDirectionByT0(firstDTseg, lastDTseg)<<" nDTseg "<<nDTseg;
 
   //if got good trajectory, then do backward refitting
   DTChamberUsedBack = 0;
@@ -354,6 +341,17 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 //     getDirectionByTime(myTraj);
   if (beamhaloFlag) estimateDirection(myTraj);
   if ( myTraj.empty() ) return trajL;
+
+  // try to smooth it 
+  vector<Trajectory> smoothed = theSmoother->trajectories(myTraj); 
+
+  if ( !smoothed.empty() && smoothed.front().foundHits()> 3 )  {  
+    LogTrace(category_) <<" Smoothed successfully."; 
+    myTraj = smoothed.front(); 
+  } 
+  else {  
+    LogTrace(category_) <<" Smooth failed."; 
+  } 
 
   LogTrace(category_) <<"first "<< myTraj.firstMeasurement().updatedState()
                       <<"\n last "<<myTraj.lastMeasurement().updatedState();
