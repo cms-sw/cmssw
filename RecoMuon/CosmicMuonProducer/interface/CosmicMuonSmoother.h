@@ -3,8 +3,8 @@
 
 /** \file CosmicMuonSmoother
  *
- *  $Date: 2007/12/16 07:33:25 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/04/25 15:20:55 $
+ *  $Revision: 1.5 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -84,7 +84,7 @@ private:
 
   std::string thePropagatorAlongName;
   std::string thePropagatorOppositeName;
-
+  double theErrorRescaling;
   std::string category_;
   
 };
