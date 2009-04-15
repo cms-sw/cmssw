@@ -105,7 +105,10 @@ unsigned FileReaderSPNewFormat::findTrailer1(const unsigned short* buf, unsigned
    
   while( itr + 3 <= buf + length )
     {
-      if(isTrailer1(itr)) pos = (unsigned)itr; 
+      //      if(isTrailer1(itr)) pos = (unsigned)itr; 
+      // Cannot reinterpret to unsigned int directly since it claims loss of precision.
+      // But it accepts silent cast from unsigned long to unsigned int in assignment
+      if(isTrailer1(itr)) pos = reinterpret_cast<unsigned long>(itr); 
       ++itr;
     }
   
@@ -120,7 +123,8 @@ unsigned FileReaderSPNewFormat::findTrailer2(const unsigned short* buf, unsigned
  
   while( itr + 3 <= buf + length )
     {
-      if(isTrailer2(itr)) pos = (unsigned)itr; // I hate to brute force this but I had to :-(
+      //      if(isTrailer2(itr)) pos = (unsigned)itr; // I hate to brute force this but I had to :-(
+      if(isTrailer2(itr)) pos = reinterpret_cast<unsigned long>(itr); 
       ++itr;
     }
   

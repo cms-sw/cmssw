@@ -3,9 +3,6 @@
 
 #include <IORawData/DaqSource/interface/DaqBaseReader.h>
 
-class edm::EventID;
-class edm::Timestamp;
-class FEDRawDataCollection;
 class SPReader;
 
 class CSCTFFileReader : public DaqBaseReader 
