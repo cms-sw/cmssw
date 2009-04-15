@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.17 2009/03/28 22:29:09 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.18 2009/04/14 13:05:26 charlot Exp $
 //
 //
 
@@ -285,7 +285,7 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_seed_subdet2_ = new TH1F("h_ele_seedSubdet2", "ele seed subdet 2nd layer", 10,0.,10.) ;
 
   // classes
-  h_ele_classes = new TH1F( "h_ele_classes", "electron classes",      150,0.0,150.);
+  h_ele_classes = new TH1F( "h_ele_classes", "electron classes",      20,0.0,20.);
   h_ele_eta = new TH1F( "h_ele_eta", "electron eta",  nbineta/2,0.0,etamax);
   h_ele_eta_golden = new TH1F( "h_ele_eta_golden", "electron eta golden",  nbineta/2,0.0,etamax);
   h_ele_eta_bbrem = new TH1F( "h_ele_eta_bbrem", "electron eta bbrem",  nbineta/2,0.0,etamax);
@@ -1116,8 +1116,8 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	h_ele_PoPtrueVsEta       -> Fill( bestGsfElectron.eta(), bestGsfElectron.p()/pAssSim.t());
 	h_ele_PoPtrueVsPhi       -> Fill( bestGsfElectron.phi(), bestGsfElectron.p()/pAssSim.t());
 	h_ele_PoPtrueVsPt       -> Fill( bestGsfElectron.py(), bestGsfElectron.p()/pAssSim.t());
-	if (bestGsfElectron.classification() < 100) h_ele_PoPtrue_barrel       -> Fill( bestGsfElectron.p()/pAssSim.t());
-	if (bestGsfElectron.classification() >= 100) h_ele_PoPtrue_endcaps       -> Fill( bestGsfElectron.p()/pAssSim.t());
+	if (bestGsfElectron.isEB()) h_ele_PoPtrue_barrel       -> Fill( bestGsfElectron.p()/pAssSim.t());
+	if (bestGsfElectron.isEE()) h_ele_PoPtrue_endcaps       -> Fill( bestGsfElectron.p()/pAssSim.t());
 
 	// supercluster related distributions
 	reco::SuperClusterRef sclRef = bestGsfElectron.superCluster();
@@ -1241,6 +1241,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 	//classes
 	int eleClass = bestGsfElectron.classification();
+	if (bestGsfElectron.isEE()) eleClass+=10;
 	h_ele_classes ->Fill(eleClass);
 /*
         if (bestGsfElectron.classification() == 0)  histSclEoEtrueGolden_barrel->Fill(sclRef->energy()/pAssSim.t());
@@ -1250,12 +1251,12 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (bestGsfElectron.classification() == 31 || bestGsfElectron.classification() == 32  || bestGsfElectron.classification() == 33 || eleClass == 34 )  histSclEoEtrueShowering1234_barrel->Fill(sclRef->energy()/pAssSim.t());
         if (bestGsfElectron.classification() == 131 || bestGsfElectron.classification() == 132 || bestGsfElectron.classification() == 133 || eleClass == 134 )  histSclEoEtrueShowering1234_endcaps->Fill(sclRef->energy()/pAssSim.t());
 */
-	eleClass = eleClass%100; // get rid of barrel/endcap distinction
+	//eleClass = eleClass%100; // get rid of barrel/endcap distinction
         h_ele_eta->Fill(fabs(bestGsfElectron.eta()));
-        if (eleClass == 0) h_ele_eta_golden ->Fill(fabs(bestGsfElectron.eta()));
-        if (eleClass == 10) h_ele_eta_bbrem ->Fill(fabs(bestGsfElectron.eta()));
-        if (eleClass == 20) h_ele_eta_narrow ->Fill(fabs(bestGsfElectron.eta()));
-        if (eleClass == 30 || eleClass == 31 || eleClass == 32  || eleClass == 33 || eleClass == 34 ) h_ele_eta_shower ->Fill(fabs(bestGsfElectron.eta()));
+        if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h_ele_eta_golden ->Fill(fabs(bestGsfElectron.eta()));
+        if (bestGsfElectron.classification() == GsfElectron::BIGBREM) h_ele_eta_bbrem ->Fill(fabs(bestGsfElectron.eta()));
+        if (bestGsfElectron.classification() == GsfElectron::NARROW) h_ele_eta_narrow ->Fill(fabs(bestGsfElectron.eta()));
+        if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h_ele_eta_shower ->Fill(fabs(bestGsfElectron.eta()));
 
 	//fbrem
 	double fbrem_mean =  1. - bestGsfElectron.gsfTrack()->outerMomentum().R()/bestGsfElectron.gsfTrack()->innerMomentum().R();
@@ -1264,25 +1265,25 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	h_ele_fbremVsEta_mode->Fill(bestGsfElectron.eta(),fbrem_mode);
 	h_ele_fbremVsEta_mean->Fill(bestGsfElectron.eta(),fbrem_mean);
 
-        if (eleClass == 0) h_ele_PinVsPoutGolden_mode -> Fill(bestGsfElectron.trackMomentumOut().R(), bestGsfElectron.trackMomentumAtVtx().R());
-        if (eleClass == 30)
+        if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h_ele_PinVsPoutGolden_mode -> Fill(bestGsfElectron.trackMomentumOut().R(), bestGsfElectron.trackMomentumAtVtx().R());
+        if (bestGsfElectron.classification() == GsfElectron::SHOWERING && bestGsfElectron.numberOfBrems()==0)
 	 h_ele_PinVsPoutShowering0_mode -> Fill(bestGsfElectron.trackMomentumOut().R(), bestGsfElectron.trackMomentumAtVtx().R());
-        if (eleClass == 31 || eleClass == 32  || eleClass == 33 || eleClass == 34 )
+        if (bestGsfElectron.classification() == GsfElectron::SHOWERING && bestGsfElectron.numberOfBrems()>0)
 	 h_ele_PinVsPoutShowering1234_mode -> Fill(bestGsfElectron.trackMomentumOut().R(), bestGsfElectron.trackMomentumAtVtx().R());
-	if (eleClass == 0) h_ele_PinVsPoutGolden_mean -> Fill(bestGsfElectron.gsfTrack()->outerMomentum().R(), bestGsfElectron.gsfTrack()->innerMomentum().R());
-        if (eleClass == 30)
+	if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h_ele_PinVsPoutGolden_mean -> Fill(bestGsfElectron.gsfTrack()->outerMomentum().R(), bestGsfElectron.gsfTrack()->innerMomentum().R());
+        if (bestGsfElectron.classification() == GsfElectron::SHOWERING && bestGsfElectron.numberOfBrems()==0)
 	 h_ele_PinVsPoutShowering0_mean ->  Fill(bestGsfElectron.gsfTrack()->outerMomentum().R(), bestGsfElectron.gsfTrack()->innerMomentum().R());
-        if (eleClass == 31 || eleClass == 32  || eleClass == 33 || eleClass == 34 )
+        if (bestGsfElectron.classification() == GsfElectron::SHOWERING && bestGsfElectron.numberOfBrems()>0)
 	 h_ele_PinVsPoutShowering1234_mean ->  Fill(bestGsfElectron.gsfTrack()->outerMomentum().R(), bestGsfElectron.gsfTrack()->innerMomentum().R());
-        if (eleClass == 0) h_ele_PtinVsPtoutGolden_mode -> Fill(bestGsfElectron.trackMomentumOut().Rho(), bestGsfElectron.trackMomentumAtVtx().Rho());
-        if (eleClass == 30 )
+        if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h_ele_PtinVsPtoutGolden_mode -> Fill(bestGsfElectron.trackMomentumOut().Rho(), bestGsfElectron.trackMomentumAtVtx().Rho());
+        if (bestGsfElectron.classification() == GsfElectron::SHOWERING && bestGsfElectron.numberOfBrems()==0)
 	 h_ele_PtinVsPtoutShowering0_mode -> Fill(bestGsfElectron.trackMomentumOut().Rho(), bestGsfElectron.trackMomentumAtVtx().Rho());
-        if (eleClass == 31 || eleClass == 32  || eleClass == 33 || eleClass == 34 )
+        if (bestGsfElectron.classification() == GsfElectron::SHOWERING && bestGsfElectron.numberOfBrems()>0)
 	 h_ele_PtinVsPtoutShowering1234_mode -> Fill(bestGsfElectron.trackMomentumOut().Rho(), bestGsfElectron.trackMomentumAtVtx().Rho());
-	if (eleClass == 0) h_ele_PtinVsPtoutGolden_mean -> Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
-        if (eleClass == 30 )
+	if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h_ele_PtinVsPtoutGolden_mean -> Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
+        if (bestGsfElectron.classification() == GsfElectron::SHOWERING && bestGsfElectron.numberOfBrems()==0)
 	 h_ele_PtinVsPtoutShowering0_mean ->  Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
-        if (eleClass == 31 || eleClass == 32  || eleClass == 33 || eleClass == 34 )
+        if (bestGsfElectron.classification() == GsfElectron::SHOWERING && bestGsfElectron.numberOfBrems()>0)
 	 h_ele_PtinVsPtoutShowering1234_mean ->  Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
 
         h_ele_mva->Fill(bestGsfElectron.mva());
