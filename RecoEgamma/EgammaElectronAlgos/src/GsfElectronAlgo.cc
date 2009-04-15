@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.54 2009/04/06 11:23:33 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.55 2009/04/14 16:22:02 charlot Exp $
 //
 //
 
@@ -333,7 +333,7 @@ void GsfElectronAlgo::process(
     SuperCluster theClus = *scRef ;
 
     // mva
-    float mva=0.;
+    float mva=std::numeric_limits<float>::infinity();
     if (coreRef->isTrackerDriven()) mva = pfmvas[gsfTrackRef];
 
     // electron basic cluster
