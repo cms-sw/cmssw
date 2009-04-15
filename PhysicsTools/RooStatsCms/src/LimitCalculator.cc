@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: LimitCalculator.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
+// @(#)root/hist:$Id: LimitCalculator.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -145,8 +145,8 @@ void LimitCalculator::m_do_toys(std::vector<float>& b_vals,
     bool check_sb=false;
     bool check_b=false;
 
-    unsigned int b_data_size=0;
-    unsigned int sb_data_size=0;
+//     unsigned int b_data_size=0;
+//     unsigned int sb_data_size=0;
 
     for (unsigned int i=0;i<n_toys;++i){
 

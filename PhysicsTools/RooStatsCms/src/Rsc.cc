@@ -134,8 +134,7 @@ namespace Rsc
 Get the median of an histogram.
 **/
     double getMedian(TH1* histo){
-    
-        int xbin_median;
+
         Double_t* integral = histo->GetIntegral();
         int median_i = 0;
         for (int j=0;j<histo->GetNbinsX(); j++) 

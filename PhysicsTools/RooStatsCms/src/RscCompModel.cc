@@ -104,7 +104,7 @@ void RscCompModel::buildPdf()
     At the end all the single formulas are summed together.
     */
     RooArgList tot_yield_components;
-    int yield_formulas_n =  number_components.getVal();
+    int yield_formulas_n =  (int) number_components.getVal();
     TString* yield_formulas = new TString[yield_formulas_n];
     TIter next(pdfs);
     int index=0;

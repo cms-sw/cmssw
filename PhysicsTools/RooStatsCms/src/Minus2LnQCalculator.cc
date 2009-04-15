@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: Minus2LnQCalculator.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
+// @(#)root/hist:$Id: Minus2LnQCalculator.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 
@@ -135,7 +135,7 @@ Get the value of sqrt(2lnQ).
 double Minus2LnQCalculator::getSqrtValue(bool minimise){
 
     double minus2lnQ=-1*getValue(minimise);
-    double sqrt_minus2lnQ;
+    double sqrt_minus2lnQ=0;
     if (minus2lnQ>0)
         sqrt_minus2lnQ = sqrt(minus2lnQ);
     else{
@@ -143,7 +143,7 @@ double Minus2LnQCalculator::getSqrtValue(bool minimise){
             std::cout << "[Minus2LnQCalculator::getSqrtValue] -2lnQ = "
                       << minus2lnQ
                       << " putting the square root to 0...\n";
-        double sqrt_minus2lnQ=0.;
+        sqrt_minus2lnQ=0.;
         }
 
     if (m_verbose)
