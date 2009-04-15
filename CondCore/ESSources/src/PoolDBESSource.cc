@@ -69,7 +69,8 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   
 
 
-    std::string globaltag=iConfig.getParameter<std::string>("globaltag");
+  std::string globaltag;
+  if( iConfig.exists("globaltag")) globaltag=iConfig.getParameter<std::string>("globaltag");
 
     cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(userconnect);
     cond::ConnectionHandler::Instance().connect(&m_session);
