@@ -59,6 +59,7 @@ namespace csc{
       void set_front_rear(unsigned fr) { m_fr=fr; }
 
       unsigned outputLink() const {return m_output_link;}
+      void setOutputLink( unsigned oPL ) { m_output_link = oPL; }
       bool winner() const {return m_winner;}
 
       bool operator>(const csc::L1Track&) const;
