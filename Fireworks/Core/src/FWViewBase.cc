@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:19 EST 2008
-// $Id: FWViewBase.cc,v 1.9 2008/11/06 22:05:26 amraktad Exp $
+// $Id: FWViewBase.cc,v 1.10 2009/01/23 21:35:44 amraktad Exp $
 //
 
 // system include files
@@ -71,11 +71,11 @@ void
 FWViewBase::promptForSaveImageTo(TGFrame* iParent) const
 {
    static TString dir(".");
-   const char *  kImageExportTypes[] = {"Encapsulated PostScript", "*.eps",
-                                        "PDF",                     "*.pdf",
+   const char *  kImageExportTypes[] = {"PNG",                     "*.png",
                                         "GIF",                     "*.gif",
                                         "JPEG",                    "*.jpg",
-                                        "PNG",                     "*.png",
+                                        "PDF",                     "*.pdf",
+                                        "Encapsulated PostScript", "*.eps",
                                         0, 0};
 
    TGFileInfo fi;
