@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronProducer.cc,v 1.16 2009/03/28 12:58:08 charlot Exp $
+// $Id: GsfElectronProducer.cc,v 1.17 2009/03/28 22:26:49 charlot Exp $
 //
 //
 
@@ -67,6 +67,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& iConfig)
 		    iConfig.getParameter<bool>("isEndcaps"),
 		    iConfig.getParameter<bool>("isFiducial"),
 		    iConfig.getParameter<bool>("seedFromTEC"),
+		    iConfig.getParameter<double>("minMVA"),
 		    iConfig.getParameter<bool>("applyPreselection"),
 		    iConfig.getParameter<bool>("applyEtaCorrection"),
 		    iConfig.getParameter<bool>("applyAmbResolution"),

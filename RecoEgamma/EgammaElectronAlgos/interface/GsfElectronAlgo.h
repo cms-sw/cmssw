@@ -64,6 +64,7 @@ class GsfElectronAlgo {
       double maxFbremBarrel, double maxFbremEndcaps,
       bool isBarrel, bool isEndcaps, bool isFiducial,
       bool seedFromTEC,
+      double minMVA,
       bool applyPreselection, bool applyEtaCorrection, bool applyAmbResolution,
       bool addPflowElectrons,
       double extRadiusTkSmall, double extRadiusTkLarge, double intRadiusTk,
@@ -172,6 +173,9 @@ class GsfElectronAlgo {
     // electron seed
     // select or not electrons with seed having second hit in TEC layers
     bool seedFromTEC_;
+
+    // for tracker driven preselection
+    double minMVA_;
 
     // if this parameter is true, electron preselection is applied
     bool applyPreselection_;

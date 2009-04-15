@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.55 2009/04/14 16:22:02 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.56 2009/04/15 09:34:06 charlot Exp $
 //
 //
 
@@ -89,6 +89,7 @@ GsfElectronAlgo::GsfElectronAlgo
    double maxFbremBarrel, double maxFbremEndcaps,
    bool isBarrel, bool isEndcaps, bool isFiducial,
    bool seedFromTEC,
+   double minMVA,
    bool applyPreselection, bool applyEtaCorrection, bool applyAmbResolution,
    bool addPflowElectrons,
    double extRadiusTkSmall, double extRadiusTkLarge, double intRadiusTk,
@@ -108,6 +109,7 @@ GsfElectronAlgo::GsfElectronAlgo
    maxFbremBarrel_(maxFbremBarrel), maxFbremEndcaps_(maxFbremEndcaps),
    isBarrel_(isBarrel), isEndcaps_(isEndcaps), isFiducial_(isFiducial),
    seedFromTEC_(seedFromTEC),
+   minMVA_(minMVA),
    applyPreselection_(applyPreselection), applyEtaCorrection_(applyEtaCorrection), applyAmbResolution_(applyAmbResolution),
    addPflowElectrons_(addPflowElectrons),
    extRadiusTkSmall_(extRadiusTkSmall),  extRadiusTkLarge_(extRadiusTkLarge),  intRadiusTk_(intRadiusTk),
@@ -374,7 +376,7 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
     // pflow only case
     if ((*e1)->core()->isTrackerDriven() && !(*e1)->core()->isEcalDriven()) {
 
-    outEle.push_back(*e1) ;
+    if ((*e1)->mva()>minMVA_) outEle.push_back(*e1) ;
 
     } else {
 

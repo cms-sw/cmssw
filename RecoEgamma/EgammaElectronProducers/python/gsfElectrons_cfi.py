@@ -45,6 +45,8 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     isEndcaps = cms.bool(False),
     isFiducial = cms.bool(False),
     seedFromTEC = cms.bool(True),
+    # trackerDriven electrons
+    minMVA = cms.double(-1.),
     
     # Isolation algos configuration
     extRadiusTkSmall = cms.double(0.3),
