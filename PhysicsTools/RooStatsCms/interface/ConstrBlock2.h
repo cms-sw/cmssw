@@ -2,8 +2,8 @@
 
 /**
 \class ConstrBlock2
-$Revision: 1.1 $
-$Date: 2009/01/06 12:18:36 $
+$Revision: 1.1.1.1 $
+$Date: 2009/04/15 08:40:01 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class represents the block of two correlated constraints. 
@@ -74,8 +74,7 @@ class ConstrBlock2 : public TNamed, public NLLPenalty {
     /// Penalty NLL string
     TString m_NLL_string;
 
-    // For Cint
-    //ClassDef(ConstrBlock2,1) 
  };
 
 #endif
+// Automatically converted from the standalone version Wed Apr 15 11:36:33 2009

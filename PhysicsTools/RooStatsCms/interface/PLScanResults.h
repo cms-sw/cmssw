@@ -2,8 +2,8 @@
 
 /**
 \class PLScanResults
-$Revision: 1.1 $
-$Date: 2009/01/06 12:18:37 $
+$Revision: 1.1.1.1 $
+$Date: 2009/04/15 08:40:01 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 The results of the likelihood scan.
@@ -153,8 +153,7 @@ class PLScanResults : public StatisticalMethod {
     /// The stored name of the scanned parameter
     TString m_scanned_parameter_name;
 
-    // For Cint
-    //ClassDef(PLScanResults,1)
  };
 
 #endif
+// Automatically converted from the standalone version Wed Apr 15 11:36:33 2009

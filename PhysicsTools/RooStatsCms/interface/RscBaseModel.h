@@ -5,8 +5,8 @@
 
 /**
 \class RscBaseModel
-$Revision: 1.2 $
-$Date: 2009/02/17 14:19:17 $
+$Revision: 1.1.1.1 $
+$Date: 2009/04/15 08:40:01 $
 \author G. Schott (gregory.Schott<at>cern.ch), Danilo Piparo - Universitaet Karlsruhe
 
 The distribution is defined in the datacard. An example for a Gaussian 
@@ -161,8 +161,8 @@ private:
   void buildPdf();
 
   #ifndef SWIG
-  //ClassDef(RscBaseModel,1)
   #endif /*SWIG */
 };
 
 #endif
+// Automatically converted from the standalone version Wed Apr 15 11:36:34 2009

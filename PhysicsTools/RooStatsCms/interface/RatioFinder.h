@@ -2,8 +2,8 @@
 
 /**
 \class RatioFinder
-$Revision: 1.2 $
-$Date: 2009/01/21 10:10:34 $
+$Revision: 1.1.1.1 $
+$Date: 2009/04/15 08:40:01 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 Find the production cross section to exclude at a fixed confidence level.
@@ -99,8 +99,7 @@ class RatioFinder : public StatisticalMethod {
     /// The number of bins in the -2lnQ plot
     int m_nbins;
 
-    // For Cint
-    //ClassDef(RatioFinder,1)
  };
 
 #endif
+// Automatically converted from the standalone version Wed Apr 15 11:36:33 2009

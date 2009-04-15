@@ -1,8 +1,8 @@
 /// RatioFinderPlot: The results of the SM production cross sections.
 /**
 \class RatioFinderPlot
-$Revision: 1.1 $
-$Date: 2009/01/06 12:18:37 $
+$Revision: 1.1.1.1 $
+$Date: 2009/04/15 08:40:01 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 Collect the info out of a RatioFinder instance.
@@ -56,8 +56,7 @@ class RatioFinderPlot : public StatisticalPlot {
     /// The orizontal line for the CL level requested
     TLine* m_CL_line;
 
-    // For Cint
-    //ClassDef(RatioFinderPlot,1)
  };
 
 #endif
+// Automatically converted from the standalone version Wed Apr 15 11:36:34 2009

@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: PLScan.cc,v 1.1 2009/01/06 12:22:44 dpiparo Exp $
+// @(#)root/hist:$Id: PLScan.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -12,8 +12,6 @@
 
 #include "PhysicsTools/RooStatsCms/interface/PLScan.h"
 
-/// To build the cint dictionaries
-//ClassImp(PLScan)
 
 /*----------------------------------------------------------------------------*/
 
@@ -204,3 +202,4 @@ void PLScan::print(const char* options){
 
 
 
+// Automatically converted from the standalone version Wed Apr 15 11:36:34 2009

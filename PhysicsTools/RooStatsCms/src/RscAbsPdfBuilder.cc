@@ -30,7 +30,6 @@
 #include "PhysicsTools/RooStatsCms/interface/RscAbsPdfBuilder.h"
 #include "PhysicsTools/RooStatsCms/interface/Constraint.h"
 
-//ClassImp(RscAbsPdfBuilder);
 
 RooArgSet RscAbsPdfBuilder::globalConfig;
 
@@ -292,3 +291,4 @@ static bool RscLogo_flag=RscLogo();
 
 /*----------------------------------------------------------------------------*/
 
+// Automatically converted from the standalone version Wed Apr 15 11:36:34 2009

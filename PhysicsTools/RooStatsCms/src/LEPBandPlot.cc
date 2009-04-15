@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: LEPBandPlot.cc,v 1.1 2009/01/06 12:22:43 dpiparo Exp $
+// @(#)root/hist:$Id: LEPBandPlot.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -9,15 +9,13 @@
 #include "TStyle.h"
 #include "TAxis.h"
 
-/// To build the cint dictionaries
-//ClassImp(LEPBandPlot)
 
 /*----------------------------------------------------------------------------*/
 
 /// Constructor
 LEPBandPlot::LEPBandPlot(const char* name,
                          const char* title,
-                         int n_points,
+                         const int n_points,
                          double* x_vals,
                          double* sb_vals,
                          double* b_vals,
@@ -84,13 +82,15 @@ LEPBandPlot::LEPBandPlot(const char* name,
         m_legend->AddEntry(m_data_line_graph,"-2lnQ_{Obs}");
 
     m_legend->SetFillColor(0);
+
+    delete[] b_2rms;
     }
 
 /*----------------------------------------------------------------------------*/
 
 LEPBandPlot::LEPBandPlot(const char* name,
                          const char* title,
-                         int n_points,
+                         const int n_points,
                          double* x_vals,
                          double* sb_vals,
                          double* b_vals,
@@ -280,3 +280,4 @@ void LEPBandPlot::print (const char* options){
     }
 
 /*----------------------------------------------------------------------------*/
+// Automatically converted from the standalone version Wed Apr 15 11:36:34 2009

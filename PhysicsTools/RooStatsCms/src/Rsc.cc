@@ -152,3 +152,4 @@ Get the median of an histogram.
         }
 
     } // end of the Rsc Namespace
+// Automatically converted from the standalone version Wed Apr 15 11:36:34 2009

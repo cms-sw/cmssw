@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: ExclusionBandPlot.cc,v 1.1 2009/01/06 12:22:43 dpiparo Exp $
+// @(#)root/hist:$Id: ExclusionBandPlot.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -9,8 +9,6 @@
 #include "TStyle.h"
 #include "TAxis.h"
 
-/// To build the cint dictionaries
-//ClassImp(ExclusionBandPlot)
 
 /*----------------------------------------------------------------------------*/
 ExclusionBandPlot::ExclusionBandPlot(const char* name,
@@ -84,6 +82,12 @@ ExclusionBandPlot::ExclusionBandPlot(const char* name,
     m_legend->AddEntry(m_y_line_graph,title);
 
     m_legend->SetFillColor(0);
+
+    delete[] y_down_bars2;
+    delete[] y_down_bars1;
+    delete[] y_up_bars2;
+    delete[] y_up_bars1;
+
     }
 
 /*----------------------------------------------------------------------------*/
@@ -195,3 +199,4 @@ void ExclusionBandPlot::print (const char* options){
     }
 
 /*----------------------------------------------------------------------------*/
+// Automatically converted from the standalone version Wed Apr 15 11:36:34 2009

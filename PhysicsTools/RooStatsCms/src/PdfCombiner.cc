@@ -1,11 +1,10 @@
-// @(#)root/hist:$Id: PdfCombiner.cc,v 1.1 2009/01/06 12:22:44 dpiparo Exp $
+// @(#)root/hist:$Id: PdfCombiner.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch, Gregory.Schott@cern.ch   05/04/2008
 
 #include "PhysicsTools/RooStatsCms/interface/PdfCombiner.h"
 #include "TIterator.h"
 
 /// For the Cint dictionaries
-//ClassImp(PdfCombiner)
 
 /*----------------------------------------------------------------------------*/
 
@@ -291,3 +290,4 @@ PdfCombiner::~PdfCombiner(){
     }
 
 /*----------------------------------------------------------------------------*/
+// Automatically converted from the standalone version Wed Apr 15 11:36:34 2009

@@ -2,8 +2,8 @@
 
 /**
 \class Minus2LnQCalculator
-$Revision: 1.1 $
-$Date: 2009/01/06 12:18:37 $
+$Revision: 1.1.1.1 $
+$Date: 2009/04/15 08:40:01 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class eases the calculation of a likelihood ratios taking into account 
@@ -78,8 +78,7 @@ class Minus2LnQCalculator : public TNamed {
     /// The verbosity flag
     bool m_verbose;
 
-    // For Cint
-    //ClassDef(Minus2LnQCalculator,1) //Calculate Limit using the CLs method (A. Read)
  };
 
 #endif
+// Automatically converted from the standalone version Wed Apr 15 11:36:33 2009

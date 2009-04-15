@@ -2,8 +2,8 @@
 
 /**
 \class ConstrBlockArray
-$Revision: 1.1 $
-$Date: 2009/01/06 12:18:36 $
+$Revision: 1.1.1.1 $
+$Date: 2009/04/15 08:40:01 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class is a container for the contraints and correlations.
@@ -86,8 +86,7 @@ class ConstrBlockArray : public TNamed,public NLLPenalty {
     /// Own flag
     bool m_owns_content;
 
-    // For Cint
-    //ClassDef(ConstrBlockArray,1)
  };
 
 #endif
+// Automatically converted from the standalone version Wed Apr 15 11:36:33 2009

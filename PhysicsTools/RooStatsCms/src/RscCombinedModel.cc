@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: RscCombinedModel.cc,v 1.1 2009/01/06 12:22:44 dpiparo Exp $
+// @(#)root/hist:$Id: RscCombinedModel.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch, Gregory.Schott@cern.ch   05/04/2008
 
 #include <assert.h>
@@ -14,7 +14,6 @@
 #include "RooGlobalFunc.h" // for RooFit::Extended()
 
 /// For the Cint dictionaries
-//ClassImp(RscCombinedModel)
 
 /*----------------------------------------------------------------------------*/
 
@@ -588,3 +587,4 @@ RooArgList RscCombinedModel::getConstraints(){
 }
 
 /*----------------------------------------------------------------------------*/
+// Automatically converted from the standalone version Wed Apr 15 11:36:34 2009

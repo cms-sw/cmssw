@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: RatioFinder.cc,v 1.2 2009/01/21 10:10:34 dpiparo Exp $
+// @(#)root/hist:$Id: RatioFinder.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   07/10/2008
 
 #include "assert.h"
@@ -14,8 +14,6 @@
 
 
 
-/// To build the cint dictionaries
-//ClassImp(RatioFinder)
 
 /*----------------------------------------------------------------------------*/
 
@@ -437,3 +435,4 @@ void RatioFinder::print(const char* options){
     }
 
 /*----------------------------------------------------------------------------*/
+// Automatically converted from the standalone version Wed Apr 15 11:36:34 2009

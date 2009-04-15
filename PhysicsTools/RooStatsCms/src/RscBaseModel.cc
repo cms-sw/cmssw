@@ -10,14 +10,13 @@
 #include "RooDataHist.h"
 #include "RooArgList.h"
 
-#include "RscBaseModel.h"
+#include "PhysicsTools/RooStatsCms/interface/RscBaseModel.h"
 
 #include "TH1F.h"
 #include "TFile.h"
 #include "TRandom.h"
 
 /// Cint dictionaries
-//ClassImp(RscBaseModel);
 
 /*----------------------------------------------------------------------------*/
 
@@ -464,3 +463,4 @@ void RscBaseModel::writeDataCard(ostream& out) {
                  .writeToStream(out,false);
 }
 
+// Automatically converted from the standalone version Wed Apr 15 11:36:34 2009

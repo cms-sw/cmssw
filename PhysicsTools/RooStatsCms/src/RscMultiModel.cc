@@ -5,7 +5,6 @@
 #include "PhysicsTools/RooStatsCms/interface/RscMultiModel.h"
 #include "PhysicsTools/RooStatsCms/interface/RscBaseModel.h"
 
-//ClassImp(RscMultiModel);
 
 /*----------------------------------------------------------------------------*/
 
@@ -232,3 +231,4 @@ void RscMultiModel::writeDataCard(ostream& out)
   RooArgSet(*_yield).writeToStream(out,false);
 }
 
+// Automatically converted from the standalone version Wed Apr 15 11:36:34 2009

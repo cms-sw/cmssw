@@ -2,8 +2,8 @@
 
 /**
 \class LikelihoodCalculator
-$Revision: 1.1 $
-$Date: 2009/01/06 12:18:36 $
+$Revision: 1.1.1.1 $
+$Date: 2009/04/15 08:40:01 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class eases the calculation of a likelihood taking into account additional 
@@ -68,8 +68,7 @@ class LikelihoodCalculator : public TNamed {
     /// Verbosity flag
     bool m_verbose;
 
-    // For Cint
-    //ClassDef(LikelihoodCalculator,1) //Calculate Limit using the CLs method (A. Read)
  };
 
 #endif
+// Automatically converted from the standalone version Wed Apr 15 11:36:33 2009

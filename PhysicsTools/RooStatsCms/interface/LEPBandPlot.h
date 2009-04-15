@@ -2,8 +2,8 @@
 
 /**
 \class LEPBandPlot
-$Revision: 1.1 $
-$Date: 2009/01/06 12:18:36 $
+$Revision: 1.1.1.1 $
+$Date: 2009/04/15 08:40:01 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class allows to produce plots like the ones of the 
@@ -41,7 +41,7 @@ class LEPBandPlot : public StatisticalPlot {
     /// Constructor
     LEPBandPlot(const char* name,
                 const char* title,
-                int n_points,
+                const int n_points,
                 double* x_vals,
                 double* sb_vals,
                 double* b_vals,
@@ -50,7 +50,7 @@ class LEPBandPlot : public StatisticalPlot {
     /// Constructor
     LEPBandPlot(const char* name,
                 const char* title,
-                int n_points,
+                const int n_points,
                 double* x_vals,
                 double* sb_vals,
                 double* b_vals,
@@ -104,8 +104,7 @@ class LEPBandPlot : public StatisticalPlot {
 
 
 
-    // For Cint
-    //ClassDef(LEPBandPlot,1) 
  };
 
 #endif
+// Automatically converted from the standalone version Wed Apr 15 11:36:33 2009

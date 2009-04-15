@@ -10,7 +10,6 @@
 #include "PhysicsTools/RooStatsCms/interface/RscMultiModel.h"
 
 
-//ClassImp(RscCompModel);
 
 /*----------------------------------------------------------------------------*/
 
@@ -105,7 +104,8 @@ void RscCompModel::buildPdf()
     At the end all the single formulas are summed together.
     */
     RooArgList tot_yield_components;
-    TString* yield_formulas = new TString[(int)number_components.getVal()];
+    int yield_formulas_n =  number_components.getVal();
+    TString* yield_formulas = new TString[yield_formulas_n];
     TIter next(pdfs);
     int index=0;
     while (TObject *obj = next()) {
@@ -136,6 +136,7 @@ void RscCompModel::buildPdf()
 
       index++;
       }
+    delete[] yield_formulas;
     TString tot_yield_formula("");
     for (int i=0;i< index ;++i){
         tot_yield_formula += yield_formulas[i] + " + ";
@@ -159,7 +160,6 @@ void RscCompModel::buildPdf()
     //_thePdf = new RooAddPdf(_name,"composite PDF",pdfList,coefList);
     _thePdf = new RooAddPdf(_name,"composite PDF",pdfList);
 
-    delete yield_formulas;
   }
 }
 
@@ -193,3 +193,4 @@ void RscCompModel::writeDataCard(ostream& out)
 
 
 /*----------------------------------------------------------------------------*/
+// Automatically converted from the standalone version Wed Apr 15 11:36:34 2009

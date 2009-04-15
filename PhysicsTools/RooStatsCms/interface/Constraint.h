@@ -2,8 +2,8 @@
 
 /**
 \class Constraint
-$Revision: 1.2 $
-$Date: 2009/02/20 09:42:59 $
+$Revision: 1.3 $
+$Date: 2009/02/25 12:59:59 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class describes the single constraint.
@@ -43,7 +43,7 @@ class Constraint : public NLLPenalty,public RooRealVar {
 
   public:
 
-    Constraint& operator=(const Constraint& c);
+    Constraint& operator=(const Constraint& c){return *(Constraint*)c.Clone();};
 
 
     /// Constructor

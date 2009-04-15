@@ -4,7 +4,6 @@
 
 #include "PhysicsTools/RooStatsCms/interface/RscTotModel.h"
 
-//ClassImp(RscTotModel);
 
 /// The Constructor
 
@@ -258,3 +257,4 @@ void RscTotModel::writeDataCard(ostream& out)
 }
 
 /*----------------------------------------------------------------------------*/
+// Automatically converted from the standalone version Wed Apr 15 11:36:34 2009

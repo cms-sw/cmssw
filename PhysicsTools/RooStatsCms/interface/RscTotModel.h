@@ -5,8 +5,8 @@
 
 /**
 \class RscTotModel
-$Revision: 1.1 $
-$Date: 2009/01/06 12:18:38 $
+$Revision: 1.1.1.1 $
+$Date: 2009/04/15 08:40:01 $
 \author G. Schott (gregory.Schott<at>cern.ch), Danilo Piparo - Universitaet Karlsruhe
 **/
 
@@ -56,8 +56,8 @@ private:
   void buildConstraints();
 
   #ifndef SWIG
-  //ClassDef(RscTotModel,1)
   #endif /*SWIG */
 };
 
 #endif
+// Automatically converted from the standalone version Wed Apr 15 11:36:34 2009

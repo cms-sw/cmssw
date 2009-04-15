@@ -2,8 +2,8 @@
 
 /**
 \class LimitPlot
-$Revision: 1.1 $
-$Date: 2009/01/06 12:18:37 $
+$Revision: 1.1.1.1 $
+$Date: 2009/04/15 08:40:01 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class provides the plots for the result of a study performed with the 
@@ -105,8 +105,7 @@ class LimitPlot : public StatisticalPlot {
     /// The legend of the plot
     TLegend* m_legend;
 
-    // For Cint
-    //ClassDef(LimitPlot,1) 
  };
 
 #endif
+// Automatically converted from the standalone version Wed Apr 15 11:36:33 2009
