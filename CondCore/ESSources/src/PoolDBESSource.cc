@@ -114,7 +114,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       coraldb.commit();
 
       cond::DataProxyWrapperBase * pb =  cond::ProxyFactory::get()->create(buildName(it->recordname), c, 
-									   DataProxyWrapperBase::Args(result.iovtoken, it->labelname));
+									   cond::DataProxyWrapperBase::Args(result.iovtoken, it->labelname));
 
       ProxyP proxy(pb);
 
