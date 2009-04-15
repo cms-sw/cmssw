@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: PdfCombiner.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
+// @(#)root/hist:$Id: PdfCombiner.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch, Gregory.Schott@cern.ch   05/04/2008
 
 #include "PhysicsTools/RooStatsCms/interface/PdfCombiner.h"
@@ -15,8 +15,8 @@ Default names are assigned to the member objects.
 **/
 
 PdfCombiner::PdfCombiner():
-    m_external_category(false),
     TNamed("My category","My category"),
+    m_external_category(false),
     m_verbose(false),
     m_combined_model_buffer(NULL){
 
@@ -33,8 +33,8 @@ PdfCombiner::PdfCombiner():
 /// The constructor
 
 PdfCombiner::PdfCombiner(std::string name):
-    m_external_category(false),
     TNamed(name.c_str(),name.c_str()),
+    m_external_category(false),
     m_verbose(false),
     m_combined_model_buffer(NULL){
 
@@ -54,8 +54,8 @@ Designed to import an external RooCategory into the combination.
 **/
 
 PdfCombiner::PdfCombiner(std::string name, RooCategory* cat):
-    m_external_category(true),
     TNamed(name.c_str(),name.c_str()),
+    m_external_category(true),
     m_verbose(false),
     m_combined_model_buffer(NULL){
 
@@ -106,7 +106,7 @@ int PdfCombiner::add(RooAbsPdf* distrib, RooArgList* vars_list){
         }
 
     else {
-        int category_size;
+        int category_size=0;
         TIterator* it = m_category->typeIterator();
         TObject* obj=it->Next();
         while (obj!=NULL){

@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: PLScanPlot.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
+// @(#)root/hist:$Id: PLScanPlot.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -35,7 +35,7 @@ PLScanPlot::PLScanPlot(const char* name,
     // Prepare a map with the xy coordinates of the scan as content
     std::map<double,double> scan_content;
 
-    for (int point=0;point<x_points.size();++point)
+    for (unsigned int point=0;point<x_points.size();++point)
         scan_content[x_points[point]]=y_points[point];
     scan_content[val_at_min]=0.;
 
@@ -129,6 +129,8 @@ int PLScanPlot::addCLline(double deltaNLL,
 
     //getCanvas()->Update();
 
+    return 1;
+
     }
 
 /*----------------------------------------------------------------------------*/
@@ -198,6 +200,8 @@ int PLScanPlot::addCLline(double deltaNLL,
 
     ++m_cl_lines_tags_num;
 
+    return 1;
+
     }
 
 /*----------------------------------------------------------------------------*/
@@ -238,6 +242,8 @@ int PLScanPlot::addFCgraph(TGraphErrors* FC_graph, double CL){
     m_cl_lines[m_cl_lines_num]->SetLineStyle(3);
 
     m_cl_lines_num++;
+
+    return 1;
 
     }
 

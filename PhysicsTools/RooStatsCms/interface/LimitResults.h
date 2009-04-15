@@ -4,8 +4,8 @@
 
 /**
 \class LimitResults
-$Revision: 1.1.1.1 $
-$Date: 2009/04/15 08:40:01 $
+$Revision: 1.3 $
+$Date: 2009/04/15 11:10:45 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 The objects of this class store and access with lightweight methods the 
@@ -76,17 +76,20 @@ class LimitResults : public StatisticalMethod {
 
  private:
 
-    /// Build CLb
-    void m_build_CLb();
+    /// -2lnQ calculated on data
+    float m_m2lnQ_data;
+
+    /// The cached ClSb Val
+    double m_CLsb;
 
     /// The cached Clb Val
     double m_CLb;
 
+    /// Build CLb
+    void m_build_CLb();
+
     /// Build CLsb
     void m_build_CLsb();
-
-    /// The cached ClSb Val
-    double m_CLsb;
 
     /// -2lnQ values for sb model
     std::vector<float> m_m2lnQ_sb;
@@ -94,8 +97,6 @@ class LimitResults : public StatisticalMethod {
     /// -2lnQ values for b model
     std::vector<float> m_m2lnQ_b;
 
-    /// -2lnQ calculated on data
-    float m_m2lnQ_data;
 /*
     /// Sorting flag
     bool m_vectors_sorted;

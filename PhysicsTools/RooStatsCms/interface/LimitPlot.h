@@ -2,8 +2,8 @@
 
 /**
 \class LimitPlot
-$Revision: 1.1.1.1 $
-$Date: 2009/04/15 08:40:01 $
+$Revision: 1.3 $
+$Date: 2009/04/15 11:10:45 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class provides the plots for the result of a study performed with the 
@@ -87,17 +87,17 @@ class LimitPlot : public StatisticalPlot {
 
   private:
 
-    /// The sb Histo
-    TH1F* m_sb_histo;
-
     /// The sb Histo shaded
     TH1F* m_sb_histo_shaded;
 
-    /// The b Histo
-    TH1F* m_b_histo;
-
     /// The b Histo shaded
     TH1F* m_b_histo_shaded;
+
+    /// The sb Histo
+    TH1F* m_sb_histo;
+
+    /// The b Histo
+    TH1F* m_b_histo;
 
     /// The line for the data -2lnQ
     TLine* m_data_m2lnQ_line;

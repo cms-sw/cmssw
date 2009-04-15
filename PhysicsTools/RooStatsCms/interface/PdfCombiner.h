@@ -1,12 +1,12 @@
-// @(#)root/hist:$Id: PdfCombiner.h,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
+// @(#)root/hist:$Id: PdfCombiner.h,v 1.3 2009/04/15 11:10:45 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch, Gregory.Schott@cern.ch   05/04/2008
 
 /// PdfCombiner : a class to combine models
 
 /**
 \class PdfCombiner
-$Revision: 1.1.1.1 $
-$Date: 2009/04/15 08:40:01 $
+$Revision: 1.3 $
+$Date: 2009/04/15 11:10:45 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott (grgory.schott<at>cern.ch) - Universitaet Karlsruhe 
 This class is meant to represent the combination of models.
 The idea is to have it behave like a pdf container.
@@ -68,6 +68,9 @@ class PdfCombiner : public TNamed {
     /// A flag to keep race of the provenance of the category
     const bool m_external_category;
 
+    /// The verbosity flag
+    bool m_verbose;
+
     /// Buffer for the combined model
     RooSimultaneous* m_combined_model_buffer;
 
@@ -80,8 +83,6 @@ class PdfCombiner : public TNamed {
     /// Category tocreate the RooSimultaneousPdf
     RooCategory* m_category;
 
-    /// The verbosity flag
-    bool m_verbose;
 
 
 };

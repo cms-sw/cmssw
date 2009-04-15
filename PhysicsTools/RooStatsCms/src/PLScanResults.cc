@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: PLScanResults.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
+// @(#)root/hist:$Id: PLScanResults.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 
@@ -446,8 +446,8 @@ bool PLScanResults::m_intersect(TF1* function,
 
     // find in the range the points immediately upper and lower the orizz line
     double x,y;
-    double dist_prec;
-    double dist;
+    double dist_prec=0;
+    double dist=0;
 
     bool flip=false;
     bool in_roi=false;
@@ -456,7 +456,7 @@ bool PLScanResults::m_intersect(TF1* function,
     int flip_index=0;
 
     // cycle on the points of the scan
-    for (int index=0;index<m_NLL_shifted_values.size();++index){
+    for (unsigned int index=0;index<m_NLL_shifted_values.size();++index){
         x=m_points_grid[index];
         y=m_NLL_shifted_values[index];
 
