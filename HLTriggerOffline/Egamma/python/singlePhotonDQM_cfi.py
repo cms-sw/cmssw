@@ -4,41 +4,33 @@ import FWCore.ParameterSet.Config as cms
 # See HLT Config Browser, for up-to-date HLT paths
 #  http://cms-project-confdb-hltdev.web.cern.ch/cms-project-confdb-hltdev/browser/
 #
-# Current Paths of interest:
-#  HLT_IsoPhoton10_L1R
-#  HLT_Photon15_L1R
+# This config is for
+#  HLT_Photon10_L1R
+#    A single photon trigger, requiring at least one HLT photon with ET > 10 GeV.
+#    No isolation is required.
 #
 #
-# An example, that first path contains 5 steps:
-# path HLT_IsoPhoton10_L1R = { HLTBeginSequence &
-#                              hltL1sRelaxedSingleEgammaEt8 &
-#                              hltPreIsoPhoton10L1R &
-#                              HLTSinglePhotonEt10L1NonIsolatedSequence &
-#                              HLTEndSequence }
+# This path contains 5 steps:
+#  HLT_Photon10_L1R = { HLTBeginSequence &
+#                       hltL1sRelaxedSingleEgammaEt8 &
+#                       hltPrePhoton10L1R &
+#                       HLTSinglePhoton10L1NonIsolatedHLTNonIsoSequence &
+#                       HLTEndSequence }
 #
 # And the sequence named in step 4 can be expanded into its 20 steps,
 # and notice it contains 5 filters (marked with *)
-# sequence HLTSinglePhotonEt10L1NonIsolatedSequence = {
-# 1    HLTDoRegionalEgammaEcalSequence &
-# 2    HLTL1IsolatedEcalClustersSequence &
-# 3    HLTL1NonIsolatedEcalClustersSequence &
-# 4    hltL1IsoRecoEcalCandidate &
-# 5    hltL1NonIsoRecoEcalCandidate &
-# 6*   hltL1NonIsoSinglePhotonEt10L1MatchFilterRegional &
-# 7*   hltL1NonIsoSinglePhotonEt10EtFilter &
-# 8    hltL1IsolatedPhotonEcalIsol &
-# 9    hltL1NonIsolatedPhotonEcalIsol &
-#10*   hltL1NonIsoSinglePhotonEt10EcalIsolFilter &
-#11    HLTDoLocalHcalWithoutHOSequence &
-#12    hltL1IsolatedPhotonHcalIsol &
-#13    hltL1NonIsolatedPhotonHcalIsol &
-#14*   hltL1NonIsoSinglePhotonEt10HcalIsolFilter &
-#15    HLTDoLocalTrackerSequence &
-#16    HLTL1IsoEgammaRegionalRecoTrackerSequence &
-#17    HLTL1NonIsoEgammaRegionalRecoTrackerSequence & h
-#18    ltL1IsoPhotonTrackIsol &
-#19    hltL1NonIsoPhotonTrackIsol &
-#20*   hltL1NonIsoSinglePhotonEt10TrackIsolFilter }
+#  HLTSinglePhoton10L1NonIsolatedHLTNonIsoSequence = {
+#  1   HLTDoRegionalEgammaEcalSequence &
+#  2   HLTL1IsolatedEcalClustersSequence &
+#  3   HLTL1NonIsolatedEcalClustersSequence &
+#  4   hltL1IsoRecoEcalCandidate &
+#  5   hltL1NonIsoRecoEcalCandidate &
+#  6*  hltL1NonIsoHLTNonIsoSinglePhotonEt10L1MatchFilterRegional &
+#  7*  hltL1NonIsoHLTNonIsoSinglePhotonEt10EtFilter &
+#  8   HLTDoLocalHcalWithoutHOSequence &
+#  9   hltL1IsolatedPhotonHcalIsol &
+# 10   hltL1NonIsolatedPhotonHcalIsol &
+# 11*  hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter }
 #
 # The filters (*) above are what go into
 #  the "HLTCollectionLabels" below.
@@ -69,7 +61,7 @@ singlePhotonDQM = cms.EDFilter("EmDQM",
         ##########################################################
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEt10L1MatchFilterRegional","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt10L1MatchFilterRegional","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(100),
             HLTCollectionHumanName = cms.untracked.string("L1 Match Filter")
@@ -79,7 +71,7 @@ singlePhotonDQM = cms.EDFilter("EmDQM",
         ##########################################################
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEt10EtFilter","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt10EtFilter","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(100),
             HLTCollectionHumanName = cms.untracked.string("Et Filter")
@@ -87,33 +79,33 @@ singlePhotonDQM = cms.EDFilter("EmDQM",
         ##########################################################
         #   ECAL Isolation Filter                                #
         ##########################################################
-        cms.PSet(
-            PlotBounds = cms.vdouble(0.0, 10.0),
-            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEt10EcalIsolFilter","","HLT"),
-            IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsolatedPhotonEcalIsol","","HLT"), cms.InputTag("hltL1NonIsolatedPhotonEcalIsol","","HLT")),
-            theHLTOutputTypes = cms.uint32(100),
-            HLTCollectionHumanName = cms.untracked.string("Ecal Iso Filter")
-        ),
+#        cms.PSet(
+#            PlotBounds = cms.vdouble(0.0, 10.0),
+#            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEt10EcalIsolFilter","","HLT"),
+#            IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsolatedPhotonEcalIsol","","HLT"), cms.InputTag("hltL1NonIsolatedPhotonEcalIsol","","HLT")),
+#            theHLTOutputTypes = cms.uint32(100),
+#            HLTCollectionHumanName = cms.untracked.string("Ecal Iso Filter")
+#        ),
         ##########################################################
         #  HCAL Isolation Filter                                 #
         ##########################################################
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 10.0),
-            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEt10HcalIsolFilter","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsolatedPhotonHcalIsol","","HLT"), cms.InputTag("hltL1NonIsolatedPhotonHcalIsol","","HLT")),
             theHLTOutputTypes = cms.uint32(100),
             HLTCollectionHumanName = cms.untracked.string("Hcal Iso Filter")
-        ),
+        )
         ##########################################################
         #  Track Isolation Filter                                #
         ##########################################################
-        cms.PSet(
-            PlotBounds = cms.vdouble(0.0, 10.0),
-            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEt10TrackIsolFilter","","HLT"),
-            IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsoPhotonTrackIsol","","HLT"), cms.InputTag("hltL1NonIsoPhotonTrackIsol","","HLT")),
-            theHLTOutputTypes = cms.uint32(91),
-            HLTCollectionHumanName = cms.untracked.string("Track Iso Filter")
-        )
+#        cms.PSet(
+#            PlotBounds = cms.vdouble(0.0, 10.0),
+#            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEt10TrackIsolFilter","","HLT"),
+#            IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsoPhotonTrackIsol","","HLT"), cms.InputTag("hltL1NonIsoPhotonTrackIsol","","HLT")),
+#            theHLTOutputTypes = cms.uint32(91),
+#            HLTCollectionHumanName = cms.untracked.string("Track Iso Filter")
+#        )
     )
 )
 
