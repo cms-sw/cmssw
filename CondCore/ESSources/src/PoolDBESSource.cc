@@ -84,8 +84,8 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 	cond::TagMetadata nm;
 	nm.recordname=itToGet->getParameter<std::string>("record");
 	nm.labelname=itToGet->getUntrackedParameter<std::string>("label","");
-	nm.tag=itToGet->getUntrackedParameter<std::string>("tag");
-	nm.pfn=itToGet->getUntrackedParameter<std::string>("connect");
+	nm.tag=itToGet->getParameter<std::string>("tag");
+	nm.pfn=itToGet->getUntrackedParameter<std::string>("connect",userconnect);
 	//	nm.objectname=itFound->second;
 	std::string k=nm.recordname+"@"+nm.labelname;
 	replacement.insert(std::make_pair<std::string,cond::TagMetadata>(k,nm));
