@@ -13,6 +13,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "boost/shared_ptr.hpp"
+
 #include <iosfwd>
 #include <vector>
 #include <map>
@@ -116,13 +118,13 @@ private:
 
 #ifdef OLDSTYLE
   template <class T>
-  T  getAparameter ( PSet * p, std::string const & id, T const & def ) 
+  T getAparameter ( PSet const& p, std::string const & id, T const & def ) 
   {
     T t;
     try { 
-      t = p->template getUntrackedParameter<T>(id, def);
+      t = p.template getUntrackedParameter<T>(id, def);
     } catch (...) {
-      t = p->template getParameter<T>(id);
+      t = p.template getParameter<T>(id);
       std::cerr << "Tracked parameter " << id 
                 << " used in MessageLogger configuration.\n"
 		<< "Use of tracked parameters for the message service "
@@ -134,22 +136,22 @@ private:
 #else
 #ifdef SIMPLESTYLE
   template <class T>
-  T  getAparameter ( PSet * p, std::string const & id, T const & def ) 
+  T getAparameter ( PSet const& p, std::string const & id, T const & def ) 
   {
     T t;
-    t = p->template getUntrackedParameter<T>(id, def);
+    t = p.template getUntrackedParameter<T>(id, def);
     return t;
   }								// changelog 2
 #else
   template <class T>
-  T  getAparameter ( PSet * p, std::string const & id, T const & def ) 
+  T  getAparameter ( PSet const& p, std::string const & id, T const & def ) 
   {								// changelog 7
     T t;
     try { 
-      t = p->template getUntrackedParameter<T>(id, def);
+      t = p.template getUntrackedParameter<T>(id, def);
     } catch (cms::Exception& e) {
       try {
-        t = p->template getParameter<T>(id);
+        t = p.template getParameter<T>(id);
       } catch (...) {
         // if we get here, this was NOT a simple tracked parameter goof.
 	// we should just rethrow the ORIGINAL error
@@ -188,15 +190,15 @@ private:
 
   // --- other helpers
   void parseCategories (std::string const & s, std::vector<std::string> & cats);
-  void setStaticErrorLog_ptr() {static_errorlog_p = errorlog_p;}
+  void setStaticErrorLog_ptr() {static_errorlog_p = errorlog_p.get();}
   
   // --- data:
   ELadministrator                   * admin_p;
   ELdestControl                       early_dest;
-  ErrorLog                          * errorlog_p;
-  std::vector<std::ofstream        *> file_ps;
+  boost::shared_ptr<ErrorLog>         errorlog_p;
+  std::vector<boost::shared_ptr<std::ofstream> > file_ps;
   MsgContext                          msg_context;
-  PSet *                              job_pset_p;
+  boost::shared_ptr<PSet>             job_pset_p;
   std::vector<NamedDestination     *> extern_dests;
   std::map<String,std::ostream     *> stream_ps;
   std::vector<String> 	  	      ordinary_destination_filenames;

@@ -26,6 +26,7 @@
 
 
 #include <iostream>
+#include <fstream>
 
 #include "FWCore/MessageService/interface/ELdestination.h"
 #include "FWCore/MessageService/interface/ELdestControl.h"
@@ -265,6 +266,13 @@ bool ELdestination::thisShouldBeIgnored(const ELstring & s) const {
   } else {
   return false;
   }
+}
+
+
+void close_and_delete::operator()(std::ostream* os) const {
+  std::ofstream* p = static_cast<std::ofstream*>(os);
+  p->close();
+  delete os;
 }
 
 } // end of namespace service  

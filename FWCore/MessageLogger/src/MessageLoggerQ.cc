@@ -52,8 +52,8 @@ MessageLoggerQ::~MessageLoggerQ()
 MessageLoggerQ *
   MessageLoggerQ::instance()
 {
-  static MessageLoggerQ *  instance = new MessageLoggerQ();
-  return instance;
+  static MessageLoggerQ queue;
+  return &queue;
 }  // MessageLoggerQ::instance()
 
 void

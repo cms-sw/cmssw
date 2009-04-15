@@ -21,6 +21,7 @@
 
 #include "FWCore/MessageService/interface/ELfwkJobReport.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
+#include "FWCore/Utilities/interface/do_nothing_deleter.h"
 
 // Possible Traces:
 // #define ELfwkJobReportCONSTRUCTOR_TRACE
@@ -39,8 +40,7 @@ namespace service {
 
 ELfwkJobReport::ELfwkJobReport()
 : ELdestination       (            )
-, os                  ( &std::cerr )
-, osIsOwned           ( false      )
+, os                  ( &std::cerr, do_nothing_deleter() )
 , charsOnLine         ( 0          )
 , xid                 (            )
 , wantTimestamp       ( true       )
@@ -66,8 +66,7 @@ ELfwkJobReport::ELfwkJobReport()
 
 ELfwkJobReport::ELfwkJobReport( std::ostream & os_ , bool emitAtStart )
 : ELdestination       (       )
-, os                  ( &os_  )
-, osIsOwned           ( false )
+, os                  ( &os_, do_nothing_deleter() )
 , charsOnLine         ( 0     )
 , xid                 (       )
 , wantTimestamp       ( true  )
@@ -93,11 +92,7 @@ ELfwkJobReport::ELfwkJobReport( std::ostream & os_ , bool emitAtStart )
 
 ELfwkJobReport::ELfwkJobReport( const ELstring & fileName, bool emitAtStart )
 : ELdestination       (       )
-, os                  ( new std::ofstream( fileName.c_str()
-                                         , std::ios/*_base*/::app
-                                         )
-                      )
-, osIsOwned           ( false )
+, os                  ( new std::ofstream( fileName.c_str() , std::ios/*_base*/::app), close_and_delete())
 , charsOnLine         ( 0     )
 , xid                 (       )
 , wantTimestamp       ( true  )
@@ -119,7 +114,6 @@ ELfwkJobReport::ELfwkJobReport( const ELstring & fileName, bool emitAtStart )
     #ifdef ELfwkJobReportCONSTRUCTOR_TRACE
       std::cerr << "          Testing if os is owned\n";
     #endif
-    osIsOwned = true;
     #ifdef ELfwkJobReportCONSTRUCTOR_TRACE
       std::cerr << "          About to do first emit\n";
     #endif
@@ -129,8 +123,7 @@ ELfwkJobReport::ELfwkJobReport( const ELstring & fileName, bool emitAtStart )
     #ifdef ELfwkJobReportCONSTRUCTOR_TRACE
       std::cerr << "          Deleting os\n";
     #endif
-    delete os;
-    os = & std::cerr;
+    os.reset(&std::cerr, do_nothing_deleter());
     #ifdef ELfwkJobReportCONSTRUCTOR_TRACE
       std::cerr << "          about to emit to cerr\n";
     #endif
@@ -148,7 +141,6 @@ ELfwkJobReport::ELfwkJobReport( const ELstring & fileName, bool emitAtStart )
 ELfwkJobReport::ELfwkJobReport( const ELfwkJobReport & orig )
 : ELdestination       (                           )
 , os                  ( orig.os                   )
-, osIsOwned           ( orig.osIsOwned            )
 , charsOnLine         ( orig.charsOnLine          )
 , xid                 ( orig.xid                  )
 , wantTimestamp       ( orig.wantTimestamp        )
@@ -180,9 +172,6 @@ ELfwkJobReport::ELfwkJobReport( const ELfwkJobReport & orig )
   respondToMostModules  = orig.respondToMostModules;
   ignoreThese           = orig.ignoreThese;
 
-  // ownership, if any, passes to new copy:
-  const_cast<ELfwkJobReport &>(orig).osIsOwned = false;
-
 }  // ELfwkJobReport()
 
 
@@ -191,12 +180,6 @@ ELfwkJobReport::~ELfwkJobReport()  {
   #ifdef ELfwkJobReportCONSTRUCTOR_TRACE
     std::cerr << "Destructor for ELfwkJobReport\n";
   #endif
-
-  if ( osIsOwned )  { // we have an ofstream
-    ((std::ofstream*)os)->close();
-    delete os;
-  }
-
 }  // ~ELfwkJobReport()
 
 
@@ -408,24 +391,14 @@ void ELfwkJobReport::summarization(
 // ----------------------------------------------------------------------
 
 void ELfwkJobReport::changeFile (std::ostream & os_) {
-    if ( osIsOwned )  { // we have an ofstream, close and delete it.
-    ((std::ofstream*)os)->close();
-    delete os;
-  }
-  os = &os_;
-  osIsOwned = false;
+  os.reset(&os_, do_nothing_deleter());
   emit( "\n=======================================================", true );
   emit( "\nError Log changed to this stream\n" );
   emit( "\n=======================================================\n", true );
 }
 
 void ELfwkJobReport::changeFile (const ELstring & filename) {
-    if ( osIsOwned )  { // we have an ofstream, close and delete it.
-    ((std::ofstream*)os)->close();
-    delete os;
-  }
-  os = new std::ofstream( filename.c_str(), std::ios/*_base*/::app );
-  osIsOwned = false;
+  os.reset(new std::ofstream( filename.c_str(), std::ios/*_base*/::app ), close_and_delete());
   emit( "\n=======================================================", true );
   emit( "\nError Log changed to this file\n" );
   emit( "\n=======================================================\n", true );

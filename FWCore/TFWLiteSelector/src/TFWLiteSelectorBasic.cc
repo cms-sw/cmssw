@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.45 2009/03/19 04:28:44 wmtan Exp $
 //
 
 // system include files

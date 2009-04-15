@@ -73,6 +73,8 @@
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
+#include "FWCore/Utilities/interface/do_nothing_deleter.h"
+
 // Possible Traces:
 // #define ELoutputCONSTRUCTOR_TRACE
 // #define ELoutputTRACE_LOG
@@ -125,8 +127,7 @@ static char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
 
 ELoutput::ELoutput()
 : ELdestination       (            )
-, os                  ( &std::cerr )
-, osIsOwned           ( false      )
+, os                  ( &std::cerr, do_nothing_deleter() )
 , charsOnLine         ( 0          )
 , xid                 (            )
 , wantTimestamp       ( true       )
@@ -153,8 +154,7 @@ ELoutput::ELoutput()
 
 ELoutput::ELoutput( std::ostream & os_ , bool emitAtStart )
 : ELdestination       (       )
-, os                  ( &os_  )
-, osIsOwned           ( false )
+, os                  ( &os_, do_nothing_deleter() )
 , charsOnLine         ( 0     )
 , xid                 (       )
 , wantTimestamp       ( true  )
@@ -187,11 +187,7 @@ ELoutput::ELoutput( std::ostream & os_ , bool emitAtStart )
 
 ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
 : ELdestination       (       )
-, os                  ( new std::ofstream( fileName.c_str()
-                                         , std::ios/*_base*/::app
-                                         )
-                      )
-, osIsOwned           ( false )
+, os                  ( new std::ofstream( fileName.c_str() , std::ios/*_base*/::app), close_and_delete())
 , charsOnLine         ( 0     )
 , xid                 (       )
 , wantTimestamp       ( true  )
@@ -215,7 +211,6 @@ ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
     #ifdef ELoutputCONSTRUCTOR_TRACE
       std::cerr << "          Testing if os is owned\n";
     #endif
-    osIsOwned = true;
     #ifdef ELoutputCONSTRUCTOR_TRACE
       std::cerr << "          About to do first emit\n";
     #endif
@@ -232,8 +227,7 @@ ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
     #ifdef ELoutputCONSTRUCTOR_TRACE
       std::cerr << "          Deleting os\n";
     #endif
-    delete os;
-    os = & std::cerr;
+    os.reset(&std::cerr, do_nothing_deleter());
     #ifdef ELoutputCONSTRUCTOR_TRACE
       std::cerr << "          about to emit to cerr\n";
     #endif
@@ -263,7 +257,6 @@ ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
 ELoutput::ELoutput( const ELoutput & orig )
 : ELdestination       (                           )
 , os                  ( orig.os                   )
-, osIsOwned           ( orig.osIsOwned            )
 , charsOnLine         ( orig.charsOnLine          )
 , xid                 ( orig.xid                  )
 , wantTimestamp       ( orig.wantTimestamp        )
@@ -295,9 +288,6 @@ ELoutput::ELoutput( const ELoutput & orig )
   respondToMostModules  = orig.respondToMostModules;
   ignoreThese           = orig.ignoreThese;
 
-  // ownership, if any, passes to new copy:
-  const_cast<ELoutput &>(orig).osIsOwned = false;
-
 }  // ELoutput()
 
 
@@ -306,11 +296,6 @@ ELoutput::~ELoutput()  {
   #ifdef ELoutputCONSTRUCTOR_TRACE
     std::cerr << "Destructor for ELoutput\n";
   #endif
-
-  if ( osIsOwned )  { // we have an ofstream
-    ((std::ofstream*)os)->close();
-    delete os;
-  }
 
 }  // ~ELoutput()
 
@@ -696,12 +681,7 @@ void ELoutput::summarization(
 // ----------------------------------------------------------------------
 
 void ELoutput::changeFile (std::ostream & os_) {
-    if ( osIsOwned )  { // we have an ofstream, close and delete it.
-    ((std::ofstream*)os)->close();
-    delete os;
-  }
-  os = &os_;
-  osIsOwned = false;
+  os.reset(&os_, do_nothing_deleter());
   emit( "\n=======================================================", true );
   emit( "\nError Log changed to this stream\n" );
   emit( formatTime(time(0)), true );
@@ -709,12 +689,7 @@ void ELoutput::changeFile (std::ostream & os_) {
 }
 
 void ELoutput::changeFile (const ELstring & filename) {
-    if ( osIsOwned )  { // we have an ofstream, close and delete it.
-    ((std::ofstream*)os)->close();
-    delete os;
-  }
-  os = new std::ofstream( filename.c_str(), std::ios/*_base*/::app );
-  osIsOwned = false;
+  os.reset(new std::ofstream( filename.c_str(), std::ios/*_base*/::app), close_and_delete());
   emit( "\n=======================================================", true );
   emit( "\nError Log changed to this file\n" );
   emit( formatTime(time(0)), true );

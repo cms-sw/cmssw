@@ -145,9 +145,9 @@ private:
 
 };  // ELdestination
 
-
-// ----------------------------------------------------------------------
-
+struct close_and_delete {
+  void operator()(std::ostream* os) const;
+};
 
 }        // end of namespace service
 }        // end of namespace edm
