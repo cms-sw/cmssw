@@ -22,7 +22,8 @@
 // constants, enums and typedefs
 //
 
-// EDM_REGISTER_PLUGINFACTORY(oldcond::ProxyFactory, cond::pluginCategory());
+EDM_REGISTER_PLUGINFACTORY(oldcond::ProxyFactory, cond::pluginCategory());
+
 EDM_REGISTER_PLUGINFACTORY(cond::ProxyFactory, cond::pluginCategory());
 
 namespace cond {
