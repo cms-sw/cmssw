@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.29 2009/03/27 03:14:00 berryhil Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.5 2009/03/27 04:13:08 berryhil Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -361,7 +361,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
          }
 
 	}
-      else if (triggertype == trigger::TriggerHT || triggertype == trigger::TriggerL1ETT)
+      else if (triggertype == trigger::TriggerTET || triggertype == trigger::TriggerL1ETT)
 	{
 
 
@@ -687,7 +687,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
       }
       // for sumet triggers, loop over and fill offline 4-vectors
-      else if (triggertype == trigger::TriggerHT || triggertype == trigger::TriggerL1ETT )
+      else if (triggertype == trigger::TriggerTET || triggertype == trigger::TriggerL1ETT )
 	{
 
           trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
@@ -852,9 +852,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     if (pathname.find("MET") != std::string::npos) 
       objectType = trigger::TriggerMET;    
     if (pathname.find("SumET") != std::string::npos) 
-      objectType = trigger::TriggerHT;    
-    if (pathname.find("HT") != std::string::npos) 
-      objectType = trigger::TriggerHT;    
+      objectType = trigger::TriggerTET;    
     if (pathname.find("Jet") != std::string::npos) 
       objectType = trigger::TriggerJet;    
     if (pathname.find("BTag") != std::string::npos) 
@@ -874,9 +872,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     if (denompathname.find("MET") != std::string::npos) 
       denomobjectType = trigger::TriggerMET;    
     if (denompathname.find("SumET") != std::string::npos) 
-      denomobjectType = trigger::TriggerHT;    
-    if (denompathname.find("HT") != std::string::npos) 
-      denomobjectType = trigger::TriggerHT;    
+      denomobjectType = trigger::TriggerTET;    
     if (denompathname.find("Jet") != std::string::npos) 
       denomobjectType = trigger::TriggerJet;    
     if (denompathname.find("BTag") != std::string::npos) 
@@ -938,9 +934,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     if (pathname.find("MET") != std::string::npos) 
       objectType = trigger::TriggerMET;    
     if (pathname.find("SumET") != std::string::npos) 
-      objectType = trigger::TriggerHT;    
-    if (pathname.find("HT") != std::string::npos) 
-      objectType = trigger::TriggerHT;    
+      objectType = trigger::TriggerTET;    
     if (pathname.find("Jet") != std::string::npos) 
       objectType = trigger::TriggerJet;    
     if (pathname.find("BTag") != std::string::npos) 
@@ -960,9 +954,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     if (denompathname.find("MET") != std::string::npos) 
       denomobjectType = trigger::TriggerMET;    
     if (denompathname.find("SumET") != std::string::npos) 
-      denomobjectType = trigger::TriggerHT;    
-    if (denompathname.find("HT") != std::string::npos) 
-      denomobjectType = trigger::TriggerHT;    
+      denomobjectType = trigger::TriggerTET;    
     if (denompathname.find("Jet") != std::string::npos) 
       denomobjectType = trigger::TriggerJet;    
     if (denompathname.find("BTag") != std::string::npos) 
@@ -1010,7 +1002,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     if (objectType == trigger::TriggerJet) ptMax = 300.0;
     if (objectType == trigger::TriggerBJet) ptMax = 300.0;
     if (objectType == trigger::TriggerMET) ptMax = 300.0;
-    if (objectType == trigger::TriggerHT) ptMax = 300.0;
+    if (objectType == trigger::TriggerTET) ptMax = 300.0;
     if (objectType == trigger::TriggerTrack) ptMax = 100.0;
 
     if (objectType != 0){
@@ -1054,9 +1046,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     if (pathname.find("MET") != std::string::npos) 
       objectType = trigger::TriggerMET;    
     if (pathname.find("SumET") != std::string::npos) 
-      objectType = trigger::TriggerHT;    
-    if (pathname.find("HT") != std::string::npos) 
-      objectType = trigger::TriggerHT;    
+      objectType = trigger::TriggerTET;    
     if (pathname.find("Jet") != std::string::npos) 
       objectType = trigger::TriggerJet;    
     if (pathname.find("BTag") != std::string::npos) 
@@ -1106,7 +1096,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     if (objectType == trigger::TriggerJet) ptMax = 300.0;
     if (objectType == trigger::TriggerBJet) ptMax = 300.0;
     if (objectType == trigger::TriggerMET) ptMax = 300.0;
-    if (objectType == trigger::TriggerHT) ptMax = 300.0;
+    if (objectType == trigger::TriggerTET) ptMax = 300.0;
     if (objectType == trigger::TriggerTrack) ptMax = 100.0;
 
     if (objectType != 0)

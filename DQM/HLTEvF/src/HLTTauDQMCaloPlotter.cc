@@ -95,15 +95,20 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	     
 	     if((doRef_&&m.first)||(!doRef_))
 		 {
-		   ecalIsolEt->Fill(l2info.ECALIsolConeCut);
-		   hcalIsolEt->Fill(l2info.TowerIsolConeCut);
-		   seedHcalEt->Fill(l2info.SeedTowerEt);
+		   ecalIsolEt->Fill(l2info.ecalIsolEt());
+		   hcalIsolEt->Fill(l2info.hcalIsolEt());
+		   seedEcalEt->Fill(l2info.seedEcalHitEt());
+		   seedHcalEt->Fill(l2info.seedHcalHitEt());
 
+		   nEcalClusters->Fill(l2info.nEcalHits());
+		   ecalClusterEtaRMS->Fill(l2info.ecalClusterShape()[0]);
+		   ecalClusterPhiRMS->Fill(l2info.ecalClusterShape()[1]);
+		   ecalClusterDeltaRRMS->Fill(l2info.ecalClusterShape()[2]);
 
-		   nEcalClusters->Fill(l2info.ECALClusterNClusters);
-		   ecalClusterEtaRMS->Fill(l2info.ECALClusterEtaRMS);
-		   ecalClusterPhiRMS->Fill(l2info.ECALClusterPhiRMS);
-		   ecalClusterDeltaRRMS->Fill(l2info.ECALClusterDRRMS);
+		   nHcalClusters->Fill(l2info.nHcalHits());
+		   hcalClusterEtaRMS->Fill(l2info.hcalClusterShape()[0]);
+		   hcalClusterPhiRMS->Fill(l2info.hcalClusterShape()[1]);
+		   hcalClusterDeltaRRMS->Fill(l2info.hcalClusterShape()[2]);
 
 		   jetEt->Fill(jet.et());
 		   jetEta->Fill(jet.eta());
@@ -191,5 +196,7 @@ HLTTauDQMCaloPlotter::matchJet(const reco::Jet& jet,const reco::CaloJetCollectio
    }
  return matched;
 }
+
+
 
 
