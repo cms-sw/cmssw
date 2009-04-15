@@ -29,8 +29,8 @@
     }
 
     PythonManagerHandle PythonManager::handle() {
-        static PythonManager* s_manager( new PythonManager() );
-        return PythonManagerHandle( *s_manager);
+        static PythonManager s_manager;
+        return PythonManagerHandle( s_manager);
     }
 
     PythonManager::PythonManager() :
