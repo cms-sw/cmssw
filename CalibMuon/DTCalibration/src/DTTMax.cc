@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/22 19:00:29 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/08/04 16:20:24 $
+ *  $Revision: 1.6 $
  *  \author Marina Giunta
  */
 
@@ -354,10 +354,10 @@ vector<const DTTMax::TMax*> DTTMax::getTMax(const DTWireId & idWire) {
 vector<const DTTMax::TMax*> DTTMax::getTMax(const DTSuperLayerId & isl) {
   vector<const TMax*> v;
   // add TMax* to the vector only if it really exists 
-  if((int)getTMax(c123) != 0) v.push_back(getTMax(c123)); 
-  if((int)getTMax(c124) != 0) v.push_back(getTMax(c124));
-  if((int)getTMax(c134) != 0) v.push_back(getTMax(c134));
-  if((int)getTMax(c234) != 0) v.push_back(getTMax(c234));  
+  if(getTMax(c123)) v.push_back(getTMax(c123)); 
+  if(getTMax(c124)) v.push_back(getTMax(c124));
+  if(getTMax(c134)) v.push_back(getTMax(c134));
+  if(getTMax(c234)) v.push_back(getTMax(c234));  
   return v;
 }
 
