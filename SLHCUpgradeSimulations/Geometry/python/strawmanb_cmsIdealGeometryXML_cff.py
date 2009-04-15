@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
 
 XMLIdealGeometryESSource.geomXMLFiles = cms.vstring(
-    'Geometry/CMSCommonData/data/materials.xml', 
+    'SLHCUpgradeSimulations/Geometry/data/strawmanb/materials.xml', 
         'Geometry/CMSCommonData/data/rotations.xml', 
         'Geometry/CMSCommonData/data/normal/cmsextent.xml', 
         'Geometry/CMSCommonData/data/cms.xml', 
@@ -32,7 +32,7 @@ XMLIdealGeometryESSource.geomXMLFiles = cms.vstring(
         'Geometry/TrackerCommonData/data/pixfwdNipple.xml', 
         'Geometry/TrackerCommonData/data/pixfwdDisk.xml', 
         'Geometry/TrackerCommonData/data/pixfwdCylinder.xml', 
-        'Geometry/TrackerCommonData/data/pixfwd.xml', 
+        'SLHCUpgradeSimulations/Geometry/data/strawmanb/pixfwd.xml', 
         'Geometry/TrackerCommonData/data/pixbarmaterial.xml', 
         'Geometry/TrackerCommonData/data/pixbarladder.xml', 
         'Geometry/TrackerCommonData/data/pixbarladderfull.xml', 
@@ -41,6 +41,7 @@ XMLIdealGeometryESSource.geomXMLFiles = cms.vstring(
         'SLHCUpgradeSimulations/Geometry/data/strawmanb/pixbarlayer0.xml',
         'SLHCUpgradeSimulations/Geometry/data/strawmanb/pixbarlayer1.xml',
         'SLHCUpgradeSimulations/Geometry/data/strawmanb/pixbarlayer2.xml',
+        'SLHCUpgradeSimulations/Geometry/data/strawmanb/pixbarlayer3.xml',
         'SLHCUpgradeSimulations/Geometry/data/strawmanb/pixbarladderstack0.xml',
         'SLHCUpgradeSimulations/Geometry/data/strawmanb/pixbarlayerstack0.xml',
         'SLHCUpgradeSimulations/Geometry/data/strawmanb/pixbarladderstack1.xml',
