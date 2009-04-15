@@ -16,7 +16,8 @@ from PhysicsTools.PatAlgos.recoLayer0.tauIsolation_cff import *
 from PhysicsTools.PatAlgos.recoLayer0.duplicatedElectrons_cfi import *
 from PhysicsTools.PatAlgos.recoLayer0.duplicatedPhotons_cfi   import *
 
-from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *  # needed for the MET
+# Needed for the MET
+from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *  
 
 # Sequences needed to deliver the objects
 # You shouldn't remove modules from here unless you *know* what you're doing
@@ -27,13 +28,13 @@ patAODCoreReco = cms.Sequence(
 # Sequences needed to deliver external information for objects
 # You can remove modules from here if you don't need these features
 patAODExtraReco = cms.Sequence(
-    #patBTagging +       # Empty sequences not supported yet
+    #patBTagging +          # Empty sequences not supported yet
     patElectronId +
     patElectronIsolation +
     patJetMETCorrections +
     patJetTracksCharge +
-    #patMuonIsolation +   # Empty sequences not supported yet
-    #patPhotonID +        # Empty sequences not supported yet
+    #patMuonIsolation +     # Empty sequences not supported yet
+    #patPhotonID +          # Empty sequences not supported yet
     patPhotonIsolation +
     #patTauDiscrimination + # Empty sequences not supported yet
     patPFCandidateIsoDepositSelection +
