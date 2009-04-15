@@ -21,7 +21,8 @@
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
-#include "FWCore/Framework/interface/DataProxy.h"
+// #include "FWCore/Framework/interface/DataProxy.h"
+#include "CondCore/PluginSystem/interface/DataProxy.h"
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
 #include "CondCore/IOVService/interface/PayloadProxy.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
@@ -36,7 +37,7 @@
 
 namespace {
   std::string
-  buildName( const std::string& iRecordName, const std::string& iTypeName ) {
+  buildName( const std::string& iRecordName) {
     return iRecordName+"@NewProxy";
   }
   
@@ -112,9 +113,9 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     TagCollection::iterator itBeg=m_tagCollection.begin();
     TagCollection::iterator itEnd=m_tagCollection.end();
     for(it=itBeg; it!=itEnd; ++it){
-      cond::ConnectionHandler::Instance().registerConnection(it->pfn,*m_session,0);
+      cond::ConnectionHandler::Instance().registerConnection(it->pfn,m_session,0);
     }
-    cond::ConnectionHandler::Instance().connect(m_session);
+    cond::ConnectionHandler::Instance().connect(&m_session);
     for(it=itBeg;it!=itEnd;++it){
       cond::Connection &  c= *cond::ConnectionHandler::Instance().getConnection(it->pfn);
       cond::CoralTransaction& coraldb=c.coralTransaction();
@@ -154,7 +155,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     return;
   }
 
-  TimeType timetype = (*p)->proxy()->timetype();
+  cond::TimeType timetype = (*p)->proxy()->timetype();
   cond::Time_t abtime;
   if( timetype == cond::timestamp ){
     abtime=(cond::Time_t)iTime.time().value();

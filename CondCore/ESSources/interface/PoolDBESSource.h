@@ -29,6 +29,7 @@ namespace cond{
   class CoralTransaction;
   class Connection;
   class BasePayloadProxy;
+  class DataProxyWrapperBase;
 }
 
 class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
