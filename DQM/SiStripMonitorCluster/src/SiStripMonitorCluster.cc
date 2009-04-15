@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.54 2009/03/25 16:06:03 borrell Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.55 2009/04/06 13:38:35 borrell Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -99,7 +99,7 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
   edm::ParameterSet ParametersTotClusterProf = conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfClusters");
   subdetswitchtotclusterprofon = ParametersTotClusterProf.getParameter<bool>("subdetswitchon");
 
-  clustertkhistomapon = conf_.getParameter<bool>("TkHistoMapCluster");
+  clustertkhistomapon = conf_.getParameter<bool>("TkHistoMap_On");
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
   Mod_On_ = conf_.getParameter<bool>("Mod_On");
 } 
@@ -144,7 +144,7 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
     folder_organizer.setSiStripFolder();
 
     // Create TkHistoMap for Digi
-    if (clustertkhistomapon) tkmapcluster = new TkHistoMap("SiStrip/TkHistoMap","Cluster",0.,1);
+    if (clustertkhistomapon) tkmapcluster = new TkHistoMap("SiStrip/TkHistoMap","TkHMap_NumberOfCluster",0.,1);
 
     // loop over detectors and book MEs
     edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<"nr. of activeDets:  "<<activeDets.size();
