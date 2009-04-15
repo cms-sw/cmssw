@@ -1,9 +1,10 @@
-// $Id: testMultiAssociation.cc,v 1.2 2009/03/05 14:36:58 wmtan Exp $
+// $Id: testMultiAssociation.cc,v 1.3 2009/03/05 15:05:57 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
 #include <iostream>
 #include <iomanip>
+#include <memory>
 #include <cmath>
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/PtrVector.h"
@@ -201,9 +202,9 @@ testMultiAssociation::testMultiAssociation() {
 
   for (size_t j = 0; j < 10; ++j) der1s.push_back(DummyDer1());
   for (size_t j = 0; j < 10; ++j) {
-        if (j % 3 == 0) bases.push_back(new DummyBase());
-        if (j % 3 == 1) bases.push_back(new DummyDer1());
-        if (j % 3 == 2) bases.push_back(new DummyDer2());
+        if (j % 3 == 0) bases.push_back(std::auto_ptr<DummyBase>(new DummyBase()));
+        if (j % 3 == 1) bases.push_back(std::auto_ptr<DummyDer1>(new DummyDer1()));
+        if (j % 3 == 2) bases.push_back(std::auto_ptr<DummyDer2>(new DummyDer2()));
         CPPUNIT_ASSERT(bases[j].id() == int(j % 3));
   }
   edm::TestHandle<CObj> handleObj(&der1s, ProductID(10));
