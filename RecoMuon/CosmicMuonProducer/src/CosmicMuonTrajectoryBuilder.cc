@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2009/01/26 15:30:17 $
- *  $Revision: 1.45 $
+ *  $Date: 2009/04/15 09:39:55 $
+ *  $Revision: 1.46 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -48,9 +48,9 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
 
   thePropagatorName = par.getParameter<string>("Propagator");
 
-  bool enableDTMeasurement = par.getUntrackedParameter<bool>("EnableDTMeasurement",true);
-  bool enableCSCMeasurement = par.getUntrackedParameter<bool>("EnableCSCMeasurement",true);
-  bool enableRPCMeasurement = par.getUntrackedParameter<bool>("EnableRPCMeasurement",true);
+  bool enableDTMeasurement = par.getParameter<bool>("EnableDTMeasurement");
+  bool enableCSCMeasurement = par.getParameter<bool>("EnableCSCMeasurement");
+  bool enableRPCMeasurement = par.getParameter<bool>("EnableRPCMeasurement");
 
 //  if(enableDTMeasurement)
   InputTag DTRecSegmentLabel = par.getParameter<InputTag>("DTRecSegmentLabel");
@@ -80,7 +80,7 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
 
   theBKUpdator = new MuonTrajectoryUpdator(muonBackwardUpdatorPSet, outsideIn);
 
-  theTraversingMuonFlag = par.getUntrackedParameter<bool>("BuildTraversingMuon",true);
+  theTraversingMuonFlag = par.getParameter<bool>("BuildTraversingMuon");
 
   ParameterSet smootherPSet = par.getParameter<ParameterSet>("MuonSmootherParameters");
 
