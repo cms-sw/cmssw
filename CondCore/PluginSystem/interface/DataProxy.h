@@ -50,6 +50,8 @@ namespace cond {
     typedef boost::shared_ptr<cond::BasePayloadProxy> ProxyP;
     typedef boost::shared_ptr<edm::eventsetup::DataProxy> edmProxyP;
     
+    // limitation of plugin manager...
+    typedef std::pair< std::string, std::string> Args;
 
     virtual edm::eventsetup::TypeTag type() const=0;
     virtual ProxyP proxy() const=0;
@@ -71,7 +73,7 @@ class DataProxyWrapper : public  cond::DataProxyWrapperBase {
 public:
   typedef cond::PayloadProxy<DataT> PayProxy;
   typedef boost::shared_ptr<PayProxy> DataP;
-
+  
   
   DataProxyWrapper(cond::Connection& conn,
 		   const std::string & token, std::string const & il) :
@@ -84,6 +86,19 @@ public:
     m_type = edm::eventsetup::DataKey::makeTypeTag<DataT>();
     //std::cout<<"about to get out of DataProxy constructor"<<std::endl;
   }
+
+  DataProxyWrapper(cond::Connection& conn,
+		   Args const & args) :
+    cond::DataProxyWrapperBase(args.second),
+    m_proxy(new PayProxy(conn,args.first,false)),
+    m_edmProxy(m_proxy){
+   //NOTE: We do this so that the type 'DataT' will get registered
+    // when the plugin is dynamically loaded
+    //std::cout<<"DataProxy constructor"<<std::endl;
+    m_type = edm::eventsetup::DataKey::makeTypeTag<DataT>();
+    //std::cout<<"about to get out of DataProxy constructor"<<std::endl;
+  }
+
     
   virtual edm::eventsetup::TypeTag type() const { return m_type;}
   virtual ProxyP proxy() const { return m_proxy;}
