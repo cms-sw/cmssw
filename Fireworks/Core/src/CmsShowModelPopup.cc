@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.16 2009/04/13 21:21:11 chrjones Exp $
+// $Id: CmsShowModelPopup.cc,v 1.17 2009/04/14 13:44:30 chrjones Exp $
 //
 
 // system include file
@@ -75,13 +75,8 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
    TGLabel* colorSelectLabel = new TGLabel(colorSelectFrame, "Color:");
    colorSelectFrame->AddFrame(colorSelectLabel, new TGLayoutHints(kLHintsNormal, 0, 50, 0, 0));
    const char* graphicsLabel = " ";
-   std::vector<Color_t> colors;
-   for(unsigned int index=0; index <iColorMgr->numberOfIndicies(); ++index) {
-      colors.push_back(iColorMgr->indexToColor(index));
-   }
-   m_colorSelectWidget = new FWColorSelect(colorSelectFrame, graphicsLabel, 0, colors, -1);
+   m_colorSelectWidget = new FWColorSelect(colorSelectFrame, graphicsLabel, 0, iColorMgr, -1);
    m_colorSelectWidget->SetEnabled(kFALSE);
-   m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWColorSelect::UpdateColors,m_colorSelectWidget));
    colorSelectFrame->AddFrame(m_colorSelectWidget);
    AddFrame(colorSelectFrame);
    TGHorizontal3DLine* colorVisSeperator = new TGHorizontal3DLine(this, 200, 5);

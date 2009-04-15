@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.22 2009/04/13 21:19:58 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.23 2009/04/14 13:44:30 chrjones Exp $
 //
 
 // system include files
@@ -82,13 +82,8 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    colorSelectFrame->AddFrame(colorSelectLabel, new TGLayoutHints(kLHintsNormal, 0, 50, 0, 0));
    const char* graphicsLabel = " ";
    std::vector<Color_t> colors;
-   for(unsigned int index=0; index <colorMgr->numberOfIndicies(); ++index) {
-      colors.push_back(colorMgr->indexToColor(index));
-   }
-   
-   m_colorSelectWidget = new FWColorSelect(colorSelectFrame, graphicsLabel, 0, colors, -1);
+   m_colorSelectWidget = new FWColorSelect(colorSelectFrame, graphicsLabel, 0, colorMgr, -1);
    m_colorSelectWidget->SetEnabled(kFALSE);
-   m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWColorSelect::UpdateColors,m_colorSelectWidget));
    colorSelectFrame->AddFrame(m_colorSelectWidget);
    graphicsFrame->AddFrame(colorSelectFrame);
    TGHorizontal3DLine* colorVisSeperator = new TGHorizontal3DLine(graphicsFrame, 200, 5);
