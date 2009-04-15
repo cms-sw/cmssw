@@ -14,6 +14,7 @@
 
 // user include files
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
+#include "CondCore/PluginSystem/interface/DataProxy.h"
 //#include <map>
 //#include <string>
 //#include <iostream>

@@ -25,6 +25,7 @@
 #include "CondCore/PluginSystem/interface/OldDataProxy.h"
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
+#include "CondCore/IOVService/interface/IOVService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include <cstdlib>

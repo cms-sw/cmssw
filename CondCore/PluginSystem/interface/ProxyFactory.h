@@ -24,7 +24,7 @@ namespace cond {
   class DataProxyWrapperBase;
   class Connection;
 
-  typedef edmplugin::PluginFactory< cond::DataProxyWrapperBase* ( cond::Connection&, cond::DataProxyWrapperBase::Args const & ) > ProxyFactory;
+  typedef edmplugin::PluginFactory< cond::DataProxyWrapperBase* ( cond::Connection&, std::pair< std::string, std::string> const & ) > ProxyFactory;
 
    const char* pluginCategory();
 }
