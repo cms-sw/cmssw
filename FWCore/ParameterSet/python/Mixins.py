@@ -165,6 +165,11 @@ class _Parameterizable(object):
     def __addParameter(self, name, value):
         if not isinstance(value,_ParameterTypeBase):
             self.__raiseBadSetAttr(name)
+        if name in self.__dict__:
+            message = "Duplicate insert of member " + name
+            message += "\nThe original parameters are:\n"
+            message += self.dumpPython() + '\n'
+            raise ValueError(message)
         self.__dict__[name]=value
         self.__parameterNames.append(name)
         self._isModified = True
