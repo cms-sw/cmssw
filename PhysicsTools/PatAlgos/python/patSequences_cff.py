@@ -26,8 +26,8 @@ from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff import *
 
 beforeLayer1Objects = cms.Sequence(
     patAODReco +  # use '+', as there is no dependency 
-    patMCTruth +  # among these sequences
-    patTrigMatch
+    patMCTruth #+  # among these sequences
+#   patTrigMatch
 )
 #beforeLayer1Objects.doc = "Sequence to be run before producing PAT Objects"
 
