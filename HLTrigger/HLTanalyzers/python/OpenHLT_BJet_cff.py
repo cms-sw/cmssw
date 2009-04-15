@@ -3,7 +3,7 @@ import copy
 import FWCore.ParameterSet.Config as cms
 
 # import the whole HLT menu
-from HLTrigger.Configuration.HLT_2E30_cff import *
+from HLTrigger.Configuration.HLT_8E29_cff import *
   
 ### lifetime-based b-tag OpenHLT (ideal) ######################################
 # L1 filter is skipped

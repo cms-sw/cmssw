@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
  
 # import the whole HLT menu
-from HLTrigger.Configuration.HLT_2E30_cff import *
+from HLTrigger.Configuration.HLT_8E29_cff import *
 
 # create the muon HLT reco path
 DoHltMuon = cms.Path(
