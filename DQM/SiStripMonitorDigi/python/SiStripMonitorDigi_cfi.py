@@ -55,14 +55,14 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
         Nbinx = cms.int32(100),
         xmin = cms.double(-0.5),
         xmax = cms.double(499.5),
-        layerswitchon = cms.bool(True),        
+        layerswitchon = cms.bool(False),        
         moduleswitchon = cms.bool(False)        
     ),
     TProfDigiADC = cms.PSet(
         Nbinx = cms.int32(100),
         xmin = cms.double(0.0),
         xmax = cms.double(499.5),
-        layerswitchon = cms.bool(True),
+        layerswitchon = cms.bool(False),
         moduleswitchon = cms.bool(False)        
     ),
 
@@ -75,7 +75,7 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
         subdetswitchon = cms.bool(False)
     ),
 
-    TkHistoMap_On = cms.bool(False),
+    TkHistoMap_On = cms.bool(True),
 
     CreateTrendMEs = cms.bool(False),
     Trending = cms.PSet(
