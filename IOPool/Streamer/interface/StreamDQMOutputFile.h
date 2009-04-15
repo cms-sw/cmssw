@@ -10,6 +10,8 @@
 
 #include "IOPool/Streamer/interface/StreamerFileIO.h"
 
+#include "boost/shared_ptr.hpp"
+
 #include <exception>
 #include <fstream>
 #include <iostream>
@@ -41,7 +43,7 @@ class StreamDQMOutputFile
   private:
      void writeDQMEventHeader(const DQMEventMsgView& inview);
      void writeDQMEventHeader(const DQMEventMsgBuilder& inview);
-     OutputFile* dqmstreamfile_;
+     boost::shared_ptr<OutputFile> dqmstreamfile_;
 };
 
 #endif

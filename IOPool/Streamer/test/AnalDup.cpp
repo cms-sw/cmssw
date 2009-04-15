@@ -21,6 +21,7 @@
 
 */
 
+#include <memory>
 #include <iostream>
 #include "zlib.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
@@ -97,7 +98,7 @@ void readfile(std::string filename, std::map<uint32, uint32> &dupEventMap) {
     std::cout<<"\n\n-------------EVENT Messages-------------------"<< std::endl;
 
     bool first_event(true);
-    EventMsgView* firstEvtView(0);
+    std::auto_ptr<EventMsgView> firstEvtView(0);
     const EventMsgView* eview(0);
     std::map<uint32, uint32> seenEventMap;
     seenEventMap.clear();
@@ -126,25 +127,25 @@ void readfile(std::string filename, std::map<uint32, uint32> &dupEventMap) {
         std::cout<<"----------dumping first EVENT-----------"<< std::endl;
         dumpEventView(eview);
         first_event = false;
-        std::vector<unsigned char> *savebuf(new std::vector<unsigned char>(0));
+        std::vector<unsigned char> savebuf(0);
         unsigned char* src = (unsigned char*)eview->startAddress();
         unsigned int srcSize = eview->size();
-        savebuf->resize(srcSize);
-        std::copy(src, src+srcSize, &(*savebuf)[0]);
-        firstEvtView = new EventMsgView(&(*savebuf)[0]);
-        //firstEvtView = new EventMsgView((void*)eview->startAddress());
+        savebuf.resize(srcSize);
+        std::copy(src, src+srcSize, &(savebuf)[0]);
+        firstEvtView.reset(new EventMsgView(&(savebuf)[0]));
+        //firstEvtView.reset(new EventMsgView((void*)eview->startAddress()));
         //std::cout<<"----------dumping copied first EVENT-----------"<< std::endl;
-        //dumpEventView(firstEvtView);
-        if(!test_uncompress(firstEvtView, compress_buffer)) {
+        //dumpEventView(firstEvtView.get());
+        if(!test_uncompress(firstEvtView.get(), compress_buffer)) {
           std::cout << "uncompress error for count " << num_events 
                     << " event number " << firstEvtView->event() << std::endl;
           ++num_baduncompress;
           std::cout<<"----------dumping bad uncompress EVENT-----------"<< std::endl;
-          dumpEventView(firstEvtView);
+          dumpEventView(firstEvtView.get());
           good_event=false;
         }
       } else {
-        if(compares_bad(firstEvtView, eview)) {
+        if(compares_bad(firstEvtView.get(), eview)) {
           std::cout << "Bad event at count " << num_events << " dumping event " << std::endl
                     << "----------dumping bad EVENT-----------"<< std::endl;
           dumpEventView(eview);
@@ -166,7 +167,6 @@ void readfile(std::string filename, std::map<uint32, uint32> &dupEventMap) {
                   << num_baduncompress << " events with bad uncompress" << std::endl;
       }
     }
-    delete firstEvtView;
     std::cout << std::endl << "------------END--------------" << std::endl
               << "read " << num_events << " events" << std::endl
               << "and " << num_badevents << " events with bad headers" << std::endl
@@ -293,16 +293,15 @@ void studyDupInFile(std::string filename, std::map<uint32, uint32> &dupEventMap)
                     << " seen " << dupEventMap[eview->event()] << " times" << std::endl;
           //std::cout<<"----------dumping EVENT-----------"<< std::endl;
           //dumpEventView(eview);
-          std::vector<unsigned char> *savebuf(new std::vector<unsigned char>(0));
+          std::vector<unsigned char> savebuf(0);
           unsigned char* src = (unsigned char*)eview->startAddress();
           unsigned int srcSize = eview->size();
-          savebuf->resize(srcSize);
-          std::copy(src, src+srcSize, &(*savebuf)[0]);
-          EventMsgView* saveEvtView(0);
-          saveEvtView = new EventMsgView(&(*savebuf)[0]);
+          savebuf.resize(srcSize);
+          std::copy(src, src+srcSize, &(savebuf)[0]);
+          EventMsgView saveEvtView(&(savebuf)[0]);
           //std::cout<<"----------dumping saved EVENT-----------"<< std::endl;
-          //dumpEventView(saveEvtView);
-          dupEventDataMap.insert(std::make_pair(eview->event(), saveEvtView));
+          //dumpEventView(&saveEvtView);
+          dupEventDataMap.insert(std::make_pair(eview->event(), &saveEvtView));
         } else {
           // next instance of duplicated event test it
           std::cout << "Testing duplicate event at count " << num_events

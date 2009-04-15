@@ -11,7 +11,6 @@
 
   StreamerOutputIndexFile::~StreamerOutputIndexFile() 
   {
-    delete indexfile_; 
   }
 
   void StreamerOutputIndexFile::write(const InitMsgBuilder& inview)

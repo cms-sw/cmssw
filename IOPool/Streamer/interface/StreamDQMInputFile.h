@@ -3,6 +3,8 @@
 
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
 
+#include "boost/shared_ptr.hpp"
+
 #include<string>
 #include<vector>
 #include<fstream>
@@ -18,14 +20,14 @@
 
     bool next() ; /** Moves the handler to next Event Record */
 
-    const DQMEventMsgView*  currentRecord() const { return currentEvMsg_; }
+    const DQMEventMsgView*  currentRecord() const { return currentEvMsg_.get(); }
     /** Points to current Record */
 
   private:
 
     int readDQMEventMessage();
 
-    DQMEventMsgView* currentEvMsg_;
+    boost::shared_ptr<DQMEventMsgView> currentEvMsg_;
     std::auto_ptr<std::ifstream> ist_;
     std::vector<char> eventBuf_;  /** Buffer to store Event Data */
   };

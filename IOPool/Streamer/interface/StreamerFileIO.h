@@ -1,12 +1,13 @@
+#ifndef IOPool_Streamer_StreamerFileIO_h
+#define IOPool_Streamer_StreamerFileIO_h
+
 /**
 This file contains Class definitions for the 
 Class representing Output (Streamer/Index) file.
 */
 
-#ifndef IOPool_Streamer_StreamerFileIO_h
-#define IOPool_Streamer_StreamerFileIO_h
-
 #include "IOPool/Streamer/interface/MsgTools.h"
+#include "boost/shared_ptr.hpp"
 #include <iosfwd>
 #include <string>
 
@@ -57,7 +58,7 @@ class OutputFile
      uint32 adlera_;
      uint32 adlerb_;
 
-     std::ofstream* ost_;
+     boost::shared_ptr<std::ofstream> ost_;
      std::string filename_; 
   };
 

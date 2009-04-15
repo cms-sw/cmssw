@@ -2,7 +2,6 @@
 
   StreamDQMOutputFile::~StreamDQMOutputFile() 
   {
-    delete dqmstreamfile_;
   }
 
   StreamDQMOutputFile::StreamDQMOutputFile(const std::string& name):

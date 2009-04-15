@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "IOPool/Streamer/interface/StreamerInputIndexFile.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
+#include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
@@ -19,15 +20,12 @@ StreamerInputFile::~StreamerInputFile()
     storage_->close();
     if (currentFileOpen_) logFileAction("  Closed file ");
   }
-
-  delete startMsg_;
-  delete  currentEvMsg_;
 }
 
 StreamerInputFile::StreamerInputFile(const std::string& name):
   useIndex_(false),
-  startMsg_(0),
-  currentEvMsg_(0),
+  startMsg_(),
+  currentEvMsg_(),
   headerBuf_(1000*1000),
   eventBuf_(1000*1000*7),
   multiStreams_(false),
@@ -47,8 +45,8 @@ StreamerInputFile::StreamerInputFile(const std::string& name,
   //indexIter_b(index_->begin()),
   indexIter_b(index_->sort()),
   indexIter_e(index_->end()),
-  startMsg_(0),
-  currentEvMsg_(0),
+  startMsg_(),
+  currentEvMsg_(),
   headerBuf_(1000*1000),
   eventBuf_(1000*1000*7),
   multiStreams_(false),
@@ -62,14 +60,14 @@ StreamerInputFile::StreamerInputFile(const std::string& name,
 }
 
 StreamerInputFile::StreamerInputFile(const std::string& name,
-                                     const StreamerInputIndexFile& order):
+                                     StreamerInputIndexFile& order):
   useIndex_(true),
-  index_((StreamerInputIndexFile*)&order),
+  index_(&order, do_nothing_deleter()),
   //indexIter_b(index_->begin()),
   indexIter_b(index_->sort()),
   indexIter_e(index_->end()),
-  startMsg_(0),
-  currentEvMsg_(0),
+  startMsg_(),
+  currentEvMsg_(),
   headerBuf_(1000*1000),
   eventBuf_(1000*1000*7),
   multiStreams_(false),
@@ -85,8 +83,8 @@ StreamerInputFile::StreamerInputFile(const std::string& name,
 
 StreamerInputFile::StreamerInputFile(const std::vector<std::string>& names):
   useIndex_(false),
-  startMsg_(0),
-  currentEvMsg_(0),
+  startMsg_(),
+  currentEvMsg_(),
   headerBuf_(1000*1000),
   eventBuf_(1000*1000*7),
   currentFile_(0),
@@ -140,7 +138,7 @@ StreamerInputFile::openStreamerFile(const std::string& name) {
 }
 
 const StreamerInputIndexFile* StreamerInputFile::index() {
-  return index_;
+  return index_.get();
 }
 
 IOSize StreamerInputFile::readBytes(char *buf, IOSize nBytes)
@@ -191,8 +189,7 @@ void StreamerInputFile::readStartMessage()
       << "Failed reading streamer file, init header size from data too small\n";
   }
   
-  delete startMsg_;
-  startMsg_ = new InitMsgView(&headerBuf_[0]) ;
+  startMsg_.reset(new InitMsgView(&headerBuf_[0]));
 }
 
 bool StreamerInputFile::next()  
@@ -202,10 +199,8 @@ bool StreamerInputFile::next()
      /** Read the offset of next event from Event Index */
 
      if (indexIter_b != indexIter_e) {
-        EventIndexRecord* iview = *(indexIter_b);
-
         try {
-          storage_->position((iview->getOffset()) - 1);
+          storage_->position((*indexIter_b)->getOffset() - 1);
         }
         catch (cms::Exception& ce) {
           throw edm::Exception(errors::FileReadError, "StreamerInputFile::next")
@@ -245,7 +240,7 @@ bool StreamerInputFile::openNextFile() {
 
      // If start message was already there, then compare the
      // previous and new headers
-     if (startMsg_ != NULL) {  
+     if (startMsg_) {  
         FDEBUG(10) << "Comparing Header" << std::endl;
         if (!compareHeader())
         {
@@ -324,8 +319,7 @@ int StreamerInputFile::readEventMessage()
       << "Failed reading streamer file, event header size from data too small\n";
   }
  
-  delete currentEvMsg_;
-  currentEvMsg_ = new EventMsgView((void*)&eventBuf_[0]);
+  currentEvMsg_.reset(new EventMsgView((void*)&eventBuf_[0]));
   
   return 1;
 }

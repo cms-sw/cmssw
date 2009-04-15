@@ -9,18 +9,12 @@
 
 using namespace edm;
 
-StreamerInputIndexFile::~StreamerInputIndexFile()
-{
-  delete startMsg_; 
-
-  for(indexRecIter it = this->begin(), itEnd = this->end(); it != itEnd; ++it) {
-          delete (*it);
-  }
+StreamerInputIndexFile::~StreamerInputIndexFile() {
 }
 
 StreamerInputIndexFile::StreamerInputIndexFile(const std::string& name):
   ist_(new std::ifstream(name.c_str(), std::ios_base::binary | std::ios_base::in)),
-  startMsg_(0),
+  startMsg_(),
   eof_(false),
   eventBufPtr_(0),
   headerBuf_(1000*1000),
@@ -40,12 +34,11 @@ StreamerInputIndexFile::StreamerInputIndexFile(const std::string& name):
   }
   
   ist_->close();
-  delete ist_;
 }
 
 
 StreamerInputIndexFile::StreamerInputIndexFile(const std::vector<std::string>& names):
-  startMsg_(0),
+  startMsg_(),
   eof_(false),
   eventBufPtr_(0),
   headerBuf_(1000*1000),
@@ -55,7 +48,7 @@ StreamerInputIndexFile::StreamerInputIndexFile(const std::vector<std::string>& n
 {
    for (unsigned int i=0; i!=names.size(); ++i) 
    {
-     ist_ = new std::ifstream(names.at(i).c_str(), std::ios_base::binary | std::ios_base::in);
+     ist_.reset(new std::ifstream(names.at(i).c_str(), std::ios_base::binary | std::ios_base::in));
      if (!ist_->is_open())
      {
        throw edm::Exception(errors::FileOpenError, "StreamerInputIndexFile::StreamerInputIndexFile")
@@ -67,8 +60,8 @@ StreamerInputIndexFile::StreamerInputIndexFile(const std::vector<std::string>& n
        ;
        }
        ist_->close();
-       delete ist_; 
    }
+   ist_.reset();
 }
 
 void StreamerInputIndexFile::readStartMessage() {
@@ -101,9 +94,7 @@ void StreamerInputIndexFile::readStartMessage() {
     headerBuf_.resize(sizeof(StartIndexRecordHeader) + headerSize);
   ist_->read((char*)&headerBuf_[sizeof(StartIndexRecordHeader)], headerSize);
  
-  delete startMsg_;
-   
-  startMsg_ = new StartIndexRecord();
+  startMsg_.reset(new StartIndexRecord());
   startMsg_->makeHeader(&headerBuf_[0]);
   //Init msg lies just after StartIndexRecordHeader
   startMsg_->makeInit(&headerBuf_[sizeof(StartIndexRecordHeader)]);
@@ -161,7 +152,7 @@ int StreamerInputIndexFile::readEventMessage()  {
      return 0;
   }
 
-  EventIndexRecord* currentEvMsg = new EventIndexRecord();
+  boost::shared_ptr<EventIndexRecord> currentEvMsg(new EventIndexRecord());
   //EventIndexRecord currentEvMsg;
   currentEvMsg->makeEvent((void*)&eventBuf_[bufPtr]);
 
@@ -182,7 +173,7 @@ int StreamerInputIndexFile::readEventMessage()  {
   return 1;
 }
 
-bool header_event_sorter(EventIndexRecord* first, EventIndexRecord* second) {
+bool header_event_sorter(boost::shared_ptr<EventIndexRecord> const& first, boost::shared_ptr<EventIndexRecord> const& second) {
     //uint32 event_first = first.eview->event(); 
     //uint32 event_second = second.eview->event();
      
@@ -191,7 +182,7 @@ bool header_event_sorter(EventIndexRecord* first, EventIndexRecord* second) {
     return false;
 }
 
-bool header_run_sorter(EventIndexRecord* first, EventIndexRecord* second) {
+bool header_run_sorter(boost::shared_ptr<EventIndexRecord> const& first, boost::shared_ptr<EventIndexRecord> const& second) {
     //uint32 run_first = first.eview->run();
     //uint32 run_second = second.eview->run();
      

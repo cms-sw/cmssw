@@ -8,11 +8,10 @@ using namespace edm;
 StreamDQMInputFile::~StreamDQMInputFile()
 {
   //ist_->close();
-  delete  currentEvMsg_;
 }
 
 StreamDQMInputFile::StreamDQMInputFile(const std::string& name):
-  currentEvMsg_(0),
+  currentEvMsg_(),
   ist_(new ifstream(name.c_str())),
   eventBuf_(1000*1000*7)
 {
@@ -63,8 +62,7 @@ int StreamDQMInputFile::readDQMEventMessage() {
     }
   }
 
-  if (currentEvMsg_ != NULL) {delete currentEvMsg_;}
-  currentEvMsg_ = new DQMEventMsgView((void*)&eventBuf_[0]);
+  currentEvMsg_.reset(new DQMEventMsgView((void*)&eventBuf_[0]));
   uint32 new_len = last_pos + eventSize; 
   ist_->seekg(new_len, std::ios::beg);
   return 1;

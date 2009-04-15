@@ -8,6 +8,7 @@
 #include "IOPool/Streamer/interface/Utilities.h"
 
 #include "boost/bind.hpp"
+#include "boost/shared_array.hpp"
 
 #include <algorithm>
 #include <cstdlib>
@@ -23,15 +24,15 @@ namespace edmtestp
     struct BufHelper
     {
       explicit BufHelper(int len): buf_(new char[len]) { }
-      ~BufHelper() { delete [] buf_; }
-      char* release() { char* rc = buf_; buf_=0; return rc; }
-      char* get() const { return buf_; }
+      ~BufHelper() {}
+      void release() {buf_.reset();}
+      char* get() const { return buf_.get(); }
 
     private:
       BufHelper(const BufHelper& ) { }
       BufHelper& operator=(const BufHelper&) { return *this; }
 
-      char* buf_;
+      boost::shared_array<char> buf_;
     };
   }
 
@@ -44,7 +45,7 @@ namespace edmtestp
     //ist_(filename_.c_str(),ios_base::binary | ios_base::in),
     //reader_(ist_),
     stream_reader_(new StreamerInputFile(filename)),
-    to_(&to)
+    to_(to)
   {
 
    const InitMsgView* init =  stream_reader_->startMessage();
@@ -64,13 +65,13 @@ namespace edmtestp
     if(edm::registryIsSubset(*p,prods)==false)
       {
 	throw edm::Exception(errors::Configuration,"TestFileReader")
-	  << "the header record in flie " << filename_
+	  << "the header record in file " << filename_
 	  << "is not consistent with the one for the program \n";
       }
 
     // 13-Oct-2008, KAB - Added the following code to put the 
     // INIT message on the input queue.
-    EventBuffer::ProducerBuffer b(*to_);
+    EventBuffer::ProducerBuffer b(to_);
     int len = init->size();
     char* buf_ = new char[len];
     memcpy(buf_, init->startAddress(), len);
@@ -83,7 +84,6 @@ namespace edmtestp
 
   TestFileReader::~TestFileReader()
   {
-     delete stream_reader_;
   }
 
   void TestFileReader::start()
@@ -105,7 +105,7 @@ namespace edmtestp
   {
 
    while( stream_reader_->next() ) { 
-       EventBuffer::ProducerBuffer b(*to_);
+       EventBuffer::ProducerBuffer b(to_);
        const EventMsgView* eview =  stream_reader_->currentRecord();
 
        // 13-Oct-2008, KAB - we need to make a copy of the event message
@@ -140,7 +140,7 @@ namespace edmtestp
 
 	if(!ist_ || len==0 || ist_.eof()) break;
 
-	EventBuffer::ProducerBuffer b(*to_);
+	EventBuffer::ProducerBuffer b(to_);
 	// Pay attention here.
 	// This is a bit of a mess.
 	// Here we allocate an array (on the heap), fill it with data

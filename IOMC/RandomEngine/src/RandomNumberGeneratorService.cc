@@ -169,7 +169,7 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
           } else {
             seedMap_[*it] = initialSeedSet;
           }
-          CLHEP::HepRandomEngine* engine = new RanecuEngine();
+          boost::shared_ptr<CLHEP::HepRandomEngine> engine(new RanecuEngine());
           if(source) {
             engineMap_[sourceLabel] = engine;
           } else {
@@ -232,14 +232,14 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
               << "the module with label " << *it << ".";
           }
           long int seedL = static_cast<long int>(initialSeed);
-          CLHEP::HepRandomEngine* engine = new HepJamesRandom(seedL);
+          boost::shared_ptr<CLHEP::HepRandomEngine> engine(new HepJamesRandom(seedL));
           if(source) {
             engineMap_[sourceLabel] = engine;
           } else {
             engineMap_[*it] = engine;
           }
         } else if(engineName == "TRandom3") {
-          CLHEP::HepRandomEngine* engine = new TRandomAdaptor(initialSeed);
+          boost::shared_ptr<CLHEP::HepRandomEngine> engine(new TRandomAdaptor(initialSeed));
           if(source) {
             engineMap_[sourceLabel] = engine;
           } else {
@@ -279,14 +279,7 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
   currentLabel_ = std::string();
 }
 
-RandomNumberGeneratorService::~RandomNumberGeneratorService()
-{
-  // Delete the engines
-  for (EngineMap::iterator iter = engineMap_.begin();
-       iter != engineMap_.end();
-       ++iter) {
-    delete iter->second;
-  }
+RandomNumberGeneratorService::~RandomNumberGeneratorService() {
 }
 
 CLHEP::HepRandomEngine& 
@@ -1049,7 +1042,6 @@ bool RandomNumberGeneratorService::processStanza(std::istream &is)
 // We've recovered everything.  Now make sure it's all consistent
 // and, if so, overwrite the state.
 
-  CLHEP::HepRandomEngine* engine;
   EngineMap::iterator iter = engineMap_.find(moduleLabel);
   if(iter == engineMap_.end()) {
     if(moduleLabel == sourceLabel) {
@@ -1072,7 +1064,8 @@ bool RandomNumberGeneratorService::processStanza(std::istream &is)
       throw except;
     } 
   } else {
-    engine = iter->second;
+    // Don't need to copy the shared ptr here.  Just reference it.
+    boost::shared_ptr<CLHEP::HepRandomEngine>& engine = iter->second;
     if(engine->name() != engineName) {
       sstr << "Configuration: The engine name in the configuration file (" << engine->name() 
            << ")\ndoes not match the name (" << engineName << ") in the state save file,\n" 
@@ -1294,8 +1287,7 @@ RandomNumberGeneratorService::oldStyleConfig(const ParameterSet& iPSet)
             << outputString << ".";
         }
         long seedL = static_cast<long>(seedIter->second[0]);
-        CLHEP::HepRandomEngine* engine = new CLHEP::HepJamesRandom(seedL);
-        engineMap_[seedIter->first] = engine;
+        engineMap_[seedIter->first] = boost::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::HepJamesRandom(seedL));
       } else if (engineName == "RanecuEngine") {
 
         if (seedIter->second.size() != 2) {
@@ -1320,7 +1312,7 @@ RandomNumberGeneratorService::oldStyleConfig(const ParameterSet& iPSet)
         long seedL[2];
         seedL[0] = static_cast<long>(seedIter->second[0]);
         seedL[1] = static_cast<long>(seedIter->second[1]);
-        CLHEP::HepRandomEngine* engine = new CLHEP::RanecuEngine();
+        boost::shared_ptr<CLHEP::HepRandomEngine> engine(new CLHEP::RanecuEngine());
         engine->setSeeds(seedL, 0);
         engineMap_[seedIter->first] = engine;
 
@@ -1335,8 +1327,7 @@ RandomNumberGeneratorService::oldStyleConfig(const ParameterSet& iPSet)
             << outputString << ".";
         }
         long seedL = static_cast<long>(seedIter->second[0]);
-        CLHEP::HepRandomEngine* engine = new TRandomAdaptor(seedL);
-        engineMap_[seedIter->first] = engine;
+        engineMap_[seedIter->first] = boost::shared_ptr<CLHEP::HepRandomEngine>(new TRandomAdaptor(seedL));
       } else {
         throw edm::Exception(edm::errors::Configuration)
           << "The configuration file requested the RandomNumberGeneratorService\n"

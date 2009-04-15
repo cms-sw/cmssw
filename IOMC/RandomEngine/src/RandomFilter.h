@@ -16,10 +16,11 @@ type and name is "untracked double acceptRate".
 //
 // Original Author:  W. David Dagenhart
 //         Created:  26 March 2007
-// $Id$
+// $Id: RandomFilter.h,v 1.1 2007/03/27 15:40:00 wdd Exp $
 //
 
 #include "FWCore/Framework/interface/EDFilter.h"
+#include "boost/shared_ptr.hpp"
 
 namespace CLHEP {
   class RandFlat;
@@ -42,6 +43,6 @@ namespace edm {
     // value between 0 and 1
     double acceptRate_;
 
-    CLHEP::RandFlat *flatDistribution_;
+    boost::shared_ptr<CLHEP::RandFlat> flatDistribution_;
   };
 }

@@ -1,7 +1,7 @@
- /** Class for doing Index write operations. */
-
 #ifndef IOPool_Streamer_StreamerOutputIndexFile_h
 #define IOPool_Streamer_StreamerOutputIndexFile_h
+
+/** Class for doing Index write operations. */
 
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
@@ -12,6 +12,7 @@
 #include "IOPool/Streamer/interface/StreamerFileIO.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
 
+#include "boost/shared_ptr.hpp"
 #include<string>
 #include<vector>
 
@@ -38,7 +39,7 @@
      uint32 adler32() const { return indexfile_->adler32(); }
 
   private:
-    OutputFile* indexfile_;
+    boost::shared_ptr<OutputFile> indexfile_;
 
   };
 #endif

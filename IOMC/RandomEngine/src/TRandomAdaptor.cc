@@ -22,9 +22,11 @@ typedef TBuffer RootBuffer;
 
 namespace edm {
 
-TRandomAdaptor::TRandomAdaptor(std::istream& is)  
-{
+TRandomAdaptor::TRandomAdaptor(std::istream& is) {
   Grumble(std::string("Cannot instantiate a TRandom engine from an istream"));
+}
+
+TRandomAdaptor::~TRandomAdaptor() {
 }
 
 std::ostream & TRandomAdaptor::put (std::ostream& os) const {
@@ -57,7 +59,7 @@ std::istream &  TRandomAdaptor::getState (std::istream& is) {
   return is;
 }
 
-bool TRandomAdaptor::get (const std::vector<unsigned long> & v) {
+bool TRandomAdaptor::get (std::vector<unsigned long> const& v) {
   if(v.empty())  return false;
   if(v[0] != CLHEP::engineIDulong<TRandomAdaptor>()) return false;
   int32_t numItems = v.size()-1;
@@ -71,7 +73,7 @@ bool TRandomAdaptor::get (const std::vector<unsigned long> & v) {
   return true;
 }
 
-void TRandomAdaptor::Grumble( std::string errortext ) const {
+void TRandomAdaptor::Grumble(std::string const& errortext) const {
 
 // Throw an edm::Exception for unimplemented functions
    std::ostringstream sstr;

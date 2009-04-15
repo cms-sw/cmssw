@@ -2,9 +2,7 @@
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-  StreamerOutputFile::~StreamerOutputFile() 
-  {
-    delete streamerfile_;
+  StreamerOutputFile::~StreamerOutputFile() {
   }
 
   StreamerOutputFile::StreamerOutputFile(const std::string& name):

@@ -39,7 +39,7 @@ namespace edm {
     rootFile_(),
     parametersMustMatch_(BranchDescription::Permissive),
     branchesMustMatch_(BranchDescription::Permissive),
-    flatDistribution_(0),
+    flatDistribution_(),
     fileIndexes_(fileCatalogItems().size()),
     eventsRemainingInFile_(0),
     startAtRun_(pset.getUntrackedParameter<unsigned int>("firstRun", 1U)),
@@ -113,7 +113,7 @@ namespace edm {
           << "in the configuration file or remove the modules that require it.";
       }
       CLHEP::HepRandomEngine& engine = rng->getEngine();
-      flatDistribution_ = new CLHEP::RandFlat(engine);
+      flatDistribution_.reset(new CLHEP::RandFlat(engine));
     }
   }
 
@@ -167,7 +167,7 @@ namespace edm {
       // The next step is necessary for the duplicate checking to work properly
       if (noEventSort_) rootFile_->fileIndexSharedPtr()->sortBy_Run_Lumi_Event();
       rootFile_.reset();
-      if (duplicateChecker_.get() != 0) duplicateChecker_->inputFileClosed();
+      if (duplicateChecker_) duplicateChecker_->inputFileClosed();
     }
   }
 

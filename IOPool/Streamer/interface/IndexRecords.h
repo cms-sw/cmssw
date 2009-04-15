@@ -1,12 +1,14 @@
 #ifndef IOPool_Streamer_IndexRecords_h
 #define IOPool_Streamer_IndexRecords_h
 
-/** Contains definitions for calsses representing Records
+/** Contains definitions for classes representing Records
 in an Index file, a little different from Init and Event Message Herades */
 
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
+
+#include "boost/shared_ptr.hpp"
 
 //-------------------------------------------------------
 /** Struct Representing Start of File record in Index file
@@ -29,27 +31,24 @@ in an Index file, a little different from Init and Event Message Herades */
 
        StartIndexRecord() { }
 
-       ~StartIndexRecord() {
-           if (init != NULL) delete init;
-           if (indexHeader != NULL) delete indexHeader;
-        }
+       ~StartIndexRecord() { }
 
        void makeInit(void* buf) {   //never call makeInit twice
-         init = new InitMsgView(buf);
+         init.reset(new InitMsgView(buf));
        }
 
        void makeHeader(void* buf) { //never call makeHeader twice
-         indexHeader = new StartIndexRecordHeader(buf);
+         indexHeader.reset(new StartIndexRecordHeader(buf));
        }
 
-       const InitMsgView* getInit() const { return init; }
+       const InitMsgView* getInit() const { return init.get(); }
        uint32 getMagic() const {return indexHeader->magic; }
        uint64 getReserved() const {return indexHeader->reserved;}
 
 
      private:
-       StartIndexRecordHeader* indexHeader;
-       InitMsgView* init;
+       boost::shared_ptr<StartIndexRecordHeader> indexHeader;
+       boost::shared_ptr<InitMsgView> init;
   };
 
 
@@ -62,29 +61,26 @@ in an Index file, a little different from Init and Event Message Herades */
 
   public:
    EventIndexRecord(){}
-   ~EventIndexRecord(){
-      if (eview !=NULL) delete eview;
-      if (offset != NULL) delete offset;
-   }
+   ~EventIndexRecord(){}
 
    void makeEvent(void* buf) {  //never call makeEvent twice
-        eview = new EventMsgView(buf);
+        eview.reset(new EventMsgView(buf));
    }
 
    void makeOffset(void* buf) {  //never call makeOffset twice
-        offset = (uint64*) new long long (convert64((unsigned char*) buf));
+        offset.reset((uint64*) new long long (convert64((unsigned char*) buf)));
    }
 
    const uint64 getOffset() const { return *offset; }
-   const EventMsgView* getEventView() const {return eview;}
+   const EventMsgView* getEventView() const {return eview.get();}
 
  private:
-    EventMsgView* eview;
-    uint64* offset;
+    boost::shared_ptr<EventMsgView> eview;
+    boost::shared_ptr<uint64> offset;
  };
 
 
 /** Iterator for EventIndexRecord Vector */
-typedef std::vector<EventIndexRecord*>::iterator indexRecIter;
+typedef std::vector<boost::shared_ptr<EventIndexRecord> >::iterator indexRecIter;
 
 #endif

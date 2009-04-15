@@ -105,7 +105,6 @@ namespace edmtest
   
   TestConsumer::~TestConsumer()
   {
-    delete worker_;
   }
   
   void TestConsumer::bufferReady()

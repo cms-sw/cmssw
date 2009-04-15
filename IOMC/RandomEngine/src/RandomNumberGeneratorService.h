@@ -15,11 +15,11 @@
 //
 // Original Authors:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:43 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.h,v 1.8 2008/05/06 22:18:26 marafino Exp $
 //
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "boost/shared_ptr.hpp"
 
 #include <map>
 
@@ -125,7 +125,7 @@ namespace edm {
 
       // We store the engines using the corresponding module label
       // as a key into a map
-      typedef std::map<std::string, CLHEP::HepRandomEngine*> EngineMap;
+      typedef std::map<std::string, boost::shared_ptr<CLHEP::HepRandomEngine> > EngineMap;
       EngineMap engineMap_;
 
       // The next four help to keep track of the currently active

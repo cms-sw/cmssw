@@ -25,7 +25,6 @@
   OutputFile::~OutputFile() 
   {
     ost_->close();
-    delete ost_;
   }
 
   bool OutputFile::write(const char *ptr, size_t n) 

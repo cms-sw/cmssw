@@ -10,7 +10,7 @@ using namespace edm;
 
 RandomFilter::RandomFilter(edm::ParameterSet const& ps) :
   acceptRate_(ps.getUntrackedParameter<double>("acceptRate")),
-  flatDistribution_(0)
+  flatDistribution_()
 {
   Service<RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
@@ -23,12 +23,11 @@ RandomFilter::RandomFilter(edm::ParameterSet const& ps) :
 
   CLHEP::HepRandomEngine& engine = rng->getEngine();
 
-  flatDistribution_ = new CLHEP::RandFlat(engine, 0.0, 1.0);
+  flatDistribution_.reset(new CLHEP::RandFlat(engine, 0.0, 1.0));
 }
 
 RandomFilter::~RandomFilter()
 {
-  delete flatDistribution_;
 }
 
 bool RandomFilter::filter(edm::Event& e, edm::EventSetup const& c)

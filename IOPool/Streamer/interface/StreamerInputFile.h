@@ -27,7 +27,7 @@ class StreamerInputIndexFile;
     explicit StreamerInputFile(const std::string& name, const std::string& order);
 
     /** Index file reference is provided */
-    explicit StreamerInputFile(const std::string& name, const StreamerInputIndexFile& order);
+    explicit StreamerInputFile(const std::string& name, StreamerInputIndexFile& order);
 
     /** Multiple Index files for Single Streamer file */
     explicit StreamerInputFile(const std::vector<std::string>& names);
@@ -36,10 +36,10 @@ class StreamerInputIndexFile;
 
     bool next() ; /** Moves the handler to next Event Record */
 
-    const InitMsgView*  startMessage() const { return startMsg_; }
+    const InitMsgView*  startMessage() const { return startMsg_.get(); }
     /** Points to File Start Header/Message */
 
-    const EventMsgView*  currentRecord() const { return currentEvMsg_; }
+    const EventMsgView*  currentRecord() const { return currentEvMsg_.get(); }
     /** Points to current Record */
 
     const StreamerInputIndexFile* index(); /** Return pointer to current index */
@@ -63,12 +63,12 @@ class StreamerInputIndexFile;
     void logFileAction(const char* msg);
 
     bool useIndex_;
-    StreamerInputIndexFile* index_;
+    boost::shared_ptr<StreamerInputIndexFile> index_;
     indexRecIter indexIter_b;
     indexRecIter indexIter_e;
 
-    InitMsgView* startMsg_;
-    EventMsgView* currentEvMsg_;
+    boost::shared_ptr<InitMsgView> startMsg_;
+    boost::shared_ptr<EventMsgView> currentEvMsg_;
 
     std::vector<char> headerBuf_; /** Buffer to store file Header */
     std::vector<char> eventBuf_;  /** Buffer to store Event Data */

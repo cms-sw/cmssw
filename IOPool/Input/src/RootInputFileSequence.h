@@ -91,7 +91,7 @@ namespace edm {
     BranchDescription::MatchMode parametersMustMatch_;
     BranchDescription::MatchMode branchesMustMatch_;
 
-    CLHEP::RandFlat * flatDistribution_;
+    boost::scoped_ptr<CLHEP::RandFlat> flatDistribution_;
     std::vector<boost::shared_ptr<FileIndex> > fileIndexes_;
 
     int eventsRemainingInFile_;

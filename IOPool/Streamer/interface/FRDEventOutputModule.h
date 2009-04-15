@@ -6,6 +6,8 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
+#include "boost/shared_array.hpp"
+
 template <class Consumer>
 class FRDEventOutputModule : public edm::OutputModule
 {
@@ -65,8 +67,8 @@ void FRDEventOutputModule<Consumer>::write(edm::EventPrincipal const& e) {
   }
 
   // build the FRDEvent into a temporary buffer
-  unsigned char *workBuffer = new unsigned char[expectedSize + 256];
-  uint32 *bufPtr = (uint32*) workBuffer;
+  boost::shared_array<unsigned char> workBuffer(new unsigned char[expectedSize + 256]);
+  uint32 *bufPtr = (uint32*) workBuffer.get();
   *bufPtr++ = (uint32) 2;  // version number
   *bufPtr++ = (uint32) event.id().run();
   *bufPtr++ = (uint32) event.luminosityBlock();
@@ -84,11 +86,8 @@ void FRDEventOutputModule<Consumer>::write(edm::EventPrincipal const& e) {
   }
 
   // create the FRDEventMsgView and use the template consumer to write it out
-  FRDEventMsgView msg(workBuffer);
+  FRDEventMsgView msg(workBuffer.get());
   templateConsumer_->doOutputEvent(msg);
-
-  // clean up the temporary buffer
-  delete[] workBuffer;
 }
 
 template <class Consumer>

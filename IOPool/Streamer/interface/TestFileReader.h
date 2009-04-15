@@ -31,10 +31,10 @@ namespace edmtestp
     static void run(TestFileReader*);
 
     std::string filename_;
-    StreamerInputFile* stream_reader_;
+    boost::shared_ptr<StreamerInputFile> stream_reader_;
     //std::ifstream ist_;
     //edm::EventReader reader_;
-    edm::EventBuffer* to_;
+    edm::EventBuffer& to_;
     boost::shared_ptr<boost::thread> me_;
   };
 
