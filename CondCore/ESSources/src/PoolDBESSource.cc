@@ -39,21 +39,7 @@ namespace {
   std::string
   buildName( const std::string& iRecordName) {
     return iRecordName+"@NewProxy";
-  }
-  
-  static
-  std::pair<std::string,std::string>
-  deconstructName(const std::string& iProxyName) {
-    if(iProxyName.find_first_of("@")==std::string::npos){
-      return std::make_pair("","");
-    }
-    std::string recordName(iProxyName, 0, iProxyName.find_first_of("@"));
-    std::string typeName(iProxyName,recordName.size()+1,iProxyName.size()-6-recordName.size()-1);
-    //std::cout <<"Record \""<<recordName<<"\" type \""<<typeName<<"\""<<std::endl;
-    return std::make_pair(recordName,typeName);
-  }
-  
-  
+  }  
 }
 
 
@@ -115,8 +101,10 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     for(it=itBeg; it!=itEnd; ++it){
       cond::ConnectionHandler::Instance().registerConnection(it->pfn,m_session,0);
     }
+
     cond::ConnectionHandler::Instance().connect(&m_session);
     for(it=itBeg;it!=itEnd;++it){
+
       cond::Connection &  c= *cond::ConnectionHandler::Instance().getConnection(it->pfn);
       cond::CoralTransaction& coraldb=c.coralTransaction();
       cond::MetaData metadata(coraldb);
@@ -124,15 +112,15 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       cond::MetaDataEntry result;
       metadata.getEntryByTag(it->tag,result);
       coraldb.commit();
-      ProxyP proxy(cond::ProxyFactory::get()->create(buildName(it->recordname), c, result.iovtoken, it->labelname);
+      ProxyP proxy(cond::ProxyFactory::get()->create(buildName(it->recordname), c, result.iovtoken, it->labelname));
       edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( it->recordname ) );
       if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag() ) {
 	//record not found
 	throw cond::Exception("NoRecord")<<"The record \""<< it->recordname <<"\" does not exist ";
       }
-       m_proxies[it->recordname] = proxy;
-       findingRecordWithKey( recordKey );
-       usingRecordWithKey( recordKey );   
+      m_proxies[it->recordname] = proxy;
+      findingRecordWithKey( recordKey );
+      usingRecordWithKey( recordKey );   
     }
 }
 

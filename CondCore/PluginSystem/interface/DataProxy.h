@@ -53,7 +53,7 @@ namespace cond {
 
     virtual edm::eventsetup::TypeTag type() const=0;
     virtual ProxyP proxy() const=0;
-    virtual edmProxyP emdProxy() const=0;
+    virtual edmProxyP edmProxy() const=0;
 
 
     DataProxyWrapperBase(std::string const & il) : m_label(il){}
@@ -87,7 +87,7 @@ public:
     
   virtual edm::eventsetup::TypeTag type() const { return m_type;}
   virtual ProxyP proxy() const { return m_proxy;}
-  virtual edmProxyP emdProxy() const { return m_edmProxy;}
+  virtual edmProxyP edmProxy() const { return m_edmProxy;}
  
 private:
   edm::eventsetup::TypeTag m_type;
