@@ -95,14 +95,14 @@ Bool_t RscAbsPdfBuilder::isDataFlag = false;
 Bool_t RscAbsPdfBuilder::isVerboseFlag = false;
 
 RooRealVar* RscAbsPdfBuilder::makeRealVar(const RooRealVar& var) {
-  RooRealVar* res;
+  RooRealVar* res=0;
   RooAbsArg * arg = globalConfig.find(var.GetName());
   if (!arg) {
     res = new RooRealVar(var);
     globalConfig.add(*res);
     return res;
   } else {
-    if (res = dynamic_cast<RooRealVar*>(arg)) return res;
+    if (res == dynamic_cast<RooRealVar*>(arg)) return res;
     else {
       if (verbose()){
         cout << "RscAbsPdfBuilder::makeRealVar: Found argument of name "
@@ -129,7 +129,7 @@ void RscAbsPdfBuilder::fixAllParams(Bool_t fixParams) {
   TIterator * iter = pdfpar->createIterator();
   TIter next(iter);
   TObject * obj=0;
-  while (obj = (TObject *)next())  {
+  while ((obj = (TObject *)next()))  {
     RooRealVar * var = dynamic_cast<RooRealVar*>(obj);
     if(var) var->setConstant(fixParams);
   }
