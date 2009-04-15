@@ -8,13 +8,6 @@
 <use name=Utilities/Timing>
 
 <export>
-<lib name=EventFilterCSCTFRawToDigi>
-<use name=DataFormats/CSCDigi>
-<use name=FWCore/Framework>
-<use name=DataFormats/FEDRawData>
-<use name=DataFormats/MuonDetId>
-<use name=DataFormats/L1CSCTrackFinder>
-<use name=CondFormats/CSCObjects>
-<use name=Utilities/Timing>
+  <lib name=EventFilterCSCTFRawToDigi>
 </export>
 
