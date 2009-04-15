@@ -40,10 +40,9 @@ namespace edm {
     history_.push_back(aux);
 
     //Serialize into std::vector 
-    std::vector<EventAuxiliary>* out = new std::vector<EventAuxiliary>;
-    std::auto_ptr<std::vector<EventAuxiliary > > result(out);
+    std::auto_ptr<std::vector<EventAuxiliary > > result(new std::vector<EventAuxiliary>);
     for(size_t j = 0; j < history_.size(); ++j) { 
-      out->push_back(history_[j]);
+      result->push_back(history_[j]);
     }
     e.put(result);
   }

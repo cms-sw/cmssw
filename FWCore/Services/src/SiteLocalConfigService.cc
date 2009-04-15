@@ -8,6 +8,7 @@
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/util/XMLString.hpp>
 #include <sstream>
+#include <memory>
 
 using namespace xercesc;
 
@@ -183,7 +184,7 @@ void
 edm::service::SiteLocalConfigService::parse (const std::string &url)
 {
     XMLPlatformUtils::Initialize();  
-    XercesDOMParser* parser = new XercesDOMParser;
+    std::auto_ptr<XercesDOMParser> parser(new XercesDOMParser);
     try 
     {
 	parser->setValidationScheme(XercesDOMParser::Val_Auto);

@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 #include "boost/thread/mutex.hpp"
+#include "boost/shared_ptr.hpp"
 namespace edm {
   namespace rootfix {
   
@@ -31,7 +32,7 @@ namespace edm {
       LockService(const edm::ParameterSet&,edm::ActivityRegistry&);
       ~LockService();
       
-      boost::mutex& getLock() { return *lock_; }
+      boost::mutex& getLock() { return lock_; }
       
       void postBeginJob();
       void postEndJob();
@@ -50,8 +51,8 @@ namespace edm {
       void postModule(const edm::ModuleDescription&);
       
     private:
-      boost::mutex* lock_;
-      boost::mutex::scoped_lock* locker_; // what a hack!
+      boost::mutex& lock_;
+      boost::shared_ptr<boost::mutex::scoped_lock> locker_; // what a hack!
       typedef std::vector<std::string> Labels;
       Labels labels_;
       bool lockSources_;

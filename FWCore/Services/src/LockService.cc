@@ -11,7 +11,7 @@ using namespace edm::rootfix;
 
 LockService::LockService(const ParameterSet& iPS, 
 			 ActivityRegistry& reg):
-  lock_(getGlobalMutex()),
+  lock_(*getGlobalMutex()),
   locker_(),
   labels_(iPS.getUntrackedParameter<Labels>("labels",Labels())),
   lockSources_(iPS.getUntrackedParameter<bool>("lockSources",true))
@@ -36,7 +36,6 @@ LockService::LockService(const ParameterSet& iPS,
 
 LockService::~LockService()
 {
-  delete locker_;
 }
 void LockService::preSourceConstruction(const ModuleDescription& desc)
 {
@@ -45,15 +44,14 @@ void LockService::preSourceConstruction(const ModuleDescription& desc)
      //search_all(labels_, desc.moduleLabel()))
     {
       FDEBUG(4) << "made a new locked in LockService" << std::endl;
-      locker_ = new boost::mutex::scoped_lock(*lock_);
+      locker_.reset(new boost::mutex::scoped_lock(lock_));
     }
 }
 
 void LockService::postSourceConstruction(const ModuleDescription& desc)
 {
   FDEBUG(4) << "destroyed a locked in LockService" << std::endl;
-  delete locker_;
-  locker_=0;
+  locker_.reset();
 }
 
 void LockService::postBeginJob()
@@ -77,15 +75,14 @@ void LockService::preSource()
   if(lockSources_)
     {
       FDEBUG(4) << "made a new locked in LockService" << std::endl;
-      locker_ = new boost::mutex::scoped_lock(*lock_);
+      locker_.reset(new boost::mutex::scoped_lock(lock_));
     }
 }
 
 void LockService::postSource()
 {
   FDEBUG(4) << "destroyed a locked in LockService" << std::endl;
-  delete locker_;
-  locker_=0;
+  locker_.reset();
 }
 
 void LockService::preModule(const ModuleDescription& desc)
@@ -95,15 +92,14 @@ void LockService::preModule(const ModuleDescription& desc)
      //search_all(labels_, desc.moduleLabel()))
     {
       FDEBUG(4) << "made a new locked in LockService" << std::endl;
-      locker_ = new boost::mutex::scoped_lock(*lock_);
+      locker_.reset(new boost::mutex::scoped_lock(lock_));
     }
 }
 
 void LockService::postModule(const ModuleDescription& desc)
 {
   FDEBUG(4) << "destroyed a locked in LockService" << std::endl;
-  delete locker_;
-  locker_=0;
+  locker_.reset();
 }
 
 
