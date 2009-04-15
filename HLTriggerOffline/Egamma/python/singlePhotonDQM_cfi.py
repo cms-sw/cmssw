@@ -17,8 +17,7 @@ import FWCore.ParameterSet.Config as cms
 #                       HLTSinglePhoton10L1NonIsolatedHLTNonIsoSequence &
 #                       HLTEndSequence }
 #
-# And the sequence named in step 4 can be expanded into its 20 steps,
-# and notice it contains 5 filters (marked with *)
+# The sequence in step 4 has 11 steps, and 3 filters (marked with *)
 #  HLTSinglePhoton10L1NonIsolatedHLTNonIsoSequence = {
 #  1   HLTDoRegionalEgammaEcalSequence &
 #  2   HLTL1IsolatedEcalClustersSequence &
