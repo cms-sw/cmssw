@@ -1,10 +1,12 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=CondCore/DBCommon>
+<use name=CondCore/IOVService>
 <export>
    <lib name=CondCorePluginSystem>
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
    <use name=CondCore/DBCommon>
+   <use name=CondCore/IOVService>
 </export>
 	
