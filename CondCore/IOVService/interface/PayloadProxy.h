@@ -84,6 +84,7 @@ namespace cond {
       pool::Ref<DataWrapper> ref(svc,token);
       if (ref) {
 	m_data.copyShallow(ref);
+	m_data->data();
 	ok= true;
       } else {
 	pool::Ref<DataT> refo(svc,token);
