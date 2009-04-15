@@ -67,7 +67,7 @@ int main (int argc, char **argv)
       std::vector<char> lbuf(indexSizes[i]+1, '\0');
       IOSize		nn = indexFiles[i]->read(&lbuf[0], indexSizes[i]);
 
-      if (nn != indexSizes[i])
+      if (indexSizes[i] < 0 || static_cast<IOOffset>(nn) != indexSizes[i])
       {
         std::cerr << "error in reading from index file " <<  argv[i+3] << std::endl;
         std::cerr << "asked for " <<  indexSizes[i] << " bytes, got " << nn << " bytes\n";
