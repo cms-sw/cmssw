@@ -75,7 +75,7 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
         subdetswitchon = cms.bool(False)
     ),
 
-    TkHistoMapDigi = cms.bool(False),
+    TkHistoMap_On = cms.bool(False),
 
     CreateTrendMEs = cms.bool(False),
     Trending = cms.PSet(

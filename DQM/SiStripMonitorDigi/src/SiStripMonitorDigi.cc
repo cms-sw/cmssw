@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.42 2009/03/25 15:54:52 borrell Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.43 2009/04/02 12:08:10 borrell Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -73,7 +73,7 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
   edm::ParameterSet ParametersDigiApvProf = conf_.getParameter<edm::ParameterSet>("TProfDigiApvCycle");
   subdetswitchapvcycleprofon = ParametersDigiApvProf.getParameter<bool>("subdetswitchon");
   
-  digitkhistomapon = conf_.getParameter<bool>("TkHistoMapDigi"); 
+  digitkhistomapon = conf_.getParameter<bool>("TkHistoMap_On"); 
   
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
   Mod_On_ = conf_.getParameter<bool>("Mod_On");
@@ -136,7 +136,7 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
     SiStripFolderOrganizer folder_organizer;
 
     // Create TkHistoMap for Digi
-    if (digitkhistomapon) tkmapdigi = new TkHistoMap("SiStrip/TkHisto","Digi",0.,1);
+    if (digitkhistomapon) tkmapdigi = new TkHistoMap("SiStrip/TkHisto","TkHMap_NumberOfDigi",0.0,1);
     
     std::vector<uint32_t> tibDetIds;
     // loop over detectors and book MEs
@@ -537,7 +537,7 @@ void SiStripMonitorDigi::createLayerMEs(std::string label, int ndets) {
     // # of Digis 
     if(layerswitchnumdigisprofon) {
       std::string hid = hidmanager.createHistoLayer("NumberOfDigiProfile","layer",label,"");
-      layerMEs.LayerNumberOfDigisProfile = dqmStore_->bookProfile(hid, hid, ndets, 0.5, ndets+0.5,21, -0.5, 20.5);      
+      layerMEs.LayerNumberOfDigisProfile = dqmStore_->bookProfile(hid, hid, ndets, 0.5, ndets+0.5,21, -0.5, 200.5);
     }
 
     // # of Digis 
