@@ -15,7 +15,7 @@
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/Connection.h"
-#include "CondFormat/Common/interface/Time.h"
+#include "CondFormats/Common/interface/Time.h"
 #include "CondCore/DBCommon/interface/ConfigSessionFromParameterSet.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
@@ -206,7 +206,7 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
   }
 
   if(0 != (*p).second.get()) {
-    edm::eventsetup::DataKey key( type, edm::eventsetup::IdTags((*p).second->label.c_str()) );
+    edm::eventsetup::DataKey key( (*p).second->type(), edm::eventsetup::IdTags((*p).second->label.c_str()) );
     aProxyList.push_back(KeyedProxies::value_type(key,(*p).second->edmProxy()));
   }
 }

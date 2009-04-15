@@ -17,11 +17,7 @@ template< class RecordT, class DataT >
   typedef boost::shared_ptr<cond::PayloadProxy<DataT> > DataP;
 
   explicit DataProxy(boost::shared_ptr<cond::PayloadProxy<DataT> > pdata) : m_data(pdata) { 
-    //NOTE: We do this so that the type 'DataT' will get registered
-    // when the plugin is dynamically loaded
-    //std::cout<<"DataProxy constructor"<<std::endl;
-    edm::eventsetup::DataKey::makeTypeTag<DataT>();
-    //std::cout<<"about to get out of DataProxy constructor"<<std::endl;
+ 
   }
   //virtual ~DataProxy();
   
@@ -54,6 +50,8 @@ namespace cond {
     typedef boost::shared_ptr<cond::BasePayloadProxy> ProxyP;
     typedef boost::shared_ptr<edm::eventsetup::DataProxy> edmProxyP;
     
+
+    virtual edm::eventsetup::TypeTag type() const=0;
     virtual ProxyP proxy() const=0;
     virtual edmProxyP emdProxy() const=0;
 
@@ -79,14 +77,20 @@ public:
 		   const std::string & token, std::string const & il) :
     cond::DataProxyWrapperBase(il),
     m_proxy(new PayProxy(conn,token)),
-    m_edmProxy(m_proxy){}
+    m_edmProxy(m_proxy){
+   //NOTE: We do this so that the type 'DataT' will get registered
+    // when the plugin is dynamically loaded
+    //std::cout<<"DataProxy constructor"<<std::endl;
+    m_type = edm::eventsetup::DataKey::makeTypeTag<DataT>();
+    //std::cout<<"about to get out of DataProxy constructor"<<std::endl;
+  }
     
-
+  virtual edm::eventsetup::TypeTag type() const { return m_type;}
   virtual ProxyP proxy() const { return m_proxy;}
   virtual edmProxyP emdProxy() const { return m_edmProxy;}
  
 private:
-
+  edm::eventsetup::TypeTag m_type;
   boost::shared_ptr<cond::PayloadProxy<DataT> >  m_proxy;
   edmProxyP m_edmProxy;
 
