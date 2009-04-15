@@ -27,8 +27,17 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripPopConThreshold);
 typedef popcon::PopConAnalyzer<popcon::SiStripPopConConfigDbObjHandler<SiStripBadStrip> > SiStripPopConBadStrip;
 DEFINE_ANOTHER_FWK_MODULE(SiStripPopConBadStrip);
 
+#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
+typedef popcon::PopConAnalyzer<popcon::SiStripPopConConfigDbObjHandler<SiStripApvGain> > SiStripPopConApvGain;
+DEFINE_ANOTHER_FWK_MODULE(SiStripPopConApvGain);
 
-#include "OnlineDB/SiStripO2O/plugins/SiStripPopConHandlerUnitTest.h"
+
+#include "OnlineDB/SiStripO2O/plugins/SiStripPopConHandlerUnitTestNoise.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-typedef popcon::PopConAnalyzer<popcon::SiStripPopConHandlerUnitTest<SiStripNoises> > SiStripPopConNoiseUnitTest;
+typedef popcon::PopConAnalyzer<popcon::SiStripPopConHandlerUnitTestNoise<SiStripNoises> > SiStripPopConNoiseUnitTest;
 DEFINE_ANOTHER_FWK_MODULE(SiStripPopConNoiseUnitTest);
+
+#include "OnlineDB/SiStripO2O/plugins/SiStripPopConHandlerUnitTestGain.h"
+#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
+typedef popcon::PopConAnalyzer<popcon::SiStripPopConHandlerUnitTestGain<SiStripApvGain> > SiStripPopConApvGainUnitTest;
+DEFINE_ANOTHER_FWK_MODULE(SiStripPopConApvGainUnitTest);
