@@ -12,7 +12,6 @@
 <use name=AnalysisDataFormats/SiStripClusterInfo>
 <use name=AnalysisDataFormats/TrackInfo>
 <use name=TrackingTools/TrackFitters>
-<use name=CommonTools/SiStripZeroSuppression>
 <export>
    <lib name=DQMSiStripMonitorTrack>
    <use name=FWCore/Framework>
@@ -28,5 +27,4 @@
    <use name=AnalysisDataFormats/SiStripClusterInfo>
    <use name=AnalysisDataFormats/TrackInfo>
    <use name=TrackingTools/TrackFitters>
-   <use name=CommonTools/SiStripZeroSuppression>
 </export>
