@@ -19,13 +19,14 @@ from Validation.MuonDTDigis.dtDigiValidation_cfi import *
 from Validation.MuonCSCDigis.cscDigiValidation_cfi import *
 from Validation.MuonRPCDigis.validationMuonRPCDigis_cfi import *
 from Validation.RecoMuon.muonValidation_cff import *
+#from Validation.MuonIsolation.MuIsoVal_cff import *
 
 globalValidation = cms.Sequence(trackerHitsValidation+trackerDigisValidation+trackerRecHitsValidation+trackingTruthValid+trackingRecHitsValid+tracksValidation+
                                 ecalSimHitsValidationSequence+ecalDigisValidationSequence+ecalRecHitsValidationSequence+
                                 hcalSimHitStudy+hcalRecHitsValidationSequence+calotowersValidationSequence+
-                                validSimHit+muondtdigianalyzer+cscDigiValidation+validationMuonRPCDigis+recoMuonValidation)
+                                validSimHit+muondtdigianalyzer+cscDigiValidation+validationMuonRPCDigis+recoMuonValidation)#+muIsoVal_seq)
 
 globalValidation_pu = cms.Sequence(trackerHitsValidation+trackerDigisValidation+trackingTruthValid+tracksValidation+
                                    ecalSimHitsValidationSequence+hcalSimHitStudy+hcalRecHitsValidationSequence+calotowersValidationSequence+
-                                   validSimHit+muondtdigianalyzer+validationMuonRPCDigis)
+                                   validSimHit+muondtdigianalyzer+validationMuonRPCDigis+recoMuonValidation)
 
