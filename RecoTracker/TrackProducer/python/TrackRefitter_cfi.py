@@ -10,6 +10,7 @@ TrackRefitter = cms.EDFilter("TrackRefitter",
 
     ### fitting without constraints
     constraint = cms.string(''),
+    srcConstr  = cms.InputTag(''),                   
 
     ### fitting with constraints                             
     #constraint = cms.string('momentum'),

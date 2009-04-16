@@ -19,6 +19,8 @@ TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
   setSrc( iConfig.getParameter<edm::InputTag>( "src" ), iConfig.getParameter<edm::InputTag>( "beamSpot" ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
   std::string  constraint_str = iConfig.getParameter<std::string>( "constraint" );
+  trkconstrcoll_=iConfig.getParameter<edm::InputTag>( "srcConstr" );
+  
 
   if (constraint_str == "") constraint_ = none;
   else if (constraint_str == "momentum") constraint_ = momentum;
@@ -72,6 +74,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       if (theTCollection.failedToGet()){
 	edm::LogError("TrackRefitter")<<"could not get the reco::TrackCollection."; break;}
       LogDebug("TrackRefitter") << "run the algorithm" << "\n";
+
       try {
 	theAlgo.runWithTrack(theG.product(), theMF.product(), *theTCollection, 
 			     theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
@@ -81,7 +84,9 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   case momentum :
     {
       edm::Handle<TrackMomConstraintAssociationCollection> theTCollectionWithConstraint;
-      theEvent.getByType(theTCollectionWithConstraint);
+      theEvent.getByLabel(trkconstrcoll_,theTCollectionWithConstraint);
+
+
       edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
       theEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
       bs = *recoBeamSpotHandle;      
@@ -96,7 +101,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   case  vertex :
     {
       edm::Handle<TrackVtxConstraintAssociationCollection> theTCollectionWithConstraint;
-      theEvent.getByType(theTCollectionWithConstraint);
+      theEvent.getByLabel(trkconstrcoll_,theTCollectionWithConstraint);
       edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
       theEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
       bs = *recoBeamSpotHandle;      

@@ -4,8 +4,8 @@
 /** \class TrackRefitter
  *  Refit Tracks: Produce Tracks from TrackCollection. It performs a new final fit on a TrackCollection.
  *
- *  $Date: 2007/10/06 08:04:12 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/12/07 02:20:40 $
+ *  $Revision: 1.2 $
  *  \author cerati
  */
 
@@ -25,6 +25,8 @@ private:
   TrackProducerAlgorithm<reco::Track> theAlgo;
   enum Constraint { none, momentum, vertex };
   Constraint constraint_;
+  edm::InputTag trkconstrcoll_;
+
 };
 
 #endif
