@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/03/27 08:44:02 $
- * $Revision: 1.442 $
+ * $Date: 2009/03/27 08:50:47 $
+ * $Revision: 1.443 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1597,7 +1597,7 @@ void EcalBarrelMonitorClient::analyze(const Event &e, const EventSetup &c) {
 }
 
 void EcalBarrelMonitorClient::softReset(bool flag) { 	 
-	  	 
+
    for ( int i=0; i<int(clients_.size()); i++ ) {
      bool done = false;
      for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
