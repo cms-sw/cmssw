@@ -3,6 +3,7 @@
 #include "RecoTauTag/RecoTau/interface/PFRecoTauTagInfoProducer.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauProducer.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDecayModeDeterminator.h"
+#include "RecoTauTag/RecoTau/interface/PFRecoTauDecayModeIndexProducer.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByIsolation.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByIsolationUsingLeadingPion.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByLeadingTrackFinding.h"
@@ -25,6 +26,7 @@ DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauTagInfoProducer);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauProducer);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDecayModeDeterminator);
+DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDecayModeIndexProducer);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationByIsolation);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationByIsolationUsingLeadingPion);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationByLeadingTrackFinding);
