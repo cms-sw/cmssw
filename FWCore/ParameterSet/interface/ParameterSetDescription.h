@@ -46,11 +46,8 @@ namespace edm {
   template <typename T> class ParameterDescription;
   template <typename T> class ParameterDescriptionCases;
 
-  class ParameterSetDescription
-  {
-
+  class ParameterSetDescription {
   public:
-
     class SetDescriptionEntry {
     public:
       bool optional() const { return optional_; }
@@ -78,42 +75,42 @@ namespace edm {
     // This should only be called to allow backwards compatibility.
     void setUnknown();
 
-    template<class T, class U>
+    template<typename T, typename U>
     ParameterDescriptionBase * add(U const& iLabel, T const& value) {
       return add<T, U>(iLabel, value, true, false, true);
     }
 
-    template<class T, class U>
+    template<typename T, typename U>
     ParameterDescriptionBase * addUntracked(U const& iLabel, T const& value) {
       return add<T, U>(iLabel, value, false, false, true);
     }
 
-    template<class T, class U>
+    template<typename T, typename U>
     ParameterDescriptionBase * addOptional(U const& iLabel, T const& value) {
       return add<T, U>(iLabel, value, true, true, true);
     }
 
-    template<class T, class U>
+    template<typename T, typename U>
     ParameterDescriptionBase * addOptionalUntracked(U const& iLabel, T const& value) {
       return add<T, U>(iLabel, value, false, true, true);
     }
 
-    template<class T, class U>
+    template<typename T, typename U>
     ParameterDescriptionBase * addOptional(U const& iLabel) {
       return add<T, U>(iLabel, T(), true, true, false);
     }
 
-    template<class T, class U>
+    template<typename T, typename U>
     ParameterDescriptionBase * addOptionalUntracked(U const& iLabel) {
       return add<T, U>(iLabel, T(), false, true, false);
     }
 
-    template<class T, class U>
+    template<typename T, typename U>
     ParameterWildcardBase * addWildcard(U const& pattern) {
       return addWildcard<T, U>(pattern, true);
     }
 
-    template<class T, class U>
+    template<typename T, typename U>
     ParameterWildcardBase * addWildcardUntracked(U const& pattern) {
       return addWildcard<T, U>(pattern, false);
     }
@@ -150,25 +147,25 @@ namespace edm {
       ifExists(node1, node2, true, writeToCfi);
     }
 
-    template<class T, class U>
+    template<typename T, typename U>
     void
     labelsFrom(U const& iLabel) {
       labelsFrom<T,U>(iLabel, true, false, true);
     }
 
-    template<class T, class U>
+    template<typename T, typename U>
     void
     labelsFromUntracked(U const& iLabel) {
       labelsFrom<T,U>(iLabel, false, false, true);
     }
 
-    template<class T, class U>
+    template<typename T, typename U>
     void
     labelsFromOptional(U const& iLabel, bool writeToCfi) {
       labelsFrom<T,U>(iLabel, true, true, writeToCfi);
     }
 
-    template<class T, class U>
+    template<typename T, typename U>
     void
     labelsFromOptionalUntracked(U const& iLabel, bool writeToCfi) {
       labelsFrom<T,U>(iLabel, false, true, writeToCfi);
@@ -176,25 +173,25 @@ namespace edm {
 
     // These next four functions only work when the template
     // parameter is ParameterSetDescription or vector<ParameterSetDescription>
-    template<class T, class U>
+    template<typename T, typename U>
     void
     labelsFrom(U const& iLabel, T const& desc) {
       labelsFrom<T,U>(iLabel, true, false, true, desc);
     }
 
-    template<class T, class U>
+    template<typename T, typename U>
     void
     labelsFromUntracked(U const& iLabel, T const& desc) {
       labelsFrom<T,U>(iLabel, false, false, true, desc);
     }
 
-    template<class T, class U>
+    template<typename T, typename U>
     void
     labelsFromOptional(U const& iLabel, bool writeToCfi, T const& desc) {
       labelsFrom<T,U>(iLabel, true, true, writeToCfi, desc);
     }
 
-    template<class T, class U>
+    template<typename T, typename U>
     void
     labelsFromOptionalUntracked(U const& iLabel, bool writeToCfi, T const& desc) {
       labelsFrom<T,U>(iLabel, false, true, writeToCfi, desc);
@@ -223,11 +220,11 @@ namespace edm {
 
   private:
 
-    template<class T, class U>
+    template<typename T, typename U>
     ParameterDescriptionBase * add(U const& iLabel, T const& value,
                                    bool isTracked, bool isOptional, bool writeToCfi);
 
-    template<class T, class U>
+    template<typename T, typename U>
     ParameterWildcardBase * addWildcard(U const& pattern, bool isTracked);
 
     void addNode(std::auto_ptr<ParameterDescriptionNode> node, bool optional, bool writeToCfi);
@@ -242,11 +239,11 @@ namespace edm {
 		  ParameterDescriptionNode const& node2,
                   bool optional, bool writeToCfi);
 
-    template<class T, class U>
+    template<typename T, typename U>
     void
     labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi);
 
-    template<class T, class U>
+    template<typename T, typename U>
     void
     labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi, T const& desc);
 
@@ -288,53 +285,49 @@ namespace edm {
 
 namespace edm {
 
-  template<class T, class U>
-  ParameterDescriptionBase *
-  ParameterSetDescription::
-  add(U const& iLabel, T const& value, bool isTracked, bool isOptional, bool writeToCfi) {
+  template<typename T, typename U>
+  ParameterDescriptionBase*
+  ParameterSetDescription::add(U const& iLabel, T const& value, bool isTracked, bool isOptional, bool writeToCfi) {
 
-    ParameterDescriptionBase* pdbase = new ParameterDescription<T>(iLabel, value, isTracked);
+    std::auto_ptr<ParameterDescriptionBase> pdbase(new ParameterDescription<T>(iLabel, value, isTracked));
+    ParameterDescriptionBase* pdReturn = pdbase.get();
     std::auto_ptr<ParameterDescriptionNode> node(pdbase);
-
     addNode(node, isOptional, writeToCfi);
 
-    return pdbase;
+    return pdReturn;
   }
 
-  template<class T, class U>
-  ParameterWildcardBase *
-  ParameterSetDescription::
-  addWildcard(U const& pattern, bool isTracked) {
+  template<typename T, typename U>
+  ParameterWildcardBase*
+  ParameterSetDescription::addWildcard(U const& pattern, bool isTracked) {
     
-    ParameterWildcardBase* pdbase = new ParameterWildcard<T>(pattern, RequireZeroOrMore, isTracked);
+    std::auto_ptr<ParameterWildcardBase> pdbase(new ParameterWildcard<T>(pattern, RequireZeroOrMore, isTracked));
+    ParameterWildcardBase * pdReturn = pdbase.get();
     std::auto_ptr<ParameterDescriptionNode> node(pdbase);
-
     addNode(node, true, false);
 
-    return pdbase;
+    return pdReturn;
   }
 
   template <typename T>
   void
-  ParameterSetDescription::
-  ifValue(ParameterDescription<T> const& switchParameter, std::auto_ptr<ParameterDescriptionCases<T> > cases,
+  ParameterSetDescription::ifValue(ParameterDescription<T> const& switchParameter,
+          std::auto_ptr<ParameterDescriptionCases<T> > cases,
           bool optional, bool writeToCfi) {
     std::auto_ptr<ParameterDescriptionNode> pdswitch(new ParameterSwitch<T>(switchParameter, cases));
     addNode(pdswitch, optional, writeToCfi);
   }
 
-  template<class T, class U>
+  template<typename T, typename U>
   void
-  ParameterSetDescription::
-  labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi) {
+  ParameterSetDescription::labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi) {
     std::auto_ptr<ParameterDescriptionNode> pd(new AllowedLabelsDescription<T>(iLabel, isTracked));
     addNode(pd, optional, writeToCfi);
   }
 
-  template<class T, class U>
+  template<typename T, typename U>
   void
-  ParameterSetDescription::
-  labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi, T const& desc) {
+  ParameterSetDescription::labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi, T const& desc) {
     std::auto_ptr<ParameterDescriptionNode> pd(new AllowedLabelsDescription<T>(iLabel, desc, isTracked));
     addNode(pd, optional, writeToCfi);
   }
