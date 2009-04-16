@@ -103,24 +103,6 @@ void AlignableDet::addAlignmentPositionErrorFromRotation(const RotationType& rot
 }
 
 //__________________________________________________________________________________________________
-void AlignableDet::addAlignmentPositionErrorFromLocalRotation(const RotationType& rot,
-							      bool propagateDown)
-{
-
-  RotationType globalRot = globalRotation().multiplyInverse(rot*globalRotation());
-  this->addAlignmentPositionErrorFromRotation(globalRot, propagateDown);
-
-  // FIXME: Wouldn't this be a duplication? Meaning that we should not at all overwrite
-  //        the method from AlignableComposite here!
-  //        So far I tested that removing this line indeed changes something and that removing
-  //        the full method indeed gives identical (tracker) misalignment results as 
-  //        removing this line only.
-  this->AlignableComposite::addAlignmentPositionErrorFromLocalRotation( rot, propagateDown );
-}
-
-
-
-//__________________________________________________________________________________________________
 Alignments* AlignableDet::alignments() const
 {
 

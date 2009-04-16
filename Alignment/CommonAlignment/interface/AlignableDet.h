@@ -29,11 +29,9 @@ public:
   /// if (propagateDown), add also to all components
   virtual void addAlignmentPositionErrorFromRotation(const RotationType &rot, bool propagateDown);
 
-  /// Add (or set if it does not exist yet) the AlignmentPositionError
-  /// resulting from a rotation in the local reference frame,
-  /// if (propagateDown), add also to all components
-  virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType &rot,
-							  bool propagateDown);
+  // No need to overwrite, version from AlignableComposite is just fine:
+  // virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType &rot,
+  //							  bool propagateDown);
 
   /// Return vector of alignment data
   virtual Alignments* alignments() const;
