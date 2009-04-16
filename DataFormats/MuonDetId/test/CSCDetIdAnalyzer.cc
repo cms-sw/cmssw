@@ -1,10 +1,11 @@
-// Test CSCDetId & CSCIndexer 13.11.2007 ptc
+// Test CSCDetId & CSCIndexer 16.04.2009 ptc
 
 //#include <memory>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
@@ -21,7 +22,7 @@ class CSCDetIdAnalyzer : public edm::EDAnalyzer {
 
    public:
  
-     explicit CSCDetIdAnalyzer( const edm::ParameterSet& );
+      explicit CSCDetIdAnalyzer( const edm::ParameterSet& ps );
       ~CSCDetIdAnalyzer();
 
       virtual void analyze( const edm::Event&, const edm::EventSetup& );
@@ -33,17 +34,20 @@ class CSCDetIdAnalyzer : public edm::EDAnalyzer {
       const int dashedLineWidth_;
       const std::string dashedLine_;
       const std::string myName_;
+      bool ungangedme1a_;
 };
 
-CSCDetIdAnalyzer::CSCDetIdAnalyzer( const edm::ParameterSet& iConfig )
+CSCDetIdAnalyzer::CSCDetIdAnalyzer( const edm::ParameterSet& ps )
  : dashedLineWidth_(140), dashedLine_( std::string(dashedLineWidth_, '-') ), 
-  myName_( "CSCDetIdAnalyzer" )
+   myName_( "CSCDetIdAnalyzer" ), ungangedme1a_( ps.getUntrackedParameter<bool>("UngangedME1a", false) )
 {
   std::cout << dashedLine_ << std::endl;
   std::cout << "Welcome to " << myName_ << std::endl;
   std::cout << dashedLine_ << std::endl;
   std::cout << "I will build the CSC geometry, then iterate over all layers." << std::endl;
-  std::cout << "From each CSCDetId I will build the associated linear index, skipping ME1a layers." << std::endl;
+  std::cout << "From each CSCDetId I will build the associated linear index." << std::endl;
+  if ( !ungangedme1a_ ) std::cout << "ME1a layers are skipped since they're part of ME11." << std::endl;
+  else std::cout << "ME1a layers are treated individually and  NOT  as part of ME11." << std::endl;
   std::cout << "I will build this index once from the layer labels and once from the CSCDetId, and check they agree." << std::endl;
   std::cout << "I will output one line per layer, listing the CSCDetId, the labels, and these two indexes." << std::endl;
   std::cout << "I will append the strip-channel indexes for the two edge strips and the central strip." << std::endl;
@@ -114,8 +118,9 @@ void CSCDetIdAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
 	short ic = CSCDetId::chamber(id);
         short il = CSCDetId::layer(id);
 
-        if ( ir == 4 ) continue; // DOES NOT HANDLE ME1a SEPARATELY FROM ME11
-	   ++icount; // count ONLY non-ME1a layers!
+        if ( !ungangedme1a_ && ir == 4 ) continue; // Skip ME1a if they are part of ME11
+
+	   ++icount; 
 
 	   std::cout <<
 	   std::setw( 4 ) << icount << 
@@ -156,7 +161,12 @@ void CSCDetIdAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
 	// Build CSCDetId from this index and check it's same as original
 	   CSCDetId cscDetId2 = theIndexer->detIdFromLayerIndex( lind );
 	   // std::cout << "cscDetId2 = E" << cscDetId2.endcap() << " S" << cscDetId2.station() << " R" << cscDetId2.ring() << " C" << cscDetId2.chamber() << " L" << cscDetId2.layer() << std::endl;
-	assert( cscDetId2 == cscDetId );
+	   if ( ungangedme1a_ && ir==4 ) {
+	     cscDetId2 = CSCDetId( cscDetId2.endcap(), 1, 4, cscDetId2.chamber(), cscDetId2.layer() ); // reset from ME11 to ME1a
+	   }
+           assert( cscDetId2 == cscDetId );
+
+
 
 	// Build CSCDetId from the strip-channel index for strip 'nstrips' and check it matches
            std::pair<CSCDetId, unsigned short int> p = theIndexer->detIdFromStripChannelIndex( scn );
