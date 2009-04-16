@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronProducer.cc,v 1.17 2009/03/28 22:26:49 charlot Exp $
+// $Id: GsfElectronProducer.cc,v 1.18 2009/04/15 15:33:32 charlot Exp $
 //
 //
 
@@ -72,25 +72,21 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& iConfig)
 		    iConfig.getParameter<bool>("applyEtaCorrection"),
 		    iConfig.getParameter<bool>("applyAmbResolution"),
 		    iConfig.getParameter<bool>("addPflowElectrons"),
-		    iConfig.getParameter<double>("extRadiusTkSmall"),
-		    iConfig.getParameter<double>("extRadiusTkLarge"),
 		    iConfig.getParameter<double>("intRadiusTk"),
 		    iConfig.getParameter<double>("ptMinTk"),
 		    iConfig.getParameter<double>("maxVtxDistTk"),
 		    iConfig.getParameter<double>("maxDrbTk"),
-		    iConfig.getParameter<double>("extRadiusHcalSmall"),
-		    iConfig.getParameter<double>("extRadiusHcalLarge"),
 		    iConfig.getParameter<double>("intRadiusHcal"),
 		    iConfig.getParameter<double>("etMinHcal"),
-		    iConfig.getParameter<double>("extRadiusEcalSmall"),
-		    iConfig.getParameter<double>("extRadiusEcalLarge"),
 		    iConfig.getParameter<double>("intRadiusEcalBarrel"),
 		    iConfig.getParameter<double>("intRadiusEcalEndcaps"),
 		    iConfig.getParameter<double>("jurassicWidth"),
 		    iConfig.getParameter<double>("etMinBarrel"),
 		    iConfig.getParameter<double>("eMinBarrel"),
 		    iConfig.getParameter<double>("etMinEndcaps"),
-		    iConfig.getParameter<double>("eMinEndcaps")
+		    iConfig.getParameter<double>("eMinEndcaps"),
+		    iConfig.getParameter<bool>("vetoClustered"),
+		    iConfig.getParameter<bool>("useNumCrystals")
 		    );
 
 }

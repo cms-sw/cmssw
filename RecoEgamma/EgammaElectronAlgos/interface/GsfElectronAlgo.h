@@ -67,12 +67,11 @@ class GsfElectronAlgo {
       double minMVA,
       bool applyPreselection, bool applyEtaCorrection, bool applyAmbResolution,
       bool addPflowElectrons,
-      double extRadiusTkSmall, double extRadiusTkLarge, double intRadiusTk,
-      double ptMinTk, double maxVtxDistTk, double maxDrbTk,
-      double extRadiusHcalSmall, double extRadiusHcalLarge, double intRadiusHcal,
-      double etMinHcal, double extRadiusEcalSmall, double extRadiusEcalLarge,
+      double intRadiusTk, double ptMinTk, double maxVtxDistTk, double maxDrbTk,
+      double intRadiusHcal, double etMinHcal, 
       double intRadiusEcalBarrel, double intRadiusEcalEndcaps, double jurassicWidth,
-      double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps) ;
+      double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps,
+      bool vetoClustered, bool useNumCrystals) ;
 
     ~GsfElectronAlgo() ;
 
@@ -191,18 +190,12 @@ class GsfElectronAlgo {
     bool addPflowElectrons_;
 
     // isolation variables parameters
-    double extRadiusTkSmall_;
-    double extRadiusTkLarge_;
     double intRadiusTk_;
     double ptMinTk_;
     double maxVtxDistTk_;
     double maxDrbTk_;
-    double extRadiusHcalSmall_;
-    double extRadiusHcalLarge_;
     double intRadiusHcal_;
     double etMinHcal_;
-    double extRadiusEcalSmall_;
-    double extRadiusEcalLarge_;
     double intRadiusEcalBarrel_;
     double intRadiusEcalEndcaps_;
     double jurassicWidth_;
@@ -210,7 +203,9 @@ class GsfElectronAlgo {
     double eMinBarrel_;
     double etMinEndcaps_;
     double eMinEndcaps_;
-
+    bool vetoClustered_;
+    bool useNumCrystals_;
+    
     // input configuration
     edm::InputTag barrelSuperClusters_;
     edm::InputTag endcapSuperClusters_;
