@@ -110,7 +110,7 @@ void ApeAdder::addApe( std::vector<Alignable*> alignables )
   AlignmentPositionError ape( theApe[0], theApe[1], theApe[2] );
   for ( std::vector<Alignable*>::iterator iDet = alignables.begin();
 		iDet != alignables.end(); ++iDet )
-    (*iDet)->setAlignmentPositionError( ape );
+    (*iDet)->setAlignmentPositionError( ape, true ); // true: propagate to components
     
 }
 

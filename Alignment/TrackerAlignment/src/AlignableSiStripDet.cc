@@ -1,6 +1,6 @@
 /* 
- *  $Date: 2008/05/05 17:53:21 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/07/13 12:26:41 $
+ *  $Revision: 1.5 $
  */
 
 #include "Alignment/TrackerAlignment/interface/AlignableSiStripDet.h"
@@ -166,10 +166,8 @@ void AlignableSiStripDet::consistifyAlignmentErrors()
   maxZ2 = (maxZ2 > errGlued.czz() ? maxZ2 : errGlued.czz());
   const AlignmentPositionError newApeGlued(sqrt(maxX2), sqrt(maxY2), sqrt(maxZ2));
 
-  // Now set new errors - and reset those of the components, since they get overwritten...
-  this->setAlignmentPositionError(newApeGlued);
-  units[0]->setAlignmentPositionError(AlignmentPositionError(errMono));
-  units[1]->setAlignmentPositionError(AlignmentPositionError(errStereo));
+  // Now set new errors - due to false as 2nd argument not propagated down:
+  this->setAlignmentPositionError(newApeGlued, false);
 
 //   edm::LogWarning("Alignment") << "@SUB=consistifyAlignmentErrors" 
 // 			       << "End Id " << this->geomDetId();
