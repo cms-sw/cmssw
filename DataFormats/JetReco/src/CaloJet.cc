@@ -1,6 +1,6 @@
 // CaloJet.cc
 // Fedor Ratnikov UMd
-// $Id: CaloJet.cc,v 1.20 2008/05/26 11:22:12 arizzi Exp $
+// $Id: CaloJet.cc,v 1.21 2008/10/14 12:26:58 oehler Exp $
 #include <sstream>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -69,6 +69,9 @@ CaloJet::LorentzVector CaloJet::detectorP4 () const {
 
 CaloTowerPtr CaloJet::getCaloConstituent (unsigned fIndex) const {
    Constituent dau = daughterPtr (fIndex);
+
+   if ( dau.isNonnull() && dau.isAvailable() ) {
+
    const CaloTower* towerCandidate = dynamic_cast <const CaloTower*> (dau.get());
 
     if (towerCandidate) {
@@ -79,6 +82,12 @@ CaloTowerPtr CaloJet::getCaloConstituent (unsigned fIndex) const {
     else {
       throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTowere type";
     }
+
+   }
+
+   else {
+     return CaloTowerPtr();
+   }
 }
 
 
