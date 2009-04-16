@@ -7,8 +7,8 @@
  *
  *  First implementation April/May 2008
  *  \author Gero Flucke, Hamburg University
- *  $Date: 2008/05/02 13:23:48 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/07/13 12:26:41 $
+ *  $Revision: 1.4 $
  */
  
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
@@ -29,20 +29,11 @@ class AlignableSiStripDet: public AlignableDet {
 
   /// first consistify with component detunits, then call method from AlignableDet
   virtual Alignments* alignments() const;
-  /// first consistify with component detunits, then call method from AlignableDet
-  virtual AlignmentErrors* alignmentErrors() const;
 
  private:
   /// make alignments consistent with daughters
   void consistifyAlignments();
-  /// make alignment errors consistent with daughters
-  void consistifyAlignmentErrors();
-  /// AlignTransformError with 'id'
-  const AlignTransformError& errorFromId(const std::vector<AlignTransformError> &trafoErrs,
-					 align::ID id) const;
 
-//   void dumpCompareAPE(const std::vector<AlignTransformError> &trafoErrs1,
-// 		      const std::vector<AlignTransformError> &trafoErrs2) const;
 //   void dumpCompareEuler(const RotationType &oldRot, const RotationType &newRot) const;
 
   /// The following four members are needed to recalculate the surface in consistifyAlignments,

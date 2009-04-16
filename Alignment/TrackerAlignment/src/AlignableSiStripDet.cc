@@ -1,6 +1,6 @@
 /* 
- *  $Date: 2008/07/13 12:26:41 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/04/16 09:05:01 $
+ *  $Revision: 1.6 $
  */
 
 #include "Alignment/TrackerAlignment/interface/AlignableSiStripDet.h"
@@ -65,14 +65,6 @@ Alignments* AlignableSiStripDet::alignments() const
 }
 
 //__________________________________________________________________________________________________
-AlignmentErrors* AlignableSiStripDet::alignmentErrors() const
-{
-  const_cast<AlignableSiStripDet*>(this)->consistifyAlignmentErrors();
-
-  return this->AlignableDet::alignmentErrors();
-}
-
-//__________________________________________________________________________________________________
 void AlignableSiStripDet::consistifyAlignments()
 {
   // make alignments consistent with daughters, calling method from geometry
@@ -126,94 +118,6 @@ void AlignableSiStripDet::consistifyAlignments()
 
 }
 
-
-//__________________________________________________________________________________________________
-void AlignableSiStripDet::consistifyAlignmentErrors()
-{
-  // make alignment errors consistent with daughters
-
-  AlignmentErrors *oldErrs = this->AlignableDet::alignmentErrors();
-
-  const Alignables units(this->components()); // order mono==0, stereo==1 does not matter here
-
-  const AlignTransformError &gluedErr  = this->errorFromId(oldErrs->m_alignError,
-							   this->geomDetId());
-  const AlignTransformError &monoErr   = this->errorFromId(oldErrs->m_alignError,
-							   units[0]->geomDetId());
-  const AlignTransformError &stereoErr = this->errorFromId(oldErrs->m_alignError,
-							   units[1]->geomDetId());
-  const GlobalError errGlued (gluedErr.matrix());
-  const GlobalError errMono  (monoErr.matrix());
-  const GlobalError errStereo(stereoErr.matrix());
-
-  //  const GlobalError newErrGlued((errMono + errStereo - errGlued).matrix_new() /= 4.);
-  // The above line would be error propagation assuming:
-  //   - Glued position is just the mean of its components.
-  //   - Components APE is square sum of what has been set to glued and to components itself.
-  // But this can be too small, e.g. 
-  // - Simply by factor sqrt(4)=2 smaller than the old 'errGlued' in case APE (from position)
-  //   was only set to glued (and 1-to-1 propagated to components).
-  // - Factor sqrt(2) smaller than components APE in case APE (from position) was only
-  //   directly applied to both components.
-  //
-  // So I choose the max of all three, ignoring correlations (which we do not have?), sigh!
-  // And in this way it is safe against repetetive calls to this method!
-  double maxX2 = (errMono.cxx() > errStereo.cxx() ? errMono.cxx() : errStereo.cxx());
-  maxX2 = (maxX2 > errGlued.cxx() ? maxX2 : errGlued.cxx());
-  double maxY2 = (errMono.cyy() > errStereo.cyy() ? errMono.cyy() : errStereo.cyy());
-  maxY2 = (maxY2 > errGlued.cyy() ? maxY2 : errGlued.cyy());
-  double maxZ2 = (errMono.czz() > errStereo.czz() ? errMono.czz() : errStereo.czz());
-  maxZ2 = (maxZ2 > errGlued.czz() ? maxZ2 : errGlued.czz());
-  const AlignmentPositionError newApeGlued(sqrt(maxX2), sqrt(maxY2), sqrt(maxZ2));
-
-  // Now set new errors - due to false as 2nd argument not propagated down:
-  this->setAlignmentPositionError(newApeGlued, false);
-
-//   edm::LogWarning("Alignment") << "@SUB=consistifyAlignmentErrors" 
-// 			       << "End Id " << this->geomDetId();
-//   AlignmentErrors *newErrs = this->AlignableDet::alignmentErrors();
-//   this->dumpCompareAPE(oldErrs->m_alignError, newErrs->m_alignError);
-//   delete newErrs;
-
-  delete oldErrs;
-}
-
-//__________________________________________________________________________________________________
-const AlignTransformError& 
-AlignableSiStripDet::errorFromId(const std::vector<AlignTransformError> &trafoErrs,
-				 align::ID id) const
-{
-  for (unsigned int i = 0; i < trafoErrs.size(); ++i) {
-    if (trafoErrs[i].rawId() ==  id) return trafoErrs[i];
-  }
-
-  throw cms::Exception("Mismatch") << "[AlignableSiStripDet::indexFromId] "
-				   << id << " not found.";
-
-  return trafoErrs.front(); // never reached due to exception (but pleasing the compiler)
-}
-
-// //__________________________________________________________________________________________________
-// void AlignableSiStripDet::dumpCompareAPE(const std::vector<AlignTransformError> &trafoErrs1,
-// 					 const std::vector<AlignTransformError> &trafoErrs2) const
-// {
-//   for (unsigned int i = 0; i < trafoErrs1.size() && i < trafoErrs2.size(); ++i) {
-//     if (trafoErrs1[i].rawId() != trafoErrs2[i].rawId()) {
-//       // complain
-//       break;
-//     }
-//     const GlobalError globErr1(trafoErrs1[i].matrix());
-//     const GlobalError globErr2(trafoErrs2[i].matrix());
-//     edm::LogVerbatim("Alignment") << trafoErrs1[i].rawId() << " | " 
-// 				  << globErr1.cxx() << " " 
-// 				  << globErr1.cyy() << " " 
-// 				  << globErr1.czz() << " | "
-// 				  << globErr2.cxx() << " " 
-// 				  << globErr2.cyy() << " " 
-// 				  << globErr2.czz();
-//   }
-// }
-//
 // #include "CLHEP/Vector/EulerAngles.h"
 // #include "CLHEP/Vector/Rotation.h"
 // //__________________________________________________________________________________________________
