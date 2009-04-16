@@ -219,8 +219,8 @@ void MuonAlignment::recursiveCopySurveyToAlignment(Alignable *alignable) {
 	 }
       }
 
-      // this sets APEs at this level and all lower levels
-      alignable->setAlignmentPositionError(AlignmentPositionError(GlobalError(matrix3x3)));
+      // this sets APEs at this level and (since 2nd argument is true) all lower levels
+      alignable->setAlignmentPositionError(AlignmentPositionError(GlobalError(matrix3x3)), true);
    }
 
    // do lower levels afterward to thwart the cumulative setting of APEs
