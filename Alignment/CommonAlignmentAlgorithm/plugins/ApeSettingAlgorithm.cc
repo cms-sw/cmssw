@@ -2,9 +2,9 @@
  * \file MillePedeAlignmentAlgorithm.cc
  *
  *  \author    : Gero Flucke/Ivan Reid
- *  date       : February 2009 *  $Revision: 1.5 $
- *  $Date: 2009/04/03 08:59:05 $
- *  (last update by $Author: flucke $)
+ *  date       : February 2009 *  $Revision: 1.6 $
+ *  $Date: 2009/04/03 15:30:14 $
+ *  (last update by $Author: ireid $)
  */
 /*
  *# Parameters:
@@ -139,7 +139,8 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
 	 AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(id)); //NULL if none
 	 if (alidet)
 	   { if ((alidet->components().size()<1) || setComposites_) //the problem with glued dets...
-	     { if (readLocalNotGlobal_)
+	     { GlobalError globErr;
+	       if (readLocalNotGlobal_)
 	       { AlgebraicSymMatrix as(3,0); 
 	       if (readFullLocalMatrix_)
 		 { as[0][0]=x11; as[1][0]=x21; as[1][1]=x22;
@@ -153,11 +154,13 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
 	       am[1][0]=rt.yx(); am[1][1]=rt.yy(); am[1][2]=rt.yz();
 	       am[2][0]=rt.zx(); am[2][1]=rt.zy(); am[2][2]=rt.zz();
 	       am=am.T()*as*am; //symmetric matrix
-	       alidet->setAlignmentPositionError(AlignmentPositionError(GlobalError(am[0][0],am[1][0],am[1][1],am[2][0],am[2][1],am[2][2])));
+	       globErr = GlobalError(am[0][0],am[1][0],am[1][1],am[2][0],am[2][1],am[2][2]);
 	       }
 	     else
-	       { alidet->setAlignmentPositionError(GlobalError(x11,x21,x22,x31,x32,x33)); //set for global
+	       {
+		 globErr = GlobalError(x11,x21,x22,x31,x32,x33);
 	       }
+	     alidet->setAlignmentPositionError(globErr, false); // do not propagate down!
 	     apeList.insert(apeId); //Flag it's been set
 	     }
 	   else
