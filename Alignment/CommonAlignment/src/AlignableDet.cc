@@ -17,10 +17,9 @@ AlignableDet::AlignableDet( const GeomDet* geomDet, bool addComponents ) :
   AlignableComposite( geomDet ), 
   theAlignmentPositionError(0)
 {
-  // Take over APE from geometry _before_ creating daughters,
-  // otherwise would overwrite their APEs!
   if (geomDet->alignmentPositionError()) {
-    this->setAlignmentPositionError(*(geomDet->alignmentPositionError()));
+    // false: do not propagate APE to (anyway not yet existing) daughters
+    this->setAlignmentPositionError(*(geomDet->alignmentPositionError()), false); 
   }
 
   if (addComponents) {
@@ -57,7 +56,7 @@ AlignableDet::~AlignableDet()
 
 
 //__________________________________________________________________________________________________
-void AlignableDet::setAlignmentPositionError(const AlignmentPositionError& ape)
+void AlignableDet::setAlignmentPositionError(const AlignmentPositionError& ape, bool propagateDown)
 {
 
   if ( !theAlignmentPositionError )
@@ -65,13 +64,13 @@ void AlignableDet::setAlignmentPositionError(const AlignmentPositionError& ape)
   else 
 	*theAlignmentPositionError = ape;
 
-  AlignableComposite::setAlignmentPositionError( ape );
+  this->AlignableComposite::setAlignmentPositionError( ape, propagateDown );
 
 }
 
 
 //__________________________________________________________________________________________________
-void AlignableDet::addAlignmentPositionError(const AlignmentPositionError& ape)
+void AlignableDet::addAlignmentPositionError(const AlignmentPositionError& ape, bool propagateDown)
 {
 
   if ( !theAlignmentPositionError ) {
@@ -80,12 +79,13 @@ void AlignableDet::addAlignmentPositionError(const AlignmentPositionError& ape)
     *theAlignmentPositionError += ape;
   }
 
-  AlignableComposite::addAlignmentPositionError( ape );
+  this->AlignableComposite::addAlignmentPositionError( ape, propagateDown );
 
 }
 
 //__________________________________________________________________________________________________
-void AlignableDet::addAlignmentPositionErrorFromRotation(const RotationType& rot ) 
+void AlignableDet::addAlignmentPositionErrorFromRotation(const RotationType& rot,
+							 bool propagateDown)
 {
 
   // average error calculated by movement of a local point at
@@ -96,21 +96,26 @@ void AlignableDet::addAlignmentPositionErrorFromRotation(const RotationType& rot
   GlobalVector gv( rot.multiplyInverse(lpvgf) - lpvgf );
 
   AlignmentPositionError  ape( gv.x(),gv.y(),gv.z() );
-  this->addAlignmentPositionError( ape );
+  this->addAlignmentPositionError( ape, propagateDown );
 
-  AlignableComposite::addAlignmentPositionErrorFromRotation( rot );
+  this->AlignableComposite::addAlignmentPositionErrorFromRotation( rot, propagateDown );
 
 }
 
 //__________________________________________________________________________________________________
-void AlignableDet::addAlignmentPositionErrorFromLocalRotation(const RotationType& rot )
+void AlignableDet::addAlignmentPositionErrorFromLocalRotation(const RotationType& rot,
+							      bool propagateDown)
 {
 
   RotationType globalRot = globalRotation().multiplyInverse(rot*globalRotation());
-  this->addAlignmentPositionErrorFromRotation(globalRot);
+  this->addAlignmentPositionErrorFromRotation(globalRot, propagateDown);
 
-  AlignableComposite::addAlignmentPositionErrorFromLocalRotation( rot );
-
+  // FIXME: Wouldn't this be a duplication? Meaning that we should not at all overwrite
+  //        the method from AlignableComposite here!
+  //        So far I tested that removing this line indeed changes something and that removing
+  //        the full method indeed gives identical (tracker) misalignment results as 
+  //        removing this line only.
+  this->AlignableComposite::addAlignmentPositionErrorFromLocalRotation( rot, propagateDown );
 }
 
 
@@ -134,28 +139,19 @@ Alignments* AlignableDet::alignments() const
   // Add to alignments container
   m_alignments->m_align.push_back( transform );
 
-  // Add components recursively (if it is not already an alignable det unit)
-  std::vector<Alignable*> comp = this->components();
-  if ( comp.size() > 1 ) {
-    for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
-      {
-	Alignments* tmpAlignments = (*i)->alignments();
-	std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
-		   std::back_inserter(m_alignments->m_align) );
-	delete tmpAlignments;
-      }
-  }
+  // Add those from components
+  Alignments *compAlignments = this->AlignableComposite::alignments();
+  std::copy(compAlignments->m_align.begin(), compAlignments->m_align.end(), 
+	    std::back_inserter(m_alignments->m_align));
+  delete compAlignments;
 
 
   return m_alignments;
-
 }
-
 
 //__________________________________________________________________________________________________
 AlignmentErrors* AlignableDet::alignmentErrors( void ) const
 {
-
 
   AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
 
@@ -166,20 +162,13 @@ AlignmentErrors* AlignableDet::alignmentErrors( void ) const
     clhepSymMatrix= theAlignmentPositionError->globalError().matrix();
   AlignTransformError transformError( clhepSymMatrix, detId );
   m_alignmentErrors->m_alignError.push_back( transformError );
-  
-  // Add components recursively (if it is not already an alignable det unit)
-  std::vector<Alignable*> comp = this->components();
-  if ( comp.size() > 1 ) {
-    for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
-      {
-		AlignmentErrors* tmpAlignmentErrors = (*i)->alignmentErrors();
-		std::copy( tmpAlignmentErrors->m_alignError.begin(),
-			   tmpAlignmentErrors->m_alignError.end(), 
-			   std::back_inserter(m_alignmentErrors->m_alignError) );
-		delete tmpAlignmentErrors;
-      }
-  }
-  
-  return m_alignmentErrors;
 
+  // Add those from components
+  AlignmentErrors *compAlignmentErrs = this->AlignableComposite::alignmentErrors();
+  std::copy(compAlignmentErrs->m_alignError.begin(), compAlignmentErrs->m_alignError.end(),
+	    std::back_inserter(m_alignmentErrors->m_alignError));
+  delete compAlignmentErrs;
+  
+
+  return m_alignmentErrors;
 }
