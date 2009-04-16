@@ -227,7 +227,9 @@ void AlignableComposite::addAlignmentPositionErrorFromRotation( const RotationTy
 void AlignableComposite::addAlignmentPositionErrorFromLocalRotation( const RotationType& rot,
 								     bool propagateDown )
 {
-  if (!propagateDown) return;
+  // if (!propagateDown) return; // No! Cannot yet jump out since
+  // addAlignmentPositionErrorFromRotation(..) below might be overwritten in derived
+  // classes to do something on 'this' (and in fact does so in AlignableDet).
 
   RotationType globalRot = globalRotation().multiplyInverse(rot*globalRotation());
   this->addAlignmentPositionErrorFromRotation(globalRot, propagateDown);
