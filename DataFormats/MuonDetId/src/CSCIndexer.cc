@@ -2,7 +2,7 @@
 #include <iostream>
 
 void CSCIndexer::fillChamberLabel() const {
-  // Fill the member vector which permits decoding of the linear chamber index
+  // Fill the member vector which permits decoding of the linear chamber index.
   // Logically const since initializes cache only,
   // Beware that the ME42 indices 235-270 within this vector do NOT correspond to
   // their 'real' linear indices (which are 469-504 for +z)
@@ -15,7 +15,7 @@ void CSCIndexer::fillChamberLabel() const {
       for ( IndexType ir = 1; ir != irmax+1; ++ir ) {
          IndexType icmax = chambersInRingOfStation(is, ir);
          for ( IndexType ic = 1; ic != icmax+1; ++ic ) {
-	   chamberLabel[ ++count ] = is*1000 + ir*100 + ic ;
+	   				chamberLabel[ ++count ] = is*1000 + ir*100 + ic ;
          }
       } 
    }
@@ -128,17 +128,22 @@ CSCDetId CSCIndexer::detIdFromLayerIndex( IndexType ili ) const {
 
 std::pair<CSCDetId, CSCIndexer::IndexType>  CSCIndexer::detIdFromStripChannelIndex( LongIndexType isi ) const {
 
-  const LongIndexType lastnonme42 = 217728; // channels in 2008 installed chambers
-  const LongIndexType lastplusznonme42 = 108864; // = 217728/2
-  const LongIndexType firstme13  = 34561; // First channel of ME13
-  const LongIndexType lastme13   = 48384; // Last channel of ME13
+  const LongIndexType lastnonme1a       = 252288; // channels with ME42 installed
+  const LongIndexType lastpluszme1a     = 262656; // last unganged ME1a +z channel = 252288 + 10368
+  const LongIndexType lastnonme42       = 217728; // channels in 2008 installed chambers
+  const LongIndexType lastplusznonme42  = 108864; // = 217728/2
+  const LongIndexType firstme13         = 34561;  // First channel of ME13
+  const LongIndexType lastme13          = 48384;  // Last channel of ME13
 
-  const IndexType lastnonme42layer = 2808;
-  const IndexType lastplusznonme42layer = 1404; // = 2808/2
-  const IndexType firstme13layer  = 433; // = 72*6 + 1 (ME13 chambers are 72-108 in range 1-234)
-  const IndexType lastme13layer   = 648; // = 108*6
+  const IndexType lastnonme42layer      = 2808;
+  const IndexType lastplusznonme42layer = 1404;   // = 2808/2
+  const IndexType firstme13layer        = 433;    // = 72*6 + 1 (ME13 chambers are 72-108 in range 1-234)
+  const IndexType lastme13layer         = 648;    // = 108*6
 
-  // All chambers but ME13 have 80 channels
+	bool ungangedme1a = false;
+	
+  // All chambers but ME13 have 80 channels...
+  // ...except that unganged ME1a have 48 channels :(
   IndexType nchan = 80;
 
   // Set endcap to +z. This should work for ME42 channels too, since we don't need to calculate its endcap explicitly.
@@ -165,11 +170,18 @@ std::pair<CSCDetId, CSCIndexer::IndexType>  CSCIndexer::detIdFromStripChannelInd
       nchan = 64;
     }
   }
-  else {
-     // ME42 chambers
+  else if ( isi <= lastnonme1a ) {
+    // ME42 chambers
 
     istart = lastnonme42;
     layerOffset = lastnonme42layer;
+  }
+  else {
+	// Unganged ME1a channels
+		ungangedme1a = true;
+	  if (isi > lastpluszme1a) ie = 2;
+	  istart = lastnonme1a; 
+    nchan = 48;
   }
 
    isi -= istart; // remove earlier group(s)
@@ -178,7 +190,12 @@ std::pair<CSCDetId, CSCIndexer::IndexType>  CSCIndexer::detIdFromStripChannelInd
    ili += layerOffset; // add appropriate offset for earlier group(s)
    if ( ie != 1 ) ili+= lastplusznonme42layer; // add offset to -z endcap; ME42 doesn't need this.
 	
-   return std::pair<CSCDetId, IndexType>(detIdFromLayerIndex(ili), ichan);
+   CSCDetId id = detIdFromLayerIndex(ili);
+
+	 // For unganged ME1a we need to turn this ME11 detid into an ME1a one
+   if ( ungangedme1a ) id = CSCDetId( id.endcap(), 1, 4, id.chamber(), id.layer() );
+	
+   return std::pair<CSCDetId, IndexType>(id, ichan);
 }
 
 int CSCIndexer::dbIndex(const CSCDetId & id, int & channel)
@@ -189,11 +206,10 @@ int CSCIndexer::dbIndex(const CSCDetId & id, int & channel)
   int ch = id.chamber();
   int la = id.layer();
 
-  // The channels of ME1A are channels 65-80 of ME11
-  if(st == 1 && rg == 4)
-    {
-      rg = 1;
-      if(channel <= 16) channel += 64; // no trapping for any bizarreness
-    }
+  // The channels of ME1a are channels 65-80 of ME11
+  if (st == 1 && rg == 4) {
+    rg = 1;
+    if(channel <= 16) channel += 64; // no trapping for any bizarreness
+  }
   return ec*100000 + st*10000 + rg*1000 + ch*10 + la;
 }
