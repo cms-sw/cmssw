@@ -33,8 +33,8 @@ hltvalidation_fastsim = cms.Sequence(
     )
 
 hltvalidation_pu = cms.Sequence(
-    #HLTMuonVal
-     HLTTauVal
+     HLTMuonVal
+    +HLTTauVal
     +egammaValidationSequence
     +HLTTopVal
     +HLTFourVector
