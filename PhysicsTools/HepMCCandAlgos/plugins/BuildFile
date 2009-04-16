@@ -6,6 +6,7 @@
   <use name=DataFormats/HepMCCandidate>
   <use name=DataFormats/WrappedStdDictionaries>
   <use name=DataFormats/JetReco>
+  <use name=DataFormats/PatCandidates>
   <use name=SimDataFormats/GeneratorProducts>
   <use name=SimGeneral/HepPDTRecord>
   <use name=PhysicsTools/UtilAlgos>
