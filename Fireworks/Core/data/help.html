@@ -109,22 +109,31 @@ CmsShow is invoked as follows:
 </p><pre>./cmsShow.exe [options] &lt;data file&gt;</pre>
 <p>
 For most uses, no options are required.
-</p><p>
+<p />
 Allowed options:
-</p><pre>  -i [ --input-file ] arg  Input root file
-  -c [ --config-file ] arg Include configuration file
-  -g [ --geom-file ] arg   Include geometry file
-  -n [ --noconfig ]        Don't load any configuration file
-  -f [ --fast ]            Faster running by not providing tables
-  -d [ --debug ]           Show Eve browser to help debug problems
-  -s [ --shine ]           Use advanced options to improve rendering quality 
+<pre>
+
+  -i &#91; --input-file ] arg  Input root file
+  -c &#91; --config-file ] arg Include configuration file
+  -g &#91; --geom-file ] arg   Include geometry file
+  -n &#91; --noconfig ]        Don&#39;t load any configuration file
+  -p &#91; --play ] arg        Start in auto playback mode with given interval
+                           between events in seconds
+  --port arg               Listen to port for new data files to open
+  --eve                    Show Eve browser to help debug problems
+  -d &#91; --debug ]           Start the display from a debugger and producer a
+                           crash report
+  -s &#91; --shine ]           Use advance options to improve rendering quality
                            (anti-alias etc)
-  --soft                   Try to force software rendering to avoid problems 
+  --soft                   Try to force software rendering to avoid problems
                            with bad hardware drivers
-  -h [ --help ]            Display help message
+  --brightness arg         Icnrease brightness of objects when used for slides
+                           or projectors. &#91;0-5]
+  -h &#91; --help ]            Display help message
+
 </pre>
-<p>
-</p><h1><a name="Viewing_an_event"></a> Viewing an event </h1>
+<p />
+<h1><a name="Viewing_an_event"></a> Viewing an event </h1>
 <p>
 </p><h4><a name="What_is_shown"></a><a name="What_is_shown_"></a> What is shown? </h4>
 <p>
