@@ -1,8 +1,8 @@
 /*
  *  DQM client for muon alignment summary
  *
- *  $Date: 2009/03/04 10:57:49 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/04/08 09:26:19 $
+ *  $Revision: 1.4 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
@@ -26,7 +26,7 @@ MuonAlignmentSummary::MuonAlignmentSummary(const edm::ParameterSet& pSet) {
     doCSC = parameters.getUntrackedParameter<bool>("doCSC");
 
     MEFolderName = parameters.getParameter<std::string>("FolderName");
-    topFolder << MEFolderName+"/Alignment/Muon";
+    topFolder << MEFolderName+"Alignment/Muon";
 
     if(!(doDT || doCSC) ) { 
         edm::LogError("MuonAlignmentSummary") <<" Error!! At least one Muon subsystem (DT or CSC) must be monitorized!!" << endl;
