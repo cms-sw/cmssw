@@ -48,8 +48,14 @@ hltCtfL1IsoLargeWindowWithMaterialTracks = cms.EDFilter("FastTrackMerger",
 )
 
 # Sequence for electrons iso, large window.
-HLTPixelMatchElectronL1IsoLargeWindowTrackingSequence = cms.Sequence(hltCkfL1IsoLargeWindowTrackCandidates+
+#HLTPixelMatchElectronL1IsoLargeWindowTrackingSequence = cms.Sequence(hltCkfL1IsoLargeWindowTrackCandidates+
+#                                                                     ctfL1IsoLargeWindowTracks+
+#                                                                     hltCtfL1IsoLargeWindowWithMaterialTracks+
+#                                                                     cms.SequencePlaceholder("hltPixelMatchElectronsL1IsoLargeWindow"))
+
+
+HLTPixelMatchLargeWindowElectronL1IsoTrackingSequence = cms.Sequence(hltCkfL1IsoLargeWindowTrackCandidates+
                                                                      ctfL1IsoLargeWindowTracks+
                                                                      hltCtfL1IsoLargeWindowWithMaterialTracks+
-                                                                     cms.SequencePlaceholder("hltPixelMatchElectronsL1IsoLargeWindow"))
+                                                                     cms.SequencePlaceholder("hltPixelMatchLargeWindowElectronsL1Iso"))
 
