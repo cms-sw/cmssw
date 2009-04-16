@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 from RecoMuon.TrackingTools.MuonTrackLoader_cff import *
-from RecoMuon.GlobalTrackingTools.GlobalMuonTrackMatcher_cff import *
 
 globalCosmicMuons = cms.EDProducer("GlobalCosmicMuonProducer",
     MuonTrackLoaderForCosmic,
