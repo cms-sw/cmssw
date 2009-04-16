@@ -397,7 +397,8 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
 	LocalVector localError( sqrt(xAPEError), sqrt(yAPEError), sqrt(zAPEError) );
 	GlobalVector globalError = (*itAlignable)->surface().toGlobal( localError );
 	AlignmentPositionError ape( globalError.x(), globalError.y(), globalError.z() );
-	( *itAlignable )->setAlignmentPositionError( ape );
+	// FIXME (GF): The above does not seem to be a correct error transformation!
+	( *itAlignable )->setAlignmentPositionError( ape, true ); // true: propagate down
       }
 
       //AlgebraicVector trueParameters( 6 );
@@ -678,7 +679,8 @@ KalmanAlignmentAlgorithm::applyAlignmentParameters( Alignable* ali, AlignmentPar
     LocalVector localError( sqrt(aliCov[0][0]), sqrt(aliCov[1][1]), sqrt(aliCov[2][2]) );
     GlobalVector globalError = ali->surface().toGlobal( localError );
     AlignmentPositionError ape( globalError.x(), globalError.y(), globalError.z() );
-    ali->setAlignmentPositionError( ape );
+    // FIXME (GF): The above does not seem to be a correct error transformation!
+    ali->setAlignmentPositionError( ape, true );  // true: propagate down
   }
 }
 
@@ -790,7 +792,7 @@ void KalmanAlignmentAlgorithm::mergeResults( void ) const
 void KalmanAlignmentAlgorithm::setAPEToZero( void )
 {
   AlignmentPositionError zeroAPE( 0., 0., 0. );
-  theTracker->setAlignmentPositionError( zeroAPE );
+  theTracker->setAlignmentPositionError( zeroAPE, true );
 }
 
 DEFINE_EDM_PLUGIN( AlignmentAlgorithmPluginFactory, KalmanAlignmentAlgorithm, "KalmanAlignmentAlgorithm");
