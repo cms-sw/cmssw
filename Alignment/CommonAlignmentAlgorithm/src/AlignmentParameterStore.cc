@@ -1,8 +1,8 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.25 $
- *  $Date: 2009/02/24 13:24:54 $
+ *  $Revision: 1.26 $
+ *  $Date: 2009/03/03 12:06:22 $
  *  (last update by $Author: flucke $)
  */
 
@@ -610,17 +610,20 @@ void AlignmentParameterStore::setAlignmentPositionError( const align::Alignables
 
     // First reset APE	 
     AlignmentPositionError nulApe(0,0,0);	 
-    ali->setAlignmentPositionError(nulApe);
+    ali->setAlignmentPositionError(nulApe, true);
 
     // Set APE from displacement
     AlignmentPositionError ape(valshift,valshift,valshift);
-    if ( valshift > 0. ) ali->addAlignmentPositionError(ape);
-    else ali->setAlignmentPositionError(ape);
+    if ( valshift > 0. ) ali->addAlignmentPositionError(ape, true);
+    else ali->setAlignmentPositionError(ape, true);
+    // GF: Resetting and setting as above does not really make sense to me, 
+    //     and adding to zero or setting is the same! I'd just do 
+    //ali->setAlignmentPositionError(AlignmentPositionError ape(valshift,valshift,valshift),true);
 
     // Set APE from rotation
     align::EulerAngles r(3);
     r(1)=valrot; r(2)=valrot; r(3)=valrot;
-    ali->addAlignmentPositionErrorFromRotation( align::toMatrix(r) );
+    ali->addAlignmentPositionErrorFromRotation(align::toMatrix(r), true);
   }
 
   LogDebug("StoreAPE") << "Store APE from shift: " << valshift
@@ -639,7 +642,8 @@ bool AlignmentParameterStore
   // the intermediate level, e.g. global z for dets and layers is aligned, but not for rods!
   if (!ali || !ali->alignmentParameters()) return false;
 
-  if (ali->alignmentParameters()->type() != AlignmentParametersFactory::kRigidBody) {
+  if (ali->alignmentParameters()->type() != AlignmentParametersFactory::kRigidBody
+      && ali->alignmentParameters()->type() != AlignmentParametersFactory::kRigidBody4D) {
     throw cms::Exception("BadConfig") << "AlignmentParameterStore::hierarchyConstraints"
 				      << " requires 'ali' to have rigid body alignment parameters.";
   }
@@ -652,7 +656,8 @@ bool AlignmentParameterStore
   bool firstComp = true;
   for (align::Alignables::const_iterator iComp = aliComps.begin(), iCompE = aliComps.end();
        iComp != iCompE; ++iComp) {
-    if ((*iComp)->alignmentParameters()->type() != AlignmentParametersFactory::kRigidBody) {
+    if ((*iComp)->alignmentParameters()->type() != AlignmentParametersFactory::kRigidBody
+	|| (*iComp)->alignmentParameters()->type() != AlignmentParametersFactory::kRigidBody4D) {
       throw cms::Exception("BadConfig")
 	<< "AlignmentParameterStore::hierarchyConstraints"
 	<< " requires all 'aliComps' to have rigid body alignment parameters.";
