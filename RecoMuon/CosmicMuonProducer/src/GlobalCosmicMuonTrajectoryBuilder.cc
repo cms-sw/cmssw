@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2009/01/15 21:00:01 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/04/15 09:40:18 $
+ *  $Revision: 1.19 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -159,7 +159,11 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
   TrajectorySeed seed;
   vector<Trajectory> refitted = theSmoother->trajectories(seed,hits,firstState);
 
-  if ( refitted.empty() ) refitted = theSmoother->fit(seed,hits,firstState); //FIXME
+  if ( refitted.empty() ) {
+    LogTrace(category_)<<"smoothing trajectories fail";
+
+    refitted = theSmoother->fit(seed,hits,firstState); //FIXME
+  }
 
   if (refitted.empty()) {
      LogTrace(category_)<<"refit fail";
