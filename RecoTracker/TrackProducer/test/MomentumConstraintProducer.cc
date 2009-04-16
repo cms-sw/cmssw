@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Jul 10 15:05:02 CEST 2007
-// $Id: MomentumConstraintProducer.cc,v 1.3 2007/09/18 14:35:06 ratnik Exp $
+// $Id: MomentumConstraintProducer.cc,v 1.4 2009/03/04 13:34:31 vlimant Exp $
 //
 //
 
@@ -50,6 +50,8 @@ private:
       
   // ----------member data ---------------------------
   const edm::ParameterSet iConfig_;
+  double fixedmom_;
+  double fixedmomerr_;
 };
 
 //
@@ -89,6 +91,9 @@ void MomentumConstraintProducer::produce(edm::Event& iEvent, const edm::EventSet
 {
   using namespace edm;
   InputTag srcTag = iConfig_.getParameter<InputTag>("src");
+  fixedmom_= iConfig_.getParameter<double>("fixedMomentum");
+  fixedmomerr_= iConfig_.getParameter<double>("fixedMomentumError");
+
   Handle<reco::TrackCollection> theTCollection;
   iEvent.getByLabel(srcTag,theTCollection);
   
@@ -99,7 +104,11 @@ void MomentumConstraintProducer::produce(edm::Event& iEvent, const edm::EventSet
   
   int index = 0;
   for (reco::TrackCollection::const_iterator i=theTCollection->begin(); i!=theTCollection->end();i++) {
-    MomentumConstraint tmp(10.,0.01) ;
+    //    MomentumConstraint tmp(10.,0.01) ;
+    if(fixedmom_< 0.0){
+      fixedmom_= i->p();
+    }
+    MomentumConstraint tmp(fixedmom_,fixedmomerr_) ;
     pairs->push_back(tmp);
     output->insert(reco::TrackRef(theTCollection,index), edm::Ref<std::vector<MomentumConstraint> >(rPairs,index) );
     index++;
