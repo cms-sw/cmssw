@@ -21,22 +21,22 @@ cosmicMuons = cms.EDProducer("CosmicMuonProducer",
             RescaleErrorFactor = cms.double(1.0),
             Granularity = cms.int32(0)
         ),
-        EnableRPCMeasurement = cms.untracked.bool(True),
+        EnableRPCMeasurement = cms.bool(True),
         CSCRecSegmentLabel = cms.InputTag("cscSegments"),
-        BuildTraversingMuon = cms.untracked.bool(False),
-        EnableDTMeasurement = cms.untracked.bool(True),
+        BuildTraversingMuon = cms.bool(False),
+        EnableDTMeasurement = cms.bool(True),
         MuonSmootherParameters = cms.PSet(
             PropagatorAlong = cms.string('SteppingHelixPropagatorAny'),
             PropagatorOpposite = cms.string('SteppingHelixPropagatorAny'),
             RescalingFactor = cms.double(5.0) 
         ),
         Propagator = cms.string('SteppingHelixPropagatorAny'),
-        EnableCSCMeasurement = cms.untracked.bool(True),
-        MuonNavigationParameters = cms.untracked.PSet(
+        EnableCSCMeasurement = cms.bool(True),
+        MuonNavigationParameters = cms.PSet(
             Barrel = cms.untracked.bool(True),
             Endcap = cms.untracked.bool(True)
         )
     ),
-    MuonSeedCollectionLabel = cms.untracked.string('CosmicMuonSeed')
+    MuonSeedCollectionLabel = cms.string('CosmicMuonSeed')
 )
 

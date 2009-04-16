@@ -6,8 +6,8 @@
  *
  * Implementation:
  *
- * $Date: 2008/01/14 11:49:36 $
- * $Revision: 1.14 $
+ * $Date: 2008/09/15 12:42:12 $
+ * $Revision: 1.15 $
  * Original Author:  Chang Liu
  *        Created:  Tue Jun 13 02:46:17 CEST 2006
 **/
@@ -45,7 +45,7 @@ using namespace edm;
 CosmicMuonProducer::CosmicMuonProducer(const ParameterSet& iConfig)
 {
   ParameterSet tbpar = iConfig.getParameter<ParameterSet>("TrajectoryBuilderParameters");
-  theSeedCollectionLabel = iConfig.getUntrackedParameter<std::string>("MuonSeedCollectionLabel");
+  theSeedCollectionLabel = iConfig.getParameter<std::string>("MuonSeedCollectionLabel");
 
   // service parameters
   ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
