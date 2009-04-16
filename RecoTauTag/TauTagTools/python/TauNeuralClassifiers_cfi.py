@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import copy
 
 #Define the mapping of Decay mode IDs onto the names of trained MVA files
-#Note that one category can apply to multiple decay modes, a decay mode can not have multiple categories
+#Note that while one category can apply to multiple decay modes, a decay mode can not have multiple categories
 
 # Get MVA configuration defintions (edit MVAs here)
 from RecoTauTag.TauTagTools.TauMVAConfigurations_cfi import *
@@ -20,23 +20,31 @@ def UpdateCuts(TheProducer, TheCuts):
          TheCut /= 2.0
       aComputer.cut = cms.double(TheCut)
 
-shrinkingConePFTauDiscriminationByTaNCfrOnePercent = copy.deepcopy(shrinkingConePFTauDiscriminationByTaNC)
+TauDecayModeCutMutliplexerPrototype = cms.EDProducer("PFTauDecayModeCutMultiplexer",
+      PFTauDecayModeSrc            = cms.InputTag("shrinkingConePFTauDecayModeIndexProducer"),
+      PFTauDiscriminantToMultiplex = cms.InputTag('shrinkingConePFTauDiscriminationByTaNC'),
+      preDiscriminants             = cms.VInputTag("shrinkingConePFTauDiscriminationByLeadingPionPtCut"),
+      computers                    = TaNC,
+      RemapOutput                  = cms.bool(True)
+)
+
+shrinkingConePFTauDiscriminationByTaNCfrOnePercent = copy.deepcopy(TauDecayModeCutMutliplexerPrototype)
 shrinkingConePFTauDiscriminationByTaNCfrOnePercent.MakeBinaryDecision = cms.bool(True)
 UpdateCuts(shrinkingConePFTauDiscriminationByTaNCfrOnePercent, CutSet_TaNC_OnePercent)
 
-shrinkingConePFTauDiscriminationByTaNCfrOnePercent = copy.deepcopy(shrinkingConePFTauDiscriminationByTaNC)
+shrinkingConePFTauDiscriminationByTaNCfrOnePercent = copy.deepcopy(TauDecayModeCutMutliplexerPrototype)
 shrinkingConePFTauDiscriminationByTaNCfrOnePercent.MakeBinaryDecision = cms.bool(True)
 UpdateCuts(shrinkingConePFTauDiscriminationByTaNCfrOnePercent, CutSet_TaNC_OnePercent)
 
-shrinkingConePFTauDiscriminationByTaNCfrHalfPercent = copy.deepcopy(shrinkingConePFTauDiscriminationByTaNC)
+shrinkingConePFTauDiscriminationByTaNCfrHalfPercent = copy.deepcopy(TauDecayModeCutMutliplexerPrototype)
 shrinkingConePFTauDiscriminationByTaNCfrHalfPercent.MakeBinaryDecision = cms.bool(True)
 UpdateCuts(shrinkingConePFTauDiscriminationByTaNCfrHalfPercent, CutSet_TaNC_HalfPercent)
 
-shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent = copy.deepcopy(shrinkingConePFTauDiscriminationByTaNC)
+shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent = copy.deepcopy(TauDecayModeCutMutliplexerPrototype)
 shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent.MakeBinaryDecision = cms.bool(True)
 UpdateCuts(shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent, CutSet_TaNC_QuarterPercent)
 
-shrinkingConePFTauDiscriminationByTaNCfrTenthPercent = copy.deepcopy(shrinkingConePFTauDiscriminationByTaNC)
+shrinkingConePFTauDiscriminationByTaNCfrTenthPercent = copy.deepcopy(TauDecayModeCutMutliplexerPrototype)
 shrinkingConePFTauDiscriminationByTaNCfrTenthPercent.MakeBinaryDecision = cms.bool(True)
 UpdateCuts(shrinkingConePFTauDiscriminationByTaNCfrTenthPercent, CutSet_TaNC_TenthPercent)
 
