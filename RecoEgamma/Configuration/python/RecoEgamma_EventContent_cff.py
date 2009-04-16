@@ -36,7 +36,7 @@ RecoEgammaFEVT = cms.PSet(
 # RECO content
 RecoEgammaRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
-        'keep recoGsfElectrons_gsfElectronCores_*_*', 
+        'keep recoGsfElectronCores_gsfElectronCores_*_*', 
         'keep recoGsfElectrons_gsfElectrons_*_*', 
         'keep floatedmValueMap_eidRobustLoose_*_*',
         'keep floatedmValueMap_eidRobustTight_*_*',
@@ -59,7 +59,7 @@ RecoEgammaRECO = cms.PSet(
 # AOD content
 RecoEgammaAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
-        'keep recoGsfElectrons_gsfElectronCores_*_*', 
+        'keep recoGsfElectronCores_gsfElectronCores_*_*', 
         'keep recoGsfElectrons_gsfElectrons_*_*', 
         'keep floatedmValueMap_eidRobustLoose_*_*',
         'keep floatedmValueMap_eidRobustTight_*_*',
