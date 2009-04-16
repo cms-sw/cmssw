@@ -55,8 +55,13 @@ from RecoTauTag.RecoTau.PFRecoTauDecayModeDeterminator_cfi                      
 shrinkingConePFTauDecayModeProducer               = copy.deepcopy(pfTauDecayMode)
 shrinkingConePFTauDecayModeProducer.PFTauProducer = 'shrinkingConePFTauProducer'
 
-# Define the discriminators for this tau
+# Store the reco'd decay modes in a simple container
+from RecoTauTag.RecoTau.PFRecoTauDecayModeIndexProducer_cfi                             import *
+shrinkingConePFTauDecayModeIndexProducer                        = copy.deepcopy(pfTauDecayModeIndexProducer)
+shrinkingConePFTauDecayModeIndexProducer.PFTauProducer          = cms.InputTag("shrinkingConePFTauProducer")
+shrinkingConePFTauDecayModeIndexProducer.PFTauDecayModeProducer = cms.InputTag("shrinkingConePFTauDecayModeProducer")
 
+# Define the discriminators for this tau
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi                      import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi            import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackPtCut_cfi              import *
@@ -111,6 +116,7 @@ shrinkingConePFTauDiscriminationAgainstMuon.PFTauProducer                      =
 produceAndDiscriminateShrinkingConePFTaus = cms.Sequence(
       shrinkingConePFTauProducer*
       shrinkingConePFTauDecayModeProducer*
+      shrinkingConePFTauDecayModeIndexProducer*
       shrinkingConePFTauDiscriminationByLeadingTrackFinding*
       shrinkingConePFTauDiscriminationByLeadingTrackPtCut*
       shrinkingConePFTauDiscriminationByLeadingPionPtCut*

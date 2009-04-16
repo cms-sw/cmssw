@@ -38,6 +38,12 @@ from RecoTauTag.RecoTau.PFRecoTauDecayModeDeterminator_cfi                      
 fixedConeHighEffPFTauDecayModeProducer               = copy.deepcopy(pfTauDecayMode)
 fixedConeHighEffPFTauDecayModeProducer.PFTauProducer = 'fixedConeHighEffPFTauProducer'
 
+# Store the reco'd decay modes in a simple container
+from RecoTauTag.RecoTau.PFRecoTauDecayModeIndexProducer_cfi                             import *
+fixedConeHighEffPFTauDecayModeIndexProducer                        = copy.deepcopy(pfTauDecayModeIndexProducer)
+fixedConeHighEffPFTauDecayModeIndexProducer.PFTauProducer          = cms.InputTag("fixedConeHighEffPFTauProducer")
+fixedConeHighEffPFTauDecayModeIndexProducer.PFTauDecayModeProducer = cms.InputTag("fixedConeHighEffPFTauDecayModeProducer")
+
 # Define the discriminators for this tau
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi                      import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi            import *
@@ -93,6 +99,7 @@ fixedConeHighEffPFTauDiscriminationAgainstMuon.PFTauProducer                    
 produceAndDiscriminateFixedConeHighEffPFTaus = cms.Sequence(
       fixedConeHighEffPFTauProducer*
       fixedConeHighEffPFTauDecayModeProducer*
+      fixedConeHighEffPFTauDecayModeIndexProducer*
       fixedConeHighEffPFTauDiscriminationByLeadingTrackFinding*
       fixedConeHighEffPFTauDiscriminationByLeadingTrackPtCut*
       fixedConeHighEffPFTauDiscriminationByLeadingPionPtCut*
