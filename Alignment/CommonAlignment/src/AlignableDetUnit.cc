@@ -16,14 +16,16 @@ AlignableDetUnit::AlignableDetUnit(const GeomDetUnit *geomDetUnit) : // rely on 
   theAlignmentPositionError(0)
 {
   if (geomDetUnit->alignmentPositionError()) { // take over APE from geometry
-    this->setAlignmentPositionError(*(geomDetUnit->alignmentPositionError()));
+    // 2nd argument w/o effect:
+    this->setAlignmentPositionError(*(geomDetUnit->alignmentPositionError()), false);
   }
 
   theDeepComponents.push_back(this);
 }
 
 //__________________________________________________________________________________________________
-AlignableDetUnit::~AlignableDetUnit() {
+AlignableDetUnit::~AlignableDetUnit()
+{
   delete theAlignmentPositionError;
 }
 
@@ -56,7 +58,8 @@ void AlignableDetUnit::rotateInGlobalFrame( const RotationType& rotation)
 
 
 //__________________________________________________________________________________________________
-void AlignableDetUnit::setAlignmentPositionError(const AlignmentPositionError& ape)
+void AlignableDetUnit::setAlignmentPositionError(const AlignmentPositionError& ape,
+						 bool /*propagateDown*/)
 {
 
   if ( !theAlignmentPositionError ) 
@@ -68,18 +71,20 @@ void AlignableDetUnit::setAlignmentPositionError(const AlignmentPositionError& a
 
 
 //__________________________________________________________________________________________________
-void AlignableDetUnit::addAlignmentPositionError(const AlignmentPositionError& ape )
+void AlignableDetUnit::addAlignmentPositionError(const AlignmentPositionError& ape,
+						 bool propagateDown )
 {
 
   if ( !theAlignmentPositionError )
-    this->setAlignmentPositionError( ape );
+    this->setAlignmentPositionError( ape, propagateDown ); // 2nd argument w/o effect
   else 
     *theAlignmentPositionError += ape;
 }
 
 
 //__________________________________________________________________________________________________
-void AlignableDetUnit::addAlignmentPositionErrorFromRotation(const RotationType& rot ) 
+void AlignableDetUnit::addAlignmentPositionErrorFromRotation(const RotationType& rot,
+							     bool propagateDown ) 
 {
 
   // average error calculated by movement of a local point at
@@ -90,17 +95,18 @@ void AlignableDetUnit::addAlignmentPositionErrorFromRotation(const RotationType&
   GlobalVector gv( rot.multiplyInverse(lpvgf) - lpvgf );
 
   AlignmentPositionError  ape( gv.x(),gv.y(),gv.z() );
-  this->addAlignmentPositionError( ape );
+  this->addAlignmentPositionError( ape, propagateDown ); // 2nd argument w/o effect
 
 }
 
 
 //__________________________________________________________________________________________________
-void AlignableDetUnit::addAlignmentPositionErrorFromLocalRotation(const RotationType& rot )
+void AlignableDetUnit::addAlignmentPositionErrorFromLocalRotation(const RotationType& rot,
+								  bool propagateDown )
 {
 
   RotationType globalRot = globalRotation().multiplyInverse(rot*globalRotation());
-  this->addAlignmentPositionErrorFromRotation(globalRot);
+  this->addAlignmentPositionErrorFromRotation(globalRot, propagateDown); // 2nd argument w/o effect
 
 }
 

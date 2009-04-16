@@ -16,8 +16,8 @@ class Alignments;
  * Any Alignable object can be moved and rotated.
  * Also an alignment uncertainty can be set.
  *
- *  $Date: 2008/02/13 20:19:56 $
- *  $Revision: 1.30 $
+ *  $Date: 2008/04/11 18:19:01 $
+ *  $Revision: 1.31 $
  *  (last update by $Author: flucke $)
  */
 
@@ -135,25 +135,28 @@ public:
   /// Return change of orientation since the creation of the object 
   const RotationType& rotation() const { return theRotation; }
 
-  /// Set the alignment position error
+  /// Set the alignment position error - if (!propagateDown) do not affect daughters
   virtual void 
-  setAlignmentPositionError( const AlignmentPositionError& ape ) = 0;
+  setAlignmentPositionError( const AlignmentPositionError& ape, bool propagateDown) = 0;
 
-  /// Add (or set if not already present) the AlignmentPositionError
+  /// Add (or set if not already present) the AlignmentPositionError,
+  /// but if (!propagateDown) do not affect daughters
   virtual void 
-  addAlignmentPositionError( const AlignmentPositionError& ape ) = 0;
+  addAlignmentPositionError( const AlignmentPositionError& ape, bool propagateDown ) = 0;
 
   /// add (or set if not already present) the AlignmentPositionError 
   /// which would result from a rotation (given in the GLOBAL frame
-  /// of CMS) of the alignable object
+  /// of CMS) of the alignable object,
+  /// but if (!propagateDown) do not affect daughters
   virtual void 
-  addAlignmentPositionErrorFromRotation( const RotationType& rotation ) = 0;
+  addAlignmentPositionErrorFromRotation( const RotationType& rotation, bool propagateDown ) = 0;
 
   /// add (or set if not already present) the AlignmentPositionError 
   /// which would result from a rotation (given in the LOCAL frame
-  /// of the Alignable)  of the alignable object
+  /// of the Alignable)  of the alignable object,
+  /// but if (!propagateDown) do not affect daughters
   virtual void 
-  addAlignmentPositionErrorFromLocalRotation( const RotationType& rotation ) = 0;
+  addAlignmentPositionErrorFromLocalRotation( const RotationType& rotation, bool propagateDown ) = 0;
 
   /// Return the alignable type identifier
   virtual StructureType alignableObjectId() const = 0;
@@ -162,7 +165,7 @@ public:
   /// This should be removed. Ultimately we need only one ID.
   const DetId& geomDetId() const { return theDetId; }
 
-  /// Return the ID of Alignable. 
+  /// Return the ID of Alignable, i.e. DetId of 'first' component GeomDet(Unit). 
   align::ID id() const { return theId; } 
 
   /// Recursive printout of alignable information

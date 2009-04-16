@@ -36,19 +36,22 @@ public:
   /// Rotation with respect to the global reference frame
   virtual void rotateInGlobalFrame( const RotationType& rotation );
 
-  /// Set the AlignmentPositionError
-  virtual void setAlignmentPositionError(const AlignmentPositionError& ape);
+  /// Set the AlignmentPositionError (no components => second argument ignored)
+  virtual void setAlignmentPositionError(const AlignmentPositionError &ape, bool /*propDown*/);
 
   /// Add (or set if it does not exist yet) the AlignmentPositionError
-  virtual void addAlignmentPositionError(const AlignmentPositionError& ape);
+  /// (no components => second argument without effect)
+  virtual void addAlignmentPositionError(const AlignmentPositionError& ape, bool /*propDown*/);
 
   /// Add (or set if it does not exist yet) the AlignmentPositionError
   /// resulting from a rotation in the global reference frame
-  virtual void addAlignmentPositionErrorFromRotation(const RotationType& rot);
+  /// (no components => second argument without effect)
+  virtual void addAlignmentPositionErrorFromRotation(const RotationType& rot, bool /*propDown*/);
 
   /// Add (or set if it does not exist yet) the AlignmentPositionError
   /// resulting from a rotation in the local reference frame
-  virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot);
+  /// (no components => second argument without effect)
+  virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot, bool /*propDown*/);
 
   /// Return the alignable type identifier
   virtual StructureType alignableObjectId () const { return align::AlignableDetUnit; }

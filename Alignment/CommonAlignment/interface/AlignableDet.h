@@ -17,19 +17,23 @@ public:
   /// Destructor
   virtual ~AlignableDet();
 
-  /// Set alignment position error of this and all components to given error
-  virtual void setAlignmentPositionError(const AlignmentPositionError& ape);
+  /// Set the AlignmentPositionError and, if (propagateDown), to all components
+  virtual void setAlignmentPositionError(const AlignmentPositionError &ape, bool propagateDown);
+
+  /// Add (or set if it does not exist yet) the AlignmentPositionError,
+  /// if (propagateDown), add also to all components
+  virtual void addAlignmentPositionError(const AlignmentPositionError &ape, bool propagateDown);
 
   /// Add (or set if it does not exist yet) the AlignmentPositionError
-  virtual void addAlignmentPositionError(const AlignmentPositionError& ape);
+  /// resulting from a rotation in the global reference frame,
+  /// if (propagateDown), add also to all components
+  virtual void addAlignmentPositionErrorFromRotation(const RotationType &rot, bool propagateDown);
 
   /// Add (or set if it does not exist yet) the AlignmentPositionError
-  /// resulting from a rotation in the global reference frame
-  virtual void addAlignmentPositionErrorFromRotation(const RotationType& rot);
-
-  /// Add (or set if it does not exist yet) the AlignmentPositionError
-  /// resulting from a rotation in the local reference frame
-  virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot);
+  /// resulting from a rotation in the local reference frame,
+  /// if (propagateDown), add also to all components
+  virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType &rot,
+							  bool propagateDown);
 
   /// Return vector of alignment data
   virtual Alignments* alignments() const;

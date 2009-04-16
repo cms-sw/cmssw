@@ -151,30 +151,36 @@ void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
 
 
 //__________________________________________________________________________________________________
-/// Set the alignment position error of all components to given error
-void AlignableComposite::setAlignmentPositionError( const AlignmentPositionError& ape )
+void AlignableComposite::setAlignmentPositionError( const AlignmentPositionError& ape,
+						    bool propagateDown )
 {
 
   // Since no geomDet is attached, alignable composites do not have an APE
   // The APE is, therefore, just propagated down
-  Alignables comp = this->components();
-  for ( Alignables::const_iterator i=comp.begin(); i!=comp.end(); i++) 
-    {
-      (*i)->setAlignmentPositionError(ape);
-    }
+  if (!propagateDown) return;
 
+  Alignables comp = this->components();
+  for (Alignables::const_iterator i = comp.begin(); i != comp.end(); ++i) {
+    (*i)->setAlignmentPositionError(ape, propagateDown);
+  }
 }
 
 
 //__________________________________________________________________________________________________
 void 
-AlignableComposite::addAlignmentPositionError( const AlignmentPositionError& ape )
+AlignableComposite::addAlignmentPositionError( const AlignmentPositionError& ape,
+					       bool propagateDown )
 {
 
-  Alignables comp = this->components();
-  for ( Alignables::const_iterator i=comp.begin(); i!=comp.end(); i++) 
-    (*i)->addAlignmentPositionError(ape);
+  // Since no geomDet is attached, alignable composites do not have an APE
+  // The APE is, therefore, just propagated down
+  if (!propagateDown) return;
 
+  Alignables comp = this->components();
+  for (Alignables::const_iterator i = comp.begin(); i != comp.end(); ++i) {
+    (*i)->addAlignmentPositionError(ape, propagateDown);
+  }
+  
 }
 
 
@@ -182,11 +188,13 @@ AlignableComposite::addAlignmentPositionError( const AlignmentPositionError& ape
 /// Adds the AlignmentPositionError (in x,y,z coordinates) that would result
 /// on the various components from a possible Rotation of a composite the 
 /// rotation matrix is in interpreted in GLOBAL coordinates
-void AlignableComposite::addAlignmentPositionErrorFromRotation( const RotationType& rotation )
+void AlignableComposite::addAlignmentPositionErrorFromRotation( const RotationType& rotation,
+								bool propagateDown )
 {
 
-  Alignables comp = this->components();
+  if (!propagateDown) return;
 
+  Alignables comp = this->components();
   PositionType myPosition=this->globalPosition();
 
   for ( Alignables::const_iterator i=comp.begin(); i!=comp.end(); i++ )
@@ -204,8 +212,8 @@ void AlignableComposite::addAlignmentPositionErrorFromRotation( const RotationTy
       GlobalVector moveVector( rotation.multiplyInverse(lpvgf) - lpvgf );    
       
       AlignmentPositionError ape( moveVector.x(), moveVector.y(), moveVector.z() );
-      (*i)->addAlignmentPositionError( ape );
-      (*i)->addAlignmentPositionErrorFromRotation( rotation );
+      (*i)->addAlignmentPositionError( ape, propagateDown );
+      (*i)->addAlignmentPositionErrorFromRotation( rotation, propagateDown );
 	  
     }
 
@@ -216,11 +224,13 @@ void AlignableComposite::addAlignmentPositionErrorFromRotation( const RotationTy
 /// Adds the AlignmentPositionError (in x,y,z coordinates) that would result
 /// on the various components from a possible Rotation of a composite the 
 /// rotation matrix is in interpreted in LOCAL  coordinates of the composite
-void AlignableComposite::addAlignmentPositionErrorFromLocalRotation( const RotationType& rot )
+void AlignableComposite::addAlignmentPositionErrorFromLocalRotation( const RotationType& rot,
+								     bool propagateDown )
 {
+  if (!propagateDown) return;
 
   RotationType globalRot = globalRotation().multiplyInverse(rot*globalRotation());
-  this->addAlignmentPositionErrorFromRotation(globalRot);
+  this->addAlignmentPositionErrorFromRotation(globalRot, propagateDown);
 
 }
 

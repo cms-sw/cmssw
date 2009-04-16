@@ -469,7 +469,7 @@ void AlignableModifier::addAlignmentPositionError( Alignable* alignable,
                         << dx << " "  << dy << " "  << dz;
 
   AlignmentPositionError ape(dx,dy,dz);
-  alignable->addAlignmentPositionError( ape );
+  alignable->addAlignmentPositionError( ape, true );
 
 }
 
@@ -481,11 +481,15 @@ void AlignableModifier::addAlignmentPositionErrorLocal( Alignable* alignable,
 
   LogDebug("PrintArgs") << "Adding a local AlignmentPositionError of size " 
                         << dx << " "  << dy << " "  << dz;
+  // FIXME (GF):
+  // We have to build a (diagonal) error matrix, rotate it into global system
+  // and pass this as GlobalError to the AlignmentPositionError constructor!
+  // This way here neglects off-diagonal terms!
 
   align::GlobalVector error = alignable->surface().toGlobal( align::LocalVector(dx,dy,dz) );
 
   AlignmentPositionError ape( error.x(), error.y(), error.z() );
-  alignable->addAlignmentPositionError( ape );
+  alignable->addAlignmentPositionError( ape, true ); // propagate down to components
 
 }
 
@@ -531,7 +535,7 @@ void AlignableModifier::addAlignmentPositionErrorFromRotation( Alignable* aligna
   LogDebug("PrintArgs") << "Adding an AlignmentPositionError from Rotation" << std::endl 
                         << rotation;
 
-  alignable->addAlignmentPositionErrorFromRotation( rotation );
+  alignable->addAlignmentPositionErrorFromRotation(rotation, true); // propagate down to components
 
 }
 
@@ -544,7 +548,8 @@ void AlignableModifier::addAlignmentPositionErrorFromLocalRotation( Alignable* a
   LogDebug("PrintArgs") << "Adding an AlignmentPositionError from Local Rotation" << std::endl 
                         << rotation;
   
-  alignable->addAlignmentPositionErrorFromLocalRotation( rotation );
+  // true: propagate down to components
+  alignable->addAlignmentPositionErrorFromLocalRotation(rotation, true);
   
 }
 

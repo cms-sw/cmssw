@@ -59,17 +59,21 @@ public:
   /// Rotation interpreted in global reference frame
   virtual void rotateInGlobalFrame( const RotationType& rotation );
 
-  /// Set the AlignmentPositionError to all the components of the composite
-  virtual void setAlignmentPositionError( const AlignmentPositionError& ape );
+  /// Set the AlignmentPositionError (if this Alignable is a Det) and,
+  /// if (propagateDown), to all the components of the composite
+  virtual void setAlignmentPositionError( const AlignmentPositionError& ape, bool propagateDown );
 
-  /// Add the AlignmentPositionError to all the components of the composite
-  virtual void addAlignmentPositionError( const AlignmentPositionError& ape );
+  /// Add the AlignmentPositionError (if this Alignable is a Det) and,
+  /// if (propagateDown), add to all the components of the composite
+  virtual void addAlignmentPositionError( const AlignmentPositionError& ape, bool propagateDown );
 
-  /// Add position error to all components as resulting from global rotation
-  virtual void addAlignmentPositionErrorFromRotation( const RotationType& rotation );
+  /// Add the AlignmentPositionError resulting from global rotation (if this Alignable is a Det) and,
+  /// if (propagateDown), add to all the components of the composite
+  virtual void addAlignmentPositionErrorFromRotation( const RotationType& rotation, bool propagateDown );
 
-  /// Add position error to all components as resulting from given local rotation
-  virtual void addAlignmentPositionErrorFromLocalRotation( const RotationType& rotation );
+  /// Add the AlignmentPositionError resulting from local rotation (if this Alignable is a Det) and,
+  /// if (propagateDown), add to all the components of the composite
+  virtual void addAlignmentPositionErrorFromLocalRotation( const RotationType& rotation, bool propagateDown );
 
   /// Return the alignable type identifier
   virtual StructureType alignableObjectId() const { return theStructureType; }
