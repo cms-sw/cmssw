@@ -6,7 +6,7 @@ OutALCARECOEcalCalPi0Calib = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOEcalCalPi0Calib')
     ),
     outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_*_pi0EcalRecHitsEB_*')
+        'keep *_*_pi0EcalRecHitsEB_*',
         'keep *_*_pi0EcalRecHitsEE_*')
 )
 
