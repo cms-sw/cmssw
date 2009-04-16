@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2008/11/10 10:13:57 $
- * $Revision: 1.49 $
+ * $Date: 2009/02/27 13:54:08 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -45,7 +45,7 @@ public:
 EcalEndcapMonitorClient(const edm::ParameterSet & ps);
 
 /// Destructor
-~EcalEndcapMonitorClient();
+virtual ~EcalEndcapMonitorClient();
 
 /// Analyze
 void analyze(void);

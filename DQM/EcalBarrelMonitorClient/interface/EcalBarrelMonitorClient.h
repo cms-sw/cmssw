@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2008/11/10 10:13:56 $
- * $Revision: 1.113 $
+ * $Date: 2009/02/27 13:54:04 $
+ * $Revision: 1.114 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -45,7 +45,7 @@ public:
 EcalBarrelMonitorClient(const edm::ParameterSet & ps);
 
 /// Destructor
-~EcalBarrelMonitorClient();
+virtual ~EcalBarrelMonitorClient();
 
 /// Analyze
 void analyze(void);
