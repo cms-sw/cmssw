@@ -168,7 +168,7 @@ void test_ep::setUp()
   {
     typedef edmtest::DummyProduct PRODUCT_TYPE;
     typedef edm::Wrapper<PRODUCT_TYPE> WDP;
-    std::auto_ptr<edm::EDProduct>  product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)));
+    boost::shared_ptr<edm::EDProduct> product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)));
 
     std::string tag("rick");
     assert(branchDescriptions_[tag]);
