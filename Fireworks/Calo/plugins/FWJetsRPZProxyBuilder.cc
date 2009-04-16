@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWJetsRPZProxyBuilder.cc,v 1.2 2008/12/12 06:36:57 dmytro Exp $
+// $Id: FWJetsRPZProxyBuilder.cc,v 1.3 2009/01/23 21:35:40 amraktad Exp $
 //
 
 // include files
@@ -86,8 +86,11 @@ FWJetsRPZProxyBuilder::buildJetRhoPhi(const FWEventItem* iItem,
    std::pair<double,double> phiRange = getPhiRange( *jet );
    double min_phi = phiRange.first-M_PI/36/2;
    double max_phi = phiRange.second+M_PI/36/2;
-
    double phi = jet->phi();
+   if ( fabs(phiRange.first-phiRange.first)<1e-3 ) {
+     min_phi = phi-M_PI/36/2;
+     max_phi = phi+M_PI/36/2;
+   }
 
    double size = jet->et();
    TGeoBBox *sc_box = new TGeoTubeSeg(r_ecal - 1, r_ecal + 1, 1, min_phi * 180 / M_PI, max_phi * 180 / M_PI);
@@ -158,14 +161,20 @@ FWJetsRPZProxyBuilder::getiEtaRange( const reco::Jet& jet )
    int max = -100;
 
    std::vector<CaloTowerPtr> towers;
-   if ( const reco::CaloJet* calojet = dynamic_cast<const reco::CaloJet*>(&jet) )
-      towers = calojet->getCaloConstituents();
-   else {
-      if ( const pat::Jet* patjet = dynamic_cast<const pat::Jet*>(&jet) ){
-         if ( patjet->isCaloJet() )
-            towers = patjet->getCaloConstituents();
-      }
+   try {
+     if ( const reco::CaloJet* calojet = dynamic_cast<const reco::CaloJet*>(&jet) )
+       towers = calojet->getCaloConstituents();
+     else {
+       if ( const pat::Jet* patjet = dynamic_cast<const pat::Jet*>(&jet) ){
+	 if ( patjet->isCaloJet() )
+	   towers = patjet->getCaloConstituents();
+       }
+     }
    }
+   catch (...) {
+     std::cout << "Failed to get calo jet constituents." << std::endl;
+   }
+
 
    for ( std::vector<CaloTowerPtr>::const_iterator tower = towers.begin();
          tower != towers.end(); ++tower )
@@ -185,13 +194,18 @@ std::pair<double,double>
 FWJetsRPZProxyBuilder::getPhiRange( const reco::Jet& jet )
 {
    std::vector<CaloTowerPtr> towers;
-   if ( const reco::CaloJet* calojet = dynamic_cast<const reco::CaloJet*>(&jet) )
-      towers = calojet->getCaloConstituents();
-   else {
-      if ( const pat::Jet* patjet = dynamic_cast<const pat::Jet*>(&jet) ){
-         if ( patjet->isCaloJet() )
-            towers = patjet->getCaloConstituents();
-      }
+   try {
+     if ( const reco::CaloJet* calojet = dynamic_cast<const reco::CaloJet*>(&jet) )
+       towers = calojet->getCaloConstituents();
+     else {
+       if ( const pat::Jet* patjet = dynamic_cast<const pat::Jet*>(&jet) ){
+	 if ( patjet->isCaloJet() )
+	   towers = patjet->getCaloConstituents();
+       }
+     }
+   }
+   catch (...) {
+     std::cout << "Failed to get calo jet constituents." << std::endl;
    }
    std::vector<double> phis;
    for ( std::vector<CaloTowerPtr>::const_iterator tower = towers.begin();
