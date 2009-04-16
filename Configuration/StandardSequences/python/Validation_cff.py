@@ -20,4 +20,4 @@ from HLTriggerOffline.Common.HLTValidation_cff import *
 
 validation = cms.Sequence(mix+globaldigisanalyze*globalhitsanalyze*globalrechitsanalyze*globalValidation*hltvalidation)
 
-validation_pu = cms.Sequence(globaldigisanalyze*globalhitsanalyze*globalValidation_pu)
+validation_pu = cms.Sequence(globaldigisanalyze*globalhitsanalyze*globalValidation_pu*hltvalidation_pu)
