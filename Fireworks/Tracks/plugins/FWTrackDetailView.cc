@@ -6,6 +6,8 @@
 #include "TEveTrack.h"
 #include "TEveBoxSet.h"
 #include "TEveTrackPropagator.h"
+#include "TGLViewer.h"
+#include "TGLUtil.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -191,6 +193,8 @@ TEveElement* FWTrackDetailView::build (const FWModelId &id, const reco::Track* i
    catch (...) {
       //      std::cout << "Sorry, don't have the recHits for this event." << std::endl;
    }
+
+   viewer()->SetGuideState(TGLUtil::kAxesOrigin, kTRUE, kFALSE, 0);
    return tList;
 }
 
