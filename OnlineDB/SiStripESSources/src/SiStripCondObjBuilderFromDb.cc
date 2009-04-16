@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.12 2009/02/11 17:58:58 alinn Exp $
-// Latest tag:  $Name: V03-02-01 $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.13 2009/03/25 16:20:31 alinn Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripCondObjBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
@@ -156,21 +156,20 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
     return;
   }
 
-  //#ifdef USING_GAIN
+  
 
   // Retrieve gain from configuration database
+  bool IsTiming = false; 
   SiStripConfigDb::AnalysisDescriptionsRange anal_descriptions = 
     db->getAnalysisDescriptions( CommissioningAnalysisDescription::T_ANALYSIS_TIMING );
   if ( anal_descriptions.empty() ) {
-    edm::LogWarning(mlESSources_)
+        edm::LogWarning(mlESSources_)
       << "SiStripCondObjBuilderFromDb::" << __func__ << "]"
       << " Unable to build SiStripApvGain object!"
       << " No timing-scan analysis descriptions found!";
-    return;
-  }
+  }else {IsTiming=true;}
 
-  //#endif
-  
+    
   // Retrieve list of active DetIds
   vector<uint32_t> det_ids;
   det_cabling.addActiveDetectorsRawIds(det_ids);
@@ -269,10 +268,11 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
 	  noises_->setData( 0., inputNoises );
 	}
 	
-	float defaultTickHeight_ = 666.6;
-
-	inputApvGain.push_back(defaultTickHeight_); // APV0
-	inputApvGain.push_back(defaultTickHeight_); // APV1
+	if(IsTiming){
+	  float defaultTickHeight_ = 666.6;
+	  inputApvGain.push_back(defaultTickHeight_); // APV0
+	  inputApvGain.push_back(defaultTickHeight_); // APV1
+	}
 	continue;
       }
 
@@ -289,21 +289,26 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
 	iii++;
       }
 
-      TimingAnalysisDescription *anal=0;
-      float defaultTickHeight=888.8;
-      if ( iii != jjj ) { anal = dynamic_cast<TimingAnalysisDescription*>(*iii); }
-      if ( anal ) {
-	float tick_height = anal->getHeight();
-	//float tick_base = anal->getBase();
-	//float tick_top = anal->getPeak();
-	//ssMessage<< "Fill ApvGainObject for DetId: "<< *det_id <<" with TickHeight: "  << tick_height <<std::endl;
-	inputApvGain.push_back( tick_height ); // APV0
-	inputApvGain.push_back( tick_height); // APV1
-      } else {
-	inputApvGain.push_back(defaultTickHeight); // APV0
-	inputApvGain.push_back(defaultTickHeight); // APV1
+      if(IsTiming){
+	TimingAnalysisDescription *anal=0;
+	float defaultTickHeight=888.8;
+	if ( iii != jjj ) { anal = dynamic_cast<TimingAnalysisDescription*>(*iii); }
+	if ( anal ) {
+	  float tick_height = anal->getHeight();
+	  //float tick_base = anal->getBase();
+	  //float tick_top = anal->getPeak();
+	  inputApvGain.push_back( tick_height ); // APV0
+	  inputApvGain.push_back( tick_height); // APV1
+	} else {
+	  inputApvGain.push_back(defaultTickHeight); // APV0
+	  inputApvGain.push_back(defaultTickHeight); // APV1
+	  ssMessage
+	    << "\n "
+	    << " Unable to find Timing Analysis Description"
+	    << " Writing default values for DetId: " << *det_id
+	    << " Value: " << defaultTickHeight << std::endl;
+	}
       }
-
           
       // Check if description exists for given FED id 
       SiStripConfigDb::FedDescriptionsV::const_iterator description = descriptions.begin();
@@ -390,15 +395,16 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
       }
     }
 
-//     // Insert threshold values into Gain object
-    SiStripApvGain::Range range( inputApvGain.begin(), inputApvGain.end() );
+    if(IsTiming){
+      // Insert tick height values into Gain object
+      SiStripApvGain::Range range( inputApvGain.begin(), inputApvGain.end() );
       if ( !gain_->put( *det_id, range ) ) {
-      edm::LogWarning(mlESSources_)
-	<< "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
-	<< " Unable to insert values into SiStripApvGain object!"
-	<< " DetId already exists!";
+	edm::LogWarning(mlESSources_)
+	  << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
+	  << " Unable to insert values into SiStripApvGain object!"
+	  << " DetId already exists!";
+      }
     }
-
     
     edm::LogInfo(mlESSources_) << "\n\n--------------\n" << ssMessage.str();
   } // det id loop
