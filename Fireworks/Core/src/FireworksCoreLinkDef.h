@@ -11,7 +11,6 @@
 #include "Fireworks/Core/src/CSGConnector.h"
 #include "Fireworks/Core/interface/FWIntValueListenerBase.h"
 #include "Fireworks/Core/interface/FWSummaryManager.h"
-#include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/src/FWGUIEventDataAdder.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/src/LightTableWidget.h"
@@ -42,7 +41,6 @@
 #pragma link C++ function fwGetObjectPtr();
 #pragma link C++ class CSGConnector;
 #pragma link C++ class FWIntValueListenerBase;
-#pragma link C++ class CmsShowMain;
 #pragma link C++ class FWColorFrame;
 #pragma link C++ class FWColorPopup;
 #pragma link C++ class FWColorRow;
