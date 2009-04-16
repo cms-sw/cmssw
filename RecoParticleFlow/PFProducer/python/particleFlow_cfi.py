@@ -17,12 +17,12 @@ particleFlow = cms.EDProducer("PFProducer",
     pf_electron_output_col=cms.string('electrons'),
     pf_electronID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan.txt'),
                               
-    final_chi2cut_bremps = cms.double(25.0),
-    final_chi2cut_bremecal = cms.double(100.0),
-    final_chi2cut_bremhcal = cms.double(25.0),
-    final_chi2cut_gsfps = cms.double(100.0),
-    final_chi2cut_gsfecal = cms.double(900.0),
-    final_chi2cut_gsfhcal = cms.double(100.0),
+    final_chi2cut_bremps = cms.double(0.0),
+    final_chi2cut_bremecal = cms.double(0.0),
+    final_chi2cut_bremhcal = cms.double(0.0),
+    final_chi2cut_gsfps = cms.double(0.0),
+    final_chi2cut_gsfecal = cms.double(0.0),
+    final_chi2cut_gsfhcal = cms.double(0.0),
     pf_electron_mvaCut = cms.double(-0.1),
 
     # Use photon conversion identification in PFAlgo

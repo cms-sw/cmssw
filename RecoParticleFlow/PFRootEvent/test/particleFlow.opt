@@ -317,12 +317,12 @@ particle_flow	mergedPhotons_mvaWeightFile ${CMSSW_DATA_PATH}/data-RecoParticleFl
 particle_flow   mergedPhotons_PSCut  0.001   
 
 // PFElectrons
-particle_flow 	final_chi2cut_gsfecal  900.
-particle_flow   final_chi2cut_bremecal  25.
-particle_flow 	final_chi2cut_gsfhcal  100.
-particle_flow   final_chi2cut_bremhcal 100.
-particle_flow 	final_chi2cut_gsfps  100.
-particle_flow   final_chi2cut_bremps  25.
+particle_flow 	final_chi2cut_gsfecal  0.
+particle_flow   final_chi2cut_bremecal 0.
+particle_flow 	final_chi2cut_gsfhcal  0.
+particle_flow   final_chi2cut_bremhcal 0.
+particle_flow 	final_chi2cut_gsfps    0.
+particle_flow   final_chi2cut_bremps   0.
 particle_flow   electron_mvaCut     -0.1
 particle_flow   usePFElectrons      1
 particle_flow   electronID_mvaWeightFile    ${CMSSW_DATA_PATH}/data-RecoParticleFlow-PFProducer/1/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan.txt
