@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2009/04/15 10:13:14 $
- *  $Revision: 1.47 $
+ *  $Date: 2009/04/15 10:16:59 $
+ *  $Revision: 1.48 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -631,6 +631,7 @@ void CosmicMuonTrajectoryBuilder::flipTrajectory(Trajectory& traj) const {
 
     vector<Trajectory> refittedback = theSmoother->fit(traj.seed(),hits,lastTSOS);
     if ( refittedback.empty() ) {
+       LogTrace(category_) <<"flipTrajectory fail. "<<endl;
        return;
     }
   LogTrace(category_) <<"flipTrajectory: first "<< refittedback.front().firstMeasurement().updatedState()
