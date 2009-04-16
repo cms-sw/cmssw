@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWCaloJet3DProxyBuilder.cc,v 1.2 2008/12/12 06:08:05 dmytro Exp $
+// $Id: FWCaloJet3DProxyBuilder.cc,v 1.3 2009/01/23 21:35:39 amraktad Exp $
 //
 
 // system include files
@@ -76,7 +76,6 @@ FWCaloJet3DProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex,TEveE
    cone->SetPickable(kTRUE);
    cone->SetMainColor( oItemHolder.GetMainColor() );
    cone->SetMainTransparency(75);
-   cone->SetDrawConeCap(kFALSE);
 
    oItemHolder.AddElement( cone );
 }

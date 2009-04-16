@@ -16,11 +16,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul  4 10:22:47 EDT 2008
-// $Id: FW3DEveJet.h,v 1.1 2008/12/04 15:23:35 dmytro Exp $
+// $Id: FW3DEveJet.h,v 1.2 2009/01/23 21:35:39 amraktad Exp $
 //
 
 // system include files
-#include "TEveBoxSet.h"
+#include "TEveJetCone.h"
 
 // user include files
 
@@ -29,7 +29,7 @@ namespace reco {
    class Jet;
 }
 
-class FW3DEveJet : public TEveBoxSet
+class FW3DEveJet : public TEveJetCone
 {
 
 public:
@@ -43,11 +43,6 @@ public:
 
    // ---------- member functions ---------------------------
 
-   //Override these so that when the system changes color it gets
-   // propagated to the 'Digit'
-   void SetMainColor(Color_t);
-   void SetMainTransparency(UChar_t);
-
 private:
    FW3DEveJet(const FW3DEveJet&);    // stop default
 
@@ -55,9 +50,6 @@ private:
 
    // ---------- member data --------------------------------
    const reco::Jet* m_jet;
-   //NOTE: need to hold our own color since TEveBoxSet doesn't so that
-   // If we later call GetMainColor we'd always get white back
-   Color_t m_color;
 };
 
 
