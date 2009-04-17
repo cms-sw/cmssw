@@ -55,7 +55,9 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
   //  gsfRecoInputTag_ = conf.getParameter<edm::InputTag>("GsfRecoCollection");
   modulePhiBoundary_ = conf.getParameter<double>("modulePhiBoundary");
   moduleEtaBoundary_ = conf.getParameter<std::vector<double> >("moduleEtaBoundary");
-
+  //
+  vetoClusteredEcalHits_ = conf.getParameter<bool>("vetoClustered");
+  useNumCrystals_ = conf.getParameter<bool>("useNumCrystals");
   /// Isolation parameters for barrel and for two different cone sizes
   trkIsoBarrelRadiusA_.push_back(  conf.getParameter<double>("TrackConeOuterRadiusA_Barrel") );
   trkIsoBarrelRadiusA_.push_back(  conf.getParameter<double>("TrackConeInnerRadiusA_Barrel") ) ;
@@ -324,19 +326,23 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
 //   std::cout << " Sum pT: " << strkiso << " ntrk: " << sntrk << std::endl;
   
   double EcalRecHitIsoA = calculateEcalRecHitIso(pho, e, es,
-						photonEcalRecHitConeOuterRadiusA_,
-						photonEcalRecHitConeInnerRadiusA_,
-                                                photonEcalRecHitEtaSliceA_,
-						photonEcalRecHitThreshEA_,
-						photonEcalRecHitThreshEtA_);
+						 photonEcalRecHitConeOuterRadiusA_,
+						 photonEcalRecHitConeInnerRadiusA_,
+						 photonEcalRecHitEtaSliceA_,
+						 photonEcalRecHitThreshEA_,
+						 photonEcalRecHitThreshEtA_,
+						 vetoClusteredEcalHits_,
+						 useNumCrystals_);
   phoisolR1.ecalRecHitSumEt = EcalRecHitIsoA;
 
   double EcalRecHitIsoB = calculateEcalRecHitIso(pho, e, es,
-						photonEcalRecHitConeOuterRadiusB_,
-						photonEcalRecHitConeInnerRadiusB_,
-                                                photonEcalRecHitEtaSliceB_,
-						photonEcalRecHitThreshEB_,
-						photonEcalRecHitThreshEtB_);
+						 photonEcalRecHitConeOuterRadiusB_,
+						 photonEcalRecHitConeInnerRadiusB_,
+						 photonEcalRecHitEtaSliceB_,
+						 photonEcalRecHitThreshEB_,
+						 photonEcalRecHitThreshEtB_,
+						 vetoClusteredEcalHits_,
+						 useNumCrystals_);
   phoisolR2.ecalRecHitSumEt = EcalRecHitIsoB;
 
   double HcalTowerIsoA = calculateHcalTowerIso(pho, e, es, photonHcalTowerConeOuterRadiusA_,
@@ -475,14 +481,16 @@ void PhotonIsolationCalculator::calculateTrackIso(const reco::Photon* photon,
 
 
 double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* photon,
-					    const edm::Event& iEvent,
-					    const edm::EventSetup& iSetup,
-					    double RCone,
-					    double RConeInner,
-                                            double etaSlice,
-					    double eMin,
-					    double etMin){
-
+							 const edm::Event& iEvent,
+							 const edm::EventSetup& iSetup,
+							 double RCone,
+							 double RConeInner,
+							 double etaSlice,
+							 double eMin,
+							 double etMin,
+							 bool vetoClusteredHits,
+							 bool useNumXtals)
+{
 
   edm::Handle<EcalRecHitCollection> ecalhitsCollH;
 
@@ -511,6 +519,9 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
 			       geoHandle,
 			       &(*RecHits),
 			       DetId::Ecal);
+
+  phoIso.setVetoClustered(vetoClusteredHits);
+  phoIso.setUseNumCrystals(useNumXtals);
   ecalIsol = phoIso.getEtSum(photon);
   //  delete phoIso;
 
