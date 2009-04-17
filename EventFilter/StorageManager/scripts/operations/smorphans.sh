@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: check_left_files.sh,v 1.3 2008/07/03 10:46:58 loizides Exp $
+# $Id: smorphans.sh,v 1.1 2009/04/09 14:28:20 jserrano Exp $
 
 # This script iterates over all files in the list of hosts provided and calls
 # injection script with --check option to show a status report.
@@ -28,7 +28,7 @@ echo report started
         echo ----- $host -----
         echo Directory size
         ssh $host "du -h $1"
-        for file in $( ssh $host "find $1 -name '*.dat'" ); do
+        for file in $( ssh $host "find $1 -name '*.dat' 2> /dev/null" ); do
             #echo $file;
             basename=`basename $file`
             status=`$CHECK_INJECTION_CMD$basename`
@@ -73,7 +73,7 @@ EOF
 
 
     for host in $( cat $HOSTLIST ); do
-        for file in $( ssh $host "find $1 -name '*.dat'" ); do
+        for file in $( ssh $host "find $1 -name '*.dat' 2> /dev/null" ); do
             basename=`basename $file`
             status=`$CHECK_INJECTION_CMD$basename`
             # TODO: fill actions for each category bellow
