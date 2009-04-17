@@ -13,7 +13,7 @@
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Mon Mar  2 12:33:08 CET 2009
-// $Id: DQMHOAlCaRecoStream.cc,v 1.1 2009/03/16 16:03:32 kodolova Exp $
+// $Id: DQMHOAlCaRecoStream.cc,v 1.2 2009/03/26 10:54:01 argiro Exp $
 //
 //
 
@@ -22,7 +22,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -37,15 +37,13 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "TMath.h"
-#include "TCanvas.h"
-#include "TStyle.h"
+#include "DQMOffline/CalibCalo/src/DQMHOAlCaRecoStream.h"
 
 #include <string>
 
-#include <iostream>
-#include <fstream>
-#include <iomanip>
+
+
+
 
 //
 // class decleration
@@ -53,61 +51,7 @@
 using namespace std;
 using namespace edm;
 
-class DQMHOAlCaRecoStream : public edm::EDAnalyzer {
-   public:
-      explicit DQMHOAlCaRecoStream(const edm::ParameterSet&);
-      ~DQMHOAlCaRecoStream();
 
-   private:
-
-      DQMStore* dbe_; 
-
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-
-
-  MonitorElement* hMuonMultipl;
-  MonitorElement* hMuonMom;
-  MonitorElement* hMuonEta;
-  MonitorElement* hMuonPhi;
-
-  MonitorElement* hDirCosine;
-  MonitorElement* hHOTime;
-  
-  MonitorElement* hSigRing[5];
-  //  MonitorElement* hSigRingm1;
-  //  MonitorElement* hSigRing00;
-  //  MonitorElement* hSigRingp1;
-  //  MonitorElement* hSigRingp2;
-
-  MonitorElement* hPedRing[5];
-  //  MonitorElement* hPedRingm1;
-  //  MonitorElement* hPedRing00;
-  //  MonitorElement* hPedRingp1;
-  //  MonitorElement* hPedRingp2;
-
-  MonitorElement* hSignal3x3[9];
-
-  int Nevents;
-  int Nmuons;
-
-  std::string theRootFileName;
-  std::string folderName_;
-  double m_sigmaValue;
-
-  double m_lowRadPosInMuch;
-  double m_highRadPosInMuch;
-
-  int    m_nbins;
-  double m_lowEdge;
-  double m_highEdge;
-
-  bool saveToFile_;
-
-      // ----------member data ---------------------------
-
-};
 
 //
 // constants, enums and typedefs
@@ -306,139 +250,9 @@ DQMHOAlCaRecoStream::endJob() {
       hSignal3x3[k]->getTH1F()->Scale(scale);
     }
 
-    /*    
-    gStyle->SetOptLogy(0);
-    gStyle->SetTitleFillColor(10);
-    gStyle->SetStatColor(10);
-    
-    gStyle->SetCanvasColor(10);
-    gStyle->SetOptStat(0); //1110);
-    gStyle->SetOptTitle(1);
-    
-    gStyle->SetTitleColor(10);
-    gStyle->SetTitleFontSize(0.09);
-    gStyle->SetTitleOffset(-0.05);
-    gStyle->SetTitleBorderSize(1);
-    
-    gStyle->SetPadColor(10);
-    gStyle->SetPadBorderMode(0);
-    gStyle->SetStatColor(10);
-    gStyle->SetPadBorderMode(0);
-    gStyle->SetStatBorderSize(1);
-    gStyle->SetStatFontSize(.07);
-    
-    gStyle->SetStatStyle(1001);
-    gStyle->SetOptFit(101);
-    gStyle->SetCanvasColor(10);
-    gStyle->SetCanvasBorderMode(0);
-    
-    gStyle->SetStatX(.99);
-    gStyle->SetStatY(.99);
-    gStyle->SetStatW(.45);
-    gStyle->SetStatH(.16);
-    gStyle->SetLabelSize(0.075,"XY");  
-    gStyle->SetLabelOffset(0.21,"XYZ");
-    gStyle->SetTitleSize(0.065,"XY");  
-    gStyle->SetTitleOffset(0.06,"XYZ");
-    gStyle->SetPadTopMargin(.09);
-    gStyle->SetPadBottomMargin(0.11);
-    gStyle->SetPadLeftMargin(0.12);
-    gStyle->SetPadRightMargin(0.15);
-    gStyle->SetPadGridX(3);
-    gStyle->SetPadGridY(3);
-    gStyle->SetGridStyle(2);
-    gStyle->SetNdivisions(303,"XY");
-    
-    gStyle->SetMarkerSize(0.60);
-    gStyle->SetMarkerColor(2);
-    gStyle->SetMarkerStyle(20);
-    gStyle->SetTitleFontSize(0.07);
-    
-    gStyle->SetOptLogy(0);
-    TCanvas *c0x = new TCanvas("c0x", "Muon kinematics", 800, 400);
-    c0x->Divide(3,1);
-    c0x->cd(1); hMuonMom->getTH1F()->Draw();
-    c0x->cd(2); hMuonEta->getTH1F()->Draw();
-    c0x->cd(3); hMuonPhi->getTH1F()->Draw();
-    
-    sprintf(name, "DQM_muon_kine.jpg");
-    c0x->SaveAs(name);
-    delete c0x;
-    
-    TCanvas *c0y = new TCanvas("c0y", "HO and muon ", 800, 400);
-    c0y->Divide(2,1);
-    c0y->cd(1); hDirCosine->getTH1F()->Draw();
-    c0y->cd(2); hHOTime->getTH1F()->Draw();
-    
-    sprintf(name, "DQM_hotime_ang.jpg");
-    //      sprintf(out_file, "DQM_hosig_ring_%i.jpg",irunold); 
-    c0x->SaveAs(name);
-    delete c0y;    
-
-    gStyle->SetOptLogy(1);
-    gStyle->SetPadTopMargin(.1);
-    gStyle->SetPadLeftMargin(.15);
-    //    xsiz = 800;
-    //    ysiz = 500;
-    TCanvas *c1x = new TCanvas("c1x", "Signal in each ring", 800, 600);
-    
-    c1x->Divide(3,2);
-    for (int ij=0; ij<5; ij++) {
-      
-      hSigRing[ij]->getTH1F()->GetXaxis()->SetTitleSize(0.060);
-      hSigRing[ij]->getTH1F()->GetXaxis()->SetTitleOffset(1.05);
-      hSigRing[ij]->getTH1F()->GetXaxis()->CenterTitle();
-      hSigRing[ij]->getTH1F()->GetXaxis()->SetLabelSize(0.065);
-      hSigRing[ij]->getTH1F()->GetXaxis()->SetLabelOffset(0.01);
-      
-      hSigRing[ij]->getTH1F()->GetYaxis()->SetLabelSize(0.065);
-      hSigRing[ij]->getTH1F()->GetYaxis()->SetLabelOffset(0.01); 
-      
-      hSigRing[ij]->getTH1F()->SetLineWidth(3);  
-      hSigRing[ij]->getTH1F()->SetLineColor(4);  
-      
-      c1x->cd(ij+1); hSigRing[ij]->getTH1F()->Draw();
-      
-      hPedRing[ij]->getTH1F()->SetLineWidth(2);  
-      hPedRing[ij]->getTH1F()->SetLineColor(2);
-      hPedRing[ij]->getTH1F()->Draw("same");
-    }
-    
-    sprintf(name, "DQM_hosig_ring.jpg");
-    //      sprintf(out_file, "DQM_hosig_ring_%i.jpg",irunold); 
-    c1x->SaveAs(name);
-    delete c1x;
-    
-    TCanvas *c1y = new TCanvas("c1y", "Signal in each ring", 800, 600);
-    
-    c1y->Divide(3,3);
-    for (int ij=0; ij<9; ij++) {
-      
-      hSignal3x3[ij]->getTH1F()->GetXaxis()->SetTitleSize(0.060);
-      hSignal3x3[ij]->getTH1F()->GetXaxis()->SetTitleOffset(1.05);
-      hSignal3x3[ij]->getTH1F()->GetXaxis()->CenterTitle();
-      hSignal3x3[ij]->getTH1F()->GetXaxis()->SetLabelSize(0.065);
-      hSignal3x3[ij]->getTH1F()->GetXaxis()->SetLabelOffset(0.01);
-      
-      hSignal3x3[ij]->getTH1F()->GetYaxis()->SetLabelSize(0.065);
-      hSignal3x3[ij]->getTH1F()->GetYaxis()->SetLabelOffset(0.01); 
-      
-      hSignal3x3[ij]->getTH1F()->SetLineWidth(3);  
-      hSignal3x3[ij]->getTH1F()->SetLineColor(4);  
-      
-      c1y->cd(ij+1); hSignal3x3[ij]->getTH1F()->Draw();
-      
-    }
-    
-    sprintf(name, "DQM_ho_projection.jpg");
-    c1y->SaveAs(name);
-    delete c1y;
-    */
-
+   
      if (saveToFile_) dbe_->save(theRootFileName); 
   }
 
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(DQMHOAlCaRecoStream);
