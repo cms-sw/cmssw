@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre4/HLT/V42 (CMSSW_3_1_X_2009-04-16-0800_HLT1)
+# /dev/CMSSW_3_1_0/pre4/HLT/V46 (CMSSW_3_1_X_2009-04-16-0800_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre4/HLT/V42')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre4/HLT/V46')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -2601,7 +2601,6 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
           tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
           tTrigModeConfig = cms.PSet( 
             debug = cms.untracked.bool( False ),
-            kFactor = cms.double( -2.0 ),
             vPropWire = cms.double( 24.4 ),
             doT0Correction = cms.bool( True ),
             doTOFCorrection = cms.bool( True ),
@@ -2610,11 +2609,10 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
             wirePropCorrType = cms.int32( 1 )
           ),
           minTime = cms.double( -3.0 ),
-          maxTime = cms.double( 415.0 ),
-          interpolate = cms.bool( True ),
+          maxTime = cms.double( 420.0 ),
           debug = cms.untracked.bool( False )
         ),
-        recAlgo = cms.string( "DTParametrizedDriftAlgo" ),
+        recAlgo = cms.string( "DTLinearDriftFromDBAlgo" ),
         MaxAllowedHits = cms.uint32( 50 ),
         AlphaMaxTheta = cms.double( 0.1 ),
         AlphaMaxPhi = cms.double( 1.0 ),
@@ -2624,15 +2622,13 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
         segmCleanerMode = cms.int32( 1 ),
         performT0SegCorrection = cms.bool( False ),
         performT0_vdriftSegCorrection = cms.bool( False ),
-        hit_afterT0_resolution = cms.double( 0.03 ),
-        T0SegCorrectionDebug = cms.untracked.bool( False )
+        hit_afterT0_resolution = cms.double( 0.03 )
       ),
       Reco2DAlgoName = cms.string( "DTCombinatorialPatternReco" ),
       recAlgoConfig = cms.PSet( 
         tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
         tTrigModeConfig = cms.PSet( 
           debug = cms.untracked.bool( False ),
-          kFactor = cms.double( -2.0 ),
           vPropWire = cms.double( 24.4 ),
           doT0Correction = cms.bool( True ),
           doTOFCorrection = cms.bool( True ),
@@ -2641,11 +2637,10 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
           wirePropCorrType = cms.int32( 1 )
         ),
         minTime = cms.double( -3.0 ),
-        maxTime = cms.double( 415.0 ),
-        interpolate = cms.bool( True ),
+        maxTime = cms.double( 420.0 ),
         debug = cms.untracked.bool( False )
       ),
-      recAlgo = cms.string( "DTParametrizedDriftAlgo" ),
+      recAlgo = cms.string( "DTLinearDriftFromDBAlgo" ),
       AllDTRecHits = cms.bool( True ),
       debug = cms.untracked.bool( False ),
       nSharedHitsMax = cms.int32( 2 ),
@@ -2653,8 +2648,7 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
       segmCleanerMode = cms.int32( 1 ),
       performT0SegCorrection = cms.bool( False ),
       performT0_vdriftSegCorrection = cms.bool( False ),
-      hit_afterT0_resolution = cms.double( 0.03 ),
-      T0SegCorrectionDebug = cms.untracked.bool( False )
+      hit_afterT0_resolution = cms.double( 0.03 )
     )
 )
 hltMuonCSCDigis = cms.EDProducer( "CSCDCCUnpacker",
