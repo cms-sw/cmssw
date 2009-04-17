@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre4/HLT/V40 (CMSSW_3_1_X_2009-04-09-0700_HLT3)
+# /dev/CMSSW_3_1_0/pre4/HLT/V42 (CMSSW_3_1_X_2009-04-16-0800_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre4/HLT/V40')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre4/HLT/V42')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -1314,7 +1314,11 @@ hltL1extraParticles = cms.EDProducer( "L1ExtraParticlesProd",
     etTotalSource = cms.InputTag( "hltGctDigis" ),
     etHadSource = cms.InputTag( "hltGctDigis" ),
     etMissSource = cms.InputTag( "hltGctDigis" ),
-    centralBxOnly = cms.bool( True )
+    htMissSource = cms.InputTag( "hltGctDigis" ),
+    hfRingEtSumsSource = cms.InputTag( "hltGctDigis" ),
+    hfRingBitCountsSource = cms.InputTag( "hltGctDigis" ),
+    centralBxOnly = cms.bool( True ),
+    ignoreHtMiss = cms.bool( False )
 )
 hltOfflineBeamSpot = cms.EDProducer( "BeamSpotProducer" )
 hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
