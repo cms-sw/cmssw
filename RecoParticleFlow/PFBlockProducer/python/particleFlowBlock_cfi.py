@@ -15,7 +15,7 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     pf_chi2_ECAL_HCAL = cms.double(0.0),
     pf_chi2_PSH_PSV = cms.double(0.0),
     pf_chi2_ECAL_PS = cms.double(0.0),
-    pf_chi2_ECAL_GSF = cms.double(900.0),
+    pf_chi2_ECAL_GSF = cms.double(0.0),
     pf_multilink = cms.bool(True),
 
     # verbosity 
