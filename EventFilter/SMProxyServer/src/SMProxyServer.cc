@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.26 2009/01/26 21:34:27 biery Exp $
+// $Id: SMProxyServer.cc,v 1.27 2009/04/13 17:50:45 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -1205,8 +1205,6 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
 
     Strings selectionRequest =
       EventSelector::getEventSelectionVString(requestParamSet);
-    Strings modifiedRequest =
-      eventServer->updateTriggerSelectionForStreams(selectionRequest);
 
     // pull the rate request out of the consumer parameter set, too
     double maxEventRequestRate =
@@ -1223,7 +1221,7 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
       consPtr(new ConsumerPipe(consumerName, consumerPriority,
                                activeConsumerTimeout_.value_,
                                idleConsumerTimeout_.value_,
-                               modifiedRequest, maxEventRequestRate,
+                               selectionRequest, maxEventRequestRate,
                                hltOMLabel,
                                consumerHost, consumerQueueSize_));
     eventServer->addConsumer(consPtr);
