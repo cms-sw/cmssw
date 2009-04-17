@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/09/19 11:33:10 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/10/11 13:13:58 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -20,6 +20,7 @@
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
+#include "DataFormats/L1Trigger/interface/L1HFRings.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
@@ -183,6 +184,8 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
   l1jetRefs_.clear();
   l1etmissIds_.clear();
   l1etmissRefs_.clear();
+  l1hfringsIds_.clear();
+  l1hfringsRefs_.clear();
 
   // Attention: must look only for modules actually run in this path
   // for this event!
@@ -326,6 +329,25 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
 	       << endl;
 	}
       }
+
+      triggerEventWithRefsHandle_->getObjects(filterIndex,l1hfringsIds_,l1hfringsRefs_);
+      const unsigned int nL1HfRings(l1hfringsIds_.size());
+      if (nL1HfRings>0) {
+	cout << "   L1HfRings: " << nL1HfRings << "  - the objects: # id 4 4" << endl;
+	for (unsigned int i=0; i!=nL1HfRings; ++i) {
+	  cout << "   " << i << " " << l1hfringsIds_[i]
+	       << " " << l1hfringsRefs_[i]->hfEtSum(l1extra::L1HFRings::kRing1PosEta)
+	       << " " << l1hfringsRefs_[i]->hfEtSum(l1extra::L1HFRings::kRing1NegEta)
+	       << " " << l1hfringsRefs_[i]->hfEtSum(l1extra::L1HFRings::kRing2PosEta)
+	       << " " << l1hfringsRefs_[i]->hfEtSum(l1extra::L1HFRings::kRing2NegEta)
+	       << " " << l1hfringsRefs_[i]->hfBitCount(l1extra::L1HFRings::kRing1PosEta)
+	       << " " << l1hfringsRefs_[i]->hfBitCount(l1extra::L1HFRings::kRing1NegEta)
+	       << " " << l1hfringsRefs_[i]->hfBitCount(l1extra::L1HFRings::kRing2PosEta)
+	       << " " << l1hfringsRefs_[i]->hfBitCount(l1extra::L1HFRings::kRing2NegEta)
+	       << endl;
+	}
+      }
+
     }
   }
 

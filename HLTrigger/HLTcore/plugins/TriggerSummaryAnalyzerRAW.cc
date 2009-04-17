@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/09/19 11:33:10 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/10/11 13:13:58 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -99,6 +99,10 @@ TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSet
 				    handle->l1etmissSlice(iFO).first);
        if (nL1EtMiss>0) cout << " L1EtMiss: " << nL1EtMiss;
 
+       const unsigned int nL1HfRings(handle->l1hfringsSlice(iFO).second-
+				    handle->l1hfringsSlice(iFO).first);
+       if (nL1HfRings>0) cout << " L1HfRings: " << nL1HfRings;
+
        cout << endl;
      }
      cout << "Elements in linearised collections of Refs: " << endl;
@@ -114,6 +118,7 @@ TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSet
      cout << "  L1Muon:     " << handle->l1muonSize()    << endl;
      cout << "  L1Jet:      " << handle->l1jetSize()     << endl;
      cout << "  L1EtMiss:   " << handle->l1etmissSize()  << endl;
+     cout << "  L1HfRings:  " << handle->l1hfringsSize() << endl;
    } else {
      cout << "Handle invalid! Check InputTag provided." << endl;
    }

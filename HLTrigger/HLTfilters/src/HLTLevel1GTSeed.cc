@@ -105,6 +105,8 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) :
     m_l1CenJetTag ( edm::InputTag(m_l1CollectionsTag.label(), "Central") ),
     m_l1ForJetTag ( edm::InputTag(m_l1CollectionsTag.label(), "Forward") ),
     m_l1TauJetTag ( edm::InputTag(m_l1CollectionsTag.label(), "Tau") ),
+    m_l1EtMissMET ( edm::InputTag(m_l1CollectionsTag.label(), "MET") ),
+    m_l1EtMissMHT ( edm::InputTag(m_l1CollectionsTag.label(), "MHT") ),
 
     // save tags to TriggerFilterObjectWithRefs
     saveTags_( parSet.getUntrackedParameter<bool>("saveTags", true) ),
@@ -185,6 +187,8 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
       filterObject->addCollectionTag( m_l1CenJetTag );
       filterObject->addCollectionTag( m_l1ForJetTag );
       filterObject->addCollectionTag( m_l1TauJetTag );
+      filterObject->addCollectionTag( m_l1EtMissMET );
+      filterObject->addCollectionTag( m_l1EtMissMHT );
     }
 
     // get L1GlobalTriggerReadoutRecord and GT decision
@@ -751,12 +755,11 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     // energy sums
     if (listETM.size() || listETT.size()) {
         edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
-        iEvent.getByLabel(edm::InputTag(m_l1ExtraTag.label(), "MET"), l1EnergySums);
+        iEvent.getByLabel(m_l1EtMissMET, l1EnergySums);
 
         if (!l1EnergySums.isValid()) {
             edm::LogWarning("HLTLevel1GTSeed")
-                    << "\nWarning: L1EtMissParticleCollection with input tag "
-                    << ( edm::InputTag(m_l1ExtraTag.label(), "MET") )
+                    << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMET
                     << "\nrequested in configuration, but not found in the event."
                     << "\nNo ETT or ETM added to filterObject." << std::endl;
 
@@ -780,12 +783,11 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
     } else if (listHTT.size() || listHTM.size()) {
         edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
-        iEvent.getByLabel(edm::InputTag(m_l1ExtraTag.label(), "MHT"), l1EnergySums);
+        iEvent.getByLabel(m_l1EtMissMHT, l1EnergySums);
 
         if (!l1EnergySums.isValid()) {
             edm::LogWarning("HLTLevel1GTSeed")
-                    << "\nWarning: L1EtMissParticleCollection with input tag "
-                    << (edm::InputTag(m_l1ExtraTag.label(), "MHT"))
+                    << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMHT
                     << "\nrequested in configuration, but not found in the event."
                     << "\nNo HTT or HTM added to filterObject." << std::endl;
 

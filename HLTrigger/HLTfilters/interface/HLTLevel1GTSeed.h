@@ -142,6 +142,8 @@ private:
     edm::InputTag m_l1CenJetTag;
     edm::InputTag m_l1ForJetTag;
     edm::InputTag m_l1TauJetTag;
+    edm::InputTag m_l1EtMissMET;
+    edm::InputTag m_l1EtMissMHT;
 
     /// Whether to save these tags
     bool saveTags_;
