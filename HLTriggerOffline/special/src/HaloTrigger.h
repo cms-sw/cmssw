@@ -15,6 +15,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 
 #include <iostream>
 #include <string>
@@ -30,6 +31,8 @@ public:
 	HaloTrigger(const edm::ParameterSet& ps);
 	virtual ~HaloTrigger();
 	
+	std::string SimVtxLabel;
+
 	bool first;
 	std::vector<std::string> Namen;
 	unsigned int hltHaloTriggers, hltHaloOver1, hltHaloOver2, hltHaloRing23, CscHalo_Gmt;
@@ -42,13 +45,44 @@ protected:
 	
 private:
 	DQMStore * dbe;
-	MonitorElement* TriggerChainEff;
-	MonitorElement* haloDelEta23;
-	MonitorElement* haloDelPhi23;
+	MonitorElement* PlusMe1BeamHaloOcc;
+	MonitorElement* PlusMe1BeamHaloOccRing1;
+	MonitorElement* PlusMe1BeamHaloOccRing2;
+	MonitorElement* PlusMe1BeamHaloOccRing2or3;
+	MonitorElement* PlusMe2BeamHaloOcc;
+	MonitorElement* PlusMe2BeamHaloOccRing1;
+	MonitorElement* PlusMe2BeamHaloOccRing2;
+	MonitorElement* PlusMe2BeamHaloOccRing2or3;
+	MonitorElement* PlusMe3BeamHaloOcc;
+	MonitorElement* PlusMe3BeamHaloOccRing1;
+	MonitorElement* PlusMe3BeamHaloOccRing2;
+	MonitorElement* PlusMe3BeamHaloOccRing2or3;
+	MonitorElement* PlusMe4BeamHaloOcc;
+	MonitorElement* PlusMe4BeamHaloOccRing1;
+	MonitorElement* PlusMe4BeamHaloOccRing2;
+	MonitorElement* PlusMe4BeamHaloOccRing2or3;
+	MonitorElement* PlusMe1BeamHaloOccRad;
 	
-	CSCSectorReceiverLUT *srLUTs_[5];
+	MonitorElement* MinusMe1BeamHaloOcc;
+	MonitorElement* MinusMe1BeamHaloOccRing1;
+	MonitorElement* MinusMe1BeamHaloOccRing2;
+	MonitorElement* MinusMe1BeamHaloOccRing2or3;
+	MonitorElement* MinusMe2BeamHaloOcc;
+	MonitorElement* MinusMe2BeamHaloOccRing1;
+	MonitorElement* MinusMe2BeamHaloOccRing2;
+	MonitorElement* MinusMe2BeamHaloOccRing2or3;
+	MonitorElement* MinusMe3BeamHaloOcc;
+	MonitorElement* MinusMe3BeamHaloOccRing1;
+	MonitorElement* MinusMe3BeamHaloOccRing2;
+	MonitorElement* MinusMe3BeamHaloOccRing2or3;
+	MonitorElement* MinusMe4BeamHaloOcc;
+	MonitorElement* MinusMe4BeamHaloOccRing1;
+	MonitorElement* MinusMe4BeamHaloOccRing2;
+	MonitorElement* MinusMe4BeamHaloOccRing2or3;
+	MonitorElement* MinusMe1BeamHaloOccRad;
 	
-	edm::InputTag lctProducer, HLTriggerTag, GMTInputTag;
+	edm::ESHandle<CSCGeometry> m_cscGeometry;
+	edm::InputTag lctProducer, HLTriggerTag, GMTInputTag, cscRecHitLabel;
 	//L1CSCTriggerTag, L1GTRR, trackProducer
 	std::string outFile;
 	int gtHaloBit;
