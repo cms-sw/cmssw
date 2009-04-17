@@ -36,6 +36,7 @@ it.
 #include "TError.h"
 
 static char const* const kParameterSetOpt = "parameter-set";
+static char const* const kPythonOpt = "pythonOptions";
 static char const* const kParameterSetCommandOpt = "parameter-set,p";
 static char const* const kJobreportCommandOpt = "jobreport,j";
 static char const* const kEnableJobreportCommandOpt = "enablejobreport,e";
@@ -147,14 +148,16 @@ int main(int argc, char* argv[])
     (kStrictOpt, "strict parsing");
 
   boost::program_options::positional_options_description p;
-  p.add(kParameterSetOpt, -1);
+  p.add(kParameterSetOpt, 1).add(kPythonOpt, -1);
 
   // This --fwk option is not used anymore, but I'm leaving it around as
   // it might be useful again in the future for code development
   // purposes.  We originally used it when implementing the boost
   // state machine code.
   boost::program_options::options_description hidden("hidden options");
-  hidden.add_options()("fwk", "For use only by Framework Developers");
+  hidden.add_options()("fwk", "For use only by Framework Developers")
+    (kPythonOpt, boost::program_options::value< std::vector<std::string> >(),
+     "options at the end to be passed to python");
   
   boost::program_options::options_description all_options("All Options");
   all_options.add(desc).add(hidden);
@@ -231,7 +234,7 @@ int main(int argc, char* argv[])
   std::string fileName(vm[kParameterSetOpt].as<std::string>());
   boost::shared_ptr<edm::ProcessDesc> processDesc;
   try {
-    processDesc = edm::readConfigFile(fileName);
+    processDesc = edm::readConfig(fileName, argc, argv);
   }
   catch(cms::Exception& iException) {
     std::string shortDesc("ConfigFileReadError");
@@ -255,7 +258,7 @@ int main(int argc, char* argv[])
 
   if(vm.count(kStrictOpt))
   {
-    edm::setStrictParsing(true);
+    edm::LogSystem("CommandLineProcessing") << "Strict configuration processing is now done from python";
   }
  
   // Now create and configure the services

@@ -1,14 +1,14 @@
 /**
  * \class L1GlobalTriggerEvmRawToDigi
- * 
- * 
- * Description: unpack raw data into digitized data.  
+ *
+ *
+ * Description: unpack raw data into digitized data.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete - HEPHY Vienna 
- * 
+ *
+ * \author: Vasile Mihai Ghete - HEPHY Vienna
+ *
  * $Date$
  * $Revision$
  *
@@ -86,7 +86,7 @@ L1GlobalTriggerEvmRawToDigi::L1GlobalTriggerEvmRawToDigi(const edm::ParameterSet
 
     LogDebug("L1GlobalTriggerEvmRawToDigi")
     << "\nInput tag for EVM GT record:             "
-    << m_evmGtInputTag.label()
+    << m_evmGtInputTag
     << "\nFED Id for EVM GT record:                "
     << m_evmGtFedId
     << "\nMask for active boards (hex format):     "
@@ -153,15 +153,15 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
 
     const std::vector<L1GtBoard> boardMaps = l1GtBM->gtBoardMaps();
     int boardMapsSize = boardMaps.size();
-    
+
     typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
-    
+
     // create an ordered vector for the GT EVM record
-    // header (pos 0 in record) and trailer (last position in record) 
-    // not included, as they are not in board list 
+    // header (pos 0 in record) and trailer (last position in record)
+    // not included, as they are not in board list
     std::vector<L1GtBoard> gtRecordMap;
     gtRecordMap.reserve(boardMapsSize);
-    
+
     for (int iPos = 0; iPos < boardMapsSize; ++iPos) {
         for (CItBoardMaps itBoard = boardMaps.begin(); itBoard
                 != boardMaps.end(); ++itBoard) {
@@ -170,14 +170,24 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
                 gtRecordMap.push_back(*itBoard);
                 break;
             }
-            
+
         }
     }
 
     // raw collection
 
     edm::Handle<FEDRawDataCollection> fedHandle;
-    iEvent.getByLabel(m_evmGtInputTag.label(), fedHandle);
+    iEvent.getByLabel(m_evmGtInputTag, fedHandle);
+
+    if (!fedHandle.isValid()) {
+        edm::LogWarning("L1GlobalTriggerEvmRawToDigi")
+                << "\nWarning: FEDRawDataCollection with input tag " << m_evmGtInputTag
+                << "\nrequested in configuration, but not found in the event."
+                << "\nQuit unpacking this event" << std::endl;
+
+        return;
+    }
+
 
     // retrieve data for Global Trigger EVM FED
     const FEDRawData& raw =
@@ -213,25 +223,25 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
     // here GTFE assumed immediately after the header
 
     bool gtfeUnpacked = false;
-    
+
     // get the length of the BST message from parameter set or from event setup
-    
+
     int bstLengthBytes = 0;
-    
+
     if (m_bstLengthBytes < 0) {
         // length from event setup // TODO cache it, if too slow
 
         edm::ESHandle< L1GtParameters > l1GtPar;
-        evSetup.get< L1GtParametersRcd >().get( l1GtPar );        
+        evSetup.get< L1GtParametersRcd >().get( l1GtPar );
         const L1GtParameters* m_l1GtPar = l1GtPar.product();
-       
+
         bstLengthBytes = static_cast<int> (m_l1GtPar->gtBstLengthBytes());
-        
+
     } else {
         // length from parameter set
         bstLengthBytes = m_bstLengthBytes;
     }
-    
+
     LogTrace("L1GlobalTriggerEvmRawToDigi")
     << "\n Length of BST message (in bytes): " << bstLengthBytes << "\n"
     << std::endl;
@@ -247,7 +257,7 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
 
                 // resize to the right size before unapacking
                 m_gtfeWord->resize(bstLengthBytes);
-                
+
                 m_gtfeWord->unpack(ptrGt);
                 ptrGt += m_gtfeWord->getSize(); // advance with GTFE block size
                 gtfeUnpacked = true;
@@ -266,23 +276,27 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
 
             } else {
 
-                throw cms::Exception("Configuration")
-                << "\nError: GTFE block found in raw data does not follow header.\n"
-                << "Assumed start position of the block is wrong!\n"
-                << std::endl;
+                edm::LogWarning("L1GlobalTriggerEvmRawToDigi")
+                        << "\nWarning: GTFE block found in raw data does not follow header."
+                        << "\nAssumed start position of the block is wrong!"
+                        << "\nQuit unpacking this event" << std::endl;
+
+                return;
 
             }
 
         }
     }
 
-    // throw exception if no GTFE found (action for NotFound: SkipEvent)
+    // quit if no GTFE found
     if ( ! gtfeUnpacked ) {
 
-        throw cms::Exception("NotFound")
-        << "\nError: no GTFE block found in raw data.\n"
-        << "Can not find the record length (BxInEvent) and the active boards!\n"
-        << std::endl;
+        edm::LogWarning("L1GlobalTriggerEvmRawToDigi")
+                << "\nWarning: no GTFE block found in raw data."
+                << "\nCan not find the record length (BxInEvent) and the active boards!"
+                << "\nQuit unpacking this event" << std::endl;
+
+        return;
     }
 
     // life normal here, GTFE found
@@ -436,6 +450,8 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
                     break;
                 default: {
                         // do nothing, all blocks are given in GtBoardType enum
+                        LogDebug("L1GlobalTriggerRawToDigi") << "\nBoard of type "
+                            << itBoard->gtBoardType() << " not expected  in record.\n" << std::endl;
                     }
 
                     break;
@@ -560,6 +576,8 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
                 break;
             default: {
                     // do nothing, all blocks are given in GtBoardType enum
+                    LogDebug("L1GlobalTriggerRawToDigi") << "\nBoard of type "
+                        << itBoard->gtBoardType() << " not expected  in record.\n" << std::endl;
 
                 }
                 break;

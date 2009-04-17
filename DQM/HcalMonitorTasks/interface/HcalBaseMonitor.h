@@ -35,8 +35,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2008/10/20 12:24:03 $
-  * $Revision: 1.15 $
+  * $Date: 2008/11/02 16:20:41 $
+  * $Revision: 1.18 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -70,16 +70,20 @@ public:
 			 int nbinsx, int lowboundx, int highboundx,
 			 int nbinsy, int lowboundy, int highboundy);
 
+  void setMinMaxHists2D(std::vector<MonitorElement*> &hh, double min, double max);
+ 
   // 1-D histograms
   void setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins);
   void setupDepthHists1D(std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins);
-
-
+  void setMinMaxHists1D(std::vector<MonitorElement*> &hh, double min, double max);
+  void FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh);
+  void FillUnphysicalHEHFBins(MonitorElement* hh);
 
 protected:
   
   int fVerbosity;
   bool showTiming; // controls whether to show timing diagnostic info
+  bool dump2database; // controls whether output written to file for database (will eventually write db directly)
   int checkNevents_; // controls when histograms should be updated
 
   double etaMax_, etaMin_;
@@ -91,7 +95,8 @@ protected:
   edm::CPUTimer cpu_timer; // 
     
   bool makeDiagnostics; // controls whether to make diagnostic plots
-
+  bool fillUnphysical_; // controls whether to fill unphysical iphi bins in eta-phi histograms
+  
   DQMStore* m_dbe;
   vector<string> hotCells_;
   string rootFolder_;

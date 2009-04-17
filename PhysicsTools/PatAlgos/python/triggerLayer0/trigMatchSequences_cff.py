@@ -18,3 +18,22 @@ patTrigMatch = cms.Sequence(
     patTrigMatchHLT1Tau
 )
 
+
+## patTuple ##
+
+patTrigMatch_patTuple_withoutBTau = cms.Sequence(
+    patTrigMatchHLT_IsoMu11 +
+    patTrigMatchHLT_Mu11 +
+    patTrigMatchHLT_DoubleIsoMu3 +
+    patTrigMatchHLT_DoubleMu3 +
+    patTrigMatchHLT_IsoEle15_LW_L1I +
+    patTrigMatchHLT_Ele15_LW_L1R +
+    patTrigMatchHLT_DoubleIsoEle10_LW_L1I +
+    patTrigMatchHLT_DoubleEle5_SW_L1R
+)
+
+patTrigMatch_patTuple = cms.Sequence(
+    patTrigMatch_patTuple_withoutBTau +
+    patTrigMatchHLT_LooseIsoTau_MET30_L1MET +
+    patTrigMatchHLT_DoubleIsoTau_Trk3
+)

@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.44 2008/04/30 22:58:14 dmytro Exp $
+ * \version $Id: Muon.h,v 1.46 2008/10/30 19:49:22 jribnik Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -33,23 +33,23 @@ namespace reco {
     /// ====================== TRACK BLOCK ===========================
     ///
     /// reference to Track reconstructed in the tracker only
-    TrackRef innerTrack() const { return track_; }
-    TrackRef track() const __attribute__((deprecated));
+    virtual TrackRef innerTrack() const { return track_; }
+    virtual TrackRef track() const __attribute__((deprecated));
     /// reference to Track reconstructed in the muon detector only
-    TrackRef outerTrack() const { return standAloneMuon_; }
-    TrackRef standAloneMuon() const __attribute__((deprecated));
+    virtual TrackRef outerTrack() const { return standAloneMuon_; }
+    virtual TrackRef standAloneMuon() const __attribute__((deprecated));
     /// reference to Track reconstructed in both tracked and muon detector
-    TrackRef globalTrack() const { return combinedMuon_; }
-    TrackRef combinedMuon() const __attribute__((deprecated));
+    virtual TrackRef globalTrack() const { return combinedMuon_; }
+    virtual TrackRef combinedMuon() const __attribute__((deprecated));
     /// set reference to Track
-    void setInnerTrack( const TrackRef & t ) { track_ = t; }
-    void setTrack( const TrackRef & t ) __attribute__((deprecated));
+    virtual void setInnerTrack( const TrackRef & t ) { track_ = t; }
+    virtual void setTrack( const TrackRef & t ) __attribute__((deprecated));
     /// set reference to Track
-    void setOuterTrack( const TrackRef & t ) { standAloneMuon_ = t; }
-    void setStandAlone( const TrackRef & t ) __attribute__((deprecated));
+    virtual void setOuterTrack( const TrackRef & t ) { standAloneMuon_ = t; }
+    virtual void setStandAlone( const TrackRef & t ) __attribute__((deprecated));
     /// set reference to Track
-    void setGlobalTrack( const TrackRef & t ) { combinedMuon_ = t; }
-    void setCombined( const TrackRef & t ) __attribute__((deprecated));
+    virtual void setGlobalTrack( const TrackRef & t ) { combinedMuon_ = t; }
+    virtual void setCombined( const TrackRef & t ) __attribute__((deprecated));
     
     ///
     /// ====================== ENERGY BLOCK ===========================
@@ -89,6 +89,7 @@ namespace reco {
     float caloCompatibility() const { return caloCompatibility_; }
     void  setCaloCompatibility(float input){ caloCompatibility_ = input; }
     bool  isCaloCompatibilityValid() const { return caloCompatibility_>=0; } 
+    float segmentCompatibility() const;
     
     ///
     /// ====================== ISOLATION BLOCK ===========================
@@ -115,7 +116,11 @@ namespace reco {
 	 TMLastStationLoose,       // penetration depth loose selector
 	 TMLastStationTight,       // penetration depth tight selector
 	 TM2DCompatibilityLoose,   // likelihood based loose selector
-	 TM2DCompatibilityTight    // likelihood based tight selector
+	 TM2DCompatibilityTight,   // likelihood based tight selector
+         TMOneStationLoose,        // require one well matched segment
+         TMOneStationTight,        // require one well matched segment
+         TMLastStationOptimizedLowPtLoose, // combination of TMLastStation and TMOneStation
+         TMLastStationOptimizedLowPtTight  // combination of TMLastStation and TMOneStation
     };
     bool isGood( SelectionType type = AllArbitrated ) const;
      

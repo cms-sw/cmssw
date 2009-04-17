@@ -18,6 +18,7 @@ from RecoPixelVertexing.Configuration.RecoPixelVertexing_cff import *
 #include "RecoBTau/Configuration/data/RecoBTau.cff"
 from RecoJets.Configuration.RecoJetAssociations_cff import *
 from RecoJets.Configuration.RecoPFJets_cff import *
+from RecoMET.Configuration.RecoPFMET_cff import *
 from RecoBTag.Configuration.RecoBTag_cff import *
 #
 # please understand that division global,highlevel is completely fake !
@@ -36,13 +37,15 @@ localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco)
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence
 #
-globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing*ckftracks+ecalClusters+caloTowersRec*recoJets+metreco+muonreco_plus_isolation)
+globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing*ckftracks+ecalClusters+caloTowersRec*vertexreco*recoJets+metreco+muonreco_plus_isolation)
 globalreco_plusRS = cms.Sequence(globalreco*rstracks)
 globalreco_plusGSF = cms.Sequence(globalreco*GsfGlobalElectronTestSequence)
 globalreco_plusRS_plusGSF = cms.Sequence(globalreco*rstracks*GsfGlobalElectronTestSequence)
-highlevelreco = cms.Sequence(vertexreco*recoJetAssociations*btagging*tautagging*egammarecoFull*particleFlowReco*recoPFJets*PFTau)
+highlevelreco = cms.Sequence(recoJetAssociations*btagging*tautagging*egammarecoFull*particleFlowReco*recoPFJets*recoPFMET*PFTau)
 #emergency sequence wo conversions
-highlevelreco_woConv = cms.Sequence(vertexreco*recoJetAssociations*btagging*tautagging*egammareco_woConvPhotons*particleFlowReco*recoPFJets*PFTau)
+highlevelreco_woConv = cms.Sequence(recoJetAssociations*btagging*tautagging*egammareco_woConvPhotons*particleFlowReco*recoPFJets*recoPFMET*PFTau)
+
+
 #
 # "Export" Section
 #

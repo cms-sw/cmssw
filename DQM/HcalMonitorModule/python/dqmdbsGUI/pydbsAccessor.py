@@ -93,7 +93,7 @@ class dbsAccessor:
         self.dbsInst.set("cms_dbs_prod_global")
         #self.searchStringFile.set("*/Global*/A/*RAW/*.root")
         self.searchStringFile.set("")
-        self.searchStringDataset.set("/Cosmics/CRUZET3-v1/RAW")
+        self.searchStringDataset.set("/Cosmics/Commissioning08-v1/RAW")
         self.page.set(0)
         self.limit.set(10000)
         self.xml.set(False)

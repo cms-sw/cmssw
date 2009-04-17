@@ -22,10 +22,6 @@
 #include "HLTrigger/Egamma/interface/HLTElectronDetaDphiFilter.h"
 #include "HLTrigger/Egamma/interface/HLTEgammaClusterShapeFilter.h"
 
-#include "HLTrigger/Egamma/interface/HLTEgammaL1MatchFilterPairs.h"
-#include "HLTrigger/Egamma/interface/HLTEgammaEtFilterPairs.h"
-#include "HLTrigger/Egamma/interface/HLTEgammaCaloIsolFilterPairs.h"
-
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaEtFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaDoubleEtFilter);
@@ -48,6 +44,3 @@ DEFINE_ANOTHER_FWK_MODULE(HLTEgammaDoubleEtPhiFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTElectronOneOEMinusOneOPFilterRegional);
 DEFINE_ANOTHER_FWK_MODULE(HLTElectronDetaDphiFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaClusterShapeFilter);
-DEFINE_ANOTHER_FWK_MODULE(HLTEgammaL1MatchFilterPairs);
-DEFINE_ANOTHER_FWK_MODULE(HLTEgammaEtFilterPairs);
-DEFINE_ANOTHER_FWK_MODULE(HLTEgammaCaloIsolFilterPairs);

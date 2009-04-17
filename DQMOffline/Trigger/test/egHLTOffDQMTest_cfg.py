@@ -10,7 +10,8 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 process.load("DQMOffline.Trigger.EgammaHLTOffline_cfi")
 process.load("DQMOffline.Trigger.EgHLTOffClient_cfi")
-
+#process.load("DQMOffline.Trigger.relVal_2_1_0_Zee_small_cff");
+process.load("DQMOffline.Trigger.relVal_Zee_219_cfi")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
@@ -21,9 +22,12 @@ process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/2008/6/6/RelVal-RelValZMM-1212543891-STARTUP-2nd-02/0000/4A3DAF35-E533-DD11-9D80-001617E30F56.root')
-)
+#process.PoolSource.fileNames = ['file:/scratch/sharper/cmsswDataFiles/zee_relVal_219.root']
+
+
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+#process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring ('dummy') )
+    
 
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
@@ -42,7 +46,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     critical = cms.untracked.PSet(
         threshold = cms.untracked.string('ERROR')
     ),
-    debugModules = cms.untracked.vstring('*'),
+    debugModules = cms.untracked.vstring('EgammaHLTOffline','EgHLTOfflineClient'),
     destinations = cms.untracked.vstring('debugInfo', 
         'detailedInfo', 
         'critical', 
@@ -54,11 +58,15 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.psource = cms.Path(process.egammaHLTDQM*process.egHLTOffDQMClient)
 process.p = cms.EndPath(process.dqmSaver)
-process.PoolSource.fileNames = ['file:/scratch/sharper/DQMFiles/Zee_RelVal_210pre9_1.root']
+
 process.DQMStore.verbose = 0
 process.DQM.collectorHost = ''
 #process.GlobalTag.globaltag = 'STARTUP::All'
 process.dqmSaver.convention = 'Online'
 process.dqmSaver.saveByRun = 1
 process.dqmSaver.saveAtJobEnd = True
+process.PoolSource.fileNames = ['file:/scratch/sharper/RelValZEE_218_1.root']
+#process.PoolSource.fileNames = ['file:/media/usbdisk2/RelValZEE_CMSSW_2_1_10/0A990453-9699-DD11-B9FD-001617C3B69C.root']
+#process.PoolSource.fileNames= ['file:/media/usbdisk2/RelValZEE_CMSSW_2_1_7/0C3B40D7-F87D-DD11-A9FB-000423D998BA.root']
+#process.PoolSource.fileNames= ['file:/media/usbdisk2/RelValZEE_CMSSW_2_1_7/0C3B40D7-F87D-DD11-A9FB-000423D998BA.root','file:/media/usbdisk2/RelValZEE_CMSSW_2_1_7/3A5455F3-F87D-DD11-AEF4-000423D94534.root']
 

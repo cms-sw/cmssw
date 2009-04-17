@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
-// $Id: MuonSelectors.h,v 1.1 2008/04/29 23:30:21 dmytro Exp $
+// $Id: MuonSelectors.h,v 1.2 2008/04/30 22:58:14 dmytro Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TMath.h"
@@ -17,7 +17,7 @@ namespace muon {
    // ===========================================================================
    //                               Support functions
    // 
-   enum AlgorithmType { TMLastStation, TM2DCompatibility };
+   enum AlgorithmType { TMLastStation, TM2DCompatibility, TMOneStation };
    
    // specialized GoodMuon functions called from main wrapper
    bool isGoodMuon( const reco::Muon& muon, 

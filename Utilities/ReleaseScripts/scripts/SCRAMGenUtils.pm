@@ -213,7 +213,7 @@ sub getScramArch ()
   if($SCRAM_ARCH eq "")
   {
     if(exists $ENV{SCRAM_ARCH}){$SCRAM_ARCH=$ENV{SCRAM_ARCH};}
-    else{$SCRAM_ARCH=`$SCRAM_CMD arch`;chomp $SCRAM_ARCH;}
+    else{$SCRAM_ARCH=`$SCRAM_CMD arch`;chomp $SCRAM_ARCH;$ENV{SCRAM_ARCH}=$SCRAM_ARCH;}
   }
   return $SCRAM_ARCH;
 }

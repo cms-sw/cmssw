@@ -20,5 +20,5 @@ ckfTrackCandidatesP5 = copy.deepcopy(ckfTrackCandidates)
 ckfTrackCandidatesP5.NavigationSchool = 'CosmicNavigationSchool'
 ckfTrackCandidatesP5.TrajectoryBuilder = 'GroupedCkfTrajectoryBuilderP5'
 #replace ckfTrackCandidatesP5.TrajectoryBuilder        = "CkfTrajectoryBuilderP5"
-ckfTrackCandidatesP5.src = cms.InputTag('combinatorialcosmicseedfinderP5')
+ckfTrackCandidatesP5.SeedProducer = 'combinatorialcosmicseedfinderP5'
 

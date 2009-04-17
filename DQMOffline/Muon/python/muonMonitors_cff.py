@@ -9,16 +9,19 @@ from DQMOffline.Muon.rpcSource_cfi import *
 #dedicated analyzers for offline dqm 
 from DQMOffline.Muon.muonAnalyzer_cff import *
 from DQMOffline.Muon.CSCMonitor_cfi import *
+from DQMOffline.Muon.muonIdDQM_cff import *
+
 #dedicated clients for offline dqm 
 from DQMOffline.Muon.muonQualityTests_cff import *
-
-muonTrackAnalyzers = cms.Sequence(MonitorTrackSTAMuons*MonitorTrackGLBMuons)
-muonMonitors = cms.Sequence(rpcSource*muonTrackAnalyzers*dtSegmentsMonitor*muonAnalyzer)
 
 dqmInfoMuons = cms.EDFilter("DQMEventInfo",
                             subSystemFolder = cms.untracked.string('Muons')
                             )
 
-muonMonitorsAndQualityTests = cms.Sequence(muonMonitors*muonQualityTests*dqmInfoMuons)
+muonTrackAnalyzers = cms.Sequence(MonitorTrackSTAMuons*MonitorTrackGLBMuons)
+
+muonMonitors = cms.Sequence(rpcSource*muonTrackAnalyzers*dtSegmentsMonitor*cscMonitor*muonAnalyzer*muonIdDQM*dqmInfoMuons)
+
+muonMonitorsAndQualityTests = cms.Sequence(muonMonitors*muonQualityTests)
 
 

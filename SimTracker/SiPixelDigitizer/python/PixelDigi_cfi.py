@@ -8,15 +8,21 @@ simSiPixelDigis = cms.EDFilter("SiPixelDigitizer",
         'g4SimHitsTrackerHitsPixelEndcapLowTof', 
         'g4SimHitsTrackerHitsPixelEndcapHighTof'),
     OffsetSmearing = cms.double(0.0),
+    ThresholdInElectrons_FPix = cms.double(2870.0), 
+    ThresholdInElectrons_BPix = cms.double(3700.0),
+    AddThresholdSmearing = cms.bool(True),
+    ThresholdSmearing_FPix = cms.double(200.0),
+    ThresholdSmearing_BPix = cms.double(410.0),
     NoiseInElectrons = cms.double(175.0),
-    ThresholdInElectrons = cms.double(2500.0),
     MissCalibrate = cms.bool(True),
-    TofUpperCut = cms.double(12.5),
+    ElectronsPerVcal = cms.double(65.5),
+    ElectronsPerVcal_Offset = cms.double(-414.0),
     ElectronPerAdc = cms.double(135.0),
+    TofUpperCut = cms.double(12.5),
     AdcFullScale = cms.int32(255),
     TofLowerCut = cms.double(-12.5),
-    TanLorentzAnglePerTesla_FPix = cms.double(0.091),
-    TanLorentzAnglePerTesla_BPix = cms.double(0.122),
+    TanLorentzAnglePerTesla_FPix = cms.double(0.106),
+    TanLorentzAnglePerTesla_BPix = cms.double(0.106),
     AddNoisyPixels = cms.bool(True),
     Alpha2Order = cms.bool(True),
     AddPixelInefficiency = cms.int32(0),
@@ -25,7 +31,7 @@ simSiPixelDigis = cms.EDFilter("SiPixelDigitizer",
     GeometryType = cms.string('idealForDigi'),                           
     useDB = cms.bool(False),
     LorentzAngle_DB = cms.bool(True),
-    DeadModules_DB = cms.bool(True),
+    DeadModules_DB = cms.bool(False),
     killModules = cms.bool(True),
     DeadModules = cms.VPSet(cms.PSet(Dead_detID = cms.int32(302197784), Module = cms.string("whole")),
                             cms.PSet(Dead_detID = cms.int32(302195232), Module = cms.string("whole")),
@@ -53,7 +59,6 @@ simSiPixelDigis = cms.EDFilter("SiPixelDigitizer",
                             cms.PSet(Dead_detID = cms.int32(344076548), Module = cms.string("whole")),
                             cms.PSet(Dead_detID = cms.int32(344076552), Module = cms.string("whole")),
                             cms.PSet(Dead_detID = cms.int32(344076556), Module = cms.string("whole")),
-                            cms.PSet(Dead_detID = cms.int32(344076556), Module = cms.string("whole")),
                             cms.PSet(Dead_detID = cms.int32(344076560), Module = cms.string("whole")),
                             cms.PSet(Dead_detID = cms.int32(344076804), Module = cms.string("whole")),
                             cms.PSet(Dead_detID = cms.int32(344076808), Module = cms.string("whole")),
@@ -75,6 +80,72 @@ simSiPixelDigis = cms.EDFilter("SiPixelDigitizer",
                             cms.PSet(Dead_detID = cms.int32(344014344), Module = cms.string("whole")),
                             cms.PSet(Dead_detID = cms.int32(344014348), Module = cms.string("whole")))
 )
+
+
+# Threshold in electrons are the Official COSMICS pixel numbers since january 2009: D. Kotlinski
+#    ThresholdInElectrons_FPix = cms.double(2870.0) smearing = 200
+#    ThresholdInElectrons_BPix = cms.double(3700.0) smearing = 410
+
+# Threshold in electrons are the Official COLLISIONS pixel numbers since february 2009: D. Kotlinski
+#    ThresholdInElectrons_FPix = cms.double(2870.0) smearing = 200
+#    ThresholdInElectrons_BPix = cms.double(2870.0) smearing = 200
+
+
+
+
+#DEAD MODULES LIST:
+#  DeadModules = cms.VPSet()
+
+#    DeadModules = cms.VPSet(cms.PSet(Dead_detID = cms.int32(302197784), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(302195232), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(302123296), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(302127136), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(302125076), Module = cms.string("tbmA")),
+#                            cms.PSet(Dead_detID = cms.int32(302126364), Module = cms.string("tbmB")),
+#                            cms.PSet(Dead_detID = cms.int32(302188552), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(302121992), Module = cms.string("tbmA")),
+#                            cms.PSet(Dead_detID = cms.int32(302126596), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344074500), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344074504), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344074508), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344074512), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344074756), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344074760), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344074764), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344075524), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344075528), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344075532), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344075536), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344075780), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344075784), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344075788), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344076548), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344076552), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344076556), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344076560), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344076804), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344076808), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344076812), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344005128), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344020236), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344020240), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344020488), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344020492), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344019212), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344019216), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344019464), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344019468), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344018188), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344018192), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344018440), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344018444), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344014340), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344014344), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(344014348), Module = cms.string("whole")),
+#                            cms.PSet(Dead_detID = cms.int32(302187268), Module = cms.string("none")),
+#                            cms.PSet(Dead_detID = cms.int32(302195472), Module = cms.string("none")),
+#                            cms.PSet(Dead_detID = cms.int32(302128136), Module = cms.string("none")))
+
 
 #List of dead pixel modules:
 
@@ -147,7 +218,6 @@ simSiPixelDigis = cms.EDFilter("SiPixelDigitizer",
 
 #BPix dead ROCS: are not removed yet from the Digitizer.
 #
-#BPix_BmI_SEC3_LYR3_LDR9F_MOD4_ROC6
-#BPix_BmI_SEC8_LYR3_LDR21F_MOD1_ROC0
-#BPix_BmI_SEC7_LYR2_LDR13F_MOD3_ROC3
-
+#BPix_BmI_SEC3_LYR3_LDR9F_MOD4_ROC6   detID=302187268
+#BPix_BmI_SEC8_LYR3_LDR21F_MOD1_ROC0  detID=302195472
+#BPix_BmI_SEC7_LYR2_LDR13F_MOD3_ROC3  detId=302128136

@@ -3,7 +3,7 @@ import copy
 import FWCore.ParameterSet.Config as cms
 
 # import the whole HLT menu
-from HLTrigger.Configuration.HLT_2E30_cff import *
+from FastSimulation.Configuration.HLT_cff import *
   
 ### lifetime-based b-tag OpenHLT (ideal) ######################################
 # L1 filter is skipped
@@ -32,7 +32,7 @@ OpenHLTBLifetimeL25recoSequence = cms.Sequence(
 # L3 reco modules
 
 openHltBLifetimeRegionalPixelSeedGenerator = copy.deepcopy(hltBLifetimeRegionalPixelSeedGenerator)
-openHltBLifetimeRegionalPixelSeedGenerator.RegionFactoryPSet.RegionPSet.JetSrc = cms.InputTag("hltIterativeCone5CaloJets")
+openHltBLifetimeRegionalPixelSeedGenerator.JetSrc = cms.InputTag("hltIterativeCone5CaloJets")
 
 openHltBLifetimeRegionalCkfTrackCandidates = copy.deepcopy(hltBLifetimeRegionalCkfTrackCandidates)
 openHltBLifetimeRegionalCkfTrackCandidates.SeedProducer = cms.string("openHltBLifetimeRegionalPixelSeedGenerator")
@@ -68,7 +68,7 @@ OpenHLTBLifetimeL3recoSequence = cms.Sequence(
 # L3 sequence is rewritten to bypass selectors and filters
 
 openHltBLifetimeRegionalPixelSeedGeneratorRelaxed = copy.deepcopy(hltBLifetimeRegionalPixelSeedGeneratorRelaxed)
-openHltBLifetimeRegionalPixelSeedGeneratorRelaxed.RegionFactoryPSet.RegionPSet.JetSrc = cms.InputTag("hltIterativeCone5CaloJets")
+openHltBLifetimeRegionalPixelSeedGeneratorRelaxed.JetSrc = cms.InputTag("hltIterativeCone5CaloJets")
 
 openHltBLifetimeRegionalCkfTrackCandidatesRelaxed = copy.deepcopy(hltBLifetimeRegionalCkfTrackCandidatesRelaxed)
 openHltBLifetimeRegionalCkfTrackCandidatesRelaxed.SeedProducer = cms.string("openHltBLifetimeRegionalPixelSeedGeneratorRelaxed")

@@ -153,46 +153,6 @@ void PixelDACSettings::addROC(PixelROCDACSettings &rocname)
 
 PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tableMat): PixelConfigBase("","","")
 {
-
-/*
- EXTENSION_TABLE_NAME: ROC_DAC_SETTINGS_COL (VIEW: CONF_KEY_ROCDAC_COL_V)
- 
- CONFIG_KEY				   NOT NULL VARCHAR2(80)
- KEY_TYPE				   NOT NULL VARCHAR2(80)
- KEY_ALIAS				   NOT NULL VARCHAR2(80)
- VERSION					    VARCHAR2(40)
- KIND_OF_COND				   NOT NULL VARCHAR2(40)
- ROC_NAME					    VARCHAR2(200)
- VDD					   NOT NULL NUMBER(38)
- VANA					   NOT NULL NUMBER(38)
- VSF					   NOT NULL NUMBER(38)
- VCOMP					   NOT NULL NUMBER(38)
- VLEAK					   NOT NULL NUMBER(38)
- VRGPR					   NOT NULL NUMBER(38)
- VWLLPR 				   NOT NULL NUMBER(38)
- VRGSH					   NOT NULL NUMBER(38)
- VWLLSH 				   NOT NULL NUMBER(38)
- VHLDDEL				   NOT NULL NUMBER(38)
- VTRIM					   NOT NULL NUMBER(38)
- VCTHR					   NOT NULL NUMBER(38)
- VIBIAS_BUS				   NOT NULL NUMBER(38)
- VIBIAS_SF				   NOT NULL NUMBER(38)
- VOFFSETOP				   NOT NULL NUMBER(38)
- VBIASOP				   NOT NULL NUMBER(38)
- VOFFSETRO				   NOT NULL NUMBER(38)
- VION					   NOT NULL NUMBER(38)
- VIBIAS_PH				   NOT NULL NUMBER(38)
- VIBIAS_DAC				   NOT NULL NUMBER(38)
- VIBIAS_ROC				   NOT NULL NUMBER(38)
- VICOLOR				   NOT NULL NUMBER(38)
- VNPIX					   NOT NULL NUMBER(38)
- VSUMCOL				   NOT NULL NUMBER(38)
- VCAL					   NOT NULL NUMBER(38)
- CALDEL 				   NOT NULL NUMBER(38)
- TEMPRANGE				   NOT NULL NUMBER(38)
- WBC					   NOT NULL NUMBER(38)
- CHIPCONTREG				   NOT NULL NUMBER(38)
-*/
 //   std::multimap<std::string,std::pair<std::string,int > > pDSM;
   //  std::stringstream currentRocName;
   std::vector< std::string > ins = tableMat[0];
@@ -204,42 +164,44 @@ PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tabl
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
   std::map<std::string, std::string> nameTranslation ;
-
-  colNames.push_back("CONFIG_KEY"  );
-  colNames.push_back("KEY_TYPE"    );
-  colNames.push_back("KEY_ALIAS"   );
-  colNames.push_back("VERSION"     );
-  colNames.push_back("KIND_OF_COND");
-  colNames.push_back("ROC_NAME"    );
-  colNames.push_back("VDD"	   );
-  colNames.push_back("VANA"	   );
-  colNames.push_back("VSF"	   );
-  colNames.push_back("VCOMP"	   );
-  colNames.push_back("VLEAK"	   );
-  colNames.push_back("VRGPR"	   );
-  colNames.push_back("VWLLPR"	   );
-  colNames.push_back("VRGSH"	   );
-  colNames.push_back("VWLLSH"	   );
-  colNames.push_back("VHLDDEL"     );
-  colNames.push_back("VTRIM"	   );
-  colNames.push_back("VCTHR"	   );
-  colNames.push_back("VIBIAS_BUS"  );
-  colNames.push_back("VIBIAS_SF"   );
-  colNames.push_back("VOFFSETOP"   );
-  colNames.push_back("VBIASOP"     );
-  colNames.push_back("VOFFSETRO"   );
-  colNames.push_back("VION"	   );
-  colNames.push_back("VIBIAS_PH"   );
-  colNames.push_back("VIBIAS_DAC"  );
-  colNames.push_back("VIBIAS_ROC"  );
-  colNames.push_back("VICOLOR"     );
-  colNames.push_back("VNPIX"	   );
-  colNames.push_back("VSUMCOL"     );
-  colNames.push_back("VCAL"	   );
-  colNames.push_back("CALDEL"	   );
-  colNames.push_back("TEMPRANGE"   );
-  colNames.push_back("WBC"	   );
-  colNames.push_back("CHIPCONTREG" );
+  //   colNames.push_back("CONFIG_KEY_ID");
+  //   colNames.push_back("CONFIG_KEY");
+  //   colNames.push_back("VERSION");
+  //   colNames.push_back("KIND_OF_COND");
+  colNames.push_back("ROC_NAME");
+  //   colNames.push_back("HUB_ADDRS");
+  //   colNames.push_back("PORT_NUMBER");
+  //   colNames.push_back("I2C_ADDR");
+  //   colNames.push_back("GEOM_ROC_NUM");
+  colNames.push_back("VDD");
+  colNames.push_back("VANA");
+  colNames.push_back("VSF");
+  colNames.push_back("VCOMP");
+  colNames.push_back("VLEAK");
+  colNames.push_back("VRGPR");
+  colNames.push_back("VWLLPR");
+  colNames.push_back("VRGSH");
+  colNames.push_back("VWLLSH");
+  colNames.push_back("VHLDDEL");
+  colNames.push_back("VTRIM");
+  colNames.push_back("VCTHR");
+  colNames.push_back("VIBIAS_BUS");
+  colNames.push_back("VIBIAS_SF");
+  colNames.push_back("VOFFSETOP");
+  colNames.push_back("VBIASOP");
+  colNames.push_back("VOFFSETRO");
+  colNames.push_back("VION");
+  colNames.push_back("VIBIAS_PH");
+  colNames.push_back("VIBIAS_DAC");
+  colNames.push_back("VIBIAS_ROC");
+  colNames.push_back("VICOLOR");
+  colNames.push_back("VNPIX");
+  colNames.push_back("VSUMCOL");
+  colNames.push_back("VCAL");
+  colNames.push_back("CALDEL");
+  colNames.push_back("TEMPRANGE");
+  colNames.push_back("WBC");
+  colNames.push_back("CHIPCONTREG");
 
   nameTranslation["VDD"]          = k_DACName_Vdd ;
   nameTranslation["VANA"]         = k_DACName_Vana;               
@@ -303,11 +265,12 @@ PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tabl
     //	   << "_ROC"       << tableMat[r][colM["ROC_POSN"]];                
 		   
     // modified by MR on 25-02-2008 10:04:55
+    // +1 to get rid of the unwanted ROC_NAME...
     PixelROCName rocid(tableMat[r][colM["ROC_NAME"]]);
     PixelROCDACSettings tmp(rocid);
+//     std::map<std::string, unsigned int> tmpDACs ;
     std::ostringstream dacs("") ;
-    // +6 to get rid of the first 5 columns not pertaining DAC Settings...
-    for(unsigned int n=skipColumns+6; n<colNames.size(); n++)
+    for(unsigned int n=skipColumns+1; n<colNames.size(); n++)
       {
 	dacs << nameTranslation[colNames[n]] <<": "<< atoi(tableMat[r][colM[colNames[n]]].c_str()) << std::endl ;
 	//       dacName  = colNames[n];
@@ -400,77 +363,64 @@ void PixelDACSettings::writeASCII(std::string dir) const {
 }
 
 //=============================================================================================
-void PixelDACSettings::writeXMLHeader(pos::PixelConfigKey key, 
-				      int version, 
-				      std::string path, 
-				      std::ofstream *outstream,
-				      std::ofstream *out1stream,
-				      std::ofstream *out2stream) const {
+void PixelDACSettings::writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {
   std::string mthn = "[PixelDACSettings::writeXMLHeader()]\t\t\t    " ;
   std::stringstream fullPath ;
 
-  fullPath << path << "/Pixel_RocDacSettings_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
+  fullPath << path << "/dacsettings.xml" ;
   std::cout << mthn << "Writing to: |" << fullPath.str()  << "|" << std::endl ;
 
-  outstream->open(fullPath.str().c_str()) ;
+  out->open(fullPath.str().c_str()) ;
   
-  *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"		         	<< std::endl ;
-  *outstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 	         	        << std::endl ;
-  *outstream << ""                                                                                      << std::endl ; 
-  *outstream << " <!-- " << mthn << "-->"                                                               << std::endl ; 
-  *outstream << ""                                                                                      << std::endl ; 
-  *outstream << " <HEADER>"										<< std::endl ;
-  *outstream << "  <TYPE>"										<< std::endl ;
-  *outstream << "   <EXTENSION_TABLE_NAME>ROC_DAC_SETTINGS_COL</EXTENSION_TABLE_NAME>"		  	<< std::endl ;
-  *outstream << "   <NAME>ROC DAC Settings Col</NAME>"						  	<< std::endl ;
-  *outstream << "  </TYPE>"										<< std::endl ;
-  *outstream << "  <RUN>"										<< std::endl ;
-  *outstream << "   <RUN_TYPE>ROC DAC Settings</RUN_TYPE>"						<< std::endl ;
-  *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"							  	<< std::endl ;
-  *outstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ;
-  *outstream << "   <COMMENT_DESCRIPTION>ROC DAC Settings Template</COMMENT_DESCRIPTION>"		<< std::endl ;
-  *outstream << "   <LOCATION>CERN TAC</LOCATION>"							<< std::endl ;
-  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"				<< std::endl ;
-  *outstream << "  </RUN>"										<< std::endl ;
-  *outstream << " </HEADER>"										<< std::endl ;
-  *outstream << ""											<< std::endl ;
-  *outstream << " <DATA_SET>" 									        << std::endl ;
-  *outstream << "  <VERSION>" << version << "</VERSION>"						<< std::endl ;
-  *outstream << " "											<< std::endl ;
-  *outstream << "  <PART>"										<< std::endl ;
-  *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"  					  	<< std::endl ;
-  *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"					  	<< std::endl ;
-  *outstream << "  </PART>"										<< std::endl ;
-  *outstream << " "                                                                       		<< std::endl ;
+  *out << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"		         	  << std::endl ;
+  *out << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 	         	  << std::endl ;
+  *out << " <HEADER>"										  << std::endl ;
+  *out << "  <TYPE>"										  << std::endl ;
+  *out << "   <EXTENSION_TABLE_NAME>ROC_DAC_SETTINGS_COL</EXTENSION_TABLE_NAME>"		  << std::endl ;
+  *out << "   <NAME>ROC DAC Settings Col</NAME>"						  << std::endl ;
+  *out << "  </TYPE>"										  << std::endl ;
+  *out << "  <RUN>"										  << std::endl ;
+  *out << "   <RUN_TYPE>test</RUN_TYPE>"							  << std::endl ;
+  *out << "   <RUN_NUMBER>1</RUN_NUMBER>"							  << std::endl ;
+  *out << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ;
+  *out << "   <COMMENT_DESCRIPTION>Test of DAC Settings xml</COMMENT_DESCRIPTION>"		  << std::endl ;
+  *out << "   <LOCATION>CERN TAC</LOCATION>"							  << std::endl ;
+  *out << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"				  << std::endl ;
+  *out << "  </RUN>"										  << std::endl ;
+  *out << " </HEADER>"  									  << std::endl ;
+  *out << ""											  << std::endl ;
+  *out << " <DATA_SET>" 									  << std::endl ;
+  *out << "  <VERSION>" << version << "</VERSION>"						  << std::endl ;
+  *out << " "											  << std::endl ;
+  *out << "  <PART>"										  << std::endl ;
+  *out << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"  					  << std::endl ;
+  *out << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"					  << std::endl ;
+  *out << "  </PART>"										  << std::endl ;
+  *out << " "                                                                       		  << std::endl ;
 
   std::cout << mthn << "Header written" << std::endl ;
 }
 
 //=============================================================================================
-void PixelDACSettings::writeXML( std::ofstream *outstream,
-				 std::ofstream *out1stream,
-				 std::ofstream *out2stream) const {
+void PixelDACSettings::writeXML( std::ofstream *out) const {
   std::string mthn = "[PixelDACSettings::writeXML()]\t\t\t    " ;
 
   for(unsigned int i=0;i<dacsettings_.size();i++){
-    dacsettings_[i].writeXML(outstream);
+    dacsettings_[i].writeXML(out);
   }
 }
 
 //=============================================================================================
-void PixelDACSettings::writeXMLTrailer(std::ofstream *outstream,
-				       std::ofstream *out1stream,
-				       std::ofstream *out2stream) const {
+void PixelDACSettings::writeXMLTrailer(std::ofstream *out) const {
   std::string mthn = "[PixelDACSettings::writeXMLTrailer()]\t\t\t    " ;
 
-  *outstream << " </DATA_SET>"              							       << std::endl ;
-  *outstream << "</ROOT>"                   							       << std::endl ;
+  *out << " </DATA_SET>"              << std::endl ;
+  *out << "</ROOT>"                   << std::endl ;
 
-  outstream->close() ;
-  std::cout << mthn << "Data written"       							       << std::endl ;
+  std::cout << mthn << "Closing input stream" << std::endl ;
+  out->close() ;
+  std::cout << mthn << "Data written" << std::endl ;
 }
-
-/* O B S O L E T E -----
 
 //=============================================================================================
 void PixelDACSettings::writeXML(pos::PixelConfigKey key, int version, std::string path) const {
@@ -482,7 +432,7 @@ void PixelDACSettings::writeXML(pos::PixelConfigKey key, int version, std::strin
   std::cout << mthn << "Writing to: |" << fullPath.str()  << "|" << std::endl ;
   
 
-  std::ofstream outstream(fullPath.str().c_str()) ;
+  std::ofstream out(fullPath.str().c_str()) ;
   
   out << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"		         	 << std::endl ;
   out << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 	         	 << std::endl ;
@@ -520,7 +470,6 @@ void PixelDACSettings::writeXML(pos::PixelConfigKey key, int version, std::strin
   out.close() ;
   std::cout << mthn << "Data written"                                                            << std::endl ;
 }
-*/
 
 //=============================================================================================
 void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,

@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.24 2008/10/06 13:29:16 gpetrucc Exp $
+// $Id: PATJetProducer.cc,v 1.26.2.2.2.1 2009/01/16 22:10:33 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -29,7 +29,6 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
 
 #include "FWCore/Framework/interface/Selector.h"
@@ -61,9 +60,6 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   addTrigMatch_            = iConfig.getParameter<bool>                       ( "addTrigMatch" );
   trigMatchSrc_            = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
   addResolutions_          = iConfig.getParameter<bool> 		      ( "addResolutions" );
-  useNNReso_               = iConfig.getParameter<bool> 		      ( "useNNResolutions" );
-  caliJetResoFile_         = iConfig.getParameter<std::string>  	      ( "caliJetResoFile" );
-  caliBJetResoFile_        = iConfig.getParameter<std::string>  	      ( "caliBJetResoFile" );
   addBTagInfo_             = iConfig.getParameter<bool> 		      ( "addBTagInfo" );
   addDiscriminators_       = iConfig.getParameter<bool> 		      ( "addDiscriminators" );
   discriminatorModule_     = iConfig.getParameter<edm::InputTag>              ( "discriminatorModule" );
@@ -73,12 +69,6 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   trackAssociation_        = iConfig.getParameter<edm::InputTag>	      ( "trackAssociationSource" );
   addJetCharge_            = iConfig.getParameter<bool> 		      ( "addJetCharge" ); 
   jetCharge_               = iConfig.getParameter<edm::InputTag>	      ( "jetChargeSource" );
-
-  // construct resolution calculator
-//   if (addResolutions_) {
-//     theResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(caliJetResoFile_).fullPath(), useNNReso_);
-//     theBResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(caliBJetResoFile_).fullPath(), useNNReso_);
-//   }
 
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
@@ -112,29 +102,26 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
     useUserData_ = true;
   }
 
-
   // produces vector of jets
   produces<std::vector<Jet> >();
 }
 
 
-PATJetProducer::~PATJetProducer() {
-//   if (addResolutions_) {
-//     delete theResoCalc_;
-//     delete theBResoCalc_;
-//   }
+PATJetProducer::~PATJetProducer() 
+{
 }
 
 
-void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
-
+void 
+PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
+{
   // Get the vector of jets
   edm::Handle<edm::View<JetType> > jets;
   iEvent.getByLabel(jetsSrc_, jets);
 
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
 
-  // for jet flavour
+  // For jet flavour
   edm::Handle<reco::JetFlavourMatchingCollection> jetFlavMatch;
   if (getJetMCFlavour_) iEvent.getByLabel (jetPartonMapSource_, jetFlavMatch);
 
@@ -199,11 +186,14 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     }
 
     if (addJetCorrFactors_) {
-        // calculate the energy correction factors
-        const JetCorrFactors & jcf = (*jetCorrs)[jetRef];
-        ajet.setP4(jcf.scaleDefault() * itJet->p4());
-        ajet.setNoCorrFactor(1./jcf.scaleDefault());
-        ajet.setJetCorrFactors(jcf);
+      // calculate the energy correction factors
+      const JetCorrFactors & jcf = (*jetCorrs)[jetRef];
+      ajet.setJetCorrFactors(jcf);
+      // set current default which is JetCorrFactors::L3
+      ajet.setJetCorrStep(JetCorrFactors::L3);
+      ajet.setP4(jcf.correction(JetCorrFactors::L3) * itJet->p4());
+      // print JetCorrFactors for debugging
+      // jcf.print();
     }
 
     // get the MC flavour information for this jet
@@ -244,14 +234,6 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         }
       }
     }
-
-    // add resolution info if demanded
-//     if (addResolutions_) {
-//       (*theResoCalc_)(ajet);
-//       Jet abjet(ajet.bCorrJet());
-//       (*theBResoCalc_)(abjet);
-//       ajet.setBResolutions(abjet.resolutionEt(), abjet.resolutionEta(), abjet.resolutionPhi(), abjet.resolutionA(), abjet.resolutionB(), abjet.resolutionC(), abjet.resolutionD(), abjet.resolutionTheta());
-//     }
 
     // add b-tag info if available & required
     if (addBTagInfo_) {
@@ -304,7 +286,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   }
 
   // sort jets in Et
-  std::sort(patJets->begin(), patJets->end(), eTComparator_);
+  std::sort(patJets->begin(), patJets->end(), pTComparator_);
 
   // put genEvt  in Event
   std::auto_ptr<std::vector<Jet> > myJets(patJets);

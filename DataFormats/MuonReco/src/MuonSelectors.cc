@@ -271,70 +271,192 @@ bool muon::isGoodMuon( const reco::Muon& muon,
    if (!muon.isMatchesValid()) return false;
    bool goodMuon = false;
 
-   unsigned int theStationMask = muon.stationMask(arbitrationType);
-   unsigned int theRequiredStationMask = RequiredStationMask(muon, maxChamberDist, maxChamberDistPull, arbitrationType);
+   if (type == TMLastStation) {
+      // To satisfy my own paranoia, if the user specifies that the
+      // minimum number of matches is zero, then return true.
+      if(minNumberOfMatches == 0) return true;
 
-   // If there are no required stations, require there be at least two segments
-   int numSegs = 0;
-   for(int it = 0; it < 8; ++it)
-      if(theStationMask & 1<<it) ++numSegs;
+      unsigned int theStationMask = muon.stationMask(arbitrationType);
+      unsigned int theRequiredStationMask = RequiredStationMask(muon, maxChamberDist, maxChamberDistPull, arbitrationType);
 
-   if(numSegs > 1) goodMuon = 1;
+      // Require that there be at least a minimum number of segments
+      int numSegs = 0;
+      int numRequiredStations = 0;
+      for(int it = 0; it < 8; ++it) {
+         if(theStationMask & 1<<it) ++numSegs;
+         if(theRequiredStationMask & 1<<it) ++numRequiredStations;
+      }
 
-   // Require that last required station have segment
-   if(theRequiredStationMask)
-      for(int stationIdx = 7; stationIdx >= 0; --stationIdx)
-         if(theRequiredStationMask & 1<<stationIdx)
+      // Make sure the minimum number of matches is not greater than
+      // the number of required stations but still greater than zero
+      // Note that we only do this in the barrel region!
+      if (fabs(muon.eta()) < 1.2) {
+         if(minNumberOfMatches > numRequiredStations)
+            minNumberOfMatches = numRequiredStations;
+         if(minNumberOfMatches < 1)
+            minNumberOfMatches = 1;
+      }
+
+      if(numSegs >= minNumberOfMatches) goodMuon = 1;
+
+      // Require that last required station have segment
+      // If there are zero required stations keep track
+      // of the last station with a segment so that we may
+      // apply the quality cuts below to it instead
+      int lastSegBit = 0;
+      if(theRequiredStationMask) {
+         for(int stationIdx = 7; stationIdx >= 0; --stationIdx)
+            if(theRequiredStationMask & 1<<stationIdx)
+               if(theStationMask & 1<<stationIdx) {
+                  lastSegBit = stationIdx;
+                  goodMuon &= 1;
+                  break;
+               } else {
+                  goodMuon = false;
+                  break;
+               }
+      } else {
+         for(int stationIdx = 7; stationIdx >= 0; --stationIdx)
             if(theStationMask & 1<<stationIdx) {
-               goodMuon &= 1;
-               break;
-            } else {
-               goodMuon = false;
+               lastSegBit = stationIdx;
                break;
             }
-
-   if(!goodMuon) return false;
-
-   // Impose pull cuts on last segment
-   int lastSegBit = 0;
-   for(int stationIdx = 7; stationIdx >= 0; --stationIdx)
-      if(theStationMask & 1<<stationIdx) {
-         lastSegBit = stationIdx;
-         break;
       }
 
-   int station = 0, detector = 0;
-   station  = lastSegBit < 4 ? lastSegBit+1 : lastSegBit-3;
-   detector = lastSegBit < 4 ? 1 : 2;
+      if(!goodMuon) return false;
 
-   if(lastSegBit != 3) {
+      // Impose pull cuts on last segment
+      int station = 0, detector = 0;
+      station  = lastSegBit < 4 ? lastSegBit+1 : lastSegBit-3;
+      detector = lastSegBit < 4 ? 1 : 2;
+
+      // Check x information
       if(fabs(muon.pullX(station,detector,arbitrationType,1)) > maxAbsPullX &&
-	 fabs(muon.dX(station,detector,arbitrationType)) > maxAbsDx)
-	goodMuon = false;
-      if(fabs(muon.pullY(station,detector,arbitrationType,1)) > maxAbsPullY &&
-	 fabs(muon.dY(station,detector,arbitrationType)) > maxAbsDy)
-	goodMuon = false;
-   } else {
-      // special consideration for dt where there is no y information in station 4
-      // impose y cuts on next station with segment
-      if(fabs(muon.pullX(4,1,arbitrationType,1)) > maxAbsPullX &&
-	 fabs(muon.dX(4,1,arbitrationType)) > maxAbsDx)
-	goodMuon = false;
-      if(theStationMask & 1<<2) {
-	 if(fabs(muon.pullY(3,1,arbitrationType,1)) > maxAbsPullY &&
-	    fabs(muon.dY(3,1,arbitrationType)) > maxAbsDy)
-	   goodMuon = false;
-      } else if(theStationMask & 1<<1) {
-	 if(fabs(muon.pullY(2,1,arbitrationType,1)) > maxAbsPullY &&
-	    fabs(muon.dY(2,1,arbitrationType)) > maxAbsDy)
-	   goodMuon = false;
-      } else if(theStationMask & 1<<0) {
-	 if(fabs(muon.pullY(1,1,arbitrationType,1)) > maxAbsPullY &&
-	    fabs(muon.dY(1,1,arbitrationType)) > maxAbsDy)
-	   goodMuon = false;
+            fabs(muon.dX(station,detector,arbitrationType)) > maxAbsDx)
+         return false;
+
+      // Is this a tight algorithm, i.e. do we bother to check y information?
+      if (maxAbsDy < 999999) { // really if maxAbsDy < 1E9 as currently defined
+
+         // Check y information
+         if (detector == 2) { // CSC
+            if(fabs(muon.pullY(station,2,arbitrationType,1)) > maxAbsPullY &&
+                  fabs(muon.dY(station,2,arbitrationType)) > maxAbsDy)
+               return false;
+         } else {
+            //
+            // In DT, if this is a "Tight" algorithm and the last segment is
+            // missing y information (always the case in station 4!!!), impose
+            // respective cuts on the next station in the stationMask that has
+            // a segment with y information.  If there are no segments with y
+            // information then there is nothing to penalize. Should we
+            // penalize in Tight for having zero segments with y information?
+            // That is the fundamental question.  Of course I am being uber
+            // paranoid; if this is a good muon then there will probably be at
+            // least one segment with y information but not always.  Suppose
+            // somehow a muon only creates segments in station 4, then we
+            // definitely do not want to require that there be at least one
+            // segment with y information because we will lose it completely.
+            //
+
+            for (int stationIdx = station; stationIdx > 0; --stationIdx) {
+               if(! (theStationMask & 1<<(stationIdx-1)))  // don't bother if the station is not in the stationMask
+                  continue;
+
+               if(muon.dY(stationIdx,1,arbitrationType) > 999998) // no y-information
+                  continue;
+
+               if(fabs(muon.pullY(stationIdx,1,arbitrationType,1)) > maxAbsPullY &&
+                     fabs(muon.dY(stationIdx,1,arbitrationType)) > maxAbsDy) {
+                  return false;
+               }
+
+               // If we get this far then great this is a good muon
+               return true;
+            }
+         }
       }
-   }
-   
+
+      return goodMuon;
+   } // TMLastStation
+
+   // TMOneStation requires only that there be one "good" segment, regardless
+   // of the required stations.  We do not penalize if there are absolutely zero
+   // segments with y information in the Tight algorithm.  Maybe I'm being
+   // paranoid but so be it.  If it's really a good muon then we will probably
+   // find at least one segment with both x and y information but you never
+   // know, and I don't want to deal with a potential inefficiency in the DT
+   // like we did with the original TMLastStation.  Incidentally, not penalizing
+   // for total lack of y information in the Tight algorithm is what is done in
+   // the new TMLastStation
+   //                   
+   if (type == TMOneStation) {
+      unsigned int theStationMask = muon.stationMask(arbitrationType);
+
+      // Of course there must be at least one segment
+      if (! theStationMask) return false;
+
+      int  station = 0, detector = 0;
+      // Keep track of whether or not there is a DT segment with y information.
+      // In the end, if it turns out there are absolutely zero DT segments with
+      // y information, require only that there was a segment with good x info.
+      // This of course only applies to the Tight algorithms.
+      bool existsGoodDTSegX = false;
+      bool existsDTSegY = false;
+
+      // Impose cuts on the segments in the station mask until we find a good one
+      // Might as well start with the lowest bit to speed things up.
+      for(int stationIdx = 0; stationIdx <= 7; ++stationIdx)
+         if(theStationMask & 1<<stationIdx) {
+            station  = stationIdx < 4 ? stationIdx+1 : stationIdx-3;
+            detector = stationIdx < 4 ? 1 : 2;
+
+            if(fabs(muon.pullX(station,detector,arbitrationType,1)) > maxAbsPullX &&
+                  fabs(muon.dX(station,detector,arbitrationType)) > maxAbsDx)
+               continue;
+            else if (detector == 1)
+               existsGoodDTSegX = true;
+
+            // Is this a tight algorithm?  If yes, use y information
+            if (maxAbsDy < 999999) {
+               if (detector == 2) { // CSC
+                  if(fabs(muon.pullY(station,2,arbitrationType,1)) > maxAbsPullY &&
+                        fabs(muon.dY(station,2,arbitrationType)) > maxAbsDy)
+                     continue;
+               } else {
+
+                  if(muon.dY(station,1,arbitrationType) > 999998) // no y-information
+                     continue;
+                  else
+                     existsDTSegY = true;
+
+                  if(fabs(muon.pullY(station,1,arbitrationType,1)) > maxAbsPullY &&
+                        fabs(muon.dY(station,1,arbitrationType)) > maxAbsDy) {
+                     continue;
+                  }
+               }
+            }
+
+            // If we get this far then great this is a good muon
+            return true;
+         }
+
+      // If we get this far then for sure there are no "good" CSC segments. For
+      // DT, check if there were any segments with y information.  If there
+      // were none, but there was a segment with good x, then we're happy. If 
+      // there WERE segments with y information, then they must have been shit
+      // since we are here so fail it.  Of course, if this is a Loose algorithm
+      // then fail immediately since if we had good x we would already have
+      // returned true
+      if (maxAbsDy < 999999) {
+         if (existsDTSegY)
+            return false;
+         else if (existsGoodDTSegX)
+            return true;
+      } else
+         return false;
+   } // TMOneStation
+
    return goodMuon;
 }
 
@@ -361,17 +483,41 @@ bool muon::isGoodMuon( const reco::Muon& muon, reco::Muon::SelectionType type )
 	return ! muon.isTrackerMuon() || muon.numberOfMatches(reco::Muon::SegmentAndTrackArbitration)>0;
 	break;
       case reco::Muon::GlobalMuonPromptTight:
-	return 
-     muon.isGlobalMuon() &&
-	  muon.globalTrack()->normalizedChi2()<5 &&
-	  fabs(muon.innerTrack()->d0()) < 0.25 &&
-	  muon.innerTrack()->numberOfValidHits() >= 7;
+	return muon.isGlobalMuon() && muon.globalTrack()->normalizedChi2()<10.;
 	break;
+   // For "Loose" algorithms we choose maximum y quantity cuts of 1E9 instead of
+   // 9999 as before.  We do this because the muon methods return 999999 (note
+   // there are six 9's) when the requested information is not available.  For
+   // example, if a muon fails to traverse the z measuring superlayer in a station
+   // in the DT, then all methods involving segmentY in this station return
+   // 999999 to demonstrate that the information is missing.  In order to not
+   // penalize muons for missing y information in Loose algorithms where we do
+   // not care at all about y information, we raise these limits.  In the
+   // TMLastStation and TMOneStation algorithms we actually use this huge number
+   // to determine whether to consider y information at all.
       case reco::Muon::TMLastStationLoose:
-	return isGoodMuon(muon,TMLastStation,2,3,3,9999,9999,-3,-3,reco::Muon::SegmentAndTrackArbitration);
+	return isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,reco::Muon::SegmentAndTrackArbitration);
 	break;
       case reco::Muon::TMLastStationTight:
 	return isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration);
+	break;
+      case reco::Muon::TMOneStationLoose:
+	return isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,reco::Muon::SegmentAndTrackArbitration);
+	break;
+      case reco::Muon::TMOneStationTight:
+	return isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,reco::Muon::SegmentAndTrackArbitration);
+	break;
+      case reco::Muon::TMLastStationOptimizedLowPtLoose:
+   if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
+	   return isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,reco::Muon::SegmentAndTrackArbitration);
+   else
+	   return isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,reco::Muon::SegmentAndTrackArbitration);
+	break;
+      case reco::Muon::TMLastStationOptimizedLowPtTight:
+   if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
+	   return isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,reco::Muon::SegmentAndTrackArbitration);
+   else
+	   return isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration);
 	break;
 	//compatibility loose
       case reco::Muon::TM2DCompatibilityLoose:

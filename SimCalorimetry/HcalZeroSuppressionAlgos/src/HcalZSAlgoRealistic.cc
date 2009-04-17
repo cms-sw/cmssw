@@ -1,12 +1,12 @@
 #include "SimCalorimetry/HcalZeroSuppressionAlgos/interface/HcalZSAlgoRealistic.h"
 #include <iostream>
 
-HcalZSAlgoRealistic::HcalZSAlgoRealistic(HcalZeroSuppressionAlgo::ZSMode mode, int levelHF, int levelHB, int levelHE, int levelHO) : 
+HcalZSAlgoRealistic::HcalZSAlgoRealistic(HcalZeroSuppressionAlgo::ZSMode mode, int levelHB, int levelHE, int levelHO, int levelHF) : 
   HcalZeroSuppressionAlgo(mode),
-  thresholdHF_(levelHF),
   thresholdHB_(levelHB),
   thresholdHE_(levelHE),
-  thresholdHO_(levelHO)
+  thresholdHO_(levelHO),
+  thresholdHF_(levelHF)
 {
 }
 

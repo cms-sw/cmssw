@@ -6,8 +6,8 @@
  *       Class to hold drift tubes T0s
  *             ( cell by cell time offsets )
  *
- *  $Date: 2007/12/07 15:00:46 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/10/30 17:30:20 $
+ *  $Revision: 1.6.6.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -87,13 +87,13 @@ class DTT0 {
               int    cellId,
               float& t0mean,
               float& t0rms,
-              DTTimeUnits::type unit ) const
+              DTTimeUnits::type unit = DTTimeUnits::counts ) const
       { return get( wheelId, stationId, sectorId, slId, layerId, cellId,
                     t0mean, t0rms, unit ); };
   int cellT0( const DTWireId& id,
               float& t0mean,
               float& t0rms,
-              DTTimeUnits::type unit ) const
+              DTTimeUnits::type unit = DTTimeUnits::counts ) const
       { return get( id, t0mean, t0rms, unit ); };
   int get( int   wheelId,
            int stationId,
@@ -103,11 +103,11 @@ class DTT0 {
            int    cellId,
            float& t0mean,
            float& t0rms,
-           DTTimeUnits::type unit ) const;
+           DTTimeUnits::type unit = DTTimeUnits::counts ) const;
   int get( const DTWireId& id,
            float& t0mean,
            float& t0rms,
-           DTTimeUnits::type unit ) const;
+           DTTimeUnits::type unit = DTTimeUnits::counts ) const;
   float unit() const;
 
   /// access version
@@ -126,13 +126,13 @@ class DTT0 {
                  int    cellId,
                  float t0mean,
                  float t0rms,
-                 DTTimeUnits::type unit )
+                 DTTimeUnits::type unit = DTTimeUnits::counts )
       { return set( wheelId, stationId, sectorId, slId, layerId, cellId,
                     t0mean, t0rms, unit ); };
   int setCellT0( const DTWireId& id,
                  float t0mean,
                  float t0rms,
-                 DTTimeUnits::type unit )
+                 DTTimeUnits::type unit = DTTimeUnits::counts )
       { return set( id, t0mean, t0rms, unit ); };
   int set( int   wheelId,
            int stationId,
@@ -142,11 +142,11 @@ class DTT0 {
            int    cellId,
            float t0mean,
            float t0rms,
-           DTTimeUnits::type unit );
+           DTTimeUnits::type unit = DTTimeUnits::counts );
   int set( const DTWireId& id,
            float t0mean,
            float t0rms,
-           DTTimeUnits::type unit );
+           DTTimeUnits::type unit = DTTimeUnits::counts );
   void setUnit( float unit );
 
   /// Access methods to data

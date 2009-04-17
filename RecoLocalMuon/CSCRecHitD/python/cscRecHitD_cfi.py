@@ -41,6 +41,7 @@ csc2DRecHits = cms.EDProducer("CSCRecHitDProducer",
     #
     CSCDebug = cms.untracked.bool(False),
     readBadChannels = cms.bool(False),
+    readBadChambers = cms.bool(False),
     CSCStripClusterChargeCut = cms.untracked.double(25.0)
 )
 

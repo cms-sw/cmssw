@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #
 
 ## produce ttGenEvt and initialize ttGenEvtFilters
-from TopQuarkAnalysis.TopEventProducers.sequences.stGenEvent_cff import *
+from TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff import *
 from TopQuarkAnalysis.TopEventProducers.sequences.ttGenEventFilters_cff import *
 
 ## apply objects count selection

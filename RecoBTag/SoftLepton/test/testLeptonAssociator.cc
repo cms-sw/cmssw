@@ -63,30 +63,12 @@ std::ostream& operator<< (std::ostream& out, edm::RefToBase<reco::Track> ref) {
 }
 
 std::ostream& operator<< (std::ostream& out, reco::MuonRef ref) {
-  if (ref->isGlobalMuon()) {
-    out << " {"     << std::setw(2) << ref->track()->found() << "+" << std::setw(2) << ref->standAloneMuon()->found() << "} " 
-        << " ["     << std::setw(4) << ref.key() << "]"
-        << "            "
-        << " pT: "  << std::setw(6) << std::setprecision(3) << ref->globalTrack()->pt()
-        << " eta: " << std::setw(6) << std::setprecision(3) << ref->globalTrack()->eta()
-        << " phi: " << std::setw(6) << std::setprecision(3) << ref->globalTrack()->phi();
-  } else if (ref->isTrackerMuon()) {
-    out << " {"     << std::setw(2) << ref->track()->found() << "   } " 
-        << " ["     << std::setw(4) << ref.key() << "]"
-        << "            "
-        << " pT: "  << std::setw(6) << std::setprecision(3) << ref->innerTrack()->pt()
-        << " eta: " << std::setw(6) << std::setprecision(3) << ref->innerTrack()->eta()
-        << " phi: " << std::setw(6) << std::setprecision(3) << ref->innerTrack()->phi();
-  } else if (ref->isStandAloneMuon()) {
-    out << " {   "  << std::setw(2) << ref->standAloneMuon()->found() << "} " 
-        << " ["     << std::setw(4) << ref.key() << "]"
-        << "            "
-        << " pT: "  << std::setw(6) << std::setprecision(3) << ref->outerTrack()->pt()
-        << " eta: " << std::setw(6) << std::setprecision(3) << ref->outerTrack()->eta()
-        << " phi: " << std::setw(6) << std::setprecision(3) << ref->outerTrack()->phi();
-  } else {
-    out << "(mun track not available)";
-  }
+  out << " {"     << std::setw(2) << ref->track()->found() << "+" << std::setw(2) << ref->standAloneMuon()->found() << "} "
+      << " ["     << std::setw(4) << ref.key() << "]"
+      << "            "
+      << " pT: "  << std::setw(6) << std::setprecision(3) << ref->combinedMuon()->pt()
+      << " eta: " << std::setw(6) << std::setprecision(3) << ref->combinedMuon()->eta()
+      << " phi: " << std::setw(6) << std::setprecision(3) << ref->combinedMuon()->phi();
   return out;
 }
 
@@ -230,12 +212,12 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
 
   // look for tracks and muons associated to the tracking particles
   {
-    reco::SimToRecoCollection bychi2_tracks      = m_associatorByChi2->associateSimToReco(recoTrackHandle,       trackingParticleHandle, &iEvent );
-    reco::SimToRecoCollection bychi2_globaltrack = m_associatorByChi2->associateSimToReco(globalMuonTrackHandle, trackingParticleHandle, &iEvent );
-    reco::SimToRecoCollection bychi2_standalone  = m_associatorByChi2->associateSimToReco(standAloneMuonHandle,  trackingParticleHandle, &iEvent );
     reco::SimToRecoCollection byhits_tracks      = m_associatorByHits->associateSimToReco(recoTrackHandle,       trackingParticleHandle, &iEvent );
     reco::SimToRecoCollection byhits_globaltrack = m_associatorByHits->associateSimToReco(globalMuonTrackHandle, trackingParticleHandle, &iEvent );
     reco::SimToRecoCollection byhits_standalone  = m_associatorByHits->associateSimToReco(standAloneMuonHandle,  trackingParticleHandle, &iEvent );
+    reco::SimToRecoCollection bychi2_tracks      = m_associatorByChi2->associateSimToReco(recoTrackHandle,       trackingParticleHandle, &iEvent );
+    reco::SimToRecoCollection bychi2_globaltrack = m_associatorByChi2->associateSimToReco(globalMuonTrackHandle, trackingParticleHandle, &iEvent );
+    reco::SimToRecoCollection bychi2_standalone  = m_associatorByChi2->associateSimToReco(standAloneMuonHandle,  trackingParticleHandle, &iEvent );
 
     for (TrackingParticleCollection::size_type i = 0; i < trackingParticleCollection.size(); ++i) {
       TrackingParticleRef tp (trackingParticleHandle, i);
@@ -247,6 +229,8 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
       printAssociations("Global", tp, byhits_globaltrack, bychi2_globaltrack);
     }
   }
+
+  std::cout << std::endl;
   
   // look for tracking particles associated to the (tracker part of the) reconstructed global muons
   reco::RecoToSimCollection byhits_globalfake = m_associatorByHits->associateRecoToSim (recoTrackHandle, trackingParticleHandle, &iEvent );
@@ -256,6 +240,8 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
     std::cout << "<-- Global " << lepton << std::endl;
     printAssociations("TrackingParticle", lepton->track(), byhits_globalfake, bychi2_globalfake);
   }
+
+  std::cout << std::endl;
   
   // look for tracking particles associated to the reconstructed standAlone muons
   reco::RecoToSimCollection byhits_standalonefake = m_associatorByHits->associateRecoToSim (standAloneMuonHandle, trackingParticleHandle, &iEvent );

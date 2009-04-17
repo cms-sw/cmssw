@@ -10,14 +10,16 @@ from FastSimulation.Tracking.GlobalPixelTracking_cff import *
 # Take all pixel tracks for b tagging track reco (pTMin>1GeV, nHits>=8) 
 hltBLifetimeRegionalCtfWithMaterialTracks = cms.EDFilter("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
-    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks")),
+    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
+                                   cms.InputTag("globalPixelTrackCandidates")),
     ptMin = cms.untracked.double(1.0),
     minHits = cms.untracked.uint32(8)
 )
 
 hltBLifetimeRegionalCtfWithMaterialTracksRelaxed = cms.EDFilter("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
-    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks")),
+    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
+                                   cms.InputTag("globalPixelTrackCandidates")),
     ptMin = cms.untracked.double(1.0),
     minHits = cms.untracked.uint32(8)
 )
@@ -34,7 +36,8 @@ import FWCore.ParameterSet.Config as cms
 # Take all pixel-seeded tracks for b tagging track reco (pTMin>1GeV, nHits>=8) 
 hltCtfWithMaterialTracksMumuk = cms.EDFilter("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
-    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks")),
+    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
+                                   cms.InputTag("globalPixelTrackCandidates")),
     ptMin = cms.untracked.double(3.0),
     minHits = cms.untracked.uint32(5)
 )

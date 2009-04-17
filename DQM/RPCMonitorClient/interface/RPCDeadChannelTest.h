@@ -6,14 +6,11 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/03/16 18:52:20 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/04/25 14:24:56 $
+ *  $Revision: 1.4 $
  *  \author 
  *   
  */
-
-//#include "DataFormats/Common/interface/Handle.h"
-
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -26,28 +23,20 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-//#include "Geometry/Records/interface/MuonGeometryRecord.h"
-
-#include "DQM/RPCMonitorClient/interface/RPCClient.h"
 
 #include <memory>
-#include <iostream>
-#include <fstream>
 #include <string>
-#include <vector>
 #include <map>
 
-class QTestHandle;
-class DQMOldReceiver;
-class DQMStore;
 class RPCDetId;
 
 
-class RPCDeadChannelTest: public RPCClient {
+class RPCDeadChannelTest:public edm::EDAnalyzer{
+
 public:
 
   /// Constructor
@@ -57,57 +46,42 @@ public:
   virtual ~RPCDeadChannelTest();
 
   /// BeginJob
-  void beginJob(DQMStore * dbe);
+  void beginJob(const edm::EventSetup& );
 
   //Begin Run
-   void beginRun(const edm::Run& r, const edm::EventSetup& c);
+   void beginRun(const edm::Run& , const edm::EventSetup& );
   
   
   /// Begin Lumi block 
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+  void beginLuminosityBlock(edm::LuminosityBlock const& , edm::EventSetup const& ) ;
 
   /// Analyze  
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
+  void analyze(const edm::Event& , const edm::EventSetup& );
 
   /// End Lumi Block
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+  void endLuminosityBlock(edm::LuminosityBlock const& , edm::EventSetup const& );
  
   //End Run
-  void endRun(const edm::Run& r, const edm::EventSetup& c); 		
+  void endRun(const edm::Run& , const edm::EventSetup& ); 		
   
   /// Endjob
   void endJob();
 
-
  protected:
-
-   /// Get the ME name
-   MonitorElement*getMEs(RPCDetId & detId);
- 
-
+  void fillDeadChannelHisto(const std::map<int,std::map<int,std::pair<float,float> > > & sumMap, int region);
+  
 private:
 
-  int nevents;
-  unsigned int nLumiSegs;
-   int prescaleFactor;
-  int run; 
-  int lumiBlock;
-  char dateTime[32];
-
-     bool referenceOldChannels;
-     bool getQualityTestsFromFile;
-
-  std::ofstream myfile;
-  std::ifstream referenceFile_;
+  int prescaleFactor_;
+  std::string globalFolder_,prefixDir_;
 
 
   DQMStore* dbe_;
 
   edm::ParameterSet parameters;
   edm::ESHandle<RPCGeometry> muonGeom;
-  //edm::ESHandle<DTTtrig> tTrigMap;
-
   std::map<RPCDetId,MonitorElement*>  meCollection;
+
 };
 
 #endif

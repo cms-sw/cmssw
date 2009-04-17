@@ -31,6 +31,7 @@
 #include <DQM/HcalMonitorClient/interface/HcalDeadCellClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalTrigPrimClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalCaloTowerClient.h>
+#include <DQM/HcalMonitorClient/interface/HcalBeamClient.h>
 
 //#include <DQM/HcalMonitorModule/interface/HcalMonitorSelector.h>
 
@@ -169,18 +170,19 @@ public:
   string inputFile_;
   string baseHtmlDir_;
 
-  HcalSummaryClient* summary_client_;
-  HcalDataFormatClient* dataformat_client_;
-  HcalDigiClient* digi_client_;
-  HcalRecHitClient* rechit_client_;
-  HcalPedestalClient* pedestal_client_;
-  HcalLEDClient* led_client_;
-  HcalLaserClient* laser_client_;
-  HcalHotCellClient* hot_client_;
-  HcalDeadCellClient* dead_client_;
-  HcalTrigPrimClient* tp_client_;
-  HcalCaloTowerClient* ct_client_;
-  HcalHotCellDbInterface* dqm_db_;
+  HcalSummaryClient*         summary_client_;
+  HcalDataFormatClient*      dataformat_client_;
+  HcalDigiClient*            digi_client_;
+  HcalRecHitClient*          rechit_client_;
+  HcalPedestalClient*        pedestal_client_;
+  HcalLEDClient*             led_client_;
+  HcalLaserClient*           laser_client_;
+  HcalHotCellClient*         hot_client_;
+  HcalDeadCellClient*        dead_client_;
+  HcalTrigPrimClient*        tp_client_;
+  HcalCaloTowerClient*       ct_client_;
+  HcalBeamClient*            beam_client_;
+  HcalHotCellDbInterface*    dqm_db_;
 
 
 };

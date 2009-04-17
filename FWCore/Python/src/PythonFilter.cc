@@ -13,7 +13,6 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Thu Mar 23 21:53:03 CEST 2006
-// $Id: PythonFilter.cc,v 1.4 2006/07/22 13:47:13 hegner Exp $
 //
 //
 
@@ -24,8 +23,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include "boost/python.hpp"
 
 // subpackage specific includes
 #include "FWCore/Python/src/EventWrapper.h"

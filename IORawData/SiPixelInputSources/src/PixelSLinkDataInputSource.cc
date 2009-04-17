@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Fri Sep  7 15:46:34 CEST 2007
-// $Id: PixelSLinkDataInputSource.cc,v 1.17 2008/04/03 15:56:08 fblekman Exp $
+// $Id: PixelSLinkDataInputSource.cc,v 1.15 2008/02/01 15:14:53 fblekman Exp $
 //
 //
 
@@ -39,14 +39,14 @@ int PixelSLinkDataInputSource::getEventNumberFromFillWords(std::vector<uint64_t>
   int fif2cnt=0;
   int dumcnt=0;
   int gapcnt=0;
-  uint32_t gap[8];
-  uint32_t  dum[8];
-  uint32_t word[2]={0,0};
-  uint32_t chan=0;
-  uint32_t roc=0;
-
-  const uint32_t rocmsk = 0x3e00000;
-  const uint32_t chnlmsk = 0xfc000000;
+  unsigned long gap[8];
+  unsigned long dum[8];
+  unsigned long word[2]={0,0};
+  unsigned long int chan=0;
+  unsigned long int roc=0;
+  
+  const unsigned long int rocmsk = 0x3e00000;
+  const unsigned long int chnlmsk = 0xfc000000;
   
   for(int jk=1;jk<9;jk++)gap[jk]=0;
   for(int jk=1;jk<9;jk++)dum[jk]=0;
@@ -55,8 +55,8 @@ int PixelSLinkDataInputSource::getEventNumberFromFillWords(std::vector<uint64_t>
   for(size_t kk=0; kk<buffer.size(); ++kk)
     {
 
-      word[0] = (uint32_t) buffer[kk];
-      word[1] = (uint32_t) (buffer[kk]>>32);
+      word[0] = (unsigned long) buffer[kk];
+      word[1] = (unsigned long) (buffer[kk]>>32);
 
       for(size_t iw=0; iw<2; iw++)
 	{
@@ -138,8 +138,6 @@ PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet& ps
   IOOffset size = -1;
   StorageFactory::get()->enableAccounting(true);
     
-  edm::LogInfo("PixelSLinkDataInputSource") << " unsigned long int size = " << sizeof(unsigned long int) <<"\n unsigned long size = " << sizeof(unsigned long)<<"\n unsigned long long size = " << sizeof(unsigned long long) <<  "\n uint32_t size = " << sizeof(uint32_t) << "\n uint64_t size = " << sizeof(uint64_t) << std::endl;
-
   bool exists = StorageFactory::get() -> check(currentfilename.c_str(), &size);
   
   edm::LogInfo("PixelSLinkDataInputSource") << "file size " << size << std::endl;
@@ -191,7 +189,7 @@ bool PixelSLinkDataInputSource::produce(edm::Event& event) {
   
  
   
-    uint16_t count=0;
+    unsigned int count=0;
     eventnumber = (m_data >> 32)&0x00ffffff ;
     if(m_currenteventnumber==0)
       m_currenteventnumber=eventnumber;
@@ -223,7 +221,7 @@ bool PixelSLinkDataInputSource::produce(edm::Event& event) {
       m_data=(m_data&0xfffffffffff000ffLL)|((m_fedid&0xfff)<<8);
     }
 
-    uint16_t fed_id=(m_data>>8)&0xfff;
+    unsigned int fed_id=(m_data>>8)&0xfff;
     //   std::cout << "fed id = " << fed_id << std::endl;
     buffer.push_back(m_data);
   
@@ -238,11 +236,11 @@ bool PixelSLinkDataInputSource::produce(edm::Event& event) {
     //  FEDRawData * rawData = new FEDRawData(8*buffer.size());
     unsigned char* dataptr=rawData->data();
 
-    for (uint16_t i=0;i<buffer.size();i++){
-      ((uint64_t *)dataptr)[i]=buffer[i];
+    for (unsigned int i=0;i<buffer.size();i++){
+      ((unsigned long long *)dataptr)[i]=buffer[i];
     }
     uint32_t thetriggernumber=0;
-    int nfillwords = 0;//getEventNumberFromFillWords(buffer,thetriggernumber);
+    int nfillwords = getEventNumberFromFillWords(buffer,thetriggernumber);
 
     if(nfillwords>0){
       LogInfo("") << "n fill words = " << nfillwords <<  ", trigger numbers: " << thetriggernumber << "," << m_currenttriggernumber << std::endl;

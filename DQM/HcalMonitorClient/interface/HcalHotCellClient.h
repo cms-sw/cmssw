@@ -2,77 +2,29 @@
 #define HcalHotCellClient_H
 
 #include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
-#include <DQM/HcalMonitorClient/interface/HcalHistoUtils.h>
 
-struct HotCellHists{
-  int type;
-  int Nthresholds;
-
-  TH2F* problemHotCells;
- 
-  TH2F* problemHotCells_DEPTH[4];
-
-  TH2F* maxCellOccMap;
-  TH2F* maxCellEnergyMap;
-  TH1F* maxCellEnergy;
-  TH1F* maxCellTime;
-  TH1F* maxCellID;
-  std::vector<std::string> thresholds;
-
-  // replace vectors with fixed-size arrays
-  TH2F* threshOccMap[5];
-  TH2F* threshEnergyMap[5];
-  
-
-  TH2F*  threshOccMapDepth1[5];
-  TH2F*  threshEnergyMapDepth1[5];
-  TH2F*  threshOccMapDepth2[5];
-  TH2F*  threshEnergyMapDepth2[5];
-  TH2F*  threshOccMapDepth3[5];
-  TH2F*  threshEnergyMapDepth3[5];
-  TH2F*  threshOccMapDepth4[5];
-  TH2F*  threshEnergyMapDepth4[5];
-
-   // Digi Plots
-  TH2F* abovePedSigma;
-  //std::vector <std::vector<TH2F*> > digiPedestalPlots_depth;
+#include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
+#include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
 
 
-  // NADA histograms
-  TH2F* nadaOccMap;
-  TH2F* nadaEnergyMap;
-  TH1F* nadaNumHotCells;
-  TH1F* nadaEnergy;
-  TH1F* nadaNumNegCells;
-  TH2F* nadaNegOccMap;
-  TH2F* nadaNegEnergyMap;
-
-  TH2F* nadaOccMapDepth[4];
-  TH2F* nadaNegOccMapDepth[4];
-  TH2F* nadaEnergyMapDepth[4];
-  TH2F* nadaNegEnergyMapDepth[4];
-  
-
-};
-
-class HcalHotCellClient : public HcalBaseClient{
+class HcalHotCellClient : public HcalBaseClient {
   
  public:
   
   /// Constructor
   HcalHotCellClient();
   /// Destructor
-   ~HcalHotCellClient();
+  ~HcalHotCellClient();
 
-   void init(const edm::ParameterSet& ps, DQMStore* dbe, string clientName);    
+  void init(const edm::ParameterSet& ps, DQMStore* dbe, string clientName);
 
   /// Analyze
   void analyze(void);
   
   /// BeginJob
-  void beginJob(void);
+  void beginJob(const EventSetup& c);
   
   /// EndJob
   void endJob(void);
@@ -88,55 +40,66 @@ class HcalHotCellClient : public HcalBaseClient{
   
   /// Cleanup
   void cleanup(void);
-    
+  
+  /// HtmlOutput
+  void htmlOutput(int run, string htmlDir, string htmlName);
+  void htmlExpertOutput(int run, string htmlDir, string htmlName);
+  void getHistograms();
+  void loadHistograms(TFile* f);
+  
   ///process report
   void report();
   
-  /// WriteDB
-  void htmlOutput(int run, std::string htmlDir, std::string htmlName);
-  void htmlSubDetOutput(HotCellHists& hist, int run, std::string htmlDir, std::string htmlName);
-  void drawThresholdPlots(HotCellHists& hist, int run, string htmlDir);
-  void drawDigiPlots(HotCellHists& hist, int run, string htmlDir);
-  void drawNADAPlots(HotCellHists& hist, int run, string htmlDir);
-  void drawProblemPlots(HotCellHists& hist, int run, string htmlDir); 
-
-  void getHistograms();
-  void loadHistograms(TFile* f);
-
   void resetAllME();
-
   void createTests();
-  void createSubDetTests(HotCellHists& hist);
 
-  // Clear histograms
-  void clearHists(HotCellHists& hist);
-  void deleteHists(HotCellHists& hist);
-
-  void combineSubDetHistograms(HotCellHists& hcal, HotCellHists& hb, HotCellHists& he, HotCellHists& ho, HotCellHists& hf);
-  void getSubDetHistograms(HotCellHists& hist);
-  void resetSubDetHistograms(HotCellHists& hist);
-  void getSubDetHistogramsFromFile(HotCellHists& hist, TFile* infile);
-
-  // Count hot cell thresholds
-  void getSubDetThresholds(HotCellHists& hist);
-  void drawSubDetThresholds(HotCellHists& hist);
-
-
-  
 private:
-
-  // Can we get threshold information from same .cfi file that HotCellMonitor uses?  
-  int thresholds_;
   
-  float errorFrac_;
-  
-  HotCellHists hbhists;
-  HotCellHists hehists;
-  HotCellHists hohists;
-  HotCellHists hfhists;
-  HotCellHists hcalhists;
+  vector <std::string> subdets_;
 
-  ofstream htmlFile;
+  double minErrorFlag_;  // minimum error rate which causes problem cells to be dumped in client
+  bool hotclient_makeDiagnostics_;
+
+  bool hotclient_test_persistent_;
+  bool hotclient_test_pedestal_;
+  bool hotclient_test_neighbor_;
+  bool hotclient_test_energy_;
+
+  int hotclient_checkNevents_;
+  int hotclient_checkNevents_pedestal_;
+  int hotclient_checkNevents_neighbor_;
+  int hotclient_checkNevents_energy_;
+  int hotclient_checkNevents_persistent_;
+
+  // Histograms
+  TH2F* ProblemHotCells;
+  TH2F* ProblemHotCellsByDepth[6];
+
+  TH2F* AboveNeighborsHotCellsByDepth[6];
+  TH2F* AboveEnergyThresholdCellsByDepth[6];
+  TH2F* AbovePersistentThresholdCellsByDepth[6];
+  TH2F* AbovePedestalHotCellsByDepth[6];
+
+  // diagnostic histograms
+  TH1F* d_HBnormped;
+  TH1F* d_HEnormped;
+  TH1F* d_HOnormped;
+  TH1F* d_HFnormped;
+  TH1F* d_ZDCnormped;
+  
+  TH1F* d_HBrechitenergy;
+  TH1F* d_HErechitenergy;
+  TH1F* d_HOrechitenergy;
+  TH1F* d_HFrechitenergy;
+  TH1F* d_ZDCrechitenergy;
+
+  TH2F* d_HBenergyVsNeighbor;
+  TH2F* d_HEenergyVsNeighbor;
+  TH2F* d_HOenergyVsNeighbor;
+  TH2F* d_HFenergyVsNeighbor;
+  TH2F* d_ZDCenergyVsNeighbor;
+
+  TH2F* d_avgrechitenergymap[6];
 };
 
 #endif

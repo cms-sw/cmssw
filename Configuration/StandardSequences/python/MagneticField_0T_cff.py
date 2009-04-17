@@ -21,5 +21,17 @@ SteppingHelixPropagatorAlong.SetVBFPointer = True
 
 SteppingHelixPropagatorOpposite.useInTeslaFromMagField = True
 SteppingHelixPropagatorOpposite.SetVBFPointer = True
+
+# HLT parts
+SteppingHelixPropagatorL2Any.useInTeslaFromMagField = True
+SteppingHelixPropagatorL2Any.SetVBFPointer = True
+
+SteppingHelixPropagatorL2Along.useInTeslaFromMagField = True
+SteppingHelixPropagatorL2Along.SetVBFPointer = True
+
+SteppingHelixPropagatorL2Opposite.useInTeslaFromMagField = True
+SteppingHelixPropagatorL2Opposite.SetVBFPointer = True
+
+
 VolumeBasedMagneticFieldESProducer.label = 'VolumeBasedMagneticField'
 

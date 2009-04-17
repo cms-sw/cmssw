@@ -22,10 +22,10 @@
 #include <map>
 
 namespace {
-  namespace {
+  struct dictionary {
     reco::L2TauIsolationInfo                                    l2iI;
-    L2TauInfoAssociation                                        l2ts;
-    edm::Wrapper<L2TauInfoAssociation>                          wl2ts;
+    reco::L2TauInfoAssociation                                  l2ts;
+    edm::Wrapper<reco::L2TauInfoAssociation>                    wl2ts;
 
 
     std::vector<reco::BaseTauTagInfo>                           btti_v;
@@ -141,8 +141,5 @@ namespace {
     edm::RefProd<std::vector<reco::HLTTau> >                   ht_rp;
     edm::RefVector<std::vector<reco::HLTTau> >                 ht_rv;
 
-
-
-
-  }
+  };
 }

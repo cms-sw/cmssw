@@ -1,6 +1,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
 
@@ -43,43 +43,63 @@ L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
   m_outputHt(0), m_outputHx(0), m_outputHy(0), m_outputHfSums(),
   m_outputJc(N_JET_COUNTERS)
 {
-  checkSetup();
+  if (checkSetup()) {
 
-  // Initalise the jetCounters with null jetCounterLuts
-  for (unsigned int i=0; i < N_JET_COUNTERS; i++) {
-    m_jetCounters.at(i) = new L1GctJetCounter(((100*m_id)+i), m_inputLeafCards);
+    setupJetsVectors(0);  //Initialises all the jet vectors with jets of the correct type.
+
+    // Initalise the jetCounters with null jetCounterLuts
+    for (unsigned int i=0; i < N_JET_COUNTERS; i++) {
+      m_jetCounters.at(i) = new L1GctJetCounter(((100*m_id)+i), m_inputLeafCards);
+    }
+  } else {
+    if (m_verbose) {
+      edm::LogError("L1GctSetupError") << "L1GctWheelJetFpga has been incorrectly constructed";
+    }
   }
 }
 
-void L1GctWheelJetFpga::checkSetup()
+bool L1GctWheelJetFpga::checkSetup() const
 {
-  setupJetsVectors(0);  //Initialises all the jet vectors with jets of the correct type.
+  bool result=true;
   
   //Check object construction is ok
   if(m_id < 0 || m_id > 1)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctWheelJetFpga::L1GctWheelJetFpga() : Wheel Jet FPGA ID " << m_id << " has been incorrectly constructed!\n"
-    << "ID number should be between the range of 0 to 1\n";
-  } 
+    {
+      result = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctWheelJetFpga::L1GctWheelJetFpga() : Wheel Jet FPGA ID " << m_id << " has been incorrectly constructed!\n"
+	  << "ID number should be between the range of 0 to 1\n";
+      }
+    } 
   
   if(m_inputLeafCards.size() != MAX_LEAF_CARDS)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctWheelJetFpga::L1GctWheelJetFpga() : Wheel Jet FPGA ID " << m_id << " has been incorrectly constructed!\n"
-    << "This class needs " << MAX_LEAF_CARDS << " jet leaf card pointers, yet only " << m_inputLeafCards.size()
-    << " leaf card pointers are present.\n";
-  }
+    {
+      result = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctWheelJetFpga::L1GctWheelJetFpga() : Wheel Jet FPGA ID " << m_id << " has been incorrectly constructed!\n"
+	  << "This class needs " << MAX_LEAF_CARDS << " jet leaf card pointers, yet only " << m_inputLeafCards.size()
+	  << " leaf card pointers are present.\n";
+      }
+    }
   
   for(unsigned int i = 0; i < MAX_LEAF_CARDS; ++i)
-  {
-    if(m_inputLeafCards.at(i) == 0)
     {
-      throw cms::Exception("L1GctSetupError")
-      << "L1GctWheelJetFpga::L1GctWheelJetFpga() : Wheel Jet FPGA ID " << m_id << " has been incorrectly constructed!\n"
-      << "Leaf card pointer " << i << " has not been set!\n";
+      if(m_inputLeafCards.at(i) == 0)
+	{
+	  result = false;
+	  if (m_verbose) {
+	    edm::LogWarning("L1GctSetupError")
+	      << "L1GctWheelJetFpga::L1GctWheelJetFpga() : Wheel Jet FPGA ID " << m_id << " has been incorrectly constructed!\n"
+	      << "Leaf card pointer " << i << " has not been set!\n";
+	  }
+	}
     }
-  }
+  for (unsigned i=0; i < N_JET_COUNTERS; i++) {
+    if (m_jetCounters.at(i) != 0) result &= m_jetCounters.at(i)->setupOk();
+  } 
+  return result;
 }
 
 L1GctWheelJetFpga::~L1GctWheelJetFpga()
@@ -208,69 +228,73 @@ void L1GctWheelJetFpga::setupObjects()
 
 void L1GctWheelJetFpga::fetchInput()
 {
-  //Get Jets
-  for(unsigned short iLeaf = 0; iLeaf < MAX_LEAF_CARDS; ++iLeaf)
-  {
-    if (m_inputLeafCards.at(iLeaf) != 0) {  //check that the pointers have been set up!
+  if (checkSetup()) {
+    //Get Jets
+    for(unsigned short iLeaf = 0; iLeaf < MAX_LEAF_CARDS; ++iLeaf)
+      {
+	if (m_inputLeafCards.at(iLeaf) != 0) {  //check that the pointers have been set up!
 
-      storeJets(m_inputLeafCards.at(iLeaf)->getOutputJetsA(), iLeaf, 0);
-      storeJets(m_inputLeafCards.at(iLeaf)->getOutputJetsB(), iLeaf, L1GctJetFinderBase::MAX_JETS_OUT);
-      storeJets(m_inputLeafCards.at(iLeaf)->getOutputJetsC(), iLeaf, 2*L1GctJetFinderBase::MAX_JETS_OUT);
+	  storeJets(m_inputLeafCards.at(iLeaf)->getOutputJetsA(), iLeaf, 0);
+	  storeJets(m_inputLeafCards.at(iLeaf)->getOutputJetsB(), iLeaf, L1GctJetFinderBase::MAX_JETS_OUT);
+	  storeJets(m_inputLeafCards.at(iLeaf)->getOutputJetsC(), iLeaf, 2*L1GctJetFinderBase::MAX_JETS_OUT);
         
-      // Deal with the Ht inputs
-      m_inputHt.at(iLeaf) = m_inputLeafCards.at(iLeaf)->getOutputHt();
-      m_inputHx.at(iLeaf) = m_inputLeafCards.at(iLeaf)->getOutputHx();
-      m_inputHy.at(iLeaf) = m_inputLeafCards.at(iLeaf)->getOutputHy();
+	  // Deal with the Ht inputs
+	  m_inputHt.at(iLeaf) = m_inputLeafCards.at(iLeaf)->getOutputHt();
+	  m_inputHx.at(iLeaf) = m_inputLeafCards.at(iLeaf)->getOutputHx();
+	  m_inputHy.at(iLeaf) = m_inputLeafCards.at(iLeaf)->getOutputHy();
 
-      // Deal with the Hf tower sum inputs
-      m_inputHfSums.at(iLeaf) = m_inputLeafCards.at(iLeaf)->getOutputHfSums();
+	  // Deal with the Hf tower sum inputs
+	  m_inputHfSums.at(iLeaf) = m_inputLeafCards.at(iLeaf)->getOutputHfSums();
+	}
+      }
+    // Deal with the jet counters
+    for (unsigned int i=0; i<N_JET_COUNTERS; i++) {
+      // m_jetCounters.at(i)->fetchInput();
+      //==============================================
+      // For efficiency, provide our own list of jets to 
+      // all the jet counters instead of allowing them
+      // to fetch the jets from the jetfinder outputs
+
+      m_jetCounters.at(i)->setJets(m_inputJets);
+
+      //==============================================
     }
-  }
-  // Deal with the jet counters
-  for (unsigned int i=0; i<N_JET_COUNTERS; i++) {
-    // m_jetCounters.at(i)->fetchInput();
-    //==============================================
-    // For efficiency, provide our own list of jets to 
-    // all the jet counters instead of allowing them
-    // to fetch the jets from the jetfinder outputs
-
-    m_jetCounters.at(i)->setJets(m_inputJets);
-
-    //==============================================
   }
 }
 
 void L1GctWheelJetFpga::process()
 {
-  classifyJets();
+  if (checkSetup()) {
+    classifyJets();
 
-  m_centralJetSorter->setJets(m_rawCentralJets);
-  m_forwardJetSorter->setJets(m_rawForwardJets);
-  m_tauJetSorter->setJets(m_rawTauJets);
+    m_centralJetSorter->setJets(m_rawCentralJets);
+    m_forwardJetSorter->setJets(m_rawForwardJets);
+    m_tauJetSorter->setJets(m_rawTauJets);
 
-  m_rawCentralJets = m_centralJetSorter->getSortedJets();
-  m_rawForwardJets = m_forwardJetSorter->getSortedJets();
-  m_rawTauJets     = m_tauJetSorter->getSortedJets();
+    m_rawCentralJets = m_centralJetSorter->getSortedJets();
+    m_rawForwardJets = m_forwardJetSorter->getSortedJets();
+    m_rawTauJets     = m_tauJetSorter->getSortedJets();
 
-  for(unsigned short iJet = 0; iJet < MAX_JETS_OUT; ++iJet)
-  {
-    m_centralJets.at(iJet) = m_rawCentralJets.at(iJet);
-    m_forwardJets.at(iJet) = m_rawForwardJets.at(iJet);
-    m_tauJets.at(iJet) = m_rawTauJets.at(iJet);
-  }
+    for(unsigned short iJet = 0; iJet < MAX_JETS_OUT; ++iJet)
+      {
+	m_centralJets.at(iJet) = m_rawCentralJets.at(iJet);
+	m_forwardJets.at(iJet) = m_rawForwardJets.at(iJet);
+	m_tauJets.at(iJet) = m_rawTauJets.at(iJet);
+      }
 
-  //Ht processing
-  m_outputHt = m_inputHt.at(0) + m_inputHt.at(1) + m_inputHt.at(2);
-  m_outputHx = m_inputHx.at(0) + m_inputHx.at(1) + m_inputHx.at(2);
-  m_outputHy = m_inputHy.at(0) + m_inputHy.at(1) + m_inputHy.at(2);
+    //Ht processing
+    m_outputHt = m_inputHt.at(0) + m_inputHt.at(1) + m_inputHt.at(2);
+    m_outputHx = m_inputHx.at(0) + m_inputHx.at(1) + m_inputHx.at(2);
+    m_outputHy = m_inputHy.at(0) + m_inputHy.at(1) + m_inputHy.at(2);
 
-  //Hf tower sums processing
-  m_outputHfSums = m_inputHfSums.at(0) + m_inputHfSums.at(1) + m_inputHfSums.at(2);
+    //Hf tower sums processing
+    m_outputHfSums = m_inputHfSums.at(0) + m_inputHfSums.at(1) + m_inputHfSums.at(2);
 
-  //Jet count processing
-  for (unsigned int i=0; i<N_JET_COUNTERS; i++) {
-    m_jetCounters.at(i)->process();
-    m_outputJc.at(i) = m_jetCounters.at(i)->getValue();
+    //Jet count processing
+    for (unsigned int i=0; i<N_JET_COUNTERS; i++) {
+      m_jetCounters.at(i)->process();
+      m_outputJc.at(i) = m_jetCounters.at(i)->getValue();
+    }
   }
     
 }
@@ -278,78 +302,82 @@ void L1GctWheelJetFpga::process()
 void L1GctWheelJetFpga::setInputJet(int i, L1GctJetCand jet)
 {
   if(i >=0 && i < MAX_JETS_IN)
-  {
-    m_inputJets.at(i) =  jet;
-  }
+    {
+      m_inputJets.at(i) =  jet;
+    }
   else
-  {
-    throw cms::Exception("L1GctInputError")
-    << "L1GctWheelJetFpga::setInputJet() : In WheelJetFpga ID  " << m_id << ", inputted jet candidate " 
-    << i << " is outside input index range of 0 to " << (MAX_JETS_IN-1) << "\n";
-  }
+    {
+      if (m_verbose) {
+	edm::LogError("L1GctInputError")
+	  << "L1GctWheelJetFpga::setInputJet() : In WheelJetFpga ID  " << m_id << ", inputted jet candidate " 
+	  << i << " is outside input index range of 0 to " << (MAX_JETS_IN-1) << "\n";
+      }
+    }
 }
 
 void L1GctWheelJetFpga::setInputHt (int i, unsigned ht)
 {   
   if(i >= 0 && i < static_cast<int>(MAX_LEAF_CARDS))
-  {
-    m_inputHt.at(i).setValue(ht);
-  }
+    {
+      m_inputHt.at(i).setValue(ht);
+    }
   else
-  {
-    throw cms::Exception("L1GctInputError")
-    << "L1GctWheelJetFpga::setInputHt() : In WheelJetFpga ID  " << m_id << ", inputted Ht value " 
-    << i << " is outside input index range of 0 to " << (MAX_LEAF_CARDS-1) << "\n";
-  }
+    {
+      if (m_verbose) {
+	edm::LogError("L1GctInputError")
+	  << "L1GctWheelJetFpga::setInputHt() : In WheelJetFpga ID  " << m_id << ", inputted Ht value " 
+	  << i << " is outside input index range of 0 to " << (MAX_LEAF_CARDS-1) << "\n";
+      }
+    }
 } 
 
 void L1GctWheelJetFpga::storeJets(JetVector jets, unsigned short iLeaf, unsigned short offset)
 {
   for(unsigned short iJet = 0; iJet < L1GctJetFinderBase::MAX_JETS_OUT; ++iJet)
-  {
-    m_inputJets.at(iLeaf*MAX_JETS_PER_LEAF + offset + iJet) = jets.at(iJet);
-  }
+    {
+      m_inputJets.at(iLeaf*MAX_JETS_PER_LEAF + offset + iJet) = jets.at(iJet);
+    }
 }
 
 void L1GctWheelJetFpga::classifyJets()
 {
   JetVector::iterator currentJet;  
   
-  unsigned short pos=MAX_JETS_IN;
-  // We assign each jet a unique priority.
+  unsigned short pos=0;
   // In the case of two jets of equal rank, the sort will take the lower priority.
   // This corresponds to the lower position in the array. In order to mimic the hardware
-  // behaviour, the order of jets from the input leaf cards is reversed here.
-  for(currentJet = m_inputJets.begin(); currentJet != m_inputJets.end(); ++currentJet)
-  {
-    pos--;
-    if (!currentJet->empty()) {
-      if(currentJet->isForward())  //forward jet
-	{
-	  m_rawForwardJets.at(pos) = *currentJet;
-	}
-      else
-	{
-	  if(currentJet->isCentral())  //central non-tau jet.
-	    {
-	      m_rawCentralJets.at(pos) = *currentJet;
-	    }
-	  else  //must be central tau-jet
-	    {
-	    if(currentJet->isTau())
+  // behaviour, the order of jets from the input leaf cards is maintained here.
+  for(currentJet = m_inputJets.begin(); currentJet != m_inputJets.end(); ++currentJet, ++pos)
+    {
+      if (!currentJet->empty()) {
+	if(currentJet->isForward())  //forward jet
+	  {
+	    m_rawForwardJets.at(pos) = *currentJet;
+	  }
+	else
+	  {
+	    if(currentJet->isCentral())  //central non-tau jet.
 	      {
-		m_rawTauJets.at(pos) = *currentJet;
+		m_rawCentralJets.at(pos) = *currentJet;
 	      }
-	    else
-	      { //shouldn't get here! !!!!!!!! BUT WE NEED TO CHANGE THIS BEHAVIOUR !!!!!!!!
-		throw cms::Exception("L1GctProcessingError")
-		  << "Unclassified jet found by WheelJetFpga id " << m_id
-		  << ". Jet details follow." << std::endl << *currentJet << std::endl;
+	    else  //must be central tau-jet
+	      {
+		if(currentJet->isTau())
+		  {
+		    m_rawTauJets.at(pos) = *currentJet;
+		  }
+		else
+		  { //shouldn't get here!
+		    if (m_verbose) {
+		      edm::LogWarning("L1GctProcessingError")
+			<< "Unclassified jet found by WheelJetFpga id " << m_id
+			<< ". Jet details follow." << std::endl << *currentJet << std::endl;
+		    }
+		  }
 	      }
-	    }
-	}
+	  }
+      }
     }
-  }
 }
 
 void L1GctWheelJetFpga::setupJetsVectors(const int16_t bx)

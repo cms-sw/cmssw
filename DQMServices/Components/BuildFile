@@ -1,11 +1,24 @@
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/RunInfo>
 <use name=DQMServices/ClientConfig>
 <use name=DQMServices/Core>
-<use name=EventFilter/Utilities>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
-<use name=FWCore/Sources>
+<use name=FWCore/Utilities>
+<use name=DataFormats/FEDRawData>
+<use name=roothistmatrix>
 <export>
+  <use name=CondFormats/DataRecord>
+  <use name=CondFormats/RunInfo>
+  <use name=DQMServices/ClientConfig>
+  <use name=DQMServices/Core>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/ServiceRegistry>
+  <use name=FWCore/Utilities>
+  <use name=DataFormats/FEDRawData>
+  <use name=roothistmatrix>
   <lib name=DQMServicesComponents>
 </export>
 

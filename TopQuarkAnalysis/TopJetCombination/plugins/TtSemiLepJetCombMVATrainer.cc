@@ -16,7 +16,7 @@ TtSemiLepJetCombMVATrainer::TtSemiLepJetCombMVATrainer(const edm::ParameterSet& 
   leptons_   (cfg.getParameter<edm::InputTag>("leptons")),
   jets_      (cfg.getParameter<edm::InputTag>("jets")),
   matching_  (cfg.getParameter<edm::InputTag>("matching")),
-  nJetsMax_  (cfg.getParameter<int>("nJetsMax")),
+  maxNJets_  (cfg.getParameter<int>("maxNJets")),
   lepChannel_(cfg.getParameter<int>("lepChannel"))
 {
 }
@@ -52,20 +52,23 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
   unsigned int nPartons = 4;
   if( jets->size() < nPartons ) return;
 
-  edm::Handle< std::vector<int> > matching;
+  edm::Handle< std::vector< std::vector<int> > > matchingHandle;
+  std::vector<int> matching;
   // get jet-parton matching if signal channel
   if(genEvt->semiLeptonicChannel() == lepChannel_) {
-    evt.getByLabel(matching_, matching);
+    evt.getByLabel(matching_, matchingHandle);
+    matching = *(matchingHandle->begin());
     // skip events that were affected by the outlier 
     // rejection in the jet-parton matching
-    if( std::count(matching->begin(), matching->end(), -1)>0 )
-      return;
+    for(unsigned int i = 0; i < matching.size(); ++i)
+      if(matching[i] < 0 || matching[i] >= (int)jets->size())
+	return;
   }
 
   // analyze true and false jet combinations
   std::vector<int> jetIndices;
   for(unsigned int i=0; i<jets->size(); ++i) {
-    if(nJetsMax_ >= nPartons && i == (unsigned int) nJetsMax_) break;
+    if(maxNJets_ >= nPartons && i == (unsigned int) maxNJets_) break;
     jetIndices.push_back(i);
   }
 
@@ -85,8 +88,8 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
 	
 	bool trueCombi = true;
 	if(genEvt->semiLeptonicChannel() == lepChannel_) {
-	  for(unsigned int i = 0; i < matching->size(); ++i){
-	    if(combi[i] != (*(matching))[i]) {
+	  for(unsigned int i = 0; i < matching.size(); ++i){
+	    if(combi[i] != matching[i]) {
 	      // not a true combination if different from matching
 	      trueCombi = false;
 	      break;

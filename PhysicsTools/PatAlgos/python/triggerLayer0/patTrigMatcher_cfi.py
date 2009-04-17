@@ -4,6 +4,7 @@ from PhysicsTools.PatAlgos.triggerLayer0.patTrigProducer_cfi import *
 # Examples for configurations of the trigger match for various physics objects
 # (cuts are NOT tuned, using old values from TQAF MC match, january 2008)
 
+
 # matches to Egamma triggers
 # matches to CandHLT1ElectronStartup
 electronTrigMatchCandHLT1ElectronStartup = cms.EDFilter("PATTrigMatcher",
@@ -227,3 +228,116 @@ patTrigMatchHLT3jet = cms.Sequence(patHLT3jet * jetTrigMatchHLT3jet)
 patTrigMatchHLT4jet   = cms.Sequence(patHLT4jet * jetTrigMatchHLT4jet)
 patTrigMatchHLT1MET65 = cms.Sequence(patHLT1MET65 * metTrigMatchHLT1MET65 + muonTrigMatchHLT1MET65)
 
+
+## patTuple ##
+
+# matches to HLT_IsoMu11
+muonTrigMatchHLTIsoMu11 = cms.EDFilter("PATTrigMatcher",
+    src     = cms.InputTag("allLayer0Muons"),
+    matched = cms.InputTag("patHLTIsoMu11"),
+    maxDPtRel = cms.double(1.0),
+    maxDeltaR = cms.double(0.2),
+    resolveAmbiguities    = cms.bool(True),
+    resolveByMatchQuality = cms.bool(False),
+)
+
+# matches to HLT_Mu11
+muonTrigMatchHLTMu11 = cms.EDFilter("PATTrigMatcher",
+    src     = cms.InputTag("allLayer0Muons"),
+    matched = cms.InputTag("patHLTMu11"),
+    maxDPtRel = cms.double(1.0),
+    maxDeltaR = cms.double(0.2),
+    resolveAmbiguities    = cms.bool(True),
+    resolveByMatchQuality = cms.bool(False),
+)
+
+# matches to HLT_DoubleIsoMu3
+muonTrigMatchHLTDoubleIsoMu3 = cms.EDFilter("PATTrigMatcher",
+    src     = cms.InputTag("allLayer0Muons"),
+    matched = cms.InputTag("patHLTDoubleIsoMu3"),
+    maxDPtRel = cms.double(1.0),
+    maxDeltaR = cms.double(0.2),
+    resolveAmbiguities    = cms.bool(True),
+    resolveByMatchQuality = cms.bool(False),
+)
+
+# matches to HLT_DoubleMu3
+muonTrigMatchHLTDoubleMu3 = cms.EDFilter("PATTrigMatcher",
+    src     = cms.InputTag("allLayer0Muons"),
+    matched = cms.InputTag("patHLTDoubleMu3"),
+    maxDPtRel = cms.double(1.0),
+    maxDeltaR = cms.double(0.2),
+    resolveAmbiguities    = cms.bool(True),
+    resolveByMatchQuality = cms.bool(False),
+)
+
+# matches to HLT_IsoEle15_LW_L1I
+electronTrigMatchHLTIsoEle15LWL1I = cms.EDFilter("PATTrigMatcher",
+    src     = cms.InputTag("allLayer0Electrons"),
+    matched = cms.InputTag("patHLTIsoEle15LWL1I"),
+    maxDPtRel = cms.double(1.0),
+    maxDeltaR = cms.double(0.2),
+    resolveAmbiguities    = cms.bool(True),
+    resolveByMatchQuality = cms.bool(False),
+)
+
+# matches to HLT_Ele15_LW_L1R
+electronTrigMatchHLTEle15LWL1R = cms.EDFilter("PATTrigMatcher",
+    src     = cms.InputTag("allLayer0Electrons"),
+    matched = cms.InputTag("patHLTEle15LWL1R"),
+    maxDPtRel = cms.double(1.0),
+    maxDeltaR = cms.double(0.2),
+    resolveAmbiguities    = cms.bool(True),
+    resolveByMatchQuality = cms.bool(False),
+)
+
+# matches to HLT_DoubleIsoEle10_LW_L1I
+electronTrigMatchHLTDoubleIsoEle10LWL1I = cms.EDFilter("PATTrigMatcher",
+    src     = cms.InputTag("allLayer0Electrons"),
+    matched = cms.InputTag("patHLTDoubleIsoEle10LWL1I"),
+    maxDPtRel = cms.double(1.0),
+    maxDeltaR = cms.double(0.2),
+    resolveAmbiguities    = cms.bool(True),
+    resolveByMatchQuality = cms.bool(False),
+)
+
+# matches to HLT_DoubleEle5_SW_L1R
+electronTrigMatchHLTDoubleEle5SWL1R = cms.EDFilter("PATTrigMatcher",
+    src     = cms.InputTag("allLayer0Electrons"),
+    matched = cms.InputTag("patHLTDoubleEle5SWL1R"),
+    maxDPtRel = cms.double(1.0),
+    maxDeltaR = cms.double(0.2),
+    resolveAmbiguities    = cms.bool(True),
+    resolveByMatchQuality = cms.bool(False),
+)
+
+# matches to HLT_LooseIsoTau_MET30_L1MET
+tauTrigMatchHLTLooseIsoTauMET30L1MET = cms.EDFilter("PATTrigMatcher",
+    src     = cms.InputTag("allLayer0Taus"),
+    matched = cms.InputTag("patHLTLooseIsoTauMET30L1MET"),
+    maxDPtRel = cms.double(1.0),
+    maxDeltaR = cms.double(0.2),
+    resolveAmbiguities    = cms.bool(True),
+    resolveByMatchQuality = cms.bool(False),
+)
+
+# matches to HLT_DoubleIsoTau_Trk3
+tauTrigMatchHLTDoubleIsoTauTrk3 = cms.EDFilter("PATTrigMatcher",
+    src     = cms.InputTag("allLayer0Taus"),
+    matched = cms.InputTag("patHLTDoubleIsoTauTrk3"),
+    maxDPtRel = cms.double(1.0),
+    maxDeltaR = cms.double(0.2),
+    resolveAmbiguities    = cms.bool(True),
+    resolveByMatchQuality = cms.bool(False),
+)
+
+patTrigMatchHLT_IsoMu11 = cms.Sequence(patHLTIsoMu11 * muonTrigMatchHLTIsoMu11)
+patTrigMatchHLT_Mu11 = cms.Sequence(patHLTMu11 * muonTrigMatchHLTMu11)
+patTrigMatchHLT_DoubleIsoMu3 = cms.Sequence(patHLTDoubleIsoMu3 * muonTrigMatchHLTDoubleIsoMu3)
+patTrigMatchHLT_DoubleMu3 = cms.Sequence(patHLTDoubleMu3 * muonTrigMatchHLTDoubleMu3)
+patTrigMatchHLT_IsoEle15_LW_L1I = cms.Sequence(patHLTIsoEle15LWL1I * electronTrigMatchHLTIsoEle15LWL1I)
+patTrigMatchHLT_Ele15_LW_L1R = cms.Sequence(patHLTEle15LWL1R * electronTrigMatchHLTEle15LWL1R)
+patTrigMatchHLT_DoubleIsoEle10_LW_L1I = cms.Sequence(patHLTDoubleIsoEle10LWL1I * electronTrigMatchHLTDoubleIsoEle10LWL1I)
+patTrigMatchHLT_DoubleEle5_SW_L1R = cms.Sequence(patHLTDoubleEle5SWL1R * electronTrigMatchHLTDoubleEle5SWL1R)
+patTrigMatchHLT_LooseIsoTau_MET30_L1MET = cms.Sequence(patHLTLooseIsoTauMET30L1MET * tauTrigMatchHLTLooseIsoTauMET30L1MET)
+patTrigMatchHLT_DoubleIsoTau_Trk3 = cms.Sequence(patHLTDoubleIsoTauTrk3 * tauTrigMatchHLTDoubleIsoTauTrk3)

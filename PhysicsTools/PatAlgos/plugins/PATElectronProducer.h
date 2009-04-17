@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.10 2008/09/01 14:35:48 gpetrucc Exp $
+// $Id: PATElectronProducer.h,v 1.12.2.1 2008/11/20 11:40:35 rwolf Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of ElectronType.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.10 2008/09/01 14:35:48 gpetrucc Exp $
+  \version  $Id: PATElectronProducer.h,v 1.12.2.1 2008/11/20 11:40:35 rwolf Exp $
 */
 
 
@@ -26,8 +26,6 @@
 #include "DataFormats/Candidate/interface/CandAssociation.h"
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
-#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
-#include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
@@ -37,13 +35,14 @@
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+
 #include <string>
 
 
 namespace pat {
 
 
-  class ObjectResolutionCalc;
   class TrackerIsolationPt;
   class CaloIsolationEnergy;
   class LeptonLRCalc;
@@ -60,11 +59,6 @@ namespace pat {
 
     private:
 
-      double electronID(const edm::Handle<edm::View<ElectronType> > & elecs, 
-                        const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs,
-	                unsigned int idx);
-    private:
-
       // configurables
       edm::InputTag electronSrc_;
       bool          embedGsfTrack_;
@@ -76,14 +70,11 @@ namespace pat {
       bool          addTrigMatch_;
       std::vector<edm::InputTag> trigMatchSrc_;
       bool          addResolutions_;
-      bool          useNNReso_;
-      std::string   electronResoFile_;
       bool          addElecID_;
       typedef std::pair<std::string, edm::InputTag> NameTag;
       std::vector<NameTag> elecIDSrcs_;
 
       // tools
-      ObjectResolutionCalc * theResoCalc_;
       GreaterByPt<Electron>       pTComparator_;
 
       pat::helper::MultiIsolator isolator_; 
@@ -95,6 +86,13 @@ namespace pat {
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::Electron>      userDataHelper_;
+      
+      //Add electron Cluster Shapes */
+      bool         addElecShapes_;
+      //For the Cluster Shape reading */
+      edm::InputTag reducedBarrelRecHitCollection_;
+      edm::InputTag reducedEndcapRecHitCollection_;
+      
   };
 
 

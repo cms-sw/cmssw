@@ -1,10 +1,11 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-// $Id: MatacqDataFormatter.cc,v 1.6 2007/10/20 10:58:01 franzoni Exp $
+// $Id: MatacqTBDataFormatter.cc,v 1.5 2007/04/12 08:36:47 franzoni Exp $
 
 #include "EventFilter/EcalTBRawToDigi/src/MatacqDataFormatter.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "EventFilter/EcalTBRawToDigi/src/MatacqRawEvent.h"
 #include "DataFormats/EcalDigi/interface/EcalMatacqDigi.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include <algorithm>
 #include <iomanip>

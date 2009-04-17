@@ -7,4 +7,5 @@
 <use name=PhysicsTools/Utilities>
 <use name=PhysicsTools/UtilAlgos>
 <use name=DataFormats/PatCandidates>
+<use name=PhysicsTools/PatUtils>
 </library>

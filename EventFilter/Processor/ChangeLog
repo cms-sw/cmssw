@@ -1,3 +1,44 @@
+2009-02-17  Emilio Meschi  <emilio.meschi@cern.ch>
+		
+	* tag V01-04-07
+	* small fix to spotlight web must bump up version no
+
+2009-02-17  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-04-06
+	* update version number in web page
+
+2009-01-08  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-04-05
+	* moved js to datafile
+	* added support for service webs
+
+2008-11-27  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-04-04
+	* fix problem with scaler message containing 0 lsid
+	* added python configuration capability
+
+2008-11-20  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V01-04-03
+	* call fsm_.findRcmsStateListener()
+	* requires EventFilter/Utilities V00-15-01
+
+2008-11-12  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-04-02
+	* remove deadlock on forceHalt
+	* cover missed LSs for prolonged timeouts
+
+2008-11-03  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-04-01
+	* improved LS timeout logic
+	* reset of trigger report table when stopping
+	* web page now shows timed out LS index
+	
 2008-10-17  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V01-04-00

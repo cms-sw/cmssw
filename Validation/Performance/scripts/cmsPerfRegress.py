@@ -78,9 +78,16 @@ def getParameters():
                       choices= ("timing", "simplememory","edmsize","igprof","callgrind",""),
                       help='Type of report to perform regrssion on. Default is TimingReport.' ,
                       default="timing",
-                      dest='reporttype')      
+                      dest='reporttype')
+    parser.add_option('-i',
+                      '--IgProfMemOption',
+                      type="choice",
+                      choices= ("-y MEM_TOTAL", "-y MEM_LIVE",""),
+                      help='Eventual IgProfMem counter to use for the regression. Default is no argument (IgProfPerf).' ,
+                      default="",
+                      dest='igprofmem')
     (options,args) = parser.parse_args()
-    if not len(args) == 2:
+    if len(args) < 2:
         parser.error("ERROR: Not enough arguments")
         sys.exit()
 
@@ -88,7 +95,7 @@ def getParameters():
     path1 = os.path.abspath(args[0])
     path2 = os.path.abspath(args[1])    
     if os.path.exists(path1) and os.path.exists(path2):
-        return (path1, path2, options.startevt, options.reporttype)
+        return (path1, path2, options.startevt, options.reporttype, options.igprofmem)
     else:
         print "Error: one of the paths does not exist"
         sys.exit()
@@ -171,7 +178,7 @@ def getTimingLogData(logfile_name):
 ###########
 # Parse memory check data from log file
 #
-def getSimpleMemLogData(logfile_name,startevt):
+def getSimpleMemLogData(logfile_name,startevt, candle):
     data=[]
     values_set=('vsize','delta_vsize','rss','delta_rss')
     
@@ -182,48 +189,88 @@ def getSimpleMemLogData(logfile_name,startevt):
     
     step = ""
     steps = []
+    #print candle
+    #print CandFname[candle]
+    #Get the step from log filename:
+    stepreg = re.compile("%s_([^_]*(_PILEUP)?)_%s((.log)|(.gz))?" % (CandFname[candle],"TimingReport"))
+    #print logfile_name
+    found=stepreg.search(logfile_name)
+    if found:
+        step=found.groups()[0]
+        print "Determined step from log filename to be %s"%step
+    else:
+        print "Could not determine step from log filename"
+        
+    #steps.append((step,data))
+
+    #Rewriting the following code... what a mess!
     # we get the info we need!
-    i=0
-    while i < len(logfile_lines):
-        line=logfile_lines[i]
-        if "RelValreport" in line and "cmsDriver" in line and "step" in line:
-            stepreg = re.compile("--step=([^ ]*)")
-            found = stepreg.search(line)
-            if found:
-                if step == "":
-                    step = found.groups()[0]
-                else:
-                    steps.append((step,data))
-                    step = found.groups()[0]
-                    data = []        
-        elif '%MSG-w MemoryCheck:' in line:
-            line=line[:-1] #no \n!
-            line_content_list=line.split(' ')
-            event_number=int(line_content_list[-1])
-            if event_number<startevt:
-                i+=1
-                continue
-            i+=1 # we inspect the following line
-            try:
-                line=logfile_lines[i]
-            except IndexError:
-                continue
-            line=line[:-1] #no \n!
-            line_content_list=line.split(' ')
-            vsize=float(line_content_list[4])
-            delta_vsize=float(line_content_list[5])
-            rss=float(line_content_list[7])
-            delta_rss=float(line_content_list[8])
-            
+    #i=0   
+    #while i < len(logfile_lines):
+        #line=logfile_lines[i]
+        #Format has changed... we use the output of individual steps, so no need to read into the logfile to find which step we are
+        #referring too (by the way it would not work now!)... the step info comes from the logfilename done above...
+        #if "RelValreport" in line and "cmsDriver" in line and "step" in line:
+        #    stepreg = re.compile("--step=([^ ]*)")
+        #    found = stepreg.search(line)
+        #    if found:
+        #        if step == "":
+        #            step = found.groups()[0]
+        #        else:
+        #            steps.append((step,data))
+        #            step = found.groups()[0]
+        #            data = []        
+        #if '%MSG-w MemoryCheck:' in line:
+        #    line=line[:-1] #no \n!
+        #    line_content_list=line.split(' ')
+        #    event_number=int(line_content_list[-1])
+        #    if event_number<startevt:
+        #        i+=1
+        #        continue
+        #    i+=1 # we inspect the following line
+        #    try:
+        #        line=logfile_lines[i]
+        #    except IndexError:
+        #        continue
+        #    line=line[:-1] #no \n!
+        #    line_content_list=line.split(' ')
+        #    vsize=float(line_content_list[4])
+        #    delta_vsize=float(line_content_list[5])
+        #    rss=float(line_content_list[7])
+        #    delta_rss=float(line_content_list[8])
+        #    
+        #    data.append((event_number,{'vsize':vsize,
+        #                               'delta_vsize':delta_vsize,
+        #                               'rss':rss,
+        #                               'delta_rss':delta_rss}))
+        #i += 1
+    event_number= startevt
+    for line in logfile_lines:
+        #Match SimpleMemoryCheck output to get the event number
+        if '%MSG-w MemoryCheck:' in line: #Harcoded based on format: %MSG-w MemoryCheck:  PostModule 12-Jan-2009 16:00:29 CET Run: 1 Event: 1
+            tokens=line.split()
+            if int(tokens[-1])>= startevt:
+                event_number=int(tokens[-1])
+        if 'VSIZE' in line: #Harcoded based on format: MemoryCheck: event : VSIZE 648.426 0 RSS 426.332 0
+            tokens=line.split()
+            vsize=float(tokens[4])
+            delta_vsize=float(tokens[5])
+            rss=float(tokens[7])
+            delta_rss=float(tokens[8])
             data.append((event_number,{'vsize':vsize,
                                        'delta_vsize':delta_vsize,
                                        'rss':rss,
-                                       'delta_rss':delta_rss}))
-        i += 1
-
+                                       'delta_rss':delta_rss
+                                       }
+                         )
+                        )
+            
     if not len(data) == 0:
+        #print "!!!!!!!!!!!!!Adding step %s and data!"%step
         steps.append((step,data))
 
+    #print "PRINTOUT@@@@@@"
+    #print steps
     return steps
 
 ###############
@@ -458,6 +505,7 @@ def getTwoGraphLimits(last_event1,max_val1,last_event2,max_val2,min_val1=-1,min_
 def getNpoints(data):
     new_data=[]
     try:
+        #This was necessary due to a bug in the getSimpleMemLogData parsing!!! no more necessary!
         if data[0][0]==data[1][0]:
             print 'Two modules seem to have some output.\nCollapsing ...'
             i=0
@@ -673,8 +721,11 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
         setBatch()
     # the fundamental structure: the key is the evt number the value is a list containing
     # VSIZE deltaVSIZE RSS deltaRSS
+    print "#####LOGFILES in cmsPErfRegress:"
+    print oldLogfile
+    print newLogfile
     try:
-        info1 = getSimpleMemLogData(oldLogfile,startevt)
+        info1 = getSimpleMemLogData(oldLogfile,startevt, candle)
         if len(info1) == 0:
             raise IndexError
     except IndexError:
@@ -683,14 +734,15 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
         raise SimpMemParseErr(oldLogfile)        
     
     try:
-        info2 = getSimpleMemLogData(newLogfile,startevt)
+        info2 = getSimpleMemLogData(newLogfile,startevt, candle)
         if len(info2) == 0:
             raise IndexError
     except IndexError:
         raise SimpMemParseErr(newLogfile)
     except IOError:
         raise SimpMemParseErr(newLogfile)        
-
+    #print "DDDDD info1 %s"%info1 #Format is of the type:[('GEN,SIM', [(1, {'delta_vsize': 0.0, 'delta_rss': 0.0, 'vsize': 648.42600000000004, 'rss': 426.33199999999999}), (2,{...
+    #print "DDDDD info2 %s"%info2
     canvases = []
     # skim the second entry when the event number is the same BUG!!!!!!!
     # i take elements in couples!
@@ -701,147 +753,168 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
     i = 0
     firstRoot = True
     newrootfile = None
-    while ( i < len(info1) and i < len(info2)):
-        curinfo1 = info1[i]
-        curinfo2 = info2[i]
-        (stepname1, data1) = curinfo1
-        (stepname2, data2) = curinfo2
+    #The following whileis confusing and not necessary info1 and info2 are supposed to only contain one set of simplememorycheck numbers
+    #in a tuple as seen above ('GEN,SIM',[(event_number,{'delta_vsize': 0.0, etc
+    #The data structure is questionable... but it is a remnant of past format of the log files I guess.
+    #while ( i < len(info1) and i < len(info2)):
+    #curinfo1 = info1[i]
+    #curinfo2 = info2[i]
+    (stepname1, data1) = info1[0]
+    (stepname2, data2) = info2[0]
 
-        if not stepname1 == stepname2:
-            print "WARNING: Could not compare %s step and %s step because they are not the same step" % (stepname1, stepname2)
-            print " Searching for next occurence"
-            x = 1
-            if not (i + 1) > len(info1):
-                found = False
-                for info in info1[i + 1:]:
-                    (stepname,trash) = info
-                    if stepname == stepname2:
-                        i += x
-                        print " Next occurence found, skipping in-between steps"
-                        assert i < len(info1)
-                        found = True
-                        break
-                    x += 1
-                if found:
-                    continue
-            print " No more occurences of this step, continuing" 
-            i += 1
-            continue
-                        
-        (data1,npoints1) = getNpoints(data1)
-        (data2,npoints2) = getNpoints(data2)
+    #Again this is not necessary anymore...
+    #if not stepname1 == stepname2:
+    #print "WARNING: Could not compare %s step and %s step because they are not the same step" % (stepname1, stepname2)
+    #        print " Searching for next occurence"
+    #        x = 1
+    #        if not (i + 1) > len(info1):
+    #            found = False
+    #            for info in info1[i + 1:]:
+    #               (stepname,trash) = info
+    #               if stepname == stepname2:
+    #                    i += x
+    #print " Next occurence found, skipping in-between steps"
+    #                    assert i < len(info1)
+    #                    found = True
+    #                    break
+    #                x += 1
+    #            if found:
+    #                continue
+    #        print " No more occurences of this step, continuing" 
+    #        i += 1
+    #        continue
 
-        legs = []
-        leg      = ROOT.TLegend(0.6,0.99,0.89,0.8)
-        legs.append(leg)
-        leg      = ROOT.TLegend(0.6,0.99,0.89,0.8)
-        legs.append(leg)
+    #Not sure what this is for!
+    #OK it was due to the bug of duplicated info in getSimpleMemLogData parsing!
+    #No need!
+    #(data1,npoints1) = getNpoints(data1)
+    #(data2,npoints2) = getNpoints(data2)
+    npoints1=len(data1)
+    npoints2=len(data2)
+    
+    legs = []
+    leg      = ROOT.TLegend(0.6,0.99,0.89,0.8)
+    legs.append(leg)
+    leg      = ROOT.TLegend(0.6,0.99,0.89,0.8)
+    legs.append(leg)
+    
+    try:
+        if len(data1) == 0:
+            raise IndexError
+        (vsize_graph1,
+         vsize_lstevt1,
+         vsize_peak1,
+         vsize_minim1,
+         rss_graph1,
+         rss_lstevt1,
+         rss_peak1,
+         rss_minim1) = createSimplMemGraphs(data1,npoints1,0,legs,prevrev=prevrev)
+        #candFilename = CandFname[candle]
+        #outputdir = "%s_%s_SimpleMemReport" % (candFilename,stepname1)
+        #outputdir = os.path.join(outdir,outputdir)
+        #print "Graph1"
+        #vsize_graph1.Print()
+    except IndexError:
+        raise SimpMemParseErr(oldLogfile)
+    
+    try:
+        if len(data2) == 0:
+            raise IndexError
+        (vsize_graph2,
+         vsize_lstevt2,
+         vsize_peak2,
+         vsize_minim2,
+         rss_graph2,
+         rss_lstevt2,
+         rss_peak2,
+         rss_minim2) = createSimplMemGraphs(data2,npoints2,1,legs,prevrev=prevrev)
+        #candFilename = CandFname[candle]
+        #outputdir = "%s_%s_SimpleMemReport" % (candFilename,stepname1)
+        #outputdir = os.path.join(outdir,outputdir)
+        #print "Graph2"
+        #vsize_graph2.Print()#       os.path.join(outputdir,"vsize_graph2.gif"))
+    except IndexError:
+        raise SimpMemParseErr(newLogfile)  
+    
+    
+    (vsize_lstevt, vsize_max_val, vsize_min_val) = getTwoGraphLimits(vsize_lstevt1, vsize_peak1, vsize_lstevt2, vsize_peak2, vsize_minim1, vsize_minim2)
+    (rss_lstevt  , rss_max_val  , rss_min_val)   = getTwoGraphLimits(rss_lstevt1  , rss_peak1, rss_lstevt2  , rss_peak2, rss_minim1,   rss_minim2)    
+    
+    (vsize_min,vsize_max) = getMemOrigScale(vsize_minim1,vsize_minim2,vsize_peak1,vsize_peak2)
+    (rss_min  ,rss_max  ) = getMemOrigScale(rss_minim1,rss_minim2,rss_peak1,rss_peak2)
+    
+    setupSuperimpose(vsize_graph1,
+                     vsize_graph2,
+                     vsize_lstevt,
+                     0,
+                     reporttype = 1,
+                     title = "%s_vsize" % stepname1)
+    setupSuperimpose(rss_graph1  ,
+                     rss_graph2  ,
+                     rss_lstevt  ,
+                     0,
+                     reporttype = 1,
+                     title = "%s_rss"  %  stepname2)
+    
+    (vsizePerfDiffgraph, vsizeleg) = getMemDiff(data1,data2,npoints2,vsize_lstevt, (vsize_max - vsize_min), stepname1, rss=False)
+    (rssPerfDiffgraph, rssleg)     = getMemDiff(data1,data2,npoints2,rss_lstevt  , (rss_max - rss_min)    , stepname1, rss=True )        
+    
+    vsize_canvas = drawMemGraphs(vsize_graph1, vsize_graph2, vsize_min_val, vsize_max_val, vsize_lstevt, legs[0], "vsize", stepname1)
+    rss_canvas   = drawMemGraphs(rss_graph1  , rss_graph2  , rss_min_val, rss_max_val, rss_lstevt, legs[1], "rss"  , stepname1)
+    vsize_change_canvas = drawMemChangeGraphs(vsizePerfDiffgraph, vsizeleg, "vsize", stepname1)         
+    rss_change_canvas   = drawMemChangeGraphs(rssPerfDiffgraph  , rssleg  , "rss"  , stepname1)         
+    
+    if batch:
         
-        try:
-            if len(data1) == 0:
-                raise IndexError
-            (vsize_graph1,
-             vsize_lstevt1,
-             vsize_peak1,
-             vsize_minim1,
-             rss_graph1,
-             rss_lstevt1,
-             rss_peak1,
-             rss_minim1) = createSimplMemGraphs(data1,npoints1,0,legs,prevrev=prevrev)
-        except IndexError:
-            raise SimpMemParseErr(oldLogfile)
-
-        try:
-            if len(data2) == 0:
-                raise IndexError
-            (vsize_graph2,
-             vsize_lstevt2,
-             vsize_peak2,
-             vsize_minim2,
-             rss_graph2,
-             rss_lstevt2,
-             rss_peak2,
-             rss_minim2) = createSimplMemGraphs(data2,npoints2,1,legs,prevrev=prevrev)
-        except IndexError:
-            raise SimpMemParseErr(newLogfile)  
-
-
-        (vsize_lstevt, vsize_max_val, vsize_min_val) = getTwoGraphLimits(vsize_lstevt1, vsize_peak1, vsize_lstevt2, vsize_peak2, vsize_minim1, vsize_minim2)
-        (rss_lstevt  , rss_max_val  , rss_min_val)   = getTwoGraphLimits(rss_lstevt1  , rss_peak1, rss_lstevt2  , rss_peak2, rss_minim1,   rss_minim2)    
-
-        (vsize_min,vsize_max) = getMemOrigScale(vsize_minim1,vsize_minim2,vsize_peak1,vsize_peak2)
-        (rss_min  ,rss_max  ) = getMemOrigScale(rss_minim1,rss_minim2,rss_peak1,rss_peak2)
-
-        setupSuperimpose(vsize_graph1,
-                         vsize_graph2,
-                         vsize_lstevt,
-                         0,
-                         reporttype = 1,
-                         title = "%s_vsize" % stepname1)
-        setupSuperimpose(rss_graph1  ,
-                         rss_graph2  ,
-                         rss_lstevt  ,
-                         0,
-                         reporttype = 1,
-                         title = "%s_rss"  %  stepname2)
-
-        (vsizePerfDiffgraph, vsizeleg) = getMemDiff(data1,data2,npoints2,vsize_lstevt, (vsize_max - vsize_min), stepname1, rss=False)
-        (rssPerfDiffgraph, rssleg)     = getMemDiff(data1,data2,npoints2,rss_lstevt  , (rss_max - rss_min)    , stepname1, rss=True )        
         
-        vsize_canvas = drawMemGraphs(vsize_graph1, vsize_graph2, vsize_min_val, vsize_max_val, vsize_lstevt, legs[0], "vsize", stepname1)
-        rss_canvas   = drawMemGraphs(rss_graph1  , rss_graph2  , rss_min_val, rss_max_val, rss_lstevt, legs[1], "rss"  , stepname1)
-        vsize_change_canvas = drawMemChangeGraphs(vsizePerfDiffgraph, vsizeleg, "vsize", stepname1)         
-        rss_change_canvas   = drawMemChangeGraphs(rssPerfDiffgraph  , rssleg  , "rss"  , stepname1)         
-
-        if batch:
-
-
-            logcandle = ""
-            candname  = ""            
-            found = candreg.search(os.path.basename(newLogfile))
+        logcandle = ""
+        candname  = ""            
+        found = candreg.search(os.path.basename(newLogfile))
+        
+        if found:
+            logcandle = found.groups()[0]
             
-            if found:
-                logcandle = found.groups()[0]
-                
-            if   CandFname.has_key(candle):
-                candFilename = CandFname[candle]
-            elif CandFname.has_key(logcandle):
-                candFilename = CandFname[logcandle]
-            else:
-                candFilename = "Unknown-candle"
-
-            outputdir = "%s_%s_SimpleMemReport" % (candFilename,stepname1)
-            outputdir = os.path.join(outdir,outputdir)
-
-            if not os.path.exists(outputdir):
-                os.mkdir(outputdir)
+        if   CandFname.has_key(candle):
+            candFilename = CandFname[candle]
+        elif CandFname.has_key(logcandle):
+            candFilename = CandFname[logcandle]
+        else:
+            print "%s is an unknown candle!"%candle
+            candFilename = "Unknown-candle"
+            
+        outputdir = "%s_%s_SimpleMemReport" % (candFilename,stepname1)
+        outputdir = os.path.join(outdir,outputdir)
+        
+        if not os.path.exists(outputdir):
+            os.mkdir(outputdir)
 
             #print the graphs as files :)
 
-            newrootfile = createROOT(outputdir,rootfilename)                
-            
-            vsize_canvas.Print(       os.path.join(outputdir,"vsize_graphs.gif"), "gif")
-            rss_canvas.Print(         os.path.join(outputdir,"rss_graphs.gif"  ), "gif")
-            vsize_change_canvas.Print(os.path.join(outputdir,"vsize_change.gif"), "gif")
-            rss_change_canvas.Print(  os.path.join(outputdir,"rss_change.gif"  ), "gif")
-            # write it on file
-            map(lambda x: x.Write(), [vsize_graph1,vsize_graph2, rss_graph1, rss_graph2, vsizePerfDiffgraph, rssPerfDiffgraph])
-            map(lambda x: x.Write(), [vsize_canvas,rss_canvas,vsize_change_canvas,rss_change_canvas])
-            newrootfile.Close()
-        else:
-            # we have to do this if we are running the application standalone
-            # For some reason it will not draw some graphs at all if there is more than
-            # one step.
-            # If we wait between iterations of this loop the graphs will be drawn correctly.
-            # Perhaps a graphics buffer problem with ROOT?
-            # Perhaps a garbage collection problem in python? (Doubt it)
-            canvases.append(rss_canvas)
-            canvases.append(vsize_canvas)
-            canvases.append(vsize_change_canvas)
-            canvases.append(rss_change_canvas)            
-            time.sleep(5.0)
+        newrootfile = createROOT(outputdir,rootfilename)                
+        
+        vsize_canvas.Print(       os.path.join(outputdir,"vsize_graphs.gif"), "gif")
+        rss_canvas.Print(         os.path.join(outputdir,"rss_graphs.gif"  ), "gif")
+        vsize_change_canvas.Print(os.path.join(outputdir,"vsize_change.gif"), "gif")
+        rss_change_canvas.Print(  os.path.join(outputdir,"rss_change.gif"  ), "gif")
+        # write it on file
+        map(lambda x: x.Write(), [vsize_graph1,vsize_graph2, rss_graph1, rss_graph2, vsizePerfDiffgraph, rssPerfDiffgraph])
+        map(lambda x: x.Write(), [vsize_canvas,rss_canvas,vsize_change_canvas,rss_change_canvas])
+        newrootfile.Close()
+    else:
+        # we have to do this if we are running the application standalone
+        # For some reason it will not draw some graphs at all if there is more than
+        # one step.
+        # If we wait between iterations of this loop the graphs will be drawn correctly.
+        # Perhaps a graphics buffer problem with ROOT?
+        # Perhaps a garbage collection problem in python? (Doubt it)
+        canvases.append(rss_canvas)
+        canvases.append(vsize_canvas)
+        canvases.append(vsize_change_canvas)
+        canvases.append(rss_change_canvas)            
+        time.sleep(5.0)
 
-        i += 1
+    #Eliminated the while loop!    
+    #i += 1
         
     #
     # Create a one dimensional function and draw it
@@ -877,6 +950,8 @@ def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=T
     leg      = ROOT.TLegend(0.6,0.99,0.89,0.8)
     histoleg = ROOT.TLegend(0.5,0.8,0.89,0.89)    
 
+    #
+    
     (graph1,histo1,mean1) = newGraphAndHisto(histoleg,leg,npoints1,nbins1,min_val1,max_val1,data1,0,prevrev)
     hsStack.Add(histo1)
     (graph2,histo2,mean2) = newGraphAndHisto(histoleg,leg,npoints2,nbins2,min_val2,max_val2,data2,1,prevrev)
@@ -938,7 +1013,10 @@ def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=T
     
 def rmtree(path):
     try:
-        os.remove(path)
+        #os.remove(path)
+        #Brute force solution:
+        RemoveCmd="rm -Rf %s"%path
+        os.system(RemoveCmd)
     except OSError, detail:
         if detail.errno == 39:
             try:
@@ -957,7 +1035,7 @@ def rmtree(path):
                 print detail
             os.remove(path)
 
-def perfreport(perftype,file1,file2,outdir):
+def perfreport(perftype,file1,file2,outdir,IgProfMemopt=""):
     src = ""
     try:
         src = os.environ["CMSSW_SEARCH_PATH"]
@@ -975,15 +1053,15 @@ def perfreport(perftype,file1,file2,outdir):
     else:               # Callgrind
         proftype = "-ff"
 
-    cmssw_base = ""
+    cmssw_release_base = ""
     cmssw_data = ""
     try:
-        cmssw_base = os.environ['CMSSW_BASE']
+        cmssw_release_base = os.environ['CMSSW__RELEASE_BASE']
         cmssw_data = os.environ['CMSSW_DATA_PATH']
     except KeyError, detail:
         raise PerfReportErr
 
-    xmlfile = os.path.join(cmssw_base,"src","Validation","Performance","doc","regress.xml")
+    xmlfile = os.path.join(cmssw_release_base,"src","Validation","Performance","doc","regress.xml")
 
     prRoot = "/afs/cern.ch/user/g/gbenelli/public/PerfReport2/2.0.1"
 
@@ -998,7 +1076,7 @@ def perfreport(perftype,file1,file2,outdir):
 
     tmpdir  = tmp.mkdtemp(prefix=os.path.join(outdir,"tmp"))
 
-    perfcmd = "%s %s -c %s -t%s -i %s -r %s -o %s" % (os.path.join(prRoot,"bin","perfreport"),proftype,xmlfile,tmpdir,file2,file1,outdir)            
+    perfcmd = "%s %s %s -c %s -t%s -i %s -r %s -o %s" % (os.path.join(prRoot,"bin","perfreport"),proftype,IgProfMemopt,xmlfile,tmpdir,file2,file1,outdir)            
     cmd     = "tcsh -c \"cd %s ; eval `scramv1 runtime -csh` ; cd - ;source %s/etc/profile.d/init.csh ; %s\"" % (loc,prRoot,perfcmd)
     
     process  = os.popen(cmd)
@@ -1006,10 +1084,10 @@ def perfreport(perftype,file1,file2,outdir):
     exitstat = process.close()
 
     try:
-        rmtree(tmpdir)        
-        os.rmdir(tmpdir)
+        rmtree(tmpdir)        #Brute force solution rm -RF tmpdir done in rmtree()
+        #os.rmdir(tmpdir)
     except IOError, detail:
-        print "WARNING: Could not remove dir because %s" % detail                
+        print "WARNING: Could not remove dir because IO%s" % detail                
     except OSError, detail:
         print "WARNING: Could not remove dir because %s" % detail                
 
@@ -1038,7 +1116,7 @@ def ungzip(inf,outh):
 def ungzip2(inf,out):
     os.system("gzip -c -d %s > %s" % (inf,out)) 
 
-def cmpIgProfReport(outdir,file1,file2):
+def cmpIgProfReport(outdir,file1,file2,IgProfMemOpt=""):
     (tfile1, tfile2) = ("", "")
     try:
         # don't make temp files in /tmp because it's never bloody big enough
@@ -1051,7 +1129,7 @@ def cmpIgProfReport(outdir,file1,file2):
         ungzip2(file1,tfile1)
         ungzip2(file2,tfile2)        
 
-        perfreport(1,tfile1,tfile2,outdir)
+        perfreport(1,tfile1,tfile2,outdir,IgProfMemOpt)
 
         os.remove(tfile1)
         os.remove(tfile2)
@@ -1075,21 +1153,21 @@ def cmpCallgrindReport(outdir,file1,file2):
 def _main():
     outdir = os.getcwd()
     
-    (file1,file2,secsperbin,reporttype)  = getParameters()
+    (file1,file2,secsperbin,reporttype,IgProfMemOptions)  = getParameters()
 
     try:
         if   reporttype == "timing":
             rootfilename = "timingrep-regression.root"
-            cmpTimingReport(rootfilename ,outdir,file1,file2,secsperbin,False)
+            cmpTimingReport(rootfilename ,outdir,file1,file2,secsperbin,True)
         elif reporttype == "simplememory":
             rootfilename = "simpmem-regression.root"
-            cmpSimpMemReport(rootfilename,outdir,file1,file2,secsperbin,False)
+            cmpSimpMemReport(rootfilename,outdir,file1,file2,secsperbin,True)
         elif reporttype == "edmsize":
             cmpEdmSizeReport(outdir,file1,file2)
         elif reporttype == "callgrind":
             cmpCallgrindReport(outdir,file1,file2)
         elif reporttype == "igprof":
-            cmpIgProfReport(outdir,file1,file2)            
+            cmpIgProfReport(outdir,file1,file2,IgProfMemOptions)            
     except TimingParseErr, detail:
         print "WARNING: Could not parse data from Timing report file %s; not performing regression" % detail.message
     except SimpMemParseErr, detail:

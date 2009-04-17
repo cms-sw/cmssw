@@ -100,10 +100,10 @@ float EcalClusterLazyTools::e1x5( const reco::BasicCluster &cluster )
 }
 
 
-float EcalClusterLazyTools::e5x1( const reco::BasicCluster &cluster )
-{
-        return EcalClusterTools::e5x1( cluster, getEcalRecHitCollection(cluster), topology_ );
-}
+//float EcalClusterLazyTools::e5x1( const reco::BasicCluster &cluster )
+//{
+  //return EcalClusterTools::e5x1( cluster, getEcalRecHitCollection(cluster), topology_ );
+	//}
 
 
 float EcalClusterLazyTools::e2x2( const reco::BasicCluster &cluster )

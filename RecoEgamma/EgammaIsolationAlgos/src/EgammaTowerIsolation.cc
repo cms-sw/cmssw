@@ -22,19 +22,16 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace ROOT::Math::VectorUtil ;
 
 EgammaTowerIsolation::EgammaTowerIsolation (double extRadius,
 				      double intRadius,
 				      double etLow,
-				      signed int depth,
 				      const CaloTowerCollection* towercollection)   :
   extRadius_(extRadius),
   intRadius_(intRadius),
   etLow_(etLow),
-  depth_(depth),
   towercollection_(towercollection)  
 {
 }
@@ -60,14 +57,7 @@ double EgammaTowerIsolation::getTowerEtSum(const reco::Candidate* photon) const
   //loop over tracks
   for(CaloTowerCollection::const_iterator trItr = towercollection_->begin(); trItr != towercollection_->end(); ++trItr){
     
-    double this_pt=0;
-    switch(depth_){
-    case AllDepths: this_pt = trItr->hadEt();break;
-    case Depth1: this_pt = trItr->ietaAbs()<18 || trItr->ietaAbs()>29 ? trItr->hadEt() : trItr->hadEnergyHeInnerLayer()*sin(trItr->p4().theta());break;
-    case Depth2: this_pt = trItr->hadEnergyHeOuterLayer()*sin(trItr->p4().theta());break;
-    default: throw cms::Exception("Configuration Error") << "EgammaTowerIsolation: Depth " << depth_ << " not known. "; break;
-    }
-
+    double this_pt  = trItr->hadEt();
     if ( this_pt < etLow_ ) 
       continue ;  
     

@@ -12,7 +12,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.load("Configuration.StandardSequences.FakeConditions_cff")
-process.load("Configuration.StandardSequences.Geometry_cff import")
+process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("Validation.MuonIdentification.muonIdVal_cff")
 process.muonIdVal.makeEnergyPlots = cms.untracked.bool(True)

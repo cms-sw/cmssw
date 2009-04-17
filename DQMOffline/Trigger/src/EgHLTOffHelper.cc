@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -20,7 +21,8 @@ void EgHLTOffHelper::setup(const edm::ParameterSet& conf)
 
   ecalRecHitsEBTag_ = conf.getParameter<edm::InputTag>("BarrelRecHitCollection");
   ecalRecHitsEETag_ = conf.getParameter<edm::InputTag>("EndcapRecHitCollection");
-
+  
+  caloJetsTag_ = conf.getParameter<edm::InputTag>("CaloJetCollection");
  
 
   cuts_.setHighNrgy();
@@ -38,7 +40,7 @@ void EgHLTOffHelper::fillEgHLTOffEleVec(edm::Handle<reco::GsfElectronCollection>
     //for now use dummy isolation data
     EgHLTOffEle::IsolData isolData;
     isolData.nrTrks=1;
-    isolData.ptTrks=1.6;
+    isolData.ptTrks=1.;
     isolData.em= 0.42;
     isolData.had=0.42;
     
@@ -46,19 +48,32 @@ void EgHLTOffHelper::fillEgHLTOffEleVec(edm::Handle<reco::GsfElectronCollection>
     //edm::LogInfo("EgHLTOffHelper") << "getting clus shape "<<std::endl;
     //const reco::ClusterShape* clusShape = getClusterShape(&*gsfIter);
     //edm::LogInfo("EgHLTOffHelper") << "clus shape "<<clusShape<<std::endl;
-
-    double sigmaEtaEta = 0.;
+    EgHLTOffEle::ClusShapeData clusShapeData;
+    clusShapeData.sigmaEtaEta=999.;
+    //    clusShapeData.sigmaIEtaIEta=999.;
+    //clusShapeData.e2x5MaxOver5x5=-1.; //not defined in endcap yet
     //need to figure out if its in the barrel or endcap
     //classification variable is unrelyable so get the first hit of the cluster and figure out if its barrel or endcap
     const reco::BasicCluster& seedClus = *(gsfIter->superCluster()->seed());
-    const DetId& seedDetId = seedClus.getHitsByDetId()[0]; //note this may not actually be the seed hit but it doesnt matter because all hits will be in the barrel OR endcap (it is also incredably inefficient as it getHitsByDetId passes the vector by value not reference
+    const DetId seedDetId = seedClus.getHitsByDetId()[0]; //note this may not actually be the seed hit but it doesnt matter because all hits will be in the barrel OR endcap (it is also incredably inefficient as it getHitsByDetId passes the vector by value not reference
     if(seedDetId.subdetId()==EcalBarrel){
-      sigmaEtaEta = sqrt(EcalClusterTools::covariances(seedClus,ebRecHits_,caloTopology_,caloGeom_)[0]);
+      std::vector<float> stdCov = EcalClusterTools::covariances(seedClus,ebRecHits_,caloTopology_,caloGeom_);
+      // std::vector<float> crysCov = EcalClusterTools::crystalCovariances(seedClus,ebRecHits_,caloTopology_,caloGeom_);
+      clusShapeData.sigmaEtaEta = sqrt(stdCov[0]);
+      //  clusShapeData.sigmaIEtaIEta =  sqrt(crysCov[0]);
+      clusShapeData.sigmaPhiPhi = sqrt(stdCov[2]);
+      //clusShapeData.sigmaIPhiIPhi =  sqrt(crysCov[2]);
+       
+      
+     
     }else{
-      sigmaEtaEta = sqrt(EcalClusterTools::covariances(seedClus,eeRecHits_,caloTopology_,caloGeom_)[0]);
+     std::vector<float> stdCov = EcalClusterTools::covariances(seedClus,eeRecHits_,caloTopology_,caloGeom_);
+     clusShapeData.sigmaEtaEta = sqrt(stdCov[0]);  
+     clusShapeData.sigmaPhiPhi = sqrt(stdCov[2]);
+     
     }
 
-    egHLTOffEles.push_back(EgHLTOffEle(*gsfIter,sigmaEtaEta,isolData));
+    egHLTOffEles.push_back(EgHLTOffEle(*gsfIter,clusShapeData,isolData));
     
     //now we would like to set the cut results
     EgHLTOffEle& ele =  egHLTOffEles.back();
@@ -97,6 +112,10 @@ void EgHLTOffHelper::getHandles(const edm::Event& event,const edm::EventSetup& s
   event.getByLabel(ecalRecHitsEETag_,ecalEndcapRecHitsHandle);
   eeRecHits_ = ecalEndcapRecHitsHandle.product();
 
+  edm::Handle<reco::CaloJetCollection> caloJetsHandle;
+  event.getByLabel(caloJetsTag_,caloJetsHandle);
+  jets_ = caloJetsHandle.product();
+  
   edm::ESHandle<CaloGeometry> geomHandle;
   setup.get<CaloGeometryRecord>().get(geomHandle);
   caloGeom_ = geomHandle.product();

@@ -16,13 +16,13 @@ void plotHitReso();
 void plotWWWHitReso(int dimSwitch = 1, TString nameDir = "");
 void draw(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHit, bool ThreeIn1, int form);
 void plot1DResiduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1);
-void plot2DResiduals(HRes2DHit * h1);
+void plot2DResiduals(HRess2DHit * h1);
 
 void plot4DResiduals(HRes4DHit * h1);
 void plot4DResVsEta(HRes4DHit * h1);
 void plot4DResVsPhi(HRes4DHit * h1);
 
-void plot2DAngles(HRes2DHit * h1, bool ThreeIn1);
+void plot2DAngles(HRess2DHit * h1, bool ThreeIn1);
 void plot4DAngles(HRes4DHit * h1, bool ThreeIn1);
 
 // Read user input
@@ -36,7 +36,7 @@ bool setPreferences(bool& do1DRecHit, bool& do2DRecHit, bool& do2DSLPhiRecHit, b
 void plotHitReso(){
   // Load needed macros and files
   gROOT->LoadMacro("macros.C");     // Load service macros
-  gROOT->LoadMacro("../plugins/Histograms.h"); // Load definition of histograms
+  gROOT->LoadMacro("../src/Histograms.h"); // Load definition of histograms
 
   // Get the style
   TStyle * style = getStyle("tdr");

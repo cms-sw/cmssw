@@ -23,7 +23,6 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include <TF1.h>
 
 class SiStripCalibLorentzAngle : public ConditionDBWriter<SiStripLorentzAngle>
 {
@@ -42,9 +41,7 @@ class SiStripCalibLorentzAngle : public ConditionDBWriter<SiStripLorentzAngle>
   edm::ESHandle<MagneticField> magfield_;
   typedef std::map <unsigned int, MonitorElement*> histomap;
   histomap histos;
-  TF1 *FitFunction;
-  TF1 *FitFunction2IT;
-  float gphi, geta, gz;
+  double gphi, geta;
   const GlobalPoint gposition;
   
   std::map< uint32_t, float> detid_la;

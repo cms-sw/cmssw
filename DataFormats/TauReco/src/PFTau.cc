@@ -9,6 +9,8 @@ PFTau::PFTau(){
   PFCandidateRef pfLead;
   TrackRef tmp;
   leadPFChargedHadrCand_=pfLead;
+  leadPFNeutralCand_=pfLead;
+  leadPFCand_=pfLead;
   leadPFChargedHadrCandsignedSipt_=NAN;
   
   PFCandidateRefVector pfTmp;
@@ -43,6 +45,8 @@ PFTau::PFTau(Charge q,const LorentzVector& p4,const Point& vtx) : BaseTau(q,p4,v
 TrackRef tmp;
   leadPFChargedHadrCand_=pfLead;
   leadPFChargedHadrCandsignedSipt_=NAN;
+  leadPFNeutralCand_=pfLead;
+ leadPFCand_=pfLead;
   
   PFCandidateRefVector pfTmp;
   selectedSignalPFChargedHadrCands_=pfTmp;
@@ -80,7 +84,13 @@ const PFTauTagInfoRef& PFTau::pfTauTagInfoRef()const{return PFTauTagInfoRef_;}
 void PFTau::setpfTauTagInfoRef(const PFTauTagInfoRef x) {PFTauTagInfoRef_=x;}
     
 const PFCandidateRef& PFTau::leadPFChargedHadrCand()const {return leadPFChargedHadrCand_;}   
+const PFCandidateRef& PFTau::leadPFNeutralCand()const {return leadPFNeutralCand_;}   
+const PFCandidateRef& PFTau::leadPFCand()const {return leadPFCand_;}   
+
 void PFTau::setleadPFChargedHadrCand(const PFCandidateRef& myLead) { leadPFChargedHadrCand_=myLead;}   
+void PFTau::setleadPFNeutralCand(const PFCandidateRef& myLead) { leadPFNeutralCand_=myLead;}   
+void PFTau::setleadPFCand(const PFCandidateRef& myLead) { leadPFCand_=myLead;}   
+
 float PFTau::leadPFChargedHadrCandsignedSipt()const{return leadPFChargedHadrCandsignedSipt_;}
 void PFTau::setleadPFChargedHadrCandsignedSipt(const float& x){leadPFChargedHadrCandsignedSipt_=x;}
 

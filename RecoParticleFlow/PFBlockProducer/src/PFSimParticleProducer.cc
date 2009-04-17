@@ -76,6 +76,14 @@ PFSimParticleProducer::PFSimParticleProducer(const edm::ParameterSet& iConfig)
     = iConfig.getParameter<InputTag>("sim");
 
   //retrieving collections for MC Truth Matching
+
+  //modif-beg
+  inputTagFamosSimHits_ 
+    = iConfig.getUntrackedParameter<InputTag>("famosSimHits");
+  mctruthMatchingInfo_ = 
+    iConfig.getUntrackedParameter<bool>("MCTruthMatchingInfo",false);
+  //modif-end
+
   inputTagRecTracks_ 
     = iConfig.getParameter<InputTag>("RecTracks");
   inputTagEcalRecHitsEB_ 
@@ -123,85 +131,97 @@ void PFSimParticleProducer::produce(Event& iEvent,
   
   LogDebug("PFSimParticleProducer")<<"START event: "<<iEvent.id().event()
 				   <<" in run "<<iEvent.id().run()<<endl;
+ 
+  //MC Truth Matching only with Famos and UnFoldedMode option to true!!
+
+  //vector to store the trackIDs of rectracks corresponding
+  //to the simulated particle.
+  std::vector<unsigned> recTrackSimID;
   
-  
-    //In order to know which simparticule contribute to 
+  //In order to know which simparticule contribute to 
   //a given Ecal RecHit energy, we need to access 
   //the PCAloHit from FastSim. 
-
+  
   typedef std::pair<double, unsigned> hitSimID;
   typedef std::list< std::pair<double, unsigned> >::iterator ITM;
   std::vector< std::list <hitSimID> > caloHitsEBID(62000);
   std::vector<double> caloHitsEBTotE(62000,0.0);
-
-  //getting the PCAloHit
-  edm::Handle<edm::PCaloHitContainer> pcalohits;
-  bool found_phit 
-    = iEvent.getByLabel("famosSimHits","EcalHitsEB",
-			pcalohits);
   
-  if(!found_phit) {
-    ostringstream err;
-    err<<"could not find pcaloHit "<<"famosSimHits:EcalHitsEB";
-    LogError("PFSimParticleProducer")<<err.str()<<endl;
+  if(mctruthMatchingInfo_){
+     
+    //getting the PCAloHit
+    edm::Handle<edm::PCaloHitContainer> pcalohits;
+    //   bool found_phit 
+    //     = iEvent.getByLabel("famosSimHits","EcalHitsEB",
+    // 			pcalohits);  
+    //modif-beg
+    bool found_phit 
+      = iEvent.getByLabel(inputTagFamosSimHits_,pcalohits);
+    //modif-end
     
-    throw cms::Exception( "MissingProduct", err.str());
-  }
-  else {
-    assert( pcalohits.isValid() );
-
-//     cout << "PFSimParticleProducer: number of pcalohits="
-// 	 << pcalohits->size() << endl;
-
-    edm::PCaloHitContainer::const_iterator it    
-      = pcalohits.product()->begin();
-    edm::PCaloHitContainer::const_iterator itend 
-      = pcalohits.product()->end();
-
-    //loop on the PCaloHit from FastSim Calorimetry
-    for(;it!=itend;++it)
-      {
-	EBDetId detid(it->id());
-	
-// 	cout << detid << " " << detid.rawId()
-// 	     << " " <<  detid.hashedIndex() 
-// 	     << " " << it->energy() 
-// 	     << " " << it->id() 
-// 	     << " trackId=" 
-// 	     << it->geantTrackId() 
-// 	     << endl;
-	
-	if(it->energy() > 0.0) {
-	  std::pair<double, unsigned> phitsimid
-	    = make_pair(it->energy(),it->geantTrackId());
-	  caloHitsEBID[detid.hashedIndex()].push_back(phitsimid);
-	  caloHitsEBTotE[detid.hashedIndex()] 
-	    += it->energy(); //summing pcalhit energy	  
-	}//energy > 0
-	
-      }//loop PcaloHits    
-  }//pcalohit handle access
-
-  //Retrieving the PFRecTrack collection for
-  //Monte Carlo Truth Matching tool
-  Handle< reco::PFRecTrackCollection > recTracks;
-  try{      
-    LogDebug("PFSimParticleProducer")<<"getting PFRecTracks"<<endl;
-    iEvent.getByLabel(inputTagRecTracks_, recTracks);
+    if(!found_phit) {
+      ostringstream err;
+      err<<"could not find pcaloHit "<<"famosSimHits:EcalHitsEB";
+      LogError("PFSimParticleProducer")<<err.str()<<endl;
+      
+      throw cms::Exception( "MissingProduct", err.str());
+    }
+    else {
+      assert( pcalohits.isValid() );
+      
+      //     cout << "PFSimParticleProducer: number of pcalohits="
+      // 	 << pcalohits->size() << endl;
+      
+      edm::PCaloHitContainer::const_iterator it    
+	= pcalohits.product()->begin();
+      edm::PCaloHitContainer::const_iterator itend 
+	= pcalohits.product()->end();
+      
+      //loop on the PCaloHit from FastSim Calorimetry
+      for(;it!=itend;++it)
+	{
+	  EBDetId detid(it->id());
+	  
+	  // 	cout << detid << " " << detid.rawId()
+	  // 	     << " " <<  detid.hashedIndex() 
+	  // 	     << " " << it->energy() 
+	  // 	     << " " << it->id() 
+	  // 	     << " trackId=" 
+	  // 	     << it->geantTrackId() 
+	  // 	     << endl;
+	  
+	  if(it->energy() > 0.0) {
+	    std::pair<double, unsigned> phitsimid
+	      = make_pair(it->energy(),it->geantTrackId());
+	    caloHitsEBID[detid.hashedIndex()].push_back(phitsimid);
+	    caloHitsEBTotE[detid.hashedIndex()] 
+	      += it->energy(); //summing pcalhit energy	  
+	  }//energy > 0
+	  
+	}//loop PcaloHits    
+    }//pcalohit handle access
     
-  } catch (cms::Exception& err) { 
-    LogError("PFSimParticleProducer")<<err
-				     <<" cannot get collection "
-				     <<"particleFlowBlock"<<":"
-				     <<""
-				     <<endl;
-  }//pfrectrack handle access
+    //Retrieving the PFRecTrack collection for
+    //Monte Carlo Truth Matching tool
+    Handle< reco::PFRecTrackCollection > recTracks;
+    try{      
+      LogDebug("PFSimParticleProducer")<<"getting PFRecTracks"<<endl;
+      iEvent.getByLabel(inputTagRecTracks_, recTracks);
+      
+    } catch (cms::Exception& err) { 
+      LogError("PFSimParticleProducer")<<err
+				       <<" cannot get collection "
+				       <<"particleFlowBlock"<<":"
+				       <<""
+				       <<endl;
+    }//pfrectrack handle access
+    
+    //getting the simID corresponding to 
+    //each of the PFRecTracks
+    getSimIDs( recTracks, recTrackSimID );
+    
+  }//mctruthMatchingInfo_ //modif
   
-  //getting the simID corresponding to 
-  //each of the PFRecTracks
-  std::vector<unsigned> recTrackSimID;
-  getSimIDs( recTracks, recTrackSimID );
-
   // deal with true particles 
   if( processParticles_) {
 
@@ -258,83 +278,87 @@ void PFSimParticleProducer::produce(Event& iEvent,
 // 	   << " -------------------------------------" << endl;
 
       //GETTING THE TRACK ID
-      unsigned recTrackID = 99999;
-      for(unsigned lo=0; lo<recTrackSimID.size(); 
-	  lo++) {
-	if( i == recTrackSimID[lo] ) {
-// 	  cout << "Corresponding Rec Track " 
-// 	       << lo << endl;
-	  recTrackID = lo;
-	}//match track
-      }//loop rectrack
-//       if( recTrackID == 99999 ) 
-// 	cout << "Sim Track not reconstructed pT=" <<  
-// 	  fst.momentum().pt() << endl;
+      unsigned         recTrackID = 99999;
+      vector<unsigned> recHitContrib; //modif
+      vector<double>   recHitContribFrac; //modif
 
-      // get the ecalBarrel rechits for MC truth matching tool
-      vector<unsigned> recHitContrib;
-      vector<double>   recHitContribFrac;
+      if(mctruthMatchingInfo_){ //modif
 
-      edm::Handle<EcalRecHitCollection> rhcHandle;
-      bool found = iEvent.getByLabel(inputTagEcalRecHitsEB_, 
-				     rhcHandle);
-      if(!found) {
-	ostringstream err;
-	err<<"could not find rechits "<< inputTagEcalRecHitsEB_;
-	LogError("PFSimParticleProducer")<<err.str()<<endl;
+	for(unsigned lo=0; lo<recTrackSimID.size(); 
+	    lo++) {
+	  if( i == recTrackSimID[lo] ) {
+// 	    cout << "Corresponding Rec Track " 
+// 		 << lo << endl;
+	    recTrackID = lo;
+	  }//match track
+	}//loop rectrack
+// 	if( recTrackID == 99999 ) 
+// 	  cout << "Sim Track not reconstructed pT=" <<  
+// 	    fst.momentum().pt() << endl;
 	
-	throw cms::Exception( "MissingProduct", err.str());
-      }
-      else {
-	assert( rhcHandle.isValid() );
-// 	cout << "PFSimParticleProducer: number of rechits="
-// 	     << rhcHandle->size() << endl;
-	
-	EBRecHitCollection::const_iterator it_rh    
-	  = rhcHandle.product()->begin();
-	EBRecHitCollection::const_iterator itend_rh 
-	  = rhcHandle.product()->end();
-
-	for(;it_rh!=itend_rh;++it_rh)
-	  {
-	    unsigned rhit_hi 
-	      = EBDetId(it_rh->id()).hashedIndex();
- 	    EBDetId detid(it_rh->id());
+	// get the ecalBarrel rechits for MC truth matching tool
+	edm::Handle<EcalRecHitCollection> rhcHandle;
+	bool found = iEvent.getByLabel(inputTagEcalRecHitsEB_, 
+				       rhcHandle);
+	if(!found) {
+	  ostringstream err;
+	  err<<"could not find rechits "<< inputTagEcalRecHitsEB_;
+	  LogError("PFSimParticleProducer")<<err.str()<<endl;
+	  
+	  throw cms::Exception( "MissingProduct", err.str());
+	}
+	else {
+	  assert( rhcHandle.isValid() );
+// 	  cout << "PFSimParticleProducer: number of rechits="
+// 	       << rhcHandle->size() << endl;
+	  
+	  EBRecHitCollection::const_iterator it_rh    
+	    = rhcHandle.product()->begin();
+	  EBRecHitCollection::const_iterator itend_rh 
+	    = rhcHandle.product()->end();
+	  
+	  for(;it_rh!=itend_rh;++it_rh)
+	    {
+	      unsigned rhit_hi 
+		= EBDetId(it_rh->id()).hashedIndex();
+	      EBDetId detid(it_rh->id());
 // 	    cout << detid << " " << detid.rawId()
 // 		 << " " <<  detid.hashedIndex() 
 // 		 << " " << it_rh->energy() << endl;
 	    
-	    ITM it_phit    = caloHitsEBID[rhit_hi].begin();
-	    ITM itend_phit = caloHitsEBID[rhit_hi].end();    
-	    for(;it_phit!=itend_phit;++it_phit)
-	      {
-		if(i == it_phit->second)
-		  {
-		    //Alex (08/10/08) TO BE REMOVED, eliminating
-		    //duplicated rechits
-		    bool alreadyin = false;
-		    for( unsigned ihit = 0; ihit < recHitContrib.size(); 
-			 ++ihit )
-		      if(detid.rawId() == recHitContrib[ihit]) 
-			alreadyin = true;
-		    
-		    if(!alreadyin){		
-		      double pcalofraction = 0.0;
-		      if(caloHitsEBTotE[rhit_hi] != 0.0)
-			pcalofraction 
-			  = (it_phit->first/caloHitsEBTotE[rhit_hi])*100.0;
+	      ITM it_phit    = caloHitsEBID[rhit_hi].begin();
+	      ITM itend_phit = caloHitsEBID[rhit_hi].end();    
+	      for(;it_phit!=itend_phit;++it_phit)
+		{
+		  if(i == it_phit->second)
+		    {
+		      //Alex (08/10/08) TO BE REMOVED, eliminating
+		      //duplicated rechits
+		      bool alreadyin = false;
+		      for( unsigned ihit = 0; ihit < recHitContrib.size(); 
+			   ++ihit )
+			if(detid.rawId() == recHitContrib[ihit]) 
+			  alreadyin = true;
 		      
-		      //store info
-		      recHitContrib.push_back(it_rh->id());
-		      recHitContribFrac.push_back(pcalofraction);
-		    }//selected rechits	    
-		  }//matching
-	      }//loop pcalohit
+		      if(!alreadyin){		
+			double pcalofraction = 0.0;
+			if(caloHitsEBTotE[rhit_hi] != 0.0)
+			  pcalofraction 
+			    = (it_phit->first/caloHitsEBTotE[rhit_hi])*100.0;
+			
+			//store info
+			recHitContrib.push_back(it_rh->id());
+			recHitContribFrac.push_back(pcalofraction);
+		      }//selected rechits	    
+		    }//matching
+		}//loop pcalohit
+	      
+	    }//loop rechits
+	  
+	}//getting the rechits
 
-	  }//loop rechits
-	
-      }//getting the rechits
-      
+      }//mctruthMatchingInfo_ //modif
+
 //       cout << "This particule has " << recHitContrib.size() 
 // 	   << " rechit contribution" << endl;
 //       for( unsigned ih = 0; ih < recHitContrib.size(); ++ih )

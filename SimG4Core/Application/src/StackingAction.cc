@@ -20,7 +20,6 @@ StackingAction::StackingAction(const edm::ParameterSet & p): tracker(0),
   savePDandCinCalo    = p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversionsInCalo",false);
   savePDandCinMuon    = p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversionsInMuon",false);
   saveFirstSecondary  = p.getUntrackedParameter<bool>("SaveFirstLevelSecondary",false);
-  maxTrackTime        = p.getParameter<double>("MaxTrackTime")*ns;
 
   edm::LogInfo("SimG4CoreApplication") << "StackingAction initiated with"
 				       << " flag for saving decay products in "
@@ -70,11 +69,6 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
       int    pdg = std::abs(aTrack->GetDefinition()->GetPDGEncoding());
       if (pdg == 12 || pdg == 14 || pdg == 16 || pdg == 18) 
 	classification = fKill;
-    }
-    if (maxTrackTime>0.) {
-      if (aTrack->GetGlobalTime()>maxTrackTime) { 
-        classification = fKill;
-      }
     }
     LogDebug("SimG4CoreApplication") << "StackingAction:Classify Track "
 				     << aTrack->GetTrackID() << " Parent " 

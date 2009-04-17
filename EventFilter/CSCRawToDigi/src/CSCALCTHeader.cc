@@ -109,8 +109,10 @@ unsigned short CSCALCTHeader::nLCTChipRead() const {///header2006 method
     return header2006.nLCTChipRead();
   }
   else {
-    edm::LogError("CSCALCTHeader|CSCRawToDigi")
-      <<"How is nLCTChipRead() supposed to work for ALCTHeader2007?";
+    // nLCTChip obsolete in ALCT2007 format (email Andrey K. & Victor B., 20.10.2008)
+    // and we don't think anyone makes uses of this call.
+    //    edm::LogError("CSCALCTHeader|CSCRawToDigi")
+    //      <<"How is nLCTChipRead() supposed to work for ALCTHeader2007?";
   }
   return 0;
 }

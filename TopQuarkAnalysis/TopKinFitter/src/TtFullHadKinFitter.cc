@@ -1,5 +1,11 @@
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtFullHadKinFitter.h"
 
+//introduced to repair kinFit w/o resolutions from pat
+#include "TopQuarkAnalysis/TopObjectResolutions/interface/MET.h"
+#include "TopQuarkAnalysis/TopObjectResolutions/interface/Jet.h"
+#include "TopQuarkAnalysis/TopObjectResolutions/interface/Muon.h"
+#include "TopQuarkAnalysis/TopObjectResolutions/interface/Electron.h"
+
 #include "PhysicsTools/KinFitter/interface/TKinFitter.h"
 #include "PhysicsTools/KinFitter/interface/TAbsFitParticle.h"
 #include "PhysicsTools/KinFitter/interface/TFitConstraintM.h"
@@ -71,71 +77,83 @@ TtHadEvtSolution TtFullHadKinFitter::addKinFitInfo(TtHadEvtSolution * asol)
   TLorentzVector hadbbarVec(fitsol.getCalHadbbar().px(), fitsol.getCalHadbbar().py(),
 			    fitsol.getCalHadbbar().pz(), fitsol.getCalHadbbar().energy());
   // jet resolutions
-  if (jetParam_ == EMom) {
-    m1b(0,0) = pow(fitsol.getCalHadp().resolutionA(), 2);
-    m1b(1,1) = pow(fitsol.getCalHadp().resolutionB(), 2);
-    m1b(2,2) = pow(fitsol.getCalHadp().resolutionC(), 2);
-    m1b(3,3) = pow(fitsol.getCalHadp().resolutionD(), 2);
-    m2b(0,0) = pow(fitsol.getCalHadq().resolutionA(), 2); 
-    m2b(1,1) = pow(fitsol.getCalHadq().resolutionB(), 2); 
-    m2b(2,2) = pow(fitsol.getCalHadq().resolutionC(), 2);
-    m2b(3,3) = pow(fitsol.getCalHadq().resolutionD(), 2);
-    m3b(0,0) = pow(fitsol.getCalHadb().resolutionA(), 2); 
-    m3b(1,1) = pow(fitsol.getCalHadb().resolutionB(), 2); 
-    m3b(2,2) = pow(fitsol.getCalHadb().resolutionC(), 2);
-    m3b(3,3) = pow(fitsol.getCalHadb().resolutionD(), 2);
-    m4b(0,0) = pow(fitsol.getCalHadj().resolutionA(), 2);
-    m4b(1,1) = pow(fitsol.getCalHadj().resolutionB(), 2);
-    m4b(2,2) = pow(fitsol.getCalHadj().resolutionC(), 2);
-    m4b(3,3) = pow(fitsol.getCalHadj().resolutionD(), 2);
-    m5b(0,0) = pow(fitsol.getCalHadk().resolutionA(), 2); 
-    m5b(1,1) = pow(fitsol.getCalHadk().resolutionB(), 2); 
-    m5b(2,2) = pow(fitsol.getCalHadk().resolutionC(), 2);
-    m5b(3,3) = pow(fitsol.getCalHadk().resolutionD(), 2);
-    m6b(0,0) = pow(fitsol.getCalHadbbar().resolutionA(), 2); 
-    m6b(1,1) = pow(fitsol.getCalHadbbar().resolutionB(), 2); 
-    m6b(2,2) = pow(fitsol.getCalHadbbar().resolutionC(), 2);
-    m6b(3,3) = pow(fitsol.getCalHadbbar().resolutionD(), 2);
-  } else if (jetParam_ == EtEtaPhi) {
-    m1(0,0) = pow(fitsol.getCalHadp().resolutionEt(), 2);
-    m1(1,1) = pow(fitsol.getCalHadp().resolutionEta(), 2);
-    m1(2,2) = pow(fitsol.getCalHadp().resolutionPhi(), 2);
-    m2(0,0) = pow(fitsol.getCalHadq().resolutionEt(), 2); 
-    m2(1,1) = pow(fitsol.getCalHadq().resolutionEta(), 2); 
-    m2(2,2) = pow(fitsol.getCalHadq().resolutionPhi(), 2);
-    m3(0,0) = pow(fitsol.getCalHadb().resolutionEt(), 2); 
-    m3(1,1) = pow(fitsol.getCalHadb().resolutionEta(), 2); 
-    m3(2,2) = pow(fitsol.getCalHadb().resolutionPhi(), 2);
-    m4(0,0) = pow(fitsol.getCalHadj().resolutionEt(), 2);
-    m4(1,1) = pow(fitsol.getCalHadj().resolutionEta(), 2);
-    m4(2,2) = pow(fitsol.getCalHadj().resolutionPhi(), 2);
-    m5(0,0) = pow(fitsol.getCalHadk().resolutionEt(), 2); 
-    m5(1,1) = pow(fitsol.getCalHadk().resolutionEta(), 2); 
-    m5(2,2) = pow(fitsol.getCalHadk().resolutionPhi(), 2);
-    m6(0,0) = pow(fitsol.getCalHadbbar().resolutionEt(), 2); 
-    m6(1,1) = pow(fitsol.getCalHadbbar().resolutionEta(), 2); 
-    m6(2,2) = pow(fitsol.getCalHadbbar().resolutionPhi(), 2);
-  } else if (jetParam_ == EtThetaPhi) {
-    m1(0,0) = pow(fitsol.getCalHadp().resolutionEt(), 2);
-    m1(1,1) = pow(fitsol.getCalHadp().resolutionTheta(), 2);
-    m1(2,2) = pow(fitsol.getCalHadp().resolutionPhi(), 2);
-    m2(0,0) = pow(fitsol.getCalHadq().resolutionEt(), 2); 
-    m2(1,1) = pow(fitsol.getCalHadq().resolutionTheta(), 2); 
-    m2(2,2) = pow(fitsol.getCalHadq().resolutionPhi(), 2);
-    m3(0,0) = pow(fitsol.getCalHadb().resolutionEt(), 2); 
-    m3(1,1) = pow(fitsol.getCalHadb().resolutionTheta(), 2); 
-    m3(2,2) = pow(fitsol.getCalHadb().resolutionPhi(), 2);
-    m4(0,0) = pow(fitsol.getCalHadj().resolutionEt(), 2);
-    m4(1,1) = pow(fitsol.getCalHadj().resolutionTheta(), 2);
-    m4(2,2) = pow(fitsol.getCalHadj().resolutionPhi(), 2);
-    m5(0,0) = pow(fitsol.getCalHadk().resolutionEt(), 2); 
-    m5(1,1) = pow(fitsol.getCalHadk().resolutionTheta(), 2); 
-    m5(2,2) = pow(fitsol.getCalHadk().resolutionPhi(), 2);
-    m6(0,0) = pow(fitsol.getCalHadbbar().resolutionEt(), 2); 
-    m6(1,1) = pow(fitsol.getCalHadbbar().resolutionTheta(), 2); 
-    m6(2,2) = pow(fitsol.getCalHadbbar().resolutionPhi(), 2);
+  {
+    //FIXME this dirty hack needs a clean solution soon!
+    double q1pt  = fitsol.getCalHadp().pt (), q2pt  = fitsol.getCalHadq().pt ();
+    double q3pt  = fitsol.getCalHadj().pt (), q4pt  = fitsol.getCalHadk().pt ();
+    double b1pt  = fitsol.getCalHadb().pt (), b2pt  = fitsol.getCalHadbbar().pt ();
+
+    double q1eta = fitsol.getCalHadp().eta(), q2eta = fitsol.getCalHadq().eta();
+    double q3eta = fitsol.getCalHadj().eta(), q4eta = fitsol.getCalHadk().eta();
+    double b1eta = fitsol.getCalHadb().eta(), b2eta = fitsol.getCalHadbbar().eta();
+
+    res::HelperJet jetRes;
+    if (jetParam_ == EMom) {
+      m1b(0,0) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1b(1,1) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1b(2,2) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1b(3,3) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m2b(0,0) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2); 
+      m2b(1,1) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2); 
+      m2b(2,2) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2);
+      m2b(3,3) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2);
+      m3b(0,0) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2); 
+      m3b(1,1) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2); 
+      m3b(2,2) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2);
+      m3b(3,3) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2);
+      m4b(0,0) = pow(jetRes.pt (q3pt, q3eta, res::HelperJet::kUds), 2);
+      m4b(1,1) = pow(jetRes.pt (q3pt, q3eta, res::HelperJet::kUds), 2);
+      m4b(2,2) = pow(jetRes.pt (q3pt, q3eta, res::HelperJet::kUds), 2);
+      m4b(3,3) = pow(jetRes.pt (q3pt, q3eta, res::HelperJet::kUds), 2);
+      m5b(0,0) = pow(jetRes.pt (q4pt, q4eta, res::HelperJet::kUds), 2); 
+      m5b(1,1) = pow(jetRes.pt (q4pt, q4eta, res::HelperJet::kUds), 2); 
+      m5b(2,2) = pow(jetRes.pt (q4pt, q4eta, res::HelperJet::kUds), 2);
+      m5b(3,3) = pow(jetRes.pt (q4pt, q4eta, res::HelperJet::kUds), 2);
+      m6b(0,0) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2); 
+      m6b(1,1) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2); 
+      m6b(2,2) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2);
+      m6b(3,3) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2);
+    } else if (jetParam_ == EtEtaPhi) {
+      m1 (0,0) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1 (1,1) = pow(jetRes.eta(q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1 (2,2) = pow(jetRes.phi(q1pt, q1eta, res::HelperJet::kUds), 2);
+      m2 (0,0) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2); 
+      m2 (1,1) = pow(jetRes.eta(q2pt, q2eta, res::HelperJet::kUds), 2); 
+      m2 (2,2) = pow(jetRes.phi(q2pt, q2eta, res::HelperJet::kUds), 2);
+      m3 (0,0) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2); 
+      m3 (1,1) = pow(jetRes.eta(b1pt, b1eta, res::HelperJet::kB  ), 2); 
+      m3 (2,2) = pow(jetRes.phi(b1pt, b1eta, res::HelperJet::kB  ), 2);
+      m4 (0,0) = pow(jetRes.pt (q3pt, q3eta, res::HelperJet::kUds), 2);
+      m4 (1,1) = pow(jetRes.eta(q3pt, q3eta, res::HelperJet::kUds), 2);
+      m4 (2,2) = pow(jetRes.phi(q3pt, q3eta, res::HelperJet::kUds), 2);
+      m5 (0,0) = pow(jetRes.pt (q4pt, q4eta, res::HelperJet::kUds), 2); 
+      m5 (1,1) = pow(jetRes.eta(q4pt, q4eta, res::HelperJet::kUds), 2); 
+      m5 (2,2) = pow(jetRes.phi(q4pt, q4eta, res::HelperJet::kUds), 2);
+      m6 (0,0) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2); 
+      m6 (1,1) = pow(jetRes.eta(b2pt, b2eta, res::HelperJet::kB  ), 2); 
+      m6 (2,2) = pow(jetRes.phi(b2pt, b2eta, res::HelperJet::kB  ), 2);
+    } else if (jetParam_ == EtThetaPhi) {
+      m1 (0,0) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1 (1,1) = pow(jetRes.eta(q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1 (2,2) = pow(jetRes.phi(q1pt, q1eta, res::HelperJet::kUds), 2);
+      m2 (0,0) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2); 
+      m2 (1,1) = pow(jetRes.eta(q2pt, q2eta, res::HelperJet::kUds), 2); 
+      m2 (2,2) = pow(jetRes.phi(q2pt, q2eta, res::HelperJet::kUds), 2);
+      m3 (0,0) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2); 
+      m3 (1,1) = pow(jetRes.eta(b1pt, b1eta, res::HelperJet::kB  ), 2); 
+      m3 (2,2) = pow(jetRes.phi(b1pt, b1eta, res::HelperJet::kB  ), 2);
+      m4 (0,0) = pow(jetRes.pt (q3pt, q3eta, res::HelperJet::kUds), 2);
+      m4 (1,1) = pow(jetRes.eta(q3pt, q3eta, res::HelperJet::kUds), 2);
+      m4 (2,2) = pow(jetRes.phi(q3pt, q3eta, res::HelperJet::kUds), 2);
+      m5 (0,0) = pow(jetRes.pt (q4pt, q4eta, res::HelperJet::kUds), 2); 
+      m5 (1,1) = pow(jetRes.eta(q4pt, q4eta, res::HelperJet::kUds), 2); 
+      m5 (2,2) = pow(jetRes.phi(q4pt, q4eta, res::HelperJet::kUds), 2);
+      m6 (0,0) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2); 
+      m6 (1,1) = pow(jetRes.eta(b2pt, b2eta, res::HelperJet::kB  ), 2); 
+      m6 (2,2) = pow(jetRes.phi(b2pt, b2eta, res::HelperJet::kB  ), 2);
+    }
   }
-  
+
   // set the kinematics of the objects to be fitted
   fitHadp_->setIni4Vec(&hadpVec);
   fitHadq_->setIni4Vec(&hadqVec);
@@ -173,114 +191,117 @@ TtHadEvtSolution TtFullHadKinFitter::addKinFitInfo(TtHadEvtSolution * asol)
     pat::Particle aFitHadk(reco::LeafCandidate(0, math::XYZTLorentzVector(fitHadk_->getCurr4Vec()->X(), fitHadk_->getCurr4Vec()->Y(), fitHadk_->getCurr4Vec()->Z(), fitHadk_->getCurr4Vec()->E()), math::XYZPoint()));
     pat::Particle aFitHadbbar(reco::LeafCandidate(0, math::XYZTLorentzVector(fitHadbbar_->getCurr4Vec()->X(), fitHadbbar_->getCurr4Vec()->Y(), fitHadbbar_->getCurr4Vec()->Z(), fitHadbbar_->getCurr4Vec()->E()), math::XYZPoint()));
     
-    if (jetParam_ == EMom) {
-      TMatrixD Vp(4,4);  Vp  = (*fitHadp_->getCovMatrixFit()); 
-      TMatrixD Vq(4,4);  Vq  = (*fitHadq_->getCovMatrixFit()); 
-      TMatrixD Vbh(4,4); Vbh = (*fitHadb_->getCovMatrixFit()); 
-      TMatrixD Vj(4,4);  Vj  = (*fitHadj_->getCovMatrixFit()); 
-      TMatrixD Vk(4,4);  Vk  = (*fitHadk_->getCovMatrixFit()); 
-      TMatrixD Vbbar(4,4); Vbbar = (*fitHadbbar_->getCovMatrixFit()); 
+
+    // does not exist anymore in pat
+
+//     if (jetParam_ == EMom) {
+//       TMatrixD Vp(4,4);  Vp  = (*fitHadp_->getCovMatrixFit()); 
+//       TMatrixD Vq(4,4);  Vq  = (*fitHadq_->getCovMatrixFit()); 
+//       TMatrixD Vbh(4,4); Vbh = (*fitHadb_->getCovMatrixFit()); 
+//       TMatrixD Vj(4,4);  Vj  = (*fitHadj_->getCovMatrixFit()); 
+//       TMatrixD Vk(4,4);  Vk  = (*fitHadk_->getCovMatrixFit()); 
+//       TMatrixD Vbbar(4,4); Vbbar = (*fitHadbbar_->getCovMatrixFit()); 
       
-      aFitHadp.setCovMatrix(this->translateCovM(Vp));
-      aFitHadq.setCovMatrix(this->translateCovM(Vq));
-      aFitHadb.setCovMatrix(this->translateCovM(Vbh));
-      aFitHadj.setCovMatrix(this->translateCovM(Vj));
-      aFitHadk.setCovMatrix(this->translateCovM(Vk));
-      aFitHadbbar.setCovMatrix(this->translateCovM(Vbbar));
+//       aFitHadp.setCovMatrix(this->translateCovM(Vp));
+//       aFitHadq.setCovMatrix(this->translateCovM(Vq));
+//       aFitHadb.setCovMatrix(this->translateCovM(Vbh));
+//       aFitHadj.setCovMatrix(this->translateCovM(Vj));
+//       aFitHadk.setCovMatrix(this->translateCovM(Vk));
+//       aFitHadbbar.setCovMatrix(this->translateCovM(Vbbar));
       
-      aFitHadp.setResolutionA(sqrt(Vp(0,0)));  
-      aFitHadp.setResolutionB(sqrt(Vp(1,1)));
-      aFitHadp.setResolutionC(sqrt(Vp(2,2))); 
-      aFitHadp.setResolutionD(sqrt(Vp(3,3))); 
-      aFitHadq.setResolutionA(sqrt(Vq(0,0)));  
-      aFitHadq.setResolutionB(sqrt(Vq(1,1)));
-      aFitHadq.setResolutionC(sqrt(Vq(2,2)));
-      aFitHadq.setResolutionD(sqrt(Vq(3,3)));
-      aFitHadb.setResolutionA(sqrt(Vbh(0,0)));  
-      aFitHadb.setResolutionB(sqrt(Vbh(1,1)));
-      aFitHadb.setResolutionC(sqrt(Vbh(2,2)));
-      aFitHadb.setResolutionD(sqrt(Vbh(3,3)));
-      aFitHadj.setResolutionA(sqrt(Vj(0,0)));  
-      aFitHadj.setResolutionB(sqrt(Vj(1,1)));
-      aFitHadj.setResolutionC(sqrt(Vj(2,2))); 
-      aFitHadj.setResolutionD(sqrt(Vj(3,3))); 
-      aFitHadk.setResolutionA(sqrt(Vk(0,0)));  
-      aFitHadk.setResolutionB(sqrt(Vk(1,1)));
-      aFitHadk.setResolutionC(sqrt(Vk(2,2)));
-      aFitHadk.setResolutionD(sqrt(Vk(3,3)));
-      aFitHadbbar.setResolutionA(sqrt(Vbbar(0,0)));  
-      aFitHadbbar.setResolutionB(sqrt(Vbbar(1,1)));
-      aFitHadbbar.setResolutionC(sqrt(Vbbar(2,2)));
-      aFitHadbbar.setResolutionD(sqrt(Vbbar(3,3)));
+//       aFitHadp.setResolutionA(sqrt(Vp(0,0)));  
+//       aFitHadp.setResolutionB(sqrt(Vp(1,1)));
+//       aFitHadp.setResolutionC(sqrt(Vp(2,2))); 
+//       aFitHadp.setResolutionD(sqrt(Vp(3,3))); 
+//       aFitHadq.setResolutionA(sqrt(Vq(0,0)));  
+//       aFitHadq.setResolutionB(sqrt(Vq(1,1)));
+//       aFitHadq.setResolutionC(sqrt(Vq(2,2)));
+//       aFitHadq.setResolutionD(sqrt(Vq(3,3)));
+//       aFitHadb.setResolutionA(sqrt(Vbh(0,0)));  
+//       aFitHadb.setResolutionB(sqrt(Vbh(1,1)));
+//       aFitHadb.setResolutionC(sqrt(Vbh(2,2)));
+//       aFitHadb.setResolutionD(sqrt(Vbh(3,3)));
+//       aFitHadj.setResolutionA(sqrt(Vj(0,0)));  
+//       aFitHadj.setResolutionB(sqrt(Vj(1,1)));
+//       aFitHadj.setResolutionC(sqrt(Vj(2,2))); 
+//       aFitHadj.setResolutionD(sqrt(Vj(3,3))); 
+//       aFitHadk.setResolutionA(sqrt(Vk(0,0)));  
+//       aFitHadk.setResolutionB(sqrt(Vk(1,1)));
+//       aFitHadk.setResolutionC(sqrt(Vk(2,2)));
+//       aFitHadk.setResolutionD(sqrt(Vk(3,3)));
+//       aFitHadbbar.setResolutionA(sqrt(Vbbar(0,0)));  
+//       aFitHadbbar.setResolutionB(sqrt(Vbbar(1,1)));
+//       aFitHadbbar.setResolutionC(sqrt(Vbbar(2,2)));
+//       aFitHadbbar.setResolutionD(sqrt(Vbbar(3,3)));
 
-    } else if (jetParam_ == EtEtaPhi) {
-      TMatrixD Vp(3,3);  Vp  = (*fitHadp_->getCovMatrixFit()); 
-      TMatrixD Vq(3,3);  Vq  = (*fitHadq_->getCovMatrixFit()); 
-      TMatrixD Vbh(3,3); Vbh = (*fitHadb_->getCovMatrixFit()); 
-      TMatrixD Vj(3,3);  Vj  = (*fitHadj_->getCovMatrixFit()); 
-      TMatrixD Vk(3,3);  Vk  = (*fitHadk_->getCovMatrixFit()); 
-      TMatrixD Vbbar(3,3); Vbbar = (*fitHadbbar_->getCovMatrixFit()); 
+//     } else if (jetParam_ == EtEtaPhi) {
+//       TMatrixD Vp(3,3);  Vp  = (*fitHadp_->getCovMatrixFit()); 
+//       TMatrixD Vq(3,3);  Vq  = (*fitHadq_->getCovMatrixFit()); 
+//       TMatrixD Vbh(3,3); Vbh = (*fitHadb_->getCovMatrixFit()); 
+//       TMatrixD Vj(3,3);  Vj  = (*fitHadj_->getCovMatrixFit()); 
+//       TMatrixD Vk(3,3);  Vk  = (*fitHadk_->getCovMatrixFit()); 
+//       TMatrixD Vbbar(3,3); Vbbar = (*fitHadbbar_->getCovMatrixFit()); 
 
-      aFitHadp.setCovMatrix(this->translateCovM(Vp));
-      aFitHadq.setCovMatrix(this->translateCovM(Vq));
-      aFitHadb.setCovMatrix(this->translateCovM(Vbh));
-      aFitHadj.setCovMatrix(this->translateCovM(Vj));
-      aFitHadk.setCovMatrix(this->translateCovM(Vk));
-      aFitHadbbar.setCovMatrix(this->translateCovM(Vbbar));
+//       aFitHadp.setCovMatrix(this->translateCovM(Vp));
+//       aFitHadq.setCovMatrix(this->translateCovM(Vq));
+//       aFitHadb.setCovMatrix(this->translateCovM(Vbh));
+//       aFitHadj.setCovMatrix(this->translateCovM(Vj));
+//       aFitHadk.setCovMatrix(this->translateCovM(Vk));
+//       aFitHadbbar.setCovMatrix(this->translateCovM(Vbbar));
 
-      aFitHadp.setResolutionEt (sqrt(Vp(0,0)));  
-      aFitHadp.setResolutionEta(sqrt(Vp(1,1)));
-      aFitHadp.setResolutionPhi(sqrt(Vp(2,2)));
-      aFitHadq.setResolutionEt (sqrt(Vq(0,0)));  
-      aFitHadq.setResolutionEta(sqrt(Vq(1,1)));
-      aFitHadq.setResolutionPhi(sqrt(Vq(2,2)));
-      aFitHadb.setResolutionEt (sqrt(Vbh(0,0)));  
-      aFitHadb.setResolutionEta(sqrt(Vbh(1,1)));
-      aFitHadb.setResolutionPhi(sqrt(Vbh(2,2)));
-      aFitHadj.setResolutionEt (sqrt(Vj(0,0)));  
-      aFitHadj.setResolutionEta(sqrt(Vj(1,1)));
-      aFitHadj.setResolutionPhi(sqrt(Vj(2,2)));
-      aFitHadk.setResolutionEt (sqrt(Vk(0,0)));  
-      aFitHadk.setResolutionEta(sqrt(Vk(1,1)));
-      aFitHadk.setResolutionPhi(sqrt(Vk(2,2)));
-      aFitHadbbar.setResolutionEt (sqrt(Vbbar(0,0)));  
-      aFitHadbbar.setResolutionEta(sqrt(Vbbar(1,1)));
-      aFitHadbbar.setResolutionPhi(sqrt(Vbbar(2,2)));
+//       aFitHadp.setResolutionEt (sqrt(Vp(0,0)));  
+//       aFitHadp.setResolutionEta(sqrt(Vp(1,1)));
+//       aFitHadp.setResolutionPhi(sqrt(Vp(2,2)));
+//       aFitHadq.setResolutionEt (sqrt(Vq(0,0)));  
+//       aFitHadq.setResolutionEta(sqrt(Vq(1,1)));
+//       aFitHadq.setResolutionPhi(sqrt(Vq(2,2)));
+//       aFitHadb.setResolutionEt (sqrt(Vbh(0,0)));  
+//       aFitHadb.setResolutionEta(sqrt(Vbh(1,1)));
+//       aFitHadb.setResolutionPhi(sqrt(Vbh(2,2)));
+//       aFitHadj.setResolutionEt (sqrt(Vj(0,0)));  
+//       aFitHadj.setResolutionEta(sqrt(Vj(1,1)));
+//       aFitHadj.setResolutionPhi(sqrt(Vj(2,2)));
+//       aFitHadk.setResolutionEt (sqrt(Vk(0,0)));  
+//       aFitHadk.setResolutionEta(sqrt(Vk(1,1)));
+//       aFitHadk.setResolutionPhi(sqrt(Vk(2,2)));
+//       aFitHadbbar.setResolutionEt (sqrt(Vbbar(0,0)));  
+//       aFitHadbbar.setResolutionEta(sqrt(Vbbar(1,1)));
+//       aFitHadbbar.setResolutionPhi(sqrt(Vbbar(2,2)));
 
-    } else if (jetParam_ == EtThetaPhi) {
-      TMatrixD Vp(3,3);  Vp  = (*fitHadp_->getCovMatrixFit()); 
-      TMatrixD Vq(3,3);  Vq  = (*fitHadq_->getCovMatrixFit()); 
-      TMatrixD Vbh(3,3); Vbh = (*fitHadb_->getCovMatrixFit()); 
-      TMatrixD Vj(3,3);  Vj  = (*fitHadj_->getCovMatrixFit()); 
-      TMatrixD Vk(3,3);  Vk  = (*fitHadk_->getCovMatrixFit()); 
-      TMatrixD Vbbar(3,3); Vbbar = (*fitHadbbar_->getCovMatrixFit()); 
+//     } else if (jetParam_ == EtThetaPhi) {
+//       TMatrixD Vp(3,3);  Vp  = (*fitHadp_->getCovMatrixFit()); 
+//       TMatrixD Vq(3,3);  Vq  = (*fitHadq_->getCovMatrixFit()); 
+//       TMatrixD Vbh(3,3); Vbh = (*fitHadb_->getCovMatrixFit()); 
+//       TMatrixD Vj(3,3);  Vj  = (*fitHadj_->getCovMatrixFit()); 
+//       TMatrixD Vk(3,3);  Vk  = (*fitHadk_->getCovMatrixFit()); 
+//       TMatrixD Vbbar(3,3); Vbbar = (*fitHadbbar_->getCovMatrixFit()); 
 
-      aFitHadp.setCovMatrix(this->translateCovM(Vp));
-      aFitHadq.setCovMatrix(this->translateCovM(Vq));
-      aFitHadb.setCovMatrix(this->translateCovM(Vbh));
-      aFitHadj.setCovMatrix(this->translateCovM(Vj));
-      aFitHadk.setCovMatrix(this->translateCovM(Vk));
-      aFitHadbbar.setCovMatrix(this->translateCovM(Vbbar));
+//       aFitHadp.setCovMatrix(this->translateCovM(Vp));
+//       aFitHadq.setCovMatrix(this->translateCovM(Vq));
+//       aFitHadb.setCovMatrix(this->translateCovM(Vbh));
+//       aFitHadj.setCovMatrix(this->translateCovM(Vj));
+//       aFitHadk.setCovMatrix(this->translateCovM(Vk));
+//       aFitHadbbar.setCovMatrix(this->translateCovM(Vbbar));
 
-      aFitHadp.setResolutionEt (sqrt(Vp(0,0)));  
-      aFitHadp.setResolutionTheta(sqrt(Vp(1,1)));
-      aFitHadp.setResolutionPhi(sqrt(Vp(2,2)));
-      aFitHadq.setResolutionEt (sqrt(Vq(0,0)));  
-      aFitHadq.setResolutionTheta(sqrt(Vq(1,1)));
-      aFitHadq.setResolutionPhi(sqrt(Vq(2,2)));
-      aFitHadb.setResolutionEt (sqrt(Vbh(0,0)));  
-      aFitHadb.setResolutionTheta(sqrt(Vbh(1,1)));
-      aFitHadb.setResolutionPhi(sqrt(Vbh(2,2)));
-      aFitHadj.setResolutionEt (sqrt(Vj(0,0)));  
-      aFitHadj.setResolutionTheta(sqrt(Vj(1,1)));
-      aFitHadj.setResolutionPhi(sqrt(Vj(2,2)));
-      aFitHadk.setResolutionEt (sqrt(Vk(0,0)));  
-      aFitHadk.setResolutionTheta(sqrt(Vk(1,1)));
-      aFitHadk.setResolutionPhi(sqrt(Vk(2,2)));
-      aFitHadbbar.setResolutionEt (sqrt(Vbbar(0,0)));  
-      aFitHadbbar.setResolutionTheta(sqrt(Vbbar(1,1)));
-      aFitHadbbar.setResolutionPhi(sqrt(Vbbar(2,2)));
-    }
+//       aFitHadp.setResolutionEt (sqrt(Vp(0,0)));  
+//       aFitHadp.setResolutionTheta(sqrt(Vp(1,1)));
+//       aFitHadp.setResolutionPhi(sqrt(Vp(2,2)));
+//       aFitHadq.setResolutionEt (sqrt(Vq(0,0)));  
+//       aFitHadq.setResolutionTheta(sqrt(Vq(1,1)));
+//       aFitHadq.setResolutionPhi(sqrt(Vq(2,2)));
+//       aFitHadb.setResolutionEt (sqrt(Vbh(0,0)));  
+//       aFitHadb.setResolutionTheta(sqrt(Vbh(1,1)));
+//       aFitHadb.setResolutionPhi(sqrt(Vbh(2,2)));
+//       aFitHadj.setResolutionEt (sqrt(Vj(0,0)));  
+//       aFitHadj.setResolutionTheta(sqrt(Vj(1,1)));
+//       aFitHadj.setResolutionPhi(sqrt(Vj(2,2)));
+//       aFitHadk.setResolutionEt (sqrt(Vk(0,0)));  
+//       aFitHadk.setResolutionTheta(sqrt(Vk(1,1)));
+//       aFitHadk.setResolutionPhi(sqrt(Vk(2,2)));
+//       aFitHadbbar.setResolutionEt (sqrt(Vbbar(0,0)));  
+//       aFitHadbbar.setResolutionTheta(sqrt(Vbbar(1,1)));
+//       aFitHadbbar.setResolutionPhi(sqrt(Vbbar(2,2)));
+//     }
 
     // finally fill the fitted particles
     fitsol.setFitHadb(aFitHadb);

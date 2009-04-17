@@ -26,6 +26,10 @@ class LHERunInfo {
     public:
 	LHERunInfo(std::istream &in);
 	LHERunInfo(const HEPRUP &heprup);
+	LHERunInfo(const HEPRUP &heprup,
+	           const std::vector<LHERunInfoProduct::Header> &headers,
+	           const std::vector<std::string> &comments);
+	LHERunInfo(const LHERunInfoProduct &product);
 	~LHERunInfo();
 
 	class Header : public LHERunInfoProduct::Header {
@@ -54,6 +58,8 @@ class LHERunInfo {
 	const std::vector<Header> &getHeaders() const { return headers; }
 	const std::vector<std::string> &getComments() const { return comments; }
 
+	std::vector<std::string> findHeader(const std::string &tag) const;
+
 	void addHeader(const Header &header) { headers.push_back(header); }
 	void addComment(const std::string &line) { comments.push_back(line); }
 
@@ -72,8 +78,9 @@ class LHERunInfo {
 	};
 
 	void count(int process, CountMode count, double eventWeight = 1.0,
-	           double matchWeight = 1.0);
+	           double brWeight = 1.0, double matchWeight = 1.0);
 	XSec xsec() const;
+	void statistics() const;
 
     private:
 	struct Counter {
@@ -98,6 +105,7 @@ class LHERunInfo {
 		Counter		selected;
 		Counter		killed;
 		Counter		accepted;
+		Counter		acceptedBr;
 
 		inline bool operator < (const Process &other) const
 		{ return process < other.process; }

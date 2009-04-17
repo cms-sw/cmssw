@@ -16,12 +16,16 @@
 
 #include <memory>
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // FEDRawData 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 // Scalers classes
@@ -41,8 +45,8 @@ class ScalersRawToDigi : public edm::EDProducer
 // Constructor
 ScalersRawToDigi::ScalersRawToDigi(const edm::ParameterSet& iConfig)
 {
-  produces<L1TriggerScalersCollection>();
-  produces<LumiScalersCollection>();
+  produces<L1TriggerScalers>();
+  produces<LumiScalers>();
 }
 
 // Destructor
@@ -58,9 +62,9 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
   edm::Handle<FEDRawDataCollection> rawdata;
   iEvent.getByLabel("source" , rawdata);
 
-  std::auto_ptr<LumiScalersCollection> pLumi(new LumiScalersCollection());
+  std::auto_ptr<LumiScalersCollection> pLumi(new LumiScalersCollection(1));
   std::auto_ptr<L1TriggerScalersCollection> 
-    pTrigger(new L1TriggerScalersCollection());
+    pTrigger(new L1TriggerScalersCollection(1));
 
   /// Take a reference to this FED's data
   const FEDRawData & fedData = rawdata->FEDData(ScalersRaw::SCALERS_FED_ID);

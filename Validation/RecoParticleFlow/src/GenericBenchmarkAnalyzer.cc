@@ -135,5 +135,4 @@ void GenericBenchmarkAnalyzer::endJob()
   // Store the DAQ Histograms
   if (outputFile_.size() != 0)
     dbe_->save(outputFile_);
-
 }

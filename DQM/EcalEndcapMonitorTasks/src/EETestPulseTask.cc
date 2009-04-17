@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2008/05/11 09:35:13 $
- * $Revision: 1.42 $
+ * $Date: 2008/12/03 15:03:17 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  *
 */
@@ -263,7 +263,8 @@ void EETestPulseTask::endJob(void){
 void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
   bool enable = false;
-  map<int, EcalDCCHeaderBlock> dccMap;
+  int runType[18] = { -1 };
+  int mgpaGain[18] = { -1 };
 
   Handle<EcalRawDataCollection> dcchs;
 
@@ -271,19 +272,15 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
+      int ism = Numbers::iSM( *dcchItr, EcalEndcap );
 
-      int ism = Numbers::iSM( dcch, EcalEndcap );
+      runType[ism-1] = dcchItr->getRunType();
+      mgpaGain[ism-1] = dcchItr->getMgpaGain();
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
-      if ( i != dccMap.end() ) continue;
-
-      dccMap[ ism ] = dcch;
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-           dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) enable = true;
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) enable = true;
 
     }
 
@@ -308,40 +305,37 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EEDataFrame dataframe = (*digiItr);
-      EEDetId id = dataframe.id();
+      EEDetId id = digiItr->id();
 
       int ix = id.ix();
       int iy = id.iy();
 
       int ism = Numbers::iSM( id );
  
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
-
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+               runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
       LogDebug("EETestPulseTask") << " det id = " << id;
       LogDebug("EETestPulseTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
       int ic = Numbers::icEE(ism, ix, iy);
 
+      EEDataFrame dataframe = (*digiItr);
+
       for (int i = 0; i < 10; i++) {
 
-        EcalMGPASample sample = dataframe.sample(i);
-        int adc = sample.adc();
+        int adc = dataframe.sample(i).adc();
         float gain = 1.;
 
         MonitorElement* meShapeMap = 0;
 
-        if ( sample.gainId() == 1 ) gain = 1./12.;
-        if ( sample.gainId() == 2 ) gain = 1./ 6.;
-        if ( sample.gainId() == 3 ) gain = 1./ 1.;
+        if ( dataframe.sample(i).gainId() == 1 ) gain = 1./12.;
+        if ( dataframe.sample(i).gainId() == 2 ) gain = 1./ 6.;
+        if ( dataframe.sample(i).gainId() == 3 ) gain = 1./ 1.;
 
-        if ( dccMap[ism].getMgpaGain() == 3 ) meShapeMap = meShapeMapG01_[ism-1];
-        if ( dccMap[ism].getMgpaGain() == 2 ) meShapeMap = meShapeMapG06_[ism-1];
-        if ( dccMap[ism].getMgpaGain() == 1 ) meShapeMap = meShapeMapG12_[ism-1];
+        if ( mgpaGain[ism-1] == 3 ) meShapeMap = meShapeMapG01_[ism-1];
+        if ( mgpaGain[ism-1] == 2 ) meShapeMap = meShapeMapG06_[ism-1];
+        if ( mgpaGain[ism-1] == 1 ) meShapeMap = meShapeMapG12_[ism-1];
 
 //        float xval = float(adc) * gain;
         float xval = float(adc);
@@ -367,8 +361,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-      EcalUncalibratedRecHit hit = (*hitItr);
-      EEDetId id = hit.id();
+      EEDetId id = hitItr->id();
 
       int ix = id.ix();
       int iy = id.iy();
@@ -380,27 +373,24 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
       float xix = ix - 0.5;
       float xiy = iy - 0.5;
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
-
-      if ( ! ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-               dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+               runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
       LogDebug("EETestPulseTask") << " det id = " << id;
       LogDebug("EETestPulseTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
       MonitorElement* meAmplMap = 0;
 
-      if ( dccMap[ism].getMgpaGain() == 3 ) meAmplMap = meAmplMapG01_[ism-1];
-      if ( dccMap[ism].getMgpaGain() == 2 ) meAmplMap = meAmplMapG06_[ism-1];
-      if ( dccMap[ism].getMgpaGain() == 1 ) meAmplMap = meAmplMapG12_[ism-1];
+      if ( mgpaGain[ism-1] == 3 ) meAmplMap = meAmplMapG01_[ism-1];
+      if ( mgpaGain[ism-1] == 2 ) meAmplMap = meAmplMapG06_[ism-1];
+      if ( mgpaGain[ism-1] == 1 ) meAmplMap = meAmplMapG12_[ism-1];
 
-      float xval = hit.amplitude();
+      float xval = hitItr->amplitude();
       if ( xval <= 0. ) xval = 0.0;
 
-//      if ( dccMap[ism].getMgpaGain() == 3 ) xval = xval * 1./12.;
-//      if ( dccMap[ism].getMgpaGain() == 2 ) xval = xval * 1./ 2.;
-//      if ( dccMap[ism].getMgpaGain() == 1 ) xval = xval * 1./ 1.;
+//      if ( mgpaGain[ism-1] == 3 ) xval = xval * 1./12.;
+//      if ( mgpaGain[ism-1] == 2 ) xval = xval * 1./ 2.;
+//      if ( mgpaGain[ism-1] == 1 ) xval = xval * 1./ 1.;
 
       LogDebug("EETestPulseTask") << " hit amplitude " << xval;
 
@@ -425,35 +415,28 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
 
-      EcalPnDiodeDigi pn = (*pnItr);
-      EcalPnDiodeDetId id = pn.id();
+      if ( Numbers::subDet( pnItr->id() ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
+      int ism = Numbers::iSM( pnItr->id() );
 
-      int ism = Numbers::iSM( id );
+      int num = pnItr->id().iPnId();
 
-      int num = id.iPnId();
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+               runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
-
-      if ( ! ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-               dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
-
-      LogDebug("EETestPulseTask") << " det id = " << id;
+      LogDebug("EETestPulseTask") << " det id = " << pnItr->id();
       LogDebug("EETestPulseTask") << " sm, num " << ism << " " << num;
 
       float xvalped = 0.;
 
       for (int i = 0; i < 4; i++) {
 
-        EcalFEMSample sample = pn.sample(i);
-        int adc = sample.adc();
+        int adc = pnItr->sample(i).adc();
 
         MonitorElement* mePNPed = 0;
 
-        if ( sample.gainId() == 0 ) mePNPed = mePnPedMapG01_[ism-1];
-        if ( sample.gainId() == 1 ) mePNPed = mePnPedMapG16_[ism-1];
+        if ( pnItr->sample(i).gainId() == 0 ) mePNPed = mePnPedMapG01_[ism-1];
+        if ( pnItr->sample(i).gainId() == 1 ) mePNPed = mePnPedMapG16_[ism-1];
 
         float xval = float(adc);
 
@@ -471,8 +454,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       for (int i = 0; i < 50; i++) {
 
-        EcalFEMSample sample = pn.sample(i);
-        int adc = sample.adc();
+        int adc = pnItr->sample(i).adc();
 
         float xval = float(adc);
 
@@ -482,8 +464,8 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       xvalmax = xvalmax - xvalped;
 
-      if ( pn.sample(0).gainId() == 0 ) mePN = mePnAmplMapG01_[ism-1];
-      if ( pn.sample(0).gainId() == 1 ) mePN = mePnAmplMapG16_[ism-1];
+      if ( pnItr->sample(0).gainId() == 0 ) mePN = mePnAmplMapG01_[ism-1];
+      if ( pnItr->sample(0).gainId() == 1 ) mePN = mePnAmplMapG16_[ism-1];
 
       if ( mePN ) mePN->Fill(num - 0.5, xvalmax);
 

@@ -4,6 +4,9 @@
 #include "DQMOffline/Trigger/interface/EleHLTFilterMon.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffData.h"
 #include "DQMOffline/Trigger/interface/DebugFuncs.h"
+#include "DQMOffline/Trigger/interface/MonElemContainer.h"
+#include "DQMOffline/Trigger/interface/EgHLTDQMCut.h"
+#include "DQMOffline/Trigger/interface/MonElemFuncs.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -28,11 +31,22 @@ EgammaHLTOffline::EgammaHLTOffline(const edm::ParameterSet& iConfig)
   }
   
   triggerSummaryLabel_ = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
+  eleHLTPathNames_ = iConfig.getParameter<std::vector<std::string> >("eleHLTPathNames");
+  eleHLTFilterNames_ = iConfig.getParameter<std::vector<std::string> >("eleHLTFilterNames");
 
-  
-  dirName_=iConfig.getParameter<std::string>("DQMDirName");
 
-  if(dbe_ != 0 ) dbe_->setCurrentFolder("HLTOffline/EgammaHLT");
+  namesFiltersUsed_.clear();
+  for(size_t pathNr=0;pathNr<eleHLTPathNames_.size();pathNr++){
+    for(size_t filterNr=0;filterNr<eleHLTFilterNames_.size();filterNr++){
+      namesFiltersUsed_.push_back(eleHLTPathNames_[pathNr]+eleHLTFilterNames_[filterNr]);
+    }
+  }
+  namesFiltersUsed_.push_back("hltL1NonIsoHLTNonIsoSinglePhotonEt15TrackIsolFilter");
+  TrigCodes::setCodes(namesFiltersUsed_);
+
+  dirName_=iConfig.getParameter<std::string>("DQMDirName");//"HLT/EgammaHLTOffline_" + iConfig.getParameter<std::string>("@module_label");
+
+  if(dbe_) dbe_->setCurrentFolder(dirName_);
  
   egHelper_.setup(iConfig);
 }
@@ -48,12 +62,47 @@ EgammaHLTOffline::~EgammaHLTOffline()
 
 void EgammaHLTOffline::beginJob(const edm::EventSetup& iSetup)
 {
-  addTrigPath("hltL1NonIsoHLTNonIsoSingleElectronEt15");
-  addTrigPath("hltL1NonIsoHLTNonIsoSingleElectronLWEt15");
+  for(size_t i=0;i<eleHLTPathNames_.size();i++) addTrigPath(eleHLTPathNames_[i]);
   
-  namesFiltersUsed_.clear();
- filterNamesUsed(namesFiltersUsed_);
+  std::string tightTrig("hltL1NonIsoHLTNonIsoSingleElectronEt15TrackIsolFilter");
+  // std::string looseTrig("hltL1NonIsoHLTNonIsoSingleElectronLWEt15TrackIsolFilter");
+  std::string looseTrig("hltL1NonIsoHLTNonIsoSinglePhotonEt15TrackIsolFilter");
+  
+  //single electrons seeing if they pass the tighter trigger
+  int stdCutCode = CutCodes::getCode("detEta:crack:sigmaEtaEta:hadem:dPhiIn:dEtaIn"); //will have it non hardcoded at a latter date
+  eleMonElems_.push_back(new MonElemContainer<EgHLTOffEle>("passLooseTrig_passTightTrig","",
+							   //&(*(new EgMultiCut<EgHLTOffEle>) << 
+							   new EgEleTrigCut<EgHLTOffEle>(TrigCodes::getCode(tightTrig+":"+looseTrig),EgEleTrigCut<EgHLTOffEle>::AND)));//  <<
+							     //new EgHLTDQMVarCut(stdCutCode,&EgHLTOffEle::cutCode))));
 
+  eleMonElems_.push_back(new MonElemContainer<EgHLTOffEle>("passLooseTrig_failTightTrig","",
+							   //&(*(new EgMultiCut<EgHLTOffEle>) << 
+							   new EgEleTrigCut<EgHLTOffEle>(TrigCodes::getCode(looseTrig),EgEleTrigCut<EgHLTOffEle>::AND,TrigCodes::getCode(tightTrig))));//  << 
+							     //new EgHLTDQMVarCut<EgHLTOffEle>(stdCutCode,&EgHLTOffEle::cutCode))));
+  for(size_t i=0;i<eleMonElems_.size();i++){
+    MonElemFuncs::initStdEleHists(eleMonElems_[i]->monElems(),tightTrig+"_"+eleMonElems_[i]->name());
+  }
+  
+  //tag and probe trigger efficiencies
+  //this is to do measure the trigger efficiency with respect to a fully selected offline electron
+  //using a tag and probe technique (note: this will be different to the trigger efficiency normally calculated) 
+  for(size_t pathNr=0;pathNr<eleHLTPathNames_.size();pathNr++){
+    for(size_t filterNr=0;filterNr<eleHLTFilterNames_.size();filterNr++){ 
+
+      std::string trigName(eleHLTPathNames_[pathNr]+eleHLTFilterNames_[filterNr]);
+      int stdCutCode = CutCodes::getCode("detEta:crack:sigmaEtaEta:hadem:dPhiIn:dEtaIn"); //will have it non hardcoded at a latter date
+      MonElemContainer<EgHLTOffEle>* monElemCont = new MonElemContainer<EgHLTOffEle>("trigTagProbe","Trigger Tag and Probe",new EgTrigTagProbeCut(TrigCodes::getCode(trigName),stdCutCode,&EgHLTOffEle::cutCode));
+      MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName+"_"+monElemCont->name()+"_all",new EgGreaterCut<EgHLTOffEle,float>(15.,&EgHLTOffEle::etSC));
+      MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName+"_"+monElemCont->name()+"_pass",&(*(new EgMultiCut<EgHLTOffEle>) << new EgGreaterCut<EgHLTOffEle,float>(15.,&EgHLTOffEle::etSC) << new EgEleTrigCut<EgHLTOffEle>(TrigCodes::getCode(trigName),EgEleTrigCut<EgHLTOffEle>::AND)));
+      eleMonElems_.push_back(monElemCont);
+    } //end filter names
+  }//end path names
+  //namesFiltersUsed_.clear();
+  //filterNamesUsed(namesFiltersUsed_);
+
+ //defines which bits are assoicated to which filter
+ 
+  // TrigCodes::printCodes();
 
 }
 
@@ -76,21 +125,11 @@ void EgammaHLTOffline::endRun(const edm::Run& run, const edm::EventSetup& c)
 
 void EgammaHLTOffline::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
 {
-  double weight=1.;
+  const double weight=1.;
 
   //debugging info, commented out for prod
-  // int nrProducts = debug::listAllProducts<trigger::TriggerEvent>(iEvent,"EgammaHLTOffline");
-//   edm::LogInfo("EgammaHLTOffline")<<" nr of HLT objs "<<nrProducts;
-
-//   int nrRecHits = debug::listAllProducts<EcalRecHitCollection>(iEvent,"EgammaHLTOffline");
-//   edm::LogInfo("EgammaHLTOffline")<<" nr of ecal rec hit collections "<<nrRecHits;
-
-
-//   int nrEleColl = debug::listAllProducts<reco::PixelMatchGsfElectronCollection>(iEvent,"EgammaHLTOffline");
-//   edm::LogInfo("EgammaHLTOffline")<<" nr of Ele coll "<<nrEleColl;
-
-//    int nrClusColl = debug::listAllProducts<reco::BasicClusterShapeAssociationCollection>(iEvent,"EgammaHLTOffline");
-//    edm::LogInfo("EgammaHLTOffline")<<" nr of clus "<<nrClusColl;
+  //int nrProducts = debug::listAllProducts<reco::CaloJetCollection>(iEvent,"EgammaHLTOffline");
+  //  edm::LogInfo("EgammaHLTOffline")<<" nr of jet obs "<<nrProducts;
 
   edm::Handle<trigger::TriggerEvent> triggerObj;
   iEvent.getByLabel(triggerSummaryLabel_,triggerObj); 
@@ -112,36 +151,89 @@ void EgammaHLTOffline::analyze(const edm::Event& iEvent,const edm::EventSetup& i
   egHelper_.fillEgHLTOffEleVec(gsfElectrons,egHLTOffEles);
 
   std::vector<std::vector<int> > filtersElePasses;
-  obtainFiltersElePasses(egHLTOffEles,namesFiltersUsed_,triggerObj,filtersElePasses);
+  TrigCodes::TrigBitSet evtTrigBits = setFiltersElePasses(egHLTOffEles,namesFiltersUsed_,triggerObj);
  
   EgHLTOffData evtData;
   evtData.trigEvt = triggerObj;
   evtData.eles = &egHLTOffEles;
   evtData.filtersElePasses = &filtersElePasses;
-
+  evtData.evtTrigBits = evtTrigBits;
+  evtData.jets = egHelper_.jets();
+  
 //   edm::LogInfo ("EgammaHLTOffline") << "starting event "<<iEvent.id().run()<<" "<<iEvent.id().event();
 
-  
-//   edm::LogInfo ("EgammaHLTOffline") << "nr filters in event "<<triggerObj->sizeFilters();
-//   for(size_t i=0;i<triggerObj->sizeFilters();i++){
-//     edm::LogInfo("EgammaHLTOffline")<<" in event filter "<<triggerObj->filterTag(i);
-//   }
+  //edm::LogInfo ("EgammaHLTOffline") << "nr filters in event "<<triggerObj->sizeFilters();
+     //for(size_t i=0;i<triggerObj->sizeFilters();i++){
+     //edm::LogInfo("EgammaHLTOffline")<<" in event filter "<<triggerObj->filterTag(i);
+     //}
 
   for(size_t pathNr=0;pathNr<elePathMonHists_.size();pathNr++){
     elePathMonHists_[pathNr]->fill(evtData,weight);
   }
+
+  for(size_t monElemNr=0;monElemNr<eleMonElems_.size();monElemNr++){
+    const std::vector<EgHLTOffEle>& eles = *evtData.eles;
+    for(size_t eleNr=0;eleNr<eles.size();eleNr++){
+      eleMonElems_[monElemNr]->fill(eles[eleNr],evtData,weight);
+    }
+  }
 }
 
 
-void EgammaHLTOffline::addTrigPath(std::string name)
+void EgammaHLTOffline::addTrigPath(const std::string& name)
 {
   EleHLTPathMon* pathMon = new EleHLTPathMon(name);
-  pathMon->setStdFilters();
+  pathMon->addFilters(eleHLTFilterNames_);
   elePathMonHists_.push_back(pathMon);
   std::sort(elePathMonHists_.begin(),elePathMonHists_.end(),EleHLTFilterMon::ptrLess<EleHLTPathMon>()); //takes a minor efficiency hit at initalisation to ensure that the vector is always sorted
 }
 
+//I have the horrible feeling that I'm converting into an intermediatry format and then coverting back again
+//Okay how this works
+//1) create a TrigBitSet for each electron set to 0 initally
+//2) loop over each filter, for each electron that passes the filter, set the appropriate bit in the TrigBitSet
+//3) after that, loop over each electron setting the its TrigBitSet which has been calculated
+//4) a crowbar hack now has it also create a bitset for all the triggers which fired in the event (which are in the filters vector). Note these dont have to be electron triggers
+TrigCodes::TrigBitSet EgammaHLTOffline::setFiltersElePasses(std::vector<EgHLTOffEle>& eles,const std::vector<std::string>& filters,edm::Handle<trigger::TriggerEvent> trigEvt)
+{
+  TrigCodes::TrigBitSet evtTrigs;
+  std::vector<TrigCodes::TrigBitSet> eleTrigBits(eles.size());
+  const double maxDeltaR=0.3;
+  for(size_t filterNrInVec=0;filterNrInVec<filters.size();filterNrInVec++){
+    size_t filterNrInEvt = trigEvt->filterIndex(edm::InputTag(filters[filterNrInVec],"","HLT").encode());
+    const TrigCodes::TrigBitSet filterCode = TrigCodes::getCode(filters[filterNrInVec].c_str());
 
+    if(filterNrInEvt<trigEvt->sizeFilters()){ //filter found in event, something passes it
+      evtTrigs |=filterCode; //if something passes it add to the event trigger bits
+      const trigger::Keys& trigKeys = trigEvt->filterKeys(filterNrInEvt);  //trigger::Keys is actually a vector<uint16_t> holding the position of trigger objects in the trigger collection passing the filter
+      const trigger::TriggerObjectCollection & trigObjColl(trigEvt->getObjects());
+      for(size_t eleNr=0;eleNr<eles.size();eleNr++){
+	for(trigger::Keys::const_iterator keyIt=trigKeys.begin();keyIt!=trigKeys.end();++keyIt){
+	  float trigObjEta = trigObjColl[*keyIt].eta();
+	  float trigObjPhi = trigObjColl[*keyIt].phi();
+	  if (reco::deltaR(eles[eleNr].eta(),eles[eleNr].phi(),trigObjEta,trigObjPhi) < maxDeltaR){
+	    eleTrigBits[eleNr] |= filterCode;
+	  }//end dR<0.3 trig obj match test
+	}//end loop over all objects passing filter
+      }//end loop over electrons
+    }//end check if filter is present
+  }//end loop over all filters
+
+  for(size_t eleNr=0;eleNr<eles.size();eleNr++) eles[eleNr].setTrigBits(eleTrigBits[eleNr]);
+
+  return evtTrigs;
+
+}
+
+
+
+//TriggerEvent will for each filter name tell you the index it has in the event
+//I can then use this to get a list of candidates which pass the trigger and I do a deltaR match
+//to figure out if it corrsponds to the vincity of my electron (there *must* be a better way) 
+//eles: list of electrons in event
+//filters: list of filter names I want to check if the electron passes eg hltL1NonIsoHLTNonIsoSingleElectronEt15TrackIsolFilter
+//trigEvt : the handle to the TriggerEvent
+//filtersElePasses: a series of vectors, each vector corresponding to an electron. Each vector has a list of filter names the electron passes
 void EgammaHLTOffline::obtainFiltersElePasses(const std::vector<EgHLTOffEle>& eles,const std::vector<std::string>& filters,edm::Handle<trigger::TriggerEvent> trigEvt,std::vector<std::vector<int> >& filtersElePasses)
 {
   //the swap trick to quickly allocate the vector elements

@@ -55,6 +55,7 @@ process.VtxSmeared.src = 'generator'
 process.genEventWeight.src = 'generator'
 process.genEventScale.src = 'generator'
 process.genEventPdfInfo.src = 'generator'
+process.genEventProcID.src = 'generator'
 process.genParticles.src = 'generator'
 process.genParticleCandidates.src = 'generator'
 

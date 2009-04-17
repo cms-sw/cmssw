@@ -8,7 +8,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-#include "boost/multi_array.hpp"
 
 #include <iostream>
 using namespace std;
@@ -34,10 +33,6 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
   the_eff_charge_cut_highY = conf.getUntrackedParameter<double>("eff_charge_cut_highY");
   the_size_cutX = conf.getUntrackedParameter<double>("size_cutX");
   the_size_cutY = conf.getUntrackedParameter<double>("size_cutY");
-
-  // ggiurgiu@jhu.edu
-  inflate_errors = conf.getUntrackedParameter<bool>("inflate_errors");
-  inflate_all_errors_no_trk_angle = conf.getUntrackedParameter<bool>("inflate_all_errors_no_trk_angle");
 }
 
 
@@ -110,6 +105,7 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
   //--- &&& CPEFromDetPosition/PixelCPEInitial), but rather be
   //--- &&& externally settable (but tracked) parameters.  
 
+  double angle_from_clust = 0;
 
   //--- Position, including the half lorentz shift
   if (theVerboseLevel > 20) 
@@ -363,245 +359,40 @@ collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
 //-------------------------------------------------------------------------
 LocalError  
 PixelCPEGeneric::localError( const SiPixelCluster& cluster, 
-			     const GeomDetUnit & det) const 
-{
+				const GeomDetUnit & det) const {
   setTheDet( det );
-
-  float errx_sq = -99999.9;
-  float erry_sq = -99999.9;
-
-  bool errors_inflated = false;
-  bool errors_standard = false;
-
-  //cout << endl;
-  //cout << "inflate_errors                  = " << (int)inflate_errors                  << endl;
-  //cout << "inflate_all_errors_no_trk_angle = " << (int)inflate_all_errors_no_trk_angle << endl; 
-  //cout << "with_track_angle                = " << (int)with_track_angle                << endl;
-
   int sizex = cluster.sizeX();
   int sizey = cluster.sizeY();
 
-  if ( inflate_errors )
-    {
-      if ( !with_track_angle && inflate_all_errors_no_trk_angle )
-	{
-	  errors_inflated = true;
-	} // if ( !with_track_angle && inflate_all_errors_no_trk_angle )
-      else
-	{
-	  // here call templates to determine if cluster quality (qbin==0 -> bad cluster, qbin!=0 -> good cluster )
-	  
-	  int ID = 4;
-	  
-	  bool fpix;  //!< barrel(false) or forward(true)
-	  if ( thePart == GeomDetEnumerators::PixelBarrel )   
-	    fpix = false;    // no, it's not forward -- it's barrel
-	  else                                              
-	    fpix = true;     // yes, it's forward
-	  
-	  // Make from cluster (a SiPixelCluster) a boost multi_array_2d called clust_array_2d.
-	  boost::multi_array<float, 2> clust_array_2d(boost::extents[7][21]);
-	  
-	  // Preparing to retrieve ADC counts from the SiPixelCluster.  In the cluster,
-	  // we have the following:
-	  //   int minPixelRow(); // Minimum pixel index in the x direction (low edge).
-	  //   int maxPixelRow(); // Maximum pixel index in the x direction (top edge).
-	  //   int minPixelCol(); // Minimum pixel index in the y direction (left edge).
-	  //   int maxPixelCol(); // Maximum pixel index in the y direction (right edge).
-	  // So the pixels from minPixelRow() will go into clust_array_2d[0][*],
-	  // and the pixels from minPixelCol() will go into clust_array_2d[*][0].
-	  int row_offset = cluster.minPixelRow();
-	  int col_offset = cluster.minPixelCol();
-      
-	  // Store the coordinates of the center of the (0,0) pixel of the array that 
-	  // gets passed to PixelTempReco2D
-	  // Will add these values to the output of  PixelTempReco2D
-	  float tmp_x = float(cluster.minPixelRow()) + 0.5;
-	  float tmp_y = float(cluster.minPixelCol()) + 0.5;
-	  
-	  // Store these offsets (to be added later) in a LocalPoint after tranforming 
-	  // them from measurement units (pixel units) to local coordinates (cm)
-	  LocalPoint lp = theTopol->localPosition( MeasurementPoint(tmp_x, tmp_y) );
-	  
-	  const std::vector<SiPixelCluster::Pixel> & pixVec = cluster.pixels();
-	  std::vector<SiPixelCluster::Pixel>::const_iterator 
-	    pixIter = pixVec.begin(), pixEnd = pixVec.end();
-	  
-	  // Copy clust's pixels (calibrated in electrons) into clust_array_2d;
-	  for ( ; pixIter != pixEnd; ++pixIter ) 
-	    {
-	      // *pixIter dereferences to Pixel struct, with public vars x, y, adc (all float)
-	      // 02/13/2008 ggiurgiu@fnal.gov: type of x, y and adc has been changed to unsigned char, unsigned short, unsigned short
-	      // in DataFormats/SiPixelCluster/interface/SiPixelCluster.h so the type cast to int is redundant. Leave it there, it 
-	      // won't hurt. 
-	      int irow = int(pixIter->x) - row_offset;   // &&& do we need +0.5 ???
-	      int icol = int(pixIter->y) - col_offset;   // &&& do we need +0.5 ???
-	      
-	      // Gavril : what do we do here if the row/column is larger than 7/21 ?
-	      // Ignore them for the moment...
-	      if ( irow<7 && icol<21 )
-		// 02/13/2008 ggiurgiu@fnal.gov typecast pixIter->adc to float
-		clust_array_2d[irow][icol] = (float)pixIter->adc;
-	      //else
-	      //cout << " ----- Cluster is too large" << endl;
-	    }
-	  
-	  // Make and fill the bool arrays flagging double pixels
-	  // &&& Need to define constants for 7 and 21 somewhere!
-	  std::vector<bool> ydouble(21), xdouble(7);
-	  // x directions (shorter), rows
-	  
-	  bool n_bigx = 0;
-	  bool n_bigy = 0;
-	  
-	  for (int irow = 0; irow < 7; ++irow)
-	    {
-	      xdouble[irow] = RectangularPixelTopology::isItBigPixelInX( irow+row_offset );
-	      
-	      if ( xdouble[irow] )
-		++n_bigx;
-	    }
-	  
-	  // y directions (longer), columns
-	  for (int icol = 0; icol < 21; ++icol) 
-	    {
-	      ydouble[icol] = RectangularPixelTopology::isItBigPixelInY( icol+col_offset );
-	      
-	      if ( ydouble[icol] )
-		++n_bigy;
-	    }
-	  
-	  //cout << "n_bigx = " << n_bigx << endl;
-	  //cout << "n_bigy = " << n_bigy << endl;
-	  
-	  // Output:
-	  float nonsense = -99999.9; // nonsense init value
-	  float templXrec_   = nonsense; 
-	  float templYrec_   = nonsense;
-	  float templSigmaX_ = nonsense;
-	  float templSigmaY_ = nonsense;
-	  float templProbY_  = nonsense;
-	  float templProbX_  = nonsense;
-	  
-	  // ******************************************************************
-	  // Do it! Use cotalpha_ and cotbeta_ calculated in PixelCPEBase
-	  
-	  SiPixelTemplate templ_;
-	  templ_.pushfile(4);
-	  
-	  int templQbin_ = -99999;
-	  int speed_ = 0;
-	  
-	  bool ierr =
-	    SiPixelTemplateReco::PixelTempReco2D( ID, fpix, cotalpha_, cotbeta_,
-						  clust_array_2d, ydouble, xdouble,
-						  templ_,
-						  templYrec_, templSigmaY_, templProbY_,
-						  templXrec_, templSigmaX_, templProbX_, 
-						  templQbin_, 
-						  speed_ );
-	        
-	  // ******************************************************************
-	  	  
-	  if ( templQbin_ == 0 || ierr !=0 )
-	    {
-	      errors_inflated = true;
-	  
-	    } // if ( templQbin_ == 0 )
-	  else
-	    {
-	      errors_standard = true;
-	      
-	    } // if ( templQbin_ == 0 )... else
-	
-	} // if ( !with_track_angle && inflate_all_errors_no_trk_angle )... else
-    
-    } // if ( inflate_errors ) 
-  else 
-    {
-      errors_standard = true;
-            
-    } // if ( inflate_errors )... else 
+  // Find edge clusters
+  //bool edgex = (cluster.edgeHitX()) || (cluster.maxPixelRow()> theNumOfRow);//wrong 
+  //bool edgey = (cluster.edgeHitY()) || (cluster.maxPixelCol() > theNumOfCol);   
+  /* bool edgex = (cluster.minPixelRow()==0) ||  // use min and max pixels
+   (cluster.maxPixelRow()==(theNumOfRow-1));
+   bool edgey = (cluster.minPixelCol()==0) ||
+   (cluster.maxPixelCol()==(theNumOfCol-1));*/
+
+  // Use edge methods from the Toplogy class
+  int maxPixelCol = cluster.maxPixelCol();
+  int maxPixelRow = cluster.maxPixelRow();
+  int minPixelCol = cluster.minPixelCol();
+  int minPixelRow = cluster.minPixelRow();       
+  // edge method moved to topologu class
+  bool edgex = (theTopol->isItEdgePixelInX(minPixelRow)) ||
+    (theTopol->isItEdgePixelInX(maxPixelRow));
+  bool edgey = (theTopol->isItEdgePixelInY(minPixelCol)) ||
+    (theTopol->isItEdgePixelInY(maxPixelCol));
   
+  //&&& testing...
+  if (theVerboseLevel > 9) {
+    LogDebug("PixelCPEGeneric") <<
+      "Sizex = " << sizex << 
+      " Sizey = " << sizey << 
+      " Edgex = " << edgex << 
+      " Edgey = " << edgey ;
+  }
 
-  //cout << "errors_standard = " << errors_standard << endl; 
-  //cout << "errors_inflated = " << errors_inflated << endl; 
-
-  
-  if ( errors_standard && !errors_inflated )
-    {
-      //cout << "standard errors:" << endl;
-            
-      // Use edge methods from the Toplogy class
-      int maxPixelCol = cluster.maxPixelCol();
-      int maxPixelRow = cluster.maxPixelRow();
-      int minPixelCol = cluster.minPixelCol();
-      int minPixelRow = cluster.minPixelRow();       
-      // edge method moved to topologu class
-      bool edgex = (theTopol->isItEdgePixelInX(minPixelRow)) ||
-	(theTopol->isItEdgePixelInX(maxPixelRow));
-      bool edgey = (theTopol->isItEdgePixelInY(minPixelCol)) ||
-	(theTopol->isItEdgePixelInY(maxPixelCol));
-      
-      //&&& testing...
-      if (theVerboseLevel > 9) 
-	{
-	  LogDebug("PixelCPEGeneric") <<
-	    " Sizex = " << sizex << 
-	    " Sizey = " << sizey << 
-	    " Edgex = " << edgex << 
-	    " Edgey = " << edgey ;
-	}
-      
-      errx_sq = err2X(edgex, sizex); 
-      erry_sq = err2Y(edgey, sizey);
-
-    }
-  else if ( errors_inflated && !errors_standard )
-    {
-      //cout << "inflated errors:" << endl;
-            
-      int n_bigx = 0;
-      int n_bigy = 0;
-      
-      int row_offset = cluster.minPixelRow();
-      int col_offset = cluster.minPixelCol();
-      
-      for (int irow = 0; irow < 7; ++irow)
-	{
-	  if ( RectangularPixelTopology::isItBigPixelInX( irow+row_offset ) )
-	    ++n_bigx;
-	}
-      
-      for (int icol = 0; icol < 21; ++icol) 
-	{
-	  if ( RectangularPixelTopology::isItBigPixelInY( icol+col_offset ) )
-	    ++n_bigy;
-	}
-      
-      float errx = (float)(sizex + n_bigx) * thePitchX / sqrt( 12.0 );
-      float erry = (float)(sizey + n_bigy) * thePitchY / sqrt( 12.0 );
-            
-      errx_sq = errx*errx;
-      erry_sq = erry*erry;
-    }
-  else
-    {
-      //cout << "Impossible !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-      //assert(0);
-    }
-
-  //  cout << "errors_inflated = " << errors_inflated << endl;
-  //cout << "errors_standard = " << errors_standard << endl;
-
-  // errors in microns
-  //cout << "sqrt( errx_sq ) = " << sqrt( errx_sq )*10000.0 << endl;
-  //cout << "sqrt( erry_sq ) = " << sqrt( erry_sq )*10000.0 << endl;
-  //cout << endl;
-  
-
-  return LocalError( errx_sq, 0, erry_sq );
-
+  return LocalError( err2X(edgex, sizex), 0, err2Y(edgey, sizey) );
 }
 
 

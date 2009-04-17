@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.28 $
-///  last update: $Date: 2008/08/22 12:47:01 $
-///  by         : $Author: ntran $
+///  Revision   : $Revision: 1.25 $
+///  last update: $Date: 2008/04/10 22:18:40 $
+///  by         : $Author: pivarski $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -199,7 +199,7 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   if (doTracker_)
   {
     theAlignableTracker = new AlignableTracker( &(*theTracker) );
-	  /*
+
     if (useSurvey_)
     {
       edm::ESHandle<Alignments> surveys;
@@ -213,42 +213,40 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
       theSurveyErrors = &*surveyErrors;
       addSurveyInfo_(theAlignableTracker);
     }
-	   */
   }
 
   if (doMuon_)
   {
      theAlignableMuon = new AlignableMuon( &(*theMuonDT), &(*theMuonCSC) );
-	  /*
-	  if (useSurvey_)
-	  {
-		  edm::ESHandle<Alignments> dtSurveys;
-		  edm::ESHandle<SurveyErrors> dtSurveyErrors;
-		  edm::ESHandle<Alignments> cscSurveys;
-		  edm::ESHandle<SurveyErrors> cscSurveyErrors;
-		  
-		  iSetup.get<DTSurveyRcd>().get(dtSurveys);
-		  iSetup.get<DTSurveyErrorRcd>().get(dtSurveyErrors);
-		  iSetup.get<CSCSurveyRcd>().get(cscSurveys);
-		  iSetup.get<CSCSurveyErrorRcd>().get(cscSurveyErrors);
-		  
-		  theSurveyIndex  = 0;
-		  theSurveyValues = &*dtSurveys;
-		  theSurveyErrors = &*dtSurveyErrors;
-		  std::vector<Alignable*> barrels = theAlignableMuon->DTBarrel();
-		  for (std::vector<Alignable*>::const_iterator iter = barrels.begin();  iter != barrels.end();  ++iter) {
-			  addSurveyInfo_(*iter);
-		  }
-		  
-		  theSurveyIndex  = 0;
-		  theSurveyValues = &*cscSurveys;
-		  theSurveyErrors = &*cscSurveyErrors;
-		  std::vector<Alignable*> endcaps = theAlignableMuon->CSCEndcaps();
-		  for (std::vector<Alignable*>::const_iterator iter = endcaps.begin();  iter != endcaps.end();  ++iter) {
-			  addSurveyInfo_(*iter);
-		  }
-	  }
-	   */
+
+     if (useSurvey_)
+     {
+	edm::ESHandle<Alignments> dtSurveys;
+	edm::ESHandle<SurveyErrors> dtSurveyErrors;
+	edm::ESHandle<Alignments> cscSurveys;
+	edm::ESHandle<SurveyErrors> cscSurveyErrors;
+	
+	iSetup.get<DTSurveyRcd>().get(dtSurveys);
+	iSetup.get<DTSurveyErrorRcd>().get(dtSurveyErrors);
+	iSetup.get<CSCSurveyRcd>().get(cscSurveys);
+	iSetup.get<CSCSurveyErrorRcd>().get(cscSurveyErrors);
+
+	theSurveyIndex  = 0;
+	theSurveyValues = &*dtSurveys;
+	theSurveyErrors = &*dtSurveyErrors;
+	std::vector<Alignable*> barrels = theAlignableMuon->DTBarrel();
+	for (std::vector<Alignable*>::const_iterator iter = barrels.begin();  iter != barrels.end();  ++iter) {
+	   addSurveyInfo_(*iter);
+	}
+
+	theSurveyIndex  = 0;
+	theSurveyValues = &*cscSurveys;
+	theSurveyErrors = &*cscSurveyErrors;
+	std::vector<Alignable*> endcaps = theAlignableMuon->CSCEndcaps();
+	for (std::vector<Alignable*>::const_iterator iter = endcaps.begin();  iter != endcaps.end();  ++iter) {
+	   addSurveyInfo_(*iter);
+	}
+     }
   }
 
   // Create alignment parameter builder
@@ -446,10 +444,6 @@ AlignmentProducer::duringLoop( const edm::Event& event,
 {
   nevent_++;
 
-	// reading in survey records
-	readInSurveyRcds( setup );
-	
-	
   // Printout event number
   for ( int i=10; i<10000000; i*=10 )
     if ( nevent_<10*i && (nevent_%i)==0 )
@@ -472,7 +466,7 @@ AlignmentProducer::duringLoop( const edm::Event& event,
     theAlignmentAlgo->run(  setup, trajTracks );
     
     for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
-      (*monitor)->duringLoop(event, setup, trajTracks);
+      (*monitor)->duringLoop(setup, trajTracks);
     }
   } else {
     edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::duringLoop" 
@@ -608,68 +602,6 @@ void AlignmentProducer::addSurveyInfo_(Alignable* ali)
   ali->setSurvey( new SurveyDet( surf, error.matrix() ) );
 
   ++theSurveyIndex;
-}
-
-void AlignmentProducer::readInSurveyRcds( const edm::EventSetup& iSetup ){
-	
-	// Get Survey Rcds and add Survey Info
-	if ( doTracker_ && useSurvey_ ){
-		bool tkSurveyBool = watchTkSurveyRcd_.check(iSetup);
-		bool tkSurveyErrBool = watchTkSurveyErrRcd_.check(iSetup);
-		edm::LogInfo("Alignment") << "watcher tksurveyrcd: " << tkSurveyBool;
-		edm::LogInfo("Alignment") << "watcher tksurveyerrrcd: " << tkSurveyErrBool;
-		if ( tkSurveyBool || tkSurveyErrBool){
-			
-			edm::LogInfo("Alignment") << "ADDING THE SURVEY INFORMATION";
-			edm::ESHandle<Alignments> surveys;
-			edm::ESHandle<SurveyErrors> surveyErrors;
-			
-			iSetup.get<TrackerSurveyRcd>().get(surveys);
-			iSetup.get<TrackerSurveyErrorRcd>().get(surveyErrors);
-			
-			theSurveyIndex  = 0;
-			theSurveyValues = &*surveys;
-			theSurveyErrors = &*surveyErrors;
-			addSurveyInfo_(theAlignableTracker);
-		}
-	}
-	
-	if ( doMuon_ && useSurvey_)
-	{
-		bool DTSurveyBool = watchTkSurveyRcd_.check(iSetup);
-		bool DTSurveyErrBool = watchTkSurveyErrRcd_.check(iSetup);
-		bool CSCSurveyBool = watchTkSurveyRcd_.check(iSetup);
-		bool CSCSurveyErrBool = watchTkSurveyErrRcd_.check(iSetup);
-		
-		if ( DTSurveyBool || DTSurveyErrBool || CSCSurveyBool || CSCSurveyErrBool ){
-			edm::ESHandle<Alignments> dtSurveys;
-			edm::ESHandle<SurveyErrors> dtSurveyErrors;
-			edm::ESHandle<Alignments> cscSurveys;
-			edm::ESHandle<SurveyErrors> cscSurveyErrors;
-			
-			iSetup.get<DTSurveyRcd>().get(dtSurveys);
-			iSetup.get<DTSurveyErrorRcd>().get(dtSurveyErrors);
-			iSetup.get<CSCSurveyRcd>().get(cscSurveys);
-			iSetup.get<CSCSurveyErrorRcd>().get(cscSurveyErrors);
-			
-			theSurveyIndex  = 0;
-			theSurveyValues = &*dtSurveys;
-			theSurveyErrors = &*dtSurveyErrors;
-			std::vector<Alignable*> barrels = theAlignableMuon->DTBarrel();
-			for (std::vector<Alignable*>::const_iterator iter = barrels.begin();  iter != barrels.end();  ++iter) {
-				addSurveyInfo_(*iter);
-			}
-			
-			theSurveyIndex  = 0;
-			theSurveyValues = &*cscSurveys;
-			theSurveyErrors = &*cscSurveyErrors;
-			std::vector<Alignable*> endcaps = theAlignableMuon->CSCEndcaps();
-			for (std::vector<Alignable*>::const_iterator iter = endcaps.begin();  iter != endcaps.end();  ++iter) {
-				addSurveyInfo_(*iter);
-			}
-		}
-	}
-	
 }
 
 DEFINE_ANOTHER_FWK_LOOPER( AlignmentProducer );

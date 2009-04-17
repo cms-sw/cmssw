@@ -2,156 +2,162 @@
 #define DQM_HCALMONITORTASKS_HCALHOTCELLMONITOR_H
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+//#include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-//#include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 
-#include <map>
+#include <cmath>
+#include <iostream>
+#include <fstream>
 
 /** \class HcalHotCellMonitor
-  *  
-  * $Date: 2008/07/21 22:55:06 $
-  * $Revision: 1.20 $
-  * \author W. Fisher - FNAL
-  * \ updated by J. Temple - Univ. of Maryland
+  *
+  * $Date: 2008/11/06 18:02:33 $
+  * $Revision: 1.23 $
+  * \author J. Temple - Univ. of Maryland
   */
 
-
-// Structure holds all hot cell data for a subdetector
-struct HotCellHists{
-  bool origcheck;
-  bool check;
-
-  // Main problem cell histogram
-  MonitorElement* problemHotCells;
-  MonitorElement* problemHotCells_depth[4];
-
-  double hotDigiSigma; // digi values - pedestal must be > hotDigiSigma * pedestal to be considered hot
-  bool makeDiagnostics; // if disabled, don't make 
-
-  //Miscellaneous hot cell plots -- could remove these?
-  MonitorElement* maxCellOccMap;
-  MonitorElement* maxCellEnergyMap;
-  MonitorElement* maxCellEnergy;
-  MonitorElement* maxCellTime;
-  MonitorElement* maxCellID; 
-  
-  // Threshold plots
-  std::vector<double> thresholds;
-  std::vector<MonitorElement*> threshOccMap;
-  std::vector<MonitorElement*> threshEnergyMap;
-  
-  // NADA hot cell info
-  MonitorElement* nadaOccMap;
-  MonitorElement* nadaEnergyMap;
-  MonitorElement* nadaNumHotCells;
-  MonitorElement* nadaEnergy;
-  MonitorElement* nadaNumNegCells;
-  MonitorElement* nadaNegOccMap;
-  MonitorElement* nadaNegEnergyMap;
-  
-
-  // Digi Plots
-  MonitorElement* abovePedSigma;
-  std::vector<MonitorElement*> digiPedestalPlots;
-  
-  // diagnostic histograms (remove eventually?)
-  std::vector<MonitorElement*> diagnostic;
-
-  MonitorElement* hotcellsigma;
-  MonitorElement* RecHitEnergyDist;
-  MonitorElement* DigiEnergyDist;
-  MonitorElement* EnergyVsNADAcube;
-  MonitorElement* HOT_EnergyVsNADAcube;
-
-  MonitorElement* pedestalValues_depth[4];
-  MonitorElement* pedestalWidths_depth[4];
-  MonitorElement* RecHitEnergyDist_depth[4];
-
-  // Depth plots -- these are diagnostics
-  std::vector <std::vector<MonitorElement*> > threshOccMap_depth;
-  std::vector <std::vector<MonitorElement*> > threshEnergyMap_depth;
-  MonitorElement* nadaOccMap_depth[4];
-  MonitorElement* nadaEnergyMap_depth[4];
-  MonitorElement* nadaNegOccMap_depth[4];
-  MonitorElement* nadaNegEnergyMap_depth[4];
-  
-  // Skip over these plots now
-  //std::vector <std::vector<MonitorElement*> > digiPedestalPlots_depth;
-
-  // Parameters used in setting NADA cube sizes, thresholds
-  double nadaEnergyCandCut0,nadaEnergyCandCut1, nadaEnergyCandCut2;
-  double nadaEnergyCubeCut,nadaEnergyCellCut,nadaNegCandCut;
-  double nadaEnergyCubeFrac, nadaEnergyCellFrac;
-  int nadaMaxDeltaDepth, nadaMaxDeltaEta, nadaMaxDeltaPhi;
-
-  // subdetector info
-  int type;
-  std::string name;
-  bool subdetOn;
-  
-  /*
-    // Not yet used -- eventually allow for turning on/off checks for individual subdetectors?
-  bool checkThreshold_;
-  bool checkNADA_;
-  bool checkAbovePed_;
-  */
-
-  double etaMax, etaMin, phiMax, phiMin;
-  int etaBins, phiBins;
-  // store max cell
-  int etaS, phiS, depthS;
-  int idS;
-  double enS, tS;
-  std::vector<std::string> vetoCells;
-  int numhotcells;
-  int numnegcells;
-  int fVerbosity; //0 = no message, 1 = basic messages, 2 = full verbosity
+struct hotNeighborParams{
+  int DeltaIphi;
+  int DeltaIeta;
+  int DeltaDepth;
+  double minCellEnergy; // cells below this threshold can never be considered "hot" by this algorithm
+  double minNeighborEnergy; //neighbors must have some amount of energy to be counted
+  double maxEnergy; //  a cell above this energy will always be considered hot
+  double HotEnergyFrac; // a cell will be considered hot if neighbor energy/ cell energy is less than this value
 };
 
-
 class HcalHotCellMonitor: public HcalBaseMonitor {
-public:
-  HcalHotCellMonitor(); 
-  ~HcalHotCellMonitor(); 
+
+ public:
+  HcalHotCellMonitor();
+
+  ~HcalHotCellMonitor();
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void processEvent(const HBHERecHitCollection& hbHits,
-		    const HORecHitCollection& hoHits, 
-		    const HFRecHitCollection& hfHits,
-		    const HBHEDigiCollection& hbhedigi,
-		    const HODigiCollection& hodigi,
-		    const HFDigiCollection& hfdigi,
-		    const HcalDbService& cond);
-  void processEvent_digi(const HBHEDigiCollection& hbhedigi,
-			 const HODigiCollection& hodigi,
-			 const HFDigiCollection& hfdigi,
-			 const HcalDbService& cond);
-
-  void setSubDetectors(bool hb, bool he, bool ho, bool hf);
+  void setupNeighborParams(const edm::ParameterSet& ps, hotNeighborParams& N, char* type);
+  void done(std::map<HcalDetId, unsigned int>& myqual); 
+  void clearME(); // overrides base class function
   void reset();
-  void setupVals(HotCellHists& h, int type, HotCellHists& base, const edm::ParameterSet& ps);
-  void setupHists(HotCellHists& h, DQMStore* dbe);
 
-private:  ///Monitoring elements
+  void createMaps(const HcalDbService& cond);
+  
+  void processEvent(const HBHERecHitCollection& hbHits,
+                    const HORecHitCollection& hoHits,
+                    const HFRecHitCollection& hfHits,
+		    //const ZDCRecHitCollection& zdcHits,
+		    const HBHEDigiCollection& hbhedigi,
+                    const HODigiCollection& hodigi,
+                    const HFDigiCollection& hfdigi,
+		    //const ZDCDigiCollection& zdcdigi, 
+		    const HcalDbService& cond
+		    );
 
-  bool debug_;
+  void processEvent_pedestal(const HBHEDigiCollection& hbhedigi,
+			     const HODigiCollection& hodigi,
+			     const HFDigiCollection& hfdigi,
+			     //const ZDCDigiCollection& zdcdigi, 
+			     const HcalDbService& cond
+			     );
 
+  void processEvent_rechitenergy( const HBHERecHitCollection& hbheHits,
+				  const HORecHitCollection& hoHits,
+				  const HFRecHitCollection& hfHits);
+
+  void processEvent_rechitneighbors( const HBHERecHitCollection& hbheHits,
+				     const HORecHitCollection& hoHits,
+				     const HFRecHitCollection& hfHits);
+  void fillHotHistosAtEndRun();
+
+ private:
+  void fillNevents_pedestal();
+  void fillNevents_neighbor();
+  void fillNevents_energy();
+  void fillNevents_persistentenergy();
+
+  void fillNevents_problemCells();
+
+  bool doFCpeds_; //specify whether pedestals are in fC (if not, assume ADC)
+  bool hotmon_makeDiagnostics_;
+
+  // Booleans to control which of the three hot cell checking routines are used
+  bool hotmon_test_pedestal_;
+  bool hotmon_test_neighbor_;
+  bool hotmon_test_energy_;
+  bool hotmon_test_persistent_;
+
+  int hotmon_checkNevents_;  // specify how often to check is cell is hot
+  // Let each test have its own checkNevents value
+  int hotmon_checkNevents_pedestal_;
+  int hotmon_checkNevents_neighbor_;
+  int hotmon_checkNevents_energy_;
+  int hotmon_checkNevents_persistent_;
+
+  double energyThreshold_, HBenergyThreshold_, HEenergyThreshold_, HOenergyThreshold_, HFenergyThreshold_, ZDCenergyThreshold_;
+  double persistentThreshold_, HBpersistentThreshold_, HEpersistentThreshold_, HOpersistentThreshold_, HFpersistentThreshold_, ZDCpersistentThreshold_;
+
+  MonitorElement* meEVT_;
   int ievt_;
 
-  float HF_offsets[13][36][2];
-  bool checkThreshold_;
-  bool checkNADA_;
-  bool checkAbovePed_;
+  double hotmon_minErrorFlag_; // minimum error rate needed to dump out bad bin info 
 
-
-  HotCellHists hbHists,heHists,hfHists,hoHists;
-  HotCellHists hcalHists;
+  // Problem Histograms
+  MonitorElement* ProblemHotCells;
+  std::vector<MonitorElement*> ProblemHotCellsByDepth;
+  
+  double nsigma_;
+  double HBnsigma_, HEnsigma_, HOnsigma_, HFnsigma_, ZDCnsigma_;
+  std::vector<MonitorElement*>AboveNeighborsHotCellsByDepth;
+  std::vector<MonitorElement*>AboveEnergyThresholdCellsByDepth;
+  std::vector<MonitorElement*>AbovePersistentThresholdCellsByDepth; 
+  std::vector<MonitorElement*>AbovePedestalHotCellsByDepth;
  
-  MonitorElement* meEVT_;
+  // map of pedestals from database (in ADC)
+  std::map<HcalDetId, float> pedestals_;
+  std::map<HcalDetId, float> widths_;
+  std::map<HcalDetId, float> pedestal_thresholds_;
+  std::map<HcalDetId, double> rechitEnergies_;
+  
 
-  bool doFCpeds_; // determins if pedestals are in fC or ADC counts
+  unsigned int abovepedestal[ETABINS][PHIBINS][4]; // filled when digi is above pedestal+nsigma
+  unsigned int aboveneighbors[ETABINS][PHIBINS][4];
+  unsigned int aboveenergy[ETABINS][PHIBINS][4]; // when rechit is above threshold energy
+  unsigned int abovepersistent[ETABINS][PHIBINS][4]; // when rechit is consistently above some threshold
+  unsigned int rechit_occupancy_sum[ETABINS][PHIBINS][4];
+  float rechit_energy_sum[ETABINS][PHIBINS][4];
+  
+  // counters for diagnostic plots
+  int diagADC_HB[300];
+  int diagADC_HE[300];
+  int diagADC_HO[300];
+  int diagADC_HF[300];
+  int diagADC_ZDC[300];
+
+
+  // Diagnostic plots
+  MonitorElement* d_HBnormped;
+  MonitorElement* d_HEnormped;
+  MonitorElement* d_HOnormped;
+  MonitorElement* d_HFnormped;
+  MonitorElement* d_ZDCnormped;
+
+  MonitorElement* d_HBrechitenergy;
+  MonitorElement* d_HErechitenergy;
+  MonitorElement* d_HOrechitenergy;
+  MonitorElement* d_HFrechitenergy;
+  MonitorElement* d_ZDCrechitenergy;
+ 
+  MonitorElement* d_HBenergyVsNeighbor;
+  MonitorElement* d_HEenergyVsNeighbor;
+  MonitorElement* d_HOenergyVsNeighbor;
+  MonitorElement* d_HFenergyVsNeighbor;
+  MonitorElement* d_ZDCenergyVsNeighbor;
+
+  std::vector<MonitorElement*> d_avgrechitenergymap;
+  
+  hotNeighborParams defaultNeighborParams_, HBNeighborParams_, HENeighborParams_, HONeighborParams_, HFNeighborParams_, ZDCNeighborParams_;
 };
 
 #endif

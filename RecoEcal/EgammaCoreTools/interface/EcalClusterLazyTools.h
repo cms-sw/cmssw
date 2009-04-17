@@ -24,11 +24,18 @@ class EcalClusterLazyTools {
                 EcalClusterLazyTools( const edm::Event &ev, const edm::EventSetup &es, edm::InputTag redEBRecHits, edm::InputTag redEERecHits );
                 ~EcalClusterLazyTools();
 
-                // various energies in the matrix nxn surrounding the maximum energy crystal of the input cluster
+                // various energies in the matrix nxn surrounding the maximum energy crystal of the input cluster  
+                //NOTE (29/10/08): we now use an eta/phi coordinate system rather than phi/eta
+                //to minmise possible screwups, for now e5x1 isnt defined all the majority of people who call it actually want e1x5 and 
+                //it is thought it is better that their code doesnt compile rather than pick up the wrong function
+                //therefore in this version and later e1x5 = e5x1 in the old version 
+                //so 1x5 is 1 crystal in eta and 5 crystals in phi
+                //note e3x2 does not have a definate eta/phi geometry, it takes the maximum 3x2 block containing the 
+                //seed regardless of whether that 3 in eta or phi
                 float e1x3( const reco::BasicCluster &cluster );
                 float e3x1( const reco::BasicCluster &cluster );
                 float e1x5( const reco::BasicCluster &cluster );
-                float e5x1( const reco::BasicCluster &cluster );
+                //float e5x1( const reco::BasicCluster &cluster );
                 float e2x2( const reco::BasicCluster &cluster );
                 float e3x2( const reco::BasicCluster &cluster );
                 float e3x3( const reco::BasicCluster &cluster );

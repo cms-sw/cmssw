@@ -1,5 +1,5 @@
 
-// $Id: BeamProfileVtxGenerator.cc,v 1.6 2008/04/04 21:38:25 yumiceva Exp $
+// $Id: BeamProfileVtxGenerator.cc,v 1.5 2007/11/02 21:40:34 sunanda Exp $
 
 #include "IOMC/EventVertexGenerators/interface/BeamProfileVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -65,19 +65,19 @@ BeamProfileVtxGenerator::BeamProfileVtxGenerator(const edm::ParameterSet & p) :
     setType(p.getUntrackedParameter<bool>("GaussianProfile",true));
   }
 
-  edm::LogInfo("VertexGenerator") << "BeamProfileVtxGenerator: with "
-				  << "beam along eta = " << fEta 
-				  << " (Theta = " << fTheta/deg 
-				  << ") phi = " << fPhi/deg 
-				  << " centred at (" << fMeanX << ", " 
-				  << fMeanY << ", "  << fMeanZ << ") "
-				  << "and spread (" << fSigmaX << ", "
-				  << fSigmaY << ") of type Gaussian = "
-				  << fType << " use file " << ffile;
+  edm::LogInfo("BeamProfileVtxGenerator") << "BeamProfileVtxGenerator: with "
+					  << "beam along eta = " << fEta 
+					  << " (Theta = " << fTheta/deg 
+					  << ") phi = " << fPhi/deg 
+					  << " centred at (" << fMeanX << ", " 
+					  << fMeanY << ", "  << fMeanZ << ") "
+					  << "and spread (" << fSigmaX << ", "
+					  << fSigmaY << ") of type Gaussian = "
+					  << fType << " use file " << ffile;
   if (ffile) 
-    edm::LogInfo("VertexGenerator") << "With " << nBinx << " bins "
-				    << " along X and " << nBiny 
-				    << " bins along Y";
+    edm::LogInfo("BeamProfileVtxGenerator") << "With " << nBinx << " bins "
+					    << " along X and " << nBiny 
+					    << " bins along Y";
 }
 
 BeamProfileVtxGenerator::~BeamProfileVtxGenerator() {
@@ -119,9 +119,8 @@ HepMC::FourVector* BeamProfileVtxGenerator::newVertex() {
   if (fVertex == 0 ) fVertex = new HepMC::FourVector() ;
   fVertex->set(xp, yp, zp, fTimeOffset );
 
-  LogDebug("VertexGenerator") << "BeamProfileVtxGenerator: Vertex created "
-			      << "at (" << xp << ", " << yp << ", "
-			      << zp << ", " << fTimeOffset << ")";
+//  LogDebug("BeamProfileVtxGenerator") << "BeamProfileVtxGenerator: Vertex created "
+//			      << "at " << *fVertex;
   return fVertex;
 }
 
@@ -130,7 +129,7 @@ void BeamProfileVtxGenerator::sigmaX(double s) {
   if (s>=0) {
     fSigmaX = s; 
   } else {
-    edm::LogWarning("VertexGenerator") << "Warning BeamProfileVtxGenerator:"
+    edm::LogWarning("BeamProfileVtxGenerator") << "Warning BeamProfileVtxGenerator:"
 				       << " Illegal resolution in X " << s
 				       << "- set to default value 0 cm";
     fSigmaX = 0;
@@ -142,7 +141,7 @@ void BeamProfileVtxGenerator::sigmaY(double s) {
   if (s>=0) {
     fSigmaY = s; 
   } else {
-    edm::LogWarning("VertexGenerator") << "Warning BeamProfileVtxGenerator:"
+    edm::LogWarning("BeamProfileVtxGenerator") << "Warning BeamProfileVtxGenerator:"
 				       << " Illegal resolution in Y " << s
 				       << "- set to default value 0 cm";
     fSigmaY = 0;

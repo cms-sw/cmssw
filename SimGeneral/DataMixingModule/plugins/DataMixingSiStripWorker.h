@@ -52,10 +52,8 @@ namespace edm
     private:
       // data specifiers
 
-      edm::InputTag Sistripdigi_collectionSig_ ; // primary name given to collection of SiStrip digis
-      edm::InputTag SistripLabelSig_ ;           // secondary name given to collection of SiStrip digis
-      edm::InputTag Sistripdigi_collectionPile_ ; // primary name given to collection of SiStrip digis
-      edm::InputTag SistripLabelPile_ ;           // secondary name given to collection of SiStrip digis
+      edm::InputTag Sistripdigi_collection_ ; // primary name given to collection of SiStrip digis
+      edm::InputTag SistripLabel_ ;           // secondary name given to collection of SiStrip digis
       std::string SiStripDigiCollectionDM_  ; // secondary name to be given to new SiStrip digis
 
       // 

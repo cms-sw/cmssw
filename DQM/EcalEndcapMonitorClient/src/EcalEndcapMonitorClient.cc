@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/08/29 16:07:17 $
- * $Revision: 1.198 $
+ * $Date: 2008/10/07 12:10:11 $
+ * $Revision: 1.199 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1139,11 +1139,11 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
     runType_ = -1;
   } else {
     for ( unsigned int i = 0; i < runTypes_.size(); i++ ) {
-      if ( rt == runTypes_[i] ) {
+      if ( strcmp(rt.c_str(), runTypes_[i].c_str()) == 0 ) {
         if ( runType_ != int(i) ) {
           if ( verbose_ ) {
             cout << endl;
-            cout << "Taking Run Type from DB: " << runTypes_[i] << endl;
+            cout << "Fixing Run Type to: " << runTypes_[i] << endl;
             cout << endl;
           }
           runType_ = i;
@@ -1265,11 +1265,11 @@ void EcalEndcapMonitorClient::writeDb(bool flag) {
     bool done = false;
     for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
       if ( h_ && runType_ != -1 && runType_ == (*j).second && !done ) {
-        if ( strcmp(clientsNames_[i].c_str(), "Cosmic") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::COSMIC] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL] && runType_ != runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL] && runType_ != runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL] && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_LOCAL) == 0 ) continue;
-        if ( strcmp(clientsNames_[i].c_str(), "Laser") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
-        if ( strcmp(clientsNames_[i].c_str(), "Led") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::LED_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LED_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_GAP) == 0 ) continue;
-        if ( strcmp(clientsNames_[i].c_str(), "Pedestal") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
-        if ( strcmp(clientsNames_[i].c_str(), "TestPulse") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA] && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Cosmic") == 0 && runType_ != EcalDCCHeaderBlock::COSMIC && runType_ != EcalDCCHeaderBlock::COSMICS_LOCAL && runType_ != EcalDCCHeaderBlock::COSMICS_GLOBAL && runType_ != EcalDCCHeaderBlock::PHYSICS_GLOBAL && runType_ != EcalDCCHeaderBlock::PHYSICS_LOCAL && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_LOCAL) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Laser") == 0 && runType_ != EcalDCCHeaderBlock::LASER_STD && runType_ != EcalDCCHeaderBlock::LASER_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Led") == 0 && runType_ != EcalDCCHeaderBlock::LED_STD && runType_ != EcalDCCHeaderBlock::LED_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Pedestal") == 0 && runType_ != EcalDCCHeaderBlock::PEDESTAL_STD && runType_ != EcalDCCHeaderBlock::PEDESTAL_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "TestPulse") == 0 && runType_ != EcalDCCHeaderBlock::TESTPULSE_MGPA && runType_ != EcalDCCHeaderBlock::TESTPULSE_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
         done = true;
         if ( verbose_ ) {
           if ( econn ) {
@@ -1538,7 +1538,7 @@ void EcalEndcapMonitorClient::analyze(void) {
         if ( h_->GetEntries() != 0 ) {
           cout << " ( " << flush;
           for ( unsigned int i = 0; i < runTypes_.size(); i++ ) {
-            if ( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(2+i) != 0 ) {
+            if ( strcmp(runTypes_[i].c_str(), "UNKNOWN") != 0 && h_->GetBinContent(2+i) != 0 ) {
               string s = runTypes_[i];
               transform( s.begin(), s.end(), s.begin(), (int(*)(int))tolower );
               cout << s << " ";
@@ -1782,7 +1782,7 @@ void EcalEndcapMonitorClient::htmlOutput( bool current ) {
   htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Executed tasks for run:&nbsp&nbsp&nbsp" << endl;
   htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << run_ <<"</span></h2> " << endl;
-  htmlFile << "<h2>Run type:&nbsp&nbsp&nbsp" << endl;
+  htmlFile << "<h2>Run Type:&nbsp&nbsp&nbsp" << endl;
   htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << this->getRunType() <<"</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
 
@@ -1794,11 +1794,11 @@ void EcalEndcapMonitorClient::htmlOutput( bool current ) {
     bool done = false;
     for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
       if ( h_ && runType_ != -1 && runType_ == (*j).second && !done ) {
-        if ( strcmp(clientsNames_[i].c_str(), "Cosmic") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::COSMIC] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL] && runType_ != runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL] && runType_ != runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL] && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_LOCAL) == 0 ) continue;
-        if ( strcmp(clientsNames_[i].c_str(), "Laser") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
-        if ( strcmp(clientsNames_[i].c_str(), "Led") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::LED_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LED_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_GAP) == 0 ) continue;
-        if ( strcmp(clientsNames_[i].c_str(), "Pedestal") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
-        if ( strcmp(clientsNames_[i].c_str(), "TestPulse") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA] && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Cosmic") == 0 && runType_ != EcalDCCHeaderBlock::COSMIC && runType_ != EcalDCCHeaderBlock::COSMICS_LOCAL && runType_ != EcalDCCHeaderBlock::COSMICS_GLOBAL && runType_ != EcalDCCHeaderBlock::PHYSICS_GLOBAL && runType_ != EcalDCCHeaderBlock::PHYSICS_LOCAL && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_LOCAL) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Laser") == 0 && runType_ != EcalDCCHeaderBlock::LASER_STD && runType_ != EcalDCCHeaderBlock::LASER_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Led") == 0 && runType_ != EcalDCCHeaderBlock::LED_STD && runType_ != EcalDCCHeaderBlock::LED_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Pedestal") == 0 && runType_ != EcalDCCHeaderBlock::PEDESTAL_STD && runType_ != EcalDCCHeaderBlock::PEDESTAL_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "TestPulse") == 0 && runType_ != EcalDCCHeaderBlock::TESTPULSE_MGPA && runType_ != EcalDCCHeaderBlock::TESTPULSE_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
         done = true;
         htmlName = "EE" + clientsNames_[i] + "Client.html";
         clients_[i]->htmlOutput(run_, htmlDir, htmlName);
@@ -1907,11 +1907,11 @@ void EcalEndcapMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out) {
 
   *out << "<p style=\"font-family: arial\">"
        << "<table border=1>"
-       << "<tr><th>Cycle</th><td align=right>" << this->getEvtPerJob();
+       << "<tr><th>Cycle</th><td align=right>" << ievt_;
   int nevt = 0;
-  if ( this->getEntryHisto() != 0 ) nevt = int( this->getEntryHisto()->GetEntries());
+  if ( h_ != 0 ) nevt = int( h_->GetEntries() );
   *out << "<tr><th>Event</th><td align=right>" << nevt
-       << "</td><tr><th>Run</th><td align=right>" << this->getRun()
+       << "</td><tr><th>Run</th><td align=right>" << run_
        << "</td><tr><th>Run Type</th><td align=right> " << this->getRunType()
        << "</td></table></p>" << endl;
 
@@ -1920,13 +1920,12 @@ void EcalEndcapMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out) {
   *out << "<p style=\"font-family: arial\">"
        << "<table border=1>"
        << "<tr><th>Evt Type</th><th>Evt/Run</th><th>Evt Type</th><th>Evt/Run</th>" << endl;
-  vector<string> runTypes = this->getRunTypes();
-  for( unsigned int i=0, j=0; i<runTypes.size(); i++ ) {
-    if ( runTypes[i] != "UNKNOWN" ) {
+  for( unsigned int i = 0, j = 0; i < runTypes_.size(); i++ ) {
+    if ( strcmp(runTypes_[i].c_str(), "UNKNOWN") != 0 ) {
       if ( j++%2 == 0 ) *out << "<tr>";
       nevt = 0;
-      if ( this->getEntryHisto() != 0 ) nevt = int( this->getEntryHisto()->GetBinContent(i+1));
-      *out << "<td>" << runTypes[i]
+      if ( h_ != 0 ) nevt = int( h_->GetBinContent(i+1));
+      *out << "<td>" << runTypes_[i]
            << "</td><td align=right>" << nevt << endl;
     }
   }
@@ -1937,14 +1936,12 @@ void EcalEndcapMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out) {
   *out << "<p style=\"font-family: arial\">"
        << "<table border=1>"
        << "<tr><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th>" << endl;
-  const vector<EEClient*> clients = this->getClients();
-  const vector<string> clientsNames = this->getClientsNames();
-  for( unsigned int i=0; i<clients.size(); i++ ) {
-    if ( clients[i] != 0 ) {
+  for( unsigned int i = 0; i < clients_.size(); i++ ) {
+    if ( clients_[i] != 0 ) {
       if ( i%2 == 0 ) *out << "<tr>";
-      *out << "<td>" << clientsNames[i]
-           << "</td><td align=right>" << clients[i]->getEvtPerJob()
-           << "</td><td align=right>" << clients[i]->getEvtPerRun() << endl;
+      *out << "<td>" << clientsNames_[i]
+           << "</td><td align=right>" << clients_[i]->getEvtPerJob()
+           << "</td><td align=right>" << clients_[i]->getEvtPerRun() << endl;
     }
   }
   *out << "</td></table></p>" << endl;
@@ -1955,9 +1952,9 @@ void EcalEndcapMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out) {
   *out << "<p style=\"font-family: arial\">"
        << "<table border=1>"
        << "<tr><th colspan=2>RunIOV</th>"
-       << "<tr><td>Run Number</td><td align=right> " << this->getRunIOV().getRunNumber()
-       << "</td><tr><td>Run Start</td><td align=right> " << this->getRunIOV().getRunStart().str()
-       << "</td><tr><td>Run End</td><td align=right> " << this->getRunIOV().getRunEnd().str()
+       << "<tr><td>Run Number</td><td align=right> " << runiov_.getRunNumber()
+       << "</td><tr><td>Run Start</td><td align=right> " << runiov_.getRunStart().str()
+       << "</td><tr><td>Run End</td><td align=right> " << runiov_.getRunEnd().str()
        << "</td></table></p>" << endl;
 
   *out << "</td><td colsapn=2>" << endl;
@@ -1965,9 +1962,9 @@ void EcalEndcapMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out) {
   *out << "<p style=\"font-family: arial\">"
        << "<table border=1>"
        << "<tr><th colspan=2>RunTag</th>"
-       << "<tr><td>GeneralTag</td><td align=right> " << this->getRunIOV().getRunTag().getGeneralTag()
-       << "</td><tr><td>Location</td><td align=right> " << this->getRunIOV().getRunTag().getLocationDef().getLocation()
-       << "</td><tr><td>Run Type</td><td align=right> " << this->getRunIOV().getRunTag().getRunTypeDef().getRunType()
+       << "<tr><td>GeneralTag</td><td align=right> " << runiov_.getRunTag().getGeneralTag()
+       << "</td><tr><td>Location</td><td align=right> " << runiov_.getRunTag().getLocationDef().getLocation()
+       << "</td><tr><td>Run Type</td><td align=right> " << runiov_.getRunTag().getRunTypeDef().getRunType()
        << "</td></table></p>" << endl;
 
   *out << "</td><tr><td>" << endl;
@@ -1975,9 +1972,9 @@ void EcalEndcapMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out) {
   *out << "<p style=\"font-family: arial\">"
        << "<table border=1>"
        << "<tr><th colspan=2>MonRunIOV</th>"
-       << "<tr><td>SubRun Number</td><td align=right> " << this->getMonIOV().getSubRunNumber()
-       << "</td><tr><td>SubRun Start</td><td align=right> " << this->getMonIOV().getSubRunStart().str()
-       << "</td><tr><td>SubRun End</td><td align=right> " << this->getMonIOV().getSubRunEnd().str()
+       << "<tr><td>SubRun Number</td><td align=right> " << moniov_.getSubRunNumber()
+       << "</td><tr><td>SubRun Start</td><td align=right> " << moniov_.getSubRunStart().str()
+       << "</td><tr><td>SubRun End</td><td align=right> " << moniov_.getSubRunEnd().str()
        << "</td></table></p>" << endl;
 
   *out << "</td><td colspan=2>" << endl;
@@ -1985,8 +1982,8 @@ void EcalEndcapMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out) {
   *out << "<p style=\"font-family: arial\">"
        << "<table border=1>"
        << "<tr><th colspan=2>MonRunTag</th>"
-       << "<tr><td>GeneralTag</td><td align=right> " << this->getMonIOV().getMonRunTag().getGeneralTag()
-       << "</td><tr><td>Monitoring Version</td><td align=right> " << this->getMonIOV().getMonRunTag().getMonVersionDef().getMonitoringVersion()
+       << "<tr><td>GeneralTag</td><td align=right> " << moniov_.getMonRunTag().getGeneralTag()
+       << "</td><tr><td>Monitoring Version</td><td align=right> " << moniov_.getMonRunTag().getMonVersionDef().getMonitoringVersion()
        << "</td></table></p>" << endl;
 
   *out << "</td><table>" << endl;

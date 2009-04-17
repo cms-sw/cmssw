@@ -26,6 +26,7 @@
 #include <iostream>
 
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Detector.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
 
 #define HWSTATUSBITSETSIZE    12
 #define HWSTATUSERRORBITS     0xffe
@@ -37,27 +38,38 @@
 
 namespace cscdqm {
 
+/**
+  * @brief Hardware Status Bit values used in Summary efficiency calculation
+  */
 enum HWStatusBit {
 
-  DATA,         // Data available (reporting)
-  MASKED,       // HW element was masked out (not in readout)
-  HOT,          // HW element is hot by comparing with reference histogram 
-  COLD,         // HW element is cold comparing with reference histogram
+  DATA,         /// Data available (reporting)
+  MASKED,       /// HW element was masked out (not in readout)
+  HOT,          /// HW element is hot by comparing with reference histogram 
+  COLD,         /// HW element is cold comparing with reference histogram
 
-  FORMAT_ERR,   // Format errors
-  L1SYNC_ERR,   // L1A out of sync errors
-  FIFOFULL_ERR, // DMB FIFO full error
-  INPUTTO_ERR,  // DMB Input timeout error
+  FORMAT_ERR,   /// Format errors
+  L1SYNC_ERR,   /// L1A out of sync errors
+  FIFOFULL_ERR, /// DMB FIFO full error
+  INPUTTO_ERR,  /// DMB Input timeout error
 
-  NODATA_ALCT,  // No ALCT data
-  NODATA_CLCT,  // No CLCT data
-  NODATA_CFEB,  // No CFEB data
-  CFEB_BWORDS   // Data with CFEB BWORDS
+  NODATA_ALCT,  /// No ALCT data
+  NODATA_CLCT,  /// No CLCT data
+  NODATA_CFEB,  /// No CFEB data
+  CFEB_BWORDS   /// Data with CFEB BWORDS
 
 };
 
+/**
+ * @brief  Hardware Status Bits structure used in Summary efficiency
+ * calculation and storage
+ */
 typedef std::bitset<HWSTATUSBITSETSIZE> HWStatusBitSet;
 
+/**
+ * @class Summary
+ * @brief Hardware and Physics Efficiency data structures and routines 
+ */
 class Summary {
 
   public:
@@ -69,9 +81,9 @@ class Summary {
 
     const Detector getDetector() const { return detector; }
 
-    void ReadReportingChambers(TH2*& h2, const double threshold = 1.0);
-    void ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double cold_coef = 0.1, const double cold_Sfail = 5.0, const double hot_coef = 2.0, const double hot_Sfail = 5.0);
-    void ReadErrorChambers(TH2*& evs, TH2*& err, const HWStatusBit bit, const double eps_max = 0.1, const double Sfail = 5.0);
+    void ReadReportingChambers(const TH2*& h2, const double threshold = 1.0);
+    void ReadReportingChambersRef(const TH2*& h2, const TH2*& refh2, const double cold_coef = 0.1, const double cold_Sfail = 5.0, const double hot_coef = 2.0, const double hot_Sfail = 5.0);
+    void ReadErrorChambers(const TH2*& evs, const TH2*& err, const HWStatusBit bit, const double eps_max = 0.1, const double Sfail = 5.0);
 
     const unsigned int setMaskedHWElements(std::vector<std::string>& tokens);
 

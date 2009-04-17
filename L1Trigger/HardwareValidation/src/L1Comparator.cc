@@ -653,10 +653,10 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   isValidDE[DTP][0]&=      dtp_th_data_.isValid(); isValidDE[DTP][1]&=     dtp_th_emul_.isValid();
   isValidDE[DTF][0] =         dtf_data .isValid(); isValidDE[DTF][1] =        dtf_emul .isValid();
 //isValidDE[DTF][0]&=     dtf_trk_data_.isValid(); isValidDE[DTF][1]&=    dtf_trk_emul_.isValid();
-  isValidDE[CTP][0] =     ctp_ano_data_.isValid(); isValidDE[CTP][1] =    ctp_ano_emul_.isValid();
+  isValidDE[CTP][0] =     ctp_lct_data_.isValid(); isValidDE[CTP][1] =    ctp_lct_emul_.isValid();
   if (m_DEsource[CTP][0].label().find("tf") == std::string::npos) {
-    isValidDE[CTP][0]&=     ctp_cat_data_.isValid(); isValidDE[CTP][1]&=    ctp_cat_emul_.isValid();
-    isValidDE[CTP][0]&=     ctp_lct_data_.isValid(); isValidDE[CTP][1]&=    ctp_lct_emul_.isValid();
+    isValidDE[CTP][0]&=   ctp_ano_data_.isValid(); isValidDE[CTP][1]&=    ctp_ano_emul_.isValid();
+    isValidDE[CTP][0]&=   ctp_cat_data_.isValid(); isValidDE[CTP][1]&=    ctp_cat_emul_.isValid();
   }
   isValidDE[CTF][0] =         ctf_data .isValid(); isValidDE[CTF][1] =        ctf_emul .isValid();
 //isValidDE[CTF][0]&=    ctf_trk_data_ .isValid(); isValidDE[CTF][1]&=   ctf_trk_emul_ .isValid();

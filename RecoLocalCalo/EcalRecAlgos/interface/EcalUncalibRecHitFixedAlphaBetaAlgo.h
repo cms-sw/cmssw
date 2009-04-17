@@ -120,7 +120,6 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
   double maxsample(-1);
   int imax(-1);
   bool external_pede = false;
-  bool isSaturated = 0;
   // Get time samples checking for Gain Switch and pedestals
   if(pedestals){
     external_pede = true;
@@ -129,19 +128,13 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
     for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
 	//create frame in adc gain 12 equivalent
 	GainId = dataFrame.sample(iSample).gainId();
-
 	// FIX-ME: warning: the vector pedestal is supposed to have in the order G12, G6 and G1
-	if (GainId == 0)
-	  { 
-	    GainId = 3;
-	    isSaturated = 1;
-	  }
-	//Gain12Equivalent[GainId];
-	if (GainId != gainId0) iGainSwitch = 1;
-
+	
 	if(GainId==gainId0){frame[iSample] = double(dataFrame.sample(iSample).adc())-pedestal ;}
 	else {frame[iSample] = (double(dataFrame.sample(iSample).adc())-pedestals[GainId-1])*gainRatios[GainId-1];}
-
+	//Gain12Equivalent[GainId];
+	if (GainId == 0 ) GainId = 3;//Fix ME this should be before frame construction for saturated channels
+	if (GainId != gainId0) iGainSwitch = 1;
 	if( frame[iSample]>maxsample ) {
           maxsample = frame[iSample];
           imax = iSample;
@@ -155,13 +148,8 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
       //create frame in adc gain 12 equivalent
       GainId = dataFrame.sample(iSample).gainId();
       //no gain switch forseen if there is no external pedestal
-      if (GainId == 0 ) 
-	{
-	  GainId = 3;
-	  isSaturated = 1;
-	}
-
       frame[iSample] = double(dataFrame.sample(iSample).adc())-pedestal ;
+      if (GainId == 0 ) GainId = 3;//Fix ME this should be before frame construction for saturated channels
       if (GainId > gainId0) iGainSwitch = 1;
       if( frame[iSample]>maxsample ) {
 	maxsample = frame[iSample];
@@ -176,8 +164,6 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
   
   InitFitParameters(frame, imax);
   chi2_ = PerformAnalyticFit(frame,imax);
-  if (isSaturated)
-    chi2_ = EcalUncalibratedRecHit::kSATURATED;
 
   /*    std::cout << "separate fits\nA: " << fAmp_max_  << ", ResidualPed: " <<  fPed_max_
               <<", pedestal: "<<pedestal << ", tPeak " << fTim_max_ << std::endl;
