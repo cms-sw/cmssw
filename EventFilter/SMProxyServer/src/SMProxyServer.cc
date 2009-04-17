@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.27 2009/04/13 17:50:45 biery Exp $
+// $Id: SMProxyServer.cc,v 1.28 2009/04/17 14:40:19 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -8,9 +8,6 @@
 
 #include "EventFilter/SMProxyServer/interface/SMProxyServer.h"
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
-#include "EventFilter/StorageManager/interface/ProgressMarker.h"
-//#include "EventFilter/StorageManager/interface/Configurator.h"
-//#include "EventFilter/StorageManager/interface/Parameter.h"
 
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
 
@@ -68,7 +65,7 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   sentEvents_(0),
   sentDQMEvents_(0), 
   storedVolume_(0.),
-  progressMarker_(ProgressMarker::instance()->idle())
+  progressMarker_("Idle")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making SMProxyServer");
 
@@ -122,19 +119,6 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   // 21-Nov-2008, KAB: the findRcmsStateListener call needs to go after the
   // calls to add the RCMS vars to the application infospace.
   fsm_.findRcmsStateListener();
-
-  //ispace->fireItemAvailable("nLogicalDisk", &nLogicalDisk_);
-
-  //boost::shared_ptr<stor::Parameter> smParameter_ = stor::Configurator::instance()->getParameter();
-  //closeFileScript_    = smParameter_ -> closeFileScript();
-  //notifyTier0Script_  = smParameter_ -> notifyTier0Script();
-  //insertFileScript_   = smParameter_ -> insertFileScript();  
-  //fileCatalog_        = smParameter_ -> fileCatalog(); 
-
-  //ispace->fireItemAvailable("closeFileScript",    &closeFileScript_);
-  //ispace->fireItemAvailable("notifyTier0Script",  &notifyTier0Script_);
-  //ispace->fireItemAvailable("insertFileScript",   &insertFileScript_);
-  //ispace->fireItemAvailable("fileCatalog",        &fileCatalog_);
 
   // added for Event Server
   maxESEventRate_ = 100.0;  // hertz
@@ -3027,8 +3011,8 @@ void SMProxyServer::actionPerformed(xdata::Event& e)
         storedVolume_   = dpm_->totalvolumemb();
       else
         storedVolume_   = 0;
-    else if (item == "progressMarker")
-      progressMarker_ = ProgressMarker::instance()->status();
+    //else if (item == "progressMarker")
+    //  progressMarker_ = ProgressMarker::instance()->status();
     is->unlock();
   } 
 }
