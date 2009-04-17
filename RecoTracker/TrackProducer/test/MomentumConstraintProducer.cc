@@ -49,9 +49,9 @@ private:
   virtual void endJob() ;
       
   // ----------member data ---------------------------
-  const edm::ParameterSet iConfig_;
-  double fixedmom_;
-  double fixedmomerr_;
+  const edm::InputTag srcTag_; 
+  const double fixedmom_;
+  const double fixedmomerr_;
 };
 
 //
@@ -65,7 +65,11 @@ private:
 //
 // constructors and destructor
 //
-MomentumConstraintProducer::MomentumConstraintProducer(const edm::ParameterSet& iConfig) : iConfig_(iConfig)
+MomentumConstraintProducer::MomentumConstraintProducer(const edm::ParameterSet& iConfig):   
+  srcTag_(iConfig.getParameter<edm::InputTag>("src")),
+  fixedmom_(iConfig.getParameter<double>("fixedMomentum")),
+  fixedmomerr_(iConfig.getParameter<double>("fixedMomentumError"))
+
 {
   //register your products
   produces<std::vector<MomentumConstraint> >();
@@ -90,12 +94,9 @@ MomentumConstraintProducer::~MomentumConstraintProducer()
 void MomentumConstraintProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  InputTag srcTag = iConfig_.getParameter<InputTag>("src");
-  fixedmom_= iConfig_.getParameter<double>("fixedMomentum");
-  fixedmomerr_= iConfig_.getParameter<double>("fixedMomentumError");
 
   Handle<reco::TrackCollection> theTCollection;
-  iEvent.getByLabel(srcTag,theTCollection);
+  iEvent.getByLabel(srcTag_,theTCollection);
   
   std::auto_ptr<std::vector<MomentumConstraint> > pairs(new std::vector<MomentumConstraint>);
   std::auto_ptr<TrackMomConstraintAssociationCollection> output(new TrackMomConstraintAssociationCollection);
@@ -105,10 +106,11 @@ void MomentumConstraintProducer::produce(edm::Event& iEvent, const edm::EventSet
   int index = 0;
   for (reco::TrackCollection::const_iterator i=theTCollection->begin(); i!=theTCollection->end();i++) {
     //    MomentumConstraint tmp(10.,0.01) ;
-    if(fixedmom_< 0.0){
-      fixedmom_= i->p();
-    }
+
     MomentumConstraint tmp(fixedmom_,fixedmomerr_) ;
+    if(fixedmom_< 0.0){
+      tmp= MomentumConstraint(i->p(),fixedmomerr_);
+    }
     pairs->push_back(tmp);
     output->insert(reco::TrackRef(theTCollection,index), edm::Ref<std::vector<MomentumConstraint> >(rPairs,index) );
     index++;
