@@ -9,6 +9,7 @@ HLTMuonPostVal = cms.Sequence(
     )
 
 HLTMuonPostVal_FastSim = cms.Sequence(
+    recoMuonPostProcessorsHLT +
     HLTMuonPostProcessor
     )
 
