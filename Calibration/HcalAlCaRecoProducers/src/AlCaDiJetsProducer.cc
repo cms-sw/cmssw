@@ -62,7 +62,7 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Jets Collections 
 
    vector<CaloJet> jetv; 
-   try {
+
    CaloJet fJet1, fJet2, fJet3;
    edm::Handle<CaloJetCollection> jets;                
    iEvent.getByLabel(jetsInput_, jets);    
@@ -93,15 +93,11 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      iEvent.put( miniDiJetsHFRecHitCollection, "DiJetsHFRecHitCollection");
      return;
    }  
-   } catch (cms::Exception& e) { // can't find it!
-     if (!allowMissingInputs_) { cout << "No jets collection" << endl; throw e; }  
-   }
-
+  
   // Ecal Collections 
 
    std::vector<edm::InputTag>::const_iterator i;
    for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
-   try {
    edm::Handle<EcalRecHitCollection> ec;
    iEvent.getByLabel(*i,ec);
    for(EcalRecHitCollection::const_iterator ecItr = (*ec).begin();
@@ -122,14 +118,10 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           if(iflag_select==1){miniDiJetsEcalRecHitCollection->push_back(*ecItr);}
        }
 
-   } catch (cms::Exception& e) { // can't find it!
-     if (!allowMissingInputs_) { cout << "No Ecal Collections" << endl; throw e;}
-   }
    }
 
   // HB & HE Collections 
    
-   try {
    edm::Handle<HBHERecHitCollection> hbhe;
    iEvent.getByLabel(hbheInput_,hbhe);
    for(HBHERecHitCollection::const_iterator hbheItr=hbhe->begin(); 
@@ -148,13 +140,11 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           }  
           if(iflag_select==1){miniDiJetsHBHERecHitCollection->push_back(*hbheItr);}
         }
-   } catch (cms::Exception& e) { // can't find it!
-     if (!allowMissingInputs_) {cout<<"No HBHE collection "<<endl; throw e;}
-   }
+  
 
 // HO Collections 
 
-   try{  
+
    edm::Handle<HORecHitCollection> ho;
    iEvent.getByLabel(hoInput_,ho);
    for(HORecHitCollection::const_iterator hoItr=ho->begin(); 
@@ -173,13 +163,10 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           }  
           if(iflag_select==1){miniDiJetsHORecHitCollection->push_back(*hoItr);}
         }
-   } catch (cms::Exception& e) { // can't find it!
-     if (!allowMissingInputs_) {cout<<" No HO collection "<<endl; throw e;}
-   }
-
+  
   // HF Collection
 
-   try {
+ 
    edm::Handle<HFRecHitCollection> hf;
    iEvent.getByLabel(hfInput_,hf);
    for(HFRecHitCollection::const_iterator hfItr=hf->begin(); 
@@ -198,9 +185,7 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           }  
           if(iflag_select==1){miniDiJetsHFRecHitCollection->push_back(*hfItr);}
        }
-   } catch (cms::Exception& e) { // can't find it!
-     if (!allowMissingInputs_) throw e;
-   }
+ 
 
   //Put selected information in the event
 
