@@ -51,8 +51,9 @@ void RPCMon_SS_Dbx_Global::beginRun(const Run& r, const EventSetup& c){
   dbe_->setCurrentFolder(globalFolder_);
 
   MonitorElement* me;
-
-  if ( me = dbe_->get(globalFolder_ + "/AfterPulseBxDiff")) 
+  me =0;
+  me = dbe_->get(globalFolder_ + "/AfterPulseBxDiff");
+  if ( 0!=me) 
     dbe_->removeElement(me->getName());
   me = dbe_->book1D("AfterPulseBxDiff","After Pulse Bx Difference",13,-6.5,6.5);
 }

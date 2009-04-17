@@ -155,7 +155,9 @@ void  RPCFEDIntegrity::reset(void){
 
   if(dbe_){
     for(unsigned int i = 0; i<histoName_.size(); i++){
-      if( me = dbe_->get(prefixDir_ +"FEDIntegrity/"+ histoName_[i]) ) 	me->Reset();
+      me = 0;
+      me = dbe_->get(prefixDir_ +"FEDIntegrity/"+ histoName_[i]);
+      if(0!=me ) me->Reset();
     }
   }
 }

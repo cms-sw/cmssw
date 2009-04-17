@@ -71,7 +71,9 @@ void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
     
     histoName.str("");
     histoName<<"RPCChamberQuality_Roll_vs_Sector_Wheel"<<w;       //  2D histo for RPC Qtest
-    if ( me = dbe_->get(prefixDir_+"/"+ histoName.str()) ) {
+    me = 0;
+    me = dbe_->get(prefixDir_+"/"+ histoName.str());
+    if (0!=me) {
       dbe_->removeElement(me->getName());
     }
     me = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
@@ -102,10 +104,12 @@ void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
     me->setBinLabel(19, "RB1+-_F", 2);
     me->setBinLabel(20, "RB4++_B", 2);
     me->setBinLabel(21, "RB1++_F", 2);
-    
+   
     histoName.str("");
     histoName<<"RPCChamberQuality_Distribution_Wheel"<<w;       //  ClusterSize in first bin, distribution
-    if ( me = dbe_->get(prefixDir_+"/"+ histoName.str()) ) {
+    me=0;
+    me = dbe_->get(prefixDir_+"/"+ histoName.str());
+    if (0!=me ) {
       dbe_->removeElement(me->getName());
     }
     me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  7, 0.5, 7.5);

@@ -55,7 +55,9 @@ void RPCMultiplicityTest::beginRun(const Run& r, const EventSetup& iSetup,vector
     if (i>-3 && i<3){//wheels  
       histoName.str("");
       histoName<<"NumberOfDigi_Mean_Roll_vs_Sector_Wheel"<<i;
-      if ( me = dbe_->get(globalFolder_ +"/"+ histoName.str()) ) {
+      me = 0;
+      me = dbe_->get(globalFolder_ +"/"+ histoName.str());
+      if ( 0!=me) {
 	dbe_->removeElement(me->getName());
       }
       
@@ -66,7 +68,9 @@ void RPCMultiplicityTest::beginRun(const Run& r, const EventSetup& iSetup,vector
       
       histoName.str("");
       histoName<<"NumberOfDigi_Mean_Distribution_Wheel"<<i;
-      if ( me = dbe_->get(globalFolder_ +"/"+ histoName.str()) ) {
+      me = 0;
+      me = dbe_->get(globalFolder_ +"/"+ histoName.str());
+      if ( 0!=me) {
 	dbe_->removeElement(me->getName());
       }
       
@@ -80,7 +84,9 @@ void RPCMultiplicityTest::beginRun(const Run& r, const EventSetup& iSetup,vector
   
     histoName.str("");
     histoName<<"NumberOfDigi_Mean_Roll_vs_Sector_Disk"<<i;
-    if ( me = dbe_->get(globalFolder_ +"/"+ histoName.str()) ) {
+    me = 0;
+    me = dbe_->get(globalFolder_ +"/"+ histoName.str());
+    if ( 0!=me) {
       dbe_->removeElement(me->getName());
     }
     MULTDisk[i+offset]   = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 6, 0.5, 6.5, 54, 0.5, 54.5);
@@ -90,7 +96,9 @@ void RPCMultiplicityTest::beginRun(const Run& r, const EventSetup& iSetup,vector
 
     histoName.str("");
     histoName<<"NumberOfDigi_Mean_Distribution_Disk"<<i;
-    if ( me = dbe_->get(globalFolder_+"/"+ histoName.str()) ) {
+    me = 0;
+    me = dbe_->get(globalFolder_ +"/"+ histoName.str());
+    if ( 0!=me) {
       dbe_->removeElement(me->getName());
     }
     

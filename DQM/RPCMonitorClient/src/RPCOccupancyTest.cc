@@ -44,8 +44,9 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
     if (w>-3 && w<3){//Barrel
       histoName.str("");
       histoName<<"AsymmetryLeftRight_Roll_vs_Sector_Wheel"<<w;
-      
-      if ( me = dbe_->get( globalFolder_+"/"+ histoName.str()) ) {
+      me = 0;
+      me = dbe_->get( globalFolder_+"/"+ histoName.str());
+      if ( 0!=me  ) {
 	dbe_->removeElement(me->getName());
       }
       
@@ -55,8 +56,10 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
       rpcUtils.labelYAxisRoll( AsyMeWheel[w+2], 0, w);
       
       histoName.str("");
-      histoName<<"AsymmetryLeftRight_Distribution_Wheel"<<w;      
-      if ( me = dbe_->get( globalFolder_+"/"+ histoName.str()) ) {
+      histoName<<"AsymmetryLeftRight_Distribution_Wheel"<<w;  
+      me = 0;
+      me = dbe_->get( globalFolder_+"/"+ histoName.str());
+      if ( 0!=me  ) {
 	dbe_->removeElement(me->getName());
       }
       AsyMeDWheel[w+2] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  20, -0.1, 1.1);
@@ -64,8 +67,9 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
        
       histoName.str("");
       histoName<<"OccupancyNormByGeoAndRPCEvents_Wheel"<<w;
-      
-      if ( me = dbe_->get( globalFolder_ +"/"+ histoName.str()) ) {
+      me = 0;
+      me = dbe_->get( globalFolder_+"/"+ histoName.str());
+      if ( 0!=me  ) {
 	dbe_->removeElement(me->getName());
       }
       
@@ -75,8 +79,10 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
       rpcUtils.labelYAxisRoll(  NormOccupWheel[w+2], 0, w);
    
       histoName.str("");
-      histoName<<"OccupancyNormByGeoAndRPCEvents_Distribution_Wheel"<<w;      
-      if ( me = dbe_->get( globalFolder_+"/"+ histoName.str()) ) {
+      histoName<<"OccupancyNormByGeoAndRPCEvents_Distribution_Wheel"<<w;   
+      me = 0;
+      me = dbe_->get( globalFolder_+"/"+ histoName.str());
+      if ( 0!=me  ) {
 	dbe_->removeElement(me->getName());
       }
       NormOccupDWheel[w+2] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.0, 0.205);
@@ -89,8 +95,9 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
     
     histoName.str("");
     histoName<<"AsymmetryLeftRight_Roll_vs_Sector_Disk"<<w;
-    
-    if ( me = dbe_->get( globalFolder_+"/"+ histoName.str()) ) {
+    me = 0;
+    me = dbe_->get( globalFolder_+"/"+ histoName.str());
+    if ( 0!=me  ) {
       dbe_->removeElement(me->getName());
     }
       
@@ -101,7 +108,9 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
     
     histoName.str("");
     histoName<<"AsymmetryLeftRight_Distribution_Disk"<<w;      
-    if ( me = dbe_->get(globalFolder_+"/"+ histoName.str()) ) {
+    me = 0;
+    me = dbe_->get( globalFolder_+"/"+ histoName.str());
+    if ( 0!=me  ) {
        dbe_->removeElement(me->getName());
     }
     AsyMeDDisk[w+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  20, -0.1, 1.1);
@@ -109,8 +118,9 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
     
     histoName.str("");
     histoName<<"OccupancyNormByGeoAndRPCEvents_Disk"<<w;
-    
-    if ( me = dbe_->get(globalFolder_ +"/"+ histoName.str()) ) {
+    me = 0;
+    me = dbe_->get( globalFolder_+"/"+ histoName.str());
+    if ( 0!=me  ) {
       dbe_->removeElement(me->getName());
     }
     
@@ -120,8 +130,10 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
     rpcUtils.labelYAxisRoll( NormOccupDisk[w+offset], 1, w);
     
     histoName.str("");
-    histoName<<"OccupancyNormByGeoAndRPCEvents_Distribution_Disk"<<w;      
-    if ( me = dbe_->get(globalFolder_ +"/"+ histoName.str()) ) {
+    histoName<<"OccupancyNormByGeoAndRPCEvents_Distribution_Disk"<<w;  
+    me = 0;
+    me = dbe_->get( globalFolder_+"/"+ histoName.str());
+    if ( 0!=me  ) {
       dbe_->removeElement(me->getName());
     }
     NormOccupDDisk[w+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.0, 0.205);

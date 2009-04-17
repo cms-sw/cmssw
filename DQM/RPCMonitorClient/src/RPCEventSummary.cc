@@ -52,7 +52,9 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
  //a global summary float [0,1] providing a global summary of the status 
  //and showing the goodness of the data taken by the the sub-system 
  string histoName="reportSummary";
- if ( me = dbe_->get(eventInfoPath_ +"/"+ histoName) ) {
+ me =0;
+ me = dbe_->get(eventInfoPath_ +"/"+ histoName);
+ if ( 0!=me) {
     dbe_->removeElement(me->getName());
   }
 
@@ -60,8 +62,10 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
   me->Fill(1);
 
   //TH2F ME providing a mapof values[0-1] to show if problems are localized or distributed
-  if ( me = dbe_->get(eventInfoPath_ + "/reportSummaryMap") ) {
-     dbe_->removeElement(me->getName());
+  me =0;
+  me = dbe_->get(eventInfoPath_ +"/reportSummaryMap");
+  if ( 0!=me) {
+    dbe_->removeElement(me->getName());
   }
   me = dbe_->book2D("reportSummaryMap", "RPC Report Summary Map", 15, -7.5, 7.5, 12, 0.5 ,12.5);
  
@@ -123,7 +127,9 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
   
 
   for(unsigned int i=0; i<segmentNames.size(); i++){
-    if ( me = dbe_->get(eventInfoPath_ + "/reportSummaryContents/" +segmentNames[i]) ) {
+    me =0;
+    me = dbe_->get(eventInfoPath_ + "/reportSummaryContents/" +segmentNames[i]);
+    if ( 0!=me) {
       dbe_->removeElement(me->getName());
     }
     me = dbe_->bookFloat(segmentNames[i]);

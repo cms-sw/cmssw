@@ -51,7 +51,9 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup,vector<
    if (i>-3 && i<3){//wheels
      histoName.str("");
      histoName<<"DeadChannelFraction_Roll_vs_Sector_Wheel"<<i;
-     if ( me = dbe_->get(globalFolder_ +"/"+ histoName.str()) ) {
+     me = 0;
+     me = dbe_->get(globalFolder_ +"/"+ histoName.str());
+     if (0!=me ) {
        dbe_->removeElement(me->getName());
      }
      DEADWheel[i+2] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
@@ -71,7 +73,9 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup,vector<
   
    histoName.str("");
    histoName<<"DeadChannelFraction_Roll_vs_Sector_Disk"<<i;
-   if ( me = dbe_->get(globalFolder_ +"/"+ histoName.str()) ) {
+   me = 0;
+   me = dbe_->get(globalFolder_ +"/"+ histoName.str());
+   if (0!=me ) {
      dbe_->removeElement(me->getName());
    }
   

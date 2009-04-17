@@ -43,7 +43,9 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c,vector<Monit
     if (w>-3 && w<3){//wheels
       histoName.str("");   
       histoName<<"ClusterSizeIn1Bin_Roll_vs_Sector_Wheel"<<w;       // ClusterSize in first bin norm. by Entries (2D Roll vs Sector)       
-      if ( me = dbe_->get(globalFolder_ + histoName.str()) ) {
+      me = 0;
+      me = dbe_->get(globalFolder_ + histoName.str()) ;
+      if ( 0!=me ) {
 	dbe_->removeElement(me->getName());
       }
       
@@ -53,7 +55,9 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c,vector<Monit
       
       histoName.str("");
       histoName<<"ClusterSizeIn1Bin_Distribution_Wheel"<<w;       //  ClusterSize in first bin, distribution
-      if ( me = dbe_->get(globalFolder_+ histoName.str()) ) {
+      me = 0;
+      me = dbe_->get(globalFolder_ + histoName.str()) ;
+      if ( 0!=me ) {
 	dbe_->removeElement(me->getName());
       }
       CLSDWheel[w+2] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  20, 0.0, 1.0);
@@ -61,7 +65,9 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c,vector<Monit
 
       histoName.str("");
       histoName<<"ClusterSizeMean_Roll_vs_Sector_Wheel"<<w;       // Avarage ClusterSize (2D Roll vs Sector)   
-      if ( me = dbe_->get(globalFolder_ + histoName.str()) ) {
+      me = 0;
+      me = dbe_->get(globalFolder_ + histoName.str()) ;
+      if ( 0!=me) {
 	dbe_->removeElement(me->getName());
       }
       
@@ -72,7 +78,9 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c,vector<Monit
 
       histoName.str("");
       histoName<<"ClusterSizeMean_Distribution_Wheel"<<w;       //  Avarage ClusterSize Distribution
-      if ( me = dbe_->get(globalFolder_ + histoName.str()) ) {
+      me = 0;
+      me = dbe_->get(globalFolder_ + histoName.str()) ;
+      if ( 0!=me){
 	dbe_->removeElement(me->getName());
       }
       MEANDWheel[w+2] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.5, 10.5);
@@ -84,8 +92,10 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c,vector<Monit
     if (w>0) offset --; //used to skip case equale to zero
 
     histoName.str("");   
-    histoName<<"ClusterSizeIn1Bin_Roll_vs_Sector_Disk"<<w;       // ClusterSize in first bin norm. by Entries (2D Roll vs Sector)       
-    if ( me = dbe_->get(globalFolder_ + histoName.str()) ) {
+    histoName<<"ClusterSizeIn1Bin_Roll_vs_Sector_Disk"<<w;       // ClusterSize in first bin norm. by Entries (2D Roll vs Sector)   
+    me = 0;
+    me = dbe_->get(globalFolder_ + histoName.str()) ;
+    if ( 0!=me){
       dbe_->removeElement(me->getName());
     }
     
@@ -95,7 +105,9 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c,vector<Monit
     
     histoName.str("");
     histoName<<"ClusterSizeIn1Bin_Distribution_Disk"<<w;       //  ClusterSize in first bin, distribution
-    if ( me = dbe_->get(globalFolder_+ histoName.str()) ) {
+    me = 0;
+    me = dbe_->get(globalFolder_ + histoName.str()) ;
+    if ( 0!=me){
       dbe_->removeElement(me->getName());
     }
     CLSDDisk[w+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  20, 0.0, 1.0);
@@ -103,7 +115,9 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c,vector<Monit
     
     histoName.str("");
     histoName<<"ClusterSizeMean_Roll_vs_Sector_Disk"<<w;       // Avarage ClusterSize (2D Roll vs Sector)   
-    if ( me = dbe_->get(globalFolder_ + histoName.str()) ) {
+    me = 0;
+    me = dbe_->get(globalFolder_ + histoName.str()) ;
+    if ( 0!=me){
       dbe_->removeElement(me->getName());
     }
     
@@ -113,7 +127,9 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c,vector<Monit
     
     histoName.str("");
     histoName<<"ClusterSizeMean_Distribution_Disk"<<w;       //  Avarage ClusterSize Distribution
-    if ( me = dbe_->get(globalFolder_ + histoName.str()) ) {
+    me = 0;
+    me = dbe_->get(globalFolder_ + histoName.str()) ;
+    if ( 0!=me){
       dbe_->removeElement(me->getName());
     }
     MEANDDisk[w+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.5, 10.5);

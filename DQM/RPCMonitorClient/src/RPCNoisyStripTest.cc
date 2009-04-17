@@ -49,23 +49,29 @@ void RPCNoisyStripTest::beginRun(const Run& r, const EventSetup& iSetup,vector<M
  for (int w = -1 * limit; w<= limit;w++ ){//loop on wheels and disks
    if (w>-3 && w<3){//Barrel
      histoName.str("");
-     histoName<<"RPCNoisyStrips_Distribution_Wheel"<<w;      
-     if ( me = dbe_->get( globalFolder_ +"/"+ histoName.str()) ) {
+     histoName<<"RPCNoisyStrips_Distribution_Wheel"<<w;     
+     me =0;
+     me = dbe_->get( globalFolder_ +"/"+ histoName.str());
+     if ( 0!=me ) {
        dbe_->removeElement(me->getName());
      }
      NOISEDWheel[w+2] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  6, -0.5, 5.5);
      
      
      histoName.str("");
-     histoName<<"RPCStripsDeviation_Distribution_Wheel"<<w;      
-     if ( me = dbe_->get( globalFolder_+"/"+ histoName.str()) ) {
+     histoName<<"RPCStripsDeviation_Distribution_Wheel"<<w; 
+     me =0;
+     me = dbe_->get( globalFolder_ +"/"+ histoName.str());
+     if ( 0!=me ) {
        dbe_->removeElement(me->getName());
      }
      DEVDWheel[w+2] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  101, -0.01, 10.01);
      
      histoName.str("");
      histoName<<"RPCNoisyStrips_Roll_vs_Sector_Wheel"<<w;
-     if ( me = dbe_->get( globalFolder_+"/"+ histoName.str()) ) {
+     me =0;
+     me = dbe_->get( globalFolder_ +"/"+ histoName.str());
+     if ( 0!=me ) {
        dbe_->removeElement(me->getName());
      }
      
@@ -81,22 +87,28 @@ void RPCNoisyStripTest::beginRun(const Run& r, const EventSetup& iSetup,vector<M
 
    histoName.str("");
    histoName<<"RPCNoisyStrips_Distribution_Disk"<<w;      
-   if ( me = dbe_->get( globalFolder_+"/"+ histoName.str()) ) {
+   me =0;
+   me = dbe_->get( globalFolder_ +"/"+ histoName.str());
+   if ( 0!=me ) {
      dbe_->removeElement(me->getName());
    }
    NOISEDDisk[w+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  6, -0.5, 5.5);
    
    
    histoName.str("");
-   histoName<<"RPCStripsDeviation_Distribution_Disk"<<w;      
-   if ( me = dbe_->get( globalFolder_+"/"+ histoName.str()) ) {
+   histoName<<"RPCStripsDeviation_Distribution_Disk"<<w;  
+   me =0;
+   me = dbe_->get( globalFolder_ +"/"+ histoName.str());
+   if ( 0!=me ) {
      dbe_->removeElement(me->getName());
    }
    DEVDDisk[w+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  101, -0.01, 10.01);
    
    histoName.str("");
    histoName<<"RPCNoisyStrips_Roll_vs_Sector_Disk"<<w;
-   if ( me = dbe_->get( globalFolder_+"/"+ histoName.str()) ) {
+   me =0;
+   me = dbe_->get( globalFolder_ +"/"+ histoName.str());
+   if ( 0!=me ) {
      dbe_->removeElement(me->getName());
    }
    
