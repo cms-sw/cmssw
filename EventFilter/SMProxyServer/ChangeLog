@@ -1,3 +1,11 @@
+2009-04-17  Kurt Biery <biery@fnal.gov>
+
+	* tag V01-08-10
+	* Removed the functionality that allowed event consumers to
+	  specify the trigger path part of their event selection using
+	  the name of a Storage Manager output stream.  (This functionality
+	  will no longer be supported by the Storage Manager.)
+
 2009-04-13  Kurt Biery <biery@fnal.gov>
 
 	* tag V01-08-09
