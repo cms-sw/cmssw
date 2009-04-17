@@ -53,7 +53,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Fri Jul  6 17:17:21 CEST 2007
-// $Id: AlCaHOCalibProducer.cc,v 1.17 2008/10/08 09:46:29 kodolova Exp $
+// $Id: AlCaHOCalibProducer.cc,v 1.18 2009/02/09 16:31:28 kodolova Exp $
 //
 //
 
@@ -476,23 +476,16 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<HOCalibVariableCollection> hostore (new HOCalibVariableCollection);
 
   edm::Handle<HODigiCollection> ho;   
-  bool isHO = true;
   
   edm::Handle<HBHEDigiCollection> hbhe; 
-  bool isHBHE = true;
 
   if (m_digiInput) {
-    try {
       iEvent.getByLabel(hoLabel_,ho);
-    } catch ( cms::Exception &iEvent ) { isHO = false; } 
-    
-    try {
       iEvent.getByLabel(hbheLabel_,hbhe);
-    } catch ( cms::Exception &iEvent ) { isHBHE = false; }  
   }
   
   if (m_hotime && m_digiInput) {
-    if (isHO && (*ho).size()>0) {
+    if ((*ho).size()>0) {
       for (HODigiCollection::const_iterator j=(*ho).begin(); j!=(*ho).end(); j++){
 	HcalDetId id =(*j).id();
   	int tmpeta= id.ieta();
@@ -507,7 +500,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	}
       }
     }
-    if (isHBHE && (*hbhe).size()>0) {
+    if ((*hbhe).size()>0) {
       for (HBHEDigiCollection::const_iterator j=(*hbhe).begin(); j!=(*hbhe).end(); j++){
 	HcalDetId id =(*j).id();
   	int tmpeta= id.ieta();
@@ -536,27 +529,21 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double pival = acos(-1.);
   
   Handle<reco::TrackCollection> cosmicmuon;
-  bool isMuon = true;
-  try {
-    iEvent.getByLabel(muonTags_, cosmicmuon);
-    
-  } catch ( cms::Exception &iEvent ) { isMuon = false; } 
+  iEvent.getByLabel(muonTags_, cosmicmuon);
   
-  if (isMuon && cosmicmuon->size()>0) { 
+  if (cosmicmuon->size()>0) { 
     
     int l1trg = 0;
     int hlttr = 0;
     
     int ntrgpas_gm[ntrgp_gm]={0,0,0,0,0,0,0,0,0,0};
-    
+ 
+    /*   
     //L1 trigger
     Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
-    bool isL1Trig=true;
-    try{   
-      iEvent.getByLabel(l1Label_,L1GTRR);  //gtDigis
-    } catch (cms::Exception &iEvent) { isL1Trig=false;}
+    iEvent.getByLabel(l1Label_,L1GTRR);  //gtDigis
     
-    if (isL1Trig && L1GTRR.isValid()) {
+    if ( L1GTRR.isValid()) {
       const unsigned int n(L1GTRR->decisionWord().size());
       const bool accept(L1GTRR->decision());
       if (accept) {
@@ -570,27 +557,25 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     //HLT 
 
-    Handle<edm::TriggerResults> trigRes;
-    bool isTrig=true;
+    Handle<edm::TriggerResults> trigRes;    
+    iEvent.getByLabel(hltLabel_, trigRes);
 
-    try{
-      iEvent.getByLabel(hltLabel_, trigRes);
-    } catch (cms::Exception &iEvent) { isTrig=false;}
-    if (isTrig) {
-      unsigned int size = trigRes->size();
-      edm::TriggerNames triggerNames(*trigRes);
-      
-      // loop over all paths, get trigger decision
-      for(unsigned i = 0; i != size && i<32; ++i) {
-	std::string name = triggerNames.triggerName(i);
-	fired[name] = trigRes->accept(i);
-	int ihlt =  trigRes->accept(i);
-	if (m_hotime){ 
-	  if (ihlt >0 && i < (int)ntrgp_gm) { ntrgpas_gm[i] = 1;}
-	}
-	if (i<32 && ihlt>0) hlttr += int(pow(2., double(i%32))*ihlt);
+
+    unsigned int size = trigRes->size();
+    edm::TriggerNames triggerNames(*trigRes);
+    
+    // loop over all paths, get trigger decision
+    for(unsigned i = 0; i != size && i<32; ++i) {
+      std::string name = triggerNames.triggerName(i);
+      fired[name] = trigRes->accept(i);
+      int ihlt =  trigRes->accept(i);
+      if (m_hotime){ 
+	if (ihlt >0 && i < (int)ntrgp_gm) { ntrgpas_gm[i] = 1;}
       }
+      if (i<32 && ihlt>0) hlttr += int(pow(2., double(i%32))*ihlt);
     }
+
+    */
 
     int Noccu_old = Noccu;
     
@@ -682,28 +667,23 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (muonTags_.label() =="standAloneMuons") {
 	
 	Handle<CaloTowerCollection> calotower;
-	bool isCaloTower = true;
-	
-	
-	try {
-	  iEvent.getByLabel(towerLabel_, calotower);
-	} catch ( cms::Exception &iEvent ) { isCaloTower = false; } 
-	if (isCaloTower) {
-	  for (CaloTowerCollection::const_iterator calt = calotower->begin();
-	       calt !=calotower->end(); calt++) {
-	    //CMSSW_2_1_x	const math::XYZVector towermom = (*calt).momentum();
-	    double ith = (*calt).momentum().theta();
-	    double iph = (*calt).momentum().phi();
+	iEvent.getByLabel(towerLabel_, calotower);
 
-	    Hep3Vector calo3v(sin(ith)*cos(iph), sin(ith)*sin(iph), cos(ith));
-	    
-	    double angle = tmpmuon3v.angle(calo3v);
-	    
-	    if (angle < 7.5*pival/180.) {tmpHOCalib.caloen[0] += calt->emEnergy()+calt->hadEnergy();}
-	    if (angle < 15*pival/180.) {tmpHOCalib.caloen[1] += calt->emEnergy()+calt->hadEnergy();}
-	    if (angle < 35*pival/180.) {tmpHOCalib.caloen[2] += calt->emEnergy()+calt->hadEnergy();}
-	  }
-	} 
+	for (CaloTowerCollection::const_iterator calt = calotower->begin();
+	     calt !=calotower->end(); calt++) {
+	  //CMSSW_2_1_x	const math::XYZVector towermom = (*calt).momentum();
+	  double ith = (*calt).momentum().theta();
+	  double iph = (*calt).momentum().phi();
+	  
+	  Hep3Vector calo3v(sin(ith)*cos(iph), sin(ith)*sin(iph), cos(ith));
+	  
+	  double angle = tmpmuon3v.angle(calo3v);
+	  
+	  if (angle < 7.5*pival/180.) {tmpHOCalib.caloen[0] += calt->emEnergy()+calt->hadEnergy();}
+	  if (angle < 15*pival/180.) {tmpHOCalib.caloen[1] += calt->emEnergy()+calt->hadEnergy();}
+	  if (angle < 35*pival/180.) {tmpHOCalib.caloen[2] += calt->emEnergy()+calt->hadEnergy();}
+	}
+	
 	
       }
       if (tmpHOCalib.caloen[0] >10.0) continue;
@@ -896,7 +876,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    for (int i=0; i<9; i++) {tmpHOCalib.hbhesig[i]=-100.0;}
 	    
 	    if (m_digiInput) {
-	      if (isHBHE && (*hbhe).size() >0) {
+	      if ((*hbhe).size() >0) {
 		for (HBHEDigiCollection::const_iterator j=(*hbhe).begin(); j!=(*hbhe).end(); j++){
 		  //		  const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
 		  //		  HcalDetId id =digi.id();
@@ -938,12 +918,10 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    } else {
 	      
 	      edm::Handle<HBHERecHitCollection> hbheht;// iEvent.getByType(hbheht);
-	      bool isHBHEht = true;
-	      try {
-		iEvent.getByLabel(hbheLabel_,hbheht);
-	      } catch ( cms::Exception &iEvent ) { isHBHEht = false; }  
+	      iEvent.getByLabel(hbheLabel_,hbheht);
+
 	      
-	      if (isHBHEht && (*hbheht).size()>0) {
+	      if ((*hbheht).size()>0) {
 		if(!(*hbheht).size()) throw (int)(*hbheht).size();
 		
 		for (HBHERecHitCollection::const_iterator j=(*hbheht).begin(); j!=(*hbheht).end(); j++){
@@ -976,7 +954,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  } //m_hbinfo #endif
 	  
 	  if (m_digiInput) {
-	    if (isHO && (*ho).size()>0) {
+	    if ((*ho).size()>0) {
 	      int isFilled[netamx*nphimx]; 
 	      for (int j=0; j<netamx*nphimx; j++) {isFilled[j]=0;}
 	      
@@ -1174,12 +1152,10 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  } 
 	} else {
 	  edm::Handle<HORecHitCollection> hoht;
-	  bool isHOht = true;
-	  try {
-	    iEvent.getByLabel(hoLabel_,hoht);
-	  } catch ( cms::Exception &iEvent ) { isHOht = false; } 
+	  iEvent.getByLabel(hoLabel_,hoht);
+	    
 	  
-	  if (isHOht && (*hoht).size()>0) {
+	  if ((*hoht).size()>0) {
 	    for (HORecHitCollection::const_iterator j=(*hoht).begin(); j!=(*hoht).end(); j++){
 	      //		const HORecHit hohtrec = (const HORecHit)(*j);
 	      //		HcalDetId id =hohtrec.id();
@@ -1277,7 +1253,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     } 
   } 
 
-  if (hostore->size()>0) iEvent.put(hostore, "HOCalibVariableCollection");
+  iEvent.put(hostore, "HOCalibVariableCollection");
   
 }
 
