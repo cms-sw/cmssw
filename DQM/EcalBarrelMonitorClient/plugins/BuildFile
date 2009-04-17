@@ -2,3 +2,8 @@
 <library file=plugins.cc name=DQMEcalBarrelMonitorClientPlugins>
  <flags EDM_PLUGIN=1>
 </library>
+<library file=*.cc name=DQMEcalBarrelMonitorXdaqClient>
+ <use name=EventFilter/Utilities>
+ <use name=xdaq>
+ <flags EDM_PLUGIN=1>
+</library>
