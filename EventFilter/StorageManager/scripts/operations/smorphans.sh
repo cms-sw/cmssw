@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: smorphans.sh,v 1.1 2009/04/09 14:28:20 jserrano Exp $
+# $Id: smorphans.sh,v 1.2 2009/04/17 09:20:54 jserrano Exp $
 
 # This script iterates over all files in the list of hosts provided and calls
 # injection script with --check option to show a status report.
@@ -27,7 +27,7 @@ echo report started
     for host in $( cat $HOSTLIST ); do
         echo ----- $host -----
         echo Directory size
-        ssh $host "du -h $1"
+        ssh $host "du -h $1 2> /dev/null"
         for file in $( ssh $host "find $1 -name '*.dat' 2> /dev/null" ); do
             #echo $file;
             basename=`basename $file`
