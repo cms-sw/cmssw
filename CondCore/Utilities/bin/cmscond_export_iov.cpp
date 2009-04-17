@@ -278,9 +278,10 @@ int main( int argc, char** argv ){
     sourcedb.commit();
 
 
-    // store payload mapping
-    try {
-        cond::CoralTransaction& coralDBs=conHandler.getConnection("mysourcedb")->coralTransaction();
+    if (newIOV) {
+      // store payload mapping
+      try {
+	cond::CoralTransaction& coralDBs=conHandler.getConnection("mysourcedb")->coralTransaction();
         cond::CoralTransaction& coralDBd=conHandler.getConnection("mydestdb")->coralTransaction();
         coralDBs.start(true);
 	coralDBd.start(false);
@@ -293,12 +294,12 @@ int main( int argc, char** argv ){
 	  std::cout<< "payload mapping " << (stored ? "" : "not ") << "stored"<<std::endl;
 	coralDBs.commit();
 	coralDBd.commit();
-    } catch (std::exception const & e) {
-      std::cout << "Something went wrong with mapping export: " << e.what() << std::endl;
-    } catch(...){ 
-      std::cout << "Something went VERY wrong with mapping export" << std::endl;
-    } // throw if no db available...
-
+      } catch (std::exception const & e) {
+	std::cout << "Something went wrong with mapping export: " << e.what() << std::endl;
+      } catch(...){ 
+	std::cout << "Something went VERY wrong with mapping export" << std::endl;
+      } // throw if no db available...
+    }
 
     since = std::max(since, cond::timeTypeSpecs[sourceiovtype].beginValue);
     till  = std::min(till,  cond::timeTypeSpecs[sourceiovtype].endValue);
