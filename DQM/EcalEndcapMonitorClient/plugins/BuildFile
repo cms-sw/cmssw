@@ -2,7 +2,7 @@
 <library file=plugins.cc name=DQMEcalEndcapMonitorClientPlugins>
  <flags EDM_PLUGIN=1>
 </library>
-<library file=*.cc name=DQMEcalEndcapMonitorXdaqClient>
+<library file=EcalEndcapMonitorXdaqClient.cc name=DQMEcalEndcapMonitorXdaqClient>
  <use name=EventFilter/Utilities>
  <use name=xdaq>
  <flags EDM_PLUGIN=1>
