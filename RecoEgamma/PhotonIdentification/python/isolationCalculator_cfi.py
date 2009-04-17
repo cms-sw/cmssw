@@ -25,7 +25,8 @@ isolationSumsCalculator = cms.PSet(
     #use beam spot for track isolation
     beamSpotProducer = cms.InputTag("offlineBeamSpot"),
     #switches, turn on quality cuts for various quantities.
-    RequireFiducial = cms.bool(False),
+    vetoClustered  = cms.bool(False),  #will remove clustered rechits from ecal iso sum
+    useNumCrystals = cms.bool(False),  #will define the veto region by number of crystals in stead of geometrically
     #configuration of parameters for isolation
 #### BARREL
     #tracks
@@ -44,13 +45,13 @@ isolationSumsCalculator = cms.PSet(
     EcalRecHitInnerRadiusA_Barrel = cms.double(0.06),
     EcalRecHitOuterRadiusA_Barrel = cms.double(0.4),
     EcalRecHitEtaSliceA_Barrel = cms.double(0.04),
-    EcalRecHitThreshEA_Barrel = cms.double(0.0),
+    EcalRecHitThreshEA_Barrel = cms.double(0.08),
     EcalRecHitThreshEtA_Barrel = cms.double(0.0),
 #
     EcalRecHitInnerRadiusB_Barrel = cms.double(0.06),
     EcalRecHitOuterRadiusB_Barrel = cms.double(0.3),
     EcalRecHitEtaSliceB_Barrel = cms.double(0.04),
-    EcalRecHitThreshEB_Barrel = cms.double(0.0),
+    EcalRecHitThreshEB_Barrel = cms.double(0.08),
     EcalRecHitThreshEtB_Barrel = cms.double(0.0),
     #Hcal towers
     HcalTowerInnerRadiusA_Barrel = cms.double(0.15),
@@ -91,13 +92,13 @@ isolationSumsCalculator = cms.PSet(
     EcalRecHitOuterRadiusA_Endcap = cms.double(0.4),
     EcalRecHitEtaSliceA_Endcap = cms.double(0.04),
     EcalRecHitThreshEA_Endcap = cms.double(0.0),
-    EcalRecHitThreshEtA_Endcap = cms.double(0.0),
+    EcalRecHitThreshEtA_Endcap = cms.double(0.01),
 #
     EcalRecHitInnerRadiusB_Endcap = cms.double(0.06),
     EcalRecHitOuterRadiusB_Endcap = cms.double(0.3),
     EcalRecHitEtaSliceB_Endcap = cms.double(0.04),
     EcalRecHitThreshEB_Endcap = cms.double(0.0),
-    EcalRecHitThreshEtB_Endcap = cms.double(0.0),
+    EcalRecHitThreshEtB_Endcap = cms.double(0.01),
     #Hcal towers
     HcalTowerInnerRadiusA_Endcap = cms.double(0.15),
     HcalTowerOuterRadiusA_Endcap = cms.double(0.4),
