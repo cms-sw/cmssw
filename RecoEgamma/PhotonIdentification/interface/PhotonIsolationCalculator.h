@@ -49,7 +49,10 @@ public:
 				double RConeInner,
                                 double etaSlice,
 				double eMin,
-				double etMin);
+				double etMin, 
+				bool vetoClusteredHits, 
+				bool useNumCrystals);
+
   double calculateHcalTowerIso(const reco::Photon* photon,
 			       const edm::Event& iEvent,
 			       const edm::EventSetup& iSetup,
@@ -75,6 +78,8 @@ public:
   edm::InputTag beamSpotProducerTag_;
   double modulePhiBoundary_;
   std::vector<double> moduleEtaBoundary_;
+  bool vetoClusteredEcalHits_;
+  bool useNumCrystals_;
 
   std::vector<double>  trkIsoBarrelRadiusA_;
   std::vector<double>  ecalIsoBarrelRadiusA_;
