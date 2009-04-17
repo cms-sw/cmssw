@@ -12,8 +12,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2009/03/17 16:22:58 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/04/08 16:39:24 $
+ *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
@@ -102,6 +102,7 @@ namespace trigger
       photonIds_(), photonRefs_(),
       electronIds_(), electronRefs_(),
       muonIds_(), muonRefs_(),
+      jetIds_(), jetRefs_(),
       compositeIds_(), compositeRefs_(),
       basemetIds_(), basemetRefs_(),
       calometIds_(), calometRefs_(),
