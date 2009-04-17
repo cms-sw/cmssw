@@ -1,5 +1,6 @@
 gunzip nominal/*gz
 gunzip calofile.db.gz
+gunzip allxml.db.gz
 ln -sf nominal/eb.ctr oldeb.ctr
 ln -sf nominal/eb.cor oldeb.cor
 ln -sf nominal/ee.ctr oldee.ctr
