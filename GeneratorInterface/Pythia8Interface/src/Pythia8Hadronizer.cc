@@ -14,7 +14,6 @@
 
 #include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -112,6 +111,7 @@ bool Pythia8Hadronizer::LHAupLesHouches::setEvent(int inProcId)
 
 
 Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
+        BaseHadronizer(params),
 	parameters(params.getParameter<edm::ParameterSet>("PythiaParameters")),
 	comEnergy(params.getParameter<double>("comEnergy")),
 	pythiaPylistVerbosity(params.getUntrackedParameter<int>("pythiaPylistVerbosity", 0)),
@@ -120,10 +120,13 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
 {
     randomEngine = &getEngineReference();
 
+/* these have moved to BaseHadronizer...
+
 	runInfo().setExternalXSecLO(
 		params.getUntrackedParameter<double>("crossSection", -1.0));
 	runInfo().setFilterEfficiency(
 		params.getUntrackedParameter<double>("filterEfficiency", -1.0));
+*/
 }
 
 Pythia8Hadronizer::~Pythia8Hadronizer()

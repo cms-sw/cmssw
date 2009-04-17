@@ -24,12 +24,13 @@
 
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace gen {
 
   class BaseHadronizer {
   public:
-    BaseHadronizer() {}
+    BaseHadronizer( edm::ParameterSet const& ps );
     ~BaseHadronizer() {}
 
     // GenRunInfo and GenEvent passing

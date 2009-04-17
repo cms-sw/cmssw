@@ -3,8 +3,6 @@
 
 #include "Pythia6Hadronizer.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "HepMC/GenEvent.h"
 #include "HepMC/PdfInfo.h"
 #include "HepMC/PythiaWrapper6_2.h"
@@ -88,7 +86,8 @@ class Pythia6ServiceWithCallback : public Pythia6Service {
 JetMatching* Pythia6Hadronizer::fJetMatching = 0;
 
 Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps) 
-   : fPy6Service( new Pythia6ServiceWithCallback(ps) ), // this will store py6 params for further settings
+   : BaseHadronizer(ps),
+     fPy6Service( new Pythia6ServiceWithCallback(ps) ), // this will store py6 params for further settings
      fCOMEnergy(ps.getParameter<double>("comEnergy")),
      fHepMCVerbosity(ps.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
      fMaxEventsToPrint(ps.getUntrackedParameter<int>("maxEventsToPrint", 0)),
@@ -127,17 +126,6 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
       fJetMatching = JetMatching::create(jmParams).release();
    }
    
-   runInfo().setFilterEfficiency(
-      ps.getUntrackedParameter<double>("filterEfficiency", -1.) );
-   //
-   // fill up later, note C.S. -> for all generators via BaseHadronizer?
-   //
-   //runInfo().setsetExternalXSecLO(
-   //   GenRunInfoProduct::XSec(ps.getUntrackedParameter<double>("...", -1.)) );
-   //runInfo().setsetExternalXSecNLO(
-   //    GenRunInfoProduct::XSec(ps.getUntrackedParameter<double>("...", -1.)) );
-
-
    // first of all, silence Pythia6 banner printout
    //
    if (!call_pygive("MSTU(12)=12345")) 

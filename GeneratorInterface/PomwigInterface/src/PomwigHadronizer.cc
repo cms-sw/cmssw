@@ -21,7 +21,6 @@
 #include <HepMC/IO_HERWIG.h>
 #include "HepPID/ParticleIDTranslations.hh"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -88,6 +87,7 @@ extern "C" {
 }
 
 PomwigHadronizer::PomwigHadronizer(const edm::ParameterSet &params) :
+	BaseHadronizer(params),
 	needClear(false),
 	parameters(params.getParameter<edm::ParameterSet>("HerwigParameters")),
 	herwigVerbosity(params.getUntrackedParameter<int>("herwigVerbosity", 0)),
@@ -103,11 +103,6 @@ PomwigHadronizer::PomwigHadronizer(const edm::ParameterSet &params) :
 	numTrials(params.getUntrackedParameter<int>("numTrialsMPI", 100)),
         doPDGConvert(false)
 {
-	runInfo().setExternalXSecLO(
-		params.getUntrackedParameter<double>("crossSection", -1.0));
-	runInfo().setFilterEfficiency(
-		params.getUntrackedParameter<double>("filterEfficiency", -1.0));
-
         if ( params.exists( "doPDGConvert" ) )
            doPDGConvert = params.getParameter<bool>("doPDGConvert");
 }

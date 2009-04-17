@@ -8,7 +8,6 @@
 #include <ThePEG/Config/ThePEG.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
@@ -46,14 +45,11 @@ class ThePEGHadronizer : public ThePEGInterface, public gen::BaseHadronizer {
 
 ThePEGHadronizer::ThePEGHadronizer(const edm::ParameterSet &pset) :
 	ThePEGInterface(pset),
+	BaseHadronizer(pset),
 	eventsToPrint(pset.getUntrackedParameter<unsigned int>("eventsToPrint", 0))
 {  
 	initRepository(pset);
 
-	runInfo().setExternalXSecLO(
-		pset.getUntrackedParameter<double>("crossSection", -1.0));
-	runInfo().setFilterEfficiency(
-		pset.getUntrackedParameter<double>("filterEfficiency", -1.0));
 }
 
 ThePEGHadronizer::~ThePEGHadronizer()

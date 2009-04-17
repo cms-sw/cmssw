@@ -61,16 +61,18 @@ private:
 
 
 SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
+  BaseHadronizer(params),
   SherpaLibDir(params.getUntrackedParameter<std::string>("libDir","Sherpa_Process")),
   SherpaResultDir(params.getUntrackedParameter<std::string>("resultDir","Result")),
   SherpaParameter(params.getParameter<edm::ParameterSet>("SherpaParameters")),
   maxEventsToPrint(params.getUntrackedParameter<int>("maxEventsToPrint", 0))
 {
+/* these have moved to BaseHadronizer
   runInfo().setExternalXSecLO(
 			      params.getUntrackedParameter<double>("crossSection", -1.0));
   runInfo().setFilterEfficiency(
 				params.getUntrackedParameter<double>("filterEfficiency", -1.0));
-  
+*/  
 }
 
 SherpaHadronizer::~SherpaHadronizer()

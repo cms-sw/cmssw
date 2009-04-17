@@ -1,6 +1,5 @@
 #include "GeneratorInterface/ExhumeInterface/interface/ExhumeHadronizer.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -73,7 +72,8 @@ inline bool call_pygive(const std::string &line)
 } 
  
 ExhumeHadronizer::ExhumeHadronizer(edm::ParameterSet const& pset)
-   : pythia6Service_(new Pythia6Service(pset)),
+   : BaseHadronizer(pset),
+     pythia6Service_(new Pythia6Service(pset)),
      comEnergy_(pset.getParameter<double>("comEnergy")),
      myPSet_(pset),
      hepMCVerbosity_(pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
@@ -87,12 +87,6 @@ ExhumeHadronizer::ExhumeHadronizer(edm::ParameterSet const& pset)
       convertToPDG_ = pset.getParameter<bool>("doPDGConvert");
    }
    
-   runInfo().setFilterEfficiency(
-      pset.getUntrackedParameter<double>("filterEfficiency", -1.) );
-
-   runInfo().setExternalXSecLO(
-      pset.getUntrackedParameter<double>("crossSection", -1.0));
-
    //pythia6Hadronizer_ = new Pythia6Hadronizer(pset);  
 }
 
