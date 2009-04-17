@@ -289,6 +289,8 @@ particle_flow chi2_PS_ECAL	0
 particle_flow chi2_PS_Track	0
 // chi2 maximum limit for PSH/PSH association
 particle_flow chi2_PSH_PSV	0
+// chi2 maximum limit for ECAL/GSF association
+particle_flow chi2_ECAL_GSF	0
 
 // if true, using special algorithm to process
 // multiple track associations to the same hcal cluster
