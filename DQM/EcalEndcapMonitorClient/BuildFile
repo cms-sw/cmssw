@@ -2,26 +2,22 @@
 <use name=DQMServices/Core>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalRawData>
-<use name=EventFilter/Utilities>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=OnlineDB/EcalCondDB>
 <use name=rootcore>
-<use name=xdaq>
 <export>
   <use name=DQM/EcalCommon>
   <use name=DQMServices/Core>
   <use name=DataFormats/EcalDetId>
   <use name=DataFormats/EcalRawData>
-  <use name=EventFilter/Utilities>
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
   <use name=FWCore/ServiceRegistry>
   <use name=OnlineDB/EcalCondDB>
   <use name=rootcore>
-  <use name=xdaq>
   <lib name=DQMEcalEndcapMonitorClient>
 </export>

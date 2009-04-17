@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2009/02/27 13:54:08 $
- * $Revision: 1.50 $
+ * $Date: 2009/04/16 20:49:00 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -24,11 +24,6 @@
 
 #include <DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h>
 
-#include "EventFilter/Utilities/interface/ModuleWeb.h"
-
-#include "xgi/Input.h"
-#include "xgi/Output.h"
-
 #include "TROOT.h"
 #include "TH1.h"
 
@@ -37,7 +32,9 @@ class DQMStore;
 class RunIOV;
 class MonRunIOV;
 
-class EcalEndcapMonitorClient: public edm::EDAnalyzer, public evf::ModuleWeb{
+class EcalEndcapMonitorClient: public edm::EDAnalyzer{
+
+friend class EcalEndcapMonitorXdaqClient;
 
 public:
 
@@ -82,10 +79,6 @@ void cleanup(void);
 
 /// SoftReset
 void softReset(bool flag);
-
-/// XDAQ web page
-void defaultWebPage(xgi::Input *in, xgi::Output *out);
-void publish(xdata::InfoSpace *){};
 
 /// BeginRunDB
 void beginRunDb(void);
