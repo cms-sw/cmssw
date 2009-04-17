@@ -3,7 +3,7 @@
  *
  * \author Olga Kodolova
  *        
- * $Date: 2009/03/13 17:30:14 $
+ * $Date: 2009/03/23 15:06:15 $
  * $Revision: 1.1 $
  *
  *
@@ -74,7 +74,7 @@ DQMHcalDiJetsAlCaReco::~DQMHcalDiJetsAlCaReco()
 
 //--------------------------------------------------------
 void DQMHcalDiJetsAlCaReco::beginJob(const EventSetup& context){
-   std::cout<<" DQMHcalPhiSymAlCaReco::beginJob::start "<<std::endl;
+   
 
   // create and cd into new folder
   dbe_->setCurrentFolder(folderName_);
@@ -125,7 +125,6 @@ void DQMHcalDiJetsAlCaReco::beginJob(const EventSetup& context){
 
 //==================================================================================
 
-  std::cout<<" DQMHcalPhiSymAlCaReco::beginJob::end "<<std::endl;
 
 }
 
@@ -145,8 +144,7 @@ void DQMHcalDiJetsAlCaReco::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 void DQMHcalDiJetsAlCaReco::analyze(const Event& iEvent, 
 			       const EventSetup& iSetup ){  
  
-//  if (eventCounter_>400) return; 
-   std::cout<<" Event number "<<eventCounter_<<std::endl;
+
    eventCounter_++;
 
    CaloJet jet1, jet2, jet3;

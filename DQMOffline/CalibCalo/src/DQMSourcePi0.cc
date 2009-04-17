@@ -1553,13 +1553,6 @@ void DQMSourcePi0::convxtalid(Int_t &nphi,Int_t &neta)
   if(neta > 0) neta -= 1;
   if(nphi > 359) nphi=nphi-360;
   
-  // final check
-  if(nphi >359 || nphi <0 || neta< -85 || neta > 84)
-    {
-      std::cout <<" unexpected fatal error in HLTPi0RecHitsFilter::convxtalid "<<  nphi <<  " " << neta <<  " " 
-		<<std::endl;
-      //exit(1);
-    }
 } //end of convxtalid
 
 int DQMSourcePi0::diff_neta_s(Int_t neta1, Int_t neta2){

@@ -3,8 +3,8 @@
  *
  * \author Olga Kodolova
  *        
- * $Date: 2009/03/24 16:05:46 $
- * $Revision: 1.4 $
+ * $Date: 2009/03/26 10:17:10 $
+ * $Revision: 1.5 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -74,8 +74,7 @@ DQMHcalPhiSymAlCaReco::~DQMHcalPhiSymAlCaReco()
 
 //--------------------------------------------------------
 void DQMHcalPhiSymAlCaReco::beginJob(const EventSetup& context){
-   std::cout<<" DQMHcalPhiSymAlCaReco::beginJob::start "<<std::endl;
-
+ 
   // create and cd into new folder
   dbe_->setCurrentFolder(folderName_);
 
@@ -247,7 +246,6 @@ void DQMHcalPhiSymAlCaReco::beginJob(const EventSetup& context){
   hiDistrVarNoiseMin2D_->setAxisTitle("i#phi ", 2);
   hiDistrVarNoiseMin2D_->setAxisTitle("i#eta ", 1);
 
-  std::cout<<" DQMHcalPhiSymAlCaReco::beginJob::end "<<std::endl;
 
 }
 
@@ -267,8 +265,7 @@ void DQMHcalPhiSymAlCaReco::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent, 
 			       const EventSetup& iSetup ){  
  
-//  if (eventCounter_>400) return; 
-   std::cout<<" Event number "<<eventCounter_<<std::endl;
+
    eventCounter_++;
   
    edm::Handle<HBHERecHitCollection> hbheNS;
@@ -276,16 +273,14 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
 
    if(!hbheNS.isValid()){
      LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-     cout<<" No HBHE MS "<<endl;
-     return ;
+      return ;
    }
    
   
    
   const HBHERecHitCollection HithbheNS = *(hbheNS.product());
   
-  std::cout<<" DQMHcalPhiSymAlCaReco::analyze::hbheNS.size "<<HithbheNS.size()<<std::endl;
-    
+     
   for(HBHERecHitCollection::const_iterator hbheItr=HithbheNS.begin(); hbheItr!=HithbheNS.end(); hbheItr++)
         {
         	 DetId id = (*hbheItr).detid(); 
@@ -307,7 +302,6 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
 
    if(!hbheMB.isValid()){
      LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-     cout<<" No HBHE MB"<<endl;
      return ;
    }
 
@@ -334,11 +328,9 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
 
    if(!hfNS.isValid()){
      LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-     cout<<" No HF NS "<<endl;
      return ;
    }
   const HFRecHitCollection HithfNS = *(hfNS.product());
-  cout<<" HFE NS size of collection "<<HithfNS.size()<<endl;
   
   for(HFRecHitCollection::const_iterator hbheItr=HithfNS.begin(); hbheItr!=HithfNS.end(); hbheItr++)
         {
@@ -362,13 +354,11 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
 
    if(!hfMB.isValid()){
      LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-     cout<<" No HBHE MB"<<endl;
-     return ;
+      return ;
    }
 
   const HFRecHitCollection HithfMB = *(hfMB.product());
-  cout<<" HF MB size of collection "<<HithfMB.size()<<endl;
-
+ 
   for(HFRecHitCollection::const_iterator hbheItr=HithfMB.begin(); hbheItr!=HithfMB.end(); hbheItr++)
         {
         	 DetId id = (*hbheItr).detid(); 
@@ -401,7 +391,7 @@ void DQMHcalPhiSymAlCaReco::endRun(const Run& r, const EventSetup& context){
 }
 //--------------------------------------------------------
 void DQMHcalPhiSymAlCaReco::endJob(){
-  cout<<" Number of events "<<eventCounter_<<endl;
+ 
   for(int k=0; k<=hiDistr_x_nbin_;k++)
   {
     for(int j=0; j<=hiDistr_y_nbin_;j++)
