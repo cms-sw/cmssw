@@ -2,9 +2,9 @@
  * \file MillePedeAlignmentAlgorithm.cc
  *
  *  \author    : Gero Flucke/Ivan Reid
- *  date       : February 2009 *  $Revision: 1.6 $
- *  $Date: 2009/04/03 15:30:14 $
- *  (last update by $Author: ireid $)
+ *  date       : February 2009 *  $Revision: 1.7 $
+ *  $Date: 2009/04/16 08:30:16 $
+ *  (last update by $Author: flucke $)
  */
 /*
  *# Parameters:
@@ -15,6 +15,7 @@
  *#    readApeFromASCII -- Do we read in APEs from a text file?
  *#    readLocalNotGlobal -- Do we read APEs in the local or the global frame?
  *#    readFullLocalMatrix -- Do we read the full local matrix or just the diagonal elements?
+ *#                        -- Always write full matrix
  *# Full matrix format: DetID dxx dxy dyy dxz dyz dzz
  *# Diagonal element format: DetID sqrt(dxx) sqrt(dyy) sqrt(dzz)
  *#    setComposites -- Do we set the APEs for composite detectors or just ignore them?
@@ -50,7 +51,6 @@
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 class ApeSettingAlgorithm : public AlignmentAlgorithmBase
 {
@@ -117,7 +117,7 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
                                              AlignmentParameterStore *store)
 { theAlignableNavigator = new AlignableNavigator(tracker, muon);
  theTracker = tracker;
- 
+
  if (readApeFromAscii_)
    { std::ifstream apeReadFile(theConfig.getParameter<edm::FileInPath>("apeASCIIReadFile").fullPath().c_str()); //requires <fstream>
    if (!apeReadFile.good())
@@ -153,8 +153,8 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
 	       am[0][0]=rt.xx(); am[0][1]=rt.xy(); am[0][2]=rt.xz();
 	       am[1][0]=rt.yx(); am[1][1]=rt.yy(); am[1][2]=rt.yz();
 	       am[2][0]=rt.zx(); am[2][1]=rt.zy(); am[2][2]=rt.zz();
-	       am=am.T()*as*am; //symmetric matrix
-	       globErr = GlobalError(am[0][0],am[1][0],am[1][1],am[2][0],am[2][1],am[2][2]);
+	       as=as.similarityT(am); //symmetric matrix
+	       globErr = GlobalError( as );
 	       }
 	     else
 	       {
@@ -191,23 +191,19 @@ void ApeSettingAlgorithm::terminate()
       AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(DetId(id))); //NULL if none
       if (alidet && ((alidet->components().size()<1) || saveComposites_))
 	{ apeSaveFile<<id;
-	CLHEP::HepSymMatrix sm= aliErr->m_alignError[i].matrix();
+	CLHEP::HepSymMatrix sm = aliErr->m_alignError[i].matrix();
 	if (saveLocalNotGlobal_)
 	  { align::RotationType rt=alidet->globalRotation();
 	  AlgebraicMatrix am(3,3);
 	  am[0][0]=rt.xx(); am[0][1]=rt.xy(); am[0][2]=rt.xz();
 	  am[1][0]=rt.yx(); am[1][1]=rt.yy(); am[1][2]=rt.yz();
 	  am[2][0]=rt.zx(); am[2][1]=rt.zy(); am[2][2]=rt.zz();
-	  am=am*sm*am.T(); //symmetric matrix
-	  for (int j=0; j < 3; ++j)
-	    for (int k=0; k <= j; ++k)
-	      apeSaveFile<<"  "<<am[j][k]; //always write full matrix
+	  sm=sm.similarity(am); //symmetric matrix
 	  } //transform to local
-	else
-	{ for (int j=0; j < 3; ++j)
-	      for (int k=0; k <= j; ++k)
-		apeSaveFile<<"  "<<sm[j][k]; //always write full matrix
-	}
+	for (int j=0; j < 3; ++j)
+	  for (int k=0; k <= j; ++k)
+	    apeSaveFile<<"  "<<sm[j][k]; //always write full matrix
+	
 	apeSaveFile<<std::endl;
 	}
       }
