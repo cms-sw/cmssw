@@ -122,7 +122,7 @@ EmDQM::beginJob(const edm::EventSetup&)
   //    from the configuration file.                        //
   ////////////////////////////////////////////////////////////
 
-  std::string histName="total eff";
+  std::string histName="total_eff";
   std::string histTitle = "total events passing";
   // This plot will have bins equal to 2+(number of
   //        HLTCollectionLabels in the config file)
@@ -131,7 +131,7 @@ EmDQM::beginJob(const edm::EventSetup&)
   total->setBinLabel(numOfHLTCollectionLabels+2,"Gen");
   for (unsigned int u=0; u<numOfHLTCollectionLabels; u++){total->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());}
 
-  histName="total eff MC matched";
+  histName="total_eff_MC_matched";
   histTitle="total events passing (mc matched)";
   totalmatch = dbe->book1D(histName.c_str(),histTitle.c_str(),numOfHLTCollectionLabels+2,0,numOfHLTCollectionLabels+2);
   totalmatch->setBinLabel(numOfHLTCollectionLabels+1,"Total");
@@ -154,10 +154,10 @@ EmDQM::beginJob(const edm::EventSetup&)
     pdgIdString="Particle";
   }
 
-  histName = "gen et";
+  histName = "gen_et";
   histTitle= "E_{T} of " + pdgIdString + "s" ;
   etgen =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
-  histName = "gen eta";
+  histName = "gen_eta";
   histTitle= "#eta of "+ pdgIdString +"s " ;
   etagen = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
  
@@ -178,25 +178,25 @@ EmDQM::beginJob(const edm::EventSetup&)
  
   for(unsigned int i = 0; i< numOfHLTCollectionLabels ; i++){
     // Et distribution of HLT objects passing filter i
-    histName = theHLTCollectionLabels[i].label()+"et all";
+    histName = theHLTCollectionLabels[i].label()+"et_all";
     histTitle = HltHistTitle[i]+" Et (ALL)";
     tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
     ethist.push_back(tmphisto);
     
     // Eta distribution of HLT objects passing filter i
-    histName = theHLTCollectionLabels[i].label()+"eta all";
+    histName = theHLTCollectionLabels[i].label()+"eta_all";
     histTitle = HltHistTitle[i]+" #eta (ALL)";
     tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
     etahist.push_back(tmphisto);          
 
     // Et distribution of gen object matching HLT object passing filter i
-    histName = theHLTCollectionLabels[i].label()+"et MC matched";
+    histName = theHLTCollectionLabels[i].label()+"et_MC_matched";
     histTitle = HltHistTitle[i]+" Et (MC matched)";
     tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
     ethistmatch.push_back(tmphisto);
     
     // Eta distribution of gen object matching HLT object passing filter i
-    histName = theHLTCollectionLabels[i].label()+"eta MC matched";
+    histName = theHLTCollectionLabels[i].label()+"eta_MC_matched";
     histTitle = HltHistTitle[i]+" #eta (MC matched)";
     tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
     etahistmatch.push_back(tmphisto);
@@ -224,25 +224,25 @@ EmDQM::beginJob(const edm::EventSetup&)
       histEtIsoOfHltObjMatchToGen.push_back(tmpiso);
     } else {
       // 2D plot: Isolation values vs eta for all objects
-      histName  = theHLTCollectionLabels[i].label()+"eta isolation all";
+      histName  = theHLTCollectionLabels[i].label()+"eta_isolation_all";
       histTitle = HltHistTitle[i]+" isolation vs #eta (all)";
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       etahistiso.push_back(tmpiso);
 
       // 2D plot: Isolation values vs et for all objects
-      histName  = theHLTCollectionLabels[i].label()+"et isolation all";
+      histName  = theHLTCollectionLabels[i].label()+"et_isolation_all";
       histTitle = HltHistTitle[i]+" isolation vs Et (all)";
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       ethistiso.push_back(tmpiso);
 
       // 2D plot: Isolation values vs eta for matched objects
-      histName  = theHLTCollectionLabels[i].label()+"eta isolation MC matched";
+      histName  = theHLTCollectionLabels[i].label()+"eta_isolation_MC_matched";
       histTitle = HltHistTitle[i]+" isolation vs #eta (mc matched)";
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       etahistisomatch.push_back(tmpiso);
 
       // 2D plot: Isolation values vs et for matched objects
-      histName  = theHLTCollectionLabels[i].label()+"et isolation MC matched";
+      histName  = theHLTCollectionLabels[i].label()+"et_isolation_MC_matched";
       histTitle = HltHistTitle[i]+" isolation vs Et (mc matched)";
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       ethistisomatch.push_back(tmpiso);
@@ -250,14 +250,14 @@ EmDQM::beginJob(const edm::EventSetup&)
 
       // 2D plot: Isolation values vs eta for HLT object that 
       // is closest delta-R match to sorted gen particle(s)
-      histName  = theHLTCollectionLabels[i].label()+"eta isolation";
+      histName  = theHLTCollectionLabels[i].label()+"eta_isolation";
       histTitle = HltHistTitle[i]+" isolation vs #eta";
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       histEtaIsoOfHltObjMatchToGen.push_back(tmpiso);
 
       // 2D plot: Isolation values vs et for HLT object that 
       // is closest delta-R match to sorted gen particle(s)
-      histName  = theHLTCollectionLabels[i].label()+"et isolation";
+      histName  = theHLTCollectionLabels[i].label()+"et_isolation";
       histTitle = HltHistTitle[i]+" isolation vs Et";
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       histEtIsoOfHltObjMatchToGen.push_back(tmpiso);

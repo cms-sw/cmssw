@@ -58,7 +58,7 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
     std::vector<std::string> postfixes;
     std::string tmpstring=""; //unmatched histos
     postfixes.push_back(tmpstring);
-    tmpstring=" MC matched";
+    tmpstring="_MC_matched";
     postfixes.push_back(tmpstring);
 
     for(std::vector<std::string>::iterator postfix=postfixes.begin(); postfix!=postfixes.end();postfix++){
@@ -67,8 +67,8 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
       // computer per-event efficiencies //
       /////////////////////////////////////
       
-      std::string histoName="efficiency by step"+ *postfix;
-      std::string baseName = "total eff"+ *postfix;
+      std::string histoName="efficiency_by_step"+ *postfix;
+      std::string baseName = "total_eff"+ *postfix;
       MonitorElement* total = dqm->book1D(histoName.c_str(),dqm->get(dqm->pwd() + "/" + baseName)->getTH1F());
       total->setTitle(histoName);
       
@@ -147,9 +147,9 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
 	  num   =dqm->get(numname);
 	  denom =dqm->get(denomname);
 	  if(!num || !denom) break; // dont try to devide if the histos aren't there
-	  eff = dqm->book1D("efficiency "+filtername2+" vs "+*var +*postfix ,dqm->get(numname)->getTH1F());
+	  eff = dqm->book1D("efficiency_"+filtername2+"_vs_"+*var +*postfix ,dqm->get(numname)->getTH1F());
 	  if(!dqm) break; // couldnt create new element => don't fill it;
-	  eff->setTitle("efficiency "+filtername2+"vs "+*var + *postfix);
+	  eff->setTitle("efficiency_"+filtername2+"_vs_"+*var + *postfix);
 	  eff->getTH1F()->SetMaximum(1.2);
 	  eff->getTH1F()->SetMinimum(0);
 	  eff->getTH1F()->GetXaxis()->SetTitle(var->c_str());
