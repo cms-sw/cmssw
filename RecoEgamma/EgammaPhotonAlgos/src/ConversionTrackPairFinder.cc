@@ -61,8 +61,9 @@ std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>  ConversionTr
     //std::cout  << " Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum()  << "\n";  
     
     if ( iTk->numberOfValidHits() <3 ||   iTk->normalizedChi2() > 5000 ) continue; 
-    
-    
+    if ( fabs(iTk->impactPointState().globalPosition().x()) > 110 ||
+         fabs(iTk->impactPointState().globalPosition().y()) > 110 ||
+	 fabs(iTk->impactPointState().globalPosition().z()) > 280 ) continue;
     
     const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
     reco::TrackRef myTkRef= ttt->persistentTrackRef(); 
