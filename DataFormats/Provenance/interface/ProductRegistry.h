@@ -22,7 +22,6 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
-#include "DataFormats/Provenance/interface/ProductTransientIndex.h"
 #include "DataFormats/Provenance/interface/Transient.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
@@ -57,7 +56,7 @@ namespace edm {
     typedef std::map<BranchKey, ConstBranchDescription> ConstProductList;
     
     // Used for indices to find branch IDs by type and process
-    typedef std::map<std::string, std::vector<ProductTransientIndex> > ProcessLookup;
+    typedef std::map<std::string, std::vector<BranchID> > ProcessLookup;
     typedef std::map<TypeID, ProcessLookup> TypeLookup;
 
     void addProduct(BranchDescription const& productdesc, bool iFromListener=false);
@@ -99,7 +98,7 @@ namespace edm {
     //NOTE: this is not const since we only want items that have non-const access to this class to be 
     // able to call this internal iteration
     template<class T>
-    void callForEachBranch(T const& iFunc)  {
+    void callForEachBranch(const T& iFunc)  {
       //NOTE: If implementation changes from a map, need to check that iterators are still valid
       // after an insert with the new container, else need to copy the container and iterate over the copy
       for(ProductRegistry::ProductList::const_iterator itEntry = productList_.begin(),
@@ -114,7 +113,7 @@ namespace edm {
 
     bool anyProducts(BranchType const brType) const;
 
-    ConstProductList& constProductList() const {
+    ConstProductList & constProductList() const {
 	 //throwIfNotFrozen();
        return transients_.get().constProductList_;
     }
@@ -123,9 +122,6 @@ namespace edm {
 
     TypeLookup & elementLookup() const {return transients_.get().elementLookup_;}
 
-    //returns the appropriate PriductTransientIndex else 0xFFFFFFFF if no BranchID is available
-    static ProductTransientIndex const kInvalidIndex=0xFFFFFFFF;
-    ProductTransientIndex indexFrom(BranchID const& iID) const;
     struct Transients {
       Transients();
       bool frozen_;
@@ -139,8 +135,6 @@ namespace edm {
       // an EDProduct
       TypeLookup productLookup_;
       TypeLookup elementLookup_;
-       
-      std::map<BranchID, ProductTransientIndex> branchIDToIndex_;
     };
 
     bool productProduced(BranchType branchType) const {return transients_.get().productProduced_[branchType];}
@@ -154,9 +148,9 @@ namespace edm {
     virtual void addCalled(BranchDescription const&, bool iFromListener);
     void throwIfNotFrozen() const;
     void throwIfFrozen() const;
-    void fillElementLookup(Reflex::Type const& type,
-                           ProductTransientIndex const& slotNumber,
-                           BranchKey const& bk) const;
+    void fillElementLookup(const Reflex::Type & type,
+                           const BranchID& slotNumber,
+                           const BranchKey& bk) const;
     
     ProductList productList_;
     mutable Transient<Transients> transients_;

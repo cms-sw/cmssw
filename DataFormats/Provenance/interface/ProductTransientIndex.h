@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  1 10:27:31 CDT 2009
-// $Id$
 //
 
 namespace edm {
