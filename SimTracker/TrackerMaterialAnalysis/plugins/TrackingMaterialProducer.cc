@@ -135,17 +135,18 @@ void TrackingMaterialProducer::update(const G4Step* step)
 
   // material and step proterties
   const G4Material* material = touchable->GetVolume()->GetLogicalVolume()->GetMaterial();
-  double length = step->GetStepLength() / 10.;          // mm -> cm
-  double X0 = material->GetRadlen() / 10.;              // mm -> cm
-  double Ne = material->GetElectronDensity() * 1000;    // 1/mm3 -> 1/cm3
+  double length = step->GetStepLength() / cm;          // mm -> cm
+  double X0 = material->GetRadlen() / cm;              // mm -> cm
+  double Ne = material->GetElectronDensity() * cm3;    // 1/mm3 -> 1/cm3
   double Xi = Ne / 6.0221415e23 * 0.307075 / 2.;        // MeV / cm
   double radiationLengths = length / X0;                // 
   double energyLoss       = length * Xi;                // MeV
+  //double energyLoss = step->GetDeltaEnergy()/MeV;  should we use this??
 
   G4ThreeVector globalPosPre  = step->GetPreStepPoint()->GetPosition();
   G4ThreeVector globalPosPost = step->GetPostStepPoint()->GetPosition();
-  GlobalPoint globalPositionIn(  globalPosPre.x()  / 10., globalPosPre.y()  / 10., globalPosPre.z() / 10. );    // mm -> cm
-  GlobalPoint globalPositionOut( globalPosPost.x() / 10., globalPosPost.y() / 10., globalPosPost.z() / 10. );   // mm -> cm
+  GlobalPoint globalPositionIn(  globalPosPre.x()  / cm, globalPosPre.y()  / cm, globalPosPre.z() / cm );    // mm -> cm
+  GlobalPoint globalPositionOut( globalPosPost.x() / cm, globalPosPost.y() / cm, globalPosPost.z() / cm );   // mm -> cm
 
   // check for a sensitive detector 
   bool enter_sensitive = false;
@@ -160,7 +161,7 @@ void TrackingMaterialProducer::update(const G4Step* step)
     const G4VSolid &          solid     = *touchable->GetSolid( level );
     const G4AffineTransform & transform = GetTransform( touchable, level );
     G4ThreeVector pos = transform.Inverse().TransformPoint( G4ThreeVector( 0., 0., 0. ) );
-    position = GlobalPoint( pos.x() / 10., pos.y() / 10., pos.z() / 10. );  // mm -> cm
+    position = GlobalPoint( pos.x() / cm, pos.y() / cm, pos.z() / cm );  // mm -> cm
     
     G4ThreeVector localPosPre   = transform.TransformPoint( globalPosPre );
     EInside       statusPre     = solid.Inside( localPosPre );
