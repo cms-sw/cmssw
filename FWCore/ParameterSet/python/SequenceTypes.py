@@ -420,9 +420,12 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
         return copy.copy(self)
     def _place(self,label,process):
         process.setPartialSchedule_(self,label)
-    def fillNamesList(self, l, processDict):
+    def moduleNames(self):
+        result = set()
+        visitor = NodeNameVisitor(result)
         for seq in self:
-            seq.fillNamesList(l, processDict)
+            seq.visit(visitor)
+        return result
     def enforceDependencies(self):
         # I don't think we need the processDict
         processDict = dict()
@@ -433,7 +436,6 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
         errors = list()
         for seq in self:
             seq.visit(namesVisitor)
-            #seq.fillNamesList(names, processDict) 
             seq.findHardDependencies('schedule', dependencyDict)
         # dependencyDict is (label, list of _HardDependency objects,
         # where a _HardDependency contains a set of strings from one sequence
