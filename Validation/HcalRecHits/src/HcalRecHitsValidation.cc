@@ -321,7 +321,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       meEnConeEtaProfile = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
 
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_E");
-      meEnConeEtaProfile_E = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -20., 200.);  
+      meEnConeEtaProfile_E = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
 
 
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH");
