@@ -27,6 +27,6 @@ hbhereco.digiLabel = 'simHcalDigis'
 horeco.digiLabel = 'simHcalDigis'
 hfreco.digiLabel = 'simHcalDigis'
 ecalPreshowerRecHit.ESdigiCollection = 'simEcalPreshowerDigis'
-ecalWeightUncalibRecHit.EBdigiCollection = 'simEcalDigis:ebDigis'
-ecalWeightUncalibRecHit.EEdigiCollection = 'simEcalDigis:eeDigis'
+ecalGlobalUncalibRecHit.EBdigiCollection = 'simEcalDigis:ebDigis'
+ecalGlobalUncalibRecHit.EEdigiCollection = 'simEcalDigis:eeDigis'
 
