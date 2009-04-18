@@ -621,6 +621,38 @@ class Process(object):
         if self.schedule_() != None:
             self.schedule_().enforceDependencies()
         
+    def prune(self):
+        """ Remove clutter from the process which we think is unnecessary:
+        PSets, and unused modules.  Not working yet, because I need to remove
+        all unneeded sequences and paths that contain removed modules """
+        for name in self.psets_():
+            delattr(self, name)
+        for name in self.vpsets_():
+            delattr(self, name)
+
+        if self.schedule_():
+            self.pruneSequences()
+            scheduledNames = self.schedule_().moduleNames()
+            self.pruneModules(self.producers_(), scheduledNames)
+            self.pruneModules(self.filters_(), scheduledNames)
+            self.pruneModules(self.analyzers_(), scheduledNames)
+
+    def pruneSequences(self):
+        scheduledSequences = []
+        visitor = SequenceVisitor(scheduledSequences)
+        #self.schedule_()._seq.visit(visitor)
+        #scheduledSequenceNames = set([seq.label_() for seq in scheduledSequences])
+        #sequenceNames = set(self.sequences_().keys())
+        #junk = sequenceNames - scheduledSequenceNames
+        #for name in junk:
+        #    delattr(self, name)
+        
+    def pruneModules(self, d, scheduledNames):
+        moduleNames = set(d.keys())
+        junk = moduleNames - scheduledNames
+        for name in junk:
+            delattr(self, name)
+
     def fillProcessDesc(self, processDesc, processPSet):
         processPSet.addString(True, "@process_name", self.name_())
         all_modules = self.producers_().copy()
@@ -737,7 +769,6 @@ if __name__=="__main__":
     class TestModuleCommand(unittest.TestCase):
         def setUp(self):
             """Nothing to do """
-            #print 'testing'
             None
         def testParameterizable(self):
             p = _Parameterizable()
@@ -797,7 +828,6 @@ if __name__=="__main__":
             self.assert_( 'out' in p.outputModules_() )
             
             p.geom = ESSource("GeomProd")
-            print p.es_sources_().keys()
             self.assert_('geom' in p.es_sources_())
             p.add_(ESSource("ConfigDB"))
             self.assert_('ConfigDB' in p.es_sources_())
@@ -997,6 +1027,13 @@ process.schedule = cms.Schedule(process.p2,process.p)
             self.assertEqual(s[0],p.path1)
             self.assertEqual(s[1],p.path2)
             p.schedule = s
+            self.assert_('b' in p.schedule.moduleNames())
+            self.assert_(hasattr(p, 'b'))
+            self.assert_(hasattr(p, 'c'))
+            p.prune()
+            self.assert_('b' in p.schedule.moduleNames())
+            self.assert_(hasattr(p, 'b'))
+            self.assert_(not hasattr(p, 'c'))
 
         def testImplicitSchedule(self):
             p = Process("test")
@@ -1007,7 +1044,6 @@ process.schedule = cms.Schedule(process.p2,process.p)
             p.path2 = Path(p.b)
             self.assert_(p.schedule is None)
             pths = p.paths
-            print pths
             keys = pths.keys()
             self.assertEqual(pths[keys[0]],p.path1)
             self.assertEqual(pths[keys[1]],p.path2)
@@ -1020,7 +1056,6 @@ process.schedule = cms.Schedule(process.p2,process.p)
             p.path1 = Path(p.a)
             self.assert_(p.schedule is None)
             pths = p.paths
-            print pths
             keys = pths.keys()
             self.assertEqual(pths[keys[1]],p.path1)
             self.assertEqual(pths[keys[0]],p.path2)
@@ -1130,14 +1165,12 @@ process.prefer("juicer",
             path = Path(p.a)
             path *= p.b
             path += p.c
-            print 'dependencies'
             deps= path.moduleDependencies()
             self.assertEqual(deps['a'],set())
             self.assertEqual(deps['b'],set(['a']))
             self.assertEqual(deps['c'],set())
             
             path *=p.a
-            print str(path)
             self.assertRaises(RuntimeError,path.moduleDependencies)
             path = Path(p.a*(p.b+p.c))
             deps = path.moduleDependencies()
