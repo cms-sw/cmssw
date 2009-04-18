@@ -1139,8 +1139,9 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
     if (!modeDDUonly) {
       // DCC Trailer 1 && DCC Trailer 2
       // =VB= Added support for Sep. 2008 CMS DAQ DCC format
+      // =VB= 04.18.09 Removed (buf2[0]&0x0003) == 0x3 check for old DCC format to satisfy older format of simulated data
       if( (buf1[3]&0xFF00) == 0xEF00 &&
-	  ( ((buf2[3]&0xFF00) == 0xAF00 && (buf2[0]&0x0003) == 0x3) 
+	  ( ((buf2[3]&0xFF00) == 0xAF00 ) 
 	  || 
      (( buf2[3]&0xFF00) == 0xA000 && (buf2[0]&0x0003) == 0x0) ) ){
 	if(fDCC_Trailer){
