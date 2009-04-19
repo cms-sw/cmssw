@@ -1245,9 +1245,9 @@ if(first)
 	    if(k==1 && independent_triggered) { //non-iso
 	      //std::cout << "eta " << electronEmulEta[k][i] << " phi " << electronEmulPhi[k][i] << " with rank " <<  electronEmulRank[k][i] << std::endl;
 	      trigEffOcc_[chnl]->Fill(electronEmulRank[k][i]);
-	    }
+//	    }
 	    if(triggered)
-	      trigEffTriggOcc_[chnl]->Fill(electronEmulRank[k][i]);
+	      trigEffTriggOcc_[chnl]->Fill(electronEmulRank[k][i]); }
 	  }
 	  //find number of objects with rank above 2x trigger threshold
 	  //and number after requiring a trigger too
@@ -1255,9 +1255,9 @@ if(first)
 	    if(k==1 && independent_triggered) { //non-iso
 	      trigEffThreshOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i]);
 	      trigEffTriggThreshOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.01);
-	    }
+//	    }
 	    if(triggered)
-	      trigEffTriggThreshOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.980001);
+	      trigEffTriggThreshOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.980001); }
 	  }
       
 
