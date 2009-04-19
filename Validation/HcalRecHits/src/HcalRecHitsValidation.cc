@@ -320,10 +320,6 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths");
       meEnConeEtaProfile = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
 
-      sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_E");
-      meEnConeEtaProfile_E = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
-
-
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH");
       meEnConeEtaProfile_EH = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
 
@@ -859,7 +855,7 @@ HcalRecHitsValidation::~HcalRecHitsValidation() {
 
 void HcalRecHitsValidation::endJob() { }
 
-void HcalRecHitsValidation::beginJob(){ }
+void HcalRecHitsValidation::beginJob(const edm::EventSetup& c){ }
 
 void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const& c) {
 
@@ -921,7 +917,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
   edm::Handle<edm::HepMCProduct> evtMC;
   //  ev.getByLabel("VtxSmeared",evtMC);
-  ev.getByLabel("generator",evtMC);  // generator in late 310_preX
+  ev.getByLabel("generator",evtMC);
   if (!evtMC.isValid()) {
     std::cout << "no HepMCProduct found" << std::endl;    
   } else {
@@ -932,8 +928,8 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   // MC particle with highest pt is taken as a direction reference  
   double maxPt = -99999.;
   int npart    = 0;
-  HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evtMC->GetEvent()));
-  for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
+  const HepMC::GenEvent * myGenEvent = evtMC->GetEvent();
+  for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
 	p != myGenEvent->particles_end(); ++p ) {
     double phip = (*p)->momentum().phi();
     double etap = (*p)->momentum().eta();
@@ -965,7 +961,9 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   if(ecalselector_ == "yes" && (subdet_ == 1 || subdet_ == 2 || subdet_ == 5)) {
     Handle<EBRecHitCollection> rhitEB;
 
-
+    if(famos_)
+      ev.getByLabel("caloRecHits","EcalRecHitsEB", rhitEB);
+    else
       ev.getByLabel("ecalRecHit","EcalRecHitsEB", rhitEB);
 
     EcalRecHitCollection::const_iterator RecHit = rhitEB.product()->begin();  
@@ -994,6 +992,9 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     
     Handle<EERecHitCollection> rhitEE;
  
+    if(famos_)
+      ev.getByLabel("caloRecHits", "EcalRecHitsEE", rhitEE );
+    else
       ev.getByLabel("ecalRecHit","EcalRecHitsEE", rhitEE);
 
     RecHit = rhitEE.product()->begin();  
@@ -1234,8 +1235,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     double enMax2 = -9999.;
     double enMax3 = -9999.;
     double enMax4 = -9999.;
-    //    double enMax  = -9999.;
-    double etaMax =  9999.;
+    double enMax  = -9999.;
 
     /*
     std::cout << "*** point 5-1" << "  eta_MC, phi_MC    etaHot,  phiHot = "
@@ -1308,28 +1308,14 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	    ietaMax4 = ieta;
 	  }
 	}
-
+	// regardless of the depths (but excluding HO), just hottest cell
 	if(depth != 4) {
 	  HcalCone += en;
-	}
-
-
-	// regardless of the depths (but excluding HO), just hottest cell
-	/*
-	if(depth != 4) {
 	  if(enMax   < en) {
 	    enMax   = en;
 	    ietaMax = ieta;
 	  }
 	}   
-	*/
-
-        // alternative: ietamax -> closest to MC eta  !!!
-	float eta_diff = fabs(eta_MC - eta);
-	if(eta_diff < etaMax) {
-	  etaMax  = eta_diff; 
-          ietaMax = ieta; 
-	}
 
 
       }
@@ -1375,7 +1361,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       meEnConeEtaProfile_depth3->Fill(double(ietaMax3), HcalCone_d3);
       meEnConeEtaProfile_depth4->Fill(double(ietaMax4), HcalCone_d4);
       meEnConeEtaProfile       ->Fill(double(ietaMax),  HcalCone);   // 
-      meEnConeEtaProfile_E     ->Fill(double(ietaMax), eEcalCone);   
       meEnConeEtaProfile_EH    ->Fill(double(ietaMax),  HcalCone+eEcalCone); 
     }
 
@@ -1801,6 +1786,9 @@ double HcalRecHitsValidation::dPhiWsign(double phi1, double phi2) {
 
 }
 
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(HcalRecHitsValidation);
