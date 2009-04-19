@@ -60,8 +60,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 #process.source = cms.Source("NewEventStreamFileReader",
 process.source = cms.Source("PoolSource",
-    debugFlag = cms.untracked.bool(True),
-    debugVebosity = cms.untracked.uint32(10),
+    noEventSort = cms.untracked.bool(True),
+    duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 #---
 #    fileNames = cms.untracked.vstring('/store/users/dellaric/data/P5_Co.00002357.A.0.0.root')
 #---

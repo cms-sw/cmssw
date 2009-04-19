@@ -64,6 +64,8 @@ process.maxEvents = cms.untracked.PSet(
 #        '/store/users/dellaric/data/GlobalAug07.00017123.0002.A.storageManager.0.0000.dat')
 #)
 process.source = cms.Source("PoolSource",
+    noEventSort = cms.untracked.bool(True),
+    duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
     fileNames = cms.untracked.vstring('/store/users/dellaric/data/GlobalAug07.00017123.root')
 )
 

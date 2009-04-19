@@ -50,8 +50,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(150)
 )
 process.source = cms.Source("PoolSource",
-    debugFlag = cms.untracked.bool(True),
-    debugVebosity = cms.untracked.uint32(10),
+    noEventSort = cms.untracked.bool(True),
+    duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
     fileNames = cms.untracked.vstring('/store/users/dellaric/data/h4b.00014790.A.0.0.root')
 )
 

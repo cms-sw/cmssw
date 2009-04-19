@@ -59,6 +59,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(300)
 )
 process.source = cms.Source("PoolSource",
+    noEventSort = cms.untracked.bool(True),
+    duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 #---
     fileNames = cms.untracked.vstring('/store/users/dellaric/data/relval_zee.root')
 #---

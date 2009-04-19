@@ -64,7 +64,7 @@ process.source = cms.Source("DAQEcalTBInputService",
 #    fileNames = cms.untracked.vstring('/store/users/dellaric/data/H4-000006100-SM5-COSMIC-STD'),
 #    runNumber = cms.untracked.uint32(6100),
 #    isBinary = cms.untracked.bool(False)
-#--
+#---
 #    fileNames = cms.untracked.vstring('/store/users/dellaric/data/H4-000008203-SM5-PEDESTAL-STD'),
 #    runNumber = cms.untracked.uint32(8203),
 #    isBinary = cms.untracked.bool(False)
