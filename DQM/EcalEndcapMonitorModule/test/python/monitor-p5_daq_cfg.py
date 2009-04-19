@@ -60,7 +60,11 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
+    noEventSort = cms.untracked.bool(True),
+    duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
+#---
     fileNames = cms.untracked.vstring('/store/data/Commissioning08/Calo/RAW/v1/000/069/382/0A023003-3BAB-DD11-B4D0-000423D6B5C4.root')
+#---
 )
 
 process.EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
