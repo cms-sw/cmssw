@@ -27,14 +27,7 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
 // GCT output data formats
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFRingEtSums.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFBitCounts.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
-
 
 // Raw data collection
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -111,6 +104,8 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(gctInputLabelStr, "", hfRingSums);
   edm::Handle<L1GctHFBitCountsCollection> hfBitCounts;
   iEvent.getByLabel(gctInputLabelStr, "", hfBitCounts);
+  edm::Handle<L1GctHtMissCollection> htMiss;
+  iEvent.getByLabel(gctInputLabelStr, "", htMiss);
   edm::Handle<L1GctJetCountsCollection> jetCounts;
   iEvent.getByLabel(gctInputLabelStr, "", jetCounts);
 
@@ -132,7 +127,6 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<L1CaloRegionCollection> rctCalo;
   if(packRctCaloThisEvent)
   {
-
     iEvent.getByLabel(rctInputLabelStr, rctCalo);
     if(rctCalo.failedToGet())
     {
@@ -140,7 +134,6 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       LogDebug("GCT") << "RCT Calo Region packing requested, but failed to get them from event!";
     }
   }
-
   
   // create the raw data collection
   std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
@@ -163,21 +156,22 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
  
   // Pack GCT jet output digis
   formatTranslator_.writeGctOutJetBlock(pPayload, 
-                                   cenJets.product(),
-                                   forJets.product(),
-                                   tauJets.product(),
-                                   hfRingSums.product(), 
-                                   hfBitCounts.product());
+                                        cenJets.product(),
+                                        forJets.product(),
+                                        tauJets.product(),
+                                        hfRingSums.product(), 
+                                        hfBitCounts.product(),
+                                        htMiss.product());
 
   pPayload += 36; //advance payload pointer
   
   // Pack GCT EM and energy sums digis.
   formatTranslator_.writeGctOutEmAndEnergyBlock(pPayload,
-                                           isoEm.product(), 
-                                           nonIsoEm.product(),
-                                           etTotal.product(), 
-                                           etHad.product(), 
-                                           etMiss.product());
+                                                isoEm.product(), 
+                                                nonIsoEm.product(),
+                                                etTotal.product(), 
+                                                etHad.product(), 
+                                                etMiss.product());
 
   pPayload += 28; //advance payload pointer
 

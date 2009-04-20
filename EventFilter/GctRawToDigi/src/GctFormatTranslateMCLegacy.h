@@ -11,8 +11,8 @@
 * that wasn't set to anything, i.e.: 0x00000000
 *  
 * \author Robert Frazier
-* $Revision: 1.2 $
-* $Date: 2009/04/06 18:48:00 $
+* $Revision: 1.1 $
+* $Date: 2009/04/07 10:51:06 $
 */ 
 
 // ************************************************************************
@@ -58,7 +58,8 @@ public:
                            const L1GctJetCandCollection* forJets, 
                            const L1GctJetCandCollection* tauJets, 
                            const L1GctHFRingEtSumsCollection* hfRingSums,
-                           const L1GctHFBitCountsCollection* hfBitCounts);
+                           const L1GctHFBitCountsCollection* hfBitCounts,
+                           const L1GctHtMissCollection* htMiss);
 
   /// Writes the 4 RCT EM Candidate blocks.
   void writeRctEmCandBlocks(unsigned char * d, const L1CaloEmCollection * rctEm);

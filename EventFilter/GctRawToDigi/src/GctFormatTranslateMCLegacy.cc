@@ -220,7 +220,8 @@ void GctFormatTranslateMCLegacy::writeGctOutJetBlock(unsigned char * d,
                                                      const L1GctJetCandCollection* forJets,
                                                      const L1GctJetCandCollection* tauJets, 
                                                      const L1GctHFRingEtSumsCollection* hfRingSums,
-                                                     const L1GctHFBitCountsCollection* hfBitCounts)
+                                                     const L1GctHFBitCountsCollection* hfBitCounts,
+                                                     const L1GctHtMissCollection* htMiss)
 {
   // Set up a vector of the collections for easy iteration.
   vector<const L1GctJetCandCollection*> jets(NUM_JET_CATEGORIES);
@@ -242,13 +243,11 @@ void GctFormatTranslateMCLegacy::writeGctOutJetBlock(unsigned char * d,
     if((jetCands->size()-offset) < 4) { LogDebug("GCT") << "Insufficient jet candidates with bx=0!\nAborting packing of GCT Jet Output!"; return; }
   }
   
-  // Now find the offset for the jet counts with bx=0
-  unsigned bx0HfRingSumsOffset;
+  // Now find the collection offsets for the HfRingSums, HfBitCounts, and HtMiss with bx=0
+  unsigned bx0HfRingSumsOffset, bx0HfBitCountsOffset, bx0HtMissOffset;
   if(!findBx0OffsetInCollection(bx0HfRingSumsOffset, hfRingSums)) { LogDebug("GCT") << "No ring sums with bx=0!\nAborting packing of GCT Jet Output!"; return; }
-
-  // Now find the offset for the jet counts with bx=0
-  unsigned bx0HfBitCountsOffset;
   if(!findBx0OffsetInCollection(bx0HfBitCountsOffset, hfBitCounts)) { LogDebug("GCT") << "No bit counts with bx=0!\nAborting packing of GCT Jet Output!"; return; }
+  if(!findBx0OffsetInCollection(bx0HtMissOffset, htMiss)) { LogDebug("GCT") << "No missing Ht with bx=0!\nAborting packing of GCT Jet Output!"; return; }
 
   // Now write the header, as we should now have all requisite data.
   writeRawHeader(d, 0x583, 1);  // ** NOTE can only currenly do 1 timesample! **
@@ -287,7 +286,14 @@ void GctFormatTranslateMCLegacy::writeGctOutJetBlock(unsigned char * d,
   tmp |= hfRingSums->at(bx0HfRingSumsOffset).etSum(2)<<19;
   tmp |= hfRingSums->at(bx0HfRingSumsOffset).etSum(3)<<22;
   p32[0] = tmp;
-  p32[1] = 0x00008000;
+  
+  const L1GctHtMiss& bx0HtMiss = htMiss->at(bx0HtMissOffset);
+  uint32_t htMissRaw = 0x5555c000 |
+                       (bx0HtMiss.overFlow() ? 0x1000 : 0x0000) |
+                       ((bx0HtMiss.et() & 0x7f) << 5) |
+                       ((bx0HtMiss.phi() & 0x1f));
+  
+  p32[1] = htMissRaw;
 }
 
 void GctFormatTranslateMCLegacy::writeRctEmCandBlocks(unsigned char * d, const L1CaloEmCollection * rctEm)
