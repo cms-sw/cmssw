@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2009/01/20 07:19:00 $
- *  $Revision: 1.24.2.4 $
+ *  $Date: 2009/01/26 04:18:05 $
+ *  $Revision: 1.3 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -48,15 +48,13 @@ CosmicMuonSeedGenerator::CosmicMuonSeedGenerator(const edm::ParameterSet& pset){
   produces<TrajectorySeedCollection>(); 
   
   // enable the DT chamber
-  theEnableDTFlag = pset.getUntrackedParameter<bool>("EnableDTMeasurement",true);
+  theEnableDTFlag = pset.getParameter<bool>("EnableDTMeasurement");
   // enable the CSC chamber
-  theEnableCSCFlag = pset.getUntrackedParameter<bool>("EnableCSCMeasurement",true);
+  theEnableCSCFlag = pset.getParameter<bool>("EnableCSCMeasurement");
 
-  if(theEnableDTFlag)
-    theDTRecSegmentLabel = pset.getUntrackedParameter<InputTag>("DTRecSegmentLabel");
+  theDTRecSegmentLabel = pset.getParameter<InputTag>("DTRecSegmentLabel");
 
-  if(theEnableCSCFlag)
-    theCSCRecSegmentLabel = pset.getUntrackedParameter<InputTag>("CSCRecSegmentLabel");
+  theCSCRecSegmentLabel = pset.getParameter<InputTag>("CSCRecSegmentLabel");
 
   // the maximum number of TrajectorySeed
   theMaxSeeds = pset.getParameter<int>("MaxSeeds");
@@ -174,7 +172,6 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   if ( !allHits.empty() ) {
 
     MuonRecHitContainer goodhits = selectSegments(allHits);
-    theMaxSeeds += seeds.size(); // reset max seeds for the second option
     LogTrace(category)<<"good RecHits: "<<goodhits.size();
 
     if ( goodhits.empty() ) {
@@ -416,7 +413,11 @@ CosmicMuonSeedGenerator::makeSegPairs(const MuonTransientTrackingRecHit::MuonRec
    if (hits1.empty() || hits2.empty()  )  return result;
 
    for (MuonRecHitContainer::const_iterator ihit1 = hits1.begin(); ihit1 != hits1.end(); ihit1++) {
+     if ( !checkQuality(*ihit1) ) continue;
+
      for (MuonRecHitContainer::const_iterator ihit2 = hits2.begin(); ihit2 != hits2.end(); ihit2++) {
+        if ( !checkQuality(*ihit2) ) continue;
+
         float dphi = deltaPhi((*ihit1)->globalPosition().phi(), (*ihit2)->globalPosition().phi());
         if ( dphi < 0.5 ) {
 	   if ((*ihit1)->globalPosition().y() > 0.0 && ( (*ihit1)->globalPosition().y()  > (*ihit2)->globalPosition().y() ) ) { 
