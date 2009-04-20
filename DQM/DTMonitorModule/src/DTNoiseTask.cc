@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/13 10:02:29 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/04/09 15:44:50 $
+ *  $Revision: 1.14 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -277,7 +277,7 @@ void DTNoiseTask::beginRun(const Run& run, const EventSetup& setup) {
       if(doTimeBoxHistos)
 	bookHistos(slId);
       float tTrig, tTrigRMS, kFactor;
-      tTrigMap->get(slId, tTrig, tTrigRMS,kFactor,DTTimeUnits::ns);
+      tTrigMap->get(slId, tTrig, tTrigRMS,DTTimeUnits::ns);
       // tTrig mapping per station
       // check that the ttrig is the lowest of the 3 SLs
       if(tTrigStMap.find(chId)==tTrigStMap.end() || 
