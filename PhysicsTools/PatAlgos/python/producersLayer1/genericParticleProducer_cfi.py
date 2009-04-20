@@ -26,10 +26,6 @@ allLayer1GenericParticles = cms.EDProducer("PATGenericParticleProducer",
     addQuality = cms.bool(False),
     qualitySource = cms.InputTag("REPLACE_ME"), ## must be ValueMap<float> associated to the input collection
 
-    # Trigger matching configurables
-    addTrigMatch = cms.bool(False),
-    trigPrimMatch = cms.VInputTag(cms.InputTag("REPLACE_ME")), ## trigger primitive sources to be used for the matching
-
     # MC matching configurables
     addGenMatch = cms.bool(False),
     embedGenMatch = cms.bool(False),
