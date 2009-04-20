@@ -278,12 +278,8 @@ void HFClusterAlgo::makeCluster(const HcalDetId& seedid,
   
   math::XYZPoint xyzclus(x_,y_,z_);
   
-  double chi2=-1;
-  reco::CaloCluster::AlgoId algoID = reco::CaloCluster::hybrid;
   //return  HFEMClusterShape, SuperCluster
-  
   HFEMClusterShape myClusShp(l_1, s_1, l_3, s_3, l_5,s_5, l_1e,Ceta, Cphi,seedid);
-  
   clusShp = myClusShp;
       
   SuperCluster MySclus(l_3,xyzclus);
