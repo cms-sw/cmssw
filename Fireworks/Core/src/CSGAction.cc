@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.20 2009/01/08 14:07:13 amraktad Exp $
+// $Id: CSGAction.cc,v 1.21 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -92,6 +92,13 @@ TString CSGAction::getSCCombo() const {
 void CSGAction::setName(const std::string& name) {
    // Does not update menu yet
    m_name = name;
+}
+
+void 
+CSGAction::setMenuLabel(const std::string& label) {
+   if(m_menu) {
+      m_menu->GetEntry(m_entry)->GetLabel()->SetString(label.c_str());
+   }
 }
 
 void CSGAction::setToolTip(const std::string& tip) {
