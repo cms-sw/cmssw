@@ -32,9 +32,7 @@ public:
   ~CollectionCombiner();
   
 private:
-  virtual void beginJob(const edm::EventSetup&);
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
   
   // ----------member data ---------------------------
   std::vector<edm::InputTag> labels;
@@ -47,10 +45,7 @@ CollectionCombiner<Collection>::CollectionCombiner(const edm::ParameterSet& iCon
 }
 template <typename Collection>
 CollectionCombiner<Collection>::~CollectionCombiner(){}
-template <typename Collection>
-void CollectionCombiner<Collection>::beginJob(const edm::EventSetup&){}
-template <typename Collection>
-void CollectionCombiner<Collection>::endJob(){}
+
 template <typename Collection>
 void CollectionCombiner<Collection>::produce(edm::Event& iEvent, const edm::EventSetup& es)
 {

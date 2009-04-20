@@ -6,8 +6,8 @@
  *  Build a TrackingRegion around a standalone muon
  *
  *
- *  $Date: 2008/03/20 18:18:32 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/06/30 16:27:00 $
+ *  $Revision: 1.8 $
  *
  *  \author A. Everett - Purdue University
  *  \author A. Grelli -  Purdue University, Pavia University 
@@ -32,8 +32,10 @@ class MuonTrackingRegionBuilder {
   public:
  
     /// constructor
-    MuonTrackingRegionBuilder(const edm::ParameterSet&, 
-                              const MuonServiceProxy*);
+    MuonTrackingRegionBuilder(const edm::ParameterSet&);
+    MuonTrackingRegionBuilder(const edm::ParameterSet&par,
+			      const MuonServiceProxy*service){ build(par);init(service);}
+    void init(const MuonServiceProxy*);
   
     /// destructor
     virtual ~MuonTrackingRegionBuilder() {}
@@ -48,6 +50,7 @@ class MuonTrackingRegionBuilder {
     virtual void setEvent(const edm::Event&);
 
   private:
+    void build(const edm::ParameterSet&);
 
     edm::InputTag theBeamSpotTag;   // beam spot
     edm::InputTag theVertexCollTag; // vertex collection

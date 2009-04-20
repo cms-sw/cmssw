@@ -62,7 +62,7 @@ TSGFromL1Muon::~TSGFromL1Muon()
   delete theRegionProducer;
 }
 
-void TSGFromL1Muon::beginJob(const edm::EventSetup& es)
+void TSGFromL1Muon::beginRun(edm::Run & run, const edm::EventSetup&es)
 {
   edm::ParameterSet regfactoryPSet = theConfig.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");

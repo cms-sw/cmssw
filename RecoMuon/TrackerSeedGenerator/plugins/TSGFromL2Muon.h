@@ -22,7 +22,7 @@ class TSGFromL2Muon : public edm::EDProducer {
 public:
   TSGFromL2Muon(const edm::ParameterSet& cfg);
   virtual ~TSGFromL2Muon();
-  virtual void beginJob(const edm::EventSetup& es);
+  virtual void beginRun(edm::Run & run, const edm::EventSetup&es);
   virtual void produce(edm::Event& ev, const edm::EventSetup& es);
  
 private:

@@ -3,8 +3,8 @@
  *
  *  Build a TrackingRegion around a standalone muon 
  *
- *  $Date: 2008/12/02 12:08:35 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/03/28 15:32:37 $
+ *  $Revision: 1.14 $
  *
  *  \author A. Everett - Purdue University
  *  \author A. Grelli -  Purdue University, Pavia University
@@ -38,10 +38,13 @@ using namespace std;
 //
 // constructor
 //
-MuonTrackingRegionBuilder::MuonTrackingRegionBuilder(const edm::ParameterSet& par, 
-                                                     const MuonServiceProxy* service) :
- theService(service) {
 
+void MuonTrackingRegionBuilder::init(const MuonServiceProxy* service) { theService= service;}
+MuonTrackingRegionBuilder::MuonTrackingRegionBuilder(const edm::ParameterSet& par)
+{
+  build(par);
+}
+void MuonTrackingRegionBuilder::build(const edm::ParameterSet& par){
   // vertex Collection and Beam Spot
   theBeamSpotTag = par.getParameter<edm::InputTag>("beamSpot");
   theVertexCollTag = par.getParameter<edm::InputTag>("vertexCollection");
