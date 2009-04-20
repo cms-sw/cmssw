@@ -122,8 +122,7 @@ postProcessorRecoMuon = cms.EDAnalyzer("DQMGenericClient",
 
 postProcessorRecoMuonComp = cms.EDAnalyzer(
     "DQMGenericClient",
-       subDirs = cms.untracked.vstring(
-    "RecoMuonV/RecoMuon_MuonAssoc", "RecoMuonV/RecoMuon_TrackAssoc",),
+    subDirs = cms.untracked.vstring("RecoMuonV/RecoMuon_MuonAssoc", "RecoMuonV/RecoMuon_TrackAssoc",),
     efficiency = cms.vstring(
     "Eff_GlbTrk_Eta 'Eff_{GLB,TK} vs #eta' Glb/EffEta Trk/EffEta",
     "Eff_GlbTrk_P 'Eff_{GLB,TK} vs #eta' Glb/EffP Trk/EffP",
@@ -137,6 +136,77 @@ postProcessorRecoMuonComp = cms.EDAnalyzer(
     ),
     resolution = cms.vstring(""),
     outputFileName = cms.untracked.string("")
-    )
+)
+
+postProcessorMuonIsolation = cms.EDAnalyzer(
+    "DQMGenericClient",
+    subDirs = cms.untracked.vstring("MuonIsolationV/*"),
+    efficiency = cms.vstring(""),
+    resolution = cms.vstring(""),
+    normalization = cms.untracked.vstring("sumPt",
+                                          "emEt",
+                                          "hadEt",
+                                          "hoEt",
+                                          "nTracks",
+                                          "nJets",
+                                          "trackerVetoPt",
+                                          "emVetoEt",
+                                          "hadVetoEt",
+                                          "hoVetoEt",
+                                          "muonPt",
+                                          "avgPt",
+                                          "weightedEt",
+                                          "pat_TrackerIso",
+                                          "pat_EcalIso",
+                                          "pat_HcalIso",
+                                          "pat_ParticleIso",
+                                          "pat_ChargedParticleIso",
+                                          "pat_NeutralParticleIso",
+                                          "pat_GammaParticleIso",
+                                          "sumPt_cd",
+                                          "emEt_cd",
+                                          "hadEt_cd",
+                                          "hoEt_cd",
+                                          "nTracks_cd",
+                                          "nJets_cd",
+                                          "trackerVetoPt_cd",
+                                          "emVetoEt_cd",
+                                          "hadVetoEt_cd",
+                                          "hoVetoEt_cd",                                          
+                                          "muonPt_cd",
+                                          "avgPt_cd",
+                                          "weightedEt_cd",
+                                          "pat_TrackerIso_cd",
+                                          "pat_EcalIso_cd",
+                                          "pat_HcalIso_cd",
+                                          "pat_ParticleIso_cd",
+                                          "pat_ChargedParticleIso_cd",
+                                          "pat_NeutralParticleIso_cd",
+                                          "pat_GammaParticleIso_cd"
+                                          ),
+    cumulativeDists = cms.untracked.vstring("sumPt_cd",
+                                            "emEt_cd",
+                                            "hadEt_cd",
+                                            "hoEt_cd",
+                                            "nTracks_cd",
+                                            "nJets_cd",
+                                            "trackerVetoPt_cd",
+                                            "emVetoEt_cd",
+                                            "hadVetoEt_cd",
+                                            "hoVetoEt_cd",
+                                            "muonPt_cd",
+                                            "avgPt_cd",
+                                            "weightedEt_cd",
+                                            "pat_TrackerIso_cd",
+                                            "pat_EcalIso_cd",
+                                            "pat_HcalIso_cd",
+                                            "pat_ParticleIso_cd",
+                                            "pat_ChargedParticleIso_cd",
+                                            "pat_NeutralParticleIso_cd",
+                                            "pat_GammaParticleIso_cd"
+                                            ),
+    outputFileName = cms.untracked.string("")
+)        
 
 recoMuonPostProcessors = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuon*postProcessorMuonMultiTrackComp*postProcessorRecoMuonComp)
+recoMuonPostProcessorsWithIsolation = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuon*postProcessorMuonMultiTrackComp*postProcessorRecoMuonComp*postProcessorMuonIsolation)
