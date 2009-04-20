@@ -24,7 +24,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
@@ -32,32 +31,25 @@
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
-#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
-#include "FastSimulation/ShowerDevelopment/interface/EMECALShowerParametrization.h"
-#include "FastSimulation/ShowerDevelopment/interface/EMShower.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 
+#include "FastSimulation/ShowerDevelopment/interface/EMECALShowerParametrization.h"
+#include "FastSimulation/ShowerDevelopment/interface/EMShower.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
-#include "FastSimulation/CaloGeometryTools/interface/Crystal.h"
 #include "FastSimulation/Particle/interface/RawParticle.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "FastSimulation/Utilities/interface/GammaFunctionGenerator.h"
+
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include <TH3F.h>
-#include <TPolyLine3D.h>
-#include <TMarker.h>
-#include <iostream>
-#include <sstream>
+
+
 #include <iomanip>
 
 //
