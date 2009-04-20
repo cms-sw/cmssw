@@ -136,6 +136,12 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     def resolve(self, processDict):
         self._seq = self._seq.resolve(processDict)
         return self
+    def __setattr__(self,name,value):
+        if not name.startswith("_"):
+            print "You cannot set parameters for sequence like objects."
+            raise AttributeError
+        else:
+            self.__dict__[name] = value
     #def replace(self,old,new):
     #"""Find all instances of old and replace with new"""
     #def insertAfter(self,which,new):
@@ -733,6 +739,14 @@ if __name__=="__main__":
             self.assertEqual(len(deps['m5'][0].depSet), 4)
             self.assertEqual(deps['m5'][0].sequenceName, 'p5')
             self.assertEqual(deps['m3'][0].sequenceName, 's4')
+        def testSequenceTypeChecks(self):
+            m1 = DummyModule("m1")
+            m2 = DummyModule("m2")
+            s1 = Sequence(m1*m2)
+            def testRaise():
+                s1.something = 1
+            self.assertRaises(AttributeError,testRaise)
+                        
     unittest.main()
                           
 
