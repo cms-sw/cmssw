@@ -58,7 +58,7 @@ def addPFCandidates(process,src,patLabel='PFParticles',cut=""):
 
 def switchToPFMET(process,input=cms.InputTag('pfMET')):
     oldMETSource = process.layer1METs.metSource
-    switchMCAndTriggerMatch(process,oldMETSource,input)
+    switchMCMatch(process,oldMETSource,input)
     process.layer1METs.metSource = input
     process.layer1METs.addMuonCorrections = False
     #process.patJetMETCorrections.remove(process.patMETCorrections)
@@ -78,13 +78,13 @@ def usePF2PAT(process,runPF2PAT=True):
     # Muons
     process.allLayer1Muons.pfMuonSource = cms.InputTag("pfMuons")
     adaptPFMuons(process,process.allLayer1Muons)
-    switchMCAndTriggerMatch(process,process.allLayer1Muons.muonSource,process.allLayer1Muons.pfMuonSource)
+    switchMCMatch(process,process.allLayer1Muons.muonSource,process.allLayer1Muons.pfMuonSource)
     process.aodSummary.candidates.append(process.allLayer1Muons.pfMuonSource)
     
     # Electrons
 #    process.allLayer1Electrons.pfElectronSource = cms.InputTag("pfElectrons")
 #    adaptPFElectrons(process,process.allLayer1Electrons)
-#    switchMCAndTriggerMatch(process,process.allLayer1Electrons.electronSource,process.allLayer1Electrons.pfElectronSource)
+#    switchMCMatch(process,process.allLayer1Electrons.electronSource,process.allLayer1Electrons.pfElectronSource)
 #    process.aodSummary.candidates.append(process.allLayer1Electrons.pfElectronSource)
 #    process.patAODCoreReco.remove(process.electronsNoDuplicates)
 #    process.patAODExtraReco.remove(process.patElectronId)
@@ -113,7 +113,7 @@ def usePF2PAT(process,runPF2PAT=True):
     # Taus
     oldTaus = process.allLayer1Taus.tauSource
     process.allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")
-    switchMCAndTriggerMatch(process, oldTaus, process.allLayer1Taus.tauSource)
+    switchMCMatch(process, oldTaus, process.allLayer1Taus.tauSource)
     redoPFTauDiscriminators(process, oldTaus, process.allLayer1Taus.tauSource)
     process.aodSummary.candidates.append(process.allLayer1Taus.tauSource)
     

@@ -74,10 +74,6 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
                   ),
     ),
 
-    # trigger matching
-    addTrigMatch  = cms.bool(False),
-    trigPrimMatch = cms.VInputTag(''),
-
     # mc matching
     addGenMatch   = cms.bool(True),
     embedGenMatch = cms.bool(False),

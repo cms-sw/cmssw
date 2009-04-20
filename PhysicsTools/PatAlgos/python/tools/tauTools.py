@@ -12,7 +12,7 @@ def redoPFTauDiscriminators(process,
 def switchToCaloTau(process,
                     pfTauLabel = cms.InputTag('pfRecoTauProducer'),
                     caloTauLabel = cms.InputTag('caloRecoTauProducer')):
-    switchMCAndTriggerMatch(process, pfTauLabel, caloTauLabel)
+    switchMCMatch(process, pfTauLabel, caloTauLabel)
     process.allLayer1Taus.tauSource = caloTauLabel
     process.allLayer1Taus.tauIDSources = cms.PSet(
         leadingTrackFinding = cms.InputTag("caloRecoTauDiscriminationByLeadingTrackFinding"),
@@ -27,7 +27,7 @@ def switchToCaloTau(process,
 
 # internal auxiliary function to switch to **any** PFTau collection
 def _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType):
-    switchMCAndTriggerMatch(process, pfTauLabelOld, pfTauLabelNew)
+    switchMCMatch(process, pfTauLabelOld, pfTauLabelNew)
     process.tauIsoDepositPFCandidates.src = pfTauLabelNew
     process.tauIsoDepositPFCandidates.ExtractorPSet.tauSource = pfTauLabelNew
     process.tauIsoDepositPFChargedHadrons.src = pfTauLabelNew

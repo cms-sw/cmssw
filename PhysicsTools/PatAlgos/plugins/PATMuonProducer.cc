@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.22 2009/03/26 22:38:58 hegner Exp $
+// $Id: PATMuonProducer.cc,v 1.23 2009/04/01 10:38:44 vadler Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -82,10 +82,6 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
       }
   }
   
-  // trigger matching configurables
-  addTrigMatch_     = iConfig.getParameter<bool>            ( "addTrigMatch" );
-  trigMatchSrc_     = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
-  
   // resolution configurables
   addResolutions_= iConfig.getParameter<bool>         ( "addResolutions" );
   
@@ -152,14 +148,6 @@ edm::Handle<edm::View<reco::Muon> > muons;
       iEvent.getByLabel(genMatchSrc_[j], genMatches[j]);
     }
   }
-
-  // prepare the trigger matching
-  TrigAssociations  trigMatches(trigMatchSrc_.size());
-  if ( addTrigMatch_ ) {
-    for ( size_t i = 0; i < trigMatchSrc_.size(); ++i ) {
-      iEvent.getByLabel(trigMatchSrc_[i], trigMatches[i]);
-    }
-  }
   
 
   std::vector<Muon> * patMuons = new std::vector<Muon>();
@@ -193,7 +181,7 @@ edm::Handle<edm::View<reco::Muon> > muons;
 
       
 
-      fillMuon( aMuon, muonBaseRef, pfBaseRef, genMatches, trigMatches);
+      fillMuon( aMuon, muonBaseRef, pfBaseRef, genMatches);
       
       aMuon.setPFCandidateRef( pfRef  );     
       if( embedPFCandidate_ ) aMuon.embedPFCandidate();
@@ -222,7 +210,7 @@ edm::Handle<edm::View<reco::Muon> > muons;
       
       Muon aMuon(muonRef);
       
-      fillMuon( aMuon, muonRef, muonBaseRef, genMatches, trigMatches );
+      fillMuon( aMuon, muonRef, muonBaseRef, genMatches );
 
       // store the TeV refit track refs (only available for globalMuons)
       if (addTeVRefits_ && itMuon->isGlobalMuon()) {
@@ -285,8 +273,7 @@ edm::Handle<edm::View<reco::Muon> > muons;
 void PATMuonProducer::fillMuon( Muon& aMuon, 
 				const MuonBaseRef& muonRef,
 				const reco::CandidateBaseRef& baseRef,
-				const GenAssociations& genMatches,
-				const TrigAssociations& trigMatches ) const {
+				const GenAssociations& genMatches ) const {
   
 
   if (embedTrack_) aMuon.embedTrack();
@@ -300,16 +287,6 @@ void PATMuonProducer::fillMuon( Muon& aMuon,
       aMuon.addGenParticleRef(genMuon);
     }
     if (embedGenMatch_) aMuon.embedGenParticle();
-  }
-
-  // matches to trigger primitives
-  if ( addTrigMatch_ ) {
-    for ( size_t i = 0; i < trigMatches.size(); ++i ) {
-      TriggerPrimitiveRef trigPrim = (*trigMatches[i])[baseRef];
-      if ( trigPrim.isNonnull() && trigPrim.isAvailable() ) {
-	aMuon.addTriggerMatch(*trigPrim);
-      }
-    }
   }
   
   if (efficiencyLoader_.enabled()) {

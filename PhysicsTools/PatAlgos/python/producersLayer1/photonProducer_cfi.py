@@ -50,10 +50,6 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
     addPhotonID = cms.bool(False),
     photonIDSource = cms.InputTag("PhotonIDProd","PhotonAssociatedID"), ## ValueMap<reco::PhotonID> keyed to photonSource
 
-    # trigger matching
-    addTrigMatch = cms.bool(False),
-    trigPrimMatch = cms.VInputTag(''),
-
     # mc matching
     addGenMatch = cms.bool(True),
     embedGenMatch = cms.bool(False),

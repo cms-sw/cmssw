@@ -24,8 +24,7 @@ def makePATTrackCandidates(process,
                    'ecalTowers':0.3,            # 'tracker' => as muon track iso
                    'hcalTowers':0.3},           # 'ecalTowers', 'hcalTowers' => as muon iso from calo towers.
         isodeposits=['tracker','ecalTowers','hcalTowers'],   
-        mcAs=cms.InputTag("muons"),             # Replicate MC match as the one used by PAT on this AOD collection (None = no mc match)
-        triggerAs=[]):                          # Replicate trigger match as all the ones used by PAT on these AOD collections (None = no trig.)
+        mcAs=cms.InputTag("muons") ):           # Replicate MC match as the one used by PAT on this AOD collection (None = no mc match)
     from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import allLayer1GenericParticles
     from PhysicsTools.PatAlgos.cleaningLayer1.genericTrackCleaner_cfi     import cleanLayer1Tracks
     # Define Modules
@@ -108,7 +107,7 @@ def makePATTrackCandidates(process,
                                 ) )
             isoModules.append( getattr(process, 'pat'+label+'IsoDepositCaloTowers') )
     for m in isoModules: process.patAODExtraReco += m
-    # MC and trigger
+    # MC 
     from PhysicsTools.PatAlgos.tools.jetTools import MassSearchParamVisitor;
     if type(mcAs) != type(None): # otherwise it complains that 'None' is not a valid InputTag :-(
         searchMC = MassSearchParamVisitor('src', mcAs);
@@ -119,21 +118,6 @@ def makePATTrackCandidates(process,
         process.patMCTruth.replace( modulesMC[0], modulesMC[0] + getattr(process, 'pat'+label+'MCMatch'))
         l1cands.addGenMatch = True
         l1cands.genParticleMatch = cms.InputTag('pat'+label+'MCMatch')
-    if triggerAs != None and triggerAs != []:
-        modulesTR = []; labelsTR = []
-        for t in triggerAs:
-            searchTR = MassSearchParamVisitor('src', cms.InputTag(t));
-            process.patTrigMatch.visit(searchTR)
-            modulesTR += searchTR.modules()
-        if len(modulesTR) == 0: raise RuntimeError, "Can't find any trigger match among %s" % (triggerAs)
-        def ucfirst(x): return x[0].upper() + x[1:]
-        for m in modulesTR:
-            lbl = 'pat'+label+'TrigMatchAs' + ucfirst(m.label())
-            setattr(process, lbl, m.clone(src = input))
-            process.patTrigMatch.replace( m, m + getattr(process, lbl))
-            labelsTR.append (cms.InputTag(lbl))
-        l1cands.addTrigMatch = cms.bool(True)
-        l1cands.trigPrimMatch = cms.VInputTag(*labelsTR)
 
 def makeTrackCandidates(process, 
         label='TrackCands',                   # output collection will be 'allLayer'+(0/1)+label , 'selectedLayer1' + label
@@ -145,8 +129,7 @@ def makeTrackCandidates(process,
                    'ecalTowers':0.3,          # 'tracker' => as muon track iso
                    'hcalTowers':0.3},         # 'ecalTowers', 'hcalTowers' => as muon iso from calo towers.
         isodeposits=['tracker','ecalTowers','hcalTowers'],   # IsoDeposits to save ([] for none)
-        mcAs=cms.InputTag("muons"),           # Replicate MC match as the one used by PAT on this AOD collection (None = no mc match)
-        triggerAs=[]):                        # Replicate trigger match as all the ones used by PAT on these AOD collections ([] = none)
+        mcAs=cms.InputTag("muons") ) :        # Replicate MC match as the one used by PAT on this AOD collection (None = no mc match)
     makeAODTrackCandidates(process, tracks=tracks, particleType=particleType, candSelection=preselection, label=label) 
     makePATTrackCandidates(process, label=label, input=cms.InputTag('patAOD' + label), 
-                           isolation=isolation, isodeposits=isodeposits, mcAs=mcAs, triggerAs=triggerAs, selection=selection)
+                           isolation=isolation, isodeposits=isodeposits, mcAs=mcAs, selection=selection)

@@ -74,10 +74,6 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
     addDecayMode = cms.bool(False),
     decayModeSrc = cms.InputTag("fixedConePFTauDecayModeProducer"),                    
 
-    # trigger matching configurables
-    addTrigMatch  = cms.bool(False),
-    trigPrimMatch = cms.VInputTag(''),
-
     # mc matching configurables
     addGenMatch      = cms.bool(True),
     embedGenMatch    = cms.bool(False),

@@ -70,10 +70,6 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
         eidRobustHighEnergy = cms.InputTag("eidRobustHighEnergy"),
     ),
 
-    # trigger matching
-    addTrigMatch  = cms.bool(False),
-    trigPrimMatch = cms.VInputTag(''),
-
     # mc matching
     addGenMatch      = cms.bool(True),
     embedGenMatch    = cms.bool(False),

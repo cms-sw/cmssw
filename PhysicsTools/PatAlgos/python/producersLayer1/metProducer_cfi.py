@@ -27,10 +27,6 @@ layer1METs = cms.EDProducer("PATMETProducer",
     addMuonCorrections = cms.bool(True),
     muonSource         = cms.InputTag("muons"),
 
-    # trigger matching
-    addTrigMatch  = cms.bool(False),
-    trigPrimMatch = cms.VInputTag(''),
-
     # mc matching configurables
     addGenMET    = cms.bool(True),
     genMETSource = cms.InputTag("genMetCalo"),

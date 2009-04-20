@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.20 2009/03/26 20:44:37 vadler Exp $
+// $Id: PATPhotonProducer.cc,v 1.21 2009/04/01 10:38:44 vadler Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -30,10 +30,6 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
           genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
       }
   }
-  
-  // trigger matching configurables
-  addTrigMatch_     = iConfig.getParameter<bool>         ( "addTrigMatch" );
-  trigMatchSrc_     = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
 
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
@@ -151,18 +147,6 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
           aPhoton.addGenParticleRef(genPhoton);
       }
       if (embedGenMatch_) aPhoton.embedGenParticle();
-    }
-    
-    // matches to trigger primitives
-    if ( addTrigMatch_ ) {
-      for ( size_t i = 0; i < trigMatchSrc_.size(); ++i ) {
-        edm::Handle<edm::Association<TriggerPrimitiveCollection> > trigMatch;
-        iEvent.getByLabel(trigMatchSrc_[i], trigMatch);
-        TriggerPrimitiveRef trigPrim = (*trigMatch)[photonRef];
-        if ( trigPrim.isNonnull() && trigPrim.isAvailable() ) {
-          aPhoton.addTriggerMatch(*trigPrim);
-        }
-      }
     }
 
     if (efficiencyLoader_.enabled()) {

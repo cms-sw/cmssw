@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.14 2009/03/26 05:02:42 hegner Exp $
+// $Id: PATElectronProducer.h,v 1.15 2009/03/26 20:44:37 vadler Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::GsfElectron.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.14 2009/03/26 05:02:42 hegner Exp $
+  \version  $Id: PATElectronProducer.h,v 1.15 2009/03/26 20:44:37 vadler Exp $
 */
 
 
@@ -67,8 +67,6 @@ namespace pat {
       bool          addGenMatch_;
       bool          embedGenMatch_;
       std::vector<edm::InputTag> genMatchSrc_;
-      bool          addTrigMatch_;
-      std::vector<edm::InputTag> trigMatchSrc_;
       bool          addResolutions_;
       bool          addElecID_;
 
@@ -79,13 +77,10 @@ namespace pat {
 
       typedef std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > GenAssociations;
 
-      typedef std::vector<edm::Handle<edm::Association<TriggerPrimitiveCollection> > > TrigAssociations;
-
       void FillElectron(Electron& aEl,
 			const edm::RefToBase<reco::GsfElectron>& elecRef,
 			const reco::CandidateBaseRef& baseRef,
-			const GenAssociations& genMatches,
-			const TrigAssociations& trigMatches) const;
+			const GenAssociations& genMatches) const;
   
 
       typedef std::pair<std::string, edm::InputTag> NameTag;

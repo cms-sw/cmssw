@@ -1,5 +1,5 @@
 //
-// $Id: PATGenericParticleProducer.cc,v 1.7 2008/10/19 21:11:56 gpetrucc Exp $
+// $Id: PATGenericParticleProducer.cc,v 1.8 2008/11/04 15:42:03 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATGenericParticleProducer.h"
@@ -34,10 +34,6 @@ PATGenericParticleProducer::PATGenericParticleProducer(const edm::ParameterSet &
           genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
       }
   }
- 
-  // Trigger matching configurables
-  addTrigMatch_  = iConfig.getParameter<bool>( "addTrigMatch" );
-  trigPrimSrc_   = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
 
   // quality
   addQuality_ = iConfig.getParameter<bool>("addQuality");
@@ -122,18 +118,6 @@ void PATGenericParticleProducer::produce(edm::Event & iEvent, const edm::EventSe
     if (embedCombined_)     aGenericParticle.embedCombined();
     if (embedSuperCluster_) aGenericParticle.embedSuperCluster();
     if (embedCaloTower_)    aGenericParticle.embedCaloTower();
-
-    // matches to fired trigger primitives
-    if ( addTrigMatch_ ) {
-      for ( size_t i = 0; i < trigPrimSrc_.size(); ++i ) {
-        edm::Handle<edm::Association<TriggerPrimitiveCollection> > trigMatch;
-        iEvent.getByLabel(trigPrimSrc_[i], trigMatch);
-        TriggerPrimitiveRef trigPrim = (*trigMatch)[candRef];
-        if ( trigPrim.isNonnull() && trigPrim.isAvailable() ) {
-          aGenericParticle.addTriggerMatch(*trigPrim);
-        }
-      }
-    }
 
     // isolation
     if (isolator_.enabled()) {

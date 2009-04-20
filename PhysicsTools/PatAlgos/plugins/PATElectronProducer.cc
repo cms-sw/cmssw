@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.23 2009/03/26 05:34:29 hegner Exp $
+// $Id: PATElectronProducer.cc,v 1.24 2009/04/01 10:38:44 vadler Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -52,10 +52,6 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
           genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
       }
   }
-  
-  // trigger matching configurables
-  addTrigMatch_     = iConfig.getParameter<bool>         ( "addTrigMatch" );
-  trigMatchSrc_     = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
 
   // resolution configurables
   addResolutions_   = iConfig.getParameter<bool>         ( "addResolutions" );
@@ -161,16 +157,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
         }
   }
 
-
-  // prepare the trigger matching
-  TrigAssociations  trigMatches(trigMatchSrc_.size());
-  if ( addTrigMatch_ ) {
-    for ( size_t i = 0; i < trigMatchSrc_.size(); ++i ) {
-      iEvent.getByLabel(trigMatchSrc_[i], trigMatches[i]);
-    }
-  }
-
-  // prepare ID extraction 
+  // prepare ID extraction
   std::vector<edm::Handle<edm::ValueMap<float> > > idhandles;
   std::vector<pat::Electron::IdPair>               ids;
   if (addElecID_) {
@@ -211,7 +198,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	if (itElectron->gsfTrack()==i->gsfTrackRef()){
 	  const edm::RefToBase<reco::GsfElectron> elecsRef = electrons->refAt(idx);
 	  Electron anElectron(elecsRef);
-	  FillElectron(anElectron,elecsRef,pfBaseRef, genMatches, trigMatches);
+	  FillElectron(anElectron,elecsRef,pfBaseRef, genMatches);
 	  Matched=true;
 	  anElectron.setPFCandidateRef( pfRef  );
 	  if( embedPFCandidate_ ) anElectron.embedPFCandidate();
@@ -259,7 +246,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     reco::CandidateBaseRef elecBaseRef(elecsRef);
     Electron anElectron(elecsRef);
 
-    FillElectron(anElectron,elecsRef,elecBaseRef, genMatches, trigMatches);
+    FillElectron(anElectron,elecsRef,elecBaseRef, genMatches);
     
 
     // add resolution info
@@ -312,8 +299,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 void PATElectronProducer::FillElectron(Electron& anElectron,
 				       const edm::RefToBase<reco::GsfElectron>& elecsRef,
 				       const reco::CandidateBaseRef& baseRef,
-				       const GenAssociations& genMatches,
-				       const TrigAssociations& trigMatches)const {
+				       const GenAssociations& genMatches)const {
   if (embedGsfTrack_) anElectron.embedGsfTrack();
   if (embedSuperCluster_) anElectron.embedSuperCluster();
   if (embedTrack_) anElectron.embedTrack();
@@ -326,15 +312,6 @@ void PATElectronProducer::FillElectron(Electron& anElectron,
     }
     if (embedGenMatch_) anElectron.embedGenParticle();
   }
-    // matches to trigger primitives
-    if ( addTrigMatch_ ) {
-      for ( size_t i = 0; i < trigMatchSrc_.size(); ++i ) {
-        TriggerPrimitiveRef trigPrim = (*trigMatches[i])[elecsRef];
-        if ( trigPrim.isNonnull() && trigPrim.isAvailable() ) {
-          anElectron.addTriggerMatch(*trigPrim);
-        }
-      }
-    }
 
     if (efficiencyLoader_.enabled()) {
       efficiencyLoader_.setEfficiencies( anElectron, elecsRef );

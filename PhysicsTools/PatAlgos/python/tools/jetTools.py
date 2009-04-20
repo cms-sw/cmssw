@@ -99,7 +99,6 @@ def switchJetCollection(process,jetCollection,doJTA=True,doBTagging=True,jetCorr
     process.jetGenJetMatch.src        = jetCollection
     process.jetGenJetMatch.match      = genJetCollection
     process.jetPartonAssociation.jets = jetCollection
-    massSearchReplaceParam(process.patTrigMatch, 'src', oldLabel, jetCollection)
     process.allLayer1Jets.jetSource = jetCollection
     # quickly make VInputTag from strings
     def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
@@ -190,18 +189,11 @@ def addJetCollection(process,jetCollection,postfixLabel,
     addClone('jetGenJetMatch',       src = jetCollection)
     addClone('jetPartonAssociation', jets = jetCollection)
     addClone('jetFlavourAssociation',srcByReference = cms.InputTag('jetPartonAssociation' + postfixLabel))
-    triggers = MassSearchParamVisitor('src', process.allLayer1Jets.jetSource)
-    process.patTrigMatch.visit(triggers)
-    for mod in triggers.modules():
-        newmod = mod.clone(src = jetCollection)
-        setattr( process, mod.label() + postfixLabel, newmod )
-        process.patTrigMatch.replace( mod, mod * newmod )
     def fixInputTag(x): x.setModuleLabel(x.moduleLabel+postfixLabel)
     def fixVInputTag(x): x[0].setModuleLabel(x[0].moduleLabel+postfixLabel)
     fixInputTag(l1Jets.JetPartonMapSource)
     fixInputTag(l1Jets.genJetMatch)
     fixInputTag(l1Jets.genPartonMatch)
-    for it in l1Jets.trigPrimMatch.value(): fixInputTag(it)
     def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
     if doBTagging :
         (btagSeq, btagLabels) = runBTagging(process, jetCollection, postfixLabel)
@@ -250,13 +242,6 @@ def addJetCollection(process,jetCollection,postfixLabel,
             addClone('corMetType1Icone5Muons', uncorMETInputTag = cms.InputTag("corMetType1Icone5"+postfixLabel))
             addClone('layer1METs',              metSource = cms.InputTag("corMetType1Icone5Muons"+postfixLabel))
             l1MET = getattr(process, 'layer1METs'+postfixLabel)
-            mettriggers = MassSearchParamVisitor('src', process.layer1METs.metSource)
-            process.patTrigMatch.visit(mettriggers)
-            for mod in mettriggers.modules():
-                newmod = mod.clone(src = l1MET.metSource)
-                setattr( process, mod.label() + postfixLabel, newmod )
-                process.patTrigMatch.replace( mod, mod * newmod )
-            for it in l1MET.trigPrimMatch.value(): fixInputTag(it)
             process.allLayer1Summary.candidates += [ cms.InputTag('layer1METs'+postfixLabel) ]
     else:
         l1Jets.addJetCorrFactors = False

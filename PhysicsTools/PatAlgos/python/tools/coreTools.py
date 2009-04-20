@@ -2,9 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.helpers import *
 
-def switchMCAndTriggerMatch(process,fromCollection,toCollection):
-    massSearchReplaceParam(process.patTrigMatch, 'src', fromCollection, toCollection)
-    massSearchReplaceParam(process.patMCTruth,   'src', fromCollection, toCollection)
+def switchMCMatch(process,fromCollection,toCollection):
+    massSearchReplaceParam(process.patMCTruth, 'src', fromCollection, toCollection)
 
 
 def removeSpecificPATObject(process,name):

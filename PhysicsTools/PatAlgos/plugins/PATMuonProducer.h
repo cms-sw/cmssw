@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.16 2009/03/26 05:02:42 hegner Exp $
+// $Id: PATMuonProducer.h,v 1.17 2009/03/26 20:44:37 vadler Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::Muon.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.16 2009/03/26 05:02:42 hegner Exp $
+  \version  $Id: PATMuonProducer.h,v 1.17 2009/03/26 20:44:37 vadler Exp $
 */
 
 
@@ -74,8 +74,6 @@ namespace pat {
       bool          addGenMatch_;
       bool          embedGenMatch_;
       std::vector<edm::InputTag> genMatchSrc_;
-      bool          addTrigMatch_;
-      std::vector<edm::InputTag> trigMatchSrc_;
       bool          addResolutions_;
       bool          addLRValues_;
 
@@ -88,14 +86,11 @@ namespace pat {
 
       typedef std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > GenAssociations;
 
-      typedef std::vector<edm::Handle<edm::Association<TriggerPrimitiveCollection> > > TrigAssociations;
-
-
+      
       void fillMuon( Muon& aMuon, 
 		     const MuonBaseRef& muonRef,
 		     const reco::CandidateBaseRef& baseRef,
-		     const GenAssociations& genMatches,
-		     const TrigAssociations&  trigMatches) const;
+		     const GenAssociations& genMatches) const;
 
      
 

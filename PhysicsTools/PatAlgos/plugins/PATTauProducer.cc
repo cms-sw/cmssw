@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.23 2009/04/01 10:38:44 vadler Exp $
+// $Id: PATTauProducer.cc,v 1.24 2009/04/09 14:51:58 veelken Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -53,8 +53,6 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
     genJetMatchSrc_    = iConfig.getParameter<edm::InputTag>( "genJetMatch" );
   }
 
-  addTrigMatch_   = iConfig.getParameter<bool>               ( "addTrigMatch" );
-  trigMatchSrc_   = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
   addResolutions_ = iConfig.getParameter<bool>         ( "addResolutions" );
 
   // tau ID configurables
@@ -190,18 +188,6 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       if (genJetTau.isNonnull() && genJetTau.isAvailable() ) {
         aTau.setGenJet( genJetTau );
       } // leave empty if no match found
-    }
-        
-    // matches to trigger primitives
-    if ( addTrigMatch_ ) {
-      for ( size_t i = 0; i < trigMatchSrc_.size(); ++i ) {
-        edm::Handle<edm::Association<TriggerPrimitiveCollection> > trigMatch;
-        iEvent.getByLabel(trigMatchSrc_[i], trigMatch);
-        TriggerPrimitiveRef trigPrim = (*trigMatch)[tausRef];
-        if ( trigPrim.isNonnull() && trigPrim.isAvailable() ) {
-          aTau.addTriggerMatch(*trigPrim);
-        }
-      }
     }
 
     // prepare ID extraction 
