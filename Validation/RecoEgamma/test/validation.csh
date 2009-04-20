@@ -38,17 +38,21 @@
 #setenv OLDFILE /tmp/nancy/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_H130GGgluonfusionNew.root
 #setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_H130GGgluonfusionNew.root
 
-setenv OLDFILE /data/test/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_GammaJets_Pt_80_120New.root
-setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_GammaJets_Pt_80_120New.root
+#setenv OLDFILE /data/test/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_GammaJets_Pt_80_120New.root
+#setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_GammaJets_Pt_80_120New.root
 
 #setenv OLDFILE /data/test/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_QCD_Pt_80_120.root
 #setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_QCD_Pt_80_120.root
 
 
 
+setenv OLDFILE /build/nancy/CMSSW_3_1_0_pre5/src/Validation/RecoEgamma/test/test.root 
+setenv NEWFILE /build/nancy/CMSSW_3_1_0_pre5/src/Validation/RecoEgamma/test/test.root
+
+
 #setenv OLDRELEASE 221IDEAL
 setenv OLDRELEASE 310pre3
-setenv NEWRELEASE 310pre4
+setenv NEWRELEASE 310pre4TEST
 #Name of sample (affects output directory name and htmldescription only) 
 #setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
@@ -161,12 +165,15 @@ cat > scaledhistosForPhotons <<EOF
   sigmaIetaIetaAll
   sigmaIetaIetaBarrel
   sigmaIetaIetaEndcap
-  ecalRecHitSumConeDR04All
-  ecalRecHitSumConeDR04Barrel
-  ecalRecHitSumConeDR04Endcap
-  hcalTowerSumConeDR04All
-  hcalTowerSumConeDR04Barrel
-  hcalTowerSumConeDR04Endcap
+  hOverEAll
+  hOverEBarrel
+  hOverEEndcap
+  ecalRecHitSumEtConeDR04All
+  ecalRecHitSumEtConeDR04Barrel
+  ecalRecHitSumEtConeDR04Endcap
+  hcalTowerSumEtConeDR04All
+  hcalTowerSumEtConeDR04Barrel
+  hcalTowerSumEtConeDR04Endcap
   isoTrkSolidConeDR04All
   isoTrkSolidConeDR04Barrel
   isoTrkSolidConeDR04Endcap
@@ -184,16 +191,18 @@ cat > 2dhistosForPhotons <<EOF
   R1VsEtaAll
   R2VsEtaAll
   sigmaIetaIetaVsEtaAll
-  ecalRecHitSumConeDR04VsEtaAll
-  hcalTowerSumConeDR04VsEtaAll
+  hOverEVsEtaAll
+  ecalRecHitSumEtConeDR04VsEtaAll
+  hcalTowerSumEtConeDR04VsEtaAll
   isoTrkSolidConeDR04VsEtaAll
   nTrkSolidConeDR04VsEtaAll
   R9VsEtAll
   R1VsEtAll
   R2VsEtAll
   sigmaIetaIetaVsEtAll
-  ecalRecHitSumConeDR04VsEtAll
-  hcalTowerSumConeDR04VsEtAll
+  hOverEVsEtAll
+  ecalRecHitSumEtConeDR04VsEtAll
+  hcalTowerSumEtConeDR04VsEtAll
   isoTrkSolidConeDR04VsEtAll
   nTrkSolidConeDR04VsEtAll
 EOF
@@ -713,7 +722,7 @@ endif
 
 if (-e validation.html) rm validation.html
 if (-e validationPlotsTemplate.html) rm validationPlotsTemplate.html
-cp /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/validationPlotsTemplate.html validationPlotsTemplate.html
+cp /build/nancy/CMSSW_3_1_0_pre5/src/Validation/RecoEgamma/test/validationPlotsTemplate.html validationPlotsTemplate.html
 touch validation.html
 cat > begin.html <<EOF
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
