@@ -1,6 +1,5 @@
 <use name=boost>
 <use name=root>
-<use name=xdaq>
 <use name=xerces-c>
 <use name=oracle>
 <use name=FWCore/Framework>
@@ -17,7 +16,6 @@
   <lib name=DQMSiPixelHistoricInfoClient>
   <use name=boost>
   <use name=root>
-  <use name=xdaq>
   <use name=xerces-c>
   <use name=oracle>
   <use name=FWCore/Framework>

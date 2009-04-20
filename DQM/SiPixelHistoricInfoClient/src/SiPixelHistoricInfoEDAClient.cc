@@ -28,30 +28,6 @@ SiPixelHistoricInfoEDAClient::SiPixelHistoricInfoEDAClient(const ParameterSet& p
 }
 
 
-/* mui_ = new DQMOldReceiver();
-   webInterface_ = new SiPixelHistoricInfoWebInterface(getContextURL(), getApplicationURL(), &mui_);
-   defaultWebPageCreated_ = false; 
-
-void SiPixelHistoricInfoEDAClient::defaultWebPage(xgi::Input* in, xgi::Output* out) {
-  if (!defaultPageCreated_) {
-    static const int BUF_SIZE = 256; 
-    ifstream fin("loader.html", ios::in);
-    if (!fin) {
-      cerr << "loader.html could not be opened!" << endl;
-      return;
-    }
-    char buf[BUF_SIZE];
-    ostringstream html_dump;
-    while (fin.getline(buf, BUF_SIZE, '\n')) html_dump << buf << endl; 
-    fin.close();
-   *out << html_dump.str() << endl;
-   
-    defaultWebPageCreated_ = true;
-  }  
-  webInterface_->handleEDARequest(in, out);
-} */
-
-
 SiPixelHistoricInfoEDAClient::~SiPixelHistoricInfoEDAClient() {}
 
 
