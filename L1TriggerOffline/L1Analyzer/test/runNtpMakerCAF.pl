@@ -10,11 +10,11 @@
 #$GLOBAL="GlobalCruzet4";
 #$GLOBAL="GlobalRAFF";
 $GLOBAL="Commissioning08";
-$pathToFiles="Cosmics/RAW/v1";
+$pathToFiles="Calo/RAW/v1";
 #$eventSource="\"NewEventStreamFileReader\"";
 $eventSource="\"PoolSource\"";
 $nfiles= 100;  #number of files processed per job
-$numJobs = 2; #number of jobs you want to submit (use -1 if all)
+$numJobs = -1; #number of jobs you want to submit (use -1 if all)
 $nEvents = -1; #number of events you want to run in each job (use -1 if all)
 $lumiMin = -1; #select based on lumi number, if all put -1
 $lumiMax = 9999; #select based on lumi number, if all put a high number 
@@ -117,8 +117,8 @@ print CFGFILE "\n";
 print CFGFILE "process.p = cms.Path(process.l1GtUnpack+process.l1GctHwDigis+process.l1GtEvmUnpack+process.l1dttfunpack+process.l1PromptAnalysis)\n";
 print CFGFILE "\n";
 
-print "bsub -J $RUN -q cmscaf -o $RUN\_$myn.log submit.ch l1prompt_$RUN\_$myn\_cfg.py $RUN\_$myn\n";
-system("bsub -J $RUN -q cmscaf -o $RUN\_$myn.log submit.ch l1prompt_$RUN\_$myn\_cfg.py $RUN\_$myn\n");
+print "bsub -J $RUN\_$myn -q cmscaf submit.ch l1prompt_$RUN\_$myn\_cfg.py $RUN\_$myn\n";
+system("bsub -J $RUN\_$myn -q cmscaf submit.ch l1prompt_$RUN\_$myn\_cfg.py $RUN\_$myn\n");
 
 
 if($myn==$numJobs) {exit;}

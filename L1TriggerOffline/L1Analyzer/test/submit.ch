@@ -3,23 +3,30 @@
 set cfgFile = $1
 set runNum = $2
 echo CFG FILE: ${cfgFile}
-setenv Outdir /castor/cern.ch/cms/store/cmscaf/L1Trigger/L1Prompt
-setenv runDir ${CMSSW_BASE}/src/L1TriggerOffline/L1Analyzer/test
-setenv tmpDir `pwd`
+setenv outDir /castor/cern.ch/user/j/jbrooke/trigger/CRAFT/Calo
+setenv runDir ${LS_SUBCWD}
+setenv tmpDir /tmp
 echo TEMPORARY DIRECTORY: ${tmpDir}
 echo RUN DIRECTORY: ${runDir}
 
 
-
-
+# setup
 cd ${runDir}
-
 eval `scramv1 runtime -csh`
 
-cmsRun ${cfgFile} 
-rfcp ${runNum}.root ${Outdir}
-rfcp ${cfgFile} ${Outdir}
-rfcp ${runNum}.log ${Outdir}
+# move to tmp dir and copy job config
+cd ${tmpDir}
+cp ${runDir}/${cfgFile} .
+
+# run job
+cmsRun ${cfgFile} >& ${runNum}.log
+
+# copy output to CASTOR
+rfcp ${runNum}.root ${outDir}/.
+rfcp ${cfgFile} ${outDir}/.
+rfcp ${runNum}.log ${outDir}/.
+
+# cleanup
 rm -f ${runNum}.root
 rm -f ${runNum}.log
 rm -f ${cfgFile}
