@@ -11,6 +11,7 @@
 <use name=RecoEcal/EgammaClusterAlgos>
 <use name=Geometry/EcalAlgo>
 <use name=DataFormats/Math>
+<use name=CommonTools/Statistics>
 <use name=RecoEgamma/EgammaMCTools>
 <use name=SimTracker/TrackAssociation>
 <use name=SimTracker/TrackerHitAssociation>
