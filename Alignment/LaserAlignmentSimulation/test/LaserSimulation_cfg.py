@@ -13,16 +13,18 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.load("Configuration.StandardSequences.FakeConditions_cff")
+#process.load("Configuration.StandardSequences.FakeConditions_cff")
 
-# the following cff file is needed in CMSSW_2_0_X ... hopefully we can remove it later on...
-#include "SimCalorimetry/HcalTrigPrimProducers/data/hcaltpdigi.cff"
-#
-process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
+## all db records
+process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
+process.GlobalTag.globaltag = 'IDEAL_31X::All'
+
+#process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 
 process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
 
 process.load("Configuration.StandardSequences.Simulation_cff")
+process.simSiStripDigis.ZeroSuppression = False; ### NO ZERO SUPPRESSION
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
@@ -47,7 +49,6 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         FwkJob = cms.untracked.PSet( ## except *all* of FwkJob's      
-
             limit = cms.untracked.int32(-1)
         ),
         HCalGeom = cms.untracked.PSet(
@@ -72,32 +73,39 @@ process.MessageLogger = cms.Service("MessageLogger",
     fwkJobReports = cms.untracked.vstring('FrameworkJobReport.xml')
 )
 
-process.source = cms.Source("LaserAlignmentSource",
-    firstRun = cms.untracked.uint32(1)
+
+process.source = cms.Source( "LaserAlignmentSource",
+    firstRun = cms.untracked.uint32( 1 )
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32( 1 )
 )
 process.o1 = cms.OutputModule("PoolOutputModule",
-    #untracked string logicalFileName = "LaserEvents.SIM-DIGI.root"
-    #untracked string catalog = "PoolFileCatalog.xml"
-    compressionLevel = cms.untracked.int32(9),
-    fileName = cms.untracked.string('LaserEvents.SIM-DIGI.root')
+    compressionLevel = cms.untracked.int32( 9 ),
+    fileName = cms.untracked.string('/afs/cern.ch/user/o/olzem/scratch0/LaserEvents.SIM-DIGI.1136_raw.root'),
+    outputCommands = cms.untracked.vstring(
+      'drop *', 
+      'keep *_simSiStripDigis_*_*'
+    )
 )
 
 process.p1 = cms.Path(process.simulation)
 process.output = cms.EndPath(process.o1)
+
 process.XMLIdealGeometryESSource.geomXMLFiles.append('Alignment/LaserAlignmentSimulation/data/AlignmentTubes.xml')
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/LaserOpticalPhysics'
-process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
-    NumberOfPhotonsInEachBeam = cms.untracked.int32(100),
-    NumberOfPhotonsInParticleGun = cms.untracked.int32(10),
-    SiAbsorptionLengthScalingFactor = cms.untracked.double(1.0),
-    PhotonEnergy = cms.untracked.double(1.15),
-    MaterialPropertiesDebugLevel = cms.untracked.int32(1),
-    DebugLevel = cms.untracked.int32(3),
-    EnergyLossScalingFactor = cms.untracked.double(1739.130435),
-    type = cms.string('LaserAlignmentSimulation')
-))
+process.g4SimHits.Generator.HepMCProductLabel = 'source' ### needed if using a source, otherwise nasty hidden segfault
+process.g4SimHits.Watchers = cms.VPSet(
+  cms.PSet(
+    NumberOfPhotonsInEachBeam = cms.untracked.int32( 10 ),
+    NumberOfPhotonsInParticleGun = cms.untracked.int32( 10 ),
+    SiAbsorptionLengthScalingFactor = cms.untracked.double( 1.0 ),
+    PhotonEnergy = cms.untracked.double( 1.15 ),
+    MaterialPropertiesDebugLevel = cms.untracked.int32( 1 ),
+    DebugLevel = cms.untracked.int32( 3 ),
+    EnergyLossScalingFactor = cms.untracked.double( 1739.130435 ),
+    type = cms.string( 'LaserAlignmentSimulation' )
+  )
+)
 
