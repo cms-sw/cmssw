@@ -2,6 +2,7 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
@@ -198,6 +199,11 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("pfmet_benchmark", "on/off", doPFMETBenchmark_);
   
   if (doPFMETBenchmark_) {
+
+    doMet_ = false;
+    options_->GetOpt("MET", "on/off", doMet_);
+
+
     string outmetfilename;
     options_->GetOpt("pfmet_benchmark", "outmetfile", outmetfilename);
         
@@ -1292,6 +1298,15 @@ void PFRootEventManager::connect( const char* infilename ) {
           <<recCaloMETBranchName<< endl;
     }
   }
+  string recTCMETBranchName; 
+  options_->GetOpt("root","recTCMETBranchName", recTCMETBranchName);
+  if(!recTCMETBranchName.empty() ) {
+    recTCMETBranch_= tree_->GetBranch(recTCMETBranchName.c_str()); 
+    if(!recTCMETBranch_) {
+      cerr<<"PFRootEventManager::ReadOptions :recTCMETBranch_ not found : "
+          <<recTCMETBranchName<< endl;
+    }
+  }
   string genParticlesforMETBranchName; 
   options_->GetOpt("root","genParticlesforMETBranchName", genParticlesforMETBranchName);
   if(!genParticlesforMETBranchName.empty() ) {
@@ -1343,6 +1358,7 @@ void PFRootEventManager::setAddresses() {
   if (recPFBranch_) recPFBranch_->SetAddress(&pfJetsCMSSW_); 
 
   if (recCaloMETBranch_) recCaloMETBranch_->SetAddress(&caloMetsCMSSW_);
+  if (recTCMETBranch_) recTCMETBranch_->SetAddress(&tcMetsCMSSW_);
   if (recPFMETBranch_) recPFMETBranch_->SetAddress(&pfMetsCMSSW_); 
   if (genParticlesforMETBranch_) genParticlesforMETBranch_->SetAddress(&genParticlesCMSSW_); 
 }
@@ -1483,12 +1499,24 @@ bool PFRootEventManager::processEntry(int entry) {
 
   if(doPFMETBenchmark_) { // start PFJet Benchmark
           
-    PFMETBenchmark_.calculateQuantities( pfMetsCMSSW_, genParticlesCMSSW_, caloMetsCMSSW_ );
+    // Recompute MET with latest PFAlgo version
+    if ( doMet_ ) { 
+      reconstructPFMets();
+      PFMETBenchmark_.calculateQuantities( pfMets_, genParticlesCMSSW_, caloMetsCMSSW_, tcMetsCMSSW_ );
+    } else { 
+      PFMETBenchmark_.calculateQuantities( pfMetsCMSSW_, genParticlesCMSSW_, caloMetsCMSSW_, tcMetsCMSSW_ );
+    }
+
     float trueMET = PFMETBenchmark_.getTrueMET();
     //float pfMET = PFMETBenchmark_.getPFMET();
     float deltaPFMET = PFMETBenchmark_.getDeltaPFMET();
     float deltaPFPhi = PFMETBenchmark_.getDeltaPFPhi();
-    if(trueMET > trueMETcut) PFMETBenchmark_.process( pfMetsCMSSW_, genParticlesCMSSW_, caloMetsCMSSW_ );
+    if(trueMET > trueMETcut) { 
+      if ( doMet_ ) 
+	PFMETBenchmark_.process( pfMets_, genParticlesCMSSW_, caloMetsCMSSW_, tcMetsCMSSW_ );
+      else
+	PFMETBenchmark_.process( pfMetsCMSSW_, genParticlesCMSSW_, caloMetsCMSSW_, tcMetsCMSSW_ );
+    }
     if( verbosity_ == VERBOSE ){ //start debug print
 
       cout << " =====================PFMETBenchmark =================" << endl;
@@ -2387,6 +2415,57 @@ void PFRootEventManager::reconstructPFJets() {
   } // end loop on protojets iterator IPJ
 
 }
+
+
+void PFRootEventManager::reconstructPFMets() {
+
+  typedef math::XYZTLorentzVector LorentzVector;
+  typedef math::XYZPoint Point;
+
+  if (verbosity_ == VERBOSE || jetsDebug_) {
+    cout<<endl;
+    cout<<"start reconstruct PF Met --- "<<endl;
+  }
+  pfMets_.clear();
+  pfCandidatesPtrs_.clear();
+        
+  for( unsigned i=0; i<pfCandidates_->size(); i++) {
+    reco::CandidatePtr candPtr( pfCandidates_.get(), i );
+    pfCandidatesPtrs_.push_back( candPtr );
+  }
+
+  double sum_et = 0.0;
+  double sum_ex = 0.0;
+  double sum_ey = 0.0;
+  double sum_ez = 0.0;
+  for (unsigned int pfc=0;pfc<pfCandidatesPtrs_.size();++pfc) {
+    double phi   = pfCandidatesPtrs_[pfc]->phi();
+    double theta = pfCandidatesPtrs_[pfc]->theta();
+    double e     = pfCandidatesPtrs_[pfc]->energy();
+    double et    = e*sin(theta);
+    sum_ez += e*cos(theta);
+    sum_et += et;
+    sum_ex += et*cos(phi);
+    sum_ey += et*sin(phi);
+  }
+
+  double met = sqrt( sum_ex*sum_ex + sum_ey*sum_ey );
+  const LorentzVector p4( -sum_ex, -sum_ey, 0.0, met);
+  const Point vtx(0.0,0.0,0.0);
+ 
+  SpecificPFMETData specific;
+  // Initialize the container
+  specific.NeutralEMFraction = 0.0;
+  specific.NeutralHadFraction = 0.0;
+  specific.ChargedEMFraction = 0.0;
+  specific.ChargedHadFraction = 0.0;
+  specific.MuonFraction = 0.0;
+
+  reco::PFMET specificPFMET( specific, sum_et, p4, vtx );
+  pfMets_.push_back(specificPFMET);
+
+}
+
 
 
 

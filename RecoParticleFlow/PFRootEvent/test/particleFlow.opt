@@ -67,10 +67,12 @@ root recCaloJetBranchName	recoCaloJets_iterativeCone5CaloJets__PROD.obj
 
 // Gen Jets read from root file
 root genParticlesforMETBranchName 	recoGenParticles_genParticles__PROD.obj
-// PF Jets read from root file
+// PF MET read from root file
 root recPFMETBranchName 	recoPFMETs_pfMet__PROD.obj
-// Calo Jets read from root file
+// Calo MET read from root file
 root recCaloMETBranchName	recoCaloMETs_met__PROD.obj
+// TC MET read from root file
+root recTCMETBranchName		recoMETs_tcMet__PROD.obj
 
 // GenParticleCandidates
 root genParticleforJets_branch	recoGenParticlesRefs_genParticlesForJets__PROD.obj
@@ -455,7 +457,7 @@ pfmet_benchmark	on/off	0
 //debug yes/no
 pfmet_benchmark debug 0
 	
-//pfjet benchmark outputfile
+//pfmet benchmark outputfile
 pfmet_benchmark outmetfile pfmetBenchmark.root
 
 //PlotagainstReco  yes/no
@@ -491,3 +493,6 @@ jets  overlapThreshold 0.75
 //FastJet
 jets  ptMin 10.
 jets  rParam 1.0
+
+// FWLITE CMSSW MET Algorithm options --------------------------------------
+MET 	on/off 1

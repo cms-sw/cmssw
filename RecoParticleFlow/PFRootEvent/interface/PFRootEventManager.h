@@ -64,6 +64,8 @@
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/METReco/interface/MET.h"
 
 #include <TObject.h>
 #include "TEllipse.h"
@@ -254,6 +256,9 @@ class PFRootEventManager {
   
   /// reconstruct pf jets
   void reconstructPFJets();
+  
+  /// reconstruct pf MET
+  void reconstructPFMets();
   
 
   /// used by the reconstruct*Jets functions
@@ -468,6 +473,9 @@ class PFRootEventManager {
   ///CMSSW  Calo MET branch
   TBranch*   recCaloMETBranch_;
 
+  ///CMSSW  TCMET branch
+  TBranch*   recTCMETBranch_;
+
   ///CMSSW  PF MET branch
   TBranch*   recPFMETBranch_;
   
@@ -578,16 +586,28 @@ class PFRootEventManager {
   /// CMSSW  gen Jets
   reco::GenJetCollection genJetsCMSSW_;
 
-  /// calo Jets
+  /// CMSSW calo Jets
   std::vector<reco::CaloJet> caloJetsCMSSW_;
 
-  /// GenParticles
+  /// CMSSW GenParticles
   reco::GenParticleCollection genParticlesCMSSW_;
 
+  /// PF MET
+  reco::PFMETCollection pfMets_;
+
   /// Calo MET
+  reco::CaloMETCollection caloMets_;
+
+  /// TCMET
+  reco::METCollection tcMets_;
+
+  /// CMSSW Calo MET
   reco::CaloMETCollection caloMetsCMSSW_;
 
-  /// PF MET
+  /// CMSSW TCMET
+  reco::METCollection tcMetsCMSSW_;
+
+  /// CMSSW PF MET
   reco::PFMETCollection pfMetsCMSSW_;
 
   /// input file
@@ -692,6 +712,9 @@ class PFRootEventManager {
 
   /// jets on/off
   bool   doJets_;
+
+  /// MET on/off
+  bool   doMet_;  
   
   /// jet algo type
   int    jetAlgoType_;
