@@ -41,6 +41,7 @@ TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg)
 
 TSGFromL2Muon::~TSGFromL2Muon()
 {
+  delete theService;
 }
 
 void TSGFromL2Muon::beginJob(const edm::EventSetup& es)
