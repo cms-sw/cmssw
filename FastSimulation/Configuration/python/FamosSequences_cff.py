@@ -540,4 +540,3 @@ famosWithEverything = cms.Sequence(
     simulationWithFamos+
     reconstructionWithFamos
 )
-
