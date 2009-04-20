@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2009/01/12 17:06:07 $
- * $Revision: 1.51 $
+ * $Date: 2009/04/06 16:34:23 $
+ * $Revision: 1.52 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -276,23 +276,30 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoName = "FED" + dduID_s.str() + "_ROSSummary";
     string histoTitle = "Summary Wheel" + wheel_s.str() + " (FED " + dduID_s.str() + ")";
 
-    ((rosSHistos[histoType])[code.getDDUID()]) = dbe->book2D(histoName,histoTitle,14,0,14,12,1,13);
+    ((rosSHistos[histoType])[code.getDDUID()]) = dbe->book2D(histoName,histoTitle,20,0,20,12,1,13);
     MonitorElement *histo = ((rosSHistos[histoType])[code.getDDUID()]);
+    // ROS error bins
     histo ->setBinLabel(1,"Link TimeOut",1);
     histo ->setBinLabel(2,"Ev.Id.Mis.",1);
     histo ->setBinLabel(3,"FIFO almost full",1);
     histo ->setBinLabel(4,"FIFO full",1);
-    histo ->setBinLabel(5,"Ceros timeout",1);
+    histo ->setBinLabel(5,"CEROS timeout",1);
     histo ->setBinLabel(6,"Max. wds",1);
-    histo ->setBinLabel(7,"L1A FF",1);
-    histo ->setBinLabel(8,"PC from TDC",1);
+    histo ->setBinLabel(7,"WO L1A FIFO",1);
+    histo ->setBinLabel(8,"TDC parity err.",1);
     histo ->setBinLabel(9,"BX ID Mis.",1);
     histo ->setBinLabel(10,"TXP",1);
-    histo ->setBinLabel(11,"TDC Fatal",1);
-    histo ->setBinLabel(12,"TDC FIFO Ov.",1);
-    histo ->setBinLabel(13,"L1 buf. Ov.",1);
-    histo ->setBinLabel(14,"L1 buf. almost full",1);
-//     histo ->setBinLabel(14,"ECHO",1);
+    histo ->setBinLabel(11,"L1A almost full",1);
+    histo ->setBinLabel(12,"Ch. blocked",1);
+    histo ->setBinLabel(13,"Ev. Id. Mis.",1);
+    histo ->setBinLabel(14,"CEROS blocked",1);
+    // TDC error bins
+    histo ->setBinLabel(15,"TDC Fatal",1);
+    histo ->setBinLabel(16,"TDC RO FIFO ov.",1);
+    histo ->setBinLabel(17,"TDC L1 buf. ov.",1);
+    histo ->setBinLabel(18,"TDC L1A FIFO ov.",1);
+    histo ->setBinLabel(19,"TDC hit err.",1);
+    histo ->setBinLabel(20,"TDC hit rej.",1);
 
     histo ->setBinLabel(1,"ROS1",2);
     histo ->setBinLabel(2,"ROS2",2);
@@ -319,21 +326,30 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoType = "ROSError";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSError";
     histoTitle = histoName + " (ROBID error summary)";
-    (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoTitle,13,0,13,26,0,26);
+    (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoTitle,20,0,20,26,0,26);
     MonitorElement* histo = (rosHistos[histoType])[code.getROSID()];
+    // ROS error bins
     histo->setBinLabel(1,"Link TimeOut",1);
     histo->setBinLabel(2,"Ev.Id.Mis.",1);
     histo->setBinLabel(3,"FIFO almost full",1);
     histo->setBinLabel(4,"FIFO full",1);
-    histo->setBinLabel(5,"Ceros TimeOut",1);
+    histo->setBinLabel(5,"CEROS timeout",1);
     histo->setBinLabel(6,"Max. wds",1);
-    histo->setBinLabel(7,"L1A FF",1);
-    histo->setBinLabel(8,"PC from TDC",1);
+    histo->setBinLabel(7,"WO L1A FIFO",1);         // new error word
+    histo->setBinLabel(8,"TDC parity err.",1);
     histo->setBinLabel(9,"BX ID Mis.",1);
-    histo->setBinLabel(10,"TXP",1);
-    histo->setBinLabel(11,"TDC Fatal",1);
-    histo->setBinLabel(12,"TDC FIFO Ov.",1);
-    histo->setBinLabel(13,"L1 Buffer Ov.",1);
+    histo->setBinLabel(10,"TXP",1);               // CB FIXME TPX in ROB?
+    histo->setBinLabel(11,"L1A almost full",1);   // CB FIXME L1A FIFO Occ in ROB?
+    histo->setBinLabel(12,"Ch. blocked",1);       // CB FIXME to be filled
+    histo->setBinLabel(13,"Ev. Id. Mis.",1);      // CB FIXME to be filled
+    histo->setBinLabel(14,"CEROS blocked",1);     // CB FIXME to be filled
+    // TDC error bins
+    histo->setBinLabel(15,"TDC Fatal",1);
+    histo->setBinLabel(16,"TDC RO FIFO ov.",1);
+    histo->setBinLabel(17,"TDC L1 buf. ov.",1);
+    histo->setBinLabel(18,"TDC L1A FIFO ov.",1);
+    histo->setBinLabel(19,"TDC hit err.",1);
+    histo->setBinLabel(20,"TDC hit rej.",1);
 
     histo->setBinLabel(1,"ROB0",2);
     histo->setBinLabel(2,"ROB1",2);
@@ -362,6 +378,64 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histo->setBinLabel(25,"ROB24",2);
     histo->setBinLabel(26,"SC",2);
 
+    histoType = "TDCError";
+    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_TDCError";
+    histoTitle = histoName + " (ROBID error summary)";
+    (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoTitle,24,0,24,26,0,26);
+    histo = (rosHistos[histoType])[code.getROSID()];
+    // TDC error bins
+    histo->setBinLabel(1,"TDC Fatal",1);
+    histo->setBinLabel(2,"TDC RO FIFO ov.",1);
+    histo->setBinLabel(3,"TDC L1 buf. ov.",1);
+    histo->setBinLabel(4,"TDC L1A FIFO ov.",1);
+    histo->setBinLabel(5,"TDC hit err.",1);
+    histo->setBinLabel(6,"TDC hit rej.",1);
+    histo->setBinLabel(7,"TDC Fatal",1);
+    histo->setBinLabel(8,"TDC RO FIFO ov.",1);
+    histo->setBinLabel(9,"TDC L1 buf. ov.",1);
+    histo->setBinLabel(10,"TDC L1A FIFO ov.",1);
+    histo->setBinLabel(11,"TDC hit err.",1);
+    histo->setBinLabel(12,"TDC hit rej.",1);
+    histo->setBinLabel(13,"TDC Fatal",1);
+    histo->setBinLabel(14,"TDC RO FIFO ov.",1);
+    histo->setBinLabel(15,"TDC L1 buf. ov.",1);
+    histo->setBinLabel(16,"TDC L1A FIFO ov.",1);
+    histo->setBinLabel(17,"TDC hit err.",1);
+    histo->setBinLabel(18,"TDC hit rej.",1);
+    histo->setBinLabel(19,"TDC Fatal",1);
+    histo->setBinLabel(20,"TDC RO FIFO ov.",1);
+    histo->setBinLabel(21,"TDC L1 buf. ov.",1);
+    histo->setBinLabel(22,"TDC L1A FIFO ov.",1);
+    histo->setBinLabel(23,"TDC hit err.",1);
+    histo->setBinLabel(24,"TDC hit rej.",1);
+
+    histo->setBinLabel(1,"ROB0",2);
+    histo->setBinLabel(2,"ROB1",2);
+    histo->setBinLabel(3,"ROB2",2);
+    histo->setBinLabel(4,"ROB3",2);
+    histo->setBinLabel(5,"ROB4",2);
+    histo->setBinLabel(6,"ROB5",2);
+    histo->setBinLabel(7,"ROB6",2);
+    histo->setBinLabel(8,"ROB7",2);
+    histo->setBinLabel(9,"ROB8",2);
+    histo->setBinLabel(10,"ROB9",2);
+    histo->setBinLabel(11,"ROB10",2);
+    histo->setBinLabel(12,"ROB11",2);
+    histo->setBinLabel(13,"ROB12",2);
+    histo->setBinLabel(14,"ROB13",2);
+    histo->setBinLabel(15,"ROB14",2);
+    histo->setBinLabel(16,"ROB15",2);
+    histo->setBinLabel(17,"ROB16",2);
+    histo->setBinLabel(18,"ROB17",2);
+    histo->setBinLabel(19,"ROB18",2);
+    histo->setBinLabel(20,"ROB19",2);
+    histo->setBinLabel(21,"ROB20",2);
+    histo->setBinLabel(22,"ROB21",2);
+    histo->setBinLabel(23,"ROB22",2);
+    histo->setBinLabel(24,"ROB23",2);
+    histo->setBinLabel(25,"ROB24",2);
+    histo->setBinLabel(26,"SC",2);        // CB Remove this?
+
     histoType = "ROB_mean";
     histoName = "FED" + dduID_s.str() + "_" + "ROS" + rosID_s.str() + "_ROB_mean";
     string fullName = topFolder() + "FED" + dduID_s.str() + "/" + folder + rosID_s.str()+ "/" + histoName;    
@@ -375,9 +449,9 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoName = "FED" + dduID_s.str() + "_" + "ROS" + rosID_s.str() + "_Bunch_ID";
     (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,4096,0,4095);
 
-    histoType = "Trigger_frequency";
-    histoName =  "FED" + dduID_s.str() + "_Trigger_frequency"; 
-    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,100,1,100);
+//     histoType = "Trigger_frequency";                
+//     histoName =  "FED" + dduID_s.str() + "_Trigger_frequency"; 
+//     (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,100,1,100);
   }
 
 
@@ -388,11 +462,14 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoType = "TDCError";
     histoName = "FED" + dduID_s.str() + "_ROS" + rosID_s.str() + "_ROB"+robID_s.str()+"_TDCError";
     string histoTitle = histoName + " (TDC Errors)";
-    (robHistos[histoType])[code.getROBID()] = dbe->book2D(histoName,histoTitle,3,0,3,4,0,4);
+    (robHistos[histoType])[code.getROBID()] = dbe->book2D(histoName,histoTitle,6,0,6,4,0,4);
 
     ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(1,"TDC Fatal",1);
-    ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(2,"TDC FIFO Ov.",1);
-    ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(3,"L1 Buffer Ov.",1);
+    ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(2,"RO FIFO ov.",1);
+    ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(3,"L1 buffer ov.",1);
+    ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(4,"L1A FIFO ov.",1);
+    ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(5,"TDC hit err.",1);
+    ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(6,"TDC hit rej.",1);
     ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(1,"TDC0",2);
     ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(2,"TDC1",2);
     ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(3,"TDC2",2);
@@ -498,10 +575,9 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   }
 
   // L1 Buffer almost full (non-critical error!)
-  // equivalent to (data.getROSTrailer().ECHO() >>1) & 0x1 == 1
-  if(data.getROSTrailer().ECHO() > 1) {
-    ROSSummary->Fill(13,code.getROS());
-  }
+  if(data.getROSTrailer().l1AFifoOccupancy() > 31) { //CB check 31 is OK
+     ROSSummary->Fill(10,code.getROS());
+   }
   
   // FIXME: what is this about???
   if (neventsROS25 == 1) FirstRos = code.getROSID();
@@ -545,6 +621,15 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
       ROSDebug_BcntResCntLow = (*debug_it).debugMessage();
     } else if ((*debug_it).debugType() == 2 ) {
       ROSDebug_BcntResCntHigh = (*debug_it).debugMessage();
+    } else if ((*debug_it).debugType() == 3 &&
+	       (*debug_it).dontRead() ){  
+      ROSSummary->Fill(11,code.getROS());        // CB Fill it every event or set it to one in case of problems?
+    } else if ((*debug_it).debugType() == 3 &&
+	       (*debug_it).evIdMis()){  
+      ROSSummary->Fill(12,code.getROS());        // CB Fill it every event or set it to one in case of problems?
+    } else if ((*debug_it).debugType() == 4 &&
+	       (*debug_it).cerosIdRosStatus()){
+      ROSSummary->Fill(13,code.getROS());        // CB Fill it every event or set it to one in case of problems?
     }
   }
 
@@ -600,11 +685,11 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
       rosHistos["ROB_mean"][code.getROSID()]->Fill(code.getROB(),(*robt_it).wordCount());
     }
 
-    // Trigger frequency
-    double frequency = 0;
-    // FIXME: how is the frequency computed
-    ROS_L1A_Frequency(code.getROS(),ROSDebug_BcntResCnt,neventsROS25,frequency,trigger_counter);
-    rosHistos["Trigger_frequency"][code.getROSID()]->Fill(frequency);
+//     // Trigger frequency 
+//     double frequency = 0;
+//     // FIXME: how is the frequency computed
+//     ROS_L1A_Frequency(code.getROS(),ROSDebug_BcntResCnt,neventsROS25,frequency,trigger_counter);
+//     rosHistos["Trigger_frequency"][code.getROSID()]->Fill(frequency);
 
     // Plot the event lenght //NOHLT
     rosHistos["ROSEventLenght"][code.getROSID()]->Fill(data.getROSTrailer().EventWordCount()*4);
@@ -644,24 +729,48 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 	<< " ROS " << code.getROS() << " ROB " << code.getROB()
 	<< " Internal fatal Error 4000 in TDC " << (*tdc_it).first << endl;
 
-      type_TDC_error_for_plot_1 = 10;
+      type_TDC_error_for_plot_1 = 14;
       type_TDC_error_for_plot_2 = 0;
 
-    } else if ( ((*tdc_it).second).tdcError() & 0x1b6d ) {
+    } else if ( ((*tdc_it).second).tdcError() & 0x0249 ) {
       LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
 	<< " ROS " << code.getROS() << " ROB " << code.getROB()
-	<< " TDC FIFO full in TDC " << (*tdc_it).first << endl;
+	<< " TDC FIFO overflow in TDC " << (*tdc_it).first << endl;
 
-      type_TDC_error_for_plot_1 = 11;
+      type_TDC_error_for_plot_1 = 15;
       type_TDC_error_for_plot_2 = 1;
 
-    } else if ( ((*tdc_it).second).tdcError() & 0x2492 ) {
+    } else if ( ((*tdc_it).second).tdcError() & 0x0492 ) {
       LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
 	<< " ROS " << code.getROS() << " ROB " << code.getROB()
-	<< " L1 buffer overflow in TDC " << (*tdc_it).first << endl;
+	<< " TDC L1 buffer overflow in TDC " << (*tdc_it).first << endl;
       
-      type_TDC_error_for_plot_1 = 12;
+      type_TDC_error_for_plot_1 = 16;
       type_TDC_error_for_plot_2 = 2;
+
+    } else if ( ((*tdc_it).second).tdcError() & 0x2000 ) {
+      LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
+	<< " ROS " << code.getROS() << " ROB " << code.getROB()
+	<< " TDC L1A FIFO overflow in TDC " << (*tdc_it).first << endl;
+      
+      type_TDC_error_for_plot_1 = 17;
+      type_TDC_error_for_plot_2 = 3;
+
+    } else if ( ((*tdc_it).second).tdcError() & 0x0924 ) {
+      LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
+	<< " ROS " << code.getROS() << " ROB " << code.getROB()
+	<< " TDC hit error in TDC " << (*tdc_it).first << endl;
+      
+      type_TDC_error_for_plot_1 = 18;
+      type_TDC_error_for_plot_2 = 4;
+
+    } else if ( ((*tdc_it).second).tdcError() & 0x1000 ) {
+      LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
+	<< " ROS " << code.getROS() << " ROB " << code.getROB()
+	<< " TDC hit rejected in TDC " << (*tdc_it).first << endl;
+      
+      type_TDC_error_for_plot_1 = 19;
+      type_TDC_error_for_plot_2 = 5;
 
     } else {
       LogWarning("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
@@ -670,13 +779,14 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     
     ROSSummary->Fill(type_TDC_error_for_plot_1,code.getROS());
 
-    if(type_TDC_error_for_plot_1 <= 11) {
+    if(type_TDC_error_for_plot_1 <= 15) {  // CB check 15 is OK
       eventErrorFlag = true;
     }
 
     if(!hltMode) {
       ROSError->Fill(type_TDC_error_for_plot_1,(*tdc_it).first);
       robHistos["TDCError"][code.getROBID()]->Fill(type_TDC_error_for_plot_2,((*tdc_it).second).tdcID());
+      rosHistos["TDCError"][code.getROSID()]->Fill(type_TDC_error_for_plot_2+6*((*tdc_it).second).tdcID(),(*tdc_it).first);
     }
   }
 
