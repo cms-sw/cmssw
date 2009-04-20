@@ -1,5 +1,5 @@
 //
-// $Id: PATObject.h,v 1.22 2009/03/25 23:02:48 hegner Exp $
+// $Id: PATObject.h,v 1.23 2009/04/20 18:11:06 vadler Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -15,7 +15,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Volker Adler, Sal Rappoccio
-  \version  $Id: PATObject.h,v 1.22 2009/03/25 23:02:48 hegner Exp $
+  \version  $Id: PATObject.h,v 1.23 2009/04/20 18:11:06 vadler Exp $
 */
 
 
@@ -25,7 +25,6 @@
 #include <vector>
 #include <string>
 
-#include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/LookupTableRecord.h"
 
@@ -62,11 +61,6 @@ namespace pat {
       /// reference to original object. Returns a null reference if not available
       const edm::Ptr<reco::Candidate> & originalObjectRef() const;
 
-      /// old trigger matches
-      const std::vector<TriggerPrimitive> & triggerMatches() const;
-      const std::vector<TriggerPrimitive> triggerMatchesByFilter(const std::string & aFilt) const;
-      /// add an old trigger match
-      void addTriggerMatch(const pat::TriggerPrimitive & aTrigPrim);
       /// embedded trigger matches
       const TriggerObjectStandAloneCollection & triggerObjectMatches() const;
       const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilterID( const unsigned id ) const; // filter IDs are defined in enum trigger::TriggerObjectType (DataFormats/HLTReco/interface/TriggerTypeDefs.h)
@@ -277,23 +271,6 @@ namespace pat {
 
   template <class ObjectType> 
   const edm::Ptr<reco::Candidate> & PATObject<ObjectType>::originalObjectRef() const { return refToOrig_; }
-
-  template <class ObjectType>
-  const std::vector<TriggerPrimitive> & PATObject<ObjectType>::triggerMatches() const { return triggerMatches_; }
-  
-  template <class ObjectType>
-  const std::vector<TriggerPrimitive> PATObject<ObjectType>::triggerMatchesByFilter(const std::string & aFilt) const {
-    std::vector<TriggerPrimitive> selectedMatches;
-    for ( size_t i = 0; i < triggerMatches_.size(); i++ ) {
-      if ( triggerMatches_.at(i).filterName() == aFilt ) selectedMatches.push_back(triggerMatches_.at(i));
-    }
-    return selectedMatches;
-  }
-
-  template <class ObjectType>
-  void PATObject<ObjectType>::addTriggerMatch(const pat::TriggerPrimitive & aTrigPrim) {
-    triggerMatches_.push_back(aTrigPrim);
-  }
 
   template <class ObjectType>
   const TriggerObjectStandAloneCollection & PATObject<ObjectType>::triggerObjectMatches() const { return triggerObjectMatchesEmbedded_; }

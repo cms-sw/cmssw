@@ -19,7 +19,6 @@
 #include "DataFormats/PatCandidates/interface/StringMap.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesis.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesisLooper.h"
-#include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/TriggerFilter.h"
@@ -330,19 +329,6 @@ namespace {
   edm::Wrapper<edm::ValueMap<pat::VertexAssociation> >	 w_vm_va;
 
   edm::Wrapper<std::vector<pat::EventHypothesis> >	 w_v_eh;
-
-  /*   Trigger Primitive stuff   */
-  std::vector<pat::TriggerPrimitive>	 v_tp;
-  std::vector<pat::TriggerPrimitive *>	 vp_tp;
-  edm::Wrapper<pat::TriggerPrimitiveCollection>	 w_tpc;
-  pat::TriggerPrimitiveRef	                 tpr;
-  pat::TriggerPrimitiveRefProd	                 tprp;
-  pat::TriggerPrimitiveRefVector	         tprv;
-  edm::Wrapper<pat::TriggerPrimitiveMatch>	 w_tpm;
-  edm::reftobase::Holder<reco::Candidate, pat::TriggerPrimitiveRef>	 rb_cand_h_p_tp;
-  edm::reftobase::RefHolder<pat::TriggerPrimitiveRef>	                 rb_rh_p_tp;
-//   edm::reftobase::VectorHolder<reco::Candidate, pat::TriggerPrimitiveRefVector>	 rb_cand_vh_tp;
-//   edm::reftobase::RefVectorHolder<pat::TriggerPrimitiveRefVector>	         rb_rvh_p_tp;
 
   pat::TriggerObjectCollection v_p_to;
   pat::TriggerObjectCollection::const_iterator v_p_to_ci;

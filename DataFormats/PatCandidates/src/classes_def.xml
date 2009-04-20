@@ -373,22 +373,6 @@
   <class name="pat::EventHypothesis" />
   <class name="std::vector<pat::EventHypothesis>" />
   <class name="edm::Wrapper<std::vector<pat::EventHypothesis> >" />
-
-  <!-- Trigger Primitive stuff -->
-  <class name="pat::TriggerPrimitive" />
-  <class name="std::vector<pat::TriggerPrimitive>" />
-  <class name="std::vector<pat::TriggerPrimitive *>" />
-  <class name="pat::TriggerPrimitiveCollection" />
-  <class name="edm::Wrapper<pat::TriggerPrimitiveCollection>" />
-  <class name="pat::TriggerPrimitiveRef" />
-  <class name="pat::TriggerPrimitiveRefProd" />
-  <class name="pat::TriggerPrimitiveRefVector" />
-  <class name="pat::TriggerPrimitiveMatch" />
-  <class name="edm::Wrapper<pat::TriggerPrimitiveMatch>" />
-  <class name="edm::reftobase::Holder<reco::Candidate, pat::TriggerPrimitiveRef>" />
-  <class name="edm::reftobase::RefHolder<pat::TriggerPrimitiveRef>" />
-<!--   <class name="edm::reftobase::VectorHolder<reco::Candidate, pat::TriggerPrimitiveRefVector>" /> -->
-<!--   <class name="edm::reftobase::RefVectorHolder<pat::TriggerPrimitiveRefVector>" /> -->
   
   <class name="pat::TriggerObject" />
   <class name="std::vector<pat::TriggerObject>" />
@@ -472,9 +456,6 @@
  
  </selection>
  <exclusion>
-  <class name="edm::OwnVector<pat::TriggerPrimitive, edm::ClonePolicy<pat::TriggerPrimitive> >">
-   <method name="sort" />
-  </class>
   <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >">
    <method name="sort" />
   </class>
