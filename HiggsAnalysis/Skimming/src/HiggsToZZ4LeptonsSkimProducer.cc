@@ -80,8 +80,11 @@ void HiggsToZZ4LeptonsSkimProducer::produce(edm::Event& event, const edm::EventS
     // Loop over muon collections and count how many muons there are, 
     // and how many are above threshold
     for ( muons = mus->begin(); muons != mus->end(); ++muons ) {
-      if ( muons->pt() > stiffMinPt) nStiffLeptons++; 
-      if ( muons->pt() > softMinPt) nLeptons++; 
+
+      if(muons->isGlobalMuon()){
+	if ( muons->pt() > stiffMinPt) nStiffLeptons++; 
+	if ( muons->pt() > softMinPt) nLeptons++; 
+      }
     }  
   } 
   
