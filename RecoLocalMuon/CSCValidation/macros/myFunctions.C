@@ -943,17 +943,13 @@ void GlobalPosfromTreeCompare(std::string graphname, TFile* f1, TFile* f2, int e
     }
   }
 
-  std::string name1 = graphname + " (Ref)";
-  std::string name2 = graphname + " (New)";
+  std::string name1 = graphname + " (New)";
+  std::string name2 = graphname + " (Ref)";
   TCanvas *c = new TCanvas("c","my canvas",1);
   c->SetCanvasSize(1300,700);
   c->Divide(2,1);
   TGraph *graph1 = new TGraph(nstation1,globx1,globy1);
   TGraph *graph2 = new TGraph(nstation2,globx2,globy2);
-
-
-  std::string name1 = graphname + " (Ref)";
-  std::string name2 = graphname + " (New)";
 
   gStyle->SetTitleW(0.6);
   gStyle->SetTitleH(0.1);
