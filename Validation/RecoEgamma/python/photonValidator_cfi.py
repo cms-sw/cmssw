@@ -18,7 +18,7 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
     hbheModule = cms.string('hbhereco'),
     trackProducer = cms.InputTag("generalTracks"),
     label_tp = cms.InputTag("tpSelection"),                              
-    Verbosity = cms.untracked.int32(2),
+    Verbosity = cms.untracked.int32(0),
 #
     minPhoEtCut = cms.double(35.0),
     convTrackMinPtCut = cms.double(1.),
@@ -76,10 +76,29 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
     dCotCutValue=cms.double(0.05),
     dCotHardCutValue=cms.double(0.02),                              
 #
+    dCotTracksBin = cms.int32(100),                              
+    dCotTracksMin = cms.double(-2.),
+    dCotTracksMax = cms.double(2.),
+#                                  
     povereBin = cms.int32(100),                              
     povereMin = cms.double(0.),
     povereMax = cms.double(5.),
-
+#
+    eoverpBin =  cms.int32(100),
+    eoverpMin =  cms.double(0.),
+    eoverpMax =  cms.double(5.),
+#
+    chi2Min =  cms.double(0.),
+    chi2Max =  cms.double(20.),                              
+#
+    rBinForXray = cms.int32(200),
+    rMinForXray = cms.double(0.),
+    rMaxForXray = cms.double(80.),                               
+    zBinForXray = cms.int32(100),
+    zBin2ForXray = cms.int32(560),
+    zMinForXray = cms.double(0.),
+    zMaxForXray = cms.double(280.),                               
+                                  
 # Unused stuff                                  
     hcalIsolExtR = cms.double(0.3),
     hcalIsolInnR = cms.double(0.0),
