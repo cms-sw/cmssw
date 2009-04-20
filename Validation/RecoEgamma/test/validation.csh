@@ -18,22 +18,16 @@
 #=============BEGIN CONFIGURATION=================
 
 #Input root trees for the two cases to be compared 
-#setenv OLDFILE /data/test/CMSSW_2_2_1/src/Validation/RecoEgamma/test/PhotonValidationRelVal221_SingleGammaPt35.root
-#setenv OLDFILE /data/test/CMSSW_3_0_0_pre6/src/Validation/RecoEgamma/test/PhotonValidationRelVal300pre6_SingleGammaPt35.root
-#setenv NEWFILE /data/test/CMSSW_3_0_0_pre7/src/Validation/RecoEgamma/test/PhotonValidationRelVal300pre7_SingleGammaPt35.root
 
-#setenv OLDFILE /data/test/CMSSW_3_1_0_pre2/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre2_SingleGammaPt10.root
-#setenv NEWFILE /data/test/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_SingleGammaPt10.root
+setenv OLDFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt10New.root
+setenv NEWFILE /data/test/CMSSW_3_1_0_pre5/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre5_SingleGammaPt10.root
 
-#setenv OLDFILE /data/test/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_SingleGammaPt35.root
-#setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt35.root
+#setenv OLDFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt35New.root
+#setenv NEWFILE /data/test/CMSSW_3_1_0_pre5/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre5_SingleGammaPt35.root
+
 
 #setenv OLDFILE /tmp/nancy/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_SingleGammaPt35New.root
 #setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt35New.root
-
-#setenv OLDFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/ExtendedPhotonValidationRelVal310pre4_SingleGammaPt35New.root
-#setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt35New.root
-
 
 #setenv OLDFILE /tmp/nancy/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_H130GGgluonfusionNew.root
 #setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_H130GGgluonfusionNew.root
@@ -45,19 +39,15 @@
 #setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_QCD_Pt_80_120.root
 
 
-
-setenv OLDFILE /build/nancy/CMSSW_3_1_0_pre5/src/Validation/RecoEgamma/test/test.root 
-setenv NEWFILE /build/nancy/CMSSW_3_1_0_pre5/src/Validation/RecoEgamma/test/test.root
-
-
 #setenv OLDRELEASE 221IDEAL
-setenv OLDRELEASE 310pre3
-setenv NEWRELEASE 310pre4TEST
+setenv OLDRELEASE 310pre4
+setenv NEWRELEASE 310pre5
 #Name of sample (affects output directory name and htmldescription only) 
+setenv SAMPLE SingleGammaPt10IDEAL
 #setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
 #setenv SAMPLE H130GGgluonfusionSTARTUP
-setenv SAMPLE GammaJets_Pt_80_120STARTUP
+#setenv SAMPLE GammaJets_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_80_120STARTUP
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
 setenv TYPE Photon
@@ -685,7 +675,7 @@ $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
-$i->Scale(nold/nnew);
+//$i->Scale(nold/nnew);
 $i->Draw("esame");
 c$i->SaveAs("gifs/$i.gif");
 
@@ -722,7 +712,7 @@ endif
 
 if (-e validation.html) rm validation.html
 if (-e validationPlotsTemplate.html) rm validationPlotsTemplate.html
-cp /build/nancy/CMSSW_3_1_0_pre5/src/Validation/RecoEgamma/test/validationPlotsTemplate.html validationPlotsTemplate.html
+cp ${CURRENTDIR}/validationPlotsTemplate.html validationPlotsTemplate.html
 touch validation.html
 cat > begin.html <<EOF
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
@@ -741,7 +731,7 @@ cat > begin.html <<EOF
 using <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Validation/RecoEgamma/test/$CFG.py">Validation/RecoEgamma/test/$CFG.py</a>
 <p>The script used to make the plots is <a href="validation.C">here</a>.
 <br>
-In all plots below, $OLDRELEASE is in brown , $NEWRELEASE in black. 
+In all plots below, $OLDRELEASE is in purple , $NEWRELEASE in black. 
 <br>
 Click on the plots to see them enlarged.
 <br>
@@ -758,7 +748,6 @@ cat  validationPlotsTemplate.html >>& validation.html
 rm  validationPlotsTemplate.html 
 
 rm scaledhistosForPhotons
-rm unscaledhistosForPhotons
 rm 2dhistosForPhotons
 rm scaledhistosForConvertedPhotons
 rm unscaledhistosForConvertedPhotons
