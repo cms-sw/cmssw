@@ -159,7 +159,7 @@ void PixelTrackProducerWithZPos::produce
       reco::Track* track = theFitter->run(es, hits, region);
 
       // Filter for pairs (ValidHitPairFilter)
-      if(hits.size() == 2)
+      if(hits.size() == 2 && theHitsFilter)
       if ( ! (*theHitsFilter)(track, hits) )
       {
         delete track; 
@@ -167,6 +167,7 @@ void PixelTrackProducerWithZPos::produce
       }
   
       // Filter for triplets (ClusterShapeTrackFilter)
+      if(theFilter)
       if ( ! (*theFilter)(track,hits) )
       { 
         delete track; 

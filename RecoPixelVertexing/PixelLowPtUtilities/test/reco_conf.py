@@ -44,18 +44,16 @@ process.MessageLogger = cms.Service("MessageLogger",
 # Source
 process.source = cms.Source("PoolSource",
     # FIXME
-    skipEvents = cms.untracked.uint32(85),
+    skipEvents = cms.untracked.uint32(0),
     fileNames  = cms.untracked.vstring(
-       # /RelValMinBias/CMSSW_3_1_0_pre2_IDEAL_30X_v1/GEN-SIM-DIGI-RAW-HLTDEBUG
-       '/store/relval/CMSSW_3_1_0_pre2/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0000/2470A74A-4103-DE11-9008-0030487A18F2.root',
-       '/store/relval/CMSSW_3_1_0_pre2/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0000/AAC15191-4103-DE11-8071-0016177CA778.root',
-       '/store/relval/CMSSW_3_1_0_pre2/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0000/ACD6837F-4103-DE11-BB54-0030487A18A4.root',
-       '/store/relval/CMSSW_3_1_0_pre2/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0000/B6DE97A8-4203-DE11-A9E6-001D09F276CF.root',
-       '/store/relval/CMSSW_3_1_0_pre2/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0001/C207D770-9703-DE11-B4F7-001617DBD5B2.root')
+       # RelValMinBias/CMSSW_3_1_0_pre5_IDEAL_31X_v1/GEN-SIM-RECO
+       '/store/relval/CMSSW_3_1_0_pre5/RelValProdMinBias/GEN-SIM-RAW/IDEAL_31X_v1/0000/3C9D7BDE-B62B-DE11-A7FA-000423D94524.root',
+       '/store/relval/CMSSW_3_1_0_pre5/RelValProdMinBias/GEN-SIM-RAW/IDEAL_31X_v1/0000/707E2511-B62B-DE11-B0B0-001D09F24498.root',
+       '/store/relval/CMSSW_3_1_0_pre5/RelValProdMinBias/GEN-SIM-RAW/IDEAL_31X_v1/0000/CE506207-0C2C-DE11-AC5E-000423D991F0.root')
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(10)
 )
 
 ###############################################################################
@@ -88,13 +86,15 @@ process.plotEvent = cms.EDAnalyzer("EventPlotter",
 
 ###############################################################################
 # Paths
+process.r2d   = cms.Path(process.RawToDigi)
+
 process.simu  = cms.Path(process.mix
                        * process.trackingParticles
                        * process.offlineBeamSpot)
-process.digi  = cms.Path(process.trDigi
-                       * process.ecalDigiSequence)
+
 process.lreco = cms.Path(process.trackerlocalreco
                        * process.ecalLocalRecoSequence)
+
 process.greco = cms.Path(process.minBiasTracking
                        * process.energyLoss
                        * process.pixelVZeros
@@ -103,27 +103,12 @@ process.greco = cms.Path(process.minBiasTracking
 
 ###############################################################################
 # Global tag
-process.GlobalTag.globaltag = 'IDEAL_30X::All'
+process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
-###############################################################################
-# Workaround
-process.siPixelClusters.src = 'simSiPixelDigis'
-process.siStripZeroSuppression.RawDigiProducersList = cms.VPSet(cms.PSet(
-        RawDigiProducer = cms.string('simSiStripDigis'),
-        RawDigiLabel = cms.string('VirginRaw')
-    ))
-process.siStripClusters.DigiProducersList = cms.VPSet(cms.PSet(
-        DigiLabel = cms.string('ZeroSuppressed'),
-        DigiProducer = cms.string('simSiStripDigis')
-    ))
-
-process.ecalWeightUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
-process.ecalWeightUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
-process.ecalPreshowerRecHit.ESdigiCollection     = cms.InputTag("simEcalPreshowerDigis")
 ###############################################################################
 # Schedule
-process.schedule = cms.Schedule(process.simu,
-                                process.digi,
+process.schedule = cms.Schedule(process.r2d,
+                                process.simu,
                                 process.lreco,
                                 process.greco)
 

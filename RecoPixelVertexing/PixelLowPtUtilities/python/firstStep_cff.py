@@ -10,6 +10,7 @@ pixel3ProtoTracks.passLabel = 'Pixel triplet tracks for vertexing'
 ############################
 # Pixel vertexing
 from RecoPixelVertexing.PixelVertexFinding.PixelVertexes_cfi import *
+pixelVertices = RecoPixelVertexing.PixelVertexFinding.PixelVertexes_cfi.pixelVertices.clone()
 pixelVertices.TrackCollection = 'pixel3ProtoTracks'
 pixelVertices.UseError    = True
 pixelVertices.WtAverage   = True

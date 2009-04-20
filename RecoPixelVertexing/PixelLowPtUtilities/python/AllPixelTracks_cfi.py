@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 ##########################
 # The base for all steps
-allPixelTracks = cms.EDFilter("PixelTrackProducerWithZPos",
+#allPixelTracks = cms.EDFilter("PixelTrackProducerWithZPos",
+allPixelTracks = cms.EDFilter("PixelTrackProducer",
 
     passLabel  = cms.string(''),
 
@@ -40,6 +41,7 @@ allPixelTracks = cms.EDFilter("PixelTrackProducerWithZPos",
     ),
 
     # Filter
+    useFilterWithES = cms.bool(True),
     FilterPSet = cms.PSet(
         ComponentName = cms.string('ClusterShapeTrackFilter'),
         useFilter     = cms.bool(True)
