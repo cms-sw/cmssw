@@ -1,5 +1,5 @@
 //
-// $Id: PATObject.h,v 1.23 2009/04/20 18:11:06 vadler Exp $
+// $Id: PATObject.h,v 1.24 2009/04/20 19:33:07 vadler Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -15,7 +15,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Volker Adler, Sal Rappoccio
-  \version  $Id: PATObject.h,v 1.23 2009/04/20 18:11:06 vadler Exp $
+  \version  $Id: PATObject.h,v 1.24 2009/04/20 19:33:07 vadler Exp $
 */
 
 
@@ -201,8 +201,6 @@ namespace pat {
       // reference back to the original object
       edm::Ptr<reco::Candidate> refToOrig_;
 
-      /// vector of old trigger matches
-      std::vector<pat::TriggerPrimitive> triggerMatches_;
       /// vector of trigger matches
       TriggerObjectStandAloneCollection triggerObjectMatchesEmbedded_;
 
