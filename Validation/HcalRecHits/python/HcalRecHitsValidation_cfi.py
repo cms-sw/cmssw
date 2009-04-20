@@ -5,13 +5,13 @@ from Configuration.StandardSequences.Simulation_cff import *
 from Configuration.StandardSequences.MixingNoPileUp_cff import *
 from Configuration.StandardSequences.Reconstruction_cff import *
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
-GlobalTag.globaltag = 'IDEAL_30X::All'
+GlobalTag.globaltag = 'IDEAL_31X::All'
 
 
 from DQMServices.Core.DQM_cfg import *
 
 maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+   input = cms.untracked.int32(-1)
 )
 source = cms.Source("PoolSource",
     debugFlag = cms.untracked.bool(True),
@@ -21,10 +21,14 @@ source = cms.Source("PoolSource",
 
 DQM.collectorHost = ''
 
-hbhereco.digiLabel = 'simHcalDigis'
-horeco.digiLabel = 'simHcalDigis'
-hfreco.digiLabel = 'simHcalDigis'
-
-ecalPreshowerRecHit.ESdigiCollection = 'simEcalPreshowerDigis'
-ecalGlobalUncalibRecHit.EBdigiCollection = 'simEcalDigis:ebDigis'
-ecalGlobalUncalibRecHit.EEdigiCollection = 'simEcalDigis:eeDigis'
+#--- DigiToRaw
+from Configuration.StandardSequences.DigiToRaw_cff import *
+ecalPacker.Label = 'simEcalDigis'
+ecalPacker.InstanceEB = 'ebDigis'
+ecalPacker.InstanceEE = 'eeDigis'
+ecalPacker.labelEBSRFlags = "simEcalDigis:ebSrFlags"
+ecalPacker.labelEESRFlags = "simEcalDigis:eeSrFlags"
+#--- RawToDigi
+from Configuration.StandardSequences.RawToDigi_cff  import *
+hcalDigis.InputLabel = 'hcalRawData'
+ecalDigis.InputLabel = 'ecalPacker'
