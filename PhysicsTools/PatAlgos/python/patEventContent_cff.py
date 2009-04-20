@@ -49,3 +49,12 @@ patTriggerStandAloneEventContent = [
     'keep patTriggerObjectStandAlones_patTrigger_*_*',
     'keep patTriggerObjectStandAlonesedmAssociation_*_*_*'
 ]
+
+patEventContentTriggerMatch = [
+    'keep *_cleanLayer1PhotonsTriggerMatch_*_*', 
+    'keep *_cleanLayer1ElectronsTriggerMatch_*_*', 
+    'keep *_cleanLayer1MuonsTriggerMatch_*_*', 
+    'keep *_cleanLayer1TausTriggerMatch_*_*', 
+    'keep *_cleanLayer1JetsTriggerMatch_*_*', 
+    'keep *_layer1METsTriggerMatch_*_*'
+]

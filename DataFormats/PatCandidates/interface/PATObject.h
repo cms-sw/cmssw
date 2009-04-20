@@ -1,5 +1,5 @@
 //
-// $Id: PATObject.h,v 1.21 2008/10/09 17:48:23 lowette Exp $
+// $Id: PATObject.h,v 1.22 2009/03/25 23:02:48 hegner Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -15,7 +15,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Volker Adler, Sal Rappoccio
-  \version  $Id: PATObject.h,v 1.21 2008/10/09 17:48:23 lowette Exp $
+  \version  $Id: PATObject.h,v 1.22 2009/03/25 23:02:48 hegner Exp $
 */
 
 
@@ -26,6 +26,7 @@
 #include <string>
 
 #include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/LookupTableRecord.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -61,11 +62,19 @@ namespace pat {
       /// reference to original object. Returns a null reference if not available
       const edm::Ptr<reco::Candidate> & originalObjectRef() const;
 
-      /// trigger matches
+      /// old trigger matches
       const std::vector<TriggerPrimitive> & triggerMatches() const;
       const std::vector<TriggerPrimitive> triggerMatchesByFilter(const std::string & aFilt) const;
-      /// add a trigger match
+      /// add an old trigger match
       void addTriggerMatch(const pat::TriggerPrimitive & aTrigPrim);
+      /// embedded trigger matches
+      const TriggerObjectStandAloneCollection & triggerObjectMatches() const;
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilterID( const unsigned id ) const; // filter IDs are defined in enum trigger::TriggerObjectType (DataFormats/HLTReco/interface/TriggerTypeDefs.h)
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByCollection( const std::string & coll ) const; // filter IDs are defined in enum trigger::TriggerObjectType (DataFormats/HLTReco/interface/TriggerTypeDefs.h)
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilter( const std::string & labelFilter ) const;
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByPath( const std::string & namePath ) const;
+      /// add a trigger match
+      void addTriggerObjectMatch( const TriggerObjectStandAlone & trigObj );
 
       /// Returns an efficiency given its name
       const pat::LookupTableRecord       & efficiency(const std::string &name) const ;
@@ -198,8 +207,10 @@ namespace pat {
       // reference back to the original object
       edm::Ptr<reco::Candidate> refToOrig_;
 
-      /// vector of trigger matches
+      /// vector of old trigger matches
       std::vector<pat::TriggerPrimitive> triggerMatches_;
+      /// vector of trigger matches
+      TriggerObjectStandAloneCollection triggerObjectMatchesEmbedded_;
 
       /// vector of the efficiencies (values)
       std::vector<pat::LookupTableRecord> efficiencyValues_;
@@ -282,6 +293,50 @@ namespace pat {
   template <class ObjectType>
   void PATObject<ObjectType>::addTriggerMatch(const pat::TriggerPrimitive & aTrigPrim) {
     triggerMatches_.push_back(aTrigPrim);
+  }
+
+  template <class ObjectType>
+  const TriggerObjectStandAloneCollection & PATObject<ObjectType>::triggerObjectMatches() const { return triggerObjectMatchesEmbedded_; }
+
+  template <class ObjectType>
+  const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByFilterID( const unsigned id ) const {
+    TriggerObjectStandAloneCollection matches;
+    for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
+      if ( triggerObjectMatches().at( i ).hasFilterId( id ) ) matches.push_back( triggerObjectMatches().at( i ) );
+    }
+    return matches;
+  }
+
+  template <class ObjectType>
+  const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByCollection( const std::string & coll ) const {
+    TriggerObjectStandAloneCollection matches;
+    for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
+      if ( triggerObjectMatches().at( i ).collection() == coll ) matches.push_back( triggerObjectMatches().at( i ) );
+    }
+    return matches;
+  }
+
+  template <class ObjectType>
+  const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByFilter( const std::string & labelFilter ) const {
+    TriggerObjectStandAloneCollection matches;
+    for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
+      if ( triggerObjectMatches().at( i ).hasFilterLabel( labelFilter ) ) matches.push_back( triggerObjectMatches().at( i ) );
+    }
+    return matches;
+  }
+
+  template <class ObjectType>
+  const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByPath( const std::string & namePath ) const {
+    TriggerObjectStandAloneCollection matches;
+    for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
+      if ( triggerObjectMatches().at( i ).hasPathName( namePath ) ) matches.push_back( triggerObjectMatches().at( i ) );
+    }
+    return matches;
+  }
+
+  template <class ObjectType>
+  void PATObject<ObjectType>::addTriggerObjectMatch( const TriggerObjectStandAlone & trigObj ) {
+    triggerObjectMatchesEmbedded_.push_back( trigObj );
   }
 
   template <class ObjectType>

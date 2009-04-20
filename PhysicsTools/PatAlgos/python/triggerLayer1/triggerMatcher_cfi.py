@@ -560,11 +560,35 @@ tauTriggerMatchHLTDoubleIsoTauTrk3 = cms.EDFilter( "PATTriggerMatcherDRDPtLessBy
 
 
 # sequences
-patTriggerMatcher = cms.Sequence(
+# patTriggerPhotonMatcher = cms.Sequence(
+# )
+patTriggerElectronMatcher = cms.Sequence(
    electronTriggerMatchHltElectrons +
-   electronTriggerMatchL1Electrons  +
-   muonTriggerMatchL1Muons          +
-   muonTriggerMatchAll              +
-   muonTriggerMatchNone             +
-   tauTriggerMatchTriggerTaus
+   electronTriggerMatchL1Electrons
+)
+patTriggerMuonMatcher = cms.Sequence(
+   muonTriggerMatchL1Muons +
+   muonTriggerMatchAll     +
+   muonTriggerMatchNone
+)
+patTriggerTauMatcher = cms.Sequence(
+    tauTriggerMatchTriggerTaus
+)
+# patTriggerJetMatcher = cms.Sequence(
+# )
+# patTriggerMETMatcher = cms.Sequence(
+# )
+
+# patTriggerMatcher = cms.Sequence(
+#     patTriggerPhotonMatcher   +
+#     patTriggerElectronMatcher +
+#     patTriggerMuonMatcher     +
+#     patTriggerTauMatcher      +
+#     patTriggerJetMatcher      +
+#     patTriggerMETMatcher
+# )
+patTriggerMatcher = cms.Sequence(
+    patTriggerElectronMatcher +
+    patTriggerMuonMatcher     +
+    patTriggerTauMatcher
 )

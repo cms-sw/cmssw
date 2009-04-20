@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 def switchOffTriggerMatchingOld( process ):
     """ Disables old style trigger matching in PAT  """
-    process.patDefaultSequence.remove( process.patTrigMatch )
+#     process.patDefaultSequence.remove( process.patTrigMatch )
     process.allLayer1Electrons.addTrigMatch = False
     process.allLayer1Muons.addTrigMatch     = False
     process.allLayer1Jets.addTrigMatch      = False
@@ -14,7 +14,7 @@ def switchOffTriggerMatchingOld( process ):
 def switchTriggerOff( process ):
     switchOffTriggerMatchingOld( process )
 
-from PhysicsTools.PatAlgos.patEventContent_cff import patTriggerEventContent, patTriggerStandAloneEventContent
+from PhysicsTools.PatAlgos.patEventContent_cff import *
     
 def switchOnTrigger( process ):
     """ Enables trigger information in PAT  """
@@ -35,3 +35,7 @@ def switchOnTriggerStandAlone( process ):
 def switchOnTriggerAll( process ):
     switchOnTrigger( process )
     process.out.outputCommands += patTriggerStandAloneEventContent
+
+def switchOnTriggerMatchEmbedding( process ):
+    process.patTriggerSequence += process.patTriggerMatchEmbedder
+    process.out.outputCommands += patEventContentTriggerMatch
