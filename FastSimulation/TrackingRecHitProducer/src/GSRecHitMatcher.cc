@@ -123,9 +123,13 @@ SiTrackerGSMatchedRecHit2D * GSRecHitMatcher::match(const SiTrackerGSRecHit2D *m
 								    stereoRH->simMultY()
 								    );
     
-    return new SiTrackerGSMatchedRecHit2D(position, error,gluedDet->geographicalId(), monoRH->simhitId(), 
-					  monoRH->simtrackId(), monoRH->eeId(), monoRH->cluster(), monoRH->simMultX(), monoRH->simMultY(), 
-					  true, adjustedMonoRH, adjustedStereoRH);
+    SiTrackerGSMatchedRecHit2D *rV= new SiTrackerGSMatchedRecHit2D(position, error,gluedDet->geographicalId(), monoRH->simhitId(), 
+								   monoRH->simtrackId(), monoRH->eeId(), monoRH->cluster(), 
+								   monoRH->simMultX(), monoRH->simMultY(), 
+								   true, adjustedMonoRH, adjustedStereoRH);
+    delete adjustedMonoRH;
+    delete adjustedStereoRH;
+    return rV;
   }
   
   else {
