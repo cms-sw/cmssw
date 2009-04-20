@@ -1,3 +1,7 @@
+// -*- C++ -*-
+#ifndef Fireworks_Core_FWColorSelect_h
+#define Fireworks_Core_FWColorSelect_h
+
 #include <vector>
 #include <TQObject.h>
 #include <RQ_OBJECT.h>
@@ -158,3 +162,4 @@ public:
    ClassDef(FWColorSelect, 0);
 
 };
+#endif
