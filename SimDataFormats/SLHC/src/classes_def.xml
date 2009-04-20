@@ -1,0 +1,20 @@
+<lcgdict>
+
+ <class name="L1CaloTriggerSetup"/>
+
+ <class name="l1slhc::L1CaloTower"/>
+ <class name="l1slhc::L1CaloCluster"/>
+ <class name="l1slhc::L1CaloJet"/>
+
+ <class name="std::map<int,l1slhc::L1CaloTower>"/>
+ <class name="std::vector<l1slhc::L1CaloTower>"/>
+ <class name="edm::Wrapper< std::vector< l1slhc::L1CaloTower > >"/>
+
+ <class name="std::vector<l1slhc::L1CaloCluster>"/>
+ <class name="edm::Wrapper< std::vector< l1slhc::L1CaloCluster > >"/>
+
+ <class name="std::vector<l1slhc::L1CaloJet>"/>
+ <class name="edm::Wrapper< std::vector< l1slhc::L1CaloJet > >"/>
+
+
+</lcgdict>
