@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.113 2009/04/13 16:13:04 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.114 2009/04/14 11:03:02 amraktad Exp $
 //
 
 // system include files
@@ -103,6 +103,17 @@ enum {kSaveConfiguration,
 //
 FWGUIManager* FWGUIManager::m_guiManager = 0;
 
+static 
+void
+setBackgroundName(CSGAction* iAction, FWColorManager* iCM)
+{
+   if(0==iAction || 0==iCM) {return;}
+   if(FWColorManager::kBlackIndex == iCM->backgroundColorIndex()) {
+      iAction->setMenuLabel(cmsshow::sBackgroundColor+" to White");
+   } else {
+      iAction->setMenuLabel(cmsshow::sBackgroundColor+" to Black");   
+   }
+}
 //
 // constructors and destructor
 //
@@ -179,7 +190,8 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       assert(getAction(cmsshow::sKeyboardShort) != 0);
       getAction(cmsshow::sKeyboardShort)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createShortcutPopup));
       getAction(cmsshow::sBackgroundColor)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::changeBackgroundColor));
-      
+      setBackgroundName(getAction(cmsshow::sBackgroundColor), m_colorManager);
+
       // toolbar special widget with non-void actions
       m_cmsShowMainFrame->m_delaySliderListener->valueChanged_.connect(boost::bind(&FWGUIManager::delaySliderChanged,this,_1));
 
@@ -859,7 +871,8 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       mainWindow.addKeyValue("y",FWConfiguration(s.str()));
    }
 
-   oTo.addKeyValue(kMainWindow,mainWindow,true);
+   oTo.addKeyValue(kMainWindow,mainWindow,true);
+
 
 
 
@@ -1164,12 +1177,13 @@ FWGUIManager::changeBackgroundColor()
    } else {
       m_colorManager->setBackgroundColorIndex(FWColorManager::kBlackIndex);
    }
+   setBackgroundName(getAction(cmsshow::sBackgroundColor), m_colorManager);
 }
 
 void 
 FWGUIManager::finishUpColorChange()
 {
-   gEve->FullRedraw3D();
+   gEve->FullRedraw3D(kFALSE,kTRUE);
 }
 
 //
