@@ -20,6 +20,7 @@ DisplayEventContent = cms.PSet(
         'keep recoPFJets_*_*_*', 
         'keep recoCaloMETs_*_*_*', 
         'keep recoPFMETs_*_*_*', 
+        'keep recoMETs_tcMet_*_*', 
         'keep recoGenParticles_*_*_*', 
         'keep recoGenParticlesRefs_*_*_*', 
         'keep CaloTowersSorted_towerMaker_*_*', 
