@@ -9,5 +9,6 @@ pfMETBenchmark = cms.EDAnalyzer("PFMETBenchmarkAnalyzer",
     pfjBenchmarkDebug = cms.bool(False),                           
     PlotAgainstRecoQuantities = cms.bool(False),
     BenchmarkLabel = cms.string( pfMET ),
-    InputRecoLabel = cms.InputTag( pfMET )
+    InputRecoLabel = cms.InputTag( pfMET ),
+    InputTCLabel = cms.InputTag( 'tcMet' )
 )

@@ -14,7 +14,7 @@
 //
 // Original Author:  Michel Della Negra
 //         Created:  Wed Jan 23 10:11:13 CET 2008
-// $Id: PFMETBenchmarkAnalyzer.cc,v 1.1 2008/12/21 18:50:07 cavana Exp $
+// $Id: PFMETBenchmarkAnalyzer.cc,v 1.1 2009/03/02 16:22:55 cbern Exp $
 // Extensions by Joanna Weng
 //
 
@@ -70,6 +70,7 @@ PFMETBenchmark PFMETBenchmark_;
 InputTag sInputTruthLabel;
 InputTag sInputRecoLabel;
 InputTag sInputCaloLabel;
+InputTag sInputTCLabel;
 string OutputFileName;
 bool pfmBenchmarkDebug;
 bool xplotAgainstReco;
@@ -96,6 +97,8 @@ PFMETBenchmarkAnalyzer::PFMETBenchmarkAnalyzer(const edm::ParameterSet& iConfig)
     iConfig.getParameter<InputTag>("InputRecoLabel");
   sInputCaloLabel = 
     iConfig.getParameter<InputTag>("InputCaloLabel");
+  sInputTCLabel = 
+    iConfig.getParameter<InputTag>("InputTCLabel");
   OutputFileName = 
     iConfig.getUntrackedParameter<string>("OutputFile");
   pfmBenchmarkDebug = 
@@ -138,11 +141,19 @@ PFMETBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     return;
   }
 
-  // get rec PFJet collection
+  // get rec PFMet collection
   Handle<PFMETCollection> pfmets;
   bool isReco = iEvent.getByLabel(sInputRecoLabel, pfmets);   
   if (!isReco) { 
     std::cout << "Warning : no PF MET in input !" << std::endl;
+    return;
+  }
+
+  // get rec TCMet collection
+  Handle<METCollection> tcmets;
+  bool isTC = iEvent.getByLabel(sInputTCLabel, tcmets);   
+  if (!isTC) { 
+    std::cout << "Warning : no TC MET in input !" << std::endl;
     return;
   }
 
@@ -154,7 +165,7 @@ PFMETBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
 
   // Analyse (no "z" in "analyse" : we are in Europe, dammit!) 
-  PFMETBenchmark_.process(*pfmets, *genparticles, *calomets);
+  PFMETBenchmark_.process(*pfmets, *genparticles, *calomets, *tcmets);
 }
 
 

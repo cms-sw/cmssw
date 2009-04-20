@@ -9,5 +9,6 @@ pfMETBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     StartFromGen = cms.bool(False),
     PlotAgainstRecoQuantities = cms.bool(False),
     BenchmarkLabel = cms.string( MET ),
-    InputRecoLabel = cms.InputTag( MET )
+    InputRecoLabel = cms.InputTag( MET ),
+    InputTCLabel = cms.InputTag( 'tcMet' )
 )

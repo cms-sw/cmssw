@@ -5,6 +5,8 @@
 
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
@@ -48,25 +50,42 @@ class PFMETBenchmark {
              std::string benchmarkLabel_ = "ParticleFlow", 
 	     DQMStore * dbe_store = NULL
 	     );
-  void process(const reco::PFMETCollection& , const reco::GenParticleCollection&, const reco::CaloMETCollection& );
-  void calculateQuantities(const reco::PFMETCollection&, const reco::GenParticleCollection&, const reco::CaloMETCollection& );
+  void process(const reco::PFMETCollection& , 
+	       const reco::GenParticleCollection&, 
+	       const reco::CaloMETCollection&, 
+	       const reco::METCollection& );
+  void calculateQuantities(const reco::PFMETCollection&, 
+			   const reco::GenParticleCollection&, 
+			   const reco::CaloMETCollection&,
+			   const reco::METCollection&);
   float getTrueMET(){return true_met;}
   float getTruePhi(){return true_phi;}
   float getTrueSET(){return true_set;}
   float getPFMET(){return rec_met;}
-  float getPFMEX(){return rec_mex;}
+  float getPFMEX(){return rec_mex-true_mex;}
+  float getPFMEY(){return rec_mey-true_mey;}
   float getPFPhi(){return rec_phi;}
   float getPFSET(){return rec_set;}
   float getCaloMET(){return calo_met;}
-  float getCaloMEX(){return calo_mex;}
+  float getCaloMEX(){return calo_mex-true_mex;}
+  float getCaloMEY(){return calo_mey-true_mey;}
   float getCaloPhi(){return calo_phi;}
   float getCaloSET(){return calo_set;}
+  float getTCMET(){return tc_met;}
+  float getTCMEX(){return tc_mex-true_mex;}
+  float getTCMEY(){return tc_mey-true_mey;}
+  float getTCPhi(){return tc_phi;}
+  float getTCSET(){return tc_set;}
   float getDeltaPFMET(){return rec_met - true_met;}
-  float getDeltaPFPhi(){return rec_phi - true_phi;}
+  float getDeltaPFPhi(){return mpi_pi(rec_phi - true_phi);}
   float getDeltaPFSET(){return rec_set - true_set;}
   float getDeltaCaloMET(){return calo_met - true_met;}
-  float getDeltaCaloPhi(){return calo_phi - true_phi;}
+  float getDeltaCaloPhi(){return mpi_pi(calo_phi - true_phi);}
   float getDeltaCaloSET(){return calo_set - true_set;}
+  float getDeltaTCMET(){return tc_met - true_met;}
+  float getDeltaTCPhi(){return mpi_pi(tc_phi - true_phi);}
+  float getDeltaTCSET(){return tc_set - true_set;}
+  double mpi_pi(double angle);
   void analyse();
   void FitSlicesInY(TH2F*, TH1F*, TH1F*, bool, int);
   void write();
@@ -95,6 +114,15 @@ class PFMETBenchmark {
   TH1F* hDeltaCaloPhi;
   TH1F* hDeltaCaloSET;
 
+  TProfile* profileTCSETvsTCSETresp;
+  TProfile* profileTCMETvsTCMETresp;
+  TH2F* hTCSETvsDeltaTCSET;
+  TH2F* hTCSETvsDeltaTCMET;
+  TH1F* hTCMEX;
+  TH1F* hDeltaTCMET;
+  TH1F* hDeltaTCPhi;
+  TH1F* hDeltaTCSET;
+
   TH1F *hmeanPF;   
   TH1F *hmeanCalo; 
   TH1F *hsigmaPF;  
@@ -106,15 +134,24 @@ class PFMETBenchmark {
 
   double true_set;
   double true_met;
+  double true_mex;
+  double true_mey;
   double true_phi;
   double rec_met;
   double rec_mex;
+  double rec_mey;
   double rec_phi;
   double rec_set;
   double calo_met;
   double calo_mex;
+  double calo_mey;
   double calo_phi;
   double calo_set;
+  double tc_met;
+  double tc_mex;
+  double tc_mey;
+  double tc_phi;
+  double tc_set;
 
  protected:
 		

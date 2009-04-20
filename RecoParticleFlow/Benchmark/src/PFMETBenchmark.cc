@@ -88,23 +88,32 @@ void PFMETBenchmark::setup(
   }
 	
   // delta Pt or E quantities for Barrel
-  BOOK1D(MEX,"Particle Flow",50,-200,200);
-  BOOK1D(DeltaMET,"Particle Flow",50,-200,200);
-  BOOK1D(DeltaPhi,"Particle Flow", 50, -3.2, 3.2);
-  BOOK1D(DeltaSET,"Particle Flow",50,-200,200);
-  BOOK2D(SETvsDeltaMET,"Particle Flow",100, 0.0, 1000.0, 20, -200.0, 200.0);        
-  BOOK2D(SETvsDeltaSET,"Particle Flow",100, 0.0, 1000.0, 20, -200.0, 200.0);       
-  profileSETvsSETresp = new TProfile("#DeltaPSET / PSET vs PSET", "", 50, 0.0, 1000.0, -1.0, 1.0);
-  profileMETvsMETresp = new TProfile("#DeltaPMET / PMET vs PMET", "", 10, 0.0,  200.0, -1.0, 1.0);
+  BOOK1D(MEX,"Particle Flow",400,-200,200);
+  BOOK1D(DeltaMET,"Particle Flow",400,-200,200);
+  BOOK1D(DeltaPhi,"Particle Flow", 1000, -3.2, 3.2);
+  BOOK1D(DeltaSET,"Particle Flow",400,-200,200);
+  BOOK2D(SETvsDeltaMET,"Particle Flow",200, 0.0, 1000.0, 400, -200.0, 200.0);        
+  BOOK2D(SETvsDeltaSET,"Particle Flow",200, 0.0, 1000.0, 400, -200.0, 200.0);       
+  profileSETvsSETresp = new TProfile("#DeltaPSET / PSET vs PSET", "", 200, 0.0, 1000.0, -1.0, 1.0);
+  profileMETvsMETresp = new TProfile("#DeltaPMET / PMET vs PMET", "", 50, 0.0,  200.0, -1.0, 1.0);
 	
-  BOOK1D(CaloMEX,"Calorimeter",50,-200,200);
-  BOOK1D(DeltaCaloMET,"Calorimeter",50,-200,200);
-  BOOK1D(DeltaCaloPhi,"Calorimeter", 50, -3.2, 3.2);
-  BOOK1D(DeltaCaloSET,"Calorimeter",50,-200,200);
-  BOOK2D(CaloSETvsDeltaCaloMET,"Calorimeter",100, 0.0, 1000.0, 20, -200.0, 200.0);        
-  BOOK2D(CaloSETvsDeltaCaloSET,"Calorimeter",100, 0.0, 1000.0, 20, -200.0, 200.0);       
-  profileCaloSETvsCaloSETresp = new TProfile("#DeltaCaloSET / CaloSET vs CaloSET", "", 50, 0.0, 1000.0, -1.0, 1.0);
-  profileCaloMETvsCaloMETresp = new TProfile("#DeltaCaloMET / CaloMET vs CaloMET", "", 10, 0.0,  200.0, -1.0, 1.0);
+  BOOK1D(CaloMEX,"Calorimeter",400,-200,200);
+  BOOK1D(DeltaCaloMET,"Calorimeter",400,-200,200);
+  BOOK1D(DeltaCaloPhi,"Calorimeter", 1000, -3.2, 3.2);
+  BOOK1D(DeltaCaloSET,"Calorimeter",400,-200,200);
+  BOOK2D(CaloSETvsDeltaCaloMET,"Calorimeter",200, 0.0, 1000.0, 400, -200.0, 200.0);        
+  BOOK2D(CaloSETvsDeltaCaloSET,"Calorimeter",200, 0.0, 1000.0, 400, -200.0, 200.0);       
+  profileCaloSETvsCaloSETresp = new TProfile("#DeltaCaloSET / CaloSET vs CaloSET", "", 200, 0.0, 1000.0, -1.0, 1.0);
+  profileCaloMETvsCaloMETresp = new TProfile("#DeltaCaloMET / CaloMET vs CaloMET", "", 200, 0.0,  200.0, -1.0, 1.0);
+	
+  BOOK1D(TCMEX,"Track Corrected",400,-200,200);
+  BOOK1D(DeltaTCMET,"Track Corrected",400,-200,200);
+  BOOK1D(DeltaTCPhi,"Track Corrected", 1000, -3.2, 3.2);
+  BOOK1D(DeltaTCSET,"Track Corrected",400,-200,200);
+  BOOK2D(TCSETvsDeltaTCMET,"Track Corrected",200, 0.0, 1000.0, 400, -200.0, 200.0);        
+  BOOK2D(TCSETvsDeltaTCSET,"Track Corrected",200, 0.0, 1000.0, 400, -200.0, 200.0);       
+  profileTCSETvsTCSETresp = new TProfile("#DeltaTCSET / TCSET vs TCSET", "", 200, 0.0, 1000.0, -1.0, 1.0);
+  profileTCMETvsTCMETresp = new TProfile("#DeltaTCMET / TCMET vs TCMET", "", 200, 0.0,  200.0, -1.0, 1.0);
 	
   BOOK1D(meanPF,    "Mean PFMEX", 100, 0.0, 1600.0);
   BOOK1D(meanCalo,  "Mean CaloMEX", 100, 0.0, 1600.0);
@@ -128,43 +137,73 @@ void PFMETBenchmark::setup(
   SETAXES(DeltaCaloSET, "#DeltaSET",  "Events");
   SETAXES(CaloSETvsDeltaCaloMET, "SET", "#DeltaMET");
   SETAXES(CaloSETvsDeltaCaloSET, "SET", "#DeltaSET");
+
+  SETAXES(TCMEX, "MEX",  "Events");
+  SETAXES(DeltaTCMET, "#DeltaMET",  "Events");
+  SETAXES(DeltaTCPhi, "#Delta#phi", "Events");
+  SETAXES(DeltaTCSET, "#DeltaSET",  "Events");
+  SETAXES(TCSETvsDeltaTCMET, "SET", "#DeltaMET");
+  SETAXES(TCSETvsDeltaTCSET, "SET", "#DeltaSET");
 }
 
 
 //void PFMETBenchmark::process(const reco::PFMETCollection& pfMets, const reco::GenMETCollection& genMets) {
-void PFMETBenchmark::process( const reco::PFMETCollection& pfMets, const reco::GenParticleCollection& genParticleList, const reco::CaloMETCollection& caloMets ) 
-{
-  calculateQuantities(pfMets, genParticleList, caloMets);
+void PFMETBenchmark::process( const reco::PFMETCollection& pfMets, 
+			      const reco::GenParticleCollection& genParticleList, 
+			      const reco::CaloMETCollection& caloMets,
+			      const reco::METCollection& tcMets ) {
+  calculateQuantities(pfMets, genParticleList, caloMets, tcMets);
   if (debug_) {
     cout << "  =========PFMET  " << rec_met  << ", " << rec_phi  << endl;
     cout << "  =========GenMET " << true_met << ", " << true_phi << endl;
+    cout << "  =========CaloMET " << calo_met << ", " << calo_phi << endl;
+    cout << "  =========TCMET " << tc_met << ", " << tc_phi << endl;
   }			
   // fill histograms
   // delta Pt or E quantities
+  // PF
   hDeltaMET->Fill( rec_met - true_met );
-  hMEX->Fill( rec_mex );
+  hMEX->Fill( rec_mex - true_mex );
+  hMEX->Fill( rec_mey - true_mey );
   hDeltaPhi->Fill( rec_phi - true_phi );
   hDeltaSET->Fill( rec_set - true_set );
   if( true_met > 5.0 ) hSETvsDeltaMET->Fill( rec_set, rec_met - true_met );
-  else                 hSETvsDeltaMET->Fill( rec_set, rec_mex );
+  else                 hSETvsDeltaMET->Fill( rec_set, rec_mex - true_mex );
   hSETvsDeltaSET->Fill( rec_set, rec_set - true_set );
   if( true_met > 5.0 ) profileMETvsMETresp->Fill(true_met, (rec_met-true_met)/true_met);
   profileSETvsSETresp->Fill(true_set, (rec_set-true_set)/true_set);
+  // Calo
   hDeltaCaloMET->Fill( calo_met - true_met );
-  hCaloMEX->Fill( calo_mex );
+  hCaloMEX->Fill( calo_mex - true_mex);
+  hCaloMEX->Fill( calo_mey - true_mey);
   hDeltaCaloPhi->Fill( calo_phi - true_phi );
   hDeltaCaloSET->Fill( calo_set - true_set );
   if( true_met > 5.0 ) hCaloSETvsDeltaCaloMET->Fill( calo_set, calo_met - true_met );
-  else                 hCaloSETvsDeltaCaloMET->Fill( calo_set, calo_mex );
+  else                 hCaloSETvsDeltaCaloMET->Fill( calo_set, calo_mex - true_mex);
   hCaloSETvsDeltaCaloSET->Fill( calo_set, calo_set - true_set );
   if( true_met > 5.0 ) profileCaloMETvsCaloMETresp->Fill(true_met, (calo_met-true_met)/true_met);
   profileCaloSETvsCaloSETresp->Fill(true_set, (calo_set-true_set)/true_set);
+  // TC
+  hDeltaTCMET->Fill( tc_met - true_met );
+  hTCMEX->Fill( tc_mex - true_mex);
+  hTCMEX->Fill( tc_mey - true_mey);
+  hDeltaTCPhi->Fill( tc_phi - true_phi );
+  hDeltaTCSET->Fill( tc_set - true_set );
+  if( true_met > 5.0 ) hTCSETvsDeltaTCMET->Fill( tc_set, tc_met - true_met );
+  else                 hTCSETvsDeltaTCMET->Fill( tc_set, tc_mex - true_mex);
+  hTCSETvsDeltaTCSET->Fill( tc_set, tc_set - true_set );
+  if( true_met > 5.0 ) profileTCMETvsTCMETresp->Fill(true_met, (tc_met-true_met)/true_met);
+  profileTCSETvsTCSETresp->Fill(true_set, (tc_set-true_set)/true_set);
 }
 
-void PFMETBenchmark::calculateQuantities( const reco::PFMETCollection& pfMets, const reco::GenParticleCollection& genParticleList, const reco::CaloMETCollection& caloMets ) 
+void PFMETBenchmark::calculateQuantities( const reco::PFMETCollection& pfMets, 
+					  const reco::GenParticleCollection& genParticleList, 
+					  const reco::CaloMETCollection& caloMets,
+					  const reco::METCollection& tcMets) 
 {
   const reco::PFMET&    pfm = pfMets[0];
   const reco::CaloMET&  cm  = caloMets[0];
+  const reco::MET&  tcm  = tcMets[0];
 
   double trueMEY  = 0.0;
   double trueMEX  = 0.0;;
@@ -183,20 +222,31 @@ void PFMETBenchmark::calculateQuantities( const reco::PFMETCollection& pfMets, c
       }
     }
   }
+  true_mex = -trueMEX;
+  true_mey = -trueMEY;
   true_met = sqrt( trueMEX*trueMEX + trueMEY*trueMEY );
   true_phi = atan2(trueMEY,trueMEX);
   rec_met  = pfm.pt();
   rec_mex  = pfm.px();
+  rec_mex  = pfm.py();
   rec_phi  = pfm.phi();
   rec_set  = pfm.sumEt();
   calo_met = cm.pt();
   calo_mex = cm.px();
+  calo_mey = cm.py();
   calo_phi = cm.phi();
   calo_set = cm.sumEt();
+  tc_met = tcm.pt();
+  tc_mex = tcm.px();
+  tc_mey = tcm.py();
+  tc_phi = tcm.phi();
+  tc_set = tcm.sumEt();
 
   if (debug_) {
     cout << "  =========PFMET  " << rec_met  << ", " << rec_phi  << endl;
     cout << "  =========trueMET " << true_met << ", " << true_phi << endl;
+    cout << "  =========CaloMET " << calo_met << ", " << calo_phi << endl;
+    cout << "  =========TCMET " << tc_met << ", " << tc_phi << endl;
   }			
 }
 
@@ -389,4 +439,15 @@ void PFMETBenchmark::FitSlicesInY(TH2F* h, TH1F* mean, TH1F* sigma, bool doGausF
   *mean = *hlist[1];
   *sigma = *hlist[2];
   //cout << "Entries = " << hlist[0]->GetEntries() << endl;
+}
+
+double   
+PFMETBenchmark::mpi_pi(double angle) {
+
+  const double pi = 3.14159265358979323;
+  const double pi2 = pi*2.;
+  while(angle>pi) angle -= pi2;
+  while(angle<-pi) angle += pi2;
+  return angle;
+
 }
