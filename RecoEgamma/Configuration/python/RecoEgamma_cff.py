@@ -3,13 +3,14 @@ import FWCore.ParameterSet.Config as cms
 from RecoEgamma.EgammaElectronProducers.electronSequence_cff import *
 from RecoEgamma.EgammaPhotonProducers.photonSequence_cff import *
 from RecoEgamma.EgammaPhotonProducers.conversionSequence_cff import *
+from RecoEgamma.EgammaPhotonProducers.trackerOnlyConversionSequence_cff import *
 from RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff import *
 from RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoDetIdsSequence_cff import *
 from RecoEgamma.PhotonIdentification.photonId_cff import *
 from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
 from RecoEgamma.EgammaHFProducers.hfEMClusteringSequence_cff import *
 
-egammareco = cms.Sequence(electronSequence*conversionSequence*photonSequence)
+egammareco = cms.Sequence(electronSequence*conversionSequence*trackerOnlyConversionSequence*photonSequence)
 egammarecoFull = cms.Sequence(egammareco*interestingEgammaIsoDetIds*photonIDSequence*eIdSequence*hfEMClusteringSequence)
 egammarecoWithID = cms.Sequence(egammareco*photonIDSequence*eIdSequence)
 egammareco_woConvPhotons = cms.Sequence(electronSequence*photonSequence)
