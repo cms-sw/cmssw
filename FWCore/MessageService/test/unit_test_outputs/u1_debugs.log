@@ -1,8 +1,8 @@
 Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
-%MSG-! cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1 UnitTestClient_A.cc:19
+%MSG-d cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1 UnitTestClient_A.cc:19
 LogDebug was used to send this message
 %MSG
-%MSG-! cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1 UnitTestClient_A.cc:20
+%MSG-d cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1 UnitTestClient_A.cc:20
 LogDebug was used to send this other message
 %MSG
 %MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
@@ -24,10 +24,10 @@ LogInfo was used to send this message
 LogInfo was used to send this other message
 %MSG
 Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp} 
-%MSG-! cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2 UnitTestClient_A.cc:19
+%MSG-d cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2 UnitTestClient_A.cc:19
 LogDebug was used to send this message
 %MSG
-%MSG-! cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2 UnitTestClient_A.cc:20
+%MSG-d cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2 UnitTestClient_A.cc:20
 LogDebug was used to send this other message
 %MSG
 %MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2

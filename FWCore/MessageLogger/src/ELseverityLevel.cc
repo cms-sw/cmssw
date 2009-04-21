@@ -34,7 +34,8 @@
 // 24-Aug-2000 web      Fix defective C++ switch generation
 // 13-Jun-2007 mf       Change (requested by CMS) the name Severe to System
 //			(since that his how MessageLogger uses that level)
-//
+// 21-Apr-2009 mf	Change the symbol for ELsev_success (which is used
+//                      by CMS for LogDebug) from -! to -d.  
 // ----------------------------------------------------------------------
 
 #include <ostream>
@@ -211,7 +212,7 @@ const ELstring  ELseverityLevel::getSymbol() const  {
     default                   :  result =  "0" ; break;
     case ELsev_zeroSeverity   :  result =  "--"; break;
     case ELsev_incidental     :  result =  ".."; break;
-    case ELsev_success        :  result =  "-!"; break;
+    case ELsev_success        :  result =  "-d"; break;		// 4/21/09 mf
     case ELsev_info           :  result =  "-i"; break;
     case ELsev_warning        :  result =  "-w"; break;
     case ELsev_warning2       :  result =  "-W"; break;
@@ -237,7 +238,7 @@ const ELstring  ELseverityLevel::getName() const  {
     default                   :  result =  "?no value?"; break;
     case ELsev_zeroSeverity   :  result =  "--"        ; break;
     case ELsev_incidental     :  result =  ".."        ; break;
-    case ELsev_success        :  result =  "Success"   ; break;
+    case ELsev_success        :  result =  "Debug"     ; break; // 4/21/09 mf
     case ELsev_info           :  result =  "Info"      ; break;
     case ELsev_warning        :  result =  "Warning"   ; break;
     case ELsev_warning2       :  result =  "Warning!"  ; break;
@@ -289,7 +290,7 @@ const ELstring  ELseverityLevel::getVarName() const  {
     default                   : result =  "?no value?       "; break;
     case ELsev_zeroSeverity   : result =  "ELzeroSeverity   "; break;
     case ELsev_incidental     : result =  "ELincidental     "; break;
-    case ELsev_success        : result =  "ELsuccess        "; break;
+    case ELsev_success        : result =  "ELdebug          "; break;// 4/21/09
     case ELsev_info           : result =  "ELinfo           "; break;
     case ELsev_warning        : result =  "ELwarning        "; break;
     case ELsev_warning2       : result =  "ELwarning2       "; break;
