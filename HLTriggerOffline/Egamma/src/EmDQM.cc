@@ -26,6 +26,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 ////////////////////////////////////////////////////////////////////////////////
 //                           Root include files                               //
 ////////////////////////////////////////////////////////////////////////////////
@@ -393,15 +394,15 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
     //   theHLTOutputTypes = cms.uint32(100)
     switch(theHLTOutputTypes[n]) 
     {
-      case 82: // Non-isolated Level 1
+      case trigger::TriggerL1NoIsoEG: // Non-isolated Level 1
         fillHistos<l1extra::L1EmParticleCollection>(triggerObj,event,n,sortedGen);break;
-      case 83: // Isolated Level 1
+      case trigger::TriggerL1IsoEG: // Isolated Level 1
         fillHistos<l1extra::L1EmParticleCollection>(triggerObj,event,n,sortedGen);break;
-      case 91: // Photon 
+      case trigger::TriggerPhoton: // Photon 
         fillHistos<reco::RecoEcalCandidateCollection>(triggerObj,event,n,sortedGen);break;
-      case 92: // Electron 
+      case trigger::TriggerElectron: // Electron 
         fillHistos<reco::ElectronCollection>(triggerObj,event,n,sortedGen);break;
-      case 100: // TriggerCluster
+      case trigger::TriggerCluster: // TriggerCluster
         fillHistos<reco::RecoEcalCandidateCollection>(triggerObj,event,n,sortedGen);break;
       default: 
         throw(cms::Exception("Release Validation Error") << "HLT output type not implemented: theHLTOutputTypes[n]" );
@@ -427,9 +428,9 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
   triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[n]),theHLTOutputTypes[n],recoecalcands);
   //Danger: special case, L1 non-isolated
   // needs to be merged with L1 iso
-  if (theHLTOutputTypes[n] == 82){
+  if (theHLTOutputTypes[n] == trigger::TriggerL1NoIsoEG){
     std::vector<edm::Ref<T> > isocands;
-    triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[n]),83,isocands);
+    triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[n]),trigger::TriggerL1IsoEG,isocands);
     if (isocands.size()>0) 
       {
 	for (unsigned int i=0; i < isocands.size(); i++)
