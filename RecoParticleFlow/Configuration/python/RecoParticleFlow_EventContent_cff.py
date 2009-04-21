@@ -10,18 +10,21 @@ RecoParticleFlowFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('drop CaloTowersSorted_towerMakerPF_*_*', 
         'keep recoPFClusters_*_*_*',
         'keep recoPFBlocks_*_*_*', 
-        'keep recoPFCandidates_*_*_*')
+        'keep recoPFCandidates_*_*_*',
+        'keep *_pfElectronTranslator_*_*')
 )
 # RECO content
 RecoParticleFlowRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('drop CaloTowersSorted_towerMakerPF_*_*', 
         'keep recoPFClusters_*_*_*', 
         'keep recoPFBlocks_*_*_*',
-        'keep recoPFCandidates_*_*_*')
+        'keep recoPFCandidates_*_*_*',
+        'keep *_pfElectronTranslator_*_*')
 )
 # AOD content
 RecoParticleFlowAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('drop CaloTowersSorted_towerMakerPF_*_*',
-        'keep recoPFCandidates_*_*_*')
+        'keep recoPFCandidates_*_*_*',
+        'keep *_pfElectronTranslator_*_*')
 )
 
