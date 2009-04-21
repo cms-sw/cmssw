@@ -8,7 +8,7 @@
 // Purpose: do_nothing_deleter provides a way to use boost::shared_ptr
 // or boost::shared_array for those cases where the object or array
 // may be either in dynamic (heap) storage, or in static storage,
-// as long as which of these applies when the shared_ptr or shared_array
+// as long as which of these applies is known when the shared_ptr or shared_array
 // is constructed.
 //
 // For objects:
@@ -25,7 +25,7 @@
 // boost::shared_array<T> (new T(...)[]);
 
 // If the array "t" is in static storage, use
-// boost::shared_ptr<T> (t, do_nothing_deleter());
+// boost::shared_array<T> (t, do_nothing_deleter());
 //
 //
 // ----------------------------------------------------------------------
