@@ -59,8 +59,9 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //    std::cout << "source HepMCProduct found"<< std::endl;
   }
   
-  HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evtMC->GetEvent()));
-  for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
+
+  const HepMC::GenEvent * myGenEvent = evtMC->GetEvent();
+  for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
 	p != myGenEvent->particles_end(); ++p ) {
     fphi_mc = (*p)->momentum().phi();
     feta_mc = (*p)->momentum().eta();
