@@ -18,17 +18,28 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 
+#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
+
 #include <vector>
 using namespace std;
 
 /*****************************************************************************/
 ClusterShapeTrajectoryFilter::ClusterShapeTrajectoryFilter
- (const GlobalTrackingGeometry* theTracker_,
-  const MagneticField* theMagneticField_)
+ (const GlobalTrackingGeometry * theTracker,
+  const MagneticField          * theMagneticField,
+  const SiPixelLorentzAngle    * theSiPixelLorentzAngle,
+  const SiStripLorentzAngle    * theSiStripLorentzAngle)
+/*
   : theTracker(theTracker_), 
-    theMagneticField(theMagneticField_)
+    theMagneticField(theMagneticField_),
+    theSiPixelLorentzAngle(theSiPixelLorentzAngle_),
+    theSiStripLorentzAngle(theSiStripLorentzAngle_)
+*/
 {
-  theFilter = new ClusterShapeHitFilter(theTracker, theMagneticField);
+  theFilter = new ClusterShapeHitFilter(theTracker, theMagneticField,
+                                        theSiPixelLorentzAngle,
+                                        theSiStripLorentzAngle);
 }
 
 /*****************************************************************************/

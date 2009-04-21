@@ -5,7 +5,7 @@
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrajectoryFilter.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
@@ -37,7 +37,7 @@ ClusterShapeTrajectoryFilterESProducer::~ClusterShapeTrajectoryFilterESProducer
 /*****************************************************************************/
 ClusterShapeTrajectoryFilterESProducer::ReturnType
 ClusterShapeTrajectoryFilterESProducer::produce
-   (const TrackingComponentsRecord &iRecord)
+   (const CkfComponentsRecord &iRecord)
 {
   using namespace edm::es;
   edm::LogInfo("ClusterShapeTrajectoryFilterESProducer")
@@ -46,15 +46,25 @@ ClusterShapeTrajectoryFilterESProducer::produce
 
   // Retrieve magentic field
   edm::ESHandle<MagneticField> field;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(field);
+  iRecord.getRecord<TrackingComponentsRecord>().getRecord<IdealMagneticFieldRecord>().get(field);
 
   // Retrieve geometry
   edm::ESHandle<GlobalTrackingGeometry> geo;
-  iRecord.getRecord<GlobalTrackingGeometryRecord>().get(geo);
+  iRecord.getRecord<TrackingComponentsRecord>().getRecord<GlobalTrackingGeometryRecord>().get(geo);
+
+  // Retrieve pixel Lorentz
+  edm::ESHandle<SiPixelLorentzAngle> pixel;
+  iRecord.getRecord<TkPixelCPERecord>().getRecord<SiPixelLorentzAngleRcd>().get(pixel);
+
+  // Retrieve strip Lorentz
+  edm::ESHandle<SiStripLorentzAngle> strip;
+  iRecord.getRecord<TkStripCPERecord>().getRecord<SiStripLorentzAngleRcd>().get(strip);
 
   // Produce the filter using the plugin factory
   ClusterShapeTrajectoryFilterESProducer::ReturnType
     aFilter(new ClusterShapeTrajectoryFilter(  geo.product(),
-                                             field.product()));
+                                             field.product(),
+                                             pixel.product(),
+                                             strip.product()));
   return aFilter;
 }

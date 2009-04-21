@@ -126,12 +126,18 @@ ClusterShapeHitFilter::ClusterShapeHitFilter
 /*****************************************************************************/
 ClusterShapeHitFilter::ClusterShapeHitFilter
   (const GlobalTrackingGeometry * theTracker_,
-   const MagneticField * theMagneticField_)
+   const MagneticField          * theMagneticField_,
+   const SiPixelLorentzAngle    * theSiPixelLorentzAngle_,
+   const SiStripLorentzAngle    * theSiStripLorentzAngle_)
    : theTracker(theTracker_),
-     theMagneticField(theMagneticField_)
+     theMagneticField(theMagneticField_),
+     theSiPixelLorentzAngle(theSiPixelLorentzAngle_),
+     theSiStripLorentzAngle(theSiStripLorentzAngle_)
+
 { // called from ClusterShapeTrajectoryFilter
 
   // Hardwired numbers, since no access to Lorentz
+/*
   theAngle[GeomDetEnumerators::PixelBarrel] = 0.106;
   theAngle[GeomDetEnumerators::PixelEndcap] = 0.106;
 
@@ -139,6 +145,7 @@ ClusterShapeHitFilter::ClusterShapeHitFilter
   theAngle[GeomDetEnumerators::TOB] = 0.0310855;
   theAngle[GeomDetEnumerators::TID] = 0.0288828;
   theAngle[GeomDetEnumerators::TEC] = 0.030;
+*/
 
   // Load pixel limits
   loadPixelLimits();
@@ -271,10 +278,12 @@ pair<float,float> ClusterShapeHitFilter::getDrift
       theMagneticField->inTesla(
       pixelDet->surface().position()));
 
+/*
   double theTanLorentzAnglePerTesla = theAngle[pixelDet->type().subDetector()];
 
   if(theTanLorentzAnglePerTesla == 0.)
-     theTanLorentzAnglePerTesla =
+*/
+  double theTanLorentzAnglePerTesla =
          theSiPixelLorentzAngle->getLorentzAngle(
            pixelDet->geographicalId().rawId());
 
@@ -293,10 +302,12 @@ float ClusterShapeHitFilter::getDrift(const StripGeomDetUnit * stripDet)
       theMagneticField->inTesla(
       stripDet->surface().position()));
     
+/*
   double theTanLorentzAnglePerTesla = theAngle[stripDet->type().subDetector()];
 
   if(theTanLorentzAnglePerTesla == 0.)
-     theTanLorentzAnglePerTesla =
+*/
+  double theTanLorentzAnglePerTesla =
          theSiStripLorentzAngle->getLorentzAngle(
            stripDet->geographicalId().rawId());
     

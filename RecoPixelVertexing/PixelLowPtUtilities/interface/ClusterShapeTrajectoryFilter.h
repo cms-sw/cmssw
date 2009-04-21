@@ -7,13 +7,18 @@ class SiPixelRecHit;
 class SiStripRecHit2D;
 class GlobalTrackingGeometry;
 class MagneticField;
+class SiPixelLorentzAngle;
+class SiStripLorentzAngle;
 class ClusterShapeHitFilter;
 
 class ClusterShapeTrajectoryFilter : public TrajectoryFilter {
  public:
   ClusterShapeTrajectoryFilter
     (const GlobalTrackingGeometry * theTracker_,
-     const MagneticField * theMagneticField_);
+     const MagneticField          * theMagneticField_,
+     const SiPixelLorentzAngle    * theSiPixelLorentzAngle_,
+     const SiStripLorentzAngle    * theSiStripLorentzAngle_);
+
   virtual ~ClusterShapeTrajectoryFilter();
 
   virtual bool qualityFilter(const TempTrajectory&) const;
@@ -25,8 +30,8 @@ class ClusterShapeTrajectoryFilter : public TrajectoryFilter {
   virtual std::string name() const { return "ClusterShapeTrajectoryFilter"; }
 
  private:
-  const GlobalTrackingGeometry * theTracker;
-  const MagneticField * theMagneticField;
+//  const GlobalTrackingGeometry * theTracker;
+//  const MagneticField * theMagneticField;
 
   ClusterShapeHitFilter * theFilter;
 };

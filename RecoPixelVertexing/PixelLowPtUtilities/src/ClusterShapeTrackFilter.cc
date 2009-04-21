@@ -32,7 +32,6 @@ ClusterShapeTrackFilter::ClusterShapeTrackFilter
 
   // Get pointer to filter
   theFilter = ClusterShapeHitFilter::Instance(es, "ClusterShapeTrackFilter");
-
 }
 
 /*****************************************************************************/

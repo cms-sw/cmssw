@@ -81,9 +81,12 @@ class ClusterShapeHitFilter
 
  public:
   ClusterShapeHitFilter(const edm::EventSetup& es);
-  ClusterShapeHitFilter(const GlobalTrackingGeometry * theTracker_,
-                        const MagneticField   * theMagneticField_);
 
+  ClusterShapeHitFilter(const GlobalTrackingGeometry * theTracker_,
+                        const MagneticField          * theMagneticField_,
+                        const SiPixelLorentzAngle    * theSiPixelLorentzAngle_,
+                        const SiStripLorentzAngle    * theSiStripLorentzAngle_);
+  
   ~ClusterShapeHitFilter();
 
   bool getSizes
