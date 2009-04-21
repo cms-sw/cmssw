@@ -98,8 +98,6 @@ fixedConeHighEffPFTauDiscriminationAgainstMuon.PFTauProducer                    
 
 produceAndDiscriminateFixedConeHighEffPFTaus = cms.Sequence(
       fixedConeHighEffPFTauProducer*
-      fixedConeHighEffPFTauDecayModeProducer*
-      fixedConeHighEffPFTauDecayModeIndexProducer*
       fixedConeHighEffPFTauDiscriminationByLeadingTrackFinding*
       fixedConeHighEffPFTauDiscriminationByLeadingTrackPtCut*
       fixedConeHighEffPFTauDiscriminationByLeadingPionPtCut*
