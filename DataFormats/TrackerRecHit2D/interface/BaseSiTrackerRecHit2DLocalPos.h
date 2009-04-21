@@ -24,6 +24,10 @@ public:
   bool hasPositionAndError() const ; 
  
   virtual void getKfComponents( KfComponentsHolder & holder ) const ; 
+
+  const LocalPoint & localPositionFast()      const { return pos_; }
+  const LocalError & localPositionErrorFast() const { return err_; }
+
  private:
 
   void throwExceptionUninitialized(const char *where) const;
