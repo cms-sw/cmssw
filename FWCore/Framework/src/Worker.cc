@@ -1,6 +1,5 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.28 2008/10/08 22:34:14 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/Worker.h"
@@ -65,49 +64,68 @@ private:
 	implBeginJob(es);
     }
     catch(cms::Exception& e) {
-	// should event id be included?
 	LogError("BeginJob")
 	  << "A cms::Exception is going through " << workerType() << ":\n";
-
-	e << "A cms::Exception is going through " << workerType() << ":\n"
-	  << description();
-	throw edm::Exception(errors::OtherCMS, std::string(), e);
+	state_ = Exception;
+	e << "A cms::Exception is going through " << workerType() << ":\n";
+	exceptionContext(md_, e);
+	throw e;
     }
-    catch(std::bad_alloc& e) {
+    catch(std::bad_alloc& bda) {
 	LogError("BeginJob")
 	  << "A std::bad_alloc is going through " << workerType() << ":\n"
 	  << description() << "\n";
-	throw;
+	state_ = Exception;
+	cached_exception_.reset(new edm::Exception(errors::BadAlloc));
+	*cached_exception_
+	  << "A std::bad_alloc exception occurred during a call to the module ";
+	exceptionContext(md_, *cached_exception_)
+	  << "The job has probably exhausted the virtual memory available to the process.\n";
+	throw *cached_exception_;
     }
     catch(std::exception& e) {
 	LogError("BeginJob")
 	  << "A std::exception is going through " << workerType() << ":\n"
 	  << description() << "\n";
-	throw edm::Exception(errors::StdException)
-	  << "A std::exception is going through " << workerType() << ":\n"
-	  << description() << "\n";
+	state_ = Exception;
+	cached_exception_.reset(new edm::Exception(errors::StdException));
+	*cached_exception_
+	  << "A std::exception occurred during a call to the module ";
+        exceptionContext(md_, *cached_exception_) << "and cannot be repropagated.\n"
+	  << "Previous information:\n" << e.what();
+	throw *cached_exception_;
     }
     catch(std::string& s) {
 	LogError("BeginJob") 
-	  << "module caught an std::string during beginJob\n";
-
-	throw edm::Exception(errors::BadExceptionType)
-	  << "std::string = " << s << "\n"
-	  << description() << "\n";
+	  << "module caught a std::string during endJob\n";
+	state_ = Exception;
+	cached_exception_.reset(new edm::Exception(errors::BadExceptionType, "std::string"));
+	*cached_exception_
+	  << "A std::string thrown as an exception occurred during a call to the module ";
+        exceptionContext(md_, *cached_exception_) << "and cannot be repropagated.\n"
+	  << "Previous information:\n string = " << s;
+	throw *cached_exception_;
     }
     catch(char const* c) {
 	LogError("BeginJob") 
-	  << "module caught an const char* during beginJob\n";
-
-	throw edm::Exception(errors::BadExceptionType)
-	  << "cstring = " << c << "\n"
-	  << description();
+	  << "module caught a const char* during endJob\n";
+	state_ = Exception;
+	cached_exception_.reset(new edm::Exception(errors::BadExceptionType, "const char *"));
+	*cached_exception_
+	  << "A const char* thrown as an exception occurred during a call to the module ";
+        exceptionContext(md_, *cached_exception_) << "and cannot be repropagated.\n"
+	  << "Previous information:\n const char* = " << c << "\n";
+	throw *cached_exception_;
     }
     catch(...) {
 	LogError("BeginJob")
 	  << "An unknown Exception occured in\n" << description() << "\n";
-	throw edm::Exception(errors::Unknown)
-	  << "An unknown Exception occured in\n" << description() << "\n";
+	state_ = Exception;
+	cached_exception_.reset(new edm::Exception(errors::Unknown, "repeated"));
+	*cached_exception_
+	  << "An unknown occurred during a previous call to the module ";
+        exceptionContext(md_, *cached_exception_) << "and cannot be repropagated.\n";
+	throw *cached_exception_;
     }
   }
   
@@ -119,48 +137,68 @@ private:
     catch(cms::Exception& e) {
 	LogError("EndJob")
 	  << "A cms::Exception is going through " << workerType() << ":\n";
-
-	// should event id be included?
-	e << "A cms::Exception is going through " << workerType() << ":\n"
-	  << description();
-	throw edm::Exception(errors::OtherCMS, std::string(), e);
+	state_ = Exception;
+	e << "A cms::Exception is going through " << workerType() << ":\n";
+	exceptionContext(md_, e);
+	throw e;
     }
-    catch(std::bad_alloc& e) {
+    catch(std::bad_alloc& bda) {
 	LogError("EndJob")
 	  << "A std::bad_alloc is going through " << workerType() << ":\n"
 	  << description() << "\n";
-	throw;
+	state_ = Exception;
+	cached_exception_.reset(new edm::Exception(errors::BadAlloc));
+	*cached_exception_
+	  << "A std::bad_alloc exception occurred during a call to the module ";
+	exceptionContext(md_, *cached_exception_)
+	  << "The job has probably exhausted the virtual memory available to the process.\n";
+	throw *cached_exception_;
     }
     catch(std::exception& e) {
 	LogError("EndJob")
-	  << "An std::exception is going through " << workerType() << ":\n"
-	  << description() << "\n";
-	throw edm::Exception(errors::StdException)
 	  << "A std::exception is going through " << workerType() << ":\n"
 	  << description() << "\n";
+	state_ = Exception;
+	cached_exception_.reset(new edm::Exception(errors::StdException));
+	*cached_exception_
+	  << "A std::exception occurred during a call to the module ";
+        exceptionContext(md_, *cached_exception_) << "and cannot be repropagated.\n"
+	  << "Previous information:\n" << e.what();
+	throw *cached_exception_;
     }
     catch(std::string& s) {
 	LogError("EndJob") 
-	  << "module caught an std::string during endJob\n";
-
-	throw edm::Exception(errors::BadExceptionType)
-	  << "std::string = " << s << "\n"
-	  << description() << "\n";
+	  << "module caught a std::string during endJob\n";
+	state_ = Exception;
+	cached_exception_.reset(new edm::Exception(errors::BadExceptionType, "std::string"));
+	*cached_exception_
+	  << "A std::string thrown as an exception occurred during a call to the module ";
+        exceptionContext(md_, *cached_exception_) << "and cannot be repropagated.\n"
+	  << "Previous information:\n string = " << s;
+	throw *cached_exception_;
     }
     catch(char const* c) {
 	LogError("EndJob") 
-	  << "module caught an const char* during endJob\n";
-
-	throw edm::Exception(errors::BadExceptionType)
-	  << "cstring = " << c << "\n"
-	  << description() << "\n";
+	  << "module caught a const char* during endJob\n";
+	state_ = Exception;
+	cached_exception_.reset(new edm::Exception(errors::BadExceptionType, "const char *"));
+	*cached_exception_
+	  << "A const char* thrown as an exception occurred during a call to the module ";
+        exceptionContext(md_, *cached_exception_) << "and cannot be repropagated.\n"
+	  << "Previous information:\n const char* = " << c << "\n";
+	throw *cached_exception_;
     }
     catch(...) {
 	LogError("EndJob")
 	  << "An unknown Exception occured in\n" << description() << "\n";
-	throw edm::Exception(errors::Unknown)
-	  << "An unknown Exception occured in\n" << description() << "\n";
+	state_ = Exception;
+	cached_exception_.reset(new edm::Exception(errors::Unknown, "repeated"));
+	*cached_exception_
+	  << "An unknown occurred during a previous call to the module ";
+        exceptionContext(md_, *cached_exception_) << "and cannot be repropagated.\n";
+	throw *cached_exception_;
     }
+
   }
   
 }
