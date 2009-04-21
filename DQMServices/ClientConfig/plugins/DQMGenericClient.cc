@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2009/04/07 17:18:36 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/04/07 17:26:41 $
+ *  $Revision: 1.4 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -64,22 +64,37 @@ void DQMGenericClient::endJob()
 
     if ( subDir[subDir.size()-1] == '*' ) {
       isWildcardUsed_ = true;
+
+
       const string::size_type shiftPos = subDir.rfind('/');
-
       const string searchPath = subDir.substr(0, shiftPos);
-      theDQM->cd(searchPath);
+      string  startDir = subDir.substr(0, shiftPos);
+      std::cout << "\n\n\n\nLooking for all subdirs of " << subDir << std::endl;
+      
+      findAllSubdirectories ( startDir, &subDirSet);
+      std::set <std::string>::const_iterator iFoundDir;
+      for (iFoundDir = subDirSet.begin();
+           iFoundDir != subDirSet.end();
+           iFoundDir ++) {
+        
+        std::cout << "Found subdirectory = " << *iFoundDir
+                  << std::endl;
 
-      vector<string> foundDirs = theDQM->getSubdirs();
-      const string matchStr = subDir.substr(0, subDir.size()-2);
-
-      for(vector<string>::const_iterator iDir = foundDirs.begin();
-          iDir != foundDirs.end(); ++iDir) {
-        const string dirPrefix = iDir->substr(0, matchStr.size());
-
-        if ( dirPrefix == matchStr ) {
-          subDirSet.insert(*iDir);
-        }
       }
+        
+      //      theDQM->cd(searchPath);
+
+      //      vector<string> foundDirs = theDQM->getSubdirs();
+      //      const string matchStr = subDir.substr(0, subDir.size()-2);
+
+      //      for(vector<string>::const_iterator iDir = foundDirs.begin();
+      //          iDir != foundDirs.end(); ++iDir) {
+      //        const string dirPrefix = iDir->substr(0, matchStr.size());
+
+      //        if ( dirPrefix == matchStr ) {
+      //          subDirSet.insert(*iDir);
+      //        }
+      //      }
     }
     else {
       subDirSet.insert(subDir);
@@ -465,5 +480,34 @@ void DQMGenericClient::limitedFit(MonitorElement * srcME, MonitorElement * meanM
     }
   }
 }
+
+//=================================
+
+void DQMGenericClient::findAllSubdirectories (std::string dir, std::set<std::string> * myList){
+
+  std::cout << "Looking for directory " << dir ;
+  if (theDQM->dirExists(dir)){
+    std::cout << "... it exists! Inserting it into the list ";
+    myList->insert(dir);
+    std::cout << "... now list has size " << myList->size() << std::endl;
+      
+    theDQM->cd(dir);
+    vector <string> foundDirs = theDQM->getSubdirs();
+    for(vector<string>::const_iterator iDir = foundDirs.begin();
+        iDir != foundDirs.end(); ++iDir) {
+      findAllSubdirectories ( *iDir, myList);
+      //myList.insert((*iDir));
+    }
+  } else {
+    std::cout << "... DOES NOT EXIST!!! Skip bogus dir" << std::endl;
+    
+    LogInfo ("DQMGenericClient") << "Trying to find sub-directories of " << dir
+                                 << " failed because " << dir  << " does not exist";
+                                 
+  }
+  return;
+  
+}
+
 
 /* vim:set ts=2 sts=2 sw=2 expandtab: */

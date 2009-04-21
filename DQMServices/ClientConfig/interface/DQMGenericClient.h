@@ -6,15 +6,15 @@
  *
  *  DQM histogram post processor
  *
- *  $Date: 2009/03/27 00:16:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/04/07 17:13:05 $
+ *  $Revision: 1.2 $
  *
  *  \author Junghwan Goh - SungKyunKwan University
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include <set>
 #include <string>
 #include <vector>
 #include <boost/tokenizer.hpp>
@@ -53,6 +53,9 @@ class DQMGenericClient : public edm::EDAnalyzer
   std::string outputFileName_;
   std::vector<std::string> effCmds_, resCmds_, normCmds_, cdCmds_;
   bool resLimitedFit_;
+
+ void findAllSubdirectories (std::string dir, std::set<std::string> * myList);
+
 };
 
 #endif
