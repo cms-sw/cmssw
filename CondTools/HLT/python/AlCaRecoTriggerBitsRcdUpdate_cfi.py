@@ -9,7 +9,7 @@ AlCaRecoTriggerBitsRcdUpdate = cms.EDAnalyzer(
 
     # Start with empty list, not looking into DB:
     startEmpty = cms.bool(True),
-    # If(startEmpty) take AlCaRecoTriggerBitsRcd from EventSetup and remove the
+    # If (startEmpty==False) take AlCaRecoTriggerBitsRcd from EventSetup and remove the
     # following keys entries:
     listNamesRemove = cms.vstring(),
    
