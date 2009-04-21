@@ -379,6 +379,7 @@
   <class name="std::vector<pat::TriggerObject>::const_iterator" />
   <class name="edm::Wrapper<std::vector<pat::TriggerObject> >" />
   <class name="pat::TriggerObjectRef" />
+  <class name="std::pair<std::string, pat::TriggerObjectRef>" />
   <class name="std::map<std::string, pat::TriggerObjectRef>" />
   <class name="pat::TriggerObjectRefProd" />
   <class name="edm::Wrapper<pat::TriggerObjectRefProd>" />
@@ -390,6 +391,7 @@
 <!--   <class name="edm::reftobase::RefVectorHolder<pat::TriggerObjectRefVector>" /> -->
   <class name="edm::Wrapper<edm::Association<std::vector<pat::TriggerObject> > >" />
   <class name="edm::RefProd<edm::Association<std::vector<pat::TriggerObject> > >" />
+  <class name="std::pair<std::string, edm::RefProd<edm::Association<std::vector<pat::TriggerObject> > > >" />
   <class name="std::map<std::string, edm::RefProd<edm::Association<std::vector<pat::TriggerObject> > > >" />
   <class name="std::map<std::string, edm::RefProd<edm::Association<std::vector<pat::TriggerObject> > > >::const_iterator" />
   <class name="edm::Wrapper<std::map<std::string, edm::RefProd<edm::Association<std::vector<pat::TriggerObject> > > > >" />

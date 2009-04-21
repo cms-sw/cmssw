@@ -334,6 +334,7 @@ namespace {
   pat::TriggerObjectCollection::const_iterator v_p_to_ci;
   edm::Wrapper<pat::TriggerObjectCollection> w_v_p_to;
   pat::TriggerObjectRef r_p_to;
+  std::pair< std::string, pat::TriggerObjectRef > p_r_p_to;
   pat::TriggerObjectMatchMap m_r_p_to;
   pat::TriggerObjectRefProd rp_p_to;
   edm::Wrapper<pat::TriggerObjectRefProd> w_rp_p_to;
@@ -345,6 +346,7 @@ namespace {
 //   edm::reftobase::RefVectorHolder<pat::TriggerObjectRefVector> rvh_p_to;
   edm::Wrapper<pat::TriggerObjectMatch> w_a_p_to;
   pat::TriggerObjectMatchRefProd rp_a_p_to;
+  std::pair< std::string, pat::TriggerObjectMatchRefProd > p_rp_a_p_to;
   pat::TriggerObjectMatchContainer m_rp_a_p_to;
   pat::TriggerObjectMatchContainer::const_iterator m_rp_a_p_to_ci;
   edm::Wrapper<pat::TriggerObjectMatchContainer> w_m_rp_a_p_to;
