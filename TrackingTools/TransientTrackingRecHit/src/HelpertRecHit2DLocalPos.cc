@@ -3,6 +3,18 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
+void
+HelpertRecHit2DLocalPos::updateWithAPE(LocalError& le, const GeomDet& det) {
+  if ( det.alignmentPositionError() != 0) {
+    LocalError lape =
+      ErrorFrameTransformer().transform( det.alignmentPositionError()->globalError(),
+                                         det.surface());
+    le = LocalError(le.xx()+lape.xx(),
+                    le.xy()+lape.xy(),
+                    le.yy()+lape.yy());
+  }
+}
+
 AlgebraicSymMatrix HelpertRecHit2DLocalPos::parError( const LocalError& le,
 						      const GeomDet& det) const
 {

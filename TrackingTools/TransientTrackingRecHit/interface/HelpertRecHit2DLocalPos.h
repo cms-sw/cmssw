@@ -22,6 +22,9 @@ public:
   void getKfComponents( KfComponentsHolder & holder, 
                         const TrackingRecHit &hit2dLocalPos,
                         const GeomDet& det) const ;
+
+  static void updateWithAPE(LocalError& le, const GeomDet& det) ;
+  
 };
 
 #endif
