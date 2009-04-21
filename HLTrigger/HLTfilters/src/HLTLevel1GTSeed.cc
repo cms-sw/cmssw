@@ -610,9 +610,20 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     listTauJet.sort();
     listTauJet.unique();
 
-    // no need to eliminate duplicates for energy sums and jet counts
-    // they are global quantities
+    listETM.sort();
+    listETM.unique();
 
+    listETT.sort();
+    listETT.unique();
+
+    listHTT.sort();
+    listHTT.unique();
+
+    listHTM.sort();
+    listHTM.unique();
+
+    listJetCounts.sort();
+    listJetCounts.unique();
 
     //
     // record the L1 physics objects in the HLT filterObject
@@ -761,8 +772,12 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
             edm::LogWarning("HLTLevel1GTSeed")
                     << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMET
                     << "\nrequested in configuration, but not found in the event."
-                    << "\nNo ETT or ETM added to filterObject." << std::endl;
-
+                    << "\nNo ETT nor ETM added to filterObject." << std::endl;
+	} else if (l1EnergySums->size()==0) {
+            edm::LogWarning("HLTLevel1GTSeed")
+                    << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMET
+                    << "\nfound in the event but with 0 size."
+                    << "\nNo ETT nor ETM added to filterObject." << std::endl;
         } else {
 
             for (std::list<int>::const_iterator itObj = listETM.begin(); itObj != listETM.end(); ++itObj) {
@@ -789,7 +804,13 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
             edm::LogWarning("HLTLevel1GTSeed")
                     << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMHT
                     << "\nrequested in configuration, but not found in the event."
-                    << "\nNo HTT or HTM added to filterObject." << std::endl;
+                    << "\nNo HTT nor HTM added to filterObject." << std::endl;
+
+	} else if (l1EnergySums->size()==0) {
+            edm::LogWarning("HLTLevel1GTSeed")
+                    << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMHT
+                    << "\nfound in the event but with 0 size."
+                    << "\nNo HTT nor HTM added to filterObject." << std::endl;
 
         } else {
 
