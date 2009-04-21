@@ -38,16 +38,8 @@ BtagPerformanceESProducer::produce(const BTagPerformanceRecord & iRecord){
    
    //    BtagWorkingPoint wp;
 
-   //
-   // debug payload:
-   //
 
-   std::vector<float> plv =  (*(pl.product())).payload();
 
-   /*   std::cout <<" PAYLOAD "<<std::endl;
-   for (int i=0; i< plv.size(); i++)
-     std::cout <<i <<" " <<plv[i]<<std::endl;
-   */
    _perf  = boost::shared_ptr<BtagPerformance>(new BtagPerformance(*((pl.product())), *((wp.product()))));
    //    _perf  = boost::shared_ptr<BtagPerformance>(new BtagPerformance(*((pl.product())), wp));
   return _perf;
