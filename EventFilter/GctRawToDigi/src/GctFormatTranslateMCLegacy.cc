@@ -553,7 +553,7 @@ void GctFormatTranslateMCLegacy::blockToGctJetCandsAndCounts(const unsigned char
 
   p16 += NUM_JET_CATEGORIES * jetCandCategoryOffset; // Move the pointer over the data we've already unpacked.
 
-  // NOW UNPACK: HFBitCounts, HFRingEtSums (no Missing Ht yet)
+  // NOW UNPACK: HFBitCounts, HFRingEtSums and Missing Ht
   // NOTE: we are only unpacking one timesample of these currently!
 
   // Re-interpret block payload pointer to 32 bits so it sees six jet counts at a time.
@@ -562,7 +562,9 @@ void GctFormatTranslateMCLegacy::blockToGctJetCandsAndCounts(const unsigned char
   // Channel 0 carries both HF counts and sums
   colls()->gctHfBitCounts()->push_back(L1GctHFBitCounts::fromConcHFBitCounts(id,6,0,p32[0])); 
   colls()->gctHfRingEtSums()->push_back(L1GctHFRingEtSums::fromConcRingSums(id,6,0,p32[0]));
-  // Skip channel 1 for now. Later this may carry MHT would be accessed as p32[nSamples]
+
+  // Channel 1 carries Missing HT.
+  colls()->gctHtMiss()->push_back(L1GctHtMiss(p32[nSamples], 0));
 }
 
 // Input EM Candidates unpacking
