@@ -98,13 +98,20 @@ void DDPixBarStackLayerAlgo::execute() {
   double deltaX, deltaY; //Offset to correct for ladder thickness
 
   double r_vol_inner = moduleRadius-(delta1+delta2+delta3);
+  // for a test
   double r_vol_outer = moduleRadius+(delta1+delta2+delta3);
+  //double r_vol_outer = moduleRadius+(delta1+delta2+delta3)+3.0;
 
   double r_vol_innerT;
   if(r_vol_inner>r_vol_outer) {
     r_vol_innerT=r_vol_inner;
     r_vol_inner=r_vol_outer-30;
     r_vol_outer=r_vol_innerT+30;
+  }
+  if(layout) {
+    double temp = (double)(ladderWidth/2.0);
+    double extra_thick = sqrt(temp*temp + r_vol_outer*r_vol_outer) - r_vol_outer;
+    r_vol_outer = r_vol_outer + extra_thick;
   }
 
   std::string name;
