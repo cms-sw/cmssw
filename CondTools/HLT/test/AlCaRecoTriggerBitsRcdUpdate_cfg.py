@@ -5,9 +5,9 @@
 # 
 #  Author    : Gero Flucke
 #  Date      : February 2009
-#  $Revision: 1.42 $
-#  $Date: 2008/11/10 14:48:42 $
-#  (last update by $Author: henderle $)
+#  $Revision: 1.2 $
+#  $Date: 2009/02/11 14:25:12 $
+#  (last update by $Author: flucke $)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -24,19 +24,18 @@ process.load("CondTools.HLT.AlCaRecoTriggerBitsRcdUpdate_cfi")
 # The IOV that you want to write out, defaut is 1 to -1/inf. 
 #process.AlCaRecoTriggerBitsRcdUpdate.firstRunIOV = 1 # docu see...
 #process.AlCaRecoTriggerBitsRcdUpdate.lastRunIOV = -1 # ...cfi
-# If you want to update, uncomment the next line:
-#process.AlCaRecoTriggerBitsRcdUpdate.startEmpty = False
+# If you want to start from scratch, comment the next line:
+process.AlCaRecoTriggerBitsRcdUpdate.startEmpty = False
 # In case you want to remove 'keys', use this possibly comma separated list.
 # Also if you want to replace settings for one 'key', you have to remove it first.
-#process.AlCaRecoTriggerBitsRcdUpdate.listNamesRemove = ["TkAlZMuMu"]
+process.AlCaRecoTriggerBitsRcdUpdate.listNamesRemove = ["SiStripCalZeroBias"]
 # Here specifiy 'key' and corresponding paths for new entries or updated ones:
-#process.AlCaRecoTriggerBitsRcdUpdate.triggerListsAdd = [
-#    cms.PSet(listName = cms.string('TkAlZMuMu'),
-#             hltPaths = cms.vstring('path_1','path_2','path_3')),
-#    cms.PSet(listName = cms.string('Bla'),
-#             hltPaths = cms.vstring('p1','p2'))
-#    ]
-
+process.AlCaRecoTriggerBitsRcdUpdate.triggerListsAdd = [
+    cms.PSet(listName = cms.string('SiStripCalZeroBias'), # to be updated
+             hltPaths = cms.vstring('HLT_ZeroBias','RandomPath')),
+    cms.PSet(listName = cms.string('NewAlCaReco'),        # to be added
+             hltPaths = cms.vstring('HLT_path1','HLT_path2', 'HLT_path3'))
+    ]
 
 # No data, but have to specify run number if you do not want 1, see below:
 process.source = cms.Source("EmptySource",
@@ -50,6 +49,10 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 # Take care in case the input tag has an IOV: The run number that will be used
 # to define which payload you get is defined by the run number in the
 # EmptySource above!
+# Either a global tag...
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+# process.GlobalTag.globaltag = "IDEAL_30X::All" # may choose non-default tag
+# ...or directly from DB/sqlite
 # import CondCore.DBCommon.CondDBSetup_cfi
 #process.dbInput = cms.ESSource(
 #    "PoolDBESSource",
