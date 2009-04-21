@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/10/11 13:13:58 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/04/17 17:12:52 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -196,6 +196,7 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
     const unsigned int filterIndex(triggerEventWithRefsHandle_->filterIndex(InputTag(moduleLabel,"",processName_)));
     if (filterIndex<triggerEventWithRefsHandle_->size()) {
       cout << " Filter in slot " << j << " - label/type " << moduleLabel << "/" << moduleType << endl;
+      cout << " Filter packed up at: " << filterIndex << endl;
       cout << "  Accepted objects:" << endl;
 
       triggerEventWithRefsHandle_->getObjects(filterIndex,photonIds_,photonRefs_);

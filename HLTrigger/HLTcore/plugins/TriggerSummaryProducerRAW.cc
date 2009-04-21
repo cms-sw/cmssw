@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/05/02 12:13:28 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/03/05 16:49:51 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -79,7 +79,23 @@ TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup& iS
      const string& instance (fobs_[ifob].provenance()->productInstanceName());
      const string& process  (fobs_[ifob].provenance()->processName());
      const InputTag tag(InputTag(label,instance,process));
-     LogTrace("TriggerSummaryProducerRaw") << ifob << " " << tag;
+     LogTrace("TriggerSummaryProducerRaw")
+       << ifob << " " << tag << endl
+       << " Sizes: "
+       << " 1/" << fobs_[ifob]->photonSize()
+       << " 2/" << fobs_[ifob]->electronSize()
+       << " 3/" << fobs_[ifob]->muonSize()
+       << " 4/" << fobs_[ifob]->jetSize()
+       << " 5/" << fobs_[ifob]->compositeSize()
+       << " 6/" << fobs_[ifob]->basemetSize()
+       << " 7/" << fobs_[ifob]->calometSize()
+       << " 8/" << fobs_[ifob]->pixtrackSize()
+       << " 9/" << fobs_[ifob]->l1emSize()
+       << " A/" << fobs_[ifob]->l1muonSize()
+       << " B/" << fobs_[ifob]->l1jetSize()
+       << " C/" << fobs_[ifob]->l1etmissSize()
+       << " D/" << fobs_[ifob]->l1hfringsSize()
+       << endl;
      product->addFilterObject(tag,*fobs_[ifob]);
    }
 
