@@ -15,10 +15,7 @@ GlobalTrajectoryBuilderCommon.TrackTransformer.TrackerRecHitBuilder = 'WithoutRe
 
 # The condDB setup (the global tag refers to DevDB, IntDB or ProDB whenever needed)
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi import *
-#######TEMPORARY 
-from CalibCalorimetry.Configuration.Ecal_FakeConditions_cff import *
-es_prefer_EcalTrivialConditionRetriever = cms.ESPrefer("EcalTrivialConditionRetriever")
-#######
+
 # not needed any longer in 30X
 from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
 

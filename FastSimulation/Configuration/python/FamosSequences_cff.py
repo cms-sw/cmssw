@@ -72,9 +72,6 @@ from RecoJets.Configuration.RecoPFJets_cff import *
 from RecoMET.Configuration.RecoMET_cff import *
 from RecoMET.Configuration.RecoPFMET_cff import *
 
-#temporary
-tcMet.electronInputTag=cms.InputTag("gsfElectrons")
-
 
 caloJetMet = cms.Sequence(
     recoJets+
