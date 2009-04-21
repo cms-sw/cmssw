@@ -26,6 +26,9 @@ multiTrackValidator.nintHit = cms.int32(75)
 multiTrackValidator.minHit = cms.double(-0.5)
 multiTrackValidator.maxHit = cms.double(74.5)
 
+multiTrackValidator.phiRes_rangeMin = cms.double(-0.1)
+multiTrackValidator.phiRes_rangeMax = cms.double(0.1)
+ 
 multiTrackValidator.UseAssociators = False
 
 
