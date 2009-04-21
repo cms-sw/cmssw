@@ -42,7 +42,7 @@ towerMaker = cms.EDFilter("CaloTowersCreator",
 # EXAMPLE 
 # 
     # acceptable severity level
-    HcalAcceptSeverityLevel = cms.uint32(999),
+    HcalAcceptSeverityLevel = cms.uint32(9),
     EcalAcceptSeverityLevel = cms.uint32(1),
 
     # use of recovered hits
