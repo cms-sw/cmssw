@@ -41,7 +41,9 @@ divided by the number of simulated photons. The reconstruction includes photon p
 </font>  
 </td>
 </tr>
+</table>
 
+<Table border=4 cellspacing=20  width=100%>
 <tr>
 <td align=center valign=top >
 <A HREF="gifs/scEAll.gif"><IMG  SRC="gifs/scEAll.gif" width=100%></A>
@@ -54,11 +56,15 @@ divided by the number of simulated photons. The reconstruction includes photon p
 </font>  
 </td>
 </tr>
+</table>
 
+
+<Table border=4 cellspacing=20  width=100%>
 <tr>
 <td align=center valign=top >
 <A HREF="gifs/phoEta.gif"><IMG  SRC="gifs/phoEta.gif" width=100%></A>
-<br><FONT SIZE=-1>Reconstructed photon matching a simulated photon: photon &eta
+<br><FONT SIZE=-1>Reconstructed photon matching a simulated photon: photon &eta 
+
 </font>  
 </td>
 <td align=center valign=top >
@@ -67,21 +73,30 @@ divided by the number of simulated photons. The reconstruction includes photon p
 </font>  
 </td>
 </tr>
+</table>
 
+<Table border=4 cellspacing=20  width=100%>
 <tr>
 <td align=center valign=top >
-<A HREF="gifs/phoDEta.gif"><IMG   SRC="gifs/phoDEta.gif" width=100%></A>
-<br><FONT SIZE=-1>Reconstructed photon matching a simulated photon: difference between reconstructed and simulated &eta 
+<A HREF="gifs/phoDEta.gif"><IMG   SRC="gifs/phoDEta.gif" width=50%></A>
+<FONT SIZE=-1><br>Reconstructed photon matching a simulated photon: 
+difference between reconstructed and simulated &eta 
+The photon direction is calculated using as the origin the
+first offline reconstructed PV.
+In case of single photons, where the reconstructed PV is
+not available since there are no tracks,  the photon vertex is set to the nominal (0,0,0) hence the poor &Delta &eta
+</br>
 </font>  
 </td>
 <td align=center valign=top >
-<A HREF="gifs/phoDPhi.gif"><IMG  SRC="gifs/phoDPhi.gif" width=100%></A>
-<br><FONT SIZE=-1>Reconstructed photon matching a simulated photon: difference between reconstructed and simulated &eta 
+<A HREF="gifs/phoDPhi.gif"><IMG  SRC="gifs/phoDPhi.gif" width=150%></A>
+<br><FONT SIZE=-1>Reconstructed photon matching a simulated photon: difference between reconstructed and simulated &phi
 </font>  
 </td>
 </tr>
+</table>
 
-
+<Table border=4 cellspacing=20  width=100%>
 <tr>
 <td align=center valign=top >
 <A HREF="gifs/phoEAll.gif"><IMG  SRC="gifs/phoEAll.gif" width=100%></A>
@@ -94,8 +109,6 @@ divided by the number of simulated photons. The reconstruction includes photon p
 </font>  
 </td>
 </tr>
-
-
 </table>
 
 
@@ -695,17 +708,17 @@ and valid vertex fit divided by the number of conversions with two tracks.
 <tr>
 <td align=center valign=top >
 <A HREF="gifs/hTkPtPullAll.gif"><IMG  SRC="gifs/hTkPtPullAll.gif" width=100% ></A>
-<br><FONT SIZE=-1>
+<br><FONT SIZE=-1>Conversion track pull, defined as (Pt(rec)-Pr(sim)/&sigma(Pt(rec))
 </font>  
 </td>
 <td align=center valign=top >
 <A HREF="gifs/hTkPtPullBarrel.gif"><IMG  SRC="gifs/hTkPtPullBarrel.gif" width=100%></A>
-<br><FONT SIZE=-1>
+<br><FONT SIZE=-1>Conversion track pull, defined as (Pt(rec)-Pr(sim)/&sigma(Pt(rec)). Only Barrel.
 </font>  
 </td>
 <td align=center valign=top >
 <A HREF="gifs/hTkPtPullEndcap.gif"><IMG  SRC="gifs/hTkPtPullEndcap.gif" width=100%></A>
-<br><FONT SIZE=-1>
+<br><FONT SIZE=-1>Conversion track pull, defined as (Pt(rec)-Pr(sim)/&sigma(Pt(rec)). Only Endcap.
 </font>  
 </td>
 </tr>
@@ -713,17 +726,17 @@ and valid vertex fit divided by the number of conversions with two tracks.
 <tr>
 <td align=center valign=top >
 <A HREF="gifs/tkChi2AllTracks.gif"><IMG  SRC="gifs/tkChi2AllTracks.gif" width=100% ></A>
-<br><FONT SIZE=-1>
+<br><FONT SIZE=->Track-fit chi2
 </font>  
 </td>
 <td align=center valign=top >
 <A HREF="gifs/pChi2VsEtaAll.gif"><IMG  SRC="gifs/pChi2VsEtaAll.gif" width=100%></A>
-<br><FONT SIZE=-1>
+<br><FONT SIZE=-1>Track-fit chi2 profile vs &eta
 </font>  
 </td>
 <td align=center valign=top >
 <A HREF="gifs/pChi2VsRAll.gif"><IMG  SRC="gifs/pChi2VsRAll.gif" width=100%></A>
-<br><FONT SIZE=-1>
+<br><FONT SIZE=-1>Track-fit chi2 profile vs conversion radius
 </font>  
 </td>
 </tr>
