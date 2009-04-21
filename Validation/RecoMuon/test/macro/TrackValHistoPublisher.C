@@ -181,6 +181,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    l->Draw();
    canvas->Print(newDir+"/building.pdf");   
    delete l;
+   delete canvas;
 
 
    // ====== hits and pt
@@ -194,7 +195,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rdir->GetObject(collname1+"/num_reco_pT",rh4);
    sdir->GetObject(collname2+"/num_reco_pT",sh4);
    
-   canvas = new TCanvas("Tracks1","Tracks: efficiency & fakerate",1000,1050);
+   canvas = new TCanvas("Tracks2","Tracks: efficiency & fakerate",1000,1050);
    
    rh1->GetYaxis()->SetRangeUser(8,74);
    sh1->GetYaxis()->SetRangeUser(8,74);
@@ -205,6 +206,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    sh3->GetXaxis()->SetRangeUser(0,10);
    rh4->GetXaxis()->SetRangeUser(0,10);
    sh4->GetXaxis()->SetRangeUser(0,10);
+   NormalizeHistograms(rh2,sh2);
    NormalizeHistograms(rh3,sh3);
    NormalizeHistograms(rh4,sh4);
    
@@ -227,6 +229,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    l->Draw();
    canvas->Print(newDir+"/hitsAndPt.pdf");
    delete l;
+   delete canvas;
 
 
    //===== tuning
@@ -241,7 +244,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    sdir->GetObject(collname2+"/ptres_vs_eta_Mean",sh4);
 
 
-   canvas = new TCanvas("Tracks2","Tracks: chi2 & chi2 probability",1000,1050);
+   canvas = new TCanvas("Tracks3","Tracks: chi2 & chi2 probability",1000,1050);
 
    NormalizeHistograms(rh1,sh1);
    NormalizeHistograms(rh2,sh2);
@@ -289,7 +292,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    l->Draw();
    canvas->Print(newDir+"/tuning.pdf");
    delete l;
-   
+   delete canvas;
+  
 
    //===== pulls
    rdir->GetObject(collname1+"/pullPt",rh1);
@@ -356,13 +360,11 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    l->Draw();
    canvas->Print(newDir+"/pulls.pdf");
    delete l;
+   delete canvas;
 
-
-
-
-   
-
+   //
    //===== resolutions vs eta
+   //
    rdir->GetObject(collname1+"/phires_vs_eta_Sigma",rh1);
    sdir->GetObject(collname2+"/phires_vs_eta_Sigma",sh1);
 
@@ -382,7 +384,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
 
 
-   canvas = new TCanvas("Tracks7","Tracks: Dxy, Dz, Theta resolution",1000,1400);
+   canvas = new TCanvas("Tracks5","Tracks: Dxy, Dz, Theta resolution",1000,1400);
 
    plotResolutions(canvas,
 		   sh1,rh1,sh2,rh2,
@@ -391,8 +393,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 		   te,"UU",-1);
    
    // new general range
-   rh1->GetYaxis()->SetRangeUser(0.000009,0.01);
-   sh1->GetYaxis()->SetRangeUser(0.000009,0.01);
+   //rh1->GetYaxis()->SetRangeUser(0.000009,0.1);
+   //sh1->GetYaxis()->SetRangeUser(0.000009,0.1);
    // for multi-track samples
    //rh1->GetYaxis()->SetRangeUser(0.0008,0.005);
    //sh1->GetYaxis()->SetRangeUser(0.0008,0.005);
@@ -416,8 +418,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
 
    // new general range
-   rh2->GetYaxis()->SetRangeUser(0.00009,0.03);
-   sh2->GetYaxis()->SetRangeUser(0.00009,0.03);
+   //rh2->GetYaxis()->SetRangeUser(0.00009,0.1);
+   //sh2->GetYaxis()->SetRangeUser(0.00009,0.1);
    // for multi-track samples
    //rh2->GetYaxis()->SetRangeUser(0.0009,0.01);
    //sh2->GetYaxis()->SetRangeUser(0.0009,0.01);
@@ -437,8 +439,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
 
    // new general range
-   rh3->GetYaxis()->SetRangeUser(0.00009,0.05);  
-   sh3->GetYaxis()->SetRangeUser(0.00009,0.05);
+   //rh3->GetYaxis()->SetRangeUser(0.00009,0.05);  
+   //sh3->GetYaxis()->SetRangeUser(0.00009,0.05);
    // for multi-track samples
    //rh3->GetYaxis()->SetRangeUser(0.0009,0.02);  
    //sh3->GetYaxis()->SetRangeUser(0.0009,0.02);
@@ -457,8 +459,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
 
    // new general range
-   rh4->GetYaxis()->SetRangeUser(0.0009,0.1);  
-   sh4->GetYaxis()->SetRangeUser(0.0009,0.1);
+   //rh4->GetYaxis()->SetRangeUser(0.0009,0.1);  
+   //sh4->GetYaxis()->SetRangeUser(0.0009,0.1);
    // for multi-track samples
    //rh4->GetYaxis()->SetRangeUser(0.0009,0.08);
    //sh4->GetYaxis()->SetRangeUser(0.0009,0.08);
@@ -501,6 +503,91 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    l->Draw();
    canvas->Print(newDir+"/resolutionsEta.pdf");
    delete l;
+   delete canvas;
+
+   //
+   //===== mean values vs eta
+   //
+   rdir->GetObject(collname1+"/phires_vs_eta_Mean",rh1);
+   sdir->GetObject(collname2+"/phires_vs_eta_Mean",sh1);
+
+   rdir->GetObject(collname1+"/cotThetares_vs_eta_Mean",rh2);
+   sdir->GetObject(collname2+"/cotThetares_vs_eta_Mean",sh2);
+
+   rdir->GetObject(collname1+"/dxyres_vs_eta_Mean",rh3);
+   sdir->GetObject(collname2+"/dxyres_vs_eta_Mean",sh3);
+
+   rdir->GetObject(collname1+"/dzres_vs_eta_Mean",rh4);
+   sdir->GetObject(collname2+"/dzres_vs_eta_Mean",sh4);
+
+   rdir->GetObject(collname1+"/ptres_vs_eta_Mean",rh5);
+   sdir->GetObject(collname2+"/ptres_vs_eta_Mean",sh5);
+
+
+
+   canvas = new TCanvas("Tracks6","Tracks: Dxy, Dz, Theta mean values",1000,1400);
+
+   plotMeanValues(canvas,
+		   sh1,rh1,sh2,rh2,
+		   sh3,rh3,sh4,rh4,
+		   sh5,rh5,sh6,rh6,
+		   te,"UU",-1);
+   
+   rh1->SetTitle(""); 
+   rh1->GetYaxis()->SetTitleSize(0.05);
+   rh1->GetYaxis()->SetTitleOffset(1.2);
+   rh1->GetYaxis()->SetTitle("#delta #phi [rad]");
+   rh1->GetXaxis()->SetTitleSize(0.07);
+   rh1->GetXaxis()->SetTitleOffset(0.6);
+   rh1->GetXaxis()->SetTitle("#eta");
+
+   rh2->SetTitle("");
+   rh2->GetYaxis()->SetTitleSize(0.05);
+   rh2->GetYaxis()->SetTitleOffset(1.2);
+   rh2->GetYaxis()->SetTitle("#delta cot(#theta)");
+   rh2->GetXaxis()->SetTitleSize(0.07);
+   rh2->GetXaxis()->SetTitleOffset(0.6);
+   rh2->GetXaxis()->SetTitle("#eta");
+
+   rh3->SetTitle("");
+   rh3->GetYaxis()->SetTitleSize(0.05);
+   rh3->GetYaxis()->SetTitleOffset(1.2);
+   rh3->GetYaxis()->SetTitle("#delta d_{0} [cm]");
+   rh3->GetXaxis()->SetTitleSize(0.07);
+   rh3->GetXaxis()->SetTitleOffset(0.6);
+   rh3->GetXaxis()->SetTitle("#eta"); 
+
+   rh4->SetTitle("");
+   rh4->GetYaxis()->SetTitleSize(0.05);
+   rh4->GetYaxis()->SetTitleOffset(1.2);
+   rh4->GetYaxis()->SetTitle("#delta z_{0} [cm]");
+   rh4->GetXaxis()->SetTitleSize(0.07);
+   rh4->GetXaxis()->SetTitleOffset(0.6);
+   rh4->GetXaxis()->SetTitle("#eta");
+
+   rh5->SetTitle("");
+   rh5->GetYaxis()->SetTitleSize(0.05);
+   rh5->GetYaxis()->SetTitleOffset(1.2);
+   rh5->GetYaxis()->SetTitle("#delta p_{t}/p_{t} ");
+   rh5->GetXaxis()->SetTitleSize(0.07);
+   rh5->GetXaxis()->SetTitleOffset(0.6);
+   rh5->GetXaxis()->SetTitle("#eta");
+
+   canvas->cd();
+
+   l = new TLegend(0.10,0.63,0.90,0.67);
+   l->SetTextSize(0.016);
+   l->SetLineColor(1);
+   l->SetLineWidth(1);
+   l->SetLineStyle(1);
+   l->SetFillColor(0);
+   l->SetBorderSize(3);
+   l->AddEntry(rh1,refLabel,"LPF");
+   l->AddEntry(sh1,newLabel,"LPF");
+   l->Draw();
+   canvas->Print(newDir+"/meanvaluesEta.pdf");
+   delete l;
+   delete canvas;
 
    //===== resolutions vs pt
    rdir->GetObject(collname1+"/phires_vs_pt_Sigma",rh1);
@@ -608,6 +695,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    l->Draw();
    canvas->Print(newDir+"/resolutionsPt.pdf");
    delete l;
+   delete canvas;
 
 
  }  // end of "if CTF"
@@ -619,6 +707,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 	       +newDir+"/tuning.pdf "
 	       +newDir+"/pulls.pdf "
 	       +newDir+"/resolutionsEta.pdf "
+	       +newDir+"/meanvaluesEta.pdf "
 	       +newDir+"/resolutionsPt.pdf ");
  // gSystem->Exec("cp merged.pdf "+newDir+"/../"+myName+".pdf");
  gSystem->Exec("mv merged.pdf "+newDir+"/../"+myName+".pdf");
@@ -1043,10 +1132,104 @@ void plotResolutions(TCanvas *canvas,
   r5->Draw();
   s5->Draw("sames");
 
-
   //canvas->cd(6);
   //r6->Draw();
   //s6->Draw("sames");
+}
+
+
+void plotMeanValues(TCanvas *canvas, 
+		     TH1F *s1,TH1F *r1, TH1F *s2,TH1F *r2, 
+		     TH1F *s3,TH1F *r3, TH1F *s4,TH1F *r4,
+		     TH1F *s5,TH1F *r5,TH1F *s6,TH1F *r6,
+		     TText* te,
+		     char * option, double startingY, double startingX = .1,bool fit = false){
+  canvas->Divide(2,3);
+
+  s1->SetMarkerStyle(20);
+  r1->SetMarkerStyle(21);
+  s1->SetMarkerColor(2);
+  r1->SetMarkerColor(4);
+  s1->SetMarkerSize(0.7);
+  r1->SetMarkerSize(0.7);
+  s1->SetLineColor(1);
+  r1->SetLineColor(1);
+
+  s2->SetMarkerStyle(20);
+  r2->SetMarkerStyle(21);
+  s2->SetMarkerColor(2);
+  r2->SetMarkerColor(4);
+  s2->SetMarkerSize(0.7);
+  r2->SetMarkerSize(0.7);
+  s2->SetLineColor(1);
+  r2->SetLineColor(1);
+
+  s3->SetMarkerStyle(20);
+  r3->SetMarkerStyle(21);
+  s3->SetMarkerColor(2);
+  r3->SetMarkerColor(4);
+  s3->SetMarkerSize(0.7);
+  r3->SetMarkerSize(0.7);
+  s3->SetLineColor(1);
+  r3->SetLineColor(1);
+
+  s4->SetMarkerStyle(20);
+  r4->SetMarkerStyle(21);
+  s4->SetMarkerColor(2);
+  r4->SetMarkerColor(4);
+  s4->SetMarkerSize(0.7);
+  r4->SetMarkerSize(0.7);
+  s4->SetLineColor(1);
+  r4->SetLineColor(1);
+
+
+  s5->SetMarkerStyle(20);
+  r5->SetMarkerStyle(21);
+  s5->SetMarkerColor(2);
+  r5->SetMarkerColor(4);
+  s5->SetMarkerSize(0.7);
+  r5->SetMarkerSize(0.7);
+  s5->SetLineColor(1);
+  r5->SetLineColor(1);
+
+  s6->SetMarkerStyle(20);
+  r6->SetMarkerStyle(21);
+  s6->SetMarkerColor(2);
+  r6->SetMarkerColor(4);
+  s6->SetMarkerSize(0.7);
+  r6->SetMarkerSize(0.7);
+  s6->SetLineColor(1);
+  r6->SetLineColor(1);
+  s6->SetLineWidth(2);
+  r6->SetLineWidth(2);
+
+
+  //setStats(r1,s1, startingY, startingX, fit);
+  canvas->cd(1);
+  setStats(r1,s1, -1, 0, false);
+  r1->Draw();
+  s1->Draw("sames");
+
+  canvas->cd(2);
+  setStats(r2,s2, -1, 0, false);
+  r2->Draw();
+  s2->Draw("sames");
+
+  canvas->cd(3);
+  setStats(r3,s3, -1, 0, false);
+  r3->Draw();
+  s3->Draw("sames");
+
+  canvas->cd(4);
+  setStats(r4,s4, -1, 0, false);
+  r4->Draw();
+  s4->Draw("sames");
+
+  canvas->cd(5);
+  setStats(r5,s5, -1, 0, false);
+  r5->Draw();
+  s5->Draw("sames");
+
 }
 
 
