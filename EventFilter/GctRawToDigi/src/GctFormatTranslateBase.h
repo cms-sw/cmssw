@@ -21,8 +21,8 @@
 * concrete classes that can translate to/from specific RAW formats.
 *
 * \author Robert Frazier
-* $Revision: 1.14 $
-* $Date: 2009/04/06 18:48:00 $
+* $Revision: 1.1 $
+* $Date: 2009/04/07 10:51:07 $
 */ 
 
 
@@ -31,8 +31,9 @@ class GctFormatTranslateBase
 public:
 
   /// Constructor.
-  /*! \param hltMode - set true to unpack only BX zero and GCT output data (i.e. to run as quick as possible).*/
-  explicit GctFormatTranslateBase(bool hltMode = false);
+  /*! \param hltMode - set true to unpack only BX zero and GCT output data (i.e. to run as quick as possible).
+   *  \param unpackSharedRegions - this is a commissioning option to unpack the shared RCT calo regions. */
+  explicit GctFormatTranslateBase(bool hltMode = false, bool unpackSharedRegions = false);
   
   virtual ~GctFormatTranslateBase(); ///< Destructor.
   
@@ -108,6 +109,7 @@ protected:
   /* Data member access methods */
   GctUnpackCollections * const colls() const { return m_collections; } ///< Protected access to the GCT Unpack Collections.
   bool hltMode() const { return m_hltMode; }  ///< Protected interface to get HLT optimisation mode flag.
+  bool unpacksharedRegions() const { return m_unpackSharedRegions; }  /// Protected interface to the unpackSharedRegions commissioning option.
   const SourceCardRouting& srcCardRouting() const { return m_srcCardRouting; } ///< Protected access to SourceCardRouting.
   const uint32_t packingBxId() const { return m_packingBxId; } ///< Get the BxId to be used when packing data.
   const uint32_t packingEventId() const { return m_packingEventId; } ///< Get the EventId to be used when packing data.
@@ -146,6 +148,10 @@ private:
 
   /// If true, unpack only BX zero and GCT output data (i.e. to run as quickly as possible) 
   bool m_hltMode;
+  
+  /// If true, the shared RCT Calo regions will be unpacked also
+  /*! This is a commissioning option only - may not be relevant to all concrete implementations! */
+  bool m_unpackSharedRegions;
 
   /// Source card mapping info
   SourceCardRouting m_srcCardRouting;

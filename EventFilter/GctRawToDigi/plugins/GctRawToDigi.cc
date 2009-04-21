@@ -34,6 +34,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   inputLabel_(iConfig.getParameter<edm::InputTag>("inputLabel")),
   fedId_(iConfig.getParameter<int>("gctFedId")),
   hltMode_(iConfig.getParameter<bool>("hltMode")),
+  unpackSharedRegions_(iConfig.getParameter<bool>("unpackSharedRegions")),
   formatVersion_(iConfig.getParameter<unsigned>("unpackerVersion")),
   verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
   formatTranslator_(0),
@@ -47,17 +48,17 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   else if(formatVersion_ == 1)
   {
     edm::LogInfo("GCT") << "You have selected to use GctFormatTranslateMCLegacy";
-    formatTranslator_ = new GctFormatTranslateMCLegacy(hltMode_);
+    formatTranslator_ = new GctFormatTranslateMCLegacy(hltMode_, unpackSharedRegions_);
   }
   else if(formatVersion_ == 2)
   {
     edm::LogInfo("GCT") << "You have selected to use GctFormatTranslateV35";
-    formatTranslator_ = new GctFormatTranslateV35(hltMode_);
+    formatTranslator_ = new GctFormatTranslateV35(hltMode_, unpackSharedRegions_);
   }
   else if(formatVersion_ == 3)
   {
     edm::LogInfo("GCT") << "You have selected to use GctFormatTranslateV38";
-    formatTranslator_ = new GctFormatTranslateV38(hltMode_);    
+    formatTranslator_ = new GctFormatTranslateV38(hltMode_, unpackSharedRegions_);    
   }
   else
   { 
@@ -66,7 +67,8 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   }
 
   if(hltMode_) { edm::LogInfo("GCT") << "HLT unpack mode selected: HLT unpack optimisations will be used."; }
-
+  if(unpackSharedRegions_) { edm::LogInfo("GCT") << "You have selected to unpack shared RCT calo regions - be warned: "
+                                                    "this is for commissioning purposes only!"; }
 
   /** Register Products **/
   // GCT input collections
@@ -206,19 +208,19 @@ bool GctRawToDigi::autoDetectRequiredFormatTranslator(const unsigned char * d)
   if( firmwareHeader >= 25 && firmwareHeader <= 35 )
   {
     edm::LogInfo("GCT") << "Firmware Version V" << firmwareHeader << " detected: GctFormatTranslateV" << firmwareHeader << " will be used to unpack.";
-    formatTranslator_ = new GctFormatTranslateV35(hltMode_);
+    formatTranslator_ = new GctFormatTranslateV35(hltMode_, unpackSharedRegions_);
     return true;
   }
   else if( firmwareHeader == 38 )
   {
     edm::LogInfo("GCT") << "Firmware Version V" << firmwareHeader << " detected: GctFormatTranslateV" << firmwareHeader << " will be used to unpack.";
-    formatTranslator_ = new GctFormatTranslateV38(hltMode_);
+    formatTranslator_ = new GctFormatTranslateV38(hltMode_, unpackSharedRegions_);
     return true;
   }
   else if( firmwareHeader == 0x00000000 )
   {
     edm::LogInfo("GCT") << "Legacy Monte-Carlo data detected: GctFormatTranslateMCLegacy will be used to unpack.";
-    formatTranslator_ = new GctFormatTranslateMCLegacy(hltMode_);
+    formatTranslator_ = new GctFormatTranslateMCLegacy(hltMode_, unpackSharedRegions_);
     return true;
   }
   else if(firmwareHeader == 0xdeadffff) { /* Driver detected unknown firmware version. L1TriggerError code? */ }

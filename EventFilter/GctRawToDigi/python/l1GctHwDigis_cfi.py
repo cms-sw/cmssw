@@ -4,6 +4,7 @@ l1GctHwDigis = cms.EDProducer("GctRawToDigi",
     inputLabel = cms.InputTag("source"),
     gctFedId = cms.int32(745),
     hltMode = cms.bool(False),
+    unpackSharedRegions = cms.bool(False),
     unpackerVersion = cms.uint32(0), #  ** SEE BELOW FOR DETAILS OF THIS OPTION **
     verbose = cms.untracked.bool(False)
 )

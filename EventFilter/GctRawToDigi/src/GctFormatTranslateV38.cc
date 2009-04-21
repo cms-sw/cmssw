@@ -24,8 +24,8 @@ GctFormatTranslateV38::BlockIdToEmCandIsoBoundMap GctFormatTranslateV38::m_inter
 
 // PUBLIC METHODS
 
-GctFormatTranslateV38::GctFormatTranslateV38(bool hltMode):
-  GctFormatTranslateBase(hltMode)
+GctFormatTranslateV38::GctFormatTranslateV38(bool hltMode, bool unpackSharedRegions):
+  GctFormatTranslateBase(hltMode, unpackSharedRegions)
 {
   static bool initClass = true;
 

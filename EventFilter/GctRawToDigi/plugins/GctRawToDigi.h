@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.28 2009/04/09 11:10:39 frazier Exp $
+// $Id: GctRawToDigi.h,v 1.29 2009/04/09 11:25:22 frazier Exp $
 //
 //
 
@@ -78,6 +78,7 @@ private: // members
 
   // unpacking options
   const bool hltMode_;  ///< If true, only outputs the GT output data, and only BX = 0.
+  const bool unpackSharedRegions_;  ///< Commissioning option: if true, where applicable the shared RCT calo regions will also be unpacked.
   const unsigned formatVersion_;  ///< Defines unpacker verison to be used (e.g.: "Auto-detect", "MCLegacy", "V35", etc).
   const bool verbose_;  ///< If true, then debug print out for each event.
 

@@ -25,8 +25,8 @@ GctFormatTranslateMCLegacy::BlockIdToEmCandIsoBoundMap GctFormatTranslateMCLegac
 
 // PUBLIC METHODS
 
-GctFormatTranslateMCLegacy::GctFormatTranslateMCLegacy(bool hltMode):
-  GctFormatTranslateBase(hltMode)
+GctFormatTranslateMCLegacy::GctFormatTranslateMCLegacy(bool hltMode, bool unpackSharedRegions):
+  GctFormatTranslateBase(hltMode, unpackSharedRegions)
 {
   static bool initClass = true;
 

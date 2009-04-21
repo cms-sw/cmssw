@@ -8,8 +8,8 @@
 * \brief Unpacks/packs the V35 raw format
 *
 * \author Robert Frazier
-* $Revision: 1.11 $
-* $Date: 2009/04/06 18:48:00 $
+* $Revision: 1.1 $
+* $Date: 2009/04/07 10:51:06 $
 */ 
 
 // ************************************************************************
@@ -23,8 +23,9 @@ public:
   /* PUBLIC METHODS */
 
   /// Constructor.
-  /*! \param hltMode - set true to unpack only BX zero and GCT output data (i.e. to run as quickly as possible).*/
-  GctFormatTranslateV35(bool hltMode = false);
+  /*! \param hltMode - set true to unpack only BX zero and GCT output data (i.e. to run as quick as possible).
+   *  \param unpackSharedRegions - this is a commissioning option to unpack the shared RCT calo regions. */
+  explicit GctFormatTranslateV35(bool hltMode = false, bool unpackSharedRegions = false);
   
   virtual ~GctFormatTranslateV35(); ///< Destructor.
 
