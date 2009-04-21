@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
 
 XMLIdealGeometryESSource.geomXMLFiles = cms.vstring(
-    'Geometry/CMSCommonData/data/materials.xml', 
+    'SLHCUpgradeSimulations/Geometry/data/longbarrel/materials.xml', 
         'Geometry/CMSCommonData/data/rotations.xml', 
         'Geometry/CMSCommonData/data/normal/cmsextent.xml', 
         'Geometry/CMSCommonData/data/cms.xml', 
@@ -32,7 +32,7 @@ XMLIdealGeometryESSource.geomXMLFiles = cms.vstring(
         'Geometry/TrackerCommonData/data/pixfwdNipple.xml', 
         'Geometry/TrackerCommonData/data/pixfwdDisk.xml', 
         'Geometry/TrackerCommonData/data/pixfwdCylinder.xml', 
-        'Geometry/TrackerCommonData/data/pixfwd.xml', 
+        'SLHCUpgradeSimulations/Geometry/data/longbarrel/pixfwd.xml', 
         'Geometry/TrackerCommonData/data/pixbarmaterial.xml', 
         'Geometry/TrackerCommonData/data/pixbarladder.xml', 
         'Geometry/TrackerCommonData/data/pixbarladderfull.xml', 
@@ -41,6 +41,7 @@ XMLIdealGeometryESSource.geomXMLFiles = cms.vstring(
         'SLHCUpgradeSimulations/Geometry/data/longbarrel/pixbarlayer0.xml',
         'SLHCUpgradeSimulations/Geometry/data/longbarrel/pixbarlayer1.xml',
         'SLHCUpgradeSimulations/Geometry/data/longbarrel/pixbarlayer2.xml',
+        'SLHCUpgradeSimulations/Geometry/data/longbarrel/pixbarlayer3.xml',
         'SLHCUpgradeSimulations/Geometry/data/longbarrel/pixbarladderstack0.xml',
         'SLHCUpgradeSimulations/Geometry/data/longbarrel/pixbarlayerstack0.xml',
         'SLHCUpgradeSimulations/Geometry/data/longbarrel/pixbarladderstack1.xml',
