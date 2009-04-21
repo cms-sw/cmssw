@@ -7,30 +7,30 @@ hltMonJetMET = cms.EDAnalyzer("HLTMon",
    reqNum = cms.uint32(1),
    DaqMonitorBEInterface = cms.untracked.bool(True),
    filters = cms.VPSet(
-#       cms.PSet(
-#           PlotBounds = cms.vdouble(0.0, 0.0),
-#           HLTCollectionLabels = cms.InputTag("hltL1sL1Jet15","","HLT"),
-#           IsoCollections = cms.VInputTag(cms.InputTag("none")),
-#           theHLTOutputTypes = cms.uint32(84),
-#     ),
        cms.PSet(
            PlotBounds = cms.vdouble(0.0, 0.0),
-           HLTCollectionLabels = cms.InputTag("hltL1sJet30","","HLT"),
+           HLTCollectionLabels = cms.InputTag("hltL1sJet15U","","HLT"),
            IsoCollections = cms.VInputTag(cms.InputTag("none")),
            theHLTOutputTypes = cms.uint32(84),
      ),
        cms.PSet(
            PlotBounds = cms.vdouble(0.0, 0.0),
-           HLTCollectionLabels = cms.InputTag("hlt1jet30","","HLT"),
+           HLTCollectionLabels = cms.InputTag("hlt1jet15U","","HLT"),
            IsoCollections = cms.VInputTag(cms.InputTag("none")),
            theHLTOutputTypes = cms.uint32(95),
      ),
-#       cms.PSet(
-#           PlotBounds = cms.vdouble(0.0, 0.0),
-#           HLTCollectionLabels = cms.InputTag("hlt1jet50","","HLT"),
-#           IsoCollections = cms.VInputTag(cms.InputTag("none")),
-#           theHLTOutputTypes = cms.uint32(95),
-#     ),
+       cms.PSet(
+           PlotBounds = cms.vdouble(0.0, 0.0),
+           HLTCollectionLabels = cms.InputTag("hltL1sJet30U","","HLT"),
+           IsoCollections = cms.VInputTag(cms.InputTag("none")),
+           theHLTOutputTypes = cms.uint32(84),
+     ),
+       cms.PSet(
+           PlotBounds = cms.vdouble(0.0, 0.0),
+           HLTCollectionLabels = cms.InputTag("hlt1jet30U","","HLT"),
+           IsoCollections = cms.VInputTag(cms.InputTag("none")),
+           theHLTOutputTypes = cms.uint32(95),
+     ),
 disableROOToutput = cms.untracked.bool(True)
    )
 

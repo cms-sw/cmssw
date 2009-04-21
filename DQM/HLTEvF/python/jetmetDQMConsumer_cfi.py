@@ -11,8 +11,8 @@ jetmetDQMConsumer = cms.EDAnalyzer("HLTMonJetMETConsumer",
     #  cms.PSet(HLTRefLabels = cms.string("hltL1s1Level1jet15")),
     #  cms.PSet(HLTRefLabels = cms.string("hltL1s1jet30")),
     #  cms.PSet(HLTRefLabels = cms.string("hlt1jet30"))
-    #  cms.PSet(HLTRefLabels = cms.string("hltL1sL1Jet15")),
-      cms.PSet(HLTRefLabels = cms.string("hltL1sJet30")),
+      cms.PSet(HLTRefLabels = cms.string("hltL1sJet15U")),
+      cms.PSet(HLTRefLabels = cms.string("hltL1sJet30U")),
     #  cms.PSet(HLTRefLabels = cms.string("hltL1sJet50")),
     #  cms.PSet(HLTRefLabels = cms.string("hlt1jet50"))
     ),
@@ -20,8 +20,8 @@ jetmetDQMConsumer = cms.EDAnalyzer("HLTMonJetMETConsumer",
     #  cms.PSet(HLTProbeLabels = cms.string("hltL1s1Level1jet15")),
     #  cms.PSet(HLTProbeLabels = cms.string("hltL1s1jet30")),
     #  cms.PSet(HLTProbeLabels = cms.string("hlt1jet30"))
-    #  cms.PSet(HLTProbeLabels = cms.string("hltL1sL1Jet15")),
-      cms.PSet(HLTProbeLabels = cms.string("hlt1jet30")),
+      cms.PSet(HLTProbeLabels = cms.string("hlt1jet15U")),
+      cms.PSet(HLTProbeLabels = cms.string("hlt1jet30U")),
     #  cms.PSet(HLTProbeLabels = cms.string("hlt1jet50")),
     #  cms.PSet(HLTProbeLabels = cms.string("hlt1jet80"))
     )
