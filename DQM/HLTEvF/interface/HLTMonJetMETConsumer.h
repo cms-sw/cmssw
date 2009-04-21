@@ -12,7 +12,7 @@
 // Adapted from HLTMonElectronConsumer.h
 // Adapted for JetMET by. J. Cammin
 //
-// $Id: HLTMonJetMET.h,v 1.0 2008/12/11 13:13:30 cammin Exp $
+// $Id: HLTMonJetMETConsumer.h,v 1.1 2008/12/21 01:43:49 cammin Exp $
 //
 //
 
@@ -89,6 +89,7 @@ class HLTMonJetMETConsumer : public edm::EDAnalyzer {
       std::vector<std::string> theHLTRefLabels;  
       std::vector<std::string> theHLTProbeLabels;  
       int RefLabelSize, ProbeLabelSize;
+      bool runConsumer;
       
 };
 #endif

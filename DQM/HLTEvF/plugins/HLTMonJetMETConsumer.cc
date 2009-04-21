@@ -105,7 +105,7 @@ void
 HLTMonJetMETConsumer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  
+   if(!runConsumer) return;  
 //   printf("[DEBUG]: HLTMonJetMETConsumer (analyze)\n");
   if (ProbeLabelSize == 0){
     LogError("HLTMonJetMETConsumer") << "0 filters for monitoring specified. Nothing will be done.";
@@ -115,25 +115,25 @@ HLTMonJetMETConsumer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 //   printf("[DEBUG] working on event %i\n",ievt);
   ievt++;
 
-  TH1F *num_Et;
-  TH1F *num_Eta;
-  TH1F *num_Phi;
-  TH1F *denom_Et;
-  TH1F *denom_Eta;
-  TH1F *denom_Phi;
+  TH1F *num_Et=NULL;
+  TH1F *num_Eta=NULL;
+  TH1F *num_Phi=NULL;
+  TH1F *denom_Et=NULL;
+  TH1F *denom_Eta=NULL;
+  TH1F *denom_Phi=NULL;
   for(int i=0; i < RefLabelSize;i++ ){
-    num_Et = injetmet_probe_Et[i]->getTH1F();
-    denom_Et = injetmet_ref_Et[i]->getTH1F();
-    num_Eta = injetmet_probe_Eta[i]->getTH1F();
-    denom_Eta = injetmet_ref_Eta[i]->getTH1F();
-    num_Phi = injetmet_probe_Phi[i]->getTH1F();
-    denom_Phi = injetmet_ref_Phi[i]->getTH1F();
+    if(injetmet_probe_Et[i]) num_Et = injetmet_probe_Et[i]->getTH1F();
+    if(injetmet_ref_Et[i]) denom_Et = injetmet_ref_Et[i]->getTH1F();
+    if(injetmet_probe_Eta[i]) num_Eta = injetmet_probe_Eta[i]->getTH1F();
+    if(injetmet_ref_Eta[i]) denom_Eta = injetmet_ref_Eta[i]->getTH1F();
+    if(injetmet_probe_Phi[i]) num_Phi = injetmet_probe_Phi[i]->getTH1F();
+    if(injetmet_ref_Phi[i]) denom_Phi = injetmet_ref_Phi[i]->getTH1F();
 
-    if (!num_Et) {
+    if (!num_Et || !num_Eta || !num_Phi) {
       std::cout << "Can't find probe " << theHLTProbeLabels[i] << std::endl;
       return;
     }
-    if (!denom_Et) {
+    if (!denom_Et || !denom_Eta || !denom_Phi) {
       std::cout << "Can't find reference " << theHLTProbeLabels[i] << std::endl;
       return;
     }
@@ -173,6 +173,7 @@ void
 HLTMonJetMETConsumer::beginJob(const edm::EventSetup&)
 {
   ievt = 0;
+  runConsumer=false;
 //   printf("[DEBUG]: HLTMonJetMETConsumer (beginJob)\n");
   
   DQMStore *dbe = 0;
@@ -191,7 +192,7 @@ HLTMonJetMETConsumer::beginJob(const edm::EventSetup&)
     std::string histdir_ = "HLT/HLTMonhltMonJetMET";
     
      std::string MEname;
-     TH1F *htemp ;
+     TH1F *htemp = NULL;
 
      MEname = histdir_ + "/" + theHLTRefLabels[0] + "et";
 //      printf("[DEBUG] MEname = %s\n",MEname.c_str());
@@ -199,6 +200,7 @@ HLTMonJetMETConsumer::beginJob(const edm::EventSetup&)
 //      if (!MEtemp) {printf("Error in HLTMonJetMETConsumer: %s not found.\n",MEname.c_str()); }
      if (!MEtemp) {LogError("HLTMonJetMETConsumer") << "Error! Filter " << MEname << " not found.\n";}
      if (!MEtemp) {std::cout<<"HLTMonJetMETConsumer: Error! Filter " << MEname << " not found.\n";}
+     if(!MEtemp) return;
      htemp = MEtemp->getTH1F();
      int nbin_Et = htemp->GetNbinsX();
      double xmin_Et = htemp->GetXaxis()->GetXmin();
@@ -208,6 +210,7 @@ HLTMonJetMETConsumer::beginJob(const edm::EventSetup&)
      MEname = histdir_ + "/" + theHLTRefLabels[0] + "eta";
 //      printf("[DEBUG] MEname = %s\n",MEname.c_str());
      MEtemp = dbe->get(MEname);
+     if(!MEtemp) return;
      htemp = MEtemp->getTH1F();
      int nbin_Eta = htemp->GetNbinsX();
      double xmin_Eta = htemp->GetXaxis()->GetXmin();
@@ -217,6 +220,7 @@ HLTMonJetMETConsumer::beginJob(const edm::EventSetup&)
      MEname = histdir_ + "/" + theHLTRefLabels[0] + "phi";
 //      printf("[DEBUG] MEname = %s\n",MEname.c_str());
      MEtemp = dbe->get(MEname);
+     if(!MEtemp) return;
      htemp = MEtemp->getTH1F();
      int nbin_Phi = htemp->GetNbinsX();
      double xmin_Phi = htemp->GetXaxis()->GetXmin();
@@ -269,6 +273,7 @@ HLTMonJetMETConsumer::beginJob(const edm::EventSetup&)
     LogDebug("HLTMonJetMETConsumer") << " reading histo: "  << histdir_;    
 
   } // end "if(dbe)"
+  runConsumer=true;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
