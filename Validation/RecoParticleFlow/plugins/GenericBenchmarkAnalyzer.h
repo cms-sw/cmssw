@@ -37,6 +37,10 @@ public:
   double minEta_cut;
   double maxEta_cut;
   double deltaR_cut;
+  float minDeltaEt_;
+  float maxDeltaEt_;
+  float minDeltaPhi_;
+  float maxDeltaPhi_;
 };
 
 #endif // GENERICBENCHMARKANALYZER_H

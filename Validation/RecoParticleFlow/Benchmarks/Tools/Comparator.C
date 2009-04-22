@@ -95,6 +95,92 @@ public:
   }
 
 
+  void DrawResp(const char* key, int binxmin, int binxmax, Mode mode )
+  {
+
+    //std::cout << "binxmin = " << binxmin << std::endl;
+    //std::cout << "binxmax = " << binxmax << std::endl;
+
+    TDirectory* dir = dir1_;
+    dir->cd();
+    //gStyle->SetPalette(1);
+    TH2F *h2 = (TH2*) dir->Get(key);
+    //h2->Draw("colz");
+
+    const unsigned int nbin=10;
+
+  double y[nbin];
+  double ey[nbin];
+  double x[nbin];
+  double ex[nbin];
+  for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
+  {
+    const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
+    const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
+    x[nbinc]=(binxmaxc-binxminc)/2.+binxminc;
+    ex[nbinc]=(binxmaxc-binxminc)/2.;
+
+    //std::cout << "binxminc = " << binxminc << std::endl;
+    //std::cout << "binxmaxc = " << binxmaxc << std::endl;
+
+
+    TH1D* h0_slice = h2->ProjectionY("h0_slice",binxminc, binxmaxc, "");
+    y[nbinc]= h0_slice->GetMean(1);
+    ey[nbinc]=0.0;
+  }
+
+  TGraphErrors *gr = new TGraphErrors(nbin,x,y,ex,ey);
+  gr->SetMaximum(0.4);
+  gr->SetMinimum(-0.4);
+  gr->SetMarkerStyle(21);
+  gr->SetMarkerColor(4);
+  gr->SetTitle("Response");
+  gr->Draw("AP");
+
+
+    dir = dir0_;
+    dir->cd();
+    //gStyle->SetPalette(1);
+    TH2F *h2b = (TH2*) dir->Get(key);
+    //h2->Draw("colz");
+
+  double yb[nbin];
+  double eyb[nbin];
+  for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
+  {
+    const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
+    const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
+
+    TH1D* h0_sliceb = h2b->ProjectionY("h0_slice",binxminc, binxmaxc, "");
+    yb[nbinc]= h0_sliceb->GetMean(1);
+    eyb[nbinc]=0.0;
+  }
+
+  TGraphErrors *grb = new TGraphErrors(nbin,x,yb,ex,eyb);
+  grb->SetMarkerStyle(21);
+  grb->SetMarkerColor(2);
+  grb->Draw("P");
+
+  }
+
+
+  void Draw2D_file1( const char* key, Mode mode) {
+    TDirectory* dir = dir0_;
+    dir->cd();
+    gStyle->SetPalette(1);
+    TH2F *h2 = (TH2*) dir->Get(key);
+    h2->Draw("colz");
+  }
+
+  void Draw2D_file2( const char* key, Mode mode) {
+    TDirectory* dir = dir1_;
+    dir->cd();
+    gStyle->SetPalette(1);
+    TH2F *h2 = (TH2*) dir->Get(key);
+    h2->Draw("colz");
+  }
+
+
   void Draw( const char* key, Mode mode) {
 
     TH1::AddDirectory( false );

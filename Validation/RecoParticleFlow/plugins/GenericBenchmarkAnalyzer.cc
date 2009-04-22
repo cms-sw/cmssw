@@ -49,6 +49,10 @@ GenericBenchmarkAnalyzer::GenericBenchmarkAnalyzer(const edm::ParameterSet& iCon
   minEta_cut                   = iConfig.getParameter<double>("minEta");
   maxEta_cut                   = iConfig.getParameter<double>("maxEta");
   deltaR_cut                   = iConfig.getParameter<double>("deltaRMax");
+  minDeltaEt_                   = iConfig.getParameter<double>("minDeltaEt");
+  maxDeltaEt_                   = iConfig.getParameter<double>("maxDeltaEt");
+  minDeltaPhi_                  = iConfig.getParameter<double>("minDeltaPhi");
+  maxDeltaPhi_                  = iConfig.getParameter<double>("maxDeltaPhi");
 
   if (outputFile_.size() > 0)
     edm::LogInfo("OutputInfo") << " ParticleFLow Task histograms will be saved to '" << outputFile_.c_str()<< "'";
@@ -69,7 +73,7 @@ void GenericBenchmarkAnalyzer::beginJob(const edm::EventSetup& iSetup)
     string path = "PFTask/Benchmarks/" + benchmarkLabel_ + "/";
     if (plotAgainstRecoQuantities_) path += "Reco"; else path += "Gen";
     dbe_->setCurrentFolder(path.c_str());
-    setup(dbe_, plotAgainstRecoQuantities_);
+    setup(dbe_, plotAgainstRecoQuantities_, minDeltaEt_, maxDeltaEt_, minDeltaPhi_, maxDeltaPhi_);
 
   }
 
@@ -93,20 +97,20 @@ void GenericBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
     // Get Truth Candidates (GenCandidates, GenJets, etc.)
     Handle<candidateCollection> truth_hnd;
     bool isGen = iEvent.getByLabel(inputTruthLabel_, truth_hnd);
-//     if ( !isGen ) { 
-//       std::cout << "Warning : no Gen jets in input !" << std::endl;
-//       return;
-//     }
+    if ( !isGen ) { 
+      std::cout << "Warning : no Gen jets in input !" << std::endl;
+      return;
+    }
 
     truth_candidates = truth_hnd.product();
 
     // Get Reco Candidates (PFlow, CaloJet, etc.)
     Handle<candidateCollection> reco_hnd;
     bool isReco = iEvent.getByLabel(inputRecoLabel_, reco_hnd);
-//     if ( !isReco ) { 
-//       std::cout << "Warning : no Reco jets in input !" << std::endl;
-//       return; 
-//     }
+    if ( !isReco ) { 
+      std::cout << "Warning : no Reco jets in input !" << std::endl;
+      return; 
+    }
     reco_candidates = reco_hnd.product();
 
     // no longer needed with template-ized Benchmark
