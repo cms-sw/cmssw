@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.27 2009/03/27 23:30:49 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.28 2009/03/29 02:26:19 wsun Exp $
 //
 //
 
@@ -469,6 +469,20 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
       Handle< L1GctEtMissCollection > hwEtMissColl ;
       iEvent.getByLabel( etMissSource_, hwEtMissColl ) ;
 
+      // Make a L1EtMissParticle even if either L1GctEtTotal or L1GctEtMiss
+      // is missing for a given bx.  Keep track of which L1GctEtMiss objects
+      // have a corresponding L1GctEtTotal object.
+      std::vector< bool > etMissMatched ;
+
+      L1GctEtMissCollection::const_iterator hwEtMissItr =
+	hwEtMissColl->begin() ;
+      L1GctEtMissCollection::const_iterator hwEtMissEnd =
+	hwEtMissColl->end() ;
+      for( ; hwEtMissItr != hwEtMissEnd ; ++hwEtMissItr )
+	{
+	  etMissMatched.push_back( false ) ;
+	}
+      
       // Collate energy sums by bx
       L1GctEtTotalCollection::const_iterator hwEtTotItr =
 	 hwEtTotColl->begin() ;
@@ -482,40 +496,48 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 
 	 if( !centralBxOnly_ || bx == 0 )
 	 {
-	   L1GctEtMissCollection::const_iterator hwEtMissItr =
-	     hwEtMissColl->begin() ;
-	   L1GctEtMissCollection::const_iterator hwEtMissEnd =
-	     hwEtMissColl->end() ;
+	   // ET bin low edge
+	   double etTot =
+	     ( hwEtTotItr->overFlow() ?
+	       ( double ) L1GctEtTotal::kEtTotalMaxValue :
+	       ( double ) hwEtTotItr->et() ) * etSumLSB + 1.e-6 ;
 
 	   int iMiss = 0 ;
+	   hwEtMissItr = hwEtMissColl->begin() ;
+	   hwEtMissEnd = hwEtMissColl->end() ;
 	   for( ; hwEtMissItr != hwEtMissEnd ; ++hwEtMissItr, ++iMiss )
 	     {
 	       if( hwEtMissItr->bx() == bx )
 		 {
+		   etMissMatched[ iMiss ] = true ;
 		   break ;
 		 }
 	     }
 
+	   double etMiss = 0. ;
+	   double phi = 0. ;
+	   math::PtEtaPhiMLorentzVector p4 ;
+	   Ref< L1GctEtMissCollection > metRef ;
+
 	   // If a L1GctEtMiss with the right bx is not found, itr == end.
 	   if( hwEtMissItr != hwEtMissEnd )
 	     {
-	       // Construct L1EtMissParticle only if both energy
-	       // sums are present.
-
 	       // ET bin low edge
-	       double etTot =
-		 ( hwEtTotItr->overFlow() ?
-		   ( double ) L1GctEtTotal::kEtTotalMaxValue :
-		   ( double ) hwEtTotItr->et() ) * etSumLSB + 1.e-6 ;
-	       double etMiss =
+	       etMiss =
 		 ( hwEtMissItr->overFlow() ?
 		   ( double ) L1GctEtMiss::kEtMissMaxValue :
 		   ( double ) hwEtMissItr->et() ) * etSumLSB + 1.e-6 ;
 	       // keep x and y components non-zero and
 	       // protect against roundoff.
 
-	       double phi =
-		 caloGeom->etSumPhiBinCenter( hwEtMissItr->phi() ) ;
+	       phi = caloGeom->etSumPhiBinCenter( hwEtMissItr->phi() ) ;
+
+	       p4 = math::PtEtaPhiMLorentzVector( etMiss,
+						  0.,
+						  phi,
+						  0. ) ;
+
+	       metRef = Ref< L1GctEtMissCollection >( hwEtMissColl, iMiss ) ;
 
 // 	       cout << "HW ET Sums " << endl
 // 		    << "MET: phi " << hwEtMissItr->phi() << " = " << phi
@@ -523,26 +545,84 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 		    << " EtTot " << hwEtTotItr->et() << " = " << etTot
 // 		    << " bx " << bx
 // 		    << endl ;
-
-	       math::PtEtaPhiMLorentzVector p4( etMiss,
-						0.,
-						phi,
-						0. ) ;
-
-	       etMissColl->push_back(
-		 L1EtMissParticle(
-		    p4,
-		    L1EtMissParticle::kMET,
-		    etTot,
-		    Ref< L1GctEtMissCollection >( hwEtMissColl, iMiss ),
-		    Ref< L1GctEtTotalCollection >( hwEtTotColl, iTot ),
-		    Ref< L1GctHtMissCollection >(),
-		    Ref< L1GctEtHadCollection >(),
-		    bx
-		    ) ) ;
 	     }
+// 	   else
+// 	     {
+// 	       cout << "HW ET Sums " << endl
+// 		    << "MET: phi " << phi
+// 		    << " et "<< etMiss
+// 		    << " EtTot " << hwEtTotItr->et() << " = " << etTot
+// 		    << " bx " << bx
+// 		    << endl ;
+// 	     }
+
+	   etMissColl->push_back(
+	     L1EtMissParticle(
+	       p4,
+	       L1EtMissParticle::kMET,
+	       etTot,
+	       metRef,
+	       Ref< L1GctEtTotalCollection >( hwEtTotColl, iTot ),
+	       Ref< L1GctHtMissCollection >(),
+	       Ref< L1GctEtHadCollection >(),
+	       bx
+	       ) ) ;
 	 }
       }
+
+      if( !centralBxOnly_ )
+	{
+	  // Make L1EtMissParticles for those L1GctEtMiss objects without
+	  // a matched L1GctEtTotal object.
+
+	  double etTot = 0. ;
+
+	  hwEtMissItr = hwEtMissColl->begin() ;
+	  hwEtMissEnd = hwEtMissColl->end() ;
+	  int iMiss = 0 ;
+	  for( ; hwEtMissItr != hwEtMissEnd ; ++hwEtMissItr, ++iMiss )
+	    {
+	      if( !etMissMatched[ iMiss ] )
+		{
+		  int bx = hwEtMissItr->bx() ;
+
+		  // ET bin low edge
+		  double etMiss =
+		    ( hwEtMissItr->overFlow() ?
+		      ( double ) L1GctEtMiss::kEtMissMaxValue :
+		      ( double ) hwEtMissItr->et() ) * etSumLSB + 1.e-6 ;
+		  // keep x and y components non-zero and
+		  // protect against roundoff.
+
+		  double phi =
+		    caloGeom->etSumPhiBinCenter( hwEtMissItr->phi() ) ;
+
+		  math::PtEtaPhiMLorentzVector p4( etMiss,
+						   0.,
+						   phi,
+						   0. ) ;
+
+// 		  cout << "HW ET Sums " << endl
+// 		       << "MET: phi " << hwEtMissItr->phi() << " = " << phi
+// 		       << " et " << hwEtMissItr->et() << " = " << etMiss
+// 		       << " EtTot " << etTot
+// 		       << " bx " << bx
+// 		       << endl ;
+
+		  etMissColl->push_back(
+		    L1EtMissParticle(
+		      p4,
+		      L1EtMissParticle::kMET,
+		      etTot,
+		      Ref< L1GctEtMissCollection >( hwEtMissColl, iMiss ),
+		      Ref< L1GctEtTotalCollection >(),
+		      Ref< L1GctHtMissCollection >(),
+		      Ref< L1GctEtHadCollection >(),
+		      bx
+		      ) ) ;
+		}
+	    }
+	}
 
       // ~~~~~~~~~~~~~~~~~~~~ HT Sums ~~~~~~~~~~~~~~~~~~~~
 
@@ -560,9 +640,22 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
       double htSumLSB = jetFinderParams->getHtLsbGeV();
 
       ESHandle< L1CaloEtScale > htMissScale ;
+      std::vector< bool > htMissMatched ;
       if( !ignoreHtMiss_ )
 	{
 	  iSetup.get< L1HtMissScaleRcd >().get( htMissScale ) ;
+
+	  // Make a L1EtMissParticle even if either L1GctEtHad or L1GctHtMiss
+	  // is missing for a given bx. Keep track of which L1GctHtMiss objects
+	  // have a corresponding L1GctHtTotal object.
+	  L1GctHtMissCollection::const_iterator hwHtMissItr =
+	    hwHtMissColl->begin() ;
+	  L1GctHtMissCollection::const_iterator hwHtMissEnd =
+	    hwHtMissColl->end() ;
+	  for( ; hwHtMissItr != hwHtMissEnd ; ++hwHtMissItr )
+	    {
+	      htMissMatched.push_back( false ) ;
+	    }
 	}
 
       L1GctEtHadCollection::const_iterator hwEtHadItr =
@@ -577,6 +670,17 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 
 	 if( !centralBxOnly_ || bx == 0 )
 	 {
+	   // HT bin low edge
+	   double htTot =
+	     ( hwEtHadItr->overFlow() ?
+	       ( double ) L1GctEtHad::kEtHadMaxValue :
+	       ( double ) hwEtHadItr->et() ) * htSumLSB + 1.e-6 ;
+
+	   double htMiss = 0. ;
+	   double phi = 0. ;
+	   math::PtEtaPhiMLorentzVector p4 ;
+	   Ref< L1GctHtMissCollection > mhtRef ;
+
 	   if( !ignoreHtMiss_ )
 	     {
 	       L1GctHtMissCollection::const_iterator hwHtMissItr =
@@ -589,6 +693,7 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 		 {
 		   if( hwHtMissItr->bx() == bx )
 		     {
+		       htMissMatched[ iMiss ] = true ;
 		       break ;
 		     }
 		 }
@@ -596,71 +701,111 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	       // If a L1GctHtMiss with the right bx is not found, itr == end.
 	       if( hwHtMissItr != hwHtMissEnd )
 		 {
-		   // Construct L1EtMissParticle only if both energy
-		   // sums are present.
-
 		   // HT bin low edge
-		   double htTot =
-		     ( hwEtHadItr->overFlow() ?
-		       ( double ) L1GctEtHad::kEtHadMaxValue :
-		       ( double ) hwEtHadItr->et() ) * htSumLSB + 1.e-6 ;
-		   double htMiss =
+		   htMiss =
 		     htMissScale->et( hwHtMissItr->overFlow() ?
 				      htMissScale->rankScaleMax() :
 				      hwHtMissItr->et() ) + 1.e-6 ;
 		   // keep x and y components non-zero and
 		   // protect against roundoff.
 
-		   double phi =
+		   phi =
 		     caloGeom->etSumPhiBinCenter( hwHtMissItr->phi() ) ;
 
-		   // cout << "HW HT Sums " << endl
-		   // 	   << "MHT: phi " << hwHtMissItr->phi() << " = " << phi
-		   // 	   << " ht " << hwHtMissItr->et() << " = " << htMiss
-		   // 	   << " HtTot " << hwEtHadItr->et() << " = " << htTot
-		   // 	   << " bx " << bx
-		   // 	   << endl ;
+		   p4 = math::PtEtaPhiMLorentzVector( htMiss,
+						      0.,
+						      phi,
+						      0. ) ;
 
-		   math::PtEtaPhiMLorentzVector p4( htMiss,
-						    0.,
-						    phi,
-						    0. ) ;
+		   mhtRef=Ref< L1GctHtMissCollection >( hwHtMissColl, iMiss );
 
-		   htMissColl->push_back(
-		     L1EtMissParticle(
-		     p4,
-		     L1EtMissParticle::kMHT,
-		     htTot,
-		     Ref< L1GctEtMissCollection >(),
-		     Ref< L1GctEtTotalCollection >(),
-		     Ref< L1GctHtMissCollection >( hwHtMissColl, iMiss ),
-		     Ref< L1GctEtHadCollection >( hwEtHadColl, iHad ),
-		     bx
-		     ) ) ;
+// 		   cout << "HW HT Sums " << endl
+// 			<< "MHT: phi " << hwHtMissItr->phi() << " = " << phi
+// 			<< " ht " << hwHtMissItr->et() << " = " << htMiss
+// 			<< " HtTot " << hwEtHadItr->et() << " = " << htTot
+// 			<< " bx " << bx
+// 			<< endl ;
 		 }
+// 	       else
+// 		 {
+// 		   cout << "HW HT Sums " << endl
+// 			<< "MHT: phi " << phi
+// 			<< " ht " << htMiss
+// 			<< " HtTot " << hwEtHadItr->et() << " = " << htTot
+// 			<< " bx " << bx
+// 			<< endl ;
+// 		 }
 	     }
-	   else // No L1GctHtMiss object available; just fill HT.
-	     {
-	       // HT bin low edge
-	       double htTot =
-		 ( hwEtHadItr->overFlow() ?
-		   ( double ) L1GctEtHad::kEtHadMaxValue :
-		   ( double ) hwEtHadItr->et() ) * htSumLSB + 1.e-6 ;
 
-	       htMissColl->push_back(
-		 L1EtMissParticle(
-		   math::PtEtaPhiMLorentzVector(),
-		   L1EtMissParticle::kMHT,
-		   htTot,
-		   Ref< L1GctEtMissCollection >(),
-		   Ref< L1GctEtTotalCollection >(),
-		   Ref< L1GctHtMissCollection >(),
-		   Ref< L1GctEtHadCollection >(),
-		   bx
-		   ) ) ;
-	     }
+	   htMissColl->push_back(
+	     L1EtMissParticle(
+	       p4,
+	       L1EtMissParticle::kMHT,
+	       htTot,
+	       Ref< L1GctEtMissCollection >(),
+	       Ref< L1GctEtTotalCollection >(),
+	       mhtRef,
+	       Ref< L1GctEtHadCollection >( hwEtHadColl, iHad ),
+	       bx
+	       ) ) ;
 	 }
       }
+
+      if( !centralBxOnly_  && !ignoreHtMiss_ )
+	{
+	  // Make L1EtMissParticles for those L1GctHtMiss objects without
+	  // a matched L1GctHtTotal object.
+	  double htTot = 0. ;
+
+	  L1GctHtMissCollection::const_iterator hwHtMissItr =
+	    hwHtMissColl->begin() ;
+	  L1GctHtMissCollection::const_iterator hwHtMissEnd =
+	    hwHtMissColl->end() ;
+
+	  int iMiss = 0 ;
+	  for( ; hwHtMissItr != hwHtMissEnd ; ++hwHtMissItr, ++iMiss )
+	    {
+	      if( !htMissMatched[ iMiss ] )
+		{
+		  int bx = hwHtMissItr->bx() ;
+
+		  // HT bin low edge
+		  double htMiss =
+		    htMissScale->et( hwHtMissItr->overFlow() ?
+				     htMissScale->rankScaleMax() :
+				     hwHtMissItr->et() ) + 1.e-6 ;
+		  // keep x and y components non-zero and
+		  // protect against roundoff.
+
+		  double phi =
+		    caloGeom->etSumPhiBinCenter( hwHtMissItr->phi() ) ;
+
+		  math::PtEtaPhiMLorentzVector p4( htMiss,
+						   0.,
+						   phi,
+						   0. ) ;
+
+// 		  cout << "HW HT Sums " << endl
+// 		       << "MHT: phi " << hwHtMissItr->phi() << " = " << phi
+// 		       << " ht " << hwHtMissItr->et() << " = " << htMiss
+// 		       << " HtTot " << htTot
+// 		       << " bx " << bx
+// 		       << endl ;
+
+		  htMissColl->push_back(
+		    L1EtMissParticle(
+		      p4,
+		      L1EtMissParticle::kMHT,
+		      htTot,
+		      Ref< L1GctEtMissCollection >(),
+		      Ref< L1GctEtTotalCollection >(),
+		      Ref< L1GctHtMissCollection >( hwHtMissColl, iMiss ),
+		      Ref< L1GctEtHadCollection >(),
+		      bx
+		      ) ) ;
+		}
+	    }
+	}
 
       // ~~~~~~~~~~~~~~~~~~~~ HF Rings ~~~~~~~~~~~~~~~~~~~~
 
