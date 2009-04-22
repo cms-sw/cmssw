@@ -152,7 +152,7 @@ process.load('HLTrigger.HLTfilters.hltLevel1GTSeed_cfi')
 # by convention, 'L1GlobalDecision' logical expression means global decision
 # 
 
-logExpressionNumber = 12
+logExpressionNumber = 2
 
 if logExpressionNumber == 0 :
     process.hltLevel1GTSeed.L1SeedsLogicalExpression = \
@@ -162,7 +162,7 @@ elif logExpressionNumber == 1 :
         'L1_SingleJet50U'                                    # 1
 elif logExpressionNumber == 2 :        
     process.hltLevel1GTSeed.L1SeedsLogicalExpression = \
-        'L1_HTT250 OR L1_ETM10 OR L1_ETT60 OR L1_SingleEG15' # 2
+        'L1_HTT200 OR L1_ETM20 OR L1_ETT60 OR L1_SingleEG15' # 2
 elif logExpressionNumber == 3 :        
     process.hltLevel1GTSeed.L1SeedsLogicalExpression = \
         'L1_HTT250 OR L1_HTT300 OR L1_SingleEG15'            # 3

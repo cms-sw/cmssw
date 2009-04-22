@@ -764,7 +764,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     }
 
     // energy sums
-    if (listETM.size() || listETT.size()) {
+    if (listETM.size()) {
         edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
         iEvent.getByLabel(m_l1EtMissMET, l1EnergySums);
 
@@ -772,12 +772,13 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
             edm::LogWarning("HLTLevel1GTSeed")
                     << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMET
                     << "\nrequested in configuration, but not found in the event."
-                    << "\nNo ETT nor ETM added to filterObject." << std::endl;
-	} else if (l1EnergySums->size()==0) {
+                    << "\nNo ETM added to filterObject." << std::endl;
+        } else if (l1EnergySums->size() == 0) {
             edm::LogWarning("HLTLevel1GTSeed")
                     << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMET
-                    << "\nfound in the event but with 0 size."
-                    << "\nNo ETT nor ETM added to filterObject." << std::endl;
+                    << "\nfound in the event but with 0 size." << "\nNo ETM added to filterObject."
+                    << std::endl;
+
         } else {
 
             for (std::list<int>::const_iterator itObj = listETM.begin(); itObj != listETM.end(); ++itObj) {
@@ -786,6 +787,27 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
                         l1EnergySums, *itObj));
 
             }
+
+        }
+
+    }
+
+    if (listETT.size()) {
+        edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
+        iEvent.getByLabel(m_l1EtMissMET, l1EnergySums);
+
+        if (!l1EnergySums.isValid()) {
+            edm::LogWarning("HLTLevel1GTSeed")
+                    << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMET
+                    << "\nrequested in configuration, but not found in the event."
+                    << "\nNo ETT added to filterObject." << std::endl;
+        } else if (l1EnergySums->size() == 0) {
+            edm::LogWarning("HLTLevel1GTSeed")
+                    << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMET
+                    << "\nfound in the event but with 0 size." << "\nNo ETT added to filterObject."
+                    << std::endl;
+
+        } else {
 
             for (std::list<int>::const_iterator itObj = listETT.begin(); itObj != listETT.end(); ++itObj) {
 
@@ -796,7 +818,9 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
         }
 
-    } else if (listHTT.size() || listHTM.size()) {
+    }
+
+    if (listHTT.size()) {
         edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
         iEvent.getByLabel(m_l1EtMissMHT, l1EnergySums);
 
@@ -804,13 +828,13 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
             edm::LogWarning("HLTLevel1GTSeed")
                     << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMHT
                     << "\nrequested in configuration, but not found in the event."
-                    << "\nNo HTT nor HTM added to filterObject." << std::endl;
+                    << "\nNo HTT added to filterObject." << std::endl;
 
-	} else if (l1EnergySums->size()==0) {
+        } else if (l1EnergySums->size() == 0) {
             edm::LogWarning("HLTLevel1GTSeed")
                     << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMHT
-                    << "\nfound in the event but with 0 size."
-                    << "\nNo HTT nor HTM added to filterObject." << std::endl;
+                    << "\nfound in the event but with 0 size." << "\nNo HTT added to filterObject."
+                    << std::endl;
 
         } else {
 
@@ -821,6 +845,27 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
             }
 
+        }
+    }
+
+    if (listHTM.size()) {
+        edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
+        iEvent.getByLabel(m_l1EtMissMHT, l1EnergySums);
+
+        if (!l1EnergySums.isValid()) {
+            edm::LogWarning("HLTLevel1GTSeed")
+                    << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMHT
+                    << "\nrequested in configuration, but not found in the event."
+                    << "\nNo HTM added to filterObject." << std::endl;
+
+        } else if (l1EnergySums->size() == 0) {
+            edm::LogWarning("HLTLevel1GTSeed")
+                    << "\nWarning: L1EtMissParticleCollection with input tag " << m_l1EtMissMHT
+                    << "\nfound in the event but with 0 size." << "\nNo HTM added to filterObject."
+                    << std::endl;
+
+        } else {
+
             for (std::list<int>::const_iterator itObj = listHTM.begin(); itObj != listHTM.end(); ++itObj) {
 
                 filterObject->addObject(trigger::TriggerL1HTM, l1extra::L1EtMissParticleRef(
@@ -829,6 +874,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
             }
         }
     }
+
 
 
 
