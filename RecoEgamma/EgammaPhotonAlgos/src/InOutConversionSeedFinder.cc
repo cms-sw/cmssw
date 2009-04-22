@@ -669,7 +669,8 @@ void InOutConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
 void InOutConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,  const TrajectoryMeasurement & m2) const {
   
  //std::cout << "InOutConversionSeedFinder::createSeed " << "\n";
-  
+
+  if (  m1.predictedState().isValid() ) {  
   GlobalTrajectoryParameters newgtp(  m1.recHit()->globalPosition(), track2InitialMomentum_, track2Charge_, &(*theMF_) );
   CurvilinearTrajectoryError errors = m1.predictedState().curvilinearError();
   FreeTrajectoryState fts(newgtp, errors);
@@ -728,5 +729,7 @@ void InOutConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,  co
       }
     }
   }
+  }
+
   
 }
