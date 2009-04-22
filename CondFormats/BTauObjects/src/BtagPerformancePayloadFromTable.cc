@@ -6,18 +6,8 @@ int BtagPerformancePayloadFromTable::InvalidPos=-1;
 
 
 float BtagPerformancePayloadFromTable::getResult(BtagResult::BtagResultType r ,BtagBinningPointByMap p) const {
-  //
-  // dump the table here
-  //
 
-  /*  
-  for (int k=0;k<(table_.size()/stride_); k++){
-    for (int j=0; j<stride_; j++){
-      std::cout << "PPos["<<k<<","<<j<<"] = "<<table_[k*stride_+j]<<std::endl;
-    }
-  }
-  */
-
+  if (! isInPayload(r,p)) return  BtagPerformancePayload::InvalidResult;
 
   // loop on the table rows and search for a match
   for (int i=0; i< pl.nRows(); i++){
@@ -50,7 +40,6 @@ bool BtagPerformancePayloadFromTable::matches(BtagBinningPointByMap p, PhysicsPe
     if (!(v > row[minPos(*it)] && v  < row[maxPos(*it)])) return false;
   }
   return true;
-
 }
 
 bool BtagPerformancePayloadFromTable::isInPayload(BtagResult::BtagResultType res,BtagBinningPointByMap point) const {
