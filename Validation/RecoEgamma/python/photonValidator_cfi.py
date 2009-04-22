@@ -19,6 +19,7 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
     trackProducer = cms.InputTag("generalTracks"),
     label_tp = cms.InputTag("tpSelection"),                              
     Verbosity = cms.untracked.int32(0),
+    signal =  cms.bool(True),
 #
     minPhoEtCut = cms.double(35.0),
     convTrackMinPtCut = cms.double(1.),
@@ -90,6 +91,10 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
 #
     chi2Min =  cms.double(0.),
     chi2Max =  cms.double(20.),                              
+#
+    ggMassBin  =cms.int32(100),
+    ggMassMin  =cms.double(0.),
+    ggMassMax  =cms.double(200.),                                 
 #
     rBinForXray = cms.int32(200),
     rMinForXray = cms.double(0.),
