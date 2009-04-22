@@ -63,7 +63,7 @@ Implementation:
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
-#include "DataFormats/Math/interface/deltaR.h"
+#include "PhysicsTools/Utilities/interface/deltaR.h"
 
 #include "TMath.h" 
 
@@ -147,6 +147,18 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
     LogInfo("HLTMuonDQMSource") << "===>DQM event prescale = " << prescaleEvt_ << " events "<< endl;
     
     
+    // Efficiency summary histogram
+    int nbin = theHLTCollectionLabels.size() - 1;
+    hCountSummary = dbe_->book1D("hCountSummary", "Counticiency Summary", nbin+1, -0.5, 0.5+(double)nbin);
+    hEffSummary = dbe_->book1D("hEffSummary", "Efficiency Summary", nbin, 0.5, 0.5+(double)nbin);
+    hEffSummary->setAxisTitle("# of events passing (trig path/"+theHLTCollectionLabels[0]+")", 2);
+    for( int ibin = 0; ibin < nbin; ibin++ ) {
+	hEffSummary->setBinLabel(ibin+1, theHLTCollectionLabels[ibin+1]);
+    }
+    for( int ibin = 0; ibin < nbin+1; ibin++ ) {
+	hCountSummary->setBinLabel(ibin+1, theHLTCollectionLabels[ibin]);
+    }
+
     /// book some histograms here
     int NBINS = 50; XMIN = 0; XMAX = 50;
     
@@ -158,6 +170,7 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
       if( trig == 0 ) dirname = "L1PassThrough/";
       if( trig == 1 ) dirname = "L2PassThrough/";
       if( trig == 2 ) dirname = "L3PassThrough/";
+
       for ( int level = 1; level < 7; ++level ) {
 	if( level < 4 ) sprintf(name,"Level%i",level);
 	else if (level == 4 ) sprintf(name,"Level%iSeed", level-2);
@@ -762,8 +775,10 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   if (prescaleEvt_ > 0 && counterEvt_%prescaleEvt_!=0) return;
   LogDebug("HLTMuonDQMSource") << " processing conterEvt_: " << counterEvt_ <<endl;
   
+  bool trigPathFired[NTRIG] = {false};
   bool trigFired = false;
   bool FiredTriggers[NTRIG] = {false};
+
   Handle<TriggerResults> trigResult;
   iEvent.getByLabel(InputTag("TriggerResults"), trigResult);
   if( !trigResult.failedToGet() ) {
@@ -778,6 +793,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	  if( theHLTCollectionLevel[n] == "L2" ) FiredTriggers[1] = true;
 	  if( theHLTCollectionLevel[n] == "L3" ) FiredTriggers[2] = true;
 	  trigFired = true;
+	  trigPathFired[n] = true;
 	}
       }
     }
@@ -785,6 +801,21 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   // trigger fired
   if( !trigFired ) return;
   nTrig_++;
+
+  // efficiency summary
+  for( unsigned int i = 0; i < (unsigned int)theHLTCollectionLabels.size(); i++ ) {
+      if( trigPathFired[i] ) {
+	  hCountSummary->Fill(i);
+      }
+  }
+  TH1F* refhisto = hCountSummary->getTH1F();
+  for( unsigned int i = 1; i < (unsigned int)theHLTCollectionLabels.size()+1; i++ ) {
+      double denomerator = refhisto->GetBinContent(1); // HLT_L1MuOpen usually. If not , the lowest threshold HLT_L1Mu*
+      double numerator = refhisto->GetBinContent(i+1);
+      double eff;
+      if( denomerator != 0 ) eff = numerator/denomerator;
+      hEffSummary->setBinContent(i, eff);
+  }
 
   //get the field
   edm::ESHandle<MagneticField> magField;
