@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/02/25 16:52:05 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/03/24 10:13:15 $
+ *  $Revision: 1.13 $
  *  \author  M. Vander Donckt CERN
  *   
  */
@@ -149,6 +149,8 @@ private:
   MonitorElement * htowerdRL2[NTRIG];
   MonitorElement * htowerdRL3[NTRIG];
   MonitorElement * hL2muonIsoDR[NTRIG];
+  MonitorElement * hEffSummary;
+  MonitorElement * hCountSummary;
   float XMIN; float XMAX;
 
   TH1D *_hpt1[NTRIG][2], *_hpt2[NTRIG][2];
