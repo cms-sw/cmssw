@@ -1,0 +1,327 @@
+import os.path
+import logging
+import math
+
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
+
+class TabController(QObject):
+    """ Base class for all tab controllers.
+    
+    Tab controllers control the functionality of plugin tabs.
+    """ 
+    
+    TAB_LABEL_MAX_LENGTH = 20
+
+    def __init__(self, plugin):
+        QObject.__init__(self)
+        logging.debug(__name__ + ": __init__")
+        self._plugin = plugin
+        self._fileModifiedFlag = False
+        self._isEditableFlag = True
+        self._tab = None
+        self._filename = None
+        self._copyPasteEnabledFlag = False
+        self._findEnabledFlag = False
+        self._userZoomLevel = 100
+        self._zoomButtonPressedBeforeFlag = False
+           
+    #@staticmethod
+    def staticSupportedFileTypes():
+        """ Static function returning all filetypes the tab controller can handle.
+        
+        Sub classes should reimplement this function. It returns a list with 2-tuples of the following form:
+        ('extension', 'description of file type').
+        """
+        return []
+    staticSupportedFileTypes = staticmethod(staticSupportedFileTypes)
+
+    def supportedFileTypes(self):
+        """ Returns staticSupportedFileTypes() of the class to which this object belongs.
+        """
+        return self.__class__.staticSupportedFileTypes()
+        
+    def plugin(self):
+        """ Retruns the plugin reference, set by setPlugin().
+        """
+        return self._plugin
+       
+    def setTab(self, tab):
+        """ Sets tab.
+        """
+        self._tab = tab
+        
+    def tab(self):
+        """ Returns tab.
+        """
+        return self._tab
+    
+    def setFilename(self, filename):
+        """ Sets a filename.
+        """
+        self._filename = filename
+    
+    def filename(self):
+        """ Returns filename of this tab.
+        """
+        return self._filename
+    
+    def getFileBasename(self):
+        """ Returns the basename of this tab's filename.
+        
+        Part of filename after last /.
+        """
+        return os.path.basename(self._filename) 
+    
+    def setCopyPasteEnabled(self, enable=True):
+        """ Sets a flag indicating whether this tab can handle copy and paste events.
+        
+        See also isCopyPasteEnabled(), cut(), copy(), paste().
+        """
+        self._copyPasteEnabledFlag = enable
+        
+    def isCopyPasteEnabled(self):
+        """ Return True if the copyPasteFlag is set.
+        
+        See setCopyPasteEnabled(), cut(), copy(), paste().
+        """
+        return self._copyPasteEnabledFlag
+    
+    def setFindEnabled(self, enable=True):
+        """S ets a flag indicating whether this tab can handle find requests.
+        
+        See isFindEnabled(), find().
+        """
+        self._findEnabledFlag = enable
+        
+    def isFindEnabled(self):
+        """Returns True if findEnabledFlag is set.
+        
+        See setFindEnabled(), find().
+        """
+        return self._findEnabledFlag
+    
+    def updateLabel(self):
+        """ Sets the text of the tab to filename if it is set. 
+        
+        Otherwise it is set to 'UNTITLED'. It also evaluates the fileModifiedFlag and indicates changes with an *.
+        """
+        if self._filename:
+            title = os.path.basename(self._filename)
+            if len(os.path.splitext(title)[0]) > self.TAB_LABEL_MAX_LENGTH:
+                ext = os.path.splitext(title)[1].lower().strip(".")
+                title = os.path.splitext(title)[0][0:self.TAB_LABEL_MAX_LENGTH] + "...." + ext
+        else:
+            title = 'UNTITLED'
+        
+        if self.isModified():
+            title = '*' + title
+        
+        self.tab().tabWidget().setTabText(self.tab().tabWidget().indexOf(self.tab()), title)
+        
+    def setModified(self, modified=True):
+        """ Sets the file Modified flag to True or False.
+        
+        This affects the closing of this tab.
+        """        
+        previous = self._fileModifiedFlag
+        self._fileModifiedFlag = modified
+        
+        if previous != self._fileModifiedFlag:
+            self.updateLabel()    
+            self.tab().mainWindow().application().currentFileModified()
+        
+    def isModified(self):
+        """ Evaluates the file Modified flag. Always returns True if no filename is set.
+        """
+        return self._fileModifiedFlag
+        
+    def setEditable(self,editable):
+        """ Sets the file Editable flag.
+        """
+        self._isEditableFlag=editable
+        self.plugin().application().updateMenu()
+        
+    def isEditable(self):
+        """ Evaluates the file Editable flag.
+        """
+        return self._isEditableFlag
+        
+    def save(self, filename=''):
+        """ Takes the tab's data will be written to a file.
+        
+        Whenever the content of the tab should be saved, this method should be called. If no filename is specified nor already set set it asks the user to set one. 
+        Afterwards the writing is initiated by calling writeFile(). 
+        """
+        #logging.debug('Tab: save()')
+        self.tab().mainWindow().statusBar().showMessage("Saving file " + filename + "...")
+        
+        if filename == '':
+            if self._filename:
+                filename = self._filename
+            else:
+                return self.tab().mainWindow().application().saveFileAsDialog()
+        
+        self.tab().mainWindow().statusBar().showMessage("Saving file " + filename + "...")
+            
+        if self.writeFile(filename):
+            if filename != self._filename:
+                self.setFilename(filename)
+            self.setModified(False)
+            self.updateLabel()
+            self.tab().mainWindow().application().addRecentFile(filename)
+            self.tab().mainWindow().application().currentFileModified()
+            self.tab().mainWindow().statusBar().showMessage("Saving file " + filename + "... done.")
+            return True
+        
+        QMessageBox.critical(self.tab().mainWindow(), 'Error while saving data', 'Could not write to file ' + filename)
+        self.tab().mainWindow().statusBar().showMessage("Saving file " + filename + "... failed.")
+        return False
+
+    def allowClose(self):
+        if self.isModified():
+            msgBox = QMessageBox(self.tab().mainWindow())
+            msgBox.setParent(self.tab().mainWindow(), Qt.Sheet)     # Qt.Sheet: Indicates that the widget is a Macintosh sheet.
+            msgBox.setText("The document has been modified.")
+            msgBox.setInformativeText("Do you want to save your changes?")
+            msgBox.setStandardButtons(QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
+            msgBox.setDefaultButton(QMessageBox.Save)
+            ret = msgBox.exec_()
+            if ret == QMessageBox.Save:
+                if not self.save():
+                    return False
+            elif ret == QMessageBox.Cancel:
+                return False
+        return True
+    
+    def close(self):
+        """ Asks user if he wants to save potentially unsaved data and closes the tab. 
+        
+        This function usually does not need to be overwritten by a PluginTab.
+        """ 
+        allowClose = self.allowClose()
+        if allowClose:
+            self.tab().tabWidget().removeTab(self.tab().tabWidget().indexOf(self.tab()))
+        return allowClose
+        
+    def writeFile(self, filename):
+        """
+        This function performs the actual writing / saving of a file. It should be overwritten by any PluginTab which inherits Tab.
+        If the writing was successful True should be returned.
+        The file should be written to the file given in the argument filename not to the one in self._filename.
+        These variables may differ in case the user selects "save as..." and picks a new filename on a file which already has a name set.
+        If writing was successful the self._filename variable will then be set to the value of filename.
+        """
+        raise NotImplementedError
+
+    def selected(self):
+        """ Called by application when tab is selected in tabWidget.
+        
+        This function should be overwritten if special treatment on tab selection is required.
+        In this case the author should call updateLabel() or even better invoke the selected() function of the Tab class.
+        """
+        pass
+        
+    def cut(self):
+        """ Handle cut event.
+        
+        This function is called if the user selects 'Cut' from menu. PluginTabs should override it if needed.
+        See also setCopyPasteEnabled(), isCopyPasteEnabled().
+        """
+        raise NotImplementedError
+        
+    def copy(self):
+        """ Handle copy event.
+        
+        This function is called if the user selects 'Copy' from menu. PluginTabs should override it if needed.
+        See also setCopyPasteEnabled(), isCopyPasteEnabled().
+        """
+        raise NotImplementedError
+        
+    def paste(self):
+        """ Handle paste event.
+        
+        This function is called if the user selects 'Paste' from menu. PluginTabs should override it if needed."
+        See also setCopyPasteEnabled(), isCopyPasteEnabled().
+        """
+        raise NotImplementedError
+        
+    def find(self):
+        """ Handle find event.
+        
+        This function is called if the user selects 'Find' from menu. PluginTabs should override it if needed."
+        See also setFindEnabled(), isFindEnabled().
+        """
+        raise NotImplementedError
+    
+    def setZoom(self, zoom):
+        """ This function has to be implemented by tab controllers who want to use the zoom toolbar.
+        
+        The implementation has to forward the zoom value to the Zoomable object for which the toolbar is set up.
+        See also zoom()
+        """
+        raise NotImplementedError
+    
+    def zoom(self):
+        """ This function has to be implemented by tab controllers who want to use the zoom toolbar.
+        
+        The implementation should return the zoom value of the Zoomable object for which the toolbar is set up.
+        See also setZoom()
+        """
+        raise NotImplementedError
+          
+    def zoomChanged(self, zoom):
+        """ Shows zoom value on main window's status bar.
+        """
+        self.tab().mainWindow().statusBar().showMessage("Zoom "+ str(round(zoom)) +" %")
+    
+    def resetZoomButtonPressedBefore(self):
+        """ Sets the zoom button pressed before flag to False.
+        
+        If the flag is set functions handling the zoom toolbar buttons (zoomHundred(), zoomAll()) wont store the last zoom factor. The flag is set to true by these functions.
+        By this mechanism the user can click the zoom buttons several times and will still be able to return to his orignal zoom level by zoomUser().
+        The reset function needs to be called if the user manually sets the zoom level. For instance by connecting this function to the wheelEvent of the workspace scroll area.
+        """
+        self._zoomButtonPressedBeforeFlag = False
+        
+    def zoomUser(self):
+        """ Returns to the manually set zoom factor before zoomHundred() or zoomAll() were called.
+        """
+        logging.debug(__name__ +": zoomUser()")
+        self.setZoom(self._userZoomLevel)
+    
+    def zoomHundred(self):
+        """ Sets zoom factor to 100 %.
+        """
+        logging.debug(__name__ +": zoomHundred()")
+        if not self._zoomButtonPressedBeforeFlag:
+            self._userZoomLevel = self.zoom()
+            self._zoomButtonPressedBeforeFlag = True
+        self.setZoom(100)
+    
+    def zoomAll(self):
+        """ Zooms workspace content to fit optimal.
+        
+        Currently only works if scroll area is used and accessible through self.tab().scrollArea().
+        """
+        logging.debug(__name__ +": zoomAll()")
+        if not self._zoomButtonPressedBeforeFlag:
+            self._userZoomLevel = self.zoom()
+            self._zoomButtonPressedBeforeFlag = True
+            
+        viewportWidth = self.tab().scrollArea().viewport().width() 
+        viewportHeight = self.tab().scrollArea().viewport().height()
+        
+        for i in range(0, 2):
+            # do 2 iterations to prevent rounding error --> better fit
+            workspaceChildrenRect = self.tab().scrollArea().widget().childrenRect()
+            widthRatio = self.zoom() * viewportWidth / (workspaceChildrenRect.right())
+            heightRatio = self.zoom() * viewportHeight / (workspaceChildrenRect.bottom())
+        
+            if widthRatio > heightRatio:
+                ratio = heightRatio
+            else:
+                ratio = widthRatio
+        
+            self.setZoom(math.floor(ratio))
+        
