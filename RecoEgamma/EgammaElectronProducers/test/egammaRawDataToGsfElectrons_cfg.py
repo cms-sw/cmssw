@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import os
 
 from TrackingTools.Configuration.TrackingTools_cff import *
 
@@ -18,7 +19,7 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.source = cms.Source("PoolSource",
     debugVerbosity = cms.untracked.uint32(1),
     debugFlag = cms.untracked.bool(True),
-    fileNames = cms.untracked.vstring('file:SingleElectronPt10Raw.root')
+    fileNames = cms.untracked.vstring('file:'.os.environ['TEST_RAW_FILE'])
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -31,13 +32,14 @@ process.out = cms.OutputModule("PoolOutputModule",
         'keep *_iterativeCone5CaloJets_*_*', 
         'keep *_*_*_electrons', 
         'keep *HepMCProduct_*_*_*'),
-    fileName = cms.untracked.string('SingleElectronPt10.root')
+    fileName = cms.untracked.string(os.environ['TEST_RECO_FILE'])
 )
 
 process.mylocalreco =  cms.Sequence(process.trackerlocalreco*process.calolocalreco)
 process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*process.particleFlowCluster)
 process.myelectronseeding = cms.Sequence(process.trackerDrivenElectronSeeds*process.ecalDrivenElectronSeeds*process.electronMergedSeeds)
 process.myelectrontracking = cms.Sequence(process.electronCkfTrackCandidates*process.electronGsfTracks)
+
 process.p = cms.Path(process.RawToDigi*process.mylocalreco*process.myglobalreco*process.myelectronseeding*process.myelectrontracking*process.particleFlowReco*process.pfElectronTranslator*process.gsfElectronSequence)
 
 process.outpath = cms.EndPath(process.out)
