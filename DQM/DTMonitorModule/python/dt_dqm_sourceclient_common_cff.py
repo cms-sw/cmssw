@@ -26,8 +26,8 @@ from EventFilter.DTTFRawToDigi.dttfunpacker_cfi import *
 
 from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import *
 #from EventFilter.DTRawToDigi.dtunpackerDDULocal_cfi import *
-dtunpacker.readOutParameters.performDataIntegrityMonitor = True
-dtunpacker.readOutParameters.rosParameters.performDataIntegrityMonitor = True
+dtunpacker.readOutParameters.performDataIntegrityMonitor = False
+dtunpacker.readOutParameters.rosParameters.performDataIntegrityMonitor = False
 dtunpacker.readOutParameters.debug = False
 dtunpacker.readOutParameters.rosParameters.debug = False
 
@@ -96,6 +96,6 @@ reco = cms.Sequence(dt1DRecHits + dt4DSegments)
 
 dtDQMTask = cms.Sequence(dtDigiMonitor + dtSegmentAnalysisMonitor + dtTriggerMonitor + dtNoiseMonitor + dtResolutionAnalysisMonitor)
 
-dtDQMTest = cms.Sequence( dataIntegrityTest + triggerTest + dtOccupancyTest + segmentTest + dtNoiseAnalysisMonitor + dtSummaryClients + dtqTester)
+dtDQMTest = cms.Sequence(triggerTest + dtOccupancyTest + segmentTest + dtNoiseAnalysisMonitor + dtSummaryClients + dtqTester)
 
 dtDQMCalib = cms.Sequence(dtTPmonitor + dtTPTriggerMonitor + dtTPmonitorTest + dtTPTriggerTest)
