@@ -30,7 +30,8 @@ hltL1IsoStartUpElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedMulti5x5End
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 
 hltCkfL1IsoTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-hltCkfL1IsoTrackCandidates.SeedProducer = cms.InputTag("hltL1IsoElectronPixelSeeds")
+#hltCkfL1IsoTrackCandidates.SeedProducer = cms.InputTag("hltL1IsoElectronPixelSeeds")
+hltCkfL1IsoTrackCandidates.SeedProducer = cms.InputTag("hltL1IsoStartUpElectronPixelSeeds")
 hltCkfL1IsoTrackCandidates.TrackProducers = []
 hltCkfL1IsoTrackCandidates.MaxNumberOfCrossedLayers = 999
 hltCkfL1IsoTrackCandidates.SeedCleaning = True
