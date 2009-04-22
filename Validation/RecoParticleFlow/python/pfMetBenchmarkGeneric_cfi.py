@@ -2,17 +2,24 @@ import FWCore.ParameterSet.Config as cms
 
 met = 'pfMet'
 
-pfMetBenchmarkGeneric = cms.EDAnalyzer("PFMETBenchmarkAnalyzer",
-    InputTruthLabel = cms.InputTag('genParticles'),
+#pfMetBenchmarkGeneric = cms.EDAnalyzer("PFMETBenchmarkAnalyzer",
+pfMetBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
+    InputTruthLabel = cms.InputTag('genMetTrue'),
     InputRecoLabel = cms.InputTag( met ),
     InputCaloLabel = cms.InputTag( 'met' ),
     OutputFile = cms.untracked.string('metBenchmarkGeneric.root'),
     pfjBenchmarkDebug = cms.bool(False),
     PlotAgainstRecoQuantities = cms.bool(False),
-    BenchmarkLabel = cms.string( met )
-#    maxEta = cms.double(3.0),
-#    recPt = cms.double(10.0),
-#    deltaRMax = cms.double(999),
-#    OnlyTwoJets = cms.bool(False),
+    BenchmarkLabel = cms.string( met ),
+    minEta = cms.double(-5.0),                       
+    maxEta = cms.double(5.0),
+    recPt = cms.double(0.0),
+    deltaRMax = cms.double(999),
+    StartFromGen = cms.bool(True),
+    OnlyTwoJets = cms.bool(False),
+    minDeltaEt = cms.double(-200.),
+    maxDeltaEt = cms.double(200.),
+    minDeltaPhi = cms.double(-3.2),
+    maxDeltaPhi = cms.double(3.2)                                       
 )
 
