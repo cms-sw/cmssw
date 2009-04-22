@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2009/04/07 17:26:41 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/04/21 15:57:31 $
+ *  $Revision: 1.5 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -69,7 +69,7 @@ void DQMGenericClient::endJob()
       const string::size_type shiftPos = subDir.rfind('/');
       const string searchPath = subDir.substr(0, shiftPos);
       string  startDir = subDir.substr(0, shiftPos);
-      std::cout << "\n\n\n\nLooking for all subdirs of " << subDir << std::endl;
+      //std::cout << "\n\n\n\nLooking for all subdirs of " << subDir << std::endl;
       
       findAllSubdirectories ( startDir, &subDirSet);
       std::set <std::string>::const_iterator iFoundDir;
@@ -485,7 +485,7 @@ void DQMGenericClient::limitedFit(MonitorElement * srcME, MonitorElement * meanM
 
 void DQMGenericClient::findAllSubdirectories (std::string dir, std::set<std::string> * myList){
 
-  std::cout << "Looking for directory " << dir ;
+  //std::cout << "Looking for directory " << dir ;
   if (theDQM->dirExists(dir)){
     std::cout << "... it exists! Inserting it into the list ";
     myList->insert(dir);
