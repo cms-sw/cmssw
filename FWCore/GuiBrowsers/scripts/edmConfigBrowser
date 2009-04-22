@@ -1,56 +1,46 @@
 #! /usr/bin/env python
 import os.path
-
-# search path for dependencies
 import sys
-sys.path.append("python/Main")
-sys.path.append("python/ConfigBrowser")
+import logging
 
-from ConfigBrowserPlugin import *
-from MainWindow import *
+import signal
 
-from qt import *
+import ConfigParser
+import optparse
+import webbrowser
+import math
+import unittest
+import time
 
-class ConfigBrowserWindow(MainWindow):
-    """ MainWindow of ConfigBrowser """
-    def __init__(self, parent=None, name=None, fl=0):
-        """ Mainwindow loads ConfigBrowser plugin """
-        MainWindow.__init__(self,parent,name,fl)
-        self.setCaption("Config Browser")
-        self.version="Version of 12.12.2008"
-        self.plugins=[ConfigBrowserPlugin(self)]
+try:
+    distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
+except Exception:
+    distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]),".."))
+
+sys.path.append(distBaseDirectory)
+from Vispa.Main.Directories import *
+setBaseDirectory(distBaseDirectory)
+distBinaryBaseDirectory=os.path.join(distBaseDirectory,"dist")
+sys.path.append(distBinaryBaseDirectory)
+
+try:
+    from sip import *
+    from PyQt4.QtCore import *
+    from PyQt4.QtGui import *
+    from PyQt4.QtSvg import *
+    from PyQt4.QtXml import *
+except Exception,e:
+    raise ImportError("Please run edmConfigBrowser, not edmConfigBrowser.py : "+str(e))
+
+setWebsiteUrl('http://twiki.cern.ch/twiki/bin/view/CMS/SWGuideConfigBrowser')
+
+from Vispa.Main.Application import *
+from Vispa.Plugins.ConfigBrowser.ConfigBrowserPlugin import *
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    f = ConfigBrowserWindow()
-    f.show()
-    app.setMainWidget(f)
-
-    openfile=""
-    for arg in sys.argv[1:]:
-        if os.path.exists(arg):
-            openfile=arg
-            f.plugins[0].openConfigFile(arg)
-    import getopt
-    try:                                
-        opts, args = getopt.getopt(sys.argv[1:], "s:i:", []) 
-    except getopt.GetoptError:
-        print "python ConfigBrowser.py my_configuration_file.py"                         
-        print "-h : print usage summary"                         
-        print "-s ... : save screenshot to file (*.bmp,*.png)"                         
-        print "-i ... : additional include paths separated by \':\'"                         
-        sys.exit(2)    
-	
-    for opt, arg in opts:                
-        if opt in ("-i"):
-            i=0
-            for path in arg.split(":"):
-                sys.path.insert(i,path)
-                print "added include path:",path
-                i+=1
-        if opt in ("-s") and openfile!="":
-            f.tabWidget.currentPage().box_view.screenshot(arg)
-            print "saved screenshot:",arg
-            sys.exit(2)    
-    
-    app.exec_loop()
+    app = Application(sys.argv)
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    app.mainWindow().setWindowTitle("ConfigBrowser")
+    app.mainWindow().setWindowIcon(QIcon())
+    app.setVersion("Version 21.04.2009")
+    app.run()
