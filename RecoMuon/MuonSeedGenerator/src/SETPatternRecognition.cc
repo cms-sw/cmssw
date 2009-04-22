@@ -418,7 +418,7 @@ bool SETPatternRecognition::segmentCleaning(const DetId & detId,
 
   // Don't use segments (nearly) parallel to the chamberi;
   // the direction vector is normalized (R=1)  
-  bool parallelSegment = localDirection.z()>minLocalSegmentAngle? false: true;
+  bool parallelSegment = fabs(localDirection.z())>minLocalSegmentAngle? false: true;
 
   if(insideCh && !parallelSegment){
     dropTheSegment = false;
