@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/04/08 14:24:26 $
- *  $Revision: 1.33 $
+ *  $Date: 2009/04/08 16:39:25 $
+ *  $Revision: 1.34 $
  *
  *  \author Martin Grunewald
  *
@@ -182,20 +182,20 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    tags_.clear();
    keys_.clear();
    offset_.clear();
-   fillTriggerObjects<          RecoEcalCandidateCollection>(iEvent);
-   fillTriggerObjects<                   ElectronCollection>(iEvent);
-   fillTriggerObjects<       RecoChargedCandidateCollection>(iEvent);
-   fillTriggerObjects<                    CaloJetCollection>(iEvent);
-   fillTriggerObjects<         CompositeCandidateCollection>(iEvent);
-   fillTriggerObjects<                        METCollection>(iEvent);
-   fillTriggerObjects<                    CaloMETCollection>(iEvent);
-   fillTriggerObjects<IsolatedPixelTrackCandidateCollection>(iEvent);
+   fillTriggerObjectCollections<          RecoEcalCandidateCollection>(iEvent);
+   fillTriggerObjectCollections<                   ElectronCollection>(iEvent);
+   fillTriggerObjectCollections<       RecoChargedCandidateCollection>(iEvent);
+   fillTriggerObjectCollections<                    CaloJetCollection>(iEvent);
+   fillTriggerObjectCollections<         CompositeCandidateCollection>(iEvent);
+   fillTriggerObjectCollections<                        METCollection>(iEvent);
+   fillTriggerObjectCollections<                    CaloMETCollection>(iEvent);
+   fillTriggerObjectCollections<IsolatedPixelTrackCandidateCollection>(iEvent);
    ///
-   fillTriggerObjects<               L1EmParticleCollection>(iEvent);
-   fillTriggerObjects<             L1MuonParticleCollection>(iEvent);
-   fillTriggerObjects<              L1JetParticleCollection>(iEvent);
-   fillTriggerObjects<           L1EtMissParticleCollection>(iEvent);
-   fillTriggerObjects<                  L1HFRingsCollection>(iEvent);
+   fillTriggerObjectCollections<               L1EmParticleCollection>(iEvent);
+   fillTriggerObjectCollections<             L1MuonParticleCollection>(iEvent);
+   fillTriggerObjectCollections<              L1JetParticleCollection>(iEvent);
+   fillTriggerObjectCollections<           L1EtMissParticleCollection>(iEvent);
+   fillTriggerObjectCollections<                  L1HFRingsCollection>(iEvent);
    ///
    const size_type nk(tags_.size());
    LogDebug("TriggerSummaryProducerAOD") << "Number of collections found: " << nk;
@@ -219,19 +219,19 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
        const InputTag filterTag(InputTag(label,instance,process));
        ids_.clear();
        keys_.clear();
-       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->photonIds()   ,fobs_[ifob]->photonRefs());
-       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->electronIds() ,fobs_[ifob]->electronRefs());
-       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->muonIds()     ,fobs_[ifob]->muonRefs());
-       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->jetIds()      ,fobs_[ifob]->jetRefs());
-       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->compositeIds(),fobs_[ifob]->compositeRefs());
-       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->basemetIds()  ,fobs_[ifob]->basemetRefs());
-       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->calometIds()  ,fobs_[ifob]->calometRefs());
-       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->pixtrackIds() ,fobs_[ifob]->pixtrackRefs());
-       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->l1emIds()     ,fobs_[ifob]->l1emRefs());
-       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->l1muonIds()   ,fobs_[ifob]->l1muonRefs());
-       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->l1jetIds()    ,fobs_[ifob]->l1jetRefs());
-       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->l1etmissIds() ,fobs_[ifob]->l1etmissRefs());
-       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->l1hfringsIds(),fobs_[ifob]->l1hfringsRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->photonIds()   ,fobs_[ifob]->photonRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->electronIds() ,fobs_[ifob]->electronRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->muonIds()     ,fobs_[ifob]->muonRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->jetIds()      ,fobs_[ifob]->jetRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->compositeIds(),fobs_[ifob]->compositeRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->basemetIds()  ,fobs_[ifob]->basemetRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->calometIds()  ,fobs_[ifob]->calometRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->pixtrackIds() ,fobs_[ifob]->pixtrackRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->l1emIds()     ,fobs_[ifob]->l1emRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->l1muonIds()   ,fobs_[ifob]->l1muonRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->l1jetIds()    ,fobs_[ifob]->l1jetRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->l1etmissIds() ,fobs_[ifob]->l1etmissRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->l1hfringsIds(),fobs_[ifob]->l1hfringsRefs());
        product->addFilter(filterTag,ids_,keys_);
      }
    }
@@ -243,10 +243,11 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 template <typename C>
-void TriggerSummaryProducerAOD::fillTriggerObjects(const edm::Event& iEvent) {
+void TriggerSummaryProducerAOD::fillTriggerObjectCollections(const edm::Event& iEvent) {
 
   /// this routine accesses the original (L3) collections (with C++
-  /// typename C), extracts 4-momentum and id, and packs this up
+  /// typename C), extracts 4-momentum and id of each collection
+  /// member, and packs this up
 
   using namespace std;
   using namespace edm;
@@ -280,54 +281,7 @@ void TriggerSummaryProducerAOD::fillTriggerObjects(const edm::Event& iEvent) {
 	offset_[pid]=toc_.size();
 	const size_type n(collections[ic]->size());
 	for (size_type i=0; i!=n; ++i) {
-	  if (typeid(C)==typeid(L1HFRingsCollection) ) {
-	    /// very special treatment - L1HFRings are not Candidate-based classes
-	    const L1HFRings* l1hfrings(dynamic_cast<const L1HFRings*> ( &(*collections[ic])[i]) );
-	    toc_.push_back(TriggerObject(TriggerL1HfRingEtSums,
-                           l1hfrings->hfEtSum(L1HFRings::kRing1PosEta),
-			   l1hfrings->hfEtSum(L1HFRings::kRing1NegEta),
-			   l1hfrings->hfEtSum(L1HFRings::kRing2PosEta),
-			   l1hfrings->hfEtSum(L1HFRings::kRing2NegEta) ) );
-	    toc_.push_back(TriggerObject(TriggerL1HfBitCounts,
-                           l1hfrings->hfBitCount(L1HFRings::kRing1PosEta),
-			   l1hfrings->hfBitCount(L1HFRings::kRing1NegEta),
-			   l1hfrings->hfBitCount(L1HFRings::kRing2PosEta),
-			   l1hfrings->hfBitCount(L1HFRings::kRing2NegEta) ) );
-	  } else {
-	    /// standard treatment for Candidate-based classes
-	    const LeafCandidate* cand (dynamic_cast<const LeafCandidate*> (&(*collections[ic])[i]) );
-	    toc_.push_back(TriggerObject( *cand ) );
-	  }
-          /// special case of Candidate classes with additional scalar number(s)
-	  if (typeid(C)==typeid(L1EtMissParticleCollection) ) {
-	    // add scalar L1EtMissParticle quantity (MET or MHT)
-	    const L1EtMissParticle* l1met(dynamic_cast<const L1EtMissParticle*>( &(*collections[ic])[i]) );
-	    // store the scalar L1EtMissParticle observable in the pt_
-	    // component of a new TriggerObject
-	    if (l1met->type()==L1EtMissParticle::kMET) {
-	      toc_.push_back(TriggerObject(TriggerL1ETT,l1met->etTotal(),0.0,0.0,0.0));
-	    } else if (l1met->type()==L1EtMissParticle::kMHT) {
-	      toc_.push_back(TriggerObject(TriggerL1HTT,l1met->etTotal(),0.0,0.0,0.0));
-	    } else {
-	      toc_.push_back(TriggerObject(0,           l1met->etTotal(),0.0,0.0,0.0));
-	    }
-	  } else if (typeid(C)==typeid(CaloMETCollection)) {
-	    // add scalar CaloMET quantities from base MET class
-	    const MET* met(dynamic_cast<const MET*>( &(*collections[ic])[i]) );
-	    // store each scalar CaloMET observable in the pt_
-	    // component of a new TriggerObject
-	    toc_.push_back(TriggerObject(TriggerTET    ,met->sumEt()         ,0.0,0.0,0.0));
-	    toc_.push_back(TriggerObject(TriggerMETSig ,met->mEtSig()        ,0.0,0.0,0.0));
-	    toc_.push_back(TriggerObject(TriggerELongit,met->e_longitudinal(),0.0,0.0,0.0));
-	  } else if (typeid(C)==typeid(    METCollection)) {
-	    // add scalar MET quantities
-	    const MET* met(dynamic_cast<const MET*>( &(*collections[ic])[i]) );
-	    // store each scalar MET observable in the pt_
-	    // component of a new TriggerObject
-	    toc_.push_back(TriggerObject(TriggerTHT    ,met->sumEt()         ,0.0,0.0,0.0));
-	    toc_.push_back(TriggerObject(TriggerMHTSig ,met->mEtSig()        ,0.0,0.0,0.0));
-	    toc_.push_back(TriggerObject(TriggerHLongit,met->e_longitudinal(),0.0,0.0,0.0));
-	  }
+	  fillTriggerObject( (*collections[ic])[i] );
 	}
 	tags_.push_back(collectionTag);
 	keys_.push_back(toc_.size());
@@ -337,8 +291,79 @@ void TriggerSummaryProducerAOD::fillTriggerObjects(const edm::Event& iEvent) {
   } /// end loop over handles
 }
 
+template <typename T>
+void TriggerSummaryProducerAOD::fillTriggerObject(const T& object) {
+
+  using namespace trigger;
+  toc_.push_back( TriggerObject(object) );
+
+  return;
+}
+
+void TriggerSummaryProducerAOD::fillTriggerObject(const l1extra::L1HFRings& object) {
+
+  using namespace l1extra;
+  using namespace trigger;
+
+  toc_.push_back(TriggerObject(TriggerL1HfRingEtSums,
+       object.hfEtSum(L1HFRings::kRing1PosEta),
+       object.hfEtSum(L1HFRings::kRing1NegEta),
+       object.hfEtSum(L1HFRings::kRing2PosEta),
+       object.hfEtSum(L1HFRings::kRing2NegEta) ) );
+  toc_.push_back(TriggerObject(TriggerL1HfBitCounts,
+       object.hfBitCount(L1HFRings::kRing1PosEta),
+       object.hfBitCount(L1HFRings::kRing1NegEta),
+       object.hfBitCount(L1HFRings::kRing2PosEta),
+       object.hfBitCount(L1HFRings::kRing2NegEta) ) );
+
+  return;
+}
+
+void TriggerSummaryProducerAOD::fillTriggerObject(const l1extra::L1EtMissParticle& object) {
+
+  using namespace l1extra;
+  using namespace trigger;
+
+  toc_.push_back( TriggerObject(object) );
+  if (object.type()==L1EtMissParticle::kMET) {
+    toc_.push_back(TriggerObject(TriggerL1ETT,object.etTotal(),0.0,0.0,0.0));
+  } else if (object.type()==L1EtMissParticle::kMHT) {
+    toc_.push_back(TriggerObject(TriggerL1HTT,object.etTotal(),0.0,0.0,0.0));
+  } else {
+    toc_.push_back(TriggerObject(0,           object.etTotal(),0.0,0.0,0.0));
+  }
+
+  return;
+}
+
+void TriggerSummaryProducerAOD::fillTriggerObject(const reco::CaloMET& object) {
+
+  using namespace reco;
+  using namespace trigger;
+
+  toc_.push_back( TriggerObject(object) );
+  toc_.push_back(TriggerObject(TriggerTET    ,object.sumEt()         ,0.0,0.0,0.0));
+  toc_.push_back(TriggerObject(TriggerMETSig ,object.mEtSig()        ,0.0,0.0,0.0));
+  toc_.push_back(TriggerObject(TriggerELongit,object.e_longitudinal(),0.0,0.0,0.0));
+
+  return;
+}
+
+void TriggerSummaryProducerAOD::fillTriggerObject(const reco::MET& object) {
+
+  using namespace reco;
+  using namespace trigger;
+
+  toc_.push_back( TriggerObject(object) );
+  toc_.push_back(TriggerObject(TriggerTHT    ,object.sumEt()         ,0.0,0.0,0.0));
+  toc_.push_back(TriggerObject(TriggerMHTSig ,object.mEtSig()        ,0.0,0.0,0.0));
+  toc_.push_back(TriggerObject(TriggerHLongit,object.e_longitudinal(),0.0,0.0,0.0));
+
+  return;
+}
+
 template <typename C>
-void TriggerSummaryProducerAOD::fillFilterObjects(const edm::Event& iEvent, const edm::InputTag& tag, const trigger::Vids& ids, const std::vector<edm::Ref<C> >& refs) {
+void TriggerSummaryProducerAOD::fillFilterObjectMembers(const edm::Event& iEvent, const edm::InputTag& tag, const trigger::Vids& ids, const std::vector<edm::Ref<C> >& refs) {
 
   /// this routine takes a vector of Ref<C>s and determines the
   /// corresponding vector of keys (i.e., indices) into the
@@ -370,36 +395,84 @@ void TriggerSummaryProducerAOD::fillFilterObjects(const edm::Event& iEvent, cons
 	   << endl;
     }
     assert(offset_.find(pid)!=offset_.end()); // else unknown pid
-    // handle scalar L1HFRings, L1EtMissParticle and [Calo]MET quantities
-    if (typeid(C)==typeid(L1HFRingsCollection) ) {
-      if (ids[i]==TriggerL1HfBitCounts) {
-	keys_.push_back(offset_[pid]+2*refs[i].key()+1);
-      } else { // if (ids[i]==TriggerL1HfRingEtSums) {
-	keys_.push_back(offset_[pid]+2*refs[i].key()+0);
-      }
-    } else if (typeid(C)==typeid(L1EtMissParticleCollection) ) {
-      if ( (ids[i]==TriggerL1ETT) || (ids[i]==TriggerL1HTT) ) {
-	keys_.push_back(offset_[pid]+2*refs[i].key()+1);
-      } else {
-	keys_.push_back(offset_[pid]+2*refs[i].key()+0);
-      }
-    } else if ( (typeid(C)==typeid(    METCollection)) ||
-		(typeid(C)==typeid(CaloMETCollection)) ) {
-      if ( (ids[i]==TriggerTHT) || (ids[i]==TriggerTET) ) {
-	keys_.push_back(offset_[pid]+4*refs[i].key()+1);
-      } else if ( (ids[i]==TriggerMETSig) || (ids[i]==TriggerMHTSig) ) {
-	keys_.push_back(offset_[pid]+4*refs[i].key()+2);
-      } else if ( (ids[i]==TriggerELongit) || (ids[i]==TriggerHLongit) ) {
-	keys_.push_back(offset_[pid]+4*refs[i].key()+3);
-      } else {
-	keys_.push_back(offset_[pid]+4*refs[i].key()+0);
-      }
-    } else {
-      keys_.push_back(offset_[pid]+refs[i].key());
-    }
-    ids_.push_back(ids[i]);
-  }
 
+    fillFilterObjectMember(offset_[pid],ids[i],refs[i]);
+  }
+  return;
+
+}
+
+template <typename C>
+void TriggerSummaryProducerAOD::fillFilterObjectMember(const int& offset, const int& id, const edm::Ref<C> & ref) {
+
+  keys_.push_back(offset+ref.key());
+  ids_.push_back(id);
+
+  return;
+}
+
+void TriggerSummaryProducerAOD::fillFilterObjectMember(const int& offset, const int& id, const edm::Ref<l1extra::L1HFRingsCollection> & ref) {
+
+  using namespace trigger;
+
+  if (id==TriggerL1HfBitCounts) {
+    keys_.push_back(offset+2*ref.key()+1);
+  } else { // if (ids[i]==TriggerL1HfRingEtSums) {
+    keys_.push_back(offset+2*ref.key()+0);
+  }
+  ids_.push_back(id);
+
+  return;
+}
+
+void TriggerSummaryProducerAOD::fillFilterObjectMember(const int& offset, const int& id, const edm::Ref<l1extra::L1EtMissParticleCollection> & ref) {
+
+  using namespace trigger;
+
+  if ( (id==TriggerL1ETT) || (id==TriggerL1HTT) ) {
+    keys_.push_back(offset+2*ref.key()+1);
+  } else {
+    keys_.push_back(offset+2*ref.key()+0);
+  }
+  ids_.push_back(id);
+
+  return;
+}
+
+void TriggerSummaryProducerAOD::fillFilterObjectMember(const int& offset, const int& id, const edm::Ref<reco::CaloMETCollection> & ref) {
+
+  using namespace trigger;
+
+  if ( (id==TriggerTHT) || (id==TriggerTET) ) {
+    keys_.push_back(offset+4*ref.key()+1);
+  } else if ( (id==TriggerMETSig) || (id==TriggerMHTSig) ) {
+    keys_.push_back(offset+4*ref.key()+2);
+  } else if ( (id==TriggerELongit) || (id==TriggerHLongit) ) {
+    keys_.push_back(offset+4*ref.key()+3);
+  } else {
+    keys_.push_back(offset+4*ref.key()+0);
+  }
+  ids_.push_back(id);
+
+  return;
+}
+
+void TriggerSummaryProducerAOD::fillFilterObjectMember(const int& offset, const int& id, const edm::Ref<reco::METCollection> & ref) {
+
+  using namespace trigger;
+
+  if ( (id==TriggerTHT) || (id==TriggerTET) ) {
+    keys_.push_back(offset+4*ref.key()+1);
+  } else if ( (id==TriggerMETSig) || (id==TriggerMHTSig) ) {
+    keys_.push_back(offset+4*ref.key()+2);
+  } else if ( (id==TriggerELongit) || (id==TriggerHLongit) ) {
+    keys_.push_back(offset+4*ref.key()+3);
+  } else {
+    keys_.push_back(offset+4*ref.key()+0);
+  }
+  ids_.push_back(id);
+
+  return;
 }
 
 void TriggerSummaryProducerAOD::endJob() {

@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLT summary object for AOD
  *
- *  $Date: 2008/05/19 13:16:46 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/07/08 07:06:23 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -26,6 +26,12 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
+#include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
+#include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/METReco/interface/CaloMETFwd.h"
+
 
 #include<string>
 #include<vector>
@@ -54,10 +60,24 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   // additional
 
   template <typename C>
-  void fillTriggerObjects(const edm::Event& );
+  void fillTriggerObjectCollections(const edm::Event& );
+
+  template <typename T>
+  void fillTriggerObject(const T& );
+  void fillTriggerObject(const l1extra::L1HFRings& );
+  void fillTriggerObject(const l1extra::L1EtMissParticle& );
+  void fillTriggerObject(const reco::CaloMET& );
+  void fillTriggerObject(const reco::MET& );
 
   template <typename C>
-  void fillFilterObjects(const edm::Event&, const edm::InputTag& tag, const trigger::Vids &, const std::vector<edm::Ref<C> >&);
+  void fillFilterObjectMembers(const edm::Event&, const edm::InputTag& tag, const trigger::Vids &, const std::vector<edm::Ref<C> >&);
+
+  template <typename C>
+  void fillFilterObjectMember(const int&, const int&, const edm::Ref<C>&);
+  void fillFilterObjectMember(const int&, const int&, const edm::Ref<l1extra::L1HFRingsCollection>&);
+  void fillFilterObjectMember(const int&, const int&, const edm::Ref<l1extra::L1EtMissParticleCollection>&);
+  void fillFilterObjectMember(const int&, const int&, const edm::Ref<reco::CaloMETCollection>&);
+  void fillFilterObjectMember(const int&, const int&, const edm::Ref<reco::METCollection>&);
 
  private:
   /// process name
