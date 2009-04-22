@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/01/16 11:11:46 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/02/02 15:56:41 $
+ *  $Revision: 1.2 $
  *  \author Stefano Lacaprara  <lacaprara@pd.infn.it>  INFN LNL
  */
 
@@ -98,7 +98,7 @@ void DTGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
         LCounter++;
         insertLayer(fv, type, muonConstants, rig);
 
-        fv.parent();
+        // fv.parent();
         doL = fv.nextSibling(); // go to next layer
       } // layers
 
@@ -191,6 +191,7 @@ void DTGeometryParsFromDD::insertLayer(DDFilteredView& fv,
   par.push_back(firstWire);
   par.push_back(WCounter);
   par.push_back(sensSize[1]);
+  fv.parent();
 
   PosRotPair posRot(plane(fv));
 
