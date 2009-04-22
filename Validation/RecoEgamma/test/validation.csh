@@ -19,8 +19,12 @@
 
 #Input root trees for the two cases to be compared 
 
-setenv OLDFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt10New.root
-setenv NEWFILE /data/test/CMSSW_3_1_0_pre5/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre5_SingleGammaPt10.root
+#setenv OLDFILE /data/test/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_SingleGammaPt10New.root
+#setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt10New.root
+
+
+#setenv OLDFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt10New.root
+#setenv NEWFILE /data/test/CMSSW_3_1_0_pre5/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre5_SingleGammaPt10.root
 
 #setenv OLDFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt35New.root
 #setenv NEWFILE /data/test/CMSSW_3_1_0_pre5/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre5_SingleGammaPt35.root
@@ -29,8 +33,8 @@ setenv NEWFILE /data/test/CMSSW_3_1_0_pre5/src/Validation/RecoEgamma/test/Photon
 #setenv OLDFILE /tmp/nancy/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_SingleGammaPt35New.root
 #setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt35New.root
 
-#setenv OLDFILE /tmp/nancy/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_H130GGgluonfusionNew.root
-#setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_H130GGgluonfusionNew.root
+setenv OLDFILE /tmp/nancy/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_H130GGgluonfusionNew.root
+setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_H130GGgluonfusionNew.root
 
 #setenv OLDFILE /data/test/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_GammaJets_Pt_80_120New.root
 #setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_GammaJets_Pt_80_120New.root
@@ -40,13 +44,13 @@ setenv NEWFILE /data/test/CMSSW_3_1_0_pre5/src/Validation/RecoEgamma/test/Photon
 
 
 #setenv OLDRELEASE 221IDEAL
-setenv OLDRELEASE 310pre4
-setenv NEWRELEASE 310pre5
+setenv OLDRELEASE 310pre3
+setenv NEWRELEASE 310pre4
 #Name of sample (affects output directory name and htmldescription only) 
-setenv SAMPLE SingleGammaPt10IDEAL
+#setenv SAMPLE SingleGammaPt10IDEAL
 #setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
-#setenv SAMPLE H130GGgluonfusionSTARTUP
+setenv SAMPLE H130GGgluonfusionSTARTUP
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_80_120STARTUP
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
@@ -158,10 +162,8 @@ cat > scaledhistosForPhotons <<EOF
   hOverEAll
   hOverEBarrel
   hOverEEndcap
-  ecalRecHitSumEtConeDR04All
   ecalRecHitSumEtConeDR04Barrel
   ecalRecHitSumEtConeDR04Endcap
-  hcalTowerSumEtConeDR04All
   hcalTowerSumEtConeDR04Barrel
   hcalTowerSumEtConeDR04Endcap
   isoTrkSolidConeDR04All
@@ -191,8 +193,10 @@ cat > 2dhistosForPhotons <<EOF
   R2VsEtAll
   sigmaIetaIetaVsEtAll
   hOverEVsEtAll
-  ecalRecHitSumEtConeDR04VsEtAll
-  hcalTowerSumEtConeDR04VsEtAll
+  ecalRecHitSumEtConeDR04VsEtBarrel
+  ecalRecHitSumEtConeDR04VsEtEndcap
+  hcalTowerSumEtConeDR04VsEtBarrel
+  hcalTowerSumEtConeDR04VsEtEndcap
   isoTrkSolidConeDR04VsEtAll
   nTrkSolidConeDR04VsEtAll
 EOF
@@ -290,8 +294,11 @@ pChi2VsEtaAll
 pChi2VsRAll
 pDCotTracksVsEtaAll
 pDCotTracksVsRAll
+pDPhiTracksAtEcalVsEtaAll
+pDPhiTracksAtEcalVsRAll
 pConvVtxdRVsR
 pConvVtxdRVsEta
+pdzPVVsR
 
 
 EOF
