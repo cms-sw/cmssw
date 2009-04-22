@@ -17,6 +17,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+
 inline float sqr(float x) { return x*x; }
 
 using namespace std;
@@ -25,20 +27,27 @@ using namespace std;
 ClusterShapeTrackFilter::ClusterShapeTrackFilter
   (const edm::ParameterSet& ps, const edm::EventSetup& es)
 {
+cerr << " ITT VAN " << endl;
   // Get tracker geometry
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
   theTracker = tracker.product();
 
-  // Get pointer to filter
-  theFilter = ClusterShapeHitFilter::Instance(es, "ClusterShapeTrackFilter");
+  // Get cluster shape hit filter
+cerr << " ITT VAN a" << endl;
+  edm::ESHandle<ClusterShapeHitFilter> shape;
+cerr << " ITT VAN b" << endl;
+  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter",shape);
+cerr << " ITT VAN c" << endl;
+  theFilter = shape.product();
+cerr << " ITT VAN d" << endl;
 }
 
 /*****************************************************************************/
 ClusterShapeTrackFilter::~ClusterShapeTrackFilter()
 {
   // Destroy filter
-  ClusterShapeHitFilter::Release();
+//  ClusterShapeHitFilter::Release();
 }
 
 /*****************************************************************************/

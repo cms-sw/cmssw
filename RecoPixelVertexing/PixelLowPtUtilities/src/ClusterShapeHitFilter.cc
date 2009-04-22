@@ -42,6 +42,7 @@ using namespace std;
 
 /*****************************************************************************/
 // singleton begin
+/*
 ClusterShapeHitFilter * ClusterShapeHitFilter::_instance = 0;
 int ClusterShapeHitFilter::_refCount = 0;
 
@@ -84,12 +85,14 @@ void ClusterShapeHitFilter::Destroy()
     _instance = 0;
   }
 }
+*/
 // singleton end
 
 /*****************************************************************************/
 ClusterShapeHitFilter::ClusterShapeHitFilter
   (const edm::EventSetup& es)
-{ // called from ClusterShapeTrackFilter, TripletFilter, ClusterShapeExtractor
+{ // called from ClusterShapeExtractor
+cerr << " Cluster es" << endl;
 
   // Get tracker geometry
   edm::ESHandle<GlobalTrackingGeometry> tracker;
@@ -134,19 +137,8 @@ ClusterShapeHitFilter::ClusterShapeHitFilter
      theSiPixelLorentzAngle(theSiPixelLorentzAngle_),
      theSiStripLorentzAngle(theSiStripLorentzAngle_)
 
-{ // called from ClusterShapeTrajectoryFilter
-
-  // Hardwired numbers, since no access to Lorentz
-/*
-  theAngle[GeomDetEnumerators::PixelBarrel] = 0.106;
-  theAngle[GeomDetEnumerators::PixelEndcap] = 0.106;
-
-  theAngle[GeomDetEnumerators::TIB] = 0.0288828;
-  theAngle[GeomDetEnumerators::TOB] = 0.0310855;
-  theAngle[GeomDetEnumerators::TID] = 0.0288828;
-  theAngle[GeomDetEnumerators::TEC] = 0.030;
-*/
-
+{
+cerr << " Cluster all" << endl;
   // Load pixel limits
   loadPixelLimits();
 
@@ -183,7 +175,7 @@ void ClusterShapeHitFilter::loadPixelLimits()
     for(int k = 0; k<2 ; k++) // lower and upper
       inFile >> v3[b][d][k];
 
-    PixelKeys key(part,dx,dy);
+    const PixelKeys key(part,dx,dy);
     pixelLimits[key] = v3;
 
     double f;
@@ -233,7 +225,7 @@ void ClusterShapeHitFilter::loadStripLimits()
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isInside
-  (const vector<vector<float> > limit, const pair<float,float> pred)
+  (const vector<vector<float> > limit, const pair<float,float> pred) const
 { // pixel
   return (pred.first  > limit[0][0] && pred.first  < limit[0][1] &&
           pred.second > limit[1][0] && pred.second < limit[1][1]);
@@ -241,14 +233,14 @@ bool ClusterShapeHitFilter::isInside
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isInside
-  (const vector<float> limit, const float pred)
+  (const vector<float> limit, const float pred) const
 { // strip
   return (pred > limit[0] && pred < limit[1]);
 }  
 
 /*****************************************************************************/
 pair<float,float> ClusterShapeHitFilter::getCotangent
-  (const PixelGeomDetUnit * pixelDet)
+  (const PixelGeomDetUnit * pixelDet) const
 {
   pair<float,float> cotangent;
 
@@ -262,7 +254,7 @@ pair<float,float> ClusterShapeHitFilter::getCotangent
 
 /*****************************************************************************/
 float ClusterShapeHitFilter::getCotangent
-  (const StripGeomDetUnit * stripDet)
+  (const StripGeomDetUnit * stripDet) const
 {
   // FIXME may be problematic in case of RadialStriptolopgy
   return stripDet->surface().bounds().thickness() /
@@ -271,7 +263,7 @@ float ClusterShapeHitFilter::getCotangent
 
 /*****************************************************************************/
 pair<float,float> ClusterShapeHitFilter::getDrift
-  (const PixelGeomDetUnit * pixelDet)
+  (const PixelGeomDetUnit * pixelDet) const
 {
   LocalVector lBfield =
      (pixelDet->surface()).toLocal(
@@ -296,6 +288,7 @@ pair<float,float> ClusterShapeHitFilter::getDrift
 
 /*****************************************************************************/
 float ClusterShapeHitFilter::getDrift(const StripGeomDetUnit * stripDet)
+const
 {
   LocalVector lBfield =
      (stripDet->surface()).toLocal(
@@ -318,7 +311,7 @@ float ClusterShapeHitFilter::getDrift(const StripGeomDetUnit * stripDet)
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isNormalOriented
-  (const GeomDetUnit * geomDet)
+  (const GeomDetUnit * geomDet) const
 {
   if(geomDet->type().isBarrel())
   { // barrel
@@ -337,7 +330,7 @@ bool ClusterShapeHitFilter::isNormalOriented
 /*****************************************************************************/
 bool ClusterShapeHitFilter::getSizes
   (const SiPixelRecHit & recHit, const LocalVector & ldir,
-   int & part, pair<int,int> & meas, pair<float,float> & pred)
+   int & part, pair<int,int> & meas, pair<float,float> & pred) const
 {
   // Get detector
   DetId id = recHit.geographicalId();
@@ -382,7 +375,7 @@ bool ClusterShapeHitFilter::getSizes
 /*****************************************************************************/
 bool ClusterShapeHitFilter::getSizes
   (const SiStripRecHit2D & recHit, const LocalVector & ldir,
-   int & meas, float & pred)
+   int & meas, float & pred) const 
 {
   // Get detector
   DetId id = recHit.geographicalId();
@@ -416,7 +409,7 @@ bool ClusterShapeHitFilter::getSizes
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isCompatible
-  (const SiPixelRecHit & recHit, const LocalVector & ldir)
+  (const SiPixelRecHit & recHit, const LocalVector & ldir) const
 {
   int part;
   pair<int,int> meas;
@@ -437,7 +430,7 @@ bool ClusterShapeHitFilter::isCompatible
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isCompatible
-  (const SiStripRecHit2D & recHit, const LocalVector & ldir)
+  (const SiStripRecHit2D & recHit, const LocalVector & ldir) const
 {
   int meas;
   float pred;
@@ -457,7 +450,7 @@ bool ClusterShapeHitFilter::isCompatible
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isCompatible
-  (const SiPixelRecHit & recHit, const GlobalVector & gdir)
+  (const SiPixelRecHit & recHit, const GlobalVector & gdir) const
 {
   LocalVector ldir =
     theTracker->idToDet(recHit.geographicalId())->toLocal(gdir);
@@ -467,11 +460,18 @@ bool ClusterShapeHitFilter::isCompatible
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isCompatible
-  (const SiStripRecHit2D & recHit, const GlobalVector & gdir)
+  (const SiStripRecHit2D & recHit, const GlobalVector & gdir) const
 {
   LocalVector ldir =
     theTracker->idToDet(recHit.geographicalId())->toLocal(gdir);
 
   return isCompatible(recHit, ldir);
 }
+/*
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_SEAL_MODULE();
 
+#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+EVENTSETUP_DATA_REG(ClusterShapeHitFilter);
+*/

@@ -1,8 +1,8 @@
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrajectoryFilterESProducer.h"
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilterESProducer.h"
 
-#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
+//#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
 
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrajectoryFilter.h"
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
@@ -12,16 +12,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /*****************************************************************************/
-ClusterShapeTrajectoryFilterESProducer::ClusterShapeTrajectoryFilterESProducer
+ClusterShapeHitFilterESProducer::ClusterShapeHitFilterESProducer
   (const edm::ParameterSet& iConfig)
 {
-std::cerr << " CL Trajec ESP" << std::endl;
+std::cerr << " HitFilterESP" << std::endl;
   componentName = iConfig.getParameter<std::string>("ComponentName");
   
   filterPset = iConfig.getParameter<edm::ParameterSet>("filterPset");
   componentType = filterPset.getParameter<std::string>("ComponentType");
   
-  edm::LogInfo("ClusterShapeTrajectoryFilterESProducer")
+  edm::LogInfo("ClusterShapeHitFilterESProducer")
     << "configured to produce: " << componentType
     << " with name: "            << componentName;
       
@@ -30,22 +30,22 @@ std::cerr << " CL Trajec ESP" << std::endl;
 
 
 /*****************************************************************************/
-ClusterShapeTrajectoryFilterESProducer::~ClusterShapeTrajectoryFilterESProducer
+ClusterShapeHitFilterESProducer::~ClusterShapeHitFilterESProducer
   ()
 {
 }
 
 /*****************************************************************************/
-ClusterShapeTrajectoryFilterESProducer::ReturnType
-ClusterShapeTrajectoryFilterESProducer::produce
+ClusterShapeHitFilterESProducer::ReturnType
+ClusterShapeHitFilterESProducer::produce
    (const CkfComponentsRecord &iRecord)
 {
   using namespace edm::es;
-  edm::LogInfo("ClusterShapeTrajectoryFilterESProducer")
+  edm::LogInfo("ClusterShapeHitFilterESProducer")
     << "producing: " << componentName
     << " of type: "  << componentType;
 
-  // Retrieve magentic field
+  // Retrieve magnetic field
   edm::ESHandle<MagneticField> field;
   iRecord.getRecord<TrackingComponentsRecord>().getRecord<IdealMagneticFieldRecord>().get(field);
 
@@ -62,10 +62,11 @@ ClusterShapeTrajectoryFilterESProducer::produce
   iRecord.getRecord<TkStripCPERecord>().getRecord<SiStripLorentzAngleRcd>().get(strip);
 
   // Produce the filter using the plugin factory
-  ClusterShapeTrajectoryFilterESProducer::ReturnType
-    aFilter(new ClusterShapeTrajectoryFilter(  geo.product(),
-                                             field.product(),
-                                             pixel.product(),
-                                             strip.product()));
+  ClusterShapeHitFilterESProducer::ReturnType
+    aFilter(new ClusterShapeHitFilter(  geo.product(),
+                                      field.product(),
+                                      pixel.product(),
+                                      strip.product()));
+
   return aFilter;
 }

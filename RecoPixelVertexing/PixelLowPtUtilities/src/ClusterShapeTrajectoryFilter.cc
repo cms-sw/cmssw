@@ -2,6 +2,8 @@
 
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -21,6 +23,8 @@
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
 
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+
 #include <vector>
 using namespace std;
 
@@ -37,15 +41,26 @@ ClusterShapeTrajectoryFilter::ClusterShapeTrajectoryFilter
     theSiStripLorentzAngle(theSiStripLorentzAngle_)
 */
 {
+exit(1);
   theFilter = new ClusterShapeHitFilter(theTracker, theMagneticField,
                                         theSiPixelLorentzAngle,
                                         theSiStripLorentzAngle);
 }
 
 /*****************************************************************************/
+ClusterShapeTrajectoryFilter::ClusterShapeTrajectoryFilter
+  (const edm::EventSetup& es)
+{
+  // Get cluster shape hit filter
+  edm::ESHandle<ClusterShapeHitFilter> shape;
+  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter",shape);
+  theFilter = shape.product();
+}
+
+/*****************************************************************************/
 ClusterShapeTrajectoryFilter::~ClusterShapeTrajectoryFilter()
 {
-  delete theFilter;
+//  delete theFilter;
 }
 
 /*****************************************************************************/
@@ -64,7 +79,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
       const TrackingRecHit * tRecHit = ttRecHit->hit();
 
       TrajectoryStateOnSurface ts = (*tm).updatedState();
-      GlobalVector gdir = ts.globalDirection();
+      const GlobalVector gdir = ts.globalDirection();
 
       if(ttRecHit->det()->subDetector() == GeomDetEnumerators::PixelBarrel ||
          ttRecHit->det()->subDetector() == GeomDetEnumerators::PixelEndcap)

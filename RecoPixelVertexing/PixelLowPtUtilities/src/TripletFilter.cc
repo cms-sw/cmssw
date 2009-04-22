@@ -13,20 +13,24 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+
 using namespace std;
 
 /*****************************************************************************/
 TripletFilter::TripletFilter(const edm::EventSetup& es)
 {
-  // Get filter
-  theFilter = ClusterShapeHitFilter::Instance(es, "TripletFilter");
+  // Get cluster shape hit filter
+  edm::ESHandle<ClusterShapeHitFilter> shape;
+  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter",shape);
+  theFilter = shape.product();
 }
 
 /*****************************************************************************/
 TripletFilter::~TripletFilter()
 {
   // Destroy filter
-  ClusterShapeHitFilter::Release();
+//  ClusterShapeHitFilter::Release();
 }
 
 /*****************************************************************************/
