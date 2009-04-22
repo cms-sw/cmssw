@@ -33,7 +33,7 @@ TTree *getTree(const std::string &arg)
 	TFile *file = TFile::Open(fileName.c_str());
 	if (!file) {
 		std::cerr << "ROOT file \"" << fileName << "\" could not be "
-		             " opened for reading." << std::endl;
+		             "opened for reading." << std::endl;
 		return 0;
 	}
 
@@ -46,6 +46,15 @@ TTree *getTree(const std::string &arg)
 			TTree *cur = dynamic_cast<TTree*>(file->Get(name));
 			if (!cur)
 				continue;
+			int pos = name.Last(';');
+			if (pos >= 0) {
+				int i;
+				for(i = pos + 1; i < name.Length(); i++)
+					if (name[i] < '0' || name[i] > '9')
+						break;
+				if (i == name.Length())
+					continue;
+			}
 
 			if (tree) {
 				std::cerr << "ROOT file \"" << fileName
