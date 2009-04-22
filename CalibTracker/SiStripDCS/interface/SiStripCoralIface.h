@@ -33,6 +33,8 @@ class SiStripCoralIface
   void doQuery(std::string queryType, coral::TimeStamp startTime, coral::TimeStamp endTime, std::vector<coral::TimeStamp>&, std::vector<float>&, std::vector<std::string>& );
   /** Method to access the settings for each channel stored in the status change table*/
   void doSettingsQuery(coral::TimeStamp startTime,coral::TimeStamp endTime,std::vector<coral::TimeStamp>&,std::vector<float>&,std::vector<std::string>&,std::vector<uint32_t>&);
+  //
+  void doNameQuery(std::vector<std::string> &vec_dpname, std::vector<uint32_t> &vec_dpid);
  private:
   /** Set up the connection to the database*/
   void initialize();

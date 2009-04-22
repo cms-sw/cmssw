@@ -145,3 +145,29 @@ void SiStripCoralIface::doSettingsQuery(coral::TimeStamp startTime, coral::TimeS
   cursor.close();
   LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] " << numberRow << " rows retrieved from PVSS Cond DB";
 }
+
+void SiStripCoralIface::doNameQuery(std::vector<std::string> &vec_dpname, std::vector<uint32_t> &vec_dpid) 
+{
+  coral::IQuery* query = m_coraldb->coralSessionProxy().nominalSchema().newQuery();
+  
+  query->addToOutputList("DP_NAME2ID.DPNAME","DPNAME");
+  query->addToOutputList("DP_NAME2ID.ID","DPID");
+  query->addToTableList("DP_NAME2ID");
+
+  std::string condition = "DP_NAME2ID.dpname like '%easyBoard%' ";
+  query->setCondition( condition, coral::AttributeList() );
+
+  query->setMemoryCacheSize( 100 );
+  coral::ICursor& cursor = query->execute();
+  int numberRow=0;
+  while( cursor.next() ){
+    const coral::AttributeList& row = cursor.currentRow();
+    numberRow++;
+    uint32_t id = (uint32_t)row["DPID"].data<float>();
+    vec_dpid.push_back(id);
+    std::string id_name = (std::string)row["DPNAME"].data<std::string>();
+    vec_dpname.push_back(id_name);
+  }
+  cursor.close();
+  LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] " << numberRow << " rows retrieved from PVSS Cond DB";
+}
