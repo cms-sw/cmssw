@@ -9,7 +9,15 @@ ckfBaseTrajectoryFilterForMinBias.ComponentName = 'ckfBaseTrajectoryFilterForMin
 ckfBaseTrajectoryFilterForMinBias.filterPset.minimumNumberOfHits = 3
 ckfBaseTrajectoryFilterForMinBias.filterPset.minPt               = 0.075
 
-# Cluster shape filter
+# Cluster shape hit filter
+clusterShapeHitFilterESProducer = cms.ESProducer("ClusterShapeHitFilterESProducer",
+    filterPset = cms.PSet(
+        ComponentType = cms.string('clusterShapeHitFilter')
+    ),
+    ComponentName = cms.string('clusterShapeHitFilter')
+)
+
+# Cluster shape trajectory filter
 clusterShapeTrajectoryFilterESProducer = cms.ESProducer("ClusterShapeTrajectoryFilterESProducer",
     filterPset = cms.PSet(
         ComponentType = cms.string('clusterShapeTrajectoryFilter')

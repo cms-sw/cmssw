@@ -21,7 +21,7 @@ class TripletFilter
                   std::vector<GlobalVector> globalDirs);
 
  private:
-  ClusterShapeHitFilter * theFilter;
+  const ClusterShapeHitFilter * theFilter;
 };
 
 #endif

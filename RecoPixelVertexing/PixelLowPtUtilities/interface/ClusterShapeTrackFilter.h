@@ -38,8 +38,7 @@ class ClusterShapeTrackFilter : public PixelTrackFilter
     getGlobalPoss(const std::vector<const TrackingRecHit *>& recHits) const;
  
   const TrackerGeometry * theTracker;
-
-  ClusterShapeHitFilter * theFilter;
+  const ClusterShapeHitFilter * theFilter;
 };
 
 #endif

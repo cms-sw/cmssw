@@ -3,6 +3,8 @@
 
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
+namespace edm { class EventSetup; }
+
 class SiPixelRecHit;
 class SiStripRecHit2D;
 class GlobalTrackingGeometry;
@@ -13,6 +15,8 @@ class ClusterShapeHitFilter;
 
 class ClusterShapeTrajectoryFilter : public TrajectoryFilter {
  public:
+  ClusterShapeTrajectoryFilter(const edm::EventSetup& es);
+
   ClusterShapeTrajectoryFilter
     (const GlobalTrackingGeometry * theTracker_,
      const MagneticField          * theMagneticField_,
@@ -33,7 +37,7 @@ class ClusterShapeTrajectoryFilter : public TrajectoryFilter {
 //  const GlobalTrackingGeometry * theTracker;
 //  const MagneticField * theMagneticField;
 
-  ClusterShapeHitFilter * theFilter;
+  const ClusterShapeHitFilter * theFilter;
 };
 
 #endif

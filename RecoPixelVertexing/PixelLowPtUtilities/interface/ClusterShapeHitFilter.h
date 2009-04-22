@@ -1,6 +1,8 @@
 #ifndef _ClusterShapeHitFilter_h_
 #define _ClusterShapeHitFilter_h_
 
+//#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
+
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
@@ -62,9 +64,10 @@ class GeomDetUnit;
 class PixelGeomDetUnit;
 class StripGeomDetUnit;
 
-class ClusterShapeHitFilter 
+class ClusterShapeHitFilter
 {
  // singleton begin
+/*
  protected:
   static ClusterShapeHitFilter * _instance;
   static int _refCount;
@@ -77,6 +80,7 @@ class ClusterShapeHitFilter
 
  protected:
   ClusterShapeHitFilter();
+*/
  // singleton end
 
  public:
@@ -91,34 +95,39 @@ class ClusterShapeHitFilter
 
   bool getSizes
     (const SiPixelRecHit & recHit, const LocalVector & ldir,
-     int & part, std::pair<int,int> & meas, std::pair<float,float> & pred);
+     int & part, std::pair<int,int> & meas,
+     std::pair<float,float> & pred) const;
 
   bool getSizes
     (const SiStripRecHit2D & recHit, const LocalVector & ldir,
-     int & meas, float & pred);
+     int & meas, float & pred) const;
 
-  bool isCompatible(const SiPixelRecHit   & recHit, const LocalVector & ldir);
-  bool isCompatible(const SiStripRecHit2D & recHit, const LocalVector & ldir);
+  bool isCompatible(const SiPixelRecHit   & recHit,
+                    const LocalVector & ldir) const;
+  bool isCompatible(const SiStripRecHit2D & recHit,
+                    const LocalVector & ldir) const;
 
-  bool isCompatible(const SiPixelRecHit   & recHit, const GlobalVector & gdir);
-  bool isCompatible(const SiStripRecHit2D & recHit, const GlobalVector & gdir);
+  bool isCompatible(const SiPixelRecHit   & recHit,
+                    const GlobalVector & gdir) const;
+  bool isCompatible(const SiStripRecHit2D & recHit,
+                    const GlobalVector & gdir) const;
 
  private:
   void loadPixelLimits();
   void loadStripLimits();
   
   bool isInside(const std::vector<std::vector<float> > limit,
-                const std::pair<float,float> pred);
+                const std::pair<float,float> pred) const;
   bool isInside(const std::vector<float> limit,
-                const float pred);
+                const float pred) const;
 
-  std::pair<float,float> getCotangent(const PixelGeomDetUnit * pixelDet);
-                   float getCotangent(const StripGeomDetUnit * stripDet);
+  std::pair<float,float> getCotangent(const PixelGeomDetUnit * pixelDet) const;
+                   float getCotangent(const StripGeomDetUnit * stripDet) const;
 
-  std::pair<float,float> getDrift(const PixelGeomDetUnit * pixelDet);
-                   float getDrift(const StripGeomDetUnit * stripDet);
+  std::pair<float,float> getDrift(const PixelGeomDetUnit * pixelDet) const;
+                   float getDrift(const StripGeomDetUnit * stripDet) const;
 
-  bool isNormalOriented(const GeomDetUnit * geomDet);
+  bool isNormalOriented(const GeomDetUnit * geomDet) const;
 
   const GlobalTrackingGeometry * theTracker;
   const MagneticField * theMagneticField;
@@ -126,10 +135,10 @@ class ClusterShapeHitFilter
   const SiPixelLorentzAngle * theSiPixelLorentzAngle;
   const SiStripLorentzAngle * theSiStripLorentzAngle;
  
-  std::map<PixelKeys, std::vector<std::vector<std::vector<float> > > >
-                           pixelLimits; // [2][2][2]
-  std::map<StripKeys, std::vector<std::vector<float> > > 
-                           stripLimits; // [2][2]
+  mutable std::map<PixelKeys, std::vector<std::vector<std::vector<float> > > >
+                              pixelLimits; // [2][2][2]
+  mutable std::map<StripKeys, std::vector<std::vector<float> > > 
+                              stripLimits; // [2][2]
 
   float theAngle[6];
 };
