@@ -8,7 +8,7 @@ OutALCARECOHcalCalHO = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalHO')
     ),
     outputCommands = cms.untracked.vstring('drop *', 
-        'keep HOCalibVariables_*_*_*')
+        'keep *_hoCalibProducer_*_*')
 )
 
 
