@@ -10,10 +10,10 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCBadChambersRcd'),
-        tag = cms.string('CSCBadChambers_ME42')
+        tag = cms.string('CSCBadChambers_CRAFT_KillAllME42')
     )),
     #read from sqlite_file
-    connect = cms.string('sqlite_file:DBBadChambers.db'),
+    connect = cms.string('sqlite_file:BadChambers_Andy_CRAFT.db'),
     # read from database
     #connect=cms.string("frontier://FrontierDev/CMS_COND_CSC"),
     #connect =  cms.string("oracle://cms_orcoff_prep/CMS_COND_CSC"),
@@ -28,13 +28,14 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptySource")
 
-process.prod = cms.EDAnalyzer("CSCReadBadChambersAnalyzer",
+process.analyze = cms.EDAnalyzer("CSCReadBadChambersAnalyzer",
                               outputToFile = cms.bool(True),                           
-                              readBadChambers = cms.bool(True)
+                              readBadChambers = cms.bool(True),
+                              me42installed = cms.bool(True)
 )
 
 process.output = cms.OutputModule("AsciiOutputModule")
 
-process.p = cms.Path(process.prod)
+process.p = cms.Path(process.analyze)
 process.ep = cms.EndPath(process.output)
 
