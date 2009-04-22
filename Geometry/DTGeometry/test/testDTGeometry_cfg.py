@@ -8,8 +8,11 @@ process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.DTGeometryESModule.fromDDD = cms.bool(True)
 
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'IDEAL_30X::All' 
+process.GlobalTag.globaltag = 'IDEAL_31X::All' 
 #process.load("Configuration.StandardSequences.FakeConditions_cff")
+
+process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
+process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource") 
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
