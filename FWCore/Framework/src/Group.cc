@@ -124,6 +124,7 @@ namespace edm {
   void  
   Group::swap(Group& other) {
     std::swap(product_, other.product_);
+    std::swap(pid_, other.pid_);
     std::swap(branchDescription_, other.branchDescription_);
     std::swap(prov_, other.prov_);
     std::swap(dropped_, other.dropped_);
