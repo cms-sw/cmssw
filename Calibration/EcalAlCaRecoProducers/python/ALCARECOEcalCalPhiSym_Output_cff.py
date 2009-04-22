@@ -9,8 +9,8 @@ OutALCARECOEcalCalPhiSym = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOEcalCalPhiSym')
     ),
     outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_*_phiSymEcalRecHitsEB_*', 
-        'keep *_*_phiSymEcalRecHitsEE_*',
+        'keep *_ecalPhiSymCorrected_phiSymEcalRecHitsEB_*', 
+        'keep *_ecalPhiSymCorrected_phiSymEcalRecHitsEE_*',
         'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
         'keep *_MEtoEDMConverter_*_*')
 )
