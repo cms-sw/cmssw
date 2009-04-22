@@ -33,6 +33,8 @@ SETPatternRecognition::SETPatternRecognition(const ParameterSet& parameterSet)
   CSCRecSegmentLabel  = filterPSet.getParameter<edm::InputTag>("CSCRecSegmentLabel");
   RPCRecSegmentLabel  = filterPSet.getParameter<edm::InputTag>("RPCRecSegmentLabel");
 
+  outsideChamberErrorScale = filterPSet.getParameter<double>("OutsideChamberErrorScale");
+  minLocalSegmentAngle = filterPSet.getParameter<double>("MinLocalSegmentAngle");
   //----
 
 } 
@@ -56,6 +58,13 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
   edm::Handle<DTRecSegment4DCollection> dtRecHits;
   event.getByLabel(DTRecSegmentLabel, dtRecHits);
   for (DTRecSegment4DCollection::const_iterator rechit = dtRecHits->begin(); rechit!=dtRecHits->end();++rechit) {
+
+    if(segmentCleaning((*rechit).geographicalId(), 
+		       rechit->localPosition(), rechit->localPositionError(),
+		       rechit->localDirection(), rechit->localDirectionError(),
+		       rechit->chi2(), rechit->degreesOfFreedom())){
+      continue;
+    }
     if( (rechit->hasZed() && rechit->hasPhi()) ) {
     muonRecHits.push_back(MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet((*rechit).geographicalId()),&*rechit));
     }
@@ -78,6 +87,12 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
   edm::Handle<CSCSegmentCollection> cscSegments;
   event.getByLabel(CSCRecSegmentLabel, cscSegments);
   for(CSCSegmentCollection::const_iterator rechit=cscSegments->begin(); rechit != cscSegments->end(); ++rechit) {
+    if(segmentCleaning((*rechit).geographicalId(), 
+		       rechit->localPosition(), rechit->localPositionError(),
+		       rechit->localDirection(), rechit->localDirectionError(),
+		       rechit->chi2(), rechit->degreesOfFreedom())){
+      continue;
+    }
     muonRecHits.push_back(MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet((*rechit).geographicalId()),&*rechit));
   }
   //std::cout<<"CSC done"<<std::endl;
@@ -88,8 +103,19 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
 
   edm::Handle<RPCRecHitCollection> rpcRecHits;
   event.getByLabel(RPCRecSegmentLabel, rpcRecHits);
-  for(RPCRecHitCollection::const_iterator rechit=rpcRecHits->begin(); rechit != rpcRecHits->end(); ++rechit) {
-    if(useRPCs){
+  if(useRPCs){
+    for(RPCRecHitCollection::const_iterator rechit=rpcRecHits->begin(); rechit != rpcRecHits->end(); ++rechit) {
+      // RPCs are special
+      const LocalVector  localDirection(0.,0.,1.);
+      const LocalError localDirectionError (0.,0.,0.); 
+      const double chi2 = 1.;
+      const int ndf = 1;
+      if(segmentCleaning((*rechit).geographicalId(), 
+			 rechit->localPosition(), rechit->localPositionError(),
+			 localDirection, localDirectionError,
+			 chi2, ndf)){
+	continue;
+      }
       muonRecHits_RPC.push_back(MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet((*rechit).geographicalId()),&*rechit));
     }
   }
@@ -380,4 +406,22 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
 }
 
 
+bool SETPatternRecognition::segmentCleaning(const DetId & detId, 
+					    const LocalPoint& localPosition, const LocalError& localError,
+					    const LocalVector& localDirection, const LocalError& localDirectionError,
+					    const double& chi2, const int& ndf){
+  // drop segments which are "bad"
+  bool dropTheSegment = true;
+  const GeomDet* geomDet = theService->trackingGeometry()->idToDet( detId );
+  bool insideCh = geomDet->surface().bounds().inside(localPosition, localError,outsideChamberErrorScale);
+  
+  bool parallelSegment = localDirection.z()>minLocalSegmentAngle? true: false;
 
+  if(insideCh && !parallelSegment){
+    dropTheSegment = false;
+  }
+  // use chi2 too? (DT, CSCs, RPCs; 2D, 4D;...)
+
+
+  return dropTheSegment;
+}

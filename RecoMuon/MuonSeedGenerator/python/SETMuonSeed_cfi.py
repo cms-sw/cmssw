@@ -23,6 +23,10 @@ SETMuonSeed  = cms.EDProducer("SETMuonSeedProducer",
             Propagator = cms.string('SteppingHelixPropagatorAny'),
 
             EnableRPCMeasurement = cms.bool(True),
+# Check the position of the segment including errors 
+            OutsideChamberErrorScale = cms.double(1.0), 
+# The segment should not be parallel to the chamber 
+            MinLocalSegmentAngle = cms.double(0.09),
 # NOT USED for now
             EnableDTMeasurement = cms.bool(True),
             EnableCSCMeasurement = cms.bool(True)       

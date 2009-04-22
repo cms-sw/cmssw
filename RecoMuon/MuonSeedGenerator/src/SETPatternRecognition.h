@@ -15,6 +15,11 @@ public:
                        std::vector<MuonRecHitContainer> & result);
 
   void setServiceProxy(MuonServiceProxy * service) {theService = service;}
+  // don't use "bad" segments
+  bool segmentCleaning(const DetId & detId, 
+		       const LocalPoint& localPosition, const LocalError& localError,
+		       const LocalVector& localDirection, const LocalError& localDirectionError,
+		       const double& chi2, const int& ndf);
 
 private:
   bool useRPCs; 
@@ -22,6 +27,10 @@ private:
   edm::InputTag DTRecSegmentLabel;
   edm::InputTag CSCRecSegmentLabel;
   edm::InputTag RPCRecSegmentLabel;
+
+  double outsideChamberErrorScale; 
+  double minLocalSegmentAngle; 
+  //----
 
   MuonServiceProxy * theService;
 };
