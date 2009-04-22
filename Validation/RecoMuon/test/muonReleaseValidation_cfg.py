@@ -31,6 +31,7 @@ process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.load("Validation.RecoMuon.muonValidation_cff")
+process.load("Validation.RecoMuon.muonValidationHLT_cff")
 
 
 process.endjob_step = cms.Path(process.endOfProcess)
