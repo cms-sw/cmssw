@@ -79,6 +79,7 @@ process.digi2track = cms.Sequence(process.siPixelDigis
                                   ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
                                   *process.multiTrackValidator
                                   *process.recoMuonValidation
+                                   *process.recoMuonValidationHLT_seq
 #                                  *process.endOfProcess
                                   )
 #redo also tracking particles
@@ -94,6 +95,7 @@ process.digi2track_and_TP = cms.Sequence(process.mix
                                          ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
                                          *process.multiTrackValidator
                                          *process.recoMuonValidation
+                                         *process.recoMuonValidationHLT_seq
 #                                         *process.endOfProcess
                                          )
 
@@ -105,6 +107,7 @@ process.re_tracking = cms.Sequence(process.siPixelRecHits
                                    ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
                                    *process.multiTrackValidator
                                    *process.recoMuonValidation
+                                   *process.recoMuonValidationHLT_seq
 #                                   *process.endOfProcess
                                    )
 
@@ -118,6 +121,7 @@ process.re_tracking_and_TP = cms.Sequence(process.mix
                                           ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
                                           *process.multiTrackValidator
                                           *process.recoMuonValidation
+                                          *process.recoMuonValidationHLT_seq
 #                                          *process.endOfProcess
                                           )
 
@@ -125,6 +129,7 @@ if (process.multiTrackValidator.label[0] == 'generalTracks'):
     process.only_validation = cms.Sequence(##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
                                            process.multiTrackValidator
                                            *process.recoMuonValidation
+                                           *process.recoMuonValidationHLT_seq
 #                                           *process.endOfProcess
                                            )
 else:
@@ -132,6 +137,7 @@ else:
                                            ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
                                            *process.multiTrackValidator
                                            *process.recoMuonValidation
+                                           *process.recoMuonValidationHLT_seq
 #                                           *process.endOfProcess
                                            )
     
@@ -140,6 +146,7 @@ if (process.multiTrackValidator.label[0] == 'generalTracks'):
                                                   *process.trackingParticles
                                                   *process.multiTrackValidator
                                                   *process.recoMuonValidation
+                                                  *process.recoMuonValidationHLT_seq
 #                                                  *process.endOfProcess
                                                   )
 else:
@@ -148,6 +155,7 @@ else:
                                                   *process.cutsRecoTracks
                                                   *process.multiTrackValidator
                                                   *process.recoMuonValidation
+                                                  *process.recoMuonValidationHLT_seq
 #                                                  *process.endOfProcess
                                                   )
 

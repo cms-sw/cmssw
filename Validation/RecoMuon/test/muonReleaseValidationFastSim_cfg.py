@@ -35,6 +35,7 @@ process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.load("Validation.RecoMuon.muonValidationFastSim_cff")
+process.load("Validation.RecoMuon.muonValidationHLTFastSim_cff")
 
 
 process.endjob_step = cms.Path(process.endOfProcess)
@@ -84,6 +85,7 @@ process.digi2track = cms.Sequence(process.siPixelDigis
                                   *process.multiTrackValidator
 #                                  *process.recoMuonValidation
                                   *process.recoMuonValidationFastSim
+                                  *process.recoMuonValidationHLTFastSim_seq
 #                                  *process.endOfProcess
                                   )
 #redo also tracking particles
@@ -100,6 +102,7 @@ process.digi2track_and_TP = cms.Sequence(process.mix
                                          *process.multiTrackValidator
 #                                         *process.recoMuonValidation
                                          *process.recoMuonValidationFastSim
+                                         *process.recoMuonValidationHLTFastSim_seq
 #                                         *process.endOfProcess
                                          )
 
@@ -112,6 +115,7 @@ process.re_tracking = cms.Sequence(process.siPixelRecHits
                                    *process.multiTrackValidator
 #                                   *process.recoMuonValidation
                                    *process.recoMuonValidationFastSim
+                                   *process.recoMuonValidationHLTFastSim_seq
 #                                   *process.endOfProcess
                                    )
 
@@ -126,6 +130,7 @@ process.re_tracking_and_TP = cms.Sequence(process.mix
                                           *process.multiTrackValidator
 #                                          *process.recoMuonValidation
                                           *process.recoMuonValidationFastSim
+                                          *process.recoMuonValidationHLTFastSim_seq
 #                                          *process.endOfProcess
                                           )
 
@@ -134,6 +139,7 @@ if (process.multiTrackValidator.label[0] == 'generalTracks'):
                                            process.multiTrackValidator
 #                                           *process.recoMuonValidation
                                            *process.recoMuonValidationFastSim
+                                           *process.recoMuonValidationHLTFastSim_seq
 #                                           *process.endOfProcess
                                            )
 else:
@@ -142,6 +148,7 @@ else:
                                            *process.multiTrackValidator
 #                                           *process.recoMuonValidation
                                            *process.recoMuonValidationFastSim
+                                           *process.recoMuonValidationHLTFastSim_seq
 #                                           *process.endOfProcess
                                            )
     
@@ -151,6 +158,7 @@ if (process.multiTrackValidator.label[0] == 'generalTracks'):
                                                   *process.multiTrackValidator
 #                                                  *process.recoMuonValidation
                                                   *process.recoMuonValidationFastSim
+                                                  *process.recoMuonValidationHLTFastSim_seq
 #                                                  *process.endOfProcess
                                                   )
 else:
@@ -160,6 +168,7 @@ else:
                                                   *process.multiTrackValidator
 #                                                  *process.recoMuonValidation
                                                   *process.recoMuonValidationFastSim
+                                                  *process.recoMuonValidationHLTFastSim_seq
 #                                                  *process.endOfProcess
                                                   )
 
