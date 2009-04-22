@@ -5,8 +5,8 @@ import FWCore.ParameterSet.Config as cms
 
 # Pixel's digitization
 from SimTracker.SiPixelDigitizer.PixelDigi_cfi import *
-# SiStrip's digitization in APV Mode Peak
-from SimTracker.SiStripDigitizer.SiStripDigi_APVModePeak_cff import *
+# SiStrip's digitization in APV Mode Deconvolution
+from SimTracker.SiStripDigitizer.SiStripDigi_APVModeDec_cff import *
 
 # Combined sequence
 trDigi = cms.Sequence(simSiPixelDigis+simSiStripDigis)
