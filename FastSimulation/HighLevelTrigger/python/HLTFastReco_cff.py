@@ -20,10 +20,16 @@ from FastSimulation.ParamL3MuonProducer.ParamL3Muon_cfi import *
 paramMuons.MUONS.ProduceL1Muons = False
 paramMuons.MUONS.ProduceL3Muons = False
 
-# L1 emulator 
-from L1Trigger.Configuration.L1Emulator_cff import *
+# L1 emulator - in the future, we may want to use directly L1Trigger.Configuration.SimL1Emulator_cff
+# Configuration comes from the GlobalTag
+# Emulator modules
+from L1Trigger.Configuration.L1MuonEmulator_cff import *
+from L1Trigger.Configuration.L1CaloEmulator_cff import *
+from L1Trigger.GlobalTrigger.gtDigis_cfi import *
 rctDigis.ecalDigis = cms.VInputTag(cms.InputTag("simEcalTriggerPrimitiveDigis"))
 rctDigis.hcalDigis = cms.VInputTag(cms.InputTag("simHcalTriggerPrimitiveDigis"))
+# Emulator sequence
+L1Emulator = cms.Sequence(L1CaloEmulator*L1MuonEmulator*gtDigis)
 
 # The calorimeter emulator requires doDigis=true)
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
@@ -49,9 +55,9 @@ l1extraParticles.muonSource = 'l1ParamMuons'
 
 # L1 report
 import L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi
-hltL1gtTrigReport = L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi.l1GtTrigReport.clone()
-hltL1gtTrigReport.PrintVerbosity = 1
-hltL1gtTrigReport.PrintOutput = 2
+hltL1GtTrigReport = L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi.l1GtTrigReport.clone()
+hltL1GtTrigReport.PrintVerbosity = 1
+hltL1GtTrigReport.PrintOutput = 2
 
 # HLT Report
 options = cms.untracked.PSet(
