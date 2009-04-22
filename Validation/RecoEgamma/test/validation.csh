@@ -128,6 +128,10 @@ cat > efficiencyForPhotons <<EOF
 EOF
 
 cat > scaledhistosForPhotons <<EOF
+
+  gamgamMassAll
+  gamgamMassBarrel
+  gamgamMassEndcap
   scEta
   scPhi
   scEAll

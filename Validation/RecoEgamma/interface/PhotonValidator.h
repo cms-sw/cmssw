@@ -24,8 +24,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/02/02 11:15:59 $ 
- **  $Revision: 1.13 $
+ **  $Date: 2009/04/20 12:05:51 $ 
+ **  $Revision: 1.15 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -126,6 +126,7 @@ class PhotonValidator : public edm::EDAnalyzer
   bool dCotCutOn_;
   double dCotCutValue_;
   double dCotHardCutValue_;
+  bool signal_;
 
   /// global variable for the MC photon
   double mcPhi_;
@@ -287,6 +288,7 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* p_nTrkSolidConeDR04VsEt_[3];
   //
 
+  MonitorElement*  h_gamgamMass_[3][3];
 
   MonitorElement* h_phoE_[2][3];
   MonitorElement* h_phoEt_[2][3];

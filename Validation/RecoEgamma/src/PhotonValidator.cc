@@ -73,8 +73,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/04/20 13:42:32 $ 
- **  $Revision: 1.20 $
+ **  $Date: 2009/04/20 17:59:09 $ 
+ **  $Revision: 1.21 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -125,7 +125,7 @@ PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
     dCotCutOn_ = pset.getParameter<bool>("dCotCutOn");   
     dCotCutValue_ = pset.getParameter<double>("dCotCutValue");   
     dCotHardCutValue_ = pset.getParameter<double>("dCotHardCutValue");   
-
+    signal_ = pset.getParameter<bool>("signal");
 
     thePhotonMCTruthFinder_ = new PhotonMCTruthFinder();
    
@@ -371,6 +371,11 @@ void PhotonValidator::initVectors() {
 
   double chi2Min = parameters_.getParameter<double>("chi2Min"); 
   double chi2Max = parameters_.getParameter<double>("chi2Max"); 
+
+  int    ggMassBin = parameters_.getParameter<int>("ggMassBin");   
+  double ggMassMin = parameters_.getParameter<double>("ggMassMin"); 
+  double ggMassMax = parameters_.getParameter<double>("ggMassMax"); 
+
 
   double rMinForXray = parameters_.getParameter<double>("rMinForXray");
   double rMaxForXray = parameters_.getParameter<double>("rMaxForXray");
@@ -650,6 +655,21 @@ void PhotonValidator::initVectors() {
     histname="pEResVsEta";
     p_eResVsEta_[1] = dbe_->book1D(histname+"Unconv"," Unconv photons  E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax);
 
+    // Photon pair invariant mass
+    histname = "gamgamMass"; 
+    h_gamgamMass_[0][0] = dbe_->book1D(histname+"All","2 photons invariant mass: All ecal ", ggMassBin, ggMassMin, ggMassMax);
+    h_gamgamMass_[0][1] = dbe_->book1D(histname+"Barrel","2 photons invariant mass:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
+    h_gamgamMass_[0][2] = dbe_->book1D(histname+"Endcap","2 photons invariant mass:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
+    //
+    histname = "gamgamMassNoConv";
+    h_gamgamMass_[1][0] = dbe_->book1D(histname+"All","2 photons with no conversion invariant mass: All ecal ",ggMassBin, ggMassMin, ggMassMax); 
+    h_gamgamMass_[1][1] = dbe_->book1D(histname+"Barrel","2 photons with no conversion  invariant mass:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
+    h_gamgamMass_[1][2] = dbe_->book1D(histname+"Endcap","2 photons with no conversion  invariant mass:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
+    //
+    histname = "gamgamMassConv";
+    h_gamgamMass_[2][0] = dbe_->book1D(histname+"All","2 photons with conversion invariant mass: All ecal ", ggMassBin, ggMassMin, ggMassMax);
+    h_gamgamMass_[2][1] = dbe_->book1D(histname+"Barrel","2 photons with  conversion  invariant mass:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
+    h_gamgamMass_[2][2] = dbe_->book1D(histname+"Endcap","2 photons with  conversion  invariant mass:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
 
 
     dbe_->setCurrentFolder("Egamma/PhotonValidator/ConversionInfo");
@@ -1134,11 +1154,45 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   for (int i=0; i<2; i++)  
     nSimConv_[i]=0;
 
+  //////////////////////////////////////////////////////////////////////
+  for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
+    if ( iPho->pt() < minPhoEtCut_ ) continue;
+    if ( ! (  fabs(iPho->eta() ) <= BARL || ( fabs(iPho->eta()) >= END_LO && fabs(iPho->eta() ) <=END_HI ) ) ) 
+      continue;  // all ecal fiducial region
+
+    bool  phoIsInBarrel=false;
+    bool  phoIsInEndcap=false;
+    if ( fabs(iPho->eta() ) < 1.479 ) {
+      phoIsInBarrel=true;
+    } else {
+      phoIsInEndcap=true;
+    }
+    
+    for (reco::PhotonCollection::const_iterator iPho2=iPho+1; iPho2!=photonCollection.end(); iPho2++){
+      math::XYZTLorentzVector p12 = iPho->p4()+iPho2->p4();
+      float gamgamMass2 = p12.Dot(p12);
+      
+      h_gamgamMass_[0][0] -> Fill(sqrt( gamgamMass2 ));
+      if ( phoIsInBarrel ) h_gamgamMass_[0][1] -> Fill(sqrt( gamgamMass2 ));
+      if ( phoIsInEndcap ) h_gamgamMass_[0][2] -> Fill(sqrt( gamgamMass2 ));
+
+      if ( iPho->hasConversionTracks() ) {
+	h_gamgamMass_[1][0] -> Fill(sqrt( gamgamMass2 ));
+	if ( phoIsInBarrel ) h_gamgamMass_[1][1] -> Fill(sqrt( gamgamMass2 ));
+	if ( phoIsInEndcap ) h_gamgamMass_[1][2] -> Fill(sqrt( gamgamMass2 ));
+      } else {
+	h_gamgamMass_[2][0] -> Fill(sqrt( gamgamMass2 ));
+	if ( phoIsInBarrel ) h_gamgamMass_[2][1] -> Fill(sqrt( gamgamMass2 ));
+	if ( phoIsInEndcap ) h_gamgamMass_[2][2] -> Fill(sqrt( gamgamMass2 ));
+      }
+
+    }
+  }
+  
 
   cout << " PhotonValidator mcPhotons.size() " << mcPhotons.size() << endl;
   for ( std::vector<PhotonMCTruth>::const_iterator mcPho=mcPhotons.begin(); mcPho !=mcPhotons.end(); mcPho++) {
     if ( (*mcPho).fourMomentum().et() < minPhoEtCut_ ) continue;
-
     if ( (*mcPho).motherType() != -1 ) continue;  
 
 
