@@ -87,7 +87,7 @@ while (histo_file>>histo_name>>scaled)
    {
     histo_new->SetLineColor(2) ;
     histo_new->SetLineWidth(3) ;
-	if ((scaled==1)&&(file_old!=0)&&(histo_old!=0))
+    if ((scaled==1)&&(file_old!=0)&&(histo_old!=0)&&(histo_new->GetEntries()!=0))
      { histo_new->Scale(histo_old->GetEntries()/histo_new->GetEntries()) ; }
     histo_new->Draw("same") ;
     std::cout<<histo_name
