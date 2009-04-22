@@ -8,28 +8,48 @@
  *  Value type is specified by the template parameter Type.
  *  Define a new struct for non-POD value type.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/11/30 19:41:08 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 
+#include <map>
 #include <string>
-#include <vector>
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 template <class T>
-struct PixelDCSObject
+class PixelDCSObject
 {
+  public:
+
   typedef T Type;
 
-  struct Item
-  {
-    std::string name; // name of detector element
+  typedef typename std::map<std::string, Type> Map;
+  typedef typename Map::value_type Item;
 
-    Type value;
-  };
+  Type& operator [](const std::string& name) { return items[name]; }
 
-  std::vector<Item> items;
+  const Type& getValue(const std::string& name) const;
+
+  private:
+
+  Map items;
 };
+
+template <class Type>
+const Type& PixelDCSObject<Type>::getValue(const std::string& name) const
+{
+  typename Map::const_iterator f = items.find(name);
+
+  if (items.end() == f)
+  {
+    throw cms::Exception("PixelDCSObject")
+        << "Cannot find item for " << name << " in DCS object.";
+  }
+
+  return f->second;
+}
 
 struct CaenChannel
 {
