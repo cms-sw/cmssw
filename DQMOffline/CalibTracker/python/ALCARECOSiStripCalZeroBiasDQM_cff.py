@@ -31,3 +31,4 @@ ALCARECOSiStripCalZeroBiasDQM.TProfNumberOfCluster.moduleswitchon     = False
 ALCARECOSiStripCalZeroBiasDQM.TProfNumberOfCluster.layerswitchon      = False
 ALCARECOSiStripCalZeroBiasDQM.TProfClusterWidth.moduleswitchon        = False
 ALCARECOSiStripCalZeroBiasDQM.TProfClusterWidth.layerswitchon         = False
+ALCARECOSiStripCalZeroBiasDQM.TkHistoMap_On                           = False
