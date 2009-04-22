@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.112 $"
+__version__ = "$Revision: 1.113 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -475,7 +475,6 @@ class ConfigBuilder(object):
         """ Enrich the schedule with the L1 simulation step"""
         if not sequence:
             self.loadAndRemember(self.L1EMDefaultCFF) 
-            self.loadAndRemember(self.L1MENUDefaultCFF)
 	else:
             # let the L1 package decide for the scenarios available
 	    from L1Trigger.Configuration.ConfigBuilder import getConfigsForScenario
@@ -656,7 +655,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.112 $"),
+              (version=cms.untracked.string("$Revision: 1.113 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
