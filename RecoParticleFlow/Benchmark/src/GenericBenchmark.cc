@@ -38,7 +38,10 @@ GenericBenchmark::GenericBenchmark() {}
 
 GenericBenchmark::~GenericBenchmark() {}
 
-void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_) { 
+void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDeltaEt, float maxDeltaEt, float minDeltaPhi, float maxDeltaPhi) {
+
+  //std::cout << "minDeltaPhi = " << minDeltaPhi << std::endl;
+
 
   // CMSSW_2_X_X
   // use bare Root if no DQM (FWLite applications)
@@ -50,8 +53,8 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_) {
   float minEt = 0;
   float maxEt = 1000;
 
-  float minDeltaEt = -100;
-  float maxDeltaEt = 50;
+  //float minDeltaEt = -100;
+  //float maxDeltaEt = 50;
 
   int nbinsEta = 200;
   float minEta = -5;
@@ -62,8 +65,8 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_) {
   float maxDeltaEta = 0.5;
 
   int nbinsDeltaPhi = 1000;
-  float minDeltaPhi = -0.5;
-  float maxDeltaPhi = 0.5;
+  //float minDeltaPhi = -0.5;
+  //float maxDeltaPhi = 0.5;
 
 
   // delta et quantities
@@ -127,6 +130,15 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_) {
   BOOK1D(PhiSeen,"seen #phi",100,-3.5,3.5);
   BOOK1D(EtSeen,"seen E_{T}",nbinsEt, minEt, maxEt);
   
+  BOOK1D(PhiRec,"Rec #phi",100,-3.5,3.5);
+  BOOK1D(EtRec,"Rec E_{T}",nbinsEt, minEt, maxEt);
+  BOOK1D(ExRec,"Rec E_{X}",nbinsEt, minEt, maxEt);
+  BOOK1D(EyRec,"Rec E_{Y}",nbinsEt, minEt, maxEt);
+
+  BOOK2D(EtRecvsEt,"Rec E_{T} vs E_{T}",
+	 nbinsEt, minEt, maxEt,
+	 nbinsEt, minEt, maxEt);
+
   BOOK1D(EtaGen,"generated #eta",100,-5,5);
   BOOK1D(PhiGen,"generated #phi",100,-3.5,3.5);
   BOOK1D(EtGen,"generated E_{T}",nbinsEt, minEt, maxEt);
@@ -169,6 +181,12 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_) {
   SETAXES(EtaSeen,"seen #eta","");
   SETAXES(PhiSeen,"seen #phi [rad]","");
   SETAXES(EtSeen,"seen E_{T} [GeV]","");
+
+  SETAXES(PhiRec,"#phi [rad]","");
+  SETAXES(EtRec,"E_{T} [GeV]","");
+  SETAXES(ExRec,"E_{X} [GeV]","");
+  SETAXES(EyRec,"E_{Y} [GeV]","");
+  SETAXES(EtRecvsEt,ET,"Rec E_{T} [GeV]");
 
   SETAXES(EtaGen,"generated #eta","");
   SETAXES(PhiGen,"generated #phi [rad]","");
@@ -277,6 +295,14 @@ void GenericBenchmark::fill(const edm::View<reco::Candidate> *RecoCollection,
     hEtaSeen->Fill(gen_particle->eta() );
     hPhiSeen->Fill(gen_particle->phi() );
     hEtSeen->Fill(gen_particle->et() );
+
+    hPhiRec->Fill(rec_particle->phi() );
+    hEtRec->Fill(rec_particle->et() );
+    hExRec->Fill(rec_particle->px() );
+    hEyRec->Fill(rec_particle->py() );
+
+  hEtRecvsEt->Fill(gen_particle->et(),rec_particle->et());
+
 
     if( startFromGen ) 
       fillHistos( gen_particle, rec_particle, deltaR_cut, PlotAgainstReco);

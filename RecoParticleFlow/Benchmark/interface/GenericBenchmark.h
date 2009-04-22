@@ -25,7 +25,9 @@ class GenericBenchmark{
   GenericBenchmark();
   virtual ~GenericBenchmark();
 
-  void setup(DQMStore *DQM = NULL, bool PlotAgainstReco_=true); // CMSSW_2_X_X
+  void setup(DQMStore *DQM = NULL, bool PlotAgainstReco_=true, float minDeltaEt = -100., float maxDeltaEt = 50., float minDeltaPhi = -0.5, float maxDeltaPhi = 0.5);
+  //void setup(DQMStore *DQM = NULL, bool PlotAgainstReco_=true, float minDeltaEt = -200., float maxDeltaEt = 200., float minDeltaPhi = -3.2, float maxDeltaPhi = 3.2);
+  //void setup(DQMStore *DQM = NULL, bool PlotAgainstReco_=true, float minDeltaEt, float maxDeltaEt, float minDeltaPhi, float maxDeltaPhi);
 
   void fill(const edm::View<reco::Candidate> *RecoCollection, 
 	    const edm::View<reco::Candidate> *GenCollection,
@@ -62,6 +64,8 @@ class GenericBenchmark{
   TH2F *hDeltaEtvsDeltaR;
   TH2F *hDeltaEtOverEtvsDeltaR;
 
+  TH2F *hEtRecvsEt;
+
   TH1F *hDeltaEta;
   TH2F *hDeltaEtavsEt;
   TH2F *hDeltaEtavsEta;
@@ -86,6 +90,11 @@ class GenericBenchmark{
   TH1F *hEtSeen;
   TH1F *hEtaSeen;
   TH1F *hPhiSeen;
+
+  TH1F *hEtRec;
+  TH1F *hExRec;
+  TH1F *hEyRec;
+  TH1F *hPhiRec;
 
   BenchmarkTree*  tree_;
 
