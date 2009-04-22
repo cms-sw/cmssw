@@ -3,7 +3,7 @@
 
 // Various simple tools
 // F.Ratnikov, UMd
-// $Id: JetAlgoHelper.h,v 1.6 2007/09/20 21:05:01 fedor Exp $
+// $Id: JetAlgoHelper.h,v 1.7 2008/07/15 21:47:23 elmer Exp $
 
 #include<limits>
 #include <iostream>
@@ -35,7 +35,7 @@ namespace {
     for (unsigned i = 0; i < container->size(); i++) {
       sortable[i].value = getter.getValue ((*container)[i]);
       sortable[i].index = i;
-      if (sorted && i && so_gt (sortable[i-1], sortable[i])) sorted = false;
+      if (sorted && i && so_lt (sortable[i-1], sortable[i])) sorted = false;
     }
     if (!sorted) { // needs sorting
       std::sort (sortable.begin(), sortable.end(), so_gt);
