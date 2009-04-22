@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/04/16 20:24:55 $
- * $Revision: 1.444 $
+ * $Date: 2009/04/17 07:17:32 $
+ * $Revision: 1.445 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1179,7 +1179,7 @@ void EcalBarrelMonitorClient::writeDb(bool flag) {
 
   float nevt = -1.;
 
-  if ( h_ ) nevt = h_->GetEntries();
+  if ( h_ ) nevt = h_->GetSumOfWeights();
 
   md.setNumEvents(int(nevt));
   md.setMonRunOutcomeDef(monRunOutcomeDef);
@@ -1255,7 +1255,7 @@ void EcalBarrelMonitorClient::endRunDb(void) {
 
   float nevt = -1.;
 
-  if ( h_ ) nevt = h_->GetEntries();
+  if ( h_ ) nevt = h_->GetSumOfWeights();
 
   rd.setNumEvents(int(nevt));
 
@@ -1404,7 +1404,7 @@ void EcalBarrelMonitorClient::analyze(void) {
       cout << "   EB run/event type = " << this->getRunType() << "/" << ( evtType_ == -1 ? "UNKNOWN" : runTypes_[evtType_] ) << flush;
 
       if ( h_ ) {
-        if ( h_->GetEntries() != 0 ) {
+        if ( h_->GetSumOfWeights() != 0 ) {
           cout << " ( " << flush;
           for ( unsigned int i = 0; i < runTypes_.size(); i++ ) {
             if ( strcmp(runTypes_[i].c_str(), "UNKNOWN") != 0 && h_->GetBinContent(2+i) != 0 ) {

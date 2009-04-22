@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/03/27 08:44:02 $
- * $Revision: 1.203 $
+ * $Date: 2009/04/17 07:17:33 $
+ * $Revision: 1.204 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1219,7 +1219,7 @@ void EcalEndcapMonitorClient::writeDb(bool flag) {
 
   float nevt = -1.;
 
-  if ( h_ ) nevt = h_->GetEntries();
+  if ( h_ ) nevt = h_->GetSumOfWeights();
 
   md.setNumEvents(int(nevt));
   md.setMonRunOutcomeDef(monRunOutcomeDef);
@@ -1295,7 +1295,7 @@ void EcalEndcapMonitorClient::endRunDb(void) {
 
   float nevt = -1.;
 
-  if ( h_ ) nevt = h_->GetEntries();
+  if ( h_ ) nevt = h_->GetSumOfWeights();
 
   rd.setNumEvents(int(nevt));
 
@@ -1444,7 +1444,7 @@ void EcalEndcapMonitorClient::analyze(void) {
       cout << "   EE run/event type = " << this->getRunType() << "/" << ( evtType_ == -1 ? "UNKNOWN" : runTypes_[evtType_] ) << flush;
 
       if ( h_ ) {
-        if ( h_->GetEntries() != 0 ) {
+        if ( h_->GetSumOfWeights() != 0 ) {
           cout << " ( " << flush;
           for ( unsigned int i = 0; i < runTypes_.size(); i++ ) {
             if ( strcmp(runTypes_[i].c_str(), "UNKNOWN") != 0 && h_->GetBinContent(2+i) != 0 ) {
