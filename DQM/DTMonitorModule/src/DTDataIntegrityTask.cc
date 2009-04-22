@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2009/04/06 16:34:23 $
- * $Revision: 1.52 $
+ * $Date: 2009/04/20 16:14:54 $
+ * $Revision: 1.53 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -109,6 +109,8 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
   string histoType;
   string histoName;
+  string histoTitle;
+  MonitorElement* histo = 0;
 
   // DDU Histograms
   if (folder == "DDU") {
@@ -116,81 +118,87 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
     histoType = "TTSValues";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
-    (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoName,7,0,7);
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"disconnected",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"warning overflow",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(3,"out of synch",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(4,"busy",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(5,"ready",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(6,"error",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(7,"disconnected",1);	
+    (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoName,8,0,8);
+    histo = (dduHistos[histoType])[code.getDDUID()];
+    histo->setBinLabel(1,"disconnected",1);	
+    histo->setBinLabel(2,"warning overflow",1);	
+    histo->setBinLabel(3,"out of synch",1);	
+    histo->setBinLabel(4,"busy",1);	
+    histo->setBinLabel(5,"ready",1);	
+    histo->setBinLabel(6,"error",1);	
+    histo->setBinLabel(7,"disconnected",1);	
+    histo->setBinLabel(8,"unknown",1);	
+    
 
     histoType = "TTS_2";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
     (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoName,21,0,21);
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"L1A mismatch",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"BX mismatch",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(3,"L1A Full ch1-4",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(4,"L1A Full ch5-8",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(5,"L1A Full ch9-12",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(6,"Input Full ch1-4",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(7,"Input Full ch5-8",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(8,"Input Full ch9-12",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(9,"Output FIFO Full",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(10,"error ROS 1",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(11,"error ROS 2",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(12,"error ROS 3",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(13,"error ROS 4",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(14,"error ROS 5",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(15,"error ROS 6",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(16,"error ROS 7",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(17,"error ROS 8",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(18,"error ROS 9",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(19,"error ROS 10",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(20,"error ROS 11",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(21,"error ROS 12",1);
+    histo = (dduHistos[histoType])[code.getDDUID()];
+    histo->setBinLabel(1,"L1A mismatch",1);	
+    histo->setBinLabel(2,"BX mismatch",1);	
+    histo->setBinLabel(3,"L1A Full ch1-4",1);	
+    histo->setBinLabel(4,"L1A Full ch5-8",1);	
+    histo->setBinLabel(5,"L1A Full ch9-12",1);	
+    histo->setBinLabel(6,"Input Full ch1-4",1);	
+    histo->setBinLabel(7,"Input Full ch5-8",1);	
+    histo->setBinLabel(8,"Input Full ch9-12",1);	
+    histo->setBinLabel(9,"Output FIFO Full",1);	
+    histo->setBinLabel(10,"error ROS 1",1);	
+    histo->setBinLabel(11,"error ROS 2",1);	
+    histo->setBinLabel(12,"error ROS 3",1);	
+    histo->setBinLabel(13,"error ROS 4",1);	
+    histo->setBinLabel(14,"error ROS 5",1);	
+    histo->setBinLabel(15,"error ROS 6",1);	
+    histo->setBinLabel(16,"error ROS 7",1);	
+    histo->setBinLabel(17,"error ROS 8",1);	
+    histo->setBinLabel(18,"error ROS 9",1);	
+    histo->setBinLabel(19,"error ROS 10",1);	
+    histo->setBinLabel(20,"error ROS 11",1);	
+    histo->setBinLabel(21,"error ROS 12",1);
 
     histoType = "TTS_12";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
     (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoName,21,0,21);
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"L1A mismatch",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"BX mismatch",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(3,"L1A Full ch1-4",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(4,"L1A Full ch5-8",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(5,"L1A Full ch9-12",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(6,"Input Full ch1-4",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(7,"Input Full ch5-8",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(8,"Input Full ch9-12",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(9,"Output FIFO Full",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(10,"error ROS 1",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(11,"error ROS 2",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(12,"error ROS 3",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(13,"error ROS 4",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(14,"error ROS 5",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(15,"error ROS 6",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(16,"error ROS 7",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(17,"error ROS 8",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(18,"error ROS 9",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(19,"error ROS 10",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(20,"error ROS 11",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(21,"error ROS 12",1);
+    histo = (dduHistos[histoType])[code.getDDUID()];
+    histo->setBinLabel(1,"L1A mismatch",1);	
+    histo->setBinLabel(2,"BX mismatch",1);	
+    histo->setBinLabel(3,"L1A Full ch1-4",1);	
+    histo->setBinLabel(4,"L1A Full ch5-8",1);	
+    histo->setBinLabel(5,"L1A Full ch9-12",1);	
+    histo->setBinLabel(6,"Input Full ch1-4",1);	
+    histo->setBinLabel(7,"Input Full ch5-8",1);	
+    histo->setBinLabel(8,"Input Full ch9-12",1);	
+    histo->setBinLabel(9,"Output FIFO Full",1);	
+    histo->setBinLabel(10,"error ROS 1",1);	
+    histo->setBinLabel(11,"error ROS 2",1);	
+    histo->setBinLabel(12,"error ROS 3",1);	
+    histo->setBinLabel(13,"error ROS 4",1);	
+    histo->setBinLabel(14,"error ROS 5",1);	
+    histo->setBinLabel(15,"error ROS 6",1);	
+    histo->setBinLabel(16,"error ROS 7",1);	
+    histo->setBinLabel(17,"error ROS 8",1);	
+    histo->setBinLabel(18,"error ROS 9",1);	
+    histo->setBinLabel(19,"error ROS 10",1);	
+    histo->setBinLabel(20,"error ROS 11",1);	
+    histo->setBinLabel(21,"error ROS 12",1);
 
 
     histoType = "EventLenght";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
     string histoTitle = "Event Lenght (Bytes) FED " +  dduID_s.str();
-    (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoTitle,1000,0,1000);
+    (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoTitle,1001,0,16016);
  
     histoType = "EventType";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
     (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoName,7,1,8);
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"physics",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"calibration",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(3,"test",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(4,"technical",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(5,"simulated",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(6,"traced",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(7,"error",1);	
+    histo = (dduHistos[histoType])[code.getDDUID()];
+    histo->setBinLabel(1,"physics",1);	
+    histo->setBinLabel(2,"calibration",1);	
+    histo->setBinLabel(3,"test",1);	
+    histo->setBinLabel(4,"technical",1);	
+    histo->setBinLabel(5,"simulated",1);	
+    histo->setBinLabel(6,"traced",1);	
+    histo->setBinLabel(7,"error",1);	
   
     histoType = "ROSList";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
@@ -199,73 +207,77 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoType = "ROSStatus";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
     (dduHistos[histoType])[code.getDDUID()] = dbe->book2D(histoName,histoName,9,0,9,12,0,12);
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"ch.enabled",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"timeout",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(3,"ev.trailer lost",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(4,"opt.fiber lost",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(5,"tlk.prop.error",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(6,"tlk.pattern error",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(7,"tlk.sign.lost",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(8,"error from ROS",1);
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(9,"if ROS in events",1);
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"ROS 1",2);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"ROS 2",2);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(3,"ROS 3",2);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(4,"ROS 4",2);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(5,"ROS 5",2);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(6,"ROS 6",2);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(7,"ROS 7",2);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(8,"ROS 8",2);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(9,"ROS 9",2);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(10,"ROS 10",2);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(11,"ROS 11",2);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(12,"ROS 12",2);
+    histo = (dduHistos[histoType])[code.getDDUID()];
+    histo->setBinLabel(1,"ch.enabled",1);	
+    histo->setBinLabel(2,"timeout",1);	
+    histo->setBinLabel(3,"ev.trailer lost",1);	
+    histo->setBinLabel(4,"opt.fiber lost",1);	
+    histo->setBinLabel(5,"tlk.prop.error",1);	
+    histo->setBinLabel(6,"tlk.pattern error",1);	
+    histo->setBinLabel(7,"tlk.sign.lost",1);	
+    histo->setBinLabel(8,"error from ROS",1);
+    histo->setBinLabel(9,"if ROS in events",1);
+    histo->setBinLabel(1,"ROS 1",2);	
+    histo->setBinLabel(2,"ROS 2",2);	
+    histo->setBinLabel(3,"ROS 3",2);	
+    histo->setBinLabel(4,"ROS 4",2);	
+    histo->setBinLabel(5,"ROS 5",2);	
+    histo->setBinLabel(6,"ROS 6",2);	
+    histo->setBinLabel(7,"ROS 7",2);	
+    histo->setBinLabel(8,"ROS 8",2);	
+    histo->setBinLabel(9,"ROS 9",2);	
+    histo->setBinLabel(10,"ROS 10",2);	
+    histo->setBinLabel(11,"ROS 11",2);	
+    histo->setBinLabel(12,"ROS 12",2);
 
     histoType = "FIFOStatus";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
     (dduHistos[histoType])[code.getDDUID()] = dbe->book2D(histoName,histoName,7,0,7,3,0,3);
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"Input ch1-4",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"Input ch5-8",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(3,"Input ch9-12",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(4,"Error/L1A ch1-4",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(5,"Error/L1A ch5-8",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(6,"Error/L1A ch9-12",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(7,"Output",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"Full",2);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"Almost Full",2);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(3,"Not Full",2);	
+    histo = (dduHistos[histoType])[code.getDDUID()];
+    histo->setBinLabel(1,"Input ch1-4",1);	
+    histo->setBinLabel(2,"Input ch5-8",1);	
+    histo->setBinLabel(3,"Input ch9-12",1);	
+    histo->setBinLabel(4,"Error/L1A ch1-4",1);	
+    histo->setBinLabel(5,"Error/L1A ch5-8",1);	
+    histo->setBinLabel(6,"Error/L1A ch9-12",1);	
+    histo->setBinLabel(7,"Output",1);	
+    histo->setBinLabel(1,"Full",2);	
+    histo->setBinLabel(2,"Almost Full",2);	
+    histo->setBinLabel(3,"Not Full",2);	
 
     histoType = "L1A_IDErrorROS";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
     (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoName,12,0,12);
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"ROS 1",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"ROS 2",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(3,"ROS 3",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(4,"ROS 4",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(5,"ROS 5",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(6,"ROS 6",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(7,"ROS 7",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(8,"ROS 8",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(9,"ROS 9",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(10,"ROS 10",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(11,"ROS 11",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(12,"ROS 12",1);  
+    histo = (dduHistos[histoType])[code.getDDUID()];
+    histo->setBinLabel(1,"ROS 1",1);	
+    histo->setBinLabel(2,"ROS 2",1);	
+    histo->setBinLabel(3,"ROS 3",1);	
+    histo->setBinLabel(4,"ROS 4",1);	
+    histo->setBinLabel(5,"ROS 5",1);	
+    histo->setBinLabel(6,"ROS 6",1);	
+    histo->setBinLabel(7,"ROS 7",1);	
+    histo->setBinLabel(8,"ROS 8",1);	
+    histo->setBinLabel(9,"ROS 9",1);	
+    histo->setBinLabel(10,"ROS 10",1);	
+    histo->setBinLabel(11,"ROS 11",1);	
+    histo->setBinLabel(12,"ROS 12",1);  
 
     histoType = "BX_IDErrorROS";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
     (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoName,12,0,12);
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"ROS 1",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"ROS 2",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(3,"ROS 3",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(4,"ROS 4",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(5,"ROS 5",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(6,"ROS 6",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(7,"ROS 7",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(8,"ROS 8",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(9,"ROS 9",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(10,"ROS 10",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(11,"ROS 11",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(12,"ROS 12",1);  
+    histo = (dduHistos[histoType])[code.getDDUID()];
+    histo->setBinLabel(1,"ROS 1",1);	
+    histo->setBinLabel(2,"ROS 2",1);	
+    histo->setBinLabel(3,"ROS 3",1);	
+    histo->setBinLabel(4,"ROS 4",1);	
+    histo->setBinLabel(5,"ROS 5",1);	
+    histo->setBinLabel(6,"ROS 6",1);	
+    histo->setBinLabel(7,"ROS 7",1);	
+    histo->setBinLabel(8,"ROS 8",1);	
+    histo->setBinLabel(9,"ROS 9",1);	
+    histo->setBinLabel(10,"ROS 10",1);	
+    histo->setBinLabel(11,"ROS 11",1);	
+    histo->setBinLabel(12,"ROS 12",1);  
   }
 
   // ROS Histograms
@@ -320,8 +332,8 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
     histoType = "ROSEventLenght";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSEventLenght";
-    string histoTitle = "Event Lenght (Bytes) FED " +  dduID_s.str() + " ROS " + rosID_s.str();
-    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoTitle,100,0,1000);
+    histoTitle = "Event Lenght (Bytes) FED " +  dduID_s.str() + " ROS " + rosID_s.str();
+    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoTitle,351,0,1408);
 
     histoType = "ROSError";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSError";
@@ -463,7 +475,6 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoName = "FED" + dduID_s.str() + "_ROS" + rosID_s.str() + "_ROB"+robID_s.str()+"_TDCError";
     string histoTitle = histoName + " (TDC Errors)";
     (robHistos[histoType])[code.getROBID()] = dbe->book2D(histoName,histoTitle,6,0,6,4,0,4);
-
     ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(1,"TDC Fatal",1);
     ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(2,"RO FIFO ov.",1);
     ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(3,"L1 buffer ov.",1);
@@ -484,15 +495,16 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     // BXid
     histoType = "SCSizeVsROSSize";
     histoName = "FED" + dduID_s.str() + "_SCSizeVsROSSize";
-    string histoTitle = "SC size - ROS size vs SC (FED " + dduID_s.str() + ")";
+    histoTitle = "SC size - ROS size vs SC (FED " + dduID_s.str() + ")";
     rosHistos[histoType][code.getSCID()] = dbe->book2D(histoName,histoTitle,12,1,13,51,-1,50);
+    rosHistos[histoType][code.getSCID()]->setAxisTitle("SC",1);
 
     // SC data Size
     histoType = "SCBxVsROSBx";
     histoName = "FED" + dduID_s.str() + "_SCBxVsROSBx";
     histoTitle = "SC bx - ROS bx vs SC (FED " + dduID_s.str() + ")";
-    rosHistos[histoType][code.getSCID()] = dbe->book2D(histoName,histoTitle,12,1,13,101,-1,100);
-      
+    rosHistos[histoType][code.getSCID()] = dbe->book2D(histoName,histoTitle,12,1,13,101,-1,100);      
+    rosHistos[histoType][code.getSCID()]->setAxisTitle("SC",1);
 
   }
 }
@@ -692,7 +704,9 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 //     rosHistos["Trigger_frequency"][code.getROSID()]->Fill(frequency);
 
     // Plot the event lenght //NOHLT
-    rosHistos["ROSEventLenght"][code.getROSID()]->Fill(data.getROSTrailer().EventWordCount()*4);
+    int rosEventLenght = data.getROSTrailer().EventWordCount()*4;
+    if(rosEventLenght > 1400) rosEventLenght = 1400;
+    rosHistos["ROSEventLenght"][code.getROSID()]->Fill(rosEventLenght);
   }
 
    
@@ -822,7 +836,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 
   FEDTrailer trailer = data.getDDUTrailer();
   FEDHeader header = data.getDDUHeader();
-  // FIXME: add a check on the header and trailer?
+  // FIXME: add a bin to the histo?  // FIXME: add a check on the header and trailer?
   //   if(!trailer.check()) -> log in an histo
   
   DTDDUSecondStatusWord secondWord = data.getSecondStatusWord();
@@ -865,7 +879,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   default:{
     LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
       <<"[DTDataIntegrityTask] DDU control: wrong TTS value "<<trailer.ttsBits()<<endl;
-    // FIXME: add a bin to the histo?
+    ttsCodeValue = 7;
   }
   }
   hTTSValue->Fill(ttsCodeValue);
@@ -946,7 +960,9 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 
   //1D HISTOS: EVENT LENGHT from trailer
   //cout<<"1D HISTOS WITH EVENT LENGHT from trailer"<<endl;
-  dduHistos["EventLenght"][code.getDDUID()]->Fill(trailer.lenght()*8);
+  int fedEvtLenght = trailer.lenght()*8;
+  if(fedEvtLenght > 16000) fedEvtLenght = 16000; // overflow bin
+  dduHistos["EventLenght"][code.getDDUID()]->Fill(fedEvtLenght);
 
   //1D HISTO: EVENT TYPE from header
   //cout<<"1D HISTO WITH EVENT TYPE from header"<<endl;
@@ -1145,6 +1161,26 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
       }
     }
   }
+
+  // ---------------------------------------------------------------------
+  // cross checks between FED and ROS data
+//   float totalROS = 0.;
+//   // event lenght
+//   for(vector<DTROS25Data>::const_iterator rosControlData = rosData.begin();
+//       rosControlData != rosData.end(); ++rosControlData) {
+// //     int ros = (*rosControlData).getROSID();
+//     totalROS += (*rosControlData).getROSTrailer().EventWordCount();
+//   }
+//   // FIXME: check reason for 8 words difference between DDU and ROS sum 
+//   if(ceil(totalROS/2.) - trailer.lenght() != 8) {
+//     LogWarning("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
+//       << "[DTDataIntegrityTask]***Warning: Size mismatch in DDU " << ddu
+//       << " payload: ROS # words: " << totalROS
+//       << " DDU # words: " <<  trailer.lenght() << endl;
+//     fedNonFatal(ddu); // FIXME: dedicated histo?
+//   }
+
+
 }
 
   
