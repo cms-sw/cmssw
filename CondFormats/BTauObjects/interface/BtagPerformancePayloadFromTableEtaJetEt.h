@@ -12,6 +12,7 @@ class BtagPerformancePayloadFromTableEtaJetEt : public BtagPerformancePayloadFro
  public:
   BtagPerformancePayloadFromTableEtaJetEt(int stride_, std::string columns_,std::vector<float> table);
   BtagPerformancePayloadFromTableEtaJetEt(){}
+  virtual ~BtagPerformancePayloadFromTableEtaJetEt(){}
  protected:
 
 

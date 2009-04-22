@@ -118,7 +118,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventS
 
   BtagWorkingPoint * wp = new BtagWorkingPoint(cut, tagger);
 
-  BtagPerformancePayload * btagpl = 0;
+  BtagPerformancePayloadFromTable * btagpl = 0;
 
   if (concreteType == "BtagCorrectionPerformancePayloadFromTableEtaJetEt"){
     btagpl = new BtagCorrectionPerformancePayloadFromTableEtaJetEt(stride, comment, pl);

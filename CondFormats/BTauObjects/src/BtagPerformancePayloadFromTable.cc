@@ -20,8 +20,8 @@ float BtagPerformancePayloadFromTable::getResult(BtagResult::BtagResultType r ,B
 
 
   // loop on the table rows and search for a match
-  for (int i=0; i< nRows(); i++){
-    PhysicsPerformancePayload::Row  row = getRow(i);
+  for (int i=0; i< pl.nRows(); i++){
+    PhysicsPerformancePayload::Row  row = pl.getRow(i);
 
     if (matches(p,row)){
       int pos = resultPos(r);
@@ -62,8 +62,8 @@ bool BtagPerformancePayloadFromTable::isInPayload(BtagResult::BtagResultType res
     if (! point.isKeyAvailable(*it) ) return false;
   }
   // then, look if there is a matching row
-  for (int i=0; i< nRows(); i++){
-    PhysicsPerformancePayload::Row  row = getRow(i);
+  for (int i=0; i< pl.nRows(); i++){
+    PhysicsPerformancePayload::Row  row = pl.getRow(i);
     if (matches(point,row)){
       return true;
     }
