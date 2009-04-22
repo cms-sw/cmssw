@@ -59,7 +59,7 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
     if (!(ele->superCluster().isNull()))
      { electrons->push_back(*ele) ; }
     else
-     { LogTrace("GsfElectronCoreProducer")<<"GsfTrack with no associated CaloCluster." ; }
+     { edm::LogDebug("GsfElectronCoreProducer")<<"GsfTrack with no associated CaloCluster." ; }
    }
   event.put(electrons) ;
  }
