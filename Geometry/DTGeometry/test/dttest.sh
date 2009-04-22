@@ -6,7 +6,7 @@ date
 echo Load the DB:
 date
 rm -f test.db
-cmsRun testLoadDTDb.py
+cmsRun testLoadDTDb.py > tcgLoad.out 2>&1
 date
 echo Run from DB:
 date
