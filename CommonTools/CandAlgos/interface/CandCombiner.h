@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.26 $
+ * \version $Revision: 1.1 $
  *
- * $Id: CandCombiner.h,v 1.26 2008/06/20 16:18:28 srappocc Exp $
+ * $Id: CandCombiner.h,v 1.1 2009/03/03 13:50:54 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -65,7 +65,8 @@ namespace reco {
     
     struct CandCombinerBase : public edm::EDProducer {
       CandCombinerBase(const edm::ParameterSet & cfg) :
-	setLongLived_(false), 
+	setLongLived_(false),
+	setMassConstraint_(false),
 	setPdgId_(false) {
         using namespace cand::parser;
 	using namespace std;
@@ -92,6 +93,9 @@ namespace reco {
 	vector<string> vBoolParams = cfg.getParameterNamesForType<bool>();
 	found = find(vBoolParams.begin(), vBoolParams.end(), setLongLived) != vBoolParams.end();
 	if(found) setLongLived_ = cfg.getParameter<bool>("setLongLived");
+        const string setMassConstraint("setMassConstraint");
+        found = find(vBoolParams.begin(), vBoolParams.end(), setMassConstraint) != vBoolParams.end();
+        if(found) setMassConstraint_ = cfg.getParameter<bool>("setMassConstraint");
 	const string setPdgId("setPdgId");
 	vector<string> vIntParams = cfg.getParameterNamesForType<int>();
 	found = find(vIntParams.begin(), vIntParams.end(), setPdgId) != vIntParams.end();
@@ -104,6 +108,8 @@ namespace reco {
       std::vector<int> dauCharge_;
       /// set long lived flag
       bool setLongLived_;
+      /// set mass constraint flag
+      bool setMassConstraint_;
       /// set pdgId flag
       bool setPdgId_;
       /// which pdgId to set
@@ -145,11 +151,12 @@ namespace reco {
 	  evt.getByLabel(labels_[i].tag_, colls[i]);
 
 	auto_ptr<OutputCollection> out = combiner_.combine(colls, names_.roles());
-	if(setLongLived_ || setPdgId_) {
+	if(setLongLived_ || setMassConstraint_ || setPdgId_) {
 	  typename OutputCollection::iterator i = out->begin(), e = out->end();
 	  for(; i != e; ++i) {
 	    names_.set(*i);
 	    if(setLongLived_) i->setLongLived();
+	    if(setMassConstraint_) i->setMassConstraint();
 	    if(setPdgId_) i->setPdgId(pdgId_);
 	  }
 	}
