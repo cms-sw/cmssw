@@ -1,4 +1,14 @@
+<use name=FWCore/MessageLogger>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=DQMServices/Core>
+<use name=DataFormats/SiStripCommon>
 <export>
  <lib name=DQMSiStripMonitorHardware>
+ <use name=FWCore/MessageLogger>
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=DQMServices/Core>
+ <use name=DataFormats/SiStripCommon>
 </export>
 
