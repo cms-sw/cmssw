@@ -210,6 +210,15 @@ namespace {
     ROOT::Math::RowOffsets<6> ro6;
     ROOT::Math::RowOffsets<7> ro7;
 
+    //     ROOT::Math::SymMatrixOffsets<1> symo1;
+    ROOT::Math::SymMatrixOffsets<2> symo2;
+    ROOT::Math::SymMatrixOffsets<3> symo3;
+    ROOT::Math::SymMatrixOffsets<4> symo4;
+    ROOT::Math::SymMatrixOffsets<5> symo5;
+    ROOT::Math::SymMatrixOffsets<6> symo6;
+    ROOT::Math::SymMatrixOffsets<7> symo7;
+
+    //Used by ECAL Weights reconstruction
     //Used by ECAL Weights reconstruction
     math::Matrix<3,10>::type mw; 
     math::Matrix<10,10>::type mcw; 
