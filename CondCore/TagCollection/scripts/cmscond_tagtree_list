@@ -115,13 +115,13 @@ class tagTreePrinter:
                 mytree=TagTree.tagTree(session,treename)
                 if self.__leaf is True:
                     result=mytree.getAllLeaves()
-                    print '%s\t%s\t%s\t%s\t%s'%('#ID#','#leafNode#','#parent#','#tagname#','#pfn#')
+                    print '%s\t%s\t%s\t%s\t%s\t%s\t%s'%('#ID#','#leafNode#','#parent#','#tagname#','#record#','#object#','#pfn#')
                     for r in result:
                         if r.parentid != 0:
                             parentnode=mytree.getNodeById(r.parentid)
                             parentname=parentnode.nodelabel
                             tagcontent=inv.getEntryById(r.tagid)
-                            print '%s\t%s\t%s\t%s\t%s'%(r.nodeid,r.nodelabel,parentname,tagcontent.tagname,tagcontent.pfn)
+                            print '%s\t%s\t%s\t%s\t%s\t%s\t%s'%(r.nodeid,r.nodelabel,parentname,tagcontent.tagname,tagcontent.recordname,tagcontent.objectname,tagcontent.pfn)
                         else:
                             print '   root:%s'%(r.nodelabel)
                 else:
@@ -132,7 +132,7 @@ class tagTreePrinter:
                             parentname=parentnode.nodelabel
                             if r.tagid != 0:
                                tagcontent=inv.getEntryById(r.tagid)
-                               print '   leafnode:%s   parent:%s   tag:%s  pfn:%s'%(r.nodelabel,parentname,tagcontent.tagname,tagcontent.pfn)
+                               print '   leafnode:%s   parent:%s   tag:%s record:%s object:%s label:%s pfn:%s'%(r.nodelabel,parentname,tagcontent.tagname,tagcontent.recordname,tagcontent.objectname,tagcontent.labelname,tagcontent.pfn)
                             else:
                                print '   node:%s   parent:%s'%(r.nodelabel,parentname)
                             
@@ -165,7 +165,7 @@ class tagTreePrinter:
                             parentname=parentnode.nodelabel
                             if r.tagid != 0:
                                tagcontent=inv.getEntryById(r.tagid)
-                               print '   leafnode:%s   parent:%s   tag:%s  pfn:%s'%(r.nodelabel,parentname,tagcontent.tagname,tagcontent.pfn)
+                               print '   leafnode:%s   parent:%s   tag:%s record:%s object:%s label:%s pfn:%s'%(r.nodelabel,parentname,tagcontent.tagname,tagcontent.recordname,tagcontent.objectname,tagcontent.labelname,tagcontent.pfn)
                             else:
                                 print 'node:%s   parent:%s'%(r.nodelabel,parentname)
                         else:
@@ -178,7 +178,7 @@ class tagTreePrinter:
                             parentname=parentnode.nodelabel
                             if r.tagid != 0:
                                tagcontent=inv.getEntryById(r.tagid)
-                               print '   leafnode:%s   parent:%s   tag:%s  pfn:%s'%(r.nodelabel,parentname,tagcontent.tagname, tagcontent.pfn)
+                               print '   leafnode:%s   parent:%s   tag:%s record:%s object:%s label:%s pfn:%s'%(r.nodelabel,parentname,tagcontent.tagname,tagcontent.recordname,tagcontent.objectname,tagcontent.labelname,tagcontent.pfn)
                             else:
                                 print 'node:%s   parent:%s'%(r.nodelabel,parentname)
                         else:
