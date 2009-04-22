@@ -32,7 +32,7 @@ process.load("SimTracker.Configuration.SimTracker_cff")
 
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
+process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 
 process.load("Validation.TrackerHits.trackerHitsValidation_cff")
 
