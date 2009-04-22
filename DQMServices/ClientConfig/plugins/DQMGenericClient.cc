@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2009/04/21 15:57:31 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/04/22 14:19:05 $
+ *  $Revision: 1.6 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -77,8 +77,8 @@ void DQMGenericClient::endJob()
            iFoundDir != subDirSet.end();
            iFoundDir ++) {
         
-        std::cout << "Found subdirectory = " << *iFoundDir
-                  << std::endl;
+        //std::cout << "Found subdirectory = " << *iFoundDir
+        //          << std::endl;
 
       }
         
@@ -487,9 +487,9 @@ void DQMGenericClient::findAllSubdirectories (std::string dir, std::set<std::str
 
   //std::cout << "Looking for directory " << dir ;
   if (theDQM->dirExists(dir)){
-    std::cout << "... it exists! Inserting it into the list ";
+    //std::cout << "... it exists! Inserting it into the list ";
     myList->insert(dir);
-    std::cout << "... now list has size " << myList->size() << std::endl;
+    //std::cout << "... now list has size " << myList->size() << std::endl;
       
     theDQM->cd(dir);
     vector <string> foundDirs = theDQM->getSubdirs();
@@ -499,7 +499,7 @@ void DQMGenericClient::findAllSubdirectories (std::string dir, std::set<std::str
       //myList.insert((*iDir));
     }
   } else {
-    std::cout << "... DOES NOT EXIST!!! Skip bogus dir" << std::endl;
+    //std::cout << "... DOES NOT EXIST!!! Skip bogus dir" << std::endl;
     
     LogInfo ("DQMGenericClient") << "Trying to find sub-directories of " << dir
                                  << " failed because " << dir  << " does not exist";
