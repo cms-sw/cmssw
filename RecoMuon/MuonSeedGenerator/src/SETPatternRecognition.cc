@@ -413,9 +413,12 @@ bool SETPatternRecognition::segmentCleaning(const DetId & detId,
   // drop segments which are "bad"
   bool dropTheSegment = true;
   const GeomDet* geomDet = theService->trackingGeometry()->idToDet( detId );
+  // only segments whithin the boundaries of the chamber
   bool insideCh = geomDet->surface().bounds().inside(localPosition, localError,outsideChamberErrorScale);
-  
-  bool parallelSegment = localDirection.z()>minLocalSegmentAngle? true: false;
+
+  // Don't use segments (nearly) parallel to the chamberi;
+  // the direction vector is normalized (R=1)  
+  bool parallelSegment = localDirection.z()>minLocalSegmentAngle? false: true;
 
   if(insideCh && !parallelSegment){
     dropTheSegment = false;
