@@ -1,34 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
-from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cff import *
+#from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cff import *
 
 # Trajectory filter for min bias
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-ckfBaseTrajectoryFilterForMinBias = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
-ckfBaseTrajectoryFilterForMinBias.ComponentName = 'ckfBaseTrajectoryFilterForMinBias'
+ckfBaseTrajectoryFilterForMinBias = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(ComponentName = 'ckfBaseTrajectoryFilterForMinBias')
 ckfBaseTrajectoryFilterForMinBias.filterPset.minimumNumberOfHits = 3
 ckfBaseTrajectoryFilterForMinBias.filterPset.minPt               = 0.075
 
-# Cluster shape hit filter
-clusterShapeHitFilterESProducer = cms.ESProducer("ClusterShapeHitFilterESProducer",
-    filterPset = cms.PSet(
-        ComponentType = cms.string('clusterShapeHitFilter')
-    ),
-    ComponentName = cms.string('clusterShapeHitFilter')
-)
-
-# Cluster shape trajectory filter
-clusterShapeTrajectoryFilterESProducer = cms.ESProducer("ClusterShapeTrajectoryFilterESProducer",
-    filterPset = cms.PSet(
-        ComponentType = cms.string('clusterShapeTrajectoryFilter')
-    ),
-    ComponentName = cms.string('clusterShapeTrajectoryFilter')
-)
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilterESProducer_cfi import *
 
 # Composite filter
-minBiasTrajectoryFilterESProducer = cms.ESProducer("CompositeTrajectoryFilterESProducer",
+import TrackingTools.TrajectoryFiltering.CompositeTrajectoryFilterESProducer_cfi
+minBiasTrajectoryFilterESProducer = TrackingTools.TrajectoryFiltering.CompositeTrajectoryFilterESProducer_cfi.compositeTrajectoryFilterESProducer.clone(
     ComponentName = cms.string('MinBiasCkfTrajectoryFilter'),
     filterNames   = cms.vstring('ckfBaseTrajectoryFilterForMinBias',
                                 'clusterShapeTrajectoryFilter')
-)
+    )
 

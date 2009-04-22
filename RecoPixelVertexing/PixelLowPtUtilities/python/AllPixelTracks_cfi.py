@@ -19,7 +19,7 @@ allPixelTracks = cms.EDFilter("PixelTrackProducer",
             fixedError    = cms.double(0.2),
 
             useFoundVertices = cms.bool(False),
-            VertexCollection = cms.InputTag("pixelVertices"),
+            VertexCollection = cms.InputTag("pixel3Vertices"),
             ptMin            = cms.double(0.075),
             nSigmaZ          = cms.double(3.0)
         )

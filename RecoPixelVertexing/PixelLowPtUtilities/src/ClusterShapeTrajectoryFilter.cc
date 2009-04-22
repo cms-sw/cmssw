@@ -28,39 +28,12 @@
 #include <vector>
 using namespace std;
 
-/*****************************************************************************/
-ClusterShapeTrajectoryFilter::ClusterShapeTrajectoryFilter
- (const GlobalTrackingGeometry * theTracker,
-  const MagneticField          * theMagneticField,
-  const SiPixelLorentzAngle    * theSiPixelLorentzAngle,
-  const SiStripLorentzAngle    * theSiStripLorentzAngle)
-/*
-  : theTracker(theTracker_), 
-    theMagneticField(theMagneticField_),
-    theSiPixelLorentzAngle(theSiPixelLorentzAngle_),
-    theSiStripLorentzAngle(theSiStripLorentzAngle_)
-*/
-{
-exit(1);
-  theFilter = new ClusterShapeHitFilter(theTracker, theMagneticField,
-                                        theSiPixelLorentzAngle,
-                                        theSiStripLorentzAngle);
-}
 
-/*****************************************************************************/
-ClusterShapeTrajectoryFilter::ClusterShapeTrajectoryFilter
-  (const edm::EventSetup& es)
-{
-  // Get cluster shape hit filter
-  edm::ESHandle<ClusterShapeHitFilter> shape;
-  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter",shape);
-  theFilter = shape.product();
-}
+
 
 /*****************************************************************************/
 ClusterShapeTrajectoryFilter::~ClusterShapeTrajectoryFilter()
 {
-//  delete theFilter;
 }
 
 /*****************************************************************************/

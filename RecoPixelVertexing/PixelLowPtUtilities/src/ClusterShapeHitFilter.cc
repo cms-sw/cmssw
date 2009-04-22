@@ -40,91 +40,6 @@
 #include <fstream>
 using namespace std;
 
-/*****************************************************************************/
-// singleton begin
-/*
-ClusterShapeHitFilter * ClusterShapeHitFilter::_instance = 0;
-int ClusterShapeHitFilter::_refCount = 0;
-
-ClusterShapeHitFilter * ClusterShapeHitFilter::Instance
-  (const edm::EventSetup& es, const string & caller)
-{
-  if( _instance == 0 )
-  {
-    _instance = new ClusterShapeHitFilter(es);
-    LogTrace("MinBiasTracking")
-      << " [ClusterShapeHitFilter] creating instance for " << caller;
-  }
-
-  _refCount++;
-
-  LogTrace("MinBiasTracking")
-    << " [ClusterShapeHitFilter] referencing instance for " << caller
-    << " [" << _refCount << "]" ;
-
-  return _instance;
-}
- 
-void ClusterShapeHitFilter::Release()
-{
-  LogTrace("MinBiasTracking")
-    << " [ClusterShapeHitFilter] releasing instance"
-    << " [" << _refCount << "]" ;
-
-  if( --_refCount < 1 ) Destroy();
-}
- 
-void ClusterShapeHitFilter::Destroy()
-{
-  if( _instance != 0 )
-  {
-    LogTrace("MinBiasTracking")
-      << " [ClusterShapeHitFilter] deleting instance";
-
-    delete( _instance );
-    _instance = 0;
-  }
-}
-*/
-// singleton end
-
-/*****************************************************************************/
-ClusterShapeHitFilter::ClusterShapeHitFilter
-  (const edm::EventSetup& es)
-{ // called from ClusterShapeExtractor
-cerr << " Cluster es" << endl;
-
-  // Get tracker geometry
-  edm::ESHandle<GlobalTrackingGeometry> tracker;
-  es.get<GlobalTrackingGeometryRecord>().get(tracker);
-  theTracker = tracker.product();
-
-  // Get magnetic field
-  edm::ESHandle<MagneticField> field;
-  es.get<IdealMagneticFieldRecord>().get(field);
-  theMagneticField = field.product();
-
-  // Get Lorentz angle for pixels
-  edm::ESHandle<SiPixelLorentzAngle>   pixel;
-  es.get<SiPixelLorentzAngleRcd>().get(pixel);
-  theSiPixelLorentzAngle =             pixel.product();
-
-  // Get Lorentz angle for strips
-  edm::ESHandle<SiStripLorentzAngle>   strip;
-  es.get<SiStripLorentzAngleRcd>().get(strip);
-  theSiStripLorentzAngle =             strip.product();
-
-  // Set to zero
-  for(int i = GeomDetEnumerators::PixelBarrel;
-          i<= GeomDetEnumerators::TEC; i++)
-    theAngle[i] = 0;
-
-  // Load pixel limits
-  loadPixelLimits();
-
-  // Load strip limits
-  loadStripLimits();
-}
 
 /*****************************************************************************/
 ClusterShapeHitFilter::ClusterShapeHitFilter
@@ -138,7 +53,6 @@ ClusterShapeHitFilter::ClusterShapeHitFilter
      theSiStripLorentzAngle(theSiStripLorentzAngle_)
 
 {
-cerr << " Cluster all" << endl;
   // Load pixel limits
   loadPixelLimits();
 
@@ -225,7 +139,7 @@ void ClusterShapeHitFilter::loadStripLimits()
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isInside
-  (const vector<vector<float> > limit, const pair<float,float> pred) const
+  (const vector<vector<float> > & limit, const pair<float,float> & pred) const
 { // pixel
   return (pred.first  > limit[0][0] && pred.first  < limit[0][1] &&
           pred.second > limit[1][0] && pred.second < limit[1][1]);
@@ -233,7 +147,7 @@ bool ClusterShapeHitFilter::isInside
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isInside
-  (const vector<float> limit, const float pred) const
+  (const vector<float> & limit, const float & pred) const
 { // strip
   return (pred > limit[0] && pred < limit[1]);
 }  
@@ -419,9 +333,11 @@ bool ClusterShapeHitFilter::isCompatible
   {
     PixelKeys key(part, meas.first, meas.second);
 
-    if(pixelLimits.count(key) > 0)
-      return (isInside(pixelLimits[key][0], pred) ||
-              isInside(pixelLimits[key][1], pred));
+    PixelLimitsMap::const_iterator i=pixelLimits.find(key);
+    if (i!=pixelLimits.end())
+      return (isInside((i->second)[0], pred) ||
+	      isInside((i->second)[1], pred));
+    
   }
   
   // Not usable or no limits
@@ -439,9 +355,10 @@ bool ClusterShapeHitFilter::isCompatible
   {
     StripKeys key(meas);
 
-    if(stripLimits.count(key) > 0)
-      return (isInside(stripLimits[key][0], pred) ||
-              isInside(stripLimits[key][1], pred));
+    StripLimitsMap::const_iterator i=stripLimits.find(key);
+    if (i!=stripLimits.end())
+      return (isInside((i->second)[0], pred) ||
+              isInside((i->second)[1], pred));
   }
 
   // Not usable or no limits
@@ -467,11 +384,13 @@ bool ClusterShapeHitFilter::isCompatible
 
   return isCompatible(recHit, ldir);
 }
-/*
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_SEAL_MODULE();
 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
-EVENTSETUP_DATA_REG(ClusterShapeHitFilter);
+/*
+  #include "FWCore/PluginManager/interface/ModuleDef.h"
+  #include "FWCore/Framework/interface/MakerMacros.h"
+  DEFINE_SEAL_MODULE();
+  
+  #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
+  #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+  EVENTSETUP_DATA_REG(ClusterShapeHitFilter);
 */

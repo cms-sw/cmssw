@@ -15,16 +15,8 @@
 ClusterShapeTrajectoryFilterESProducer::ClusterShapeTrajectoryFilterESProducer
   (const edm::ParameterSet& iConfig)
 {
-std::cerr << " CL Trajec ESP" << std::endl;
   componentName = iConfig.getParameter<std::string>("ComponentName");
   
-  filterPset = iConfig.getParameter<edm::ParameterSet>("filterPset");
-  componentType = filterPset.getParameter<std::string>("ComponentType");
-  
-  edm::LogInfo("ClusterShapeTrajectoryFilterESProducer")
-    << "configured to produce: " << componentType
-    << " with name: "            << componentName;
-      
   setWhatProduced(this, componentName);
 }
 
@@ -38,34 +30,16 @@ ClusterShapeTrajectoryFilterESProducer::~ClusterShapeTrajectoryFilterESProducer
 /*****************************************************************************/
 ClusterShapeTrajectoryFilterESProducer::ReturnType
 ClusterShapeTrajectoryFilterESProducer::produce
-   (const CkfComponentsRecord &iRecord)
+(const TrajectoryFilter::Record &iRecord)
 {
   using namespace edm::es;
-  edm::LogInfo("ClusterShapeTrajectoryFilterESProducer")
-    << "producing: " << componentName
-    << " of type: "  << componentType;
 
-  // Retrieve magentic field
-  edm::ESHandle<MagneticField> field;
-  iRecord.getRecord<TrackingComponentsRecord>().getRecord<IdealMagneticFieldRecord>().get(field);
-
-  // Retrieve geometry
-  edm::ESHandle<GlobalTrackingGeometry> geo;
-  iRecord.getRecord<TrackingComponentsRecord>().getRecord<GlobalTrackingGeometryRecord>().get(geo);
-
-  // Retrieve pixel Lorentz
-  edm::ESHandle<SiPixelLorentzAngle> pixel;
-  iRecord.getRecord<TkPixelCPERecord>().getRecord<SiPixelLorentzAngleRcd>().get(pixel);
-
-  // Retrieve strip Lorentz
-  edm::ESHandle<SiStripLorentzAngle> strip;
-  iRecord.getRecord<TkStripCPERecord>().getRecord<SiStripLorentzAngleRcd>().get(strip);
+  edm::ESHandle<ClusterShapeHitFilter> shape;
+  iRecord.get("ClusterShapeHitFilter",shape);
 
   // Produce the filter using the plugin factory
   ClusterShapeTrajectoryFilterESProducer::ReturnType
-    aFilter(new ClusterShapeTrajectoryFilter(  geo.product(),
-                                             field.product(),
-                                             pixel.product(),
-                                             strip.product()));
+    aFilter(new ClusterShapeTrajectoryFilter(  shape.product()));
+
   return aFilter;
 }

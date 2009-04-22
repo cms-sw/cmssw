@@ -87,7 +87,7 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
 
    const TrackerGeometry * theTracker;
    TrackerHitAssociator  * theHitAssociator;
-   ClusterShapeHitFilter * theClusterShape;
+   const ClusterShapeHitFilter * theClusterShape;
 
    vector<TH2F *> hspc; // simulated pixel cluster
    vector<TH1F *> hssc; // simulated strip cluster
@@ -105,7 +105,10 @@ void ClusterShapeExtractor::beginJob(const edm::EventSetup& es)
   theTracker =                            tracker.product();
 
   // 
-  theClusterShape = new ClusterShapeHitFilter(es);
+  //  theClusterShape = new ClusterShapeHitFilter(es);
+  edm::ESHandle<ClusterShapeHitFilter> shape;
+  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter",shape);
+  theClusterShape = shape.product();
 
   // Declare histograms
   char histName[256];

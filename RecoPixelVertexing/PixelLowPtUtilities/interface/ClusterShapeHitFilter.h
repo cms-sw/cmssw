@@ -1,7 +1,7 @@
 #ifndef _ClusterShapeHitFilter_h_
 #define _ClusterShapeHitFilter_h_
 
-//#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -66,25 +66,9 @@ class StripGeomDetUnit;
 
 class ClusterShapeHitFilter
 {
- // singleton begin
-/*
- protected:
-  static ClusterShapeHitFilter * _instance;
-  static int _refCount;
- 
  public:
-  static ClusterShapeHitFilter * Instance(const edm::EventSetup& es,
-                                          const std::string & caller);
-  static void Release();
-  static void Destroy();
-
- protected:
-  ClusterShapeHitFilter();
-*/
- // singleton end
-
- public:
-  ClusterShapeHitFilter(const edm::EventSetup& es);
+  typedef TrajectoryFilter::Record Record;
+  //  typedef CkfComponentsRecord Record;
 
   ClusterShapeHitFilter(const GlobalTrackingGeometry * theTracker_,
                         const MagneticField          * theMagneticField_,
@@ -116,10 +100,10 @@ class ClusterShapeHitFilter
   void loadPixelLimits();
   void loadStripLimits();
   
-  bool isInside(const std::vector<std::vector<float> > limit,
-                const std::pair<float,float> pred) const;
-  bool isInside(const std::vector<float> limit,
-                const float pred) const;
+  bool isInside(const std::vector<std::vector<float> > & limit ,
+                const std::pair<float,float> & pred) const;
+  bool isInside(const std::vector<float> & limit ,
+                const float & pred) const;
 
   std::pair<float,float> getCotangent(const PixelGeomDetUnit * pixelDet) const;
                    float getCotangent(const StripGeomDetUnit * stripDet) const;
@@ -134,11 +118,12 @@ class ClusterShapeHitFilter
 
   const SiPixelLorentzAngle * theSiPixelLorentzAngle;
   const SiStripLorentzAngle * theSiStripLorentzAngle;
- 
-  mutable std::map<PixelKeys, std::vector<std::vector<std::vector<float> > > >
-                              pixelLimits; // [2][2][2]
-  mutable std::map<StripKeys, std::vector<std::vector<float> > > 
-                              stripLimits; // [2][2]
+
+  typedef std::map<PixelKeys, std::vector<std::vector<std::vector<float> > > > PixelLimitsMap;
+  PixelLimitsMap pixelLimits; // [2][2][2]
+
+  typedef std::map<StripKeys, std::vector<std::vector<float> > > StripLimitsMap;
+  StripLimitsMap stripLimits; // [2][2]
 
   float theAngle[6];
 };

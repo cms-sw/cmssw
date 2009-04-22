@@ -15,13 +15,10 @@ class ClusterShapeHitFilter;
 
 class ClusterShapeTrajectoryFilter : public TrajectoryFilter {
  public:
-  ClusterShapeTrajectoryFilter(const edm::EventSetup& es);
+  //  ClusterShapeTrajectoryFilter(const edm::EventSetup& es);
 
   ClusterShapeTrajectoryFilter
-    (const GlobalTrackingGeometry * theTracker_,
-     const MagneticField          * theMagneticField_,
-     const SiPixelLorentzAngle    * theSiPixelLorentzAngle_,
-     const SiStripLorentzAngle    * theSiStripLorentzAngle_);
+    (const ClusterShapeHitFilter * f):theFilter(f){}
 
   virtual ~ClusterShapeTrajectoryFilter();
 
@@ -34,8 +31,6 @@ class ClusterShapeTrajectoryFilter : public TrajectoryFilter {
   virtual std::string name() const { return "ClusterShapeTrajectoryFilter"; }
 
  private:
-//  const GlobalTrackingGeometry * theTracker;
-//  const MagneticField * theMagneticField;
 
   const ClusterShapeHitFilter * theFilter;
 };
