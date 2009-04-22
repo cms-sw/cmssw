@@ -13,6 +13,7 @@
 #include "RecoVertex/KinematicFit/interface/KinematicParticleVertexFitter.h"
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include <vector>
 #include "boost/shared_ptr.hpp"
 
@@ -23,12 +24,13 @@ class CandKinematicVertexFitter {
 public:
   typedef reco::Vertex::CovarianceMatrix CovarianceMatrix;
   CandKinematicVertexFitter(const edm::ParameterSet & cfg) :  
-    bField_(0), fitter_(), fitters_(new std::vector<CandKinematicVertexFitter>) { 
+    bField_(0), pdt_(0), fitter_(), fitters_(new std::vector<CandKinematicVertexFitter>) { 
   }
   CandKinematicVertexFitter(const CandKinematicVertexFitter& o) :
-    bField_(o.bField_), fitter_(), fitters_(new std::vector<CandKinematicVertexFitter>) {
+    bField_(o.bField_), pdt_(o.pdt_), fitter_(), fitters_(new std::vector<CandKinematicVertexFitter>) {
   }
   void set(const MagneticField * bField) { bField_ = bField; }
+  void set(const ParticleDataTable * pdt) { pdt_ = pdt; }
   void set(reco::VertexCompositeCandidate &) const;
   bool fit(const std::vector<RefCountedKinematicParticle> & tracks) const;
   RefCountedKinematicParticle currentParticle() const {
@@ -37,6 +39,7 @@ public:
   }
 private:
   const MagneticField * bField_;
+  const ParticleDataTable * pdt_;
   void fill(std::vector<RefCountedKinematicParticle> &,
 	    std::vector<reco::Candidate *> &,
 	    std::vector<reco::RecoCandidate::TrackType> &,

@@ -3,6 +3,7 @@
 #include "CommonTools/UtilAlgos/interface/EventSetupInitTrait.h"
 #include "PhysicsTools/RecoUtils/interface/CandKinematicVertexFitter.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -15,6 +16,9 @@ namespace reco {
 	edm::ESHandle<MagneticField> h;
 	es.get<IdealMagneticFieldRecord>().get(h);
 	fitter.set(h.product());
+	edm::ESHandle<ParticleDataTable> pdt;
+	es.getData(pdt); 
+	fitter.set(pdt.product());
       }
     };
 

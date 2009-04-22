@@ -2,6 +2,7 @@
 <use name=RecoVertex/KinematicFit>
 <use name=TrackingTools/TransientTrack>
 <use name=MagneticField/Records>
+<use name=SimGeneral/HepPDTRecord>
 <use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/JetReco>
@@ -18,6 +19,7 @@
   <use name=RecoVertex/KinematicFit>
   <use name=TrackingTools/TransientTrack>
   <use name=MagneticField/Records>
+  <use name=SimGeneral/HepPDTRecord>
   <use name=DataFormats/EgammaCandidates>
   <use name=DataFormats/MuonReco>
   <use name=DataFormats/JetReco>

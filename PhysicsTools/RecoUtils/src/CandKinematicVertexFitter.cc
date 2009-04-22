@@ -1,12 +1,17 @@
 #include "PhysicsTools/RecoUtils/interface/CandKinematicVertexFitter.h"
+#include "RecoVertex/KinematicFit/interface/KinematicParticleFitter.h"
+#include "RecoVertex/KinematicFit/interface/MassKinematicConstraint.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "FWCore/Framework/interface/ESHandle.h" 
 #include <sstream>
 #include <iostream>
 using namespace reco;
 using namespace std;
 
+// perform the kinematic fit
 bool CandKinematicVertexFitter::fit(const vector<RefCountedKinematicParticle> & particles) const {
   try {
     tree_ = fitter_.fit(particles);
@@ -16,9 +21,13 @@ bool CandKinematicVertexFitter::fit(const vector<RefCountedKinematicParticle> & 
 	      << ">>> candidate not fitted to common vertex" << std::endl;
     return false;
   }
-  return true;
+  //check tree_ is valid here!
+  if (tree_->isValid())
+    return true;
+  else return false;
 }
 
+// main method called by CandProducer sets the VertexCompositeCandidate
 void CandKinematicVertexFitter::set(VertexCompositeCandidate & c) const {
   if(bField_ == 0)
     throw edm::Exception(edm::errors::InvalidReference)
@@ -28,10 +37,15 @@ void CandKinematicVertexFitter::set(VertexCompositeCandidate & c) const {
   vector<RefCountedKinematicParticle> particles;
   vector<Candidate *> daughters;
   vector<RecoCandidate::TrackType> trackTypes;
+  // fill particles with KinematicParticles and daughters with Candidates of the daughters of c
   fill(particles, daughters, trackTypes, c);
   assert(particles.size() == daughters.size());
+
+  // attempt to fit the KinematicParticles, particles  
   if(fit(particles)) {
+    // after the fit, tree_ contains the KinematicTree from the fit
     tree_->movePointerToTheTop();
+    // set the kinematic properties of the daughters from the fit
     RefCountedKinematicVertex vertex = tree_->currentDecayVertex();
     if(vertex->vertexIsValid()) {
       Candidate::Point vtx(vertex->position());
@@ -42,19 +56,21 @@ void CandKinematicVertexFitter::set(VertexCompositeCandidate & c) const {
       vector<RecoCandidate::TrackType>::const_iterator trackTypeIt = trackTypes.begin();
       Candidate::LorentzVector mp4(0, 0, 0, 0);
       for(; daughterIt != daughtersEnd; ++ particleIt, ++ daughterIt, ++trackTypeIt) {
+	Candidate & daughter = * * daughterIt;
 	GlobalVector p3 = (*particleIt)->currentState().globalMomentum();
 	double px = p3.x(), py = p3.y(), pz = p3.z(), p = p3.mag();
 	double energy;
-	Candidate & daughter = * * daughterIt;
+
 	if(!daughter.longLived()) daughter.setVertex(vtx);
 	double scale;
 	switch(*trackTypeIt) {
 	case RecoCandidate::gsfTrackType :
+	  //gsf used for electron tracks
 	  energy = daughter.energy();
 	  scale = energy / p;
 	  px *= scale; py *= scale; pz *= scale; 
 	default:
-	  double mass = daughter.mass();
+	  double mass = (*particleIt)->currentState().mass();
 	  energy = sqrt(p*p + mass*mass);
 	};
 	Candidate::LorentzVector dp4(px, py, pz, energy);
@@ -78,11 +94,13 @@ void CandKinematicVertexFitter::set(VertexCompositeCandidate & c) const {
   }
 }
 
+// methond to fill the properties of a CompositeCandidate's daughters
 void CandKinematicVertexFitter::fill(vector<RefCountedKinematicParticle> & particles, 
 				     vector<Candidate *> & daughters,
 				     vector<RecoCandidate::TrackType> & trackTypes,
 				     Candidate & c) const {
   size_t nDau = c.numberOfDaughters();
+  // loop through CompositeCandidate daughters
   for(unsigned int j = 0; j < nDau ; ++j) {
     Candidate * d = c.daughter(j);
     if(d == 0) {
@@ -96,24 +114,42 @@ void CandKinematicVertexFitter::fill(vector<RefCountedKinematicParticle> & parti
 	message << "Daughter found in read-only mode with id: " << d1->pdgId() << "\n";
       throw edm::Exception(edm::errors::InvalidReference) << message.str();
     }
+    //check for a daughter which itself is a composite
     if(d->numberOfDaughters() > 0) {
+      //try to cast to VertexCompositeCandiate
       VertexCompositeCandidate * vtxDau = dynamic_cast<VertexCompositeCandidate*>(d);
-      if(vtxDau!=0 && vtxDau->longLived()) {
-	fitters_->push_back(CandKinematicVertexFitter(*this));
-	CandKinematicVertexFitter & fitter = fitters_->back();
-	fitter.set(*vtxDau);
-	RefCountedKinematicParticle current = fitter.currentParticle();
+      if( vtxDau!=0 && vtxDau->vertexChi2()>0 ) {
+	// if VertexCompositeCandidate refit vtxDau via the set method
+	(*this).set(*vtxDau);
+	// if mass constraint is desired, do it here
+	if ( vtxDau->massConstraint() ) {
+	  KinematicParticleFitter csFitter;
+	  //get particle mass from pdg table via pdgid number
+	  const ParticleData *data = pdt_->particle(vtxDau->pdgId());
+	  ParticleMass mass = data->mass();
+	  float mass_sigma = mass*0.000001; //needs a sigma for the fit
+	  // create a KinematicConstraint and refit the tree with it
+	  //KinematicConstraint * mass_c = new MassKinematicConstraint(mass,mass_sigma);
+	  MassKinematicConstraint mkc(mass,mass_sigma);
+	  KinematicConstraint * mass_c(&mkc);
+	  tree_ = csFitter.fit(mass_c,tree_);
+	  //CHECK THIS! the following works, but might not be safe
+	  //tree_ = csFitter.fit(&(MassKinematicConstraint(mass,mass_sigma)),tree_);
+	}
+	// add the kinematic particle from the fit to particles
+	RefCountedKinematicParticle current = (*this).currentParticle();
 	particles.push_back(current);
 	daughters.push_back(d);
-	trackTypes.push_back(RecoCandidate::noTrackType);
-      } else
+	trackTypes.push_back(RecoCandidate::noTrackType);	
+      } else {
 	fill(particles, daughters, trackTypes, *d);
-    }
-    else {
-      const Track * trk = d->get<const Track *>();
+      }
+    } else {
+      //get track, make KinematicParticle and add to particles so it can be fit
+      TrackRef trk = d->get<TrackRef>();
       RecoCandidate::TrackType type = d->get<RecoCandidate::TrackType>();
-      if(trk != 0) {
-	TransientTrack trTrk(*trk, bField_);
+      if (!trk.isNull()){
+	TransientTrack trTrk(trk, bField_);
 	float chi2 = 0, ndof = 0;
 	ParticleMass mass = d->mass();
 	float sigma = mass *1.e-6;
