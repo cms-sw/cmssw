@@ -331,7 +331,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 
   bx = 0;
 
-  int nmuons = 0;
+  //int nmuons = 0;
   // start from where tracks could first possibly appear
   // read out tracks from io_
   // We add first +1 to the starting position because the CSC data started 1 BX after DT,

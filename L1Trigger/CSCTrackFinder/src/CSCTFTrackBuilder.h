@@ -38,6 +38,8 @@ class CSCTFTrackBuilder
 
   CSCTFDTReceiver* my_dtrc;
   CSCTFSectorProcessor* my_SPs[nEndcaps][nSectors];
+  int m_minBX, m_maxBX;
+
 };
 
 #endif
