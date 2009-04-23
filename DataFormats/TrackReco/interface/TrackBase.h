@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.72 2008/12/10 12:21:57 vlimant Exp $
+ * \version $Id: TrackBase.h,v 1.73 2009/03/29 07:24:23 mangano Exp $
  *
  */
 
@@ -212,17 +212,37 @@ namespace reco {
    
     ///  Access the hit pattern, indicating in which Tracker layers the track has hits.
     const HitPattern & hitPattern() const { return hitPattern_; }
+    /// Access the hit pattern counting (in the Tracker) the number of expected crossed layers  before the first trajectory's hit
+    const HitPattern & trackerExpectedHitsInner() const { return trackerExpectedHitsInner_; }
+    /// Access the hit pattern counting (in the Tracker) the number of expected crossed layers  after the last trajectory's hit
+    const HitPattern & trackerExpectedHitsOuter() const { return trackerExpectedHitsOuter_; }
+
+
+
     /// number of valid hits found 
     unsigned short numberOfValidHits() const { return hitPattern_.numberOfValidHits(); }
     /// number of cases where track crossed a layer without getting a hit.
     unsigned short numberOfLostHits() const { return hitPattern_.numberOfLostHits(); }
-    /// set hit pattern from vector of hit references
+    /// set hit patterns from vector of hit references
     template<typename C>
     void setHitPattern( const C & c ) { hitPattern_.set( c.begin(), c.end() ); }
+    template<typename C>
+    void setTrackerExpectedHitsInner( const C & c ) { trackerExpectedHitsInner_.set( c.begin(), c.end() ); }
+    template<typename C>
+    void setTrackerExpectedHitsOuter( const C & c ) { trackerExpectedHitsOuter_.set( c.begin(), c.end() ); }
+    
     template<typename I>
     void setHitPattern( const I & begin, const I & end ) { hitPattern_.set( begin, end ); }
+    template<typename I>
+    void setTrackerExpectedHitsInner( const I & begin, const I & end ) { trackerExpectedHitsInner_.set( begin, end ); }
+    template<typename I>
+    void setTrackerExpectedHitsOuter( const I & begin, const I & end ) { trackerExpectedHitsOuter_.set( begin, end ); }
+
     /// set hit pattern for specified hit
     void setHitPattern( const TrackingRecHit & hit, size_t i ) { hitPattern_.set( hit, i ); }
+    void setTrackerExpectedHitsInner( const TrackingRecHit & hit, size_t i ) { trackerExpectedHitsInner_.set( hit, i ); }
+    void setTrackerExpectedHitsOuter( const TrackingRecHit & hit, size_t i ) { trackerExpectedHitsOuter_.set( hit, i ); }
+
     /// position index 
 
     ///Track algorithm
@@ -256,6 +276,11 @@ namespace reco {
     float covariance_[ covarianceSize ];
     /// hit pattern
     HitPattern hitPattern_;
+    /// hit pattern used for expected crossed layers after the last trajectory's hit
+    HitPattern trackerExpectedHitsInner_; 
+    /// hit pattern used for expected crossed layers before the first trajectory's hit
+    HitPattern trackerExpectedHitsOuter_;
+
     /// track algorithm
     uint8_t algorithm_;
     /// track quality
