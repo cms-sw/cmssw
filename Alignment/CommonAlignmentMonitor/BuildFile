@@ -11,6 +11,7 @@
 <use name=root>
 <use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/ServiceRegistry>
+<use name=Alignment/MuonAlignmentAlgorithms>
 <export>
   <use name=Alignment/CommonAlignment>
   <use name=Alignment/CommonAlignmentAlgorithm>
