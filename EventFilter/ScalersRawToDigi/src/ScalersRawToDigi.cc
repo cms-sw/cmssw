@@ -59,8 +59,12 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
   iEvent.getByLabel("source" , rawdata);
 
   std::auto_ptr<LumiScalersCollection> pLumi(new LumiScalersCollection());
+
   std::auto_ptr<L1TriggerScalersCollection> 
     pTrigger(new L1TriggerScalersCollection());
+
+  std::auto_ptr<L1AcceptBunchCrossingCollection> 
+    pBunch(new L1AcceptBunchCrossingCollection());
 
   /// Take a reference to this FED's data
   const FEDRawData & fedData = rawdata->FEDData(ScalersRaw::SCALERS_FED_ID);
@@ -68,11 +72,27 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
   if ( length > 0 ) 
   {
     L1TriggerScalers triggerScalers(fedData.data());
+    pTrigger->push_back(triggerScalers);
+    iEvent.put(pTrigger); 
+
     LumiScalers      lumiScalers(fedData.data());
     pLumi->push_back(lumiScalers);
-    pTrigger->push_back(triggerScalers);
     iEvent.put(pLumi); 
-    iEvent.put(pTrigger); 
+
+    int nBytesExtra = length - sizeof(struct ScalersEventRecordRaw_v1);
+    if ( ( nBytesExtra >= 8 ) && (( nBytesExtra % 8 ) == 0 ) )
+    {
+      unsigned long long * data = 
+	(unsigned long long *)fedData.data();
+      int nWords = nBytesExtra / 8;
+      for ( int i=0; i<nWords; i++)
+      {
+	int index = nWords - 5 + i;
+	L1AcceptBuncCrossing bc(i,data[i]);
+	pBunch->push_back(bc);
+      }
+      iEvent.put(pBunch); 
+    }
   }
 }
 

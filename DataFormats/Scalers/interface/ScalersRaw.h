@@ -30,6 +30,7 @@ class ScalersRaw
     N_L1_TRIGGERS_v1      = 128,
     N_L1_TEST_TRIGGERS_v1 = 64,
     N_LUMI_OCC_v1         = 2,
+    N_BX_v2               = 4,
     SCALERS_FED_ID        = 735
   };
 };
@@ -109,6 +110,17 @@ struct ScalersEventRecordRaw_v1
   struct TriggerScalersRaw_v1 trig;
   struct LumiScalersRaw_v1    lumi;
   unsigned int filler;
+  unsigned long long trailer;
+};
+
+struct ScalersEventRecordRaw_v2
+{
+  unsigned long long header;
+  int version;
+  struct TriggerScalersRaw_v1 trig;
+  struct LumiScalersRaw_v1    lumi;
+  unsigned int filler;
+  unsigned long long bx[N_BX_v2];
   unsigned long long trailer;
 };
 
