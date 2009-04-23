@@ -475,9 +475,14 @@ void SETSeedFinder::estimateMomentum(const MuonRecHitContainer & validSet,
   for(int loop = 0; loop<2; ++loop){// it is actually not used; to be removed
     // this is the last measurement
     if(!loop){// this is what is used currently
+      // 23.04.09 : it becomes a problem with introduction of ME42 chambers -
+      // the initial pT parametrization is incorrect for them
       for(int iMeas = validSet.size()-1;iMeas>-1;--iMeas){
         if(4==validSet[iMeas]->dimension() &&
-           (validSet[iMeas]->isCSC() || validSet[iMeas]->isDT())){
+           (validSet[iMeas]->isCSC() || validSet[iMeas]->isDT()) &&
+	// below is a fix saying "don't use ME4 chambers for initial pT estimation";
+	// not using ME41 should not be a big loss too (and is more "symmetric" solution)
+	  fabs(validSet[iMeas]->globalPosition().z())<1000.){
           lastMeasurement = iMeas;
           break;
         }
