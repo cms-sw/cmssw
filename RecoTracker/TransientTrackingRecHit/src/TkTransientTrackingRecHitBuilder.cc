@@ -19,6 +19,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"                         
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h"                         
 
+#include "Utilities/General/interface/ClassName.h"
+
 TkTransientTrackingRecHitBuilder::TkTransientTrackingRecHitBuilder( const TrackingGeometry* trackingGeometry, 
 								    const PixelClusterParameterEstimator * pCPE,
 								    const StripClusterParameterEstimator * sCPE,
@@ -58,7 +60,7 @@ TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const
     return ( GenericTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 
   } 
   
-  throw cms::Exception("LogicError") << "TrackingRecHit* cannot be casted to a known concrete type"; 
+  throw cms::Exception("LogicError") << "TrackingRecHit* cannot be casted to a known concrete type. hit type is: "<< className(*p);
 }
 
 TransientTrackingRecHit::RecHitPointer
