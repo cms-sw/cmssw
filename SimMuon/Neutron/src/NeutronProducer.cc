@@ -1,5 +1,9 @@
 #include "SimMuon/Neutron/src/NeutronProducer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include <map>
 
 
@@ -78,5 +82,27 @@ void NeutronProducer::adjust(PSimHit & h, float timeOffset) {
                h.detUnitId(), h.trackId(),
                h.momentumAtEntry().theta(),
                h.momentumAtEntry().phi() );
+}
+
+
+int NeutronProducer::chamberId(const DetId & id) const
+{
+  int result = 0;
+  switch(id.subdetId())
+  {
+    case MuonSubdetId::DT:
+      result = DTWireId(id).layerId().superlayerId().chamberId().rawId();
+      break;
+    case MuonSubdetId::CSC:
+      result = CSCDetId(id).chamberId().rawId();
+      break;
+    case MuonSubdetId::RPC:
+      result = id.rawId();
+      break;
+    default:
+      throw cms::Exception("NeutronProducer") << "Bad Muon DetId " << id.rawId();
+      break;
+  }
+  return result;
 }
 
