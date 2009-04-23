@@ -31,8 +31,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2009/04/02 14:59:12 $
- * $Revision: 1.10 $
+ * $Date: 2009/04/23 09:53:42 $
+ * $Revision: 1.11 $
  *
  */
 
@@ -123,10 +123,6 @@ class CSCMotherboard
 				     const CSCCLCTDigi& cLCT);
   unsigned int encodePattern(const int ptn, const int highPt);
   unsigned int findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT);
-
-  // Obsolete methods
-  int findSTA(const bool, const bool, const bool, const bool);
-  int findBxnMatch(const int aBxn, const int cBxn);
 
   /** Dump TMB/MPC configuration parameters. */
   void dumpConfigParams() const;
