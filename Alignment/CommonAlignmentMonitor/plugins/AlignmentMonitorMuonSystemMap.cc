@@ -57,6 +57,8 @@ private:
   std::vector<std::string> m_readTemporaryFiles;
   bool m_doFits;
   bool m_twoBin;
+  int m_minFitHits;
+  int m_strategy;
   bool m_DT13fitScattering;
   bool m_DT13fitZpos;
   bool m_DT13fitPhiz;
@@ -178,6 +180,8 @@ AlignmentMonitorMuonSystemMap::AlignmentMonitorMuonSystemMap(const edm::Paramete
    , m_readTemporaryFiles(cfg.getParameter<std::vector<std::string> >("readTemporaryFiles"))
    , m_doFits(cfg.getParameter<bool>("doFits"))
    , m_twoBin(cfg.getParameter<bool>("twoBin"))
+   , m_minFitHits(cfg.getParameter<int>("minFitHits"))
+   , m_strategy(cfg.getParameter<int>("strategy"))
    , m_DT13fitScattering(cfg.getParameter<bool>("DT13fitScattering"))
    , m_DT13fitZpos(cfg.getParameter<bool>("DT13fitZpos"))
    , m_DT13fitPhiz(cfg.getParameter<bool>("DT13fitPhiz"))
@@ -194,8 +198,11 @@ AlignmentMonitorMuonSystemMap::AlignmentMonitorMuonSystemMap(const edm::Paramete
   else if (model == std::string("powerLawTails")) {
     m_residualsModel = MuonResidualsFitter::kPowerLawTails;
   }
+  else if (model == std::string("ROOTVoigt")) {
+    m_residualsModel = MuonResidualsFitter::kROOTVoigt;
+  }
   else {
-    throw cms::Exception("AlignmentMonitorMuonSystemMap") << "residualsModel must be one of \"pureGaussian\", \"powerLawTails\"" << std::endl;
+    throw cms::Exception("AlignmentMonitorMuonSystemMap") << "residualsModel must be one of \"pureGaussian\", \"powerLawTails\", \"ROOTVoigt\"" << std::endl;
   }
 }
 
@@ -252,8 +259,12 @@ void AlignmentMonitorMuonSystemMap::book_and_link_up(std::string namestart, std:
   }
 
   for (int bin = 1;  bin <= bins;  bin++) {
-    MuonResidualsTwoBin *positionFitter = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsPositionFitter(m_residualsModel, -1), new MuonResidualsPositionFitter(m_residualsModel, -1));
-    MuonResidualsTwoBin *angleFitter = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(m_residualsModel, -1), new MuonResidualsAngleFitter(m_residualsModel, -1));
+    MuonResidualsTwoBin *positionFitter = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsPositionFitter(m_residualsModel, m_minFitHits), new MuonResidualsPositionFitter(m_residualsModel, m_minFitHits));
+    MuonResidualsTwoBin *angleFitter = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(m_residualsModel, m_minFitHits), new MuonResidualsAngleFitter(m_residualsModel, m_minFitHits));
+    positionFitter->setPrintLevel(-1);
+    angleFitter->setPrintLevel(-1);
+    positionFitter->setStrategy(m_strategy);
+    angleFitter->setStrategy(m_strategy);
     m_allFitters.push_back(positionFitter);
     m_allFitters.push_back(angleFitter);
 
@@ -601,14 +612,9 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
       MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, pNavigator(), 1000.);
 
       if (muonResidualsFromTrack.trackerNumHits() >= m_minTrackerHits  &&  muonResidualsFromTrack.trackerRedChi2() < m_maxTrackerRedChi2  &&  (m_allowTIDTEC  ||  !muonResidualsFromTrack.contains_TIDTEC())) {
-	std::vector<unsigned int> indexes = muonResidualsFromTrack.indexes();
+	std::vector<DetId> chamberIds = muonResidualsFromTrack.chamberIds();
 
-	for (std::vector<unsigned int>::const_iterator index = indexes.begin();  index != indexes.end();  ++index) {
-	  MuonChamberResidual *chamberResidual = muonResidualsFromTrack.chamberResidual(*index);
-
-	  GlobalPoint trackpos = chamberResidual->global_trackpos();
-	  double signConvention = chamberResidual->signConvention();
-
+	for (std::vector<DetId>::const_iterator chamberId = chamberIds.begin();  chamberId != chamberIds.end();  ++chamberId) {
 	  bool okay = false;
 	  TH1F *hist_vszr = NULL;
 	  TH1F *hist_vsphi = NULL;
@@ -618,13 +624,24 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	  double trackposition = 0.;
 	  double trackdxdz = 0.;
 	  double trackdydz = 0.;
+	  double angleError = 0.;
 	  double maxAngleError = 0.;
-	  if (chamberResidual->chamberId().subdetId() == MuonSubdetId::DT  &&  (*index) % 2 == 0) {
-	    if (chamberResidual->numHits() >= m_minDT13Hits) {
+	  GlobalPoint trackpos;
+	  double signConvention = 0.;
+
+	  if (chamberId->det() == DetId::Muon  &&  chamberId->subdetId() == MuonSubdetId::DT) {
+	    MuonChamberResidual *dt13 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT13);
+	    MuonChamberResidual *dt2 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT2);
+
+	    if (dt13 != NULL  &&  dt13->numHits() >= m_minDT13Hits) {
+	      trackpos = dt13->global_trackpos();
+	      signConvention = dt13->signConvention();
+
 	      okay = true;
+	      angleError = dt13->resslope();
 	      maxAngleError = m_maxDT13AngleError;
 
-	      DTChamberId chamberId(chamberResidual->chamberId().rawId());
+	      DTChamberId chamberId(dt13->chamberId().rawId());
 	      assert(1 <= chamberId.sector()  &&  chamberId.sector() <= 14  &&  (chamberId.station() == 4  ||  chamberId.sector() <= 12));
 	      assert(-2 <= chamberId.wheel()  &&  chamberId.wheel() <= 2);
 	      if (chamberId.station() == 1) {
@@ -646,21 +663,23 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	      else assert(false);
 	      assert(hist_vszr != NULL  &&  hist_vsphi != NULL);
 
-	      residual = chamberResidual->residual();
-	      resslope = chamberResidual->resslope();
-	      trackangle = chamberResidual->trackdxdz();
-	      trackposition = chamberResidual->tracky();
-	      trackdxdz = chamberResidual->trackdxdz();
-	      trackdydz = chamberResidual->trackdydz();
-	    }
-	  } // end if DT13
+	      residual = dt13->residual();
+	      resslope = dt13->resslope();
+	      trackangle = dt13->trackdxdz();
+	      trackposition = dt13->tracky();
+	      trackdxdz = dt13->trackdxdz();
+	      trackdydz = dt13->trackdydz();
+	    } // end if DT13
 
-	  else if (chamberResidual->chamberId().subdetId() == MuonSubdetId::DT  &&  (*index) % 2 == 1) {
-	    if (chamberResidual->numHits() >= m_minDT2Hits) {
+	    if (dt2 != NULL  &&  dt2->numHits() >= m_minDT2Hits) {
+	      trackpos = dt2->global_trackpos();
+	      signConvention = dt2->signConvention();
+
 	      okay = true;
+	      angleError = dt2->resslope();
 	      maxAngleError = m_maxDT2AngleError;
 
-	      DTChamberId chamberId(chamberResidual->chamberId().rawId());
+	      DTChamberId chamberId(dt2->chamberId().rawId());
 	      assert(1 <= chamberId.sector()  &&  chamberId.sector() <= 14  &&  (chamberId.station() == 4  ||  chamberId.sector() <= 12));
 	      assert(-2 <= chamberId.wheel()  &&  chamberId.wheel() <= 2);
 	      if (chamberId.station() == 1) {
@@ -678,21 +697,27 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	      else assert(false);
 	      assert(hist_vszr != NULL  &&  hist_vsphi != NULL);
 
-	      residual = chamberResidual->residual();
-	      resslope = chamberResidual->resslope();
-	      trackangle = chamberResidual->trackdydz();
-	      trackposition = chamberResidual->trackx();
-	      trackdxdz = chamberResidual->trackdxdz();
-	      trackdydz = chamberResidual->trackdydz();
-	    }
-	  } // end if DT2
+	      residual = dt2->residual();
+	      resslope = dt2->resslope();
+	      trackangle = dt2->trackdydz();
+	      trackposition = dt2->trackx();
+	      trackdxdz = dt2->trackdxdz();
+	      trackdydz = dt2->trackdydz();
+	    } // end if DT2
+	  } // end if DT
 
-	  else if (chamberResidual->chamberId().subdetId() == MuonSubdetId::CSC) {
-	    if (chamberResidual->numHits() >= m_minCSCHits) {
+	  else if (chamberId->det() == DetId::Muon  &&  chamberId->subdetId() == MuonSubdetId::CSC) {
+	    MuonChamberResidual *csc = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kCSC);
+
+	    if (csc->numHits() >= m_minCSCHits) {
 	      okay = true;
+	      angleError = csc->resslope();
 	      maxAngleError = m_maxCSCAngleError;
 
-	      CSCDetId chamberId(chamberResidual->chamberId().rawId());
+	      trackpos = csc->global_trackpos();
+	      signConvention = csc->signConvention();
+
+	      CSCDetId chamberId(csc->chamberId().rawId());
 	      assert(1 <= chamberId.endcap()  &&  chamberId.endcap() <= 2);
 	      assert(1 <= chamberId.chamber()  &&  chamberId.chamber() <= 36  &&  (chamberId.station() == 1  ||  chamberId.ring() == 2  ||  chamberId.chamber() <= 18));
 	      if (chamberId.station() == 1  &&  chamberId.ring() == 1) {
@@ -734,18 +759,18 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 	      else assert(false);
 	      assert(hist_vszr != NULL  &&  hist_vsphi != NULL);
 
-	      residual = chamberResidual->residual();
-	      resslope = chamberResidual->resslope();
-	      trackangle = chamberResidual->trackdxdz();
-	      trackposition = chamberResidual->tracky();
-	      trackdxdz = chamberResidual->trackdxdz();
-	      trackdydz = chamberResidual->trackdydz();
+	      residual = csc->residual();
+	      resslope = csc->resslope();
+	      trackangle = csc->trackdxdz();
+	      trackposition = csc->tracky();
+	      trackdxdz = csc->trackdxdz();
+	      trackdydz = csc->trackdydz();
 	    }
 	  } // end if CSC
 
 	  if (okay) { // we have enough information to fill the fitters
 	    int bin_vszr;
-	    if (chamberResidual->chamberId().subdetId() == MuonSubdetId::DT) bin_vszr = hist_vszr->FindBin(trackpos.z());
+	    if (chamberId->subdetId() == MuonSubdetId::DT) bin_vszr = hist_vszr->FindBin(trackpos.z());
 	    else bin_vszr = hist_vszr->FindBin(sqrt(pow(trackpos.x(), 2) + pow(trackpos.y(), 2)));
 
 	    int bin_vsphi = hist_vsphi->FindBin(trackpos.phi());
@@ -756,7 +781,7 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 
 	      if (positionFitter_vsz != m_positionFitters.end()) {
 		assert(maxAngleError != 0.);
-		if (fabs(chamberResidual->resslope()) < maxAngleError) {
+		if (fabs(angleError) < maxAngleError) {
 		  double *residdata = new double[MuonResidualsPositionFitter::kNData];
 		  residdata[MuonResidualsPositionFitter::kResidual] = residual * signConvention;
 		  residdata[MuonResidualsPositionFitter::kAngleError] = resslope;
@@ -784,7 +809,7 @@ void AlignmentMonitorMuonSystemMap::event(const edm::Event &iEvent, const edm::E
 
 	      if (positionFitter_vsphi != m_positionFitters.end()) {
 		assert(maxAngleError != 0.);
-		if (fabs(chamberResidual->resslope()) < maxAngleError) {
+		if (fabs(angleError) < maxAngleError) {
 		  double *residdata = new double[MuonResidualsPositionFitter::kNData];
 		  residdata[MuonResidualsPositionFitter::kResidual] = residual * signConvention;
 		  residdata[MuonResidualsPositionFitter::kAngleError] = resslope;
@@ -852,10 +877,10 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
       double phizValue = 2e10;
       double phizError = 1e10;
 
-      // the fit is verbose in std::cout anyway
-      std::cout << "=====================================================================================================" << std::endl;
-      std::cout << "Fitting " << offsetBin->second.first->GetTitle() << " bin " << offsetBin->second.second << " (" << fitter->second->numResidualsPos() << " + " << fitter->second->numResidualsNeg() << " super-residuals)" << std::endl;
-      if (fitter->second->fit(0.)) {
+//       // the fit is verbose in std::cout anyway
+//       std::cout << "=====================================================================================================" << std::endl;
+//       std::cout << "Fitting " << offsetBin->second.first->GetTitle() << " bin " << offsetBin->second.second << " (" << fitter->second->numResidualsPos() << " + " << fitter->second->numResidualsNeg() << " super-residuals)" << std::endl;
+      if (fitter->second->fit(NULL)) {
 	offsetValue = fitter->second->value(MuonResidualsPositionFitter::kPosition) * 10.;                // convert from cm to mm
 	offsetError = fitter->second->error(MuonResidualsPositionFitter::kPosition) * 10.;
 	offsetAntisym = fitter->second->antisym(MuonResidualsPositionFitter::kPosition) * 10.;
@@ -907,10 +932,10 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
       double slopeError = 1e10;
       double slopeAntisym = 2e10;
 
-      // the fit is verbose in std::cout anyway
-      std::cout << "=====================================================================================================" << std::endl;
-      std::cout << "Fitting " << slopeBin->second.first->GetTitle() << " bin " << slopeBin->second.second << " (" << fitter->second->numResidualsPos() << " + " << fitter->second->numResidualsNeg() << " super-residuals)" << std::endl;
-      if (fitter->second->fit(0.)) {
+//       // the fit is verbose in std::cout anyway
+//       std::cout << "=====================================================================================================" << std::endl;
+//       std::cout << "Fitting " << slopeBin->second.first->GetTitle() << " bin " << slopeBin->second.second << " (" << fitter->second->numResidualsPos() << " + " << fitter->second->numResidualsNeg() << " super-residuals)" << std::endl;
+      if (fitter->second->fit(NULL)) {
 	slopeValue = fitter->second->value(MuonResidualsAngleFitter::kAngle) * 1000.;                     // convert from radians to mrad
 	slopeError = fitter->second->error(MuonResidualsAngleFitter::kAngle) * 1000.;
 	slopeAntisym = fitter->second->antisym(MuonResidualsAngleFitter::kAngle) * 1000.;

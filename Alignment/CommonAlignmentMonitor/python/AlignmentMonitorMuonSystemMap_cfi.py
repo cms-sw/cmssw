@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 AlignmentMonitorMuonSystemMap = cms.untracked.PSet(
-    residualsModel = cms.string("powerLawTails"),
     minTrackPt = cms.double(20.),
     maxTrackPt = cms.double(100.),
     minTrackerHits = cms.int32(10),
@@ -16,6 +15,9 @@ AlignmentMonitorMuonSystemMap = cms.untracked.PSet(
     writeTemporaryFile = cms.string(""),
     readTemporaryFiles = cms.vstring(),
     doFits = cms.bool(True),
+    residualsModel = cms.string("ROOTVoigt"),
+    minFitHits = cms.int32(5),
+    strategy = cms.int32(0),
     twoBin = cms.bool(True),
     DT13fitScattering = cms.bool(True),
     DT13fitZpos = cms.bool(True),
@@ -23,6 +25,6 @@ AlignmentMonitorMuonSystemMap = cms.untracked.PSet(
     DT2fitScattering = cms.bool(True),
     DT2fitPhiz = cms.bool(True),
     CSCfitScattering = cms.bool(True),
-    CSCfitZpos = cms.bool(False),
+    CSCfitZpos = cms.bool(True),
     CSCfitPhiz = cms.bool(True),
     )
