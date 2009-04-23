@@ -42,6 +42,7 @@ string outdir = "OUTDIR";
 		  file2,
 		  dir2.c_str());
   comp.SetStyles(style1, style2, "PFlowTaus", "CaloTaus");
+//  comp.SetStyles(style1, style2, "Mat. Eff. ON", "Mat. Eff. OFF");
 
 
   TCanvas c0("c0", "legend", 400, 200);
