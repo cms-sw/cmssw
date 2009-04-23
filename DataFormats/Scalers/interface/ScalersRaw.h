@@ -120,7 +120,7 @@ struct ScalersEventRecordRaw_v2
   struct TriggerScalersRaw_v1 trig;
   struct LumiScalersRaw_v1    lumi;
   unsigned int filler;
-  unsigned long long bx[N_BX_v2];
+  unsigned long long bx[ScalersRaw::N_BX_v2];
   unsigned long long trailer;
 };
 

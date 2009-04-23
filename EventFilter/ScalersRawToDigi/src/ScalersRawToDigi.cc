@@ -25,6 +25,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 // Scalers classes
+#include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
 #include "DataFormats/Scalers/interface/L1TriggerScalers.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
@@ -88,7 +89,7 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
       for ( int i=0; i<nWords; i++)
       {
 	int index = nWords - 5 + i;
-	L1AcceptBuncCrossing bc(i,data[i]);
+	L1AcceptBunchCrossing bc(i,data[index]);
 	pBunch->push_back(bc);
       }
       iEvent.put(pBunch); 

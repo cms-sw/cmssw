@@ -13,10 +13,10 @@ L1AcceptBunchCrossing::L1AcceptBunchCrossing() :
 { 
 }
 
-L1AcceptBunchCrossing::L1AcceptBunchCrossing(int l1AcceptOffset__,
-					     unsigned int orbitNumber__,
-					     unsigned int bunchCrossing__,
-					     unsigned int eventType__) : 
+L1AcceptBunchCrossing::L1AcceptBunchCrossing(const int l1AcceptOffset__,
+					     const unsigned int orbitNumber__,
+					     const unsigned int bunchCrossing__,
+					     const unsigned int eventType__) : 
   l1AcceptOffset_(l1AcceptOffset__),
   orbitNumber_(orbitNumber__),
   bunchCrossing_(bunchCrossing__),
@@ -24,13 +24,16 @@ L1AcceptBunchCrossing::L1AcceptBunchCrossing(int l1AcceptOffset__,
 { 
 }
 
-L1AcceptBunchCrossing::L1AcceptBunchCrossing(int index, 
+L1AcceptBunchCrossing::L1AcceptBunchCrossing(const int index, 
 					     const unsigned long long data)
 { 
   l1AcceptOffset_ =  - index;
-  orbitNumber_    = (unsigned int) (( data >> 32ULL ) & 0xFFFFFFFFULL);
-  bunchCrossing_  = (unsigned int) (( data >> 4ULL ) & 0xFFFULL);
-  eventType_      = (unsigned int) ( data & 0xFULL);
+  orbitNumber_    = (unsigned int) (( data >> ORBIT_NUMBER_SHIFT ) 
+				    & ORBIT_NUMBER_MASK);
+  bunchCrossing_  = (unsigned int) (( data >> BUNCH_CROSSING_SHIFT ) 
+				    & BUNCH_CROSSING_MASK );
+  eventType_      = (unsigned int) (( data >> EVENT_TYPE_SHIFT )
+				    & EVENT_TYPE_MASK);
 }
 
 L1AcceptBunchCrossing::~L1AcceptBunchCrossing() { } 

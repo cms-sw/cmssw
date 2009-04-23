@@ -40,15 +40,22 @@ class L1AcceptBunchCrossing
  public:
 
   L1AcceptBunchCrossing();
-  L1AcceptBunchCrossing(int l1AcceptOffset__,
-			unsigned int orbitNumber__,
-			unsigned int bunchCrossing__,
-			unsigned int eventType__);
+  L1AcceptBunchCrossing(const int l1AcceptOffset__,
+			const unsigned int orbitNumber__,
+			const unsigned int bunchCrossing__,
+			const unsigned int eventType__);
+  L1AcceptBunchCrossing(const int index,
+			const unsigned long long data);
   virtual ~L1AcceptBunchCrossing();
 
   enum
   {
-    nBX = 4
+    ORBIT_NUMBER_SHIFT   = 32ULL,
+    ORBIT_NUMBER_MASK    = 0xFFFFFFFFULL,
+    BUNCH_CROSSING_SHIFT = 4ULL,
+    BUNCH_CROSSING_MASK  = 0xFFFULL,
+    EVENT_TYPE_SHIFT     = 0,
+    EVENT_TYPE_MASK      = 0xFULL
   };
 
   /// name method
