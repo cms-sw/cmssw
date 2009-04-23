@@ -27,7 +27,7 @@ class PFElectronTranslator : public edm::EDProducer
 
  private:
   // to retrieve the collection from the event
-  void fetchCandidateCollection(edm::Handle<reco::PFCandidateCollection>& c, 
+  bool fetchCandidateCollection(edm::Handle<reco::PFCandidateCollection>& c, 
 				const edm::InputTag& tag, 
 				const edm::Event& iEvent) const;
   // to retrieve the collection from the event

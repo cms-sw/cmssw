@@ -58,11 +58,10 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
   
 
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
-  fetchCandidateCollection(pfCandidates, 
-			   inputTagPFCandidates_, 
-			   iEvent );
-
-
+  bool status=fetchCandidateCollection(pfCandidates, 
+				       inputTagPFCandidates_, 
+				       iEvent );
+  
   // clear the vectors
   GsfTrackRef_.clear();
   basicClusters_.clear();
@@ -79,7 +78,7 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
   // we need first to create AND put the SuperCluster, 
   // basic clusters and presh clusters collection 
   // in order to get a working Handle
-  unsigned ncand=pfCandidates->size();
+  unsigned ncand=(status)?pfCandidates->size():0;
   unsigned iGSF=0;
   for( unsigned i=0; i<ncand; ++i ) {
 
@@ -154,7 +153,7 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
   createPreshowerClusterPtrs(psRefProd);
   
   // and now the Super cluster can be created with valid references  
-  createSuperClusters(*pfCandidates,*superClusters_p);
+  if(status) createSuperClusters(*pfCandidates,*superClusters_p);
   
   // Let's put the super clusters in the event
   const edm::OrphanHandle<reco::SuperClusterCollection> scRefProd = iEvent.put(superClusters_p,PFSuperClusterCollection_); 
@@ -176,18 +175,17 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
 
 
 
-void PFElectronTranslator::fetchCandidateCollection(edm::Handle<reco::PFCandidateCollection>& c, 
+bool PFElectronTranslator::fetchCandidateCollection(edm::Handle<reco::PFCandidateCollection>& c, 
 					      const edm::InputTag& tag, 
 					      const edm::Event& iEvent) const {  
   bool found = iEvent.getByLabel(tag, c);
   
-  if(!found ) {
-    std::ostringstream  err;
-    err<<" cannot get PFCandidates: "
-       <<tag<<std::endl;
-    edm::LogError("PFElectronTranslator")<<err.str();
-    throw cms::Exception( "MissingProduct", err.str());
-  }  
+  std::ostringstream  err;
+  err<<" cannot get PFCandidates: "
+     <<tag<<std::endl;
+  edm::LogError("PFElectronTranslator")<<err.str();
+  return found;
+
 }
 
 void PFElectronTranslator::fetchGsfCollection(edm::Handle<reco::GsfTrackCollection>& c, 
