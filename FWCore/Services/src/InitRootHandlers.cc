@@ -1,4 +1,5 @@
 #include "FWCore/Services/src/InitRootHandlers.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
@@ -13,7 +14,9 @@
 
 #include "TSystem.h"
 #include "TError.h"
+#include "TFile.h"
 #include "TTree.h"
+#include "TROOT.h"
 #include "Cintex/Cintex.h"
 #include "TH1.h"
 #include "G__ci.h"
@@ -151,6 +154,7 @@ InitRootHandlers::InitRootHandlers (edm::ParameterSet const& pset, edm::Activity
     resetErrHandler_(pset.getUntrackedParameter<bool> ("ResetRootErrHandler", true)),
     autoLibraryLoader_(pset.getUntrackedParameter<bool> ("AutoLibraryLoader", true))
 {
+  activity.watchPostEndJob(this, &InitRootHandlers::postEndJob);
 
   if(unloadSigHandler_) {
   // Deactivate all the Root signal handlers and restore the system defaults
@@ -191,6 +195,17 @@ InitRootHandlers::InitRootHandlers (edm::ParameterSet const& pset, edm::Activity
   setRefCoreStreamer();
 }
 
+void
+InitRootHandlers::postEndJob () {
+  // close all open ROOT files
+  // We get a new iterator each time,
+  // because closing a file can invalidate the iterator
+  while(gROOT->GetListOfFiles()->GetSize()) {
+    TIter iter(gROOT->GetListOfFiles());
+    TFile * f = dynamic_cast<TFile *>(iter.Next());
+    if(f) f->Close();
+  }
+}
 
 InitRootHandlers::~InitRootHandlers () {}
 
