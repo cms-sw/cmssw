@@ -29,7 +29,9 @@ cmsRun DummyCondDBWriter_SiStripModuleHV_cfg.py
 cmsRun DummyCondDBWriter_SiStripModuleLV_cfg.py
 
 cmsRun DummyCondDBWriter_SiStripNoises_cfg.py
+mv NoisesBuilder.log NoisesBuilder_DecMode.log
 cmsRun DummyCondDBWriter_SiStripNoises_PeakMode_cfg.py
+mv NoisesBuilder.log NoisesBuilder_PeakMode.log
 
 cmsRun DummyCondDBWriter_SiStripPedestals_cfg.py
 
