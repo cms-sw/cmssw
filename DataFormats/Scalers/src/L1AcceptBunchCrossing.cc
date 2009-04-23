@@ -44,7 +44,7 @@ std::ostream& operator<<(std::ostream& s, const L1AcceptBunchCrossing& c)
   char line[128];
 
   sprintf(line, 
-  "L1AcceptBC  Offset:%2d  Orbit:%10d [0x%8.8X]  BC:%4d [0x%3.3X]  EventType:%d", 
+  "L1AcceptBC Offset:%2d  Orbit:%10d [0x%8.8X]  BC:%4d [0x%3.3X]  EvtTyp:%d", 
 	  c.l1AcceptOffset(),
 	  c.orbitNumber(), 
 	  c.orbitNumber(), 
