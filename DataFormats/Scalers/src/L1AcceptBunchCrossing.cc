@@ -42,11 +42,15 @@ L1AcceptBunchCrossing::~L1AcceptBunchCrossing() { }
 std::ostream& operator<<(std::ostream& s, const L1AcceptBunchCrossing& c) 
 {
   char line[128];
-  s << "L1AcceptBunchCrossing    L1AcceptOffset: " << c.l1AcceptOffset() 
-    << std::endl;
 
-  sprintf(line, "  OrbitNumber: %10d   BunchCrossing: %4d   EventType: %d", 
-	  c.orbitNumber(), c.bunchCrossing(), c.eventType());
+  sprintf(line, 
+  "L1AcceptBC  Offset:%2d  Orbit:%10d [0x%8.8X]  BC:%4d [0x%3.3X]  EventType:%d", 
+	  c.l1AcceptOffset(),
+	  c.orbitNumber(), 
+	  c.orbitNumber(), 
+	  c.bunchCrossing(), 
+	  c.bunchCrossing(), 
+	  c.eventType());
   s << line << std::endl;
 
   return s;
