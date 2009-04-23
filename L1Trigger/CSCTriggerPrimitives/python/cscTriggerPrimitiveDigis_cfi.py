@@ -108,6 +108,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         alctTrigEnable  = cms.uint32(0),
         clctTrigEnable  = cms.uint32(0),
         matchTrigEnable = cms.uint32(1),
+        matchTrigWindowSize = cms.uint32(7),
         # Debug
         verbosity = cms.untracked.int32(0)
     )
