@@ -93,7 +93,6 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
       {
 	int index = nWords - 5 + i;
 	L1AcceptBunchCrossing bc(i,data[index]);
-	std::cout << bc;
 	pBunch->push_back(bc);
       }
       iEvent.put(pBunch); 
