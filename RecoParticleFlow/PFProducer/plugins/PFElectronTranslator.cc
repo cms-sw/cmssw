@@ -179,13 +179,16 @@ bool PFElectronTranslator::fetchCandidateCollection(edm::Handle<reco::PFCandidat
 					      const edm::InputTag& tag, 
 					      const edm::Event& iEvent) const {  
   bool found = iEvent.getByLabel(tag, c);
-  
-  std::ostringstream  err;
-  err<<" cannot get PFCandidates: "
-     <<tag<<std::endl;
-  edm::LogError("PFElectronTranslator")<<err.str();
-  return found;
 
+  if(!found)
+    {
+      std::ostringstream  err;
+      err<<" cannot get PFCandidates: "
+	 <<tag<<std::endl;
+      edm::LogError("PFElectronTranslator")<<err.str();
+    }
+  return found;
+      
 }
 
 void PFElectronTranslator::fetchGsfCollection(edm::Handle<reco::GsfTrackCollection>& c, 
