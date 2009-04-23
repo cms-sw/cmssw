@@ -7,12 +7,26 @@ from FWCore.Python.Enumerate import Enumerate
 import re
 import os
 import copy
-import ROOT
 import ConfigParser
 import PhysicsTools.PythonAnalysis as cmstools
 import pprint
 import random
 import sys
+import inspect
+import ROOT
+ROOT.gROOT.SetBatch()
+
+def warn (*args):
+    """print out warning with line number and rest of arguments"""
+    frame = inspect.stack()[1]
+    if len (args):
+        print "%s (%s)" % (frame[1], frame[2]),
+        for arg in args:
+            print arg,
+        print
+    else:
+        print "%s (%s)" % (frame[1], frame[2])
+
 
 class GenObject (object):
     """Infrastruture to define general objects and their attributes."""
@@ -26,6 +40,7 @@ class GenObject (object):
     _cppType           = dict ( {types.float  : 'double',
                                  types.int    : 'int',
                                  types.string : 'std::string' } )
+    _basicSet          = set( [types.float, types.int, types.string] )
     _defaultValue      = dict ( {types.float  : 0.,
                                  types.int    : 0,
                                  types.string : '""' } )
@@ -38,6 +53,8 @@ class GenObject (object):
     _rootClassDict     = {} # holds classes (not instances) associated with
                             # a given GenObject
     _kitchenSinkDict   = {} # dictionary that holds everything else...
+    _runEventList      = []
+    _runEventListDone  = False
     
     ####################
     ## Compile Regexs ##
@@ -129,6 +146,42 @@ class GenObject (object):
 
 
     @staticmethod
+    def rootDiffClassName (objName):
+        """Returns the name of the equivalent Root diff object"""
+        return "goDiff_" + objName
+
+
+    @staticmethod
+    def rootDiffContClassName (objName):
+        """Returns the name of the equivalent Root diff container
+        object"""
+        return "goDiffCont_" + objName
+
+
+    @staticmethod
+    def _setupClassHeader (className, noColon = False):
+        """Returns a string with the class header for a class
+        'classname'"""
+        retval  = "\nclass %s\n{\n  public:\n" % className
+        retval += "      typedef std::vector< %s > Collection;\n\n" % className
+        # constructor
+        if noColon:
+            retval += "      %s()" % className
+        else:
+            retval += "      %s() :\n" % className
+        return retval
+
+
+    @staticmethod
+    def _finishClassHeader (className, datadec):
+        """Returns a stringg with the end of a class definition"""
+        retval  = "\n      {}\n" + datadec + "};\n"
+        retval += "#ifdef __MAKECINT__\n#pragma link C++ class " + \
+                 "vector< %s >+;\n#endif\n\n" % className
+        return retval
+
+
+    @staticmethod
     def _createCppClass (objName):
         """Returns a string containing the '.C' file necessary to
         generate a shared object library with dictionary."""
@@ -136,15 +189,13 @@ class GenObject (object):
             # not good
             print "Error: GenObject does not know about object '%s'." % objName
             raise RuntimeError, "Failed to create C++ class."
-        classname = GenObject.rootClassName (objName)
-        retval = "#include <string>\n#include <vector>\n" \
-                 + "using namespace std;\n\nclass %s\n" % classname
-        retval = retval + "{\n  public:\n"
-        retval = retval + "      typedef std::vector< %s > Collection;\n\n" \
-                 % classname
-        # constructor
-        retval = retval + "      %s() :\n" % classname
-        datadec = "\n      // data members\n"
+        className   = GenObject.rootClassName (objName)
+        diffName    = GenObject.rootDiffClassName (objName)
+        contName    = GenObject.rootDiffContClassName (objName)
+        goClass     = GenObject._setupClassHeader (className)
+        diffClass   = GenObject._setupClassHeader (diffName)
+        contClass   = GenObject._setupClassHeader (contName, noColon = True)
+        goDataDec   = diffDataDec = contDataDec = "\n      // data members\n"
         first = True
         for key in sorted( GenObject._objsDict[objName].keys() ):
             if key.startswith ("_"): continue
@@ -154,15 +205,51 @@ class GenObject (object):
             if first:
                 first = False
             else:
-                retval = retval + ",\n"
-            retval = retval + "         %s (%s)" % (key, default)
+                goClass   += ",\n"
+                diffClass += ',\n'
+            goClass   += "         %s (%s)" % (key, default)
+            goDataDec += "      %s %s;\n" % (cppType, key)
+            # is this a basic class?
+            goType = varTypeList['varType']
+            if goType in GenObject._basicSet:
+                # basic type
+                diffClass   += "         %s (%s),\n" % (key, default)
+                diffDataDec += "      %s %s;\n" % (cppType, key)
+                if goType == GenObject.types.string:
+                    # string
+                    otherKey = 'other_' + key
+                    diffClass   += "         %s (%s)" % (otherKey, default)
+                    diffDataDec += "      %s %s;\n" % (cppType, otherKey)
+                else:
+                    # float or int
+                    deltaKey = 'delta_' + key
+                    diffClass   += "         %s (%s)" % (deltaKey, default)
+                    diffDataDec += "      %s %s;\n" % (cppType, deltaKey)
+            else:
+                raise RuntimeException, "Shouldn't be here yet."
             # definition
-            datadec  = datadec + "      %s %s;\n" % (cppType, key)
-        retval = retval + "\n      {}\n" + datadec
-        retval = retval + "};\n";
-        retval = retval + "#ifdef __MAKECINT__\n#pragma link C++ class " + \
-                 "vector< %s >+;\n#endif\n\n" % classname
-        return retval
+        # do contClass
+        if GenObject.isSingleton (objName):
+            # singleton
+            contDataDec += "         %s diff\n" % diffName
+            contDataDec += "      void setDiff (const %s &rhs)" % diffName + \
+                           " { diff = rhs; }\n"
+        else:
+            # vector of objects
+            contDataDec += "      void clear() {firstOnly.clear(); secondOnly.clear(); diff.clear(); }\n"
+            contDataDec += "      %s::Collection firstOnly;\n"  % className
+            contDataDec += "      %s::Collection secondOnly;\n" % className
+            contDataDec += "      %s::Collection diff;\n"       % diffName
+            # give me a way to clear them all at once
+        # Finish off the classes
+        goClass   += GenObject._finishClassHeader (className, goDataDec)
+        diffClass += GenObject._finishClassHeader (diffName,  diffDataDec)
+        contClass += GenObject._finishClassHeader (contName,  contDataDec)
+        if objName == 'runevent':
+            # we don't want a diff class for this
+            diffClass = ''
+            contClass = ''
+        return goClass + diffClass + contClass
 
 
     @staticmethod
@@ -177,7 +264,8 @@ class GenObject (object):
         # Mark it as done
         GenObject._kitchenSinkDict[key] = True
         # Generate source code
-        sourceCode = ""
+        sourceCode = "#include <string>\n#include <vector>\n" \
+                     + "using namespace std;\n"
         for objClassName in sorted( GenObject._objsDict.keys() ):
             sourceCode = sourceCode + GenObject._createCppClass (objClassName)
         GenObjectRootLibDir = "genobjectrootlibs"
@@ -410,8 +498,8 @@ class GenObject (object):
             # if this isn't a singleton, add 'index' as a variable
             if not GenObject.isSingleton (objName):
                 GenObject.addObjectVariable (objName, 'index',
-                                             type='int',
-                                             form='%3d')
+                                             varType = GenObject.types.int,
+                                             form = '%3d')
 
 
     @staticmethod
@@ -485,14 +573,47 @@ class GenObject (object):
 
 
     @staticmethod
-    def setupOutputTree (outputfile, treename, treeDescription = "",
+    def _rootDiffObject (obj1, obj2, rootObj = 0):
+        """Given to GOs, it will create and fill the corresponding
+        root diff object"""
+        objName = obj1._objName
+        # if we don't already have a root object, create one
+        if not rootObj:
+            diffName = GenObject.rootDiffClassName( objName )
+            rootObj = GenObject._rootClassDict[diffName]()
+        for varName in GenObject._objsDict [objName].keys():
+            if varName.startswith ("_"): continue
+            goType = GenObject._objsDict[objName][varName]['varType']
+            if not goType in GenObject._basicSet:
+                # not yet
+                continue
+            setattr( rootObj, varName, obj1 (varName) )            
+            if  goType == GenObject.types.string:
+                # string
+                otherName = 'other_' + varName
+                if obj1 (varName) != obj2 (varName):
+                    # don't agree
+                    setattr( rootObj, otherName, obj2 (varName) )
+                else:
+                    # agree
+                    setattr( rootObj, otherName, '' )
+            else:
+                # float or int
+                deltaName = 'delta_' + varName
+                setattr( rootObj, deltaName,
+                         obj2 (varName) - obj1 (varName) )
+        return rootObj
+
+
+    @staticmethod
+    def setupOutputTree (outputFile, treeName, treeDescription = "",
                          otherNtupleName = ""):
         """Opens the output file, loads all of the necessary shared
         object libraries, and returns the output file and tree.  If
         'otherNtupleName' is given, it will check and make sure that
         only objects that are defined in it are written out."""
-        rootfile = ROOT.TFile.Open (outputfile, "recreate")
-        tree = ROOT.TTree (treename, treeDescription)
+        rootfile = ROOT.TFile.Open (outputFile, "recreate")
+        tree = ROOT.TTree (treeName, treeDescription)
         GenObject._loadGoRootLibrary()
         for objName in sorted (GenObject._objsDict.keys()):
             classname = GenObject.rootClassName (objName)
@@ -519,6 +640,37 @@ class GenObject (object):
 
 
     @staticmethod
+    def setupDiffOutputTree (outputFile, diffName, missingName,
+                             diffDescription = '', missingDescription = ''):
+        """Opens the diff output file, loads all of the necessary
+        shared object libraries, and returns the output file and tree.b"""
+        rootfile = ROOT.TFile.Open (outputFile, "recreate")
+        GenObject._loadGoRootLibrary()
+        # diff tree
+        diffTree = ROOT.TTree (diffName, diffDescription)
+        for objName in sorted (GenObject._objsDict.keys()):
+            if objName == 'runevent': continue
+            contName = GenObject.rootDiffContClassName (objName)
+            diffName = GenObject.rootDiffClassName (objName)
+            rootObj = \
+                    GenObject._rootClassDict[contName] = \
+                    getattr (ROOT, contName)
+            GenObject._rootClassDict[diffName] = getattr (ROOT, diffName)
+            obj = GenObject._rootObjectDict[objName] = rootObj()
+            diffTree.Branch (objName, contName, obj)
+        # missing tree
+        missingTree = ROOT.TTree (missingName, missingDescription)
+        rootRunEventClass = getattr (ROOT, 'go_runevent')
+        firstOnly  = GenObject._rootClassDict['firstOnly'] = \
+                     ROOT.std.vector( rootRunEventClass ) ()
+        secondOnly = GenObject._rootClassDict['secondOnly'] = \
+                     ROOT.std.vector( rootRunEventClass ) ()
+        missingTree.Branch ('firstOnly',  'vector<go_runevent>', firstOnly) 
+        missingTree.Branch ('secondOnly', 'vector<go_runevent>', secondOnly) 
+        return rootfile, diffTree, missingTree
+
+
+    @staticmethod
     def _fillRootObjects (event):
         """Fills root objects from GenObject 'event'"""
         for objName, obj in sorted (event.iteritems()):
@@ -532,6 +684,12 @@ class GenObject (object):
                 vec.clear()
                 for goObj in obj:
                     vec.push_back( GenObject._rootObjectClone (goObj) )
+
+
+    @staticmethod
+    def _fillRootDiffs (event1, event2):
+        """Fills root diff containers from two GenObject 'event's"""
+        
 
 
     @staticmethod
@@ -676,9 +834,45 @@ class GenObject (object):
                                                  entryIndex,
                                                  onlyRunEvent = True)
             runevent = event['runevent']
-            reeDict[ (runevent.run, runevent.event) ] = entryIndex
+            reeDict[ GenObject._re2key (runevent) ] = entryIndex
+            #reeDict[ "one two three" ] = entryIndex
         return reeDict
 
+
+    @staticmethod
+    def _re2key (runevent):
+        """Given a GO 'runevent' object, returns a sortable key"""
+        # if we don't know how to make this object yet, let's figure
+        # it out
+        if not GenObject._runEventListDone:
+            GenObject._runEventListDone = True
+            ignoreSet = set( ['run', 'event'] )
+            for varName in sorted (runevent.__dict__.keys()):
+                if varName.startswith ('_') or varName in ignoreSet:
+                    continue
+                form = runevent.getVariableProperty (varName, "form")
+                if not form:
+                    form = '%s'                
+                GenObject._runEventList.append ((varName, form))
+        key = 'run:%d event:%d' % (runevent.run, runevent.event)
+        for items in GenObject._runEventList:
+            varName = items[0]
+            form    = ' %s:%s' % (varName, items[1])
+            key += form % runevent.getVariableProperty (varName)
+        return key
+
+
+    @staticmethod
+    def _key2re (key):
+        """Given a key, returns a GO 'runevent' object"""
+        runevent = GenObject ('runevent')
+        words = GenObject._spacesRE.split (key)
+        for word in words:
+            match = GenObject._singleColonRE (word)
+            if match:
+                runevent.__setattr__ (match.group(1), match.group(2))
+        return runevent
+                                     
 
     @staticmethod
     def compareRunEventDicts (firstDict, secondDict):
@@ -850,14 +1044,17 @@ class GenObject (object):
                         print "  %s: changing '%s' of '%s:%d'" \
                               % (where, varName, obj._objName, count)
                         obj.__dict__[varName] += value
-        
+
 
     @staticmethod
     def compareTwoTrees (chain1, chain2, **kwargs):
         """Given all of the necessary information, this routine will
         go through and compare two trees making sure they are
-        'identical' within requested precision."""
+        'identical' within requested precision.  If 'diffOutputName'
+        is passed in, a root file with a diffTree and missingTree will
+        be produced."""
         print "Comparing Two Trees"
+        diffOutputName = kwargs.get ('diffOutputName')
         tupleName1  = GenObject._kitchenSinkDict[chain1]['tupleName']
         numEntries1 = GenObject._kitchenSinkDict[chain1]['numEntries']
         tupleName2  = GenObject._kitchenSinkDict[chain2]['tupleName']
@@ -867,6 +1064,22 @@ class GenObject (object):
         overlap, firstOnly, secondOnly = \
                  GenObject.compareRunEventDicts (ree1, ree2)
         #print "overlap   ", overlap
+        if diffOutputName:
+            rootfile, diffTree, missingTree = \
+                      GenObject.setupDiffOutputTree (diffOutputName,
+                                                     'diffTree',
+                                                     'missingTree')
+            if firstOnly:
+                vec = GenObject._rootClassDict['firstOnly']
+                for key in firstOnly:
+                    runevent = GenObject._key2re (key)
+                    vec.push_back( GenObject._rootObjectClone( runevent ) )
+            if secondOnly:
+                vec = GenObject._rootClassDict['secondOnly']
+                for key in secondOnly:
+                    runevent = GenObject._key2re (key)
+                    vec.push_back( GenObject._rootObjectClone( runevent ) )
+            missingTree.Fill()
         problemDict = {}
         if firstOnly:
             #print "firstOnly ", firstOnly
@@ -900,6 +1113,11 @@ class GenObject (object):
                 if GenObject.isSingleton (objName):
                     # I'll add this in later.  For now, just skip it
                     continue
+                # Get ready to calculate root diff object if necessary
+                rootObj = 0
+                if diffOutputName:
+                    rootObj = GenObject._rootObjectDict[objName]
+                    rootObj.clear()
                 vec1 = event1[objName]
                 vec2 = event2[objName]
                 matchedSet, noMatch1Set, noMatch2Set = \
@@ -916,11 +1134,29 @@ class GenObject (object):
                     if countDict.has_key (key):
                         countDict[key] += 1
                     else:
-                        countDict[key] = 1                                
+                        countDict[key] = 1
+                    # should be calculating root diff objects
+                    if diffOutputName:
+                        # first set
+                        for index in noMatch1Set:
+                            goObj = vec1 [index]
+                            rootObj.firstOnly.push_back ( GenObject.\
+                                                          _rootObjectClone \
+                                                          (goObj) )
+                        # second set
+                        for index in noMatch2Set:
+                            goObj = vec2 [index]
+                            rootObj.secondOnly.push_back ( GenObject.\
+                                                          _rootObjectClone \
+                                                           (goObj) )
                 # o.k.  Now that we have them matched, let's compare
                 # the proper items:
                 for pair in matchedSet:
-                    problems = GenObject.\
+                    if diffOutputName:
+                        rootObj.diff.push_back ( GenObject._rootDiffObject \
+                                                 ( vec1[ pair[1 - 1] ],
+                                                   vec2[ pair[2 - 1] ] ) )
+                        problems = GenObject.\
                                compareTwoItems (vec1[ pair[1 - 1] ],
                                                 vec2[ pair[2 - 1] ])
                     if problems.keys():
@@ -933,6 +1169,14 @@ class GenObject (object):
                                 countDict[varName] += 1
                             else:
                                 countDict[varName] = 1
+            # end for objName
+            if diffOutputName:
+                diffTree.Fill()
+        # end for overlap
+        if diffOutputName:
+            diffTree.Write()
+            missingTree.Write()
+            rootfile.Close()
         return problemDict
 
 
