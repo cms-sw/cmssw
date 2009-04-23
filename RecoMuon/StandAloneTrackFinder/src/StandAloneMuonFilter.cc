@@ -1,8 +1,8 @@
 /** \class StandAloneMuonFilter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2009/04/07 10:07:03 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/04/07 16:50:05 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *          D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
  */
@@ -122,6 +122,7 @@ PropagationDirection StandAloneMuonFilter::propagationDirection() const{
 
 void StandAloneMuonFilter::reset(){
   totalChambers = dtChambers = cscChambers = rpcChambers = 0;
+  totalCompatibleChambers = dtCompatibleChambers = cscCompatibleChambers = rpcCompatibleChambers = 0;
   
   theLastUpdatedTSOS =  theLastButOneUpdatedTSOS = TrajectoryStateOnSurface();
 
@@ -159,6 +160,7 @@ void StandAloneMuonFilter::incrementCompatibleChamberCounters(const DetLayer *la
       << "Unrecognized module type in incrementCompatibleChamberCounters";
   
   totalCompatibleChambers++;
+
 }
 
 
