@@ -119,7 +119,7 @@ void SiLinearChargeDivider::fluctuateEloss(int pid, float particleMomentum,
 float SiLinearChargeDivider::PeakShape(const PSimHit& hit, const StripGeomDetUnit& det){
   // x is difference between the tof and the tof for a photon (reference)
   // converted into a bin number
-  int x = int(((det.surface().toGlobal(hit.localPosition()).mag()/30.) - cosmicShift - hit.tof())*2)+120;
+  int x = int(((det.surface().toGlobal(hit.localPosition()).mag()/30.) + cosmicShift - hit.tof())*2)+120;
   if(x < 0 || x > 920) return 0;
   return hit.energyLoss()*peakValues[x];
 }
@@ -127,7 +127,7 @@ float SiLinearChargeDivider::PeakShape(const PSimHit& hit, const StripGeomDetUni
 float SiLinearChargeDivider::DeconvolutionShape(const PSimHit& hit, const StripGeomDetUnit& det){
   // x is difference between the tof and the tof for a photon (reference)
   // converted into a bin number
-  int x = int(((det.surface().toGlobal(hit.localPosition()).mag()/30.) - cosmicShift - hit.tof())*10)+300;
+  int x = int(((det.surface().toGlobal(hit.localPosition()).mag()/30.) + cosmicShift - hit.tof())*10)+300;
   if(x < 0 || x > 650) return 0;
   return hit.energyLoss()*decoValues[x];
 }
