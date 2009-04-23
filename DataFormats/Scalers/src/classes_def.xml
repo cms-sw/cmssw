@@ -15,4 +15,8 @@
   <class name="edm::Wrapper<L1TriggerScalers>"/>
   <class name="edm::Wrapper<L1TriggerRates>"/>
   <class name="edm::Wrapper<LumiScalers>"/>
+  <class name="edm::Wrapper<std::vector<L1AcceptBunchCrossing>>"/>
+  <class name="edm::Wrapper<std::vector<L1TriggerScalers>>"/>
+  <class name="edm::Wrapper<std::vector<L1TriggerRates>>"/>
+  <class name="edm::Wrapper<std::vector<LumiScalers>>"/>
 </lcgdict>
