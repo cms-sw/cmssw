@@ -208,15 +208,15 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
         /// Now actually filling in the charges for all the clusters
         int idx = 0;
         for (iOuterHit = outerHits.begin(), idx = 0; iOuterHit != outerHits.end(); ++idx, ++iOuterHit){
-            outerTTRHs.push_back(ls[2].hitBuilder()->build(&(**iOuterHit)));
+            outerTTRHs.push_back(ls[2].hitBuilder()->build((**iOuterHit).hit()));
             if (checkCharge_ && !checkCharge(outerTTRHs.back()->hit())) outerOk[idx] = false;
         }
         for (iMiddleHit = middleHits.begin(), idx = 0; iMiddleHit != middleHits.end(); ++idx, ++iMiddleHit){
-            middleTTRHs.push_back(ls[1].hitBuilder()->build(&(**iMiddleHit)));
+            middleTTRHs.push_back(ls[1].hitBuilder()->build((**iMiddleHit).hit()));
             if (checkCharge_ && !checkCharge(middleTTRHs.back()->hit())) middleOk[idx] = false;
         }
         for (iInnerHit = innerHits.begin(), idx = 0; iInnerHit != innerHits.end(); ++idx, ++iInnerHit){
-            innerTTRHs.push_back(ls[0].hitBuilder()->build(&(**iInnerHit)));
+            innerTTRHs.push_back(ls[0].hitBuilder()->build((**iInnerHit).hit()));
             if (checkCharge_ && !checkCharge(innerTTRHs.back()->hit())) innerOk[idx] = false;
         }
         if (checkMaxHitsPerModule_) {
