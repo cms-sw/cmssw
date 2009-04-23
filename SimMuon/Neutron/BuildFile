@@ -1,6 +1,7 @@
 <export>
   <lib name=SimMuonNeutron>
   <use name=SimDataFormats/TrackingHit>
+  <use name=DataFormats/MuonDetId>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=FWCore/MessageLogger>
@@ -9,6 +10,7 @@
 </export>
 
 <use name=SimDataFormats/TrackingHit>
+<use name=DataFormats/MuonDetId>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
