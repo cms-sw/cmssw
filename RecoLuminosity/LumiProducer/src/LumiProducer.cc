@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.6 2009/02/20 10:16:09 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.7 2009/02/20 13:53:41 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -84,22 +84,17 @@ LumiProducer::~LumiProducer()
 
 void LumiProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 { 
-  std::cout<<"produce"<<std::endl;
-  
 }
 
 void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup) {
-  std::cout<<"beginLuminosityBlock"<<std::endl;
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("LuminosityInfoRcd"));
   if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
     //record not found
     std::cout <<"Record \"LuminosityInfoRcd"<<"\" does not exist "<<std::endl;
   }
   edm::ESHandle<lumi::LuminosityInfo> pLumi;
-  std::cout<<"got eshandle"<<std::endl;
   iSetup.get<LuminosityInfoRcd>().get(pLumi);
   const lumi::LuminosityInfo* myLumi=pLumi.product();
-  std::cout<<" payload pointer "<<myLumi<<std::endl;
   /**summary information
      avginsdellumi: average instante lumi value 
      avginsdellumierr:  average instante lumi error
@@ -109,7 +104,7 @@ void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Even
      
      l1ratecounter, unavailable now
      hltratecounter, unavailable now
-     hltscaler, unavailable now 
+     hltscaler, unavailable now
      hltinput, unavailable now
   */
   float avginsdellumi=myLumi->lumiAverage(lumi::ET).value;
@@ -118,11 +113,25 @@ void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Even
   float deadfrac=myLumi->deadTimeNormalization();
   int lsnumber=myLumi->lumisectionID();
   std::vector<int> l1ratecounter;
+  for(unsigned int i=0; i<128; ++i){
+    l1ratecounter.push_back(-99);
+  }
   std::vector<int> l1scaler;
+  for(unsigned int i=0; i<128; ++i){
+    l1scaler.push_back(-99);
+  }
   std::vector<int> hltratecounter;
+  for(unsigned int i=0; i<128; ++i){
+    hltratecounter.push_back(-99);
+  }
   std::vector<int> hltscaler;
+  for(unsigned int i=0; i<128; ++i){
+    hltscaler.push_back(-99);
+  }
   std::vector<int> hltinput;
-
+  for(unsigned int i=0; i<128; ++i){
+    hltinput.push_back(-99);
+  }
   LumiSummary* pIn1=new LumiSummary(avginsdellumi,avginsdellumierr,lumisecqual,deadfrac,lsnumber,l1ratecounter,l1scaler,hltratecounter,hltscaler,hltinput);
   std::auto_ptr<LumiSummary> pOut1(pIn1);
   iLBlock.put(pOut1);
@@ -135,7 +144,7 @@ void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Even
      lumiocc, lumi occ values
      lumioccerr, lumi occ errors
      lumioccerr, lumi occ qualities
-   */
+  */
   std::vector<lumi::BunchCrossingInfo> resultET;
   myLumi->bunchCrossingInfo(lumi::ET,resultET);
   std::vector<float> lumietsum;

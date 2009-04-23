@@ -1,9 +1,10 @@
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("REPACKER")
-
+process = cms.Process("standalonetest")
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("RecoLuminosity.LumiProducer.nonStandardlumiProducer_cff")
 
 import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
@@ -22,19 +23,14 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
-process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    DBParameters = cms.PSet(
-        messageLevel = cms.untracked.int32(0),
-        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-    ),
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string('LuminosityInfoRcd'),
-        tag = cms.string('lumitest')
-    )),
-    #connect = cms.string('sqlite_file:offlinelumi.db'),
-    connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_RUN_INFO'),                                  
-    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')                          
-)
+process.LumiESSource.connect=cms.string('sqlite_fip:CondCore/SQLiteData/data/offlinelumi.db')
+process.LumiESSource.DBParameters.authenticationPath=cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+process.LumiESSource.BlobStreamerName=cms.untracked.string('TBufferBlobStreamingService')   
+process.LumiESSource.toGet=cms.VPSet(cms.PSet(
+    record = cms.string('LuminosityInfoRcd'),
+    tag = cms.string('lumitest')
+    ))
+
 process.lumiProducer=cms.EDProducer("LumiProducer")
 process.test = cms.EDAnalyzer("TestLumiProducer")
 
