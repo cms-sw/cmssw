@@ -18,8 +18,8 @@
  *                               Typically 0, -1, -2, -3
  */
 
-#ifndef L1ACCEPTBUNCHCROSSING_H
-#define L1ACCEPTBUNCHCROSSING_H
+#ifndef DATAFORMATS_SCALERS_L1ACCEPTBUNCHCROSSING_H
+#define DATAFORMATS_SCALERS_L1ACCEPTBUNCHCROSSING_H
 
 #include <ostream>
 #include <vector>
