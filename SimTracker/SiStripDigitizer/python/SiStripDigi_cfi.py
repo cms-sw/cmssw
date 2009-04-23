@@ -66,7 +66,7 @@ simSiStripDigis = cms.EDFilter("SiStripDigitizer",
                                Gain                       = cms.string(''),
                                #-----SiStripDigitizerAlgorithm
                                NoiseSigmaThreshold        = cms.double(2.0),
-                               electronPerAdc             = cms.double(274.0),
+                               electronPerAdc             = cms.double(262.0),
                                FedAlgorithm               = cms.int32(4),
                                Noise                      = cms.bool(True), ## NOTE : turning Noise ON/OFF will make a big change
                                TOFCutForDeconvolution     = cms.double(50.0),
