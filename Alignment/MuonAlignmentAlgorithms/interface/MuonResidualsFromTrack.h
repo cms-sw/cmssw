@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFromTrack_H
 
 /** \class MuonResidualsFromTrack
- *  $Date: 2009/02/02 13:46:01 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/02/27 18:58:29 $
+ *  $Revision: 1.2 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -40,11 +40,22 @@ public:
 
   bool contains_TIDTEC() const { return m_contains_TIDTEC; };
 
-  const std::vector<unsigned int> indexes() const { return m_indexes; };
+  const std::vector<DetId> chamberIds() const { return m_chamberIds; };
 
-  MuonChamberResidual *chamberResidual(unsigned int chamberId) {
-    if (m_chamberResiduals.find(chamberId) == m_chamberResiduals.end()) return NULL;
-    return m_chamberResiduals[chamberId];
+  MuonChamberResidual *chamberResidual(DetId chamberId, int type) {
+    if (type == MuonChamberResidual::kDT13) {
+      if (m_dt13.find(chamberId) == m_dt13.end()) return NULL;
+      return m_dt13[chamberId];
+    }
+    else if (type == MuonChamberResidual::kDT2) {
+      if (m_dt2.find(chamberId) == m_dt2.end()) return NULL;
+      return m_dt2[chamberId];
+    }
+    else if (type == MuonChamberResidual::kCSC) {
+      if (m_csc.find(chamberId) == m_csc.end()) return NULL;
+      return m_csc[chamberId];
+    }
+    else return NULL;
   };
 
 private:
@@ -54,8 +65,8 @@ private:
   double m_tracker_chi2;
   bool m_contains_TIDTEC;
 
-  std::vector<unsigned int> m_indexes;
-  std::map<unsigned int,MuonChamberResidual*> m_chamberResiduals;
+  std::vector<DetId> m_chamberIds;
+  std::map<DetId,MuonChamberResidual*> m_dt13, m_dt2, m_csc;
 };
 
 #endif // Alignment_MuonAlignmentAlgorithms_MuonResidualsFromTrack_H

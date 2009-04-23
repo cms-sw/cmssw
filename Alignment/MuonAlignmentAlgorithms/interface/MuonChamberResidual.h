@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonChamberResidual_H
 
 /** \class MuonChamberResidual
- *  $Date: 2009/03/09 22:57:32 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/03/15 21:24:31 $
+ *  $Revision: 1.4 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -48,24 +48,61 @@ public:
 
   virtual ~MuonChamberResidual() {};
 
+  enum {
+    kDT13,
+    kDT2,
+    kCSC
+  };
+
   virtual void addResidual(const TrajectoryStateOnSurface *tsos, const TransientTrackingRecHit *hit) = 0;
   virtual double signConvention(const unsigned int rawId=0) const = 0;
 
   DetId chamberId() const { return m_chamberId; };
   AlignableDetOrUnitPtr chamberAlignable() const { return m_chamberAlignable; };
+  virtual int type() const = 0;
 
   int numHits() const { return m_numHits; };
 
   double residual() const {
-    assert(m_numHits > 0);
+    assert(m_numHits > 1);
     double delta = m_residual_1*m_residual_xx - m_residual_x*m_residual_x;
     return (m_residual_xx*m_residual_y - m_residual_x*m_residual_xy) / delta;
   };
 
+  double residual_error() const {
+    assert(m_numHits > 1);
+    double delta = m_residual_1*m_residual_xx - m_residual_x*m_residual_x;
+    return sqrt(m_residual_xx / delta);
+  };
+
   double resslope() const {
-    assert(m_numHits > 0);
+    assert(m_numHits > 1);
     double delta = m_residual_1*m_residual_xx - m_residual_x*m_residual_x;
     return (m_residual_1*m_residual_xy - m_residual_x*m_residual_y) / delta;
+  };
+
+  double resslope_error() const {
+    assert(m_numHits > 1);
+    double delta = m_residual_1*m_residual_xx - m_residual_x*m_residual_x;
+    return sqrt(m_residual_1 / delta);
+  };
+
+  double chi2() const {
+    double output = 0.;
+    double a = residual();
+    double b = resslope();
+
+    std::vector<double>::const_iterator x = m_individual_x.begin();
+    std::vector<double>::const_iterator y = m_individual_y.begin();
+    std::vector<double>::const_iterator w = m_individual_weight.begin();
+    for (;  x != m_individual_x.end();  ++x, ++y, ++w) {
+      output += pow((*y) - a - b*(*x), 2) * (*w);
+    }
+    return output;
+  };
+
+  int ndof() const {
+    return m_individual_x.size() - 2;
   };
 
   double trackdxdz() const {
@@ -100,6 +137,14 @@ public:
     assert(0 <= i  &&  i < int(m_localIDs.size()));
     return m_localResids[i];
   }
+
+  double global_residual() const {
+    return residual() * signConvention();
+  };
+
+  double global_resslope() const {
+    return resslope() * signConvention();
+  };
 
   double global_hitresid(int i) const {
     return hitresid(i) * signConvention(m_localIDs[i].rawId());
@@ -154,6 +199,9 @@ protected:
   double m_tracky_xy;
   std::vector<DetId> m_localIDs;
   std::vector<double> m_localResids;
+  std::vector<double> m_individual_x;
+  std::vector<double> m_individual_y;
+  std::vector<double> m_individual_weight;
 };
 
 #endif // Alignment_MuonAlignmentAlgorithms_MuonChamberResidual_H

@@ -1,7 +1,6 @@
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsPositionFitter.h"
 
 static TMinuit *MuonResidualsPositionFitter_TMinuit;
-static double MuonResidualsPositionFitter_phiValue;
 
 void MuonResidualsPositionFitter::inform(TMinuit *tMinuit) {
   MuonResidualsPositionFitter_TMinuit = tMinuit;
@@ -14,69 +13,55 @@ void MuonResidualsPositionFitter_FCN(int &npar, double *gin, double &fval, doubl
   fval = 0.;
   for (std::vector<double*>::const_iterator resiter = fitter->residuals_begin();  resiter != fitter->residuals_end();  ++resiter) {
     const double residual = (*resiter)[MuonResidualsPositionFitter::kResidual];
-    if (fitter->inRange(residual)) {
-      const double angleerror = (*resiter)[MuonResidualsPositionFitter::kAngleError];
-      const double trackangle = (*resiter)[MuonResidualsPositionFitter::kTrackAngle];
-      const double trackposition = (*resiter)[MuonResidualsPositionFitter::kTrackPosition];
+    const double angleerror = (*resiter)[MuonResidualsPositionFitter::kAngleError];
+    const double trackangle = (*resiter)[MuonResidualsPositionFitter::kTrackAngle];
+    const double trackposition = (*resiter)[MuonResidualsPositionFitter::kTrackPosition];
       
-      double center = 0.;
-      center += par[MuonResidualsPositionFitter::kPosition];
-      center += par[MuonResidualsPositionFitter::kZpos] * trackangle;
-      center += par[MuonResidualsPositionFitter::kPhiz] * trackposition;
-      center += (par[MuonResidualsPositionFitter::kScattering] - MuonResidualsPositionFitter_phiValue) * angleerror;
+    double center = 0.;
+    center += par[MuonResidualsPositionFitter::kPosition];
+    center += par[MuonResidualsPositionFitter::kZpos] * trackangle;
+    center += par[MuonResidualsPositionFitter::kPhiz] * trackposition;
+    center += par[MuonResidualsPositionFitter::kScattering] * angleerror;
 
-      if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian) {
-	fval += -log(MuonResidualsFitter_pureGaussian(residual, center, par[MuonResidualsPositionFitter::kSigma]));
-      }
-      else if (fitter->residualsModel() == MuonResidualsFitter::kPowerLawTails) {
-	fval += -log(MuonResidualsFitter_powerLawTails(residual, center, par[MuonResidualsPositionFitter::kSigma], par[MuonResidualsPositionFitter::kGamma]));
-      }
-      else { assert(false); }
+    if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian) {
+      fval += -MuonResidualsFitter_logPureGaussian(residual, center, par[MuonResidualsPositionFitter::kSigma]);
     }
+    else if (fitter->residualsModel() == MuonResidualsFitter::kPowerLawTails) {
+      fval += -MuonResidualsFitter_logPowerLawTails(residual, center, par[MuonResidualsPositionFitter::kSigma], par[MuonResidualsPositionFitter::kGamma]);
+    }
+    else if (fitter->residualsModel() == MuonResidualsFitter::kROOTVoigt) {
+      fval += -MuonResidualsFitter_logROOTVoigt(residual, center, par[MuonResidualsPositionFitter::kSigma], par[MuonResidualsPositionFitter::kGamma]);
+    }
+    else { assert(false); }
   }
 }
 
-bool MuonResidualsPositionFitter::fit(double phiValue) {
+bool MuonResidualsPositionFitter::fit(Alignable *ali) {
   initialize_table();  // if not already initialized
   m_goodfit = false;
-  m_minResidual = m_maxResidual = 0.;
-  MuonResidualsPositionFitter_phiValue = phiValue;
 
   double sum_x = 0.;
   double sum_xx = 0.;
   int N = 0;
-  int N_bin[8];
-  for (int i = 0;  i < 8;  i++) N_bin[i] = 0;
 
   for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
     const double residual = (*resiter)[kResidual];
-    const double angleerror = (*resiter)[kAngleError];
-    const double trackangle = (*resiter)[kTrackAngle];
-    const double trackposition = (*resiter)[kTrackPosition];
+    //    const double angleerror = (*resiter)[kAngleError];
+    //    const double trackangle = (*resiter)[kTrackAngle];
+    //    const double trackposition = (*resiter)[kTrackPosition];
 
     if (fabs(residual) < 10.) {  // truncate at 100 mm
       sum_x += residual;
       sum_xx += residual*residual;
       N++;
     }
-
-    int index = 0;
-    if (angleerror > 0.) index += 1;
-    if (trackangle > 0.) index += 2;
-    if (trackposition > 0.) index += 4;
-    N_bin[index]++;
   }
 
-  bool enough_in_every_bin = true;
-  for (int i = 0;  i < 8;  i++) {
-    if (N_bin[i] < m_minHitsPerRegion) enough_in_every_bin = false;
-  }
-
-  if ((m_minHitsPerRegion > 0  &&  !enough_in_every_bin)  ||  (m_minHitsPerRegion <= 0  &&  N <= 10)) return false;
+  if (N < m_minHits) return false;
 
   // truncated mean and stdev to seed the fit
-  m_mean = sum_x/double(N);
-  m_stdev = sqrt(sum_xx/double(N) - pow(sum_x/double(N), 2));
+  double mean = sum_x/double(N);
+  double stdev = sqrt(sum_xx/double(N) - pow(sum_x/double(N), 2));
 
   // refine the standard deviation calculation
   sum_x = 0.;
@@ -84,31 +69,28 @@ bool MuonResidualsPositionFitter::fit(double phiValue) {
   N = 0;
   for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
     const double residual = (*resiter)[kResidual];
-    if (m_mean - 1.5*m_stdev < residual  &&  residual < m_mean + 1.5*m_stdev) {
+    if (mean - 1.5*stdev < residual  &&  residual < mean + 1.5*stdev) {
       sum_x += residual;
       sum_xx += residual*residual;
       N++;
     }
   }
-  m_mean = sum_x/double(N);
-  m_stdev = sqrt(sum_xx/double(N) - pow(sum_x/double(N), 2));
+  mean = sum_x/double(N);
+  stdev = sqrt(sum_xx/double(N) - pow(sum_x/double(N), 2));
 
   sum_x = 0.;
   sum_xx = 0.;
   N = 0;
   for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
     const double residual = (*resiter)[kResidual];
-    if (m_mean - 1.5*m_stdev < residual  &&  residual < m_mean + 1.5*m_stdev) {
+    if (mean - 1.5*stdev < residual  &&  residual < mean + 1.5*stdev) {
       sum_x += residual;
       sum_xx += residual*residual;
       N++;
     }
   }
-  m_mean = sum_x/double(N);
-  m_stdev = sqrt(sum_xx/double(N) - pow(sum_x/double(N), 2));
-
-  m_minResidual = m_mean - 10.0*m_stdev;
-  m_maxResidual = m_mean + 10.0*m_stdev;
+  mean = sum_x/double(N);
+  stdev = sqrt(sum_xx/double(N) - pow(sum_x/double(N), 2));
 
   std::vector<int> parNum;
   std::vector<std::string> parName;
@@ -117,19 +99,19 @@ bool MuonResidualsPositionFitter::fit(double phiValue) {
   std::vector<double> low;
   std::vector<double> high;
 
-  parNum.push_back(kPosition);    parName.push_back(std::string("position"));  	 start.push_back(m_mean);   step.push_back(0.1);             low.push_back(m_mean-m_stdev);    high.push_back(m_mean+m_stdev);
-  parNum.push_back(kZpos);        parName.push_back(std::string("zpos"));      	 start.push_back(0.);       step.push_back(0.1);             low.push_back(-2.*m_stdev);       high.push_back(2.*m_stdev);
-  parNum.push_back(kPhiz);        parName.push_back(std::string("phiz"));      	 start.push_back(0.);       step.push_back(0.1);             low.push_back(-2.*m_stdev);       high.push_back(2.*m_stdev);
-  parNum.push_back(kScattering);  parName.push_back(std::string("scattering"));  start.push_back(0.);       step.push_back(0.1*1000.);       low.push_back(-2.*m_stdev*1000.); high.push_back(2.*m_stdev*1000.);
-  parNum.push_back(kSigma);       parName.push_back(std::string("sigma"));       start.push_back(m_stdev);  step.push_back(0.1*m_stdev);     low.push_back(0.001);             high.push_back(3.*m_stdev);
+  parNum.push_back(kPosition);    parName.push_back(std::string("position"));  	 start.push_back(mean);   step.push_back(0.1);             low.push_back(0.);    high.push_back(0.);
+  parNum.push_back(kZpos);        parName.push_back(std::string("zpos"));      	 start.push_back(0.);       step.push_back(0.1);             low.push_back(0.);    high.push_back(0.);
+  parNum.push_back(kPhiz);        parName.push_back(std::string("phiz"));      	 start.push_back(0.);       step.push_back(0.1);             low.push_back(0.);    high.push_back(0.);
+  parNum.push_back(kScattering);  parName.push_back(std::string("scattering"));  start.push_back(0.);       step.push_back(0.1*1000.);       low.push_back(0.);    high.push_back(0.);
+  parNum.push_back(kSigma);       parName.push_back(std::string("sigma"));       start.push_back(stdev);  step.push_back(0.1*stdev);     low.push_back(0.);    high.push_back(0.);
   if (residualsModel() != kPureGaussian) {
-  parNum.push_back(kGamma);       parName.push_back(std::string("gamma"));       start.push_back(m_stdev);  step.push_back(0.1*m_stdev);     low.push_back(0.001);             high.push_back(3.*m_stdev);
+  parNum.push_back(kGamma);       parName.push_back(std::string("gamma"));       start.push_back(stdev);  step.push_back(0.1*stdev);     low.push_back(0.);    high.push_back(0.);
   }
 
   return dofit(&MuonResidualsPositionFitter_FCN, parNum, parName, start, step, low, high);
 }
 
-void MuonResidualsPositionFitter::plot(double phiValue, std::string name, TFileDirectory *dir) {
+double MuonResidualsPositionFitter::plot(std::string name, TFileDirectory *dir, Alignable *ali) {
   std::stringstream raw_name, narrowed_name, angleerror_name, trackangle_name, trackposition_name;
   raw_name << name << "_raw";
   narrowed_name << name << "_narrowed";
@@ -165,6 +147,11 @@ void MuonResidualsPositionFitter::plot(double phiValue, std::string name, TFileD
     narrowed_fit->SetParameters(scale_factor, value(kPosition) * 10., value(kSigma) * 10., value(kGamma) * 10.);
     narrowed_fit->Write();
   }
+  else if (residualsModel() == kROOTVoigt) {
+    narrowed_fit = new TF1(narrowed_name.str().c_str(), MuonResidualsFitter_ROOTVoigt_TF1, -100., 100., 4);
+    narrowed_fit->SetParameters(scale_factor, value(kPosition) * 10., value(kSigma) * 10., value(kGamma) * 10.);
+    narrowed_fit->Write();
+  }
 
   TF1 *angleerror_fit = new TF1(angleerror_name.str().c_str(), "[0]+x*[1]", -30., 30.);
   angleerror_fit->SetParameters(value(kPosition) * 10., value(kScattering) * 10./1000.);
@@ -184,7 +171,7 @@ void MuonResidualsPositionFitter::plot(double phiValue, std::string name, TFileD
     const double trackangle = (*resiter)[kTrackAngle];
     const double trackposition = (*resiter)[kTrackPosition];
 
-    double angleerror_correction = (value(kScattering) - phiValue) * angleerror;
+    double angleerror_correction = value(kScattering) * angleerror;
     double trackangle_correction = value(kZpos) * trackangle;
     double trackposition_correction = value(kPhiz) * trackposition;
 
@@ -193,87 +180,10 @@ void MuonResidualsPositionFitter::plot(double phiValue, std::string name, TFileD
     raw_hist->Fill(raw_residual * 10.);
     narrowed_hist->Fill(corrected_residual * 10.);
     
-    if (inRange(corrected_residual)) {
-      angleerror_hist->Fill(angleerror*1000., (raw_residual - trackangle_correction - trackposition_correction) * 10.);
-      trackangle_hist->Fill(trackangle, (raw_residual - angleerror_correction - trackposition_correction) * 10.);
-      trackposition_hist->Fill(trackposition, (raw_residual - angleerror_correction - trackangle_correction) * 10.);
-    }
-  }
-}
-
-double MuonResidualsPositionFitter::redchi2(double phiValue, std::string name, TFileDirectory *dir, bool write, int bins, double low, double high) {
-  std::stringstream histname;
-  histname << name << "_norm";
-
-  double scale_factor = double(numResiduals()) * (high - low)/double(bins);
-  double sigma = value(kSigma);
-  double gamma = 0.;
-  if (residualsModel() != MuonResidualsFitter::kPureGaussian) {
-    gamma = value(kGamma);
+    angleerror_hist->Fill(angleerror*1000., (raw_residual - trackangle_correction - trackposition_correction) * 10.);
+    trackangle_hist->Fill(trackangle, (raw_residual - angleerror_correction - trackposition_correction) * 10.);
+    trackposition_hist->Fill(trackposition, (raw_residual - angleerror_correction - trackangle_correction) * 10.);
   }
 
-  TH1F *hist = NULL;
-  if (write) hist = dir->make<TH1F>(histname.str().c_str(), histname.str().c_str(), bins, low, high);
-  else hist = new TH1F(histname.str().c_str(), histname.str().c_str(), bins, low, high);
-
-  histname << "fit";
-  TF1 *func = NULL;
-  if (residualsModel() == kPureGaussian) {
-    func = new TF1(histname.str().c_str(), MuonResidualsFitter_pureGaussian_TF1, low, high, 3);
-    func->SetParameters(scale_factor, 0., 1.);
-  }
-  else if (residualsModel() == kPowerLawTails) {
-    func = new TF1(histname.str().c_str(), MuonResidualsFitter_powerLawTails_TF1, low, high, 4);
-    func->SetParameters(scale_factor, 0., 1., gamma/sigma);
-  }
-  else { assert(false); }
-  if (write) func->Write();
-
-  for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
-    const double raw_residual = (*resiter)[kResidual];
-    const double angleerror = (*resiter)[kAngleError];
-    const double trackangle = (*resiter)[kTrackAngle];
-    const double trackposition = (*resiter)[kTrackPosition];
-
-    double correction = value(kPosition);
-    double angleerror_correction = (value(kScattering) - phiValue) * angleerror;
-    double trackangle_correction = value(kZpos) * trackangle;
-    double trackposition_correction = value(kPhiz) * trackposition;
-    double scale = value(kSigma);
-
-    hist->Fill((raw_residual - correction - angleerror_correction - trackangle_correction - trackposition_correction)/scale);
-  } // end loop over residuals
-
-  double chi2 = 0.;
-  int ndof = 0;
-  for (int i = 1;  i <= bins;  i++) {
-    double position = hist->GetBinCenter(i);
-    double histvalue = hist->GetBinContent(i);
-    double histerror = hist->GetBinError(i);
-    
-    if (histvalue != 0.) {
-      double fitvalue = 0.;
-
-      if (residualsModel() == kPureGaussian) {
-	fitvalue = scale_factor * MuonResidualsFitter_pureGaussian(position, 0., 1.);
-	ndof++;
-      }
-      else if (residualsModel() == kPowerLawTails) {
-	fitvalue = scale_factor * MuonResidualsFitter_powerLawTails(position, 0., 1., gamma/sigma);
-	ndof++;
-      }
-      else { assert(false); }
-
-      chi2 += pow(histvalue - fitvalue, 2) / histerror;
-    }
-  } // end loop over histogram bins
-  ndof -= npar();
-
-  if (!write) {
-    delete hist;
-    delete func;
-  }
-
-  if (ndof <= 0) return -1.;
-  else return chi2/double(ndof);
+  return 0.;
 }

@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsPositionFitter_H
 
 /** \class MuonResidualsPositionFitter
- *  $Date: 2009/03/23 11:50:53 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/03/24 00:04:39 $
+ *  $Revision: 1.4 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -29,18 +29,21 @@ public:
     kNData
   };
 
-  MuonResidualsPositionFitter(int residualsModel, int minHitsPerRegion): MuonResidualsFitter(residualsModel, minHitsPerRegion) {};
+  MuonResidualsPositionFitter(int residualsModel, int minHits): MuonResidualsFitter(residualsModel, minHits) {};
+
+  int type() const { return MuonResidualsFitter::kPositionFitter; };
 
   int npar() {
     if (residualsModel() == kPureGaussian) return kNPar - 1;
     else if (residualsModel() == kPowerLawTails) return kNPar;
+    else if (residualsModel() == kROOTVoigt) return kNPar;
     else assert(false);
   };
   int ndata() { return kNData; };
 
-  bool fit(double phiValue);
-  void plot(double phiValue, std::string name, TFileDirectory *dir);
-  double redchi2(double phiValue, std::string name, TFileDirectory *dir, bool write=false, int bins=100, double low=-5., double high=5.);
+  bool fit(Alignable *ali);
+  double sumofweights() { return numResiduals(); };
+  double plot(std::string name, TFileDirectory *dir, Alignable *ali);
 
 protected:
   void inform(TMinuit *tMinuit);

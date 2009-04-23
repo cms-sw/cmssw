@@ -35,4 +35,7 @@ void MuonDT2ChamberResidual::addResidual(const TrajectoryStateOnSurface *tsos, c
 
   m_localIDs.push_back(id);
   m_localResids.push_back(tsos->localPosition().x() - hit->localPosition().x());
+  m_individual_x.push_back(layerPosition);
+  m_individual_y.push_back(residual);
+  m_individual_weight.push_back(weight);
 }

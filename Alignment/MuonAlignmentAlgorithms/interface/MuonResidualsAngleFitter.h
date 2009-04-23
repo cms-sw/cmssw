@@ -29,16 +29,19 @@ public:
 
   MuonResidualsAngleFitter(int residualsModel, int minHitsPerRegion): MuonResidualsFitter(residualsModel, minHitsPerRegion) {};
 
+  int type() const { return MuonResidualsFitter::kAngleFitter; };
+
   int npar() {
     if (residualsModel() == kPureGaussian) return kNPar - 1;
     else if (residualsModel() == kPowerLawTails) return kNPar;
+    else if (residualsModel() == kROOTVoigt) return kNPar;
     else assert(false);
   };
   int ndata() { return kNData; };
 
-  bool fit(double value);
-  void plot(double value, std::string name, TFileDirectory *dir);
-  double redchi2(double value, std::string name, TFileDirectory *dir, bool write=false, int bins=100, double low=-5., double high=5.);
+  bool fit(Alignable *ali);
+  double sumofweights() { return numResiduals(); };
+  double plot(std::string name, TFileDirectory *dir, Alignable *ali);
 
 protected:
   void inform(TMinuit *tMinuit);

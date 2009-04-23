@@ -4,8 +4,10 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(edm::ESHandle<GlobalTrackingGeome
   m_tracker_numHits = 0;
   m_tracker_chi2 = 0.;
   m_contains_TIDTEC = false;
-  m_indexes.clear();
-  m_chamberResiduals.clear();
+  m_chamberIds.clear();
+  m_dt13.clear();
+  m_dt2.clear();
+  m_csc.clear();
 
   std::vector<TrajectoryMeasurement> measurements = traj->measurements();
   for (std::vector<TrajectoryMeasurement>::const_iterator im = measurements.begin();  im != measurements.end();  ++im) {
@@ -30,49 +32,59 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(edm::ESHandle<GlobalTrackingGeome
 	else if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::DT) {
 	  const DTChamberId chamberId(id.rawId());
 	  const DTSuperLayerId superLayerId(id.rawId());
-	  unsigned int index = chamberId.rawId() * 2;
-	  if (superLayerId.superlayer() == 2) index += 1;
-	  
-	  if (m_chamberResiduals.find(index) == m_chamberResiduals.end()) {
-	    // const DetId chamberId_DetId(chamberId);
-	    AlignableDetOrUnitPtr chamberAlignable = navigator->alignableFromDetId(chamberId);  // _DetId);
 
-	    if (superLayerId.superlayer() == 2) {
-	      m_chamberResiduals[index] = new MuonDT2ChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable);
-	    }
-	    else {
-	      m_chamberResiduals[index] = new MuonDT13ChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable);
+	  // have we seen this chamber before?
+	  if (m_dt13.find(chamberId) == m_dt13.end()  &&  m_dt2.find(chamberId) == m_dt2.end()) {
+	    m_chamberIds.push_back(chamberId);
+	  }
+
+	  if (superLayerId.superlayer() == 2) {
+	    if (m_dt2.find(chamberId) == m_dt2.end()) {
+	      AlignableDetOrUnitPtr chamberAlignable = navigator->alignableFromDetId(chamberId);
+	      m_dt2[chamberId] = new MuonDT2ChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable);
 	    }
 
-	    m_indexes.push_back(index);
-	  } // end if we've never seen this chamber before
+	    m_dt2[chamberId]->addResidual(&tsos, hit);
+	  }
 
-	  m_chamberResiduals[index]->addResidual(&tsos, hit);
+	  else {
+	    if (m_dt13.find(chamberId) == m_dt13.end()) {
+	      AlignableDetOrUnitPtr chamberAlignable = navigator->alignableFromDetId(chamberId);
+	      m_dt13[chamberId] = new MuonDT13ChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable);
+	    }
+
+	    m_dt13[chamberId]->addResidual(&tsos, hit);
+	  }
 	}
 
 	else if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
 	  const CSCDetId cscDetId(id.rawId());
 	  const CSCDetId chamberId(cscDetId.endcap(), cscDetId.station(), cscDetId.ring(), cscDetId.chamber());
-	  unsigned int index = chamberId.rawId() * 2;
 
-	  if (m_chamberResiduals.find(index) == m_chamberResiduals.end()) {
-	    // const DetId chamberId_DetId(chamberId);
-	    AlignableDetOrUnitPtr chamberAlignable = navigator->alignableFromDetId(chamberId);  // _DetId);
+	  // have we seen this chamber before?
+	  if (m_csc.find(chamberId) == m_csc.end()) {
+	    m_chamberIds.push_back(chamberId);
 
-	    m_chamberResiduals[index] = new MuonCSCChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable);
+	    AlignableDetOrUnitPtr chamberAlignable = navigator->alignableFromDetId(chamberId);
+	    m_csc[chamberId] = new MuonCSCChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable);
+	  }
 
-	    m_indexes.push_back(index);
-	  } // end if we've never seen this chamber before
-
-	  m_chamberResiduals[index]->addResidual(&tsos, hit);
+	  m_csc[chamberId]->addResidual(&tsos, hit);
 	}
-      } // end if track projection is valid
+
+      } // end if track propagation is valid
     } // end if hit is valid
   } // end loop over measurments
 }
 
 MuonResidualsFromTrack::~MuonResidualsFromTrack() {
-  for (std::map<unsigned int,MuonChamberResidual*>::const_iterator residual = m_chamberResiduals.begin();  residual != m_chamberResiduals.end();  ++residual) {
+  for (std::map<DetId,MuonChamberResidual*>::const_iterator residual = m_dt13.begin();  residual != m_dt13.end();  ++residual) {
+    delete residual->second;
+  }
+  for (std::map<DetId,MuonChamberResidual*>::const_iterator residual = m_dt2.begin();  residual != m_dt2.end();  ++residual) {
+    delete residual->second;
+  }
+  for (std::map<DetId,MuonChamberResidual*>::const_iterator residual = m_csc.begin();  residual != m_csc.end();  ++residual) {
     delete residual->second;
   }
 }

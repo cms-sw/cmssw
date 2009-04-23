@@ -2,15 +2,16 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFitter_H
 
 /** \class MuonResidualsFitter
- *  $Date: 2009/03/24 12:40:50 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/03/27 17:10:46 $
+ *  $Revision: 1.6 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonChamberResidual.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h"
 
 #include "TMinuit.h"
 #include "TH1F.h"
@@ -26,12 +27,23 @@ class MuonResidualsFitter {
 public:
   enum {
     kPureGaussian,
-    kPowerLawTails
+    kPowerLawTails,
+    kROOTVoigt
   };
 
-  MuonResidualsFitter(int residualsModel, int minHitsPerRegion)
-    : m_residualsModel(residualsModel), m_minHitsPerRegion(minHitsPerRegion), m_minResidual(0.), m_maxResidual(0.), m_goodfit(false) {
-    if (m_residualsModel != kPureGaussian  &&  m_residualsModel != kPowerLawTails) throw cms::Exception("MuonResidualsFitter") << "unrecognized residualsModel";
+  enum {
+    k1DOF,
+    k5DOF,
+    k6DOF,
+    k6DOFrphi,
+    kPositionFitter,
+    kAngleFitter,
+    kAngleBfieldFitter
+  };
+
+  MuonResidualsFitter(int residualsModel, int minHits)
+    : m_residualsModel(residualsModel), m_minHits(minHits), m_printLevel(0), m_strategy(2), m_goodfit(false), m_loglikelihood(0.) {
+    if (m_residualsModel != kPureGaussian  &&  m_residualsModel != kPowerLawTails  &&  m_residualsModel != kROOTVoigt) throw cms::Exception("MuonResidualsFitter") << "unrecognized residualsModel";
   };
 
   virtual ~MuonResidualsFitter() {
@@ -39,6 +51,8 @@ public:
       delete [] (*residual);
     }
   };
+
+  virtual int type() const = 0;
 
   int residualsModel() const { return m_residualsModel; };
   long numResiduals() const { return m_residuals.size(); };
@@ -61,6 +75,9 @@ public:
     else return m_fixed[parNum];
   };
 
+  void setPrintLevel(int printLevel) { m_printLevel = printLevel; };
+  void setStrategy(int strategy) { m_strategy = strategy; };
+
   // an array of the actual residual and associated baggage (qoverpt, trackangle, trackposition)
   // arrays passed to fill() are "owned" by MuonResidualsFitter: MuonResidualsFitter will delete them, don't do it yourself!
   void fill(double *residual) {
@@ -68,42 +85,40 @@ public:
   };
 
   // this block of results is only valid if fit() returns true
-  // also gamma is only valid if the model is kPowerLawTails
-  virtual bool fit(double v1) = 0;
+  // also gamma is only valid if the model is kPowerLawTails or kROOTVoigt
+  virtual bool fit(Alignable *ali) = 0;
   double value(int parNum) { assert(m_goodfit  &&  0 <= parNum  &&  parNum < npar());  return m_value[parNum]; };
-  double error(int parNum) { assert(m_goodfit  &&  0 <= parNum  &&  parNum < npar());  return (fabs(m_uperr[parNum]) + fabs(m_downerr[parNum])) / 2.; };
+  double error(int parNum) { assert(m_goodfit  &&  0 <= parNum  &&  parNum < npar());  return m_error[parNum]; };
+  double loglikelihood() { return m_loglikelihood; };
+  virtual double sumofweights() = 0;
 
-  // demonstration plots
-  virtual void plot(double v1, std::string name, TFileDirectory *dir) = 0;
-  virtual double redchi2(double v1, std::string name, TFileDirectory *dir=NULL, bool write=false, int bins=100, double low=-5., double high=5.) = 0;
+  // demonstration plots; return reduced chi**2
+  virtual double plot(std::string name, TFileDirectory *dir, Alignable *ali) = 0;
 
   // I/O of temporary files for collect mode
   void write(FILE *file, int which=0);
   void read(FILE *file, int which=0);
 
   // these are for the FCN to access what it needs to
-  bool inRange(double residual) const { return (m_minResidual < residual  &&  residual < m_maxResidual); };
   std::vector<double*>::const_iterator residuals_begin() const { return m_residuals.begin(); };
   std::vector<double*>::const_iterator residuals_end() const { return m_residuals.end(); };
 
 protected:
   void initialize_table();
-  double compute_convolution(double toversigma, double gammaoversigma, double max=1000., double step=0.001, double power=4.);
   bool dofit(void (*fcn)(int&,double*,double&,double*,int), std::vector<int> &parNum, std::vector<std::string> &parName, std::vector<double> &start, std::vector<double> &step, std::vector<double> &low, std::vector<double> &high);
   virtual void inform(TMinuit *tMinuit) = 0;
 
   int m_residualsModel;
-  int m_minHitsPerRegion;
+  int m_minHits;
   std::vector<bool> m_fixed;
+  int m_printLevel, m_strategy;
 
   std::vector<double*> m_residuals;
-  double m_minResidual, m_maxResidual, m_mean, m_stdev;
 
   bool m_goodfit;
   std::vector<double> m_value;
   std::vector<double> m_error;
-  std::vector<double> m_uperr;
-  std::vector<double> m_downerr;
+  double m_loglikelihood;
 };
 
 // A ROOT-sponsored hack to get information into the fit function
@@ -117,10 +132,14 @@ private:
 };
 
 // fit functions (these can't be put in the class; "MuonResidualsFitter_" prefix avoids namespace clashes)
-double MuonResidualsFitter_pureGaussian(double residual, double center, double sigma);
+double MuonResidualsFitter_integrate_pureGaussian(double low, double high, double center, double sigma);
+double MuonResidualsFitter_logPureGaussian(double residual, double center, double sigma);
 Double_t MuonResidualsFitter_pureGaussian_TF1(Double_t *xvec, Double_t *par);
-double MuonResidualsFitter_powerLawTails(double residual, double center, double sigma, double gamma);
+double MuonResidualsFitter_compute_log_convolution(double toversigma, double gammaoversigma, double max=1000., double step=0.001, double power=4.);
+double MuonResidualsFitter_logPowerLawTails(double residual, double center, double sigma, double gamma);
 Double_t MuonResidualsFitter_powerLawTails_TF1(Double_t *xvec, Double_t *par);
+double MuonResidualsFitter_logROOTVoigt(double residual, double center, double sigma, double gamma);
+Double_t MuonResidualsFitter_ROOTVoigt_TF1(Double_t *xvec, Double_t *par);
 void MuonResidualsPositionFitter_FCN(int &npar, double *gin, double &fval, double *par, int iflag);
 void MuonResidualsAngleFitter_FCN(int &npar, double *gin, double &fval, double *par, int iflag);
 

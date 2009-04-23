@@ -34,6 +34,8 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -43,8 +45,9 @@
 #include "TFile.h"
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsFromTrack.h"
-#include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsPositionFitter.h"
-#include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsAngleFitter.h"
+#include "Alignment/MuonAlignmentAlgorithms/interface/MuonResiduals6DOFFitter.h"
+#include "Alignment/MuonAlignmentAlgorithms/interface/MuonResiduals5DOFFitter.h"
+#include "Alignment/MuonAlignmentAlgorithms/interface/MuonResiduals6DOFrphiFitter.h"
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsTwoBin.h"
 
 #include <map>
@@ -66,7 +69,7 @@ private:
   bool numeric(std::string s);
   int number(std::string s);
 
-  std::vector<std::string> m_intrackfit;
+  std::vector<std::string> m_reference;
   double m_minTrackPt;
   double m_maxTrackPt;
   int m_minTrackerHits;
@@ -75,41 +78,28 @@ private:
   int m_minDT13Hits;
   int m_minDT2Hits;
   int m_minCSCHits;
-  double m_maxDT13AngleError;
-  double m_maxDT2AngleError;
-  double m_maxCSCAngleError;
   std::string m_writeTemporaryFile;
   std::vector<std::string> m_readTemporaryFiles;
   bool m_doAlignment;
+  int m_strategy;
   std::string m_residualsModel;
+  int m_minAlignmentHits;
   bool m_twoBin;
   bool m_combineME11;
-  bool m_DT13fitScattering;
-  bool m_DT13fitZpos;
-  bool m_DT13fitPhiz;
-  bool m_DT2fitScattering;
-  bool m_DT2fitPhiz;
-  bool m_CSCfitScattering;
-  bool m_CSCfitZpos;
-  bool m_CSCfitPhiz;
   std::string m_reportFileName;
-  std::string m_rootDirectory;
 
   AlignableNavigator *m_alignableNavigator;
   AlignmentParameterStore *m_alignmentParameterStore;
   std::vector<Alignable*> m_alignables;
   std::map<Alignable*,Alignable*> m_me11map;
-  std::map<Alignable*,MuonResidualsTwoBin*> m_rphiFitters;
-  std::map<Alignable*,MuonResidualsTwoBin*> m_zFitters;
-  std::map<Alignable*,MuonResidualsTwoBin*> m_phixFitters;
-  std::map<Alignable*,MuonResidualsTwoBin*> m_phiyFitters;
-  std::vector<unsigned int> m_indexOrder;
-  std::vector<MuonResidualsTwoBin*> m_fitterOrder;
+  std::map<Alignable*,MuonResidualsTwoBin*> m_fitters;
+  std::vector<unsigned int> m_indexes;
+  std::map<unsigned int,MuonResidualsTwoBin*> m_fitterOrder;
 };
 
 MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &iConfig)
   : AlignmentAlgorithmBase(iConfig)
-  , m_intrackfit(iConfig.getParameter<std::vector<std::string> >("intrackfit"))
+  , m_reference(iConfig.getParameter<std::vector<std::string> >("reference"))
   , m_minTrackPt(iConfig.getParameter<double>("minTrackPt"))
   , m_maxTrackPt(iConfig.getParameter<double>("maxTrackPt"))
   , m_minTrackerHits(iConfig.getParameter<int>("minTrackerHits"))
@@ -118,25 +108,15 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
   , m_minDT13Hits(iConfig.getParameter<int>("minDT13Hits"))
   , m_minDT2Hits(iConfig.getParameter<int>("minDT2Hits"))
   , m_minCSCHits(iConfig.getParameter<int>("minCSCHits"))
-  , m_maxDT13AngleError(iConfig.getParameter<double>("maxDT13AngleError"))
-  , m_maxDT2AngleError(iConfig.getParameter<double>("maxDT2AngleError"))
-  , m_maxCSCAngleError(iConfig.getParameter<double>("maxCSCAngleError"))
   , m_writeTemporaryFile(iConfig.getParameter<std::string>("writeTemporaryFile"))
   , m_readTemporaryFiles(iConfig.getParameter<std::vector<std::string> >("readTemporaryFiles"))
   , m_doAlignment(iConfig.getParameter<bool>("doAlignment"))
+  , m_strategy(iConfig.getParameter<int>("strategy"))
   , m_residualsModel(iConfig.getParameter<std::string>("residualsModel"))
+  , m_minAlignmentHits(iConfig.getParameter<int>("minAlignmentHits"))
   , m_twoBin(iConfig.getParameter<bool>("twoBin"))
   , m_combineME11(iConfig.getParameter<bool>("combineME11"))
-  , m_DT13fitScattering(iConfig.getParameter<bool>("DT13fitScattering"))
-  , m_DT13fitZpos(iConfig.getParameter<bool>("DT13fitZpos"))
-  , m_DT13fitPhiz(iConfig.getParameter<bool>("DT13fitPhiz"))
-  , m_DT2fitScattering(iConfig.getParameter<bool>("DT2fitScattering"))
-  , m_DT2fitPhiz(iConfig.getParameter<bool>("DT2fitPhiz"))
-  , m_CSCfitScattering(iConfig.getParameter<bool>("CSCfitScattering"))
-  , m_CSCfitZpos(iConfig.getParameter<bool>("CSCfitZpos"))
-  , m_CSCfitPhiz(iConfig.getParameter<bool>("CSCfitPhiz"))
   , m_reportFileName(iConfig.getParameter<std::string>("reportFileName"))
-  , m_rootDirectory(iConfig.getParameter<std::string>("rootDirectory"))
 {
   // alignment requires a TFile to provide plots to check the fit output
   // just filling the residuals lists does not
@@ -183,55 +163,33 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
    int residualsModel;
    if (m_residualsModel == std::string("pureGaussian")) residualsModel = MuonResidualsFitter::kPureGaussian;
    else if (m_residualsModel == std::string("powerLawTails")) residualsModel = MuonResidualsFitter::kPowerLawTails;
+   else if (m_residualsModel == std::string("ROOTVoigt")) residualsModel = MuonResidualsFitter::kROOTVoigt;
    else throw cms::Exception("MuonAlignmentFromReference") << "unrecognized residualsModel: \"" << m_residualsModel << "\"" << std::endl;
+
+   edm::ESHandle<CSCGeometry> cscGeometry;
+   iSetup.get<MuonGeometryRecord>().get(cscGeometry);
 
    // set up the MuonResidualsFitters (which also collect residuals for fitting)
    m_me11map.clear();
-   m_rphiFitters.clear();
-   m_zFitters.clear();
-   m_phixFitters.clear();
-   m_phiyFitters.clear();
-   m_indexOrder.clear();
+   m_fitters.clear();
+   m_indexes.clear();
    m_fitterOrder.clear();
    for (std::vector<Alignable*>::const_iterator ali = m_alignables.begin();  ali != m_alignables.end();  ++ali) {
-     std::vector<bool> selector = (*ali)->alignmentParameters()->selector();
-     bool align_x = selector[0];
-     bool align_y = selector[1];
-     //     bool align_z = selector[2];
-     bool align_phix = selector[3];
-     //     bool align_phiy = selector[4];
-     bool align_phiz = selector[5];
+     bool made_fitter = false;
 
      if ((*ali)->alignableObjectId() == align::AlignableDTChamber) {
-       m_rphiFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsPositionFitter(residualsModel, 5), new MuonResidualsPositionFitter(residualsModel, 5));
-       if (!m_DT13fitScattering) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kScattering);
-       if (!m_DT13fitZpos) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
-       if (!m_DT13fitPhiz) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kPhiz);
-       m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 0);
-       m_fitterOrder.push_back(m_rphiFitters[*ali]);
-       
-       m_zFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsPositionFitter(residualsModel, 5), new MuonResidualsPositionFitter(residualsModel, 5));
-       if (!m_DT2fitScattering) m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kScattering);
-       m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
-       if (!m_DT2fitPhiz) m_zFitters[*ali]->fix(MuonResidualsPositionFitter::kPhiz);
-       m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 1);
-       m_fitterOrder.push_back(m_zFitters[*ali]);
-
-       m_phixFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, -1), new MuonResidualsAngleFitter(residualsModel, -1));
-       m_phixFitters[*ali]->fix(MuonResidualsAngleFitter::kXControl);
-       m_phixFitters[*ali]->fix(MuonResidualsAngleFitter::kYControl);
-       m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 2);
-       m_fitterOrder.push_back(m_phixFitters[*ali]);
-
-       m_phiyFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, -1), new MuonResidualsAngleFitter(residualsModel, -1));
-       m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kXControl);
-       m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 3);
-       m_fitterOrder.push_back(m_phiyFitters[*ali]);
+       DTChamberId id((*ali)->geomDetId().rawId());
+       if (id.station() == 4) {
+	 m_fitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResiduals5DOFFitter(residualsModel, m_minAlignmentHits), new MuonResiduals5DOFFitter(residualsModel, m_minAlignmentHits));
+	 made_fitter = true;
+       }
+       else {
+	 m_fitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResiduals6DOFFitter(residualsModel, m_minAlignmentHits), new MuonResiduals6DOFFitter(residualsModel, m_minAlignmentHits));
+	 made_fitter = true;
+       }
      }
 
      else if ((*ali)->alignableObjectId() == align::AlignableCSCChamber) {
-       if (align_x  &&  (!align_y  ||  !align_phiz)) throw cms::Exception("MuonAlignmentFromReference") << "CSCs are aligned in rphi, not x, so y and phiz must also be alignable" << std::endl;
-
        Alignable *thisali = *ali;
        CSCDetId id((*ali)->geomDetId().rawId());
        if (m_combineME11  &&  id.station() == 1  &&  id.ring() == 4) {
@@ -243,44 +201,38 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
 	     break;
 	   }
 	 }
-
-	 m_me11map[*ali] = thisali;
+	 m_me11map[*ali] = thisali;  // points from each ME1/4 chamber to the corresponding ME1/1 chamber
        }
 
-       if (thisali == *ali) {
-
-	 m_rphiFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsPositionFitter(residualsModel, 5), new MuonResidualsPositionFitter(residualsModel, 5));
-	 if (!m_CSCfitScattering) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kScattering);
-	 if (!m_CSCfitZpos) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kZpos);
-	 if (!m_CSCfitPhiz) m_rphiFitters[*ali]->fix(MuonResidualsPositionFitter::kPhiz);
-	 m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 0);
-	 m_fitterOrder.push_back(m_rphiFitters[*ali]);
-	 
-	 m_phiyFitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResidualsAngleFitter(residualsModel, -1), new MuonResidualsAngleFitter(residualsModel, -1));
-	 m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kXControl);
-	 m_phiyFitters[*ali]->fix(MuonResidualsAngleFitter::kYControl);
-	 m_indexOrder.push_back((*ali)->geomDetId().rawId()*4 + 1);
-	 m_fitterOrder.push_back(m_phiyFitters[*ali]);
-	 
-	 if (align_phix) {
-	   throw cms::Exception("MuonAlignmentFromReference") << "CSCChambers can't be aligned in phix" << std::endl;
-	 }
-
+       if (thisali == *ali) {   // don't make fitters for ME1/4; they get taken care of in ME1/1
+	 m_fitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResiduals6DOFrphiFitter(residualsModel, m_minAlignmentHits, &(*cscGeometry)), new MuonResiduals6DOFrphiFitter(residualsModel, m_minAlignmentHits, &(*cscGeometry)));
+	 made_fitter = true;
        }
      }
 
      else {
-       throw cms::Exception("MuonAlignmentFromReference") << "only DTChambers and CSCChambers are alignable" << std::endl;
+       throw cms::Exception("MuonAlignmentFromReference") << "only DTChambers and CSCChambers can be aligned with this module" << std::endl;
+     }
+
+     if (made_fitter) {
+       m_fitters[*ali]->setStrategy(m_strategy);
+
+       int index = (*ali)->geomDetId().rawId();
+       m_indexes.push_back(index);
+       m_fitterOrder[index] = m_fitters[*ali];
      }
    } // end loop over chambers chosen for alignment
+
+   // cannonical order of fitters in the file
+   std::sort(m_indexes.begin(), m_indexes.end());
 
    // deweight all chambers but the reference
    std::vector<Alignable*> all_DT_chambers = alignableMuon->DTChambers();
    std::vector<Alignable*> all_CSC_chambers = alignableMuon->CSCChambers();
-   std::vector<Alignable*> intrackfit;
+   std::vector<Alignable*> reference;
    std::map<Alignable*,bool> already_seen;
 
-   for (std::vector<std::string>::const_iterator name = m_intrackfit.begin();  name != m_intrackfit.end();  ++name) {
+   for (std::vector<std::string>::const_iterator name = m_reference.begin();  name != m_reference.end();  ++name) {
      bool parsing_error = false;
 
      bool barrel = (name->substr(0, 2) == std::string("MB"));
@@ -352,7 +304,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
 	 if (station < 4  &&  (sector < 1  ||  sector > 12)) no_such_chamber = true;
 
 	 if (no_such_chamber) {
-	   throw cms::Exception("MuonAlignmentFromReference") << "intrackfit chamber doesn't exist: " << (*name) << std::endl;
+	   throw cms::Exception("MuonAlignmentFromReference") << "reference chamber doesn't exist: " << (*name) << std::endl;
 	 }
 
 	 DTChamberId id(wheel, station, sector);
@@ -360,7 +312,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
 	   if ((*ali)->geomDetId().rawId() == id.rawId()) {
 	     std::map<Alignable*,bool>::const_iterator trial = already_seen.find(*ali);
 	     if (trial == already_seen.end()) {
-	       intrackfit.push_back(*ali);
+	       reference.push_back(*ali);
 	       already_seen[*ali] = true;
 	     }
 	   }
@@ -436,7 +388,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
 	 if (station > 1  &&  ring == 2  &&  (chamber < 1  ||  chamber > 36)) no_such_chamber = true;
 
 	 if (no_such_chamber) {
-	   throw cms::Exception("MuonAlignmentFromReference") << "intrackfit chamber doesn't exist: " << (*name) << std::endl;
+	   throw cms::Exception("MuonAlignmentFromReference") << "reference chamber doesn't exist: " << (*name) << std::endl;
 	 }
 
 	 CSCDetId id(endcap, station, ring, chamber);
@@ -444,7 +396,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
 	   if ((*ali)->geomDetId().rawId() == id.rawId()) {
 	     std::map<Alignable*,bool>::const_iterator trial = already_seen.find(*ali);
 	     if (trial == already_seen.end()) {
-	       intrackfit.push_back(*ali);
+	       reference.push_back(*ali);
 	       already_seen[*ali] = true;
 	     }
 	   }
@@ -453,20 +405,18 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
      }
 
      if (parsing_error) {
-       throw cms::Exception("MuonAlignmentFromReference") << "intrackfit chamber name is malformed: " << (*name) << std::endl;
+       throw cms::Exception("MuonAlignmentFromReference") << "reference chamber name is malformed: " << (*name) << std::endl;
      }
    }
 
    alignmentParameterStore->setAlignmentPositionError(all_DT_chambers, 1000., 0.);
    alignmentParameterStore->setAlignmentPositionError(all_CSC_chambers, 1000., 0.);
-   alignmentParameterStore->setAlignmentPositionError(intrackfit, 0., 0.);
+   alignmentParameterStore->setAlignmentPositionError(reference, 0., 0.);
 }
 
 void MuonAlignmentFromReference::startNewLoop() {}
 
-void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventInfo &eventInfo)
-{
-
+void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventInfo &eventInfo) {
   edm::ESHandle<GlobalTrackingGeometry> globalGeometry;
   iSetup.get<GlobalTrackingGeometryRecord>().get(globalGeometry);
 
@@ -482,102 +432,79 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
       MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, m_alignableNavigator, 1000.);
 
       if (muonResidualsFromTrack.trackerNumHits() >= m_minTrackerHits  &&  muonResidualsFromTrack.trackerRedChi2() < m_maxTrackerRedChi2  &&  (m_allowTIDTEC  ||  !muonResidualsFromTrack.contains_TIDTEC())) {
-	std::vector<unsigned int> indexes = muonResidualsFromTrack.indexes();
+	std::vector<DetId> chamberIds = muonResidualsFromTrack.chamberIds();
 
-	for (std::vector<unsigned int>::const_iterator index = indexes.begin();  index != indexes.end();  ++index) {
-	  MuonChamberResidual *chamberResidual = muonResidualsFromTrack.chamberResidual(*index);
+	for (std::vector<DetId>::const_iterator chamberId = chamberIds.begin();  chamberId != chamberIds.end();  ++chamberId) {
 
-	  if (chamberResidual->chamberId().subdetId() == MuonSubdetId::DT  &&  (*index) % 2 == 0) {
+	  if (chamberId->det() == DetId::Muon  &&  chamberId->subdetId() == MuonSubdetId::DT  &&  DTChamberId(chamberId->rawId()).station() != 4) {
+	    MuonChamberResidual *dt13 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT13);
+	    MuonChamberResidual *dt2 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT2);
 
-	    if (chamberResidual->numHits() >= m_minDT13Hits) {
-	      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator rphiFitter = m_rphiFitters.find(chamberResidual->chamberAlignable());
-	      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator phiyFitter = m_phiyFitters.find(chamberResidual->chamberAlignable());
-
-	      if (rphiFitter != m_rphiFitters.end()) {
-		if (fabs(chamberResidual->resslope()) < m_maxDT13AngleError) {
-		  double *residdata = new double[MuonResidualsPositionFitter::kNData];
-		  residdata[MuonResidualsPositionFitter::kResidual] = chamberResidual->residual();
-		  residdata[MuonResidualsPositionFitter::kAngleError] = chamberResidual->resslope();
-		  residdata[MuonResidualsPositionFitter::kTrackAngle] = chamberResidual->trackdxdz();
-		  residdata[MuonResidualsPositionFitter::kTrackPosition] = chamberResidual->tracky();
-		  rphiFitter->second->fill(charge, residdata);
-		  // the MuonResidualsPositionFitter will delete the array when it is destroyed
-		}
-	      }
-	      
-	      if (phiyFitter != m_phiyFitters.end()) {
-		double *residdata = new double[MuonResidualsAngleFitter::kNData];
-		residdata[MuonResidualsAngleFitter::kResidual] = chamberResidual->resslope();
-		residdata[MuonResidualsAngleFitter::kXAngle] = chamberResidual->trackdxdz();
-		residdata[MuonResidualsAngleFitter::kYAngle] = chamberResidual->trackdydz();
-		phiyFitter->second->fill(charge, residdata);
-		// the MuonResidualsAngleFitter will delete the array when it is destroyed
+	    if (dt13 != NULL  &&  dt2 != NULL  &&  dt13->numHits() >= m_minDT13Hits  &&  dt2->numHits() >= m_minDT2Hits) {
+	      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(dt13->chamberAlignable());
+	      if (fitter != m_fitters.end()) {
+		double *residdata = new double[MuonResiduals6DOFFitter::kNData];
+		residdata[MuonResiduals6DOFFitter::kResidX] = dt13->residual();
+		residdata[MuonResiduals6DOFFitter::kResidY] = dt2->residual();
+		residdata[MuonResiduals6DOFFitter::kResSlopeX] = dt13->resslope();
+		residdata[MuonResiduals6DOFFitter::kResSlopeY] = dt2->resslope();
+		residdata[MuonResiduals6DOFFitter::kPositionX] = dt13->trackx();
+		residdata[MuonResiduals6DOFFitter::kPositionY] = dt13->tracky();
+		residdata[MuonResiduals6DOFFitter::kAngleX] = dt13->trackdxdz();
+		residdata[MuonResiduals6DOFFitter::kAngleY] = dt13->trackdydz();
+		residdata[MuonResiduals6DOFFitter::kRedChi2] = (dt13->chi2() + dt2->chi2()) / double(dt13->ndof() + dt2->ndof());
+		fitter->second->fill(charge, residdata);
+		// the MuonResidualsFitter will delete the array when it is destroyed
 	      }
 	    }
-	  } // end if DT13
+	  }
 
-	  else if (chamberResidual->chamberId().subdetId() == MuonSubdetId::DT  &&  (*index) % 2 == 1) {
-	    if (chamberResidual->numHits() >= m_minDT2Hits) {
-	      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator zFitter = m_zFitters.find(chamberResidual->chamberAlignable());
-	      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator phixFitter = m_phixFitters.find(chamberResidual->chamberAlignable());
+	  else if (chamberId->det() == DetId::Muon  &&  chamberId->subdetId() == MuonSubdetId::DT  &&  DTChamberId(chamberId->rawId()).station() == 4) {
+	    MuonChamberResidual *dt13 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT13);
 
-	      if (zFitter != m_zFitters.end()) {
-		if (fabs(chamberResidual->resslope()) < m_maxDT2AngleError) {
-		  double *residdata = new double[MuonResidualsPositionFitter::kNData];
-		  residdata[MuonResidualsPositionFitter::kResidual] = chamberResidual->residual();
-		  residdata[MuonResidualsPositionFitter::kAngleError] = chamberResidual->resslope();
-		  residdata[MuonResidualsPositionFitter::kTrackAngle] = chamberResidual->trackdydz();
-		  residdata[MuonResidualsPositionFitter::kTrackPosition] = chamberResidual->trackx();
-		  zFitter->second->fill(charge, residdata);
-		  // the MuonResidualsPositionFitter will delete the array when it is destroyed
-		}
-	      }
-
-	      if (phixFitter != m_phixFitters.end()) {
-		double *residdata = new double[MuonResidualsAngleFitter::kNData];
-		residdata[MuonResidualsAngleFitter::kResidual] = chamberResidual->resslope();
-		residdata[MuonResidualsAngleFitter::kXAngle] = chamberResidual->trackdxdz();
-		residdata[MuonResidualsAngleFitter::kYAngle] = chamberResidual->trackdydz();
-		phixFitter->second->fill(charge, residdata);
-		// the MuonResidualsAngleFitter will delete the array when it is destroyed
+	    if (dt13 != NULL  &&  dt13->numHits() >= m_minDT13Hits) {
+	      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(dt13->chamberAlignable());
+	      if (fitter != m_fitters.end()) {
+		double *residdata = new double[MuonResiduals5DOFFitter::kNData];
+		residdata[MuonResiduals5DOFFitter::kResid] = dt13->residual();
+		residdata[MuonResiduals5DOFFitter::kResSlope] = dt13->resslope();
+		residdata[MuonResiduals5DOFFitter::kPositionX] = dt13->trackx();
+		residdata[MuonResiduals5DOFFitter::kPositionY] = dt13->tracky();
+		residdata[MuonResiduals5DOFFitter::kAngleX] = dt13->trackdxdz();
+		residdata[MuonResiduals5DOFFitter::kAngleY] = dt13->trackdydz();
+		residdata[MuonResiduals5DOFFitter::kRedChi2] = dt13->chi2() / double(dt13->ndof());
+		fitter->second->fill(charge, residdata);
+		// the MuonResidualsFitter will delete the array when it is destroyed
 	      }
 	    }
-	  } // end if DT2
+	  }
 
-	  else if (chamberResidual->chamberId().subdetId() == MuonSubdetId::CSC) {
+	  else if (chamberId->det() == DetId::Muon  &&  chamberId->subdetId() == MuonSubdetId::CSC) {
+	    MuonChamberResidual *csc = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kCSC);
 
-	    if (chamberResidual->numHits() >= m_minCSCHits) {
-	      Alignable *ali = chamberResidual->chamberAlignable();
+	    if (csc != NULL  &&  csc->numHits() >= m_minCSCHits) {
+	      Alignable *ali = csc->chamberAlignable();
 	      CSCDetId id(ali->geomDetId().rawId());
 	      if (m_combineME11  &&  id.station() == 1  &&  id.ring() == 4) {
 		ali = m_me11map[ali];
 	      }
 
-	      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator rphiFitter = m_rphiFitters.find(ali);
-	      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator phiyFitter = m_phiyFitters.find(ali);
-
-	      if (rphiFitter != m_rphiFitters.end()) {
-		if (fabs(chamberResidual->resslope()) < m_maxCSCAngleError) {
-		  double *residdata = new double[MuonResidualsPositionFitter::kNData];
-		  residdata[MuonResidualsPositionFitter::kResidual] = chamberResidual->residual();
-		  residdata[MuonResidualsPositionFitter::kAngleError] = chamberResidual->resslope();
-		  residdata[MuonResidualsPositionFitter::kTrackAngle] = chamberResidual->trackdxdz();
-		  residdata[MuonResidualsPositionFitter::kTrackPosition] = chamberResidual->tracky();
-		  rphiFitter->second->fill(charge, residdata);
-		  // the MuonResidualsPositionFitter will delete the array when it is destroyed
-		}
-	      }
-
-	      if (phiyFitter != m_phiyFitters.end()) {
-		double *residdata = new double[MuonResidualsAngleFitter::kNData];
-		residdata[MuonResidualsAngleFitter::kResidual] = chamberResidual->resslope();
-		residdata[MuonResidualsAngleFitter::kXAngle] = chamberResidual->trackdxdz();
-		residdata[MuonResidualsAngleFitter::kYAngle] = chamberResidual->trackdydz();
-		phiyFitter->second->fill(charge, residdata);
-		// the MuonResidualsAngleFitter will delete the array when it is destroyed
+	      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(ali);
+	      if (fitter != m_fitters.end()) {
+		double *residdata = new double[MuonResiduals6DOFrphiFitter::kNData];
+		residdata[MuonResiduals6DOFrphiFitter::kResid] = csc->residual();
+		residdata[MuonResiduals6DOFrphiFitter::kResSlope] = csc->resslope();
+		residdata[MuonResiduals6DOFrphiFitter::kPositionX] = csc->trackx();
+		residdata[MuonResiduals6DOFrphiFitter::kPositionY] = csc->tracky();
+		residdata[MuonResiduals6DOFrphiFitter::kAngleX] = csc->trackdxdz();
+		residdata[MuonResiduals6DOFrphiFitter::kAngleY] = csc->trackdydz();
+		residdata[MuonResiduals6DOFrphiFitter::kRedChi2] = csc->chi2() / double(csc->ndof());
+		fitter->second->fill(charge, residdata);
+		// the MuonResidualsFitter will delete the array when it is destroyed
 	      }
 	    }
-	  } // end if CSC
+	  }
+	  else { assert(false); }
 
 	} // end loop over chamberIds
       } // end if refit is okay
@@ -592,16 +519,20 @@ void MuonAlignmentFromReference::terminate() {
       FILE *file;
       int size;
       file = fopen(fileName->c_str(), "r");
+      if (file == NULL) {
+	throw cms::Exception("MuonAlignmentFromReference") << "file \"" << *fileName << " can't be opened (doesn't exist?)" << std::endl;
+      }
+
       fread(&size, sizeof(int), 1, file);
-      if (int(m_indexOrder.size()) != size) throw cms::Exception("MuonAlignmentFromReference") << "file \"" << *fileName << "\" has " << size << " fitters, but this job has " << m_indexOrder.size() << " fitters (probably corresponds to the wrong alignment job)" << std::endl;
-      
-      std::vector<unsigned int>::const_iterator index = m_indexOrder.begin();
-      std::vector<MuonResidualsTwoBin*>::const_iterator fitter = m_fitterOrder.begin();
-      for (int i = 0;  i < size;  ++i, ++index, ++fitter) {
+      if (int(m_indexes.size()) != size) throw cms::Exception("MuonAlignmentFromReference") << "file \"" << *fileName << "\" has " << size << " fitters, but this job has " << m_indexes.size() << " fitters (probably corresponds to the wrong alignment job)" << std::endl;
+
+      int i = 0;
+      for (std::vector<unsigned int>::const_iterator index = m_indexes.begin();  index != m_indexes.end();  ++index, ++i) {
+	MuonResidualsTwoBin *fitter = m_fitterOrder[*index];
 	unsigned int index_toread;
 	fread(&index_toread, sizeof(unsigned int), 1, file);
 	if (*index != index_toread) throw cms::Exception("MuonAlignmentFromReference") << "file \"" << *fileName << "\" has index " << index_toread << " at position " << i << ", but this job is expecting " << *index << " (probably corresponds to the wrong alignment job)" << std::endl;
-	(*fitter)->read(file, i);
+	fitter->read(file, i);
       }
 
       fclose(file);
@@ -612,72 +543,46 @@ void MuonAlignmentFromReference::terminate() {
   // a residuals-gathering job)
   if (m_doAlignment) {
     edm::Service<TFileService> tfileService;
-    TFileDirectory rootDirectory(m_rootDirectory == std::string("") ? *tfileService : tfileService->mkdir(m_rootDirectory));
+    TFileDirectory rootDirectory(tfileService->mkdir("MuonAlignmentFromReference"));
 
     std::ofstream report;
     bool writeReport = (m_reportFileName != std::string(""));
     if (writeReport) {
       report.open(m_reportFileName.c_str());
       report << "reports = []" << std::endl;
-      report << "class Report:" << std::endl
+      report << "class ValErr:" << std::endl
+	     << "    def __init__(self, value, error, antisym):" << std::endl
+	     << "        self.value, self.error, self.antisym = value, error, antisym" << std::endl
+	     << "" << std::endl
+	     << "class Report:" << std::endl
 	     << "    def __init__(self, chamberId, postal_address, name):" << std::endl
 	     << "        self.chamberId, self.postal_address, self.name = chamberId, postal_address, name" << std::endl
-	     << "        self.phiyFit_status = \"UNKNOWN\"" << std::endl
-	     << "        self.rphiFit_status = \"UNKNOWN\"" << std::endl
-	     << "        self.phixFit_status = \"UNKNOWN\"" << std::endl
-	     << "        self.zFit_status = \"UNKNOWN\"" << std::endl
+	     << "        self.status = \"NOFIT\"" << std::endl
+	     << "        self.fittype = None" << std::endl
 	     << "" << std::endl
-	     << "    def phiyFit(self, angle, sigma, gamma, redchi2, posNum, negNum):" << std::endl
-	     << "        self.phiyFit_status = \"PASS\"" << std::endl
-	     << "        self.phiyFit_angle = angle" << std::endl
-	     << "        self.phiyFit_sigma = sigma" << std::endl
-	     << "        self.phiyFit_gamma = gamma" << std::endl
-	     << "        self.phiyFit_redchi2 = redchi2" << std::endl
-	     << "        self.phiyFit_posNum = posNum" << std::endl
-	     << "        self.phiyFit_negNum = negNum" << std::endl
-	     << "" << std::endl
-	     << "    def rphiFit(self, position, zpos, phiz, scattering, sigma, gamma, redchi2, posNum, negNum):" << std::endl
-	     << "        self.rphiFit_status = \"PASS\"" << std::endl
-	     << "        self.rphiFit_position = position" << std::endl
-	     << "        self.rphiFit_zpos = zpos" << std::endl
-	     << "        self.rphiFit_phiz = phiz" << std::endl
-	     << "        self.rphiFit_scattering = scattering" << std::endl
-	     << "        self.rphiFit_sigma = sigma" << std::endl
-	     << "        self.rphiFit_gamma = gamma" << std::endl
-	     << "        self.rphiFit_redchi2 = redchi2" << std::endl
-	     << "        self.rphiFit_posNum = posNum" << std::endl
-	     << "        self.rphiFit_negNum = negNum" << std::endl
-	     << "" << std::endl
-	     << "    def phixFit(self, angle, sigma, gamma, redchi2, posNum, negNum):" << std::endl
-	     << "        self.phixFit_status = \"PASS\"" << std::endl
-	     << "        self.phixFit_angle = angle" << std::endl
-	     << "        self.phixFit_sigma = sigma" << std::endl
-	     << "        self.phixFit_gamma = gamma" << std::endl
-	     << "        self.phixFit_redchi2 = redchi2" << std::endl
-	     << "        self.phixFit_posNum = posNum" << std::endl
-	     << "        self.phixFit_negNum = negNum" << std::endl
-	     << "" << std::endl
-	     << "    def zFit(self, position, zpos, phiz, scattering, sigma, gamma, redchi2, posNum, negNum):" << std::endl
-	     << "        self.zFit_status = \"PASS\"" << std::endl
-	     << "        self.zFit_position = position" << std::endl
-	     << "        self.zFit_zpos = zpos" << std::endl
-	     << "        self.zFit_phiz = phiz" << std::endl
-	     << "        self.zFit_scattering = scattering" << std::endl
-	     << "        self.zFit_sigma = sigma" << std::endl
-	     << "        self.zFit_gamma = gamma" << std::endl
-	     << "        self.zFit_redchi2 = redchi2" << std::endl
-	     << "        self.zFit_posNum = posNum" << std::endl
-	     << "        self.zFit_negNum = negNum" << std::endl
-	     << "" << std::endl
-	     << "    def parameters(self, deltax, deltay, deltaz, deltaphix, deltaphiy, deltaphiz):" << std::endl
-	     << "        self.deltax, self.deltay, self.deltaz, self.deltaphix, self.deltaphiy, self.deltaphiz = \\" << std::endl
-	     << "                     deltax, deltay, deltaz, deltaphix, deltaphiy, deltaphiz" << std::endl
-	     << "" << std::endl
-	     << "    def errors(self, err2x, err2y, err2z):" << std::endl
-	     << "        self.err2x, self.err2y, self.err2z = err2x, err2y, err2z" << std::endl << std::endl << std::endl;
+	     << "    def add_parameters(self, deltax, deltay, deltaz, deltaphix, deltaphiy, deltaphiz, loglikelihood, sumofweights, redchi2):" << std::endl
+	     << "        self.status = \"PASS\"" << std::endl
+	     << "        self.deltax, self.deltay, self.deltaz, self.deltaphix, self.deltaphiy, self.deltaphiz = deltax, deltay, deltaz, deltaphix, deltaphiy, deltaphiz" << std::endl
+	     << "        self.loglikelihood, self.sumofweights, self.redchi2 = loglikelihood, sumofweights, redchi2" << std::endl << std::endl;
     }
-    
+
     for (std::vector<Alignable*>::const_iterator ali = m_alignables.begin();  ali != m_alignables.end();  ++ali) {
+//       // begin HACK
+//       DetId HACKid = (*ali)->geomDetId();
+//       if (HACKid.subdetId() == MuonSubdetId::DT) {
+// 	//	continue;
+// 	DTChamberId id(HACKid.rawId());
+// 	if (id.wheel() >= 0  &&  id.sector() == 8) {}
+// 	else continue;
+//       }
+//       else {
+// 	//	continue;
+// 	CSCDetId id(HACKid.rawId());
+// 	if (id.endcap() == 1  &&  id.chamber() == 8) {}
+// 	else continue;
+//       }
+//       // end HACK
+
       std::vector<bool> selector = (*ali)->alignmentParameters()->selector();
       bool align_x = selector[0];
       bool align_y = selector[1];
@@ -703,20 +608,6 @@ void MuonAlignmentFromReference::terminate() {
       if (align_phiz) paramIndex_counter++;
       paramIndex.push_back(paramIndex_counter);
 
-      // uncertainties will be infinite except for the aligned chambers in the aligned directions
-      AlgebraicVector params(numParams);
-      AlgebraicSymMatrix cov(numParams);
-      for (int i = 0;  i < numParams;  i++) {
-	for (int j = 0;  j < numParams;  j++) {
-	  cov[i][j] = 1000.;
-	}
-	params[i] = 0.;
-      }
-      // but the translational ones only, because that's all that's stored in the database
-      if (align_phix) cov[paramIndex[3]][paramIndex[3]] = 0.;
-      if (align_phiy) cov[paramIndex[4]][paramIndex[4]] = 0.;
-      if (align_phiz) cov[paramIndex[5]][paramIndex[5]] = 0.;
-
       DetId id = (*ali)->geomDetId();
 
       Alignable *thisali = *ali;
@@ -727,11 +618,8 @@ void MuonAlignmentFromReference::terminate() {
 	}
       }
 
-      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator rphiFitter = m_rphiFitters.find(thisali);
-      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator zFitter = m_zFitters.find(thisali);
-      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator phixFitter = m_phixFitters.find(thisali);
-      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator phiyFitter = m_phiyFitters.find(thisali);
-      
+      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(thisali);
+
       std::stringstream name;
       if (id.subdetId() == MuonSubdetId::DT) {
 	DTChamberId chamberId(id.rawId());
@@ -756,332 +644,317 @@ void MuonAlignmentFromReference::terminate() {
 	name << "ME" << (chamberId.endcap() == 1 ? "p" : "m") << abs(chamberId.station()) << chamberId.ring() << "_" << chambero << chamberId.chamber();
 
 	if (writeReport) {
-	  report << "reports.append(Report(" << id.rawId() << ", (\"CSC\", " << (chamberId.endcap() == 1 ? 1 : -1)*abs(chamberId.station()) << ", " << chamberId.ring() << ", " << chamberId.chamber() << "), \"" << name.str() << "\"))" << std::endl;
+	  report << "reports.append(Report(" << id.rawId() << ", (\"CSC\", " << chamberId.endcap() << ", " << chamberId.station() << ", " << chamberId.ring() << ", " << chamberId.chamber() << "), \"" << name.str() << "\"))" << std::endl;
 	}
       }
 
-      bool phiyOkay = false;
-      double phiyValue = 0.;
-      if (phiyFitter != m_phiyFitters.end()) {
-	// the fit is verbose in std::cout anyway
+      if (fitter != m_fitters.end()) {
+	// MINUIT is verbose in std::cout anyway
 	std::cout << "=============================================================================================" << std::endl;
-	std::cout << "Fitting " << name.str() << " phiy" << std::endl;
+	std::cout << "Fitting " << name.str() << std::endl;
 
-	if (phiyFitter->second->fit(0.)) {
-	  std::stringstream name2;
-	  name2 << name.str() << "_phiyFit";
-	  phiyFitter->second->plot(0., name2.str(), &rootDirectory);
-	  double redchi2 = phiyFitter->second->redchi2(0., name2.str(), &rootDirectory);
-	  long posNum = phiyFitter->second->numResidualsPos();
-	  long negNum = phiyFitter->second->numResidualsNeg();
-
-	  double angle_value = phiyFitter->second->value(MuonResidualsAngleFitter::kAngle);
-	  double angle_error = phiyFitter->second->error(MuonResidualsAngleFitter::kAngle);
-	  double angle_antisym = phiyFitter->second->antisym(MuonResidualsAngleFitter::kAngle);
-	  phiyOkay = true;
-	  phiyValue = angle_value;
-
-	  double sigma_value = phiyFitter->second->value(MuonResidualsAngleFitter::kSigma);
-	  double sigma_error = phiyFitter->second->error(MuonResidualsAngleFitter::kSigma);
-	  double sigma_antisym = phiyFitter->second->antisym(MuonResidualsAngleFitter::kSigma);
-
-	  double gamma_value, gamma_error, gamma_antisym;
-	  gamma_value = gamma_error = gamma_antisym = 0.;
-	  if (phiyFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
-	    gamma_value = phiyFitter->second->value(MuonResidualsAngleFitter::kGamma);
-	    gamma_error = phiyFitter->second->error(MuonResidualsAngleFitter::kGamma);
-	    gamma_antisym = phiyFitter->second->antisym(MuonResidualsAngleFitter::kGamma);
-	  }
-
-	  if (id.subdetId() == MuonSubdetId::DT) {
-	    if (align_phiy) {
-	      params[paramIndex[4]] = angle_value;
-	    }
-	  } // end if DT
-
-	  else {
-	    if (align_phiy) {
-	      params[paramIndex[4]] = angle_value;
-	    }
-	  } // end if CSC
-
-	  if (writeReport) {
-	    report << "reports[-1].phiyFit((" << angle_value << ", " << angle_error << ", " << angle_antisym << "), \\" << std::endl
-		   << "                    (" << sigma_value << ", " << sigma_error << ", " << sigma_antisym << "), \\" << std::endl;
-	    if (phiyFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
-	    report << "                    (" << gamma_value << ", " << gamma_error << ", " << gamma_antisym << "), \\" << std::endl;
-	    }
-	    else {
-	      report << "                    None, \\" << std::endl;
-	    }
-	    report << "                    " << redchi2 << ", " << posNum << ", " << negNum << ")" << std::endl;
-	  } // end if writeReport
+	if (writeReport) {
+	  report << "reports[-1].posNum = " << fitter->second->numResidualsPos() << std::endl;
+	  report << "reports[-1].negNum = " << fitter->second->numResidualsNeg() << std::endl;
 	}
-	else if (writeReport) {
-	  report << "reports[-1].phiyFit_status = \"FAIL\"" << std::endl;
+
+	if (fitter->second->type() == MuonResidualsFitter::k5DOF) {
+	  if (!align_x) fitter->second->fix(MuonResiduals5DOFFitter::kAlignX);
+	  if (!align_z) fitter->second->fix(MuonResiduals5DOFFitter::kAlignZ);
+	  if (!align_phix) fitter->second->fix(MuonResiduals5DOFFitter::kAlignPhiX);
+	  if (!align_phiy) fitter->second->fix(MuonResiduals5DOFFitter::kAlignPhiY);
+	  if (!align_phiz) fitter->second->fix(MuonResiduals5DOFFitter::kAlignPhiZ);
 	}
-      }
+	else if (fitter->second->type() == MuonResidualsFitter::k6DOF) {
+	  if (!align_x) fitter->second->fix(MuonResiduals6DOFFitter::kAlignX);
+	  if (!align_y) fitter->second->fix(MuonResiduals6DOFFitter::kAlignY);
+	  if (!align_z) fitter->second->fix(MuonResiduals6DOFFitter::kAlignZ);
+	  if (!align_phix) fitter->second->fix(MuonResiduals6DOFFitter::kAlignPhiX);
+	  if (!align_phiy) fitter->second->fix(MuonResiduals6DOFFitter::kAlignPhiY);
+	  if (!align_phiz) fitter->second->fix(MuonResiduals6DOFFitter::kAlignPhiZ);
+	}
+	else if (fitter->second->type() == MuonResidualsFitter::k6DOFrphi) {
+	  if (!align_x) fitter->second->fix(MuonResiduals6DOFrphiFitter::kAlignX);
+	  if (!align_y) fitter->second->fix(MuonResiduals6DOFrphiFitter::kAlignY);
+	  if (!align_z) fitter->second->fix(MuonResiduals6DOFrphiFitter::kAlignZ);
+	  if (!align_phix) fitter->second->fix(MuonResiduals6DOFrphiFitter::kAlignPhiX);
+	  if (!align_phiy) fitter->second->fix(MuonResiduals6DOFrphiFitter::kAlignPhiY);
+	  if (!align_phiz) fitter->second->fix(MuonResiduals6DOFrphiFitter::kAlignPhiZ);
+	}
+	else { assert(false); }
 
-      if (rphiFitter != m_rphiFitters.end()) {
-	// the fit is verbose in std::cout anyway
-	std::cout << "=============================================================================================" << std::endl;
-	std::cout << "Fitting " << name.str() << " rphi" << std::endl;
+	AlgebraicVector params(numParams);
+	AlgebraicSymMatrix cov(numParams);
 
-	if (phiyOkay  &&  rphiFitter->second->fit(phiyValue)) {
-	  std::stringstream name2;
-	  name2 << name.str() << "_rphiFit";
-	  rphiFitter->second->plot(phiyValue, name2.str(), &rootDirectory);
-	  double redchi2 = rphiFitter->second->redchi2(phiyValue, name2.str(), &rootDirectory);
-	  long posNum = rphiFitter->second->numResidualsPos();
-	  long negNum = rphiFitter->second->numResidualsNeg();
+	if (fitter->second->fit(thisali)) {
 
-	  double position_value = rphiFitter->second->value(MuonResidualsPositionFitter::kPosition);
-	  double position_error = rphiFitter->second->error(MuonResidualsPositionFitter::kPosition);
-	  double position_antisym = rphiFitter->second->antisym(MuonResidualsPositionFitter::kPosition);
+	  double loglikelihood = fitter->second->loglikelihood();
+	  double sumofweights = fitter->second->sumofweights();
+	  double redchi2 = fitter->second->plot(name.str(), &rootDirectory, thisali);
+	  if (fitter->second->type() == MuonResidualsFitter::k5DOF) {
+	    double deltax_value = fitter->second->value(MuonResiduals5DOFFitter::kAlignX);
+	    double deltax_error = fitter->second->error(MuonResiduals5DOFFitter::kAlignX);
+	    double deltax_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kAlignX);
 
-	  double zpos_value = rphiFitter->second->value(MuonResidualsPositionFitter::kZpos);
-	  double zpos_error = rphiFitter->second->error(MuonResidualsPositionFitter::kZpos);
-	  double zpos_antisym = rphiFitter->second->antisym(MuonResidualsPositionFitter::kZpos);
+	    double deltaz_value = fitter->second->value(MuonResiduals5DOFFitter::kAlignZ);
+	    double deltaz_error = fitter->second->error(MuonResiduals5DOFFitter::kAlignZ);
+	    double deltaz_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kAlignZ);
 
-	  double phiz_value = rphiFitter->second->value(MuonResidualsPositionFitter::kPhiz);
-	  double phiz_error = rphiFitter->second->error(MuonResidualsPositionFitter::kPhiz);
-	  double phiz_antisym = rphiFitter->second->antisym(MuonResidualsPositionFitter::kPhiz);
+	    double deltaphix_value = fitter->second->value(MuonResiduals5DOFFitter::kAlignPhiX);
+	    double deltaphix_error = fitter->second->error(MuonResiduals5DOFFitter::kAlignPhiX);
+	    double deltaphix_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kAlignPhiX);
 
-	  double scattering_value = rphiFitter->second->value(MuonResidualsPositionFitter::kScattering);
-	  double scattering_error = rphiFitter->second->error(MuonResidualsPositionFitter::kScattering);
-	  double scattering_antisym = rphiFitter->second->antisym(MuonResidualsPositionFitter::kScattering);
+	    double deltaphiy_value = fitter->second->value(MuonResiduals5DOFFitter::kAlignPhiY);
+	    double deltaphiy_error = fitter->second->error(MuonResiduals5DOFFitter::kAlignPhiY);
+	    double deltaphiy_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kAlignPhiY);
 
-	  double sigma_value = rphiFitter->second->value(MuonResidualsPositionFitter::kSigma);
-	  double sigma_error = rphiFitter->second->error(MuonResidualsPositionFitter::kSigma);
-	  double sigma_antisym = rphiFitter->second->antisym(MuonResidualsPositionFitter::kSigma);
+	    double deltaphiz_value = fitter->second->value(MuonResiduals5DOFFitter::kAlignPhiZ);
+	    double deltaphiz_error = fitter->second->error(MuonResiduals5DOFFitter::kAlignPhiZ);
+	    double deltaphiz_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kAlignPhiZ);
 
-	  double gamma_value, gamma_error, gamma_antisym;
-	  gamma_value = gamma_error = gamma_antisym = 0.;
-	  if (rphiFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
-	    gamma_value = rphiFitter->second->value(MuonResidualsPositionFitter::kGamma);
-	    gamma_error = rphiFitter->second->error(MuonResidualsPositionFitter::kGamma);
-	    gamma_antisym = rphiFitter->second->antisym(MuonResidualsPositionFitter::kGamma);
-	  }
+	    double sigmaresid_value = fitter->second->value(MuonResiduals5DOFFitter::kResidSigma);
+	    double sigmaresid_error = fitter->second->error(MuonResiduals5DOFFitter::kResidSigma);
+	    double sigmaresid_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kResidSigma);
 
-	  if (id.subdetId() == MuonSubdetId::DT) {
-	    if (align_x) {
-	      params[paramIndex[0]] = position_value;
-	      cov[paramIndex[0]][paramIndex[0]] = 0.;   // local x-z is the global x-y plane; with an x alignment, this is now a good parameter
-	      if (align_z) cov[paramIndex[2]][paramIndex[2]] = 0.;
-	    }
+	    double sigmaresslope_value = fitter->second->value(MuonResiduals5DOFFitter::kResSlopeSigma);
+	    double sigmaresslope_error = fitter->second->error(MuonResiduals5DOFFitter::kResSlopeSigma);
+	    double sigmaresslope_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kResSlopeSigma);
 
-	    if (align_z) {
-	      params[paramIndex[2]] = -zpos_value;   // this is the right sign convention
-	    }
-	  
-	    if (align_phiz) {
-	      params[paramIndex[5]] = -phiz_value;   // this is the right sign convention
-	    }
-	  } // end if DT
-
-	  else {
-	    if (align_x) {
-	      GlobalPoint cscCenter = (*ali)->globalPosition();
-	      double R = sqrt(cscCenter.x()*cscCenter.x() + cscCenter.y()*cscCenter.y());
-	      double globalphi_correction = position_value / R;
+	    double gammaresid_value, gammaresid_error, gammaresid_antisym, gammaresslope_value, gammaresslope_error, gammaresslope_antisym;
+	    gammaresid_value = gammaresid_error = gammaresid_antisym = gammaresslope_value = gammaresslope_error = gammaresslope_antisym = 0.;
+	    if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
+	      gammaresid_value = fitter->second->value(MuonResiduals5DOFFitter::kResidGamma);
+	      gammaresid_error = fitter->second->error(MuonResiduals5DOFFitter::kResidGamma);
+	      gammaresid_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kResidGamma);
 	      
-	      double localx_correction = R * sin(globalphi_correction);
-	      double localy_correction = R * (cos(globalphi_correction) - 1.);
-	      double phiz_correction = -globalphi_correction;
-
-	      params[paramIndex[0]] = localx_correction;
-	      params[paramIndex[1]] = localy_correction;
-	      params[paramIndex[5]] = phiz_correction;
-
-	      cov[paramIndex[0]][paramIndex[0]] = 0.;  // local x-y plane is the global x-y plane; with an rphi alignment, this is a now a good parameter
-	      if (align_y) cov[paramIndex[1]][paramIndex[1]] = 0.;
+	      gammaresslope_value = fitter->second->value(MuonResiduals5DOFFitter::kResSlopeGamma);
+	      gammaresslope_error = fitter->second->error(MuonResiduals5DOFFitter::kResSlopeGamma);
+	      gammaresslope_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kResSlopeGamma);
 	    }
 
-	    if (align_z) {
-	      params[paramIndex[2]] = -zpos_value;   // this is the right sign convention
+	    if (writeReport) {
+	      report << "reports[-1].fittype = \"5DOF\"" << std::endl;
+	      report << "reports[-1].add_parameters(ValErr(" << deltax_value << ", " << deltax_error << ", " << deltax_antisym << "), \\" << std::endl
+		     << "                           None, \\" << std::endl
+		     << "                           ValErr(" << deltaz_value << ", " << deltaz_error << ", " << deltaz_antisym << "), \\" << std::endl
+		     << "                           ValErr(" << deltaphix_value << ", " << deltaphix_error << ", " << deltaphix_antisym << "), \\" << std::endl
+		     << "                           ValErr(" << deltaphiy_value << ", " << deltaphiy_error << ", " << deltaphiy_antisym << "), \\" << std::endl
+		     << "                           ValErr(" << deltaphiz_value << ", " << deltaphiz_error << ", " << deltaphiz_antisym << "), \\" << std::endl
+		     << "                           " << loglikelihood << ", " << sumofweights << ", " << redchi2 << ")" << std::endl;
+	      report << "reports[-1].sigmaresid = ValErr(" << sigmaresid_value << ", " << sigmaresid_error << ", " << sigmaresid_antisym << ")" << std::endl;
+	      report << "reports[-1].sigmaresslope = ValErr(" << sigmaresslope_value << ", " << sigmaresslope_error << ", " << sigmaresslope_antisym << ")" << std::endl;
+	      if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
+		report << "reports[-1].gammaresid = ValErr(" << gammaresid_value << ", " << gammaresid_error << ", " << gammaresid_antisym << ")" << std::endl;
+		report << "reports[-1].gammaresslope = ValErr(" << gammaresslope_value << ", " << gammaresslope_error << ", " << gammaresslope_antisym << ")" << std::endl;
+	      }
 	    }
 
-	    if (align_phiz) {
-	      // += not =    ...accumulated on top of whatever was needed for curvilinear rphi correction
-	      params[paramIndex[5]] -= phiz_value;   // this is the right sign convention
+	    if (align_x)    params[paramIndex[0]] = deltax_value;
+	    if (align_z)    params[paramIndex[2]] = deltaz_value;
+	    if (align_phix) params[paramIndex[3]] = deltaphix_value;
+	    if (align_phiy) params[paramIndex[4]] = deltaphiy_value;
+	    if (align_phiz) params[paramIndex[5]] = deltaphiz_value;
+	  } // end if 5DOF
+
+	  else if (fitter->second->type() == MuonResidualsFitter::k6DOF) {
+	    double deltax_value = fitter->second->value(MuonResiduals6DOFFitter::kAlignX);
+	    double deltax_error = fitter->second->error(MuonResiduals6DOFFitter::kAlignX);
+	    double deltax_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kAlignX);
+
+	    double deltay_value = fitter->second->value(MuonResiduals6DOFFitter::kAlignY);
+	    double deltay_error = fitter->second->error(MuonResiduals6DOFFitter::kAlignY);
+	    double deltay_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kAlignY);
+
+	    double deltaz_value = fitter->second->value(MuonResiduals6DOFFitter::kAlignZ);
+	    double deltaz_error = fitter->second->error(MuonResiduals6DOFFitter::kAlignZ);
+	    double deltaz_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kAlignZ);
+
+	    double deltaphix_value = fitter->second->value(MuonResiduals6DOFFitter::kAlignPhiX);
+	    double deltaphix_error = fitter->second->error(MuonResiduals6DOFFitter::kAlignPhiX);
+	    double deltaphix_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kAlignPhiX);
+
+	    double deltaphiy_value = fitter->second->value(MuonResiduals6DOFFitter::kAlignPhiY);
+	    double deltaphiy_error = fitter->second->error(MuonResiduals6DOFFitter::kAlignPhiY);
+	    double deltaphiy_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kAlignPhiY);
+
+	    double deltaphiz_value = fitter->second->value(MuonResiduals6DOFFitter::kAlignPhiZ);
+	    double deltaphiz_error = fitter->second->error(MuonResiduals6DOFFitter::kAlignPhiZ);
+	    double deltaphiz_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kAlignPhiZ);
+
+	    double sigmax_value = fitter->second->value(MuonResiduals6DOFFitter::kResidXSigma);
+	    double sigmax_error = fitter->second->error(MuonResiduals6DOFFitter::kResidXSigma);
+	    double sigmax_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kResidXSigma);
+
+	    double sigmay_value = fitter->second->value(MuonResiduals6DOFFitter::kResidYSigma);
+	    double sigmay_error = fitter->second->error(MuonResiduals6DOFFitter::kResidYSigma);
+	    double sigmay_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kResidYSigma);
+
+	    double sigmadxdz_value = fitter->second->value(MuonResiduals6DOFFitter::kResSlopeXSigma);
+	    double sigmadxdz_error = fitter->second->error(MuonResiduals6DOFFitter::kResSlopeXSigma);
+	    double sigmadxdz_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kResSlopeXSigma);
+
+	    double sigmadydz_value = fitter->second->value(MuonResiduals6DOFFitter::kResSlopeYSigma);
+	    double sigmadydz_error = fitter->second->error(MuonResiduals6DOFFitter::kResSlopeYSigma);
+	    double sigmadydz_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kResSlopeYSigma);
+
+	    double gammax_value, gammax_error, gammax_antisym, gammay_value, gammay_error, gammay_antisym, gammadxdz_value, gammadxdz_error, gammadxdz_antisym, gammadydz_value, gammadydz_error, gammadydz_antisym;
+	    gammax_value = gammax_error = gammax_antisym = gammay_value = gammay_error = gammay_antisym = gammadxdz_value = gammadxdz_error = gammadxdz_antisym = gammadydz_value = gammadydz_error = gammadydz_antisym = 0.;
+	    if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
+	      gammax_value = fitter->second->value(MuonResiduals6DOFFitter::kResidXGamma);
+	      gammax_error = fitter->second->error(MuonResiduals6DOFFitter::kResidXGamma);
+	      gammax_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kResidXGamma);
+	      
+	      gammay_value = fitter->second->value(MuonResiduals6DOFFitter::kResidYGamma);
+	      gammay_error = fitter->second->error(MuonResiduals6DOFFitter::kResidYGamma);
+	      gammay_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kResidYGamma);
+	      
+	      gammadxdz_value = fitter->second->value(MuonResiduals6DOFFitter::kResSlopeXGamma);
+	      gammadxdz_error = fitter->second->error(MuonResiduals6DOFFitter::kResSlopeXGamma);
+	      gammadxdz_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kResSlopeXGamma);
+	      
+	      gammadydz_value = fitter->second->value(MuonResiduals6DOFFitter::kResSlopeYGamma);
+	      gammadydz_error = fitter->second->error(MuonResiduals6DOFFitter::kResSlopeYGamma);
+	      gammadydz_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kResSlopeYGamma);
 	    }
-	  } // end if CSC
+
+	    if (writeReport) {
+	      report << "reports[-1].fittype = \"6DOF\"" << std::endl;
+	      report << "reports[-1].add_parameters(ValErr(" << deltax_value << ", " << deltax_error << ", " << deltax_antisym << "), \\" << std::endl
+		     << "                           ValErr(" << deltay_value << ", " << deltay_error << ", " << deltay_antisym << "), \\" << std::endl
+		     << "                           ValErr(" << deltaz_value << ", " << deltaz_error << ", " << deltaz_antisym << "), \\" << std::endl
+		     << "                           ValErr(" << deltaphix_value << ", " << deltaphix_error << ", " << deltaphix_antisym << "), \\" << std::endl
+		     << "                           ValErr(" << deltaphiy_value << ", " << deltaphiy_error << ", " << deltaphiy_antisym << "), \\" << std::endl
+		     << "                           ValErr(" << deltaphiz_value << ", " << deltaphiz_error << ", " << deltaphiz_antisym << "), \\" << std::endl
+		     << "                           " << loglikelihood << ", " << sumofweights << ", " << redchi2 << ")" << std::endl;
+	      report << "reports[-1].sigmax = ValErr(" << sigmax_value << ", " << sigmax_error << ", " << sigmax_antisym << ")" << std::endl;
+	      report << "reports[-1].sigmay = ValErr(" << sigmay_value << ", " << sigmay_error << ", " << sigmay_antisym << ")" << std::endl;
+	      report << "reports[-1].sigmadxdz = ValErr(" << sigmadxdz_value << ", " << sigmadxdz_error << ", " << sigmadxdz_antisym << ")" << std::endl;
+	      report << "reports[-1].sigmadydz = ValErr(" << sigmadydz_value << ", " << sigmadydz_error << ", " << sigmadydz_antisym << ")" << std::endl;
+	      if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
+		report << "reports[-1].gammax = ValErr(" << gammax_value << ", " << gammax_error << ", " << gammax_antisym << ")" << std::endl;
+		report << "reports[-1].gammay = ValErr(" << gammay_value << ", " << gammay_error << ", " << gammay_antisym << ")" << std::endl;
+		report << "reports[-1].gammadxdz = ValErr(" << gammadxdz_value << ", " << gammadxdz_error << ", " << gammadxdz_antisym << ")" << std::endl;
+		report << "reports[-1].gammadydz = ValErr(" << gammadydz_value << ", " << gammadydz_error << ", " << gammadydz_antisym << ")" << std::endl;
+	      }
+	    }
+
+	    if (align_x)    params[paramIndex[0]] = deltax_value;
+	    if (align_y)    params[paramIndex[1]] = deltay_value;
+	    if (align_z)    params[paramIndex[2]] = deltaz_value;
+	    if (align_phix) params[paramIndex[3]] = deltaphix_value;
+	    if (align_phiy) params[paramIndex[4]] = deltaphiy_value;
+	    if (align_phiz) params[paramIndex[5]] = deltaphiz_value;
+	  } // end if 6DOF
+
+	  else if (fitter->second->type() == MuonResidualsFitter::k6DOFrphi) {
+	    double deltax_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kAlignX);
+	    double deltax_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kAlignX);
+	    double deltax_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kAlignX);
+
+	    double deltay_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kAlignY);
+	    double deltay_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kAlignY);
+	    double deltay_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kAlignY);
+
+	    double deltaz_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kAlignZ);
+	    double deltaz_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kAlignZ);
+	    double deltaz_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kAlignZ);
+
+	    double deltaphix_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kAlignPhiX);
+	    double deltaphix_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kAlignPhiX);
+	    double deltaphix_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kAlignPhiX);
+
+	    double deltaphiy_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kAlignPhiY);
+	    double deltaphiy_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kAlignPhiY);
+	    double deltaphiy_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kAlignPhiY);
+
+	    double deltaphiz_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kAlignPhiZ);
+	    double deltaphiz_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kAlignPhiZ);
+	    double deltaphiz_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kAlignPhiZ);
+
+	    double sigmaresid_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kResidSigma);
+	    double sigmaresid_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kResidSigma);
+	    double sigmaresid_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kResidSigma);
+
+	    double sigmaresslope_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kResSlopeSigma);
+	    double sigmaresslope_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kResSlopeSigma);
+	    double sigmaresslope_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kResSlopeSigma);
+
+	    double gammaresid_value, gammaresid_error, gammaresid_antisym, gammaresslope_value, gammaresslope_error, gammaresslope_antisym;
+	    gammaresid_value = gammaresid_error = gammaresid_antisym = gammaresslope_value = gammaresslope_error = gammaresslope_antisym = 0.;
+	    if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
+	      gammaresid_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kResidGamma);
+	      gammaresid_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kResidGamma);
+	      gammaresid_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kResidGamma);
+	      
+	      gammaresslope_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kResSlopeGamma);
+	      gammaresslope_error = fitter->second->error(MuonResiduals6DOFrphiFitter::kResSlopeGamma);
+	      gammaresslope_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kResSlopeGamma);
+	    }
+
+	    if (writeReport) {
+	      report << "reports[-1].fittype = \"6DOFrphi\"" << std::endl;
+	      report << "reports[-1].add_parameters(ValErr(" << deltax_value << ", " << deltax_error << ", " << deltax_antisym << "), \\" << std::endl
+		     << "                           ValErr(" << deltay_value << ", " << deltay_error << ", " << deltay_antisym << "), \\" << std::endl
+		     << "                           ValErr(" << deltaz_value << ", " << deltaz_error << ", " << deltaz_antisym << "), \\" << std::endl
+		     << "                           ValErr(" << deltaphix_value << ", " << deltaphix_error << ", " << deltaphix_antisym << "), \\" << std::endl
+		     << "                           ValErr(" << deltaphiy_value << ", " << deltaphiy_error << ", " << deltaphiy_antisym << "), \\" << std::endl
+		     << "                           ValErr(" << deltaphiz_value << ", " << deltaphiz_error << ", " << deltaphiz_antisym << "), \\" << std::endl
+		     << "                           " << loglikelihood << ", " << sumofweights << ", " << redchi2 << ")" << std::endl;
+	      report << "reports[-1].sigmaresid = ValErr(" << sigmaresid_value << ", " << sigmaresid_error << ", " << sigmaresid_antisym << ")" << std::endl;
+	      report << "reports[-1].sigmaresslope = ValErr(" << sigmaresslope_value << ", " << sigmaresslope_error << ", " << sigmaresslope_antisym << ")" << std::endl;
+	      if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
+		report << "reports[-1].gammaresid = ValErr(" << gammaresid_value << ", " << gammaresid_error << ", " << gammaresid_antisym << ")" << std::endl;
+		report << "reports[-1].gammaresslope = ValErr(" << gammaresslope_value << ", " << gammaresslope_error << ", " << gammaresslope_antisym << ")" << std::endl;
+	      }
+	    }
+
+	    if (align_x)    params[paramIndex[0]] = deltax_value;
+	    if (align_y)    params[paramIndex[1]] = deltay_value;
+	    if (align_z)    params[paramIndex[2]] = deltaz_value;
+	    if (align_phix) params[paramIndex[3]] = deltaphix_value;
+	    if (align_phiy) params[paramIndex[4]] = deltaphiy_value;
+	    if (align_phiz) params[paramIndex[5]] = deltaphiz_value;
+	  } // end if 6DOFrphi
+
+	  std::vector<Alignable*> oneortwo;
+	  oneortwo.push_back(*ali);
+	  if (thisali != *ali) oneortwo.push_back(thisali);
+	  m_alignmentParameterStore->setAlignmentPositionError(oneortwo, 0., 0.);
+	} // end if successful fit
+	
+	else {
+	  std::cout << "Fit failed!" << std::endl;
 
 	  if (writeReport) {
-	    report << "reports[-1].rphiFit((" << position_value << ", " << position_error << ", " << position_antisym << "), \\" << std::endl
-		   << "                    (" << zpos_value << ", " << zpos_error << ", " << zpos_antisym << "), \\" << std::endl
-		   << "                    (" << phiz_value << ", " << phiz_error << ", " << phiz_antisym << "), \\" << std::endl
-		   << "                    (" << scattering_value << ", " << scattering_error << ", " << scattering_antisym << "), \\" << std::endl
-		   << "                    (" << sigma_value << ", " << sigma_error << ", " << sigma_antisym << "), \\" << std::endl;
-	    if (rphiFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
-	    report << "                    (" << gamma_value << ", " << gamma_error << ", " << gamma_antisym << "), \\" << std::endl;
-	    }
-	    else {
-	      report << "                    None, \\" << std::endl;
-	    }
-	    report << "                    " << redchi2 << ", " << posNum << ", " << negNum << ")" << std::endl;
-	  } // end if writeReport
-	}
-	else if (writeReport) {
-	  report << "reports[-1].rphiFit_status = \"FAIL\"" << std::endl;
-	}
-      }
-
-      bool phixOkay = false;
-      double phixValue = 0.;
-      if (phixFitter != m_phixFitters.end()) {
-	// the fit is verbose in std::cout anyway
-	std::cout << "=============================================================================================" << std::endl;
-	std::cout << "Fitting " << name.str() << " phix" << std::endl;
-
-	if (phixFitter->second->fit(0.)) {
-	  std::stringstream name2;
-	  name2 << name.str() << "_phixFit";
-	  phixFitter->second->plot(0., name2.str(), &rootDirectory);
-	  double redchi2 = phixFitter->second->redchi2(0., name2.str(), &rootDirectory);
-	  long posNum = phixFitter->second->numResidualsPos();
-	  long negNum = phixFitter->second->numResidualsNeg();
-
-	  double angle_value = phixFitter->second->value(MuonResidualsAngleFitter::kAngle);
-	  double angle_error = phixFitter->second->error(MuonResidualsAngleFitter::kAngle);
-	  double angle_antisym = phixFitter->second->antisym(MuonResidualsAngleFitter::kAngle);
-	  phixOkay = true;
-	  phixValue = angle_value;
-
-	  double sigma_value = phixFitter->second->value(MuonResidualsAngleFitter::kSigma);
-	  double sigma_error = phixFitter->second->error(MuonResidualsAngleFitter::kSigma);
-	  double sigma_antisym = phixFitter->second->antisym(MuonResidualsAngleFitter::kSigma);
-
-	  double gamma_value, gamma_error, gamma_antisym;
-	  gamma_value = gamma_error = gamma_antisym = 0.;
-	  if (phixFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
-	    gamma_value = phixFitter->second->value(MuonResidualsAngleFitter::kGamma);
-	    gamma_error = phixFitter->second->error(MuonResidualsAngleFitter::kGamma);
-	    gamma_antisym = phixFitter->second->antisym(MuonResidualsAngleFitter::kGamma);
+	    report << "reports[-1].status = \"FAIL\"" << std::endl;
 	  }
 
-	  if (id.subdetId() == MuonSubdetId::DT) {
-	    if (align_phix) {
-	      params[paramIndex[3]] = -angle_value;   // confirmed sign
-	    }
-	  } // end if DT
-
-	  if (writeReport) {
-	    report << "reports[-1].phixFit((" << angle_value << ", " << angle_error << ", " << angle_antisym << "), \\" << std::endl
-		   << "                    (" << sigma_value << ", " << sigma_error << ", " << sigma_antisym << "), \\" << std::endl;
-	    if (phixFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
-	    report << "                    (" << gamma_value << ", " << gamma_error << ", " << gamma_antisym << "), \\" << std::endl;
-	    }
-	    else {
-	      report << "                    None, \\" << std::endl;
-	    }
-	    report << "                    " << redchi2 << ", " << posNum << ", " << negNum << ")" << std::endl;
-	  } // end if writeReport
-	}
-	else if (writeReport) {
-	  report << "reports[-1].phixFit_status = \"FAIL\"" << std::endl;
-	}
-      }
-
-      if (zFitter != m_zFitters.end()) {
-	// the fit is verbose in std::cout anyway
-	std::cout << "=============================================================================================" << std::endl;
-	std::cout << "Fitting " << name.str() << " z" << std::endl;
-
-	if (phixOkay  &&  zFitter->second->fit(phixValue)) {
-	  std::stringstream name2;
-	  name2 << name.str() << "_zFit";
-	  zFitter->second->plot(phixValue, name2.str(), &rootDirectory);
-	  double redchi2 = zFitter->second->redchi2(phixValue, name2.str(), &rootDirectory);
-	  long posNum = zFitter->second->numResidualsPos();
-	  long negNum = zFitter->second->numResidualsNeg();
-
-	  double position_value = zFitter->second->value(MuonResidualsPositionFitter::kPosition);
-	  double position_error = zFitter->second->error(MuonResidualsPositionFitter::kPosition);
-	  double position_antisym = zFitter->second->antisym(MuonResidualsPositionFitter::kPosition);
-
-	  double zpos_value = zFitter->second->value(MuonResidualsPositionFitter::kZpos);
-	  double zpos_error = zFitter->second->error(MuonResidualsPositionFitter::kZpos);
-	  double zpos_antisym = zFitter->second->antisym(MuonResidualsPositionFitter::kZpos);
-
-	  double phiz_value = zFitter->second->value(MuonResidualsPositionFitter::kPhiz);
-	  double phiz_error = zFitter->second->error(MuonResidualsPositionFitter::kPhiz);
-	  double phiz_antisym = zFitter->second->antisym(MuonResidualsPositionFitter::kPhiz);
-
-	  double scattering_value = zFitter->second->value(MuonResidualsPositionFitter::kScattering);
-	  double scattering_error = zFitter->second->error(MuonResidualsPositionFitter::kScattering);
-	  double scattering_antisym = zFitter->second->antisym(MuonResidualsPositionFitter::kScattering);
-
-	  double sigma_value = zFitter->second->value(MuonResidualsPositionFitter::kSigma);
-	  double sigma_error = zFitter->second->error(MuonResidualsPositionFitter::kSigma);
-	  double sigma_antisym = zFitter->second->antisym(MuonResidualsPositionFitter::kSigma);
-
-	  double gamma_value, gamma_error, gamma_antisym;
-	  gamma_value = gamma_error = gamma_antisym = 0.;
-	  if (zFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
-	    gamma_value = zFitter->second->value(MuonResidualsPositionFitter::kGamma);
-	    gamma_error = zFitter->second->error(MuonResidualsPositionFitter::kGamma);
-	    gamma_antisym = zFitter->second->antisym(MuonResidualsPositionFitter::kGamma);
+	  for (int i = 0;  i < numParams;  i++) {
+	    cov[i][i] = 1000.;
 	  }
 
-	  if (id.subdetId() == MuonSubdetId::DT) {
-	    if (align_y) {
-	      params[paramIndex[1]] = position_value;
-	      cov[paramIndex[1]][paramIndex[1]] = 0.;   // local y is the global z direction: this is now a good parameter
-	    }
-	  } // end if DT
-	  else { assert(false); } // CSCs don't measure this component: the zFitter should never have been made
-
-	  if (writeReport) {
-	    report << "reports[-1].zFit((" << position_value << ", " << position_error << ", " << position_antisym << "), \\" << std::endl
-		   << "                 (" << zpos_value << ", " << zpos_error << ", " << zpos_antisym << "), \\" << std::endl
-		   << "                 (" << phiz_value << ", " << phiz_error << ", " << phiz_antisym << "), \\" << std::endl
-		   << "                 (" << scattering_value << ", " << scattering_error << ", " << scattering_antisym << "), \\" << std::endl
-		   << "                 (" << sigma_value << ", " << sigma_error << ", " << sigma_antisym << "), \\" << std::endl;
-	    if (zFitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
-	    report << "                 (" << gamma_value << ", " << gamma_error << ", " << gamma_antisym << "), \\" << std::endl;
-	    }
-	    else {
-	      report << "                 None, \\" << std::endl;
-	    }
-	    report << "                 " << redchi2 << ", " << posNum << ", " << negNum << ")" << std::endl;
-	  } // end if writeReport
+	  std::vector<Alignable*> oneortwo;
+	  oneortwo.push_back(*ali);
+	  if (thisali != *ali) oneortwo.push_back(thisali);
+	  m_alignmentParameterStore->setAlignmentPositionError(oneortwo, 1000., 0.);
 	}
-	else if (writeReport) {
-	  report << "reports[-1].zFit_status = \"FAIL\"" << std::endl;
+
+	AlignmentParameters *parnew = (*ali)->alignmentParameters()->cloneFromSelected(params, cov);
+	(*ali)->setAlignmentParameters(parnew);
+	m_alignmentParameterStore->applyParameters(*ali);
+	(*ali)->alignmentParameters()->setValid(true);
+
+	if (thisali != *ali) {
+	  AlignmentParameters *parnew = thisali->alignmentParameters()->cloneFromSelected(params, cov);
+	  thisali->setAlignmentParameters(parnew);
+	  m_alignmentParameterStore->applyParameters(thisali);
+	  thisali->alignmentParameters()->setValid(true);
 	}
-      }
 
-      if (writeReport) {
-	report << "reports[-1].parameters(";
-	if (align_x) report << params[paramIndex[0]] << ", ";
-	else report << "None, ";
-	if (align_y) report << params[paramIndex[1]] << ", ";
-	else report << "None, ";
-	if (align_z) report << params[paramIndex[2]] << ", ";
-	else report << "None, ";
-	if (align_phix) report << params[paramIndex[3]] << ", ";
-	else report << "None, ";
-	if (align_phiy) report << params[paramIndex[4]] << ", ";
-	else report << "None, ";
-	if (align_phiz) report << params[paramIndex[5]] << ")" << std::endl;
-	else report << "None)" << std::endl;
+      } // end we have a fitter for this alignable
 
-	report << "reports[-1].errors(";
-	if (align_x) report << cov[paramIndex[0]][paramIndex[0]] << ", ";
-	else report << "None, ";
-	if (align_y) report << cov[paramIndex[1]][paramIndex[1]] << ", ";
-	else report << "None, ";
-	if (align_z) report << cov[paramIndex[2]][paramIndex[2]] << ")" << std::endl;
-	else report << "None)" << std::endl;
+      if (writeReport) report << std::endl;
 
-	report << std::endl;
-      }
-
-      AlignmentParameters *parnew = (*ali)->alignmentParameters()->cloneFromSelected(params, cov);
-      (*ali)->setAlignmentParameters(parnew);
-      m_alignmentParameterStore->applyParameters(*ali);
-      (*ali)->alignmentParameters()->setValid(true);
     } // end loop over alignables
 
     if (writeReport) report.close();
@@ -1091,15 +964,15 @@ void MuonAlignmentFromReference::terminate() {
   if (m_writeTemporaryFile != std::string("")) {
     FILE *file;
     file = fopen(m_writeTemporaryFile.c_str(), "w");
-    int size = m_indexOrder.size();
+    int size = m_indexes.size();
     fwrite(&size, sizeof(int), 1, file);
 
-    std::vector<unsigned int>::const_iterator index = m_indexOrder.begin();
-    std::vector<MuonResidualsTwoBin*>::const_iterator fitter = m_fitterOrder.begin();
-    for (int i = 0;  i < size;  ++i, ++index, ++fitter) {
+    int i = 0;
+    for (std::vector<unsigned int>::const_iterator index = m_indexes.begin();  index != m_indexes.end();  ++index, ++i) {
+      MuonResidualsTwoBin *fitter = m_fitterOrder[*index];
       unsigned int index_towrite = *index;
       fwrite(&index_towrite, sizeof(unsigned int), 1, file);
-      (*fitter)->write(file, i);
+      fitter->write(file, i);
     }
 
     fclose(file);

@@ -2,7 +2,7 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonCSCChamberResidual_H
 
 /** \class MuonCSCChamberResidual
- *  $Date: Fri Feb 13 20:08:38 CST 2009 $
+ *  $Date: 2009/02/27 18:58:29 $
  *  $Revision: 1.1 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
@@ -14,6 +14,8 @@ public:
   MuonCSCChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, AlignableNavigator *navigator, DetId chamberId, AlignableDetOrUnitPtr chamberAlignable)
     : MuonChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable)
   {};
+
+  int type() const { return MuonChamberResidual::kCSC; };
 
   // for CSC, the residual is chamber local x, projected by the strip measurement direction
   // for CSC, the resslope is dresx/dz, or tan(phi_y)

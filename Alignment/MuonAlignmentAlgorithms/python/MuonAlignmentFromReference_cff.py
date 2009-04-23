@@ -28,7 +28,12 @@ from Alignment.CommonAlignmentProducer.AlignmentProducer_cff import *
 looper.tjTkAssociationMapTag = cms.InputTag("MuonAlignmentFromReferenceGlobalMuonRefit:Refitted")
 looper.doTracker = cms.untracked.bool(False)
 looper.doMuon = cms.untracked.bool(True)
-looper.ParameterBuilder.Selector = cms.PSet(alignParams = cms.vstring("MuonDTChambers,111111", "MuonCSCChambers,110011"))
+looper.ParameterBuilder.Selector = cms.PSet(
+    alignParams = cms.vstring("MuonDTChambers,111111,stations123", "MuonDTChambers,100011,station4", "MuonCSCChambers,100011"),
+    stations123 = cms.PSet(rRanges = cms.vdouble(0., 660.),
+                           xRanges = cms.vdouble(), yRanges = cms.vdouble(), zRanges = cms.vdouble(), etaRanges = cms.vdouble(), phiRanges = cms.vdouble()),
+    station4 = cms.PSet(rRanges = cms.vdouble(660., 800.),
+                        xRanges = cms.vdouble(), yRanges = cms.vdouble(), zRanges = cms.vdouble(), etaRanges = cms.vdouble(), phiRanges = cms.vdouble()))
 
 ### MuonAlignmentFromReference with default options
 from Alignment.MuonAlignmentAlgorithms.MuonAlignmentFromReference_cfi import *
