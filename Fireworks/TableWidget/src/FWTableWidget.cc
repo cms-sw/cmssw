@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.9 2009/04/09 21:16:13 chrjones Exp $
+// $Id: FWTableWidget.cc,v 1.10 2009/04/10 21:55:19 jmuelmen Exp $
 //
 
 // system include files
@@ -331,13 +331,16 @@ void
 FWTableWidget::buttonReleasedInHeader(Int_t row, Int_t column, Event_t* event,Int_t,Int_t)
 {
    Int_t btn = event->fCode;
+   Int_t keyMod = event->fState;
    //Int_t keyMod = event->fState;
-   if(btn != kButton1 && btn != kButton3) {return;}
-   if(m_sortedColumn==column) {
-      sort(column, !m_descendingSort);
-   } else {
-      sort(column,true);
+   if (btn == kButton1 || btn == kButton3) {
+	if(m_sortedColumn==column) {
+	     sort(column, !m_descendingSort);
+	} else {
+	     sort(column,true);
+	}
    }
+   columnClicked(column, btn, keyMod);
 }
 
 void 
@@ -382,6 +385,18 @@ FWTableWidget::rowClicked(Int_t row, Int_t btn, Int_t keyMod)
    args[1]=(Long_t)btn;
    args[2]=(Long_t)keyMod;
    Emit("rowClicked(Int_t,Int_t,Int_t)",args);      
+}
+
+void 
+FWTableWidget::columnClicked(Int_t column, Int_t btn, Int_t keyMod)
+{
+   keyMod = (keyMod&(kKeyShiftMask|kKeyControlMask));
+   //std::cout <<"rowClicked "<<row<<" "<<btn<<" "<<keyMod<<std::endl;
+   Long_t args[3];
+   args[0]=(Long_t)column;
+   args[1]=(Long_t)btn;
+   args[2]=(Long_t)keyMod;
+   Emit("columnClicked(Int_t,Int_t,Int_t)",args);      
 }
 
 void 

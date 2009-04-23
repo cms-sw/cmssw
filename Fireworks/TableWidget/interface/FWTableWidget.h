@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:47 EST 2009
-// $Id: FWTableWidget.h,v 1.5 2009/04/08 19:04:15 chrjones Exp $
+// $Id: FWTableWidget.h,v 1.6 2009/04/09 21:16:12 chrjones Exp $
 //
 
 // system include files
@@ -73,6 +73,7 @@ class FWTableWidget : public TGCompositeFrame
       iKeyMod: the ROOT key modifier value for the click event (e.g. says if a keyboard key was being held)
       */
       void rowClicked(Int_t iRow, Int_t iButton, Int_t iKeyMod); //*SIGNAL*
+      void columnClicked(Int_t iColumn, Int_t iButton, Int_t iKeyMod); //*SIGNAL*
 
       ClassDef(FWTableWidget,0);
    
