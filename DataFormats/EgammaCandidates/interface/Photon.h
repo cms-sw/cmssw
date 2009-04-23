@@ -7,7 +7,7 @@
  * stores isolation, shower shape and additional info
  * needed for identification
  * 
- * \version $Id: Photon.h,v 1.27 2009/03/24 18:00:56 nancy Exp $
+ * \version $Id: Photon.h,v 1.28 2009/03/26 12:41:35 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -150,8 +150,8 @@ namespace reco {
     float e3x3()            const {return showerShapeBlock_.e3x3;}
     float e5x5()            const {return showerShapeBlock_.e5x5;}
     float maxEnergyXtal()   const {return showerShapeBlock_.maxEnergyXtal;}
-    float sigmaEtaEta()     const {return sqrt(showerShapeBlock_.sigmaEtaEta);}
-    float sigmaIetaIeta()   const {return sqrt(showerShapeBlock_.sigmaIetaIeta);}
+    float sigmaEtaEta()     const {return showerShapeBlock_.sigmaEtaEta;}
+    float sigmaIetaIeta()   const {return showerShapeBlock_.sigmaIetaIeta;}
     float r1x5 ()           const {return showerShapeBlock_.e1x5/showerShapeBlock_.e5x5;}
     float r2x5 ()           const {return showerShapeBlock_.e2x5/showerShapeBlock_.e5x5;}
     float r9 ()             const {return showerShapeBlock_.e3x3/this->superCluster()->rawEnergy();}  
