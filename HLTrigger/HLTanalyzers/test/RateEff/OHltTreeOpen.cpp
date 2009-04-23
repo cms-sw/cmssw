@@ -268,14 +268,14 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }  
   }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu11") == 0) {   
-    if (map_L1BitOfStandardHLTPath.find("L1_SingleMu10")->second>0) {  
+    if (map_L1BitOfStandardHLTPath.find("L1_SingleMu10")->second == 1) {  
       if(OpenHlt1MuonPassed(7.,9.,11.,2.,0)>=1) {   
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
       }   
     }   
   }   
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu15") == 0) {    
-    if (map_L1BitOfStandardHLTPath.find("L1_SingleMu10")->second>0) {   
+    if (map_L1BitOfStandardHLTPath.find("L1_SingleMu10")->second == 1) {   
       if(OpenHlt1MuonPassed(10.,12.,15.,2.,0)>=1) {    
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }    
       }    
@@ -294,12 +294,39 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   }        
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1MuOpen") == 0) {         
     if( (map_BitOfStandardHLTPath.find("L1_SingleMuOpen")->second +
-	 map_BitOfStandardHLTPath.find("L1_SingleMu0")->second +
-	 map_BitOfStandardHLTPath.find("L1_SingleMu3")->second +
-	 map_BitOfStandardHLTPath.find("(L1_DoubleMu5")->second) > 0) {               
+	 map_BitOfStandardHLTPath.find("L1_SingleMu0")->second) > 0) {
+      //	 map_BitOfStandardHLTPath.find("L1_SingleMu3")->second +
+      //	 map_BitOfStandardHLTPath.find("(L1_DoubleMu5")->second) > 0) {               
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
     }         
   } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenAlCa_RPCMuonNormalisation") == 0) {          
+    int rc = 0;
+    if( (map_BitOfStandardHLTPath.find("L1_SingleMuOpen")->second + 
+         map_BitOfStandardHLTPath.find("L1_SingleMu0")->second) > 0) { 
+      for(int i=0;i<NL1OpenMu;i++) { 
+	if(L1MuEta[i] > -1.6 && L1MuEta[i] < 1.6) 
+	  rc++;
+      }
+      if(rc > 0)
+	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }         
+    }
+  }          
+  
+  else if (menu->GetTriggerName(it).CompareTo("OpenAlCa_RPCMuonNoHits") == 0) {          
+    int rc = 0;
+    if( (map_BitOfStandardHLTPath.find("L1_SingleMuOpen")->second + 
+         map_BitOfStandardHLTPath.find("L1_SingleMu0")->second) > 0) { 
+      for(int i=0;i<NL1OpenMu;i++) {  
+        if(L1MuEta[i] > -1.6 && L1MuEta[i] < 1.6)  
+	  if(L1MuQal[i] == 6)
+	    rc++; 
+      } 
+      if(rc > 0) 
+	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }         
+    }          
+  }  
+  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9") == 0) {          
     if ( map_BitOfStandardHLTPath.find("L1_SingleMu7")->second == 1) {                
       int rc = 0;

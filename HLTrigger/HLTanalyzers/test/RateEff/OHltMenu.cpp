@@ -145,8 +145,8 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   vtmp.clear(); vtmp.push_back("L1_SingleMu7"); vtmp.push_back("L1_DoubleMu3"); 
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_L1Mu", vtmp));
   
-  vtmp.clear(); vtmp.push_back("L1_SingleMuOpen");
-  vtmp.push_back("L1_SingleMu3"); vtmp.push_back("L1_SingleMu5");
+  vtmp.clear(); vtmp.push_back("L1_SingleMuOpen"); vtmp.push_back("L1_SingleMu0");
+  //  vtmp.push_back("L1_SingleMu3"); vtmp.push_back("L1_SingleMu5");
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_L1MuOpen", vtmp));
   
   map_L1SeedsOfStandardHLTPath.insert(mypair("HLT_L2Mu9", myvec(1,"L1_SingleMu7")));
@@ -552,8 +552,16 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
 
   vtmp.clear();  
   vtmp.push_back("L1_SingleMuOpen"); vtmp.push_back("L1_SingleMu0");
-  vtmp.push_back("L1_SingleMu3"); vtmp.push_back("L1_SingleMu5");  
+  //  vtmp.push_back("L1_SingleMu3"); vtmp.push_back("L1_SingleMu5");  
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_L1MuOpen", vtmp));  
+
+  vtmp.clear();   
+  vtmp.push_back("L1_SingleMuOpen"); vtmp.push_back("L1_SingleMu0"); 
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenAlCa_RPCMuonNormalisation", vtmp));   
+
+  vtmp.clear();    
+  vtmp.push_back("L1_SingleMuOpen"); vtmp.push_back("L1_SingleMu0");  
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenAlCa_RPCMuonNoHits", vtmp));
 
   vtmp.clear();   
   vtmp.push_back("L1_DoubleMu3"); vtmp.push_back("L1_SingleMu7"); 
