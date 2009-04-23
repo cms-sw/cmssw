@@ -288,7 +288,7 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 					// is one pixel in cluster a large pixel ? (hit will be excluded)
 					bool large_pix = false;
 					for (int j = 0; j <  pixinfo_.npix; j++){
-						int colpos = static_cast<int>(pixinfo_.col[j]-0.5);
+						int colpos = static_cast<int>(pixinfo_.col[j]);
 						if (pixinfo_.row[j] == 0 || pixinfo_.row[j] == 79 || pixinfo_.row[j] == 80 || pixinfo_.row[j] == 159 || colpos % 52 == 0 || colpos % 52 == 51 ){
 							large_pix = true;	
 						}

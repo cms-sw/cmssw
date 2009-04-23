@@ -27,12 +27,11 @@ process.CosmicTFRefit = RecoTracker.TrackProducer.TrackRefitterP5_cfi.TrackRefit
 process.CosmicTFRefit.src = 'cosmictrackfinderP5'
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('simul', 
-        'cout'),
-    simul = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR')
-    ),
+    destinations = cms.untracked.vstring('cout'),
+    simul = cms.untracked.PSet(threshold = cms.untracked.string('ERROR')),
 )
+
+
 
 process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(-1)
