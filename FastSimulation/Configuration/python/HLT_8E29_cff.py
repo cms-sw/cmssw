@@ -3663,11 +3663,6 @@ hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
 hltBoolFinalPath = cms.EDFilter( "HLTBool",
     result = cms.bool( False )
 )
-hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
-    UseL1GlobalTriggerRecord = cms.bool( False ),
-    L1GtRecordInputTag = cms.InputTag( "hltGtDigis" ),
-    PrintOutput = cms.untracked.int32( 2 )
-)
 hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
