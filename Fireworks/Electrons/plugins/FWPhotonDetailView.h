@@ -10,7 +10,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWPhotonDetailView.cc,v 1.4 2009/03/29 14:13:38 amraktad Exp $
+// $Id: FWPhotonDetailView.h,v 1.1 2009/03/31 23:27:20 jmuelmen Exp $
 //
 
 // user include files
@@ -28,7 +28,6 @@ public:
      
 protected:
      virtual bool	drawTrack () { return false; }
-     virtual math::XYZPoint trackPositionAtCalo (const reco::Photon &) { return math::XYZPoint(); }
      TEveElement* build_projected (const FWModelId &id, const reco::Photon*);
      virtual class TEveElementList *makeLabels (const reco::Photon &);
      

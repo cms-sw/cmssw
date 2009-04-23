@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.19 2009/03/31 20:46:49 jmuelmen Exp $
+// $Id: FWElectronDetailView.cc,v 1.20 2009/03/31 23:27:20 jmuelmen Exp $
 //
 
 // system include files
@@ -94,11 +94,11 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
    if(0==iElectron) { return 0;}
    m_item = id.item();
 
-//    TGLOverlayButton *tgo = 
-// 	new TGLOverlayButton(viewer(), "Show surrounding rec hits", 
-// 			     10, 10, 200, 16);
-//    tgo->Connect("Clicked(TGLViewerBase*)", "FWElectronDetailView", 
-// 		this, "showInterestingHits(TGLViewerBase*)");
+   TGLOverlayButton *tgo = 
+	new TGLOverlayButton(viewer(), "Show surrounding rec hits", 
+			     10, 10, 200, 16);
+   tgo->Connect("Clicked(TGLViewerBase*)", "FWElectronDetailView", 
+		this, "showInterestingHits(TGLViewerBase*)");
    
    TEveElementList* tList =  new TEveElementList(m_item->name().c_str(),"Supercluster RhoZ",true);
    tList->SetMainColor(m_item->defaultDisplayProperties().color());
@@ -125,6 +125,17 @@ math::XYZPoint FWElectronDetailView::trackPositionAtCalo (const reco::GsfElectro
 { 
      return t.TrackPositionAtCalo(); 
 }
+
+double FWElectronDetailView::deltaEtaSuperClusterTrackAtVtx (const reco::GsfElectron &t)
+{
+     return t.deltaEtaSuperClusterTrackAtVtx();
+}
+
+double FWElectronDetailView::deltaPhiSuperClusterTrackAtVtx (const reco::GsfElectron &t)
+{
+     return t.deltaPhiSuperClusterTrackAtVtx();
+}
+
 
 class TEveElementList *FWElectronDetailView::makeLabels (const reco::GsfElectron &electron)
 {

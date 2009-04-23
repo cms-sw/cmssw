@@ -11,7 +11,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.h,v 1.6 2009/03/31 20:46:49 jmuelmen Exp $
+// $Id: FWElectronDetailView.h,v 1.7 2009/03/31 23:27:20 jmuelmen Exp $
 //
 
 
@@ -32,6 +32,8 @@ public:
 protected:
    virtual bool	drawTrack () { return true; }
    virtual math::XYZPoint trackPositionAtCalo (const reco::GsfElectron &);
+   virtual double deltaEtaSuperClusterTrackAtVtx (const reco::GsfElectron &);
+   virtual double deltaPhiSuperClusterTrackAtVtx (const reco::GsfElectron &);
    TEveElement* build_projected (const FWModelId &id, const reco::GsfElectron*);
    class TEveElementList *makeLabels (const reco::GsfElectron &);
 

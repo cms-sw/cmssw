@@ -10,7 +10,7 @@
 //     views.  The only difference between the two detail views is
 //     whether the track intersections need to be drawn.
 //
-// $Id: FWElectronDetailView.h,v 1.6 2009/03/31 20:46:49 jmuelmen Exp $
+// $Id: FWECALDetailView.h,v 1.1 2009/03/31 23:27:20 jmuelmen Exp $
 //
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -35,7 +35,9 @@ protected:
 	  m_item = iItem;
      }
      virtual bool	drawTrack () = 0;
-     virtual math::XYZPoint trackPositionAtCalo (const T &) = 0;
+     virtual math::XYZPoint trackPositionAtCalo (const T &);
+     virtual double deltaEtaSuperClusterTrackAtVtx (const T &);
+     virtual double deltaPhiSuperClusterTrackAtVtx (const T &);
      void build_projected (const FWModelId &id, const T *, 
 			   TEveElementList *);
      virtual class TEveElementList *makeLabels (const T &) = 0;
