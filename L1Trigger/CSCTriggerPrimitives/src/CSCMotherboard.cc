@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2009/04/02 14:59:12 $
-//   $Revision: 1.22 $
+//   $Date: 2009/04/10 14:44:06 $
+//   $Revision: 1.23 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -46,6 +46,7 @@ const unsigned int CSCMotherboard::def_mpc_block_me1a    = 1;
 const unsigned int CSCMotherboard::def_alct_trig_enable  = 0;
 const unsigned int CSCMotherboard::def_clct_trig_enable  = 0;
 const unsigned int CSCMotherboard::def_match_trig_enable = 1;
+const unsigned int CSCMotherboard::def_match_trig_window_size = 7;
 
 CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
 			       unsigned sector, unsigned subsector,
@@ -97,6 +98,8 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   alct_trig_enable  = tmbParams.getParameter<unsigned int>("alctTrigEnable");
   clct_trig_enable  = tmbParams.getParameter<unsigned int>("clctTrigEnable");
   match_trig_enable = tmbParams.getParameter<unsigned int>("matchTrigEnable");
+  match_trig_window_size =
+    tmbParams.getParameter<unsigned int>("matchTrigWindowSize");
 
   infoV          = tmbParams.getUntrackedParameter<int>("verbosity", 0);
 
@@ -127,6 +130,7 @@ CSCMotherboard::CSCMotherboard() :
   alct_trig_enable  = def_alct_trig_enable;
   clct_trig_enable  = def_clct_trig_enable;
   match_trig_enable = def_match_trig_enable;
+  match_trig_window_size = def_match_trig_window_size;
 
   infoV = 2;
 
@@ -165,6 +169,7 @@ void CSCMotherboard::checkConfigParameters() {
   static const unsigned int max_alct_trig_enable  = 1 << 1;
   static const unsigned int max_clct_trig_enable  = 1 << 1;
   static const unsigned int max_match_trig_enable = 1 << 1;
+  static const unsigned int max_match_trig_window_size = 1 << 4;
 
   // Checks.
   if (mpc_block_me1a >= max_mpc_block_me1a) {
@@ -198,6 +203,14 @@ void CSCMotherboard::checkConfigParameters() {
       << "+++ Try to proceed with the default value, match_trig_enable="
       << def_match_trig_enable << " +++\n";
     match_trig_enable = def_match_trig_enable;
+  }
+  if (match_trig_window_size >= max_match_trig_window_size) {
+    if (infoV > 0) edm::LogError("CSCMotherboard")
+      << "+++ Value of match_trig_window_size, " << match_trig_window_size
+      << ", exceeds max allowed, " << max_match_trig_window_size-1 << " +++\n"
+      << "+++ Try to proceed with the default value, match_trig_window_size="
+      << def_match_trig_window_size << " +++\n";
+    match_trig_window_size = def_match_trig_window_size;
   }
 }
 
@@ -628,6 +641,8 @@ void CSCMotherboard::dumpConfigParams() const {
        << clct_trig_enable << "\n";
   strm << " match_trig_enable [allow matched ALCT-CLCT triggers] = "
        << match_trig_enable << "\n";
+  strm << " match_trig_window_size [ALCT-CLCT match window width] = "
+       << match_trig_window_size << "\n";
   strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   LogDebug("CSCMotherboard") << strm.str();
 }
