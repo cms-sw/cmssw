@@ -2,6 +2,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/GaussianTail.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h" 	 
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
@@ -20,6 +21,9 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
+#include "CLHEP/GenericFunctions/Erf.hh"
+//#include <algorithm>
+
 EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p,
 					       const RandomEngine* myrandom)
   : random_(myrandom)
@@ -34,16 +38,23 @@ EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p,
   SREtaSize_ = RecHitsParameters.getUntrackedParameter<int> ("SREtaSize",1);
   SRPhiSize_ = RecHitsParameters.getUntrackedParameter<int> ("SRPhiSize",1);
 
-  
-  theCalorimeterHits_.resize(62000,0.);
+  theCalorimeterHits_.resize(EBDetId::kSizeForDenseIndexing,0.);
   crystalsinTT_.resize(2448);
   TTTEnergy_.resize(2448,0.);
   TTHighInterest_.resize(2448,0);
   treatedTTs_.resize(2448,false);
   theTTDetIds_.resize(2448);
   neighboringTTs_.resize(2448);
-  sinTheta_.resize(86,0.);
-  
+  sinTheta_.resize(86,0.); 
+
+  Genfun::Erf myErf; 
+  if(  noise_>0. ) {
+    EBHotFraction_ = 0.5-0.5*myErf(threshold_/noise_/sqrt(2.));
+    myGaussianTailGenerator_ = new GaussianTail(random_, noise_, threshold_);
+  } else {
+    EBHotFraction_ =0.;
+  }
+
   noisified_ = (noise_==0.);
   edm::ParameterSet CalibParameters = RecHitsParameters.getParameter<edm::ParameterSet>("ContFact"); 
   double c1=CalibParameters.getParameter<double>("EBs25notContainment"); 
@@ -213,7 +224,7 @@ void EcalBarrelRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
        TTTEnergy_[TThashedindex]+=energy*sinTheta_[myDetId.ietaAbs()];
        //       std::cout << " TT " << TThashedindex  << " updated, now contains " << TTTEnergy_[TThashedindex] << std::endl;
     }
-  noisifyTriggerTowers();
+  noisifyTriggerTowers();  
   noisified_ = true;
 }
 
@@ -250,7 +261,14 @@ void EcalBarrelRecHitsMaker::noisifyTriggerTowers()
     }
 //  std::cout << " List of TT after" << std::endl;
 //  for(unsigned itt=0;itt<theFiredTTs_.size();++itt)
-//    std::cout << " TT " << theFiredTTs_[itt] << " " << TTTEnergy_[theFiredTTs_[itt]] << std::endl;
+//    {
+//      std::cout << " TT " << theFiredTTs_[itt] << " " << TTTEnergy_[theFiredTTs_[itt]] << std::endl;
+//      const std::vector<int> & xtals=crystalsinTT_[theFiredTTs_[itt]];
+//      for(unsigned ic=0;ic<xtals.size();++ic)
+//	std::cout << EBDetId::unhashIndex(xtals[ic]) << " " << theCalorimeterHits_[xtals[ic]] << std::endl;
+//    }
+
+  randomNoisifier();
 }
 
 bool EcalBarrelRecHitsMaker::noisifyTriggerTower(unsigned tthi)
@@ -289,13 +307,62 @@ bool EcalBarrelRecHitsMaker::noisifyTriggerTower(unsigned tthi)
   return true;
 }
 
+
+// injects high noise fluctuations cells. It is assumed that these cells cannot 
+// make of the tower a high interest one
+void EcalBarrelRecHitsMaker::randomNoisifier()
+{
+  // first of cells where some noise will be injected
+  double mean = (double)(EBDetId::kSizeForDenseIndexing-theFiredCells_.size())*EBHotFraction_;
+  unsigned ncells= random_->poissonShoot(mean);
+
+  // for debugging
+  std::vector<int> listofNewTowers;
+
+  unsigned icell=0;
+  while(icell < ncells)
+    {
+      unsigned cellindex= (unsigned)(floor(random_->flatShoot()*EBDetId::kSizeForDenseIndexing));
+      if(theCalorimeterHits_[cellindex]==0.)
+	{
+	  double energy=myGaussianTailGenerator_->shoot();
+	  theCalorimeterHits_[cellindex]=energy;
+	  theFiredCells_.push_back(cellindex);
+	  EBDetId myDetId(EBDetId::unhashIndex(cellindex));
+	  // now get the TT 	  
+	  int TThashedindex=(eTTmap_->towerOf(myDetId)).hashedIndex();
+	  //	  std::cout << " myDetIds " << myDetId << " "TTHI " << TThashedindex<< std::endl;
+	  if(TTTEnergy_[TThashedindex]==0.)
+	    {
+	      theFiredTTs_.push_back(TThashedindex);
+	      TTTEnergy_[TThashedindex]+=energy*sinTheta_[myDetId.ietaAbs()];	      
+	      listofNewTowers.push_back(TThashedindex);
+	    }
+//	  else
+//	    {
+//	      std::vector<int>::const_iterator itcheck=std::find(listofNewTowers.begin(),listofNewTowers.end(),
+//							       TThashedindex);
+//	      if(itcheck==listofNewTowers.end())
+//		{
+//		  std::cout << " EcalBarrelRecHitsMaker : this tower has already been treated " << TTTEnergy_[TThashedindex] << std::endl;
+//		  const std::vector<int> & xtals=crystalsinTT_[TThashedindex];
+//		  for(unsigned ic=0;ic<xtals.size();++ic)
+//		    std::cout << EBDetId::unhashIndex(xtals[ic]) << " " << theCalorimeterHits_[xtals[ic]] << std::endl;
+//		}
+//	    }
+	  ++icell;
+	}
+    }
+  //  std::cout << " Injected random noise in " << ncells << " cells " << std::endl;
+}
+
 void EcalBarrelRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscalib)
 {
   //  std::cout << " Initializing EcalBarrelRecHitsMaker " << std::endl;
   doDigis_=doDigis;
   doMisCalib_=doMiscalib;
-  barrelRawId_.resize(62000);
-  if (doMisCalib_) theCalibConstants_.resize(62000);
+  barrelRawId_.resize(EBDetId::kSizeForDenseIndexing);
+  if (doMisCalib_) theCalibConstants_.resize(EBDetId::kSizeForDenseIndexing);
   edm::ESHandle<CaloGeometry> pG;
   es.get<CaloGeometryRecord>().get(pG);   
 

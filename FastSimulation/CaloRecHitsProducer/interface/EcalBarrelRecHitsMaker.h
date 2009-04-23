@@ -9,6 +9,7 @@
 
 class RandomEngine;
 class EcalTrigTowerConstituentsMap;
+class GaussianTail;
 
 namespace edm { 
   class ParameterSet;
@@ -31,6 +32,7 @@ class EcalBarrelRecHitsMaker
   void geVtoGainAdc(float e,unsigned& gain,unsigned &adc) const;
   void noisifyTriggerTowers();
   bool noisifyTriggerTower(unsigned tthi);
+  void randomNoisifier();
   bool isHighInterest(int tthi);
 
 
@@ -43,7 +45,10 @@ class EcalBarrelRecHitsMaker
   double threshold_;
   double noise_;
   double calibfactor_;
+  double EBHotFraction_ ;
   const RandomEngine* random_;
+  const GaussianTail* myGaussianTailGenerator_;
+
   bool noisified_;
   edm::InputTag inputCol_;
   // array (size = 62000) of the energy in the barrel
