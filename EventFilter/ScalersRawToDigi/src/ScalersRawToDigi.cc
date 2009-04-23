@@ -42,6 +42,7 @@ class ScalersRawToDigi : public edm::EDProducer
 // Constructor
 ScalersRawToDigi::ScalersRawToDigi(const edm::ParameterSet& iConfig)
 {
+  produces<L1AcceptBunchCrossingCollection>();
   produces<L1TriggerScalersCollection>();
   produces<LumiScalersCollection>();
 }
@@ -80,16 +81,19 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
     pLumi->push_back(lumiScalers);
     iEvent.put(pLumi); 
 
+    int nWords = length / 8;
     int nBytesExtra = length - sizeof(struct ScalersEventRecordRaw_v1);
-    if ( ( nBytesExtra >= 8 ) && (( nBytesExtra % 8 ) == 0 ) )
+    if (( nBytesExtra >= 8 ) && (( nBytesExtra % 8 ) == 0 ))
     {
       unsigned long long * data = 
 	(unsigned long long *)fedData.data();
-      int nWords = nBytesExtra / 8;
-      for ( int i=0; i<nWords; i++)
+
+      int nWordsExtra = nBytesExtra / 8;
+      for ( int i=0; i<nWordsExtra; i++)
       {
 	int index = nWords - 5 + i;
 	L1AcceptBunchCrossing bc(i,data[index]);
+	std::cout << bc;
 	pBunch->push_back(bc);
       }
       iEvent.put(pBunch); 
