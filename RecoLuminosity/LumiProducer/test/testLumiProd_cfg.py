@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("standalonetest")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
-process.load("RecoLuminosity.LumiProducer.nonStandardlumiProducer_cff")
+process.load("RecoLuminosity.LumiProducer.nonGlobalTagLumiProducerPrep_cff")
 
 import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
@@ -23,9 +23,7 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
-process.LumiESSource.connect=cms.string('sqlite_fip:CondCore/SQLiteData/data/offlinelumi.db')
 process.LumiESSource.DBParameters.authenticationPath=cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-process.LumiESSource.BlobStreamerName=cms.untracked.string('TBufferBlobStreamingService')   
 process.LumiESSource.toGet=cms.VPSet(cms.PSet(
     record = cms.string('LuminosityInfoRcd'),
     tag = cms.string('lumitest')
