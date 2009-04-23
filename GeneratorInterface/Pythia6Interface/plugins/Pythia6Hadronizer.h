@@ -61,6 +61,8 @@ class JetMatching;
   private:
      // methods
      //
+     void flushTmpStorage();
+     void fillTmpStorage();
      
      void imposeProperTime();
      
@@ -99,8 +101,8 @@ class JetMatching;
      bool fConvertToPDG;
      
      // tmp stuff, to deal with EvtGen corrupting pyjets
-     int NPartsBeforeDecays;
-               
+     // int NPartsBeforeDecays;
+                
   };
 }
 

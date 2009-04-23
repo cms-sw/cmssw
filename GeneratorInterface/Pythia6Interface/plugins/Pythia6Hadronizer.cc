@@ -54,7 +54,6 @@ extern "C" {
 
 } // extern "C"
 
-
 class Pythia6ServiceWithCallback : public Pythia6Service {
   public:
      Pythia6ServiceWithCallback( const edm::ParameterSet& ps ) : Pythia6Service(ps) {}
@@ -82,6 +81,11 @@ class Pythia6ServiceWithCallback : public Pythia6Service {
       return Pythia6Hadronizer::getJetMatching()->match(0, 0, true);
     }
 };
+
+struct {
+	int n, npad, k[5][pyjets_maxn];
+	double p[5][pyjets_maxn], v[5][pyjets_maxn];
+} pyjets_local;
 
 JetMatching* Pythia6Hadronizer::fJetMatching = 0;
 
@@ -143,7 +147,8 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
    }
 
    // tmp stuff to deal with EvtGen corrupting pyjets
-   NPartsBeforeDecays = 0;
+   // NPartsBeforeDecays = 0;
+   flushTmpStorage();
    
 }
 
@@ -151,6 +156,43 @@ Pythia6Hadronizer::~Pythia6Hadronizer()
 {
    if ( fPy6Service != 0 ) delete fPy6Service;
    if ( fJetMatching != 0 ) delete fJetMatching;
+}
+
+void Pythia6Hadronizer::flushTmpStorage()
+{
+
+   pyjets_local.n = 0 ;
+   pyjets_local.npad = 0 ;
+   for ( int ip=0; ip<pyjets_maxn; ip++ )
+   {
+      for ( int i=0; i<5; i++ )
+      {
+         pyjets_local.k[i][ip] = 0;
+	 pyjets_local.p[i][ip] = 0.;
+	 pyjets_local.v[i][ip] = 0.;
+      }
+   }
+   return;
+
+}
+
+void Pythia6Hadronizer::fillTmpStorage()
+{
+
+   pyjets_local.n = pyjets.n;
+   pyjets_local.npad = pyjets.npad;
+   for ( int ip=0; ip<pyjets_maxn; ip++ )
+   {
+      for ( int i=0; i<5; i++ )
+      {
+         pyjets_local.k[i][ip] = pyjets.k[i][ip];
+	 pyjets_local.p[i][ip] = pyjets.p[i][ip];
+	 pyjets_local.v[i][ip] = pyjets.v[i][ip];
+      }
+   }
+   
+   return ;
+
 }
 
 void Pythia6Hadronizer::finalizeEvent()
@@ -266,7 +308,9 @@ bool Pythia6Hadronizer::generatePartonsAndHadronize()
    event().reset( conv.read_next_event() );
    
    // tmp stuff to deal with EvtGen confusing pyjets
-   NPartsBeforeDecays = event()->particles_size();
+   //NPartsBeforeDecays = event()->particles_size();
+   flushTmpStorage();
+   fillTmpStorage();
    
    return true;
 }
@@ -335,7 +379,9 @@ bool Pythia6Hadronizer::hadronize()
    event().reset( conv.read_next_event() );
 
    // tmp stuff to deal with EvtGen confusing pyjets
-   NPartsBeforeDecays = event()->particles_size();
+   // NPartsBeforeDecays = event()->particles_size();
+   flushTmpStorage();
+   fillTmpStorage();
    
    return true;
 }
@@ -347,7 +393,25 @@ bool Pythia6Hadronizer::decay()
 
 bool Pythia6Hadronizer::residualDecay()
 {
+   
    Pythia6Service::InstanceWrapper guard(fPy6Service);	// grab Py6 instance
+   
+   if ( pyjets_local.n != pyjets.n )
+   {
+      // restore pyjets to its state as it was before external decays 
+      // - it might have been jammed by py1ent calls in EvtGen
+      pyjets.n = pyjets_local.n;
+      pyjets.npad = pyjets_local.npad;
+      for ( int ip=0; ip<pyjets_local.n; ip++ )
+      {
+         for ( int i=0; i<5; i++ )
+	 {
+	    pyjets.k[i][ip] = pyjets_local.k[i][ip];
+	    pyjets.p[i][ip] = pyjets_local.p[i][ip];
+	    pyjets.v[i][ip] = pyjets_local.p[i][ip];
+	 }
+      }
+   }
    
    // int nDocLines = pypars.msti[3];
    
@@ -356,7 +420,7 @@ bool Pythia6Hadronizer::residualDecay()
    
    // this is currently done (tmp) via setting it as data member,
    // at the end of py6 evfent generation
-   //int NPartsBeforeDecays = pyjets.n ;
+   int NPartsBeforeDecays = pyjets.n ;
    int NPartsAfterDecays = event()->particles_size();
    
    std::vector<int> part_idx_to_decay;
