@@ -49,7 +49,7 @@ public:
 				    const edm::Handle<edm::View<reco::CaloCluster> >&  bcHandle );
 
   std::vector<reco::CaloClusterPtr> matchingBC() const {return matchingBC_;}
-
+  void setMagneticField ( const MagneticField* mf ) { theMF_=mf;}
  
 
  

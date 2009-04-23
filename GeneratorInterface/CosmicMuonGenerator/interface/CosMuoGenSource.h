@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+//#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 
@@ -40,11 +40,16 @@ namespace edm
     double       ELSF; // scale factor for energy loss
     double       RTarget; // Radius of target-cylinder which cosmics HAVE to hit [mm], default is CMS-dimensions
     double       ZTarget; // z-length of target-cylinder which cosmics HAVE to hit [mm], default is CMS-dimensions
+    double       ZCTarget; // z-position of centre of target-cylinder which cosmics HAVE to hit [mm], default is Nominal Interaction Point
     bool         TrackerOnly; //if set to "true" detector with tracker-only setup is used, so no material or B-field outside is considerd
     bool         TIFOnly_constant; //if set to "true" cosmics can also be generated below 2GeV with unphysical constant energy dependence
     bool         TIFOnly_linear; //if set to "true" cosmics can also be generated below 2GeV with unphysical linear energy dependence
     bool         MTCCHalf; //if set to "true" muons are sure to hit half of CMS important for MTCC, 
                            //still material and B-field of whole CMS is considered
+
+    //Plug position (default = on shaft)
+    double PlugVtx;
+    double PlugVtz;
 
     CosmicMuonGenerator* CosMuoGen;
     // the event format itself

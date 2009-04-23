@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Tue May 22 23:54:16 CEST 2007
-// $Id: V0Analyzer.cc,v 1.10 2008/05/10 13:49:50 fambrogl Exp $
+// $Id: V0Analyzer.cc,v 1.9 2008/04/30 20:55:41 drell Exp $
 //
 //
 
@@ -522,10 +522,6 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
   theSimTracks.insert( theSimTracks.end(), SimTk->begin(), SimTk->end() );
   theKshorts.insert( theKshorts.end(), theCandHand->begin(),
 		     theCandHand->end() );
-  std::cout << theRecoTracks.size() << " "
-	    << theSimVerts.size() << " "
-	    << theSimTracks.size() << " "
-	    << theKshorts.size() << std::endl;
 
   // Done getting and filling
 
@@ -741,9 +737,7 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
     //hitsOut << "theVtxTrax.size = " << theVtxTrax.size() << std::endl;
     if( theVtxTrax.size() == 2 ) {
       if( theVtxTrax[0]->recHitsSize() && theVtxTrax[1]->recHitsSize() ) {
-	double nHits1 = (double) theVtxTrax[0]->numberOfValidHits();
-	double nHits2 = (double) theVtxTrax[1]->numberOfValidHits();
-	/*trackingRecHit_iterator tk1HitIt = theVtxTrax[0]->recHitsBegin();
+	trackingRecHit_iterator tk1HitIt = theVtxTrax[0]->recHitsBegin();
 	trackingRecHit_iterator tk2HitIt = theVtxTrax[1]->recHitsBegin();
 
 	double nHits1 = 0.;
@@ -785,7 +779,7 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
 	      //std::cout << "Flagged on track 2." << std::endl;
 	    }
 	  }
-	  }*/
+	}
 	numHitsHisto->Fill(nHits1, 1.);
 	numHitsHisto->Fill(nHits2, 1.);
 	if(nHits1 < 8. || nHits2 < 8.) {

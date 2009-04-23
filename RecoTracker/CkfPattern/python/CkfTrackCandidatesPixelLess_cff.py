@@ -11,5 +11,5 @@ from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
 # generate CTF track candidates ############
 ckfTrackCandidatesPixelLess = copy.deepcopy(ckfTrackCandidates)
 ckfTrackCandidatesPixelLess.TrajectoryBuilder = 'CkfTrajectoryBuilder'
-ckfTrackCandidatesPixelLess.src = cms.InputTag('globalPixelLessSeeds')
+ckfTrackCandidatesPixelLess.SeedProducer = 'globalPixelLessSeeds'
 

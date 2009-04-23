@@ -64,7 +64,8 @@ void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std
     counter++;
   }
 
-  unsigned int n = 0; uint32_t temp; 
+  unsigned int n = 0; 
+  uint32_t temp = 0; 
   std::vector<float> veff, vvnoise;
   veff.clear();
   vvnoise.clear();
@@ -75,16 +76,17 @@ void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std
       if(n > 0 ){
 	_mapDetIdNoise[temp]= vvnoise;
 	_mapDetIdEff[temp] = veff;
-	_bxmap[RPCDetId(temp)] = it->time;
+	_bxmap[RPCDetId(it->dpid)] = it->time;
+	veff.clear();
+	vvnoise.clear();
+	vvnoise.push_back((it->noise));
+	veff.push_back((it->eff));
       }
-
-      veff.clear();
-      vvnoise.clear();
-
-
-      vvnoise.push_back((it->noise));
-      veff.push_back((it->eff));
-
+      else if(n == 0 ){
+	vvnoise.push_back((it->noise));
+	veff.push_back((it->eff));
+	_bxmap[RPCDetId(it->dpid)] = it->time;
+      }
     } else if (n == vnoise.size()-1 ){
       temp = it->dpid;
       vvnoise.push_back((it->noise));

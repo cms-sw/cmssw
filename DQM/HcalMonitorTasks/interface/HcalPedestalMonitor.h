@@ -10,8 +10,8 @@
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2008/10/20 12:24:03 $
-  * $Revision: 1.18 $
+  * $Date: 2009/01/21 15:01:37 $
+  * $Revision: 1.20 $
   * \author W. Fisher - FNAL
   */
 
@@ -32,9 +32,9 @@ public:
   void reset();
   void fillDBValues(const HcalDbService& cond);
   void fillPedestalHistos(void); // fills histograms once every (checkNevents_) events
+  void clearME(); // overrides base class function
 
 private:
-  void clearME(); // overrides base class function
 
   // Configurable parameters
   //bool doPerChannel_; // enable histograms for each channel (not yet (or ever?) operational)
@@ -107,15 +107,15 @@ private:
 
 
   //Quick pedestal arrays -- these store the values that are used to compute pedestals
-  unsigned int pedcounts[ETABINS][PHIBINS][4];
-  float rawpedsum[ETABINS][PHIBINS][4];
-  float rawpedsum2[ETABINS][PHIBINS][4];
-  float subpedsum[ETABINS][PHIBINS][4];
-  float subpedsum2[ETABINS][PHIBINS][4];
-  float fC_rawpedsum[ETABINS][PHIBINS][4];
-  float fC_rawpedsum2[ETABINS][PHIBINS][4];
-  float fC_subpedsum[ETABINS][PHIBINS][4];
-  float fC_subpedsum2[ETABINS][PHIBINS][4];
+  unsigned int pedcounts[ETABINS][PHIBINS][6];
+  float rawpedsum[ETABINS][PHIBINS][6];
+  float rawpedsum2[ETABINS][PHIBINS][6];
+  float subpedsum[ETABINS][PHIBINS][6];
+  float subpedsum2[ETABINS][PHIBINS][6];
+  float fC_rawpedsum[ETABINS][PHIBINS][6];
+  float fC_rawpedsum2[ETABINS][PHIBINS][6];
+  float fC_subpedsum[ETABINS][PHIBINS][6];
+  float fC_subpedsum2[ETABINS][PHIBINS][6];
 
 
 

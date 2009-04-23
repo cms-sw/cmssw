@@ -12,7 +12,7 @@ TtSemiLepSignalSelMVAComputer::TtSemiLepSignalSelMVAComputer(const edm::Paramete
   leptons_ (cfg.getParameter<edm::InputTag>("leptons")),
   jets_    (cfg.getParameter<edm::InputTag>("jets")),
   METs_    (cfg.getParameter<edm::InputTag>("METs")),
-  nJetsMax_(cfg.getParameter<int>("nJetsMax"))
+  maxNJets_(cfg.getParameter<int>("maxNJets"))
 {
   produces< double >("DiscSel");
 }
@@ -62,7 +62,7 @@ TtSemiLepSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& s
 
   math::XYZTLorentzVector lepton = leptons->begin()->p4();
 
-  TtSemiLepSignalSel selection(jets,lepton,MET,nJetsMax_);
+  TtSemiLepSignalSel selection(jets,lepton,MET,maxNJets_);
 
   double discrim = evaluateTtSemiLepSignalSel(mvaComputer, selection);
 

@@ -25,9 +25,7 @@ allLayer1METs = cms.EDProducer("PATMETProducer",
     ),
 
     # Resolution configurables
-    addResolutions   = cms.bool(True),
-    metResoFile      = cms.string('PhysicsTools/PatUtils/data/Resolutions_met.root'),
-    useNNResolutions = cms.bool(False), ## use the neural network approach?
+    addResolutions   = cms.bool(False),
 
     # Muon correction configurables
     addMuonCorrections = cms.bool(True),

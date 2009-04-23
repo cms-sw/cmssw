@@ -229,7 +229,7 @@ void HistoJet::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iJet,
 {
 
   // Get the underlying object that the shallow clone represents
-  const pat::Jet * jet = dynamic_cast<const pat::Jet*>(&*(pshallow->masterClonePtr()));
+  const pat::Jet * jet = dynamic_cast<const pat::Jet*>(pshallow);
 
   if ( jet == 0 ) {
     cout << "Error! Was passed a shallow clone that is not at heart a jet" << endl;

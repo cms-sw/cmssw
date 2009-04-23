@@ -18,10 +18,13 @@ edm::CosMuoGenSource::CosMuoGenSource( const ParameterSet & pset, InputSourceDes
   ELSF(pset.getParameter<double>("ElossScaleFactor")),
   RTarget(pset.getParameter<double>("RadiusOfTarget")),
   ZTarget(pset.getParameter<double>("ZDistOfTarget")),
+  ZCTarget(pset.getParameter<double>("ZCentrOfTarget")),
   TrackerOnly(pset.getParameter<bool>("TrackerOnly")),
   TIFOnly_constant(pset.getParameter<bool>("TIFOnly_constant")),
   TIFOnly_linear(pset.getParameter<bool>("TIFOnly_linear")),
   MTCCHalf(pset.getParameter<bool>("MTCCHalf")),
+  PlugVtx(pset.getParameter<double>("PlugVx")),
+  PlugVtz(pset.getParameter<double>("PlugVz")),
   cmVerbosity_(pset.getParameter<bool>("Verbosity"))
   {
 
@@ -47,10 +50,13 @@ edm::CosMuoGenSource::CosMuoGenSource( const ParameterSet & pset, InputSourceDes
     CosMuoGen->setElossScaleFactor(ELSF);
     CosMuoGen->setRadiusOfTarget(RTarget);
     CosMuoGen->setZDistOfTarget(ZTarget);
+    CosMuoGen->setZCentrOfTarget(ZCTarget);
     CosMuoGen->setTrackerOnly(TrackerOnly);
     CosMuoGen->setTIFOnly_constant(TIFOnly_constant);
     CosMuoGen->setTIFOnly_linear(TIFOnly_linear);
     CosMuoGen->setMTCCHalf(MTCCHalf);
+    CosMuoGen->setPlugVx(PlugVtx);
+    CosMuoGen->setPlugVz(PlugVtz);    
     CosMuoGen->initialize();
     produces<HepMCProduct>();
     //  fEvt = new HepMC::GenEvent();

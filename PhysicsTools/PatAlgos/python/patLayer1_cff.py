@@ -8,9 +8,10 @@ from PhysicsTools.PatAlgos.producersLayer1.tauProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.photonProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cff import *
+from PhysicsTools.PatAlgos.producersLayer1.mhtProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.hemisphereProducer_cff import *
 #FIXME: Why do we need this here?
 from PhysicsTools.PatAlgos.selectionLayer1.leptonCountFilter_cfi import *
-allObjects = cms.Sequence(layer1Muons*layer1Electrons*layer1Taus*countLayer1Leptons*layer1Photons*layer1Jets*layer1METs*layer1Hemispheres)
+allObjects = cms.Sequence(layer1Muons*layer1Electrons*layer1Taus*countLayer1Leptons*layer1Photons*layer1Jets*layer1METs*layer1MHTs*layer1Hemispheres)
 patLayer1 = cms.Sequence(allObjects)
 

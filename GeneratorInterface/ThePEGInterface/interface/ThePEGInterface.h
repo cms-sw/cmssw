@@ -2,7 +2,7 @@
 #define GeneratorInterface_ThePEGInterface_ThePEGInterface_h
 
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.h,v 1.5 2008/07/10 15:54:19 saout Exp $
+ *  $Id: ThePEGInterface.h,v 1.2 2008/06/27 16:34:00 stober Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -47,14 +47,11 @@ class ThePEGInterface {
 	std::auto_ptr<HepMC::IO_BaseClass>	iobc_;
 
     private:
-	void readParameterSet(const edm::ParameterSet &base,
-	                      const std::string &paramSet) const;
-
 	const std::string			dataLocation_;
 	const std::string			generator_;
 	const std::string			run_;
-	const std::string			dumpConfig_;
-	const unsigned int			skipEvents_;
+	const int				skipEvents_;
+	void readParameterSet(const edm::ParameterSet &base, const std::string &paramSet) const;
 };
 
 #endif // GeneratorInterface_ThePEGInterface_ThePEGInterface_h

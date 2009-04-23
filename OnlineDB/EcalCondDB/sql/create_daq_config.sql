@@ -335,8 +335,6 @@ CREATE TABLE ECAL_LASER_CONFIGURATION (
         , raw_Data_Mode NUMBER
         , ACQUISITION_MODE VARCHAR2(64)
         , LOCAL_OUTPUT_FILE VARCHAR2(100)
-	, MATACQ_VERNIER_MIN NUMBER
-	, MATACQ_VERNIER_MAX NUMBER
 -- *********** emtc
         , emtc_none NUMBER
         , wte2_laser_delay NUMBER

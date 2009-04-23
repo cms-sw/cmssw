@@ -4,7 +4,6 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Riostream.h"
 
 class AlignableNavigator;
 class TFile;
@@ -47,7 +46,7 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   void fillRoot(void);
   bool calcParameters(Alignable* ali);
   void collector(void);
-  int  fillEventwiseTree(char *filename,int iter,int ierr);
+
   // private data members
 
   AlignmentParameterStore* theAlignmentParameterStore;
@@ -64,10 +63,7 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   bool verbose;
   // names of IO root files
   std::string outfile,outfile2,outpath,suvarfile,sparameterfile;
-  std::string struefile,smisalignedfile,salignedfile,siterationfile,ssurveyfile;
-
- 
-
+  std::string struefile,smisalignedfile,salignedfile,siterationfile;
   // alignment position error parameters
   bool theApplyAPE;
   std::vector<edm::ParameterSet> theAPEParameterSet;
@@ -83,7 +79,6 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   int theCollectorNJobs;
   std::string theCollectorPath;
   int theEventPrescale,theCurrentPrescale;
-  bool theFillTrackMonitoring;
 
   std::vector<align::StructureType> theLevels; // for survey residuals
 
@@ -92,9 +87,6 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   TTree* theTree; // event-wise tree
   TFile* theFile2;
   TTree* theTree2; // alignable-wise tree
-  TFile* theFile3;
-  TTree* theTree3; // survey tree
-
 
   // variables for event-wise tree
   static const int MAXREC = 99;
@@ -103,17 +95,13 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   float m_Pt[MAXREC],m_Eta[MAXREC],m_Phi[MAXREC],m_Chi2n[MAXREC];
 
   // variables for alignable-wise tree
+  //static const int MAXITER = 99;
+  //static const int MAXPAR = 6;
   int m2_Nhit,m2_Type,m2_Layer;
   float m2_Xpos, m2_Ypos, m2_Zpos, m2_Eta, m2_Phi; 
   align::ID m2_Id;
   align::StructureType m2_ObjId;
 
-
-  // variables for survey tree 
-  align::ID m3_Id;
-  align::StructureType m3_ObjId;
-  float m3_par[6];
-  
 };
 
 #endif

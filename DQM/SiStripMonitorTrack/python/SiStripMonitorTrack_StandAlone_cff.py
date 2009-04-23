@@ -14,7 +14,7 @@ SiStripMonitorTrack.CCAnalysis_On = False
 SiStripMonitorTrack.RingFlag_On   = False
 
 #TrackRefitter With Material
-from RecoTracker.TrackProducer.RefitterWithMaterial_cff import *
+from RecoTracker.TrackProducer.TrackRefitters_cff import *
 TrackRefitter.src  = 'ctfWithMaterialTracksP5'
 TrackRefitter.TrajectoryInEvent = True
 

@@ -57,12 +57,12 @@ namespace evf
     // initiate transition to state 'Failed'
     void fireFailed(const std::string& errorMsg,void* originator);
     
+    // find RCMS state listener
+    void findRcmsStateListener();
+    
     // report current state
     xdata::String* stateName() { return &stateName_; }
     
-    // lookup the RCMS state listener
-    void findRcmsStateListener() { rcmsStateNotifier_.findRcmsStateListener(); }
-
     // get the RCMS StateListener parameter (classname/instance)
     xdata::Bag<xdaq2rc::ClassnameAndInstance>* rcmsStateListener()
     {
@@ -147,8 +147,6 @@ namespace evf
       if (!workLoopEnabling_->isActive())    workLoopEnabling_   ->activate();
       if (!workLoopStopping_->isActive())    workLoopStopping_   ->activate();
       if (!workLoopHalting_->isActive())     workLoopHalting_    ->activate();
-
-      findRcmsStateListener();
     }
     
      
@@ -159,6 +157,7 @@ namespace evf
     
     // application name&instance
     log4cplus::Logger                logger_;
+    xdata::InfoSpace*                appInfoSpace_;
     std::string                      appNameAndInstance_;
     xdata::String                    stateName_;
     

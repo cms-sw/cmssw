@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/04/15 16:05:53 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/02/14 09:39:21 $
+ *  $Revision: 1.4 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -71,13 +71,12 @@ std::vector<float> MuonScenarioBuilder::extractParameters(const edm::ParameterSe
   
   double scale_ = 0, scaleError_ = 0, phiX_ = 0, phiY_ = 0, phiZ_ = 0;
   double dX_ = 0, dY_ = 0, dZ_ = 0;
-  std::string distribution_;
+  
   std::ostringstream error;
   edm::ParameterSet Parameters = this->getParameterSet_((std::string)blockId, pSet);
   std::vector<std::string> parameterNames = Parameters.getParameterNames();
   for ( std::vector<std::string>::iterator iParam = parameterNames.begin(); iParam != parameterNames.end(); iParam++ ) {
     if ( (*iParam) == "scale" )    scale_ = Parameters.getParameter<double>( *iParam );
-    else if ( (*iParam) == "distribution" ) distribution_ = Parameters.getParameter<std::string>( *iParam );
     else if ( (*iParam) == "scaleError" ) scaleError_ = Parameters.getParameter<double>( *iParam );
     else if ( (*iParam) == "phiX" )     phiX_     = Parameters.getParameter<double>( *iParam );
     else if ( (*iParam) == "phiY" )     phiY_     = Parameters.getParameter<double>( *iParam );
@@ -96,13 +95,6 @@ std::vector<float> MuonScenarioBuilder::extractParameters(const edm::ParameterSe
   param.push_back(phiX_); param.push_back(phiY_);
   param.push_back(phiZ_); param.push_back(dX_);
   param.push_back(dY_); param.push_back(dZ_);
-  if( distribution_ == "gaussian" )
-    param.push_back(0);
-  else if ( distribution_ == "flat" )
-    param.push_back(1);
-  else if ( distribution_ == "fix" )
-    param.push_back(2);
-  
   return param;
 
 }
@@ -112,12 +104,11 @@ void MuonScenarioBuilder::moveDTSectors(const edm::ParameterSet& pSet) {
   
   std::vector<Alignable *> DTchambers = theAlignableMuon->DTChambers();
   //Take parameters
-  std::vector<float> param = this->extractParameters(pSet, "DTSector");
+  std::vector<float> param = this->extractParameters(pSet, "DTsectors");
   float scale_ = param[0]; float scaleError_ = param[1];
   float phiX_ = param[2]; float phiY_ = param[3]; float phiZ_ = param[4];
   float dX_ = param[5]; float dY_ = param[6]; float dZ_ = param[7];
-  float dist_ = param[8];
-
+  
   float dx = scale_*dX_; float dy = scale_*dY_; float dz = scale_*dZ_;
   float phix = scale_*phiX_; float phiy = scale_*phiY_; float phiz = scale_*phiZ_;
   float errorx = scaleError_*dX_; float errory = scaleError_*dY_; float errorz = scaleError_*dZ_;
@@ -137,22 +128,8 @@ void MuonScenarioBuilder::moveDTSectors(const edm::ParameterSet& pSet) {
   }
   for(int wheel = 0; wheel < 5; wheel++) {
     for(int sector = 0; sector < 12; sector++) {
-      std::vector<float> disp;
-      std::vector<float> rotation;
-      if( dist_ == 0 ) {
-        const std::vector<float> disp_ = theMuonModifier.gaussianRandomVector(dx, dy, dz);
-        const std::vector<float> rotation_ = theMuonModifier.gaussianRandomVector(phix, phiy, phiz);
-        disp.push_back(disp_[0]); disp.push_back(disp_[1]); disp.push_back(disp_[2]);
-        rotation.push_back(rotation_[0]); rotation.push_back(rotation_[1]); rotation.push_back(rotation_[2]);
-      } else if (dist_ == 1) {
-        const std::vector<float> disp_ = theMuonModifier.flatRandomVector(dx, dy, dz);
-        const std::vector<float> rotation_ = theMuonModifier.flatRandomVector(phix, phiy, phiz);
-        disp.push_back(disp_[0]); disp.push_back(disp_[1]); disp.push_back(disp_[2]);
-        rotation.push_back(rotation_[0]); rotation.push_back(rotation_[1]); rotation.push_back(rotation_[2]);
-      } else {
-        disp.push_back(dx); disp.push_back(dy); disp.push_back(dz);
-        rotation.push_back(phix); rotation.push_back(phiy); rotation.push_back(phiz);
-      }
+      const std::vector<float> disp = theMuonModifier.gaussianRandomVector(dx, dy, dz);
+      const std::vector<float> rotation = theMuonModifier.gaussianRandomVector(phix, phiy, phiz);
       for(int station = 0; station < 4; station++) {
         Alignable *myAlign = DTchambers.at(index[wheel][station][sector]);
         this->moveChamberInSector(myAlign, disp, rotation, errorDisp, errorRotation);
@@ -175,11 +152,10 @@ void MuonScenarioBuilder::moveCSCSectors(const edm::ParameterSet& pSet) {
   
   std::vector<Alignable *> CSCchambers = theAlignableMuon->CSCChambers();
   //Take Parameters
-  std::vector<float> param = this->extractParameters(pSet, "CSCSector");
+  std::vector<float> param = this->extractParameters(pSet, "CSCsectors");
   float scale_ = param[0]; float scaleError_ = param[1];
   float phiX_ = param[2]; float phiY_ = param[3]; float phiZ_ = param[4];
   float dX_ = param[5]; float dY_ = param[6]; float dZ_ = param[7];
-  float dist_ = param[8];
   
   float dx = scale_*dX_; float dy = scale_*dY_; float dz = scale_*dZ_;
   float phix = scale_*phiX_; float phiy = scale_*phiY_; float phiz = scale_*phiZ_;
@@ -203,23 +179,9 @@ void MuonScenarioBuilder::moveCSCSectors(const edm::ParameterSet& pSet) {
   for(int endcap = 0; endcap < 2; endcap++) {
     for(int ring = 0; ring < 2; ring++) {
       for(int sector = 1; sector < 7; sector++) {
-        std::vector<float> disp;
-        std::vector<float> rotation;
-        if( dist_ == 0 ) {
-          const std::vector<float> disp_ = theMuonModifier.gaussianRandomVector(dx, dy, dz);
-          const std::vector<float> rotation_ = theMuonModifier.gaussianRandomVector(phix, phiy, phiz);
-          disp.push_back(disp_[0]); disp.push_back(disp_[1]); disp.push_back(disp_[2]);
-          rotation.push_back(rotation_[0]); rotation.push_back(rotation_[1]); rotation.push_back(rotation_[2]);
-        } else if (dist_ == 1) {
-          const std::vector<float> disp_ = theMuonModifier.flatRandomVector(dx, dy, dz);
-          const std::vector<float> rotation_ = theMuonModifier.flatRandomVector(phix, phiy, phiz);
-          disp.push_back(disp_[0]); disp.push_back(disp_[1]); disp.push_back(disp_[2]);
-          rotation.push_back(rotation_[0]); rotation.push_back(rotation_[1]); rotation.push_back(rotation_[2]);
-        } else {
-          disp.push_back(dx); disp.push_back(dy); disp.push_back(dz);
-          rotation.push_back(phix); rotation.push_back(phiy); rotation.push_back(phiz);
-        }
-        //Different cases are considered in order to fit endcap geometry
+	const std::vector<float> disp = theMuonModifier.gaussianRandomVector(dx, dy, dz);
+	const std::vector<float> rotation = theMuonModifier.gaussianRandomVector(phix, phiy, phiz);
+      	//Different cases are considered in order to fit endcap geometry
 	for(int station = 0; station < 4; station++) {
 	  if(station == 0) {
 	    int r_ring[2];
@@ -260,32 +222,17 @@ void MuonScenarioBuilder::moveMuon(const edm::ParameterSet& pSet) {
   std::vector<Alignable *> DTbarrel = theAlignableMuon->DTBarrel();	
   std::vector<Alignable *> CSCendcaps = theAlignableMuon->CSCEndcaps();  
   //Take Parameters
-  std::vector<float> param = this->extractParameters(pSet, "Muon");
+  std::vector<float> param = this->extractParameters(pSet, "Muons");
   float scale_ = param[0]; float scaleError_ = param[1];
   float phiX_ = param[2]; float phiY_ = param[3]; float phiZ_ = param[4];
   float dX_ = param[5]; float dY_ = param[6]; float dZ_ = param[7];
-  float dist_ = param[8]; 
   float dx = scale_*dX_; float dy = scale_*dY_; float dz = scale_*dZ_;
   float phix = scale_*phiX_; float phiy = scale_*phiY_; float phiz = scale_*phiZ_;
   float errorx = scaleError_*dX_; float errory = scaleError_*dY_; float errorz = scaleError_*dZ_;
   float errorphix = scaleError_*phiX_; float errorphiy = scaleError_*phiY_; float errorphiz = scaleError_*phiZ_;
   //Create an index for the chambers in the alignable vector
-  std::vector<float> disp;
-  std::vector<float> rotation;
-  if( dist_ == 0 ) {
-    const std::vector<float> disp_ = theMuonModifier.gaussianRandomVector(dx, dy, dz);
-    const std::vector<float> rotation_ = theMuonModifier.gaussianRandomVector(phix, phiy, phiz);
-    disp.push_back(disp_[0]); disp.push_back(disp_[1]); disp.push_back(disp_[2]);
-    rotation.push_back(rotation_[0]); rotation.push_back(rotation_[1]); rotation.push_back(rotation_[2]);
-  } else if (dist_ == 1) {
-    const std::vector<float> disp_ = theMuonModifier.flatRandomVector(dx, dy, dz);
-    const std::vector<float> rotation_ = theMuonModifier.flatRandomVector(phix, phiy, phiz);
-    disp.push_back(disp_[0]); disp.push_back(disp_[1]); disp.push_back(disp_[2]);
-    rotation.push_back(rotation_[0]); rotation.push_back(rotation_[1]); rotation.push_back(rotation_[2]);
-  } else {
-    disp.push_back(dx); disp.push_back(dy); disp.push_back(dz);
-    rotation.push_back(phix); rotation.push_back(phiy); rotation.push_back(phiz);
-  }
+  const std::vector<float> disp = theMuonModifier.gaussianRandomVector(dx, dy, dz);
+  const std::vector<float> rotation = theMuonModifier.gaussianRandomVector(phix, phiy, phiz);
   for(std::vector<Alignable *>::iterator iter = DTbarrel.begin(); iter != DTbarrel.end(); ++iter) {
     theMuonModifier.moveAlignable( *iter, false, true, disp[0], disp[1], disp[2] );
     theMuonModifier.rotateAlignable( *iter, false, true, rotation[0],  rotation[1], rotation[2] );

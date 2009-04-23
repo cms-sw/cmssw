@@ -4,6 +4,7 @@
   <class name="std::vector<CorrMETData>"/> 
 
   <class name="SpecificCaloMETData"/>
+  <class name="SpecificPFMETData"/>
   <class name="SpecificGenMETData"/>
 
   <class name="CommonMETData"/>
@@ -19,6 +20,11 @@
   <class name="edm::Wrapper<std::vector<reco::CaloMET> >"/>
   <class name="std::vector<reco::CaloMET>"/>
 
+  <class name="reco::PFMET"/>
+  <class name="edm::Wrapper<reco::PFMET>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFMET> >"/>
+  <class name="std::vector<reco::PFMET>"/>
+
   <class name="reco::GenMET"/>
   <class name="edm::Wrapper<reco::GenMET>"/>
   <class name="edm::Wrapper<std::vector<reco::GenMET> >"/>
@@ -32,16 +38,22 @@
   <class name="edm::RefVector<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> >"/>
   <class name="edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> >"/>
 
+  <class name="edm::RefProd<std::vector<reco::PFMET> >"/>
+  <class name="edm::RefVector<std::vector<reco::PFMET>,reco::PFMET,edm::refhelper::FindUsingAdvance<std::vector<reco::PFMET>,reco::PFMET> >"/>
+  <class name="edm::Ref<std::vector<reco::PFMET>,reco::PFMET,edm::refhelper::FindUsingAdvance<std::vector<reco::PFMET>,reco::PFMET> >"/>
+
   <class name="edm::RefProd<std::vector<reco::GenMET> >"/>
   <class name="edm::RefVector<std::vector<reco::GenMET>,reco::GenMET,edm::refhelper::FindUsingAdvance<std::vector<reco::GenMET>,reco::GenMET> >"/>
   <class name="edm::Ref<std::vector<reco::GenMET>,reco::GenMET,edm::refhelper::FindUsingAdvance<std::vector<reco::GenMET>,reco::GenMET> >"/>
 
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::MET>,reco::MET,edm::refhelper::FindUsingAdvance<std::vector<reco::MET>,reco::MET> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >" />
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::PFMET>,reco::PFMET,edm::refhelper::FindUsingAdvance<std::vector<reco::PFMET>,reco::PFMET> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::GenMET>,reco::GenMET,edm::refhelper::FindUsingAdvance<std::vector<reco::GenMET>,reco::GenMET> > >" />
 
   <class name="edm::reftobase::RefHolder<reco::METRef>" />
   <class name="edm::reftobase::RefHolder<reco::CaloMETRef>" />
+  <class name="edm::reftobase::RefHolder<reco::PFMETRef>" />
   <class name="edm::reftobase::RefHolder<reco::GenMETRef>" />
 
 </lcgdict>

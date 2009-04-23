@@ -12,6 +12,7 @@
 #include "DataFormats/JetReco/interface/BasicJet.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "TString.h"
 
 namespace {
   namespace {
@@ -32,6 +33,10 @@ namespace {
     std::vector<int> v_int;
     std::vector<std::pair<std::string, double> > v_p_str_dbl;
 
+    TString tstr;
+    edm::Wrapper<TString> w_tstr;
+    edm::Wrapper<std::vector<std::vector<int> > > w_v_vint;
+
     typedef edm::Ptr<pat::MET> PtrMet;
     typedef edm::Ptr<pat::Jet> PtrJet;
     typedef edm::Ptr<pat::Muon> PtrMuon;
@@ -49,14 +54,18 @@ namespace {
     edm::Wrapper<StGenEvent> w_stgen;
     edm::Wrapper<TopGenEvent> w_topgen;
     edm::Wrapper<TtSemiLeptonicEvent> w_tttsemievt;
+    edm::Wrapper<reco::CompositeCandidate> ttcompcand;
 
     edm::RefProd<TtGenEvent> rp_ttgen;
     edm::RefProd<StGenEvent> rp_stgen;
     edm::RefProd<TopGenEvent> rp_topgen;
     edm::RefProd<TtSemiLeptonicEvent> rp_ttsemievt;
 
-    std::map<TtSemiLeptonicEvent::HypoKey, reco::CompositeCandidate> m_key_hyp;
-    std::map<TtSemiLeptonicEvent::HypoKey, std::vector<int> > m_key_vint;
+    std::pair<reco::CompositeCandidate, std::vector<int> > p_compcand_vint;
+    std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > v_p_compcand_vint;
+    edm::Wrapper<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > > w_v_p_compcand_vint;
+
+    std::map<TtSemiLeptonicEvent::HypoKey, std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > > m_key_v_p_compcand_vint;
 
     TtDilepEvtSolution ttdilep;
     TtSemiEvtSolution ttsemi;

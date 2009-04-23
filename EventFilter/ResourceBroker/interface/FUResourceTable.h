@@ -41,6 +41,9 @@ namespace evf {
     // member functions
     //
     
+    // set the run number
+    void   setRunNumber(UInt_t runNumber) { runNumber_ = runNumber; }
+
     // initialization of the resource queue
     void   initialize(bool   segmentationMode,
 		      UInt_t nbRawCells, UInt_t nbRecoCells, UInt_t nbDqmCells,
@@ -176,8 +179,9 @@ namespace evf {
     
     void   lock()      { lock_.take(); }
     void   unlock()    { lock_.give(); }
-    void   lockShm()   { shmBuffer_->lock(); }
-    void   unlockShm() { shmBuffer_->unlock(); }
+    //void   lockShm()   { shmBuffer_->lock(); }
+    //void   unlockShm() { shmBuffer_->unlock(); }
+
 
   private:
     //
@@ -204,6 +208,9 @@ namespace evf {
     FUResourceVec_t    resources_;
     std::queue<UInt_t> freeResourceIds_;
     
+    bool              *acceptSMDataDiscard_;
+    bool              *acceptSMDqmDiscard_;
+    
     UInt_t             doCrcCheck_;
     UInt_t             doDumpEvents_;
 
@@ -228,6 +235,8 @@ namespace evf {
     
     uint64_t           sumOfSquares_;
     UInt_t             sumOfSizes_;
+
+    UInt_t             runNumber_;
     
     toolbox::BSem      lock_;
     

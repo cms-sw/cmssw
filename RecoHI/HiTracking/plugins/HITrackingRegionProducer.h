@@ -33,7 +33,6 @@ public:
     double yDir         = regionPSet.getParameter<double>("directionYCoord");
     double zDir         = regionPSet.getParameter<double>("directionZCoord");
     thePrecise          = regionPSet.getParameter<bool>("precise"); 
-    theSiPixelRecHits   = regionPSet.getParameter<std::string>("siPixelRecHits");
     theOrigin = GlobalPoint(xPos,yPos,zPos);
     theDirection = GlobalVector(xDir, yDir, zDir);
   }   
@@ -45,7 +44,7 @@ public:
   {
     //rechits
     edm::Handle<SiPixelRecHitCollection> recHitColl;
-    ev.getByLabel(theSiPixelRecHits, recHitColl);
+    ev.getByLabel("siPixelRecHits", recHitColl);
  
     SiPixelRecHitCollection::id_iterator recHitIdIterator;
     SiPixelRecHitCollection::id_iterator recHitIdIteratorBegin = (recHitColl.product())->id_begin();
@@ -120,7 +119,6 @@ result;
   }
 
 private:
-  std::string theSiPixelRecHits;
   double thePtMin; 
   GlobalPoint theOrigin;
   double theOriginRadius; 

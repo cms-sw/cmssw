@@ -1,11 +1,11 @@
-#!/usr/bin/perl 
+#!/usr/bin/env perl_
 #____________________________________________________________________ 
 # File: ProjectCVSStatus.pl
 #____________________________________________________________________ 
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-11 14:46:41+0200
-# Revision: $Id: ProjectCVSStatus.pl,v 1.2 2006/04/27 13:47:58 sashby Exp $ 
+# Revision: $Id: ProjectCVSStatus.pl,v 1.3 2007/07/30 19:08:01 dlange Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -26,7 +26,7 @@ my $cvs = '/usr/bin/cvs';
 ###### testing ############
 my $project = 'CMSSW';
 # If CVSROOT is set, use it, otherwise use this default:
-my $cvsroot=':kserver:cmscvs.cern.ch:/cvs_server/repositories/CMSSW';
+my $cvsroot=':gserver:cmscvs.cern.ch:/cvs_server/repositories/CMSSW';
 my $rv;
 
 if ($ENV{CVSROOT})

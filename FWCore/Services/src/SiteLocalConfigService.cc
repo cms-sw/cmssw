@@ -7,6 +7,7 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/util/XMLString.hpp>
+#include <sstream>
 
 using namespace xercesc;
 

@@ -90,9 +90,26 @@ echo "  -> HepMC2 file name: '"${HEPMC2FILE}"'"
 echo "  -> cleaning level: '"${LVLCLEAN}"'"
 echo "  -> debugging mode: '"${FLGDEBUG}"'"
 
+# analyze HEPMC2 version
+va=`echo ${HEPMC2VER} | cut -f1 -d"."`
+vb=`echo ${HEPMC2VER} | cut -f2 -d"."`
+vc=`echo ${HEPMC2VER} | cut -f3 -d"."`
+#echo "VA,VB,VC: "$va","$vb","$vc
+if [ $va -ge 2 ] && [ $vb -ge 4 ]; then
+# CMS conventions: https://twiki.cern.ch/twiki/bin/view/CMS/CMSConventions#CMS_units
+  momflag="--with-momentum=GEV"
+  lenflag="--with-length=CM"
+#  momflag=""
+else
+  momflag=""
+  lenflag=""
+fi
+
+
 
 # set path to local HEPMC2 installation
 export HEPMC2DIR=${IDIR}"/HepMC-"${HEPMC2VER}
+export HEPMC2IDIR=${IDIR}"/HEPMC_"${HEPMC2VER}
 
 
 # add compiler & linker flags
@@ -123,14 +140,17 @@ echo "LDFLAGS  (new):  "$LDFLAGS
 
 # download, extract compile/install HEPMC2
 cd ${IDIR}
-if [ ! -d ${HEPMC2DIR} ]; then
+#if [ ! -d ${HEPMC2DIR} ]; then
+if [ ! -d ${HEPMC2IDIR} ]; then
   echo " -> downloading HepMC2 "${HEPMC2VER}" from "${HEPMC2WEBLOCATION}/${HEPMC2FILE}
   wget ${HEPMC2WEBLOCATION}/${HEPMC2FILE}
   tar -xzf ${HEPMC2FILE}
   rm ${HEPMC2FILE}
   cd ${HEPMC2DIR}
   echo " -> configuring HepMC2"
-  ./configure --prefix=${HEPMC2DIR}
+  ./configure --prefix=${HEPMC2IDIR} ${momflag} ${lenflag}
+  echo " -> making HepMC2"
+  make
   echo " -> installing HepMC2"
   make install
   if [ ${LVLCLEAN} -gt 0 ]; then 
@@ -142,8 +162,9 @@ if [ ! -d ${HEPMC2DIR} ]; then
 else
   echo " <W> path exists => using already installed HepMC2"
 fi
+rm -rf ${HEPMC2DIR}
 cd ${HDIR}
 
 
 echo " -> HEPMC2 installation directory is: "
-echo "  "${HEPMC2DIR}
+echo "  "${HEPMC2IDIR}

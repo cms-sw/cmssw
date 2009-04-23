@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.18 2008/10/07 19:11:23 lowette Exp $
+// $Id: PATElectronProducer.cc,v 1.20.2.1 2008/11/20 11:40:35 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -12,7 +12,6 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-#include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 #include "PhysicsTools/PatUtils/interface/TrackerIsolationPt.h"
 #include "PhysicsTools/PatUtils/interface/CaloIsolationEnergy.h"
 
@@ -51,8 +50,6 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
 
   // resolution configurables
   addResolutions_   = iConfig.getParameter<bool>         ( "addResolutions" );
-  useNNReso_        = iConfig.getParameter<bool>         ( "useNNResolutions" );
-  electronResoFile_ = iConfig.getParameter<std::string>  ( "electronResoFile" );
 
   // electron ID configurables
   addElecID_        = iConfig.getParameter<bool>         ( "addElectronID" );
@@ -83,9 +80,6 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   }
   
   // construct resolution calculator
-  if(addResolutions_){
-    theResoCalc_= new ObjectResolutionCalc(edm::FileInPath(electronResoFile_).fullPath(), useNNReso_);
-  }
 
   // IsoDeposit configurables
   if (iConfig.exists("isoDeposits")) {
@@ -115,7 +109,11 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
     useUserData_ = true;
   }
 
-
+  // electron ID configurables
+  addElecShapes_        = iConfig.getParameter<bool>("addElectronShapes" );
+  reducedBarrelRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection") ;
+  reducedEndcapRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection") ;
+   
   // produces vector of muons
   produces<std::vector<Electron> >();
 
@@ -123,7 +121,6 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
 
 
 PATElectronProducer::~PATElectronProducer() {
-  if(addResolutions_) delete theResoCalc_;
 }
 
 
@@ -161,7 +158,13 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
         ids[i].first = elecIDSrcs_[i].first;
      }
   }
-  
+
+  //prepare electron cluster shapes extraction
+  std::auto_ptr<EcalClusterLazyTools> lazyTools_;
+  if (addElecShapes_) {
+    lazyTools_ .reset(new EcalClusterLazyTools( iEvent , iSetup , reducedBarrelRecHitCollection_ , reducedEndcapRecHitCollection_ ));  
+  }
+
   std::vector<Electron> * patElectrons = new std::vector<Electron>();
   for (edm::View<ElectronType>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); ++itElectron) {
     // construct the Electron from the ref -> save ref to original object
@@ -195,9 +198,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     }
 
     // add resolution info
-    if(addResolutions_){
-      (*theResoCalc_)(anElectron);
-    }
     
     // Isolation
     if (isolator_.enabled()) {
@@ -230,6 +230,18 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       userDataHelper_.add( anElectron, iEvent, iSetup );
     }
     
+    //  add electron shapes info
+    if (addElecShapes_) {
+	std::vector<float> covariances = lazyTools_->covariances(*(itElectron->superCluster()->seed())) ;
+	std::vector<float> localCovariances = lazyTools_->localCovariances(*(itElectron->superCluster()->seed())) ;
+	float scSigmaEtaEta = sqrt(covariances[0]) ;
+	float scSigmaIEtaIEta = sqrt(localCovariances[0]) ;
+	float scE1x5 = lazyTools_->e1x5(*(itElectron->superCluster()->seed()))  ;
+	float scE2x5Max = lazyTools_->e2x5Max(*(itElectron->superCluster()->seed()))  ;
+	float scE5x5 = lazyTools_->e5x5(*(itElectron->superCluster()->seed())) ;
+	anElectron.setClusterShapes(scSigmaEtaEta,scSigmaIEtaIEta,scE1x5,scE2x5Max,scE5x5) ;
+    }
+    
     // add sel to selected
     patElectrons->push_back(anElectron);
   }
@@ -245,20 +257,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   // clean up
   if (isolator_.enabled()) isolator_.endEvent();
 
-}
-
-
-double PATElectronProducer::electronID(const edm::Handle<edm::View<ElectronType> > & electrons,
-                                       const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs,
-	                               unsigned int idx) {
-  //find elecID for elec with index idx
-  edm::Ref<std::vector<ElectronType> > elecsRef = electrons->refAt(idx).castTo<edm::Ref<std::vector<ElectronType> > >();
-  reco::ElectronIDAssociationCollection::const_iterator elecID = elecIDs->find( elecsRef );
-
-  //return corresponding elecID (only 
-  //cut based available at the moment)
-  const reco::ElectronIDRef& id = elecID->val;
-  return id->cutBasedDecision();
 }
 
 

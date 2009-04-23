@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/10/25 11:58:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/08/01 12:02:38 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -53,6 +53,9 @@ DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
   theFile->cd();
 
+  if(debug)
+    cout << "[DTSegment2DQuality] Constructor called" << endl;
+
   h2DHitRPhi = new HRes2DHit ("RPhi");
   h2DHitRZ= new HRes2DHit ("RZ");
   h2DHitRZ_W0= new HRes2DHit ("RZ_W0");
@@ -69,6 +72,8 @@ DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
 // Destructor
 DTSegment2DQuality::~DTSegment2DQuality(){
 
+  if(debug)
+    cout << "[DTSegment2DQuality] Destructor called" << endl;
 }
 
 void DTSegment2DQuality::endJob() {
@@ -98,6 +103,9 @@ void DTSegment2DQuality::endJob() {
 
 // The real analysis
 void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSetup){
+  if(debug)
+    cout << "--- [DTSegment2DQuality] Analysing Event: #Run: " << event.id().run()
+	 << " #Event: " << event.id().event() << endl;
   theFile->cd();
 
   // Get the DT Geometry

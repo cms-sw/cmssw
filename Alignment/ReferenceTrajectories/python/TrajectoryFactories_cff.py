@@ -176,16 +176,3 @@ CombinedFwdBwdDualBzeroTrajectoryFactory = cms.PSet(
     BwdBzero  = cms.PSet(BwdBzeroReferenceTrajectoryFactory), # defined above for CombinedFwdBwdBzeroTrajectoryFactory
     DualBzero = cms.PSet(DualBzeroTrajectoryFactory)
 )
-
-###############################################################
-#
-# DualKalmanFactory
-#
-###############################################################
-DualKalmanFactory = cms.PSet(
-    TrajectoryFactoryBase,
-    ParticleMass = cms.double(0.10565836),
-    TrajectoryFactoryName = cms.string('DualKalmanFactory'),
-    ResidualMethod = cms.int32(2) # 1: unbiased residuals, 2: pulls
-)
-

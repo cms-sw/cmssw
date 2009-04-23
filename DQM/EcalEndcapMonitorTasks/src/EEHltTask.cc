@@ -1,8 +1,8 @@
 /*
  * \file EEHltTask.cc
  *
- * $Date: 2008/09/15 11:02:49 $
- * $Revision: 1.6 $
+ * $Date: 2008/12/03 10:28:11 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -171,9 +171,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EEDetIdCollection::const_iterator idItr = ids0->begin(); idItr != ids0->end(); ++idItr ) {
 
-      EEDetId id = (*idItr);
-
-      int ism = Numbers::iSM( id );
+      int ism = Numbers::iSM( *idItr );
 
       FedsSizeErrors[ism-1]++;
 
@@ -206,7 +204,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 	  
 	  uint64_t * pData = (uint64_t *)(fedData.data());
 	  uint64_t * fedTrailer = pData + (length - 1);
-	  bool crcError = (*fedTrailer >> 2 ) & 0x1; 
+	  bool crcError = (*fedTrailer >> 2 ) & 0x1;
 	  
 	  if (crcError) FedsSizeErrors[ism-1]++;
 	  
@@ -241,9 +239,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EEDetIdCollection::const_iterator idItr = ids1->begin(); idItr != ids1->end(); ++idItr ) {
 
-      EEDetId id = (*idItr);
-
-      int ism = Numbers::iSM( id );
+      int ism = Numbers::iSM( *idItr );
       int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
       
       meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
@@ -262,9 +258,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EEDetIdCollection::const_iterator idItr = ids2->begin(); idItr != ids2->end(); ++idItr ) {
 
-      EEDetId id = (*idItr);
-
-      int ism = Numbers::iSM( id );
+      int ism = Numbers::iSM( *idItr );
       int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
       meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
@@ -283,9 +277,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EEDetIdCollection::const_iterator idItr = ids3->begin(); idItr != ids3->end(); ++idItr ) {
 
-      EEDetId id = (*idItr);
-
-      int ism = Numbers::iSM( id );
+      int ism = Numbers::iSM( *idItr );
       int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
       meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
@@ -304,11 +296,9 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++idItr ) {
 
-      EcalElectronicsId id = (*idItr);
+      if ( Numbers::subDet( *idItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
-
-      int ismt = Numbers::iSM( id );
+      int ismt = Numbers::iSM( *idItr );
       int fednumber = ( ismt < 10 ) ? 600 + ismt : 636 + ismt;
 
       meEEFedsIntegrityErrors_->Fill( fednumber, 1./34.);
@@ -327,11 +317,9 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++idItr ) {
 
-      EcalElectronicsId id = (*idItr);
+      if ( Numbers::subDet( *idItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
-
-      int ism = Numbers::iSM( id );
+      int ism = Numbers::iSM( *idItr );
       int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
       meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
@@ -350,11 +338,9 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++idItr ) {
 
-      EcalElectronicsId id = (*idItr);
+      if ( Numbers::subDet( *idItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
-
-      int ismt = Numbers::iSM( id );
+      int ismt = Numbers::iSM( *idItr );
       int fednumber = ( ismt < 10 ) ? 600 + ismt : 636 + ismt;
 
       meEEFedsIntegrityErrors_->Fill( fednumber, 1./34.);
@@ -373,11 +359,9 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids7->begin(); idItr != ids7->end(); ++idItr ) {
 
-      EcalElectronicsId id = (*idItr);
+      if ( Numbers::subDet( *idItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
-
-      int ism = Numbers::iSM( id );
+      int ism = Numbers::iSM( *idItr );
       int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
       meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
@@ -396,11 +380,9 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++idItr ) {
 
-      EcalElectronicsId id = (*idItr);
+      if ( Numbers::subDet( *idItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
-
-      int ism = Numbers::iSM( id );
+      int ism = Numbers::iSM( *idItr );
       int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
       meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
@@ -419,11 +401,9 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++idItr ) {
 
-      EcalElectronicsId id = (*idItr);
+      if ( Numbers::subDet( *idItr ) != EcalEndcap ) continue;
 
-      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
-
-      int ism = Numbers::iSM( id );
+      int ism = Numbers::iSM( *idItr );
       int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
       meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);

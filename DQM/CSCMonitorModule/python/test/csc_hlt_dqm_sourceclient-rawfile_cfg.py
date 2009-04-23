@@ -66,7 +66,48 @@ process.GlobalTag.connect ="frontier://(proxyurl=http://localhost:3128)(serverur
 process.GlobalTag.globaltag = "CRZT210_V1H::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
-process.p = cms.Path(process.dqmClient+process.dqmEnv+process.dqmSaver)
+#--------------------------
+# Message Logger
+#--------------------------
+
+MessageLogger = cms.Service("MessageLogger",
+
+  suppressInfo = cms.untracked.vstring('source'),
+  suppressDebug = cms.untracked.vstring('source'),
+  suppressWarning = cms.untracked.vstring('source'),
+
+  cout = cms.untracked.PSet(
+    threshold = cms.untracked.string('INFO'),
+    WARNING = cms.untracked.PSet(
+      limit = cms.untracked.int32(0)
+    ),
+    noLineBreaks = cms.untracked.bool(False)
+  ),
+
+  detailedInfo = cms.untracked.PSet(
+    threshold = cms.untracked.string('INFO')
+  ),
+
+  critical = cms.untracked.PSet(
+    threshold = cms.untracked.string('ERROR')
+  ),
+
+  debug = cms.untracked.PSet(
+    threshold = cms.untracked.string('DEBUG')
+  ),
+
+  debugModules = cms.untracked.vstring('CSCHLTMonitormodule'),
+
+  destinations = cms.untracked.vstring(
+#    'debug',
+#    'detailedInfo', 
+#    'critical', 
+#    'cout'
+  )
+
+)
+
+process.p = cms.Path(process.dqmCSCClient+process.dqmEnv+process.dqmSaver)
 
 process.DQM.collectorHost = 'pccmsdqm02.cern.ch'
 

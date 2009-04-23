@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.13 2008/10/03 14:26:31 cbern Exp $
+// $Id: PATMuonProducer.h,v 1.14 2008/10/10 14:02:33 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of MuonType.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.13 2008/10/03 14:26:31 cbern Exp $
+  \version  $Id: PATMuonProducer.h,v 1.14 2008/10/10 14:02:33 lowette Exp $
 */
 
 
@@ -38,10 +38,7 @@
 
 namespace pat {
 
-
-  class ObjectResolutionCalc;
   class LeptonLRCalc;
-
 
   class PATMuonProducer : public edm::EDProducer {
 
@@ -81,11 +78,8 @@ namespace pat {
       bool          addTrigMatch_;
       std::vector<edm::InputTag> trigMatchSrc_;
       bool          addResolutions_;
-      bool          useNNReso_;
-      std::string   muonResoFile_;
       bool          addLRValues_;
       // tools
-      ObjectResolutionCalc * theResoCalc_;
       GreaterByPt<Muon>      pTComparator_;
 
       pat::helper::MultiIsolator isolator_; 

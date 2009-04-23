@@ -1,5 +1,5 @@
 //
-// $Id: PATObject.h,v 1.20 2008/10/08 15:11:33 srappocc Exp $
+// $Id: PATObject.h,v 1.21 2008/10/09 17:48:23 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -15,7 +15,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Volker Adler, Sal Rappoccio
-  \version  $Id: PATObject.h,v 1.20 2008/10/08 15:11:33 srappocc Exp $
+  \version  $Id: PATObject.h,v 1.21 2008/10/09 17:48:23 lowette Exp $
 */
 
 
@@ -160,6 +160,7 @@ namespace pat {
       }
       
       /// Get user-defined float
+      /// Note: it will return 0.0 if the key is not found; you can check if the key exists with 'hasUserFloat' method.
       float userFloat( const std::string & key ) const;
       /// Set user-defined float
       void addUserFloat( const  std::string & label, float data );
@@ -170,6 +171,7 @@ namespace pat {
         return std::find(userFloatLabels_.begin(), userFloatLabels_.end(), key) != userFloatLabels_.end();
       }
       /// Get user-defined int
+      /// Note: it will return 0 if the key is not found; you can check if the key exists with 'hasUserInt' method.
       int32_t userInt( const std::string & key ) const;
       /// Set user-defined int
       void addUserInt( const std::string & label,  int32_t data );

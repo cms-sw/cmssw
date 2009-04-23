@@ -1,17 +1,19 @@
-#include "EventFilter/DTRawToDigi/plugins/DTDigiToRawModule.h"
-#include "EventFilter/DTRawToDigi/plugins/DTDigiToRaw.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/Event.h"
+#include <EventFilter/DTRawToDigi/plugins/DTDigiToRawModule.h>
+#include <EventFilter/DTRawToDigi/plugins/DTDigiToRaw.h>
+#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
+#include <DataFormats/FEDRawData/interface/FEDNumbering.h>
+#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
+#include <DataFormats/Common/interface/Handle.h>
+#include <FWCore/Framework/interface/Event.h>
 
-#include "DataFormats/FEDRawData/interface/FEDHeader.h"
-#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
-#include "FWCore/Utilities/interface/CRC16.h"
+#include <DataFormats/FEDRawData/interface/FEDHeader.h>
+#include <DataFormats/FEDRawData/interface/FEDTrailer.h>
+#include "EventFilter/Utilities/interface/Crc.h"
 
-#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+
+
+#include <CondFormats/DataRecord/interface/DTReadOutMappingRcd.h>
+#include <FWCore/Framework/interface/EventSetup.h>
 
 #include <iostream>
 

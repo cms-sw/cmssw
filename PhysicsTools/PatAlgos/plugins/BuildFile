@@ -11,11 +11,13 @@
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/Candidate>
   <use name=DataFormats/L1Trigger>
+  <use name=DataFormats/HLTReco>
   <use name=AnalysisDataFormats/Egamma>
   <use name=PhysicsTools/PatUtils>
   <use name=PhysicsTools/JetCharge>
   <use name=RecoBTag/MCTools>
-  <use name=JetMETCorrections/Objects>
+  <use name=CondFormats/JetMETObjects>
+# <use name=JetMETCorrections/Objects>
   <use name=TrackingTools/TransientTrack>
   <use name=SimDataFormats/Track>
   <use name=SimDataFormats/Vertex>

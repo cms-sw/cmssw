@@ -53,7 +53,8 @@ bool CocoaDaqReaderText::ReadNextEvent()
     std::cout << " Reading " << nMeas << " measurements from file " << theFilein.name() 
     	 << " DATE: " << wordlist[1] << " " << wordlist[1] << std::endl;
   }
-  for( ALIint im = 0; im < nMeas; im++) {
+  ALIint ii;
+  for(ii = 0; ii < nMeas; ii++) {
     theFilein.getWordsInLine(wordlist);  
     if( wordlist[0] == ALIstring("SENSOR2D") || wordlist[0] == ALIstring("TILTMETER") || wordlist[0] == ALIstring("DISTANCEMETER")  || wordlist[0] == ALIstring("DISTANCEMETER1DIM")  || wordlist[0] == ALIstring("COPS") ) {
       if( wordlist.size() != 2 ) {
@@ -63,7 +64,7 @@ bool CocoaDaqReaderText::ReadNextEvent()
       }
       std::vector< Measurement* >::const_iterator vmcite;
       for( vmcite = Model::MeasurementList().begin();  vmcite != Model::MeasurementList().end(); vmcite++ ) {
-	//---- Look for Measurement
+	//-------- Measurement found, fill data
 	/*	ALIint last_slash =  (*vmcite)->name().rfind('/');
 	ALIstring oname = (*vmcite)->name();
 	if( last_slash != -1 ) {
@@ -75,7 +76,6 @@ bool CocoaDaqReaderText::ReadNextEvent()
 	oname = oname.substr(fcolon+1,oname.length());
 	//-    std::cout << " measurement name " << (*vmcite)->name() << " short " << oname << std::endl;
 	if( oname == wordlist[1] ) {
-	//-------- Measurement found, fill data
 	  //-   std::cout << " measurement name found " << oname << std::endl;
 	  if( (*vmcite)->type() != wordlist[0] ) {
 	    std::cerr << "!!! Reading measurement from file: type in file is " 

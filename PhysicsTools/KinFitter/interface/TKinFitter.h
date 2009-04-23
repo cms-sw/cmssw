@@ -94,6 +94,8 @@ protected:
   void countUnmeasParams();
   void resetParams();
 
+  void printMatrix(const TMatrixD &matrix, const TString name = "");
+
 private :
 
   Int_t _maxNbIter;       // Maximum number of iterations

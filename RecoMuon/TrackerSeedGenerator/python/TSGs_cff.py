@@ -75,7 +75,8 @@ TSGsBlock = cms.PSet(
         errorMatrixPset = cms.PSet(
             MuonErrorMatrixValues,
             action = cms.string('use'),
-            atIP = cms.bool(True)
+            atIP = cms.bool(True),
+            assignError = cms.bool(False)
         ),
         propagatorName = cms.string('SteppingHelixPropagatorAlong'),
         manySeeds = cms.bool(False),
@@ -97,7 +98,8 @@ TSGsBlock = cms.PSet(
         errorMatrixPset = cms.PSet(
             MuonErrorMatrixValues,
             action = cms.string('use'),
-            atIP = cms.bool(True)
+            atIP = cms.bool(True),
+            assignError = cms.bool(False)
         ),
         propagatorName = cms.string('SteppingHelixPropagatorAlong'),
         manySeeds = cms.bool(False),

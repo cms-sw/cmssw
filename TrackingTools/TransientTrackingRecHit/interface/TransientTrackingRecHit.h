@@ -7,12 +7,11 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
 //RC #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
-#include "DataFormats/GeometrySurface/interface/BlockWipedAllocator.h"
 
 class GeomDetUnit;
 
 class TransientTrackingRecHit : public TrackingRecHit, 
-				public ReferenceCountedInEvent {
+				public ReferenceCounted {
 public:
 
   //RC typedef edm::OwnVector<const TransientTrackingRecHit>        RecHitContainer;
@@ -94,9 +93,6 @@ public:
   void setAnnealingFactor(float annealing) {annealing_ = annealing;} 
 
   float getAnnealingFactor() const {return annealing_;} 
-
-  /// cluster probability, overloaded by pixel rechits.
-  virtual float clusterProbability() { return 1; }
 
 private:
   void setPositionErrors() const;

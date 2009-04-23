@@ -1,10 +1,6 @@
-# The following comments couldn't be translated into the new config version:
-
-# Minimum Tk Pt
-# 
-# Endcaps
-# 
 import FWCore.ParameterSet.Config as cms
+
+from RecoEgamma.EgammaIsolationAlgos.eleIsoFromDepsModules_cff import eleIsoFromDepsEcalFromHits,eleIsoFromDepsHcalFromTowers,eleIsoFromDepsTk
 
 allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     # General configurables
@@ -32,13 +28,11 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
 
     # Embedding of AOD items
     embedTrack        = cms.bool(False), ## whether to embed in AOD externally stored track (note: gsf electrons don't have a track)
-    embedGsfTrack     = cms.bool(False), ## whether to embed in AOD externally stored gsf track
-    embedSuperCluster = cms.bool(False), ## whether to embed in AOD externally stored supercluster
+    embedGsfTrack     = cms.bool(True), ## whether to embed in AOD externally stored gsf track
+    embedSuperCluster = cms.bool(True), ## whether to embed in AOD externally stored supercluster
 
     # resolution configurables
-    addResolutions   = cms.bool(True),
-    electronResoFile = cms.string('PhysicsTools/PatUtils/data/Resolutions_electron.root'), # input root file for the resolution functions
-    useNNResolutions = cms.bool(False), ## use the neural network approach?
+    addResolutions   = cms.bool(False),
 
     # Store isolation values
     isolation = cms.PSet(
@@ -46,44 +40,42 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
             # source IsoDeposit
             src = cms.InputTag("layer0ElectronIsolations","eleIsoDepositTk"),
             # parameters to compute isolation (Egamma POG defaults)
-            deltaR = cms.double(0.3),
-            vetos = cms.vstring('0.015', # inner radius veto cone
-                'Threshold(1.0)'),       # threshold on individual track pt
-            skipDefaultVeto = cms.bool(True),
+            vetos  = eleIsoFromDepsTk.deposits[0].vetos,
+            deltaR = eleIsoFromDepsTk.deposits[0].deltaR,
+            skipDefaultVeto = cms.bool(True), # This overrides previous settings
+#           # Or set your own vetos...
+#            deltaR = cms.double(0.3),
+#            vetos = cms.vstring('0.015', # inner radius veto cone
+#                'Threshold(1.0)'),       # threshold on individual track pt
         ),
         ecal = cms.PSet(
             # source IsoDeposit
-            #src = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromHits"),
-            src = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromClusts"),
+            src = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromHits"),
             # parameters to compute isolation (Egamma POG defaults)
-            deltaR = cms.double(0.4),
-            vetos = cms.vstring('EcalBarrel:0.040', 'EcalBarrel:RectangularEtaPhiVeto(-0.01,0.01,-0.5,0.5)',  # Barrel (|eta| < 1.479)
-                                'EcalEndcaps:0.070','EcalEndcaps:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)'),
-            skipDefaultVeto = cms.bool(True),
+            vetos  = eleIsoFromDepsEcalFromHits.deposits[0].vetos,
+            deltaR = eleIsoFromDepsEcalFromHits.deposits[0].deltaR,
+            skipDefaultVeto = cms.bool(True), # This overrides previous settings
+#           # Or set your own vetos...
+#            deltaR = cms.double(0.4),
+#            vetos = cms.vstring('EcalBarrel:0.040', 'EcalBarrel:RectangularEtaPhiVeto(-0.01,0.01,-0.5,0.5)',  # Barrel (|eta| < 1.479)
+#                                'EcalEndcaps:0.070','EcalEndcaps:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)'),
         ),
-        ## other option, using eleIsoDepositEcalSCVetoFromClust (see also recoLayer0/electronIsolation_cff.py)
-        #PSet ecal = cms.PSet( 
-        #   src    = cms.InputTag("layer0ElectronIsolations", "eleIsoDepositEcalSCVetoFromClusts")
-        #   deltaR = cms.double(0.4)
-        #   vetos  = cms.vstring()     # no veto, already done with SC
-        #   skipDefaultVeto = cms.bool(True)
-        #),
         hcal = cms.PSet(
             # source IsoDeposit
-            #src = cms.InputTag("layer0ElectronIsolations","eleIsoDepositHcalFromHits"),
             src = cms.InputTag("layer0ElectronIsolations","eleIsoDepositHcalFromTowers"),
             # parameters to compute isolation (Egamma POG defaults)
-            deltaR = cms.double(0.4),
-            skipDefaultVeto = cms.bool(True),
+            vetos  = eleIsoFromDepsHcalFromTowers.deposits[0].vetos,
+            deltaR = eleIsoFromDepsHcalFromTowers.deposits[0].deltaR,
+            skipDefaultVeto = cms.bool(True),  # This overrides previous settings
+#           # Or set your own vetos...
+#            deltaR = cms.double(0.4),
         ),
         user = cms.VPSet(),
     ),
     # Store IsoDeposits
     isoDeposits = cms.PSet(
         tracker = cms.InputTag("layer0ElectronIsolations","eleIsoDepositTk"),
-        #ecal    = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromHits"),
-        ecal    = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromClusts"),
-        #hcal    = cms.InputTag("layer0ElectronIsolations","eleIsoDepositHcalFromHits"),
+        ecal    = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromHits"),
         hcal    = cms.InputTag("layer0ElectronIsolations","eleIsoDepositHcalFromTowers"),
     ),
 
@@ -97,6 +89,7 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
         eidRobustTight = cms.InputTag("patElectronIds","eidRobustTight"),
         eidLoose       = cms.InputTag("patElectronIds","eidLoose"),
         eidTight       = cms.InputTag("patElectronIds","eidTight"),
+        eidRobustHighEnergy = cms.InputTag("patElectronIds","eidRobustHighEnergy"),
     ),
 
     # Trigger matching configurables
@@ -115,6 +108,11 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     # Efficiencies
     addEfficiencies = cms.bool(False),
     efficiencies    = cms.PSet(),
+    
+    # electron cluster shape configurables
+    addElectronShapes = cms.bool(True),
+    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
+    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
 
 )
 

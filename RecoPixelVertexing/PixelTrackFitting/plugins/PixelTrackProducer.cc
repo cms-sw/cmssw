@@ -43,6 +43,10 @@ PixelTrackProducer::PixelTrackProducer(const ParameterSet& cfg)
 
 
 PixelTrackProducer::~PixelTrackProducer()
+{
+}
+
+void PixelTrackProducer::endRun(edm::Run &run, const edm::EventSetup& es)
 { 
   delete theFilter;
   delete theFitter;
@@ -51,7 +55,7 @@ PixelTrackProducer::~PixelTrackProducer()
   delete theRegionProducer;
 }
 
-void PixelTrackProducer::beginJob(const edm::EventSetup& es)
+void PixelTrackProducer::beginRun(edm::Run &run, const edm::EventSetup& es)
 {
   ParameterSet regfactoryPSet = theConfig.getParameter<ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");

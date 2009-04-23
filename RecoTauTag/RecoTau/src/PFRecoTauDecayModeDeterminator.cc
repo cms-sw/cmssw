@@ -147,9 +147,7 @@ void PFRecoTauDecayModeDeterminator::produce(Event& iEvent,const EventSetup& iSe
      }
      addP4.set(mergedPiZerosToAdd);
 
-     CompositeCandidate       filteredStuff;
-
-     addP4.set(chargedCandsToAdd); //set kinematic information
+     CompositeCandidate filteredStuff; //empty for now.
 
      // apply vertex fitting.
      if (refitTracks_ && chargedCandsToAdd.numberOfDaughters() > 1)
@@ -160,13 +158,14 @@ void PFRecoTauDecayModeDeterminator::produce(Event& iEvent,const EventSetup& iSe
 
      addP4.set(chargedCandsToAdd);
 
+     /*
      LorentzVector refitFourVector = chargedCandsToAdd.p4() + mergedPiZerosToAdd.p4();
 
      edm::LogInfo("PFTauDecayModeDeterminator") << "Found nCharged: " << chargedCandsToAdd.numberOfDaughters()
                                   << " and nNeutral: " << mergedPiZerosToAdd.numberOfDaughters()
                                   << " Former mass: " << totalFourVector.mass() 
                                   << " New mass: " << refitFourVector.mass();
-                                
+     */
 
      PFTauDecayMode myDecayModeTau(chargedCandsToAdd, mergedPiZerosToAdd, filteredStuff);
      myDecayModeTau.setPFTauRef(pfTauRef);

@@ -8,6 +8,13 @@
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiLepKinFitter.h"
 
+//introduced to repair kinFit w/o resolutions from pat
+#include "TopQuarkAnalysis/TopObjectResolutions/interface/MET.h"
+#include "TopQuarkAnalysis/TopObjectResolutions/interface/Jet.h"
+#include "TopQuarkAnalysis/TopObjectResolutions/interface/Muon.h"
+#include "TopQuarkAnalysis/TopObjectResolutions/interface/Electron.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //default configuration is: Parametrization kEMom,
 //                          Max iterations =  200, 
@@ -58,8 +65,7 @@ void TtSemiLepKinFitter::printSetup()
     case kNeutrinoMass : constr += "    * neutrino   mass \n"; break;
     }
   }
-  edm::LogInfo( "Setup:" ) 
-    << "\n"
+  edm::LogVerbatim( "TtSemiLepKinFitter" ) 
     << "\n"
     << "+++++++++++ TtSemiLepKinFitter Setup ++++++++++++ \n"
     << "  Parametrization:                                \n" 
@@ -189,89 +195,113 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
   m5 .Zero(); m6 .Zero();
 
   // add jet resolutions
-  switch(jetParam_){
-  case kEMom :
-    m1b(0,0) = pow(hadP.resolutionA(), 2);
-    m1b(1,1) = pow(hadP.resolutionB(), 2);
-    m1b(2,2) = pow(hadP.resolutionC(), 2);
-    m1b(3,3) = pow(hadP.resolutionD(), 2);
-    m2b(0,0) = pow(hadQ.resolutionA(), 2); 
-    m2b(1,1) = pow(hadQ.resolutionB(), 2); 
-    m2b(2,2) = pow(hadQ.resolutionC(), 2);
-    m2b(3,3) = pow(hadQ.resolutionD(), 2);
-    m3b(0,0) = pow(hadB.resolutionA(), 2); 
-    m3b(1,1) = pow(hadB.resolutionB(), 2); 
-    m3b(2,2) = pow(hadB.resolutionC(), 2);
-    m3b(3,3) = pow(hadB.resolutionD(), 2);
-    m4b(0,0) = pow(lepB.resolutionA(), 2); 
-    m4b(1,1) = pow(lepB.resolutionB(), 2); 
-    m4b(2,2) = pow(lepB.resolutionC(), 2);
-    m4b(3,3) = pow(lepB.resolutionD(), 2);
-    break;
-  case kEtEtaPhi : 
-    m1(0,0) = pow(hadP.resolutionEt(),  2);
-    m1(1,1) = pow(hadP.resolutionEta(), 2);
-    m1(2,2) = pow(hadP.resolutionPhi(), 2);
-    m2(0,0) = pow(hadQ.resolutionEt(),  2); 
-    m2(1,1) = pow(hadQ.resolutionEta(), 2); 
-    m2(2,2) = pow(hadQ.resolutionPhi(), 2);
-    m3(0,0) = pow(hadB.resolutionEt(),  2); 
-    m3(1,1) = pow(hadB.resolutionEta(), 2); 
-    m3(2,2) = pow(hadB.resolutionPhi(), 2);
-    m4(0,0) = pow(lepB.resolutionEt(),  2); 
-    m4(1,1) = pow(lepB.resolutionEta(), 2); 
-    m4(2,2) = pow(lepB.resolutionPhi(), 2);
-    break;
-  case kEtThetaPhi :
-    m1(0,0) = pow(hadP.resolutionEt(),    2);
-    m1(1,1) = pow(hadP.resolutionTheta(), 2);
-    m1(2,2) = pow(hadP.resolutionPhi(),   2);
-    m2(0,0) = pow(hadQ.resolutionEt(),    2); 
-    m2(1,1) = pow(hadQ.resolutionTheta(), 2); 
-    m2(2,2) = pow(hadQ.resolutionPhi(),   2);
-    m3(0,0) = pow(hadB.resolutionEt(),    2); 
-    m3(1,1) = pow(hadB.resolutionTheta(), 2); 
-    m3(2,2) = pow(hadB.resolutionPhi(),   2);
-    m4(0,0) = pow(lepB.resolutionEt(),    2); 
-    m4(1,1) = pow(lepB.resolutionTheta(), 2); 
-    m4(2,2) = pow(lepB.resolutionPhi(),   2);
-    break;
+  {
+    //FIXME this dirty hack needs a clean solution soon!
+    double q1pt  = hadP.pt (), q2pt  = hadQ.pt ();
+    double b1pt  = hadB.pt (), b2pt  = lepB.pt ();
+    double q1eta = hadP.eta(), q2eta = hadQ.eta();
+    double b1eta = hadB.eta(), b2eta = lepB.eta();
+    
+    res::HelperJet jetRes;
+    switch(jetParam_){
+    case kEMom :
+      m1b(0,0) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1b(1,1) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1b(2,2) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1b(3,3) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m2b(0,0) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2); 
+      m2b(1,1) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2); 
+      m2b(2,2) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2);
+      m2b(3,3) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2);
+      m3b(0,0) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2); 
+      m3b(1,1) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2); 
+      m3b(2,2) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2);
+      m3b(3,3) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2);
+      m4b(0,0) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2); 
+      m4b(1,1) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2); 
+      m4b(2,2) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2);
+      m4b(3,3) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2);
+      break;
+    case kEtEtaPhi : 
+      m1 (0,0) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1 (1,1) = pow(jetRes.eta(q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1 (2,2) = pow(jetRes.phi(q1pt, q1eta, res::HelperJet::kUds), 2);
+      m2 (0,0) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2); 
+      m2 (1,1) = pow(jetRes.eta(q2pt, q2eta, res::HelperJet::kUds), 2); 
+      m2 (2,2) = pow(jetRes.phi(q2pt, q2eta, res::HelperJet::kUds), 2);
+      m3 (0,0) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2); 
+      m3 (1,1) = pow(jetRes.eta(b1pt, b1eta, res::HelperJet::kB  ), 2); 
+      m3 (2,2) = pow(jetRes.phi(b1pt, b1eta, res::HelperJet::kB  ), 2);
+      m4 (0,0) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2); 
+      m4 (1,1) = pow(jetRes.eta(b2pt, b2eta, res::HelperJet::kB  ), 2); 
+      m4 (2,2) = pow(jetRes.phi(b2pt, b2eta, res::HelperJet::kB  ), 2);
+      break;
+    case kEtThetaPhi :
+      m1 (0,0) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1 (1,1) = pow(jetRes.eta(q1pt, q1eta, res::HelperJet::kUds), 2);
+      m1 (2,2) = pow(jetRes.phi(q1pt, q1eta, res::HelperJet::kUds), 2);
+      m2 (0,0) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2); 
+      m2 (1,1) = pow(jetRes.eta(q2pt, q2eta, res::HelperJet::kUds), 2); 
+      m2 (2,2) = pow(jetRes.phi(q2pt, q2eta, res::HelperJet::kUds), 2);
+      m3 (0,0) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2); 
+      m3 (1,1) = pow(jetRes.eta(b1pt, b1eta, res::HelperJet::kB  ), 2); 
+      m3 (2,2) = pow(jetRes.phi(b1pt, b1eta, res::HelperJet::kB  ), 2);
+      m4 (0,0) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2); 
+      m4 (1,1) = pow(jetRes.eta(b2pt, b2eta, res::HelperJet::kB  ), 2); 
+      m4 (2,2) = pow(jetRes.phi(b2pt, b2eta, res::HelperJet::kB  ), 2);
+      break;
+    }
   }
+
   // add lepton resolutions
-  switch(lepParam_){
-  case kEMom :
-    m5(0,0) = pow(lepton.resolutionA(), 2);
-    m5(1,1) = pow(lepton.resolutionB(), 2); 
-    m5(2,2) = pow(lepton.resolutionC(), 2);
-    break;
-  case kEtEtaPhi :
-    m5(0,0) = pow(lepton.resolutionEt(),  2);
-    m5(1,1) = pow(lepton.resolutionEta(), 2); 
-    m5(2,2) = pow(lepton.resolutionPhi(), 2);
-    break;
-  case kEtThetaPhi :
-    m5(0,0) = pow(lepton.resolutionEt(),    2);
-    m5(1,1) = pow(lepton.resolutionTheta(), 2); 
-    m5(2,2) = pow(lepton.resolutionPhi(),   2);
-    break;
+  {
+    //FIXME this dirty hack needs a clean solution soon!
+    double pt  = lepton.pt ();
+    double eta = lepton.eta();
+
+    res::HelperMuon     muonRes;
+    res::HelperElectron elecRes;
+    switch(lepParam_){
+    case kEMom :
+      m5(0,0) = pow(elecRes.pt (pt, eta), 2);
+      m5(1,1) = pow(elecRes.pt (pt, eta), 2); 
+      m5(2,2) = pow(elecRes.pt (pt, eta), 2);
+      break;
+    case kEtEtaPhi :
+      m5(0,0) = pow(elecRes.pt (pt, eta), 2);
+      m5(1,1) = pow(elecRes.eta(pt, eta), 2); 
+      m5(2,2) = pow(elecRes.phi(pt, eta), 2);
+      break;
+    case kEtThetaPhi :
+      m5(0,0) = pow(elecRes.pt (pt, eta), 2);
+      m5(1,1) = pow(elecRes.eta(pt, eta), 2); 
+      m5(2,2) = pow(elecRes.phi(pt, eta), 2);
+      break;
+    }
   }
   // add neutrino resolutions
-  switch(metParam_){
-  case kEMom :
-    m6(0,0) = pow(neutrino.resolutionA(), 2);
-    m6(1,1) = pow(neutrino.resolutionB(), 2);
-    m6(2,2) = pow(neutrino.resolutionC(), 2);
-    break;
-  case kEtEtaPhi :
-    m6(0,0) = pow(neutrino.resolutionEt(),  2);
-    m6(1,1) = pow(neutrino.resolutionEta(), 2);
-    m6(2,2) = pow(neutrino.resolutionPhi(), 2);
-    break;
-  case kEtThetaPhi :
-    m6(0,0) = pow(neutrino.resolutionEt(),    2);
-    m6(1,1) = pow(neutrino.resolutionTheta(), 2);
-    m6(2,2) = pow(neutrino.resolutionPhi(),   2);
-    break;
+  {
+    //FIXME this dirty hack needs a clean solution soon!
+    double met = neutrino.pt();
+
+    res::HelperMET metRes;
+    switch(metParam_){
+    case kEMom :
+      m6(0,0) = pow(metRes.met(met), 2);
+      m6(1,1) = pow(          9999., 2);
+      m6(2,2) = pow(metRes.phi(met), 2);
+      break;
+    case kEtEtaPhi :
+      m6(0,0) = pow(metRes.met(met), 2);
+      m6(1,1) = pow(          9999., 2);
+      m6(2,2) = pow(metRes.phi(met), 2);
+      break;
+    case kEtThetaPhi :
+      m6(0,0) = pow(metRes.met(met), 2);
+      m6(1,1) = pow(          9999., 2);
+      m6(2,2) = pow(metRes.phi(met), 2);
+      break;
+    }
   }
   
   // set the kinematics of the objects to be fitted
@@ -281,6 +311,7 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
   lepB_->setIni4Vec( &p4LepB );
   lepton_->setIni4Vec( &p4Lepton );
   neutrino_->setIni4Vec( &p4Neutrino );
+
   switch(jetParam_){
   case kEMom :
     hadP_->setCovMatrix( &m1b );
@@ -312,139 +343,149 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
 			       hadB_->getCurr4Vec()->Y(), hadB_->getCurr4Vec()->Z(), hadB_->getCurr4Vec()->E()), math::XYZPoint()));
     fittedLepB_= pat::Particle(reco::LeafCandidate(0, math::XYZTLorentzVector(lepB_->getCurr4Vec()->X(),
 			       lepB_->getCurr4Vec()->Y(), lepB_->getCurr4Vec()->Z(), lepB_->getCurr4Vec()->E()), math::XYZPoint()));
-    // read back jet resolutions
-    switch(jetParam_){
-    case kEMom :
-      {
-	TMatrixD Vp (4,4); Vp  = *hadP_->getCovMatrixFit(); 
-	TMatrixD Vq (4,4); Vq  = *hadQ_->getCovMatrixFit(); 
-	TMatrixD Vbh(4,4); Vbh = *hadB_->getCovMatrixFit(); 
-	TMatrixD Vbl(4,4); Vbl = *lepB_->getCovMatrixFit();
-	// covariance matices
-	fittedHadP_.setCovMatrix( translateCovM(Vp ) );
-	fittedHadQ_.setCovMatrix( translateCovM(Vq ) );
-	fittedHadB_.setCovMatrix( translateCovM(Vbh) );
-	fittedLepB_.setCovMatrix( translateCovM(Vbl) );
-	// resolutions
-	fittedHadP_.setResolutionA( sqrt(Vp (0,0)) );  
-	fittedHadP_.setResolutionB( sqrt(Vp (1,1)) );
-	fittedHadP_.setResolutionC( sqrt(Vp (2,2)) ); 
-	fittedHadP_.setResolutionD( sqrt(Vp (3,3)) ); 
-	fittedHadQ_.setResolutionA( sqrt(Vq (0,0)) );  
-	fittedHadQ_.setResolutionB( sqrt(Vq (1,1)) );
-	fittedHadQ_.setResolutionC( sqrt(Vq (2,2)) );
-	fittedHadQ_.setResolutionD( sqrt(Vq (3,3)) );
-	fittedHadB_.setResolutionA( sqrt(Vbh(0,0)) );  
-	fittedHadB_.setResolutionB( sqrt(Vbh(1,1)) );
-	fittedHadB_.setResolutionC( sqrt(Vbh(2,2)) );
-	fittedHadB_.setResolutionD( sqrt(Vbh(3,3)) );
-	fittedLepB_.setResolutionA( sqrt(Vbl(0,0)) );  
-	fittedLepB_.setResolutionB( sqrt(Vbl(1,1)) );
-	fittedLepB_.setResolutionC( sqrt(Vbl(2,2)) );
-	fittedLepB_.setResolutionD( sqrt(Vbl(3,3)) );
-	break;
-      }
-    case kEtEtaPhi :
-      {
-	TMatrixD Vp (3,3); Vp  = *hadP_->getCovMatrixFit(); 
-	TMatrixD Vq (3,3); Vq  = *hadQ_->getCovMatrixFit(); 
-	TMatrixD Vbh(3,3); Vbh = *hadB_->getCovMatrixFit(); 
-	TMatrixD Vbl(3,3); Vbl = *lepB_->getCovMatrixFit();
-	// covariance matices
-	fittedHadP_.setCovMatrix( translateCovM(Vp ) );
-	fittedHadQ_.setCovMatrix( translateCovM(Vq ) );
-	fittedHadB_.setCovMatrix( translateCovM(Vbh) );
-	fittedLepB_.setCovMatrix( translateCovM(Vbl) );
-	// resolutions
-	fittedHadP_.setResolutionEt ( sqrt(Vp (0,0)) );  
-	fittedHadP_.setResolutionEta( sqrt(Vp (1,1)) );
-	fittedHadP_.setResolutionPhi( sqrt(Vp (2,2)) );
-	fittedHadQ_.setResolutionEt ( sqrt(Vq (0,0)) );  
-	fittedHadQ_.setResolutionEta( sqrt(Vq (1,1)) );
-	fittedHadQ_.setResolutionPhi( sqrt(Vq (2,2)) );
-	fittedHadB_.setResolutionEt ( sqrt(Vbh(0,0)) );  
-	fittedHadB_.setResolutionEta( sqrt(Vbh(1,1)) );
-	fittedHadB_.setResolutionPhi( sqrt(Vbh(2,2)) );
-	fittedLepB_.setResolutionEt ( sqrt(Vbl(0,0)) );  
-	fittedLepB_.setResolutionEta( sqrt(Vbl(1,1)) );
-	fittedLepB_.setResolutionPhi( sqrt(Vbl(2,2)) );
-	break;
-      }
-    case kEtThetaPhi :
-      {
-	TMatrixD Vp (3,3); Vp  = *hadP_->getCovMatrixFit(); 
-	TMatrixD Vq (3,3); Vq  = *hadQ_->getCovMatrixFit(); 
-	TMatrixD Vbh(3,3); Vbh = *hadB_->getCovMatrixFit(); 
-	TMatrixD Vbl(3,3); Vbl = *lepB_->getCovMatrixFit();
-	// covariance matices
-	fittedHadP_.setCovMatrix( translateCovM(Vp ) );
-	fittedHadQ_.setCovMatrix( translateCovM(Vq ) );
-	fittedHadB_.setCovMatrix( translateCovM(Vbh) );
-	fittedLepB_.setCovMatrix( translateCovM(Vbl) );
-	// resolutions
-	fittedHadP_.setResolutionEt   ( sqrt(Vp (0,0)) );  
-	fittedHadP_.setResolutionTheta( sqrt(Vp (1,1)) );
-	fittedHadP_.setResolutionPhi  ( sqrt(Vp (2,2)) );
-	fittedHadQ_.setResolutionEt   ( sqrt(Vq (0,0)) );  
-	fittedHadQ_.setResolutionTheta( sqrt(Vq (1,1)) );
-	fittedHadQ_.setResolutionPhi  ( sqrt(Vq (2,2)) );
-	fittedHadB_.setResolutionEt   ( sqrt(Vbh(0,0)) );  
-	fittedHadB_.setResolutionTheta( sqrt(Vbh(1,1)) );
-	fittedHadB_.setResolutionPhi  ( sqrt(Vbh(2,2)) );
-	fittedLepB_.setResolutionEt   ( sqrt(Vbl(0,0)) );  
-	fittedLepB_.setResolutionTheta( sqrt(Vbl(1,1)) );
-	fittedLepB_.setResolutionPhi  ( sqrt(Vbl(2,2)) );
-	break;
-      }
-    }
+
+  // does not exist anymore in pat
+
+//     // read back jet resolutions
+//     switch(jetParam_){
+//     case kEMom :
+//       {
+// 	TMatrixD Vp (4,4); Vp  = *hadP_->getCovMatrixFit(); 
+// 	TMatrixD Vq (4,4); Vq  = *hadQ_->getCovMatrixFit(); 
+// 	TMatrixD Vbh(4,4); Vbh = *hadB_->getCovMatrixFit(); 
+// 	TMatrixD Vbl(4,4); Vbl = *lepB_->getCovMatrixFit();
+// 	// covariance matices
+// 	fittedHadP_.setCovMatrix( translateCovM(Vp ) );
+// 	fittedHadQ_.setCovMatrix( translateCovM(Vq ) );
+// 	fittedHadB_.setCovMatrix( translateCovM(Vbh) );
+// 	fittedLepB_.setCovMatrix( translateCovM(Vbl) );
+// 	// resolutions
+// 	fittedHadP_.setResolutionA( sqrt(Vp (0,0)) );  
+// 	fittedHadP_.setResolutionB( sqrt(Vp (1,1)) );
+// 	fittedHadP_.setResolutionC( sqrt(Vp (2,2)) ); 
+// 	fittedHadP_.setResolutionD( sqrt(Vp (3,3)) ); 
+// 	fittedHadQ_.setResolutionA( sqrt(Vq (0,0)) );  
+// 	fittedHadQ_.setResolutionB( sqrt(Vq (1,1)) );
+// 	fittedHadQ_.setResolutionC( sqrt(Vq (2,2)) );
+// 	fittedHadQ_.setResolutionD( sqrt(Vq (3,3)) );
+// 	fittedHadB_.setResolutionA( sqrt(Vbh(0,0)) );  
+// 	fittedHadB_.setResolutionB( sqrt(Vbh(1,1)) );
+// 	fittedHadB_.setResolutionC( sqrt(Vbh(2,2)) );
+// 	fittedHadB_.setResolutionD( sqrt(Vbh(3,3)) );
+// 	fittedLepB_.setResolutionA( sqrt(Vbl(0,0)) );  
+// 	fittedLepB_.setResolutionB( sqrt(Vbl(1,1)) );
+// 	fittedLepB_.setResolutionC( sqrt(Vbl(2,2)) );
+// 	fittedLepB_.setResolutionD( sqrt(Vbl(3,3)) );
+// 	break;
+//       }
+//     case kEtEtaPhi :
+//       {
+// 	TMatrixD Vp (3,3); Vp  = *hadP_->getCovMatrixFit(); 
+// 	TMatrixD Vq (3,3); Vq  = *hadQ_->getCovMatrixFit(); 
+// 	TMatrixD Vbh(3,3); Vbh = *hadB_->getCovMatrixFit(); 
+// 	TMatrixD Vbl(3,3); Vbl = *lepB_->getCovMatrixFit();
+// 	// covariance matices
+// 	fittedHadP_.setCovMatrix( translateCovM(Vp ) );
+// 	fittedHadQ_.setCovMatrix( translateCovM(Vq ) );
+// 	fittedHadB_.setCovMatrix( translateCovM(Vbh) );
+// 	fittedLepB_.setCovMatrix( translateCovM(Vbl) );
+// 	// resolutions
+// 	fittedHadP_.setResolutionEt ( sqrt(Vp (0,0)) );  
+// 	fittedHadP_.setResolutionEta( sqrt(Vp (1,1)) );
+// 	fittedHadP_.setResolutionPhi( sqrt(Vp (2,2)) );
+// 	fittedHadQ_.setResolutionEt ( sqrt(Vq (0,0)) );  
+// 	fittedHadQ_.setResolutionEta( sqrt(Vq (1,1)) );
+// 	fittedHadQ_.setResolutionPhi( sqrt(Vq (2,2)) );
+// 	fittedHadB_.setResolutionEt ( sqrt(Vbh(0,0)) );  
+// 	fittedHadB_.setResolutionEta( sqrt(Vbh(1,1)) );
+// 	fittedHadB_.setResolutionPhi( sqrt(Vbh(2,2)) );
+// 	fittedLepB_.setResolutionEt ( sqrt(Vbl(0,0)) );  
+// 	fittedLepB_.setResolutionEta( sqrt(Vbl(1,1)) );
+// 	fittedLepB_.setResolutionPhi( sqrt(Vbl(2,2)) );
+// 	break;
+//       }
+//     case kEtThetaPhi :
+//       {
+// 	TMatrixD Vp (3,3); Vp  = *hadP_->getCovMatrixFit(); 
+// 	TMatrixD Vq (3,3); Vq  = *hadQ_->getCovMatrixFit(); 
+// 	TMatrixD Vbh(3,3); Vbh = *hadB_->getCovMatrixFit(); 
+// 	TMatrixD Vbl(3,3); Vbl = *lepB_->getCovMatrixFit();
+// 	// covariance matices
+// 	fittedHadP_.setCovMatrix( translateCovM(Vp ) );
+// 	fittedHadQ_.setCovMatrix( translateCovM(Vq ) );
+// 	fittedHadB_.setCovMatrix( translateCovM(Vbh) );
+// 	fittedLepB_.setCovMatrix( translateCovM(Vbl) );
+// 	// resolutions
+// 	fittedHadP_.setResolutionEt   ( sqrt(Vp (0,0)) );  
+// 	fittedHadP_.setResolutionTheta( sqrt(Vp (1,1)) );
+// 	fittedHadP_.setResolutionPhi  ( sqrt(Vp (2,2)) );
+// 	fittedHadQ_.setResolutionEt   ( sqrt(Vq (0,0)) );  
+// 	fittedHadQ_.setResolutionTheta( sqrt(Vq (1,1)) );
+// 	fittedHadQ_.setResolutionPhi  ( sqrt(Vq (2,2)) );
+// 	fittedHadB_.setResolutionEt   ( sqrt(Vbh(0,0)) );  
+// 	fittedHadB_.setResolutionTheta( sqrt(Vbh(1,1)) );
+// 	fittedHadB_.setResolutionPhi  ( sqrt(Vbh(2,2)) );
+// 	fittedLepB_.setResolutionEt   ( sqrt(Vbl(0,0)) );  
+// 	fittedLepB_.setResolutionTheta( sqrt(Vbl(1,1)) );
+// 	fittedLepB_.setResolutionPhi  ( sqrt(Vbl(2,2)) );
+// 	break;
+//       }
+//     }
 
     // read back lepton kinematics
     fittedLepton_= pat::Particle(reco::LeafCandidate(0, math::XYZTLorentzVector(lepton_->getCurr4Vec()->X(),
 				 lepton_->getCurr4Vec()->Y(), lepton_->getCurr4Vec()->Z(), lepton_->getCurr4Vec()->E()), math::XYZPoint()));
-    // read back lepton resolutions
-    TMatrixD Vl(3,3); Vl = *lepton_->getCovMatrixFit(); 
-    fittedLepton_.setCovMatrix( translateCovM(Vl) );
-    switch(lepParam_){
-    case kEMom :
-      fittedLepton_.setResolutionA( Vl(0,0) );
-      fittedLepton_.setResolutionB( Vl(1,1) );
-      fittedLepton_.setResolutionC( Vl(2,2) );
-      break;
-    case kEtEtaPhi :
-      fittedLepton_.setResolutionEt   ( sqrt(Vl(0,0)) );  
-      fittedLepton_.setResolutionTheta( sqrt(Vl(1,1)) );
-      fittedLepton_.setResolutionPhi  ( sqrt(Vl(2,2)) );
-      break;
-    case kEtThetaPhi :
-      fittedLepton_.setResolutionEt   ( sqrt(Vl(0,0)) );  
-      fittedLepton_.setResolutionTheta( sqrt(Vl(1,1)) );
-      fittedLepton_.setResolutionPhi  ( sqrt(Vl(2,2)) );
-      break;
-    }
+
+    // does not exist anymore in pat
+
+//     // read back lepton resolutions
+//     TMatrixD Vl(3,3); Vl = *lepton_->getCovMatrixFit(); 
+//     fittedLepton_.setCovMatrix( translateCovM(Vl) );
+//     switch(lepParam_){
+//     case kEMom :
+//       fittedLepton_.setResolutionA( Vl(0,0) );
+//       fittedLepton_.setResolutionB( Vl(1,1) );
+//       fittedLepton_.setResolutionC( Vl(2,2) );
+//       break;
+//     case kEtEtaPhi :
+//       fittedLepton_.setResolutionEt   ( sqrt(Vl(0,0)) );  
+//       fittedLepton_.setResolutionTheta( sqrt(Vl(1,1)) );
+//       fittedLepton_.setResolutionPhi  ( sqrt(Vl(2,2)) );
+//       break;
+//     case kEtThetaPhi :
+//       fittedLepton_.setResolutionEt   ( sqrt(Vl(0,0)) );  
+//       fittedLepton_.setResolutionTheta( sqrt(Vl(1,1)) );
+//       fittedLepton_.setResolutionPhi  ( sqrt(Vl(2,2)) );
+//       break;
+//     }
 
     // read back the MET kinematics
     fittedNeutrino_= pat::Particle(reco::LeafCandidate(0, math::XYZTLorentzVector(neutrino_->getCurr4Vec()->X(),
 				   neutrino_->getCurr4Vec()->Y(), neutrino_->getCurr4Vec()->Z(), neutrino_->getCurr4Vec()->E()), math::XYZPoint()));   
-    // read back neutrino resolutions
-    TMatrixD Vn(3,3); Vn = *neutrino_->getCovMatrixFit(); 
-    fittedNeutrino_.setCovMatrix( translateCovM(Vn) );
-    switch(metParam_){
-    case kEMom :
-      fittedNeutrino_.setResolutionA( Vn(0,0) );
-      fittedNeutrino_.setResolutionB( Vn(1,1) );
-      fittedNeutrino_.setResolutionC( Vn(2,2) );
-      break;
-    case kEtEtaPhi :
-      fittedNeutrino_.setResolutionEt ( sqrt(Vn(0,0)) );  
-      fittedNeutrino_.setResolutionEta( sqrt(Vn(1,1)) );
-      fittedNeutrino_.setResolutionPhi( sqrt(Vn(2,2)) );
-      break;
-    case kEtThetaPhi :
-      fittedNeutrino_.setResolutionEt   ( sqrt(Vn(0,0)) );  
-      fittedNeutrino_.setResolutionTheta( sqrt(Vn(1,1)) );
-      fittedNeutrino_.setResolutionPhi  ( sqrt(Vn(2,2)) );
-      break;
-    }
+
+
+    // does not exist anymore in pat
+
+//     // read back neutrino resolutions
+//     TMatrixD Vn(3,3); Vn = *neutrino_->getCovMatrixFit(); 
+//     fittedNeutrino_.setCovMatrix( translateCovM(Vn) );
+//     switch(metParam_){
+//     case kEMom :
+//       fittedNeutrino_.setResolutionA( Vn(0,0) );
+//       fittedNeutrino_.setResolutionB( Vn(1,1) );
+//       fittedNeutrino_.setResolutionC( Vn(2,2) );
+//       break;
+//     case kEtEtaPhi :
+//       fittedNeutrino_.setResolutionEt ( sqrt(Vn(0,0)) );  
+//       fittedNeutrino_.setResolutionEta( sqrt(Vn(1,1)) );
+//       fittedNeutrino_.setResolutionPhi( sqrt(Vn(2,2)) );
+//       break;
+//     case kEtThetaPhi :
+//       fittedNeutrino_.setResolutionEt   ( sqrt(Vn(0,0)) );  
+//       fittedNeutrino_.setResolutionTheta( sqrt(Vn(1,1)) );
+//       fittedNeutrino_.setResolutionPhi  ( sqrt(Vn(2,2)) );
+//       break;
+//     }
   }
   return fitter_->getStatus();
 }

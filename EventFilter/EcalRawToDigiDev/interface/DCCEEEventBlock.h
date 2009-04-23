@@ -28,13 +28,11 @@ class DCCEEEventBlock : public DCCEventBlock{
   public :
 
    DCCEEEventBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m, bool hU, bool srpU, bool tccU, bool feU, bool memU );
-   
-   void unpack( uint64_t * buffer, uint bufferSize, uint expFedId);
 	
   protected :
   
    int unpackTCCBlocks();
-   
+	
    
 };
 

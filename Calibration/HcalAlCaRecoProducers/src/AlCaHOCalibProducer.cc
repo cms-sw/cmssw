@@ -1,5 +1,8 @@
 // -*- C++ -*-
 //
+// Feb09 2009
+// Move the initialisation of SteppingHelixPropagator from ::beginJob() to ::produce()
+//
 // Oct3 2008
 // Difference in tag V00-02-45 with previous code
 
@@ -50,7 +53,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Fri Jul  6 17:17:21 CEST 2007
-// $Id$
+// $Id: AlCaHOCalibProducer.cc,v 1.17 2008/10/08 09:46:29 kodolova Exp $
 //
 //
 
@@ -263,7 +266,7 @@ class AlCaHOCalibProducer : public edm::EDProducer {
   //#endif
 
   int irunold;
-  SteppingHelixPropagator* stepProp;
+  //  SteppingHelixPropagator* stepProp;
   FreeTrajectoryState getFreeTrajectoryState( const reco::Track& tk, const MagneticField* field, int itag, bool dir);
 
   edm::ESHandle<HcalDbService> conditions_;
@@ -403,7 +406,6 @@ AlCaHOCalibProducer::~AlCaHOCalibProducer()
     }
   }
 
-
 }
 
 
@@ -465,11 +467,11 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
 
-  //GMA  Nevents++;
+  //  Nevents++;
   irunold = irun;
 
   //GMA  if (Nevents%500==1) 
-  //GMA    cout <<"AlCaHOCalibProducer Processing event # "<<Nevents<<" "<<Npass<<" "<<Noccu<<" "<<irun<<" "<<iEvent.id().event()<<endl;
+  //GMA  cout <<"AlCaHOCalibProducer Processing event # "<<Nevents<<" "<<Npass<<" "<<Noccu<<" "<<irun<<" "<<iEvent.id().event()<<endl;
 
   std::auto_ptr<HOCalibVariableCollection> hostore (new HOCalibVariableCollection);
 
@@ -530,7 +532,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     }
   }
-  
+
   double pival = acos(-1.);
   
   Handle<reco::TrackCollection> cosmicmuon;
@@ -590,7 +592,6 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     }
 
-    
     int Noccu_old = Noccu;
     
     for(reco::TrackCollection::const_iterator ncosm = cosmicmuon->begin();
@@ -747,6 +748,11 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       iSetup.get<IdealMagneticFieldRecord>().get(theMagField );     
       GlobalVector magfld = theMagField->inInverseGeV(glbpt);
 
+
+      SteppingHelixPropagator myHelix(&*theMagField,anyDirection);
+      myHelix.setMaterialMode(false);
+      myHelix.applyRadX0Correction(true);
+
       double phiho = trkpos.phi();
       if (phiho<0) phiho +=2*pival;
       
@@ -771,6 +777,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	GlobalVector zLocal = xLocal.cross(yLocal).unit();
 	//    GlobalVector zLocal(cos(phirot), sin(phirot), 0.0); 
 	
+
 	FreeTrajectoryState freetrajectorystate_ = getFreeTrajectoryState(*ncosm,&(*theMagField), iiner, samedir);
 	
 	Surface::RotationType rot(xLocal, yLocal, zLocal);
@@ -779,13 +786,14 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  
 	  double radial = 407.0;
 	  if (ik==0) radial = 382.0;
+
 	  Surface::PositionType pos(radial*cos(phipos), radial*sin(phipos), 0.);
 	  PlaneBuilder::ReturnType aPlane = PlaneBuilder().plane(pos,rot);
-	  
+
 	  Surface* aPlane2 = new Plane(pos,rot);
-	  
-	  SteppingHelixStateInfo steppingHelixstateinfo_ = stepProp->propagate(freetrajectorystate_, (*aPlane2));
-	  
+
+	  SteppingHelixStateInfo steppingHelixstateinfo_ = myHelix.propagate(freetrajectorystate_, (*aPlane2));
+
 	  if (steppingHelixstateinfo_.isValid()) {
 
 	    GlobalVector hotrkpos2(steppingHelixstateinfo_.position().x(), steppingHelixstateinfo_.position().y(), steppingHelixstateinfo_.position().z());
@@ -826,7 +834,6 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
 	if (ipath) break;
       }
-      
       if (ipath) { //If muon crossed HO laeyrs
 	
 	int ietaho = 50;
@@ -967,7 +974,6 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    } //else m_digilevel
 	    
 	  } //m_hbinfo #endif
-	  
 	  
 	  if (m_digiInput) {
 	    if (isHO && (*ho).size()>0) {
@@ -1180,7 +1186,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      HcalDetId id =(*j).id();
 	      int tmpeta= id.ieta();
 	      int tmpphi= id.iphi();
-	      
+
 	      int ipass1 =0;
 	      if (tmpeta >=etamn && tmpeta <=etamx) {
 		if (phimn < phimx) {
@@ -1270,9 +1276,8 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     } 
   } 
-  
+
   if (hostore->size()>0) iEvent.put(hostore, "HOCalibVariableCollection");
-  
   
 }
 
@@ -1283,13 +1288,14 @@ AlCaHOCalibProducer::beginJob(const edm::EventSetup& iSetup)
   //GMA  Nevents = 0;
   //GMA  Npass = 0;
   //GMA  Noccu = 0;
+
   irunold = -1;
   nRuns = 0;
-  edm::ESHandle<MagneticField> bField;
-  iSetup.get<IdealMagneticFieldRecord>().get(bField);
-  stepProp  = new SteppingHelixPropagator(&*bField,anyDirection);
-  stepProp->setMaterialMode(false);
-  stepProp->applyRadX0Correction(true);
+  //  edm::ESHandle<MagneticField> bField;
+  //  iSetup.get<IdealMagneticFieldRecord>().get(bField);
+  //  stepProp  = new SteppingHelixPropagator(&*bField,anyDirection);
+  //  stepProp->setMaterialMode(false);
+  //  stepProp->applyRadX0Correction(true);
   
   for (int i=0; i<netamx; i++) {
     for (int j=0; j<nphimx; j++) {
@@ -1298,7 +1304,6 @@ AlCaHOCalibProducer::beginJob(const edm::EventSetup& iSetup)
       }
     }
   }
-
 
 
 }

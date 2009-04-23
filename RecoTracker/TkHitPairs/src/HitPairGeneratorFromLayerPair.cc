@@ -119,18 +119,18 @@ void HitPairGeneratorFromLayerPair::
                    const edm::Event & iEvent,
 		       const edm::EventSetup& iSetup)
 {
-  static const TransientTrackingRecHitBuilder * TTRHbuilder = 0;
-  static const TrackerGeometry * trackerGeometry = 0;
-  if(TTRHbuilder == 0){
+  const TransientTrackingRecHitBuilder * TTRHbuilder = 0;
+  const TrackerGeometry * trackerGeometry = 0;
+  //if(TTRHbuilder == 0){
     edm::ESHandle<TransientTrackingRecHitBuilder> theBuilderHandle;
     iSetup.get<TransientRecHitRecord>().get("WithoutRefit",theBuilderHandle);
     TTRHbuilder = theBuilderHandle.product();
-  }
-  if (!trackerGeometry) {
+  //}
+  //if (!trackerGeometry) {
     edm::ESHandle<TrackerGeometry> tracker;
     iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
     trackerGeometry = tracker.product();
-  }
+  //}
 
 
   typedef OrderedHitPair::InnerHit InnerHit;

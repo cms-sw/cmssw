@@ -5,7 +5,6 @@
 #ifndef HcalCellType_h
 #define HcalCellType_h
 
-#include <vector>
 #include <iostream>
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
@@ -25,12 +24,9 @@ public:
 
   HcalCellType(HcalSubdetector detType, int etaBin, int phiBin, 
 	       int depthSegment, HcalCell cell, int readoutDirection,
-	       double samplingFactor, int numberZ, int nmodule,
-	       double halfSize, int units);
+	       double samplingFactor, int numberZ, int nmodule);
   HcalCellType(const HcalCellType&);
   ~HcalCellType();
-
-  void setMissingPhi(std::vector<int>, std::vector<int>);
 
   /// 1=HB, 2=HE, 3=HO, 4=HF (sub detector type)
   /// as in DataFormats/HcalDetId/interface/HcalSubdetector.h
@@ -53,7 +49,6 @@ public:
 
   /// phi offset in degrees
   double phiOffset() const {return thePhiOffset;}
-  int    unitPhi() const {return theUnitPhi;}
 
   /// Number of halves (forward/backward)
   int nHalves() const {return theNumberOfZ;}
@@ -74,15 +69,9 @@ public:
   double depthMin() const {return theDepthMin;}
   double depthMax() const {return theDepthMax;}
   bool   depthType() const {return theRzFlag;}
-  double halfSize() const {return theHalfSize;}
                                                                                
   /// ratio of real particle energy to deposited energy in the SimHi
   double samplingFactor() const {return theSamplingFactor;}
-
-  /// missing phi rings
-  std::vector<int> missingPhiPlus()  const {return theMissingPhiPlus;}
-  std::vector<int> missingPhiMinus() const {return theMissingPhiMinus;}
-  int nPhiMissingBins() const;
 
 protected:
  
@@ -90,27 +79,22 @@ protected:
                                                                                
 private:
 
-  HcalSubdetector  theDetType;
-  int              theEtaBin;
-  int              theDepthSegment;
-  int              theNumberOfPhiBins;
-  int              theNumberOfZ;
-  int              theActualReadoutDirection;
-  int              theUnitPhi;
+  HcalSubdetector theDetType;
+  int             theEtaBin;
+  int             theDepthSegment;
+  int             theNumberOfPhiBins;
+  int             theNumberOfZ;
+  int             theActualReadoutDirection;
 
-  bool             theRzFlag;
+  bool            theRzFlag;
                                                                                
-  double           theEtaMin;
-  double           theEtaMax;
-  double           thePhiOffset;
-  double           thePhiBinWidth;
-  double           theDepthMin;
-  double           theDepthMax;
-  double           theHalfSize;
-  double           theSamplingFactor;
-
-  std::vector<int> theMissingPhiPlus;
-  std::vector<int> theMissingPhiMinus;
+  double          theEtaMin;
+  double          theEtaMax;
+  double          thePhiOffset;
+  double          thePhiBinWidth;
+  double          theDepthMin;
+  double          theDepthMax;
+  double          theSamplingFactor;
 };
                                                                                
 std::ostream& operator<<(std::ostream&, const HcalCellType&);

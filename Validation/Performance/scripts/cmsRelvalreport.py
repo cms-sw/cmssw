@@ -390,7 +390,9 @@ class Profile:
         
         # If we are using cmsDriver we should use the prefix switch        
         if EXECUTABLE=='cmsRun' and self.command.find('cmsDriver.py')!=-1:
-            profiler_line='%s --prefix "%s" 2>&1 |tee %s' %(self.command,valgrind_options,self.profile_name)
+            #Replacing 2>&1 |tee with >& in the shell command to preserve the return code significance:
+            # using tee return would be 0 even if the command failed before the pipe:
+            profiler_line='%s --prefix "%s" >& %s' %(self.command,valgrind_options,self.profile_name)
                             
         else:                          
             profiler_line='%s %s >& %s' %(valgrind_options,self.command,self.profile_name)
@@ -420,8 +422,9 @@ class Profile:
 #         # a first maquillage about the profilename:
 #         if self.profile_name[-4:]!='.log':
 #             self.profile_name+='.log'
-        
-        profiler_line='%s  2>&1 |tee %s' %(self.command,self.profile_name)
+        #Replacing 2>&1 |tee with >& in the shell command to preserve the return code significance:
+        # using tee return would be 0 even if the command failed before the pipe:
+        profiler_line='%s  >& %s' %(self.command,self.profile_name)
         return execute(profiler_line)    
 
     #-------------------------------------------------------------------                    
@@ -430,7 +433,7 @@ class Profile:
         '''
         Just Run the command!
         '''
-        execute(self.command)
+        return execute(self.command)
     
     #-------------------------------------------------------------------
     
@@ -483,7 +486,7 @@ class Profile:
                                                       self.profile_name,
                                                       db_option,
                                                       db_name)
-            execute(perfreport_command)
+            return execute(perfreport_command)
         
         #####################################################################            
             
@@ -513,11 +516,11 @@ class Profile:
                                       uncompressed_profile_name,
                                       db_option,db_name)            
                 
-                execute(perfreport_command)
+                exit=execute(perfreport_command)
                 execute('rm  %s' %uncompressed_profile_name)
-                
+                return exit
             else: #We use IgProf Analisys
-                execute('%s -o%s -i%s' %(IGPROFANALYS,outdir,self.profile_name))
+                return execute('%s -o%s -i%s' %(IGPROFANALYS,outdir,self.profile_name))
                 
 
         #####################################################################                     
@@ -543,11 +546,12 @@ class Profile:
                                               self.profile_name,
                                               db_name)             
 
-            execute(perfreport_command)    
-        
+            return execute(perfreport_command)    
+
+        #FIXME: probably need to move this somewhere else now that we use return statements
         if tmp_dir!='':
             execute('rm -r %s' %tmp_dir)
-
+            
         #####################################################################    
                             
         # Profiler is Valgrind Memcheck
@@ -564,22 +568,23 @@ class Profile:
                                 %report_coordinates,
                              '%s -t beginJob %s > %s/beginjob.html'\
                                 %report_coordinates)
+            exit=0
             for command in report_commands:
-                execute(command)      
-        
+                exit= exit + execute(command)      
+            return exit
         #####################################################################                
                 
         # Profiler is TimeReport parser
         
         if self.profiler=='Timereport_Parser':
-            execute('%s %s %s' %(TIMEREPORTPARSER,self.profile_name,outdir))
+            return execute('%s %s %s' %(TIMEREPORTPARSER,self.profile_name,outdir))
 
         #####################################################################
         
         # Profiler is Timing Parser            
         
         if self.profiler=='Timing_Parser':
-            execute('%s -i %s -o %s' %(TIMINGPARSER,self.profile_name,outdir))
+            return execute('%s -i %s -o %s' %(TIMINGPARSER,self.profile_name,outdir))
         
                     
         #####################################################################
@@ -587,14 +592,14 @@ class Profile:
         # Profiler is Simple memory parser
         
         if self.profiler=='SimpleMem_Parser':
-            execute('%s -i %s -o %s' %(SIMPLEMEMPARSER,self.profile_name,outdir))
+            return execute('%s -i %s -o %s' %(SIMPLEMEMPARSER,self.profile_name,outdir))
             
         #####################################################################
         
         # no profiler
             
-        if self.profiler=='':
-            pass                    
+        if self.profiler=='' or self.profiler=='None': #Need to catch the None case, since otherwise we get no return code (crash for pre-requisite step running).
+            return 0         #Used to be pass, but we need a return 0 to handle exit code properly!         
                                                                 
 #############################################################################################
 
@@ -602,7 +607,8 @@ def principal(options):
     '''
     Here the objects of the Profile class are istantiated.
     '''
-    
+    #Add a global exit code variable, that is the sum of all exit codes, to return it at the end:
+    exitCodeSum=0
     # Build a list of commands for programs to benchmark.
     # It will be only one if -c option is selected
     commands_profilers_meta_list=[]
@@ -719,7 +725,10 @@ def principal(options):
                 logger('Creating profile for command %d using %s ...' \
                                                 %(commands_counter,profiler))     
                 exit_code=performance_profile.make_profile()
-            
+                print exit_code
+                logger('The exit code was %s'%exit_code)
+                exitCodeSum=exitCodeSum+exit_code #Add all exit codes into the global exitCodeSum in order to return it on cmsRelvareport.py exit.
+                logger('The exit code sum is %s'%exitCodeSum)
             
         
         # make report if needed   
@@ -733,15 +742,18 @@ def principal(options):
                                                
                 # Write into the db instead of producing html if this is the case:
                 if options.db:
-                    performance_profile.make_report(fill_db=True,
+                    exit_code=performance_profile.make_report(fill_db=True,
                                                     db_name=options.output,
                                                     metastring=db_metastring,
                                                     tmp_dir=options.pr_temp,
                                                     IgProf_option=IgProf_counter)
+                    exitCodeSum=exitCodeSum+exit_code #this is to also check that the reporting works... a little more ambitious testing... could do without for release integration
                 else:
-                    performance_profile.make_report(outdir=reportdir,
+                    exit_code=performance_profile.make_report(outdir=reportdir,
                                                     tmp_dir=options.pr_temp,
                                                     IgProf_option=IgProf_counter)
+                    exitCodeSum=exitCodeSum+exit_code #this is to also check that the reporting works... a little more ambitious testing... could do without for release integration
+                    
         commands_counter+=1                                                
         precedent_reuseprofile=reuseprofile
         if not precedent_reuseprofile:
@@ -749,7 +761,9 @@ def principal(options):
         
         logger('Process ended on %s\n' %time.asctime())
     
-    logger('Procedure finished on %s' %time.asctime())      
+    logger('Procedure finished on %s' %time.asctime())
+    logger("Exit code sum is %s"%exitCodeSum)
+    return exitCodeSum
 
 ###################################################################################################    
         
@@ -894,6 +908,10 @@ if __name__=="__main__":
             if val!='':
                 logger ('\t\t|- %s = %s' %(key, str(val)))
                 logger ('\t\t|')
-    
-    principal(options)
+    exit=principal(options)
+    logger("Exit code received from principal is: %s"%exit)
+    #Mind you! exit codes in Linux are all 0 if they are even! We can easily make the code 1
+    if exit: #This is different than 0 only if there have been at least one non-zero exit(return) code in the cmsRelvalreport.py
+        exit=1
+    sys.exit(exit)
                 

@@ -81,18 +81,21 @@ class CSCXonStrip_MatchGatti
 
   // Parameter settings from config file
   bool useCalib;
+  //bool isData;
   bool use3TimeBins;
   float xtalksOffset;
 
-  // Cache pointer to conditions for current event
+  /** Cache pointer to conditions for current event
+   *
+   */
   const CSCRecoConditions* recoConditions_;
 
   // other classes used
   CSCFindPeakTime*         peakTimeFinder_;  
 
-  // some variables and functions to use
+  // some variables and funfctions to use
 
-  // "Match Gatti" calculations
+ // "Match Gatti" calculations
   double calculateXonStripError(float stripWidth, bool ME1_1);
   double calculateXonStripPosition(float stripWidth, bool ME1_1);
   double xfError_Noise(double noise);

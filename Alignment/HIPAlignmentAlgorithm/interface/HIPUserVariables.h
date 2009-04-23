@@ -9,9 +9,7 @@ class HIPUserVariables : public AlignmentUserVariables {
   HIPUserVariables(int npar) :
     jtvj(npar,0) , 
     jtve(npar,0) ,
-    nhit(0) ,
-    alichi2(0.0),
-    alindof(0)
+    nhit(0) 
     //iterpar(maxiter,npar,0),
     //iterpos(maxiter,3,0),
     //iterrot(maxiter,9,0),
@@ -29,8 +27,6 @@ class HIPUserVariables : public AlignmentUserVariables {
 
   AlgebraicSymMatrix jtvj;
   AlgebraicVector jtve;
-  double alichi2;
-  int alindof;
   int nhit;
   //AlgebraicMatrix iterpar;
   //AlgebraicMatrix iterpos,iterrot;

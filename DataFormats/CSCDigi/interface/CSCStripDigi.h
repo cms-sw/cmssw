@@ -5,15 +5,14 @@
  *
  * Digi for CSC Cathode Strips.
  *
- *  $Date: 2008/03/03 17:54:33 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/02/12 17:39:02 $
+ *  $Revision: 1.18 $
  *
  * \author M. Schmitt, Northwestern
  *
  */
 
 #include <vector>
-#include <iosfwd>
 
 class CSCStripDigi{
 
@@ -67,7 +66,15 @@ private:
   std::vector<uint16_t> Errorstat;
 };
 
-std::ostream & operator<<(std::ostream & o, const CSCStripDigi& digi);
+#include<iostream>
+// once upon a time was needed by COBRA
+inline std::ostream & operator<<(std::ostream & o, const CSCStripDigi& digi) {
+  o << " " << digi.getStrip();
+  for (size_t i = 0; i<digi.getADCCounts().size(); ++i ){
+    o <<" " <<(digi.getADCCounts())[i]; }
+  return o;
+
+}
 
 #endif
 

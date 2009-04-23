@@ -6,6 +6,7 @@
 <use name=rootrflx>
 
 <export>
+  <use name=CondFormats/Common>
   <lib name=CondFormatsJetMETObjects>
   <use name=FWCore/Utilities>
 </export>

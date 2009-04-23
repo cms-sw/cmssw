@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: SimpleJetCorrectorParameters.cc,v 1.2 2007/11/16 00:14:32 fedor Exp $
+// $Id: SimpleJetCorrectorParameters.cc,v 1.4 2009/01/30 09:26:56 elmer Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -10,6 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
+#include <algorithm>
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -97,7 +98,10 @@ SimpleJetCorrectorParameters::SimpleJetCorrectorParameters (const std::string& f
       }
     }
   }
-  if (mRecords.empty()) mRecords.push_back (Record ());
+  if (mRecords.empty() && currentSection == "") mRecords.push_back (Record ());
+  if (mRecords.empty() && currentSection != "") {
+    throw cms::Exception ("SimpleJetCorrectorParameters") << "The requested section "<< fSection << " doesn't exist !!!" << "\n";
+  }
   std::sort (mRecords.begin(), mRecords.end());
 }
 

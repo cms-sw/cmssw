@@ -10,7 +10,7 @@ process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-process.load("PhysicsTools.JetMCAlgos.TauGenJets_cfi")
+
 
 # event generation ------------------------------------------------------
 
@@ -50,6 +50,13 @@ process.particleListDrawer = cms.EDAnalyzer(
     maxEventsToPrint = cms.untracked.int32(-1),
     src = cms.InputTag('genParticles')
   )
+
+process.tauGenJets = cms.EDProducer(
+    "TauGenJetProducer",
+    GenParticles =  cms.InputTag('genParticles'),
+    includeNeutrinos = cms.bool( False ),
+    verbose = cms.untracked.bool( True )
+    )
 
 # path  -----------------------------------------------------------------
 
