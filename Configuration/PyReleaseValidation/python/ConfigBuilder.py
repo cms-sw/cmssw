@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.113 $"
+__version__ = "$Revision: 1.114 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -599,7 +599,13 @@ class ConfigBuilder(object):
         self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
 
         if sequence in ('all','allWithHLTFiltering',''):
-            self.loadAndRemember("FastSimulation/Configuration/HLT_cff")
+	    #horible hack!!! hardwire based on global tag to sync with l1 
+	    if 'IDEAL' in self._options.conditions: 	
+		print 'loading 1e31'    
+		self.loadAndRemember("FastSimulation/Configuration/HLT_1E31_cff")
+	    else:
+		print 'loading 8e29'    
+		self.loadAndRemember("FastSimulation/Configuration/HLT_8E29_cff")
 
             # no need to repeat the definition later on in the created file 
             [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
@@ -607,7 +613,7 @@ class ConfigBuilder(object):
             # endpaths do logging only which should be suppressed in production
             self.process.HLTSchedule.remove(self.process.HLTAnalyzerEndpath)
 
-            self.loadAndRemember("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
+#            self.loadAndRemember("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
             self.additionalCommands.append("process.famosSimHits.SimulateCalorimetry = True")
             self.additionalCommands.append("process.famosSimHits.SimulateTracking = True")
 
@@ -655,7 +661,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.113 $"),
+              (version=cms.untracked.string("$Revision: 1.114 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
