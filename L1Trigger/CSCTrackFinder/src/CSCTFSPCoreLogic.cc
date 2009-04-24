@@ -239,14 +239,14 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 			   const unsigned& etamax1, const unsigned& etamax2, const unsigned& etamax3, const unsigned& etamax4,
 	  	       const unsigned& etamax5, const unsigned& etamax6, const unsigned& etamax7, const unsigned& etamax8,
 			   const unsigned& etawin1, const unsigned& etawin2, const unsigned& etawin3,
-			   const unsigned& etawin4, const unsigned& etawin5, const unsigned& etawin6, 
+			   const unsigned& etawin4, const unsigned& etawin5, const unsigned& etawin6,
 			   const unsigned& mindphip, const unsigned& mindetap,
 			   const unsigned& mindeta12_accp,
-			   const unsigned& maxdeta12_accp, const unsigned& maxdphi12_accp, 
+			   const unsigned& maxdeta12_accp, const unsigned& maxdphi12_accp,
 			   const unsigned& mindeta13_accp,
-			   const unsigned& maxdeta13_accp, const unsigned& maxdphi13_accp, 
+			   const unsigned& maxdeta13_accp, const unsigned& maxdphi13_accp,
 			   const unsigned& mindeta112_accp,
-			   const unsigned& maxdeta112_accp, const unsigned& maxdphi112_accp, 
+			   const unsigned& maxdeta112_accp, const unsigned& maxdphi112_accp,
 			   const unsigned& mindeta113_accp,
 			   const unsigned& maxdeta113_accp, const unsigned& maxdphi113_accp,
 			   const unsigned& straightp, const unsigned& curvedp,
@@ -314,15 +314,15 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	 		etawin1, etawin2, etawin3, etawin4, etawin5, etawin6, 4, // eta windows, last 0 is etawn7p
 			//Change #2
 			mindphip, mindetap,
-			//Change #3 
-			mindeta12_accp, maxdeta12_accp, maxdphi12_accp, 
-			mindeta13_accp, maxdeta13_accp, maxdphi13_accp, 
-			mindeta112_accp, maxdeta112_accp, maxdphi112_accp, 
+			//Change #3
+			mindeta12_accp, maxdeta12_accp, maxdphi12_accp,
+			mindeta13_accp, maxdeta13_accp, maxdphi13_accp,
+			mindeta112_accp, maxdeta112_accp, maxdphi112_accp,
 			mindeta113_accp, maxdeta113_accp, maxdphi113_accp,
 			//Change #4
 	 		mindphip, mindetap, // maxdeta_accp, maxdphi_accp,  these two commented out in favor of change 2 variables
 			//Change #5
-			straightp, curvedp,  //0,0, 
+			straightp, curvedp,  //0,0,
 			//Control Word
 			(m_preTrigger<<7)|(m_allowCLCTonly<<5)|(m_allowALCTonly<<4)|(m_extend_length<<1)|(m_widePhi)
 	 	);
@@ -387,8 +387,9 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  trkH.setLocalPhi(io->phiHp);
 	  trkH.setEtaPacked(io->etaPTHp);
 	  trkH.setBx((int)(bx)-shift);
-	  trkH.setStationIds(io->me1idH, io->me2idH, io->me3idH, io->me4idH, io->mb1idH);
-	  trkH.m_output_link = 1;
+	  trkH.setStationIds(io->me1idH&0x7, io->me2idH&0x3, io->me3idH&0x3, io->me4idH&0x3, io->mb1idH&0x3 );
+	  trkH.setTbins     (io->me1idH>>3,  io->me2idH>>2,  io->me3idH>>2,  io->me4idH>>2,  io->mb1idH>>2 );
+	  trkH.setOutputLink(1);
 	  if( LUTAddressH.track_mode==15 ) trkH.setFineHaloPacked(1);
 	  mytracks.push_back(trkH);
 	}
@@ -399,8 +400,9 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  trkM.setLocalPhi(io->phiMp);
 	  trkM.setEtaPacked(io->etaPTMp);
 	  trkM.setBx((int)(bx)-shift);
-	  trkM.setStationIds(io->me1idM, io->me2idM, io->me3idM, io->me4idM, io->mb1idM);
-	  trkM.m_output_link = 2;
+	  trkM.setStationIds(io->me1idM&0x7, io->me2idM&0x3, io->me3idM&0x3, io->me4idM&0x3, io->mb1idM&0x3 );
+	  trkM.setTbins     (io->me1idM>>3,  io->me2idM>>2,  io->me3idM>>2,  io->me4idM>>2,  io->mb1idM>>2 );
+	  trkM.setOutputLink(2);
 	  if( LUTAddressM.track_mode==15 ) trkM.setFineHaloPacked(1);
 	  mytracks.push_back(trkM);
 	}
@@ -411,8 +413,9 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  trkL.setLocalPhi(io->phiLp);
 	  trkL.setEtaPacked(io->etaPTLp);
 	  trkL.setBx((int)(bx)-shift);
-	  trkL.setStationIds(io->me1idL, io->me2idL, io->me3idL, io->me4idL, io->mb1idL);
-	  trkL.m_output_link = 3;
+	  trkL.setStationIds(io->me1idL&0x7, io->me2idL&0x3, io->me3idL&0x3, io->me4idL&0x3, io->mb1idL&0x3 );
+	  trkL.setTbins     (io->me1idL>>3,  io->me2idL>>2,  io->me3idL>>2,  io->me4idL>>2,  io->mb1idL>>2 );
+	  trkL.setOutputLink(3);
 	  if( LUTAddressL.track_mode==15 ) trkL.setFineHaloPacked(1);
 	  mytracks.push_back(trkL);
 	}

@@ -114,16 +114,16 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts, 
       std::vector<csctf::TrackStub> possible_stubs = my_SPs[titr->endcap()-1][titr->sector()-1]->filteredStubs();
       std::vector<csctf::TrackStub>::const_iterator tkstbs = possible_stubs.begin();
 
-      int me1ID    = titr->me1ID()&0x7;
-      int me2ID    = titr->me2ID()&0x3;
-      int me3ID    = titr->me3ID()&0x3;
-      int me4ID    = titr->me4ID()&0x3;
-      int mb1ID    = titr->mb1ID()&0x3;
-      int me1delay = titr->me1ID()>>3;
-      int me2delay = titr->me2ID()>>2;
-      int me3delay = titr->me3ID()>>2;
-      int me4delay = titr->me4ID()>>2;
-      int mb1delay = titr->mb1ID()>>2;
+      int me1ID    = titr->me1ID();
+      int me2ID    = titr->me2ID();
+      int me3ID    = titr->me3ID();
+      int me4ID    = titr->me4ID();
+      int mb1ID    = titr->mb1ID();
+      int me1delay = titr->me1Tbin();
+      int me2delay = titr->me2Tbin();
+      int me3delay = titr->me3Tbin();
+      int me4delay = titr->me4Tbin();
+      int mb1delay = titr->mb1Tbin();
       // BX analyzer: some stub could be delayed by BXA so that all the stubs will run through the core at the same BX;
       //  then there is a rule of "second earlies LCT": resulting track will be placed at BX of the "second earliest LCT";
       //  in the end there are two parameters in place: the delay by BXA w.r.t to the last LCT and track tbin assignment
