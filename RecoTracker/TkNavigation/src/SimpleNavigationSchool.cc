@@ -64,10 +64,12 @@ void SimpleNavigationSchool::cleanMemory(){
           ib = theBarrelNLC.begin(); ib != theBarrelNLC.end(); ib++) {
     delete (*ib);
   }
+  theBarrelNLC.clear();
   for ( vector< SimpleForwardNavigableLayer*>::const_iterator 
 	  ifl = theForwardNLC.begin(); ifl != theForwardNLC.end(); ifl++) {
     delete (*ifl);
   }
+  theForwardNLC.clear();
 }
 
 SimpleNavigationSchool::StateType 
