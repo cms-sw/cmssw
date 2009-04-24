@@ -84,12 +84,12 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
       me_name = "SiStrip_" + det;
       local_mes.SummaryFlag = dqm_store->bookFloat(me_name);
 
-      dqm_store->setCurrentFolder("SiStrip/EventInfo/reportSummaryContents/reportDetFraction");    
+      dqm_store->setCurrentFolder("SiStrip/EventInfo/reportSummaryContents");  
       me_name = "SiStrip_DetFraction_" + det;
       local_mes.DetFraction = dqm_store->bookFloat(me_name);
 
 
-      dqm_store->setCurrentFolder("SiStrip/EventInfo/reportSummaryContents/reportSToN");    
+      dqm_store->setCurrentFolder("SiStrip/EventInfo/reportSummaryContents");  
       me_name = "SiStrip_SToNFlag_" + det;
       local_mes.SToNFlag    = dqm_store->bookFloat(me_name);
       SubDetMEsMap.insert(std::make_pair(det, local_mes));
@@ -235,7 +235,7 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
       
       if( name.find("Summary_ClusterStoNCorr__OnTrack") != string::npos){
 	int istat =  SiStripUtility::getMEStatus((*it)); 
-	if (istat == dqm::qstatus::ERROR) ston_stat = 0;
+	if (me->getEntries() > 100 && istat == dqm::qstatus::ERROR) ston_stat = 0;
       } else {
         if (status_flag == 2) {
 	  getModuleStatus(me, ndet, bad_channels); 
