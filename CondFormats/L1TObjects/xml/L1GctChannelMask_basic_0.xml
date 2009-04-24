@@ -3,9 +3,26 @@
  <PoolDatabase >
   <PoolContainer name="L1GctChannelMaskRcd" >
    <Class table="L1GCTCHANNELMASK" id_columns="ID" name="L1GctChannelMask" mapping_version="L1GctChannelMask_basic" >
-     <CArray table="L1GCTCHANNELMASK_E_1" id_columns="ID_ID" name="emCrateMask_" position_column="POS" >
-       <Primitive column="EMCRATEMASK__BOOL" name="bool" />
-     </CArray >
+     <InlineCArray name="emCrateMask_" >
+       <Primitive column="DI0" name="emCrateMask_[0]" />
+       <Primitive column="DI10" name="emCrateMask_[10]" />
+       <Primitive column="DI11" name="emCrateMask_[11]" />
+       <Primitive column="DI12" name="emCrateMask_[12]" />
+       <Primitive column="DI13" name="emCrateMask_[13]" />
+       <Primitive column="DI14" name="emCrateMask_[14]" />
+       <Primitive column="DI15" name="emCrateMask_[15]" />
+       <Primitive column="DI16" name="emCrateMask_[16]" />
+       <Primitive column="DI17" name="emCrateMask_[17]" />
+       <Primitive column="DI1" name="emCrateMask_[1]" />
+       <Primitive column="DI2" name="emCrateMask_[2]" />
+       <Primitive column="DI3" name="emCrateMask_[3]" />
+       <Primitive column="DI4" name="emCrateMask_[4]" />
+       <Primitive column="DI5" name="emCrateMask_[5]" />
+       <Primitive column="DI6" name="emCrateMask_[6]" />
+       <Primitive column="DI7" name="emCrateMask_[7]" />
+       <Primitive column="DI8" name="emCrateMask_[8]" />
+       <Primitive column="DI9" name="emCrateMask_[9]" />
+     </InlineCArray >
      <Blob column="L1GCTCHANNELMASK_R_1_BLOB" name="regionMask_" />
    </Class >
   </PoolContainer >
