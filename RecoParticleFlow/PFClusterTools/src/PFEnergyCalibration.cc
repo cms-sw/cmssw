@@ -739,7 +739,6 @@ PFEnergyCalibration::EcorrZoneAfterPS(double E, double eta){
   static double norm=1.045;
 
   double result = E*(p0+p1*TMath::Exp(-(E-p3)/p2)+1/(p4+p5*TMath::Power(E,p6)))*(p7+p8*TMath::Gaus(eta,p9,p10)+p11*TMath::Gaus(eta,p12,p13))/norm;
-  if(result<E) return E;
   return result;
 }
 
@@ -769,6 +768,8 @@ PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,double eta,doubl
     else result =eEcal;
   }
   else result = eEcal;// useful if eEcal=0 or eta>2.98
+  //protection
+  if(result<eEcal) result=eEcal;
   return result;
 }
 
@@ -795,5 +796,7 @@ PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,double eta,doubl
     else result =eEcal;
   }
   else result = eEcal;// useful if eEcal=0 or eta>2.98
+  // protection
+  if(result<eEcal) result=eEcal;
   return result;
 }
