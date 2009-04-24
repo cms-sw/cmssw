@@ -61,8 +61,8 @@ recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
     maxErrEta = cms.untracked.double(0.02),
 
     # Phi resolution     #
-    minErrPhi = cms.untracked.double(-0.01),
-    maxErrPhi = cms.untracked.double(0.01),
+    minErrPhi = cms.untracked.double(-0.1),
+    maxErrPhi = cms.untracked.double(0.1),
 
     # Dxy resolution     #
     minErrDxy = cms.untracked.double(-0.1),
