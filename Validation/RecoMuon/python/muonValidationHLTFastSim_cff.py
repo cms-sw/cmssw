@@ -7,7 +7,7 @@ from Validation.RecoMuon.muonValidationHLT_cff import *
 l2MuonTrackV.associatormap = 'tpToL2TrackAssociationFS'
 l2MuonTrackV.beamSpot = 'offlineBeamSpot'
 
-l2UpdMuonTrackV.associatormap = 'tpToL2TrackAssociationFS'
+l2UpdMuonTrackV.associatormap = 'tpToL2UpdTrackAssociationFS'
 l2UpdMuonTrackV.beamSpot = 'offlineBeamSpot'
 
 l3MuonTrackV.associatormap = 'tpToL3TrackAssociationFS'
@@ -22,7 +22,7 @@ l3TkMuonMuTrackV.beamSpot = 'offlineBeamSpot'
 l2MuonMuTrackV.associatormap = 'tpToL2MuonAssociationFS'
 l2MuonMuTrackV.beamSpot = 'offlineBeamSpot'
 
-l2UpdMuonMuTrackV.associatormap = 'tpToL2MuonAssociationFS'
+l2UpdMuonMuTrackV.associatormap = 'tpToL2UpdMuonAssociationFS'
 l2UpdMuonMuTrackV.beamSpot = 'offlineBeamSpot'
 
 l3MuonMuTrackV.associatormap = 'tpToL3MuonAssociationFS'

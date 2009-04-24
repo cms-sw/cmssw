@@ -8,13 +8,13 @@ trkMuonTrackVTrackAssoc.associatormap = 'tpToTkmuTrackAssociationFS'
 
 staMuonTrackVTrackAssoc.associatormap = 'tpToStaTrackAssociationFS'
 
-staUpdMuonTrackVTrackAssoc.associatormap = 'tpToStaTrackAssociationFS'
+staUpdMuonTrackVTrackAssoc.associatormap = 'tpToStaUpdTrackAssociationFS'
 
 glbMuonTrackVTrackAssoc.associatormap = 'tpToGlbTrackAssociationFS'
 
 staMuonTrackVMuonAssoc.associatormap = 'tpToStaMuonAssociationFS'
 
-staUpdMuonTrackVMuonAssoc.associatormap = 'tpToStaMuonAssociationFS'
+staUpdMuonTrackVMuonAssoc.associatormap = 'tpToStaUpdMuonAssociationFS'
 
 glbMuonTrackVMuonAssoc.associatormap = 'tpToGlbMuonAssociationFS'
 
@@ -25,11 +25,11 @@ recoMuonVMuAssoc.staMuLabel = 'standAloneMuons:UpdatedAtVtx'
 recoMuonVMuAssoc.glbMuLabel = 'globalMuons'
 
 recoMuonVMuAssoc.trkMuAssocLabel = 'tpToTkMuonAssociationFS'
-recoMuonVMuAssoc.staMuAssocLabel = 'tpToStaMuonAssociationFS'
+recoMuonVMuAssoc.staMuAssocLabel = 'tpToStaUpdMuonAssociationFS'
 recoMuonVMuAssoc.glbMuAssocLabel = 'tpToGlbMuonAssociationFS'
 
 recoMuonVTrackAssoc.trkMuAssocLabel = 'tpToTkmuTrackAssociationFS'
-recoMuonVTrackAssoc.staMuAssocLabel = 'tpToStaTrackAssociationFS'
+recoMuonVTrackAssoc.staMuAssocLabel = 'tpToStaUpdTrackAssociationFS'
 recoMuonVTrackAssoc.glbMuAssocLabel = 'tpToGlbTrackAssociationFS'
 
 # Muon validation sequence
