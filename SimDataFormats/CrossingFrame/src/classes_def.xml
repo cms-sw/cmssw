@@ -14,6 +14,16 @@
   <class name="CrossingFrame<SimTrack> " persistent="false"/>
   <class name="CrossingFrame<SimVertex> " persistent="false"/>
   <class name="CrossingFrame<edm::HepMCProduct> " persistent="false"/>
+  <class name="PCrossingFrame<PCaloHit> " persistent="true"/>
+  <class name="PCrossingFrame<PSimHit> " persistent="true"/>
+  <class name="PCrossingFrame<SimTrack> " persistent="true"/>
+  <class name="PCrossingFrame<SimVertex> " persistent="true"/>
+  <class name="PCrossingFrame<edm::HepMCProduct> " persistent="true"/>
+  <class name="edm::Wrapper<PCrossingFrame<SimTrack> > "/>
+  <class name="edm::Wrapper<PCrossingFrame<SimVertex> > "/>
+  <class name="edm::Wrapper<PCrossingFrame<PCaloHit> > "/>
+  <class name="edm::Wrapper<PCrossingFrame<PSimHit> >"/>
+  <class name="edm::Wrapper<PCrossingFrame<edm::HepMCProduct> > "/>
   <class name="edm::Wrapper<CrossingFramePlaybackInfo> "/>
 </lcgdict>
 

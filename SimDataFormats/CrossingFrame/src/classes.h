@@ -1,4 +1,5 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/PCrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfo.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
@@ -20,18 +21,30 @@ namespace {
  	CrossingFrame<SimVertex> dummy4;
  	CrossingFrame<edm::HepMCProduct> dummy5;
 
-        std::vector<int> dummy9;
-        std::vector<const PSimHit *> dummy10;
-        std::vector<const PCaloHit *> dummy11;
-        std::vector<const SimTrack *> dummy12;
-        std::vector<const SimVertex *> dummy13;
-        std::vector<const edm::HepMCProduct *> dummy14;
+ 	PCrossingFrame<PSimHit> dummy6;
+ 	PCrossingFrame<PCaloHit> dummy8;
+ 	PCrossingFrame<SimTrack> dummy9;
+ 	PCrossingFrame<SimVertex> dummy10;
+ 	PCrossingFrame<edm::HepMCProduct> dummy11;
 
-        edm::Wrapper<CrossingFramePlaybackInfo > dummy19;
-        edm::Wrapper<CrossingFrame<PSimHit> > dummy20;
-        edm::Wrapper<CrossingFrame<PCaloHit> > dummy21;
-        edm::Wrapper<CrossingFrame<SimTrack> > dummy22;
-        edm::Wrapper<CrossingFrame<SimVertex> > dummy23;
-        edm::Wrapper<CrossingFrame<edm::HepMCProduct> > dummy24;
+        std::vector<int> dummy14;
+        std::vector<const PSimHit *> dummy15;
+        std::vector<const PCaloHit *> dummy16;
+        std::vector<const SimTrack *> dummy17;
+        std::vector<const SimVertex *> dummy18;
+        std::vector<const edm::HepMCProduct *> dummy19;
+
+        edm::Wrapper<CrossingFramePlaybackInfo > dummy24;
+        edm::Wrapper<CrossingFrame<PSimHit> > dummy25;
+        edm::Wrapper<CrossingFrame<PCaloHit> > dummy26;
+        edm::Wrapper<CrossingFrame<SimTrack> > dummy27;
+        edm::Wrapper<CrossingFrame<SimVertex> > dummy28;
+        edm::Wrapper<CrossingFrame<edm::HepMCProduct> > dummy29;
+	
+        edm::Wrapper<PCrossingFrame<PSimHit> > dummy36;
+        edm::Wrapper<PCrossingFrame<PCaloHit> > dummy37;
+        edm::Wrapper<PCrossingFrame<SimTrack> > dummy38;
+        edm::Wrapper<PCrossingFrame<SimVertex> > dummy39;
+        edm::Wrapper<PCrossingFrame<edm::HepMCProduct> > dummy40;
   };
 }
