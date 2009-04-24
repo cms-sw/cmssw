@@ -1,22 +1,16 @@
-<flags SEAL_PLUGIN_NAME="DQMEcalPreshowerMonitorClient">
-<use name=DQMServices/Core>
-<use name=DQMServices/Daemon>
 <use name=FWCore/Framework>
-<use name=FWCore/MessageLogger>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/ServiceRegistry>
-<use name=Foundation/PluginManager>
-<use name=rootcore>
-<lib name=Geom>
-<lib name=GeomPainter>
-<lib name=GeomBuilder>
+<use name=EventFilter/Utilities>
+<use name=DQMServices/Core>
+<use name=rootphysics>
+<flags EDM_PLUGIN=1>
 <export>
-  <use name=DQMServices/Core>
-  <use name=DQMServices/Daemon>
-  <use name=FWCore/Framework>
-  <use name=FWCore/MessageLogger>
-  <use name=FWCore/ParameterSet>
-  <use name=FWCore/ServiceRegistry>
-  <use name=rootcore>
-  <lib name=DQMEcalPreshowerMonitorClient>
+   <lib name=DQMEcalPreshowerMonitorClient>
+   <use name=DQMServices/Core>
+   <use name=FWCore/Framework>
+   <use name=FWCore/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=EventFilter/Utilities>
+   <use name=rootphysics>
 </export>
