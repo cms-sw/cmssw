@@ -23,7 +23,7 @@ l2UpdMuonTrackV = Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidato
 
 l2UpdMuonTrackV.label_tp_effic = 'mergedtruth:MergedTrackTruth'
 l2UpdMuonTrackV.label = ('hltL2Muons:UpdatedAtVtx',)
-l2UpdMuonTrackV.associatormap = 'tpToL2TrackAssociation'
+l2UpdMuonTrackV.associatormap = 'tpToL2UpdTrackAssociation'
 l2UpdMuonTrackV.associators = ('TrackAssociatorByDeltaR',)
 l2UpdMuonTrackV.dirName = 'HLT/Muon/MultiTrack/'
 l2UpdMuonTrackV.beamSpot = 'hltOfflineBeamSpot'
@@ -88,7 +88,7 @@ l2MuonMuTrackV.ignoremissingtrackcollection=True
 l2UpdMuonMuTrackV = Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidator.clone()
 
 l2UpdMuonMuTrackV.label_tp_effic = 'mergedtruth:MergedTrackTruth'
-l2UpdMuonMuTrackV.associatormap = 'tpToL2MuonAssociation'
+l2UpdMuonMuTrackV.associatormap = 'tpToL2UpdMuonAssociation'
 l2UpdMuonMuTrackV.label = ('hltL2Muons:UpdatedAtVtx',)
 l2UpdMuonMuTrackV.associators = 'muonAssociatorByHits'
 l2UpdMuonMuTrackV.dirName = 'HLT/Muon/MultiTrack/'
