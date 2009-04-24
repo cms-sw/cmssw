@@ -190,7 +190,7 @@ void CaloGeometryHelper::buildNeighbourArray()
   static const CaloDirection orderedDir[8]={SOUTHWEST,SOUTH,SOUTHEAST,WEST,EAST,NORTHWEST,NORTH,
 					    NORTHEAST};
 
-  const unsigned nbarrel = 62000;
+  const unsigned nbarrel = EBDetId::kSizeForDenseIndexing;
   // Barrel first. The hashed index runs from 0 to 61199
   barrelNeighbours_.resize(nbarrel);
   
@@ -254,7 +254,7 @@ void CaloGeometryHelper::buildNeighbourArray()
   size=vece.size();    
   // There are some holes in the hashedIndex for the EE. Hence the array is bigger than the number
   // of crystals
-  const unsigned nendcap=19960;
+  const unsigned nendcap=EEDetId::kSizeForDenseIndexing;
 
   endcapNeighbours_.resize(nendcap);
   for(unsigned ic=0; ic<size; ++ic) 
@@ -448,7 +448,7 @@ if(c1.subdetId()==EcalEndcap)
 
 void CaloGeometryHelper::buildCrystalArray()
 {
-  const unsigned nbarrel = 62000;
+  const unsigned nbarrel = EBDetId::kSizeForDenseIndexing;
   // Barrel first. The hashed index runs from 0 to 61199
   barrelCrystals_.resize(nbarrel,BaseCrystal());
 
@@ -473,7 +473,7 @@ void CaloGeometryHelper::buildCrystalArray()
   size=vece.size();    
   // There are some holes in the hashedIndex for the EE. Hence the array is bigger than the number
   // of crystals
-  const unsigned nendcap=19960;
+  const unsigned nendcap=EEDetId::kSizeForDenseIndexing;
 
   endcapCrystals_.resize(nendcap,BaseCrystal());
   for(unsigned ic=0; ic<size; ++ic) 
