@@ -28,6 +28,8 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
     eMin = cms.double(0.0),
     eMax = cms.double(100.0),
 #
+    etScale = cms.double(0.1),
+#                                  
     etBin = cms.int32(100),                                  
     etMax = cms.double(100.0),                                  
     etMin = cms.double(0.0),
