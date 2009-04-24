@@ -71,7 +71,7 @@ process.source = cms.Source("DAQEcalTBInputService",
 
 process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
 
-process.EcalTrivialConditionRetriever.adcToGeVEBConstant = 0.00875
+process.EcalTrivialConditionRetriever.adcToGeVEBConstant = cms.untracked.double(0.00875)
 process.EcalTrivialConditionRetriever.getWeightsFromFile = False
 process.EcalTrivialConditionRetriever.pedWeights = cms.untracked.vdouble(0.333, 0.333, 0.333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
 process.EcalTrivialConditionRetriever.pedWeightsAft = cms.untracked.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
