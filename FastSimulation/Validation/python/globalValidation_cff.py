@@ -10,7 +10,7 @@ from Validation.RecoMET.METRelValForDQM_cff import *
 from Validation.TrackingMCTruth.trackingTruthValidation_cfi import *
 from Validation.RecoTrack.TrackValidation_fastsim_cff import *
 ###must be commented for automatic RelVal running
-multiTrackValidator.outputFile='valPlots_fastsim.root'
+###multiTrackValidator.outputFile='valPlots_fastsim.root'
 
 from Validation.RecoMuon.muonValidationFastSim_cff import *
 from Validation.MuonIsolation.MuIsoVal_cff import *
