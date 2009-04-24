@@ -481,14 +481,19 @@ void AlignableModifier::addAlignmentPositionErrorLocal( Alignable* alignable,
 
   LogDebug("PrintArgs") << "Adding a local AlignmentPositionError of size " 
                         << dx << " "  << dy << " "  << dz;
-  // FIXME (GF):
-  // We have to build a (diagonal) error matrix, rotate it into global system
-  // and pass this as GlobalError to the AlignmentPositionError constructor!
-  // This way here neglects off-diagonal terms!
 
-  align::GlobalVector error = alignable->surface().toGlobal( align::LocalVector(dx,dy,dz) );
+  AlgebraicSymMatrix as(3,0); //3x3, zeroed
+  as[0][0] = dx*dx; as[1][1] = dy*dy; as[2][2] = dz*dz; //diagonals
+  align::RotationType rt = alignable->globalRotation(); //get rotation
+  AlgebraicMatrix am(3,3);
+  am[0][0]=rt.xx(); am[0][1]=rt.xy(); am[0][2]=rt.xz();
+  am[1][0]=rt.yx(); am[1][1]=rt.yy(); am[1][2]=rt.yz();
+  am[2][0]=rt.zx(); am[2][1]=rt.zy(); am[2][2]=rt.zz();
+  as=as.similarityT(am); //rotate error matrix
 
-  AlignmentPositionError ape( error.x(), error.y(), error.z() );
+  GlobalError ge( as );
+  AlignmentPositionError ape( ge );
+
   alignable->addAlignmentPositionError( ape, true ); // propagate down to components
 
 }
