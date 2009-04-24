@@ -1134,9 +1134,6 @@ namespace edm {
   namespace {
     boost::shared_ptr<BranchMapper>
     makeBranchMapperInRelease180(RootTree & rootTree, BranchType const& type, ProductRegistry const& preg) {
-       LogWarning("RootFile")
-         << "Backward compatibility not fully supported for reading files"
-	 << " written in CMSSW_1_8_4 or prior releases in releaseCMSSW_3_0_0.\n";
       boost::shared_ptr<BranchMapperWithReader> mapper(new BranchMapperWithReader());
       mapper->setDelayedRead(false);
 
