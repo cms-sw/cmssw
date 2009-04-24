@@ -64,7 +64,7 @@ recoMuonVMuAssoc.staMuLabel = 'standAloneMuons:UpdatedAtVtx'
 recoMuonVMuAssoc.glbMuLabel = 'globalMuons'
 
 recoMuonVMuAssoc.trkMuAssocLabel = 'tpToTkMuonAssociation'
-recoMuonVMuAssoc.staMuAssocLabel = 'tpToStaMUpduonAssociation'
+recoMuonVMuAssoc.staMuAssocLabel = 'tpToStaUpdMuonAssociation'
 recoMuonVMuAssoc.glbMuAssocLabel = 'tpToGlbMuonAssociation'
 
 recoMuonVTrackAssoc = Validation.RecoMuon.RecoMuonValidator_cfi.recoMuonValidator.clone()
