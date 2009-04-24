@@ -23,9 +23,11 @@ void CSCDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   edm::Handle<CSCWireDigiCollection> wires;
   edm::Handle<CSCComparatorDigiCollection> comparators;
 
+  std::cout << "Event " << e.id() << std::endl;
 
   e.getByLabel(wireDigiTag_, wires);
   for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
+    std::cout << "Wire digis from "<< CSCDetId((*j).first) << std::endl;
     std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
     std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
     for( ; digiItr != last; ++digiItr) {
@@ -49,6 +51,7 @@ void CSCDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   for (CSCComparatorDigiCollection::DigiRangeIterator j=comparators->begin(); 
        j!=comparators->end(); j++) 
   {
+    std::cout << "Comparator digis from "<< CSCDetId((*j).first) << std::endl;
     std::vector<CSCComparatorDigi>::const_iterator digiItr = (*j).second.first;
     std::vector<CSCComparatorDigi>::const_iterator last = (*j).second.second;
     for( ; digiItr != last; ++digiItr) {
