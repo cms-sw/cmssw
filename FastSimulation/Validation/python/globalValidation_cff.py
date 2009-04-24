@@ -5,8 +5,7 @@ from SimGeneral.TrackingAnalysis.trackingParticles_cfi import *
 mergedtruth.TrackerHitLabels = ['famosSimHitsTrackerHits']
 mergedtruth.simHitLabel = 'famosSimHits'
 
-#### - temporary exclusion, also from the sequence below 
-# from Validation.RecoMET.METRelValForDQM_cff import *
+from Validation.RecoMET.METRelValForDQM_cff import *
 
 from Validation.TrackingMCTruth.trackingTruthValidation_cfi import *
 from Validation.RecoTrack.TrackValidation_fastsim_cff import *
@@ -14,6 +13,7 @@ from Validation.RecoTrack.TrackValidation_fastsim_cff import *
 multiTrackValidator.outputFile='valPlots_fastsim.root'
 
 from Validation.RecoMuon.muonValidationFastSim_cff import *
+from Validation.MuonIsolation.MuIsoVal_cff import *
 
 from PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi import * 
 from Validation.RecoB.bTagAnalysis_cfi import *
@@ -22,8 +22,8 @@ bTagValidation.etaRanges = cms.vdouble(0.0, 1.1, 2.4)
 
 globalValidation = cms.Sequence(trackingParticles+trackingTruthValid
                                 +tracksValidation
-###                                +METRelValSequence
-                                +recoMuonValidationFastSim
+                                +METRelValSequence
+                                +recoMuonValidationFastSim+muIsoVal_seq
                                 +myPartons
                                 +iterativeCone5Flavour
                                 +bTagValidation)
