@@ -14,7 +14,9 @@ process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 process.load("FastSimulation.Configuration.ttbar_cfi")
 
 # L1 Menu and prescale factors : useful for testing all L1 paths
-process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
+# Note: the L1 conditions and menu now come from the GlobalTag !!!!!!!!!!!!
+###process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
+
 # Other choices are
 # L1 Menu 2008 2x10E30 - Prescale
 # process.load("L1TriggerConfig/L1GtConfigProducers/data/Luminosity/lumi1030/L1Menu2008_2E30.cff")
@@ -69,8 +71,7 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
 # Get frontier conditions   - not applied in the HCAL, see below
-# Values for globaltag are "STARTUP_V3::All", "1PB::All", "10PB::All", "IDEAL_V5::All"
-process.GlobalTag.globaltag = "IDEAL_V5::All"
+process.GlobalTag.globaltag = "IDEAL_31X::All"
 
 
 # Set the early collions 10TeV parameters (as in the standard RelVals)
@@ -111,7 +112,7 @@ process.outpath = cms.EndPath(process.o1)
 process.schedule.append(process.outpath)
 
 process.configurationMetadata = cms.untracked.PSet(
-       version = cms.untracked.string('$Revision: 1.4 $'),
+       version = cms.untracked.string('$Revision: 1.5 $'),
           name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/FastSimulation/Validation/test/Template_cfg.py,v $'),
           annotation = cms.untracked.string('RelVal Fast Sim ==SAMPLE== IDEAL')
        ) 
