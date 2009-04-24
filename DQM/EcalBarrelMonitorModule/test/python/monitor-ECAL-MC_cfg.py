@@ -67,13 +67,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('/store/users/dellaric/data/relval_zee.root')
 )
 
-process.EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
-    adcToGeVEBConstant = cms.untracked.double(0.035),
-    adcToGeVEEConstant = cms.untracked.double(0.06),
-    pedWeights = cms.untracked.vdouble(0.333, 0.333, 0.333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-    amplWeights = cms.untracked.vdouble(-0.333, -0.333, -0.333, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0),
-    jittWeights = cms.untracked.vdouble(0.041, 0.041, 0.041, 0.0, 1.325, -0.05, -0.504, -0.502, -0.390, 0.0)
-)
+process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
@@ -104,6 +98,13 @@ process.ecalEndcapMonitorSequence = cms.Sequence(process.ecalEndcapMonitorModule
 process.p = cms.Path(process.ecalDataSequence*process.ecalBarrelMonitorSequence*process.ecalEndcapMonitorSequence*process.dqmSaver)
 process.q = cms.Path(process.ecalDataSequence*process.hybridSuperClusters*process.correctedHybridSuperClusters*process.multi5x5BasicClusters*process.multi5x5SuperClusters)
 process.r = cms.EndPath(process.ecalBarrelDefaultTasksSequence*process.ecalBarrelClusterTask*process.ecalEndcapDefaultTasksSequence*process.ecalEndcapClusterTask)
+
+process.EcalTrivialConditionRetriever.adcToGeVEBConstant = 0.00875
+process.EcalTrivialConditionRetriever.adcToGeVEEConstant = 0.006
+process.EcalTrivialConditionRetriever.getWeightsFromFile = False
+process.EcalTrivialConditionRetriever.pedWeights = cms.untracked.vdouble(0.333, 0.333, 0.333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+process.EcalTrivialConditionRetriever.amplWeights = cms.untracked.vdouble(-0.333, -0.333, -0.333, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0)
+process.EcalTrivialConditionRetriever.jittWeights = cms.untracked.vdouble(0.041, 0.041, 0.041, 0.0, 1.325, -0.05, -0.504, -0.502, -0.390, 0.0)
 
 process.ecalUncalibHit.MinAmplBarrel = 12.
 process.ecalUncalibHit.MinAmplEndcap = 16.
