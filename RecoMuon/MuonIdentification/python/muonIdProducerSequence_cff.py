@@ -12,7 +12,8 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cf
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
 from RecoMuon.MuonIdentification.isolation_cff import *
 from RecoMuon.MuonIdentification.muons_cfi import *
+from RecoMuon.MuonIdentification.muonTiming_cfi import *
 from RecoMuon.MuonIdentification.calomuons_cfi import *
-muonIdProducerSequence = cms.Sequence(muons*calomuons)
+muonIdProducerSequence = cms.Sequence(muons*muontiming*calomuons)
 
 
