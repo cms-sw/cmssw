@@ -45,18 +45,22 @@ void IOVPayloadEndOfJob::endJob(){
        mydbservice->writeOne(myped,new cond::GenericSummary("first"),firstSinceTime,m_record);
     }else{
       //append 
-      std::cout<<"appending payload"<<std::endl;
-      for(int ichannel=1; ichannel<=5; ++ichannel){
-	Pedestals::Item item;
-	item.m_mean=0.15*ichannel;
-	item.m_variance=0.32*ichannel;
-	myped->m_pedestals.push_back(item);
+      cond::Time_t current=mydbservice->currentTime();
+      std::cout<<"current time"<<current<<std::endl;
+      if(current>=5){
+	std::cout<<"appending payload"<<std::endl;
+	for(int ichannel=1; ichannel<=5; ++ichannel){
+	  Pedestals::Item item;
+	  item.m_mean=0.15*ichannel;
+	  item.m_variance=0.32*ichannel;
+	  myped->m_pedestals.push_back(item);
+	}
+	cond::Time_t thisPayload_valid_since=current;
+	std::cout<<"appeding since time "<<thisPayload_valid_since<<std::endl;
+	mydbservice->writeOne(myped,new cond::GenericSummary("second"),thisPayload_valid_since,m_record);
+	std::cout<<"done"<<std::endl;
+	//std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
       }
-      cond::Time_t thisPayload_valid_since=5;
-      std::cout<<"appeding since time "<<thisPayload_valid_since<<std::endl;
-       mydbservice->writeOne(myped,new cond::GenericSummary("second"),thisPayload_valid_since,m_record);
-      std::cout<<"done"<<std::endl;
-      //std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
     }
   }catch(const cond::Exception& er){
     std::cout<<er.what()<<std::endl;

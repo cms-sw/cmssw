@@ -39,12 +39,11 @@ void IOVPayloadAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& 
   std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
   
   std::cout<<"currentTime "<<mydbservice->currentTime()<<std::endl;
-  if(mydbservice->currentTime()%5==0){
-    mydbservice->writeOne(myped,new cond::GenericSummary("5"),
-			  mydbservice->currentTime(),
-			  m_record,false);
-  }
-
+  //if(mydbservice->currentTime()%5==0){
+  mydbservice->writeOne(myped,new cond::GenericSummary("5"),
+			mydbservice->currentTime(),
+			m_record,false);
+  //}
 }
 void IOVPayloadAnalyzer::endJob(){ 
   
