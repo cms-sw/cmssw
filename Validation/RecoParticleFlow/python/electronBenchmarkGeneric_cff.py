@@ -1,9 +1,23 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.RecoParticleFlow.electronBenchmarkGeneric_cfi import electronBenchmarkGeneric
+from PhysicsTools.PFCandProducer.pfAllElectrons_cfi import pfAllElectrons
+from Validation.RecoParticleFlow.pfElectronBenchmarkGeneric_cfi import pfElectronBenchmarkGeneric
 
-# add here specific things needed for the electron benchmark if needed
+# setting the sources
 
-electronBenchmarkGeneric = cms.Sequence( 
-    electronBenchmarkGeneric
+pfsource = 'pfAllElectrons'
+gensource = cms.EDProducer(
+    "GenParticlePruner",
+    src = cms.InputTag("genParticles"),
+    select = cms.vstring(
+    "drop * ",
+    "keep pdgId = cms.vint32(11,-11)"
+    )
+    )
+
+pfElectronBenchmarkGeneric.InputRecoLabel = cms.InputTag(pfsource)
+pfElectronBenchmarkGeneric.InputTruthLabel = cms.InputTag(gensource)
+
+electronBenchmarkGeneric = cms.Sequence(
+    pfElectronBenchmarkGeneric
     )
