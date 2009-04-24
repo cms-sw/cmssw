@@ -158,8 +158,8 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 			}
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].phi_       = trk->first.localPhi();
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].sign_      =(trk->first.ptLUTAddress()>>20)&0x1;
-			spDataRecord[sector][tbin][nTrk[sector][tbin]].front_rear = 0; // not necessary
-			spDataRecord[sector][tbin][nTrk[sector][tbin]].charge_    = trk->first.chargeValue(); //
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].front_rear = trk->first.front_rear();
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].charge_    = trk->first.charge_packed(); //
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].eta_       = trk->first.eta_packed();
 
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].halo_      = trk->first.finehalo_packed();
@@ -174,13 +174,13 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].me3_id     = trk->first.me3ID();
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].me4_id     = trk->first.me4ID();
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].mb_id      = trk->first.mb1ID();
-			spDataRecord[sector][tbin][nTrk[sector][tbin]].ms_id      = 0; // don't care
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].ms_id      = 0; // don't care winner()
 
-			spDataRecord[sector][tbin][nTrk[sector][tbin]].me1_tbin   = 0; // Unknown !
-			spDataRecord[sector][tbin][nTrk[sector][tbin]].me2_tbin   = 0; // Unknown !
-			spDataRecord[sector][tbin][nTrk[sector][tbin]].me3_tbin   = 0; // Unknown !
-			spDataRecord[sector][tbin][nTrk[sector][tbin]].me4_tbin   = 0; // Unknown !
-			spDataRecord[sector][tbin][nTrk[sector][tbin]].mb_tbin    = 0; // Unknown !
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].me1_tbin   = trk->first.me1Tbin();
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].me2_tbin   = trk->first.me2Tbin();
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].me3_tbin   = trk->first.me3Tbin();
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].me4_tbin   = trk->first.me4Tbin();
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].mb_tbin    = trk->first.mb1Tbin();
 
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].id_ = nTrk[sector][tbin]+1; // for later use
 
