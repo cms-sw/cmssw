@@ -64,7 +64,7 @@ process.source = cms.Source("PoolSource",
 process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
 
 process.EcalTrivialConditionRetriever.adcToGeVEBConstant = 0.035
-process.EcalTrivialConditionRetriever.adcToGeVEEConstant = 0.06
+process.EcalTrivialConditionRetriever.adcToGeVEEConstant = 0.060
 process.EcalTrivialConditionRetriever.getWeightsFromFile = False
 process.EcalTrivialConditionRetriever.pedWeights = cms.untracked.vdouble(0.333, 0.333, 0.333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
 process.EcalTrivialConditionRetriever.pedWeightsAft = cms.untracked.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
