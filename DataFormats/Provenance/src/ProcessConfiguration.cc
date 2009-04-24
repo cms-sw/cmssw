@@ -36,16 +36,6 @@ namespace edm {
 
   ParameterSetID const&
   ProcessConfiguration::parameterSetID() const {
-    if (parameterSetID_ == ParameterSetID()) {
-      throw edm::Exception(errors::LogicError)
-        << "Illegal attempt to access the process top level parameter set ID\n"
-        << "from the ProcessConfiguration before that parameter\n"
-        << "set has been frozen and registered.  The parameter set\n"
-        << "can be changed during module validation, which occurs\n"
-        << "concurrently with module construction.  The ID of the\n"
-        << "ProcessConfiguration itself also depends on that parameter\n"
-        << "set ID.  It is illegal to access either before they are frozen.\n";
-    }
     return parameterSetID_;
   }
 

@@ -24,6 +24,7 @@ namespace edm {
     
     std::string const& processName() const {return processName_;}
     ParameterSetID const& parameterSetID() const;
+    bool isParameterSetValid() const {return parameterSetID_.isValid();}
     ReleaseVersion const& releaseVersion() const {return releaseVersion_;}
     PassID const& passID() const {return passID_;}
     ProcessConfigurationID id() const;
