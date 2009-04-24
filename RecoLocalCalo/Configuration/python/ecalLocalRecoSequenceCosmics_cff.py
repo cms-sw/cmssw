@@ -11,8 +11,8 @@ from RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalPreshowerRecHit_cfi import *
-ecalLocalRecoSequence = cms.Sequence(ecalFixedAlphaBetaFitUncalibRecHit*ecalWeightUncalibRecHit*ecalRecHit+ecalPreshowerRecHit)
+from RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi import *
+ecalLocalRecoSequence = cms.Sequence(ecalFixedAlphaBetaFitUncalibRecHit*ecalWeightUncalibRecHit*ecalDetIdToBeRecovered*ecalRecHit+ecalPreshowerRecHit)
 ecalRecHit.EBuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
 ecalRecHit.EEuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
 ecalRecHit.ChannelStatusToBeExcluded = [1]
-
