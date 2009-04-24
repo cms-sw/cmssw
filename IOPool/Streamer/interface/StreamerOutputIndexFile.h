@@ -29,9 +29,11 @@
 
      void write(const InitMsgBuilder&);
      void write(const InitMsgView&);
+     void writeInit(uint32 runNumber, const char *headerPtr, uint32 headerSize);
 
      void write(const EventMsgBuilder&, uint64);
      void write(const EventMsgView&, uint64);
+     void writeEvent(const char *headerPtr, uint32 headerSize, uint64 offset);
 
      uint32 writeEOF(uint32 statusCode,
                     const std::vector<uint32>& hltStats);

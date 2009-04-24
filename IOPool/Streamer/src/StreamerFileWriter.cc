@@ -1,4 +1,4 @@
-// $Id: StreamerFileWriter.cc,v 1.16 2007/08/20 20:23:25 hcheung Exp $
+// $Id: StreamerFileWriter.cc,v 1.17.14.2 2009/04/01 20:09:41 biery Exp $
 
 #include "IOPool/Streamer/src/StreamerFileWriter.h"
 
@@ -70,6 +70,32 @@ void StreamerFileWriter::doOutputHeader(InitMsgView const& init_message)
        hltStats_.push_back(0);
   }
 
+void StreamerFileWriter::
+doOutputHeaderFragment(StreamerFileWriterHeaderParams const& hdrParams)
+  {
+    //Write the Init Message to Streamer file
+    stream_writer_->writeInitFragment(hdrParams.fragmentIndex,
+                                      hdrParams.fragmentCount,
+                                      hdrParams.dataPtr,
+                                      hdrParams.dataSize);
+
+    if (hdrParams.fragmentIndex == 0)
+    {
+      uint32 magic = 22;
+      uint64 reserved = 666;
+      index_writer_->writeIndexFileHeader(magic, reserved);
+      index_writer_->writeInit(hdrParams.runNumber, hdrParams.headerPtr,
+                               hdrParams.headerSize);
+
+      //HLT Count
+      hltCount_ = hdrParams.hltCount;
+
+      //Initialize the HLT Stat vector with all ZEROs
+      for(uint32 i = 0; i != hltCount_; ++i)
+        hltStats_.push_back(0);
+    }
+  }
+
 
 void StreamerFileWriter::doOutputEvent(EventMsgView const& msg)
   {
@@ -97,6 +123,28 @@ void StreamerFileWriter::doOutputEvent(EventMsgBuilder const& msg)
     EventMsgView eview(msg.startAddress());
     doOutputEvent(eview);
  
+  }
+
+void StreamerFileWriter::
+doOutputEventFragment(StreamerFileWriterEventParams const& evtParams)
+  {
+    //Write the Event Message to Streamer file
+    uint64 event_offset =
+      stream_writer_->writeEventFragment(evtParams.fragmentIndex,
+                                         evtParams.fragmentCount,
+                                         evtParams.dataPtr,
+                                         evtParams.dataSize);
+
+    if (evtParams.fragmentIndex == 0)
+    {
+      index_writer_->writeEvent(evtParams.headerPtr, evtParams.headerSize,
+                                event_offset);
+
+      // Lets update HLT Stat, know how many 
+      // Events for which Trigger are being written
+
+      updateHLTStats(evtParams.hltBits);
+    }
   }
 
 

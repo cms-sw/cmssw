@@ -1,7 +1,7 @@
 #ifndef IOPool_Streamer_StreamerFileWriter_h
 #define IOPool_Streamer_StreamerFileWriter_h 
 
-// $Id: StreamerFileWriter.h,v 1.10 2007/09/20 20:46:55 wmtan Exp $
+// $Id: StreamerFileWriter.h,v 1.11.6.1 2009/03/24 21:21:46 biery Exp $
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -20,6 +20,31 @@
 
 namespace edm
 {
+  struct StreamerFileWriterHeaderParams
+  {
+    uint32 runNumber;
+    uint32 hltCount;
+    const char* headerPtr;
+    uint32 headerSize;
+
+    uint32 fragmentIndex;
+    uint32 fragmentCount;
+    const char* dataPtr;
+    uint32 dataSize;
+  };
+
+  struct StreamerFileWriterEventParams
+  {
+    std::vector<unsigned char> hltBits;
+    const char* headerPtr;
+    uint32 headerSize;
+
+    uint32 fragmentIndex;
+    uint32 fragmentCount;
+    const char* dataPtr;
+    uint32 dataSize;
+  };
+
   class StreamerFileWriter 
   {
   public:
@@ -28,13 +53,13 @@ namespace edm
     explicit StreamerFileWriter(std::string const& fileName, std::string const& indexFileName);
     ~StreamerFileWriter();
 
-    //void doOutputHeader(std::auto_ptr<InitMsgBuilder> init_message);    
     void doOutputHeader(InitMsgBuilder const& init_message);    
     void doOutputHeader(InitMsgView const& init_message);    
+    void doOutputHeaderFragment(StreamerFileWriterHeaderParams const&);
 
-    //void doOutputEvent(std::auto_ptr<EventMsgBuilder> msg);
     void doOutputEvent(EventMsgBuilder const& msg);
     void doOutputEvent(EventMsgView const& msg);
+    void doOutputEventFragment(StreamerFileWriterEventParams const&);
 
     void start(){}
     void stop();

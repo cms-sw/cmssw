@@ -1,7 +1,7 @@
 #ifndef IOPool_Streamer_FRDEventFileWriter_h
 #define IOPool_Streamer_FRDEventFileWriter_h 
 
-// $Id: FRDEventFileWriter.h,v 1.10 2007/09/20 20:46:55 wmtan Exp $
+// $Id: FRDEventFileWriter.h,v 1.1.10.1 2009/04/03 18:29:38 biery Exp $
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
@@ -17,6 +17,8 @@ class FRDEventFileWriter
   ~FRDEventFileWriter();
 
   void doOutputEvent(FRDEventMsgView const& msg);
+  void doOutputEventFragment(unsigned char* dataPtr,
+                             unsigned long dataSize);
 
   void start() {}
   void stop() {}

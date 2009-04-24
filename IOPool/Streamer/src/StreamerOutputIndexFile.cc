@@ -29,6 +29,13 @@
     indexfile_->set_run(inview.run());
   }
 
+  void StreamerOutputIndexFile::
+  writeInit(uint32 runNumber, const char *headerPtr, uint32 headerSize)
+  {
+    indexfile_->write(headerPtr, headerSize);
+    indexfile_->set_run(runNumber);
+  }
+
   void StreamerOutputIndexFile::write(const EventMsgBuilder& ineview, 
                                       uint64 offset)
   {
@@ -67,6 +74,22 @@
     indexfile_->set_last_event_offset(offset);
   }
 
+  void StreamerOutputIndexFile::
+  writeEvent(const char *headerPtr, uint32 headerSize, uint64 offset)
+  {
+    /** Write the Event Header */
+    indexfile_->write(headerPtr, headerSize) ;
+
+    /** Write the Event Offset */
+    uint64 offsetstr;
+    convert(offset, (unsigned char*)&offsetstr);
+    indexfile_->write((const char*) &offsetstr, sizeof(uint64) );
+    if (indexfile_->events() == 0)
+      indexfile_->set_first_event_offset(offset);
+    indexfile_->inc_events();
+    /** Offset of last written event */
+    indexfile_->set_last_event_offset(offset);
+  }
 
   void StreamerOutputIndexFile::writeIndexFileHeader(uint32 magicNumber, 
                                                      uint64 reserved) 

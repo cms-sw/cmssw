@@ -1,4 +1,4 @@
-// $Id: FRDEventFileWriter.cc,v 1.17 2007/11/07 06:51:52 wmtan Exp $
+// $Id: FRDEventFileWriter.cc,v 1.1.10.1 2009/04/03 18:29:38 biery Exp $
 
 #include "IOPool/Streamer/interface/FRDEventFileWriter.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -32,6 +32,26 @@ void FRDEventFileWriter::doOutputEvent(FRDEventMsgView const& msg)
   ost_->flush();
   if (ost_->fail()) {
     throw cms::Exception("FRDEventFileWriter", "doOutputEvent")
+      << "Error writing FED Raw Data event data to "
+      << fileName_ << ".  Possibly the output disk "
+      << "is full?" << std::endl;
+  }
+}
+
+void FRDEventFileWriter::doOutputEventFragment(unsigned char* dataPtr,
+                                               unsigned long dataSize)
+{
+  ost_->write((const char*) dataPtr, dataSize);
+  if (ost_->fail()) {
+    throw cms::Exception("FRDEventFileWriter", "doOutputEventFragment")
+      << "Error writing FED Raw Data event data to "
+      << fileName_ << ".  Possibly the output disk "
+      << "is full?" << std::endl;
+  }
+
+  ost_->flush();
+  if (ost_->fail()) {
+    throw cms::Exception("FRDEventFileWriter", "doOutputEventFragment")
       << "Error writing FED Raw Data event data to "
       << fileName_ << ".  Possibly the output disk "
       << "is full?" << std::endl;

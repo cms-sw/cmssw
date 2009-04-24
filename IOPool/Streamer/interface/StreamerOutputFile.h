@@ -37,6 +37,9 @@ class StreamerOutputFile
      */
      void write(const InitMsgView&);
 
+     void writeInitFragment(uint32 fragIndex, uint32 fragCount,
+                            const char *dataPtr, uint32 dataSize);
+
      uint64 write(const EventMsgBuilder&);
      /**
       Performs write on EventMsgBuilder type,
@@ -45,6 +48,9 @@ class StreamerOutputFile
               which Event was written.
      */
      uint64 write(const EventMsgView&);
+
+     uint64 writeEventFragment(uint32 fragIndex, uint32 fragCount,
+                               const char *dataPtr, uint32 dataSize);
 
      //Returns how many bytes were written out
      uint32 writeEOF(uint32 statusCode,

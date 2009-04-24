@@ -40,11 +40,36 @@
     return offset_to_return;
   }
 
+  uint64 StreamerOutputFile::
+  writeEventFragment(uint32 fragIndex, uint32 fragCount,
+                     const char *dataPtr, uint32 dataSize)
+  {
+    /** Offset where current event starts */
+    uint64 offset_to_return = streamerfile_->current_offset();
+
+    if (fragIndex == 0) {
+      /** Offset of last written event */
+      streamerfile_->set_last_event_offset(streamerfile_->current_offset());
+    }
+
+    bool ret = streamerfile_->write(dataPtr, dataSize);
+    if (ret) {
+      throw cms::Exception("OutputFile", "writeEventFragment()")
+        << "Error writing streamer event data to "
+        << streamerfile_->fileName() << ".  Possibly the output disk "
+        << "is full?" << std::endl;
+    }
+
+    if (fragIndex == fragCount-1) {streamerfile_->inc_events();}
+
+    return offset_to_return;
+  }
+
   void StreamerOutputFile::writeEventHeader(const EventMsgView& ineview)
   {
     bool ret = streamerfile_->write((const char*)
-                         ineview.startAddress(),
-                         ineview.headerSize()) ;
+                                    ineview.startAddress(),
+                                    ineview.headerSize()) ;
     if (ret) {
       throw cms::Exception("OutputFile", "writeEventHeader")
         << "Error writing streamer event data to "
@@ -73,6 +98,24 @@
 
     /** Offset of first event to be written */
     streamerfile_->set_first_event_offset(streamerfile_->current_offset());
+  }
+
+  void StreamerOutputFile::
+  writeInitFragment(uint32 fragIndex, uint32 fragCount,
+                    const char *dataPtr, uint32 dataSize)
+  {
+    bool ret = streamerfile_->write((const char*) dataPtr, dataSize);
+    if (ret) {
+      throw cms::Exception("OutputFile", "writeInitFragment()")
+        << "Error writing streamer header data to "
+        << streamerfile_->fileName() << ".  Possibly the output disk "
+        << "is full?" << std::endl;
+    }
+
+    if (fragIndex == fragCount-1) {
+      /** Offset of first event to be written */
+      streamerfile_->set_first_event_offset(streamerfile_->current_offset());
+    }
   }
 
   void StreamerOutputFile::writeStart(const InitMsgView& inview)
