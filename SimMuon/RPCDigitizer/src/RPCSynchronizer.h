@@ -58,8 +58,10 @@ class RPCSynchronizer
   double dtimCs;
   double resEle;
   double sspeed;
+  double cspeed;
   double lbGate;
   double lbGateNew;
+  double cosmicPar;
 
   bool cosmics;
 
@@ -68,5 +70,7 @@ class RPCSynchronizer
   CLHEP::RandPoissonQ *poissonDistribution_;
   CLHEP::RandFlat *flatDistribution_;
   RPCSimSetUp * theSimSetUp;
+
 };
 #endif
+
