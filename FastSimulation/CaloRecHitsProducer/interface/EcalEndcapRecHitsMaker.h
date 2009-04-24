@@ -9,6 +9,7 @@
 
 class RandomEngine;
 class EcalTrigTowerConstituentsMap;
+class GaussianTail;
 
 namespace edm { 
   class ParameterSet;
@@ -42,6 +43,7 @@ class EcalEndcapRecHitsMaker
   inline int towerOf(int hid) const {return towerOf_[hid];}
   void noisifyTriggerTowers();
   void noisifySuperCrystals(int tthi);
+  void randomNoisifier();
   bool isHighInterest(const EEDetId & icell);
 
  private:
@@ -54,8 +56,9 @@ class EcalEndcapRecHitsMaker
   double threshold_;
   double noise_;
   double calibfactor_;
-
+  double EEHotFraction_ ;
   const RandomEngine* random_;
+  const GaussianTail * myGaussianTailGenerator_;
   bool noisified_;
 
   // array (size = 20000) of the energy in the barrel

@@ -2,6 +2,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/GaussianTail.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h" 	 
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
@@ -17,6 +18,8 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 
+#include "CLHEP/GenericFunctions/Erf.hh"
+
 #include <algorithm>
 
 EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p, 
@@ -31,8 +34,8 @@ EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p,
   SRThreshold_ = RecHitsParameters.getParameter<double> ("SRThreshold");
   refactor_ = RecHitsParameters.getParameter<double> ("Refactor");
   refactor_mean_ = RecHitsParameters.getParameter<double> ("Refactor_mean");
-  theCalorimeterHits_.resize(14648,0.);
-  towerOf_.resize(14648);
+  theCalorimeterHits_.resize(EEDetId::kSizeForDenseIndexing,0.);
+  towerOf_.resize(EEDetId::kSizeForDenseIndexing);
   theTTDetIds_.resize(1440);
   SCofTT_.resize(1440);
   SCHighInterest_.resize(633,0);
@@ -40,7 +43,17 @@ EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p,
   TTofSC_.resize(633);
   TTTEnergy_.resize(1440,0.);
   CrystalsinSC_.resize(633);
-  sinTheta_.resize(7324,0.);
+  sinTheta_.resize(EEDetId::kEEhalf,0.);
+
+  Genfun::Erf myErf; 
+  if(  noise_>0. ) {
+    EEHotFraction_ = 0.5-0.5*myErf(threshold_/noise_/sqrt(2.));
+    myGaussianTailGenerator_ = new GaussianTail(random_, noise_, threshold_);
+  } else {
+    EEHotFraction_ =0.;
+  }
+
+
   noisified_ = (noise_==0.);
   edm::ParameterSet CalibParameters=RecHitsParameters.getParameter<edm::ParameterSet>("ContFact"); 
   double c1 = CalibParameters.getParameter<double>("EEs25notContainment");
@@ -196,6 +209,7 @@ void EcalEndcapRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
     }
   //  std::cout << " Noisifying the TT " << std::endl;
   noisifyTriggerTowers();
+  randomNoisifier();
 }
 
 void EcalEndcapRecHitsMaker::noisifyTriggerTowers()
@@ -256,6 +270,59 @@ void EcalEndcapRecHitsMaker::noisifySuperCrystals(int tthi)
       //      std::cout << "SC " << SCofTT_[tthi][isc] << " done ; injected " << count << std::endl;
     }
 }
+
+// injects high noise fluctuations cells. It is assumed that these cells cannot 
+// make of the tower a high interest one
+void EcalEndcapRecHitsMaker::randomNoisifier()
+{
+  // first of cells where some noise will be injected
+  double mean = (double)(EEDetId::kSizeForDenseIndexing-theFiredCells_.size())*EEHotFraction_;
+  unsigned ncells= random_->poissonShoot(mean);
+
+  // for debugging
+  //  std::vector<int> listofNewTowers;
+
+  unsigned icell=0;
+  while(icell < ncells)
+    {
+      unsigned cellindex= (unsigned)(floor(random_->flatShoot()*EEDetId::kSizeForDenseIndexing));
+      if(theCalorimeterHits_[cellindex]==0.)
+	{
+	  double energy=myGaussianTailGenerator_->shoot();
+	  theCalorimeterHits_[cellindex]=energy;
+	  theFiredCells_.push_back(cellindex);
+	  EEDetId myDetId(EEDetId::unhashIndex(cellindex));
+	  // now get the TT 	  
+	  int TThashedindex=towerOf_[cellindex];
+	  //	  std::cout << " myDetIds " << myDetId << " "TTHI " << TThashedindex<< std::endl;
+	  if(TTTEnergy_[TThashedindex]==0.)
+	    {
+	      theFiredTTs_.push_back(TThashedindex);
+	      TTTEnergy_[TThashedindex]+=energy*sinTheta_[(cellindex<EEDetId::kEEhalf)?cellindex : cellindex-EEDetId::kEEhalf];	 
+	      //	      listofNewTowers.push_back(TThashedindex);
+	    }
+//	  else
+//	    {
+//	      std::vector<int>::const_iterator itcheck=std::find(listofNewTowers.begin(),listofNewTowers.end(),
+//								 TThashedindex);
+//	      if(itcheck==listofNewTowers.end())
+//		{
+//		  std::cout << " EcalBarrelRecHitsMaker : this tower has already been treated " << TTTEnergy_[TThashedindex] << myDetId << std::endl;
+//		  const std::vector<int> & scxtals=SCofTT_[TThashedindex];
+//		  for(unsigned isc=0;isc<scxtals.size();++isc)
+//		    {
+//		      const std::vector<int> & xtals(CrystalsinSC_[SCofTT_[TThashedindex][isc]]);
+//		      for(unsigned ic=0;ic<xtals.size();++ic)
+//			std::cout << isc << " " << EEDetId::unhashIndex(xtals[ic]) << " " << theCalorimeterHits_[xtals[ic]] << std::endl;
+//		    }
+//		}
+//	    }
+	  ++icell;
+	}
+    }
+  //  std::cout << " Injected random noise in " << ncells << " cells " << std::endl;
+}
+
 
 void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool domiscalib)  
 {

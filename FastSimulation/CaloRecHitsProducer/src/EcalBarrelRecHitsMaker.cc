@@ -317,7 +317,7 @@ void EcalBarrelRecHitsMaker::randomNoisifier()
   unsigned ncells= random_->poissonShoot(mean);
 
   // for debugging
-  std::vector<int> listofNewTowers;
+  //  std::vector<int> listofNewTowers;
 
   unsigned icell=0;
   while(icell < ncells)
@@ -336,7 +336,7 @@ void EcalBarrelRecHitsMaker::randomNoisifier()
 	    {
 	      theFiredTTs_.push_back(TThashedindex);
 	      TTTEnergy_[TThashedindex]+=energy*sinTheta_[myDetId.ietaAbs()];	      
-	      listofNewTowers.push_back(TThashedindex);
+	      //	      listofNewTowers.push_back(TThashedindex);
 	    }
 //	  else
 //	    {
