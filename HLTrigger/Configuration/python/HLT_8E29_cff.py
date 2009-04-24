@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre4/8E29_V54/V2 (CMSSW_3_1_X_2009-04-16-0800_HLT1)
+# /dev/CMSSW_3_1_0/pre4/8E29_V55/V2 (CMSSW_3_1_X_2009-04-16-0800_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre4/8E29_V54/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre4/8E29_V55/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -984,7 +984,7 @@ hltGctDigis = cms.EDProducer( "GctRawToDigi",
     inputLabel = cms.InputTag( "rawDataCollector" ),
     gctFedId = cms.int32( 745 ),
     hltMode = cms.bool( False ),
-    unpackerVersion = cms.uint32( 2 )
+    unpackerVersion = cms.uint32( 0 )
 )
 hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
     GmtInputTag = cms.InputTag( "hltGtDigis" ),
