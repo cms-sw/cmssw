@@ -49,9 +49,7 @@ bool RecoSelector::isSelected(const edm::Event& iEvent)
 {
 
 
-
   this->handleObjects(iEvent);
-
 
 
   bool TotalCutPassed = false;
@@ -59,13 +57,19 @@ bool RecoSelector::isSelected(const edm::Event& iEvent)
   bool ElectronCutPassed = false;
   for(unsigned int i=0; i<theElectronCollection->size(); i++) {
     GsfElectron electron = (*theElectronCollection)[i];
-    float elenergy = electron.superCluster()->energy();
-    float elpt = electron.pt() * elenergy / electron.p();
-    if(elpt>reco_ptElecMin)  ElectronCutPassed = true;
-    LogDebug("RecoSelectorCuts") << "elpt = " << elpt << endl;
+    if (electron.isEcalDriven()) {
+      float elenergy = electron.superCluster()->energy();
+      float elpt = electron.pt() * elenergy / electron.p();
+      if(elpt>reco_ptElecMin)  ElectronCutPassed = true;
+      LogDebug("RecoSelectorCuts") << "elpt = " << elpt << endl;
+    }
+    else {
+      float elenergy = 0;
+      float elpt = 0;
+      ElectronCutPassed = false;
+    }
   }
 
-  
   bool MuonCutPassed = false;
   for(unsigned int i=0; i<theMuonCollection->size(); i++) {
     Muon muon = (*theMuonCollection)[i];
@@ -102,13 +106,11 @@ bool RecoSelector::isSelected(const edm::Event& iEvent)
   edm::LogInfo("RecoSelectorPassed") << "MetCutPassed      = " << (int)MetCutPassed << endl;
 
 
-
   if(
      (ElectronCutPassed || MuonCutPassed) &&
      PhotonCutPassed                      &&
      JetCutPassed                         &&
      MetCutPassed      )   TotalCutPassed = true;
-
 
   return TotalCutPassed;
 }

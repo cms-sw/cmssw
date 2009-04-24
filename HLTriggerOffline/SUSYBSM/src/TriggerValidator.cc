@@ -15,7 +15,7 @@ Implementation:
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.cc,v 1.11 2009/04/07 16:36:46 chiorbo Exp $
+// $Id: TriggerValidator.cc,v 1.12 2009/04/10 18:11:39 chiorbo Exp $
 //
 //
 
@@ -128,8 +128,8 @@ TriggerValidator::TriggerValidator(const edm::ParameterSet& iConfig):
   }
 
 
-  plotMakerL1Input.addParameter<std::string>("dirname",dirname_);
-  plotMakerRecoInput.addParameter<std::string>("dirname",dirname_);
+   plotMakerL1Input.addParameter<std::string>("dirname",dirname_);
+   plotMakerRecoInput.addParameter<std::string>("dirname",dirname_);
 
 }
 
@@ -174,7 +174,6 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   int nL1size = L1GTRR->decisionWord().size();
   if(firstEvent) {
 
-
     //this piece of code concerns efficiencies
     //it must be moved to the client
 
@@ -188,8 +187,6 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     for(unsigned int i=0; i<L1GTRR->decisionWord().size(); i++) {vCorrNormL1[i].resize(L1GTRR->decisionWord().size());}
 
 
-    
-
     //Get the names of the L1 paths
     //for the moment the names are not included in L1GlobalTriggerReadoutRecord
     //we need to use L1GlobalTriggerObjectMapRecord
@@ -197,13 +194,13 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //    iEvent.getByLabel("l1GtEmulDigis", gtObjectMapRecord);
     //    iEvent.getByLabel("hltL1GtObjectMap", gtObjectMapRecord);
     iEvent.getByLabel(l1Label, gtObjectMapRecord);
-    const std::vector<L1GlobalTriggerObjectMap>& objMapVec =
+     const std::vector<L1GlobalTriggerObjectMap>& objMapVec =
       gtObjectMapRecord->gtObjectMap();
-    for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin();
+     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin();
 	 itMap != objMapVec.end(); ++itMap) {
       int algoBit = (*itMap).algoBitNumber();
-      std::string algoNameStr = (*itMap).algoName();
-      l1NameMap[algoBit] = algoNameStr;
+       std::string algoNameStr = (*itMap).algoName();
+       l1NameMap[algoBit] = algoNameStr;
     }
     //resize the name vector and get the names
     l1Names_.resize(L1GTRR->decisionWord().size()+1);
@@ -342,7 +339,6 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //  myTurnOnMaker->fillPlots(iEvent);
 
   firstEvent = false;
-
 }
 
 
@@ -351,18 +347,17 @@ void
 TriggerValidator::beginJob(const edm::EventSetup&)
 {
 
-  DQMStore *dbe = 0;
-  dbe = Service<DQMStore>().operator->();
+
+  DQMStore *dbe_ = 0;
+  dbe_ = Service<DQMStore>().operator->();
   
-  
-  if (dbe) {
-    dbe->setCurrentFolder(dirname_);
-    dbe->rmdir(dirname_);
+  if (dbe_) {
+    dbe_->setCurrentFolder(dirname_);
+    dbe_->rmdir(dirname_);
   }
   
-  
-  if (dbe) {
-    dbe->setCurrentFolder(dirname_);
+  if (dbe_) {
+    dbe_->setCurrentFolder(dirname_);
   }  
   
   
@@ -373,7 +368,6 @@ TriggerValidator::beginJob(const edm::EventSetup&)
 
   
 
-
   myRecoSelector = new RecoSelector(userCut_params);
   if(mcFlag) myMcSelector   = new McSelector(userCut_params);
   if(l1Flag) myPlotMakerL1     = new PlotMakerL1(plotMakerL1Input);
@@ -381,7 +375,6 @@ TriggerValidator::beginJob(const edm::EventSetup&)
 //   myTurnOnMaker = new TurnOnMaker(turnOn_params);
   firstEvent = true;
 
-  
   //resize the vectors ccording to the number of L1 paths
   numTotL1BitsBeforeCuts.resize(nL1Bits+1);
   numTotL1BitsAfterRecoCuts.resize(nL1Bits+1);
@@ -392,22 +385,20 @@ TriggerValidator::beginJob(const edm::EventSetup&)
   numTotHltBitsAfterRecoCuts.resize(nHltPaths+1);
   numTotHltBitsAfterMcCuts.resize(nHltPaths+1);
   
-
-  if (dbe) {
-    dbe->setCurrentFolder(dirname_);
-    dbe->rmdir(dirname_);
+  if (dbe_) {
+    dbe_->setCurrentFolder(dirname_);
+    dbe_->rmdir(dirname_);
   }
   
   
-  if (dbe) {
-    dbe->setCurrentFolder(dirname_);
+  if (dbe_) {
+    dbe_->setCurrentFolder(dirname_);
     }
   
   dbe_->setCurrentFolder(dirname_+triggerBitsDir);
   //add 1 bin for the Total
   hL1BitsBeforeCuts  = dbe_->book1D("L1Bits", "L1 Trigger Bits",nL1Bits+1, 0, nL1Bits+1);    
   hHltBitsBeforeCuts = dbe_->book1D("HltBits","HL Trigger Bits",nHltPaths+1, 0, nHltPaths+1);
-
 //   hL1OverlapNormToTotal        = dbe_->book2D("L1OverlapNormToTotal"       ,"Overlap among L1 paths, norm to the Total number of Events", 1, 0, 1, 1, 0, 1);
 //   hHltOverlapNormToTotal       = dbe_->book2D("HltOverlapNormToTotal"      ,"Overlap among Hlt paths, norm to the Total number of Events ", 1, 0, 1, 1, 0, 1);
 //   hL1OverlapNormToLargestPath  = dbe_->book2D("L1OverlapNormToLargestPath" ,"Overlap among L1 paths, norm to the Largest of the couple ", 1, 0, 1, 1, 0, 1);
@@ -420,7 +411,6 @@ TriggerValidator::beginJob(const edm::EventSetup&)
   dbe_->setCurrentFolder(dirname_+mcSelBitsDir);   
   hL1BitsAfterMcCuts  = dbe_->book1D("L1Bits", "L1 Trigger Bits",nL1Bits+1, 0, nL1Bits+1);    
   hHltBitsAfterMcCuts = dbe_->book1D("HltBits","HL Trigger Bits",nHltPaths+1, 0, nHltPaths+1);
-
 }
 
 
@@ -500,6 +490,7 @@ TriggerValidator::endRun(const edm::Run& run, const edm::EventSetup& c)
   //identical to the ones with "bits"
   //but with the names in the x axis
   //instead of the numbers
+
   dbe_->setCurrentFolder(dirname_+triggerBitsDir);
   TH1F* hTemp = (TH1F*) (hL1BitsBeforeCuts->getTH1F())->Clone("L1Paths");
   hL1PathsBeforeCuts  = dbe_->book1D("L1Paths", hTemp);

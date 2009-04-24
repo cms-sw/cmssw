@@ -46,11 +46,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_3_0_0_pre7/RelValLM1_sfts/GEN-SIM-RECO/IDEAL_30X_v1/0006/0C5E2705-6AE8-DD11-95EF-0030487A3C9A.root',
-        '/store/relval/CMSSW_3_0_0_pre7/RelValLM1_sfts/GEN-SIM-RECO/IDEAL_30X_v1/0006/40E30846-70E8-DD11-A5F3-000423D944F0.root',
-        '/store/relval/CMSSW_3_0_0_pre7/RelValLM1_sfts/GEN-SIM-RECO/IDEAL_30X_v1/0006/6C9170F8-71E8-DD11-9B50-001D09F241B9.root',
-        '/store/relval/CMSSW_3_0_0_pre7/RelValLM1_sfts/GEN-SIM-RECO/IDEAL_30X_v1/0006/BC47E3BD-6AE8-DD11-8B0D-001D09F2932B.root',
-        '/store/relval/CMSSW_3_0_0_pre7/RelValLM1_sfts/GEN-SIM-RECO/IDEAL_30X_v1/0006/CE8ABD28-6CE8-DD11-9A94-000423D94990.root'
+#"file:/build/nuno/test31/CMSSW_3_1_0_pre5/src/TTbar_Tauola_cfi_py_GEN_FASTSIM_VALIDATION.root"
+'/store/relval/CMSSW_3_1_0_pre5/RelValQCD_Pt_80_120/GEN-SIM-RECO/IDEAL_31X_v1/0000/E63C1A00-0C2C-DE11-BFC1-000423D98800.root'
         )
 )
 

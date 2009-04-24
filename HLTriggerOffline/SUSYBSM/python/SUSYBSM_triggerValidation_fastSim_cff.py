@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-HLTSusyExoValFastSim = cms.EDAnalyzer("TriggerValidator",
+HLTSusyExoVal = cms.EDAnalyzer("TriggerValidator",
     TurnOnParams = cms.PSet(
         hlt1MuonIsoList = cms.vstring('hltSingleMuIsoLevel1Seed', 
             'hltSingleMuIsoL1Filtered', 
@@ -50,7 +50,8 @@ HLTSusyExoValFastSim = cms.EDAnalyzer("TriggerValidator",
         electrons = cms.string('gsfElectrons')
     ),
     mc_flag = cms.untracked.bool(True), ## put mc_flag = false if you don't want to use the mc information.
-
+    l1_flag = cms.untracked.bool(False), ## put l1_flag = false if you don't want the plots for the L1 objects. 
+                                         ## Put false for usage in the DQM framework (reduce the number of bins).
     histoFileName = cms.untracked.string('MonElements_LM1_IDEAL_30x_v1_300pre7.root'),
     PlotMakerL1Input = cms.PSet(
         l1extramc = cms.string('hltL1extraParticles')
