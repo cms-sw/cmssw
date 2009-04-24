@@ -37,8 +37,8 @@ process.maxEvents = cms.untracked.PSet(
 
 
 from Validation.RecoEgamma.photonValidator_cfi import *
-photonValidation.OutputFileName = 'PhotonValidationRelVal310pre5_SingleGammaPt35.root'
-#photonValidation.OutputFileName = 'PhotonValidationRelVal310pre5_SingleGammaPt10.root'
+#photonValidation.OutputFileName = 'PhotonValidationRelVal310pre5_SingleGammaPt35.root'
+photonValidation.OutputFileName = 'PhotonValidationRelVal310pre5_SingleGammaPt10.root'
 #photonValidation.OutputFileName = 'PhotonValidationRelVal310pre5_SingleGammaFlatPt10_100.root'
 #photonValidation.OutputFileName = 'PhotonValidationRelVal310pre5_QCD_Pt_50_80.root'
 #photonValidation.OutputFileName = 'PhotonValidationRelVal310pre5_GammaJets_Pt_80_120.root'
@@ -50,10 +50,12 @@ process.source = cms.Source("PoolSource",
 #'file:/build/nancy/CMSSW_3_1_0_pre5/src/RecoEgamma/SingleGammaPt35_cfi_GEN_SIM_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO.root'
 
   # official RelVal 310pre5 single Photons pt=35GeV
-    '/store/relval/CMSSW_3_1_0_pre5/RelValSingleElectronPt35/GEN-SIM-RECO/IDEAL_31X_v1/0000/86868101-972B-DE11-A12D-000423D98EA8.root',
-    '/store/relval/CMSSW_3_1_0_pre5/RelValSingleElectronPt35/GEN-SIM-RECO/IDEAL_31X_v1/0000/F43FF202-0C2C-DE11-BA8C-000423D6B358.root'
+
+#'file:/data/test/CMSSW_3_1_0_pre5/src/RecoEgamma/SingleGammaPt35_ReReco.root'
+#'file:/data/test/CMSSW_3_1_0_pre5/src/RecoEgamma/SingleGammaPt35_ReRecoOldEcalIsoCut.root'
 
   # official RelVal 310pre5 single Photons pt=10GeV    
+    '/store/relval/CMSSW_3_1_0_pre5/RelValSingleGammaPt10/GEN-SIM-RECO/IDEAL_31X_v1/0000/6EFC1418-0C2C-DE11-94BB-000423D9890C.root'
 
 
   # official RelVal 310pre5 RelValH130GGgluonfusion
@@ -66,11 +68,15 @@ process.source = cms.Source("PoolSource",
                             
     secondaryFileNames = cms.untracked.vstring(
   # official RelVal 310pre5 single Photons pt=35GeV
-    '/store/relval/CMSSW_3_1_0_pre5/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0000/26334D80-962B-DE11-8BC5-000423D6C8EE.root',
-    '/store/relval/CMSSW_3_1_0_pre5/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0000/403EA350-962B-DE11-8642-000423D98800.root',
-    '/store/relval/CMSSW_3_1_0_pre5/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0000/C087DE04-972B-DE11-836D-000423D9853C.root'
+
 
     # official RelVal 310pre5 single Photons pt=10GeV    
+
+    '/store/relval/CMSSW_3_1_0_pre5/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0000/14CFB193-9E2B-DE11-9155-000423D98800.root',
+    '/store/relval/CMSSW_3_1_0_pre5/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0000/6011C343-9F2B-DE11-91FC-000423D944F8.root',
+    '/store/relval/CMSSW_3_1_0_pre5/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0000/80CE3900-0C2C-DE11-851B-000423D94908.root'
+
+
 
     # official RelVal 310pre5 RelValH130GGgluonfusion
 
@@ -90,11 +96,30 @@ import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi
 TrackAssociatorByHits.Cut_RecoToSim = 0.5
 TrackAssociatorByHits.Quality_SimToReco = 0.5
 
-photonValidation.minPhoEtCut = 20
-photonValidation.eMax = 500
-photonValidation.etMax = 500
-photonValidation.convTrackMinPtCut = 1.
 
+
+## For single gamma pt =10
+photonValidation.minPhoEtCut = 10
+photonValidation.eMax  = 100
+photonValidation.etMax = 50
+photonValidation.etScale = 0.20
+
+## For single gamma pt = 35
+#photonValidation.minPhoEtCut = 35
+#photonValidation.eMax  = 300
+#photonValidation.etMax = 50
+#photonValidation.etScale = 0.20
+
+## For gam Jet and higgs
+#photonValidation.minPhoEtCut = 10
+#photonValidation.eMax  = 500
+#photonValidation.etMax = 500
+## same for all
+photonValidation.convTrackMinPtCut = 1.
+photonValidation.rBin = 48
+photonValidation.eoverpMin = 0.
+photonValidation.eoverpMax = 5.
+photonValidation.signal = True
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring("keep *_MEtoEDMConverter_*_*"),

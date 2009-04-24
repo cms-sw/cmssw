@@ -23,8 +23,8 @@
 #setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt10New.root
 
 
-#setenv OLDFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt10New.root
-#setenv NEWFILE /data/test/CMSSW_3_1_0_pre5/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre5_SingleGammaPt10.root
+setenv OLDFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt10New.root
+setenv NEWFILE /data/test/CMSSW_3_1_0_pre5/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre5_SingleGammaPt10.root
 
 #setenv OLDFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt35New.root
 #setenv NEWFILE /data/test/CMSSW_3_1_0_pre5/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre5_SingleGammaPt35.root
@@ -33,8 +33,8 @@
 #setenv OLDFILE /tmp/nancy/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_SingleGammaPt35New.root
 #setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_SingleGammaPt35New.root
 
-setenv OLDFILE /tmp/nancy/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_H130GGgluonfusionNew.root
-setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_H130GGgluonfusionNew.root
+#setenv OLDFILE /tmp/nancy/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_H130GGgluonfusionNew.root
+#setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_H130GGgluonfusionNew.root
 
 #setenv OLDFILE /data/test/CMSSW_3_1_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre3_GammaJets_Pt_80_120New.root
 #setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/PhotonValidationRelVal310pre4_GammaJets_Pt_80_120New.root
@@ -44,13 +44,13 @@ setenv NEWFILE /data/test/CMSSW_3_1_0_pre4/src/Validation/RecoEgamma/test/Photon
 
 
 #setenv OLDRELEASE 221IDEAL
-setenv OLDRELEASE 310pre3
-setenv NEWRELEASE 310pre4
+setenv OLDRELEASE 310pre4
+setenv NEWRELEASE 310pre5
 #Name of sample (affects output directory name and htmldescription only) 
-#setenv SAMPLE SingleGammaPt10IDEAL
+setenv SAMPLE SingleGammaPt10IDEAL
 #setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
-setenv SAMPLE H130GGgluonfusionSTARTUP
+#setenv SAMPLE H130GGgluonfusionSTARTUP
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_80_120STARTUP
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
@@ -132,6 +132,12 @@ cat > scaledhistosForPhotons <<EOF
   gamgamMassAll
   gamgamMassBarrel
   gamgamMassEndcap
+  gamgamMassNoConvAll
+  gamgamMassNoConvBarrel
+  gamgamMassNoConvEndcap
+  gamgamMassConvAll
+  gamgamMassConvBarrel
+  gamgamMassConvEndcap
   scEta
   scPhi
   scEAll
@@ -366,21 +372,21 @@ TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
 file_new->cd("DQMData/Egamma/PhotonValidator/Photons");
 Double_t mnew=$i->GetMaximum();
+Double_t nnew=$i->GetEntries();
 file_old->cd("DQMData/Egamma/PhotonValidator/Photons");
 Double_t mold=$i->GetMaximum();
+Double_t nold=$i->GetEntries();
 $i->SetStats(0);
 $i->SetMinimum(0.);
 if ( mnew > mold) 
-$i->SetMaximum(mnew+mnew*0.1);
+$i->SetMaximum(mnew+mnew*0.2);
 else 
-$i->SetMaximum(mold+mold*0.1);
+$i->SetMaximum(mold+mold*0.2);
 $i->SetLineColor(kPink+8);
 $i->SetFillColor(kPink+8);
 $i->SetLineWidth(3);
 $i->Draw();
-Double_t nold=$i->GetEntries();
 file_new->cd("DQMData/Egamma/PhotonValidator/Photons");
-Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
 $i->SetLineColor(kBlack);
 $i->SetMarkerColor(kBlack);
