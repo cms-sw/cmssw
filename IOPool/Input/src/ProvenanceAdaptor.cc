@@ -38,8 +38,11 @@ namespace edm {
       oldID_(oldID),
       parameterSet_(psetString),
       paths_(parameterSet_.getParameter<StringVector>("@paths")),
-      endPaths_(parameterSet_.getParameter<StringVector>("@end_paths")),
+      endPaths_(),
       triggerPaths_() {
+    if (parameterSet_.existsAs<StringVector>("@end_paths")) {
+      endPaths_ = (parameterSet_.getParameter<StringVector>("@end_paths"));
+    }
     for (StringVector::const_iterator i = paths_.begin(), e = paths_.end(); i != e; ++i) {
       if (!search_all(endPaths_, *i)) {
         triggerPaths_.insert(*i);
