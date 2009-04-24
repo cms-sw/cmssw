@@ -16,7 +16,6 @@ class InitRootHandlers : public RootHandlers
 public:
   InitRootHandlers (edm::ParameterSet const& pset, edm::ActivityRegistry & activity);
   virtual ~InitRootHandlers ();
-  void postEndJob();
 
 private:
   virtual void disableErrorHandler_();

@@ -1,5 +1,4 @@
 #include "FWCore/Services/src/InitRootHandlers.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
@@ -154,7 +153,6 @@ InitRootHandlers::InitRootHandlers (edm::ParameterSet const& pset, edm::Activity
     resetErrHandler_(pset.getUntrackedParameter<bool> ("ResetRootErrHandler", true)),
     autoLibraryLoader_(pset.getUntrackedParameter<bool> ("AutoLibraryLoader", true))
 {
-  activity.watchPostEndJob(this, &InitRootHandlers::postEndJob);
 
   if(unloadSigHandler_) {
   // Deactivate all the Root signal handlers and restore the system defaults
@@ -195,8 +193,7 @@ InitRootHandlers::InitRootHandlers (edm::ParameterSet const& pset, edm::Activity
   setRefCoreStreamer();
 }
 
-void
-InitRootHandlers::postEndJob () {
+InitRootHandlers::~InitRootHandlers () {
   // close all open ROOT files
   // We get a new iterator each time,
   // because closing a file can invalidate the iterator
@@ -206,8 +203,6 @@ InitRootHandlers::postEndJob () {
     if(f) f->Close();
   }
 }
-
-InitRootHandlers::~InitRootHandlers () {}
 
 void
 InitRootHandlers::disableErrorHandler_() {
