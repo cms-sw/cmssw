@@ -80,8 +80,16 @@ class CrossingFrame
   edm::EventID getEventID() const {return id_;}
   std::pair<int,int> getBunchRange() const {return std::pair<int,int>(firstCrossing_,lastCrossing_);}
   int getBunchSpace() const {return bunchSpace_;}
-
-
+  unsigned int getMaxNbSources() const {return maxNbSources_; }
+  std::string getSubDet() const { return subdet_;}
+  unsigned int getPileupFileNr() const {return pileupFileNr_;}
+  edm::EventID getIdFirstPileup() const {return idFirstPileup_;}
+  std::vector<unsigned int> getPileupOffsetsBcr() const {return pileupOffsetsBcr_;}   
+  std::vector< std::vector<unsigned int> > getPileupOffsetsSource() const {return pileupOffsetsSource_;} //one per source
+  std::vector<const T *> getPileups() const {return pileups_;}
+  std::vector<const T *> getSignal() const {return signals_;}
+  
+  
   void getSignal(typename std::vector<const T *>::const_iterator &first,typename std::vector<const T*>::const_iterator &last) const {
     first=signals_.begin();
     last=signals_.end();
