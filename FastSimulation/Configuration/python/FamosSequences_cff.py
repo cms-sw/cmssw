@@ -63,7 +63,7 @@ famosParticleFlowSequence = cms.Sequence(
     pfTrackElec+
     particleFlowBlock+
     particleFlow+
-    pfElectronTranslator    
+    pfElectronTranslatorSequence    
 )
 
 # Reco Jets and MET
