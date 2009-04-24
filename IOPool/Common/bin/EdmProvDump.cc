@@ -411,7 +411,6 @@ ProvenanceDumper::work_() {
 
   meta->GetEntry(0);
   assert(0!=pReg);
-  pReg->setFrozen();
 
   edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
   for (ParameterSetMap::const_iterator i = psm_.begin(), iEnd = psm_.end(); i != iEnd; ++i) {
