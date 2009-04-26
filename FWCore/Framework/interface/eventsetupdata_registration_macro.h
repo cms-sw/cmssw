@@ -28,7 +28,7 @@ the file that uses the 'EVENTSETUP_DATA_REG' macro must be in the same library a
 //
 // Author:      Chris Jones
 // Created:     Wed Apr  6 15:21:58 EDT 2005
-// $Id: eventsetupdata_registration_macro.h,v 1.6 2007/04/04 12:20:02 chrjones Exp $
+// $Id: eventsetupdata_registration_macro.h,v 1.7 2008/03/31 21:13:27 wmtan Exp $
 //
 
 // system include files
@@ -40,6 +40,7 @@ the file that uses the 'EVENTSETUP_DATA_REG' macro must be in the same library a
 
 #define EVENTSETUP_DATA_REG(_dataclass_) namespace edm { namespace eventsetup {namespace heterocontainer { template<> const char* \
 HCTypeTagTemplate<_dataclass_, edm::eventsetup::DataKey>::className() { return # _dataclass_; } } } }\
+DEFINE_HCTYPETAGTEMPLATE_REGISTRATION(_dataclass_,edm::eventsetup::DataKey);\
 template class edm::eventsetup::heterocontainer::HCTypeTagTemplate<_dataclass_, edm::eventsetup::DataKey>
 
 #endif

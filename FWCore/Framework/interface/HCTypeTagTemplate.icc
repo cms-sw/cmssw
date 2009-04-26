@@ -12,11 +12,14 @@
 //
 // Author:      Chris D Jones
 // Created:     Wed Sep 30 11:09:00 EDT 1998
-// $Id: HCTypeTagTemplate.icc,v 1.7 2005/11/16 00:17:39 chrjones Exp $
+// $Id: HCTypeTagTemplate.icc,v 1.8 2007/12/18 15:20:44 chrjones Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTagTemplate.icc,v $
+// Revision 1.8  2007/12/18 15:20:44  chrjones
+// optimization fix: code now does what it was supposed to do, i.e. it only runs the registration once per job
+//
 // Revision 1.7  2005/11/16 00:17:39  chrjones
 // moved constructor definition to avoid physical coupling problems with the template parameters
 //
@@ -80,21 +83,24 @@ HCTypeTagTemplate<T,Group>::className()
 namespace edm {
    namespace eventsetup {
       namespace heterocontainer {
+         
+         template<typename Group>
+         inline HCTypeTagRegistrar<Group>::HCTypeTagRegistrar(const char* iTypeName,const std::type_info& iInfo) {
+            HCTypeTag<Group>::registerName(iTypeName,iInfo);
+         }
+         
 
       template<class T, class Group >
       HCTypeTagTemplate<T,Group>::HCTypeTagTemplate() : 
-         HCTypeTag<Group>(typeid(T), className()) {doRegistration();}
-
-      template<class T, class Group >
-      void  
-      HCTypeTagTemplate<T,Group>::doRegistration() {
-         static bool registrationDone = false;
-         if(!registrationDone){
-            registerName(className(), typeid(T));
-	    registrationDone=true;
-         }
-      }
+         HCTypeTag<Group>(typeid(T), className()) {}
       }
    }
 }
+
+#define EDM_HCTYPETAGTEMPLATE_SYM(x,y) EDM_HCTYPETAGTEMPLATE_SYM2(x,y)
+#define EDM_HCTYPETAGTEMPLATE_SYM2(x,y) x ## y
+
+#define DEFINE_HCTYPETAGTEMPLATE_REGISTRATION(type,group) \
+static edm::eventsetup::heterocontainer::HCTypeTagRegistrar<group> EDM_HCTYPETAGTEMPLATE_SYM(s_register , __LINE__ ) (edm::eventsetup::heterocontainer::HCTypeTagTemplate<type,group>::className(),typeid(type))
+
 #endif

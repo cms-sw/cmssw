@@ -20,11 +20,14 @@
 //     
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:31:56 EDT 1998
-// $Id: HCTypeTagTemplate.h,v 1.6 2005/11/11 20:55:54 chrjones Exp $
+// $Id: HCTypeTagTemplate.h,v 1.7 2005/11/16 00:17:39 chrjones Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTagTemplate.h,v $
+// Revision 1.7  2005/11/16 00:17:39  chrjones
+// moved constructor definition to avoid physical coupling problems with the template parameters
+//
 // Revision 1.6  2005/11/11 20:55:54  chrjones
 // use new TypeIDBase for basis of all type comparisons
 //
@@ -95,7 +98,6 @@ class HCTypeTagTemplate : public HCTypeTag< Group >
    protected:
 
    private:
-      void doRegistration();
       // ---------- Constructors and destructor ----------------
       //HCTypeTagTemplate(const HCTypeTagTemplate&); // stop default
 

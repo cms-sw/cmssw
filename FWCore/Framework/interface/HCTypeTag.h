@@ -18,7 +18,7 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:05:10 EDT 1998
-// $Id: HCTypeTag.h,v 1.5 2005/11/11 20:55:54 chrjones Exp $
+// $Id: HCTypeTag.h,v 1.6 2008/01/16 14:20:14 chrjones Exp $
 //
 //
 
@@ -33,10 +33,16 @@ namespace edm {
    namespace eventsetup {
       namespace heterocontainer {
 template< class Group >
+class HCTypeTagRegistrar {
+public:
+   HCTypeTagRegistrar(const char* iTypeName,const std::type_info& iInfo);
+};
+         
+template< class Group >
 class HCTypeTag : public TypeIDBase
 {
       // ---------- friend classes and functions ---------------
-
+      friend class HCTypeTagRegistrar<Group>;
    public:
       // ---------- constants, enums and typedefs --------------
 
@@ -92,7 +98,6 @@ class HCTypeTag : public TypeIDBase
 
 
 };
-
       }
    }
 }
