@@ -15,11 +15,13 @@ process.MessageLogger = cms.Service("MessageLogger",
 # Event Source
 #-----------------------------
 process.source = cms.Source("PoolSource",
-     fileNames = cms.untracked.vstring(
-     '/store/data/Commissioning08/Cosmics/RAW/v1/000/069/365/0A92FA00-01AB-DD11-A6AF-001617DBD288.root'
-# '/store/data/Commissioning08/Cosmics/RAW/v1/000/069/365/8C367B78-05AB-DD11-8ADF-001617C3B79A.root'
-     )
-)                            
+    fileNames = cms.untracked.vstring(
+#       '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root'
+      '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/00BAAF73-52A5-DD11-9351-001D09F23A84.root'
+
+    )
+)
+
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(2000))
 
 #----------------------------
@@ -39,8 +41,8 @@ process.dqmEnv.subSystemFolder    = "SiStrip"
 #-----------------------------
 # Magnetic Field
 #-----------------------------
-process.load("Configuration.StandardSequences.MagneticField_0T_cff")
-process.prefer("VolumeBasedMagneticFieldESProducer")
+
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 #-------------------------------------------------
 # GEOMETRY
@@ -53,7 +55,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect = "frontier://FrontierInt/CMS_COND_30X_GLOBALTAG"
 process.GlobalTag.globaltag = "CRAFT_30X::All"
-process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
+process.prefer("GlobalTag")
 
 #-----------------------
 #  Reconstruction Modules
@@ -70,7 +72,7 @@ process.load("DQM.SiStripMonitorClient.SiStripDQMTier0GlobalRun_cff")
 # output module
 #----------------------
 process.myOut = cms.OutputModule("PoolOutputModule",
-                                  fileName = cms.untracked.string('sistrip_reco1.root'),
+                                  fileName = cms.untracked.string('sistrip_reco2.root'),
                                   outputCommands = cms.untracked.vstring('drop *', 'keep *_MEtoEDMConverter_*_*')
                                 )
 #--------------------------

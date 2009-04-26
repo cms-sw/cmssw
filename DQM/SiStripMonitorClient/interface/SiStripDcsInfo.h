@@ -35,6 +35,8 @@
 
 class DQMStore;
 class MonitorElement;
+class SiStripDetVOff;
+class SiStripDetCabling;
 
 class SiStripDcsInfo: public edm::EDAnalyzer {
 
@@ -65,17 +67,25 @@ class SiStripDcsInfo: public edm::EDAnalyzer {
 
 
 private:
+  void bookStatus();
+  void fillDummyStatus();
+  void readStatus();
+  void fillStatus();
 
   DQMStore* dqmStore_;
   MonitorElement * DcsFraction_;
-  MonitorElement * DcsFractionTIB_;
-  MonitorElement * DcsFractionTOB_;
-  MonitorElement * DcsFractionTIDF_;
-  MonitorElement * DcsFractionTIDB_;
-  MonitorElement * DcsFractionTECF_;
-  MonitorElement * DcsFractionTECB_;
 
+  struct SubDetMEs{
+    MonitorElement* DcsFractionME;
+    int TotalDetectors;
+    int FaultyDetectors;
+  };
+
+  std::map <std::string, SubDetMEs> SubDetMEsMap;
   unsigned long long m_cacheID_;
+  bool bookedStatus_;
 
+  edm::ESHandle<SiStripDetVOff> siStripDetVOff_;
+  edm::ESHandle< SiStripDetCabling > detCabling_;
 };
 #endif

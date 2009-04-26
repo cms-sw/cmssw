@@ -12,7 +12,7 @@
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 // FED cabling and numbering
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 

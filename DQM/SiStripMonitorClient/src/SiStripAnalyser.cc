@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2009/03/14 18:29:11 $
- * $Revision: 1.46 $
+ * $Date: 2009/03/26 08:03:23 $
+ * $Revision: 1.47 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -33,7 +33,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
