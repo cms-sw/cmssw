@@ -15,7 +15,7 @@ TH2F* phiCALO2 = (TH2F*) fileCalo->Get("DQMData/PFTask/Benchmarks/iterativeCone5
 vector<TH1F*> etaCALO;
 vector<TH1F*> phiCALO;
 
-etaCALO.push_back( (TH1F*)(etaCALO2->ProjectionY("",5,10)->Clone()));
+etaCALO.push_back( (TH1F*)(etaCALO2->ProjectionY("",7,10)->Clone()));
 etaCALO.push_back( (TH1F*)(etaCALO2->ProjectionY("",10,20)->Clone()));
 etaCALO.push_back( (TH1F*)(etaCALO2->ProjectionY("",20,30)->Clone()));
 etaCALO.push_back( (TH1F*)(etaCALO2->ProjectionY("",30,40)->Clone()));
@@ -27,7 +27,7 @@ etaCALO.push_back( (TH1F*)(etaCALO2->ProjectionY("",125,150)->Clone()));
 etaCALO.push_back( (TH1F*)(etaCALO2->ProjectionY("",150,200)->Clone()));
 etaCALO.push_back( (TH1F*)(etaCALO2->ProjectionY("",200,250)->Clone()));
 
-phiCALO.push_back( (TH1F*)(phiCALO2->ProjectionY("",5,10)->Clone()));
+phiCALO.push_back( (TH1F*)(phiCALO2->ProjectionY("",7,10)->Clone()));
 phiCALO.push_back( (TH1F*)(phiCALO2->ProjectionY("",10,20)->Clone()));
 phiCALO.push_back( (TH1F*)(phiCALO2->ProjectionY("",20,30)->Clone()));
 phiCALO.push_back( (TH1F*)(phiCALO2->ProjectionY("",30,40)->Clone()));
@@ -49,7 +49,7 @@ vector<TH1F*> etaPF;
 vector<TH1F*> phiPF;
 vector<Float_t> pts;
 
-etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",5,10)->Clone()));
+etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",7,10)->Clone()));
 etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",10,20)->Clone()));
 etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",20,30)->Clone()));
 etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",30,40)->Clone()));
@@ -61,7 +61,7 @@ etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",125,150)->Clone()));
 etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",150,200)->Clone()));
 etaPF.push_back( (TH1F*)(etaPF2->ProjectionY("",200,250)->Clone()));
 
-phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",5,10)->Clone()));
+phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",7,10)->Clone()));
 phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",10,20)->Clone()));
 phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",20,30)->Clone()));
 phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",30,40)->Clone()));
@@ -73,7 +73,7 @@ phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",125,150)->Clone()));
 phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",150,200)->Clone()));
 phiPF.push_back( (TH1F*)(phiPF2->ProjectionY("",200,250)->Clone()));
 
-pts.push_back(15);
+pts.push_back(17);
 pts.push_back(30);
 pts.push_back(50);
 pts.push_back(70);
@@ -145,13 +145,22 @@ gPad->SetLogx();
 gPad->SetGridx();
 gPad->SetGridy();
 
+TF1* pf2 = new TF1("pf2","[0]+[1]*exp(-x/[2])",15,700);
+TF1* calo2 = new TF1("calo2","[0]+[1]*exp(-x/[2])",15,700);
+pf2->SetParameters(0.01,0.03,10);
+calo2->SetParameters(0.02,0.1,50);
+pf2->SetLineColor(2);
+calo2->SetLineColor(4);
+grPF2->Fit("pf2","","",15,700);
+grCALO2->Fit("calo2","","",15,700);
+
 grPF2->SetMarkerStyle(22);						
 grPF2->SetMarkerColor(2);						
 grPF2->SetLineColor(2);						  
 grPF2->SetMarkerSize(1.2);						
 grPF2->SetLineWidth(3);						  
 grPF2->SetLineStyle(1);
-grPF2->Draw("CP");
+grPF2->Draw("P");
 //grPF1->Draw("C*");
 
 grCALO2->SetMarkerStyle(25);						
@@ -159,14 +168,19 @@ grCALO2->SetMarkerColor(4);
 grCALO2->SetMarkerSize(1.2);						
 grCALO2->SetLineColor(4);						  
 grCALO2->SetLineWidth(3);						  
-grCALO2->Draw("CP");
+grCALO2->Draw("P");
 //grCALO1->Draw("C*");
 
 TLegend *leg=new TLegend(0.60,0.65,0.85,0.85);
-leg->AddEntry(grCALO2, "Calo-Jets and JPT", "lp");
-leg->AddEntry(grPF2, "Particle-Flow Jets", "lp");
+leg->AddEntry(grCALO2, "Calo-Jets", "p");
+leg->AddEntry(grPF2, "Particle-Flow Jets", "p");
 leg->SetTextSize(0.03);
 leg->Draw();
+
+TLatex text;
+text.SetTextColor(1);
+text.SetTextSize(0.03);
+text.DrawLatex(150,0.095,"0 < |#eta| < 1.5");
 
 gPad->SaveAs("EtaResolution.png");
 gPad->SaveAs("EtaResolution.pdf");
@@ -188,13 +202,22 @@ gPad->SetLogx();
 gPad->SetGridx();
 gPad->SetGridy();
 
+TF1* pf4 = new TF1("pf4","[0]+[1]*exp(-x/[2])",15,700);
+TF1* calo4 = new TF1("calo4","[0]+[1]*exp(-x/[2])",15,700);
+pf4->SetParameters(0.01,0.03,10);
+calo4->SetParameters(0.02,0.1,50);
+pf4->SetLineColor(2);
+calo4->SetLineColor(4);
+grPF4->Fit("pf4","","",15,700);
+grCALO4->Fit("calo4","","",15,700);
+
 grPF4->SetMarkerStyle(22);						
 grPF4->SetMarkerColor(2);						
 grPF4->SetLineColor(2);						  
 grPF4->SetMarkerSize(1.2);						
 grPF4->SetLineWidth(3);						  
 grPF4->SetLineStyle(1);
-grPF4->Draw("CP");
+grPF4->Draw("P");
 //grPF3->Draw("C*");
 
 
@@ -203,16 +226,19 @@ grCALO4->SetMarkerColor(4);
 grCALO4->SetMarkerSize(1.2);						
 grCALO4->SetLineColor(4);						  
 grCALO4->SetLineWidth(3);						  
-grCALO4->Draw("CP");
+grCALO4->Draw("P");
 //grCALO3->Draw("C*");
 
 TLegend *leg=new TLegend(0.60,0.65,0.85,0.85);
-leg->AddEntry(grCALO4, "Calo-Jets and JPT", "lp");
+leg->AddEntry(grCALO4, "Calo-Jets", "lp");
 leg->AddEntry(grPF4, "Particle-Flow Jets", "lp");
 leg->SetTextSize(0.03);
 leg->Draw();
 
+text.DrawLatex(150,0.095,"0 < |#eta| < 1.5");
+ 
 gPad->SaveAs("PhiResolution.png");
 gPad->SaveAs("PhiResolution.pdf");
 
 }
+ 
