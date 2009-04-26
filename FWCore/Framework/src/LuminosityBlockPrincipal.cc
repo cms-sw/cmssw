@@ -33,6 +33,13 @@ namespace edm {
         assert(g->product() != 0);
       }
 
+      if(static_cast<bool> (g.get())) {
+         //PrincipalCache holds onto the 'newest' version of a RunPrincipal for a given run
+         // but our behavior is to keep the 'old' group and merge in the new one because if there
+         // is no way to merge we keep the 'old' group
+         swap(*group,*g);
+      }
+       
       group->mergeGroup(g.get());
     } else {
       addGroup_(g);
@@ -83,7 +90,7 @@ namespace edm {
     for (Base::const_iterator i = lbp->begin(), iEnd = lbp->end(); i != iEnd; ++i) {
  
       std::auto_ptr<Group> g(new Group());
-      g->swap(*i->second);
+      g->swap(*(*i));
 
       addOrReplaceGroup(g);
     }
