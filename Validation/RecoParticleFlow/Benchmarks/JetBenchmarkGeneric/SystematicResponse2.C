@@ -10,6 +10,7 @@ vector<float> JetPFFull;
 vector<float> JetPFFast;
 vector<float> jetPt;
 
+jetPt.push_back(17.0);
 jetPt.push_back(29.8);
 jetPt.push_back(49.6);
 jetPt.push_back(69.6);
@@ -22,6 +23,7 @@ jetPt.push_back(346.);
 jetPt.push_back(445.);
 jetPt.push_back(620.);
 
+JetPFFull.push_back(1-0.0874800);
 JetPFFull.push_back(1-0.0890398);
 JetPFFull.push_back(1-0.0710146);
 JetPFFull.push_back(1-0.0593942);
@@ -34,6 +36,7 @@ JetPFFull.push_back(1-0.0399654);
 JetPFFull.push_back(1-0.0354058);
 JetPFFull.push_back(1-0.0264279);
 
+JetPFFast.push_back(1-0.0870160);
 JetPFFast.push_back(1-0.0881328);
 JetPFFast.push_back(1-0.0808864);
 JetPFFast.push_back(1-0.0689337);
@@ -47,18 +50,19 @@ JetPFFast.push_back(1-0.0432866);
 JetPFFast.push_back(1-0.0325687);
 
 
-TGraph* grPfFull = new TGraph ( 11, &jetPt[0], &JetPFFull[0] );
-TGraph* grPfFast = new TGraph ( 11, &jetPt[0], &JetPFFast[0] );
+TGraph* grPfFull = new TGraph ( 12, &jetPt[0], &JetPFFull[0] );
+TGraph* grPfFast = new TGraph ( 12, &jetPt[0], &JetPFFast[0] );
 
 TCanvas *c = new TCanvas();
 FormatPad(c,false);
 c->cd();
 
 TH2F *h = new TH2F("Systematics","", 
-		   100, 20., 620., 100, 0.0, 1.2 );
+		   100, 15., 620., 100, 0.0, 1.2 );
+FormatHisto(h,sback);
 h->SetTitle( "CMS Preliminary" );
 h->SetXTitle("p_{T} [GeV/c]" );
-h->SetYTitle("Jet Energy scale");
+h->SetYTitle("Jet Response");
 h->SetStats(0);
 h->Draw();
 gPad->SetGridx();
@@ -92,13 +96,14 @@ TCanvas *cz = new TCanvas();
 FormatPad(cz,false);
 cz->cd();
 
-TH2F *h = new TH2F("Systematics","", 
-		   100, 20., 620., 100, 0.9, 1.0 );
-h->SetTitle( "CMS Preliminary" );
-h->SetXTitle("p_{T} [GeV/c]" );
-h->SetYTitle("Jet Energy scale");
-h->SetStats(0);
-h->Draw();
+TH2F *hz = new TH2F("Systematics","", 
+		   100, 15., 620., 100, 0.79, 1.01 );
+FormatHisto(hz,sback);
+hz->SetTitle( "CMS Preliminary" );
+hz->SetXTitle("p_{T} [GeV/c]" );
+hz->SetYTitle("Jet Response");
+hz->SetStats(0);
+hz->Draw();
 gPad->SetGridx();
 gPad->SetGridy();
 
