@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.55 2009/04/06 13:38:35 borrell Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.56 2009/04/15 16:06:48 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -16,11 +16,9 @@
 
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-#include "CalibTracker/Records/interface/SiStripGainRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
