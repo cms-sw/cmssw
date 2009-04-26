@@ -12,10 +12,10 @@ TH1F* histoPF40_60 = (TH1F*)(histoPF2->ProjectionY("",40,60)->Clone());
 TH1F* histoCALO40_60 = (TH1F*)(histoCALO2->ProjectionY("",40,60)->Clone());
 histoPF40_60->SetTitle("CMS Preliminary");
 histoPF40_60->Rebin(26);
-histoPF40_60->GetXaxis().SetRangeUser(-0.8,0.8);
+histoPF40_60->GetXaxis().SetRangeUser(-1.0,1.0);
 //histoPF40_60->Fit("gaus","","",-0.25,0.1);
 histoCALO40_60->Rebin(26);
-histoCALO40_60->GetXaxis().SetRangeUser(-0.8,0.8);
+histoCALO40_60->GetXaxis().SetRangeUser(-1.0,1.0);
 //histoCALO40_60->Fit("gaus","","",-0.7,-0.3);
 
 histoPF40_60->Fit("gaus");
@@ -26,10 +26,10 @@ TH1F* histoPF300_400 = (TH1F*)(histoPF2->ProjectionY("",300,400)->Clone());
 TH1F* histoCALO300_400 = (TH1F*)(histoCALO2->ProjectionY("",300,400)->Clone());
 histoPF300_400->SetTitle("CMS Preliminary");
 histoPF300_400->Rebin(11);
-histoPF300_400->GetXaxis().SetRangeUser(-0.5,0.4);
+histoPF300_400->GetXaxis().SetRangeUser(-1.0,1.0);
 //histoPF300_400->Fit("gaus","","",-0.25,0.1);
 histoCALO300_400->Rebin(11);
-histoCALO300_400->GetXaxis().SetRangeUser(-0.5,0.4);
+histoCALO300_400->GetXaxis().SetRangeUser(-1.0,1.0);
 //histoCALO300_400->Fit("gaus","","",-0.7,-0.3);
 
 histoPF300_400->Fit("gaus");
@@ -61,6 +61,11 @@ leg->AddEntry(histoPF40_60, "Particle-Flow Jets", "lf");
 leg->SetTextSize(0.03);
 leg->Draw();
 
+TLatex text;
+text.SetTextColor(1);
+text.SetTextSize(0.03);
+text.DrawLatex(0.30,280,"p_{T} = 40 - 60 GeV/c");
+
 gPad->SaveAs("Jet40_60.pdf");
 gPad->SaveAs("Jet40_60.png");
 
@@ -90,6 +95,8 @@ leg->AddEntry(histoCALO300_400, "Calo-Jets", "lf");
 leg->AddEntry(histoPF300_400, "Particle-Flow Jets", "lf");
 leg->SetTextSize(0.03);
 leg->Draw();
+
+text.DrawLatex(0.30,280,"p_{T} = 300 - 400 GeV/c");
 
 gPad->SaveAs("Jet300_400.pdf");
 gPad->SaveAs("Jet300_400.png");
