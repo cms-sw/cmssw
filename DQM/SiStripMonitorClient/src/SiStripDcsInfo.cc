@@ -194,13 +194,14 @@ void SiStripDcsInfo::readStatus() {
 //
 void SiStripDcsInfo::fillStatus(){
   
- readStatus();
- for (map<string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-   int total_det  = it->second.TotalDetectors;
-   int faulty_det = it->second.FaultyDetectors; 
-   if (total_det > 0) it->second.DcsFractionME->Fill(faulty_det*1.0/total_det);
-   cout << " SiStripDcsInfo::fillStatus " <<  it->first << "  " << total_det  << " " << faulty_det << endl;
- } 
+  readStatus();
+  for (map<string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+    int total_det  = it->second.TotalDetectors;
+    int faulty_det = it->second.FaultyDetectors; 
+    if  (total_det > 0) it->second.DcsFractionME->Fill(faulty_det*1.0/total_det);
+    edm::LogInfo( "SiStripDcsInfo") << " SiStripDcsInfo::fillStatus " << it->first << "  " 
+				    << total_det  << " " << faulty_det << endl;
+  } 
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripDcsInfo);
