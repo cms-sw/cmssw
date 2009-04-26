@@ -44,7 +44,6 @@ ecalDigis.InputLabel = 'rawDataCollector'
 ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
 muonCSCDigis.InputObjects = 'rawDataCollector'
-muonCSCDigis.UseExaminer = False
 muonDTDigis.inputLabel = 'rawDataCollector'
 muonRPCDigis.InputLabel = 'rawDataCollector'
 gtEvmDigis.EvmGtInputTag = 'rawDataCollector'
