@@ -135,6 +135,7 @@ FormatPad(c1,false);
 c1->cd();
 
 TH2F *h = new TH2F("h","", 100, 15., 500, 10, 0.0, 0.16 );
+FormatHisto(h,sback);
 h->SetTitle( "CMS Preliminary" );
 h->SetXTitle( "p_{T} (GeV/c)" );
 h->SetYTitle( "#eta Resolution");
@@ -192,6 +193,7 @@ FormatPad(c2,false);
 c2->cd();
 
 TH2F *h2 = new TH2F("h2","", 100, 15., 500, 10, 0.0, 0.16 );
+FormatHisto(h2,sback);
 h2->SetTitle( "CMS Preliminary" );
 h2->SetXTitle( "p_{T} (GeV/c)" );
 h2->SetYTitle( "#phi Resolution");

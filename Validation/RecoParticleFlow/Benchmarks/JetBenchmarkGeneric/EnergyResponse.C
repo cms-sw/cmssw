@@ -97,6 +97,7 @@ TGraph* grCALO3 = new TGraph ( n, &pts[0], &meanCALO[0] );
 TGraph* grCALO4 = new TGraph ( n, &pts[0], &arithCALO[0] );
 
 TH2F *h = new TH2F("h","", 10, 15., 620, 10, -1.0, 0.2 );
+FormatHisto(h,sback);
 
 TCanvas* c1 = new TCanvas();
 FormatPad(c1,false);
@@ -162,6 +163,7 @@ TH2F* histoPFEta = (TH2F*) filePF.Get("DQMData/PFTask/Benchmarks/iterativeCone5P
 
 TH1F* pfEta = (TH1F*) (histoPFEta->ProfileX()->Clone());
 TH1F* caloEta = (TH1F*) (histoCALOEta->ProfileX()->Clone());
+FormatHisto(pfEta,sback);
  
 gPad->SetGridx();
 gPad->SetGridy();

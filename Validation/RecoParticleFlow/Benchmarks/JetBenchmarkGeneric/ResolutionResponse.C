@@ -463,7 +463,7 @@ pfNewJetBarrel.push_back(-1.);
 pfNewJetBarrel.push_back(-1.);
 */
 
-pfNewJetBarrel.push_back(0.1328);
+pfNewJetBarrel.push_back(0.1458);
 pfNewJetBarrel.push_back(0.142328);
 pfNewJetBarrel.push_back(0.120926);
 pfNewJetBarrel.push_back(0.108925);
@@ -517,7 +517,9 @@ FormatPad(cBarrel,false);
 cBarrel->cd();
 
 TH2F *h = new TH2F("Barrel","", 
-		   100, 15., 750., 100, 0.0, 0.4 );
+		   100, 15., 700., 100, 0.0, 0.45 );
+
+FormatHisto(h,sback);
 h->SetTitle( "CMS Preliminary" );
 h->SetXTitle("p_{T} [GeV/c]" );
 h->SetYTitle("Jet-Energy Resolution");
@@ -530,19 +532,30 @@ h->Draw();
 gPad->SetGridx();
 gPad->SetGridy();
 
+TF1* pfBarrel = new TF1("pfBarrel","[0]+[1]/sqrt(x)+[2]/x+[3]/x/sqrt(x)",15,700);
+TF1* caloBarrel = new TF1("caloBarrel","[0]+[1]/sqrt(x)+[2]/x+[3]/x/sqrt(x)",15,700);
+pfBarrel->SetParameters(0.05.,1.0,1,1);
+pfBarrel->FixParameter(3,0.);
+caloBarrel->SetParameters(0.05,1.,1,1);
+//caloBarrel->FixParameter(3,0.);
+pfBarrel->SetLineColor(2);
+caloBarrel->SetLineColor(4);
+grPfNewBarrel->Fit("pfBarrel","","",15,700);
+grCaloBarrel->Fit("caloBarrel","","",15,700);
+
 grCaloBarrel->SetMarkerColor(4);						
 grCaloBarrel->SetMarkerStyle(25);
 grCaloBarrel->SetMarkerSize(1.2);
 grCaloBarrel->SetLineWidth(2);
 grCaloBarrel->SetLineColor(4);
-grCaloBarrel->Draw("CP");
+grCaloBarrel->Draw("P");
 
 grJptBarrel->SetMarkerColor(1);						
 grJptBarrel->SetMarkerStyle(23);
 grJptBarrel->SetMarkerSize(1.2);
 grJptBarrel->SetLineWidth(2);
 grJptBarrel->SetLineColor(1);
-grJptBarrel->Draw("CP");
+//grJptBarrel->Draw("CP");
 
 /*
 gPad->SaveAs("BarrelResolution.pdf");
@@ -561,7 +574,7 @@ grPfNewBarrel->SetMarkerStyle(22);
 grPfNewBarrel->SetMarkerSize(1.2);						
 grPfNewBarrel->SetLineWidth(2);
 grPfNewBarrel->SetLineColor(2);
-grPfNewBarrel->Draw("CP");
+grPfNewBarrel->Draw("P");
 
 grAtlasBarrel->SetMarkerColor(3);						
 grAtlasBarrel->SetMarkerStyle(21);
@@ -570,9 +583,9 @@ grAtlasBarrel->SetLineWidth(2);
 grAtlasBarrel->SetLineColor(3);
 //grAtlasBarrel->Draw("CP");
 
-TLegend *leg=new TLegend(0.55,0.60,0.85,0.85);
+TLegend *leg=new TLegend(0.55,0.65,0.85,0.85);
 leg->AddEntry(grCaloBarrel, "Corrected Calo-Jets", "lp");
-leg->AddEntry(grJptBarrel, "JPT-Corrected Jets", "lp");
+//leg->AddEntry(grJptBarrel, "JPT-Corrected Jets", "lp");
 //leg->SetTextSize(0.03);
 //leg->Draw();
 //TLegend *leg=new TLegend(0.55,0.55,0.85,0.65);
@@ -581,15 +594,21 @@ leg->AddEntry(grPfNewBarrel, "Particle-Flow Jets", "lp");
 leg->SetTextSize(0.03);
 leg->Draw();
 
-gPad->SaveAs("BarrelResolutionAll.png");
-gPad->SaveAs("BarrelResolutionAll.pdf");
+TLatex text;
+text.SetTextColor(1);
+text.SetTextSize(0.03);
+text.DrawLatex(150,0.26,"0 < |#eta| < 1.5");
+
+gPad->SaveAs("BarrelResolutionPFAndCalo.png");
+gPad->SaveAs("BarrelResolutionPFAndCalo.pdf");
 
 TCanvas *cEndcap = new TCanvas();
 FormatPad(cEndcap,false);
 cEndcap->cd();
 
 TH2F *h2 = new TH2F("Endcap","", 
-		   100, 15., 750., 100, 0.0, 0.4 );
+		   100, 15., 700., 100, 0.0, 0.45 );
+FormatHisto(h2,sback);
 h2->SetTitle( "CMS Preliminary" );
 h2->SetXTitle("p_{T} [GeV/c]" );
 h2->SetYTitle("Jet-Energy resolution");
@@ -600,10 +619,21 @@ h2->Draw();
 gPad->SetGridx();
 gPad->SetGridy();
 
+TF1* pfEndcap = new TF1("pfEndcap","[0]+[1]/sqrt(x)+[2]/x+[3]/x/sqrt(x)",15,700);
+TF1* caloEndcap = new TF1("caloEndcap","[0]+[1]/sqrt(x)+[2]/x+[3]/x/sqrt(x)",15,700);
+pfEndcap->SetParameters(0.05.,1.0,1,1);
+pfEndcap->FixParameter(3,0.);
+caloEndcap->SetParameters(0.05,1.,1,1);
+//caloEndcap->FixParameter(3,0.);
+pfEndcap->SetLineColor(2);
+caloEndcap->SetLineColor(4);
+grPfNewEndcap->Fit("pfEndcap","","",15,700);
+grCaloEndcap->Fit("caloEndcap","","",15,700);
+
 grCaloEndcap->SetMarkerColor(4);						
 grCaloEndcap->SetMarkerStyle(25);
 grCaloEndcap->SetMarkerSize(1.2);
-grCaloEndcap->Draw("CP");
+grCaloEndcap->Draw("P");
 grCaloEndcap->SetLineWidth(2);
 grCaloEndcap->SetLineColor(4);
 
@@ -612,7 +642,7 @@ grJptEndcap->SetMarkerStyle(23);
 grJptEndcap->SetMarkerSize(1.2);
 grJptEndcap->SetLineWidth(2);
 grJptEndcap->SetLineColor(1);
-grJptEndcap->Draw("CP");
+//grJptEndcap->Draw("CP");
 
 
 /*
@@ -632,11 +662,11 @@ grPfNewEndcap->SetMarkerStyle(22);
 grPfNewEndcap->SetMarkerSize(1.2);						
 grPfNewEndcap->SetLineWidth(2);
 grPfNewEndcap->SetLineColor(2);
-grPfNewEndcap->Draw("CP");
+grPfNewEndcap->Draw("P");
 
 TLegend *leg=new TLegend(0.55,0.65,0.85,0.85);
 leg->AddEntry(grCaloEndcap, "Corrected Calo-Jets", "lp");
-leg->AddEntry(grJptEndcap, "JPT-Corrected Jets", "lp");
+//leg->AddEntry(grJptEndcap, "JPT-Corrected Jets", "lp");
 //leg->SetTextSize(0.03);
 //leg->Draw();
 //TLegend *leg=new TLegend(0.55,0.55,0.85,0.65);
@@ -644,8 +674,10 @@ leg->AddEntry(grPfNewEndcap, "Particle-Flow Jets", "lp");
 leg->SetTextSize(0.03);
 leg->Draw();
 
-gPad->SaveAs("EndcapResolutionAll.png");
-gPad->SaveAs("EndcapResolutionAll.pdf");
+text.DrawLatex(150,0.26,"1.5 < |#eta| < 2.5");
+
+gPad->SaveAs("EndcapResolutionPFAndCalo.png");
+gPad->SaveAs("EndcapResolutionPFAndCalo.pdf");
 
 
 }

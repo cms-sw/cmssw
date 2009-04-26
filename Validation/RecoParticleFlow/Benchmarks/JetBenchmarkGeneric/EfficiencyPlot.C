@@ -93,6 +93,7 @@ effCaloBarrel->SetLineColor(4);
 EffPFBarrel->Fit("effPFBarrel","","",5,210);
 EffCaloBarrel->Fit("effCaloBarrel","","",5,210);
 
+FormatHisto(EffPFBarrel,sback);
 EffPFBarrel->SetMaximum(1.2);
 EffPFBarrel->SetXTitle("Generated p_{T} [GeV/c]");
 EffPFBarrel->SetYTitle("Jet Matching Efficiency [%]");
@@ -139,6 +140,7 @@ fakeCaloBarrel->SetLineColor(4);
 FakePFBarrel->Fit("fakePFBarrel","","",5,210);
 FakeCaloBarrel->Fit("fakeCaloBarrel","","",5,210);
 
+FormatHisto(FakePFBarrel,sback);
 FakePFBarrel->SetMaximum(1.0);
 FakePFBarrel->SetXTitle("Reconstructed p_{T} [GeV/c]");
 FakePFBarrel->SetYTitle("Mismatched Jet Rate [%]");
@@ -184,6 +186,7 @@ effCaloEndcap->SetLineColor(4);
 EffPFEndcap->Fit("effPFEndcap","","",5,210);
 EffCaloEndcap->Fit("effCaloEndcap","","",5,210);
 
+FormatHisto(EffPFEndcap,sback);
 EffPFEndcap->SetMaximum(1.2);
 EffPFEndcap->SetXTitle("Generated p_{T} [GeV/c]");
 EffPFEndcap->SetYTitle("Jet Matching Efficiency [%]");
@@ -228,6 +231,7 @@ fakeCaloEndcap->SetLineColor(4);
 FakePFEndcap->Fit("fakePFEndcap","","",5,210);
 FakeCaloEndcap->Fit("fakeCaloEndcap","","",5,210);
 
+FormatHisto(FakePFEndcap,sback);
 FakePFEndcap->SetMaximum(1.0);
 FakePFEndcap->SetXTitle("Reconstructed p_{T} [GeV/c]");
 FakePFEndcap->SetYTitle("Mismatched Jet Rate [%]");
