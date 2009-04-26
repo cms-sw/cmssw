@@ -1,6 +1,6 @@
 
 
-// $Id: PrincipalCache.cc,v 1.1 2008/01/07 23:29:45 wdd Exp $
+// $Id: PrincipalCache.cc,v 1.2 2008/01/23 23:36:23 wdd Exp $
 
 #include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -150,7 +150,8 @@ namespace edm {
       currentRunPrincipal_ = rp;
       return true;
     }
-
+    //the new RunPrincipal has the structure which matches the updated ProductRegistry
+    swap(iter->second,rp);
     iter->second->mergeRun(rp);
     currentRunPrincipal_ = iter->second;
     
@@ -168,6 +169,8 @@ namespace edm {
       return true;
     }
 
+    //the new RunPrincipal has the structure which matches the updated ProductRegistry
+    swap(iter->second,lbp);
     iter->second->mergeLuminosityBlock(lbp);
     currentLumiPrincipal_ = iter->second;
     
