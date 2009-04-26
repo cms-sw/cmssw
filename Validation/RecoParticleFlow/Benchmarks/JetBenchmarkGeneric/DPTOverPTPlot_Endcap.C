@@ -20,6 +20,8 @@ histoCALO40_60->GetXaxis().SetRangeUser(-1,1);
 
 histoPF40_60->Fit("gaus");
 histoCALO40_60->Fit("gaus");
+histoPF40_60->GetFunction("gaus")->SetLineColor(2);
+histoCALO40_60->GetFunction("gaus")->SetLineColor(4);
 
 
 TH1F* histoPF300_400 = (TH1F*)(histoPF2->ProjectionY("",300,400)->Clone());
@@ -34,6 +36,8 @@ histoCALO300_400->GetXaxis().SetRangeUser(-1,1);
 
 histoPF300_400->Fit("gaus");
 histoCALO300_400->Fit("gaus");
+histoPF300_400->GetFunction("gaus")->SetLineColor(2);
+histoCALO300_400->GetFunction("gaus")->SetLineColor(4);
 
 TCanvas* c1 = new TCanvas();
 FormatPad(c1,false);
