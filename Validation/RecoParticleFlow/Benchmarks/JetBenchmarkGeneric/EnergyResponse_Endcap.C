@@ -96,6 +96,7 @@ TGraph* grCALO3 = new TGraph ( n, &pts[0], &meanCALO[0] );
 TGraph* grCALO4 = new TGraph ( n, &pts[0], &arithCALO[0] );
 
 TH2F *h = new TH2F("h","", 10, 15., 620, 10, -1.0, 0.2 );
+ FormatHisto(h,sback);
 
 TCanvas* c1 = new TCanvas();
 FormatPad(c1,false);
