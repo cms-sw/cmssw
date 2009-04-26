@@ -62,7 +62,7 @@ namespace edm {
 	  << "The process name " << productDesc.processName() << " was previously used on these products.\n"
 	  << "Please modify the configuration file to use a distinct process name.\n";
     }
-    addCalled(productDesc,fromListener);
+    addCalled(productDesc, fromListener);
   }
  
   void
@@ -213,13 +213,17 @@ namespace edm {
     constProductList().clear();
     productLookup().clear();
     elementLookup().clear();
-    for (ProductList::const_iterator i = productList_.begin(), e = productList_.end(); i != e; ++i) {
+    transients_.get().branchIDToIndex_.clear();
+    ProductTransientIndex index=0;
+    for (ProductList::const_iterator i = productList_.begin(), e = productList_.end(); i != e; ++i,++index) {
       if (i->second.produced()) {
 	setProductProduced(i->second.branchType());
       }
 
       constProductList().insert(std::make_pair(i->first, ConstBranchDescription(i->second)));
-      
+
+      transients_.get().branchIDToIndex_[i->second.branchID()]=index;
+
       Reflex::Type type(Reflex::Type::ByName(i->second.className()));
       //only do the following if the data is supposed to be available in the event
       if(i->second.present()) {
@@ -235,8 +239,8 @@ namespace edm {
         
         
         ProcessLookup& processLookup = productLookup()[edm::TypeID(type.TypeInfo())];
-        std::vector<BranchID>& vint = processLookup[i->first.processName_];
-        vint.push_back(i->second.branchID());
+        std::vector<ProductTransientIndex>& vint = processLookup[i->first.processName_];
+        vint.push_back(index);
         //[could use productID instead]
         
         if (bool(type)) {
@@ -254,7 +258,7 @@ namespace edm {
                value_type_of(type, valueType)) 
               && bool(valueType)) {
             
-            fillElementLookup(valueType, i->second.branchID(), i->first);
+            fillElementLookup(valueType, index, i->first);
             
             // Repeat this for all public base classes of the value_type
             std::vector<Reflex::Type> baseTypes;
@@ -264,7 +268,7 @@ namespace edm {
                  iend = baseTypes.end();
                     iter != iend;
                  ++iter) {
-              fillElementLookup(*iter, i->second.branchID(), i->first);
+              fillElementLookup(*iter, index, i->first);
             }
           }
         }
@@ -272,13 +276,22 @@ namespace edm {
     }
   }
 
-  void ProductRegistry::fillElementLookup(const Reflex::Type & type,
-                                          const BranchID& id,
-                                          const BranchKey& bk) const {
+  ProductTransientIndex ProductRegistry::indexFrom(BranchID const& iID) const {
+    std::map<BranchID, ProductTransientIndex>::iterator itFind = transients_.get().branchIDToIndex_.find(iID);
+    if(itFind == transients_.get().branchIDToIndex_.end()) {
+      return kInvalidIndex;
+    }
+    return itFind->second;
+  }
+  
+
+  void ProductRegistry::fillElementLookup(Reflex::Type const& type,
+                                          ProductTransientIndex const& id,
+                                          BranchKey const& bk) const {
     TypeID typeID(type.TypeInfo());
     
     ProcessLookup& processLookup = elementLookup()[typeID];
-    std::vector<BranchID>& vint = processLookup[bk.processName_];
+    std::vector<ProductTransientIndex>& vint = processLookup[bk.processName_];
     vint.push_back(id);    
   }
   

@@ -23,9 +23,11 @@ pointer to a Group, when queried.
 #include <vector>
 
 #include "boost/shared_ptr.hpp"
+#include "boost/iterator/filter_iterator.hpp"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/ProductTransientIndex.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
@@ -41,12 +43,16 @@ pointer to a Group, when queried.
 
 
 namespace edm {
+   struct FilledGroupPtr {
+      bool operator()(boost::shared_ptr<Group> const& iObj) { return bool(iObj);}
+   };
+   
   class Principal : public EDProductGetter {
   public:
-    typedef std::map<BranchID, boost::shared_ptr<Group> > GroupCollection;
-    typedef GroupCollection::const_iterator const_iterator;
+    typedef std::vector<boost::shared_ptr<Group> > GroupCollection;
+     typedef boost::filter_iterator<FilledGroupPtr, GroupCollection::const_iterator> const_iterator;
     typedef ProcessHistory::const_iterator ProcessNameConstIterator;
-    typedef boost::shared_ptr<const Group> SharedConstGroupPtr;
+    typedef boost::shared_ptr<Group const> SharedConstGroupPtr;
     typedef std::vector<BasicHandle> BasicHandleVec;
     typedef GroupCollection::size_type      size_type;
 
@@ -116,30 +122,35 @@ namespace edm {
     // merge Principals containing different groups.
     void recombine(Principal & other, std::vector<BranchID> const& bids);
 
-    size_t  size() const { return groups_.size(); }
+    size_t  size() const { return size_; }
 
-    const_iterator begin() const {return groups_.begin();}
-    const_iterator end() const {return groups_.end();}
+    const_iterator begin() const {return boost::make_filter_iterator<FilledGroupPtr>(groups_.begin(), groups_.end());}
+    const_iterator end() const {return  boost::make_filter_iterator<FilledGroupPtr>(groups_.end(), groups_.end());}
 
     Provenance
     getProvenance(BranchID const& bid) const;
 
     void
-    getAllProvenance(std::vector<Provenance const *> & provenances) const;
+    getAllProvenance(std::vector<Provenance const*> & provenances) const;
 
   protected:
     // ----- Add a new Group
     // *this takes ownership of the Group, which in turn owns its
     // data.
     void addGroup_(std::auto_ptr<Group> g);
-    Group*  getExistingGroup(Group const& g);
+    Group* getExistingGroup(Group const& g);
     void replaceGroup(std::auto_ptr<Group> g);
 
+    //deprecated
     SharedConstGroupPtr const getGroup(BranchID const& oid,
                                        bool resolveProd,
                                        bool resolveProv,
 				       bool fillOnDemand) const;
-
+    SharedConstGroupPtr const getGroupByIndex(ProductTransientIndex const& oid,
+                                        bool resolveProd,
+                                        bool resolveProv,
+                                        bool fillOnDemand) const;
+     
     void resolveProvenance(Group const& g) const;
 
   private:
@@ -155,7 +166,7 @@ namespace edm {
     virtual bool unscheduledFill(std::string const& moduleLabel) const = 0;
 
     // Used for indices to find groups by type and process
-    typedef std::map<std::string, std::vector<BranchID> > ProcessLookup;
+    typedef std::map<std::string, std::vector<ProductTransientIndex> > ProcessLookup;
     typedef std::map<TypeID, ProcessLookup> TypeLookup;
 
     size_t findGroups(TypeID const& typeID,
@@ -184,6 +195,8 @@ namespace edm {
 
     // A vector of groups.
     GroupCollection groups_; // products and provenances are persistent
+    //how many non-null group pointers are in groups_
+    size_t size_;
 
     // Pointer to the product registry. There is one entry in the registry
     // for each EDProduct in the event.

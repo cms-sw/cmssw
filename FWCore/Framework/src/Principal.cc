@@ -28,7 +28,8 @@ namespace edm {
     processHistoryPtr_(boost::shared_ptr<ProcessHistory>(new ProcessHistory)),
     processConfiguration_(pc),
     processHistoryModified_(false),
-    groups_(),
+    groups_(reg->constProductList().size(), SharedGroupPtr()),
+    size_(0),
     preg_(reg),
     branchMapperPtr_(mapper),
     store_(rtrv)
@@ -46,9 +47,13 @@ namespace edm {
 
   Group*
   Principal::getExistingGroup(Group const& group) {
-    GroupCollection::const_iterator it = groups_.find(group.productDescription().branchID());
-    if (it == groups_.end()) return 0;
-    return it->second.get();
+    ProductTransientIndex index = preg_->indexFrom(group.productDescription().branchID());
+    if(index==ProductRegistry::kInvalidIndex) {
+       return 0;
+    }
+    SharedGroupPtr ptr = groups_[index];
+    assert(0==ptr.get() || BranchKey(group.productDescription())==BranchKey(ptr->productDescription()));
+    return ptr.get();
   }
 
   void 
@@ -59,7 +64,13 @@ namespace edm {
     assert (!bd.moduleLabel().empty());
     assert (!bd.processName().empty());
     SharedGroupPtr g(group);
-    groups_.insert(std::make_pair(bd.branchID(), g));
+    
+    ProductTransientIndex index = preg_->indexFrom(bd.branchID());
+    assert(index!= ProductRegistry::kInvalidIndex);
+    groups_[index]=g;
+    if(bool(g)){
+      ++size_;
+    }
   }
 
   void 
@@ -70,7 +81,9 @@ namespace edm {
     assert (!bd.moduleLabel().empty());
     assert (!bd.processName().empty());
     SharedGroupPtr g(group);
-    groups_[bd.branchID()]->replace(*g);
+    ProductTransientIndex index = preg_->indexFrom(bd.branchID());
+    assert(index!=ProductRegistry::kInvalidIndex);
+    groups_[index]->replace(*g);
   }
 
   void
@@ -105,11 +118,20 @@ namespace edm {
 
   Principal::SharedConstGroupPtr const
   Principal::getGroup(BranchID const& bid, bool resolveProd, bool resolveProv, bool fillOnDemand) const {
-    GroupCollection::const_iterator it = groups_.find(bid);
-    if (it == groups_.end()) {
-      return SharedConstGroupPtr();
+    ProductTransientIndex index = preg_->indexFrom(bid);
+    if(index==ProductRegistry::kInvalidIndex){
+       return SharedConstGroupPtr();
     }
-    SharedConstGroupPtr const& g = it->second;
+    return getGroupByIndex(index, resolveProd, resolveProv, fillOnDemand); 
+  }
+   
+  Principal::SharedConstGroupPtr const
+  Principal::getGroupByIndex(ProductTransientIndex const& index, bool resolveProd, bool resolveProv, bool fillOnDemand) const {
+    
+    SharedConstGroupPtr const& g = groups_[index];
+    if (0==g.get()) {
+      return g;
+    }
     if (resolveProv && (g->provenanceAvailable() || g->onDemand())) {
       if(g->onDemand()) {
          //must execute the unscheduled to get the provenance
@@ -275,8 +297,8 @@ namespace edm {
   Principal::readImmediate() const {
     readProvenanceImmediate();
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
-      if (!i->second->productUnavailable()) {
-        resolveProduct(*i->second, false);
+      if (!(*i)->productUnavailable()) {
+        resolveProduct(*(*i), false);
       }
     }
   }
@@ -284,8 +306,8 @@ namespace edm {
   void
   Principal::readProvenanceImmediate() const {
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
-      if (i->second->provenanceAvailable()) {
-	resolveProvenance(*i->second);
+      if ((*i)->provenanceAvailable()) {
+	resolveProvenance(**i);
       }
     }
     branchMapperPtr_->setDelayedRead(false);
@@ -349,12 +371,12 @@ namespace edm {
     // This is a vector of indexes into the productID vector
     // These indexes point to groups with desired process name (and
     // also type when this function is called from findGroups)
-    std::vector<BranchID> const& vindex = j->second;
+    std::vector<ProductTransientIndex> const& vindex = j->second;
 
-    for (std::vector<BranchID>::const_iterator ib(vindex.begin()), ie(vindex.end());
-	 ib != ie;
-	 ++ib) {
-      SharedConstGroupPtr const& group = getGroup(*ib, false, false, false);
+     for (std::vector<ProductTransientIndex>::const_iterator idx(vindex.begin()), ie(vindex.end());
+	 idx != ie;
+	 ++idx) {
+      SharedConstGroupPtr const& group = getGroupByIndex(*idx, false, false, false);
       if(group.get() == 0) {
         continue;
       }
@@ -457,12 +479,12 @@ namespace edm {
   Principal::getAllProvenance(std::vector<Provenance const*> & provenances) const {
     provenances.clear();
     for (const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
-      if (i->second->provenanceAvailable()) {
-        resolveProvenance(*i->second);
-        if (i->second->provenance()->productProvenanceSharedPtr() &&
-            i->second->provenance()->isPresent() &&
-            i->second->provenance()->product().present())
-           provenances.push_back(i->second->provenance());
+      if ((*i)->provenanceAvailable()) {
+        resolveProvenance(**i);
+        if ((*i)->provenance()->productProvenanceSharedPtr() &&
+            (*i)->provenance()->isPresent() &&
+            (*i)->provenance()->product().present())
+           provenances.push_back((*i)->provenance());
         }
     }
   }
@@ -470,7 +492,11 @@ namespace edm {
   void
   Principal::recombine(Principal & other, std::vector<BranchID> const& bids) {
     for (std::vector<BranchID>::const_iterator it = bids.begin(), itEnd = bids.end(); it != itEnd; ++it) {
-      groups_[*it].swap(other.groups_[*it]);
+      ProductTransientIndex index= preg_->indexFrom(*it);
+      assert(index!=ProductRegistry::kInvalidIndex);
+      ProductTransientIndex indexO = other.preg_->indexFrom(*it);
+      assert(indexO!=ProductRegistry::kInvalidIndex);
+      groups_[index].swap(other.groups_[indexO]);
     }
     store_->mergeReaders(other.store());
     branchMapperPtr_->mergeMappers(other.branchMapperPtr());
