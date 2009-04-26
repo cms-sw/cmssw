@@ -950,8 +950,15 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
        map_BitOfStandardHLTPath.find("L1_SingleEG10")->second == 1 || 
        map_BitOfStandardHLTPath.find("L1_SingleEG12")->second == 1 || 
        map_BitOfStandardHLTPath.find("L1_SingleEG15")->second == 1 || 
-       map_BitOfStandardHLTPath.find("L1_SingleEG20")->second == 1) {
-
+       map_BitOfStandardHLTPath.find("L1_SingleEG20")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_SingleJet15")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_SingleJet30")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_SingleJet50")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_SingleJet70")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_SingleJet100")->second == 1 || 
+       map_BitOfStandardHLTPath.find("L1_DoubleJet70")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_DoubleEG5")->second == 1) {
+      
       TLorentzVector gamma1; 
       TLorentzVector gamma2; 
       TLorentzVector meson;
@@ -1021,8 +1028,15 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
        map_BitOfStandardHLTPath.find("L1_SingleEG10")->second == 1 ||  
        map_BitOfStandardHLTPath.find("L1_SingleEG12")->second == 1 ||  
        map_BitOfStandardHLTPath.find("L1_SingleEG15")->second == 1 ||  
-       map_BitOfStandardHLTPath.find("L1_SingleEG20")->second == 1) { 
- 
+       map_BitOfStandardHLTPath.find("L1_SingleEG20")->second == 1 ||
+       map_BitOfStandardHLTPath.find("L1_SingleJet15")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_SingleJet30")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_SingleJet50")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_SingleJet70")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_SingleJet100")->second == 1 ||  
+       map_BitOfStandardHLTPath.find("L1_DoubleJet70")->second == 1 ||   
+       map_BitOfStandardHLTPath.find("L1_DoubleEG5")->second == 1) { 
+      
       TLorentzVector gamma1;  
       TLorentzVector gamma2;  
       TLorentzVector meson; 

@@ -346,6 +346,10 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   vtmp.push_back("L1_SingleEG2"); vtmp.push_back("L1_SingleEG5"); vtmp.push_back("L1_SingleEG8");   
   vtmp.push_back("L1_SingleEG10"); vtmp.push_back("L1_SingleEG12");
   vtmp.push_back("L1_SingleEG15"); vtmp.push_back("L1_SingleEG20"); 
+  vtmp.push_back("L1_SingleJet15"); vtmp.push_back("L1_SingleJet30");  
+  vtmp.push_back("L1_SingleJet50"); vtmp.push_back("L1_SingleJet70");  
+  vtmp.push_back("L1_SingleJet100"); vtmp.push_back("L1_DoubleJet70");   
+  vtmp.push_back("L1_DoubleEG5");
   map_L1SeedsOfStandardHLTPath.insert(mypair("AlCa_EcalPi0", vtmp));
 
     // For measuring L1 rates, also add L1 bits to the map!
@@ -617,6 +621,10 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   vtmp.push_back("L1_SingleEG15"); vtmp.push_back("L1_SingleEG20");  
   vtmp.push_back("L1_SingleIsoEG5"); vtmp.push_back("L1_SingleIsoEG8"); vtmp.push_back("L1_SingleIsoEG10");  
   vtmp.push_back("L1_SingleIsoEG12"); vtmp.push_back("L1_SingleIsoEG15");  
+  vtmp.push_back("L1_SingleJet15"); vtmp.push_back("L1_SingleJet30");   
+  vtmp.push_back("L1_SingleJet50"); vtmp.push_back("L1_SingleJet70");   
+  vtmp.push_back("L1_SingleJet100"); vtmp.push_back("L1_DoubleJet70");    
+  vtmp.push_back("L1_DoubleEG5"); 
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenAlCa_EcalPi0", vtmp));  
 
   vtmp.clear();        
@@ -625,6 +633,10 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   vtmp.push_back("L1_SingleEG15"); vtmp.push_back("L1_SingleEG20"); 
   vtmp.push_back("L1_SingleIsoEG5"); vtmp.push_back("L1_SingleIsoEG8"); vtmp.push_back("L1_SingleIsoEG10"); 
   vtmp.push_back("L1_SingleIsoEG12"); vtmp.push_back("L1_SingleIsoEG15"); 
+  vtmp.push_back("L1_SingleJet15"); vtmp.push_back("L1_SingleJet30");   
+  vtmp.push_back("L1_SingleJet50"); vtmp.push_back("L1_SingleJet70");   
+  vtmp.push_back("L1_SingleJet100"); vtmp.push_back("L1_DoubleJet70");    
+  vtmp.push_back("L1_DoubleEG5"); 
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenAlCa_EcalEta", vtmp));   
   
 }
