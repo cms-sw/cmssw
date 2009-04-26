@@ -6,15 +6,14 @@
 gROOT->LoadMacro("../Tools/NicePlot.C");
 InitNicePlot();
 
-TFile fileCalo("JetBenchmarkGeneric_Endcap.root");
-TFile filePF("JetBenchmark_Full_310pre2.root");
+TFile* fileCalo = new TFile("JetBenchmarkGeneric_Endcap.root");
 
 gStyle->SetOptStat(0);
 
-vector<TH1F*> histPF;
 vector<TH1F*> histCALO;
 vector<Float_t> pts;
-TH2F* histoCALO = (TH2F*) fileCalo.Get("DQMData/PFTask/Benchmarks/iterativeCone5CaloJets/Gen/DeltaEtOverEtvsEt");
+TH2F* histoCALO = (TH2F*) fileCalo->Get("DQMData/PFTask/Benchmarks/iterativeCone5CaloJets/Gen/DeltaEtOverEtvsEt");
+histCALO.push_back( (TH1F*)(histoCALO->ProjectionY("",14,20)->Clone()));
 histCALO.push_back( (TH1F*)(histoCALO->ProjectionY("",20,40)->Clone()));
 histCALO.push_back( (TH1F*)(histoCALO->ProjectionY("",40,60)->Clone()));
 histCALO.push_back( (TH1F*)(histoCALO->ProjectionY("",60,80)->Clone()));
@@ -26,17 +25,25 @@ histCALO.push_back( (TH1F*)(histoCALO->ProjectionY("",250,300)->Clone()));
 histCALO.push_back( (TH1F*)(histoCALO->ProjectionY("",300,400)->Clone()));
 histCALO.push_back( (TH1F*)(histoCALO->ProjectionY("",400,500)->Clone()));
 histCALO.push_back( (TH1F*)(histoCALO->ProjectionY("",500,750)->Clone()));
-histPF.push_back( (TH1F*)(filePF.Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt20_40")->Clone()) );
-histPF.push_back( (TH1F*)(filePF.Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt40_60")->Clone()) );
-histPF.push_back( (TH1F*)(filePF.Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt60_80")->Clone()) );
-histPF.push_back( (TH1F*)(filePF.Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt80_100")->Clone()) );
-histPF.push_back( (TH1F*)(filePF.Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt100_150")->Clone()) );
-histPF.push_back( (TH1F*)(filePF.Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt150_200")->Clone()) );
-histPF.push_back( (TH1F*)(filePF.Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt200_250")->Clone()) );
-histPF.push_back( (TH1F*)(filePF.Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt250_300")->Clone()) );
-histPF.push_back( (TH1F*)(filePF.Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt300_400")->Clone()) );
-histPF.push_back( (TH1F*)(filePF.Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt400_500")->Clone()) ); 
-histPF.push_back( (TH1F*)(filePF.Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt500_750")->Clone()) );
+
+
+TFile* filePF = new TFile("JetBenchmark_Full_310pre2.root");
+vector<TH1F*> histPF;
+TH2F* histoPF = (TH2F*) filePF->Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPtvsPt")->Clone();
+histPF.push_back( (TH1F*)(histoPF->ProjectionY("",7,10)->Clone()));
+histPF[0].Draw();
+histPF.push_back( (TH1F*)(filePF->Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt20_40")->Clone()) );
+histPF.push_back( (TH1F*)(filePF->Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt40_60")->Clone()) );
+histPF.push_back( (TH1F*)(filePF->Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt60_80")->Clone()) );
+histPF.push_back( (TH1F*)(filePF->Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt80_100")->Clone()) );
+histPF.push_back( (TH1F*)(filePF->Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt100_150")->Clone()) );
+histPF.push_back( (TH1F*)(filePF->Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt150_200")->Clone()) );
+histPF.push_back( (TH1F*)(filePF->Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt200_250")->Clone()) );
+histPF.push_back( (TH1F*)(filePF->Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt250_300")->Clone()) );
+histPF.push_back( (TH1F*)(filePF->Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt300_400")->Clone()) );
+histPF.push_back( (TH1F*)(filePF->Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt400_500")->Clone()) ); 
+histPF.push_back( (TH1F*)(filePF->Get("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen/ERPt500_750")->Clone()) );
+pts.push_back(17);
 pts.push_back(30);
 pts.push_back(50);
 pts.push_back(70);
@@ -75,6 +82,7 @@ for( unsigned i=0; i<n; ++i) {
   meanCALO.push_back(gausCALO->GetParameter(1));
   rmsCALO.push_back(histCALO[i]->GetRMS()/(histCALO[i]->GetMean()+1.));    
   arithCALO.push_back(histCALO[i]->GetMean());
+
 }
 
 TGraph* grPF1 = new TGraph ( n, &pts[0], &sigmaPF[0] );
@@ -87,7 +95,7 @@ TGraph* grCALO2 = new TGraph ( n, &pts[0], &rmsCALO[0] );
 TGraph* grCALO3 = new TGraph ( n, &pts[0], &meanCALO[0] );
 TGraph* grCALO4 = new TGraph ( n, &pts[0], &arithCALO[0] );
 
-TH2F *h = new TH2F("h","", 10, 0., 700, 10, -1.0, 0.2 );
+TH2F *h = new TH2F("h","", 10, 15., 620, 10, -1.0, 0.2 );
 
 TCanvas* c1 = new TCanvas();
 FormatPad(c1,false);
@@ -102,13 +110,22 @@ h->Draw();
 gPad->SetGridx();
 gPad->SetGridy();
 
+TF1* pf4 = new TF1("pf4","[0]+[1]*exp(-x/[2])",15,700);
+TF1* calo4 = new TF1("calo4","[0]+[1]*exp(-x/[2])",15,700);
+pf4->SetParameters(0.,-0.1,10);
+calo4->SetParameters(0.,-0.5,50);
+pf4->SetLineColor(2);
+calo4->SetLineColor(4);
+grPF4->Fit("pf4","","",15,700);
+grCALO4->Fit("calo4","","",15,700);
+
 grPF4->SetMarkerStyle(22);						
 grPF4->SetMarkerColor(2);						
 grPF4->SetLineColor(2);						  
 grPF4->SetMarkerSize(1.5);						
 grPF4->SetLineWidth(3);						  
 grPF4->SetLineStyle(1);
-grPF4->Draw("CP");
+grPF4->Draw("P");
 
 
 grCALO4->SetMarkerStyle(25);						
@@ -116,16 +133,21 @@ grCALO4->SetMarkerColor(4);
 grCALO4->SetMarkerSize(1.5);						
 grCALO4->SetLineColor(4);						  
 grCALO4->SetLineWidth(3);						  
-grCALO4->Draw("CP");
+grCALO4->Draw("P");
 
 TLegend *leg=new TLegend(0.60,0.25,0.85,0.45);
-leg->AddEntry(grCALO4, "Calo-Jets", "lp");
 leg->AddEntry(grPF4, "Particle-Flow Jets", "lp");
+leg->AddEntry(grCALO4, "Calo-Jets", "lp");
 leg->SetTextSize(0.03);
 leg->Draw();
 
+TLatex text;
+text.SetTextColor(1);
+text.SetTextSize(0.03);
+//text.DrawLatex(420,-0.92,"End-caps");
+text.DrawLatex(410,-0.92,"1.5 < |#eta| < 2.5");
+
 gPad->SaveAs("JetResponse_Endcap.pdf");
 gPad->SaveAs("JetResponse_Endcap.png");
-
 
 }
