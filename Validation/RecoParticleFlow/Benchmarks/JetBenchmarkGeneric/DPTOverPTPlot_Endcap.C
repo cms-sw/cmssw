@@ -65,6 +65,10 @@ TLatex text;
 text.SetTextColor(1);
 text.SetTextSize(0.03);
 text.DrawLatex(0.30,110,"p_{T} = 40 - 60 GeV/c");
+TLatex text2;
+text2.SetTextColor(1);
+text2.SetTextSize(0.03);
+text2.DrawLatex(0.30,95,"1.5 < |#eta| < 2.5");
 
 gPad->SaveAs("Jet40_60_Endcap.pdf");
 gPad->SaveAs("Jet40_60_Endcap.png");
@@ -97,6 +101,7 @@ leg->SetTextSize(0.03);
 leg->Draw();
 
 text.DrawLatex(0.30,85,"p_{T} = 300 - 400 GeV/c");
+text2.DrawLatex(0.30,75,"1.5 < |#eta| < 2.5");
 
 gPad->SaveAs("Jet300_400_Endcap.pdf");
 gPad->SaveAs("Jet300_400_Endcap.png");

@@ -65,6 +65,10 @@ TLatex text;
 text.SetTextColor(1);
 text.SetTextSize(0.03);
 text.DrawLatex(0.30,280,"p_{T} = 40 - 60 GeV/c");
+TLatex text2;
+text2.SetTextColor(1);
+text2.SetTextSize(0.03);
+text2.DrawLatex(0.30,240,"0 < |#eta| < 1.5");
 
 gPad->SaveAs("Jet40_60.pdf");
 gPad->SaveAs("Jet40_60.png");
@@ -97,6 +101,7 @@ leg->SetTextSize(0.03);
 leg->Draw();
 
 text.DrawLatex(0.30,280,"p_{T} = 300 - 400 GeV/c");
+text2.DrawLatex(0.30,240,"0 < |#eta| < 1.5");
 
 gPad->SaveAs("Jet300_400.pdf");
 gPad->SaveAs("Jet300_400.png");
