@@ -58,8 +58,8 @@
   <ZSection z="6.835*m  "  rMin="701*mm"    rMax="85*cm " />
  </Polycone> 
  <Polycone name="ME1Ring" startPhi="0*deg" deltaPhi="360*deg" >
-  <ZSection z="5.641*m  "  rMin="1.3*m  "  rMax="2.8*m  " />
-  <ZSection z="5.674*m  "  rMin="1.3*m  "  rMax="2.8*m  " />
+  <ZSection z="5.641*m  "  rMin="1.3*m "  rMax="2.8*m  " />
+  <ZSection z="5.674*m  "  rMin="1.3*m "  rMax="2.8*m  " />
   <ZSection z="5.674*m  "  rMin="85*cm "  rMax="2.8*m  " />
   <ZSection z="6.345*m  "  rMin="85*cm "  rMax="2.8*m  " />
  </Polycone> 
@@ -229,12 +229,6 @@ RE1/1 staged volumes -->
  <Trd1 name="ME_DeadGas_2_ME21_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="40.33*cm " dx2="40.805*cm " />
 
  <Tubs name="RR2X" rMin="1.97*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
- <Polycone name="ME1Ring" startPhi="0*deg" deltaPhi="360*deg" >
-  <ZSection z="5.641*m  "  rMin="1.3*m  "  rMax="2.8*m  " />
-  <ZSection z="5.674*m  "  rMin="1.3*m  "  rMax="2.8*m  " />
-  <ZSection z="5.674*m  "  rMin="85*cm "  rMax="2.8*m  " />
-  <ZSection z="6.345*m  "  rMin="85*cm "  rMax="2.8*m  " />
- </Polycone> 
  <!-- RE2/1 staged volumes 
  <Tubs name="RT2D" rMin="1.97*m  " rMax="3.3*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
  <Trd1 name="RFDX" dz="61.55*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="35.159*cm " dx2="56.847*cm " />
