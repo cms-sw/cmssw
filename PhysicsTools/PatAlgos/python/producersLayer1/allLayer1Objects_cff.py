@@ -29,6 +29,3 @@ allLayer1Objects = cms.Sequence(
     layer1METs +
     allLayer1Summary
 )
-allLayer1Objects.doc = "Produce PAT objects, without any selection"
-
-
