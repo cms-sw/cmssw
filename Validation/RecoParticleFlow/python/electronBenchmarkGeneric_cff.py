@@ -5,7 +5,6 @@ from Validation.RecoParticleFlow.pfElectronBenchmarkGeneric_cfi import pfElectro
 
 # setting the sources
 
-pfsource = 'pfAllElectrons'
 gensource = cms.EDProducer(
     "GenParticlePruner",
     src = cms.InputTag("genParticles"),
@@ -15,8 +14,8 @@ gensource = cms.EDProducer(
     )
     )
 
-pfElectronBenchmarkGeneric.InputRecoLabel = cms.InputTag(pfsource)
-pfElectronBenchmarkGeneric.InputTruthLabel = cms.InputTag(gensource)
+pfElectronBenchmarkGeneric.InputRecoLabel = cms.InputTag("pfsource")
+pfElectronBenchmarkGeneric.InputTruthLabel = cms.InputTag("gensource")
 
 electronBenchmarkGeneric = cms.Sequence(
     pfElectronBenchmarkGeneric
