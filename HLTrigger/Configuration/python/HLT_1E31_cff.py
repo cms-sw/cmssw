@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre4/1E31_V55/V2 (CMSSW_3_1_X_2009-04-16-0800_HLT1)
+# /dev/CMSSW_3_1_0/pre4/1E31_V56/V2 (CMSSW_3_1_X_2009-04-16-0800_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre4/1E31_V55/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre4/1E31_V56/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -2445,15 +2445,15 @@ hltL3Muons = cms.EDProducer( "L3MuonProducer",
       GlobalMuonTrackMatcher = cms.PSet( 
         MinP = cms.double( 2.5 ),
         MinPt = cms.double( 1.0 ),
-        Pt_threshold1 = cms.double( 10.0 ),
-        Pt_threshold2 = cms.double( 35.0 ),
+        Pt_threshold1 = cms.double( 0.0 ),
+        Pt_threshold2 = cms.double( 9.99999999E8 ),
         Eta_threshold = cms.double( 1.2 ),
         Chi2Cut_1 = cms.double( 50.0 ),
-        Chi2Cut_2 = cms.double( 40.0 ),
+        Chi2Cut_2 = cms.double( 50.0 ),
         Chi2Cut_3 = cms.double( 200.0 ),
         LocChi2Cut = cms.double( 0.0010 ),
         DeltaDCut_1 = cms.double( 40.0 ),
-        DeltaDCut_2 = cms.double( 20.0 ),
+        DeltaDCut_2 = cms.double( 10.0 ),
         DeltaDCut_3 = cms.double( 15.0 ),
         DeltaRCut_1 = cms.double( 0.1 ),
         DeltaRCut_2 = cms.double( 0.2 ),
