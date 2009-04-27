@@ -1,0 +1,9 @@
+import FWCore.ParameterSet.Config as cms
+
+from RecoEcal.EgammaClusterProducers.islandClusteringSequence_cff import *
+from RecoEcal.EgammaClusterProducers.hybridClusteringSequence_cff import *
+from RecoEcal.EgammaClusterProducers.multi5x5ClusteringSequence_cff import *
+from RecoEcal.EgammaClusterProducers.multi5x5PreshowerClusteringSequence_cff import *
+from RecoEcal.EgammaClusterProducers.preshowerClusteringSequence_cff import *
+
+hiEcalClusters = cms.Sequence(islandClusteringSequence*hybridClusteringSequence*preshowerClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence)
