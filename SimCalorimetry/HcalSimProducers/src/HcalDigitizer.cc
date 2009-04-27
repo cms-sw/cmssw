@@ -235,7 +235,7 @@ void HcalDigitizer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   theHODigitizer->run(*col, *hoResult);
   theHFDigitizer->run(*col, *hfResult);
   if(doZDC) {
-    //theZDCDigitizer->run(*colzdc, *zdcResult);
+    theZDCDigitizer->run(*colzdc, *zdcResult);
   }
   edm::LogInfo("HcalDigitizer") << "HCAL HBHE digis : " << hbheResult->size();
   edm::LogInfo("HcalDigitizer") << "HCAL HO digis   : " << hoResult->size();
