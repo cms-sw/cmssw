@@ -19,6 +19,10 @@ public:
    static std::string classTypeName() {
       return ROOT::Reflex::Type::ByTypeInfo(typeid(T)).Name(ROOT::Reflex::SCOPED);
    }
+   
+   static std::string classRegisterTypeName() {
+      return typeid(T).name();
+   }
 
 private:
    virtual TEveElement* build(const FWModelId& iID, const void* iData) {

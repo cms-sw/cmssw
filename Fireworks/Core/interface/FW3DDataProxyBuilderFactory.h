@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun  5 20:13:55 EDT 2008
-// $Id: FW3DDataProxyBuilderFactory.h,v 1.2 2008/12/04 15:27:15 dmytro Exp $
+// $Id: FW3DDataProxyBuilderFactory.h,v 1.3 2009/01/23 21:35:40 amraktad Exp $
 //
 
 // system include files
@@ -33,6 +33,6 @@ typedef edmplugin::PluginFactory<FW3DDataProxyBuilder*()> FW3DDataProxyBuilderFa
 
 #define REGISTER_FW3DDATAPROXYBUILDER(_name_,_type_,_purpose_) \
    DEFINE_PROXYBUILDER_METHODS(_name_,_type_,_purpose_); \
-   DEFINE_EDM_PLUGIN(FW3DDataProxyBuilderFactory,_name_,_name_::typeOfBuilder()+_name_::classTypeName()+"@"+_name_::classPurpose()+"@" # _name_)
+   DEFINE_EDM_PLUGIN(FW3DDataProxyBuilderFactory,_name_,_name_::typeOfBuilder()+_name_::classRegisterTypeName()+"@"+_name_::classPurpose()+"@" # _name_)
 
 #endif

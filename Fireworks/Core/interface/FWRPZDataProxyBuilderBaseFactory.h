@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun  5 20:13:37 EDT 2008
-// $Id: FWRPZDataProxyBuilderBaseFactory.h,v 1.1 2008/11/26 01:50:46 chrjones Exp $
+// $Id: FWRPZDataProxyBuilderBaseFactory.h,v 1.2 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -32,6 +32,6 @@ typedef edmplugin::PluginFactory<FWRPZDataProxyBuilderBase*()> FWRPZDataProxyBui
 
 #define REGISTER_FWRPZDATAPROXYBUILDERBASE(_name_,_type_,_purpose_) \
    DEFINE_PROXYBUILDER_METHODS(_name_,_type_,_purpose_); \
-   DEFINE_EDM_PLUGIN(FWRPZDataProxyBuilderBaseFactory,_name_,_name_::typeOfBuilder()+_name_::classTypeName()+"@"+_name_::classPurpose()+"@" # _name_)
+   DEFINE_EDM_PLUGIN(FWRPZDataProxyBuilderBaseFactory,_name_,_name_::typeOfBuilder()+_name_::classRegisterTypeName()+"@"+_name_::classPurpose()+"@" # _name_)
 
 #endif
