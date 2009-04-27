@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:56 PST 2008
-// $Id: FWModelFilter.cc,v 1.9 2008/11/06 22:05:26 amraktad Exp $
+// $Id: FWModelFilter.cc,v 1.10.8.1 2009/04/24 02:18:41 dmytro Exp $
 //
 
 // system include files
@@ -24,8 +24,8 @@
 #include "Fireworks/Core/interface/FWModelFilter.h"
 #include "Fireworks/Core/interface/FWExpressionException.h"
 
-#include "PhysicsTools/Utilities/src/Grammar.h"
-#include "PhysicsTools/Utilities/interface/Exception.h"
+#include "CommonTools/Utils/src/Grammar.h"
+#include "CommonTools/Utils/interface/Exception.h"
 
 #include "Fireworks/Core/src/expressionFormatHelpers.h"
 
@@ -82,7 +82,7 @@ FWModelFilter::setExpression(const std::string& iExpression)
       std::string temp = oldToNewFormat(iExpression);
 
       //now setup the parser
-      using namespace boost::spirit;
+      using namespace boost::spirit::classic;
       reco::parser::SelectorPtr tmpPtr;
       reco::parser::Grammar grammar(tmpPtr,m_type);
       try {

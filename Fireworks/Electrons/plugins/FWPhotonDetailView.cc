@@ -7,7 +7,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWPhotonDetailView.cc,v 1.4 2009/03/29 14:13:38 amraktad Exp $
+// $Id: FWPhotonDetailView.cc,v 1.5.8.1 2009/04/24 02:18:42 dmytro Exp $
 //
 
 // system include files
@@ -172,8 +172,8 @@ class TEveElementList *FWPhotonDetailView::makeLabels (const reco::Photon &photo
    // eta, phi axis or x, y axis?
    assert(photon.superCluster().isNonnull());
    bool is_endcap = false;
-   if (photon.superCluster()->getHitsByDetId().size() > 0 &&
-       photon.superCluster()->getHitsByDetId().begin()->subdetId() == EcalEndcap)
+   if (photon.superCluster()->hitsAndFractions().size() > 0 &&
+       photon.superCluster()->hitsAndFractions().begin()->first.subdetId() == EcalEndcap)
       is_endcap = true;
 
    return ret;

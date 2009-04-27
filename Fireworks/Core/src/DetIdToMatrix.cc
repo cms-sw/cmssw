@@ -13,21 +13,51 @@
 #include <iostream>
 #include <sstream>
 #include "TPRegexp.h"
+#include "TSystem.h"
 DetIdToMatrix::~DetIdToMatrix()
 {
    // ATTN: not sure I own the manager
    // if ( manager_ ) delete manager_;
 }
 
+TFile* DetIdToMatrix::findFile(const char* fileName)
+{
+   TString file;
+   if ( const char* cmspath = gSystem->Getenv("CMSSW_BASE") ) {
+      file += cmspath;
+      file += "/";
+   }
+   file += fileName;
+   if ( ! gSystem->AccessPathName(file.Data()) ) {
+      return TFile::Open(fileName);
+   } 
+   
+   const char* searchpath = gSystem->Getenv("CMSSW_SEARCH_PATH");
+   if ( searchpath == 0 ) return 0;
+   TString paths(searchpath);
+   TObjArray* tokens = paths.Tokenize(":");
+   for ( int i=0; i<tokens->GetEntries(); ++i )	{
+      TObjString* path = (TObjString*)tokens->At(i);
+      TString fullFileName(path->GetString());
+      fullFileName += "/Fireworks/Geometry/data/";
+      fullFileName += fileName;
+      if ( ! gSystem->AccessPathName(fullFileName.Data()) )
+	return TFile::Open(fullFileName.Data());
+   }
+   return 0;
+}
+      
 void DetIdToMatrix::loadGeometry(const char* fileName)
 {
-   // ATTN: not sure if I can close the file and keep the manager in the memory
-   //       it's not essential for id to matrix functionality, but the geo manager
-   //       should be available for access to the geometry if it's needed
-   TFile* f = new TFile(fileName);
    manager_ = 0;
-   // load geometry
-   manager_ = (TGeoManager*)f->Get("cmsGeo");
+   if ( TFile* f = findFile(fileName) ) {
+      // load geometry
+      manager_ = (TGeoManager*)f->Get("cmsGeo");
+      f->Close();
+   } else {
+      std::cout << "ERROR: failed to find geometry file. Initialization failed." << std::endl;
+      return;
+   }
    if (!manager_) {
       std::cout << "ERROR: cannot find geometry in the file. Initialization failed." << std::endl;
       return;
@@ -41,9 +71,12 @@ void DetIdToMatrix::loadMap(const char* fileName)
       return;
    }
 
-   TFile f(fileName);
-   // ATTN: not sure who owns the object
-   TTree* tree = (TTree*)f.Get("idToGeo");
+   TFile* f = findFile(fileName);
+   if ( !f )  {
+      std::cout << "ERROR: failed to find geometry file. Initialization failed." << std::endl;
+      return;
+   }
+   TTree* tree = (TTree*)f->Get("idToGeo");
    if (!tree) {
       std::cout << "ERROR: cannot find detector id map in the file. Initialization failed." << std::endl;
       return;
@@ -56,7 +89,7 @@ void DetIdToMatrix::loadMap(const char* fileName)
       tree->GetEntry(i);
       idToPath_[id] = path;
    }
-   f.Close();
+   f->Close();
 }
 
 const TGeoHMatrix* DetIdToMatrix::getMatrix( unsigned int id ) const

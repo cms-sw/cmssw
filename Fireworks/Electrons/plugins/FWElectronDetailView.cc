@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.20 2009/03/31 23:27:20 jmuelmen Exp $
+// $Id: FWElectronDetailView.cc,v 1.21.4.1 2009/04/24 02:18:42 dmytro Exp $
 //
 
 // system include files
@@ -210,8 +210,8 @@ class TEveElementList *FWElectronDetailView::makeLabels (const reco::GsfElectron
    // eta, phi axis or x, y axis?
    assert(electron.superCluster().isNonnull());
    bool is_endcap = false;
-   if (electron.superCluster()->getHitsByDetId().size() > 0 &&
-       electron.superCluster()->getHitsByDetId().begin()->subdetId() == EcalEndcap)
+   if (electron.superCluster()->hitsAndFractions().size() > 0 &&
+       electron.superCluster()->hitsAndFractions().begin()->first.subdetId() == EcalEndcap)
       is_endcap = true;
 
    return ret;

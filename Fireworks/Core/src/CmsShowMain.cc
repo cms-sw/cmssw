@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.72 2009/04/08 15:23:44 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.73.8.1 2009/04/24 02:18:41 dmytro Exp $
 //
 
 // system include files
@@ -227,8 +227,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          m_geomFileName = vm[kGeomFileOpt].as<std::string>();
       } else {
          printf("No geom file name.  Choosing default.\n");
-         m_geomFileName =cmspath;
-         m_geomFileName.append("/cmsGeom10.root");
+         // m_geomFileName =cmspath;
+         m_geomFileName.append("cmsGeom10.root");
       }
       bool eveMode = vm.count(kEveOpt);
 

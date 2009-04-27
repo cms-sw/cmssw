@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 23 10:37:22 EST 2008
-// $Id: FWModelExpressionSelector.cc,v 1.7 2008/11/06 22:05:26 amraktad Exp $
+// $Id: FWModelExpressionSelector.cc,v 1.8.8.1 2009/04/24 02:18:41 dmytro Exp $
 //
 
 // system include files
@@ -17,8 +17,8 @@
 #include "Reflex/Object.h"
 #include "Reflex/Type.h"
 
-#include "PhysicsTools/Utilities/src/Grammar.h"
-#include "PhysicsTools/Utilities/interface/Exception.h"
+#include "CommonTools/Utils/src/Grammar.h"
+#include "CommonTools/Utils/interface/Exception.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
@@ -27,7 +27,6 @@
 #include "Fireworks/Core/src/fwCintInterfaces.h"
 #include "Fireworks/Core/interface/FWExpressionException.h"
 #include "Fireworks/Core/src/expressionFormatHelpers.h"
-
 //
 // constants, enums and typedefs
 //
@@ -84,7 +83,7 @@ FWModelExpressionSelector::select(FWEventItem* iItem, const std::string& iExpres
    std::string temp = oldToNewFormat(iExpression);
 
    //now setup the parser
-   using namespace boost::spirit;
+   using namespace boost::spirit::classic;
    reco::parser::SelectorPtr selectorPtr;
    reco::parser::Grammar grammar(selectorPtr,type);
    bool succeeded=true;

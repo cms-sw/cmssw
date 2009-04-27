@@ -11,6 +11,7 @@ class TGeoManager;
 class TGeoVolume;
 class TEveGeoShape;
 class TEveElementList;
+class TFile;
 
 #include "TGeoMatrix.h"
 #include <map>
@@ -35,6 +36,8 @@ public:
 
    // get path to the detector volume in the geometry manager
    const char* getPath( unsigned int id ) const;
+   
+   static TFile* findFile(const char* fileName);
 
    // extract globally positioned shape for stand alone use
    // note: transformations are fixed for known differences

@@ -1,4 +1,4 @@
-// $Id: FWECALDetailView.icc,v 1.1 2009/03/31 23:27:20 jmuelmen Exp $
+// $Id: FWECALDetailView.icc,v 1.2.4.1 2009/04/24 02:18:42 dmytro Exp $
 
 // system include files
 #include "TLatex.h"
@@ -117,11 +117,11 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i,
      m_coordEtaPhi = true;
      assert(i->superCluster().isNonnull());
      tList->AddElement(makeLabels(*i));
-     std::vector<DetId> detids = i->superCluster()->getHitsByDetId();
+     std::vector< std::pair<DetId, float> > detids = i->superCluster()->hitsAndFractions();
      seed_detids = i->superCluster()->seed()->
-	  getHitsByDetId();
+	  hitsAndFractions();
      const unsigned int subdetId = 
-	  seed_detids.size() != 0 ? seed_detids.begin()->subdetId() : 0;
+	  seed_detids.size() != 0 ? seed_detids.begin()->first.subdetId() : 0;
      if (subdetId == EcalBarrel) {
 // 	  rotationCenter()[0] = i->superCluster()->position().eta();
 // 	  rotationCenter()[1] = i->superCluster()->position().phi();
@@ -396,33 +396,33 @@ void FWECALDetailView<T>::getEcalCrystalsEndcap (std::vector<DetId> *vv,
 
 
 template <typename T>
-void FWECALDetailView<T>::fillData (const std::vector<DetId> &detids,
+void FWECALDetailView<T>::fillData (const std::vector< std::pair<DetId, float> > &detids,
 				    TEveCaloDataVec *data, 
 				    double phi_seed)
 {
-   for (std::vector<DetId>::const_iterator k = detids.begin();
+   for (std::vector< std::pair<DetId, float> >::const_iterator k = detids.begin();
         k != detids.end(); ++k) {
       double size = 50; // default size
-      if (k->subdetId() == EcalBarrel) {
+      if (k->first.subdetId() == EcalBarrel) {
          if (m_barrel_hits != 0) {
             EcalRecHitCollection::const_iterator hit = 
-               m_barrel_hits->find(*k);
+               m_barrel_hits->find(k->first);
             if (hit != m_barrel_hits->end()) {
                size = hit->energy();
             }
          }
-      } else if (k->subdetId() == EcalEndcap) {
+      } else if (k->first.subdetId() == EcalEndcap) {
          if (m_endcap_hits != 0) {
             EcalRecHitCollection::const_iterator hit = 
-               m_endcap_hits->find(*k);
+               m_endcap_hits->find(k->first);
             if (hit != m_endcap_hits->end()) {
                size = hit->energy();
             }
          }
       }
-      const TGeoHMatrix *matrix = m_item->getGeom()->getMatrix(k->rawId());
+      const TGeoHMatrix *matrix = m_item->getGeom()->getMatrix(k->first.rawId());
       if ( matrix == 0 ) {
-         printf("Warning: cannot get geometry for DetId: %d. Ignored.\n",k->rawId());
+         printf("Warning: cannot get geometry for DetId: %d. Ignored.\n",k->first.rawId());
          continue;
       }
       const TVector3 v(matrix->GetTranslation()[0], 
@@ -430,11 +430,14 @@ void FWECALDetailView<T>::fillData (const std::vector<DetId> &detids,
                        matrix->GetTranslation()[2]);
       // slice 1 is the non-seed clusters (which will show up in yellow)
       int slice = 1;
-      if (find(seed_detids.begin(), seed_detids.end(), *k) != 
-          seed_detids.end()) {
-         // slice 0 is the seed cluster (which will show up in red)
-         slice = 0;
-      } 
+      for (std::vector< std::pair<DetId, float> >::const_iterator i = seed_detids.begin();
+	   i != seed_detids.end(); ++i){
+	 if ( i->first == k->first) {
+	    // slice 0 is the seed cluster (which will show up in red)
+	    slice = 0;
+	    break;
+	 } 
+      }
       if (m_coordEtaPhi) {
          double phi = v.Phi();
          if (v.Phi() > phi_seed + M_PI)
@@ -444,7 +447,7 @@ void FWECALDetailView<T>::fillData (const std::vector<DetId> &detids,
          data->AddTower(v.Eta() - 0.0172 / 2, v.Eta() + 0.0172 / 2, 
                         phi - 0.0172 / 2, phi + 0.0172 / 2);
          data->FillSlice(slice, size);
-      } else if (k->subdetId() == EcalEndcap) {
+      } else if (k->first.subdetId() == EcalEndcap) {
          // temproary workaround for calo lego TwoPi periodic behaviour 
          // switch from cm to m
          data->AddTower((v.X() - 2.9 / 2)*0.01f, (v.X() + 2.9 / 2)*0.01f, 
@@ -464,7 +467,7 @@ void FWECALDetailView<T>::fillData (const std::vector<DetId> &detids,
 //      data->AddTower(etaMin -offe, etaMax +offe, phiMin -offp , phiMax +offp);
 
    // set eta, phi axis title with symbol.ttf font
-   if (detids.size() > 0 && detids.begin()->subdetId() == EcalEndcap) {
+   if (detids.size() > 0 && detids.begin()->first.subdetId() == EcalEndcap) {
       data->GetEtaBins()->SetTitle("X[m]");
       data->GetPhiBins()->SetTitle("Y[m]");
    } else {

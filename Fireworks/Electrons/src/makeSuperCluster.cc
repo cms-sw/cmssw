@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 15:32:33 EST 2008
-// $Id: makeSuperCluster.cc,v 1.1 2008/12/05 20:57:15 chrjones Exp $
+// $Id: makeSuperCluster.cc,v 1.2.8.1 2009/04/24 02:18:42 dmytro Exp $
 //
 
 // system include files
@@ -33,10 +33,10 @@ namespace fireworks {
       if ( !iCluster.isAvailable() ) return false;
       TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
 
-      std::vector<DetId> detids = iCluster->getHitsByDetId();
+      std::vector< std::pair<DetId, float> > detids = iCluster->hitsAndFractions();
       std::vector<double> phis;
-      for (std::vector<DetId>::const_iterator id = detids.begin(); id != detids.end(); ++id) {
-         const TGeoHMatrix* matrix = iItem.getGeom()->getMatrix( id->rawId() );
+      for (std::vector<std::pair<DetId, float> >::const_iterator id = detids.begin(); id != detids.end(); ++id) {
+         const TGeoHMatrix* matrix = iItem.getGeom()->getMatrix( id->first.rawId() );
          if ( matrix ) phis.push_back( atan2(matrix->GetTranslation()[1], matrix->GetTranslation()[0]) );
       }
       std::pair<double,double> phiRange = fw::getPhiRange( phis, iPhi);
@@ -60,9 +60,9 @@ namespace fireworks {
       TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
       double theta_max = 0;
       double theta_min = 10;
-      std::vector<DetId> detids = iCluster->getHitsByDetId();
-      for (std::vector<DetId>::const_iterator id = detids.begin(); id != detids.end(); ++id) {
-         const TGeoHMatrix* matrix = iItem.getGeom()->getMatrix( id->rawId() );
+      std::vector<std::pair<DetId, float> > detids = iCluster->hitsAndFractions();
+      for (std::vector<std::pair<DetId, float> >::const_iterator id = detids.begin(); id != detids.end(); ++id) {
+         const TGeoHMatrix* matrix = iItem.getGeom()->getMatrix( id->first.rawId() );
          if ( matrix ) {
             double r = sqrt( matrix->GetTranslation()[0] *matrix->GetTranslation()[0] +
                              matrix->GetTranslation()[1] *matrix->GetTranslation()[1] );
