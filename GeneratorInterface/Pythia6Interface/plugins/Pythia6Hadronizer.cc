@@ -463,7 +463,7 @@ bool Pythia6Hadronizer::residualDecay()
       //
       if ( mother->end_vertex() )
       {
-         if ( pyjets.k[0][mother_id-1] == 1 )  pyjets.k[0][mother_id-1] = 11;
+         if ( pyjets.k[0][mother_id-1] >= 1 && pyjets.k[0][mother_id-1] <= 10 )  pyjets.k[0][mother_id-1] = 11;
 	 pyjets.k[3][mother_id-1] = ipart;
          pyjets.k[4][mother_id-1] = ipart + mother->end_vertex()->particles_out_size();
       }
