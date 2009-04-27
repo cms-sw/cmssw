@@ -1,19 +1,14 @@
 #include "RecoPixelVertexing/PixelTriplets/src/PixelTripletNoTipGenerator.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
-#include "RecoPixelVertexing/PixelTriplets/src/ThirdHitCorrection.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromInvLine.h"
 #include "ThirdHitZPrediction.h"
 
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
-#include "RecoPixelVertexing/PixelTriplets/src/PixelTripletHLTGenerator.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromInvParabola.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
@@ -21,13 +16,6 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 
-#include "UserCode/konec/interface/Analysis.h"
-#include "TProfile.h"
-#include "TH1D.h"
-
-
-#include <iostream>
-using pixelrecoutilities::LongitudinalBendingCorrection;
 typedef PixelRecoRange<float> Range;
 template<class T> T sqr(T t) { return t * t;}
 

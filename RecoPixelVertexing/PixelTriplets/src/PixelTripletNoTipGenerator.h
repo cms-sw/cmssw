@@ -5,8 +5,8 @@
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/CombinedHitTripletGenerator.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+namespace edm { class Event; class EventSetup; } 
 
 #include <utility>
 #include <vector>
