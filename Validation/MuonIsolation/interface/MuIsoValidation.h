@@ -98,7 +98,7 @@ private:
   std::string subDirName;
 
   //Histogram parameters
-  static const int NUM_VARS = 20;
+  static const int NUM_VARS = 13;
   double L_BIN_WIDTH;//large bins
   double S_BIN_WIDTH;//small bins
   int LOG_BINNING_ENABLED;//pseudo log binning for profile plots

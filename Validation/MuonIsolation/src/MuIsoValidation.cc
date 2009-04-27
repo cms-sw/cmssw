@@ -48,8 +48,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //Other included files
-#include "DataFormats/PatCandidates/interface/Isolation.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 //Using declarations
@@ -157,13 +155,6 @@ void MuIsoValidation::InitStatics(){
   main_titles[10] = "Muon Momentum";
   main_titles[11] = "Average Momentum per Track ";
   main_titles[12] = "Weighted Energy";
-  main_titles[13] = "PAT Tracker Momentum";
-  main_titles[14] = "PAT EM Cal Energy";
-  main_titles[15] = "PAT Had Cal Energy";
-  main_titles[16] = "PAT PFlow Energy";
-  main_titles[17] = "PAT Charged PFlow Energy";
-  main_titles[18] = "PAT Neutral PFlow Energy";
-  main_titles[19] = "PAT Gamma PFlow Energy";
 
   //------Titles on the X or Y axis------------
   axis_titles[0 ] = "#Sigma p_{T}   (GeV)";
@@ -179,14 +170,6 @@ void MuIsoValidation::InitStatics(){
   axis_titles[10] = "p_{T}^{#mu}";
   axis_titles[11] = "#Sigma p_{T} / N_{Tracks} (GeV)";
   axis_titles[12] = "(1.5) X #Sigma E_{T}^{EM} + #Sigma E_{T}^{Had}";
-  axis_titles[13] = "#Sigma p_{T}   (GeV)";
-  axis_titles[14] = "#Sigma E_{T}^{EM}   (GeV)";
-  axis_titles[15] = "#Sigma E_{T}^{Had}   (GeV)";
-  axis_titles[16] = "PF Energy  (GeV)";
-  axis_titles[17] = "PF Charged Energy  (GeV)";
-  axis_titles[18] = "PF Neutral Energy  (GeV)";
-  axis_titles[19] = "PF Gamma Energy  (GeV)";
-
 
   //-----------Names given for the root file----------
   names[0 ] = "sumPt";
@@ -202,14 +185,6 @@ void MuIsoValidation::InitStatics(){
   names[10] = "muonPt";
   names[11] = "avgPt";
   names[12] = "weightedEt";
-  names[13] = "pat_TrackerIso";
-  names[14] = "pat_EcalIso";
-  names[15] = "pat_HcalIso";
-  names[16] = "pat_ParticleIso";
-  names[17] = "pat_ChargedParticleIso";
-  names[18] = "pat_NeutralParticleIso";
-  names[19] = "pat_GammaParticleIso";
-
 
   //----------Parameters for binning of histograms---------
   //param[var][0] is the number of bins
@@ -232,13 +207,6 @@ void MuIsoValidation::InitStatics(){
   param[10][0]= (int)( 40.0/S_BIN_WIDTH); param[10][1]=  0.0; param[10][2]= param[10][0]*S_BIN_WIDTH;
   param[11][0]= (int)( 15.0/S_BIN_WIDTH); param[11][1]=  0.0; param[11][2]= param[11][0]*S_BIN_WIDTH;
   param[12][0]= (int)( 20.0/S_BIN_WIDTH); param[12][1]=  0.0; param[12][2]= param[12][0]*S_BIN_WIDTH;
-  param[13][0]= (int)( 20.0/S_BIN_WIDTH); param[13][1]=  0.0; param[13][2]= param[13][0]*S_BIN_WIDTH;
-  param[14][0]= (int)( 20.0/S_BIN_WIDTH); param[14][1]=  0.0; param[14][2]= param[14][0]*S_BIN_WIDTH;
-  param[15][0]= (int)( 20.0/S_BIN_WIDTH); param[15][1]=  0.0; param[15][2]= param[15][0]*S_BIN_WIDTH;
-  param[16][0]= (int)( 30.0/S_BIN_WIDTH); param[16][1]=  0.0; param[16][2]= param[16][0]*S_BIN_WIDTH;
-  param[17][0]= (int)( 20.0/S_BIN_WIDTH); param[17][1]=  0.0; param[17][2]=                     10.0;
-  param[18][0]= (int)( 20.0/S_BIN_WIDTH); param[18][1]=  0.0; param[18][2]=                     10.0;
-  param[19][0]= (int)( 20.0/S_BIN_WIDTH); param[19][1]=  0.0; param[19][2]=                     10.0;
 
   //--------------Is the variable continuous (i.e. non-integer)?-------------
   //---------(Log binning will only be used for continuous variables)--------
@@ -255,13 +223,6 @@ void MuIsoValidation::InitStatics(){
   isContinuous[10] = 1;
   isContinuous[11] = 1;
   isContinuous[12] = 1;
-  isContinuous[13] = 1;
-  isContinuous[14] = 1;
-  isContinuous[15] = 1;
-  isContinuous[16] = 1;
-  isContinuous[17] = 1;
-  isContinuous[18] = 1;
-  isContinuous[19] = 1;
 
 }
 
@@ -291,21 +252,6 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     }
     ++nCombinedMuons;
     RecordData(muon);
-    const pat::Muon* patMuon = dynamic_cast<const pat::Muon*>(&*muon);
-    if (patMuon!= 0){
-      theData[13] = patMuon->isolation(pat::TrackerIso);
-      theData[14] = patMuon->isolation(pat::ECalIso);
-      theData[15] = patMuon->isolation(pat::HCalIso);
-      theData[16] = patMuon->isolation(pat::ParticleIso);
-      theData[17] = patMuon->isolation(pat::ChargedParticleIso);
-      theData[18] = patMuon->isolation(pat::NeutralParticleIso);
-      theData[19] = patMuon->isolation(pat::GammaParticleIso);
-    }
-    else {
-      for (int i = 13; i < 20; i++) {
-	theData[i] = -99;
-      }
-    }
     FillHistos();
   }
   dbe->cd();
