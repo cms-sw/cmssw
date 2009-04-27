@@ -2,7 +2,7 @@
 //
 // Package:     Modules
 // Class  :     ProvenanceCheckerOutputModule
-// 
+//
 // Implementation:
 //     Checks the consistency of provenance stored in the framework
 //
@@ -28,7 +28,7 @@ namespace edm {
       // We do not take ownership of passed stream.
       explicit ProvenanceCheckerOutputModule(ParameterSet const& pset);
       virtual ~ProvenanceCheckerOutputModule();
-      
+
    private:
       virtual void write(EventPrincipal const& e);
       virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&){}
@@ -76,7 +76,7 @@ namespace edm {
    namespace {
      void markAncestors(ProductProvenance const& iInfo,
                              BranchMapper const& iMapper,
-                             std::map<BranchID, bool>& oMap, 
+                             std::map<BranchID, bool>& oMap,
                              std::set<BranchID>& oMapperMissing) {
        for(std::vector<BranchID>::const_iterator it = iInfo.parentage().parents().begin(),
           itEnd = iInfo.parentage().parents().end();
@@ -96,12 +96,12 @@ namespace edm {
        }
      }
    }
-   
-    void 
+
+   void
    ProvenanceCheckerOutputModule::write(EventPrincipal const& e) {
       //check ProductProvenance's parents to see if they are in the ProductProvenance list
-      boost::shared_ptr<BranchMapper> mapperPtr= e.branchMapperPtr();
-                       
+      boost::shared_ptr<BranchMapper> mapperPtr = e.branchMapperPtr();
+
       std::map<BranchID, bool> seenParentInPrincipal;
       std::set<BranchID> missingFromMapper;
       std::set<BranchID> missingProductProvenance;
@@ -110,11 +110,11 @@ namespace edm {
           it != itEnd;
           ++it) {
          if(*it) {
-            edm::BranchID branchID = (*it)->productDescription().branchID();
+            BranchID branchID = (*it)->productDescription().branchID();
             if((*it)->productUnavailable()) {
                //This call seems to have a side effect of filling the 'ProductProvenance' in the Group
                OutputHandle const oh = e.getForOutput(branchID, false);
-               
+
                if(!(*it)->productProvenancePtr().get() ) {
                   missingProductProvenance.insert(branchID);
                   continue;
@@ -125,10 +125,10 @@ namespace edm {
                }
                markAncestors(*((*it)->productProvenancePtr()),*mapperPtr, seenParentInPrincipal, missingFromMapper);
             }
-            seenParentInPrincipal[branchID]=true;
+            seenParentInPrincipal[branchID] = true;
          }
       }
-      
+
       //Determine what BranchIDs are in the product registry
       ProductRegistry const& reg = e.productRegistry();
       ProductRegistry::ProductList const prodList = reg.productList();
@@ -138,11 +138,10 @@ namespace edm {
           ++it) {
          branchesInReg.insert(it->second.branchID());
       }
-      
-      
+
       std::set<BranchID> missingFromPrincipal;
       std::set<BranchID> missingFromReg;
-      for(std::map<BranchID, bool>::iterator it=seenParentInPrincipal.begin(), itEnd = seenParentInPrincipal.end();
+      for(std::map<BranchID, bool>::iterator it = seenParentInPrincipal.begin(), itEnd = seenParentInPrincipal.end();
           it != itEnd;
           ++it) {
          if(!it->second) {
@@ -152,53 +151,51 @@ namespace edm {
             missingFromReg.insert(it->first);
          }
       }
-      
-      
+
       if(missingFromMapper.size()) {
-         edm::LogError("ProvenanceChecker") <<"Missing the following BranchIDs from BranchMapper\n";
-         for(std::set<BranchID>::iterator it=missingFromMapper.begin(), itEnd = missingFromMapper.end();
-             it!=itEnd;
+         LogError("ProvenanceChecker") << "Missing the following BranchIDs from BranchMapper\n";
+         for(std::set<BranchID>::iterator it = missingFromMapper.begin(), itEnd = missingFromMapper.end();
+             it != itEnd;
              ++it) {
-            edm::LogProblem("ProvenanceChecker")<<*it;
+            LogProblem("ProvenanceChecker") << *it;
          }
       }
       if(missingFromPrincipal.size()) {
-         edm::LogError("ProvenanceChecker") <<"Missing the following BranchIDs from EventPrincipal\n";
-         for(std::set<BranchID>::iterator it=missingFromPrincipal.begin(), itEnd = missingFromPrincipal.end();
-             it!=itEnd;
+         LogError("ProvenanceChecker") << "Missing the following BranchIDs from EventPrincipal\n";
+         for(std::set<BranchID>::iterator it = missingFromPrincipal.begin(), itEnd = missingFromPrincipal.end();
+             it != itEnd;
              ++it) {
-            edm::LogProblem("ProvenanceChecker")<<*it;
+            LogProblem("ProvenanceChecker") << *it;
          }
       }
-      
+
       if(missingProductProvenance.size()) {
-         edm::LogError("ProvenanceChecker") <<"The Groups for the following BranchIDs have no ProductProvenance\n";
-         for(std::set<BranchID>::iterator it=missingProductProvenance.begin(), itEnd = missingProductProvenance.end();
-             it!=itEnd;
+         LogError("ProvenanceChecker") << "The Groups for the following BranchIDs have no ProductProvenance\n";
+         for(std::set<BranchID>::iterator it = missingProductProvenance.begin(), itEnd = missingProductProvenance.end();
+             it != itEnd;
              ++it) {
-            edm::LogProblem("ProvenanceChecker")<<*it;
-         }      
+            LogProblem("ProvenanceChecker") << *it;
+         }
       }
 
       if(missingFromReg.size()) {
-         edm::LogError("ProvenanceChecker") <<"Missing the following BranchIDs from ProductRegistry\n";
-         for(std::set<BranchID>::iterator it=missingFromReg.begin(), itEnd = missingFromReg.end();
-             it!=itEnd;
+         LogError("ProvenanceChecker") << "Missing the following BranchIDs from ProductRegistry\n";
+         for(std::set<BranchID>::iterator it = missingFromReg.begin(), itEnd = missingFromReg.end();
+             it != itEnd;
              ++it) {
-            edm::LogProblem("ProvenanceChecker")<<*it;
+            LogProblem("ProvenanceChecker") << *it;
          }
       }
-      
-      
-      if(missingFromMapper.size() or missingFromPrincipal.size() or missingProductProvenance.size() or missingFromReg.size()) {
+
+      if(missingFromMapper.size() || missingFromPrincipal.size() || missingProductProvenance.size() || missingFromReg.size()) {
          throw cms::Exception("ProvenanceError")
-         <<(missingFromMapper.size() or missingFromPrincipal.size()?"Having missing ancestors": "")
-         <<(missingFromMapper.size()?" from BranchMapper":"")
-         <<(missingFromMapper.size() and missingFromPrincipal.size()?" and":"")
-         <<(missingFromPrincipal.size()?" from EventPrincipal":"")
-         <<(missingFromMapper.size() or missingFromPrincipal.size()?".\n":"")
-         <<(missingProductProvenance.size()?" Have missing ProductProvenance's from Group in EventPrincipal.\n":"")
-         <<(missingFromReg.size()?" Have missing info from ProductRegistry.\n":"");
+         << (missingFromMapper.size() || missingFromPrincipal.size() ? "Having missing ancestors" : "")
+         << (missingFromMapper.size() ? " from BranchMapper" : "")
+         << (missingFromMapper.size() && missingFromPrincipal.size() ? " and" : "")
+         << (missingFromPrincipal.size() ? " from EventPrincipal" : "")
+         << (missingFromMapper.size() || missingFromPrincipal.size() ? ".\n" : "")
+         << (missingProductProvenance.size() ? " Have missing ProductProvenance's from Group in EventPrincipal.\n" : "")
+         << (missingFromReg.size() ? " Have missing info from ProductRegistry.\n" : "");
       }
    }
 
