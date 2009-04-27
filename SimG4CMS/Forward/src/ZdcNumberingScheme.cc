@@ -11,12 +11,14 @@
 #undef debug
 
 ZdcNumberingScheme::ZdcNumberingScheme(int iv){
+  verbosity = iv;
   if (verbosity>0) 
     std::cout << "Creating ZDCNumberingScheme" << std::endl;
 }
 
 ZdcNumberingScheme::~ZdcNumberingScheme() {
-  std::cout<< " Deleting ZdcNumberingScheme" <<  std::endl;
+  if (verbosity>0) 
+    std::cout<< " Deleting ZdcNumberingScheme" <<  std::endl;
 }
 
 

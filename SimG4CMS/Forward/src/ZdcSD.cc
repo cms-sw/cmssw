@@ -56,7 +56,7 @@ ZdcSD::~ZdcSD() {
  
   //if(numberingScheme) delete numberingScheme;
   //if(showerLibrary) delete showerLibrary;
-  std::cout<<"end of ZdcSC"<<std::endl;
+  LogDebug("ForwardSim") <<"end of ZdcSC";
 }
 
 
@@ -163,7 +163,7 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
 double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
 
   float NCherPhot = 0.;
-  std::cout<<"I go through here"<<std::endl;
+  //std::cout<<"I go through here"<<std::endl;
 
   if (aStep == NULL) {
     LogDebug("ForwardSim") << "ZdcSD::  getEnergyDeposit: aStep is NULL!";
