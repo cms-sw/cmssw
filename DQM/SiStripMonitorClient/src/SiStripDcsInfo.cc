@@ -128,11 +128,13 @@ void SiStripDcsInfo::readStatus() {
   
   std::vector<uint32_t> SelectedDetIds;
   detCabling_->addActiveDetectorsRawIds(SelectedDetIds);
-  cout  << " Total Detectors " << SelectedDetIds.size()  << endl;
+  edm::LogInfo( "SiStripDcsInfo") << " SiStripDcsInfo::readStatus : "  
+                                  << " Total Detectors " << SelectedDetIds.size();
  
   std::vector <uint32_t> FaultyDetIds;
   siStripDetVOff_->getDetIds(FaultyDetIds);
-  cout  << " Faulty Detectors " << FaultyDetIds.size()  << endl;
+  edm::LogInfo( "SiStripDcsInfo") << " SiStripDcsInfo::readStatus : "
+                                  << " Faulty Detectors " << FaultyDetIds.size();
 
   string subdet_tag;
   for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(); idetid != SelectedDetIds.end(); ++idetid){    
@@ -198,9 +200,12 @@ void SiStripDcsInfo::fillStatus(){
   for (map<string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
     int total_det  = it->second.TotalDetectors;
     int faulty_det = it->second.FaultyDetectors; 
-    if  (total_det > 0) it->second.DcsFractionME->Fill(faulty_det*1.0/total_det);
-    edm::LogInfo( "SiStripDcsInfo") << " SiStripDcsInfo::fillStatus " << it->first << "  " 
-				    << total_det  << " " << faulty_det << endl;
+    if  (total_det > 0) {
+      float fraction = 1.0  - faulty_det*1.0/total_det;   
+      it->second.DcsFractionME->Fill(fraction);
+      edm::LogInfo( "SiStripDcsInfo") << " SiStripDcsInfo::fillStatus : Sub Detector " << it->first << "  " 
+				      << total_det  << " " << faulty_det << endl;
+    }
   } 
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
