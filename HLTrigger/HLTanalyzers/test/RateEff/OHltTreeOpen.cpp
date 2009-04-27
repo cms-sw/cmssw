@@ -268,7 +268,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     }  
   }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu11") == 0) {   
-    if (map_L1BitOfStandardHLTPath.find("L1_SingleMu10")->second == 1) {  
+    if (map_L1BitOfStandardHLTPath.find("L1_SingleMu7")->second == 1) {  
       if(OpenHlt1MuonPassed(7.,9.,11.,2.,0)>=1) {   
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
       }   
@@ -752,8 +752,9 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }         
     }
   }  
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_JPsiUpsilonEE") == 0) {
-    if ( map_BitOfStandardHLTPath.find("L1_DoubleEG5")->second == 1 ) {           
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleEle5_SW_Jpsi_L1R") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {
 
       TLorentzVector e1;  
       TLorentzVector e2;  
@@ -764,23 +765,79 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       for (int i=0;i<NohEle;i++) { 
 	for (int j=0;j<NohEle && j != i;j++) {  
 	  
-	  if (ohElePixelSeeds[i]>0 && ohElePixelSeeds[j]>0) {
+	  if ( ohEleEt[i] > 5.0 && ohEleEt[j] > 5.0) { 
+	    if ( (ohEleHiso[i] < 9. || ohEleHiso[i]/ohEleEt[i] < 0.2) && (ohEleHiso[j] < 9. || ohEleHiso[j]/ohEleEt[j] < 0.2) ){
+	      if (ohEleNewSC[i]==1 && ohEleNewSC[j]==1) {
+		if (ohElePixelSeeds[i]>0 && ohElePixelSeeds[j]>0 ) {
+		  if ( ohEleTiso[i] < 9999. && ohEleTiso[i] != -999. && ohEleTiso[j] < 9999. && ohEleTiso[j] != -999.) {
+		    if ( ohEleL1iso[i] >= 0 && ohEleL1iso[j] >= 0 ) {  // L1iso is 0 or 1 
+		      if( ohEleL1Dupl[i] == false && ohEleL1Dupl[j] == false) { // JH - remove double-counted L1 SCs   
 	    
-	    e1.SetPtEtaPhiM(ohEleEt[i],ohEleEta[i],ohElePhi[i],0.0); 
-	    e2.SetPtEtaPhiM(ohEleEt[j],ohEleEta[j],ohElePhi[j],0.0); 
-	    meson = e1 + e2; 
+			e1.SetPtEtaPhiM(ohEleEt[i],ohEleEta[i],ohElePhi[i],0.0); 
+			e2.SetPtEtaPhiM(ohEleEt[j],ohEleEta[j],ohElePhi[j],0.0); 
+			meson = e1 + e2; 
 	    
-	    float mesonmass = meson.M();  
-	    if(mesonmass > 2.0)
-	      rc++;
+			float mesonmass = meson.M();  
+			if(mesonmass > 2.0 && mesonmass < 4.5)
+			  rc++;
+		      }
+		    }
+		  }
+		}
+	      }
+	    }
 	  }
 	}
       }
+
       if(rc >= 1) {  
         if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }  
       }
     }
   }
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleEle5_SW_Upsilon_L1R") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
+ 
+      TLorentzVector e1;   
+      TLorentzVector e2;   
+      TLorentzVector meson;  
+       
+      int rc = 0;  
+       
+      for (int i=0;i<NohEle;i++) {  
+        for (int j=0;j<NohEle && j != i;j++) {   
+           
+          if ( ohEleEt[i] > 5.0 && ohEleEt[j] > 5.0) {  
+            if ( (ohEleHiso[i] < 9. || ohEleHiso[i]/ohEleEt[i] < 0.2) && (ohEleHiso[j] < 9. || ohEleHiso[j]/ohEleEt[j] < 0.2) ){ 
+              if (ohEleNewSC[i]==1 && ohEleNewSC[j]==1) { 
+                if (ohElePixelSeeds[i]>0 && ohElePixelSeeds[j]>0 ) { 
+                  if ( ohEleTiso[i] < 9999. && ohEleTiso[i] != -999. && ohEleTiso[j] < 9999. && ohEleTiso[j] != -999.) { 
+                    if ( ohEleL1iso[i] >= 0 && ohEleL1iso[j] >= 0 ) {  // L1iso is 0 or 1  
+                      if( ohEleL1Dupl[i] == false && ohEleL1Dupl[j] == false) { // JH - remove double-counted L1 SCs    
+             
+                        e1.SetPtEtaPhiM(ohEleEt[i],ohEleEta[i],ohElePhi[i],0.0);  
+                        e2.SetPtEtaPhiM(ohEleEt[j],ohEleEta[j],ohElePhi[j],0.0);  
+                        meson = e1 + e2;  
+			
+			float mesonmass = meson.M();   
+			if(mesonmass > 8.0 && mesonmass < 11.0) 
+			  rc++; 
+		      } 
+		    } 
+		  } 
+		}
+	      }
+	    }
+	  }
+	}
+      }
+      if(rc >= 1) {   
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }   
+      } 
+    } 
+  } 
+  
 
   /* BTag */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet20") == 0) {

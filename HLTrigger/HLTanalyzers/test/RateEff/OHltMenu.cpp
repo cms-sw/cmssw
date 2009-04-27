@@ -508,7 +508,7 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_Jet110", myvec(1,"L1_SingleJet70")));  
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_Jet180", myvec(1,"L1_SingleJet70")));   
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_QuadJet30", myvec(1,"L1_QuadJet15"))); 
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_FwdJet20", myvec(1,"L1_IsoEG10_Jet15_ForJet10"))); 
+  //  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_FwdJet20", myvec(1,"L1_IsoEG10_Jet15_ForJet10"))); 
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_FwdJet50", myvec(1,"L1_IsoEG10_Jet15_ForJet10")));  
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DiJetAve15U", myvec(1,"L1_SingleJet15"))); 
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DiJetAve30U", myvec(1,"L1_SingleJet30")));  
@@ -540,12 +540,20 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath() {
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DoublePhoton15_VeryLooseEcalIso_L1R",  myvec(1,"L1_DoubleEG5")));  
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_Photon70_L1R",  myvec(1,"L1_SingleEG8")));  
 
+  vtmp.clear();    
+  vtmp.push_back("L1_SingleEG8"); vtmp.push_back("L1_DoubleEG5");  
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DoubleEle5_SW_Jpsi_L1R", vtmp));    
+
+  vtmp.clear();     
+  vtmp.push_back("L1_SingleEG8"); vtmp.push_back("L1_DoubleEG5");   
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_DoubleEle5_SW_Upsilon_L1R", vtmp));     
+
   // Muons
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_IsoMu3", myvec(1,"L1_SingleMu3"))); 
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_IsoMu9", myvec(1,"L1_SingleMu7")));  
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_Mu5", myvec(1,"L1_SingleMu3")));   
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_Mu9", myvec(1,"L1_SingleMu7")));    
-  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_Mu11", myvec(1,"L1_SingleMu10")));    
+  map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_Mu11", myvec(1,"L1_SingleMu7")));    
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_Mu15", myvec(1,"L1_SingleMu10")));    
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_L2Mu11", myvec(1,"L1_SingleMu7")));   
   map_L1SeedsOfStandardHLTPath.insert(mypair("OpenHLT_L1Mu20", myvec(1,"L1_SingleMu20")));   
