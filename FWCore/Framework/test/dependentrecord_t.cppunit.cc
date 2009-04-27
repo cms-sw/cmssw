@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
+#include "FWCore/Framework/interface/print_eventsetup_record_dependencies.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <string.h>
@@ -146,6 +147,8 @@ void testdependentrecord::dependentConstructorTest()
    
    CPPUNIT_ASSERT(1 == depProvider->dependentRecords().size());
    CPPUNIT_ASSERT(*(depProvider->dependentRecords().begin()) == DummyRecord::keyForClass());
+   
+   edm::print_eventsetup_record_dependencies<DepRecord>(std::cout);
 }
 
 
