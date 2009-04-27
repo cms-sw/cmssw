@@ -73,8 +73,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/04/22 16:36:49 $ 
- **  $Revision: 1.22 $
+ **  $Date: 2009/04/24 09:16:11 $ 
+ **  $Revision: 1.23 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1195,8 +1195,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   cout << " PhotonValidator mcPhotons.size() " << mcPhotons.size() << endl;
   for ( std::vector<PhotonMCTruth>::const_iterator mcPho=mcPhotons.begin(); mcPho !=mcPhotons.end(); mcPho++) {
     if ( (*mcPho).fourMomentum().et() < minPhoEtCut_ ) continue;
-    if ( (*mcPho).motherType() != -1 ) continue;  
-
+    if ( signal_ ) if ( (*mcPho).motherType() != -1 ) continue;
 
     float mcPhi= (*mcPho).fourMomentum().phi();
     mcPhi_= phiNormalization(mcPhi);
