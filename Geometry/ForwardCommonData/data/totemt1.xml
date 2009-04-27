@@ -401,9 +401,6 @@
  <Constant name="PCB_Copper_Thick_4P"         value="35*mum"/>
  <Constant name="PCB_Epoxy_Thick_4P"         value="765*mum"/>
  <Constant name="Nomex_Thick_4P"   value="15*mm"/>
- <Constant name="PCB_Copper_Thick_4P"         value="35*mum"/>
- <Constant name="PCB_Epoxy_Thick_4P"         value="765*mum"/>
- <Constant name="Nomex_Thick_4P"   value="15*mm"/>
  <Constant name="PCB_Copper_Thick_5P"         value="35*mum"/>
  <Constant name="PCB_Epoxy_Thick_5P"         value="765*mum"/>
  <Constant name="Nomex_Thick_5P"   value="15*mm"/>
@@ -797,12 +794,6 @@
  <Constant name="Frame5L_h_3P" value="23*mm"/> 
  <Constant name="Frame5L_h_4P" value="23*mm"/>  
  <Constant name="Frame5L_h_5P" value="23*mm"/> 
-
- <Constant name="Frame5R_h_1P" value="23*mm"/> 
- <Constant name="Frame5R_h_2P" value="23*mm"/> 
- <Constant name="Frame5R_h_3P" value="23*mm"/> 
- <Constant name="Frame5R_h_4P" value="23*mm"/>  
- <Constant name="Frame5R_h_5P" value="23*mm"/> 
  
  <Constant name="Frame5R_Max_Base_1P" value="[Frame5R_Min_Base_1P]+([Frame5R_h_1P]/cos(30*deg)/2.)*mm"/>
  <Constant name="Frame5R_Max_Base_2P" value="[Frame5R_Min_Base_2P]+([Frame5R_h_2P]/cos(30*deg)/2.)*mm"/>
@@ -815,12 +806,6 @@
  <Constant name="Frame5R_Min_Base_3P" value="(189.7*mm)-[Frame4_Max_Base_3P]"/>
  <Constant name="Frame5R_Min_Base_4P" value="(198.6*mm)-[Frame4_Max_Base_3P]"/>
  <Constant name="Frame5R_Min_Base_5P" value="(212*mm)-[Frame4_Max_Base_3P]"/>
- 
- <Constant name="Frame5R_h_1P" value="23*mm"/> 
- <Constant name="Frame5R_h_2P" value="23*mm"/> 
- <Constant name="Frame5R_h_3P" value="23*mm"/> 
- <Constant name="Frame5R_h_4P" value="23*mm"/> 
- <Constant name="Frame5R_h_5P" value="23*mm"/> 
  
  <Constant name="AltezzaFrame_1P" value="414.5*mm"/>
  <Constant name="AltezzaFrame_2P" value="483.3*mm"/>
@@ -6055,14 +6040,14 @@
   </PosPart>
 
 
-<PosPart>
+<PosPart copyNumber="1">
  <rParent name="totemt1:CSC_for_TotemT1_Plane_0_0"/>
  <rChild name="totemt1:Tendifilo_2R_0_0_0"/>
  <rRotation name="totemRotations:rot_Tendifilo2R"/>
  <Translation x="[GAS_Low_min_base_1G]/2.+([GAS_Low_Height_L_1G]/2.)*tan(30*deg)+[Tendifilo2_dx_1G]/2./cos(30*deg)" 
   y="[Init_AA_from_Beam_1G]+[GAS_Low_Height_L_1G]/2." z="[Pos_5]"/>
 </PosPart>
-   <PosPart>
+   <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_0_0"/>
    <rChild name="totemt1:Tendifilo_2L_0_0_0"/>
    <rRotation name="totemRotations:rot_Tendifilo2L"/>
@@ -6072,7 +6057,7 @@
 
 
 
-<PosPart>
+<PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_0_0"/>
    <rChild name="totemt1:Tendifilo_1R_0_0_0"/>
  <rRotation name="totemRotations:rot_Tendifilo1R"/>
@@ -6084,7 +6069,7 @@
  
   
   
-  <PosPart>
+  <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_0_0"/>
    <rChild name="totemt1:Tendifilo_1L_0_0_0"/>
    <rRotation name="totemRotations:rot_Tendifilo1L"/>
@@ -6451,7 +6436,7 @@
   </PosPart>
 
 
-<PosPart>
+<PosPart copyNumber="1">
  <rParent name="totemt1:CSC_for_TotemT1_Plane_1_0"/>
  <rChild name="totemt1:Tendifilo_2R_1_0_0"/>
  <rRotation name="totemRotations:rot_Tendifilo2R"/>
@@ -6460,7 +6445,7 @@
 </PosPart>
   
 
-<PosPart>
+<PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_1_0"/>
    <rChild name="totemt1:Tendifilo_1R_1_0_0"/>
  <rRotation name="totemRotations:rot_Tendifilo1R"/>
@@ -6469,7 +6454,7 @@
   </PosPart>
 
   
-  <PosPart>
+  <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_1_0"/>
    <rChild name="totemt1:Tendifilo_2L_1_0_0"/>
    <rRotation name="totemRotations:rot_Tendifilo2L"/>
@@ -6477,7 +6462,7 @@
   </PosPart>
   
   
-  <PosPart>
+  <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_1_0"/>
    <rChild name="totemt1:Tendifilo_1L_1_0_0"/>
    <rRotation name="totemRotations:rot_Tendifilo1L"/>
@@ -6853,7 +6838,7 @@
   </PosPart>
 
 
-<PosPart>
+<PosPart copyNumber="1">
  <rParent name="totemt1:CSC_for_TotemT1_Plane_2_0"/>
  <rChild name="totemt1:Tendifilo_2R_2_0_0"/>
  <rRotation name="totemRotations:rot_Tendifilo2R"/>
@@ -6862,7 +6847,7 @@
 </PosPart>
   
 
-<PosPart>
+<PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_2_0"/>
    <rChild name="totemt1:Tendifilo_1R_2_0_0"/>
  <rRotation name="totemRotations:rot_Tendifilo1R"/>
@@ -6871,7 +6856,7 @@
   </PosPart>
 
   
-  <PosPart>
+  <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_2_0"/>
    <rChild name="totemt1:Tendifilo_2L_2_0_0"/>
    <rRotation name="totemRotations:rot_Tendifilo2L"/>
@@ -6879,7 +6864,7 @@
   </PosPart>
   
   
-  <PosPart>
+  <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_2_0"/>
    <rChild name="totemt1:Tendifilo_1L_2_0_0"/>
    <rRotation name="totemRotations:rot_Tendifilo1L"/>
@@ -7247,7 +7232,7 @@
   </PosPart>
 
 
-<PosPart>
+<PosPart copyNumber="1">
  <rParent name="totemt1:CSC_for_TotemT1_Plane_3_0"/>
  <rChild name="totemt1:Tendifilo_2R_3_0_0"/>
  <rRotation name="totemRotations:rot_Tendifilo2R"/>
@@ -7256,7 +7241,7 @@
 </PosPart>
   
 
-<PosPart>
+<PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_3_0"/>
    <rChild name="totemt1:Tendifilo_1R_3_0_0"/>
  <rRotation name="totemRotations:rot_Tendifilo1R"/>
@@ -7265,7 +7250,7 @@
   </PosPart>
 
   
-  <PosPart>
+  <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_3_0"/>
    <rChild name="totemt1:Tendifilo_2L_3_0_0"/>
    <rRotation name="totemRotations:rot_Tendifilo2L"/>
@@ -7273,7 +7258,7 @@
   </PosPart>
   
   
-  <PosPart>
+  <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_3_0"/>
    <rChild name="totemt1:Tendifilo_1L_3_0_0"/>
    <rRotation name="totemRotations:rot_Tendifilo1L"/>
@@ -7288,7 +7273,6 @@
 
   <PosPart copyNumber="1">
    <rParent name="forward:TotemT1"/>
-   <rParent name="totemt1:TotemT1_Plane_4"/>
    <rChild name="totemt1:CSC_for_TotemT1_Plane_4_0"/>
    <rRotation name="totemRotations:RTOT26"/>
    <Translation x="0*cm" y="0*cm" z="10216.6*mm"/>
@@ -7296,27 +7280,24 @@
 
    <PosPart copyNumber="2">
     <rParent name="forward:TotemT1"/>
-   <rChild name="totemt1:CSC_for_TotemT1_Plane_4_0"/>
-   <rRotation name="totemRotations:RTOT30"/>  
+    <rChild name="totemt1:CSC_for_TotemT1_Plane_4_0"/>
+    <rRotation name="totemRotations:RTOT30"/>  
     <Translation x="0*cm" y="0*cm" z="10216.6*mm"/>
-
   </PosPart>
 
     <PosPart copyNumber="3">
      <rParent name="forward:TotemT1"/>
-   <rChild name="totemt1:CSC_for_TotemT1_Plane_4_0"/>
-   <rRotation name="totemRotations:RTOT29"/>  
+     <rChild name="totemt1:CSC_for_TotemT1_Plane_4_0"/>
+     <rRotation name="totemRotations:RTOT29"/>  
      <Translation x="0*cm" y="0*cm" z="10168.4*mm"/>
-
   </PosPart>
 
     <PosPart copyNumber="4">
      <rParent name="forward:TotemT1"/>
-   <rChild name="totemt1:CSC_for_TotemT1_Plane_4_0"/>
-   <rRotation name="totemRotations:RTOT27"/>  
+     <rChild name="totemt1:CSC_for_TotemT1_Plane_4_0"/>
+     <rRotation name="totemRotations:RTOT27"/>  
      <Translation x="0*cm" y="0*cm" z="10168.4*mm"/>
-
-  </PosPart>
+    </PosPart>
 
   
   
@@ -7648,7 +7629,7 @@
   </PosPart>
 
 
-<PosPart>
+<PosPart copyNumber="1">
  <rParent name="totemt1:CSC_for_TotemT1_Plane_4_0"/>
  <rChild name="totemt1:Tendifilo_2R_4_0_0"/>
  <rRotation name="totemRotations:rot_Tendifilo2R"/>
@@ -7657,7 +7638,7 @@
 </PosPart>
   
 
-<PosPart>
+<PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_4_0"/>
    <rChild name="totemt1:Tendifilo_1R_4_0_0"/>
  <rRotation name="totemRotations:rot_Tendifilo1R"/>
@@ -7666,7 +7647,7 @@
   </PosPart>
 
   
-  <PosPart>
+  <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_4_0"/>
    <rChild name="totemt1:Tendifilo_2L_4_0_0"/>
    <rRotation name="totemRotations:rot_Tendifilo2L"/>
@@ -7674,7 +7655,7 @@
   </PosPart>
   
   
-  <PosPart>
+  <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_4_0"/>
    <rChild name="totemt1:Tendifilo_1L_4_0_0"/>
    <rRotation name="totemRotations:rot_Tendifilo1L"/>
@@ -8387,23 +8368,16 @@
   
   <PosPart copyNumber="1">
    <rParent name="forward:TotemT1"/>
-
    <rChild name="totemt1:CSC_for_TotemT1_Plane_1_5"/>
    <rRotation name="totemRotations:RTOT13"/>
-   
-
    <Translation x="0*cm" y="0*cm" z="8196.4*mm"/>
   </PosPart>
   
   <PosPart copyNumber="2">
    <rParent name="forward:TotemT1"/>
-
    <rChild name="totemt1:CSC_for_TotemT1_Plane_1_5"/>
    <rRotation name="totemRotations:RTOT10"/>  
-   
-
    <Translation x="0*cm" y="0*cm" z="8234.6*mm"/>
-   
   </PosPart>
   
   
@@ -9104,16 +9078,11 @@
   
   <PosPart copyNumber="2">
    <rParent name="forward:TotemT1"/>
-   <rParent name="totemt1:TotemT1_Plane_2"/>
    <rChild name="totemt1:CSC_for_TotemT1_Plane_2_5"/>
    <rRotation name="totemRotations:RTOT16"/>  
    <Translation x="0*cm" y="0*cm" z="8841.6*mm"/>
-   
   </PosPart>
   
-  
-  
-
   <PosPart copyNumber="1">
    <rParent name="totemt1:CSC_for_TotemT1_Plane_2_5"/>
    <rChild name="totemt1:Up_CSC_for_TotemT1_Plane_2_5_0"/>
