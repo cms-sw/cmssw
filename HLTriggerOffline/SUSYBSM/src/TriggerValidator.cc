@@ -15,7 +15,7 @@ Implementation:
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.cc,v 1.12 2009/04/10 18:11:39 chiorbo Exp $
+// $Id: TriggerValidator.cc,v 1.13 2009/04/24 13:07:01 chiorbo Exp $
 //
 //
 
@@ -209,6 +209,12 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
     l1Names_[L1GTRR->decisionWord().size()] = "Total";
     
+    //set the names of the bins for the "path" histos
+    for(unsigned int i=0; i<l1Names_.size(); ++i) {
+      hL1PathsBeforeCuts->setBinLabel(i+1,l1Names_[i].c_str(),1);
+      hL1PathsAfterRecoCuts->setBinLabel(i+1,l1Names_[i].c_str(),1);
+      hL1PathsAfterMcCuts->setBinLabel(i+1,l1Names_[i].c_str(),1);
+    }
   }
   
  //fill the eff vectors and histos for L1
@@ -217,13 +223,16 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(L1GTRR->decisionWord()[i]) {
       numTotL1BitsBeforeCuts[i]++;
       hL1BitsBeforeCuts->Fill(i);
+      hL1PathsBeforeCuts->Fill(i);
       if(eventRecoSelected) {
 	numTotL1BitsAfterRecoCuts[i]++;
 	hL1BitsAfterRecoCuts->Fill(i);
+	hL1PathsAfterRecoCuts->Fill(i);
       }
       if(eventMcSelected) {
 	numTotL1BitsAfterMcCuts[i]++;
 	hL1BitsAfterMcCuts->Fill(i);
+	hL1PathsAfterMcCuts->Fill(i);
       }
     }      
   }
@@ -238,13 +247,16 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //fill the last bin with the total of events
   numTotL1BitsBeforeCuts[nL1size]++;
   hL1BitsBeforeCuts->Fill(nL1size);
+  hL1PathsBeforeCuts->Fill(nL1size);
   if(eventRecoSelected) {
     numTotL1BitsAfterRecoCuts[nL1size]++;
-   hL1BitsAfterRecoCuts->Fill(nL1size);
+    hL1BitsAfterRecoCuts->Fill(nL1size);
+    hL1PathsAfterRecoCuts->Fill(nL1size);
   }
   if(eventMcSelected) {
     numTotL1BitsAfterMcCuts[nL1size]++;
     hL1BitsAfterMcCuts->Fill(nL1size);
+    hL1PathsAfterMcCuts->Fill(nL1size);
   }
 
 
@@ -283,6 +295,13 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     triggerNames_.init(*trhv);
     hlNames_=triggerNames_.triggerNames();
     hlNames_.push_back("Total");
+
+    //set the bin names for the "path" histos
+    for (unsigned int i=0; i<hlNames_.size(); ++i) {
+      hHltPathsBeforeCuts->setBinLabel(i+1,hlNames_[i].c_str(),1);
+      hHltPathsAfterRecoCuts->setBinLabel(i+1,hlNames_[i].c_str(),1);
+      hHltPathsAfterMcCuts->setBinLabel(i+1,hlNames_[i].c_str(),1);
+    }
   }
 
   //fill the eff vectors and histos for HLT
@@ -291,13 +310,16 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(trhv->at(i).accept()) {
       numTotHltBitsBeforeCuts[i]++;
       hHltBitsBeforeCuts->Fill(i);
+      hHltPathsBeforeCuts->Fill(i);
       if(eventRecoSelected) {
 	numTotHltBitsAfterRecoCuts[i]++;
 	hHltBitsAfterRecoCuts->Fill(i);
+	hHltPathsAfterRecoCuts->Fill(i);
       }
       if(eventMcSelected) {
 	numTotHltBitsAfterMcCuts[i]++;
 	hHltBitsAfterMcCuts->Fill(i);
+	hHltPathsAfterMcCuts->Fill(i);
       }
     }      
   }
@@ -318,13 +340,16 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //fill the last bin with the total of events
   numTotHltBitsBeforeCuts[trhv->size()]++;
   hHltBitsBeforeCuts->Fill(trhv->size());
+  hHltPathsBeforeCuts->Fill(trhv->size());
   if(eventRecoSelected) {
     numTotHltBitsAfterRecoCuts[trhv->size()]++;
     hHltBitsAfterRecoCuts->Fill(trhv->size());
+    hHltPathsAfterRecoCuts->Fill(trhv->size());
   }
   if(eventMcSelected) {
     numTotHltBitsAfterMcCuts[trhv->size()]++;
     hHltBitsAfterMcCuts->Fill(trhv->size());
+    hHltPathsAfterMcCuts->Fill(trhv->size());
   }
 
 
@@ -411,6 +436,32 @@ TriggerValidator::beginJob(const edm::EventSetup&)
   dbe_->setCurrentFolder(dirname_+mcSelBitsDir);   
   hL1BitsAfterMcCuts  = dbe_->book1D("L1Bits", "L1 Trigger Bits",nL1Bits+1, 0, nL1Bits+1);    
   hHltBitsAfterMcCuts = dbe_->book1D("HltBits","HL Trigger Bits",nHltPaths+1, 0, nHltPaths+1);
+
+
+  //create the histos with paths
+  //identical to the ones with "bits"
+  //but with the names in the x axis
+  //instead of the numbers
+
+  dbe_->setCurrentFolder(dirname_+triggerBitsDir);
+  TH1F* hTemp = (TH1F*) (hL1BitsBeforeCuts->getTH1F())->Clone("L1Paths");
+  hL1PathsBeforeCuts  = dbe_->book1D("L1Paths", hTemp);
+  //  hL1PathsBeforeCuts  = dbe_->book1D("L1Paths", hL1BitsBeforeCuts->getTH1F());
+  hTemp = (TH1F*) (hHltBitsBeforeCuts->getTH1F())->Clone("HltPaths");
+  hHltPathsBeforeCuts = dbe_->book1D("HltPaths", hTemp);
+
+  dbe_->setCurrentFolder(dirname_+recoSelBitsDir);
+  hTemp = (TH1F*) (hL1BitsAfterRecoCuts->getTH1F())->Clone("L1Paths");
+  hL1PathsAfterRecoCuts   = dbe_->book1D("L1Paths", hTemp);
+  hTemp = (TH1F*) (hHltBitsAfterRecoCuts->getTH1F())->Clone("HltPaths");
+  hHltPathsAfterRecoCuts  = dbe_->book1D("HltPaths", hTemp);
+
+  dbe_->setCurrentFolder(dirname_+mcSelBitsDir);
+  hTemp = (TH1F*) (hL1BitsAfterMcCuts->getTH1F())->Clone("L1Paths");
+  hL1PathsAfterMcCuts   = dbe_->book1D("L1Paths", hTemp);
+  hTemp = (TH1F*) (hHltBitsAfterMcCuts->getTH1F())->Clone("HltPaths");
+  hHltPathsAfterMcCuts  = dbe_->book1D("HltPaths", hTemp);
+  
 }
 
 
@@ -485,41 +536,6 @@ TriggerValidator::endRun(const edm::Run& run, const edm::EventSetup& c)
 //   }    
 
 
-
-  //create the histos with paths
-  //identical to the ones with "bits"
-  //but with the names in the x axis
-  //instead of the numbers
-
-  dbe_->setCurrentFolder(dirname_+triggerBitsDir);
-  TH1F* hTemp = (TH1F*) (hL1BitsBeforeCuts->getTH1F())->Clone("L1Paths");
-  hL1PathsBeforeCuts  = dbe_->book1D("L1Paths", hTemp);
-  //  hL1PathsBeforeCuts  = dbe_->book1D("L1Paths", hL1BitsBeforeCuts->getTH1F());
-  hTemp = (TH1F*) (hHltBitsBeforeCuts->getTH1F())->Clone("HltPaths");
-  hHltPathsBeforeCuts = dbe_->book1D("HltPaths", hTemp);
-
-  dbe_->setCurrentFolder(dirname_+recoSelBitsDir);
-  hTemp = (TH1F*) (hL1BitsAfterRecoCuts->getTH1F())->Clone("L1Paths");
-  hL1PathsAfterRecoCuts   = dbe_->book1D("L1Paths", hTemp);
-  hTemp = (TH1F*) (hHltBitsAfterRecoCuts->getTH1F())->Clone("HltPaths");
-  hHltPathsAfterRecoCuts  = dbe_->book1D("HltPaths", hTemp);
-
-  dbe_->setCurrentFolder(dirname_+mcSelBitsDir);
-  hTemp = (TH1F*) (hL1BitsAfterMcCuts->getTH1F())->Clone("L1Paths");
-  hL1PathsAfterMcCuts   = dbe_->book1D("L1Paths", hTemp);
-  hTemp = (TH1F*) (hHltBitsAfterMcCuts->getTH1F())->Clone("HltPaths");
-  hHltPathsAfterMcCuts  = dbe_->book1D("HltPaths", hTemp);
-  
-  for(unsigned int i=0; i<l1Names_.size(); ++i) {
-    hL1PathsBeforeCuts->setBinLabel(i+1,l1Names_[i].c_str(),1);
-    hL1PathsAfterRecoCuts->setBinLabel(i+1,l1Names_[i].c_str(),1);
-    hL1PathsAfterMcCuts->setBinLabel(i+1,l1Names_[i].c_str(),1);
-  }
-  for (unsigned int i=0; i<hlNames_.size(); ++i) {
-    hHltPathsBeforeCuts->setBinLabel(i+1,hlNames_[i].c_str(),1);
-    hHltPathsAfterRecoCuts->setBinLabel(i+1,hlNames_[i].c_str(),1);
-    hHltPathsAfterMcCuts->setBinLabel(i+1,hlNames_[i].c_str(),1);
-  }
 
 
 
